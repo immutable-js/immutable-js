@@ -21,6 +21,7 @@ export interface Vector<T> {
     slice(begin: number, end?: number): Vector<T>;
     splice(index: number, removeNum: number, ...values: T[]): Vector<T>;
     indexOf(value: T): number;
+    findIndex(fn: (value: T, index: number, vector: Vector<T>) => boolean, thisArg?: any): number;
     forEach(fn: (value: T, index: number, vector: Vector<T>) => any, thisArg?: any): void;
     map<R>(fn: (value: T, index: number, vector: Vector<T>) => R, thisArg?: any): Vector<R>;
 }
@@ -45,6 +46,7 @@ export declare class PVector<T> implements Vector<T> {
     public slice(begin: number, end?: number): PVector<T>;
     public splice(index: number, removeNum: number, ...values: T[]): PVector<T>;
     public indexOf(searchValue: T): number;
+    public findIndex(fn: (value: T, index: number, vector: PVector<T>) => boolean, thisArg?: any): number;
     public forEach(fn: (value: T, index: number, vector: PVector<T>) => any, thisArg?: any): void;
     public map<R>(fn: (value: T, index: number, vector: PVector<T>) => R, thisArg?: any): PVector<R>;
     private _origin;

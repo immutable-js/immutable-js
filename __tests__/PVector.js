@@ -143,4 +143,22 @@ describe('PVector', function() {
     expect(v.toArray()).toEqual(['x', 'y', 'z', 'a', 'b', 'c']);
   });
 
+  it('finds values using indexOf', function() {
+    var v = PVector('a', 'b', 'c', 'b', 'a');
+    expect(v.indexOf('b')).toBe(1);
+    expect(v.indexOf('c')).toBe(2);
+    expect(v.indexOf('d')).toBe(-1);
+  });
+
+  it('finds values using findIndex', function() {
+    var v = PVector('a', 'b', 'c', 'B', 'a');
+    expect(v.findIndex(function(value) {
+      return value.toUpperCase() === value;
+    })).toBe(3);
+  });
+
+  // TODO: assert that findIndex only calls the function as much as it needs to.
+
+  // TODO: assert that forEach iterates in the correct order and is only called as much as it needs to be.
+
 });

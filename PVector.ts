@@ -37,6 +37,7 @@ export interface Vector<T> {
 
   // @pragma Iteration
   indexOf(value: T): number;
+  findIndex(fn: (value: T, index: number, vector: Vector<T>) => boolean, thisArg?: any): number;
   forEach(fn: (value: T, index: number, vector: Vector<T>) => any, thisArg?: any): void;
   map<R>(fn: (value: T, index: number, vector: Vector<T>) => R, thisArg?: any): Vector<R>;
 }
@@ -294,6 +295,7 @@ export class PVector<T> implements Vector<T> {
   // @pragma Iteration
 
   indexOf(searchValue: T): number {
+    return this.findIndex(value => value === searchValue);
     // TODO: this over-iterates.
     var foundIndex = -1;
     this.forEach(function (value, index) {
@@ -304,13 +306,32 @@ export class PVector<T> implements Vector<T> {
     return foundIndex;
   }
 
-  forEach(fn: (value: T, index: number, vector: PVector<T>) => any, thisArg?: any): void {
-    var tailOffset = getTailOffset(this._size) - this._origin;
-    this._root.forEach(this._level, -this._origin, fn, thisArg);
-    this._tail.forEach(0, tailOffset, fn, thisArg);
+  findIndex(
+    fn: (value: T, index: number, vector: PVector<T>) => boolean,
+    thisArg?: any
+  ): number {
+    var index;
+    index = this._root.findIndex(this, this._level, -this._origin, fn, thisArg);
+    if (index == null) {
+      var tailOffset = getTailOffset(this._size) - this._origin;
+      index = this._tail.findIndex(this, 0, tailOffset, fn, thisArg);
+    }
+    return index >= 0 ? index : -1;
   }
 
-  map<R>(fn: (value: T, index: number, vector: PVector<T>) => R, thisArg?: any): PVector<R> {
+  forEach(
+    fn: (value: T, index: number, vector: PVector<T>) => any,
+    thisArg?: any
+  ): void {
+    this._root.forEach(this, this._level, -this._origin, fn, thisArg);
+    var tailOffset = getTailOffset(this._size) - this._origin;
+    this._tail.forEach(this, 0, tailOffset, fn, thisArg);
+  }
+
+  map<R>(
+    fn: (value: T, index: number, vector: PVector<T>) => R,
+    thisArg?: any
+  ): PVector<R> {
     // lazy sequence!
     invariant(false, 'NYI');
     return null;
@@ -371,22 +392,6 @@ class VNode<T> {
     return new VNode(this.array.slice());
   }
 
-  forEach(level: number, offset: number, fn, thisArg): void {
-    if (level === 0) {
-      this.array.forEach((value, rawIndex) => {
-        var index = rawIndex + offset;
-        index >= 0 && fn.call(thisArg, value, index);
-      });
-    } else {
-      var step = 1 << level;
-      var newLevel = level - SHIFT;
-      this.array.forEach((value, index) => {
-        var newOffset = offset + index * step;
-        newOffset + step > 0 && value.forEach(newLevel, newOffset, fn, thisArg);
-      });
-    }
-  }
-
   pop(length: number, level: number): VNode<T> {
     var subidx = ((length - 1) >>> level) & MASK;
     if (level > SHIFT) {
@@ -404,6 +409,60 @@ class VNode<T> {
       var newNode = this.clone();
       delete newNode.array[subidx];
       return newNode;
+    }
+  }
+
+  findIndex(
+    vector: Vector<T>,
+    level: number,
+    offset: number,
+    fn: (value: T, index: number, vector: Vector<T>) => boolean,
+    thisArg: any
+  ): number {
+    var foundIndex;
+    if (level === 0) {
+      this.array.some((value, rawIndex) => {
+        var index = rawIndex + offset;
+        if (index >= 0 && fn.call(thisArg, value, index, vector)) {
+          foundIndex = index;
+          return true;
+        }
+      });
+    } else {
+      var step = 1 << level;
+      var newLevel = level - SHIFT;
+      this.array.some((value, index) => {
+        var newOffset = offset + index * step;
+        if (newOffset + step > 0) {
+          foundIndex = value.findIndex(vector, newLevel, newOffset, fn, thisArg);
+          if (foundIndex >= 0) {
+            return true;
+          }
+        }
+      });
+    }
+    return foundIndex;
+  }
+
+  forEach(
+    vector: Vector<T>,
+    level: number,
+    offset: number,
+    fn: (value: T, index: number, vector: Vector<T>) => any,
+    thisArg: any
+  ): void {
+    if (level === 0) {
+      this.array.forEach((value, rawIndex) => {
+        var index = rawIndex + offset;
+        index >= 0 && fn.call(thisArg, value, index, vector);
+      });
+    } else {
+      var step = 1 << level;
+      var newLevel = level - SHIFT;
+      this.array.forEach((value, index) => {
+        var newOffset = offset + index * step;
+        newOffset + step > 0 && value.forEach(vector, newLevel, newOffset, fn, thisArg);
+      });
     }
   }
 }
