@@ -14,12 +14,12 @@ var PVector = (function () {
         return PVector.fromArray(values);
     }
     PVector.empty = function () {
-        return __EMPTY_PVECT || (__EMPTY_PVECT = PVector._make(0, 0, SHIFT, __EMPTY_VNODE, []));
+        return __EMPTY_PVECT || (__EMPTY_PVECT = PVector._make(0, 0, SHIFT, __EMPTY_VNODE, __EMPTY_VNODE));
     };
 
     PVector.fromArray = function (values) {
         if (values.length > 0 && values.length < SIZE) {
-            return PVector._make(0, values.length, SHIFT, __EMPTY_VNODE, values.slice());
+            return PVector._make(0, values.length, SHIFT, __EMPTY_VNODE, new VNode(values.slice()));
         }
 
         // TODO: create a TVector and then return a cast to PVector
@@ -41,8 +41,8 @@ var PVector = (function () {
     PVector.prototype.get = function (index) {
         index = rawIndex(index, this._origin);
         if (index < this._size) {
-            var array = this._arrayFor(index);
-            return array && array[index & MASK];
+            var node = this._nodeFor(index);
+            return node && node.array[index & MASK];
         }
     };
 
@@ -51,9 +51,9 @@ var PVector = (function () {
         if (index >= this._size) {
             return false;
         }
-        var array = this._arrayFor(index);
+        var node = this._nodeFor(index);
         var property = index & MASK;
-        return !!array && array.hasOwnProperty(property);
+        return !!node && node.array.hasOwnProperty(property);
     };
 
     PVector.prototype.first = function () {
@@ -88,18 +88,18 @@ var PVector = (function () {
                 var subidx = (tailOffset >>> level) & MASK;
                 node = node.array[subidx] = node.array[subidx] ? node.array[subidx].clone() : new VNode();
             }
-            node.array[(tailOffset >>> SHIFT) & MASK] = new VNode(this._tail);
+            node.array[(tailOffset >>> SHIFT) & MASK] = this._tail;
 
             // Create new tail with set index.
-            var newTail = new Array(SIZE);
-            newTail[index & MASK] = value;
+            var newTail = new VNode();
+            newTail.array[index & MASK] = value;
             return PVector._make(this._origin, index + 1, newShift, newRoot, newTail);
         }
 
         // Fits within tail.
         if (index >= tailOffset) {
-            var newTail = this._tail.slice();
-            newTail[index & MASK] = value;
+            var newTail = this._tail.clone();
+            newTail.array[index & MASK] = value;
             var newLength = index >= this._size ? index + 1 : this._size;
             return PVector._make(this._origin, newLength, this._level, this._root, newTail);
         }
@@ -136,11 +136,12 @@ var PVector = (function () {
 
         // Fits within tail.
         if (newSize > getTailOffset(this._size)) {
-            return PVector._make(this._origin, newSize, this._level, this._root, this._tail.slice(0, -1));
+            var newTail = new VNode(this._tail.array.slice(0, -1));
+            return PVector._make(this._origin, newSize, this._level, this._root, newTail);
         }
 
         var newRoot = this._root.pop(this._size, this._level) || __EMPTY_VNODE;
-        var newTail = this._arrayFor(newSize - 1);
+        var newTail = this._nodeFor(newSize - 1);
         return PVector._make(this._origin, newSize, this._level, newRoot, newTail);
     };
 
@@ -155,8 +156,8 @@ var PVector = (function () {
 
         // Delete within tail.
         if (index >= tailOffset) {
-            var newTail = this._tail.slice();
-            delete newTail[index & MASK];
+            var newTail = this._tail.clone();
+            delete newTail.array[index & MASK];
             return PVector._make(this._origin, this._size, this._level, this._root, newTail);
         }
 
@@ -248,7 +249,7 @@ var PVector = (function () {
         if (newOrigin >= newSize) {
             return PVector.empty();
         }
-        var newTail = newSize === this._size ? this._tail : this._arrayFor(newSize) || new Array(SIZE);
+        var newTail = newSize === this._size ? this._tail : this._nodeFor(newSize) || new VNode();
 
         // TODO: should also calculate a new root and garbage collect?
         // This would be a tradeoff between memory footprint and perf.
@@ -277,12 +278,9 @@ var PVector = (function () {
     };
 
     PVector.prototype.forEach = function (fn, thisArg) {
-        this._root.forEach(this._level, -this._origin, fn, thisArg);
         var tailOffset = getTailOffset(this._size) - this._origin;
-        this._tail.forEach(function (value, rawIndex) {
-            var index = rawIndex + tailOffset;
-            index >= 0 && fn.call(thisArg, value, index);
-        });
+        this._root.forEach(this._level, -this._origin, fn, thisArg);
+        this._tail.forEach(0, tailOffset, fn, thisArg);
     };
 
     PVector.prototype.map = function (fn, thisArg) {
@@ -302,7 +300,7 @@ var PVector = (function () {
         return vect;
     };
 
-    PVector.prototype._arrayFor = function (rawIndex) {
+    PVector.prototype._nodeFor = function (rawIndex) {
         if (rawIndex >= getTailOffset(this._size)) {
             return this._tail;
         }
@@ -313,7 +311,7 @@ var PVector = (function () {
                 node = node.array[(rawIndex >>> level) & MASK];
                 level -= SHIFT;
             }
-            return node && node.array;
+            return node;
         }
     };
     return PVector;

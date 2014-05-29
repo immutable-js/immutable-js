@@ -53,5 +53,5 @@ export declare class PVector<T> implements Vector<T> {
     private _root;
     private _tail;
     private static _make<T>(origin, size, level, root, tail);
-    private _arrayFor(rawIndex);
+    private _nodeFor(rawIndex);
 }

@@ -51,13 +51,13 @@ export class PVector<T> implements Vector<T> {
 
   static empty(): PVector<any> {
     return __EMPTY_PVECT || (__EMPTY_PVECT =
-      PVector._make(0, 0, SHIFT, __EMPTY_VNODE, [])
+      PVector._make(0, 0, SHIFT, __EMPTY_VNODE, __EMPTY_VNODE)
     );
   }
 
   static fromArray<T>(values: Array<T>): PVector<T> {
     if (values.length > 0 && values.length < SIZE) {
-      return PVector._make(0, values.length, SHIFT, __EMPTY_VNODE, values.slice());
+      return PVector._make<T>(0, values.length, SHIFT, __EMPTY_VNODE, new VNode(values.slice()));
     }
 
     // TODO: create a TVector and then return a cast to PVector
@@ -83,8 +83,8 @@ export class PVector<T> implements Vector<T> {
   get(index: number): T {
     index = rawIndex(index, this._origin);
     if (index < this._size) {
-      var array = this._arrayFor(index);
-      return array && array[index & MASK];
+      var node = this._nodeFor(index);
+      return node && node.array[index & MASK];
     }
   }
 
@@ -93,9 +93,9 @@ export class PVector<T> implements Vector<T> {
     if (index >= this._size) {
       return false;
     }
-    var array = this._arrayFor(index);
+    var node = this._nodeFor(index);
     var property = index & MASK;
-    return !!array && array.hasOwnProperty(<any>property);
+    return !!node && node.array.hasOwnProperty(<any>property);
   }
 
   first(): T {
@@ -131,18 +131,18 @@ export class PVector<T> implements Vector<T> {
         var subidx = (tailOffset >>> level) & MASK;
         node = node.array[subidx] = node.array[subidx] ? node.array[subidx].clone() : new VNode();
       }
-      node.array[(tailOffset >>> SHIFT) & MASK] = new VNode(this._tail);
+      node.array[(tailOffset >>> SHIFT) & MASK] = this._tail;
 
       // Create new tail with set index.
-      var newTail: Array<T> = new Array(SIZE);
-      newTail[index & MASK] = value;
+      var newTail = new VNode<T>();
+      newTail.array[index & MASK] = value;
       return PVector._make(this._origin, index + 1, newShift, newRoot, newTail);
     }
 
     // Fits within tail.
     if (index >= tailOffset) {
-      var newTail = this._tail.slice();
-      newTail[index & MASK] = value;
+      var newTail = this._tail.clone();
+      newTail.array[index & MASK] = value;
       var newLength = index >= this._size ? index + 1 : this._size;
       return PVector._make(this._origin, newLength, this._level, this._root, newTail);
     }
@@ -175,11 +175,12 @@ export class PVector<T> implements Vector<T> {
 
     // Fits within tail.
     if (newSize > getTailOffset(this._size)) {
-      return PVector._make(this._origin, newSize, this._level, this._root, this._tail.slice(0, -1));
+      var newTail = new VNode<T>(this._tail.array.slice(0, -1));
+      return PVector._make(this._origin, newSize, this._level, this._root, newTail);
     }
 
     var newRoot = this._root.pop(this._size, this._level) || __EMPTY_VNODE;
-    var newTail = this._arrayFor(newSize - 1);
+    var newTail = this._nodeFor(newSize - 1);
     return PVector._make(this._origin, newSize, this._level, newRoot, newTail);
   }
 
@@ -194,8 +195,8 @@ export class PVector<T> implements Vector<T> {
 
     // Delete within tail.
     if (index >= tailOffset) {
-      var newTail = this._tail.slice();
-      delete newTail[index & MASK];
+      var newTail = this._tail.clone();
+      delete newTail.array[index & MASK];
       return PVector._make(this._origin, this._size, this._level, this._root, newTail);
     }
 
@@ -217,7 +218,7 @@ export class PVector<T> implements Vector<T> {
     var newRoot = this._root;
 
     while (newOrigin < 0) {
-      var node = new VNode();
+      var node = new VNode<T>();
       node.array[1] = newRoot;
       newOrigin += 1 << newLevel;
       newSize += 1 << newLevel;
@@ -234,7 +235,7 @@ export class PVector<T> implements Vector<T> {
       var node = newRoot;
       for (var level = newLevel; level > 0; level -= SHIFT) {
         var subidx = (index >>> level) & MASK;
-        node = node.array[subidx] = node.array[subidx] ? node.array[subidx].clone() : new VNode();
+        node = node.array[subidx] = node.array[subidx] ? node.array[subidx].clone() : new VNode<T>();
       }
       node.array[index & MASK] = values[ii];
     }
@@ -279,7 +280,7 @@ export class PVector<T> implements Vector<T> {
     if (newOrigin >= newSize) {
       return PVector.empty();
     }
-    var newTail = newSize === this._size ? this._tail : this._arrayFor(newSize) || new Array(SIZE);
+    var newTail = newSize === this._size ? this._tail : this._nodeFor(newSize) || new VNode();
     // TODO: should also calculate a new root and garbage collect?
     // This would be a tradeoff between memory footprint and perf.
     // I still expect better performance than Array.slice(), so it's probably worth freeing memory.
@@ -304,12 +305,9 @@ export class PVector<T> implements Vector<T> {
   }
 
   forEach(fn: (value: T, index: number, vector: PVector<T>) => any, thisArg?: any): void {
-    this._root.forEach(this._level, -this._origin, fn, thisArg);
     var tailOffset = getTailOffset(this._size) - this._origin;
-    this._tail.forEach((value, rawIndex) => {
-      var index = rawIndex + tailOffset;
-      index >= 0 && fn.call(thisArg, value, index);
-    });
+    this._root.forEach(this._level, -this._origin, fn, thisArg);
+    this._tail.forEach(0, tailOffset, fn, thisArg);
   }
 
   map<R>(fn: (value: T, index: number, vector: PVector<T>) => R, thisArg?: any): PVector<R> {
@@ -323,10 +321,10 @@ export class PVector<T> implements Vector<T> {
   private _origin: number;
   private _size: number;
   private _level: number;
-  private _root: VNode;
-  private _tail: Array<T>;
+  private _root: VNode<T>;
+  private _tail: VNode<T>;
 
-  private static _make<T>(origin:number, size: number, level: number, root: VNode, tail: Array<T>): PVector<T> {
+  private static _make<T>(origin:number, size: number, level: number, root: VNode<T>, tail: VNode<T>): PVector<T> {
     var vect = Object.create(PVector.prototype);
     vect._origin = origin;
     vect._size = size;
@@ -337,7 +335,7 @@ export class PVector<T> implements Vector<T> {
     return vect;
   }
 
-  private _arrayFor(rawIndex: number): Array<T> {
+  private _nodeFor(rawIndex: number): VNode<T> {
     if (rawIndex >= getTailOffset(this._size)) {
       return this._tail;
     }
@@ -348,7 +346,7 @@ export class PVector<T> implements Vector<T> {
         node = node.array[(rawIndex >>> level) & MASK];
         level -= SHIFT;
       }
-      return node && node.array;
+      return node;
     }
   }
 }
@@ -362,14 +360,14 @@ function getTailOffset(size: number): number {
   return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
 }
 
-class VNode {
+class VNode<T> {
   public array: Array<any>;
 
   constructor(array?: Array<any>) {
     this.array = array || new Array(SIZE);
   }
 
-  clone(): VNode {
+  clone(): VNode<T> {
     return new VNode(this.array.slice());
   }
 
@@ -389,7 +387,7 @@ class VNode {
     }
   }
 
-  pop(length: number, level: number): VNode {
+  pop(length: number, level: number): VNode<T> {
     var subidx = ((length - 1) >>> level) & MASK;
     if (level > SHIFT) {
       var newChild = this.array[subidx].pop(length, level - SHIFT);
