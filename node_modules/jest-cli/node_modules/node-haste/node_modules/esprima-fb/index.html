@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+
+<head>
+  <meta charset="utf-8" />
+  <title>Esprima</title>
+  <meta name="viewport" content="width=device-width" />
+  <link rel="stylesheet" type="text/css" href="assets/style.css"/>
+  <link rel="stylesheet" href="assets/foundation/foundation.min.css">
+</head>
+
+<body>
+
+  <!-- Navigation bar -->
+  <div class="row">
+    <div class="twelve columns">
+      <nav class="top-bar">
+        <ul>
+          <li class="name">
+             <h1><a href="#">Esprima</a></h1>
+          </li>
+        </ul>
+        <section>
+          <ul class="right">
+            <li class="divider show-for-medium-and-up"></li>
+            <li class="has-dropdown">
+              <a href="demo/index.html">Demo</a>
+              <ul class="dropdown">
+                <li><label>Static Analysis</label></li>
+                <li><a href="demo/parse.html">Online Parsing</a></li>
+                <li><a href="demo/validate.html">Syntax Validator</a></li>
+                <li><a href="demo/precedence.html">Operator Precedence</a></li>
+                <li><a href="demo/collector.html">Regex Collector</a></li>
+                <li><label>Dynamic Tracing</label></li>
+                <li><a href="demo/functiontrace.html">Function Instrumentation</a></li>
+                <li><label>Code Transformation</label></li>
+                <li><a href="demo/rewrite.html">Source Rewrite</a></li>
+                <li><a href="demo/minify.html">Minifiy &amp; Obfuscate</a></li>
+                <li><label>Editing Tools</label></li>
+                <li><a href="demo/highlight.html">Identifier Highlight</a></li>
+                <li><a href="demo/autocomplete.html">Autocomplete</a></li>
+              </ul>
+            </li>
+            <li class="has-dropdown">
+              <a href="#">Project</a>
+              <ul class="dropdown">
+                <li><a href="http://github.com/ariya/esprima">Git Repository</a></li>
+                <li><a href="https://travis-ci.org/ariya/esprima">Continuous Integration</a></li>
+                <li><a href="http://groups.google.com/group/esprima">Mailing List</a></li>
+                <li><a href="http://issues.esprima.org/">Issue Tracker</a></li>
+                <li class="divider"></li>
+                <li><label>QA</label></li>
+                <li><a href="test/index.html">Unit Tests</a></li>
+                <li><a href="test/benchmarks.html">Benchmarks Suite</a></li>
+                <li><a href="test/compat.html">Compatibility Tests</a></li>
+                <li><a href="test/compare.html">Speed Comparison</a></li>
+                <li><a href="test/module.html">Module Loading</a></li>
+                <li><a href="test/coverage.html">Coverage Analysis</a></li>
+              </ul>
+            </li>
+            <li><a href="doc/index.html">Documentation</a></li>
+          </ul>
+        </section>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Title and subtitle -->
+  <div class="row">
+    <div class="twelve columns">
+       <h3 class="subheader"><strong>ECMAScript</strong> parsing infrastructure for multipurpose analysis</h3>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="row">
+    <div class="eight columns">
+      <p><strong>Esprima</strong> is a high performance, standard-compliant
+      <a href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMAScript</a> parser written in ECMAScript (also popularly known as
+      <a href="http://en.wikipedia.org/wiki/JavaScript">JavaScript</a>).</p>
+
+      <div class="row">
+        <div class="twelve columns">
+          <h4>Features</h4>
+          <ul class="square">
+            <li>Full support for ECMAScript 5.1 (<a href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMA-262</a>)</li>
+            <li>Sensible <a href="doc/index.html#ast">syntax tree format</a>, compatible with Mozilla <a href="https://developer.mozilla.org/en/SpiderMonkey/Parser_API">Parser AST</a></li>
+            <li>Optional tracking of syntax node location (index-based and line-column)</li>
+            <li>Heavily tested (&gt; 600 <a href="http://esprima.org/test/">tests</a> with solid statement and branch coverage)</li>
+            <li>Experimental support for ES6/Harmony (module, class, destructuring, ...)</li>
+          </ul>
+          <p></p>
+          <p>Esprima serves as an important <strong>building block</strong> for some JavaScript language tools,
+          from <a href="demo/functiontrace.html">code instrumentation</a> to <a href="demo/autocomplete.html">editor autocompletion</a>.</p>
+          <a href="demo/autocomplete.html"><img src="assets/images/autocomplete.png" width="562" height="295" alt="Autocomplete"></a></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="four columns">
+      <div class="panel">
+          <p>Once the full syntax tree is obtained, various <strong>static code analysis</strong>
+          can be applied to give an insight to the code: 
+          <a href="demo/parse.html">syntax visualization</a>,
+          <a href="demo/validate.html">code validation</a>,
+          <a href="demo/autocomplete.html">editing autocomplete</a> (with type inferencing)
+          and <a href="demo/index.html">many others</a>.</p>
+      </div>
+      <div class="panel">
+          <p>Regenerating the code from the syntax tree permits a few different types of <strong>code transformation</strong>,
+          from a simple <a href="demo/rewrite.html">rewriting</a> (with specific formatting) to
+          a more complicated <a href="demo/minify.html">minification</a>.</p>
+      </div>
+      <p>Esprima runs on many popular web browsers, as well as other ECMAScript platforms such as
+      <a href="http://www.mozilla.org/rhino">Rhino</a> and
+      <a href="https://npmjs.org/package/esprima">Node.js</a>. It is distributed under the
+      <a href="https://github.com/ariya/esprima/blob/master/LICENSE.BSD">BSD license</a>.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="row copyright">
+    <div class="six columns">
+      <p>Esprima is created and mantained by <a href="http://ariya.ofilabs.com/about">Ariya Hidayat</a>.</p>
+    </div>
+    <div class="six columns">
+      <ul class="link-list right">
+        <li><a href="http://twitter.com/esprima">@Esprima</a></li>
+        <li><a href="https://github.com/ariya/esprima">GitHub</a></li>
+      </ul>
+    </div>
+  </div>
+
+</body>
+</html>

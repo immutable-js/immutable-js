@@ -1,0 +1,6 @@
+{
+  "projectName": "node-worker-pool",
+
+  "testPathDirs": ["."],
+  "testPathIgnores": ["/node_modules/.+"]
+}
