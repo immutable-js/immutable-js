@@ -231,6 +231,7 @@ export class PVector<T> implements Vector<T> {
       newRoot = this._root.clone();
     }
 
+    // TODO: make this a little more efficient by doing less cloning if there are multiple values?
     for (var ii = 0; ii < values.length; ii++) {
       var index = newOrigin + ii;
       var node = newRoot;
@@ -323,9 +324,9 @@ export class PVector<T> implements Vector<T> {
     fn: (value: T, index: number, vector: PVector<T>) => any,
     thisArg?: any
   ): void {
-    this._root.forEach(this, this._level, -this._origin, fn, thisArg);
+    vectForEach(this, this._root, this._level, -this._origin, fn, thisArg);
     var tailOffset = getTailOffset(this._size) - this._origin;
-    this._tail.forEach(this, 0, tailOffset, fn, thisArg);
+    vectForEach(this, this._tail, 0, tailOffset, fn, thisArg);
   }
 
   map<R>(
@@ -443,27 +444,28 @@ class VNode<T> {
     }
     return foundIndex;
   }
+}
 
-  forEach(
-    vector: Vector<T>,
-    level: number,
-    offset: number,
-    fn: (value: T, index: number, vector: Vector<T>) => any,
-    thisArg: any
-  ): void {
-    if (level === 0) {
-      this.array.forEach((value, rawIndex) => {
-        var index = rawIndex + offset;
-        index >= 0 && fn.call(thisArg, value, index, vector);
-      });
-    } else {
-      var step = 1 << level;
-      var newLevel = level - SHIFT;
-      this.array.forEach((value, index) => {
-        var newOffset = offset + index * step;
-        newOffset + step > 0 && value.forEach(vector, newLevel, newOffset, fn, thisArg);
-      });
-    }
+function vectForEach<T>(
+  vector: Vector<T>,
+  node: VNode<T>,
+  level: number,
+  offset: number,
+  fn: (value: T, index: number, vector: Vector<T>) => any,
+  thisArg: any
+): void {
+  if (level === 0) {
+    node.array.forEach((value, rawIndex) => {
+      var index = rawIndex + offset;
+      index >= 0 && fn.call(thisArg, value, index, vector);
+    });
+  } else {
+    var step = 1 << level;
+    var nextLevel = level - SHIFT;
+    node.array.forEach((nextNode, rawIndex) => {
+      var nextOffset = offset + rawIndex * step;
+      nextOffset + step > 0 && vectForEach(vector, nextNode, nextLevel, nextOffset, fn, thisArg);
+    });
   }
 }
 

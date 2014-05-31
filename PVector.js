@@ -292,9 +292,9 @@ var PVector = (function () {
     };
 
     PVector.prototype.forEach = function (fn, thisArg) {
-        this._root.forEach(this, this._level, -this._origin, fn, thisArg);
+        vectForEach(this, this._root, this._level, -this._origin, fn, thisArg);
         var tailOffset = getTailOffset(this._size) - this._origin;
-        this._tail.forEach(this, 0, tailOffset, fn, thisArg);
+        vectForEach(this, this._tail, 0, tailOffset, fn, thisArg);
     };
 
     PVector.prototype.map = function (fn, thisArg) {
@@ -394,24 +394,24 @@ var VNode = (function () {
         }
         return foundIndex;
     };
-
-    VNode.prototype.forEach = function (vector, level, offset, fn, thisArg) {
-        if (level === 0) {
-            this.array.forEach(function (value, rawIndex) {
-                var index = rawIndex + offset;
-                index >= 0 && fn.call(thisArg, value, index, vector);
-            });
-        } else {
-            var step = 1 << level;
-            var newLevel = level - SHIFT;
-            this.array.forEach(function (value, index) {
-                var newOffset = offset + index * step;
-                newOffset + step > 0 && value.forEach(vector, newLevel, newOffset, fn, thisArg);
-            });
-        }
-    };
     return VNode;
 })();
+
+function vectForEach(vector, node, level, offset, fn, thisArg) {
+    if (level === 0) {
+        node.array.forEach(function (value, rawIndex) {
+            var index = rawIndex + offset;
+            index >= 0 && fn.call(thisArg, value, index, vector);
+        });
+    } else {
+        var step = 1 << level;
+        var nextLevel = level - SHIFT;
+        node.array.forEach(function (nextNode, rawIndex) {
+            var nextOffset = offset + rawIndex * step;
+            nextOffset + step > 0 && vectForEach(vector, nextNode, nextLevel, nextOffset, fn, thisArg);
+        });
+    }
+}
 
 var SHIFT = 5;
 var SIZE = 1 << SHIFT;
