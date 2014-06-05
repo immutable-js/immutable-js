@@ -140,7 +140,7 @@ var PVector = (function () {
             return PVector._make(this._origin, newSize, this._level, this._root, newTail);
         }
 
-        var newRoot = this._root.pop(this._size, this._level) || __EMPTY_VNODE;
+        var newRoot = vectPop(this._root, this._size, this._level) || __EMPTY_VNODE;
         var newTail = this._nodeFor(newSize - 1);
         return PVector._make(this._origin, newSize, this._level, newRoot, newTail);
     };
@@ -283,10 +283,10 @@ var PVector = (function () {
 
     PVector.prototype.findIndex = function (fn, thisArg) {
         var index;
-        index = this._root.findIndex(this, this._level, -this._origin, fn, thisArg);
+        index = vectFindIndex(this, this._root, this._level, -this._origin, fn, thisArg);
         if (index == null) {
             var tailOffset = getTailOffset(this._size) - this._origin;
-            index = this._tail.findIndex(this, 0, tailOffset, fn, thisArg);
+            index = vectFindIndex(this, this._tail, 0, tailOffset, fn, thisArg);
         }
         return index >= 0 ? index : -1;
     };
@@ -343,59 +343,59 @@ function getTailOffset(size) {
 
 var VNode = (function () {
     function VNode(array) {
-        this.array = array || new Array(SIZE);
+        this.array = array || []; // new Array(SIZE);
     }
     VNode.prototype.clone = function () {
         return new VNode(this.array.slice());
     };
-
-    VNode.prototype.pop = function (length, level) {
-        var subidx = ((length - 1) >>> level) & MASK;
-        if (level > SHIFT) {
-            var newChild = this.array[subidx].pop(length, level - SHIFT);
-            if (newChild || subidx) {
-                var node = this.clone();
-                if (newChild) {
-                    node.array[subidx] = newChild;
-                } else {
-                    delete node.array[subidx];
-                }
-                return node;
-            }
-        } else if (subidx) {
-            var newNode = this.clone();
-            delete newNode.array[subidx];
-            return newNode;
-        }
-    };
-
-    VNode.prototype.findIndex = function (vector, level, offset, fn, thisArg) {
-        var foundIndex;
-        if (level === 0) {
-            this.array.some(function (value, rawIndex) {
-                var index = rawIndex + offset;
-                if (index >= 0 && fn.call(thisArg, value, index, vector)) {
-                    foundIndex = index;
-                    return true;
-                }
-            });
-        } else {
-            var step = 1 << level;
-            var newLevel = level - SHIFT;
-            this.array.some(function (value, index) {
-                var newOffset = offset + index * step;
-                if (newOffset + step > 0) {
-                    foundIndex = value.findIndex(vector, newLevel, newOffset, fn, thisArg);
-                    if (foundIndex >= 0) {
-                        return true;
-                    }
-                }
-            });
-        }
-        return foundIndex;
-    };
     return VNode;
 })();
+
+function vectPop(node, length, level) {
+    var subidx = ((length - 1) >>> level) & MASK;
+    if (level > SHIFT) {
+        var newChild = vectPop(this.array[subidx], length, level - SHIFT);
+        if (newChild || subidx) {
+            var newNode = node.clone();
+            if (newChild) {
+                newNode.array[subidx] = newChild;
+            } else {
+                delete newNode.array[subidx];
+            }
+            return newNode;
+        }
+    } else if (subidx !== 0) {
+        var newNode = node.clone();
+        delete newNode.array[subidx];
+        return newNode;
+    }
+}
+
+function vectFindIndex(vector, node, level, offset, fn, thisArg) {
+    var foundIndex;
+    if (level === 0) {
+        node.array.some(function (value, rawIndex) {
+            var index = rawIndex + offset;
+            if (index >= 0 && fn.call(thisArg, value, index, vector)) {
+                foundIndex = index;
+                return true;
+            }
+        });
+    } else {
+        var step = 1 << level;
+        var newLevel = level - SHIFT;
+        node.array.some(function (value, index) {
+            var newOffset = offset + index * step;
+            if (newOffset + step > 0) {
+                foundIndex = vectFindIndex(vector, value, newLevel, newOffset, fn, thisArg);
+                if (foundIndex >= 0) {
+                    return true;
+                }
+            }
+        });
+    }
+    return foundIndex;
+}
 
 function vectForEach(vector, node, level, offset, fn, thisArg) {
     if (level === 0) {
