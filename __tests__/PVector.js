@@ -213,4 +213,6 @@ describe('PVector', function() {
 
   // TODO: assert that forEach iterates in the correct order and is only called as much as it needs to be.
 
+  // TODO: slice
+
 });

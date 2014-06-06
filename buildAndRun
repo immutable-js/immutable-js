@@ -1,1 +1,1 @@
-tsc --declaration --module commonjs --target ES5 PVector.ts && npm test
+tsc --declaration --module commonjs --target ES5 PVector.ts Range.ts && npm test

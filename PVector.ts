@@ -94,11 +94,15 @@ export class PVector<T> extends Iterator<number, T, PVector<T>> implements Vecto
   }
 
   first(): T {
-    return this.get(0);
+    if (this.length > 0) {
+      return this.get(0);
+    }
   }
 
   last(): T {
-    return this.get(this.length - 1);
+    if (this.length > 0) {
+      return this.get(this.length - 1);
+    }
   }
 
   // @pragma Modification
@@ -271,8 +275,8 @@ export class PVector<T> extends Iterator<number, T, PVector<T>> implements Vecto
   }
 
   slice(begin: number, end?: number): PVector<T> {
-    var newOrigin = begin < 0 ? Math.max(this._origin, this._size - begin) : Math.min(this._size, this._origin + begin);
-    var newSize = end == null ? this._size : end < 0 ? Math.max(this._origin, this._size - end) : Math.min(this._size, this._origin + end);
+    var newOrigin = begin < 0 ? Math.max(this._origin, this._size + begin) : Math.min(this._size, this._origin + begin);
+    var newSize = end == null ? this._size : end < 0 ? Math.max(this._origin, this._size + end) : Math.min(this._size, this._origin + end);
     if (newOrigin >= newSize) {
       return PVector.empty();
     }
