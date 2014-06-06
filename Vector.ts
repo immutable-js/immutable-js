@@ -39,6 +39,7 @@ export interface Vector<T> extends OrderedIterable<T, Vector<T>> {
 export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector<T> {
 
   // @pragma Construction
+
   constructor(...values: Array<T>) {
     super(this);
     return PVector.fromArray(values);
@@ -311,7 +312,7 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
   private _root: VNode<T>;
   private _tail: VNode<T>;
 
-  private static _make<T>(origin:number, size: number, level: number, root: VNode<T>, tail: VNode<T>): PVector<T> {
+  private static _make<T>(origin: number, size: number, level: number, root: VNode<T>, tail: VNode<T>): PVector<T> {
     var vect = Object.create(PVector.prototype);
     vect.collection = vect;
     vect._origin = origin;
