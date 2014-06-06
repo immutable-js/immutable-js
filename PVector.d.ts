@@ -5,7 +5,6 @@ export interface VectorFactory<T> {
     fromArray(values: T[]): Vector<T>;
 }
 export interface Vector<T> {
-    toArray(): T[];
     length: number;
     get(index: number): T;
     exists(index: number): boolean;
@@ -21,6 +20,7 @@ export interface Vector<T> {
     concat(vec: Vector<T>): Vector<T>;
     slice(begin: number, end?: number): Vector<T>;
     splice(index: number, removeNum: number, ...values: T[]): Vector<T>;
+    toArray(): T[];
     indexOf(value: T): number;
     findIndex(fn: (value: T, index: number, vector: Vector<T>) => boolean, thisArg?: any): number;
     forEach(fn: (value: T, index: number, vector: Vector<T>) => any, thisArg?: any): void;
@@ -30,7 +30,6 @@ export declare class PVector<T> extends Iterator<number, T, PVector<T>> implemen
     constructor(...values: T[]);
     static empty(): PVector<any>;
     static fromArray<T>(values: T[]): PVector<T>;
-    public toArray(): T[];
     public length: number;
     public get(index: number): T;
     public exists(index: number): boolean;
@@ -47,6 +46,7 @@ export declare class PVector<T> extends Iterator<number, T, PVector<T>> implemen
     public slice(begin: number, end?: number): PVector<T>;
     public splice(index: number, removeNum: number, ...values: T[]): PVector<T>;
     public iterate(fn: (value: T, index: number, vector: PVector<T>) => any, thisArg?: any): boolean;
+    public toArray(): T[];
     public indexOf(searchValue: T): number;
     public findIndex(fn: (value: T, index: number, vector: PVector<T>) => boolean, thisArg?: any): number;
     private _origin;

@@ -19,7 +19,7 @@ var PVector = (function (_super) {
         for (var _i = 0; _i < (arguments.length - 0); _i++) {
             values[_i] = arguments[_i + 0];
         }
-        _super.call(this);
+        _super.call(this, this);
         return PVector.fromArray(values);
     }
     PVector.empty = function () {
@@ -37,14 +37,6 @@ var PVector = (function (_super) {
             vect = vect.set(index, value);
         });
         return vect;
-    };
-
-    PVector.prototype.toArray = function () {
-        var array = new Array(this.length);
-        this.forEach(function (value, index) {
-            array[index] = value;
-        });
-        return array;
     };
 
     PVector.prototype.get = function (index) {
@@ -277,7 +269,13 @@ var PVector = (function (_super) {
     // @pragma Iteration
     PVector.prototype.iterate = function (fn, thisArg) {
         var tailOffset = getTailOffset(this._size);
-        return (vNodeIterate(this._root, this._level, -this._origin, tailOffset - this._origin, fn, thisArg) && vNodeIterate(this._tail, 0, tailOffset - this._origin, this._size - this._origin, fn, thisArg));
+        return (vNodeIterate(this, this._root, this._level, -this._origin, tailOffset - this._origin, fn, thisArg) && vNodeIterate(this, this._tail, 0, tailOffset - this._origin, this._size - this._origin, fn, thisArg));
+    };
+
+    PVector.prototype.toArray = function () {
+        var array = _super.prototype.toArray.call(this);
+        array.length = this.length;
+        return array;
     };
 
     PVector.prototype.indexOf = function (searchValue) {
@@ -293,6 +291,7 @@ var PVector = (function (_super) {
 
     PVector._make = function (origin, size, level, root, tail) {
         var vect = Object.create(PVector.prototype);
+        vect.collection = vect;
         vect._origin = origin;
         vect._size = size;
         vect._level = level;
@@ -359,18 +358,18 @@ function vNodePop(node, length, level) {
     }
 }
 
-function vNodeIterate(node, level, offset, max, fn, thisArg) {
+function vNodeIterate(vector, node, level, offset, max, fn, thisArg) {
     if (level === 0) {
         return node.array.every(function (value, rawIndex) {
             var index = rawIndex + offset;
-            return index < 0 || index >= max || fn.call(thisArg, value, index) !== false;
+            return index < 0 || index >= max || fn.call(thisArg, value, index, vector) !== false;
         });
     } else {
         var step = 1 << level;
         var newLevel = level - SHIFT;
-        return node.array.every(function (value, levelIndex) {
+        return node.array.every(function (newNode, levelIndex) {
             var newOffset = offset + levelIndex * step;
-            return newOffset >= max || newOffset + step <= 0 || vNodeIterate(value, newLevel, newOffset, max, fn, thisArg);
+            return newOffset >= max || newOffset + step <= 0 || vNodeIterate(vector, newNode, newLevel, newOffset, max, fn, thisArg);
         });
     }
 }

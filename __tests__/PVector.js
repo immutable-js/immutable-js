@@ -158,6 +158,27 @@ describe('PVector', function() {
     })).toBe(3);
   });
 
+  it('maps values', function() {
+    var v = PVector('a', 'b', 'c');
+
+    var r = v.map(function (value) {
+      return value.toUpperCase();
+    });
+
+    expect(r.toArray()).toEqual(['A', 'B', 'C']);
+  });
+
+
+  it('filters values', function() {
+    var v = PVector('a', 'b', 'c', 'd', 'e', 'f');
+
+    var r = v.filter(function (value, index) {
+      return index % 2 === 1;
+    });
+
+    expect(r.toArray()).toEqual(['b', 'd', 'f']);
+  });
+
   // TODO: assert that findIndex only calls the function as much as it needs to.
 
   // TODO: assert that forEach iterates in the correct order and is only called as much as it needs to be.

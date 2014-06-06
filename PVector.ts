@@ -14,9 +14,6 @@ export interface VectorFactory<T> {
 }
 
 export interface Vector<T> {
-  // @pragma Construction
-  toArray(): Array<T>;
-
   // @pragma Access
   length: number;
   get(index: number): T;
@@ -39,6 +36,7 @@ export interface Vector<T> {
   splice(index: number, removeNum: number, ...values: Array<T>): Vector<T>;
 
   // @pragma Iteration
+  toArray(): Array<T>;
   indexOf(value: T): number;
   findIndex(fn: (value: T, index: number, vector: Vector<T>) => boolean, thisArg?: any): number;
   forEach(fn: (value: T, index: number, vector: Vector<T>) => any, thisArg?: any): void;
@@ -50,7 +48,7 @@ export class PVector<T> extends Iterator<number, T, PVector<T>> implements Vecto
 
   // @pragma Construction
   constructor(...values: Array<T>) {
-    super();
+    super(this);
     return PVector.fromArray(values);
   }
 
@@ -71,14 +69,6 @@ export class PVector<T> extends Iterator<number, T, PVector<T>> implements Vecto
       vect = vect.set(index, value);
     });
     return vect;
-  }
-
-  toArray(): Array<T> {
-    var array = new Array(this.length);
-    this.forEach(function (value, index) {
-      array[index] = value;
-    });
-    return array;
   }
 
   // @pragma Access
@@ -305,9 +295,15 @@ export class PVector<T> extends Iterator<number, T, PVector<T>> implements Vecto
   ): boolean {
     var tailOffset = getTailOffset(this._size);
     return (
-      vNodeIterate(this._root, this._level, -this._origin, tailOffset - this._origin, fn, thisArg) &&
-      vNodeIterate(this._tail, 0, tailOffset - this._origin, this._size - this._origin, fn, thisArg)
+      vNodeIterate(this, this._root, this._level, -this._origin, tailOffset - this._origin, fn, thisArg) &&
+      vNodeIterate(this, this._tail, 0, tailOffset - this._origin, this._size - this._origin, fn, thisArg)
     );
+  }
+
+  toArray(): Array<T> {
+    var array = super.toArray();
+    array.length = this.length;
+    return array;
   }
 
   indexOf(searchValue: T): number {
@@ -332,6 +328,7 @@ export class PVector<T> extends Iterator<number, T, PVector<T>> implements Vecto
 
   private static _make<T>(origin:number, size: number, level: number, root: VNode<T>, tail: VNode<T>): PVector<T> {
     var vect = Object.create(PVector.prototype);
+    vect.collection = vect;
     vect._origin = origin;
     vect._size = size;
     vect._level = level;
@@ -399,6 +396,7 @@ function vNodePop<T>(node: VNode<T>, length: number, level: number): VNode<T> {
 }
 
 function vNodeIterate<T>(
+  vector: Vector<T>,
   node: VNode<T>,
   level: number,
   offset: number,
@@ -409,14 +407,14 @@ function vNodeIterate<T>(
   if (level === 0) {
     return node.array.every((value, rawIndex) => {
       var index = rawIndex + offset;
-      return index < 0 || index >= max || fn.call(thisArg, value, index) !== false;
+      return index < 0 || index >= max || fn.call(thisArg, value, index, vector) !== false;
     });
   } else {
     var step = 1 << level;
     var newLevel = level - SHIFT;
-    return node.array.every((value, levelIndex) => {
+    return node.array.every((newNode, levelIndex) => {
       var newOffset = offset + levelIndex * step;
-      return newOffset >= max || newOffset + step <= 0 || vNodeIterate(value, newLevel, newOffset, max, fn, thisArg);
+      return newOffset >= max || newOffset + step <= 0 || vNodeIterate(vector, newNode, newLevel, newOffset, max, fn, thisArg);
     });
   }
 }
