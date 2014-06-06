@@ -125,7 +125,7 @@ describe('Range', function() {
   });
 
   it('efficiently chains array methods', function() {
-    var v = Range(1, 15);
+    var v = Range(1, Infinity);
 
     var r = v
       .filter(function(x) { return x % 2 == 0 })

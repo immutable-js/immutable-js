@@ -184,7 +184,9 @@ class MapIterator<K, V, V2, C> extends Iterable<K, V2, C> {
     var map = this.mapper;
     var mapThisArg = this.mapThisArg;
     return this.iterator.iterate(function (v, k, c) {
-      fn.call(thisArg, map.call(mapThisArg, v, k, c), k, c);
+      if (fn.call(thisArg, map.call(mapThisArg, v, k, c), k, c) === false) {
+        return false;
+      }
     });
   }
 }
@@ -205,7 +207,9 @@ class MapOrderedIterator<V, V2, C> extends OrderedIterable<V2, C> {
     var map = this.mapper;
     var mapThisArg = this.mapThisArg;
     return this.iterator.iterate(function (v, k, c) {
-      fn.call(thisArg, map.call(mapThisArg, v, k, c), k, c);
+      if (fn.call(thisArg, map.call(mapThisArg, v, k, c), k, c) === false) {
+        return false;
+      }
     });
   }
 }
@@ -226,8 +230,9 @@ class FilterIterator<K, V, C> extends Iterable<K, V, C> {
     var predicate = this.predicate;
     var predicateThisArg = this.predicateThisArg;
     return this.iterator.iterate(function (v, k, c) {
-      if (predicate.call(predicateThisArg, v, k, c)) {
-        fn.call(thisArg, v, k, c);
+      if (predicate.call(predicateThisArg, v, k, c) &&
+          fn.call(thisArg, v, k, c) === false) {
+        return false;
       }
     });
   }
@@ -250,8 +255,9 @@ class FilterOrderedIterator<K, V, C> extends OrderedIterable<V, C> {
     var predicateThisArg = this.predicateThisArg;
     var iterations = 0;
     return this.iterator.iterate(function (v, k, c) {
-      if (predicate.call(predicateThisArg, v, k, c)) {
-        fn.call(thisArg, v, iterations++, c);
+      if (predicate.call(predicateThisArg, v, k, c) &&
+          fn.call(thisArg, v, iterations++, c) === false) {
+        return false;
       }
     });
   }
@@ -273,9 +279,8 @@ class TakeIterator<V, C> extends OrderedIterable<V, C> {
     var predicate = this.predicate;
     var predicateThisArg = this.predicateThisArg;
     return this.iterator.iterate(function (v, k, c) {
-      if (predicate.call(predicateThisArg, v, k, c)) {
-        fn.call(thisArg, v, k, c);
-      } else {
+      if (!predicate.call(predicateThisArg, v, k, c) ||
+          fn.call(thisArg, v, k, c) === false) {
         return false;
       }
     });
@@ -301,8 +306,8 @@ class SkipIterator<V, C> extends OrderedIterable<V, C> {
     var isSkipping = true;
     return this.iterator.iterate(function (v, k, c) {
       isSkipping = isSkipping && predicate.call(predicateThisArg, v, k, c);
-      if (!isSkipping) {
-        fn.call(thisArg, v, iterations++, c);
+      if (!isSkipping && fn.call(thisArg, v, iterations++, c) === false) {
+        return false;
       }
     });
   }

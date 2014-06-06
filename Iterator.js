@@ -165,7 +165,9 @@ var MapIterator = (function (_super) {
         var map = this.mapper;
         var mapThisArg = this.mapThisArg;
         return this.iterator.iterate(function (v, k, c) {
-            fn.call(thisArg, map.call(mapThisArg, v, k, c), k, c);
+            if (fn.call(thisArg, map.call(mapThisArg, v, k, c), k, c) === false) {
+                return false;
+            }
         });
     };
     return MapIterator;
@@ -183,7 +185,9 @@ var MapOrderedIterator = (function (_super) {
         var map = this.mapper;
         var mapThisArg = this.mapThisArg;
         return this.iterator.iterate(function (v, k, c) {
-            fn.call(thisArg, map.call(mapThisArg, v, k, c), k, c);
+            if (fn.call(thisArg, map.call(mapThisArg, v, k, c), k, c) === false) {
+                return false;
+            }
         });
     };
     return MapOrderedIterator;
@@ -201,8 +205,8 @@ var FilterIterator = (function (_super) {
         var predicate = this.predicate;
         var predicateThisArg = this.predicateThisArg;
         return this.iterator.iterate(function (v, k, c) {
-            if (predicate.call(predicateThisArg, v, k, c)) {
-                fn.call(thisArg, v, k, c);
+            if (predicate.call(predicateThisArg, v, k, c) && fn.call(thisArg, v, k, c) === false) {
+                return false;
             }
         });
     };
@@ -222,8 +226,8 @@ var FilterOrderedIterator = (function (_super) {
         var predicateThisArg = this.predicateThisArg;
         var iterations = 0;
         return this.iterator.iterate(function (v, k, c) {
-            if (predicate.call(predicateThisArg, v, k, c)) {
-                fn.call(thisArg, v, iterations++, c);
+            if (predicate.call(predicateThisArg, v, k, c) && fn.call(thisArg, v, iterations++, c) === false) {
+                return false;
             }
         });
     };
@@ -242,9 +246,7 @@ var TakeIterator = (function (_super) {
         var predicate = this.predicate;
         var predicateThisArg = this.predicateThisArg;
         return this.iterator.iterate(function (v, k, c) {
-            if (predicate.call(predicateThisArg, v, k, c)) {
-                fn.call(thisArg, v, k, c);
-            } else {
+            if (!predicate.call(predicateThisArg, v, k, c) || fn.call(thisArg, v, k, c) === false) {
                 return false;
             }
         });
@@ -267,8 +269,8 @@ var SkipIterator = (function (_super) {
         var isSkipping = true;
         return this.iterator.iterate(function (v, k, c) {
             isSkipping = isSkipping && predicate.call(predicateThisArg, v, k, c);
-            if (!isSkipping) {
-                fn.call(thisArg, v, iterations++, c);
+            if (!isSkipping && fn.call(thisArg, v, iterations++, c) === false) {
+                return false;
             }
         });
     };
