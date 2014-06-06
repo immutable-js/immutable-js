@@ -1,10 +1,10 @@
-import Iterator = require('./Iterator');
+import Iterable = require('./Iterator');
 export interface VectorFactory<T> {
     (...values: T[]): Vector<T>;
     empty(): Vector<T>;
     fromArray(values: T[]): Vector<T>;
 }
-export interface Vector<T> {
+export interface Vector<T> extends Iterable.OrderedIterable<T, Vector<T>> {
     length: number;
     get(index: number): T;
     exists(index: number): boolean;
@@ -20,13 +20,8 @@ export interface Vector<T> {
     concat(vec: Vector<T>): Vector<T>;
     slice(begin: number, end?: number): Vector<T>;
     splice(index: number, removeNum: number, ...values: T[]): Vector<T>;
-    toArray(): T[];
-    indexOf(value: T): number;
-    findIndex(fn: (value: T, index: number, vector: Vector<T>) => boolean, thisArg?: any): number;
-    forEach(fn: (value: T, index: number, vector: Vector<T>) => any, thisArg?: any): void;
-    map<R>(fn: (value: T, index: number, vector: Vector<T>) => R, thisArg?: any): Iterator<number, R, Vector<T>>;
 }
-export declare class PVector<T> extends Iterator<number, T, PVector<T>> implements Vector<T> {
+export declare class PVector<T> extends Iterable.OrderedIterable<T, PVector<T>> implements Vector<T> {
     constructor(...values: T[]);
     static empty(): PVector<any>;
     static fromArray<T>(values: T[]): PVector<T>;
@@ -47,8 +42,6 @@ export declare class PVector<T> extends Iterator<number, T, PVector<T>> implemen
     public splice(index: number, removeNum: number, ...values: T[]): PVector<T>;
     public iterate(fn: (value: T, index: number, vector: PVector<T>) => any, thisArg?: any): boolean;
     public toArray(): T[];
-    public indexOf(searchValue: T): number;
-    public findIndex(fn: (value: T, index: number, vector: PVector<T>) => boolean, thisArg?: any): number;
     private _origin;
     private _size;
     private _level;

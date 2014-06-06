@@ -4,7 +4,8 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var Iterator = require('./Iterator');
+var Iterable = require('./Iterator');
+var OrderedIterable = Iterable.OrderedIterable;
 
 function invariant(condition, error) {
     if (!condition)
@@ -276,21 +277,11 @@ var PVector = (function (_super) {
         return (vNodeIterate(this, this._root, this._level, -this._origin, tailOffset - this._origin, fn, thisArg) && vNodeIterate(this, this._tail, 0, tailOffset - this._origin, this._size - this._origin, fn, thisArg));
     };
 
+    // Override - set correct length before returning
     PVector.prototype.toArray = function () {
         var array = _super.prototype.toArray.call(this);
         array.length = this.length;
         return array;
-    };
-
-    PVector.prototype.indexOf = function (searchValue) {
-        return this.findIndex(function (value) {
-            return value === searchValue;
-        });
-    };
-
-    PVector.prototype.findIndex = function (fn, thisArg) {
-        var index = this.find(fn, thisArg);
-        return index == null ? -1 : index;
     };
 
     PVector._make = function (origin, size, level, root, tail) {
@@ -320,7 +311,7 @@ var PVector = (function (_super) {
         }
     };
     return PVector;
-})(Iterator);
+})(OrderedIterable);
 exports.PVector = PVector;
 
 function rawIndex(index, origin) {

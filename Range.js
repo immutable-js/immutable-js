@@ -4,7 +4,8 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var Iterator = require('./Iterator');
+var Iterable = require('./Iterator');
+var OrderedIterable = Iterable.OrderedIterable;
 
 function invariant(condition, error) {
     if (!condition)
@@ -71,10 +72,11 @@ var Range = (function (_super) {
         return true;
     };
 
+    // Override - ensure length is real before putting in memory
     Range.prototype.toArray = function () {
         invariant(this.length < Infinity, 'Cannot convert infinite list to array');
         return _super.prototype.toArray.call(this);
     };
     return Range;
-})(Iterator);
+})(OrderedIterable);
 exports.Range = Range;

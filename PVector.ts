@@ -1,6 +1,5 @@
-
-import Iterator = require('./Iterator');
-
+import Iterable = require('./Iterator');
+import OrderedIterable = Iterable.OrderedIterable;
 
 function invariant(condition, error) {
   if (!condition) throw new Error(error);
@@ -13,7 +12,7 @@ export interface VectorFactory<T> {
   fromArray(values: Array<T>): Vector<T>;
 }
 
-export interface Vector<T> {
+export interface Vector<T> extends OrderedIterable<T, Vector<T>> {
   // @pragma Access
   length: number;
   get(index: number): T;
@@ -34,17 +33,10 @@ export interface Vector<T> {
   concat(vec: Vector<T>): Vector<T>;
   slice(begin: number, end?: number): Vector<T>;
   splice(index: number, removeNum: number, ...values: Array<T>): Vector<T>;
-
-  // @pragma Iteration
-  toArray(): Array<T>;
-  indexOf(value: T): number;
-  findIndex(fn: (value: T, index: number, vector: Vector<T>) => boolean, thisArg?: any): number;
-  forEach(fn: (value: T, index: number, vector: Vector<T>) => any, thisArg?: any): void;
-  map<R>(fn: (value: T, index: number, vector: Vector<T>) => R, thisArg?: any): Iterator<number, R, Vector<T>>;
 }
 
 
-export class PVector<T> extends Iterator<number, T, PVector<T>> implements Vector<T> {
+export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector<T> {
 
   // @pragma Construction
   constructor(...values: Array<T>) {
@@ -304,22 +296,11 @@ export class PVector<T> extends Iterator<number, T, PVector<T>> implements Vecto
     );
   }
 
+  // Override - set correct length before returning
   toArray(): Array<T> {
     var array = super.toArray();
     array.length = this.length;
     return array;
-  }
-
-  indexOf(searchValue: T): number {
-    return this.findIndex(value => value === searchValue);
-  }
-
-  findIndex(
-    fn: (value: T, index: number, vector: PVector<T>) => boolean,
-    thisArg?: any
-  ): number {
-    var index = this.find(fn, thisArg);
-    return index == null ? -1 : index;
   }
 
   // @pragme Private

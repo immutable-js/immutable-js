@@ -1,6 +1,5 @@
-
-import Iterator = require('./Iterator');
-
+import Iterable = require('./Iterator');
+import OrderedIterable = Iterable.OrderedIterable;
 
 function invariant(condition, error) {
   if (!condition) throw new Error(error);
@@ -12,13 +11,13 @@ function invariant(condition, error) {
  * infinity. When step is equal to 0, returns an infinite sequence of
  * start. When start is equal to end, returns empty list.
  */
-export class Range extends Iterator<number, number, Range> {
+export class Range extends OrderedIterable<number, Range> {
   start: number;
   end: number;
   step: number;
 
   constructor(
-    start: number,
+    start?: number,
     end?: number,
     step?: number
   ) {
@@ -80,9 +79,9 @@ export class Range extends Iterator<number, number, Range> {
     return true;
   }
 
+  // Override - ensure length is real before putting in memory
   toArray(): Array<number> {
     invariant(this.length < Infinity, 'Cannot convert infinite list to array');
     return super.toArray();
   }
-
 }
