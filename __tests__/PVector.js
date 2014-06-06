@@ -1,4 +1,5 @@
 jest.dontMock('../PVector.js');
+jest.dontMock('../Iterator.js');
 var PVector = require('../PVector.js').PVector;
 
 describe('PVector', function() {

@@ -1,3 +1,4 @@
+import Iterator = require('./Iterator');
 export interface VectorFactory<T> {
     (...values: T[]): Vector<T>;
     empty(): Vector<T>;
@@ -23,9 +24,9 @@ export interface Vector<T> {
     indexOf(value: T): number;
     findIndex(fn: (value: T, index: number, vector: Vector<T>) => boolean, thisArg?: any): number;
     forEach(fn: (value: T, index: number, vector: Vector<T>) => any, thisArg?: any): void;
-    map<R>(fn: (value: T, index: number, vector: Vector<T>) => R, thisArg?: any): Vector<R>;
+    map<R>(fn: (value: T, index: number, vector: Vector<T>) => R, thisArg?: any): Iterator<number, R, Vector<T>>;
 }
-export declare class PVector<T> implements Vector<T> {
+export declare class PVector<T> extends Iterator<number, T, PVector<T>> implements Vector<T> {
     constructor(...values: T[]);
     static empty(): PVector<any>;
     static fromArray<T>(values: T[]): PVector<T>;
@@ -45,10 +46,9 @@ export declare class PVector<T> implements Vector<T> {
     public concat(...vectors: PVector<T>[]): PVector<T>;
     public slice(begin: number, end?: number): PVector<T>;
     public splice(index: number, removeNum: number, ...values: T[]): PVector<T>;
+    public iterate(fn: (value: T, index: number, vector: PVector<T>) => any, thisArg?: any): boolean;
     public indexOf(searchValue: T): number;
     public findIndex(fn: (value: T, index: number, vector: PVector<T>) => boolean, thisArg?: any): number;
-    public forEach(fn: (value: T, index: number, vector: PVector<T>) => any, thisArg?: any): void;
-    public map<R>(fn: (value: T, index: number, vector: PVector<T>) => R, thisArg?: any): PVector<R>;
     private _origin;
     private _size;
     private _level;

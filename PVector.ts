@@ -1,8 +1,11 @@
-"use strict";
+
+import Iterator = require('./Iterator');
+
 
 function invariant(condition, error) {
   if (!condition) throw new Error(error);
 }
+
 
 export interface VectorFactory<T> {
   (...values: Array<T>): Vector<T>;
@@ -39,14 +42,15 @@ export interface Vector<T> {
   indexOf(value: T): number;
   findIndex(fn: (value: T, index: number, vector: Vector<T>) => boolean, thisArg?: any): number;
   forEach(fn: (value: T, index: number, vector: Vector<T>) => any, thisArg?: any): void;
-  map<R>(fn: (value: T, index: number, vector: Vector<T>) => R, thisArg?: any): Vector<R>;
+  map<R>(fn: (value: T, index: number, vector: Vector<T>) => R, thisArg?: any): Iterator<number, R, Vector<T>>;
 }
 
 
-export class PVector<T> implements Vector<T> {
+export class PVector<T> extends Iterator<number, T, PVector<T>> implements Vector<T> {
 
   // @pragma Construction
   constructor(...values: Array<T>) {
+    super();
     return PVector.fromArray(values);
   }
 
@@ -180,7 +184,7 @@ export class PVector<T> implements Vector<T> {
       return PVector._make(this._origin, newSize, this._level, this._root, newTail);
     }
 
-    var newRoot = vectPop(this._root, this._size, this._level) || __EMPTY_VNODE;
+    var newRoot = vNodePop(this._root, this._size, this._level) || __EMPTY_VNODE;
     var newTail = this._nodeFor(newSize - 1);
     return PVector._make(this._origin, newSize, this._level, newRoot, newTail);
   }
@@ -295,47 +299,27 @@ export class PVector<T> implements Vector<T> {
 
   // @pragma Iteration
 
+  iterate(
+    fn: (value: T, index: number, vector: PVector<T>) => any, // false or undefined
+    thisArg?: any
+  ): boolean {
+    var tailOffset = getTailOffset(this._size);
+    return (
+      vNodeIterate(this._root, this._level, -this._origin, tailOffset - this._origin, fn, thisArg) &&
+      vNodeIterate(this._tail, 0, tailOffset - this._origin, this._size - this._origin, fn, thisArg)
+    );
+  }
+
   indexOf(searchValue: T): number {
     return this.findIndex(value => value === searchValue);
-    // TODO: this over-iterates.
-    var foundIndex = -1;
-    this.forEach(function (value, index) {
-      if (foundIndex === -1 && value === searchValue) {
-        foundIndex = index;
-      }
-    });
-    return foundIndex;
   }
 
   findIndex(
     fn: (value: T, index: number, vector: PVector<T>) => boolean,
     thisArg?: any
   ): number {
-    var index;
-    index = vectFindIndex(this, this._root, this._level, -this._origin, fn, thisArg);
-    if (index == null) {
-      var tailOffset = getTailOffset(this._size) - this._origin;
-      index = vectFindIndex(this, this._tail, 0, tailOffset, fn, thisArg);
-    }
-    return index >= 0 ? index : -1;
-  }
-
-  forEach(
-    fn: (value: T, index: number, vector: PVector<T>) => any,
-    thisArg?: any
-  ): void {
-    vectForEach(this, this._root, this._level, -this._origin, fn, thisArg);
-    var tailOffset = getTailOffset(this._size) - this._origin;
-    vectForEach(this, this._tail, 0, tailOffset, fn, thisArg);
-  }
-
-  map<R>(
-    fn: (value: T, index: number, vector: PVector<T>) => R,
-    thisArg?: any
-  ): PVector<R> {
-    // lazy sequence!
-    invariant(false, 'NYI');
-    return null;
+    var index = this.find(fn, thisArg);
+    return index == null ? -1 : index;
   }
 
   // @pragme Private
@@ -394,10 +378,10 @@ class VNode<T> {
   }
 }
 
-function vectPop<T>(node: VNode<T>, length: number, level: number): VNode<T> {
+function vNodePop<T>(node: VNode<T>, length: number, level: number): VNode<T> {
   var subidx = ((length - 1) >>> level) & MASK;
   if (level > SHIFT) {
-    var newChild = vectPop(this.array[subidx], length, level - SHIFT);
+    var newChild = vNodePop(this.array[subidx], length, level - SHIFT);
     if (newChild || subidx) {
       var newNode = node.clone();
       if (newChild) {
@@ -414,61 +398,31 @@ function vectPop<T>(node: VNode<T>, length: number, level: number): VNode<T> {
   }
 }
 
-function vectFindIndex<T>(
-  vector: Vector<T>,
+function vNodeIterate<T>(
   node: VNode<T>,
   level: number,
   offset: number,
-  fn: (value: T, index: number, vector: Vector<T>) => boolean,
+  max: number,
+  fn: (value: T, index: number, vector: Vector<T>) => any, // false or undefined
   thisArg: any
-): number {
-  var foundIndex;
+): boolean {
   if (level === 0) {
-    node.array.some((value, rawIndex) => {
+    return node.array.every((value, rawIndex) => {
       var index = rawIndex + offset;
-      if (index >= 0 && fn.call(thisArg, value, index, vector)) {
-        foundIndex = index;
-        return true;
-      }
+      return index < 0 || index >= max || fn.call(thisArg, value, index) !== false;
     });
   } else {
     var step = 1 << level;
     var newLevel = level - SHIFT;
-    node.array.some((value, index) => {
-      var newOffset = offset + index * step;
-      if (newOffset + step > 0) {
-        foundIndex = vectFindIndex(vector, value, newLevel, newOffset, fn, thisArg);
-        if (foundIndex >= 0) {
-          return true;
-        }
-      }
+    return node.array.every((value, levelIndex) => {
+      var newOffset = offset + levelIndex * step;
+      return newOffset >= max || newOffset + step <= 0 || vNodeIterate(value, newLevel, newOffset, max, fn, thisArg);
     });
   }
-  return foundIndex;
 }
 
-function vectForEach<T>(
-  vector: Vector<T>,
-  node: VNode<T>,
-  level: number,
-  offset: number,
-  fn: (value: T, index: number, vector: Vector<T>) => any,
-  thisArg: any
-): void {
-  if (level === 0) {
-    node.array.forEach((value, rawIndex) => {
-      var index = rawIndex + offset;
-      index >= 0 && fn.call(thisArg, value, index, vector);
-    });
-  } else {
-    var step = 1 << level;
-    var nextLevel = level - SHIFT;
-    node.array.forEach((nextNode, rawIndex) => {
-      var nextOffset = offset + rawIndex * step;
-      nextOffset + step > 0 && vectForEach(vector, nextNode, nextLevel, nextOffset, fn, thisArg);
-    });
-  }
-}
+
+
 
 var SHIFT = 5; // Resulted in best performance after ______?
 var SIZE = 1 << SHIFT;
