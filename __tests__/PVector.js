@@ -168,7 +168,6 @@ describe('PVector', function() {
     expect(r.toArray()).toEqual(['A', 'B', 'C']);
   });
 
-
   it('filters values', function() {
     var v = PVector('a', 'b', 'c', 'd', 'e', 'f');
 
@@ -177,6 +176,37 @@ describe('PVector', function() {
     });
 
     expect(r.toArray()).toEqual(['b', 'd', 'f']);
+  });
+
+  it('reduces values', function() {
+    var v = PVector(1,10,100);
+
+    var r = v.reduce(function (a, b) {
+      return a + b
+    }, 0);
+
+    expect(r).toEqual(111);
+  });
+
+  it('takes and skips values', function() {
+    var v = PVector('a', 'b', 'c', 'd', 'e', 'f');
+
+    var r = v.skip(2).take(2);
+
+    expect(r.toArray()).toEqual(['c', 'd']);
+  });
+
+  it('efficiently chains array methods', function() {
+    var v = PVector(1,2,3,4,5,6,7,8,9,10,11,12,13,14);
+
+    var r = v
+      .filter(function(x) { return x % 2 == 0 })
+      .skip(2)
+      .map(function(x) { return x * x })
+      .take(3)
+      .reduce(function(a, b) { return a + b }, 0);
+
+    expect(r).toEqual(200);
   });
 
   // TODO: assert that findIndex only calls the function as much as it needs to.

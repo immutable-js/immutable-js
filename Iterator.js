@@ -51,12 +51,64 @@ var Iterator = (function () {
         return foundKey;
     };
 
+    Iterator.prototype.reduce = function (fn, initialReduction, thisArg) {
+        var reduction = initialReduction;
+        this.iterate(function (v, k, c) {
+            reduction = fn.call(thisArg, reduction, v, k, c);
+        });
+        return reduction;
+    };
+
     Iterator.prototype.map = function (fn, thisArg) {
         return new MapIterator(this, fn, thisArg);
     };
 
     Iterator.prototype.filter = function (fn, thisArg) {
         return new FilterIterator(this, fn, thisArg);
+    };
+
+    Iterator.prototype.every = function (fn, thisArg) {
+        var every = true;
+        this.iterate(function (v, k, c) {
+            if (!fn.call(thisArg, v, k, c)) {
+                every = false;
+                return false;
+            }
+        });
+        return every;
+    };
+
+    Iterator.prototype.some = function (fn, thisArg) {
+        var some = false;
+        this.iterate(function (v, k, c) {
+            if (fn.call(thisArg, v, k, c)) {
+                some = true;
+                return false;
+            }
+        });
+        return some;
+    };
+
+    Iterator.prototype.take = function (amount) {
+        var iterations = 0;
+        return this.takeWhile(function () {
+            return iterations++ < amount;
+        });
+    };
+
+    Iterator.prototype.skip = function (amount) {
+        var iterations = 0;
+        return this.skipWhile(function () {
+            return iterations++ < amount;
+        });
+    };
+
+    Iterator.prototype.takeWhile = function (fn, thisArg) {
+        return new TakeIterator(this, fn, thisArg);
+    };
+
+    Iterator.prototype.skipWhile = function (fn, thisArg) {
+        return new SkipIterator(this, fn, thisArg);
     };
     return Iterator;
 })();
@@ -103,5 +155,54 @@ var FilterIterator = (function (_super) {
         });
     };
     return FilterIterator;
+})(Iterator);
+
+var TakeIterator = (function (_super) {
+    __extends(TakeIterator, _super);
+    function TakeIterator(iterator, predicate, predicateThisArg) {
+        _super.call(this, iterator.collection);
+        this.iterator = iterator;
+        this.predicate = predicate;
+        this.predicateThisArg = predicateThisArg;
+    }
+    TakeIterator.prototype.iterate = function (fn, thisArg) {
+        var predicate = this.predicate;
+        var predicateThisArg = this.predicateThisArg;
+        return this.iterator.iterate(function (v, k, c) {
+            if (predicate.call(predicateThisArg, v, k, c)) {
+                fn.call(thisArg, v, k, c);
+            } else {
+                return false;
+            }
+        });
+    };
+    return TakeIterator;
+})(Iterator);
+
+var SkipIterator = (function (_super) {
+    __extends(SkipIterator, _super);
+    function SkipIterator(iterator, predicate, predicateThisArg) {
+        _super.call(this, iterator.collection);
+        this.iterator = iterator;
+        this.predicate = predicate;
+        this.predicateThisArg = predicateThisArg;
+    }
+    SkipIterator.prototype.iterate = function (fn, thisArg) {
+        var predicate = this.predicate;
+        var predicateThisArg = this.predicateThisArg;
+        var numericKeys;
+        var iterations = 0;
+        var isSkipping = true;
+        return this.iterator.iterate(function (v, k, c) {
+            isSkipping = isSkipping && predicate.call(predicateThisArg, v, k, c);
+            if (!isSkipping) {
+                if (numericKeys == null) {
+                    numericKeys = typeof k === 'number';
+                }
+                fn.call(thisArg, v, numericKeys ? iterations++ : k, c);
+            }
+        });
+    };
+    return SkipIterator;
 })(Iterator);
 module.exports = Iterator;
