@@ -1,5 +1,4 @@
-jest.dontMock('../Range.js');
-jest.dontMock('../Iterator.js');
+jest.autoMockOff();
 var Range = require('../Range.js').Range;
 
 describe('Range', function() {

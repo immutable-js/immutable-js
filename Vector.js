@@ -4,8 +4,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var Iterable = require('./Iterator');
-var OrderedIterable = Iterable.OrderedIterable;
+var OrderedIterable = require('./OrderedIterable');
 
 function invariant(condition, error) {
     if (!condition)

@@ -1,5 +1,4 @@
-import Iterable = require('./Iterator');
-import OrderedIterable = Iterable.OrderedIterable;
+import OrderedIterable = require('./OrderedIterable');
 
 function invariant(condition, error) {
   if (!condition) throw new Error(error);

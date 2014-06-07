@@ -1,5 +1,4 @@
-jest.dontMock('../Queue.js');
-jest.dontMock('../Iterator.js');
+jest.autoMockOff();
 var PQueue = require('../Queue.js').PQueue;
 
 describe('PQueue', function() {

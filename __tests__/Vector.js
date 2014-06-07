@@ -1,5 +1,4 @@
-jest.dontMock('../Vector.js');
-jest.dontMock('../Iterator.js');
+jest.autoMockOff();
 var PVector = require('../Vector.js').PVector;
 
 describe('PVector', function() {

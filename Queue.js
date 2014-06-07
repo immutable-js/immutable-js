@@ -4,13 +4,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var Iterable = require('./Iterator');
-var OrderedIterable = Iterable.OrderedIterable;
-
-function invariant(condition, error) {
-    if (!condition)
-        throw new Error(error);
-}
+var OrderedIterable = require('./OrderedIterable');
 
 
 var PQueue = (function (_super) {
@@ -25,11 +19,11 @@ var PQueue = (function (_super) {
         return PQueue.fromArray(values);
     }
     PQueue.empty = function () {
-        if (!PQueue._empty) {
-            PQueue._empty = PQueue._make(undefined, undefined);
-            PQueue._empty.length = 0;
+        if (!__EMPTY_QUEUE) {
+            __EMPTY_QUEUE = PQueue._make(undefined, undefined);
+            __EMPTY_QUEUE.length = 0;
         }
-        return PQueue._empty;
+        return __EMPTY_QUEUE;
     };
 
     PQueue.fromArray = function (values) {
@@ -77,3 +71,5 @@ var PQueue = (function (_super) {
     return PQueue;
 })(OrderedIterable);
 exports.PQueue = PQueue;
+
+var __EMPTY_QUEUE;

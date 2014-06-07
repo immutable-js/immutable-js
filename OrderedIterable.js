@@ -4,91 +4,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-function invariant(condition, error) {
-    if (!condition)
-        throw new Error(error);
-}
-
-var Iterable = (function () {
-    function Iterable(collection) {
-        this.collection = collection;
-    }
-    Iterable.prototype.iterate = function (fn, thisArg) {
-        throw new Error('Abstract method');
-    };
-
-    Iterable.prototype.toArray = function () {
-        var array = [];
-        this.iterate(function (v, k) {
-            array.push(v);
-        });
-        return array;
-    };
-
-    // TODO: toVector() and toMap()
-    Iterable.prototype.keys = function () {
-        return this.map(function (v, k) {
-            return k;
-        });
-    };
-
-    Iterable.prototype.forEach = function (fn, thisArg) {
-        this.iterate(function (v, k, c) {
-            fn.call(thisArg, v, k, c);
-        });
-    };
-
-    Iterable.prototype.find = function (fn, thisArg) {
-        var foundKey;
-        this.iterate(function (v, k, c) {
-            if (fn.call(thisArg, v, k, c) === true) {
-                foundKey = k;
-                return false;
-            }
-        });
-        return foundKey;
-    };
-
-    Iterable.prototype.reduce = function (fn, initialReduction, thisArg) {
-        var reduction = initialReduction;
-        this.iterate(function (v, k, c) {
-            reduction = fn.call(thisArg, reduction, v, k, c);
-        });
-        return reduction;
-    };
-
-    Iterable.prototype.map = function (fn, thisArg) {
-        return new MapIterator(this, fn, thisArg);
-    };
-
-    Iterable.prototype.filter = function (fn, thisArg) {
-        return new FilterIterator(this, fn, thisArg);
-    };
-
-    Iterable.prototype.every = function (fn, thisArg) {
-        var every = true;
-        this.iterate(function (v, k, c) {
-            if (!fn.call(thisArg, v, k, c)) {
-                every = false;
-                return false;
-            }
-        });
-        return every;
-    };
-
-    Iterable.prototype.some = function (fn, thisArg) {
-        var some = false;
-        this.iterate(function (v, k, c) {
-            if (fn.call(thisArg, v, k, c)) {
-                some = true;
-                return false;
-            }
-        });
-        return some;
-    };
-    return Iterable;
-})();
-exports.Iterable = Iterable;
+var Iterable = require('./Iterable');
 
 var OrderedIterable = (function (_super) {
     __extends(OrderedIterable, _super);
@@ -110,11 +26,11 @@ var OrderedIterable = (function (_super) {
     };
 
     OrderedIterable.prototype.map = function (fn, thisArg) {
-        return new MapOrderedIterator(this, fn, thisArg);
+        return new MapIterator(this, fn, thisArg);
     };
 
     OrderedIterable.prototype.filter = function (fn, thisArg) {
-        return new FilterOrderedIterator(this, fn, thisArg);
+        return new FilterIterator(this, fn, thisArg);
     };
 
     OrderedIterable.prototype.indexOf = function (searchValue) {
@@ -151,7 +67,7 @@ var OrderedIterable = (function (_super) {
     };
     return OrderedIterable;
 })(Iterable);
-exports.OrderedIterable = OrderedIterable;
+
 
 var MapIterator = (function (_super) {
     __extends(MapIterator, _super);
@@ -171,26 +87,6 @@ var MapIterator = (function (_super) {
         });
     };
     return MapIterator;
-})(Iterable);
-
-var MapOrderedIterator = (function (_super) {
-    __extends(MapOrderedIterator, _super);
-    function MapOrderedIterator(iterator, mapper, mapThisArg) {
-        _super.call(this, iterator.collection);
-        this.iterator = iterator;
-        this.mapper = mapper;
-        this.mapThisArg = mapThisArg;
-    }
-    MapOrderedIterator.prototype.iterate = function (fn, thisArg) {
-        var map = this.mapper;
-        var mapThisArg = this.mapThisArg;
-        return this.iterator.iterate(function (v, k, c) {
-            if (fn.call(thisArg, map.call(mapThisArg, v, k, c), k, c) === false) {
-                return false;
-            }
-        });
-    };
-    return MapOrderedIterator;
 })(OrderedIterable);
 
 var FilterIterator = (function (_super) {
@@ -204,26 +100,6 @@ var FilterIterator = (function (_super) {
     FilterIterator.prototype.iterate = function (fn, thisArg) {
         var predicate = this.predicate;
         var predicateThisArg = this.predicateThisArg;
-        return this.iterator.iterate(function (v, k, c) {
-            if (predicate.call(predicateThisArg, v, k, c) && fn.call(thisArg, v, k, c) === false) {
-                return false;
-            }
-        });
-    };
-    return FilterIterator;
-})(Iterable);
-
-var FilterOrderedIterator = (function (_super) {
-    __extends(FilterOrderedIterator, _super);
-    function FilterOrderedIterator(iterator, predicate, predicateThisArg) {
-        _super.call(this, iterator.collection);
-        this.iterator = iterator;
-        this.predicate = predicate;
-        this.predicateThisArg = predicateThisArg;
-    }
-    FilterOrderedIterator.prototype.iterate = function (fn, thisArg) {
-        var predicate = this.predicate;
-        var predicateThisArg = this.predicateThisArg;
         var iterations = 0;
         return this.iterator.iterate(function (v, k, c) {
             if (predicate.call(predicateThisArg, v, k, c) && fn.call(thisArg, v, iterations++, c) === false) {
@@ -231,7 +107,7 @@ var FilterOrderedIterator = (function (_super) {
             }
         });
     };
-    return FilterOrderedIterator;
+    return FilterIterator;
 })(OrderedIterable);
 
 var TakeIterator = (function (_super) {
@@ -276,3 +152,4 @@ var SkipIterator = (function (_super) {
     };
     return SkipIterator;
 })(OrderedIterable);
+module.exports = OrderedIterable;

@@ -1,9 +1,4 @@
-import Iterable = require('./Iterator');
-import OrderedIterable = Iterable.OrderedIterable;
-
-function invariant(condition, error) {
-  if (!condition) throw new Error(error);
-}
+import OrderedIterable = require('./OrderedIterable');
 
 /**
  *
@@ -40,11 +35,11 @@ export class PQueue<T> extends OrderedIterable<T, PQueue<T>> implements Queue<T>
   }
 
   static empty(): PQueue<any> {
-    if (!PQueue._empty) {
-      PQueue._empty = PQueue._make(undefined, undefined);
-      PQueue._empty.length = 0;
+    if (!__EMPTY_QUEUE) {
+      __EMPTY_QUEUE = PQueue._make(undefined, undefined);
+      __EMPTY_QUEUE.length = 0;
     }
-    return PQueue._empty;
+    return __EMPTY_QUEUE;
   }
 
   static fromArray<T>(values: Array<T>): PQueue<T> {
@@ -90,7 +85,6 @@ export class PQueue<T> extends OrderedIterable<T, PQueue<T>> implements Queue<T>
     return true;
   }
 
-  private static _empty: PQueue<any>;
   private _value: T;
   private _next: PQueue<T>;
 
@@ -103,3 +97,5 @@ export class PQueue<T> extends OrderedIterable<T, PQueue<T>> implements Queue<T>
     return queue;
   }
 }
+
+var __EMPTY_QUEUE: PQueue<any>;

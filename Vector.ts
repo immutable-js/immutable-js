@@ -1,5 +1,4 @@
-import Iterable = require('./Iterator');
-import OrderedIterable = Iterable.OrderedIterable;
+import OrderedIterable = require('./OrderedIterable');
 
 function invariant(condition, error) {
   if (!condition) throw new Error(error);
@@ -412,4 +411,4 @@ var SHIFT = 5; // Resulted in best performance after ______?
 var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
 var __EMPTY_VNODE = new VNode([]);
-var __EMPTY_PVECT;
+var __EMPTY_PVECT: PVector<any>;

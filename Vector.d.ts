@@ -1,10 +1,10 @@
-import Iterable = require('./Iterator');
+import OrderedIterable = require('./OrderedIterable');
 export interface VectorFactory<T> {
     (...values: T[]): Vector<T>;
     empty(): Vector<T>;
     fromArray(values: T[]): Vector<T>;
 }
-export interface Vector<T> extends Iterable.OrderedIterable<T, Vector<T>> {
+export interface Vector<T> extends OrderedIterable<T, Vector<T>> {
     length: number;
     get(index: number): T;
     exists(index: number): boolean;
@@ -21,7 +21,7 @@ export interface Vector<T> extends Iterable.OrderedIterable<T, Vector<T>> {
     slice(begin: number, end?: number): Vector<T>;
     splice(index: number, removeNum: number, ...values: T[]): Vector<T>;
 }
-export declare class PVector<T> extends Iterable.OrderedIterable<T, PVector<T>> implements Vector<T> {
+export declare class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector<T> {
     constructor(...values: T[]);
     static empty(): PVector<any>;
     static fromArray<T>(values: T[]): PVector<T>;
