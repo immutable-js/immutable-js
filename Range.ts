@@ -1,6 +1,6 @@
 import OrderedIterable = require('./OrderedIterable');
 
-function invariant(condition, error) {
+function invariant(condition: boolean, error: string): void {
   if (!condition) throw new Error(error);
 }
 

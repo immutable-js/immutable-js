@@ -1,5 +1,5 @@
 jest.autoMockOff();
-var PVector = require('../Vector.js').PVector;
+var PVector = require('../build/Vector').PVector;
 
 describe('PVector', function() {
 

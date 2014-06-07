@@ -373,3 +373,4 @@ var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
 var __EMPTY_VNODE = new VNode([]);
 var __EMPTY_PVECT;
+//# sourceMappingURL=Vector.js.map

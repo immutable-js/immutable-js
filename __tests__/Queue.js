@@ -1,5 +1,5 @@
 jest.autoMockOff();
-var PQueue = require('../Queue.js').PQueue;
+var PQueue = require('../build/Queue').PQueue;
 
 describe('PQueue', function() {
 

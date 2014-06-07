@@ -9,7 +9,7 @@ class Iterable<K, V, C> {
   }
 
   toArray(): Array<V> {
-    var array = [];
+    var array: Array<V> = [];
     this.iterate(function (v, k) {
       array.push(v);
     });
@@ -35,7 +35,7 @@ class Iterable<K, V, C> {
     fn: (value: V, key: K, collection: C) => boolean,
     thisArg?: any
   ): K {
-    var foundKey;
+    var foundKey: K;
     this.iterate(function(v, k, c) {
       if (fn.call(thisArg, v, k, c) === true) {
         foundKey = k;

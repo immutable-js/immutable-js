@@ -1,1 +1,1 @@
-tsc --declaration --module commonjs --target ES5 Vector.ts Range.ts Queue.ts && npm test
+tsc --noImplicitAny --declaration --module commonjs --target ES5 --outDir build --sourcemap Vector.ts Range.ts Queue.ts && npm test

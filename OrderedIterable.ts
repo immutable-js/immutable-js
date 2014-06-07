@@ -2,7 +2,7 @@ import Iterable = require('./Iterable');
 
 class OrderedIterable<V, C> extends Iterable<number, V, C> {
   toArray(): Array<V> {
-    var array = [];
+    var array: Array<V> = [];
     this.iterate(function (v, k) {
       array[<number><any>k] = v;
     });
