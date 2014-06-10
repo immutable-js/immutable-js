@@ -3,6 +3,7 @@ declare class Iterable<K, V, C> {
     constructor(collection: C);
     public iterate(fn: (value: V, key: K, collection: C) => any, thisArg?: any): boolean;
     public toArray(): V[];
+    public toObj(): Object;
     public keys(): Iterable<K, K, C>;
     public forEach(fn: (value: V, key: K, collection: C) => any, thisArg?: any): void;
     public find(fn: (value: V, key: K, collection: C) => boolean, thisArg?: any): K;

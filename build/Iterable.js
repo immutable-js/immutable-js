@@ -20,6 +20,14 @@ var Iterable = (function () {
         return array;
     };
 
+    Iterable.prototype.toObj = function () {
+        var object = {};
+        this.iterate(function (v, k) {
+            object['' + k] = v;
+        });
+        return object;
+    };
+
     // TODO: toVector() and toMap()
     Iterable.prototype.keys = function () {
         return this.map(function (v, k) {
