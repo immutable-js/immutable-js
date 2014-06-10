@@ -135,6 +135,7 @@ class BoolRef {
 
 interface MNode<K, V> {
   editRef: EditRef;
+  // TODO: separate Key and Value arrays will make all the math easier to read
   arr: Array<any>;
   get(shift: number, hash: number, key: K, not_found?: V): V;
   set(shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V>;
@@ -534,6 +535,7 @@ class HashCollisionNode<K, V> implements MNode<K, V> {
     var earr = editable.arr;
     earr[idx] = earr[2 * this.cnt - 2];
     earr[idx + 1] = earr[2 * this.cnt - 1];
+    // TODO: don't just null, delete.
     earr[2 * this.cnt - 1] = null;
     earr[2 * this.cnt - 2] = null;
     editable.cnt--;

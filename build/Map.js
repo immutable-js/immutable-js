@@ -490,6 +490,8 @@ var HashCollisionNode = (function () {
         var earr = editable.arr;
         earr[idx] = earr[2 * this.cnt - 2];
         earr[idx + 1] = earr[2 * this.cnt - 1];
+
+        // TODO: don't just null, delete.
         earr[2 * this.cnt - 1] = null;
         earr[2 * this.cnt - 2] = null;
         editable.cnt--;

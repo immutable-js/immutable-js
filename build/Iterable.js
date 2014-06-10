@@ -20,7 +20,7 @@ var Iterable = (function () {
         return array;
     };
 
-    Iterable.prototype.toObj = function () {
+    Iterable.prototype.toObject = function () {
         var object = {};
         this.iterate(function (v, k) {
             object['' + k] = v;

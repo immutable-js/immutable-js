@@ -16,7 +16,7 @@ class Iterable<K, V, C> {
     return array;
   }
 
-  toObj(): Object {
+  toObject(): Object {
     var object: {[key: string]: V} = {};
     this.iterate(function (v, k) {
       object[''+k] = v;
