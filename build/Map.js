@@ -76,7 +76,7 @@ var Map = (function (_super) {
             return this;
         } else {
             var newRoot = this._root.delete(0, hashValue(k), k);
-            return newRoot === this._root ? this._root : Map._make(this.length - 1, newRoot);
+            return newRoot === this._root ? this : Map._make(this.length - 1, newRoot);
         }
     };
 
@@ -194,11 +194,11 @@ var BitmapIndexedNode = (function () {
             if (this.bitmap === bit) {
                 return null;
             }
-            return this.edit_and_remove_pair(editRef, bit, idx);
+            return edit_and_remove_pair(this, editRef, bit, idx);
         }
         if (key === key_or_nil) {
             didRemoveLeaf.val = true;
-            return this.edit_and_remove_pair(editRef, bit, idx);
+            return edit_and_remove_pair(this, editRef, bit, idx);
         }
         return this;
     };
@@ -265,7 +265,7 @@ var BitmapIndexedNode = (function () {
                 var editable = this.ensureEditable(editRef);
                 var earr = editable.arr;
                 didAddLeaf && (didAddLeaf.val = true);
-                array_copy(earr, 2 * idx, earr, 2 * (idx + 1), 2 * (n - idx));
+                array_copy_downward(earr, 2 * idx, earr, 2 * (idx + 1), 2 * (n - idx));
                 earr[2 * idx] = key;
                 earr[2 * idx + 1] = val;
                 editable.bitmap |= bit;
@@ -333,21 +333,6 @@ var BitmapIndexedNode = (function () {
 
     BitmapIndexedNode.prototype.iterate = function (map, fn, thisArg) {
         return mNodeIterate(map, this.arr, fn, thisArg);
-    };
-
-    // TODO: maybe inlineable?
-    BitmapIndexedNode.prototype.edit_and_remove_pair = function (editRef, bit, i) {
-        if (this.bitmap === bit) {
-            return null;
-        }
-        var editable = this.ensureEditable(editRef);
-        var earr = editable.arr;
-        var len = earr.length;
-        editable.bitmap = bit ^ editable.bitmap;
-        array_copy(earr, 2 * (i + 1), earr, 2 * i, len - (2 * (i + 1)));
-        earr[len - 2] = null;
-        earr[len - 1] = null;
-        return editable;
     };
     return BitmapIndexedNode;
 })();
@@ -668,12 +653,26 @@ function clone_and_set(arr, i, a, j, b) {
 }
 
 // TODO: inline
-function edit_and_set(inode, editRef, i, a, j, b) {
-    var editable = inode.ensureEditable(editRef);
+function edit_and_set(node, editRef, i, a, j, b) {
+    var editable = node.ensureEditable(editRef);
     editable.arr[i] = a;
     if (j != null) {
         editable.arr[j] = b;
     }
+    return editable;
+}
+
+function edit_and_remove_pair(node, editRef, bit, i) {
+    if (this.bitmap === bit) {
+        return null;
+    }
+    var editable = node.ensureEditable(editRef);
+    var earr = editable.arr;
+    editable.bitmap = bit ^ editable.bitmap;
+
+    // This, if array_copy_downwards, would be incorrect.
+    array_copy(earr, 2 * (i + 1), earr, 2 * i, earr.length - (2 * (i + 1)));
+    earr.length -= 2;
     return editable;
 }
 
@@ -685,6 +684,12 @@ function aclone(arr) {
 
 function array_copy(from, i, to, j, len) {
     for (var ii = 0; ii < len; ii++) {
+        to[j + ii] = from[i + ii];
+    }
+}
+
+function array_copy_downward(from, i, to, j, len) {
+    for (var ii = len - 1; ii >= 0; ii--) {
         to[j + ii] = from[i + ii];
     }
 }

@@ -75,7 +75,7 @@ export class Map<K, V> extends Iterable<K, V, Map<K, V>> {
       return this;
     } else {
       var newRoot = this._root.delete(0, hashValue(k), k);
-      return newRoot === this._root ? this._root : Map._make(this.length - 1, newRoot);
+      return newRoot === this._root ? this : Map._make(this.length - 1, newRoot);
     }
   }
 
@@ -212,11 +212,11 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
       if (this.bitmap === bit) {
         return null;
       }
-      return this.edit_and_remove_pair(editRef, bit, idx);
+      return edit_and_remove_pair(this, editRef, bit, idx);
     }
     if (key === key_or_nil) {
       didRemoveLeaf.val = true;
-      return this.edit_and_remove_pair(editRef, bit, idx);
+      return edit_and_remove_pair(this, editRef, bit, idx);
     }
     return this;
   }
@@ -294,7 +294,7 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
         var editable = this.ensureEditable(editRef);
         var earr: Array<any> = editable.arr;
         didAddLeaf && (didAddLeaf.val = true);
-        array_copy(earr, 2 * idx, earr, 2 * (idx + 1), 2 * (n - idx));
+        array_copy_downward(earr, 2 * idx, earr, 2 * (idx + 1), 2 * (n - idx));
         earr[2 * idx] = key;
         earr[2 * idx + 1] = val;
         editable.bitmap |= bit;
@@ -378,21 +378,6 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
     thisArg?: any
   ): boolean {
     return mNodeIterate(map, this.arr, fn, thisArg);
-  }
-
-  // TODO: maybe inlineable?
-  edit_and_remove_pair(editRef: EditRef, bit: number, i: number): MNode<K, V> {
-    if (this.bitmap === bit) {
-      return null;
-    }
-    var editable = this.ensureEditable(editRef);
-    var earr = editable.arr;
-    var len = earr.length;
-    editable.bitmap = bit ^ editable.bitmap;
-    array_copy(earr, 2 * (i + 1), earr, 2 * i, len - (2 * (i + 1)));
-    earr[len - 2] = null;
-    earr[len - 1] = null;
-    return editable;
   }
 }
 
@@ -742,12 +727,25 @@ function clone_and_set<V>(arr: Array<V>, i: number, a: V, j?: number, b?: V): Ar
 }
 
 // TODO: inline
-function edit_and_set<K, V, T>(inode: MNode<K, V>, editRef: EditRef, i: number, a: T, j?: number, b?: T): MNode<K, V> {
-  var editable = inode.ensureEditable(editRef);
+function edit_and_set<K, V, T>(node: MNode<K, V>, editRef: EditRef, i: number, a: T, j?: number, b?: T): MNode<K, V> {
+  var editable = node.ensureEditable(editRef);
   editable.arr[i] = a;
   if (j != null) {
     editable.arr[j] = b;
   }
+  return editable;
+}
+
+function edit_and_remove_pair<K, V>(node: BitmapIndexedNode<K, V>, editRef: EditRef, bit: number, i: number): BitmapIndexedNode<K, V> {
+  if (this.bitmap === bit) {
+    return null;
+  }
+  var editable = node.ensureEditable(editRef);
+  var earr = editable.arr;
+  editable.bitmap = bit ^ editable.bitmap;
+  // This, if array_copy_downwards, would be incorrect.
+  array_copy(earr, 2 * (i + 1), earr, 2 * i, earr.length - (2 * (i + 1)));
+  earr.length -= 2;
   return editable;
 }
 
@@ -759,6 +757,12 @@ function aclone<T>(arr: Array<T>): Array<T> {
 
 function array_copy<T>(from: Array<T>, i: number, to: Array<T>, j: number, len: number): void {
   for (var ii = 0; ii < len; ii++) {
+    to[j + ii] = from[i + ii];
+  }
+}
+
+function array_copy_downward<T>(from: Array<T>, i: number, to: Array<T>, j: number, len: number): void {
+  for (var ii = len - 1; ii >= 0; ii--) {
     to[j + ii] = from[i + ii];
   }
 }

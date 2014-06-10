@@ -28,14 +28,10 @@ describe('Map', function() {
 
   it('merges two maps', function() {
     var m1 = Map({'a': 'A', 'b': 'B', 'c': 'C'});
-    // TODO: BROKEN TEST!!!
-    /*
     var m2 = Map({'wow': 'OO', 'd': 'DD', 'b': 'BB'});
-    debugger;
     expect(m2.toObject()).toEqual({'wow': 'OO', 'd': 'DD', 'b': 'BB'});
     var m3 = m1.merge(m2);
     expect(m3.toObject()).toEqual({'a': 'A', 'b': 'BB', 'c': 'C', 'wow': 'OO', 'd': 'DD'});
-    */
   });
 
 });
