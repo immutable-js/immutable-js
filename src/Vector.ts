@@ -31,6 +31,11 @@ export interface Vector<T> extends OrderedIterable<T, Vector<T>> {
   concat(vec: Vector<T>): Vector<T>;
   slice(begin: number, end?: number): Vector<T>;
   splice(index: number, removeNum: number, ...values: Array<T>): Vector<T>;
+
+  // TODO: @pragma Mutability
+  //isTransient(): boolean;
+  //asTransient(): Map<K, V>;
+  //asPersistent(): Map<K, V>;
 }
 
 
@@ -302,7 +307,7 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
     return array;
   }
 
-  // @pragme Private
+  // @pragma Private
 
   private _origin: number;
   private _size: number;

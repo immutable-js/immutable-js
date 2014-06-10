@@ -6,9 +6,15 @@ function invariant(condition: any, error: string): void {
 
 export class Map<K, V> extends Iterable<K, V, Map<K, V>> {
 
+  // @pragma Construction
+
   constructor(obj: {[key: string]: V}) {
     super(this);
     return <Map<K,V>>(<any>Map.fromObj(obj));
+  }
+
+  static empty(): Map<any, any> {
+    return __EMPTY_MAP || (__EMPTY_MAP = Map._make(0));
   }
 
   static fromObj<V>(obj: {[key: string]: V}): Map<string, V> {
@@ -17,10 +23,6 @@ export class Map<K, V> extends Iterable<K, V, Map<K, V>> {
       map.set(k, obj[k]);
     }
     return map.asPersistent();
-  }
-
-  static empty(): Map<any, any> {
-    return __EMPTY_PMAP || (__EMPTY_PMAP = Map._make(0));
   }
 
   // @pragma Access
@@ -106,6 +108,8 @@ export class Map<K, V> extends Iterable<K, V, Map<K, V>> {
   ): boolean {
     return this._root && this._root.iterate(this, fn, thisArg);
   }
+
+  // @pragma Private
 
   private _root: MNode<K, V>;
   private _editRef: EditRef;
@@ -783,4 +787,4 @@ var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
 var __SENTINEL = {};
 var __EMPTY_MNODE: MNode<any, any> = new BitmapIndexedNode(null, 0, []);
-var __EMPTY_PMAP: Map<any, any>;
+var __EMPTY_MAP: Map<any, any>;

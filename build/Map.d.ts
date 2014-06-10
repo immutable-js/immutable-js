@@ -3,10 +3,10 @@ export declare class Map<K, V> extends Iterable<K, V, Map<K, V>> {
     constructor(obj: {
         [key: string]: V;
     });
+    static empty(): Map<any, any>;
     static fromObj<V>(obj: {
         [key: string]: V;
     }): Map<string, V>;
-    static empty(): Map<any, any>;
     public length: number;
     public has(k: K): boolean;
     public get(k: K): V;

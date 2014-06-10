@@ -13,10 +13,15 @@ function invariant(condition, error) {
 
 var Map = (function (_super) {
     __extends(Map, _super);
+    // @pragma Construction
     function Map(obj) {
         _super.call(this, this);
         return Map.fromObj(obj);
     }
+    Map.empty = function () {
+        return __EMPTY_MAP || (__EMPTY_MAP = Map._make(0));
+    };
+
     Map.fromObj = function (obj) {
         var map = Map.empty().asTransient();
         for (var k in obj)
@@ -24,10 +29,6 @@ var Map = (function (_super) {
                 map.set(k, obj[k]);
             }
         return map.asPersistent();
-    };
-
-    Map.empty = function () {
-        return __EMPTY_PMAP || (__EMPTY_PMAP = Map._make(0));
     };
 
     Map.prototype.has = function (k) {
@@ -707,5 +708,5 @@ var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
 var __SENTINEL = {};
 var __EMPTY_MNODE = new BitmapIndexedNode(null, 0, []);
-var __EMPTY_PMAP;
+var __EMPTY_MAP;
 //# sourceMappingURL=Map.js.map
