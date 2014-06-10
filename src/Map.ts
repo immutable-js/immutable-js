@@ -4,12 +4,6 @@ function invariant(condition: any, error: string): void {
   if (!condition) throw new Error(error);
 }
 
-export interface MapFactory<V> {
-  (obj: {[key: string]: V}): Map<string, V>;
-  empty(): Map<any, any>;
-  fromObj(obj: {[key: string]: V}): Map<string, V>;
-}
-
 export class Map<K, V> extends Iterable<K, V, Map<K, V>> {
 
   constructor(obj: {[key: string]: V}) {
@@ -55,7 +49,7 @@ export class Map<K, V> extends Iterable<K, V, Map<K, V>> {
     var didAddLeaf = new BoolRef();
     var newRoot = this._root || <MNode<K, V>>__EMPTY_MNODE;
     if (this._editRef) {
-      this._root = newRoot.setEditable(this._editRef, 0, hashValue(k), k, v, didAddLeaf);
+      this._root = newRoot.setTransient(this._editRef, 0, hashValue(k), k, v, didAddLeaf);
       if (didAddLeaf.val) {
         this.length++;
       }
@@ -72,7 +66,7 @@ export class Map<K, V> extends Iterable<K, V, Map<K, V>> {
     }
     if (this._editRef) {
       var didRemoveLeaf = new BoolRef();
-      this._root = this._root.deleteEditable(this._editRef, 0, hashValue(k), k, didRemoveLeaf);
+      this._root = this._root.deleteTransient(this._editRef, 0, hashValue(k), k, didRemoveLeaf);
       if (didRemoveLeaf.val) {
         this.length--;
       }
@@ -131,7 +125,7 @@ class EditRef {
 }
 
 class BoolRef {
-  constructor(public val = false) {}
+  constructor(public val?: boolean) {}
 }
 
 
@@ -140,9 +134,9 @@ interface MNode<K, V> {
   arr: Array<any>;
   get(shift: number, hash: number, key: K, not_found?: V): V;
   set(shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V>;
-  setEditable(editRef: EditRef, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V>;
+  setTransient(editRef: EditRef, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V>;
   delete(shift: number, hash: number, key: K): MNode<K, V>;
-  deleteEditable(editRef: EditRef, shift: number, hash: number, key: K, didRemoveLeaf: BoolRef): MNode<K, V>;
+  deleteTransient(editRef: EditRef, shift: number, hash: number, key: K, didRemoveLeaf: BoolRef): MNode<K, V>;
   ensureEditable(editRef: EditRef): MNode<K, V>;
   iterate(
     map: Map<K, V>,
@@ -194,7 +188,7 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
     return key === key_or_nil ? new BitmapIndexedNode<K, V>(null, this.bitmap ^ bit, remove_pair(this.arr, idx)) : this;
   }
 
-  deleteEditable(editRef: EditRef, shift: number, hash: number, key: K, didRemoveLeaf: BoolRef): MNode<K, V> {
+  deleteTransient(editRef: EditRef, shift: number, hash: number, key: K, didRemoveLeaf: BoolRef): MNode<K, V> {
     var bit = 1 << ((hash >>> shift) & MASK);
     if ((this.bitmap & bit) === 0) {
       return this;
@@ -203,7 +197,7 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
     var key_or_nil = this.arr[2 * idx];
     var val_or_node = this.arr[2 * idx + 1];
     if (key_or_nil == null) {
-      var n = val_or_node.deleteEditable(editRef, shift + SHIFT, hash, key, didRemoveLeaf);
+      var n = val_or_node.deleteTransient(editRef, shift + SHIFT, hash, key, didRemoveLeaf);
       if (n === val_or_node) {
         return this;
       }
@@ -278,7 +272,7 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
     if (key1hash === hash) {
       newNode = new HashCollisionNode<K, V>(null, key1hash, 2, [key_or_nil, val_or_node, key, val]);
     } else {
-      // TODO, setEditable?
+      // TODO, setTransient?
       newNode = (<MNode<K, V>>__EMPTY_MNODE)
         .set(shift, key1hash, key_or_nil, val_or_node)
         .set(shift, hash, key, val);
@@ -286,7 +280,7 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
     return new BitmapIndexedNode<K, V>(null, this.bitmap, clone_and_set(this.arr, 2 * idx, null, 2 * idx + 1, newNode));
   }
 
-  setEditable(editRef: EditRef, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V> {
+  setTransient(editRef: EditRef, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V> {
     var bit = 1 << ((hash >>> shift) & MASK);
     var idx = bitmap_indexed_node_index(this.bitmap, bit);
     if ((this.bitmap & bit) === 0) {
@@ -304,13 +298,13 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
       if (n >= 16) { // why 16?
         var nodes = new Array(SIZE);
         var jdx = (hash >>> shift) & MASK;
-        nodes[jdx] = (<MNode<K, V>>__EMPTY_MNODE).setEditable(editRef, shift + SHIFT, hash, key, val, didAddLeaf);
+        nodes[jdx] = (<MNode<K, V>>__EMPTY_MNODE).setTransient(editRef, shift + SHIFT, hash, key, val, didAddLeaf);
         var kvi = 0;
         for (var ii = 0; ii < SIZE; ii++) {
           if (((this.bitmap >>> ii) & 1) === 1) {
             nodes[ii] =
               this.arr[kvi] != null ?
-              (<MNode<K, V>>__EMPTY_MNODE).setEditable(
+              (<MNode<K, V>>__EMPTY_MNODE).setTransient(
                 editRef,
                 shift + SHIFT,
                 hashValue(this.arr[kvi]),
@@ -339,7 +333,7 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
     var val_or_node = this.arr[2 * idx + 1];
     var newNode: MNode<K, V>;
     if (key_or_nil == null) {
-      newNode = val_or_node.setEditable(editRef, shift + SHIFT, hash, key, val, didAddLeaf);
+      newNode = val_or_node.setTransient(editRef, shift + SHIFT, hash, key, val, didAddLeaf);
       if (newNode === val_or_node) {
         return this;
       }
@@ -357,8 +351,8 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
       newNode = new HashCollisionNode<K, V>(null, key1hash, 2, [key_or_nil, val_or_node, key, val]);
     } else {
       newNode = (<MNode<K, V>>__EMPTY_MNODE)
-        .setEditable(editRef, shift + SHIFT, key1hash, key_or_nil, val_or_node)
-        .setEditable(editRef, shift + SHIFT, hash, key, val);
+        .setTransient(editRef, shift + SHIFT, key1hash, key_or_nil, val_or_node)
+        .setTransient(editRef, shift + SHIFT, hash, key, val);
     }
     return edit_and_set(this, editRef, 2 * idx, null, 2 * idx + 1, newNode);
   }
@@ -428,13 +422,13 @@ class ArrayNode<K, V> implements MNode<K, V> {
     return new ArrayNode<K, V>(null, this.cnt, clone_and_set(this.arr, idx, n));
   }
 
-  deleteEditable(editRef: EditRef, shift: number, hash: number, key: K, didRemoveLeaf: BoolRef): MNode<K, V> {
+  deleteTransient(editRef: EditRef, shift: number, hash: number, key: K, didRemoveLeaf: BoolRef): MNode<K, V> {
     var idx = (hash >>> shift) & MASK;
     var node = this.arr[idx];
     if (node == null) {
       return this;
     }
-    var n = node.deleteEditable(editRef, shift + SHIFT, hash, key, didRemoveLeaf);
+    var n = node.deleteTransient(editRef, shift + SHIFT, hash, key, didRemoveLeaf);
     if (n === node) {
       return this;
     }
@@ -461,10 +455,10 @@ class ArrayNode<K, V> implements MNode<K, V> {
     return new ArrayNode<K, V>(null, newCount, clone_and_set(this.arr, idx, newNode));
   }
 
-  setEditable(editRef: EditRef, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V> {
+  setTransient(editRef: EditRef, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V> {
     var idx = (hash >>> shift) & MASK;
     var node = <MNode<K, V>>this.arr[idx];
-    var newNode = (node || <MNode<K, V>>__EMPTY_MNODE).setEditable(editRef, shift + SHIFT, hash, key, val, didAddLeaf);
+    var newNode = (node || <MNode<K, V>>__EMPTY_MNODE).setTransient(editRef, shift + SHIFT, hash, key, val, didAddLeaf);
     if (newNode === node) {
       return this;
     }
@@ -523,7 +517,7 @@ class HashCollisionNode<K, V> implements MNode<K, V> {
     return new HashCollisionNode<K, V>(null, this.collisionHash, this.cnt - 1, remove_pair(this.arr, Math.floor(idx / 2)));
   }
 
-  deleteEditable(editRef: EditRef, shift: number, hash: number, key: K, didRemoveLeaf: BoolRef): MNode<K, V> {
+  deleteTransient(editRef: EditRef, shift: number, hash: number, key: K, didRemoveLeaf: BoolRef): MNode<K, V> {
     var idx = hash_collision_node_find_index(this.arr, this.cnt, key);
     if (idx === -1) {
       return this;
@@ -566,13 +560,13 @@ class HashCollisionNode<K, V> implements MNode<K, V> {
     return new HashCollisionNode<K, V>(null, this.collisionHash, this.cnt, clone_and_set(this.arr, idx + 1, val));
   }
 
-  setEditable(editRef: EditRef, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V> {
+  setTransient(editRef: EditRef, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V> {
     if (hash !== this.collisionHash) {
       return new BitmapIndexedNode<K, V>(
         editRef,
         1 << ((this.collisionHash >>> shift) & MASK),
         [null, this, null, null]
-      ).setEditable(editRef, shift, hash, key, val, didAddLeaf);
+      ).setTransient(editRef, shift, hash, key, val, didAddLeaf);
     }
     var idx = hash_collision_node_find_index(this.arr, this.cnt, key);
     if (idx === -1) {
@@ -690,7 +684,7 @@ function mNodeIterate<K, V>(
   for (var i = 0; i < arr.length; i += 2) {
     var k = arr[i];
     if (k != null) {
-      if (fn.call(thisArg, k, arr[i + 1], map) === false) {
+      if (fn.call(thisArg, arr[i + 1], k, map) === false) {
         return false;
       }
     } else {

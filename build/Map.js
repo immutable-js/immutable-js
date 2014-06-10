@@ -51,7 +51,7 @@ var Map = (function (_super) {
         var didAddLeaf = new BoolRef();
         var newRoot = this._root || __EMPTY_MNODE;
         if (this._editRef) {
-            this._root = newRoot.setEditable(this._editRef, 0, hashValue(k), k, v, didAddLeaf);
+            this._root = newRoot.setTransient(this._editRef, 0, hashValue(k), k, v, didAddLeaf);
             if (didAddLeaf.val) {
                 this.length++;
             }
@@ -68,7 +68,7 @@ var Map = (function (_super) {
         }
         if (this._editRef) {
             var didRemoveLeaf = new BoolRef();
-            this._root = this._root.deleteEditable(this._editRef, 0, hashValue(k), k, didRemoveLeaf);
+            this._root = this._root.deleteTransient(this._editRef, 0, hashValue(k), k, didRemoveLeaf);
             if (didRemoveLeaf.val) {
                 this.length--;
             }
@@ -125,7 +125,6 @@ var EditRef = (function () {
 
 var BoolRef = (function () {
     function BoolRef(val) {
-        if (typeof val === "undefined") { val = false; }
         this.val = val;
     }
     return BoolRef;
@@ -175,7 +174,7 @@ var BitmapIndexedNode = (function () {
         return key === key_or_nil ? new BitmapIndexedNode(null, this.bitmap ^ bit, remove_pair(this.arr, idx)) : this;
     };
 
-    BitmapIndexedNode.prototype.deleteEditable = function (editRef, shift, hash, key, didRemoveLeaf) {
+    BitmapIndexedNode.prototype.deleteTransient = function (editRef, shift, hash, key, didRemoveLeaf) {
         var bit = 1 << ((hash >>> shift) & MASK);
         if ((this.bitmap & bit) === 0) {
             return this;
@@ -184,7 +183,7 @@ var BitmapIndexedNode = (function () {
         var key_or_nil = this.arr[2 * idx];
         var val_or_node = this.arr[2 * idx + 1];
         if (key_or_nil == null) {
-            var n = val_or_node.deleteEditable(editRef, shift + SHIFT, hash, key, didRemoveLeaf);
+            var n = val_or_node.deleteTransient(editRef, shift + SHIFT, hash, key, didRemoveLeaf);
             if (n === val_or_node) {
                 return this;
             }
@@ -250,13 +249,13 @@ var BitmapIndexedNode = (function () {
         if (key1hash === hash) {
             newNode = new HashCollisionNode(null, key1hash, 2, [key_or_nil, val_or_node, key, val]);
         } else {
-            // TODO, setEditable?
+            // TODO, setTransient?
             newNode = __EMPTY_MNODE.set(shift, key1hash, key_or_nil, val_or_node).set(shift, hash, key, val);
         }
         return new BitmapIndexedNode(null, this.bitmap, clone_and_set(this.arr, 2 * idx, null, 2 * idx + 1, newNode));
     };
 
-    BitmapIndexedNode.prototype.setEditable = function (editRef, shift, hash, key, val, didAddLeaf) {
+    BitmapIndexedNode.prototype.setTransient = function (editRef, shift, hash, key, val, didAddLeaf) {
         var bit = 1 << ((hash >>> shift) & MASK);
         var idx = bitmap_indexed_node_index(this.bitmap, bit);
         if ((this.bitmap & bit) === 0) {
@@ -274,11 +273,11 @@ var BitmapIndexedNode = (function () {
             if (n >= 16) {
                 var nodes = new Array(SIZE);
                 var jdx = (hash >>> shift) & MASK;
-                nodes[jdx] = __EMPTY_MNODE.setEditable(editRef, shift + SHIFT, hash, key, val, didAddLeaf);
+                nodes[jdx] = __EMPTY_MNODE.setTransient(editRef, shift + SHIFT, hash, key, val, didAddLeaf);
                 var kvi = 0;
                 for (var ii = 0; ii < SIZE; ii++) {
                     if (((this.bitmap >>> ii) & 1) === 1) {
-                        nodes[ii] = this.arr[kvi] != null ? __EMPTY_MNODE.setEditable(editRef, shift + SHIFT, hashValue(this.arr[kvi]), this.arr[kvi], this.arr[kvi + 1], didAddLeaf) : this.arr[kvi + 1];
+                        nodes[ii] = this.arr[kvi] != null ? __EMPTY_MNODE.setTransient(editRef, shift + SHIFT, hashValue(this.arr[kvi]), this.arr[kvi], this.arr[kvi + 1], didAddLeaf) : this.arr[kvi + 1];
                         kvi += 2;
                     }
                 }
@@ -299,7 +298,7 @@ var BitmapIndexedNode = (function () {
         var val_or_node = this.arr[2 * idx + 1];
         var newNode;
         if (key_or_nil == null) {
-            newNode = val_or_node.setEditable(editRef, shift + SHIFT, hash, key, val, didAddLeaf);
+            newNode = val_or_node.setTransient(editRef, shift + SHIFT, hash, key, val, didAddLeaf);
             if (newNode === val_or_node) {
                 return this;
             }
@@ -316,7 +315,7 @@ var BitmapIndexedNode = (function () {
         if (key1hash === hash) {
             newNode = new HashCollisionNode(null, key1hash, 2, [key_or_nil, val_or_node, key, val]);
         } else {
-            newNode = __EMPTY_MNODE.setEditable(editRef, shift + SHIFT, key1hash, key_or_nil, val_or_node).setEditable(editRef, shift + SHIFT, hash, key, val);
+            newNode = __EMPTY_MNODE.setTransient(editRef, shift + SHIFT, key1hash, key_or_nil, val_or_node).setTransient(editRef, shift + SHIFT, hash, key, val);
         }
         return edit_and_set(this, editRef, 2 * idx, null, 2 * idx + 1, newNode);
     };
@@ -382,13 +381,13 @@ var ArrayNode = (function () {
         return new ArrayNode(null, this.cnt, clone_and_set(this.arr, idx, n));
     };
 
-    ArrayNode.prototype.deleteEditable = function (editRef, shift, hash, key, didRemoveLeaf) {
+    ArrayNode.prototype.deleteTransient = function (editRef, shift, hash, key, didRemoveLeaf) {
         var idx = (hash >>> shift) & MASK;
         var node = this.arr[idx];
         if (node == null) {
             return this;
         }
-        var n = node.deleteEditable(editRef, shift + SHIFT, hash, key, didRemoveLeaf);
+        var n = node.deleteTransient(editRef, shift + SHIFT, hash, key, didRemoveLeaf);
         if (n === node) {
             return this;
         }
@@ -415,10 +414,10 @@ var ArrayNode = (function () {
         return new ArrayNode(null, newCount, clone_and_set(this.arr, idx, newNode));
     };
 
-    ArrayNode.prototype.setEditable = function (editRef, shift, hash, key, val, didAddLeaf) {
+    ArrayNode.prototype.setTransient = function (editRef, shift, hash, key, val, didAddLeaf) {
         var idx = (hash >>> shift) & MASK;
         var node = this.arr[idx];
-        var newNode = (node || __EMPTY_MNODE).setEditable(editRef, shift + SHIFT, hash, key, val, didAddLeaf);
+        var newNode = (node || __EMPTY_MNODE).setTransient(editRef, shift + SHIFT, hash, key, val, didAddLeaf);
         if (newNode === node) {
             return this;
         }
@@ -477,7 +476,7 @@ var HashCollisionNode = (function () {
         return new HashCollisionNode(null, this.collisionHash, this.cnt - 1, remove_pair(this.arr, Math.floor(idx / 2)));
     };
 
-    HashCollisionNode.prototype.deleteEditable = function (editRef, shift, hash, key, didRemoveLeaf) {
+    HashCollisionNode.prototype.deleteTransient = function (editRef, shift, hash, key, didRemoveLeaf) {
         var idx = hash_collision_node_find_index(this.arr, this.cnt, key);
         if (idx === -1) {
             return this;
@@ -516,9 +515,9 @@ var HashCollisionNode = (function () {
         return new HashCollisionNode(null, this.collisionHash, this.cnt, clone_and_set(this.arr, idx + 1, val));
     };
 
-    HashCollisionNode.prototype.setEditable = function (editRef, shift, hash, key, val, didAddLeaf) {
+    HashCollisionNode.prototype.setTransient = function (editRef, shift, hash, key, val, didAddLeaf) {
         if (hash !== this.collisionHash) {
-            return new BitmapIndexedNode(editRef, 1 << ((this.collisionHash >>> shift) & MASK), [null, this, null, null]).setEditable(editRef, shift, hash, key, val, didAddLeaf);
+            return new BitmapIndexedNode(editRef, 1 << ((this.collisionHash >>> shift) & MASK), [null, this, null, null]).setTransient(editRef, shift, hash, key, val, didAddLeaf);
         }
         var idx = hash_collision_node_find_index(this.arr, this.cnt, key);
         if (idx === -1) {
@@ -614,7 +613,7 @@ function mNodeIterate(map, arr, fn, thisArg) {
     for (var i = 0; i < arr.length; i += 2) {
         var k = arr[i];
         if (k != null) {
-            if (fn.call(thisArg, k, arr[i + 1], map) === false) {
+            if (fn.call(thisArg, arr[i + 1], k, map) === false) {
                 return false;
             }
         } else {

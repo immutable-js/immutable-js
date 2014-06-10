@@ -1,13 +1,4 @@
 import Iterable = require('./Iterable');
-export interface MapFactory<V> {
-    (obj: {
-        [key: string]: V;
-    }): Map<string, V>;
-    empty(): Map<any, any>;
-    fromObj(obj: {
-        [key: string]: V;
-    }): Map<string, V>;
-}
 export declare class Map<K, V> extends Iterable<K, V, Map<K, V>> {
     constructor(obj: {
         [key: string]: V;

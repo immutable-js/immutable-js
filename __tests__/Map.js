@@ -10,4 +10,15 @@ describe('Map', function() {
     expect(m.get('c')).toBe('C');
   });
 
+  it('iterates values', function() {
+    var m = Map({'a': 'A', 'b': 'B', 'c': 'C'});
+    var iterator = jest.genMockFunction();
+    m.forEach(iterator);
+    expect(iterator.mock.calls).toEqual([
+      ['A', 'a', m],
+      ['B', 'b', m],
+      ['C', 'c', m]
+    ]);
+  });
+
 });
