@@ -221,13 +221,14 @@ var BitmapIndexedNode = (function () {
                 }
                 return new ArrayNode(null, n + 1, nodes);
             }
-            var new_arr = new Array(2 * (n + 1));
-            array_copy(this.arr, 0, new_arr, 0, 2 * idx);
-            new_arr[2 * idx] = key;
-            new_arr[2 * idx + 1] = val;
-            array_copy(this.arr, 2 * idx, new_arr, 2 * (idx + 1), 2 * (n - idx));
+            var newArr = this.arr.slice();
+            if (newArr.length == 2 * idx) {
+                newArr.push(key, val);
+            } else {
+                newArr.splice(2 * idx, 0, key, val);
+            }
             didAddLeaf && (didAddLeaf.val = true);
-            return new BitmapIndexedNode(null, this.bitmap | bit, new_arr);
+            return new BitmapIndexedNode(null, this.bitmap | bit, newArr);
         }
         var key_or_nil = this.arr[2 * idx];
         var val_or_node = this.arr[2 * idx + 1];
@@ -382,7 +383,7 @@ var ArrayNode = (function () {
         if (newNode === node) {
             return this;
         }
-        var newCount = this.cnt + (node ? 1 : 0);
+        var newCount = this.cnt + (node ? 0 : 1);
         return new ArrayNode(null, newCount, clone_and_set(this.arr, idx, newNode));
     };
 
@@ -607,15 +608,14 @@ function bit_count(n) {
 }
 
 function remove_pair(arr, i) {
-    var newArr = new Array(arr.length - 2);
-    array_copy(arr, 0, newArr, 0, 2 * i);
-    array_copy(arr, 2 * (i + 1), newArr, 2 * i, newArr.length - 2 * i);
+    var newArr = arr.slice();
+    newArr.splice(2 * i, 2);
     return newArr;
 }
 
 // TODO: inline
 function clone_and_set(arr, i, a, j, b) {
-    var newArr = aclone(arr);
+    var newArr = arr.slice();
     newArr[i] = a;
     if (j != null) {
         newArr[j] = b;
@@ -640,27 +640,8 @@ function edit_and_remove_pair(node, editRef, bit, i) {
     var editable = node.ensureEditable(editRef);
     var earr = editable.arr;
     editable.bitmap = bit ^ editable.bitmap;
-
-    // This, if array_copy_downwards, would be incorrect.
-    array_copy(earr, 2 * (i + 1), earr, 2 * i, earr.length - (2 * (i + 1)));
-    earr.length -= 2;
+    earr.splice(2 * i, 2);
     return editable;
-}
-
-function aclone(arr) {
-    return arr.slice();
-}
-
-function array_copy(from, i, to, j, len) {
-    for (var ii = 0; ii < len; ii++) {
-        to[j + ii] = from[i + ii];
-    }
-}
-
-function array_copy_downward(from, i, to, j, len) {
-    for (var ii = len - 1; ii >= 0; ii--) {
-        to[j + ii] = from[i + ii];
-    }
 }
 
 function pack_array_node(array_node, editRef, idx) {

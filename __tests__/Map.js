@@ -34,4 +34,47 @@ describe('Map', function() {
     expect(m3.toObject()).toEqual({'a': 'A', 'b': 'BB', 'c': 'C', 'wow': 'OO', 'd': 'DD'});
   });
 
+  it('is persistent to sets', function() {
+    var m1 = Map();
+    var m2 = m1.set('a', 'Aardvark');
+    var m3 = m2.set('b', 'Baboon');
+    var m4 = m3.set('c', 'Canary');
+    var m5 = m4.set('b', 'Bonobo');
+    expect(m1.length).toBe(0);
+    expect(m2.length).toBe(1);
+    expect(m3.length).toBe(2);
+    expect(m4.length).toBe(3);
+    expect(m5.length).toBe(3);
+    expect(m3.get('b')).toBe('Baboon');
+    expect(m5.get('b')).toBe('Bonobo');
+  });
+
+  it('is persistent to deletes', function() {
+    var m1 = Map();
+    var m2 = m1.set('a', 'Aardvark');
+    var m3 = m2.set('b', 'Baboon');
+    var m4 = m3.set('c', 'Canary');
+    var m5 = m4.delete('b');
+    expect(m1.length).toBe(0);
+    expect(m2.length).toBe(1);
+    expect(m3.length).toBe(2);
+    expect(m4.length).toBe(3);
+    expect(m5.length).toBe(2);
+    expect(m3.has('b')).toBe(true);
+    expect(m3.get('b')).toBe('Baboon');
+    expect(m5.has('b')).toBe(false);
+    expect(m5.get('b')).toBe(undefined);
+    expect(m5.get('c')).toBe('Canary');
+  });
+
+  it('can map many items', function() {
+    var m = Map();
+    // TODO: fails at 2000! Stack overflow!
+    for (var ii = 0; ii < 2; ii++) {
+      m = m.set('thing:' + ii, ii);
+    }
+    expect(m.length).toBe(2);
+    expect(m.get('thing:1')).toBe(1);
+  });
+
 });
