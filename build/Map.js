@@ -188,7 +188,7 @@ var BitmapIndexedNode = (function () {
         }
         var key1hash = hashValue(key_or_nil);
         if (key1hash === hash) {
-            newNode = new HashCollisionNode(ownerID, key1hash, 2, [key_or_nil, val_or_node, key, val]);
+            newNode = new HashCollisionNode(ownerID, hash, [key_or_nil, val_or_node, key, val]);
         } else {
             newNode = __EMPTY_MNODE.set(ownerID, shift + SHIFT, key1hash, key_or_nil, val_or_node).set(ownerID, shift + SHIFT, hash, key, val);
         }
@@ -232,7 +232,19 @@ var BitmapIndexedNode = (function () {
     };
 
     BitmapIndexedNode.prototype.iterate = function (map, fn, thisArg) {
-        return mNodeIterate(map, this.arr, fn, thisArg);
+        for (var ii = 0; ii < SIZE; ii++) {
+            if (this.bitmap & (1 << ii)) {
+                var key = this.arr[ii * 2];
+                if (key != null) {
+                    if (fn.call(thisArg, this.arr[ii * 2 + 1], key, map) === false) {
+                        return false;
+                    }
+                } else if (!this.arr[ii * 2 + 1].iterate(map, fn, thisArg)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     };
     return BitmapIndexedNode;
 })();
@@ -304,9 +316,9 @@ var ArrayNode = (function () {
     };
 
     ArrayNode.prototype.iterate = function (map, fn, thisArg) {
-        for (var i = 0; i < this.arr.length; i++) {
-            var item = this.arr[i];
-            if (item && !item.iterate(map, fn, thisArg)) {
+        for (var ii = 0; ii < this.arr.length; ii++) {
+            var node = this.arr[ii];
+            if (node && !node.iterate(map, fn, thisArg)) {
                 return false;
             }
         }
@@ -316,18 +328,14 @@ var ArrayNode = (function () {
 })();
 
 var HashCollisionNode = (function () {
-    function HashCollisionNode(ownerID, collisionHash, cnt, arr) {
+    function HashCollisionNode(ownerID, collisionHash, arr) {
         this.ownerID = ownerID;
         this.collisionHash = collisionHash;
-        this.cnt = cnt;
         this.arr = arr;
     }
     HashCollisionNode.prototype.get = function (shift, hash, key, not_found) {
-        var idx = hash_collision_node_find_index(this.arr, this.cnt, key);
-        if (idx >= 0 && key === this.arr[idx]) {
-            return this.arr[idx + 1];
-        }
-        return not_found;
+        var idx = this.indexOf(key);
+        return idx === -1 ? not_found : this.arr[idx + 1];
     };
 
     HashCollisionNode.prototype.set = function (ownerID, shift, hash, key, val, didAddLeaf) {
@@ -338,11 +346,10 @@ var HashCollisionNode = (function () {
             bitmapArr[bitmapIdx * 2 + 1] = this;
             return new BitmapIndexedNode(ownerID, 1 << bitmapIdx, 1, bitmapArr).set(ownerID, shift, hash, key, val);
         }
-        var idx = hash_collision_node_find_index(this.arr, this.cnt, key);
+        var idx = this.indexOf(key);
         if (idx === -1) {
             var editable = this.ensureOwner(ownerID);
             editable.arr.push(key, val);
-            editable.cnt += 1;
             didAddLeaf && (didAddLeaf.val = true);
             return editable;
         }
@@ -353,12 +360,12 @@ var HashCollisionNode = (function () {
     };
 
     HashCollisionNode.prototype.delete = function (ownerID, shift, hash, key, didRemoveLeaf) {
-        var idx = hash_collision_node_find_index(this.arr, this.cnt, key);
+        var idx = this.indexOf(key);
         if (idx === -1) {
             return this;
         }
         didRemoveLeaf && (didRemoveLeaf.val = true);
-        if (this.cnt === 1) {
+        if (this.arr.length === 2) {
             return null;
         }
         var editable = this.ensureOwner(ownerID);
@@ -369,19 +376,33 @@ var HashCollisionNode = (function () {
             earr[idx + 1] = earr[arrLen - 1];
         }
         earr.length -= 2;
-        editable.cnt--;
         return editable;
+    };
+
+    HashCollisionNode.prototype.indexOf = function (key) {
+        for (var ii = 0; ii < this.arr.length; ii += 2) {
+            if (key === this.arr[ii]) {
+                return ii;
+            }
+        }
+        return -1;
     };
 
     HashCollisionNode.prototype.ensureOwner = function (ownerID) {
         if (ownerID && ownerID === this.ownerID) {
             return this;
         }
-        return new HashCollisionNode(ownerID, this.collisionHash, this.cnt, this.arr.slice());
+        return new HashCollisionNode(ownerID, this.collisionHash, this.arr.slice());
     };
 
     HashCollisionNode.prototype.iterate = function (map, fn, thisArg) {
-        return mNodeIterate(map, this.arr, fn, thisArg);
+        for (var ii = 0; ii < this.arr.length; ii += 2) {
+            var k = this.arr[ii];
+            if (fn.call(thisArg, this.arr[ii + 1], k, map) === false) {
+                return false;
+            }
+        }
+        return true;
     };
     return HashCollisionNode;
 })();
@@ -438,33 +459,6 @@ var STRING_HASH_MAX_VAL = 0x100000000;
 var STRING_HASH_CACHE_MAX_SIZE = 255;
 var STRING_HASH_CACHE_SIZE = 0;
 var STRING_HASH_CACHE = {};
-
-function mNodeIterate(map, arr, fn, thisArg) {
-    for (var i = 0; i < arr.length; i += 2) {
-        var k = arr[i];
-        if (k != null) {
-            if (fn.call(thisArg, arr[i + 1], k, map) === false) {
-                return false;
-            }
-        } else {
-            var node = arr[i + 1];
-            if (node && !node.iterate(map, fn, thisArg)) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-function hash_collision_node_find_index(arr, cnt, key) {
-    var lim = 2 * cnt;
-    for (var i = 0; i < lim; i += 2) {
-        if (key === arr[i]) {
-            return i;
-        }
-    }
-    return -1;
-}
 
 function edit_and_set(node, ownerID, i, a, j, b) {
     var editable = node.ensureOwner(ownerID);
