@@ -8,8 +8,11 @@ export class Map<K, V> extends Iterable<K, V, Map<K, V>> {
 
   // @pragma Construction
 
-  constructor(obj: {[key: string]: V}) {
+  constructor(obj?: {[key: string]: V}) {
     super(this);
+    if (!obj) {
+      return Map.empty();
+    }
     return <Map<K,V>>(<any>Map.fromObj(obj));
   }
 
@@ -48,9 +51,9 @@ export class Map<K, V> extends Iterable<K, V, Map<K, V>> {
     if (k == null) {
       return this;
     }
-    var didAddLeaf = new BoolRef();
-    var newRoot = (this._root || <MNode<K, V>>__EMPTY_MNODE).set(this._editRef, 0, hashValue(k), k, v, didAddLeaf);
-    if (this._editRef) {
+    var didAddLeaf = BoolRef();
+    var newRoot = (this._root || <MNode<K, V>>__EMPTY_MNODE).set(this._ownerID, 0, hashValue(k), k, v, didAddLeaf);
+    if (this._ownerID) {
       didAddLeaf.val && this.length++;
       this._root = newRoot;
       return this;
@@ -62,9 +65,9 @@ export class Map<K, V> extends Iterable<K, V, Map<K, V>> {
     if (k == null || this._root == null) {
       return this;
     }
-    var didRemoveLeaf = new BoolRef();
-    var newRoot = this._root.delete(this._editRef, 0, hashValue(k), k, didRemoveLeaf);
-    if (this._editRef) {
+    var didRemoveLeaf = BoolRef();
+    var newRoot = this._root.delete(this._ownerID, 0, hashValue(k), k, didRemoveLeaf);
+    if (this._ownerID) {
       didRemoveLeaf.val && this.length--;
       this._root = newRoot;
       return this;
@@ -81,16 +84,20 @@ export class Map<K, V> extends Iterable<K, V, Map<K, V>> {
   // @pragma Mutability
 
   isTransient(): boolean {
-    return !!this._editRef;
+    return !!this._ownerID;
   }
 
   asTransient(): Map<K, V> {
-    return this._editRef ? this : Map._make(this.length, this._root, new EditRef());
+    return this._ownerID ? this : Map._make(this.length, this._root, new OwnerID());
   }
 
   asPersistent(): Map<K, V> {
-    this._editRef = undefined;
+    this._ownerID = undefined;
     return this;
+  }
+
+  clone(): Map<K, V> {
+    return Map._make(this.length, this._root, this._ownerID);
   }
 
   // @pragma Iteration
@@ -105,35 +112,31 @@ export class Map<K, V> extends Iterable<K, V, Map<K, V>> {
   // @pragma Private
 
   private _root: MNode<K, V>;
-  private _editRef: EditRef;
+  private _ownerID: OwnerID;
 
-  private static _make<K, V>(length: number, root?: MNode<K, V>, editRef?: EditRef) {
+  private static _make<K, V>(length: number, root?: MNode<K, V>, ownerID?: OwnerID) {
     var map = Object.create(Map.prototype);
     map.length = length;
     map._root = root;
-    map._editRef = editRef;
+    map._ownerID = ownerID;
     return map;
   }
 }
 
 
-class EditRef {
+class OwnerID {
   constructor() {}
-}
-
-class BoolRef {
-  constructor(public val?: boolean) {}
 }
 
 
 interface MNode<K, V> {
-  editRef: EditRef;
+  ownerID: OwnerID;
   // TODO: separate Key and Value arrays will make all the math easier to read
   arr: Array<any>;
   get(shift: number, hash: number, key: K, not_found?: V): V;
-  set(editRef: EditRef, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V>;
-  delete(editRef: EditRef, shift: number, hash: number, key: K, didRemoveLeaf?: BoolRef): MNode<K, V>;
-  ensureEditable(editRef: EditRef): MNode<K, V>;
+  set(ownerID: OwnerID, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V>;
+  delete(ownerID: OwnerID, shift: number, hash: number, key: K, didRemoveLeaf?: BoolRef): MNode<K, V>;
+  ensureOwner(ownerID: OwnerID): MNode<K, V>;
   iterate(
     map: Map<K, V>,
     fn: (value: V, key: K, collection: Map<K, V>) => any, // false or undefined
@@ -144,7 +147,7 @@ interface MNode<K, V> {
 
 class BitmapIndexedNode<K, V> implements MNode<K, V> {
 
-  constructor(public editRef: EditRef, public bitmap: number, public arr: Array<any>) {}
+  constructor(public ownerID: OwnerID, public bitmap: number, public arr: Array<any>) {}
 
   get(shift: number, hash: number, key: K, not_found?: V): V {
     var bit = 1 << ((hash >>> shift) & MASK);
@@ -160,16 +163,16 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
     return key === key_or_nil ? val_or_node : not_found;
   }
 
-  set(editRef: EditRef, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V> {
+  set(ownerID: OwnerID, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V> {
     var bit = 1 << ((hash >>> shift) & MASK);
     var idx = bitmap_indexed_node_index(this.bitmap, bit);
     if ((this.bitmap & bit) === 0) {
       didAddLeaf && (didAddLeaf.val = true);
       var n = bit_count(this.bitmap);
       if (n >= 16) { // why 16? Half of SIZE? Could we fit 32 here if we had separate storage?
-        return unpack_array_node(this, editRef, shift, hash, key, val);
+        return unpack_array_node(this, ownerID, shift, hash, key, val);
       }
-      var editable = this.ensureEditable(editRef);
+      var editable = this.ensureOwner(ownerID);
       if (editable.arr.length == 2 * idx) {
         editable.arr.push(key, val);
       } else {
@@ -182,31 +185,31 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
     var val_or_node = this.arr[2 * idx + 1];
     var newNode: MNode<K, V>;
     if (key_or_nil == null) {
-      newNode = val_or_node.set(editRef, shift + SHIFT, hash, key, val, didAddLeaf);
+      newNode = val_or_node.set(ownerID, shift + SHIFT, hash, key, val, didAddLeaf);
       if (newNode === val_or_node) {
         return this;
       }
-      return edit_and_set(this, editRef, 2 * idx + 1, newNode);
+      return edit_and_set(this, ownerID, 2 * idx + 1, newNode);
     }
     if (key === key_or_nil) {
       if (val === val_or_node) {
         return this;
       }
-      return edit_and_set(this, editRef, 2 * idx + 1, val);
+      return edit_and_set(this, ownerID, 2 * idx + 1, val);
     }
     var key1hash = hashValue(key_or_nil);
     if (key1hash === hash) {
-      newNode = new HashCollisionNode<K, V>(editRef, key1hash, 2, [key_or_nil, val_or_node, key, val]);
+      newNode = new HashCollisionNode<K, V>(ownerID, key1hash, 2, [key_or_nil, val_or_node, key, val]);
     } else {
       newNode = (<MNode<K, V>>__EMPTY_MNODE)
-        .set(editRef, shift + SHIFT, key1hash, key_or_nil, val_or_node)
-        .set(editRef, shift + SHIFT, hash, key, val);
+        .set(ownerID, shift + SHIFT, key1hash, key_or_nil, val_or_node)
+        .set(ownerID, shift + SHIFT, hash, key, val);
     }
     didAddLeaf && (didAddLeaf.val = true);
-    return edit_and_set(this, editRef, 2 * idx, null, 2 * idx + 1, newNode);
+    return edit_and_set(this, ownerID, 2 * idx, null, 2 * idx + 1, newNode);
   }
 
-  delete(editRef: EditRef, shift: number, hash: number, key: K, didRemoveLeaf?: BoolRef): MNode<K, V> {
+  delete(ownerID: OwnerID, shift: number, hash: number, key: K, didRemoveLeaf?: BoolRef): MNode<K, V> {
     var bit = 1 << ((hash >>> shift) & MASK);
     if ((this.bitmap & bit) === 0) {
       return this;
@@ -215,30 +218,30 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
     var key_or_nil = this.arr[2 * idx];
     var val_or_node = this.arr[2 * idx + 1];
     if (key_or_nil == null) {
-      var n = val_or_node.delete(editRef, shift + SHIFT, hash, key, didRemoveLeaf);
+      var n = val_or_node.delete(ownerID, shift + SHIFT, hash, key, didRemoveLeaf);
       if (n === val_or_node) {
         return this;
       }
       if (n != null) {
-        return edit_and_set(this, editRef, 2 * idx + 1, n);
+        return edit_and_set(this, ownerID, 2 * idx + 1, n);
       }
       if (this.bitmap === bit) {
         return null;
       }
-      return edit_and_remove_pair(this, editRef, bit, idx);
+      return edit_and_remove_pair(this, ownerID, bit, idx);
     }
     if (key === key_or_nil) {
       didRemoveLeaf && (didRemoveLeaf.val = true);
-      return edit_and_remove_pair(this, editRef, bit, idx);
+      return edit_and_remove_pair(this, ownerID, bit, idx);
     }
     return this;
   }
 
-  ensureEditable(editRef: EditRef): BitmapIndexedNode<K, V> {
-    if (editRef && editRef === this.editRef) {
+  ensureOwner(ownerID: OwnerID): BitmapIndexedNode<K, V> {
+    if (ownerID && ownerID === this.ownerID) {
       return this;
     }
-    return new BitmapIndexedNode<K, V>(editRef, this.bitmap, this.arr.slice());
+    return new BitmapIndexedNode<K, V>(ownerID, this.bitmap, this.arr.slice());
   }
 
   iterate(
@@ -253,7 +256,7 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
 
 class ArrayNode<K, V> implements MNode<K, V> {
 
-  constructor(public editRef: EditRef, public cnt: number, public arr: Array<MNode<K, V>>) {}
+  constructor(public ownerID: OwnerID, public cnt: number, public arr: Array<MNode<K, V>>) {}
 
   get(shift: number, hash: number, key: K, not_found?: V): V {
     var idx = (hash >>> shift) & MASK;
@@ -262,14 +265,14 @@ class ArrayNode<K, V> implements MNode<K, V> {
       not_found;
   }
 
-  set(editRef: EditRef, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V> {
+  set(ownerID: OwnerID, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V> {
     var idx = (hash >>> shift) & MASK;
     var node = <MNode<K, V>>this.arr[idx];
-    var newNode = (node || <MNode<K, V>>__EMPTY_MNODE).set(editRef, shift + SHIFT, hash, key, val, didAddLeaf);
+    var newNode = (node || <MNode<K, V>>__EMPTY_MNODE).set(ownerID, shift + SHIFT, hash, key, val, didAddLeaf);
     if (newNode === node) {
       return this;
     }
-    var editable = this.ensureEditable(editRef);
+    var editable = this.ensureOwner(ownerID);
     editable.arr[idx] = newNode;
     if (!node) {
       editable.cnt++;
@@ -277,33 +280,33 @@ class ArrayNode<K, V> implements MNode<K, V> {
     return editable;
   }
 
-  delete(editRef: EditRef, shift: number, hash: number, key: K, didRemoveLeaf?: BoolRef): MNode<K, V> {
+  delete(ownerID: OwnerID, shift: number, hash: number, key: K, didRemoveLeaf?: BoolRef): MNode<K, V> {
     var idx = (hash >>> shift) & MASK;
     var node = this.arr[idx];
     if (node == null) {
       return this;
     }
-    var n = node.delete(editRef, shift + SHIFT, hash, key, didRemoveLeaf);
+    var n = node.delete(ownerID, shift + SHIFT, hash, key, didRemoveLeaf);
     if (n === node) {
       return this;
     }
     if (n == null) {
       if (this.cnt <= 8) { // why 8?
-        return pack_array_node(this, editRef, idx);
+        return pack_array_node(this, ownerID, idx);
       }
-      var editable = this.ensureEditable(editRef);
+      var editable = this.ensureOwner(ownerID);
       editable.arr[idx] = n;
       editable.cnt--;
       return editable;
     }
-    return edit_and_set(this, editRef, idx, n);
+    return edit_and_set(this, ownerID, idx, n);
   }
 
-  ensureEditable(editRef: EditRef): ArrayNode<K, V> {
-    if (editRef && editRef === this.editRef) {
+  ensureOwner(ownerID: OwnerID): ArrayNode<K, V> {
+    if (ownerID && ownerID === this.ownerID) {
       return this;
     }
-    return new ArrayNode<K, V>(editRef, this.cnt, this.arr.slice());
+    return new ArrayNode<K, V>(ownerID, this.cnt, this.arr.slice());
   }
 
   iterate(
@@ -324,7 +327,7 @@ class ArrayNode<K, V> implements MNode<K, V> {
 
 class HashCollisionNode<K, V> implements MNode<K, V> {
 
-  constructor(public editRef: EditRef, public collisionHash: number, public cnt: number, public arr: Array<any>) {}
+  constructor(public ownerID: OwnerID, public collisionHash: number, public cnt: number, public arr: Array<any>) {}
 
   get(shift: number, hash: number, key: K, not_found: V): V {
     var idx = hash_collision_node_find_index(this.arr, this.cnt, key);
@@ -334,17 +337,17 @@ class HashCollisionNode<K, V> implements MNode<K, V> {
     return not_found;
   }
 
-  set(editRef: EditRef, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V> {
+  set(ownerID: OwnerID, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V> {
     if (hash !== this.collisionHash) {
       return new BitmapIndexedNode<K, V>(
-        editRef,
+        ownerID,
         1 << ((this.collisionHash >>> shift) & MASK),
         [null, this]
-      ).set(editRef, shift, hash, key, val, didAddLeaf);
+      ).set(ownerID, shift, hash, key, val, didAddLeaf);
     }
     var idx = hash_collision_node_find_index(this.arr, this.cnt, key);
     if (idx === -1) {
-      var editable = this.ensureEditable(editRef);
+      var editable = this.ensureOwner(ownerID);
       editable.arr.push(key, val);
       editable.cnt += 1;
       didAddLeaf && (didAddLeaf.val = true);
@@ -353,10 +356,10 @@ class HashCollisionNode<K, V> implements MNode<K, V> {
     if (this.arr[idx + 1] === val) {
       return this;
     }
-    return edit_and_set(this, editRef, idx + 1, val);
+    return edit_and_set(this, ownerID, idx + 1, val);
   }
 
-  delete(editRef: EditRef, shift: number, hash: number, key: K, didRemoveLeaf?: BoolRef): MNode<K, V> {
+  delete(ownerID: OwnerID, shift: number, hash: number, key: K, didRemoveLeaf?: BoolRef): MNode<K, V> {
     var idx = hash_collision_node_find_index(this.arr, this.cnt, key);
     if (idx === -1) {
       return this;
@@ -365,7 +368,7 @@ class HashCollisionNode<K, V> implements MNode<K, V> {
     if (this.cnt === 1) {
       return null;
     }
-    var editable = this.ensureEditable(editRef);
+    var editable = this.ensureOwner(ownerID);
     var earr = editable.arr;
     var arrLen = earr.length;
     if (idx < arrLen - 2) {
@@ -377,11 +380,11 @@ class HashCollisionNode<K, V> implements MNode<K, V> {
     return editable;
   }
 
-  ensureEditable(editRef: EditRef): HashCollisionNode<K, V> {
-    if (editRef && editRef === this.editRef) {
+  ensureOwner(ownerID: OwnerID): HashCollisionNode<K, V> {
+    if (ownerID && ownerID === this.ownerID) {
       return this;
     }
-    return new HashCollisionNode<K, V>(editRef, this.collisionHash, this.cnt, this.arr.slice());
+    return new HashCollisionNode<K, V>(ownerID, this.collisionHash, this.cnt, this.arr.slice());
   }
 
   iterate(
@@ -396,6 +399,16 @@ class HashCollisionNode<K, V> implements MNode<K, V> {
 
 
 
+interface BoolRef {
+  val: boolean;
+}
+
+function BoolRef(val?: boolean): BoolRef {
+  __BOOL_REF.val = val;
+  return __BOOL_REF;
+}
+
+var __BOOL_REF = {val: false};
 
 
 
@@ -497,8 +510,8 @@ function bit_count(n: number): number {
 }
 
 // TODO: inline
-function edit_and_set<K, V, T>(node: MNode<K, V>, editRef: EditRef, i: number, a: T, j?: number, b?: T): MNode<K, V> {
-  var editable = node.ensureEditable(editRef);
+function edit_and_set<K, V, T>(node: MNode<K, V>, ownerID: OwnerID, i: number, a: T, j?: number, b?: T): MNode<K, V> {
+  var editable = node.ensureOwner(ownerID);
   editable.arr[i] = a;
   if (j != null) {
     editable.arr[j] = b;
@@ -506,18 +519,18 @@ function edit_and_set<K, V, T>(node: MNode<K, V>, editRef: EditRef, i: number, a
   return editable;
 }
 
-function edit_and_remove_pair<K, V>(node: BitmapIndexedNode<K, V>, editRef: EditRef, bit: number, i: number): BitmapIndexedNode<K, V> {
+function edit_and_remove_pair<K, V>(node: BitmapIndexedNode<K, V>, ownerID: OwnerID, bit: number, i: number): BitmapIndexedNode<K, V> {
   if (this.bitmap === bit) {
     return null;
   }
-  var editable = node.ensureEditable(editRef);
+  var editable = node.ensureOwner(ownerID);
   var earr = editable.arr;
   editable.bitmap ^= bit;
   earr.splice(2 * i, 2);
   return editable;
 }
 
-function pack_array_node<K, V>(array_node: ArrayNode<K, V>, editRef: EditRef, idx: number): BitmapIndexedNode<K, V> {
+function pack_array_node<K, V>(array_node: ArrayNode<K, V>, ownerID: OwnerID, idx: number): BitmapIndexedNode<K, V> {
   var arr = array_node.arr;
   var len = 2 * (array_node.cnt - 1);
   var new_arr = new Array(len);
@@ -530,12 +543,12 @@ function pack_array_node<K, V>(array_node: ArrayNode<K, V>, editRef: EditRef, id
       j += 2;
     }
   }
-  return new BitmapIndexedNode<K, V>(editRef, bitmap, new_arr);
+  return new BitmapIndexedNode<K, V>(ownerID, bitmap, new_arr);
 }
 
 function unpack_array_node<K, V>(
   node: BitmapIndexedNode<K, V>,
-  editRef: EditRef,
+  ownerID: OwnerID,
   shift: number,
   hash: number,
   key: K,
@@ -544,7 +557,7 @@ function unpack_array_node<K, V>(
   var nodes: Array<any> = [];
   var jdx = (hash >>> shift) & MASK;
   nodes[jdx] = new BitmapIndexedNode<K, V>(
-    editRef,
+    ownerID,
     1 << ((hash >>> (shift + SHIFT)) & MASK),
     [key, val]
   );
@@ -554,14 +567,14 @@ function unpack_array_node<K, V>(
       nodes[ii] = node.arr[kvi] == null ?
         node.arr[kvi + 1] :
         new BitmapIndexedNode<K, V>(
-          editRef,
+          ownerID,
           1 << ((hashValue(node.arr[kvi]) >>> (shift + SHIFT)) & MASK),
           [node.arr[kvi], node.arr[kvi + 1]]
         );
       kvi += 2;
     }
   }
-  return new ArrayNode<K, V>(editRef, kvi / 2, nodes);
+  return new ArrayNode<K, V>(ownerID, kvi / 2, nodes);
 }
 
 
