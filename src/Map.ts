@@ -147,14 +147,14 @@ interface MNode<K, V> {
 
 class BitmapIndexedNode<K, V> implements MNode<K, V> {
 
-  constructor(public ownerID: OwnerID, public bitmap: number, public arr: Array<any>) {}
+  constructor(public ownerID: OwnerID, public bitmap: number, public cnt: number, public arr: Array<any>) {}
 
   get(shift: number, hash: number, key: K, not_found?: V): V {
-    var bit = 1 << ((hash >>> shift) & MASK);
+    var idx = (hash >>> shift) & MASK;
+    var bit = 1 << idx;
     if ((this.bitmap & bit) === 0) {
       return not_found;
     }
-    var idx = bitmap_indexed_node_index(this.bitmap, bit);
     var key_or_nil = this.arr[2 * idx];
     var val_or_node = this.arr[2 * idx + 1];
     if (key_or_nil == null) {
@@ -164,41 +164,30 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
   }
 
   set(ownerID: OwnerID, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V> {
-    var bit = 1 << ((hash >>> shift) & MASK);
-    var idx = bitmap_indexed_node_index(this.bitmap, bit);
+    var idx = (hash >>> shift) & MASK;
+    var bit = 1 << idx;
     if ((this.bitmap & bit) === 0) {
       didAddLeaf && (didAddLeaf.val = true);
-      var n = bit_count(this.bitmap);
-      if (n >= 16) { // why 16? Half of SIZE? Could we fit 32 here if we had separate storage?
+      if (this.cnt >= 16) { // why 16? Half of SIZE? Could we fit 32 here if we had separate storage?
         var nodes: Array<any> = [];
         var jdx = (hash >>> shift) & MASK;
-        nodes[jdx] = new BitmapIndexedNode<K, V>(
-          ownerID,
-          1 << ((hash >>> (shift + SHIFT)) & MASK),
-          [key, val]
-        );
+        nodes[jdx] = (<MNode<K, V>>__EMPTY_MNODE).set(ownerID, shift + SHIFT, hash, key, val);
         var kvi = 0;
         for (var ii = 0; ii < SIZE; ii++) {
           if (this.bitmap & (1 << ii)) {
             nodes[ii] = this.arr[kvi] == null ?
               this.arr[kvi + 1] :
-              new BitmapIndexedNode<K, V>(
-                ownerID,
-                1 << ((hashValue(this.arr[kvi]) >>> (shift + SHIFT)) & MASK),
-                [this.arr[kvi], this.arr[kvi + 1]]
-              );
+              (<MNode<K, V>>__EMPTY_MNODE).set(ownerID, shift + SHIFT, hashValue(this.arr[kvi]), this.arr[kvi], this.arr[kvi + 1]);
             kvi += 2;
           }
         }
         return new ArrayNode<K, V>(ownerID, kvi / 2, nodes);
       }
       var editable = this.ensureOwner(ownerID);
-      if (editable.arr.length == 2 * idx) {
-        editable.arr.push(key, val);
-      } else {
-        editable.arr.splice(2 * idx, 0, key, val);
-      }
+      editable.arr[2 * idx] = key;
+      editable.arr[2 * idx + 1] = val;
       editable.bitmap |= bit;
+      editable.cnt++;
       return editable;
     }
     var key_or_nil = this.arr[2 * idx];
@@ -230,11 +219,11 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
   }
 
   delete(ownerID: OwnerID, shift: number, hash: number, key: K, didRemoveLeaf?: BoolRef): MNode<K, V> {
-    var bit = 1 << ((hash >>> shift) & MASK);
+    var idx = (hash >>> shift) & MASK;
+    var bit = 1 << idx;
     if ((this.bitmap & bit) === 0) {
       return this;
     }
-    var idx = bitmap_indexed_node_index(this.bitmap, bit);
     var key_or_nil = this.arr[2 * idx];
     var val_or_node = this.arr[2 * idx + 1];
     if (key_or_nil == null) {
@@ -261,7 +250,7 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
     if (ownerID && ownerID === this.ownerID) {
       return this;
     }
-    return new BitmapIndexedNode<K, V>(ownerID, this.bitmap, this.arr.slice());
+    return new BitmapIndexedNode<K, V>(ownerID, this.bitmap, this.cnt, this.arr.slice());
   }
 
   iterate(
@@ -313,17 +302,17 @@ class ArrayNode<K, V> implements MNode<K, V> {
     if (n == null) {
       if (this.cnt <= 8) { // why 8?
         var len = 2 * (this.cnt - 1);
-        var new_arr = new Array(len);
-        var j = 1;
+        var new_arr: Array<any> = [];
+        var j = 0;
         var bitmap = 0;
         for (var i = 0; i < len; i++) {
           if (i !== idx && this.arr[i] != null) {
-            new_arr[j] = this.arr[i];
+            new_arr[i * 2 + 1] = this.arr[i];
             bitmap |= 1 << i;
-            j += 2;
+            j++;
           }
         }
-        return new BitmapIndexedNode<K, V>(ownerID, bitmap, new_arr);
+        return new BitmapIndexedNode<K, V>(ownerID, bitmap, j, new_arr);
       }
       var editable = this.ensureOwner(ownerID);
       editable.arr[idx] = n;
@@ -370,11 +359,12 @@ class HashCollisionNode<K, V> implements MNode<K, V> {
 
   set(ownerID: OwnerID, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V> {
     if (hash !== this.collisionHash) {
-      return new BitmapIndexedNode<K, V>(
-        ownerID,
-        1 << ((this.collisionHash >>> shift) & MASK),
-        [null, this]
-      ).set(ownerID, shift, hash, key, val, didAddLeaf);
+      didAddLeaf && (didAddLeaf.val = true);
+      var bitmapIdx = (this.collisionHash >>> shift) & MASK;
+      var bitmapArr: Array<any> = [];
+      bitmapArr[bitmapIdx * 2 + 1] = this;
+      return new BitmapIndexedNode<K, V>(ownerID, 1 << bitmapIdx, 1, bitmapArr)
+        .set(ownerID, shift, hash, key, val);
     }
     var idx = hash_collision_node_find_index(this.arr, this.cnt, key);
     if (idx === -1) {
@@ -529,17 +519,6 @@ function hash_collision_node_find_index<K>(arr: Array<any>, cnt: number, key: K)
   return -1;
 }
 
-function bitmap_indexed_node_index(bitmap: number, bit: number): number {
-  return bit_count(bitmap & (bit - 1));
-}
-
-// Hamming weight
-function bit_count(n: number): number {
-  n -= (n >> 1) & 0x55555555;
-  n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
-  return (((n + (n >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
-}
-
 function edit_and_set<K, V, T>(node: MNode<K, V>, ownerID: OwnerID, i: number, a: T, j?: number, b?: T): MNode<K, V> {
   var editable = node.ensureOwner(ownerID);
   editable.arr[i] = a;
@@ -554,9 +533,12 @@ function edit_and_remove_pair<K, V>(node: BitmapIndexedNode<K, V>, ownerID: Owne
     return null;
   }
   var editable = node.ensureOwner(ownerID);
-  var earr = editable.arr;
+  // Technically, since we always check the bitmap first,
+  // we don't need to delete these, but doing so frees up memory.
+  delete editable.arr[2 * i];
+  delete editable.arr[2 * i + 1];
   editable.bitmap ^= bit;
-  earr.splice(2 * i, 2);
+  editable.cnt--;
   return editable;
 }
 
@@ -565,5 +547,5 @@ var SHIFT = 5; // Resulted in best performance after ______?
 var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
 var __SENTINEL = {};
-var __EMPTY_MNODE: MNode<any, any> = new BitmapIndexedNode(null, 0, []);
+var __EMPTY_MNODE: MNode<any, any> = new BitmapIndexedNode(null, 0, 0, []);
 var __EMPTY_MAP: Map<any, any>;
