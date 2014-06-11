@@ -207,19 +207,10 @@ var BitmapIndexedNode = (function () {
         var bit = 1 << ((hash >>> shift) & MASK);
         var idx = bitmap_indexed_node_index(this.bitmap, bit);
         if ((this.bitmap & bit) === 0) {
+            didAddLeaf && (didAddLeaf.val = true);
             var n = bit_count(this.bitmap);
             if (n >= 16) {
-                var nodes = new Array(SIZE);
-                var jdx = (hash >>> shift) & MASK;
-                nodes[jdx] = __EMPTY_MNODE.set(shift + SHIFT, hash, key, val, didAddLeaf);
-                var kvi = 0;
-                for (var ii = 0; ii < SIZE; ii++) {
-                    if (((this.bitmap >>> ii) & 1) === 1) {
-                        nodes[ii] = this.arr[kvi] != null ? __EMPTY_MNODE.set(shift + SHIFT, hashValue(this.arr[kvi]), this.arr[kvi], this.arr[kvi + 1], didAddLeaf) : this.arr[kvi + 1];
-                        kvi += 2;
-                    }
-                }
-                return new ArrayNode(null, n + 1, nodes);
+                return unpack_array_node(this, null, shift, hash, key, val);
             }
             var newArr = this.arr.slice();
             if (newArr.length == 2 * idx) {
@@ -227,7 +218,6 @@ var BitmapIndexedNode = (function () {
             } else {
                 newArr.splice(2 * idx, 0, key, val);
             }
-            didAddLeaf && (didAddLeaf.val = true);
             return new BitmapIndexedNode(null, this.bitmap | bit, newArr);
         }
         var key_or_nil = this.arr[2 * idx];
@@ -261,19 +251,10 @@ var BitmapIndexedNode = (function () {
         var bit = 1 << ((hash >>> shift) & MASK);
         var idx = bitmap_indexed_node_index(this.bitmap, bit);
         if ((this.bitmap & bit) === 0) {
+            didAddLeaf && (didAddLeaf.val = true);
             var n = bit_count(this.bitmap);
             if (n >= 16) {
-                var nodes = new Array(SIZE);
-                var jdx = (hash >>> shift) & MASK;
-                nodes[jdx] = __EMPTY_MNODE.setTransient(editRef, shift + SHIFT, hash, key, val, didAddLeaf);
-                var kvi = 0;
-                for (var ii = 0; ii < SIZE; ii++) {
-                    if (((this.bitmap >>> ii) & 1) === 1) {
-                        nodes[ii] = this.arr[kvi] != null ? __EMPTY_MNODE.setTransient(editRef, shift + SHIFT, hashValue(this.arr[kvi]), this.arr[kvi], this.arr[kvi + 1], didAddLeaf) : this.arr[kvi + 1];
-                        kvi += 2;
-                    }
-                }
-                return new ArrayNode(editRef, n + 1, nodes);
+                return unpack_array_node(this, editRef, shift, hash, key, val);
             }
             var editable = this.ensureEditable(editRef);
             if (editable.arr.length == 2 * idx) {
@@ -282,7 +263,6 @@ var BitmapIndexedNode = (function () {
                 editable.arr.splice(2 * idx, 0, key, val);
             }
             editable.bitmap |= bit;
-            didAddLeaf && (didAddLeaf.val = true);
             return editable;
         }
         var key_or_nil = this.arr[2 * idx];
@@ -658,6 +638,20 @@ function pack_array_node(array_node, editRef, idx) {
         }
     }
     return new BitmapIndexedNode(editRef, bitmap, new_arr);
+}
+
+function unpack_array_node(node, editRef, shift, hash, key, val) {
+    var nodes = [];
+    var jdx = (hash >>> shift) & MASK;
+    nodes[jdx] = new BitmapIndexedNode(editRef, 1 << ((hash >>> (shift + SHIFT)) & MASK), [key, val]);
+    var kvi = 0;
+    for (var ii = 0; ii < SIZE; ii++) {
+        if (node.bitmap & (1 << ii)) {
+            nodes[ii] = node.arr[kvi] == null ? node.arr[kvi + 1] : new BitmapIndexedNode(editRef, 1 << ((hashValue(node.arr[kvi]) >>> (shift + SHIFT)) & MASK), [node.arr[kvi], node.arr[kvi + 1]]);
+            kvi += 2;
+        }
+    }
+    return new ArrayNode(editRef, kvi / 2, nodes);
 }
 
 var SHIFT = 5;
