@@ -170,7 +170,27 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
       didAddLeaf && (didAddLeaf.val = true);
       var n = bit_count(this.bitmap);
       if (n >= 16) { // why 16? Half of SIZE? Could we fit 32 here if we had separate storage?
-        return unpack_array_node(this, ownerID, shift, hash, key, val);
+        var nodes: Array<any> = [];
+        var jdx = (hash >>> shift) & MASK;
+        nodes[jdx] = new BitmapIndexedNode<K, V>(
+          ownerID,
+          1 << ((hash >>> (shift + SHIFT)) & MASK),
+          [key, val]
+        );
+        var kvi = 0;
+        for (var ii = 0; ii < SIZE; ii++) {
+          if (this.bitmap & (1 << ii)) {
+            nodes[ii] = this.arr[kvi] == null ?
+              this.arr[kvi + 1] :
+              new BitmapIndexedNode<K, V>(
+                ownerID,
+                1 << ((hashValue(this.arr[kvi]) >>> (shift + SHIFT)) & MASK),
+                [this.arr[kvi], this.arr[kvi + 1]]
+              );
+            kvi += 2;
+          }
+        }
+        return new ArrayNode<K, V>(ownerID, kvi / 2, nodes);
       }
       var editable = this.ensureOwner(ownerID);
       if (editable.arr.length == 2 * idx) {
@@ -292,7 +312,18 @@ class ArrayNode<K, V> implements MNode<K, V> {
     }
     if (n == null) {
       if (this.cnt <= 8) { // why 8?
-        return pack_array_node(this, ownerID, idx);
+        var len = 2 * (this.cnt - 1);
+        var new_arr = new Array(len);
+        var j = 1;
+        var bitmap = 0;
+        for (var i = 0; i < len; i++) {
+          if (i !== idx && this.arr[i] != null) {
+            new_arr[j] = this.arr[i];
+            bitmap |= 1 << i;
+            j += 2;
+          }
+        }
+        return new BitmapIndexedNode<K, V>(ownerID, bitmap, new_arr);
       }
       var editable = this.ensureOwner(ownerID);
       editable.arr[idx] = n;
@@ -509,7 +540,6 @@ function bit_count(n: number): number {
   return (((n + (n >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
 }
 
-// TODO: inline
 function edit_and_set<K, V, T>(node: MNode<K, V>, ownerID: OwnerID, i: number, a: T, j?: number, b?: T): MNode<K, V> {
   var editable = node.ensureOwner(ownerID);
   editable.arr[i] = a;
@@ -529,57 +559,6 @@ function edit_and_remove_pair<K, V>(node: BitmapIndexedNode<K, V>, ownerID: Owne
   earr.splice(2 * i, 2);
   return editable;
 }
-
-function pack_array_node<K, V>(array_node: ArrayNode<K, V>, ownerID: OwnerID, idx: number): BitmapIndexedNode<K, V> {
-  var arr = array_node.arr;
-  var len = 2 * (array_node.cnt - 1);
-  var new_arr = new Array(len);
-  var j = 1;
-  var bitmap = 0;
-  for (var i = 0; i < len; i++) {
-    if (i !== idx && arr[i] != null) {
-      new_arr[j] = arr[i];
-      bitmap |= 1 << i;
-      j += 2;
-    }
-  }
-  return new BitmapIndexedNode<K, V>(ownerID, bitmap, new_arr);
-}
-
-function unpack_array_node<K, V>(
-  node: BitmapIndexedNode<K, V>,
-  ownerID: OwnerID,
-  shift: number,
-  hash: number,
-  key: K,
-  val: V
-): ArrayNode<K, V> {
-  var nodes: Array<any> = [];
-  var jdx = (hash >>> shift) & MASK;
-  nodes[jdx] = new BitmapIndexedNode<K, V>(
-    ownerID,
-    1 << ((hash >>> (shift + SHIFT)) & MASK),
-    [key, val]
-  );
-  var kvi = 0;
-  for (var ii = 0; ii < SIZE; ii++) {
-    if (node.bitmap & (1 << ii)) {
-      nodes[ii] = node.arr[kvi] == null ?
-        node.arr[kvi + 1] :
-        new BitmapIndexedNode<K, V>(
-          ownerID,
-          1 << ((hashValue(node.arr[kvi]) >>> (shift + SHIFT)) & MASK),
-          [node.arr[kvi], node.arr[kvi + 1]]
-        );
-      kvi += 2;
-    }
-  }
-  return new ArrayNode<K, V>(ownerID, kvi / 2, nodes);
-}
-
-
-
-
 
 
 var SHIFT = 5; // Resulted in best performance after ______?

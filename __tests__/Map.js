@@ -69,12 +69,18 @@ describe('Map', function() {
 
   it('can map many items', function() {
     var m = Map();
-    // TODO: fails at 2000! Stack overflow!
-    for (var ii = 0; ii < 2; ii++) {
+    for (var ii = 0; ii < 2000; ii++) {
       m = m.set('thing:' + ii, ii);
     }
+    expect(m.length).toBe(2000);
+    expect(m.get('thing:1234')).toBe(1234);
+  });
+
+  it('can map items known to hash collide', function() {
+    var m = Map().set('AAA', 'letters').set(64545, 'numbers');
     expect(m.length).toBe(2);
-    expect(m.get('thing:1')).toBe(1);
+    expect(m.get('AAA')).toEqual('letters');
+    expect(m.get(64545)).toEqual('numbers');
   });
 
 });

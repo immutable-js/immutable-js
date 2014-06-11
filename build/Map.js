@@ -151,7 +151,17 @@ var BitmapIndexedNode = (function () {
             didAddLeaf && (didAddLeaf.val = true);
             var n = bit_count(this.bitmap);
             if (n >= 16) {
-                return unpack_array_node(this, ownerID, shift, hash, key, val);
+                var nodes = [];
+                var jdx = (hash >>> shift) & MASK;
+                nodes[jdx] = new BitmapIndexedNode(ownerID, 1 << ((hash >>> (shift + SHIFT)) & MASK), [key, val]);
+                var kvi = 0;
+                for (var ii = 0; ii < SIZE; ii++) {
+                    if (this.bitmap & (1 << ii)) {
+                        nodes[ii] = this.arr[kvi] == null ? this.arr[kvi + 1] : new BitmapIndexedNode(ownerID, 1 << ((hashValue(this.arr[kvi]) >>> (shift + SHIFT)) & MASK), [this.arr[kvi], this.arr[kvi + 1]]);
+                        kvi += 2;
+                    }
+                }
+                return new ArrayNode(ownerID, kvi / 2, nodes);
             }
             var editable = this.ensureOwner(ownerID);
             if (editable.arr.length == 2 * idx) {
@@ -267,7 +277,18 @@ var ArrayNode = (function () {
         }
         if (n == null) {
             if (this.cnt <= 8) {
-                return pack_array_node(this, ownerID, idx);
+                var len = 2 * (this.cnt - 1);
+                var new_arr = new Array(len);
+                var j = 1;
+                var bitmap = 0;
+                for (var i = 0; i < len; i++) {
+                    if (i !== idx && this.arr[i] != null) {
+                        new_arr[j] = this.arr[i];
+                        bitmap |= 1 << i;
+                        j += 2;
+                    }
+                }
+                return new BitmapIndexedNode(ownerID, bitmap, new_arr);
             }
             var editable = this.ensureOwner(ownerID);
             editable.arr[idx] = n;
@@ -454,7 +475,6 @@ function bit_count(n) {
     return (((n + (n >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
 }
 
-// TODO: inline
 function edit_and_set(node, ownerID, i, a, j, b) {
     var editable = node.ensureOwner(ownerID);
     editable.arr[i] = a;
@@ -473,36 +493,6 @@ function edit_and_remove_pair(node, ownerID, bit, i) {
     editable.bitmap ^= bit;
     earr.splice(2 * i, 2);
     return editable;
-}
-
-function pack_array_node(array_node, ownerID, idx) {
-    var arr = array_node.arr;
-    var len = 2 * (array_node.cnt - 1);
-    var new_arr = new Array(len);
-    var j = 1;
-    var bitmap = 0;
-    for (var i = 0; i < len; i++) {
-        if (i !== idx && arr[i] != null) {
-            new_arr[j] = arr[i];
-            bitmap |= 1 << i;
-            j += 2;
-        }
-    }
-    return new BitmapIndexedNode(ownerID, bitmap, new_arr);
-}
-
-function unpack_array_node(node, ownerID, shift, hash, key, val) {
-    var nodes = [];
-    var jdx = (hash >>> shift) & MASK;
-    nodes[jdx] = new BitmapIndexedNode(ownerID, 1 << ((hash >>> (shift + SHIFT)) & MASK), [key, val]);
-    var kvi = 0;
-    for (var ii = 0; ii < SIZE; ii++) {
-        if (node.bitmap & (1 << ii)) {
-            nodes[ii] = node.arr[kvi] == null ? node.arr[kvi + 1] : new BitmapIndexedNode(ownerID, 1 << ((hashValue(node.arr[kvi]) >>> (shift + SHIFT)) & MASK), [node.arr[kvi], node.arr[kvi + 1]]);
-            kvi += 2;
-        }
-    }
-    return new ArrayNode(ownerID, kvi / 2, nodes);
 }
 
 var SHIFT = 5;

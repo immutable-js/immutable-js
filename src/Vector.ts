@@ -34,8 +34,9 @@ export interface Vector<T> extends OrderedIterable<T, Vector<T>> {
 
   // TODO: @pragma Mutability
   //isTransient(): boolean;
-  //asTransient(): Map<K, V>;
-  //asPersistent(): Map<K, V>;
+  //asTransient(): Vector<T>;
+  //asPersistent(): Vector<T>;
+  //clone(): Vector<T>;
 }
 
 
