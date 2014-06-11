@@ -75,7 +75,7 @@ export class Map<K, V> extends Iterable<K, V, Map<K, V>> {
       return this;
     } else {
       var newRoot = this._root.delete(0, hashValue(k), k);
-      return newRoot === this._root ? this : Map._make(this.length - 1, newRoot);
+      return newRoot === this._root ? this : newRoot ? Map._make(this.length - 1, newRoot) : Map.empty();
     }
   }
 
@@ -290,17 +290,7 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
     var idx = bitmap_indexed_node_index(this.bitmap, bit);
     if ((this.bitmap & bit) === 0) {
       var n = bit_count(this.bitmap);
-      if (2 * n < this.arr.length) {
-        var editable = this.ensureEditable(editRef);
-        var earr: Array<any> = editable.arr;
-        didAddLeaf && (didAddLeaf.val = true);
-        array_copy_downward(earr, 2 * idx, earr, 2 * (idx + 1), 2 * (n - idx));
-        earr[2 * idx] = key;
-        earr[2 * idx + 1] = val;
-        editable.bitmap |= bit;
-        return editable;
-      }
-      if (n >= 16) { // why 16?
+      if (n >= 16) { // why 16? Half of SIZE? Could we fit 32 here if we had separate storage?
         var nodes = new Array(SIZE);
         var jdx = (hash >>> shift) & MASK;
         nodes[jdx] = (<MNode<K, V>>__EMPTY_MNODE).setTransient(editRef, shift + SHIFT, hash, key, val, didAddLeaf);
@@ -323,15 +313,14 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
         }
         return new ArrayNode<K, V>(editRef, n + 1, nodes);
       }
-      var new_arr = new Array(2 * (n + 4));
-      array_copy(this.arr, 0, new_arr, 0, 2 * idx);
-      new_arr[2 * idx] = key;
-      new_arr[2 * idx + 1] = val;
-      array_copy(this.arr, 2 * idx, new_arr, 2 * (idx + 1), 2 * (n - idx));
-      didAddLeaf && (didAddLeaf.val = true);
       var editable = this.ensureEditable(editRef);
-      editable.arr = new_arr;
+      if (editable.arr.length == 2 * idx) {
+        editable.arr.push(key, val);
+      } else {
+        editable.arr.splice(2 * idx, 0, key, val);
+      }
       editable.bitmap |= bit;
+      didAddLeaf && (didAddLeaf.val = true);
       return editable;
     }
     var key_or_nil = this.arr[2 * idx];
@@ -350,26 +339,23 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
       }
       return edit_and_set(this, editRef, 2 * idx + 1, val);
     }
-    didAddLeaf && (didAddLeaf.val = true);
     var key1hash = hashValue(key_or_nil);
     if (key1hash === hash) {
-      newNode = new HashCollisionNode<K, V>(null, key1hash, 2, [key_or_nil, val_or_node, key, val]);
+      newNode = new HashCollisionNode<K, V>(editRef, key1hash, 2, [key_or_nil, val_or_node, key, val]);
     } else {
       newNode = (<MNode<K, V>>__EMPTY_MNODE)
         .setTransient(editRef, shift + SHIFT, key1hash, key_or_nil, val_or_node)
         .setTransient(editRef, shift + SHIFT, hash, key, val);
     }
+    didAddLeaf && (didAddLeaf.val = true);
     return edit_and_set(this, editRef, 2 * idx, null, 2 * idx + 1, newNode);
   }
 
   ensureEditable(editRef: EditRef): BitmapIndexedNode<K, V> {
-    if (editRef === this.editRef) {
+    if (editRef && editRef === this.editRef) {
       return this;
     }
-    var n = bit_count(this.bitmap);
-    var newArr = new Array(n < 0 ? 4 : 2 * (n + 1));
-    array_copy(this.arr, 0, newArr, 0, 2 * n);
-    return new BitmapIndexedNode<K, V>(editRef, this.bitmap, newArr);
+    return new BitmapIndexedNode<K, V>(editRef, this.bitmap, this.arr.slice());
   }
 
   iterate(
@@ -461,10 +447,10 @@ class ArrayNode<K, V> implements MNode<K, V> {
   }
 
   ensureEditable(editRef: EditRef): ArrayNode<K, V> {
-    if (editRef === this.editRef) {
+    if (editRef && editRef === this.editRef) {
       return this;
     }
-    return new ArrayNode<K, V>(editRef, this.cnt, aclone(this.arr));
+    return new ArrayNode<K, V>(editRef, this.cnt, this.arr.slice());
   }
 
   iterate(
@@ -503,8 +489,14 @@ class HashCollisionNode<K, V> implements MNode<K, V> {
     if (this.cnt === 1) {
       return null;
     }
-    // Note: can idx ever be odd?
-    return new HashCollisionNode<K, V>(null, this.collisionHash, this.cnt - 1, remove_pair(this.arr, Math.floor(idx / 2)));
+    var newArr = this.arr.slice();
+    var arrLen = newArr.length;
+    if (idx < arrLen - 2) {
+      newArr[idx] = newArr[arrLen - 2];
+      newArr[idx + 1] = newArr[arrLen - 1];
+    }
+    newArr.length -= 2;
+    return new HashCollisionNode<K, V>(null, this.collisionHash, this.cnt - 1, newArr);
   }
 
   deleteTransient(editRef: EditRef, shift: number, hash: number, key: K, didRemoveLeaf: BoolRef): MNode<K, V> {
@@ -518,11 +510,12 @@ class HashCollisionNode<K, V> implements MNode<K, V> {
     }
     var editable = this.ensureEditable(editRef);
     var earr = editable.arr;
-    earr[idx] = earr[2 * this.cnt - 2];
-    earr[idx + 1] = earr[2 * this.cnt - 1];
-    // TODO: don't just null, delete.
-    earr[2 * this.cnt - 1] = null;
-    earr[2 * this.cnt - 2] = null;
+    var arrLen = earr.length;
+    if (idx < arrLen - 2) {
+      earr[idx] = earr[arrLen - 2];
+      earr[idx + 1] = earr[arrLen - 1];
+    }
+    earr.length -= 2;
     editable.cnt--;
     return editable;
   }
@@ -537,15 +530,12 @@ class HashCollisionNode<K, V> implements MNode<K, V> {
     }
     var idx = hash_collision_node_find_index(this.arr, this.cnt, key);
     if (idx === -1) {
-      var len = 2 * this.cnt;
-      var new_arr = new Array(len + 2);
-      array_copy(this.arr, 0, new_arr, 0, len);
-      new_arr[len] = key;
-      new_arr[len + 1] = val;
+      var newArr = this.arr.slice();
+      newArr.push(key, val);
       didAddLeaf && (didAddLeaf.val = true);
-      return new HashCollisionNode<K, V>(null, this.collisionHash, this.cnt + 1, new_arr);
+      return new HashCollisionNode<K, V>(null, this.collisionHash, this.cnt + 1, newArr);
     }
-    if (this.arr[idx] === val) {
+    if (this.arr[idx + 1] === val) {
       return this;
     }
     return new HashCollisionNode<K, V>(null, this.collisionHash, this.cnt, clone_and_set(this.arr, idx + 1, val));
@@ -556,31 +546,16 @@ class HashCollisionNode<K, V> implements MNode<K, V> {
       return new BitmapIndexedNode<K, V>(
         editRef,
         1 << ((this.collisionHash >>> shift) & MASK),
-        [null, this, null, null]
+        [null, this]
       ).setTransient(editRef, shift, hash, key, val, didAddLeaf);
     }
     var idx = hash_collision_node_find_index(this.arr, this.cnt, key);
     if (idx === -1) {
-      if (this.arr.length > 2 * this.cnt) {
-        var editable = this.ensureEditable(editRef);
-        editable.arr[2 * this.cnt] = key;
-        editable.arr[2 * this.cnt + 1] = val;
-        didAddLeaf && (didAddLeaf.val = true);
-        editable.cnt += 1;
-        return editable;
-      }
-      var len = this.arr.length;
-      var new_arr = new Array(len + 2);
-      array_copy(this.arr, 0, new_arr, 0, len);
-      new_arr[len] = key;
-      new_arr[len + 1] = val;
+      var editable = this.ensureEditable(editRef);
+      editable.arr.push(key, val);
+      editable.cnt += 1;
       didAddLeaf && (didAddLeaf.val = true);
-      if (editRef === this.editRef) {
-        this.cnt++;
-        this.arr = new_arr;
-        return this;
-      }
-      return new HashCollisionNode<K, V>(this.editRef, this.collisionHash, this.cnt + 1, new_arr);
+      return editable;
     }
     if (this.arr[idx + 1] === val) {
       return this;
@@ -589,12 +564,10 @@ class HashCollisionNode<K, V> implements MNode<K, V> {
   }
 
   ensureEditable(editRef: EditRef): HashCollisionNode<K, V> {
-    if (editRef === this.editRef) {
+    if (editRef && editRef === this.editRef) {
       return this;
     }
-    var new_arr = new Array(2 * (this.cnt + 1));
-    array_copy(this.arr, 0, new_arr, 0, 2 * this.cnt);
-    return new HashCollisionNode<K, V>(editRef, this.collisionHash, this.cnt, new_arr);
+    return new HashCollisionNode<K, V>(editRef, this.collisionHash, this.cnt, this.arr.slice());
   }
 
   iterate(
@@ -750,9 +723,7 @@ function edit_and_remove_pair<K, V>(node: BitmapIndexedNode<K, V>, editRef: Edit
 }
 
 function aclone<T>(arr: Array<T>): Array<T> {
-  var newArr = arr.slice();
-  newArr.length = arr.length;
-  return newArr;
+  return arr.slice();
 }
 
 function array_copy<T>(from: Array<T>, i: number, to: Array<T>, j: number, len: number): void {
