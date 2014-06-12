@@ -257,6 +257,7 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
     fn: (value: V, key: K, collection: Map<K, V>) => any, // false or undefined
     thisArg?: any
   ): boolean {
+    // TODO: could be arr.length to not bother with high numbers
     for (var ii = 0; ii < SIZE; ii++) {
       if (this.bitmap & (1 << ii)) {
         var key = this.arr[ii * 2];
@@ -307,19 +308,19 @@ class ArrayNode<K, V> implements MNode<K, V> {
       return this;
     }
     var newNode = node.delete(ownerID, shift + SHIFT, hash, key, didRemoveLeaf);
-    if (newNode == null && this.cnt <= 8) { // why 8?
-      var len = 2 * (this.cnt - 1);
-      var new_arr: Array<any> = [];
-      var j = 0;
+    // TODO: how necessary is this? The bitmap indexed node seems to pretend to save memory,
+    // and subsequent sets could skip this level of indirection,
+    // but otherwise this isn't really all that helpful.
+    if (!newNode && this.cnt <= 8) { // why 8?
+      var newArr: Array<any> = [];
       var bitmap = 0;
-      for (var i = 0; i < len; i++) {
-        if (i !== idx && this.arr[i] != null) {
-          new_arr[i * 2 + 1] = this.arr[i];
-          bitmap |= 1 << i;
-          j++;
+      for (var ii = 0; ii < this.arr.length; ii++) {
+        if (ii !== idx && this.arr[ii]) {
+          newArr[ii * 2 + 1] = this.arr[ii];
+          bitmap |= 1 << ii;
         }
       }
-      return new BitmapIndexedNode<K, V>(ownerID, bitmap, j, new_arr);
+      return new BitmapIndexedNode<K, V>(ownerID, bitmap, this.cnt - 1, newArr);
     }
     if (newNode === node) {
       return this;

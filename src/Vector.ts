@@ -399,14 +399,13 @@ function vNodeIterate<T>(
       var index = rawIndex + offset;
       return index < 0 || index >= max || fn.call(thisArg, value, index, vector) !== false;
     });
-  } else {
-    var step = 1 << level;
-    var newLevel = level - SHIFT;
-    return node.array.every((newNode, levelIndex) => {
-      var newOffset = offset + levelIndex * step;
-      return newOffset >= max || newOffset + step <= 0 || vNodeIterate(vector, newNode, newLevel, newOffset, max, fn, thisArg);
-    });
   }
+  var step = 1 << level;
+  var newLevel = level - SHIFT;
+  return node.array.every((newNode, levelIndex) => {
+    var newOffset = offset + levelIndex * step;
+    return newOffset >= max || newOffset + step <= 0 || vNodeIterate(vector, newNode, newLevel, newOffset, max, fn, thisArg);
+  });
 }
 
 
