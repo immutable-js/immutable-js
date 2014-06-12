@@ -81,6 +81,11 @@ describe('Range', function() {
     expect(v.get(111)).toBe(888);
   });
 
+  it('can find an index in O(1)', function() {
+    var v = Range(0, Number.POSITIVE_INFINITY, 8);
+    expect(v.indexOf(888)).toBe(111);
+  });
+
 //  it('finds values using indexOf', function() {
 //    var v = PVector('a', 'b', 'c', 'b', 'a');
 //    expect(v.indexOf('b')).toBe(1);

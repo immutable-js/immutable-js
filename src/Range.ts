@@ -78,7 +78,17 @@ export class Range extends OrderedIterable<number, Range> {
     return true;
   }
 
-  // TODO: override indexOf to not require iteration
+  // Override - indexOf does not require iteration
+  indexOf(searchValue: number): number {
+    var offsetValue = searchValue - this.start;
+    if (offsetValue % this.step === 0) {
+      var index = offsetValue / this.step;
+      if (index >= 0 && index < this.length) {
+        return index
+      }
+    }
+    return -1;
+  }
 
   // Override - ensure length is real before putting in memory
   toArray(): Array<number> {

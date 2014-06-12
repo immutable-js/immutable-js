@@ -71,7 +71,18 @@ var Range = (function (_super) {
         return true;
     };
 
-    // TODO: override indexOf to not require iteration
+    // Override - indexOf does not require iteration
+    Range.prototype.indexOf = function (searchValue) {
+        var offsetValue = searchValue - this.start;
+        if (offsetValue % this.step === 0) {
+            var index = offsetValue / this.step;
+            if (index >= 0 && index < this.length) {
+                return index;
+            }
+        }
+        return -1;
+    };
+
     // Override - ensure length is real before putting in memory
     Range.prototype.toArray = function () {
         invariant(this.length < Infinity, 'Cannot convert infinite list to array');

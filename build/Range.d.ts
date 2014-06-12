@@ -17,5 +17,6 @@ export declare class Range extends OrderedIterable<number, Range> {
     public last(): number;
     public slice(begin: number, end?: number): Range;
     public iterate(fn: (value: number, index: number, range: Range) => any, thisArg?: any): boolean;
+    public indexOf(searchValue: number): number;
     public toArray(): number[];
 }
