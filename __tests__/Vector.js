@@ -1,41 +1,41 @@
 jest.autoMockOff();
-var PVector = require('../build/Vector').PVector;
+var Vector = require('../build/Vector').Vector;
 
-describe('PVector', function() {
+describe('Vector', function() {
 
   it('constructor provides initial values', function() {
-    var v = PVector('a', 'b', 'c');
+    var v = Vector('a', 'b', 'c');
     expect(v.get(0)).toBe('a');
     expect(v.get(1)).toBe('b');
     expect(v.get(2)).toBe('c');
   });
 
   it('toArray provides a JS array', function() {
-    var v = PVector('a', 'b', 'c');
+    var v = Vector('a', 'b', 'c');
     expect(v.toArray()).toEqual(['a', 'b', 'c']);
   });
 
   it('fromArray consumes a JS array', function() {
-    var v = PVector.fromArray(['a', 'b', 'c']);
+    var v = Vector.fromArray(['a', 'b', 'c']);
     expect(v.toArray()).toEqual(['a', 'b', 'c']);
   });
 
   it('can set and get a value', function() {
-    var v = PVector();
+    var v = Vector();
     expect(v.get(0)).toBe(undefined);
     v = v.set(0, 'value');
     expect(v.get(0)).toBe('value');
   });
 
   it('setting creates a new instance', function() {
-    var v0 = PVector('a');
+    var v0 = Vector('a');
     var v1 = v0.set(0, 'A');
     expect(v0.get(0)).toBe('a');
     expect(v1.get(0)).toBe('A');
   });
 
   it('length includes the highest index', function() {
-    var v0 = PVector();
+    var v0 = Vector();
     var v1 = v0.set(0, 'a');
     var v2 = v1.set(1, 'b');
     var v3 = v2.set(2, 'c');
@@ -46,14 +46,14 @@ describe('PVector', function() {
   });
 
   it('get helpers make for easier to read code', function() {
-    var v = PVector('a', 'b', 'c');
+    var v = Vector('a', 'b', 'c');
     expect(v.first()).toBe('a');
     expect(v.get(1)).toBe('b');
     expect(v.last()).toBe('c');
   });
 
   it('can set at arbitrary indices', function() {
-    var v0 = PVector('a', 'b', 'c');
+    var v0 = Vector('a', 'b', 'c');
     var v1 = v0.set(1, 'B'); // within existing tail
     var v2 = v1.set(3, 'd'); // at last position
     var v3 = v2.set(31, 'e'); // (testing internal guts)
@@ -71,7 +71,7 @@ describe('PVector', function() {
   });
 
   it('has describes a sparse vector', function() {
-    var v = PVector('a', 'b', 'c').push('d').set(10000, 'e').set(64, undefined).delete(1);
+    var v = Vector('a', 'b', 'c').push('d').set(10000, 'e').set(64, undefined).delete(1);
     expect(v.length).toBe(10001);
     expect(v.has(2)).toBe(true); // original end
     expect(v.has(3)).toBe(true); // end after push
@@ -85,7 +85,7 @@ describe('PVector', function() {
   });
 
   it('push inserts at highest index', function() {
-    var v0 = PVector('a', 'b', 'c');
+    var v0 = Vector('a', 'b', 'c');
     var v1 = v0.push('d', 'e', 'f');
     expect(v0.length).toBe(3);
     expect(v1.length).toBe(6);
@@ -93,7 +93,7 @@ describe('PVector', function() {
   });
 
   it('pop removes the highest index, decrementing length', function() {
-    var v = PVector('a', 'b', 'c').pop();
+    var v = Vector('a', 'b', 'c').pop();
     expect(v.last()).toBe('b');
     expect(v.toArray()).toEqual(['a','b']);
     v = v.set(1230, 'x');
@@ -108,7 +108,7 @@ describe('PVector', function() {
   });
 
   it('allows popping an empty vector', function() {
-    v = PVector('a').pop();
+    v = Vector('a').pop();
     expect(v.length).toBe(0);
     expect(v.toArray()).toEqual([]);
     v = v.pop().pop().pop().pop().pop();
@@ -117,7 +117,7 @@ describe('PVector', function() {
   });
 
   it('delete removes an index, but does not affect length', function() {
-    var v = PVector('a', 'b', 'c').delete(2).delete(0);
+    var v = Vector('a', 'b', 'c').delete(2).delete(0);
     expect(v.length).toBe(3);
     expect(v.get(0)).toBe(undefined);
     expect(v.get(1)).toBe('b');
@@ -131,34 +131,34 @@ describe('PVector', function() {
   });
 
   it('shifts values from the front', function() {
-    var v = PVector('a', 'b', 'c').shift();
+    var v = Vector('a', 'b', 'c').shift();
     expect(v.first()).toBe('b');
     expect(v.length).toBe(2);
   });
 
   it('unshifts values to the front', function() {
-    var v = PVector('a', 'b', 'c').unshift('x', 'y', 'z');
+    var v = Vector('a', 'b', 'c').unshift('x', 'y', 'z');
     expect(v.first()).toBe('x');
     expect(v.length).toBe(6);
     expect(v.toArray()).toEqual(['x', 'y', 'z', 'a', 'b', 'c']);
   });
 
   it('finds values using indexOf', function() {
-    var v = PVector('a', 'b', 'c', 'b', 'a');
+    var v = Vector('a', 'b', 'c', 'b', 'a');
     expect(v.indexOf('b')).toBe(1);
     expect(v.indexOf('c')).toBe(2);
     expect(v.indexOf('d')).toBe(-1);
   });
 
   it('finds values using findIndex', function() {
-    var v = PVector('a', 'b', 'c', 'B', 'a');
+    var v = Vector('a', 'b', 'c', 'B', 'a');
     expect(v.findIndex(function(value) {
       return value.toUpperCase() === value;
     })).toBe(3);
   });
 
   it('maps values', function() {
-    var v = PVector('a', 'b', 'c');
+    var v = Vector('a', 'b', 'c');
 
     var r = v.map(function (value) {
       return value.toUpperCase();
@@ -168,7 +168,7 @@ describe('PVector', function() {
   });
 
   it('filters values', function() {
-    var v = PVector('a', 'b', 'c', 'd', 'e', 'f');
+    var v = Vector('a', 'b', 'c', 'd', 'e', 'f');
 
     var r = v.filter(function (value, index) {
       return index % 2 === 1;
@@ -178,7 +178,7 @@ describe('PVector', function() {
   });
 
   it('reduces values', function() {
-    var v = PVector(1,10,100);
+    var v = Vector(1,10,100);
 
     var r = v.reduce(function (a, b) {
       return a + b
@@ -188,7 +188,7 @@ describe('PVector', function() {
   });
 
   it('takes and skips values', function() {
-    var v = PVector('a', 'b', 'c', 'd', 'e', 'f');
+    var v = Vector('a', 'b', 'c', 'd', 'e', 'f');
 
     var r = v.skip(2).take(2);
 
@@ -196,7 +196,7 @@ describe('PVector', function() {
   });
 
   it('efficiently chains array methods', function() {
-    var v = PVector(1,2,3,4,5,6,7,8,9,10,11,12,13,14);
+    var v = Vector(1,2,3,4,5,6,7,8,9,10,11,12,13,14);
 
     var r = v
       .filter(function(x) { return x % 2 == 0 })

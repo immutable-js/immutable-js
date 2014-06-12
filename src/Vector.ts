@@ -4,65 +4,30 @@ function invariant(condition: boolean, error: string): void {
   if (!condition) throw new Error(error);
 }
 
-export interface VectorFactory<T> {
-  (...values: Array<T>): Vector<T>;
-  empty(): Vector<T>;
-  fromArray(values: Array<T>): Vector<T>;
-}
 
-export interface Vector<T> extends OrderedIterable<T, Vector<T>> {
-  // @pragma Access
-  length: number;
-  has(index: number): boolean;
-  get(index: number): T;
-  first(): T;
-  last(): T;
-
-  // @pragma Modification
-  set(index: number, value: T): Vector<T>;
-  push(...values: Array<T>): Vector<T>;
-  pop(): Vector<T>;
-  delete(index: number): Vector<T>;
-  unshift(...values: Array<T>): Vector<T>;
-  shift(): Vector<T>;
-
-  // @pragma Composition
-  reverse(): Vector<T>;
-  concat(vec: Vector<T>): Vector<T>;
-  slice(begin: number, end?: number): Vector<T>;
-  splice(index: number, removeNum: number, ...values: Array<T>): Vector<T>;
-
-  // TODO: @pragma Mutability
-  //isTransient(): boolean;
-  //asTransient(): Vector<T>;
-  //asPersistent(): Vector<T>;
-  //clone(): Vector<T>;
-}
-
-
-export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector<T> {
+export class Vector<T> extends OrderedIterable<T, Vector<T>> {
 
   // @pragma Construction
 
   constructor(...values: Array<T>) {
     super(this);
-    return PVector.fromArray(values);
+    return Vector.fromArray(values);
   }
 
-  static empty(): PVector<any> {
+  static empty(): Vector<any> {
     return __EMPTY_PVECT || (__EMPTY_PVECT =
-      PVector._make(0, 0, SHIFT, __EMPTY_VNODE, __EMPTY_VNODE)
+      Vector._make(0, 0, SHIFT, __EMPTY_VNODE, __EMPTY_VNODE)
     );
   }
 
-  static fromArray<T>(values: Array<T>): PVector<T> {
+  static fromArray<T>(values: Array<T>): Vector<T> {
     if (values.length === 0) {
-      return PVector.empty();
+      return Vector.empty();
     }
     if (values.length > 0 && values.length < SIZE) {
-      return PVector._make<T>(0, values.length, SHIFT, __EMPTY_VNODE, new VNode(null, values.slice()));
+      return Vector._make<T>(0, values.length, SHIFT, __EMPTY_VNODE, new VNode(null, values.slice()));
     }
-    var vect: PVector<T> = PVector.empty().asTransient();
+    var vect: Vector<T> = Vector.empty().asTransient();
     values.forEach((value, index) => {
       vect = vect.set(index, value);
     });
@@ -105,17 +70,17 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
 
   // @pragma Modification
 
-  empty(): PVector<T> {
+  empty(): Vector<T> {
     if (this._ownerID) {
       this.length = this._origin = this._size = 0;
       this._level = SHIFT;
       this._root = this._tail = __EMPTY_VNODE;
       return this;
     }
-    return PVector.empty();
+    return Vector.empty();
   }
 
-  set(index: number, value: T): PVector<T> {
+  set(index: number, value: T): Vector<T> {
     index = rawIndex(index, this._origin);
     var tailOffset = getTailOffset(this._size);
 
@@ -152,7 +117,7 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
         this._tail = newTail;
         return this;
       }
-      return PVector._make(this._origin, newSize, newLevel, newRoot, newTail);
+      return Vector._make(this._origin, newSize, newLevel, newRoot, newTail);
     }
 
     // Fits within tail.
@@ -166,7 +131,7 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
         this._tail = newTail;
         return this;
       }
-      return PVector._make(this._origin, newSize, this._level, this._root, newTail);
+      return Vector._make(this._origin, newSize, this._level, this._root, newTail);
     }
 
     // Fits within existing tree.
@@ -181,10 +146,10 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
       this._root = newRoot;
       return this;
     }
-    return PVector._make(this._origin, this._size, this._level, newRoot, this._tail);
+    return Vector._make(this._origin, this._size, this._level, newRoot, this._tail);
   }
 
-  push(...values: Array<T>): PVector<T> {
+  push(...values: Array<T>): Vector<T> {
     var vec = this;
     for (var ii = 0; ii < values.length; ii++) {
       vec = vec.set(vec.length, values[ii]);
@@ -192,7 +157,7 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
     return vec;
   }
 
-  pop(): PVector<T> {
+  pop(): Vector<T> {
     var newSize = this._size - 1;
 
     if (newSize <= this._origin) {
@@ -212,7 +177,7 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
         this._tail = newTail;
         return this;
       }
-      return PVector._make(this._origin, newSize, this._level, this._root, newTail);
+      return Vector._make(this._origin, newSize, this._level, this._root, newTail);
     }
 
     var newRoot = this._root.pop(this._ownerID, this._size, this._level) || __EMPTY_VNODE;
@@ -222,10 +187,10 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
       this._tail = newTail;
       return this;
     }
-    return PVector._make(this._origin, newSize, this._level, newRoot, newTail);
+    return Vector._make(this._origin, newSize, this._level, newRoot, newTail);
   }
 
-  delete(index: number): PVector<T> {
+  delete(index: number): Vector<T> {
     index = rawIndex(index, this._origin);
     var tailOffset = getTailOffset(this._size);
 
@@ -242,7 +207,7 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
         this._tail = newTail;
         return this;
       }
-      return PVector._make(this._origin, this._size, this._level, this._root, newTail);
+      return Vector._make(this._origin, this._size, this._level, this._root, newTail);
     }
 
     // Fits within existing tree.
@@ -257,10 +222,10 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
       this._root = newRoot;
       return this;
     }
-    return PVector._make(this._origin, this._size, this._level, newRoot, this._tail);
+    return Vector._make(this._origin, this._size, this._level, newRoot, this._tail);
   }
 
-  unshift(...values: Array<T>): PVector<T> {
+  unshift(...values: Array<T>): Vector<T> {
     var newOrigin = this._origin - values.length;
     var newSize = this._size;
     var newLevel = this._level;
@@ -299,22 +264,22 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
       this._root = newRoot;
       return this;
     }
-    return PVector._make(newOrigin, newSize, newLevel, newRoot, this._tail);
+    return Vector._make(newOrigin, newSize, newLevel, newRoot, this._tail);
   }
 
-  shift(): PVector<T> {
+  shift(): Vector<T> {
     return this.slice(1);
   }
 
   // @pragma Composition
-  reverse(): PVector<T> {
+  reverse(): Vector<T> {
     // This should really only affect how inputs are translated and iteration ordering.
     // This should probably also need to be a lazy sequence to keep the data structure intact.
     invariant(false, 'NYI');
     return null;
   }
 
-  concat(...vectors: Array<PVector<T>>): PVector<T> {
+  concat(...vectors: Array<Vector<T>>): Vector<T> {
     var vector = this;
     for (var ii = 0; ii < vectors.length; ii++) {
       if (vectors[ii].length > 0) {
@@ -333,7 +298,7 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
     return vector;
   }
 
-  slice(begin: number, end?: number): PVector<T> {
+  slice(begin: number, end?: number): Vector<T> {
     var newOrigin = begin < 0 ? Math.max(this._origin, this._size + begin) : Math.min(this._size, this._origin + begin);
     var newSize = end == null ? this._size : end < 0 ? Math.max(this._origin, this._size + end) : Math.min(this._size, this._origin + end);
     if (newOrigin >= newSize) {
@@ -350,11 +315,11 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
       this._tail = newTail;
       return this;
     }
-    return PVector._make(newOrigin, newSize, this._level, this._root, newTail);
+    return Vector._make(newOrigin, newSize, this._level, this._root, newTail);
   }
 
-  splice(index: number, removeNum: number, ...values: Array<T>): PVector<T> {
-    return this.slice(0, index).concat(PVector.fromArray(values), this.slice(index + removeNum));
+  splice(index: number, removeNum: number, ...values: Array<T>): Vector<T> {
+    return this.slice(0, index).concat(Vector.fromArray(values), this.slice(index + removeNum));
   }
 
   // @pragma Mutability
@@ -363,7 +328,7 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
     return !!this._ownerID;
   }
 
-  asTransient(): PVector<T> {
+  asTransient(): Vector<T> {
     if (this._ownerID) {
       return this;
     }
@@ -372,19 +337,19 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
     return vect;
   }
 
-  asPersistent(): PVector<T> {
+  asPersistent(): Vector<T> {
     this._ownerID = undefined;
     return this;
   }
 
-  clone(): PVector<T> {
-    return PVector._make(this._origin, this._size, this._level, this._root, this._tail, this._ownerID && new OwnerID());
+  clone(): Vector<T> {
+    return Vector._make(this._origin, this._size, this._level, this._root, this._tail, this._ownerID && new OwnerID());
   }
 
   // @pragma Iteration
 
   iterate(
-    fn: (value: T, index: number, vector: PVector<T>) => any, // false or undefined
+    fn: (value: T, index: number, vector: Vector<T>) => any, // false or undefined
     thisArg?: any
   ): boolean {
     var tailOffset = getTailOffset(this._size);
@@ -410,8 +375,8 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
   private _tail: VNode<T>;
   private _ownerID: OwnerID;
 
-  private static _make<T>(origin: number, size: number, level: number, root: VNode<T>, tail: VNode<T>, ownerID?: OwnerID): PVector<T> {
-    var vect = Object.create(PVector.prototype);
+  private static _make<T>(origin: number, size: number, level: number, root: VNode<T>, tail: VNode<T>, ownerID?: OwnerID): Vector<T> {
+    var vect = Object.create(Vector.prototype);
     vect.collection = vect;
     vect.length = size - origin;
     vect._origin = origin;
@@ -510,4 +475,4 @@ var SHIFT = 5; // Resulted in best performance after ______?
 var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
 var __EMPTY_VNODE = new VNode(null, []);
-var __EMPTY_PVECT: PVector<any>;
+var __EMPTY_PVECT: Vector<any>;

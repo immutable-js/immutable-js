@@ -11,36 +11,36 @@ function invariant(condition, error) {
         throw new Error(error);
 }
 
-var PVector = (function (_super) {
-    __extends(PVector, _super);
+var Vector = (function (_super) {
+    __extends(Vector, _super);
     // @pragma Construction
-    function PVector() {
+    function Vector() {
         var values = [];
         for (var _i = 0; _i < (arguments.length - 0); _i++) {
             values[_i] = arguments[_i + 0];
         }
         _super.call(this, this);
-        return PVector.fromArray(values);
+        return Vector.fromArray(values);
     }
-    PVector.empty = function () {
-        return __EMPTY_PVECT || (__EMPTY_PVECT = PVector._make(0, 0, SHIFT, __EMPTY_VNODE, __EMPTY_VNODE));
+    Vector.empty = function () {
+        return __EMPTY_PVECT || (__EMPTY_PVECT = Vector._make(0, 0, SHIFT, __EMPTY_VNODE, __EMPTY_VNODE));
     };
 
-    PVector.fromArray = function (values) {
+    Vector.fromArray = function (values) {
         if (values.length === 0) {
-            return PVector.empty();
+            return Vector.empty();
         }
         if (values.length > 0 && values.length < SIZE) {
-            return PVector._make(0, values.length, SHIFT, __EMPTY_VNODE, new VNode(null, values.slice()));
+            return Vector._make(0, values.length, SHIFT, __EMPTY_VNODE, new VNode(null, values.slice()));
         }
-        var vect = PVector.empty().asTransient();
+        var vect = Vector.empty().asTransient();
         values.forEach(function (value, index) {
             vect = vect.set(index, value);
         });
         return vect.asPersistent();
     };
 
-    PVector.prototype.has = function (index) {
+    Vector.prototype.has = function (index) {
         index = rawIndex(index, this._origin);
         if (index >= this._size) {
             return false;
@@ -50,7 +50,7 @@ var PVector = (function (_super) {
         return !!node && node.array.hasOwnProperty(property);
     };
 
-    PVector.prototype.get = function (index) {
+    Vector.prototype.get = function (index) {
         index = rawIndex(index, this._origin);
         if (index < this._size) {
             var node = this._nodeFor(index);
@@ -58,30 +58,30 @@ var PVector = (function (_super) {
         }
     };
 
-    PVector.prototype.first = function () {
+    Vector.prototype.first = function () {
         if (this.length > 0) {
             return this.get(0);
         }
     };
 
-    PVector.prototype.last = function () {
+    Vector.prototype.last = function () {
         if (this.length > 0) {
             return this.get(this.length - 1);
         }
     };
 
     // @pragma Modification
-    PVector.prototype.empty = function () {
+    Vector.prototype.empty = function () {
         if (this._ownerID) {
             this.length = this._origin = this._size = 0;
             this._level = SHIFT;
             this._root = this._tail = __EMPTY_VNODE;
             return this;
         }
-        return PVector.empty();
+        return Vector.empty();
     };
 
-    PVector.prototype.set = function (index, value) {
+    Vector.prototype.set = function (index, value) {
         index = rawIndex(index, this._origin);
         var tailOffset = getTailOffset(this._size);
 
@@ -118,7 +118,7 @@ var PVector = (function (_super) {
                 this._tail = newTail;
                 return this;
             }
-            return PVector._make(this._origin, newSize, newLevel, newRoot, newTail);
+            return Vector._make(this._origin, newSize, newLevel, newRoot, newTail);
         }
 
         // Fits within tail.
@@ -132,7 +132,7 @@ var PVector = (function (_super) {
                 this._tail = newTail;
                 return this;
             }
-            return PVector._make(this._origin, newSize, this._level, this._root, newTail);
+            return Vector._make(this._origin, newSize, this._level, this._root, newTail);
         }
 
         // Fits within existing tree.
@@ -147,10 +147,10 @@ var PVector = (function (_super) {
             this._root = newRoot;
             return this;
         }
-        return PVector._make(this._origin, this._size, this._level, newRoot, this._tail);
+        return Vector._make(this._origin, this._size, this._level, newRoot, this._tail);
     };
 
-    PVector.prototype.push = function () {
+    Vector.prototype.push = function () {
         var values = [];
         for (var _i = 0; _i < (arguments.length - 0); _i++) {
             values[_i] = arguments[_i + 0];
@@ -162,7 +162,7 @@ var PVector = (function (_super) {
         return vec;
     };
 
-    PVector.prototype.pop = function () {
+    Vector.prototype.pop = function () {
         var newSize = this._size - 1;
 
         if (newSize <= this._origin) {
@@ -182,7 +182,7 @@ var PVector = (function (_super) {
                 this._tail = newTail;
                 return this;
             }
-            return PVector._make(this._origin, newSize, this._level, this._root, newTail);
+            return Vector._make(this._origin, newSize, this._level, this._root, newTail);
         }
 
         var newRoot = this._root.pop(this._ownerID, this._size, this._level) || __EMPTY_VNODE;
@@ -192,10 +192,10 @@ var PVector = (function (_super) {
             this._tail = newTail;
             return this;
         }
-        return PVector._make(this._origin, newSize, this._level, newRoot, newTail);
+        return Vector._make(this._origin, newSize, this._level, newRoot, newTail);
     };
 
-    PVector.prototype.delete = function (index) {
+    Vector.prototype.delete = function (index) {
         index = rawIndex(index, this._origin);
         var tailOffset = getTailOffset(this._size);
 
@@ -212,7 +212,7 @@ var PVector = (function (_super) {
                 this._tail = newTail;
                 return this;
             }
-            return PVector._make(this._origin, this._size, this._level, this._root, newTail);
+            return Vector._make(this._origin, this._size, this._level, this._root, newTail);
         }
 
         // Fits within existing tree.
@@ -227,10 +227,10 @@ var PVector = (function (_super) {
             this._root = newRoot;
             return this;
         }
-        return PVector._make(this._origin, this._size, this._level, newRoot, this._tail);
+        return Vector._make(this._origin, this._size, this._level, newRoot, this._tail);
     };
 
-    PVector.prototype.unshift = function () {
+    Vector.prototype.unshift = function () {
         var values = [];
         for (var _i = 0; _i < (arguments.length - 0); _i++) {
             values[_i] = arguments[_i + 0];
@@ -273,22 +273,22 @@ var PVector = (function (_super) {
             this._root = newRoot;
             return this;
         }
-        return PVector._make(newOrigin, newSize, newLevel, newRoot, this._tail);
+        return Vector._make(newOrigin, newSize, newLevel, newRoot, this._tail);
     };
 
-    PVector.prototype.shift = function () {
+    Vector.prototype.shift = function () {
         return this.slice(1);
     };
 
     // @pragma Composition
-    PVector.prototype.reverse = function () {
+    Vector.prototype.reverse = function () {
         // This should really only affect how inputs are translated and iteration ordering.
         // This should probably also need to be a lazy sequence to keep the data structure intact.
         invariant(false, 'NYI');
         return null;
     };
 
-    PVector.prototype.concat = function () {
+    Vector.prototype.concat = function () {
         var vectors = [];
         for (var _i = 0; _i < (arguments.length - 0); _i++) {
             vectors[_i] = arguments[_i + 0];
@@ -311,7 +311,7 @@ var PVector = (function (_super) {
         return vector;
     };
 
-    PVector.prototype.slice = function (begin, end) {
+    Vector.prototype.slice = function (begin, end) {
         var newOrigin = begin < 0 ? Math.max(this._origin, this._size + begin) : Math.min(this._size, this._origin + begin);
         var newSize = end == null ? this._size : end < 0 ? Math.max(this._origin, this._size + end) : Math.min(this._size, this._origin + end);
         if (newOrigin >= newSize) {
@@ -329,23 +329,23 @@ var PVector = (function (_super) {
             this._tail = newTail;
             return this;
         }
-        return PVector._make(newOrigin, newSize, this._level, this._root, newTail);
+        return Vector._make(newOrigin, newSize, this._level, this._root, newTail);
     };
 
-    PVector.prototype.splice = function (index, removeNum) {
+    Vector.prototype.splice = function (index, removeNum) {
         var values = [];
         for (var _i = 0; _i < (arguments.length - 2); _i++) {
             values[_i] = arguments[_i + 2];
         }
-        return this.slice(0, index).concat(PVector.fromArray(values), this.slice(index + removeNum));
+        return this.slice(0, index).concat(Vector.fromArray(values), this.slice(index + removeNum));
     };
 
     // @pragma Mutability
-    PVector.prototype.isTransient = function () {
+    Vector.prototype.isTransient = function () {
         return !!this._ownerID;
     };
 
-    PVector.prototype.asTransient = function () {
+    Vector.prototype.asTransient = function () {
         if (this._ownerID) {
             return this;
         }
@@ -354,30 +354,30 @@ var PVector = (function (_super) {
         return vect;
     };
 
-    PVector.prototype.asPersistent = function () {
+    Vector.prototype.asPersistent = function () {
         this._ownerID = undefined;
         return this;
     };
 
-    PVector.prototype.clone = function () {
-        return PVector._make(this._origin, this._size, this._level, this._root, this._tail, this._ownerID && new OwnerID());
+    Vector.prototype.clone = function () {
+        return Vector._make(this._origin, this._size, this._level, this._root, this._tail, this._ownerID && new OwnerID());
     };
 
     // @pragma Iteration
-    PVector.prototype.iterate = function (fn, thisArg) {
+    Vector.prototype.iterate = function (fn, thisArg) {
         var tailOffset = getTailOffset(this._size);
         return (this._root.iterate(this, this._level, -this._origin, tailOffset - this._origin, fn, thisArg) && this._tail.iterate(this, 0, tailOffset - this._origin, this._size - this._origin, fn, thisArg));
     };
 
     // Override - set correct length before returning
-    PVector.prototype.toArray = function () {
+    Vector.prototype.toArray = function () {
         var array = _super.prototype.toArray.call(this);
         array.length = this.length;
         return array;
     };
 
-    PVector._make = function (origin, size, level, root, tail, ownerID) {
-        var vect = Object.create(PVector.prototype);
+    Vector._make = function (origin, size, level, root, tail, ownerID) {
+        var vect = Object.create(Vector.prototype);
         vect.collection = vect;
         vect.length = size - origin;
         vect._origin = origin;
@@ -389,7 +389,7 @@ var PVector = (function (_super) {
         return vect;
     };
 
-    PVector.prototype._nodeFor = function (rawIndex) {
+    Vector.prototype._nodeFor = function (rawIndex) {
         if (rawIndex >= getTailOffset(this._size)) {
             return this._tail;
         }
@@ -403,9 +403,9 @@ var PVector = (function (_super) {
             return node;
         }
     };
-    return PVector;
+    return Vector;
 })(OrderedIterable);
-exports.PVector = PVector;
+exports.Vector = Vector;
 
 function rawIndex(index, origin) {
     invariant(index >= 0, 'Index out of bounds');

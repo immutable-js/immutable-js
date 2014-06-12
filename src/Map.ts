@@ -17,7 +17,7 @@ export class Map<K, V> extends Iterable<K, V, Map<K, V>> {
   }
 
   static empty(): Map<any, any> {
-    return __EMPTY_MAP || (__EMPTY_MAP = Map._make(0));
+    return __EMPTY_MAP || (__EMPTY_MAP = Map._make(0, null));
   }
 
   static fromObj<V>(obj: {[key: string]: V}): Map<string, V> {
@@ -46,6 +46,15 @@ export class Map<K, V> extends Iterable<K, V, Map<K, V>> {
   }
 
   // @pragma Modification
+
+  empty(): Map<K, V> {
+    if (this._ownerID) {
+      this.length = 0;
+      this._root = null;
+      return this;
+    }
+    return Map.empty();
+  }
 
   set(k: K, v: V): Map<K, V> {
     if (k == null) {
@@ -122,7 +131,7 @@ export class Map<K, V> extends Iterable<K, V, Map<K, V>> {
   private _root: MNode<K, V>;
   private _ownerID: OwnerID;
 
-  private static _make<K, V>(length: number, root?: MNode<K, V>, ownerID?: OwnerID) {
+  private static _make<K, V>(length: number, root: MNode<K, V>, ownerID?: OwnerID) {
     var map = Object.create(Map.prototype);
     map.length = length;
     map._root = root;

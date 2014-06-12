@@ -10,6 +10,7 @@ export declare class Map<K, V> extends Iterable<K, V, Map<K, V>> {
     public length: number;
     public has(k: K): boolean;
     public get(k: K): V;
+    public empty(): Map<K, V>;
     public set(k: K, v: V): Map<K, V>;
     public delete(k: K): Map<K, V>;
     public merge(map: Map<K, V>): Map<K, V>;
@@ -20,5 +21,5 @@ export declare class Map<K, V> extends Iterable<K, V, Map<K, V>> {
     public iterate(fn: (value: V, key: K, collection: Map<K, V>) => any, thisArg?: any): boolean;
     private _root;
     private _ownerID;
-    private static _make<K, V>(length, root?, ownerID?);
+    private static _make<K, V>(length, root, ownerID?);
 }

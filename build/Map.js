@@ -22,7 +22,7 @@ var Map = (function (_super) {
         return Map.fromObj(obj);
     }
     Map.empty = function () {
-        return __EMPTY_MAP || (__EMPTY_MAP = Map._make(0));
+        return __EMPTY_MAP || (__EMPTY_MAP = Map._make(0, null));
     };
 
     Map.fromObj = function (obj) {
@@ -48,6 +48,15 @@ var Map = (function (_super) {
     };
 
     // @pragma Modification
+    Map.prototype.empty = function () {
+        if (this._ownerID) {
+            this.length = 0;
+            this._root = null;
+            return this;
+        }
+        return Map.empty();
+    };
+
     Map.prototype.set = function (k, v) {
         if (k == null) {
             return this;
