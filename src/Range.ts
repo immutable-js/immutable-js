@@ -70,10 +70,12 @@ export class Range extends OrderedIterable<number, Range> {
     fn: (value: number, index: number, range: Range) => any, // false or undefined
     thisArg?: any
   ): boolean {
+    var value = this.start;
     for (var ii = 0; ii < this.length; ii++) {
-      if (fn.call(thisArg, this.start + ii * this.step, ii, this) === false) {
+      if (fn.call(thisArg, value, ii, this) === false) {
         return false;
       }
+      value += this.step;
     }
     return true;
   }

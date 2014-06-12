@@ -63,10 +63,12 @@ var Range = (function (_super) {
 
     // @pragma Iteration
     Range.prototype.iterate = function (fn, thisArg) {
+        var value = this.start;
         for (var ii = 0; ii < this.length; ii++) {
-            if (fn.call(thisArg, this.start + ii * this.step, ii, this) === false) {
+            if (fn.call(thisArg, value, ii, this) === false) {
                 return false;
             }
+            value += this.step;
         }
         return true;
     };
