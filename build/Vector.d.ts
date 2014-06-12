@@ -6,14 +6,14 @@ export interface VectorFactory<T> {
 }
 export interface Vector<T> extends OrderedIterable<T, Vector<T>> {
     length: number;
+    has(index: number): boolean;
     get(index: number): T;
-    exists(index: number): boolean;
     first(): T;
     last(): T;
     set(index: number, value: T): Vector<T>;
     push(...values: T[]): Vector<T>;
     pop(): Vector<T>;
-    remove(index: number): Vector<T>;
+    delete(index: number): Vector<T>;
     unshift(...values: T[]): Vector<T>;
     shift(): Vector<T>;
     reverse(): Vector<T>;
@@ -26,14 +26,14 @@ export declare class PVector<T> extends OrderedIterable<T, PVector<T>> implement
     static empty(): PVector<any>;
     static fromArray<T>(values: T[]): PVector<T>;
     public length: number;
+    public has(index: number): boolean;
     public get(index: number): T;
-    public exists(index: number): boolean;
     public first(): T;
     public last(): T;
     public set(index: number, value: T): PVector<T>;
     public push(...values: T[]): PVector<T>;
     public pop(): PVector<T>;
-    public remove(index: number): PVector<T>;
+    public delete(index: number): PVector<T>;
     public unshift(...values: T[]): PVector<T>;
     public shift(): PVector<T>;
     public reverse(): PVector<T>;

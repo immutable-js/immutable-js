@@ -13,8 +13,8 @@ export interface VectorFactory<T> {
 export interface Vector<T> extends OrderedIterable<T, Vector<T>> {
   // @pragma Access
   length: number;
+  has(index: number): boolean;
   get(index: number): T;
-  exists(index: number): boolean;
   first(): T;
   last(): T;
 
@@ -22,7 +22,7 @@ export interface Vector<T> extends OrderedIterable<T, Vector<T>> {
   set(index: number, value: T): Vector<T>;
   push(...values: Array<T>): Vector<T>;
   pop(): Vector<T>;
-  remove(index: number): Vector<T>;
+  delete(index: number): Vector<T>;
   unshift(...values: Array<T>): Vector<T>;
   shift(): Vector<T>;
 
@@ -72,15 +72,7 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
 
   public length: number;
 
-  get(index: number): T {
-    index = rawIndex(index, this._origin);
-    if (index < this._size) {
-      var node = this._nodeFor(index);
-      return node && node.array[index & MASK];
-    }
-  }
-
-  exists(index: number): boolean {
+  has(index: number): boolean {
     index = rawIndex(index, this._origin);
     if (index >= this._size) {
       return false;
@@ -88,6 +80,14 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
     var node = this._nodeFor(index);
     var property = index & MASK;
     return !!node && node.array.hasOwnProperty(<any>property);
+  }
+
+  get(index: number): T {
+    index = rawIndex(index, this._origin);
+    if (index < this._size) {
+      var node = this._nodeFor(index);
+      return node && node.array[index & MASK];
+    }
   }
 
   first(): T {
@@ -180,12 +180,12 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
     return PVector._make(this._origin, newSize, this._level, newRoot, newTail);
   }
 
-  remove(index: number): PVector<T> {
+  delete(index: number): PVector<T> {
     index = rawIndex(index, this._origin);
     var tailOffset = getTailOffset(this._size);
 
     // Out of bounds, no-op.
-    if (!this.exists(index)) {
+    if (!this.has(index)) {
       return this;
     }
 

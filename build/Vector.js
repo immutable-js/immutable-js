@@ -39,15 +39,7 @@ var PVector = (function (_super) {
         return vect;
     };
 
-    PVector.prototype.get = function (index) {
-        index = rawIndex(index, this._origin);
-        if (index < this._size) {
-            var node = this._nodeFor(index);
-            return node && node.array[index & MASK];
-        }
-    };
-
-    PVector.prototype.exists = function (index) {
+    PVector.prototype.has = function (index) {
         index = rawIndex(index, this._origin);
         if (index >= this._size) {
             return false;
@@ -55,6 +47,14 @@ var PVector = (function (_super) {
         var node = this._nodeFor(index);
         var property = index & MASK;
         return !!node && node.array.hasOwnProperty(property);
+    };
+
+    PVector.prototype.get = function (index) {
+        index = rawIndex(index, this._origin);
+        if (index < this._size) {
+            var node = this._nodeFor(index);
+            return node && node.array[index & MASK];
+        }
     };
 
     PVector.prototype.first = function () {
@@ -150,12 +150,12 @@ var PVector = (function (_super) {
         return PVector._make(this._origin, newSize, this._level, newRoot, newTail);
     };
 
-    PVector.prototype.remove = function (index) {
+    PVector.prototype.delete = function (index) {
         index = rawIndex(index, this._origin);
         var tailOffset = getTailOffset(this._size);
 
         // Out of bounds, no-op.
-        if (!this.exists(index)) {
+        if (!this.has(index)) {
             return this;
         }
 

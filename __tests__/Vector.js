@@ -70,18 +70,18 @@ describe('PVector', function() {
     expect(v7.toArray()).toEqual(expectedArray);
   });
 
-  it('exists describes a sparse vector', function() {
-    var v = PVector('a', 'b', 'c').push('d').set(10000, 'e').set(64, undefined).remove(1);
+  it('has describes a sparse vector', function() {
+    var v = PVector('a', 'b', 'c').push('d').set(10000, 'e').set(64, undefined).delete(1);
     expect(v.length).toBe(10001);
-    expect(v.exists(2)).toBe(true); // original end
-    expect(v.exists(3)).toBe(true); // end after push
-    expect(v.exists(10000)).toBe(true); // end after set
-    expect(v.exists(64)).toBe(true); // set as undefined, key still exists
-    expect(v.exists(1)).toBe(false); // was removed
-    expect(v.exists(10001)).toBe(false); // out of bounds
-    expect(v.exists(9999)).toBe(false); // never set
-    expect(v.exists(1234)).toBe(false); // never set
-    expect(v.exists(4)).toBe(false); // never set
+    expect(v.has(2)).toBe(true); // original end
+    expect(v.has(3)).toBe(true); // end after push
+    expect(v.has(10000)).toBe(true); // end after set
+    expect(v.has(64)).toBe(true); // set as undefined, still has index
+    expect(v.has(1)).toBe(false); // was removed
+    expect(v.has(10001)).toBe(false); // out of bounds
+    expect(v.has(9999)).toBe(false); // never set
+    expect(v.has(1234)).toBe(false); // never set
+    expect(v.has(4)).toBe(false); // never set
   });
 
   it('push inserts at highest index', function() {
@@ -117,7 +117,7 @@ describe('PVector', function() {
   });
 
   it('delete removes an index, but does not affect length', function() {
-    var v = PVector('a', 'b', 'c').remove(2).remove(0);
+    var v = PVector('a', 'b', 'c').delete(2).delete(0);
     expect(v.length).toBe(3);
     expect(v.get(0)).toBe(undefined);
     expect(v.get(1)).toBe('b');
