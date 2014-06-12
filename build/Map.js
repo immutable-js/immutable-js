@@ -57,7 +57,7 @@ var Map = (function (_super) {
         if (this._root) {
             var didAddLeaf = BoolRef();
             newRoot = this._root.set(this._ownerID, 0, hashValue(k), k, v, didAddLeaf);
-            didAddLeaf.val && newLength++;
+            didAddLeaf.value && newLength++;
         } else {
             newLength++;
             newRoot = makeNode(this._ownerID, 0, hashValue(k), k, v);
@@ -77,7 +77,7 @@ var Map = (function (_super) {
         if (this._ownerID) {
             var didRemoveLeaf = BoolRef();
             this._root = this._root.delete(this._ownerID, 0, hashValue(k), k, didRemoveLeaf);
-            didRemoveLeaf.val && this.length--;
+            didRemoveLeaf.value && this.length--;
             return this;
         }
         var newRoot = this._root.delete(this._ownerID, 0, hashValue(k), k);
@@ -138,69 +138,67 @@ function makeNode(ownerID, shift, hash, key, valOrNode) {
     var values = [];
     values[idx] = valOrNode;
     key != null && (keys[idx] = key);
-    return new BitmapIndexedNode(ownerID, 1 << idx, 1, keys, values);
+    return new BitmapIndexedNode(ownerID, 1 << idx, keys, values);
 }
 
 var BitmapIndexedNode = (function () {
-    function BitmapIndexedNode(ownerID, bitmap, cnt, keys, values) {
+    function BitmapIndexedNode(ownerID, bitmap, keys, values) {
         this.ownerID = ownerID;
         this.bitmap = bitmap;
-        this.cnt = cnt;
         this.keys = keys;
         this.values = values;
     }
-    BitmapIndexedNode.prototype.get = function (shift, hash, key, not_found) {
+    BitmapIndexedNode.prototype.get = function (shift, hash, key, notFound) {
         var idx = (hash >>> shift) & MASK;
         if ((this.bitmap & (1 << idx)) === 0) {
-            return not_found;
+            return notFound;
         }
-        var key_or_nil = this.keys[idx];
-        var val_or_node = this.values[idx];
-        if (key_or_nil == null) {
-            return val_or_node.get(shift + SHIFT, hash, key, not_found);
+        var keyOrNull = this.keys[idx];
+        var valueOrNode = this.values[idx];
+        if (keyOrNull == null) {
+            return valueOrNode.get(shift + SHIFT, hash, key, notFound);
         }
-        return key === key_or_nil ? val_or_node : not_found;
+        return key === keyOrNull ? valueOrNode : notFound;
     };
 
-    BitmapIndexedNode.prototype.set = function (ownerID, shift, hash, key, val, didAddLeaf) {
+    BitmapIndexedNode.prototype.set = function (ownerID, shift, hash, key, value, didAddLeaf) {
         var idx = (hash >>> shift) & MASK;
         var bit = 1 << idx;
         if ((this.bitmap & bit) === 0) {
-            didAddLeaf && (didAddLeaf.val = true);
+            didAddLeaf && (didAddLeaf.value = true);
             var editable = this.ensureOwner(ownerID);
             editable.keys[idx] = key;
-            editable.values[idx] = val;
+            editable.values[idx] = value;
             editable.bitmap |= bit;
-            editable.cnt++;
             return editable;
         }
-        var key_or_nil = this.keys[idx];
-        var val_or_node = this.values[idx];
+        var keyOrNull = this.keys[idx];
+        var valueOrNode = this.values[idx];
         var newNode;
-        if (key_or_nil == null) {
-            newNode = val_or_node.set(ownerID, shift + SHIFT, hash, key, val, didAddLeaf);
-            if (newNode === val_or_node) {
+        if (keyOrNull == null) {
+            newNode = valueOrNode.set(ownerID, shift + SHIFT, hash, key, value, didAddLeaf);
+            if (newNode === valueOrNode) {
                 return this;
             }
             var editable = this.ensureOwner(ownerID);
             editable.values[idx] = newNode;
             return editable;
         }
-        if (key === key_or_nil) {
-            if (val === val_or_node) {
+        if (key === keyOrNull) {
+            if (value === valueOrNode) {
                 return this;
             }
             var editable = this.ensureOwner(ownerID);
-            editable.values[idx] = val;
+            editable.values[idx] = value;
             return editable;
         }
-        var key1hash = hashValue(key_or_nil);
-        if (key1hash === hash) {
-            newNode = new HashCollisionNode(ownerID, hash, [key_or_nil, key], [val_or_node, val]);
+        var originalHash = hashValue(keyOrNull);
+        if (hash === originalHash) {
+            newNode = new HashCollisionNode(ownerID, hash, [keyOrNull, key], [valueOrNode, value]);
         } else {
-            newNode = makeNode(ownerID, shift + SHIFT, key1hash, key_or_nil, val_or_node).set(ownerID, shift + SHIFT, hash, key, val);
+            newNode = makeNode(ownerID, shift + SHIFT, originalHash, keyOrNull, valueOrNode).set(ownerID, shift + SHIFT, hash, key, value);
         }
-        didAddLeaf && (didAddLeaf.val = true);
+        didAddLeaf && (didAddLeaf.value = true);
         var editable = this.ensureOwner(ownerID);
         delete editable.keys[idx];
         editable.values[idx] = newNode;
@@ -210,11 +208,11 @@ var BitmapIndexedNode = (function () {
     BitmapIndexedNode.prototype.delete = function (ownerID, shift, hash, key, didRemoveLeaf) {
         var idx = (hash >>> shift) & MASK;
         var bit = 1 << idx;
-        var key_or_nil = this.keys[idx];
-        if ((this.bitmap & bit) === 0 || (key_or_nil != null && key !== key_or_nil)) {
+        var keyOrNull = this.keys[idx];
+        if ((this.bitmap & bit) === 0 || (keyOrNull != null && key !== keyOrNull)) {
             return this;
         }
-        if (key_or_nil == null) {
+        if (keyOrNull == null) {
             var node = this.values[idx];
             var newNode = node.delete(ownerID, shift + SHIFT, hash, key, didRemoveLeaf);
             if (newNode === node) {
@@ -226,19 +224,15 @@ var BitmapIndexedNode = (function () {
                 return editable;
             }
         } else {
-            didRemoveLeaf && (didRemoveLeaf.val = true);
+            didRemoveLeaf && (didRemoveLeaf.value = true);
         }
-        if (this.cnt === 1) {
+        if (this.bitmap === bit) {
             return null;
         }
         var editable = this.ensureOwner(ownerID);
-
-        // Technically, since we always check the bitmap first,
-        // we don't need to delete these, but doing so frees up memory.
         delete editable.keys[idx];
         delete editable.values[idx];
         editable.bitmap ^= bit;
-        editable.cnt--;
         return editable;
     };
 
@@ -246,20 +240,19 @@ var BitmapIndexedNode = (function () {
         if (ownerID && ownerID === this.ownerID) {
             return this;
         }
-        return new BitmapIndexedNode(ownerID, this.bitmap, this.cnt, this.keys.slice(), this.values.slice());
+        return new BitmapIndexedNode(ownerID, this.bitmap, this.keys.slice(), this.values.slice());
     };
 
     BitmapIndexedNode.prototype.iterate = function (map, fn, thisArg) {
         for (var ii = 0; ii < this.values.length; ii++) {
-            if (this.bitmap & (1 << ii)) {
-                var key = this.keys[ii];
-                if (key != null) {
-                    if (fn.call(thisArg, this.values[ii], key, map) === false) {
-                        return false;
-                    }
-                } else if (!this.values[ii].iterate(map, fn, thisArg)) {
+            var key = this.keys[ii];
+            var valueOrNode = this.values[ii];
+            if (key != null) {
+                if (fn.call(thisArg, valueOrNode, key, map) === false) {
                     return false;
                 }
+            } else if (valueOrNode && !valueOrNode.iterate(map, fn, thisArg)) {
+                return false;
             }
         }
         return true;
@@ -274,27 +267,27 @@ var HashCollisionNode = (function () {
         this.keys = keys;
         this.values = values;
     }
-    HashCollisionNode.prototype.get = function (shift, hash, key, not_found) {
+    HashCollisionNode.prototype.get = function (shift, hash, key, notFound) {
         var idx = this.keys.indexOf(key);
-        return idx === -1 ? not_found : this.values[idx];
+        return idx === -1 ? notFound : this.values[idx];
     };
 
-    HashCollisionNode.prototype.set = function (ownerID, shift, hash, key, val, didAddLeaf) {
+    HashCollisionNode.prototype.set = function (ownerID, shift, hash, key, value, didAddLeaf) {
         if (hash !== this.collisionHash) {
-            didAddLeaf && (didAddLeaf.val = true);
-            return makeNode(ownerID, shift, hash, null, this).set(ownerID, shift, hash, key, val);
+            didAddLeaf && (didAddLeaf.value = true);
+            return makeNode(ownerID, shift, hash, null, this).set(ownerID, shift, hash, key, value);
         }
         var idx = this.keys.indexOf(key);
-        if (idx >= 0 && this.values[idx] === val) {
+        if (idx >= 0 && this.values[idx] === value) {
             return this;
         }
         var editable = this.ensureOwner(ownerID);
         if (idx === -1) {
             editable.keys.push(key);
-            editable.values.push(val);
-            didAddLeaf && (didAddLeaf.val = true);
+            editable.values.push(value);
+            didAddLeaf && (didAddLeaf.value = true);
         } else {
-            editable.values[idx] = val;
+            editable.values[idx] = value;
         }
         return editable;
     };
@@ -304,7 +297,7 @@ var HashCollisionNode = (function () {
         if (idx === -1) {
             return this;
         }
-        didRemoveLeaf && (didRemoveLeaf.val = true);
+        didRemoveLeaf && (didRemoveLeaf.value = true);
         if (this.values.length > 1) {
             var editable = this.ensureOwner(ownerID);
             editable.keys[idx] = editable.keys.pop();
@@ -331,12 +324,12 @@ var HashCollisionNode = (function () {
     return HashCollisionNode;
 })();
 
-function BoolRef(val) {
-    __BOOL_REF.val = val;
+function BoolRef(value) {
+    __BOOL_REF.value = value;
     return __BOOL_REF;
 }
 
-var __BOOL_REF = { val: false };
+var __BOOL_REF = { value: false };
 
 function hashValue(o) {
     if (!o) {
