@@ -1,10 +1,10 @@
 jest.autoMockOff();
-var PQueue = require('../build/Queue').PQueue;
+var Queue = require('../build/Queue').Queue;
 
-describe('PQueue', function() {
+describe('Queue', function() {
 
   it('constructor provides initial values', function() {
-    var v = PQueue('a', 'b', 'c');
+    var v = Queue('a', 'b', 'c');
     expect(v.first()).toBe('a');
     expect(v.toArray()).toEqual(['a','b','c']);
   });

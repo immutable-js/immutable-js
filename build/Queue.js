@@ -6,49 +6,51 @@ var __extends = this.__extends || function (d, b) {
 };
 var OrderedIterable = require('./OrderedIterable');
 
-
-var PQueue = (function (_super) {
-    __extends(PQueue, _super);
+/**
+* A Queue allows us to push and pop to the first position in the list as well as walk this list.
+*/
+var Queue = (function (_super) {
+    __extends(Queue, _super);
     // @pragma Construction
-    function PQueue() {
+    function Queue() {
         var values = [];
         for (var _i = 0; _i < (arguments.length - 0); _i++) {
             values[_i] = arguments[_i + 0];
         }
         _super.call(this, this);
-        return PQueue.fromArray(values);
+        return Queue.fromArray(values);
     }
-    PQueue.empty = function () {
+    Queue.empty = function () {
         if (!__EMPTY_QUEUE) {
-            __EMPTY_QUEUE = PQueue._make(undefined, undefined);
+            __EMPTY_QUEUE = Queue._make(undefined, undefined);
             __EMPTY_QUEUE.length = 0;
         }
         return __EMPTY_QUEUE;
     };
 
-    PQueue.fromArray = function (values) {
-        var list = PQueue.empty();
+    Queue.fromArray = function (values) {
+        var list = Queue.empty();
         for (var ii = values.length - 1; ii >= 0; ii--) {
             list = list.push(values[ii]);
         }
         return list;
     };
 
-    PQueue.prototype.first = function () {
+    Queue.prototype.first = function () {
         return this._value;
     };
 
     // @pragma Modification
-    PQueue.prototype.push = function (value) {
-        return PQueue._make(value, this.length === 0 ? undefined : this);
+    Queue.prototype.push = function (value) {
+        return Queue._make(value, this.length === 0 ? undefined : this);
     };
 
-    PQueue.prototype.pop = function () {
-        return this._next ? this._next : PQueue.empty();
+    Queue.prototype.pop = function () {
+        return this._next ? this._next : Queue.empty();
     };
 
     // @pragma Iteration
-    PQueue.prototype.iterate = function (fn, thisArg) {
+    Queue.prototype.iterate = function (fn, thisArg) {
         var queue = this;
         var iterations = 0;
         while (queue && queue.length) {
@@ -60,17 +62,17 @@ var PQueue = (function (_super) {
         return true;
     };
 
-    PQueue._make = function (value, next) {
-        var queue = Object.create(PQueue.prototype);
+    Queue._make = function (value, next) {
+        var queue = Object.create(Queue.prototype);
         queue.collection = queue;
         queue._value = value;
         queue._next = next;
         queue.length = next ? next.length + 1 : 1;
         return queue;
     };
-    return PQueue;
+    return Queue;
 })(OrderedIterable);
-exports.PQueue = PQueue;
+exports.Queue = Queue;
 
 var __EMPTY_QUEUE;
 //# sourceMappingURL=Queue.js.map

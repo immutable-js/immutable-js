@@ -1,49 +1,28 @@
 import OrderedIterable = require('./OrderedIterable');
 
 /**
- *
  * A Queue allows us to push and pop to the first position in the list as well as walk this list.
- *
- *   class Queue {
- *     static new(...values: T[]): PList;
- *     static empty(): PList;
- *     static fromArray(values: T[]): PList;
- *     toArray(): T[];
- *     push(value: T): PList;
- *     peek(): T;
- *     pop(): PList;
- *     length: number;
- *   }
- *
  */
 
-
-export interface Queue<T> extends OrderedIterable<T, Queue<T>> {
-  length: number;
-  first(): T;
-  push(value: T): Queue<T>;
-  pop(): Queue<T>;
-}
-
-export class PQueue<T> extends OrderedIterable<T, PQueue<T>> implements Queue<T> {
+export class Queue<T> extends OrderedIterable<T, Queue<T>> {
 
   // @pragma Construction
 
   constructor(...values: Array<T>) {
     super(this);
-    return PQueue.fromArray(values);
+    return Queue.fromArray(values);
   }
 
-  static empty(): PQueue<any> {
+  static empty(): Queue<any> {
     if (!__EMPTY_QUEUE) {
-      __EMPTY_QUEUE = PQueue._make(undefined, undefined);
+      __EMPTY_QUEUE = Queue._make(undefined, undefined);
       __EMPTY_QUEUE.length = 0;
     }
     return __EMPTY_QUEUE;
   }
 
-  static fromArray<T>(values: Array<T>): PQueue<T> {
-    var list:PQueue<T> = PQueue.empty();
+  static fromArray<T>(values: Array<T>): Queue<T> {
+    var list:Queue<T> = Queue.empty();
     for (var ii = values.length - 1; ii >= 0; ii--) {
       list = list.push(values[ii]);
     }
@@ -60,12 +39,12 @@ export class PQueue<T> extends OrderedIterable<T, PQueue<T>> implements Queue<T>
 
   // @pragma Modification
 
-  push(value: T): PQueue<T> {
-    return PQueue._make(value, this.length === 0 ? undefined : this);
+  push(value: T): Queue<T> {
+    return Queue._make(value, this.length === 0 ? undefined : this);
   }
 
-  pop(): PQueue<T> {
-    return this._next ? this._next : PQueue.empty();
+  pop(): Queue<T> {
+    return this._next ? this._next : Queue.empty();
   }
 
   // @pragma Iteration
@@ -86,10 +65,10 @@ export class PQueue<T> extends OrderedIterable<T, PQueue<T>> implements Queue<T>
   }
 
   private _value: T;
-  private _next: PQueue<T>;
+  private _next: Queue<T>;
 
-  private static _make<T>(value: T, next: PQueue<T>): PQueue<T> {
-    var queue = Object.create(PQueue.prototype);
+  private static _make<T>(value: T, next: Queue<T>): Queue<T> {
+    var queue = Object.create(Queue.prototype);
     queue.collection = queue;
     queue._value = value;
     queue._next = next;
@@ -98,4 +77,4 @@ export class PQueue<T> extends OrderedIterable<T, PQueue<T>> implements Queue<T>
   }
 }
 
-var __EMPTY_QUEUE: PQueue<any>;
+var __EMPTY_QUEUE: Queue<any>;
