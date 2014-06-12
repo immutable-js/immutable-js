@@ -1,8 +1,6 @@
 import Vector = require('./Vector');
 import Map = require('./Map');
 declare class Iterable<K, V, C> {
-    public collection: C;
-    constructor(collection: C);
     public iterate(fn: (value?: V, key?: K, collection?: C) => any, thisArg?: any): boolean;
     public toArray(): V[];
     public toObject(): Object;

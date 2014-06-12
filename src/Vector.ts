@@ -4,13 +4,15 @@ function invariant(condition: boolean, error: string): void {
   if (!condition) throw new Error(error);
 }
 
+// TODO: Note that Vector implements all public methods of Map.
+//   We should document this in the typesystem.
 class Vector<T> extends OrderedIterable<T, Vector<T>> {
 
   // @pragma Construction
 
   constructor(...values: Array<T>) {
-    super(this);
     return Vector.fromArray(values);
+    super();
   }
 
   static empty(): Vector<any> {
@@ -278,6 +280,12 @@ class Vector<T> extends OrderedIterable<T, Vector<T>> {
     return null;
   }
 
+  merge(vector: Vector<T>): Vector<T> {
+    var newVect = this.asTransient();
+    vector.iterate((value, index) => newVect.set(index, value));
+    return newVect.asPersistent();
+  }
+
   concat(...vectors: Array<Vector<T>>): Vector<T> {
     var vector = this;
     for (var ii = 0; ii < vectors.length; ii++) {
@@ -376,7 +384,6 @@ class Vector<T> extends OrderedIterable<T, Vector<T>> {
 
   private static _make<T>(origin: number, size: number, level: number, root: VNode<T>, tail: VNode<T>, ownerID?: OwnerID): Vector<T> {
     var vect = Object.create(Vector.prototype);
-    vect.collection = vect;
     vect.length = size - origin;
     vect._origin = origin;
     vect._size = size;

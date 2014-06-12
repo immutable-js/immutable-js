@@ -9,11 +9,11 @@ class Map<K, V> extends Iterable<K, V, Map<K, V>> {
   // @pragma Construction
 
   constructor(obj?: {[key: string]: V}) {
-    super(this);
     if (!obj) {
       return Map.empty();
     }
     return <Map<K,V>>(<any>Map.fromObj(obj));
+    super();
   }
 
   static empty(): Map<any, any> {
@@ -91,6 +91,8 @@ class Map<K, V> extends Iterable<K, V, Map<K, V>> {
     var newRoot = this._root.delete(this._ownerID, 0, hashValue(k), k);
     return !newRoot ? Map.empty() : newRoot === this._root ? this : Map._make(this.length - 1, newRoot);
   }
+
+  // @pragma Composition
 
   merge(map: Map<K, V>): Map<K, V> {
     var newMap = this.asTransient();

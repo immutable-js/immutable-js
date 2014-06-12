@@ -23,12 +23,12 @@ class Range extends OrderedIterable<number, Range> {
     if (!(this instanceof Range)) {
       return new Range(start, end, step);
     }
-    super(this);
     this.start = start || 0;
     this.end = end == null ? Infinity : end;
     step = step == null ? 1 : Math.abs(step);
     this.step = this.end < this.start ? -step : step;
     this.length = this.step == 0 ? Infinity : Math.max(0, Math.ceil((this.end - this.start) / this.step - 1) + 1);
+    super();
   }
 
   // @pragma Access

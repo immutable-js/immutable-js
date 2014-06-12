@@ -80,7 +80,7 @@ var OrderedIterable = (function (_super) {
 var MapIterator = (function (_super) {
     __extends(MapIterator, _super);
     function MapIterator(iterator, mapper, mapThisArg) {
-        _super.call(this, iterator.collection);
+        _super.call(this);
         this.iterator = iterator;
         this.mapper = mapper;
         this.mapThisArg = mapThisArg;
@@ -100,7 +100,7 @@ var MapIterator = (function (_super) {
 var FilterIterator = (function (_super) {
     __extends(FilterIterator, _super);
     function FilterIterator(iterator, predicate, predicateThisArg) {
-        _super.call(this, iterator.collection);
+        _super.call(this);
         this.iterator = iterator;
         this.predicate = predicate;
         this.predicateThisArg = predicateThisArg;
@@ -121,7 +121,7 @@ var FilterIterator = (function (_super) {
 var TakeIterator = (function (_super) {
     __extends(TakeIterator, _super);
     function TakeIterator(iterator, predicate, predicateThisArg) {
-        _super.call(this, iterator.collection);
+        _super.call(this);
         this.iterator = iterator;
         this.predicate = predicate;
         this.predicateThisArg = predicateThisArg;
@@ -141,7 +141,7 @@ var TakeIterator = (function (_super) {
 var SkipIterator = (function (_super) {
     __extends(SkipIterator, _super);
     function SkipIterator(iterator, predicate, predicateThisArg) {
-        _super.call(this, iterator.collection);
+        _super.call(this);
         this.iterator = iterator;
         this.predicate = predicate;
         this.predicateThisArg = predicateThisArg;

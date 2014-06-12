@@ -78,9 +78,7 @@ class MapIterator<V, V2, C> extends OrderedIterable<V2, C> {
     private iterator: OrderedIterable<V, C>,
     private mapper: (value?: V, index?: number, collection?: C) => V2,
     private mapThisArg: any
-  ) {
-    super(iterator.collection);
-  }
+  ) {super();}
 
   iterate(
     fn: (value?: V2, index?: number, collection?: C) => any, // false or undefined
@@ -101,9 +99,7 @@ class FilterIterator<K, V, C> extends OrderedIterable<V, C> {
     private iterator: OrderedIterable<V, C>,
     private predicate: (value?: V, index?: number, collection?: C) => boolean,
     private predicateThisArg: any
-  ) {
-    super(iterator.collection);
-  }
+  ) {super();}
 
   iterate(
     fn: (value?: V, index?: number, collection?: C) => any, // false or undefined
@@ -126,9 +122,7 @@ class TakeIterator<V, C> extends OrderedIterable<V, C> {
     private iterator: OrderedIterable<V, C>,
     private predicate: (value?: V, index?: number, collection?: C) => boolean,
     private predicateThisArg: any
-  ) {
-    super(iterator.collection);
-  }
+  ) {super();}
 
   iterate(
     fn: (value?: V, index?: number, collection?: C) => any, // false or undefined
@@ -150,9 +144,7 @@ class SkipIterator<V, C> extends OrderedIterable<V, C> {
     private iterator: OrderedIterable<V, C>,
     private predicate: (value?: V, index?: number, collection?: C) => boolean,
     private predicateThisArg: any
-  ) {
-    super(iterator.collection);
-  }
+  ) {super();}
 
   iterate(
     fn: (value?: V, index?: number, collection?: C) => any, // false or undefined

@@ -16,6 +16,7 @@ declare class Vector<T> extends OrderedIterable<T, Vector<T>> {
     public unshift(...values: T[]): Vector<T>;
     public shift(): Vector<T>;
     public reverse(): Vector<T>;
+    public merge(vector: Vector<T>): Vector<T>;
     public concat(...vectors: Vector<T>[]): Vector<T>;
     public slice(begin: number, end?: number): Vector<T>;
     public splice(index: number, removeNum: number, ...values: T[]): Vector<T>;

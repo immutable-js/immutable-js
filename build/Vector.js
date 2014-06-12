@@ -11,6 +11,8 @@ function invariant(condition, error) {
         throw new Error(error);
 }
 
+// TODO: Note that Vector implements all public methods of Map.
+//   We should document this in the typesystem.
 var Vector = (function (_super) {
     __extends(Vector, _super);
     // @pragma Construction
@@ -19,8 +21,8 @@ var Vector = (function (_super) {
         for (var _i = 0; _i < (arguments.length - 0); _i++) {
             values[_i] = arguments[_i + 0];
         }
-        _super.call(this, this);
         return Vector.fromArray(values);
+        _super.call(this);
     }
     Vector.empty = function () {
         return __EMPTY_PVECT || (__EMPTY_PVECT = Vector._make(0, 0, SHIFT, __EMPTY_VNODE, __EMPTY_VNODE));
@@ -288,6 +290,14 @@ var Vector = (function (_super) {
         return null;
     };
 
+    Vector.prototype.merge = function (vector) {
+        var newVect = this.asTransient();
+        vector.iterate(function (value, index) {
+            return newVect.set(index, value);
+        });
+        return newVect.asPersistent();
+    };
+
     Vector.prototype.concat = function () {
         var vectors = [];
         for (var _i = 0; _i < (arguments.length - 0); _i++) {
@@ -378,7 +388,6 @@ var Vector = (function (_super) {
 
     Vector._make = function (origin, size, level, root, tail, ownerID) {
         var vect = Object.create(Vector.prototype);
-        vect.collection = vect;
         vect.length = size - origin;
         vect._origin = origin;
         vect._size = size;

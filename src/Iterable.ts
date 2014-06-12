@@ -2,8 +2,6 @@ import Vector = require('./Vector');
 import Map = require('./Map');
 
 class Iterable<K, V, C> {
-  constructor(public collection: C) {}
-
   iterate(
     fn: (value?: V, key?: K, collection?: C) => any, // false or undefined
     thisArg?: any
@@ -20,9 +18,9 @@ class Iterable<K, V, C> {
   }
 
   toObject(): Object {
-    var object: {[key: string]: V} = {};
+    var object: any /*{[key: string or number]: V}*/ = {};
     this.iterate(function (v, k) {
-      object[''+k] = v;
+      object[k] = v;
     });
     return object;
   }
@@ -130,9 +128,7 @@ class MapIterator<K, V, V2, C> extends Iterable<K, V2, C> {
     private iterator: Iterable<K, V, C>,
     private mapper: (value?: V, key?: K, collection?: C) => V2,
     private mapThisArg: any
-  ) {
-    super(iterator.collection);
-  }
+  ) {super();}
 
   iterate(
     fn: (value?: V2, key?: K, collection?: C) => any, // false or undefined
@@ -153,9 +149,7 @@ class FilterIterator<K, V, C> extends Iterable<K, V, C> {
     private iterator: Iterable<K, V, C>,
     private predicate: (value?: V, key?: K, collection?: C) => boolean,
     private predicateThisArg: any
-  ) {
-    super(iterator.collection);
-  }
+  ) {super();}
 
   iterate(
     fn: (value?: V, key?: K, collection?: C) => any, // false or undefined

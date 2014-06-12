@@ -15,11 +15,11 @@ var Map = (function (_super) {
     __extends(Map, _super);
     // @pragma Construction
     function Map(obj) {
-        _super.call(this, this);
         if (!obj) {
             return Map.empty();
         }
         return Map.fromObj(obj);
+        _super.call(this);
     }
     Map.empty = function () {
         return __EMPTY_MAP || (__EMPTY_MAP = Map._make(0, null));
@@ -93,6 +93,7 @@ var Map = (function (_super) {
         return !newRoot ? Map.empty() : newRoot === this._root ? this : Map._make(this.length - 1, newRoot);
     };
 
+    // @pragma Composition
     Map.prototype.merge = function (map) {
         var newMap = this.asTransient();
         map.iterate(function (value, key) {

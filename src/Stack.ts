@@ -9,8 +9,8 @@ class Stack<T> extends OrderedIterable<T, Stack<T>> {
   // @pragma Construction
 
   constructor(...values: Array<T>) {
-    super(this);
     return Stack.fromArray(values);
+    super();
   }
 
   static empty(): Stack<any> {
@@ -77,7 +77,6 @@ class Stack<T> extends OrderedIterable<T, Stack<T>> {
 
   private static _make<T>(value: T, next: Stack<T>): Stack<T> {
     var queue = Object.create(Stack.prototype);
-    queue.collection = queue;
     queue._value = value;
     queue._next = next;
     queue.length = next ? next.length + 1 : 1;

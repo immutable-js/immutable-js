@@ -8,8 +8,7 @@ var Vector = require('./Vector');
 var Map = require('./Map');
 
 var Iterable = (function () {
-    function Iterable(collection) {
-        this.collection = collection;
+    function Iterable() {
     }
     Iterable.prototype.iterate = function (fn, thisArg) {
         throw new Error('Abstract method');
@@ -26,7 +25,7 @@ var Iterable = (function () {
     Iterable.prototype.toObject = function () {
         var object = {};
         this.iterate(function (v, k) {
-            object['' + k] = v;
+            object[k] = v;
         });
         return object;
     };
@@ -113,7 +112,7 @@ var Iterable = (function () {
 var MapIterator = (function (_super) {
     __extends(MapIterator, _super);
     function MapIterator(iterator, mapper, mapThisArg) {
-        _super.call(this, iterator.collection);
+        _super.call(this);
         this.iterator = iterator;
         this.mapper = mapper;
         this.mapThisArg = mapThisArg;
@@ -133,7 +132,7 @@ var MapIterator = (function (_super) {
 var FilterIterator = (function (_super) {
     __extends(FilterIterator, _super);
     function FilterIterator(iterator, predicate, predicateThisArg) {
-        _super.call(this, iterator.collection);
+        _super.call(this);
         this.iterator = iterator;
         this.predicate = predicate;
         this.predicateThisArg = predicateThisArg;
