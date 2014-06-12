@@ -132,7 +132,6 @@ class OwnerID {
 interface MNode<K, V> {
   ownerID: OwnerID;
   // TODO: separate Key and Value arrays will make all the math easier to read
-  arr: Array<any>;
   get(shift: number, hash: number, key: K, not_found?: V): V;
   set(ownerID: OwnerID, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V>;
   delete(ownerID: OwnerID, shift: number, hash: number, key: K, didRemoveLeaf?: BoolRef): MNode<K, V>;
@@ -208,7 +207,7 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
     }
     var key1hash = hashValue(key_or_nil);
     if (key1hash === hash) {
-      newNode = new HashCollisionNode<K, V>(ownerID, hash, [key_or_nil, val_or_node, key, val]);
+      newNode = new HashCollisionNode<K, V>(ownerID, hash, [key_or_nil, key], [val_or_node, val]);
     } else {
       newNode = (<MNode<K, V>>__EMPTY_MNODE)
         .set(ownerID, shift + SHIFT, key1hash, key_or_nil, val_or_node)
@@ -303,35 +302,34 @@ class ArrayNode<K, V> implements MNode<K, V> {
 
   delete(ownerID: OwnerID, shift: number, hash: number, key: K, didRemoveLeaf?: BoolRef): MNode<K, V> {
     var idx = (hash >>> shift) & MASK;
-    var node = this.arr[idx];
+    var node = <MNode<K, V>>this.arr[idx];
     if (node == null) {
       return this;
     }
-    var n = node.delete(ownerID, shift + SHIFT, hash, key, didRemoveLeaf);
-    if (n === node) {
+    var newNode = node.delete(ownerID, shift + SHIFT, hash, key, didRemoveLeaf);
+    if (newNode == null && this.cnt <= 8) { // why 8?
+      var len = 2 * (this.cnt - 1);
+      var new_arr: Array<any> = [];
+      var j = 0;
+      var bitmap = 0;
+      for (var i = 0; i < len; i++) {
+        if (i !== idx && this.arr[i] != null) {
+          new_arr[i * 2 + 1] = this.arr[i];
+          bitmap |= 1 << i;
+          j++;
+        }
+      }
+      return new BitmapIndexedNode<K, V>(ownerID, bitmap, j, new_arr);
+    }
+    if (newNode === node) {
       return this;
     }
-    if (n == null) {
-      if (this.cnt <= 8) { // why 8?
-        var len = 2 * (this.cnt - 1);
-        var new_arr: Array<any> = [];
-        var j = 0;
-        var bitmap = 0;
-        for (var i = 0; i < len; i++) {
-          if (i !== idx && this.arr[i] != null) {
-            new_arr[i * 2 + 1] = this.arr[i];
-            bitmap |= 1 << i;
-            j++;
-          }
-        }
-        return new BitmapIndexedNode<K, V>(ownerID, bitmap, j, new_arr);
-      }
-      var editable = this.ensureOwner(ownerID);
-      editable.arr[idx] = n;
+    var editable = this.ensureOwner(ownerID);
+    editable.arr[idx] = newNode;
+    if (!newNode) {
       editable.cnt--;
-      return editable;
     }
-    return edit_and_set(this, ownerID, idx, n);
+    return editable;
   }
 
   ensureOwner(ownerID: OwnerID): ArrayNode<K, V> {
@@ -359,11 +357,11 @@ class ArrayNode<K, V> implements MNode<K, V> {
 
 class HashCollisionNode<K, V> implements MNode<K, V> {
 
-  constructor(public ownerID: OwnerID, public collisionHash: number, public arr: Array<any>) {}
+  constructor(public ownerID: OwnerID, public collisionHash: number, public keys: Array<K>, public values: Array<V>) {}
 
   get(shift: number, hash: number, key: K, not_found: V): V {
-    var idx = this.indexOf(key);
-    return idx === -1 ? not_found : this.arr[idx + 1];
+    var idx = this.keys.indexOf(key);
+    return idx === -1 ? not_found : this.values[idx];
   }
 
   set(ownerID: OwnerID, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V> {
@@ -375,54 +373,40 @@ class HashCollisionNode<K, V> implements MNode<K, V> {
       return new BitmapIndexedNode<K, V>(ownerID, 1 << bitmapIdx, 1, bitmapArr)
         .set(ownerID, shift, hash, key, val);
     }
-    var idx = this.indexOf(key);
-    if (idx === -1) {
-      var editable = this.ensureOwner(ownerID);
-      editable.arr.push(key, val);
-      didAddLeaf && (didAddLeaf.val = true);
-      return editable;
-    }
-    if (this.arr[idx + 1] === val) {
+    var idx = this.keys.indexOf(key);
+    if (idx >= 0 && this.values[idx] === val) {
       return this;
     }
-    return edit_and_set(this, ownerID, idx + 1, val);
+    var editable = this.ensureOwner(ownerID);
+    if (idx === -1) {
+      editable.keys.push(key);
+      editable.values.push(val);
+      didAddLeaf && (didAddLeaf.val = true);
+    } else {
+      editable.values[idx] = val;
+    }
+    return editable;
   }
 
   delete(ownerID: OwnerID, shift: number, hash: number, key: K, didRemoveLeaf?: BoolRef): MNode<K, V> {
-    var idx = this.indexOf(key);
+    var idx = this.keys.indexOf(key);
     if (idx === -1) {
       return this;
     }
     didRemoveLeaf && (didRemoveLeaf.val = true);
-    if (this.arr.length === 2) {
-      return null;
+    if (this.keys.length > 1) {
+      var editable = this.ensureOwner(ownerID);
+      editable.keys[idx] = editable.keys.pop();
+      editable.values[idx] = editable.values.pop();
+      return editable;
     }
-    var editable = this.ensureOwner(ownerID);
-    var earr = editable.arr;
-    var arrLen = earr.length;
-    if (idx < arrLen - 2) {
-      earr[idx] = earr[arrLen - 2];
-      earr[idx + 1] = earr[arrLen - 1];
-    }
-    earr.length -= 2;
-    return editable;
-  }
-
-  // TODO: if key array was separate, then we could use the built-in indexOf
-  indexOf(key: K): number {
-    for (var ii = 0; ii < this.arr.length; ii += 2) {
-      if (key === this.arr[ii]) {
-        return ii;
-      }
-    }
-    return -1;
   }
 
   ensureOwner(ownerID: OwnerID): HashCollisionNode<K, V> {
     if (ownerID && ownerID === this.ownerID) {
       return this;
     }
-    return new HashCollisionNode<K, V>(ownerID, this.collisionHash, this.arr.slice());
+    return new HashCollisionNode<K, V>(ownerID, this.collisionHash, this.keys.slice(), this.values.slice());
   }
 
   iterate(
@@ -430,9 +414,8 @@ class HashCollisionNode<K, V> implements MNode<K, V> {
     fn: (value: V, key: K, collection: Map<K, V>) => any, // false or undefined
     thisArg?: any
   ): boolean {
-    for (var ii = 0; ii < this.arr.length; ii += 2) {
-      var k = this.arr[ii];
-      if (fn.call(thisArg, this.arr[ii + 1], k, map) === false) {
+    for (var ii = 0; ii < this.keys.length; ii++) {
+      if (fn.call(thisArg, this.values[ii], this.keys[ii], map) === false) {
         return false;
       }
     }
@@ -506,7 +489,7 @@ var STRING_HASH_CACHE: {[key: string]: number} = {};
 
 
 
-function edit_and_set<K, V, T>(node: MNode<K, V>, ownerID: OwnerID, i: number, a: T, j?: number, b?: T): MNode<K, V> {
+function edit_and_set<K, V, T>(node: BitmapIndexedNode<K, V>, ownerID: OwnerID, i: number, a: T, j?: number, b?: T): BitmapIndexedNode<K, V> {
   var editable = node.ensureOwner(ownerID);
   editable.arr[i] = a;
   if (j != null) {

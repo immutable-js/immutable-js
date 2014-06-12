@@ -188,7 +188,7 @@ var BitmapIndexedNode = (function () {
         }
         var key1hash = hashValue(key_or_nil);
         if (key1hash === hash) {
-            newNode = new HashCollisionNode(ownerID, hash, [key_or_nil, val_or_node, key, val]);
+            newNode = new HashCollisionNode(ownerID, hash, [key_or_nil, key], [val_or_node, val]);
         } else {
             newNode = __EMPTY_MNODE.set(ownerID, shift + SHIFT, key1hash, key_or_nil, val_or_node).set(ownerID, shift + SHIFT, hash, key, val);
         }
@@ -281,31 +281,30 @@ var ArrayNode = (function () {
         if (node == null) {
             return this;
         }
-        var n = node.delete(ownerID, shift + SHIFT, hash, key, didRemoveLeaf);
-        if (n === node) {
+        var newNode = node.delete(ownerID, shift + SHIFT, hash, key, didRemoveLeaf);
+        if (newNode == null && this.cnt <= 8) {
+            var len = 2 * (this.cnt - 1);
+            var new_arr = [];
+            var j = 0;
+            var bitmap = 0;
+            for (var i = 0; i < len; i++) {
+                if (i !== idx && this.arr[i] != null) {
+                    new_arr[i * 2 + 1] = this.arr[i];
+                    bitmap |= 1 << i;
+                    j++;
+                }
+            }
+            return new BitmapIndexedNode(ownerID, bitmap, j, new_arr);
+        }
+        if (newNode === node) {
             return this;
         }
-        if (n == null) {
-            if (this.cnt <= 8) {
-                var len = 2 * (this.cnt - 1);
-                var new_arr = [];
-                var j = 0;
-                var bitmap = 0;
-                for (var i = 0; i < len; i++) {
-                    if (i !== idx && this.arr[i] != null) {
-                        new_arr[i * 2 + 1] = this.arr[i];
-                        bitmap |= 1 << i;
-                        j++;
-                    }
-                }
-                return new BitmapIndexedNode(ownerID, bitmap, j, new_arr);
-            }
-            var editable = this.ensureOwner(ownerID);
-            editable.arr[idx] = n;
+        var editable = this.ensureOwner(ownerID);
+        editable.arr[idx] = newNode;
+        if (!newNode) {
             editable.cnt--;
-            return editable;
         }
-        return edit_and_set(this, ownerID, idx, n);
+        return editable;
     };
 
     ArrayNode.prototype.ensureOwner = function (ownerID) {
@@ -328,14 +327,15 @@ var ArrayNode = (function () {
 })();
 
 var HashCollisionNode = (function () {
-    function HashCollisionNode(ownerID, collisionHash, arr) {
+    function HashCollisionNode(ownerID, collisionHash, keys, values) {
         this.ownerID = ownerID;
         this.collisionHash = collisionHash;
-        this.arr = arr;
+        this.keys = keys;
+        this.values = values;
     }
     HashCollisionNode.prototype.get = function (shift, hash, key, not_found) {
-        var idx = this.indexOf(key);
-        return idx === -1 ? not_found : this.arr[idx + 1];
+        var idx = this.keys.indexOf(key);
+        return idx === -1 ? not_found : this.values[idx];
     };
 
     HashCollisionNode.prototype.set = function (ownerID, shift, hash, key, val, didAddLeaf) {
@@ -346,59 +346,45 @@ var HashCollisionNode = (function () {
             bitmapArr[bitmapIdx * 2 + 1] = this;
             return new BitmapIndexedNode(ownerID, 1 << bitmapIdx, 1, bitmapArr).set(ownerID, shift, hash, key, val);
         }
-        var idx = this.indexOf(key);
-        if (idx === -1) {
-            var editable = this.ensureOwner(ownerID);
-            editable.arr.push(key, val);
-            didAddLeaf && (didAddLeaf.val = true);
-            return editable;
-        }
-        if (this.arr[idx + 1] === val) {
+        var idx = this.keys.indexOf(key);
+        if (idx >= 0 && this.values[idx] === val) {
             return this;
         }
-        return edit_and_set(this, ownerID, idx + 1, val);
+        var editable = this.ensureOwner(ownerID);
+        if (idx === -1) {
+            editable.keys.push(key);
+            editable.values.push(val);
+            didAddLeaf && (didAddLeaf.val = true);
+        } else {
+            editable.values[idx] = val;
+        }
+        return editable;
     };
 
     HashCollisionNode.prototype.delete = function (ownerID, shift, hash, key, didRemoveLeaf) {
-        var idx = this.indexOf(key);
+        var idx = this.keys.indexOf(key);
         if (idx === -1) {
             return this;
         }
         didRemoveLeaf && (didRemoveLeaf.val = true);
-        if (this.arr.length === 2) {
-            return null;
+        if (this.keys.length > 1) {
+            var editable = this.ensureOwner(ownerID);
+            editable.keys[idx] = editable.keys.pop();
+            editable.values[idx] = editable.values.pop();
+            return editable;
         }
-        var editable = this.ensureOwner(ownerID);
-        var earr = editable.arr;
-        var arrLen = earr.length;
-        if (idx < arrLen - 2) {
-            earr[idx] = earr[arrLen - 2];
-            earr[idx + 1] = earr[arrLen - 1];
-        }
-        earr.length -= 2;
-        return editable;
-    };
-
-    HashCollisionNode.prototype.indexOf = function (key) {
-        for (var ii = 0; ii < this.arr.length; ii += 2) {
-            if (key === this.arr[ii]) {
-                return ii;
-            }
-        }
-        return -1;
     };
 
     HashCollisionNode.prototype.ensureOwner = function (ownerID) {
         if (ownerID && ownerID === this.ownerID) {
             return this;
         }
-        return new HashCollisionNode(ownerID, this.collisionHash, this.arr.slice());
+        return new HashCollisionNode(ownerID, this.collisionHash, this.keys.slice(), this.values.slice());
     };
 
     HashCollisionNode.prototype.iterate = function (map, fn, thisArg) {
-        for (var ii = 0; ii < this.arr.length; ii += 2) {
-            var k = this.arr[ii];
-            if (fn.call(thisArg, this.arr[ii + 1], k, map) === false) {
+        for (var ii = 0; ii < this.keys.length; ii++) {
+            if (fn.call(thisArg, this.values[ii], this.keys[ii], map) === false) {
                 return false;
             }
         }
