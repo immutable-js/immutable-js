@@ -146,7 +146,7 @@ interface MNode<K, V> {
 
 class BitmapIndexedNode<K, V> implements MNode<K, V> {
 
-  constructor(public ownerID: OwnerID, public bitmap: number, public cnt: number, public arr: Array<any>) {}
+  constructor(public ownerID: OwnerID, public bitmap: number, public cnt: number, public keys: Array<any>, public values: Array<any>) {}
 
   get(shift: number, hash: number, key: K, not_found?: V): V {
     var idx = (hash >>> shift) & MASK;
@@ -154,8 +154,8 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
     if ((this.bitmap & bit) === 0) {
       return not_found;
     }
-    var key_or_nil = this.arr[2 * idx];
-    var val_or_node = this.arr[2 * idx + 1];
+    var key_or_nil = this.keys[idx];
+    var val_or_node = this.values[idx];
     if (key_or_nil == null) {
       return val_or_node.get(shift + SHIFT, hash, key, not_found);
     }
@@ -167,43 +167,41 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
     var bit = 1 << idx;
     if ((this.bitmap & bit) === 0) {
       didAddLeaf && (didAddLeaf.val = true);
+      // It's not entirely clear what we get by creating an array node here. Space savings?
       if (this.cnt >= 16) { // why 16? Half of SIZE? Could we fit 32 here if we had separate storage?
         var nodes: Array<any> = [];
-        var jdx = (hash >>> shift) & MASK;
-        nodes[jdx] = (<MNode<K, V>>__EMPTY_MNODE).set(ownerID, shift + SHIFT, hash, key, val);
-        var kvi = 0;
-        for (var ii = 0; ii < SIZE; ii++) {
+        for (var ii = 0; ii < this.values.length; ii++) {
           if (this.bitmap & (1 << ii)) {
-            nodes[ii] = this.arr[kvi] == null ?
-              this.arr[kvi + 1] :
-              (<MNode<K, V>>__EMPTY_MNODE).set(ownerID, shift + SHIFT, hashValue(this.arr[kvi]), this.arr[kvi], this.arr[kvi + 1]);
-            kvi += 2;
+            nodes[ii] = this.keys[ii] == null ?
+              this.values[ii] :
+              (<MNode<K, V>>__EMPTY_MNODE).set(ownerID, shift + SHIFT, hashValue(this.keys[ii]), this.keys[ii], this.values[ii]);
           }
         }
-        return new ArrayNode<K, V>(ownerID, kvi / 2, nodes);
+        nodes[idx] = (<MNode<K, V>>__EMPTY_MNODE).set(ownerID, shift + SHIFT, hash, key, val);
+        return new ArrayNode<K, V>(ownerID, this.cnt + 1, nodes);
       }
       var editable = this.ensureOwner(ownerID);
-      editable.arr[2 * idx] = key;
-      editable.arr[2 * idx + 1] = val;
+      editable.keys[idx] = key;
+      editable.values[idx] = val;
       editable.bitmap |= bit;
       editable.cnt++;
       return editable;
     }
-    var key_or_nil = this.arr[2 * idx];
-    var val_or_node = this.arr[2 * idx + 1];
+    var key_or_nil = this.keys[idx];
+    var val_or_node = this.values[idx];
     var newNode: MNode<K, V>;
     if (key_or_nil == null) {
       newNode = val_or_node.set(ownerID, shift + SHIFT, hash, key, val, didAddLeaf);
       if (newNode === val_or_node) {
         return this;
       }
-      return edit_and_set(this, ownerID, 2 * idx + 1, newNode);
+      return edit_and_set(this, ownerID, idx, newNode);
     }
     if (key === key_or_nil) {
       if (val === val_or_node) {
         return this;
       }
-      return edit_and_set(this, ownerID, 2 * idx + 1, val);
+      return edit_and_set(this, ownerID, idx, val);
     }
     var key1hash = hashValue(key_or_nil);
     if (key1hash === hash) {
@@ -214,24 +212,27 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
         .set(ownerID, shift + SHIFT, hash, key, val);
     }
     didAddLeaf && (didAddLeaf.val = true);
-    return edit_and_set(this, ownerID, 2 * idx, null, 2 * idx + 1, newNode);
+    var editable = this.ensureOwner(ownerID);
+    delete editable.keys[idx];
+    editable.values[idx] = newNode;
+    return editable;
   }
 
   delete(ownerID: OwnerID, shift: number, hash: number, key: K, didRemoveLeaf?: BoolRef): MNode<K, V> {
     var idx = (hash >>> shift) & MASK;
     var bit = 1 << idx;
-    var key_or_nil = this.arr[2 * idx];
+    var key_or_nil = this.keys[idx];
     if ((this.bitmap & bit) === 0 || (key_or_nil != null && key !== key_or_nil)) {
       return this;
     }
     if (key_or_nil == null) {
-      var node = this.arr[2 * idx + 1];
+      var node = this.values[idx];
       var newNode = node.delete(ownerID, shift + SHIFT, hash, key, didRemoveLeaf);
       if (newNode === node) {
         return this;
       }
       if (newNode) {
-        return edit_and_set(this, ownerID, 2 * idx + 1, newNode);
+        return edit_and_set(this, ownerID, idx, newNode);
       }
     } else {
       didRemoveLeaf && (didRemoveLeaf.val = true);
@@ -242,8 +243,8 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
     var editable = this.ensureOwner(ownerID);
     // Technically, since we always check the bitmap first,
     // we don't need to delete these, but doing so frees up memory.
-    delete editable.arr[2 * idx];
-    delete editable.arr[2 * idx + 1];
+    delete editable.keys[idx];
+    delete editable.values[idx];
     editable.bitmap ^= bit;
     editable.cnt--;
     return editable;
@@ -253,7 +254,7 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
     if (ownerID && ownerID === this.ownerID) {
       return this;
     }
-    return new BitmapIndexedNode<K, V>(ownerID, this.bitmap, this.cnt, this.arr.slice());
+    return new BitmapIndexedNode<K, V>(ownerID, this.bitmap, this.cnt, this.keys.slice(), this.values.slice());
   }
 
   iterate(
@@ -261,15 +262,14 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
     fn: (value: V, key: K, collection: Map<K, V>) => any, // false or undefined
     thisArg?: any
   ): boolean {
-    // TODO: could be arr.length to not bother with high numbers
-    for (var ii = 0; ii < SIZE; ii++) {
+    for (var ii = 0; ii < this.values.length; ii++) {
       if (this.bitmap & (1 << ii)) {
-        var key = this.arr[ii * 2];
+        var key = this.keys[ii];
         if (key != null) {
-          if (fn.call(thisArg, this.arr[ii * 2 + 1], key, map) === false) {
+          if (fn.call(thisArg, this.values[ii], key, map) === false) {
             return false;
           }
-        } else if (!this.arr[ii * 2 + 1].iterate(map, fn, thisArg)) {
+        } else if (!this.values[ii].iterate(map, fn, thisArg)) {
           return false;
         }
       }
@@ -316,15 +316,15 @@ class ArrayNode<K, V> implements MNode<K, V> {
     // and subsequent sets could skip this level of indirection,
     // but otherwise this isn't really all that helpful.
     if (!newNode && this.cnt <= 8) { // why 8?
-      var newArr: Array<any> = [];
+      var values: Array<any> = [];
       var bitmap = 0;
       for (var ii = 0; ii < this.arr.length; ii++) {
         if (ii !== idx && this.arr[ii]) {
-          newArr[ii * 2 + 1] = this.arr[ii];
+          values[ii] = this.arr[ii];
           bitmap |= 1 << ii;
         }
       }
-      return new BitmapIndexedNode<K, V>(ownerID, bitmap, this.cnt - 1, newArr);
+      return new BitmapIndexedNode<K, V>(ownerID, bitmap, this.cnt - 1, [], values);
     }
     if (newNode === node) {
       return this;
@@ -373,9 +373,9 @@ class HashCollisionNode<K, V> implements MNode<K, V> {
     if (hash !== this.collisionHash) {
       didAddLeaf && (didAddLeaf.val = true);
       var bitmapIdx = (this.collisionHash >>> shift) & MASK;
-      var bitmapArr: Array<any> = [];
-      bitmapArr[bitmapIdx * 2 + 1] = this;
-      return new BitmapIndexedNode<K, V>(ownerID, 1 << bitmapIdx, 1, bitmapArr)
+      var bitmapValues: Array<any> = [];
+      bitmapValues[bitmapIdx] = this;
+      return new BitmapIndexedNode<K, V>(ownerID, 1 << bitmapIdx, 1, [], bitmapValues)
         .set(ownerID, shift, hash, key, val);
     }
     var idx = this.keys.indexOf(key);
@@ -399,7 +399,7 @@ class HashCollisionNode<K, V> implements MNode<K, V> {
       return this;
     }
     didRemoveLeaf && (didRemoveLeaf.val = true);
-    if (this.keys.length > 1) {
+    if (this.values.length > 1) {
       var editable = this.ensureOwner(ownerID);
       editable.keys[idx] = editable.keys.pop();
       editable.values[idx] = editable.values.pop();
@@ -419,7 +419,7 @@ class HashCollisionNode<K, V> implements MNode<K, V> {
     fn: (value: V, key: K, collection: Map<K, V>) => any, // false or undefined
     thisArg?: any
   ): boolean {
-    for (var ii = 0; ii < this.keys.length; ii++) {
+    for (var ii = 0; ii < this.values.length; ii++) {
       if (fn.call(thisArg, this.values[ii], this.keys[ii], map) === false) {
         return false;
       }
@@ -494,12 +494,9 @@ var STRING_HASH_CACHE: {[key: string]: number} = {};
 
 
 
-function edit_and_set<K, V, T>(node: BitmapIndexedNode<K, V>, ownerID: OwnerID, i: number, a: T, j?: number, b?: T): BitmapIndexedNode<K, V> {
+function edit_and_set<K, V, T>(node: BitmapIndexedNode<K, V>, ownerID: OwnerID, i: number, a: T): BitmapIndexedNode<K, V> {
   var editable = node.ensureOwner(ownerID);
-  editable.arr[i] = a;
-  if (j != null) {
-    editable.arr[j] = b;
-  }
+  editable.values[i] = a;
   return editable;
 }
 
@@ -508,5 +505,5 @@ var SHIFT = 5; // Resulted in best performance after ______?
 var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
 var __SENTINEL = {};
-var __EMPTY_MNODE: MNode<any, any> = new BitmapIndexedNode(null, 0, 0, []);
+var __EMPTY_MNODE: MNode<any, any> = new BitmapIndexedNode(null, 0, 0, [], []);
 var __EMPTY_MAP: Map<any, any>;
