@@ -134,8 +134,7 @@ var BitmapIndexedNode = (function () {
     }
     BitmapIndexedNode.prototype.get = function (shift, hash, key, not_found) {
         var idx = (hash >>> shift) & MASK;
-        var bit = 1 << idx;
-        if ((this.bitmap & bit) === 0) {
+        if ((this.bitmap & (1 << idx)) === 0) {
             return not_found;
         }
         var key_or_nil = this.keys[idx];
@@ -178,13 +177,17 @@ var BitmapIndexedNode = (function () {
             if (newNode === val_or_node) {
                 return this;
             }
-            return edit_and_set(this, ownerID, idx, newNode);
+            var editable = this.ensureOwner(ownerID);
+            editable.values[idx] = newNode;
+            return editable;
         }
         if (key === key_or_nil) {
             if (val === val_or_node) {
                 return this;
             }
-            return edit_and_set(this, ownerID, idx, val);
+            var editable = this.ensureOwner(ownerID);
+            editable.values[idx] = val;
+            return editable;
         }
         var key1hash = hashValue(key_or_nil);
         if (key1hash === hash) {
@@ -213,7 +216,9 @@ var BitmapIndexedNode = (function () {
                 return this;
             }
             if (newNode) {
-                return edit_and_set(this, ownerID, idx, newNode);
+                var editable = this.ensureOwner(ownerID);
+                editable.values[idx] = newNode;
+                return editable;
             }
         } else {
             didRemoveLeaf && (didRemoveLeaf.val = true);
@@ -454,12 +459,6 @@ var STRING_HASH_MAX_VAL = 0x100000000;
 var STRING_HASH_CACHE_MAX_SIZE = 255;
 var STRING_HASH_CACHE_SIZE = 0;
 var STRING_HASH_CACHE = {};
-
-function edit_and_set(node, ownerID, i, a) {
-    var editable = node.ensureOwner(ownerID);
-    editable.values[i] = a;
-    return editable;
-}
 
 var SHIFT = 5;
 var SIZE = 1 << SHIFT;

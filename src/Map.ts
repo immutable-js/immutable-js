@@ -150,8 +150,7 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
 
   get(shift: number, hash: number, key: K, not_found?: V): V {
     var idx = (hash >>> shift) & MASK;
-    var bit = 1 << idx;
-    if ((this.bitmap & bit) === 0) {
+    if ((this.bitmap & (1 << idx)) === 0) {
       return not_found;
     }
     var key_or_nil = this.keys[idx];
@@ -195,13 +194,17 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
       if (newNode === val_or_node) {
         return this;
       }
-      return edit_and_set(this, ownerID, idx, newNode);
+      var editable = this.ensureOwner(ownerID);
+      editable.values[idx] = newNode;
+      return editable;
     }
     if (key === key_or_nil) {
       if (val === val_or_node) {
         return this;
       }
-      return edit_and_set(this, ownerID, idx, val);
+      var editable = this.ensureOwner(ownerID);
+      editable.values[idx] = val;
+      return editable;
     }
     var key1hash = hashValue(key_or_nil);
     if (key1hash === hash) {
@@ -232,7 +235,9 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
         return this;
       }
       if (newNode) {
-        return edit_and_set(this, ownerID, idx, newNode);
+        var editable = this.ensureOwner(ownerID);
+        editable.values[idx] = newNode;
+        return editable;
       }
     } else {
       didRemoveLeaf && (didRemoveLeaf.val = true);
@@ -490,15 +495,6 @@ var STRING_HASH_MAX_VAL = 0x100000000; // 2^32
 var STRING_HASH_CACHE_MAX_SIZE = 255;
 var STRING_HASH_CACHE_SIZE = 0;
 var STRING_HASH_CACHE: {[key: string]: number} = {};
-
-
-
-
-function edit_and_set<K, V, T>(node: BitmapIndexedNode<K, V>, ownerID: OwnerID, i: number, a: T): BitmapIndexedNode<K, V> {
-  var editable = node.ensureOwner(ownerID);
-  editable.values[i] = a;
-  return editable;
-}
 
 
 var SHIFT = 5; // Resulted in best performance after ______?
