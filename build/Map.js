@@ -52,28 +52,36 @@ var Map = (function (_super) {
         if (k == null) {
             return this;
         }
-        var didAddLeaf = BoolRef();
-        var newRoot = (this._root || __EMPTY_MNODE).set(this._ownerID, 0, hashValue(k), k, v, didAddLeaf);
+        var newLength = this.length;
+        var newRoot;
+        if (this._root) {
+            var didAddLeaf = BoolRef();
+            newRoot = this._root.set(this._ownerID, 0, hashValue(k), k, v, didAddLeaf);
+            didAddLeaf.val && newLength++;
+        } else {
+            newLength++;
+            newRoot = makeNode(this._ownerID, 0, hashValue(k), k, v);
+        }
         if (this._ownerID) {
-            didAddLeaf.val && this.length++;
+            this.length = newLength;
             this._root = newRoot;
             return this;
         }
-        return newRoot === this._root ? this : Map._make(this.length + (didAddLeaf.val ? 1 : 0), newRoot);
+        return newRoot === this._root ? this : Map._make(newLength, newRoot);
     };
 
     Map.prototype.delete = function (k) {
         if (k == null || this._root == null) {
             return this;
         }
-        var didRemoveLeaf = BoolRef();
-        var newRoot = this._root.delete(this._ownerID, 0, hashValue(k), k, didRemoveLeaf);
         if (this._ownerID) {
+            var didRemoveLeaf = BoolRef();
+            this._root = this._root.delete(this._ownerID, 0, hashValue(k), k, didRemoveLeaf);
             didRemoveLeaf.val && this.length--;
-            this._root = newRoot;
             return this;
         }
-        return newRoot === this._root ? this : newRoot ? Map._make(this.length - 1, newRoot) : Map.empty();
+        var newRoot = this._root.delete(this._ownerID, 0, hashValue(k), k);
+        return !newRoot ? Map.empty() : newRoot === this._root ? this : Map._make(this.length - 1, newRoot);
     };
 
     Map.prototype.merge = function (map) {
@@ -99,7 +107,7 @@ var Map = (function (_super) {
     };
 
     Map.prototype.clone = function () {
-        return Map._make(this.length, this._root, this._ownerID);
+        return Map._make(this.length, this._root, this._ownerID && new OwnerID());
     };
 
     // @pragma Iteration
@@ -123,6 +131,15 @@ var OwnerID = (function () {
     }
     return OwnerID;
 })();
+
+function makeNode(ownerID, shift, hash, key, valOrNode) {
+    var idx = (hash >>> shift) & MASK;
+    var keys = [];
+    var values = [];
+    values[idx] = valOrNode;
+    key != null && (keys[idx] = key);
+    return new BitmapIndexedNode(ownerID, 1 << idx, 1, keys, values);
+}
 
 var BitmapIndexedNode = (function () {
     function BitmapIndexedNode(ownerID, bitmap, cnt, keys, values) {
@@ -150,18 +167,6 @@ var BitmapIndexedNode = (function () {
         var bit = 1 << idx;
         if ((this.bitmap & bit) === 0) {
             didAddLeaf && (didAddLeaf.val = true);
-
-            // It's not entirely clear what we get by creating an array node here. Space savings?
-            if (this.cnt >= 16) {
-                var nodes = [];
-                for (var ii = 0; ii < this.values.length; ii++) {
-                    if (this.bitmap & (1 << ii)) {
-                        nodes[ii] = this.keys[ii] == null ? this.values[ii] : __EMPTY_MNODE.set(ownerID, shift + SHIFT, hashValue(this.keys[ii]), this.keys[ii], this.values[ii]);
-                    }
-                }
-                nodes[idx] = __EMPTY_MNODE.set(ownerID, shift + SHIFT, hash, key, val);
-                return new ArrayNode(ownerID, this.cnt + 1, nodes);
-            }
             var editable = this.ensureOwner(ownerID);
             editable.keys[idx] = key;
             editable.values[idx] = val;
@@ -193,7 +198,7 @@ var BitmapIndexedNode = (function () {
         if (key1hash === hash) {
             newNode = new HashCollisionNode(ownerID, hash, [key_or_nil, key], [val_or_node, val]);
         } else {
-            newNode = __EMPTY_MNODE.set(ownerID, shift + SHIFT, key1hash, key_or_nil, val_or_node).set(ownerID, shift + SHIFT, hash, key, val);
+            newNode = makeNode(ownerID, shift + SHIFT, key1hash, key_or_nil, val_or_node).set(ownerID, shift + SHIFT, hash, key, val);
         }
         didAddLeaf && (didAddLeaf.val = true);
         var editable = this.ensureOwner(ownerID);
@@ -262,84 +267,6 @@ var BitmapIndexedNode = (function () {
     return BitmapIndexedNode;
 })();
 
-var ArrayNode = (function () {
-    function ArrayNode(ownerID, cnt, arr) {
-        this.ownerID = ownerID;
-        this.cnt = cnt;
-        this.arr = arr;
-    }
-    ArrayNode.prototype.get = function (shift, hash, key, not_found) {
-        var idx = (hash >>> shift) & MASK;
-        return this.arr[idx] ? this.arr[idx].get(shift + SHIFT, hash, key, not_found) : not_found;
-    };
-
-    ArrayNode.prototype.set = function (ownerID, shift, hash, key, val, didAddLeaf) {
-        var idx = (hash >>> shift) & MASK;
-        var node = this.arr[idx];
-        var newNode = (node || __EMPTY_MNODE).set(ownerID, shift + SHIFT, hash, key, val, didAddLeaf);
-        if (newNode === node) {
-            return this;
-        }
-        var editable = this.ensureOwner(ownerID);
-        editable.arr[idx] = newNode;
-        if (!node) {
-            editable.cnt++;
-        }
-        return editable;
-    };
-
-    ArrayNode.prototype.delete = function (ownerID, shift, hash, key, didRemoveLeaf) {
-        var idx = (hash >>> shift) & MASK;
-        var node = this.arr[idx];
-        if (node == null) {
-            return this;
-        }
-        var newNode = node.delete(ownerID, shift + SHIFT, hash, key, didRemoveLeaf);
-
-        // TODO: how necessary is this? The bitmap indexed node seems to pretend to save memory,
-        // and subsequent sets could skip this level of indirection,
-        // but otherwise this isn't really all that helpful.
-        if (!newNode && this.cnt <= 8) {
-            var values = [];
-            var bitmap = 0;
-            for (var ii = 0; ii < this.arr.length; ii++) {
-                if (ii !== idx && this.arr[ii]) {
-                    values[ii] = this.arr[ii];
-                    bitmap |= 1 << ii;
-                }
-            }
-            return new BitmapIndexedNode(ownerID, bitmap, this.cnt - 1, [], values);
-        }
-        if (newNode === node) {
-            return this;
-        }
-        var editable = this.ensureOwner(ownerID);
-        editable.arr[idx] = newNode;
-        if (!newNode) {
-            editable.cnt--;
-        }
-        return editable;
-    };
-
-    ArrayNode.prototype.ensureOwner = function (ownerID) {
-        if (ownerID && ownerID === this.ownerID) {
-            return this;
-        }
-        return new ArrayNode(ownerID, this.cnt, this.arr.slice());
-    };
-
-    ArrayNode.prototype.iterate = function (map, fn, thisArg) {
-        for (var ii = 0; ii < this.arr.length; ii++) {
-            var node = this.arr[ii];
-            if (node && !node.iterate(map, fn, thisArg)) {
-                return false;
-            }
-        }
-        return true;
-    };
-    return ArrayNode;
-})();
-
 var HashCollisionNode = (function () {
     function HashCollisionNode(ownerID, collisionHash, keys, values) {
         this.ownerID = ownerID;
@@ -355,10 +282,7 @@ var HashCollisionNode = (function () {
     HashCollisionNode.prototype.set = function (ownerID, shift, hash, key, val, didAddLeaf) {
         if (hash !== this.collisionHash) {
             didAddLeaf && (didAddLeaf.val = true);
-            var bitmapIdx = (this.collisionHash >>> shift) & MASK;
-            var bitmapValues = [];
-            bitmapValues[bitmapIdx] = this;
-            return new BitmapIndexedNode(ownerID, 1 << bitmapIdx, 1, [], bitmapValues).set(ownerID, shift, hash, key, val);
+            return makeNode(ownerID, shift, hash, null, this).set(ownerID, shift, hash, key, val);
         }
         var idx = this.keys.indexOf(key);
         if (idx >= 0 && this.values[idx] === val) {
@@ -464,6 +388,5 @@ var SHIFT = 5;
 var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
 var __SENTINEL = {};
-var __EMPTY_MNODE = new BitmapIndexedNode(null, 0, 0, [], []);
 var __EMPTY_MAP;
 //# sourceMappingURL=Map.js.map

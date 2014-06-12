@@ -51,28 +51,36 @@ export class Map<K, V> extends Iterable<K, V, Map<K, V>> {
     if (k == null) {
       return this;
     }
-    var didAddLeaf = BoolRef();
-    var newRoot = (this._root || <MNode<K, V>>__EMPTY_MNODE).set(this._ownerID, 0, hashValue(k), k, v, didAddLeaf);
+    var newLength = this.length;
+    var newRoot: MNode<K, V>;
+    if (this._root) {
+      var didAddLeaf = BoolRef();
+      newRoot = this._root.set(this._ownerID, 0, hashValue(k), k, v, didAddLeaf);
+      didAddLeaf.val && newLength++;
+    } else {
+      newLength++;
+      newRoot = makeNode<K, V>(this._ownerID, 0, hashValue(k), k, v);
+    }
     if (this._ownerID) {
-      didAddLeaf.val && this.length++;
+      this.length = newLength;
       this._root = newRoot;
       return this;
     }
-    return newRoot === this._root ? this : Map._make(this.length + (didAddLeaf.val ? 1 : 0), newRoot);
+    return newRoot === this._root ? this : Map._make(newLength, newRoot);
   }
 
   delete(k: K): Map<K, V> {
     if (k == null || this._root == null) {
       return this;
     }
-    var didRemoveLeaf = BoolRef();
-    var newRoot = this._root.delete(this._ownerID, 0, hashValue(k), k, didRemoveLeaf);
     if (this._ownerID) {
+      var didRemoveLeaf = BoolRef();
+      this._root = this._root.delete(this._ownerID, 0, hashValue(k), k, didRemoveLeaf);
       didRemoveLeaf.val && this.length--;
-      this._root = newRoot;
       return this;
     }
-    return newRoot === this._root ? this : newRoot ? Map._make(this.length - 1, newRoot) : Map.empty();
+    var newRoot = this._root.delete(this._ownerID, 0, hashValue(k), k);
+    return !newRoot ? Map.empty() : newRoot === this._root ? this : Map._make(this.length - 1, newRoot);
   }
 
   merge(map: Map<K, V>): Map<K, V> {
@@ -97,7 +105,7 @@ export class Map<K, V> extends Iterable<K, V, Map<K, V>> {
   }
 
   clone(): Map<K, V> {
-    return Map._make(this.length, this._root, this._ownerID);
+    return Map._make(this.length, this._root, this._ownerID && new OwnerID());
   }
 
   // @pragma Iteration
@@ -144,6 +152,16 @@ interface MNode<K, V> {
 }
 
 
+function makeNode<K, V>(ownerID: OwnerID, shift: number, hash: number, key: K, valOrNode: any): BitmapIndexedNode<K, V> {
+  var idx = (hash >>> shift) & MASK;
+  var keys: Array<any> = [];
+  var values: Array<any> = [];
+  values[idx] = valOrNode;
+  key != null && (keys[idx] = key);
+  return new BitmapIndexedNode<K, V>(ownerID, 1 << idx, 1, keys, values);
+}
+
+
 class BitmapIndexedNode<K, V> implements MNode<K, V> {
 
   constructor(public ownerID: OwnerID, public bitmap: number, public cnt: number, public keys: Array<any>, public values: Array<any>) {}
@@ -166,19 +184,6 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
     var bit = 1 << idx;
     if ((this.bitmap & bit) === 0) {
       didAddLeaf && (didAddLeaf.val = true);
-      // It's not entirely clear what we get by creating an array node here. Space savings?
-      if (this.cnt >= 16) { // why 16? Half of SIZE? Could we fit 32 here if we had separate storage?
-        var nodes: Array<any> = [];
-        for (var ii = 0; ii < this.values.length; ii++) {
-          if (this.bitmap & (1 << ii)) {
-            nodes[ii] = this.keys[ii] == null ?
-              this.values[ii] :
-              (<MNode<K, V>>__EMPTY_MNODE).set(ownerID, shift + SHIFT, hashValue(this.keys[ii]), this.keys[ii], this.values[ii]);
-          }
-        }
-        nodes[idx] = (<MNode<K, V>>__EMPTY_MNODE).set(ownerID, shift + SHIFT, hash, key, val);
-        return new ArrayNode<K, V>(ownerID, this.cnt + 1, nodes);
-      }
       var editable = this.ensureOwner(ownerID);
       editable.keys[idx] = key;
       editable.values[idx] = val;
@@ -210,8 +215,7 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
     if (key1hash === hash) {
       newNode = new HashCollisionNode<K, V>(ownerID, hash, [key_or_nil, key], [val_or_node, val]);
     } else {
-      newNode = (<MNode<K, V>>__EMPTY_MNODE)
-        .set(ownerID, shift + SHIFT, key1hash, key_or_nil, val_or_node)
+      newNode = makeNode<K, V>(ownerID, shift + SHIFT, key1hash, key_or_nil, val_or_node)
         .set(ownerID, shift + SHIFT, hash, key, val);
     }
     didAddLeaf && (didAddLeaf.val = true);
@@ -284,87 +288,6 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
 }
 
 
-class ArrayNode<K, V> implements MNode<K, V> {
-
-  constructor(public ownerID: OwnerID, public cnt: number, public arr: Array<MNode<K, V>>) {}
-
-  get(shift: number, hash: number, key: K, not_found?: V): V {
-    var idx = (hash >>> shift) & MASK;
-    return this.arr[idx] ?
-      this.arr[idx].get(shift + SHIFT, hash, key, not_found) :
-      not_found;
-  }
-
-  set(ownerID: OwnerID, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V> {
-    var idx = (hash >>> shift) & MASK;
-    var node = <MNode<K, V>>this.arr[idx];
-    var newNode = (node || <MNode<K, V>>__EMPTY_MNODE).set(ownerID, shift + SHIFT, hash, key, val, didAddLeaf);
-    if (newNode === node) {
-      return this;
-    }
-    var editable = this.ensureOwner(ownerID);
-    editable.arr[idx] = newNode;
-    if (!node) {
-      editable.cnt++;
-    }
-    return editable;
-  }
-
-  delete(ownerID: OwnerID, shift: number, hash: number, key: K, didRemoveLeaf?: BoolRef): MNode<K, V> {
-    var idx = (hash >>> shift) & MASK;
-    var node = <MNode<K, V>>this.arr[idx];
-    if (node == null) {
-      return this;
-    }
-    var newNode = node.delete(ownerID, shift + SHIFT, hash, key, didRemoveLeaf);
-    // TODO: how necessary is this? The bitmap indexed node seems to pretend to save memory,
-    // and subsequent sets could skip this level of indirection,
-    // but otherwise this isn't really all that helpful.
-    if (!newNode && this.cnt <= 8) { // why 8?
-      var values: Array<any> = [];
-      var bitmap = 0;
-      for (var ii = 0; ii < this.arr.length; ii++) {
-        if (ii !== idx && this.arr[ii]) {
-          values[ii] = this.arr[ii];
-          bitmap |= 1 << ii;
-        }
-      }
-      return new BitmapIndexedNode<K, V>(ownerID, bitmap, this.cnt - 1, [], values);
-    }
-    if (newNode === node) {
-      return this;
-    }
-    var editable = this.ensureOwner(ownerID);
-    editable.arr[idx] = newNode;
-    if (!newNode) {
-      editable.cnt--;
-    }
-    return editable;
-  }
-
-  ensureOwner(ownerID: OwnerID): ArrayNode<K, V> {
-    if (ownerID && ownerID === this.ownerID) {
-      return this;
-    }
-    return new ArrayNode<K, V>(ownerID, this.cnt, this.arr.slice());
-  }
-
-  iterate(
-    map: Map<K, V>,
-    fn: (value: V, key: K, collection: Map<K, V>) => any, // false or undefined
-    thisArg?: any
-  ): boolean {
-    for (var ii = 0; ii < this.arr.length; ii++) {
-      var node = this.arr[ii];
-      if (node && !node.iterate(map, fn, thisArg)) {
-        return false;
-      }
-    }
-    return true;
-  }
-}
-
-
 class HashCollisionNode<K, V> implements MNode<K, V> {
 
   constructor(public ownerID: OwnerID, public collisionHash: number, public keys: Array<K>, public values: Array<V>) {}
@@ -377,10 +300,7 @@ class HashCollisionNode<K, V> implements MNode<K, V> {
   set(ownerID: OwnerID, shift: number, hash: number, key: K, val: V, didAddLeaf?: BoolRef): MNode<K, V> {
     if (hash !== this.collisionHash) {
       didAddLeaf && (didAddLeaf.val = true);
-      var bitmapIdx = (this.collisionHash >>> shift) & MASK;
-      var bitmapValues: Array<any> = [];
-      bitmapValues[bitmapIdx] = this;
-      return new BitmapIndexedNode<K, V>(ownerID, 1 << bitmapIdx, 1, [], bitmapValues)
+      return makeNode<K, V>(ownerID, shift, hash, null, this)
         .set(ownerID, shift, hash, key, val);
     }
     var idx = this.keys.indexOf(key);
@@ -501,5 +421,4 @@ var SHIFT = 5; // Resulted in best performance after ______?
 var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
 var __SENTINEL = {};
-var __EMPTY_MNODE: MNode<any, any> = new BitmapIndexedNode(null, 0, 0, [], []);
 var __EMPTY_MAP: Map<any, any>;
