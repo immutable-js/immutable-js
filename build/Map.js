@@ -133,7 +133,6 @@ var Map = (function (_super) {
     };
     return Map;
 })(Iterable);
-exports.Map = Map;
 
 var OwnerID = (function () {
     function OwnerID() {
@@ -391,4 +390,6 @@ var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
 var __SENTINEL = {};
 var __EMPTY_MAP;
+
+module.exports = Map;
 //# sourceMappingURL=Map.js.map

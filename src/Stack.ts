@@ -4,7 +4,7 @@ import OrderedIterable = require('./OrderedIterable');
  * A Stack allows us to push and pop to the first position in the list as well as walk this list.
  */
 
-export class Stack<T> extends OrderedIterable<T, Stack<T>> {
+class Stack<T> extends OrderedIterable<T, Stack<T>> {
 
   // @pragma Construction
 
@@ -58,7 +58,7 @@ export class Stack<T> extends OrderedIterable<T, Stack<T>> {
   // @pragma Iteration
 
   iterate(
-    fn: (value: T, index: number, queue: Stack<T>) => any, // false or undefined
+    fn: (value?: T, index?: number, queue?: Stack<T>) => any, // false or undefined
     thisArg?: any
   ): boolean {
     var queue = this;
@@ -86,3 +86,5 @@ export class Stack<T> extends OrderedIterable<T, Stack<T>> {
 }
 
 var __EMPTY_QUEUE: Stack<any>;
+
+export = Stack;

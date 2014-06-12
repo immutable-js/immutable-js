@@ -1,5 +1,5 @@
 jest.autoMockOff();
-var Vector = require('../build/Vector').Vector;
+var Vector = require('../build/Vector');
 
 describe('Vector', function() {
 
@@ -206,6 +206,13 @@ describe('Vector', function() {
       .reduce(function(a, b) { return a + b }, 0);
 
     expect(r).toEqual(200);
+  });
+
+  it('can convert to a map', function() {
+    var v = Vector('a', 'b', 'c');
+    var m = v.toMap();
+    expect(m.length).toBe(3);
+    expect(m.get(1)).toBe('b');
   });
 
   // TODO: assert that findIndex only calls the function as much as it needs to.

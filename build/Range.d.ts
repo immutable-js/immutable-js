@@ -5,7 +5,7 @@ import OrderedIterable = require('./OrderedIterable');
 * infinity. When step is equal to 0, returns an infinite sequence of
 * start. When start is equal to end, returns empty list.
 */
-export declare class Range extends OrderedIterable<number, Range> {
+declare class Range extends OrderedIterable<number, Range> {
     public start: number;
     public end: number;
     public step: number;
@@ -16,7 +16,8 @@ export declare class Range extends OrderedIterable<number, Range> {
     public first(): number;
     public last(): number;
     public slice(begin: number, end?: number): Range;
-    public iterate(fn: (value: number, index: number, range: Range) => any, thisArg?: any): boolean;
+    public iterate(fn: (value?: number, index?: number, range?: Range) => any, thisArg?: any): boolean;
     public indexOf(searchValue: number): number;
     public toArray(): number[];
 }
+export = Range;

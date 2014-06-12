@@ -1,5 +1,5 @@
 jest.autoMockOff();
-var Range = require('../build/Range').Range;
+var Range = require('../build/Range');
 
 describe('Range', function() {
 

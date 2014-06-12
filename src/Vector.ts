@@ -4,8 +4,7 @@ function invariant(condition: boolean, error: string): void {
   if (!condition) throw new Error(error);
 }
 
-
-export class Vector<T> extends OrderedIterable<T, Vector<T>> {
+class Vector<T> extends OrderedIterable<T, Vector<T>> {
 
   // @pragma Construction
 
@@ -349,7 +348,7 @@ export class Vector<T> extends OrderedIterable<T, Vector<T>> {
   // @pragma Iteration
 
   iterate(
-    fn: (value: T, index: number, vector: Vector<T>) => any, // false or undefined
+    fn: (value?: T, index?: number, vector?: Vector<T>) => any, // false or undefined
     thisArg?: any
   ): boolean {
     var tailOffset = getTailOffset(this._size);
@@ -452,7 +451,7 @@ class VNode<T> {
     level: number,
     offset: number,
     max: number,
-    fn: (value: T, index: number, vector: Vector<T>) => any, // false or undefined
+    fn: (value?: T, index?: number, vector?: Vector<T>) => any, // false or undefined
     thisArg: any
   ): boolean {
     if (level === 0) {
@@ -476,3 +475,5 @@ var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
 var __EMPTY_VNODE = new VNode(null, []);
 var __EMPTY_PVECT: Vector<any>;
+
+export = Vector;

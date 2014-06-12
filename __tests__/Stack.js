@@ -1,5 +1,5 @@
 jest.autoMockOff();
-var Stack = require('../build/Stack').Stack;
+var Stack = require('../build/Stack');
 
 describe('Stack', function() {
 

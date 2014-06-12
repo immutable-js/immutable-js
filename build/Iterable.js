@@ -4,6 +4,9 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+var Vector = require('./Vector');
+var Map = require('./Map');
+
 var Iterable = (function () {
     function Iterable(collection) {
         this.collection = collection;
@@ -14,7 +17,7 @@ var Iterable = (function () {
 
     Iterable.prototype.toArray = function () {
         var array = [];
-        this.iterate(function (v, k) {
+        this.iterate(function (v) {
             array.push(v);
         });
         return array;
@@ -28,7 +31,22 @@ var Iterable = (function () {
         return object;
     };
 
-    // TODO: toVector() and toMap()
+    Iterable.prototype.toVector = function () {
+        var vect = Vector.empty().asTransient();
+        this.iterate(function (v) {
+            vect.push(v);
+        });
+        return vect.asPersistent();
+    };
+
+    Iterable.prototype.toMap = function () {
+        var map = Map.empty().asTransient();
+        this.iterate(function (v, k) {
+            map.set(k, v);
+        });
+        return map.asPersistent();
+    };
+
     Iterable.prototype.keys = function () {
         return this.map(function (v, k) {
             return k;
@@ -92,7 +110,6 @@ var Iterable = (function () {
     return Iterable;
 })();
 
-
 var MapIterator = (function (_super) {
     __extends(MapIterator, _super);
     function MapIterator(iterator, mapper, mapThisArg) {
@@ -132,5 +149,6 @@ var FilterIterator = (function (_super) {
     };
     return FilterIterator;
 })(Iterable);
+
 module.exports = Iterable;
 //# sourceMappingURL=Iterable.js.map

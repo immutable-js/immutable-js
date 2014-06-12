@@ -80,7 +80,8 @@ var Stack = (function (_super) {
     };
     return Stack;
 })(OrderedIterable);
-exports.Stack = Stack;
 
 var __EMPTY_QUEUE;
+
+module.exports = Stack;
 //# sourceMappingURL=Stack.js.map

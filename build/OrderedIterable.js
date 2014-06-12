@@ -5,6 +5,7 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var Iterable = require('./Iterable');
+var Vector = require('./Vector');
 
 var OrderedIterable = (function (_super) {
     __extends(OrderedIterable, _super);
@@ -17,6 +18,14 @@ var OrderedIterable = (function (_super) {
             array[k] = v;
         });
         return array;
+    };
+
+    OrderedIterable.prototype.toVector = function () {
+        var vect = Vector.empty().asTransient();
+        this.iterate(function (v, k) {
+            vect.set(k, v);
+        });
+        return vect.asPersistent();
     };
 
     OrderedIterable.prototype.keys = function () {
@@ -67,7 +76,6 @@ var OrderedIterable = (function (_super) {
     };
     return OrderedIterable;
 })(Iterable);
-
 
 var MapIterator = (function (_super) {
     __extends(MapIterator, _super);
@@ -152,5 +160,6 @@ var SkipIterator = (function (_super) {
     };
     return SkipIterator;
 })(OrderedIterable);
+
 module.exports = OrderedIterable;
 //# sourceMappingURL=OrderedIterable.js.map

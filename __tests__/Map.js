@@ -1,5 +1,5 @@
 jest.autoMockOff();
-var Map = require('../build/Map').Map;
+var Map = require('../build/Map');
 
 describe('Map', function() {
 
@@ -113,6 +113,23 @@ describe('Map', function() {
     });
 
     expect(r.toObject()).toEqual({a:1, c:3, e:5});
+  });
+
+  it('derives keys', function() {
+    var v = Map({a:1, b:2, c:3, d:4, e:5, f:6});
+    expect(v.keys().toArray()).toEqual(['a', 'b', 'c', 'd', 'e', 'f']);
+  });
+
+  it('can convert to a vector', function() {
+    var m = Map({a:1, b:2, c:3});
+    var v = m.toVector();
+    var k = m.keys().toVector();
+    expect(v.length).toBe(3);
+    expect(k.length).toBe(3);
+    // Note: Map has undefined ordering, this Vector may not be the same
+    // order as the order you set into the Map.
+    expect(v.get(1)).toBe(2);
+    expect(k.get(1)).toBe('b');
   });
 
 });

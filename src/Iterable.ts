@@ -1,8 +1,11 @@
+import Vector = require('./Vector');
+import Map = require('./Map');
+
 class Iterable<K, V, C> {
   constructor(public collection: C) {}
 
   iterate(
-    fn: (value: V, key: K, collection: C) => any, // false or undefined
+    fn: (value?: V, key?: K, collection?: C) => any, // false or undefined
     thisArg?: any
   ): boolean {
     throw new Error('Abstract method');
@@ -10,7 +13,7 @@ class Iterable<K, V, C> {
 
   toArray(): Array<V> {
     var array: Array<V> = [];
-    this.iterate(function (v, k) {
+    this.iterate(function (v) {
       array.push(v);
     });
     return array;
@@ -24,14 +27,28 @@ class Iterable<K, V, C> {
     return object;
   }
 
-  // TODO: toVector() and toMap()
+  toVector(): Vector<V> {
+    var vect: Vector<V> = Vector.empty().asTransient();
+    this.iterate(function (v) {
+      vect.push(v);
+    });
+    return vect.asPersistent();
+  }
+
+  toMap(): Map<K, V> {
+    var map: Map<K, V> = Map.empty().asTransient();
+    this.iterate(function (v, k) {
+      map.set(k, v);
+    });
+    return map.asPersistent();
+  }
 
   keys(): Iterable<K, K, C> {
-    return this.map((v, k) => k);
+    return this.map<K>((v, k) => k);
   }
 
   forEach(
-    fn: (value: V, key: K, collection: C) => any,
+    fn: (value?: V, key?: K, collection?: C) => any,
     thisArg?: any
   ): void {
     this.iterate(function(v, k, c) {
@@ -40,11 +57,11 @@ class Iterable<K, V, C> {
   }
 
   find(
-    fn: (value: V, key: K, collection: C) => boolean,
+    fn: (value?: V, key?: K, collection?: C) => boolean,
     thisArg?: any
   ): K {
     var foundKey: K;
-    this.iterate(function(v, k, c) {
+    this.iterate(function (v, k, c) {
       if (fn.call(thisArg, v, k, c) === true) {
         foundKey = k;
         return false;
@@ -54,37 +71,37 @@ class Iterable<K, V, C> {
   }
 
   reduce<R>(
-    fn: (prevReduction: R, value: V, key: K, collection: C) => R,
+    fn: (prevReduction?: R, value?: V, key?: K, collection?: C) => R,
     initialReduction?: R,
     thisArg?: any
   ): R {
     var reduction = initialReduction;
-    this.iterate(function(v, k, c) {
+    this.iterate(function (v, k, c) {
       reduction = fn.call(thisArg, reduction, v, k, c);
     });
     return reduction;
   }
 
   map<V2>(
-    fn: (value: V, key: K, collection: C) => V2,
+    fn: (value?: V, key?: K, collection?: C) => V2,
     thisArg?: any
   ): Iterable<K, V2, C> {
     return new MapIterator(this, fn, thisArg);
   }
 
   filter(
-    fn: (value: V, key: K, collection: C) => boolean,
+    fn: (value?: V, key?: K, collection?: C) => boolean,
     thisArg?: any
   ): Iterable<K, V, C> {
     return new FilterIterator(this, fn, thisArg);
   }
 
   every(
-    fn: (value: V, key: K, collection: C) => boolean,
+    fn: (value?: V, key?: K, collection?: C) => boolean,
     thisArg?: any
   ): boolean {
     var every = true;
-    this.iterate(function(v, k, c) {
+    this.iterate(function (v, k, c) {
       if (!fn.call(thisArg, v, k, c)) {
         every = false;
         return false;
@@ -94,11 +111,11 @@ class Iterable<K, V, C> {
   }
 
   some(
-    fn: (value: V, key: K, collection: C) => boolean,
+    fn: (value?: V, key?: K, collection?: C) => boolean,
     thisArg?: any
   ): boolean {
     var some = false;
-    this.iterate(function(v, k, c) {
+    this.iterate(function (v, k, c) {
       if (fn.call(thisArg, v, k, c)) {
         some = true;
         return false;
@@ -108,19 +125,17 @@ class Iterable<K, V, C> {
   }
 }
 
-export = Iterable;
-
 class MapIterator<K, V, V2, C> extends Iterable<K, V2, C> {
   constructor(
     private iterator: Iterable<K, V, C>,
-    private mapper: (value: V, key: K, collection: C) => V2,
+    private mapper: (value?: V, key?: K, collection?: C) => V2,
     private mapThisArg: any
   ) {
     super(iterator.collection);
   }
 
   iterate(
-    fn: (value: V2, key: K, collection: C) => any, // false or undefined
+    fn: (value?: V2, key?: K, collection?: C) => any, // false or undefined
     thisArg?: any
   ): boolean {
     var map = this.mapper;
@@ -136,14 +151,14 @@ class MapIterator<K, V, V2, C> extends Iterable<K, V2, C> {
 class FilterIterator<K, V, C> extends Iterable<K, V, C> {
   constructor(
     private iterator: Iterable<K, V, C>,
-    private predicate: (value: V, key: K, collection: C) => boolean,
+    private predicate: (value?: V, key?: K, collection?: C) => boolean,
     private predicateThisArg: any
   ) {
     super(iterator.collection);
   }
 
   iterate(
-    fn: (value: V, key: K, collection: C) => any, // false or undefined
+    fn: (value?: V, key?: K, collection?: C) => any, // false or undefined
     thisArg?: any
   ): boolean {
     var predicate = this.predicate;
@@ -156,3 +171,5 @@ class FilterIterator<K, V, C> extends Iterable<K, V, C> {
     });
   }
 }
+
+export = Iterable;

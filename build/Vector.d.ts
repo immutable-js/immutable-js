@@ -1,5 +1,5 @@
 import OrderedIterable = require('./OrderedIterable');
-export declare class Vector<T> extends OrderedIterable<T, Vector<T>> {
+declare class Vector<T> extends OrderedIterable<T, Vector<T>> {
     constructor(...values: T[]);
     static empty(): Vector<any>;
     static fromArray<T>(values: T[]): Vector<T>;
@@ -23,7 +23,7 @@ export declare class Vector<T> extends OrderedIterable<T, Vector<T>> {
     public asTransient(): Vector<T>;
     public asPersistent(): Vector<T>;
     public clone(): Vector<T>;
-    public iterate(fn: (value: T, index: number, vector: Vector<T>) => any, thisArg?: any): boolean;
+    public iterate(fn: (value?: T, index?: number, vector?: Vector<T>) => any, thisArg?: any): boolean;
     public toArray(): T[];
     private _origin;
     private _size;
@@ -34,3 +34,4 @@ export declare class Vector<T> extends OrderedIterable<T, Vector<T>> {
     private static _make<T>(origin, size, level, root, tail, ownerID?);
     private _nodeFor(rawIndex);
 }
+export = Vector;

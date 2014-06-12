@@ -92,5 +92,6 @@ var Range = (function (_super) {
     };
     return Range;
 })(OrderedIterable);
-exports.Range = Range;
+
+module.exports = Range;
 //# sourceMappingURL=Range.js.map

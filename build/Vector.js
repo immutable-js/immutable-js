@@ -405,7 +405,6 @@ var Vector = (function (_super) {
     };
     return Vector;
 })(OrderedIterable);
-exports.Vector = Vector;
 
 function rawIndex(index, origin) {
     invariant(index >= 0, 'Index out of bounds');
@@ -476,4 +475,6 @@ var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
 var __EMPTY_VNODE = new VNode(null, []);
 var __EMPTY_PVECT;
+
+module.exports = Vector;
 //# sourceMappingURL=Vector.js.map

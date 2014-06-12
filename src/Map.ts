@@ -4,7 +4,7 @@ function invariant(condition: any, error: string): void {
   if (!condition) throw new Error(error);
 }
 
-export class Map<K, V> extends Iterable<K, V, Map<K, V>> {
+class Map<K, V> extends Iterable<K, V, Map<K, V>> {
 
   // @pragma Construction
 
@@ -120,7 +120,7 @@ export class Map<K, V> extends Iterable<K, V, Map<K, V>> {
   // @pragma Iteration
 
   iterate(
-    fn: (value: V, key: K, collection: Map<K, V>) => any, // false or undefined
+    fn: (value?: V, key?: K, collection?: Map<K, V>) => any, // false or undefined
     thisArg?: any
   ): boolean {
     return this._root && this._root.iterate(this, fn, thisArg);
@@ -273,7 +273,7 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
 
   iterate(
     map: Map<K, V>,
-    fn: (value: V, key: K, collection: Map<K, V>) => any, // false or undefined
+    fn: (value?: V, key?: K, collection?: Map<K, V>) => any, // false or undefined
     thisArg?: any
   ): boolean {
     for (var ii = 0; ii < this.values.length; ii++) {
@@ -345,7 +345,7 @@ class HashCollisionNode<K, V> implements MNode<K, V> {
 
   iterate(
     map: Map<K, V>,
-    fn: (value: V, key: K, collection: Map<K, V>) => any, // false or undefined
+    fn: (value?: V, key?: K, collection?: Map<K, V>) => any, // false or undefined
     thisArg?: any
   ): boolean {
     for (var ii = 0; ii < this.values.length; ii++) {
@@ -426,3 +426,5 @@ var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
 var __SENTINEL = {};
 var __EMPTY_MAP: Map<any, any>;
+
+export = Map;

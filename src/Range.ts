@@ -10,7 +10,7 @@ function invariant(condition: boolean, error: string): void {
  * infinity. When step is equal to 0, returns an infinite sequence of
  * start. When start is equal to end, returns empty list.
  */
-export class Range extends OrderedIterable<number, Range> {
+class Range extends OrderedIterable<number, Range> {
   start: number;
   end: number;
   step: number;
@@ -67,7 +67,7 @@ export class Range extends OrderedIterable<number, Range> {
 
   // @pragma Iteration
   iterate(
-    fn: (value: number, index: number, range: Range) => any, // false or undefined
+    fn: (value?: number, index?: number, range?: Range) => any, // false or undefined
     thisArg?: any
   ): boolean {
     var value = this.start;
@@ -98,3 +98,5 @@ export class Range extends OrderedIterable<number, Range> {
     return super.toArray();
   }
 }
+
+export = Range;
