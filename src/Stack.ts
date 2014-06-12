@@ -1,28 +1,28 @@
 import OrderedIterable = require('./OrderedIterable');
 
 /**
- * A Queue allows us to push and pop to the first position in the list as well as walk this list.
+ * A Stack allows us to push and pop to the first position in the list as well as walk this list.
  */
 
-export class Queue<T> extends OrderedIterable<T, Queue<T>> {
+export class Stack<T> extends OrderedIterable<T, Stack<T>> {
 
   // @pragma Construction
 
   constructor(...values: Array<T>) {
     super(this);
-    return Queue.fromArray(values);
+    return Stack.fromArray(values);
   }
 
-  static empty(): Queue<any> {
+  static empty(): Stack<any> {
     if (!__EMPTY_QUEUE) {
-      __EMPTY_QUEUE = Queue._make(undefined, undefined);
+      __EMPTY_QUEUE = Stack._make(undefined, undefined);
       __EMPTY_QUEUE.length = 0;
     }
     return __EMPTY_QUEUE;
   }
 
-  static fromArray<T>(values: Array<T>): Queue<T> {
-    var list:Queue<T> = Queue.empty();
+  static fromArray<T>(values: Array<T>): Stack<T> {
+    var list:Stack<T> = Stack.empty();
     for (var ii = values.length - 1; ii >= 0; ii--) {
       list = list.push(values[ii]);
     }
@@ -47,18 +47,18 @@ export class Queue<T> extends OrderedIterable<T, Queue<T>> {
 
   // @pragma Modification
 
-  push(value: T): Queue<T> {
-    return Queue._make(value, this.length === 0 ? undefined : this);
+  push(value: T): Stack<T> {
+    return Stack._make(value, this.length === 0 ? undefined : this);
   }
 
-  pop(): Queue<T> {
-    return this._next ? this._next : Queue.empty();
+  pop(): Stack<T> {
+    return this._next ? this._next : Stack.empty();
   }
 
   // @pragma Iteration
 
   iterate(
-    fn: (value: T, index: number, queue: Queue<T>) => any, // false or undefined
+    fn: (value: T, index: number, queue: Stack<T>) => any, // false or undefined
     thisArg?: any
   ): boolean {
     var queue = this;
@@ -73,10 +73,10 @@ export class Queue<T> extends OrderedIterable<T, Queue<T>> {
   }
 
   private _value: T;
-  private _next: Queue<T>;
+  private _next: Stack<T>;
 
-  private static _make<T>(value: T, next: Queue<T>): Queue<T> {
-    var queue = Object.create(Queue.prototype);
+  private static _make<T>(value: T, next: Stack<T>): Stack<T> {
+    var queue = Object.create(Stack.prototype);
     queue.collection = queue;
     queue._value = value;
     queue._next = next;
@@ -85,4 +85,4 @@ export class Queue<T> extends OrderedIterable<T, Queue<T>> {
   }
 }
 
-var __EMPTY_QUEUE: Queue<any>;
+var __EMPTY_QUEUE: Stack<any>;

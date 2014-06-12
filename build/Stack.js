@@ -7,36 +7,36 @@ var __extends = this.__extends || function (d, b) {
 var OrderedIterable = require('./OrderedIterable');
 
 /**
-* A Queue allows us to push and pop to the first position in the list as well as walk this list.
+* A Stack allows us to push and pop to the first position in the list as well as walk this list.
 */
-var Queue = (function (_super) {
-    __extends(Queue, _super);
+var Stack = (function (_super) {
+    __extends(Stack, _super);
     // @pragma Construction
-    function Queue() {
+    function Stack() {
         var values = [];
         for (var _i = 0; _i < (arguments.length - 0); _i++) {
             values[_i] = arguments[_i + 0];
         }
         _super.call(this, this);
-        return Queue.fromArray(values);
+        return Stack.fromArray(values);
     }
-    Queue.empty = function () {
+    Stack.empty = function () {
         if (!__EMPTY_QUEUE) {
-            __EMPTY_QUEUE = Queue._make(undefined, undefined);
+            __EMPTY_QUEUE = Stack._make(undefined, undefined);
             __EMPTY_QUEUE.length = 0;
         }
         return __EMPTY_QUEUE;
     };
 
-    Queue.fromArray = function (values) {
-        var list = Queue.empty();
+    Stack.fromArray = function (values) {
+        var list = Stack.empty();
         for (var ii = values.length - 1; ii >= 0; ii--) {
             list = list.push(values[ii]);
         }
         return list;
     };
 
-    Queue.prototype.get = function (index) {
+    Stack.prototype.get = function (index) {
         var queue = this;
         while (index-- > 0) {
             queue = queue.pop();
@@ -44,21 +44,21 @@ var Queue = (function (_super) {
         return queue._value;
     };
 
-    Queue.prototype.first = function () {
+    Stack.prototype.first = function () {
         return this._value;
     };
 
     // @pragma Modification
-    Queue.prototype.push = function (value) {
-        return Queue._make(value, this.length === 0 ? undefined : this);
+    Stack.prototype.push = function (value) {
+        return Stack._make(value, this.length === 0 ? undefined : this);
     };
 
-    Queue.prototype.pop = function () {
-        return this._next ? this._next : Queue.empty();
+    Stack.prototype.pop = function () {
+        return this._next ? this._next : Stack.empty();
     };
 
     // @pragma Iteration
-    Queue.prototype.iterate = function (fn, thisArg) {
+    Stack.prototype.iterate = function (fn, thisArg) {
         var queue = this;
         var iterations = 0;
         while (queue && queue.length) {
@@ -70,17 +70,17 @@ var Queue = (function (_super) {
         return true;
     };
 
-    Queue._make = function (value, next) {
-        var queue = Object.create(Queue.prototype);
+    Stack._make = function (value, next) {
+        var queue = Object.create(Stack.prototype);
         queue.collection = queue;
         queue._value = value;
         queue._next = next;
         queue.length = next ? next.length + 1 : 1;
         return queue;
     };
-    return Queue;
+    return Stack;
 })(OrderedIterable);
-exports.Queue = Queue;
+exports.Stack = Stack;
 
 var __EMPTY_QUEUE;
-//# sourceMappingURL=Queue.js.map
+//# sourceMappingURL=Stack.js.map
