@@ -27,16 +27,17 @@ var PVector = (function (_super) {
     };
 
     PVector.fromArray = function (values) {
-        if (values.length > 0 && values.length < SIZE) {
-            return PVector._make(0, values.length, SHIFT, __EMPTY_VNODE, new VNode(values.slice()));
+        if (values.length === 0) {
+            return PVector.empty();
         }
-
-        // TODO: create a TVector and then return a cast to PVector
-        var vect = PVector.empty();
+        if (values.length > 0 && values.length < SIZE) {
+            return PVector._make(0, values.length, SHIFT, __EMPTY_VNODE, new VNode(null, values.slice()));
+        }
+        var vect = PVector.empty().asTransient();
         values.forEach(function (value, index) {
             vect = vect.set(index, value);
         });
-        return vect;
+        return vect.asPersistent();
     };
 
     PVector.prototype.has = function (index) {
@@ -70,6 +71,16 @@ var PVector = (function (_super) {
     };
 
     // @pragma Modification
+    PVector.prototype.empty = function () {
+        if (this._ownerID) {
+            this.length = this._origin = this._size = 0;
+            this._level = SHIFT;
+            this._root = this._tail = __EMPTY_VNODE;
+            return this;
+        }
+        return PVector.empty();
+    };
+
     PVector.prototype.set = function (index, value) {
         index = rawIndex(index, this._origin);
         var tailOffset = getTailOffset(this._size);
@@ -78,45 +89,64 @@ var PVector = (function (_super) {
         if (index >= tailOffset + SIZE) {
             // Tail might require creating a higher root.
             var newRoot = this._root;
-            var newShift = this._level;
-            while (tailOffset > 1 << (newShift + SHIFT)) {
-                newRoot = new VNode([newRoot]);
-                newShift += SHIFT;
+            var newLevel = this._level;
+            while (tailOffset > 1 << (newLevel + SHIFT)) {
+                newRoot = new VNode(this._ownerID, [newRoot]);
+                newLevel += SHIFT;
             }
             if (newRoot === this._root) {
-                newRoot = newRoot.clone();
+                newRoot = newRoot.ensureOwner(this._ownerID);
             }
 
             // Merge Tail into tree.
             var node = newRoot;
-            for (var level = newShift; level > SHIFT; level -= SHIFT) {
-                var subidx = (tailOffset >>> level) & MASK;
-                node = node.array[subidx] = node.array[subidx] ? node.array[subidx].clone() : new VNode();
+            for (var level = newLevel; level > SHIFT; level -= SHIFT) {
+                var idx = (tailOffset >>> level) & MASK;
+                node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this._ownerID) : new VNode(this._origin, []);
             }
             node.array[(tailOffset >>> SHIFT) & MASK] = this._tail;
 
             // Create new tail with set index.
-            var newTail = new VNode();
+            var newTail = new VNode(this._ownerID, []);
             newTail.array[index & MASK] = value;
-            return PVector._make(this._origin, index + 1, newShift, newRoot, newTail);
+            var newSize = index + 1;
+            if (this._ownerID) {
+                this.length = newSize - this._origin;
+                this._size = newSize;
+                this._level = newLevel;
+                this._root = newRoot;
+                this._tail = newTail;
+                return this;
+            }
+            return PVector._make(this._origin, newSize, newLevel, newRoot, newTail);
         }
 
         // Fits within tail.
         if (index >= tailOffset) {
-            var newTail = this._tail.clone();
+            var newTail = this._tail.ensureOwner(this._ownerID);
             newTail.array[index & MASK] = value;
-            var newLength = index >= this._size ? index + 1 : this._size;
-            return PVector._make(this._origin, newLength, this._level, this._root, newTail);
+            var newSize = index >= this._size ? index + 1 : this._size;
+            if (this._ownerID) {
+                this.length = newSize - this._origin;
+                this._size = newSize;
+                this._tail = newTail;
+                return this;
+            }
+            return PVector._make(this._origin, newSize, this._level, this._root, newTail);
         }
 
         // Fits within existing tree.
-        var newRoot = this._root.clone();
+        var newRoot = this._root.ensureOwner(this._ownerID);
         var node = newRoot;
         for (var level = this._level; level > 0; level -= SHIFT) {
-            var subidx = (index >>> level) & MASK;
-            node = node.array[subidx] = node.array[subidx] ? node.array[subidx].clone() : new VNode();
+            var idx = (index >>> level) & MASK;
+            node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this._ownerID) : new VNode(this._ownerID, []);
         }
         node.array[index & MASK] = value;
+        if (this._ownerID) {
+            this._root = newRoot;
+            return this;
+        }
         return PVector._make(this._origin, this._size, this._level, newRoot, this._tail);
     };
 
@@ -136,17 +166,32 @@ var PVector = (function (_super) {
         var newSize = this._size - 1;
 
         if (newSize <= this._origin) {
-            return PVector.empty();
+            return this.empty();
+        }
+
+        if (this._ownerID) {
+            this.length--;
+            this._size--;
         }
 
         // Fits within tail.
         if (newSize > getTailOffset(this._size)) {
-            var newTail = new VNode(this._tail.array.slice(0, -1));
+            var newTail = this._tail.ensureOwner(this._ownerID);
+            newTail.array.pop();
+            if (this._ownerID) {
+                this._tail = newTail;
+                return this;
+            }
             return PVector._make(this._origin, newSize, this._level, this._root, newTail);
         }
 
-        var newRoot = vNodePop(this._root, this._size, this._level) || __EMPTY_VNODE;
+        var newRoot = this._root.pop(this._ownerID, this._size, this._level) || __EMPTY_VNODE;
         var newTail = this._nodeFor(newSize - 1);
+        if (this._ownerID) {
+            this._root = newRoot;
+            this._tail = newTail;
+            return this;
+        }
         return PVector._make(this._origin, newSize, this._level, newRoot, newTail);
     };
 
@@ -161,19 +206,27 @@ var PVector = (function (_super) {
 
         // Delete within tail.
         if (index >= tailOffset) {
-            var newTail = this._tail.clone();
+            var newTail = this._tail.ensureOwner(this._ownerID);
             delete newTail.array[index & MASK];
+            if (this._ownerID) {
+                this._tail = newTail;
+                return this;
+            }
             return PVector._make(this._origin, this._size, this._level, this._root, newTail);
         }
 
         // Fits within existing tree.
-        var newRoot = this._root.clone();
+        var newRoot = this._root.ensureOwner(this._ownerID);
         var node = newRoot;
         for (var level = this._level; level > 0; level -= SHIFT) {
-            var subidx = (index >>> level) & MASK;
-            node = node.array[subidx] = node.array[subidx].clone();
+            var idx = (index >>> level) & MASK;
+            node = node.array[idx] = node.array[idx].ensureOwner(this._ownerID);
         }
         delete node.array[index & MASK];
+        if (this._ownerID) {
+            this._root = newRoot;
+            return this;
+        }
         return PVector._make(this._origin, this._size, this._level, newRoot, this._tail);
     };
 
@@ -188,7 +241,7 @@ var PVector = (function (_super) {
         var newRoot = this._root;
 
         while (newOrigin < 0) {
-            var node = new VNode();
+            var node = new VNode(this._ownerID, []);
             node.array[1] = newRoot;
             newOrigin += 1 << newLevel;
             newSize += 1 << newLevel;
@@ -197,19 +250,29 @@ var PVector = (function (_super) {
         }
 
         if (newRoot === this._root) {
-            newRoot = this._root.clone();
+            newRoot = this._root.ensureOwner(this._ownerID);
         }
 
+        // TODO: this should probably be replaced by what "push" does, it might not always be correct.
+        var tempOwner = this._ownerID || new OwnerID();
         for (var ii = 0; ii < values.length; ii++) {
             var index = newOrigin + ii;
             var node = newRoot;
             for (var level = newLevel; level > 0; level -= SHIFT) {
-                var subidx = (index >>> level) & MASK;
-                node = node.array[subidx] = node.array[subidx] ? node.array[subidx].clone() : new VNode();
+                var idx = (index >>> level) & MASK;
+                node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(tempOwner) : new VNode(tempOwner, []);
             }
             node.array[index & MASK] = values[ii];
         }
 
+        if (this._ownerID) {
+            this.length = newSize - newOrigin;
+            this._origin = newOrigin;
+            this._size = newSize;
+            this._level = newLevel;
+            this._root = newRoot;
+            return this;
+        }
         return PVector._make(newOrigin, newSize, newLevel, newRoot, this._tail);
     };
 
@@ -252,13 +315,20 @@ var PVector = (function (_super) {
         var newOrigin = begin < 0 ? Math.max(this._origin, this._size + begin) : Math.min(this._size, this._origin + begin);
         var newSize = end == null ? this._size : end < 0 ? Math.max(this._origin, this._size + end) : Math.min(this._size, this._origin + end);
         if (newOrigin >= newSize) {
-            return PVector.empty();
+            return this.empty();
         }
-        var newTail = newSize === this._size ? this._tail : this._nodeFor(newSize) || new VNode();
+        var newTail = newSize === this._size ? this._tail : this._nodeFor(newSize) || new VNode(this._ownerID, []);
 
         // TODO: should also calculate a new root and garbage collect?
         // This would be a tradeoff between memory footprint and perf.
         // I still expect better performance than Array.slice(), so it's probably worth freeing memory.
+        if (this._ownerID) {
+            this.length = newSize - newOrigin;
+            this._origin = newOrigin;
+            this._size = newSize;
+            this._tail = newTail;
+            return this;
+        }
         return PVector._make(newOrigin, newSize, this._level, this._root, newTail);
     };
 
@@ -270,10 +340,33 @@ var PVector = (function (_super) {
         return this.slice(0, index).concat(PVector.fromArray(values), this.slice(index + removeNum));
     };
 
+    // @pragma Mutability
+    PVector.prototype.isTransient = function () {
+        return !!this._ownerID;
+    };
+
+    PVector.prototype.asTransient = function () {
+        if (this._ownerID) {
+            return this;
+        }
+        var vect = this.clone();
+        vect._ownerID = new OwnerID();
+        return vect;
+    };
+
+    PVector.prototype.asPersistent = function () {
+        this._ownerID = undefined;
+        return this;
+    };
+
+    PVector.prototype.clone = function () {
+        return PVector._make(this._origin, this._size, this._level, this._root, this._tail, this._ownerID && new OwnerID());
+    };
+
     // @pragma Iteration
     PVector.prototype.iterate = function (fn, thisArg) {
         var tailOffset = getTailOffset(this._size);
-        return (vNodeIterate(this, this._root, this._level, -this._origin, tailOffset - this._origin, fn, thisArg) && vNodeIterate(this, this._tail, 0, tailOffset - this._origin, this._size - this._origin, fn, thisArg));
+        return (this._root.iterate(this, this._level, -this._origin, tailOffset - this._origin, fn, thisArg) && this._tail.iterate(this, 0, tailOffset - this._origin, this._size - this._origin, fn, thisArg));
     };
 
     // Override - set correct length before returning
@@ -283,15 +376,16 @@ var PVector = (function (_super) {
         return array;
     };
 
-    PVector._make = function (origin, size, level, root, tail) {
+    PVector._make = function (origin, size, level, root, tail, ownerID) {
         var vect = Object.create(PVector.prototype);
         vect.collection = vect;
+        vect.length = size - origin;
         vect._origin = origin;
         vect._size = size;
         vect._level = level;
         vect._root = root;
         vect._tail = tail;
-        vect.length = size - origin;
+        vect._ownerID = ownerID;
         return vect;
     };
 
@@ -322,54 +416,64 @@ function getTailOffset(size) {
     return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
 }
 
-var VNode = (function () {
-    function VNode(array) {
-        this.array = array || []; // new Array(SIZE);
+var OwnerID = (function () {
+    function OwnerID() {
     }
-    VNode.prototype.clone = function () {
-        return new VNode(this.array.slice());
+    return OwnerID;
+})();
+
+var VNode = (function () {
+    function VNode(ownerID, array) {
+        this.ownerID = ownerID;
+        this.array = array;
+    }
+    VNode.prototype.pop = function (ownerID, length, level) {
+        var idx = ((length - 1) >>> level) & MASK;
+        if (level > SHIFT) {
+            var newChild = this.array[idx].pop(ownerID, length, level - SHIFT);
+            if (newChild || idx) {
+                var editable = this.ensureOwner(ownerID);
+                if (newChild) {
+                    editable.array[idx] = newChild;
+                } else {
+                    delete editable.array[idx];
+                }
+                return editable;
+            }
+        } else if (idx !== 0) {
+            var editable = this.ensureOwner(ownerID);
+            delete editable.array[idx];
+            return editable;
+        }
+    };
+
+    VNode.prototype.ensureOwner = function (ownerID) {
+        if (ownerID && ownerID === this.ownerID) {
+            return this;
+        }
+        return new VNode(ownerID, this.array.slice());
+    };
+
+    VNode.prototype.iterate = function (vector, level, offset, max, fn, thisArg) {
+        if (level === 0) {
+            return this.array.every(function (value, rawIndex) {
+                var index = rawIndex + offset;
+                return index < 0 || index >= max || fn.call(thisArg, value, index, vector) !== false;
+            });
+        }
+        var step = 1 << level;
+        var newLevel = level - SHIFT;
+        return this.array.every(function (newNode, levelIndex) {
+            var newOffset = offset + levelIndex * step;
+            return newOffset >= max || newOffset + step <= 0 || newNode.iterate(vector, newLevel, newOffset, max, fn, thisArg);
+        });
     };
     return VNode;
 })();
 
-function vNodePop(node, length, level) {
-    var subidx = ((length - 1) >>> level) & MASK;
-    if (level > SHIFT) {
-        var newChild = vNodePop(this.array[subidx], length, level - SHIFT);
-        if (newChild || subidx) {
-            var newNode = node.clone();
-            if (newChild) {
-                newNode.array[subidx] = newChild;
-            } else {
-                delete newNode.array[subidx];
-            }
-            return newNode;
-        }
-    } else if (subidx !== 0) {
-        var newNode = node.clone();
-        delete newNode.array[subidx];
-        return newNode;
-    }
-}
-
-function vNodeIterate(vector, node, level, offset, max, fn, thisArg) {
-    if (level === 0) {
-        return node.array.every(function (value, rawIndex) {
-            var index = rawIndex + offset;
-            return index < 0 || index >= max || fn.call(thisArg, value, index, vector) !== false;
-        });
-    }
-    var step = 1 << level;
-    var newLevel = level - SHIFT;
-    return node.array.every(function (newNode, levelIndex) {
-        var newOffset = offset + levelIndex * step;
-        return newOffset >= max || newOffset + step <= 0 || vNodeIterate(vector, newNode, newLevel, newOffset, max, fn, thisArg);
-    });
-}
-
 var SHIFT = 5;
 var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
-var __EMPTY_VNODE = new VNode([]);
+var __EMPTY_VNODE = new VNode(null, []);
 var __EMPTY_PVECT;
 //# sourceMappingURL=Vector.js.map

@@ -30,6 +30,7 @@ export declare class PVector<T> extends OrderedIterable<T, PVector<T>> implement
     public get(index: number): T;
     public first(): T;
     public last(): T;
+    public empty(): PVector<T>;
     public set(index: number, value: T): PVector<T>;
     public push(...values: T[]): PVector<T>;
     public pop(): PVector<T>;
@@ -40,6 +41,10 @@ export declare class PVector<T> extends OrderedIterable<T, PVector<T>> implement
     public concat(...vectors: PVector<T>[]): PVector<T>;
     public slice(begin: number, end?: number): PVector<T>;
     public splice(index: number, removeNum: number, ...values: T[]): PVector<T>;
+    public isTransient(): boolean;
+    public asTransient(): PVector<T>;
+    public asPersistent(): PVector<T>;
+    public clone(): PVector<T>;
     public iterate(fn: (value: T, index: number, vector: PVector<T>) => any, thisArg?: any): boolean;
     public toArray(): T[];
     private _origin;
@@ -47,6 +52,7 @@ export declare class PVector<T> extends OrderedIterable<T, PVector<T>> implement
     private _level;
     private _root;
     private _tail;
-    private static _make<T>(origin, size, level, root, tail);
+    private _ownerID;
+    private static _make<T>(origin, size, level, root, tail, ownerID?);
     private _nodeFor(rawIndex);
 }

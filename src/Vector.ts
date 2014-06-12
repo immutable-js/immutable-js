@@ -56,16 +56,17 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
   }
 
   static fromArray<T>(values: Array<T>): PVector<T> {
-    if (values.length > 0 && values.length < SIZE) {
-      return PVector._make<T>(0, values.length, SHIFT, __EMPTY_VNODE, new VNode(values.slice()));
+    if (values.length === 0) {
+      return PVector.empty();
     }
-
-    // TODO: create a TVector and then return a cast to PVector
-    var vect: PVector<T> = PVector.empty();
+    if (values.length > 0 && values.length < SIZE) {
+      return PVector._make<T>(0, values.length, SHIFT, __EMPTY_VNODE, new VNode(null, values.slice()));
+    }
+    var vect: PVector<T> = PVector.empty().asTransient();
     values.forEach((value, index) => {
       vect = vect.set(index, value);
     });
-    return vect;
+    return vect.asPersistent();
   }
 
   // @pragma Access
@@ -104,6 +105,16 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
 
   // @pragma Modification
 
+  empty(): PVector<T> {
+    if (this._ownerID) {
+      this.length = this._origin = this._size = 0;
+      this._level = SHIFT;
+      this._root = this._tail = __EMPTY_VNODE;
+      return this;
+    }
+    return PVector.empty();
+  }
+
   set(index: number, value: T): PVector<T> {
     index = rawIndex(index, this._origin);
     var tailOffset = getTailOffset(this._size);
@@ -112,45 +123,64 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
     if (index >= tailOffset + SIZE) {
       // Tail might require creating a higher root.
       var newRoot = this._root;
-      var newShift = this._level;
-      while (tailOffset > 1 << (newShift + SHIFT)) {
-        newRoot = new VNode([newRoot]);
-        newShift += SHIFT;
+      var newLevel = this._level;
+      while (tailOffset > 1 << (newLevel + SHIFT)) {
+        newRoot = new VNode(this._ownerID, [newRoot]);
+        newLevel += SHIFT;
       }
       if (newRoot === this._root) {
-        newRoot = newRoot.clone();
+        newRoot = newRoot.ensureOwner(this._ownerID);
       }
 
       // Merge Tail into tree.
       var node = newRoot;
-      for (var level = newShift; level > SHIFT; level -= SHIFT) {
-        var subidx = (tailOffset >>> level) & MASK;
-        node = node.array[subidx] = node.array[subidx] ? node.array[subidx].clone() : new VNode();
+      for (var level = newLevel; level > SHIFT; level -= SHIFT) {
+        var idx = (tailOffset >>> level) & MASK;
+        node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this._ownerID) : new VNode(this._origin, []);
       }
       node.array[(tailOffset >>> SHIFT) & MASK] = this._tail;
 
       // Create new tail with set index.
-      var newTail = new VNode<T>();
+      var newTail = new VNode<T>(this._ownerID, []);
       newTail.array[index & MASK] = value;
-      return PVector._make(this._origin, index + 1, newShift, newRoot, newTail);
+      var newSize = index + 1;
+      if (this._ownerID) {
+        this.length = newSize - this._origin;
+        this._size = newSize;
+        this._level = newLevel;
+        this._root = newRoot;
+        this._tail = newTail;
+        return this;
+      }
+      return PVector._make(this._origin, newSize, newLevel, newRoot, newTail);
     }
 
     // Fits within tail.
     if (index >= tailOffset) {
-      var newTail = this._tail.clone();
+      var newTail = this._tail.ensureOwner(this._ownerID);
       newTail.array[index & MASK] = value;
-      var newLength = index >= this._size ? index + 1 : this._size;
-      return PVector._make(this._origin, newLength, this._level, this._root, newTail);
+      var newSize = index >= this._size ? index + 1 : this._size;
+      if (this._ownerID) {
+        this.length = newSize - this._origin;
+        this._size = newSize;
+        this._tail = newTail;
+        return this;
+      }
+      return PVector._make(this._origin, newSize, this._level, this._root, newTail);
     }
 
     // Fits within existing tree.
-    var newRoot = this._root.clone();
+    var newRoot = this._root.ensureOwner(this._ownerID);
     var node = newRoot;
     for (var level = this._level; level > 0; level -= SHIFT) {
-      var subidx = (index >>> level) & MASK;
-      node = node.array[subidx] = node.array[subidx] ? node.array[subidx].clone() : new VNode();
+      var idx = (index >>> level) & MASK;
+      node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this._ownerID) : new VNode(this._ownerID, []);
     }
     node.array[index & MASK] = value;
+    if (this._ownerID) {
+      this._root = newRoot;
+      return this;
+    }
     return PVector._make(this._origin, this._size, this._level, newRoot, this._tail);
   }
 
@@ -166,17 +196,32 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
     var newSize = this._size - 1;
 
     if (newSize <= this._origin) {
-      return PVector.empty();
+      return this.empty();
+    }
+
+    if (this._ownerID) {
+      this.length--;
+      this._size--;
     }
 
     // Fits within tail.
     if (newSize > getTailOffset(this._size)) {
-      var newTail = new VNode<T>(this._tail.array.slice(0, -1));
+      var newTail = this._tail.ensureOwner(this._ownerID);
+      newTail.array.pop();
+      if (this._ownerID) {
+        this._tail = newTail;
+        return this;
+      }
       return PVector._make(this._origin, newSize, this._level, this._root, newTail);
     }
 
-    var newRoot = vNodePop(this._root, this._size, this._level) || __EMPTY_VNODE;
+    var newRoot = this._root.pop(this._ownerID, this._size, this._level) || __EMPTY_VNODE;
     var newTail = this._nodeFor(newSize - 1);
+    if (this._ownerID) {
+      this._root = newRoot;
+      this._tail = newTail;
+      return this;
+    }
     return PVector._make(this._origin, newSize, this._level, newRoot, newTail);
   }
 
@@ -191,19 +236,27 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
 
     // Delete within tail.
     if (index >= tailOffset) {
-      var newTail = this._tail.clone();
+      var newTail = this._tail.ensureOwner(this._ownerID);
       delete newTail.array[index & MASK];
+      if (this._ownerID) {
+        this._tail = newTail;
+        return this;
+      }
       return PVector._make(this._origin, this._size, this._level, this._root, newTail);
     }
 
     // Fits within existing tree.
-    var newRoot = this._root.clone();
+    var newRoot = this._root.ensureOwner(this._ownerID);
     var node = newRoot;
     for (var level = this._level; level > 0; level -= SHIFT) {
-      var subidx = (index >>> level) & MASK;
-      node = node.array[subidx] = node.array[subidx].clone();
+      var idx = (index >>> level) & MASK;
+      node = node.array[idx] = node.array[idx].ensureOwner(this._ownerID);
     }
     delete node.array[index & MASK];
+    if (this._ownerID) {
+      this._root = newRoot;
+      return this;
+    }
     return PVector._make(this._origin, this._size, this._level, newRoot, this._tail);
   }
 
@@ -214,7 +267,7 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
     var newRoot = this._root;
 
     while (newOrigin < 0) {
-      var node = new VNode<T>();
+      var node = new VNode<T>(this._ownerID, []);
       node.array[1] = newRoot;
       newOrigin += 1 << newLevel;
       newSize += 1 << newLevel;
@@ -223,20 +276,29 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
     }
 
     if (newRoot === this._root) {
-      newRoot = this._root.clone();
+      newRoot = this._root.ensureOwner(this._ownerID);
     }
 
-    // TODO: make this a little more efficient by doing less cloning if there are multiple values?
+    // TODO: this should probably be replaced by what "push" does, it might not always be correct.
+    var tempOwner = this._ownerID || new OwnerID();
     for (var ii = 0; ii < values.length; ii++) {
       var index = newOrigin + ii;
       var node = newRoot;
       for (var level = newLevel; level > 0; level -= SHIFT) {
-        var subidx = (index >>> level) & MASK;
-        node = node.array[subidx] = node.array[subidx] ? node.array[subidx].clone() : new VNode<T>();
+        var idx = (index >>> level) & MASK;
+        node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(tempOwner) : new VNode<T>(tempOwner, []);
       }
       node.array[index & MASK] = values[ii];
     }
 
+    if (this._ownerID) {
+      this.length = newSize - newOrigin;
+      this._origin = newOrigin;
+      this._size = newSize;
+      this._level = newLevel;
+      this._root = newRoot;
+      return this;
+    }
     return PVector._make(newOrigin, newSize, newLevel, newRoot, this._tail);
   }
 
@@ -275,17 +337,48 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
     var newOrigin = begin < 0 ? Math.max(this._origin, this._size + begin) : Math.min(this._size, this._origin + begin);
     var newSize = end == null ? this._size : end < 0 ? Math.max(this._origin, this._size + end) : Math.min(this._size, this._origin + end);
     if (newOrigin >= newSize) {
-      return PVector.empty();
+      return this.empty();
     }
-    var newTail = newSize === this._size ? this._tail : this._nodeFor(newSize) || new VNode();
+    var newTail = newSize === this._size ? this._tail : this._nodeFor(newSize) || new VNode(this._ownerID, []);
     // TODO: should also calculate a new root and garbage collect?
     // This would be a tradeoff between memory footprint and perf.
     // I still expect better performance than Array.slice(), so it's probably worth freeing memory.
+    if (this._ownerID) {
+      this.length = newSize - newOrigin;
+      this._origin = newOrigin;
+      this._size = newSize;
+      this._tail = newTail;
+      return this;
+    }
     return PVector._make(newOrigin, newSize, this._level, this._root, newTail);
   }
 
   splice(index: number, removeNum: number, ...values: Array<T>): PVector<T> {
     return this.slice(0, index).concat(PVector.fromArray(values), this.slice(index + removeNum));
+  }
+
+  // @pragma Mutability
+
+  isTransient(): boolean {
+    return !!this._ownerID;
+  }
+
+  asTransient(): PVector<T> {
+    if (this._ownerID) {
+      return this;
+    }
+    var vect = this.clone();
+    vect._ownerID = new OwnerID();
+    return vect;
+  }
+
+  asPersistent(): PVector<T> {
+    this._ownerID = undefined;
+    return this;
+  }
+
+  clone(): PVector<T> {
+    return PVector._make(this._origin, this._size, this._level, this._root, this._tail, this._ownerID && new OwnerID());
   }
 
   // @pragma Iteration
@@ -296,8 +389,8 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
   ): boolean {
     var tailOffset = getTailOffset(this._size);
     return (
-      vNodeIterate(this, this._root, this._level, -this._origin, tailOffset - this._origin, fn, thisArg) &&
-      vNodeIterate(this, this._tail, 0, tailOffset - this._origin, this._size - this._origin, fn, thisArg)
+      this._root.iterate(this, this._level, -this._origin, tailOffset - this._origin, fn, thisArg) &&
+      this._tail.iterate(this, 0, tailOffset - this._origin, this._size - this._origin, fn, thisArg)
     );
   }
 
@@ -315,16 +408,18 @@ export class PVector<T> extends OrderedIterable<T, PVector<T>> implements Vector
   private _level: number;
   private _root: VNode<T>;
   private _tail: VNode<T>;
+  private _ownerID: OwnerID;
 
-  private static _make<T>(origin: number, size: number, level: number, root: VNode<T>, tail: VNode<T>): PVector<T> {
+  private static _make<T>(origin: number, size: number, level: number, root: VNode<T>, tail: VNode<T>, ownerID?: OwnerID): PVector<T> {
     var vect = Object.create(PVector.prototype);
     vect.collection = vect;
+    vect.length = size - origin;
     vect._origin = origin;
     vect._size = size;
     vect._level = level;
     vect._root = root;
     vect._tail = tail;
-    vect.length = size - origin;
+    vect._ownerID = ownerID;
     return vect;
   }
 
@@ -353,66 +448,66 @@ function getTailOffset(size: number): number {
   return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
 }
 
+class OwnerID {
+  constructor() {}
+}
+
 class VNode<T> {
-  public array: Array<any>;
+  constructor(public ownerID: OwnerID, public array: Array<any>) {}
 
-  constructor(array?: Array<any>) {
-    this.array = array || []; // new Array(SIZE);
-  }
-
-  clone(): VNode<T> {
-    return new VNode(this.array.slice());
-  }
-}
-
-function vNodePop<T>(node: VNode<T>, length: number, level: number): VNode<T> {
-  var subidx = ((length - 1) >>> level) & MASK;
-  if (level > SHIFT) {
-    var newChild = vNodePop(this.array[subidx], length, level - SHIFT);
-    if (newChild || subidx) {
-      var newNode = node.clone();
-      if (newChild) {
-        newNode.array[subidx] = newChild;
-      } else {
-        delete newNode.array[subidx];
+  pop(ownerID: OwnerID, length: number, level: number): VNode<T> {
+    var idx = ((length - 1) >>> level) & MASK;
+    if (level > SHIFT) {
+      var newChild = this.array[idx].pop(ownerID, length, level - SHIFT);
+      if (newChild || idx) {
+        var editable = this.ensureOwner(ownerID);
+        if (newChild) {
+          editable.array[idx] = newChild;
+        } else {
+          delete editable.array[idx];
+        }
+        return editable;
       }
-      return newNode;
+    } else if (idx !== 0) {
+      var editable = this.ensureOwner(ownerID);
+      delete editable.array[idx];
+      return editable;
     }
-  } else if (subidx !== 0) {
-    var newNode = node.clone();
-    delete newNode.array[subidx];
-    return newNode;
   }
-}
 
-function vNodeIterate<T>(
-  vector: Vector<T>,
-  node: VNode<T>,
-  level: number,
-  offset: number,
-  max: number,
-  fn: (value: T, index: number, vector: Vector<T>) => any, // false or undefined
-  thisArg: any
-): boolean {
-  if (level === 0) {
-    return node.array.every((value, rawIndex) => {
-      var index = rawIndex + offset;
-      return index < 0 || index >= max || fn.call(thisArg, value, index, vector) !== false;
+  ensureOwner(ownerID: OwnerID): VNode<T> {
+    if (ownerID && ownerID === this.ownerID) {
+      return this;
+    }
+    return new VNode<T>(ownerID, this.array.slice());
+  }
+
+  iterate(
+    vector: Vector<T>,
+    level: number,
+    offset: number,
+    max: number,
+    fn: (value: T, index: number, vector: Vector<T>) => any, // false or undefined
+    thisArg: any
+  ): boolean {
+    if (level === 0) {
+      return this.array.every((value, rawIndex) => {
+        var index = rawIndex + offset;
+        return index < 0 || index >= max || fn.call(thisArg, value, index, vector) !== false;
+      });
+    }
+    var step = 1 << level;
+    var newLevel = level - SHIFT;
+    return this.array.every((newNode, levelIndex) => {
+      var newOffset = offset + levelIndex * step;
+      return newOffset >= max || newOffset + step <= 0 || newNode.iterate(vector, newLevel, newOffset, max, fn, thisArg);
     });
   }
-  var step = 1 << level;
-  var newLevel = level - SHIFT;
-  return node.array.every((newNode, levelIndex) => {
-    var newOffset = offset + levelIndex * step;
-    return newOffset >= max || newOffset + step <= 0 || vNodeIterate(vector, newNode, newLevel, newOffset, max, fn, thisArg);
-  });
 }
-
-
 
 
 var SHIFT = 5; // Resulted in best performance after ______?
 var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
-var __EMPTY_VNODE = new VNode([]);
+var __EMPTY_VNODE = new VNode(null, []);
 var __EMPTY_PVECT: PVector<any>;
