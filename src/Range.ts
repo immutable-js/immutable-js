@@ -34,16 +34,16 @@ export class Range extends OrderedIterable<number, Range> {
   // @pragma Access
   length: number;
 
+  has(index: number): boolean {
+    invariant(index >= 0, 'Index out of bounds');
+    return index < this.length;
+  }
+
   get(index: number): number {
     invariant(index >= 0, 'Index out of bounds');
     if (this.length === Infinity || index < this.length) {
       return this.step == 0 ? this.start : this.start + index * this.step;
     }
-  }
-
-  exists(index: number): boolean {
-    invariant(index >= 0, 'Index out of bounds');
-    return index < this.length;
   }
 
   first(): number {
@@ -77,6 +77,8 @@ export class Range extends OrderedIterable<number, Range> {
     }
     return true;
   }
+
+  // TODO: override indexOf to not require iteration
 
   // Override - ensure length is real before putting in memory
   toArray(): Array<number> {

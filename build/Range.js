@@ -30,16 +30,16 @@ var Range = (function (_super) {
         this.step = this.end < this.start ? -step : step;
         this.length = this.step == 0 ? Infinity : Math.max(0, Math.ceil((this.end - this.start) / this.step - 1) + 1);
     }
+    Range.prototype.has = function (index) {
+        invariant(index >= 0, 'Index out of bounds');
+        return index < this.length;
+    };
+
     Range.prototype.get = function (index) {
         invariant(index >= 0, 'Index out of bounds');
         if (this.length === Infinity || index < this.length) {
             return this.step == 0 ? this.start : this.start + index * this.step;
         }
-    };
-
-    Range.prototype.exists = function (index) {
-        invariant(index >= 0, 'Index out of bounds');
-        return index < this.length;
     };
 
     Range.prototype.first = function () {
@@ -71,6 +71,7 @@ var Range = (function (_super) {
         return true;
     };
 
+    // TODO: override indexOf to not require iteration
     // Override - ensure length is real before putting in memory
     Range.prototype.toArray = function () {
         invariant(this.length < Infinity, 'Cannot convert infinite list to array');

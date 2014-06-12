@@ -11,8 +11,8 @@ export declare class Range extends OrderedIterable<number, Range> {
     public step: number;
     constructor(start?: number, end?: number, step?: number);
     public length: number;
+    public has(index: number): boolean;
     public get(index: number): number;
-    public exists(index: number): boolean;
     public first(): number;
     public last(): number;
     public slice(begin: number, end?: number): Range;
