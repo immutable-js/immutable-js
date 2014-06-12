@@ -199,29 +199,34 @@ var BitmapIndexedNode = (function () {
     BitmapIndexedNode.prototype.delete = function (ownerID, shift, hash, key, didRemoveLeaf) {
         var idx = (hash >>> shift) & MASK;
         var bit = 1 << idx;
-        if ((this.bitmap & bit) === 0) {
+        var key_or_nil = this.arr[2 * idx];
+        if ((this.bitmap & bit) === 0 || (key_or_nil != null && key !== key_or_nil)) {
             return this;
         }
-        var key_or_nil = this.arr[2 * idx];
-        var val_or_node = this.arr[2 * idx + 1];
         if (key_or_nil == null) {
-            var n = val_or_node.delete(ownerID, shift + SHIFT, hash, key, didRemoveLeaf);
-            if (n === val_or_node) {
+            var node = this.arr[2 * idx + 1];
+            var newNode = node.delete(ownerID, shift + SHIFT, hash, key, didRemoveLeaf);
+            if (newNode === node) {
                 return this;
             }
-            if (n != null) {
-                return edit_and_set(this, ownerID, 2 * idx + 1, n);
+            if (newNode) {
+                return edit_and_set(this, ownerID, 2 * idx + 1, newNode);
             }
-            if (this.bitmap === bit) {
-                return null;
-            }
-            return edit_and_remove_pair(this, ownerID, bit, idx);
-        }
-        if (key === key_or_nil) {
+        } else {
             didRemoveLeaf && (didRemoveLeaf.val = true);
-            return edit_and_remove_pair(this, ownerID, bit, idx);
         }
-        return this;
+        if (this.cnt === 1) {
+            return null;
+        }
+        var editable = this.ensureOwner(ownerID);
+
+        // Technically, since we always check the bitmap first,
+        // we don't need to delete these, but doing so frees up memory.
+        delete editable.arr[2 * idx];
+        delete editable.arr[2 * idx + 1];
+        editable.bitmap ^= bit;
+        editable.cnt--;
+        return editable;
     };
 
     BitmapIndexedNode.prototype.ensureOwner = function (ownerID) {
@@ -282,19 +287,20 @@ var ArrayNode = (function () {
             return this;
         }
         var newNode = node.delete(ownerID, shift + SHIFT, hash, key, didRemoveLeaf);
-        if (newNode == null && this.cnt <= 8) {
-            var len = 2 * (this.cnt - 1);
-            var new_arr = [];
-            var j = 0;
+
+        // TODO: how necessary is this? The bitmap indexed node seems to pretend to save memory,
+        // and subsequent sets could skip this level of indirection,
+        // but otherwise this isn't really all that helpful.
+        if (!newNode && this.cnt <= 8) {
+            var newArr = [];
             var bitmap = 0;
-            for (var i = 0; i < len; i++) {
-                if (i !== idx && this.arr[i] != null) {
-                    new_arr[i * 2 + 1] = this.arr[i];
-                    bitmap |= 1 << i;
-                    j++;
+            for (var ii = 0; ii < this.arr.length; ii++) {
+                if (ii !== idx && this.arr[ii]) {
+                    newArr[ii * 2 + 1] = this.arr[ii];
+                    bitmap |= 1 << ii;
                 }
             }
-            return new BitmapIndexedNode(ownerID, bitmap, j, new_arr);
+            return new BitmapIndexedNode(ownerID, bitmap, this.cnt - 1, newArr);
         }
         if (newNode === node) {
             return this;
@@ -452,21 +458,6 @@ function edit_and_set(node, ownerID, i, a, j, b) {
     if (j != null) {
         editable.arr[j] = b;
     }
-    return editable;
-}
-
-function edit_and_remove_pair(node, ownerID, bit, i) {
-    if (this.bitmap === bit) {
-        return null;
-    }
-    var editable = node.ensureOwner(ownerID);
-
-    // Technically, since we always check the bitmap first,
-    // we don't need to delete these, but doing so frees up memory.
-    delete editable.arr[2 * i];
-    delete editable.arr[2 * i + 1];
-    editable.bitmap ^= bit;
-    editable.cnt--;
     return editable;
 }
 

@@ -67,10 +67,22 @@ describe('Map', function() {
     expect(m5.get('c')).toBe('Canary');
   });
 
+  it('deletes down to empty map', function() {
+    var m1 = Map({a:'A', b:'B', c:'C'});
+    var m2 = m1.delete('a');
+    var m3 = m2.delete('b');
+    var m4 = m3.delete('c');
+    expect(m1.length).toBe(3);
+    expect(m2.length).toBe(2);
+    expect(m3.length).toBe(1);
+    expect(m4.length).toBe(0);
+    expect(m4).toBe(Map.empty());
+  });
+
   it('can map many items', function() {
     var m = Map();
     for (var ii = 0; ii < 2000; ii++) {
-      m = m.set('thing:' + ii, ii);
+       m = m.set('thing:' + ii, ii);
     }
     expect(m.length).toBe(2000);
     expect(m.get('thing:1234')).toBe(1234);

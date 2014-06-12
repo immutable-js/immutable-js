@@ -220,29 +220,33 @@ class BitmapIndexedNode<K, V> implements MNode<K, V> {
   delete(ownerID: OwnerID, shift: number, hash: number, key: K, didRemoveLeaf?: BoolRef): MNode<K, V> {
     var idx = (hash >>> shift) & MASK;
     var bit = 1 << idx;
-    if ((this.bitmap & bit) === 0) {
+    var key_or_nil = this.arr[2 * idx];
+    if ((this.bitmap & bit) === 0 || (key_or_nil != null && key !== key_or_nil)) {
       return this;
     }
-    var key_or_nil = this.arr[2 * idx];
-    var val_or_node = this.arr[2 * idx + 1];
     if (key_or_nil == null) {
-      var n = val_or_node.delete(ownerID, shift + SHIFT, hash, key, didRemoveLeaf);
-      if (n === val_or_node) {
+      var node = this.arr[2 * idx + 1];
+      var newNode = node.delete(ownerID, shift + SHIFT, hash, key, didRemoveLeaf);
+      if (newNode === node) {
         return this;
       }
-      if (n != null) {
-        return edit_and_set(this, ownerID, 2 * idx + 1, n);
+      if (newNode) {
+        return edit_and_set(this, ownerID, 2 * idx + 1, newNode);
       }
-      if (this.bitmap === bit) {
-        return null;
-      }
-      return edit_and_remove_pair(this, ownerID, bit, idx);
-    }
-    if (key === key_or_nil) {
+    } else {
       didRemoveLeaf && (didRemoveLeaf.val = true);
-      return edit_and_remove_pair(this, ownerID, bit, idx);
     }
-    return this;
+    if (this.cnt === 1) {
+      return null;
+    }
+    var editable = this.ensureOwner(ownerID);
+    // Technically, since we always check the bitmap first,
+    // we don't need to delete these, but doing so frees up memory.
+    delete editable.arr[2 * idx];
+    delete editable.arr[2 * idx + 1];
+    editable.bitmap ^= bit;
+    editable.cnt--;
+    return editable;
   }
 
   ensureOwner(ownerID: OwnerID): BitmapIndexedNode<K, V> {
@@ -496,20 +500,6 @@ function edit_and_set<K, V, T>(node: BitmapIndexedNode<K, V>, ownerID: OwnerID, 
   if (j != null) {
     editable.arr[j] = b;
   }
-  return editable;
-}
-
-function edit_and_remove_pair<K, V>(node: BitmapIndexedNode<K, V>, ownerID: OwnerID, bit: number, i: number): BitmapIndexedNode<K, V> {
-  if (this.bitmap === bit) {
-    return null;
-  }
-  var editable = node.ensureOwner(ownerID);
-  // Technically, since we always check the bitmap first,
-  // we don't need to delete these, but doing so frees up memory.
-  delete editable.arr[2 * i];
-  delete editable.arr[2 * i + 1];
-  editable.bitmap ^= bit;
-  editable.cnt--;
   return editable;
 }
 
