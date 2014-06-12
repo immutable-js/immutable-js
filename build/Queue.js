@@ -36,6 +36,14 @@ var Queue = (function (_super) {
         return list;
     };
 
+    Queue.prototype.get = function (index) {
+        var queue = this;
+        while (index-- > 0) {
+            queue = queue.pop();
+        }
+        return queue._value;
+    };
+
     Queue.prototype.first = function () {
         return this._value;
     };

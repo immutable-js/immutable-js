@@ -7,6 +7,7 @@ export declare class Queue<T> extends OrderedIterable<T, Queue<T>> {
     static empty(): Queue<any>;
     static fromArray<T>(values: T[]): Queue<T>;
     public length: number;
+    public get(index: number): T;
     public first(): T;
     public push(value: T): Queue<T>;
     public pop(): Queue<T>;

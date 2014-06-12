@@ -33,6 +33,14 @@ export class Queue<T> extends OrderedIterable<T, Queue<T>> {
 
   length: number;
 
+  get(index: number): T {
+    var queue = this;
+    while (index-- > 0) {
+      queue = queue.pop();
+    }
+    return queue._value;
+  }
+
   first(): T {
     return this._value;
   }
