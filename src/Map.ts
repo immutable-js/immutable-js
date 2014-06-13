@@ -1,10 +1,11 @@
 import Iterable = require('./Iterable');
+import IMap = require('./IMap');
 
 function invariant(condition: any, error: string): void {
   if (!condition) throw new Error(error);
 }
 
-class Map<K, V> extends Iterable<K, V, Map<K, V>> {
+class Map<K, V> extends Iterable<K, V, Map<K, V>> implements IMap<K, V> {
 
   // @pragma Construction
 
@@ -94,9 +95,9 @@ class Map<K, V> extends Iterable<K, V, Map<K, V>> {
 
   // @pragma Composition
 
-  merge(map: Map<K, V>): Map<K, V> {
+  merge(seq: Iterable<K, V, any>): Map<K, V> {
     var newMap = this.asTransient();
-    map.iterate((value, key) => newMap.set(key, value));
+    seq.iterate((value, key) => newMap.set(key, value));
     return newMap.asPersistent();
   }
 

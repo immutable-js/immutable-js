@@ -1,5 +1,6 @@
 import Iterable = require('./Iterable');
-declare class Map<K, V> extends Iterable<K, V, Map<K, V>> {
+import IMap = require('./IMap');
+declare class Map<K, V> extends Iterable<K, V, Map<K, V>> implements IMap<K, V> {
     constructor(obj?: {
         [key: string]: V;
     });
@@ -13,7 +14,7 @@ declare class Map<K, V> extends Iterable<K, V, Map<K, V>> {
     public empty(): Map<K, V>;
     public set(k: K, v: V): Map<K, V>;
     public delete(k: K): Map<K, V>;
-    public merge(map: Map<K, V>): Map<K, V>;
+    public merge(seq: Iterable<K, V, any>): Map<K, V>;
     public isTransient(): boolean;
     public asTransient(): Map<K, V>;
     public asPersistent(): Map<K, V>;

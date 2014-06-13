@@ -1,5 +1,8 @@
+import Iterable = require('./Iterable');
 import OrderedIterable = require('./OrderedIterable');
-declare class Vector<T> extends OrderedIterable<T, Vector<T>> {
+import IList = require('./IList');
+import IMap = require('./IMap');
+declare class Vector<T> extends OrderedIterable<T, Vector<T>> implements IList<T>, IMap<number, T> {
     constructor(...values: T[]);
     static empty(): Vector<any>;
     static fromArray<T>(values: T[]): Vector<T>;
@@ -16,7 +19,7 @@ declare class Vector<T> extends OrderedIterable<T, Vector<T>> {
     public unshift(...values: T[]): Vector<T>;
     public shift(): Vector<T>;
     public reverse(): Vector<T>;
-    public merge(vector: Vector<T>): Vector<T>;
+    public merge(seq: Iterable<number, T, any>): Vector<T>;
     public concat(...vectors: Vector<T>[]): Vector<T>;
     public slice(begin: number, end?: number): Vector<T>;
     public splice(index: number, removeNum: number, ...values: T[]): Vector<T>;

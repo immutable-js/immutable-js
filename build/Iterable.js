@@ -39,11 +39,7 @@ var Iterable = (function () {
     };
 
     Iterable.prototype.toMap = function () {
-        var map = Map.empty().asTransient();
-        this.iterate(function (v, k) {
-            map.set(k, v);
-        });
-        return map.asPersistent();
+        return Map.empty().merge(this);
     };
 
     Iterable.prototype.keys = function () {

@@ -1,4 +1,5 @@
 import OrderedIterable = require('./OrderedIterable');
+import IList = require('./IList');
 
 function invariant(condition: boolean, error: string): void {
   if (!condition) throw new Error(error);
@@ -10,7 +11,7 @@ function invariant(condition: boolean, error: string): void {
  * infinity. When step is equal to 0, returns an infinite sequence of
  * start. When start is equal to end, returns empty list.
  */
-class Range extends OrderedIterable<number, Range> {
+class Range extends OrderedIterable<number, Range> implements IList<number> {
   start: number;
   end: number;
   step: number;

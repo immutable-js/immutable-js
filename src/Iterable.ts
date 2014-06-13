@@ -1,3 +1,4 @@
+// TODO: this creates a circular dependency.
 import Vector = require('./Vector');
 import Map = require('./Map');
 
@@ -34,11 +35,7 @@ class Iterable<K, V, C> {
   }
 
   toMap(): Map<K, V> {
-    var map: Map<K, V> = Map.empty().asTransient();
-    this.iterate(function (v, k) {
-      map.set(k, v);
-    });
-    return map.asPersistent();
+    return Map.empty().merge(this);
   }
 
   keys(): Iterable<K, K, C> {

@@ -48,6 +48,10 @@ var Stack = (function (_super) {
         return this._value;
     };
 
+    Stack.prototype.last = function () {
+        return this.get(this.length - 1);
+    };
+
     // @pragma Modification
     Stack.prototype.push = function (value) {
         return Stack._make(value, this.length === 0 ? undefined : this);

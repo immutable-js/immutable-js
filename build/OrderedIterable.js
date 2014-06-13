@@ -21,11 +21,7 @@ var OrderedIterable = (function (_super) {
     };
 
     OrderedIterable.prototype.toVector = function () {
-        var vect = Vector.empty().asTransient();
-        this.iterate(function (v, k) {
-            vect.set(k, v);
-        });
-        return vect.asPersistent();
+        return Vector.empty().merge(this);
     };
 
     OrderedIterable.prototype.keys = function () {

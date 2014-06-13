@@ -1,11 +1,12 @@
 import OrderedIterable = require('./OrderedIterable');
+import IList = require('./IList');
 /**
 * Returns a lazy seq of nums from start (inclusive) to end
 * (exclusive), by step, where start defaults to 0, step to 1, and end to
 * infinity. When step is equal to 0, returns an infinite sequence of
 * start. When start is equal to end, returns empty list.
 */
-declare class Range extends OrderedIterable<number, Range> {
+declare class Range extends OrderedIterable<number, Range> implements IList<number> {
     public start: number;
     public end: number;
     public step: number;

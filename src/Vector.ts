@@ -1,12 +1,13 @@
+import Iterable = require('./Iterable');
 import OrderedIterable = require('./OrderedIterable');
+import IList = require('./IList');
+import IMap = require('./IMap');
 
 function invariant(condition: boolean, error: string): void {
   if (!condition) throw new Error(error);
 }
 
-// TODO: Note that Vector implements all public methods of Map.
-//   We should document this in the typesystem.
-class Vector<T> extends OrderedIterable<T, Vector<T>> {
+class Vector<T> extends OrderedIterable<T, Vector<T>> implements IList<T>, IMap<number, T> {
 
   // @pragma Construction
 
@@ -280,9 +281,9 @@ class Vector<T> extends OrderedIterable<T, Vector<T>> {
     return null;
   }
 
-  merge(vector: Vector<T>): Vector<T> {
+  merge(seq: Iterable<number, T, any>): Vector<T> {
     var newVect = this.asTransient();
-    vector.iterate((value, index) => newVect.set(index, value));
+    seq.iterate((value, index) => newVect.set(index, value));
     return newVect.asPersistent();
   }
 

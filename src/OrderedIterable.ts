@@ -1,4 +1,5 @@
 import Iterable = require('./Iterable');
+// TODO: this creates a circular dependency.
 import Vector = require('./Vector');
 
 class OrderedIterable<V, C> extends Iterable<number, V, C> {
@@ -11,11 +12,7 @@ class OrderedIterable<V, C> extends Iterable<number, V, C> {
   }
 
   toVector(): Vector<V> {
-    var vect: Vector<V> = Vector.empty().asTransient();
-    this.iterate(function (v, k) {
-      vect.set(k, v);
-    });
-    return vect.asPersistent();
+    return Vector.empty().merge(this);
   }
 
   keys(): OrderedIterable<number, C> {

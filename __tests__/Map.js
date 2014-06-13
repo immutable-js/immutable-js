@@ -106,9 +106,9 @@ describe('Map', function() {
   });
 
   it('filters values', function() {
-    var v = Map({a:1, b:2, c:3, d:4, e:5, f:6});
+    var m = Map({a:1, b:2, c:3, d:4, e:5, f:6});
 
-    var r = v.filter(function (value) {
+    var r = m.filter(function (value) {
       return value % 2 === 1;
     });
 

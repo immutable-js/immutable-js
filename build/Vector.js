@@ -11,8 +11,6 @@ function invariant(condition, error) {
         throw new Error(error);
 }
 
-// TODO: Note that Vector implements all public methods of Map.
-//   We should document this in the typesystem.
 var Vector = (function (_super) {
     __extends(Vector, _super);
     // @pragma Construction
@@ -290,9 +288,9 @@ var Vector = (function (_super) {
         return null;
     };
 
-    Vector.prototype.merge = function (vector) {
+    Vector.prototype.merge = function (seq) {
         var newVect = this.asTransient();
-        vector.iterate(function (value, index) {
+        seq.iterate(function (value, index) {
             return newVect.set(index, value);
         });
         return newVect.asPersistent();

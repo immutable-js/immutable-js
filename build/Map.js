@@ -94,9 +94,9 @@ var Map = (function (_super) {
     };
 
     // @pragma Composition
-    Map.prototype.merge = function (map) {
+    Map.prototype.merge = function (seq) {
         var newMap = this.asTransient();
-        map.iterate(function (value, key) {
+        seq.iterate(function (value, key) {
             return newMap.set(key, value);
         });
         return newMap.asPersistent();
