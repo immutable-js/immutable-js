@@ -4,8 +4,8 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+///<reference path='./node.d.ts'/>
 var Iterable = require('./Iterable');
-var Vector = require('./Vector');
 
 var OrderedIterable = (function (_super) {
     __extends(OrderedIterable, _super);
@@ -21,7 +21,8 @@ var OrderedIterable = (function (_super) {
     };
 
     OrderedIterable.prototype.toVector = function () {
-        return Vector.empty().merge(this);
+        // Use Late Binding here to solve the circular dependency.
+        return require('./Vector').empty().merge(this);
     };
 
     OrderedIterable.prototype.keys = function () {

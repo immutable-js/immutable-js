@@ -4,9 +4,6 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var Vector = require('./Vector');
-var Map = require('./Map');
-
 var Iterable = (function () {
     function Iterable() {
     }
@@ -31,7 +28,8 @@ var Iterable = (function () {
     };
 
     Iterable.prototype.toVector = function () {
-        var vect = Vector.empty().asTransient();
+        // Use Late Binding here to solve the circular dependency.
+        var vect = require('./Vector').empty().asTransient();
         this.iterate(function (v) {
             vect.push(v);
         });
@@ -39,7 +37,8 @@ var Iterable = (function () {
     };
 
     Iterable.prototype.toMap = function () {
-        return Map.empty().merge(this);
+        // Use Late Binding here to solve the circular dependency.
+        return require('./Map').empty().merge(this);
     };
 
     Iterable.prototype.keys = function () {

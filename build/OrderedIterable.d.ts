@@ -1,3 +1,4 @@
+/// <reference path="../src/node.d.ts" />
 import Iterable = require('./Iterable');
 import Vector = require('./Vector');
 declare class OrderedIterable<V, C> extends Iterable<number, V, C> {

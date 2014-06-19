@@ -1,3 +1,4 @@
+/// <reference path="../src/node.d.ts" />
 import Vector = require('./Vector');
 import Map = require('./Map');
 declare class Iterable<K, V, C> {

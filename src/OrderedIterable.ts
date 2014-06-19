@@ -1,6 +1,6 @@
+///<reference path='./node.d.ts'/>
 import Iterable = require('./Iterable');
-// TODO: this creates a circular dependency.
-import Vector = require('./Vector');
+import Vector = require('./Vector'); // for Type info
 
 class OrderedIterable<V, C> extends Iterable<number, V, C> {
   toArray(): Array<V> {
@@ -12,7 +12,8 @@ class OrderedIterable<V, C> extends Iterable<number, V, C> {
   }
 
   toVector(): Vector<V> {
-    return Vector.empty().merge(this);
+    // Use Late Binding here to solve the circular dependency.
+    return require('./Vector').empty().merge(this);
   }
 
   keys(): OrderedIterable<number, C> {

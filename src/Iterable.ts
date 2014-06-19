@@ -1,6 +1,6 @@
-// TODO: this creates a circular dependency.
-import Vector = require('./Vector');
-import Map = require('./Map');
+///<reference path='./node.d.ts'/>
+import Vector = require('./Vector'); // for Type info
+import Map = require('./Map'); // for Type info
 
 class Iterable<K, V, C> {
   iterate(
@@ -27,7 +27,8 @@ class Iterable<K, V, C> {
   }
 
   toVector(): Vector<V> {
-    var vect: Vector<V> = Vector.empty().asTransient();
+    // Use Late Binding here to solve the circular dependency.
+    var vect: Vector<V> = require('./Vector').empty().asTransient();
     this.iterate(function (v) {
       vect.push(v);
     });
@@ -35,7 +36,8 @@ class Iterable<K, V, C> {
   }
 
   toMap(): Map<K, V> {
-    return Map.empty().merge(this);
+    // Use Late Binding here to solve the circular dependency.
+    return require('./Map').empty().merge(this);
   }
 
   keys(): Iterable<K, K, C> {
