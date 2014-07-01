@@ -54,7 +54,11 @@ var OrderedLazyIterable = (function (_super) {
     OrderedLazyIterable.prototype.keys = function () {
         return this.map(function (v, k) {
             return k;
-        });
+        }).values();
+    };
+
+    OrderedLazyIterable.prototype.values = function () {
+        return new ValueIterator(this);
     };
 
     OrderedLazyIterable.prototype.map = function (fn, thisArg) {
@@ -118,6 +122,32 @@ var ReverseIterator = (function (_super) {
         return this.iterator;
     };
     return ReverseIterator;
+})(OrderedLazyIterable);
+
+var ValueIterator = (function (_super) {
+    __extends(ValueIterator, _super);
+    function ValueIterator(iterator) {
+        _super.call(this);
+        this.iterator = iterator;
+    }
+    ValueIterator.prototype.iterate = function (fn, thisArg) {
+        var iterations = 0;
+        return this.iterator.iterate(function (v, k, c) {
+            if (fn.call(thisArg, v, iterations++, c) === false) {
+                return false;
+            }
+        });
+    };
+
+    ValueIterator.prototype.reverseIterate = function (fn, thisArg) {
+        var iterations = 0;
+        return this.iterator.reverseIterate(function (v, k, c) {
+            if (fn.call(thisArg, v, iterations++, c) === false) {
+                return false;
+            }
+        });
+    };
+    return ValueIterator;
 })(OrderedLazyIterable);
 
 var MapIterator = (function (_super) {

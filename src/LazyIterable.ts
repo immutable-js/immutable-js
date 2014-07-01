@@ -40,8 +40,12 @@ class LazyIterable<K, V, C> {
     return require('./Map').empty().merge(this);
   }
 
-  keys(): LazyIterable<K, K, C> {
-    return this.map<K>((v, k) => k);
+  keys(): LazyIterable<number, K, C> {
+    return this.map<K>((v, k) => k).values();
+  }
+
+  values(): LazyIterable<number, V, C> {
+    return new ValueIterator(this);
   }
 
   forEach(
@@ -135,6 +139,24 @@ class FlipIterator<K, V, C> extends LazyIterable<V, K, C> {
   ): boolean {
     return this.iterator.iterate(function (v, k, c) {
       if (fn.call(thisArg, k, v, c) === false) {
+        return false;
+      }
+    });
+  }
+}
+
+class ValueIterator<V, C> extends LazyIterable<number, V, C> {
+  constructor(
+    private iterator: LazyIterable<any, V, C>
+  ) {super();}
+
+  iterate(
+    fn: (value?: V, index?: number, collection?: C) => any, // false or undefined
+    thisArg?: any
+  ): boolean {
+    var iterations = 0;
+    return this.iterator.iterate(function (v, k, c) {
+      if (fn.call(thisArg, v, iterations++, c) === false) {
         return false;
       }
     });

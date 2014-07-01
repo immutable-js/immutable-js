@@ -1,0 +1,11 @@
+TODO list:
+
+  * Remove Range and Stack. They complicate things and are generally less useful.
+  * Consider adding "OrderedMap"
+  * fromJS() should take a second options bag to describe how to do the conversion.
+  * Finish test coverage
+  * Abandon typescript in favor of being able to write denser JS.
+  * Maintain and improve the .d.ts files. e.g. Documentation.
+  * Convenience fn for lazy iterators from JS objects.
+  * Consider OrderedMap and Set.
+  * Performance testing! Preferably in node!

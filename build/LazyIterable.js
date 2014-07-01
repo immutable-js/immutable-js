@@ -44,7 +44,11 @@ var LazyIterable = (function () {
     LazyIterable.prototype.keys = function () {
         return this.map(function (v, k) {
             return k;
-        });
+        }).values();
+    };
+
+    LazyIterable.prototype.values = function () {
+        return new ValueIterator(this);
     };
 
     LazyIterable.prototype.forEach = function (fn, thisArg) {
@@ -122,6 +126,23 @@ var FlipIterator = (function (_super) {
         });
     };
     return FlipIterator;
+})(LazyIterable);
+
+var ValueIterator = (function (_super) {
+    __extends(ValueIterator, _super);
+    function ValueIterator(iterator) {
+        _super.call(this);
+        this.iterator = iterator;
+    }
+    ValueIterator.prototype.iterate = function (fn, thisArg) {
+        var iterations = 0;
+        return this.iterator.iterate(function (v, k, c) {
+            if (fn.call(thisArg, v, iterations++, c) === false) {
+                return false;
+            }
+        });
+    };
+    return ValueIterator;
 })(LazyIterable);
 
 var MapIterator = (function (_super) {

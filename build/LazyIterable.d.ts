@@ -7,7 +7,8 @@ declare class LazyIterable<K, V, C> {
     public toObject(): Object;
     public toVector(): Vector<V>;
     public toMap(): Map<K, V>;
-    public keys(): LazyIterable<K, K, C>;
+    public keys(): LazyIterable<number, K, C>;
+    public values(): LazyIterable<number, V, C>;
     public forEach(fn: (value?: V, key?: K, collection?: C) => any, thisArg?: any): void;
     public find(fn: (value?: V, key?: K, collection?: C) => boolean, thisArg?: any): K;
     public reduce<R>(fn: (prevReduction?: R, value?: V, key?: K, collection?: C) => R, initialReduction?: R, thisArg?: any): R;

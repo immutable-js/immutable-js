@@ -46,7 +46,11 @@ class OrderedLazyIterable<V, C> extends LazyIterable<number, V, C> {
   }
 
   keys(): OrderedLazyIterable<number, C> {
-    return this.map<number>((v, k) => k);
+    return this.map<number>((v, k) => k).values();
+  }
+
+  values(): OrderedLazyIterable<V, C> {
+    return new ValueIterator(this);
   }
 
   map<V2>(
@@ -121,6 +125,36 @@ class ReverseIterator<V, C> extends OrderedLazyIterable<V, C> {
 
   reverse(): OrderedLazyIterable<V, C> {
     return this.iterator;
+  }
+}
+
+class ValueIterator<V, C> extends OrderedLazyIterable<V, C> {
+  constructor(
+    private iterator: OrderedLazyIterable<V, C>
+  ) {super();}
+
+  iterate(
+    fn: (value?: V, index?: number, collection?: C) => any, // false or undefined
+    thisArg?: any
+  ): boolean {
+    var iterations = 0;
+    return this.iterator.iterate(function (v, k, c) {
+      if (fn.call(thisArg, v, iterations++, c) === false) {
+        return false;
+      }
+    });
+  }
+
+  reverseIterate(
+    fn: (value?: V, index?: number, collection?: C) => any, // false or undefined
+    thisArg?: any
+  ): boolean {
+    var iterations = 0;
+    return this.iterator.reverseIterate(function (v, k, c) {
+      if (fn.call(thisArg, v, iterations++, c) === false) {
+        return false;
+      }
+    });
   }
 }
 

@@ -215,10 +215,17 @@ describe('Vector', function() {
     expect(m.get(1)).toBe('b');
   });
 
+  it('reverses', function() {
+    var v = Vector('a', 'b', 'c');
+    expect(v.reverse().values().toArray()).toEqual(['c', 'b', 'a']);
+  });
+
   // TODO: assert that findIndex only calls the function as much as it needs to.
 
   // TODO: assert that forEach iterates in the correct order and is only called as much as it needs to be.
 
   // TODO: slice
+
+  // TODO: concat
 
 });

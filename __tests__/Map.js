@@ -120,6 +120,11 @@ describe('Map', function() {
     expect(v.keys().toArray()).toEqual(['a', 'b', 'c', 'd', 'e', 'f']);
   });
 
+  it('flips keys and values', function() {
+    var v = Map({a:1, b:2, c:3, d:4, e:5, f:6});
+    expect(v.flip().toObject()).toEqual({1:'a', 2:'b', 3:'c', 4:'d', 5:'e', 6:'f'});
+  });
+
   it('can convert to a vector', function() {
     var m = Map({a:1, b:2, c:3});
     var v = m.toVector();
