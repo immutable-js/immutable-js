@@ -12,16 +12,17 @@ var ArrayIterator = (function (_super) {
         _super.call(this);
         this._array = _array;
     }
-    ArrayIterator.prototype.iterate = function (fn, thisArg) {
-        var iterator = this._array;
+    ArrayIterator.prototype.iterate = function (fn, thisArg, reverseIndices) {
+        var array = this._array;
         return this._array.every(function (value, index) {
-            return fn.call(thisArg, value, index, iterator) !== false;
+            return fn.call(thisArg, value, reverseIndices ? array.length - 1 - index : index, array) !== false;
         });
     };
 
-    ArrayIterator.prototype.reverseIterate = function (fn, thisArg) {
-        for (var ii = this._array.length - 1; ii >= 0; ii--) {
-            if (this._array.hasOwnProperty(ii) && fn.call(thisArg, this._array[ii], ii, this._array) === false) {
+    ArrayIterator.prototype.reverseIterate = function (fn, thisArg, maintainIndices) {
+        var array = this._array;
+        for (var ii = array.length - 1; ii >= 0; ii--) {
+            if (array.hasOwnProperty(ii) && fn.call(thisArg, array[ii], maintainIndices ? ii : array.length - 1 - ii, array) === false) {
                 return false;
             }
         }

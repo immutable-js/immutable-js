@@ -227,7 +227,7 @@ describe('Vector', function() {
 
   it('reverses', function() {
     var v = Vector('a', 'b', 'c');
-    expect(v.reverse().values().toArray()).toEqual(['c', 'b', 'a']);
+    expect(v.reverse().toArray()).toEqual(['c', 'b', 'a']);
   });
 
   // TODO: assert that findIndex only calls the function as much as it needs to.

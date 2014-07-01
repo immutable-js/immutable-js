@@ -7,19 +7,24 @@ class ArrayIterator<T> extends OrderedLazyIterable<T, ArrayIterator<T>> {
 
   iterate(
     fn: (value?: T, key?: number, collection?: ArrayIterator<T>) => any, // false or undefined
-    thisArg?: any
+    thisArg?: any,
+    reverseIndices?: boolean
   ): boolean {
-    var iterator = this._array;
-    return this._array.every((value, index) => fn.call(thisArg, value, index, iterator) !== false);
+    var array = this._array;
+    return this._array.every((value, index) =>
+      fn.call(thisArg, value, reverseIndices ? array.length - 1 - index : index, array) !== false
+    );
   }
 
   reverseIterate(
     fn: (value?: T, key?: number, collection?: ArrayIterator<T>) => any, // false or undefined
-    thisArg?: any
+    thisArg?: any,
+    maintainIndices?: boolean
   ): boolean {
-    for (var ii = this._array.length - 1; ii >= 0; ii--) {
-      if (this._array.hasOwnProperty(<any>ii) &&
-          fn.call(thisArg, this._array[ii], ii, this._array) === false) {
+    var array = this._array;
+    for (var ii = array.length - 1; ii >= 0; ii--) {
+      if (array.hasOwnProperty(<any>ii) &&
+          fn.call(thisArg, array[ii], maintainIndices ? ii : array.length - 1 - ii, array) === false) {
         return false;
       }
     }

@@ -6,6 +6,7 @@ declare class Vector<T> extends OrderedLazyIterable<T, Vector<T>> implements ILi
     constructor(...values: T[]);
     static empty(): Vector<any>;
     static fromArray<T>(values: T[]): Vector<T>;
+    public toString(): void;
     public length: number;
     public has(index: number): boolean;
     public get(index: number, undefinedValue?: T): T;
@@ -30,7 +31,7 @@ declare class Vector<T> extends OrderedLazyIterable<T, Vector<T>> implements ILi
     public asPersistent(): Vector<T>;
     public clone(): Vector<T>;
     public iterate(fn: (value?: T, index?: number, vector?: Vector<T>) => any, thisArg?: any): boolean;
-    public reverseIterate(fn: (value?: T, index?: number, vector?: Vector<T>) => any, thisArg?: any): boolean;
+    public reverseIterate(fn: (value?: T, index?: number, vector?: Vector<T>) => any, thisArg?: any, maintainIndices?: boolean): boolean;
     public toArray(): T[];
     private _origin;
     private _size;

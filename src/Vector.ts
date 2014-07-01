@@ -36,6 +36,22 @@ class Vector<T> extends OrderedLazyIterable<T, Vector<T>> implements IList<T>, I
     return vect.asPersistent();
   }
 
+  // TODO: generalize and apply to Set and Map
+  toString() {
+    var string = '[ ';
+    for (var ii = 0; ii < this.length; ii++) {
+      var value: T = this.get(ii, <T>__SENTINEL);
+      if (value === __SENTINEL) {
+        // TODO: handle string case to properly wrap in "
+        string += value;
+      }
+      if (ii < this.length - 1) {
+        string += ', ';
+      }
+    }
+    string += ' ]';
+  }
+
   // @pragma Access
 
   public length: number;
@@ -400,12 +416,13 @@ class Vector<T> extends OrderedLazyIterable<T, Vector<T>> implements IList<T>, I
 
   reverseIterate(
     fn: (value?: T, index?: number, vector?: Vector<T>) => any, // false or undefined
-    thisArg?: any
+    thisArg?: any,
+    maintainIndices?: boolean
   ): boolean {
     var tailOffset = getTailOffset(this._size);
     return (
-      this._tail.reverseIterate(this, 0, tailOffset - this._origin, this._size - this._origin, fn, thisArg) &&
-      this._root.reverseIterate(this, this._level, -this._origin, tailOffset - this._origin, fn, thisArg)
+      this._tail.reverseIterate(this, 0, tailOffset - this._origin, this._size - this._origin, fn, thisArg, maintainIndices) &&
+      this._root.reverseIterate(this, this._level, -this._origin, tailOffset - this._origin, fn, thisArg, maintainIndices)
     );
   }
 
@@ -502,13 +519,17 @@ class VNode<T> {
     offset: number,
     max: number,
     fn: (value?: T, index?: number, vector?: Vector<T>) => any, // false or undefined
-    thisArg: any
+    thisArg: any,
+    reverseIndices?: boolean
   ): boolean {
     // Note using every() gets us a speed-up of 2x on modern JS VMs, but means
     // we cannot support IE8 without polyfill.
     if (level === 0) {
       return this.array.every((value, rawIndex) => {
         var index = rawIndex + offset;
+        if (reverseIndices) {
+          index = vector.length - 1 - index;
+        }
         return index < 0 || index >= max || fn.call(thisArg, value, index, vector) !== false;
       });
     }
@@ -526,12 +547,16 @@ class VNode<T> {
     offset: number,
     max: number,
     fn: (value?: T, index?: number, vector?: Vector<T>) => any, // false or undefined
-    thisArg: any
+    thisArg: any,
+    maintainIndices: boolean
   ): boolean {
     if (level === 0) {
       for (var rawIndex = this.array.length - 1; rawIndex >= 0; rawIndex--) {
         if (this.array.hasOwnProperty(<any>rawIndex)) {
           var index = rawIndex + offset;
+          if (!maintainIndices) {
+            index = vector.length - 1 - index;
+          }
           if (index >= 0 && index < max && fn.call(thisArg, this.array[rawIndex], index, vector) === false) {
             return false;
           }

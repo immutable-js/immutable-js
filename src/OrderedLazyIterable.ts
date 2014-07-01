@@ -3,25 +3,35 @@ import LazyIterable = require('./LazyIterable');
 import Vector = require('./Vector'); // for Type info
 
 class OrderedLazyIterable<V, C> extends LazyIterable<number, V, C> {
-  /**
-   * Note: the default implementation of this needs to make an intermediate
-   * representation which may be inefficent. Concrete data structures should
-   * do better if possible.
-   */
+  // overridden to add maintainIndices to the type.
+  iterate(
+    fn: (value?: V, index?: number, collection?: C) => any, // false or undefined
+    thisArg?: any,
+    reverseIndices?: boolean
+  ): boolean {
+    throw new Error('Abstract method');
+  }
+
+
   reverseIterate(
     fn: (value?: V, index?: number, collection?: C) => any, // false or undefined
-    thisArg?: any
+    thisArg?: any,
+    maintainIndices?: boolean
   ): boolean {
-    var tempKV: Array<any> = [];
+    /**
+     * Note: the default implementation of this needs to make an intermediate
+     * representation which may be inefficent or at worse infinite.
+     * Subclasses should do better if possible.
+     */
+    var temp: Array<V> = [];
     var collection: C;
-    this.iterate(function (v, k, c) {
-      if (!collection) {
-        collection = c;
-      }
-      tempKV.push([k, v]);
+    this.iterate(function (v, i, c) {
+      collection || (collection = c);
+      temp[i] = v;
     });
-    for (var ii = tempKV.length - 1; ii >= 0; ii--) {
-      if (fn.call(thisArg, tempKV[ii][1], tempKV[ii][0], collection) === false) {
+    for (var ii = temp.length - 1; ii >= 0; ii--) {
+      if (temp.hasOwnProperty(<any>ii) &&
+          fn.call(thisArg, temp[ii], maintainIndices ? ii : temp.length - 1 - ii, collection) === false) {
         return false;
       }
     }
@@ -41,8 +51,8 @@ class OrderedLazyIterable<V, C> extends LazyIterable<number, V, C> {
     return require('./Vector').empty().merge(this);
   }
 
-  reverse(): OrderedLazyIterable<V, C> {
-    return new ReverseIterator(this);
+  reverse(maintainIndices?: boolean): OrderedLazyIterable<V, C> {
+    return new ReverseIterator(this, maintainIndices);
   }
 
   keys(): OrderedLazyIterable<number, C> {
@@ -53,8 +63,24 @@ class OrderedLazyIterable<V, C> extends LazyIterable<number, V, C> {
     return new ValueIterator(this);
   }
 
-  entries(): OrderedLazyIterable<Array<any>, C> { // OrderedLazyIterable<<K,V>, C>
+  entries(): OrderedLazyIterable<Array<any/*(K, V)*/>, C> {
     return this.map<Array<any>>((v, k) => [k,v]).values();
+  }
+
+  first(
+    fn?: (value?: V, index?: number, collection?: C) => boolean,
+    thisArg?: any
+  ): V {
+    var firstValue: V;
+    (fn ? this.filter(fn, thisArg) : this).take(1).forEach(v => (firstValue = v));
+    return firstValue;
+  }
+
+  last(
+    fn?: (value?: V, index?: number, collection?: C) => boolean,
+    thisArg?: any
+  ): V {
+    return this.reverse(true).first(fn, thisArg);
   }
 
   reduceRight<R>(
@@ -62,11 +88,7 @@ class OrderedLazyIterable<V, C> extends LazyIterable<number, V, C> {
     initialReduction?: R,
     thisArg?: any
   ): R {
-    var reduction = initialReduction;
-    this.reverseIterate(function (v, k, c) {
-      reduction = fn.call(thisArg, reduction, v, k, c);
-    });
-    return reduction;
+    return this.reverse(true).reduce(fn, initialReduction, thisArg);
   }
 
   map<V2>(
@@ -103,28 +125,14 @@ class OrderedLazyIterable<V, C> extends LazyIterable<number, V, C> {
     fn: (value?: V, index?: number, collection?: C) => boolean,
     thisArg?: any
   ): V {
-    var foundValue: V;
-    this.reverseIterate(function (v, k, c) {
-      if (fn.call(thisArg, v, k, c) === true) {
-        foundValue = v;
-        return false;
-      }
-    });
-    return foundValue;
+    return this.reverse(true).find(fn, thisArg);
   }
 
   findLastIndex(
     fn: (value?: V, index?: number, collection?: C) => boolean,
     thisArg?: any
   ): number {
-    var foundIndex: number = -1;
-    this.reverseIterate(function (v, k, c) {
-      if (fn.call(thisArg, v, k, c) === true) {
-        foundIndex = k;
-        return false;
-      }
-    });
-    return foundIndex;
+    return this.reverse(true).findIndex(fn, thisArg);
   }
 
   take(amount: number): OrderedLazyIterable<V, C> {
@@ -150,29 +158,55 @@ class OrderedLazyIterable<V, C> extends LazyIterable<number, V, C> {
   ): OrderedLazyIterable<V, C> {
     return new SkipIterator(this, fn, thisArg);
   }
+
+  takeUntil(
+    fn: (value?: V, index?: number, collection?: C) => boolean,
+    thisArg?: any
+  ): OrderedLazyIterable<V, C> {
+    return this.takeWhile(not(fn), thisArg);
+  }
+
+  skipUntil(
+    fn: (value?: V, index?: number, collection?: C) => boolean,
+    thisArg?: any
+  ): OrderedLazyIterable<V, C> {
+    return this.skipWhile(not(fn), thisArg);
+  }
+}
+
+function not<V, C>(fn: (value?: V, index?: number, collection?: C) => boolean): (value?: V, index?: number, collection?: C) => boolean {
+  return function() {
+    return !fn.apply(this, arguments);
+  }
 }
 
 class ReverseIterator<V, C> extends OrderedLazyIterable<V, C> {
   constructor(
-    private iterator: OrderedLazyIterable<V, C>
+    private iterator: OrderedLazyIterable<V, C>,
+    private maintainIndices: boolean
   ) {super();}
 
   iterate(
     fn: (value?: V, index?: number, collection?: C) => any, // false or undefined
-    thisArg?: any
+    thisArg?: any,
+    reverseIndices?: boolean
   ): boolean {
-    return this.iterator.reverseIterate(fn, thisArg);
+    return this.iterator.reverseIterate(fn, thisArg, reverseIndices !== this.maintainIndices);
   }
 
   reverseIterate(
     fn: (value?: V, index?: number, collection?: C) => any, // false or undefined
-    thisArg?: any
+    thisArg?: any,
+    maintainIndices?: boolean
   ): boolean {
-    return this.iterator.iterate(fn, thisArg);
+    return this.iterator.iterate(fn, thisArg, maintainIndices !== this.maintainIndices);
   }
 
-  reverse(): OrderedLazyIterable<V, C> {
-    return this.iterator;
+  reverse(maintainIndices?: boolean): OrderedLazyIterable<V, C> {
+    if (maintainIndices === this.maintainIndices) {
+      return this.iterator;
+    }
+    return super.reverse(maintainIndices);
   }
 }
 
@@ -183,26 +217,30 @@ class ValueIterator<V, C> extends OrderedLazyIterable<V, C> {
 
   iterate(
     fn: (value?: V, index?: number, collection?: C) => any, // false or undefined
-    thisArg?: any
+    thisArg?: any,
+    reverseIndices?: boolean
   ): boolean {
     var iterations = 0;
     return this.iterator.iterate(function (v, k, c) {
       if (fn.call(thisArg, v, iterations++, c) === false) {
         return false;
       }
-    });
+    }, null, reverseIndices);
   }
 
+  // This is equivalent to values(reverse(x)) and takes advantage of the fact that
+  // these two functions are commutative.
   reverseIterate(
     fn: (value?: V, index?: number, collection?: C) => any, // false or undefined
-    thisArg?: any
+    thisArg?: any,
+    maintainIndices?: boolean
   ): boolean {
     var iterations = 0;
     return this.iterator.reverseIterate(function (v, k, c) {
       if (fn.call(thisArg, v, iterations++, c) === false) {
         return false;
       }
-    });
+    }, null, maintainIndices);
   }
 }
 
@@ -215,7 +253,8 @@ class MapIterator<V, V2, C> extends OrderedLazyIterable<V2, C> {
 
   iterate(
     fn: (value?: V2, index?: number, collection?: C) => any, // false or undefined
-    thisArg?: any
+    thisArg?: any,
+    reverseIndices?: boolean
   ): boolean {
     var map = this.mapper;
     var mapThisArg = this.mapThisArg;
@@ -223,12 +262,15 @@ class MapIterator<V, V2, C> extends OrderedLazyIterable<V2, C> {
       if (fn.call(thisArg, map.call(mapThisArg, v, k, c), k, c) === false) {
         return false;
       }
-    });
+    }, null, reverseIndices);
   }
 
+  // This is equivalent to map(reverse(x)) and takes advantage of the fact that
+  // these two functions are commutative.
   reverseIterate(
     fn: (value?: V2, index?: number, collection?: C) => any, // false or undefined
-    thisArg?: any
+    thisArg?: any,
+    maintainIndices?: boolean
   ): boolean {
     var map = this.mapper;
     var mapThisArg = this.mapThisArg;
@@ -236,7 +278,7 @@ class MapIterator<V, V2, C> extends OrderedLazyIterable<V2, C> {
       if (fn.call(thisArg, map.call(mapThisArg, v, k, c), k, c) === false) {
         return false;
       }
-    });
+    }, null, maintainIndices);
   }
 }
 
@@ -249,7 +291,8 @@ class FilterIterator<V, C> extends OrderedLazyIterable<V, C> {
 
   iterate(
     fn: (value?: V, index?: number, collection?: C) => any, // false or undefined
-    thisArg?: any
+    thisArg?: any,
+    reverseIndices?: boolean
   ): boolean {
     var predicate = this.predicate;
     var predicateThisArg = this.predicateThisArg;
@@ -259,12 +302,15 @@ class FilterIterator<V, C> extends OrderedLazyIterable<V, C> {
           fn.call(thisArg, v, iterations++, c) === false) {
         return false;
       }
-    });
+    }, null, reverseIndices);
   }
 
+  // This is equivalent to filter(reverse(x)) and takes advantage of the fact that
+  // these two functions are commutative.
   reverseIterate(
     fn: (value?: V, index?: number, collection?: C) => any, // false or undefined
-    thisArg?: any
+    thisArg?: any,
+    maintainIndices?: boolean
   ): boolean {
     var predicate = this.predicate;
     var predicateThisArg = this.predicateThisArg;
@@ -274,7 +320,7 @@ class FilterIterator<V, C> extends OrderedLazyIterable<V, C> {
           fn.call(thisArg, v, iterations++, c) === false) {
         return false;
       }
-    });
+    }, null, maintainIndices);
   }
 }
 
@@ -287,7 +333,8 @@ class TakeIterator<V, C> extends OrderedLazyIterable<V, C> {
 
   iterate(
     fn: (value?: V, index?: number, collection?: C) => any, // false or undefined
-    thisArg?: any
+    thisArg?: any,
+    reverseIndices?: boolean
   ): boolean {
     var predicate = this.predicate;
     var predicateThisArg = this.predicateThisArg;
@@ -296,22 +343,11 @@ class TakeIterator<V, C> extends OrderedLazyIterable<V, C> {
           fn.call(thisArg, v, k, c) === false) {
         return false;
       }
-    });
+    }, null, reverseIndices);
   }
 
-  reverseIterate(
-    fn: (value?: V, index?: number, collection?: C) => any, // false or undefined
-    thisArg?: any
-  ): boolean {
-    var predicate = this.predicate;
-    var predicateThisArg = this.predicateThisArg;
-    return this.iterator.reverseIterate(function (v, k, c) {
-      if (!predicate.call(predicateThisArg, v, k, c) ||
-          fn.call(thisArg, v, k, c) === false) {
-        return false;
-      }
-    });
-  }
+  // Use default impl for reverseIterate because reverse(take(x)) and
+  // take(reverse(x)) are not communtative.
 }
 
 class SkipIterator<V, C> extends OrderedLazyIterable<V, C> {
@@ -323,7 +359,8 @@ class SkipIterator<V, C> extends OrderedLazyIterable<V, C> {
 
   iterate(
     fn: (value?: V, index?: number, collection?: C) => any, // false or undefined
-    thisArg?: any
+    thisArg?: any,
+    reverseIndices?: boolean
   ): boolean {
     var predicate = this.predicate;
     var predicateThisArg = this.predicateThisArg;
@@ -334,24 +371,11 @@ class SkipIterator<V, C> extends OrderedLazyIterable<V, C> {
       if (!isSkipping && fn.call(thisArg, v, iterations++, c) === false) {
         return false;
       }
-    });
+    }, null, reverseIndices);
   }
 
-  reverseIterate(
-    fn: (value?: V, index?: number, collection?: C) => any, // false or undefined
-    thisArg?: any
-  ): boolean {
-    var predicate = this.predicate;
-    var predicateThisArg = this.predicateThisArg;
-    var iterations = 0;
-    var isSkipping = true;
-    return this.iterator.reverseIterate(function (v, k, c) {
-      isSkipping = isSkipping && predicate.call(predicateThisArg, v, k, c);
-      if (!isSkipping && fn.call(thisArg, v, iterations++, c) === false) {
-        return false;
-      }
-    });
-  }
+  // Use default impl for reverseIterate because reverse(skip(x)) and
+  // skip(reverse(x)) are not communtative.
 }
 
 export = OrderedLazyIterable;

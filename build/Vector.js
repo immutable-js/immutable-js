@@ -40,6 +40,22 @@ var Vector = (function (_super) {
         return vect.asPersistent();
     };
 
+    // TODO: generalize and apply to Set and Map
+    Vector.prototype.toString = function () {
+        var string = '[ ';
+        for (var ii = 0; ii < this.length; ii++) {
+            var value = this.get(ii, __SENTINEL);
+            if (value === __SENTINEL) {
+                // TODO: handle string case to properly wrap in "
+                string += value;
+            }
+            if (ii < this.length - 1) {
+                string += ', ';
+            }
+        }
+        string += ' ]';
+    };
+
     Vector.prototype.has = function (index) {
         return this.get(index, __SENTINEL) !== __SENTINEL;
     };
@@ -409,9 +425,9 @@ var Vector = (function (_super) {
         return (this._root.iterate(this, this._level, -this._origin, tailOffset - this._origin, fn, thisArg) && this._tail.iterate(this, 0, tailOffset - this._origin, this._size - this._origin, fn, thisArg));
     };
 
-    Vector.prototype.reverseIterate = function (fn, thisArg) {
+    Vector.prototype.reverseIterate = function (fn, thisArg, maintainIndices) {
         var tailOffset = getTailOffset(this._size);
-        return (this._tail.reverseIterate(this, 0, tailOffset - this._origin, this._size - this._origin, fn, thisArg) && this._root.reverseIterate(this, this._level, -this._origin, tailOffset - this._origin, fn, thisArg));
+        return (this._tail.reverseIterate(this, 0, tailOffset - this._origin, this._size - this._origin, fn, thisArg, maintainIndices) && this._root.reverseIterate(this, this._level, -this._origin, tailOffset - this._origin, fn, thisArg, maintainIndices));
     };
 
     // Override - set correct length before returning
@@ -497,12 +513,15 @@ var VNode = (function () {
         return new VNode(ownerID, this.array.slice());
     };
 
-    VNode.prototype.iterate = function (vector, level, offset, max, fn, thisArg) {
+    VNode.prototype.iterate = function (vector, level, offset, max, fn, thisArg, reverseIndices) {
         // Note using every() gets us a speed-up of 2x on modern JS VMs, but means
         // we cannot support IE8 without polyfill.
         if (level === 0) {
             return this.array.every(function (value, rawIndex) {
                 var index = rawIndex + offset;
+                if (reverseIndices) {
+                    index = vector.length - 1 - index;
+                }
                 return index < 0 || index >= max || fn.call(thisArg, value, index, vector) !== false;
             });
         }
@@ -514,11 +533,14 @@ var VNode = (function () {
         });
     };
 
-    VNode.prototype.reverseIterate = function (vector, level, offset, max, fn, thisArg) {
+    VNode.prototype.reverseIterate = function (vector, level, offset, max, fn, thisArg, maintainIndices) {
         if (level === 0) {
             for (var rawIndex = this.array.length - 1; rawIndex >= 0; rawIndex--) {
                 if (this.array.hasOwnProperty(rawIndex)) {
                     var index = rawIndex + offset;
+                    if (!maintainIndices) {
+                        index = vector.length - 1 - index;
+                    }
                     if (index >= 0 && index < max && fn.call(thisArg, this.array[rawIndex], index, vector) === false) {
                         return false;
                     }

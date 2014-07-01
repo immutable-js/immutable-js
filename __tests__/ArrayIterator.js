@@ -15,4 +15,13 @@ describe('ArrayIterator', function() {
     expect(r).toEqual(6);
   });
 
+  it('efficiently chains iteration methods', function() {
+    var i = new ArrayIterator('abcdefghijklmnopqrstuvwxyz'.split(''));
+    function studly(letter, index) {
+      return index % 2 === 0 ? letter : letter.toUpperCase();
+    }
+    var result = i.reverse().take(10).reverse().take(5).map(studly).toArray().join('');
+    expect(result).toBe('qRsTu');
+  });
+
 });

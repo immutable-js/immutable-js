@@ -12,5 +12,8 @@ TODO list:
   * README
   * Deep equality
   * toString
+  * add some of the ordered lazy fn to object.
+  * use ordered for lazy object? It's not numeric, but it IS ordered.
+    * reversed indices makes less sense there.
 
   * Play with ES6 specific features like iterator and proxy objects.

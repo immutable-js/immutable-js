@@ -12,22 +12,25 @@ var OrderedLazyIterable = (function (_super) {
     function OrderedLazyIterable() {
         _super.apply(this, arguments);
     }
-    /**
-    * Note: the default implementation of this needs to make an intermediate
-    * representation which may be inefficent. Concrete data structures should
-    * do better if possible.
-    */
-    OrderedLazyIterable.prototype.reverseIterate = function (fn, thisArg) {
-        var tempKV = [];
+    // overridden to add maintainIndices to the type.
+    OrderedLazyIterable.prototype.iterate = function (fn, thisArg, maintainIndices) {
+        throw new Error('Abstract method');
+    };
+
+    OrderedLazyIterable.prototype.reverseIterate = function (fn, thisArg, maintainIndices) {
+        /**
+        * Note: the default implementation of this needs to make an intermediate
+        * representation which may be inefficent or at worse infinite.
+        * Subclasses should do better if possible.
+        */
+        var temp = [];
         var collection;
-        this.iterate(function (v, k, c) {
-            if (!collection) {
-                collection = c;
-            }
-            tempKV.push([k, v]);
+        this.iterate(function (v, i, c) {
+            collection || (collection = c);
+            temp[i] = v;
         });
-        for (var ii = tempKV.length - 1; ii >= 0; ii--) {
-            if (fn.call(thisArg, tempKV[ii][1], tempKV[ii][0], collection) === false) {
+        for (var ii = temp.length - 1; ii >= 0; ii--) {
+            if (temp.hasOwnProperty(ii) && fn.call(thisArg, temp[ii], maintainIndices ? ii : temp.length - 1 - ii, collection) === false) {
                 return false;
             }
         }
@@ -47,8 +50,8 @@ var OrderedLazyIterable = (function (_super) {
         return require('./Vector').empty().merge(this);
     };
 
-    OrderedLazyIterable.prototype.reverse = function () {
-        return new ReverseIterator(this);
+    OrderedLazyIterable.prototype.reverse = function (maintainIndices) {
+        return new ReverseIterator(this, maintainIndices);
     };
 
     OrderedLazyIterable.prototype.keys = function () {
@@ -67,12 +70,20 @@ var OrderedLazyIterable = (function (_super) {
         }).values();
     };
 
-    OrderedLazyIterable.prototype.reduceRight = function (fn, initialReduction, thisArg) {
-        var reduction = initialReduction;
-        this.reverseIterate(function (v, k, c) {
-            reduction = fn.call(thisArg, reduction, v, k, c);
+    OrderedLazyIterable.prototype.first = function (fn, thisArg) {
+        var firstValue;
+        (fn ? this.filter(fn, thisArg) : this).take(1).forEach(function (v) {
+            return (firstValue = v);
         });
-        return reduction;
+        return firstValue;
+    };
+
+    OrderedLazyIterable.prototype.last = function (fn, thisArg) {
+        return this.reverse(true).first(fn, thisArg);
+    };
+
+    OrderedLazyIterable.prototype.reduceRight = function (fn, initialReduction, thisArg) {
+        return this.reverse(true).reduce(fn, initialReduction, thisArg);
     };
 
     OrderedLazyIterable.prototype.map = function (fn, thisArg) {
@@ -101,25 +112,11 @@ var OrderedLazyIterable = (function (_super) {
     };
 
     OrderedLazyIterable.prototype.findLast = function (fn, thisArg) {
-        var foundValue;
-        this.reverseIterate(function (v, k, c) {
-            if (fn.call(thisArg, v, k, c) === true) {
-                foundValue = v;
-                return false;
-            }
-        });
-        return foundValue;
+        return this.reverse(true).find(fn, thisArg);
     };
 
     OrderedLazyIterable.prototype.findLastIndex = function (fn, thisArg) {
-        var foundIndex = -1;
-        this.reverseIterate(function (v, k, c) {
-            if (fn.call(thisArg, v, k, c) === true) {
-                foundIndex = k;
-                return false;
-            }
-        });
-        return foundIndex;
+        return this.reverse(true).findIndex(fn, thisArg);
     };
 
     OrderedLazyIterable.prototype.take = function (amount) {
@@ -143,25 +140,43 @@ var OrderedLazyIterable = (function (_super) {
     OrderedLazyIterable.prototype.skipWhile = function (fn, thisArg) {
         return new SkipIterator(this, fn, thisArg);
     };
+
+    OrderedLazyIterable.prototype.takeUntil = function (fn, thisArg) {
+        return this.takeWhile(not(fn), thisArg);
+    };
+
+    OrderedLazyIterable.prototype.skipUntil = function (fn, thisArg) {
+        return this.skipWhile(not(fn), thisArg);
+    };
     return OrderedLazyIterable;
 })(LazyIterable);
 
+function not(fn) {
+    return function () {
+        return !fn.apply(this, arguments);
+    };
+}
+
 var ReverseIterator = (function (_super) {
     __extends(ReverseIterator, _super);
-    function ReverseIterator(iterator) {
+    function ReverseIterator(iterator, maintainIndices) {
         _super.call(this);
         this.iterator = iterator;
+        this.maintainIndices = maintainIndices;
     }
-    ReverseIterator.prototype.iterate = function (fn, thisArg) {
-        return this.iterator.reverseIterate(fn, thisArg);
+    ReverseIterator.prototype.iterate = function (fn, thisArg, reverseIndices) {
+        return this.iterator.reverseIterate(fn, thisArg, reverseIndices !== this.maintainIndices);
     };
 
-    ReverseIterator.prototype.reverseIterate = function (fn, thisArg) {
-        return this.iterator.iterate(fn, thisArg);
+    ReverseIterator.prototype.reverseIterate = function (fn, thisArg, maintainIndices) {
+        return this.iterator.iterate(fn, thisArg, maintainIndices !== this.maintainIndices);
     };
 
-    ReverseIterator.prototype.reverse = function () {
-        return this.iterator;
+    ReverseIterator.prototype.reverse = function (maintainIndices) {
+        if (maintainIndices === this.maintainIndices) {
+            return this.iterator;
+        }
+        return _super.prototype.reverse.call(this, maintainIndices);
     };
     return ReverseIterator;
 })(OrderedLazyIterable);
@@ -172,22 +187,24 @@ var ValueIterator = (function (_super) {
         _super.call(this);
         this.iterator = iterator;
     }
-    ValueIterator.prototype.iterate = function (fn, thisArg) {
+    ValueIterator.prototype.iterate = function (fn, thisArg, reverseIndices) {
         var iterations = 0;
         return this.iterator.iterate(function (v, k, c) {
             if (fn.call(thisArg, v, iterations++, c) === false) {
                 return false;
             }
-        });
+        }, null, reverseIndices);
     };
 
-    ValueIterator.prototype.reverseIterate = function (fn, thisArg) {
+    // This is equivalent to values(reverse(x)) and takes advantage of the fact that
+    // these two functions are commutative.
+    ValueIterator.prototype.reverseIterate = function (fn, thisArg, maintainIndices) {
         var iterations = 0;
         return this.iterator.reverseIterate(function (v, k, c) {
             if (fn.call(thisArg, v, iterations++, c) === false) {
                 return false;
             }
-        });
+        }, null, maintainIndices);
     };
     return ValueIterator;
 })(OrderedLazyIterable);
@@ -200,24 +217,26 @@ var MapIterator = (function (_super) {
         this.mapper = mapper;
         this.mapThisArg = mapThisArg;
     }
-    MapIterator.prototype.iterate = function (fn, thisArg) {
+    MapIterator.prototype.iterate = function (fn, thisArg, reverseIndices) {
         var map = this.mapper;
         var mapThisArg = this.mapThisArg;
         return this.iterator.iterate(function (v, k, c) {
             if (fn.call(thisArg, map.call(mapThisArg, v, k, c), k, c) === false) {
                 return false;
             }
-        });
+        }, null, reverseIndices);
     };
 
-    MapIterator.prototype.reverseIterate = function (fn, thisArg) {
+    // This is equivalent to map(reverse(x)) and takes advantage of the fact that
+    // these two functions are commutative.
+    MapIterator.prototype.reverseIterate = function (fn, thisArg, maintainIndices) {
         var map = this.mapper;
         var mapThisArg = this.mapThisArg;
         return this.iterator.reverseIterate(function (v, k, c) {
             if (fn.call(thisArg, map.call(mapThisArg, v, k, c), k, c) === false) {
                 return false;
             }
-        });
+        }, null, maintainIndices);
     };
     return MapIterator;
 })(OrderedLazyIterable);
@@ -230,7 +249,7 @@ var FilterIterator = (function (_super) {
         this.predicate = predicate;
         this.predicateThisArg = predicateThisArg;
     }
-    FilterIterator.prototype.iterate = function (fn, thisArg) {
+    FilterIterator.prototype.iterate = function (fn, thisArg, reverseIndices) {
         var predicate = this.predicate;
         var predicateThisArg = this.predicateThisArg;
         var iterations = 0;
@@ -238,10 +257,12 @@ var FilterIterator = (function (_super) {
             if (predicate.call(predicateThisArg, v, k, c) && fn.call(thisArg, v, iterations++, c) === false) {
                 return false;
             }
-        });
+        }, null, reverseIndices);
     };
 
-    FilterIterator.prototype.reverseIterate = function (fn, thisArg) {
+    // This is equivalent to filter(reverse(x)) and takes advantage of the fact that
+    // these two functions are commutative.
+    FilterIterator.prototype.reverseIterate = function (fn, thisArg, maintainIndices) {
         var predicate = this.predicate;
         var predicateThisArg = this.predicateThisArg;
         var iterations = 0;
@@ -249,7 +270,7 @@ var FilterIterator = (function (_super) {
             if (predicate.call(predicateThisArg, v, k, c) && fn.call(thisArg, v, iterations++, c) === false) {
                 return false;
             }
-        });
+        }, null, maintainIndices);
     };
     return FilterIterator;
 })(OrderedLazyIterable);
@@ -262,24 +283,14 @@ var TakeIterator = (function (_super) {
         this.predicate = predicate;
         this.predicateThisArg = predicateThisArg;
     }
-    TakeIterator.prototype.iterate = function (fn, thisArg) {
+    TakeIterator.prototype.iterate = function (fn, thisArg, reverseIndices) {
         var predicate = this.predicate;
         var predicateThisArg = this.predicateThisArg;
         return this.iterator.iterate(function (v, k, c) {
             if (!predicate.call(predicateThisArg, v, k, c) || fn.call(thisArg, v, k, c) === false) {
                 return false;
             }
-        });
-    };
-
-    TakeIterator.prototype.reverseIterate = function (fn, thisArg) {
-        var predicate = this.predicate;
-        var predicateThisArg = this.predicateThisArg;
-        return this.iterator.reverseIterate(function (v, k, c) {
-            if (!predicate.call(predicateThisArg, v, k, c) || fn.call(thisArg, v, k, c) === false) {
-                return false;
-            }
-        });
+        }, null, reverseIndices);
     };
     return TakeIterator;
 })(OrderedLazyIterable);
@@ -292,7 +303,7 @@ var SkipIterator = (function (_super) {
         this.predicate = predicate;
         this.predicateThisArg = predicateThisArg;
     }
-    SkipIterator.prototype.iterate = function (fn, thisArg) {
+    SkipIterator.prototype.iterate = function (fn, thisArg, reverseIndices) {
         var predicate = this.predicate;
         var predicateThisArg = this.predicateThisArg;
         var iterations = 0;
@@ -302,20 +313,7 @@ var SkipIterator = (function (_super) {
             if (!isSkipping && fn.call(thisArg, v, iterations++, c) === false) {
                 return false;
             }
-        });
-    };
-
-    SkipIterator.prototype.reverseIterate = function (fn, thisArg) {
-        var predicate = this.predicate;
-        var predicateThisArg = this.predicateThisArg;
-        var iterations = 0;
-        var isSkipping = true;
-        return this.iterator.reverseIterate(function (v, k, c) {
-            isSkipping = isSkipping && predicate.call(predicateThisArg, v, k, c);
-            if (!isSkipping && fn.call(thisArg, v, iterations++, c) === false) {
-                return false;
-            }
-        });
+        }, null, reverseIndices);
     };
     return SkipIterator;
 })(OrderedLazyIterable);
