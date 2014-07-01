@@ -1,12 +1,32 @@
 import IMap = require('./IMap');
 
+import LazyIterable = require('./LazyIterable');
 export import ArrayIterator = require('./ArrayIterator');
 export import ObjectIterator = require('./ObjectIterator');
 export import Map = require('./Map');
 export import Vector = require('./Vector');
 export import Set = require('./Set');
-export import Stack = require('./Stack');
-export import Range = require('./Range');
+
+export function isPersistent(value: any): boolean {
+  return value instanceof Map || value instanceof Vector || value instanceof Set;
+}
+
+export function isLazy(value: any): boolean {
+  return value instanceof LazyIterable;
+}
+
+export function lazy(value: any): any {
+  if (isLazy(value)) {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return new ArrayIterator(value);
+  }
+  if (typeof value === 'object') {
+    return new ObjectIterator(value);
+  }
+  return null;
+}
 
 export function fromJS(json: any): any {
   if (Array.isArray(json)) {

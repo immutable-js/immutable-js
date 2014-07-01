@@ -1,3 +1,4 @@
+var LazyIterable = require('./LazyIterable');
 var ArrayIterator = require('./ArrayIterator');
 exports.ArrayIterator = ArrayIterator;
 var ObjectIterator = require('./ObjectIterator');
@@ -8,10 +9,30 @@ var Vector = require('./Vector');
 exports.Vector = Vector;
 var Set = require('./Set');
 exports.Set = Set;
-var Stack = require('./Stack');
-exports.Stack = Stack;
-var Range = require('./Range');
-exports.Range = Range;
+
+function isPersistent(value) {
+    return value instanceof exports.Map || value instanceof exports.Vector || value instanceof exports.Set;
+}
+exports.isPersistent = isPersistent;
+
+function isLazy(value) {
+    return value instanceof LazyIterable;
+}
+exports.isLazy = isLazy;
+
+function lazy(value) {
+    if (exports.isLazy(value)) {
+        return value;
+    }
+    if (Array.isArray(value)) {
+        return new exports.ArrayIterator(value);
+    }
+    if (typeof value === 'object') {
+        return new exports.ObjectIterator(value);
+    }
+    return null;
+}
+exports.lazy = lazy;
 
 function fromJS(json) {
     if (Array.isArray(json)) {
@@ -42,6 +63,9 @@ function toJS(value) {
     }
     if (value instanceof exports.Map) {
         return value.map(exports.toJS).toObject();
+    }
+    if (value instanceof exports.Set) {
+        return value.map(exports.toJS).toArray();
     }
     return value;
 }
