@@ -13,10 +13,15 @@ declare class OrderedLazyIterable<V, C> extends LazyIterable<number, V, C> {
     public reverse(): OrderedLazyIterable<V, C>;
     public keys(): OrderedLazyIterable<number, C>;
     public values(): OrderedLazyIterable<V, C>;
+    public entries(): OrderedLazyIterable<any[], C>;
+    public reduceRight<R>(fn: (prevReduction?: R, value?: V, index?: number, collection?: C) => R, initialReduction?: R, thisArg?: any): R;
     public map<V2>(fn: (value?: V, index?: number, collection?: C) => V2, thisArg?: any): OrderedLazyIterable<V2, C>;
     public filter(fn: (value?: V, index?: number, collection?: C) => boolean, thisArg?: any): OrderedLazyIterable<V, C>;
     public indexOf(searchValue: V): number;
+    public lastIndexOf(searchValue: V): number;
     public findIndex(fn: (value?: V, index?: number, collection?: C) => boolean, thisArg?: any): number;
+    public findLast(fn: (value?: V, index?: number, collection?: C) => boolean, thisArg?: any): V;
+    public findLastIndex(fn: (value?: V, index?: number, collection?: C) => boolean, thisArg?: any): number;
     public take(amount: number): OrderedLazyIterable<V, C>;
     public skip(amount: number): OrderedLazyIterable<V, C>;
     public takeWhile(fn: (value?: V, index?: number, collection?: C) => boolean, thisArg?: any): OrderedLazyIterable<V, C>;

@@ -9,3 +9,4 @@ TODO list:
   * Convenience fn for lazy iterators from JS objects.
   * Consider OrderedMap and Set.
   * Performance testing! Preferably in node!
+  * README

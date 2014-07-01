@@ -9,8 +9,10 @@ declare class LazyIterable<K, V, C> {
     public toMap(): Map<K, V>;
     public keys(): LazyIterable<number, K, C>;
     public values(): LazyIterable<number, V, C>;
+    public entries(): LazyIterable<number, any[], C>;
     public forEach(fn: (value?: V, key?: K, collection?: C) => any, thisArg?: any): void;
-    public find(fn: (value?: V, key?: K, collection?: C) => boolean, thisArg?: any): K;
+    public find(fn: (value?: V, key?: K, collection?: C) => boolean, thisArg?: any): V;
+    public findKey(fn: (value?: V, key?: K, collection?: C) => boolean, thisArg?: any): K;
     public reduce<R>(fn: (prevReduction?: R, value?: V, key?: K, collection?: C) => R, initialReduction?: R, thisArg?: any): R;
     public flip(): LazyIterable<V, K, C>;
     public map<V2>(fn: (value?: V, key?: K, collection?: C) => V2, thisArg?: any): LazyIterable<K, V2, C>;

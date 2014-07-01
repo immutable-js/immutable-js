@@ -187,6 +187,16 @@ describe('Vector', function() {
     expect(r).toEqual(111);
   });
 
+  it('reduces from the right', function() {
+    var v = Vector('a','b','c');
+
+    var r = v.reduceRight(function (prev, next) {
+      return prev + next;
+    }, '');
+
+    expect(r).toEqual('cba');
+  });
+
   it('takes and skips values', function() {
     var v = Vector('a', 'b', 'c', 'd', 'e', 'f');
 

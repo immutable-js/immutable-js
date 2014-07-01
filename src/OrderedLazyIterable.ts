@@ -53,6 +53,22 @@ class OrderedLazyIterable<V, C> extends LazyIterable<number, V, C> {
     return new ValueIterator(this);
   }
 
+  entries(): OrderedLazyIterable<Array<any>, C> { // OrderedLazyIterable<<K,V>, C>
+    return this.map<Array<any>>((v, k) => [k,v]).values();
+  }
+
+  reduceRight<R>(
+    fn: (prevReduction?: R, value?: V, index?: number, collection?: C) => R,
+    initialReduction?: R,
+    thisArg?: any
+  ): R {
+    var reduction = initialReduction;
+    this.reverseIterate(function (v, k, c) {
+      reduction = fn.call(thisArg, reduction, v, k, c);
+    });
+    return reduction;
+  }
+
   map<V2>(
     fn: (value?: V, index?: number, collection?: C) => V2,
     thisArg?: any
@@ -71,12 +87,44 @@ class OrderedLazyIterable<V, C> extends LazyIterable<number, V, C> {
     return this.findIndex(value => value === searchValue);
   }
 
+  lastIndexOf(searchValue: V): number {
+    return this.findLastIndex(value => value === searchValue);
+  }
+
   findIndex(
     fn: (value?: V, index?: number, collection?: C) => boolean,
     thisArg?: any
   ): number {
-    var index = this.find(fn, thisArg);
-    return index == null ? -1 : index;
+    var key = this.findKey(fn, thisArg);
+    return key == null ? -1 : key;
+  }
+
+  findLast(
+    fn: (value?: V, index?: number, collection?: C) => boolean,
+    thisArg?: any
+  ): V {
+    var foundValue: V;
+    this.reverseIterate(function (v, k, c) {
+      if (fn.call(thisArg, v, k, c) === true) {
+        foundValue = v;
+        return false;
+      }
+    });
+    return foundValue;
+  }
+
+  findLastIndex(
+    fn: (value?: V, index?: number, collection?: C) => boolean,
+    thisArg?: any
+  ): number {
+    var foundIndex: number = -1;
+    this.reverseIterate(function (v, k, c) {
+      if (fn.call(thisArg, v, k, c) === true) {
+        foundIndex = k;
+        return false;
+      }
+    });
+    return foundIndex;
   }
 
   take(amount: number): OrderedLazyIterable<V, C> {

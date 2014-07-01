@@ -61,6 +61,20 @@ var OrderedLazyIterable = (function (_super) {
         return new ValueIterator(this);
     };
 
+    OrderedLazyIterable.prototype.entries = function () {
+        return this.map(function (v, k) {
+            return [k, v];
+        }).values();
+    };
+
+    OrderedLazyIterable.prototype.reduceRight = function (fn, initialReduction, thisArg) {
+        var reduction = initialReduction;
+        this.reverseIterate(function (v, k, c) {
+            reduction = fn.call(thisArg, reduction, v, k, c);
+        });
+        return reduction;
+    };
+
     OrderedLazyIterable.prototype.map = function (fn, thisArg) {
         return new MapIterator(this, fn, thisArg);
     };
@@ -75,9 +89,37 @@ var OrderedLazyIterable = (function (_super) {
         });
     };
 
+    OrderedLazyIterable.prototype.lastIndexOf = function (searchValue) {
+        return this.findLastIndex(function (value) {
+            return value === searchValue;
+        });
+    };
+
     OrderedLazyIterable.prototype.findIndex = function (fn, thisArg) {
-        var index = this.find(fn, thisArg);
-        return index == null ? -1 : index;
+        var key = this.findKey(fn, thisArg);
+        return key == null ? -1 : key;
+    };
+
+    OrderedLazyIterable.prototype.findLast = function (fn, thisArg) {
+        var foundValue;
+        this.reverseIterate(function (v, k, c) {
+            if (fn.call(thisArg, v, k, c) === true) {
+                foundValue = v;
+                return false;
+            }
+        });
+        return foundValue;
+    };
+
+    OrderedLazyIterable.prototype.findLastIndex = function (fn, thisArg) {
+        var foundIndex = -1;
+        this.reverseIterate(function (v, k, c) {
+            if (fn.call(thisArg, v, k, c) === true) {
+                foundIndex = k;
+                return false;
+            }
+        });
+        return foundIndex;
     };
 
     OrderedLazyIterable.prototype.take = function (amount) {

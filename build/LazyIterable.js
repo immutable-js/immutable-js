@@ -51,6 +51,12 @@ var LazyIterable = (function () {
         return new ValueIterator(this);
     };
 
+    LazyIterable.prototype.entries = function () {
+        return this.map(function (v, k) {
+            return [k, v];
+        }).values();
+    };
+
     LazyIterable.prototype.forEach = function (fn, thisArg) {
         this.iterate(function (v, k, c) {
             fn.call(thisArg, v, k, c);
@@ -58,6 +64,17 @@ var LazyIterable = (function () {
     };
 
     LazyIterable.prototype.find = function (fn, thisArg) {
+        var foundValue;
+        this.iterate(function (v, k, c) {
+            if (fn.call(thisArg, v, k, c) === true) {
+                foundValue = v;
+                return false;
+            }
+        });
+        return foundValue;
+    };
+
+    LazyIterable.prototype.findKey = function (fn, thisArg) {
         var foundKey;
         this.iterate(function (v, k, c) {
             if (fn.call(thisArg, v, k, c) === true) {

@@ -48,6 +48,10 @@ class LazyIterable<K, V, C> {
     return new ValueIterator(this);
   }
 
+  entries(): LazyIterable<number, Array<any>, C> { // LazyIterable<number, <K,V>, C>
+    return this.map<Array<any>>((v, k) => [k,v]).values();
+  }
+
   forEach(
     fn: (value?: V, key?: K, collection?: C) => any,
     thisArg?: any
@@ -58,6 +62,20 @@ class LazyIterable<K, V, C> {
   }
 
   find(
+    fn: (value?: V, key?: K, collection?: C) => boolean,
+    thisArg?: any
+  ): V {
+    var foundValue: V;
+    this.iterate(function (v, k, c) {
+      if (fn.call(thisArg, v, k, c) === true) {
+        foundValue = v;
+        return false;
+      }
+    });
+    return foundValue;
+  }
+
+  findKey(
     fn: (value?: V, key?: K, collection?: C) => boolean,
     thisArg?: any
   ): K {
