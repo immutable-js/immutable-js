@@ -79,6 +79,7 @@ class Vector<T> extends OrderedLazyIterable<T, Vector<T>> implements IList<T>, I
 
   // @pragma Modification
 
+  // ES6 Map calls this "clear"
   empty(): Vector<T> {
     if (this._ownerID) {
       this.length = this._origin = this._size = 0;

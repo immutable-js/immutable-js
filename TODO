@@ -10,3 +10,7 @@ TODO list:
   * Consider OrderedMap and Set.
   * Performance testing! Preferably in node!
   * README
+  * Deep equality
+  * toString
+
+  * Play with ES6 specific features like iterator and proxy objects.

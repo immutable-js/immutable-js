@@ -1,12 +1,14 @@
 /// <reference path="../src/node.d.ts" />
 import Vector = require('./Vector');
 import Map = require('./Map');
+import Set = require('./Set');
 declare class LazyIterable<K, V, C> {
     public iterate(fn: (value?: V, key?: K, collection?: C) => any, thisArg?: any): boolean;
     public toArray(): V[];
     public toObject(): Object;
     public toVector(): Vector<V>;
     public toMap(): Map<K, V>;
+    public toSet(): Set<V>;
     public keys(): LazyIterable<number, K, C>;
     public values(): LazyIterable<number, V, C>;
     public entries(): LazyIterable<number, any[], C>;

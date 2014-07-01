@@ -78,6 +78,7 @@ var Vector = (function (_super) {
     };
 
     // @pragma Modification
+    // ES6 Map calls this "clear"
     Vector.prototype.empty = function () {
         if (this._ownerID) {
             this.length = this._origin = this._size = 0;

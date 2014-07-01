@@ -4,6 +4,7 @@ export import ArrayIterator = require('./ArrayIterator');
 export import ObjectIterator = require('./ObjectIterator');
 export import Map = require('./Map');
 export import Vector = require('./Vector');
+export import Set = require('./Set');
 export import Stack = require('./Stack');
 export import Range = require('./Range');
 
@@ -35,6 +36,9 @@ export function toJS(value: any): any {
   }
   if (value instanceof Map) {
     return value.map(toJS).toObject();
+  }
+  if (value instanceof Set) {
+    return value.map(toJS).toArray();
   }
   return value;
 }

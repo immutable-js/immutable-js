@@ -1,6 +1,7 @@
 ///<reference path='./node.d.ts'/>
 import Vector = require('./Vector'); // for Type info
 import Map = require('./Map'); // for Type info
+import Set = require('./Set'); // for Type info
 
 class LazyIterable<K, V, C> {
   iterate(
@@ -38,6 +39,11 @@ class LazyIterable<K, V, C> {
   toMap(): Map<K, V> {
     // Use Late Binding here to solve the circular dependency.
     return require('./Map').empty().merge(this);
+  }
+
+  toSet(): Set<V> {
+    // Use Late Binding here to solve the circular dependency.
+    return require('./Set').empty().merge(this);
   }
 
   keys(): LazyIterable<number, K, C> {

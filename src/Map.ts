@@ -137,7 +137,7 @@ class Map<K, V> extends LazyIterable<K, V, Map<K, V>> implements IMap<K, V> {
   merge(seq: LazyIterable<K, V, any>): Map<K, V> {
     var newMap = this.asTransient();
     seq.iterate((value, key) => newMap.set(key, value));
-    return newMap.asPersistent();
+    return this.isTransient() ? newMap : newMap.asPersistent();
   }
 
   // @pragma Mutability
@@ -434,9 +434,11 @@ function hashValue(o: any): number {
   throw new Error('Unable to hash');
 }
 
+// http://jsperf.com/string-hash-to-int
 function hashString(string: string): number {
   var hash = STRING_HASH_CACHE[string];
   if (hash == null) {
+    // This is the hash from JVM
     // The hash code for a string is computed as
     // s[0] * 31 ^ (n - 1) + s[1] * 31 ^ (n - 2) + ... + s[n - 1],
     // where s[i] is the ith character of the string and n is the length of

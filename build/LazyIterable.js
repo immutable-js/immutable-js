@@ -41,6 +41,11 @@ var LazyIterable = (function () {
         return require('./Map').empty().merge(this);
     };
 
+    LazyIterable.prototype.toSet = function () {
+        // Use Late Binding here to solve the circular dependency.
+        return require('./Set').empty().merge(this);
+    };
+
     LazyIterable.prototype.keys = function () {
         return this.map(function (v, k) {
             return k;
