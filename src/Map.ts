@@ -1,11 +1,11 @@
-import Iterable = require('./Iterable');
+import LazyIterable = require('./LazyIterable');
 import IMap = require('./IMap');
 
 function invariant(condition: any, error: string): void {
   if (!condition) throw new Error(error);
 }
 
-class Map<K, V> extends Iterable<K, V, Map<K, V>> implements IMap<K, V> {
+class Map<K, V> extends LazyIterable<K, V, Map<K, V>> implements IMap<K, V> {
 
   // @pragma Construction
 
@@ -13,7 +13,7 @@ class Map<K, V> extends Iterable<K, V, Map<K, V>> implements IMap<K, V> {
     if (!obj) {
       return Map.empty();
     }
-    return <Map<K,V>>(<any>Map.fromObj(obj));
+    return <Map<K, V>>(<any>Map.fromObj(obj));
     super();
   }
 
@@ -34,15 +34,24 @@ class Map<K, V> extends Iterable<K, V, Map<K, V>> implements IMap<K, V> {
   public length: number;
 
   has(k: K): boolean {
-    if (k == null || this._root == null) {
-      return false;
-    }
-    return this._root.get(0, hashValue(k), k, <V>__SENTINEL) !== __SENTINEL;
+    return this.get(k, <V>__SENTINEL) !== __SENTINEL;
   }
 
-  get(k: K): V {
-    if (k != null && this._root) {
-      return this._root.get(0, hashValue(k), k);
+  get(k: K, undefinedValue?: V): V {
+    if (k == null || this._root == null) {
+      return undefinedValue;
+    }
+    return this._root.get(0, hashValue(k), k, undefinedValue);
+  }
+
+  getIn(keyPath: Array<any>, pathOffset?: number): any {
+    pathOffset = pathOffset || 0;
+    var nested = this.get(keyPath[pathOffset]);
+    if (pathOffset === keyPath.length - 1) {
+      return nested;
+    }
+    if (nested && (<any>nested).getIn) {
+      return (<any>nested).getIn(keyPath, pathOffset + 1);
     }
   }
 
@@ -79,6 +88,23 @@ class Map<K, V> extends Iterable<K, V, Map<K, V>> implements IMap<K, V> {
     return newRoot === this._root ? this : Map._make(newLength, newRoot);
   }
 
+  setIn(keyPath: Array<any>, v: any, pathOffset?: number): Map<K, V> {
+    pathOffset = pathOffset || 0;
+    if (pathOffset === keyPath.length - 1) {
+      return this.set(keyPath[pathOffset], v);
+    }
+    var k = keyPath[pathOffset];
+    var nested = <IMap<any, any>>(<any>this.get(k, <V>__SENTINEL));
+    if (nested === __SENTINEL || !nested.setIn) {
+      if (typeof k === 'number') {
+        nested = require('./Vector').empty();
+      } else {
+        nested = Map.empty();
+      }
+    }
+    return this.set(k, <V><any>nested.setIn(keyPath, v, pathOffset + 1));
+  }
+
   delete(k: K): Map<K, V> {
     if (k == null || this._root == null) {
       return this;
@@ -93,9 +119,22 @@ class Map<K, V> extends Iterable<K, V, Map<K, V>> implements IMap<K, V> {
     return !newRoot ? Map.empty() : newRoot === this._root ? this : Map._make(this.length - 1, newRoot);
   }
 
+  deleteIn(keyPath: Array<any>, pathOffset?: number): Map<K, V> {
+    pathOffset = pathOffset || 0;
+    if (pathOffset === keyPath.length - 1) {
+      return this.delete(keyPath[pathOffset]);
+    }
+    var k = keyPath[pathOffset];
+    var nested = <IMap<any, any>>(<any>this.get(k));
+    if (!nested || !nested.deleteIn) {
+      return this;
+    }
+    return this.set(k, <V><any>nested.deleteIn(keyPath, pathOffset + 1));
+  }
+
   // @pragma Composition
 
-  merge(seq: Iterable<K, V, any>): Map<K, V> {
+  merge(seq: LazyIterable<K, V, any>): Map<K, V> {
     var newMap = this.asTransient();
     seq.iterate((value, key) => newMap.set(key, value));
     return newMap.asPersistent();
@@ -126,7 +165,7 @@ class Map<K, V> extends Iterable<K, V, Map<K, V>> implements IMap<K, V> {
     fn: (value?: V, key?: K, collection?: Map<K, V>) => any, // false or undefined
     thisArg?: any
   ): boolean {
-    return this._root && this._root.iterate(this, fn, thisArg);
+    return this._root ? this._root.iterate(this, fn, thisArg) : true;
   }
 
   // @pragma Private
@@ -151,7 +190,6 @@ class OwnerID {
 
 interface MNode<K, V> {
   ownerID: OwnerID;
-  // TODO: separate Key and Value arrays will make all the math easier to read
   get(shift: number, hash: number, key: K, notFound?: V): V;
   set(ownerID: OwnerID, shift: number, hash: number, key: K, value: V, didAddLeaf?: BoolRef): MNode<K, V>;
   delete(ownerID: OwnerID, shift: number, hash: number, key: K, didRemoveLeaf?: BoolRef): MNode<K, V>;

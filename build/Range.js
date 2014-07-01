@@ -4,7 +4,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var OrderedIterable = require('./OrderedIterable');
+var OrderedLazyIterable = require('./OrderedLazyIterable');
 
 function invariant(condition, error) {
     if (!condition)
@@ -73,6 +73,17 @@ var Range = (function (_super) {
         return true;
     };
 
+    Range.prototype.reverseIterate = function (fn, thisArg) {
+        var value = this.start + (this.length - 1) * this.step;
+        for (var ii = this.length - 1; ii >= 0; ii--) {
+            if (fn.call(thisArg, value, ii, this) === false) {
+                return false;
+            }
+            value -= this.step;
+        }
+        return true;
+    };
+
     // Override - indexOf does not require iteration
     Range.prototype.indexOf = function (searchValue) {
         var offsetValue = searchValue - this.start;
@@ -91,7 +102,7 @@ var Range = (function (_super) {
         return _super.prototype.toArray.call(this);
     };
     return Range;
-})(OrderedIterable);
+})(OrderedLazyIterable);
 
 module.exports = Range;
 //# sourceMappingURL=Range.js.map

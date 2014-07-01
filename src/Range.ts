@@ -1,4 +1,4 @@
-import OrderedIterable = require('./OrderedIterable');
+import OrderedLazyIterable = require('./OrderedLazyIterable');
 import IList = require('./IList');
 
 function invariant(condition: boolean, error: string): void {
@@ -11,7 +11,7 @@ function invariant(condition: boolean, error: string): void {
  * infinity. When step is equal to 0, returns an infinite sequence of
  * start. When start is equal to end, returns empty list.
  */
-class Range extends OrderedIterable<number, Range> implements IList<number> {
+class Range extends OrderedLazyIterable<number, Range> implements IList<number> {
   start: number;
   end: number;
   step: number;
@@ -77,6 +77,20 @@ class Range extends OrderedIterable<number, Range> implements IList<number> {
         return false;
       }
       value += this.step;
+    }
+    return true;
+  }
+
+  reverseIterate(
+    fn: (value?: number, index?: number, range?: Range) => any, // false or undefined
+    thisArg?: any
+  ): boolean {
+    var value = this.start + (this.length - 1) * this.step;
+    for (var ii = this.length - 1; ii >= 0; ii--) {
+      if (fn.call(thisArg, value, ii, this) === false) {
+        return false;
+      }
+      value -= this.step;
     }
     return true;
   }

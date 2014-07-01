@@ -4,7 +4,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var Iterable = require('./Iterable');
+var LazyIterable = require('./LazyIterable');
 
 function invariant(condition, error) {
     if (!condition)
@@ -35,15 +35,24 @@ var Map = (function (_super) {
     };
 
     Map.prototype.has = function (k) {
-        if (k == null || this._root == null) {
-            return false;
-        }
-        return this._root.get(0, hashValue(k), k, __SENTINEL) !== __SENTINEL;
+        return this.get(k, __SENTINEL) !== __SENTINEL;
     };
 
-    Map.prototype.get = function (k) {
-        if (k != null && this._root) {
-            return this._root.get(0, hashValue(k), k);
+    Map.prototype.get = function (k, undefinedValue) {
+        if (k == null || this._root == null) {
+            return undefinedValue;
+        }
+        return this._root.get(0, hashValue(k), k, undefinedValue);
+    };
+
+    Map.prototype.getIn = function (keyPath, pathOffset) {
+        pathOffset = pathOffset || 0;
+        var nested = this.get(keyPath[pathOffset]);
+        if (pathOffset === keyPath.length - 1) {
+            return nested;
+        }
+        if (nested && nested.getIn) {
+            return nested.getIn(keyPath, pathOffset + 1);
         }
     };
 
@@ -79,6 +88,23 @@ var Map = (function (_super) {
         return newRoot === this._root ? this : Map._make(newLength, newRoot);
     };
 
+    Map.prototype.setIn = function (keyPath, v, pathOffset) {
+        pathOffset = pathOffset || 0;
+        if (pathOffset === keyPath.length - 1) {
+            return this.set(keyPath[pathOffset], v);
+        }
+        var k = keyPath[pathOffset];
+        var nested = this.get(k, __SENTINEL);
+        if (nested === __SENTINEL || !nested.setIn) {
+            if (typeof k === 'number') {
+                nested = require('./Vector').empty();
+            } else {
+                nested = Map.empty();
+            }
+        }
+        return this.set(k, nested.setIn(keyPath, v, pathOffset + 1));
+    };
+
     Map.prototype.delete = function (k) {
         if (k == null || this._root == null) {
             return this;
@@ -91,6 +117,19 @@ var Map = (function (_super) {
         }
         var newRoot = this._root.delete(this._ownerID, 0, hashValue(k), k);
         return !newRoot ? Map.empty() : newRoot === this._root ? this : Map._make(this.length - 1, newRoot);
+    };
+
+    Map.prototype.deleteIn = function (keyPath, pathOffset) {
+        pathOffset = pathOffset || 0;
+        if (pathOffset === keyPath.length - 1) {
+            return this.delete(keyPath[pathOffset]);
+        }
+        var k = keyPath[pathOffset];
+        var nested = this.get(k);
+        if (!nested || !nested.deleteIn) {
+            return this;
+        }
+        return this.set(k, nested.deleteIn(keyPath, pathOffset + 1));
     };
 
     // @pragma Composition
@@ -122,7 +161,7 @@ var Map = (function (_super) {
 
     // @pragma Iteration
     Map.prototype.iterate = function (fn, thisArg) {
-        return this._root && this._root.iterate(this, fn, thisArg);
+        return this._root ? this._root.iterate(this, fn, thisArg) : true;
     };
 
     Map._make = function (length, root, ownerID) {
@@ -133,7 +172,7 @@ var Map = (function (_super) {
         return map;
     };
     return Map;
-})(Iterable);
+})(LazyIterable);
 
 var OwnerID = (function () {
     function OwnerID() {

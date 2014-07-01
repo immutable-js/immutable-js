@@ -4,14 +4,14 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var Iterable = (function () {
-    function Iterable() {
+var LazyIterable = (function () {
+    function LazyIterable() {
     }
-    Iterable.prototype.iterate = function (fn, thisArg) {
+    LazyIterable.prototype.iterate = function (fn, thisArg) {
         throw new Error('Abstract method');
     };
 
-    Iterable.prototype.toArray = function () {
+    LazyIterable.prototype.toArray = function () {
         var array = [];
         this.iterate(function (v) {
             array.push(v);
@@ -19,7 +19,7 @@ var Iterable = (function () {
         return array;
     };
 
-    Iterable.prototype.toObject = function () {
+    LazyIterable.prototype.toObject = function () {
         var object = {};
         this.iterate(function (v, k) {
             object[k] = v;
@@ -27,7 +27,7 @@ var Iterable = (function () {
         return object;
     };
 
-    Iterable.prototype.toVector = function () {
+    LazyIterable.prototype.toVector = function () {
         // Use Late Binding here to solve the circular dependency.
         var vect = require('./Vector').empty().asTransient();
         this.iterate(function (v) {
@@ -36,24 +36,24 @@ var Iterable = (function () {
         return vect.asPersistent();
     };
 
-    Iterable.prototype.toMap = function () {
+    LazyIterable.prototype.toMap = function () {
         // Use Late Binding here to solve the circular dependency.
         return require('./Map').empty().merge(this);
     };
 
-    Iterable.prototype.keys = function () {
+    LazyIterable.prototype.keys = function () {
         return this.map(function (v, k) {
             return k;
         });
     };
 
-    Iterable.prototype.forEach = function (fn, thisArg) {
+    LazyIterable.prototype.forEach = function (fn, thisArg) {
         this.iterate(function (v, k, c) {
             fn.call(thisArg, v, k, c);
         });
     };
 
-    Iterable.prototype.find = function (fn, thisArg) {
+    LazyIterable.prototype.find = function (fn, thisArg) {
         var foundKey;
         this.iterate(function (v, k, c) {
             if (fn.call(thisArg, v, k, c) === true) {
@@ -64,7 +64,7 @@ var Iterable = (function () {
         return foundKey;
     };
 
-    Iterable.prototype.reduce = function (fn, initialReduction, thisArg) {
+    LazyIterable.prototype.reduce = function (fn, initialReduction, thisArg) {
         var reduction = initialReduction;
         this.iterate(function (v, k, c) {
             reduction = fn.call(thisArg, reduction, v, k, c);
@@ -72,15 +72,19 @@ var Iterable = (function () {
         return reduction;
     };
 
-    Iterable.prototype.map = function (fn, thisArg) {
+    LazyIterable.prototype.flip = function () {
+        return new FlipIterator(this);
+    };
+
+    LazyIterable.prototype.map = function (fn, thisArg) {
         return new MapIterator(this, fn, thisArg);
     };
 
-    Iterable.prototype.filter = function (fn, thisArg) {
+    LazyIterable.prototype.filter = function (fn, thisArg) {
         return new FilterIterator(this, fn, thisArg);
     };
 
-    Iterable.prototype.every = function (fn, thisArg) {
+    LazyIterable.prototype.every = function (fn, thisArg) {
         var every = true;
         this.iterate(function (v, k, c) {
             if (!fn.call(thisArg, v, k, c)) {
@@ -91,7 +95,7 @@ var Iterable = (function () {
         return every;
     };
 
-    Iterable.prototype.some = function (fn, thisArg) {
+    LazyIterable.prototype.some = function (fn, thisArg) {
         var some = false;
         this.iterate(function (v, k, c) {
             if (fn.call(thisArg, v, k, c)) {
@@ -101,8 +105,24 @@ var Iterable = (function () {
         });
         return some;
     };
-    return Iterable;
+    return LazyIterable;
 })();
+
+var FlipIterator = (function (_super) {
+    __extends(FlipIterator, _super);
+    function FlipIterator(iterator) {
+        _super.call(this);
+        this.iterator = iterator;
+    }
+    FlipIterator.prototype.iterate = function (fn, thisArg) {
+        return this.iterator.iterate(function (v, k, c) {
+            if (fn.call(thisArg, k, v, c) === false) {
+                return false;
+            }
+        });
+    };
+    return FlipIterator;
+})(LazyIterable);
 
 var MapIterator = (function (_super) {
     __extends(MapIterator, _super);
@@ -122,7 +142,7 @@ var MapIterator = (function (_super) {
         });
     };
     return MapIterator;
-})(Iterable);
+})(LazyIterable);
 
 var FilterIterator = (function (_super) {
     __extends(FilterIterator, _super);
@@ -142,7 +162,7 @@ var FilterIterator = (function (_super) {
         });
     };
     return FilterIterator;
-})(Iterable);
+})(LazyIterable);
 
-module.exports = Iterable;
-//# sourceMappingURL=Iterable.js.map
+module.exports = LazyIterable;
+//# sourceMappingURL=LazyIterable.js.map

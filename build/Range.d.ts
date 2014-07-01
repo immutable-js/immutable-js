@@ -1,4 +1,4 @@
-import OrderedIterable = require('./OrderedIterable');
+import OrderedLazyIterable = require('./OrderedLazyIterable');
 import IList = require('./IList');
 /**
 * Returns a lazy seq of nums from start (inclusive) to end
@@ -6,7 +6,7 @@ import IList = require('./IList');
 * infinity. When step is equal to 0, returns an infinite sequence of
 * start. When start is equal to end, returns empty list.
 */
-declare class Range extends OrderedIterable<number, Range> implements IList<number> {
+declare class Range extends OrderedLazyIterable<number, Range> implements IList<number> {
     public start: number;
     public end: number;
     public step: number;
@@ -18,6 +18,7 @@ declare class Range extends OrderedIterable<number, Range> implements IList<numb
     public last(): number;
     public slice(begin: number, end?: number): Range;
     public iterate(fn: (value?: number, index?: number, range?: Range) => any, thisArg?: any): boolean;
+    public reverseIterate(fn: (value?: number, index?: number, range?: Range) => any, thisArg?: any): boolean;
     public indexOf(searchValue: number): number;
     public toArray(): number[];
 }

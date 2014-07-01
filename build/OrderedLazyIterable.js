@@ -5,14 +5,36 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 ///<reference path='./node.d.ts'/>
-var Iterable = require('./Iterable');
+var LazyIterable = require('./LazyIterable');
 
-var OrderedIterable = (function (_super) {
-    __extends(OrderedIterable, _super);
-    function OrderedIterable() {
+var OrderedLazyIterable = (function (_super) {
+    __extends(OrderedLazyIterable, _super);
+    function OrderedLazyIterable() {
         _super.apply(this, arguments);
     }
-    OrderedIterable.prototype.toArray = function () {
+    /**
+    * Note: the default implementation of this needs to make an intermediate
+    * representation which may be inefficent. Concrete data structures should
+    * do better if possible.
+    */
+    OrderedLazyIterable.prototype.reverseIterate = function (fn, thisArg) {
+        var tempKV = [];
+        var collection;
+        this.iterate(function (v, k, c) {
+            if (!collection) {
+                collection = c;
+            }
+            tempKV.push([k, v]);
+        });
+        for (var ii = tempKV.length - 1; ii >= 0; ii--) {
+            if (fn.call(thisArg, tempKV[ii][1], tempKV[ii][0], collection) === false) {
+                return false;
+            }
+        }
+        return true;
+    };
+
+    OrderedLazyIterable.prototype.toArray = function () {
         var array = [];
         this.iterate(function (v, k) {
             array[k] = v;
@@ -20,59 +42,83 @@ var OrderedIterable = (function (_super) {
         return array;
     };
 
-    OrderedIterable.prototype.toVector = function () {
+    OrderedLazyIterable.prototype.toVector = function () {
         // Use Late Binding here to solve the circular dependency.
         return require('./Vector').empty().merge(this);
     };
 
-    OrderedIterable.prototype.keys = function () {
+    OrderedLazyIterable.prototype.reverse = function () {
+        return new ReverseIterator(this);
+    };
+
+    OrderedLazyIterable.prototype.keys = function () {
         return this.map(function (v, k) {
             return k;
         });
     };
 
-    OrderedIterable.prototype.map = function (fn, thisArg) {
+    OrderedLazyIterable.prototype.map = function (fn, thisArg) {
         return new MapIterator(this, fn, thisArg);
     };
 
-    OrderedIterable.prototype.filter = function (fn, thisArg) {
+    OrderedLazyIterable.prototype.filter = function (fn, thisArg) {
         return new FilterIterator(this, fn, thisArg);
     };
 
-    OrderedIterable.prototype.indexOf = function (searchValue) {
+    OrderedLazyIterable.prototype.indexOf = function (searchValue) {
         return this.findIndex(function (value) {
             return value === searchValue;
         });
     };
 
-    OrderedIterable.prototype.findIndex = function (fn, thisArg) {
+    OrderedLazyIterable.prototype.findIndex = function (fn, thisArg) {
         var index = this.find(fn, thisArg);
         return index == null ? -1 : index;
     };
 
-    OrderedIterable.prototype.take = function (amount) {
+    OrderedLazyIterable.prototype.take = function (amount) {
         var iterations = 0;
         return this.takeWhile(function () {
             return iterations++ < amount;
         });
     };
 
-    OrderedIterable.prototype.skip = function (amount) {
+    OrderedLazyIterable.prototype.skip = function (amount) {
         var iterations = 0;
         return this.skipWhile(function () {
             return iterations++ < amount;
         });
     };
 
-    OrderedIterable.prototype.takeWhile = function (fn, thisArg) {
+    OrderedLazyIterable.prototype.takeWhile = function (fn, thisArg) {
         return new TakeIterator(this, fn, thisArg);
     };
 
-    OrderedIterable.prototype.skipWhile = function (fn, thisArg) {
+    OrderedLazyIterable.prototype.skipWhile = function (fn, thisArg) {
         return new SkipIterator(this, fn, thisArg);
     };
-    return OrderedIterable;
-})(Iterable);
+    return OrderedLazyIterable;
+})(LazyIterable);
+
+var ReverseIterator = (function (_super) {
+    __extends(ReverseIterator, _super);
+    function ReverseIterator(iterator) {
+        _super.call(this);
+        this.iterator = iterator;
+    }
+    ReverseIterator.prototype.iterate = function (fn, thisArg) {
+        return this.iterator.reverseIterate(fn, thisArg);
+    };
+
+    ReverseIterator.prototype.reverseIterate = function (fn, thisArg) {
+        return this.iterator.iterate(fn, thisArg);
+    };
+
+    ReverseIterator.prototype.reverse = function () {
+        return this.iterator;
+    };
+    return ReverseIterator;
+})(OrderedLazyIterable);
 
 var MapIterator = (function (_super) {
     __extends(MapIterator, _super);
@@ -91,8 +137,18 @@ var MapIterator = (function (_super) {
             }
         });
     };
+
+    MapIterator.prototype.reverseIterate = function (fn, thisArg) {
+        var map = this.mapper;
+        var mapThisArg = this.mapThisArg;
+        return this.iterator.reverseIterate(function (v, k, c) {
+            if (fn.call(thisArg, map.call(mapThisArg, v, k, c), k, c) === false) {
+                return false;
+            }
+        });
+    };
     return MapIterator;
-})(OrderedIterable);
+})(OrderedLazyIterable);
 
 var FilterIterator = (function (_super) {
     __extends(FilterIterator, _super);
@@ -112,8 +168,19 @@ var FilterIterator = (function (_super) {
             }
         });
     };
+
+    FilterIterator.prototype.reverseIterate = function (fn, thisArg) {
+        var predicate = this.predicate;
+        var predicateThisArg = this.predicateThisArg;
+        var iterations = 0;
+        return this.iterator.reverseIterate(function (v, k, c) {
+            if (predicate.call(predicateThisArg, v, k, c) && fn.call(thisArg, v, iterations++, c) === false) {
+                return false;
+            }
+        });
+    };
     return FilterIterator;
-})(OrderedIterable);
+})(OrderedLazyIterable);
 
 var TakeIterator = (function (_super) {
     __extends(TakeIterator, _super);
@@ -132,8 +199,18 @@ var TakeIterator = (function (_super) {
             }
         });
     };
+
+    TakeIterator.prototype.reverseIterate = function (fn, thisArg) {
+        var predicate = this.predicate;
+        var predicateThisArg = this.predicateThisArg;
+        return this.iterator.reverseIterate(function (v, k, c) {
+            if (!predicate.call(predicateThisArg, v, k, c) || fn.call(thisArg, v, k, c) === false) {
+                return false;
+            }
+        });
+    };
     return TakeIterator;
-})(OrderedIterable);
+})(OrderedLazyIterable);
 
 var SkipIterator = (function (_super) {
     __extends(SkipIterator, _super);
@@ -155,8 +232,21 @@ var SkipIterator = (function (_super) {
             }
         });
     };
-    return SkipIterator;
-})(OrderedIterable);
 
-module.exports = OrderedIterable;
-//# sourceMappingURL=OrderedIterable.js.map
+    SkipIterator.prototype.reverseIterate = function (fn, thisArg) {
+        var predicate = this.predicate;
+        var predicateThisArg = this.predicateThisArg;
+        var iterations = 0;
+        var isSkipping = true;
+        return this.iterator.reverseIterate(function (v, k, c) {
+            isSkipping = isSkipping && predicate.call(predicateThisArg, v, k, c);
+            if (!isSkipping && fn.call(thisArg, v, iterations++, c) === false) {
+                return false;
+            }
+        });
+    };
+    return SkipIterator;
+})(OrderedLazyIterable);
+
+module.exports = OrderedLazyIterable;
+//# sourceMappingURL=OrderedLazyIterable.js.map

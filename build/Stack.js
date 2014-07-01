@@ -4,7 +4,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var OrderedIterable = require('./OrderedIterable');
+var OrderedLazyIterable = require('./OrderedLazyIterable');
 
 /**
 * A Stack allows us to push and pop to the first position in the list as well as walk this list.
@@ -82,7 +82,7 @@ var Stack = (function (_super) {
         return queue;
     };
     return Stack;
-})(OrderedIterable);
+})(OrderedLazyIterable);
 
 var __EMPTY_QUEUE;
 

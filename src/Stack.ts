@@ -1,11 +1,11 @@
-import OrderedIterable = require('./OrderedIterable');
+import OrderedLazyIterable = require('./OrderedLazyIterable');
 import IList = require('./IList');
 
 /**
  * A Stack allows us to push and pop to the first position in the list as well as walk this list.
  */
 
-class Stack<T> extends OrderedIterable<T, Stack<T>> implements IList<T> {
+class Stack<T> extends OrderedLazyIterable<T, Stack<T>> implements IList<T> {
 
   // @pragma Construction
 

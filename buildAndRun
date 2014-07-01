@@ -1,1 +1,4 @@
-tsc --noImplicitAny --declaration --module commonjs --target ES5 --outDir build --sourcemap src/Vector.ts src/Map.ts src/Range.ts src/Stack.ts && npm test
+tsc --noImplicitAny --declaration --module commonjs --target ES5 --outDir build --sourcemap src/Persist.ts && npm test
+
+
+#tsc --noImplicitAny --declaration --module commonjs --target ES5 --outDir build --sourcemap src/Vector.ts src/Map.ts src/Range.ts src/Stack.ts src/ObjectIterator.ts src/ArrayIterator.ts && npm test

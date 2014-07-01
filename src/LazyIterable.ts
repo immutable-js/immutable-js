@@ -2,7 +2,7 @@
 import Vector = require('./Vector'); // for Type info
 import Map = require('./Map'); // for Type info
 
-class Iterable<K, V, C> {
+class LazyIterable<K, V, C> {
   iterate(
     fn: (value?: V, key?: K, collection?: C) => any, // false or undefined
     thisArg?: any
@@ -40,7 +40,7 @@ class Iterable<K, V, C> {
     return require('./Map').empty().merge(this);
   }
 
-  keys(): Iterable<K, K, C> {
+  keys(): LazyIterable<K, K, C> {
     return this.map<K>((v, k) => k);
   }
 
@@ -79,17 +79,21 @@ class Iterable<K, V, C> {
     return reduction;
   }
 
+  flip(): LazyIterable<V, K, C> {
+    return new FlipIterator(this);
+  }
+
   map<V2>(
     fn: (value?: V, key?: K, collection?: C) => V2,
     thisArg?: any
-  ): Iterable<K, V2, C> {
+  ): LazyIterable<K, V2, C> {
     return new MapIterator(this, fn, thisArg);
   }
 
   filter(
     fn: (value?: V, key?: K, collection?: C) => boolean,
     thisArg?: any
-  ): Iterable<K, V, C> {
+  ): LazyIterable<K, V, C> {
     return new FilterIterator(this, fn, thisArg);
   }
 
@@ -122,9 +126,24 @@ class Iterable<K, V, C> {
   }
 }
 
-class MapIterator<K, V, V2, C> extends Iterable<K, V2, C> {
+class FlipIterator<K, V, C> extends LazyIterable<V, K, C> {
+  constructor(private iterator: LazyIterable<K, V, C>) {super();}
+
+  iterate(
+    fn: (value?: K, key?: V, collection?: C) => any, // false or undefined
+    thisArg?: any
+  ): boolean {
+    return this.iterator.iterate(function (v, k, c) {
+      if (fn.call(thisArg, k, v, c) === false) {
+        return false;
+      }
+    });
+  }
+}
+
+class MapIterator<K, V, V2, C> extends LazyIterable<K, V2, C> {
   constructor(
-    private iterator: Iterable<K, V, C>,
+    private iterator: LazyIterable<K, V, C>,
     private mapper: (value?: V, key?: K, collection?: C) => V2,
     private mapThisArg: any
   ) {super();}
@@ -143,9 +162,9 @@ class MapIterator<K, V, V2, C> extends Iterable<K, V2, C> {
   }
 }
 
-class FilterIterator<K, V, C> extends Iterable<K, V, C> {
+class FilterIterator<K, V, C> extends LazyIterable<K, V, C> {
   constructor(
-    private iterator: Iterable<K, V, C>,
+    private iterator: LazyIterable<K, V, C>,
     private predicate: (value?: V, key?: K, collection?: C) => boolean,
     private predicateThisArg: any
   ) {super();}
@@ -165,4 +184,4 @@ class FilterIterator<K, V, C> extends Iterable<K, V, C> {
   }
 }
 
-export = Iterable;
+export = LazyIterable;

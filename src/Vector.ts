@@ -1,5 +1,5 @@
-import Iterable = require('./Iterable');
-import OrderedIterable = require('./OrderedIterable');
+import LazyIterable = require('./LazyIterable');
+import OrderedLazyIterable = require('./OrderedLazyIterable');
 import IList = require('./IList');
 import IMap = require('./IMap');
 
@@ -7,7 +7,7 @@ function invariant(condition: boolean, error: string): void {
   if (!condition) throw new Error(error);
 }
 
-class Vector<T> extends OrderedIterable<T, Vector<T>> implements IList<T>, IMap<number, T> {
+class Vector<T> extends OrderedLazyIterable<T, Vector<T>> implements IList<T>, IMap<number, T> {
 
   // @pragma Construction
 
@@ -41,20 +41,27 @@ class Vector<T> extends OrderedIterable<T, Vector<T>> implements IList<T>, IMap<
   public length: number;
 
   has(index: number): boolean {
+    return this.get(index, <T>__SENTINEL) !== __SENTINEL;
+  }
+
+  get(index: number, undefinedValue?: T): T {
     index = rawIndex(index, this._origin);
     if (index >= this._size) {
-      return false;
+      return undefinedValue;
     }
     var node = this._nodeFor(index);
     var property = index & MASK;
-    return !!node && node.array.hasOwnProperty(<any>property);
+    return node && node.array.hasOwnProperty(<any>property) ? node.array[property] : undefinedValue;
   }
 
-  get(index: number): T {
-    index = rawIndex(index, this._origin);
-    if (index < this._size) {
-      var node = this._nodeFor(index);
-      return node && node.array[index & MASK];
+  getIn(indexPath: Array<any>, pathOffset?: number): any {
+    pathOffset = pathOffset || 0;
+    var nested = this.get(indexPath[pathOffset]);
+    if (pathOffset === indexPath.length - 1) {
+      return nested;
+    }
+    if (nested && (<any>nested).getIn) {
+      return (<any>nested).getIn(indexPath, pathOffset + 1);
     }
   }
 
@@ -151,12 +158,32 @@ class Vector<T> extends OrderedIterable<T, Vector<T>> implements IList<T>, IMap<
     return Vector._make(this._origin, this._size, this._level, newRoot, this._tail);
   }
 
+  setIn(keyPath: Array<any>, v: any, pathOffset?: number): Vector<T> {
+    pathOffset = pathOffset || 0;
+    if (pathOffset === keyPath.length - 1) {
+      return this.set(keyPath[pathOffset], v);
+    }
+    var k = keyPath[pathOffset];
+    var nested = <IMap<any, any>>(<any>this.get(k, <T>__SENTINEL));
+    if (nested === __SENTINEL || !nested.setIn) {
+      if (typeof k === 'number') {
+        nested = Vector.empty();
+      } else {
+        nested = require('./Map').empty();
+      }
+    }
+    return this.set(k, <T><any>nested.setIn(keyPath, v, pathOffset + 1));
+  }
+
   push(...values: Array<T>): Vector<T> {
-    var vec = this;
+    if (values.length === 1) {
+      return this.set(this.length, values[0]);
+    }
+    var vec = this.asTransient();
     for (var ii = 0; ii < values.length; ii++) {
       vec = vec.set(vec.length, values[ii]);
     }
-    return vec;
+    return this.isTransient() ? vec : vec.asPersistent();
   }
 
   pop(): Vector<T> {
@@ -227,6 +254,19 @@ class Vector<T> extends OrderedIterable<T, Vector<T>> implements IList<T>, IMap<
     return Vector._make(this._origin, this._size, this._level, newRoot, this._tail);
   }
 
+  deleteIn(keyPath: Array<any>, pathOffset?: number): Vector<T> {
+    pathOffset = pathOffset || 0;
+    if (pathOffset === keyPath.length - 1) {
+      return this.delete(keyPath[pathOffset]);
+    }
+    var k = keyPath[pathOffset];
+    var nested = <IMap<any, any>>(<any>this.get(k));
+    if (!nested || !nested.deleteIn) {
+      return this;
+    }
+    return this.set(k, <T><any>nested.deleteIn(keyPath, pathOffset + 1));
+  }
+
   unshift(...values: Array<T>): Vector<T> {
     var newOrigin = this._origin - values.length;
     var newSize = this._size;
@@ -246,7 +286,6 @@ class Vector<T> extends OrderedIterable<T, Vector<T>> implements IList<T>, IMap<
       newRoot = this._root.ensureOwner(this._ownerID);
     }
 
-    // TODO: this should probably be replaced by what "push" does, it might not always be correct.
     var tempOwner = this._ownerID || new OwnerID();
     for (var ii = 0; ii < values.length; ii++) {
       var index = newOrigin + ii;
@@ -274,36 +313,27 @@ class Vector<T> extends OrderedIterable<T, Vector<T>> implements IList<T>, IMap<
   }
 
   // @pragma Composition
-  reverse(): Vector<T> {
-    // This should really only affect how inputs are translated and iteration ordering.
-    // This should probably also need to be a lazy sequence to keep the data structure intact.
-    invariant(false, 'NYI');
-    return null;
-  }
 
-  merge(seq: Iterable<number, T, any>): Vector<T> {
+  merge(seq: LazyIterable<number, T, any>): Vector<T> {
     var newVect = this.asTransient();
     seq.iterate((value, index) => newVect.set(index, value));
-    return newVect.asPersistent();
+    return this.isTransient() ? newVect : newVect.asPersistent();
   }
 
   concat(...vectors: Array<Vector<T>>): Vector<T> {
-    var vector = this;
+    var vector = this.asTransient();
     for (var ii = 0; ii < vectors.length; ii++) {
       if (vectors[ii].length > 0) {
-        if (vector.length === 0) {
-          vector = vectors[ii];
+        if (vector.length === 0 && !this.isTransient()) {
+          vector = vectors[ii].asTransient();
         } else {
-          // Clojure implements this as a lazy seq.
-          // Likely because there is no efficient way to do this.
-          // We need to rebuild a new datastructure entirely.
-          // However, if all you wanted to do was iterate over both, or if you wanted
-          //   to put them into a different data structure, lazyseq would help.
-          invariant(false, 'NYI');
+          var offset = vector.length;
+          vector.length += vectors[ii].length;
+          vectors[ii].iterate((value, index) => vector.set(index + offset, value));
         }
       }
     }
-    return vector;
+    return this.isTransient() ? vector : vector.asPersistent();
   }
 
   slice(begin: number, end?: number): Vector<T> {
@@ -364,6 +394,17 @@ class Vector<T> extends OrderedIterable<T, Vector<T>> implements IList<T>, IMap<
     return (
       this._root.iterate(this, this._level, -this._origin, tailOffset - this._origin, fn, thisArg) &&
       this._tail.iterate(this, 0, tailOffset - this._origin, this._size - this._origin, fn, thisArg)
+    );
+  }
+
+  reverseIterate(
+    fn: (value?: T, index?: number, vector?: Vector<T>) => any, // false or undefined
+    thisArg?: any
+  ): boolean {
+    var tailOffset = getTailOffset(this._size);
+    return (
+      this._tail.reverseIterate(this, 0, tailOffset - this._origin, this._size - this._origin, fn, thisArg) &&
+      this._root.reverseIterate(this, this._level, -this._origin, tailOffset - this._origin, fn, thisArg)
     );
   }
 
@@ -462,6 +503,8 @@ class VNode<T> {
     fn: (value?: T, index?: number, vector?: Vector<T>) => any, // false or undefined
     thisArg: any
   ): boolean {
+    // Note using every() gets us a speed-up of 2x on modern JS VMs, but means
+    // we cannot support IE8 without polyfill.
     if (level === 0) {
       return this.array.every((value, rawIndex) => {
         var index = rawIndex + offset;
@@ -475,13 +518,48 @@ class VNode<T> {
       return newOffset >= max || newOffset + step <= 0 || newNode.iterate(vector, newLevel, newOffset, max, fn, thisArg);
     });
   }
+
+  reverseIterate(
+    vector: Vector<T>,
+    level: number,
+    offset: number,
+    max: number,
+    fn: (value?: T, index?: number, vector?: Vector<T>) => any, // false or undefined
+    thisArg: any
+  ): boolean {
+    if (level === 0) {
+      for (var rawIndex = this.array.length - 1; rawIndex >= 0; rawIndex--) {
+        if (this.array.hasOwnProperty(<any>rawIndex)) {
+          var index = rawIndex + offset;
+          if (index >= 0 && index < max && fn.call(thisArg, this.array[rawIndex], index, vector) === false) {
+            return false;
+          }
+        }
+      }
+    } else {
+      var step = 1 << level;
+      var newLevel = level - SHIFT;
+      for (var levelIndex = this.array.length - 1; levelIndex >= 0; levelIndex--) {
+        if (this.array.hasOwnProperty(<any>levelIndex)) {
+          var newOffset = offset + levelIndex * step;
+          if (newOffset < max &&
+              newOffset + step > 0 &&
+              !this.array[levelIndex].reverseIterate(vector, newLevel, newOffset, max, fn, thisArg)) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
 }
 
 
 var SHIFT = 5; // Resulted in best performance after ______?
 var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
-var __EMPTY_VNODE = new VNode(null, []);
+var __SENTINEL = {};
 var __EMPTY_PVECT: Vector<any>;
+var __EMPTY_VNODE = new VNode(null, []);
 
 export = Vector;

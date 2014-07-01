@@ -1,25 +1,27 @@
-import Iterable = require('./Iterable');
-import OrderedIterable = require('./OrderedIterable');
+import LazyIterable = require('./LazyIterable');
+import OrderedLazyIterable = require('./OrderedLazyIterable');
 import IList = require('./IList');
 import IMap = require('./IMap');
-declare class Vector<T> extends OrderedIterable<T, Vector<T>> implements IList<T>, IMap<number, T> {
+declare class Vector<T> extends OrderedLazyIterable<T, Vector<T>> implements IList<T>, IMap<number, T> {
     constructor(...values: T[]);
     static empty(): Vector<any>;
     static fromArray<T>(values: T[]): Vector<T>;
     public length: number;
     public has(index: number): boolean;
-    public get(index: number): T;
+    public get(index: number, undefinedValue?: T): T;
+    public getIn(indexPath: any[], pathOffset?: number): any;
     public first(): T;
     public last(): T;
     public empty(): Vector<T>;
     public set(index: number, value: T): Vector<T>;
+    public setIn(keyPath: any[], v: any, pathOffset?: number): Vector<T>;
     public push(...values: T[]): Vector<T>;
     public pop(): Vector<T>;
     public delete(index: number): Vector<T>;
+    public deleteIn(keyPath: any[], pathOffset?: number): Vector<T>;
     public unshift(...values: T[]): Vector<T>;
     public shift(): Vector<T>;
-    public reverse(): Vector<T>;
-    public merge(seq: Iterable<number, T, any>): Vector<T>;
+    public merge(seq: LazyIterable<number, T, any>): Vector<T>;
     public concat(...vectors: Vector<T>[]): Vector<T>;
     public slice(begin: number, end?: number): Vector<T>;
     public splice(index: number, removeNum: number, ...values: T[]): Vector<T>;
@@ -28,6 +30,7 @@ declare class Vector<T> extends OrderedIterable<T, Vector<T>> implements IList<T
     public asPersistent(): Vector<T>;
     public clone(): Vector<T>;
     public iterate(fn: (value?: T, index?: number, vector?: Vector<T>) => any, thisArg?: any): boolean;
+    public reverseIterate(fn: (value?: T, index?: number, vector?: Vector<T>) => any, thisArg?: any): boolean;
     public toArray(): T[];
     private _origin;
     private _size;
