@@ -100,9 +100,10 @@ class OrderedLazyIterable<V, C> extends LazyIterable<number, V, C> {
 
   filter(
     fn: (value?: V, index?: number, collection?: C) => boolean,
-    thisArg?: any
+    thisArg?: any,
+    maintainIndices?: boolean
   ): OrderedLazyIterable<V, C> {
-    return new FilterIterator(this, fn, thisArg);
+    return new FilterIterator(this, fn, thisArg, maintainIndices);
   }
 
   indexOf(searchValue: V): number {
@@ -140,23 +141,11 @@ class OrderedLazyIterable<V, C> extends LazyIterable<number, V, C> {
     return this.takeWhile(() => iterations++ < amount);
   }
 
-  skip(amount: number): OrderedLazyIterable<V, C> {
-    var iterations = 0;
-    return this.skipWhile(() => iterations++ < amount);
-  }
-
   takeWhile(
     fn: (value?: V, index?: number, collection?: C) => boolean,
     thisArg?: any
   ): OrderedLazyIterable<V, C> {
     return new TakeIterator(this, fn, thisArg);
-  }
-
-  skipWhile(
-    fn: (value?: V, index?: number, collection?: C) => boolean,
-    thisArg?: any
-  ): OrderedLazyIterable<V, C> {
-    return new SkipIterator(this, fn, thisArg);
   }
 
   takeUntil(
@@ -166,11 +155,25 @@ class OrderedLazyIterable<V, C> extends LazyIterable<number, V, C> {
     return this.takeWhile(not(fn), thisArg);
   }
 
+  skip(amount: number, maintainIndices?: boolean): OrderedLazyIterable<V, C> {
+    var iterations = 0;
+    return this.skipWhile(() => iterations++ < amount, null, maintainIndices);
+  }
+
+  skipWhile(
+    fn: (value?: V, index?: number, collection?: C) => boolean,
+    thisArg?: any,
+    maintainIndices?: boolean
+  ): OrderedLazyIterable<V, C> {
+    return new SkipIterator(this, fn, thisArg, maintainIndices);
+  }
+
   skipUntil(
     fn: (value?: V, index?: number, collection?: C) => boolean,
-    thisArg?: any
+    thisArg?: any,
+    maintainIndices?: boolean
   ): OrderedLazyIterable<V, C> {
-    return this.skipWhile(not(fn), thisArg);
+    return this.skipWhile(not(fn), thisArg, maintainIndices);
   }
 }
 
@@ -286,7 +289,8 @@ class FilterIterator<V, C> extends OrderedLazyIterable<V, C> {
   constructor(
     private iterator: OrderedLazyIterable<V, C>,
     private predicate: (value?: V, index?: number, collection?: C) => boolean,
-    private predicateThisArg: any
+    private predicateThisArg: any,
+    private maintainIndices: boolean
   ) {super();}
 
   iterate(
@@ -299,7 +303,7 @@ class FilterIterator<V, C> extends OrderedLazyIterable<V, C> {
     var iterations = 0;
     return this.iterator.iterate(function (v, k, c) {
       if (predicate.call(predicateThisArg, v, k, c) &&
-          fn.call(thisArg, v, iterations++, c) === false) {
+          fn.call(thisArg, v, this.maintainIndices ? k : iterations++, c) === false) {
         return false;
       }
     }, null, reverseIndices);
@@ -317,7 +321,7 @@ class FilterIterator<V, C> extends OrderedLazyIterable<V, C> {
     var iterations = 0;
     return this.iterator.reverseIterate(function (v, k, c) {
       if (predicate.call(predicateThisArg, v, k, c) &&
-          fn.call(thisArg, v, iterations++, c) === false) {
+          fn.call(thisArg, v, this.maintainIndices ? k : iterations++, c) === false) {
         return false;
       }
     }, null, maintainIndices);
@@ -354,7 +358,8 @@ class SkipIterator<V, C> extends OrderedLazyIterable<V, C> {
   constructor(
     private iterator: OrderedLazyIterable<V, C>,
     private predicate: (value?: V, index?: number, collection?: C) => boolean,
-    private predicateThisArg: any
+    private predicateThisArg: any,
+    private maintainIndices?: boolean
   ) {super();}
 
   iterate(
@@ -368,7 +373,7 @@ class SkipIterator<V, C> extends OrderedLazyIterable<V, C> {
     var isSkipping = true;
     return this.iterator.iterate(function (v, k, c) {
       isSkipping = isSkipping && predicate.call(predicateThisArg, v, k, c);
-      if (!isSkipping && fn.call(thisArg, v, iterations++, c) === false) {
+      if (!isSkipping && fn.call(thisArg, v, this.maintainIndices ? k : iterations++, c) === false) {
         return false;
       }
     }, null, reverseIndices);

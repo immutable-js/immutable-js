@@ -13,7 +13,7 @@ var OrderedLazyIterable = (function (_super) {
         _super.apply(this, arguments);
     }
     // overridden to add maintainIndices to the type.
-    OrderedLazyIterable.prototype.iterate = function (fn, thisArg, maintainIndices) {
+    OrderedLazyIterable.prototype.iterate = function (fn, thisArg, reverseIndices) {
         throw new Error('Abstract method');
     };
 
@@ -90,8 +90,8 @@ var OrderedLazyIterable = (function (_super) {
         return new MapIterator(this, fn, thisArg);
     };
 
-    OrderedLazyIterable.prototype.filter = function (fn, thisArg) {
-        return new FilterIterator(this, fn, thisArg);
+    OrderedLazyIterable.prototype.filter = function (fn, thisArg, maintainIndices) {
+        return new FilterIterator(this, fn, thisArg, maintainIndices);
     };
 
     OrderedLazyIterable.prototype.indexOf = function (searchValue) {
@@ -126,27 +126,27 @@ var OrderedLazyIterable = (function (_super) {
         });
     };
 
-    OrderedLazyIterable.prototype.skip = function (amount) {
-        var iterations = 0;
-        return this.skipWhile(function () {
-            return iterations++ < amount;
-        });
-    };
-
     OrderedLazyIterable.prototype.takeWhile = function (fn, thisArg) {
         return new TakeIterator(this, fn, thisArg);
-    };
-
-    OrderedLazyIterable.prototype.skipWhile = function (fn, thisArg) {
-        return new SkipIterator(this, fn, thisArg);
     };
 
     OrderedLazyIterable.prototype.takeUntil = function (fn, thisArg) {
         return this.takeWhile(not(fn), thisArg);
     };
 
-    OrderedLazyIterable.prototype.skipUntil = function (fn, thisArg) {
-        return this.skipWhile(not(fn), thisArg);
+    OrderedLazyIterable.prototype.skip = function (amount, maintainIndices) {
+        var iterations = 0;
+        return this.skipWhile(function () {
+            return iterations++ < amount;
+        }, null, maintainIndices);
+    };
+
+    OrderedLazyIterable.prototype.skipWhile = function (fn, thisArg, maintainIndices) {
+        return new SkipIterator(this, fn, thisArg, maintainIndices);
+    };
+
+    OrderedLazyIterable.prototype.skipUntil = function (fn, thisArg, maintainIndices) {
+        return this.skipWhile(not(fn), thisArg, maintainIndices);
     };
     return OrderedLazyIterable;
 })(LazyIterable);
@@ -243,18 +243,19 @@ var MapIterator = (function (_super) {
 
 var FilterIterator = (function (_super) {
     __extends(FilterIterator, _super);
-    function FilterIterator(iterator, predicate, predicateThisArg) {
+    function FilterIterator(iterator, predicate, predicateThisArg, maintainIndices) {
         _super.call(this);
         this.iterator = iterator;
         this.predicate = predicate;
         this.predicateThisArg = predicateThisArg;
+        this.maintainIndices = maintainIndices;
     }
     FilterIterator.prototype.iterate = function (fn, thisArg, reverseIndices) {
         var predicate = this.predicate;
         var predicateThisArg = this.predicateThisArg;
         var iterations = 0;
         return this.iterator.iterate(function (v, k, c) {
-            if (predicate.call(predicateThisArg, v, k, c) && fn.call(thisArg, v, iterations++, c) === false) {
+            if (predicate.call(predicateThisArg, v, k, c) && fn.call(thisArg, v, this.maintainIndices ? k : iterations++, c) === false) {
                 return false;
             }
         }, null, reverseIndices);
@@ -267,7 +268,7 @@ var FilterIterator = (function (_super) {
         var predicateThisArg = this.predicateThisArg;
         var iterations = 0;
         return this.iterator.reverseIterate(function (v, k, c) {
-            if (predicate.call(predicateThisArg, v, k, c) && fn.call(thisArg, v, iterations++, c) === false) {
+            if (predicate.call(predicateThisArg, v, k, c) && fn.call(thisArg, v, this.maintainIndices ? k : iterations++, c) === false) {
                 return false;
             }
         }, null, maintainIndices);
@@ -297,11 +298,12 @@ var TakeIterator = (function (_super) {
 
 var SkipIterator = (function (_super) {
     __extends(SkipIterator, _super);
-    function SkipIterator(iterator, predicate, predicateThisArg) {
+    function SkipIterator(iterator, predicate, predicateThisArg, maintainIndices) {
         _super.call(this);
         this.iterator = iterator;
         this.predicate = predicate;
         this.predicateThisArg = predicateThisArg;
+        this.maintainIndices = maintainIndices;
     }
     SkipIterator.prototype.iterate = function (fn, thisArg, reverseIndices) {
         var predicate = this.predicate;
@@ -310,7 +312,7 @@ var SkipIterator = (function (_super) {
         var isSkipping = true;
         return this.iterator.iterate(function (v, k, c) {
             isSkipping = isSkipping && predicate.call(predicateThisArg, v, k, c);
-            if (!isSkipping && fn.call(thisArg, v, iterations++, c) === false) {
+            if (!isSkipping && fn.call(thisArg, v, this.maintainIndices ? k : iterations++, c) === false) {
                 return false;
             }
         }, null, reverseIndices);
