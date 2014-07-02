@@ -1,0 +1,8 @@
+{
+    "name": "optparse",
+    "author": "Johan Dahlberg",
+    "description": "Command-line option parser",
+    "keywords": ["option", "parser", "command-line", "cli", "terminal"],
+    "version": "1.0.1",
+    "main": "./lib/optparse"
+}

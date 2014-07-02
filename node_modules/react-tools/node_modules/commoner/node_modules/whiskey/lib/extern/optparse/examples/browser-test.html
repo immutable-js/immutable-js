@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+		<title>optparse.js example</title>
+		<script type="text/javascript" charset="utf-8" src="../src/optparse.js"></script>
+		<script>
+			// Arguments to be passed to the parser
+			var ARGS = ['-p', 'This is a message', '-i', 'test.html', '--debug'];
+			
+			// Define some options
+			var SWITCHES = [
+			    ['-i', '--include-file FILE', "Includes a file"],
+			    ['-p', '--print [MESSAGE]', "Prints a message on screen"],
+			    ['-d', '--debug', "Enables debug mode"],
+			];
+			
+			function puts(msg) {
+				var body = document.getElementById('body');
+				var pre = document.createElement('pre');
+				pre.innerHTML = msg;
+				body.appendChild(pre);
+			}
+		
+			function onLoad() {
+				puts("optparse.js");
+				
+			  	// Create a new OptionParser with defined switches
+			    var parser = new optparse.OptionParser(SWITCHES);
+
+			    // Internal variable to store options.
+			    var options = {
+			        debug: false,
+			        files: []
+			    };
+
+			    // Handle the first argument (switches excluded)
+			    parser.on(0, function(value) {
+			        puts("First non-switch argument is: " + value);
+			    });
+
+			    // Handle the --include-file switch
+			    parser.on('include-file', function(value) {
+			        options.files.push(value);
+			    });
+
+			    // Handle the --print switch
+			    parser.on('print', function(value) {
+			        puts('PRINT: ' + value);
+			    });
+
+			    // Handle the --debug switch
+			    parser.on('debug', function() {
+			        options.debug = true;
+			    });
+
+			    // Parse command line arguments
+			    parser.parse(ARGS);
+
+			    // Output all files that was included.
+			    puts("No of files to include: " + options.files.length);
+			    for(var i = 0; i < options.files.length; i++) {
+			        puts("File [" + (i + 1) + "]:" + options.files[i]);
+			    }
+
+			    // Is debug-mode enabled?
+			    puts("Debug mode is set to: " + options.debug);	
+			}
+		</script>
+	</head>
+	<body id="body" onload="onLoad()">
+		
+	</body>
+</html>

@@ -2,7 +2,11 @@ var LazyIterable = require('./LazyIterable');
 
 for(var LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(LazyIterable____Key)){ObjectIterator[LazyIterable____Key]=LazyIterable[LazyIterable____Key];}}var ____SuperProtoOfLazyIterable=LazyIterable===null?null:LazyIterable.prototype;ObjectIterator.prototype=Object.create(____SuperProtoOfLazyIterable);ObjectIterator.prototype.constructor=ObjectIterator;ObjectIterator.__superConstructor__=LazyIterable;
   function ObjectIterator(object) {"use strict";
-    this.$ObjectIterator_object = object;
+    if (this instanceof ObjectIterator) {
+      this.$ObjectIterator_object = object;
+    } else {
+      return new ObjectIterator(this.$ObjectIterator_object);
+    }
   }
 
   ObjectIterator.prototype.iterate=function(fn, thisArg) {"use strict";

@@ -2,7 +2,11 @@ var OrderedLazyIterable = require('./OrderedLazyIterable');
 
 class ArrayIterator extends OrderedLazyIterable {
   constructor(array) {
-    this._array = array;
+    if (this instanceof ArrayIterator) {
+      this._array = array;
+    } else {
+      return new ArrayIterator(this._object);
+    }
   }
 
   iterate(fn, thisArg, reverseIndices) {

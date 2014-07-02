@@ -1,0 +1,27 @@
+{
+  "cassandra": {
+    "cmd": ["/usr/local/bin/cassandra/", "-f"],
+    "cwd": ["__dirname", ".."],
+    "log_file": "cassandra.log",
+    "wait_for": "socket",
+    "wait_for_options": {
+      "host": "127.0.0.1",
+      "port": "1234"
+    },
+    "timeout": 6000,
+    "depends": []
+  },
+
+  "api_server": {
+    "cmd": ["bin/api-server"],
+    "depends": ["cassandra"]
+  },
+
+  "celery": {
+    "cmd": ["celeryd", "-w", "5"],
+    "wait_for": "stdout",
+    "wait_for_options": {
+      "string": "Celery has been started..."
+    }
+  }
+}

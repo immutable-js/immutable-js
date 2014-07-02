@@ -1,0 +1,29 @@
+Array:
+{% for item in array %}
+item: {{ item }}
+
+counter: {{ forloop.counter }}
+counter0: {{ forloop.counter0 }}
+revcounter: {{ forloop.revcounter }}
+revcounter0: {{ forloop.revcounter0 }}
+{% endfor %}
+
+Object:
+{% for property in obj %}
+property: {{ property }}
+
+counter: {{ forloop.counter }}
+counter0: {{ forloop.counter0 }}
+revcounter: {{ forloop.revcounter }}
+revcounter0: {{ forloop.revcounter0 }}
+{% endfor %}
+
+String:
+{% for c in str %}
+char: {{ c }}
+
+counter: {{ forloop.counter }}
+counter0: {{ forloop.counter0 }}
+revcounter: {{ forloop.revcounter }}
+revcounter0: {{ forloop.revcounter0 }}
+{% endfor %}

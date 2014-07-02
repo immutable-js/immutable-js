@@ -1,0 +1,4 @@
+.lvimrc
+.gitignore
+node_modules
+lib-cov

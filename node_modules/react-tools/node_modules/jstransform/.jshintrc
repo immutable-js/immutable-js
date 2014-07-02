@@ -1,0 +1,18 @@
+{
+  "boss": true,
+  "curly": true,
+  "devel": false,
+  "eqnull": false,
+  "expr": true,
+  "funcscope": true,
+  "globalstrict": false,
+  "loopfunc": false,
+  "newcap": true,
+  "node": true,
+  "noempty": true,
+  "nonstandard": false,
+  "onecase": false,
+  "trailing": true,
+  "undef": true,
+  "unused": true
+}

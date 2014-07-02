@@ -2,7 +2,11 @@ var LazyIterable = require('./LazyIterable');
 
 class ObjectIterator extends LazyIterable {
   constructor(object) {
-    this._object = object;
+    if (this instanceof ObjectIterator) {
+      this._object = object;
+    } else {
+      return new ObjectIterator(this._object);
+    }
   }
 
   iterate(fn, thisArg) {

@@ -2,7 +2,11 @@ var OrderedLazyIterable = require('./OrderedLazyIterable');
 
 for(var OrderedLazyIterable____Key in OrderedLazyIterable){if(OrderedLazyIterable.hasOwnProperty(OrderedLazyIterable____Key)){ArrayIterator[OrderedLazyIterable____Key]=OrderedLazyIterable[OrderedLazyIterable____Key];}}var ____SuperProtoOfOrderedLazyIterable=OrderedLazyIterable===null?null:OrderedLazyIterable.prototype;ArrayIterator.prototype=Object.create(____SuperProtoOfOrderedLazyIterable);ArrayIterator.prototype.constructor=ArrayIterator;ArrayIterator.__superConstructor__=OrderedLazyIterable;
   function ArrayIterator(array) {"use strict";
-    this.$ArrayIterator_array = array;
+    if (this instanceof ArrayIterator) {
+      this.$ArrayIterator_array = array;
+    } else {
+      return new ArrayIterator(this.$ArrayIterator_object);
+    }
   }
 
   ArrayIterator.prototype.iterate=function(fn, thisArg, reverseIndices) {"use strict";

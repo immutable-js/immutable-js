@@ -1,0 +1,1 @@
+exports.name = "tests/settings";

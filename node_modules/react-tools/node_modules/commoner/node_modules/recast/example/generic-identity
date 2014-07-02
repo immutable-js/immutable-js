@@ -1,0 +1,18 @@
+#!/usr/bin/env node
+
+// This script should reprint the contents of the given file without
+// reusing the original source, but with identical AST structure.
+
+var recast = require("recast");
+
+recast.run(function(ast, callback) {
+    callback(new Divorcer().visit(ast));
+});
+
+var Divorcer = recast.Visitor.extend({
+    visit: function(node) {
+        this.genericVisit(node);
+        node.original = null;
+        return node;
+    }
+});

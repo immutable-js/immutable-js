@@ -1,0 +1,5 @@
+---
+  name: optparse
+  description: Command-line option parser
+  tags: option parser command-line cli terminal
+  version: 1.0.1
