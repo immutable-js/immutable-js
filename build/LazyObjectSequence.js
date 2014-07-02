@@ -5,11 +5,19 @@ for(var LazySequence____Key in LazySequence){if(LazySequence.hasOwnProperty(Lazy
     this.$LazyObjectSequence_object = object;
   }
 
-  // TODO: add efficient reverse iteration
-
   LazyObjectSequence.prototype.__iterate=function(fn) {"use strict";
     for (var key in this.$LazyObjectSequence_object) if (this.$LazyObjectSequence_object.hasOwnProperty(key)) {
       if (fn(this.$LazyObjectSequence_object[key], key, this) === false) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  LazyObjectSequence.prototype.__reverseIterate=function(fn) {"use strict";
+    var keys = Object.keys(this.$LazyObjectSequence_object);
+    for (var ii = keys.length - 1; ii >= 0; ii--) {
+      if (fn(this.$LazyObjectSequence_object[keys[ii]], keys[ii], this) === false) {
         return false;
       }
     }

@@ -173,6 +173,10 @@ for(var LazySequence____Key in LazySequence){if(LazySequence.hasOwnProperty(Lazy
     return this.$Map_root ? this.$Map_root.iterate(this, fn) : true;
   };
 
+  Map.prototype.__reverseIterate=function(fn) {"use strict";
+    return this.$Map_root ? this.$Map_root.reverseIterate(this, fn) : true;
+  };
+
   // @pragma Private
 
   Map.$Map_make=function(length, root, ownerID) {"use strict";
@@ -304,10 +308,23 @@ function makeNode(ownerID, shift, hash, key, valOrNode) {
     return new BitmapIndexedNode(ownerID, this.bitmap, this.keys.slice(), this.values.slice());
   };
 
-  // TODO: add efficient reverse iteration.
-
   BitmapIndexedNode.prototype.iterate=function(map, fn) {"use strict";
     for (var ii = 0; ii < this.values.length; ii++) {
+      var key = this.keys[ii];
+      var valueOrNode = this.values[ii];
+      if (key != null) {
+        if (fn(valueOrNode, key, map) === false) {
+          return false;
+        }
+      } else if (valueOrNode && !valueOrNode.iterate(map, fn)) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  BitmapIndexedNode.prototype.reverseIterate=function(map, fn) {"use strict";
+    for (var ii = this.values.length - 1; ii >= 0; ii--) {
       var key = this.keys[ii];
       var valueOrNode = this.values[ii];
       if (key != null) {
@@ -381,6 +398,15 @@ function makeNode(ownerID, shift, hash, key, valOrNode) {
 
   HashCollisionNode.prototype.iterate=function(map, fn) {"use strict";
     for (var ii = 0; ii < this.values.length; ii++) {
+      if (fn(this.values[ii], this.keys[ii], map) === false) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  HashCollisionNode.prototype.reverseIterate=function(map, fn) {"use strict";
+    for (var ii = this.values.length - 1; ii >= 0; ii--) {
       if (fn(this.values[ii], this.keys[ii], map) === false) {
         return false;
       }

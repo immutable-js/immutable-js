@@ -173,6 +173,10 @@ class Map extends LazySequence {
     return this._root ? this._root.iterate(this, fn) : true;
   }
 
+  __reverseIterate(fn) {
+    return this._root ? this._root.reverseIterate(this, fn) : true;
+  }
+
   // @pragma Private
 
   static _make(length, root, ownerID) {
@@ -304,10 +308,23 @@ class BitmapIndexedNode {
     return new BitmapIndexedNode(ownerID, this.bitmap, this.keys.slice(), this.values.slice());
   }
 
-  // TODO: add efficient reverse iteration.
-
   iterate(map, fn) {
     for (var ii = 0; ii < this.values.length; ii++) {
+      var key = this.keys[ii];
+      var valueOrNode = this.values[ii];
+      if (key != null) {
+        if (fn(valueOrNode, key, map) === false) {
+          return false;
+        }
+      } else if (valueOrNode && !valueOrNode.iterate(map, fn)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  reverseIterate(map, fn) {
+    for (var ii = this.values.length - 1; ii >= 0; ii--) {
       var key = this.keys[ii];
       var valueOrNode = this.values[ii];
       if (key != null) {
@@ -381,6 +398,15 @@ class HashCollisionNode {
 
   iterate(map, fn) {
     for (var ii = 0; ii < this.values.length; ii++) {
+      if (fn(this.values[ii], this.keys[ii], map) === false) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  reverseIterate(map, fn) {
+    for (var ii = this.values.length - 1; ii >= 0; ii--) {
       if (fn(this.values[ii], this.keys[ii], map) === false) {
         return false;
       }
