@@ -1,4 +1,4 @@
-import LazyIterable = require('./LazyIterable');
+import IndexedLazyIterable = require('./IndexedLazyIterable');
 import OrderedLazyIterable = require('./OrderedLazyIterable');
 
 declare function Vector<T>(...values: T[]): Vector<T>;
@@ -8,7 +8,7 @@ declare module Vector {
   function fromArray<T>(values: T[]): Vector<T>;
 }
 
-interface Vector<T> extends OrderedLazyIterable<T, Vector<T>> {
+interface Vector<T> extends IndexedLazyIterable<T, Vector<T>> {
   toString(): void;
   length: number;
   has(index: number): boolean;
@@ -26,7 +26,7 @@ interface Vector<T> extends OrderedLazyIterable<T, Vector<T>> {
   deleteIn(keyPath: any[], pathOffset?: number): Vector<T>;
   unshift(...values: T[]): Vector<T>;
   shift(): Vector<T>;
-  merge(seq: LazyIterable<number, T, any>): Vector<T>;
+  merge(seq: OrderedLazyIterable<number, T, any>): Vector<T>;
   concat(...vectors: Vector<T>[]): Vector<T>;
   slice(begin: number, end?: number): Vector<T>;
   splice(index: number, removeNum: number, ...values: T[]): Vector<T>;

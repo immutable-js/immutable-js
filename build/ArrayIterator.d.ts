@@ -1,6 +1,6 @@
-import OrderedLazyIterable = require('./OrderedLazyIterable');
+import IndexedLazyIterable = require('./IndexedLazyIterable');
 
-declare class ArrayIterator<T> extends OrderedLazyIterable<T, ArrayIterator<T>> {
+declare class ArrayIterator<T> extends IndexedLazyIterable<T, ArrayIterator<T>> {
   (_array: T[]): ArrayIterator<T>;
 }
 

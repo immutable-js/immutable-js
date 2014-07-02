@@ -81,6 +81,7 @@ for(var OrderedLazyIterable____Key in OrderedLazyIterable){if(OrderedLazyIterabl
   };
 
   IndexedLazyIterable.prototype.skipWhile=function(predicate, context, maintainIndices) {"use strict";
+    // TODO: I think we actually want to provide something new here where we just subtract from indicies for skip.
     var seq = ____SuperProtoOfOrderedLazyIterable.skipWhile.call(this,predicate, context);
     return maintainIndices ? seq : seq.values();
   };

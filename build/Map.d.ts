@@ -1,4 +1,4 @@
-import LazyIterable = require('./LazyIterable');
+import OrderedLazyIterable = require('./OrderedLazyIterable');
 import IMap = require('./IMap');
 
 declare function Map<K, V>(obj?: {[key: string]: V;}): Map<K, V>;
@@ -8,7 +8,7 @@ declare module Map {
   function fromObj<V>(obj: {[key: string]: V;}): Map<string, V>;
 }
 
-interface Map<K, V> extends LazyIterable<K, V, Map<K, V>> {
+interface Map<K, V> extends OrderedLazyIterable<K, V, Map<K, V>> {
   length: number;
   has(k: K): boolean;
   get(k: K, undefinedValue?: V): V;
@@ -19,7 +19,7 @@ interface Map<K, V> extends LazyIterable<K, V, Map<K, V>> {
   setIn(keyPath: any[], v: any, pathOffset?: number): Map<K, V>;
   delete(k: K): Map<K, V>;
   deleteIn(keyPath: any[], pathOffset?: number): Map<K, V>;
-  merge(seq: LazyIterable<K, V, any>): Map<K, V>;
+  merge(seq: OrderedLazyIterable<K, V, any>): Map<K, V>;
   isTransient(): boolean;
   asTransient(): Map<K, V>;
   asPersistent(): Map<K, V>;

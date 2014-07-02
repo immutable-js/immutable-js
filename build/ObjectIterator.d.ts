@@ -1,6 +1,6 @@
-import LazyIterable = require('./LazyIterable');
+import OrderedLazyIterable = require('./OrderedLazyIterable');
 
-declare class ObjectIterator<T> extends LazyIterable<string, T, ObjectIterator<T>> {
+declare class ObjectIterator<T> extends OrderedLazyIterable<string, T, ObjectIterator<T>> {
 
   /**
    *

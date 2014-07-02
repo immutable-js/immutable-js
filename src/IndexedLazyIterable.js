@@ -81,6 +81,7 @@ class IndexedLazyIterable extends OrderedLazyIterable {
   }
 
   skipWhile(predicate, context, maintainIndices) {
+    // TODO: I think we actually want to provide something new here where we just subtract from indicies for skip.
     var seq = super.skipWhile(predicate, context);
     return maintainIndices ? seq : seq.values();
   }

@@ -1,9 +1,9 @@
-import LazyIterable = require('./LazyIterable');
+import OrderedLazyIterable = require('./OrderedLazyIterable');
 
 /**
  *
  */
-interface IMap<K, V> extends LazyIterable<K, V, IMap<K, V>> {
+interface IMap<K, V> extends OrderedLazyIterable<K, V, IMap<K, V>> {
   length: number;
   has(k: K): boolean;
   get(k: K): V;
@@ -13,7 +13,7 @@ interface IMap<K, V> extends LazyIterable<K, V, IMap<K, V>> {
   setIn(keyPath: any[], v: any, pathOffset?: number): IMap<K, V>;
   delete(k: K): IMap<K, V>;
   deleteIn(keyPath: any[], pathOffset?: number): IMap<K, V>;
-  merge(seq: LazyIterable<K, V, any>): IMap<K, V>;
+  merge(seq: OrderedLazyIterable<K, V, any>): IMap<K, V>;
   isTransient(): boolean;
   asTransient(): IMap<K, V>;
   asPersistent(): IMap<K, V>;
