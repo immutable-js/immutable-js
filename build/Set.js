@@ -1,8 +1,8 @@
-var LazyIterable = require('./LazyIterable');
+var OrderedLazyIterable = require('./OrderedLazyIterable');
 var Map = require('./Map');
 
 
-for(var LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(LazyIterable____Key)){Set[LazyIterable____Key]=LazyIterable[LazyIterable____Key];}}var ____SuperProtoOfLazyIterable=LazyIterable===null?null:LazyIterable.prototype;Set.prototype=Object.create(____SuperProtoOfLazyIterable);Set.prototype.constructor=Set;Set.__superConstructor__=LazyIterable;
+for(var OrderedLazyIterable____Key in OrderedLazyIterable){if(OrderedLazyIterable.hasOwnProperty(OrderedLazyIterable____Key)){Set[OrderedLazyIterable____Key]=OrderedLazyIterable[OrderedLazyIterable____Key];}}var ____SuperProtoOfOrderedLazyIterable=OrderedLazyIterable===null?null:OrderedLazyIterable.prototype;Set.prototype=Object.create(____SuperProtoOfOrderedLazyIterable);Set.prototype.constructor=Set;Set.__superConstructor__=OrderedLazyIterable;
 
   // @pragma Construction
 
@@ -129,9 +129,15 @@ for(var LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(Lazy
       return true;
     }
     var collection = this;
-    return this.$Set_map.iterate(function ($Set_, key) {
-      return fn(key, key, collection);
-    });
+    return this.$Set_map.iterate(function(_, k)  {return fn(k, k, collection);});
+  };
+
+  Set.prototype.reverseIterate=function(fn) {"use strict";
+    if (!this.$Set_map) {
+      return true;
+    }
+    var collection = this;
+    return this.$Set_map.reverseIterate(function(_, k)  {return fn(k, k, collection);});
   };
 
   // @pragma Private

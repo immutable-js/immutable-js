@@ -21,4 +21,10 @@ describe('ObjectIterator', function() {
     expect(k).toEqual(['a', 'b', 'c']);
   });
 
+  it('is reversable', function() {
+    var i = new ObjectIterator({'a': 'A', 'b': 'B', 'c': 'C'});
+    var k = i.reverse().toArray();
+    expect(k).toEqual(['C', 'B', 'A']);
+  });
+
 });

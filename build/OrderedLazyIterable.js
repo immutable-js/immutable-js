@@ -1,6 +1,4 @@
-var LazyIterable = require('./LazyIterable');
-
-for(var LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(LazyIterable____Key)){OrderedLazyIterable[LazyIterable____Key]=LazyIterable[LazyIterable____Key];}}var ____SuperProtoOfLazyIterable=LazyIterable===null?null:LazyIterable.prototype;OrderedLazyIterable.prototype=Object.create(____SuperProtoOfLazyIterable);OrderedLazyIterable.prototype.constructor=OrderedLazyIterable;OrderedLazyIterable.__superConstructor__=LazyIterable;function OrderedLazyIterable(){"use strict";if(LazyIterable!==null){LazyIterable.apply(this,arguments);}}
+function OrderedLazyIterable(){"use strict";}
   // abstract iterate(fn)
 
   OrderedLazyIterable.prototype.reverseIterate=function(fn) {"use strict";
@@ -11,7 +9,7 @@ for(var LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(Lazy
      */
     var temp = [];
     var collection;
-    this.iterate(function(v, i, c)  {
+    this.iterate(function(v, k, c)  {
       collection || (collection = c);
       temp.push([k, v]);
     });
@@ -24,23 +22,39 @@ for(var LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(Lazy
     return true;
   };
 
-  // This and toVector should go away, or be replaced by the "LazyIterable" version
   OrderedLazyIterable.prototype.toArray=function() {"use strict";
     var array = [];
-    this.iterate(function(v, k)  { array[k] = v; });
+    this.iterate(function(v)  { array.push(v); });
     return array;
+  };
+
+  OrderedLazyIterable.prototype.toObject=function() {"use strict";
+    var object = {};
+    this.iterate(function(v, k)  { object[k] = v; });
+    return object;
   };
 
   OrderedLazyIterable.prototype.toVector=function() {"use strict";
     // Use Late Binding here to solve the circular dependency.
-    return require('./Vector').empty().merge(this);
+    var vect = require('./Vector').empty().asTransient();
+    this.iterate(function(v)  { vect.push(v); });
+    return vect.asPersistent();
+  };
+
+  OrderedLazyIterable.prototype.toMap=function() {"use strict";
+    // Use Late Binding here to solve the circular dependency.
+    return require('./Map').empty().merge(this);
+  };
+
+  OrderedLazyIterable.prototype.toSet=function() {"use strict";
+    // Use Late Binding here to solve the circular dependency.
+    return require('./Set').empty().merge(this);
   };
 
   OrderedLazyIterable.prototype.reverse=function() {"use strict";
     return new ReverseIterator(this);
   };
 
-  // This is identical to LazyIterable
   OrderedLazyIterable.prototype.keys=function() {"use strict";
     return this.map(function(v, k)  {return k;}).values();
   };
@@ -48,11 +62,11 @@ for(var LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(Lazy
   OrderedLazyIterable.prototype.values=function() {"use strict";
     // TODO: can __makeIterator reduce boilerplate?
     var iterator = this;
-    var valuesIterator = function(fn, alterIndicies)  {
+    var valuesIterator = function(fn, alterIndices)  {
       var iterations = 0;
       return iterator.iterate(
         function(v, k, c)  {return fn(v, iterations++, c) !== false;},
-        alterIndicies
+        alterIndices
       );
     }
     // Late static binding, to avoid circular dependency issues.
@@ -65,6 +79,10 @@ for(var LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(Lazy
     return this.map(function(v, k)  {return [k, v];}).values();
   };
 
+  OrderedLazyIterable.prototype.forEach=function(fn, context) {"use strict";
+    this.iterate(function(v, k, c)  { fn.call(context, v, k, c); });
+  };
+
   OrderedLazyIterable.prototype.first=function(predicate, context) {"use strict";
     var firstValue;
     (fn ? this.filter(predicate, context) : this).take(1).forEach(function(v)  { firstValue = v; });
@@ -75,17 +93,59 @@ for(var LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(Lazy
     return this.reverse(true).first(predicate, context);
   };
 
+  OrderedLazyIterable.prototype.reduce=function(reducer, initialReduction, context) {"use strict";
+    var reduction = initialReduction;
+    this.iterate(function(v, k, c)  {
+      reduction = reducer.call(context, reduction, v, k, c);
+    });
+    return reduction;
+  };
+
   OrderedLazyIterable.prototype.reduceRight=function(reducer, initialReduction, context) {"use strict";
     return this.reverse(true).reduce(reducer, initialReduction, context);
   };
 
+  OrderedLazyIterable.prototype.every=function(predicate, context) {"use strict";
+    var every = true;
+    this.iterate(function(v, k, c)  {
+      if (!predicate.call(context, v, k, c)) {
+        every = false;
+        return false;
+      }
+    });
+    return every;
+  };
+
+  OrderedLazyIterable.prototype.some=function(predicate, context) {"use strict";
+    // TODO: write a test
+    return !this.every(not(predicate), context);
+    // var some = false;
+    // this.iterate((v, k, c) => {
+    //   if (predicate.call(context, v, k, c)) {
+    //     some = true;
+    //     return false;
+    //   }
+    // });
+    // return some;
+  };
+
+  OrderedLazyIterable.prototype.flip=function() {"use strict";
+    var iterator = this;
+    var flipIterator = function(fn, alterIndices)  {return iterator.iterate(
+      function(v, k, c)  {return fn(k, v, c) !== false;},
+      alterIndices
+    );};
+    // TODO: can __makeIterator reduce boilerplate?
+    return this.__makeIterator(flipIterator, flipIterator);
+  };
+
   OrderedLazyIterable.prototype.map=function(mapper, context) {"use strict";
+    var iterator = this;
     var mapIterator = function(fn, alterIndices)  {return iterator.iterate(
       function(v, k, c)  {return fn(mapper.call(context, v, k, c), k, c) !== false;},
       alterIndices
     );};
     // TODO: can __makeIterator reduce boilerplate?
-    var iterator = this;
     return this.__makeIterator(mapIterator, mapIterator);
   };
 
@@ -97,6 +157,28 @@ for(var LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(Lazy
       alterIndices
     );};
     return this.__makeIterator(filterIterator, filterIterator);
+  };
+
+  OrderedLazyIterable.prototype.find=function(fn, context) {"use strict";
+    var foundValue;
+    this.iterate(function(v, k, c)  {
+      if (fn.call(context, v, k, c)) {
+        foundValue = v;
+        return false;
+      }
+    });
+    return foundValue;
+  };
+
+  OrderedLazyIterable.prototype.findKey=function(fn, context) {"use strict";
+    var foundKey;
+    this.iterate(function(v, k, c)  {
+      if (fn.call(context, v, k, c)) {
+        foundKey = k;
+        return false;
+      }
+    });
+    return foundKey;
   };
 
   OrderedLazyIterable.prototype.findLast=function(predicate, context) {"use strict";

@@ -1,84 +1,84 @@
 function LazyIterable(){"use strict";}
   // abstract iterate(fn)
 
-  LazyIterable.prototype.toArray=function() {"use strict";
-    var array = [];
-    this.iterate(function(v)  { array.push(v); });
-    return array;
-  };
+  // toArray() {
+  //   var array = [];
+  //   this.iterate(v => { array.push(v); });
+  //   return array;
+  // }
 
-  LazyIterable.prototype.toObject=function() {"use strict";
-    var object = {};
-    this.iterate(function(v, k)  { object[k] = v; });
-    return object;
-  };
+  // toObject() {
+  //   var object = {};
+  //   this.iterate((v, k) => { object[k] = v; });
+  //   return object;
+  // }
 
-  LazyIterable.prototype.toVector=function() {"use strict";
-    // Use Late Binding here to solve the circular dependency.
-    var vect = require('./Vector').empty().asTransient();
-    this.iterate(function(v)  { vect.push(v); });
-    return vect.asPersistent();
-  };
+  // toVector() {
+  //   // Use Late Binding here to solve the circular dependency.
+  //   var vect = require('./Vector').empty().asTransient();
+  //   this.iterate(v => { vect.push(v); });
+  //   return vect.asPersistent();
+  // }
 
-  LazyIterable.prototype.toMap=function() {"use strict";
-    // Use Late Binding here to solve the circular dependency.
-    return require('./Map').empty().merge(this);
-  };
+  // toMap() {
+  //   // Use Late Binding here to solve the circular dependency.
+  //   return require('./Map').empty().merge(this);
+  // }
 
-  LazyIterable.prototype.toSet=function() {"use strict";
-    // Use Late Binding here to solve the circular dependency.
-    return require('./Set').empty().merge(this);
-  };
+  // toSet() {
+  //   // Use Late Binding here to solve the circular dependency.
+  //   return require('./Set').empty().merge(this);
+  // }
 
-  LazyIterable.prototype.keys=function() {"use strict";
-    return this.map(function(v, k)  {return k;}).values();
-  };
+  // keys() {
+  //   return this.map((v, k) => k).values();
+  // }
 
-  LazyIterable.prototype.values=function() {"use strict";
-    return new ValueIterator(this);
-  };
+  // values() {
+  //   return new ValueIterator(this);
+  // }
 
-  LazyIterable.prototype.entries=function() {"use strict";
-    return this.map(function(v, k)  {return [k, v];}).values();
-  };
+  // entries() {
+  //   return this.map((v, k) => [k, v]).values();
+  // }
 
-  LazyIterable.prototype.forEach=function(fn, thisArg) {"use strict";
-    this.iterate(function(v, k, c)  { fn.call(thisArg, v, k, c); });
-  };
+  // forEach(fn, thisArg) {
+  //   this.iterate((v, k, c) => { fn.call(thisArg, v, k, c); });
+  // }
 
-  LazyIterable.prototype.find=function(fn, thisArg) {"use strict";
-    var foundValue;
-    this.iterate(function(v, k, c)  {
-      if (fn.call(thisArg, v, k, c)) {
-        foundValue = v;
-        return false;
-      }
-    });
-    return foundValue;
-  };
+  // find(fn, thisArg) {
+  //   var foundValue;
+  //   this.iterate((v, k, c) => {
+  //     if (fn.call(thisArg, v, k, c)) {
+  //       foundValue = v;
+  //       return false;
+  //     }
+  //   });
+  //   return foundValue;
+  // }
 
-  LazyIterable.prototype.findKey=function(fn, thisArg) {"use strict";
-    var foundKey;
-    this.iterate(function(v, k, c)  {
-      if (fn.call(thisArg, v, k, c)) {
-        foundKey = k;
-        return false;
-      }
-    });
-    return foundKey;
-  };
+  // findKey(fn, thisArg) {
+  //   var foundKey;
+  //   this.iterate((v, k, c) => {
+  //     if (fn.call(thisArg, v, k, c)) {
+  //       foundKey = k;
+  //       return false;
+  //     }
+  //   });
+  //   return foundKey;
+  // }
 
-  LazyIterable.prototype.reduce=function(fn, initialReduction, thisArg) {"use strict";
-    var reduction = initialReduction;
-    this.iterate(function(v, k, c)  {
-      reduction = fn.call(thisArg, reduction, v, k, c);
-    });
-    return reduction;
-  };
+  // reduce(fn, initialReduction, thisArg) {
+  //   var reduction = initialReduction;
+  //   this.iterate((v, k, c) => {
+  //     reduction = fn.call(thisArg, reduction, v, k, c);
+  //   });
+  //   return reduction;
+  // }
 
-  LazyIterable.prototype.flip=function() {"use strict";
-    return new FlipIterator(this);
-  };
+  // flip() {
+  //   return new FlipIterator(this);
+  // }
 
   LazyIterable.prototype.map=function(fn, thisArg) {"use strict";
     return new MapIterator(this, fn, thisArg);
@@ -88,27 +88,27 @@ function LazyIterable(){"use strict";}
     return new FilterIterator(this, fn, thisArg);
   };
 
-  LazyIterable.prototype.every=function(fn, thisArg) {"use strict";
-    var every = true;
-    this.iterate(function(v, k, c)  {
-      if (!fn.call(thisArg, v, k, c)) {
-        every = false;
-        return false;
-      }
-    });
-    return every;
-  };
+     
+        
+         
+            
+           
+          
+       
+     
+      
+   
 
-  LazyIterable.prototype.some=function(fn, thisArg) {"use strict";
-    var some = false;
-    this.iterate(function(v, k, c)  {
-      if (fn.call(thisArg, v, k, c)) {
-        some = true;
-        return false;
-      }
-    });
-    return some;
-  };
+     
+        
+         
+            
+           
+          
+       
+     
+      
+   
 
 
 for(var LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(LazyIterable____Key)){FlipIterator[LazyIterable____Key]=LazyIterable[LazyIterable____Key];}}var ____SuperProtoOfLazyIterable=LazyIterable===null?null:LazyIterable.prototype;FlipIterator.prototype=Object.create(____SuperProtoOfLazyIterable);FlipIterator.prototype.constructor=FlipIterator;FlipIterator.__superConstructor__=LazyIterable;

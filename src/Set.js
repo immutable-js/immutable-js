@@ -1,8 +1,8 @@
-var LazyIterable = require('./LazyIterable');
+var OrderedLazyIterable = require('./OrderedLazyIterable');
 var Map = require('./Map');
 
 
-class Set extends LazyIterable {
+class Set extends OrderedLazyIterable {
 
   // @pragma Construction
 
@@ -129,9 +129,15 @@ class Set extends LazyIterable {
       return true;
     }
     var collection = this;
-    return this._map.iterate(function (_, key) {
-      return fn(key, key, collection);
-    });
+    return this._map.iterate((_, k) => fn(k, k, collection));
+  }
+
+  reverseIterate(fn) {
+    if (!this._map) {
+      return true;
+    }
+    var collection = this;
+    return this._map.reverseIterate((_, k) => fn(k, k, collection));
   }
 
   // @pragma Private

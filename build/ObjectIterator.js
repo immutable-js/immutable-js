@@ -1,6 +1,6 @@
-var LazyIterable = require('./LazyIterable');
+var OrderedLazyIterable = require('./OrderedLazyIterable');
 
-for(var LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(LazyIterable____Key)){ObjectIterator[LazyIterable____Key]=LazyIterable[LazyIterable____Key];}}var ____SuperProtoOfLazyIterable=LazyIterable===null?null:LazyIterable.prototype;ObjectIterator.prototype=Object.create(____SuperProtoOfLazyIterable);ObjectIterator.prototype.constructor=ObjectIterator;ObjectIterator.__superConstructor__=LazyIterable;
+for(var OrderedLazyIterable____Key in OrderedLazyIterable){if(OrderedLazyIterable.hasOwnProperty(OrderedLazyIterable____Key)){ObjectIterator[OrderedLazyIterable____Key]=OrderedLazyIterable[OrderedLazyIterable____Key];}}var ____SuperProtoOfOrderedLazyIterable=OrderedLazyIterable===null?null:OrderedLazyIterable.prototype;ObjectIterator.prototype=Object.create(____SuperProtoOfOrderedLazyIterable);ObjectIterator.prototype.constructor=ObjectIterator;ObjectIterator.__superConstructor__=OrderedLazyIterable;
   function ObjectIterator(object) {"use strict";
     if (this instanceof ObjectIterator) {
       this.$ObjectIterator_object = object;
@@ -8,6 +8,8 @@ for(var LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(Lazy
       return new ObjectIterator(this.$ObjectIterator_object);
     }
   }
+
+  // TODO: add efficient reverse iteration
 
   ObjectIterator.prototype.iterate=function(fn) {"use strict";
     for (var key in this.$ObjectIterator_object) if (this.$ObjectIterator_object.hasOwnProperty(key)) {

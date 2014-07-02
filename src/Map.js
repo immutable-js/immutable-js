@@ -1,11 +1,11 @@
-var LazyIterable = require('./LazyIterable');
+var OrderedLazyIterable = require('./OrderedLazyIterable');
 
 
 function invariant(condition, error) {
   if (!condition) throw new Error(error);
 }
 
-class Map extends LazyIterable {
+class Map extends OrderedLazyIterable {
 
   // @pragma Construction
 
@@ -303,6 +303,8 @@ class BitmapIndexedNode {
     }
     return new BitmapIndexedNode(ownerID, this.bitmap, this.keys.slice(), this.values.slice());
   }
+
+  // TODO: add efficient reverse iteration.
 
   iterate(map, fn) {
     for (var ii = 0; ii < this.values.length; ii++) {

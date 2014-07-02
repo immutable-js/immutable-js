@@ -1,4 +1,4 @@
-var LazyIterable = require('./LazyIterable');
+var OrderedLazyIterable = require('./OrderedLazyIterable');
 var ArrayIterator = require('./ArrayIterator');
 var ObjectIterator = require('./ObjectIterator');
 var Map = require('./Map');
@@ -27,7 +27,7 @@ function isPersistent(value) {
 }
 
 function isLazy(value) {
-  return value instanceof LazyIterable;
+  return value instanceof OrderedLazyIterable;
 }
 
 function lazy(value) {
@@ -85,7 +85,7 @@ module.exports = {
   lazy: lazy,
   fromJS: fromJS,
   toJS: toJS,
-  LazyIterable: LazyIterable,
+  OrderedLazyIterable: OrderedLazyIterable,
   ArrayIterator: ArrayIterator,
   ObjectIterator: ObjectIterator,
   Map: Map,

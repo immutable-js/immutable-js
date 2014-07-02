@@ -1,6 +1,4 @@
-var LazyIterable = require('./LazyIterable');
-
-class OrderedLazyIterable extends LazyIterable {
+class OrderedLazyIterable {
   // abstract iterate(fn)
 
   reverseIterate(fn) {
@@ -11,7 +9,7 @@ class OrderedLazyIterable extends LazyIterable {
      */
     var temp = [];
     var collection;
-    this.iterate((v, i, c) => {
+    this.iterate((v, k, c) => {
       collection || (collection = c);
       temp.push([k, v]);
     });
@@ -24,23 +22,39 @@ class OrderedLazyIterable extends LazyIterable {
     return true;
   }
 
-  // This and toVector should go away, or be replaced by the "LazyIterable" version
   toArray() {
     var array = [];
-    this.iterate((v, k) => { array[k] = v; });
+    this.iterate(v => { array.push(v); });
     return array;
+  }
+
+  toObject() {
+    var object = {};
+    this.iterate((v, k) => { object[k] = v; });
+    return object;
   }
 
   toVector() {
     // Use Late Binding here to solve the circular dependency.
-    return require('./Vector').empty().merge(this);
+    var vect = require('./Vector').empty().asTransient();
+    this.iterate(v => { vect.push(v); });
+    return vect.asPersistent();
+  }
+
+  toMap() {
+    // Use Late Binding here to solve the circular dependency.
+    return require('./Map').empty().merge(this);
+  }
+
+  toSet() {
+    // Use Late Binding here to solve the circular dependency.
+    return require('./Set').empty().merge(this);
   }
 
   reverse() {
     return new ReverseIterator(this);
   }
 
-  // This is identical to LazyIterable
   keys() {
     return this.map((v, k) => k).values();
   }
@@ -48,11 +62,11 @@ class OrderedLazyIterable extends LazyIterable {
   values() {
     // TODO: can __makeIterator reduce boilerplate?
     var iterator = this;
-    var valuesIterator = (fn, alterIndicies) => {
+    var valuesIterator = (fn, alterIndices) => {
       var iterations = 0;
       return iterator.iterate(
         (v, k, c) => fn(v, iterations++, c) !== false,
-        alterIndicies
+        alterIndices
       );
     }
     // Late static binding, to avoid circular dependency issues.
@@ -65,6 +79,10 @@ class OrderedLazyIterable extends LazyIterable {
     return this.map((v, k) => [k, v]).values();
   }
 
+  forEach(fn, context) {
+    this.iterate((v, k, c) => { fn.call(context, v, k, c); });
+  }
+
   first(predicate, context) {
     var firstValue;
     (fn ? this.filter(predicate, context) : this).take(1).forEach(v => { firstValue = v; });
@@ -75,17 +93,59 @@ class OrderedLazyIterable extends LazyIterable {
     return this.reverse(true).first(predicate, context);
   }
 
+  reduce(reducer, initialReduction, context) {
+    var reduction = initialReduction;
+    this.iterate((v, k, c) => {
+      reduction = reducer.call(context, reduction, v, k, c);
+    });
+    return reduction;
+  }
+
   reduceRight(reducer, initialReduction, context) {
     return this.reverse(true).reduce(reducer, initialReduction, context);
   }
 
+  every(predicate, context) {
+    var every = true;
+    this.iterate((v, k, c) => {
+      if (!predicate.call(context, v, k, c)) {
+        every = false;
+        return false;
+      }
+    });
+    return every;
+  }
+
+  some(predicate, context) {
+    // TODO: write a test
+    return !this.every(not(predicate), context);
+    // var some = false;
+    // this.iterate((v, k, c) => {
+    //   if (predicate.call(context, v, k, c)) {
+    //     some = true;
+    //     return false;
+    //   }
+    // });
+    // return some;
+  }
+
+  flip() {
+    var iterator = this;
+    var flipIterator = (fn, alterIndices) => iterator.iterate(
+      (v, k, c) => fn(k, v, c) !== false,
+      alterIndices
+    );
+    // TODO: can __makeIterator reduce boilerplate?
+    return this.__makeIterator(flipIterator, flipIterator);
+  }
+
   map(mapper, context) {
+    var iterator = this;
     var mapIterator = (fn, alterIndices) => iterator.iterate(
       (v, k, c) => fn(mapper.call(context, v, k, c), k, c) !== false,
       alterIndices
     );
     // TODO: can __makeIterator reduce boilerplate?
-    var iterator = this;
     return this.__makeIterator(mapIterator, mapIterator);
   }
 
@@ -97,6 +157,28 @@ class OrderedLazyIterable extends LazyIterable {
       alterIndices
     );
     return this.__makeIterator(filterIterator, filterIterator);
+  }
+
+  find(fn, context) {
+    var foundValue;
+    this.iterate((v, k, c) => {
+      if (fn.call(context, v, k, c)) {
+        foundValue = v;
+        return false;
+      }
+    });
+    return foundValue;
+  }
+
+  findKey(fn, context) {
+    var foundKey;
+    this.iterate((v, k, c) => {
+      if (fn.call(context, v, k, c)) {
+        foundKey = k;
+        return false;
+      }
+    });
+    return foundKey;
   }
 
   findLast(predicate, context) {

@@ -1,11 +1,11 @@
-var LazyIterable = require('./LazyIterable');
+var OrderedLazyIterable = require('./OrderedLazyIterable');
 
 
 function invariant(condition, error) {
   if (!condition) throw new Error(error);
 }
 
-for(var LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(LazyIterable____Key)){Map[LazyIterable____Key]=LazyIterable[LazyIterable____Key];}}var ____SuperProtoOfLazyIterable=LazyIterable===null?null:LazyIterable.prototype;Map.prototype=Object.create(____SuperProtoOfLazyIterable);Map.prototype.constructor=Map;Map.__superConstructor__=LazyIterable;
+for(var OrderedLazyIterable____Key in OrderedLazyIterable){if(OrderedLazyIterable.hasOwnProperty(OrderedLazyIterable____Key)){Map[OrderedLazyIterable____Key]=OrderedLazyIterable[OrderedLazyIterable____Key];}}var ____SuperProtoOfOrderedLazyIterable=OrderedLazyIterable===null?null:OrderedLazyIterable.prototype;Map.prototype=Object.create(____SuperProtoOfOrderedLazyIterable);Map.prototype.constructor=Map;Map.__superConstructor__=OrderedLazyIterable;
 
   // @pragma Construction
 
@@ -303,6 +303,8 @@ function makeNode(ownerID, shift, hash, key, valOrNode) {
     }
     return new BitmapIndexedNode(ownerID, this.bitmap, this.keys.slice(), this.values.slice());
   };
+
+  // TODO: add efficient reverse iteration.
 
   BitmapIndexedNode.prototype.iterate=function(map, fn) {"use strict";
     for (var ii = 0; ii < this.values.length; ii++) {
