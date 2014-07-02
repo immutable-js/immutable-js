@@ -5,7 +5,7 @@ declare class LazyObjectSequence<T> extends LazySequence<string, T, LazyObjectSe
   /**
    *
    */
-  (object: {[key: string]: T;}): LazyObjectSequence<T>;
+  constructor(object: {[key: string]: T;});
 }
 
 export = LazyObjectSequence;

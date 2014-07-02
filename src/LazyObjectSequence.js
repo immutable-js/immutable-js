@@ -2,11 +2,7 @@ var LazySequence = require('./LazySequence');
 
 class LazyObjectSequence extends LazySequence {
   constructor(object) {
-    if (this instanceof LazyObjectSequence) {
-      this._object = object;
-    } else {
-      return new LazyObjectSequence(this._object);
-    }
+    this._object = object;
   }
 
   // TODO: add efficient reverse iteration

@@ -121,16 +121,7 @@ class LazySequence {
   }
 
   some(predicate, context) {
-    // TODO: write a test
     return !this.every(not(predicate), context);
-    // var some = false;
-    // this.iterate((v, k, c) => {
-    //   if (predicate.call(context, v, k, c)) {
-    //     some = true;
-    //     return false;
-    //   }
-    // });
-    // return some;
   }
 
   find(predicate, context) {
