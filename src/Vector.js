@@ -77,16 +77,12 @@ class Vector extends LazyIndexedSequence {
     }
   }
 
-  first() {
-    if (this.length > 0) {
-      return this.get(0);
-    }
+  first(predicate, context) {
+    return predicate ? super.first(predicate, context) : this.get(0);
   }
 
-  last() {
-    if (this.length > 0) {
-      return this.get(this.length - 1);
-    }
+  last(predicate, context) {
+    return predicate ? super.last(predicate, context) : this.get(this.length ? this.length - 1 : 0);
   }
 
   equals(other) {

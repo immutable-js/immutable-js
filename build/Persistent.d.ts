@@ -1,4 +1,5 @@
 export import LazySequence = require('./LazySequence');
+export import Range = require('./Range');
 export import Map = require('./Map');
 export import Vector = require('./Vector');
 export import Set = require('./Set');

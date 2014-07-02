@@ -1,4 +1,5 @@
 var LazySequence = require('./LazySequence');
+var Range = require('./Range');
 var Map = require('./Map');
 var Vector = require('./Vector');
 var Set = require('./Set');
@@ -70,6 +71,7 @@ module.exports = {
   fromJS: fromJS,
   toJS: toJS,
   LazySequence: LazySequence,
+  Range: Range,
   Map: Map,
   Vector: Vector,
   Set: Set,

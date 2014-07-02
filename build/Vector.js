@@ -77,16 +77,12 @@ for(var LazyIndexedSequence____Key in LazyIndexedSequence){if(LazyIndexedSequenc
     }
   };
 
-  Vector.prototype.first=function() {"use strict";
-    if (this.length > 0) {
-      return this.get(0);
-    }
+  Vector.prototype.first=function(predicate, context) {"use strict";
+    return predicate ? ____SuperProtoOfLazyIndexedSequence.first.call(this,predicate, context) : this.get(0);
   };
 
-  Vector.prototype.last=function() {"use strict";
-    if (this.length > 0) {
-      return this.get(this.length - 1);
-    }
+  Vector.prototype.last=function(predicate, context) {"use strict";
+    return predicate ? ____SuperProtoOfLazyIndexedSequence.last.call(this,predicate, context) : this.get(this.length ? this.length - 1 : 0);
   };
 
   Vector.prototype.equals=function(other) {"use strict";
