@@ -1,6 +1,6 @@
-var OrderedLazyIterable = require('./OrderedLazyIterable');
+var IndexedLazyIterable = require('./IndexedLazyIterable');
 
-for(var OrderedLazyIterable____Key in OrderedLazyIterable){if(OrderedLazyIterable.hasOwnProperty(OrderedLazyIterable____Key)){ArrayIterator[OrderedLazyIterable____Key]=OrderedLazyIterable[OrderedLazyIterable____Key];}}var ____SuperProtoOfOrderedLazyIterable=OrderedLazyIterable===null?null:OrderedLazyIterable.prototype;ArrayIterator.prototype=Object.create(____SuperProtoOfOrderedLazyIterable);ArrayIterator.prototype.constructor=ArrayIterator;ArrayIterator.__superConstructor__=OrderedLazyIterable;
+for(var IndexedLazyIterable____Key in IndexedLazyIterable){if(IndexedLazyIterable.hasOwnProperty(IndexedLazyIterable____Key)){ArrayIterator[IndexedLazyIterable____Key]=IndexedLazyIterable[IndexedLazyIterable____Key];}}var ____SuperProtoOfIndexedLazyIterable=IndexedLazyIterable===null?null:IndexedLazyIterable.prototype;ArrayIterator.prototype=Object.create(____SuperProtoOfIndexedLazyIterable);ArrayIterator.prototype.constructor=ArrayIterator;ArrayIterator.__superConstructor__=IndexedLazyIterable;
   function ArrayIterator(array) {"use strict";
     if (this instanceof ArrayIterator) {
       this.$ArrayIterator_array = array;
@@ -9,18 +9,20 @@ for(var OrderedLazyIterable____Key in OrderedLazyIterable){if(OrderedLazyIterabl
     }
   }
 
-  ArrayIterator.prototype.iterate=function(fn, thisArg, reverseIndices) {"use strict";
+  ArrayIterator.prototype.iterate=function(fn, reverseIndices) {"use strict";
     var array = this.$ArrayIterator_array;
+    var maxIndex = array.length - 1;
     return this.$ArrayIterator_array.every(function(value, index) 
-      {return fn.call(thisArg, value, reverseIndices ? array.length - 1 - index : index, array) !== false;}
+      {return fn(value, reverseIndices ? maxIndex - index : index, array) !== false;}
     );
   };
 
-  ArrayIterator.prototype.reverseIterate=function(fn, thisArg, maintainIndices) {"use strict";
+  ArrayIterator.prototype.reverseIterate=function(fn, maintainIndices) {"use strict";
     var array = this.$ArrayIterator_array;
-    for (var ii = array.length - 1; ii >= 0; ii--) {
+    var maxIndex = array.length - 1;
+    for (var ii = maxIndex; ii >= 0; ii--) {
       if (array.hasOwnProperty(ii) &&
-          fn.call(thisArg, array[ii], maintainIndices ? ii : array.length - 1 - ii, array) === false) {
+          fn(array[ii], maintainIndices ? ii : maxIndex - ii, array) === false) {
         return false;
       }
     }

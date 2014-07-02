@@ -1,9 +1,9 @@
 var LazyIterable = require('./LazyIterable');
 
 class OrderedLazyIterable extends LazyIterable {
-  // abstract iterate(fn, thisArg, reverseIndices)
+  // abstract iterate(fn)
 
-  reverseIterate(fn, thisArg, maintainIndices) {
+  reverseIterate(fn) {
     /**
      * Note: the default implementation of this needs to make an intermediate
      * representation which may be inefficent or at worse infinite.
@@ -13,17 +13,18 @@ class OrderedLazyIterable extends LazyIterable {
     var collection;
     this.iterate((v, i, c) => {
       collection || (collection = c);
-      temp[i] = v;
+      temp.push([k, v]);
     });
     for (var ii = temp.length - 1; ii >= 0; ii--) {
-      if (temp.hasOwnProperty(ii) &&
-          fn.call(thisArg, temp[ii], maintainIndices ? ii : temp.length - 1 - ii, collection) === false) {
+      var entry = temp[ii];
+      if (fn(entry[1], entry[0], collection) === false) {
         return false;
       }
     }
     return true;
   }
 
+  // This and toVector should go away, or be replaced by the "LazyIterable" version
   toArray() {
     var array = [];
     this.iterate((v, k) => { array[k] = v; });
@@ -35,63 +36,75 @@ class OrderedLazyIterable extends LazyIterable {
     return require('./Vector').empty().merge(this);
   }
 
-  reverse(maintainIndices) {
-    return new ReverseIterator(this, maintainIndices);
+  reverse() {
+    return new ReverseIterator(this);
   }
 
+  // This is identical to LazyIterable
   keys() {
     return this.map((v, k) => k).values();
   }
 
   values() {
-    return new ValueIterator(this);
+    // TODO: can __makeIterator reduce boilerplate?
+    var iterator = this;
+    var valuesIterator = (fn, alterIndicies) => {
+      var iterations = 0;
+      return iterator.iterate(
+        (v, k, c) => fn(v, iterations++, c) !== false,
+        alterIndicies
+      );
+    }
+    // Late static binding, to avoid circular dependency issues.
+    // values() always returns an Indexed sequence.
+    var IndexedLazyIterable = require('./IndexedLazyIterable');
+    return IndexedLazyIterable.prototype.__makeIterator.call(this, valuesIterator, valuesIterator);
   }
 
   entries() {
     return this.map((v, k) => [k, v]).values();
   }
 
-  first(fn, thisArg) {
+  first(predicate, context) {
     var firstValue;
-    (fn ? this.filter(fn, thisArg) : this).take(1).forEach(v => { firstValue = v; });
+    (fn ? this.filter(predicate, context) : this).take(1).forEach(v => { firstValue = v; });
     return firstValue;
   }
 
-  last(fn, thisArg) {
-    return this.reverse(true).first(fn, thisArg);
+  last(predicate, context) {
+    return this.reverse(true).first(predicate, context);
   }
 
-  reduceRight(fn, initialReduction, thisArg) {
-    return this.reverse(true).reduce(fn, initialReduction, thisArg);
+  reduceRight(reducer, initialReduction, context) {
+    return this.reverse(true).reduce(reducer, initialReduction, context);
   }
 
-  map(fn, thisArg) {
-    return new MapIterator(this, fn, thisArg);
+  map(mapper, context) {
+    var mapIterator = (fn, alterIndices) => iterator.iterate(
+      (v, k, c) => fn(mapper.call(context, v, k, c), k, c) !== false,
+      alterIndices
+    );
+    // TODO: can __makeIterator reduce boilerplate?
+    var iterator = this;
+    return this.__makeIterator(mapIterator, mapIterator);
   }
 
-  filter(fn, thisArg, maintainIndices) {
-    return new FilterIterator(this, fn, thisArg, maintainIndices);
+  // remove "maintainIndicies"
+  filter(predicate, context) {
+    var iterator = this;
+    var filterIterator = (fn, alterIndices) => iterator.iterate(
+      (v, k, c) => !predicate.call(context, v, k, c) || fn(v, k, c) !== false,
+      alterIndices
+    );
+    return this.__makeIterator(filterIterator, filterIterator);
   }
 
-  indexOf(searchValue) {
-    return this.findIndex(value => value === searchValue);
+  findLast(predicate, context) {
+    return this.reverse(true).find(predicate, context);
   }
 
-  lastIndexOf(searchValue) {
-    return this.findLastIndex(value => value === searchValue);
-  }
-
-  findIndex(fn, thisArg) {
-    var key = this.findKey(fn, thisArg);
-    return key == null ? -1 : key;
-  }
-
-  findLast(fn, thisArg) {
-    return this.reverse(true).find(fn, thisArg);
-  }
-
-  findLastIndex(fn, thisArg) {
-    return this.reverse(true).findIndex(fn, thisArg);
+  findLastKey(predicate, context) {
+    return this.reverse(true).findKey(predicate, context);
   }
 
   take(amount) {
@@ -99,199 +112,216 @@ class OrderedLazyIterable extends LazyIterable {
     return this.takeWhile(() => iterations++ < amount);
   }
 
-  takeWhile(fn, thisArg) {
-    return new TakeIterator(this, fn, thisArg);
+  takeWhile(predicate, context) {
+    // TODO: can __makeIterator reduce boilerplate?
+    var iterator = this;
+    return this.__makeIterator(
+      (fn, reverseIndices) => iterator.iterate(
+        (v, k, c) => predicate.call(context, v, k, c) && fn(v, k, c) !== false,
+        reverseIndices
+      )
+      // reverse(take(x)) and take(reverse(x)) are not commutative.
+    );
   }
 
-  takeUntil(fn, thisArg) {
-    return this.takeWhile(not(fn), thisArg);
+  takeUntil(predicate, context) {
+    return this.takeWhile(not(predicate), context);
   }
 
-  skip(amount, maintainIndices) {
+  skip(amount) {
     var iterations = 0;
-    return this.skipWhile(() => iterations++ < amount, null, maintainIndices);
+    return this.skipWhile(() => iterations++ < amount, null);
   }
 
-  skipWhile(fn, thisArg, maintainIndices) {
-    return new SkipIterator(this, fn, thisArg, maintainIndices);
+  skipWhile(predicate, context) {
+    // TODO: can __makeIterator reduce boilerplate?
+    var iterator = this;
+    return this.__makeIterator(
+      (fn, reverseIndices) => {
+        var isSkipping = true;
+        return iterator.iterate(
+          (v, k, c) =>
+            (isSkipping = isSkipping && predicate.call(context, v, k, c)) ||
+            fn(v, k, c) !== false,
+          reverseIndices
+        );
+      }
+      // reverse(skip(x)) and skip(reverse(x)) are not commutative.
+    );
   }
 
-  skipUntil(fn, thisArg, maintainIndices) {
-    return this.skipWhile(not(fn), thisArg, maintainIndices);
+  skipUntil(predicate, context) {
+    return this.skipWhile(not(predicate), context);
+  }
+
+  __makeIterator(iterate, reverseIterate) {
+    var iterator = Object.create(OrderedLazyIterable.prototype);
+    iterator.iterate = iterate;
+    reverseIterate && (iterator.reverseIterate = reverseIterate);
+    return iterator;
   }
 }
 
-function not(fn) {
+function not(predicate) {
   return function() {
-    return !fn.apply(this, arguments);
+    return !predicate.apply(this, arguments);
   }
 }
 
 class ReverseIterator extends OrderedLazyIterable {
-  constructor(iterator, maintainIndices) {
-    this.iterator = iterator;
-    this.maintainIndices = maintainIndices;
-  }
-
-  iterate(fn, thisArg, reverseIndices) {
-    return this.iterator.reverseIterate(fn, thisArg, reverseIndices !== this.maintainIndices);
-  }
-
-  reverseIterate(fn, thisArg, maintainIndices) {
-    return this.iterator.iterate(fn, thisArg, maintainIndices !== this.maintainIndices);
-  }
-
-  reverse(maintainIndices) {
-    if (maintainIndices === this.maintainIndices) {
-      return this.iterator;
-    }
-    return super.reverse(maintainIndices);
-  }
-}
-
-class ValueIterator extends OrderedLazyIterable {
   constructor(iterator) {
     this.iterator = iterator;
   }
 
-  iterate(fn, thisArg, reverseIndices) {
-    var iterations = 0;
-    return this.iterator.iterate(
-      (v, k, c) => fn.call(thisArg, v, iterations++, c) !== false,
-      null,
-      reverseIndices
-    );
+  iterate(fn) {
+    return this.iterator.reverseIterate(fn);
   }
 
-  // This is equivalent to values(reverse(x)) and takes advantage of the fact that
-  // these two functions are commutative.
-  reverseIterate(fn, thisArg, maintainIndices) {
-    var iterations = 0;
-    return this.iterator.reverseIterate(
-      (v, k, c) => fn.call(thisArg, v, iterations++, c) !== false,
-      null,
-      maintainIndices
-    );
+  reverseIterate(fn) {
+    return this.iterator.iterate(fn);
+  }
+
+  reverse() {
+    return this.iterator;
   }
 }
 
-class MapIterator extends OrderedLazyIterable {
-  constructor(iterator, mapper, mapThisArg) {
-    this.iterator = iterator;
-    this.mapper = mapper;
-    this.mapThisArg = mapThisArg;
-  }
+// // TODO: this needs to be lazily done.
+// class ValueIterator extends IndexedLazyIterable {
+//   constructor(iterator) {
+//     this.iterator = iterator;
+//   }
 
-  iterate(fn, thisArg, reverseIndices) {
-    var map = this.mapper;
-    var mapThisArg = this.mapThisArg;
-    return this.iterator.iterate(
-      (v, k, c) => fn.call(thisArg, map.call(mapThisArg, v, k, c), k, c) !== false,
-      null,
-      reverseIndices
-    );
-  }
+//   iterate(fn, reverseIndices) {
+//     var iterations = 0;
+//     return this.iterator.iterate(
+//       (v, k, c) => fn(v, iterations++, c) !== false,
+//       null,
+//       reverseIndices
+//     );
+//   }
 
-  // This is equivalent to map(reverse(x)) and takes advantage of the fact that
-  // these two functions are commutative.
-  reverseIterate(fn, thisArg, maintainIndices) {
-    var map = this.mapper;
-    var mapThisArg = this.mapThisArg;
-    return this.iterator.reverseIterate(
-      (v, k, c) => fn.call(thisArg, map.call(mapThisArg, v, k, c), k, c) !== false,
-      null,
-      maintainIndices
-    );
-  }
-}
+//   // This is equivalent to values(reverse(x)) and takes advantage of the fact that
+//   // these two functions are commutative.
+//   reverseIterate(fn, maintainIndices) {
+//     var iterations = 0;
+//     return this.iterator.reverseIterate(
+//       (v, k, c) => fn(v, iterations++, c) !== false,
+//       null,
+//       maintainIndices
+//     );
+//   }
+// }
 
-class FilterIterator extends OrderedLazyIterable {
-  constructor(iterator, predicate, predicateThisArg, maintainIndices) {
-    this.iterator = iterator;
-    this.predicate = predicate;
-    this.predicateThisArg = predicateThisArg;
-    this.maintainIndices = maintainIndices;
-  }
+// class MapIterator extends OrderedLazyIterable {
+//   constructor(iterator, mapper, mapThisArg) {
+//     this.iterator = iterator;
+//     this.mapper = mapper;
+//     this.mapThisArg = mapThisArg;
+//   }
 
-  iterate(fn, thisArg, reverseIndices) {
-    var predicate = this.predicate;
-    var predicateThisArg = this.predicateThisArg;
-    var filterMaintainIndices = this.maintainIndices;
-    var iterations = 0;
-    return this.iterator.iterate(
-      (v, k, c) =>
-        !predicate.call(predicateThisArg, v, k, c) ||
-        fn.call(thisArg, v, filterMaintainIndices ? k : iterations++, c) !== false,
-      null,
-      reverseIndices
-    );
-  }
+//   iterate(fn, reverseIndices) {
+//     var map = this.mapper;
+//     var mapThisArg = this.mapThisArg;
+//     return this.iterator.iterate(
+//       (v, k, c) => fn(map.call(mapThisArg, v, k, c), k, c) !== false,
+//       null,
+//       reverseIndices
+//     );
+//   }
 
-  // This is equivalent to filter(reverse(x)) and takes advantage of the fact that
-  // these two functions are commutative.
-  reverseIterate(fn, thisArg, maintainIndices) {
-    var predicate = this.predicate;
-    var predicateThisArg = this.predicateThisArg;
-    var filterMaintainIndices = this.maintainIndices;
-    var iterations = 0;
-    return this.iterator.reverseIterate(
-      (v, k, c) =>
-        !predicate.call(predicateThisArg, v, k, c) ||
-        fn.call(thisArg, v, filterMaintainIndices ? k : iterations++, c) !== false,
-      null,
-      maintainIndices
-    );
-  }
-}
+//   // This is equivalent to map(reverse(x)) and takes advantage of the fact that
+//   // these two functions are commutative.
+//   reverseIterate(fn, maintainIndices) {
+//     var map = this.mapper;
+//     var mapThisArg = this.mapThisArg;
+//     return this.iterator.reverseIterate(
+//       (v, k, c) => fn(map.call(mapThisArg, v, k, c), k, c) !== false,
+//       null,
+//       maintainIndices
+//     );
+//   }
+// }
 
-class TakeIterator extends OrderedLazyIterable {
-  constructor(iterator, predicate, predicateThisArg) {
-    this.iterator = iterator;
-    this.predicate = predicate;
-    this.predicateThisArg = predicateThisArg;
-  }
+// class FilterIterator extends OrderedLazyIterable {
+//   constructor(iterator, predicate, predicateThisArg) {
+//     this.iterator = iterator;
+//     this.predicate = predicate;
+//     this.predicateThisArg = predicateThisArg;
+//   }
 
-  iterate(fn, thisArg, reverseIndices) {
-    var predicate = this.predicate;
-    var predicateThisArg = this.predicateThisArg;
-    return this.iterator.iterate(
-      (v, k, c) =>
-        predicate.call(predicateThisArg, v, k, c) &&
-        fn.call(thisArg, v, k, c) !== false,
-      null,
-      reverseIndices
-    );
-  }
+//   iterate(fn, reverseIndices) {
+//     var predicate = this.predicate;
+//     var predicateThisArg = this.predicateThisArg;
+//     return this.iterator.iterate(
+//       (v, k, c) =>
+//         !predicate.call(predicateThisArg, v, k, c) ||
+//         fn(v, k, c) !== false,
+//       null,
+//       reverseIndices
+//     );
+//   }
 
-  // Use default impl for reverseIterate because reverse(take(x)) and
-  // take(reverse(x)) are not commutative.
-}
+//   // This is equivalent to filter(reverse(x)) and takes advantage of the fact that
+//   // these two functions are commutative.
+//   reverseIterate(fn, maintainIndices) {
+//     var predicate = this.predicate;
+//     var predicateThisArg = this.predicateThisArg;
+//     return this.iterator.reverseIterate(
+//       (v, k, c) =>
+//         !predicate.call(predicateThisArg, v, k, c) ||
+//         fn(v, k, c) !== false,
+//       null,
+//       maintainIndices
+//     );
+//   }
+// }
 
-class SkipIterator extends OrderedLazyIterable {
-  constructor(iterator, predicate, predicateThisArg, maintainIndices) {
-    this.iterator = iterator;
-    this.predicate = predicate;
-    this.predicateThisArg = predicateThisArg;
-    this.maintainIndices = maintainIndices;
-  }
+// class TakeIterator extends OrderedLazyIterable {
+//   constructor(iterator, predicate, predicateThisArg) {
+//     this.iterator = iterator;
+//     this.predicate = predicate;
+//     this.predicateThisArg = predicateThisArg;
+//   }
 
-  iterate(fn, thisArg, reverseIndices) {
-    var predicate = this.predicate;
-    var predicateThisArg = this.predicateThisArg;
-    var skipMaintainIndices = this.maintainIndices;
-    var iterations = 0;
-    var isSkipping = true;
-    return this.iterator.iterate(
-      (v, k, c) =>
-        (isSkipping = isSkipping && predicate.call(predicateThisArg, v, k, c)) ||
-        fn.call(thisArg, v, skipMaintainIndices ? k : iterations++, c) !== false,
-      null,
-      reverseIndices
-    );
-  }
+//   iterate(fn, reverseIndices) {
+//     var predicate = this.predicate;
+//     var predicateThisArg = this.predicateThisArg;
+//     return this.iterator.iterate(
+//       (v, k, c) =>
+//         predicate.call(predicateThisArg, v, k, c) &&
+//         fn(v, k, c) !== false,
+//       null,
+//       reverseIndices
+//     );
+//   }
 
-  // Use default impl for reverseIterate because reverse(skip(x)) and
-  // skip(reverse(x)) are not commutative.
-}
+//   // Use default impl for reverseIterate because reverse(take(x)) and
+//   // take(reverse(x)) are not commutative.
+// }
+
+// class SkipIterator extends OrderedLazyIterable {
+//   constructor(iterator, predicate, predicateThisArg) {
+//     this.iterator = iterator;
+//     this.predicate = predicate;
+//     this.predicateThisArg = predicateThisArg;
+//   }
+
+//   iterate(fn, reverseIndices) {
+//     var predicate = this.predicate;
+//     var predicateThisArg = this.predicateThisArg;
+//     var isSkipping = true;
+//     return this.iterator.iterate(
+//       (v, k, c) =>
+//         (isSkipping = isSkipping && predicate.call(predicateThisArg, v, k, c)) ||
+//         fn(v, k, c) !== false,
+//       null,
+//       reverseIndices
+//     );
+//   }
+
+//   // Use default impl for reverseIterate because reverse(skip(x)) and
+//   // skip(reverse(x)) are not commutative.
+// }
 
 module.exports = OrderedLazyIterable;

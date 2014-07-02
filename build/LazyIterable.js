@@ -1,5 +1,5 @@
 function LazyIterable(){"use strict";}
-  // abstract iterate(fn, thisArg)
+  // abstract iterate(fn)
 
   LazyIterable.prototype.toArray=function() {"use strict";
     var array = [];
@@ -116,10 +116,8 @@ for(var LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(Lazy
     this.iterator = iterator;
   }
 
-  FlipIterator.prototype.iterate=function(fn, thisArg) {"use strict";
-    return this.iterator.iterate(function(v, k, c) 
-      {return fn.call(thisArg, k, v, c) !== false;}
-    );
+  FlipIterator.prototype.iterate=function(fn) {"use strict";
+    return this.iterator.iterate(function(v, k, c)  {return fn(k, v, c) !== false;});
   };
 
 
@@ -128,11 +126,9 @@ for(LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(LazyIter
     this.iterator = iterator;
   }
 
-  ValueIterator.prototype.iterate=function(fn, thisArg) {"use strict";
+  ValueIterator.prototype.iterate=function(fn) {"use strict";
     var iterations = 0;
-    return this.iterator.iterate(function(v, k, c) 
-      {return fn.call(thisArg, v, iterations++, c) !== false;}
-    );
+    return this.iterator.iterate(function(v, k, c)  {return fn(v, iterations++, c) !== false;});
   };
 
 
@@ -143,11 +139,11 @@ for(LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(LazyIter
     this.mapThisArg = mapThisArg;
   }
 
-  MapIterator.prototype.iterate=function(fn, thisArg) {"use strict";
+  MapIterator.prototype.iterate=function(fn) {"use strict";
     var map = this.mapper;
     var mapThisArg = this.mapThisArg;
     return this.iterator.iterate(function(v, k, c) 
-      {return fn.call(thisArg, map.call(mapThisArg, v, k, c), k, c) !== false;}
+      {return fn(map.call(mapThisArg, v, k, c), k, c) !== false;}
     );
   };
 
@@ -159,12 +155,12 @@ for(LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(LazyIter
     this.predicateThisArg = predicateThisArg;
   }
 
-  FilterIterator.prototype.iterate=function(fn, thisArg) {"use strict";
+  FilterIterator.prototype.iterate=function(fn) {"use strict";
     var predicate = this.predicate;
     var predicateThisArg = this.predicateThisArg;
     return this.iterator.iterate(function(v, k, c) 
       {return !predicate.call(predicateThisArg, v, k, c) ||
-      fn.call(thisArg, v, k, c) !== false;}
+      fn(v, k, c) !== false;}
     );
   };
 

@@ -169,8 +169,8 @@ class Map extends LazyIterable {
 
   // @pragma Iteration
 
-  iterate(fn, thisArg) {
-    return this._root ? this._root.iterate(this, fn, thisArg) : true;
+  iterate(fn) {
+    return this._root ? this._root.iterate(this, fn) : true;
   }
 
   // @pragma Private
@@ -304,15 +304,15 @@ class BitmapIndexedNode {
     return new BitmapIndexedNode(ownerID, this.bitmap, this.keys.slice(), this.values.slice());
   }
 
-  iterate(map, fn, thisArg) {
+  iterate(map, fn) {
     for (var ii = 0; ii < this.values.length; ii++) {
       var key = this.keys[ii];
       var valueOrNode = this.values[ii];
       if (key != null) {
-        if (fn.call(thisArg, valueOrNode, key, map) === false) {
+        if (fn(valueOrNode, key, map) === false) {
           return false;
         }
-      } else if (valueOrNode && !valueOrNode.iterate(map, fn, thisArg)) {
+      } else if (valueOrNode && !valueOrNode.iterate(map, fn)) {
         return false;
       }
     }
@@ -377,9 +377,9 @@ class HashCollisionNode {
     return new HashCollisionNode(ownerID, this.collisionHash, this.keys.slice(), this.values.slice());
   }
 
-  iterate(map, fn, thisArg) {
+  iterate(map, fn) {
     for (var ii = 0; ii < this.values.length; ii++) {
-      if (fn.call(thisArg, this.values[ii], this.keys[ii], map) === false) {
+      if (fn(this.values[ii], this.keys[ii], map) === false) {
         return false;
       }
     }

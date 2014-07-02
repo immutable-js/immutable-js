@@ -124,13 +124,13 @@ class Set extends LazyIterable {
 
   // @pragma Iteration
 
-  iterate(fn, thisArg) {
+  iterate(fn) {
     if (!this._map) {
       return true;
     }
     var collection = this;
     return this._map.iterate(function (_, key) {
-      return fn.call(thisArg, key, key, collection);
+      return fn(key, key, collection);
     });
   }
 

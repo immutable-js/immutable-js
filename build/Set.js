@@ -124,13 +124,13 @@ for(var LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(Lazy
 
   // @pragma Iteration
 
-  Set.prototype.iterate=function(fn, thisArg) {"use strict";
+  Set.prototype.iterate=function(fn) {"use strict";
     if (!this.$Set_map) {
       return true;
     }
     var collection = this;
     return this.$Set_map.iterate(function ($Set_, key) {
-      return fn.call(thisArg, key, key, collection);
+      return fn(key, key, collection);
     });
   };
 

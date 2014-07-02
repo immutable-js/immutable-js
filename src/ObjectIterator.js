@@ -9,9 +9,9 @@ class ObjectIterator extends LazyIterable {
     }
   }
 
-  iterate(fn, thisArg) {
+  iterate(fn) {
     for (var key in this._object) if (this._object.hasOwnProperty(key)) {
-      if (fn.call(thisArg, this._object[key], key, this) === false) {
+      if (fn(this._object[key], key, this) === false) {
         return false;
       }
     }

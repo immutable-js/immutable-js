@@ -1,17 +1,17 @@
-var OrderedLazyIterable = require('./OrderedLazyIterable');
+var IndexedLazyIterable = require('./IndexedLazyIterable');
 
 
 function invariant(condition, error) {
   if (!condition) throw new Error(error);
 }
 
-for(var OrderedLazyIterable____Key in OrderedLazyIterable){if(OrderedLazyIterable.hasOwnProperty(OrderedLazyIterable____Key)){Vector[OrderedLazyIterable____Key]=OrderedLazyIterable[OrderedLazyIterable____Key];}}var ____SuperProtoOfOrderedLazyIterable=OrderedLazyIterable===null?null:OrderedLazyIterable.prototype;Vector.prototype=Object.create(____SuperProtoOfOrderedLazyIterable);Vector.prototype.constructor=Vector;Vector.__superConstructor__=OrderedLazyIterable;
+for(var IndexedLazyIterable____Key in IndexedLazyIterable){if(IndexedLazyIterable.hasOwnProperty(IndexedLazyIterable____Key)){Vector[IndexedLazyIterable____Key]=IndexedLazyIterable[IndexedLazyIterable____Key];}}var ____SuperProtoOfIndexedLazyIterable=IndexedLazyIterable===null?null:IndexedLazyIterable.prototype;Vector.prototype=Object.create(____SuperProtoOfIndexedLazyIterable);Vector.prototype.constructor=Vector;Vector.__superConstructor__=IndexedLazyIterable;
 
   // @pragma Construction
 
   function Vector() {"use strict";var values=Array.prototype.slice.call(arguments,0);
     return Vector.fromArray(values);
-    OrderedLazyIterable.call(this);
+    IndexedLazyIterable.call(this);
   }
 
   Vector.empty=function() {"use strict";
@@ -429,25 +429,25 @@ for(var OrderedLazyIterable____Key in OrderedLazyIterable){if(OrderedLazyIterabl
     );
   };
 
-  Vector.prototype.iterate=function(fn, thisArg) {"use strict";
+  Vector.prototype.iterate=function(fn, reverseIndices) {"use strict";
     var tailOffset = getTailOffset(this.$Vector_size);
     return (
-      this.$Vector_root.iterate(this, this.$Vector_level, -this.$Vector_origin, tailOffset - this.$Vector_origin, fn, thisArg) &&
-      this.$Vector_tail.iterate(this, 0, tailOffset - this.$Vector_origin, this.$Vector_size - this.$Vector_origin, fn, thisArg)
+      this.$Vector_root.iterate(this, this.$Vector_level, -this.$Vector_origin, tailOffset - this.$Vector_origin, fn, reverseIndices) &&
+      this.$Vector_tail.iterate(this, 0, tailOffset - this.$Vector_origin, this.$Vector_size - this.$Vector_origin, fn, reverseIndices)
     );
   };
 
-  Vector.prototype.reverseIterate=function(fn, thisArg, maintainIndices) {"use strict";
+  Vector.prototype.reverseIterate=function(fn, maintainIndices) {"use strict";
     var tailOffset = getTailOffset(this.$Vector_size);
     return (
-      this.$Vector_tail.reverseIterate(this, 0, tailOffset - this.$Vector_origin, this.$Vector_size - this.$Vector_origin, fn, thisArg, maintainIndices) &&
-      this.$Vector_root.reverseIterate(this, this.$Vector_level, -this.$Vector_origin, tailOffset - this.$Vector_origin, fn, thisArg, maintainIndices)
+      this.$Vector_tail.reverseIterate(this, 0, tailOffset - this.$Vector_origin, this.$Vector_size - this.$Vector_origin, fn, maintainIndices) &&
+      this.$Vector_root.reverseIterate(this, this.$Vector_level, -this.$Vector_origin, tailOffset - this.$Vector_origin, fn, maintainIndices)
     );
   };
 
   // Override - set correct length before returning
   Vector.prototype.toArray=function() {"use strict";
-    var array = ____SuperProtoOfOrderedLazyIterable.toArray.call(this);
+    var array = ____SuperProtoOfIndexedLazyIterable.toArray.call(this);
     array.length = this.length;
     return array;
   };
@@ -528,7 +528,7 @@ function getTailOffset(size) {
     return new VNode(ownerID, this.array.slice());
   };
 
-  VNode.prototype.iterate=function(vector, level, offset, max, fn, thisArg, reverseIndices) {"use strict";
+  VNode.prototype.iterate=function(vector, level, offset, max, fn, reverseIndices) {"use strict";
     // Note using every() gets us a speed-up of 2x on modern JS VMs, but means
     // we cannot support IE8 without polyfill.
     if (level === 0) {
@@ -537,18 +537,18 @@ function getTailOffset(size) {
         if (reverseIndices) {
           index = vector.length - 1 - index;
         }
-        return index < 0 || index >= max || fn.call(thisArg, value, index, vector) !== false;
+        return index < 0 || index >= max || fn(value, index, vector) !== false;
       });
     }
     var step = 1 << level;
     var newLevel = level - SHIFT;
     return this.array.every(function(newNode, levelIndex)  {
       var newOffset = offset + levelIndex * step;
-      return newOffset >= max || newOffset + step <= 0 || newNode.iterate(vector, newLevel, newOffset, max, fn, thisArg);
+      return newOffset >= max || newOffset + step <= 0 || newNode.iterate(vector, newLevel, newOffset, max, fn, reverseIndices);
     });
   };
 
-  VNode.prototype.reverseIterate=function(vector, level, offset, max, fn, thisArg, maintainIndices) {"use strict";
+  VNode.prototype.reverseIterate=function(vector, level, offset, max, fn, maintainIndices) {"use strict";
     if (level === 0) {
       for (var rawIndex = this.array.length - 1; rawIndex >= 0; rawIndex--) {
         if (this.array.hasOwnProperty(rawIndex)) {
@@ -556,7 +556,7 @@ function getTailOffset(size) {
           if (!maintainIndices) {
             index = vector.length - 1 - index;
           }
-          if (index >= 0 && index < max && fn.call(thisArg, this.array[rawIndex], index, vector) === false) {
+          if (index >= 0 && index < max && fn(this.array[rawIndex], index, vector) === false) {
             return false;
           }
         }
@@ -569,7 +569,7 @@ function getTailOffset(size) {
         if (newOffset < max &&
             newOffset + step > 0 &&
             this.array.hasOwnProperty(levelIndex) &&
-            !this.array[levelIndex].reverseIterate(vector, newLevel, newOffset, max, fn, thisArg)) {
+            !this.array[levelIndex].reverseIterate(vector, newLevel, newOffset, max, fn, maintainIndices)) {
           return false;
         }
       }

@@ -1,11 +1,11 @@
-var OrderedLazyIterable = require('./OrderedLazyIterable');
+var IndexedLazyIterable = require('./IndexedLazyIterable');
 
 
 function invariant(condition, error) {
   if (!condition) throw new Error(error);
 }
 
-class Vector extends OrderedLazyIterable {
+class Vector extends IndexedLazyIterable {
 
   // @pragma Construction
 
@@ -429,19 +429,19 @@ class Vector extends OrderedLazyIterable {
     );
   }
 
-  iterate(fn, thisArg) {
+  iterate(fn, reverseIndices) {
     var tailOffset = getTailOffset(this._size);
     return (
-      this._root.iterate(this, this._level, -this._origin, tailOffset - this._origin, fn, thisArg) &&
-      this._tail.iterate(this, 0, tailOffset - this._origin, this._size - this._origin, fn, thisArg)
+      this._root.iterate(this, this._level, -this._origin, tailOffset - this._origin, fn, reverseIndices) &&
+      this._tail.iterate(this, 0, tailOffset - this._origin, this._size - this._origin, fn, reverseIndices)
     );
   }
 
-  reverseIterate(fn, thisArg, maintainIndices) {
+  reverseIterate(fn, maintainIndices) {
     var tailOffset = getTailOffset(this._size);
     return (
-      this._tail.reverseIterate(this, 0, tailOffset - this._origin, this._size - this._origin, fn, thisArg, maintainIndices) &&
-      this._root.reverseIterate(this, this._level, -this._origin, tailOffset - this._origin, fn, thisArg, maintainIndices)
+      this._tail.reverseIterate(this, 0, tailOffset - this._origin, this._size - this._origin, fn, maintainIndices) &&
+      this._root.reverseIterate(this, this._level, -this._origin, tailOffset - this._origin, fn, maintainIndices)
     );
   }
 
@@ -528,7 +528,7 @@ class VNode {
     return new VNode(ownerID, this.array.slice());
   }
 
-  iterate(vector, level, offset, max, fn, thisArg, reverseIndices) {
+  iterate(vector, level, offset, max, fn, reverseIndices) {
     // Note using every() gets us a speed-up of 2x on modern JS VMs, but means
     // we cannot support IE8 without polyfill.
     if (level === 0) {
@@ -537,18 +537,18 @@ class VNode {
         if (reverseIndices) {
           index = vector.length - 1 - index;
         }
-        return index < 0 || index >= max || fn.call(thisArg, value, index, vector) !== false;
+        return index < 0 || index >= max || fn(value, index, vector) !== false;
       });
     }
     var step = 1 << level;
     var newLevel = level - SHIFT;
     return this.array.every((newNode, levelIndex) => {
       var newOffset = offset + levelIndex * step;
-      return newOffset >= max || newOffset + step <= 0 || newNode.iterate(vector, newLevel, newOffset, max, fn, thisArg);
+      return newOffset >= max || newOffset + step <= 0 || newNode.iterate(vector, newLevel, newOffset, max, fn, reverseIndices);
     });
   }
 
-  reverseIterate(vector, level, offset, max, fn, thisArg, maintainIndices) {
+  reverseIterate(vector, level, offset, max, fn, maintainIndices) {
     if (level === 0) {
       for (var rawIndex = this.array.length - 1; rawIndex >= 0; rawIndex--) {
         if (this.array.hasOwnProperty(rawIndex)) {
@@ -556,7 +556,7 @@ class VNode {
           if (!maintainIndices) {
             index = vector.length - 1 - index;
           }
-          if (index >= 0 && index < max && fn.call(thisArg, this.array[rawIndex], index, vector) === false) {
+          if (index >= 0 && index < max && fn(this.array[rawIndex], index, vector) === false) {
             return false;
           }
         }
@@ -569,7 +569,7 @@ class VNode {
         if (newOffset < max &&
             newOffset + step > 0 &&
             this.array.hasOwnProperty(levelIndex) &&
-            !this.array[levelIndex].reverseIterate(vector, newLevel, newOffset, max, fn, thisArg)) {
+            !this.array[levelIndex].reverseIterate(vector, newLevel, newOffset, max, fn, maintainIndices)) {
           return false;
         }
       }

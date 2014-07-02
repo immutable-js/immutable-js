@@ -169,8 +169,8 @@ for(var LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(Lazy
 
   // @pragma Iteration
 
-  Map.prototype.iterate=function(fn, thisArg) {"use strict";
-    return this.$Map_root ? this.$Map_root.iterate(this, fn, thisArg) : true;
+  Map.prototype.iterate=function(fn) {"use strict";
+    return this.$Map_root ? this.$Map_root.iterate(this, fn) : true;
   };
 
   // @pragma Private
@@ -304,15 +304,15 @@ function makeNode(ownerID, shift, hash, key, valOrNode) {
     return new BitmapIndexedNode(ownerID, this.bitmap, this.keys.slice(), this.values.slice());
   };
 
-  BitmapIndexedNode.prototype.iterate=function(map, fn, thisArg) {"use strict";
+  BitmapIndexedNode.prototype.iterate=function(map, fn) {"use strict";
     for (var ii = 0; ii < this.values.length; ii++) {
       var key = this.keys[ii];
       var valueOrNode = this.values[ii];
       if (key != null) {
-        if (fn.call(thisArg, valueOrNode, key, map) === false) {
+        if (fn(valueOrNode, key, map) === false) {
           return false;
         }
-      } else if (valueOrNode && !valueOrNode.iterate(map, fn, thisArg)) {
+      } else if (valueOrNode && !valueOrNode.iterate(map, fn)) {
         return false;
       }
     }
@@ -377,9 +377,9 @@ function makeNode(ownerID, shift, hash, key, valOrNode) {
     return new HashCollisionNode(ownerID, this.collisionHash, this.keys.slice(), this.values.slice());
   };
 
-  HashCollisionNode.prototype.iterate=function(map, fn, thisArg) {"use strict";
+  HashCollisionNode.prototype.iterate=function(map, fn) {"use strict";
     for (var ii = 0; ii < this.values.length; ii++) {
-      if (fn.call(thisArg, this.values[ii], this.keys[ii], map) === false) {
+      if (fn(this.values[ii], this.keys[ii], map) === false) {
         return false;
       }
     }

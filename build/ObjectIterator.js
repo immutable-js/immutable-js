@@ -9,9 +9,9 @@ for(var LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(Lazy
     }
   }
 
-  ObjectIterator.prototype.iterate=function(fn, thisArg) {"use strict";
+  ObjectIterator.prototype.iterate=function(fn) {"use strict";
     for (var key in this.$ObjectIterator_object) if (this.$ObjectIterator_object.hasOwnProperty(key)) {
-      if (fn.call(thisArg, this.$ObjectIterator_object[key], key, this) === false) {
+      if (fn(this.$ObjectIterator_object[key], key, this) === false) {
         return false;
       }
     }

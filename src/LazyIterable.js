@@ -1,5 +1,5 @@
 class LazyIterable {
-  // abstract iterate(fn, thisArg)
+  // abstract iterate(fn)
 
   toArray() {
     var array = [];
@@ -116,10 +116,8 @@ class FlipIterator extends LazyIterable {
     this.iterator = iterator;
   }
 
-  iterate(fn, thisArg) {
-    return this.iterator.iterate((v, k, c) =>
-      fn.call(thisArg, k, v, c) !== false
-    );
+  iterate(fn) {
+    return this.iterator.iterate((v, k, c) => fn(k, v, c) !== false);
   }
 }
 
@@ -128,11 +126,9 @@ class ValueIterator extends LazyIterable {
     this.iterator = iterator;
   }
 
-  iterate(fn, thisArg) {
+  iterate(fn) {
     var iterations = 0;
-    return this.iterator.iterate((v, k, c) =>
-      fn.call(thisArg, v, iterations++, c) !== false
-    );
+    return this.iterator.iterate((v, k, c) => fn(v, iterations++, c) !== false);
   }
 }
 
@@ -143,11 +139,11 @@ class MapIterator extends LazyIterable {
     this.mapThisArg = mapThisArg;
   }
 
-  iterate(fn, thisArg) {
+  iterate(fn) {
     var map = this.mapper;
     var mapThisArg = this.mapThisArg;
     return this.iterator.iterate((v, k, c) =>
-      fn.call(thisArg, map.call(mapThisArg, v, k, c), k, c) !== false
+      fn(map.call(mapThisArg, v, k, c), k, c) !== false
     );
   }
 }
@@ -159,12 +155,12 @@ class FilterIterator extends LazyIterable {
     this.predicateThisArg = predicateThisArg;
   }
 
-  iterate(fn, thisArg) {
+  iterate(fn) {
     var predicate = this.predicate;
     var predicateThisArg = this.predicateThisArg;
     return this.iterator.iterate((v, k, c) =>
       !predicate.call(predicateThisArg, v, k, c) ||
-      fn.call(thisArg, v, k, c) !== false
+      fn(v, k, c) !== false
     );
   }
 }

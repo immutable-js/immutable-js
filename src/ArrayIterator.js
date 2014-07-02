@@ -1,6 +1,6 @@
-var OrderedLazyIterable = require('./OrderedLazyIterable');
+var IndexedLazyIterable = require('./IndexedLazyIterable');
 
-class ArrayIterator extends OrderedLazyIterable {
+class ArrayIterator extends IndexedLazyIterable {
   constructor(array) {
     if (this instanceof ArrayIterator) {
       this._array = array;
@@ -9,18 +9,20 @@ class ArrayIterator extends OrderedLazyIterable {
     }
   }
 
-  iterate(fn, thisArg, reverseIndices) {
+  iterate(fn, reverseIndices) {
     var array = this._array;
+    var maxIndex = array.length - 1;
     return this._array.every((value, index) =>
-      fn.call(thisArg, value, reverseIndices ? array.length - 1 - index : index, array) !== false
+      fn(value, reverseIndices ? maxIndex - index : index, array) !== false
     );
   }
 
-  reverseIterate(fn, thisArg, maintainIndices) {
+  reverseIterate(fn, maintainIndices) {
     var array = this._array;
-    for (var ii = array.length - 1; ii >= 0; ii--) {
+    var maxIndex = array.length - 1;
+    for (var ii = maxIndex; ii >= 0; ii--) {
       if (array.hasOwnProperty(ii) &&
-          fn.call(thisArg, array[ii], maintainIndices ? ii : array.length - 1 - ii, array) === false) {
+          fn(array[ii], maintainIndices ? ii : maxIndex - ii, array) === false) {
         return false;
       }
     }
