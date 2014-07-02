@@ -230,6 +230,16 @@ describe('Vector', function() {
     expect(v.reverse().toArray()).toEqual(['c', 'b', 'a']);
   });
 
+  it('ensures equality', function() {
+    // Make a sufficiently long vector.
+    var a = Array(100).join('abcdefghijklmnopqrstuvwxyz').split('');
+    var v1 = Vector.fromArray(a);
+    var v2 = Vector.fromArray(a);
+    expect(v1 == v2).not.toBe(true);
+    expect(v1 === v2).not.toBe(true);
+    expect(v1.equals(v2)).toBe(true);
+  });
+
   // TODO: assert that findIndex only calls the function as much as it needs to.
 
   // TODO: assert that forEach iterates in the correct order and is only called as much as it needs to be.

@@ -1,7 +1,9 @@
+///<reference path='./node.d.ts'/>
 import LazyIterable = require('./LazyIterable');
 import OrderedLazyIterable = require('./OrderedLazyIterable');
 import IList = require('./IList');
 import IMap = require('./IMap');
+
 
 function invariant(condition: boolean, error: string): void {
   if (!condition) throw new Error(error);
@@ -91,6 +93,24 @@ class Vector<T> extends OrderedLazyIterable<T, Vector<T>> implements IList<T>, I
     if (this.length > 0) {
       return this.get(this.length - 1);
     }
+  }
+
+  equals(other: Vector<T>) {
+    if (this === other) {
+      return true;
+    }
+    if (!(other instanceof Vector)) { // TODO: after dropping TS, check prototype ===.
+      return false;
+    }
+    if (this.length !== other.length) {
+      return false;
+    }
+    var is = require('./Persistent').is;
+    var otherIterator = new VectorIterator<T>(other);
+    return this.every((v, k) => {
+      var otherKV = otherIterator.next();
+      return k === otherKV[0] && is(v, otherKV[1]);
+    });
   }
 
   // @pragma Modification
@@ -403,6 +423,9 @@ class Vector<T> extends OrderedLazyIterable<T, Vector<T>> implements IList<T>, I
 
   // @pragma Iteration
 
+  // TODO: add __iterator__ after dropping TS
+  static Iterator = VectorIterator;
+
   iterate(
     fn: (value?: T, index?: number, vector?: Vector<T>) => any, // false or undefined
     thisArg?: any
@@ -435,12 +458,20 @@ class Vector<T> extends OrderedLazyIterable<T, Vector<T>> implements IList<T>, I
 
   // @pragma Private
 
-  private _origin: number;
-  private _size: number;
-  private _level: number;
+  // TODO: remove public accessors after removing TS.
+  public _origin: number;
+  public _size: number;
+  public _level: number;
   private _root: VNode<T>;
   private _tail: VNode<T>;
   private _ownerID: OwnerID;
+  // TODO: remove these after removing TS.
+  public getRoot(): {array: Array<any>;} {
+    return this._root;
+  }
+  public getTail(): {array: Array<any>;} {
+    return this._tail;
+  }
 
   private static _make<T>(origin: number, size: number, level: number, root: VNode<T>, tail: VNode<T>, ownerID?: OwnerID): Vector<T> {
     var vect = Object.create(Vector.prototype);
@@ -577,6 +608,79 @@ class VNode<T> {
       }
     }
     return true;
+  }
+}
+
+interface VectorIteratorStackFrame<T> {
+  node: Array<any>;
+  level: number;
+  offset: number;
+  max: number;
+  rawIndex?: number;
+  levelIndex?: number;
+  __prev?: VectorIteratorStackFrame<T>
+}
+
+class VectorIterator<T> {
+  private _stack: VectorIteratorStackFrame<T>;
+
+  constructor(vector: Vector<T>) {
+    var tailOffset = getTailOffset(vector._size);
+    this._stack = {
+      node: vector.getRoot().array,
+      level: vector._level,
+      offset: -vector._origin,
+      max: tailOffset - vector._origin,
+      __prev: {
+        node: vector.getTail().array,
+        level: 0,
+        offset: tailOffset - vector._origin,
+        max: vector._size - vector._origin
+      }
+    };
+  }
+
+  next(): any /*(number,T)*/ {
+    var stack = this._stack;
+    iteration: while (stack) {
+      if (stack.level === 0) {
+        stack.rawIndex || (stack.rawIndex = 0);
+        while (stack.rawIndex < stack.node.length) {
+          var index = stack.rawIndex + stack.offset;
+          if (index >= 0 && index < stack.max && stack.node.hasOwnProperty(<any>stack.rawIndex)) {
+            var value = stack.node[stack.rawIndex];
+            stack.rawIndex++;
+            return [index, value];
+          } else {
+            stack.rawIndex++;
+          }
+        }
+      } else {
+        var step = 1 << stack.level;
+        stack.levelIndex || (stack.levelIndex = 0);
+        while (stack.levelIndex < stack.node.length) {
+          var newOffset = stack.offset + stack.levelIndex * step;
+          if (newOffset + step > 0 && newOffset < stack.max && stack.node.hasOwnProperty(<any>stack.levelIndex)) {
+            var newNode = stack.node[stack.levelIndex].array;
+            stack.levelIndex++;
+            stack = this._stack = {
+              node: newNode,
+              level: stack.level - SHIFT,
+              offset: newOffset,
+              max: stack.max,
+              __prev: stack
+            };
+            continue iteration;
+          } else {
+            stack.levelIndex++;
+          }
+        }
+      }
+      stack = this._stack = this._stack.__prev;
+    }
+    if (global.StopIteration) {
+      throw global.StopIteration;
+    }
   }
 }
 

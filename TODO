@@ -2,7 +2,6 @@ TODO list:
 
   * Remove Range and Stack. They complicate things and are generally less useful.
     * Though Range makes for a good demo for lazy iterators.
-  * Deep equality
   * toString
   * hashfn for collections
   * fromJS() should take a second options bag to describe how to do the conversion.

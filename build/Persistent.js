@@ -10,6 +10,24 @@ exports.Vector = Vector;
 var Set = require('./Set');
 exports.Set = Set;
 
+/**
+* The same semantics as Object.is(), but treats persistent data structures as
+* data, equal when the structure contains equivalent data.
+*/
+function is(first, second) {
+    if (first === 0 && second === 0) {
+        return 1 / first === 1 / second;
+    }
+    if (first !== first) {
+        return second !== second;
+    }
+    if (exports.isPersistent(first)) {
+        return first.equals(second);
+    }
+    return first === second;
+}
+exports.is = is;
+
 function isPersistent(value) {
     return value instanceof exports.Map || value instanceof exports.Vector || value instanceof exports.Set;
 }

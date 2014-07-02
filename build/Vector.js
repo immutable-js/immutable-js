@@ -93,6 +93,24 @@ var Vector = (function (_super) {
         }
     };
 
+    Vector.prototype.equals = function (other) {
+        if (this === other) {
+            return true;
+        }
+        if (!(other instanceof Vector)) {
+            return false;
+        }
+        if (this.length !== other.length) {
+            return false;
+        }
+        var is = require('./Persistent').is;
+        var otherIterator = new VectorIterator(other);
+        return this.every(function (v, k) {
+            var otherKV = otherIterator.next();
+            return k === otherKV[0] && is(v, otherKV[1]);
+        });
+    };
+
     // @pragma Modification
     // ES6 Map calls this "clear"
     Vector.prototype.empty = function () {
@@ -419,7 +437,6 @@ var Vector = (function (_super) {
         return Vector._make(this._origin, this._size, this._level, this._root, this._tail, this._ownerID && new OwnerID());
     };
 
-    // @pragma Iteration
     Vector.prototype.iterate = function (fn, thisArg) {
         var tailOffset = getTailOffset(this._size);
         return (this._root.iterate(this, this._level, -this._origin, tailOffset - this._origin, fn, thisArg) && this._tail.iterate(this, 0, tailOffset - this._origin, this._size - this._origin, fn, thisArg));
@@ -435,6 +452,14 @@ var Vector = (function (_super) {
         var array = _super.prototype.toArray.call(this);
         array.length = this.length;
         return array;
+    };
+
+    // TODO: remove these after removing TS.
+    Vector.prototype.getRoot = function () {
+        return this._root;
+    };
+    Vector.prototype.getTail = function () {
+        return this._tail;
     };
 
     Vector._make = function (origin, size, level, root, tail, ownerID) {
@@ -463,6 +488,7 @@ var Vector = (function (_super) {
             return node;
         }
     };
+    Vector.Iterator = VectorIterator;
     return Vector;
 })(OrderedLazyIterable);
 
@@ -561,6 +587,68 @@ var VNode = (function () {
         return true;
     };
     return VNode;
+})();
+
+var VectorIterator = (function () {
+    function VectorIterator(vector) {
+        var tailOffset = getTailOffset(vector._size);
+        this._stack = {
+            node: vector.getRoot().array,
+            level: vector._level,
+            offset: -vector._origin,
+            max: tailOffset - vector._origin,
+            __prev: {
+                node: vector.getTail().array,
+                level: 0,
+                offset: tailOffset - vector._origin,
+                max: vector._size - vector._origin
+            }
+        };
+    }
+    VectorIterator.prototype.next = function () {
+        var stack = this._stack;
+        iteration:
+        while (stack) {
+            if (stack.level === 0) {
+                stack.rawIndex || (stack.rawIndex = 0);
+                while (stack.rawIndex < stack.node.length) {
+                    var index = stack.rawIndex + stack.offset;
+                    if (index >= 0 && index < stack.max && stack.node.hasOwnProperty(stack.rawIndex)) {
+                        var value = stack.node[stack.rawIndex];
+                        stack.rawIndex++;
+                        return [index, value];
+                    } else {
+                        stack.rawIndex++;
+                    }
+                }
+            } else {
+                var step = 1 << stack.level;
+                stack.levelIndex || (stack.levelIndex = 0);
+                while (stack.levelIndex < stack.node.length) {
+                    var newOffset = stack.offset + stack.levelIndex * step;
+                    if (newOffset + step > 0 && newOffset < stack.max && stack.node.hasOwnProperty(stack.levelIndex)) {
+                        var newNode = stack.node[stack.levelIndex].array;
+                        stack.levelIndex++;
+                        stack = this._stack = {
+                            node: newNode,
+                            level: stack.level - SHIFT,
+                            offset: newOffset,
+                            max: stack.max,
+                            __prev: stack
+                        };
+                        continue iteration;
+                    } else {
+                        stack.levelIndex++;
+                    }
+                }
+            }
+            stack = this._stack = this._stack.__prev;
+        }
+        if (global.StopIteration) {
+            throw global.StopIteration;
+        }
+    };
+    return VectorIterator;
 })();
 
 var SHIFT = 5;

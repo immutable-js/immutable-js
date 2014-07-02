@@ -1,3 +1,4 @@
+/// <reference path="../src/node.d.ts" />
 import LazyIterable = require('./LazyIterable');
 import IMap = require('./IMap');
 declare class Map<K, V> extends LazyIterable<K, V, Map<K, V>> implements IMap<K, V> {
@@ -12,6 +13,7 @@ declare class Map<K, V> extends LazyIterable<K, V, Map<K, V>> implements IMap<K,
     public has(k: K): boolean;
     public get(k: K, undefinedValue?: V): V;
     public getIn(keyPath: any[], pathOffset?: number): any;
+    public equals(other: Map<K, V>): boolean;
     public empty(): Map<K, V>;
     public set(k: K, v: V): Map<K, V>;
     public setIn(keyPath: any[], v: any, pathOffset?: number): Map<K, V>;

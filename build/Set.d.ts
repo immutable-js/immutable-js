@@ -1,3 +1,4 @@
+/// <reference path="../src/node.d.ts" />
 import LazyIterable = require('./LazyIterable');
 declare class Set<T> extends LazyIterable<T, T, Set<T>> {
     constructor(...values: T[]);
@@ -8,6 +9,7 @@ declare class Set<T> extends LazyIterable<T, T, Set<T>> {
     public empty(): Set<T>;
     public add(value: T): Set<T>;
     public delete(value: T): Set<T>;
+    public equals(other: Set<T>): boolean;
     public merge(seq: LazyIterable<any, T, any>): Set<T>;
     public isTransient(): boolean;
     public asTransient(): Set<T>;

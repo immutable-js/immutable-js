@@ -4,6 +4,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+///<reference path='./node.d.ts'/>
 var LazyIterable = require('./LazyIterable');
 
 function invariant(condition, error) {
@@ -54,6 +55,22 @@ var Map = (function (_super) {
         if (nested && nested.getIn) {
             return nested.getIn(keyPath, pathOffset + 1);
         }
+    };
+
+    Map.prototype.equals = function (other) {
+        if (this === other) {
+            return true;
+        }
+        if (!(other instanceof Map)) {
+            return false;
+        }
+        if (this.length !== other.length) {
+            return false;
+        }
+        var is = require('./Persistent').is;
+        return this.every(function (v, k) {
+            return is(v, other.get(k));
+        });
     };
 
     // @pragma Modification

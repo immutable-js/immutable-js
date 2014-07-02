@@ -1,5 +1,7 @@
+///<reference path='./node.d.ts'/>
 import LazyIterable = require('./LazyIterable');
 import IMap = require('./IMap');
+
 
 function invariant(condition: any, error: string): void {
   if (!condition) throw new Error(error);
@@ -53,6 +55,20 @@ class Map<K, V> extends LazyIterable<K, V, Map<K, V>> implements IMap<K, V> {
     if (nested && (<any>nested).getIn) {
       return (<any>nested).getIn(keyPath, pathOffset + 1);
     }
+  }
+
+  equals(other: Map<K, V>) {
+    if (this === other) {
+      return true;
+    }
+    if (!(other instanceof Map)) { // TODO: after dropping TS, check prototype ===.
+      return false;
+    }
+    if (this.length !== other.length) {
+      return false;
+    }
+    var is = require('./Persistent').is;
+    return this.every((v, k) => is(v, other.get(k)));
   }
 
   // @pragma Modification

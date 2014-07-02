@@ -1,5 +1,7 @@
+///<reference path='./node.d.ts'/>
 import LazyIterable = require('./LazyIterable');
 import Map = require('./Map');
+
 
 class Set<T> extends LazyIterable<T, T, Set<T>> {
 
@@ -82,6 +84,16 @@ class Set<T> extends LazyIterable<T, T, Set<T>> {
       return this;
     }
     return newMap.length ? Set._make(newMap) : Set.empty();
+  }
+
+  equals(other: Set<T>) {
+    if (this === other) {
+      return true;
+    }
+    if (other instanceof Set) {
+      return this._map.equals(other._map);
+    }
+    return false;
   }
 
   // @pragma Composition

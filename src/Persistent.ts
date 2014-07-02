@@ -7,6 +7,23 @@ export import Map = require('./Map');
 export import Vector = require('./Vector');
 export import Set = require('./Set');
 
+/**
+ * The same semantics as Object.is(), but treats persistent data structures as
+ * data, equal when the structure contains equivalent data.
+ */
+export function is(first: any, second: any): boolean {
+  if (first === 0 && second === 0) {
+    return 1 / first === 1 / second;
+  }
+  if (first !== first) {
+    return second !== second;
+  }
+  if (isPersistent(first)) {
+    return first.equals(second);
+  }
+  return first === second;
+}
+
 export function isPersistent(value: any): boolean {
   return value instanceof Map || value instanceof Vector || value instanceof Set;
 }

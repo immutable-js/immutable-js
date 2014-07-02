@@ -4,6 +4,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+///<reference path='./node.d.ts'/>
 var LazyIterable = require('./LazyIterable');
 var Map = require('./Map');
 
@@ -85,6 +86,16 @@ var Set = (function (_super) {
             return this;
         }
         return newMap.length ? Set._make(newMap) : Set.empty();
+    };
+
+    Set.prototype.equals = function (other) {
+        if (this === other) {
+            return true;
+        }
+        if (other instanceof Set) {
+            return this._map.equals(other._map);
+        }
+        return false;
     };
 
     // @pragma Composition
