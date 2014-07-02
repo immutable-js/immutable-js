@@ -1,9 +1,0 @@
-{
-  "name": "dt-node",
-  "version": "0.10.12",
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "components"
-  ]
-}

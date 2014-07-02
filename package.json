@@ -1,7 +1,7 @@
 {
-  "name": "Immutable",
-  "version": "0.0.0",
-  "description": "Persistent Immutable Datastructures",
+  "name": "immutable-js",
+  "version": "0.0.1",
+  "description": "Persistent Immutable Collections",
   "main": ".",
   "dependencies": {
     "typescript": "*"

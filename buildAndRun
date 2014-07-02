@@ -1,1 +1,0 @@
-tsc --noImplicitAny --declaration --module commonjs --target ES5 --outDir build --sourcemap src/Persistent.ts && npm test

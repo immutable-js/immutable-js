@@ -1,1 +1,0 @@
-exports.name = "tests/settings";
