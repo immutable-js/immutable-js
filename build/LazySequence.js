@@ -170,7 +170,7 @@
 
   LazySequence.prototype.skip=function(amount) {"use strict";
     var iterations = 0;
-    return this.skipWhile(function()  {return iterations++ < amount;}, null);
+    return this.skipWhile(function()  {return iterations++ < amount;});
   };
 
   LazySequence.prototype.skipWhile=function(predicate, context) {"use strict";

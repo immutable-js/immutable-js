@@ -39,19 +39,28 @@ for(var LazySequence____Key in LazySequence){if(LazySequence.hasOwnProperty(Lazy
   };
 
   LazyIndexedSequence.prototype.skip=function(amount, maintainIndices) {"use strict";
-    var seq = ____SuperProtoOfLazySequence.skip.call(this,amount);
-    return maintainIndices ? seq : seq.values();
+    var iterations = 0;
+    return this.skipWhile(function()  {return iterations++ < amount;}, null, maintainIndices);
   };
 
   LazyIndexedSequence.prototype.skipWhile=function(predicate, context, maintainIndices) {"use strict";
-    // TODO: I think we actually want to provide something new here where we just subtract from indicies for skip.
-    var seq = ____SuperProtoOfLazySequence.skipWhile.call(this,predicate, context);
-    return maintainIndices ? seq : seq.values();
+    return this.__makeSequence(false, function(fn)  {
+      var isSkipping = true;
+      var indexOffset = 0;
+      return function(v, i, c)  {
+        if (isSkipping) {
+          isSkipping = predicate.call(context, v, i, c);
+          if (!maintainIndices && !isSkipping) {
+            indexOffset = i;
+          }
+        }
+        return isSkipping || fn(v, i - indexOffset, c) !== false;
+      };
+    });
   };
 
   LazyIndexedSequence.prototype.skipUntil=function(predicate, context, maintainIndices) {"use strict";
-    var seq = ____SuperProtoOfLazySequence.skipUntil.call(this,predicate, context);
-    return maintainIndices ? seq : seq.values();
+    return this.skipWhile(not(predicate), context, maintainIndices);
   };
 
   // __iterate(fn, reverseIndices)

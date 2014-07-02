@@ -39,4 +39,10 @@ describe('LazyArraySequence', function() {
     expect(result).toBe('qRsTu');
   });
 
+  it('skips through sparse arrays', function() {
+    var i = new LazyArraySequence([,,1,,2,,3,,4,,5]);
+    expect(i.skip(2).toArray()).toEqual([3,,4,,5]);
+    expect(i.skip(2, /*maintainIndices*/true).toArray()).toEqual([,,,,,,3,,4,,5]);
+  });
+
 });

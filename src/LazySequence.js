@@ -170,7 +170,7 @@ class LazySequence {
 
   skip(amount) {
     var iterations = 0;
-    return this.skipWhile(() => iterations++ < amount, null);
+    return this.skipWhile(() => iterations++ < amount);
   }
 
   skipWhile(predicate, context) {

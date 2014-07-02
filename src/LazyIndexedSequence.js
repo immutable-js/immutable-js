@@ -39,19 +39,28 @@ class LazyIndexedSequence extends LazySequence {
   }
 
   skip(amount, maintainIndices) {
-    var seq = super.skip(amount);
-    return maintainIndices ? seq : seq.values();
+    var iterations = 0;
+    return this.skipWhile(() => iterations++ < amount, null, maintainIndices);
   }
 
   skipWhile(predicate, context, maintainIndices) {
-    // TODO: I think we actually want to provide something new here where we just subtract from indicies for skip.
-    var seq = super.skipWhile(predicate, context);
-    return maintainIndices ? seq : seq.values();
+    return this.__makeSequence(false, fn => {
+      var isSkipping = true;
+      var indexOffset = 0;
+      return (v, i, c) => {
+        if (isSkipping) {
+          isSkipping = predicate.call(context, v, i, c);
+          if (!maintainIndices && !isSkipping) {
+            indexOffset = i;
+          }
+        }
+        return isSkipping || fn(v, i - indexOffset, c) !== false;
+      };
+    });
   }
 
   skipUntil(predicate, context, maintainIndices) {
-    var seq = super.skipUntil(predicate, context);
-    return maintainIndices ? seq : seq.values();
+    return this.skipWhile(not(predicate), context, maintainIndices);
   }
 
   // __iterate(fn, reverseIndices)

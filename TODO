@@ -8,6 +8,7 @@ TODO list:
   * Maintain and improve the .d.ts files. e.g. Documentation.
   * Decide the fate of IMap and IList
   * add "OrderedMap"
+  * improve "slice" on Vector
   * Finish test coverage
   * Performance testing! Preferably in node!
   * README
