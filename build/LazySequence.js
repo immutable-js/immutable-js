@@ -1,6 +1,19 @@
 
-  function LazySequence(obj) {"use strict";
-    require('./Persistent').lazy(obj);
+  function LazySequence(value) {"use strict";
+    if (value instanceof LazySequence) {
+      return value;
+    }
+    if (Array.isArray(value)) {
+      // Use Late Binding here to solve the circular dependency.
+      var LazyArraySequence = require('./LazyArraySequence');
+      return new LazyArraySequence(value);
+    }
+    if (typeof value === 'object') {
+      // Use Late Binding here to solve the circular dependency.
+      var LazyObjectSequence = require('./LazyObjectSequence');
+      return new LazyObjectSequence(value);
+    }
+    return null;
   }
 
   LazySequence.prototype.toArray=function() {"use strict";

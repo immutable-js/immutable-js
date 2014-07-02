@@ -1,5 +1,4 @@
-export import LazyArraySequence = require('./LazyArraySequence');
-export import LazyObjectSequence = require('./LazyObjectSequence');
+export import LazySequence = require('./LazySequence');
 export import Map = require('./Map');
 export import Vector = require('./Vector');
 export import Set = require('./Set');
@@ -10,7 +9,6 @@ export import Set = require('./Set');
 */
 export declare function is(first: any, second: any): boolean;
 export declare function isPersistent(value: any): boolean;
-export declare function isLazy(value: any): boolean;
-export declare function lazy(value: any): any;
+export declare function isSequence(value: any): boolean;
 export declare function fromJS(json: any): any;
 export declare function toJS(value: any): any;

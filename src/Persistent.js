@@ -1,6 +1,4 @@
 var LazySequence = require('./LazySequence');
-var LazyArraySequence = require('./LazyArraySequence');
-var LazyObjectSequence = require('./LazyObjectSequence');
 var Map = require('./Map');
 var Vector = require('./Vector');
 var Set = require('./Set');
@@ -26,21 +24,8 @@ function isPersistent(value) {
   return value instanceof Map || value instanceof Vector || value instanceof Set;
 }
 
-function isLazy(value) {
+function isSequence(value) {
   return value instanceof LazySequence;
-}
-
-function lazy(value) {
-  if (isLazy(value)) {
-    return value;
-  }
-  if (Array.isArray(value)) {
-    return new LazyArraySequence(value);
-  }
-  if (typeof value === 'object') {
-    return new LazyObjectSequence(value);
-  }
-  return null;
 }
 
 function fromJS(json) {
@@ -81,13 +66,10 @@ function toJS(value) {
 module.exports = {
   is: is,
   isPersistent: isPersistent,
-  isLazy: isLazy,
-  lazy: lazy,
+  isSequence: isSequence,
   fromJS: fromJS,
   toJS: toJS,
   LazySequence: LazySequence,
-  LazyArraySequence: LazyArraySequence,
-  LazyObjectSequence: LazyObjectSequence,
   Map: Map,
   Vector: Vector,
   Set: Set,
