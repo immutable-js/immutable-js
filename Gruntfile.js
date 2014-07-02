@@ -10,14 +10,27 @@ module.exports = function(grunt) {
             expand: true,
             cwd: 'src',
             src: ['**/*.js'],
-            dest: 'build/',
+            dest: 'build/'
           }
         ]
       }
     },
+    copy: {
+      build: {
+        files: [
+          {
+            expand: true,
+            cwd: 'types',
+            src: ['**/*.d.ts'],
+            dest: 'build/'
+          },
+        ]
+      }
+    }
   });
 
   grunt.loadNpmTasks('grunt-react');
+  grunt.loadNpmTasks('grunt-contrib-copy');
 
-  grunt.registerTask('default', ['react']);
+  grunt.registerTask('default', ['react', 'copy']);
 }

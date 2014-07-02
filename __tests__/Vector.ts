@@ -1,5 +1,7 @@
+///<reference path='../jest.d.ts'/>
+
 jest.autoMockOff();
-var Vector = require('../build/Vector');
+import Vector = require('../build/Vector');
 
 describe('Vector', function() {
 
@@ -108,7 +110,7 @@ describe('Vector', function() {
   });
 
   it('allows popping an empty vector', function() {
-    v = Vector('a').pop();
+    var v = Vector('a').pop();
     expect(v.length).toBe(0);
     expect(v.toArray()).toEqual([]);
     v = v.pop().pop().pop().pop().pop();
@@ -122,8 +124,11 @@ describe('Vector', function() {
     expect(v.get(0)).toBe(undefined);
     expect(v.get(1)).toBe('b');
     expect(v.get(2)).toBe(undefined);
-    // explicit trailing comma. Node consumes the first trailing comma.
-    expect(v.toArray()).toEqual([,'b',,]);
+    // explicit triplicate trailing comma.
+    // Typescript consumes the first.
+    // Node consumes the second.
+    // JS interprets the third as a hole.
+    expect(v.toArray()).toEqual([,'b',,,]);
     v = v.push('d');
     expect(v.length).toBe(4);
     expect(v.get(3)).toBe('d');
@@ -180,7 +185,7 @@ describe('Vector', function() {
   it('reduces values', function() {
     var v = Vector(1,10,100);
 
-    var r = v.reduce(function (a, b) {
+    var r = v.reduce<number>(function (a, b) {
       return a + b
     }, 0);
 
@@ -213,7 +218,7 @@ describe('Vector', function() {
       .skip(2)
       .map(function(x) { return x * x })
       .take(3)
-      .reduce(function(a, b) { return a + b }, 0);
+      .reduce((a: number, b: number) => a + b, 0);
 
     expect(r).toEqual(200);
   });
