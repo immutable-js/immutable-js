@@ -1,0 +1,21 @@
+/**
+ * @jsx React.DOM
+ */
+
+var FixtureComponent = React.createClass({displayName: 'FixtureComponent',
+  render: function() {
+    return (
+      React.DOM.p(null, "Howdy")
+    );
+  }
+});
+
+/**
+ * Plain JS File with .jsx extension
+ */
+
+var FixtureComponent = React.createClass({
+  render: function() {
+    return '<p>Howdy</p>';
+  }
+});

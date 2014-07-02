@@ -13,6 +13,8 @@
   "license": "FB",
   "devDependencies": {
     "jest-cli": "^0.1.14",
-    "closure-compiler": "^0.2.6"
+    "closure-compiler": "^0.2.6",
+    "grunt": "^0.4.5",
+    "grunt-react": "^0.8.2"
   }
 }

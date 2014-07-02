@@ -1,29 +1,18 @@
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var LazyIterable = require('./LazyIterable');
 
-var ObjectIterator = (function (_super) {
-    __extends(ObjectIterator, _super);
-    function ObjectIterator(_object) {
-        _super.call(this);
-        this._object = _object;
+for(var LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(LazyIterable____Key)){ObjectIterator[LazyIterable____Key]=LazyIterable[LazyIterable____Key];}}var ____SuperProtoOfLazyIterable=LazyIterable===null?null:LazyIterable.prototype;ObjectIterator.prototype=Object.create(____SuperProtoOfLazyIterable);ObjectIterator.prototype.constructor=ObjectIterator;ObjectIterator.__superConstructor__=LazyIterable;
+  function ObjectIterator(object) {"use strict";
+    this.$ObjectIterator_object = object;
+  }
+
+  ObjectIterator.prototype.iterate=function(fn, thisArg) {"use strict";
+    for (var key in this.$ObjectIterator_object) if (this.$ObjectIterator_object.hasOwnProperty(key)) {
+      if (fn.call(thisArg, this.$ObjectIterator_object[key], key, this) === false) {
+        return false;
+      }
     }
-    ObjectIterator.prototype.iterate = function (fn, thisArg) {
-        for (var key in this._object) {
-            if (this._object.hasOwnProperty(key)) {
-                if (fn.call(thisArg, this._object[key], key, this) === false) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    };
-    return ObjectIterator;
-})(LazyIterable);
+    return true;
+  };
+
 
 module.exports = ObjectIterator;
-//# sourceMappingURL=ObjectIterator.js.map

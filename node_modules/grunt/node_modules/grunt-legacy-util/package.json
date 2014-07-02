@@ -1,0 +1,54 @@
+{
+  "name": "grunt-legacy-util",
+  "description": "Some old grunt utils provided for backwards compatibility.",
+  "version": "0.2.0",
+  "author": {
+    "name": "\"Cowboy\" Ben Alman",
+    "url": "http://benalman.com/"
+  },
+  "homepage": "http://gruntjs.com/",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/gruntjs/grunt-legacy-util.git"
+  },
+  "bugs": {
+    "url": "http://github.com/gruntjs/grunt-legacy-util/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://github.com/gruntjs/grunt-legacy-util/blob/master/LICENSE-MIT"
+    }
+  ],
+  "main": "index.js",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "keywords": [
+    "grunt",
+    "legacy"
+  ],
+  "dependencies": {
+    "hooker": "~0.2.3",
+    "async": "~0.1.22",
+    "lodash": "~0.9.2",
+    "exit": "~0.1.1",
+    "underscore.string": "~2.2.1",
+    "getobject": "~0.1.0",
+    "which": "~1.0.5"
+  },
+  "devDependencies": {
+    "grunt-contrib-jshint": "~0.10.0",
+    "grunt-contrib-nodeunit": "~0.2.0",
+    "grunt": "~0.4.2",
+    "temporary": "0.0.8",
+    "grunt-contrib-watch": "~0.6.1"
+  },
+  "readme": "# grunt-legacy-util\n> deprecated utilities from grunt\n\n[![Build Status](https://secure.travis-ci.org/gruntjs/grunt-legacy-util.png?branch=master)](http://travis-ci.org/gruntjs/grunt-legacy-util)\n[![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)\n\n\nWith the next major release of Grunt, we will no longer support these APIs.  Where possible, please use the recommended modules in their place.  If you would like to support or improve any of these APIs, please notify us when you have published a backwards compatible npm module&mdash;we will then recommend its usage here.\n\n`grunt.util.namespace` use [getobject]  \n`grunt.util.hooker` use [hooker]  \n`grunt.util.async` use [async]  \n`grunt.util._` use [lodash]  \n`grunt.util.exit` use [exit]  \n`grunt.util.callbackify`  \n`grunt.util.error`  \n`grunt.util.linefeed`  \n`grunt.util.normalizelf`  \n`grunt.util.kindOf` use [lodash]  \n`grunt.util.toArray`\n`grunt.util.repeat`  \n`grunt.util.pluralize`  \n`grunt.util.recurse` use [traverse]  \n`grunt.util.spawn`  \n\n[getobject]: https://www.npmjs.org/package/getobject\n[hooker]: https://www.npmjs.org/package/hooker\n[async]: https://www.npmjs.org/package/async\n[lodash]: https://www.npmjs.org/package/lodash\n[exit]: https://www.npmjs.org/package/exit\n[traverse]: https://www.npmjs.org/package/traverse\n",
+  "readmeFilename": "README.md",
+  "_id": "grunt-legacy-util@0.2.0",
+  "_from": "grunt-legacy-util@~0.2.0"
+}

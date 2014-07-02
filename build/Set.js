@@ -1,162 +1,155 @@
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-///<reference path='./node.d.ts'/>
 var LazyIterable = require('./LazyIterable');
 var Map = require('./Map');
 
-var Set = (function (_super) {
-    __extends(Set, _super);
-    // @pragma Construction
-    function Set() {
-        var values = [];
-        for (var _i = 0; _i < (arguments.length - 0); _i++) {
-            values[_i] = arguments[_i + 0];
-        }
-        return Set.fromArray(values);
-        _super.call(this);
+
+for(var LazyIterable____Key in LazyIterable){if(LazyIterable.hasOwnProperty(LazyIterable____Key)){Set[LazyIterable____Key]=LazyIterable[LazyIterable____Key];}}var ____SuperProtoOfLazyIterable=LazyIterable===null?null:LazyIterable.prototype;Set.prototype=Object.create(____SuperProtoOfLazyIterable);Set.prototype.constructor=Set;Set.__superConstructor__=LazyIterable;
+
+  // @pragma Construction
+
+  function Set() {"use strict";
+    return Set.fromArray(arguments);
+  }
+
+  Set.empty=function() {"use strict";
+    return __EMPTY_SET || (__EMPTY_SET = Set.$Set_make());
+  };
+
+  Set.fromArray=function(values) {"use strict";
+    if (values.length === 0) {
+      return Set.empty();
     }
-    Set.empty = function () {
-        return __EMPTY_SET || (__EMPTY_SET = Set._make(null));
-    };
-
-    Set.fromArray = function (values) {
-        if (values.length === 0) {
-            return Set.empty();
-        }
-        var set = Set.empty().asTransient();
-        values.forEach(function (value) {
-            set = set.add(value);
-        });
-        return set.asPersistent();
-    };
-
-    Set.prototype.has = function (value) {
-        return this._map ? this._map.has(value) : false;
-    };
-
-    // @pragma Modification
-    // ES6 calls this "clear"
-    Set.prototype.empty = function () {
-        if (this._ownerID) {
-            this.length = 0;
-            this._map = null;
-            return this;
-        }
-        return Set.empty();
-    };
-
-    Set.prototype.add = function (value) {
-        if (value == null) {
-            return this;
-        }
-        var newMap = this._map;
-        if (!newMap) {
-            newMap = Map.empty();
-            if (this.isTransient()) {
-                newMap = newMap.asTransient();
-            }
-        }
-        newMap = newMap.set(value, null);
-        if (newMap === this._map) {
-            return this;
-        }
-        if (this._ownerID) {
-            this.length = newMap.length;
-            this._map = newMap;
-            return this;
-        }
-        return Set._make(newMap);
-    };
-
-    Set.prototype.delete = function (value) {
-        if (value == null || this._map == null) {
-            return this;
-        }
-        var newMap = this._map.delete(value);
-        if (newMap === this._map) {
-            return this;
-        }
-        if (this._ownerID) {
-            this.length = newMap.length;
-            this._map = newMap;
-            return this;
-        }
-        return newMap.length ? Set._make(newMap) : Set.empty();
-    };
-
-    Set.prototype.equals = function (other) {
-        if (this === other) {
-            return true;
-        }
-        if (other instanceof Set) {
-            return this._map.equals(other._map);
-        }
-        return false;
-    };
-
-    // @pragma Composition
-    Set.prototype.merge = function (seq) {
-        var newSet = this.asTransient();
-        seq.iterate(function (value) {
-            return newSet.add(value);
-        });
-        return this.isTransient() ? newSet : newSet.asPersistent();
-    };
-
-    // @pragma Mutability
-    Set.prototype.isTransient = function () {
-        return !!this._ownerID;
-    };
-
-    Set.prototype.asTransient = function () {
-        // TODO: ensure same owner.
-        return this._ownerID ? this : Set._make(this._map && this._map.asTransient(), new OwnerID());
-    };
-
-    Set.prototype.asPersistent = function () {
-        this._ownerID = undefined;
-        this._map = this._map.asPersistent();
-        return this;
-    };
-
-    Set.prototype.clone = function () {
-        // TODO: this doesn't appropriately clone the _map and ensure same owner.
-        return Set._make(this._map.clone(), this._ownerID && new OwnerID());
-    };
-
-    // @pragma Iteration
-    Set.prototype.iterate = function (fn, thisArg) {
-        if (!this._map) {
-            return true;
-        }
-        var collection = this;
-        return this._map.iterate(function (_, key) {
-            return fn.call(thisArg, key, key, collection);
-        });
-    };
-
-    Set._make = function (map, ownerID) {
-        var set = Object.create(Set.prototype);
-        set.length = map ? map.length : 0;
-        set._map = map;
-        set._ownerID = ownerID;
-        return set;
-    };
-    return Set;
-})(LazyIterable);
-
-var OwnerID = (function () {
-    function OwnerID() {
+    var set = Set.empty().asTransient();
+    for (var ii = 0; ii < values.length; ii++) {
+      set.add(values[ii]);
     }
-    return OwnerID;
-})();
+    return set.asPersistent();
+  };
+
+  // @pragma Access
+
+  Set.prototype.has=function(value) {"use strict";
+    return this.$Set_map ? this.$Set_map.has(value) : false;
+  };
+
+  // @pragma Modification
+
+  // ES6 calls this "clear"
+  Set.prototype.empty=function() {"use strict";
+    if (this.$Set_ownerID) {
+      this.length = 0;
+      this.$Set_map = null;
+      return this;
+    }
+    return Set.empty();
+  };
+
+  Set.prototype.add=function(value) {"use strict";
+    if (value == null) {
+      return this;
+    }
+    var newMap = this.$Set_map;
+    if (!newMap) {
+      newMap = Map.empty();
+      if (this.isTransient()) {
+        newMap = newMap.asTransient();
+      }
+    }
+    newMap = newMap.set(value, null);
+    if (newMap === this.$Set_map) {
+      return this;
+    }
+    if (this.$Set_ownerID) {
+      this.length = newMap.length;
+      this.$Set_map = newMap;
+      return this;
+    }
+    return Set.$Set_make(newMap);
+  };
+
+  Set.prototype.delete=function(value) {"use strict";
+    if (value == null || this.$Set_map == null) {
+      return this;
+    }
+    var newMap = this.$Set_map.delete(value);
+    if (newMap === this.$Set_map) {
+      return this;
+    }
+    if (this.$Set_ownerID) {
+      this.length = newMap.length;
+      this.$Set_map = newMap;
+      return this;
+    }
+    return newMap.length ? Set.$Set_make(newMap) : Set.empty();
+  };
+
+  Set.prototype.equals=function(other) {"use strict";
+    if (this === other) {
+      return true;
+    }
+    if (other instanceof Set) {
+      return this.$Set_map.equals(other.$Set_map);
+    }
+    return false;
+  };
+
+  // @pragma Composition
+
+  Set.prototype.merge=function(seq) {"use strict";
+    var newSet = this.asTransient();
+    seq.iterate(function(value)  {return newSet.add(value);});
+    return this.isTransient() ? newSet : newSet.asPersistent();
+  };
+
+  // @pragma Mutability
+
+  Set.prototype.isTransient=function() {"use strict";
+    return !!this.$Set_ownerID;
+  };
+
+  Set.prototype.asTransient=function() {"use strict";
+    // TODO: ensure same owner.
+    return this.$Set_ownerID ? this : Set.$Set_make(this.$Set_map && this.$Set_map.asTransient(), new OwnerID());
+  };
+
+  Set.prototype.asPersistent=function() {"use strict";
+    this.$Set_ownerID = undefined;
+    this.$Set_map = this.$Set_map.asPersistent();
+    return this;
+  };
+
+  Set.prototype.clone=function() {"use strict";
+    // TODO: this doesn't appropriately clone the _map and ensure same owner.
+    return Set.$Set_make(this.$Set_map.clone(), this.$Set_ownerID && new OwnerID());
+  };
+
+  // @pragma Iteration
+
+  Set.prototype.iterate=function(fn, thisArg) {"use strict";
+    if (!this.$Set_map) {
+      return true;
+    }
+    var collection = this;
+    return this.$Set_map.iterate(function ($Set_, key) {
+      return fn.call(thisArg, key, key, collection);
+    });
+  };
+
+  // @pragma Private
+
+  Set.$Set_make=function(map, ownerID) {"use strict";
+    var set = Object.create(Set.prototype);
+    set.length = map ? map.length : 0;
+    set.$Set_map = map;
+    set.$Set_ownerID = ownerID;
+    return set;
+  };
+
+
+
+  function OwnerID() {"use strict";}
+
 
 var __SENTINEL = {};
 var __EMPTY_SET;
 
 module.exports = Set;
-//# sourceMappingURL=Set.js.map
