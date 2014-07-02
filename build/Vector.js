@@ -1,17 +1,17 @@
-var IndexedLazyIterable = require('./IndexedLazyIterable');
+var LazyIndexedSequence = require('./LazyIndexedSequence');
 
 
 function invariant(condition, error) {
   if (!condition) throw new Error(error);
 }
 
-for(var IndexedLazyIterable____Key in IndexedLazyIterable){if(IndexedLazyIterable.hasOwnProperty(IndexedLazyIterable____Key)){Vector[IndexedLazyIterable____Key]=IndexedLazyIterable[IndexedLazyIterable____Key];}}var ____SuperProtoOfIndexedLazyIterable=IndexedLazyIterable===null?null:IndexedLazyIterable.prototype;Vector.prototype=Object.create(____SuperProtoOfIndexedLazyIterable);Vector.prototype.constructor=Vector;Vector.__superConstructor__=IndexedLazyIterable;
+for(var LazyIndexedSequence____Key in LazyIndexedSequence){if(LazyIndexedSequence.hasOwnProperty(LazyIndexedSequence____Key)){Vector[LazyIndexedSequence____Key]=LazyIndexedSequence[LazyIndexedSequence____Key];}}var ____SuperProtoOfLazyIndexedSequence=LazyIndexedSequence===null?null:LazyIndexedSequence.prototype;Vector.prototype=Object.create(____SuperProtoOfLazyIndexedSequence);Vector.prototype.constructor=Vector;Vector.__superConstructor__=LazyIndexedSequence;
 
   // @pragma Construction
 
   function Vector() {"use strict";var values=Array.prototype.slice.call(arguments,0);
     return Vector.fromArray(values);
-    IndexedLazyIterable.call(this);
+    LazyIndexedSequence.call(this);
   }
 
   Vector.empty=function() {"use strict";
@@ -348,7 +348,7 @@ for(var IndexedLazyIterable____Key in IndexedLazyIterable){if(IndexedLazyIterabl
 
   Vector.prototype.merge=function(seq) {"use strict";
     var newVect = this.asTransient();
-    seq.iterate(function(value, index)  {return newVect.set(index, value);});
+    seq.__iterate(function(value, index)  {return newVect.set(index, value);});
     return this.isTransient() ? newVect : newVect.asPersistent();
   };
 
@@ -361,7 +361,7 @@ for(var IndexedLazyIterable____Key in IndexedLazyIterable){if(IndexedLazyIterabl
         } else {
           var offset = vector.length;
           vector.length += vectors[ii].length;
-          vectors[ii].iterate(function(value, index)  {return vector.set(index + offset, value);});
+          vectors[ii].__iterate(function(value, index)  {return vector.set(index + offset, value);});
         }
       }
     }
@@ -429,7 +429,7 @@ for(var IndexedLazyIterable____Key in IndexedLazyIterable){if(IndexedLazyIterabl
     );
   };
 
-  Vector.prototype.iterate=function(fn, reverseIndices) {"use strict";
+  Vector.prototype.__iterate=function(fn, reverseIndices) {"use strict";
     var tailOffset = getTailOffset(this.$Vector_size);
     return (
       this.$Vector_root.iterate(this, this.$Vector_level, -this.$Vector_origin, tailOffset - this.$Vector_origin, fn, reverseIndices) &&
@@ -437,7 +437,7 @@ for(var IndexedLazyIterable____Key in IndexedLazyIterable){if(IndexedLazyIterabl
     );
   };
 
-  Vector.prototype.reverseIterate=function(fn, maintainIndices) {"use strict";
+  Vector.prototype.__reverseIterate=function(fn, maintainIndices) {"use strict";
     var tailOffset = getTailOffset(this.$Vector_size);
     return (
       this.$Vector_tail.reverseIterate(this, 0, tailOffset - this.$Vector_origin, this.$Vector_size - this.$Vector_origin, fn, maintainIndices) &&
@@ -447,7 +447,7 @@ for(var IndexedLazyIterable____Key in IndexedLazyIterable){if(IndexedLazyIterabl
 
   // Override - set correct length before returning
   Vector.prototype.toArray=function() {"use strict";
-    var array = ____SuperProtoOfIndexedLazyIterable.toArray.call(this);
+    var array = ____SuperProtoOfLazyIndexedSequence.toArray.call(this);
     array.length = this.length;
     return array;
   };

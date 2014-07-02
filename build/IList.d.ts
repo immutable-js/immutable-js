@@ -1,6 +1,6 @@
-import OrderedLazyIterable = require('./OrderedLazyIterable');
+import LazySequence = require('./LazySequence');
 
-interface IList<T> extends OrderedLazyIterable<T, IList<T>> {
+interface IList<T> extends LazySequence<T, IList<T>> {
   length: number;
   get(index: number): T;
   first(): T;

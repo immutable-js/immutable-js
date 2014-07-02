@@ -1,7 +1,11 @@
-class OrderedLazyIterable {
-  // abstract iterate(fn)
+class LazySequence {
+  // abstract __iterate(fn)
 
-  reverseIterate(fn) {
+  constructor(obj) {
+    require('./Persistent').lazy(obj);
+  }
+
+  __reverseIterate(fn) {
     /**
      * Note: the default implementation of this needs to make an intermediate
      * representation which may be inefficent or at worse infinite.
@@ -9,7 +13,7 @@ class OrderedLazyIterable {
      */
     var temp = [];
     var collection;
-    this.iterate((v, k, c) => {
+    this.__iterate((v, k, c) => {
       collection || (collection = c);
       temp.push([k, v]);
     });
@@ -24,20 +28,20 @@ class OrderedLazyIterable {
 
   toArray() {
     var array = [];
-    this.iterate(v => { array.push(v); });
+    this.__iterate(v => { array.push(v); });
     return array;
   }
 
   toObject() {
     var object = {};
-    this.iterate((v, k) => { object[k] = v; });
+    this.__iterate((v, k) => { object[k] = v; });
     return object;
   }
 
   toVector() {
     // Use Late Binding here to solve the circular dependency.
     var vect = require('./Vector').empty().asTransient();
-    this.iterate(v => { vect.push(v); });
+    this.__iterate(v => { vect.push(v); });
     return vect.asPersistent();
   }
 
@@ -64,15 +68,15 @@ class OrderedLazyIterable {
     var iterator = this;
     var valuesIterator = (fn, alterIndices) => {
       var iterations = 0;
-      return iterator.iterate(
+      return iterator.__iterate(
         (v, k, c) => fn(v, iterations++, c) !== false,
         alterIndices
       );
     }
     // Late static binding, to avoid circular dependency issues.
     // values() always returns an Indexed sequence.
-    var IndexedLazyIterable = require('./IndexedLazyIterable');
-    return IndexedLazyIterable.prototype.__makeIterator.call(this, valuesIterator, valuesIterator);
+    var LazyIndexedSequence = require('./LazyIndexedSequence');
+    return LazyIndexedSequence.prototype.__makeIterator.call(this, valuesIterator, valuesIterator);
   }
 
   entries() {
@@ -80,7 +84,7 @@ class OrderedLazyIterable {
   }
 
   forEach(fn, context) {
-    this.iterate((v, k, c) => { fn.call(context, v, k, c); });
+    this.__iterate((v, k, c) => { fn.call(context, v, k, c); });
   }
 
   first(predicate, context) {
@@ -95,7 +99,7 @@ class OrderedLazyIterable {
 
   reduce(reducer, initialReduction, context) {
     var reduction = initialReduction;
-    this.iterate((v, k, c) => {
+    this.__iterate((v, k, c) => {
       reduction = reducer.call(context, reduction, v, k, c);
     });
     return reduction;
@@ -107,7 +111,7 @@ class OrderedLazyIterable {
 
   every(predicate, context) {
     var every = true;
-    this.iterate((v, k, c) => {
+    this.__iterate((v, k, c) => {
       if (!predicate.call(context, v, k, c)) {
         every = false;
         return false;
@@ -131,7 +135,7 @@ class OrderedLazyIterable {
 
   find(predicate, context) {
     var foundValue;
-    this.iterate((v, k, c) => {
+    this.__iterate((v, k, c) => {
       if (predicate.call(context, v, k, c)) {
         foundValue = v;
         return false;
@@ -142,7 +146,7 @@ class OrderedLazyIterable {
 
   findKey(predicate, context) {
     var foundKey;
-    this.iterate((v, k, c) => {
+    this.__iterate((v, k, c) => {
       if (predicate.call(context, v, k, c)) {
         foundKey = k;
         return false;
@@ -161,7 +165,7 @@ class OrderedLazyIterable {
 
   flip() {
     var iterator = this;
-    var flipIterator = (fn, alterIndices) => iterator.iterate(
+    var flipIterator = (fn, alterIndices) => iterator.__iterate(
       (v, k, c) => fn(k, v, c) !== false,
       alterIndices
     );
@@ -171,7 +175,7 @@ class OrderedLazyIterable {
 
   map(mapper, context) {
     var iterator = this;
-    var mapIterator = (fn, alterIndices) => iterator.iterate(
+    var mapIterator = (fn, alterIndices) => iterator.__iterate(
       (v, k, c) => fn(mapper.call(context, v, k, c), k, c) !== false,
       alterIndices
     );
@@ -182,7 +186,7 @@ class OrderedLazyIterable {
   // remove "maintainIndicies"
   filter(predicate, context) {
     var iterator = this;
-    var filterIterator = (fn, alterIndices) => iterator.iterate(
+    var filterIterator = (fn, alterIndices) => iterator.__iterate(
       (v, k, c) => !predicate.call(context, v, k, c) || fn(v, k, c) !== false,
       alterIndices
     );
@@ -198,7 +202,7 @@ class OrderedLazyIterable {
     // TODO: can __makeIterator reduce boilerplate?
     var iterator = this;
     return this.__makeIterator(
-      (fn, reverseIndices) => iterator.iterate(
+      (fn, reverseIndices) => iterator.__iterate(
         (v, k, c) => predicate.call(context, v, k, c) && fn(v, k, c) !== false,
         reverseIndices
       )
@@ -221,7 +225,7 @@ class OrderedLazyIterable {
     return this.__makeIterator(
       (fn, reverseIndices) => {
         var isSkipping = true;
-        return iterator.iterate(
+        return iterator.__iterate(
           (v, k, c) =>
             (isSkipping = isSkipping && predicate.call(context, v, k, c)) ||
             fn(v, k, c) !== false,
@@ -237,9 +241,9 @@ class OrderedLazyIterable {
   }
 
   __makeIterator(iterate, reverseIterate) {
-    var iterator = Object.create(OrderedLazyIterable.prototype);
-    iterator.iterate = iterate;
-    reverseIterate && (iterator.reverseIterate = reverseIterate);
+    var iterator = Object.create(LazySequence.prototype);
+    iterator.__iterate = iterate;
+    reverseIterate && (iterator.__reverseIterate = reverseIterate);
     return iterator;
   }
 }
@@ -250,17 +254,17 @@ function not(predicate) {
   }
 }
 
-class ReverseIterator extends OrderedLazyIterable {
+class ReverseIterator extends LazySequence {
   constructor(iterator) {
     this.iterator = iterator;
   }
 
-  iterate(fn) {
-    return this.iterator.reverseIterate(fn);
+  __iterate(fn) {
+    return this.iterator.__reverseIterate(fn);
   }
 
-  reverseIterate(fn) {
-    return this.iterator.iterate(fn);
+  __reverseIterate(fn) {
+    return this.iterator.__iterate(fn);
   }
 
   reverse() {
@@ -268,4 +272,4 @@ class ReverseIterator extends OrderedLazyIterable {
   }
 }
 
-module.exports = OrderedLazyIterable;
+module.exports = LazySequence;

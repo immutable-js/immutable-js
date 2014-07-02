@@ -1,6 +1,6 @@
-var OrderedLazyIterable = require('./OrderedLazyIterable');
-var ArrayIterator = require('./ArrayIterator');
-var ObjectIterator = require('./ObjectIterator');
+var LazySequence = require('./LazySequence');
+var LazyArraySequence = require('./LazyArraySequence');
+var LazyObjectSequence = require('./LazyObjectSequence');
 var Map = require('./Map');
 var Vector = require('./Vector');
 var Set = require('./Set');
@@ -27,7 +27,7 @@ function isPersistent(value) {
 }
 
 function isLazy(value) {
-  return value instanceof OrderedLazyIterable;
+  return value instanceof LazySequence;
 }
 
 function lazy(value) {
@@ -35,10 +35,10 @@ function lazy(value) {
     return value;
   }
   if (Array.isArray(value)) {
-    return new ArrayIterator(value);
+    return new LazyArraySequence(value);
   }
   if (typeof value === 'object') {
-    return new ObjectIterator(value);
+    return new LazyObjectSequence(value);
   }
   return null;
 }
@@ -85,9 +85,9 @@ module.exports = {
   lazy: lazy,
   fromJS: fromJS,
   toJS: toJS,
-  OrderedLazyIterable: OrderedLazyIterable,
-  ArrayIterator: ArrayIterator,
-  ObjectIterator: ObjectIterator,
+  LazySequence: LazySequence,
+  LazyArraySequence: LazyArraySequence,
+  LazyObjectSequence: LazyObjectSequence,
   Map: Map,
   Vector: Vector,
   Set: Set,

@@ -1,5 +1,5 @@
-export import ArrayIterator = require('./ArrayIterator');
-export import ObjectIterator = require('./ObjectIterator');
+export import LazyArraySequence = require('./LazyArraySequence');
+export import LazyObjectSequence = require('./LazyObjectSequence');
 export import Map = require('./Map');
 export import Vector = require('./Vector');
 export import Set = require('./Set');

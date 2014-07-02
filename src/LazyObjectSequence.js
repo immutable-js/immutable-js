@@ -1,17 +1,17 @@
-var OrderedLazyIterable = require('./OrderedLazyIterable');
+var LazySequence = require('./LazySequence');
 
-class ObjectIterator extends OrderedLazyIterable {
+class LazyObjectSequence extends LazySequence {
   constructor(object) {
-    if (this instanceof ObjectIterator) {
+    if (this instanceof LazyObjectSequence) {
       this._object = object;
     } else {
-      return new ObjectIterator(this._object);
+      return new LazyObjectSequence(this._object);
     }
   }
 
   // TODO: add efficient reverse iteration
 
-  iterate(fn) {
+  __iterate(fn) {
     for (var key in this._object) if (this._object.hasOwnProperty(key)) {
       if (fn(this._object[key], key, this) === false) {
         return false;
@@ -21,4 +21,4 @@ class ObjectIterator extends OrderedLazyIterable {
   }
 }
 
-module.exports = ObjectIterator;
+module.exports = LazyObjectSequence;

@@ -1,11 +1,11 @@
-var IndexedLazyIterable = require('./IndexedLazyIterable');
+var LazyIndexedSequence = require('./LazyIndexedSequence');
 
 
 function invariant(condition, error) {
   if (!condition) throw new Error(error);
 }
 
-class Vector extends IndexedLazyIterable {
+class Vector extends LazyIndexedSequence {
 
   // @pragma Construction
 
@@ -348,7 +348,7 @@ class Vector extends IndexedLazyIterable {
 
   merge(seq) {
     var newVect = this.asTransient();
-    seq.iterate((value, index) => newVect.set(index, value));
+    seq.__iterate((value, index) => newVect.set(index, value));
     return this.isTransient() ? newVect : newVect.asPersistent();
   }
 
@@ -361,7 +361,7 @@ class Vector extends IndexedLazyIterable {
         } else {
           var offset = vector.length;
           vector.length += vectors[ii].length;
-          vectors[ii].iterate((value, index) => vector.set(index + offset, value));
+          vectors[ii].__iterate((value, index) => vector.set(index + offset, value));
         }
       }
     }
@@ -429,7 +429,7 @@ class Vector extends IndexedLazyIterable {
     );
   }
 
-  iterate(fn, reverseIndices) {
+  __iterate(fn, reverseIndices) {
     var tailOffset = getTailOffset(this._size);
     return (
       this._root.iterate(this, this._level, -this._origin, tailOffset - this._origin, fn, reverseIndices) &&
@@ -437,7 +437,7 @@ class Vector extends IndexedLazyIterable {
     );
   }
 
-  reverseIterate(fn, maintainIndices) {
+  __reverseIterate(fn, maintainIndices) {
     var tailOffset = getTailOffset(this._size);
     return (
       this._tail.reverseIterate(this, 0, tailOffset - this._origin, this._size - this._origin, fn, maintainIndices) &&

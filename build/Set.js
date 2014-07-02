@@ -1,8 +1,8 @@
-var OrderedLazyIterable = require('./OrderedLazyIterable');
+var LazySequence = require('./LazySequence');
 var Map = require('./Map');
 
 
-for(var OrderedLazyIterable____Key in OrderedLazyIterable){if(OrderedLazyIterable.hasOwnProperty(OrderedLazyIterable____Key)){Set[OrderedLazyIterable____Key]=OrderedLazyIterable[OrderedLazyIterable____Key];}}var ____SuperProtoOfOrderedLazyIterable=OrderedLazyIterable===null?null:OrderedLazyIterable.prototype;Set.prototype=Object.create(____SuperProtoOfOrderedLazyIterable);Set.prototype.constructor=Set;Set.__superConstructor__=OrderedLazyIterable;
+for(var LazySequence____Key in LazySequence){if(LazySequence.hasOwnProperty(LazySequence____Key)){Set[LazySequence____Key]=LazySequence[LazySequence____Key];}}var ____SuperProtoOfLazySequence=LazySequence===null?null:LazySequence.prototype;Set.prototype=Object.create(____SuperProtoOfLazySequence);Set.prototype.constructor=Set;Set.__superConstructor__=LazySequence;
 
   // @pragma Construction
 
@@ -96,7 +96,7 @@ for(var OrderedLazyIterable____Key in OrderedLazyIterable){if(OrderedLazyIterabl
 
   Set.prototype.merge=function(seq) {"use strict";
     var newSet = this.asTransient();
-    seq.iterate(function(value)  {return newSet.add(value);});
+    seq.__iterate(function(value)  {return newSet.add(value);});
     return this.isTransient() ? newSet : newSet.asPersistent();
   };
 
@@ -124,20 +124,20 @@ for(var OrderedLazyIterable____Key in OrderedLazyIterable){if(OrderedLazyIterabl
 
   // @pragma Iteration
 
-  Set.prototype.iterate=function(fn) {"use strict";
+  Set.prototype.__iterate=function(fn) {"use strict";
     if (!this.$Set_map) {
       return true;
     }
     var collection = this;
-    return this.$Set_map.iterate(function(_, k)  {return fn(k, k, collection);});
+    return this.$Set_map.__iterate(function(_, k)  {return fn(k, k, collection);});
   };
 
-  Set.prototype.reverseIterate=function(fn) {"use strict";
+  Set.prototype.__reverseIterate=function(fn) {"use strict";
     if (!this.$Set_map) {
       return true;
     }
     var collection = this;
-    return this.$Set_map.reverseIterate(function(_, k)  {return fn(k, k, collection);});
+    return this.$Set_map.__reverseIterate(function(_, k)  {return fn(k, k, collection);});
   };
 
   // @pragma Private

@@ -1,8 +1,8 @@
-var OrderedLazyIterable = require('./OrderedLazyIterable');
+var LazySequence = require('./LazySequence');
 var Map = require('./Map');
 
 
-class Set extends OrderedLazyIterable {
+class Set extends LazySequence {
 
   // @pragma Construction
 
@@ -96,7 +96,7 @@ class Set extends OrderedLazyIterable {
 
   merge(seq) {
     var newSet = this.asTransient();
-    seq.iterate(value => newSet.add(value));
+    seq.__iterate(value => newSet.add(value));
     return this.isTransient() ? newSet : newSet.asPersistent();
   }
 
@@ -124,20 +124,20 @@ class Set extends OrderedLazyIterable {
 
   // @pragma Iteration
 
-  iterate(fn) {
+  __iterate(fn) {
     if (!this._map) {
       return true;
     }
     var collection = this;
-    return this._map.iterate((_, k) => fn(k, k, collection));
+    return this._map.__iterate((_, k) => fn(k, k, collection));
   }
 
-  reverseIterate(fn) {
+  __reverseIterate(fn) {
     if (!this._map) {
       return true;
     }
     var collection = this;
-    return this._map.reverseIterate((_, k) => fn(k, k, collection));
+    return this._map.__reverseIterate((_, k) => fn(k, k, collection));
   }
 
   // @pragma Private

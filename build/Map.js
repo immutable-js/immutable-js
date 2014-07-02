@@ -1,11 +1,11 @@
-var OrderedLazyIterable = require('./OrderedLazyIterable');
+var LazySequence = require('./LazySequence');
 
 
 function invariant(condition, error) {
   if (!condition) throw new Error(error);
 }
 
-for(var OrderedLazyIterable____Key in OrderedLazyIterable){if(OrderedLazyIterable.hasOwnProperty(OrderedLazyIterable____Key)){Map[OrderedLazyIterable____Key]=OrderedLazyIterable[OrderedLazyIterable____Key];}}var ____SuperProtoOfOrderedLazyIterable=OrderedLazyIterable===null?null:OrderedLazyIterable.prototype;Map.prototype=Object.create(____SuperProtoOfOrderedLazyIterable);Map.prototype.constructor=Map;Map.__superConstructor__=OrderedLazyIterable;
+for(var LazySequence____Key in LazySequence){if(LazySequence.hasOwnProperty(LazySequence____Key)){Map[LazySequence____Key]=LazySequence[LazySequence____Key];}}var ____SuperProtoOfLazySequence=LazySequence===null?null:LazySequence.prototype;Map.prototype=Object.create(____SuperProtoOfLazySequence);Map.prototype.constructor=Map;Map.__superConstructor__=LazySequence;
 
   // @pragma Construction
 
@@ -144,7 +144,7 @@ for(var OrderedLazyIterable____Key in OrderedLazyIterable){if(OrderedLazyIterabl
 
   Map.prototype.merge=function(seq) {"use strict";
     var newMap = this.asTransient();
-    seq.iterate(function(value, key)  { newMap.set(key, value) });
+    seq.__iterate(function(value, key)  { newMap.set(key, value) });
     return this.isTransient() ? newMap : newMap.asPersistent();
   };
 
@@ -169,7 +169,7 @@ for(var OrderedLazyIterable____Key in OrderedLazyIterable){if(OrderedLazyIterabl
 
   // @pragma Iteration
 
-  Map.prototype.iterate=function(fn) {"use strict";
+  Map.prototype.__iterate=function(fn) {"use strict";
     return this.$Map_root ? this.$Map_root.iterate(this, fn) : true;
   };
 

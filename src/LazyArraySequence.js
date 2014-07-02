@@ -1,15 +1,15 @@
-var IndexedLazyIterable = require('./IndexedLazyIterable');
+var LazyIndexedSequence = require('./LazyIndexedSequence');
 
-class ArrayIterator extends IndexedLazyIterable {
+class LazyArraySequence extends LazyIndexedSequence {
   constructor(array) {
-    if (this instanceof ArrayIterator) {
+    if (this instanceof LazyArraySequence) {
       this._array = array;
     } else {
-      return new ArrayIterator(this._object);
+      return new LazyArraySequence(this._object);
     }
   }
 
-  iterate(fn, reverseIndices) {
+  __iterate(fn, reverseIndices) {
     var array = this._array;
     var maxIndex = array.length - 1;
     return this._array.every((value, index) =>
@@ -17,7 +17,7 @@ class ArrayIterator extends IndexedLazyIterable {
     );
   }
 
-  reverseIterate(fn, maintainIndices) {
+  __reverseIterate(fn, maintainIndices) {
     var array = this._array;
     var maxIndex = array.length - 1;
     for (var ii = maxIndex; ii >= 0; ii--) {
@@ -30,4 +30,4 @@ class ArrayIterator extends IndexedLazyIterable {
   }
 }
 
-module.exports = ArrayIterator;
+module.exports = LazyArraySequence;

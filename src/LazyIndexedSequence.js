@@ -1,11 +1,11 @@
-var OrderedLazyIterable = require('./OrderedLazyIterable');
+var LazySequence = require('./LazySequence');
 
-class IndexedLazyIterable extends OrderedLazyIterable {
+class LazyIndexedSequence extends LazySequence {
   // adds reverseIndices
-  // abstract iterate(fn, reverseIndices)
+  // abstract __iterate(fn, reverseIndices)
 
   // This adds maintainIndicies
-  reverseIterate(fn, maintainIndices) {
+  __reverseIterate(fn, maintainIndices) {
     /**
      * Note: the default implementation of this needs to make an intermediate
      * representation which may be inefficent or at worse infinite.
@@ -13,9 +13,8 @@ class IndexedLazyIterable extends OrderedLazyIterable {
      */
     var temp = [];
     var collection;
-    this.iterate((v, i, c) => {
+    this.__iterate((v, i, c) => {
       collection || (collection = c);
-      // TODO: note that this is why we're overriding (do we even need this?!)
       temp[i] = v;
     });
     var maxIndex = temp.length - 1;
@@ -31,7 +30,7 @@ class IndexedLazyIterable extends OrderedLazyIterable {
   // This is an override.
   toArray() {
     var array = [];
-    this.iterate((v, k) => { array[k] = v; });
+    this.__iterate((v, k) => { array[k] = v; });
     return array;
   }
 
@@ -47,7 +46,7 @@ class IndexedLazyIterable extends OrderedLazyIterable {
   }
 
   // This is an override that adds maintainIndicies to get similar behavior to Array.prototype.filter
-  // TODO (and for the skips) how to ensure the return value is instanceof IndexedLazyIterable?
+  // TODO (and for the skips) how to ensure the return value is instanceof LazyIndexedSequence?
   filter(predicate, context, maintainIndices) {
     var seq = super.filter(predicate, context);
     return maintainIndices ? seq : seq.values();
@@ -93,26 +92,26 @@ class IndexedLazyIterable extends OrderedLazyIterable {
 
   // Override ensures created sequences are Indexed.
   __makeIterator(iterate, reverseIterate) {
-    var iterator = Object.create(IndexedLazyIterable.prototype);
+    var iterator = Object.create(LazyIndexedSequence.prototype);
     // TODO: this is a dupe of the superclass's implementation. Reduce.
-    iterator.iterate = iterate;
-    reverseIterate && (iterator.reverseIterate = reverseIterate);
+    iterator.__iterate = iterate;
+    reverseIterate && (iterator.__reverseIterate = reverseIterate);
     return iterator;
   }
 }
 
-class ReverseIterator extends IndexedLazyIterable {
+class ReverseIterator extends LazyIndexedSequence {
   constructor(iterator, maintainIndices) {
     this.iterator = iterator;
     this.maintainIndices = maintainIndices;
   }
 
-  iterate(fn, reverseIndices) {
-    return this.iterator.reverseIterate(fn, reverseIndices !== this.maintainIndices);
+  __iterate(fn, reverseIndices) {
+    return this.iterator.__reverseIterate(fn, reverseIndices !== this.maintainIndices);
   }
 
-  reverseIterate(fn, maintainIndices) {
-    return this.iterator.iterate(fn, maintainIndices !== this.maintainIndices);
+  __reverseIterate(fn, maintainIndices) {
+    return this.iterator.__iterate(fn, maintainIndices !== this.maintainIndices);
   }
 
   reverse(maintainIndices) {
@@ -123,4 +122,4 @@ class ReverseIterator extends IndexedLazyIterable {
   }
 }
 
-module.exports = IndexedLazyIterable;
+module.exports = LazyIndexedSequence;

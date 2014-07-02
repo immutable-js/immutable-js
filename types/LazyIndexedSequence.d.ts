@@ -1,11 +1,11 @@
-import OrderedLazyIterable = require('./OrderedLazyIterable');
+import LazySequence = require('./LazySequence');
 import Vector = require('./Vector');
 
-declare class IndexedLazyIterable<V, C> extends OrderedLazyIterable<number, V, C> {
+declare class LazyIndexedSequence<V, C> extends LazySequence<number, V, C> {
 
   /**
-   * When IndexedLazyIterable is converted to an array, the index keys are
-   * maintained. This differs from the behavior of OrderedLazyIterable which
+   * When LazyIndexedSequence is converted to an array, the index keys are
+   * maintained. This differs from the behavior of LazySequence which
    * simply makes a dense array of all values.
    * @override
    */
@@ -24,7 +24,7 @@ declare class IndexedLazyIterable<V, C> extends OrderedLazyIterable<number, V, C
    * maintainIndices to true.
    * @override
    */
-  reverse(maintainIndices?: boolean): IndexedLazyIterable<V, C>;
+  reverse(maintainIndices?: boolean): LazyIndexedSequence<V, C>;
 
   /**
    * Indexed sequences have a different `filter` behavior, where the filtered
@@ -36,7 +36,7 @@ declare class IndexedLazyIterable<V, C> extends OrderedLazyIterable<number, V, C
     predicate: (value?: V, index?: number, collection?: C) => boolean,
     context?: any,
     maintainIndices?: boolean
-  ): IndexedLazyIterable<V, C>;
+  ): LazyIndexedSequence<V, C>;
 
   /**
    * Returns the first index at which a given value can be found in the
@@ -74,7 +74,7 @@ declare class IndexedLazyIterable<V, C> extends OrderedLazyIterable<number, V, C
    * set maintainIndices to true.
    * @override
    */
-  skip(amount: number, maintainIndices?: boolean): IndexedLazyIterable<V, C>;
+  skip(amount: number, maintainIndices?: boolean): LazyIndexedSequence<V, C>;
 
   /**
    * Has the same altered behavior as `skip`.
@@ -84,7 +84,7 @@ declare class IndexedLazyIterable<V, C> extends OrderedLazyIterable<number, V, C
     predicate: (value?: V, index?: number, collection?: C) => boolean,
     context?: any,
     maintainIndices?: boolean
-  ): IndexedLazyIterable<V, C>;
+  ): LazyIndexedSequence<V, C>;
 
   /**
    * Has the same altered behavior as `skip`.
@@ -94,27 +94,27 @@ declare class IndexedLazyIterable<V, C> extends OrderedLazyIterable<number, V, C
     predicate: (value?: V, index?: number, collection?: C) => boolean,
     context?: any,
     maintainIndices?: boolean
-  ): IndexedLazyIterable<V, C>;
+  ): LazyIndexedSequence<V, C>;
 
-  // All below methods have identical behavior as OrderedLazyIterable,
-  // except they return an IndexedLazyIterable.
+  // All below methods have identical behavior as LazySequence,
+  // except they return an LazyIndexedSequence.
 
   map<M>(
     mapper: (value?: V, index?: number, collection?: C) => M,
     context?: any
-  ): IndexedLazyIterable<M, C>;
+  ): LazyIndexedSequence<M, C>;
 
-  take(amount: number): IndexedLazyIterable<V, C>;
+  take(amount: number): LazyIndexedSequence<V, C>;
 
   takeWhile(
     predicate: (value?: V, index?: number, collection?: C) => boolean,
     context?: any
-  ): IndexedLazyIterable<V, C>;
+  ): LazyIndexedSequence<V, C>;
 
   takeUntil(
     predicate: (value?: V, index?: number, collection?: C) => boolean,
     context?: any
-  ): IndexedLazyIterable<V, C>;
+  ): LazyIndexedSequence<V, C>;
 }
 
-export = IndexedLazyIterable;
+export = LazyIndexedSequence;

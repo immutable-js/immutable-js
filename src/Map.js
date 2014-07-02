@@ -1,11 +1,11 @@
-var OrderedLazyIterable = require('./OrderedLazyIterable');
+var LazySequence = require('./LazySequence');
 
 
 function invariant(condition, error) {
   if (!condition) throw new Error(error);
 }
 
-class Map extends OrderedLazyIterable {
+class Map extends LazySequence {
 
   // @pragma Construction
 
@@ -144,7 +144,7 @@ class Map extends OrderedLazyIterable {
 
   merge(seq) {
     var newMap = this.asTransient();
-    seq.iterate((value, key) => { newMap.set(key, value) });
+    seq.__iterate((value, key) => { newMap.set(key, value) });
     return this.isTransient() ? newMap : newMap.asPersistent();
   }
 
@@ -169,7 +169,7 @@ class Map extends OrderedLazyIterable {
 
   // @pragma Iteration
 
-  iterate(fn) {
+  __iterate(fn) {
     return this._root ? this._root.iterate(this, fn) : true;
   }
 

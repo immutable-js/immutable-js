@@ -1,9 +1,9 @@
-import IndexedLazyIterable = require('./IndexedLazyIterable');
+import LazyIndexedSequence = require('./LazyIndexedSequence');
 import Vector = require('./Vector');
 import Map = require('./Map');
 import Set = require('./Set');
 
-declare class OrderedLazyIterable<K, V, C> {
+declare class LazySequence<K, V, C> {
 
   toArray(): Array<V>;
 
@@ -15,13 +15,13 @@ declare class OrderedLazyIterable<K, V, C> {
 
   toSet(): Set<V>;
 
-  reverse(): OrderedLazyIterable<K, V, C>;
+  reverse(): LazySequence<K, V, C>;
 
-  keys(): IndexedLazyIterable<K, C>;
+  keys(): LazyIndexedSequence<K, C>;
 
-  values(): IndexedLazyIterable<V, C>;
+  values(): LazyIndexedSequence<V, C>;
 
-  entries(): IndexedLazyIterable</*(K, V)*/Array<any>, C>;
+  entries(): LazyIndexedSequence</*(K, V)*/Array<any>, C>;
 
   forEach(
     fn: (value?: V, key?: K, collection?: C) => any,
@@ -80,41 +80,41 @@ declare class OrderedLazyIterable<K, V, C> {
     context?: any
   ): K;
 
-  flip(): OrderedLazyIterable<V, K, C>;
+  flip(): LazySequence<V, K, C>;
 
   map<M>(
     mapper: (value?: V, key?: K, collection?: C) => M,
     context?: any
-  ): OrderedLazyIterable<K, M, C>;
+  ): LazySequence<K, M, C>;
 
   filter(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
     context?: any
-  ): OrderedLazyIterable<K, V, C>;
+  ): LazySequence<K, V, C>;
 
-  take(amount: number): OrderedLazyIterable<K, V, C>;
+  take(amount: number): LazySequence<K, V, C>;
 
   takeWhile(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
     context?: any
-  ): OrderedLazyIterable<K, V, C>;
+  ): LazySequence<K, V, C>;
 
   takeUntil(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
     context?: any
-  ): OrderedLazyIterable<K, V, C>;
+  ): LazySequence<K, V, C>;
 
-  skip(amount: number): OrderedLazyIterable<K, V, C>;
+  skip(amount: number): LazySequence<K, V, C>;
 
   skipWhile(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
     context?: any
-  ): OrderedLazyIterable<K, V, C>;
+  ): LazySequence<K, V, C>;
 
   skipUntil(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
     context?: any
-  ): OrderedLazyIterable<K, V, C>;
+  ): LazySequence<K, V, C>;
 }
 
-export = OrderedLazyIterable;
+export = LazySequence;
