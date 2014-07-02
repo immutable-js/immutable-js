@@ -1,79 +1,43 @@
 var LazySequence = require('./LazySequence');
 
 class LazyIndexedSequence extends LazySequence {
-  // adds reverseIndices
-  // abstract __iterate(fn, reverseIndices)
-
-  // This adds maintainIndicies
-  __reverseIterate(fn, maintainIndices) {
-    /**
-     * Note: the default implementation of this needs to make an intermediate
-     * representation which may be inefficent or at worse infinite.
-     * Subclasses should do better if possible.
-     */
-    var temp = [];
-    var collection;
-    this.__iterate((v, i, c) => {
-      collection || (collection = c);
-      temp[i] = v;
-    });
-    var maxIndex = temp.length - 1;
-    for (var ii = maxIndex; ii >= 0; ii--) {
-      if (temp.hasOwnProperty(ii) &&
-          fn(temp[ii], maintainIndices ? ii : maxIndex - ii, collection) === false) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  // This is an override.
   toArray() {
     var array = [];
     this.__iterate((v, k) => { array[k] = v; });
     return array;
   }
 
-  // This is an override.
   toVector() {
     // Use Late Binding here to solve the circular dependency.
     return require('./Vector').empty().merge(this);
   }
 
-  // Overridden to add maintainIndices
   reverse(maintainIndices) {
     return new ReverseIterator(this, maintainIndices);
   }
 
-  // This is an override that adds maintainIndicies to get similar behavior to Array.prototype.filter
-  // TODO (and for the skips) how to ensure the return value is instanceof LazyIndexedSequence?
   filter(predicate, context, maintainIndices) {
     var seq = super.filter(predicate, context);
     return maintainIndices ? seq : seq.values();
   }
 
-  // new method
   indexOf(searchValue) {
     return this.findIndex(value => value === searchValue);
   }
 
-  // new method
   lastIndexOf(searchValue) {
     return this.reverse(true).indexOf(searchValue);
   }
 
-  // new method
   findIndex(predicate, context) {
     var key = this.findKey(predicate, context);
     return key == null ? -1 : key;
   }
 
-  // new method
   findLastIndex(predicate, context) {
     return this.reverse(true).findIndex(predicate, context);
   }
 
-  // This override adds maintainIndicies
   skip(amount, maintainIndices) {
     var seq = super.skip(amount);
     return maintainIndices ? seq : seq.values();
@@ -90,13 +54,40 @@ class LazyIndexedSequence extends LazySequence {
     return maintainIndices ? seq : seq.values();
   }
 
-  // Override ensures created sequences are Indexed.
-  __makeIterator(iterate, reverseIterate) {
-    var iterator = Object.create(LazyIndexedSequence.prototype);
-    // TODO: this is a dupe of the superclass's implementation. Reduce.
-    iterator.__iterate = iterate;
-    reverseIterate && (iterator.__reverseIterate = reverseIterate);
-    return iterator;
+  // __iterate(fn, reverseIndices)
+
+  /**
+   * Note: the default implementation of this needs to make an intermediate
+   * representation which may be inefficent or at worse infinite.
+   * Subclasses should do better if possible.
+   */
+  __reverseIterate(fn, maintainIndices) {
+    var temp = [];
+    var collection;
+    this.__iterate((v, i, c) => {
+      collection || (collection = c);
+      temp[i] = v;
+    });
+    var maxIndex = temp.length - 1;
+    for (var ii = maxIndex; ii >= 0; ii--) {
+      if (temp.hasOwnProperty(ii) &&
+          fn(temp[ii], maintainIndices ? ii : maxIndex - ii, collection) === false) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  __makeSequence(withCommutativeReverse, factory) {
+    var sequence = this;
+    var newSequence = Object.create(LazyIndexedSequence.prototype);
+    newSequence.__iterate = (fn, reverseIndices) =>
+      sequence.__iterate(factory(fn), reverseIndices);
+    if (withCommutativeReverse) {
+      newSequence.__reverseIterate = (fn, maintainIndices) =>
+        sequence.__reverseIterate(factory(fn), maintainIndices);
+    }
+    return newSequence;
   }
 }
 
@@ -106,19 +97,19 @@ class ReverseIterator extends LazyIndexedSequence {
     this.maintainIndices = maintainIndices;
   }
 
+  reverse(maintainIndices) {
+    if (maintainIndices === this.maintainIndices) {
+      return this.iterator;
+    }
+    return super.reverse(maintainIndices);
+  }
+
   __iterate(fn, reverseIndices) {
     return this.iterator.__reverseIterate(fn, reverseIndices !== this.maintainIndices);
   }
 
   __reverseIterate(fn, maintainIndices) {
     return this.iterator.__iterate(fn, maintainIndices !== this.maintainIndices);
-  }
-
-  reverse(maintainIndices) {
-    if (maintainIndices === this.maintainIndices) {
-      return this.iterator;
-    }
-    return super.reverse(maintainIndices);
   }
 }
 

@@ -1,29 +1,6 @@
 class LazySequence {
-  // abstract __iterate(fn)
-
   constructor(obj) {
     require('./Persistent').lazy(obj);
-  }
-
-  __reverseIterate(fn) {
-    /**
-     * Note: the default implementation of this needs to make an intermediate
-     * representation which may be inefficent or at worse infinite.
-     * Subclasses should do better if possible.
-     */
-    var temp = [];
-    var collection;
-    this.__iterate((v, k, c) => {
-      collection || (collection = c);
-      temp.push([k, v]);
-    });
-    for (var ii = temp.length - 1; ii >= 0; ii--) {
-      var entry = temp[ii];
-      if (fn(entry[1], entry[0], collection) === false) {
-        return false;
-      }
-    }
-    return true;
   }
 
   toArray() {
@@ -64,19 +41,12 @@ class LazySequence {
   }
 
   values() {
-    // TODO: can __makeIterator reduce boilerplate?
-    var iterator = this;
-    var valuesIterator = (fn, alterIndices) => {
-      var iterations = 0;
-      return iterator.__iterate(
-        (v, k, c) => fn(v, iterations++, c) !== false,
-        alterIndices
-      );
-    }
-    // Late static binding, to avoid circular dependency issues.
     // values() always returns an Indexed sequence.
-    var LazyIndexedSequence = require('./LazyIndexedSequence');
-    return LazyIndexedSequence.prototype.__makeIterator.call(this, valuesIterator, valuesIterator);
+    // Late static binding, to avoid circular dependency issues.
+    return require('./LazyIndexedSequence').prototype.__makeSequence.call(this, true, fn => {
+      var iterations = 0;
+      return (v, k, c) => fn(v, iterations++, c) !== false
+    });
   }
 
   entries() {
@@ -155,33 +125,19 @@ class LazySequence {
   }
 
   flip() {
-    var iterator = this;
-    var flipIterator = (fn, alterIndices) => iterator.__iterate(
-      (v, k, c) => fn(k, v, c) !== false,
-      alterIndices
-    );
-    // TODO: can __makeIterator reduce boilerplate?
-    return this.__makeIterator(flipIterator, flipIterator);
+    return this.__makeSequence(true, flipFactory);
   }
 
   map(mapper, context) {
-    var iterator = this;
-    var mapIterator = (fn, alterIndices) => iterator.__iterate(
-      (v, k, c) => fn(mapper.call(context, v, k, c), k, c) !== false,
-      alterIndices
+    return this.__makeSequence(true, fn => (v, k, c) =>
+      fn(mapper.call(context, v, k, c), k, c) !== false
     );
-    // TODO: can __makeIterator reduce boilerplate?
-    return this.__makeIterator(mapIterator, mapIterator);
   }
 
-  // remove "maintainIndicies"
   filter(predicate, context) {
-    var iterator = this;
-    var filterIterator = (fn, alterIndices) => iterator.__iterate(
-      (v, k, c) => !predicate.call(context, v, k, c) || fn(v, k, c) !== false,
-      alterIndices
+    return this.__makeSequence(true, fn => (v, k, c) =>
+      !predicate.call(context, v, k, c) || fn(v, k, c) !== false
     );
-    return this.__makeIterator(filterIterator, filterIterator);
   }
 
   take(amount) {
@@ -190,14 +146,8 @@ class LazySequence {
   }
 
   takeWhile(predicate, context) {
-    // TODO: can __makeIterator reduce boilerplate?
-    var iterator = this;
-    return this.__makeIterator(
-      (fn, reverseIndices) => iterator.__iterate(
-        (v, k, c) => predicate.call(context, v, k, c) && fn(v, k, c) !== false,
-        reverseIndices
-      )
-      // reverse(take(x)) and take(reverse(x)) are not commutative.
+    return this.__makeSequence(false, fn => (v, k, c) =>
+      predicate.call(context, v, k, c) && fn(v, k, c) !== false
     );
   }
 
@@ -211,32 +161,58 @@ class LazySequence {
   }
 
   skipWhile(predicate, context) {
-    // TODO: can __makeIterator reduce boilerplate?
-    var iterator = this;
-    return this.__makeIterator(
-      (fn, reverseIndices) => {
-        var isSkipping = true;
-        return iterator.__iterate(
-          (v, k, c) =>
-            (isSkipping = isSkipping && predicate.call(context, v, k, c)) ||
-            fn(v, k, c) !== false,
-          reverseIndices
-        );
-      }
-      // reverse(skip(x)) and skip(reverse(x)) are not commutative.
-    );
+    return this.__makeSequence(false, fn => {
+      var isSkipping = true;
+      return (v, k, c) =>
+        (isSkipping = isSkipping && predicate.call(context, v, k, c)) ||
+        fn(v, k, c) !== false
+    });
   }
 
   skipUntil(predicate, context) {
     return this.skipWhile(not(predicate), context);
   }
 
-  __makeIterator(iterate, reverseIterate) {
-    var iterator = Object.create(LazySequence.prototype);
-    iterator.__iterate = iterate;
-    reverseIterate && (iterator.__reverseIterate = reverseIterate);
-    return iterator;
+  // __iterate(fn)
+
+  /**
+   * Note: the default implementation of this needs to make an intermediate
+   * representation which may be inefficent or at worse infinite.
+   * Subclasses should do better if possible.
+   */
+  __reverseIterate(fn) {
+    var temp = [];
+    var collection;
+    this.__iterate((v, k, c) => {
+      collection || (collection = c);
+      temp.push([k, v]);
+    });
+    for (var ii = temp.length - 1; ii >= 0; ii--) {
+      var entry = temp[ii];
+      if (fn(entry[1], entry[0], collection) === false) {
+        return false;
+      }
+    }
+    return true;
   }
+
+  __makeSequence(withCommutativeReverse, factory) {
+    var sequence = this;
+    var newSequence = Object.create(LazySequence.prototype);
+    newSequence.__iterate = (fn) => sequence.__iterate(factory(fn));
+    if (withCommutativeReverse) {
+      newSequence.__reverseIterate = (fn) => sequence.__reverseIterate(factory(fn));
+    }
+    return newSequence;
+  }
+}
+
+function id(fn) {
+  return fn;
+}
+
+function flipFactory(fn) {
+  return (v, k, c) => fn(k, v, c) !== false;
 }
 
 function not(predicate) {
@@ -250,16 +226,16 @@ class ReverseIterator extends LazySequence {
     this.iterator = iterator;
   }
 
+  reverse() {
+    return this.iterator;
+  }
+
   __iterate(fn) {
     return this.iterator.__reverseIterate(fn);
   }
 
   __reverseIterate(fn) {
     return this.iterator.__iterate(fn);
-  }
-
-  reverse() {
-    return this.iterator;
   }
 }
 

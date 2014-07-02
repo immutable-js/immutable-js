@@ -1,30 +1,7 @@
 
-  // abstract __iterate(fn)
-
   function LazySequence(obj) {"use strict";
     require('./Persistent').lazy(obj);
   }
-
-  LazySequence.prototype.__reverseIterate=function(fn) {"use strict";
-    /**
-     * Note: the default implementation of this needs to make an intermediate
-     * representation which may be inefficent or at worse infinite.
-     * Subclasses should do better if possible.
-     */
-    var temp = [];
-    var collection;
-    this.__iterate(function(v, k, c)  {
-      collection || (collection = c);
-      temp.push([k, v]);
-    });
-    for (var ii = temp.length - 1; ii >= 0; ii--) {
-      var entry = temp[ii];
-      if (fn(entry[1], entry[0], collection) === false) {
-        return false;
-      }
-    }
-    return true;
-  };
 
   LazySequence.prototype.toArray=function() {"use strict";
     var array = [];
@@ -64,19 +41,12 @@
   };
 
   LazySequence.prototype.values=function() {"use strict";
-    // TODO: can __makeIterator reduce boilerplate?
-    var iterator = this;
-    var valuesIterator = function(fn, alterIndices)  {
-      var iterations = 0;
-      return iterator.__iterate(
-        function(v, k, c)  {return fn(v, iterations++, c) !== false;},
-        alterIndices
-      );
-    }
-    // Late static binding, to avoid circular dependency issues.
     // values() always returns an Indexed sequence.
-    var LazyIndexedSequence = require('./LazyIndexedSequence');
-    return LazyIndexedSequence.prototype.__makeIterator.call(this, valuesIterator, valuesIterator);
+    // Late static binding, to avoid circular dependency issues.
+    return require('./LazyIndexedSequence').prototype.__makeSequence.call(this, true, function(fn)  {
+      var iterations = 0;
+      return function(v, k, c)  {return fn(v, iterations++, c) !== false;}
+    });
   };
 
   LazySequence.prototype.entries=function() {"use strict";
@@ -121,16 +91,7 @@
   };
 
   LazySequence.prototype.some=function(predicate, context) {"use strict";
-    // TODO: write a test
     return !this.every(not(predicate), context);
-    // var some = false;
-    // this.iterate((v, k, c) => {
-    //   if (predicate.call(context, v, k, c)) {
-    //     some = true;
-    //     return false;
-    //   }
-    // });
-    // return some;
   };
 
   LazySequence.prototype.find=function(predicate, context) {"use strict";
@@ -164,33 +125,19 @@
   };
 
   LazySequence.prototype.flip=function() {"use strict";
-    var iterator = this;
-    var flipIterator = function(fn, alterIndices)  {return iterator.__iterate(
-      function(v, k, c)  {return fn(k, v, c) !== false;},
-      alterIndices
-    );};
-    // TODO: can __makeIterator reduce boilerplate?
-    return this.__makeIterator(flipIterator, flipIterator);
+    return this.__makeSequence(true, flipFactory);
   };
 
   LazySequence.prototype.map=function(mapper, context) {"use strict";
-    var iterator = this;
-    var mapIterator = function(fn, alterIndices)  {return iterator.__iterate(
-      function(v, k, c)  {return fn(mapper.call(context, v, k, c), k, c) !== false;},
-      alterIndices
-    );};
-    // TODO: can __makeIterator reduce boilerplate?
-    return this.__makeIterator(mapIterator, mapIterator);
+    return this.__makeSequence(true, function(fn)  {return function(v, k, c) 
+      {return fn(mapper.call(context, v, k, c), k, c) !== false;};}
+    );
   };
 
-  // remove "maintainIndicies"
   LazySequence.prototype.filter=function(predicate, context) {"use strict";
-    var iterator = this;
-    var filterIterator = function(fn, alterIndices)  {return iterator.__iterate(
-      function(v, k, c)  {return !predicate.call(context, v, k, c) || fn(v, k, c) !== false;},
-      alterIndices
-    );};
-    return this.__makeIterator(filterIterator, filterIterator);
+    return this.__makeSequence(true, function(fn)  {return function(v, k, c) 
+      {return !predicate.call(context, v, k, c) || fn(v, k, c) !== false;};}
+    );
   };
 
   LazySequence.prototype.take=function(amount) {"use strict";
@@ -199,14 +146,8 @@
   };
 
   LazySequence.prototype.takeWhile=function(predicate, context) {"use strict";
-    // TODO: can __makeIterator reduce boilerplate?
-    var iterator = this;
-    return this.__makeIterator(
-      function(fn, reverseIndices)  {return iterator.__iterate(
-        function(v, k, c)  {return predicate.call(context, v, k, c) && fn(v, k, c) !== false;},
-        reverseIndices
-      );}
-      // reverse(take(x)) and take(reverse(x)) are not commutative.
+    return this.__makeSequence(false, function(fn)  {return function(v, k, c) 
+      {return predicate.call(context, v, k, c) && fn(v, k, c) !== false;};}
     );
   };
 
@@ -220,33 +161,59 @@
   };
 
   LazySequence.prototype.skipWhile=function(predicate, context) {"use strict";
-    // TODO: can __makeIterator reduce boilerplate?
-    var iterator = this;
-    return this.__makeIterator(
-      function(fn, reverseIndices)  {
-        var isSkipping = true;
-        return iterator.__iterate(
-          function(v, k, c) 
-            {return (isSkipping = isSkipping && predicate.call(context, v, k, c)) ||
-            fn(v, k, c) !== false;},
-          reverseIndices
-        );
-      }
-      // reverse(skip(x)) and skip(reverse(x)) are not commutative.
-    );
+    return this.__makeSequence(false, function(fn)  {
+      var isSkipping = true;
+      return function(v, k, c) 
+        {return (isSkipping = isSkipping && predicate.call(context, v, k, c)) ||
+        fn(v, k, c) !== false;}
+    });
   };
 
   LazySequence.prototype.skipUntil=function(predicate, context) {"use strict";
     return this.skipWhile(not(predicate), context);
   };
 
-  LazySequence.prototype.__makeIterator=function(iterate, reverseIterate) {"use strict";
-    var iterator = Object.create(LazySequence.prototype);
-    iterator.__iterate = iterate;
-    reverseIterate && (iterator.__reverseIterate = reverseIterate);
-    return iterator;
+  // __iterate(fn)
+
+  /**
+   * Note: the default implementation of this needs to make an intermediate
+   * representation which may be inefficent or at worse infinite.
+   * Subclasses should do better if possible.
+   */
+  LazySequence.prototype.__reverseIterate=function(fn) {"use strict";
+    var temp = [];
+    var collection;
+    this.__iterate(function(v, k, c)  {
+      collection || (collection = c);
+      temp.push([k, v]);
+    });
+    for (var ii = temp.length - 1; ii >= 0; ii--) {
+      var entry = temp[ii];
+      if (fn(entry[1], entry[0], collection) === false) {
+        return false;
+      }
+    }
+    return true;
   };
 
+  LazySequence.prototype.__makeSequence=function(withCommutativeReverse, factory) {"use strict";
+    var sequence = this;
+    var newSequence = Object.create(LazySequence.prototype);
+    newSequence.__iterate = function(fn)  {return sequence.__iterate(factory(fn));};
+    if (withCommutativeReverse) {
+      newSequence.__reverseIterate = function(fn)  {return sequence.__reverseIterate(factory(fn));};
+    }
+    return newSequence;
+  };
+
+
+function id(fn) {
+  return fn;
+}
+
+function flipFactory(fn) {
+  return function(v, k, c)  {return fn(k, v, c) !== false;};
+}
 
 function not(predicate) {
   return function() {
@@ -259,16 +226,16 @@ for(var LazySequence____Key in LazySequence){if(LazySequence.hasOwnProperty(Lazy
     this.iterator = iterator;
   }
 
+  ReverseIterator.prototype.reverse=function() {"use strict";
+    return this.iterator;
+  };
+
   ReverseIterator.prototype.__iterate=function(fn) {"use strict";
     return this.iterator.__reverseIterate(fn);
   };
 
   ReverseIterator.prototype.__reverseIterate=function(fn) {"use strict";
     return this.iterator.__iterate(fn);
-  };
-
-  ReverseIterator.prototype.reverse=function() {"use strict";
-    return this.iterator;
   };
 
 
