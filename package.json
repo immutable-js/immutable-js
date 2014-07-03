@@ -2,9 +2,8 @@
   "name": "immutable-js",
   "version": "0.0.1",
   "description": "Persistent Immutable Collections",
-  "main": ".",
+  "main": "./build/Persistent.js",
   "dependencies": {
-    "typescript": "*"
   },
   "scripts": {
     "test": "jest"
@@ -21,7 +20,6 @@
   "license": "FB",
   "devDependencies": {
     "jest-cli": "^0.1.14",
-    "closure-compiler": "^0.2.6",
     "grunt": "^0.4.5",
     "grunt-react": "^0.8.2",
     "grunt-contrib-copy": "^0.5.0",
