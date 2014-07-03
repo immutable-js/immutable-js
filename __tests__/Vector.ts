@@ -1,5 +1,4 @@
-///<reference path='../jest.d.ts'/>
-
+///<reference path='../resources/jest.d.ts'/>
 jest.autoMockOff();
 import Vector = require('../build/Vector');
 import Persistent = require('../build/Persistent');

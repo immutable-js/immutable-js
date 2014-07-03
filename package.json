@@ -2,14 +2,14 @@
   "name": "immutable-js",
   "version": "0.0.1",
   "description": "Persistent Immutable Collections",
-  "main": "./build/Persistent.js",
+  "main": "build/Persistent.js",
   "dependencies": {
   },
   "scripts": {
     "test": "jest"
   },
   "jest": {
-    "scriptPreprocessor": "jestPreprocessor.js",
+    "scriptPreprocessor": "resources/jestPreprocessor.js",
     "testFileExtensions": [
       "js",
       "ts"
@@ -18,7 +18,7 @@
   "author": "leebyron",
   "license": "FB",
   "devDependencies": {
-    "jest-cli": "^0.1.14",
+    "jest-cli": "git://github.com/leebyron/jest.git#grunt",
     "grunt": "^0.4.5",
     "grunt-react": "^0.8.2",
     "grunt-contrib-copy": "^0.5.0",

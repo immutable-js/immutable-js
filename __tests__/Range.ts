@@ -1,4 +1,4 @@
-///<reference path='../jest.d.ts'/>
+///<reference path='../resources/jest.d.ts'/>
 jest.autoMockOff();
 import Range = require('../build/Range');
 

@@ -29,8 +29,15 @@ module.exports = function(grunt) {
     }
   });
 
+  grunt.registerTask('jest', function() {
+    var onCompleteTask = this.async();
+    require('jest-cli').runCLI(null, __dirname, function (completionData) {
+      onCompleteTask(completionData.numFailedTests === 0);
+    });
+  });
+
   grunt.loadNpmTasks('grunt-react');
   grunt.loadNpmTasks('grunt-contrib-copy');
 
-  grunt.registerTask('default', ['react', 'copy']);
+  grunt.registerTask('default', ['react', 'copy', 'jest']);
 }
