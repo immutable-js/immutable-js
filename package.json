@@ -11,7 +11,6 @@
   "jest": {
     "scriptPreprocessor": "jestPreprocessor.js",
     "testFileExtensions": [
-      "coffee",
       "js",
       "ts"
     ]
@@ -23,7 +22,6 @@
     "grunt": "^0.4.5",
     "grunt-react": "^0.8.2",
     "grunt-contrib-copy": "^0.5.0",
-    "coffee-script": "^1.7.1",
     "ts-compiler": "^2.0.0"
   }
 }
