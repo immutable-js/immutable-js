@@ -1,13 +1,18 @@
 TODO list:
 
-  * toString
-  * hashfn for collections
+  * hash() for collections
   * fromJS() should take a second options bag to describe how to do the conversion.
   * Maintain and improve the .d.ts files. e.g. Documentation.
+  * Generate HTML documentation from the .d.ts.
+  * Consider combining the .d.ts into one big File.
   * Decide the fate of IMap and IList
+  * Test including this as an npm dependency and ensure typescript resolution happens.
+    * Can the .d.ts live at the top level?
+    * Consider building a single file for "dist" instead of the ignored "build".
   * add "OrderedMap"
   * improve "slice" on Vector
   * Finish test coverage
   * Performance testing! Preferably in node!
   * README
   * Play with ES6 specific features like iterator and proxy objects.
+  * Measure in comparison to mori: byteweight (compressed and zipped), performance.
