@@ -55,7 +55,7 @@ module.exports = function(grunt) {
         files: [
           {
             expand: true,
-            cwd: 'types',
+            cwd: 'type-definitions',
             src: ['**/*.d.ts'],
             dest: 'dist/'
           },
