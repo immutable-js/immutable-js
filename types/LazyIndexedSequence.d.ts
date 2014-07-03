@@ -1,7 +1,7 @@
 import LazySequence = require('./LazySequence');
 import Vector = require('./Vector');
 
-declare class LazyIndexedSequence<V, C> extends LazySequence<number, V, C> {
+interface LazyIndexedSequence<V, C> extends LazySequence<number, V, C> {
 
   /**
    * When LazyIndexedSequence is converted to an array, the index keys are

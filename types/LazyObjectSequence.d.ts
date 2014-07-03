@@ -1,11 +1,11 @@
 import LazySequence = require('./LazySequence');
 
-declare class LazyObjectSequence<T> extends LazySequence<string, T, LazyObjectSequence<T>> {
+interface LazyObjectSequence<T> extends LazySequence<string, T, LazyObjectSequence<T>> {
 
   /**
    *
    */
-  constructor(object: {[key: string]: T;});
+  new(object: {[key: string]: T;}): LazyObjectSequence<T>;
 }
 
 export = LazyObjectSequence;

@@ -1,7 +1,8 @@
 import LazyIndexedSequence = require('./LazyIndexedSequence');
 
-declare class LazyArraySequence<T> extends LazyIndexedSequence<T, LazyArraySequence<T>> {
-  constructor(_array: T[]);
+interface LazyArraySequence<T> extends LazyIndexedSequence<T, LazyArraySequence<T>> {
+  new(array: T[]): LazyArraySequence<T>;
+  length: number;
 }
 
 export = LazyArraySequence;

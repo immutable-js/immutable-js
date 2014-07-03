@@ -340,10 +340,6 @@ class Vector extends LazyIndexedSequence {
     return this.isTransient() ? newVect : newVect.asPersistent();
   }
 
-  // TODO: write a test
-  // e.g.
-  // P.Vector().concat(1,2,[3,4],P.Vector(5,6),null,P.Set(7,8,9))
-  // Vector [ 1, 2, 3, 4, 5, 6, null, 7, 8, 9 ]
   concat(/*...values*/) {
     var vector = this.asTransient();
     for (var ii = 0; ii < arguments.length; ii++) {

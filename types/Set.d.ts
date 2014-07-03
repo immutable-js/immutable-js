@@ -1,5 +1,6 @@
 import LazySequence = require('./LazySequence');
 
+declare function Set<T>(): Set<T>;
 declare function Set<T>(...values: T[]): Set<T>;
 
 declare module Set {

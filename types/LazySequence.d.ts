@@ -1,9 +1,16 @@
 import LazyIndexedSequence = require('./LazyIndexedSequence');
+import LazyArraySequence = require('./LazyArraySequence');
+import LazyObjectSequence = require('./LazyObjectSequence');
 import Vector = require('./Vector');
 import Map = require('./Map');
 import Set = require('./Set');
 
-declare class LazySequence<K, V, C> {
+declare function LazySequence<V, C>(seq: LazyIndexedSequence<V, C>): LazyIndexedSequence<V, C>;
+declare function LazySequence<K, V, C>(seq: LazySequence<K, V, C>): LazySequence<K, V, C>;
+declare function LazySequence<T>(array: Array<T>): LazyArraySequence<T>;
+declare function LazySequence<T>(obj: {[key: string]: T}): LazyObjectSequence<T>;
+
+interface LazySequence<K, V, C> {
 
   toString(): string;
 

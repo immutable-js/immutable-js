@@ -1,7 +1,8 @@
 import LazySequence = require('./LazySequence');
 import IMap = require('./IMap');
 
-declare function Map<K, V>(obj?: {[key: string]: V;}): Map<K, V>;
+declare function Map<K, V>(): Map<K, V>;
+declare function Map<V>(obj: {[key: string]: V;}): Map<string, V>;
 
 declare module Map {
   function empty(): Map<any, any>;

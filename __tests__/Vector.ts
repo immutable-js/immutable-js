@@ -2,6 +2,7 @@
 
 jest.autoMockOff();
 import Vector = require('../build/Vector');
+import Persistent = require('../build/Persistent');
 
 describe('Vector', function() {
 
@@ -251,6 +252,11 @@ describe('Vector', function() {
 
   // TODO: slice
 
-  // TODO: concat
+  it('concat works like Array.prototype.concat', function() {
+    var v1 = Vector(1, 2, 3);
+    var v2 = v1.concat(4, Vector(5, 6), [7, 8], Persistent.LazySequence({a:9,b:10}), Persistent.Set(11,12), null);
+    expect(v1.toArray()).toEqual([1, 2, 3]);
+    expect(v2.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, null]);
+  });
 
 });

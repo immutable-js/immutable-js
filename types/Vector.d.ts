@@ -1,6 +1,7 @@
 import LazyIndexedSequence = require('./LazyIndexedSequence');
 import LazySequence = require('./LazySequence');
 
+declare function Vector<T>(): Vector<T>;
 declare function Vector<T>(...values: T[]): Vector<T>;
 
 declare module Vector {
