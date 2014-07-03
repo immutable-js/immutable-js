@@ -69,32 +69,6 @@ class Vector extends IndexedSequence {
     }
   }
 
-  first(predicate, context) {
-    return predicate ? super.first(predicate, context) : this.get(0);
-  }
-
-  last(predicate, context) {
-    return predicate ? super.last(predicate, context) : this.get(this.length ? this.length - 1 : 0);
-  }
-
-  equals(other) {
-    if (this === other) {
-      return true;
-    }
-    if (!(other instanceof Vector)) { // TODO: after dropping TS, check prototype ===.
-      return false;
-    }
-    if (this.length !== other.length) {
-      return false;
-    }
-    var is = require('./Persistent').is;
-    var otherIterator = other.__iterator__();
-    return this.every((v, k) => {
-      var otherKV = otherIterator.next();
-      return k === otherKV[0] && is(v, otherKV[1]);
-    });
-  }
-
   // @pragma Modification
 
   // ES6 Map calls this "clear"
@@ -392,6 +366,31 @@ class Vector extends IndexedSequence {
       arguments.length > 2 ? Vector.fromArray(Array.prototype.slice.call(arguments, 2)) : null,
       this.slice(index + removeNum)
     );
+  }
+
+  // @pragma Iteration
+
+  equals(other) {
+    if (this === other) {
+      return true;
+    }
+    if (other.__proto__ !== Vector || this.length !== other.length) {
+      return false;
+    }
+    var is = require('./Persistent').is;
+    var otherIterator = other.__iterator__();
+    return this.every((v, k) => {
+      var otherKV = otherIterator.next();
+      return k === otherKV[0] && is(v, otherKV[1]);
+    });
+  }
+
+  first(predicate, context) {
+    return predicate ? super.first(predicate, context) : this.get(0);
+  }
+
+  last(predicate, context) {
+    return predicate ? super.last(predicate, context) : this.get(this.length ? this.length - 1 : 0);
   }
 
   // @pragma Mutability

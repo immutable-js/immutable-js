@@ -84,16 +84,6 @@ class Set extends Sequence {
     return newMap.length ? Set._make(newMap) : Set.empty();
   }
 
-  equals(other) {
-    if (this === other) {
-      return true;
-    }
-    if (other instanceof Set) {
-      return this._map.equals(other._map);
-    }
-    return false;
-  }
-
   // @pragma Composition
 
   merge(seq) {
@@ -125,6 +115,16 @@ class Set extends Sequence {
   }
 
   // @pragma Iteration
+
+  equals(other) {
+    if (this === other) {
+      return true;
+    }
+    if (other.__proto__ !== Set || this.length !== other.length) {
+      return false;
+    }
+    return this.length === 0 || this._map.equals(other._map);
+  }
 
   __iterate(fn) {
     if (!this._map) {

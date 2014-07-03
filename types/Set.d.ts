@@ -15,7 +15,6 @@ interface Set<T> extends Sequence<T, T, Set<T>> {
   empty(): Set<T>;
   add(value: T): Set<T>;
   delete(value: T): Set<T>;
-  equals(other: Set<T>): boolean;
   merge(seq: Sequence<any, T, any>): Set<T>;
   isTransient(): boolean;
   asTransient(): Set<T>;

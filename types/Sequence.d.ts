@@ -24,6 +24,8 @@ export interface Sequence<K, V, C> {
 
   toSet(): Set<V>;
 
+  equals(other: Sequence<K, V, C>): boolean;
+
   join(separator?: string): string;
 
   reverse(): Sequence<K, V, C>;

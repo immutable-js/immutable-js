@@ -16,7 +16,7 @@ function is(first, second) {
   if (first !== first) {
     return second !== second;
   }
-  if (typeof first.equals === 'function') {
+  if (first instanceof Sequence) {
     return first.equals(second) === true;
   }
   return false;

@@ -62,6 +62,22 @@ class Sequence {
     return require('./Set').empty().merge(this);
   }
 
+  equals(other) {
+    if (this === other) {
+      return true;
+    }
+    if (!(other instanceof Sequence)) {
+      return false;
+    }
+    var is = require('./Persistent').is;
+    var otherEntries = other.entries().toArray();
+    var iterations = 0;
+    return this.every((v, k) => {
+      otherEntry = otherEntries[iterations++];
+      return is(k, otherEntry[0]) && is(v, otherEntry[1]);
+    });
+  }
+
   join(separator) {
     separator = separator || ',';
     var string = '';

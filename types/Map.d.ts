@@ -14,7 +14,6 @@ interface Map<K, V> extends Sequence<K, V, Map<K, V>> {
   has(k: K): boolean;
   get(k: K, undefinedValue?: V): V;
   getIn(keyPath: any[], pathOffset?: number): any;
-  equals(other: Map<K, V>): boolean;
   empty(): Map<K, V>;
   set(k: K, v: V): Map<K, V>;
   setIn(keyPath: any[], v: any, pathOffset?: number): Map<K, V>;

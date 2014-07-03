@@ -54,6 +54,16 @@ class Range extends IndexedSequence {
     return new Range(this.get(begin), end == this.length ? this.end : this.get(end), this.step);
   }
 
+  equals(other) {
+    if (this === other) {
+      return true;
+    }
+    if (other.__proto__ !== Range) {
+      return false;
+    }
+    return this.start === other.start && this.end === other.end && this.step === other.step;
+  }
+
   first(predicate, context) {
     return predicate ? super.first(predicate, context) : this.get(0);
   }

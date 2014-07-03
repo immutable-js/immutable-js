@@ -56,17 +56,6 @@ class Map extends Sequence {
     }
   }
 
-  equals(other) {
-    if (this === other) {
-      return true;
-    }
-    if (this.length !== other.length || other.__proto__ !== this.__proto__) {
-      return false;
-    }
-    var is = require('./Persistent').is;
-    return this.every((v, k) => is(v, other.get(k)));
-  }
-
   // @pragma Modification
 
   empty() {
@@ -174,6 +163,19 @@ class Map extends Sequence {
   }
 
   // @pragma Iteration
+
+  equals(other) {
+    if (this === other) {
+      return true;
+    }
+    if (other.__proto__ !== Map || this.length !== other.length) {
+      return false;
+    }
+    var is = require('./Persistent').is;
+    // Using Sentinel here ensures that a missing key is not interpretted as an
+    // existing key set to be null.
+    return this.every((v, k) => is(v, other.get(k, __SENTINEL)));
+  }
 
   __iterate(fn) {
     return this._root ? this._root.iterate(this, fn) : true;
