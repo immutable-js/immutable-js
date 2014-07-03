@@ -348,10 +348,10 @@ class Vector extends IndexedSequence {
     if (newOrigin >= newSize) {
       return this.clear();
     }
-    var newTail = newSize === this._size ? this._tail : this._nodeFor(newSize) || new VNode(this._ownerID, []);
+    var newTail = newSize === this._size ? this._tail : (this._nodeFor(newSize) || new VNode(this._ownerID, []));
     // TODO: should also calculate a new root and garbage collect?
     // This would be a tradeoff between memory footprint and perf.
-    // I still expect better performance than Array.slice(), so it's probably worth freeing memory.
+    // I still expect better performance than Array.slice(), so it's probably worth freeing the memory.
     if (this._ownerID) {
       this.length = newSize - newOrigin;
       this._origin = newOrigin;
