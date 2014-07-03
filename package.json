@@ -14,8 +14,7 @@
   "bugs": {
     "url": "https://github.com/leebyron/immutable-js/issues"
   },
-  "main": "build/Persistent.js",
-  "dependencies": {},
+  "main": "dist/Persistent.js",
   "scripts": {
     "test": "jest"
   },
