@@ -1,7 +1,7 @@
 ///<reference path='../resources/jest.d.ts'/>
 jest.autoMockOff();
-import Vector = require('../build/Vector');
-import Persistent = require('../build/Persistent');
+import Persistent = require('../dist/Persistent');
+import Vector = Persistent.Vector;
 
 describe('Vector', function() {
 

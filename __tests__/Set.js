@@ -1,5 +1,5 @@
 jest.autoMockOff();
-var Set = require('../build/Set');
+var Set = require('../dist/Persistent').Set;
 
 describe('Set', function() {
 

@@ -1,32 +1,14 @@
+/**
+ *
+ *   grunt lint      Lint all source javascript
+ *   grunt clean     Clean dist folder
+ *   grunt build     Build dist javascript
+ *   grunt test      Test dist javascript
+ *   grunt default   Lint, Build then Test
+ *
+ */
 module.exports = function(grunt) {
   grunt.initConfig({
-    react: {
-      options: {
-        harmony: true
-      },
-      build: {
-        files: [
-          {
-            expand: true,
-            cwd: 'src',
-            src: ['**/*.js'],
-            dest: 'build/'
-          }
-        ]
-      }
-    },
-    copy: {
-      build: {
-        files: [
-          {
-            expand: true,
-            cwd: 'types',
-            src: ['**/*.d.ts'],
-            dest: 'build/'
-          },
-        ]
-      }
-    },
     jshint: {
       options: {
         asi: true,
@@ -49,7 +31,37 @@ module.exports = function(grunt) {
         unused: 'vars',
       },
       all: ['src/**/*.js']
-    }
+    },
+    clean: {
+      build: ['dist/']
+    },
+    react: {
+      options: {
+        harmony: true
+      },
+      build: {
+        files: [
+          {
+            expand: true,
+            cwd: 'src',
+            src: ['**/*.js'],
+            dest: 'dist/'
+          }
+        ]
+      }
+    },
+    copy: {
+      build: {
+        files: [
+          {
+            expand: true,
+            cwd: 'types',
+            src: ['**/*.d.ts'],
+            dest: 'dist/'
+          },
+        ]
+      }
+    },
   });
 
   grunt.registerTask('jest', function() {
@@ -58,10 +70,13 @@ module.exports = function(grunt) {
       onCompleteTask(completionData.numFailedTests === 0);
     });
   });
-
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-react');
   grunt.loadNpmTasks('grunt-contrib-copy');
 
-  grunt.registerTask('default', ['jshint', 'react', 'copy', 'jest']);
+  grunt.registerTask('lint', 'Lint all source javascript', ['jshint']);
+  grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.registerTask('build', 'Build distributed javascript', ['clean', 'react', 'copy']);
+  grunt.registerTask('test', 'Test built javascript', ['jest']);
+  grunt.registerTask('default', 'Lint, build and test.', ['lint', 'build', 'test']);
 }

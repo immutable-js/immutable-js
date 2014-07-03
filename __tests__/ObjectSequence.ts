@@ -1,6 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 jest.autoMockOff();
-import Persistent = require('../build/Persistent');
+import Persistent = require('../dist/Persistent');
 
 describe('ObjectSequence', function() {
 

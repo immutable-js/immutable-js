@@ -1,5 +1,5 @@
 jest.autoMockOff();
-var Map = require('../build/Map');
+var Map = require('../dist/Persistent').Map;
 
 describe('Map', function() {
 

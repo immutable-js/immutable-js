@@ -1,7 +1,6 @@
 .*.haste_cache.*
 node_modules
 old
-build
 npm-debug.log
 .DS_Store
 *~

@@ -5,59 +5,59 @@ function invariant(condition, error) {
   if (!condition) throw new Error(error);
 }
 
-class Vector extends IndexedSequence {
+for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty(IndexedSequence____Key)){Vector[IndexedSequence____Key]=IndexedSequence[IndexedSequence____Key];}}var ____SuperProtoOfIndexedSequence=IndexedSequence===null?null:IndexedSequence.prototype;Vector.prototype=Object.create(____SuperProtoOfIndexedSequence);Vector.prototype.constructor=Vector;Vector.__superConstructor__=IndexedSequence;
 
   // @pragma Construction
 
-  constructor(...values) {
+  function Vector() {"use strict";var values=Array.prototype.slice.call(arguments,0);
     return Vector.fromArray(values);
   }
 
-  static empty() {
+  Vector.empty=function() {"use strict";
     return __EMPTY_PVECT || (__EMPTY_PVECT =
-      Vector._make(0, 0, SHIFT, __EMPTY_VNODE, __EMPTY_VNODE)
+      Vector.$Vector_make(0, 0, SHIFT, __EMPTY_VNODE, __EMPTY_VNODE)
     );
-  }
+  };
 
-  static transientWithSize(size) {
+  Vector.transientWithSize=function(size) {"use strict";
     var vect = Vector.empty().asTransient();
     if (size) {
-      vect.length = vect._size = size;
+      vect.length = vect.$Vector_size = size;
     }
     return vect;
-  }
+  };
 
-  static fromArray(values) {
+  Vector.fromArray=function(values) {"use strict";
     if (values.length === 0) {
       return Vector.empty();
     }
     if (values.length > 0 && values.length < SIZE) {
-      return Vector._make(0, values.length, SHIFT, __EMPTY_VNODE, new VNode(null, values.slice()));
+      return Vector.$Vector_make(0, values.length, SHIFT, __EMPTY_VNODE, new VNode(null, values.slice()));
     }
     return Vector.transientWithSize(values.length).merge(values).asPersistent();
-  }
+  };
 
-  toString() {
+  Vector.prototype.toString=function() {"use strict";
     return this.__toString('Vector [', ']');
-  }
+  };
 
   // @pragma Access
 
-  has(index) {
+  Vector.prototype.has=function(index) {"use strict";
     return this.get(index, __SENTINEL) !== __SENTINEL;
-  }
+  };
 
-  get(index, undefinedValue) {
-    index = rawIndex(index, this._origin);
-    if (index >= this._size) {
+  Vector.prototype.get=function(index, undefinedValue) {"use strict";
+    index = rawIndex(index, this.$Vector_origin);
+    if (index >= this.$Vector_size) {
       return undefinedValue;
     }
-    var node = this._nodeFor(index);
+    var node = this.$Vector_nodeFor(index);
     var property = index & MASK;
     return node && node.array.hasOwnProperty(property) ? node.array[property] : undefinedValue;
-  }
+  };
 
-  getIn(indexPath, pathOffset) {
+  Vector.prototype.getIn=function(indexPath, pathOffset) {"use strict";
     pathOffset = pathOffset || 0;
     var nested = this.get(indexPath[pathOffset]);
     if (pathOffset === indexPath.length - 1) {
@@ -66,91 +66,91 @@ class Vector extends IndexedSequence {
     if (nested && nested.getIn) {
       return nested.getIn(indexPath, pathOffset + 1);
     }
-  }
+  };
 
   // @pragma Modification
 
-  clear() {
-    if (this._ownerID) {
-      this.length = this._origin = this._size = 0;
-      this._level = SHIFT;
-      this._root = this._tail = __EMPTY_VNODE;
+  Vector.prototype.clear=function() {"use strict";
+    if (this.$Vector_ownerID) {
+      this.length = this.$Vector_origin = this.$Vector_size = 0;
+      this.$Vector_level = SHIFT;
+      this.$Vector_root = this.$Vector_tail = __EMPTY_VNODE;
       return this;
     }
     return Vector.empty();
-  }
+  };
 
-  set(index, value) {
-    index = rawIndex(index, this._origin);
-    var tailOffset = getTailOffset(this._size);
+  Vector.prototype.set=function(index, value) {"use strict";
+    index = rawIndex(index, this.$Vector_origin);
+    var tailOffset = getTailOffset(this.$Vector_size);
     var node, level, idx, newSize, newRoot, newTail;
 
     // Overflow's tail, merge the tail and make a new one.
     if (index >= tailOffset + SIZE) {
       // Tail might require creating a higher root.
-      newRoot = this._root;
-      var newLevel = this._level;
+      newRoot = this.$Vector_root;
+      var newLevel = this.$Vector_level;
       while (tailOffset > 1 << (newLevel + SHIFT)) {
-        newRoot = new VNode(this._ownerID, [newRoot]);
+        newRoot = new VNode(this.$Vector_ownerID, [newRoot]);
         newLevel += SHIFT;
       }
-      if (newRoot === this._root) {
-        newRoot = newRoot.ensureOwner(this._ownerID);
+      if (newRoot === this.$Vector_root) {
+        newRoot = newRoot.ensureOwner(this.$Vector_ownerID);
       }
 
       // Merge Tail into tree.
       node = newRoot;
       for (level = newLevel; level > SHIFT; level -= SHIFT) {
         idx = (tailOffset >>> level) & MASK;
-        node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this._ownerID) : new VNode(this._ownerID, []);
+        node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this.$Vector_ownerID) : new VNode(this.$Vector_ownerID, []);
       }
-      node.array[(tailOffset >>> SHIFT) & MASK] = this._tail;
+      node.array[(tailOffset >>> SHIFT) & MASK] = this.$Vector_tail;
 
       // Create new tail with set index.
-      newTail = new VNode(this._ownerID, []);
+      newTail = new VNode(this.$Vector_ownerID, []);
       newTail.array[index & MASK] = value;
       newSize = index + 1;
-      if (this._ownerID) {
-        this.length = newSize - this._origin;
-        this._size = newSize;
-        this._level = newLevel;
-        this._root = newRoot;
-        this._tail = newTail;
+      if (this.$Vector_ownerID) {
+        this.length = newSize - this.$Vector_origin;
+        this.$Vector_size = newSize;
+        this.$Vector_level = newLevel;
+        this.$Vector_root = newRoot;
+        this.$Vector_tail = newTail;
         return this;
       }
-      return Vector._make(this._origin, newSize, newLevel, newRoot, newTail);
+      return Vector.$Vector_make(this.$Vector_origin, newSize, newLevel, newRoot, newTail);
     }
 
     // Fits within tail.
     if (index >= tailOffset) {
-      newTail = this._tail.ensureOwner(this._ownerID);
+      newTail = this.$Vector_tail.ensureOwner(this.$Vector_ownerID);
       newTail.array[index & MASK] = value;
-      newSize = index >= this._size ? index + 1 : this._size;
-      if (this._ownerID) {
-        this.length = newSize - this._origin;
-        this._size = newSize;
-        this._tail = newTail;
+      newSize = index >= this.$Vector_size ? index + 1 : this.$Vector_size;
+      if (this.$Vector_ownerID) {
+        this.length = newSize - this.$Vector_origin;
+        this.$Vector_size = newSize;
+        this.$Vector_tail = newTail;
         return this;
       }
-      return Vector._make(this._origin, newSize, this._level, this._root, newTail);
+      return Vector.$Vector_make(this.$Vector_origin, newSize, this.$Vector_level, this.$Vector_root, newTail);
     }
 
     // Fits within existing tree.
-    newRoot = this._root.ensureOwner(this._ownerID);
+    newRoot = this.$Vector_root.ensureOwner(this.$Vector_ownerID);
     node = newRoot;
-    for (level = this._level; level > 0; level -= SHIFT) {
+    for (level = this.$Vector_level; level > 0; level -= SHIFT) {
       idx = (index >>> level) & MASK;
-      node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this._ownerID) : new VNode(this._ownerID, []);
+      node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this.$Vector_ownerID) : new VNode(this.$Vector_ownerID, []);
     }
     node.array[index & MASK] = value;
-    if (this._ownerID) {
-      this._root = newRoot;
+    if (this.$Vector_ownerID) {
+      this.$Vector_root = newRoot;
       return this;
     }
-    return Vector._make(this._origin, this._size, this._level, newRoot, this._tail);
-  }
+    return Vector.$Vector_make(this.$Vector_origin, this.$Vector_size, this.$Vector_level, newRoot, this.$Vector_tail);
+  };
 
-  setIn(keyPath, v, pathOffset) {
+  Vector.prototype.setIn=function(keyPath, v, pathOffset) {"use strict";
     pathOffset = pathOffset || 0;
     if (pathOffset === keyPath.length - 1) {
       return this.set(keyPath[pathOffset], v);
@@ -165,9 +165,9 @@ class Vector extends IndexedSequence {
       }
     }
     return this.set(k, nested.setIn(keyPath, v, pathOffset + 1));
-  }
+  };
 
-  push(/*...values*/) {
+  Vector.prototype.push=function() {"use strict";
     if (arguments.length === 1) {
       return this.set(this.length, arguments[0]);
     }
@@ -176,45 +176,45 @@ class Vector extends IndexedSequence {
       vec = vec.set(vec.length, arguments[ii]);
     }
     return this.isTransient() ? vec : vec.asPersistent();
-  }
+  };
 
-  pop() {
-    var newSize = this._size - 1;
+  Vector.prototype.pop=function() {"use strict";
+    var newSize = this.$Vector_size - 1;
     var newTail;
 
-    if (newSize <= this._origin) {
+    if (newSize <= this.$Vector_origin) {
       return this.clear();
     }
 
-    if (this._ownerID) {
+    if (this.$Vector_ownerID) {
       this.length--;
-      this._size--;
+      this.$Vector_size--;
     }
 
     // Fits within tail.
-    if (newSize > getTailOffset(this._size)) {
-      newTail = this._tail.ensureOwner(this._ownerID);
+    if (newSize > getTailOffset(this.$Vector_size)) {
+      newTail = this.$Vector_tail.ensureOwner(this.$Vector_ownerID);
       newTail.array.pop();
-      if (this._ownerID) {
-        this._tail = newTail;
+      if (this.$Vector_ownerID) {
+        this.$Vector_tail = newTail;
         return this;
       }
-      return Vector._make(this._origin, newSize, this._level, this._root, newTail);
+      return Vector.$Vector_make(this.$Vector_origin, newSize, this.$Vector_level, this.$Vector_root, newTail);
     }
 
-    var newRoot = this._root.pop(this._ownerID, this._size, this._level) || __EMPTY_VNODE;
-    newTail = this._nodeFor(newSize - 1);
-    if (this._ownerID) {
-      this._root = newRoot;
-      this._tail = newTail;
+    var newRoot = this.$Vector_root.pop(this.$Vector_ownerID, this.$Vector_size, this.$Vector_level) || __EMPTY_VNODE;
+    newTail = this.$Vector_nodeFor(newSize - 1);
+    if (this.$Vector_ownerID) {
+      this.$Vector_root = newRoot;
+      this.$Vector_tail = newTail;
       return this;
     }
-    return Vector._make(this._origin, newSize, this._level, newRoot, newTail);
-  }
+    return Vector.$Vector_make(this.$Vector_origin, newSize, this.$Vector_level, newRoot, newTail);
+  };
 
-  delete(index) {
-    index = rawIndex(index, this._origin);
-    var tailOffset = getTailOffset(this._size);
+  Vector.prototype.delete=function(index) {"use strict";
+    index = rawIndex(index, this.$Vector_origin);
+    var tailOffset = getTailOffset(this.$Vector_size);
 
     // Out of bounds, no-op.
     if (!this.has(index)) {
@@ -223,31 +223,31 @@ class Vector extends IndexedSequence {
 
     // Delete within tail.
     if (index >= tailOffset) {
-      var newTail = this._tail.ensureOwner(this._ownerID);
+      var newTail = this.$Vector_tail.ensureOwner(this.$Vector_ownerID);
       delete newTail.array[index & MASK];
-      if (this._ownerID) {
-        this._tail = newTail;
+      if (this.$Vector_ownerID) {
+        this.$Vector_tail = newTail;
         return this;
       }
-      return Vector._make(this._origin, this._size, this._level, this._root, newTail);
+      return Vector.$Vector_make(this.$Vector_origin, this.$Vector_size, this.$Vector_level, this.$Vector_root, newTail);
     }
 
     // Fits within existing tree.
-    var newRoot = this._root.ensureOwner(this._ownerID);
+    var newRoot = this.$Vector_root.ensureOwner(this.$Vector_ownerID);
     var node = newRoot;
-    for (var level = this._level; level > 0; level -= SHIFT) {
+    for (var level = this.$Vector_level; level > 0; level -= SHIFT) {
       var idx = (index >>> level) & MASK;
-      node = node.array[idx] = node.array[idx].ensureOwner(this._ownerID);
+      node = node.array[idx] = node.array[idx].ensureOwner(this.$Vector_ownerID);
     }
     delete node.array[index & MASK];
-    if (this._ownerID) {
-      this._root = newRoot;
+    if (this.$Vector_ownerID) {
+      this.$Vector_root = newRoot;
       return this;
     }
-    return Vector._make(this._origin, this._size, this._level, newRoot, this._tail);
-  }
+    return Vector.$Vector_make(this.$Vector_origin, this.$Vector_size, this.$Vector_level, newRoot, this.$Vector_tail);
+  };
 
-  deleteIn(keyPath, pathOffset) {
+  Vector.prototype.deleteIn=function(keyPath, pathOffset) {"use strict";
     pathOffset = pathOffset || 0;
     if (pathOffset === keyPath.length - 1) {
       return this.delete(keyPath[pathOffset]);
@@ -258,18 +258,18 @@ class Vector extends IndexedSequence {
       return this;
     }
     return this.set(k, nested.deleteIn(keyPath, pathOffset + 1));
-  }
+  };
 
-  unshift(/*...values*/) {
+  Vector.prototype.unshift=function() {"use strict";
     var values = arguments;
-    var newOrigin = this._origin - values.length;
-    var newSize = this._size;
-    var newLevel = this._level;
-    var newRoot = this._root;
+    var newOrigin = this.$Vector_origin - values.length;
+    var newSize = this.$Vector_size;
+    var newLevel = this.$Vector_level;
+    var newRoot = this.$Vector_root;
     var node;
 
     while (newOrigin < 0) {
-      node = new VNode(this._ownerID, []);
+      node = new VNode(this.$Vector_ownerID, []);
       node.array[1] = newRoot;
       newOrigin += 1 << newLevel;
       newSize += 1 << newLevel;
@@ -277,11 +277,11 @@ class Vector extends IndexedSequence {
       newRoot = node;
     }
 
-    if (newRoot === this._root) {
-      newRoot = this._root.ensureOwner(this._ownerID);
+    if (newRoot === this.$Vector_root) {
+      newRoot = this.$Vector_root.ensureOwner(this.$Vector_ownerID);
     }
 
-    var tempOwner = this._ownerID || new OwnerID();
+    var tempOwner = this.$Vector_ownerID || new OwnerID();
     for (var ii = 0; ii < values.length; ii++) {
       var index = newOrigin + ii;
       node = newRoot;
@@ -292,32 +292,32 @@ class Vector extends IndexedSequence {
       node.array[index & MASK] = values[ii];
     }
 
-    if (this._ownerID) {
+    if (this.$Vector_ownerID) {
       this.length = newSize - newOrigin;
-      this._origin = newOrigin;
-      this._size = newSize;
-      this._level = newLevel;
-      this._root = newRoot;
+      this.$Vector_origin = newOrigin;
+      this.$Vector_size = newSize;
+      this.$Vector_level = newLevel;
+      this.$Vector_root = newRoot;
       return this;
     }
-    return Vector._make(newOrigin, newSize, newLevel, newRoot, this._tail);
-  }
+    return Vector.$Vector_make(newOrigin, newSize, newLevel, newRoot, this.$Vector_tail);
+  };
 
-  shift() {
+  Vector.prototype.shift=function() {"use strict";
     return this.slice(1);
-  }
+  };
 
   // @pragma Composition
 
-  merge(seq) {
+  Vector.prototype.merge=function(seq) {"use strict";
     var newVect = this.asTransient();
-    seq.forEach((value, index) => {
+    seq.forEach(function(value, index)  {
       newVect = newVect.set(index, value)
     });
     return this.isTransient() ? newVect : newVect.asPersistent();
-  }
+  };
 
-  concat(/*...values*/) {
+  Vector.prototype.concat=function() {"use strict";
     var vector = this.asTransient();
     for (var ii = 0; ii < arguments.length; ii++) {
       var value = arguments[ii];
@@ -326,13 +326,13 @@ class Vector extends IndexedSequence {
       } else if (value && typeof value.forEach === 'function') {
         var offset = vector.length;
         if (value.length) {
-          vector._size += value.length;
+          vector.$Vector_size += value.length;
           vector.length += value.length;
         }
         if (typeof value.values === 'function' && !(value instanceof IndexedSequence)) {
           value = value.values();
         }
-        value.forEach((value, index) => {
+        value.forEach(function(value, index)  {
           vector = vector.set((typeof index === 'number' ? index : 0) + offset, value);
         });
       } else {
@@ -340,131 +340,131 @@ class Vector extends IndexedSequence {
       }
     }
     return this.isTransient() ? vector : vector.asPersistent();
-  }
+  };
 
-  slice(begin, end) {
-    var newOrigin = begin < 0 ? Math.max(this._origin, this._size + begin) : Math.min(this._size, this._origin + begin);
-    var newSize = end == null ? this._size : end < 0 ? Math.max(this._origin, this._size + end) : Math.min(this._size, this._origin + end);
+  Vector.prototype.slice=function(begin, end) {"use strict";
+    var newOrigin = begin < 0 ? Math.max(this.$Vector_origin, this.$Vector_size + begin) : Math.min(this.$Vector_size, this.$Vector_origin + begin);
+    var newSize = end == null ? this.$Vector_size : end < 0 ? Math.max(this.$Vector_origin, this.$Vector_size + end) : Math.min(this.$Vector_size, this.$Vector_origin + end);
     if (newOrigin >= newSize) {
       return this.clear();
     }
-    var newTail = newSize === this._size ? this._tail : this._nodeFor(newSize) || new VNode(this._ownerID, []);
+    var newTail = newSize === this.$Vector_size ? this.$Vector_tail : this.$Vector_nodeFor(newSize) || new VNode(this.$Vector_ownerID, []);
     // TODO: should also calculate a new root and garbage collect?
     // This would be a tradeoff between memory footprint and perf.
     // I still expect better performance than Array.slice(), so it's probably worth freeing memory.
-    if (this._ownerID) {
+    if (this.$Vector_ownerID) {
       this.length = newSize - newOrigin;
-      this._origin = newOrigin;
-      this._size = newSize;
-      this._tail = newTail;
+      this.$Vector_origin = newOrigin;
+      this.$Vector_size = newSize;
+      this.$Vector_tail = newTail;
       return this;
     }
-    return Vector._make(newOrigin, newSize, this._level, this._root, newTail);
-  }
+    return Vector.$Vector_make(newOrigin, newSize, this.$Vector_level, this.$Vector_root, newTail);
+  };
 
-  splice(index, removeNum/*, ...values*/) {
+  Vector.prototype.splice=function(index, removeNum)  {"use strict";
     return this.slice(0, index).concat(
       arguments.length > 2 ? Vector.fromArray(Array.prototype.slice.call(arguments, 2)) : null,
       this.slice(index + removeNum)
     );
-  }
+  };
 
   // @pragma Iteration
 
-  __deepEquals(other) {
+  Vector.prototype.__deepEquals=function(other) {"use strict";
     var is = require('./Persistent').is;
     var otherIterator = other.__iterator__();
-    return this.every((v, k) => {
+    return this.every(function(v, k)  {
       var otherKV = otherIterator.next();
       return k === otherKV[0] && is(v, otherKV[1]);
     });
-  }
+  };
 
-  first(predicate, context) {
-    return predicate ? super.first(predicate, context) : this.get(0);
-  }
+  Vector.prototype.first=function(predicate, context) {"use strict";
+    return predicate ? ____SuperProtoOfIndexedSequence.first.call(this,predicate, context) : this.get(0);
+  };
 
-  last(predicate, context) {
-    return predicate ? super.last(predicate, context) : this.get(this.length ? this.length - 1 : 0);
-  }
+  Vector.prototype.last=function(predicate, context) {"use strict";
+    return predicate ? ____SuperProtoOfIndexedSequence.last.call(this,predicate, context) : this.get(this.length ? this.length - 1 : 0);
+  };
 
   // @pragma Mutability
 
-  isTransient() {
-    return !!this._ownerID;
-  }
+  Vector.prototype.isTransient=function() {"use strict";
+    return !!this.$Vector_ownerID;
+  };
 
-  asTransient() {
-    if (this._ownerID) {
+  Vector.prototype.asTransient=function() {"use strict";
+    if (this.$Vector_ownerID) {
       return this;
     }
     var vect = this.clone();
-    vect._ownerID = new OwnerID();
+    vect.$Vector_ownerID = new OwnerID();
     return vect;
-  }
+  };
 
-  asPersistent() {
-    this._ownerID = undefined;
+  Vector.prototype.asPersistent=function() {"use strict";
+    this.$Vector_ownerID = undefined;
     return this;
-  }
+  };
 
-  clone() {
-    return Vector._make(this._origin, this._size, this._level, this._root, this._tail, this._ownerID && new OwnerID());
-  }
+  Vector.prototype.clone=function() {"use strict";
+    return Vector.$Vector_make(this.$Vector_origin, this.$Vector_size, this.$Vector_level, this.$Vector_root, this.$Vector_tail, this.$Vector_ownerID && new OwnerID());
+  };
 
   // @pragma Iteration
 
-  __iterator__() {
+  Vector.prototype.__iterator__=function() {"use strict";
     return new VectorIterator(
-      this, this._origin, this._size, this._level, this._root, this._tail
+      this, this.$Vector_origin, this.$Vector_size, this.$Vector_level, this.$Vector_root, this.$Vector_tail
     );
-  }
+  };
 
-  __iterate(fn, reverseIndices) {
-    var tailOffset = getTailOffset(this._size);
+  Vector.prototype.__iterate=function(fn, reverseIndices) {"use strict";
+    var tailOffset = getTailOffset(this.$Vector_size);
     return (
-      this._root.iterate(this, this._level, -this._origin, tailOffset - this._origin, fn, reverseIndices) &&
-      this._tail.iterate(this, 0, tailOffset - this._origin, this._size - this._origin, fn, reverseIndices)
+      this.$Vector_root.iterate(this, this.$Vector_level, -this.$Vector_origin, tailOffset - this.$Vector_origin, fn, reverseIndices) &&
+      this.$Vector_tail.iterate(this, 0, tailOffset - this.$Vector_origin, this.$Vector_size - this.$Vector_origin, fn, reverseIndices)
     );
-  }
+  };
 
-  __reverseIterate(fn, maintainIndices) {
-    var tailOffset = getTailOffset(this._size);
+  Vector.prototype.__reverseIterate=function(fn, maintainIndices) {"use strict";
+    var tailOffset = getTailOffset(this.$Vector_size);
     return (
-      this._tail.reverseIterate(this, 0, tailOffset - this._origin, this._size - this._origin, fn, maintainIndices) &&
-      this._root.reverseIterate(this, this._level, -this._origin, tailOffset - this._origin, fn, maintainIndices)
+      this.$Vector_tail.reverseIterate(this, 0, tailOffset - this.$Vector_origin, this.$Vector_size - this.$Vector_origin, fn, maintainIndices) &&
+      this.$Vector_root.reverseIterate(this, this.$Vector_level, -this.$Vector_origin, tailOffset - this.$Vector_origin, fn, maintainIndices)
     );
-  }
+  };
 
   // @pragma Private
 
-  static _make(origin, size, level, root, tail, ownerID) {
+  Vector.$Vector_make=function(origin, size, level, root, tail, ownerID) {"use strict";
     var vect = Object.create(Vector.prototype);
     vect.length = size - origin;
-    vect._origin = origin;
-    vect._size = size;
-    vect._level = level;
-    vect._root = root;
-    vect._tail = tail;
-    vect._ownerID = ownerID;
+    vect.$Vector_origin = origin;
+    vect.$Vector_size = size;
+    vect.$Vector_level = level;
+    vect.$Vector_root = root;
+    vect.$Vector_tail = tail;
+    vect.$Vector_ownerID = ownerID;
     return vect;
-  }
+  };
 
-  _nodeFor(rawIndex) {
-    if (rawIndex >= getTailOffset(this._size)) {
-      return this._tail;
+  Vector.prototype.$Vector_nodeFor=function(rawIndex) {"use strict";
+    if (rawIndex >= getTailOffset(this.$Vector_size)) {
+      return this.$Vector_tail;
     }
-    if (rawIndex < 1 << (this._level + SHIFT)) {
-      var node = this._root;
-      var level = this._level;
+    if (rawIndex < 1 << (this.$Vector_level + SHIFT)) {
+      var node = this.$Vector_root;
+      var level = this.$Vector_level;
       while (node && level > 0) {
         node = node.array[(rawIndex >>> level) & MASK];
         level -= SHIFT;
       }
       return node;
     }
-  }
-}
+  };
+
 
 function rawIndex(index, origin) {
   invariant(index >= 0, 'Index out of bounds');
@@ -475,17 +475,17 @@ function getTailOffset(size) {
   return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
 }
 
-class OwnerID {
-  constructor() {}
-}
 
-class VNode {
-  constructor(ownerID, array) {
+  function OwnerID() {"use strict";}
+
+
+
+  function VNode(ownerID, array) {"use strict";
     this.ownerID = ownerID;
     this.array = array;
   }
 
-  pop(ownerID, length, level) {
+  VNode.prototype.pop=function(ownerID, length, level) {"use strict";
     var editable;
     var idx = ((length - 1) >>> level) & MASK;
     if (level > SHIFT) {
@@ -504,20 +504,20 @@ class VNode {
       delete editable.array[idx];
       return editable;
     }
-  }
+  };
 
-  ensureOwner(ownerID) {
+  VNode.prototype.ensureOwner=function(ownerID) {"use strict";
     if (ownerID && ownerID === this.ownerID) {
       return this;
     }
     return new VNode(ownerID, this.array.slice());
-  }
+  };
 
-  iterate(vector, level, offset, max, fn, reverseIndices) {
+  VNode.prototype.iterate=function(vector, level, offset, max, fn, reverseIndices) {"use strict";
     // Note using every() gets us a speed-up of 2x on modern JS VMs, but means
     // we cannot support IE8 without polyfill.
     if (level === 0) {
-      return this.array.every((value, rawIndex) => {
+      return this.array.every(function(value, rawIndex)  {
         var index = rawIndex + offset;
         if (reverseIndices) {
           index = vector.length - 1 - index;
@@ -527,13 +527,13 @@ class VNode {
     }
     var step = 1 << level;
     var newLevel = level - SHIFT;
-    return this.array.every((newNode, levelIndex) => {
+    return this.array.every(function(newNode, levelIndex)  {
       var newOffset = offset + levelIndex * step;
       return newOffset >= max || newOffset + step <= 0 || newNode.iterate(vector, newLevel, newOffset, max, fn, reverseIndices);
     });
-  }
+  };
 
-  reverseIterate(vector, level, offset, max, fn, maintainIndices) {
+  VNode.prototype.reverseIterate=function(vector, level, offset, max, fn, maintainIndices) {"use strict";
     if (level === 0) {
       for (var rawIndex = this.array.length - 1; rawIndex >= 0; rawIndex--) {
         if (this.array.hasOwnProperty(rawIndex)) {
@@ -560,14 +560,14 @@ class VNode {
       }
     }
     return true;
-  }
-}
+  };
 
-class VectorIterator {
 
-  constructor(vector, origin, size, level, root, tail) {
+
+
+  function VectorIterator(vector, origin, size, level, root, tail) {"use strict";
     var tailOffset = getTailOffset(size);
-    this._stack = {
+    this.$VectorIterator_stack = {
       node: root.array,
       level: level,
       offset: -origin,
@@ -581,8 +581,8 @@ class VectorIterator {
     };
   }
 
-  next() /*(number,T)*/ {
-    var stack = this._stack;
+  VectorIterator.prototype.next=function()  {"use strict";
+    var stack = this.$VectorIterator_stack;
     iteration: while (stack) {
       if (stack.level === 0) {
         stack.rawIndex || (stack.rawIndex = 0);
@@ -604,7 +604,7 @@ class VectorIterator {
           if (newOffset + step > 0 && newOffset < stack.max && stack.node.hasOwnProperty(stack.levelIndex)) {
             var newNode = stack.node[stack.levelIndex].array;
             stack.levelIndex++;
-            stack = this._stack = {
+            stack = this.$VectorIterator_stack = {
               node: newNode,
               level: stack.level - SHIFT,
               offset: newOffset,
@@ -617,13 +617,13 @@ class VectorIterator {
           }
         }
       }
-      stack = this._stack = this._stack.__prev;
+      stack = this.$VectorIterator_stack = this.$VectorIterator_stack.__prev;
     }
     if (global.StopIteration) {
       throw global.StopIteration;
     }
-  }
-}
+  };
+
 
 
 var SHIFT = 5; // Resulted in best performance after ______?
