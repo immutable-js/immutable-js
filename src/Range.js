@@ -23,6 +23,18 @@ class Range extends LazyIndexedSequence {
     this.length = this.step == 0 ? Infinity : Math.max(0, Math.ceil((this.end - this.start) / this.step - 1) + 1);
   }
 
+  toString() {
+    if (this.length === 0) {
+      return 'Range []';
+    }
+    return 'Range [ ' +
+      this.start +
+      (this.step === 0 ? ' repeated' :
+        '...' + this.end +
+        (this.step > 1 ? ' by ' + this.step : '')) +
+    ' ]';
+  }
+
   has(index) {
     invariant(index >= 0, 'Index out of bounds');
     return index < this.length;

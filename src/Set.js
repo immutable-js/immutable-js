@@ -25,6 +25,14 @@ class Set extends LazySequence {
     return set.asPersistent();
   }
 
+  toString() {
+    return this.__toString('Set {', '}');
+  }
+
+  __toStringMapper(v) {
+    return typeof v === 'string' ? JSON.stringify(v) : v;
+  }
+
   // @pragma Access
 
   has(value) {

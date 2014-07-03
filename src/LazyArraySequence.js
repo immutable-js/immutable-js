@@ -3,6 +3,7 @@ var LazyIndexedSequence = require('./LazyIndexedSequence');
 class LazyArraySequence extends LazyIndexedSequence {
   constructor(array) {
     this._array = array;
+    this.length = array.length;
   }
 
   __iterate(fn, reverseIndices) {

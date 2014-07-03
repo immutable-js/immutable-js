@@ -28,6 +28,10 @@ class Map extends LazySequence {
     return map.asPersistent();
   }
 
+  toString() {
+    return this.__toString('Map {', '}');
+  }
+
   // @pragma Access
 
   has(k) {

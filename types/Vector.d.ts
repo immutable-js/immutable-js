@@ -9,7 +9,6 @@ declare module Vector {
 }
 
 interface Vector<T> extends LazyIndexedSequence<T, Vector<T>> {
-  toString(): void;
   length: number;
   has(index: number): boolean;
   get(index: number, undefinedValue?: T): T;
@@ -27,7 +26,7 @@ interface Vector<T> extends LazyIndexedSequence<T, Vector<T>> {
   unshift(...values: T[]): Vector<T>;
   shift(): Vector<T>;
   merge(seq: LazySequence<number, T, any>): Vector<T>;
-  concat(...vectors: Vector<T>[]): Vector<T>;
+  concat(...valuesOrSequences: Array<any>): Vector<T>;
   slice(begin: number, end?: number): Vector<T>;
   splice(index: number, removeNum: number, ...values: T[]): Vector<T>;
   isTransient(): boolean;

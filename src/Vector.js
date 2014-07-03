@@ -20,6 +20,14 @@ class Vector extends LazyIndexedSequence {
     );
   }
 
+  static transientWithSize(size) {
+    var vect = Vector.empty().asTransient();
+    if (size) {
+      vect.length = vect._size = size;
+    }
+    return vect;
+  }
+
   static fromArray(values) {
     if (values.length === 0) {
       return Vector.empty();
@@ -27,27 +35,11 @@ class Vector extends LazyIndexedSequence {
     if (values.length > 0 && values.length < SIZE) {
       return Vector._make(0, values.length, SHIFT, __EMPTY_VNODE, new VNode(null, values.slice()));
     }
-    var vect = Vector.empty().asTransient();
-    values.forEach((value, index) => {
-      vect = vect.set(index, value);
-    });
-    return vect.asPersistent();
+    return Vector.transientWithSize(values.length).merge(values).asPersistent();
   }
 
-  // TODO: generalize and apply to Set and Map
   toString() {
-    var string = '[ ';
-    for (var ii = 0; ii < this.length; ii++) {
-      var value = this.get(ii, __SENTINEL);
-      if (value === __SENTINEL) {
-        // TODO: handle string case to properly wrap in "
-        string += value;
-      }
-      if (ii < this.length - 1) {
-        string += ', ';
-      }
-    }
-    string += ' ]';
+    return this.__toString('Vector [', ']');
   }
 
   // @pragma Access
@@ -344,21 +336,34 @@ class Vector extends LazyIndexedSequence {
 
   merge(seq) {
     var newVect = this.asTransient();
-    seq.__iterate((value, index) => newVect.set(index, value));
+    seq.forEach((value, index) => newVect.set(index, value));
     return this.isTransient() ? newVect : newVect.asPersistent();
   }
 
-  concat(/*...vectors*/) {
+  // TODO: write a test
+  // e.g.
+  // P.Vector().concat(1,2,[3,4],P.Vector(5,6),null,P.Set(7,8,9))
+  // Vector [ 1, 2, 3, 4, 5, 6, null, 7, 8, 9 ]
+  concat(/*...values*/) {
     var vector = this.asTransient();
     for (var ii = 0; ii < arguments.length; ii++) {
-      if (arguments[ii] && arguments[ii].length > 0) {
-        if (vector.length === 0 && !this.isTransient()) {
-          vector = vectors[ii].asTransient();
-        } else {
-          var offset = vector.length;
-          vector.length += vectors[ii].length;
-          vectors[ii].__iterate((value, index) => vector.set(index + offset, value));
+      var value = arguments[ii];
+      if (value && vector.length === 0 && !this.isTransient() && value instanceof Vector) {
+        vector = value.asTransient();
+      } else if (value && typeof value.forEach === 'function') {
+        var offset = vector.length;
+        if (value.length) {
+          vector._size += value.length;
+          vector.length += value.length;
         }
+        if (typeof value.values === 'function' && !(value instanceof LazyIndexedSequence)) {
+          value = value.values();
+        }
+        value.forEach((value, index) => {
+          vector.set((typeof index === 'number' ? index : 0) + offset, value);
+        });
+      } else {
+        vector.push(value);
       }
     }
     return this.isTransient() ? vector : vector.asPersistent();
@@ -417,8 +422,6 @@ class Vector extends LazyIndexedSequence {
 
   // @pragma Iteration
 
-  // TODO: add __iterator__ after dropping TS
-  // TODO: add to .d.ts
   __iterator__() {
     return new VectorIterator(
       this, this._origin, this._size, this._level, this._root, this._tail
@@ -439,13 +442,6 @@ class Vector extends LazyIndexedSequence {
       this._tail.reverseIterate(this, 0, tailOffset - this._origin, this._size - this._origin, fn, maintainIndices) &&
       this._root.reverseIterate(this, this._level, -this._origin, tailOffset - this._origin, fn, maintainIndices)
     );
-  }
-
-  // Override - set correct length before returning
-  toArray() {
-    var array = super.toArray();
-    array.length = this.length;
-    return array;
   }
 
   // @pragma Private

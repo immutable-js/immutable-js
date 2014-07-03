@@ -5,6 +5,8 @@ import Set = require('./Set');
 
 declare class LazySequence<K, V, C> {
 
+  toString(): string;
+
   toArray(): Array<V>;
 
   toObject(): Object;
@@ -14,6 +16,8 @@ declare class LazySequence<K, V, C> {
   toMap(): Map<K, V>;
 
   toSet(): Set<V>;
+
+  join(separator?: string): string;
 
   reverse(): LazySequence<K, V, C>;
 

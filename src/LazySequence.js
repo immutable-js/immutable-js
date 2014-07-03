@@ -16,6 +16,26 @@ class LazySequence {
     return null;
   }
 
+  toString() {
+    return this.__toString('Seq {', '}');
+  }
+
+  inspect() {
+    return '' + this;
+  }
+
+  __toString(head, tail) {
+    if (this.length === 0) {
+      return head + tail;
+    }
+    return head + ' ' + this.map(this.__toStringMapper).join(', ') + ' ' + tail;
+  }
+
+  __toStringMapper(v, k) {
+    return (typeof k === 'string' ? JSON.stringify(k) : k) + ': ' +
+      (typeof v === 'string' ? JSON.stringify(v) : v);
+  }
+
   toArray() {
     var array = [];
     this.__iterate(v => { array.push(v); });
@@ -45,25 +65,37 @@ class LazySequence {
     return require('./Set').empty().merge(this);
   }
 
+  join(separator) {
+    separator = separator || ',';
+    var string = '';
+    var isFirst = true;
+    this.__iterate((v, k) => {
+      if (isFirst) {
+        isFirst = false;
+        string += v;
+      } else {
+        string += separator + v;
+      }
+    });
+    return string;
+  }
+
   reverse() {
     return new ReverseIterator(this);
   }
 
   keys() {
-    return this.map((v, k) => k).values();
+    return this.map(keyMapper).values();
   }
 
   values() {
     // values() always returns an Indexed sequence.
     // Late static binding, to avoid circular dependency issues.
-    return require('./LazyIndexedSequence').prototype.__makeSequence.call(this, true, fn => {
-      var iterations = 0;
-      return (v, k, c) => fn(v, iterations++, c) !== false
-    });
+    return require('./LazyIndexedSequence').prototype.__makeSequence.call(this, true, valuesFactory);
   }
 
   entries() {
-    return this.map((v, k) => [k, v]).values();
+    return this.map(entryMapper).values();
   }
 
   forEach(fn, context) {
@@ -220,20 +252,6 @@ class LazySequence {
   }
 }
 
-function id(fn) {
-  return fn;
-}
-
-function flipFactory(fn) {
-  return (v, k, c) => fn(k, v, c) !== false;
-}
-
-function not(predicate) {
-  return function() {
-    return !predicate.apply(this, arguments);
-  }
-}
-
 class ReverseIterator extends LazySequence {
   constructor(iterator) {
     this.iterator = iterator;
@@ -249,6 +267,33 @@ class ReverseIterator extends LazySequence {
 
   __reverseIterate(fn) {
     return this.iterator.__iterate(fn);
+  }
+}
+
+function id(fn) {
+  return fn;
+}
+
+function keyMapper(v, k) {
+  return k;
+}
+
+function entryMapper(v, k) {
+  return [k, v];
+}
+
+function valuesFactory(fn) {
+  var iterations = 0;
+  return (v, k, c) => fn(v, iterations++, c) !== false;
+}
+
+function flipFactory(fn) {
+  return (v, k, c) => fn(k, v, c) !== false;
+}
+
+function not(predicate) {
+  return function() {
+    return !predicate.apply(this, arguments);
   }
 }
 
