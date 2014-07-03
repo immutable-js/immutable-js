@@ -54,7 +54,7 @@ class Map extends Sequence {
 
   // @pragma Modification
 
-  empty() {
+  clear() {
     if (this._ownerID) {
       this.length = 0;
       this._root = null;

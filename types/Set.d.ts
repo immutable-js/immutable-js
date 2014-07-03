@@ -12,7 +12,7 @@ declare module Set {
 interface Set<T> extends Sequence<T, T, Set<T>> {
   length: number;
   has(value: T): boolean;
-  empty(): Set<T>;
+  clear(): Set<T>;
   add(value: T): Set<T>;
   delete(value: T): Set<T>;
   merge(seq: Sequence<any, T, any>): Set<T>;

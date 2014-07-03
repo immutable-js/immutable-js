@@ -15,7 +15,7 @@ interface Vector<T> extends IndexedSequence<T, Vector<T>> {
   has(index: number): boolean;
   get(index: number, undefinedValue?: T): T;
   getIn(indexPath: any[], pathOffset?: number): any;
-  empty(): Vector<T>;
+  clear(): Vector<T>;
   set(index: number, value: T): Vector<T>;
   setIn(keyPath: any[], v: any, pathOffset?: number): Vector<T>;
   push(...values: T[]): Vector<T>;

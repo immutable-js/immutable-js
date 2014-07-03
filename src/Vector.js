@@ -70,8 +70,7 @@ class Vector extends IndexedSequence {
 
   // @pragma Modification
 
-  // ES6 Map calls this "clear"
-  empty() {
+  clear() {
     if (this._ownerID) {
       this.length = this._origin = this._size = 0;
       this._level = SHIFT;
@@ -347,7 +346,7 @@ class Vector extends IndexedSequence {
     var newOrigin = begin < 0 ? Math.max(this._origin, this._size + begin) : Math.min(this._size, this._origin + begin);
     var newSize = end == null ? this._size : end < 0 ? Math.max(this._origin, this._size + end) : Math.min(this._size, this._origin + end);
     if (newOrigin >= newSize) {
-      return this.empty();
+      return this.clear();
     }
     var newTail = newSize === this._size ? this._tail : this._nodeFor(newSize) || new VNode(this._ownerID, []);
     // TODO: should also calculate a new root and garbage collect?

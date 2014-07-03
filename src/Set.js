@@ -37,8 +37,7 @@ class Set extends Sequence {
 
   // @pragma Modification
 
-  // ES6 calls this "clear"
-  empty() {
+  clear() {
     if (this._ownerID) {
       this.length = 0;
       this._map = null;
