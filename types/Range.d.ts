@@ -1,4 +1,5 @@
-import IndexedSequence = require('./IndexedSequence');
+import SequenceModule = require('./Sequence');
+import IndexedSequence = SequenceModule.IndexedSequence;
 
 /**
  * Returns a lazy sequence of numbers from start (inclusive) to end

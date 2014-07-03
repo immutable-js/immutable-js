@@ -1,5 +1,5 @@
-import Sequence = require('./Sequence');
-import IMap = require('./IMap');
+import SequenceModule = require('./Sequence');
+import Sequence = SequenceModule.Sequence;
 
 declare function Map<K, V>(): Map<K, V>;
 declare function Map<V>(obj: {[key: string]: V;}): Map<string, V>;

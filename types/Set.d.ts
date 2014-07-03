@@ -1,4 +1,5 @@
-import Sequence = require('./Sequence');
+import SequenceModule = require('./Sequence');
+import Sequence = SequenceModule.Sequence;
 
 declare function Set<T>(): Set<T>;
 declare function Set<T>(...values: T[]): Set<T>;

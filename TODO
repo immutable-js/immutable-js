@@ -18,4 +18,5 @@ TODO list:
   * Measure in comparison to mori: byteweight (compressed and zipped), performance.
   * Colorize "inspect" ?
   * Add jshint
-
+  * add maintainIndicies options to values() and keys()
+  * equality checking for Sequences

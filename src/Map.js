@@ -1,4 +1,4 @@
-var Sequence = require('./Sequence');
+var Sequence = require('./Sequence').Sequence;
 
 
 function invariant(condition, error) {

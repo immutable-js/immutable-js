@@ -1,4 +1,4 @@
-var IndexedSequence = require('./IndexedSequence');
+var IndexedSequence = require('./Sequence').IndexedSequence;
 
 
 function invariant(condition, error) {

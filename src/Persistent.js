@@ -1,4 +1,5 @@
-var Sequence = require('./Sequence');
+var Sequence = require('./Sequence').Sequence;
+var IndexedSequence = require('./Sequence').IndexedSequence;
 var Range = require('./Range');
 var Map = require('./Map');
 var Vector = require('./Vector');
@@ -15,14 +16,10 @@ function is(first, second) {
   if (first !== first) {
     return second !== second;
   }
-  if (isPersistent(first)) {
-    return first.equals(second);
+  if (typeof first.equals === 'function') {
+    return first.equals(second) === true;
   }
   return false;
-}
-
-function isPersistent(value) {
-  return value instanceof Map || value instanceof Vector || value instanceof Set;
 }
 
 function isSequence(value) {
@@ -31,42 +28,26 @@ function isSequence(value) {
 
 function fromJS(json) {
   if (Array.isArray(json)) {
-    var vect = Vector.empty();
-    json.forEach((v, k) => {
-      vect.set(k, fromJS(v));
-    });
-    return vect;
+    return Sequence(json).map(fromJS).toVector();
   }
   if (typeof json === 'object') {
-    var map = Map.empty();
-    for (var k in json) {
-      if (json.hasOwnProperty(k)) {
-        map.set(k, fromJS(json[k]));
-      }
-    }
-    return map;
+    return Sequence(json).map(fromJS).toMap();
   }
   return json;
 }
 
 function toJS(value) {
-  if (value instanceof Vector) {
-    var array = value.map(toJS).toArray();
-    array.length = value.length;
-    return array;
-  }
-  if (value instanceof Map) {
-    return value.map(toJS).toObject();
-  }
-  if (value instanceof Set) {
+  if (value instanceof IndexedSequence || value instanceof Set) {
     return value.map(toJS).toArray();
+  }
+  if (value instanceof Sequence) {
+    return value.map(toJS).toObject();
   }
   return value;
 }
 
 module.exports = {
   is: is,
-  isPersistent: isPersistent,
   isSequence: isSequence,
   fromJS: fromJS,
   toJS: toJS,

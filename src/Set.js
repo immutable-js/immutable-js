@@ -1,6 +1,6 @@
-var Sequence = require('./Sequence');
+var Sequence = require('./Sequence').Sequence;
+var IndexedSequence = require('./Sequence').IndexedSequence;
 var Map = require('./Map');
-var Vector = require('./Vector');
 
 
 class Set extends Sequence {
@@ -153,7 +153,7 @@ class Set extends Sequence {
   }
 }
 
-Set.prototype.__toStringMapper = Vector.prototype.__toStringMapper;
+Set.prototype.__toStringMapper = IndexedSequence.prototype.__toStringMapper;
 
 
 class OwnerID {

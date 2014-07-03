@@ -1,5 +1,6 @@
-import IndexedSequence = require('./IndexedSequence');
-import Sequence = require('./Sequence');
+import SequenceModule = require('./Sequence');
+import Sequence = SequenceModule.Sequence;
+import IndexedSequence = SequenceModule.IndexedSequence;
 
 declare function Vector<T>(): Vector<T>;
 declare function Vector<T>(...values: T[]): Vector<T>;
