@@ -1,6 +1,6 @@
-var LazyIndexedSequence = require('./LazyIndexedSequence');
+var IndexedSequence = require('./IndexedSequence');
 
-class LazyArraySequence extends LazyIndexedSequence {
+class ArraySequence extends IndexedSequence {
   constructor(array) {
     this._array = array;
     this.length = array.length;
@@ -27,4 +27,4 @@ class LazyArraySequence extends LazyIndexedSequence {
   }
 }
 
-module.exports = LazyArraySequence;
+module.exports = ArraySequence;

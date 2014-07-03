@@ -1,6 +1,6 @@
-var LazySequence = require('./LazySequence');
+var Sequence = require('./Sequence');
 
-class LazyObjectSequence extends LazySequence {
+class ObjectSequence extends Sequence {
   constructor(object) {
     this._object = object;
   }
@@ -25,4 +25,4 @@ class LazyObjectSequence extends LazySequence {
   }
 }
 
-module.exports = LazyObjectSequence;
+module.exports = ObjectSequence;

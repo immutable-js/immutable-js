@@ -1,17 +1,17 @@
-class LazySequence {
+class Sequence {
   constructor(value) {
-    if (value instanceof LazySequence) {
+    if (value instanceof Sequence) {
       return value;
     }
     if (Array.isArray(value)) {
       // Use Late Binding here to solve the circular dependency.
-      var LazyArraySequence = require('./LazyArraySequence');
-      return new LazyArraySequence(value);
+      var ArraySequence = require('./ArraySequence');
+      return new ArraySequence(value);
     }
     if (typeof value === 'object') {
       // Use Late Binding here to solve the circular dependency.
-      var LazyObjectSequence = require('./LazyObjectSequence');
-      return new LazyObjectSequence(value);
+      var ObjectSequence = require('./ObjectSequence');
+      return new ObjectSequence(value);
     }
     return null;
   }
@@ -91,7 +91,7 @@ class LazySequence {
   values() {
     // values() always returns an Indexed sequence.
     // Late static binding, to avoid circular dependency issues.
-    return require('./LazyIndexedSequence').prototype.__makeSequence.call(this, true, valuesFactory);
+    return require('./IndexedSequence').prototype.__makeSequence.call(this, true, valuesFactory);
   }
 
   entries() {
@@ -243,7 +243,7 @@ class LazySequence {
 
   __makeSequence(withCommutativeReverse, factory) {
     var sequence = this;
-    var newSequence = Object.create(LazySequence.prototype);
+    var newSequence = Object.create(Sequence.prototype);
     newSequence.__iterate = (fn) => sequence.__iterate(factory(fn));
     if (withCommutativeReverse) {
       newSequence.__reverseIterate = (fn) => sequence.__reverseIterate(factory(fn));
@@ -252,7 +252,7 @@ class LazySequence {
   }
 }
 
-class ReverseIterator extends LazySequence {
+class ReverseIterator extends Sequence {
   constructor(iterator) {
     this.iterator = iterator;
   }
@@ -297,4 +297,4 @@ function not(predicate) {
   }
 }
 
-module.exports = LazySequence;
+module.exports = Sequence;

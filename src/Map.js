@@ -1,11 +1,11 @@
-var LazySequence = require('./LazySequence');
+var Sequence = require('./Sequence');
 
 
 function invariant(condition, error) {
   if (!condition) throw new Error(error);
 }
 
-class Map extends LazySequence {
+class Map extends Sequence {
 
   // @pragma Construction
 

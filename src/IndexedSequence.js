@@ -1,6 +1,6 @@
-var LazySequence = require('./LazySequence');
+var Sequence = require('./Sequence');
 
-class LazyIndexedSequence extends LazySequence {
+class IndexedSequence extends Sequence {
 
   toString() {
     return this.__toString('Seq [', ']', v =>
@@ -127,7 +127,7 @@ class LazyIndexedSequence extends LazySequence {
 
   __makeSequence(withCommutativeReverse, factory) {
     var sequence = this;
-    var newSequence = Object.create(LazyIndexedSequence.prototype);
+    var newSequence = Object.create(IndexedSequence.prototype);
     newSequence.__iterate = (fn, reverseIndices) =>
       sequence.__iterate(factory(fn), reverseIndices);
     if (withCommutativeReverse) {
@@ -138,7 +138,7 @@ class LazyIndexedSequence extends LazySequence {
   }
 }
 
-class ReverseIterator extends LazyIndexedSequence {
+class ReverseIterator extends IndexedSequence {
   constructor(iterator, maintainIndices) {
     this.iterator = iterator;
     this.maintainIndices = maintainIndices;
@@ -173,4 +173,4 @@ function repeatString(string, times) {
   return repeated;
 }
 
-module.exports = LazyIndexedSequence;
+module.exports = IndexedSequence;

@@ -1,4 +1,4 @@
-var LazySequence = require('./LazySequence');
+var Sequence = require('./Sequence');
 var Range = require('./Range');
 var Map = require('./Map');
 var Vector = require('./Vector');
@@ -26,7 +26,7 @@ function isPersistent(value) {
 }
 
 function isSequence(value) {
-  return value instanceof LazySequence;
+  return value instanceof Sequence;
 }
 
 function fromJS(json) {
@@ -70,7 +70,7 @@ module.exports = {
   isSequence: isSequence,
   fromJS: fromJS,
   toJS: toJS,
-  LazySequence: LazySequence,
+  Sequence: Sequence,
   Range: Range,
   Map: Map,
   Vector: Vector,

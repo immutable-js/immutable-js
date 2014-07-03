@@ -1,8 +1,8 @@
-var LazySequence = require('./LazySequence');
+var Sequence = require('./Sequence');
 var Map = require('./Map');
 
 
-class Set extends LazySequence {
+class Set extends Sequence {
 
   // @pragma Construction
 

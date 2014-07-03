@@ -1,4 +1,4 @@
-import LazyIndexedSequence = require('./LazyIndexedSequence');
+import IndexedSequence = require('./IndexedSequence');
 
 /**
  * Returns a lazy sequence of numbers from start (inclusive) to end
@@ -8,7 +8,7 @@ import LazyIndexedSequence = require('./LazyIndexedSequence');
  */
 declare function Range(start?: number, end?: number, step?: number): Range;
 
-interface Range extends LazyIndexedSequence<number, Range> {
+interface Range extends IndexedSequence<number, Range> {
   length: number;
   has(index: number): boolean;
   get(index: number): boolean;

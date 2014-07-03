@@ -1,4 +1,4 @@
-var LazyIndexedSequence = require('./LazyIndexedSequence');
+var IndexedSequence = require('./IndexedSequence');
 
 function invariant(condition, error) {
   if (!condition) throw new Error(error);
@@ -10,7 +10,7 @@ function invariant(condition, error) {
  * infinity. When step is equal to 0, returns an infinite sequence of
  * start. When start is equal to end, returns empty list.
  */
-class Range extends LazyIndexedSequence {
+class Range extends IndexedSequence {
 
   constructor(start, end, step) {
     if (!(this instanceof Range)) {

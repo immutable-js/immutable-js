@@ -1,4 +1,4 @@
-import LazySequence = require('./LazySequence');
+import Sequence = require('./Sequence');
 
 declare function Set<T>(): Set<T>;
 declare function Set<T>(...values: T[]): Set<T>;
@@ -8,14 +8,14 @@ declare module Set {
   function fromArray<T>(values: T[]): Set<T>;
 }
 
-interface Set<T> extends LazySequence<T, T, Set<T>> {
+interface Set<T> extends Sequence<T, T, Set<T>> {
   length: number;
   has(value: T): boolean;
   empty(): Set<T>;
   add(value: T): Set<T>;
   delete(value: T): Set<T>;
   equals(other: Set<T>): boolean;
-  merge(seq: LazySequence<any, T, any>): Set<T>;
+  merge(seq: Sequence<any, T, any>): Set<T>;
   isTransient(): boolean;
   asTransient(): Set<T>;
   asPersistent(): Set<T>;

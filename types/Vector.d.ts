@@ -1,5 +1,5 @@
-import LazyIndexedSequence = require('./LazyIndexedSequence');
-import LazySequence = require('./LazySequence');
+import IndexedSequence = require('./IndexedSequence');
+import Sequence = require('./Sequence');
 
 declare function Vector<T>(): Vector<T>;
 declare function Vector<T>(...values: T[]): Vector<T>;
@@ -9,7 +9,7 @@ declare module Vector {
   function fromArray<T>(values: T[]): Vector<T>;
 }
 
-interface Vector<T> extends LazyIndexedSequence<T, Vector<T>> {
+interface Vector<T> extends IndexedSequence<T, Vector<T>> {
   length: number;
   has(index: number): boolean;
   get(index: number, undefinedValue?: T): T;
@@ -26,7 +26,7 @@ interface Vector<T> extends LazyIndexedSequence<T, Vector<T>> {
   deleteIn(keyPath: any[], pathOffset?: number): Vector<T>;
   unshift(...values: T[]): Vector<T>;
   shift(): Vector<T>;
-  merge(seq: LazySequence<number, T, any>): Vector<T>;
+  merge(seq: Sequence<number, T, any>): Vector<T>;
   concat(...valuesOrSequences: Array<any>): Vector<T>;
   slice(begin: number, end?: number): Vector<T>;
   splice(index: number, removeNum: number, ...values: T[]): Vector<T>;

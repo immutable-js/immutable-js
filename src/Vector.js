@@ -1,11 +1,11 @@
-var LazyIndexedSequence = require('./LazyIndexedSequence');
+var IndexedSequence = require('./IndexedSequence');
 
 
 function invariant(condition, error) {
   if (!condition) throw new Error(error);
 }
 
-class Vector extends LazyIndexedSequence {
+class Vector extends IndexedSequence {
 
   // @pragma Construction
 
@@ -352,7 +352,7 @@ class Vector extends LazyIndexedSequence {
           vector._size += value.length;
           vector.length += value.length;
         }
-        if (typeof value.values === 'function' && !(value instanceof LazyIndexedSequence)) {
+        if (typeof value.values === 'function' && !(value instanceof IndexedSequence)) {
           value = value.values();
         }
         value.forEach((value, index) => {

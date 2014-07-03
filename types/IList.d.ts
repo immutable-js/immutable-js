@@ -1,6 +1,6 @@
-import LazySequence = require('./LazySequence');
+import Sequence = require('./Sequence');
 
-interface IList<T> extends LazySequence<T, IList<T>> {
+interface IList<T> extends Sequence<T, IList<T>> {
   length: number;
   get(index: number): T;
   first(): T;

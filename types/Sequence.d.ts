@@ -1,16 +1,16 @@
-import LazyIndexedSequence = require('./LazyIndexedSequence');
-import LazyArraySequence = require('./LazyArraySequence');
-import LazyObjectSequence = require('./LazyObjectSequence');
+import IndexedSequence = require('./IndexedSequence');
+import ArraySequence = require('./ArraySequence');
+import ObjectSequence = require('./ObjectSequence');
 import Vector = require('./Vector');
 import Map = require('./Map');
 import Set = require('./Set');
 
-declare function LazySequence<V, C>(seq: LazyIndexedSequence<V, C>): LazyIndexedSequence<V, C>;
-declare function LazySequence<K, V, C>(seq: LazySequence<K, V, C>): LazySequence<K, V, C>;
-declare function LazySequence<T>(array: Array<T>): LazyArraySequence<T>;
-declare function LazySequence<T>(obj: {[key: string]: T}): LazyObjectSequence<T>;
+declare function Sequence<V, C>(seq: IndexedSequence<V, C>): IndexedSequence<V, C>;
+declare function Sequence<K, V, C>(seq: Sequence<K, V, C>): Sequence<K, V, C>;
+declare function Sequence<T>(array: Array<T>): ArraySequence<T>;
+declare function Sequence<T>(obj: {[key: string]: T}): ObjectSequence<T>;
 
-interface LazySequence<K, V, C> {
+interface Sequence<K, V, C> {
 
   toString(): string;
 
@@ -26,13 +26,13 @@ interface LazySequence<K, V, C> {
 
   join(separator?: string): string;
 
-  reverse(): LazySequence<K, V, C>;
+  reverse(): Sequence<K, V, C>;
 
-  keys(): LazyIndexedSequence<K, C>;
+  keys(): IndexedSequence<K, C>;
 
-  values(): LazyIndexedSequence<V, C>;
+  values(): IndexedSequence<V, C>;
 
-  entries(): LazyIndexedSequence</*(K, V)*/Array<any>, C>;
+  entries(): IndexedSequence</*(K, V)*/Array<any>, C>;
 
   forEach(
     fn: (value?: V, key?: K, collection?: C) => any,
@@ -91,41 +91,41 @@ interface LazySequence<K, V, C> {
     context?: any
   ): K;
 
-  flip(): LazySequence<V, K, C>;
+  flip(): Sequence<V, K, C>;
 
   map<M>(
     mapper: (value?: V, key?: K, collection?: C) => M,
     context?: any
-  ): LazySequence<K, M, C>;
+  ): Sequence<K, M, C>;
 
   filter(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
     context?: any
-  ): LazySequence<K, V, C>;
+  ): Sequence<K, V, C>;
 
-  take(amount: number): LazySequence<K, V, C>;
+  take(amount: number): Sequence<K, V, C>;
 
   takeWhile(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
     context?: any
-  ): LazySequence<K, V, C>;
+  ): Sequence<K, V, C>;
 
   takeUntil(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
     context?: any
-  ): LazySequence<K, V, C>;
+  ): Sequence<K, V, C>;
 
-  skip(amount: number): LazySequence<K, V, C>;
+  skip(amount: number): Sequence<K, V, C>;
 
   skipWhile(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
     context?: any
-  ): LazySequence<K, V, C>;
+  ): Sequence<K, V, C>;
 
   skipUntil(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
     context?: any
-  ): LazySequence<K, V, C>;
+  ): Sequence<K, V, C>;
 }
 
-export = LazySequence;
+export = Sequence;

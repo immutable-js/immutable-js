@@ -1,9 +1,9 @@
-import LazySequence = require('./LazySequence');
+import Sequence = require('./Sequence');
 
 /**
  *
  */
-interface IMap<K, V> extends LazySequence<K, V, IMap<K, V>> {
+interface IMap<K, V> extends Sequence<K, V, IMap<K, V>> {
   length: number;
   has(k: K): boolean;
   get(k: K): V;
@@ -13,7 +13,7 @@ interface IMap<K, V> extends LazySequence<K, V, IMap<K, V>> {
   setIn(keyPath: any[], v: any, pathOffset?: number): IMap<K, V>;
   delete(k: K): IMap<K, V>;
   deleteIn(keyPath: any[], pathOffset?: number): IMap<K, V>;
-  merge(seq: LazySequence<K, V, any>): IMap<K, V>;
+  merge(seq: Sequence<K, V, any>): IMap<K, V>;
   isTransient(): boolean;
   asTransient(): IMap<K, V>;
   asPersistent(): IMap<K, V>;

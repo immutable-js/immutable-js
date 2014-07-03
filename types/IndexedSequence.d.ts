@@ -1,11 +1,11 @@
-import LazySequence = require('./LazySequence');
+import Sequence = require('./Sequence');
 import Vector = require('./Vector');
 
-interface LazyIndexedSequence<V, C> extends LazySequence<number, V, C> {
+interface IndexedSequence<V, C> extends Sequence<number, V, C> {
 
   /**
-   * When LazyIndexedSequence is converted to an array, the index keys are
-   * maintained. This differs from the behavior of LazySequence which
+   * When IndexedSequence is converted to an array, the index keys are
+   * maintained. This differs from the behavior of Sequence which
    * simply makes a dense array of all values.
    * @override
    */
@@ -24,7 +24,7 @@ interface LazyIndexedSequence<V, C> extends LazySequence<number, V, C> {
    * maintainIndices to true.
    * @override
    */
-  reverse(maintainIndices?: boolean): LazyIndexedSequence<V, C>;
+  reverse(maintainIndices?: boolean): IndexedSequence<V, C>;
 
   /**
    * Indexed sequences have a different `filter` behavior, where the filtered
@@ -36,7 +36,7 @@ interface LazyIndexedSequence<V, C> extends LazySequence<number, V, C> {
     predicate: (value?: V, index?: number, collection?: C) => boolean,
     context?: any,
     maintainIndices?: boolean
-  ): LazyIndexedSequence<V, C>;
+  ): IndexedSequence<V, C>;
 
   /**
    * Returns the first index at which a given value can be found in the
@@ -74,7 +74,7 @@ interface LazyIndexedSequence<V, C> extends LazySequence<number, V, C> {
    * set maintainIndices to true.
    * @override
    */
-  skip(amount: number, maintainIndices?: boolean): LazyIndexedSequence<V, C>;
+  skip(amount: number, maintainIndices?: boolean): IndexedSequence<V, C>;
 
   /**
    * Has the same altered behavior as `skip`.
@@ -84,7 +84,7 @@ interface LazyIndexedSequence<V, C> extends LazySequence<number, V, C> {
     predicate: (value?: V, index?: number, collection?: C) => boolean,
     context?: any,
     maintainIndices?: boolean
-  ): LazyIndexedSequence<V, C>;
+  ): IndexedSequence<V, C>;
 
   /**
    * Has the same altered behavior as `skip`.
@@ -94,27 +94,27 @@ interface LazyIndexedSequence<V, C> extends LazySequence<number, V, C> {
     predicate: (value?: V, index?: number, collection?: C) => boolean,
     context?: any,
     maintainIndices?: boolean
-  ): LazyIndexedSequence<V, C>;
+  ): IndexedSequence<V, C>;
 
-  // All below methods have identical behavior as LazySequence,
-  // except they return an LazyIndexedSequence.
+  // All below methods have identical behavior as Sequence,
+  // except they return an IndexedSequence.
 
   map<M>(
     mapper: (value?: V, index?: number, collection?: C) => M,
     context?: any
-  ): LazyIndexedSequence<M, C>;
+  ): IndexedSequence<M, C>;
 
-  take(amount: number): LazyIndexedSequence<V, C>;
+  take(amount: number): IndexedSequence<V, C>;
 
   takeWhile(
     predicate: (value?: V, index?: number, collection?: C) => boolean,
     context?: any
-  ): LazyIndexedSequence<V, C>;
+  ): IndexedSequence<V, C>;
 
   takeUntil(
     predicate: (value?: V, index?: number, collection?: C) => boolean,
     context?: any
-  ): LazyIndexedSequence<V, C>;
+  ): IndexedSequence<V, C>;
 }
 
-export = LazyIndexedSequence;
+export = IndexedSequence;
