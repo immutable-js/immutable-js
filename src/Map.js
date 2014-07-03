@@ -23,7 +23,7 @@ class Map extends Sequence {
   static fromObj(obj) {
     var map = Map.empty().asTransient();
     for (var k in obj) if (obj.hasOwnProperty(k)) {
-      map.set(k, obj[k]);
+      map = map.set(k, obj[k]);
     }
     return map.asPersistent();
   }
@@ -148,7 +148,9 @@ class Map extends Sequence {
 
   merge(seq) {
     var newMap = this.asTransient();
-    seq.__iterate((value, key) => { newMap.set(key, value) });
+    seq.__iterate((value, key) => {
+      newMap = newMap.set(key, value);
+    });
     return this.isTransient() ? newMap : newMap.asPersistent();
   }
 

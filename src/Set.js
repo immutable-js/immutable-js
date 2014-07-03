@@ -1,5 +1,6 @@
 var Sequence = require('./Sequence');
 var Map = require('./Map');
+var Vector = require('./Vector');
 
 
 class Set extends Sequence {
@@ -20,17 +21,13 @@ class Set extends Sequence {
     }
     var set = Set.empty().asTransient();
     for (var ii = 0; ii < values.length; ii++) {
-      set.add(values[ii]);
+      set = set.add(values[ii]);
     }
     return set.asPersistent();
   }
 
   toString() {
     return this.__toString('Set {', '}');
-  }
-
-  __toStringMapper(v) {
-    return typeof v === 'string' ? JSON.stringify(v) : v;
   }
 
   // @pragma Access
@@ -63,15 +60,12 @@ class Set extends Sequence {
       }
     }
     newMap = newMap.set(value, null);
-    if (newMap === this._map) {
-      return this;
-    }
     if (this._ownerID) {
       this.length = newMap.length;
       this._map = newMap;
       return this;
     }
-    return Set._make(newMap);
+    return newMap === this._map ? this : Set._make(newMap);
   }
 
   delete(value) {
@@ -84,7 +78,7 @@ class Set extends Sequence {
     }
     if (this._ownerID) {
       this.length = newMap.length;
-      this._map = newMap;
+      this._map = this.length === 0 ? null : newMap;
       return this;
     }
     return newMap.length ? Set._make(newMap) : Set.empty();
@@ -158,6 +152,9 @@ class Set extends Sequence {
     return set;
   }
 }
+
+Set.prototype.__toStringMapper = Vector.prototype.__toStringMapper;
+
 
 class OwnerID {
   constructor() {}

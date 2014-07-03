@@ -2,8 +2,8 @@ var IndexedSequence = require('./IndexedSequence');
 
 class ArraySequence extends IndexedSequence {
   constructor(array) {
-    this._array = array;
     this.length = array.length;
+    this._array = array;
   }
 
   __iterate(fn, reverseIndices) {

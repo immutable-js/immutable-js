@@ -336,7 +336,9 @@ class Vector extends IndexedSequence {
 
   merge(seq) {
     var newVect = this.asTransient();
-    seq.forEach((value, index) => newVect.set(index, value));
+    seq.forEach((value, index) => {
+      newVect = newVect.set(index, value)
+    });
     return this.isTransient() ? newVect : newVect.asPersistent();
   }
 
@@ -356,7 +358,7 @@ class Vector extends IndexedSequence {
           value = value.values();
         }
         value.forEach((value, index) => {
-          vector.set((typeof index === 'number' ? index : 0) + offset, value);
+          vector = vector.set((typeof index === 'number' ? index : 0) + offset, value);
         });
       } else {
         vector.push(value);

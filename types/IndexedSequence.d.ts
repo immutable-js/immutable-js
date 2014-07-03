@@ -4,6 +4,15 @@ import Vector = require('./Vector');
 interface IndexedSequence<V, C> extends Sequence<number, V, C> {
 
   /**
+   * Some indexed sequences can describe their length lazily. When this is the
+   * case, length will be non-null.
+   *
+   * For example, the new IndexedSequences returned from map() or reverse()
+   * preserve the length of the original sequence.
+   */
+  length?: number;
+
+  /**
    * When IndexedSequence is converted to an array, the index keys are
    * maintained. This differs from the behavior of Sequence which
    * simply makes a dense array of all values.
@@ -97,7 +106,8 @@ interface IndexedSequence<V, C> extends Sequence<number, V, C> {
   ): IndexedSequence<V, C>;
 
   // All below methods have identical behavior as Sequence,
-  // except they return an IndexedSequence.
+  // except they take a function with index: number instead of key: K
+  // and return an IndexedSequence.
 
   map<M>(
     mapper: (value?: V, index?: number, collection?: C) => M,

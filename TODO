@@ -16,3 +16,6 @@ TODO list:
   * README
   * Play with ES6 specific features like iterator and proxy objects.
   * Measure in comparison to mori: byteweight (compressed and zipped), performance.
+  * Colorize "inspect" ?
+  * Add jshint
+
