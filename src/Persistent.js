@@ -22,10 +22,6 @@ function is(first, second) {
   return false;
 }
 
-function isSequence(value) {
-  return value instanceof Sequence;
-}
-
 function fromJS(json) {
   if (Array.isArray(json)) {
     return Sequence(json).map(fromJS).toVector();
