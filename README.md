@@ -1,4 +1,6 @@
-Persistent Immutable Collections for Javascript
+Immutable Lazy Collections for JavaScript
 ============
 
-TODO: write some example code here, pull some quotes from Scala and Clojure.
+I promise to write a description here soon.
+
+For now, check out /type-definitions/*.d.ts
