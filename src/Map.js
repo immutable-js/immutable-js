@@ -1,10 +1,6 @@
 var Sequence = require('./Sequence').Sequence;
 
 
-function invariant(condition, error) {
-  if (!condition) throw new Error(error);
-}
-
 class Map extends Sequence {
 
   // @pragma Construction
@@ -164,13 +160,7 @@ class Map extends Sequence {
 
   // @pragma Iteration
 
-  equals(other) {
-    if (this === other) {
-      return true;
-    }
-    if (other.__proto__ !== Map || this.length !== other.length) {
-      return false;
-    }
+  __deepEqual(other) {
     var is = require('./Persistent').is;
     // Using Sentinel here ensures that a missing key is not interpretted as an
     // existing key set to be null.
@@ -234,11 +224,12 @@ class BitmapIndexedNode {
   }
 
   set(ownerID, shift, hash, key, value, didAddLeaf) {
+    var editable;
     var idx = (hash >>> shift) & MASK;
     var bit = 1 << idx;
     if ((this.bitmap & bit) === 0) {
       didAddLeaf && (didAddLeaf.value = true);
-      var editable = this.ensureOwner(ownerID);
+      editable = this.ensureOwner(ownerID);
       editable.keys[idx] = key;
       editable.values[idx] = value;
       editable.bitmap |= bit;
@@ -252,7 +243,7 @@ class BitmapIndexedNode {
       if (newNode === valueOrNode) {
         return this;
       }
-      var editable = this.ensureOwner(ownerID);
+      editable = this.ensureOwner(ownerID);
       editable.values[idx] = newNode;
       return editable;
     }
@@ -260,7 +251,7 @@ class BitmapIndexedNode {
       if (value === valueOrNode) {
         return this;
       }
-      var editable = this.ensureOwner(ownerID);
+      editable = this.ensureOwner(ownerID);
       editable.values[idx] = value;
       return editable;
     }
@@ -272,13 +263,14 @@ class BitmapIndexedNode {
         .set(ownerID, shift + SHIFT, hash, key, value);
     }
     didAddLeaf && (didAddLeaf.value = true);
-    var editable = this.ensureOwner(ownerID);
+    editable = this.ensureOwner(ownerID);
     delete editable.keys[idx];
     editable.values[idx] = newNode;
     return editable;
   }
 
   delete(ownerID, shift, hash, key, didRemoveLeaf) {
+    var editable;
     var idx = (hash >>> shift) & MASK;
     var bit = 1 << idx;
     var keyOrNull = this.keys[idx];
@@ -292,7 +284,7 @@ class BitmapIndexedNode {
         return this;
       }
       if (newNode) {
-        var editable = this.ensureOwner(ownerID);
+        editable = this.ensureOwner(ownerID);
         editable.values[idx] = newNode;
         return editable;
       }
@@ -302,7 +294,7 @@ class BitmapIndexedNode {
     if (this.bitmap === bit) {
       return null;
     }
-    var editable = this.ensureOwner(ownerID);
+    editable = this.ensureOwner(ownerID);
     delete editable.keys[idx];
     delete editable.values[idx];
     editable.bitmap ^= bit;

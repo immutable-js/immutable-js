@@ -1,6 +1,5 @@
 var Sequence = require('./Sequence').Sequence;
 var IndexedSequence = require('./Sequence').IndexedSequence;
-var Map = require('./Map');
 
 
 class Set extends Sequence {
@@ -54,7 +53,8 @@ class Set extends Sequence {
     }
     var newMap = this._map;
     if (!newMap) {
-      newMap = Map.empty();
+      // Use Late Binding here to ensure no circular dependency.
+      newMap = require('./Map').empty();
       if (this.isTransient()) {
         newMap = newMap.asTransient();
       }
@@ -116,14 +116,8 @@ class Set extends Sequence {
 
   // @pragma Iteration
 
-  equals(other) {
-    if (this === other) {
-      return true;
-    }
-    if (other.__proto__ !== Set || this.length !== other.length) {
-      return false;
-    }
-    return this.length === 0 || this._map.equals(other._map);
+  __deepEquals(other) {
+    return !(this._map || other._map) || this._map.equals(other._map);
   }
 
   __iterate(fn) {
@@ -160,7 +154,6 @@ class OwnerID {
   constructor() {}
 }
 
-var __SENTINEL = {};
 var __EMPTY_SET;
 
 module.exports = Set;

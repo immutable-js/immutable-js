@@ -11,7 +11,6 @@ class Vector extends IndexedSequence {
 
   constructor(...values) {
     return Vector.fromArray(values);
-    super();
   }
 
   static empty() {
@@ -85,11 +84,12 @@ class Vector extends IndexedSequence {
   set(index, value) {
     index = rawIndex(index, this._origin);
     var tailOffset = getTailOffset(this._size);
+    var node, level, idx, newSize, newRoot, newTail;
 
     // Overflow's tail, merge the tail and make a new one.
     if (index >= tailOffset + SIZE) {
       // Tail might require creating a higher root.
-      var newRoot = this._root;
+      newRoot = this._root;
       var newLevel = this._level;
       while (tailOffset > 1 << (newLevel + SHIFT)) {
         newRoot = new VNode(this._ownerID, [newRoot]);
@@ -100,17 +100,17 @@ class Vector extends IndexedSequence {
       }
 
       // Merge Tail into tree.
-      var node = newRoot;
-      for (var level = newLevel; level > SHIFT; level -= SHIFT) {
-        var idx = (tailOffset >>> level) & MASK;
-        node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this._ownerID) : new VNode(this._origin, []);
+      node = newRoot;
+      for (level = newLevel; level > SHIFT; level -= SHIFT) {
+        idx = (tailOffset >>> level) & MASK;
+        node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this._ownerID) : new VNode(this._ownerID, []);
       }
       node.array[(tailOffset >>> SHIFT) & MASK] = this._tail;
 
       // Create new tail with set index.
-      var newTail = new VNode(this._ownerID, []);
+      newTail = new VNode(this._ownerID, []);
       newTail.array[index & MASK] = value;
-      var newSize = index + 1;
+      newSize = index + 1;
       if (this._ownerID) {
         this.length = newSize - this._origin;
         this._size = newSize;
@@ -124,9 +124,9 @@ class Vector extends IndexedSequence {
 
     // Fits within tail.
     if (index >= tailOffset) {
-      var newTail = this._tail.ensureOwner(this._ownerID);
+      newTail = this._tail.ensureOwner(this._ownerID);
       newTail.array[index & MASK] = value;
-      var newSize = index >= this._size ? index + 1 : this._size;
+      newSize = index >= this._size ? index + 1 : this._size;
       if (this._ownerID) {
         this.length = newSize - this._origin;
         this._size = newSize;
@@ -137,10 +137,10 @@ class Vector extends IndexedSequence {
     }
 
     // Fits within existing tree.
-    var newRoot = this._root.ensureOwner(this._ownerID);
-    var node = newRoot;
-    for (var level = this._level; level > 0; level -= SHIFT) {
-      var idx = (index >>> level) & MASK;
+    newRoot = this._root.ensureOwner(this._ownerID);
+    node = newRoot;
+    for (level = this._level; level > 0; level -= SHIFT) {
+      idx = (index >>> level) & MASK;
       node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this._ownerID) : new VNode(this._ownerID, []);
     }
     node.array[index & MASK] = value;
@@ -181,6 +181,7 @@ class Vector extends IndexedSequence {
 
   pop() {
     var newSize = this._size - 1;
+    var newTail;
 
     if (newSize <= this._origin) {
       return this.empty();
@@ -193,7 +194,7 @@ class Vector extends IndexedSequence {
 
     // Fits within tail.
     if (newSize > getTailOffset(this._size)) {
-      var newTail = this._tail.ensureOwner(this._ownerID);
+      newTail = this._tail.ensureOwner(this._ownerID);
       newTail.array.pop();
       if (this._ownerID) {
         this._tail = newTail;
@@ -203,7 +204,7 @@ class Vector extends IndexedSequence {
     }
 
     var newRoot = this._root.pop(this._ownerID, this._size, this._level) || __EMPTY_VNODE;
-    var newTail = this._nodeFor(newSize - 1);
+    newTail = this._nodeFor(newSize - 1);
     if (this._ownerID) {
       this._root = newRoot;
       this._tail = newTail;
@@ -266,9 +267,10 @@ class Vector extends IndexedSequence {
     var newSize = this._size;
     var newLevel = this._level;
     var newRoot = this._root;
+    var node;
 
     while (newOrigin < 0) {
-      var node = new VNode(this._ownerID, []);
+      node = new VNode(this._ownerID, []);
       node.array[1] = newRoot;
       newOrigin += 1 << newLevel;
       newSize += 1 << newLevel;
@@ -283,7 +285,7 @@ class Vector extends IndexedSequence {
     var tempOwner = this._ownerID || new OwnerID();
     for (var ii = 0; ii < values.length; ii++) {
       var index = newOrigin + ii;
-      var node = newRoot;
+      node = newRoot;
       for (var level = newLevel; level > 0; level -= SHIFT) {
         var idx = (index >>> level) & MASK;
         node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(tempOwner) : new VNode(tempOwner, []);
@@ -370,13 +372,7 @@ class Vector extends IndexedSequence {
 
   // @pragma Iteration
 
-  equals(other) {
-    if (this === other) {
-      return true;
-    }
-    if (other.__proto__ !== Vector || this.length !== other.length) {
-      return false;
-    }
+  __deepEquals(other) {
     var is = require('./Persistent').is;
     var otherIterator = other.__iterator__();
     return this.every((v, k) => {
@@ -491,11 +487,12 @@ class VNode {
   }
 
   pop(ownerID, length, level) {
+    var editable;
     var idx = ((length - 1) >>> level) & MASK;
     if (level > SHIFT) {
       var newChild = this.array[idx].pop(ownerID, length, level - SHIFT);
       if (newChild || idx) {
-        var editable = this.ensureOwner(ownerID);
+        editable = this.ensureOwner(ownerID);
         if (newChild) {
           editable.array[idx] = newChild;
         } else {
@@ -504,7 +501,7 @@ class VNode {
         return editable;
       }
     } else if (idx !== 0) {
-      var editable = this.ensureOwner(ownerID);
+      editable = this.ensureOwner(ownerID);
       delete editable.array[idx];
       return editable;
     }

@@ -21,7 +21,7 @@ class Range extends IndexedSequence {
     this.end = end == null ? Infinity : end;
     step = step == null ? 1 : Math.abs(step);
     this.step = this.end < this.start ? -step : step;
-    this.length = this.step == 0 ? Infinity : Math.max(0, Math.ceil((this.end - this.start) / this.step - 1) + 1);
+    this.length = this.step === 0 ? Infinity : Math.max(0, Math.ceil((this.end - this.start) / this.step - 1) + 1);
   }
 
   toString() {
@@ -44,23 +44,17 @@ class Range extends IndexedSequence {
   get(index) {
     invariant(index >= 0, 'Index out of bounds');
     if (this.length === Infinity || index < this.length) {
-      return this.step == 0 ? this.start : this.start + index * this.step;
+      return this.step === 0 ? this.start : this.start + index * this.step;
     }
   }
 
   slice(begin, end) {
     begin = begin < 0 ? Math.max(0, this.length + begin) : Math.min(this.length, begin);
     end = end == null ? this.length : end > 0 ? Math.min(this.length, end) : Math.max(0, this.length + end);
-    return new Range(this.get(begin), end == this.length ? this.end : this.get(end), this.step);
+    return new Range(this.get(begin), end === this.length ? this.end : this.get(end), this.step);
   }
 
-  equals(other) {
-    if (this === other) {
-      return true;
-    }
-    if (other.__proto__ !== Range) {
-      return false;
-    }
+  __deepEquals(other) {
     return this.start === other.start && this.end === other.end && this.step === other.step;
   }
 

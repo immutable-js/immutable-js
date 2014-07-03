@@ -1,9 +1,10 @@
 var Sequence = require('./Sequence').Sequence;
 var IndexedSequence = require('./Sequence').IndexedSequence;
 var Range = require('./Range');
-var Map = require('./Map');
 var Vector = require('./Vector');
-var Set = require('./Set');
+var PersistentMap = require('./Map');
+var PersistentSet = require('./Set');
+
 
 /**
  * The same semantics as Object.is(), but treats persistent data structures as
@@ -33,7 +34,7 @@ function fromJS(json) {
 }
 
 function toJS(value) {
-  if (value instanceof IndexedSequence || value instanceof Set) {
+  if (value instanceof IndexedSequence || value instanceof PersistentSet) {
     return value.map(toJS).toArray();
   }
   if (value instanceof Sequence) {
@@ -44,12 +45,11 @@ function toJS(value) {
 
 module.exports = {
   is: is,
-  isSequence: isSequence,
   fromJS: fromJS,
   toJS: toJS,
   Sequence: Sequence,
   Range: Range,
-  Map: Map,
   Vector: Vector,
-  Set: Set,
+  Map: PersistentMap,
+  Set: PersistentSet,
 };

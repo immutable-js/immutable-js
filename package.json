@@ -3,8 +3,7 @@
   "version": "0.0.1",
   "description": "Persistent Immutable Collections",
   "main": "build/Persistent.js",
-  "dependencies": {
-  },
+  "dependencies": {},
   "scripts": {
     "test": "jest"
   },
@@ -22,6 +21,7 @@
     "grunt": "^0.4.5",
     "grunt-react": "^0.8.2",
     "grunt-contrib-copy": "^0.5.0",
-    "ts-compiler": "^2.0.0"
+    "ts-compiler": "^2.0.0",
+    "grunt-contrib-jshint": "^0.10.0"
   }
 }

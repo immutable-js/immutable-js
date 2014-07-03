@@ -26,6 +26,29 @@ module.exports = function(grunt) {
           },
         ]
       }
+    },
+    jshint: {
+      options: {
+        asi: true,
+        curly: false,
+        eqeqeq: true,
+        eqnull: true,
+        esnext: true,
+        expr: true,
+        forin: true,
+        freeze: true,
+        immed: true,
+        indent: 2,
+        iterator: true,
+        noarg: true,
+        node: true,
+        noempty: true,
+        nonstandard: true,
+        trailing: true,
+        undef: true,
+        unused: 'vars',
+      },
+      all: ['src/**/*.js']
     }
   });
 
@@ -36,8 +59,9 @@ module.exports = function(grunt) {
     });
   });
 
+  grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-react');
   grunt.loadNpmTasks('grunt-contrib-copy');
 
-  grunt.registerTask('default', ['react', 'copy', 'jest']);
+  grunt.registerTask('default', ['jshint', 'react', 'copy', 'jest']);
 }

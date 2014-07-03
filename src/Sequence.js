@@ -66,14 +66,19 @@ class Sequence {
     if (this === other) {
       return true;
     }
-    if (!(other instanceof Sequence)) {
+    if (!(other instanceof Object.getPrototypeOf(this).constructor) ||
+        (this.length && other.length && this.length !== other.length)) {
       return false;
     }
+    return this.__deepEquals(other);
+  }
+
+  __deepEquals(other) {
     var is = require('./Persistent').is;
     var otherEntries = other.entries().toArray();
     var iterations = 0;
     return this.every((v, k) => {
-      otherEntry = otherEntries[iterations++];
+      var otherEntry = otherEntries[iterations++];
       return is(k, otherEntry[0]) && is(v, otherEntry[1]);
     });
   }
@@ -137,14 +142,14 @@ class Sequence {
   }
 
   every(predicate, context) {
-    var every = true;
+    var returnValue = true;
     this.__iterate((v, k, c) => {
       if (!predicate.call(context, v, k, c)) {
-        every = false;
+        returnValue = false;
         return false;
       }
     });
-    return every;
+    return returnValue;
   }
 
   some(predicate, context) {
@@ -501,10 +506,6 @@ class ObjectSequence extends Sequence {
 }
 
 
-function id(fn) {
-  return fn;
-}
-
 function keyMapper(v, k) {
   return k;
 }
@@ -529,7 +530,7 @@ function not(predicate) {
 }
 
 function quoteString(value) {
-  return typeof v === 'string' ? JSON.stringify(v) : v;
+  return typeof value === 'string' ? JSON.stringify(value) : value;
 }
 
 function repeatString(string, times) {
