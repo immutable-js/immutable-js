@@ -254,19 +254,19 @@ class Sequence {
 
 class ReverseIterator extends Sequence {
   constructor(iterator) {
-    this.iterator = iterator;
+    this._iterator = iterator;
   }
 
   reverse() {
-    return this.iterator;
+    return this._iterator;
   }
 
   __iterate(fn) {
-    return this.iterator.__reverseIterate(fn);
+    return this._iterator.__reverseIterate(fn);
   }
 
   __reverseIterate(fn) {
-    return this.iterator.__iterate(fn);
+    return this._iterator.__iterate(fn);
   }
 }
 

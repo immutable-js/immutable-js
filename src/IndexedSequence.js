@@ -140,23 +140,26 @@ class IndexedSequence extends Sequence {
 
 class ReverseIterator extends IndexedSequence {
   constructor(iterator, maintainIndices) {
-    this.iterator = iterator;
-    this.maintainIndices = maintainIndices;
+    if (iterator.length) {
+      this.length = iterator.length;
+    }
+    this._iterator = iterator;
+    this._maintainIndices = maintainIndices;
   }
 
   reverse(maintainIndices) {
-    if (maintainIndices === this.maintainIndices) {
-      return this.iterator;
+    if (maintainIndices === this._maintainIndices) {
+      return this._iterator;
     }
     return super.reverse(maintainIndices);
   }
 
   __iterate(fn, reverseIndices) {
-    return this.iterator.__reverseIterate(fn, reverseIndices !== this.maintainIndices);
+    return this._iterator.__reverseIterate(fn, reverseIndices !== this._maintainIndices);
   }
 
   __reverseIterate(fn, maintainIndices) {
-    return this.iterator.__iterate(fn, maintainIndices !== this.maintainIndices);
+    return this._iterator.__iterate(fn, maintainIndices !== this._maintainIndices);
   }
 }
 
