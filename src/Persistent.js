@@ -7,7 +7,7 @@ var PersistentSet = require('./Set');
 
 
 /**
- * The same semantics as Object.is(), but treats persistent data structures as
+ * The same semantics as Object.is(), but treats immutable sequences as
  * data, equal when the structure contains equivalent data.
  */
 function is(first, second) {
@@ -34,6 +34,8 @@ function fromJS(json) {
 }
 
 function toJS(value) {
+  // TODO: Sequence should provide .toJS() which just does a shallow conversion.
+  // Simply chosing the better fit of Array or Object based of it's type.
   if (value instanceof IndexedSequence || value instanceof PersistentSet) {
     return value.map(toJS).toArray();
   }

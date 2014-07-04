@@ -29,7 +29,9 @@ describe('Equality', () => {
     expectIsNot(123, -123);
     expectIs(NaN, NaN);
     expectIs(0, 0);
+    expectIs(-0, -0);
     expectIsNot(0, -0);
+    expectIs(NaN, 0/0);
 
     var string = "hello";
     expectIs(string, string);

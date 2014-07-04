@@ -7,7 +7,7 @@ var PersistentSet = require('./Set');
 
 
 /**
- * The same semantics as Object.is(), but treats persistent data structures as
+ * The same semantics as Object.is(), but treats immutable sequences as
  * data, equal when the structure contains equivalent data.
  */
 function is(first, second) {
