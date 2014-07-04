@@ -132,8 +132,14 @@ class Map extends Sequence {
   // @pragma Composition
 
   merge(seq) {
+    if (seq == null) {
+      return this;
+    }
+    if (!seq.forEach) {
+      seq = Sequence(seq);
+    }
     var newMap = this.asTransient();
-    seq.__iterate((value, key) => {
+    seq.forEach((value, key) => {
       newMap = newMap.set(key, value);
     });
     return this.isTransient() ? newMap : newMap.asPersistent();

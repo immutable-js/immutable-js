@@ -86,8 +86,14 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   // @pragma Composition
 
   Set.prototype.merge=function(seq) {"use strict";
+    if (seq == null) {
+      return this;
+    }
+    if (!seq.forEach) {
+      seq = Sequence(seq);
+    }
     var newSet = this.asTransient();
-    seq.__iterate(function(value)  {return newSet.add(value);});
+    seq.forEach(function(value)  {return newSet.add(value);});
     return this.isTransient() ? newSet : newSet.asPersistent();
   };
 

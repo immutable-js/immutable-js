@@ -24,7 +24,10 @@ interface Vector<T> extends IndexedSequence<T, Vector<T>> {
   deleteIn(keyPath: any[], pathOffset?: number): Vector<T>;
   unshift(...values: T[]): Vector<T>;
   shift(): Vector<T>;
-  merge(seq: Sequence<number, T, any>): Vector<T>;
+
+  merge(seq: IndexedSequence<T, any>): Vector<T>;
+  merge(seq: Array<T>): Vector<T>;
+
   concat(...valuesOrSequences: Array<any>): Vector<T>;
   slice(begin: number, end?: number): Vector<T>;
   splice(index: number, removeNum: number, ...values: T[]): Vector<T>;

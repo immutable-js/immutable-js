@@ -132,8 +132,14 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   // @pragma Composition
 
   Map.prototype.merge=function(seq) {"use strict";
+    if (seq == null) {
+      return this;
+    }
+    if (!seq.forEach) {
+      seq = Sequence(seq);
+    }
     var newMap = this.asTransient();
-    seq.__iterate(function(value, key)  {
+    seq.forEach(function(value, key)  {
       newMap = newMap.set(key, value);
     });
     return this.isTransient() ? newMap : newMap.asPersistent();

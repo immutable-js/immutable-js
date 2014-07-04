@@ -310,6 +310,9 @@ class Vector extends IndexedSequence {
   // @pragma Composition
 
   merge(seq) {
+    if (!seq || !seq.forEach) {
+      return this;
+    }
     var newVect = this.asTransient();
     seq.forEach((value, index) => {
       newVect = newVect.set(index, value)

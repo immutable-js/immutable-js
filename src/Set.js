@@ -86,8 +86,14 @@ class Set extends Sequence {
   // @pragma Composition
 
   merge(seq) {
+    if (seq == null) {
+      return this;
+    }
+    if (!seq.forEach) {
+      seq = Sequence(seq);
+    }
     var newSet = this.asTransient();
-    seq.__iterate(value => newSet.add(value));
+    seq.forEach(value => newSet.add(value));
     return this.isTransient() ? newSet : newSet.asPersistent();
   }
 

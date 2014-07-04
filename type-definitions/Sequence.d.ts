@@ -6,6 +6,8 @@ export declare function Sequence<V, C>(seq: IndexedSequence<V, C>): IndexedSeque
 export declare function Sequence<K, V, C>(seq: Sequence<K, V, C>): Sequence<K, V, C>;
 export declare function Sequence<T>(array: Array<T>): IndexedSequence<T, Array<T>>;
 export declare function Sequence<T>(obj: {[key: string]: T}): Sequence<string, T, {[key: string]: T}>;
+export declare function Sequence<T>(...values: Array<T>): IndexedSequence<T, Array<T>>;
+export declare function Sequence(): Sequence<any, any, any>;
 
 /**
  * TODO

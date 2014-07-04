@@ -310,6 +310,9 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   // @pragma Composition
 
   Vector.prototype.merge=function(seq) {"use strict";
+    if (!seq || !seq.forEach) {
+      return this;
+    }
     var newVect = this.asTransient();
     seq.forEach(function(value, index)  {
       newVect = newVect.set(index, value)

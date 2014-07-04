@@ -1,15 +1,17 @@
 class Sequence {
   constructor(value) {
-    if (value instanceof Sequence) {
-      return value;
+    if (arguments.length === 1) {
+      if (value instanceof Sequence) {
+        return value;
+      }
+      if (Array.isArray(value)) {
+        return new ArraySequence(value);
+      }
+      if (typeof value === 'object') {
+        return new ObjectSequence(value);
+      }
     }
-    if (Array.isArray(value)) {
-      return new ArraySequence(value);
-    }
-    if (typeof value === 'object') {
-      return new ObjectSequence(value);
-    }
-    return new ArraySequence([value]);
+    return new ArraySequence(Array.prototype.slice.call(arguments));
   }
 
   toString() {
@@ -239,7 +241,7 @@ class Sequence {
     return this.skipWhile(not(predicate), context);
   }
 
-  // __iterate(fn) is abstract
+  // abstract __iterate(fn)
 
   /**
    * Note: the default implementation of this needs to make an intermediate

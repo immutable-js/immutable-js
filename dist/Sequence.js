@@ -1,15 +1,17 @@
 
   function Sequence(value) {"use strict";
-    if (value instanceof Sequence) {
-      return value;
+    if (arguments.length === 1) {
+      if (value instanceof Sequence) {
+        return value;
+      }
+      if (Array.isArray(value)) {
+        return new ArraySequence(value);
+      }
+      if (typeof value === 'object') {
+        return new ObjectSequence(value);
+      }
     }
-    if (Array.isArray(value)) {
-      return new ArraySequence(value);
-    }
-    if (typeof value === 'object') {
-      return new ObjectSequence(value);
-    }
-    return new ArraySequence([value]);
+    return new ArraySequence(Array.prototype.slice.call(arguments));
   }
 
   Sequence.prototype.toString=function() {"use strict";
@@ -239,7 +241,7 @@
     return this.skipWhile(not(predicate), context);
   };
 
-  // __iterate(fn) is abstract
+  // abstract __iterate(fn)
 
   /**
    * Note: the default implementation of this needs to make an intermediate
