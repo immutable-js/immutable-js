@@ -62,13 +62,13 @@ module.exports = function(grunt) {
         ]
       }
     },
+    jest: {
+      options: {}
+    }
   });
 
   grunt.registerTask('jest', function() {
-    var onCompleteTask = this.async();
-    require('jest-cli').runCLI(null, __dirname, function (completionData) {
-      onCompleteTask(completionData.numFailedTests === 0);
-    });
+    require('jest-cli').runCLI(this.options(), __dirname, this.async());
   });
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-react');

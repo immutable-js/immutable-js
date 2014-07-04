@@ -348,10 +348,10 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     if (newOrigin >= newSize) {
       return this.clear();
     }
-    var newTail = newSize === this.$Vector_size ? this.$Vector_tail : this.$Vector_nodeFor(newSize) || new VNode(this.$Vector_ownerID, []);
+    var newTail = newSize === this.$Vector_size ? this.$Vector_tail : (this.$Vector_nodeFor(newSize) || new VNode(this.$Vector_ownerID, []));
     // TODO: should also calculate a new root and garbage collect?
     // This would be a tradeoff between memory footprint and perf.
-    // I still expect better performance than Array.slice(), so it's probably worth freeing memory.
+    // I still expect better performance than Array.slice(), so it's probably worth freeing the memory.
     if (this.$Vector_ownerID) {
       this.length = newSize - newOrigin;
       this.$Vector_origin = newOrigin;

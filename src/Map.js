@@ -5,21 +5,21 @@ class Map extends Sequence {
 
   // @pragma Construction
 
-  constructor(obj) {
-    if (!obj) {
+  constructor(object) {
+    if (!object) {
       return Map.empty();
     }
-    return Map.fromObj(obj);
+    return Map.fromObject(object);
   }
 
   static empty() {
     return __EMPTY_MAP || (__EMPTY_MAP = Map._make(0, null));
   }
 
-  static fromObj(obj) {
+  static fromObject(object) {
     var map = Map.empty().asTransient();
-    for (var k in obj) if (obj.hasOwnProperty(k)) {
-      map = map.set(k, obj[k]);
+    for (var k in object) if (object.hasOwnProperty(k)) {
+      map = map.set(k, object[k]);
     }
     return map.asPersistent();
   }

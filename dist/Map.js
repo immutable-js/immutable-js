@@ -5,21 +5,21 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
   // @pragma Construction
 
-  function Map(obj) {"use strict";
-    if (!obj) {
+  function Map(object) {"use strict";
+    if (!object) {
       return Map.empty();
     }
-    return Map.fromObj(obj);
+    return Map.fromObject(object);
   }
 
   Map.empty=function() {"use strict";
     return __EMPTY_MAP || (__EMPTY_MAP = Map.$Map_make(0, null));
   };
 
-  Map.fromObj=function(obj) {"use strict";
+  Map.fromObject=function(object) {"use strict";
     var map = Map.empty().asTransient();
-    for (var k in obj) if (obj.hasOwnProperty(k)) {
-      map = map.set(k, obj[k]);
+    for (var k in object) if (object.hasOwnProperty(k)) {
+      map = map.set(k, object[k]);
     }
     return map.asPersistent();
   };

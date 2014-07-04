@@ -70,6 +70,10 @@
         (this.length && other.length && this.length !== other.length)) {
       return false;
     }
+    // If either side is transient, then they must have reference equality.
+    if ((this.isTransient && this.isTransient()) || (other.isTransient && other.isTransient())) {
+      return this === other;
+    }
     return this.__deepEquals(other);
   };
 
