@@ -1,5 +1,7 @@
+///<reference path='../resources/jest.d.ts'/>
 jest.autoMockOff();
-var Map = require('../dist/Persistent').Map;
+import Persistent = require('../dist/Persistent');
+import Map = Persistent.Map;
 
 describe('Map', function() {
 

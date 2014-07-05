@@ -1,5 +1,7 @@
+///<reference path='../resources/jest.d.ts'/>
 jest.autoMockOff();
-var Set = require('../dist/Persistent').Set;
+import Persistent = require('../dist/Persistent');
+import Set = Persistent.Set;
 
 describe('Set', function() {
 
