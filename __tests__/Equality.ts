@@ -46,15 +46,43 @@ describe('Equality', () => {
     var object = {key:'value'};
     expectIs(object, object);
     expectIsNot(object, {key:'value'});
+  });
 
-    var arraySeq = Persistent.Sequence([1,2,3]);
+  it('compares sequences', () => {
+    var arraySeq = Persistent.Sequence(1,2,3);
     expectIs(arraySeq, arraySeq);
     expectIsNot(arraySeq, [1,2,3]);
     expectIs(arraySeq, Persistent.Sequence([1,2,3]));
     expectIs(arraySeq, arraySeq.map(x => x));
-
-    // TODO: far more tests!
-
   });
+
+  it('compares vectors', () => {
+    var vector = Persistent.Vector(1,2,3);
+    expectIs(vector, vector);
+    expectIsNot(vector, [1,2,3]);
+    // TODO: should this be true?
+    expectIsNot(vector, Persistent.Sequence([1,2,3]));
+
+    expectIs(vector, Persistent.Vector(1,2,3));
+
+    var vectorLonger = vector.push(4);
+    expectIsNot(vector, vectorLonger);
+    var vectorShorter = vectorLonger.pop();
+    expectIs(vector, vectorShorter);
+
+    var transientVector = vector.asTransient();
+    expectIsNot(vector, transientVector);
+
+    var transientLonger = transientVector.push(4);
+    expectIs(transientVector, transientLonger);
+    var transientShorter = transientLonger.pop();
+    expectIs(transientVector, transientShorter);
+
+    var persistentVector = transientVector.asPersistent();
+    expectIs(transientVector, persistentVector);
+    expectIs(vector, persistentVector);
+  });
+
+  // TODO: more tests
 
 });
