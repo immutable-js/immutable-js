@@ -372,25 +372,6 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     );
   };
 
-  // @pragma Iteration
-
-  Vector.prototype.__deepEquals=function(other) {"use strict";
-    var is = require('./Persistent').is;
-    var iterator = this.__iterator__();
-    return other.every(function(v, k)  {
-      var entry = iterator.next();
-      return k === entry[0] && is(v, entry[1]);
-    });
-  };
-
-  Vector.prototype.first=function(predicate, context) {"use strict";
-    return predicate ? ____SuperProtoOfIndexedSequence.first.call(this,predicate, context) : this.get(0);
-  };
-
-  Vector.prototype.last=function(predicate, context) {"use strict";
-    return predicate ? ____SuperProtoOfIndexedSequence.last.call(this,predicate, context) : this.get(this.length ? this.length - 1 : 0);
-  };
-
   // @pragma Mutability
 
   Vector.prototype.isTransient=function() {"use strict";
@@ -416,6 +397,28 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   };
 
   // @pragma Iteration
+
+  Vector.prototype.toVector=function() {"use strict";
+    // Note: identical impl to Map.toMap
+    return this.isTransient() ? this.clone().asPersistent() : this;
+  };
+
+  Vector.prototype.first=function(predicate, context) {"use strict";
+    return predicate ? ____SuperProtoOfIndexedSequence.first.call(this,predicate, context) : this.get(0);
+  };
+
+  Vector.prototype.last=function(predicate, context) {"use strict";
+    return predicate ? ____SuperProtoOfIndexedSequence.last.call(this,predicate, context) : this.get(this.length ? this.length - 1 : 0);
+  };
+
+  Vector.prototype.__deepEquals=function(other) {"use strict";
+    var is = require('./Persistent').is;
+    var iterator = this.__iterator__();
+    return other.every(function(v, k)  {
+      var entry = iterator.next();
+      return k === entry[0] && is(v, entry[1]);
+    });
+  };
 
   Vector.prototype.__iterator__=function() {"use strict";
     return new VectorIterator(

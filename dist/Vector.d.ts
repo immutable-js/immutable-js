@@ -31,7 +31,6 @@ interface Vector<T> extends IndexedSequence<T, Vector<T>> {
   concat(...valuesOrSequences: Array<any>): Vector<T>;
   slice(begin: number, end?: number): Vector<T>;
   splice(index: number, removeNum: number, ...values: T[]): Vector<T>;
-  isTransient(): boolean;
   asTransient(): Vector<T>;
   asPersistent(): Vector<T>;
   clone(): Vector<T>;

@@ -11,7 +11,7 @@ class Sequence {
         return new ObjectSequence(value);
       }
     }
-    return new ArraySequence(Array.prototype.slice.call(arguments));
+    return new ArraySequence(Array.prototype.slice.call(arguments), true);
   }
 
   toString() {
@@ -31,6 +31,16 @@ class Sequence {
 
   __toStringMapper(v, k) {
     return quoteString(k) + ': ' + quoteString(v);
+  }
+
+  isTransient() {
+    return this.__parentSequence.isTransient();
+  }
+
+  asPersistent() {
+    // This works because asPersistent() is mutative.
+    this.__parentSequence.asPersistent();
+    return this;
   }
 
   toArray() {
@@ -71,9 +81,12 @@ class Sequence {
     if (this.length && other.length && this.length !== other.length) {
       return false;
     }
-    // If either side is transient, then they must have reference equality.
-    if ((this.isTransient && this.isTransient()) || (other.isTransient && other.isTransient())) {
-      return this === other;
+    // if either side is transient, and they are not from the same parent
+    // sequence, then they must not be equal.
+    if (((!this.isTransient || this.isTransient()) ||
+         (!other.isTransient || other.isTransient())) &&
+        (this.__parentSequence || this) !== (other.__parentSequence || other)) {
+      return false;
     }
     return this.__deepEquals(other);
   }
@@ -266,6 +279,7 @@ class Sequence {
   __makeSequence(withCommutativeReverse, factory) {
     var sequence = this;
     var newSequence = Object.create(Sequence.prototype);
+    newSequence.__parentSequence = sequence._parentSequence || sequence;
     newSequence.__iterate = (fn) => sequence.__iterate(factory(fn));
     if (withCommutativeReverse) {
       newSequence.__reverseIterate = (fn) => sequence.__reverseIterate(factory(fn));
@@ -278,20 +292,21 @@ Sequence.prototype.toJS = Sequence.prototype.toObject;
 
 
 class ReversedSequence extends Sequence {
-  constructor(iterator) {
-    this._iterator = iterator;
+  constructor(sequence) {
+    this.__parentSequence = sequence._parentSequence || sequence;
+    this._sequence = sequence;
   }
 
   reverse() {
-    return this._iterator;
+    return this._sequence;
   }
 
   __iterate(fn) {
-    return this._iterator.__reverseIterate(fn);
+    return this._sequence.__reverseIterate(fn);
   }
 
   __reverseIterate(fn) {
-    return this._iterator.__iterate(fn);
+    return this._sequence.__iterate(fn);
   }
 }
 
@@ -418,6 +433,7 @@ class IndexedSequence extends Sequence {
   __makeSequence(withCommutativeReverse, factory) {
     var sequence = this;
     var newSequence = Object.create(IndexedSequence.prototype);
+    newSequence.__parentSequence = sequence._parentSequence || sequence;
     newSequence.__iterate = (fn, reverseIndices) =>
       sequence.__iterate(factory(fn), reverseIndices);
     if (withCommutativeReverse) {
@@ -434,35 +450,48 @@ IndexedSequence.prototype.__toStringMapper = quoteString;
 
 
 class ReversedIndexedSequence extends IndexedSequence {
-  constructor(iterator, maintainIndices) {
-    if (iterator.length) {
-      this.length = iterator.length;
+  constructor(sequence, maintainIndices) {
+    if (sequence.length) {
+      this.length = sequence.length;
     }
-    this._iterator = iterator;
+    this._sequence = sequence;
     this._maintainIndices = maintainIndices;
   }
 
   reverse(maintainIndices) {
     if (maintainIndices === this._maintainIndices) {
-      return this._iterator;
+      return this._sequence;
     }
     return super.reverse(maintainIndices);
   }
 
   __iterate(fn, reverseIndices) {
-    return this._iterator.__reverseIterate(fn, reverseIndices !== this._maintainIndices);
+    return this._sequence.__reverseIterate(fn, reverseIndices !== this._maintainIndices);
   }
 
   __reverseIterate(fn, maintainIndices) {
-    return this._iterator.__iterate(fn, maintainIndices !== this._maintainIndices);
+    return this._sequence.__iterate(fn, maintainIndices !== this._maintainIndices);
   }
 }
 
 
 class ArraySequence extends IndexedSequence {
-  constructor(array) {
+  constructor(array, isImmutable) {
     this.length = array.length;
     this._array = array;
+    if (isImmutable) {
+      this._immutable = true;
+    }
+  }
+
+  isTransient() {
+    return !this._immutable;
+  }
+
+  asPersistent() {
+    this._array = this._array.slice();
+    this._immutable = true;
+    return this;
   }
 
   __iterate(fn, reverseIndices) {
@@ -490,6 +519,20 @@ class ArraySequence extends IndexedSequence {
 class ObjectSequence extends Sequence {
   constructor(object) {
     this._object = object;
+  }
+
+  isTransient() {
+    return !this._immutable;
+  }
+
+  asPersistent() {
+    var copy = {};
+    for (var key in this._object) if (this._object.hasOwnProperty(key)) {
+      copy[key] = this._object[key];
+    }
+    this._object = copy;
+    this._immutable = true;
+    return this;
   }
 
   __iterate(fn) {

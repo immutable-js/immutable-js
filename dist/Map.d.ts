@@ -65,7 +65,6 @@ interface Map<K, V> extends Sequence<K, V, Map<K, V>> {
   merge(seq: Sequence<K, V, any>): Map<K, V>;
   merge(seq: {[key: string]: V;}): Map<string, V>;
 
-  isTransient(): boolean;
   asTransient(): Map<K, V>;
   asPersistent(): Map<K, V>;
   clone(): Map<K, V>;

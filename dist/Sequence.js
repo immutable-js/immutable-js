@@ -11,7 +11,7 @@
         return new ObjectSequence(value);
       }
     }
-    return new ArraySequence(Array.prototype.slice.call(arguments));
+    return new ArraySequence(Array.prototype.slice.call(arguments), true);
   }
 
   Sequence.prototype.toString=function() {"use strict";
@@ -31,6 +31,16 @@
 
   Sequence.prototype.__toStringMapper=function(v, k) {"use strict";
     return quoteString(k) + ': ' + quoteString(v);
+  };
+
+  Sequence.prototype.isTransient=function() {"use strict";
+    return this.__parentSequence.isTransient();
+  };
+
+  Sequence.prototype.asPersistent=function() {"use strict";
+    // This works because asPersistent() is mutative.
+    this.__parentSequence.asPersistent();
+    return this;
   };
 
   Sequence.prototype.toArray=function() {"use strict";
@@ -71,9 +81,12 @@
     if (this.length && other.length && this.length !== other.length) {
       return false;
     }
-    // If either side is transient, then they must have reference equality.
-    if ((this.isTransient && this.isTransient()) || (other.isTransient && other.isTransient())) {
-      return this === other;
+    // if either side is transient, and they are not from the same parent
+    // sequence, then they must not be equal.
+    if (((!this.isTransient || this.isTransient()) ||
+         (!other.isTransient || other.isTransient())) &&
+        (this.__parentSequence || this) !== (other.__parentSequence || other)) {
+      return false;
     }
     return this.__deepEquals(other);
   };
@@ -266,6 +279,7 @@
   Sequence.prototype.__makeSequence=function(withCommutativeReverse, factory) {"use strict";
     var sequence = this;
     var newSequence = Object.create(Sequence.prototype);
+    newSequence.__parentSequence = sequence.$Sequence_parentSequence || sequence;
     newSequence.__iterate = function(fn)  {return sequence.__iterate(factory(fn));};
     if (withCommutativeReverse) {
       newSequence.__reverseIterate = function(fn)  {return sequence.__reverseIterate(factory(fn));};
@@ -279,6 +293,7 @@ Sequence.prototype.toJS = Sequence.prototype.toObject;
 
 for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)){ReversedSequence[Sequence____Key]=Sequence[Sequence____Key];}}var ____SuperProtoOfSequence=Sequence===null?null:Sequence.prototype;ReversedSequence.prototype=Object.create(____SuperProtoOfSequence);ReversedSequence.prototype.constructor=ReversedSequence;ReversedSequence.__superConstructor__=Sequence;
   function ReversedSequence(iterator) {"use strict";
+    this.__parentSequence = iterator.$ReversedSequence_parentSequence || iterator;
     this.$ReversedSequence_iterator = iterator;
   }
 
@@ -418,6 +433,7 @@ for(Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)){In
   IndexedSequence.prototype.__makeSequence=function(withCommutativeReverse, factory) {"use strict";
     var sequence = this;
     var newSequence = Object.create(IndexedSequence.prototype);
+    newSequence.__parentSequence = sequence.$IndexedSequence_parentSequence || sequence;
     newSequence.__iterate = function(fn, reverseIndices) 
       {return sequence.__iterate(factory(fn), reverseIndices);};
     if (withCommutativeReverse) {
@@ -460,10 +476,23 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
 
 for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty(IndexedSequence____Key)){ArraySequence[IndexedSequence____Key]=IndexedSequence[IndexedSequence____Key];}}ArraySequence.prototype=Object.create(____SuperProtoOfIndexedSequence);ArraySequence.prototype.constructor=ArraySequence;ArraySequence.__superConstructor__=IndexedSequence;
-  function ArraySequence(array) {"use strict";
+  function ArraySequence(array, isImmutable) {"use strict";
     this.length = array.length;
     this.$ArraySequence_array = array;
+    if (isImmutable) {
+      this.$ArraySequence_immutable = true;
+    }
   }
+
+  ArraySequence.prototype.isTransient=function() {"use strict";
+    return !this.$ArraySequence_immutable;
+  };
+
+  ArraySequence.prototype.asPersistent=function() {"use strict";
+    this.$ArraySequence_array = this.$ArraySequence_array.slice();
+    this.$ArraySequence_immutable = true;
+    return this;
+  };
 
   ArraySequence.prototype.__iterate=function(fn, reverseIndices) {"use strict";
     var array = this.$ArraySequence_array;
@@ -491,6 +520,20 @@ for(Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)){Ob
   function ObjectSequence(object) {"use strict";
     this.$ObjectSequence_object = object;
   }
+
+  ObjectSequence.prototype.isTransient=function() {"use strict";
+    return !this.$ObjectSequence_immutable;
+  };
+
+  ObjectSequence.prototype.asPersistent=function() {"use strict";
+    var copy = {};
+    for (var key in this.$ObjectSequence_object) if (this.$ObjectSequence_object.hasOwnProperty(key)) {
+      copy[key] = this.$ObjectSequence_object[key];
+    }
+    this.$ObjectSequence_object = copy;
+    this.$ObjectSequence_immutable = true;
+    return this;
+  };
 
   ObjectSequence.prototype.__iterate=function(fn) {"use strict";
     var object = this.$ObjectSequence_object;

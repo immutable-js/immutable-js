@@ -16,6 +16,10 @@ export interface Sequence<K, V, C> {
 
   toString(): string;
 
+  isTransient(): boolean;
+
+  asPersistent(): Sequence<K, V, C>;
+
   /**
    * Converts this to a JavaScript native equivalent. IndexedSequence and Set
    * returns an Array while other Sequences return an Object.
@@ -249,6 +253,8 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
   // All below methods have identical behavior as Sequence,
   // except they take a function with index: number instead of key: K
   // and return an IndexedSequence.
+
+  asPersistent(): IndexedSequence<V, C>;
 
   map<M>(
     mapper: (value?: V, index?: number, collection?: C) => M,

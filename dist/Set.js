@@ -104,7 +104,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   };
 
   Set.prototype.asTransient=function() {"use strict";
-    // TODO: ensure same owner.
+    // TODO: ensure Map has same owner? Does it matter?
     return this.$Set_ownerID ? this : Set.$Set_make(this.$Set_map && this.$Set_map.asTransient(), new OwnerID());
   };
 
@@ -120,6 +120,11 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   };
 
   // @pragma Iteration
+
+  Set.prototype.toSet=function() {"use strict";
+    // Note: identical impl to Map.toMap
+    return this.isTransient() ? this.clone().asPersistent() : this;
+  };
 
   Set.prototype.__deepEquals=function(other) {"use strict";
     return !(this.$Set_map || other.$Set_map) || this.$Set_map.equals(other.$Set_map);

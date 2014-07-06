@@ -14,6 +14,8 @@ interface Range extends IndexedSequence<number, Range> {
   has(index: number): boolean;
   get(index: number): boolean;
   slice(begin: number, end?: number): Range;
+
+  asPersistent(): Range;
 }
 
 export = Range;

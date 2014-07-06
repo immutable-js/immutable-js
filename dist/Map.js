@@ -166,6 +166,10 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
   // @pragma Iteration
 
+  Map.prototype.toMap=function() {"use strict";
+    return this.isTransient() ? this.clone().asPersistent() : this;
+  };
+
   Map.prototype.__deepEqual=function(other) {"use strict";
     var is = require('./Persistent').is;
     // Using Sentinel here ensures that a missing key is not interpretted as an
