@@ -166,6 +166,10 @@ class Map extends Sequence {
 
   // @pragma Iteration
 
+  toMap() {
+    return this.isTransient() ? this.clone().asPersistent() : this;
+  }
+
   __deepEqual(other) {
     var is = require('./Persistent').is;
     // Using Sentinel here ensures that a missing key is not interpretted as an

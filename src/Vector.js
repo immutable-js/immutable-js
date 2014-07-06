@@ -372,25 +372,6 @@ class Vector extends IndexedSequence {
     );
   }
 
-  // @pragma Iteration
-
-  __deepEquals(other) {
-    var is = require('./Persistent').is;
-    var iterator = this.__iterator__();
-    return other.every((v, k) => {
-      var entry = iterator.next();
-      return k === entry[0] && is(v, entry[1]);
-    });
-  }
-
-  first(predicate, context) {
-    return predicate ? super.first(predicate, context) : this.get(0);
-  }
-
-  last(predicate, context) {
-    return predicate ? super.last(predicate, context) : this.get(this.length ? this.length - 1 : 0);
-  }
-
   // @pragma Mutability
 
   isTransient() {
@@ -416,6 +397,28 @@ class Vector extends IndexedSequence {
   }
 
   // @pragma Iteration
+
+  toVector() {
+    // Note: identical impl to Map.toMap
+    return this.isTransient() ? this.clone().asPersistent() : this;
+  }
+
+  first(predicate, context) {
+    return predicate ? super.first(predicate, context) : this.get(0);
+  }
+
+  last(predicate, context) {
+    return predicate ? super.last(predicate, context) : this.get(this.length ? this.length - 1 : 0);
+  }
+
+  __deepEquals(other) {
+    var is = require('./Persistent').is;
+    var iterator = this.__iterator__();
+    return other.every((v, k) => {
+      var entry = iterator.next();
+      return k === entry[0] && is(v, entry[1]);
+    });
+  }
 
   __iterator__() {
     return new VectorIterator(

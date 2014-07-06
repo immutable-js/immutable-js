@@ -104,7 +104,7 @@ class Set extends Sequence {
   }
 
   asTransient() {
-    // TODO: ensure same owner.
+    // TODO: ensure Map has same owner? Does it matter?
     return this._ownerID ? this : Set._make(this._map && this._map.asTransient(), new OwnerID());
   }
 
@@ -120,6 +120,11 @@ class Set extends Sequence {
   }
 
   // @pragma Iteration
+
+  toSet() {
+    // Note: identical impl to Map.toMap
+    return this.isTransient() ? this.clone().asPersistent() : this;
+  }
 
   __deepEquals(other) {
     return !(this._map || other._map) || this._map.equals(other._map);
