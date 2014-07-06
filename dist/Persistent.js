@@ -1,5 +1,4 @@
 var Sequence = require('./Sequence').Sequence;
-var IndexedSequence = require('./Sequence').IndexedSequence;
 var Range = require('./Range');
 var Vector = require('./Vector');
 var PersistentMap = require('./Map');
@@ -34,15 +33,10 @@ function fromJS(json) {
 }
 
 function toJS(value) {
-  // TODO: Sequence should provide .toJS() which just does a shallow conversion.
-  // Simply chosing the better fit of Array or Object based of it's type.
-  if (value instanceof IndexedSequence || value instanceof PersistentSet) {
-    return value.map(toJS).toArray();
+  if (!(value instanceof Sequence)) {
+    return value;
   }
-  if (value instanceof Sequence) {
-    return value.map(toJS).toObject();
-  }
-  return value;
+  return value.map(toJS).toJS();
 }
 
 module.exports = {

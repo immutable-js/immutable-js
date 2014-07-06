@@ -152,6 +152,8 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   };
 
 
+Set.prototype.toJS = Sequence.prototype.toArray;
+
 Set.prototype.__toStringMapper = IndexedSequence.prototype.__toStringMapper;
 
 

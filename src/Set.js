@@ -152,6 +152,8 @@ class Set extends Sequence {
   }
 }
 
+Set.prototype.toJS = Sequence.prototype.toArray;
+
 Set.prototype.__toStringMapper = IndexedSequence.prototype.__toStringMapper;
 
 

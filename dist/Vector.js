@@ -376,10 +376,10 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
   Vector.prototype.__deepEquals=function(other) {"use strict";
     var is = require('./Persistent').is;
-    var otherIterator = other.__iterator__();
-    return this.every(function(v, k)  {
-      var otherKV = otherIterator.next();
-      return k === otherKV[0] && is(v, otherKV[1]);
+    var iterator = this.__iterator__();
+    return other.every(function(v, k)  {
+      var entry = iterator.next();
+      return k === entry[0] && is(v, entry[1]);
     });
   };
 

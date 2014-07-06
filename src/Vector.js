@@ -376,10 +376,10 @@ class Vector extends IndexedSequence {
 
   __deepEquals(other) {
     var is = require('./Persistent').is;
-    var otherIterator = other.__iterator__();
-    return this.every((v, k) => {
-      var otherKV = otherIterator.next();
-      return k === otherKV[0] && is(v, otherKV[1]);
+    var iterator = this.__iterator__();
+    return other.every((v, k) => {
+      var entry = iterator.next();
+      return k === entry[0] && is(v, entry[1]);
     });
   }
 

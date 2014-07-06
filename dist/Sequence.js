@@ -68,8 +68,7 @@
     if (this === other) {
       return true;
     }
-    if (!(other instanceof Object.getPrototypeOf(this).constructor) ||
-        (this.length && other.length && this.length !== other.length)) {
+    if (this.length && other.length && this.length !== other.length) {
       return false;
     }
     // If either side is transient, then they must have reference equality.
@@ -81,11 +80,11 @@
 
   Sequence.prototype.__deepEquals=function(other) {"use strict";
     var is = require('./Persistent').is;
-    var otherEntries = other.entries().toArray();
+    var entries = this.entries().toArray();
     var iterations = 0;
-    return this.every(function(v, k)  {
-      var otherEntry = otherEntries[iterations++];
-      return is(k, otherEntry[0]) && is(v, otherEntry[1]);
+    return other.every(function(v, k)  {
+      var entry = entries[iterations++];
+      return is(k, entry[0]) && is(v, entry[1]);
     });
   };
 
@@ -275,6 +274,8 @@
   };
 
 
+Sequence.prototype.toJS = Sequence.prototype.toObject;
+
 
 for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)){ReversedSequence[Sequence____Key]=Sequence[Sequence____Key];}}var ____SuperProtoOfSequence=Sequence===null?null:Sequence.prototype;ReversedSequence.prototype=Object.create(____SuperProtoOfSequence);ReversedSequence.prototype.constructor=ReversedSequence;ReversedSequence.__superConstructor__=Sequence;
   function ReversedSequence(iterator) {"use strict";
@@ -426,6 +427,8 @@ for(Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)){In
     return newSequence;
   };
 
+
+IndexedSequence.prototype.toJS = IndexedSequence.prototype.toArray;
 
 IndexedSequence.prototype.__toStringMapper = quoteString;
 

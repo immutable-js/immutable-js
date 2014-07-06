@@ -16,6 +16,12 @@ export interface Sequence<K, V, C> {
 
   toString(): string;
 
+  /**
+   * Converts this to a JavaScript native equivalent. IndexedSequence and Set
+   * returns an Array while other Sequences return an Object.
+   */
+  toJS(): any;
+
   toArray(): Array<V>;
 
   toObject(): Object;

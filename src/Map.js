@@ -170,7 +170,8 @@ class Map extends Sequence {
     var is = require('./Persistent').is;
     // Using Sentinel here ensures that a missing key is not interpretted as an
     // existing key set to be null.
-    return this.every((v, k) => is(v, other.get(k, __SENTINEL)));
+    var self = this;
+    return other.every((v, k) => is(v, self.get(k, __SENTINEL)));
   }
 
   __iterate(fn) {

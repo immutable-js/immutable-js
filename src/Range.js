@@ -137,6 +137,8 @@ class Range extends IndexedSequence {
   }
 }
 
+Range.prototype.toJS = Range.prototype.toArray;
+
 function assertNotInfinite(length) {
   invariant(length < Infinity, 'Cannot access end of infinite range.');
 }

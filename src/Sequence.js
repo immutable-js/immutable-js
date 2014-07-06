@@ -68,8 +68,7 @@ class Sequence {
     if (this === other) {
       return true;
     }
-    if (!(other instanceof Object.getPrototypeOf(this).constructor) ||
-        (this.length && other.length && this.length !== other.length)) {
+    if (this.length && other.length && this.length !== other.length) {
       return false;
     }
     // If either side is transient, then they must have reference equality.
@@ -81,11 +80,11 @@ class Sequence {
 
   __deepEquals(other) {
     var is = require('./Persistent').is;
-    var otherEntries = other.entries().toArray();
+    var entries = this.entries().toArray();
     var iterations = 0;
-    return this.every((v, k) => {
-      var otherEntry = otherEntries[iterations++];
-      return is(k, otherEntry[0]) && is(v, otherEntry[1]);
+    return other.every((v, k) => {
+      var entry = entries[iterations++];
+      return is(k, entry[0]) && is(v, entry[1]);
     });
   }
 
@@ -275,6 +274,8 @@ class Sequence {
   }
 }
 
+Sequence.prototype.toJS = Sequence.prototype.toObject;
+
 
 class ReversedSequence extends Sequence {
   constructor(iterator) {
@@ -426,6 +427,8 @@ class IndexedSequence extends Sequence {
     return newSequence;
   }
 }
+
+IndexedSequence.prototype.toJS = IndexedSequence.prototype.toArray;
 
 IndexedSequence.prototype.__toStringMapper = quoteString;
 

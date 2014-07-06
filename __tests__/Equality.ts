@@ -60,9 +60,8 @@ describe('Equality', () => {
     var vector = Persistent.Vector(1,2,3);
     expectIs(vector, vector);
     expectIsNot(vector, [1,2,3]);
-    // TODO: should this be true?
-    expectIsNot(vector, Persistent.Sequence([1,2,3]));
 
+    expectIs(vector, Persistent.Sequence([1,2,3]));
     expectIs(vector, Persistent.Vector(1,2,3));
 
     var vectorLonger = vector.push(4);

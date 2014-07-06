@@ -170,7 +170,8 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     var is = require('./Persistent').is;
     // Using Sentinel here ensures that a missing key is not interpretted as an
     // existing key set to be null.
-    return this.every(function(v, k)  {return is(v, other.get(k, __SENTINEL));});
+    var self = this;
+    return other.every(function(v, k)  {return is(v, self.get(k, __SENTINEL));});
   };
 
   Map.prototype.__iterate=function(fn) {"use strict";

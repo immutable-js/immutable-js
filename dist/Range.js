@@ -137,6 +137,8 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   };
 
 
+Range.prototype.toJS = Range.prototype.toArray;
+
 function assertNotInfinite(length) {
   invariant(length < Infinity, 'Cannot access end of infinite range.');
 }
