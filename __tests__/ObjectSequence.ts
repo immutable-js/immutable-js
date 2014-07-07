@@ -28,4 +28,10 @@ describe('ObjectSequence', function() {
     expect(k).toEqual(['C', 'B', 'A']);
   });
 
+  it('can double reversable', function() {
+    var i = Persistent.Sequence({'a': 'A', 'b': 'B', 'c': 'C'});
+    var k = i.reverse().reverse().toArray();
+    expect(k).toEqual(['A', 'B', 'C']);
+  });
+
 });
