@@ -120,6 +120,10 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     return maintainIndices ? ____SuperProtoOfIndexedSequence.skip.call(this,amount) : this.slice(amount);
   };
 
+  Range.prototype.cacheResult=function() {"use strict";
+    return this;
+  };
+
   Range.prototype.__iterate=function(fn, reverseIndices) {"use strict";
     reverseIndices && assertNotInfinite(this.length);
     var value = this.start;

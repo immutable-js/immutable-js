@@ -120,6 +120,10 @@ class Range extends IndexedSequence {
     return maintainIndices ? super.skip(amount) : this.slice(amount);
   }
 
+  cacheResult() {
+    return this;
+  }
+
   __iterate(fn, reverseIndices) {
     reverseIndices && assertNotInfinite(this.length);
     var value = this.start;

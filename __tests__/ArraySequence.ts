@@ -39,29 +39,31 @@ describe('ArraySequence', function() {
     expect(result).toBe('qRsTu');
   });
 
-  it.only('skips through sparse arrays', function() {
+  it('slices through sparse arrays', function() {
     var a = [,,1,,2,,3,,4,,5,,,,]; // note: typescript and node eat the last two commas.
     var i = Persistent.Sequence(a);
 
-    expect(i.skip(6).toArray()).toEqual([3,,4,,5,,,,]);
+    expect(i.slice(6).length).toBe(7);
+    expect(i.slice(6).toArray().length).toBe(7);
+    expect(i.slice(6).toArray()).toEqual([3,,4,,5,,,,]);
 
-    expect(i.skip(6, /*maintainIndices*/true).toArray()).toEqual([,,,,,,3,,4,,5,,,,]);
+    expect(i.slice(6, null, /*maintainIndices*/true).toArray()).toEqual([,,,,,,3,,4,,5,,,,]);
 
-    expect(i.skip(6, /*maintainIndices*/true).reverse().reverse().toArray()).toEqual([,,,,,,3,,4,,5,,,,]);
+    expect(i.slice(6, null, /*maintainIndices*/true).reverse().reverse().toArray()).toEqual([,,,,,,3,,4,,5,,,,]);
 
-    expect(i.skip(6, /*maintainIndices*/true).reverse().reverse(true).entries().toArray()).toEqual(
+    expect(i.slice(6, null, /*maintainIndices*/true).reverse().reverse(true).entries().toArray()).toEqual(
       [[6,3], [4,4], [2,5]]
     );
 
-    expect(i.skip(6, /*maintainIndices*/true).reverse(true).reverse().entries().toArray()).toEqual(
+    expect(i.slice(6, null, /*maintainIndices*/true).reverse(true).reverse().entries().toArray()).toEqual(
       [[6,3], [4,4], [2,5]]
     );
 
-    expect(i.reverse(true).skip(6, /*maintainIndices*/true).reverse().entries().toArray()).toEqual(
+    expect(i.reverse(true).slice(6, null, /*maintainIndices*/true).reverse().entries().toArray()).toEqual(
       [[10,1], [8,2], [6,3]]
     );
 
-    expect(i.reverse(true).skip(6, /*maintainIndices*/true).reverse(true).entries().toArray()).toEqual(
+    expect(i.reverse(true).slice(6, null, /*maintainIndices*/true).reverse(true).entries().toArray()).toEqual(
       [[2,1], [4,2], [6,3]]
     );
 
@@ -74,7 +76,7 @@ describe('ArraySequence', function() {
     expect(ii.__reversedIndices).toBe(true);
     expect(ii.toArray()).toEqual([,,5,,4,,3,,2,,1,,,,]);
     expect(ii.entries().toArray()).toEqual([[10,1],[8,2],[6,3],[4,4],[2,5]]);
-    ii = ii.skip(6, true);
+    ii = ii.slice(6, null, true);
     expect(ii.__reversedIndices).toBe(true);
     expect(ii.toArray()).toEqual([,,5,,4,,3,,,,,,,,]);
     expect(ii.entries().toArray()).toEqual([[6,3],[4,4],[2,5]]);
@@ -88,13 +90,13 @@ describe('ArraySequence', function() {
     expect(ii.entries().toArray()).toEqual([[6,3],[8,4],[10,5]]);
 
 
-    expect(i.reverse().reverse(true).skip(6, /*maintainIndices*/true).reverse().reverse(true).entries().toArray()).toEqual(
+    expect(i.reverse().reverse(true).slice(6, null, /*maintainIndices*/true).reverse().reverse(true).entries().toArray()).toEqual(
       [[6,3],[8,4],[10,5]]
     );
 
     expect(i.reverse(true).reverse().reverse(true).reverse().toArray()).toEqual(a);
 
-    expect(i.skip(6, /*maintainIndices*/true).reverse().reverse(true).toArray()).toEqual([,,5,,4,,3,,,,,,,,]);
+    expect(i.slice(6, null, /*maintainIndices*/true).reverse().reverse(true).toArray()).toEqual([,,5,,4,,3,,,,,,,,]);
 
   });
 

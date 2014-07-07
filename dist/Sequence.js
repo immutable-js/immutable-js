@@ -145,7 +145,7 @@
     return concatSequence;
   };
 
-  Sequence.prototype.reverse=function() {"use strict";
+  Sequence.prototype.reverse=function(maintainIndices) {"use strict";
     var reversedSequence = this.__makeUberSequence('reverse',true, function(reverse, sequence, fn)  {
       var iterate = reverse ? sequence.__iterate : sequence.__reverseIterate;
       return iterate.call(sequence, fn);
@@ -243,11 +243,10 @@
   };
 
   Sequence.prototype.flip=function() {"use strict";
-    // flip() always returns a regular Sequence.
+    // flip() always returns a regular Sequence, even in subclasses.
     var flippedSequence = Sequence.prototype.__makeSequence.call(this, 'flip',true, flipFactory);
     flippedSequence.length = this.length;
-    var sequence = this;
-    flippedSequence.flip = function()  {return sequence;};
+    flippedSequence.flip = function()  {return this;}.bind(this);
     return flippedSequence;
   };
 
@@ -276,12 +275,32 @@
     });
   };
 
-  Sequence.prototype.take=function(amount) {"use strict";
-    var iterations = 0;
-    return this.takeWhile(function()  {return iterations++ < amount;});
+  Sequence.prototype.slice=function(start, end) {"use strict";
+    start = resolveStart(start, this.length);
+    end = resolveEnd(end, this.length);
+    // start or end will be NaN if they were provided as negative numbers and
+    // this sequence's length is unknown. In that case, convert it to an
+    // IndexedSequence by getting entries() and convert back to a sequence with
+    // fromEntries(). IndexedSequence.prototype.slice will appropriately handle
+    // this case.
+    if (isNaN(start) || isNaN(end)) {
+      return this.entries().slice(start, end).fromEntries();
+    }
+    return this.skip(start).take(end - start);
   };
 
-  Sequence.prototype.takeWhile=function(predicate, context) {"use strict";
+  Sequence.prototype.take=function(amount) {"use strict";
+    var iterations = 0;
+    var sequence = this.takeWhile(function()  {return iterations++ < amount;});
+    sequence.length = this.length && Math.min(this.length, amount);
+    return sequence;
+  };
+
+  Sequence.prototype.takeLast=function(amount, maintainIndices) {"use strict";
+    return this.reverse(maintainIndices).take(amount).reverse(maintainIndices);
+  };
+
+  Sequence.prototype.takeWhile=function(predicate, context, maintainIndices) {"use strict";
 
     return this.__makeUberSequence('takeWhile',false, function(reverse, sequence, fn, alterIndices)  {
       var iterations = 0;
@@ -302,16 +321,22 @@
     // );
   };
 
-  Sequence.prototype.takeUntil=function(predicate, context) {"use strict";
-    return this.takeWhile(not(predicate), context);
+  Sequence.prototype.takeUntil=function(predicate, context, maintainIndices) {"use strict";
+    return this.takeWhile(not(predicate), context, maintainIndices);
   };
 
-  Sequence.prototype.skip=function(amount) {"use strict";
+  Sequence.prototype.skip=function(amount, maintainIndices) {"use strict";
     var iterations = 0;
-    return this.skipWhile(function()  {return iterations++ < amount;});
+    var sequence = this.skipWhile(function()  {return iterations++ < amount;}, null, maintainIndices);
+    sequence.length = this.length && Math.max(0, this.length - amount);
+    return sequence;
   };
 
-  Sequence.prototype.skipWhile=function(predicate, context) {"use strict";
+  Sequence.prototype.skipLast=function(amount, maintainIndices) {"use strict";
+    return this.reverse(maintainIndices).skip(amount).reverse(maintainIndices);
+  };
+
+  Sequence.prototype.skipWhile=function(predicate, context, maintainIndices) {"use strict";
     return this.__makeUberSequence('skipWhile',false, function(reverse, sequence, fn)  {
       var isSkipping = true;
       var iterations = 0;
@@ -338,34 +363,88 @@
     // });
   };
 
-  Sequence.prototype.skipUntil=function(predicate, context) {"use strict";
-    return this.skipWhile(not(predicate), context);
+  Sequence.prototype.skipUntil=function(predicate, context, maintainIndices) {"use strict";
+    return this.skipWhile(not(predicate), context, maintainIndices);
   };
 
-  // abstract __iterate(fn)
+  Sequence.prototype.cacheResult=function() {"use strict";
+    if (!this.$Sequence_cache) {
+      var cache = [];
+      var collection;
+      var length = this.__iterate(function(v, k, c)  {
+        collection || (collection = c);
+        cache.push([k, v]);
+      });
+      if (this.length == null) {
+        this.length = length;
+      }
+      this.$Sequence_collection = collection;
+      this.$Sequence_cache = cache;
+    }
+    return this;
+  };
 
-  /**
-   * The default implementation of this needs to make an intermediate
-   * representation which may be inefficent or at worse infinite.
-   * Subclasses should do better if possible.
-   * Note: maintainIndices is only ever true for IndexedSequences.
-   */
+  // abstract __iterateUncached(fn)
+
+  // abstract __reverseIterateUncached(fn)
+
+  Sequence.prototype.__iterate=function(fn, reverseIndices) {"use strict";
+    if (!this.$Sequence_cache) {
+      return this.__iterateUncached(fn, reverseIndices);
+    }
+    var c = this.$Sequence_collection;
+    var predicate;
+    if (reverseIndices) {
+      var maxIndex = this.length - 1;
+      predicate = function(entry)  {return fn(entry[1], maxIndex - entry[0], c) !== false;};
+    } else {
+      predicate = function(entry)  {return fn(entry[1], entry[0], c) !== false;};
+    }
+    this.$Sequence_cache.every(predicate);
+    return this.length;
+  };
+
   Sequence.prototype.__reverseIterate=function(fn, maintainIndices) {"use strict";
-    var temp = [];
-    var collection;
-    var length = this.__iterate(function(v, k, c)  {
-      collection || (collection = c);
-      temp.push([k, v]);
-    });
-    var maxIndex = length - 1;
-    for (var ii = temp.length - 1; ii >= 0; ii--) {
-      var entry = temp[ii];
-      if (fn(entry[1], maintainIndices ? entry[0] : maxIndex - entry[0], collection) === false) {
+    if (!this.$Sequence_cache && this.__reverseIterateUncached) {
+      return this.__reverseIterateUncached(fn, maintainIndices);
+    }
+    this.cacheResult();
+    var cache = this.$Sequence_cache;
+    var c = this.$Sequence_collection;
+    var maxIndex = this.length - 1;
+    for (var ii = cache.length - 1; ii >= 0; ii--) {
+      var entry = cache[ii];
+      if (fn(entry[1], maintainIndices ? entry[0] : maxIndex - entry[0], c) === false) {
         break;
       }
     }
-    return maxIndex - ii;
+    return this.length;
   };
+
+
+
+ // /**
+ //  * The default implementation of this needs to make an intermediate
+ //  * representation which may be inefficent or at worse infinite.
+ //  * Subclasses should do better if possible.
+ //  * Note: maintainIndices is only ever true for IndexedSequences.
+ //  */
+ // __reverseIterate(fn, maintainIndices) {
+ //   var temp = [];
+ //   var collection;
+ //   var length = this.__iterate((v, k, c) => {
+ //     collection || (collection = c);
+ //     temp.push([k, v]);
+ //   });
+ //   var maxIndex = length - 1;
+ //   for (var ii = temp.length - 1; ii >= 0; ii--) {
+ //     var entry = temp[ii];
+ //     if (fn(entry[1], maintainIndices ? entry[0] : maxIndex - entry[0], collection) === false) {
+ //       break;
+ //     }
+ //   }
+ //   return maxIndex - ii;
+ // }
 
   Sequence.prototype.__makeRawSequence=function(name) {"use strict";
     var newSequence = Object.create(Sequence.prototype);
@@ -377,9 +456,9 @@
   Sequence.prototype.__makeUberSequence=function(name, withCommutativeReverse, factory) {"use strict";
     var sequence = this;
     var newSequence = this.__makeRawSequence(name);
-    newSequence.__iterate = function(fn)  {return factory(false, sequence, fn);};
+    newSequence.__iterateUncached = function(fn)  {return factory(false, sequence, fn);};
     if (withCommutativeReverse) {
-      newSequence.__reverseIterate = function(fn)  {return factory(true, sequence, fn);};
+      newSequence.__reverseIterateUncached = function(fn)  {return factory(true, sequence, fn);};
     }
     return newSequence;
   };
@@ -387,9 +466,9 @@
   Sequence.prototype.__makeSequence=function(name, withCommutativeReverse, factory) {"use strict";
     var sequence = this;
     var newSequence = this.__makeRawSequence(name);
-    newSequence.__iterate = function(fn)  {return sequence.__iterate(factory(fn));};
+    newSequence.__iterateUncached = function(fn)  {return sequence.__iterate(factory(fn));};
     if (withCommutativeReverse) {
-      newSequence.__reverseIterate = function(fn)  {return sequence.__reverseIterate(factory(fn));};
+      newSequence.__reverseIterateUncached = function(fn)  {return sequence.__reverseIterate(factory(fn));};
     }
     return newSequence;
   };
@@ -517,6 +596,14 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     return new ReversedIndexedSequence(this, maintainIndices);
   };
 
+  IndexedSequence.prototype.fromEntries=function() {"use strict";
+    var sequence = this.__makeSequence('fromEntries',true, function(fn)  {return function(e, _, c) 
+      {return fn(e[1], e[0], c) !== false;};}
+    );
+    sequence.length = this.length;
+    return sequence;
+  };
+
   // Overridden to supply undefined length
   IndexedSequence.prototype.values=function() {"use strict";
     return new ValuesSequence(this);
@@ -565,14 +652,18 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     return this.reverse(true).findIndex(predicate, context);
   };
 
-  IndexedSequence.prototype.take=function(amount) {"use strict";
-    var seq = this.takeWhile(function(v, ii)  {return ii < amount;});
-    seq.length = this.length && Math.max(this.length, amount);
-    return seq;
+  IndexedSequence.prototype.slice=function(start, end, maintainIndices) {"use strict";
+    return new SliceIndexedSequence(this, start, end, maintainIndices);
   };
 
+  //take(amount) {
+  //  var seq = this.takeWhile((v, ii) => ii < amount);
+  //  seq.length = this.length && Math.max(this.length, amount);
+  //  return seq;
+  //}
+
   // Overrides to get length correct.
-  IndexedSequence.prototype.takeWhile=function(predicate, context) {"use strict";
+  IndexedSequence.prototype.takeWhile=function(predicate, context, maintainIndices) {"use strict";
     var sequence = this;
     var takeSequence = this.__makeRawSequence('takeWhile');
     takeSequence.__iterate = function(fn, reverseIndices)  {
@@ -586,8 +677,11 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
           return false;
         }
       }, reverseIndices);
-      return didFinish ? length : iterations + 1;
+      return maintainIndices ? takeSequence.length : didFinish ? length : iterations + 1;
     };
+    if (maintainIndices) {
+      takeSequence.length = this.length;
+    }
     return takeSequence;
 
     // return this.__makeUberSequence(false, (reverse, sequence, fn, alterIndices) => {
@@ -606,49 +700,55 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     // });
   };
 
-  IndexedSequence.prototype.skip=function(amount, maintainIndices) {"use strict";
-    /*
+  //skipLast(amount, maintainIndices) {
+  //  return this.reverse().skip(amount, maintainIndices).reverse();
+  //}
 
-    TODO: when both reverseIndices and sequence.__reverseIndices are true, then
-    this is actually a "skipLast" which we haven't implementated yet and
-    therefore does the wrong thing. We might emulate it with a takeUntil.
-
-    We can probably do something similar with a "filter" based implementation. But
-    I'm not sure if this will work or not if maintainIndices is false.
-
-    */
-    var maxLength = this.length;
-    var newSequence = this.__makeRawSequence('skip');
-    var sequence = this;
-    newSequence.__iterate = function(fn, reverseIndices)  {
-      var reversedIndices = newSequence.__reversedIndices ^ reverseIndices;
-      var predicate;
-      if (reversedIndices) {
-        if (maxLength == null) {
-          var iterations = amount;
-          predicate = function(v, ii)  {return iterations-- > 0;};
-        } else {
-          predicate = function(v, ii)  {return ii >= maxLength - amount;};
-        }
-      } else {
-        predicate = function(v, ii)  {return ii < amount;};
-      }
-      var isSkipping = true;
-      var indexOffset = 0;
-      var length = sequence.__iterate(function(v, ii, c)  {
-        if (isSkipping) {
-          isSkipping = predicate(v, ii, c);
-          if (isSkipping && !(isSkipping = predicate(v, ii, c))) {
-           indexOffset = ii;
-          }
-        }
-        return isSkipping || fn(v, reverseIndices || maintainIndices ? ii : ii - amount, c) !== false;
-      }, reverseIndices);
-      return newSequence.length || (maintainIndices ? length : reversedIndices ? indexOffset + 1 : length - amount);
-    };
-    newSequence.length = maintainIndices ? maxLength : maxLength && maxLength - amount;
-    return newSequence;
-  };
+  //skip(amount, maintainIndices) {
+  //  var iterations = 0;
+  //  return this.skipWhile(() => iterations++ < amount, maintainIndices);
+  //  /*
+//
+  //  TODO: when both reverseIndices and sequence.__reverseIndices are true, then
+  //  this is actually a "skipLast" which we haven't implementated yet and
+  //  therefore does the wrong thing. We might emulate it with a takeUntil.
+//
+  //  We can probably do something similar with a "filter" based implementation. But
+  //  I'm not sure if this will work or not if maintainIndices is false.
+//
+  //  */
+  //  //var maxLength = this.length;
+  //  //var newSequence = this.__makeRawSequence('skip');
+  //  //var sequence = this;
+  //  //newSequence.__iterate = (fn, reverseIndices) => {
+  //  //  var reversedIndices = newSequence.__reversedIndices ^ reverseIndices;
+  //  //  var predicate;
+  //  //  if (reversedIndices) {
+  //  //    if (maxLength == null) {
+  //  //      var iterations = amount;
+  //  //      predicate = (v, ii) => iterations-- > 0;
+  //  //    } else {
+  //  //      predicate = (v, ii) => ii >= maxLength - amount;
+  //  //    }
+  //  //  } else {
+  //  //    predicate = (v, ii) => ii < amount;
+  //  //  }
+  //  //  var isSkipping = true;
+  //  //  var indexOffset = 0;
+  //  //  var length = sequence.__iterate((v, ii, c) => {
+  //  //    if (isSkipping) {
+  //  //      isSkipping = predicate(v, ii, c);
+  //  //      if (isSkipping && !(isSkipping = predicate(v, ii, c))) {
+  //  //       indexOffset = ii;
+  //  //      }
+  //  //    }
+  //  //    return isSkipping || fn(v, reverseIndices || maintainIndices ? ii : ii - amount, c) !== false;
+  //  //  }, reverseIndices);
+  //  //  return newSequence.length || (maintainIndices ? length : reversedIndices ? indexOffset + 1 : length - amount);
+  //  //};
+  //  //newSequence.length = maintainIndices ? maxLength : maxLength && maxLength - amount;
+  //  //return newSequence;
+  //}
 
   IndexedSequence.prototype.skipWhile=function(predicate, context, maintainIndices) {"use strict";
     var newSequence = this.__makeRawSequence('skipWhile');
@@ -674,9 +774,9 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     return newSequence;
   };
 
-  IndexedSequence.prototype.skipUntil=function(predicate, context, maintainIndices) {"use strict";
-    return this.skipWhile(not(predicate), context, maintainIndices);
-  };
+  //skipUntil(predicate, context, maintainIndices) {
+  //  return this.skipWhile(not(predicate), context, maintainIndices);
+  //}
 
   // abstract __iterate(fn, reverseIndices)
   // abstract __reverseIterate(fn, maintainIndices)
@@ -693,9 +793,9 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   IndexedSequence.prototype.__makeUberSequence=function(name, withCommutativeReverse, factory) {"use strict";
     var sequence = this;
     var newSequence = this.__makeRawSequence(name);
-    newSequence.__iterate = function(fn, reverseIndices)  {return factory(false, sequence, fn, reverseIndices);};
+    newSequence.__iterateUncached = function(fn, reverseIndices)  {return factory(false, sequence, fn, reverseIndices);};
     if (withCommutativeReverse) {
-      newSequence.__reverseIterate = function(fn, maintainIndices)  {return factory(true, sequence, fn, maintainIndices);};
+      newSequence.__reverseIterateUncached = function(fn, maintainIndices)  {return factory(true, sequence, fn, maintainIndices);};
     }
     return newSequence;
   };
@@ -703,10 +803,10 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   IndexedSequence.prototype.__makeSequence=function(name, withCommutativeReverse, factory) {"use strict";
     var sequence = this;
     var newSequence = this.__makeRawSequence(name);
-    newSequence.__iterate = function(fn, reverseIndices) 
+    newSequence.__iterateUncached = function(fn, reverseIndices) 
       {return sequence.__iterate(factory(fn), reverseIndices);};
     if (withCommutativeReverse) {
-      newSequence.__reverseIterate = function(fn, maintainIndices) 
+      newSequence.__reverseIterateUncached = function(fn, maintainIndices) 
         {return sequence.__reverseIterate(factory(fn), maintainIndices);};
     }
     return newSequence;
@@ -729,11 +829,11 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     this.length = length;
   }
 
-  ValuesSequence.prototype.__iterate=function(fn, reverseIndices) {"use strict";
+  ValuesSequence.prototype.__iterateUncached=function(fn, reverseIndices) {"use strict";
     return this.$ValuesSequence_iterate(false, fn, reverseIndices);
   };
 
-  ValuesSequence.prototype.__reverseIterate=function(fn, maintainIndices) {"use strict";
+  ValuesSequence.prototype.__reverseIterateUncached=function(fn, maintainIndices) {"use strict";
     return this.$ValuesSequence_iterate(true, fn, maintainIndices);
   };
 
@@ -757,6 +857,44 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
 
 
+
+for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty(IndexedSequence____Key)){SliceIndexedSequence[IndexedSequence____Key]=IndexedSequence[IndexedSequence____Key];}}SliceIndexedSequence.prototype=Object.create(____SuperProtoOfIndexedSequence);SliceIndexedSequence.prototype.constructor=SliceIndexedSequence;SliceIndexedSequence.__superConstructor__=IndexedSequence;
+  function SliceIndexedSequence(sequence, start, end, maintainIndices) {"use strict";
+    this.name = 'indexed slice';
+    this.__parentSequence = sequence.$SliceIndexedSequence_parentSequence || sequence;
+    this.__reversedIndices = sequence.__reversedIndices;
+    this.$SliceIndexedSequence_sequence = sequence;
+    this.$SliceIndexedSequence_start = start;
+    this.$SliceIndexedSequence_end = end;
+    this.$SliceIndexedSequence_maintainIndices = maintainIndices;
+    this.length = sequence.length && (maintainIndices ? sequence.length : resolveEnd(end, sequence.length) - resolveStart(start, sequence.length));
+  }
+
+  SliceIndexedSequence.prototype.__iterateUncached=function(fn, reverseIndices) {"use strict";
+    var sequence = this.$SliceIndexedSequence_sequence;
+    var start = resolveStart(this.$SliceIndexedSequence_start, sequence.length);
+    var end = resolveEnd(this.$SliceIndexedSequence_end, sequence.length);
+    var maintainIndices = this.$SliceIndexedSequence_maintainIndices;
+    if (isNaN(start) || isNaN(end) || (reverseIndices && this.length == null)) {
+      return this.cacheResult().slice(this.$SliceIndexedSequence_start, this.$SliceIndexedSequence_end).__iterate(fn, reverseIndices);
+    }
+    var reversedIndices = this.__reversedIndices ^ reverseIndices;
+    if (reversedIndices) {
+      var newStart = this.length - end;
+      end = this.length - start;
+      start = newStart;
+    }
+    var length = sequence.__iterate(function(v, ii, c)  {
+      return !(ii >= start && ii < end) ||
+        fn(v, maintainIndices ? ii : ii - start, c) !== false
+    }, reverseIndices);
+    return this.length || (maintainIndices ? length : Math.max(0, length - start));
+  };
+
+        
+
+
+
 for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty(IndexedSequence____Key)){ConcatIndexedSequence[IndexedSequence____Key]=IndexedSequence[IndexedSequence____Key];}}ConcatIndexedSequence.prototype=Object.create(____SuperProtoOfIndexedSequence);ConcatIndexedSequence.prototype.constructor=ConcatIndexedSequence;ConcatIndexedSequence.__superConstructor__=IndexedSequence;
   function ConcatIndexedSequence(sequence, values) {"use strict";
     this.name = 'indexed concat';
@@ -769,7 +907,7 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
     }, 0);
   }
 
-  ConcatIndexedSequence.prototype.__iterate=function(fn, reverseIndices) {"use strict";
+  ConcatIndexedSequence.prototype.__iterateUncached=function(fn, reverseIndices) {"use strict";
     if (reverseIndices && !this.length) {
       // In order to reverse indices, first we must create a cached
       // representation. This ensures we will have the correct total length
@@ -808,7 +946,7 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
       this.length = sequence.length;
     }
     this.name = 'indexed reverse';
-    this.__reversedIndices = (!maintainIndices) !== (!sequence.__reversedIndices); // jshint ignore:line
+    this.__reversedIndices = !!(maintainIndices ^ sequence.__reversedIndices); // jshint ignore:line
     this.$ReversedIndexedSequence_sequence = sequence;
     this.$ReversedIndexedSequence_maintainIndices = maintainIndices;
   }
@@ -820,11 +958,11 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
     return ____SuperProtoOfIndexedSequence.reverse.call(this,maintainIndices);
   };
 
-  ReversedIndexedSequence.prototype.__iterate=function(fn, reverseIndices) {"use strict";
+  ReversedIndexedSequence.prototype.__iterateUncached=function(fn, reverseIndices) {"use strict";
     return this.$ReversedIndexedSequence_sequence.__reverseIterate(fn, reverseIndices ^ this.$ReversedIndexedSequence_maintainIndices);
   };
 
-  ReversedIndexedSequence.prototype.__reverseIterate=function(fn, maintainIndices) {"use strict";
+  ReversedIndexedSequence.prototype.__reverseIterateUncached=function(fn, maintainIndices) {"use strict";
     return this.$ReversedIndexedSequence_sequence.__iterate(fn, maintainIndices ^ this.$ReversedIndexedSequence_maintainIndices);
   };
 
@@ -835,9 +973,7 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
     this.name = 'array';
     this.length = array.length;
     this.$ArraySequence_array = array;
-    if (isImmutable) {
-      this.$ArraySequence_immutable = true;
-    }
+    this.$ArraySequence_immutable = !!isImmutable;
   }
 
   ArraySequence.prototype.isTransient=function() {"use strict";
@@ -847,6 +983,10 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
   ArraySequence.prototype.asPersistent=function() {"use strict";
     this.$ArraySequence_array = this.$ArraySequence_array.slice();
     this.$ArraySequence_immutable = true;
+    return this;
+  };
+
+  ArraySequence.prototype.cacheResult=function() {"use strict";
     return this;
   };
 
@@ -882,9 +1022,10 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
 
 
 for(Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)){ObjectSequence[Sequence____Key]=Sequence[Sequence____Key];}}ObjectSequence.prototype=Object.create(____SuperProtoOfSequence);ObjectSequence.prototype.constructor=ObjectSequence;ObjectSequence.__superConstructor__=Sequence;
-  function ObjectSequence(object) {"use strict";
+  function ObjectSequence(object, isImmutable) {"use strict";
     this.name = 'object';
     this.$ObjectSequence_object = object;
+    this.$ObjectSequence_immutable = !!isImmutable;
   }
 
   ObjectSequence.prototype.isTransient=function() {"use strict";
@@ -892,12 +1033,19 @@ for(Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)){Ob
   };
 
   ObjectSequence.prototype.asPersistent=function() {"use strict";
-    var copy = {};
-    for (var key in this.$ObjectSequence_object) if (this.$ObjectSequence_object.hasOwnProperty(key)) {
-      copy[key] = this.$ObjectSequence_object[key];
-    }
-    this.$ObjectSequence_object = copy;
+    var prevObject = this.$ObjectSequence_object;
+    this.$ObjectSequence_object = {};
+    this.length = 0;
     this.$ObjectSequence_immutable = true;
+    for (var key in prevObject) if (prevObject.hasOwnProperty(key)) {
+      this.$ObjectSequence_object[key] = prevObject[key];
+      this.length++;
+    }
+    return this;
+  };
+
+  ObjectSequence.prototype.cacheResult=function() {"use strict";
+    this.length = Object.keys(this.$ObjectSequence_object).length;
     return this;
   };
 
@@ -925,6 +1073,13 @@ for(Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)){Ob
   };
 
 
+function resolveStart(start, length) {
+  return start < 0 ? Math.max(0, length + start) : length ? Math.min(length, start) : start;
+}
+
+function resolveEnd(end, length) {
+  return end == null ? length : end < 0 ? Math.max(0, length + end) : length ? Math.min(length, end) : end;
+}
 
 function keyMapper(v, k) {
   return k;

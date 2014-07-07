@@ -130,7 +130,11 @@ export interface Sequence<K, V, C> {
     context?: Object
   ): Sequence<K, V, C>;
 
+  slice(start: number, end?: number): Sequence<K, V, C>;
+
   take(amount: number): Sequence<K, V, C>;
+
+  takeLast(amount: number): Sequence<K, V, C>;
 
   takeWhile(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
@@ -144,6 +148,8 @@ export interface Sequence<K, V, C> {
 
   skip(amount: number): Sequence<K, V, C>;
 
+  skipLast(amount: number): Sequence<K, V, C>;
+
   skipWhile(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
     context?: Object
@@ -153,6 +159,8 @@ export interface Sequence<K, V, C> {
     predicate: (value?: V, key?: K, collection?: C) => boolean,
     context?: Object
   ): Sequence<K, V, C>;
+
+  cacheResult(): Sequence<K, V, C>;
 }
 
 
@@ -176,6 +184,12 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
    * @override
    */
   toVector(): Vector<V>;
+
+  /**
+   * If this is a sequence of entries (key-value tuples), it will return a
+   * sequence of those entries.
+   */
+  fromEntries(): Sequence<any, any, C>;
 
   /**
    * This new behavior will not only iterate through the sequence in reverse,
@@ -228,13 +242,29 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
     context?: Object
   ): number;
 
+  slice(start: number, end?: number, maintainIndices?: boolean): IndexedSequence<V, C>;
+
   /**
    * Indexed sequences have a different `take` behavior. The amount to take is
    * based on indicies, rather than set values, which means it takes unset
    * indicies as well as set ones.
    * @override
    */
-  take(amount: number): IndexedSequence<V, C>;
+  take(amount: number, maintainIndices?: boolean): IndexedSequence<V, C>;
+
+  takeLast(amount: number, maintainIndices?: boolean): IndexedSequence<V, C>;
+
+  takeWhile(
+    predicate: (value?: V, index?: number, collection?: C) => boolean,
+    context?: Object,
+    maintainIndices?: boolean
+  ): IndexedSequence<V, C>;
+
+  takeUntil(
+    predicate: (value?: V, index?: number, collection?: C) => boolean,
+    context?: Object,
+    maintainIndices?: boolean
+  ): IndexedSequence<V, C>;
 
   /**
    * Indexed sequences have a different `skip` behavior. The amount to skip is
@@ -243,6 +273,8 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
    * @override
    */
   skip(amount: number, maintainIndices?: boolean): IndexedSequence<V, C>;
+
+  skipLast(amount: number, maintainIndices?: boolean): IndexedSequence<V, C>;
 
   /**
    * Indexed sequences have a different `skipWhile` behavior. The first
@@ -277,13 +309,7 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
     context?: Object
   ): IndexedSequence<M, C>;
 
-  takeWhile(
-    predicate: (value?: V, index?: number, collection?: C) => boolean,
-    context?: Object
-  ): IndexedSequence<V, C>;
 
-  takeUntil(
-    predicate: (value?: V, index?: number, collection?: C) => boolean,
-    context?: Object
-  ): IndexedSequence<V, C>;
+
+  cacheResult(): IndexedSequence<V, C>;
 }

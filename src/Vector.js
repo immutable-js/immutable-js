@@ -418,6 +418,10 @@ class Vector extends IndexedSequence {
     return predicate ? super.last(predicate, context) : this.get(this.length ? this.length - 1 : 0);
   }
 
+  cacheResult() {
+    return this;
+  }
+
   __deepEquals(other) {
     var is = require('./Persistent').is;
     var iterator = this.__iterator__();

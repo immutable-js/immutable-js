@@ -418,6 +418,10 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     return predicate ? ____SuperProtoOfIndexedSequence.last.call(this,predicate, context) : this.get(this.length ? this.length - 1 : 0);
   };
 
+  Vector.prototype.cacheResult=function() {"use strict";
+    return this;
+  };
+
   Vector.prototype.__deepEquals=function(other) {"use strict";
     var is = require('./Persistent').is;
     var iterator = this.__iterator__();
