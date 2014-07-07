@@ -4,6 +4,12 @@ import Persistent = require('../dist/Persistent');
 import Map = Persistent.Map;
 import Vector = Persistent.Vector;
 
+declare function expect(val: any): ExpectWithIs;
+
+interface ExpectWithIs extends Expect {
+  is(expected: any): void;
+}
+
 // This doesn't work yet because of a jest bug with instanceof.
 xdescribe('Conversion', () => {
 
