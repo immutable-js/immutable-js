@@ -19,14 +19,6 @@ class Vector extends IndexedSequence {
     );
   }
 
-  static transientWithSize(size) {
-    var vect = Vector.empty().asTransient();
-    if (size) {
-      vect.length = vect._size = size;
-    }
-    return vect;
-  }
-
   static fromArray(values) {
     if (values.length === 0) {
       return Vector.empty();
@@ -34,7 +26,7 @@ class Vector extends IndexedSequence {
     if (values.length > 0 && values.length < SIZE) {
       return Vector._make(0, values.length, SHIFT, __EMPTY_VNODE, new VNode(null, values.slice()));
     }
-    return Vector.transientWithSize(values.length).merge(values).asPersistent();
+    return Vector.empty().asTransient().merge(values).setLength(values.length).asPersistent();
   }
 
   toString() {
@@ -372,6 +364,21 @@ class Vector extends IndexedSequence {
     );
   }
 
+  setLength(length) {
+    if (length === this.length) {
+      return this;
+    }
+    if (length < this.length) {
+      return this.slice(0, length);
+    }
+    if (this.isTransient()) {
+      this.length = length;
+      this._size = this._origin + length;
+      return this;
+    }
+    return Vector._make(this._origin, this._origin + length, this._level, this._root, this._tail);
+  }
+
   // @pragma Mutability
 
   isTransient() {
@@ -427,18 +434,45 @@ class Vector extends IndexedSequence {
   }
 
   __iterate(fn, reverseIndices) {
-    var tailOffset = getTailOffset(this._size);
-    return (
-      this._root.iterate(this, this._level, -this._origin, tailOffset - this._origin, fn, reverseIndices) &&
-      this._tail.iterate(this, 0, tailOffset - this._origin, this._size - this._origin, fn, reverseIndices)
-    );
+    var vector = this;
+    var lastIndex = 0;
+    var didComplete = this.__rawIterate((value, ii) => {
+      if (fn(value, reverseIndices ? vector.length - 1 - ii : ii, vector) === false) {
+        return false;
+      } else {
+        lastIndex = ii;
+        return true;
+      }
+    });
+    return didComplete ? this.length : lastIndex + 1;
   }
 
   __reverseIterate(fn, maintainIndices) {
+    var vector = this;
+    var lastIndex = 0;
+    var didComplete = this.__rawReverseIterate((value, ii) => {
+      if (fn(value, maintainIndices ? ii : vector.length - 1 - ii) === false) {
+        return false;
+      } else {
+        lastIndex = ii
+      }
+    });
+    return didComplete ? this.length : this.length - lastIndex;
+  }
+
+  __rawIterate(fn) {
     var tailOffset = getTailOffset(this._size);
     return (
-      this._tail.reverseIterate(this, 0, tailOffset - this._origin, this._size - this._origin, fn, maintainIndices) &&
-      this._root.reverseIterate(this, this._level, -this._origin, tailOffset - this._origin, fn, maintainIndices)
+      this._root.iterate(this._level, -this._origin, tailOffset - this._origin, fn) &&
+      this._tail.iterate(0, tailOffset - this._origin, this._size - this._origin, fn)
+    );
+  }
+
+  __rawReverseIterate(fn, maintainIndices) {
+    var tailOffset = getTailOffset(this._size);
+    return (
+      this._tail.reverseIterate(0, tailOffset - this._origin, this._size - this._origin, fn) &&
+      this._root.reverseIterate(this._level, -this._origin, tailOffset - this._origin, fn)
     );
   }
 
@@ -519,35 +553,29 @@ class VNode {
     return new VNode(ownerID, this.array.slice());
   }
 
-  iterate(vector, level, offset, max, fn, reverseIndices) {
+  iterate(level, offset, max, fn) {
     // Note using every() gets us a speed-up of 2x on modern JS VMs, but means
     // we cannot support IE8 without polyfill.
     if (level === 0) {
       return this.array.every((value, rawIndex) => {
         var index = rawIndex + offset;
-        if (reverseIndices) {
-          index = vector.length - 1 - index;
-        }
-        return index < 0 || index >= max || fn(value, index, vector) !== false;
+        return index < 0 || index >= max || fn(value, index) !== false;
       });
     }
     var step = 1 << level;
     var newLevel = level - SHIFT;
     return this.array.every((newNode, levelIndex) => {
       var newOffset = offset + levelIndex * step;
-      return newOffset >= max || newOffset + step <= 0 || newNode.iterate(vector, newLevel, newOffset, max, fn, reverseIndices);
+      return newOffset >= max || newOffset + step <= 0 || newNode.iterate(newLevel, newOffset, max, fn);
     });
   }
 
-  reverseIterate(vector, level, offset, max, fn, maintainIndices) {
+  reverseIterate(level, offset, max, fn) {
     if (level === 0) {
       for (var rawIndex = this.array.length - 1; rawIndex >= 0; rawIndex--) {
         if (this.array.hasOwnProperty(rawIndex)) {
           var index = rawIndex + offset;
-          if (!maintainIndices) {
-            index = vector.length - 1 - index;
-          }
-          if (index >= 0 && index < max && fn(this.array[rawIndex], index, vector) === false) {
+          if (index >= 0 && index < max && fn(this.array[rawIndex], index) === false) {
             return false;
           }
         }
@@ -560,7 +588,7 @@ class VNode {
         if (newOffset < max &&
             newOffset + step > 0 &&
             this.array.hasOwnProperty(levelIndex) &&
-            !this.array[levelIndex].reverseIterate(vector, newLevel, newOffset, max, fn, maintainIndices)) {
+            !this.array[levelIndex].reverseIterate(newLevel, newOffset, max, fn)) {
           return false;
         }
       }

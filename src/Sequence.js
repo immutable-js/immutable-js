@@ -78,7 +78,7 @@ class Sequence {
     if (this === other) {
       return true;
     }
-    if (this.length && other.length && this.length !== other.length) {
+    if (this.length != null && other.length != null && this.length !== other.length) {
       return false;
     }
     // if either side is transient, and they are not from the same parent
@@ -116,8 +116,43 @@ class Sequence {
     return string;
   }
 
+  concat(/*...values*/) {
+    var values = [this].concat(arguments).map(Sequence);
+    var concatSequence = this.__makeUberSequence('concat',true, (reverse, sequence, fn) => {
+      var shouldBreak;
+      var iterations = 0;
+      var lastIndex = values.length - 1;
+      for (var ii = 0; ii !== lastIndex; ii++) {
+        var seq = values[reverse ? lastIndex - ii : ii];
+        var iterate = reverse ? seq.__reverseIterate : seq.__iterate;
+        iterations += iterate.call(sequence, (v, k, c) => {
+          if (fn(v, k, c) === false) {
+            shouldBreak = true;
+            return false;
+          }
+        });
+        if (shouldBreak) {
+          break;
+        }
+      }
+      return iterations;
+    });
+    concatSequence.length = values.reduce((sum, seq) => {
+      if (sum != null && seq.length != null) {
+        return sum + seq.length;
+      }
+    }, 0);
+    return concatSequence;
+  }
+
   reverse() {
-    return new ReversedSequence(this);
+    var reversedSequence = this.__makeUberSequence('reverse',true, (reverse, sequence, fn) => {
+      var iterate = reverse ? sequence.__iterate : sequence.__reverseIterate;
+      return iterate.call(sequence, fn);
+    });
+    reversedSequence.length = this.length;
+    reversedSequence.reverse = () => this;
+    return reversedSequence;
   }
 
   keys() {
@@ -125,8 +160,7 @@ class Sequence {
   }
 
   values() {
-    // values() always returns an Indexed sequence.
-    return IndexedSequence.prototype.__makeSequence.call(this, true, valuesFactory);
+    return new ValuesSequence(this, this.length);
   }
 
   entries() {
@@ -174,8 +208,12 @@ class Sequence {
     return !this.every(not(predicate), context);
   }
 
-  find(predicate, context) {
-    var foundValue;
+  get(searchKey, notFoundValue) {
+    return this.findKey((_, key) => key === searchKey, null, notFoundValue);
+  }
+
+  find(predicate, context, notFoundValue) {
+    var foundValue = notFoundValue;
     this.__iterate((v, k, c) => {
       if (predicate.call(context, v, k, c)) {
         foundValue = v;
@@ -196,8 +234,8 @@ class Sequence {
     return foundKey;
   }
 
-  findLast(predicate, context) {
-    return this.reverse(true).find(predicate, context);
+  findLast(predicate, context, notFoundValue) {
+    return this.reverse(true).find(predicate, context, notFoundValue);
   }
 
   findLastKey(predicate, context) {
@@ -205,19 +243,37 @@ class Sequence {
   }
 
   flip() {
-    return this.__makeSequence(true, flipFactory);
+    // flip() always returns a regular Sequence.
+    var flippedSequence = Sequence.prototype.__makeSequence.call(this, 'flip',true, flipFactory);
+    flippedSequence.length = this.length;
+    var sequence = this;
+    flippedSequence.flip = () => sequence;
+    return flippedSequence;
   }
 
   map(mapper, context) {
-    return this.__makeSequence(true, fn => (v, k, c) =>
+    var mappedSequence = this.__makeSequence('map',true, fn => (v, k, c) =>
       fn(mapper.call(context, v, k, c), k, c) !== false
     );
+    mappedSequence.length = this.length;
+    return mappedSequence;
   }
 
   filter(predicate, context) {
-    return this.__makeSequence(true, fn => (v, k, c) =>
-      !predicate.call(context, v, k, c) || fn(v, k, c) !== false
-    );
+    return this.__makeUberSequence('filter',true, (reverse, sequence, fn) => {
+      var iterations = 0;
+      var iterate = (reverse ? sequence.__reverseIterate : sequence.__iterate);
+      iterate.call(sequence, (v, k, c) => {
+        if (predicate.call(context, v, k, c)) {
+          if (fn(v, k, c) !== false) {
+            iterations++;
+          } else {
+            return false;
+          }
+        }
+      });
+      return iterations;
+    });
   }
 
   take(amount) {
@@ -226,9 +282,24 @@ class Sequence {
   }
 
   takeWhile(predicate, context) {
-    return this.__makeSequence(false, fn => (v, k, c) =>
-      predicate.call(context, v, k, c) && fn(v, k, c) !== false
-    );
+
+    return this.__makeUberSequence('takeWhile',false, (reverse, sequence, fn, alterIndices) => {
+      var iterations = 0;
+      var iterate = (reverse ? sequence.__reverseIterate : sequence.__iterate);
+      iterate.call(sequence, (v, k, c) => {
+        if (predicate.call(context, v, k, c) && fn(v, k, c) !== false) {
+          iterations++;
+        } else {
+          return false;
+        }
+      }, alterIndices);
+      return iterations;
+    });
+
+    // TODO: update to uber
+    // return this.__makeSequence(false, fn => (v, k, c) =>
+    //   predicate.call(context, v, k, c) && fn(v, k, c) !== false
+    // );
   }
 
   takeUntil(predicate, context) {
@@ -241,12 +312,30 @@ class Sequence {
   }
 
   skipWhile(predicate, context) {
-    return this.__makeSequence(false, fn => {
+    return this.__makeUberSequence('skipWhile',false, (reverse, sequence, fn) => {
       var isSkipping = true;
-      return (v, k, c) =>
-        (isSkipping = isSkipping && predicate.call(context, v, k, c)) ||
-        fn(v, k, c) !== false
+      var iterations = 0;
+      var iterate = (reverse ? sequence.__reverseIterate : sequence.__iterate);
+      iterate.call(sequence, (v, k, c) => {
+        if (!(isSkipping && (isSkipping = predicate.call(context, v, k, c)))) {
+          if (fn(v, k, c) !== false) {
+            iterations++;
+          } else {
+            return false;
+          }
+        }
+      });
+      return iterations;
     });
+
+
+    // TODO: update to uber
+    // return this.__makeSequence(false, fn => {
+    //   var isSkipping = true;
+    //   return (v, k, c) =>
+    //     (isSkipping = isSkipping && predicate.call(context, v, k, c)) ||
+    //     fn(v, k, c) !== false
+    // });
   }
 
   skipUntil(predicate, context) {
@@ -256,30 +345,48 @@ class Sequence {
   // abstract __iterate(fn)
 
   /**
-   * Note: the default implementation of this needs to make an intermediate
+   * The default implementation of this needs to make an intermediate
    * representation which may be inefficent or at worse infinite.
    * Subclasses should do better if possible.
+   * Note: maintainIndices is only ever true for IndexedSequences.
    */
-  __reverseIterate(fn) {
+  __reverseIterate(fn, maintainIndices) {
     var temp = [];
     var collection;
-    this.__iterate((v, k, c) => {
+    var length = this.__iterate((v, k, c) => {
       collection || (collection = c);
       temp.push([k, v]);
     });
+    var maxIndex = length - 1;
     for (var ii = temp.length - 1; ii >= 0; ii--) {
       var entry = temp[ii];
-      if (fn(entry[1], entry[0], collection) === false) {
-        return false;
+      if (fn(entry[1], maintainIndices ? entry[0] : maxIndex - entry[0], collection) === false) {
+        break;
       }
     }
-    return true;
+    return maxIndex - ii;
   }
 
-  __makeSequence(withCommutativeReverse, factory) {
-    var sequence = this;
+  __makeRawSequence(name) {
     var newSequence = Object.create(Sequence.prototype);
-    newSequence.__parentSequence = sequence._parentSequence || sequence;
+    newSequence.name = name;
+    newSequence.__parentSequence = this._parentSequence || this;
+    return newSequence;
+  }
+
+  __makeUberSequence(name, withCommutativeReverse, factory) {
+    var sequence = this;
+    var newSequence = this.__makeRawSequence(name);
+    newSequence.__iterate = (fn) => factory(false, sequence, fn);
+    if (withCommutativeReverse) {
+      newSequence.__reverseIterate = (fn) => factory(true, sequence, fn);
+    }
+    return newSequence;
+  }
+
+  __makeSequence(name, withCommutativeReverse, factory) {
+    var sequence = this;
+    var newSequence = this.__makeRawSequence(name);
     newSequence.__iterate = (fn) => sequence.__iterate(factory(fn));
     if (withCommutativeReverse) {
       newSequence.__reverseIterate = (fn) => sequence.__reverseIterate(factory(fn));
@@ -291,24 +398,66 @@ class Sequence {
 Sequence.prototype.toJS = Sequence.prototype.toObject;
 
 
-class ReversedSequence extends Sequence {
-  constructor(sequence) {
-    this.__parentSequence = sequence._parentSequence || sequence;
-    this._sequence = sequence;
-  }
+// class ConcatSequence extends Sequence {
+//   constructor(sequence, values) {
+//     this.__parentSequence = sequence._parentSequence || sequence;
+//     this._sequences = [sequence].concat(values);
+//   }
 
-  reverse() {
-    return this._sequence;
-  }
+//   __iterate(fn) {
+//     var shouldBreak;
+//     var iterations = 0;
+//     for (var ii = 0; ii < this._sequences.length; ii++) {
+//       iterations += Sequence(this._sequences[ii]).__iterate((v, k, c) => {
+//         if (fn(v, k, c) === false) {
+//           shouldBreak = true;
+//           return false;
+//         }
+//       });
+//       if (shouldBreak) {
+//         break;
+//       }
+//     }
+//     return iterations;
+//   }
 
-  __iterate(fn) {
-    return this._sequence.__reverseIterate(fn);
-  }
+//   __reverseIterate(fn) {
+//     var shouldBreak;
+//     var iterations = 0;
+//     for (var ii = this._sequences.length - 1; ii >= 0; ii--) {
+//       iterations += Sequence(this._sequences[ii]).__reverseIterate((v, k, c) => {
+//         if (fn(v, k, c) === false) {
+//           shouldBreak = true;
+//           return false;
+//         }
+//       });
+//       if (shouldBreak) {
+//         break;
+//       }
+//     }
+//     return iterations;
+//   }
+// }
 
-  __reverseIterate(fn) {
-    return this._sequence.__iterate(fn);
-  }
-}
+
+// class ReversedSequence extends Sequence {
+//   constructor(sequence) {
+//     this.__parentSequence = sequence._parentSequence || sequence;
+//     this._sequence = sequence;
+//   }
+
+//   reverse() {
+//     return this._sequence;
+//   }
+
+//   __iterate(fn) {
+//     return this._sequence.__reverseIterate(fn);
+//   }
+
+//   __reverseIterate(fn) {
+//     return this._sequence.__iterate(fn);
+//   }
+// }
 
 
 class IndexedSequence extends Sequence {
@@ -319,16 +468,15 @@ class IndexedSequence extends Sequence {
 
   toArray() {
     var array = [];
-    this.__iterate((v, k) => { array[k] = v; });
-    if (this.length) {
-      array.length = this.length;
-    }
+    array.length = this.__iterate((v, k) => { array[k] = v; });
     return array;
   }
 
   toVector() {
     // Use Late Binding here to solve the circular dependency.
-    return require('./Vector').transientWithSize(this.length).merge(this).asPersistent();
+    var vect = require('./Vector').empty().asTransient();
+    var length = this.__iterate((v, i) => { vect = vect.set(i, v); });
+    return vect.setLength(length).asPersistent();
   }
 
   join(separator) {
@@ -346,22 +494,58 @@ class IndexedSequence extends Sequence {
     return string;
   }
 
+  concat(/*...values*/) {
+    return new ConcatIndexedSequence(this, arguments);
+  }
+
   reverse(maintainIndices) {
+    // This should work right? It doesnt...
+    // var reversedSequence = this.__makeUberSequence(true, (reverse, sequence, fn, alterIndices) => {
+    //   var iterate = reverse ? sequence.__iterate : sequence.__reverseIterate;
+    //   return iterate.call(sequence, fn, alterIndices !== maintainIndices);
+    // });
+    // reversedSequence.length = this.length;
+    // var sequence = this;
+    // reversedSequence.reverse = (maintainReversedIndices) => {
+    //   if (maintainReversedIndices === maintainIndices) {
+    //     return sequence;
+    //   }
+    //   return IndexedSequence.prototype.reverse.call(this, maintainReversedIndices);
+    // };
+    // return reversedSequence;
+
     return new ReversedIndexedSequence(this, maintainIndices);
   }
 
-  map(mapper, context) {
-    var seq = super.map(mapper, context);
-    // Length is preserved when mapping.
-    if (this.length) {
-      seq.length = this.length;
-    }
-    return seq;
+  // Overridden to supply undefined length
+  values() {
+    return new ValuesSequence(this);
   }
 
   filter(predicate, context, maintainIndices) {
-    var seq = super.filter(predicate, context);
-    return maintainIndices ? seq : seq.values();
+    //var seq = super.filter(predicate, context);
+    // TODO: override to get correct length.
+    //return maintainIndices ? seq : seq.values();
+
+
+    var seq = this.__makeUberSequence('filter', true, (reverse, sequence, fn, alterIndices) => {
+      var iterations = 0;
+      var iterate = (reverse ? sequence.__reverseIterate : sequence.__iterate);
+      var length = iterate.call(sequence, (v, ii, c) => {
+        if (predicate.call(context, v, ii, c)) {
+          if (fn(v, maintainIndices ? ii : iterations, c) !== false) {
+            iterations++;
+          } else {
+            return false;
+          }
+        }
+      }, alterIndices);
+      return maintainIndices ? length : iterations;
+    });
+    if (maintainIndices) {
+      seq.length = this.length;
+    }
+    return seq;
   }
 
   indexOf(searchValue) {
@@ -381,59 +565,144 @@ class IndexedSequence extends Sequence {
     return this.reverse(true).findIndex(predicate, context);
   }
 
+  take(amount) {
+    var seq = this.takeWhile((v, ii) => ii < amount);
+    seq.length = this.length && Math.max(this.length, amount);
+    return seq;
+  }
+
+  // Overrides to get length correct.
+  takeWhile(predicate, context) {
+    var sequence = this;
+    var takeSequence = this.__makeRawSequence('takeWhile');
+    takeSequence.__iterate = (fn, reverseIndices) => {
+      var iterations = 0;
+      var didFinish = true;
+      var length = sequence.__iterate((v, ii, c) => {
+        if (predicate.call(context, v, ii, c) && fn(v, ii, c) !== false) {
+          iterations = ii;
+        } else {
+          didFinish = false;
+          return false;
+        }
+      }, reverseIndices);
+      return didFinish ? length : iterations + 1;
+    };
+    return takeSequence;
+
+    // return this.__makeUberSequence(false, (reverse, sequence, fn, alterIndices) => {
+    //   var iterations = 0;
+    //   var didFinish = true;
+    //   var iterate = (reverse ? sequence.__reverseIterate : sequence.__iterate);
+    //   var length = iterate.call(sequence, (v, ii, c) => {
+    //     if (predicate.call(context, v, ii, c) && fn(v, ii, c) !== false) {
+    //       iterations = ii;
+    //     } else {
+    //       didFinish = false;
+    //       return false;
+    //     }
+    //   }, alterIndices);
+    //   return didFinish ? length : iterations + 1;
+    // });
+  }
+
   skip(amount, maintainIndices) {
-    var iterations = 0;
-    return this.skipWhile(() => iterations++ < amount, null, maintainIndices);
+    /*
+
+    TODO: when both reverseIndices and sequence.__reverseIndices are true, then
+    this is actually a "skipLast" which we haven't implementated yet and
+    therefore does the wrong thing. We might emulate it with a takeUntil.
+
+    We can probably do something similar with a "filter" based implementation. But
+    I'm not sure if this will work or not if maintainIndices is false.
+
+    */
+    var maxLength = this.length;
+    var newSequence = this.__makeRawSequence('skip');
+    var sequence = this;
+    newSequence.__iterate = (fn, reverseIndices) => {
+      var reversedIndices = newSequence.__reversedIndices ^ reverseIndices;
+      var predicate;
+      if (reversedIndices) {
+        if (maxLength == null) {
+          var iterations = amount;
+          predicate = (v, ii) => iterations-- > 0;
+        } else {
+          predicate = (v, ii) => ii >= maxLength - amount;
+        }
+      } else {
+        predicate = (v, ii) => ii < amount;
+      }
+      var isSkipping = true;
+      var indexOffset = 0;
+      var length = sequence.__iterate((v, ii, c) => {
+        if (isSkipping) {
+          isSkipping = predicate(v, ii, c);
+          if (isSkipping && !(isSkipping = predicate(v, ii, c))) {
+           indexOffset = ii;
+          }
+        }
+        return isSkipping || fn(v, reverseIndices || maintainIndices ? ii : ii - amount, c) !== false;
+      }, reverseIndices);
+      return newSequence.length || (maintainIndices ? length : reversedIndices ? indexOffset + 1 : length - amount);
+    };
+    newSequence.length = maintainIndices ? maxLength : maxLength && maxLength - amount;
+    return newSequence;
   }
 
   skipWhile(predicate, context, maintainIndices) {
-    return this.__makeSequence(false, fn => {
+    var newSequence = this.__makeRawSequence('skipWhile');
+    var sequence = this;
+    newSequence.__iterate = (fn, reverseIndices) => {
+      var reversedIndices = sequence.__reversedIndices ^ reverseIndices;
       var isSkipping = true;
       var indexOffset = 0;
-      return (v, i, c) => {
+      var length = sequence.__iterate((v, ii, c) => {
         if (isSkipping) {
-          isSkipping = predicate.call(context, v, i, c);
-          if (!maintainIndices && !isSkipping) {
-            indexOffset = i;
+          isSkipping = predicate.call(context, v, ii, c);
+          if (!isSkipping) {
+            indexOffset = ii;
           }
         }
-        return isSkipping || fn(v, i - indexOffset, c) !== false;
-      };
-    });
+        return isSkipping || fn(v, reverseIndices || maintainIndices ? ii : ii - indexOffset, c) !== false;
+      }, reverseIndices);
+      return maintainIndices ? length : reversedIndices ? indexOffset + 1 : length - indexOffset;
+    };
+    if (maintainIndices) {
+      newSequence.length = this.length;
+    }
+    return newSequence;
   }
 
   skipUntil(predicate, context, maintainIndices) {
     return this.skipWhile(not(predicate), context, maintainIndices);
   }
 
-  // __iterate(fn, reverseIndices) is abstract
+  // abstract __iterate(fn, reverseIndices)
+  // abstract __reverseIterate(fn, maintainIndices)
 
-  /**
-   * Note: the default implementation of this needs to make an intermediate
-   * representation which may be inefficent or at worse infinite.
-   * Subclasses should do better if possible.
-   */
-  __reverseIterate(fn, maintainIndices) {
-    var temp = [];
-    var collection;
-    this.__iterate((v, i, c) => {
-      collection || (collection = c);
-      temp[i] = v;
-    });
-    var maxIndex = temp.length - 1;
-    for (var ii = maxIndex; ii >= 0; ii--) {
-      if (temp.hasOwnProperty(ii) &&
-          fn(temp[ii], maintainIndices ? ii : maxIndex - ii, collection) === false) {
-        return false;
-      }
-    }
-    return true;
+  __makeRawSequence(name) {
+    if (!name) throw new Error('noname');
+    var newSequence = Object.create(IndexedSequence.prototype);
+    newSequence.name = 'indexed ' + name;
+    newSequence.__reversedIndices = !!this.__reversedIndices;
+    newSequence.__parentSequence = this._parentSequence || this;
+    return newSequence;
   }
 
-  __makeSequence(withCommutativeReverse, factory) {
+  __makeUberSequence(name, withCommutativeReverse, factory) {
     var sequence = this;
-    var newSequence = Object.create(IndexedSequence.prototype);
-    newSequence.__parentSequence = sequence._parentSequence || sequence;
+    var newSequence = this.__makeRawSequence(name);
+    newSequence.__iterate = (fn, reverseIndices) => factory(false, sequence, fn, reverseIndices);
+    if (withCommutativeReverse) {
+      newSequence.__reverseIterate = (fn, maintainIndices) => factory(true, sequence, fn, maintainIndices);
+    }
+    return newSequence;
+  }
+
+  __makeSequence(name, withCommutativeReverse, factory) {
+    var sequence = this;
+    var newSequence = this.__makeRawSequence(name);
     newSequence.__iterate = (fn, reverseIndices) =>
       sequence.__iterate(factory(fn), reverseIndices);
     if (withCommutativeReverse) {
@@ -449,11 +718,97 @@ IndexedSequence.prototype.toJS = IndexedSequence.prototype.toArray;
 IndexedSequence.prototype.__toStringMapper = quoteString;
 
 
+/**
+ * ValuesSequence re-indexes a sequence based on the iteration of values.
+ */
+class ValuesSequence extends IndexedSequence {
+  constructor(sequence, length) {
+    this.name = 'indexed concat';
+    this.__parentSequence = sequence._parentSequence || sequence;
+    this._sequence = sequence;
+    this.length = length;
+  }
+
+  __iterate(fn, reverseIndices) {
+    return this._iterate(false, fn, reverseIndices);
+  }
+
+  __reverseIterate(fn, maintainIndices) {
+    return this._iterate(true, fn, maintainIndices);
+  }
+
+  _iterate(reverse, fn, flipIndices) {
+    if (flipIndices && this.length == null) {
+      var arraySeq = new ArraySequence(this.toArray(), true);
+      return reverse ? arraySeq.__reverseIterate(fn, flipIndices) : arraySeq.__iterate(fn, flipIndices);
+    }
+    var iterations = 0;
+    var predicate;
+    if (flipIndices) {
+      var maxIndex = this.length - 1;
+      predicate = (v, k, c) => fn(v, maxIndex - iterations++, c) !== false;
+    } else {
+      predicate = (v, k, c) => fn(v, iterations++, c) !== false;
+    }
+    var sequence = this._sequence;
+    reverse ? sequence.__reverseIterate(predicate) : sequence.__iterate(predicate);
+    return iterations;
+  }
+}
+
+
+class ConcatIndexedSequence extends IndexedSequence {
+  constructor(sequence, values) {
+    this.name = 'indexed concat';
+    this.__parentSequence = sequence._parentSequence || sequence;
+    this._sequences = [sequence].concat(values).map(Sequence);
+    this.length = this._sequences.reduce((sum, seq) => {
+      if (sum != null && seq.length != null) {
+        return sum + seq.length;
+      }
+    }, 0);
+  }
+
+  __iterate(fn, reverseIndices) {
+    if (reverseIndices && !this.length) {
+      // In order to reverse indices, first we must create a cached
+      // representation. This ensures we will have the correct total length
+      // so index reversal works as expected.
+      return new ArraySequence(this.toArray(), true).__iterate(fn, true);
+    }
+    var shouldBreak;
+    var iterations = 0;
+    var maxIndex = reverseIndices && this.length - 1;
+    for (var ii = 0; ii < this._sequences.length; ii++) {
+      var sequence = this._sequences[ii];
+      if (!(sequence instanceof IndexedSequence)) {
+        sequence = sequence.values();
+      }
+      iterations += sequence.__iterate((v, index, c) => {
+        index += iterations;
+        if (fn(v, reverseIndices ? maxIndex - index : index, c) === false) {
+          shouldBreak = true;
+          return false;
+        }
+      });
+      if (shouldBreak) {
+        break;
+      }
+    }
+    return iterations;
+  }
+
+  // TODO: __reverseIterate should be entirely possible here.
+}
+
+
 class ReversedIndexedSequence extends IndexedSequence {
   constructor(sequence, maintainIndices) {
     if (sequence.length) {
       this.length = sequence.length;
     }
+    this.name = 'indexed reverse';
+    this.__reversedIndices = (!maintainIndices) !== (!sequence.__reversedIndices); // jshint ignore:line
     this._sequence = sequence;
     this._maintainIndices = maintainIndices;
   }
@@ -466,17 +821,18 @@ class ReversedIndexedSequence extends IndexedSequence {
   }
 
   __iterate(fn, reverseIndices) {
-    return this._sequence.__reverseIterate(fn, reverseIndices !== this._maintainIndices);
+    return this._sequence.__reverseIterate(fn, reverseIndices ^ this._maintainIndices);
   }
 
   __reverseIterate(fn, maintainIndices) {
-    return this._sequence.__iterate(fn, maintainIndices !== this._maintainIndices);
+    return this._sequence.__iterate(fn, maintainIndices ^ this._maintainIndices);
   }
 }
 
 
 class ArraySequence extends IndexedSequence {
   constructor(array, isImmutable) {
+    this.name = 'array';
     this.length = array.length;
     this._array = array;
     if (isImmutable) {
@@ -497,27 +853,37 @@ class ArraySequence extends IndexedSequence {
   __iterate(fn, reverseIndices) {
     var array = this._array;
     var maxIndex = array.length - 1;
-    return this._array.every((value, index) =>
-      fn(value, reverseIndices ? maxIndex - index : index, array) !== false
-    );
+    var lastIndex = -1;
+    var didFinish = this._array.every((value, ii) => {
+      if (fn(value, reverseIndices ? maxIndex - ii : ii, array) === false) {
+        return false;
+      } else {
+        lastIndex = ii;
+        return true;
+      }
+    });
+    return didFinish ? array.length : lastIndex + 1;
   }
 
   __reverseIterate(fn, maintainIndices) {
     var array = this._array;
     var maxIndex = array.length - 1;
+    var lastIndex = -1;
     for (var ii = maxIndex; ii >= 0; ii--) {
       if (array.hasOwnProperty(ii) &&
           fn(array[ii], maintainIndices ? ii : maxIndex - ii, array) === false) {
-        return false;
+        return lastIndex + 1;
       }
+      lastIndex = ii;
     }
-    return true;
+    return array.length;
   }
 }
 
 
 class ObjectSequence extends Sequence {
   constructor(object) {
+    this.name = 'object';
     this._object = object;
   }
 
@@ -537,12 +903,14 @@ class ObjectSequence extends Sequence {
 
   __iterate(fn) {
     var object = this._object;
-    for (var key in object) {
-      if (object.hasOwnProperty(key) && fn(object[key], key, object) === false) {
-        return false;
+    var iterations = 0;
+    for (var key in object) if (object.hasOwnProperty(key)) {
+      if (fn(object[key], key, object) === false) {
+        break;
       }
+      iterations++;
     }
-    return true;
+    return iterations;
   }
 
   __reverseIterate(fn) {
@@ -550,10 +918,10 @@ class ObjectSequence extends Sequence {
     var keys = Object.keys(object);
     for (var ii = keys.length - 1; ii >= 0; ii--) {
       if (fn(object[keys[ii]], keys[ii], object) === false) {
-        return false;
+        return keys.length - ii + 1;
       }
     }
-    return true;
+    return keys.length;
   }
 }
 
@@ -564,11 +932,6 @@ function keyMapper(v, k) {
 
 function entryMapper(v, k) {
   return [k, v];
-}
-
-function valuesFactory(fn) {
-  var iterations = 0;
-  return (v, k, c) => fn(v, iterations++, c) !== false;
 }
 
 function flipFactory(fn) {

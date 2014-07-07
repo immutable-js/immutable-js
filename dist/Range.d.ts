@@ -12,7 +12,7 @@ declare function Range(start?: number, end?: number, step?: number): Range;
 interface Range extends IndexedSequence<number, Range> {
   length: number;
   has(index: number): boolean;
-  get(index: number): boolean;
+  get(index: number): number;
   slice(begin: number, end?: number): Range;
 
   asPersistent(): Range;

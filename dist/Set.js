@@ -131,19 +131,13 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   };
 
   Set.prototype.__iterate=function(fn) {"use strict";
-    if (!this.$Set_map) {
-      return true;
-    }
     var collection = this;
-    return this.$Set_map.__iterate(function(_, k)  {return fn(k, k, collection);});
+    return this.$Set_map ? this.$Set_map.__iterate(function(_, k)  {return fn(k, k, collection);}) : 0;
   };
 
   Set.prototype.__reverseIterate=function(fn) {"use strict";
-    if (!this.$Set_map) {
-      return true;
-    }
     var collection = this;
-    return this.$Set_map.__reverseIterate(function(_, k)  {return fn(k, k, collection);});
+    return this.$Set_map ? this.$Set_map.__reverseIterate(function(_, k)  {return fn(k, k, collection);}) : 0;
   };
 
   // @pragma Private

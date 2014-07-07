@@ -179,11 +179,11 @@ class Map extends Sequence {
   }
 
   __iterate(fn) {
-    return this._root ? this._root.iterate(this, fn) : true;
+    return this._root ? this._root.iterate(this, fn) : 0;
   }
 
   __reverseIterate(fn) {
-    return this._root ? this._root.reverseIterate(this, fn) : true;
+    return this._root ? this._root.reverseIterate(this, fn): 0;
   }
 
   // @pragma Private

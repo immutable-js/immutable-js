@@ -19,14 +19,6 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     );
   };
 
-  Vector.transientWithSize=function(size) {"use strict";
-    var vect = Vector.empty().asTransient();
-    if (size) {
-      vect.length = vect.$Vector_size = size;
-    }
-    return vect;
-  };
-
   Vector.fromArray=function(values) {"use strict";
     if (values.length === 0) {
       return Vector.empty();
@@ -34,7 +26,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     if (values.length > 0 && values.length < SIZE) {
       return Vector.$Vector_make(0, values.length, SHIFT, __EMPTY_VNODE, new VNode(null, values.slice()));
     }
-    return Vector.transientWithSize(values.length).merge(values).asPersistent();
+    return Vector.empty().asTransient().merge(values).setLength(values.length).asPersistent();
   };
 
   Vector.prototype.toString=function() {"use strict";
@@ -372,6 +364,21 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     );
   };
 
+  Vector.prototype.setLength=function(length) {"use strict";
+    if (length === this.length) {
+      return this;
+    }
+    if (length < this.length) {
+      return this.slice(0, length);
+    }
+    if (this.isTransient()) {
+      this.length = length;
+      this.$Vector_size = this.$Vector_origin + length;
+      return this;
+    }
+    return Vector.$Vector_make(this.$Vector_origin, this.$Vector_origin + length, this.$Vector_level, this.$Vector_root, this.$Vector_tail);
+  };
+
   // @pragma Mutability
 
   Vector.prototype.isTransient=function() {"use strict";
@@ -427,18 +434,45 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   };
 
   Vector.prototype.__iterate=function(fn, reverseIndices) {"use strict";
-    var tailOffset = getTailOffset(this.$Vector_size);
-    return (
-      this.$Vector_root.iterate(this, this.$Vector_level, -this.$Vector_origin, tailOffset - this.$Vector_origin, fn, reverseIndices) &&
-      this.$Vector_tail.iterate(this, 0, tailOffset - this.$Vector_origin, this.$Vector_size - this.$Vector_origin, fn, reverseIndices)
-    );
+    var vector = this;
+    var lastIndex = 0;
+    var didComplete = this.__rawIterate(function(value, ii)  {
+      if (fn(value, reverseIndices ? vector.length - 1 - ii : ii, vector) === false) {
+        return false;
+      } else {
+        lastIndex = ii;
+        return true;
+      }
+    });
+    return didComplete ? this.length : lastIndex + 1;
   };
 
   Vector.prototype.__reverseIterate=function(fn, maintainIndices) {"use strict";
+    var vector = this;
+    var lastIndex = 0;
+    var didComplete = this.__rawReverseIterate(function(value, ii)  {
+      if (fn(value, maintainIndices ? ii : vector.length - 1 - ii) === false) {
+        return false;
+      } else {
+        lastIndex = ii
+      }
+    });
+    return didComplete ? this.length : this.length - lastIndex;
+  };
+
+  Vector.prototype.__rawIterate=function(fn) {"use strict";
     var tailOffset = getTailOffset(this.$Vector_size);
     return (
-      this.$Vector_tail.reverseIterate(this, 0, tailOffset - this.$Vector_origin, this.$Vector_size - this.$Vector_origin, fn, maintainIndices) &&
-      this.$Vector_root.reverseIterate(this, this.$Vector_level, -this.$Vector_origin, tailOffset - this.$Vector_origin, fn, maintainIndices)
+      this.$Vector_root.iterate(this.$Vector_level, -this.$Vector_origin, tailOffset - this.$Vector_origin, fn) &&
+      this.$Vector_tail.iterate(0, tailOffset - this.$Vector_origin, this.$Vector_size - this.$Vector_origin, fn)
+    );
+  };
+
+  Vector.prototype.__rawReverseIterate=function(fn, maintainIndices) {"use strict";
+    var tailOffset = getTailOffset(this.$Vector_size);
+    return (
+      this.$Vector_tail.reverseIterate(0, tailOffset - this.$Vector_origin, this.$Vector_size - this.$Vector_origin, fn) &&
+      this.$Vector_root.reverseIterate(this.$Vector_level, -this.$Vector_origin, tailOffset - this.$Vector_origin, fn)
     );
   };
 
@@ -519,35 +553,29 @@ function getTailOffset(size) {
     return new VNode(ownerID, this.array.slice());
   };
 
-  VNode.prototype.iterate=function(vector, level, offset, max, fn, reverseIndices) {"use strict";
+  VNode.prototype.iterate=function(level, offset, max, fn) {"use strict";
     // Note using every() gets us a speed-up of 2x on modern JS VMs, but means
     // we cannot support IE8 without polyfill.
     if (level === 0) {
       return this.array.every(function(value, rawIndex)  {
         var index = rawIndex + offset;
-        if (reverseIndices) {
-          index = vector.length - 1 - index;
-        }
-        return index < 0 || index >= max || fn(value, index, vector) !== false;
+        return index < 0 || index >= max || fn(value, index) !== false;
       });
     }
     var step = 1 << level;
     var newLevel = level - SHIFT;
     return this.array.every(function(newNode, levelIndex)  {
       var newOffset = offset + levelIndex * step;
-      return newOffset >= max || newOffset + step <= 0 || newNode.iterate(vector, newLevel, newOffset, max, fn, reverseIndices);
+      return newOffset >= max || newOffset + step <= 0 || newNode.iterate(newLevel, newOffset, max, fn);
     });
   };
 
-  VNode.prototype.reverseIterate=function(vector, level, offset, max, fn, maintainIndices) {"use strict";
+  VNode.prototype.reverseIterate=function(level, offset, max, fn) {"use strict";
     if (level === 0) {
       for (var rawIndex = this.array.length - 1; rawIndex >= 0; rawIndex--) {
         if (this.array.hasOwnProperty(rawIndex)) {
           var index = rawIndex + offset;
-          if (!maintainIndices) {
-            index = vector.length - 1 - index;
-          }
-          if (index >= 0 && index < max && fn(this.array[rawIndex], index, vector) === false) {
+          if (index >= 0 && index < max && fn(this.array[rawIndex], index) === false) {
             return false;
           }
         }
@@ -560,7 +588,7 @@ function getTailOffset(size) {
         if (newOffset < max &&
             newOffset + step > 0 &&
             this.array.hasOwnProperty(levelIndex) &&
-            !this.array[levelIndex].reverseIterate(vector, newLevel, newOffset, max, fn, maintainIndices)) {
+            !this.array[levelIndex].reverseIterate(newLevel, newOffset, max, fn)) {
           return false;
         }
       }

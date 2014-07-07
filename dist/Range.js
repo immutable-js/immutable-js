@@ -125,23 +125,24 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     var value = this.start;
     for (var ii = 0; ii < this.length; ii++) {
       if (fn(value, reverseIndices ? this.length - 1 - ii : ii, this) === false) {
-        return false;
+        break;
       }
       value += this.step;
     }
-    return true;
+    return ii;
   };
 
   Range.prototype.__reverseIterate=function(fn, maintainIndices) {"use strict";
     assertNotInfinite(this.length);
     var value = this.start + (this.length - 1) * this.step;
-    for (var ii = this.length - 1; ii >= 0; ii--) {
-      if (fn(value, maintainIndices ? ii : this.length - 1 - ii, this) === false) {
-        return false;
+    var maxIndex = this.length - 1;
+    for (var ii = maxIndex; ii >= 0; ii--) {
+      if (fn(value, maintainIndices ? ii : maxIndex - ii, this) === false) {
+        break;
       }
       value -= this.step;
     }
-    return true;
+    return maxIndex - ii;
   };
 
 

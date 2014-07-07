@@ -63,7 +63,9 @@ module.exports = function(grunt) {
       }
     },
     jest: {
-      options: {}
+      options: {
+        testPathPattern: /.*/
+      }
     }
   });
 

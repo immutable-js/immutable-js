@@ -131,19 +131,13 @@ class Set extends Sequence {
   }
 
   __iterate(fn) {
-    if (!this._map) {
-      return true;
-    }
     var collection = this;
-    return this._map.__iterate((_, k) => fn(k, k, collection));
+    return this._map ? this._map.__iterate((_, k) => fn(k, k, collection)) : 0;
   }
 
   __reverseIterate(fn) {
-    if (!this._map) {
-      return true;
-    }
     var collection = this;
-    return this._map.__reverseIterate((_, k) => fn(k, k, collection));
+    return this._map ? this._map.__reverseIterate((_, k) => fn(k, k, collection)) : 0;
   }
 
   // @pragma Private

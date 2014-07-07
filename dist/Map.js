@@ -179,11 +179,11 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   };
 
   Map.prototype.__iterate=function(fn) {"use strict";
-    return this.$Map_root ? this.$Map_root.iterate(this, fn) : true;
+    return this.$Map_root ? this.$Map_root.iterate(this, fn) : 0;
   };
 
   Map.prototype.__reverseIterate=function(fn) {"use strict";
-    return this.$Map_root ? this.$Map_root.reverseIterate(this, fn) : true;
+    return this.$Map_root ? this.$Map_root.reverseIterate(this, fn): 0;
   };
 
   // @pragma Private

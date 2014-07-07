@@ -14,6 +14,15 @@ export declare function Sequence(): Sequence<any, any, any>;
  */
 export interface Sequence<K, V, C> {
 
+  /**
+   * Some sequences can describe their length lazily. When this is the case,
+   * length will be set to an integer. Otherwise it will be undefined.
+   *
+   * For example, the new IndexedSequences returned from map() or reverse()
+   * preserve the length of the original sequence.
+   */
+  length?: number;
+
   toString(): string;
 
   isTransient(): boolean;
@@ -50,95 +59,99 @@ export interface Sequence<K, V, C> {
 
   forEach(
     sideEffect: (value?: V, key?: K, collection?: C) => any,
-    context?: any
+    context?: Object
   ): void;
 
   first(
     predicate?: (value?: V, index?: number, collection?: C) => boolean,
-    context?: any
+    context?: Object
   ): V;
 
   last(
     predicate?: (value?: V, index?: number, collection?: C) => boolean,
-    context?: any
+    context?: Object
   ): V;
 
   reduce<R>(
     reducer: (reduction?: R, value?: V, key?: K, collection?: C) => R,
     initialReduction?: R,
-    context?: any
+    context?: Object
   ): R;
 
   reduceRight<R>(
     reducer: (reduction?: R, value?: V, key?: K, collection?: C) => R,
     initialReduction: R,
-    context?: any
+    context?: Object
   ): R;
 
   every(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: any
+    context?: Object
   ): boolean;
 
   some(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: any
+    context?: Object
   ): boolean;
+
+  get(key: K, notFoundValue?: V): V;
 
   find(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: any
+    context?: Object,
+    notFoundValue?: V
   ): V;
 
   findKey(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: any
+    context?: Object
   ): K;
 
   findLast(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: any
+    context?: Object,
+    notFoundValue?: V
   ): V;
 
   findLastKey(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: any
+    context?: Object
   ): K;
 
   flip(): Sequence<V, K, C>;
 
   map<M>(
     mapper: (value?: V, key?: K, collection?: C) => M,
-    context?: any
+    context?: Object
   ): Sequence<K, M, C>;
 
   filter(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: any
+    context?: Object
   ): Sequence<K, V, C>;
 
   take(amount: number): Sequence<K, V, C>;
 
   takeWhile(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: any
+    context?: Object
   ): Sequence<K, V, C>;
 
   takeUntil(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: any
+    context?: Object
   ): Sequence<K, V, C>;
 
   skip(amount: number): Sequence<K, V, C>;
 
   skipWhile(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: any
+    context?: Object
   ): Sequence<K, V, C>;
 
   skipUntil(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: any
+    context?: Object
   ): Sequence<K, V, C>;
 }
 
@@ -148,14 +161,7 @@ export interface Sequence<K, V, C> {
  */
 export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
 
-  /**
-   * Some indexed sequences can describe their length lazily. When this is the
-   * case, length will be non-null.
-   *
-   * For example, the new IndexedSequences returned from map() or reverse()
-   * preserve the length of the original sequence.
-   */
-  length?: number;
+  __reversedIndices: boolean;
 
   /**
    * When IndexedSequence is converted to an array, the index keys are
@@ -188,7 +194,7 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
    */
   filter(
     predicate: (value?: V, index?: number, collection?: C) => boolean,
-    context?: any,
+    context?: Object,
     maintainIndices?: boolean
   ): IndexedSequence<V, C>;
 
@@ -210,7 +216,7 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
    */
   findIndex(
     predicate: (value?: V, index?: number, collection?: C) => boolean,
-    context?: any
+    context?: Object
   ): number;
 
   /**
@@ -219,34 +225,44 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
    */
   findLastIndex(
     predicate: (value?: V, index?: number, collection?: C) => boolean,
-    context?: any
+    context?: Object
   ): number;
 
   /**
-   * Indexed sequences have a different `skip` behavior, where the first non-skipped
-   * value will have an index of 0. If you want to preserve the original indicies,
-   * set maintainIndices to true.
+   * Indexed sequences have a different `take` behavior. The amount to take is
+   * based on indicies, rather than set values, which means it takes unset
+   * indicies as well as set ones.
+   * @override
+   */
+  take(amount: number): IndexedSequence<V, C>;
+
+  /**
+   * Indexed sequences have a different `skip` behavior. The amount to skip is
+   * based on indicies, rather than set values, which means it skips over unset
+   * indicies as well as set ones. Has the same altered behavior as `skipWhile`.
    * @override
    */
   skip(amount: number, maintainIndices?: boolean): IndexedSequence<V, C>;
 
   /**
-   * Has the same altered behavior as `skip`.
+   * Indexed sequences have a different `skipWhile` behavior. The first
+   * non-skipped value will have an index of 0. If you want to preserve the
+   * original indicies, set maintainIndices to true.
    * @override
    */
   skipWhile(
     predicate: (value?: V, index?: number, collection?: C) => boolean,
-    context?: any,
+    context?: Object,
     maintainIndices?: boolean
   ): IndexedSequence<V, C>;
 
   /**
-   * Has the same altered behavior as `skip`.
+   * Has the same altered behavior as `skipWhile`.
    * @override
    */
   skipUntil(
     predicate: (value?: V, index?: number, collection?: C) => boolean,
-    context?: any,
+    context?: Object,
     maintainIndices?: boolean
   ): IndexedSequence<V, C>;
 
@@ -258,18 +274,16 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
 
   map<M>(
     mapper: (value?: V, index?: number, collection?: C) => M,
-    context?: any
+    context?: Object
   ): IndexedSequence<M, C>;
-
-  take(amount: number): IndexedSequence<V, C>;
 
   takeWhile(
     predicate: (value?: V, index?: number, collection?: C) => boolean,
-    context?: any
+    context?: Object
   ): IndexedSequence<V, C>;
 
   takeUntil(
     predicate: (value?: V, index?: number, collection?: C) => boolean,
-    context?: any
+    context?: Object
   ): IndexedSequence<V, C>;
 }
