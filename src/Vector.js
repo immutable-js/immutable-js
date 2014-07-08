@@ -455,7 +455,7 @@ class Vector extends IndexedSequence {
     var vector = this;
     var lastIndex = 0;
     var didComplete = this.__rawReverseIterate((value, ii) => {
-      if (fn(value, maintainIndices ? ii : vector.length - 1 - ii) === false) {
+      if (fn(value, maintainIndices ? ii : vector.length - 1 - ii, vector) === false) {
         return false;
       } else {
         lastIndex = ii
