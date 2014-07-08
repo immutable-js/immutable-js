@@ -18,8 +18,10 @@ export interface Sequence<K, V, C> {
    * Some sequences can describe their length lazily. When this is the case,
    * length will be set to an integer. Otherwise it will be undefined.
    *
-   * For example, the new IndexedSequences returned from map() or reverse()
-   * preserve the length of the original sequence.
+   * For example, the new Sequences returned from map() or reverse()
+   * preserve the length of the original sequence while filter() does not.
+   *
+   * If you must know the length, use cacheResult().
    */
   length?: number;
 
@@ -48,6 +50,8 @@ export interface Sequence<K, V, C> {
   equals(other: Sequence<K, V, C>): boolean;
 
   join(separator?: string): string;
+
+  concat(...valuesOrSequences: Array<any>): Sequence<any, any, any>;
 
   reverse(): Sequence<K, V, C>;
 
@@ -172,45 +176,10 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
   __reversedIndices: boolean;
 
   /**
-   * When IndexedSequence is converted to an array, the index keys are
-   * maintained. This differs from the behavior of Sequence which
-   * simply makes a dense array of all values.
-   * @override
-   */
-  toArray(): Array<V>;
-
-  /**
-   * This has the same altered behavior as `toArray`.
-   * @override
-   */
-  toVector(): Vector<V>;
-
-  /**
    * If this is a sequence of entries (key-value tuples), it will return a
    * sequence of those entries.
    */
   fromEntries(): Sequence<any, any, C>;
-
-  /**
-   * This new behavior will not only iterate through the sequence in reverse,
-   * but it will also reverse the indices so the last value will report being
-   * at index 0. If you wish to preserve the original indices, set
-   * maintainIndices to true.
-   * @override
-   */
-  reverse(maintainIndices?: boolean): IndexedSequence<V, C>;
-
-  /**
-   * Indexed sequences have a different `filter` behavior, where the filtered
-   * values have new indicies incrementing from 0. If you want to preserve the
-   * original indicies, set maintainIndices to true.
-   * @override
-   */
-  filter(
-    predicate: (value?: V, index?: number, collection?: C) => boolean,
-    context?: Object,
-    maintainIndices?: boolean
-  ): IndexedSequence<V, C>;
 
   /**
    * Returns the first index at which a given value can be found in the
@@ -242,6 +211,52 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
     context?: Object
   ): number;
 
+  /**
+   * When IndexedSequence is converted to an array, the index keys are
+   * maintained. This differs from the behavior of Sequence which
+   * simply makes a dense array of all values.
+   * @override
+   */
+  toArray(): Array<V>;
+
+  /**
+   * This has the same altered behavior as `toArray`.
+   * @override
+   */
+  toVector(): Vector<V>;
+
+  /**
+   * This new behavior will iterate through the values and sequences with
+   * increasing indices.
+   * @override
+   */
+  concat(...valuesOrSequences: Array<any>): IndexedSequence<any, any>;
+
+  /**
+   * This new behavior will not only iterate through the sequence in reverse,
+   * but it will also reverse the indices so the last value will report being
+   * at index 0. If you wish to preserve the original indices, set
+   * maintainIndices to true.
+   * @override
+   */
+  reverse(maintainIndices?: boolean): IndexedSequence<V, C>;
+
+  /**
+   * Indexed sequences have a different `filter` behavior, where the filtered
+   * values have new indicies incrementing from 0. If you want to preserve the
+   * original indicies, set maintainIndices to true.
+   * @override
+   */
+  filter(
+    predicate: (value?: V, index?: number, collection?: C) => boolean,
+    context?: Object,
+    maintainIndices?: boolean
+  ): IndexedSequence<V, C>;
+
+  /**
+   * Adds the ability to maintain original indices.
+   * @override
+   */
   slice(start: number, end?: number, maintainIndices?: boolean): IndexedSequence<V, C>;
 
   /**
@@ -317,14 +332,21 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
   // except they take a function with index: number instead of key: K
   // and return an IndexedSequence.
 
+  /**
+   * @override
+   */
   asPersistent(): IndexedSequence<V, C>;
 
+  /**
+   * @override
+   */
   map<M>(
     mapper: (value?: V, index?: number, collection?: C) => M,
     context?: Object
   ): IndexedSequence<M, C>;
 
-
-
+  /**
+   * @override
+   */
   cacheResult(): IndexedSequence<V, C>;
 }

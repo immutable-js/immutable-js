@@ -116,32 +116,34 @@ class Sequence {
     return string;
   }
 
-  concat(/*...values*/) {
-    var values = [this].concat(arguments).map(Sequence);
+  concat(...values) {
+    var sequences = [this].concat(values).map(value => Sequence(value));
     var concatSequence = this.__makeUberSequence('concat',true, (reverse, sequence, fn) => {
       var shouldBreak;
+      var predicate = (v, k, c) => {
+        if (fn(v, k, c) === false) {
+          shouldBreak = true;
+          return false;
+        }
+      };
       var iterations = 0;
-      var lastIndex = values.length - 1;
-      for (var ii = 0; ii !== lastIndex; ii++) {
-        var seq = values[reverse ? lastIndex - ii : ii];
-        var iterate = reverse ? seq.__reverseIterate : seq.__iterate;
-        iterations += iterate.call(sequence, (v, k, c) => {
-          if (fn(v, k, c) === false) {
-            shouldBreak = true;
-            return false;
-          }
-        });
+      var lastIndex = sequences.length - 1;
+      for (var ii = 0; ii <= lastIndex; ii++) {
+        var seq = sequences[reverse ? lastIndex - ii : ii];
+        if (reverse) {
+          iterations += seq.__reverseIterate(predicate);
+        } else {
+          iterations += seq.__iterate(predicate);
+        }
         if (shouldBreak) {
           break;
         }
       }
       return iterations;
     });
-    concatSequence.length = values.reduce((sum, seq) => {
-      if (sum != null && seq.length != null) {
-        return sum + seq.length;
-      }
-    }, 0);
+    concatSequence.length = sequences.reduce(
+      (sum, seq) => sum != null && seq.length != null ? sum + seq.length : undefined, 0
+    );
     return concatSequence;
   }
 
@@ -548,8 +550,8 @@ class IndexedSequence extends Sequence {
     return string;
   }
 
-  concat(/*...values*/) {
-    return new ConcatIndexedSequence(this, arguments);
+  concat(...values) {
+    return new ConcatIndexedSequence(this, values);
   }
 
   reverse(maintainIndices) {
@@ -815,8 +817,7 @@ class ValuesSequence extends IndexedSequence {
 
   _iterate(reverse, fn, flipIndices) {
     if (flipIndices && this.length == null) {
-      var arraySeq = new ArraySequence(this.toArray(), true);
-      return reverse ? arraySeq.__reverseIterate(fn, flipIndices) : arraySeq.__iterate(fn, flipIndices);
+      this.cacheResult();
     }
     var iterations = 0;
     var predicate;
@@ -874,13 +875,20 @@ class SliceIndexedSequence extends IndexedSequence {
 class ConcatIndexedSequence extends IndexedSequence {
   constructor(sequence, values) {
     this.name = 'indexed concat';
-    this.__parentSequence = sequence._parentSequence || sequence;
-    this._sequences = [sequence].concat(values).map(Sequence);
-    this.length = this._sequences.reduce((sum, seq) => {
-      if (sum != null && seq.length != null) {
-        return sum + seq.length;
-      }
-    }, 0);
+    this._sequences = [sequence].concat(values).map(value => Sequence(value));
+    this.length = this._sequences.reduce(
+      (sum, seq) => sum != null && seq.length != null ? sum + seq.length : undefined, 0
+    );
+    this._immutable = this._sequences.every(seq => !seq.isTransient());
+  }
+
+  isTransient() {
+    return !this._immutable;
+  }
+
+  asPersistent() {
+    this._sequences.map(seq => seq.asPersistent());
+    return this;
   }
 
   __iterateUncached(fn, reverseIndices) {
@@ -888,7 +896,7 @@ class ConcatIndexedSequence extends IndexedSequence {
       // In order to reverse indices, first we must create a cached
       // representation. This ensures we will have the correct total length
       // so index reversal works as expected.
-      return new ArraySequence(this.toArray(), true).__iterate(fn, true);
+      this.cacheResult();
     }
     var shouldBreak;
     var iterations = 0;
