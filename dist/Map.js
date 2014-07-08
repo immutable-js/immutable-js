@@ -182,12 +182,8 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     return other.every(function(v, k)  {return is(v, self.get(k, __SENTINEL));});
   };
 
-  Map.prototype.__iterate=function(fn) {"use strict";
-    return this.$Map_root ? this.$Map_root.iterate(this, fn) : 0;
-  };
-
-  Map.prototype.__reverseIterate=function(fn) {"use strict";
-    return this.$Map_root ? this.$Map_root.reverseIterate(this, fn): 0;
+  Map.prototype.__iterate=function(fn, reverse) {"use strict";
+    return this.$Map_root ? this.$Map_root.iterate(this, fn, reverse) : 0;
   };
 
   // @pragma Private
@@ -323,30 +319,19 @@ function makeNode(ownerID, shift, hash, key, valOrNode) {
     return new BitmapIndexedNode(ownerID, this.bitmap, this.keys.slice(), this.values.slice());
   };
 
-  BitmapIndexedNode.prototype.iterate=function(map, fn) {"use strict";
-    for (var ii = 0; ii < this.values.length; ii++) {
-      var key = this.keys[ii];
-      var valueOrNode = this.values[ii];
+  BitmapIndexedNode.prototype.iterate=function(map, fn, reverse) {"use strict";
+    var values = this.values;
+    var keys = this.keys;
+    var maxIndex = values.length;
+    for (var ii = 0; ii <= maxIndex; ii++) {
+      var index = reverse ? maxIndex - ii : ii;
+      var key = keys[index];
+      var valueOrNode = values[index];
       if (key != null) {
         if (fn(valueOrNode, key, map) === false) {
           return false;
         }
-      } else if (valueOrNode && !valueOrNode.iterate(map, fn)) {
-        return false;
-      }
-    }
-    return true;
-  };
-
-  BitmapIndexedNode.prototype.reverseIterate=function(map, fn) {"use strict";
-    for (var ii = this.values.length - 1; ii >= 0; ii--) {
-      var key = this.keys[ii];
-      var valueOrNode = this.values[ii];
-      if (key != null) {
-        if (fn(valueOrNode, key, map) === false) {
-          return false;
-        }
-      } else if (valueOrNode && !valueOrNode.iterate(map, fn)) {
+      } else if (valueOrNode && !valueOrNode.iterate(map, fn, reverse)) {
         return false;
       }
     }
@@ -411,18 +396,13 @@ function makeNode(ownerID, shift, hash, key, valOrNode) {
     return new HashCollisionNode(ownerID, this.collisionHash, this.keys.slice(), this.values.slice());
   };
 
-  HashCollisionNode.prototype.iterate=function(map, fn) {"use strict";
-    for (var ii = 0; ii < this.values.length; ii++) {
-      if (fn(this.values[ii], this.keys[ii], map) === false) {
-        return false;
-      }
-    }
-    return true;
-  };
-
-  HashCollisionNode.prototype.reverseIterate=function(map, fn) {"use strict";
-    for (var ii = this.values.length - 1; ii >= 0; ii--) {
-      if (fn(this.values[ii], this.keys[ii], map) === false) {
+  HashCollisionNode.prototype.iterate=function(map, fn, reverse) {"use strict";
+    var values = this.values;
+    var keys = this.keys;
+    var maxIndex = values.length - 1;
+    for (var ii = 0; ii <= maxIndex; ii++) {
+      var index = reverse ? maxIndex - ii : ii;
+      if (fn(values[index], keys[index], map) === false) {
         return false;
       }
     }

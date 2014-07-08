@@ -124,29 +124,29 @@ class Range extends IndexedSequence {
     return this;
   }
 
-  __iterate(fn, reverseIndices) {
-    reverseIndices && assertNotInfinite(this.length);
-    var value = this.start;
-    for (var ii = 0; ii < this.length; ii++) {
-      if (fn(value, reverseIndices ? this.length - 1 - ii : ii, this) === false) {
-        break;
+  __iterate(fn, reverse, flipIndices) {
+    (reverse || flipIndices) && assertNotInfinite(this.length);
+    var value, ii;
+    if (reverse) {
+      var maxIndex = this.length - 1;
+      value = this.start + maxIndex * this.step;
+      for (ii = maxIndex; ii >= 0; ii--) {
+        if (fn(value, flipIndices ? ii : maxIndex - ii, this) === false) {
+          break;
+        }
+        value -= this.step;
       }
-      value += this.step;
-    }
-    return ii;
-  }
-
-  __reverseIterate(fn, maintainIndices) {
-    assertNotInfinite(this.length);
-    var value = this.start + (this.length - 1) * this.step;
-    var maxIndex = this.length - 1;
-    for (var ii = maxIndex; ii >= 0; ii--) {
-      if (fn(value, maintainIndices ? ii : maxIndex - ii, this) === false) {
-        break;
+      return maxIndex - ii;
+    } else {
+      value = this.start;
+      for (ii = 0; ii < this.length; ii++) {
+        if (fn(value, flipIndices ? this.length - 1 - ii : ii, this) === false) {
+          break;
+        }
+        value += this.step;
       }
-      value -= this.step;
+      return ii;
     }
-    return maxIndex - ii;
   }
 }
 

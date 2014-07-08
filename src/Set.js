@@ -134,14 +134,9 @@ class Set extends Sequence {
     return !(this._map || other._map) || this._map.equals(other._map);
   }
 
-  __iterate(fn) {
+  __iterate(fn, reverse) {
     var collection = this;
-    return this._map ? this._map.__iterate((_, k) => fn(k, k, collection)) : 0;
-  }
-
-  __reverseIterate(fn) {
-    var collection = this;
-    return this._map ? this._map.__reverseIterate((_, k) => fn(k, k, collection)) : 0;
+    return this._map ? this._map.__iterate((_, k) => fn(k, k, collection), reverse) : 0;
   }
 
   // @pragma Private

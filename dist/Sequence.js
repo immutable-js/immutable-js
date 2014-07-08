@@ -118,23 +118,18 @@
 
   Sequence.prototype.concat=function() {"use strict";var values=Array.prototype.slice.call(arguments,0);
     var sequences = [this].concat(values).map(function(value)  {return Sequence(value);});
-    var concatSequence = this.__makeUberSequence('concat',true, function(reverse, sequence, fn)  {
+    var concatSequence = this.__makeUberSequence('concat',true, function(sequence, fn, reverse)  {
       var shouldBreak;
-      var predicate = function(v, k, c)  {
-        if (fn(v, k, c) === false) {
-          shouldBreak = true;
-          return false;
-        }
-      };
       var iterations = 0;
       var lastIndex = sequences.length - 1;
       for (var ii = 0; ii <= lastIndex; ii++) {
         var seq = sequences[reverse ? lastIndex - ii : ii];
-        if (reverse) {
-          iterations += seq.__reverseIterate(predicate);
-        } else {
-          iterations += seq.__iterate(predicate);
-        }
+        iterations += seq.__iterate(function(v, k, c)  {
+          if (fn(v, k, c) === false) {
+            shouldBreak = true;
+            return false;
+          }
+        }, reverse);
         if (shouldBreak) {
           break;
         }
@@ -148,10 +143,9 @@
   };
 
   Sequence.prototype.reverse=function(maintainIndices) {"use strict";
-    var reversedSequence = this.__makeUberSequence('reverse',true, function(reverse, sequence, fn)  {
-      var iterate = reverse ? sequence.__iterate : sequence.__reverseIterate;
-      return iterate.call(sequence, fn);
-    });
+    var reversedSequence = this.__makeUberSequence('reverse',true,
+      function(sequence, fn, reverse)  {return sequence.__iterate(fn, !reverse);}
+    );
     reversedSequence.length = this.length;
     reversedSequence.reverse = function()  {return this;}.bind(this);
     return reversedSequence;
@@ -261,10 +255,9 @@
   };
 
   Sequence.prototype.filter=function(predicate, context) {"use strict";
-    return this.__makeUberSequence('filter',true, function(reverse, sequence, fn)  {
+    return this.__makeUberSequence('filter',true, function(sequence, fn, reverse)  {
       var iterations = 0;
-      var iterate = (reverse ? sequence.__reverseIterate : sequence.__iterate);
-      iterate.call(sequence, function(v, k, c)  {
+      sequence.__iterate(function(v, k, c)  {
         if (predicate.call(context, v, k, c)) {
           if (fn(v, k, c) !== false) {
             iterations++;
@@ -272,7 +265,7 @@
             return false;
           }
         }
-      });
+      }, reverse);
       return iterations;
     });
   };
@@ -303,24 +296,24 @@
   };
 
   Sequence.prototype.takeWhile=function(predicate, context, maintainIndices) {"use strict";
-
-    return this.__makeUberSequence('takeWhile',false, function(reverse, sequence, fn, alterIndices)  {
+    var sequence = this;
+    var takeSequence = this.__makeRawSequence('takeWhile');
+    takeSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      if (reverse) {
+        // TODO: can we do a better job of this?
+        return this.cacheResult().__iterate(fn, reverse, flipIndices);
+      }
       var iterations = 0;
-      var iterate = (reverse ? sequence.__reverseIterate : sequence.__iterate);
-      iterate.call(sequence, function(v, k, c)  {
+      sequence.__iterate(function(v, k, c)  {
         if (predicate.call(context, v, k, c) && fn(v, k, c) !== false) {
           iterations++;
         } else {
           return false;
         }
-      }, alterIndices);
+      }, reverse, flipIndices);
       return iterations;
-    });
-
-    // TODO: update to uber
-    // return this.__makeSequence(false, fn => (v, k, c) =>
-    //   predicate.call(context, v, k, c) && fn(v, k, c) !== false
-    // );
+    };
+    return takeSequence;
   };
 
   Sequence.prototype.takeUntil=function(predicate, context, maintainIndices) {"use strict";
@@ -339,11 +332,16 @@
   };
 
   Sequence.prototype.skipWhile=function(predicate, context, maintainIndices) {"use strict";
-    return this.__makeUberSequence('skipWhile',false, function(reverse, sequence, fn)  {
+    var sequence = this;
+    var skipSequence = this.__makeRawSequence('skipWhile');
+    skipSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      if (reverse) {
+        // TODO: can we do a better job of this?
+        return this.cacheResult().__iterate(fn, reverse, flipIndices);
+      }
       var isSkipping = true;
       var iterations = 0;
-      var iterate = (reverse ? sequence.__reverseIterate : sequence.__iterate);
-      iterate.call(sequence, function(v, k, c)  {
+      sequence.__iterate(function(v, k, c)  {
         if (!(isSkipping && (isSkipping = predicate.call(context, v, k, c)))) {
           if (fn(v, k, c) !== false) {
             iterations++;
@@ -351,18 +349,10 @@
             return false;
           }
         }
-      });
+      }, reverse, flipIndices);
       return iterations;
-    });
-
-
-    // TODO: update to uber
-    // return this.__makeSequence(false, fn => {
-    //   var isSkipping = true;
-    //   return (v, k, c) =>
-    //     (isSkipping = isSkipping && predicate.call(context, v, k, c)) ||
-    //     fn(v, k, c) !== false
-    // });
+    };
+    return skipSequence;
   };
 
   Sequence.prototype.skipUntil=function(predicate, context, maintainIndices) {"use strict";
@@ -386,39 +376,27 @@
     return this;
   };
 
-  // abstract __iterateUncached(fn)
+  // abstract __iterateUncached(fn, reverse)
 
-  // abstract __reverseIterateUncached(fn)
-
-  Sequence.prototype.__iterate=function(fn, reverseIndices) {"use strict";
+  Sequence.prototype.__iterate=function(fn, reverse, flipIndices) {"use strict";
     if (!this.$Sequence_cache) {
-      return this.__iterateUncached(fn, reverseIndices);
+      return this.__iterateUncached(fn, reverse, flipIndices);
     }
-    var c = this.$Sequence_collection;
-    var predicate;
-    if (reverseIndices) {
-      var maxIndex = this.length - 1;
-      predicate = function(entry)  {return fn(entry[1], maxIndex - entry[0], c) !== false;};
-    } else {
-      predicate = function(entry)  {return fn(entry[1], entry[0], c) !== false;};
-    }
-    this.$Sequence_cache.every(predicate);
-    return this.length;
-  };
-
-  Sequence.prototype.__reverseIterate=function(fn, maintainIndices) {"use strict";
-    if (!this.$Sequence_cache && this.__reverseIterateUncached) {
-      return this.__reverseIterateUncached(fn, maintainIndices);
-    }
-    this.cacheResult();
+    var maxIndex = this.length - 1;
     var cache = this.$Sequence_cache;
     var c = this.$Sequence_collection;
-    var maxIndex = this.length - 1;
-    for (var ii = cache.length - 1; ii >= 0; ii--) {
-      var entry = cache[ii];
-      if (fn(entry[1], maintainIndices ? entry[0] : maxIndex - entry[0], c) === false) {
-        break;
+    if (reverse) {
+      for (var ii = cache.length - 1; ii >= 0; ii--) {
+        var revEntry = cache[ii];
+        if (fn(revEntry[1], flipIndices ? revEntry[0] : maxIndex - revEntry[0], c) === false) {
+          break;
+        }
       }
+    } else {
+      cache.every(flipIndices ?
+        function(entry)  {return fn(entry[1], maxIndex - entry[0], c) !== false;} :
+        function(entry)  {return fn(entry[1], entry[0], c) !== false;}
+      );
     }
     return this.length;
   };
@@ -433,9 +411,9 @@
   Sequence.prototype.__makeUberSequence=function(name, withCommutativeReverse, factory) {"use strict";
     var sequence = this;
     var newSequence = this.__makeRawSequence(name);
-    newSequence.__iterateUncached = function(fn)  {return factory(false, sequence, fn);};
-    if (withCommutativeReverse) {
-      newSequence.__reverseIterateUncached = function(fn)  {return factory(true, sequence, fn);};
+    newSequence.__iterateUncached = function(fn, reverse)  {return factory(sequence, fn, reverse);};
+    if (!withCommutativeReverse) {
+      throw new Error('fix uberseq');
     }
     return newSequence;
   };
@@ -443,9 +421,9 @@
   Sequence.prototype.__makeSequence=function(name, withCommutativeReverse, factory) {"use strict";
     var sequence = this;
     var newSequence = this.__makeRawSequence(name);
-    newSequence.__iterateUncached = function(fn)  {return sequence.__iterate(factory(fn));};
-    if (withCommutativeReverse) {
-      newSequence.__reverseIterateUncached = function(fn)  {return sequence.__reverseIterate(factory(fn));};
+    newSequence.__iterateUncached = function(fn, reverse)  {return sequence.__iterate(factory(fn), reverse);};
+    if (!withCommutativeReverse) {
+      throw new Error('fix seq');
     }
     return newSequence;
   };
@@ -524,7 +502,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
   IndexedSequence.prototype.toArray=function() {"use strict";
     var array = [];
-    array.length = this.__iterate(function(v, k)  { array[k] = v; });
+    array.length = this.__iterate(function(v, i)  { array[i] = v; });
     return array;
   };
 
@@ -556,7 +534,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
   IndexedSequence.prototype.reverse=function(maintainIndices) {"use strict";
     // This should work right? It doesnt...
-    // var reversedSequence = this.__makeUberSequence(true, (reverse, sequence, fn, alterIndices) => {
+    // var reversedSequence = this.__makeUberSequence(true, (sequence, fn, reverse, alterIndices) => {
     //   var iterate = reverse ? sequence.__iterate : sequence.__reverseIterate;
     //   return iterate.call(sequence, fn, alterIndices !== maintainIndices);
     // });
@@ -592,10 +570,9 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     //return maintainIndices ? seq : seq.values();
 
 
-    var seq = this.__makeUberSequence('filter', true, function(reverse, sequence, fn, alterIndices)  {
+    var seq = this.__makeUberSequence('filter', true, function(sequence, fn, reverse, flipIndices)  {
       var iterations = 0;
-      var iterate = (reverse ? sequence.__reverseIterate : sequence.__iterate);
-      var length = iterate.call(sequence, function(v, ii, c)  {
+      var length = sequence.__iterate(function(v, ii, c)  {
         if (predicate.call(context, v, ii, c)) {
           if (fn(v, maintainIndices ? ii : iterations, c) !== false) {
             iterations++;
@@ -603,7 +580,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
             return false;
           }
         }
-      }, alterIndices);
+      }, reverse, flipIndices);
       return maintainIndices ? length : iterations;
     });
     if (maintainIndices) {
@@ -643,7 +620,11 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   IndexedSequence.prototype.takeWhile=function(predicate, context, maintainIndices) {"use strict";
     var sequence = this;
     var takeSequence = this.__makeRawSequence('takeWhile');
-    takeSequence.__iterate = function(fn, reverseIndices)  {
+    takeSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      if (reverse) {
+        // TODO: can we do a better job of this?
+        return this.cacheResult().__iterate(fn, reverse, flipIndices);
+      }
       var iterations = 0;
       // TODO: ensure didFinish is necessary here
       var didFinish = true;
@@ -654,7 +635,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
           didFinish = false;
           return false;
         }
-      }, reverseIndices);
+      }, reverse, flipIndices);
       return maintainIndices ? takeSequence.length : didFinish ? length : iterations + 1;
     };
     if (maintainIndices) {
@@ -662,7 +643,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     }
     return takeSequence;
 
-    // return this.__makeUberSequence(false, (reverse, sequence, fn, alterIndices) => {
+    // return this.__makeUberSequence(false, (sequence, fn, reverse, alterIndices) => {
     //   var iterations = 0;
     //   var didFinish = true;
     //   var iterate = (reverse ? sequence.__reverseIterate : sequence.__iterate);
@@ -731,8 +712,11 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   IndexedSequence.prototype.skipWhile=function(predicate, context, maintainIndices) {"use strict";
     var newSequence = this.__makeRawSequence('skipWhile');
     var sequence = this;
-    newSequence.__iterate = function(fn, reverseIndices)  {
-      var reversedIndices = sequence.__reversedIndices ^ reverseIndices;
+    newSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      if (reverse) {
+        return this.cacheResult().__iterate(fn, reverse, flipIndices)
+      }
+      var reversedIndices = sequence.__reversedIndices ^ flipIndices;
       var isSkipping = true;
       var indexOffset = 0;
       var length = sequence.__iterate(function(v, ii, c)  {
@@ -742,8 +726,8 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
             indexOffset = ii;
           }
         }
-        return isSkipping || fn(v, reverseIndices || maintainIndices ? ii : ii - indexOffset, c) !== false;
-      }, reverseIndices);
+        return isSkipping || fn(v, flipIndices || maintainIndices ? ii : ii - indexOffset, c) !== false;
+      }, reverse, flipIndices);
       return maintainIndices ? length : reversedIndices ? indexOffset + 1 : length - indexOffset;
     };
     if (maintainIndices) {
@@ -756,8 +740,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   //  return this.skipWhile(not(predicate), context, maintainIndices);
   //}
 
-  // abstract __iterate(fn, reverseIndices)
-  // abstract __reverseIterate(fn, maintainIndices)
+  // abstract __iterate(fn, reverse, flipIndices)
 
   IndexedSequence.prototype.__makeRawSequence=function(name) {"use strict";
     if (!name) throw new Error('noname');
@@ -771,9 +754,9 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   IndexedSequence.prototype.__makeUberSequence=function(name, withCommutativeReverse, factory) {"use strict";
     var sequence = this;
     var newSequence = this.__makeRawSequence(name);
-    newSequence.__iterateUncached = function(fn, reverseIndices)  {return factory(false, sequence, fn, reverseIndices);};
-    if (withCommutativeReverse) {
-      newSequence.__reverseIterateUncached = function(fn, maintainIndices)  {return factory(true, sequence, fn, maintainIndices);};
+    newSequence.__iterateUncached = function(fn, reverse, flipIndices)  {return factory(sequence, fn, reverse, flipIndices);};
+    if (!withCommutativeReverse) {
+      throw new Error('uber seq');
     }
     return newSequence;
   };
@@ -781,11 +764,9 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   IndexedSequence.prototype.__makeSequence=function(name, withCommutativeReverse, factory) {"use strict";
     var sequence = this;
     var newSequence = this.__makeRawSequence(name);
-    newSequence.__iterateUncached = function(fn, reverseIndices) 
-      {return sequence.__iterate(factory(fn), reverseIndices);};
-    if (withCommutativeReverse) {
-      newSequence.__reverseIterateUncached = function(fn, maintainIndices) 
-        {return sequence.__reverseIterate(factory(fn), maintainIndices);};
+    newSequence.__iterateUncached = function(fn, reverse, flipIndices)  {return sequence.__iterate(factory(fn), reverse, flipIndices);};
+    if (!withCommutativeReverse) {
+      throw new Error('seq');
     }
     return newSequence;
   };
@@ -807,15 +788,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     this.length = length;
   }
 
-  ValuesSequence.prototype.__iterateUncached=function(fn, reverseIndices) {"use strict";
-    return this.$ValuesSequence_iterate(false, fn, reverseIndices);
-  };
-
-  ValuesSequence.prototype.__reverseIterateUncached=function(fn, maintainIndices) {"use strict";
-    return this.$ValuesSequence_iterate(true, fn, maintainIndices);
-  };
-
-  ValuesSequence.prototype.$ValuesSequence_iterate=function(reverse, fn, flipIndices) {"use strict";
+  ValuesSequence.prototype.__iterateUncached=function(fn, reverse, flipIndices) {"use strict";
     if (flipIndices && this.length == null) {
       this.cacheResult();
     }
@@ -827,8 +800,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     } else {
       predicate = function(v, k, c)  {return fn(v, iterations++, c) !== false;};
     }
-    var sequence = this.$ValuesSequence_sequence;
-    reverse ? sequence.__reverseIterate(predicate) : sequence.__iterate(predicate);
+    this.$ValuesSequence_sequence.__iterate(predicate, reverse); // intentionally do not pass flipIndices
     return iterations;
   };
 
@@ -847,28 +819,31 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
     this.length = sequence.length && (maintainIndices ? sequence.length : resolveEnd(end, sequence.length) - resolveStart(start, sequence.length));
   }
 
-  SliceIndexedSequence.prototype.__iterateUncached=function(fn, reverseIndices) {"use strict";
+  SliceIndexedSequence.prototype.__iterateUncached=function(fn, reverse, flipIndices) {"use strict";
+    if (reverse) {
+      // TODO: reverse should be possible here.
+      return this.cacheResult().__iterate(fn, reverse, flipIndices);
+    }
+    var reversedIndices = this.__reversedIndices ^ flipIndices;
     var sequence = this.$SliceIndexedSequence_sequence;
+    if ((start < 0 || end < 0 || reversedIndices) && sequence.length == null) {
+      sequence.cacheResult();
+    }
     var start = resolveStart(this.$SliceIndexedSequence_start, sequence.length);
     var end = resolveEnd(this.$SliceIndexedSequence_end, sequence.length);
     var maintainIndices = this.$SliceIndexedSequence_maintainIndices;
-    if (isNaN(start) || isNaN(end) || (reverseIndices && this.length == null)) {
-      return this.cacheResult().slice(this.$SliceIndexedSequence_start, this.$SliceIndexedSequence_end).__iterate(fn, reverseIndices);
-    }
-    var reversedIndices = this.__reversedIndices ^ reverseIndices;
     if (reversedIndices) {
-      var newStart = this.length - end;
-      end = this.length - start;
+      var newStart = sequence.length - end;
+      end = sequence.length - start;
       start = newStart;
     }
-    var length = sequence.__iterate(function(v, ii, c)  {
-      return !(ii >= start && ii < end) ||
-        fn(v, maintainIndices ? ii : ii - start, c) !== false
-    }, reverseIndices);
+    var length = sequence.__iterate(
+      function(v, ii, c)  {return !(ii >= start && ii < end) || fn(v, maintainIndices ? ii : ii - start, c) !== false;},
+      reverse,
+      flipIndices
+    );
     return this.length || (maintainIndices ? length : Math.max(0, length - start));
   };
-
-        
 
 
 
@@ -891,8 +866,8 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
     return this;
   };
 
-  ConcatIndexedSequence.prototype.__iterateUncached=function(fn, reverseIndices) {"use strict";
-    if (reverseIndices && !this.length) {
+  ConcatIndexedSequence.prototype.__iterateUncached=function(fn, reverse, flipIndices) {"use strict";
+    if (flipIndices && !this.length) {
       // In order to reverse indices, first we must create a cached
       // representation. This ensures we will have the correct total length
       // so index reversal works as expected.
@@ -900,48 +875,20 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
     }
     var shouldBreak;
     var iterations = 0;
-    var maxIndex = reverseIndices && this.length - 1;
-    for (var ii = 0; ii < this.$ConcatIndexedSequence_sequences.length; ii++) {
-      var sequence = this.$ConcatIndexedSequence_sequences[ii];
+    var maxIndex = flipIndices && this.length - 1;
+    var maxSequencesIndex = this.$ConcatIndexedSequence_sequences.length - 1;
+    for (var ii = 0; ii <= maxSequencesIndex; ii++) {
+      var sequence = this.$ConcatIndexedSequence_sequences[reverse ? maxSequencesIndex - ii : ii];
       if (!(sequence instanceof IndexedSequence)) {
         sequence = sequence.values();
       }
       iterations += sequence.__iterate(function(v, index, c)  {
         index += iterations;
-        if (fn(v, reverseIndices ? maxIndex - index : index, c) === false) {
+        if (fn(v, flipIndices ? maxIndex - index : index, c) === false) {
           shouldBreak = true;
           return false;
         }
-      });
-      if (shouldBreak) {
-        break;
-      }
-    }
-    return iterations;
-  };
-
-  ConcatIndexedSequence.prototype.__reverseIterateUncached=function(fn, maintainIndices) {"use strict";
-    if (maintainIndices && !this.length) {
-      // In order to maintain indices, first we must create a cached
-      // representation. This ensures we will have the correct total length
-      // so index reversal works as expected.
-      this.cacheResult();
-    }
-    var shouldBreak;
-    var iterations = 0;
-    var maxIndex = maintainIndices && this.length - 1;
-    for (var ii = 0; ii < this.$ConcatIndexedSequence_sequences.length; ii++) {
-      var sequence = this.$ConcatIndexedSequence_sequences[this.$ConcatIndexedSequence_sequences.length - 1 - ii];
-      if (!(sequence instanceof IndexedSequence)) {
-        sequence = sequence.values();
-      }
-      iterations += sequence.__reverseIterate(function(v, index, c)  {
-        index += iterations;
-        if (fn(v, maintainIndices ? maxIndex - index : index, c) === false) {
-          shouldBreak = true;
-          return false;
-        }
-      });
+      }, reverse); // intentionally do not pass flipIndices
       if (shouldBreak) {
         break;
       }
@@ -957,7 +904,7 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
       this.length = sequence.length;
     }
     this.name = 'indexed reverse';
-    this.__reversedIndices = !!(maintainIndices ^ sequence.__reversedIndices); // jshint ignore:line
+    this.__reversedIndices = !!(maintainIndices ^ sequence.__reversedIndices);
     this.$ReversedIndexedSequence_sequence = sequence;
     this.$ReversedIndexedSequence_maintainIndices = maintainIndices;
   }
@@ -969,12 +916,8 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
     return ____SuperProtoOfIndexedSequence.reverse.call(this,maintainIndices);
   };
 
-  ReversedIndexedSequence.prototype.__iterateUncached=function(fn, reverseIndices) {"use strict";
-    return this.$ReversedIndexedSequence_sequence.__reverseIterate(fn, reverseIndices ^ this.$ReversedIndexedSequence_maintainIndices);
-  };
-
-  ReversedIndexedSequence.prototype.__reverseIterateUncached=function(fn, maintainIndices) {"use strict";
-    return this.$ReversedIndexedSequence_sequence.__iterate(fn, maintainIndices ^ this.$ReversedIndexedSequence_maintainIndices);
+  ReversedIndexedSequence.prototype.__iterateUncached=function(fn, reverse, flipIndices) {"use strict";
+    return this.$ReversedIndexedSequence_sequence.__iterate(fn, !reverse, flipIndices ^ this.$ReversedIndexedSequence_maintainIndices);
   };
 
 
@@ -1001,33 +944,30 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
     return this;
   };
 
-  ArraySequence.prototype.__iterate=function(fn, reverseIndices) {"use strict";
+  ArraySequence.prototype.__iterate=function(fn, reverse, flipIndices) {"use strict";
     var array = this.$ArraySequence_array;
     var maxIndex = array.length - 1;
     var lastIndex = -1;
-    var didFinish = this.$ArraySequence_array.every(function(value, ii)  {
-      if (fn(value, reverseIndices ? maxIndex - ii : ii, array) === false) {
-        return false;
-      } else {
+    if (reverse) {
+      for (var ii = maxIndex; ii >= 0; ii--) {
+        if (array.hasOwnProperty(ii) &&
+            fn(array[ii], flipIndices ? ii : maxIndex - ii, array) === false) {
+          return lastIndex + 1;
+        }
         lastIndex = ii;
-        return true;
       }
-    });
-    return didFinish ? array.length : lastIndex + 1;
-  };
-
-  ArraySequence.prototype.__reverseIterate=function(fn, maintainIndices) {"use strict";
-    var array = this.$ArraySequence_array;
-    var maxIndex = array.length - 1;
-    var lastIndex = -1;
-    for (var ii = maxIndex; ii >= 0; ii--) {
-      if (array.hasOwnProperty(ii) &&
-          fn(array[ii], maintainIndices ? ii : maxIndex - ii, array) === false) {
-        return lastIndex + 1;
-      }
-      lastIndex = ii;
+      return array.length;
+    } else {
+      var didFinish = this.$ArraySequence_array.every(function(value, index)  {
+        if (fn(value, flipIndices ? maxIndex - index : index, array) === false) {
+          return false;
+        } else {
+          lastIndex = index;
+          return true;
+        }
+      });
+      return didFinish ? array.length : lastIndex + 1;
     }
-    return array.length;
   };
 
 
@@ -1060,27 +1000,26 @@ for(Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)){Ob
     return this;
   };
 
-  ObjectSequence.prototype.__iterate=function(fn) {"use strict";
+  ObjectSequence.prototype.__iterate=function(fn, reverse) {"use strict";
     var object = this.$ObjectSequence_object;
-    var iterations = 0;
-    for (var key in object) if (object.hasOwnProperty(key)) {
-      if (fn(object[key], key, object) === false) {
-        break;
+    if (reverse) {
+      var keys = Object.keys(object);
+      for (var ii = keys.length - 1; ii >= 0; ii--) {
+        if (fn(object[keys[ii]], keys[ii], object) === false) {
+          return keys.length - ii + 1;
+        }
       }
-      iterations++;
-    }
-    return iterations;
-  };
-
-  ObjectSequence.prototype.__reverseIterate=function(fn) {"use strict";
-    var object = this.$ObjectSequence_object;
-    var keys = Object.keys(object);
-    for (var ii = keys.length - 1; ii >= 0; ii--) {
-      if (fn(object[keys[ii]], keys[ii], object) === false) {
-        return keys.length - ii + 1;
+      return keys.length;
+    } else {
+      var iterations = 0;
+      for (var key in object) if (object.hasOwnProperty(key)) {
+        if (fn(object[key], key, object) === false) {
+          break;
+        }
+        iterations++;
       }
+      return iterations;
     }
-    return keys.length;
   };
 
 

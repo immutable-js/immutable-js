@@ -437,47 +437,35 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     );
   };
 
-  Vector.prototype.__iterate=function(fn, reverseIndices) {"use strict";
+  Vector.prototype.__iterate=function(fn, reverse, flipIndices) {"use strict";
     var vector = this;
     var lastIndex = 0;
+    var maxIndex = vector.length - 1;
+    flipIndices ^= reverse;
     var didComplete = this.__rawIterate(function(value, ii)  {
-      if (fn(value, reverseIndices ? vector.length - 1 - ii : ii, vector) === false) {
+      if (fn(value, flipIndices ? maxIndex - ii : ii, vector) === false) {
         return false;
       } else {
         lastIndex = ii;
         return true;
       }
-    });
-    return didComplete ? this.length : lastIndex + 1;
+    }, reverse);
+    return didComplete ? this.length : reverse ? this.length - lastIndex : lastIndex + 1;
   };
 
-  Vector.prototype.__reverseIterate=function(fn, maintainIndices) {"use strict";
-    var vector = this;
-    var lastIndex = 0;
-    var didComplete = this.__rawReverseIterate(function(value, ii)  {
-      if (fn(value, maintainIndices ? ii : vector.length - 1 - ii) === false) {
-        return false;
-      } else {
-        lastIndex = ii
-      }
-    });
-    return didComplete ? this.length : this.length - lastIndex;
-  };
-
-  Vector.prototype.__rawIterate=function(fn) {"use strict";
+  Vector.prototype.__rawIterate=function(fn, reverse) {"use strict";
     var tailOffset = getTailOffset(this.$Vector_size);
-    return (
-      this.$Vector_root.iterate(this.$Vector_level, -this.$Vector_origin, tailOffset - this.$Vector_origin, fn) &&
-      this.$Vector_tail.iterate(0, tailOffset - this.$Vector_origin, this.$Vector_size - this.$Vector_origin, fn)
-    );
-  };
-
-  Vector.prototype.__rawReverseIterate=function(fn, maintainIndices) {"use strict";
-    var tailOffset = getTailOffset(this.$Vector_size);
-    return (
-      this.$Vector_tail.reverseIterate(0, tailOffset - this.$Vector_origin, this.$Vector_size - this.$Vector_origin, fn) &&
-      this.$Vector_root.reverseIterate(this.$Vector_level, -this.$Vector_origin, tailOffset - this.$Vector_origin, fn)
-    );
+    if (reverse) {
+      return (
+        this.$Vector_tail.reverseIterate(0, tailOffset - this.$Vector_origin, this.$Vector_size - this.$Vector_origin, fn) &&
+        this.$Vector_root.reverseIterate(this.$Vector_level, -this.$Vector_origin, tailOffset - this.$Vector_origin, fn)
+      );
+    } else {
+      return (
+        this.$Vector_root.iterate(this.$Vector_level, -this.$Vector_origin, tailOffset - this.$Vector_origin, fn) &&
+        this.$Vector_tail.iterate(0, tailOffset - this.$Vector_origin, this.$Vector_size - this.$Vector_origin, fn)
+      );
+    }
   };
 
   // @pragma Private

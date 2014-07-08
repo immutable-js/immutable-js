@@ -437,47 +437,35 @@ class Vector extends IndexedSequence {
     );
   }
 
-  __iterate(fn, reverseIndices) {
+  __iterate(fn, reverse, flipIndices) {
     var vector = this;
     var lastIndex = 0;
+    var maxIndex = vector.length - 1;
+    flipIndices ^= reverse;
     var didComplete = this.__rawIterate((value, ii) => {
-      if (fn(value, reverseIndices ? vector.length - 1 - ii : ii, vector) === false) {
+      if (fn(value, flipIndices ? maxIndex - ii : ii, vector) === false) {
         return false;
       } else {
         lastIndex = ii;
         return true;
       }
-    });
-    return didComplete ? this.length : lastIndex + 1;
+    }, reverse);
+    return didComplete ? this.length : reverse ? this.length - lastIndex : lastIndex + 1;
   }
 
-  __reverseIterate(fn, maintainIndices) {
-    var vector = this;
-    var lastIndex = 0;
-    var didComplete = this.__rawReverseIterate((value, ii) => {
-      if (fn(value, maintainIndices ? ii : vector.length - 1 - ii, vector) === false) {
-        return false;
-      } else {
-        lastIndex = ii
-      }
-    });
-    return didComplete ? this.length : this.length - lastIndex;
-  }
-
-  __rawIterate(fn) {
+  __rawIterate(fn, reverse) {
     var tailOffset = getTailOffset(this._size);
-    return (
-      this._root.iterate(this._level, -this._origin, tailOffset - this._origin, fn) &&
-      this._tail.iterate(0, tailOffset - this._origin, this._size - this._origin, fn)
-    );
-  }
-
-  __rawReverseIterate(fn, maintainIndices) {
-    var tailOffset = getTailOffset(this._size);
-    return (
-      this._tail.reverseIterate(0, tailOffset - this._origin, this._size - this._origin, fn) &&
-      this._root.reverseIterate(this._level, -this._origin, tailOffset - this._origin, fn)
-    );
+    if (reverse) {
+      return (
+        this._tail.reverseIterate(0, tailOffset - this._origin, this._size - this._origin, fn) &&
+        this._root.reverseIterate(this._level, -this._origin, tailOffset - this._origin, fn)
+      );
+    } else {
+      return (
+        this._root.iterate(this._level, -this._origin, tailOffset - this._origin, fn) &&
+        this._tail.iterate(0, tailOffset - this._origin, this._size - this._origin, fn)
+      );
+    }
   }
 
   // @pragma Private

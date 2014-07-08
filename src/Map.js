@@ -182,12 +182,8 @@ class Map extends Sequence {
     return other.every((v, k) => is(v, self.get(k, __SENTINEL)));
   }
 
-  __iterate(fn) {
-    return this._root ? this._root.iterate(this, fn) : 0;
-  }
-
-  __reverseIterate(fn) {
-    return this._root ? this._root.reverseIterate(this, fn): 0;
+  __iterate(fn, reverse) {
+    return this._root ? this._root.iterate(this, fn, reverse) : 0;
   }
 
   // @pragma Private
@@ -323,30 +319,19 @@ class BitmapIndexedNode {
     return new BitmapIndexedNode(ownerID, this.bitmap, this.keys.slice(), this.values.slice());
   }
 
-  iterate(map, fn) {
-    for (var ii = 0; ii < this.values.length; ii++) {
-      var key = this.keys[ii];
-      var valueOrNode = this.values[ii];
+  iterate(map, fn, reverse) {
+    var values = this.values;
+    var keys = this.keys;
+    var maxIndex = values.length;
+    for (var ii = 0; ii <= maxIndex; ii++) {
+      var index = reverse ? maxIndex - ii : ii;
+      var key = keys[index];
+      var valueOrNode = values[index];
       if (key != null) {
         if (fn(valueOrNode, key, map) === false) {
           return false;
         }
-      } else if (valueOrNode && !valueOrNode.iterate(map, fn)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  reverseIterate(map, fn) {
-    for (var ii = this.values.length - 1; ii >= 0; ii--) {
-      var key = this.keys[ii];
-      var valueOrNode = this.values[ii];
-      if (key != null) {
-        if (fn(valueOrNode, key, map) === false) {
-          return false;
-        }
-      } else if (valueOrNode && !valueOrNode.iterate(map, fn)) {
+      } else if (valueOrNode && !valueOrNode.iterate(map, fn, reverse)) {
         return false;
       }
     }
@@ -411,18 +396,13 @@ class HashCollisionNode {
     return new HashCollisionNode(ownerID, this.collisionHash, this.keys.slice(), this.values.slice());
   }
 
-  iterate(map, fn) {
-    for (var ii = 0; ii < this.values.length; ii++) {
-      if (fn(this.values[ii], this.keys[ii], map) === false) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  reverseIterate(map, fn) {
-    for (var ii = this.values.length - 1; ii >= 0; ii--) {
-      if (fn(this.values[ii], this.keys[ii], map) === false) {
+  iterate(map, fn, reverse) {
+    var values = this.values;
+    var keys = this.keys;
+    var maxIndex = values.length - 1;
+    for (var ii = 0; ii <= maxIndex; ii++) {
+      var index = reverse ? maxIndex - ii : ii;
+      if (fn(values[index], keys[index], map) === false) {
         return false;
       }
     }
