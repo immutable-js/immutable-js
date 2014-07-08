@@ -69,23 +69,18 @@ describe('ArraySequence', function() {
 
     var ii = i;
     ii = ii.reverse();
-    expect(ii.__reversedIndices).toBe(false);
     expect(ii.toArray()).toEqual([,,5,,4,,3,,2,,1,,,,]);
     expect(ii.entries().toArray()).toEqual([[2,5],[4,4],[6,3],[8,2],[10,1]]);
     ii = ii.reverse(true);
-    expect(ii.__reversedIndices).toBe(true);
     expect(ii.toArray()).toEqual([,,5,,4,,3,,2,,1,,,,]);
     expect(ii.entries().toArray()).toEqual([[10,1],[8,2],[6,3],[4,4],[2,5]]);
     ii = ii.slice(6, null, true);
-    expect(ii.__reversedIndices).toBe(true);
     expect(ii.toArray()).toEqual([,,5,,4,,3,,,,,,,,]);
     expect(ii.entries().toArray()).toEqual([[6,3],[4,4],[2,5]]);
     ii = ii.reverse();
-    expect(ii.__reversedIndices).toBe(true);
     expect(ii.toArray()).toEqual([,,,,,,3,,4,,5,,,,]);
     expect(ii.entries().toArray()).toEqual([[10,5],[8,4],[6,3]]);
     ii = ii.reverse(true);
-    expect(ii.__reversedIndices).toBe(false);
     expect(ii.toArray()).toEqual([,,,,,,3,,4,,5,,,,]);
     expect(ii.entries().toArray()).toEqual([[6,3],[8,4],[10,5]]);
 
