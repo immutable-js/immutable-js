@@ -312,58 +312,6 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     return this.isTransient() ? newVect : newVect.asPersistent();
   };
 
-  Vector.prototype.concat=function() {"use strict";
-    var vector = this.asTransient();
-    for (var ii = 0; ii < arguments.length; ii++) {
-      var value = arguments[ii];
-      if (value && vector.length === 0 && !this.isTransient() && value instanceof Vector) {
-        vector = value.asTransient();
-      } else if (value && typeof value.forEach === 'function') {
-        var offset = vector.length;
-        if (value.length) {
-          vector.$Vector_size += value.length;
-          vector.length += value.length;
-        }
-        if (typeof value.values === 'function' && !(value instanceof IndexedSequence)) {
-          value = value.values();
-        }
-        value.forEach(function(value, index)  {
-          vector = vector.set((typeof index === 'number' ? index : 0) + offset, value);
-        });
-      } else {
-        vector.push(value);
-      }
-    }
-    return this.isTransient() ? vector : vector.asPersistent();
-  };
-
-  Vector.prototype.slice=function(begin, end) {"use strict";
-    var newOrigin = begin < 0 ? Math.max(this.$Vector_origin, this.$Vector_size + begin) : Math.min(this.$Vector_size, this.$Vector_origin + begin);
-    var newSize = end == null ? this.$Vector_size : end < 0 ? Math.max(this.$Vector_origin, this.$Vector_size + end) : Math.min(this.$Vector_size, this.$Vector_origin + end);
-    if (newOrigin >= newSize) {
-      return this.clear();
-    }
-    var newTail = newSize === this.$Vector_size ? this.$Vector_tail : (this.$Vector_nodeFor(newSize) || new VNode(this.$Vector_ownerID, []));
-    // TODO: should also calculate a new root and garbage collect?
-    // This would be a tradeoff between memory footprint and perf.
-    // I still expect better performance than Array.slice(), so it's probably worth freeing the memory.
-    if (this.$Vector_ownerID) {
-      this.length = newSize - newOrigin;
-      this.$Vector_origin = newOrigin;
-      this.$Vector_size = newSize;
-      this.$Vector_tail = newTail;
-      return this;
-    }
-    return Vector.$Vector_make(newOrigin, newSize, this.$Vector_level, this.$Vector_root, newTail);
-  };
-
-  Vector.prototype.splice=function(index, removeNum)  {"use strict";
-    return this.slice(0, index).concat(
-      arguments.length > 2 ? Vector.fromArray(Array.prototype.slice.call(arguments, 2)) : null,
-      this.slice(index + removeNum)
-    );
-  };
-
   Vector.prototype.setLength=function(length) {"use strict";
     if (length === this.length) {
       return this;

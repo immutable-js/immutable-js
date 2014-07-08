@@ -312,58 +312,6 @@ class Vector extends IndexedSequence {
     return this.isTransient() ? newVect : newVect.asPersistent();
   }
 
-  concat(/*...values*/) {
-    var vector = this.asTransient();
-    for (var ii = 0; ii < arguments.length; ii++) {
-      var value = arguments[ii];
-      if (value && vector.length === 0 && !this.isTransient() && value instanceof Vector) {
-        vector = value.asTransient();
-      } else if (value && typeof value.forEach === 'function') {
-        var offset = vector.length;
-        if (value.length) {
-          vector._size += value.length;
-          vector.length += value.length;
-        }
-        if (typeof value.values === 'function' && !(value instanceof IndexedSequence)) {
-          value = value.values();
-        }
-        value.forEach((value, index) => {
-          vector = vector.set((typeof index === 'number' ? index : 0) + offset, value);
-        });
-      } else {
-        vector.push(value);
-      }
-    }
-    return this.isTransient() ? vector : vector.asPersistent();
-  }
-
-  slice(begin, end) {
-    var newOrigin = begin < 0 ? Math.max(this._origin, this._size + begin) : Math.min(this._size, this._origin + begin);
-    var newSize = end == null ? this._size : end < 0 ? Math.max(this._origin, this._size + end) : Math.min(this._size, this._origin + end);
-    if (newOrigin >= newSize) {
-      return this.clear();
-    }
-    var newTail = newSize === this._size ? this._tail : (this._nodeFor(newSize) || new VNode(this._ownerID, []));
-    // TODO: should also calculate a new root and garbage collect?
-    // This would be a tradeoff between memory footprint and perf.
-    // I still expect better performance than Array.slice(), so it's probably worth freeing the memory.
-    if (this._ownerID) {
-      this.length = newSize - newOrigin;
-      this._origin = newOrigin;
-      this._size = newSize;
-      this._tail = newTail;
-      return this;
-    }
-    return Vector._make(newOrigin, newSize, this._level, this._root, newTail);
-  }
-
-  splice(index, removeNum/*, ...values*/) {
-    return this.slice(0, index).concat(
-      arguments.length > 2 ? Vector.fromArray(Array.prototype.slice.call(arguments, 2)) : null,
-      this.slice(index + removeNum)
-    );
-  }
-
   setLength(length) {
     if (length === this.length) {
       return this;

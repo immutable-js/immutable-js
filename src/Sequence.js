@@ -7,7 +7,7 @@ class Sequence {
       if (Array.isArray(value)) {
         return new ArraySequence(value);
       }
-      if (typeof value === 'object') {
+      if (value && typeof value === 'object') {
         return new ObjectSequence(value);
       }
     }
@@ -263,18 +263,28 @@ class Sequence {
     return filterFactory(this, predicate, context, true, false);
   }
 
-  slice(start, end) {
-    start = resolveStart(start, this.length);
+  slice(begin, end) {
+    if (wholeSlice(begin, end, this.length)) {
+      return this;
+    }
+    begin = resolveBegin(begin, this.length);
     end = resolveEnd(end, this.length);
-    // start or end will be NaN if they were provided as negative numbers and
+    // begin or end will be NaN if they were provided as negative numbers and
     // this sequence's length is unknown. In that case, convert it to an
     // IndexedSequence by getting entries() and convert back to a sequence with
     // fromEntries(). IndexedSequence.prototype.slice will appropriately handle
     // this case.
-    if (isNaN(start) || isNaN(end)) {
-      return this.entries().slice(start, end).fromEntries();
+    if (isNaN(begin) || isNaN(end)) {
+      return this.entries().slice(begin, end).fromEntries();
     }
-    return this.skip(start).take(end - start);
+    return this.skip(begin).take(end - begin);
+  }
+
+  splice(index, removeNum, ...values) {
+    if (removeNum === 0 && values.length === 0) {
+      return this;
+    }
+    return this.slice(0, index).concat(values, this.slice(index + removeNum));
   }
 
   take(amount) {
@@ -485,8 +495,11 @@ class IndexedSequence extends Sequence {
     return this.reverse(true).findIndex(predicate, context);
   }
 
-  slice(start, end, maintainIndices) {
-    return new SliceIndexedSequence(this, start, end, maintainIndices);
+  slice(begin, end, maintainIndices) {
+    if (wholeSlice(begin, end, this.length)) {
+      return this;
+    }
+    return new SliceIndexedSequence(this, begin, end, maintainIndices);
   }
 
   // Overrides to get length correct.
@@ -588,14 +601,14 @@ class ValuesSequence extends IndexedSequence {
 
 
 class SliceIndexedSequence extends IndexedSequence {
-  constructor(sequence, start, end, maintainIndices) {
+  constructor(sequence, begin, end, maintainIndices) {
     this.__parentSequence = sequence._parentSequence || sequence;
     this.__reversedIndices = sequence.__reversedIndices;
     this._sequence = sequence;
-    this._start = start;
+    this._begin = begin;
     this._end = end;
     this._maintainIndices = maintainIndices;
-    this.length = sequence.length && (maintainIndices ? sequence.length : resolveEnd(end, sequence.length) - resolveStart(start, sequence.length));
+    this.length = sequence.length && (maintainIndices ? sequence.length : resolveEnd(end, sequence.length) - resolveBegin(begin, sequence.length));
   }
 
   __iterateUncached(fn, reverse, flipIndices) {
@@ -605,22 +618,22 @@ class SliceIndexedSequence extends IndexedSequence {
     }
     var reversedIndices = this.__reversedIndices ^ flipIndices;
     var sequence = this._sequence;
-    if ((start < 0 || end < 0 || reversedIndices) && sequence.length == null) {
+    if ((begin < 0 || end < 0 || reversedIndices) && sequence.length == null) {
       sequence.cacheResult();
     }
-    var start = resolveStart(this._start, sequence.length);
+    var begin = resolveBegin(this._begin, sequence.length);
     var end = resolveEnd(this._end, sequence.length);
     var maintainIndices = this._maintainIndices;
     if (reversedIndices) {
       var newStart = sequence.length - end;
-      end = sequence.length - start;
-      start = newStart;
+      end = sequence.length - begin;
+      begin = newStart;
     }
     var length = sequence.__iterate((v, ii, c) =>
-      !(ii >= start && ii < end) || fn(v, maintainIndices ? ii : ii - start, c) !== false,
+      !(ii >= begin && ii < end) || fn(v, maintainIndices ? ii : ii - begin, c) !== false,
       reverse, flipIndices
     );
-    return this.length || (maintainIndices ? length : Math.max(0, length - start));
+    return this.length || (maintainIndices ? length : Math.max(0, length - begin));
   }
 }
 
@@ -797,8 +810,13 @@ class ObjectSequence extends Sequence {
   }
 }
 
-function resolveStart(start, length) {
-  return start < 0 ? Math.max(0, length + start) : length ? Math.min(length, start) : start;
+function wholeSlice(begin, end, length) {
+  return (begin <= 0 || (length != null && begin <= -length)) &&
+    (end == null || (length != null && end >= length));
+}
+
+function resolveBegin(begin, length) {
+  return begin < 0 ? Math.max(0, length + begin) : length ? Math.min(length, begin) : begin;
 }
 
 function resolveEnd(end, length) {

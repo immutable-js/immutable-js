@@ -136,6 +136,8 @@ export interface Sequence<K, V, C> {
 
   slice(start: number, end?: number): Sequence<K, V, C>;
 
+  splice(index: number, removeNum: number, ...values: Array<any>): Sequence<K, V, C>;
+
   take(amount: number): Sequence<K, V, C>;
 
   takeLast(amount: number): Sequence<K, V, C>;
@@ -336,6 +338,11 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
    * @override
    */
   asPersistent(): IndexedSequence<V, C>;
+
+  /**
+   * @override
+   */
+  splice(index: number, removeNum: number, ...values: Array<V>): IndexedSequence<V, C>;
 
   /**
    * @override
