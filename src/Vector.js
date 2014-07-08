@@ -296,7 +296,7 @@ class Vector extends IndexedSequence {
   }
 
   shift() {
-    return this.slice(1);
+    return this.setRange(1);
   }
 
   // @pragma Composition
@@ -312,12 +312,35 @@ class Vector extends IndexedSequence {
     return this.isTransient() ? newVect : newVect.asPersistent();
   }
 
+  // TODO: allow begin+end to be larger than current length, and retire setLength()?
+  setRange(begin, end) {
+    var newOrigin = begin < 0 ? Math.max(this._origin, this._size + begin) : Math.min(this._size, this._origin + begin);
+    var newSize = end == null ? this._size : end < 0 ? Math.max(this._origin, this._size + end) : Math.min(this._size, this._origin + end);
+    if (newOrigin >= newSize) {
+      return this.clear();
+    }
+    var newTail = newSize === this._size ? this._tail : (this._nodeFor(newSize) || new VNode(this._ownerID, []));
+    // TODO: should also calculate a new root and garbage collect?
+    // This would be a tradeoff between memory footprint and perf.
+    // I still expect better performance than Array.slice(), so it's probably worth freeing the memory.
+    // We actually *HAVE* to garbage collect, because if a subsequent setRange() is larger,
+    // it could include incorrect values.
+    if (this._ownerID) {
+      this.length = newSize - newOrigin;
+      this._origin = newOrigin;
+      this._size = newSize;
+      this._tail = newTail;
+      return this;
+    }
+    return Vector._make(newOrigin, newSize, this._level, this._root, newTail);
+  }
+
   setLength(length) {
     if (length === this.length) {
       return this;
     }
     if (length < this.length) {
-      return this.slice(0, length);
+      return this.setRange(0, length);
     }
     if (this.isTransient()) {
       this.length = length;
