@@ -920,7 +920,34 @@ class ConcatIndexedSequence extends IndexedSequence {
     return iterations;
   }
 
-  // TODO: __reverseIterateUncached should be entirely possible here.
+  __reverseIterateUncached(fn, maintainIndices) {
+    if (maintainIndices && !this.length) {
+      // In order to maintain indices, first we must create a cached
+      // representation. This ensures we will have the correct total length
+      // so index reversal works as expected.
+      this.cacheResult();
+    }
+    var shouldBreak;
+    var iterations = 0;
+    var maxIndex = maintainIndices && this.length - 1;
+    for (var ii = 0; ii < this._sequences.length; ii++) {
+      var sequence = this._sequences[this._sequences.length - 1 - ii];
+      if (!(sequence instanceof IndexedSequence)) {
+        sequence = sequence.values();
+      }
+      iterations += sequence.__reverseIterate((v, index, c) => {
+        index += iterations;
+        if (fn(v, maintainIndices ? maxIndex - index : index, c) === false) {
+          shouldBreak = true;
+          return false;
+        }
+      });
+      if (shouldBreak) {
+        break;
+      }
+    }
+    return iterations;
+  }
 }
 
 
