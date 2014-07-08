@@ -118,7 +118,7 @@ class Sequence {
 
   concat(...values) {
     var sequences = [this].concat(values).map(value => Sequence(value));
-    var concatSequence = this.__makeUberSequence('concat',true, (sequence, fn, reverse) => {
+    var concatSequence = this.__makeUberSequence((sequence, fn, reverse) => {
       var shouldBreak;
       var iterations = 0;
       var lastIndex = sequences.length - 1;
@@ -143,7 +143,7 @@ class Sequence {
   }
 
   reverse(maintainIndices) {
-    var reversedSequence = this.__makeUberSequence('reverse',true,
+    var reversedSequence = this.__makeUberSequence(
       (sequence, fn, reverse) => sequence.__iterate(fn, !reverse)
     );
     reversedSequence.length = this.length;
@@ -240,22 +240,22 @@ class Sequence {
 
   flip() {
     // flip() always returns a regular Sequence, even in subclasses.
-    var flippedSequence = Sequence.prototype.__makeSequence.call(this, 'flip',true, flipFactory);
+    var flippedSequence = Sequence.prototype.__makeSequence.call(this, flipFactory);
     flippedSequence.length = this.length;
     flippedSequence.flip = () => this;
     return flippedSequence;
   }
 
   map(mapper, context) {
-    var mappedSequence = this.__makeSequence('map',true, fn => (v, k, c) =>
-      fn(mapper.call(context, v, k, c), k, c) !== false
+    var mappedSequence = this.__makeSequence(
+      fn => (v, k, c) => fn(mapper.call(context, v, k, c), k, c) !== false
     );
     mappedSequence.length = this.length;
     return mappedSequence;
   }
 
   filter(predicate, context) {
-    return this.__makeUberSequence('filter',true, (sequence, fn, reverse) => {
+    return this.__makeUberSequence((sequence, fn, reverse) => {
       var iterations = 0;
       sequence.__iterate((v, k, c) => {
         if (predicate.call(context, v, k, c)) {
@@ -401,30 +401,23 @@ class Sequence {
     return this.length;
   }
 
-  __makeRawSequence(name) {
+  __makeRawSequence() {
     var newSequence = Object.create(Sequence.prototype);
-    newSequence.name = name;
     newSequence.__parentSequence = this._parentSequence || this;
     return newSequence;
   }
 
-  __makeUberSequence(name, withCommutativeReverse, factory) {
+  __makeUberSequence(factory) {
     var sequence = this;
-    var newSequence = this.__makeRawSequence(name);
+    var newSequence = this.__makeRawSequence();
     newSequence.__iterateUncached = (fn, reverse) => factory(sequence, fn, reverse);
-    if (!withCommutativeReverse) {
-      throw new Error('fix uberseq');
-    }
     return newSequence;
   }
 
-  __makeSequence(name, withCommutativeReverse, factory) {
+  __makeSequence(factory) {
     var sequence = this;
-    var newSequence = this.__makeRawSequence(name);
+    var newSequence = this.__makeRawSequence();
     newSequence.__iterateUncached = (fn, reverse) => sequence.__iterate(factory(fn), reverse);
-    if (!withCommutativeReverse) {
-      throw new Error('fix seq');
-    }
     return newSequence;
   }
 }
@@ -552,8 +545,8 @@ class IndexedSequence extends Sequence {
   }
 
   fromEntries() {
-    var sequence = this.__makeSequence('fromEntries',true, fn => (e, _, c) =>
-      fn(e[1], e[0], c) !== false
+    var sequence = this.__makeSequence(
+      fn => (e, _, c) => fn(e[1], e[0], c) !== false
     );
     sequence.length = this.length;
     return sequence;
@@ -570,7 +563,7 @@ class IndexedSequence extends Sequence {
     //return maintainIndices ? seq : seq.values();
 
 
-    var seq = this.__makeUberSequence('filter', true, (sequence, fn, reverse, flipIndices) => {
+    var seq = this.__makeUberSequence((sequence, fn, reverse, flipIndices) => {
       var iterations = 0;
       var length = sequence.__iterate((v, ii, c) => {
         if (predicate.call(context, v, ii, c)) {
@@ -742,32 +735,24 @@ class IndexedSequence extends Sequence {
 
   // abstract __iterate(fn, reverse, flipIndices)
 
-  __makeRawSequence(name) {
-    if (!name) throw new Error('noname');
+  __makeRawSequence() {
     var newSequence = Object.create(IndexedSequence.prototype);
-    newSequence.name = 'indexed ' + name;
     newSequence.__reversedIndices = !!this.__reversedIndices;
     newSequence.__parentSequence = this._parentSequence || this;
     return newSequence;
   }
 
-  __makeUberSequence(name, withCommutativeReverse, factory) {
+  __makeUberSequence(factory) {
     var sequence = this;
-    var newSequence = this.__makeRawSequence(name);
+    var newSequence = this.__makeRawSequence();
     newSequence.__iterateUncached = (fn, reverse, flipIndices) => factory(sequence, fn, reverse, flipIndices);
-    if (!withCommutativeReverse) {
-      throw new Error('uber seq');
-    }
     return newSequence;
   }
 
-  __makeSequence(name, withCommutativeReverse, factory) {
+  __makeSequence(factory) {
     var sequence = this;
-    var newSequence = this.__makeRawSequence(name);
+    var newSequence = this.__makeRawSequence();
     newSequence.__iterateUncached = (fn, reverse, flipIndices) => sequence.__iterate(factory(fn), reverse, flipIndices);
-    if (!withCommutativeReverse) {
-      throw new Error('seq');
-    }
     return newSequence;
   }
 }
@@ -782,7 +767,6 @@ IndexedSequence.prototype.__toStringMapper = quoteString;
  */
 class ValuesSequence extends IndexedSequence {
   constructor(sequence, length) {
-    this.name = 'indexed concat';
     this.__parentSequence = sequence._parentSequence || sequence;
     this._sequence = sequence;
     this.length = length;
@@ -809,7 +793,6 @@ class ValuesSequence extends IndexedSequence {
 
 class SliceIndexedSequence extends IndexedSequence {
   constructor(sequence, start, end, maintainIndices) {
-    this.name = 'indexed slice';
     this.__parentSequence = sequence._parentSequence || sequence;
     this.__reversedIndices = sequence.__reversedIndices;
     this._sequence = sequence;
@@ -848,7 +831,6 @@ class SliceIndexedSequence extends IndexedSequence {
 
 class ConcatIndexedSequence extends IndexedSequence {
   constructor(sequence, values) {
-    this.name = 'indexed concat';
     this._sequences = [sequence].concat(values).map(value => Sequence(value));
     this.length = this._sequences.reduce(
       (sum, seq) => sum != null && seq.length != null ? sum + seq.length : undefined, 0
@@ -902,7 +884,6 @@ class ReversedIndexedSequence extends IndexedSequence {
     if (sequence.length) {
       this.length = sequence.length;
     }
-    this.name = 'indexed reverse';
     this.__reversedIndices = !!(maintainIndices ^ sequence.__reversedIndices);
     this._sequence = sequence;
     this._maintainIndices = maintainIndices;
@@ -923,7 +904,6 @@ class ReversedIndexedSequence extends IndexedSequence {
 
 class ArraySequence extends IndexedSequence {
   constructor(array, isImmutable) {
-    this.name = 'array';
     this.length = array.length;
     this._array = array;
     this._immutable = !!isImmutable;
@@ -973,7 +953,6 @@ class ArraySequence extends IndexedSequence {
 
 class ObjectSequence extends Sequence {
   constructor(object, isImmutable) {
-    this.name = 'object';
     this._object = object;
     this._immutable = !!isImmutable;
   }

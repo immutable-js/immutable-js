@@ -118,7 +118,7 @@
 
   Sequence.prototype.concat=function() {"use strict";var values=Array.prototype.slice.call(arguments,0);
     var sequences = [this].concat(values).map(function(value)  {return Sequence(value);});
-    var concatSequence = this.__makeUberSequence('concat',true, function(sequence, fn, reverse)  {
+    var concatSequence = this.__makeUberSequence(function(sequence, fn, reverse)  {
       var shouldBreak;
       var iterations = 0;
       var lastIndex = sequences.length - 1;
@@ -143,7 +143,7 @@
   };
 
   Sequence.prototype.reverse=function(maintainIndices) {"use strict";
-    var reversedSequence = this.__makeUberSequence('reverse',true,
+    var reversedSequence = this.__makeUberSequence(
       function(sequence, fn, reverse)  {return sequence.__iterate(fn, !reverse);}
     );
     reversedSequence.length = this.length;
@@ -240,22 +240,22 @@
 
   Sequence.prototype.flip=function() {"use strict";
     // flip() always returns a regular Sequence, even in subclasses.
-    var flippedSequence = Sequence.prototype.__makeSequence.call(this, 'flip',true, flipFactory);
+    var flippedSequence = Sequence.prototype.__makeSequence.call(this, flipFactory);
     flippedSequence.length = this.length;
     flippedSequence.flip = function()  {return this;}.bind(this);
     return flippedSequence;
   };
 
   Sequence.prototype.map=function(mapper, context) {"use strict";
-    var mappedSequence = this.__makeSequence('map',true, function(fn)  {return function(v, k, c) 
-      {return fn(mapper.call(context, v, k, c), k, c) !== false;};}
+    var mappedSequence = this.__makeSequence(
+      function(fn)  {return function(v, k, c)  {return fn(mapper.call(context, v, k, c), k, c) !== false;};}
     );
     mappedSequence.length = this.length;
     return mappedSequence;
   };
 
   Sequence.prototype.filter=function(predicate, context) {"use strict";
-    return this.__makeUberSequence('filter',true, function(sequence, fn, reverse)  {
+    return this.__makeUberSequence(function(sequence, fn, reverse)  {
       var iterations = 0;
       sequence.__iterate(function(v, k, c)  {
         if (predicate.call(context, v, k, c)) {
@@ -401,30 +401,23 @@
     return this.length;
   };
 
-  Sequence.prototype.__makeRawSequence=function(name) {"use strict";
+  Sequence.prototype.__makeRawSequence=function() {"use strict";
     var newSequence = Object.create(Sequence.prototype);
-    newSequence.name = name;
     newSequence.__parentSequence = this.$Sequence_parentSequence || this;
     return newSequence;
   };
 
-  Sequence.prototype.__makeUberSequence=function(name, withCommutativeReverse, factory) {"use strict";
+  Sequence.prototype.__makeUberSequence=function(factory) {"use strict";
     var sequence = this;
-    var newSequence = this.__makeRawSequence(name);
+    var newSequence = this.__makeRawSequence();
     newSequence.__iterateUncached = function(fn, reverse)  {return factory(sequence, fn, reverse);};
-    if (!withCommutativeReverse) {
-      throw new Error('fix uberseq');
-    }
     return newSequence;
   };
 
-  Sequence.prototype.__makeSequence=function(name, withCommutativeReverse, factory) {"use strict";
+  Sequence.prototype.__makeSequence=function(factory) {"use strict";
     var sequence = this;
-    var newSequence = this.__makeRawSequence(name);
+    var newSequence = this.__makeRawSequence();
     newSequence.__iterateUncached = function(fn, reverse)  {return sequence.__iterate(factory(fn), reverse);};
-    if (!withCommutativeReverse) {
-      throw new Error('fix seq');
-    }
     return newSequence;
   };
 
@@ -552,8 +545,8 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   };
 
   IndexedSequence.prototype.fromEntries=function() {"use strict";
-    var sequence = this.__makeSequence('fromEntries',true, function(fn)  {return function(e, _, c) 
-      {return fn(e[1], e[0], c) !== false;};}
+    var sequence = this.__makeSequence(
+      function(fn)  {return function(e, _, c)  {return fn(e[1], e[0], c) !== false;};}
     );
     sequence.length = this.length;
     return sequence;
@@ -570,7 +563,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     //return maintainIndices ? seq : seq.values();
 
 
-    var seq = this.__makeUberSequence('filter', true, function(sequence, fn, reverse, flipIndices)  {
+    var seq = this.__makeUberSequence(function(sequence, fn, reverse, flipIndices)  {
       var iterations = 0;
       var length = sequence.__iterate(function(v, ii, c)  {
         if (predicate.call(context, v, ii, c)) {
@@ -742,32 +735,24 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
   // abstract __iterate(fn, reverse, flipIndices)
 
-  IndexedSequence.prototype.__makeRawSequence=function(name) {"use strict";
-    if (!name) throw new Error('noname');
+  IndexedSequence.prototype.__makeRawSequence=function() {"use strict";
     var newSequence = Object.create(IndexedSequence.prototype);
-    newSequence.name = 'indexed ' + name;
     newSequence.__reversedIndices = !!this.__reversedIndices;
     newSequence.__parentSequence = this.$IndexedSequence_parentSequence || this;
     return newSequence;
   };
 
-  IndexedSequence.prototype.__makeUberSequence=function(name, withCommutativeReverse, factory) {"use strict";
+  IndexedSequence.prototype.__makeUberSequence=function(factory) {"use strict";
     var sequence = this;
-    var newSequence = this.__makeRawSequence(name);
+    var newSequence = this.__makeRawSequence();
     newSequence.__iterateUncached = function(fn, reverse, flipIndices)  {return factory(sequence, fn, reverse, flipIndices);};
-    if (!withCommutativeReverse) {
-      throw new Error('uber seq');
-    }
     return newSequence;
   };
 
-  IndexedSequence.prototype.__makeSequence=function(name, withCommutativeReverse, factory) {"use strict";
+  IndexedSequence.prototype.__makeSequence=function(factory) {"use strict";
     var sequence = this;
-    var newSequence = this.__makeRawSequence(name);
+    var newSequence = this.__makeRawSequence();
     newSequence.__iterateUncached = function(fn, reverse, flipIndices)  {return sequence.__iterate(factory(fn), reverse, flipIndices);};
-    if (!withCommutativeReverse) {
-      throw new Error('seq');
-    }
     return newSequence;
   };
 
@@ -782,7 +767,6 @@ IndexedSequence.prototype.__toStringMapper = quoteString;
  */
 for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty(IndexedSequence____Key)){ValuesSequence[IndexedSequence____Key]=IndexedSequence[IndexedSequence____Key];}}var ____SuperProtoOfIndexedSequence=IndexedSequence===null?null:IndexedSequence.prototype;ValuesSequence.prototype=Object.create(____SuperProtoOfIndexedSequence);ValuesSequence.prototype.constructor=ValuesSequence;ValuesSequence.__superConstructor__=IndexedSequence;
   function ValuesSequence(sequence, length) {"use strict";
-    this.name = 'indexed concat';
     this.__parentSequence = sequence.$ValuesSequence_parentSequence || sequence;
     this.$ValuesSequence_sequence = sequence;
     this.length = length;
@@ -809,7 +793,6 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
 for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty(IndexedSequence____Key)){SliceIndexedSequence[IndexedSequence____Key]=IndexedSequence[IndexedSequence____Key];}}SliceIndexedSequence.prototype=Object.create(____SuperProtoOfIndexedSequence);SliceIndexedSequence.prototype.constructor=SliceIndexedSequence;SliceIndexedSequence.__superConstructor__=IndexedSequence;
   function SliceIndexedSequence(sequence, start, end, maintainIndices) {"use strict";
-    this.name = 'indexed slice';
     this.__parentSequence = sequence.$SliceIndexedSequence_parentSequence || sequence;
     this.__reversedIndices = sequence.__reversedIndices;
     this.$SliceIndexedSequence_sequence = sequence;
@@ -837,10 +820,9 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
       end = sequence.length - start;
       start = newStart;
     }
-    var length = sequence.__iterate(
-      function(v, ii, c)  {return !(ii >= start && ii < end) || fn(v, maintainIndices ? ii : ii - start, c) !== false;},
-      reverse,
-      flipIndices
+    var length = sequence.__iterate(function(v, ii, c) 
+      {return !(ii >= start && ii < end) || fn(v, maintainIndices ? ii : ii - start, c) !== false;},
+      reverse, flipIndices
     );
     return this.length || (maintainIndices ? length : Math.max(0, length - start));
   };
@@ -849,7 +831,6 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
 
 for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty(IndexedSequence____Key)){ConcatIndexedSequence[IndexedSequence____Key]=IndexedSequence[IndexedSequence____Key];}}ConcatIndexedSequence.prototype=Object.create(____SuperProtoOfIndexedSequence);ConcatIndexedSequence.prototype.constructor=ConcatIndexedSequence;ConcatIndexedSequence.__superConstructor__=IndexedSequence;
   function ConcatIndexedSequence(sequence, values) {"use strict";
-    this.name = 'indexed concat';
     this.$ConcatIndexedSequence_sequences = [sequence].concat(values).map(function(value)  {return Sequence(value);});
     this.length = this.$ConcatIndexedSequence_sequences.reduce(
       function(sum, seq)  {return sum != null && seq.length != null ? sum + seq.length : undefined;}, 0
@@ -903,7 +884,6 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
     if (sequence.length) {
       this.length = sequence.length;
     }
-    this.name = 'indexed reverse';
     this.__reversedIndices = !!(maintainIndices ^ sequence.__reversedIndices);
     this.$ReversedIndexedSequence_sequence = sequence;
     this.$ReversedIndexedSequence_maintainIndices = maintainIndices;
@@ -924,7 +904,6 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
 
 for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty(IndexedSequence____Key)){ArraySequence[IndexedSequence____Key]=IndexedSequence[IndexedSequence____Key];}}ArraySequence.prototype=Object.create(____SuperProtoOfIndexedSequence);ArraySequence.prototype.constructor=ArraySequence;ArraySequence.__superConstructor__=IndexedSequence;
   function ArraySequence(array, isImmutable) {"use strict";
-    this.name = 'array';
     this.length = array.length;
     this.$ArraySequence_array = array;
     this.$ArraySequence_immutable = !!isImmutable;
@@ -974,7 +953,6 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
 
 for(Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)){ObjectSequence[Sequence____Key]=Sequence[Sequence____Key];}}ObjectSequence.prototype=Object.create(____SuperProtoOfSequence);ObjectSequence.prototype.constructor=ObjectSequence;ObjectSequence.__superConstructor__=Sequence;
   function ObjectSequence(object, isImmutable) {"use strict";
-    this.name = 'object';
     this.$ObjectSequence_object = object;
     this.$ObjectSequence_immutable = !!isImmutable;
   }
