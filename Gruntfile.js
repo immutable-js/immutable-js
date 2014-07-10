@@ -64,7 +64,7 @@ module.exports = function(grunt) {
     },
     jest: {
       options: {
-        testPathPattern: /.*/
+        testPathPattern: /Vector/
       }
     }
   });
