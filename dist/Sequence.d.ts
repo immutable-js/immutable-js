@@ -27,9 +27,9 @@ export interface Sequence<K, V, C> {
 
   toString(): string;
 
-  isTransient(): boolean;
+  isMutable(): boolean;
 
-  asPersistent(): Sequence<K, V, C>;
+  asImmutable(): Sequence<K, V, C>;
 
   /**
    * Converts this to a JavaScript native equivalent. IndexedSequence and Set
@@ -343,7 +343,7 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
   /**
    * @override
    */
-  asPersistent(): IndexedSequence<V, C>;
+  asImmutable(): IndexedSequence<V, C>;
 
   /**
    * @override

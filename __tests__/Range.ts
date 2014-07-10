@@ -1,7 +1,7 @@
 ///<reference path='../resources/jest.d.ts'/>
 jest.autoMockOff();
-import Persistent = require('../dist/Persistent');
-import Range = Persistent.Range;
+import Immutable = require('../dist/Immutable');
+import Range = Immutable.Range;
 
 describe('Range', function() {
 

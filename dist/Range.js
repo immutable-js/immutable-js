@@ -54,11 +54,11 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     return new Range(this.get(begin), end === this.length ? this.end : this.get(end), this.step);
   };
 
-  Range.prototype.isTransient=function() {"use strict";
+  Range.prototype.isMutable=function() {"use strict";
     return false;
   };
 
-  Range.prototype.asPersistent=function() {"use strict";
+  Range.prototype.asImmutable=function() {"use strict";
     return this;
   };
 

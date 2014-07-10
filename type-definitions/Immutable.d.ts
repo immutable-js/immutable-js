@@ -6,7 +6,7 @@ export import Vector = require('./Vector');
 export import Set = require('./Set');
 
 /**
-* The same semantics as Object.is(), but treats persistent data structures as
+* The same semantics as Object.is(), but treats immutable data structures as
 * data, equal when the structure contains equivalent data.
 */
 export declare function is(first: any, second: any): boolean;

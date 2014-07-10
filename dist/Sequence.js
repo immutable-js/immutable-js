@@ -33,13 +33,13 @@
     return quoteString(k) + ': ' + quoteString(v);
   };
 
-  Sequence.prototype.isTransient=function() {"use strict";
-    return this.__parentSequence.isTransient();
+  Sequence.prototype.isMutable=function() {"use strict";
+    return this.__parentSequence.isMutable();
   };
 
-  Sequence.prototype.asPersistent=function() {"use strict";
-    // This works because asPersistent() is mutative.
-    this.__parentSequence.asPersistent();
+  Sequence.prototype.asImmutable=function() {"use strict";
+    // This works because asImmutable() is mutative.
+    this.__parentSequence.asImmutable();
     return this;
   };
 
@@ -77,10 +77,10 @@
     if (this.length != null && other.length != null && this.length !== other.length) {
       return false;
     }
-    // if either side is transient, and they are not from the same parent
+    // if either side is mutable, and they are not from the same parent
     // sequence, then they must not be equal.
-    if (((!this.isTransient || this.isTransient()) ||
-         (!other.isTransient || other.isTransient())) &&
+    if (((!this.isMutable || this.isMutable()) ||
+         (!other.isMutable || other.isMutable())) &&
         (this.__parentSequence || this) !== (other.__parentSequence || other)) {
       return false;
     }
@@ -88,7 +88,7 @@
   };
 
   Sequence.prototype.__deepEquals=function(other) {"use strict";
-    var is = require('./Persistent').is;
+    var is = require('./Immutable').is;
     var entries = this.entries().toArray();
     var iterations = 0;
     return other.every(function(v, k)  {
@@ -642,15 +642,15 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
     this.length = this.$ConcatIndexedSequence_sequences.reduce(
       function(sum, seq)  {return sum != null && seq.length != null ? sum + seq.length : undefined;}, 0
     );
-    this.$ConcatIndexedSequence_immutable = this.$ConcatIndexedSequence_sequences.every(function(seq)  {return !seq.isTransient();});
+    this.$ConcatIndexedSequence_immutable = this.$ConcatIndexedSequence_sequences.every(function(seq)  {return !seq.isMutable();});
   }
 
-  ConcatIndexedSequence.prototype.isTransient=function() {"use strict";
+  ConcatIndexedSequence.prototype.isMutable=function() {"use strict";
     return !this.$ConcatIndexedSequence_immutable;
   };
 
-  ConcatIndexedSequence.prototype.asPersistent=function() {"use strict";
-    this.$ConcatIndexedSequence_sequences.map(function(seq)  {return seq.asPersistent();});
+  ConcatIndexedSequence.prototype.asImmutable=function() {"use strict";
+    this.$ConcatIndexedSequence_sequences.map(function(seq)  {return seq.asImmutable();});
     return this;
   };
 
@@ -716,11 +716,11 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
     this.$ArraySequence_immutable = !!isImmutable;
   }
 
-  ArraySequence.prototype.isTransient=function() {"use strict";
+  ArraySequence.prototype.isMutable=function() {"use strict";
     return !this.$ArraySequence_immutable;
   };
 
-  ArraySequence.prototype.asPersistent=function() {"use strict";
+  ArraySequence.prototype.asImmutable=function() {"use strict";
     this.$ArraySequence_array = this.$ArraySequence_array.slice();
     this.$ArraySequence_immutable = true;
     return this;
@@ -764,11 +764,11 @@ for(Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)){Ob
     this.$ObjectSequence_immutable = !!isImmutable;
   }
 
-  ObjectSequence.prototype.isTransient=function() {"use strict";
+  ObjectSequence.prototype.isMutable=function() {"use strict";
     return !this.$ObjectSequence_immutable;
   };
 
-  ObjectSequence.prototype.asPersistent=function() {"use strict";
+  ObjectSequence.prototype.asImmutable=function() {"use strict";
     var prevObject = this.$ObjectSequence_object;
     this.$ObjectSequence_object = {};
     this.length = 0;

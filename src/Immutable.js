@@ -1,8 +1,8 @@
 var Sequence = require('./Sequence').Sequence;
 var Range = require('./Range');
 var Vector = require('./Vector');
-var PersistentMap = require('./Map');
-var PersistentSet = require('./Set');
+var ImmutableMap = require('./Map');
+var ImmutableSet = require('./Set');
 
 
 /**
@@ -46,6 +46,6 @@ module.exports = {
   Sequence: Sequence,
   Range: Range,
   Vector: Vector,
-  Map: PersistentMap,
-  Set: PersistentSet,
+  Map: ImmutableMap,
+  Set: ImmutableSet,
 };

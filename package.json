@@ -1,7 +1,7 @@
 {
   "name": "immutable-js",
-  "version": "0.0.1",
-  "description": "Persistent Immutable Collections",
+  "version": "0.1",
+  "description": "Immutable Persistent Data Collections",
   "homepage": "https://github.com/leebyron/immutable-js",
   "author": {
     "name": "Lee Byron",
@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/leebyron/immutable-js/issues"
   },
-  "main": "dist/Persistent.js",
+  "main": "dist/Immutable.js",
   "scripts": {
     "test": "jest"
   },
@@ -44,7 +44,9 @@
     "data",
     "datastructure",
     "functional",
-    "collections"
+    "collection",
+    "stateless",
+    "iteration"
   ],
   "license": "BSD"
 }

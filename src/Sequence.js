@@ -33,13 +33,13 @@ class Sequence {
     return quoteString(k) + ': ' + quoteString(v);
   }
 
-  isTransient() {
-    return this.__parentSequence.isTransient();
+  isMutable() {
+    return this.__parentSequence.isMutable();
   }
 
-  asPersistent() {
-    // This works because asPersistent() is mutative.
-    this.__parentSequence.asPersistent();
+  asImmutable() {
+    // This works because asImmutable() is mutative.
+    this.__parentSequence.asImmutable();
     return this;
   }
 
@@ -77,10 +77,10 @@ class Sequence {
     if (this.length != null && other.length != null && this.length !== other.length) {
       return false;
     }
-    // if either side is transient, and they are not from the same parent
+    // if either side is mutable, and they are not from the same parent
     // sequence, then they must not be equal.
-    if (((!this.isTransient || this.isTransient()) ||
-         (!other.isTransient || other.isTransient())) &&
+    if (((!this.isMutable || this.isMutable()) ||
+         (!other.isMutable || other.isMutable())) &&
         (this.__parentSequence || this) !== (other.__parentSequence || other)) {
       return false;
     }
@@ -88,7 +88,7 @@ class Sequence {
   }
 
   __deepEquals(other) {
-    var is = require('./Persistent').is;
+    var is = require('./Immutable').is;
     var entries = this.entries().toArray();
     var iterations = 0;
     return other.every((v, k) => {
@@ -642,15 +642,15 @@ class ConcatIndexedSequence extends IndexedSequence {
     this.length = this._sequences.reduce(
       (sum, seq) => sum != null && seq.length != null ? sum + seq.length : undefined, 0
     );
-    this._immutable = this._sequences.every(seq => !seq.isTransient());
+    this._immutable = this._sequences.every(seq => !seq.isMutable());
   }
 
-  isTransient() {
+  isMutable() {
     return !this._immutable;
   }
 
-  asPersistent() {
-    this._sequences.map(seq => seq.asPersistent());
+  asImmutable() {
+    this._sequences.map(seq => seq.asImmutable());
     return this;
   }
 
@@ -716,11 +716,11 @@ class ArraySequence extends IndexedSequence {
     this._immutable = !!isImmutable;
   }
 
-  isTransient() {
+  isMutable() {
     return !this._immutable;
   }
 
-  asPersistent() {
+  asImmutable() {
     this._array = this._array.slice();
     this._immutable = true;
     return this;
@@ -764,11 +764,11 @@ class ObjectSequence extends Sequence {
     this._immutable = !!isImmutable;
   }
 
-  isTransient() {
+  isMutable() {
     return !this._immutable;
   }
 
-  asPersistent() {
+  asImmutable() {
     var prevObject = this._object;
     this._object = {};
     this.length = 0;

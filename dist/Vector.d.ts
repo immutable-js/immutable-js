@@ -47,8 +47,8 @@ interface Vector<T> extends IndexedSequence<T, Vector<T>> {
    */
   setLength(length: number): Vector<T>;
 
-  asTransient(): Vector<T>;
-  asPersistent(): Vector<T>;
+  asMutable(): Vector<T>;
+  asImmutable(): Vector<T>;
   clone(): Vector<T>;
   __iterator__(): {next(): /*(number, T)*/Array<any>}
 }

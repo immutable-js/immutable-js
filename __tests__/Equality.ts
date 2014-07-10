@@ -1,18 +1,18 @@
 ///<reference path='../resources/jest.d.ts'/>
 jest.autoMockOff();
-import Persistent = require('../dist/Persistent');
+import Immutable = require('../dist/Immutable');
 
 describe('Equality', () => {
 
   function expectIs(left, right) {
-    var comparison = Persistent.is(left, right);
-    var commutative = Persistent.is(right, left);
+    var comparison = Immutable.is(left, right);
+    var commutative = Immutable.is(right, left);
     return comparison && commutative && comparison === commutative;
   }
 
   function expectIsNot(left, right) {
-    var comparison = Persistent.is(left, right);
-    var commutative = Persistent.is(right, left);
+    var comparison = Immutable.is(left, right);
+    var commutative = Immutable.is(right, left);
     return !comparison && !commutative && comparison === commutative;
   }
 
@@ -49,46 +49,46 @@ describe('Equality', () => {
   });
 
   it('compares sequences', () => {
-    var arraySeq = Persistent.Sequence(1,2,3);
-    var transientArraySeq = Persistent.Sequence([1,2,3]);
-    expect(arraySeq.isTransient()).toBe(false);
-    expect(transientArraySeq.isTransient()).toBe(true);
+    var arraySeq = Immutable.Sequence(1,2,3);
+    var mutableArraySeq = Immutable.Sequence([1,2,3]);
+    expect(arraySeq.isMutable()).toBe(false);
+    expect(mutableArraySeq.isMutable()).toBe(true);
     expectIs(arraySeq, arraySeq);
-    expectIs(arraySeq, Persistent.Sequence(1,2,3));
-    expectIs(transientArraySeq, transientArraySeq);
-    expectIsNot(transientArraySeq, Persistent.Sequence([1,2,3]));
+    expectIs(arraySeq, Immutable.Sequence(1,2,3));
+    expectIs(mutableArraySeq, mutableArraySeq);
+    expectIsNot(mutableArraySeq, Immutable.Sequence([1,2,3]));
     expectIsNot(arraySeq, [1,2,3]);
-    expectIsNot(transientArraySeq, [1,2,3]);
-    expectIsNot(arraySeq, transientArraySeq);
-    expectIs(arraySeq, transientArraySeq.asPersistent());
+    expectIsNot(mutableArraySeq, [1,2,3]);
+    expectIsNot(arraySeq, mutableArraySeq);
+    expectIs(arraySeq, mutableArraySeq.asImmutable());
     expectIs(arraySeq, arraySeq.map(x => x));
-    expectIs(transientArraySeq, transientArraySeq.map(x => x));
+    expectIs(mutableArraySeq, mutableArraySeq.map(x => x));
   });
 
   it('compares vectors', () => {
-    var vector = Persistent.Vector(1,2,3);
+    var vector = Immutable.Vector(1,2,3);
     expectIs(vector, vector);
     expectIsNot(vector, [1,2,3]);
 
-    expectIs(vector, Persistent.Sequence(1,2,3));
-    expectIs(vector, Persistent.Vector(1,2,3));
+    expectIs(vector, Immutable.Sequence(1,2,3));
+    expectIs(vector, Immutable.Vector(1,2,3));
 
     var vectorLonger = vector.push(4);
     expectIsNot(vector, vectorLonger);
     var vectorShorter = vectorLonger.pop();
     expectIs(vector, vectorShorter);
 
-    var transientVector = vector.asTransient();
-    expectIsNot(vector, transientVector);
+    var mutableVector = vector.asMutable();
+    expectIsNot(vector, mutableVector);
 
-    var transientLonger = transientVector.push(4);
-    expectIs(transientVector, transientLonger);
-    var transientShorter = transientLonger.pop();
-    expectIs(transientVector, transientShorter);
+    var mutableLonger = mutableVector.push(4);
+    expectIs(mutableVector, mutableLonger);
+    var mutableShorter = mutableLonger.pop();
+    expectIs(mutableVector, mutableShorter);
 
-    var persistentVector = transientVector.asPersistent();
-    expectIs(transientVector, persistentVector);
-    expectIs(vector, persistentVector);
+    var immutableVector = mutableVector.asImmutable();
+    expectIs(mutableVector, immutableVector);
+    expectIs(vector, immutableVector);
   });
 
   // TODO: more tests

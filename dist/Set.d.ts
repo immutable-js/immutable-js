@@ -17,8 +17,8 @@ interface Set<T> extends Sequence<T, T, Set<T>> {
   delete(value: T): Set<T>;
   merge(seq: Sequence<any, T, any>): Set<T>;
   merge(seq: Array<T>): Set<T>;
-  asTransient(): Set<T>;
-  asPersistent(): Set<T>;
+  asMutable(): Set<T>;
+  asImmutable(): Set<T>;
   clone(): Set<T>;
 }
 

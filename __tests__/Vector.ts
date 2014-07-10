@@ -1,7 +1,7 @@
 ///<reference path='../resources/jest.d.ts'/>
 jest.autoMockOff();
-import Persistent = require('../dist/Persistent');
-import Vector = Persistent.Vector;
+import Immutable = require('../dist/Immutable');
+import Vector = Immutable.Vector;
 
 describe('Vector', function() {
 
@@ -73,7 +73,7 @@ describe('Vector', function() {
   });
 
   it('can contain a large number of indices', () => {
-    var v = Persistent.Range(0,20000).toVector();
+    var v = Immutable.Range(0,20000).toVector();
     var iterations = 0;
     v.forEach(v => {
       expect(v).toBe(iterations);
@@ -262,7 +262,7 @@ describe('Vector', function() {
 
   it('concat works like Array.prototype.concat', function() {
     var v1 = Vector(1, 2, 3);
-    var v2 = v1.concat(4, Vector(5, 6), [7, 8], Persistent.Sequence({a:9,b:10}), Persistent.Set(11,12), null);
+    var v2 = v1.concat(4, Vector(5, 6), [7, 8], Immutable.Sequence({a:9,b:10}), Immutable.Set(11,12), null);
     expect(v1.toArray()).toEqual([1, 2, 3]);
     expect(v2.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, null]);
   });

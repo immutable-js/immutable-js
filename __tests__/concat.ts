@@ -1,6 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 jest.autoMockOff();
-import P = require('../dist/Persistent');
+import P = require('../dist/Immutable');
 
 declare function expect(val: any): ExpectWithIs;
 

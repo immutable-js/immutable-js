@@ -79,8 +79,8 @@ class Vector extends IndexedSequence {
     var tailOffset = getTailOffset(this._size);
 
     if (index + this._origin >= tailOffset + SIZE) {
-      var vect = this.asTransient().setBounds(0, index + 1).set(index, value);
-      return this.isTransient() ? vect : vect.asPersistent();
+      var vect = this.asMutable().setBounds(0, index + 1).set(index, value);
+      return this.isMutable() ? vect : vect.asImmutable();
     }
 
     if (this.get(index, __SENTINEL) === value) {
@@ -186,11 +186,11 @@ class Vector extends IndexedSequence {
 
   push(/*...values*/) {
     var oldLength = this.length;
-    var vect = this.asTransient().setBounds(0, oldLength + arguments.length);
+    var vect = this.asMutable().setBounds(0, oldLength + arguments.length);
     for (var ii = 0; ii < arguments.length; ii++) {
       vect = vect.set(oldLength + ii, arguments[ii]);
     }
-    return this.isTransient() ? vect : vect.asPersistent();
+    return this.isMutable() ? vect : vect.asImmutable();
   }
 
   pop() {
@@ -198,11 +198,11 @@ class Vector extends IndexedSequence {
   }
 
   unshift(/*...values*/) {
-    var vect = this.asTransient().setBounds(-arguments.length);
+    var vect = this.asMutable().setBounds(-arguments.length);
     for (var ii = 0; ii < arguments.length; ii++) {
       vect = vect.set(ii, arguments[ii]);
     }
-    return this.isTransient() ? vect : vect.asPersistent();
+    return this.isMutable() ? vect : vect.asImmutable();
   }
 
   shift() {
@@ -215,14 +215,14 @@ class Vector extends IndexedSequence {
     if (!seq || !seq.forEach) {
       return this;
     }
-    var vect = this.asTransient();
+    var vect = this.asMutable();
     if (seq.length && seq.length > this.length) {
       vect = vect.setBounds(0, seq.length);
     }
     seq.forEach((value, index) => {
       vect = vect.set(index, value)
     });
-    return this.isTransient() ? vect : vect.asPersistent();
+    return this.isMutable() ? vect : vect.asImmutable();
   }
 
   // TODO: mergeIn
@@ -347,11 +347,11 @@ class Vector extends IndexedSequence {
 
   // @pragma Mutability
 
-  isTransient() {
+  isMutable() {
     return !!this._ownerID;
   }
 
-  asTransient() {
+  asMutable() {
     if (this._ownerID) {
       return this;
     }
@@ -360,7 +360,7 @@ class Vector extends IndexedSequence {
     return vect;
   }
 
-  asPersistent() {
+  asImmutable() {
     this._ownerID = undefined;
     return this;
   }
@@ -373,7 +373,7 @@ class Vector extends IndexedSequence {
 
   toVector() {
     // Note: identical impl to Map.toMap
-    return this.isTransient() ? this.clone().asPersistent() : this;
+    return this.isMutable() ? this.clone().asImmutable() : this;
   }
 
   first(predicate, context) {
@@ -389,7 +389,7 @@ class Vector extends IndexedSequence {
   }
 
   __deepEquals(other) {
-    var is = require('./Persistent').is;
+    var is = require('./Immutable').is;
     var iterator = this.__iterator__();
     return other.every((v, k) => {
       var entry = iterator.next();

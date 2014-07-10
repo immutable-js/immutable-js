@@ -79,8 +79,8 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     var tailOffset = getTailOffset(this.$Vector_size);
 
     if (index + this.$Vector_origin >= tailOffset + SIZE) {
-      var vect = this.asTransient().setBounds(0, index + 1).set(index, value);
-      return this.isTransient() ? vect : vect.asPersistent();
+      var vect = this.asMutable().setBounds(0, index + 1).set(index, value);
+      return this.isMutable() ? vect : vect.asImmutable();
     }
 
     if (this.get(index, __SENTINEL) === value) {
@@ -186,11 +186,11 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
   Vector.prototype.push=function() {"use strict";
     var oldLength = this.length;
-    var vect = this.asTransient().setBounds(0, oldLength + arguments.length);
+    var vect = this.asMutable().setBounds(0, oldLength + arguments.length);
     for (var ii = 0; ii < arguments.length; ii++) {
       vect = vect.set(oldLength + ii, arguments[ii]);
     }
-    return this.isTransient() ? vect : vect.asPersistent();
+    return this.isMutable() ? vect : vect.asImmutable();
   };
 
   Vector.prototype.pop=function() {"use strict";
@@ -198,11 +198,11 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   };
 
   Vector.prototype.unshift=function() {"use strict";
-    var vect = this.asTransient().setBounds(-arguments.length);
+    var vect = this.asMutable().setBounds(-arguments.length);
     for (var ii = 0; ii < arguments.length; ii++) {
       vect = vect.set(ii, arguments[ii]);
     }
-    return this.isTransient() ? vect : vect.asPersistent();
+    return this.isMutable() ? vect : vect.asImmutable();
   };
 
   Vector.prototype.shift=function() {"use strict";
@@ -215,14 +215,14 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     if (!seq || !seq.forEach) {
       return this;
     }
-    var vect = this.asTransient();
+    var vect = this.asMutable();
     if (seq.length && seq.length > this.length) {
       vect = vect.setBounds(0, seq.length);
     }
     seq.forEach(function(value, index)  {
       vect = vect.set(index, value)
     });
-    return this.isTransient() ? vect : vect.asPersistent();
+    return this.isMutable() ? vect : vect.asImmutable();
   };
 
   // TODO: mergeIn
@@ -347,11 +347,11 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
   // @pragma Mutability
 
-  Vector.prototype.isTransient=function() {"use strict";
+  Vector.prototype.isMutable=function() {"use strict";
     return !!this.$Vector_ownerID;
   };
 
-  Vector.prototype.asTransient=function() {"use strict";
+  Vector.prototype.asMutable=function() {"use strict";
     if (this.$Vector_ownerID) {
       return this;
     }
@@ -360,7 +360,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     return vect;
   };
 
-  Vector.prototype.asPersistent=function() {"use strict";
+  Vector.prototype.asImmutable=function() {"use strict";
     this.$Vector_ownerID = undefined;
     return this;
   };
@@ -373,7 +373,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
   Vector.prototype.toVector=function() {"use strict";
     // Note: identical impl to Map.toMap
-    return this.isTransient() ? this.clone().asPersistent() : this;
+    return this.isMutable() ? this.clone().asImmutable() : this;
   };
 
   Vector.prototype.first=function(predicate, context) {"use strict";
@@ -389,7 +389,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   };
 
   Vector.prototype.__deepEquals=function(other) {"use strict";
-    var is = require('./Persistent').is;
+    var is = require('./Immutable').is;
     var iterator = this.__iterator__();
     return other.every(function(v, k)  {
       var entry = iterator.next();

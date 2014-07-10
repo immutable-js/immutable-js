@@ -15,7 +15,7 @@ interface Range extends IndexedSequence<number, Range> {
   get(index: number): number;
   slice(begin: number, end?: number): Range;
 
-  asPersistent(): Range;
+  asImmutable(): Range;
 }
 
 export = Range;

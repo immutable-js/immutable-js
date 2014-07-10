@@ -18,11 +18,11 @@ class Set extends Sequence {
     if (values.length === 0) {
       return Set.empty();
     }
-    var set = Set.empty().asTransient();
+    var set = Set.empty().asMutable();
     for (var ii = 0; ii < values.length; ii++) {
       set = set.add(values[ii]);
     }
-    return set.asPersistent();
+    return set.asImmutable();
   }
 
   toString() {
@@ -54,8 +54,8 @@ class Set extends Sequence {
     if (!newMap) {
       // Use Late Binding here to ensure no circular dependency.
       newMap = require('./Map').empty();
-      if (this.isTransient()) {
-        newMap = newMap.asTransient();
+      if (this.isMutable()) {
+        newMap = newMap.asMutable();
       }
     }
     newMap = newMap.set(value, null);
@@ -92,25 +92,25 @@ class Set extends Sequence {
     if (!seq.forEach) {
       seq = Sequence(seq);
     }
-    var newSet = this.asTransient();
+    var newSet = this.asMutable();
     seq.forEach(value => newSet.add(value));
-    return this.isTransient() ? newSet : newSet.asPersistent();
+    return this.isMutable() ? newSet : newSet.asImmutable();
   }
 
   // @pragma Mutability
 
-  isTransient() {
+  isMutable() {
     return !!this._ownerID;
   }
 
-  asTransient() {
+  asMutable() {
     // TODO: ensure Map has same owner? Does it matter?
-    return this._ownerID ? this : Set._make(this._map && this._map.asTransient(), new OwnerID());
+    return this._ownerID ? this : Set._make(this._map && this._map.asMutable(), new OwnerID());
   }
 
-  asPersistent() {
+  asImmutable() {
     this._ownerID = undefined;
-    this._map = this._map.asPersistent();
+    this._map = this._map.asImmutable();
     return this;
   }
 
@@ -123,7 +123,7 @@ class Set extends Sequence {
 
   toSet() {
     // Note: identical impl to Map.toMap
-    return this.isTransient() ? this.clone().asPersistent() : this;
+    return this.isMutable() ? this.clone().asImmutable() : this;
   }
 
   cacheResult() {

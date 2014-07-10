@@ -17,11 +17,11 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   };
 
   Map.fromObject=function(object) {"use strict";
-    var map = Map.empty().asTransient();
+    var map = Map.empty().asMutable();
     for (var k in object) if (object.hasOwnProperty(k)) {
       map = map.set(k, object[k]);
     }
-    return map.asPersistent();
+    return map.asImmutable();
   };
 
   Map.prototype.toString=function() {"use strict";
@@ -138,24 +138,24 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     if (!seq.forEach) {
       seq = Sequence(seq);
     }
-    var newMap = this.asTransient();
+    var newMap = this.asMutable();
     seq.forEach(function(value, key)  {
       newMap = newMap.set(key, value);
     });
-    return this.isTransient() ? newMap : newMap.asPersistent();
+    return this.isMutable() ? newMap : newMap.asImmutable();
   };
 
   // @pragma Mutability
 
-  Map.prototype.isTransient=function() {"use strict";
+  Map.prototype.isMutable=function() {"use strict";
     return !!this.$Map_ownerID;
   };
 
-  Map.prototype.asTransient=function() {"use strict";
+  Map.prototype.asMutable=function() {"use strict";
     return this.$Map_ownerID ? this : Map.$Map_make(this.length, this.$Map_root, new OwnerID());
   };
 
-  Map.prototype.asPersistent=function() {"use strict";
+  Map.prototype.asImmutable=function() {"use strict";
     this.$Map_ownerID = undefined;
     return this;
   };
@@ -167,7 +167,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   // @pragma Iteration
 
   Map.prototype.toMap=function() {"use strict";
-    return this.isTransient() ? this.clone().asPersistent() : this;
+    return this.isMutable() ? this.clone().asImmutable() : this;
   };
 
   Map.prototype.cacheResult=function() {"use strict";
@@ -175,7 +175,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   };
 
   Map.prototype.__deepEqual=function(other) {"use strict";
-    var is = require('./Persistent').is;
+    var is = require('./Immutable').is;
     // Using Sentinel here ensures that a missing key is not interpretted as an
     // existing key set to be null.
     var self = this;

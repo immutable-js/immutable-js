@@ -1,8 +1,8 @@
 ///<reference path='../resources/jest.d.ts'/>
 jest.autoMockOff();
-import Persistent = require('../dist/Persistent');
-import Map = Persistent.Map;
-import Vector = Persistent.Vector;
+import Immutable = require('../dist/Immutable');
+import Map = Immutable.Map;
+import Vector = Immutable.Vector;
 
 declare function expect(val: any): ExpectWithIs;
 
@@ -20,8 +20,8 @@ xdescribe('Conversion', () => {
         console.log(''+this.actual);
         console.log('same value as');
         console.log(''+expected);
-        console.log('is?: ' + Persistent.is(this.actual, expected));
-        return Persistent.is(this.actual, expected);
+        console.log('is?: ' + Immutable.is(this.actual, expected));
+        return Immutable.is(this.actual, expected);
       }
     });
   });
@@ -46,8 +46,8 @@ xdescribe('Conversion', () => {
     }
   };
 
-  it('Converts deep JS to deep persistent structures', () => {
-    expect(Persistent.fromJS(js)).is(
+  it('Converts deep JS to deep immutable structures', () => {
+    expect(Immutable.fromJS(js)).is(
       Map({
         string: "Hello",
         list: Vector(1, 2, 3),

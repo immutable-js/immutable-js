@@ -18,11 +18,11 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     if (values.length === 0) {
       return Set.empty();
     }
-    var set = Set.empty().asTransient();
+    var set = Set.empty().asMutable();
     for (var ii = 0; ii < values.length; ii++) {
       set = set.add(values[ii]);
     }
-    return set.asPersistent();
+    return set.asImmutable();
   };
 
   Set.prototype.toString=function() {"use strict";
@@ -54,8 +54,8 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     if (!newMap) {
       // Use Late Binding here to ensure no circular dependency.
       newMap = require('./Map').empty();
-      if (this.isTransient()) {
-        newMap = newMap.asTransient();
+      if (this.isMutable()) {
+        newMap = newMap.asMutable();
       }
     }
     newMap = newMap.set(value, null);
@@ -92,25 +92,25 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     if (!seq.forEach) {
       seq = Sequence(seq);
     }
-    var newSet = this.asTransient();
+    var newSet = this.asMutable();
     seq.forEach(function(value)  {return newSet.add(value);});
-    return this.isTransient() ? newSet : newSet.asPersistent();
+    return this.isMutable() ? newSet : newSet.asImmutable();
   };
 
   // @pragma Mutability
 
-  Set.prototype.isTransient=function() {"use strict";
+  Set.prototype.isMutable=function() {"use strict";
     return !!this.$Set_ownerID;
   };
 
-  Set.prototype.asTransient=function() {"use strict";
+  Set.prototype.asMutable=function() {"use strict";
     // TODO: ensure Map has same owner? Does it matter?
-    return this.$Set_ownerID ? this : Set.$Set_make(this.$Set_map && this.$Set_map.asTransient(), new OwnerID());
+    return this.$Set_ownerID ? this : Set.$Set_make(this.$Set_map && this.$Set_map.asMutable(), new OwnerID());
   };
 
-  Set.prototype.asPersistent=function() {"use strict";
+  Set.prototype.asImmutable=function() {"use strict";
     this.$Set_ownerID = undefined;
-    this.$Set_map = this.$Set_map.asPersistent();
+    this.$Set_map = this.$Set_map.asImmutable();
     return this;
   };
 
@@ -123,7 +123,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
   Set.prototype.toSet=function() {"use strict";
     // Note: identical impl to Map.toMap
-    return this.isTransient() ? this.clone().asPersistent() : this;
+    return this.isMutable() ? this.clone().asImmutable() : this;
   };
 
   Set.prototype.cacheResult=function() {"use strict";

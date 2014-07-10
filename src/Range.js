@@ -54,11 +54,11 @@ class Range extends IndexedSequence {
     return new Range(this.get(begin), end === this.length ? this.end : this.get(end), this.step);
   }
 
-  isTransient() {
+  isMutable() {
     return false;
   }
 
-  asPersistent() {
+  asImmutable() {
     return this;
   }
 

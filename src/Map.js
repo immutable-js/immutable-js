@@ -17,11 +17,11 @@ class Map extends Sequence {
   }
 
   static fromObject(object) {
-    var map = Map.empty().asTransient();
+    var map = Map.empty().asMutable();
     for (var k in object) if (object.hasOwnProperty(k)) {
       map = map.set(k, object[k]);
     }
-    return map.asPersistent();
+    return map.asImmutable();
   }
 
   toString() {
@@ -138,24 +138,24 @@ class Map extends Sequence {
     if (!seq.forEach) {
       seq = Sequence(seq);
     }
-    var newMap = this.asTransient();
+    var newMap = this.asMutable();
     seq.forEach((value, key) => {
       newMap = newMap.set(key, value);
     });
-    return this.isTransient() ? newMap : newMap.asPersistent();
+    return this.isMutable() ? newMap : newMap.asImmutable();
   }
 
   // @pragma Mutability
 
-  isTransient() {
+  isMutable() {
     return !!this._ownerID;
   }
 
-  asTransient() {
+  asMutable() {
     return this._ownerID ? this : Map._make(this.length, this._root, new OwnerID());
   }
 
-  asPersistent() {
+  asImmutable() {
     this._ownerID = undefined;
     return this;
   }
@@ -167,7 +167,7 @@ class Map extends Sequence {
   // @pragma Iteration
 
   toMap() {
-    return this.isTransient() ? this.clone().asPersistent() : this;
+    return this.isMutable() ? this.clone().asImmutable() : this;
   }
 
   cacheResult() {
@@ -175,7 +175,7 @@ class Map extends Sequence {
   }
 
   __deepEqual(other) {
-    var is = require('./Persistent').is;
+    var is = require('./Immutable').is;
     // Using Sentinel here ensures that a missing key is not interpretted as an
     // existing key set to be null.
     var self = this;
