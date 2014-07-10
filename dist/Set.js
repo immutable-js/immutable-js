@@ -59,12 +59,15 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
       }
     }
     newMap = newMap.set(value, null);
+    if (newMap === this.$Set_map) {
+      return this;
+    }
     if (this.$Set_ownerID) {
       this.length = newMap.length;
       this.$Set_map = newMap;
       return this;
     }
-    return newMap === this.$Set_map ? this : Set.$Set_make(newMap);
+    return Set.$Set_make(newMap);
   };
 
   Set.prototype.delete=function(value) {"use strict";
@@ -89,11 +92,8 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     if (seq == null) {
       return this;
     }
-    if (!seq.forEach) {
-      seq = Sequence(seq);
-    }
     var newSet = this.asMutable();
-    seq.forEach(function(value)  {return newSet.add(value);});
+    Sequence(seq).forEach(function(value)  {return newSet.add(value);});
     return this.isMutable() ? newSet : newSet.asImmutable();
   };
 

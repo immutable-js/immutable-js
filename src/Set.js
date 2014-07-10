@@ -59,12 +59,15 @@ class Set extends Sequence {
       }
     }
     newMap = newMap.set(value, null);
+    if (newMap === this._map) {
+      return this;
+    }
     if (this._ownerID) {
       this.length = newMap.length;
       this._map = newMap;
       return this;
     }
-    return newMap === this._map ? this : Set._make(newMap);
+    return Set._make(newMap);
   }
 
   delete(value) {
@@ -89,11 +92,8 @@ class Set extends Sequence {
     if (seq == null) {
       return this;
     }
-    if (!seq.forEach) {
-      seq = Sequence(seq);
-    }
     var newSet = this.asMutable();
-    seq.forEach(value => newSet.add(value));
+    Sequence(seq).forEach(value => newSet.add(value));
     return this.isMutable() ? newSet : newSet.asImmutable();
   }
 
