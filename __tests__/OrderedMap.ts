@@ -3,9 +3,9 @@ jest.autoMockOff();
 import Immutable = require('../dist/Immutable');
 import OrderedMap = Immutable.OrderedMap;
 
-describe('OrderedMap', function() {
+describe('OrderedMap', () => {
 
-  it('constructor provides initial values', function() {
+  it('constructor provides initial values', () => {
     var m = OrderedMap({'a': 'A', 'b': 'B', 'c': 'C'});
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
@@ -14,7 +14,7 @@ describe('OrderedMap', function() {
     expect(m.toArray()).toEqual(['A','B','C']);
   });
 
-  it('provides initial values in a mixed order', function() {
+  it('provides initial values in a mixed order', () => {
     var m = OrderedMap({'c': 'C', 'b': 'B', 'a': 'A'});
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');

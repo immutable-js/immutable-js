@@ -3,21 +3,21 @@ jest.autoMockOff();
 import Immutable = require('../dist/Immutable');
 import Map = Immutable.Map;
 
-describe('Map', function() {
+describe('Map', () => {
 
-  it('constructor provides initial values', function() {
+  it('constructor provides initial values', () => {
     var m = Map({'a': 'A', 'b': 'B', 'c': 'C'});
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
   });
 
-  it('converts back to JS object', function() {
+  it('converts back to JS object', () => {
     var m = Map({'a': 'A', 'b': 'B', 'c': 'C'});
     expect(m.toObject()).toEqual({'a': 'A', 'b': 'B', 'c': 'C'});
   });
 
-  it('iterates values', function() {
+  it('iterates values', () => {
     var m = Map({'a': 'A', 'b': 'B', 'c': 'C'});
     var iterator = jest.genMockFunction();
     m.forEach(iterator);
@@ -28,7 +28,7 @@ describe('Map', function() {
     ]);
   });
 
-  it('merges two maps', function() {
+  it('merges two maps', () => {
     var m1 = Map({'a': 'A', 'b': 'B', 'c': 'C'});
     var m2 = Map({'wow': 'OO', 'd': 'DD', 'b': 'BB'});
     expect(m2.toObject()).toEqual({'wow': 'OO', 'd': 'DD', 'b': 'BB'});
@@ -36,7 +36,7 @@ describe('Map', function() {
     expect(m3.toObject()).toEqual({'a': 'A', 'b': 'BB', 'c': 'C', 'wow': 'OO', 'd': 'DD'});
   });
 
-  it('is persistent to sets', function() {
+  it('is persistent to sets', () => {
     var m1 = Map();
     var m2 = m1.set('a', 'Aardvark');
     var m3 = m2.set('b', 'Baboon');
@@ -51,7 +51,7 @@ describe('Map', function() {
     expect(m5.get('b')).toBe('Bonobo');
   });
 
-  it('is persistent to deletes', function() {
+  it('is persistent to deletes', () => {
     var m1 = Map();
     var m2 = m1.set('a', 'Aardvark');
     var m3 = m2.set('b', 'Baboon');
@@ -69,7 +69,7 @@ describe('Map', function() {
     expect(m5.get('c')).toBe('Canary');
   });
 
-  it('deletes down to empty map', function() {
+  it('deletes down to empty map', () => {
     var m1 = Map({a:'A', b:'B', c:'C'});
     var m2 = m1.delete('a');
     var m3 = m2.delete('b');
@@ -81,7 +81,7 @@ describe('Map', function() {
     expect(m4).toBe(Map.empty());
   });
 
-  it('can map many items', function() {
+  it('can map many items', () => {
     var m = Map();
     for (var ii = 0; ii < 2000; ii++) {
        m = m.set('thing:' + ii, ii);
@@ -90,44 +90,36 @@ describe('Map', function() {
     expect(m.get('thing:1234')).toBe(1234);
   });
 
-  it('can map items known to hash collide', function() {
+  it('can map items known to hash collide', () => {
     var m = Map().set('AAA', 'letters').set(64545, 'numbers');
     expect(m.length).toBe(2);
     expect(m.get('AAA')).toEqual('letters');
     expect(m.get(64545)).toEqual('numbers');
   });
 
-  it('maps values', function() {
+  it('maps values', () => {
     var m = Map({a:'a', b:'b', c:'c'});
-
-    var r = m.map(function (value, key) {
-      return value.toUpperCase();
-    });
-
+    var r = m.map(value => value.toUpperCase());
     expect(r.toObject()).toEqual({a:'A', b:'B', c:'C'});
   });
 
-  it('filters values', function() {
+  it('filters values', () => {
     var m = Map({a:1, b:2, c:3, d:4, e:5, f:6});
-
-    var r = m.filter(function (value) {
-      return value % 2 === 1;
-    });
-
+    var r = m.filter(value => value % 2 === 1);
     expect(r.toObject()).toEqual({a:1, c:3, e:5});
   });
 
-  it('derives keys', function() {
+  it('derives keys', () => {
     var v = Map({a:1, b:2, c:3, d:4, e:5, f:6});
     expect(v.keys().toArray()).toEqual(['a', 'b', 'c', 'd', 'e', 'f']);
   });
 
-  it('flips keys and values', function() {
+  it('flips keys and values', () => {
     var v = Map({a:1, b:2, c:3, d:4, e:5, f:6});
     expect(v.flip().toObject()).toEqual({1:'a', 2:'b', 3:'c', 4:'d', 5:'e', 6:'f'});
   });
 
-  it('can convert to a vector', function() {
+  it('can convert to a vector', () => {
     var m = Map({a:1, b:2, c:3});
     var v = m.toVector();
     var k = m.keys().toVector();

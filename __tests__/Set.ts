@@ -3,9 +3,9 @@ jest.autoMockOff();
 import Immutable = require('../dist/Immutable');
 import Set = Immutable.Set;
 
-describe('Set', function() {
+describe('Set', () => {
 
-  it('constructor provides initial values', function() {
+  it('constructor provides initial values', () => {
     var s = Set(1,2,3);
     expect(s.has(1)).toBe(true);
     expect(s.has(2)).toBe(true);
@@ -13,17 +13,17 @@ describe('Set', function() {
     expect(s.has(4)).toBe(false);
   });
 
-  it('converts back to JS array', function() {
+  it('converts back to JS array', () => {
     var s = Set(1,2,3);
     expect(s.toArray()).toEqual([1,2,3]);
   });
 
-  it('converts back to JS object', function() {
+  it('converts back to JS object', () => {
     var s = Set('a','b','c');
     expect(s.toObject()).toEqual({a:'a',b:'b',c:'c'});
   });
 
-  it('iterates values', function() {
+  it('iterates values', () => {
     var s = Set(1,2,3);
     var iterator = jest.genMockFunction();
     s.forEach(iterator);
@@ -34,14 +34,14 @@ describe('Set', function() {
     ]);
   });
 
-  it('merges two sets', function() {
+  it('merges two sets', () => {
     var s1 = Set('a', 'b', 'c');
     var s2 = Set('wow', 'd', 'b');
     var s3 = s1.merge(s2);
     expect(s3.toArray()).toEqual(['a', 'b', 'c', 'd', 'wow']);
   });
 
-  it('is persistent to adds', function() {
+  it('is persistent to adds', () => {
     var s1 = Set();
     var s2 = s1.add('a');
     var s3 = s2.add('b');
@@ -54,7 +54,7 @@ describe('Set', function() {
     expect(s5.length).toBe(3);
   });
 
-  it('is persistent to deletes', function() {
+  it('is persistent to deletes', () => {
     var s1 = Set();
     var s2 = s1.add('a');
     var s3 = s2.add('b');
@@ -69,7 +69,7 @@ describe('Set', function() {
     expect(s5.has('b')).toBe(false);
   });
 
-  it('deletes down to empty set', function() {
+  it('deletes down to empty set', () => {
     var s = Set('A').delete('A');
     expect(s).toBe(Set.empty());
   });
