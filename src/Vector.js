@@ -117,7 +117,7 @@ class Vector extends IndexedSequence {
   }
 
   delete(index) {
-    // Out of bounds, no-op.
+    // Out of bounds, no-op. Probably a more efficient way to do this...
     if (!this.has(index)) {
       return this;
     }
@@ -141,6 +141,7 @@ class Vector extends IndexedSequence {
     var node = newRoot;
     for (var level = this._level; level > 0; level -= SHIFT) {
       var idx = (index >>> level) & MASK;
+      // TODO: if we don't check "has" above, this could be null.
       node = node.array[idx] = node.array[idx].ensureOwner(this._ownerID);
     }
     delete node.array[index & MASK];

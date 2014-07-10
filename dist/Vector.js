@@ -117,7 +117,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   };
 
   Vector.prototype.delete=function(index) {"use strict";
-    // Out of bounds, no-op.
+    // Out of bounds, no-op. Probably a more efficient way to do this...
     if (!this.has(index)) {
       return this;
     }
@@ -141,6 +141,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     var node = newRoot;
     for (var level = this.$Vector_level; level > 0; level -= SHIFT) {
       var idx = (index >>> level) & MASK;
+      // TODO: if we don't check "has" above, this could be null.
       node = node.array[idx] = node.array[idx].ensureOwner(this.$Vector_ownerID);
     }
     delete node.array[index & MASK];
