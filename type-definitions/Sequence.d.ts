@@ -61,10 +61,16 @@ export interface Sequence<K, V, C> {
 
   entries(): IndexedSequence</*(K, V)*/Array<any>, C>;
 
+  /**
+   * This behavior differs from Array.prototype.forEach
+   * sideEffect is run for every entry in the sequence. If any sideEffect
+   * returns false, the iteration will stop. Returns the length of the sequence
+   * which was iterated.
+   */
   forEach(
     sideEffect: (value?: V, key?: K, collection?: C) => any,
     context?: Object
-  ): void;
+  ): number;
 
   first(
     predicate?: (value?: V, index?: number, collection?: C) => boolean,

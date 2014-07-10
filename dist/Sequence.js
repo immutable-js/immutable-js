@@ -44,24 +44,20 @@
   };
 
   Sequence.prototype.toArray=function() {"use strict";
-    var array = [];
-    this.__iterate(function(v)  { array.push(v); });
+    var array = new Array(this.length || 0);
+    this.values().forEach(function(v, i)  { array[i] = v; });
     return array;
   };
 
   Sequence.prototype.toObject=function() {"use strict";
     var object = {};
-    this.__iterate(function(v, k)  { object[k] = v; });
+    this.forEach(function(v, k)  { object[k] = v; });
     return object;
   };
 
   Sequence.prototype.toVector=function() {"use strict";
     // Use Late Binding here to solve the circular dependency.
-    var vect = require('./Vector').empty().asTransient();
-    this.__iterate(function(v)  {
-      vect = vect.push(v);
-    });
-    return vect.asPersistent();
+    return require('./Vector').empty().merge(this.values());
   };
 
   Sequence.prototype.toMap=function() {"use strict";
@@ -105,7 +101,7 @@
     separator = separator || ',';
     var string = '';
     var isFirst = true;
-    this.__iterate(function(v, k)  {
+    this.forEach(function(v, k)  {
       if (isFirst) {
         isFirst = false;
         string += v;
@@ -165,7 +161,7 @@
   };
 
   Sequence.prototype.forEach=function(sideEffect, context) {"use strict";
-    this.__iterate(function(v, k, c)  { sideEffect.call(context, v, k, c); });
+    return this.__iterate(context ? sideEffect.bind(context) : sideEffect);
   };
 
   Sequence.prototype.first=function(predicate, context) {"use strict";
@@ -180,7 +176,7 @@
 
   Sequence.prototype.reduce=function(reducer, initialReduction, context) {"use strict";
     var reduction = initialReduction;
-    this.__iterate(function(v, k, c)  {
+    this.forEach(function(v, k, c)  {
       reduction = reducer.call(context, reduction, v, k, c);
     });
     return reduction;
@@ -192,7 +188,7 @@
 
   Sequence.prototype.every=function(predicate, context) {"use strict";
     var returnValue = true;
-    this.__iterate(function(v, k, c)  {
+    this.forEach(function(v, k, c)  {
       if (!predicate.call(context, v, k, c)) {
         returnValue = false;
         return false;
@@ -211,7 +207,7 @@
 
   Sequence.prototype.find=function(predicate, context, notFoundValue) {"use strict";
     var foundValue = notFoundValue;
-    this.__iterate(function(v, k, c)  {
+    this.forEach(function(v, k, c)  {
       if (predicate.call(context, v, k, c)) {
         foundValue = v;
         return false;
@@ -222,7 +218,7 @@
 
   Sequence.prototype.findKey=function(predicate, context) {"use strict";
     var foundKey;
-    this.__iterate(function(v, k, c)  {
+    this.forEach(function(v, k, c)  {
       if (predicate.call(context, v, k, c)) {
         foundKey = k;
         return false;
@@ -366,7 +362,7 @@
     if (!this.$Sequence_cache) {
       var cache = [];
       var collection;
-      var length = this.__iterate(function(v, k, c)  {
+      var length = this.forEach(function(v, k, c)  {
         collection || (collection = c);
         cache.push([k, v]);
       });
@@ -421,23 +417,21 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   };
 
   IndexedSequence.prototype.toArray=function() {"use strict";
-    var array = [];
-    array.length = this.__iterate(function(v, i)  { array[i] = v; });
+    var array = new Array(this.length || 0);
+    array.length = this.forEach(function(v, i)  { array[i] = v; });
     return array;
   };
 
   IndexedSequence.prototype.toVector=function() {"use strict";
     // Use Late Binding here to solve the circular dependency.
-    var vect = require('./Vector').empty().asTransient();
-    var length = this.__iterate(function(v, i)  { vect = vect.set(i, v); });
-    return vect.setLength(length).asPersistent();
+    return require('./Vector').empty().merge(this);
   };
 
   IndexedSequence.prototype.join=function(separator) {"use strict";
     separator = separator || ',';
     var string = '';
     var prevIndex = 0;
-    this.__iterate(function(v, i)  {
+    this.forEach(function(v, i)  {
       var numSeparators = i - prevIndex;
       prevIndex = i;
       string += (numSeparators === 1 ? separator : repeatString(separator, numSeparators)) + v;
@@ -581,6 +575,10 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     this.$ValuesSequence_sequence = sequence;
     this.length = length;
   }
+
+  ValuesSequence.prototype.values=function() {"use strict";
+    return this;
+  };
 
   ValuesSequence.prototype.__iterateUncached=function(fn, reverse, flipIndices) {"use strict";
     if (flipIndices && this.length == null) {

@@ -44,24 +44,20 @@ class Sequence {
   }
 
   toArray() {
-    var array = [];
-    this.__iterate(v => { array.push(v); });
+    var array = new Array(this.length || 0);
+    this.values().forEach((v, i) => { array[i] = v; });
     return array;
   }
 
   toObject() {
     var object = {};
-    this.__iterate((v, k) => { object[k] = v; });
+    this.forEach((v, k) => { object[k] = v; });
     return object;
   }
 
   toVector() {
     // Use Late Binding here to solve the circular dependency.
-    var vect = require('./Vector').empty().asTransient();
-    this.__iterate(v => {
-      vect = vect.push(v);
-    });
-    return vect.asPersistent();
+    return require('./Vector').empty().merge(this.values());
   }
 
   toMap() {
@@ -105,7 +101,7 @@ class Sequence {
     separator = separator || ',';
     var string = '';
     var isFirst = true;
-    this.__iterate((v, k) => {
+    this.forEach((v, k) => {
       if (isFirst) {
         isFirst = false;
         string += v;
@@ -165,7 +161,7 @@ class Sequence {
   }
 
   forEach(sideEffect, context) {
-    this.__iterate((v, k, c) => { sideEffect.call(context, v, k, c); });
+    return this.__iterate(context ? sideEffect.bind(context) : sideEffect);
   }
 
   first(predicate, context) {
@@ -180,7 +176,7 @@ class Sequence {
 
   reduce(reducer, initialReduction, context) {
     var reduction = initialReduction;
-    this.__iterate((v, k, c) => {
+    this.forEach((v, k, c) => {
       reduction = reducer.call(context, reduction, v, k, c);
     });
     return reduction;
@@ -192,7 +188,7 @@ class Sequence {
 
   every(predicate, context) {
     var returnValue = true;
-    this.__iterate((v, k, c) => {
+    this.forEach((v, k, c) => {
       if (!predicate.call(context, v, k, c)) {
         returnValue = false;
         return false;
@@ -211,7 +207,7 @@ class Sequence {
 
   find(predicate, context, notFoundValue) {
     var foundValue = notFoundValue;
-    this.__iterate((v, k, c) => {
+    this.forEach((v, k, c) => {
       if (predicate.call(context, v, k, c)) {
         foundValue = v;
         return false;
@@ -222,7 +218,7 @@ class Sequence {
 
   findKey(predicate, context) {
     var foundKey;
-    this.__iterate((v, k, c) => {
+    this.forEach((v, k, c) => {
       if (predicate.call(context, v, k, c)) {
         foundKey = k;
         return false;
@@ -366,7 +362,7 @@ class Sequence {
     if (!this._cache) {
       var cache = [];
       var collection;
-      var length = this.__iterate((v, k, c) => {
+      var length = this.forEach((v, k, c) => {
         collection || (collection = c);
         cache.push([k, v]);
       });
@@ -421,23 +417,21 @@ class IndexedSequence extends Sequence {
   }
 
   toArray() {
-    var array = [];
-    array.length = this.__iterate((v, i) => { array[i] = v; });
+    var array = new Array(this.length || 0);
+    array.length = this.forEach((v, i) => { array[i] = v; });
     return array;
   }
 
   toVector() {
     // Use Late Binding here to solve the circular dependency.
-    var vect = require('./Vector').empty().asTransient();
-    var length = this.__iterate((v, i) => { vect = vect.set(i, v); });
-    return vect.setLength(length).asPersistent();
+    return require('./Vector').empty().merge(this);
   }
 
   join(separator) {
     separator = separator || ',';
     var string = '';
     var prevIndex = 0;
-    this.__iterate((v, i) => {
+    this.forEach((v, i) => {
       var numSeparators = i - prevIndex;
       prevIndex = i;
       string += (numSeparators === 1 ? separator : repeatString(separator, numSeparators)) + v;
@@ -580,6 +574,10 @@ class ValuesSequence extends IndexedSequence {
     this.__parentSequence = sequence._parentSequence || sequence;
     this._sequence = sequence;
     this.length = length;
+  }
+
+  values() {
+    return this;
   }
 
   __iterateUncached(fn, reverse, flipIndices) {

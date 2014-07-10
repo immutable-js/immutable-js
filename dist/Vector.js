@@ -26,7 +26,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     if (values.length > 0 && values.length < SIZE) {
       return Vector.$Vector_make(0, values.length, SHIFT, __EMPTY_VNODE, new VNode(values.slice()));
     }
-    return Vector.empty().asTransient().merge(values).setLength(values.length).asPersistent();
+    return Vector.empty().merge(values);
   };
 
   Vector.prototype.toString=function() {"use strict";
@@ -73,57 +73,24 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   };
 
   Vector.prototype.set=function(index, value) {"use strict";
-    index = rawIndex(index, this.$Vector_origin);
     var tailOffset = getTailOffset(this.$Vector_size);
-    var node, level, idx, newSize, newRoot, newTail;
 
-    var maskedIndex = index & MASK;
-
-    // Overflow's tail, merge the tail and make a new one.
-    if (index >= tailOffset + SIZE) {
-      // Tail might require creating a higher root.
-      newRoot = this.$Vector_root;
-      var newLevel = this.$Vector_level;
-      while (tailOffset >= 1 << (newLevel + SHIFT)) {
-        newRoot = new VNode([newRoot], this.$Vector_ownerID);
-        newLevel += SHIFT;
-      }
-      if (newRoot === this.$Vector_root) {
-        newRoot = newRoot.ensureOwner(this.$Vector_ownerID);
-      }
-
-      // Merge Tail into tree.
-      node = newRoot;
-      for (level = newLevel; level > SHIFT; level -= SHIFT) {
-        idx = (tailOffset >>> level) & MASK;
-        node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this.$Vector_ownerID) : new VNode([], this.$Vector_ownerID);
-      }
-      node.array[(tailOffset >>> SHIFT) & MASK] = this.$Vector_tail;
-
-      // Create new tail with set index.
-      newTail = new VNode([], this.$Vector_ownerID);
-      newTail.array[maskedIndex] = value;
-      newSize = index + 1;
-      if (this.$Vector_ownerID) {
-        this.length = newSize - this.$Vector_origin;
-        this.$Vector_size = newSize;
-        this.$Vector_level = newLevel;
-        this.$Vector_root = newRoot;
-        this.$Vector_tail = newTail;
-        return this;
-      }
-      return Vector.$Vector_make(this.$Vector_origin, newSize, newLevel, newRoot, newTail);
+    if (index + this.$Vector_origin >= tailOffset + SIZE) {
+      var vect = this.asTransient().setRange(0, index + 1).set(index, value);
+      return this.isTransient() ? vect : vect.asPersistent();
     }
 
-    if (this.get(index - this.$Vector_origin, __SENTINEL) === value) {
+    if (this.get(index, __SENTINEL) === value) {
       return this;
     }
 
+    index = rawIndex(index, this.$Vector_origin);
+
     // Fits within tail.
     if (index >= tailOffset) {
-      newTail = this.$Vector_tail.ensureOwner(this.$Vector_ownerID);
+      var newTail = this.$Vector_tail.ensureOwner(this.$Vector_ownerID);
       newTail.array[index & MASK] = value;
-      newSize = index >= this.$Vector_size ? index + 1 : this.$Vector_size;
+      var newSize = index >= this.$Vector_size ? index + 1 : this.$Vector_size;
       if (this.$Vector_ownerID) {
         this.length = newSize - this.$Vector_origin;
         this.$Vector_size = newSize;
@@ -134,13 +101,13 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     }
 
     // Fits within existing tree.
-    newRoot = this.$Vector_root.ensureOwner(this.$Vector_ownerID);
-    node = newRoot;
-    for (level = this.$Vector_level; level > 0; level -= SHIFT) {
-      idx = (index >>> level) & MASK;
+    var newRoot = this.$Vector_root.ensureOwner(this.$Vector_ownerID);
+    var node = newRoot;
+    for (var level = this.$Vector_level; level > 0; level -= SHIFT) {
+      var idx = (index >>> level) & MASK;
       node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this.$Vector_ownerID) : new VNode([], this.$Vector_ownerID);
     }
-    node.array[maskedIndex] = value;
+    node.array[index & MASK] = value;
     if (this.$Vector_ownerID) {
       this.$Vector_root = newRoot;
       return this;
@@ -148,46 +115,14 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     return Vector.$Vector_make(this.$Vector_origin, this.$Vector_size, this.$Vector_level, newRoot, this.$Vector_tail);
   };
 
-  Vector.prototype.setIn=function(keyPath, v, pathOffset) {"use strict";
-    pathOffset = pathOffset || 0;
-    if (pathOffset === keyPath.length - 1) {
-      return this.set(keyPath[pathOffset], v);
-    }
-    var k = keyPath[pathOffset];
-    var nested = this.get(k, __SENTINEL);
-    if (nested === __SENTINEL || !nested.setIn) {
-      if (typeof k === 'number') {
-        nested = Vector.empty();
-      } else {
-        nested = require('./Map').empty();
-      }
-    }
-    return this.set(k, nested.setIn(keyPath, v, pathOffset + 1));
-  };
-
-  Vector.prototype.push=function() {"use strict";
-    if (arguments.length === 1) {
-      return this.set(this.length, arguments[0]);
-    }
-    var vec = this.asTransient();
-    for (var ii = 0; ii < arguments.length; ii++) {
-      vec = vec.set(vec.length, arguments[ii]);
-    }
-    return this.isTransient() ? vec : vec.asPersistent();
-  };
-
-  Vector.prototype.pop=function() {"use strict";
-    return this.setRange(0, -1);
-  };
-
   Vector.prototype.delete=function(index) {"use strict";
-    index = rawIndex(index, this.$Vector_origin);
-    var tailOffset = getTailOffset(this.$Vector_size);
-
     // Out of bounds, no-op.
     if (!this.has(index)) {
       return this;
     }
+
+    var tailOffset = getTailOffset(this.$Vector_size);
+    index = rawIndex(index, this.$Vector_origin);
 
     // Delete within tail.
     if (index >= tailOffset) {
@@ -215,6 +150,23 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     return Vector.$Vector_make(this.$Vector_origin, this.$Vector_size, this.$Vector_level, newRoot, this.$Vector_tail);
   };
 
+  Vector.prototype.setIn=function(keyPath, v, pathOffset) {"use strict";
+    pathOffset = pathOffset || 0;
+    if (pathOffset === keyPath.length - 1) {
+      return this.set(keyPath[pathOffset], v);
+    }
+    var k = keyPath[pathOffset];
+    var nested = this.get(k, __SENTINEL);
+    if (nested === __SENTINEL || !nested.setIn) {
+      if (typeof k === 'number') {
+        nested = Vector.empty();
+      } else {
+        nested = require('./Map').empty();
+      }
+    }
+    return this.set(k, nested.setIn(keyPath, v, pathOffset + 1));
+  };
+
   Vector.prototype.deleteIn=function(keyPath, pathOffset) {"use strict";
     pathOffset = pathOffset || 0;
     if (pathOffset === keyPath.length - 1) {
@@ -228,6 +180,22 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     return this.set(k, nested.deleteIn(keyPath, pathOffset + 1));
   };
 
+  Vector.prototype.push=function() {"use strict";
+    if (arguments.length === 1) {
+      return this.set(this.length, arguments[0]);
+    }
+    var vec = this.asTransient();
+    for (var ii = 0; ii < arguments.length; ii++) {
+      vec = vec.set(vec.length, arguments[ii]);
+    }
+    return this.isTransient() ? vec : vec.asPersistent();
+  };
+
+  Vector.prototype.pop=function() {"use strict";
+    return this.setRange(0, -1);
+  };
+
+  // TODO: move most of this into setRange() and allow negative ranges.
   Vector.prototype.unshift=function() {"use strict";
     var values = arguments;
     var newOrigin = this.$Vector_origin - values.length;
@@ -299,12 +267,17 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     if (!seq || !seq.forEach) {
       return this;
     }
-    var newVect = this.asTransient();
+    var vect = this.asTransient();
+    if (seq.length && seq.length > this.length) {
+      vect = vect.setRange(0, seq.length);
+    }
     seq.forEach(function(value, index)  {
-      newVect = newVect.set(index, value)
+      vect = vect.set(index, value)
     });
-    return this.isTransient() ? newVect : newVect.asPersistent();
+    return this.isTransient() ? vect : vect.asPersistent();
   };
+
+  // TODO: mergeIn
 
   Vector.prototype.setRange=function(begin, end) {"use strict";
     var owner = this.$Vector_ownerID || new OwnerID();
@@ -320,6 +293,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
       return this.clear();
     }
 
+    var oldTail = this.$Vector_tail;
     var oldTailOffset = getTailOffset(oldSize);
     var newTailOffset = getTailOffset(newSize);
 
@@ -327,25 +301,23 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     var newRoot = this.$Vector_root;
     var newTail = newTailOffset < oldTailOffset ?
       this.$Vector_nodeFor(newSize) :
-      newTailOffset > oldTailOffset ? new VNode([], owner) : this.$Vector_tail;
+      newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
 
-    if (newTailOffset > oldTailOffset && newOrigin < oldSize && this.$Vector_tail.array.length) {
-      // Tail might require creating a higher root.
-      while (oldTailOffset >= 1 << (newLevel + SHIFT)) {
-        newRoot = new VNode([newRoot], this.$Vector_ownerID);
-        newLevel += SHIFT;
-      }
-      if (newRoot === this.$Vector_root) {
-        newRoot = newRoot.ensureOwner(this.$Vector_ownerID);
-      }
+    // New size might require creating a higher root.
+    while (newTailOffset >= 1 << (newLevel + SHIFT)) {
+      newRoot = new VNode(newRoot.array.length ? [newRoot] : [], owner);
+      newLevel += SHIFT;
+    }
 
+    if (newTailOffset > oldTailOffset && newOrigin < oldSize && oldTail.array.length) {
       // Merge Tail into tree.
+      newRoot = newRoot.ensureOwner(owner);
       var node = newRoot;
-      for (var level = this.$Vector_level; level > SHIFT; level -= SHIFT) {
+      for (var level = newLevel; level > SHIFT; level -= SHIFT) {
         var idx = (oldTailOffset >>> level) & MASK;
         node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(owner) : new VNode([], owner);
       }
-      node.array[(oldTailOffset >>> SHIFT) & MASK] = this.$Vector_tail;
+      node.array[(oldTailOffset >>> SHIFT) & MASK] = oldTail;
     }
 
     if (newSize < oldSize) {

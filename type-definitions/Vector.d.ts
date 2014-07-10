@@ -15,13 +15,16 @@ interface Vector<T> extends IndexedSequence<T, Vector<T>> {
   has(index: number): boolean;
   get(index: number, undefinedValue?: T): T;
   getIn(indexPath: any[], pathOffset?: number): any;
+
   clear(): Vector<T>;
   set(index: number, value: T): Vector<T>;
+  delete(index: number): Vector<T>;
+
   setIn(keyPath: any[], v: any, pathOffset?: number): Vector<T>;
+  deleteIn(keyPath: any[], pathOffset?: number): Vector<T>;
+
   push(...values: T[]): Vector<T>;
   pop(): Vector<T>;
-  delete(index: number): Vector<T>;
-  deleteIn(keyPath: any[], pathOffset?: number): Vector<T>;
   unshift(...values: T[]): Vector<T>;
   shift(): Vector<T>;
 
