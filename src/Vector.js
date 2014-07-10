@@ -459,31 +459,26 @@ class Vector extends IndexedSequence {
     var lastIndex = 0;
     var maxIndex = vector.length - 1;
     flipIndices ^= reverse;
-    var didComplete = this.__rawIterate((value, ii) => {
+    var eachFn = (value, ii) => {
       if (fn(value, flipIndices ? maxIndex - ii : ii, vector) === false) {
         return false;
       } else {
         lastIndex = ii;
         return true;
       }
-    }, reverse);
-    return didComplete ? this.length : reverse ? this.length - lastIndex : lastIndex + 1;
-  }
-
-  // TODO: merge into __iterate
-  __rawIterate(fn, reverse) {
+    };
+    var didComplete;
     var tailOffset = getTailOffset(this._size);
     if (reverse) {
-      return (
-        this._tail.reverseIterate(0, tailOffset - this._origin, this._size - this._origin, fn) &&
-        this._root.reverseIterate(this._level, -this._origin, tailOffset - this._origin, fn)
-      );
+      didComplete =
+        this._tail.iterate(0, tailOffset - this._origin, this._size - this._origin, eachFn, reverse) &&
+        this._root.iterate(this._level, -this._origin, tailOffset - this._origin, eachFn, reverse);
     } else {
-      return (
-        this._root.iterate(this._level, -this._origin, tailOffset - this._origin, fn) &&
-        this._tail.iterate(0, tailOffset - this._origin, this._size - this._origin, fn)
-      );
+      didComplete =
+        this._root.iterate(this._level, -this._origin, tailOffset - this._origin, eachFn, reverse) &&
+        this._tail.iterate(0, tailOffset - this._origin, this._size - this._origin, eachFn, reverse);
     }
+    return (didComplete ? maxIndex : reverse ? maxIndex - lastIndex : lastIndex) + 1;
   }
 
   // @pragma Private
@@ -604,47 +599,45 @@ class VNode {
     return new VNode(this.array.slice(), ownerID);
   }
 
-  iterate(level, offset, max, fn) {
+  iterate(level, offset, max, fn, reverse) {
     // Note using every() gets us a speed-up of 2x on modern JS VMs, but means
     // we cannot support IE8 without polyfill.
     if (level === 0) {
-      return this.array.every((value, rawIndex) => {
-        var index = rawIndex + offset;
-        return index < 0 || index >= max || fn(value, index) !== false;
-      });
+      if (reverse) {
+        for (var revRawIndex = this.array.length - 1; revRawIndex >= 0; revRawIndex--) {
+          if (this.array.hasOwnProperty(revRawIndex)) {
+            var index = revRawIndex + offset;
+            if (index >= 0 && index < max && fn(this.array[revRawIndex], index) === false) {
+              return false;
+            }
+          }
+        }
+        return true;
+      } else {
+        return this.array.every((value, rawIndex) => {
+          var index = rawIndex + offset;
+          return index < 0 || index >= max || fn(value, index) !== false;
+        });
+      }
     }
     var step = 1 << level;
     var newLevel = level - SHIFT;
-    return this.array.every((newNode, levelIndex) => {
-      var newOffset = offset + levelIndex * step;
-      return newOffset >= max || newOffset + step <= 0 || newNode.iterate(newLevel, newOffset, max, fn);
-    });
-  }
-
-  reverseIterate(level, offset, max, fn) {
-    if (level === 0) {
-      for (var rawIndex = this.array.length - 1; rawIndex >= 0; rawIndex--) {
-        if (this.array.hasOwnProperty(rawIndex)) {
-          var index = rawIndex + offset;
-          if (index >= 0 && index < max && fn(this.array[rawIndex], index) === false) {
-            return false;
-          }
-        }
-      }
-    } else {
-      var step = 1 << level;
-      var newLevel = level - SHIFT;
-      for (var levelIndex = this.array.length - 1; levelIndex >= 0; levelIndex--) {
-        var newOffset = offset + levelIndex * step;
-        if (newOffset < max &&
-            newOffset + step > 0 &&
-            this.array.hasOwnProperty(levelIndex) &&
-            !this.array[levelIndex].reverseIterate(newLevel, newOffset, max, fn)) {
+    if (reverse) {
+      for (var revLevelIndex = this.array.length - 1; revLevelIndex >= 0; revLevelIndex--) {
+        var newOffset = offset + revLevelIndex * step;
+        if (newOffset < max && newOffset + step > 0 &&
+            this.array.hasOwnProperty(revLevelIndex) &&
+            !this.array[revLevelIndex].iterate(newLevel, newOffset, max, fn, reverse)) {
           return false;
         }
       }
+      return true;
+    } else {
+      return this.array.every((newNode, levelIndex) => {
+        var newOffset = offset + levelIndex * step;
+        return newOffset >= max || newOffset + step <= 0 || newNode.iterate(newLevel, newOffset, max, fn, reverse);
+      });
     }
-    return true;
   }
 }
 
