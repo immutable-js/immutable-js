@@ -72,7 +72,16 @@ describe('Vector', function() {
     expect(v7.toArray()).toEqual(expectedArray);
   });
 
-  it('has describes a sparse vector', function() {
+  it('can contain a large number of indices', () => {
+    var v = Persistent.Range(0,20000).toVector();
+    var iterations = 0;
+    v.forEach(v => {
+      expect(v).toBe(iterations);
+      iterations++;
+    });
+  })
+
+  it('describes a sparse vector', function() {
     var v = Vector('a', 'b', 'c').push('d').set(10000, 'e').set(64, undefined).delete(1);
     expect(v.length).toBe(10001);
     expect(v.has(2)).toBe(true); // original end

@@ -811,7 +811,7 @@ class ObjectSequence extends Sequence {
 }
 
 function wholeSlice(begin, end, length) {
-  return (begin <= 0 || (length != null && begin <= -length)) &&
+  return (begin === 0 || (length != null && begin <= -length)) &&
     (end == null || (length != null && end >= length));
 }
 

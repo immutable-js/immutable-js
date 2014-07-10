@@ -14,7 +14,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   }
 
   Vector.empty=function() {"use strict";
-    return __EMPTY_PVECT || (__EMPTY_PVECT =
+    return __EMPTY_VECT || (__EMPTY_VECT =
       Vector.$Vector_make(0, 0, SHIFT, __EMPTY_VNODE, __EMPTY_VNODE)
     );
   };
@@ -24,7 +24,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
       return Vector.empty();
     }
     if (values.length > 0 && values.length < SIZE) {
-      return Vector.$Vector_make(0, values.length, SHIFT, __EMPTY_VNODE, new VNode(null, values.slice()));
+      return Vector.$Vector_make(0, values.length, SHIFT, __EMPTY_VNODE, new VNode(values.slice()));
     }
     return Vector.empty().asTransient().merge(values).setLength(values.length).asPersistent();
   };
@@ -82,8 +82,8 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
       // Tail might require creating a higher root.
       newRoot = this.$Vector_root;
       var newLevel = this.$Vector_level;
-      while (tailOffset > 1 << (newLevel + SHIFT)) {
-        newRoot = new VNode(this.$Vector_ownerID, [newRoot]);
+      while (tailOffset >= 1 << (newLevel + SHIFT)) {
+        newRoot = new VNode([newRoot], this.$Vector_ownerID);
         newLevel += SHIFT;
       }
       if (newRoot === this.$Vector_root) {
@@ -94,12 +94,12 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
       node = newRoot;
       for (level = newLevel; level > SHIFT; level -= SHIFT) {
         idx = (tailOffset >>> level) & MASK;
-        node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this.$Vector_ownerID) : new VNode(this.$Vector_ownerID, []);
+        node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this.$Vector_ownerID) : new VNode([], this.$Vector_ownerID);
       }
       node.array[(tailOffset >>> SHIFT) & MASK] = this.$Vector_tail;
 
       // Create new tail with set index.
-      newTail = new VNode(this.$Vector_ownerID, []);
+      newTail = new VNode([], this.$Vector_ownerID);
       newTail.array[index & MASK] = value;
       newSize = index + 1;
       if (this.$Vector_ownerID) {
@@ -132,7 +132,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     node = newRoot;
     for (level = this.$Vector_level; level > 0; level -= SHIFT) {
       idx = (index >>> level) & MASK;
-      node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this.$Vector_ownerID) : new VNode(this.$Vector_ownerID, []);
+      node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this.$Vector_ownerID) : new VNode([], this.$Vector_ownerID);
     }
     node.array[index & MASK] = value;
     if (this.$Vector_ownerID) {
@@ -171,37 +171,38 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   };
 
   Vector.prototype.pop=function() {"use strict";
-    var newSize = this.$Vector_size - 1;
-    var newTail;
-
-    if (newSize <= this.$Vector_origin) {
-      return this.clear();
-    }
-
-    if (this.$Vector_ownerID) {
-      this.length--;
-      this.$Vector_size--;
-    }
-
-    // Fits within tail.
-    if (newSize > getTailOffset(this.$Vector_size)) {
-      newTail = this.$Vector_tail.ensureOwner(this.$Vector_ownerID);
-      newTail.array.pop();
-      if (this.$Vector_ownerID) {
-        this.$Vector_tail = newTail;
-        return this;
-      }
-      return Vector.$Vector_make(this.$Vector_origin, newSize, this.$Vector_level, this.$Vector_root, newTail);
-    }
-
-    var newRoot = this.$Vector_root.pop(this.$Vector_ownerID, this.$Vector_size, this.$Vector_level) || __EMPTY_VNODE;
-    newTail = this.$Vector_nodeFor(newSize - 1);
-    if (this.$Vector_ownerID) {
-      this.$Vector_root = newRoot;
-      this.$Vector_tail = newTail;
-      return this;
-    }
-    return Vector.$Vector_make(this.$Vector_origin, newSize, this.$Vector_level, newRoot, newTail);
+    return this.setRange(0, -1);
+    //var newSize = this._size - 1;
+    //var newTail;
+//
+    //if (newSize <= this._origin) {
+    //  return this.clear();
+    //}
+//
+    //if (this._ownerID) {
+    //  this.length--;
+    //  this._size--;
+    //}
+//
+    //// Fits within tail.
+    //if (newSize > getTailOffset(this._size)) {
+    //  newTail = this._tail.ensureOwner(this._ownerID);
+    //  newTail.array.pop();
+    //  if (this._ownerID) {
+    //    this._tail = newTail;
+    //    return this;
+    //  }
+    //  return Vector._make(this._origin, newSize, this._level, this._root, newTail);
+    //}
+//
+    //var newRoot = this._root.pop(this._ownerID, this._size, this._level) || __EMPTY_VNODE;
+    //newTail = this._nodeFor(newSize - 1);
+    //if (this._ownerID) {
+    //  this._root = newRoot;
+    //  this._tail = newTail;
+    //  return this;
+    //}
+    //return Vector._make(this._origin, newSize, this._level, newRoot, newTail);
   };
 
   Vector.prototype.delete=function(index) {"use strict";
@@ -258,28 +259,45 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     var newSize = this.$Vector_size;
     var newLevel = this.$Vector_level;
     var newRoot = this.$Vector_root;
+    var newTail = this.$Vector_tail;
+    var owner = this.$Vector_ownerID || new OwnerID();
     var node;
 
     while (newOrigin < 0) {
-      node = new VNode(this.$Vector_ownerID, []);
-      node.array[1] = newRoot;
+      node = new VNode([], owner);
+      if (newRoot.array.length) {
+        node.array[1] = newRoot;
+      }
       newOrigin += 1 << newLevel;
       newSize += 1 << newLevel;
       newLevel += SHIFT;
       newRoot = node;
     }
 
-    if (newRoot === this.$Vector_root) {
-      newRoot = this.$Vector_root.ensureOwner(this.$Vector_ownerID);
+    var newTailOffset = getTailOffset(newSize);
+
+    // Necessary if we ever write into the root.
+    if (newRoot === this.$Vector_root && newOrigin < newTailOffset) {
+      newRoot = newRoot.ensureOwner(owner);
     }
 
-    var tempOwner = this.$Vector_ownerID || new OwnerID();
+    // Only necessary if we ever write into the tail.
+    if (newOrigin + values.length >= newTailOffset) {
+      newTail = newTail.ensureOwner(owner);
+    }
+
     for (var ii = 0; ii < values.length; ii++) {
       var index = newOrigin + ii;
-      node = newRoot;
-      for (var level = newLevel; level > 0; level -= SHIFT) {
-        var idx = (index >>> level) & MASK;
-        node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(tempOwner) : new VNode(tempOwner, []);
+      if (index >= newTailOffset) {
+        // Fits within tail.
+        node = newTail;
+      } else {
+        // Fits within existing tree.
+        node = newRoot;
+        for (var level = newLevel; level > 0; level -= SHIFT) {
+          var idx = (index >>> level) & MASK;
+          node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(owner) : new VNode([], owner);
+        }
       }
       node.array[index & MASK] = values[ii];
     }
@@ -290,13 +308,14 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
       this.$Vector_size = newSize;
       this.$Vector_level = newLevel;
       this.$Vector_root = newRoot;
+      this.$Vector_tail = newTail;
       return this;
     }
-    return Vector.$Vector_make(newOrigin, newSize, newLevel, newRoot, this.$Vector_tail);
+    return Vector.$Vector_make(newOrigin, newSize, newLevel, newRoot, newTail);
   };
 
   Vector.prototype.shift=function() {"use strict";
-    return this.slice(1);
+    return this.setRange(1);
   };
 
   // @pragma Composition
@@ -312,19 +331,82 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     return this.isTransient() ? newVect : newVect.asPersistent();
   };
 
+  // TODO: allow begin+end to be larger than current length, and retire setLength()?
+  Vector.prototype.setRange=function(begin, end) {"use strict";
+    var oldOrigin = this.$Vector_origin;
+    var oldSize = this.$Vector_size;
+    var newOrigin = begin < 0 ? Math.max(oldOrigin, oldSize + begin) : Math.min(oldSize, oldOrigin + begin);
+    var newSize = end == null ? oldSize : end < 0 ? Math.max(oldOrigin, oldSize + end) : Math.min(oldSize, oldOrigin + end);
+    if (newOrigin === oldOrigin && newSize === oldSize) {
+      return this;
+    }
+
+    if (newOrigin >= newSize) {
+      return this.clear();
+    }
+
+    var newLevel = this.$Vector_level;
+    var newRoot = this.$Vector_root;
+    var newTail = newSize === oldSize ? this.$Vector_tail : this.$Vector_nodeFor(newSize).removeAfter(this.$Vector_ownerID, 0, newSize);
+
+    var oldTailOffset = getTailOffset(oldSize);
+    var newTailOffset = getTailOffset(newSize);
+
+    if (newOrigin >= newTailOffset) {
+      newOrigin -= newTailOffset;
+      newSize -= newTailOffset;
+      newLevel = SHIFT;
+      newRoot = __EMPTY_VNODE;
+      newTail = newTail.removeBefore(this.$Vector_ownerID, 0, newOrigin);
+    } else if (newOrigin > oldOrigin || newSize < oldTailOffset) {
+      var beginIndex, endIndex;
+      var offset = 0;
+      do {
+        beginIndex = ((newOrigin) >>> newLevel) & MASK;
+        endIndex = ((newTailOffset - 1) >>> newLevel) & MASK;
+        if (beginIndex === endIndex) {
+          offset += 1 << newLevel;
+          newLevel -= SHIFT;
+          newRoot = newRoot.array[beginIndex];
+        }
+      } while (beginIndex === endIndex);
+      if (newOrigin !== oldOrigin) {
+        newRoot = newRoot.removeBefore(this.$Vector_ownerID, newLevel, newOrigin - offset);
+      }
+      if (newTailOffset !== oldTailOffset) {
+        newRoot = newRoot.removeAfter(this.$Vector_ownerID, newLevel, newTailOffset - offset);
+      }
+      newOrigin -= offset;
+      newSize -= offset;
+    }
+
+    if (this.$Vector_ownerID) {
+      this.length = newSize - newOrigin;
+      this.$Vector_origin = newOrigin;
+      this.$Vector_size = newSize;
+      this.$Vector_level = newLevel;
+      this.$Vector_root = newRoot;
+      this.$Vector_tail = newTail;
+      return this;
+    }
+    return Vector.$Vector_make(newOrigin, newSize, newLevel, newRoot, newTail);
+  };
+
   Vector.prototype.setLength=function(length) {"use strict";
     if (length === this.length) {
       return this;
     }
     if (length < this.length) {
-      return this.slice(0, length);
+      return this.setRange(0, length);
     }
+    var newSize = this.$Vector_origin + length;
     if (this.isTransient()) {
       this.length = length;
-      this.$Vector_size = this.$Vector_origin + length;
+      this.$Vector_size = newSize;
+      // TODO: need to move the tail! This is incomplete.
       return this;
     }
-    return Vector.$Vector_make(this.$Vector_origin, this.$Vector_origin + length, this.$Vector_level, this.$Vector_root, this.$Vector_tail);
+    return Vector.$Vector_make(this.$Vector_origin, newSize, this.$Vector_level, this.$Vector_root, this.$Vector_tail);
   };
 
   // @pragma Mutability
@@ -401,6 +483,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     return didComplete ? this.length : reverse ? this.length - lastIndex : lastIndex + 1;
   };
 
+  // TODO: merge into __iterate
   Vector.prototype.__rawIterate=function(fn, reverse) {"use strict";
     var tailOffset = getTailOffset(this.$Vector_size);
     if (reverse) {
@@ -460,37 +543,75 @@ function getTailOffset(size) {
 
 
 
-  function VNode(ownerID, array) {"use strict";
-    this.ownerID = ownerID;
+  function VNode(array, ownerID) {"use strict";
     this.array = array;
+    this.ownerID = ownerID;
   }
 
-  VNode.prototype.pop=function(ownerID, length, level) {"use strict";
-    var editable;
-    var idx = ((length - 1) >>> level) & MASK;
-    if (level > SHIFT) {
-      var newChild = this.array[idx].pop(ownerID, length, level - SHIFT);
-      if (newChild || idx) {
-        editable = this.ensureOwner(ownerID);
-        if (newChild) {
-          editable.array[idx] = newChild;
-        } else {
-          delete editable.array[idx];
-        }
-        return editable;
-      }
-    } else if (idx !== 0) {
-      editable = this.ensureOwner(ownerID);
-      delete editable.array[idx];
-      return editable;
+  VNode.prototype.removeBefore=function(ownerID, level, origin) {"use strict";
+    if (origin === 1 << level) {
+      return this;
     }
+    var originIndex = ((origin) >>> level) & MASK;
+    var removingFirst = originIndex === 0;
+    var newChild;
+    if (level > 0) {
+      var oldChild = this.array[originIndex];
+      newChild = oldChild && oldChild.removeBefore(ownerID, level - SHIFT, origin);
+      if (newChild === oldChild && removingFirst) {
+        return this;
+      }
+    }
+    if (removingFirst && !newChild) {
+      return this;
+    }
+    var editable = this.ensureOwner();
+    if (!removingFirst) {
+      for (var ii = 0; ii < originIndex; ii++) {
+        delete editable.array[ii];
+      }
+    }
+    if (newChild) {
+      editable.array[originIndex] = newChild;
+    }
+    return editable;
+  };
+
+  VNode.prototype.removeAfter=function(ownerID, level, size) {"use strict";
+    if (size === 1 << level) {
+      return this;
+    }
+    var sizeIndex = ((size - 1) >>> level) & MASK;
+    if (sizeIndex >= this.array.length) {
+      return this;
+    }
+    var removingLast = sizeIndex === this.array.length - 1;
+    var newChild;
+    if (level > 0) {
+      var oldChild = this.array[sizeIndex];
+      newChild = oldChild && oldChild.removeAfter(ownerID, level - SHIFT, size);
+      if (newChild === oldChild && removingLast) {
+        return this;
+      }
+    }
+    if (removingLast && !newChild) {
+      return this;
+    }
+    var editable = this.ensureOwner();
+    if (!removingLast) {
+      editable.array.length = sizeIndex + 1;
+    }
+    if (newChild) {
+      editable.array[sizeIndex] = newChild;
+    }
+    return editable;
   };
 
   VNode.prototype.ensureOwner=function(ownerID) {"use strict";
     if (ownerID && ownerID === this.ownerID) {
       return this;
     }
-    return new VNode(ownerID, this.array.slice());
+    return new VNode(this.array.slice(), ownerID);
   };
 
   VNode.prototype.iterate=function(level, offset, max, fn) {"use strict";
@@ -604,7 +725,7 @@ var SHIFT = 5; // Resulted in best performance after ______?
 var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
 var __SENTINEL = {};
-var __EMPTY_PVECT;
-var __EMPTY_VNODE = new VNode(null, []);
+var __EMPTY_VECT;
+var __EMPTY_VNODE = new VNode([]);
 
 module.exports = Vector;

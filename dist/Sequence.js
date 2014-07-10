@@ -811,7 +811,7 @@ for(Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)){Ob
 
 
 function wholeSlice(begin, end, length) {
-  return (begin <= 0 || (length != null && begin <= -length)) &&
+  return (begin === 0 || (length != null && begin <= -length)) &&
     (end == null || (length != null && end >= length));
 }
 

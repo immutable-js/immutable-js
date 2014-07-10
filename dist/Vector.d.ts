@@ -28,6 +28,10 @@ interface Vector<T> extends IndexedSequence<T, Vector<T>> {
   merge(seq: IndexedSequence<T, any>): Vector<T>;
   merge(seq: Array<T>): Vector<T>;
 
+  /**
+   * Similar to slice, but returns a new Vector (or mutates a mutable Vector).
+   */
+  setRange(begin: number, end: number): Vector<T>;
   setLength(length: number): Vector<T>;
 
   asTransient(): Vector<T>;
