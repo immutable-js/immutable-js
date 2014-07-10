@@ -45,8 +45,9 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
       return undefinedValue;
     }
     var node = this.$Vector_nodeFor(index);
-    var property = index & MASK;
-    return node && node.array.hasOwnProperty(property) ? node.array[property] : undefinedValue;
+    var maskedIndex = index & MASK;
+    return node && (undefinedValue === undefined || node.array.hasOwnProperty(maskedIndex)) ?
+      node.array[maskedIndex] : undefinedValue;
   };
 
   Vector.prototype.getIn=function(indexPath, pathOffset) {"use strict";

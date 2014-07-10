@@ -423,8 +423,8 @@ function hashValue(o) {
   if (o === true) {
     return 1;
   }
-  if (typeof o.hash === 'function') {
-    return o.hash();
+  if (typeof o.hashCode === 'function') {
+    return o.hashCode();
   }
   var type = typeof o;
   if (type === 'number') {

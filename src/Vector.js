@@ -45,8 +45,9 @@ class Vector extends IndexedSequence {
       return undefinedValue;
     }
     var node = this._nodeFor(index);
-    var property = index & MASK;
-    return node && node.array.hasOwnProperty(property) ? node.array[property] : undefinedValue;
+    var maskedIndex = index & MASK;
+    return node && (undefinedValue === undefined || node.array.hasOwnProperty(maskedIndex)) ?
+      node.array[maskedIndex] : undefinedValue;
   }
 
   getIn(indexPath, pathOffset) {
