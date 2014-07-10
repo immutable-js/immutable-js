@@ -77,6 +77,8 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     var tailOffset = getTailOffset(this.$Vector_size);
     var node, level, idx, newSize, newRoot, newTail;
 
+    var maskedIndex = index & MASK;
+
     // Overflow's tail, merge the tail and make a new one.
     if (index >= tailOffset + SIZE) {
       // Tail might require creating a higher root.
@@ -100,7 +102,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
       // Create new tail with set index.
       newTail = new VNode([], this.$Vector_ownerID);
-      newTail.array[index & MASK] = value;
+      newTail.array[maskedIndex] = value;
       newSize = index + 1;
       if (this.$Vector_ownerID) {
         this.length = newSize - this.$Vector_origin;
@@ -111,6 +113,10 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
         return this;
       }
       return Vector.$Vector_make(this.$Vector_origin, newSize, newLevel, newRoot, newTail);
+    }
+
+    if (this.get(index - this.$Vector_origin, __SENTINEL) === value) {
+      return this;
     }
 
     // Fits within tail.
@@ -134,7 +140,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
       idx = (index >>> level) & MASK;
       node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this.$Vector_ownerID) : new VNode([], this.$Vector_ownerID);
     }
-    node.array[index & MASK] = value;
+    node.array[maskedIndex] = value;
     if (this.$Vector_ownerID) {
       this.$Vector_root = newRoot;
       return this;
@@ -172,37 +178,6 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
   Vector.prototype.pop=function() {"use strict";
     return this.setRange(0, -1);
-    //var newSize = this._size - 1;
-    //var newTail;
-//
-    //if (newSize <= this._origin) {
-    //  return this.clear();
-    //}
-//
-    //if (this._ownerID) {
-    //  this.length--;
-    //  this._size--;
-    //}
-//
-    //// Fits within tail.
-    //if (newSize > getTailOffset(this._size)) {
-    //  newTail = this._tail.ensureOwner(this._ownerID);
-    //  newTail.array.pop();
-    //  if (this._ownerID) {
-    //    this._tail = newTail;
-    //    return this;
-    //  }
-    //  return Vector._make(this._origin, newSize, this._level, this._root, newTail);
-    //}
-//
-    //var newRoot = this._root.pop(this._ownerID, this._size, this._level) || __EMPTY_VNODE;
-    //newTail = this._nodeFor(newSize - 1);
-    //if (this._ownerID) {
-    //  this._root = newRoot;
-    //  this._tail = newTail;
-    //  return this;
-    //}
-    //return Vector._make(this._origin, newSize, this._level, newRoot, newTail);
   };
 
   Vector.prototype.delete=function(index) {"use strict";
@@ -331,12 +306,12 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     return this.isTransient() ? newVect : newVect.asPersistent();
   };
 
-  // TODO: allow begin+end to be larger than current length, and retire setLength()?
   Vector.prototype.setRange=function(begin, end) {"use strict";
+    var owner = this.$Vector_ownerID || new OwnerID();
     var oldOrigin = this.$Vector_origin;
     var oldSize = this.$Vector_size;
     var newOrigin = begin < 0 ? Math.max(oldOrigin, oldSize + begin) : Math.min(oldSize, oldOrigin + begin);
-    var newSize = end == null ? oldSize : end < 0 ? Math.max(oldOrigin, oldSize + end) : Math.min(oldSize, oldOrigin + end);
+    var newSize = end == null ? oldSize : end < 0 ? Math.max(oldOrigin, oldSize + end) : oldOrigin + end;
     if (newOrigin === oldOrigin && newSize === oldSize) {
       return this;
     }
@@ -345,19 +320,44 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
       return this.clear();
     }
 
-    var newLevel = this.$Vector_level;
-    var newRoot = this.$Vector_root;
-    var newTail = newSize === oldSize ? this.$Vector_tail : this.$Vector_nodeFor(newSize).removeAfter(this.$Vector_ownerID, 0, newSize);
-
     var oldTailOffset = getTailOffset(oldSize);
     var newTailOffset = getTailOffset(newSize);
+
+    var newLevel = this.$Vector_level;
+    var newRoot = this.$Vector_root;
+    var newTail = newTailOffset < oldTailOffset ?
+      this.$Vector_nodeFor(newSize) :
+      newTailOffset > oldTailOffset ? new VNode([], owner) : this.$Vector_tail;
+
+    if (newTailOffset > oldTailOffset && newOrigin < oldSize && this.$Vector_tail.array.length) {
+      // Tail might require creating a higher root.
+      while (oldTailOffset >= 1 << (newLevel + SHIFT)) {
+        newRoot = new VNode([newRoot], this.$Vector_ownerID);
+        newLevel += SHIFT;
+      }
+      if (newRoot === this.$Vector_root) {
+        newRoot = newRoot.ensureOwner(this.$Vector_ownerID);
+      }
+
+      // Merge Tail into tree.
+      var node = newRoot;
+      for (var level = this.$Vector_level; level > SHIFT; level -= SHIFT) {
+        var idx = (oldTailOffset >>> level) & MASK;
+        node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(owner) : new VNode([], owner);
+      }
+      node.array[(oldTailOffset >>> SHIFT) & MASK] = this.$Vector_tail;
+    }
+
+    if (newSize < oldSize) {
+      newTail = newTail.removeAfter(owner, 0, newSize);
+    }
 
     if (newOrigin >= newTailOffset) {
       newOrigin -= newTailOffset;
       newSize -= newTailOffset;
       newLevel = SHIFT;
       newRoot = __EMPTY_VNODE;
-      newTail = newTail.removeBefore(this.$Vector_ownerID, 0, newOrigin);
+      newTail = newTail.removeBefore(owner, 0, newOrigin);
     } else if (newOrigin > oldOrigin || newSize < oldTailOffset) {
       var beginIndex, endIndex;
       var offset = 0;
@@ -371,10 +371,10 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
         }
       } while (beginIndex === endIndex);
       if (newOrigin !== oldOrigin) {
-        newRoot = newRoot.removeBefore(this.$Vector_ownerID, newLevel, newOrigin - offset);
+        newRoot = newRoot.removeBefore(owner, newLevel, newOrigin - offset);
       }
       if (newTailOffset !== oldTailOffset) {
-        newRoot = newRoot.removeAfter(this.$Vector_ownerID, newLevel, newTailOffset - offset);
+        newRoot = newRoot.removeAfter(owner, newLevel, newTailOffset - offset);
       }
       newOrigin -= offset;
       newSize -= offset;
@@ -393,20 +393,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   };
 
   Vector.prototype.setLength=function(length) {"use strict";
-    if (length === this.length) {
-      return this;
-    }
-    if (length < this.length) {
-      return this.setRange(0, length);
-    }
-    var newSize = this.$Vector_origin + length;
-    if (this.isTransient()) {
-      this.length = length;
-      this.$Vector_size = newSize;
-      // TODO: need to move the tail! This is incomplete.
-      return this;
-    }
-    return Vector.$Vector_make(this.$Vector_origin, newSize, this.$Vector_level, this.$Vector_root, this.$Vector_tail);
+    return this.setRange(0, length);
   };
 
   // @pragma Mutability
@@ -549,10 +536,13 @@ function getTailOffset(size) {
   }
 
   VNode.prototype.removeBefore=function(ownerID, level, origin) {"use strict";
-    if (origin === 1 << level) {
+    if (origin === 1 << level || this.array.length === 0) {
       return this;
     }
     var originIndex = ((origin) >>> level) & MASK;
+    if (originIndex >= this.array.length) {
+      return new VNode([], ownerID);
+    }
     var removingFirst = originIndex === 0;
     var newChild;
     if (level > 0) {
@@ -578,7 +568,7 @@ function getTailOffset(size) {
   };
 
   VNode.prototype.removeAfter=function(ownerID, level, size) {"use strict";
-    if (size === 1 << level) {
+    if (size === 1 << level || this.array.length === 0) {
       return this;
     }
     var sizeIndex = ((size - 1) >>> level) & MASK;
