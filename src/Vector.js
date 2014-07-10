@@ -73,6 +73,8 @@ class Vector extends IndexedSequence {
     return Vector.empty();
   }
 
+  // TODO: set and delete seem very similar.
+
   set(index, value) {
     var tailOffset = getTailOffset(this._size);
 
@@ -244,17 +246,17 @@ class Vector extends IndexedSequence {
     var newRoot = this._root;
 
     // New origin might require creating a higher root.
-    var offset = 0;
+    var offsetShift = 0;
     while (newOrigin < 0) {
       newRoot = new VNode(newRoot.array.length ? [,newRoot] : [], owner);
-      offset += 1 << newLevel;
-      newOrigin += offset;
+      offsetShift += 1 << newLevel;
+      newOrigin += offsetShift;
       newLevel += SHIFT;
     }
-    if (offset) {
-      newSize += offset;
-      oldOrigin += offset;
-      oldSize += offset;
+    if (offsetShift) {
+      newSize += offsetShift;
+      oldOrigin += offsetShift;
+      oldSize += offsetShift;
     }
 
     var oldTailOffset = getTailOffset(oldSize);
@@ -299,14 +301,14 @@ class Vector extends IndexedSequence {
     // Otherwise, if the root has been trimmed, garbage collect.
     } else if (newOrigin > oldOrigin || newTailOffset < oldTailOffset) {
       var beginIndex, endIndex;
-      offset = 0;
+      offsetShift = 0;
 
       // Identify the new top root node of the subtree of the old root.
       do {
         beginIndex = ((newOrigin) >>> newLevel) & MASK;
         endIndex = ((newTailOffset - 1) >>> newLevel) & MASK;
         if (beginIndex === endIndex) {
-          offset += 1 << newLevel;
+          offsetShift += 1 << newLevel;
           newLevel -= SHIFT;
           newRoot = newRoot && newRoot.array[beginIndex];
         }
@@ -314,14 +316,14 @@ class Vector extends IndexedSequence {
 
       // Trim the new sides of the new root.
       if (newRoot && newOrigin > oldOrigin) {
-        newRoot = newRoot.removeBefore(owner, newLevel, newOrigin - offset);
+        newRoot = newRoot.removeBefore(owner, newLevel, newOrigin - offsetShift);
       }
       if (newRoot && newTailOffset < oldTailOffset) {
-        newRoot = newRoot.removeAfter(owner, newLevel, newTailOffset - offset);
+        newRoot = newRoot.removeAfter(owner, newLevel, newTailOffset - offsetShift);
       }
-      if (offset) {
-        newOrigin -= offset;
-        newSize -= offset;
+      if (offsetShift) {
+        newOrigin -= offsetShift;
+        newSize -= offsetShift;
       }
       // Ensure root is not null.
       newRoot = newRoot || __EMPTY_VNODE;
@@ -477,11 +479,20 @@ class VNode {
     this.ownerID = ownerID;
   }
 
-  removeBefore(ownerID, level, origin) {
-    if (origin === 1 << level || this.array.length === 0) {
+  ensureOwner(ownerID) {
+    if (ownerID && ownerID === this.ownerID) {
       return this;
     }
-    var originIndex = ((origin) >>> level) & MASK;
+    return new VNode(this.array.slice(), ownerID);
+  }
+
+  // TODO: seems like these methods are very similar
+
+  removeBefore(ownerID, level, index) {
+    if (index === 1 << level || this.array.length === 0) {
+      return this;
+    }
+    var originIndex = (index >>> level) & MASK;
     if (originIndex >= this.array.length) {
       return new VNode([], ownerID);
     }
@@ -489,7 +500,7 @@ class VNode {
     var newChild;
     if (level > 0) {
       var oldChild = this.array[originIndex];
-      newChild = oldChild && oldChild.removeBefore(ownerID, level - SHIFT, origin);
+      newChild = oldChild && oldChild.removeBefore(ownerID, level - SHIFT, index);
       if (newChild === oldChild && removingFirst) {
         return this;
       }
@@ -509,11 +520,11 @@ class VNode {
     return editable;
   }
 
-  removeAfter(ownerID, level, size) {
-    if (size === 1 << level || this.array.length === 0) {
+  removeAfter(ownerID, level, index) {
+    if (index === 1 << level || this.array.length === 0) {
       return this;
     }
-    var sizeIndex = ((size - 1) >>> level) & MASK;
+    var sizeIndex = ((index - 1) >>> level) & MASK;
     if (sizeIndex >= this.array.length) {
       return this;
     }
@@ -521,7 +532,7 @@ class VNode {
     var newChild;
     if (level > 0) {
       var oldChild = this.array[sizeIndex];
-      newChild = oldChild && oldChild.removeAfter(ownerID, level - SHIFT, size);
+      newChild = oldChild && oldChild.removeAfter(ownerID, level - SHIFT, index);
       if (newChild === oldChild && removingLast) {
         return this;
       }
@@ -537,13 +548,6 @@ class VNode {
       editable.array[sizeIndex] = newChild;
     }
     return editable;
-  }
-
-  ensureOwner(ownerID) {
-    if (ownerID && ownerID === this.ownerID) {
-      return this;
-    }
-    return new VNode(this.array.slice(), ownerID);
   }
 
   iterate(level, offset, max, fn, reverse) {
