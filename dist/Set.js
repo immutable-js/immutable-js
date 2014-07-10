@@ -59,15 +59,12 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
       }
     }
     newMap = newMap.set(value, null);
-    if (newMap === this.$Set_map) {
-      return this;
-    }
     if (this.$Set_ownerID) {
       this.length = newMap.length;
       this.$Set_map = newMap;
       return this;
     }
-    return Set.$Set_make(newMap);
+    return newMap === this.$Set_map ? this : Set.$Set_make(newMap);
   };
 
   Set.prototype.delete=function(value) {"use strict";
@@ -75,15 +72,15 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
       return this;
     }
     var newMap = this.$Set_map.delete(value);
-    if (newMap === this.$Set_map) {
-      return this;
+    if (newMap.length === 0) {
+      return this.clear();
     }
     if (this.$Set_ownerID) {
       this.length = newMap.length;
-      this.$Set_map = this.length === 0 ? null : newMap;
+      this.$Set_map = newMap;
       return this;
     }
-    return newMap.length ? Set.$Set_make(newMap) : Set.empty();
+    return newMap === this.$Set_map ? this : Set.$Set_make(newMap);
   };
 
   // @pragma Composition

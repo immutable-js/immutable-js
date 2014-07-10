@@ -59,15 +59,12 @@ class Set extends Sequence {
       }
     }
     newMap = newMap.set(value, null);
-    if (newMap === this._map) {
-      return this;
-    }
     if (this._ownerID) {
       this.length = newMap.length;
       this._map = newMap;
       return this;
     }
-    return Set._make(newMap);
+    return newMap === this._map ? this : Set._make(newMap);
   }
 
   delete(value) {
@@ -75,15 +72,15 @@ class Set extends Sequence {
       return this;
     }
     var newMap = this._map.delete(value);
-    if (newMap === this._map) {
-      return this;
+    if (newMap.length === 0) {
+      return this.clear();
     }
     if (this._ownerID) {
       this.length = newMap.length;
-      this._map = this.length === 0 ? null : newMap;
+      this._map = newMap;
       return this;
     }
-    return newMap.length ? Set._make(newMap) : Set.empty();
+    return newMap === this._map ? this : Set._make(newMap);
   }
 
   // @pragma Composition

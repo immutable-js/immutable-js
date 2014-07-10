@@ -496,6 +496,45 @@ export interface Set<T> extends Sequence<T, T, Set<T>> {
 
 
 
+/**
+ * OrderedMap constructors return a Map which has the additional guarantee of
+ * the iteration order of entries to match the order in which they were set().
+ * This makes OrderedMap behave similarly to native JS objects.
+ */
+export declare module OrderedMap {
+
+  /**
+   * OrderedMap.empty() creates a new immutable ordered map of length 0.
+   */
+  function empty(): Map<any, any>;
+
+  /**
+   * Creates a new immutable ordered map with the same
+   * key value pairs as the provided object.
+   *
+   *   var newMap = OrderedMapMap.fromObject({key: "value"});
+   *
+   */
+  function fromObject<V>(object: {[key: string]: V;}): Map<string, V>;
+}
+
+
+/**
+ * Creates a new empty map with specific key and value type.
+ *
+ *   var stringToNumberMap = OrderedMap<string, number>();
+ *
+ */
+export declare function OrderedMap<K, V>(): Map<K, V>;
+
+
+/**
+ * Alias for OrderedMap.fromObject().
+ */
+export declare function OrderedMap<V>(object: {[key: string]: V;}): Map<string, V>;
+
+
+
 export declare function Vector<T>(): Vector<T>;
 export declare function Vector<T>(...values: T[]): Vector<T>;
 
