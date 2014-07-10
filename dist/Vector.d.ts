@@ -33,8 +33,18 @@ interface Vector<T> extends IndexedSequence<T, Vector<T>> {
 
   /**
    * Similar to slice, but returns a new Vector (or mutates a mutable Vector).
+   * Begin is a relative number from current origin. negative numbers add new
+   * capacity on the left side of the vector, while positive numbers remove
+   * values from the left side of the vector.
+   * End is a relative number. If negative, it removes values from the right
+   * side of the vector. If positive, sets the new length of the vector which
+   * could remove values or add capacity depending on if it's longer than `length`.
    */
-  setRange(begin: number, end: number): Vector<T>;
+  setBounds(begin: number, end: number): Vector<T>;
+
+  /**
+   * Convienience for setBounds(0, length)
+   */
   setLength(length: number): Vector<T>;
 
   asTransient(): Vector<T>;

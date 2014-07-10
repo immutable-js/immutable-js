@@ -77,7 +77,7 @@ class Vector extends IndexedSequence {
     var tailOffset = getTailOffset(this._size);
 
     if (index + this._origin >= tailOffset + SIZE) {
-      var vect = this.asTransient().setRange(0, index + 1).set(index, value);
+      var vect = this.asTransient().setBounds(0, index + 1).set(index, value);
       return this.isTransient() ? vect : vect.asPersistent();
     }
 
@@ -184,7 +184,7 @@ class Vector extends IndexedSequence {
 
   push(/*...values*/) {
     var oldLength = this.length;
-    var vect = this.asTransient().setRange(0, oldLength + arguments.length);
+    var vect = this.asTransient().setBounds(0, oldLength + arguments.length);
     for (var ii = 0; ii < arguments.length; ii++) {
       vect = vect.set(oldLength + ii, arguments[ii]);
     }
@@ -192,11 +192,11 @@ class Vector extends IndexedSequence {
   }
 
   pop() {
-    return this.setRange(0, -1);
+    return this.setBounds(0, -1);
   }
 
   unshift(/*...values*/) {
-    var vect = this.asTransient().setRange(-arguments.length);
+    var vect = this.asTransient().setBounds(-arguments.length);
     for (var ii = 0; ii < arguments.length; ii++) {
       vect = vect.set(ii, arguments[ii]);
     }
@@ -204,7 +204,7 @@ class Vector extends IndexedSequence {
   }
 
   shift() {
-    return this.setRange(1);
+    return this.setBounds(1);
   }
 
   // @pragma Composition
@@ -215,7 +215,7 @@ class Vector extends IndexedSequence {
     }
     var vect = this.asTransient();
     if (seq.length && seq.length > this.length) {
-      vect = vect.setRange(0, seq.length);
+      vect = vect.setBounds(0, seq.length);
     }
     seq.forEach((value, index) => {
       vect = vect.set(index, value)
@@ -225,7 +225,7 @@ class Vector extends IndexedSequence {
 
   // TODO: mergeIn
 
-  setRange(begin, end) {
+  setBounds(begin, end) {
     var owner = this._ownerID || new OwnerID();
     var oldOrigin = this._origin;
     var oldSize = this._size;
@@ -340,7 +340,7 @@ class Vector extends IndexedSequence {
   }
 
   setLength(length) {
-    return this.setRange(0, length);
+    return this.setBounds(0, length);
   }
 
   // @pragma Mutability

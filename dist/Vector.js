@@ -77,7 +77,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     var tailOffset = getTailOffset(this.$Vector_size);
 
     if (index + this.$Vector_origin >= tailOffset + SIZE) {
-      var vect = this.asTransient().setRange(0, index + 1).set(index, value);
+      var vect = this.asTransient().setBounds(0, index + 1).set(index, value);
       return this.isTransient() ? vect : vect.asPersistent();
     }
 
@@ -184,7 +184,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
   Vector.prototype.push=function() {"use strict";
     var oldLength = this.length;
-    var vect = this.asTransient().setRange(0, oldLength + arguments.length);
+    var vect = this.asTransient().setBounds(0, oldLength + arguments.length);
     for (var ii = 0; ii < arguments.length; ii++) {
       vect = vect.set(oldLength + ii, arguments[ii]);
     }
@@ -192,11 +192,11 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   };
 
   Vector.prototype.pop=function() {"use strict";
-    return this.setRange(0, -1);
+    return this.setBounds(0, -1);
   };
 
   Vector.prototype.unshift=function() {"use strict";
-    var vect = this.asTransient().setRange(-arguments.length);
+    var vect = this.asTransient().setBounds(-arguments.length);
     for (var ii = 0; ii < arguments.length; ii++) {
       vect = vect.set(ii, arguments[ii]);
     }
@@ -204,7 +204,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   };
 
   Vector.prototype.shift=function() {"use strict";
-    return this.setRange(1);
+    return this.setBounds(1);
   };
 
   // @pragma Composition
@@ -215,7 +215,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     }
     var vect = this.asTransient();
     if (seq.length && seq.length > this.length) {
-      vect = vect.setRange(0, seq.length);
+      vect = vect.setBounds(0, seq.length);
     }
     seq.forEach(function(value, index)  {
       vect = vect.set(index, value)
@@ -225,7 +225,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
   // TODO: mergeIn
 
-  Vector.prototype.setRange=function(begin, end) {"use strict";
+  Vector.prototype.setBounds=function(begin, end) {"use strict";
     var owner = this.$Vector_ownerID || new OwnerID();
     var oldOrigin = this.$Vector_origin;
     var oldSize = this.$Vector_size;
@@ -340,7 +340,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   };
 
   Vector.prototype.setLength=function(length) {"use strict";
-    return this.setRange(0, length);
+    return this.setBounds(0, length);
   };
 
   // @pragma Mutability
