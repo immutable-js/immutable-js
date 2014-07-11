@@ -157,7 +157,10 @@ class Sequence {
   }
 
   entries() {
-    return this.map(entryMapper).values();
+    var sequence = this;
+    var newSequence = sequence.map(entryMapper).values();
+    newSequence.fromEntries = () => sequence;
+    return newSequence;
   }
 
   forEach(sideEffect, context) {
@@ -454,6 +457,7 @@ class IndexedSequence extends Sequence {
     var newSequence = this.__makeSequence();
     newSequence.length = this.length;
     var sequence = this;
+    newSequence.entries = () => sequence;
     newSequence.__iterateUncached = (fn, reverse, flipIndices) =>
       sequence.__iterate((entry, _, c) => fn(entry[1], entry[0], c), reverse, flipIndices);
     return newSequence;
@@ -607,6 +611,19 @@ class SliceIndexedSequence extends IndexedSequence {
     this._end = end;
     this._maintainIndices = maintainIndices;
     this.length = sequence.length && (maintainIndices ? sequence.length : resolveEnd(end, sequence.length) - resolveBegin(begin, sequence.length));
+  }
+
+  // Optimize the case of vector.slice(b, e).toVector()
+  toVector() {
+    var Vector = require('./Vector');
+    var sequence = this.sequence;
+    if (!this._maintainIndices && sequence instanceof Vector) {
+      return sequence.setBounds(
+        resolveBegin(this._begin, sequence.length);
+        resolveEnd(this._end, sequence.length);
+      );
+    }
+    return super.toVector();
   }
 
   __iterateUncached(fn, reverse, flipIndices) {

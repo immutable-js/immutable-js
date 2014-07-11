@@ -1,7 +1,7 @@
 {
-  "name": "immutable-js",
+  "name": "immutable-data",
   "version": "1.0.0",
-  "description": "Immutable Persistent Data Collections",
+  "description": "Immutable Data Collections",
   "homepage": "https://github.com/leebyron/immutable-js",
   "author": {
     "name": "Lee Byron",
@@ -26,13 +26,13 @@
     ]
   },
   "devDependencies": {
-    "jest-cli": "^0.1.17",
     "grunt": "^0.4.5",
-    "grunt-react": "^0.8.2",
     "grunt-contrib-copy": "^0.5.0",
-    "ts-compiler": "^2.0.0",
     "grunt-contrib-jshint": "^0.10.0",
-    "grunt-contrib-clean": "^0.5.0"
+    "grunt-contrib-clean": "^0.5.0",
+    "grunt-jest": "^0.1.0",
+    "grunt-react": "^0.8.2",
+    "ts-compiler": "^2.0.0"
   },
   "engines": {
     "node": "0.8.x || 0.10.x"

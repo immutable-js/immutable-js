@@ -355,7 +355,7 @@ class Vector extends IndexedSequence {
     if (this._ownerID) {
       return this;
     }
-    var vect = this.clone();
+    var vect = this._clone();
     vect._ownerID = new OwnerID();
     return vect;
   }
@@ -366,6 +366,10 @@ class Vector extends IndexedSequence {
   }
 
   clone() {
+    return this.isMutable() ? this._clone() : this;
+  }
+
+  _clone() {
     return Vector._make(this._origin, this._size, this._level, this._root, this._tail, this._ownerID && new OwnerID());
   }
 
@@ -373,7 +377,7 @@ class Vector extends IndexedSequence {
 
   toVector() {
     // Note: identical impl to Map.toMap
-    return this.isMutable() ? this.clone().asImmutable() : this;
+    return this.isMutable() ? this._clone().asImmutable() : this;
   }
 
   first(predicate, context) {

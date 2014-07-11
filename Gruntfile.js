@@ -69,15 +69,13 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('jest', function() {
-    require('jest-cli').runCLI(this.options(), __dirname, this.async());
-  });
   grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-react');
   grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-react');
+  grunt.loadNpmTasks('grunt-jest');
 
   grunt.registerTask('lint', 'Lint all source javascript', ['jshint']);
-  grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.registerTask('build', 'Build distributed javascript', ['clean', 'react', 'copy']);
   grunt.registerTask('test', 'Test built javascript', ['jest']);
   grunt.registerTask('default', 'Lint, build and test.', ['lint', 'build', 'test']);

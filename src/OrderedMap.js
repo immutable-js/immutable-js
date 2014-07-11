@@ -118,7 +118,11 @@ class OrderedMap extends ImmutableMap {
   }
 
   clone() {
-    return OrderedMap._make(this._map.clone(), this._vector.clone(), this._ownerID && new OwnerID());
+    return this.isMutable() ? this._clone() : this;
+  }
+
+  _clone() {
+    return OrderedMap._make(this._map && this._map.clone(), this._vector && this._vector.clone(), this._ownerID && new OwnerID());
   }
 
   // @pragma Iteration
@@ -137,6 +141,7 @@ class OrderedMap extends ImmutableMap {
   }
 
   __iterate(fn, reverse) {
+    // TODO: anyway to use fromEntries() ?
     return this._vector ? this._vector.__iterate(entry => fn(entry[1], entry[0]), reverse) : 0;
   }
 

@@ -112,15 +112,18 @@ class Set extends Sequence {
   }
 
   clone() {
-    // TODO: this doesn't appropriately clone the _map and ensure same owner.
-    return Set._make(this._map.clone(), this._ownerID && new OwnerID());
+    return this.isMutable() ? this._clone() : this;
+  }
+
+  _clone() {
+    return Set._make(this._map && this._map.clone(), this._ownerID && new OwnerID());
   }
 
   // @pragma Iteration
 
   toSet() {
     // Note: identical impl to Map.toMap
-    return this.isMutable() ? this.clone().asImmutable() : this;
+    return this.isMutable() ? this._clone().asImmutable() : this;
   }
 
   cacheResult() {

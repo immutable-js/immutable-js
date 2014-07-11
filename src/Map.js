@@ -161,13 +161,17 @@ class Map extends Sequence {
   }
 
   clone() {
+    return this.isMutable() ? this._clone() : this;
+  }
+
+  _clone() {
     return Map._make(this.length, this._root, this._ownerID && new OwnerID());
   }
 
   // @pragma Iteration
 
   toMap() {
-    return this.isMutable() ? this.clone().asImmutable() : this;
+    return this.isMutable() ? this._clone().asImmutable() : this;
   }
 
   cacheResult() {
