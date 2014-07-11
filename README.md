@@ -105,15 +105,15 @@ Almost all of the methods on `Array` will be found in similar form on
 found on `Immutable.Set`, including sequence operations.
 
 
-Mutation, and breaking the rules
---------------------------------
+Mutation and breaking the rules
+-------------------------------
 
 > If a tree falls in the woods, does it make a sound?
 >
 > If a pure function mutates some local data in order to produce an immutable
 > return value, is that ok?
 >
-> - Rich Hickey, Clojure
+> — Rich Hickey, Clojure
 
 There is a performance penalty paid every time you create a new immutible object
 via applying a mutation. If you need to perform a series of mutations, then this

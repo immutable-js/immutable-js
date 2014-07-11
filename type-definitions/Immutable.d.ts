@@ -55,6 +55,8 @@ export interface Sequence<K, V, C> {
 
   toMap(): Map<K, V>;
 
+  toOrderedMap(): Map<K, V>;
+
   toSet(): Set<V>;
 
   equals(other: Sequence<K, V, C>): boolean;

@@ -134,6 +134,11 @@ class OrderedMap extends ImmutableMap {
 
   // @pragma Iteration
 
+  toOrderedMap() {
+    // Note: identical impl to Map.toMap
+    return this.isMutable() ? this._clone().asImmutable() : this;
+  }
+
   __deepEqual(other) {
     if (other.length === 0 && this.length === 0) {
       return true;

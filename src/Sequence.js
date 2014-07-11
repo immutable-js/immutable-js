@@ -65,6 +65,11 @@ class Sequence {
     return require('./Map').empty().merge(this);
   }
 
+  toOrderedMap() {
+    // Use Late Binding here to solve the circular dependency.
+    return require('./OrderedMap').empty().merge(this);
+  }
+
   toSet() {
     // Use Late Binding here to solve the circular dependency.
     return require('./Set').empty().merge(this);

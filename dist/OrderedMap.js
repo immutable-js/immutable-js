@@ -134,6 +134,11 @@ for(var ImmutableMap____Key in ImmutableMap){if(ImmutableMap.hasOwnProperty(Immu
 
   // @pragma Iteration
 
+  OrderedMap.prototype.toOrderedMap=function() {"use strict";
+    // Note: identical impl to Map.toMap
+    return this.isMutable() ? this.$OrderedMap_clone().asImmutable() : this;
+  };
+
   OrderedMap.prototype.__deepEqual=function(other) {"use strict";
     if (other.length === 0 && this.length === 0) {
       return true;
