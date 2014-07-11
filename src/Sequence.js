@@ -618,10 +618,13 @@ class SliceIndexedSequence extends IndexedSequence {
     var Vector = require('./Vector');
     var sequence = this.sequence;
     if (!this._maintainIndices && sequence instanceof Vector) {
+      if (sequence.isMutable()) {
+        sequence = sequence.clone();
+      }
       return sequence.setBounds(
         resolveBegin(this._begin, sequence.length),
         resolveEnd(this._end, sequence.length)
-      );
+      ).asImmutable();
     }
     return super.toVector();
   }

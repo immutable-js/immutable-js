@@ -5,7 +5,7 @@
 export declare function is(first: any, second: any): boolean;
 
 /**
- *
+ * Convert to and from plain JS objects and arrays.
  */
 export declare function fromJS(json: any): any;
 export declare function toJS(value: any): any;
@@ -13,7 +13,7 @@ export declare function toJS(value: any): any;
 
 
 /**
- * TODO Describe Sequence creation functions.
+ * Sequences
  */
 export declare function Sequence<V, C>(seq: IndexedSequence<V, C>): IndexedSequence<V, C>;
 export declare function Sequence<K, V, C>(seq: Sequence<K, V, C>): Sequence<K, V, C>;
@@ -22,9 +22,6 @@ export declare function Sequence<T>(obj: {[key: string]: T}): Sequence<string, T
 export declare function Sequence<T>(...values: Array<T>): IndexedSequence<T, Array<T>>;
 export declare function Sequence(): Sequence<any, any, any>;
 
-/**
- * TODO
- */
 export interface Sequence<K, V, C> {
 
   /**
@@ -191,7 +188,10 @@ export interface Sequence<K, V, C> {
 
 
 /**
- * TODO
+ * Indexed Sequences are Sequences with numeric keys which are expected to
+ * iterate in the order of their indices. They exhibit slightly different
+ * behavior for some methods, and add others which do not make sense on
+ * non-indexed sequences such as `indexOf`.
  */
 export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
 
@@ -543,6 +543,13 @@ export declare module Vector {
   function fromArray<T>(values: T[]): Vector<T>;
 }
 
+/**
+ * Vectors are like a Map with numeric keys which always iterate in the order
+ * of their keys. They may be sparse: if an index has not been set, it will not
+ * be iterated over. Also, via `setBounds` (or `fromArray` with a sparse array),
+ * a Vector may have a length higher than the highest index.
+ * See: [MDN: Array relationship between length and numeric properties](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#Relationship_between_length_and_numerical_properties_2).
+ */
 export interface Vector<T> extends IndexedSequence<T, Vector<T>> {
   length: number;
   has(index: number): boolean;

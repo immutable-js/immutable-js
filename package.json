@@ -1,6 +1,6 @@
 {
   "name": "immutable-data",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Immutable Data Collections",
   "homepage": "https://github.com/leebyron/immutable-js",
   "author": {
@@ -48,5 +48,5 @@
     "stateless",
     "iteration"
   ],
-  "license": "BSD"
+  "license": "MIT"
 }

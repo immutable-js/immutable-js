@@ -618,10 +618,13 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
     var Vector = require('./Vector');
     var sequence = this.sequence;
     if (!this.$SliceIndexedSequence_maintainIndices && sequence instanceof Vector) {
+      if (sequence.isMutable()) {
+        sequence = sequence.clone();
+      }
       return sequence.setBounds(
         resolveBegin(this.$SliceIndexedSequence_begin, sequence.length),
         resolveEnd(this.$SliceIndexedSequence_end, sequence.length)
-      );
+      ).asImmutable();
     }
     return ____SuperProtoOfIndexedSequence.toVector.call(this);
   };
