@@ -112,15 +112,18 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   };
 
   Set.prototype.clone=function() {"use strict";
-    // TODO: this doesn't appropriately clone the _map and ensure same owner.
-    return Set.$Set_make(this.$Set_map.clone(), this.$Set_ownerID && new OwnerID());
+    return this.isMutable() ? this.$Set_clone() : this;
+  };
+
+  Set.prototype.$Set_clone=function() {"use strict";
+    return Set.$Set_make(this.$Set_map && this.$Set_map.clone(), this.$Set_ownerID && new OwnerID());
   };
 
   // @pragma Iteration
 
   Set.prototype.toSet=function() {"use strict";
     // Note: identical impl to Map.toMap
-    return this.isMutable() ? this.clone().asImmutable() : this;
+    return this.isMutable() ? this.$Set_clone().asImmutable() : this;
   };
 
   Set.prototype.cacheResult=function() {"use strict";

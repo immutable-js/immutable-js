@@ -113,6 +113,13 @@ class OrderedMap extends ImmutableMap {
 
   // @pragma Mutability
 
+  asImmutable() {
+    this._ownerID = undefined;
+    this._map = this._map.asImmutable();
+    this._vector = this._vector.asImmutable();
+    return this;
+  }
+
   asMutable() {
     return this._ownerID ? this : OrderedMap._make(this._map && this._map.asMutable(), this._vector && this._vector.asMutable(), new OwnerID());
   }

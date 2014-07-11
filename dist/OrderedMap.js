@@ -113,12 +113,23 @@ for(var ImmutableMap____Key in ImmutableMap){if(ImmutableMap.hasOwnProperty(Immu
 
   // @pragma Mutability
 
+  OrderedMap.prototype.asImmutable=function() {"use strict";
+    this.$OrderedMap_ownerID = undefined;
+    this.$OrderedMap_map = this.$OrderedMap_map.asImmutable();
+    this.$OrderedMap_vector = this.$OrderedMap_vector.asImmutable();
+    return this;
+  };
+
   OrderedMap.prototype.asMutable=function() {"use strict";
     return this.$OrderedMap_ownerID ? this : OrderedMap.$OrderedMap_make(this.$OrderedMap_map && this.$OrderedMap_map.asMutable(), this.$OrderedMap_vector && this.$OrderedMap_vector.asMutable(), new OwnerID());
   };
 
   OrderedMap.prototype.clone=function() {"use strict";
-    return OrderedMap.$OrderedMap_make(this.$OrderedMap_map.clone(), this.$OrderedMap_vector.clone(), this.$OrderedMap_ownerID && new OwnerID());
+    return this.isMutable() ? this.$OrderedMap_clone() : this;
+  };
+
+  OrderedMap.prototype.$OrderedMap_clone=function() {"use strict";
+    return OrderedMap.$OrderedMap_make(this.$OrderedMap_map && this.$OrderedMap_map.clone(), this.$OrderedMap_vector && this.$OrderedMap_vector.clone(), this.$OrderedMap_ownerID && new OwnerID());
   };
 
   // @pragma Iteration
@@ -137,6 +148,7 @@ for(var ImmutableMap____Key in ImmutableMap){if(ImmutableMap.hasOwnProperty(Immu
   };
 
   OrderedMap.prototype.__iterate=function(fn, reverse) {"use strict";
+    // TODO: anyway to use fromEntries() ?
     return this.$OrderedMap_vector ? this.$OrderedMap_vector.__iterate(function(entry)  {return fn(entry[1], entry[0]);}, reverse) : 0;
   };
 

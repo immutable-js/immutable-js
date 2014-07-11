@@ -161,13 +161,17 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   };
 
   Map.prototype.clone=function() {"use strict";
+    return this.isMutable() ? this.$Map_clone() : this;
+  };
+
+  Map.prototype.$Map_clone=function() {"use strict";
     return Map.$Map_make(this.length, this.$Map_root, this.$Map_ownerID && new OwnerID());
   };
 
   // @pragma Iteration
 
   Map.prototype.toMap=function() {"use strict";
-    return this.isMutable() ? this.clone().asImmutable() : this;
+    return this.isMutable() ? this.$Map_clone().asImmutable() : this;
   };
 
   Map.prototype.cacheResult=function() {"use strict";

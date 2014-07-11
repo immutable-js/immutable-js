@@ -355,7 +355,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     if (this.$Vector_ownerID) {
       return this;
     }
-    var vect = this.clone();
+    var vect = this.$Vector_clone();
     vect.$Vector_ownerID = new OwnerID();
     return vect;
   };
@@ -366,6 +366,10 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   };
 
   Vector.prototype.clone=function() {"use strict";
+    return this.isMutable() ? this.$Vector_clone() : this;
+  };
+
+  Vector.prototype.$Vector_clone=function() {"use strict";
     return Vector.$Vector_make(this.$Vector_origin, this.$Vector_size, this.$Vector_level, this.$Vector_root, this.$Vector_tail, this.$Vector_ownerID && new OwnerID());
   };
 
@@ -373,7 +377,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
   Vector.prototype.toVector=function() {"use strict";
     // Note: identical impl to Map.toMap
-    return this.isMutable() ? this.clone().asImmutable() : this;
+    return this.isMutable() ? this.$Vector_clone().asImmutable() : this;
   };
 
   Vector.prototype.first=function(predicate, context) {"use strict";

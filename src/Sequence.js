@@ -619,8 +619,8 @@ class SliceIndexedSequence extends IndexedSequence {
     var sequence = this.sequence;
     if (!this._maintainIndices && sequence instanceof Vector) {
       return sequence.setBounds(
-        resolveBegin(this._begin, sequence.length);
-        resolveEnd(this._end, sequence.length);
+        resolveBegin(this._begin, sequence.length),
+        resolveEnd(this._end, sequence.length)
       );
     }
     return super.toVector();

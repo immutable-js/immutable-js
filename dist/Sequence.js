@@ -157,7 +157,10 @@
   };
 
   Sequence.prototype.entries=function() {"use strict";
-    return this.map(entryMapper).values();
+    var sequence = this;
+    var newSequence = sequence.map(entryMapper).values();
+    newSequence.fromEntries = function()  {return sequence;};
+    return newSequence;
   };
 
   Sequence.prototype.forEach=function(sideEffect, context) {"use strict";
@@ -454,6 +457,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     var newSequence = this.__makeSequence();
     newSequence.length = this.length;
     var sequence = this;
+    newSequence.entries = function()  {return sequence;};
     newSequence.__iterateUncached = function(fn, reverse, flipIndices) 
       {return sequence.__iterate(function(entry, _, c)  {return fn(entry[1], entry[0], c);}, reverse, flipIndices);};
     return newSequence;
@@ -608,6 +612,19 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
     this.$SliceIndexedSequence_maintainIndices = maintainIndices;
     this.length = sequence.length && (maintainIndices ? sequence.length : resolveEnd(end, sequence.length) - resolveBegin(begin, sequence.length));
   }
+
+  // Optimize the case of vector.slice(b, e).toVector()
+  SliceIndexedSequence.prototype.toVector=function() {"use strict";
+    var Vector = require('./Vector');
+    var sequence = this.sequence;
+    if (!this.$SliceIndexedSequence_maintainIndices && sequence instanceof Vector) {
+      return sequence.setBounds(
+        resolveBegin(this.$SliceIndexedSequence_begin, sequence.length),
+        resolveEnd(this.$SliceIndexedSequence_end, sequence.length)
+      );
+    }
+    return ____SuperProtoOfIndexedSequence.toVector.call(this);
+  };
 
   SliceIndexedSequence.prototype.__iterateUncached=function(fn, reverse, flipIndices) {"use strict";
     if (reverse) {
