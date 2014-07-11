@@ -37,6 +37,9 @@
   "engines": {
     "node": "0.8.x || 0.10.x"
   },
+  "files": [
+    "dist"
+  ],
   "keywords": [
     "immutable",
     "persistent",
@@ -46,6 +49,7 @@
     "functional",
     "collection",
     "stateless",
+    "sequence",
     "iteration"
   ],
   "license": "MIT"
