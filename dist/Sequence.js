@@ -621,7 +621,7 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
   // Optimize the case of vector.slice(b, e).toVector()
   SliceIndexedSequence.prototype.toVector=function() {"use strict";
     var Vector = require('./Vector');
-    var sequence = this.sequence;
+    var sequence = this.$SliceIndexedSequence_sequence;
     if (!this.$SliceIndexedSequence_maintainIndices && sequence instanceof Vector) {
       if (sequence.isMutable()) {
         sequence = sequence.clone();

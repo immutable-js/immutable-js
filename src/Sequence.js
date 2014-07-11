@@ -621,7 +621,7 @@ class SliceIndexedSequence extends IndexedSequence {
   // Optimize the case of vector.slice(b, e).toVector()
   toVector() {
     var Vector = require('./Vector');
-    var sequence = this.sequence;
+    var sequence = this._sequence;
     if (!this._maintainIndices && sequence instanceof Vector) {
       if (sequence.isMutable()) {
         sequence = sequence.clone();

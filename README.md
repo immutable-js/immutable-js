@@ -61,6 +61,12 @@ reference to it instead of copying the entire object. Because a reference is
 much smaller than the object itself, this results in memory savings and a
 potential boost in execution speed for programs which rely on copies.
 
+```javascript
+var map1 = Immutable.Map({a:1, b:2, c:3});
+var map2 = map1.clone();
+assert(map1 === map2);
+```
+
 
 Lazy Sequences
 --------------
@@ -75,6 +81,25 @@ var map1 = Immutable.Map({a:1, b:1, c:1});
 var map2 = map1.flip().map(key => key.toUpperCase()).flip().toMap();
 console.log(map2); // Map { A: 1, B: 1, C: 1 }
 ```
+
+
+Equality treats Collections as data
+-----------------------------------
+
+`immutable-data` provides equality which treats immutable data structures as
+pure data, performing a deep equality check if necessary.
+
+```javascript
+var map1 = Immutable.Map({a:1, b:1, c:1});
+var map2 = Immutable.Map({a:1, b:1, c:1});
+assert(map1 !== map2);
+assert(Immutable.is(map1, map2) === true);
+```
+
+`Immutable.is` uses the same measure of equality as [Object.is](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is) however adds:
+
+  * both are not mutable (`isMutable() === false`)
+  * all keys and values are equal using the same measure.
 
 
 JavaScript-first API
