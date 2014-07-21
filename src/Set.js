@@ -18,11 +18,11 @@ class Set extends Sequence {
     if (values.length === 0) {
       return Set.empty();
     }
-    var set = Set.empty().asMutable();
-    for (var ii = 0; ii < values.length; ii++) {
-      set = set.add(values[ii]);
-    }
-    return set.asImmutable();
+    return Set.empty().withMutations(set => {
+      for (var ii = 0; ii < values.length; ii++) {
+        set.add(values[ii]);
+      }
+    });
   }
 
   toString() {
@@ -53,10 +53,7 @@ class Set extends Sequence {
     var newMap = this._map;
     if (!newMap) {
       // Use Late Binding here to ensure no circular dependency.
-      newMap = require('./Map').empty();
-      if (this.isMutable()) {
-        newMap = newMap.asMutable();
-      }
+      newMap = require('./Map').empty().__ensureOwner(this._ownerID);
     }
     newMap = newMap.set(value, null);
     if (this._ownerID) {
@@ -89,41 +86,38 @@ class Set extends Sequence {
     if (seq == null) {
       return this;
     }
-    var newSet = this.asMutable();
-    Sequence(seq).forEach(value => newSet.add(value));
-    return this.isMutable() ? newSet : newSet.asImmutable();
+    return this.withMutations(set => {
+      Sequence(seq).forEach(value => set.add(value))
+    });
   }
 
   // @pragma Mutability
 
-  isMutable() {
-    return !!this._ownerID;
+  withMutations(fn) {
+    // Note: same impl as Map
+    var mutable = this.__ensureOwner(this._ownerID || new OwnerID());
+    fn(mutable);
+    return mutable.__ensureOwner(this._ownerID);
   }
 
-  asMutable() {
-    // TODO: ensure Map has same owner? Does it matter?
-    return this._ownerID ? this : Set._make(this._map && this._map.asMutable(), new OwnerID());
-  }
-
-  asImmutable() {
-    this._ownerID = undefined;
-    this._map = this._map.asImmutable();
-    return this;
-  }
-
-  clone() {
-    return this.isMutable() ? this._clone() : this;
-  }
-
-  _clone() {
-    return Set._make(this._map && this._map.clone(), this._ownerID && new OwnerID());
+  __ensureOwner(ownerID) {
+    if (ownerID === this._ownerID) {
+      return this;
+    }
+    var newMap = this._map && this._map.__ensureOwner(ownerID);
+    if (!ownerID) {
+      this._ownerID = ownerID;
+      this._map = newMap;
+      return this;
+    }
+    return Set._make(newMap, ownerID);
   }
 
   // @pragma Iteration
 
   toSet() {
     // Note: identical impl to Map.toMap
-    return this.isMutable() ? this._clone().asImmutable() : this;
+    return this;
   }
 
   cacheResult() {

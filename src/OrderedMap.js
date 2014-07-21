@@ -17,11 +17,11 @@ class OrderedMap extends ImmutableMap {
   }
 
   static fromObject(object) {
-    var omap = OrderedMap.empty().asMutable();
-    for (var k in object) if (object.hasOwnProperty(k)) {
-      omap = omap.set(k, object[k]);
-    }
-    return omap.asImmutable();
+    return OrderedMap.empty().withMutations(omap => {
+      for (var k in object) if (object.hasOwnProperty(k)) {
+        omap.set(k, object[k]);
+      }
+    });
   }
 
   toString() {
@@ -70,14 +70,8 @@ class OrderedMap extends ImmutableMap {
         newVector = newVector.set(index, [k, v]);
       }
     } else {
-      newVector = require('./Vector').empty();
-      newMap = ImmutableMap.empty();
-      if (this.isMutable()) {
-        newVector = newVector.asMutable();
-        newMap = newMap.asMutable();
-      }
-      newVector = newVector.set(0, [k, v]);
-      newMap = newMap.set(k, 0);
+      newVector = require('./Vector').empty().__ensureOwner(this._ownerID).set(0, [k, v]);
+      newMap = ImmutableMap.empty().__ensureOwner(this._ownerID).set(k, 0);
     }
     if (this._ownerID) {
       this.length = newMap.length;
@@ -113,30 +107,34 @@ class OrderedMap extends ImmutableMap {
 
   // @pragma Mutability
 
-  asImmutable() {
-    this._ownerID = undefined;
-    this._map = this._map.asImmutable();
-    this._vector = this._vector.asImmutable();
-    return this;
+  withMutations(fn) {
+    // Note: same impl as Map
+    var mutable = this.__ensureOwner(this._ownerID || new OwnerID());
+    fn(mutable);
+    return mutable.__ensureOwner(this._ownerID);
   }
 
-  asMutable() {
-    return this._ownerID ? this : OrderedMap._make(this._map && this._map.asMutable(), this._vector && this._vector.asMutable(), new OwnerID());
+  __ensureOwner(ownerID) {
+    if (ownerID === this._ownerID) {
+      return this;
+    }
+    var newMap = this._map && this._map.__ensureOwner(ownerID);
+    var newVector = this._vector && this._vector.__ensureOwner(ownerID);
+    if (!ownerID) {
+      this._ownerID = ownerID;
+      this._map = newMap;
+      this._vector = newVector;
+      return this;
+    }
+    return OrderedMap._make(newMap, newVector, ownerID);
   }
 
-  clone() {
-    return this.isMutable() ? this._clone() : this;
-  }
-
-  _clone() {
-    return OrderedMap._make(this._map && this._map.clone(), this._vector && this._vector.clone(), this._ownerID && new OwnerID());
-  }
 
   // @pragma Iteration
 
   toOrderedMap() {
     // Note: identical impl to Map.toMap
-    return this.isMutable() ? this._clone().asImmutable() : this;
+    return this;
   }
 
   __deepEqual(other) {

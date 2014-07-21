@@ -11,7 +11,7 @@ class Sequence {
         return new ObjectSequence(value);
       }
     }
-    return new ArraySequence(Array.prototype.slice.call(arguments), true);
+    return new ArraySequence(Array.prototype.slice.call(arguments));
   }
 
   toString() {
@@ -31,16 +31,6 @@ class Sequence {
 
   __toStringMapper(v, k) {
     return quoteString(k) + ': ' + quoteString(v);
-  }
-
-  isMutable() {
-    return this.__parentSequence.isMutable();
-  }
-
-  asImmutable() {
-    // This works because asImmutable() is mutative.
-    this.__parentSequence.asImmutable();
-    return this;
   }
 
   toArray() {
@@ -80,13 +70,6 @@ class Sequence {
       return true;
     }
     if (this.length != null && other.length != null && this.length !== other.length) {
-      return false;
-    }
-    // if either side is mutable, and they are not from the same parent
-    // sequence, then they must not be equal.
-    if (((!this.isMutable || this.isMutable()) ||
-         (!other.isMutable || other.isMutable())) &&
-        (this.__parentSequence || this) !== (other.__parentSequence || other)) {
       return false;
     }
     return this.__deepEquals(other);
@@ -409,9 +392,7 @@ class Sequence {
   }
 
   __makeSequence() {
-    var newSequence = Object.create(Sequence.prototype);
-    newSequence.__parentSequence = this._parentSequence || this;
-    return newSequence;
+    return Object.create(Sequence.prototype);
   }
 }
 
@@ -565,7 +546,6 @@ class IndexedSequence extends Sequence {
   __makeSequence() {
     var newSequence = Object.create(IndexedSequence.prototype);
     newSequence.__reversedIndices = this.__reversedIndices;
-    newSequence.__parentSequence = this._parentSequence || this;
     return newSequence;
   }
 }
@@ -580,7 +560,6 @@ IndexedSequence.prototype.__toStringMapper = quoteString;
  */
 class ValuesSequence extends IndexedSequence {
   constructor(sequence, length) {
-    this.__parentSequence = sequence._parentSequence || sequence;
     this._sequence = sequence;
     this.length = length;
   }
@@ -609,7 +588,6 @@ class ValuesSequence extends IndexedSequence {
 
 class SliceIndexedSequence extends IndexedSequence {
   constructor(sequence, begin, end, maintainIndices) {
-    this.__parentSequence = sequence._parentSequence || sequence;
     this.__reversedIndices = sequence.__reversedIndices;
     this._sequence = sequence;
     this._begin = begin;
@@ -622,14 +600,13 @@ class SliceIndexedSequence extends IndexedSequence {
   toVector() {
     var Vector = require('./Vector');
     var sequence = this._sequence;
+    // TODO: super.toVector() should be the special case here.
+    // Or perhaps we need a Vector specific subclass here?
     if (!this._maintainIndices && sequence instanceof Vector) {
-      if (sequence.isMutable()) {
-        sequence = sequence.clone();
-      }
       return sequence.setBounds(
         resolveBegin(this._begin, sequence.length),
         resolveEnd(this._end, sequence.length)
-      ).asImmutable();
+      );
     }
     return super.toVector();
   }
@@ -667,16 +644,6 @@ class ConcatIndexedSequence extends IndexedSequence {
     this.length = this._sequences.reduce(
       (sum, seq) => sum != null && seq.length != null ? sum + seq.length : undefined, 0
     );
-    this._immutable = this._sequences.every(seq => !seq.isMutable());
-  }
-
-  isMutable() {
-    return !this._immutable;
-  }
-
-  asImmutable() {
-    this._sequences.map(seq => seq.asImmutable());
-    return this;
   }
 
   __iterateUncached(fn, reverse, flipIndices) {
@@ -735,20 +702,9 @@ class ReversedIndexedSequence extends IndexedSequence {
 
 
 class ArraySequence extends IndexedSequence {
-  constructor(array, isImmutable) {
+  constructor(array) {
     this.length = array.length;
     this._array = array;
-    this._immutable = !!isImmutable;
-  }
-
-  isMutable() {
-    return !this._immutable;
-  }
-
-  asImmutable() {
-    this._array = this._array.slice();
-    this._immutable = true;
-    return this;
   }
 
   cacheResult() {
@@ -784,25 +740,8 @@ class ArraySequence extends IndexedSequence {
 
 
 class ObjectSequence extends Sequence {
-  constructor(object, isImmutable) {
+  constructor(object) {
     this._object = object;
-    this._immutable = !!isImmutable;
-  }
-
-  isMutable() {
-    return !this._immutable;
-  }
-
-  asImmutable() {
-    var prevObject = this._object;
-    this._object = {};
-    this.length = 0;
-    this._immutable = true;
-    for (var key in prevObject) if (prevObject.hasOwnProperty(key)) {
-      this._object[key] = prevObject[key];
-      this.length++;
-    }
-    return this;
   }
 
   cacheResult() {

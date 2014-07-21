@@ -50,19 +50,16 @@ describe('Equality', () => {
 
   it('compares sequences', () => {
     var arraySeq = Immutable.Sequence(1,2,3);
-    var mutableArraySeq = Immutable.Sequence([1,2,3]);
-    expect(arraySeq.isMutable()).toBe(false);
-    expect(mutableArraySeq.isMutable()).toBe(true);
+    var arraySeq2 = Immutable.Sequence([1,2,3]);
     expectIs(arraySeq, arraySeq);
     expectIs(arraySeq, Immutable.Sequence(1,2,3));
-    expectIs(mutableArraySeq, mutableArraySeq);
-    expectIsNot(mutableArraySeq, Immutable.Sequence([1,2,3]));
+    expectIs(arraySeq2, arraySeq2);
+    expectIs(arraySeq2, Immutable.Sequence([1,2,3]));
     expectIsNot(arraySeq, [1,2,3]);
-    expectIsNot(mutableArraySeq, [1,2,3]);
-    expectIsNot(arraySeq, mutableArraySeq);
-    expectIs(arraySeq, mutableArraySeq.asImmutable());
+    expectIsNot(arraySeq2, [1,2,3]);
+    expectIs(arraySeq, arraySeq2);
     expectIs(arraySeq, arraySeq.map(x => x));
-    expectIs(mutableArraySeq, mutableArraySeq.map(x => x));
+    expectIs(arraySeq2, arraySeq2.map(x => x));
   });
 
   it('compares vectors', () => {
@@ -76,19 +73,8 @@ describe('Equality', () => {
     var vectorLonger = vector.push(4);
     expectIsNot(vector, vectorLonger);
     var vectorShorter = vectorLonger.pop();
+    expect(vector === vectorShorter).toBe(false);
     expectIs(vector, vectorShorter);
-
-    var mutableVector = vector.asMutable();
-    expectIsNot(vector, mutableVector);
-
-    var mutableLonger = mutableVector.push(4);
-    expectIs(mutableVector, mutableLonger);
-    var mutableShorter = mutableLonger.pop();
-    expectIs(mutableVector, mutableShorter);
-
-    var immutableVector = mutableVector.asImmutable();
-    expectIs(mutableVector, immutableVector);
-    expectIs(vector, immutableVector);
   });
 
   // TODO: more tests

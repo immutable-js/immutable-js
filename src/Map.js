@@ -17,11 +17,11 @@ class Map extends Sequence {
   }
 
   static fromObject(object) {
-    var map = Map.empty().asMutable();
-    for (var k in object) if (object.hasOwnProperty(k)) {
-      map = map.set(k, object[k]);
-    }
-    return map.asImmutable();
+    return Map.empty().withMutations(map => {
+      for (var k in object) if (object.hasOwnProperty(k)) {
+        map.set(k, object[k]);
+      }
+    });
   }
 
   toString() {
@@ -138,40 +138,36 @@ class Map extends Sequence {
     if (!seq.forEach) {
       seq = Sequence(seq);
     }
-    var newMap = this.asMutable();
-    seq.forEach((value, key) => {
-      newMap = newMap.set(key, value);
+    return this.withMutations(map => {
+      seq.forEach((value, key) => {
+        map.set(key, value);
+      });
     });
-    return this.isMutable() ? newMap : newMap.asImmutable();
   }
 
   // @pragma Mutability
 
-  isMutable() {
-    return !!this._ownerID;
+  withMutations(fn) {
+    var mutable = this.__ensureOwner(this._ownerID || new OwnerID());
+    fn(mutable);
+    return mutable.__ensureOwner(this._ownerID);
   }
 
-  asMutable() {
-    return this._ownerID ? this : Map._make(this.length, this._root, new OwnerID());
-  }
-
-  asImmutable() {
-    this._ownerID = undefined;
-    return this;
-  }
-
-  clone() {
-    return this.isMutable() ? this._clone() : this;
-  }
-
-  _clone() {
-    return Map._make(this.length, this._root, this._ownerID && new OwnerID());
+  __ensureOwner(ownerID) {
+    if (ownerID === this._ownerID) {
+      return this;
+    }
+    if (!ownerID) {
+      this._ownerID = ownerID;
+      return this;
+    }
+    return Map._make(this.length, this._root, ownerID);
   }
 
   // @pragma Iteration
 
   toMap() {
-    return this.isMutable() ? this._clone().asImmutable() : this;
+    return this;
   }
 
   cacheResult() {

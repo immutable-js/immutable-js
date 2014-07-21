@@ -18,11 +18,11 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     if (values.length === 0) {
       return Set.empty();
     }
-    var set = Set.empty().asMutable();
-    for (var ii = 0; ii < values.length; ii++) {
-      set = set.add(values[ii]);
-    }
-    return set.asImmutable();
+    return Set.empty().withMutations(function(set)  {
+      for (var ii = 0; ii < values.length; ii++) {
+        set.add(values[ii]);
+      }
+    });
   };
 
   Set.prototype.toString=function() {"use strict";
@@ -53,10 +53,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     var newMap = this.$Set_map;
     if (!newMap) {
       // Use Late Binding here to ensure no circular dependency.
-      newMap = require('./Map').empty();
-      if (this.isMutable()) {
-        newMap = newMap.asMutable();
-      }
+      newMap = require('./Map').empty().__ensureOwner(this.$Set_ownerID);
     }
     newMap = newMap.set(value, null);
     if (this.$Set_ownerID) {
@@ -89,41 +86,38 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     if (seq == null) {
       return this;
     }
-    var newSet = this.asMutable();
-    Sequence(seq).forEach(function(value)  {return newSet.add(value);});
-    return this.isMutable() ? newSet : newSet.asImmutable();
+    return this.withMutations(function(set)  {
+      Sequence(seq).forEach(function(value)  {return set.add(value);})
+    });
   };
 
   // @pragma Mutability
 
-  Set.prototype.isMutable=function() {"use strict";
-    return !!this.$Set_ownerID;
+  Set.prototype.withMutations=function(fn) {"use strict";
+    // Note: same impl as Map
+    var mutable = this.__ensureOwner(this.$Set_ownerID || new OwnerID());
+    fn(mutable);
+    return mutable.__ensureOwner(this.$Set_ownerID);
   };
 
-  Set.prototype.asMutable=function() {"use strict";
-    // TODO: ensure Map has same owner? Does it matter?
-    return this.$Set_ownerID ? this : Set.$Set_make(this.$Set_map && this.$Set_map.asMutable(), new OwnerID());
-  };
-
-  Set.prototype.asImmutable=function() {"use strict";
-    this.$Set_ownerID = undefined;
-    this.$Set_map = this.$Set_map.asImmutable();
-    return this;
-  };
-
-  Set.prototype.clone=function() {"use strict";
-    return this.isMutable() ? this.$Set_clone() : this;
-  };
-
-  Set.prototype.$Set_clone=function() {"use strict";
-    return Set.$Set_make(this.$Set_map && this.$Set_map.clone(), this.$Set_ownerID && new OwnerID());
+  Set.prototype.__ensureOwner=function(ownerID) {"use strict";
+    if (ownerID === this.$Set_ownerID) {
+      return this;
+    }
+    var newMap = this.$Set_map && this.$Set_map.__ensureOwner(ownerID);
+    if (!ownerID) {
+      this.$Set_ownerID = ownerID;
+      this.$Set_map = newMap;
+      return this;
+    }
+    return Set.$Set_make(newMap, ownerID);
   };
 
   // @pragma Iteration
 
   Set.prototype.toSet=function() {"use strict";
     // Note: identical impl to Map.toMap
-    return this.isMutable() ? this.$Set_clone().asImmutable() : this;
+    return this;
   };
 
   Set.prototype.cacheResult=function() {"use strict";

@@ -17,11 +17,11 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   };
 
   Map.fromObject=function(object) {"use strict";
-    var map = Map.empty().asMutable();
-    for (var k in object) if (object.hasOwnProperty(k)) {
-      map = map.set(k, object[k]);
-    }
-    return map.asImmutable();
+    return Map.empty().withMutations(function(map)  {
+      for (var k in object) if (object.hasOwnProperty(k)) {
+        map.set(k, object[k]);
+      }
+    });
   };
 
   Map.prototype.toString=function() {"use strict";
@@ -138,40 +138,36 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     if (!seq.forEach) {
       seq = Sequence(seq);
     }
-    var newMap = this.asMutable();
-    seq.forEach(function(value, key)  {
-      newMap = newMap.set(key, value);
+    return this.withMutations(function(map)  {
+      seq.forEach(function(value, key)  {
+        map.set(key, value);
+      });
     });
-    return this.isMutable() ? newMap : newMap.asImmutable();
   };
 
   // @pragma Mutability
 
-  Map.prototype.isMutable=function() {"use strict";
-    return !!this.$Map_ownerID;
+  Map.prototype.withMutations=function(fn) {"use strict";
+    var mutable = this.__ensureOwner(this.$Map_ownerID || new OwnerID());
+    fn(mutable);
+    return mutable.__ensureOwner(this.$Map_ownerID);
   };
 
-  Map.prototype.asMutable=function() {"use strict";
-    return this.$Map_ownerID ? this : Map.$Map_make(this.length, this.$Map_root, new OwnerID());
-  };
-
-  Map.prototype.asImmutable=function() {"use strict";
-    this.$Map_ownerID = undefined;
-    return this;
-  };
-
-  Map.prototype.clone=function() {"use strict";
-    return this.isMutable() ? this.$Map_clone() : this;
-  };
-
-  Map.prototype.$Map_clone=function() {"use strict";
-    return Map.$Map_make(this.length, this.$Map_root, this.$Map_ownerID && new OwnerID());
+  Map.prototype.__ensureOwner=function(ownerID) {"use strict";
+    if (ownerID === this.$Map_ownerID) {
+      return this;
+    }
+    if (!ownerID) {
+      this.$Map_ownerID = ownerID;
+      return this;
+    }
+    return Map.$Map_make(this.length, this.$Map_root, ownerID);
   };
 
   // @pragma Iteration
 
   Map.prototype.toMap=function() {"use strict";
-    return this.isMutable() ? this.$Map_clone().asImmutable() : this;
+    return this;
   };
 
   Map.prototype.cacheResult=function() {"use strict";

@@ -11,7 +11,7 @@
         return new ObjectSequence(value);
       }
     }
-    return new ArraySequence(Array.prototype.slice.call(arguments), true);
+    return new ArraySequence(Array.prototype.slice.call(arguments));
   }
 
   Sequence.prototype.toString=function() {"use strict";
@@ -31,16 +31,6 @@
 
   Sequence.prototype.__toStringMapper=function(v, k) {"use strict";
     return quoteString(k) + ': ' + quoteString(v);
-  };
-
-  Sequence.prototype.isMutable=function() {"use strict";
-    return this.__parentSequence.isMutable();
-  };
-
-  Sequence.prototype.asImmutable=function() {"use strict";
-    // This works because asImmutable() is mutative.
-    this.__parentSequence.asImmutable();
-    return this;
   };
 
   Sequence.prototype.toArray=function() {"use strict";
@@ -80,13 +70,6 @@
       return true;
     }
     if (this.length != null && other.length != null && this.length !== other.length) {
-      return false;
-    }
-    // if either side is mutable, and they are not from the same parent
-    // sequence, then they must not be equal.
-    if (((!this.isMutable || this.isMutable()) ||
-         (!other.isMutable || other.isMutable())) &&
-        (this.__parentSequence || this) !== (other.__parentSequence || other)) {
       return false;
     }
     return this.__deepEquals(other);
@@ -409,9 +392,7 @@
   };
 
   Sequence.prototype.__makeSequence=function() {"use strict";
-    var newSequence = Object.create(Sequence.prototype);
-    newSequence.__parentSequence = this.$Sequence_parentSequence || this;
-    return newSequence;
+    return Object.create(Sequence.prototype);
   };
 
 
@@ -565,7 +546,6 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   IndexedSequence.prototype.__makeSequence=function() {"use strict";
     var newSequence = Object.create(IndexedSequence.prototype);
     newSequence.__reversedIndices = this.__reversedIndices;
-    newSequence.__parentSequence = this.$IndexedSequence_parentSequence || this;
     return newSequence;
   };
 
@@ -580,7 +560,6 @@ IndexedSequence.prototype.__toStringMapper = quoteString;
  */
 for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty(IndexedSequence____Key)){ValuesSequence[IndexedSequence____Key]=IndexedSequence[IndexedSequence____Key];}}var ____SuperProtoOfIndexedSequence=IndexedSequence===null?null:IndexedSequence.prototype;ValuesSequence.prototype=Object.create(____SuperProtoOfIndexedSequence);ValuesSequence.prototype.constructor=ValuesSequence;ValuesSequence.__superConstructor__=IndexedSequence;
   function ValuesSequence(sequence, length) {"use strict";
-    this.__parentSequence = sequence.$ValuesSequence_parentSequence || sequence;
     this.$ValuesSequence_sequence = sequence;
     this.length = length;
   }
@@ -609,7 +588,6 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
 for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty(IndexedSequence____Key)){SliceIndexedSequence[IndexedSequence____Key]=IndexedSequence[IndexedSequence____Key];}}SliceIndexedSequence.prototype=Object.create(____SuperProtoOfIndexedSequence);SliceIndexedSequence.prototype.constructor=SliceIndexedSequence;SliceIndexedSequence.__superConstructor__=IndexedSequence;
   function SliceIndexedSequence(sequence, begin, end, maintainIndices) {"use strict";
-    this.__parentSequence = sequence.$SliceIndexedSequence_parentSequence || sequence;
     this.__reversedIndices = sequence.__reversedIndices;
     this.$SliceIndexedSequence_sequence = sequence;
     this.$SliceIndexedSequence_begin = begin;
@@ -622,14 +600,13 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
   SliceIndexedSequence.prototype.toVector=function() {"use strict";
     var Vector = require('./Vector');
     var sequence = this.$SliceIndexedSequence_sequence;
+    // TODO: super.toVector() should be the special case here.
+    // Or perhaps we need a Vector specific subclass here?
     if (!this.$SliceIndexedSequence_maintainIndices && sequence instanceof Vector) {
-      if (sequence.isMutable()) {
-        sequence = sequence.clone();
-      }
       return sequence.setBounds(
         resolveBegin(this.$SliceIndexedSequence_begin, sequence.length),
         resolveEnd(this.$SliceIndexedSequence_end, sequence.length)
-      ).asImmutable();
+      );
     }
     return ____SuperProtoOfIndexedSequence.toVector.call(this);
   };
@@ -667,17 +644,7 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
     this.length = this.$ConcatIndexedSequence_sequences.reduce(
       function(sum, seq)  {return sum != null && seq.length != null ? sum + seq.length : undefined;}, 0
     );
-    this.$ConcatIndexedSequence_immutable = this.$ConcatIndexedSequence_sequences.every(function(seq)  {return !seq.isMutable();});
   }
-
-  ConcatIndexedSequence.prototype.isMutable=function() {"use strict";
-    return !this.$ConcatIndexedSequence_immutable;
-  };
-
-  ConcatIndexedSequence.prototype.asImmutable=function() {"use strict";
-    this.$ConcatIndexedSequence_sequences.map(function(seq)  {return seq.asImmutable();});
-    return this;
-  };
 
   ConcatIndexedSequence.prototype.__iterateUncached=function(fn, reverse, flipIndices) {"use strict";
     if (flipIndices && !this.length) {
@@ -735,21 +702,10 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
 
 
 for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty(IndexedSequence____Key)){ArraySequence[IndexedSequence____Key]=IndexedSequence[IndexedSequence____Key];}}ArraySequence.prototype=Object.create(____SuperProtoOfIndexedSequence);ArraySequence.prototype.constructor=ArraySequence;ArraySequence.__superConstructor__=IndexedSequence;
-  function ArraySequence(array, isImmutable) {"use strict";
+  function ArraySequence(array) {"use strict";
     this.length = array.length;
     this.$ArraySequence_array = array;
-    this.$ArraySequence_immutable = !!isImmutable;
   }
-
-  ArraySequence.prototype.isMutable=function() {"use strict";
-    return !this.$ArraySequence_immutable;
-  };
-
-  ArraySequence.prototype.asImmutable=function() {"use strict";
-    this.$ArraySequence_array = this.$ArraySequence_array.slice();
-    this.$ArraySequence_immutable = true;
-    return this;
-  };
 
   ArraySequence.prototype.cacheResult=function() {"use strict";
     return this;
@@ -784,26 +740,9 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
 
 
 for(Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)){ObjectSequence[Sequence____Key]=Sequence[Sequence____Key];}}ObjectSequence.prototype=Object.create(____SuperProtoOfSequence);ObjectSequence.prototype.constructor=ObjectSequence;ObjectSequence.__superConstructor__=Sequence;
-  function ObjectSequence(object, isImmutable) {"use strict";
+  function ObjectSequence(object) {"use strict";
     this.$ObjectSequence_object = object;
-    this.$ObjectSequence_immutable = !!isImmutable;
   }
-
-  ObjectSequence.prototype.isMutable=function() {"use strict";
-    return !this.$ObjectSequence_immutable;
-  };
-
-  ObjectSequence.prototype.asImmutable=function() {"use strict";
-    var prevObject = this.$ObjectSequence_object;
-    this.$ObjectSequence_object = {};
-    this.length = 0;
-    this.$ObjectSequence_immutable = true;
-    for (var key in prevObject) if (prevObject.hasOwnProperty(key)) {
-      this.$ObjectSequence_object[key] = prevObject[key];
-      this.length++;
-    }
-    return this;
-  };
 
   ObjectSequence.prototype.cacheResult=function() {"use strict";
     this.length = Object.keys(this.$ObjectSequence_object).length;

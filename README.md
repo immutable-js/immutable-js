@@ -98,8 +98,8 @@ assert(Immutable.is(map1, map2) === true);
 
 `Immutable.is` uses the same measure of equality as [Object.is](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is) however adds:
 
-  * both are not mutable (`isMutable() === false`)
-  * all keys and values are equal using the same measure.
+  * if both are immutable sequences and all keys and values are equal using the
+    same measure of equality.
 
 
 JavaScript-first API
@@ -130,8 +130,8 @@ Almost all of the methods on `Array` will be found in similar form on
 found on `Immutable.Set`, including sequence operations.
 
 
-Mutation and breaking the rules
--------------------------------
+Mutation and when to break the rules
+------------------------------------
 
 > If a tree falls in the woods, does it make a sound?
 >
@@ -140,22 +140,22 @@ Mutation and breaking the rules
 >
 > — Rich Hickey, Clojure
 
-There is a performance penalty paid every time you create a new immutible object
-via applying a mutation. If you need to perform a series of mutations, then this
-can become a high cost. `immutable-data` gives you the ability to create a
-temporary mutable copy of a collection and applying mutations in a highly
-performant manner. In fact, this is exactly how `immutable-data` applies
+There is a performance penalty paid every time you create a new immutable object
+via applying a mutation. If you need to apply a series of mutations
+`immutable-data` gives you the ability to create a temporary mutable copy of a
+collection and applying mutations in a highly performant manner by using
+`withMutations`. In fact, this is exactly how `immutable-data` applies complex
 mutations itself.
 
-Just follow one simple rule: never return a mutable collection. You should
-always see `asMutable()` and `asImmutable()` in close pairs.
+As an example, this results in 1, not 3, new immutable objects.
 
 ```javascript
-var vect1 = Immutable.Vector().asMutable();
-var vect2 = vect1.push(1,2,3);
-assert(vect1.length === 3);
+var vect1 = Immutable.Vector();
+var vect2 = vect1.withMutations(function (vect) {
+  vect.push(1).push(2).push(3);
+});
+assert(vect1.length === 0);
 assert(vect2.length === 3);
-var vect = vect2.asImmutable();
 ```
 
 

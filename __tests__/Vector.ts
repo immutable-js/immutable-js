@@ -247,4 +247,16 @@ describe('Vector', () => {
     expect(v2.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, null]);
   });
 
+  it('allows chained mutations', () => {
+    var v1 = Vector();
+    var v2 = v1.push(1);
+    var v3 = v2.withMutations(v => v.push(2).push(3).push(4));
+    var v4 = v3.push(5);
+
+    expect(v1.toArray()).toEqual([]);
+    expect(v2.toArray()).toEqual([1]);
+    expect(v3.toArray()).toEqual([1,2,3,4]);
+    expect(v4.toArray()).toEqual([1,2,3,4,5]);
+  });
+
 });

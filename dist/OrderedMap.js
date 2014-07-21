@@ -17,11 +17,11 @@ for(var ImmutableMap____Key in ImmutableMap){if(ImmutableMap.hasOwnProperty(Immu
   };
 
   OrderedMap.fromObject=function(object) {"use strict";
-    var omap = OrderedMap.empty().asMutable();
-    for (var k in object) if (object.hasOwnProperty(k)) {
-      omap = omap.set(k, object[k]);
-    }
-    return omap.asImmutable();
+    return OrderedMap.empty().withMutations(function(omap)  {
+      for (var k in object) if (object.hasOwnProperty(k)) {
+        omap.set(k, object[k]);
+      }
+    });
   };
 
   OrderedMap.prototype.toString=function() {"use strict";
@@ -70,14 +70,8 @@ for(var ImmutableMap____Key in ImmutableMap){if(ImmutableMap.hasOwnProperty(Immu
         newVector = newVector.set(index, [k, v]);
       }
     } else {
-      newVector = require('./Vector').empty();
-      newMap = ImmutableMap.empty();
-      if (this.isMutable()) {
-        newVector = newVector.asMutable();
-        newMap = newMap.asMutable();
-      }
-      newVector = newVector.set(0, [k, v]);
-      newMap = newMap.set(k, 0);
+      newVector = require('./Vector').empty().__ensureOwner(this.$OrderedMap_ownerID).set(0, [k, v]);
+      newMap = ImmutableMap.empty().__ensureOwner(this.$OrderedMap_ownerID).set(k, 0);
     }
     if (this.$OrderedMap_ownerID) {
       this.length = newMap.length;
@@ -113,30 +107,34 @@ for(var ImmutableMap____Key in ImmutableMap){if(ImmutableMap.hasOwnProperty(Immu
 
   // @pragma Mutability
 
-  OrderedMap.prototype.asImmutable=function() {"use strict";
-    this.$OrderedMap_ownerID = undefined;
-    this.$OrderedMap_map = this.$OrderedMap_map.asImmutable();
-    this.$OrderedMap_vector = this.$OrderedMap_vector.asImmutable();
-    return this;
+  OrderedMap.prototype.withMutations=function(fn) {"use strict";
+    // Note: same impl as Map
+    var mutable = this.__ensureOwner(this.$OrderedMap_ownerID || new OwnerID());
+    fn(mutable);
+    return mutable.__ensureOwner(this.$OrderedMap_ownerID);
   };
 
-  OrderedMap.prototype.asMutable=function() {"use strict";
-    return this.$OrderedMap_ownerID ? this : OrderedMap.$OrderedMap_make(this.$OrderedMap_map && this.$OrderedMap_map.asMutable(), this.$OrderedMap_vector && this.$OrderedMap_vector.asMutable(), new OwnerID());
+  OrderedMap.prototype.__ensureOwner=function(ownerID) {"use strict";
+    if (ownerID === this.$OrderedMap_ownerID) {
+      return this;
+    }
+    var newMap = this.$OrderedMap_map && this.$OrderedMap_map.__ensureOwner(ownerID);
+    var newVector = this.$OrderedMap_vector && this.$OrderedMap_vector.__ensureOwner(ownerID);
+    if (!ownerID) {
+      this.$OrderedMap_ownerID = ownerID;
+      this.$OrderedMap_map = newMap;
+      this.$OrderedMap_vector = newVector;
+      return this;
+    }
+    return OrderedMap.$OrderedMap_make(newMap, newVector, ownerID);
   };
 
-  OrderedMap.prototype.clone=function() {"use strict";
-    return this.isMutable() ? this.$OrderedMap_clone() : this;
-  };
-
-  OrderedMap.prototype.$OrderedMap_clone=function() {"use strict";
-    return OrderedMap.$OrderedMap_make(this.$OrderedMap_map && this.$OrderedMap_map.clone(), this.$OrderedMap_vector && this.$OrderedMap_vector.clone(), this.$OrderedMap_ownerID && new OwnerID());
-  };
 
   // @pragma Iteration
 
   OrderedMap.prototype.toOrderedMap=function() {"use strict";
     // Note: identical impl to Map.toMap
-    return this.isMutable() ? this.$OrderedMap_clone().asImmutable() : this;
+    return this;
   };
 
   OrderedMap.prototype.__deepEqual=function(other) {"use strict";

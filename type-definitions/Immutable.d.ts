@@ -37,10 +37,6 @@ export interface Sequence<K, V, C> {
 
   toString(): string;
 
-  isMutable(): boolean;
-
-  asImmutable(): Sequence<K, V, C>;
-
   /**
    * Converts this to a JavaScript native equivalent. IndexedSequence and Set
    * returns an Array while other Sequences return an Object.
@@ -357,11 +353,6 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
   /**
    * @override
    */
-  asImmutable(): IndexedSequence<V, C>;
-
-  /**
-   * @override
-   */
   splice(index: number, removeNum: number, ...values: Array<V>): IndexedSequence<V, C>;
 
   /**
@@ -393,11 +384,6 @@ export interface Range extends IndexedSequence<number, Range> {
   has(index: number): boolean;
   get(index: number): number;
   slice(begin: number, end?: number): Range;
-
-  /**
-   * @override
-   */
-  asImmutable(): Range;
 }
 
 
@@ -468,9 +454,7 @@ export interface Map<K, V> extends Sequence<K, V, Map<K, V>> {
   merge(seq: Sequence<K, V, any>): Map<K, V>;
   merge(seq: {[key: string]: V;}): Map<string, V>;
 
-  asMutable(): Map<K, V>;
-  asImmutable(): Map<K, V>;
-  clone(): Map<K, V>;
+  withMutations(mutator: (mutable: Map<K, V>) => any): Map<K, V>;
 }
 
 
@@ -491,9 +475,7 @@ export interface Set<T> extends Sequence<T, T, Set<T>> {
   merge(seq: Sequence<any, T, any>): Set<T>;
   merge(seq: Array<T>): Set<T>;
 
-  asMutable(): Set<T>;
-  asImmutable(): Set<T>;
-  clone(): Set<T>;
+  withMutations(mutator: (mutable: Set<T>) => any): Set<T>;
 }
 
 
@@ -514,7 +496,7 @@ export declare module OrderedMap {
    * Creates a new immutable ordered map with the same
    * key value pairs as the provided object.
    *
-   *   var newMap = OrderedMapMap.fromObject({key: "value"});
+   *   var newMap = OrderedMap.fromObject({key: "value"});
    *
    */
   function fromObject<V>(object: {[key: string]: V;}): Map<string, V>;
@@ -589,8 +571,7 @@ export interface Vector<T> extends IndexedSequence<T, Vector<T>> {
    */
   setLength(length: number): Vector<T>;
 
-  asMutable(): Vector<T>;
-  asImmutable(): Vector<T>;
-  clone(): Vector<T>;
+  withMutations(mutator: (mutable: Vector<T>) => any): Vector<T>;
+
   __iterator__(): {next(): /*(number, T)*/Array<any>}
 }

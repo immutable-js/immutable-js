@@ -79,8 +79,9 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     var tailOffset = getTailOffset(this.$Vector_size);
 
     if (index + this.$Vector_origin >= tailOffset + SIZE) {
-      var vect = this.asMutable().setBounds(0, index + 1).set(index, value);
-      return this.isMutable() ? vect : vect.asImmutable();
+      return this.withMutations(function(vect) 
+        {return vect.setBounds(0, index + 1).set(index, value);}
+      );
     }
 
     if (this.get(index, __SENTINEL) === value) {
@@ -185,12 +186,14 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   };
 
   Vector.prototype.push=function() {"use strict";
+    var values = arguments;
     var oldLength = this.length;
-    var vect = this.asMutable().setBounds(0, oldLength + arguments.length);
-    for (var ii = 0; ii < arguments.length; ii++) {
-      vect = vect.set(oldLength + ii, arguments[ii]);
-    }
-    return this.isMutable() ? vect : vect.asImmutable();
+    return this.withMutations(function(vect)  {
+      vect.setBounds(0, oldLength + values.length);
+      for (var ii = 0; ii < values.length; ii++) {
+        vect.set(oldLength + ii, values[ii]);
+      }
+    });
   };
 
   Vector.prototype.pop=function() {"use strict";
@@ -198,11 +201,13 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   };
 
   Vector.prototype.unshift=function() {"use strict";
-    var vect = this.asMutable().setBounds(-arguments.length);
-    for (var ii = 0; ii < arguments.length; ii++) {
-      vect = vect.set(ii, arguments[ii]);
-    }
-    return this.isMutable() ? vect : vect.asImmutable();
+    var values = arguments;
+    return this.withMutations(function(vect)  {
+      vect.setBounds(-values.length);
+      for (var ii = 0; ii < values.length; ii++) {
+        vect.set(ii, values[ii]);
+      }
+    });
   };
 
   Vector.prototype.shift=function() {"use strict";
@@ -215,14 +220,14 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     if (!seq || !seq.forEach) {
       return this;
     }
-    var vect = this.asMutable();
-    if (seq.length && seq.length > this.length) {
-      vect = vect.setBounds(0, seq.length);
-    }
-    seq.forEach(function(value, index)  {
-      vect = vect.set(index, value)
+    return this.withMutations(function(vect)  {
+      if (seq.length && seq.length > vect.length) {
+        vect.setBounds(0, seq.length);
+      }
+      seq.forEach(function(value, index)  {
+        vect.set(index, value);
+      });
     });
-    return this.isMutable() ? vect : vect.asImmutable();
   };
 
   // TODO: mergeIn
@@ -347,37 +352,28 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
   // @pragma Mutability
 
-  Vector.prototype.isMutable=function() {"use strict";
-    return !!this.$Vector_ownerID;
+  Vector.prototype.withMutations=function(fn) {"use strict";
+    // Note: same impl as Map
+    var mutable = this.__ensureOwner(this.$Vector_ownerID || new OwnerID());
+    fn(mutable);
+    return mutable.__ensureOwner(this.$Vector_ownerID);
   };
 
-  Vector.prototype.asMutable=function() {"use strict";
-    if (this.$Vector_ownerID) {
+  Vector.prototype.__ensureOwner=function(ownerID) {"use strict";
+    if (ownerID === this.$Vector_ownerID) {
       return this;
     }
-    var vect = this.$Vector_clone();
-    vect.$Vector_ownerID = new OwnerID();
-    return vect;
-  };
-
-  Vector.prototype.asImmutable=function() {"use strict";
-    this.$Vector_ownerID = undefined;
-    return this;
-  };
-
-  Vector.prototype.clone=function() {"use strict";
-    return this.isMutable() ? this.$Vector_clone() : this;
-  };
-
-  Vector.prototype.$Vector_clone=function() {"use strict";
-    return Vector.$Vector_make(this.$Vector_origin, this.$Vector_size, this.$Vector_level, this.$Vector_root, this.$Vector_tail, this.$Vector_ownerID && new OwnerID());
+    if (!ownerID) {
+      this.$Vector_ownerID = ownerID;
+      return this;
+    }
+    return Vector.$Vector_make(this.$Vector_origin, this.$Vector_size, this.$Vector_level, this.$Vector_root, this.$Vector_tail, ownerID);
   };
 
   // @pragma Iteration
 
   Vector.prototype.toVector=function() {"use strict";
-    // Note: identical impl to Map.toMap
-    return this.isMutable() ? this.$Vector_clone().asImmutable() : this;
+    return this;
   };
 
   Vector.prototype.first=function(predicate, context) {"use strict";

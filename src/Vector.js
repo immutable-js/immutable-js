@@ -79,8 +79,9 @@ class Vector extends IndexedSequence {
     var tailOffset = getTailOffset(this._size);
 
     if (index + this._origin >= tailOffset + SIZE) {
-      var vect = this.asMutable().setBounds(0, index + 1).set(index, value);
-      return this.isMutable() ? vect : vect.asImmutable();
+      return this.withMutations(vect =>
+        vect.setBounds(0, index + 1).set(index, value)
+      );
     }
 
     if (this.get(index, __SENTINEL) === value) {
@@ -185,12 +186,14 @@ class Vector extends IndexedSequence {
   }
 
   push(/*...values*/) {
+    var values = arguments;
     var oldLength = this.length;
-    var vect = this.asMutable().setBounds(0, oldLength + arguments.length);
-    for (var ii = 0; ii < arguments.length; ii++) {
-      vect = vect.set(oldLength + ii, arguments[ii]);
-    }
-    return this.isMutable() ? vect : vect.asImmutable();
+    return this.withMutations(vect => {
+      vect.setBounds(0, oldLength + values.length);
+      for (var ii = 0; ii < values.length; ii++) {
+        vect.set(oldLength + ii, values[ii]);
+      }
+    });
   }
 
   pop() {
@@ -198,11 +201,13 @@ class Vector extends IndexedSequence {
   }
 
   unshift(/*...values*/) {
-    var vect = this.asMutable().setBounds(-arguments.length);
-    for (var ii = 0; ii < arguments.length; ii++) {
-      vect = vect.set(ii, arguments[ii]);
-    }
-    return this.isMutable() ? vect : vect.asImmutable();
+    var values = arguments;
+    return this.withMutations(vect => {
+      vect.setBounds(-values.length);
+      for (var ii = 0; ii < values.length; ii++) {
+        vect.set(ii, values[ii]);
+      }
+    });
   }
 
   shift() {
@@ -215,14 +220,14 @@ class Vector extends IndexedSequence {
     if (!seq || !seq.forEach) {
       return this;
     }
-    var vect = this.asMutable();
-    if (seq.length && seq.length > this.length) {
-      vect = vect.setBounds(0, seq.length);
-    }
-    seq.forEach((value, index) => {
-      vect = vect.set(index, value)
+    return this.withMutations(vect => {
+      if (seq.length && seq.length > vect.length) {
+        vect.setBounds(0, seq.length);
+      }
+      seq.forEach((value, index) => {
+        vect.set(index, value);
+      });
     });
-    return this.isMutable() ? vect : vect.asImmutable();
   }
 
   // TODO: mergeIn
@@ -347,37 +352,28 @@ class Vector extends IndexedSequence {
 
   // @pragma Mutability
 
-  isMutable() {
-    return !!this._ownerID;
+  withMutations(fn) {
+    // Note: same impl as Map
+    var mutable = this.__ensureOwner(this._ownerID || new OwnerID());
+    fn(mutable);
+    return mutable.__ensureOwner(this._ownerID);
   }
 
-  asMutable() {
-    if (this._ownerID) {
+  __ensureOwner(ownerID) {
+    if (ownerID === this._ownerID) {
       return this;
     }
-    var vect = this._clone();
-    vect._ownerID = new OwnerID();
-    return vect;
-  }
-
-  asImmutable() {
-    this._ownerID = undefined;
-    return this;
-  }
-
-  clone() {
-    return this.isMutable() ? this._clone() : this;
-  }
-
-  _clone() {
-    return Vector._make(this._origin, this._size, this._level, this._root, this._tail, this._ownerID && new OwnerID());
+    if (!ownerID) {
+      this._ownerID = ownerID;
+      return this;
+    }
+    return Vector._make(this._origin, this._size, this._level, this._root, this._tail, ownerID);
   }
 
   // @pragma Iteration
 
   toVector() {
-    // Note: identical impl to Map.toMap
-    return this.isMutable() ? this._clone().asImmutable() : this;
+    return this;
   }
 
   first(predicate, context) {

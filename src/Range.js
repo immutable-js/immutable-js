@@ -54,14 +54,6 @@ class Range extends IndexedSequence {
     return new Range(this.get(begin), end === this.length ? this.end : this.get(end), this.step);
   }
 
-  isMutable() {
-    return false;
-  }
-
-  asImmutable() {
-    return this;
-  }
-
   __deepEquals(other) {
     return this.start === other.start && this.end === other.end && this.step === other.step;
   }

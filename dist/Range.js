@@ -54,14 +54,6 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     return new Range(this.get(begin), end === this.length ? this.end : this.get(end), this.step);
   };
 
-  Range.prototype.isMutable=function() {"use strict";
-    return false;
-  };
-
-  Range.prototype.asImmutable=function() {"use strict";
-    return this;
-  };
-
   Range.prototype.__deepEquals=function(other) {"use strict";
     return this.start === other.start && this.end === other.end && this.step === other.step;
   };
