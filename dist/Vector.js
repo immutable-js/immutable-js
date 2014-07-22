@@ -384,6 +384,20 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     return predicate ? ____SuperProtoOfIndexedSequence.last.call(this,predicate, context) : this.get(this.length ? this.length - 1 : 0);
   };
 
+  Vector.prototype.slice=function(begin, end, maintainIndices) {"use strict";
+    var sliced = ____SuperProtoOfIndexedSequence.slice.call(this,begin, end, maintainIndices);
+    // Optimize the case of vector.slice(b, e).toVector()
+    if (!maintainIndices && sliced !== this) {
+      var sequence = this;
+      var length = sequence.length;
+      sliced.toVector = function()  {return sequence.setBounds(
+        begin < 0 ? Math.max(0, length + begin) : length ? Math.min(length, begin) : begin,
+        end == null ? length : end < 0 ? Math.max(0, length + end) : length ? Math.min(length, end) : end
+      );};
+    }
+    return sliced;
+  };
+
   Vector.prototype.cacheResult=function() {"use strict";
     return this;
   };

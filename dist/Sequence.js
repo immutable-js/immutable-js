@@ -254,17 +254,18 @@
     if (wholeSlice(begin, end, this.length)) {
       return this;
     }
-    begin = resolveBegin(begin, this.length);
-    end = resolveEnd(end, this.length);
+    var resolvedBegin = resolveBegin(begin, this.length);
+    var resolvedEnd = resolveEnd(end, this.length);
     // begin or end will be NaN if they were provided as negative numbers and
     // this sequence's length is unknown. In that case, convert it to an
     // IndexedSequence by getting entries() and convert back to a sequence with
     // fromEntries(). IndexedSequence.prototype.slice will appropriately handle
     // this case.
-    if (isNaN(begin) || isNaN(end)) {
+    if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd) {
       return this.entries().slice(begin, end).fromEntries();
     }
-    return this.skip(begin).take(end - begin);
+    var skipped = this.skip(resolvedBegin);
+    return resolvedEnd == null ? skipped : skipped.take(resolvedEnd - resolvedBegin);
   };
 
   Sequence.prototype.splice=function(index, removeNum)  {"use strict";var values=Array.prototype.slice.call(arguments,2);
@@ -311,6 +312,9 @@
   };
 
   Sequence.prototype.skip=function(amount, maintainIndices) {"use strict";
+    if (amount === 0) {
+      return this;
+    }
     var iterations = 0;
     var sequence = this.skipWhile(function()  {return iterations++ < amount;}, null, maintainIndices);
     sequence.length = this.length && Math.max(0, this.length - amount);
@@ -596,21 +600,6 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
     this.length = sequence.length && (maintainIndices ? sequence.length : resolveEnd(end, sequence.length) - resolveBegin(begin, sequence.length));
   }
 
-  // Optimize the case of vector.slice(b, e).toVector()
-  SliceIndexedSequence.prototype.toVector=function() {"use strict";
-    var Vector = require('./Vector');
-    var sequence = this.$SliceIndexedSequence_sequence;
-    // TODO: super.toVector() should be the special case here.
-    // Or perhaps we need a Vector specific subclass here?
-    if (!this.$SliceIndexedSequence_maintainIndices && sequence instanceof Vector) {
-      return sequence.setBounds(
-        resolveBegin(this.$SliceIndexedSequence_begin, sequence.length),
-        resolveEnd(this.$SliceIndexedSequence_end, sequence.length)
-      );
-    }
-    return ____SuperProtoOfIndexedSequence.toVector.call(this);
-  };
-
   SliceIndexedSequence.prototype.__iterateUncached=function(fn, reverse, flipIndices) {"use strict";
     if (reverse) {
       // TODO: reverse should be possible here.
@@ -618,19 +607,21 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
     }
     var reversedIndices = this.__reversedIndices ^ flipIndices;
     var sequence = this.$SliceIndexedSequence_sequence;
-    if ((begin < 0 || end < 0 || reversedIndices) && sequence.length == null) {
-      sequence.cacheResult();
-    }
     var begin = resolveBegin(this.$SliceIndexedSequence_begin, sequence.length);
     var end = resolveEnd(this.$SliceIndexedSequence_end, sequence.length);
     var maintainIndices = this.$SliceIndexedSequence_maintainIndices;
+    if (sequence.length == null && (isNaN(begin) || isNaN(end) || reversedIndices)) {
+      sequence.cacheResult();
+      begin = resolveBegin(this.$SliceIndexedSequence_begin, sequence.length);
+      end = resolveEnd(this.$SliceIndexedSequence_end, sequence.length);
+    }
     if (reversedIndices) {
       var newStart = sequence.length - end;
       end = sequence.length - begin;
       begin = newStart;
     }
     var length = sequence.__iterate(function(v, ii, c) 
-      {return !(ii >= begin && ii < end) || fn(v, maintainIndices ? ii : ii - begin, c) !== false;},
+      {return !(ii >= begin && (end == null || ii < end)) || fn(v, maintainIndices ? ii : ii - begin, c) !== false;},
       reverse, flipIndices
     );
     return this.length || (maintainIndices ? length : Math.max(0, length - begin));

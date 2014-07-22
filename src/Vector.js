@@ -384,6 +384,20 @@ class Vector extends IndexedSequence {
     return predicate ? super.last(predicate, context) : this.get(this.length ? this.length - 1 : 0);
   }
 
+  slice(begin, end, maintainIndices) {
+    var sliced = super.slice(begin, end, maintainIndices);
+    // Optimize the case of vector.slice(b, e).toVector()
+    if (!maintainIndices && sliced !== this) {
+      var sequence = this;
+      var length = sequence.length;
+      sliced.toVector = () => sequence.setBounds(
+        begin < 0 ? Math.max(0, length + begin) : length ? Math.min(length, begin) : begin,
+        end == null ? length : end < 0 ? Math.max(0, length + end) : length ? Math.min(length, end) : end
+      );
+    }
+    return sliced;
+  }
+
   cacheResult() {
     return this;
   }

@@ -254,17 +254,18 @@ class Sequence {
     if (wholeSlice(begin, end, this.length)) {
       return this;
     }
-    begin = resolveBegin(begin, this.length);
-    end = resolveEnd(end, this.length);
+    var resolvedBegin = resolveBegin(begin, this.length);
+    var resolvedEnd = resolveEnd(end, this.length);
     // begin or end will be NaN if they were provided as negative numbers and
     // this sequence's length is unknown. In that case, convert it to an
     // IndexedSequence by getting entries() and convert back to a sequence with
     // fromEntries(). IndexedSequence.prototype.slice will appropriately handle
     // this case.
-    if (isNaN(begin) || isNaN(end)) {
+    if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd) {
       return this.entries().slice(begin, end).fromEntries();
     }
-    return this.skip(begin).take(end - begin);
+    var skipped = this.skip(resolvedBegin);
+    return resolvedEnd == null ? skipped : skipped.take(resolvedEnd - resolvedBegin);
   }
 
   splice(index, removeNum, ...values) {
@@ -311,6 +312,9 @@ class Sequence {
   }
 
   skip(amount, maintainIndices) {
+    if (amount === 0) {
+      return this;
+    }
     var iterations = 0;
     var sequence = this.skipWhile(() => iterations++ < amount, null, maintainIndices);
     sequence.length = this.length && Math.max(0, this.length - amount);
@@ -596,21 +600,6 @@ class SliceIndexedSequence extends IndexedSequence {
     this.length = sequence.length && (maintainIndices ? sequence.length : resolveEnd(end, sequence.length) - resolveBegin(begin, sequence.length));
   }
 
-  // Optimize the case of vector.slice(b, e).toVector()
-  toVector() {
-    var Vector = require('./Vector');
-    var sequence = this._sequence;
-    // TODO: super.toVector() should be the special case here.
-    // Or perhaps we need a Vector specific subclass here?
-    if (!this._maintainIndices && sequence instanceof Vector) {
-      return sequence.setBounds(
-        resolveBegin(this._begin, sequence.length),
-        resolveEnd(this._end, sequence.length)
-      );
-    }
-    return super.toVector();
-  }
-
   __iterateUncached(fn, reverse, flipIndices) {
     if (reverse) {
       // TODO: reverse should be possible here.
@@ -618,19 +607,21 @@ class SliceIndexedSequence extends IndexedSequence {
     }
     var reversedIndices = this.__reversedIndices ^ flipIndices;
     var sequence = this._sequence;
-    if ((begin < 0 || end < 0 || reversedIndices) && sequence.length == null) {
-      sequence.cacheResult();
-    }
     var begin = resolveBegin(this._begin, sequence.length);
     var end = resolveEnd(this._end, sequence.length);
     var maintainIndices = this._maintainIndices;
+    if (sequence.length == null && (isNaN(begin) || isNaN(end) || reversedIndices)) {
+      sequence.cacheResult();
+      begin = resolveBegin(this._begin, sequence.length);
+      end = resolveEnd(this._end, sequence.length);
+    }
     if (reversedIndices) {
       var newStart = sequence.length - end;
       end = sequence.length - begin;
       begin = newStart;
     }
     var length = sequence.__iterate((v, ii, c) =>
-      !(ii >= begin && ii < end) || fn(v, maintainIndices ? ii : ii - begin, c) !== false,
+      !(ii >= begin && (end == null || ii < end)) || fn(v, maintainIndices ? ii : ii - begin, c) !== false,
       reverse, flipIndices
     );
     return this.length || (maintainIndices ? length : Math.max(0, length - begin));
