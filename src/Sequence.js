@@ -151,36 +151,36 @@ class Sequence {
     return newSequence;
   }
 
-  forEach(sideEffect, context) {
-    return this.__iterate(context ? sideEffect.bind(context) : sideEffect);
+  forEach(sideEffect, thisArg) {
+    return this.__iterate(thisArg ? sideEffect.bind(thisArg) : sideEffect);
   }
 
-  first(predicate, context) {
+  first(predicate, thisArg) {
     var firstValue;
-    (predicate ? this.filter(predicate, context) : this).take(1).forEach(v => { firstValue = v; });
+    (predicate ? this.filter(predicate, thisArg) : this).take(1).forEach(v => { firstValue = v; });
     return firstValue;
   }
 
-  last(predicate, context) {
-    return this.reverse(true).first(predicate, context);
+  last(predicate, thisArg) {
+    return this.reverse(true).first(predicate, thisArg);
   }
 
-  reduce(reducer, initialReduction, context) {
+  reduce(reducer, initialReduction, thisArg) {
     var reduction = initialReduction;
     this.forEach((v, k, c) => {
-      reduction = reducer.call(context, reduction, v, k, c);
+      reduction = reducer.call(thisArg, reduction, v, k, c);
     });
     return reduction;
   }
 
-  reduceRight(reducer, initialReduction, context) {
-    return this.reverse(true).reduce(reducer, initialReduction, context);
+  reduceRight(reducer, initialReduction, thisArg) {
+    return this.reverse(true).reduce(reducer, initialReduction, thisArg);
   }
 
-  every(predicate, context) {
+  every(predicate, thisArg) {
     var returnValue = true;
     this.forEach((v, k, c) => {
-      if (!predicate.call(context, v, k, c)) {
+      if (!predicate.call(thisArg, v, k, c)) {
         returnValue = false;
         return false;
       }
@@ -188,8 +188,8 @@ class Sequence {
     return returnValue;
   }
 
-  some(predicate, context) {
-    return !this.every(not(predicate), context);
+  some(predicate, thisArg) {
+    return !this.every(not(predicate), thisArg);
   }
 
   has(searchKey) {
@@ -204,10 +204,10 @@ class Sequence {
     return this.find(value => value === searchValue, null, __SENTINEL) !== __SENTINEL;
   }
 
-  find(predicate, context, notFoundValue) {
+  find(predicate, thisArg, notFoundValue) {
     var foundValue = notFoundValue;
     this.forEach((v, k, c) => {
-      if (predicate.call(context, v, k, c)) {
+      if (predicate.call(thisArg, v, k, c)) {
         foundValue = v;
         return false;
       }
@@ -215,10 +215,10 @@ class Sequence {
     return foundValue;
   }
 
-  findKey(predicate, context) {
+  findKey(predicate, thisArg) {
     var foundKey;
     this.forEach((v, k, c) => {
-      if (predicate.call(context, v, k, c)) {
+      if (predicate.call(thisArg, v, k, c)) {
         foundKey = k;
         return false;
       }
@@ -226,12 +226,12 @@ class Sequence {
     return foundKey;
   }
 
-  findLast(predicate, context, notFoundValue) {
-    return this.reverse(true).find(predicate, context, notFoundValue);
+  findLast(predicate, thisArg, notFoundValue) {
+    return this.reverse(true).find(predicate, thisArg, notFoundValue);
   }
 
-  findLastKey(predicate, context) {
-    return this.reverse(true).findKey(predicate, context);
+  findLastKey(predicate, thisArg) {
+    return this.reverse(true).findKey(predicate, thisArg);
   }
 
   flip() {
@@ -245,17 +245,17 @@ class Sequence {
     return flipSequence;
   }
 
-  map(mapper, context) {
+  map(mapper, thisArg) {
     var sequence = this;
     var mappedSequence = this.__makeSequence();
     mappedSequence.length = this.length;
     mappedSequence.__iterateUncached = (fn, reverse) =>
-      sequence.__iterate((v, k, c) => fn(mapper.call(context, v, k, c), k, c) !== false, reverse);
+      sequence.__iterate((v, k, c) => fn(mapper.call(thisArg, v, k, c), k, c) !== false, reverse);
     return mappedSequence;
   }
 
-  filter(predicate, context) {
-    return filterFactory(this, predicate, context, true, false);
+  filter(predicate, thisArg) {
+    return filterFactory(this, predicate, thisArg, true, false);
   }
 
   slice(begin, end) {
@@ -294,7 +294,7 @@ class Sequence {
     return this.reverse(maintainIndices).take(amount).reverse(maintainIndices);
   }
 
-  takeWhile(predicate, context, maintainIndices) {
+  takeWhile(predicate, thisArg, maintainIndices) {
     var sequence = this;
     var takeSequence = this.__makeSequence();
     takeSequence.__iterateUncached = function(fn, reverse, flipIndices) {
@@ -304,7 +304,7 @@ class Sequence {
       }
       var iterations = 0;
       sequence.__iterate((v, k, c) => {
-        if (predicate.call(context, v, k, c) && fn(v, k, c) !== false) {
+        if (predicate.call(thisArg, v, k, c) && fn(v, k, c) !== false) {
           iterations++;
         } else {
           return false;
@@ -315,8 +315,8 @@ class Sequence {
     return takeSequence;
   }
 
-  takeUntil(predicate, context, maintainIndices) {
-    return this.takeWhile(not(predicate), context, maintainIndices);
+  takeUntil(predicate, thisArg, maintainIndices) {
+    return this.takeWhile(not(predicate), thisArg, maintainIndices);
   }
 
   skip(amount, maintainIndices) {
@@ -333,7 +333,7 @@ class Sequence {
     return this.reverse(maintainIndices).skip(amount).reverse(maintainIndices);
   }
 
-  skipWhile(predicate, context, maintainIndices) {
+  skipWhile(predicate, thisArg, maintainIndices) {
     var sequence = this;
     var skipSequence = this.__makeSequence();
     skipSequence.__iterateUncached = function(fn, reverse, flipIndices) {
@@ -344,7 +344,7 @@ class Sequence {
       var isSkipping = true;
       var iterations = 0;
       sequence.__iterate((v, k, c) => {
-        if (!(isSkipping && (isSkipping = predicate.call(context, v, k, c)))) {
+        if (!(isSkipping && (isSkipping = predicate.call(thisArg, v, k, c)))) {
           if (fn(v, k, c) !== false) {
             iterations++;
           } else {
@@ -357,8 +357,8 @@ class Sequence {
     return skipSequence;
   }
 
-  skipUntil(predicate, context, maintainIndices) {
-    return this.skipWhile(not(predicate), context, maintainIndices);
+  skipUntil(predicate, thisArg, maintainIndices) {
+    return this.skipWhile(not(predicate), thisArg, maintainIndices);
   }
 
   cacheResult() {
@@ -466,8 +466,8 @@ class IndexedSequence extends Sequence {
     return new ValuesSequence(this);
   }
 
-  filter(predicate, context, maintainIndices) {
-    var filterSequence = filterFactory(this, predicate, context, maintainIndices, maintainIndices);
+  filter(predicate, thisArg, maintainIndices) {
+    var filterSequence = filterFactory(this, predicate, thisArg, maintainIndices, maintainIndices);
     if (maintainIndices) {
       filterSequence.length = this.length;
     }
@@ -478,8 +478,8 @@ class IndexedSequence extends Sequence {
     return this.findIndex(value => value === searchValue);
   }
 
-  findIndex(predicate, context) {
-    var key = this.findKey(predicate, context);
+  findIndex(predicate, thisArg) {
+    var key = this.findKey(predicate, thisArg);
     return key == null ? -1 : key;
   }
 
@@ -487,8 +487,8 @@ class IndexedSequence extends Sequence {
     return this.reverse(true).indexOf(searchValue);
   }
 
-  findLastIndex(predicate, context) {
-    return this.reverse(true).findIndex(predicate, context);
+  findLastIndex(predicate, thisArg) {
+    return this.reverse(true).findIndex(predicate, thisArg);
   }
 
   slice(begin, end, maintainIndices) {
@@ -499,7 +499,7 @@ class IndexedSequence extends Sequence {
   }
 
   // Overrides to get length correct.
-  takeWhile(predicate, context, maintainIndices) {
+  takeWhile(predicate, thisArg, maintainIndices) {
     var sequence = this;
     var takeSequence = this.__makeSequence();
     takeSequence.__iterateUncached = function(fn, reverse, flipIndices) {
@@ -511,7 +511,7 @@ class IndexedSequence extends Sequence {
       // TODO: ensure didFinish is necessary here
       var didFinish = true;
       var length = sequence.__iterate((v, ii, c) => {
-        if (predicate.call(context, v, ii, c) && fn(v, ii, c) !== false) {
+        if (predicate.call(thisArg, v, ii, c) && fn(v, ii, c) !== false) {
           iterations = ii;
         } else {
           didFinish = false;
@@ -526,7 +526,7 @@ class IndexedSequence extends Sequence {
     return takeSequence;
   }
 
-  skipWhile(predicate, context, maintainIndices) {
+  skipWhile(predicate, thisArg, maintainIndices) {
     var newSequence = this.__makeSequence();
     var sequence = this;
     newSequence.__iterateUncached = function(fn, reverse, flipIndices) {
@@ -538,7 +538,7 @@ class IndexedSequence extends Sequence {
       var indexOffset = 0;
       var length = sequence.__iterate((v, ii, c) => {
         if (isSkipping) {
-          isSkipping = predicate.call(context, v, ii, c);
+          isSkipping = predicate.call(thisArg, v, ii, c);
           if (!isSkipping) {
             indexOffset = ii;
           }
@@ -805,12 +805,12 @@ function entryMapper(v, k) {
  * in behavior that it makes sense to build a factory with the few differences
  * encoded as booleans.
  */
-function filterFactory(sequence, predicate, context, useKeys, maintainIndices) {
+function filterFactory(sequence, predicate, thisArg, useKeys, maintainIndices) {
   var filterSequence = sequence.__makeSequence();
   filterSequence.__iterate = (fn, reverse, flipIndices) => {
     var iterations = 0;
     var length = sequence.__iterate((v, k, c) => {
-      if (predicate.call(context, v, k, c)) {
+      if (predicate.call(thisArg, v, k, c)) {
         if (fn(v, useKeys ? k : iterations, c) !== false) {
           iterations++;
         } else {

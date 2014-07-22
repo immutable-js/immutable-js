@@ -399,12 +399,12 @@ class Vector extends IndexedSequence {
     return this;
   }
 
-  first(predicate, context) {
-    return predicate ? super.first(predicate, context) : this.get(0);
+  first(predicate, thisArg) {
+    return predicate ? super.first(predicate, thisArg) : this.get(0);
   }
 
-  last(predicate, context) {
-    return predicate ? super.last(predicate, context) : this.get(this.length ? this.length - 1 : 0);
+  last(predicate, thisArg) {
+    return predicate ? super.last(predicate, thisArg) : this.get(this.length ? this.length - 1 : 0);
   }
 
   slice(begin, end, maintainIndices) {

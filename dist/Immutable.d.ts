@@ -15,14 +15,14 @@ export declare function toJS(value: any): any;
 /**
  * Sequences
  */
-export declare function Sequence<V, C>(seq: IndexedSequence<V, C>): IndexedSequence<V, C>;
-export declare function Sequence<K, V, C>(seq: Sequence<K, V, C>): Sequence<K, V, C>;
-export declare function Sequence<T>(array: Array<T>): IndexedSequence<T, Array<T>>;
-export declare function Sequence<T>(obj: {[key: string]: T}): Sequence<string, T, {[key: string]: T}>;
-export declare function Sequence<T>(...values: Array<T>): IndexedSequence<T, Array<T>>;
-export declare function Sequence(): Sequence<any, any, any>;
+export declare function Sequence<T>(seq: IndexedSequence<T>): IndexedSequence<T>;
+export declare function Sequence<K, V>(seq: Sequence<K, V>): Sequence<K, V>;
+export declare function Sequence<T>(array: Array<T>): IndexedSequence<T>;
+export declare function Sequence<T>(obj: {[key: string]: T}): Sequence<string, T>;
+export declare function Sequence<T>(...values: T[]): IndexedSequence<T>;
+export declare function Sequence(): Sequence<any, any>;
 
-export interface Sequence<K, V, C> {
+export interface Sequence<K, V> {
 
   /**
    * Some sequences can describe their length lazily. When this is the case,
@@ -55,19 +55,19 @@ export interface Sequence<K, V, C> {
 
   toSet(): Set<V>;
 
-  equals(other: Sequence<K, V, C>): boolean;
+  equals(other: Sequence<K, V>): boolean;
 
   join(separator?: string): string;
 
-  concat(...valuesOrSequences: Array<any>): Sequence<any, any, any>;
+  concat(...valuesOrSequences: any[]): Sequence<any, any>;
 
-  reverse(): Sequence<K, V, C>;
+  reverse(): Sequence<K, V>;
 
-  keys(): IndexedSequence<K, C>;
+  keys(): IndexedSequence<K>;
 
-  values(): IndexedSequence<V, C>;
+  values(): IndexedSequence<V>;
 
-  entries(): IndexedSequence</*(K, V)*/Array<any>, C>;
+  entries(): IndexedSequence</*(K, V)*/Array<any>>;
 
   /**
    * This behavior differs from Array.prototype.forEach
@@ -76,40 +76,40 @@ export interface Sequence<K, V, C> {
    * which was iterated.
    */
   forEach(
-    sideEffect: (value?: V, key?: K, collection?: C) => any,
-    context?: Object
+    sideEffect: (value?: V, key?: K, seq?: Sequence<K, V>) => any,
+    thisArg?: Object
   ): number;
 
   first(
-    predicate?: (value?: V, index?: number, collection?: C) => boolean,
-    context?: Object
+    predicate?: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+    thisArg?: Object
   ): V;
 
   last(
-    predicate?: (value?: V, index?: number, collection?: C) => boolean,
-    context?: Object
+    predicate?: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+    thisArg?: Object
   ): V;
 
   reduce<R>(
-    reducer: (reduction?: R, value?: V, key?: K, collection?: C) => R,
+    reducer: (reduction?: R, value?: V, key?: K, seq?: Sequence<K, V>) => R,
     initialReduction?: R,
-    context?: Object
+    thisArg?: Object
   ): R;
 
   reduceRight<R>(
-    reducer: (reduction?: R, value?: V, key?: K, collection?: C) => R,
+    reducer: (reduction?: R, value?: V, key?: K, seq?: Sequence<K, V>) => R,
     initialReduction: R,
-    context?: Object
+    thisArg?: Object
   ): R;
 
   every(
-    predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: Object
+    predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+    thisArg?: Object
   ): boolean;
 
   some(
-    predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: Object
+    predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+    thisArg?: Object
   ): boolean;
 
   /**
@@ -133,72 +133,72 @@ export interface Sequence<K, V, C> {
   contains(value: V): boolean;
 
   find(
-    predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: Object,
+    predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+    thisArg?: Object,
     notFoundValue?: V
   ): V;
 
   findKey(
-    predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: Object
+    predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+    thisArg?: Object
   ): K;
 
   findLast(
-    predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: Object,
+    predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+    thisArg?: Object,
     notFoundValue?: V
   ): V;
 
   findLastKey(
-    predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: Object
+    predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+    thisArg?: Object
   ): K;
 
-  flip(): Sequence<V, K, C>;
+  flip(): Sequence<V, K>;
 
   map<M>(
-    mapper: (value?: V, key?: K, collection?: C) => M,
-    context?: Object
-  ): Sequence<K, M, C>;
+    mapper: (value?: V, key?: K, seq?: Sequence<K, V>) => M,
+    thisArg?: Object
+  ): Sequence<K, M>;
 
   filter(
-    predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: Object
-  ): Sequence<K, V, C>;
+    predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+    thisArg?: Object
+  ): Sequence<K, V>;
 
-  slice(start: number, end?: number): Sequence<K, V, C>;
+  slice(start: number, end?: number): Sequence<K, V>;
 
-  splice(index: number, removeNum: number, ...values: Array<any>): Sequence<K, V, C>;
+  splice(index: number, removeNum: number, ...values: any[]): Sequence<K, V>;
 
-  take(amount: number): Sequence<K, V, C>;
+  take(amount: number): Sequence<K, V>;
 
-  takeLast(amount: number): Sequence<K, V, C>;
+  takeLast(amount: number): Sequence<K, V>;
 
   takeWhile(
-    predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: Object
-  ): Sequence<K, V, C>;
+    predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+    thisArg?: Object
+  ): Sequence<K, V>;
 
   takeUntil(
-    predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: Object
-  ): Sequence<K, V, C>;
+    predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+    thisArg?: Object
+  ): Sequence<K, V>;
 
-  skip(amount: number): Sequence<K, V, C>;
+  skip(amount: number): Sequence<K, V>;
 
-  skipLast(amount: number): Sequence<K, V, C>;
+  skipLast(amount: number): Sequence<K, V>;
 
   skipWhile(
-    predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: Object
-  ): Sequence<K, V, C>;
+    predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+    thisArg?: Object
+  ): Sequence<K, V>;
 
   skipUntil(
-    predicate: (value?: V, key?: K, collection?: C) => boolean,
-    context?: Object
-  ): Sequence<K, V, C>;
+    predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+    thisArg?: Object
+  ): Sequence<K, V>;
 
-  cacheResult(): Sequence<K, V, C>;
+  cacheResult(): Sequence<K, V>;
 }
 
 
@@ -209,33 +209,33 @@ export interface Sequence<K, V, C> {
  * behavior for some methods, and add others which do not make sense on
  * non-indexed sequences such as `indexOf`.
  */
-export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
+export interface IndexedSequence<T> extends Sequence<number, T> {
 
   /**
    * If this is a sequence of entries (key-value tuples), it will return a
    * sequence of those entries.
    */
-  fromEntries(): Sequence<any, any, C>;
+  fromEntries(): Sequence<any, any>;
 
   /**
    * Returns the first index at which a given value can be found in the
    * sequence, or -1 if it is not present.
    */
-  indexOf(searchValue: V): number;
+  indexOf(searchValue: T): number;
 
   /**
    * Returns the last index at which a given value can be found in the
    * sequence, or -1 if it is not present.
    */
-  lastIndexOf(searchValue: V): number;
+  lastIndexOf(searchValue: T): number;
 
   /**
    * Returns the first index in the sequence where a value satisfies the
    * provided predicate function. Otherwise -1 is returned.
    */
   findIndex(
-    predicate: (value?: V, index?: number, collection?: C) => boolean,
-    context?: Object
+    predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+    thisArg?: Object
   ): number;
 
   /**
@@ -243,8 +243,8 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
    * provided predicate function. Otherwise -1 is returned.
    */
   findLastIndex(
-    predicate: (value?: V, index?: number, collection?: C) => boolean,
-    context?: Object
+    predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+    thisArg?: Object
   ): number;
 
   /**
@@ -253,20 +253,20 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
    * simply makes a dense array of all values.
    * @override
    */
-  toArray(): Array<V>;
+  toArray(): Array<T>;
 
   /**
    * This has the same altered behavior as `toArray`.
    * @override
    */
-  toVector(): Vector<V>;
+  toVector(): Vector<T>;
 
   /**
    * This new behavior will iterate through the values and sequences with
    * increasing indices.
    * @override
    */
-  concat(...valuesOrSequences: Array<any>): IndexedSequence<any, any>;
+  concat(...valuesOrSequences: any[]): IndexedSequence<any>;
 
   /**
    * This new behavior will not only iterate through the sequence in reverse,
@@ -275,7 +275,7 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
    * maintainIndices to true.
    * @override
    */
-  reverse(maintainIndices?: boolean): IndexedSequence<V, C>;
+  reverse(maintainIndices?: boolean): IndexedSequence<T>;
 
   /**
    * Indexed sequences have a different `filter` behavior, where the filtered
@@ -284,28 +284,28 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
    * @override
    */
   filter(
-    predicate: (value?: V, index?: number, collection?: C) => boolean,
-    context?: Object,
+    predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+    thisArg?: Object,
     maintainIndices?: boolean
-  ): IndexedSequence<V, C>;
+  ): IndexedSequence<T>;
 
   /**
    * Adds the ability to maintain original indices.
    * @override
    */
-  slice(start: number, end?: number, maintainIndices?: boolean): IndexedSequence<V, C>;
+  slice(start: number, end?: number, maintainIndices?: boolean): IndexedSequence<T>;
 
   /**
    * Has the same altered behavior as `takeWhile`.
    * @override
    */
-  take(amount: number, maintainIndices?: boolean): IndexedSequence<V, C>;
+  take(amount: number, maintainIndices?: boolean): IndexedSequence<T>;
 
   /**
    * Has the same altered behavior as `takeWhile`.
    * @override
    */
-  takeLast(amount: number, maintainIndices?: boolean): IndexedSequence<V, C>;
+  takeLast(amount: number, maintainIndices?: boolean): IndexedSequence<T>;
 
   /**
    * Indexed sequences have a different `takeWhile` behavior. The first
@@ -315,32 +315,32 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
    * @override
    */
   takeWhile(
-    predicate: (value?: V, index?: number, collection?: C) => boolean,
-    context?: Object,
+    predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+    thisArg?: Object,
     maintainIndices?: boolean
-  ): IndexedSequence<V, C>;
+  ): IndexedSequence<T>;
 
   /**
    * Has the same altered behavior as `takeWhile`.
    * @override
    */
   takeUntil(
-    predicate: (value?: V, index?: number, collection?: C) => boolean,
-    context?: Object,
+    predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+    thisArg?: Object,
     maintainIndices?: boolean
-  ): IndexedSequence<V, C>;
+  ): IndexedSequence<T>;
 
   /**
    * Has the same altered behavior as `skipWhile`.
    * @override
    */
-  skip(amount: number, maintainIndices?: boolean): IndexedSequence<V, C>;
+  skip(amount: number, maintainIndices?: boolean): IndexedSequence<T>;
 
   /**
    * Has the same altered behavior as `skipWhile`.
    * @override
    */
-  skipLast(amount: number, maintainIndices?: boolean): IndexedSequence<V, C>;
+  skipLast(amount: number, maintainIndices?: boolean): IndexedSequence<T>;
 
   /**
    * Indexed sequences have a different `skipWhile` behavior. The first
@@ -349,20 +349,20 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
    * @override
    */
   skipWhile(
-    predicate: (value?: V, index?: number, collection?: C) => boolean,
-    context?: Object,
+    predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+    thisArg?: Object,
     maintainIndices?: boolean
-  ): IndexedSequence<V, C>;
+  ): IndexedSequence<T>;
 
   /**
    * Has the same altered behavior as `skipWhile`.
    * @override
    */
   skipUntil(
-    predicate: (value?: V, index?: number, collection?: C) => boolean,
-    context?: Object,
+    predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+    thisArg?: Object,
     maintainIndices?: boolean
-  ): IndexedSequence<V, C>;
+  ): IndexedSequence<T>;
 
   // All below methods have identical behavior as Sequence,
   // except they take a function with index: number instead of key: K
@@ -371,20 +371,20 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
   /**
    * @override
    */
-  splice(index: number, removeNum: number, ...values: Array<V>): IndexedSequence<V, C>;
+  splice(index: number, removeNum: number, ...values: T[]): IndexedSequence<T>;
 
   /**
    * @override
    */
   map<M>(
-    mapper: (value?: V, index?: number, collection?: C) => M,
-    context?: Object
-  ): IndexedSequence<M, C>;
+    mapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => M,
+    thisArg?: Object
+  ): IndexedSequence<M>;
 
   /**
    * @override
    */
-  cacheResult(): IndexedSequence<V, C>;
+  cacheResult(): IndexedSequence<T>;
 }
 
 
@@ -397,7 +397,7 @@ export interface IndexedSequence<V, C> extends Sequence<number, V, C> {
  */
 export declare function Range(start?: number, end?: number, step?: number): Range;
 
-export interface Range extends IndexedSequence<number, Range> {
+export interface Range extends IndexedSequence<number> {
   length: number;
   slice(begin: number, end?: number): Range;
 }
@@ -418,7 +418,7 @@ export declare module Map {
    *   var newMap = Map.fromObject({key: "value"});
    *
    */
-  function fromObject<V>(object: {[key: string]: V;}): Map<string, V>;
+  function fromObject<V>(object: {[key: string]: V}): Map<string, V>;
 }
 
 
@@ -434,47 +434,47 @@ export declare function Map<K, V>(): Map<K, V>;
 /**
  * Alias for Map.fromObject().
  */
-export declare function Map<V>(object: {[key: string]: V;}): Map<string, V>;
+export declare function Map<V>(object: {[key: string]: V}): Map<string, V>;
 
 /**
  * An immutable Map with lazy iteration.
  */
-export interface Map<K, V> extends Sequence<K, V, Map<K, V>> {
+export interface Map<K, V> extends Sequence<K, V> {
 
   /**
    * The number of key-value pairs contained by this Map.
    */
   length: number;
 
-  getIn(keyPath: any[], pathOffset?: number): any;
+  getIn(keyPath: Array<any>, pathOffset?: number): any;
   clear(): Map<K, V>;
   set(k: K, v: V): Map<K, V>;
-  setIn(keyPath: any[], v: any, pathOffset?: number): Map<K, V>;
+  setIn(keyPath: Array<any>, v: any, pathOffset?: number): Map<K, V>;
   delete(k: K): Map<K, V>;
-  deleteIn(keyPath: any[], pathOffset?: number): Map<K, V>;
+  deleteIn(keyPath: Array<any>, pathOffset?: number): Map<K, V>;
 
-  merge(seq: Sequence<K, V, any>): Map<K, V>;
-  merge(seq: {[key: string]: V;}): Map<string, V>;
+  merge(seq: Sequence<K, V>): Map<K, V>;
+  merge(seq: {[key: string]: V}): Map<string, V>;
 
   mergeWith(
     merger: (previous?: V, next?: V) => V,
-    seq: Sequence<K, V, any>
+    seq: Sequence<K, V>
   ): Map<K, V>;
   mergeWith(
     merger: (previous?: V, next?: V) => V,
-    seq: {[key: string]: V;}
+    seq: {[key: string]: V}
   ): Map<string, V>;
 
-  deepMerge(seq: Sequence<K, V, any>): Map<K, V>;
-  deepMerge(seq: {[key: string]: V;}): Map<string, V>;
+  deepMerge(seq: Sequence<K, V>): Map<K, V>;
+  deepMerge(seq: {[key: string]: V}): Map<string, V>;
 
   deepMergeWith(
     merger: (previous?: V, next?: V) => V,
-    seq: Sequence<K, V, any>
+    seq: Sequence<K, V>
   ): Map<K, V>;
   deepMergeWith(
     merger: (previous?: V, next?: V) => V,
-    seq: {[key: string]: V;}
+    seq: {[key: string]: V}
   ): Map<string, V>;
 
   withMutations(mutator: (mutable: Map<K, V>) => any): Map<K, V>;
@@ -486,34 +486,34 @@ export declare function Set<T>(...values: T[]): Set<T>;
 
 export declare module Set {
   function empty(): Set<any>;
-  function fromArray<T>(values: T[]): Set<T>;
+  function fromArray<T>(values: Array<T>): Set<T>;
 }
 
-export interface Set<T> extends Sequence<T, T, Set<T>> {
+export interface Set<T> extends Sequence<T, T> {
   length: number;
   clear(): Set<T>;
   add(value: T): Set<T>;
   delete(value: T): Set<T>;
 
-  union(...seqs: Sequence<any, T, any>[]): Set<T>;
+  union(...seqs: Sequence<any, T>[]): Set<T>;
   union(...seqs: Array<T>[]): Set<T>;
   union(...seqs: {[key: string]: T}[]): Set<T>;
 
-  intersect(...seqs: Sequence<any, T, any>[]): Set<T>;
+  intersect(...seqs: Sequence<any, T>[]): Set<T>;
   intersect(...seqs: Array<T>[]): Set<T>;
   intersect(...seqs: {[key: string]: T}[]): Set<T>;
 
-  difference(...seqs: Sequence<any, T, any>[]): Set<T>;
+  difference(...seqs: Sequence<any, T>[]): Set<T>;
   difference(...seqs: Array<T>[]): Set<T>;
   difference(...seqs: {[key: string]: T}[]): Set<T>;
 
-  isSubset(seq: Sequence<any, T, any>): boolean;
-  isSubset(seq: Array<T>[]): boolean;
-  isSubset(seq: {[key: string]: T}[]): boolean;
+  isSubset(seq: Sequence<any, T>): boolean;
+  isSubset(seq: Array<T>): boolean;
+  isSubset(seq: {[key: string]: T}): boolean;
 
-  isSuperset(seq: Sequence<any, T, any>): boolean;
-  isSuperset(seq: Array<T>[]): boolean;
-  isSuperset(seq: {[key: string]: T}[]): boolean;
+  isSuperset(seq: Sequence<any, T>): boolean;
+  isSuperset(seq: Array<T>): boolean;
+  isSuperset(seq: {[key: string]: T}): boolean;
 
   withMutations(mutator: (mutable: Set<T>) => any): Set<T>;
 }
@@ -539,7 +539,7 @@ export declare module OrderedMap {
    *   var newMap = OrderedMap.fromObject({key: "value"});
    *
    */
-  function fromObject<V>(object: {[key: string]: V;}): Map<string, V>;
+  function fromObject<V>(object: {[key: string]: V}): Map<string, V>;
 }
 
 
@@ -555,7 +555,7 @@ export declare function OrderedMap<K, V>(): Map<K, V>;
 /**
  * Alias for OrderedMap.fromObject().
  */
-export declare function OrderedMap<V>(object: {[key: string]: V;}): Map<string, V>;
+export declare function OrderedMap<V>(object: {[key: string]: V}): Map<string, V>;
 
 
 
@@ -564,7 +564,7 @@ export declare function Vector<T>(...values: T[]): Vector<T>;
 
 export declare module Vector {
   function empty(): Vector<any>;
-  function fromArray<T>(values: T[]): Vector<T>;
+  function fromArray<T>(values: Array<T>): Vector<T>;
 }
 
 /**
@@ -574,40 +574,40 @@ export declare module Vector {
  * a Vector may have a length higher than the highest index.
  * See: [MDN: Array relationship between length and numeric properties](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#Relationship_between_length_and_numerical_properties_2).
  */
-export interface Vector<T> extends IndexedSequence<T, Vector<T>> {
+export interface Vector<T> extends IndexedSequence<T> {
   length: number;
-  getIn(indexPath: any[], pathOffset?: number): any;
+  getIn(indexPath: Array<any>, pathOffset?: number): any;
 
   clear(): Vector<T>;
   set(index: number, value: T): Vector<T>;
   delete(index: number): Vector<T>;
 
-  setIn(keyPath: any[], v: any, pathOffset?: number): Vector<T>;
-  deleteIn(keyPath: any[], pathOffset?: number): Vector<T>;
+  setIn(keyPath: Array<any>, v: any, pathOffset?: number): Vector<T>;
+  deleteIn(keyPath: Array<any>, pathOffset?: number): Vector<T>;
 
   push(...values: T[]): Vector<T>;
   pop(): Vector<T>;
   unshift(...values: T[]): Vector<T>;
   shift(): Vector<T>;
 
-  merge(seq: IndexedSequence<T, any>): Vector<T>;
+  merge(seq: IndexedSequence<T>): Vector<T>;
   merge(seq: Array<T>): Vector<T>;
 
   mergeWith(
     merger: (previous?: T, next?: T) => T,
-    seq: IndexedSequence<T, any>
+    seq: IndexedSequence<T>
   ): Vector<T>;
   mergeWith(
     merger: (previous?: T, next?: T) => T,
     seq: Array<T>
   ): Vector<T>;
 
-  deepMerge(seq: IndexedSequence<T, any>): Vector<T>;
+  deepMerge(seq: IndexedSequence<T>): Vector<T>;
   deepMerge(seq: Array<T>): Vector<T>;
 
   deepMergeWith(
     merger: (previous?: T, next?: T) => T,
-    seq: IndexedSequence<T, any>
+    seq: IndexedSequence<T>
   ): Vector<T>;
   deepMergeWith(
     merger: (previous?: T, next?: T) => T,

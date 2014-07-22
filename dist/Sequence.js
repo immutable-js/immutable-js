@@ -151,36 +151,36 @@
     return newSequence;
   };
 
-  Sequence.prototype.forEach=function(sideEffect, context) {"use strict";
-    return this.__iterate(context ? sideEffect.bind(context) : sideEffect);
+  Sequence.prototype.forEach=function(sideEffect, thisArg) {"use strict";
+    return this.__iterate(thisArg ? sideEffect.bind(thisArg) : sideEffect);
   };
 
-  Sequence.prototype.first=function(predicate, context) {"use strict";
+  Sequence.prototype.first=function(predicate, thisArg) {"use strict";
     var firstValue;
-    (predicate ? this.filter(predicate, context) : this).take(1).forEach(function(v)  { firstValue = v; });
+    (predicate ? this.filter(predicate, thisArg) : this).take(1).forEach(function(v)  { firstValue = v; });
     return firstValue;
   };
 
-  Sequence.prototype.last=function(predicate, context) {"use strict";
-    return this.reverse(true).first(predicate, context);
+  Sequence.prototype.last=function(predicate, thisArg) {"use strict";
+    return this.reverse(true).first(predicate, thisArg);
   };
 
-  Sequence.prototype.reduce=function(reducer, initialReduction, context) {"use strict";
+  Sequence.prototype.reduce=function(reducer, initialReduction, thisArg) {"use strict";
     var reduction = initialReduction;
     this.forEach(function(v, k, c)  {
-      reduction = reducer.call(context, reduction, v, k, c);
+      reduction = reducer.call(thisArg, reduction, v, k, c);
     });
     return reduction;
   };
 
-  Sequence.prototype.reduceRight=function(reducer, initialReduction, context) {"use strict";
-    return this.reverse(true).reduce(reducer, initialReduction, context);
+  Sequence.prototype.reduceRight=function(reducer, initialReduction, thisArg) {"use strict";
+    return this.reverse(true).reduce(reducer, initialReduction, thisArg);
   };
 
-  Sequence.prototype.every=function(predicate, context) {"use strict";
+  Sequence.prototype.every=function(predicate, thisArg) {"use strict";
     var returnValue = true;
     this.forEach(function(v, k, c)  {
-      if (!predicate.call(context, v, k, c)) {
+      if (!predicate.call(thisArg, v, k, c)) {
         returnValue = false;
         return false;
       }
@@ -188,8 +188,8 @@
     return returnValue;
   };
 
-  Sequence.prototype.some=function(predicate, context) {"use strict";
-    return !this.every(not(predicate), context);
+  Sequence.prototype.some=function(predicate, thisArg) {"use strict";
+    return !this.every(not(predicate), thisArg);
   };
 
   Sequence.prototype.has=function(searchKey) {"use strict";
@@ -204,10 +204,10 @@
     return this.find(function(value)  {return value === searchValue;}, null, __SENTINEL) !== __SENTINEL;
   };
 
-  Sequence.prototype.find=function(predicate, context, notFoundValue) {"use strict";
+  Sequence.prototype.find=function(predicate, thisArg, notFoundValue) {"use strict";
     var foundValue = notFoundValue;
     this.forEach(function(v, k, c)  {
-      if (predicate.call(context, v, k, c)) {
+      if (predicate.call(thisArg, v, k, c)) {
         foundValue = v;
         return false;
       }
@@ -215,10 +215,10 @@
     return foundValue;
   };
 
-  Sequence.prototype.findKey=function(predicate, context) {"use strict";
+  Sequence.prototype.findKey=function(predicate, thisArg) {"use strict";
     var foundKey;
     this.forEach(function(v, k, c)  {
-      if (predicate.call(context, v, k, c)) {
+      if (predicate.call(thisArg, v, k, c)) {
         foundKey = k;
         return false;
       }
@@ -226,12 +226,12 @@
     return foundKey;
   };
 
-  Sequence.prototype.findLast=function(predicate, context, notFoundValue) {"use strict";
-    return this.reverse(true).find(predicate, context, notFoundValue);
+  Sequence.prototype.findLast=function(predicate, thisArg, notFoundValue) {"use strict";
+    return this.reverse(true).find(predicate, thisArg, notFoundValue);
   };
 
-  Sequence.prototype.findLastKey=function(predicate, context) {"use strict";
-    return this.reverse(true).findKey(predicate, context);
+  Sequence.prototype.findLastKey=function(predicate, thisArg) {"use strict";
+    return this.reverse(true).findKey(predicate, thisArg);
   };
 
   Sequence.prototype.flip=function() {"use strict";
@@ -245,17 +245,17 @@
     return flipSequence;
   };
 
-  Sequence.prototype.map=function(mapper, context) {"use strict";
+  Sequence.prototype.map=function(mapper, thisArg) {"use strict";
     var sequence = this;
     var mappedSequence = this.__makeSequence();
     mappedSequence.length = this.length;
     mappedSequence.__iterateUncached = function(fn, reverse) 
-      {return sequence.__iterate(function(v, k, c)  {return fn(mapper.call(context, v, k, c), k, c) !== false;}, reverse);};
+      {return sequence.__iterate(function(v, k, c)  {return fn(mapper.call(thisArg, v, k, c), k, c) !== false;}, reverse);};
     return mappedSequence;
   };
 
-  Sequence.prototype.filter=function(predicate, context) {"use strict";
-    return filterFactory(this, predicate, context, true, false);
+  Sequence.prototype.filter=function(predicate, thisArg) {"use strict";
+    return filterFactory(this, predicate, thisArg, true, false);
   };
 
   Sequence.prototype.slice=function(begin, end) {"use strict";
@@ -294,7 +294,7 @@
     return this.reverse(maintainIndices).take(amount).reverse(maintainIndices);
   };
 
-  Sequence.prototype.takeWhile=function(predicate, context, maintainIndices) {"use strict";
+  Sequence.prototype.takeWhile=function(predicate, thisArg, maintainIndices) {"use strict";
     var sequence = this;
     var takeSequence = this.__makeSequence();
     takeSequence.__iterateUncached = function(fn, reverse, flipIndices) {
@@ -304,7 +304,7 @@
       }
       var iterations = 0;
       sequence.__iterate(function(v, k, c)  {
-        if (predicate.call(context, v, k, c) && fn(v, k, c) !== false) {
+        if (predicate.call(thisArg, v, k, c) && fn(v, k, c) !== false) {
           iterations++;
         } else {
           return false;
@@ -315,8 +315,8 @@
     return takeSequence;
   };
 
-  Sequence.prototype.takeUntil=function(predicate, context, maintainIndices) {"use strict";
-    return this.takeWhile(not(predicate), context, maintainIndices);
+  Sequence.prototype.takeUntil=function(predicate, thisArg, maintainIndices) {"use strict";
+    return this.takeWhile(not(predicate), thisArg, maintainIndices);
   };
 
   Sequence.prototype.skip=function(amount, maintainIndices) {"use strict";
@@ -333,7 +333,7 @@
     return this.reverse(maintainIndices).skip(amount).reverse(maintainIndices);
   };
 
-  Sequence.prototype.skipWhile=function(predicate, context, maintainIndices) {"use strict";
+  Sequence.prototype.skipWhile=function(predicate, thisArg, maintainIndices) {"use strict";
     var sequence = this;
     var skipSequence = this.__makeSequence();
     skipSequence.__iterateUncached = function(fn, reverse, flipIndices) {
@@ -344,7 +344,7 @@
       var isSkipping = true;
       var iterations = 0;
       sequence.__iterate(function(v, k, c)  {
-        if (!(isSkipping && (isSkipping = predicate.call(context, v, k, c)))) {
+        if (!(isSkipping && (isSkipping = predicate.call(thisArg, v, k, c)))) {
           if (fn(v, k, c) !== false) {
             iterations++;
           } else {
@@ -357,8 +357,8 @@
     return skipSequence;
   };
 
-  Sequence.prototype.skipUntil=function(predicate, context, maintainIndices) {"use strict";
-    return this.skipWhile(not(predicate), context, maintainIndices);
+  Sequence.prototype.skipUntil=function(predicate, thisArg, maintainIndices) {"use strict";
+    return this.skipWhile(not(predicate), thisArg, maintainIndices);
   };
 
   Sequence.prototype.cacheResult=function() {"use strict";
@@ -466,8 +466,8 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     return new ValuesSequence(this);
   };
 
-  IndexedSequence.prototype.filter=function(predicate, context, maintainIndices) {"use strict";
-    var filterSequence = filterFactory(this, predicate, context, maintainIndices, maintainIndices);
+  IndexedSequence.prototype.filter=function(predicate, thisArg, maintainIndices) {"use strict";
+    var filterSequence = filterFactory(this, predicate, thisArg, maintainIndices, maintainIndices);
     if (maintainIndices) {
       filterSequence.length = this.length;
     }
@@ -478,8 +478,8 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     return this.findIndex(function(value)  {return value === searchValue;});
   };
 
-  IndexedSequence.prototype.findIndex=function(predicate, context) {"use strict";
-    var key = this.findKey(predicate, context);
+  IndexedSequence.prototype.findIndex=function(predicate, thisArg) {"use strict";
+    var key = this.findKey(predicate, thisArg);
     return key == null ? -1 : key;
   };
 
@@ -487,8 +487,8 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     return this.reverse(true).indexOf(searchValue);
   };
 
-  IndexedSequence.prototype.findLastIndex=function(predicate, context) {"use strict";
-    return this.reverse(true).findIndex(predicate, context);
+  IndexedSequence.prototype.findLastIndex=function(predicate, thisArg) {"use strict";
+    return this.reverse(true).findIndex(predicate, thisArg);
   };
 
   IndexedSequence.prototype.slice=function(begin, end, maintainIndices) {"use strict";
@@ -499,7 +499,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   };
 
   // Overrides to get length correct.
-  IndexedSequence.prototype.takeWhile=function(predicate, context, maintainIndices) {"use strict";
+  IndexedSequence.prototype.takeWhile=function(predicate, thisArg, maintainIndices) {"use strict";
     var sequence = this;
     var takeSequence = this.__makeSequence();
     takeSequence.__iterateUncached = function(fn, reverse, flipIndices) {
@@ -511,7 +511,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
       // TODO: ensure didFinish is necessary here
       var didFinish = true;
       var length = sequence.__iterate(function(v, ii, c)  {
-        if (predicate.call(context, v, ii, c) && fn(v, ii, c) !== false) {
+        if (predicate.call(thisArg, v, ii, c) && fn(v, ii, c) !== false) {
           iterations = ii;
         } else {
           didFinish = false;
@@ -526,7 +526,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     return takeSequence;
   };
 
-  IndexedSequence.prototype.skipWhile=function(predicate, context, maintainIndices) {"use strict";
+  IndexedSequence.prototype.skipWhile=function(predicate, thisArg, maintainIndices) {"use strict";
     var newSequence = this.__makeSequence();
     var sequence = this;
     newSequence.__iterateUncached = function(fn, reverse, flipIndices) {
@@ -538,7 +538,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
       var indexOffset = 0;
       var length = sequence.__iterate(function(v, ii, c)  {
         if (isSkipping) {
-          isSkipping = predicate.call(context, v, ii, c);
+          isSkipping = predicate.call(thisArg, v, ii, c);
           if (!isSkipping) {
             indexOffset = ii;
           }
@@ -805,12 +805,12 @@ function entryMapper(v, k) {
  * in behavior that it makes sense to build a factory with the few differences
  * encoded as booleans.
  */
-function filterFactory(sequence, predicate, context, useKeys, maintainIndices) {
+function filterFactory(sequence, predicate, thisArg, useKeys, maintainIndices) {
   var filterSequence = sequence.__makeSequence();
   filterSequence.__iterate = function(fn, reverse, flipIndices)  {
     var iterations = 0;
     var length = sequence.__iterate(function(v, k, c)  {
-      if (predicate.call(context, v, k, c)) {
+      if (predicate.call(thisArg, v, k, c)) {
         if (fn(v, useKeys ? k : iterations, c) !== false) {
           iterations++;
         } else {

@@ -58,12 +58,12 @@ class Range extends IndexedSequence {
     return this.start === other.start && this.end === other.end && this.step === other.step;
   }
 
-  first(predicate, context) {
-    return predicate ? super.first(predicate, context) : this.get(0);
+  first(predicate, thisArg) {
+    return predicate ? super.first(predicate, thisArg) : this.get(0);
   }
 
-  last(predicate, context) {
-    return predicate ? super.last(predicate, context) : this.get(this.length ? this.length - 1 : 0);
+  last(predicate, thisArg) {
+    return predicate ? super.last(predicate, thisArg) : this.get(this.length ? this.length - 1 : 0);
   }
 
   toArray() {

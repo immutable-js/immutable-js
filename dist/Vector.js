@@ -399,12 +399,12 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     return this;
   };
 
-  Vector.prototype.first=function(predicate, context) {"use strict";
-    return predicate ? ____SuperProtoOfIndexedSequence.first.call(this,predicate, context) : this.get(0);
+  Vector.prototype.first=function(predicate, thisArg) {"use strict";
+    return predicate ? ____SuperProtoOfIndexedSequence.first.call(this,predicate, thisArg) : this.get(0);
   };
 
-  Vector.prototype.last=function(predicate, context) {"use strict";
-    return predicate ? ____SuperProtoOfIndexedSequence.last.call(this,predicate, context) : this.get(this.length ? this.length - 1 : 0);
+  Vector.prototype.last=function(predicate, thisArg) {"use strict";
+    return predicate ? ____SuperProtoOfIndexedSequence.last.call(this,predicate, thisArg) : this.get(this.length ? this.length - 1 : 0);
   };
 
   Vector.prototype.slice=function(begin, end, maintainIndices) {"use strict";
