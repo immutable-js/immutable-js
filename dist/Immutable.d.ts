@@ -454,6 +454,27 @@ export interface Map<K, V> extends Sequence<K, V, Map<K, V>> {
   merge(seq: Sequence<K, V, any>): Map<K, V>;
   merge(seq: {[key: string]: V;}): Map<string, V>;
 
+  mergeWith(
+    merger: (previous?: V, next?: V) => V,
+    seq: Sequence<K, V, any>
+  ): Map<K, V>;
+  mergeWith(
+    merger: (previous?: V, next?: V) => V,
+    seq: {[key: string]: V;}
+  ): Map<string, V>;
+
+  deepMerge(seq: Sequence<K, V, any>): Map<K, V>;
+  deepMerge(seq: {[key: string]: V;}): Map<string, V>;
+
+  deepMergeWith(
+    merger: (previous?: V, next?: V) => V,
+    seq: Sequence<K, V, any>
+  ): Map<K, V>;
+  deepMergeWith(
+    merger: (previous?: V, next?: V) => V,
+    seq: {[key: string]: V;}
+  ): Map<string, V>;
+
   withMutations(mutator: (mutable: Map<K, V>) => any): Map<K, V>;
 }
 
@@ -554,6 +575,27 @@ export interface Vector<T> extends IndexedSequence<T, Vector<T>> {
 
   merge(seq: IndexedSequence<T, any>): Vector<T>;
   merge(seq: Array<T>): Vector<T>;
+
+  mergeWith(
+    merger: (previous?: T, next?: T) => T,
+    seq: IndexedSequence<T, any>
+  ): Vector<T>;
+  mergeWith(
+    merger: (previous?: T, next?: T) => T,
+    seq: Array<T>
+  ): Vector<T>;
+
+  deepMerge(seq: IndexedSequence<T, any>): Vector<T>;
+  deepMerge(seq: Array<T>): Vector<T>;
+
+  deepMergeWith(
+    merger: (previous?: T, next?: T) => T,
+    seq: IndexedSequence<T, any>
+  ): Vector<T>;
+  deepMergeWith(
+    merger: (previous?: T, next?: T) => T,
+    seq: Array<T>
+  ): Vector<T>;
 
   /**
    * Similar to slice, but returns a new Vector (or mutates a mutable Vector).

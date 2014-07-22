@@ -132,6 +132,12 @@ class Map extends Sequence {
   // @pragma Composition
 
   merge(seq) {
+    // Identical impl
+    return this.mergeWith(null, seq);
+  }
+
+  mergeWith(fn, seq) {
+    // Vector has a dupe of this.
     if (seq == null) {
       return this;
     }
@@ -139,10 +145,33 @@ class Map extends Sequence {
       seq = Sequence(seq);
     }
     return this.withMutations(map => {
-      seq.forEach((value, key) => {
-        map.set(key, value);
-      });
+      seq.forEach(
+        fn ?
+        (value, key) => {
+          var existing = map.get(key, __SENTINEL);
+          map.set(key, existing === __SENTINEL ? value : fn(existing, value));
+        } :
+        (value, key) => {
+          map.set(key, value);
+        }
+      );
     });
+  }
+
+  deepMerge(seq) {
+    // Identical impl
+    return this.deepMergeWith(null, seq);
+  }
+
+  deepMergeWith(fn, seq) {
+    // Identical impl
+    return this.mergeWith(
+      (prev, next) =>
+        prev && next && typeof prev.deepMergeWith === 'function' && typeof next.deepMergeWith === 'function' ?
+        prev.deepMergeWith(fn, next) :
+        fn ? fn(prev, next) : next,
+      seq
+    );
   }
 
   // @pragma Mutability
@@ -179,7 +208,7 @@ class Map extends Sequence {
     // Using Sentinel here ensures that a missing key is not interpretted as an
     // existing key set to be null.
     var self = this;
-    return other.every((v, k) => is(v, self.get(k, __SENTINEL)));
+    return other.every((v, k) => is(self.get(k, __SENTINEL), v));
   }
 
   __iterate(fn, reverse) {

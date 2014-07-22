@@ -2,21 +2,7 @@
 jest.autoMockOff();
 import P = require('../dist/Immutable');
 
-declare function expect(val: any): ExpectWithIs;
-
-interface ExpectWithIs extends Expect {
-  is(expected: any): void;
-}
-
 describe('slice', () => {
-
-  beforeEach(function () {
-    this.addMatchers({
-      is: function(expected) {
-        return P.is(this.actual, expected);
-      }
-    })
-  })
 
   it('slices a sequence', () => {
     expect(P.Sequence(1,2,3,4,5,6).slice(2).toArray()).toEqual([3,4,5,6]);

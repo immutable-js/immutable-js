@@ -11,16 +11,11 @@ interface ExpectWithIs extends Expect {
 }
 
 // This doesn't work yet because of a jest bug with instanceof.
-xdescribe('Conversion', () => {
+describe('Conversion', () => {
 
   beforeEach(function () {
     this.addMatchers({
       is: function(expected) {
-        console.log('is');
-        console.log(''+this.actual);
-        console.log('same value as');
-        console.log(''+expected);
-        console.log('is?: ' + Immutable.is(this.actual, expected));
         return Immutable.is(this.actual, expected);
       }
     });

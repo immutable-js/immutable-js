@@ -132,6 +132,12 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   // @pragma Composition
 
   Map.prototype.merge=function(seq) {"use strict";
+    // Identical impl
+    return this.mergeWith(null, seq);
+  };
+
+  Map.prototype.mergeWith=function(fn, seq) {"use strict";
+    // Vector has a dupe of this.
     if (seq == null) {
       return this;
     }
@@ -139,10 +145,33 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
       seq = Sequence(seq);
     }
     return this.withMutations(function(map)  {
-      seq.forEach(function(value, key)  {
-        map.set(key, value);
-      });
+      seq.forEach(
+        fn ?
+        function(value, key)  {
+          var existing = map.get(key, __SENTINEL);
+          map.set(key, existing === __SENTINEL ? value : fn(existing, value));
+        } :
+        function(value, key)  {
+          map.set(key, value);
+        }
+      );
     });
+  };
+
+  Map.prototype.deepMerge=function(seq) {"use strict";
+    // Identical impl
+    return this.deepMergeWith(null, seq);
+  };
+
+  Map.prototype.deepMergeWith=function(fn, seq) {"use strict";
+    // Identical impl
+    return this.mergeWith(
+      function(prev, next) 
+        {return prev && next && typeof prev.deepMergeWith === 'function' && typeof next.deepMergeWith === 'function' ?
+        prev.deepMergeWith(fn, next) :
+        fn ? fn(prev, next) : next;},
+      seq
+    );
   };
 
   // @pragma Mutability
@@ -179,7 +208,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     // Using Sentinel here ensures that a missing key is not interpretted as an
     // existing key set to be null.
     var self = this;
-    return other.every(function(v, k)  {return is(v, self.get(k, __SENTINEL));});
+    return other.every(function(v, k)  {return is(self.get(k, __SENTINEL), v);});
   };
 
   Map.prototype.__iterate=function(fn, reverse) {"use strict";

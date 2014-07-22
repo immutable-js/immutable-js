@@ -216,7 +216,12 @@ class Vector extends IndexedSequence {
 
   // @pragma Composition
 
-  merge(seq) {
+  merge(seq) { // Identical to Map.merge
+    return this.mergeWith(null, seq);
+  }
+
+  mergeWith(fn, seq) {
+    // Almost exactly a dupe of Map.mergeWith
     if (!seq || !seq.forEach) {
       return this;
     }
@@ -224,10 +229,32 @@ class Vector extends IndexedSequence {
       if (seq.length && seq.length > vect.length) {
         vect.setBounds(0, seq.length);
       }
-      seq.forEach((value, index) => {
-        vect.set(index, value);
-      });
+      seq.forEach(
+        fn ?
+        (value, index) => {
+          var existing = vect.get(index, __SENTINEL);
+          vect.set(index, existing === __SENTINEL ? existing : fn(existing, value));
+        } :
+        (value, index) => {
+          vect.set(index, value);
+        }
+      );
     });
+  }
+
+  deepMerge(seq) { // Identical to Map.deepMerge
+    return this.deepMergeWith(null, seq);
+  }
+
+  deepMergeWith(fn, seq) { // Identical to Map.deepMergeWith
+    // Identical impl
+    return this.mergeWith(
+      (prev, next) =>
+        prev && next && typeof prev.deepMergeWith === 'function' && typeof next.deepMergeWith === 'function' ?
+        prev.deepMergeWith(fn, next) :
+        fn ? fn(prev, next) : next,
+      seq
+    );
   }
 
   // TODO: mergeIn

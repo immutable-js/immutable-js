@@ -216,7 +216,12 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
   // @pragma Composition
 
-  Vector.prototype.merge=function(seq) {"use strict";
+  Vector.prototype.merge=function(seq) {"use strict"; // Identical to Map.merge
+    return this.mergeWith(null, seq);
+  };
+
+  Vector.prototype.mergeWith=function(fn, seq) {"use strict";
+    // Almost exactly a dupe of Map.mergeWith
     if (!seq || !seq.forEach) {
       return this;
     }
@@ -224,10 +229,32 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
       if (seq.length && seq.length > vect.length) {
         vect.setBounds(0, seq.length);
       }
-      seq.forEach(function(value, index)  {
-        vect.set(index, value);
-      });
+      seq.forEach(
+        fn ?
+        function(value, index)  {
+          var existing = vect.get(index, __SENTINEL);
+          vect.set(index, existing === __SENTINEL ? existing : fn(existing, value));
+        } :
+        function(value, index)  {
+          vect.set(index, value);
+        }
+      );
     });
+  };
+
+  Vector.prototype.deepMerge=function(seq) {"use strict"; // Identical to Map.deepMerge
+    return this.deepMergeWith(null, seq);
+  };
+
+  Vector.prototype.deepMergeWith=function(fn, seq) {"use strict"; // Identical to Map.deepMergeWith
+    // Identical impl
+    return this.mergeWith(
+      function(prev, next) 
+        {return prev && next && typeof prev.deepMergeWith === 'function' && typeof next.deepMergeWith === 'function' ?
+        prev.deepMergeWith(fn, next) :
+        fn ? fn(prev, next) : next;},
+      seq
+    );
   };
 
   // TODO: mergeIn
