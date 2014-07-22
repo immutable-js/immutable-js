@@ -62,7 +62,7 @@
 
   Sequence.prototype.toSet=function() {"use strict";
     // Use Late Binding here to solve the circular dependency.
-    return require('./Set').empty().merge(this);
+    return require('./Set').empty().union(this);
   };
 
   Sequence.prototype.equals=function(other) {"use strict";
@@ -192,8 +192,16 @@
     return !this.every(not(predicate), context);
   };
 
+  Sequence.prototype.has=function(searchKey) {"use strict";
+    return this.get(searchKey, __SENTINEL) !== __SENTINEL;
+  };
+
   Sequence.prototype.get=function(searchKey, notFoundValue) {"use strict";
-    return this.findKey(function(_, key)  {return key === searchKey;}, null, notFoundValue);
+    return this.find(function(_, key)  {return key === searchKey;}, null, notFoundValue);
+  };
+
+  Sequence.prototype.contains=function(searchValue) {"use strict";
+    return this.find(function(value)  {return value === searchValue;}, null, __SENTINEL) !== __SENTINEL;
   };
 
   Sequence.prototype.find=function(predicate, context, notFoundValue) {"use strict";
@@ -830,6 +838,7 @@ function repeatString(string, times) {
   return repeated;
 }
 
+var __SENTINEL = {};
 
 exports.Sequence = Sequence;
 exports.IndexedSequence = IndexedSequence;

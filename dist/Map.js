@@ -30,10 +30,6 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
   // @pragma Access
 
-  Map.prototype.has=function(k) {"use strict";
-    return this.get(k, __SENTINEL) !== __SENTINEL;
-  };
-
   Map.prototype.get=function(k, undefinedValue) {"use strict";
     if (k == null || this.$Map_root == null) {
       return undefinedValue;

@@ -62,7 +62,7 @@ class Sequence {
 
   toSet() {
     // Use Late Binding here to solve the circular dependency.
-    return require('./Set').empty().merge(this);
+    return require('./Set').empty().union(this);
   }
 
   equals(other) {
@@ -192,8 +192,16 @@ class Sequence {
     return !this.every(not(predicate), context);
   }
 
+  has(searchKey) {
+    return this.get(searchKey, __SENTINEL) !== __SENTINEL;
+  }
+
   get(searchKey, notFoundValue) {
-    return this.findKey((_, key) => key === searchKey, null, notFoundValue);
+    return this.find((_, key) => key === searchKey, null, notFoundValue);
+  }
+
+  contains(searchValue) {
+    return this.find(value => value === searchValue, null, __SENTINEL) !== __SENTINEL;
   }
 
   find(predicate, context, notFoundValue) {
@@ -830,6 +838,7 @@ function repeatString(string, times) {
   return repeated;
 }
 
+var __SENTINEL = {};
 
 exports.Sequence = Sequence;
 exports.IndexedSequence = IndexedSequence;

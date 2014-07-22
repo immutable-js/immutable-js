@@ -30,10 +30,6 @@ for(var ImmutableMap____Key in ImmutableMap){if(ImmutableMap.hasOwnProperty(Immu
 
   // @pragma Access
 
-  OrderedMap.prototype.has=function(k) {"use strict";
-    return this.get(k, __SENTINEL) !== __SENTINEL;
-  };
-
   OrderedMap.prototype.get=function(k, undefinedValue) {"use strict";
     if (k != null && this.$OrderedMap_map) {
       var index = this.$OrderedMap_map.get(k);
@@ -173,7 +169,6 @@ for(var ImmutableMap____Key in ImmutableMap){if(ImmutableMap.hasOwnProperty(Immu
 
 
 
-var __SENTINEL = {};
 var __EMPTY_ORDERED_MAP;
 
 module.exports = OrderedMap;

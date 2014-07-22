@@ -35,10 +35,6 @@ class Vector extends IndexedSequence {
 
   // @pragma Access
 
-  has(index) {
-    return this.get(index, __SENTINEL) !== __SENTINEL;
-  }
-
   get(index, undefinedValue) {
     index = rawIndex(index, this._origin);
     if (index >= this._size) {

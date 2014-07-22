@@ -35,6 +35,10 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     return this.$Set_map ? this.$Set_map.has(value) : false;
   };
 
+  Set.prototype.get=function(value, notFoundValue) {"use strict";
+    return this.has(value) ? value : notFoundValue;
+  };
+
   // @pragma Modification
 
   Set.prototype.clear=function() {"use strict";
@@ -82,13 +86,59 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
   // @pragma Composition
 
-  Set.prototype.merge=function(seq) {"use strict";
-    if (seq == null) {
+  Set.prototype.union=function() {"use strict";
+    var seqs = arguments;
+    if (seqs.length === 0) {
       return this;
     }
     return this.withMutations(function(set)  {
-      Sequence(seq).forEach(function(value)  {return set.add(value);})
+      for (var ii = 0; ii < seqs.length; ii++) {
+        var seq = seqs[ii];
+        seq = seq.forEach ? seq : Sequence(seq);
+        seq.forEach(function(value)  {return set.add(value);});
+      }
     });
+  };
+
+  Set.prototype.intersect=function() {"use strict";var seqs=Array.prototype.slice.call(arguments,0);
+    if (seqs.length === 0) {
+      return this;
+    }
+    seqs = seqs.map(function(seq)  {return Sequence(seq);});
+    var originalSet = this;
+    return this.withMutations(function(set)  {
+      originalSet.forEach(function(value)  {
+        if (!seqs.every(function(seq)  {return seq.contains(value);})) {
+          set.delete(value);
+        }
+      });
+    });
+  };
+
+  Set.prototype.difference=function() {"use strict";var seqs=Array.prototype.slice.call(arguments,0);
+    if (seqs.length === 0) {
+      return this;
+    }
+    seqs = seqs.map(function(seq)  {return Sequence(seq);});
+    var originalSet = this;
+    return this.withMutations(function(set)  {
+      originalSet.forEach(function(value)  {
+        if (seqs.some(function(seq)  {return seq.contains(value);})) {
+          set.delete(value);
+        }
+      });
+    });
+  };
+
+  Set.prototype.isSubset=function(seq) {"use strict";
+    seq = Sequence(seq);
+    return this.every(function(value)  {return seq.contains(value);});
+  };
+
+  Set.prototype.isSuperset=function(seq) {"use strict";
+    var set = this;
+    seq = Sequence(seq);
+    return seq.every(function(value)  {return set.contains(value);});
   };
 
   // @pragma Mutability
@@ -143,6 +193,8 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     return set;
   };
 
+
+Set.prototype.contains = Set.prototype.has;
 
 Set.prototype.toJS = Sequence.prototype.toArray;
 

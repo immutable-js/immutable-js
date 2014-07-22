@@ -30,10 +30,6 @@ class Map extends Sequence {
 
   // @pragma Access
 
-  has(k) {
-    return this.get(k, __SENTINEL) !== __SENTINEL;
-  }
-
   get(k, undefinedValue) {
     if (k == null || this._root == null) {
       return undefinedValue;

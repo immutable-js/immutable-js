@@ -112,7 +112,25 @@ export interface Sequence<K, V, C> {
     context?: Object
   ): boolean;
 
+  /**
+   * True if a key exists within this Sequence.
+   */
+  has(key: K): boolean;
+
+  /**
+   * Returns the value associated with the provided key, or notFoundValue if
+   * the Sequence does not contain this key.
+   *
+   * Note: it is possible a key may be associated with an `undefined` value, so
+   * if `notFoundValue` is not provided and this method returns `undefined`,
+   * that does not guarantee the key was not found.
+   */
   get(key: K, notFoundValue?: V): V;
+
+  /**
+   * True if a value exists within this Sequence.
+   */
+  contains(value: V): boolean;
 
   find(
     predicate: (value?: V, key?: K, collection?: C) => boolean,
@@ -381,8 +399,6 @@ export declare function Range(start?: number, end?: number, step?: number): Rang
 
 export interface Range extends IndexedSequence<number, Range> {
   length: number;
-  has(index: number): boolean;
-  get(index: number): number;
   slice(begin: number, end?: number): Range;
 }
 
@@ -430,20 +446,6 @@ export interface Map<K, V> extends Sequence<K, V, Map<K, V>> {
    */
   length: number;
 
-  /**
-   * True if a key exists within this Map.
-   */
-  has(k: K): boolean;
-
-  /**
-   * Returns the value associated with the provided key, or undefinedValue if
-   * the Map does not have this key.
-   *
-   * Note: it is possible to store `undefined` as a value for a key, so if
-   *`undefinedValue` is not provided and this method returns `undefined`, that
-   * does not guarantee the key was not set.
-   */
-  get(k: K, undefinedValue?: V): V;
   getIn(keyPath: any[], pathOffset?: number): any;
   clear(): Map<K, V>;
   set(k: K, v: V): Map<K, V>;
@@ -489,12 +491,29 @@ export declare module Set {
 
 export interface Set<T> extends Sequence<T, T, Set<T>> {
   length: number;
-  has(value: T): boolean;
   clear(): Set<T>;
   add(value: T): Set<T>;
   delete(value: T): Set<T>;
-  merge(seq: Sequence<any, T, any>): Set<T>;
-  merge(seq: Array<T>): Set<T>;
+
+  union(...seqs: Sequence<any, T, any>[]): Set<T>;
+  union(...seqs: Array<T>[]): Set<T>;
+  union(...seqs: {[key: string]: T}[]): Set<T>;
+
+  intersect(...seqs: Sequence<any, T, any>[]): Set<T>;
+  intersect(...seqs: Array<T>[]): Set<T>;
+  intersect(...seqs: {[key: string]: T}[]): Set<T>;
+
+  difference(...seqs: Sequence<any, T, any>[]): Set<T>;
+  difference(...seqs: Array<T>[]): Set<T>;
+  difference(...seqs: {[key: string]: T}[]): Set<T>;
+
+  isSubset(seq: Sequence<any, T, any>): boolean;
+  isSubset(seq: Array<T>[]): boolean;
+  isSubset(seq: {[key: string]: T}[]): boolean;
+
+  isSuperset(seq: Sequence<any, T, any>): boolean;
+  isSuperset(seq: Array<T>[]): boolean;
+  isSuperset(seq: {[key: string]: T}[]): boolean;
 
   withMutations(mutator: (mutable: Set<T>) => any): Set<T>;
 }
@@ -557,8 +576,6 @@ export declare module Vector {
  */
 export interface Vector<T> extends IndexedSequence<T, Vector<T>> {
   length: number;
-  has(index: number): boolean;
-  get(index: number, undefinedValue?: T): T;
   getIn(indexPath: any[], pathOffset?: number): any;
 
   clear(): Vector<T>;

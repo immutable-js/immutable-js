@@ -35,10 +35,6 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
   // @pragma Access
 
-  Vector.prototype.has=function(index) {"use strict";
-    return this.get(index, __SENTINEL) !== __SENTINEL;
-  };
-
   Vector.prototype.get=function(index, undefinedValue) {"use strict";
     index = rawIndex(index, this.$Vector_origin);
     if (index >= this.$Vector_size) {

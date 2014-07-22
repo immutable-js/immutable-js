@@ -35,6 +35,10 @@ class Set extends Sequence {
     return this._map ? this._map.has(value) : false;
   }
 
+  get(value, notFoundValue) {
+    return this.has(value) ? value : notFoundValue;
+  }
+
   // @pragma Modification
 
   clear() {
@@ -82,13 +86,59 @@ class Set extends Sequence {
 
   // @pragma Composition
 
-  merge(seq) {
-    if (seq == null) {
+  union(/*...seqs*/) {
+    var seqs = arguments;
+    if (seqs.length === 0) {
       return this;
     }
     return this.withMutations(set => {
-      Sequence(seq).forEach(value => set.add(value))
+      for (var ii = 0; ii < seqs.length; ii++) {
+        var seq = seqs[ii];
+        seq = seq.forEach ? seq : Sequence(seq);
+        seq.forEach(value => set.add(value));
+      }
     });
+  }
+
+  intersect(...seqs) {
+    if (seqs.length === 0) {
+      return this;
+    }
+    seqs = seqs.map(seq => Sequence(seq));
+    var originalSet = this;
+    return this.withMutations(set => {
+      originalSet.forEach(value => {
+        if (!seqs.every(seq => seq.contains(value))) {
+          set.delete(value);
+        }
+      });
+    });
+  }
+
+  difference(...seqs) {
+    if (seqs.length === 0) {
+      return this;
+    }
+    seqs = seqs.map(seq => Sequence(seq));
+    var originalSet = this;
+    return this.withMutations(set => {
+      originalSet.forEach(value => {
+        if (seqs.some(seq => seq.contains(value))) {
+          set.delete(value);
+        }
+      });
+    });
+  }
+
+  isSubset(seq) {
+    seq = Sequence(seq);
+    return this.every(value => seq.contains(value));
+  }
+
+  isSuperset(seq) {
+    var set = this;
+    seq = Sequence(seq);
+    return seq.every(value => set.contains(value));
   }
 
   // @pragma Mutability
@@ -143,6 +193,8 @@ class Set extends Sequence {
     return set;
   }
 }
+
+Set.prototype.contains = Set.prototype.has;
 
 Set.prototype.toJS = Sequence.prototype.toArray;
 

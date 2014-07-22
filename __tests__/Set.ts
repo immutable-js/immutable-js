@@ -1,9 +1,24 @@
 ///<reference path='../resources/jest.d.ts'/>
 jest.autoMockOff();
-import Immutable = require('../dist/Immutable');
-import Set = Immutable.Set;
+
+import I = require('../dist/Immutable');
+import Set = I.Set;
+
+declare function expect(val: any): ExpectWithIs;
+
+interface ExpectWithIs extends Expect {
+  is(expected: any): void;
+}
 
 describe('Set', () => {
+
+  beforeEach(function () {
+    this.addMatchers({
+      is: function(expected) {
+        return I.is(this.actual, expected);
+      }
+    })
+  })
 
   it('constructor provides initial values', () => {
     var s = Set(1,2,3);
@@ -34,10 +49,10 @@ describe('Set', () => {
     ]);
   });
 
-  it('merges two sets', () => {
+  it('unions two sets', () => {
     var s1 = Set('a', 'b', 'c');
     var s2 = Set('wow', 'd', 'b');
-    var s3 = s1.merge(s2);
+    var s3 = s1.union(s2);
     expect(s3.toArray()).toEqual(['a', 'b', 'c', 'd', 'wow']);
   });
 
@@ -72,6 +87,21 @@ describe('Set', () => {
   it('deletes down to empty set', () => {
     var s = Set('A').delete('A');
     expect(s).toBe(Set.empty());
+  });
+
+  it('unions multiple sets', () => {
+    var s = Set('A', 'B', 'C').union(Set('C', 'D', 'E'), Set('D', 'B', 'F'));
+    expect(s).is(Set('A','B','C','D','E','F'));
+  });
+
+  it('intersects multiple sets', () => {
+    var s = Set('A', 'B', 'C').intersect(Set('B', 'C', 'D'), Set('A', 'C', 'E'));
+    expect(s).is(Set('C'));
+  });
+
+  it('diffs multiple sets', () => {
+    var s = Set('A', 'B', 'C').difference(Set('C', 'D', 'E'), Set('D', 'B', 'F'));
+    expect(s).is(Set('A'));
   });
 
   // TODO: more tests

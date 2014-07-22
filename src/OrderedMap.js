@@ -30,10 +30,6 @@ class OrderedMap extends ImmutableMap {
 
   // @pragma Access
 
-  has(k) {
-    return this.get(k, __SENTINEL) !== __SENTINEL;
-  }
-
   get(k, undefinedValue) {
     if (k != null && this._map) {
       var index = this._map.get(k);
@@ -173,7 +169,6 @@ class OwnerID {
 }
 
 
-var __SENTINEL = {};
 var __EMPTY_ORDERED_MAP;
 
 module.exports = OrderedMap;
