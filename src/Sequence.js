@@ -706,6 +706,10 @@ class ArraySequence extends IndexedSequence {
     this._array = array;
   }
 
+  toArray() {
+    return this._array;
+  }
+
   cacheResult() {
     return this;
   }
@@ -741,6 +745,10 @@ class ArraySequence extends IndexedSequence {
 class ObjectSequence extends Sequence {
   constructor(object) {
     this._object = object;
+  }
+
+  toObject() {
+    return this._object;
   }
 
   cacheResult() {

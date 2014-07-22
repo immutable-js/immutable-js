@@ -706,6 +706,10 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
     this.$ArraySequence_array = array;
   }
 
+  ArraySequence.prototype.toArray=function() {"use strict";
+    return this.$ArraySequence_array;
+  };
+
   ArraySequence.prototype.cacheResult=function() {"use strict";
     return this;
   };
@@ -742,6 +746,10 @@ for(Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)){Ob
   function ObjectSequence(object) {"use strict";
     this.$ObjectSequence_object = object;
   }
+
+  ObjectSequence.prototype.toObject=function() {"use strict";
+    return this.$ObjectSequence_object;
+  };
 
   ObjectSequence.prototype.cacheResult=function() {"use strict";
     this.length = Object.keys(this.$ObjectSequence_object).length;
