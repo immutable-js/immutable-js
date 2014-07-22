@@ -108,8 +108,9 @@ JavaScript-first API
 While `immutable-data` is inspired by Clojure, Haskell and other functional
 programming environments, it's designed to bring these powerful concepts to
 JavaScript, and therefore has an Object-Oriented API that closely mirrors that
-of [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)
-and [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map).
+of [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array),
+[Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map), and
+[Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set).
 
 The only difference is that every method that would mutate the collection
 instead returns a new collection.
