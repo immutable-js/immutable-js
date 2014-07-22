@@ -198,6 +198,11 @@ export interface Sequence<K, V> {
     thisArg?: Object
   ): Sequence<K, V>;
 
+  groupBy<G>(
+    grouper: (value?: V, key?: K, seq?: Sequence<K, V>) => G,
+    thisArg?: Object
+  ): Map<G, Sequence<K, V>>;
+
   cacheResult(): Sequence<K, V>;
 }
 
@@ -363,6 +368,12 @@ export interface IndexedSequence<T> extends Sequence<number, T> {
     thisArg?: Object,
     maintainIndices?: boolean
   ): IndexedSequence<T>;
+
+  groupBy<G>(
+    grouper: (value?: T, index?: number, seq?: IndexedSequence<T>) => G,
+    thisArg?: Object,
+    maintainIndices?: boolean
+  ): Map<G, any/*IndexedSequence<T>*/>; // Bug: exposing this causes the type checker to implode.
 
   // All below methods have identical behavior as Sequence,
   // except they take a function with index: number instead of key: K

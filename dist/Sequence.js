@@ -361,6 +361,22 @@
     return this.skipWhile(not(predicate), thisArg, maintainIndices);
   };
 
+  Sequence.prototype.groupBy=function(mapper, context) {"use strict";
+    var seq = this;
+    var groups = require('./OrderedMap').empty().withMutations(function(map)  {
+      seq.forEach(function(value, key, collection)  {
+        var groupKey = mapper(value, key, collection);
+        var group = map.get(groupKey, __SENTINEL);
+        if (group === __SENTINEL) {
+          group = [];
+          map.set(groupKey, group);
+        }
+        group.push([key, value]);
+      });
+    })
+    return groups.map(function(group)  {return Sequence(group).fromEntries();});
+  };
+
   Sequence.prototype.cacheResult=function() {"use strict";
     if (!this.$Sequence_cache) {
       var cache = [];
@@ -551,6 +567,22 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
       newSequence.length = this.length;
     }
     return newSequence;
+  };
+
+  IndexedSequence.prototype.groupBy=function(mapper, context, maintainIndices) {"use strict";
+    var seq = this;
+    var groups = require('./OrderedMap').empty().withMutations(function(map)  {
+      seq.forEach(function(value, index, collection)  {
+        var groupKey = mapper(value, index, collection);
+        var group = map.get(groupKey, __SENTINEL);
+        if (group === __SENTINEL) {
+          group = new Array(maintainIndices ? seq.length : 0);
+          map.set(groupKey, group);
+        }
+        maintainIndices ? (group[index] = value) : group.push(value);
+      });
+    });
+    return groups.map(function(group)  {return Sequence(group);});
   };
 
   // abstract __iterateUncached(fn, reverse, flipIndices)

@@ -361,6 +361,22 @@ class Sequence {
     return this.skipWhile(not(predicate), thisArg, maintainIndices);
   }
 
+  groupBy(mapper, context) {
+    var seq = this;
+    var groups = require('./OrderedMap').empty().withMutations(map => {
+      seq.forEach((value, key, collection) => {
+        var groupKey = mapper(value, key, collection);
+        var group = map.get(groupKey, __SENTINEL);
+        if (group === __SENTINEL) {
+          group = [];
+          map.set(groupKey, group);
+        }
+        group.push([key, value]);
+      });
+    })
+    return groups.map(group => Sequence(group).fromEntries());
+  }
+
   cacheResult() {
     if (!this._cache) {
       var cache = [];
@@ -551,6 +567,22 @@ class IndexedSequence extends Sequence {
       newSequence.length = this.length;
     }
     return newSequence;
+  }
+
+  groupBy(mapper, context, maintainIndices) {
+    var seq = this;
+    var groups = require('./OrderedMap').empty().withMutations(map => {
+      seq.forEach((value, index, collection) => {
+        var groupKey = mapper(value, index, collection);
+        var group = map.get(groupKey, __SENTINEL);
+        if (group === __SENTINEL) {
+          group = new Array(maintainIndices ? seq.length : 0);
+          map.set(groupKey, group);
+        }
+        maintainIndices ? (group[index] = value) : group.push(value);
+      });
+    });
+    return groups.map(group => Sequence(group));
   }
 
   // abstract __iterateUncached(fn, reverse, flipIndices)

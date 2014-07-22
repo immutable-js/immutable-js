@@ -35,7 +35,8 @@ function fromJS(json) {
 }
 
 function toJS(value) {
-  if (!(value instanceof Sequence)) {
+  // if (!(value instanceof Sequence)) {
+  if (!(value.__iterate)) {
     return value;
   }
   return value.map(toJS).toJS();
