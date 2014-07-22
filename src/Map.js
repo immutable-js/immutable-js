@@ -37,17 +37,6 @@ class Map extends Sequence {
     return this._root.get(0, hashValue(k), k, undefinedValue);
   }
 
-  getIn(keyPath, pathOffset) {
-    pathOffset = pathOffset || 0;
-    var nested = this.get(keyPath[pathOffset]);
-    if (pathOffset === keyPath.length - 1) {
-      return nested;
-    }
-    if (nested && nested.getIn) {
-      return nested.getIn(keyPath, pathOffset + 1);
-    }
-  }
-
   // @pragma Modification
 
   clear() {
@@ -81,23 +70,6 @@ class Map extends Sequence {
     return newRoot === this._root ? this : Map._make(newLength, newRoot);
   }
 
-  setIn(keyPath, v, pathOffset) {
-    pathOffset = pathOffset || 0;
-    if (pathOffset === keyPath.length - 1) {
-      return this.set(keyPath[pathOffset], v);
-    }
-    var k = keyPath[pathOffset];
-    var nested = this.get(k, __SENTINEL);
-    if (nested === __SENTINEL || !nested.setIn) {
-      if (typeof k === 'number') {
-        nested = require('./Vector').empty();
-      } else {
-        nested = Map.empty();
-      }
-    }
-    return this.set(k, nested.setIn(keyPath, v, pathOffset + 1));
-  }
-
   delete(k) {
     if (k == null || this._root == null) {
       return this;
@@ -110,19 +82,6 @@ class Map extends Sequence {
     }
     var newRoot = this._root.delete(this.__ownerID, 0, hashValue(k), k);
     return !newRoot ? Map.empty() : newRoot === this._root ? this : Map._make(this.length - 1, newRoot);
-  }
-
-  deleteIn(keyPath, pathOffset) {
-    pathOffset = pathOffset || 0;
-    if (pathOffset === keyPath.length - 1) {
-      return this.delete(keyPath[pathOffset]);
-    }
-    var k = keyPath[pathOffset];
-    var nested = this.get(k);
-    if (!nested || !nested.deleteIn) {
-      return this;
-    }
-    return this.set(k, nested.deleteIn(keyPath, pathOffset + 1));
   }
 
   // @pragma Composition
@@ -165,6 +124,10 @@ class Map extends Sequence {
         fn ? fn(prev, next) : next,
       seq
     );
+  }
+
+  updateIn(keyPath, updater) {
+    return updateInDeepMap(this, keyPath, updater, 0);
   }
 
   // @pragma Mutability
@@ -430,6 +393,20 @@ class HashCollisionNode {
     }
     return true;
   }
+}
+
+function updateInDeepMap(collection, keyPath, updater, pathOffset) {
+  var key = keyPath[pathOffset];
+  var nested = collection.get ? collection.get(key, __SENTINEL) : __SENTINEL;
+  if (nested === __SENTINEL) {
+    return collection;
+  }
+  return collection.set ? collection.set(
+    key,
+    pathOffset === keyPath.length - 1 ?
+      updater(nested) :
+      updateInDeepMap(nested, keyPath, updater, pathOffset + 1)
+  ) : collection;
 }
 
 var __BOOL_REF = {value: false};

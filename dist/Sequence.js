@@ -200,6 +200,10 @@
     return this.find(function(_, key)  {return key === searchKey;}, null, notFoundValue);
   };
 
+  Sequence.prototype.getIn=function(searchKeyPath, notFoundValue) {"use strict";
+    return getInDeepSequence(this, searchKeyPath, notFoundValue, 0);
+  };
+
   Sequence.prototype.contains=function(searchValue) {"use strict";
     return this.find(function(value)  {return value === searchValue;}, null, __SENTINEL) !== __SENTINEL;
   };
@@ -810,6 +814,17 @@ for(Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)){Ob
     }
   };
 
+
+function getInDeepSequence(seq, keyPath, notFoundValue, pathOffset) {
+  var nested = seq.get ? seq.get(keyPath[pathOffset], __SENTINEL) : __SENTINEL;
+  if (nested === __SENTINEL) {
+    return notFoundValue;
+  }
+  if (pathOffset === keyPath.length - 1) {
+    return nested;
+  }
+  return getInDeepSequence(nested, keyPath, notFoundValue, pathOffset + 1);
+}
 
 function wholeSlice(begin, end, length) {
   return (begin === 0 || (length != null && begin <= -length)) &&

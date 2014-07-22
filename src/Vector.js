@@ -47,17 +47,6 @@ class Vector extends IndexedSequence {
       node.array[maskedIndex] : undefinedValue;
   }
 
-  getIn(indexPath, pathOffset) {
-    pathOffset = pathOffset || 0;
-    var nested = this.get(indexPath[pathOffset]);
-    if (pathOffset === indexPath.length - 1) {
-      return nested;
-    }
-    if (nested && nested.getIn) {
-      return nested.getIn(indexPath, pathOffset + 1);
-    }
-  }
-
   // @pragma Modification
 
   clear() {
@@ -150,36 +139,6 @@ class Vector extends IndexedSequence {
       return this;
     }
     return Vector._make(this._origin, this._size, this._level, newRoot, this._tail);
-  }
-
-  setIn(keyPath, v, pathOffset) {
-    pathOffset = pathOffset || 0;
-    if (pathOffset === keyPath.length - 1) {
-      return this.set(keyPath[pathOffset], v);
-    }
-    var k = keyPath[pathOffset];
-    var nested = this.get(k, __SENTINEL);
-    if (nested === __SENTINEL || !nested.setIn) {
-      if (typeof k === 'number') {
-        nested = Vector.empty();
-      } else {
-        nested = require('./Map').empty();
-      }
-    }
-    return this.set(k, nested.setIn(keyPath, v, pathOffset + 1));
-  }
-
-  deleteIn(keyPath, pathOffset) {
-    pathOffset = pathOffset || 0;
-    if (pathOffset === keyPath.length - 1) {
-      return this.delete(keyPath[pathOffset]);
-    }
-    var k = keyPath[pathOffset];
-    var nested = this.get(k);
-    if (!nested || !nested.deleteIn) {
-      return this;
-    }
-    return this.set(k, nested.deleteIn(keyPath, pathOffset + 1));
   }
 
   push(/*...values*/) {
@@ -457,6 +416,8 @@ Vector.prototype.merge = ImmutableMap.prototype.merge;
 Vector.prototype.deepMerge = ImmutableMap.prototype.deepMerge;
 Vector.prototype.deepMergeWith = ImmutableMap.prototype.deepMergeWith;
 Vector.prototype.withMutations = ImmutableMap.prototype.withMutations;
+Vector.prototype.updateIn = ImmutableMap.prototype.updateIn;
+
 
 function rawIndex(index, origin) {
   invariant(index >= 0, 'Index out of bounds');

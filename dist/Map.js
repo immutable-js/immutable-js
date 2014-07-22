@@ -37,17 +37,6 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     return this.$Map_root.get(0, hashValue(k), k, undefinedValue);
   };
 
-  Map.prototype.getIn=function(keyPath, pathOffset) {"use strict";
-    pathOffset = pathOffset || 0;
-    var nested = this.get(keyPath[pathOffset]);
-    if (pathOffset === keyPath.length - 1) {
-      return nested;
-    }
-    if (nested && nested.getIn) {
-      return nested.getIn(keyPath, pathOffset + 1);
-    }
-  };
-
   // @pragma Modification
 
   Map.prototype.clear=function() {"use strict";
@@ -81,23 +70,6 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     return newRoot === this.$Map_root ? this : Map.$Map_make(newLength, newRoot);
   };
 
-  Map.prototype.setIn=function(keyPath, v, pathOffset) {"use strict";
-    pathOffset = pathOffset || 0;
-    if (pathOffset === keyPath.length - 1) {
-      return this.set(keyPath[pathOffset], v);
-    }
-    var k = keyPath[pathOffset];
-    var nested = this.get(k, __SENTINEL);
-    if (nested === __SENTINEL || !nested.setIn) {
-      if (typeof k === 'number') {
-        nested = require('./Vector').empty();
-      } else {
-        nested = Map.empty();
-      }
-    }
-    return this.set(k, nested.setIn(keyPath, v, pathOffset + 1));
-  };
-
   Map.prototype.delete=function(k) {"use strict";
     if (k == null || this.$Map_root == null) {
       return this;
@@ -110,19 +82,6 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     }
     var newRoot = this.$Map_root.delete(this.__ownerID, 0, hashValue(k), k);
     return !newRoot ? Map.empty() : newRoot === this.$Map_root ? this : Map.$Map_make(this.length - 1, newRoot);
-  };
-
-  Map.prototype.deleteIn=function(keyPath, pathOffset) {"use strict";
-    pathOffset = pathOffset || 0;
-    if (pathOffset === keyPath.length - 1) {
-      return this.delete(keyPath[pathOffset]);
-    }
-    var k = keyPath[pathOffset];
-    var nested = this.get(k);
-    if (!nested || !nested.deleteIn) {
-      return this;
-    }
-    return this.set(k, nested.deleteIn(keyPath, pathOffset + 1));
   };
 
   // @pragma Composition
@@ -165,6 +124,10 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
         fn ? fn(prev, next) : next;},
       seq
     );
+  };
+
+  Map.prototype.updateIn=function(keyPath, updater) {"use strict";
+    return updateInDeepMap(this, keyPath, updater, 0);
   };
 
   // @pragma Mutability
@@ -431,6 +394,20 @@ function makeNode(ownerID, shift, hash, key, valOrNode) {
     return true;
   };
 
+
+function updateInDeepMap(collection, keyPath, updater, pathOffset) {
+  var key = keyPath[pathOffset];
+  var nested = collection.get ? collection.get(key, __SENTINEL) : __SENTINEL;
+  if (nested === __SENTINEL) {
+    return collection;
+  }
+  return collection.set ? collection.set(
+    key,
+    pathOffset === keyPath.length - 1 ?
+      updater(nested) :
+      updateInDeepMap(nested, keyPath, updater, pathOffset + 1)
+  ) : collection;
+}
 
 var __BOOL_REF = {value: false};
 function BoolRef(value) {

@@ -47,17 +47,6 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
       node.array[maskedIndex] : undefinedValue;
   };
 
-  Vector.prototype.getIn=function(indexPath, pathOffset) {"use strict";
-    pathOffset = pathOffset || 0;
-    var nested = this.get(indexPath[pathOffset]);
-    if (pathOffset === indexPath.length - 1) {
-      return nested;
-    }
-    if (nested && nested.getIn) {
-      return nested.getIn(indexPath, pathOffset + 1);
-    }
-  };
-
   // @pragma Modification
 
   Vector.prototype.clear=function() {"use strict";
@@ -150,36 +139,6 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
       return this;
     }
     return Vector.$Vector_make(this.$Vector_origin, this.$Vector_size, this.$Vector_level, newRoot, this.$Vector_tail);
-  };
-
-  Vector.prototype.setIn=function(keyPath, v, pathOffset) {"use strict";
-    pathOffset = pathOffset || 0;
-    if (pathOffset === keyPath.length - 1) {
-      return this.set(keyPath[pathOffset], v);
-    }
-    var k = keyPath[pathOffset];
-    var nested = this.get(k, __SENTINEL);
-    if (nested === __SENTINEL || !nested.setIn) {
-      if (typeof k === 'number') {
-        nested = Vector.empty();
-      } else {
-        nested = require('./Map').empty();
-      }
-    }
-    return this.set(k, nested.setIn(keyPath, v, pathOffset + 1));
-  };
-
-  Vector.prototype.deleteIn=function(keyPath, pathOffset) {"use strict";
-    pathOffset = pathOffset || 0;
-    if (pathOffset === keyPath.length - 1) {
-      return this.delete(keyPath[pathOffset]);
-    }
-    var k = keyPath[pathOffset];
-    var nested = this.get(k);
-    if (!nested || !nested.deleteIn) {
-      return this;
-    }
-    return this.set(k, nested.deleteIn(keyPath, pathOffset + 1));
   };
 
   Vector.prototype.push=function() {"use strict";
@@ -457,6 +416,8 @@ Vector.prototype.merge = ImmutableMap.prototype.merge;
 Vector.prototype.deepMerge = ImmutableMap.prototype.deepMerge;
 Vector.prototype.deepMergeWith = ImmutableMap.prototype.deepMergeWith;
 Vector.prototype.withMutations = ImmutableMap.prototype.withMutations;
+Vector.prototype.updateIn = ImmutableMap.prototype.updateIn;
+
 
 function rawIndex(index, origin) {
   invariant(index >= 0, 'Index out of bounds');

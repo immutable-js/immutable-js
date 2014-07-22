@@ -200,6 +200,10 @@ class Sequence {
     return this.find((_, key) => key === searchKey, null, notFoundValue);
   }
 
+  getIn(searchKeyPath, notFoundValue) {
+    return getInDeepSequence(this, searchKeyPath, notFoundValue, 0);
+  }
+
   contains(searchValue) {
     return this.find(value => value === searchValue, null, __SENTINEL) !== __SENTINEL;
   }
@@ -809,6 +813,17 @@ class ObjectSequence extends Sequence {
       return iterations;
     }
   }
+}
+
+function getInDeepSequence(seq, keyPath, notFoundValue, pathOffset) {
+  var nested = seq.get ? seq.get(keyPath[pathOffset], __SENTINEL) : __SENTINEL;
+  if (nested === __SENTINEL) {
+    return notFoundValue;
+  }
+  if (pathOffset === keyPath.length - 1) {
+    return nested;
+  }
+  return getInDeepSequence(nested, keyPath, notFoundValue, pathOffset + 1);
 }
 
 function wholeSlice(begin, end, length) {

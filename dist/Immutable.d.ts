@@ -128,6 +128,11 @@ export interface Sequence<K, V> {
   get(key: K, notFoundValue?: V): V;
 
   /**
+   * Returns the value found by following a key path through nested sequences.
+   */
+  getIn(searchKeyPath: Array<K>, notFoundValue?: V): V;
+
+  /**
    * True if a value exists within this Sequence.
    */
   contains(value: V): boolean;
@@ -458,12 +463,14 @@ export interface Map<K, V> extends Sequence<K, V> {
    */
   length: number;
 
-  getIn(keyPath: Array<any>, pathOffset?: number): any;
   clear(): Map<K, V>;
   set(k: K, v: V): Map<K, V>;
-  setIn(keyPath: Array<any>, v: any, pathOffset?: number): Map<K, V>;
   delete(k: K): Map<K, V>;
-  deleteIn(keyPath: Array<any>, pathOffset?: number): Map<K, V>;
+
+  updateIn(
+    keyPath: Array<any>,
+    updater: (value: any) => any
+  ): Map<K, V>;
 
   merge(seq: Sequence<K, V>): Map<K, V>;
   merge(seq: {[key: string]: V}): Map<string, V>;
@@ -588,19 +595,20 @@ export declare module Vector {
  */
 export interface Vector<T> extends IndexedSequence<T> {
   length: number;
-  getIn(indexPath: Array<any>, pathOffset?: number): any;
 
   clear(): Vector<T>;
   set(index: number, value: T): Vector<T>;
   delete(index: number): Vector<T>;
 
-  setIn(keyPath: Array<any>, v: any, pathOffset?: number): Vector<T>;
-  deleteIn(keyPath: Array<any>, pathOffset?: number): Vector<T>;
-
   push(...values: T[]): Vector<T>;
   pop(): Vector<T>;
   unshift(...values: T[]): Vector<T>;
   shift(): Vector<T>;
+
+  updateIn(
+    keyPath: Array<any>,
+    updater: (value: any) => any
+  ): Vector<T>;
 
   merge(seq: IndexedSequence<T>): Vector<T>;
   merge(seq: Array<T>): Vector<T>;
