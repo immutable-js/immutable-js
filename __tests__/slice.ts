@@ -24,11 +24,11 @@ describe('slice', () => {
   })
 
   it.only('slices an unindexed sequence', () => {
-    //expect(P.Sequence({a:1,b:2,c:3}).slice(1).toObject()).toEqual({b:2,c:3});
-    //expect(P.Sequence({a:1,b:2,c:3}).slice(1, 2).toObject()).toEqual({b:2});
-    //expect(P.Sequence({a:1,b:2,c:3}).slice(0, 2).toObject()).toEqual({a:1,b:2});
+    expect(P.Sequence({a:1,b:2,c:3}).slice(1).toObject()).toEqual({b:2,c:3});
+    expect(P.Sequence({a:1,b:2,c:3}).slice(1, 2).toObject()).toEqual({b:2});
+    expect(P.Sequence({a:1,b:2,c:3}).slice(0, 2).toObject()).toEqual({a:1,b:2});
     expect(P.Sequence({a:1,b:2,c:3}).slice(-1).toObject()).toEqual({c:3});
-    //expect(P.Sequence({a:1,b:2,c:3}).slice(1, -1).toObject()).toEqual({b:2});
+    expect(P.Sequence({a:1,b:2,c:3}).slice(1, -1).toObject()).toEqual({b:2});
   })
 
   it('is reversable', () => {
