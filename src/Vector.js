@@ -250,7 +250,7 @@ class Vector extends IndexedSequence {
     // Identical impl
     return this.mergeWith(
       (prev, next) =>
-        prev && next && typeof prev.deepMergeWith === 'function' && typeof next.deepMergeWith === 'function' ?
+        prev && typeof prev.deepMergeWith === 'function' ?
         prev.deepMergeWith(fn, next) :
         fn ? fn(prev, next) : next,
       seq

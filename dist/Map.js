@@ -167,7 +167,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     // Identical impl
     return this.mergeWith(
       function(prev, next) 
-        {return prev && next && typeof prev.deepMergeWith === 'function' && typeof next.deepMergeWith === 'function' ?
+        {return prev && typeof prev.deepMergeWith === 'function' ?
         prev.deepMergeWith(fn, next) :
         fn ? fn(prev, next) : next;},
       seq

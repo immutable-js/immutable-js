@@ -36,4 +36,10 @@ describe('merge', () => {
     expect(m1.deepMerge(m2)).is(I.fromJS({a:{b:{c:10,d:2,e:20},f:30},g:40}));
   })
 
+  it('deep merges raw JS', () => {
+    var m1 = I.fromJS({a:{b:{c:1,d:2}}});
+    var js = {a:{b:{c:10,e:20},f:30},g:40};
+    expect(m1.deepMerge(js)).is(I.fromJS({a:{b:{c:10,d:2,e:20},f:30},g:40}));
+  })
+
 })

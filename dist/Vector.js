@@ -250,7 +250,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     // Identical impl
     return this.mergeWith(
       function(prev, next) 
-        {return prev && next && typeof prev.deepMergeWith === 'function' && typeof next.deepMergeWith === 'function' ?
+        {return prev && typeof prev.deepMergeWith === 'function' ?
         prev.deepMergeWith(fn, next) :
         fn ? fn(prev, next) : next;},
       seq
