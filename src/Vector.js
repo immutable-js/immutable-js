@@ -1,4 +1,5 @@
 var IndexedSequence = require('./Sequence').IndexedSequence;
+var ImmutableMap = require('./Map');
 
 
 function invariant(condition, error) {
@@ -60,7 +61,7 @@ class Vector extends IndexedSequence {
   // @pragma Modification
 
   clear() {
-    if (this._ownerID) {
+    if (this.__ownerID) {
       this.length = this._origin = this._size = 0;
       this._level = SHIFT;
       this._root = this._tail = __EMPTY_VNODE;
@@ -88,10 +89,10 @@ class Vector extends IndexedSequence {
 
     // Fits within tail.
     if (index >= tailOffset) {
-      var newTail = this._tail.ensureOwner(this._ownerID);
+      var newTail = this._tail.ensureOwner(this.__ownerID);
       newTail.array[index & MASK] = value;
       var newSize = index >= this._size ? index + 1 : this._size;
-      if (this._ownerID) {
+      if (this.__ownerID) {
         this.length = newSize - this._origin;
         this._size = newSize;
         this._tail = newTail;
@@ -101,14 +102,14 @@ class Vector extends IndexedSequence {
     }
 
     // Fits within existing tree.
-    var newRoot = this._root.ensureOwner(this._ownerID);
+    var newRoot = this._root.ensureOwner(this.__ownerID);
     var node = newRoot;
     for (var level = this._level; level > 0; level -= SHIFT) {
       var idx = (index >>> level) & MASK;
-      node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this._ownerID) : new VNode([], this._ownerID);
+      node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this.__ownerID) : new VNode([], this.__ownerID);
     }
     node.array[index & MASK] = value;
-    if (this._ownerID) {
+    if (this.__ownerID) {
       this._root = newRoot;
       return this;
     }
@@ -126,9 +127,9 @@ class Vector extends IndexedSequence {
 
     // Delete within tail.
     if (index >= tailOffset) {
-      var newTail = this._tail.ensureOwner(this._ownerID);
+      var newTail = this._tail.ensureOwner(this.__ownerID);
       delete newTail.array[index & MASK];
-      if (this._ownerID) {
+      if (this.__ownerID) {
         this._tail = newTail;
         return this;
       }
@@ -136,15 +137,15 @@ class Vector extends IndexedSequence {
     }
 
     // Fits within existing tree.
-    var newRoot = this._root.ensureOwner(this._ownerID);
+    var newRoot = this._root.ensureOwner(this.__ownerID);
     var node = newRoot;
     for (var level = this._level; level > 0; level -= SHIFT) {
       var idx = (index >>> level) & MASK;
       // TODO: if we don't check "has" above, this could be null.
-      node = node.array[idx] = node.array[idx].ensureOwner(this._ownerID);
+      node = node.array[idx] = node.array[idx].ensureOwner(this.__ownerID);
     }
     delete node.array[index & MASK];
-    if (this._ownerID) {
+    if (this.__ownerID) {
       this._root = newRoot;
       return this;
     }
@@ -212,51 +213,13 @@ class Vector extends IndexedSequence {
 
   // @pragma Composition
 
-  merge(seq) { // Identical to Map.merge
-    return this.mergeWith(null, seq);
-  }
-
   mergeWith(fn, seq) {
-    // Almost exactly a dupe of Map.mergeWith
-    if (!seq || !seq.forEach) {
-      return this;
-    }
-    return this.withMutations(vect => {
-      if (seq.length && seq.length > vect.length) {
-        vect.setBounds(0, seq.length);
-      }
-      seq.forEach(
-        fn ?
-        (value, index) => {
-          var existing = vect.get(index, __SENTINEL);
-          vect.set(index, existing === __SENTINEL ? existing : fn(existing, value));
-        } :
-        (value, index) => {
-          vect.set(index, value);
-        }
-      );
-    });
+    var merged = ImmutableMap.prototype.mergeWith.call(this, fn, seq);
+    return seq.length > merged.length ? merged.setBounds(0, seq.length) : merged;
   }
-
-  deepMerge(seq) { // Identical to Map.deepMerge
-    return this.deepMergeWith(null, seq);
-  }
-
-  deepMergeWith(fn, seq) { // Identical to Map.deepMergeWith
-    // Identical impl
-    return this.mergeWith(
-      (prev, next) =>
-        prev && typeof prev.deepMergeWith === 'function' ?
-        prev.deepMergeWith(fn, next) :
-        fn ? fn(prev, next) : next,
-      seq
-    );
-  }
-
-  // TODO: mergeIn
 
   setBounds(begin, end) {
-    var owner = this._ownerID || new OwnerID();
+    var owner = this.__ownerID || new OwnerID();
     var oldOrigin = this._origin;
     var oldSize = this._size;
     var newOrigin = oldOrigin + begin;
@@ -357,7 +320,7 @@ class Vector extends IndexedSequence {
       newRoot = newRoot || __EMPTY_VNODE;
     }
 
-    if (this._ownerID) {
+    if (this.__ownerID) {
       this.length = newSize - newOrigin;
       this._origin = newOrigin;
       this._size = newSize;
@@ -375,19 +338,12 @@ class Vector extends IndexedSequence {
 
   // @pragma Mutability
 
-  withMutations(fn) {
-    // Note: same impl as Map
-    var mutable = this.__ensureOwner(this._ownerID || new OwnerID());
-    fn(mutable);
-    return mutable.__ensureOwner(this._ownerID);
-  }
-
   __ensureOwner(ownerID) {
-    if (ownerID === this._ownerID) {
+    if (ownerID === this.__ownerID) {
       return this;
     }
     if (!ownerID) {
-      this._ownerID = ownerID;
+      this.__ownerID = ownerID;
       return this;
     }
     return Vector._make(this._origin, this._size, this._level, this._root, this._tail, ownerID);
@@ -477,7 +433,7 @@ class Vector extends IndexedSequence {
     vect._level = level;
     vect._root = root;
     vect._tail = tail;
-    vect._ownerID = ownerID;
+    vect.__ownerID = ownerID;
     return vect;
   }
 
@@ -496,6 +452,11 @@ class Vector extends IndexedSequence {
     }
   }
 }
+
+Vector.prototype.merge = ImmutableMap.prototype.merge;
+Vector.prototype.deepMerge = ImmutableMap.prototype.deepMerge;
+Vector.prototype.deepMergeWith = ImmutableMap.prototype.deepMergeWith;
+Vector.prototype.withMutations = ImmutableMap.prototype.withMutations;
 
 function rawIndex(index, origin) {
   invariant(index >= 0, 'Index out of bounds');

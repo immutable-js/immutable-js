@@ -51,7 +51,7 @@ class Map extends Sequence {
   // @pragma Modification
 
   clear() {
-    if (this._ownerID) {
+    if (this.__ownerID) {
       this.length = 0;
       this._root = null;
       return this;
@@ -67,13 +67,13 @@ class Map extends Sequence {
     var newRoot;
     if (this._root) {
       var didAddLeaf = BoolRef();
-      newRoot = this._root.set(this._ownerID, 0, hashValue(k), k, v, didAddLeaf);
+      newRoot = this._root.set(this.__ownerID, 0, hashValue(k), k, v, didAddLeaf);
       didAddLeaf.value && newLength++;
     } else {
       newLength++;
-      newRoot = makeNode(this._ownerID, 0, hashValue(k), k, v);
+      newRoot = makeNode(this.__ownerID, 0, hashValue(k), k, v);
     }
-    if (this._ownerID) {
+    if (this.__ownerID) {
       this.length = newLength;
       this._root = newRoot;
       return this;
@@ -102,13 +102,13 @@ class Map extends Sequence {
     if (k == null || this._root == null) {
       return this;
     }
-    if (this._ownerID) {
+    if (this.__ownerID) {
       var didRemoveLeaf = BoolRef();
-      this._root = this._root.delete(this._ownerID, 0, hashValue(k), k, didRemoveLeaf);
+      this._root = this._root.delete(this.__ownerID, 0, hashValue(k), k, didRemoveLeaf);
       didRemoveLeaf.value && this.length--;
       return this;
     }
-    var newRoot = this._root.delete(this._ownerID, 0, hashValue(k), k);
+    var newRoot = this._root.delete(this.__ownerID, 0, hashValue(k), k);
     return !newRoot ? Map.empty() : newRoot === this._root ? this : Map._make(this.length - 1, newRoot);
   }
 
@@ -128,7 +128,6 @@ class Map extends Sequence {
   // @pragma Composition
 
   merge(seq) {
-    // Identical impl
     return this.mergeWith(null, seq);
   }
 
@@ -155,12 +154,10 @@ class Map extends Sequence {
   }
 
   deepMerge(seq) {
-    // Identical impl
     return this.deepMergeWith(null, seq);
   }
 
   deepMergeWith(fn, seq) {
-    // Identical impl
     return this.mergeWith(
       (prev, next) =>
         prev && typeof prev.deepMergeWith === 'function' ?
@@ -173,17 +170,17 @@ class Map extends Sequence {
   // @pragma Mutability
 
   withMutations(fn) {
-    var mutable = this.__ensureOwner(this._ownerID || new OwnerID());
+    var mutable = this.__ensureOwner(this.__ownerID || new OwnerID());
     fn(mutable);
-    return mutable.__ensureOwner(this._ownerID);
+    return mutable.__ensureOwner(this.__ownerID);
   }
 
   __ensureOwner(ownerID) {
-    if (ownerID === this._ownerID) {
+    if (ownerID === this.__ownerID) {
       return this;
     }
     if (!ownerID) {
-      this._ownerID = ownerID;
+      this.__ownerID = ownerID;
       return this;
     }
     return Map._make(this.length, this._root, ownerID);
@@ -217,7 +214,7 @@ class Map extends Sequence {
     var map = Object.create(Map.prototype);
     map.length = length;
     map._root = root;
-    map._ownerID = ownerID;
+    map.__ownerID = ownerID;
     return map;
   }
 }

@@ -412,12 +412,7 @@ export interface IndexedSequence<T> extends Sequence<number, T> {
  * infinity. When step is equal to 0, returns an infinite sequence of
  * start. When start is equal to end, returns empty range.
  */
-export declare function Range(start?: number, end?: number, step?: number): Range;
-
-export interface Range extends IndexedSequence<number> {
-  length: number;
-  slice(begin: number, end?: number): Range;
-}
+export declare function Range(start?: number, end?: number, step?: number): IndexedSequence<number>;
 
 
 

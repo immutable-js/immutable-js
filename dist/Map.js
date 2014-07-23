@@ -51,7 +51,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   // @pragma Modification
 
   Map.prototype.clear=function() {"use strict";
-    if (this.$Map_ownerID) {
+    if (this.__ownerID) {
       this.length = 0;
       this.$Map_root = null;
       return this;
@@ -67,13 +67,13 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     var newRoot;
     if (this.$Map_root) {
       var didAddLeaf = BoolRef();
-      newRoot = this.$Map_root.set(this.$Map_ownerID, 0, hashValue(k), k, v, didAddLeaf);
+      newRoot = this.$Map_root.set(this.__ownerID, 0, hashValue(k), k, v, didAddLeaf);
       didAddLeaf.value && newLength++;
     } else {
       newLength++;
-      newRoot = makeNode(this.$Map_ownerID, 0, hashValue(k), k, v);
+      newRoot = makeNode(this.__ownerID, 0, hashValue(k), k, v);
     }
-    if (this.$Map_ownerID) {
+    if (this.__ownerID) {
       this.length = newLength;
       this.$Map_root = newRoot;
       return this;
@@ -102,13 +102,13 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     if (k == null || this.$Map_root == null) {
       return this;
     }
-    if (this.$Map_ownerID) {
+    if (this.__ownerID) {
       var didRemoveLeaf = BoolRef();
-      this.$Map_root = this.$Map_root.delete(this.$Map_ownerID, 0, hashValue(k), k, didRemoveLeaf);
+      this.$Map_root = this.$Map_root.delete(this.__ownerID, 0, hashValue(k), k, didRemoveLeaf);
       didRemoveLeaf.value && this.length--;
       return this;
     }
-    var newRoot = this.$Map_root.delete(this.$Map_ownerID, 0, hashValue(k), k);
+    var newRoot = this.$Map_root.delete(this.__ownerID, 0, hashValue(k), k);
     return !newRoot ? Map.empty() : newRoot === this.$Map_root ? this : Map.$Map_make(this.length - 1, newRoot);
   };
 
@@ -128,7 +128,6 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   // @pragma Composition
 
   Map.prototype.merge=function(seq) {"use strict";
-    // Identical impl
     return this.mergeWith(null, seq);
   };
 
@@ -155,12 +154,10 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   };
 
   Map.prototype.deepMerge=function(seq) {"use strict";
-    // Identical impl
     return this.deepMergeWith(null, seq);
   };
 
   Map.prototype.deepMergeWith=function(fn, seq) {"use strict";
-    // Identical impl
     return this.mergeWith(
       function(prev, next) 
         {return prev && typeof prev.deepMergeWith === 'function' ?
@@ -173,17 +170,17 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   // @pragma Mutability
 
   Map.prototype.withMutations=function(fn) {"use strict";
-    var mutable = this.__ensureOwner(this.$Map_ownerID || new OwnerID());
+    var mutable = this.__ensureOwner(this.__ownerID || new OwnerID());
     fn(mutable);
-    return mutable.__ensureOwner(this.$Map_ownerID);
+    return mutable.__ensureOwner(this.__ownerID);
   };
 
   Map.prototype.__ensureOwner=function(ownerID) {"use strict";
-    if (ownerID === this.$Map_ownerID) {
+    if (ownerID === this.__ownerID) {
       return this;
     }
     if (!ownerID) {
-      this.$Map_ownerID = ownerID;
+      this.__ownerID = ownerID;
       return this;
     }
     return Map.$Map_make(this.length, this.$Map_root, ownerID);
@@ -217,7 +214,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     var map = Object.create(Map.prototype);
     map.length = length;
     map.$Map_root = root;
-    map.$Map_ownerID = ownerID;
+    map.__ownerID = ownerID;
     return map;
   };
 

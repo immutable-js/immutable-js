@@ -1,5 +1,7 @@
-var Sequence = require('./Sequence').Sequence;
-var IndexedSequence = require('./Sequence').IndexedSequence;
+var SequenceModule = require('./Sequence');
+var ImmutableMap = require('./Map');
+var Sequence = SequenceModule.Sequence;
+var IndexedSequence = SequenceModule.IndexedSequence;
 
 
 for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)){Set[Sequence____Key]=Sequence[Sequence____Key];}}var ____SuperProtoOfSequence=Sequence===null?null:Sequence.prototype;Set.prototype=Object.create(____SuperProtoOfSequence);Set.prototype.constructor=Set;Set.__superConstructor__=Sequence;
@@ -42,7 +44,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   // @pragma Modification
 
   Set.prototype.clear=function() {"use strict";
-    if (this.$Set_ownerID) {
+    if (this.__ownerID) {
       this.length = 0;
       this.$Set_map = null;
       return this;
@@ -56,11 +58,10 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     }
     var newMap = this.$Set_map;
     if (!newMap) {
-      // Use Late Binding here to ensure no circular dependency.
-      newMap = require('./Map').empty().__ensureOwner(this.$Set_ownerID);
+      newMap = ImmutableMap.empty().__ensureOwner(this.__ownerID);
     }
     newMap = newMap.set(value, null);
-    if (this.$Set_ownerID) {
+    if (this.__ownerID) {
       this.length = newMap.length;
       this.$Set_map = newMap;
       return this;
@@ -76,7 +77,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     if (newMap.length === 0) {
       return this.clear();
     }
-    if (this.$Set_ownerID) {
+    if (this.__ownerID) {
       this.length = newMap.length;
       this.$Set_map = newMap;
       return this;
@@ -143,20 +144,13 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
   // @pragma Mutability
 
-  Set.prototype.withMutations=function(fn) {"use strict";
-    // Note: same impl as Map
-    var mutable = this.__ensureOwner(this.$Set_ownerID || new OwnerID());
-    fn(mutable);
-    return mutable.__ensureOwner(this.$Set_ownerID);
-  };
-
   Set.prototype.__ensureOwner=function(ownerID) {"use strict";
-    if (ownerID === this.$Set_ownerID) {
+    if (ownerID === this.__ownerID) {
       return this;
     }
     var newMap = this.$Set_map && this.$Set_map.__ensureOwner(ownerID);
     if (!ownerID) {
-      this.$Set_ownerID = ownerID;
+      this.__ownerID = ownerID;
       this.$Set_map = newMap;
       return this;
     }
@@ -166,7 +160,6 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   // @pragma Iteration
 
   Set.prototype.toSet=function() {"use strict";
-    // Note: identical impl to Map.toMap
     return this;
   };
 
@@ -189,20 +182,15 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     var set = Object.create(Set.prototype);
     set.length = map ? map.length : 0;
     set.$Set_map = map;
-    set.$Set_ownerID = ownerID;
+    set.__ownerID = ownerID;
     return set;
   };
 
 
+Set.prototype.withMutations = ImmutableMap.prototype.withMutations;
 Set.prototype.contains = Set.prototype.has;
-
-Set.prototype.toJS = Sequence.prototype.toArray;
-
+Set.prototype.toJS = IndexedSequence.prototype.toJS;
 Set.prototype.__toStringMapper = IndexedSequence.prototype.__toStringMapper;
-
-
-
-  function OwnerID() {"use strict";}
 
 
 var __EMPTY_SET;

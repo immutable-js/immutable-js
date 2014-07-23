@@ -1,4 +1,5 @@
 var IndexedSequence = require('./Sequence').IndexedSequence;
+var Vector = require('./Vector');
 
 
 function invariant(condition, error) {
@@ -56,14 +57,6 @@ class Range extends IndexedSequence {
 
   __deepEquals(other) {
     return this.start === other.start && this.end === other.end && this.step === other.step;
-  }
-
-  first(predicate, thisArg) {
-    return predicate ? super.first(predicate, thisArg) : this.get(0);
-  }
-
-  last(predicate, thisArg) {
-    return predicate ? super.last(predicate, thisArg) : this.get(this.length ? this.length - 1 : 0);
   }
 
   toArray() {
@@ -143,6 +136,9 @@ class Range extends IndexedSequence {
 }
 
 Range.prototype.toJS = Range.prototype.toArray;
+Range.prototype.first = Vector.prototype.first;
+Range.prototype.last = Vector.prototype.last;
+
 
 function assertNotInfinite(length) {
   invariant(length < Infinity, 'Cannot access end of infinite range.');

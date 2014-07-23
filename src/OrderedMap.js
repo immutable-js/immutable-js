@@ -43,7 +43,7 @@ class OrderedMap extends ImmutableMap {
   // @pragma Modification
 
   clear() {
-    if (this._ownerID) {
+    if (this.__ownerID) {
       this.length = 0;
       this._map = this._vector = null;
       return this;
@@ -66,10 +66,10 @@ class OrderedMap extends ImmutableMap {
         newVector = newVector.set(index, [k, v]);
       }
     } else {
-      newVector = require('./Vector').empty().__ensureOwner(this._ownerID).set(0, [k, v]);
-      newMap = ImmutableMap.empty().__ensureOwner(this._ownerID).set(k, 0);
+      newVector = require('./Vector').empty().__ensureOwner(this.__ownerID).set(0, [k, v]);
+      newMap = ImmutableMap.empty().__ensureOwner(this.__ownerID).set(k, 0);
     }
-    if (this._ownerID) {
+    if (this.__ownerID) {
       this.length = newMap.length;
       this._map = newMap;
       this._vector = newVector;
@@ -92,7 +92,7 @@ class OrderedMap extends ImmutableMap {
     if (newMap.length === 0) {
       return this.clear();
     }
-    if (this._ownerID) {
+    if (this.__ownerID) {
       this.length = newMap.length;
       this._map = newMap;
       this._vector = newVector;
@@ -103,21 +103,14 @@ class OrderedMap extends ImmutableMap {
 
   // @pragma Mutability
 
-  withMutations(fn) {
-    // Note: same impl as Map
-    var mutable = this.__ensureOwner(this._ownerID || new OwnerID());
-    fn(mutable);
-    return mutable.__ensureOwner(this._ownerID);
-  }
-
   __ensureOwner(ownerID) {
-    if (ownerID === this._ownerID) {
+    if (ownerID === this.__ownerID) {
       return this;
     }
     var newMap = this._map && this._map.__ensureOwner(ownerID);
     var newVector = this._vector && this._vector.__ensureOwner(ownerID);
     if (!ownerID) {
-      this._ownerID = ownerID;
+      this.__ownerID = ownerID;
       this._map = newMap;
       this._vector = newVector;
       return this;
@@ -129,7 +122,6 @@ class OrderedMap extends ImmutableMap {
   // @pragma Iteration
 
   toOrderedMap() {
-    // Note: identical impl to Map.toMap
     return this;
   }
 
@@ -158,14 +150,9 @@ class OrderedMap extends ImmutableMap {
     omap.length = map ? map.length : 0;
     omap._map = map;
     omap._vector = vector;
-    omap._ownerID = ownerID;
+    omap.__ownerID = ownerID;
     return omap;
   }
-}
-
-
-class OwnerID {
-  constructor() {}
 }
 
 

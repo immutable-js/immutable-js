@@ -1,5 +1,7 @@
-var Sequence = require('./Sequence').Sequence;
-var IndexedSequence = require('./Sequence').IndexedSequence;
+var SequenceModule = require('./Sequence');
+var ImmutableMap = require('./Map');
+var Sequence = SequenceModule.Sequence;
+var IndexedSequence = SequenceModule.IndexedSequence;
 
 
 class Set extends Sequence {
@@ -42,7 +44,7 @@ class Set extends Sequence {
   // @pragma Modification
 
   clear() {
-    if (this._ownerID) {
+    if (this.__ownerID) {
       this.length = 0;
       this._map = null;
       return this;
@@ -56,11 +58,10 @@ class Set extends Sequence {
     }
     var newMap = this._map;
     if (!newMap) {
-      // Use Late Binding here to ensure no circular dependency.
-      newMap = require('./Map').empty().__ensureOwner(this._ownerID);
+      newMap = ImmutableMap.empty().__ensureOwner(this.__ownerID);
     }
     newMap = newMap.set(value, null);
-    if (this._ownerID) {
+    if (this.__ownerID) {
       this.length = newMap.length;
       this._map = newMap;
       return this;
@@ -76,7 +77,7 @@ class Set extends Sequence {
     if (newMap.length === 0) {
       return this.clear();
     }
-    if (this._ownerID) {
+    if (this.__ownerID) {
       this.length = newMap.length;
       this._map = newMap;
       return this;
@@ -143,20 +144,13 @@ class Set extends Sequence {
 
   // @pragma Mutability
 
-  withMutations(fn) {
-    // Note: same impl as Map
-    var mutable = this.__ensureOwner(this._ownerID || new OwnerID());
-    fn(mutable);
-    return mutable.__ensureOwner(this._ownerID);
-  }
-
   __ensureOwner(ownerID) {
-    if (ownerID === this._ownerID) {
+    if (ownerID === this.__ownerID) {
       return this;
     }
     var newMap = this._map && this._map.__ensureOwner(ownerID);
     if (!ownerID) {
-      this._ownerID = ownerID;
+      this.__ownerID = ownerID;
       this._map = newMap;
       return this;
     }
@@ -166,7 +160,6 @@ class Set extends Sequence {
   // @pragma Iteration
 
   toSet() {
-    // Note: identical impl to Map.toMap
     return this;
   }
 
@@ -189,21 +182,16 @@ class Set extends Sequence {
     var set = Object.create(Set.prototype);
     set.length = map ? map.length : 0;
     set._map = map;
-    set._ownerID = ownerID;
+    set.__ownerID = ownerID;
     return set;
   }
 }
 
+Set.prototype.withMutations = ImmutableMap.prototype.withMutations;
 Set.prototype.contains = Set.prototype.has;
-
-Set.prototype.toJS = Sequence.prototype.toArray;
-
+Set.prototype.toJS = IndexedSequence.prototype.toJS;
 Set.prototype.__toStringMapper = IndexedSequence.prototype.__toStringMapper;
 
-
-class OwnerID {
-  constructor() {}
-}
 
 var __EMPTY_SET;
 

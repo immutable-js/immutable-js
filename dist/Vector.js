@@ -1,4 +1,5 @@
 var IndexedSequence = require('./Sequence').IndexedSequence;
+var ImmutableMap = require('./Map');
 
 
 function invariant(condition, error) {
@@ -60,7 +61,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   // @pragma Modification
 
   Vector.prototype.clear=function() {"use strict";
-    if (this.$Vector_ownerID) {
+    if (this.__ownerID) {
       this.length = this.$Vector_origin = this.$Vector_size = 0;
       this.$Vector_level = SHIFT;
       this.$Vector_root = this.$Vector_tail = __EMPTY_VNODE;
@@ -88,10 +89,10 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
     // Fits within tail.
     if (index >= tailOffset) {
-      var newTail = this.$Vector_tail.ensureOwner(this.$Vector_ownerID);
+      var newTail = this.$Vector_tail.ensureOwner(this.__ownerID);
       newTail.array[index & MASK] = value;
       var newSize = index >= this.$Vector_size ? index + 1 : this.$Vector_size;
-      if (this.$Vector_ownerID) {
+      if (this.__ownerID) {
         this.length = newSize - this.$Vector_origin;
         this.$Vector_size = newSize;
         this.$Vector_tail = newTail;
@@ -101,14 +102,14 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     }
 
     // Fits within existing tree.
-    var newRoot = this.$Vector_root.ensureOwner(this.$Vector_ownerID);
+    var newRoot = this.$Vector_root.ensureOwner(this.__ownerID);
     var node = newRoot;
     for (var level = this.$Vector_level; level > 0; level -= SHIFT) {
       var idx = (index >>> level) & MASK;
-      node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this.$Vector_ownerID) : new VNode([], this.$Vector_ownerID);
+      node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this.__ownerID) : new VNode([], this.__ownerID);
     }
     node.array[index & MASK] = value;
-    if (this.$Vector_ownerID) {
+    if (this.__ownerID) {
       this.$Vector_root = newRoot;
       return this;
     }
@@ -126,9 +127,9 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
     // Delete within tail.
     if (index >= tailOffset) {
-      var newTail = this.$Vector_tail.ensureOwner(this.$Vector_ownerID);
+      var newTail = this.$Vector_tail.ensureOwner(this.__ownerID);
       delete newTail.array[index & MASK];
-      if (this.$Vector_ownerID) {
+      if (this.__ownerID) {
         this.$Vector_tail = newTail;
         return this;
       }
@@ -136,15 +137,15 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     }
 
     // Fits within existing tree.
-    var newRoot = this.$Vector_root.ensureOwner(this.$Vector_ownerID);
+    var newRoot = this.$Vector_root.ensureOwner(this.__ownerID);
     var node = newRoot;
     for (var level = this.$Vector_level; level > 0; level -= SHIFT) {
       var idx = (index >>> level) & MASK;
       // TODO: if we don't check "has" above, this could be null.
-      node = node.array[idx] = node.array[idx].ensureOwner(this.$Vector_ownerID);
+      node = node.array[idx] = node.array[idx].ensureOwner(this.__ownerID);
     }
     delete node.array[index & MASK];
-    if (this.$Vector_ownerID) {
+    if (this.__ownerID) {
       this.$Vector_root = newRoot;
       return this;
     }
@@ -212,51 +213,13 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
   // @pragma Composition
 
-  Vector.prototype.merge=function(seq) {"use strict"; // Identical to Map.merge
-    return this.mergeWith(null, seq);
-  };
-
   Vector.prototype.mergeWith=function(fn, seq) {"use strict";
-    // Almost exactly a dupe of Map.mergeWith
-    if (!seq || !seq.forEach) {
-      return this;
-    }
-    return this.withMutations(function(vect)  {
-      if (seq.length && seq.length > vect.length) {
-        vect.setBounds(0, seq.length);
-      }
-      seq.forEach(
-        fn ?
-        function(value, index)  {
-          var existing = vect.get(index, __SENTINEL);
-          vect.set(index, existing === __SENTINEL ? existing : fn(existing, value));
-        } :
-        function(value, index)  {
-          vect.set(index, value);
-        }
-      );
-    });
+    var merged = ImmutableMap.prototype.mergeWith.call(this, fn, seq);
+    return seq.length > merged.length ? merged.setBounds(0, seq.length) : merged;
   };
-
-  Vector.prototype.deepMerge=function(seq) {"use strict"; // Identical to Map.deepMerge
-    return this.deepMergeWith(null, seq);
-  };
-
-  Vector.prototype.deepMergeWith=function(fn, seq) {"use strict"; // Identical to Map.deepMergeWith
-    // Identical impl
-    return this.mergeWith(
-      function(prev, next) 
-        {return prev && typeof prev.deepMergeWith === 'function' ?
-        prev.deepMergeWith(fn, next) :
-        fn ? fn(prev, next) : next;},
-      seq
-    );
-  };
-
-  // TODO: mergeIn
 
   Vector.prototype.setBounds=function(begin, end) {"use strict";
-    var owner = this.$Vector_ownerID || new OwnerID();
+    var owner = this.__ownerID || new OwnerID();
     var oldOrigin = this.$Vector_origin;
     var oldSize = this.$Vector_size;
     var newOrigin = oldOrigin + begin;
@@ -357,7 +320,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
       newRoot = newRoot || __EMPTY_VNODE;
     }
 
-    if (this.$Vector_ownerID) {
+    if (this.__ownerID) {
       this.length = newSize - newOrigin;
       this.$Vector_origin = newOrigin;
       this.$Vector_size = newSize;
@@ -375,19 +338,12 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
   // @pragma Mutability
 
-  Vector.prototype.withMutations=function(fn) {"use strict";
-    // Note: same impl as Map
-    var mutable = this.__ensureOwner(this.$Vector_ownerID || new OwnerID());
-    fn(mutable);
-    return mutable.__ensureOwner(this.$Vector_ownerID);
-  };
-
   Vector.prototype.__ensureOwner=function(ownerID) {"use strict";
-    if (ownerID === this.$Vector_ownerID) {
+    if (ownerID === this.__ownerID) {
       return this;
     }
     if (!ownerID) {
-      this.$Vector_ownerID = ownerID;
+      this.__ownerID = ownerID;
       return this;
     }
     return Vector.$Vector_make(this.$Vector_origin, this.$Vector_size, this.$Vector_level, this.$Vector_root, this.$Vector_tail, ownerID);
@@ -477,7 +433,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     vect.$Vector_level = level;
     vect.$Vector_root = root;
     vect.$Vector_tail = tail;
-    vect.$Vector_ownerID = ownerID;
+    vect.__ownerID = ownerID;
     return vect;
   };
 
@@ -496,6 +452,11 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     }
   };
 
+
+Vector.prototype.merge = ImmutableMap.prototype.merge;
+Vector.prototype.deepMerge = ImmutableMap.prototype.deepMerge;
+Vector.prototype.deepMergeWith = ImmutableMap.prototype.deepMergeWith;
+Vector.prototype.withMutations = ImmutableMap.prototype.withMutations;
 
 function rawIndex(index, origin) {
   invariant(index >= 0, 'Index out of bounds');
