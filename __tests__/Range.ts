@@ -23,15 +23,15 @@ describe('Range', () => {
 
   it('open range', () => {
     var v = Range(10);
-    expect(v.length).toBe(Number.POSITIVE_INFINITY);
+    expect(v.length).toBe(Infinity);
     expect(v.first()).toBe(10);
-    expect(v.last()).toBe(Number.POSITIVE_INFINITY);
+    expect(v.last()).toBe(Infinity);
     expect(() => v.toArray()).toThrow('Cannot access end of infinite range.');
   });
 
   it('infinitely repeated range', () => {
     var v = Range(10, 10, 0);
-    expect(v.length).toBe(Number.POSITIVE_INFINITY);
+    expect(v.length).toBe(Infinity);
     expect(v.first()).toBe(10);
     expect(v.last()).toBe(10);
     expect(() => v.toArray()).toThrow('Cannot access end of infinite range.');
@@ -79,12 +79,12 @@ describe('Range', () => {
   });
 
   it('can get from any index in O(1)', () => {
-    var v = Range(0, Number.POSITIVE_INFINITY, 8);
+    var v = Range(0, Infinity, 8);
     expect(v.get(111)).toBe(888);
   });
 
   it('can find an index in O(1)', () => {
-    var v = Range(0, Number.POSITIVE_INFINITY, 8);
+    var v = Range(0, Infinity, 8);
     expect(v.indexOf(888)).toBe(111);
   });
 

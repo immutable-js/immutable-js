@@ -18,11 +18,11 @@ class Range extends IndexedSequence {
     if (!(this instanceof Range)) {
       return new Range(start, end, step);
     }
-    this.start = start || 0;
-    this.end = end == null ? Infinity : end;
+    this._start = start || 0;
+    this._end = end == null ? Infinity : end;
     step = step == null ? 1 : Math.abs(step);
-    this.step = this.end < this.start ? -step : step;
-    this.length = this.step === 0 ? Infinity : Math.max(0, Math.ceil((this.end - this.start) / this.step - 1) + 1);
+    this._step = this._end < this._start ? -step : step;
+    this.length = this._step === 0 ? Infinity : Math.max(0, Math.ceil((this._end - this._start) / this._step - 1) + 1);
   }
 
   toString() {
@@ -30,10 +30,10 @@ class Range extends IndexedSequence {
       return 'Range []';
     }
     return 'Range [ ' +
-      this.start +
-      (this.step === 0 ? ' repeated' :
-        '...' + this.end +
-        (this.step > 1 ? ' by ' + this.step : '')) +
+      this._start +
+      (this._step === 0 ? ' repeated' :
+        '...' + this._end +
+        (this._step > 1 ? ' by ' + this._step : '')) +
     ' ]';
   }
 
@@ -42,21 +42,34 @@ class Range extends IndexedSequence {
     return index < this.length;
   }
 
-  get(index) {
+  get(index, undefinedValue) {
     invariant(index >= 0, 'Index out of bounds');
-    if (this.length === Infinity || index < this.length) {
-      return this.step === 0 ? this.start : this.start + index * this.step;
-    }
+    return this.length === Infinity || index < this.length ?
+      this._step === 0 ? this._start : this._start + index * this._step :
+      undefinedValue;
   }
 
-  slice(begin, end) {
+  contains(searchValue) {
+    if (this._step === 0) {
+      return searchValue === this._start;
+    }
+    var possibleIndex = (searchValue - this._start) / this._step;
+    return possibleIndex >= 0 &&
+      possibleIndex < this.length &&
+      possibleIndex === Math.floor(possibleIndex);
+  }
+
+  slice(begin, end, maintainIndices) { // TODO maintainIndices
+    if (maintainIndices) {
+      return super.slice(begin, end, maintainIndices);
+    }
     begin = begin < 0 ? Math.max(0, this.length + begin) : Math.min(this.length, begin);
     end = end == null ? this.length : end > 0 ? Math.min(this.length, end) : Math.max(0, this.length + end);
-    return new Range(this.get(begin), end === this.length ? this.end : this.get(end), this.step);
+    return new Range(this.get(begin), end === this.length ? this._end : this.get(end), this._step);
   }
 
   __deepEquals(other) {
-    return this.start === other.start && this.end === other.end && this.step === other.step;
+    return this._start === other._start && this._end === other._end && this._step === other._step;
   }
 
   toArray() {
@@ -79,13 +92,23 @@ class Range extends IndexedSequence {
     return super.toMap();
   }
 
+  toOrderedMap() {
+    assertNotInfinite(this.length);
+    return super.toOrderedMap();
+  }
+
+  toSet() {
+    assertNotInfinite(this.length);
+    return super.toSet();
+  }
+
   indexOf(searchValue) {
-    if (this.step === 0) {
-      return searchValue === this.start ? 0 : -1;
+    if (this._step === 0) {
+      return searchValue === this._start ? 0 : -1;
     }
-    var offsetValue = searchValue - this.start;
-    if (offsetValue % this.step === 0) {
-      var index = offsetValue / this.step;
+    var offsetValue = searchValue - this._start;
+    if (offsetValue % this._step === 0) {
+      var index = offsetValue / this._step;
       if (index >= 0 && index < this.length) {
         return index
       }
@@ -110,28 +133,18 @@ class Range extends IndexedSequence {
   }
 
   __iterate(fn, reverse, flipIndices) {
-    (reverse || flipIndices) && assertNotInfinite(this.length);
-    var value, ii;
-    if (reverse) {
-      var maxIndex = this.length - 1;
-      value = this.start + maxIndex * this.step;
-      for (ii = maxIndex; ii >= 0; ii--) {
-        if (fn(value, flipIndices ? ii : maxIndex - ii, this) === false) {
-          break;
-        }
-        value -= this.step;
+    var reversedIndices = reverse ^ flipIndices;
+    reversedIndices && assertNotInfinite(this.length);
+    var maxIndex = this.length - 1;
+    var step = this._step;
+    var value = reverse ? this._start + maxIndex * step : this._start;
+    for (var ii = 0; ii <= maxIndex; ii++) {
+      if (fn(value, reversedIndices ? maxIndex - ii : ii, this) === false) {
+        break;
       }
-      return maxIndex - ii;
-    } else {
-      value = this.start;
-      for (ii = 0; ii < this.length; ii++) {
-        if (fn(value, flipIndices ? this.length - 1 - ii : ii, this) === false) {
-          break;
-        }
-        value += this.step;
-      }
-      return ii;
+      value += reverse ? -step : step;
     }
+    return reversedIndices ? this.length : ii;
   }
 }
 

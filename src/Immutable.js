@@ -1,9 +1,10 @@
 var Sequence = require('./Sequence').Sequence;
-var Range = require('./Range');
-var Vector = require('./Vector');
 var ImmutableMap = require('./Map');
 var OrderedMap = require('./OrderedMap');
 var ImmutableSet = require('./Set');
+var Vector = require('./Vector');
+var Range = require('./Range');
+var Repeat = require('./Repeat');
 
 
 /**
@@ -48,6 +49,7 @@ module.exports = {
   toJS: toJS,
   Sequence: Sequence,
   Range: Range,
+  Repeat: Repeat,
   Vector: Vector,
   Map: ImmutableMap,
   OrderedMap: OrderedMap,
