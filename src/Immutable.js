@@ -18,8 +18,7 @@ function is(first, second) {
   if (first !== first) {
     return second !== second;
   }
-  //if (first instanceof Sequence) {
-  if (first && typeof first.equals === 'function') {
+  if (first instanceof Sequence) {
     return first.equals(second) === true;
   }
   return false;
@@ -36,8 +35,7 @@ function fromJS(json) {
 }
 
 function toJS(value) {
-  // if (!(value instanceof Sequence)) {
-  if (!(value.__iterate)) {
+  if (!(value instanceof Sequence)) {
     return value;
   }
   return value.map(toJS).toJS();

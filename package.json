@@ -20,10 +20,8 @@
   },
   "jest": {
     "scriptPreprocessor": "resources/jestPreprocessor.js",
-    "testFileExtensions": [
-      "js",
-      "ts"
-    ]
+    "testFileExtensions": ["js", "ts"],
+    "persistModuleRegistryBetweenSpecs": true
   },
   "devDependencies": {
     "grunt": "^0.4.5",
