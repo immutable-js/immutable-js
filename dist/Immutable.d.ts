@@ -77,39 +77,39 @@ export interface Sequence<K, V> {
    */
   forEach(
     sideEffect: (value?: V, key?: K, seq?: Sequence<K, V>) => any,
-    thisArg?: Object
+    thisArg?: any
   ): number;
 
   first(
     predicate?: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-    thisArg?: Object
+    thisArg?: any
   ): V;
 
   last(
     predicate?: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-    thisArg?: Object
+    thisArg?: any
   ): V;
 
   reduce<R>(
     reducer: (reduction?: R, value?: V, key?: K, seq?: Sequence<K, V>) => R,
     initialReduction?: R,
-    thisArg?: Object
+    thisArg?: any
   ): R;
 
   reduceRight<R>(
     reducer: (reduction?: R, value?: V, key?: K, seq?: Sequence<K, V>) => R,
     initialReduction: R,
-    thisArg?: Object
+    thisArg?: any
   ): R;
 
   every(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-    thisArg?: Object
+    thisArg?: any
   ): boolean;
 
   some(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-    thisArg?: Object
+    thisArg?: any
   ): boolean;
 
   /**
@@ -134,36 +134,36 @@ export interface Sequence<K, V> {
 
   find(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-    thisArg?: Object,
+    thisArg?: any,
     notFoundValue?: V
   ): V;
 
   findKey(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-    thisArg?: Object
+    thisArg?: any
   ): K;
 
   findLast(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-    thisArg?: Object,
+    thisArg?: any,
     notFoundValue?: V
   ): V;
 
   findLastKey(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-    thisArg?: Object
+    thisArg?: any
   ): K;
 
   flip(): Sequence<V, K>;
 
   map<M>(
     mapper: (value?: V, key?: K, seq?: Sequence<K, V>) => M,
-    thisArg?: Object
+    thisArg?: any
   ): Sequence<K, M>;
 
   filter(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-    thisArg?: Object
+    thisArg?: any
   ): Sequence<K, V>;
 
   slice(start: number, end?: number): Sequence<K, V>;
@@ -176,12 +176,12 @@ export interface Sequence<K, V> {
 
   takeWhile(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-    thisArg?: Object
+    thisArg?: any
   ): Sequence<K, V>;
 
   takeUntil(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-    thisArg?: Object
+    thisArg?: any
   ): Sequence<K, V>;
 
   skip(amount: number): Sequence<K, V>;
@@ -190,17 +190,17 @@ export interface Sequence<K, V> {
 
   skipWhile(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-    thisArg?: Object
+    thisArg?: any
   ): Sequence<K, V>;
 
   skipUntil(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-    thisArg?: Object
+    thisArg?: any
   ): Sequence<K, V>;
 
   groupBy<G>(
     grouper: (value?: V, key?: K, seq?: Sequence<K, V>) => G,
-    thisArg?: Object
+    thisArg?: any
   ): Map<G, Sequence<K, V>>;
 
   cacheResult(): Sequence<K, V>;
@@ -240,7 +240,7 @@ export interface IndexedSequence<T> extends Sequence<number, T> {
    */
   findIndex(
     predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
-    thisArg?: Object
+    thisArg?: any
   ): number;
 
   /**
@@ -249,7 +249,7 @@ export interface IndexedSequence<T> extends Sequence<number, T> {
    */
   findLastIndex(
     predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
-    thisArg?: Object
+    thisArg?: any
   ): number;
 
   /**
@@ -290,7 +290,7 @@ export interface IndexedSequence<T> extends Sequence<number, T> {
    */
   filter(
     predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
-    thisArg?: Object,
+    thisArg?: any,
     maintainIndices?: boolean
   ): IndexedSequence<T>;
 
@@ -321,7 +321,7 @@ export interface IndexedSequence<T> extends Sequence<number, T> {
    */
   takeWhile(
     predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
-    thisArg?: Object,
+    thisArg?: any,
     maintainIndices?: boolean
   ): IndexedSequence<T>;
 
@@ -331,7 +331,7 @@ export interface IndexedSequence<T> extends Sequence<number, T> {
    */
   takeUntil(
     predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
-    thisArg?: Object,
+    thisArg?: any,
     maintainIndices?: boolean
   ): IndexedSequence<T>;
 
@@ -355,7 +355,7 @@ export interface IndexedSequence<T> extends Sequence<number, T> {
    */
   skipWhile(
     predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
-    thisArg?: Object,
+    thisArg?: any,
     maintainIndices?: boolean
   ): IndexedSequence<T>;
 
@@ -365,13 +365,19 @@ export interface IndexedSequence<T> extends Sequence<number, T> {
    */
   skipUntil(
     predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
-    thisArg?: Object,
+    thisArg?: any,
     maintainIndices?: boolean
   ): IndexedSequence<T>;
 
+  /**
+   * Indexed sequences have a different `groupBy` behavior. Each group will be
+   * a new indexed sequence starting with an index of 0. If you want to preserve
+   * the original indicies, set maintainIndices to true.
+   * @override
+   */
   groupBy<G>(
     grouper: (value?: T, index?: number, seq?: IndexedSequence<T>) => G,
-    thisArg?: Object,
+    thisArg?: any,
     maintainIndices?: boolean
   ): Map<G, any/*IndexedSequence<T>*/>; // Bug: exposing this causes the type checker to implode.
 
@@ -389,7 +395,7 @@ export interface IndexedSequence<T> extends Sequence<number, T> {
    */
   map<M>(
     mapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => M,
-    thisArg?: Object
+    thisArg?: any
   ): IndexedSequence<M>;
 
   /**
