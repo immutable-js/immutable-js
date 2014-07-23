@@ -172,9 +172,10 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
   // @pragma Composition
 
-  Vector.prototype.mergeWith=function(fn, seq) {"use strict";
-    var merged = ImmutableMap.prototype.mergeWith.call(this, fn, seq);
-    return seq.length > merged.length ? merged.setBounds(0, seq.length) : merged;
+  Vector.prototype.mergeWith=function(fn)  {"use strict";var seqs=Array.prototype.slice.call(arguments,1);
+    var merged = ImmutableMap.prototype.mergeWith.apply(this, arguments);
+    var maxLength = Math.max.apply(null, seqs.map(function(seq)  {return seq.length || 0;}));
+    return maxLength > merged.length ? merged.setBounds(0, maxLength) : merged;
   };
 
   Vector.prototype.setBounds=function(begin, end) {"use strict";

@@ -86,44 +86,20 @@ class Map extends Sequence {
 
   // @pragma Composition
 
-  merge(seq) {
-    return this.mergeWith(null, seq);
+  merge(/*...seqs*/) {
+    return mergeIntoMapWith(this, null, arguments);
   }
 
-  mergeWith(fn, seq) {
-    // Vector has a dupe of this.
-    if (seq == null) {
-      return this;
-    }
-    if (!seq.forEach) {
-      seq = Sequence(seq);
-    }
-    return this.withMutations(map => {
-      seq.forEach(
-        fn ?
-        (value, key) => {
-          var existing = map.get(key, __SENTINEL);
-          map.set(key, existing === __SENTINEL ? value : fn(existing, value));
-        } :
-        (value, key) => {
-          map.set(key, value);
-        }
-      );
-    });
+  mergeWith(merger, ...seqs) {
+    return mergeIntoMapWith(this, merger, seqs);
   }
 
-  deepMerge(seq) {
-    return this.deepMergeWith(null, seq);
+  deepMerge(/*...seqs*/) {
+    return mergeIntoMapWith(this, deepMerger(null), arguments);
   }
 
-  deepMergeWith(fn, seq) {
-    return this.mergeWith(
-      (prev, next) =>
-        prev && typeof prev.deepMergeWith === 'function' ?
-        prev.deepMergeWith(fn, next) :
-        fn ? fn(prev, next) : next,
-      seq
-    );
+  deepMergeWith(merger, ...seqs) {
+    return mergeIntoMapWith(this, deepMerger(merger), seqs);
   }
 
   updateIn(keyPath, updater) {
@@ -181,7 +157,6 @@ class Map extends Sequence {
     return map;
   }
 }
-
 
 class OwnerID {
   constructor() {}
@@ -393,6 +368,38 @@ class HashCollisionNode {
     }
     return true;
   }
+}
+
+
+function deepMerger(merger) {
+  return (existing, value) =>
+    existing && typeof existing.deepMergeWith === 'function' ?
+      existing.deepMergeWith(merger, value) :
+      merger ? merger(existing, value) : value;
+}
+
+function mergeIntoMapWith(map, merger, seqs) {
+  if (seqs.length === 0) {
+    return map;
+  }
+  return map.withMutations(map => {
+    for (var ii = 0; ii < seqs.length; ii++) {
+      var seq = seqs[ii];
+      if (seq) {
+        seq = seq.forEach ? seq : Sequence(seq);
+        seq.forEach(
+          merger ?
+          (value, key) => {
+            var existing = map.get(key, __SENTINEL);
+            map.set(key, existing === __SENTINEL ? value : merger(existing, value));
+          } :
+          (value, key) => {
+            map.set(key, value);
+          }
+        );
+      }
+    }
+  });
 }
 
 function updateInDeepMap(collection, keyPath, updater, pathOffset) {

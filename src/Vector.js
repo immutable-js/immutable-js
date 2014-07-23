@@ -172,9 +172,10 @@ class Vector extends IndexedSequence {
 
   // @pragma Composition
 
-  mergeWith(fn, seq) {
-    var merged = ImmutableMap.prototype.mergeWith.call(this, fn, seq);
-    return seq.length > merged.length ? merged.setBounds(0, seq.length) : merged;
+  mergeWith(fn, ...seqs) {
+    var merged = ImmutableMap.prototype.mergeWith.apply(this, arguments);
+    var maxLength = Math.max.apply(null, seqs.map(seq => seq.length || 0));
+    return maxLength > merged.length ? merged.setBounds(0, maxLength) : merged;
   }
 
   setBounds(begin, end) {

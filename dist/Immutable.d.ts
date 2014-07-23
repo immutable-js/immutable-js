@@ -478,28 +478,28 @@ export interface Map<K, V> extends Sequence<K, V> {
     updater: (value: any) => any
   ): Map<K, V>;
 
-  merge(seq: Sequence<K, V>): Map<K, V>;
-  merge(seq: {[key: string]: V}): Map<string, V>;
+  merge(...seqs: Sequence<K, V>[]): Map<K, V>;
+  merge(...seqs: {[key: string]: V}[]): Map<string, V>;
 
   mergeWith(
     merger: (previous?: V, next?: V) => V,
-    seq: Sequence<K, V>
+    ...seqs: Sequence<K, V>[]
   ): Map<K, V>;
   mergeWith(
     merger: (previous?: V, next?: V) => V,
-    seq: {[key: string]: V}
+    ...seq: {[key: string]: V}[]
   ): Map<string, V>;
 
-  deepMerge(seq: Sequence<K, V>): Map<K, V>;
-  deepMerge(seq: {[key: string]: V}): Map<string, V>;
+  deepMerge(...seq: Sequence<K, V>[]): Map<K, V>;
+  deepMerge(...seq: {[key: string]: V}[]): Map<string, V>;
 
   deepMergeWith(
     merger: (previous?: V, next?: V) => V,
-    seq: Sequence<K, V>
+    ...seq: Sequence<K, V>[]
   ): Map<K, V>;
   deepMergeWith(
     merger: (previous?: V, next?: V) => V,
-    seq: {[key: string]: V}
+    ...seq: {[key: string]: V}[]
   ): Map<string, V>;
 
   withMutations(mutator: (mutable: Map<K, V>) => any): Map<K, V>;
@@ -616,16 +616,16 @@ export interface Vector<T> extends IndexedSequence<T> {
     updater: (value: any) => any
   ): Vector<T>;
 
-  merge(seq: IndexedSequence<T>): Vector<T>;
-  merge(seq: Array<T>): Vector<T>;
+  merge(...seq: IndexedSequence<T>[]): Vector<T>;
+  merge(...seq: Array<T>[]): Vector<T>;
 
   mergeWith(
     merger: (previous?: T, next?: T) => T,
-    seq: IndexedSequence<T>
+    ...seq: IndexedSequence<T>[]
   ): Vector<T>;
   mergeWith(
     merger: (previous?: T, next?: T) => T,
-    seq: Array<T>
+    ...seq: Array<T>[]
   ): Vector<T>;
 
   deepMerge(seq: IndexedSequence<T>): Vector<T>;
@@ -633,11 +633,11 @@ export interface Vector<T> extends IndexedSequence<T> {
 
   deepMergeWith(
     merger: (previous?: T, next?: T) => T,
-    seq: IndexedSequence<T>
+    ...seq: IndexedSequence<T>[]
   ): Vector<T>;
   deepMergeWith(
     merger: (previous?: T, next?: T) => T,
-    seq: Array<T>
+    ...seq: Array<T>[]
   ): Vector<T>;
 
   /**

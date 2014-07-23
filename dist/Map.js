@@ -86,44 +86,20 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
   // @pragma Composition
 
-  Map.prototype.merge=function(seq) {"use strict";
-    return this.mergeWith(null, seq);
+  Map.prototype.merge=function() {"use strict";
+    return mergeIntoMapWith(this, null, arguments);
   };
 
-  Map.prototype.mergeWith=function(fn, seq) {"use strict";
-    // Vector has a dupe of this.
-    if (seq == null) {
-      return this;
-    }
-    if (!seq.forEach) {
-      seq = Sequence(seq);
-    }
-    return this.withMutations(function(map)  {
-      seq.forEach(
-        fn ?
-        function(value, key)  {
-          var existing = map.get(key, __SENTINEL);
-          map.set(key, existing === __SENTINEL ? value : fn(existing, value));
-        } :
-        function(value, key)  {
-          map.set(key, value);
-        }
-      );
-    });
+  Map.prototype.mergeWith=function(merger)  {"use strict";var seqs=Array.prototype.slice.call(arguments,1);
+    return mergeIntoMapWith(this, merger, seqs);
   };
 
-  Map.prototype.deepMerge=function(seq) {"use strict";
-    return this.deepMergeWith(null, seq);
+  Map.prototype.deepMerge=function() {"use strict";
+    return mergeIntoMapWith(this, deepMerger(null), arguments);
   };
 
-  Map.prototype.deepMergeWith=function(fn, seq) {"use strict";
-    return this.mergeWith(
-      function(prev, next) 
-        {return prev && typeof prev.deepMergeWith === 'function' ?
-        prev.deepMergeWith(fn, next) :
-        fn ? fn(prev, next) : next;},
-      seq
-    );
+  Map.prototype.deepMergeWith=function(merger)  {"use strict";var seqs=Array.prototype.slice.call(arguments,1);
+    return mergeIntoMapWith(this, deepMerger(merger), seqs);
   };
 
   Map.prototype.updateIn=function(keyPath, updater) {"use strict";
@@ -180,7 +156,6 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     map.__ownerID = ownerID;
     return map;
   };
-
 
 
 
@@ -394,6 +369,38 @@ function makeNode(ownerID, shift, hash, key, valOrNode) {
     return true;
   };
 
+
+
+function deepMerger(merger) {
+  return function(existing, value) 
+    {return existing && typeof existing.deepMergeWith === 'function' ?
+      existing.deepMergeWith(merger, value) :
+      merger ? merger(existing, value) : value;};
+}
+
+function mergeIntoMapWith(map, merger, seqs) {
+  if (seqs.length === 0) {
+    return map;
+  }
+  return map.withMutations(function(map)  {
+    for (var ii = 0; ii < seqs.length; ii++) {
+      var seq = seqs[ii];
+      if (seq) {
+        seq = seq.forEach ? seq : Sequence(seq);
+        seq.forEach(
+          merger ?
+          function(value, key)  {
+            var existing = map.get(key, __SENTINEL);
+            map.set(key, existing === __SENTINEL ? value : merger(existing, value));
+          } :
+          function(value, key)  {
+            map.set(key, value);
+          }
+        );
+      }
+    }
+  });
+}
 
 function updateInDeepMap(collection, keyPath, updater, pathOffset) {
   var key = keyPath[pathOffset];
