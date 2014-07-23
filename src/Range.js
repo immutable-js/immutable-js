@@ -2,10 +2,6 @@ var IndexedSequence = require('./Sequence').IndexedSequence;
 var Vector = require('./Vector');
 
 
-function invariant(condition, error) {
-  if (!condition) throw new Error(error);
-}
-
 /**
  * Returns a lazy seq of nums from start (inclusive) to end
  * (exclusive), by step, where start defaults to 0, step to 1, and end to
@@ -153,8 +149,13 @@ Range.prototype.first = Vector.prototype.first;
 Range.prototype.last = Vector.prototype.last;
 
 
+function invariant(condition, error) {
+  if (!condition) throw new Error(error);
+}
+
 function assertNotInfinite(length) {
   invariant(length < Infinity, 'Cannot access end of infinite range.');
 }
+
 
 module.exports = Range;

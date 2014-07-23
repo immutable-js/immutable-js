@@ -94,11 +94,11 @@ class Map extends Sequence {
     return mergeIntoMapWith(this, merger, seqs);
   }
 
-  deepMerge(/*...seqs*/) {
+  mergeDeep(/*...seqs*/) {
     return mergeIntoMapWith(this, deepMerger(null), arguments);
   }
 
-  deepMergeWith(merger, ...seqs) {
+  mergeDeepWith(merger, ...seqs) {
     return mergeIntoMapWith(this, deepMerger(merger), seqs);
   }
 
@@ -158,17 +158,9 @@ class Map extends Sequence {
   }
 }
 
+
 class OwnerID {
   constructor() {}
-}
-
-function makeNode(ownerID, shift, hash, key, valOrNode) {
-  var idx = (hash >>> shift) & MASK;
-  var keys = [];
-  var values = [];
-  values[idx] = valOrNode;
-  key != null && (keys[idx] = key);
-  return new BitmapIndexedNode(ownerID, 1 << idx, keys, values);
 }
 
 
@@ -371,10 +363,19 @@ class HashCollisionNode {
 }
 
 
+function makeNode(ownerID, shift, hash, key, valOrNode) {
+  var idx = (hash >>> shift) & MASK;
+  var keys = [];
+  var values = [];
+  values[idx] = valOrNode;
+  key != null && (keys[idx] = key);
+  return new BitmapIndexedNode(ownerID, 1 << idx, keys, values);
+}
+
 function deepMerger(merger) {
   return (existing, value) =>
-    existing && typeof existing.deepMergeWith === 'function' ?
-      existing.deepMergeWith(merger, value) :
+    existing && typeof existing.mergeDeepWith === 'function' ?
+      existing.mergeDeepWith(merger, value) :
       merger ? merger(existing, value) : value;
 }
 
@@ -465,6 +466,7 @@ function hashString(string) {
   }
   return hash;
 }
+
 
 var STRING_HASH_MAX_VAL = 0x100000000; // 2^32
 var STRING_HASH_CACHE_MAX_SIZE = 255;

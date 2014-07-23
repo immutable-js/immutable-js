@@ -2,10 +2,6 @@ var IndexedSequence = require('./Sequence').IndexedSequence;
 var Range = require('./Range');
 
 
-function invariant(condition, error) {
-  if (!condition) throw new Error(error);
-}
-
 /**
  * Returns a lazy seq of `value` repeated `times` times. When `times` is
  * undefined, returns an infinite sequence of `value`.
@@ -13,6 +9,9 @@ function invariant(condition, error) {
 class Repeat extends IndexedSequence {
 
   constructor(value, times) {
+    if (times === 0 && __EMPTY_REPEAT) {
+      return __EMPTY_REPEAT;
+    }
     if (!(this instanceof Repeat)) {
       return new Repeat(value, times);
     }
@@ -106,6 +105,11 @@ Repeat.prototype.take = Range.prototype.take;
 Repeat.prototype.skip = Range.prototype.skip;
 Repeat.prototype.toJS = Range.prototype.toJS;
 Repeat.prototype.last = Repeat.prototype.first;
+
+
+function invariant(condition, error) {
+  if (!condition) throw new Error(error);
+}
 
 
 var __EMPTY_REPEAT = new Repeat(undefined, 0);

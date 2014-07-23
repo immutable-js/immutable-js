@@ -41,6 +41,7 @@ function toJS(value) {
   return value.map(toJS).toJS();
 }
 
+
 module.exports = {
   is: is,
   fromJS: fromJS,

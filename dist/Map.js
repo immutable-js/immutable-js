@@ -94,11 +94,11 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     return mergeIntoMapWith(this, merger, seqs);
   };
 
-  Map.prototype.deepMerge=function() {"use strict";
+  Map.prototype.mergeDeep=function() {"use strict";
     return mergeIntoMapWith(this, deepMerger(null), arguments);
   };
 
-  Map.prototype.deepMergeWith=function(merger)  {"use strict";var seqs=Array.prototype.slice.call(arguments,1);
+  Map.prototype.mergeDeepWith=function(merger)  {"use strict";var seqs=Array.prototype.slice.call(arguments,1);
     return mergeIntoMapWith(this, deepMerger(merger), seqs);
   };
 
@@ -159,17 +159,9 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
 
 
+
   function OwnerID() {"use strict";}
 
-
-function makeNode(ownerID, shift, hash, key, valOrNode) {
-  var idx = (hash >>> shift) & MASK;
-  var keys = [];
-  var values = [];
-  values[idx] = valOrNode;
-  key != null && (keys[idx] = key);
-  return new BitmapIndexedNode(ownerID, 1 << idx, keys, values);
-}
 
 
 
@@ -371,10 +363,19 @@ function makeNode(ownerID, shift, hash, key, valOrNode) {
 
 
 
+function makeNode(ownerID, shift, hash, key, valOrNode) {
+  var idx = (hash >>> shift) & MASK;
+  var keys = [];
+  var values = [];
+  values[idx] = valOrNode;
+  key != null && (keys[idx] = key);
+  return new BitmapIndexedNode(ownerID, 1 << idx, keys, values);
+}
+
 function deepMerger(merger) {
   return function(existing, value) 
-    {return existing && typeof existing.deepMergeWith === 'function' ?
-      existing.deepMergeWith(merger, value) :
+    {return existing && typeof existing.mergeDeepWith === 'function' ?
+      existing.mergeDeepWith(merger, value) :
       merger ? merger(existing, value) : value;};
 }
 
@@ -465,6 +466,7 @@ function hashString(string) {
   }
   return hash;
 }
+
 
 var STRING_HASH_MAX_VAL = 0x100000000; // 2^32
 var STRING_HASH_CACHE_MAX_SIZE = 255;

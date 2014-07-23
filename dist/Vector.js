@@ -2,10 +2,6 @@ var IndexedSequence = require('./Sequence').IndexedSequence;
 var ImmutableMap = require('./Map');
 
 
-function invariant(condition, error) {
-  if (!condition) throw new Error(error);
-}
-
 for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty(IndexedSequence____Key)){Vector[IndexedSequence____Key]=IndexedSequence[IndexedSequence____Key];}}var ____SuperProtoOfIndexedSequence=IndexedSequence===null?null:IndexedSequence.prototype;Vector.prototype=Object.create(____SuperProtoOfIndexedSequence);Vector.prototype.constructor=Vector;Vector.__superConstructor__=IndexedSequence;
 
   // @pragma Construction
@@ -414,23 +410,15 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
 
 Vector.prototype.merge = ImmutableMap.prototype.merge;
-Vector.prototype.deepMerge = ImmutableMap.prototype.deepMerge;
-Vector.prototype.deepMergeWith = ImmutableMap.prototype.deepMergeWith;
+Vector.prototype.mergeDeep = ImmutableMap.prototype.mergeDeep;
+Vector.prototype.mergeDeepWith = ImmutableMap.prototype.mergeDeepWith;
 Vector.prototype.withMutations = ImmutableMap.prototype.withMutations;
 Vector.prototype.updateIn = ImmutableMap.prototype.updateIn;
 
 
-function rawIndex(index, origin) {
-  invariant(index >= 0, 'Index out of bounds');
-  return index + origin;
-}
-
-function getTailOffset(size) {
-  return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
-}
-
 
   function OwnerID() {"use strict";}
+
 
 
 
@@ -554,6 +542,7 @@ function getTailOffset(size) {
 
 
 
+
   function VectorIterator(vector, origin, size, level, root, tail) {"use strict";
     var tailOffset = getTailOffset(size);
     this.$VectorIterator_stack = {
@@ -613,6 +602,16 @@ function getTailOffset(size) {
     }
   };
 
+
+
+function rawIndex(index, origin) {
+  if (index < 0) throw new Error('Index out of bounds');
+  return index + origin;
+}
+
+function getTailOffset(size) {
+  return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
+}
 
 
 var SHIFT = 5; // Resulted in best performance after ______?

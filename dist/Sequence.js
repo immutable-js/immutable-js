@@ -599,7 +599,6 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
 
 IndexedSequence.prototype.toJS = IndexedSequence.prototype.toArray;
-
 IndexedSequence.prototype.__toStringMapper = quoteString;
 
 
@@ -815,6 +814,7 @@ for(Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)){Ob
   };
 
 
+
 function getInDeepSequence(seq, keyPath, notFoundValue, pathOffset) {
   var nested = seq.get ? seq.get(keyPath[pathOffset], __SENTINEL) : __SENTINEL;
   if (nested === __SENTINEL) {
@@ -892,6 +892,7 @@ function repeatString(string, times) {
   }
   return repeated;
 }
+
 
 var __SENTINEL = {};
 
