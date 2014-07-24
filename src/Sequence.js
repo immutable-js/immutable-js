@@ -18,10 +18,6 @@ class Sequence {
     return this.__toString('Seq {', '}');
   }
 
-  inspect() {
-    return '' + this;
-  }
-
   __toString(head, tail) {
     if (this.length === 0) {
       return head + tail;
@@ -429,6 +425,7 @@ class Sequence {
 }
 
 Sequence.prototype.toJS = Sequence.prototype.toObject;
+Sequence.prototype.inspect = Sequence.prototype.toSource = Sequence.prototype.toString;
 
 
 class IndexedSequence extends Sequence {

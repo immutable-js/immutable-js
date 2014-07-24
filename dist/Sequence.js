@@ -18,10 +18,6 @@
     return this.__toString('Seq {', '}');
   };
 
-  Sequence.prototype.inspect=function() {"use strict";
-    return '' + this;
-  };
-
   Sequence.prototype.__toString=function(head, tail) {"use strict";
     if (this.length === 0) {
       return head + tail;
@@ -429,6 +425,7 @@
 
 
 Sequence.prototype.toJS = Sequence.prototype.toObject;
+Sequence.prototype.inspect = Sequence.prototype.toSource = Sequence.prototype.toString;
 
 
 for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)){IndexedSequence[Sequence____Key]=Sequence[Sequence____Key];}}var ____SuperProtoOfSequence=Sequence===null?null:Sequence.prototype;IndexedSequence.prototype=Object.create(____SuperProtoOfSequence);IndexedSequence.prototype.constructor=IndexedSequence;IndexedSequence.__superConstructor__=Sequence;function IndexedSequence(){"use strict";if(Sequence!==null){Sequence.apply(this,arguments);}}
