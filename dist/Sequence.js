@@ -1,3 +1,6 @@
+var Immutable = require('./Immutable');
+
+
 
   function Sequence(value) {"use strict";
     if (arguments.length === 1) {
@@ -69,19 +72,26 @@
     if (this === other) {
       return true;
     }
-    if (this.length != null && other.length != null && this.length !== other.length) {
+    if (!(other instanceof Sequence)) {
       return false;
+    }
+    if (this.length != null && other.length != null) {
+      if (this.length !== other.length) {
+        return false;
+      }
+      if (this.length === 0 && other.length === 0) {
+        return true;
+      }
     }
     return this.__deepEquals(other);
   };
 
   Sequence.prototype.__deepEquals=function(other) {"use strict";
-    var is = require('./Immutable').is;
-    var entries = this.entries().toArray();
+    var entries = this.cacheResult().entries().toArray();
     var iterations = 0;
     return other.every(function(v, k)  {
       var entry = entries[iterations++];
-      return is(k, entry[0]) && is(v, entry[1]);
+      return Immutable.is(k, entry[0]) && Immutable.is(v, entry[1]);
     });
   };
 
@@ -146,6 +156,10 @@
 
   Sequence.prototype.entries=function() {"use strict";
     var sequence = this;
+    if (sequence.$Sequence_cache) {
+      // We cache as an entries array, so we can just return the cache!
+      return Sequence(sequence.$Sequence_cache);
+    }
     var newSequence = sequence.map(entryMapper).values();
     newSequence.fromEntries = function()  {return sequence;};
     return newSequence;
@@ -197,7 +211,7 @@
   };
 
   Sequence.prototype.get=function(searchKey, notFoundValue) {"use strict";
-    return this.find(function(_, key)  {return key === searchKey;}, null, notFoundValue);
+    return this.find(function(_, key)  {return Immutable.is(key, searchKey);}, null, notFoundValue);
   };
 
   Sequence.prototype.getIn=function(searchKeyPath, notFoundValue) {"use strict";
@@ -205,7 +219,7 @@
   };
 
   Sequence.prototype.contains=function(searchValue) {"use strict";
-    return this.find(function(value)  {return value === searchValue;}, null, __SENTINEL) !== __SENTINEL;
+    return this.find(function(value)  {return Immutable.is(value, searchValue);}, null, __SENTINEL) !== __SENTINEL;
   };
 
   Sequence.prototype.find=function(predicate, thisArg, notFoundValue) {"use strict";
@@ -383,17 +397,10 @@
 
   Sequence.prototype.cacheResult=function() {"use strict";
     if (!this.$Sequence_cache) {
-      var cache = [];
-      var collection;
-      var length = this.forEach(function(v, k, c)  {
-        collection || (collection = c);
-        cache.push([k, v]);
-      });
+      this.$Sequence_cache = this.entries().toArray();
       if (this.length == null) {
-        this.length = length;
+        this.length = this.$Sequence_cache.length;
       }
-      this.$Sequence_collection = collection;
-      this.$Sequence_cache = cache;
     }
     return this;
   };
@@ -406,7 +413,7 @@
     }
     var maxIndex = this.length - 1;
     var cache = this.$Sequence_cache;
-    var c = this.$Sequence_collection;
+    var c = this;
     if (reverse) {
       for (var ii = cache.length - 1; ii >= 0; ii--) {
         var revEntry = cache[ii];
@@ -496,7 +503,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   };
 
   IndexedSequence.prototype.indexOf=function(searchValue) {"use strict";
-    return this.findIndex(function(value)  {return value === searchValue;});
+    return this.findIndex(function(value)  {return Immutable.is(value, searchValue);});
   };
 
   IndexedSequence.prototype.findIndex=function(predicate, thisArg) {"use strict";

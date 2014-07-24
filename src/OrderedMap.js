@@ -126,9 +126,6 @@ class OrderedMap extends ImmutableMap {
   }
 
   __deepEqual(other) {
-    if (other.length === 0 && this.length === 0) {
-      return true;
-    }
     var is = require('./Immutable').is;
     var iterator = this._vector.__iterator__();
     return other.every((v, k) => {

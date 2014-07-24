@@ -302,7 +302,7 @@ class HashCollisionNode {
   }
 
   get(shift, hash, key, notFound) {
-    var idx = this.keys.indexOf(key);
+    var idx = Sequence(this.keys).indexOf(key);
     return idx === -1 ? notFound : this.values[idx];
   }
 
@@ -312,7 +312,7 @@ class HashCollisionNode {
       return makeNode(ownerID, shift, hash, null, this)
         .set(ownerID, shift, hash, key, value);
     }
-    var idx = this.keys.indexOf(key);
+    var idx = Sequence(this.keys).indexOf(key);
     if (idx >= 0 && this.values[idx] === value) {
       return this;
     }
@@ -374,7 +374,7 @@ function makeNode(ownerID, shift, hash, key, valOrNode) {
 
 function deepMerger(merger) {
   return (existing, value) =>
-    existing && typeof existing.mergeDeepWith === 'function' ?
+    existing && existing.mergeDeepWith ?
       existing.mergeDeepWith(merger, value) :
       merger ? merger(existing, value) : value;
 }

@@ -20,7 +20,7 @@ function is(first, second) {
     return second !== second;
   }
   if (first instanceof Sequence) {
-    return first.equals(second) === true;
+    return first.equals(second);
   }
   return false;
 }

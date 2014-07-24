@@ -1,3 +1,6 @@
+var Immutable = require('./Immutable');
+
+
 class Sequence {
   constructor(value) {
     if (arguments.length === 1) {
@@ -69,19 +72,26 @@ class Sequence {
     if (this === other) {
       return true;
     }
-    if (this.length != null && other.length != null && this.length !== other.length) {
+    if (!(other instanceof Sequence)) {
       return false;
+    }
+    if (this.length != null && other.length != null) {
+      if (this.length !== other.length) {
+        return false;
+      }
+      if (this.length === 0 && other.length === 0) {
+        return true;
+      }
     }
     return this.__deepEquals(other);
   }
 
   __deepEquals(other) {
-    var is = require('./Immutable').is;
-    var entries = this.entries().toArray();
+    var entries = this.cacheResult().entries().toArray();
     var iterations = 0;
     return other.every((v, k) => {
       var entry = entries[iterations++];
-      return is(k, entry[0]) && is(v, entry[1]);
+      return Immutable.is(k, entry[0]) && Immutable.is(v, entry[1]);
     });
   }
 
@@ -146,6 +156,10 @@ class Sequence {
 
   entries() {
     var sequence = this;
+    if (sequence._cache) {
+      // We cache as an entries array, so we can just return the cache!
+      return Sequence(sequence._cache);
+    }
     var newSequence = sequence.map(entryMapper).values();
     newSequence.fromEntries = () => sequence;
     return newSequence;
@@ -197,7 +211,7 @@ class Sequence {
   }
 
   get(searchKey, notFoundValue) {
-    return this.find((_, key) => key === searchKey, null, notFoundValue);
+    return this.find((_, key) => Immutable.is(key, searchKey), null, notFoundValue);
   }
 
   getIn(searchKeyPath, notFoundValue) {
@@ -205,7 +219,7 @@ class Sequence {
   }
 
   contains(searchValue) {
-    return this.find(value => value === searchValue, null, __SENTINEL) !== __SENTINEL;
+    return this.find(value => Immutable.is(value, searchValue), null, __SENTINEL) !== __SENTINEL;
   }
 
   find(predicate, thisArg, notFoundValue) {
@@ -383,17 +397,10 @@ class Sequence {
 
   cacheResult() {
     if (!this._cache) {
-      var cache = [];
-      var collection;
-      var length = this.forEach((v, k, c) => {
-        collection || (collection = c);
-        cache.push([k, v]);
-      });
+      this._cache = this.entries().toArray();
       if (this.length == null) {
-        this.length = length;
+        this.length = this._cache.length;
       }
-      this._collection = collection;
-      this._cache = cache;
     }
     return this;
   }
@@ -406,7 +413,7 @@ class Sequence {
     }
     var maxIndex = this.length - 1;
     var cache = this._cache;
-    var c = this._collection;
+    var c = this;
     if (reverse) {
       for (var ii = cache.length - 1; ii >= 0; ii--) {
         var revEntry = cache[ii];
@@ -496,7 +503,7 @@ class IndexedSequence extends Sequence {
   }
 
   indexOf(searchValue) {
-    return this.findIndex(value => value === searchValue);
+    return this.findIndex(value => Immutable.is(value, searchValue));
   }
 
   findIndex(predicate, thisArg) {
