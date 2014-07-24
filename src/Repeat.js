@@ -77,10 +77,6 @@ class Repeat extends IndexedSequence {
     return -1;
   }
 
-  cacheResult() {
-    return this;
-  }
-
   __iterate(fn, reverse, flipIndices) {
     var reversedIndices = reverse ^ flipIndices;
     invariant(!reversedIndices || this.length < Infinity, 'Cannot access end of infinite range.');

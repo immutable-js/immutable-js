@@ -77,10 +77,6 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     return -1;
   };
 
-  Repeat.prototype.cacheResult=function() {"use strict";
-    return this;
-  };
-
   Repeat.prototype.__iterate=function(fn, reverse, flipIndices) {"use strict";
     var reversedIndices = reverse ^ flipIndices;
     invariant(!reversedIndices || this.length < Infinity, 'Cannot access end of infinite range.');

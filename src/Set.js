@@ -163,10 +163,6 @@ class Set extends Sequence {
     return this;
   }
 
-  cacheResult() {
-    return this;
-  }
-
   __deepEquals(other) {
     return !(this._map || other._map) || this._map.equals(other._map);
   }

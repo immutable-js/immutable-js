@@ -95,10 +95,6 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
   // @pragma Iteration
 
-  Record.prototype.cacheResult=function() {"use strict";
-    return this;
-  };
-
   Record.prototype.__iterate=function(fn, reverse) {"use strict";
     var record = this;
     return Sequence(this.$Record_defaultValues).map(function(_, k)  {return record.get(k);}).__iterate(fn, reverse);

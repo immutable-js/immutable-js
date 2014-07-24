@@ -28,7 +28,6 @@ var Immutable = require('./Immutable');
     var arraySequence = makeIndexedSequence();
     arraySequence.length = value.length;
     arraySequence.toArray = function()  {return value;};
-    arraySequence.cacheResult = returnThis;
     arraySequence.__iterate = arrayIterator.bind(null, value);
     return arraySequence;
   }
@@ -430,7 +429,7 @@ var Immutable = require('./Immutable');
   };
 
   Sequence.prototype.cacheResult=function() {"use strict";
-    if (!this.$Sequence_cache) {
+    if (!this.$Sequence_cache && this.__iterateUncached) {
       this.$Sequence_cache = this.entries().toArray();
       if (this.length == null) {
         this.length = this.$Sequence_cache.length;

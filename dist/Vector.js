@@ -333,10 +333,6 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     return sliceSequence;
   };
 
-  Vector.prototype.cacheResult=function() {"use strict";
-    return this;
-  };
-
   Vector.prototype.__deepEquals=function(other) {"use strict";
     var is = require('./Immutable').is;
     var iterator = this.__iterator__();

@@ -131,10 +131,6 @@ class Map extends Sequence {
     return this;
   }
 
-  cacheResult() {
-    return this;
-  }
-
   __deepEqual(other) {
     var is = require('./Immutable').is;
     // Using Sentinel here ensures that a missing key is not interpretted as an

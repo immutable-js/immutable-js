@@ -333,10 +333,6 @@ class Vector extends IndexedSequence {
     return sliceSequence;
   }
 
-  cacheResult() {
-    return this;
-  }
-
   __deepEquals(other) {
     var is = require('./Immutable').is;
     var iterator = this.__iterator__();

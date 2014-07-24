@@ -28,7 +28,6 @@ class Sequence {
     var arraySequence = makeIndexedSequence();
     arraySequence.length = value.length;
     arraySequence.toArray = () => value;
-    arraySequence.cacheResult = returnThis;
     arraySequence.__iterate = arrayIterator.bind(null, value);
     return arraySequence;
   }
@@ -430,7 +429,7 @@ class Sequence {
   }
 
   cacheResult() {
-    if (!this._cache) {
+    if (!this._cache && this.__iterateUncached) {
       this._cache = this.entries().toArray();
       if (this.length == null) {
         this.length = this._cache.length;

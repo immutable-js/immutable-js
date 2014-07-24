@@ -95,10 +95,6 @@ class Record extends Sequence {
 
   // @pragma Iteration
 
-  cacheResult() {
-    return this;
-  }
-
   __iterate(fn, reverse) {
     var record = this;
     return Sequence(this._defaultValues).map((_, k) => record.get(k)).__iterate(fn, reverse);

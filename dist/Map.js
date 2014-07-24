@@ -131,10 +131,6 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     return this;
   };
 
-  Map.prototype.cacheResult=function() {"use strict";
-    return this;
-  };
-
   Map.prototype.__deepEqual=function(other) {"use strict";
     var is = require('./Immutable').is;
     // Using Sentinel here ensures that a missing key is not interpretted as an
