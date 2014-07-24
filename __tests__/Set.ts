@@ -101,7 +101,7 @@ describe('Set', () => {
   });
 
   it('diffs multiple sets', () => {
-    var s = Set('A', 'B', 'C').difference(Set('C', 'D', 'E'), Set('D', 'B', 'F'));
+    var s = Set('A', 'B', 'C').subtract(Set('C', 'D', 'E'), Set('D', 'B', 'F'));
     expect(s).is(Set('A'));
   });
 

@@ -116,7 +116,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     });
   };
 
-  Set.prototype.difference=function() {"use strict";var seqs=Array.prototype.slice.call(arguments,0);
+  Set.prototype.subtract=function() {"use strict";var seqs=Array.prototype.slice.call(arguments,0);
     if (seqs.length === 0) {
       return this;
     }

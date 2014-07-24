@@ -116,7 +116,7 @@ class Set extends Sequence {
     });
   }
 
-  difference(...seqs) {
+  subtract(...seqs) {
     if (seqs.length === 0) {
       return this;
     }

@@ -409,7 +409,6 @@ export interface IndexedSequence<T> extends Sequence<number, T> {
 }
 
 
-
 /**
  * Returns a lazy sequence of numbers from `start` (inclusive) to `end`
  * (exclusive), by `step`, where `start` defaults to 0, `step` to 1, and `end` to
@@ -506,6 +505,42 @@ export interface Map<K, V> extends Sequence<K, V> {
 
 
 /**
+ * OrderedMap constructors return a Map which has the additional guarantee of
+ * the iteration order of entries to match the order in which they were set().
+ * This makes OrderedMap behave similarly to native JS objects.
+ */
+export declare module OrderedMap {
+
+  /**
+   * OrderedMap.empty() creates a new immutable ordered map of length 0.
+   */
+  function empty(): Map<any, any>;
+
+  /**
+   * Creates a new immutable ordered map with the same
+   * key value pairs as the provided object.
+   *
+   *   var newMap = OrderedMap.fromObject({key: "value"});
+   *
+   */
+  function fromObject<V>(object: {[key: string]: V}): Map<string, V>;
+}
+
+/**
+ * Creates a new empty map with specific key and value type.
+ *
+ *   var stringToNumberMap = OrderedMap<string, number>();
+ *
+ */
+export declare function OrderedMap<K, V>(): Map<K, V>;
+
+/**
+ * Alias for OrderedMap.fromObject().
+ */
+export declare function OrderedMap<V>(object: {[key: string]: V}): Map<string, V>;
+
+
+/**
  * Creates a constructor function which produces maps with a specific set of
  * allowed keys.
  *
@@ -528,72 +563,61 @@ export declare module Set {
 
 export interface Set<T> extends Sequence<T, T> {
   length: number;
+
+  /**
+   * Returns an empty set.
+   */
   clear(): Set<T>;
+
+  /**
+   * Returns a set which also includes this value.
+   */
   add(value: T): Set<T>;
+
+  /**
+   * Returns a set which excludes this value.
+   */
   delete(value: T): Set<T>;
 
+  /**
+   * Returns a set which has added any entry from `seqs` that does not already
+   * exist in the set.
+   */
   union(...seqs: Sequence<any, T>[]): Set<T>;
   union(...seqs: Array<T>[]): Set<T>;
   union(...seqs: {[key: string]: T}[]): Set<T>;
 
+  /**
+   * Returns a set which has removed any entries not also contained
+   * within `seqs`.
+   */
   intersect(...seqs: Sequence<any, T>[]): Set<T>;
   intersect(...seqs: Array<T>[]): Set<T>;
   intersect(...seqs: {[key: string]: T}[]): Set<T>;
 
-  difference(...seqs: Sequence<any, T>[]): Set<T>;
-  difference(...seqs: Array<T>[]): Set<T>;
-  difference(...seqs: {[key: string]: T}[]): Set<T>;
+  /**
+   * Returns a set which has removed any entries contained within `seqs`.
+   */
+  subtract(...seqs: Sequence<any, T>[]): Set<T>;
+  subtract(...seqs: Array<T>[]): Set<T>;
+  subtract(...seqs: {[key: string]: T}[]): Set<T>;
 
+  /**
+   * True if seq contains every value in this set.
+   */
   isSubset(seq: Sequence<any, T>): boolean;
   isSubset(seq: Array<T>): boolean;
   isSubset(seq: {[key: string]: T}): boolean;
 
+  /**
+   * True if seq this set contains every value in seq.
+   */
   isSuperset(seq: Sequence<any, T>): boolean;
   isSuperset(seq: Array<T>): boolean;
   isSuperset(seq: {[key: string]: T}): boolean;
 
   withMutations(mutator: (mutable: Set<T>) => any): Set<T>;
 }
-
-
-
-/**
- * OrderedMap constructors return a Map which has the additional guarantee of
- * the iteration order of entries to match the order in which they were set().
- * This makes OrderedMap behave similarly to native JS objects.
- */
-export declare module OrderedMap {
-
-  /**
-   * OrderedMap.empty() creates a new immutable ordered map of length 0.
-   */
-  function empty(): Map<any, any>;
-
-  /**
-   * Creates a new immutable ordered map with the same
-   * key value pairs as the provided object.
-   *
-   *   var newMap = OrderedMap.fromObject({key: "value"});
-   *
-   */
-  function fromObject<V>(object: {[key: string]: V}): Map<string, V>;
-}
-
-
-/**
- * Creates a new empty map with specific key and value type.
- *
- *   var stringToNumberMap = OrderedMap<string, number>();
- *
- */
-export declare function OrderedMap<K, V>(): Map<K, V>;
-
-
-/**
- * Alias for OrderedMap.fromObject().
- */
-export declare function OrderedMap<V>(object: {[key: string]: V}): Map<string, V>;
-
 
 
 export declare function Vector<T>(): Vector<T>;
