@@ -435,7 +435,7 @@ class Sequence {
   }
 }
 
-Sequence.prototype.inspect = Sequence.prototype.toSource = Sequence.prototype.toString;
+Sequence.prototype.inspect = Sequence.prototype.toSource = function() { return this.toString(); };
 Sequence.prototype.__toJS = Sequence.prototype.toObject;
 
 
