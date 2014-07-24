@@ -139,8 +139,7 @@ for(var ImmutableMap____Key in ImmutableMap){if(ImmutableMap.hasOwnProperty(Immu
   };
 
   OrderedMap.prototype.__iterate=function(fn, reverse) {"use strict";
-    // TODO: anyway to use fromEntries() ?
-    return this.$OrderedMap_vector ? this.$OrderedMap_vector.__iterate(function(entry)  {return fn(entry[1], entry[0]);}, reverse) : 0;
+    return this.$OrderedMap_vector ? this.$OrderedMap_vector.fromEntries().__iterate(fn, reverse) : 0;
   };
 
   // @pragma Private

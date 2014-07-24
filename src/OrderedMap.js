@@ -139,8 +139,7 @@ class OrderedMap extends ImmutableMap {
   }
 
   __iterate(fn, reverse) {
-    // TODO: anyway to use fromEntries() ?
-    return this._vector ? this._vector.__iterate(entry => fn(entry[1], entry[0]), reverse) : 0;
+    return this._vector ? this._vector.fromEntries().__iterate(fn, reverse) : 0;
   }
 
   // @pragma Private
