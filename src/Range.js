@@ -55,7 +55,7 @@ class Range extends IndexedSequence {
       possibleIndex === Math.floor(possibleIndex);
   }
 
-  slice(begin, end, maintainIndices) { // TODO maintainIndices
+  slice(begin, end, maintainIndices) {
     if (maintainIndices) {
       return super.slice(begin, end, maintainIndices);
     }

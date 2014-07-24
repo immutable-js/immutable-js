@@ -88,4 +88,12 @@ describe('concat', () => {
     expect(a.concat(a, a).reverse().toArray()).toEqual([3,2,1,3,2,1,3,2,1]);
   })
 
+  it('lazily reverses indexed sequences with unknown length, maintaining indicies', () => {
+    var a = Sequence([1,2,3]).filter(x=>true);
+    expect(a.concat(a, a).reverse(true).length).toBe(undefined);
+    expect(a.concat(a, a).reverse(true).entries().toArray()).toEqual(
+      [[8,3],[7,2],[6,1],[5,3],[4,2],[3,1],[2,3],[1,2],[0,1]]
+    );
+  })
+
 })

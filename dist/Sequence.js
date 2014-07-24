@@ -559,6 +559,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     var sequence = this;
     newSequence.__iterateUncached = function(fn, reverse, flipIndices) {
       if (reverse) {
+        // TODO: can we do a better job of this?
         return this.cacheResult().__iterate(fn, reverse, flipIndices)
       }
       var reversedIndices = sequence.__reversedIndices ^ flipIndices;
@@ -693,7 +694,7 @@ for(IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty
       // In order to reverse indices, first we must create a cached
       // representation. This ensures we will have the correct total length
       // so index reversal works as expected.
-      this.cacheResult();
+      return this.cacheResult().__iterate(fn, reverse, flipIndices);
     }
     var shouldBreak;
     var iterations = 0;

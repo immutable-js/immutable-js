@@ -55,7 +55,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
       possibleIndex === Math.floor(possibleIndex);
   };
 
-  Range.prototype.slice=function(begin, end, maintainIndices) {"use strict"; // TODO maintainIndices
+  Range.prototype.slice=function(begin, end, maintainIndices) {"use strict";
     if (maintainIndices) {
       return ____SuperProtoOfIndexedSequence.slice.call(this,begin, end, maintainIndices);
     }
