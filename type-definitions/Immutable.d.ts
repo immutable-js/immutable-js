@@ -506,6 +506,19 @@ export interface Map<K, V> extends Sequence<K, V> {
 }
 
 
+/**
+ * Creates a constructor function which produces maps with a specific set of
+ * allowed keys.
+ *
+ *   var ABRecord = Record({a:1, b:2});
+ *   var myRecord = new ABRecord({b:3});
+ *
+ */
+export declare function Record(defaultValues: Object): {
+  new (values?: Object): Map<string, any>;
+}
+
+
 export declare function Set<T>(): Set<T>;
 export declare function Set<T>(...values: T[]): Set<T>;
 

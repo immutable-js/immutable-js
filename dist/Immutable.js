@@ -5,6 +5,7 @@ var ImmutableSet = require('./Set');
 var Vector = require('./Vector');
 var Range = require('./Range');
 var Repeat = require('./Repeat');
+var Record = require('./Record');
 
 
 /**
@@ -42,15 +43,14 @@ function toJS(value) {
 }
 
 
-module.exports = {
-  is: is,
-  fromJS: fromJS,
-  toJS: toJS,
-  Sequence: Sequence,
-  Range: Range,
-  Repeat: Repeat,
-  Vector: Vector,
-  Map: ImmutableMap,
-  OrderedMap: OrderedMap,
-  Set: ImmutableSet,
-};
+exports.is = is;
+exports.fromJS = fromJS;
+exports.toJS = toJS;
+exports.Sequence = Sequence;
+exports.Range = Range;
+exports.Repeat = Repeat;
+exports.Vector = Vector;
+exports.Map = ImmutableMap;
+exports.OrderedMap = OrderedMap;
+exports.Set = ImmutableSet;
+exports.Record = Record;
