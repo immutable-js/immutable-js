@@ -103,8 +103,8 @@ Repeat.prototype.toOrderedMap = Range.prototype.toOrderedMap;
 Repeat.prototype.toSet = Range.prototype.toSet;
 Repeat.prototype.take = Range.prototype.take;
 Repeat.prototype.skip = Range.prototype.skip;
-Repeat.prototype.toJS = Range.prototype.toJS;
 Repeat.prototype.last = Repeat.prototype.first;
+Repeat.prototype.__toJS = Range.prototype.__toJS;
 
 
 function invariant(condition, error) {

@@ -8,6 +8,7 @@ declare function expect(val: any): ExpectWithIs;
 
 interface ExpectWithIs extends Expect {
   is(expected: any): void;
+  not: ExpectWithIs;
 }
 
 describe('Set', () => {

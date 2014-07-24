@@ -187,9 +187,9 @@ class Set extends Sequence {
   }
 }
 
-Set.prototype.withMutations = ImmutableMap.prototype.withMutations;
 Set.prototype.contains = Set.prototype.has;
-Set.prototype.toJS = IndexedSequence.prototype.toJS;
+Set.prototype.withMutations = ImmutableMap.prototype.withMutations;
+Set.prototype.__toJS = IndexedSequence.prototype.__toJS;
 Set.prototype.__toStringMapper = IndexedSequence.prototype.__toStringMapper;
 
 

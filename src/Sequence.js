@@ -29,6 +29,10 @@ class Sequence {
     return quoteString(k) + ': ' + quoteString(v);
   }
 
+  toJSON() {
+    return this.map(value => value.toJSON ? value.toJSON() : value).__toJS();
+  }
+
   toArray() {
     var array = new Array(this.length || 0);
     this.values().forEach((v, i) => { array[i] = v; });
@@ -424,8 +428,8 @@ class Sequence {
   }
 }
 
-Sequence.prototype.toJS = Sequence.prototype.toObject;
 Sequence.prototype.inspect = Sequence.prototype.toSource = Sequence.prototype.toString;
+Sequence.prototype.__toJS = Sequence.prototype.toObject;
 
 
 class IndexedSequence extends Sequence {
@@ -595,7 +599,7 @@ class IndexedSequence extends Sequence {
   }
 }
 
-IndexedSequence.prototype.toJS = IndexedSequence.prototype.toArray;
+IndexedSequence.prototype.__toJS = IndexedSequence.prototype.toArray;
 IndexedSequence.prototype.__toStringMapper = quoteString;
 
 

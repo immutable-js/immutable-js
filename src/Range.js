@@ -144,7 +144,7 @@ class Range extends IndexedSequence {
   }
 }
 
-Range.prototype.toJS = Range.prototype.toArray;
+Range.prototype.__toJS = Range.prototype.toArray;
 Range.prototype.first = Vector.prototype.first;
 Range.prototype.last = Vector.prototype.last;
 

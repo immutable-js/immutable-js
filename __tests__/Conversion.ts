@@ -8,6 +8,7 @@ declare function expect(val: any): ExpectWithIs;
 
 interface ExpectWithIs extends Expect {
   is(expected: any): void;
+  not: ExpectWithIs;
 }
 
 // This doesn't work yet because of a jest bug with instanceof.
@@ -22,8 +23,6 @@ describe('Conversion', () => {
   });
 
   var js = {
-    string: "Hello",
-    list: [1, 2, 3],
     deepList: [
       {
         position: "first"
@@ -38,34 +37,42 @@ describe('Conversion', () => {
     deepMap: {
       a: "A",
       b: "B"
-    }
+    },
+    string: "Hello",
+    list: [1, 2, 3]
   };
 
-  it('Converts deep JS to deep immutable structures', () => {
-    expect(Immutable.fromJS(js)).is(
+  var immutableData = Map({
+    deepList: Vector(
       Map({
-        string: "Hello",
-        list: Vector(1, 2, 3),
-        deepList: Vector(
-          Map({
-            position: "first"
-          }),
-          Map({
-            position: "second"
-          }),
-          Map({
-            position: "third"
-          })
-        ),
-        deepMap: Map({
-          a: "A",
-          b: "B"
-        })
+        position: "first"
+      }),
+      Map({
+        position: "second"
+      }),
+      Map({
+        position: "third"
       })
-    );
+    ),
+    deepMap: Map({
+      a: "A",
+      b: "B"
+    }),
+    string: "Hello",
+    list: Vector(1, 2, 3)
+  });
+
+  it('Converts deep JS to deep immutable sequences', () => {
+    expect(Immutable.fromJSON(js)).is(immutableData);
+  });
+
+  it('Converts deep sequences to JSON', () => {
+    expect(immutableData.toJSON()).not.is(js); // raw JS is not immutable.
+    expect(immutableData.toJSON()).toEqual(js); // but should be deep equal.
+  });
+
+  it('JSON.stringify() works equivalently on immutable sequences', () => {
+    expect(JSON.stringify(js)).toBe(JSON.stringify(immutableData));
   });
 
 });
-
-
-

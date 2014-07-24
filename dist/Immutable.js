@@ -25,27 +25,19 @@ function is(first, second) {
   return false;
 }
 
-function fromJS(json) {
+function fromJSON(json) {
   if (Array.isArray(json)) {
-    return Sequence(json).map(fromJS).toVector();
+    return Sequence(json).map(fromJSON).toVector();
   }
   if (typeof json === 'object') {
-    return Sequence(json).map(fromJS).toMap();
+    return Sequence(json).map(fromJSON).toMap();
   }
   return json;
 }
 
-function toJS(value) {
-  if (!(value instanceof Sequence)) {
-    return value;
-  }
-  return value.map(toJS).toJS();
-}
-
 
 exports.is = is;
-exports.fromJS = fromJS;
-exports.toJS = toJS;
+exports.fromJSON = fromJSON;
 exports.Sequence = Sequence;
 exports.Range = Range;
 exports.Repeat = Repeat;

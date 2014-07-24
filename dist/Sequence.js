@@ -29,6 +29,10 @@
     return quoteString(k) + ': ' + quoteString(v);
   };
 
+  Sequence.prototype.toJSON=function() {"use strict";
+    return this.map(function(value)  {return value.toJSON ? value.toJSON() : value;}).__toJS();
+  };
+
   Sequence.prototype.toArray=function() {"use strict";
     var array = new Array(this.length || 0);
     this.values().forEach(function(v, i)  { array[i] = v; });
@@ -424,8 +428,8 @@
   };
 
 
-Sequence.prototype.toJS = Sequence.prototype.toObject;
 Sequence.prototype.inspect = Sequence.prototype.toSource = Sequence.prototype.toString;
+Sequence.prototype.__toJS = Sequence.prototype.toObject;
 
 
 for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)){IndexedSequence[Sequence____Key]=Sequence[Sequence____Key];}}var ____SuperProtoOfSequence=Sequence===null?null:Sequence.prototype;IndexedSequence.prototype=Object.create(____SuperProtoOfSequence);IndexedSequence.prototype.constructor=IndexedSequence;IndexedSequence.__superConstructor__=Sequence;function IndexedSequence(){"use strict";if(Sequence!==null){Sequence.apply(this,arguments);}}
@@ -595,7 +599,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   };
 
 
-IndexedSequence.prototype.toJS = IndexedSequence.prototype.toArray;
+IndexedSequence.prototype.__toJS = IndexedSequence.prototype.toArray;
 IndexedSequence.prototype.__toStringMapper = quoteString;
 
 

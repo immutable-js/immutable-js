@@ -5,10 +5,9 @@
 export declare function is(first: any, second: any): boolean;
 
 /**
- * Convert to and from plain JS objects and arrays.
+ * Convert from plain JS objects and arrays.
  */
-export declare function fromJS(json: any): any;
-export declare function toJS(value: any): any;
+export declare function fromJSON(json: any): any;
 
 
 
@@ -38,10 +37,10 @@ export interface Sequence<K, V> {
   toString(): string;
 
   /**
-   * Converts this to a JavaScript native equivalent. IndexedSequence and Set
-   * returns an Array while other Sequences return an Object.
+   * Deeply converts this to a JavaScript native equivalent. IndexedSequence
+   * and Set become an Array while other Sequences become an Object.
    */
-  toJS(): any;
+  toJSON(): any;
 
   toArray(): Array<V>;
 
