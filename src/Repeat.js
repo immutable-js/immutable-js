@@ -33,6 +33,10 @@ class Repeat extends IndexedSequence {
       undefinedValue;
   }
 
+  first() {
+    return this._value;
+  }
+
   contains(searchValue) {
     var is = require('./Immutable').is;
     return is(this._value, searchValue);
@@ -41,10 +45,6 @@ class Repeat extends IndexedSequence {
   __deepEquals(other) {
     var is = require('./Immutable').is;
     return is(this._value, other._value);
-  }
-
-  first(predicate, thisArg) {
-    return predicate ? super.first(predicate, thisArg) : this._value;
   }
 
   slice(begin, end, maintainIndices) {

@@ -43,6 +43,14 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
       node.array[maskedIndex] : undefinedValue;
   };
 
+  Vector.prototype.first=function() {"use strict";
+    return this.get(0);
+  };
+
+  Vector.prototype.last=function() {"use strict";
+    return this.get(this.length ? this.length - 1 : 0);
+  };
+
   // @pragma Modification
 
   Vector.prototype.clear=function() {"use strict";
@@ -309,14 +317,6 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
   Vector.prototype.toVector=function() {"use strict";
     return this;
-  };
-
-  Vector.prototype.first=function(predicate, thisArg) {"use strict";
-    return predicate ? ____SuperProtoOfIndexedSequence.first.call(this,predicate, thisArg) : this.get(0);
-  };
-
-  Vector.prototype.last=function(predicate, thisArg) {"use strict";
-    return predicate ? ____SuperProtoOfIndexedSequence.last.call(this,predicate, thisArg) : this.get(this.length ? this.length - 1 : 0);
   };
 
   Vector.prototype.slice=function(begin, end, maintainIndices) {"use strict";

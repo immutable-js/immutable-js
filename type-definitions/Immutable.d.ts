@@ -1,11 +1,34 @@
 /**
-* The same semantics as Object.is(), but treats immutable data structures as
-* data, equal when the structure contains equivalent data.
-*/
+ * Immutable Data
+ * ==============
+ *
+ * Immutable data encourages pure functions (data-in, data-out) and lends itself
+ * to much simpler application development and enabling techniques from
+ * functional programming such as lazy evaluation.
+ *
+ * While designed to bring these powerful functional concepts to JavaScript, it
+ * presents an Object-Oriented API familiar to Javascript engineers and closely
+ * mirroring that of Array, Map, and Set. It is easy and efficient to convert to
+ * and from plain Javascript types.
+ */
+
+/**
+ * `Immutable.is()` has the same semantics as Object.is(), but treats immutable
+ * sequences as data, equal if the second immutable sequences contains
+ * equivalent data. It's used throughout when checking for equality.
+ *
+ *     var map1 = Immutable.Map({a:1, b:1, c:1});
+ *     var map2 = Immutable.Map({a:1, b:1, c:1});
+ *     assert(map1 !== map2);
+ *     assert(Object.is(map1, map2) === false);
+ *     assert(Immutable.is(map1, map2) === true);
+ *
+ */
 export declare function is(first: any, second: any): boolean;
 
 /**
- * Convert from plain JS objects and arrays.
+ * `Immutable.fromJSON()` deeply converts plain JS objects and arrays to
+ * Immutable sequences.
  */
 export declare function fromJSON(json: any): any;
 
@@ -13,6 +36,44 @@ export declare function fromJSON(json: any): any;
 
 /**
  * Sequences
+ * ---------
+ *
+ * A sequence is a set of (key, value) entries which can be iterated.
+ * All immutable collections extend from Sequence, and can make use of all
+ * the Sequence methods.
+ *
+ * **Sequences are immutable** — Once a sequence is created, it cannot be
+ * changed, appended to, rearranged or otherwise modified. Instead, any mutative
+ * method called on a sequence will return a new immutable sequence.
+ *
+ * **Sequences are lazy** — Sequences do as little work as necessary to respond
+ * to any method call.
+ *
+ * For example, the following does no work, because the resulting sequence is
+ * never used:
+ *
+ *     var oddSquares = Immutable.Sequence(1,2,3,4,5,6,7,8)
+ *       .filter(x => x % 2).map(x => x * x);
+ *
+ * Once the sequence is used, it performs only the work necessary. In this
+ * example, no intermediate arrays are ever created, filter is only called
+ * twice, and map is only called once:
+ *
+ *     console.log(evenSquares.last()); // 49
+ *
+ * Note: A sequence is always iterated in the same order, however that order may
+ * not always be well defined.
+ */
+
+/**
+ * `Immutable.Sequence()` returns a sequence of its parameters.
+ *
+ *   * If provided a single argument:
+ *     * If a Sequence, that same Sequence is returned.
+ *     * If an Array, an `IndexedSequence` is returned.
+ *     * If a plain Object, a `Sequence` is returned, iterated in the same order
+ *       as the for-in would iterate through the Object itself.
+ *   * An `IndexedSequence` of all arguments is returned.
  */
 export declare function Sequence<T>(seq: IndexedSequence<T>): IndexedSequence<T>;
 export declare function Sequence<K, V>(seq: Sequence<K, V>): Sequence<K, V>;
@@ -25,91 +86,162 @@ export interface Sequence<K, V> {
 
   /**
    * Some sequences can describe their length lazily. When this is the case,
-   * length will be set to an integer. Otherwise it will be undefined.
+   * length will be an integer. Otherwise it will be undefined.
    *
    * For example, the new Sequences returned from map() or reverse()
    * preserve the length of the original sequence while filter() does not.
    *
-   * If you must know the length, use cacheResult().
+   * Note: All original collections will have a length, including Maps, Vectors,
+   * Sets, Ranges, Repeats and Sequences made from Arrays and Objects.
    */
-  length?: number;
+  length: number;
 
+  /**
+   * Deeply converts this sequence to a string.
+   */
   toString(): string;
 
   /**
-   * Deeply converts this to a JavaScript native equivalent. IndexedSequence
-   * and Set become an Array while other Sequences become an Object.
+   * Deeply converts this sequence to equivalent JSON.
+   *
+   * IndexedSequences, Vectors, Ranges, Repeats and Sets become Arrays, while
+   * other Sequences become Objects.
    */
   toJSON(): any;
 
+  /**
+   * Converts this sequence to an Array, discarding keys.
+   */
   toArray(): Array<V>;
 
+  /**
+   * Converts this sequence to an Object. Throws if keys are not strings.
+   */
   toObject(): Object;
 
+  /**
+   * Converts this sequence to a Vector, discarding keys.
+   */
   toVector(): Vector<V>;
 
+  /**
+   * Converts this sequence to a Map, Throws if keys are not hashable.
+   */
   toMap(): Map<K, V>;
 
+  /**
+   * Converts this sequence to a Map, maintaining the order of iteration.
+   */
   toOrderedMap(): Map<K, V>;
 
+  /**
+   * Converts this sequence to a Set, discarding keys. Throws if values
+   * are not hashable.
+   */
   toSet(): Set<V>;
 
+  /**
+   * True if this and the other sequence have value equality, as defined
+   * by `Immutable.is()`
+   */
   equals(other: Sequence<K, V>): boolean;
 
+  /**
+   * Joins values together as a string, inserting a separator between each.
+   * The default separator is ",".
+   */
   join(separator?: string): string;
 
+  /**
+   * Returns a new sequence with other values and sequences concatenated to
+   * this one. All entries will be present in the resulting sequence, even if
+   * they have the same key.
+   */
   concat(...valuesOrSequences: any[]): Sequence<any, any>;
 
+  /**
+   * Returns a new sequence which iterates in reverse order of this sequence.
+   */
   reverse(): Sequence<K, V>;
 
+  /**
+   * Returns a new indexed sequence of the keys of this sequence,
+   * discarding values.
+   */
   keys(): IndexedSequence<K>;
 
+  /**
+   * Returns a new indexed sequence of the keys of this sequence,
+   * discarding keys.
+   */
   values(): IndexedSequence<V>;
 
+  /**
+   * Returns a new indexed sequence of [key, value] tuples.
+   */
   entries(): IndexedSequence</*(K, V)*/Array<any>>;
 
   /**
-   * This behavior differs from Array.prototype.forEach
-   * sideEffect is run for every entry in the sequence. If any sideEffect
-   * returns false, the iteration will stop. Returns the length of the sequence
-   * which was iterated.
+   * SideEffect is executed for every entry in the sequence.
+   *
+   * Unlike `Array.prototype.forEach`, if any sideEffect returns `false`, the
+   * iteration will stop. Returns the length of the sequence which was iterated.
    */
   forEach(
     sideEffect: (value?: V, key?: K, seq?: Sequence<K, V>) => any,
     thisArg?: any
   ): number;
 
-  first(
-    predicate?: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-    thisArg?: any
-  ): V;
-
-  last(
-    predicate?: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-    thisArg?: any
-  ): V;
-
+  /**
+   * Reduces the sequence to a value by calling the `reducer` for every entry
+   * in the sequence and passing along the reduced value.
+   */
   reduce<R>(
     reducer: (reduction?: R, value?: V, key?: K, seq?: Sequence<K, V>) => R,
     initialReduction?: R,
     thisArg?: any
   ): R;
 
+  /**
+   * Reduces the sequence in reverse
+   */
   reduceRight<R>(
     reducer: (reduction?: R, value?: V, key?: K, seq?: Sequence<K, V>) => R,
     initialReduction: R,
     thisArg?: any
   ): R;
 
+  /**
+   * True if `predicate` returns true for all entries in the sequence.
+   */
   every(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
     thisArg?: any
   ): boolean;
 
+  /**
+   * True if `predicate` returns true for any entry in the sequence.
+   */
   some(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
     thisArg?: any
   ): boolean;
+
+  /**
+   * The first value in the sequence.
+   */
+  first(
+    predicate?: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+    thisArg?: any
+  ): V;
+
+  /**
+   * The last value in the sequence.
+   */
+  last(
+    predicate?: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+    thisArg?: any
+  ): V;
 
   /**
    * True if a key exists within this Sequence.
@@ -136,41 +268,102 @@ export interface Sequence<K, V> {
    */
   contains(value: V): boolean;
 
+  /**
+   * Returns the value for which the `predicate` returns true.
+   */
   find(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
     thisArg?: any,
     notFoundValue?: V
   ): V;
 
+  /**
+   * Returns the key for which the `predicate` returns true.
+   */
   findKey(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
     thisArg?: any
   ): K;
 
+  /**
+   * Returns the last value for which the `predicate` returns true.
+   *
+   * Note: `predicate` will be called for each entry in reverse.
+   */
   findLast(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
     thisArg?: any,
     notFoundValue?: V
   ): V;
 
+  /**
+   * Returns the last key for which the `predicate` returns true.
+   *
+   * Note: `predicate` will be called for each entry in reverse.
+   */
   findLastKey(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
     thisArg?: any
   ): K;
 
+  /**
+   * Returns a new sequence with this sequences's keys as it's values, and this
+   * sequences's values as it's keys.
+   *
+   *     Sequence({a:'z',b:'y'}).flip() // { z: 'a', y: 'b' }
+   *
+   */
   flip(): Sequence<V, K>;
 
+  /**
+   * Returns a new sequence with values passed through a `mapper` function.
+   *
+   *     Sequence({a:1,b:2}).map(x => 10 * x) // { a: 10, b: 20 }
+   *
+   * Note: if you want to map keys instead of values, consider flipping the
+   * Sequence before mapping:
+   *
+   *     Sequence({a:1,b:2}).flip().map(x => x.toUpperCase()).flip() // { A: 1, B: 2 }
+   *
+   */
   map<M>(
     mapper: (value?: V, key?: K, seq?: Sequence<K, V>) => M,
     thisArg?: any
   ): Sequence<K, M>;
 
+  /**
+   * Returns a new sequence with only the entries for which the `predicate`
+   * function returns true.
+   *
+   *     Sequence({a:1,b:2,c:3,d:4}).map(x => x % 2 === 0) // { b: 2, d: 4 }
+   *
+   */
   filter(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
     thisArg?: any
   ): Sequence<K, V>;
 
-  slice(start: number, end?: number): Sequence<K, V>;
+  /**
+   * Returns a new sequence representing a portion of this sequence from start
+   * up to but not including end.
+   *
+   * If begin is negative, it is offset from the end of the sequence. e.g.
+   * `slice(-2)` returns a sequence of the last two entries. If it is not
+   * provided the new sequence will begin at the beginning of this sequence.
+   *
+   * If end is negative, it is offset from the end of the sequence. e.g.
+   * `slice(0, -1)` returns a sequence of everything but the last entry. If it
+   * is not provided, the new sequence will continue through the end of
+   * this sequence.
+   *
+   * If the requested slice is equivalent to the current Sequence, then it will
+   * return itself.
+   *
+   * Note: unlike `Array.prototype.slice`, this function is O(1) and copies
+   * no data. The resulting sequence is also lazy, and a copy is only made when
+   * it is converted such as via `toArray()` or `toVector()`.
+   */
+  slice(begin?: number, end?: number): Sequence<K, V>;
 
   splice(index: number, removeNum: number, ...values: any[]): Sequence<K, V>;
 

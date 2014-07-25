@@ -43,6 +43,14 @@ class Vector extends IndexedSequence {
       node.array[maskedIndex] : undefinedValue;
   }
 
+  first() {
+    return this.get(0);
+  }
+
+  last() {
+    return this.get(this.length ? this.length - 1 : 0);
+  }
+
   // @pragma Modification
 
   clear() {
@@ -309,14 +317,6 @@ class Vector extends IndexedSequence {
 
   toVector() {
     return this;
-  }
-
-  first(predicate, thisArg) {
-    return predicate ? super.first(predicate, thisArg) : this.get(0);
-  }
-
-  last(predicate, thisArg) {
-    return predicate ? super.last(predicate, thisArg) : this.get(this.length ? this.length - 1 : 0);
   }
 
   slice(begin, end, maintainIndices) {

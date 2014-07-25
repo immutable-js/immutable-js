@@ -33,6 +33,10 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
       undefinedValue;
   };
 
+  Repeat.prototype.first=function() {"use strict";
+    return this.$Repeat_value;
+  };
+
   Repeat.prototype.contains=function(searchValue) {"use strict";
     var is = require('./Immutable').is;
     return is(this.$Repeat_value, searchValue);
@@ -41,10 +45,6 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   Repeat.prototype.__deepEquals=function(other) {"use strict";
     var is = require('./Immutable').is;
     return is(this.$Repeat_value, other.$Repeat_value);
-  };
-
-  Repeat.prototype.first=function(predicate, thisArg) {"use strict";
-    return predicate ? ____SuperProtoOfIndexedSequence.first.call(this,predicate, thisArg) : this.$Repeat_value;
   };
 
   Repeat.prototype.slice=function(begin, end, maintainIndices) {"use strict";

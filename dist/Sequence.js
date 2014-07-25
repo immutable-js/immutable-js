@@ -10,16 +10,11 @@ var Immutable = require('./Immutable');
         return value;
       }
       if (!Array.isArray(value)) {
-        if (value && typeof value === 'object') {
+        if (value && value.constructor === Object) {
+          var keys = Object.keys(value);
           var objectSequence = makeSequence();
           objectSequence.toObject = function()  {return value;};
-          objectSequence.cacheResult = function() {
-            if (this.length == null) {
-              this.length = Object.keys(value).length;
-            }
-            return this;
-          }
-          objectSequence.__iterate = objectIterator.bind(null, value);
+          objectSequence.__iterate = objectIterator.bind(null, value, keys);
           return objectSequence;
         }
         value = [value];
@@ -201,16 +196,6 @@ var Immutable = require('./Immutable');
     return this.__iterate(thisArg ? sideEffect.bind(thisArg) : sideEffect);
   };
 
-  Sequence.prototype.first=function(predicate, thisArg) {"use strict";
-    var firstValue;
-    (predicate ? this.filter(predicate, thisArg) : this).take(1).forEach(function(v)  { firstValue = v; });
-    return firstValue;
-  };
-
-  Sequence.prototype.last=function(predicate, thisArg) {"use strict";
-    return this.reverse(true).first(predicate, thisArg);
-  };
-
   Sequence.prototype.reduce=function(reducer, initialReduction, thisArg) {"use strict";
     var reduction = initialReduction;
     this.forEach(function(v, k, c)  {
@@ -236,6 +221,14 @@ var Immutable = require('./Immutable');
 
   Sequence.prototype.some=function(predicate, thisArg) {"use strict";
     return !this.every(not(predicate), thisArg);
+  };
+
+  Sequence.prototype.first=function() {"use strict";
+    return this.find(returnTrue);
+  };
+
+  Sequence.prototype.last=function() {"use strict";
+    return this.findLast(returnTrue);
   };
 
   Sequence.prototype.has=function(searchKey) {"use strict";
@@ -747,25 +740,15 @@ function arrayIterator(array, fn, reverse, flipIndices) {
   }
 }
 
-function objectIterator(object, fn, reverse) {
-  if (reverse) {
-    var keys = Object.keys(object);
-    for (var ii = keys.length - 1; ii >= 0; ii--) {
-      if (fn(object[keys[ii]], keys[ii], object) === false) {
-        return keys.length - ii + 1;
-      }
+function objectIterator(object, keys, fn, reverse) {
+  var maxIndex = keys.length - 1;
+  for (var ii = 0; ii <= maxIndex; ii++) {
+    var iteration = reverse ? maxIndex - ii : ii;
+    if (fn(object[keys[iteration]], keys[iteration], object) === false) {
+      break;
     }
-    return keys.length;
-  } else {
-    var iterations = 0;
-    for (var key in object) if (object.hasOwnProperty(key)) {
-      if (fn(object[key], key, object) === false) {
-        break;
-      }
-      iterations++;
-    }
-    return iterations;
   }
+  return ii;
 }
 
 function getInDeepSequence(seq, keyPath, notFoundValue, pathOffset) {
@@ -798,6 +781,10 @@ function keyMapper(v, k) {
 
 function entryMapper(v, k) {
   return [k, v];
+}
+
+function returnTrue() {
+  return true;
 }
 
 function returnThis() {

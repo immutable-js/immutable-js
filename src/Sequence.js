@@ -10,16 +10,11 @@ class Sequence {
         return value;
       }
       if (!Array.isArray(value)) {
-        if (value && typeof value === 'object') {
+        if (value && value.constructor === Object) {
+          var keys = Object.keys(value);
           var objectSequence = makeSequence();
           objectSequence.toObject = () => value;
-          objectSequence.cacheResult = function() {
-            if (this.length == null) {
-              this.length = Object.keys(value).length;
-            }
-            return this;
-          }
-          objectSequence.__iterate = objectIterator.bind(null, value);
+          objectSequence.__iterate = objectIterator.bind(null, value, keys);
           return objectSequence;
         }
         value = [value];
@@ -201,16 +196,6 @@ class Sequence {
     return this.__iterate(thisArg ? sideEffect.bind(thisArg) : sideEffect);
   }
 
-  first(predicate, thisArg) {
-    var firstValue;
-    (predicate ? this.filter(predicate, thisArg) : this).take(1).forEach(v => { firstValue = v; });
-    return firstValue;
-  }
-
-  last(predicate, thisArg) {
-    return this.reverse(true).first(predicate, thisArg);
-  }
-
   reduce(reducer, initialReduction, thisArg) {
     var reduction = initialReduction;
     this.forEach((v, k, c) => {
@@ -236,6 +221,14 @@ class Sequence {
 
   some(predicate, thisArg) {
     return !this.every(not(predicate), thisArg);
+  }
+
+  first() {
+    return this.find(returnTrue);
+  }
+
+  last() {
+    return this.findLast(returnTrue);
   }
 
   has(searchKey) {
@@ -747,25 +740,15 @@ function arrayIterator(array, fn, reverse, flipIndices) {
   }
 }
 
-function objectIterator(object, fn, reverse) {
-  if (reverse) {
-    var keys = Object.keys(object);
-    for (var ii = keys.length - 1; ii >= 0; ii--) {
-      if (fn(object[keys[ii]], keys[ii], object) === false) {
-        return keys.length - ii + 1;
-      }
+function objectIterator(object, keys, fn, reverse) {
+  var maxIndex = keys.length - 1;
+  for (var ii = 0; ii <= maxIndex; ii++) {
+    var iteration = reverse ? maxIndex - ii : ii;
+    if (fn(object[keys[iteration]], keys[iteration], object) === false) {
+      break;
     }
-    return keys.length;
-  } else {
-    var iterations = 0;
-    for (var key in object) if (object.hasOwnProperty(key)) {
-      if (fn(object[key], key, object) === false) {
-        break;
-      }
-      iterations++;
-    }
-    return iterations;
   }
+  return ii;
 }
 
 function getInDeepSequence(seq, keyPath, notFoundValue, pathOffset) {
@@ -798,6 +781,10 @@ function keyMapper(v, k) {
 
 function entryMapper(v, k) {
   return [k, v];
+}
+
+function returnTrue() {
+  return true;
 }
 
 function returnThis() {
