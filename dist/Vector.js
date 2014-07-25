@@ -53,16 +53,6 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
   // @pragma Modification
 
-  Vector.prototype.clear=function() {"use strict";
-    if (this.__ownerID) {
-      this.length = this.$Vector_origin = this.$Vector_size = 0;
-      this.$Vector_level = SHIFT;
-      this.$Vector_root = this.$Vector_tail = __EMPTY_VNODE;
-      return this;
-    }
-    return Vector.empty();
-  };
-
   // TODO: set and delete seem very similar.
 
   Vector.prototype.set=function(index, value) {"use strict";
@@ -143,6 +133,16 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
       return this;
     }
     return Vector.$Vector_make(this.$Vector_origin, this.$Vector_size, this.$Vector_level, newRoot, this.$Vector_tail);
+  };
+
+  Vector.prototype.clear=function() {"use strict";
+    if (this.__ownerID) {
+      this.length = this.$Vector_origin = this.$Vector_size = 0;
+      this.$Vector_level = SHIFT;
+      this.$Vector_root = this.$Vector_tail = __EMPTY_VNODE;
+      return this;
+    }
+    return Vector.empty();
   };
 
   Vector.prototype.push=function() {"use strict";

@@ -39,15 +39,6 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
   // @pragma Modification
 
-  Map.prototype.clear=function() {"use strict";
-    if (this.__ownerID) {
-      this.length = 0;
-      this.$Map_root = null;
-      return this;
-    }
-    return Map.empty();
-  };
-
   Map.prototype.set=function(k, v) {"use strict";
     if (k == null) {
       return this;
@@ -82,6 +73,15 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     }
     var newRoot = this.$Map_root.delete(this.__ownerID, 0, hashValue(k), k);
     return !newRoot ? Map.empty() : newRoot === this.$Map_root ? this : Map.$Map_make(this.length - 1, newRoot);
+  };
+
+  Map.prototype.clear=function() {"use strict";
+    if (this.__ownerID) {
+      this.length = 0;
+      this.$Map_root = null;
+      return this;
+    }
+    return Map.empty();
   };
 
   // @pragma Composition

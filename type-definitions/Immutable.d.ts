@@ -35,8 +35,8 @@ export declare function fromJSON(json: any): any;
 
 
 /**
- * Sequences
- * ---------
+ * Sequence
+ * --------
  *
  * A sequence is a set of (key, value) entries which can be iterated.
  * All immutable collections extend from Sequence, and can make use of all
@@ -365,52 +365,127 @@ export interface Sequence<K, V> {
    */
   slice(begin?: number, end?: number): Sequence<K, V>;
 
-  splice(index: number, removeNum: number, ...values: any[]): Sequence<K, V>;
-
+  /**
+   * Returns a new sequence which contains the first `amount` entries from
+   * this sequence.
+   */
   take(amount: number): Sequence<K, V>;
 
+  /**
+   * Returns a new sequence which contains the last `amount` entries from
+   * this sequence.
+   */
   takeLast(amount: number): Sequence<K, V>;
 
+  /**
+   * Returns a new sequence which contains entries from this sequence as long
+   * as the `predicate` returns true.
+   *
+   *     Sequence('dog','frog','cat','hat','god').takeWhile(x => x.match(/o/))
+   *     // ['dog', 'frog']
+   *
+   */
   takeWhile(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
     thisArg?: any
   ): Sequence<K, V>;
 
+  /**
+   * Returns a new sequence which contains entries from this sequence as long
+   * as the `predicate` returns false.
+   *
+   *     Sequence('dog','frog','cat','hat','god').takeUntil(x => x.match(/at/))
+   *     // ['dog', 'frog']
+   *
+   */
   takeUntil(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
     thisArg?: any
   ): Sequence<K, V>;
 
+  /**
+   * Returns a new sequence which excludes the first `amount` entries from
+   * this sequence.
+   */
   skip(amount: number): Sequence<K, V>;
 
+  /**
+   * Returns a new sequence which excludes the last `amount` entries from
+   * this sequence.
+   */
   skipLast(amount: number): Sequence<K, V>;
 
+  /**
+   * Returns a new sequence which contains entries starting from when
+   * `predicate` first returns false.
+   *
+   *     Sequence('dog','frog','cat','hat','god').skipWhile(x => x.match(/g/))
+   *     // ['cat', 'hat', 'god']
+   *
+   */
   skipWhile(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
     thisArg?: any
   ): Sequence<K, V>;
 
+  /**
+   * Returns a new sequence which contains entries starting from when
+   * `predicate` first returns true.
+   *
+   *     Sequence('dog','frog','cat','hat','god').skipUntil(x => x.match(/hat/))
+   *     // ['hat', 'god']
+   *
+   */
   skipUntil(
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
     thisArg?: any
   ): Sequence<K, V>;
 
+  /**
+   * Returns a `Map` of sequences, grouped by the return value of the
+   * `grouper` function.
+   *
+   * Note: Because this returns a Map, this method is not lazy.
+   */
   groupBy<G>(
     grouper: (value?: V, key?: K, seq?: Sequence<K, V>) => G,
     thisArg?: any
   ): Map<G, Sequence<K, V>>;
 
+  /**
+   * Because Sequences are lazy and designed to be chained together, they do
+   * not cache their results. For example, this map function is called 6 times:
+   *
+   *     var squares = Sequence(1,2,3).map(x => x * x);
+   *     squares.join() + squares.join();
+   *
+   * If you know a derived sequence will be used multiple times, it may be more
+   * efficient to first cache it. Here, map is called 3 times:
+   *
+   *     var squares = Sequence(1,2,3).map(x => x * x).cacheResult();
+   *     squares.join() + squares.join();
+   *
+   * Use this method judiciously, as it must fully evaluate a lazy Sequence.
+   *
+   * Note: after calling `cacheResult()`, a Sequence will always have a length.
+   */
   cacheResult(): Sequence<K, V>;
 }
 
 
-
 /**
- * Indexed Sequences are Sequences with numeric keys which are expected to
- * iterate in the order of their indices. They exhibit slightly different
- * behavior for some methods, and add others which do not make sense on
- * non-indexed sequences such as `indexOf`.
+ * Indexed Sequence
+ * ----------------
+ *
+ * Indexed Sequences have incrementing numeric keys. They exhibit
+ * slightly different behavior than `Sequence` for some methods in order to
+ * better mirror the behavior of JavaScript's `Array`, and add others which do
+ * not make sense on non-indexed sequences such as `indexOf`.
+ *
+ * Like JavaScript arrays, `IndexedSequence`s may be sparse, skipping over some
+ * indices and may have a length larger than the highest index.
  */
+
 export interface IndexedSequence<T> extends Sequence<number, T> {
 
   /**
@@ -448,6 +523,17 @@ export interface IndexedSequence<T> extends Sequence<number, T> {
     predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
     thisArg?: any
   ): number;
+
+  /**
+   * Splice returns a new indexed sequence by replacing a region of this sequence
+   * with new values. If values are not provided, it only skips the region to
+   * be removed.
+   *
+   *     Sequence(['a','b','c','d']).splice(1, 2, 'q', 'r', 's')
+   *     // ['a', 'q', 'r', 's', 'd']
+   *
+   */
+  splice(index: number, removeNum: number, ...values: any[]): IndexedSequence<T>;
 
   /**
    * When IndexedSequence is converted to an array, the index keys are
@@ -578,16 +664,8 @@ export interface IndexedSequence<T> extends Sequence<number, T> {
     maintainIndices?: boolean
   ): Map<G, any/*IndexedSequence<T>*/>; // Bug: exposing this causes the type checker to implode.
 
-  // All below methods have identical behavior as Sequence,
-  // except they take a function with index: number instead of key: K
-  // and return an IndexedSequence.
-
   /**
-   * @override
-   */
-  splice(index: number, removeNum: number, ...values: T[]): IndexedSequence<T>;
-
-  /**
+   * Returns an IndexedSequence
    * @override
    */
   map<M>(
@@ -596,6 +674,7 @@ export interface IndexedSequence<T> extends Sequence<number, T> {
   ): IndexedSequence<M>;
 
   /**
+   * Returns an IndexedSequence
    * @override
    */
   cacheResult(): IndexedSequence<T>;
@@ -603,111 +682,218 @@ export interface IndexedSequence<T> extends Sequence<number, T> {
 
 
 /**
- * Returns a lazy sequence of numbers from `start` (inclusive) to `end`
+ * Range
+ * -----
+ *
+ * Returns a lazy indexed sequence of numbers from `start` (inclusive) to `end`
  * (exclusive), by `step`, where `start` defaults to 0, `step` to 1, and `end` to
  * infinity. When `step` is equal to 0, returns an infinite sequence of
  * `start`. When `start` is equal to `end`, returns empty range.
+ *
+ *     Range() // [0,1,2,3,...]
+ *     Range(10) // [10,11,12,13,...]
+ *     Range(10,15) // [10,11,12,13,14]
+ *     Range(10,30,5) // [10,15,20,25]
+ *     Range(30,10,5) // [30,25,20,15]
+ *     Range(30,30,5) // []
+ *     Range(10,30,0) // [10,10,10,10,...]
+ *
  */
 export declare function Range(start?: number, end?: number, step?: number): IndexedSequence<number>;
 
 
 /**
+ * Repeat
+ * ------
+ *
  * Returns a lazy sequence of `value` repeated `times` times. When `times` is
  * not defined, returns an infinite sequence of `value`.
+ *
+ *     Repeat('foo') // ['foo','foo','foo',...]
+ *     Repeat('bar',4) // ['bar','bar','bar','bar']
+ *
  */
 export declare function Repeat<T>(value: T, times?: number): IndexedSequence<T>;
 
 
+/**
+ * Map
+ * ---
+ *
+ * A Map is a Sequence of (key, value) pairs with `O(log32 N)` gets and sets.
+ *
+ * Map is a hash map and requires keys that are hashable, either a primitive
+ * (string or number) or an object with a `hashCode(): number` method.
+ *
+ * Iteration order of a Map is undefined, however is stable. Multiple iterations
+ * of the same Map will iterate in the same order.
+ */
+
 export declare module Map {
 
   /**
-   * Map.empty() creates a new immutable map of length 0.
+   * `Map.empty()` creates a new immutable map of length 0.
    */
-  function empty(): Map<any, any>;
+  function empty<K, V>(): Map<K, V>;
 
   /**
-   * Creates a new immutable map with the same
-   * key value pairs as the provided object.
+   * `Map.fromObject()` creates a new immutable map with the same key value
+   * pairs as the provided object.
    *
-   *   var newMap = Map.fromObject({key: "value"});
+   *     var newMap = Map.fromObject({key: "value"});
    *
    */
   function fromObject<V>(object: {[key: string]: V}): Map<string, V>;
 }
 
-
 /**
- * Creates a new empty map with specific key and value type.
- *
- *   var stringToNumberMap = Map<string, number>();
- *
+ * Alias for Map.empty().
  */
 export declare function Map<K, V>(): Map<K, V>;
-
 
 /**
  * Alias for Map.fromObject().
  */
 export declare function Map<V>(object: {[key: string]: V}): Map<string, V>;
 
-/**
- * An immutable Map with lazy iteration.
- */
+
 export interface Map<K, V> extends Sequence<K, V> {
 
   /**
-   * The number of key-value pairs contained by this Map.
+   * Returns a new Map also containing the new key, value pair. If an equivalent
+   * key already exists in this Map, it will be replaced.
    */
-  length: number;
+  set(key: K, value: V): Map<K, V>;
 
+  /**
+   * Returns a new Map which excludes this `key`.
+   */
+  delete(key: K): Map<K, V>;
+
+  /**
+   * Returns a new Map containing no keys or values.
+   */
   clear(): Map<K, V>;
-  set(k: K, v: V): Map<K, V>;
-  delete(k: K): Map<K, V>;
 
+  /**
+   * Returns a new Map having applied the `updater` to the entry found at the
+   * keyPath. If the keyPath does not result in a value, it returns itself.
+   *
+   *     var data = Immutable.fromJS({ a: { b: { c: 10 } } });
+   *     data.updateIn(['a', 'b'], map => map.set('d', 20));
+   *     // { a: { b: { c: 10, d: 20 } } }
+   *
+   */
   updateIn(
     keyPath: Array<any>,
     updater: (value: any) => any
   ): Map<K, V>;
 
-  merge(...seqs: Sequence<K, V>[]): Map<K, V>;
-  merge(...seqs: {[key: string]: V}[]): Map<string, V>;
+  /**
+   * Returns a new Map resulting from merging the provided Sequences
+   * (or JS objects) into this Map. In other words, this takes each entry of
+   * each sequence and sets it on this Map.
+   *
+   *     var x = Immutable.Map({a: 10, b: 20, c: 30});
+   *     var y = Immutable.Map({b: 40, a: 50, d: 60});
+   *     x.merge(y) // { a: 50, b: 40, c: 30, d: 60 }
+   *     y.merge(x) // { b: 20, a: 10, d: 60, c: 30 }
+   *
+   */
+  merge(...sequences: Sequence<K, V>[]): Map<K, V>;
+  merge(...sequences: {[key: string]: V}[]): Map<string, V>;
 
+  /**
+   * Like `merge()`, `mergeWith()` returns a new Map resulting from merging the
+   * provided Sequences (or JS objects) into this Map, but uses the `merger`
+   * function for dealing with conflicts.
+   *
+   *     var x = Immutable.Map({a: 10, b: 20, c: 30});
+   *     var y = Immutable.Map({b: 40, a: 50, d: 60});
+   *     x.mergeWith((prev, next) => prev / next, y) // { a: 0.2, b: 0.5, c: 30, d: 60 }
+   *     y.mergeWith((prev, next) => prev / next, x) // { b: 2, a: 5, d: 60, c: 30 }
+   *
+   */
   mergeWith(
     merger: (previous?: V, next?: V) => V,
-    ...seqs: Sequence<K, V>[]
+    ...sequences: Sequence<K, V>[]
   ): Map<K, V>;
   mergeWith(
     merger: (previous?: V, next?: V) => V,
-    ...seq: {[key: string]: V}[]
+    ...sequences: {[key: string]: V}[]
   ): Map<string, V>;
 
-  deepMerge(...seq: Sequence<K, V>[]): Map<K, V>;
-  deepMerge(...seq: {[key: string]: V}[]): Map<string, V>;
+  /**
+   * Like `merge()`, but when two Sequences conflict, it merges them as well,
+   * recursing deeply through the nested data.
+   *
+   *     var x = Immutable.fromJS({a: { x: 10, y: 10 }, b: { x: 20, y: 50 } });
+   *     var y = Immutable.fromJS({a: { x: 2 }, b: { y: 5 }, c: { z: 3 } });
+   *     x.deepMerge(y) // {a: { x: 2, y: 10 }, b: { x: 20, y: 5 }, c: { z: 3 } }
+   *
+   */
+  deepMerge(...sequences: Sequence<K, V>[]): Map<K, V>;
+  deepMerge(...sequences: {[key: string]: V}[]): Map<string, V>;
 
+  /**
+   * Like `deepMerge()`, but when two non-Sequences conflict, it uses the
+   * `merger` function to determine the resulting value.
+   *
+   *     var x = Immutable.fromJS({a: { x: 10, y: 10 }, b: { x: 20, y: 50 } });
+   *     var y = Immutable.fromJS({a: { x: 2 }, b: { y: 5 }, c: { z: 3 } });
+   *     x.deepMergeWith((prev, next) => prev / next, y)
+   *     // {a: { x: 5, y: 10 }, b: { x: 20, y: 10 }, c: { z: 3 } }
+   *
+   */
   deepMergeWith(
     merger: (previous?: V, next?: V) => V,
-    ...seq: Sequence<K, V>[]
+    ...sequences: Sequence<K, V>[]
   ): Map<K, V>;
   deepMergeWith(
     merger: (previous?: V, next?: V) => V,
-    ...seq: {[key: string]: V}[]
+    ...sequences: {[key: string]: V}[]
   ): Map<string, V>;
 
+  /**
+   * Every time you call one of the above functions, a new immutable Map is
+   * created. If a pure function calls a number of these to produce a final
+   * return value, then a penalty on performance and memory has been paid by
+   * creating all of the intermediate immutable Maps.
+   *
+   * If you need to apply a series of mutations to produce a new immutable
+   * Map, `withMutations()` create a temporary mutable copy of the Map which
+   * can applying mutations in a highly performant manner. In fact, this is
+   * exactly how complex mutations like `merge` are done.
+   *
+   * As an example, this results in the creation of 1, not 3, new Maps:
+   *
+   *     var map1 = Immutable.Map();
+   *     var map2 = map1.withMutations(map => {
+   *       map.set('a', 1).set('b', 2).set('c', 3);
+   *     });
+   *     assert(map1.length === 0);
+   *     assert(map2.length === 3);
+   *
+   */
   withMutations(mutator: (mutable: Map<K, V>) => any): Map<K, V>;
 }
 
 
 /**
+ * Ordered Map
+ * -----------
+ *
  * OrderedMap constructors return a Map which has the additional guarantee of
  * the iteration order of entries to match the order in which they were set().
  * This makes OrderedMap behave similarly to native JS objects.
  */
+
 export declare module OrderedMap {
 
   /**
    * OrderedMap.empty() creates a new immutable ordered map of length 0.
    */
-  function empty(): Map<any, any>;
+  function empty<K, V>(): Map<K, V>;
 
   /**
    * Creates a new immutable ordered map with the same
@@ -720,10 +906,7 @@ export declare module OrderedMap {
 }
 
 /**
- * Creates a new empty map with specific key and value type.
- *
- *   var stringToNumberMap = OrderedMap<string, number>();
- *
+ * Alias for OrderedMap.empty().
  */
 export declare function OrderedMap<K, V>(): Map<K, V>;
 
@@ -734,11 +917,41 @@ export declare function OrderedMap<V>(object: {[key: string]: V}): Map<string, V
 
 
 /**
- * Creates a constructor function which produces maps with a specific set of
- * allowed keys.
+ * Record
+ * ------
  *
- *   var ABRecord = Record({a:1, b:2});
- *   var myRecord = new ABRecord({b:3});
+ * Creates a new Class which produces maps with a specific set of allowed string
+ * keys and have default values.
+ *
+ *     var ABRecord = Record({a:1, b:2})
+ *     var myRecord = new ABRecord({b:3})
+ *
+ * Records always have a value for the keys they define. `delete()`ing a key
+ * from a record simply resets it to the default value for that key.
+ *
+ *     myRecord.length // 2
+ *     myRecordWithoutB = myRecord.delete('b')
+ *     myRecordWithoutB.get('b') // 2
+ *     myRecordWithoutB.length // 2
+ *
+ * Because Records have a known set of string keys, property get access works as
+ * expected, however property sets will throw an Error.
+ *
+ *     myRecord.b // 3
+ *     myRecord.b = 5 // throws Error
+ *
+ * Record Classes can be extended as well, allowing for custom methods on your
+ * Record. This isn't how things are done in functional environments, but is a
+ * common pattern in many JS programs.
+ *
+ *     class ABRecord extends Record({a:1,b:2}) {
+ *       getAB() {
+ *         return this.a + this.b;
+ *       }
+ *     }
+ *
+ *     var myRecord = new ABRecord(b:3)
+ *     myRecord.getAB() // 4
  *
  */
 export declare function Record(defaultValues: Object): {
@@ -746,146 +959,267 @@ export declare function Record(defaultValues: Object): {
 }
 
 
-export declare function Set<T>(): Set<T>;
-export declare function Set<T>(...values: T[]): Set<T>;
+/**
+ * Set
+ * ---
+ *
+ * A Set is a Sequence of unique values with `O(log32 N)` gets and sets.
+ *
+ * Sets, like Maps, require that their values are hashable, either a primitive
+ * (string or number) or an object with a `hashCode(): number` method.
+ *
+ * When iterating a Set, the entries will be (value, value) pairs. Iteration
+ * order of a Set is undefined, however is stable. Multiple iterations of the
+ * same Set will iterate in the same order.
+ */
 
 export declare module Set {
-  function empty(): Set<any>;
+
+  /**
+   * Set.empty() creates a new immutable set of length 0.
+   */
+  function empty<T>(): Set<T>;
+
+  /**
+   * Set.fromArray() creates a new immutable set containing the values from
+   * this JavaScript array.
+   */
   function fromArray<T>(values: Array<T>): Set<T>;
 }
 
+/**
+ * Alias for Set.empty()
+ */
+export declare function Set<T>(): Set<T>;
+
+/**
+ * Like Set.fromArray(), but accepts variable arguments instead of an Array.
+ */
+export declare function Set<T>(...values: T[]): Set<T>;
+
+
 export interface Set<T> extends Sequence<T, T> {
-  length: number;
 
   /**
-   * Returns an empty set.
-   */
-  clear(): Set<T>;
-
-  /**
-   * Returns a set which also includes this value.
+   * Returns a new Set which also includes this value.
    */
   add(value: T): Set<T>;
 
   /**
-   * Returns a set which excludes this value.
+   * Returns a new Set which excludes this value.
    */
   delete(value: T): Set<T>;
 
   /**
-   * Returns a set which has added any entry from `seqs` that does not already
-   * exist in the set.
+   * Returns a new Set containing no values.
    */
-  union(...seqs: Sequence<any, T>[]): Set<T>;
-  union(...seqs: Array<T>[]): Set<T>;
-  union(...seqs: {[key: string]: T}[]): Set<T>;
+  clear(): Set<T>;
 
   /**
-   * Returns a set which has removed any entries not also contained
-   * within `seqs`.
+   * Returns a Set including any value from `sequences` that does not already
+   * exist in this Set.
    */
-  intersect(...seqs: Sequence<any, T>[]): Set<T>;
-  intersect(...seqs: Array<T>[]): Set<T>;
-  intersect(...seqs: {[key: string]: T}[]): Set<T>;
+  union(...sequences: Sequence<any, T>[]): Set<T>;
+  union(...sequences: Array<T>[]): Set<T>;
+  union(...sequences: {[key: string]: T}[]): Set<T>;
 
   /**
-   * Returns a set which has removed any entries contained within `seqs`.
+   * Returns a Set which has removed any values not also contained
+   * within `sequences`.
    */
-  subtract(...seqs: Sequence<any, T>[]): Set<T>;
-  subtract(...seqs: Array<T>[]): Set<T>;
-  subtract(...seqs: {[key: string]: T}[]): Set<T>;
+  intersect(...sequences: Sequence<any, T>[]): Set<T>;
+  intersect(...sequences: Array<T>[]): Set<T>;
+  intersect(...sequences: {[key: string]: T}[]): Set<T>;
 
   /**
-   * True if seq contains every value in this set.
+   * Returns a Set excluding any values contained within `sequences`.
    */
-  isSubset(seq: Sequence<any, T>): boolean;
-  isSubset(seq: Array<T>): boolean;
-  isSubset(seq: {[key: string]: T}): boolean;
+  subtract(...sequences: Sequence<any, T>[]): Set<T>;
+  subtract(...sequences: Array<T>[]): Set<T>;
+  subtract(...sequences: {[key: string]: T}[]): Set<T>;
 
   /**
-   * True if seq this set contains every value in seq.
+   * True if `sequence` contains every value in this Set.
    */
-  isSuperset(seq: Sequence<any, T>): boolean;
-  isSuperset(seq: Array<T>): boolean;
-  isSuperset(seq: {[key: string]: T}): boolean;
+  isSubset(sequence: Sequence<any, T>): boolean;
+  isSubset(sequence: Array<T>): boolean;
+  isSubset(sequence: {[key: string]: T}): boolean;
 
+  /**
+   * True if this Set contains every value in `sequence`.
+   */
+  isSuperset(sequence: Sequence<any, T>): boolean;
+  isSuperset(sequence: Array<T>): boolean;
+  isSuperset(sequence: {[key: string]: T}): boolean;
+
+  /**
+   * @see `Map.prototype.withMutations`
+   */
   withMutations(mutator: (mutable: Set<T>) => any): Set<T>;
 }
 
 
-export declare function Vector<T>(): Vector<T>;
-export declare function Vector<T>(...values: T[]): Vector<T>;
-
-export declare module Vector {
-  function empty(): Vector<any>;
-  function fromArray<T>(values: Array<T>): Vector<T>;
-}
-
 /**
+ * Vector
+ * ------
+ *
  * Vectors are like a Map with numeric keys which always iterate in the order
  * of their keys. They may be sparse: if an index has not been set, it will not
  * be iterated over. Also, via `setBounds` (or `fromArray` with a sparse array),
  * a Vector may have a length higher than the highest index.
- * See: [MDN: Array relationship between length and numeric properties](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#Relationship_between_length_and_numerical_properties_2).
+ *
+ * @see: [MDN: Array relationship between length and numeric properties](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#Relationship_between_length_and_numerical_properties_2).
  */
-export interface Vector<T> extends IndexedSequence<T> {
-  length: number;
 
-  clear(): Vector<T>;
+export declare module Vector {
+
+  /**
+   * Returns an empty Vector.
+   */
+  function empty<T>(): Vector<T>;
+
+  /**
+   * Returns a Vector of the same length of the provided `values` Array,
+   * containing the values at the same indices.
+   */
+  function fromArray<T>(values: Array<T>): Vector<T>;
+}
+
+/**
+ * Alias for Vector.empty()
+ */
+export declare function Vector<T>(): Vector<T>;
+
+/**
+ * Like Vector.forArray(), but accepts variable arugments instead of an Array.
+ */
+export declare function Vector<T>(...values: T[]): Vector<T>;
+
+export interface Vector<T> extends IndexedSequence<T> {
+
+  /**
+   * Returns a new Vector which includes `value` at `index`. If `index` already
+   * exists in this Vector, it will be replaced.
+   */
   set(index: number, value: T): Vector<T>;
+
+  /**
+   * Returns a new Map which excludes this `index`. It will not affect the
+   * length of the Vector, instead leaving a sparse hole.
+   */
   delete(index: number): Vector<T>;
 
+  /**
+   * Returns a new Vector with 0 length and no values.
+   */
+  clear(): Vector<T>;
+
+  /**
+   * Returns a new Vector with the provided `values` appended, starting at this
+   * Vector's `length`.
+   */
   push(...values: T[]): Vector<T>;
+
+  /**
+   * Returns a new Vector with a length ones less than this Vector, excluding
+   * the last index in this Vector.
+   *
+   * Note: this differs from `Array.prototype.pop` because it returns a new
+   * Vector rather than the removed value. Use `last()` to get the last value
+   * in this Vector.
+   */
   pop(): Vector<T>;
+
+  /**
+   * Returns a new Vector with the provided `values` prepended, pushing other
+   * values ahead to higher indices.
+   */
   unshift(...values: T[]): Vector<T>;
+
+  /**
+   * Returns a new Vector with a length ones less than this Vector, excluding
+   * the first index in this Vector, shifting all other values to a lower index.
+   *
+   * Note: this differs from `Array.prototype.shift` because it returns a new
+   * Vector rather than the removed value. Use `first()` to get the last value
+   * in this Vector.
+   */
   shift(): Vector<T>;
 
+  /**
+   * @see `Map.prototype.updateIn`
+   */
   updateIn(
     keyPath: Array<any>,
     updater: (value: any) => any
   ): Vector<T>;
 
-  merge(...seq: IndexedSequence<T>[]): Vector<T>;
-  merge(...seq: Array<T>[]): Vector<T>;
+  /**
+   * @see `Map.prototype.merge`
+   */
+  merge(...sequences: IndexedSequence<T>[]): Vector<T>;
+  merge(...sequences: Array<T>[]): Vector<T>;
 
+  /**
+   * @see `Map.prototype.mergeWith`
+   */
   mergeWith(
     merger: (previous?: T, next?: T) => T,
-    ...seq: IndexedSequence<T>[]
+    ...sequences: IndexedSequence<T>[]
   ): Vector<T>;
   mergeWith(
     merger: (previous?: T, next?: T) => T,
-    ...seq: Array<T>[]
-  ): Vector<T>;
-
-  deepMerge(seq: IndexedSequence<T>): Vector<T>;
-  deepMerge(seq: Array<T>): Vector<T>;
-
-  deepMergeWith(
-    merger: (previous?: T, next?: T) => T,
-    ...seq: IndexedSequence<T>[]
-  ): Vector<T>;
-  deepMergeWith(
-    merger: (previous?: T, next?: T) => T,
-    ...seq: Array<T>[]
+    ...sequences: Array<T>[]
   ): Vector<T>;
 
   /**
-   * Similar to slice, but returns a new Vector (or mutates a mutable Vector).
-   * Begin is a relative number from current origin. negative numbers add new
+   * @see `Map.prototype.deepMerge`
+   */
+  deepMerge(...sequences: IndexedSequence<T>[]): Vector<T>;
+  deepMerge(...sequences: Array<T>[]): Vector<T>;
+
+  /**
+   * @see `Map.prototype.deepMergeWith`
+   */
+  deepMergeWith(
+    merger: (previous?: T, next?: T) => T,
+    ...sequences: IndexedSequence<T>[]
+  ): Vector<T>;
+  deepMergeWith(
+    merger: (previous?: T, next?: T) => T,
+    ...sequences: Array<T>[]
+  ): Vector<T>;
+
+  /**
+   * Similar to `Array.prototype.slice`, but returns a new Vector (or mutates
+   * this Vector within `withMutations`).
+   *
+   * `begin` is a relative number from current origin. negative numbers add new
    * capacity on the left side of the vector, while positive numbers remove
    * values from the left side of the vector.
-   * End is a relative number. If negative, it removes values from the right
+   *
+   * `end` is a relative number. If negative, it removes values from the right
    * side of the vector. If positive, sets the new length of the vector which
-   * could remove values or add capacity depending on if it's longer than `length`.
+   * could remove values or add capacity depending on if it's longer
+   * than `length`.
    */
   setBounds(begin: number, end: number): Vector<T>;
 
   /**
-   * Convienience for setBounds(0, length)
+   * Convienience method for setBounds(0, length)
    */
   setLength(length: number): Vector<T>;
 
+  /**
+   * @see `Map.prototype.withMutations`
+   */
   withMutations(mutator: (mutable: Vector<T>) => any): Vector<T>;
 
+  /**
+   * Allows `Vector` to be used in ES7 for expressions, returns an `Iterator`
+   * which has a `next()` method which returns the next (index, value) tuple.
+   *
+   * When no entries remain, throws StopIteration in ES7 otherwise returns null.
+   */
   __iterator__(): {next(): /*(number, T)*/Array<any>}
 }

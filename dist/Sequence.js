@@ -320,13 +320,6 @@ var Immutable = require('./Immutable');
       skipped : skipped.take(resolvedEnd - resolvedBegin);
   };
 
-  Sequence.prototype.splice=function(index, removeNum)  {"use strict";var values=Array.prototype.slice.call(arguments,2);
-    if (removeNum === 0 && values.length === 0) {
-      return this;
-    }
-    return this.slice(0, index).concat(values, this.slice(index + removeNum));
-  };
-
   Sequence.prototype.take=function(amount) {"use strict";
     var iterations = 0;
     var sequence = this.takeWhile(function()  {return iterations++ < amount;});
@@ -482,6 +475,16 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     return require('./Vector').empty().merge(this);
   };
 
+  IndexedSequence.prototype.fromEntries=function() {"use strict";
+    var sequence = this;
+    var fromEntriesSequence = sequence.__makeSequence();
+    fromEntriesSequence.length = sequence.length;
+    fromEntriesSequence.entries = function()  {return sequence;};
+    fromEntriesSequence.__iterateUncached = function(fn, reverse, flipIndices) 
+      {return sequence.__iterate(function(entry, _, c)  {return fn(entry[1], entry[0], c);}, reverse, flipIndices);};
+    return fromEntriesSequence;
+  };
+
   IndexedSequence.prototype.join=function(separator) {"use strict";
     separator = separator || ',';
     var string = '';
@@ -546,17 +549,8 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     return reversedSequence;
   };
 
-  IndexedSequence.prototype.fromEntries=function() {"use strict";
-    var sequence = this;
-    var fromEntriesSequence = sequence.__makeSequence();
-    fromEntriesSequence.length = sequence.length;
-    fromEntriesSequence.entries = function()  {return sequence;};
-    fromEntriesSequence.__iterateUncached = function(fn, reverse, flipIndices) 
-      {return sequence.__iterate(function(entry, _, c)  {return fn(entry[1], entry[0], c);}, reverse, flipIndices);};
-    return fromEntriesSequence;
-  };
-
-  // Overridden to supply undefined length
+  // Overridden to supply undefined length because it's entirely
+  // possible this is sparse.
   IndexedSequence.prototype.values=function() {"use strict";
     var valuesSequence = ____SuperProtoOfSequence.values.call(this);
     valuesSequence.length = undefined;
@@ -575,13 +569,13 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     return this.findIndex(function(value)  {return Immutable.is(value, searchValue);});
   };
 
+  IndexedSequence.prototype.lastIndexOf=function(searchValue) {"use strict";
+    return this.reverse(true).indexOf(searchValue);
+  };
+
   IndexedSequence.prototype.findIndex=function(predicate, thisArg) {"use strict";
     var key = this.findKey(predicate, thisArg);
     return key == null ? -1 : key;
-  };
-
-  IndexedSequence.prototype.lastIndexOf=function(searchValue) {"use strict";
-    return this.reverse(true).indexOf(searchValue);
   };
 
   IndexedSequence.prototype.findLastIndex=function(predicate, thisArg) {"use strict";
@@ -620,6 +614,13 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
       return this.length || (maintainIndices ? length : Math.max(0, length - iiBegin));
     };
     return sliceSequence;
+  };
+
+  IndexedSequence.prototype.splice=function(index, removeNum)  {"use strict";var values=Array.prototype.slice.call(arguments,2);
+    if (removeNum === 0 && values.length === 0) {
+      return this;
+    }
+    return this.slice(0, index).concat(values, this.slice(index + removeNum));
   };
 
   // Overrides to get length correct.

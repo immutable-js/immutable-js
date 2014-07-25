@@ -320,13 +320,6 @@ class Sequence {
       skipped : skipped.take(resolvedEnd - resolvedBegin);
   }
 
-  splice(index, removeNum, ...values) {
-    if (removeNum === 0 && values.length === 0) {
-      return this;
-    }
-    return this.slice(0, index).concat(values, this.slice(index + removeNum));
-  }
-
   take(amount) {
     var iterations = 0;
     var sequence = this.takeWhile(() => iterations++ < amount);
@@ -482,6 +475,16 @@ class IndexedSequence extends Sequence {
     return require('./Vector').empty().merge(this);
   }
 
+  fromEntries() {
+    var sequence = this;
+    var fromEntriesSequence = sequence.__makeSequence();
+    fromEntriesSequence.length = sequence.length;
+    fromEntriesSequence.entries = () => sequence;
+    fromEntriesSequence.__iterateUncached = (fn, reverse, flipIndices) =>
+      sequence.__iterate((entry, _, c) => fn(entry[1], entry[0], c), reverse, flipIndices);
+    return fromEntriesSequence;
+  }
+
   join(separator) {
     separator = separator || ',';
     var string = '';
@@ -546,17 +549,8 @@ class IndexedSequence extends Sequence {
     return reversedSequence;
   }
 
-  fromEntries() {
-    var sequence = this;
-    var fromEntriesSequence = sequence.__makeSequence();
-    fromEntriesSequence.length = sequence.length;
-    fromEntriesSequence.entries = () => sequence;
-    fromEntriesSequence.__iterateUncached = (fn, reverse, flipIndices) =>
-      sequence.__iterate((entry, _, c) => fn(entry[1], entry[0], c), reverse, flipIndices);
-    return fromEntriesSequence;
-  }
-
-  // Overridden to supply undefined length
+  // Overridden to supply undefined length because it's entirely
+  // possible this is sparse.
   values() {
     var valuesSequence = super.values();
     valuesSequence.length = undefined;
@@ -575,13 +569,13 @@ class IndexedSequence extends Sequence {
     return this.findIndex(value => Immutable.is(value, searchValue));
   }
 
+  lastIndexOf(searchValue) {
+    return this.reverse(true).indexOf(searchValue);
+  }
+
   findIndex(predicate, thisArg) {
     var key = this.findKey(predicate, thisArg);
     return key == null ? -1 : key;
-  }
-
-  lastIndexOf(searchValue) {
-    return this.reverse(true).indexOf(searchValue);
   }
 
   findLastIndex(predicate, thisArg) {
@@ -620,6 +614,13 @@ class IndexedSequence extends Sequence {
       return this.length || (maintainIndices ? length : Math.max(0, length - iiBegin));
     };
     return sliceSequence;
+  }
+
+  splice(index, removeNum, ...values) {
+    if (removeNum === 0 && values.length === 0) {
+      return this;
+    }
+    return this.slice(0, index).concat(values, this.slice(index + removeNum));
   }
 
   // Overrides to get length correct.

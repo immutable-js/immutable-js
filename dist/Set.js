@@ -43,15 +43,6 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
   // @pragma Modification
 
-  Set.prototype.clear=function() {"use strict";
-    if (this.__ownerID) {
-      this.length = 0;
-      this.$Set_map = null;
-      return this;
-    }
-    return Set.empty();
-  };
-
   Set.prototype.add=function(value) {"use strict";
     if (value == null) {
       return this;
@@ -83,6 +74,15 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
       return this;
     }
     return newMap === this.$Set_map ? this : Set.$Set_make(newMap);
+  };
+
+  Set.prototype.clear=function() {"use strict";
+    if (this.__ownerID) {
+      this.length = 0;
+      this.$Set_map = null;
+      return this;
+    }
+    return Set.empty();
   };
 
   // @pragma Composition

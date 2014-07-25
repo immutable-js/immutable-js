@@ -53,16 +53,6 @@ class Vector extends IndexedSequence {
 
   // @pragma Modification
 
-  clear() {
-    if (this.__ownerID) {
-      this.length = this._origin = this._size = 0;
-      this._level = SHIFT;
-      this._root = this._tail = __EMPTY_VNODE;
-      return this;
-    }
-    return Vector.empty();
-  }
-
   // TODO: set and delete seem very similar.
 
   set(index, value) {
@@ -143,6 +133,16 @@ class Vector extends IndexedSequence {
       return this;
     }
     return Vector._make(this._origin, this._size, this._level, newRoot, this._tail);
+  }
+
+  clear() {
+    if (this.__ownerID) {
+      this.length = this._origin = this._size = 0;
+      this._level = SHIFT;
+      this._root = this._tail = __EMPTY_VNODE;
+      return this;
+    }
+    return Vector.empty();
   }
 
   push(/*...values*/) {

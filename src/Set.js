@@ -43,15 +43,6 @@ class Set extends Sequence {
 
   // @pragma Modification
 
-  clear() {
-    if (this.__ownerID) {
-      this.length = 0;
-      this._map = null;
-      return this;
-    }
-    return Set.empty();
-  }
-
   add(value) {
     if (value == null) {
       return this;
@@ -83,6 +74,15 @@ class Set extends Sequence {
       return this;
     }
     return newMap === this._map ? this : Set._make(newMap);
+  }
+
+  clear() {
+    if (this.__ownerID) {
+      this.length = 0;
+      this._map = null;
+      return this;
+    }
+    return Set.empty();
   }
 
   // @pragma Composition

@@ -39,15 +39,6 @@ class Map extends Sequence {
 
   // @pragma Modification
 
-  clear() {
-    if (this.__ownerID) {
-      this.length = 0;
-      this._root = null;
-      return this;
-    }
-    return Map.empty();
-  }
-
   set(k, v) {
     if (k == null) {
       return this;
@@ -82,6 +73,15 @@ class Map extends Sequence {
     }
     var newRoot = this._root.delete(this.__ownerID, 0, hashValue(k), k);
     return !newRoot ? Map.empty() : newRoot === this._root ? this : Map._make(this.length - 1, newRoot);
+  }
+
+  clear() {
+    if (this.__ownerID) {
+      this.length = 0;
+      this._root = null;
+      return this;
+    }
+    return Map.empty();
   }
 
   // @pragma Composition
