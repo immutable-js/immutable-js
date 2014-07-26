@@ -5,8 +5,7 @@ var Vector = require('./Vector');
 /**
  * Returns a lazy seq of nums from start (inclusive) to end
  * (exclusive), by step, where start defaults to 0, step to 1, and end to
- * infinity. When step is equal to 0, returns an infinite sequence of
- * start. When start is equal to end, returns empty list.
+ * infinity. When start is equal to end, returns empty list.
  */
 class Range extends IndexedSequence {
 
@@ -14,11 +13,19 @@ class Range extends IndexedSequence {
     if (!(this instanceof Range)) {
       return new Range(start, end, step);
     }
-    this._start = start || 0;
-    this._end = end == null ? Infinity : end;
+    invariant(step !== 0, 'Cannot step a Range by 0');
+    start = start || 0;
+    if (end == null) {
+      end = Infinity;
+    }
     step = step == null ? 1 : Math.abs(step);
-    this._step = this._end < this._start ? -step : step;
-    this.length = this._step === 0 ? Infinity : Math.max(0, Math.ceil((this._end - this._start) / this._step - 1) + 1);
+    if (end < start) {
+      step = -step;
+    }
+    this._start = start;
+    this._end = end;
+    this._step = step;
+    this.length = Math.max(0, Math.ceil((end - start) / step - 1) + 1);
   }
 
   toString() {
@@ -26,10 +33,8 @@ class Range extends IndexedSequence {
       return 'Range []';
     }
     return 'Range [ ' +
-      this._start +
-      (this._step === 0 ? ' repeated' :
-        '...' + this._end +
-        (this._step > 1 ? ' by ' + this._step : '')) +
+      this._start + '...' + this._end +
+      (this._step > 1 ? ' by ' + this._step : '') +
     ' ]';
   }
 
@@ -41,14 +46,10 @@ class Range extends IndexedSequence {
   get(index, undefinedValue) {
     invariant(index >= 0, 'Index out of bounds');
     return this.length === Infinity || index < this.length ?
-      this._step === 0 ? this._start : this._start + index * this._step :
-      undefinedValue;
+      this._start + index * this._step : undefinedValue;
   }
 
   contains(searchValue) {
-    if (this._step === 0) {
-      return searchValue === this._start;
-    }
     var possibleIndex = (searchValue - this._start) / this._step;
     return possibleIndex >= 0 &&
       possibleIndex < this.length &&
@@ -99,9 +100,6 @@ class Range extends IndexedSequence {
   }
 
   indexOf(searchValue) {
-    if (this._step === 0) {
-      return searchValue === this._start ? 0 : -1;
-    }
     var offsetValue = searchValue - this._start;
     if (offsetValue % this._step === 0) {
       var index = offsetValue / this._step;

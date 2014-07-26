@@ -29,14 +29,6 @@ describe('Range', () => {
     expect(() => v.toArray()).toThrow('Cannot access end of infinite range.');
   });
 
-  it('infinitely repeated range', () => {
-    var v = Range(10, 10, 0);
-    expect(v.length).toBe(Infinity);
-    expect(v.first()).toBe(10);
-    expect(v.last()).toBe(10);
-    expect(() => v.toArray()).toThrow('Cannot access end of infinite range.');
-  });
-
   it('backwards range', () => {
     var v = Range(10, 1, 3);
     expect(v.length).toBe(3);

@@ -5,8 +5,7 @@ var Vector = require('./Vector');
 /**
  * Returns a lazy seq of nums from start (inclusive) to end
  * (exclusive), by step, where start defaults to 0, step to 1, and end to
- * infinity. When step is equal to 0, returns an infinite sequence of
- * start. When start is equal to end, returns empty list.
+ * infinity. When start is equal to end, returns empty list.
  */
 for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty(IndexedSequence____Key)){Range[IndexedSequence____Key]=IndexedSequence[IndexedSequence____Key];}}var ____SuperProtoOfIndexedSequence=IndexedSequence===null?null:IndexedSequence.prototype;Range.prototype=Object.create(____SuperProtoOfIndexedSequence);Range.prototype.constructor=Range;Range.__superConstructor__=IndexedSequence;
 
@@ -14,11 +13,19 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     if (!(this instanceof Range)) {
       return new Range(start, end, step);
     }
-    this.$Range_start = start || 0;
-    this.$Range_end = end == null ? Infinity : end;
+    invariant(step !== 0, 'Cannot step a Range by 0');
+    start = start || 0;
+    if (end == null) {
+      end = Infinity;
+    }
     step = step == null ? 1 : Math.abs(step);
-    this.$Range_step = this.$Range_end < this.$Range_start ? -step : step;
-    this.length = this.$Range_step === 0 ? Infinity : Math.max(0, Math.ceil((this.$Range_end - this.$Range_start) / this.$Range_step - 1) + 1);
+    if (end < start) {
+      step = -step;
+    }
+    this.$Range_start = start;
+    this.$Range_end = end;
+    this.$Range_step = step;
+    this.length = Math.max(0, Math.ceil((end - start) / step - 1) + 1);
   }
 
   Range.prototype.toString=function() {"use strict";
@@ -26,10 +33,8 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
       return 'Range []';
     }
     return 'Range [ ' +
-      this.$Range_start +
-      (this.$Range_step === 0 ? ' repeated' :
-        '...' + this.$Range_end +
-        (this.$Range_step > 1 ? ' by ' + this.$Range_step : '')) +
+      this.$Range_start + '...' + this.$Range_end +
+      (this.$Range_step > 1 ? ' by ' + this.$Range_step : '') +
     ' ]';
   };
 
@@ -41,14 +46,10 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   Range.prototype.get=function(index, undefinedValue) {"use strict";
     invariant(index >= 0, 'Index out of bounds');
     return this.length === Infinity || index < this.length ?
-      this.$Range_step === 0 ? this.$Range_start : this.$Range_start + index * this.$Range_step :
-      undefinedValue;
+      this.$Range_start + index * this.$Range_step : undefinedValue;
   };
 
   Range.prototype.contains=function(searchValue) {"use strict";
-    if (this.$Range_step === 0) {
-      return searchValue === this.$Range_start;
-    }
     var possibleIndex = (searchValue - this.$Range_start) / this.$Range_step;
     return possibleIndex >= 0 &&
       possibleIndex < this.length &&
@@ -99,9 +100,6 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   };
 
   Range.prototype.indexOf=function(searchValue) {"use strict";
-    if (this.$Range_step === 0) {
-      return searchValue === this.$Range_start ? 0 : -1;
-    }
     var offsetValue = searchValue - this.$Range_start;
     if (offsetValue % this.$Range_step === 0) {
       var index = offsetValue / this.$Range_step;
