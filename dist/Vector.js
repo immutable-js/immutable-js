@@ -58,7 +58,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   Vector.prototype.set=function(index, value) {"use strict";
     var tailOffset = getTailOffset(this.$Vector_size);
 
-    if (index + this.$Vector_origin >= tailOffset + SIZE) {
+    if (index >= this.length) {
       return this.withMutations(function(vect) 
         {return vect.$Vector_setBounds(0, index + 1).set(index, value);}
       );
@@ -176,10 +176,24 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
   // @pragma Composition
 
+  Vector.prototype.merge=function() {"use strict";var seqs=Array.prototype.slice.call(arguments,0);
+    return ImmutableMap.prototype.merge.apply(
+      vectorWithLengthOfLongestSeq(this, seqs), arguments);
+  };
+
   Vector.prototype.mergeWith=function(fn)  {"use strict";var seqs=Array.prototype.slice.call(arguments,1);
-    var merged = ImmutableMap.prototype.mergeWith.apply(this, arguments);
-    var maxLength = Math.max.apply(null, seqs.map(function(seq)  {return seq.length || 0;}));
-    return maxLength > merged.length ? merged.$Vector_setBounds(0, maxLength) : merged;
+    return ImmutableMap.prototype.mergeWith.apply(
+      vectorWithLengthOfLongestSeq(this, seqs), arguments);
+  };
+
+  Vector.prototype.mergeDeep=function() {"use strict";var seqs=Array.prototype.slice.call(arguments,0);
+    return ImmutableMap.prototype.mergeDeep.apply(
+      vectorWithLengthOfLongestSeq(this, seqs), arguments);
+  };
+
+  Vector.prototype.mergeDeepWith=function(fn)  {"use strict";var seqs=Array.prototype.slice.call(arguments,1);
+    return ImmutableMap.prototype.mergeDeepWith.apply(
+      vectorWithLengthOfLongestSeq(this, seqs), arguments);
   };
 
   Vector.prototype.setLength=function(length) {"use strict";
@@ -206,15 +220,16 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
     // New origin might require creating a higher root.
     var offsetShift = 0;
-    while (newOrigin < 0) {
+    while (newOrigin + offsetShift < 0) {
+      // TODO: why only ever shifting over by 1?
       newRoot = new VNode(newRoot.array.length ? [,newRoot] : [], owner);
       offsetShift += 1 << newLevel;
-      newOrigin += offsetShift;
       newLevel += SHIFT;
     }
     if (offsetShift) {
-      newSize += offsetShift;
+      newOrigin += offsetShift;
       oldOrigin += offsetShift;
+      newSize += offsetShift;
       oldSize += offsetShift;
     }
 
@@ -267,7 +282,9 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
         beginIndex = ((newOrigin) >>> newLevel) & MASK;
         endIndex = ((newTailOffset - 1) >>> newLevel) & MASK;
         if (beginIndex === endIndex) {
-          offsetShift += 1 << newLevel;
+          if (beginIndex) {
+            offsetShift += (1 << newLevel) * beginIndex;
+          }
           newLevel -= SHIFT;
           newRoot = newRoot && newRoot.array[beginIndex];
         }
@@ -405,9 +422,6 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   };
 
 
-Vector.prototype.merge = ImmutableMap.prototype.merge;
-Vector.prototype.mergeDeep = ImmutableMap.prototype.mergeDeep;
-Vector.prototype.mergeDeepWith = ImmutableMap.prototype.mergeDeepWith;
 Vector.prototype.withMutations = ImmutableMap.prototype.withMutations;
 Vector.prototype.updateIn = ImmutableMap.prototype.updateIn;
 
@@ -599,6 +613,11 @@ Vector.prototype.updateIn = ImmutableMap.prototype.updateIn;
   };
 
 
+
+function vectorWithLengthOfLongestSeq(vector, seqs) {
+  var maxLength = Math.max.apply(null, seqs.map(function(seq)  {return seq.length || 0;}));
+  return maxLength > vector.length ? vector.setLength(maxLength) : vector;
+}
 
 function rawIndex(index, origin) {
   if (index < 0) throw new Error('Index out of bounds');

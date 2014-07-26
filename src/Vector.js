@@ -58,7 +58,7 @@ class Vector extends IndexedSequence {
   set(index, value) {
     var tailOffset = getTailOffset(this._size);
 
-    if (index + this._origin >= tailOffset + SIZE) {
+    if (index >= this.length) {
       return this.withMutations(vect =>
         vect._setBounds(0, index + 1).set(index, value)
       );
@@ -176,10 +176,24 @@ class Vector extends IndexedSequence {
 
   // @pragma Composition
 
+  merge(...seqs) {
+    return ImmutableMap.prototype.merge.apply(
+      vectorWithLengthOfLongestSeq(this, seqs), arguments);
+  }
+
   mergeWith(fn, ...seqs) {
-    var merged = ImmutableMap.prototype.mergeWith.apply(this, arguments);
-    var maxLength = Math.max.apply(null, seqs.map(seq => seq.length || 0));
-    return maxLength > merged.length ? merged._setBounds(0, maxLength) : merged;
+    return ImmutableMap.prototype.mergeWith.apply(
+      vectorWithLengthOfLongestSeq(this, seqs), arguments);
+  }
+
+  mergeDeep(...seqs) {
+    return ImmutableMap.prototype.mergeDeep.apply(
+      vectorWithLengthOfLongestSeq(this, seqs), arguments);
+  }
+
+  mergeDeepWith(fn, ...seqs) {
+    return ImmutableMap.prototype.mergeDeepWith.apply(
+      vectorWithLengthOfLongestSeq(this, seqs), arguments);
   }
 
   setLength(length) {
@@ -206,15 +220,16 @@ class Vector extends IndexedSequence {
 
     // New origin might require creating a higher root.
     var offsetShift = 0;
-    while (newOrigin < 0) {
+    while (newOrigin + offsetShift < 0) {
+      // TODO: why only ever shifting over by 1?
       newRoot = new VNode(newRoot.array.length ? [,newRoot] : [], owner);
       offsetShift += 1 << newLevel;
-      newOrigin += offsetShift;
       newLevel += SHIFT;
     }
     if (offsetShift) {
-      newSize += offsetShift;
+      newOrigin += offsetShift;
       oldOrigin += offsetShift;
+      newSize += offsetShift;
       oldSize += offsetShift;
     }
 
@@ -267,7 +282,9 @@ class Vector extends IndexedSequence {
         beginIndex = ((newOrigin) >>> newLevel) & MASK;
         endIndex = ((newTailOffset - 1) >>> newLevel) & MASK;
         if (beginIndex === endIndex) {
-          offsetShift += 1 << newLevel;
+          if (beginIndex) {
+            offsetShift += (1 << newLevel) * beginIndex;
+          }
           newLevel -= SHIFT;
           newRoot = newRoot && newRoot.array[beginIndex];
         }
@@ -405,9 +422,6 @@ class Vector extends IndexedSequence {
   }
 }
 
-Vector.prototype.merge = ImmutableMap.prototype.merge;
-Vector.prototype.mergeDeep = ImmutableMap.prototype.mergeDeep;
-Vector.prototype.mergeDeepWith = ImmutableMap.prototype.mergeDeepWith;
 Vector.prototype.withMutations = ImmutableMap.prototype.withMutations;
 Vector.prototype.updateIn = ImmutableMap.prototype.updateIn;
 
@@ -599,6 +613,11 @@ class VectorIterator {
   }
 }
 
+
+function vectorWithLengthOfLongestSeq(vector, seqs) {
+  var maxLength = Math.max.apply(null, seqs.map(seq => seq.length || 0));
+  return maxLength > vector.length ? vector.setLength(maxLength) : vector;
+}
 
 function rawIndex(index, origin) {
   if (index < 0) throw new Error('Index out of bounds');

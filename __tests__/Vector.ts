@@ -263,17 +263,16 @@ describe('Vector', () => {
     var v3 = v2.setLength(1500);
     expect(v1.length).toBe(2000);
     expect(v2.length).toBe(1000);
-    // TODO: failing test!
-    //expect(v3.length).toBe(1500);
+    expect(v3.length).toBe(1500);
     expect(v1.get(900)).toBe(900);
     expect(v1.get(1300)).toBe(1300);
     expect(v1.get(1800)).toBe(1800);
     expect(v2.get(900)).toBe(900);
     expect(v2.get(1300)).toBe(undefined);
     expect(v2.get(1800)).toBe(undefined);
-    //expect(v3.get(900)).toBe(900);
-    //expect(v3.get(1300)).toBe(undefined);
-    //expect(v3.get(1800)).toBe(undefined);
+    expect(v3.get(900)).toBe(900);
+    expect(v3.get(1300)).toBe(undefined);
+    expect(v3.get(1800)).toBe(undefined);
   });
 
   it('can be efficiently sliced', () => {
