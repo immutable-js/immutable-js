@@ -238,8 +238,6 @@ describe('Vector', () => {
 
   // TODO: assert that forEach iterates in the correct order and is only called as much as it needs to be.
 
-  // TODO: slice
-
   it('concat works like Array.prototype.concat', () => {
     var v1 = Vector(1, 2, 3);
     var v2 = v1.concat(4, Vector(5, 6), [7, 8], Immutable.Sequence({a:9,b:10}), Immutable.Set(11,12), null);
@@ -257,6 +255,34 @@ describe('Vector', () => {
     expect(v2.toArray()).toEqual([1]);
     expect(v3.toArray()).toEqual([1,2,3,4]);
     expect(v4.toArray()).toEqual([1,2,3,4,5]);
+  });
+
+  it('allows length to be set', () => {
+    var v1 = Immutable.Range(0,2000).toVector();
+    var v2 = v1.setLength(1000);
+    var v3 = v2.setLength(1500);
+    expect(v1.length).toBe(2000);
+    expect(v2.length).toBe(1000);
+    // TODO: failing test!
+    //expect(v3.length).toBe(1500);
+    expect(v1.get(900)).toBe(900);
+    expect(v1.get(1300)).toBe(1300);
+    expect(v1.get(1800)).toBe(1800);
+    expect(v2.get(900)).toBe(900);
+    expect(v2.get(1300)).toBe(undefined);
+    expect(v2.get(1800)).toBe(undefined);
+    //expect(v3.get(900)).toBe(900);
+    //expect(v3.get(1300)).toBe(undefined);
+    //expect(v3.get(1800)).toBe(undefined);
+  });
+
+  it('can be efficiently sliced', () => {
+    var v1 = Immutable.Range(0,2000).toVector();
+    var v2 = v1.slice(100,-100).toVector();
+    expect(v1.length).toBe(2000)
+    expect(v2.length).toBe(1800);
+    expect(v2.first()).toBe(100);
+    expect(v2.last()).toBe(1899);
   });
 
 });

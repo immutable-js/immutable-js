@@ -60,7 +60,7 @@ class Vector extends IndexedSequence {
 
     if (index + this._origin >= tailOffset + SIZE) {
       return this.withMutations(vect =>
-        vect.setBounds(0, index + 1).set(index, value)
+        vect._setBounds(0, index + 1).set(index, value)
       );
     }
 
@@ -149,7 +149,7 @@ class Vector extends IndexedSequence {
     var values = arguments;
     var oldLength = this.length;
     return this.withMutations(vect => {
-      vect.setBounds(0, oldLength + values.length);
+      vect._setBounds(0, oldLength + values.length);
       for (var ii = 0; ii < values.length; ii++) {
         vect.set(oldLength + ii, values[ii]);
       }
@@ -157,13 +157,13 @@ class Vector extends IndexedSequence {
   }
 
   pop() {
-    return this.setBounds(0, -1);
+    return this._setBounds(0, -1);
   }
 
   unshift(/*...values*/) {
     var values = arguments;
     return this.withMutations(vect => {
-      vect.setBounds(-values.length);
+      vect._setBounds(-values.length);
       for (var ii = 0; ii < values.length; ii++) {
         vect.set(ii, values[ii]);
       }
@@ -171,7 +171,7 @@ class Vector extends IndexedSequence {
   }
 
   shift() {
-    return this.setBounds(1);
+    return this._setBounds(1);
   }
 
   // @pragma Composition
@@ -179,10 +179,14 @@ class Vector extends IndexedSequence {
   mergeWith(fn, ...seqs) {
     var merged = ImmutableMap.prototype.mergeWith.apply(this, arguments);
     var maxLength = Math.max.apply(null, seqs.map(seq => seq.length || 0));
-    return maxLength > merged.length ? merged.setBounds(0, maxLength) : merged;
+    return maxLength > merged.length ? merged._setBounds(0, maxLength) : merged;
   }
 
-  setBounds(begin, end) {
+  setLength(length) {
+    return this._setBounds(0, length);
+  }
+
+  _setBounds(begin, end) {
     var owner = this.__ownerID || new OwnerID();
     var oldOrigin = this._origin;
     var oldSize = this._size;
@@ -296,10 +300,6 @@ class Vector extends IndexedSequence {
     return Vector._make(newOrigin, newSize, newLevel, newRoot, newTail);
   }
 
-  setLength(length) {
-    return this.setBounds(0, length);
-  }
-
   // @pragma Mutability
 
   __ensureOwner(ownerID) {
@@ -325,7 +325,7 @@ class Vector extends IndexedSequence {
     if (!maintainIndices && sliceSequence !== this) {
       var sequence = this;
       var length = sequence.length;
-      sliceSequence.toVector = () => sequence.setBounds(
+      sliceSequence.toVector = () => sequence._setBounds(
         begin < 0 ? Math.max(0, length + begin) : length ? Math.min(length, begin) : begin,
         end == null ? length : end < 0 ? Math.max(0, length + end) : length ? Math.min(length, end) : end
       );

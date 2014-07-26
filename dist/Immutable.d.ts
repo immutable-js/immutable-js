@@ -74,6 +74,10 @@ export declare function fromJSON(json: any): any;
  *     * If a plain Object, a `Sequence` is returned, iterated in the same order
  *       as the for-in would iterate through the Object itself.
  *   * An `IndexedSequence` of all arguments is returned.
+ *
+ * Note: if a Sequence is created from a JavaScript Array or plain Object, then
+ * it can still possibly mutated if the underlying Array or Object is ever
+ * mutated.
  */
 export declare function Sequence<T>(seq: IndexedSequence<T>): IndexedSequence<T>;
 export declare function Sequence<K, V>(seq: Sequence<K, V>): Sequence<K, V>;
@@ -1189,22 +1193,10 @@ export interface Vector<T> extends IndexedSequence<T> {
   ): Vector<T>;
 
   /**
-   * Similar to `Array.prototype.slice`, but returns a new Vector (or mutates
-   * this Vector within `withMutations`).
-   *
-   * `begin` is a relative number from current origin. negative numbers add new
-   * capacity on the left side of the vector, while positive numbers remove
-   * values from the left side of the vector.
-   *
-   * `end` is a relative number. If negative, it removes values from the right
-   * side of the vector. If positive, sets the new length of the vector which
-   * could remove values or add capacity depending on if it's longer
-   * than `length`.
-   */
-  setBounds(begin: number, end: number): Vector<T>;
-
-  /**
-   * Convienience method for setBounds(0, length)
+   * Returns a new Vector with length `length`. If `length` is less than this
+   * Vector's length, the new Vector will exclude values at the higher indices.
+   * If `length` is greater than this Vector's length, the new Vector will have
+   * unset sparse holes for the newly available indices.
    */
   setLength(length: number): Vector<T>;
 

@@ -60,7 +60,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
     if (index + this.$Vector_origin >= tailOffset + SIZE) {
       return this.withMutations(function(vect) 
-        {return vect.setBounds(0, index + 1).set(index, value);}
+        {return vect.$Vector_setBounds(0, index + 1).set(index, value);}
       );
     }
 
@@ -149,7 +149,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     var values = arguments;
     var oldLength = this.length;
     return this.withMutations(function(vect)  {
-      vect.setBounds(0, oldLength + values.length);
+      vect.$Vector_setBounds(0, oldLength + values.length);
       for (var ii = 0; ii < values.length; ii++) {
         vect.set(oldLength + ii, values[ii]);
       }
@@ -157,13 +157,13 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   };
 
   Vector.prototype.pop=function() {"use strict";
-    return this.setBounds(0, -1);
+    return this.$Vector_setBounds(0, -1);
   };
 
   Vector.prototype.unshift=function() {"use strict";
     var values = arguments;
     return this.withMutations(function(vect)  {
-      vect.setBounds(-values.length);
+      vect.$Vector_setBounds(-values.length);
       for (var ii = 0; ii < values.length; ii++) {
         vect.set(ii, values[ii]);
       }
@@ -171,7 +171,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   };
 
   Vector.prototype.shift=function() {"use strict";
-    return this.setBounds(1);
+    return this.$Vector_setBounds(1);
   };
 
   // @pragma Composition
@@ -179,10 +179,14 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   Vector.prototype.mergeWith=function(fn)  {"use strict";var seqs=Array.prototype.slice.call(arguments,1);
     var merged = ImmutableMap.prototype.mergeWith.apply(this, arguments);
     var maxLength = Math.max.apply(null, seqs.map(function(seq)  {return seq.length || 0;}));
-    return maxLength > merged.length ? merged.setBounds(0, maxLength) : merged;
+    return maxLength > merged.length ? merged.$Vector_setBounds(0, maxLength) : merged;
   };
 
-  Vector.prototype.setBounds=function(begin, end) {"use strict";
+  Vector.prototype.setLength=function(length) {"use strict";
+    return this.$Vector_setBounds(0, length);
+  };
+
+  Vector.prototype.$Vector_setBounds=function(begin, end) {"use strict";
     var owner = this.__ownerID || new OwnerID();
     var oldOrigin = this.$Vector_origin;
     var oldSize = this.$Vector_size;
@@ -296,10 +300,6 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     return Vector.$Vector_make(newOrigin, newSize, newLevel, newRoot, newTail);
   };
 
-  Vector.prototype.setLength=function(length) {"use strict";
-    return this.setBounds(0, length);
-  };
-
   // @pragma Mutability
 
   Vector.prototype.__ensureOwner=function(ownerID) {"use strict";
@@ -325,7 +325,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     if (!maintainIndices && sliceSequence !== this) {
       var sequence = this;
       var length = sequence.length;
-      sliceSequence.toVector = function()  {return sequence.setBounds(
+      sliceSequence.toVector = function()  {return sequence.$Vector_setBounds(
         begin < 0 ? Math.max(0, length + begin) : length ? Math.min(length, begin) : begin,
         end == null ? length : end < 0 ? Math.max(0, length + end) : length ? Math.min(length, end) : end
       );};
