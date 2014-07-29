@@ -993,7 +993,8 @@ export declare function OrderedMap<V>(array: Array<V>): Map<number, V>;
  *     myRecord.getAB() // 4
  *
  */
-export declare function Record(defaultValues: Object): RecordClass;
+export declare function Record(defaultValues: Sequence<string, any>, name?: string): RecordClass;
+export declare function Record(defaultValues: {[key: string]: any}, name?: string): RecordClass;
 
 export interface RecordClass {
   new (): Map<string, any>;

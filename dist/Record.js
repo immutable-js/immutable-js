@@ -8,6 +8,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     var RecordType = function(values) {
       this.$Record_map = ImmutableMap(values);
     };
+    defaultValues = Sequence(defaultValues);
     RecordType.prototype = Object.create(Record.prototype);
     RecordType.prototype.constructor = RecordType;
     RecordType.prototype.$Record_name = name;
@@ -15,19 +16,21 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
     var keys = Object.keys(defaultValues);
     RecordType.prototype.length = keys.length;
-    keys.forEach(function(key)  {
-      Object.defineProperty(RecordType.prototype, key, {
-        get: function() {
-          return this.get(key);
-        },
-        set: function(value) {
-          if (!this.__ownerID) {
-            throw new Error('Cannot set on an immutable record.');
+    if (Object.defineProperty) {
+      defaultValues.forEach(function(_, key)  {
+        Object.defineProperty(RecordType.prototype, key, {
+          get: function() {
+            return this.get(key);
+          },
+          set: function(value) {
+            if (!this.__ownerID) {
+              throw new Error('Cannot set on an immutable record.');
+            }
+            this.set(key, value);
           }
-          this.set(key, value);
-        }
-      });
-    }.bind(this));
+        });
+      }.bind(this));
+    }
 
     return RecordType;
   }
@@ -39,14 +42,14 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   // @pragma Access
 
   Record.prototype.has=function(k) {"use strict";
-    return this.$Record_defaultValues.hasOwnProperty(k);
+    return this.$Record_defaultValues.has(k);
   };
 
   Record.prototype.get=function(k, undefinedValue) {"use strict";
     if (undefinedValue !== undefined && !this.has(k)) {
       return undefinedValue;
     }
-    return this.$Record_map.get(k, this.$Record_defaultValues[k]);
+    return this.$Record_map.get(k, this.$Record_defaultValues.get(k));
   };
 
   // @pragma Modification
@@ -63,19 +66,22 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     if (k == null || !this.has(k)) {
       return this;
     }
-    if (this.__ownerID) {
-      this.$Record_map.set(k, v);
-      return this;
-    }
     var newMap = this.$Record_map.set(k, v);
-    if (newMap === this.$Record_map) {
+    if (this.__ownerID || newMap === this.$Record_map) {
       return this;
     }
     return this.$Record_make(newMap);
   };
 
   Record.prototype.delete=function(k) {"use strict";
-    return this.set(k, this.$Record_defaultValues[k]);
+    if (k == null || !this.has(k)) {
+      return this;
+    }
+    var newMap = this.$Record_map.delete(k);
+    if (this.__ownerID || newMap === this.$Record_map) {
+      return this;
+    }
+    return this.$Record_make(newMap);
   };
 
   // @pragma Mutability
@@ -97,7 +103,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
   Record.prototype.__iterate=function(fn, reverse) {"use strict";
     var record = this;
-    return Sequence(this.$Record_defaultValues).map(function(_, k)  {return record.get(k);}).__iterate(fn, reverse);
+    return this.$Record_defaultValues.map(function(_, k)  {return record.get(k);}).__iterate(fn, reverse);
   };
 
   Record.prototype.$Record_empty=function() {"use strict";

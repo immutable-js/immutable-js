@@ -11,21 +11,12 @@ var Immutable = require('./Immutable');
       }
       if (!Array.isArray(value)) {
         if (value && value.constructor === Object) {
-          var keys = Object.keys(value);
-          var objectSequence = makeSequence();
-          objectSequence.length = keys.length;
-          objectSequence.toObject = function()  {return value;};
-          objectSequence.__iterate = objectIterator.bind(null, value, keys);
-          return objectSequence;
+          return new ObjectSequence(value);
         }
         value = [value];
       }
     }
-    var arraySequence = makeIndexedSequence();
-    arraySequence.length = value.length;
-    arraySequence.toArray = function()  {return value;};
-    arraySequence.__iterate = arrayIterator.bind(null, value);
-    return arraySequence;
+    return new ArraySequence(value);
   }
 
   Sequence.prototype.toString=function() {"use strict";
@@ -40,7 +31,7 @@ var Immutable = require('./Immutable');
   };
 
   Sequence.prototype.__toStringMapper=function(v, k) {"use strict";
-    return quoteString(k) + ': ' + quoteString(v);
+    return k + ': ' + quoteString(v);
   };
 
   Sequence.prototype.toJSON=function() {"use strict";
@@ -707,6 +698,85 @@ IndexedSequence.prototype.__toJS = IndexedSequence.prototype.toArray;
 IndexedSequence.prototype.__toStringMapper = quoteString;
 
 
+for(Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)){ObjectSequence[Sequence____Key]=Sequence[Sequence____Key];}}ObjectSequence.prototype=Object.create(____SuperProtoOfSequence);ObjectSequence.prototype.constructor=ObjectSequence;ObjectSequence.__superConstructor__=Sequence;
+  function ObjectSequence(object) {"use strict";
+    var keys = Object.keys(object);
+    this.$ObjectSequence_object = object;
+    this.$ObjectSequence_keys = keys;
+    this.length = keys.length;
+  }
+
+  ObjectSequence.prototype.toObject=function() {"use strict";
+    return this.$ObjectSequence_object;
+  };
+
+  ObjectSequence.prototype.get=function(key, undefinedValue) {"use strict";
+    if (undefinedValue !== undefined && !this.has(key)) {
+      return undefinedValue;
+    }
+    return this.$ObjectSequence_object[key];
+  };
+
+  ObjectSequence.prototype.has=function(key) {"use strict";
+    return this.$ObjectSequence_object.hasOwnProperty(key);
+  };
+
+  ObjectSequence.prototype.__iterate=function(fn, reverse) {"use strict";
+    var object = this.$ObjectSequence_object;
+    var keys = this.$ObjectSequence_keys;
+    var maxIndex = keys.length - 1;
+    for (var ii = 0; ii <= maxIndex; ii++) {
+      var iteration = reverse ? maxIndex - ii : ii;
+      if (fn(object[keys[iteration]], keys[iteration], object) === false) {
+        break;
+      }
+    }
+    return ii;
+  };
+
+
+
+for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProperty(IndexedSequence____Key)){ArraySequence[IndexedSequence____Key]=IndexedSequence[IndexedSequence____Key];}}var ____SuperProtoOfIndexedSequence=IndexedSequence===null?null:IndexedSequence.prototype;ArraySequence.prototype=Object.create(____SuperProtoOfIndexedSequence);ArraySequence.prototype.constructor=ArraySequence;ArraySequence.__superConstructor__=IndexedSequence;
+  function ArraySequence(array) {"use strict";
+    this.$ArraySequence_array = array;
+    this.length = array.length;
+  }
+
+  ArraySequence.prototype.toArray=function() {"use strict";
+    return this.$ArraySequence_array;
+  };
+
+  ArraySequence.prototype.__iterate=function(fn, reverse, flipIndices) {"use strict";
+    var array = this.$ArraySequence_array;
+    var maxIndex = array.length - 1;
+    var lastIndex = -1;
+    if (reverse) {
+      for (var ii = maxIndex; ii >= 0; ii--) {
+        if (array.hasOwnProperty(ii) &&
+            fn(array[ii], flipIndices ? ii : maxIndex - ii, array) === false) {
+          return lastIndex + 1;
+        }
+        lastIndex = ii;
+      }
+      return array.length;
+    } else {
+      var didFinish = array.every(function(value, index)  {
+        if (fn(value, flipIndices ? maxIndex - index : index, array) === false) {
+          return false;
+        } else {
+          lastIndex = index;
+          return true;
+        }
+      });
+      return didFinish ? array.length : lastIndex + 1;
+    }
+  };
+
+
+ArraySequence.prototype.get = ObjectSequence.prototype.get;
+ArraySequence.prototype.has = ObjectSequence.prototype.has;
+
+
 function makeSequence() {
   return Object.create(Sequence.prototype);
 }
@@ -715,42 +785,6 @@ function makeIndexedSequence(parent) {
   var newSequence = Object.create(IndexedSequence.prototype);
   newSequence.__reversedIndices = parent ? parent.__reversedIndices : false;
   return newSequence;
-}
-
-function arrayIterator(array, fn, reverse, flipIndices) {
-  var maxIndex = array.length - 1;
-  var lastIndex = -1;
-  if (reverse) {
-    for (var ii = maxIndex; ii >= 0; ii--) {
-      if (array.hasOwnProperty(ii) &&
-          fn(array[ii], flipIndices ? ii : maxIndex - ii, array) === false) {
-        return lastIndex + 1;
-      }
-      lastIndex = ii;
-    }
-    return array.length;
-  } else {
-    var didFinish = array.every(function(value, index)  {
-      if (fn(value, flipIndices ? maxIndex - index : index, array) === false) {
-        return false;
-      } else {
-        lastIndex = index;
-        return true;
-      }
-    });
-    return didFinish ? array.length : lastIndex + 1;
-  }
-}
-
-function objectIterator(object, keys, fn, reverse) {
-  var maxIndex = keys.length - 1;
-  for (var ii = 0; ii <= maxIndex; ii++) {
-    var iteration = reverse ? maxIndex - ii : ii;
-    if (fn(object[keys[iteration]], keys[iteration], object) === false) {
-      break;
-    }
-  }
-  return ii;
 }
 
 function getInDeepSequence(seq, keyPath, notFoundValue, pathOffset) {

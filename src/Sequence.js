@@ -11,21 +11,12 @@ class Sequence {
       }
       if (!Array.isArray(value)) {
         if (value && value.constructor === Object) {
-          var keys = Object.keys(value);
-          var objectSequence = makeSequence();
-          objectSequence.length = keys.length;
-          objectSequence.toObject = () => value;
-          objectSequence.__iterate = objectIterator.bind(null, value, keys);
-          return objectSequence;
+          return new ObjectSequence(value);
         }
         value = [value];
       }
     }
-    var arraySequence = makeIndexedSequence();
-    arraySequence.length = value.length;
-    arraySequence.toArray = () => value;
-    arraySequence.__iterate = arrayIterator.bind(null, value);
-    return arraySequence;
+    return new ArraySequence(value);
   }
 
   toString() {
@@ -40,7 +31,7 @@ class Sequence {
   }
 
   __toStringMapper(v, k) {
-    return quoteString(k) + ': ' + quoteString(v);
+    return k + ': ' + quoteString(v);
   }
 
   toJSON() {
@@ -707,6 +698,85 @@ IndexedSequence.prototype.__toJS = IndexedSequence.prototype.toArray;
 IndexedSequence.prototype.__toStringMapper = quoteString;
 
 
+class ObjectSequence extends Sequence {
+  constructor(object) {
+    var keys = Object.keys(object);
+    this._object = object;
+    this._keys = keys;
+    this.length = keys.length;
+  }
+
+  toObject() {
+    return this._object;
+  }
+
+  get(key, undefinedValue) {
+    if (undefinedValue !== undefined && !this.has(key)) {
+      return undefinedValue;
+    }
+    return this._object[key];
+  }
+
+  has(key) {
+    return this._object.hasOwnProperty(key);
+  }
+
+  __iterate(fn, reverse) {
+    var object = this._object;
+    var keys = this._keys;
+    var maxIndex = keys.length - 1;
+    for (var ii = 0; ii <= maxIndex; ii++) {
+      var iteration = reverse ? maxIndex - ii : ii;
+      if (fn(object[keys[iteration]], keys[iteration], object) === false) {
+        break;
+      }
+    }
+    return ii;
+  }
+}
+
+
+class ArraySequence extends IndexedSequence {
+  constructor(array) {
+    this._array = array;
+    this.length = array.length;
+  }
+
+  toArray() {
+    return this._array;
+  }
+
+  __iterate(fn, reverse, flipIndices) {
+    var array = this._array;
+    var maxIndex = array.length - 1;
+    var lastIndex = -1;
+    if (reverse) {
+      for (var ii = maxIndex; ii >= 0; ii--) {
+        if (array.hasOwnProperty(ii) &&
+            fn(array[ii], flipIndices ? ii : maxIndex - ii, array) === false) {
+          return lastIndex + 1;
+        }
+        lastIndex = ii;
+      }
+      return array.length;
+    } else {
+      var didFinish = array.every((value, index) => {
+        if (fn(value, flipIndices ? maxIndex - index : index, array) === false) {
+          return false;
+        } else {
+          lastIndex = index;
+          return true;
+        }
+      });
+      return didFinish ? array.length : lastIndex + 1;
+    }
+  }
+}
+
+ArraySequence.prototype.get = ObjectSequence.prototype.get;
+ArraySequence.prototype.has = ObjectSequence.prototype.has;
+
+
 function makeSequence() {
   return Object.create(Sequence.prototype);
 }
@@ -715,42 +785,6 @@ function makeIndexedSequence(parent) {
   var newSequence = Object.create(IndexedSequence.prototype);
   newSequence.__reversedIndices = parent ? parent.__reversedIndices : false;
   return newSequence;
-}
-
-function arrayIterator(array, fn, reverse, flipIndices) {
-  var maxIndex = array.length - 1;
-  var lastIndex = -1;
-  if (reverse) {
-    for (var ii = maxIndex; ii >= 0; ii--) {
-      if (array.hasOwnProperty(ii) &&
-          fn(array[ii], flipIndices ? ii : maxIndex - ii, array) === false) {
-        return lastIndex + 1;
-      }
-      lastIndex = ii;
-    }
-    return array.length;
-  } else {
-    var didFinish = array.every((value, index) => {
-      if (fn(value, flipIndices ? maxIndex - index : index, array) === false) {
-        return false;
-      } else {
-        lastIndex = index;
-        return true;
-      }
-    });
-    return didFinish ? array.length : lastIndex + 1;
-  }
-}
-
-function objectIterator(object, keys, fn, reverse) {
-  var maxIndex = keys.length - 1;
-  for (var ii = 0; ii <= maxIndex; ii++) {
-    var iteration = reverse ? maxIndex - ii : ii;
-    if (fn(object[keys[iteration]], keys[iteration], object) === false) {
-      break;
-    }
-  }
-  return ii;
 }
 
 function getInDeepSequence(seq, keyPath, notFoundValue, pathOffset) {

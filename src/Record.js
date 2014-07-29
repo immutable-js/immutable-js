@@ -8,6 +8,7 @@ class Record extends Sequence {
     var RecordType = function(values) {
       this._map = ImmutableMap(values);
     };
+    defaultValues = Sequence(defaultValues);
     RecordType.prototype = Object.create(Record.prototype);
     RecordType.prototype.constructor = RecordType;
     RecordType.prototype._name = name;
@@ -15,19 +16,21 @@ class Record extends Sequence {
 
     var keys = Object.keys(defaultValues);
     RecordType.prototype.length = keys.length;
-    keys.forEach(key => {
-      Object.defineProperty(RecordType.prototype, key, {
-        get: function() {
-          return this.get(key);
-        },
-        set: function(value) {
-          if (!this.__ownerID) {
-            throw new Error('Cannot set on an immutable record.');
+    if (Object.defineProperty) {
+      defaultValues.forEach((_, key) => {
+        Object.defineProperty(RecordType.prototype, key, {
+          get: function() {
+            return this.get(key);
+          },
+          set: function(value) {
+            if (!this.__ownerID) {
+              throw new Error('Cannot set on an immutable record.');
+            }
+            this.set(key, value);
           }
-          this.set(key, value);
-        }
+        });
       });
-    });
+    }
 
     return RecordType;
   }
@@ -39,14 +42,14 @@ class Record extends Sequence {
   // @pragma Access
 
   has(k) {
-    return this._defaultValues.hasOwnProperty(k);
+    return this._defaultValues.has(k);
   }
 
   get(k, undefinedValue) {
     if (undefinedValue !== undefined && !this.has(k)) {
       return undefinedValue;
     }
-    return this._map.get(k, this._defaultValues[k]);
+    return this._map.get(k, this._defaultValues.get(k));
   }
 
   // @pragma Modification
@@ -63,19 +66,22 @@ class Record extends Sequence {
     if (k == null || !this.has(k)) {
       return this;
     }
-    if (this.__ownerID) {
-      this._map.set(k, v);
-      return this;
-    }
     var newMap = this._map.set(k, v);
-    if (newMap === this._map) {
+    if (this.__ownerID || newMap === this._map) {
       return this;
     }
     return this._make(newMap);
   }
 
   delete(k) {
-    return this.set(k, this._defaultValues[k]);
+    if (k == null || !this.has(k)) {
+      return this;
+    }
+    var newMap = this._map.delete(k);
+    if (this.__ownerID || newMap === this._map) {
+      return this;
+    }
+    return this._make(newMap);
   }
 
   // @pragma Mutability
@@ -97,7 +103,7 @@ class Record extends Sequence {
 
   __iterate(fn, reverse) {
     var record = this;
-    return Sequence(this._defaultValues).map((_, k) => record.get(k)).__iterate(fn, reverse);
+    return this._defaultValues.map((_, k) => record.get(k)).__iterate(fn, reverse);
   }
 
   _empty() {
