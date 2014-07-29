@@ -54,22 +54,22 @@ var Immutable = require('./Immutable');
 
   Sequence.prototype.toVector=function() {"use strict";
     // Use Late Binding here to solve the circular dependency.
-    return require('./Vector').empty().merge(this.values());
+    return require('./Vector').from(this);
   };
 
   Sequence.prototype.toMap=function() {"use strict";
     // Use Late Binding here to solve the circular dependency.
-    return require('./Map').empty().merge(this);
+    return require('./Map').from(this);
   };
 
   Sequence.prototype.toOrderedMap=function() {"use strict";
     // Use Late Binding here to solve the circular dependency.
-    return require('./OrderedMap').empty().merge(this);
+    return require('./OrderedMap').from(this);
   };
 
   Sequence.prototype.toSet=function() {"use strict";
     // Use Late Binding here to solve the circular dependency.
-    return require('./Set').empty().union(this);
+    return require('./Set').from(this);
   };
 
   Sequence.prototype.equals=function(other) {"use strict";
@@ -462,11 +462,6 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     var array = new Array(this.length || 0);
     array.length = this.forEach(function(v, i)  { array[i] = v; });
     return array;
-  };
-
-  IndexedSequence.prototype.toVector=function() {"use strict";
-    // Use Late Binding here to solve the circular dependency.
-    return require('./Vector').empty().merge(this);
   };
 
   IndexedSequence.prototype.fromEntries=function() {"use strict";

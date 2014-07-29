@@ -54,22 +54,22 @@ class Sequence {
 
   toVector() {
     // Use Late Binding here to solve the circular dependency.
-    return require('./Vector').empty().merge(this.values());
+    return require('./Vector').from(this);
   }
 
   toMap() {
     // Use Late Binding here to solve the circular dependency.
-    return require('./Map').empty().merge(this);
+    return require('./Map').from(this);
   }
 
   toOrderedMap() {
     // Use Late Binding here to solve the circular dependency.
-    return require('./OrderedMap').empty().merge(this);
+    return require('./OrderedMap').from(this);
   }
 
   toSet() {
     // Use Late Binding here to solve the circular dependency.
-    return require('./Set').empty().union(this);
+    return require('./Set').from(this);
   }
 
   equals(other) {
@@ -462,11 +462,6 @@ class IndexedSequence extends Sequence {
     var array = new Array(this.length || 0);
     array.length = this.forEach((v, i) => { array[i] = v; });
     return array;
-  }
-
-  toVector() {
-    // Use Late Binding here to solve the circular dependency.
-    return require('./Vector').empty().merge(this);
   }
 
   fromEntries() {
