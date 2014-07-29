@@ -6,11 +6,11 @@ class OrderedMap extends ImmutableMap {
   // @pragma Construction
 
   constructor(sequence) {
+    if (sequence && sequence.constructor === OrderedMap) {
+      return sequence;
+    }
     if (!sequence || sequence.length === 0) {
       return OrderedMap.empty();
-    }
-    if (sequence.constructor === OrderedMap) {
-      return sequence;
     }
     return OrderedMap.empty().merge(sequence);
   }

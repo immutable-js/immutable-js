@@ -767,8 +767,8 @@ export declare module Map {
   function empty<K, V>(): Map<K, V>;
 
   /**
-   * `Map.from()` creates a new immutable map with the same key value
-   * pairs as the provided object.
+   * `Map.from()` creates a new immutable Map with the same key value pairs as
+   * the provided JavaScript Object, Array or Sequence.
    *
    *     var newMap = Map.from({key: "value"});
    *
@@ -779,12 +779,12 @@ export declare module Map {
 }
 
 /**
- * Alias for Map.empty().
+ * Alias for `Map.empty()`.
  */
 export declare function Map<K, V>(): Map<K, V>;
 
 /**
- * Alias for Map.from().
+ * Alias for `Map.from()`.
  */
 export declare function Map<V>(object: {[key: string]: V}): Map<string, V>;
 export declare function Map<V>(array: Array<V>): Map<number, V>;
@@ -925,13 +925,13 @@ export interface Map<K, V> extends Sequence<K, V> {
 export declare module OrderedMap {
 
   /**
-   * OrderedMap.empty() creates a new immutable ordered map of length 0.
+   * `OrderedMap.empty()` creates a new immutable ordered Map of length 0.
    */
   function empty<K, V>(): Map<K, V>;
 
   /**
-   * Creates a new immutable ordered map with the same
-   * key value pairs as the provided object.
+   * `OrderedMap.from()` creates a new immutable ordered Map with the same key
+   * value pairs as the provided JavaScript Object, Array or Sequence.
    *
    *   var newMap = OrderedMap.from({key: "value"});
    *
@@ -942,12 +942,12 @@ export declare module OrderedMap {
 }
 
 /**
- * Alias for OrderedMap.empty().
+ * Alias for `OrderedMap.empty()`.
  */
 export declare function OrderedMap<K, V>(): Map<K, V>;
 
 /**
- * Alias for OrderedMap.from().
+ * Alias for `OrderedMap.from()`.
  */
 export declare function OrderedMap<V>(object: {[key: string]: V}): Map<string, V>;
 export declare function OrderedMap<V>(array: Array<V>): Map<number, V>;

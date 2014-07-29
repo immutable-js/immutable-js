@@ -6,11 +6,11 @@ class Map extends Sequence {
   // @pragma Construction
 
   constructor(sequence) {
+    if (sequence && sequence.constructor === Map) {
+      return sequence;
+    }
     if (!sequence || sequence.length === 0) {
       return Map.empty();
-    }
-    if (sequence.constructor === Map) {
-      return sequence;
     }
     return Map.empty().merge(sequence);
   }

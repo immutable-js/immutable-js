@@ -6,11 +6,11 @@ for(var ImmutableMap____Key in ImmutableMap){if(ImmutableMap.hasOwnProperty(Immu
   // @pragma Construction
 
   function OrderedMap(sequence) {"use strict";
+    if (sequence && sequence.constructor === OrderedMap) {
+      return sequence;
+    }
     if (!sequence || sequence.length === 0) {
       return OrderedMap.empty();
-    }
-    if (sequence.constructor === OrderedMap) {
-      return sequence;
     }
     return OrderedMap.empty().merge(sequence);
   }
