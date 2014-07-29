@@ -131,8 +131,8 @@ Almost all of the methods on `Array` will be found in similar form on
 found on `Immutable.Set`, including sequence operations.
 
 
-Mutation and when to break the rules
-------------------------------------
+Batching mutations
+------------------
 
 > If a tree falls in the woods, does it make a sound?
 >
@@ -144,19 +144,19 @@ Mutation and when to break the rules
 There is a performance penalty paid every time you create a new immutable object
 via applying a mutation. If you need to apply a series of mutations
 `immutable-data` gives you the ability to create a temporary mutable copy of a
-collection and applying mutations in a highly performant manner by using
-`withMutations`. In fact, this is exactly how `immutable-data` applies complex
-mutations itself.
+collection and applying a batch of mutations in a highly performant manner by
+using `withMutations`. In fact, this is exactly how `immutable-data` applies
+complex mutations itself.
 
-As an example, this results in 1, not 3, new immutable objects.
+As an example, this results in the creation of 2, not 4, new immutable Vectors.
 
 ```javascript
-var vect1 = Immutable.Vector();
+var vect1 = Immutable.Vector(1,2,3);
 var vect2 = vect1.withMutations(function (vect) {
-  vect.push(1).push(2).push(3);
+  vect.push(4).push(5).push(6);
 });
-assert(vect1.length === 0);
-assert(vect2.length === 3);
+assert(vect1.length === 3);
+assert(vect2.length === 6);
 ```
 
 
