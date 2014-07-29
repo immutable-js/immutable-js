@@ -29,8 +29,36 @@ export declare function is(first: any, second: any): boolean;
 /**
  * `Immutable.fromJSON()` deeply converts plain JS objects and arrays to
  * Immutable sequences.
+ *
+ * If a `converter` is optionally provided, it will be called with every
+ * sequence (beginning with the most nested sequences and proceeding to the
+ * original sequence itself), along with the key refering to this Sequence
+ * and the parent JSON object provided as `this`. For the top level, object,
+ * the key will be "". This `converter` is expected to return a new Sequence,
+ * allowing for custom convertions from JSON.
+ *
+ * This example converts JSON to Vector and OrderedMap:
+ *
+ *     Immutable.fromJSON({a: {b: [10, 20, 30]}, c: 40}, function (value, key) {
+ *       var isIndexed = value instanceof IndexedSequence;
+ *       console.log(isIndexed, key, this);
+ *       return isIndexed ? value.toVector() : value.toOrderedMap();
+ *     });
+ *
+ *     // true, "b", {b: [10, 20, 30]}
+ *     // false, "a", {a: {b: [10, 20, 30]}, c: 40}
+ *     // false, "", {"": {a: {b: [10, 20, 30]}, c: 40}}
+ *
+ * If `converter` is not provided, the default behavior will convert Arrays into
+ * Vectors and Objects into Maps.
+ *
+ * Note: `converter` acts similarly to [`reviver`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Example.3A_Using_the_reviver_parameter)
+ * in `JSON.parse`.
  */
-export declare function fromJSON(json: any): any;
+export declare function fromJSON(
+  json: any,
+  converter?: (k: any, v: Sequence<any, any>) => any
+): any;
 
 
 

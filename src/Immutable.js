@@ -25,16 +25,32 @@ function is(first, second) {
   return false;
 }
 
-function fromJSON(json) {
-  if (Array.isArray(json)) {
-    return Sequence(json).map(fromJSON).toVector();
+function fromJSON(json, converter) {
+  if (converter) {
+    var parentJSON = {'': json};
+    return fromJSONWith(converter, json, '', parentJSON);
   }
-  if (typeof json === 'object') {
-    return Sequence(json).map(fromJSON).toMap();
+  return fromJSONDefault(json);
+}
+
+function fromJSONDefault(json) {
+  if (json) {
+    if (Array.isArray(json)) {
+      return Sequence(json).map(fromJSONDefault).toVector();
+    }
+    if (json.constructor === Object) {
+      return Sequence(json).map(fromJSONDefault).toMap();
+    }
   }
   return json;
 }
 
+function fromJSONWith(converter, json, key, parentJSON) {
+  if (json && (Array.isArray(json) || json.constructor === Object)) {
+    return converter.call(parentJSON, key, Sequence(json).map((v, k) => fromJSONWith(converter, v, k, json)));
+  }
+  return json;
+}
 
 exports.is = is;
 exports.fromJSON = fromJSON;
