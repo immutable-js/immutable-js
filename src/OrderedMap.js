@@ -5,23 +5,18 @@ class OrderedMap extends ImmutableMap {
 
   // @pragma Construction
 
-  constructor(object) {
-    if (!object) {
+  constructor(sequence) {
+    if (!sequence || sequence.length === 0) {
       return OrderedMap.empty();
     }
-    return OrderedMap.fromObject(object);
+    if (sequence.constructor === OrderedMap) {
+      return sequence;
+    }
+    return OrderedMap.empty().merge(sequence);
   }
 
   static empty() {
     return __EMPTY_ORDERED_MAP || (__EMPTY_ORDERED_MAP = OrderedMap._make());
-  }
-
-  static fromObject(object) {
-    return OrderedMap.empty().withMutations(omap => {
-      for (var k in object) if (object.hasOwnProperty(k)) {
-        omap.set(k, object[k]);
-      }
-    });
   }
 
   toString() {
@@ -150,6 +145,8 @@ class OrderedMap extends ImmutableMap {
     return omap;
   }
 }
+
+OrderedMap.from = OrderedMap;
 
 
 var __EMPTY_ORDERED_MAP;

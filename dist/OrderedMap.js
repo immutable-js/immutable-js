@@ -5,23 +5,18 @@ for(var ImmutableMap____Key in ImmutableMap){if(ImmutableMap.hasOwnProperty(Immu
 
   // @pragma Construction
 
-  function OrderedMap(object) {"use strict";
-    if (!object) {
+  function OrderedMap(sequence) {"use strict";
+    if (!sequence || sequence.length === 0) {
       return OrderedMap.empty();
     }
-    return OrderedMap.fromObject(object);
+    if (sequence.constructor === OrderedMap) {
+      return sequence;
+    }
+    return OrderedMap.empty().merge(sequence);
   }
 
   OrderedMap.empty=function() {"use strict";
     return __EMPTY_ORDERED_MAP || (__EMPTY_ORDERED_MAP = OrderedMap.$OrderedMap_make());
-  };
-
-  OrderedMap.fromObject=function(object) {"use strict";
-    return OrderedMap.empty().withMutations(function(omap)  {
-      for (var k in object) if (object.hasOwnProperty(k)) {
-        omap.set(k, object[k]);
-      }
-    });
   };
 
   OrderedMap.prototype.toString=function() {"use strict";
@@ -150,6 +145,8 @@ for(var ImmutableMap____Key in ImmutableMap){if(ImmutableMap.hasOwnProperty(Immu
     return omap;
   };
 
+
+OrderedMap.from = OrderedMap;
 
 
 var __EMPTY_ORDERED_MAP;

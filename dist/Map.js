@@ -6,7 +6,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   // @pragma Construction
 
   function Map(sequence) {"use strict";
-    if (!sequence) {
+    if (!sequence || sequence.length === 0) {
       return Map.empty();
     }
     if (sequence.constructor === Map) {

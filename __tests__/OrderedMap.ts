@@ -5,6 +5,14 @@ import OrderedMap = Immutable.OrderedMap;
 
 describe('OrderedMap', () => {
 
+  it('converts from object', () => {
+    var m = OrderedMap.from({'c': 'C', 'b': 'B', 'a': 'A'});
+    expect(m.get('a')).toBe('A');
+    expect(m.get('b')).toBe('B');
+    expect(m.get('c')).toBe('C');
+    expect(m.toArray()).toEqual(['C','B','A']);
+  });
+
   it('constructor provides initial values', () => {
     var m = OrderedMap({'a': 'A', 'b': 'B', 'c': 'C'});
     expect(m.get('a')).toBe('A');
@@ -16,6 +24,16 @@ describe('OrderedMap', () => {
 
   it('provides initial values in a mixed order', () => {
     var m = OrderedMap({'c': 'C', 'b': 'B', 'a': 'A'});
+    expect(m.get('a')).toBe('A');
+    expect(m.get('b')).toBe('B');
+    expect(m.get('c')).toBe('C');
+    expect(m.length).toBe(3);
+    expect(m.toArray()).toEqual(['C','B','A']);
+  });
+
+  it('constructor accepts sequences', () => {
+    var s = Immutable.Sequence({'c': 'C', 'b': 'B', 'a': 'A'});
+    var m = OrderedMap(s);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');

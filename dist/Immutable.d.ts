@@ -933,10 +933,12 @@ export declare module OrderedMap {
    * Creates a new immutable ordered map with the same
    * key value pairs as the provided object.
    *
-   *   var newMap = OrderedMap.fromObject({key: "value"});
+   *   var newMap = OrderedMap.from({key: "value"});
    *
    */
-  function fromObject<V>(object: {[key: string]: V}): Map<string, V>;
+  function from<V>(object: {[key: string]: V}): Map<string, V>;
+  function from<V>(array: Array<V>): Map<number, V>;
+  function from<K, V>(sequence: Sequence<K, V>): Map<K, V>;
 }
 
 /**
@@ -945,9 +947,11 @@ export declare module OrderedMap {
 export declare function OrderedMap<K, V>(): Map<K, V>;
 
 /**
- * Alias for OrderedMap.fromObject().
+ * Alias for OrderedMap.from().
  */
 export declare function OrderedMap<V>(object: {[key: string]: V}): Map<string, V>;
+export declare function OrderedMap<V>(array: Array<V>): Map<number, V>;
+export declare function OrderedMap<K, V>(sequence: Sequence<K, V>): Map<K, V>;
 
 
 /**

@@ -6,7 +6,7 @@ class Map extends Sequence {
   // @pragma Construction
 
   constructor(sequence) {
-    if (!sequence) {
+    if (!sequence || sequence.length === 0) {
       return Map.empty();
     }
     if (sequence.constructor === Map) {
