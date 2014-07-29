@@ -45,6 +45,8 @@ describe('Conversion', () => {
     list: [1, 2, 3]
   };
 
+  var Point = Immutable.Record({x:0, y:0});
+
   var immutableData = Map({
     deepList: Vector(
       Map({
@@ -82,7 +84,7 @@ describe('Conversion', () => {
       a: "A",
       b: "B"
     }),
-    point: OrderedMap({x: 10, y: 20}),
+    point: new Point({x: 10, y: 20}),
     string: "Hello",
     list: Vector(1, 2, 3)
   });
@@ -93,6 +95,9 @@ describe('Conversion', () => {
 
   it('Converts deep JSON with custom conversion', () => {
     var seq = Immutable.fromJSON(js, function (key, sequence) {
+      if (key === 'point') {
+        return new Point(sequence);
+      }
       return Array.isArray(this[key]) ? sequence.toVector() : sequence.toOrderedMap();
     });
     expect(seq).is(immutableOrderedData);
