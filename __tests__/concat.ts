@@ -31,8 +31,8 @@ describe('concat', () => {
   it('concats two object sequences', () => {
     var a = Sequence({a:1,b:2,c:3});
     var b = Sequence({d:4,e:5,f:6});
-    expect(a.length).toBe(undefined);
-    expect(a.concat(b).length).toBe(undefined);
+    expect(a.length).toBe(3);
+    expect(a.concat(b).length).toBe(6);
     expect(a.concat(b).toObject()).toEqual({a:1,b:2,c:3,d:4,e:5,f:6});
   })
 

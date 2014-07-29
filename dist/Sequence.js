@@ -13,6 +13,7 @@ var Immutable = require('./Immutable');
         if (value && value.constructor === Object) {
           var keys = Object.keys(value);
           var objectSequence = makeSequence();
+          objectSequence.length = keys.length;
           objectSequence.toObject = function()  {return value;};
           objectSequence.__iterate = objectIterator.bind(null, value, keys);
           return objectSequence;
