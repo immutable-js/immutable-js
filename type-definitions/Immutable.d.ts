@@ -993,7 +993,9 @@ export declare function OrderedMap<K, V>(sequence: Sequence<K, V>): Map<K, V>;
  *
  */
 export declare function Record(defaultValues: Object): {
-  new (values?: Object): Map<string, any>;
+  new (): Map<string, any>;
+  new (values: {[key: string]: any}): Map<string, any>;
+  new (values: Sequence<string, any>): Map<string, any>;
 }
 
 
