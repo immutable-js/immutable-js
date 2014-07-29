@@ -1122,26 +1122,32 @@ export interface Set<T> extends Sequence<T, T> {
 export declare module Vector {
 
   /**
-   * Returns an empty Vector.
+   * `Vector.empty()` returns a Vector of length 0.
    */
   function empty<T>(): Vector<T>;
 
   /**
-   * Returns a Vector of the same length of the provided `values` Array,
-   * containing the values at the same indices.
+   * `Vector.from()` returns a Vector of the same length of the provided
+   * `values` JavaScript Array or Sequence, containing the values at the
+   * same indices.
+   *
+   * If a non-indexed Sequence is provided, its keys will be discarded and
+   * its values will be used to fill the returned Vector.
    */
-  function fromArray<T>(values: Array<T>): Vector<T>;
+  function from<T>(array: Array<T>): Vector<T>;
+  function from<T>(sequence: Sequence<any, T>): Vector<T>;
 }
 
 /**
- * Alias for Vector.empty()
+ * Alias for `Vector.empty()`
  */
 export declare function Vector<T>(): Vector<T>;
 
 /**
- * Like Vector.forArray(), but accepts variable arugments instead of an Array.
+ * Like `Vector.from()`, but accepts variable arguments instead of an Array.
  */
 export declare function Vector<T>(...values: T[]): Vector<T>;
+
 
 export interface Vector<T> extends IndexedSequence<T> {
 

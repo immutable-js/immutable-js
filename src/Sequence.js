@@ -154,7 +154,7 @@ class Sequence {
   }
 
   keys() {
-    return this.map(keyMapper).values();
+    return this.flip().values();
   }
 
   values() {
@@ -774,10 +774,6 @@ function resolveBegin(begin, length) {
 
 function resolveEnd(end, length) {
   return end == null ? length : end < 0 ? Math.max(0, length + end) : length ? Math.min(length, end) : end;
-}
-
-function keyMapper(v, k) {
-  return k;
 }
 
 function entryMapper(v, k) {

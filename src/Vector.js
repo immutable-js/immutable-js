@@ -1,4 +1,6 @@
-var IndexedSequence = require('./Sequence').IndexedSequence;
+var SequenceModule = require('./Sequence');
+var Sequence = SequenceModule.Sequence;
+var IndexedSequence = SequenceModule.IndexedSequence;
 var ImmutableMap = require('./Map');
 
 
@@ -7,7 +9,7 @@ class Vector extends IndexedSequence {
   // @pragma Construction
 
   constructor(...values) {
-    return Vector.fromArray(values);
+    return Vector.from(values);
   }
 
   static empty() {
@@ -16,14 +18,26 @@ class Vector extends IndexedSequence {
     );
   }
 
-  static fromArray(values) {
-    if (values.length === 0) {
+  static from(sequence) {
+    if (sequence && sequence.constructor === Vector) {
+      return sequence;
+    }
+    if (!sequence || sequence.length === 0) {
       return Vector.empty();
     }
-    if (values.length > 0 && values.length < SIZE) {
-      return Vector._make(0, values.length, SHIFT, __EMPTY_VNODE, new VNode(values.slice()));
+    var isArray = Array.isArray(sequence);
+    if (sequence.length > 0 && sequence.length < SIZE) {
+      return Vector._make(0, sequence.length, SHIFT, __EMPTY_VNODE, new VNode(
+        isArray ? sequence.slice() : Sequence(sequence).toArray()
+      ));
     }
-    return Vector.empty().merge(values);
+    if (!isArray) {
+      sequence = Sequence(sequence);
+      if (!(sequence instanceof IndexedSequence)) {
+        sequence = sequence.values();
+      }
+    }
+    return Vector.empty().merge(sequence);
   }
 
   toString() {

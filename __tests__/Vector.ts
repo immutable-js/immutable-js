@@ -17,8 +17,20 @@ describe('Vector', () => {
     expect(v.toArray()).toEqual(['a', 'b', 'c']);
   });
 
-  it('fromArray consumes a JS array', () => {
-    var v = Vector.fromArray(['a', 'b', 'c']);
+  it('from consumes a JS array', () => {
+    var v = Vector.from(['a', 'b', 'c']);
+    expect(v.toArray()).toEqual(['a', 'b', 'c']);
+  });
+
+  it('from consumes a Sequence', () => {
+    var seq = Immutable.Sequence(['a', 'b', 'c']);
+    var v = Vector.from(seq);
+    expect(v.toArray()).toEqual(['a', 'b', 'c']);
+  });
+
+  it('from consumes a non-indexed Sequence', () => {
+    var seq = Immutable.Sequence({a:null, b:null, c:null}).flip();
+    var v = Vector.from(seq);
     expect(v.toArray()).toEqual(['a', 'b', 'c']);
   });
 
@@ -227,8 +239,8 @@ describe('Vector', () => {
   it('ensures equality', () => {
     // Make a sufficiently long vector.
     var a = Array(100).join('abcdefghijklmnopqrstuvwxyz').split('');
-    var v1 = Vector.fromArray(a);
-    var v2 = Vector.fromArray(a);
+    var v1 = Vector.from(a);
+    var v2 = Vector.from(a);
     expect(v1 == v2).not.toBe(true);
     expect(v1 === v2).not.toBe(true);
     expect(v1.equals(v2)).toBe(true);

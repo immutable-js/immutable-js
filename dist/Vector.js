@@ -1,4 +1,6 @@
-var IndexedSequence = require('./Sequence').IndexedSequence;
+var SequenceModule = require('./Sequence');
+var Sequence = SequenceModule.Sequence;
+var IndexedSequence = SequenceModule.IndexedSequence;
 var ImmutableMap = require('./Map');
 
 
@@ -7,7 +9,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   // @pragma Construction
 
   function Vector() {"use strict";var values=Array.prototype.slice.call(arguments,0);
-    return Vector.fromArray(values);
+    return Vector.from(values);
   }
 
   Vector.empty=function() {"use strict";
@@ -16,14 +18,26 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     );
   };
 
-  Vector.fromArray=function(values) {"use strict";
-    if (values.length === 0) {
+  Vector.from=function(sequence) {"use strict";
+    if (sequence && sequence.constructor === Vector) {
+      return sequence;
+    }
+    if (!sequence || sequence.length === 0) {
       return Vector.empty();
     }
-    if (values.length > 0 && values.length < SIZE) {
-      return Vector.$Vector_make(0, values.length, SHIFT, __EMPTY_VNODE, new VNode(values.slice()));
+    var isArray = Array.isArray(sequence);
+    if (sequence.length > 0 && sequence.length < SIZE) {
+      return Vector.$Vector_make(0, sequence.length, SHIFT, __EMPTY_VNODE, new VNode(
+        isArray ? sequence.slice() : Sequence(sequence).toArray()
+      ));
     }
-    return Vector.empty().merge(values);
+    if (!isArray) {
+      sequence = Sequence(sequence);
+      if (!(sequence instanceof IndexedSequence)) {
+        sequence = sequence.values();
+      }
+    }
+    return Vector.empty().merge(sequence);
   };
 
   Vector.prototype.toString=function() {"use strict";
