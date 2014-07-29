@@ -103,16 +103,26 @@ export declare function fromJSON(
  *       as the for-in would iterate through the Object itself.
  *   * An `IndexedSequence` of all arguments is returned.
  *
- * Note: if a Sequence is created from a JavaScript Array or plain Object, then
- * it can still possibly mutated if the underlying Array or Object is ever
- * mutated.
+ * Note: if a Sequence is created from a JavaScript Array or Object, then it can
+ * still possibly mutated if the underlying Array or Object is ever mutated.
  */
 export declare function Sequence<T>(seq: IndexedSequence<T>): IndexedSequence<T>;
-export declare function Sequence<K, V>(seq: Sequence<K, V>): Sequence<K, V>;
 export declare function Sequence<T>(array: Array<T>): IndexedSequence<T>;
-export declare function Sequence<T>(obj: {[key: string]: T}): Sequence<string, T>;
+export declare function Sequence<K, V>(seq: Sequence<K, V>): Sequence<K, V>;
+export declare function Sequence<V>(obj: {[key: string]: V}): Sequence<string, V>;
 export declare function Sequence<T>(...values: T[]): IndexedSequence<T>;
 export declare function Sequence(): Sequence<any, any>;
+
+/**
+ * Like `Immutable.Sequence()`, `Immutable.Sequence.from()` returns a sequence,
+ * but always expects a single argument.
+ */
+export declare module Sequence {
+  function from<T>(seq: IndexedSequence<T>): IndexedSequence<T>;
+  function from<T>(array: Array<T>): IndexedSequence<T>;
+  function from<K, V>(seq: Sequence<K, V>): Sequence<K, V>;
+  function from<V>(obj: {[key: string]: V}): Sequence<string, V>;
+}
 
 
 export interface Sequence<K, V> {

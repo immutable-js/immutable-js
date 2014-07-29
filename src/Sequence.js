@@ -3,18 +3,20 @@ var Immutable = require('./Immutable');
 
 class Sequence {
   constructor(value) {
-    if (arguments.length !== 1) {
-      value = Array.prototype.slice.call(arguments);
-    } else {
-      if (value instanceof Sequence) {
-        return value;
+    return Sequence.from(
+      arguments.length === 1 ? value : Array.prototype.slice.call(arguments)
+    );
+  }
+
+  static from(value) {
+    if (value instanceof Sequence) {
+      return value;
+    }
+    if (!Array.isArray(value)) {
+      if (value && value.constructor === Object) {
+        return new ObjectSequence(value);
       }
-      if (!Array.isArray(value)) {
-        if (value && value.constructor === Object) {
-          return new ObjectSequence(value);
-        }
-        value = [value];
-      }
+      value = [value];
     }
     return new ArraySequence(value);
   }
