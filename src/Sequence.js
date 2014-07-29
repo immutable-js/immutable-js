@@ -41,12 +41,14 @@ class Sequence {
   }
 
   toArray() {
+    assertNotInfinite(this.length);
     var array = new Array(this.length || 0);
     this.values().forEach((v, i) => { array[i] = v; });
     return array;
   }
 
   toObject() {
+    assertNotInfinite(this.length);
     var object = {};
     this.forEach((v, k) => { object[k] = v; });
     return object;
@@ -54,21 +56,25 @@ class Sequence {
 
   toVector() {
     // Use Late Binding here to solve the circular dependency.
+    assertNotInfinite(this.length);
     return require('./Vector').from(this);
   }
 
   toMap() {
     // Use Late Binding here to solve the circular dependency.
+    assertNotInfinite(this.length);
     return require('./Map').from(this);
   }
 
   toOrderedMap() {
     // Use Late Binding here to solve the circular dependency.
+    assertNotInfinite(this.length);
     return require('./OrderedMap').from(this);
   }
 
   toSet() {
     // Use Late Binding here to solve the circular dependency.
+    assertNotInfinite(this.length);
     return require('./Set').from(this);
   }
 
@@ -410,6 +416,7 @@ class Sequence {
 
   cacheResult() {
     if (!this._cache && this.__iterateUncached) {
+      assertNotInfinite(this.length);
       this._cache = this.entries().toArray();
       if (this.length == null) {
         this.length = this._cache.length;
@@ -459,6 +466,7 @@ class IndexedSequence extends Sequence {
   }
 
   toArray() {
+    assertNotInfinite(this.length);
     var array = new Array(this.length || 0);
     array.length = this.forEach((v, i) => { array[i] = v; });
     return array;
@@ -866,6 +874,11 @@ function repeatString(string, times) {
   return repeated;
 }
 
+function assertNotInfinite(length) {
+  if (length === Infinity) {
+    throw new Error('Cannot perform this action with an infinite sequence.');
+  }
+}
 
 var __SENTINEL = {};
 

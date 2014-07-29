@@ -116,10 +116,6 @@ for(var ImmutableMap____Key in ImmutableMap){if(ImmutableMap.hasOwnProperty(Immu
 
   // @pragma Iteration
 
-  OrderedMap.prototype.toOrderedMap=function() {"use strict";
-    return this;
-  };
-
   OrderedMap.prototype.__deepEqual=function(other) {"use strict";
     var is = require('./Immutable').is;
     var iterator = this.$OrderedMap_vector.__iterator__();

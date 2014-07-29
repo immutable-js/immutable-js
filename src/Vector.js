@@ -346,10 +346,6 @@ class Vector extends IndexedSequence {
 
   // @pragma Iteration
 
-  toVector() {
-    return this;
-  }
-
   slice(begin, end, maintainIndices) {
     var sliceSequence = super.slice(begin, end, maintainIndices);
     // Optimize the case of vector.slice(b, e).toVector()

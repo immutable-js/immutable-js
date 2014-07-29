@@ -122,10 +122,6 @@ class Map extends Sequence {
 
   // @pragma Iteration
 
-  toMap() {
-    return this;
-  }
-
   __deepEqual(other) {
     var is = require('./Immutable').is;
     // Using Sentinel here ensures that a missing key is not interpretted as an

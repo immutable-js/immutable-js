@@ -69,36 +69,6 @@ class Range extends IndexedSequence {
     return this._start === other._start && this._end === other._end && this._step === other._step;
   }
 
-  toArray() {
-    assertNotInfinite(this.length);
-    return super.toArray();
-  }
-
-  toObject() {
-    assertNotInfinite(this.length);
-    return super.toObject();
-  }
-
-  toVector() {
-    assertNotInfinite(this.length);
-    return super.toVector();
-  }
-
-  toMap() {
-    assertNotInfinite(this.length);
-    return super.toMap();
-  }
-
-  toOrderedMap() {
-    assertNotInfinite(this.length);
-    return super.toOrderedMap();
-  }
-
-  toSet() {
-    assertNotInfinite(this.length);
-    return super.toSet();
-  }
-
   indexOf(searchValue) {
     var offsetValue = searchValue - this._start;
     if (offsetValue % this._step === 0) {
@@ -124,7 +94,6 @@ class Range extends IndexedSequence {
 
   __iterate(fn, reverse, flipIndices) {
     var reversedIndices = reverse ^ flipIndices;
-    reversedIndices && assertNotInfinite(this.length);
     var maxIndex = this.length - 1;
     var step = this._step;
     var value = reverse ? this._start + maxIndex * step : this._start;
@@ -145,10 +114,6 @@ Range.prototype.last = Vector.prototype.last;
 
 function invariant(condition, error) {
   if (!condition) throw new Error(error);
-}
-
-function assertNotInfinite(length) {
-  invariant(length < Infinity, 'Cannot access end of infinite range.');
 }
 
 

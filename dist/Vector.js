@@ -346,10 +346,6 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
   // @pragma Iteration
 
-  Vector.prototype.toVector=function() {"use strict";
-    return this;
-  };
-
   Vector.prototype.slice=function(begin, end, maintainIndices) {"use strict";
     var sliceSequence = ____SuperProtoOfIndexedSequence.slice.call(this,begin, end, maintainIndices);
     // Optimize the case of vector.slice(b, e).toVector()

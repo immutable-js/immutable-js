@@ -162,10 +162,6 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
   // @pragma Iteration
 
-  Set.prototype.toSet=function() {"use strict";
-    return this;
-  };
-
   Set.prototype.__deepEquals=function(other) {"use strict";
     return !(this.$Set_map || other.$Set_map) || this.$Set_map.equals(other.$Set_map);
   };

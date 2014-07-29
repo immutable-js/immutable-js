@@ -69,36 +69,6 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
     return this.$Range_start === other.$Range_start && this.$Range_end === other.$Range_end && this.$Range_step === other.$Range_step;
   };
 
-  Range.prototype.toArray=function() {"use strict";
-    assertNotInfinite(this.length);
-    return ____SuperProtoOfIndexedSequence.toArray.call(this);
-  };
-
-  Range.prototype.toObject=function() {"use strict";
-    assertNotInfinite(this.length);
-    return ____SuperProtoOfIndexedSequence.toObject.call(this);
-  };
-
-  Range.prototype.toVector=function() {"use strict";
-    assertNotInfinite(this.length);
-    return ____SuperProtoOfIndexedSequence.toVector.call(this);
-  };
-
-  Range.prototype.toMap=function() {"use strict";
-    assertNotInfinite(this.length);
-    return ____SuperProtoOfIndexedSequence.toMap.call(this);
-  };
-
-  Range.prototype.toOrderedMap=function() {"use strict";
-    assertNotInfinite(this.length);
-    return ____SuperProtoOfIndexedSequence.toOrderedMap.call(this);
-  };
-
-  Range.prototype.toSet=function() {"use strict";
-    assertNotInfinite(this.length);
-    return ____SuperProtoOfIndexedSequence.toSet.call(this);
-  };
-
   Range.prototype.indexOf=function(searchValue) {"use strict";
     var offsetValue = searchValue - this.$Range_start;
     if (offsetValue % this.$Range_step === 0) {
@@ -124,7 +94,6 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
 
   Range.prototype.__iterate=function(fn, reverse, flipIndices) {"use strict";
     var reversedIndices = reverse ^ flipIndices;
-    reversedIndices && assertNotInfinite(this.length);
     var maxIndex = this.length - 1;
     var step = this.$Range_step;
     var value = reverse ? this.$Range_start + maxIndex * step : this.$Range_start;
@@ -145,10 +114,6 @@ Range.prototype.last = Vector.prototype.last;
 
 function invariant(condition, error) {
   if (!condition) throw new Error(error);
-}
-
-function assertNotInfinite(length) {
-  invariant(length < Infinity, 'Cannot access end of infinite range.');
 }
 
 

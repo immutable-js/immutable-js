@@ -162,10 +162,6 @@ class Set extends Sequence {
 
   // @pragma Iteration
 
-  toSet() {
-    return this;
-  }
-
   __deepEquals(other) {
     return !(this._map || other._map) || this._map.equals(other._map);
   }

@@ -116,10 +116,6 @@ class OrderedMap extends ImmutableMap {
 
   // @pragma Iteration
 
-  toOrderedMap() {
-    return this;
-  }
-
   __deepEqual(other) {
     var is = require('./Immutable').is;
     var iterator = this._vector.__iterator__();

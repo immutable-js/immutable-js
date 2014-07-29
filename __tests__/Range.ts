@@ -26,7 +26,7 @@ describe('Range', () => {
     expect(v.length).toBe(Infinity);
     expect(v.first()).toBe(10);
     expect(v.last()).toBe(Infinity);
-    expect(() => v.toArray()).toThrow('Cannot access end of infinite range.');
+    expect(() => v.toArray()).toThrow('Cannot perform this action with an infinite sequence.');
   });
 
   it('backwards range', () => {

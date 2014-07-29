@@ -41,12 +41,14 @@ var Immutable = require('./Immutable');
   };
 
   Sequence.prototype.toArray=function() {"use strict";
+    assertNotInfinite(this.length);
     var array = new Array(this.length || 0);
     this.values().forEach(function(v, i)  { array[i] = v; });
     return array;
   };
 
   Sequence.prototype.toObject=function() {"use strict";
+    assertNotInfinite(this.length);
     var object = {};
     this.forEach(function(v, k)  { object[k] = v; });
     return object;
@@ -54,21 +56,25 @@ var Immutable = require('./Immutable');
 
   Sequence.prototype.toVector=function() {"use strict";
     // Use Late Binding here to solve the circular dependency.
+    assertNotInfinite(this.length);
     return require('./Vector').from(this);
   };
 
   Sequence.prototype.toMap=function() {"use strict";
     // Use Late Binding here to solve the circular dependency.
+    assertNotInfinite(this.length);
     return require('./Map').from(this);
   };
 
   Sequence.prototype.toOrderedMap=function() {"use strict";
     // Use Late Binding here to solve the circular dependency.
+    assertNotInfinite(this.length);
     return require('./OrderedMap').from(this);
   };
 
   Sequence.prototype.toSet=function() {"use strict";
     // Use Late Binding here to solve the circular dependency.
+    assertNotInfinite(this.length);
     return require('./Set').from(this);
   };
 
@@ -410,6 +416,7 @@ var Immutable = require('./Immutable');
 
   Sequence.prototype.cacheResult=function() {"use strict";
     if (!this.$Sequence_cache && this.__iterateUncached) {
+      assertNotInfinite(this.length);
       this.$Sequence_cache = this.entries().toArray();
       if (this.length == null) {
         this.length = this.$Sequence_cache.length;
@@ -459,6 +466,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   };
 
   IndexedSequence.prototype.toArray=function() {"use strict";
+    assertNotInfinite(this.length);
     var array = new Array(this.length || 0);
     array.length = this.forEach(function(v, i)  { array[i] = v; });
     return array;
@@ -866,6 +874,11 @@ function repeatString(string, times) {
   return repeated;
 }
 
+function assertNotInfinite(length) {
+  if (length === Infinity) {
+    throw new Error('Cannot perform this action with an infinite sequence.');
+  }
+}
 
 var __SENTINEL = {};
 
