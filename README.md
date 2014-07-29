@@ -7,28 +7,29 @@ as lazy evaluation. This provides a lazy `Sequence`, allowing efficient chaining
 of sequence methods like `map` and `filter` without creating intermediate
 representations.
 
-`immutable-data` implements a sparse `Vector`, `Map`, `OrderedMap`, `Set` and
-`Range` by using lazy sequences and hash maps tries. They achieve acceptable
-performance by using structural sharing and minimizing the need to copy data.
+`immutable` provides `Sequence`, `Range`, `Repeat`, `Map`, `OrderedMap`, `Set`
+and a sparse `Vector` by using lazy sequences and [hash maps tries](http://en.wikipedia.org/wiki/Hash_array_mapped_trie).
+They achieve efficiency by using structural sharing and minimizing the need to
+copy or cache data.
 
 
 Getting started
 ---------------
 
-Install immutable-data using npm
+Install `immutable` using npm
 
 ```shell
-npm install immutable-data
+npm install immutable
 ```
 
 Then require it into any module.
 
 ```javascript
-var Immutable = require('immutable-data');
+var Immutable = require('immutable');
 var map = Immutable.Map({a:1, b:2, c:3});
 ```
 
-To use `immutable-data` from a browser, try [Browserify](http://browserify.org/).
+To use `immutable` from a browser, try [Browserify](http://browserify.org/).
 
 
 Use these Immutable collections and sequences as you would use native
@@ -39,7 +40,7 @@ advantage of type generics, error detection, and auto-complete in your IDE.
 require the full file path)
 
 ```javascript
-import Immutable = require('./node_modules/immutable-data/dist/Immutable');
+import Immutable = require('./node_modules/immutable/dist/Immutable');
 var map: Immutable.Map<string, number>;
 map = Immutable.Map({a:1, b:2, c:3});
 ```
@@ -61,11 +62,11 @@ to changes throughout the model is a dead-end and new data can only ever be
 passed from above.
 
 This model of data flow aligns well with the architecture of [React](http://facebook.github.io/react/)
-and especially an application designed using the ideas of [Flux](http://facebook.github.io/react/docs/flux-overview.html).
+and especially well with an application designed using the ideas of [Flux](http://facebook.github.io/react/docs/flux-overview.html).
 
 When data is passed from above rather than being subscribed to, and you're only
 interested in doing work when something has changed, you can use equality.
-`immutable-data` always returns itself when a mutation results in an identical
+`immutable` always returns itself when a mutation results in an identical
 collection, allowing for using `===` equality to determine if something
 has changed.
 
@@ -89,7 +90,7 @@ var clone = map1;
 JavaScript-first API
 --------------------
 
-While `immutable-data` is inspired by Clojure, Haskell and other functional
+While `immutable` is inspired by Clojure, Haskell and other functional
 programming environments, it's designed to bring these powerful concepts to
 JavaScript, and therefore has an Object-Oriented API that closely mirrors that
 of [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array),
@@ -115,15 +116,12 @@ Almost all of the methods on `Array` will be found in similar form on
 found on `Immutable.Set`, including sequence operations like `forEach` and `map`.
 
 ```javascript
-> var alpha = Immutable.Map({a:1, b:2, c:3, d:4});
-> alpha.map((v, k) => k.toUpperCase()).forEach(k => console.log(k));
-A
-B
-C
-D
+var alpha = Immutable.Map({a:1, b:2, c:3, d:4});
+alpha.map((v, k) => k.toUpperCase()).join();
+// 'A,B,C,D'
 ```
 
-Designed to inter-operate with your existing JavaScript, `immutable-data`
+Designed to inter-operate with your existing JavaScript, `immutable`
 accepts plain JavaScript Array and Objects anywhere a method expects a
 `Sequence` with no performance penalty.
 
@@ -135,7 +133,19 @@ var map3 = map1.merge(map2, obj);
 // Map { a: 20, b: 2, c: 10, d: 1000, t: 30, o: 2000, g: 300 }
 ```
 
-All `immutable-data` Sequences can be converted to plain JavaScript Arrays and
+This is possible because `immutible` can treat any JavaScript Array or Object
+as a Sequence. You can take advantage of this in order to get sophisticated
+sequence methods on JavaScript Objects, which otherwise have a very sparse
+native API. Because Sequences evaluate lazily and do not cache intermediate
+results, these operations are extremely efficient.
+
+```javascript
+var myObject = {a:1,b:2,c:3};
+Sequence(myObject).map(x => x * x).toObject();
+// { a: 1, b: 4, c: 9 }
+```
+
+All `immutable` Sequences can be converted to plain JavaScript Arrays and
 Objects shallowly with `toArray()` and `toObject()` or deeply with `toJSON()`,
 allowing `JSON.stringify` to work automatically.
 
@@ -151,7 +161,7 @@ JSON.stringify(deep) // '{"a":1,"b":2,"c":[3,4,5]}'
 Nested Structures
 -----------------
 
-The collections in `immutable-data` are intended to be nested, allowing for deep
+The collections in `immutable` are intended to be nested, allowing for deep
 trees of data, similar to JSON.
 
 ```javascript
@@ -179,7 +189,7 @@ Lazy Sequences
 --------------
 
 The `Sequence` is a set of (key, value) entries which can be iterated, and
-is the base class for all collections in `immutable-data`, allowing them to make
+is the base class for all collections in `immutable`, allowing them to make
 use of all the Sequence methods (such as `map` and `filter`).
 
 **Sequences are immutable** — Once a sequence is created, it cannot be
@@ -225,7 +235,7 @@ not always be well defined, as is the case for the `Map`.
 Equality treats Collections as Data
 -----------------------------------
 
-`immutable-data` provides equality which treats immutable data structures as
+`immutable` provides equality which treats immutable data structures as
 pure data, performing a deep equality check if necessary.
 
 ```javascript
@@ -252,9 +262,9 @@ Batching Mutations
 
 There is a performance penalty paid every time you create a new immutable object
 via applying a mutation. If you need to apply a series of mutations
-`immutable-data` gives you the ability to create a temporary mutable copy of a
+`immutable` gives you the ability to create a temporary mutable copy of a
 collection and applying a batch of mutations in a highly performant manner by
-using `withMutations`. In fact, this is exactly how `immutable-data` applies
+using `withMutations`. In fact, this is exactly how `immutable` applies
 complex mutations itself.
 
 As an example, this results in the creation of 2, not 4, new immutable Vectors.
@@ -278,4 +288,15 @@ All documentation is contained within the type definition file, [Immutable.d.ts]
 Contribution
 ------------
 
-Taking pull requests! Or, use Github issues for requests.
+Or, use [Github issues](https://github.com/leebyron/immutable-js/issues) for requests.
+
+Taking [pull requests](https://help.github.com/articles/creating-a-pull-request)!
+Before submitting your diff, please add a test to the [__tests__](./__tests__)
+directory and build and run all tests by running `grunt`.
+
+
+Thanks
+------
+
+[Hugh Jackson](https://github.com/hughfdjackson/), for providing the npm package
+name. If you're looking for his unsupported package, see [v1.4.1](https://www.npmjs.org/package/immutable/1.4.1).

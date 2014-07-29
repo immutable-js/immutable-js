@@ -67,7 +67,7 @@ export declare function fromJSON(
  * --------
  *
  * The `Sequence` is a set of (key, value) entries which can be iterated, and
- * is the base class for all collections in `immutable-data`, allowing them to
+ * is the base class for all collections in `immutable`, allowing them to
  * make use of all the Sequence methods (such as `map` and `filter`).
  *
  * **Sequences are immutable** — Once a sequence is created, it cannot be
@@ -181,28 +181,43 @@ export interface Sequence<K, V> {
 
   /**
    * Converts this sequence to a Vector, discarding keys.
+   *
+   * Note: This is equivalent to `Vector.from(this)`, but provided to allow for
+   * chained expressions.
    */
   toVector(): Vector<V>;
 
   /**
    * Converts this sequence to a Map, Throws if keys are not hashable.
+   *
+   * Note: This is equivalent to `Map.from(this)`, but provided to allow for
+   * chained expressions.
    */
   toMap(): Map<K, V>;
 
   /**
    * Converts this sequence to a Map, maintaining the order of iteration.
+   *
+   * Note: This is equivalent to `OrderedMap.from(this)`, but provided to allow
+   * for chained expressions.
    */
   toOrderedMap(): Map<K, V>;
 
   /**
    * Converts this sequence to a Set, discarding keys. Throws if values
    * are not hashable.
+   *
+   * Note: This is equivalent to `Set.from(this)`, but provided to allow for
+   * chained expressions.
    */
   toSet(): Set<V>;
 
   /**
    * True if this and the other sequence have value equality, as defined
-   * by `Immutable.is()`
+   * by `Immutable.is()`.
+   *
+   * Note: This is equivalent to `Immutable.is(this, other)`, but provided to
+   * allow for chained expressions.
    */
   equals(other: Sequence<K, V>): boolean;
 
@@ -242,10 +257,11 @@ export interface Sequence<K, V> {
   entries(): IndexedSequence</*(K, V)*/Array<any>>;
 
   /**
-   * SideEffect is executed for every entry in the sequence.
+   * The `sideEffect` is executed for every entry in the sequence.
    *
-   * Unlike `Array.prototype.forEach`, if any sideEffect returns `false`, the
-   * iteration will stop. Returns the length of the sequence which was iterated.
+   * Unlike `Array.prototype.forEach`, if any call of `sideEffect` returns
+   * `false`, the iteration will stop. Returns the length of the sequence which
+   * was iterated.
    */
   forEach(
     sideEffect: (value?: V, key?: K, seq?: Sequence<K, V>) => any,
@@ -263,7 +279,10 @@ export interface Sequence<K, V> {
   ): R;
 
   /**
-   * Reduces the sequence in reverse
+   * Reduces the sequence in reverse (from the right side).
+   *
+   * Note: Equivalent to this.reverse().reduce(), but provided for parity
+   * with `Array.prototype.reduceRight`.
    */
   reduceRight<R>(
     reducer: (reduction?: R, value?: V, key?: K, seq?: Sequence<K, V>) => R,
@@ -370,7 +389,7 @@ export interface Sequence<K, V> {
    * Returns a new sequence with this sequences's keys as it's values, and this
    * sequences's values as it's keys.
    *
-   *     Sequence({a:'z',b:'y'}).flip() // { z: 'a', y: 'b' }
+   *     Sequence({ a: 'z', b: 'y' }).flip() // { z: 'a', y: 'b' }
    *
    */
   flip(): Sequence<V, K>;
