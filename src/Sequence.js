@@ -751,6 +751,15 @@ class ArraySequence extends IndexedSequence {
     return this._array;
   }
 
+  slice(begin, end, maintainIndices) {
+    var sliceSequence = super.slice();
+    if (!maintainIndices) {
+      var array = this._array;
+      sliceSequence.toArray = () => array.slice(begin, end);
+    }
+    return sliceSequence;
+  }
+
   __iterate(fn, reverse, flipIndices) {
     var array = this._array;
     var maxIndex = array.length - 1;

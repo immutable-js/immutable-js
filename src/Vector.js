@@ -350,9 +350,9 @@ class Vector extends IndexedSequence {
     var sliceSequence = super.slice(begin, end, maintainIndices);
     // Optimize the case of vector.slice(b, e).toVector()
     if (!maintainIndices && sliceSequence !== this) {
-      var sequence = this;
-      var length = sequence.length;
-      sliceSequence.toVector = () => sequence._setBounds(
+      var vector = this;
+      var length = vector.length;
+      sliceSequence.toVector = () => vector._setBounds(
         begin < 0 ? Math.max(0, length + begin) : length ? Math.min(length, begin) : begin,
         end == null ? length : end < 0 ? Math.max(0, length + end) : length ? Math.min(length, end) : end
       );
