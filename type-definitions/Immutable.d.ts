@@ -66,9 +66,9 @@ export declare function fromJSON(
  * Sequence
  * --------
  *
- * A sequence is a set of (key, value) entries which can be iterated.
- * All immutable collections extend from Sequence, and can make use of all
- * the Sequence methods.
+ * The `Sequence` is a set of (key, value) entries which can be iterated, and
+ * is the base class for all collections in `immutable-data`, allowing them to
+ * make use of all the Sequence methods (such as `map` and `filter`).
  *
  * **Sequences are immutable** — Once a sequence is created, it cannot be
  * changed, appended to, rearranged or otherwise modified. Instead, any mutative
@@ -89,8 +89,25 @@ export declare function fromJSON(
  *
  *     console.log(evenSquares.last()); // 49
  *
+ * Lazy Sequences allow for the efficient chaining of sequence operations,
+ * allowing for the expression of logic that can otherwise be very tedious:
+ *
+ *     Immutable.Sequence({a:1, b:1, c:1})
+ *       .flip().map(key => key.toUpperCase()).flip().toObject();
+ *     // Map { A: 1, B: 1, C: 1 }
+ *
+ * As well as expressing logic that would otherwise seem memory-limited:
+ *
+ *     Immutable.Range(1, Infinity)
+ *       .skip(1000)
+ *       .map(n => -n)
+ *       .filter(n => n % 2 === 0)
+ *       .take(2)
+ *       .reduce((r, n) => r * n, 1);
+ *     // 1006008
+ *
  * Note: A sequence is always iterated in the same order, however that order may
- * not always be well defined.
+ * not always be well defined, as is the case for the `Map`.
  */
 
 /**

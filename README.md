@@ -52,9 +52,22 @@ Much of what makes application development difficult is tracking mutation and
 maintaining state. Developing with immutable data encourages you to think
 differently about how data flows through your application.
 
+Subscribing to data events throughout your application, by using
+`Object.observe`, or any other mechanism, creates a huge overhead of
+book-keeping which can hurt performance, sometimes dramatically, and creates
+opportunities for areas of your application to get out of sync with each other
+due to simple programmer error. Since immutable data never changes, subscribing
+to changes throughout the model is a dead-end and new data can only ever be
+passed from above.
+
+This model of data flow aligns well with the architecture of [React](http://facebook.github.io/react/)
+and especially an application designed using the ideas of [Flux](http://facebook.github.io/react/docs/flux-overview.html).
+
 When data is passed from above rather than being subscribed to, and you're only
-interested in doing work when something has changed, you use equality. Immutable
-data allows for using `===` equality to determine if something has changed.
+interested in doing work when something has changed, you can use equality.
+`immutable-data` always returns itself when a mutation results in an identical
+collection, allowing for using `===` equality to determine if something
+has changed.
 
 ```javascript
 var map1 = Immutable.Map({a:1, b:2, c:3});
@@ -62,15 +75,14 @@ var map2 = map1.set('b', 2);
 assert(map1 === map2);
 ```
 
-If an object is immutable, it can be copied simply by making a copy of a
-reference to it instead of copying the entire object. Because a reference is
-much smaller than the object itself, this results in memory savings and a
-potential boost in execution speed for programs which rely on copies.
+If an object is immutable, it can be "cloned" simply by making another reference
+to it instead of copying the entire object. Because a reference is much smaller
+than the object itself, this results in memory savings and a potential boost in
+execution speed for programs which rely on copies (such as an undo-stack).
 
 ```javascript
 var map1 = Immutable.Map({a:1, b:2, c:3});
-var map2 = map1.clone();
-assert(map1 === map2);
+var clone = map1;
 ```
 
 
@@ -166,16 +178,48 @@ var nested3 = nested2.updateIn(['a', 'b', 'd'], value => value + 1);
 Lazy Sequences
 --------------
 
-The lazy `Sequence`, which is the base class for all collections in
-`immutable-data`. This allows for efficient chaining of sequence operations like
-`map` and `filter` as well as allowing for defining logic that is otherwise very
-difficult to express.
+The `Sequence` is a set of (key, value) entries which can be iterated, and
+is the base class for all collections in `immutable-data`, allowing them to make
+use of all the Sequence methods (such as `map` and `filter`).
 
-```javascript
-var map1 = Immutable.Map({a:1, b:1, c:1});
-var map2 = map1.flip().map(key => key.toUpperCase()).flip().toMap();
-console.log(map2); // Map { A: 1, B: 1, C: 1 }
-```
+**Sequences are immutable** — Once a sequence is created, it cannot be
+changed, appended to, rearranged or otherwise modified. Instead, any mutative
+method called on a sequence will return a new immutable sequence.
+
+**Sequences are lazy** — Sequences do as little work as necessary to respond
+to any method call.
+
+For example, the following does no work, because the resulting sequence is
+never used:
+
+    var oddSquares = Immutable.Sequence(1,2,3,4,5,6,7,8)
+      .filter(x => x % 2).map(x => x * x);
+
+Once the sequence is used, it performs only the work necessary. In this
+example, no intermediate arrays are ever created, filter is only called
+twice, and map is only called once:
+
+    console.log(evenSquares.last()); // 49
+
+Lazy Sequences allow for the efficient chaining of sequence operations, allowing
+for the expression of logic that can otherwise be very tedious:
+
+    Immutable.Sequence({a:1, b:1, c:1})
+      .flip().map(key => key.toUpperCase()).flip().toObject();
+    // Map { A: 1, B: 1, C: 1 }
+
+As well as expressing logic that would otherwise seem memory-limited:
+
+    Immutable.Range(1, Infinity)
+      .skip(1000)
+      .map(n => -n)
+      .filter(n => n % 2 === 0)
+      .take(2)
+      .reduce((r, n) => r * n, 1);
+    // 1006008
+
+Note: A sequence is always iterated in the same order, however that order may
+not always be well defined, as is the case for the `Map`.
 
 
 Equality treats Collections as Data
