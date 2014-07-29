@@ -5,7 +5,7 @@ Immutable data cannot be changed once created, leading to much simpler
 application development and enabling techniques from functional programming such
 as lazy evaluation. This provides a lazy `Sequence`, allowing efficient chaining
 of sequence methods like `map` and `filter` without creating intermediate
-represenations.
+representations.
 
 `immutable-data` implements a sparse `Vector`, `Map`, `OrderedMap`, `Set` and
 `Range` by using lazy sequences and hash maps tries. They achieve acceptable
@@ -30,7 +30,13 @@ var map = Immutable.Map({a:1, b:2, c:3});
 
 To use `immutable-data` from a browser, try [Browserify](http://browserify.org/).
 
-To use `immutable-data` from a [TypeScript](http://www.typescriptlang.org/) program.
+
+Use these Immutable collections and sequences as you would use native
+collections in your [TypeScript](typescriptlang.org) programs while still taking
+advantage of type generics, error detection, and auto-complete in your IDE.
+
+(Because of TypeScript 1.0's issue with NodeJS module resolution, you must
+require the full file path)
 
 ```javascript
 import Immutable = require('./node_modules/immutable-data/dist/Immutable');
@@ -68,40 +74,6 @@ assert(map1 === map2);
 ```
 
 
-Lazy Sequences
---------------
-
-`immutable-data` provides a lazy `Sequence`, which is the base class for all of
-its collections. This allows for efficient chaining of sequence operations like
-`map` and `filter` as well as allowing for defining logic that is otherwise very
-difficult to express.
-
-```javascript
-var map1 = Immutable.Map({a:1, b:1, c:1});
-var map2 = map1.flip().map(key => key.toUpperCase()).flip().toMap();
-console.log(map2); // Map { A: 1, B: 1, C: 1 }
-```
-
-
-Equality treats Collections as data
------------------------------------
-
-`immutable-data` provides equality which treats immutable data structures as
-pure data, performing a deep equality check if necessary.
-
-```javascript
-var map1 = Immutable.Map({a:1, b:1, c:1});
-var map2 = Immutable.Map({a:1, b:1, c:1});
-assert(map1 !== map2);
-assert(Immutable.is(map1, map2) === true);
-```
-
-`Immutable.is` uses the same measure of equality as [Object.is](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is) however adds:
-
-  * if both are immutable sequences and all keys and values are equal using the
-    same measure of equality.
-
-
 JavaScript-first API
 --------------------
 
@@ -116,9 +88,9 @@ The only difference is that every method that would mutate the collection
 instead returns a new collection.
 
 ```javascript
-var vect1 = Immutable.Vector(1,2);
-var vect2 = vect1.push(3,4,5);
-var vect3 = vect2.slice(1, -1).toVector();
+var vect1 = Immutable.Vector(1, 2);
+var vect2 = vect1.push(3, 4, 5);
+var vect3 = vect2.slice(1, -1);
 var vect4 = vect1.concat(vect2, vect3, vect4);
 assert(vect1.length === 2);
 assert(vect2.length === 5);
@@ -128,10 +100,103 @@ assert(vect4.length === 10);
 
 Almost all of the methods on `Array` will be found in similar form on
 `Immutable.Vector`, those of `Map` found on `Immutable.Map`, and those of `Set`
-found on `Immutable.Set`, including sequence operations.
+found on `Immutable.Set`, including sequence operations like `forEach` and `map`.
+
+```javascript
+> var alpha = Immutable.Map({a:1, b:2, c:3, d:4});
+> alpha.map((v, k) => k.toUpperCase()).forEach(k => console.log(k));
+A
+B
+C
+D
+```
+
+Designed to inter-operate with your existing JavaScript, `immutable-data`
+accepts plain JavaScript Array and Objects anywhere a method expects a
+`Sequence` with no performance penalty.
+
+```javascript
+var map1 = Immutable.Map({a:1, b:2, c:3, d:4});
+var map2 = Immutable.Map({c:10, a:20, t:30});
+var obj = {d:100, o:200, g:300};
+var map3 = map1.merge(map2, obj);
+// Map { a: 20, b: 2, c: 10, d: 1000, t: 30, o: 2000, g: 300 }
+```
+
+All `immutable-data` Sequences can be converted to plain JavaScript Arrays and
+Objects shallowly with `toArray()` and `toObject()` or deeply with `toJSON()`,
+allowing `JSON.stringify` to work automatically.
+
+```javascript
+var deep = Immutable.Map({a:1, b:2, c:Immutable.Vector(3,4,5)});
+deep.toObject() // { a: 1, b: 2, c: Vector [ 3, 4, 5 ] }
+deep.toArray() // [ 1, 2, Vector [ 3, 4, 5 ] ]
+deep.toJSON() // { a: 1, b: 2, c: [ 3, 4, 5 ] }
+JSON.stringify(deep) // '{"a":1,"b":2,"c":[3,4,5]}'
+```
 
 
-Batching mutations
+Nested Structures
+-----------------
+
+The collections in `immutable-data` are intended to be nested, allowing for deep
+trees of data, similar to JSON.
+
+```javascript
+var nested = Immutable.fromJSON({a:{b:{c:[3,4,5]}}});
+// Map { a: Map { b: Map { c: Vector [ 3, 4, 5 ] } } }
+```
+
+A few power-tools allow for reading and operating on nested data. The
+most useful are `mergeDeep`, `getIn` and `updateIn`, found on `Vector`, `Map`
+and `OrderedMap`.
+
+```javascript
+var nested2 = nested.mergeDeep({a:{b:{d:6}}});
+// Map { a: Map { b: Map { c: Vector [ 3, 4, 5 ], d: 6 } } }
+```
+
+```javascript
+nested2.getIn(['a', 'b', 'd']); // 6
+var nested3 = nested2.updateIn(['a', 'b', 'd'], value => value + 1);
+// Map { a: Map { b: Map { c: Vector [ 3, 4, 5 ], d: 7 } } }
+```
+
+
+Lazy Sequences
+--------------
+
+The lazy `Sequence`, which is the base class for all collections in
+`immutable-data`. This allows for efficient chaining of sequence operations like
+`map` and `filter` as well as allowing for defining logic that is otherwise very
+difficult to express.
+
+```javascript
+var map1 = Immutable.Map({a:1, b:1, c:1});
+var map2 = map1.flip().map(key => key.toUpperCase()).flip().toMap();
+console.log(map2); // Map { A: 1, B: 1, C: 1 }
+```
+
+
+Equality treats Collections as Data
+-----------------------------------
+
+`immutable-data` provides equality which treats immutable data structures as
+pure data, performing a deep equality check if necessary.
+
+```javascript
+var map1 = Immutable.Map({a:1, b:1, c:1});
+var map2 = Immutable.Map({a:1, b:1, c:1});
+assert(map1 !== map2);
+assert(Immutable.is(map1, map2) === true);
+```
+
+`Immutable.is` uses the same measure of equality as [Object.is](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is)
+including if both are immutable sequences and all keys and values are equal
+using the same measure of equality.
+
+
+Batching Mutations
 ------------------
 
 > If a tree falls in the woods, does it make a sound?
@@ -160,10 +225,10 @@ assert(vect2.length === 6);
 ```
 
 
-API
----
+API Documentation
+-----------------
 
-Reference: [Immutable.d.ts](./type-definitions/Immutable.d.ts)
+All documentation is contained within the type definition file, [Immutable.d.ts](./type-definitions/Immutable.d.ts).
 
 
 Contribution
