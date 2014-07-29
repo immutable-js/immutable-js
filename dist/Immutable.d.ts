@@ -114,6 +114,7 @@ export declare function Sequence<T>(obj: {[key: string]: T}): Sequence<string, T
 export declare function Sequence<T>(...values: T[]): IndexedSequence<T>;
 export declare function Sequence(): Sequence<any, any>;
 
+
 export interface Sequence<K, V> {
 
   /**
@@ -768,14 +769,14 @@ export declare module Map {
 
   /**
    * `Map.from()` creates a new immutable Map with the same key value pairs as
-   * the provided JavaScript Object, Array or Sequence.
+   * the provided Sequence or JavaScript Object or Array.
    *
    *     var newMap = Map.from({key: "value"});
    *
    */
+  function from<K, V>(sequence: Sequence<K, V>): Map<K, V>;
   function from<V>(object: {[key: string]: V}): Map<string, V>;
   function from<V>(array: Array<V>): Map<number, V>;
-  function from<K, V>(sequence: Sequence<K, V>): Map<K, V>;
 }
 
 /**
@@ -786,9 +787,9 @@ export declare function Map<K, V>(): Map<K, V>;
 /**
  * Alias for `Map.from()`.
  */
+export declare function Map<K, V>(sequence: Sequence<K, V>): Map<K, V>;
 export declare function Map<V>(object: {[key: string]: V}): Map<string, V>;
 export declare function Map<V>(array: Array<V>): Map<number, V>;
-export declare function Map<K, V>(sequence: Sequence<K, V>): Map<K, V>;
 
 
 export interface Map<K, V> extends Sequence<K, V> {
@@ -931,14 +932,14 @@ export declare module OrderedMap {
 
   /**
    * `OrderedMap.from()` creates a new immutable ordered Map with the same key
-   * value pairs as the provided JavaScript Object, Array or Sequence.
+   * value pairs as the provided Sequence or JavaScript Object or Array.
    *
    *   var newMap = OrderedMap.from({key: "value"});
    *
    */
+  function from<K, V>(sequence: Sequence<K, V>): Map<K, V>;
   function from<V>(object: {[key: string]: V}): Map<string, V>;
   function from<V>(array: Array<V>): Map<number, V>;
-  function from<K, V>(sequence: Sequence<K, V>): Map<K, V>;
 }
 
 /**
@@ -949,9 +950,9 @@ export declare function OrderedMap<K, V>(): Map<K, V>;
 /**
  * Alias for `OrderedMap.from()`.
  */
+export declare function OrderedMap<K, V>(sequence: Sequence<K, V>): Map<K, V>;
 export declare function OrderedMap<V>(object: {[key: string]: V}): Map<string, V>;
 export declare function OrderedMap<V>(array: Array<V>): Map<number, V>;
-export declare function OrderedMap<K, V>(sequence: Sequence<K, V>): Map<K, V>;
 
 
 /**
@@ -992,10 +993,12 @@ export declare function OrderedMap<K, V>(sequence: Sequence<K, V>): Map<K, V>;
  *     myRecord.getAB() // 4
  *
  */
-export declare function Record(defaultValues: Object): {
+export declare function Record(defaultValues: Object): RecordClass;
+
+export interface RecordClass {
   new (): Map<string, any>;
-  new (values: {[key: string]: any}): Map<string, any>;
   new (values: Sequence<string, any>): Map<string, any>;
+  new (values: {[key: string]: any}): Map<string, any>;
 }
 
 
@@ -1022,17 +1025,17 @@ export declare module Set {
 
   /**
    * `Set.from()` creates a new immutable Set containing the values from this
-   * JavaScript Array or Sequence.
+   * Sequence or JavaScript Array.
    */
-  function from<T>(array: Array<T>): Set<T>;
   function from<T>(sequence: Sequence<any, T>): Set<T>;
+  function from<T>(array: Array<T>): Set<T>;
 
   /**
    * `Set.fromKeys()` creates a new immutable Set containing the keys from
-   * this JavaScript Object or Sequence.
+   * this Sequence or JavaScript Object.
    */
-  function fromKeys(object: {[key: string]: any}): Set<string>;
   function fromKeys<T>(sequence: Sequence<T, any>): Set<T>;
+  function fromKeys(object: {[key: string]: any}): Set<string>;
 }
 
 /**
@@ -1069,7 +1072,6 @@ export interface Set<T> extends Sequence<T, T> {
    */
   union(...sequences: Sequence<any, T>[]): Set<T>;
   union(...sequences: Array<T>[]): Set<T>;
-  union(...sequences: {[key: string]: T}[]): Set<T>;
 
   /**
    * Returns a Set which has removed any values not also contained
@@ -1077,28 +1079,24 @@ export interface Set<T> extends Sequence<T, T> {
    */
   intersect(...sequences: Sequence<any, T>[]): Set<T>;
   intersect(...sequences: Array<T>[]): Set<T>;
-  intersect(...sequences: {[key: string]: T}[]): Set<T>;
 
   /**
    * Returns a Set excluding any values contained within `sequences`.
    */
   subtract(...sequences: Sequence<any, T>[]): Set<T>;
   subtract(...sequences: Array<T>[]): Set<T>;
-  subtract(...sequences: {[key: string]: T}[]): Set<T>;
 
   /**
    * True if `sequence` contains every value in this Set.
    */
   isSubset(sequence: Sequence<any, T>): boolean;
   isSubset(sequence: Array<T>): boolean;
-  isSubset(sequence: {[key: string]: T}): boolean;
 
   /**
    * True if this Set contains every value in `sequence`.
    */
   isSuperset(sequence: Sequence<any, T>): boolean;
   isSuperset(sequence: Array<T>): boolean;
-  isSuperset(sequence: {[key: string]: T}): boolean;
 
   /**
    * @see `Map.prototype.withMutations`
