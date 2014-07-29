@@ -5,23 +5,18 @@ class Map extends Sequence {
 
   // @pragma Construction
 
-  constructor(object) {
-    if (!object) {
+  constructor(sequence) {
+    if (!sequence) {
       return Map.empty();
     }
-    return Map.fromObject(object);
+    if (sequence.constructor === Map) {
+      return sequence;
+    }
+    return Map.empty().merge(sequence);
   }
 
   static empty() {
-    return __EMPTY_MAP || (__EMPTY_MAP = Map._make(0, null));
-  }
-
-  static fromObject(object) {
-    return Map.empty().withMutations(map => {
-      for (var k in object) if (object.hasOwnProperty(k)) {
-        map.set(k, object[k]);
-      }
-    });
+    return __EMPTY_MAP || (__EMPTY_MAP = Map._make(0));
   }
 
   toString() {
@@ -153,6 +148,8 @@ class Map extends Sequence {
     return map;
   }
 }
+
+Map.from = Map;
 
 
 class OwnerID {

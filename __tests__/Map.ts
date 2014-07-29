@@ -5,11 +5,39 @@ import Map = Immutable.Map;
 
 describe('Map', () => {
 
+  it('converts from object', () => {
+    var m = Map.from({'a': 'A', 'b': 'B', 'c': 'C'});
+    expect(m.get('a')).toBe('A');
+    expect(m.get('b')).toBe('B');
+    expect(m.get('c')).toBe('C');
+  });
+
   it('constructor provides initial values', () => {
     var m = Map({'a': 'A', 'b': 'B', 'c': 'C'});
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
+  });
+
+  it('constructor provides initial values as array', () => {
+    var m = Map(['A','B','C']);
+    expect(m.get(0)).toBe('A');
+    expect(m.get(1)).toBe('B');
+    expect(m.get(2)).toBe('C');
+  });
+
+  it('constructor provides initial values as sequence', () => {
+    var s = Immutable.Sequence({'a': 'A', 'b': 'B', 'c': 'C'});
+    var m = Map(s);
+    expect(m.get('a')).toBe('A');
+    expect(m.get('b')).toBe('B');
+    expect(m.get('c')).toBe('C');
+  });
+
+  it('constructor is identity when provided map', () => {
+    var m1 = Map({'a': 'A', 'b': 'B', 'c': 'C'});
+    var m2 = Map(m1);
+    expect(m2).toBe(m1);
   });
 
   it('converts back to JS object', () => {

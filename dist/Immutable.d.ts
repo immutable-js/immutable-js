@@ -767,13 +767,15 @@ export declare module Map {
   function empty<K, V>(): Map<K, V>;
 
   /**
-   * `Map.fromObject()` creates a new immutable map with the same key value
+   * `Map.from()` creates a new immutable map with the same key value
    * pairs as the provided object.
    *
-   *     var newMap = Map.fromObject({key: "value"});
+   *     var newMap = Map.from({key: "value"});
    *
    */
-  function fromObject<V>(object: {[key: string]: V}): Map<string, V>;
+  function from<V>(object: {[key: string]: V}): Map<string, V>;
+  function from<V>(array: Array<V>): Map<number, V>;
+  function from<K, V>(sequence: Sequence<K, V>): Map<K, V>;
 }
 
 /**
@@ -782,9 +784,11 @@ export declare module Map {
 export declare function Map<K, V>(): Map<K, V>;
 
 /**
- * Alias for Map.fromObject().
+ * Alias for Map.from().
  */
 export declare function Map<V>(object: {[key: string]: V}): Map<string, V>;
+export declare function Map<V>(array: Array<V>): Map<number, V>;
+export declare function Map<K, V>(sequence: Sequence<K, V>): Map<K, V>;
 
 
 export interface Map<K, V> extends Sequence<K, V> {

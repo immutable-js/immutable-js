@@ -5,23 +5,18 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
   // @pragma Construction
 
-  function Map(object) {"use strict";
-    if (!object) {
+  function Map(sequence) {"use strict";
+    if (!sequence) {
       return Map.empty();
     }
-    return Map.fromObject(object);
+    if (sequence.constructor === Map) {
+      return sequence;
+    }
+    return Map.empty().merge(sequence);
   }
 
   Map.empty=function() {"use strict";
-    return __EMPTY_MAP || (__EMPTY_MAP = Map.$Map_make(0, null));
-  };
-
-  Map.fromObject=function(object) {"use strict";
-    return Map.empty().withMutations(function(map)  {
-      for (var k in object) if (object.hasOwnProperty(k)) {
-        map.set(k, object[k]);
-      }
-    });
+    return __EMPTY_MAP || (__EMPTY_MAP = Map.$Map_make(0));
   };
 
   Map.prototype.toString=function() {"use strict";
@@ -153,6 +148,8 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     return map;
   };
 
+
+Map.from = Map;
 
 
 
