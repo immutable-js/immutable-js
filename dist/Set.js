@@ -8,23 +8,26 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
   // @pragma Construction
 
-  function Set() {"use strict";
-    return Set.fromArray(arguments);
+  function Set() {"use strict";var values=Array.prototype.slice.call(arguments,0);
+    return Set.from(values);
   }
 
   Set.empty=function() {"use strict";
     return __EMPTY_SET || (__EMPTY_SET = Set.$Set_make());
   };
 
-  Set.fromArray=function(values) {"use strict";
-    if (values.length === 0) {
+  Set.from=function(sequence) {"use strict";
+    if (sequence && sequence.constructor === Set) {
+      return sequence;
+    }
+    if (!sequence || sequence.length === 0) {
       return Set.empty();
     }
-    return Set.empty().withMutations(function(set)  {
-      for (var ii = 0; ii < values.length; ii++) {
-        set.add(values[ii]);
-      }
-    });
+    return Set.empty().union(sequence);
+  };
+
+  Set.fromKeys=function(sequence) {"use strict";
+    return Set.from(Sequence(sequence).flip());
   };
 
   Set.prototype.toString=function() {"use strict";

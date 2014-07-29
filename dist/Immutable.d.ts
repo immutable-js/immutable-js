@@ -1014,24 +1014,32 @@ export declare function Record(defaultValues: Object): {
 export declare module Set {
 
   /**
-   * Set.empty() creates a new immutable set of length 0.
+   * `Set.empty()` creates a new immutable set of length 0.
    */
   function empty<T>(): Set<T>;
 
   /**
-   * Set.fromArray() creates a new immutable set containing the values from
-   * this JavaScript array.
+   * `Set.from()` creates a new immutable Set containing the values from this
+   * JavaScript Array or Sequence.
    */
-  function fromArray<T>(values: Array<T>): Set<T>;
+  function from<T>(array: Array<T>): Set<T>;
+  function from<T>(sequence: Sequence<any, T>): Set<T>;
+
+  /**
+   * `Set.fromKeys()` creates a new immutable Set containing the keys from
+   * this JavaScript Object or Sequence.
+   */
+  function fromKeys(object: {[key: string]: any}): Set<string>;
+  function fromKeys<T>(sequence: Sequence<T, any>): Set<T>;
 }
 
 /**
- * Alias for Set.empty()
+ * Alias for `Set.empty()`
  */
 export declare function Set<T>(): Set<T>;
 
 /**
- * Like Set.fromArray(), but accepts variable arguments instead of an Array.
+ * Like `Set.from()`, but accepts variable arguments instead of an Array.
  */
 export declare function Set<T>(...values: T[]): Set<T>;
 

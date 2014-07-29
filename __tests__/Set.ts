@@ -1,8 +1,8 @@
 ///<reference path='../resources/jest.d.ts'/>
 jest.autoMockOff();
 
-import I = require('../dist/Immutable');
-import Set = I.Set;
+import Immutable = require('../dist/Immutable');
+import Set = Immutable.Set;
 
 declare function expect(val: any): ExpectWithIs;
 
@@ -16,10 +16,44 @@ describe('Set', () => {
   beforeEach(function () {
     this.addMatchers({
       is: function(expected) {
-        return I.is(this.actual, expected);
+        return Immutable.is(this.actual, expected);
       }
     })
   })
+
+  it('converts from array of values', () => {
+    var s = Set.from([1,2,3]);
+    expect(s.has(1)).toBe(true);
+    expect(s.has(2)).toBe(true);
+    expect(s.has(3)).toBe(true);
+    expect(s.has(4)).toBe(false);
+  });
+
+  it('converts from sequence of values', () => {
+    var seq = Immutable.Sequence(1,2,3);
+    var s = Set.from(seq);
+    expect(s.has(1)).toBe(true);
+    expect(s.has(2)).toBe(true);
+    expect(s.has(3)).toBe(true);
+    expect(s.has(4)).toBe(false);
+  });
+
+  it('converts from object keys', () => {
+    var s = Set.fromKeys({a:null, b:null, c:null});
+    expect(s.has('a')).toBe(true);
+    expect(s.has('b')).toBe(true);
+    expect(s.has('c')).toBe(true);
+    expect(s.has('d')).toBe(false);
+  });
+
+  it('converts from sequence keys', () => {
+    var seq = Immutable.Sequence({a:null, b:null, c:null});
+    var s = Set.fromKeys(seq);
+    expect(s.has('a')).toBe(true);
+    expect(s.has('b')).toBe(true);
+    expect(s.has('c')).toBe(true);
+    expect(s.has('d')).toBe(false);
+  });
 
   it('constructor provides initial values', () => {
     var s = Set(1,2,3);

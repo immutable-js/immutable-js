@@ -8,23 +8,26 @@ class Set extends Sequence {
 
   // @pragma Construction
 
-  constructor(/*...values*/) {
-    return Set.fromArray(arguments);
+  constructor(...values) {
+    return Set.from(values);
   }
 
   static empty() {
     return __EMPTY_SET || (__EMPTY_SET = Set._make());
   }
 
-  static fromArray(values) {
-    if (values.length === 0) {
+  static from(sequence) {
+    if (sequence && sequence.constructor === Set) {
+      return sequence;
+    }
+    if (!sequence || sequence.length === 0) {
       return Set.empty();
     }
-    return Set.empty().withMutations(set => {
-      for (var ii = 0; ii < values.length; ii++) {
-        set.add(values[ii]);
-      }
-    });
+    return Set.empty().union(sequence);
+  }
+
+  static fromKeys(sequence) {
+    return Set.from(Sequence(sequence).flip());
   }
 
   toString() {
