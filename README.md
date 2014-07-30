@@ -31,7 +31,7 @@ var map = Immutable.Map({a:1, b:2, c:3});
 
 To use `immutable` from a browser, try [Browserify](http://browserify.org/).
 
-
+### TypeScript
 Use these Immutable collections and sequences as you would use native
 collections in your [TypeScript](http://typescriptlang.org) programs while still taking
 advantage of type generics, error detection, and auto-complete in your IDE.
