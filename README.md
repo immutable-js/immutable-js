@@ -135,7 +135,7 @@ var map1 = Immutable.Map({a:1, b:2, c:3, d:4});
 var map2 = Immutable.Map({c:10, a:20, t:30});
 var obj = {d:100, o:200, g:300};
 var map3 = map1.merge(map2, obj);
-// Map { a: 20, b: 2, c: 10, d: 1000, t: 30, o: 2000, g: 300 }
+// Map { a: 20, b: 2, c: 10, d: 100, t: 30, o: 200, g: 300 }
 ```
 
 This is possible because `immutable` can treat any JavaScript Array or Object
