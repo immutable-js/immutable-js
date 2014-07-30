@@ -1,6 +1,6 @@
 {
   "name": "immutable",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Immutable Data Collections",
   "homepage": "https://github.com/leebyron/immutable-js",
   "author": {
@@ -37,7 +37,10 @@
     "node": "0.8.x || 0.10.x"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE",
+    "PATENTS"
   ],
   "keywords": [
     "immutable",
@@ -51,5 +54,5 @@
     "sequence",
     "iteration"
   ],
-  "license": "MIT"
+  "license": "BSD"
 }

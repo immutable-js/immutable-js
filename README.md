@@ -288,11 +288,9 @@ All documentation is contained within the type definition file, [Immutable.d.ts]
 Contribution
 ------------
 
-Or, use [Github issues](https://github.com/leebyron/immutable-js/issues) for requests.
+Use [Github issues](https://github.com/leebyron/immutable-js/issues) for requests.
 
-Taking [pull requests](https://help.github.com/articles/creating-a-pull-request)!
-Before submitting your diff, please add a test to the [__tests__](./__tests__)
-directory and build and run all tests by running `grunt`.
+We actively welcome pull requests, learn how to [contribute](./CONTRIBUTING.md).
 
 
 Thanks
