@@ -3,9 +3,9 @@ Immutable Data Collections
 
 Immutable data cannot be changed once created, leading to much simpler
 application development and enabling techniques from functional programming such
-as lazy evaluation. This provides a lazy `Sequence`, allowing efficient chaining
-of sequence methods like `map` and `filter` without creating intermediate
-representations.
+as lazy evaluation. Immutable JS provides a lazy `Sequence`, allowing efficient
+chaining of sequence methods like `map` and `filter` without creating
+intermediate representations.
 
 `immutable` provides `Sequence`, `Range`, `Repeat`, `Map`, `OrderedMap`, `Set`
 and a sparse `Vector` by using lazy sequences and [hash maps tries](http://en.wikipedia.org/wiki/Hash_array_mapped_trie).
@@ -43,6 +43,8 @@ require the full file path)
 import Immutable = require('./node_modules/immutable/dist/Immutable');
 var map: Immutable.Map<string, number>;
 map = Immutable.Map({a:1, b:2, c:3});
+map = map.set('b', 20);
+map.get('b'); // 20
 ```
 
 
@@ -109,6 +111,7 @@ assert(vect1.length === 2);
 assert(vect2.length === 5);
 assert(vect3.length === 3);
 assert(vect4.length === 10);
+assert(vect4.get(0) === 2);
 ```
 
 Almost all of the methods on `Array` will be found in similar form on
@@ -120,6 +123,8 @@ var alpha = Immutable.Map({a:1, b:2, c:3, d:4});
 alpha.map((v, k) => k.toUpperCase()).join();
 // 'A,B,C,D'
 ```
+
+### Accepts raw JavaScript objects.
 
 Designed to inter-operate with your existing JavaScript, `immutable`
 accepts plain JavaScript Array and Objects anywhere a method expects a
@@ -144,6 +149,8 @@ var myObject = {a:1,b:2,c:3};
 Sequence(myObject).map(x => x * x).toObject();
 // { a: 1, b: 4, c: 9 }
 ```
+
+### Converts back to raw JavaScript objects.
 
 All `immutable` Sequences can be converted to plain JavaScript Arrays and
 Objects shallowly with `toArray()` and `toObject()` or deeply with `toJSON()`,
