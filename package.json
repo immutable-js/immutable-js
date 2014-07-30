@@ -2,17 +2,17 @@
   "name": "immutable",
   "version": "2.0.1",
   "description": "Immutable Data Collections",
-  "homepage": "https://github.com/leebyron/immutable-js",
+  "homepage": "https://github.com/facebook/immutable-js",
   "author": {
     "name": "Lee Byron",
     "url": "https://github.com/leebyron"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/leebyron/immutable-js"
+    "url": "https://github.com/facebook/immutable-js"
   },
   "bugs": {
-    "url": "https://github.com/leebyron/immutable-js/issues"
+    "url": "https://github.com/facebook/immutable-js/issues"
   },
   "main": "dist/Immutable.js",
   "scripts": {

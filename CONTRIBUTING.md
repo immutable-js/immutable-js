@@ -2,7 +2,7 @@
 
 We want to make contributing to this project as easy and transparent as
 possible. Hopefully this document makes the process for contributing clear and
-answers any questions you may have. If not, feel free to open an [Issue](https://github.com/leebyron/immutable-js/issues).
+answers any questions you may have. If not, feel free to open an [Issue](https://github.com/facebook/immutable-js/issues).
 
 ## Pull Requests
 

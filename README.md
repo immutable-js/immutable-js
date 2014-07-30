@@ -295,7 +295,7 @@ All documentation is contained within the type definition file, [Immutable.d.ts]
 Contribution
 ------------
 
-Use [Github issues](https://github.com/leebyron/immutable-js/issues) for requests.
+Use [Github issues](https://github.com/facebook/immutable-js/issues) for requests.
 
 We actively welcome pull requests, learn how to [contribute](./CONTRIBUTING.md).
 
