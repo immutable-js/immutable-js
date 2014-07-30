@@ -216,7 +216,7 @@ Once the sequence is used, it performs only the work necessary. In this
 example, no intermediate arrays are ever created, filter is only called
 twice, and map is only called once:
 
-    console.log(evenSquares.last()); // 49
+    console.log(oddSquares.last()); // 49
 
 Lazy Sequences allow for the efficient chaining of sequence operations, allowing
 for the expression of logic that can otherwise be very tedious:
