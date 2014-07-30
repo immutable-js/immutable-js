@@ -138,7 +138,7 @@ var map3 = map1.merge(map2, obj);
 // Map { a: 20, b: 2, c: 10, d: 1000, t: 30, o: 2000, g: 300 }
 ```
 
-This is possible because `immutible` can treat any JavaScript Array or Object
+This is possible because `immutable` can treat any JavaScript Array or Object
 as a Sequence. You can take advantage of this in order to get sophisticated
 sequence methods on JavaScript Objects, which otherwise have a very sparse
 native API. Because Sequences evaluate lazily and do not cache intermediate
