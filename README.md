@@ -33,7 +33,7 @@ To use `immutable` from a browser, try [Browserify](http://browserify.org/).
 
 
 Use these Immutable collections and sequences as you would use native
-collections in your [TypeScript](typescriptlang.org) programs while still taking
+collections in your [TypeScript](http://typescriptlang.org) programs while still taking
 advantage of type generics, error detection, and auto-complete in your IDE.
 
 (Because of TypeScript 1.0's issue with NodeJS module resolution, you must
