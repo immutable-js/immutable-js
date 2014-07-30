@@ -298,3 +298,9 @@ Thanks
 
 [Hugh Jackson](https://github.com/hughfdjackson/), for providing the npm package
 name. If you're looking for his unsupported package, see [v1.4.1](https://www.npmjs.org/package/immutable/1.4.1).
+
+
+License
+-------
+
+`immutable` is [BSD-licensed](./LICENSE). We also provide an additional [patent grant](./PATENTS).
