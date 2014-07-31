@@ -36,19 +36,19 @@
 export declare function is(first: any, second: any): boolean;
 
 /**
- * `Immutable.fromJSON()` deeply converts plain JS objects and arrays to
+ * `Immutable.fromJS()` deeply converts plain JS objects and arrays to
  * Immutable sequences.
  *
  * If a `converter` is optionally provided, it will be called with every
  * sequence (beginning with the most nested sequences and proceeding to the
  * original sequence itself), along with the key refering to this Sequence
- * and the parent JSON object provided as `this`. For the top level, object,
+ * and the parent JS object provided as `this`. For the top level, object,
  * the key will be "". This `converter` is expected to return a new Sequence,
- * allowing for custom convertions from JSON.
+ * allowing for custom convertions from deep JS objects.
  *
  * This example converts JSON to Vector and OrderedMap:
  *
- *     Immutable.fromJSON({a: {b: [10, 20, 30]}, c: 40}, function (value, key) {
+ *     Immutable.fromJS({a: {b: [10, 20, 30]}, c: 40}, function (value, key) {
  *       var isIndexed = value instanceof IndexedSequence;
  *       console.log(isIndexed, key, this);
  *       return isIndexed ? value.toVector() : value.toOrderedMap();
@@ -64,7 +64,7 @@ export declare function is(first: any, second: any): boolean;
  * Note: `converter` acts similarly to [`reviver`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Example.3A_Using_the_reviver_parameter)
  * in `JSON.parse`.
  */
-export declare function fromJSON(
+export declare function fromJS(
   json: any,
   converter?: (k: any, v: Sequence<any, any>) => any
 ): any;
@@ -171,12 +171,12 @@ export interface Sequence<K, V> {
   toString(): string;
 
   /**
-   * Deeply converts this sequence to equivalent JSON.
+   * Deeply converts this sequence to equivalent JS.
    *
    * IndexedSequences, Vectors, Ranges, Repeats and Sets become Arrays, while
    * other Sequences become Objects.
    */
-  toJSON(): any;
+  toJS(): any;
 
   /**
    * Converts this sequence to an Array, discarding keys.

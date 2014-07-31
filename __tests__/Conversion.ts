@@ -111,11 +111,11 @@ describe('Conversion', () => {
   ' }';
 
   it('Converts deep JS to deep immutable sequences', () => {
-    expect(Immutable.fromJSON(js)).is(immutableData);
+    expect(Immutable.fromJS(js)).is(immutableData);
   });
 
   it('Converts deep JSON with custom conversion', () => {
-    var seq = Immutable.fromJSON(js, function (key, sequence) {
+    var seq = Immutable.fromJS(js, function (key, sequence) {
       if (key === 'point') {
         return new Point(sequence);
       }
@@ -126,7 +126,7 @@ describe('Conversion', () => {
   });
 
   it('Converts deep sequences to JSON', () => {
-    var json = immutableData.toJSON();
+    var json = immutableData.toJS();
     expect(json).not.is(js); // raw JS is not immutable.
     expect(json).toEqual(js); // but should be deep equal.
   });

@@ -34,35 +34,34 @@ function is(first, second) {
   return false;
 }
 
-function fromJSON(json, converter) {
+function fromJS(json, converter) {
   if (converter) {
-    var parentJSON = {'': json};
-    return fromJSONWith(converter, json, '', parentJSON);
+    return fromJSWith(converter, json, '', {'': json});
   }
-  return fromJSONDefault(json);
+  return fromJSDefault(json);
 }
 
-function fromJSONDefault(json) {
+function fromJSDefault(json) {
   if (json) {
     if (Array.isArray(json)) {
-      return Sequence(json).map(fromJSONDefault).toVector();
+      return Sequence(json).map(fromJSDefault).toVector();
     }
     if (json.constructor === Object) {
-      return Sequence(json).map(fromJSONDefault).toMap();
+      return Sequence(json).map(fromJSDefault).toMap();
     }
   }
   return json;
 }
 
-function fromJSONWith(converter, json, key, parentJSON) {
+function fromJSWith(converter, json, key, parentJSON) {
   if (json && (Array.isArray(json) || json.constructor === Object)) {
-    return converter.call(parentJSON, key, Sequence(json).map(function(v, k)  {return fromJSONWith(converter, v, k, json);}));
+    return converter.call(parentJSON, key, Sequence(json).map(function(v, k)  {return fromJSWith(converter, v, k, json);}));
   }
   return json;
 }
 
 exports.is = is;
-exports.fromJSON = fromJSON;
+exports.fromJS = fromJS;
 exports.Sequence = Sequence;
 exports.Range = Range;
 exports.Repeat = Repeat;

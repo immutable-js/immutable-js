@@ -155,14 +155,15 @@ Sequence(myObject).map(x => x * x).toObject();
 ### Converts back to raw JavaScript objects.
 
 All `immutable` Sequences can be converted to plain JavaScript Arrays and
-Objects shallowly with `toArray()` and `toObject()` or deeply with `toJSON()`,
-allowing `JSON.stringify` to work automatically.
+Objects shallowly with `toArray()` and `toObject()` or deeply with `toJS()`.
+All sequences also implement `toJSON()` allowing them to be passed to
+`JSON.stringify` directly.
 
 ```javascript
 var deep = Immutable.Map({a:1, b:2, c:Immutable.Vector(3,4,5)});
 deep.toObject() // { a: 1, b: 2, c: Vector [ 3, 4, 5 ] }
 deep.toArray() // [ 1, 2, Vector [ 3, 4, 5 ] ]
-deep.toJSON() // { a: 1, b: 2, c: [ 3, 4, 5 ] }
+deep.toJS() // { a: 1, b: 2, c: [ 3, 4, 5 ] }
 JSON.stringify(deep) // '{"a":1,"b":2,"c":[3,4,5]}'
 ```
 
@@ -174,7 +175,7 @@ The collections in `immutable` are intended to be nested, allowing for deep
 trees of data, similar to JSON.
 
 ```javascript
-var nested = Immutable.fromJSON({a:{b:{c:[3,4,5]}}});
+var nested = Immutable.fromJS({a:{b:{c:[3,4,5]}}});
 // Map { a: Map { b: Map { c: Vector [ 3, 4, 5 ] } } }
 ```
 

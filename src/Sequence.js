@@ -45,8 +45,8 @@ class Sequence {
     return k + ': ' + quoteString(v);
   }
 
-  toJSON() {
-    return this.map(value => value.toJSON ? value.toJSON() : value).__toJS();
+  toJS() {
+    return this.map(value => value instanceof Sequence ? value.toJS() : value).__toJS();
   }
 
   toArray() {
@@ -464,6 +464,7 @@ class Sequence {
   }
 }
 
+Sequence.prototype.toJSON = Sequence.prototype.toJS;
 Sequence.prototype.inspect = Sequence.prototype.toSource = function() { return this.toString(); };
 Sequence.prototype.__toJS = Sequence.prototype.toObject;
 

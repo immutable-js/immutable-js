@@ -45,8 +45,8 @@ var Immutable = require('./Immutable');
     return k + ': ' + quoteString(v);
   };
 
-  Sequence.prototype.toJSON=function() {"use strict";
-    return this.map(function(value)  {return value.toJSON ? value.toJSON() : value;}).__toJS();
+  Sequence.prototype.toJS=function() {"use strict";
+    return this.map(function(value)  {return value instanceof Sequence ? value.toJS() : value;}).__toJS();
   };
 
   Sequence.prototype.toArray=function() {"use strict";
@@ -464,6 +464,7 @@ var Immutable = require('./Immutable');
   };
 
 
+Sequence.prototype.toJSON = Sequence.prototype.toJS;
 Sequence.prototype.inspect = Sequence.prototype.toSource = function() { return this.toString(); };
 Sequence.prototype.__toJS = Sequence.prototype.toObject;
 
