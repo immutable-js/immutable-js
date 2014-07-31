@@ -99,19 +99,21 @@ of [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Glo
 [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map), and
 [Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set).
 
-The only difference is that every method that would mutate the collection
-instead returns a new collection.
+The difference for the immutable collections is that method which would mutate
+the collection, like `push`, `set`, `unshift` or `splice` instead return a new
+immutable collection. Methods which return new arrays like `slice` or `concat`
+instead return new immutable collections.
 
 ```javascript
 var vect1 = Immutable.Vector(1, 2);
 var vect2 = vect1.push(3, 4, 5);
-var vect3 = vect2.slice(1, -1);
-var vect4 = vect1.concat(vect2, vect3, vect4);
+var vect3 = vect2.unshift(0);
+var vect4 = vect1.concat(vect2, vect3);
 assert(vect1.length === 2);
 assert(vect2.length === 5);
-assert(vect3.length === 3);
-assert(vect4.length === 10);
-assert(vect4.get(0) === 2);
+assert(vect3.length === 6);
+assert(vect4.length === 13);
+assert(vect4.get(0) === 1);
 ```
 
 Almost all of the methods on `Array` will be found in similar form on
