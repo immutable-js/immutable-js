@@ -955,7 +955,7 @@ export interface Map<K, V> extends Sequence<K, V> {
    * can applying mutations in a highly performant manner. In fact, this is
    * exactly how complex mutations like `merge` are done.
    *
-   * As an example, this results in the creation of 1, not 3, new Maps:
+   * As an example, this results in the creation of 2, not 4, new Maps:
    *
    *     var map1 = Immutable.Map();
    *     var map2 = map1.withMutations(map => {
@@ -966,6 +966,25 @@ export interface Map<K, V> extends Sequence<K, V> {
    *
    */
   withMutations(mutator: (mutable: Map<K, V>) => any): Map<K, V>;
+
+  /**
+   * Another way to avoid creation of intermediate Immutable maps is to create
+   * a mutable copy of this collection. Mutable copies *always* return `this`,
+   * and thus shouldn't be used for equality. Your function should never return
+   * a mutable copy of a collection, only use it internally to create a new
+   * collection. If possible, use `withMutations` as it provides an easier to
+   * use API.
+   *
+   * Note: if the collection is already mutable, `asMutable` returns itself.
+   */
+  asMutable(): Map<K, V>;
+
+  /**
+   * The yin to `asMutable`'s yang. Because it applies to mutable collections,
+   * this operation is *mutable* and returns itself. Once performed, the mutable
+   * copy has become immutable and can be safely returned from a function.
+   */
+  asImmutable(): Map<K, V>;
 }
 
 
@@ -1158,6 +1177,16 @@ export interface Set<T> extends Sequence<T, T> {
    * @see `Map.prototype.withMutations`
    */
   withMutations(mutator: (mutable: Set<T>) => any): Set<T>;
+
+  /**
+   * @see `Map.prototype.asMutable`
+   */
+  asMutable(): Set<T>;
+
+  /**
+   * @see `Map.prototype.asImmutable`
+   */
+  asImmutable(): Set<T>;
 }
 
 
@@ -1310,6 +1339,16 @@ export interface Vector<T> extends IndexedSequence<T> {
    * @see `Map.prototype.withMutations`
    */
   withMutations(mutator: (mutable: Vector<T>) => any): Vector<T>;
+
+  /**
+   * @see `Map.prototype.asMutable`
+   */
+  asMutable(): Vector<T>;
+
+  /**
+   * @see `Map.prototype.asImmutable`
+   */
+  asImmutable(): Vector<T>;
 
   /**
    * Allows `Vector` to be used in ES7 for expressions, returns an `Iterator`

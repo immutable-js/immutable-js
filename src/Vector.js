@@ -441,8 +441,10 @@ class Vector extends IndexedSequence {
   }
 }
 
-Vector.prototype.withMutations = ImmutableMap.prototype.withMutations;
 Vector.prototype.updateIn = ImmutableMap.prototype.updateIn;
+Vector.prototype.withMutations = ImmutableMap.prototype.withMutations;
+Vector.prototype.asMutable = ImmutableMap.prototype.asMutable;
+Vector.prototype.asImmutable = ImmutableMap.prototype.asImmutable;
 
 
 class OwnerID {

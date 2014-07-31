@@ -193,6 +193,8 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
 Set.prototype.contains = Set.prototype.has;
 Set.prototype.withMutations = ImmutableMap.prototype.withMutations;
+Set.prototype.asMutable = ImmutableMap.prototype.asMutable;
+Set.prototype.asImmutable = ImmutableMap.prototype.asImmutable;
 Set.prototype.__toJS = IndexedSequence.prototype.__toJS;
 Set.prototype.__toStringMapper = IndexedSequence.prototype.__toStringMapper;
 

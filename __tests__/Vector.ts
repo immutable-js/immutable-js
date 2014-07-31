@@ -269,6 +269,18 @@ describe('Vector', () => {
     expect(v4.toArray()).toEqual([1,2,3,4,5]);
   });
 
+  it('allows chained mutations using alternative API', () => {
+    var v1 = Vector();
+    var v2 = v1.push(1);
+    var v3 = v2.asMutable().push(2).push(3).push(4).asImmutable();
+    var v4 = v3.push(5);
+
+    expect(v1.toArray()).toEqual([]);
+    expect(v2.toArray()).toEqual([1]);
+    expect(v3.toArray()).toEqual([1,2,3,4]);
+    expect(v4.toArray()).toEqual([1,2,3,4,5]);
+  });
+
   it('allows length to be set', () => {
     var v1 = Immutable.Range(0,2000).toVector();
     var v2 = v1.setLength(1000);

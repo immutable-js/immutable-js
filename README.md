@@ -288,6 +288,9 @@ assert(vect1.length === 3);
 assert(vect2.length === 6);
 ```
 
+Note: `immutable` also provides `asMutable` and `asImmutable`, but only
+encourages their use when `withMutations` will not suffice.
+
 
 API Documentation
 -----------------

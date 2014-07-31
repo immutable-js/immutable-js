@@ -113,9 +113,17 @@ class Map extends Sequence {
   // @pragma Mutability
 
   withMutations(fn) {
-    var mutable = this.__ensureOwner(this.__ownerID || new OwnerID());
+    var mutable = this.asMutable();
     fn(mutable);
     return mutable.__ensureOwner(this.__ownerID);
+  }
+
+  asMutable() {
+    return this.__ownerID ? this : this.__ensureOwner(new OwnerID());
+  }
+
+  asImmutable() {
+    return this.__ensureOwner();
   }
 
   __ensureOwner(ownerID) {

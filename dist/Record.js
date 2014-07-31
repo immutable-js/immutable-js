@@ -133,8 +133,10 @@ Record.prototype.merge = ImmutableMap.prototype.merge;
 Record.prototype.mergeWith = ImmutableMap.prototype.mergeWith;
 Record.prototype.mergeDeep = ImmutableMap.prototype.mergeDeep;
 Record.prototype.mergeDeepWith = ImmutableMap.prototype.mergeDeepWith;
-Record.prototype.withMutations = ImmutableMap.prototype.withMutations;
 Record.prototype.updateIn = ImmutableMap.prototype.updateIn;
+Record.prototype.withMutations = ImmutableMap.prototype.withMutations;
+Record.prototype.asMutable = ImmutableMap.prototype.asMutable;
+Record.prototype.asImmutable = ImmutableMap.prototype.asImmutable;
 
 
 module.exports = Record;

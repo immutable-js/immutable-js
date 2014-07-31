@@ -113,9 +113,17 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   // @pragma Mutability
 
   Map.prototype.withMutations=function(fn) {"use strict";
-    var mutable = this.__ensureOwner(this.__ownerID || new OwnerID());
+    var mutable = this.asMutable();
     fn(mutable);
     return mutable.__ensureOwner(this.__ownerID);
+  };
+
+  Map.prototype.asMutable=function() {"use strict";
+    return this.__ownerID ? this : this.__ensureOwner(new OwnerID());
+  };
+
+  Map.prototype.asImmutable=function() {"use strict";
+    return this.__ensureOwner();
   };
 
   Map.prototype.__ensureOwner=function(ownerID) {"use strict";
