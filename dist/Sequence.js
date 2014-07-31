@@ -614,11 +614,14 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
       }
       var iiBegin = reversedIndices ? sequence.length - resolvedEnd : resolvedBegin;
       var iiEnd = reversedIndices ? sequence.length - resolvedBegin : resolvedEnd;
-      var length = sequence.__iterate(function(v, ii, c) 
-        {return !(ii >= iiBegin && (iiEnd == null || ii < iiEnd)) || fn(v, maintainIndices ? ii : ii - iiBegin, c) !== false;},
+      var lengthIterated = sequence.__iterate(function(v, ii, c) 
+        {return reversedIndices ?
+          (iiEnd != null && ii >= iiEnd) || (ii >= iiBegin) && fn(v, maintainIndices ? ii : ii - iiBegin, c) !== false :
+          (ii < iiBegin) || (iiEnd == null || ii < iiEnd) && fn(v, maintainIndices ? ii : ii - iiBegin, c) !== false;},
         reverse, flipIndices
       );
-      return this.length || (maintainIndices ? length : Math.max(0, length - iiBegin));
+      return this.length != null ? this.length :
+        maintainIndices ? lengthIterated : Math.max(0, lengthIterated - iiBegin);
     };
     return sliceSequence;
   };
