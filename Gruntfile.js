@@ -9,6 +9,7 @@
  */
 module.exports = function(grunt) {
   grunt.initConfig({
+    pkg: grunt.file.readJSON('package.json'),
     jshint: {
       options: {
         asi: true,
@@ -28,7 +29,7 @@ module.exports = function(grunt) {
         nonstandard: true,
         trailing: true,
         undef: true,
-        unused: 'vars',
+        unused: 'vars'
       },
       all: ['src/**/*.js']
     },
@@ -58,7 +59,7 @@ module.exports = function(grunt) {
             cwd: 'type-definitions',
             src: ['**/*.d.ts'],
             dest: 'dist/'
-          },
+          }
         ]
       }
     },
@@ -66,7 +67,26 @@ module.exports = function(grunt) {
       options: {
         testPathPattern: /.*/
       }
+    },
+    browserify: {
+      standalone: {
+        src: ['dist/Immutable.js'],
+        dest: 'dist/browserify/<%= pkg.name %>-<%= pkg.version %>.js',
+        options: {
+          bundleOptions: {
+            standalone: 'Immutable'
+          }
+        }
+      }
+    },
+    uglify: {
+      standalone: {
+        files: {
+          'dist/browserify/<%= pkg.name %>-<%= pkg.version %>.min.js': ['dist/browserify/<%= pkg.name %>-<%= pkg.version %>.js']
+        }
+      }
     }
+
   });
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
@@ -74,9 +94,11 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-react');
   grunt.loadNpmTasks('grunt-jest');
+  grunt.loadNpmTasks('grunt-browserify');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
 
   grunt.registerTask('lint', 'Lint all source javascript', ['jshint']);
-  grunt.registerTask('build', 'Build distributed javascript', ['clean', 'react', 'copy']);
+  grunt.registerTask('build', 'Build distributed javascript', ['clean', 'react', 'copy', 'browserify', 'uglify']);
   grunt.registerTask('test', 'Test built javascript', ['jest']);
   grunt.registerTask('default', 'Lint, build and test.', ['lint', 'build', 'test']);
-}
+};

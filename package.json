@@ -28,6 +28,8 @@
     "grunt-contrib-copy": "^0.5.0",
     "grunt-contrib-jshint": "^0.10.0",
     "grunt-contrib-clean": "^0.5.0",
+    "grunt-browserify": "^2.1.4",
+    "grunt-contrib-uglify": "^0.5.1",
     "grunt-jest": "^0.1.0",
     "grunt-react": "^0.8.2",
     "react-tools": "~0.10.0",
