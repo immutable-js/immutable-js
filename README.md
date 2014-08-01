@@ -129,7 +129,7 @@ alpha.map((v, k) => k.toUpperCase()).join();
 ### Accepts raw JavaScript objects.
 
 Designed to inter-operate with your existing JavaScript, `immutable`
-accepts plain JavaScript Array and Objects anywhere a method expects a
+accepts plain JavaScript Arrays and Objects anywhere a method expects a
 `Sequence` with no performance penalty.
 
 ```javascript
