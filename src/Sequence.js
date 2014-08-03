@@ -484,7 +484,7 @@ class IndexedSequence extends Sequence {
 
   fromEntries() {
     var sequence = this;
-    var fromEntriesSequence = sequence.__makeSequence();
+    var fromEntriesSequence = makeSequence();
     fromEntriesSequence.length = sequence.length;
     fromEntriesSequence.entries = () => sequence;
     fromEntriesSequence.__iterateUncached = (fn, reverse, flipIndices) =>

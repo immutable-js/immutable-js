@@ -484,7 +484,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
 
   IndexedSequence.prototype.fromEntries=function() {"use strict";
     var sequence = this;
-    var fromEntriesSequence = sequence.__makeSequence();
+    var fromEntriesSequence = makeSequence();
     fromEntriesSequence.length = sequence.length;
     fromEntriesSequence.entries = function()  {return sequence;};
     fromEntriesSequence.__iterateUncached = function(fn, reverse, flipIndices) 
