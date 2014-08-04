@@ -79,6 +79,10 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
     return !newRoot ? Map.empty() : newRoot === this.$Map_root ? this : Map.$Map_make(this.length - 1, newRoot);
   };
 
+  Map.prototype.update=function(k, updater) {"use strict";
+    return this.set(k, updater(this.get(k)));
+  };
+
   Map.prototype.clear=function() {"use strict";
     if (this.__ownerID) {
       this.length = 0;

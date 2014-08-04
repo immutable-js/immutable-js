@@ -886,6 +886,15 @@ export interface Map<K, V> extends Sequence<K, V> {
   delete(key: K): Map<K, V>;
 
   /**
+   * Returns a new Map having updated the value at this `key` with the return
+   * value of calling `updater` with the existing value, or undefined if the
+   * key was not already set.
+   *
+   * Equivalent to: `map.set(key, updater(map.get(key)))`.
+   */
+  update(key: K, updater: (value: V) => V): Map<K, V>;
+
+  /**
    * Returns a new Map containing no keys or values.
    */
   clear(): Map<K, V>;
@@ -1266,10 +1275,19 @@ export interface Vector<T> extends IndexedSequence<T> {
   set(index: number, value: T): Vector<T>;
 
   /**
-   * Returns a new Map which excludes this `index`. It will not affect the
+   * Returns a new Vector which excludes this `index`. It will not affect the
    * length of the Vector, instead leaving a sparse hole.
    */
   delete(index: number): Vector<T>;
+
+  /**
+   * Returns a new Vector with an updated value at `index` with the return value
+   * of calling `updater` with the existing value, or undefined if `index` was
+   * not set.
+   *
+   * @see Map.update
+   */
+  update(index: number, updater: (value: T) => T): Vector<T>;
 
   /**
    * Returns a new Vector with 0 length and no values.

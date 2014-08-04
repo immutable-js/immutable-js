@@ -441,6 +441,7 @@ class Vector extends IndexedSequence {
   }
 }
 
+Vector.prototype.update = ImmutableMap.prototype.update;
 Vector.prototype.updateIn = ImmutableMap.prototype.updateIn;
 Vector.prototype.withMutations = ImmutableMap.prototype.withMutations;
 Vector.prototype.asMutable = ImmutableMap.prototype.asMutable;

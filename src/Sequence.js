@@ -143,9 +143,7 @@ class Sequence {
     var seq = this;
     return require('./OrderedMap').empty().withMutations(map => {
       seq.forEach((value, key, collection) => {
-        var groupKey = mapper(value, key, collection);
-        var group = map.get(groupKey, __SENTINEL);
-        map.set(groupKey, group === __SENTINEL ? 1 : group + 1);
+        map.update(mapper(value, key, collection), increment);
       });
     });
   }
@@ -860,6 +858,10 @@ function returnTrue() {
 
 function returnThis() {
   return this;
+}
+
+function increment(value) {
+  return (value || 0) + 1;
 }
 
 /**

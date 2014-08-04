@@ -79,6 +79,10 @@ class Map extends Sequence {
     return !newRoot ? Map.empty() : newRoot === this._root ? this : Map._make(this.length - 1, newRoot);
   }
 
+  update(k, updater) {
+    return this.set(k, updater(this.get(k)));
+  }
+
   clear() {
     if (this.__ownerID) {
       this.length = 0;
