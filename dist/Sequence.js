@@ -129,6 +129,27 @@ var Immutable = require('./Immutable');
     return string;
   };
 
+  Sequence.prototype.count=function(predicate, thisArg) {"use strict";
+    if (!predicate) {
+      if (this.length == null) {
+        this.length = this.forEach(returnTrue);
+      }
+      return this.length;
+    }
+    return this.filter(predicate, thisArg).count();
+  };
+
+  Sequence.prototype.countBy=function(mapper, context) {"use strict";
+    var seq = this;
+    return require('./OrderedMap').empty().withMutations(function(map)  {
+      seq.forEach(function(value, key, collection)  {
+        var groupKey = mapper(value, key, collection);
+        var group = map.get(groupKey, __SENTINEL);
+        map.set(groupKey, group === __SENTINEL ? 1 : group + 1);
+      });
+    });
+  };
+
   Sequence.prototype.concat=function() {"use strict";var values=Array.prototype.slice.call(arguments,0);
     var sequences = [this].concat(values.map(function(value)  {return Sequence(value);}));
     var concatSequence = this.__makeSequence();
@@ -608,9 +629,9 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
       if (resolvedBegin !== resolvedBegin ||
           resolvedEnd !== resolvedEnd ||
           (reversedIndices && sequence.length == null)) {
-        sequence.cacheResult();
-        resolvedBegin = resolveBegin(begin, sequence.length);
-        resolvedEnd = resolveEnd(end, sequence.length);
+        var exactLength = sequence.count();
+        resolvedBegin = resolveBegin(begin, exactLength);
+        resolvedEnd = resolveEnd(end, exactLength);
       }
       var iiBegin = reversedIndices ? sequence.length - resolvedEnd : resolvedBegin;
       var iiEnd = reversedIndices ? sequence.length - resolvedBegin : resolvedEnd;

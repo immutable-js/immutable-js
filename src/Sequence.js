@@ -129,6 +129,27 @@ class Sequence {
     return string;
   }
 
+  count(predicate, thisArg) {
+    if (!predicate) {
+      if (this.length == null) {
+        this.length = this.forEach(returnTrue);
+      }
+      return this.length;
+    }
+    return this.filter(predicate, thisArg).count();
+  }
+
+  countBy(mapper, context) {
+    var seq = this;
+    return require('./OrderedMap').empty().withMutations(map => {
+      seq.forEach((value, key, collection) => {
+        var groupKey = mapper(value, key, collection);
+        var group = map.get(groupKey, __SENTINEL);
+        map.set(groupKey, group === __SENTINEL ? 1 : group + 1);
+      });
+    });
+  }
+
   concat(...values) {
     var sequences = [this].concat(values.map(value => Sequence(value)));
     var concatSequence = this.__makeSequence();
@@ -608,9 +629,9 @@ class IndexedSequence extends Sequence {
       if (resolvedBegin !== resolvedBegin ||
           resolvedEnd !== resolvedEnd ||
           (reversedIndices && sequence.length == null)) {
-        sequence.cacheResult();
-        resolvedBegin = resolveBegin(begin, sequence.length);
-        resolvedEnd = resolveEnd(end, sequence.length);
+        var exactLength = sequence.count();
+        resolvedBegin = resolveBegin(begin, exactLength);
+        resolvedEnd = resolveEnd(end, exactLength);
       }
       var iiBegin = reversedIndices ? sequence.length - resolvedEnd : resolvedBegin;
       var iiEnd = reversedIndices ? sequence.length - resolvedBegin : resolvedEnd;

@@ -166,6 +166,20 @@ export interface Sequence<K, V> {
   length: number;
 
   /**
+   * Regardless of if this sequence can describe its length lazily, this method
+   * will always return the correct length. E.g. it evaluates the full sequence
+   * if necessary.
+   *
+   * If `predicate` is provided, then this returns the count of entries in the
+   * sequence for which the `predicate` returns true.
+   */
+  count(): number;
+  count(
+    predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+    thisArg?: any
+  ): number;
+
+  /**
    * Deeply converts this sequence to a string.
    */
   toString(): string;
@@ -528,6 +542,17 @@ export interface Sequence<K, V> {
     predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
     thisArg?: any
   ): Sequence<K, V>;
+
+  /**
+   * Returns a `Map` of counts, grouped by the return value of the
+   * `grouper` function.
+   *
+   * Note: Because this returns a Map, this method is not lazy.
+   */
+  countBy<G>(
+    grouper: (value?: V, key?: K, seq?: Sequence<K, V>) => G,
+    thisArg?: any
+  ): Map<G, number>;
 
   /**
    * Returns a `Map` of sequences, grouped by the return value of the
