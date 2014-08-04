@@ -74,6 +74,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-react');
   grunt.loadNpmTasks('grunt-jest');
+  grunt.loadNpmTasks('grunt-release');
 
   grunt.registerTask('lint', 'Lint all source javascript', ['jshint']);
   grunt.registerTask('build', 'Build distributed javascript', ['clean', 'react', 'copy']);

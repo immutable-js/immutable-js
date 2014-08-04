@@ -20,7 +20,10 @@
   },
   "jest": {
     "scriptPreprocessor": "resources/jestPreprocessor.js",
-    "testFileExtensions": ["js", "ts"],
+    "testFileExtensions": [
+      "js",
+      "ts"
+    ],
     "persistModuleRegistryBetweenSpecs": true
   },
   "devDependencies": {
@@ -31,7 +34,8 @@
     "grunt-jest": "^0.1.0",
     "grunt-react": "^0.8.2",
     "react-tools": "~0.10.0",
-    "ts-compiler": "^2.0.0"
+    "ts-compiler": "^2.0.0",
+    "grunt-release": "^0.7.0"
   },
   "engines": {
     "node": "^0.8.0"
