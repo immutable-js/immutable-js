@@ -190,8 +190,12 @@ var nested2 = nested.mergeDeep({a:{b:{d:6}}});
 
 ```javascript
 nested2.getIn(['a', 'b', 'd']); // 6
+
 var nested3 = nested2.updateIn(['a', 'b', 'd'], value => value + 1);
 // Map { a: Map { b: Map { c: Vector [ 3, 4, 5 ], d: 7 } } }
+
+var nested4 = nested3.updateIn(['a', 'b', 'c'], vect => vect.push(6));
+// Map { a: Map { b: Map { c: Vector [ 3, 4, 5, 6 ], d: 7 } } }
 ```
 
 
