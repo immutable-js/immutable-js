@@ -7,8 +7,10 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-var IndexedSequence = require('./Sequence').IndexedSequence;
-var Vector = require('./Vector');
+import "Sequence"
+import "Vector"
+/* global IndexedSequence, Vector */
+/* exported Range */
 
 
 /**
@@ -124,6 +126,3 @@ Range.prototype.last = Vector.prototype.last;
 function invariant(condition, error) {
   if (!condition) throw new Error(error);
 }
-
-
-module.exports = Range;

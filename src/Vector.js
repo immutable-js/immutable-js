@@ -7,10 +7,11 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-var SequenceModule = require('./Sequence');
-var Sequence = SequenceModule.Sequence;
-var IndexedSequence = SequenceModule.IndexedSequence;
-var ImmutableMap = require('./Map');
+import "Sequence"
+import "Map"
+import "is"
+/* global Sequence, IndexedSequence, Map, is */
+/* exported Vector */
 
 
 class Vector extends IndexedSequence {
@@ -200,22 +201,22 @@ class Vector extends IndexedSequence {
   // @pragma Composition
 
   merge(...seqs) {
-    return ImmutableMap.prototype.merge.apply(
+    return Map.prototype.merge.apply(
       vectorWithLengthOfLongestSeq(this, seqs), arguments);
   }
 
   mergeWith(fn, ...seqs) {
-    return ImmutableMap.prototype.mergeWith.apply(
+    return Map.prototype.mergeWith.apply(
       vectorWithLengthOfLongestSeq(this, seqs), arguments);
   }
 
   mergeDeep(...seqs) {
-    return ImmutableMap.prototype.mergeDeep.apply(
+    return Map.prototype.mergeDeep.apply(
       vectorWithLengthOfLongestSeq(this, seqs), arguments);
   }
 
   mergeDeepWith(fn, ...seqs) {
-    return ImmutableMap.prototype.mergeDeepWith.apply(
+    return Map.prototype.mergeDeepWith.apply(
       vectorWithLengthOfLongestSeq(this, seqs), arguments);
   }
 
@@ -370,7 +371,6 @@ class Vector extends IndexedSequence {
   }
 
   __deepEquals(other) {
-    var is = require('./Immutable').is;
     var iterator = this.__iterator__();
     return other.every((v, k) => {
       var entry = iterator.next();
@@ -441,11 +441,11 @@ class Vector extends IndexedSequence {
   }
 }
 
-Vector.prototype.update = ImmutableMap.prototype.update;
-Vector.prototype.updateIn = ImmutableMap.prototype.updateIn;
-Vector.prototype.withMutations = ImmutableMap.prototype.withMutations;
-Vector.prototype.asMutable = ImmutableMap.prototype.asMutable;
-Vector.prototype.asImmutable = ImmutableMap.prototype.asImmutable;
+Vector.prototype.update = Map.prototype.update;
+Vector.prototype.updateIn = Map.prototype.updateIn;
+Vector.prototype.withMutations = Map.prototype.withMutations;
+Vector.prototype.asMutable = Map.prototype.asMutable;
+Vector.prototype.asImmutable = Map.prototype.asImmutable;
 
 
 class OwnerID {
@@ -657,5 +657,3 @@ var MASK = SIZE - 1;
 var __SENTINEL = {};
 var __EMPTY_VECT;
 var __EMPTY_VNODE = new VNode([]);
-
-module.exports = Vector;

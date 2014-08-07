@@ -7,10 +7,10 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-var SequenceModule = require('./Sequence');
-var ImmutableMap = require('./Map');
-var Sequence = SequenceModule.Sequence;
-var IndexedSequence = SequenceModule.IndexedSequence;
+import "Sequence"
+import "Map"
+/* global Sequence, IndexedSequence, Map */
+/* exported Set */
 
 
 class Set extends Sequence {
@@ -61,7 +61,7 @@ class Set extends Sequence {
     }
     var newMap = this._map;
     if (!newMap) {
-      newMap = ImmutableMap.empty().__ensureOwner(this.__ownerID);
+      newMap = Map.empty().__ensureOwner(this.__ownerID);
     }
     newMap = newMap.set(value, null);
     if (this.__ownerID) {
@@ -192,13 +192,11 @@ class Set extends Sequence {
 }
 
 Set.prototype.contains = Set.prototype.has;
-Set.prototype.withMutations = ImmutableMap.prototype.withMutations;
-Set.prototype.asMutable = ImmutableMap.prototype.asMutable;
-Set.prototype.asImmutable = ImmutableMap.prototype.asImmutable;
+Set.prototype.withMutations = Map.prototype.withMutations;
+Set.prototype.asMutable = Map.prototype.asMutable;
+Set.prototype.asImmutable = Map.prototype.asImmutable;
 Set.prototype.__toJS = IndexedSequence.prototype.__toJS;
 Set.prototype.__toStringMapper = IndexedSequence.prototype.__toStringMapper;
 
 
 var __EMPTY_SET;
-
-module.exports = Set;

@@ -7,15 +7,17 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-var Sequence = require('./Sequence').Sequence;
-var ImmutableMap = require('./Map');
+import "Sequence"
+import "Map"
+/* global Sequence, Map */
+/* exported Record */
 
 
 class Record extends Sequence {
 
   constructor(defaultValues, name) {
     var RecordType = function(values) {
-      this._map = ImmutableMap(values);
+      this._map = Map(values);
     };
     defaultValues = Sequence(defaultValues);
     RecordType.prototype = Object.create(Record.prototype);
@@ -117,7 +119,7 @@ class Record extends Sequence {
 
   _empty() {
     var Record = Object.getPrototypeOf(this).constructor;
-    return Record._empty || (Record._empty = this._make(ImmutableMap.empty()));
+    return Record._empty || (Record._empty = this._make(Map.empty()));
   }
 
   _make(map, ownerID) {
@@ -128,16 +130,13 @@ class Record extends Sequence {
   }
 }
 
-Record.prototype.__deepEqual = ImmutableMap.prototype.__deepEqual;
-Record.prototype.merge = ImmutableMap.prototype.merge;
-Record.prototype.mergeWith = ImmutableMap.prototype.mergeWith;
-Record.prototype.mergeDeep = ImmutableMap.prototype.mergeDeep;
-Record.prototype.mergeDeepWith = ImmutableMap.prototype.mergeDeepWith;
-Record.prototype.update = ImmutableMap.prototype.update;
-Record.prototype.updateIn = ImmutableMap.prototype.updateIn;
-Record.prototype.withMutations = ImmutableMap.prototype.withMutations;
-Record.prototype.asMutable = ImmutableMap.prototype.asMutable;
-Record.prototype.asImmutable = ImmutableMap.prototype.asImmutable;
-
-
-module.exports = Record;
+Record.prototype.__deepEqual = Map.prototype.__deepEqual;
+Record.prototype.merge = Map.prototype.merge;
+Record.prototype.mergeWith = Map.prototype.mergeWith;
+Record.prototype.mergeDeep = Map.prototype.mergeDeep;
+Record.prototype.mergeDeepWith = Map.prototype.mergeDeepWith;
+Record.prototype.update = Map.prototype.update;
+Record.prototype.updateIn = Map.prototype.updateIn;
+Record.prototype.withMutations = Map.prototype.withMutations;
+Record.prototype.asMutable = Map.prototype.asMutable;
+Record.prototype.asImmutable = Map.prototype.asImmutable;

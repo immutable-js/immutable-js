@@ -7,66 +7,29 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-var Sequence = require('./Sequence').Sequence;
-var ImmutableMap = require('./Map');
-var OrderedMap = require('./OrderedMap');
-var ImmutableSet = require('./Set');
-var Vector = require('./Vector');
-var Range = require('./Range');
-var Repeat = require('./Repeat');
-var Record = require('./Record');
+import "Sequence"
+import "Map"
+import "Vector"
+import "Set"
+import "OrderedMap"
+import "Record"
+import "Range"
+import "Repeat"
+import "is"
+import "fromJS"
+/* global Sequence, Map, Vector, Set, OrderedMap, Record, Range, Repeat, is, fromJS */
+/* exported Immutable */
 
 
-/**
- * The same semantics as Object.is(), but treats immutable sequences as
- * data, equal when the structure contains equivalent data.
- */
-function is(first, second) {
-  if (first === second) {
-    return first !== 0 || second !== 0 || 1 / first === 1 / second;
-  }
-  if (first !== first) {
-    return second !== second;
-  }
-  if (first instanceof Sequence) {
-    return first.equals(second);
-  }
-  return false;
-}
-
-function fromJS(json, converter) {
-  if (converter) {
-    return fromJSWith(converter, json, '', {'': json});
-  }
-  return fromJSDefault(json);
-}
-
-function fromJSDefault(json) {
-  if (json) {
-    if (Array.isArray(json)) {
-      return Sequence(json).map(fromJSDefault).toVector();
-    }
-    if (json.constructor === Object) {
-      return Sequence(json).map(fromJSDefault).toMap();
-    }
-  }
-  return json;
-}
-
-function fromJSWith(converter, json, key, parentJSON) {
-  if (json && (Array.isArray(json) || json.constructor === Object)) {
-    return converter.call(parentJSON, key, Sequence(json).map((v, k) => fromJSWith(converter, v, k, json)));
-  }
-  return json;
-}
-
-exports.is = is;
-exports.fromJS = fromJS;
-exports.Sequence = Sequence;
-exports.Range = Range;
-exports.Repeat = Repeat;
-exports.Vector = Vector;
-exports.Map = ImmutableMap;
-exports.OrderedMap = OrderedMap;
-exports.Set = ImmutableSet;
-exports.Record = Record;
+var Immutable = {
+  Sequence: Sequence,
+  Map: Map,
+  Vector: Vector,
+  Set: Set,
+  OrderedMap: OrderedMap,
+  Record: Record,
+  Range: Range,
+  Repeat: Repeat,
+  is: is,
+  fromJS: fromJS,
+};

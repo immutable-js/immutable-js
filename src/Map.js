@@ -7,7 +7,10 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-var Sequence = require('./Sequence').Sequence;
+import "Sequence"
+import "is"
+/* global Sequence, is */
+/* exported Map */
 
 
 class Map extends Sequence {
@@ -144,7 +147,6 @@ class Map extends Sequence {
   // @pragma Iteration
 
   __deepEqual(other) {
-    var is = require('./Immutable').is;
     // Using Sentinel here ensures that a missing key is not interpretted as an
     // existing key set to be null.
     var self = this;
@@ -489,5 +491,3 @@ var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
 var __SENTINEL = {};
 var __EMPTY_MAP;
-
-module.exports = Map;

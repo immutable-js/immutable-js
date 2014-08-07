@@ -7,10 +7,13 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-var Immutable = require('./Immutable');
+/* Sequence has implicit lazy dependencies */
+/* global is, Map, OrderedMap, Vector, Set */
+/* exported Sequence, IndexedSequence */
 
 
 class Sequence {
+
   constructor(value) {
     return Sequence.from(
       arguments.length === 1 ? value : Array.prototype.slice.call(arguments)
@@ -66,25 +69,25 @@ class Sequence {
   toVector() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.length);
-    return require('./Vector').from(this);
+    return Vector.from(this);
   }
 
   toMap() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.length);
-    return require('./Map').from(this);
+    return Map.from(this);
   }
 
   toOrderedMap() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.length);
-    return require('./OrderedMap').from(this);
+    return OrderedMap.from(this);
   }
 
   toSet() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.length);
-    return require('./Set').from(this);
+    return Set.from(this);
   }
 
   equals(other) {
@@ -110,7 +113,7 @@ class Sequence {
     var iterations = 0;
     return other.every((v, k) => {
       var entry = entries[iterations++];
-      return Immutable.is(k, entry[0]) && Immutable.is(v, entry[1]);
+      return is(k, entry[0]) && is(v, entry[1]);
     });
   }
 
@@ -141,7 +144,7 @@ class Sequence {
 
   countBy(mapper, context) {
     var seq = this;
-    return require('./OrderedMap').empty().withMutations(map => {
+    return OrderedMap.empty().withMutations(map => {
       seq.forEach((value, key, collection) => {
         map.update(mapper(value, key, collection), increment);
       });
@@ -264,7 +267,7 @@ class Sequence {
   }
 
   get(searchKey, notFoundValue) {
-    return this.find((_, key) => Immutable.is(key, searchKey), null, notFoundValue);
+    return this.find((_, key) => is(key, searchKey), null, notFoundValue);
   }
 
   getIn(searchKeyPath, notFoundValue) {
@@ -272,7 +275,7 @@ class Sequence {
   }
 
   contains(searchValue) {
-    return this.find(value => Immutable.is(value, searchValue), null, __SENTINEL) !== __SENTINEL;
+    return this.find(value => is(value, searchValue), null, __SENTINEL) !== __SENTINEL;
   }
 
   find(predicate, thisArg, notFoundValue) {
@@ -428,7 +431,7 @@ class Sequence {
 
   groupBy(mapper, context) {
     var seq = this;
-    var groups = require('./OrderedMap').empty().withMutations(map => {
+    var groups = OrderedMap.empty().withMutations(map => {
       seq.forEach((value, key, collection) => {
         var groupKey = mapper(value, key, collection);
         var group = map.get(groupKey, __SENTINEL);
@@ -592,7 +595,7 @@ class IndexedSequence extends Sequence {
   }
 
   indexOf(searchValue) {
-    return this.findIndex(value => Immutable.is(value, searchValue));
+    return this.findIndex(value => is(value, searchValue));
   }
 
   lastIndexOf(searchValue) {
@@ -710,7 +713,7 @@ class IndexedSequence extends Sequence {
 
   groupBy(mapper, context, maintainIndices) {
     var seq = this;
-    var groups = require('./OrderedMap').empty().withMutations(map => {
+    var groups = OrderedMap.empty().withMutations(map => {
       seq.forEach((value, index, collection) => {
         var groupKey = mapper(value, index, collection);
         var group = map.get(groupKey, __SENTINEL);
@@ -917,6 +920,3 @@ function assertNotInfinite(length) {
 }
 
 var __SENTINEL = {};
-
-exports.Sequence = Sequence;
-exports.IndexedSequence = IndexedSequence;

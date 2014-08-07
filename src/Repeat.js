@@ -7,8 +7,11 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-var IndexedSequence = require('./Sequence').IndexedSequence;
-var Range = require('./Range');
+import "Sequence"
+import "Range"
+import "is"
+/* global IndexedSequence, Range, is */
+/* exported Repeat */
 
 
 /**
@@ -47,12 +50,10 @@ class Repeat extends IndexedSequence {
   }
 
   contains(searchValue) {
-    var is = require('./Immutable').is;
     return is(this._value, searchValue);
   }
 
   __deepEquals(other) {
-    var is = require('./Immutable').is;
     return is(this._value, other._value);
   }
 
@@ -71,7 +72,6 @@ class Repeat extends IndexedSequence {
   }
 
   indexOf(searchValue) {
-    var is = require('./Immutable').is;
     if (is(this._value, searchValue)) {
       return 0;
     }
@@ -79,7 +79,6 @@ class Repeat extends IndexedSequence {
   }
 
   lastIndexOf(searchValue) {
-    var is = require('./Immutable').is;
     if (is(this._value, searchValue)) {
       return this.length;
     }
@@ -99,16 +98,11 @@ class Repeat extends IndexedSequence {
   }
 }
 
+Repeat.prototype.last = Repeat.prototype.first;
+
 Repeat.prototype.has = Range.prototype.has;
-Repeat.prototype.toArray = Range.prototype.toArray;
-Repeat.prototype.toObject = Range.prototype.toObject;
-Repeat.prototype.toVector = Range.prototype.toVector;
-Repeat.prototype.toMap = Range.prototype.toMap;
-Repeat.prototype.toOrderedMap = Range.prototype.toOrderedMap;
-Repeat.prototype.toSet = Range.prototype.toSet;
 Repeat.prototype.take = Range.prototype.take;
 Repeat.prototype.skip = Range.prototype.skip;
-Repeat.prototype.last = Repeat.prototype.first;
 Repeat.prototype.__toJS = Range.prototype.__toJS;
 
 
@@ -118,5 +112,3 @@ function invariant(condition, error) {
 
 
 var __EMPTY_REPEAT = new Repeat(undefined, 0);
-
-module.exports = Repeat;

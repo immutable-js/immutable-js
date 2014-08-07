@@ -7,10 +7,14 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-var ImmutableMap = require('./Map');
+import "Map"
+import "Vector"
+import "is"
+/* global Map, Vector, is */
+/* exported OrderedMap */
 
 
-class OrderedMap extends ImmutableMap {
+class OrderedMap extends Map {
 
   // @pragma Construction
 
@@ -70,8 +74,8 @@ class OrderedMap extends ImmutableMap {
         newVector = newVector.set(index, [k, v]);
       }
     } else {
-      newVector = require('./Vector').empty().__ensureOwner(this.__ownerID).set(0, [k, v]);
-      newMap = ImmutableMap.empty().__ensureOwner(this.__ownerID).set(k, 0);
+      newVector = Vector.empty().__ensureOwner(this.__ownerID).set(0, [k, v]);
+      newMap = Map.empty().__ensureOwner(this.__ownerID).set(k, 0);
     }
     if (this.__ownerID) {
       this.length = newMap.length;
@@ -126,7 +130,6 @@ class OrderedMap extends ImmutableMap {
   // @pragma Iteration
 
   __deepEqual(other) {
-    var is = require('./Immutable').is;
     var iterator = this._vector.__iterator__();
     return other.every((v, k) => {
       var entry = iterator.next();
@@ -155,5 +158,3 @@ OrderedMap.from = OrderedMap;
 
 
 var __EMPTY_ORDERED_MAP;
-
-module.exports = OrderedMap;

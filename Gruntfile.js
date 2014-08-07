@@ -33,21 +33,14 @@ module.exports = function(grunt) {
       all: ['src/**/*.js']
     },
     clean: {
-      build: ['dist/']
+      build: ['dist/*']
     },
-    react: {
-      options: {
-        harmony: true
-      },
+    smash: {
       build: {
-        files: [
-          {
-            expand: true,
-            cwd: 'src',
-            src: ['**/*.js'],
-            dest: 'dist/'
-          }
-        ]
+        files: [{
+          src: 'src/Immutable.js',
+          dest: 'dist/Immutable'
+        }]
       }
     },
     copy: {
@@ -66,18 +59,86 @@ module.exports = function(grunt) {
       options: {
         testPathPattern: /.*/
       }
+    },
+    stats: {
+      build: {}
     }
   });
+
+
+  var fs = require('fs');
+  var smash = require('smash');
+  var traceur = require('traceur');
+  var uglify = require('uglify-js');
+
+  grunt.registerMultiTask('smash', function () {
+    var done = this.async();
+    this.files.map(function (file) {
+      var unTransformed = '';
+      smash(file.src).on('data', function (data) {
+        unTransformed += data;
+      }).on('end', function () {
+        var transformed = traceur.compile(unTransformed, {
+          filename: file.src[0]
+        });
+        if (transformed.error) {
+          throw transformed.error;
+        }
+        var transformed = fs.readFileSync('resources/traceur-runtime.js', {encoding: 'utf8'}) + transformed.js;
+        var wrapped = fs.readFileSync('resources/universal-module.js', {encoding: 'utf8'})
+          .replace('%MODULE%', transformed);
+
+        var copyright = fs.readFileSync('resources/COPYRIGHT');
+
+        fs.writeFileSync(file.dest + '.dev.js', copyright + wrapped);
+
+        var result = uglify.minify(wrapped, {
+          fromString: true,
+          mangle: {
+            toplevel: true
+          },
+          compress: {
+            comparisons: true,
+            pure_getters: true,
+            unsafe: true
+          },
+          output: {
+            max_line_len: 2048,
+          },
+          reserved: ['module', 'define', 'Immutable']
+        });
+
+        fs.writeFileSync(file.dest + '.js', copyright + result.code);
+        done();
+      });
+    });
+  });
+
+
+  var exec = require('child_process').exec;
+
+  grunt.registerMultiTask('stats', function () {
+    var done = this.async();
+    exec('cat dist/Immutable.js | wc -c', function (error, out) {
+      if (error) throw new Error(error);
+      console.log('Uncompressed: ' + (out.trim() + ' bytes').cyan);
+      exec('gzip -c dist/Immutable.js | wc -c', function (error, out) {
+        if (error) throw new Error(error);
+        console.log('Compressed: ' + (out.trim() + ' bytes').cyan);
+        done();
+      })
+    })
+  });
+
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-react');
   grunt.loadNpmTasks('grunt-jest');
   grunt.loadNpmTasks('grunt-release');
 
   grunt.registerTask('lint', 'Lint all source javascript', ['jshint']);
-  grunt.registerTask('build', 'Build distributed javascript', ['clean', 'react', 'copy']);
+  grunt.registerTask('build', 'Build distributed javascript', ['clean', 'smash', 'copy']);
   grunt.registerTask('test', 'Test built javascript', ['jest']);
-  grunt.registerTask('default', 'Lint, build and test.', ['lint', 'build', 'test']);
+  grunt.registerTask('default', 'Lint, build and test.', ['lint', 'build', 'stats', 'test']);
 }
