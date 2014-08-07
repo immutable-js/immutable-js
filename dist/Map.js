@@ -62,7 +62,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
       this.$Map_root = newRoot;
       return this;
     }
-    return newRoot === this.$Map_root ? this : Map.$Map_make(newLength, newRoot);
+    return this.triggerWatchers(newRoot === this.$Map_root ? this : Map.$Map_make(newLength, newRoot));
   };
 
   Map.prototype.delete=function(k) {"use strict";
@@ -76,7 +76,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
       return this;
     }
     var newRoot = this.$Map_root.delete(this.__ownerID, 0, hashValue(k), k);
-    return !newRoot ? Map.empty() : newRoot === this.$Map_root ? this : Map.$Map_make(this.length - 1, newRoot);
+    return this.triggerWatchers(!newRoot ? Map.empty() : newRoot === this.$Map_root ? this : Map.$Map_make(this.length - 1, newRoot));
   };
 
   Map.prototype.update=function(k, updater) {"use strict";
@@ -89,25 +89,25 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
       this.$Map_root = null;
       return this;
     }
-    return Map.empty();
+    return this.triggerWatchers(Map.empty());
   };
 
   // @pragma Composition
 
   Map.prototype.merge=function() {"use strict";
-    return mergeIntoMapWith(this, null, arguments);
+    return this.triggerWatchers(mergeIntoMapWith(this, null, arguments));
   };
 
   Map.prototype.mergeWith=function(merger)  {"use strict";var seqs=Array.prototype.slice.call(arguments,1);
-    return mergeIntoMapWith(this, merger, seqs);
+    return this.triggerWatchers(mergeIntoMapWith(this, merger, seqs));
   };
 
   Map.prototype.mergeDeep=function() {"use strict";
-    return mergeIntoMapWith(this, deepMerger(null), arguments);
+    return this.triggerWatchers(mergeIntoMapWith(this, deepMerger(null), arguments));
   };
 
   Map.prototype.mergeDeepWith=function(merger)  {"use strict";var seqs=Array.prototype.slice.call(arguments,1);
-    return mergeIntoMapWith(this, deepMerger(merger), seqs);
+    return this.triggerWatchers(mergeIntoMapWith(this, deepMerger(merger), seqs));
   };
 
   Map.prototype.updateIn=function(keyPath, updater) {"use strict";
@@ -119,7 +119,7 @@ for(var Sequence____Key in Sequence){if(Sequence.hasOwnProperty(Sequence____Key)
   Map.prototype.withMutations=function(fn) {"use strict";
     var mutable = this.asMutable();
     fn(mutable);
-    return mutable.__ensureOwner(this.__ownerID);
+    return this.triggerWatchers(mutable.__ensureOwner(this.__ownerID));
   };
 
   Map.prototype.asMutable=function() {"use strict";

@@ -104,7 +104,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
         this.$Vector_tail = newTail;
         return this;
       }
-      return Vector.$Vector_make(this.$Vector_origin, newSize, this.$Vector_level, this.$Vector_root, newTail);
+      return this.triggerWatchers(Vector.$Vector_make(this.$Vector_origin, newSize, this.$Vector_level, this.$Vector_root, newTail));
     }
 
     // Fits within existing tree.
@@ -119,7 +119,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
       this.$Vector_root = newRoot;
       return this;
     }
-    return Vector.$Vector_make(this.$Vector_origin, this.$Vector_size, this.$Vector_level, newRoot, this.$Vector_tail);
+    return this.triggerWatchers(Vector.$Vector_make(this.$Vector_origin, this.$Vector_size, this.$Vector_level, newRoot, this.$Vector_tail));
   };
 
   Vector.prototype.delete=function(index) {"use strict";
@@ -139,7 +139,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
         this.$Vector_tail = newTail;
         return this;
       }
-      return Vector.$Vector_make(this.$Vector_origin, this.$Vector_size, this.$Vector_level, this.$Vector_root, newTail);
+      return this.triggerWatchers(Vector.$Vector_make(this.$Vector_origin, this.$Vector_size, this.$Vector_level, this.$Vector_root, newTail));
     }
 
     // Fits within existing tree.
@@ -155,7 +155,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
       this.$Vector_root = newRoot;
       return this;
     }
-    return Vector.$Vector_make(this.$Vector_origin, this.$Vector_size, this.$Vector_level, newRoot, this.$Vector_tail);
+    return this.triggerWatchers(Vector.$Vector_make(this.$Vector_origin, this.$Vector_size, this.$Vector_level, newRoot, this.$Vector_tail));
   };
 
   Vector.prototype.clear=function() {"use strict";
@@ -165,7 +165,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
       this.$Vector_root = this.$Vector_tail = __EMPTY_VNODE;
       return this;
     }
-    return Vector.empty();
+    return this.triggerWatchers(Vector.empty());
   };
 
   Vector.prototype.push=function() {"use strict";
@@ -180,7 +180,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   };
 
   Vector.prototype.pop=function() {"use strict";
-    return this.$Vector_setBounds(0, -1);
+    return this.triggerWatchers(this.$Vector_setBounds(0, -1));
   };
 
   Vector.prototype.unshift=function() {"use strict";
@@ -194,33 +194,33 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
   };
 
   Vector.prototype.shift=function() {"use strict";
-    return this.$Vector_setBounds(1);
+    return this.triggerWatchers(this.$Vector_setBounds(1));
   };
 
   // @pragma Composition
 
   Vector.prototype.merge=function() {"use strict";var seqs=Array.prototype.slice.call(arguments,0);
-    return ImmutableMap.prototype.merge.apply(
-      vectorWithLengthOfLongestSeq(this, seqs), arguments);
+    return this.triggerWatchers(ImmutableMap.prototype.merge.apply(
+      vectorWithLengthOfLongestSeq(this, seqs), arguments));
   };
 
   Vector.prototype.mergeWith=function(fn)  {"use strict";var seqs=Array.prototype.slice.call(arguments,1);
-    return ImmutableMap.prototype.mergeWith.apply(
-      vectorWithLengthOfLongestSeq(this, seqs), arguments);
+    return this.triggerWatchers(ImmutableMap.prototype.mergeWith.apply(
+      vectorWithLengthOfLongestSeq(this, seqs), arguments));
   };
 
   Vector.prototype.mergeDeep=function() {"use strict";var seqs=Array.prototype.slice.call(arguments,0);
-    return ImmutableMap.prototype.mergeDeep.apply(
-      vectorWithLengthOfLongestSeq(this, seqs), arguments);
+    return this.triggerWatchers(ImmutableMap.prototype.mergeDeep.apply(
+      vectorWithLengthOfLongestSeq(this, seqs), arguments));
   };
 
   Vector.prototype.mergeDeepWith=function(fn)  {"use strict";var seqs=Array.prototype.slice.call(arguments,1);
-    return ImmutableMap.prototype.mergeDeepWith.apply(
-      vectorWithLengthOfLongestSeq(this, seqs), arguments);
+    return this.triggerWatchers(ImmutableMap.prototype.mergeDeepWith.apply(
+      vectorWithLengthOfLongestSeq(this, seqs), arguments));
   };
 
   Vector.prototype.setLength=function(length) {"use strict";
-    return this.$Vector_setBounds(0, length);
+    return this.triggerWatchers(this.$Vector_setBounds(0, length));
   };
 
   Vector.prototype.$Vector_setBounds=function(begin, end) {"use strict";
@@ -366,7 +366,7 @@ for(var IndexedSequence____Key in IndexedSequence){if(IndexedSequence.hasOwnProp
         end == null ? length : end < 0 ? Math.max(0, length + end) : length ? Math.min(length, end) : end
       );};
     }
-    return sliceSequence;
+    return this.triggerWatchers(sliceSequence);
   };
 
   Vector.prototype.__deepEquals=function(other) {"use strict";

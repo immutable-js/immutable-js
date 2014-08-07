@@ -52,7 +52,7 @@ for(var ImmutableMap____Key in ImmutableMap){if(ImmutableMap.hasOwnProperty(Immu
       this.$OrderedMap_map = this.$OrderedMap_vector = null;
       return this;
     }
-    return OrderedMap.empty();
+    return this.triggerWatchers(OrderedMap.empty());
   };
 
   OrderedMap.prototype.set=function(k, v) {"use strict";
@@ -79,7 +79,7 @@ for(var ImmutableMap____Key in ImmutableMap){if(ImmutableMap.hasOwnProperty(Immu
       this.$OrderedMap_vector = newVector;
       return this;
     }
-    return newVector === this.$OrderedMap_vector ? this : OrderedMap.$OrderedMap_make(newMap, newVector);
+    return this.triggerWatchers(newVector === this.$OrderedMap_vector ? this : OrderedMap.$OrderedMap_make(newMap, newVector));
   };
 
   OrderedMap.prototype.delete=function(k) {"use strict";
@@ -102,7 +102,7 @@ for(var ImmutableMap____Key in ImmutableMap){if(ImmutableMap.hasOwnProperty(Immu
       this.$OrderedMap_vector = newVector;
       return this;
     }
-    return newMap === this.$OrderedMap_map ? this : OrderedMap.$OrderedMap_make(newMap, newVector);
+    return this.triggerWatchers(newMap === this.$OrderedMap_map ? this : OrderedMap.$OrderedMap_make(newMap, newVector));
   };
 
   // @pragma Mutability
