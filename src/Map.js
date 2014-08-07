@@ -62,7 +62,7 @@ class Map extends Sequence {
       this._root = newRoot;
       return this;
     }
-    return newRoot === this._root ? this : Map._make(newLength, newRoot);
+    return this.triggerWatchers(newRoot === this._root ? this : Map._make(newLength, newRoot));
   }
 
   delete(k) {
@@ -76,7 +76,7 @@ class Map extends Sequence {
       return this;
     }
     var newRoot = this._root.delete(this.__ownerID, 0, hashValue(k), k);
-    return !newRoot ? Map.empty() : newRoot === this._root ? this : Map._make(this.length - 1, newRoot);
+    return this.triggerWatchers(!newRoot ? Map.empty() : newRoot === this._root ? this : Map._make(this.length - 1, newRoot));
   }
 
   update(k, updater) {
@@ -89,25 +89,25 @@ class Map extends Sequence {
       this._root = null;
       return this;
     }
-    return Map.empty();
+    return this.triggerWatchers(Map.empty());
   }
 
   // @pragma Composition
 
   merge(/*...seqs*/) {
-    return mergeIntoMapWith(this, null, arguments);
+    return this.triggerWatchers(mergeIntoMapWith(this, null, arguments));
   }
 
   mergeWith(merger, ...seqs) {
-    return mergeIntoMapWith(this, merger, seqs);
+    return this.triggerWatchers(mergeIntoMapWith(this, merger, seqs));
   }
 
   mergeDeep(/*...seqs*/) {
-    return mergeIntoMapWith(this, deepMerger(null), arguments);
+    return this.triggerWatchers(mergeIntoMapWith(this, deepMerger(null), arguments));
   }
 
   mergeDeepWith(merger, ...seqs) {
-    return mergeIntoMapWith(this, deepMerger(merger), seqs);
+    return this.triggerWatchers(mergeIntoMapWith(this, deepMerger(merger), seqs));
   }
 
   updateIn(keyPath, updater) {
@@ -119,7 +119,7 @@ class Map extends Sequence {
   withMutations(fn) {
     var mutable = this.asMutable();
     fn(mutable);
-    return mutable.__ensureOwner(this.__ownerID);
+    return this.triggerWatchers(mutable.__ensureOwner(this.__ownerID));
   }
 
   asMutable() {
