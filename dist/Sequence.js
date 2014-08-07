@@ -45,6 +45,31 @@ var Immutable = require('./Immutable');
     return k + ': ' + quoteString(v);
   };
 
+  Sequence.prototype.watch=function(watcher) {"use strict";
+    if (!this.$Sequence_watchers) {
+      this.$Sequence_watchers = [];
+    }
+    this.$Sequence_watchers.push(watcher);
+  };
+
+  Sequence.prototype.unwatch=function(watcher) {"use strict";
+    if (this.$Sequence_watchers) {
+      var index = this.$Sequence_watchers.indexOf(watcher);
+      if (index >= 0) {
+        this.watchers.splice(index, 1);
+      }
+    }
+  };
+
+  Sequence.prototype.triggerWatchers=function(value) {"use strict";
+    if (this.$Sequence_watchers && this.$Sequence_watchers.length) {
+      this.$Sequence_watchers.forEach(function(watcher) {
+        watcher(value);
+      });
+    }
+    return value;
+  };
+
   Sequence.prototype.toJS=function() {"use strict";
     return this.map(function(value)  {return value instanceof Sequence ? value.toJS() : value;}).__toJS();
   };
@@ -269,6 +294,12 @@ var Immutable = require('./Immutable');
 
   Sequence.prototype.getIn=function(searchKeyPath, notFoundValue) {"use strict";
     return getInDeepSequence(this, searchKeyPath, notFoundValue, 0);
+  };
+
+  Sequence.prototype.cursor=function(searchKeyPath, onUpdate, notFoundValue) {"use strict";
+    var val = getInDeepSequence(this, searchKeyPath, notFoundValue, 0);
+    val.watch(function(newVal)  {return onUpdate(this.updateIn(searchKeyPath, function(v)  {return newVal;}));}.bind(this));
+    return val;
   };
 
   Sequence.prototype.contains=function(searchValue) {"use strict";

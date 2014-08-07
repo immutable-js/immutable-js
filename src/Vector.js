@@ -104,7 +104,7 @@ class Vector extends IndexedSequence {
         this._tail = newTail;
         return this;
       }
-      return Vector._make(this._origin, newSize, this._level, this._root, newTail);
+      return this.triggerWatchers(Vector._make(this._origin, newSize, this._level, this._root, newTail));
     }
 
     // Fits within existing tree.
@@ -119,7 +119,7 @@ class Vector extends IndexedSequence {
       this._root = newRoot;
       return this;
     }
-    return Vector._make(this._origin, this._size, this._level, newRoot, this._tail);
+    return this.triggerWatchers(Vector._make(this._origin, this._size, this._level, newRoot, this._tail));
   }
 
   delete(index) {
@@ -139,7 +139,7 @@ class Vector extends IndexedSequence {
         this._tail = newTail;
         return this;
       }
-      return Vector._make(this._origin, this._size, this._level, this._root, newTail);
+      return this.triggerWatchers(Vector._make(this._origin, this._size, this._level, this._root, newTail));
     }
 
     // Fits within existing tree.
@@ -155,7 +155,7 @@ class Vector extends IndexedSequence {
       this._root = newRoot;
       return this;
     }
-    return Vector._make(this._origin, this._size, this._level, newRoot, this._tail);
+    return this.triggerWatchers(Vector._make(this._origin, this._size, this._level, newRoot, this._tail));
   }
 
   clear() {
@@ -165,7 +165,7 @@ class Vector extends IndexedSequence {
       this._root = this._tail = __EMPTY_VNODE;
       return this;
     }
-    return Vector.empty();
+    return this.triggerWatchers(Vector.empty());
   }
 
   push(/*...values*/) {
@@ -180,7 +180,7 @@ class Vector extends IndexedSequence {
   }
 
   pop() {
-    return this._setBounds(0, -1);
+    return this.triggerWatchers(this._setBounds(0, -1));
   }
 
   unshift(/*...values*/) {
@@ -194,33 +194,33 @@ class Vector extends IndexedSequence {
   }
 
   shift() {
-    return this._setBounds(1);
+    return this.triggerWatchers(this._setBounds(1));
   }
 
   // @pragma Composition
 
   merge(...seqs) {
-    return ImmutableMap.prototype.merge.apply(
-      vectorWithLengthOfLongestSeq(this, seqs), arguments);
+    return this.triggerWatchers(ImmutableMap.prototype.merge.apply(
+      vectorWithLengthOfLongestSeq(this, seqs), arguments));
   }
 
   mergeWith(fn, ...seqs) {
-    return ImmutableMap.prototype.mergeWith.apply(
-      vectorWithLengthOfLongestSeq(this, seqs), arguments);
+    return this.triggerWatchers(ImmutableMap.prototype.mergeWith.apply(
+      vectorWithLengthOfLongestSeq(this, seqs), arguments));
   }
 
   mergeDeep(...seqs) {
-    return ImmutableMap.prototype.mergeDeep.apply(
-      vectorWithLengthOfLongestSeq(this, seqs), arguments);
+    return this.triggerWatchers(ImmutableMap.prototype.mergeDeep.apply(
+      vectorWithLengthOfLongestSeq(this, seqs), arguments));
   }
 
   mergeDeepWith(fn, ...seqs) {
-    return ImmutableMap.prototype.mergeDeepWith.apply(
-      vectorWithLengthOfLongestSeq(this, seqs), arguments);
+    return this.triggerWatchers(ImmutableMap.prototype.mergeDeepWith.apply(
+      vectorWithLengthOfLongestSeq(this, seqs), arguments));
   }
 
   setLength(length) {
-    return this._setBounds(0, length);
+    return this.triggerWatchers(this._setBounds(0, length));
   }
 
   _setBounds(begin, end) {
@@ -366,7 +366,7 @@ class Vector extends IndexedSequence {
         end == null ? length : end < 0 ? Math.max(0, length + end) : length ? Math.min(length, end) : end
       );
     }
-    return sliceSequence;
+    return this.triggerWatchers(sliceSequence);
   }
 
   __deepEquals(other) {

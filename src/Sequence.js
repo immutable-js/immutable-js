@@ -45,6 +45,31 @@ class Sequence {
     return k + ': ' + quoteString(v);
   }
 
+  watch(watcher) {
+    if (!this._watchers) {
+      this._watchers = [];
+    }
+    this._watchers.push(watcher);
+  }
+
+  unwatch(watcher) {
+    if (this._watchers) {
+      var index = this._watchers.indexOf(watcher);
+      if (index >= 0) {
+        this.watchers.splice(index, 1);
+      }
+    }
+  }
+
+  triggerWatchers(value) {
+    if (this._watchers && this._watchers.length) {
+      this._watchers.forEach(function(watcher) {
+        watcher(value);
+      });
+    }
+    return value;
+  }
+
   toJS() {
     return this.map(value => value instanceof Sequence ? value.toJS() : value).__toJS();
   }
@@ -269,6 +294,12 @@ class Sequence {
 
   getIn(searchKeyPath, notFoundValue) {
     return getInDeepSequence(this, searchKeyPath, notFoundValue, 0);
+  }
+
+  cursor(searchKeyPath, onUpdate, notFoundValue) {
+    var val = getInDeepSequence(this, searchKeyPath, notFoundValue, 0);
+    val.watch(newVal => onUpdate(this.updateIn(searchKeyPath, v => newVal)));
+    return val;
   }
 
   contains(searchValue) {

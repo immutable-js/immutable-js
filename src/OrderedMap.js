@@ -52,7 +52,7 @@ class OrderedMap extends ImmutableMap {
       this._map = this._vector = null;
       return this;
     }
-    return OrderedMap.empty();
+    return this.triggerWatchers(OrderedMap.empty());
   }
 
   set(k, v) {
@@ -79,7 +79,7 @@ class OrderedMap extends ImmutableMap {
       this._vector = newVector;
       return this;
     }
-    return newVector === this._vector ? this : OrderedMap._make(newMap, newVector);
+    return this.triggerWatchers(newVector === this._vector ? this : OrderedMap._make(newMap, newVector));
   }
 
   delete(k) {
@@ -102,7 +102,7 @@ class OrderedMap extends ImmutableMap {
       this._vector = newVector;
       return this;
     }
-    return newMap === this._map ? this : OrderedMap._make(newMap, newVector);
+    return this.triggerWatchers(newMap === this._map ? this : OrderedMap._make(newMap, newVector));
   }
 
   // @pragma Mutability
