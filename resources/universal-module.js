@@ -2,6 +2,6 @@ function universalModule() {
   %MODULE%
   return Immutable;
 }
-module && module.exports ? module.exports = universalModule() :
-  define && define.amd ? define(universalModule) :
+typeof exports === 'object' ? module.exports = universalModule() :
+  typeof define === 'function' && define.amd ? define(universalModule) :
     Immutable = universalModule();
