@@ -119,13 +119,28 @@ module.exports = function(grunt) {
 
   grunt.registerMultiTask('stats', function () {
     var done = this.async();
-    exec('cat dist/Immutable.js | wc -c', function (error, out) {
+    exec('cat dist/Immutable.dev.js | wc -c', function (error, out) {
       if (error) throw new Error(error);
-      console.log('Uncompressed: ' + (out.trim() + ' bytes').cyan);
-      exec('gzip -c dist/Immutable.js | wc -c', function (error, out) {
+      var rawBytes = parseInt(out);
+      console.log('Concatenated: ' +
+        (rawBytes + ' bytes').cyan
+      );
+      exec('cat dist/Immutable.js | wc -c', function (error, out) {
         if (error) throw new Error(error);
-        console.log('Compressed: ' + (out.trim() + ' bytes').cyan);
-        done();
+        var minifiedBytes = parseInt(out);
+        var pctOfA = Math.floor(10000 * (1 - (minifiedBytes / rawBytes))) / 100;
+        console.log('    Minified: ' +
+          (minifiedBytes + ' bytes').cyan + ' ' +
+          (pctOfA + '%').green);
+        exec('gzip -c dist/Immutable.js | wc -c', function (error, out) {
+          if (error) throw new Error(error);
+          var zippedBytes = parseInt(out);
+          var pctOfA = Math.floor(10000 * (1 - (zippedBytes / rawBytes))) / 100;
+          console.log('  Compressed: ' +
+            (zippedBytes + ' bytes').cyan + ' ' +
+            (pctOfA + '%').green);
+          done();
+        })
       })
     })
   });
