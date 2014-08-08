@@ -179,7 +179,7 @@ var $Sequence = Sequence;
     });
     return concatSequence;
   },
-  reverse: function(maintainIndices) {
+  reverse: function() {
     var sequence = this;
     var reversedSequence = sequence.__makeSequence();
     reversedSequence.length = sequence.length;
@@ -356,7 +356,7 @@ var $Sequence = Sequence;
   takeLast: function(amount, maintainIndices) {
     return this.reverse(maintainIndices).take(amount).reverse(maintainIndices);
   },
-  takeWhile: function(predicate, thisArg, maintainIndices) {
+  takeWhile: function(predicate, thisArg) {
     var sequence = this;
     var takeSequence = sequence.__makeSequence();
     takeSequence.__iterateUncached = function(fn, reverse, flipIndices) {
@@ -433,6 +433,16 @@ var $Sequence = Sequence;
     return groups.map((function(group) {
       return $Sequence(group).fromEntries();
     }));
+  },
+  sort: function(comparator, maintainIndices) {
+    return this.sortBy(valueMapper, comparator, maintainIndices);
+  },
+  sortBy: function(mapper, comparator, maintainIndices) {
+    comparator = comparator || defaultComparator;
+    var seq = this;
+    return $Sequence(this.entries().entries().toArray().sort((function(indexedEntryA, indexedEntryB) {
+      return comparator(mapper(indexedEntryA[1][1], indexedEntryA[1][0], seq), mapper(indexedEntryB[1][1], indexedEntryB[1][0], seq)) || indexedEntryA[0] - indexedEntryB[0];
+    }))).fromEntries().values().fromEntries();
   },
   cacheResult: function() {
     if (!this._cache && this.__iterateUncached) {
@@ -712,6 +722,14 @@ var $IndexedSequence = IndexedSequence;
       return Sequence(group);
     }));
   },
+  sortBy: function(mapper, comparator, maintainIndices) {
+    var sortedSeq = $traceurRuntime.superCall(this, $IndexedSequence.prototype, "sortBy", [mapper, comparator]);
+    if (!maintainIndices) {
+      sortedSeq = sortedSeq.values();
+    }
+    sortedSeq.length = this.length;
+    return sortedSeq;
+  },
   __makeSequence: function() {
     return makeIndexedSequence(this);
   }
@@ -812,6 +830,9 @@ function resolveBegin(begin, length) {
 function resolveEnd(end, length) {
   return end == null ? length : end < 0 ? Math.max(0, length + end) : length ? Math.min(length, end) : end;
 }
+function valueMapper(v) {
+  return v;
+}
 function entryMapper(v, k) {
   return [k, v];
 }
@@ -860,6 +881,9 @@ function repeatString(string, times) {
     }
   }
   return repeated;
+}
+function defaultComparator(a, b) {
+  return a > b ? 1 : a < b ? -1 : 0;
 }
 function assertNotInfinite(length) {
   if (length === Infinity) {

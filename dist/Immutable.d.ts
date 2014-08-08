@@ -565,6 +565,13 @@ export interface Sequence<K, V> {
     thisArg?: any
   ): Map<G, Sequence<K, V>>;
 
+  sort(comparator?: (valueA: V, valueB: V) => number): Sequence<K, V>;
+
+  sortBy<S>(
+    sortValueMapper: (value?: V, key?: K, seq?: Sequence<K, V>) => S,
+    comparator?: (valueA: S, valueB: S) => number
+  ): Sequence<K, V>;
+
   /**
    * Because Sequences are lazy and designed to be chained together, they do
    * not cache their results. For example, this map function is called 6 times:
@@ -776,6 +783,19 @@ export interface IndexedSequence<T> extends Sequence<number, T> {
     thisArg?: any,
     maintainIndices?: boolean
   ): Map<G, any/*IndexedSequence<T>*/>; // Bug: exposing this causes the type checker to implode.
+
+
+  sort(
+    comparator?: (valueA: T, valueB: T) => number,
+    maintainIndices?: boolean
+  ): IndexedSequence<T>;
+
+  sortBy<S>(
+    sortValueMapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => S,
+    comparator?: (valueA: S, valueB: S) => number,
+    maintainIndices?: boolean
+  ): IndexedSequence<T>;
+
 
   /**
    * Returns an IndexedSequence
