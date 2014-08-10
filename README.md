@@ -236,7 +236,7 @@ method called on a sequence will return a new immutable sequence.
 **Sequences are lazy** — Sequences do as little work as necessary to respond
 to any method call.
 
-For example, the following does no work, because the resulting sequence is
+For example, the following does not work, because the resulting sequence is
 never used:
 
     var oddSquares = Immutable.Sequence(1,2,3,4,5,6,7,8)
