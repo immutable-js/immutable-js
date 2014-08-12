@@ -332,18 +332,12 @@ export interface Sequence<K, V> {
   /**
    * The first value in the sequence.
    */
-  first(
-    predicate?: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-    thisArg?: any
-  ): V;
+  first(): V;
 
   /**
    * The last value in the sequence.
    */
-  last(
-    predicate?: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-    thisArg?: any
-  ): V;
+  last(): V;
 
   /**
    * True if a key exists within this Sequence.
