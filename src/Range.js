@@ -71,6 +71,9 @@ class Range extends IndexedSequence {
     if (maintainIndices) {
       return super.slice(begin, end, maintainIndices);
     }
+    if (this.length === 0) {
+      return new Range(this._start, this._end, this._step);
+    }
     begin = begin < 0 ? Math.max(0, this.length + begin) : Math.min(this.length, begin);
     end = end == null ? this.length : end > 0 ? Math.min(this.length, end) : Math.max(0, this.length + end);
     return new Range(this.get(begin), end === this.length ? this._end : this.get(end), this._step);
