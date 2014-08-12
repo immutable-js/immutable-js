@@ -52,6 +52,20 @@ describe('Range', () => {
     expect(s.toArray()).toEqual([3,5]);
   });
 
+  it.only('empty slice of range', () => {
+    var v = Range(1, 11, 2);
+    var s = v.slice(100, 200);
+    expect(s.length).toBe(0);
+    expect(s.toArray()).toEqual([]);
+  });
+
+  it('slices empty range', () => {
+    var v = Range(10, 10);
+    var s = v.slice(1, -2);
+    expect(s.length).toBe(0);
+    expect(s.toArray()).toEqual([]);
+  });
+
   it('stepped range does not land on end', () => {
     var v = Range(0, 7, 2);
     expect(v.length).toBe(4);

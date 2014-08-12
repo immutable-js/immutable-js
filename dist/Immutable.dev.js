@@ -2290,7 +2290,7 @@ var $Range = Range;
     }
     begin = begin < 0 ? Math.max(0, this.length + begin) : Math.min(this.length, begin);
     end = end == null ? this.length : end > 0 ? Math.min(this.length, end) : Math.max(0, this.length + end);
-    return new $Range(this.get(begin), end === this.length ? this._end : this.get(end), this._step);
+    return new $Range(this.get(begin, this._end), this.get(end, this._end), this._step);
   },
   __deepEquals: function(other) {
     return this._start === other._start && this._end === other._end && this._step === other._step;
