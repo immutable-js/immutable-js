@@ -414,12 +414,7 @@ export interface Sequence<K, V> {
   /**
    * Returns a new sequence with values passed through a `mapper` function.
    *
-   *     Sequence({a:1,b:2}).map(x => 10 * x) // { a: 10, b: 20 }
-   *
-   * Note: if you want to map keys instead of values, consider flipping the
-   * Sequence before mapping:
-   *
-   *     Sequence({a:1,b:2}).flip().map(x => x.toUpperCase()).flip() // { A: 1, B: 2 }
+   *     Sequence({ a: 1, b: 2 }).map(x => 10 * x) // { a: 10, b: 20 }
    *
    */
   map<M>(
@@ -428,10 +423,21 @@ export interface Sequence<K, V> {
   ): Sequence<K, M>;
 
   /**
+   * Returns a new sequence with keys passed through a `mapper` function.
+   *
+   *     Sequence({ a: 1, b: 2 }).map(x => x.toUpperCase()) // { A: 1, B: 2 }
+   *
+   */
+  mapKeys<M>(
+    mapper: (value?: V, key?: K, seq?: Sequence<K, V>) => M,
+    thisArg?: any
+  ): Sequence<M, V>;
+
+  /**
    * Returns a new sequence with only the entries for which the `predicate`
    * function returns true.
    *
-   *     Sequence({a:1,b:2,c:3,d:4}).map(x => x % 2 === 0) // { b: 2, d: 4 }
+   *     Sequence({a:1,b:2,c:3,d:4}).filter(x => x % 2 === 0) // { b: 2, d: 4 }
    *
    */
   filter(

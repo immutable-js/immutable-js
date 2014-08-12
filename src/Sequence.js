@@ -328,6 +328,15 @@ class Sequence {
     return mappedSequence;
   }
 
+  mapKeys(mapper, thisArg) {
+    var sequence = this;
+    var mappedSequence = sequence.__makeSequence();
+    mappedSequence.length = sequence.length;
+    mappedSequence.__iterateUncached = (fn, reverse) =>
+      sequence.__iterate((v, k, c) => fn(v, mapper.call(thisArg, k, v, c), c) !== false, reverse);
+    return mappedSequence;
+  }
+
   filter(predicate, thisArg) {
     return filterFactory(this, predicate, thisArg, true, false);
   }

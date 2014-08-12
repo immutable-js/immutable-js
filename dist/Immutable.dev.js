@@ -330,6 +330,17 @@ var $Sequence = Sequence;
     });
     return mappedSequence;
   },
+  mapKeys: function(mapper, thisArg) {
+    var sequence = this;
+    var mappedSequence = sequence.__makeSequence();
+    mappedSequence.length = sequence.length;
+    mappedSequence.__iterateUncached = (function(fn, reverse) {
+      return sequence.__iterate((function(v, k, c) {
+        return fn(v, mapper.call(thisArg, k, v, c), c) !== false;
+      }), reverse);
+    });
+    return mappedSequence;
+  },
   filter: function(predicate, thisArg) {
     return filterFactory(this, predicate, thisArg, true, false);
   },
