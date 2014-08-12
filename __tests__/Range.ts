@@ -46,10 +46,14 @@ describe('Range', () => {
   });
 
   it('slices range', () => {
-    var v = Range(1, 11, 2);
-    var s = v.slice(1, -2);
-    expect(s.length).toBe(2);
-    expect(s.toArray()).toEqual([3,5]);
+    var v0 = Range(1, 11, 2);
+    var v1 = Range(10, 10);
+    var s0 = v0.slice(1, -2);
+    var s1 = v1.slice(1);
+    expect(s0.length).toBe(2);
+    expect(s0.toArray()).toEqual([3,5]);
+    expect(s1.length).toBe(0);
+    expect(s1.toArray()).toEqual([]);
   });
 
   it('stepped range does not land on end', () => {
