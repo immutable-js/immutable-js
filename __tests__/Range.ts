@@ -10,6 +10,8 @@ describe('Range', () => {
     expect(v.length).toBe(3);
     expect(v.first()).toBe(0);
     expect(v.last()).toBe(2);
+    expect(v.init().toArray()).toEqual([0,1]);
+    expect(v.tail().toArray()).toEqual([1,2]);
     expect(v.toArray()).toEqual([0,1,2]);
   });
 
@@ -18,6 +20,8 @@ describe('Range', () => {
     expect(v.length).toBe(3);
     expect(v.first()).toBe(1);
     expect(v.last()).toBe(7);
+    expect(v.init().toArray()).toEqual([1,4]);
+    expect(v.tail().toArray()).toEqual([4,7]);
     expect(v.toArray()).toEqual([1,4,7]);
   });
 
@@ -26,6 +30,8 @@ describe('Range', () => {
     expect(v.length).toBe(Infinity);
     expect(v.first()).toBe(10);
     expect(v.last()).toBe(Infinity);
+    expect(() => v.init().toArray()).toThrow('Cannot perform this action with an infinite sequence.');
+    expect(() => v.tail().toArray()).toThrow('Cannot perform this action with an infinite sequence.');
     expect(() => v.toArray()).toThrow('Cannot perform this action with an infinite sequence.');
   });
 
@@ -34,6 +40,8 @@ describe('Range', () => {
     expect(v.length).toBe(3);
     expect(v.first()).toBe(10);
     expect(v.last()).toBe(4);
+    expect(v.init().toArray()).toEqual([10,7]);
+    expect(v.tail().toArray()).toEqual([7,4]);
     expect(v.toArray()).toEqual([10,7,4]);
   });
 
@@ -42,6 +50,8 @@ describe('Range', () => {
     expect(v.length).toBe(0);
     expect(v.first()).toBe(undefined);
     expect(v.last()).toBe(undefined);
+    expect(v.init().toArray()).toEqual([]);
+    expect(v.tail().toArray()).toEqual([]);
     expect(v.toArray()).toEqual([]);
   });
 

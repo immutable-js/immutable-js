@@ -346,6 +346,22 @@ export interface Sequence<K, V> {
   ): V;
 
   /**
+   * The values in the sequence except for the last one.
+   */
+  init(
+    predicate?: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+    thisArg?: any
+  ): Sequence<K, V>
+
+  /**
+   * The values in the sequence except for the first one.
+   */
+  tail(
+    predicate?: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+    thisArg?: any
+  ): Sequence<K, V>
+
+  /**
    * True if a key exists within this Sequence.
    */
   has(key: K): boolean;

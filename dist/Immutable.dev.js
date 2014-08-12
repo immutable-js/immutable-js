@@ -263,6 +263,12 @@ var $Sequence = Sequence;
   last: function() {
     return this.findLast(returnTrue);
   },
+  init: function() {
+    return this.slice(0, -1);
+  },
+  tail: function() {
+    return this.slice(1);
+  },
   has: function(searchKey) {
     return this.get(searchKey, __SENTINEL) !== __SENTINEL;
   },
@@ -1332,6 +1338,12 @@ var $Vector = Vector;
   last: function() {
     return this.get(this.length ? this.length - 1 : 0);
   },
+  init: function() {
+    return this._setBounds(0, -1);
+  },
+  tail: function() {
+    return this._setBounds(1);
+  },
   set: function(index, value) {
     var tailOffset = getTailOffset(this._size);
     if (index >= this.length) {
@@ -2287,6 +2299,9 @@ var $Range = Range;
   slice: function(begin, end, maintainIndices) {
     if (maintainIndices) {
       return $traceurRuntime.superCall(this, $Range.prototype, "slice", [begin, end, maintainIndices]);
+    }
+    if (this.length === 0) {
+      return new $Range(this._start, this._end, this._step);
     }
     begin = begin < 0 ? Math.max(0, this.length + begin) : Math.min(this.length, begin);
     end = end == null ? this.length : end > 0 ? Math.min(this.length, end) : Math.max(0, this.length + end);

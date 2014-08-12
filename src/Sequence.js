@@ -262,6 +262,14 @@ class Sequence {
     return this.findLast(returnTrue);
   }
 
+  init() {
+    return this.slice(0, -1);
+  }
+
+  tail() {
+    return this.slice(1);
+  }
+
   has(searchKey) {
     return this.get(searchKey, __SENTINEL) !== __SENTINEL;
   }
