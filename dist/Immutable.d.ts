@@ -429,7 +429,7 @@ export interface Sequence<K, V> {
    *
    */
   mapKeys<M>(
-    mapper: (value?: V, key?: K, seq?: Sequence<K, V>) => M,
+    mapper: (key?: K, value?: V, seq?: Sequence<K, V>) => M,
     thisArg?: any
   ): Sequence<M, V>;
 
