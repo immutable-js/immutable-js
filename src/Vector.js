@@ -75,14 +75,6 @@ class Vector extends IndexedSequence {
     return this.get(this.length ? this.length - 1 : 0);
   }
 
-  butLast() {
-    return this._setBounds(0, -1);
-  }
-
-  rest() {
-    return this._setBounds(1);
-  }
-
   // @pragma Modification
 
   // TODO: set and delete seem very similar.

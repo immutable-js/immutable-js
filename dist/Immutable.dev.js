@@ -1338,12 +1338,6 @@ var $Vector = Vector;
   last: function() {
     return this.get(this.length ? this.length - 1 : 0);
   },
-  butLast: function() {
-    return this._setBounds(0, -1);
-  },
-  rest: function() {
-    return this._setBounds(1);
-  },
   set: function(index, value) {
     var tailOffset = getTailOffset(this._size);
     if (index >= this.length) {
