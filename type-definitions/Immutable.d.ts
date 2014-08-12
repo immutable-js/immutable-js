@@ -348,12 +348,12 @@ export interface Sequence<K, V> {
   /**
    * Returns a new Sequence containing all entries except the last.
    */
-  init(): Sequence<K, V>
+  butLast(): Sequence<K, V>
 
   /**
    * Returns a new Sequence containing all entries except the first.
    */
-  tail(): Sequence<K, V>
+  rest(): Sequence<K, V>
 
   /**
    * True if a key exists within this Sequence.

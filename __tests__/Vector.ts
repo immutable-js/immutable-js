@@ -71,14 +71,14 @@ describe('Vector', () => {
     var v1 = Vector('a', 'b');
     var v2 = Vector('a');
     var v3 = Vector.empty();
-    expect(v0.init().toArray()).toEqual(['a', 'b']);
-    expect(v0.tail().toArray()).toEqual(['b', 'c']);
-    expect(v1.init().toArray()).toEqual(['a']);
-    expect(v1.tail().toArray()).toEqual(['b']);
-    expect(v2.init().toArray()).toEqual([]);
-    expect(v2.tail().toArray()).toEqual([]);
-    expect(v3.init().toArray()).toEqual([]);
-    expect(v3.tail().toArray()).toEqual([]);
+    expect(v0.butLast().toArray()).toEqual(['a', 'b']);
+    expect(v0.rest().toArray()).toEqual(['b', 'c']);
+    expect(v1.butLast().toArray()).toEqual(['a']);
+    expect(v1.rest().toArray()).toEqual(['b']);
+    expect(v2.butLast().toArray()).toEqual([]);
+    expect(v2.rest().toArray()).toEqual([]);
+    expect(v3.butLast().toArray()).toEqual([]);
+    expect(v3.rest().toArray()).toEqual([]);
   });
 
   it('can set at arbitrary indices', () => {
@@ -321,8 +321,8 @@ describe('Vector', () => {
     expect(v2.length).toBe(1800);
     expect(v2.first()).toBe(100);
     expect(v2.last()).toBe(1899);
-    expect(v2.init().length).toBe(1799);
-    expect(v2.tail().length).toBe(1799);
+    expect(v2.butLast().length).toBe(1799);
+    expect(v2.rest().length).toBe(1799);
   });
 
 });

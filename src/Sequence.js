@@ -262,11 +262,11 @@ class Sequence {
     return this.findLast(returnTrue);
   }
 
-  init() {
+  butLast() {
     return this.slice(0, -1);
   }
 
-  tail() {
+  rest() {
     return this.slice(1);
   }
 

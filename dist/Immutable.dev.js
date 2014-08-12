@@ -263,10 +263,10 @@ var $Sequence = Sequence;
   last: function() {
     return this.findLast(returnTrue);
   },
-  init: function() {
+  butLast: function() {
     return this.slice(0, -1);
   },
-  tail: function() {
+  rest: function() {
     return this.slice(1);
   },
   has: function(searchKey) {
@@ -1338,10 +1338,10 @@ var $Vector = Vector;
   last: function() {
     return this.get(this.length ? this.length - 1 : 0);
   },
-  init: function() {
+  butLast: function() {
     return this._setBounds(0, -1);
   },
-  tail: function() {
+  rest: function() {
     return this._setBounds(1);
   },
   set: function(index, value) {
@@ -2299,9 +2299,6 @@ var $Range = Range;
   slice: function(begin, end, maintainIndices) {
     if (maintainIndices) {
       return $traceurRuntime.superCall(this, $Range.prototype, "slice", [begin, end, maintainIndices]);
-    }
-    if (this.length === 0) {
-      return new $Range(this._start, this._end, this._step);
     }
     begin = begin < 0 ? Math.max(0, this.length + begin) : Math.min(this.length, begin);
     end = end == null ? this.length : end > 0 ? Math.min(this.length, end) : Math.max(0, this.length + end);

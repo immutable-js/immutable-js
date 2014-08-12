@@ -75,11 +75,11 @@ class Vector extends IndexedSequence {
     return this.get(this.length ? this.length - 1 : 0);
   }
 
-  init() {
+  butLast() {
     return this._setBounds(0, -1);
   }
 
-  tail() {
+  rest() {
     return this._setBounds(1);
   }
 
