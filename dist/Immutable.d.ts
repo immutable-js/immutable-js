@@ -346,20 +346,14 @@ export interface Sequence<K, V> {
   ): V;
 
   /**
-   * The values in the sequence except for the last one.
+   * Returns a new Sequence containing all entries except the last.
    */
-  init(
-    predicate?: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-    thisArg?: any
-  ): Sequence<K, V>
+  init(): Sequence<K, V>
 
   /**
-   * The values in the sequence except for the first one.
+   * Returns a new Sequence containing all entries except the first.
    */
-  tail(
-    predicate?: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-    thisArg?: any
-  ): Sequence<K, V>
+  tail(): Sequence<K, V>
 
   /**
    * True if a key exists within this Sequence.
