@@ -52,7 +52,7 @@ describe('Range', () => {
     expect(s.toArray()).toEqual([3,5]);
   });
 
-  it.only('empty slice of range', () => {
+  it('empty slice of range', () => {
     var v = Range(1, 11, 2);
     var s = v.slice(100, 200);
     expect(s.length).toBe(0);
