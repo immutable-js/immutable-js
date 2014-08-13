@@ -425,7 +425,7 @@ export interface Sequence<K, V> {
   /**
    * Returns a new sequence with keys passed through a `mapper` function.
    *
-   *     Sequence({ a: 1, b: 2 }).map(x => x.toUpperCase()) // { A: 1, B: 2 }
+   *     Sequence({ a: 1, b: 2 }).mapKeys(x => x.toUpperCase()) // { A: 1, B: 2 }
    *
    */
   mapKeys<M>(

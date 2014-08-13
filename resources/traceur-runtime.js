@@ -27,7 +27,7 @@ function defaultSuperCall(self, proto, args) {
   superCall(self, proto, 'constructor', args);
 }
 
-$traceurRuntime = {};
+var $traceurRuntime = {};
 $traceurRuntime.createClass = createClass;
 $traceurRuntime.superCall = superCall;
 $traceurRuntime.defaultSuperCall = defaultSuperCall;
