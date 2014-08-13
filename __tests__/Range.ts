@@ -1,10 +1,8 @@
 ///<reference path='../resources/jest.d.ts'/>
 jest.autoMockOff();
 
-declare function require(name: string): any;
-declare var check: any;
-declare var gen: any;
-require('jasmine-check').install();
+import jasmineCheck = require('jasmine-check');
+jasmineCheck.install();
 
 import Immutable = require('../dist/Immutable');
 import Range = Immutable.Range;

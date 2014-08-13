@@ -59,3 +59,10 @@ interface MockFunction {
   mockReturnValue(value: any): MockFunction
   mockReturnValueOnce(value: any): MockFunction
 }
+
+// Allow importing jasmine-check
+declare module 'jasmine-check' {
+  export function install(global?: any): void;
+}
+declare var check: any;
+declare var gen: any;
