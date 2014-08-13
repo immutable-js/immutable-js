@@ -247,8 +247,8 @@ class Vector extends IndexedSequence {
     while (newOrigin + offsetShift < 0) {
       // TODO: why only ever shifting over by 1?
       newRoot = new VNode(newRoot.array.length ? [,newRoot] : [], owner);
-      offsetShift += 1 << newLevel;
       newLevel += SHIFT;
+      offsetShift += 1 << newLevel;
     }
     if (offsetShift) {
       newOrigin += offsetShift;

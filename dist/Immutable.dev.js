@@ -1485,8 +1485,8 @@ var $Vector = Vector;
     var offsetShift = 0;
     while (newOrigin + offsetShift < 0) {
       newRoot = new VNode(newRoot.array.length ? [, newRoot] : [], owner);
-      offsetShift += 1 << newLevel;
       newLevel += SHIFT;
+      offsetShift += 1 << newLevel;
     }
     if (offsetShift) {
       newOrigin += offsetShift;
