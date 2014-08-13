@@ -1180,7 +1180,7 @@ var $HashCollisionNode = HashCollisionNode;
   set: function(ownerID, shift, hash, key, value, didAddLeaf) {
     if (hash !== this.collisionHash) {
       didAddLeaf && (didAddLeaf.value = true);
-      return makeNode(ownerID, shift, hash, null, this).set(ownerID, shift, hash, key, value);
+      return makeNode(ownerID, shift, this.collisionHash, null, this).set(ownerID, shift, hash, key, value);
     }
     var idx = Sequence(this.keys).indexOf(key);
     if (idx >= 0 && this.values[idx] === value) {

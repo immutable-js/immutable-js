@@ -321,7 +321,7 @@ class HashCollisionNode {
   set(ownerID, shift, hash, key, value, didAddLeaf) {
     if (hash !== this.collisionHash) {
       didAddLeaf && (didAddLeaf.value = true);
-      return makeNode(ownerID, shift, hash, null, this)
+      return makeNode(ownerID, shift, this.collisionHash, null, this)
         .set(ownerID, shift, hash, key, value);
     }
     var idx = Sequence(this.keys).indexOf(key);

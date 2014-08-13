@@ -125,6 +125,17 @@ describe('Map', () => {
     expect(m.get(64545)).toEqual('numbers');
   });
 
+  it('can progressively add items known to collide', () => {
+    var map = Map();
+    map = map.set('@', '@');
+    map = map.set(64, 64);
+    map = map.set(96, 96);
+    expect(map.length).toBe(3);
+    expect(map.get('@')).toBe('@');
+    expect(map.get(64)).toBe(64);
+    expect(map.get(96)).toBe(96);
+  });
+
   it('maps values', () => {
     var m = Map({a:'a', b:'b', c:'c'});
     var r = m.map(value => value.toUpperCase());
