@@ -1,5 +1,11 @@
 ///<reference path='../resources/jest.d.ts'/>
 jest.autoMockOff();
+
+declare function require(name: string): any;
+declare var check: any;
+declare var gen: any;
+require('jasmine-check').install();
+
 import Immutable = require('../dist/Immutable');
 import Range = Immutable.Range;
 
@@ -44,6 +50,33 @@ describe('Range', () => {
     expect(v.last()).toBe(undefined);
     expect(v.toArray()).toEqual([]);
   });
+
+  check.it('includes first, exclues last', [gen.int, gen.int], function (from, to) {
+    var isIncreasing = to >= from;
+    var length = isIncreasing ? to - from : from - to;
+    var r = Range(from, to);
+    var a = r.toArray();
+    expect(r.length).toBe(length);
+    expect(a.length).toBe(length);
+    expect(r.get(0)).toBe(length ? from : undefined);
+    expect(a[0]).toBe(length ? from : undefined);
+    var last = to + (isIncreasing ? -1 : 1);
+    expect(r.last()).toBe(length ? last : undefined);
+    if (length) {
+      expect(a[a.length - 1]).toBe(last);
+    }
+  });
+
+  var shrinkInt = gen.shrink(gen.int);
+
+  check.it('slices the same as array slices',
+    [shrinkInt, shrinkInt, shrinkInt, shrinkInt],
+    function (from, to, begin, end) {
+      var r = Range(from, to);
+      var a = r.toArray();
+      expect(r.slice(begin, end).toArray()).toEqual(a.slice(begin, end));
+    }
+  );
 
   it('slices range', () => {
     var v = Range(1, 11, 2);

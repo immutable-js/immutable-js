@@ -37,7 +37,8 @@
     "grunt-release": "^0.7.0",
     "traceur": "0.0.55",
     "smash": "0.0.12",
-    "uglify-js": "^2.4.15"
+    "uglify-js": "^2.4.15",
+    "jasmine-check": "^0.1.2"
   },
   "engines": {
     "node": "^0.8.0"
