@@ -119,6 +119,20 @@ describe('Vector', () => {
     expect(v1.toArray()).toEqual(['a', 'b', 'c', 'd', 'e', 'f']);
   });
 
+  check.it('pushes multiple values to the end',
+    [gen.array(gen.int), gen.array(gen.int)],
+    (a1, a2) => {
+      var v1 = Vector.from(a1);
+      var v3 = v1.push.apply(v1, a2);
+
+      var a3 = a1.slice();
+      a3.push.apply(a3, a2);
+
+      expect(v3.length).toEqual(a3.length);
+      expect(v3.toArray()).toEqual(a3);
+    }
+  );
+
   it('pop removes the highest index, decrementing length', () => {
     var v = Vector('a', 'b', 'c').pop();
     expect(v.last()).toBe('b');
