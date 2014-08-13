@@ -1,5 +1,9 @@
 ///<reference path='../resources/jest.d.ts'/>
 jest.autoMockOff();
+
+import jasmineCheck = require('jasmine-check');
+jasmineCheck.install();
+
 import Immutable = require('../dist/Immutable');
 import Vector = Immutable.Vector;
 
@@ -168,6 +172,20 @@ describe('Vector', () => {
     expect(v.length).toBe(6);
     expect(v.toArray()).toEqual(['x', 'y', 'z', 'a', 'b', 'c']);
   });
+
+  check.it('unshifts multiple values to the front',
+    [gen.array(gen.int), gen.array(gen.int)],
+    (a1, a2) => {
+      var v1 = Vector.from(a1);
+      var v3 = v1.unshift.apply(v1, a2);
+
+      var a3 = a1.slice();
+      a3.unshift.apply(a3, a2);
+
+      expect(v3.length).toEqual(a3.length);
+      expect(v3.toArray()).toEqual(a3);
+    }
+  );
 
   it('finds values using indexOf', () => {
     var v = Vector('a', 'b', 'c', 'b', 'a');
