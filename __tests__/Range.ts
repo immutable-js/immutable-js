@@ -51,7 +51,7 @@ describe('Range', () => {
     expect(v.toArray()).toEqual([]);
   });
 
-  check.it('includes first, exclues last', [gen.int, gen.int], function (from, to) {
+  check.it('includes first, excludes last', [gen.int, gen.int], function (from, to) {
     var isIncreasing = to >= from;
     var length = isIncreasing ? to - from : from - to;
     var r = Range(from, to);
