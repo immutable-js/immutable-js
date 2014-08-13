@@ -2266,6 +2266,9 @@ var Range = function Range(start, end, step) {
   if (end == null) {
     end = Infinity;
   }
+  if (start === end && __EMPTY_RANGE) {
+    return __EMPTY_RANGE;
+  }
   step = step == null ? 1 : Math.abs(step);
   if (end < start) {
     step = -step;
@@ -2296,11 +2299,17 @@ var $Range = Range;
     return possibleIndex >= 0 && possibleIndex < this.length && possibleIndex === Math.floor(possibleIndex);
   },
   slice: function(begin, end, maintainIndices) {
+    if (wholeSlice(begin, end, this.length)) {
+      return this;
+    }
     if (maintainIndices) {
       return $traceurRuntime.superCall(this, $Range.prototype, "slice", [begin, end, maintainIndices]);
     }
-    begin = begin < 0 ? Math.max(0, this.length + begin) : Math.min(this.length, begin);
-    end = end == null ? this.length : end > 0 ? Math.min(this.length, end) : Math.max(0, this.length + end);
+    begin = resolveBegin(begin, this.length);
+    end = resolveEnd(end, this.length);
+    if (end <= begin) {
+      return __EMPTY_RANGE;
+    }
     return new $Range(this.get(begin, this._end), this.get(end, this._end), this._step);
   },
   __deepEquals: function(other) {
@@ -2342,6 +2351,7 @@ var $Range = Range;
 Range.prototype.__toJS = Range.prototype.toArray;
 Range.prototype.first = Vector.prototype.first;
 Range.prototype.last = Vector.prototype.last;
+var __EMPTY_RANGE = Range(0, 0);
 function invariant(condition, error) {
   if (!condition)
     throw new Error(error);

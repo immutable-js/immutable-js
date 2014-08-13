@@ -9,7 +9,7 @@
 
 import "Sequence"
 import "Vector"
-/* global IndexedSequence, Vector */
+/* global IndexedSequence, wholeSlice, resolveBegin, resolveEnd, Vector */
 /* exported Range */
 
 
@@ -28,6 +28,9 @@ class Range extends IndexedSequence {
     start = start || 0;
     if (end == null) {
       end = Infinity;
+    }
+    if (start === end && __EMPTY_RANGE) {
+      return __EMPTY_RANGE;
     }
     step = step == null ? 1 : Math.abs(step);
     if (end < start) {
@@ -68,11 +71,17 @@ class Range extends IndexedSequence {
   }
 
   slice(begin, end, maintainIndices) {
+    if (wholeSlice(begin, end, this.length)) {
+      return this;
+    }
     if (maintainIndices) {
       return super.slice(begin, end, maintainIndices);
     }
-    begin = begin < 0 ? Math.max(0, this.length + begin) : Math.min(this.length, begin);
-    end = end == null ? this.length : end > 0 ? Math.min(this.length, end) : Math.max(0, this.length + end);
+    begin = resolveBegin(begin, this.length);
+    end = resolveEnd(end, this.length);
+    if (end <= begin) {
+      return __EMPTY_RANGE;
+    }
     return new Range(this.get(begin, this._end), this.get(end, this._end), this._step);
   }
 
@@ -122,6 +131,7 @@ Range.prototype.__toJS = Range.prototype.toArray;
 Range.prototype.first = Vector.prototype.first;
 Range.prototype.last = Vector.prototype.last;
 
+var __EMPTY_RANGE = Range(0, 0);
 
 function invariant(condition, error) {
   if (!condition) throw new Error(error);
