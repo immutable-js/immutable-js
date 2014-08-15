@@ -45,14 +45,12 @@ module.exports = function(grunt) {
     },
     copy: {
       build: {
-        files: [
-          {
-            expand: true,
-            cwd: 'type-definitions',
-            src: ['**/*.d.ts'],
-            dest: 'dist/'
-          },
-        ]
+        files: [{
+          expand: true,
+          cwd: 'type-definitions',
+          src: ['**/*.d.ts'],
+          dest: 'dist/'
+        }]
       }
     },
     jest: {
