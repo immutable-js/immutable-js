@@ -1461,12 +1461,13 @@ declare module 'Immutable' {
     asImmutable(): Vector<T>;
 
     /**
-     * Allows `Vector` to be used in ES7 for expressions, returns an `Iterator`
-     * which has a `next()` method which returns the next (index, value) tuple.
+     * Allows `Vector` to be used in ES6 for-of expressions, returning an object
+     * that adheres to the `Iterator` interface: it has a `next()` method which
+     * returns the next (index, value) tuple.
      *
-     * When no entries remain, throws StopIteration in ES7 otherwise returns null.
+     * When no entries remain, returns `{ done: true }`
      */
-    __iterator__(): {next(): /*(number, T)*/Array<any>}
+    iterator(): { next(): { value: /*(number, T)*/Array<any>; done: boolean; } }
   }
 
 

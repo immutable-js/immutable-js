@@ -1654,13 +1654,13 @@ var $Vector = Vector;
     return sliceSequence;
   },
   __deepEquals: function(other) {
-    var iterator = this.__iterator__();
+    var iterator = this.iterator();
     return other.every((function(v, k) {
       var entry = iterator.next().value;
       return entry && k === entry[0] && is(v, entry[1]);
     }));
   },
-  __iterator__: function() {
+  iterator: function() {
     return new VectorIterator(this, this._origin, this._size, this._level, this._root, this._tail);
   },
   __iterate: function(fn, reverse, flipIndices) {
