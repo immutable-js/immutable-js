@@ -373,8 +373,8 @@ class Vector extends IndexedSequence {
   __deepEquals(other) {
     var iterator = this.__iterator__();
     return other.every((v, k) => {
-      var entry = iterator.next();
-      return k === entry[0] && is(v, entry[1]);
+      var entry = iterator.next().value;
+      return entry && k === entry[0] && is(v, entry[1]);
     });
   }
 
@@ -441,6 +441,7 @@ function _nodeFor(vector, rawIndex) {
   }
 }
 
+Vector.prototype['@@iterator'] = Vector.prototype.__iterator__;
 Vector.prototype.update = Map.prototype.update;
 Vector.prototype.updateIn = Map.prototype.updateIn;
 Vector.prototype.cursor = Map.prototype.cursor;
@@ -602,7 +603,7 @@ class VectorIterator {
           if (index >= 0 && index < stack.max && stack.node.hasOwnProperty(stack.rawIndex)) {
             var value = stack.node[stack.rawIndex];
             stack.rawIndex++;
-            return [index, value];
+            return { value: [index, value], done: true };
           } else {
             stack.rawIndex++;
           }
@@ -630,9 +631,7 @@ class VectorIterator {
       }
       stack = this._stack = this._stack.__prev;
     }
-    if (global.StopIteration) {
-      throw global.StopIteration;
-    }
+    return { done: true };
   }
 }
 

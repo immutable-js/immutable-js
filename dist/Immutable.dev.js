@@ -1656,8 +1656,8 @@ var $Vector = Vector;
   __deepEquals: function(other) {
     var iterator = this.__iterator__();
     return other.every((function(v, k) {
-      var entry = iterator.next();
-      return k === entry[0] && is(v, entry[1]);
+      var entry = iterator.next().value;
+      return entry && k === entry[0] && is(v, entry[1]);
     }));
   },
   __iterator__: function() {
@@ -1734,6 +1734,7 @@ function _nodeFor(vector, rawIndex) {
     return node;
   }
 }
+Vector.prototype['@@iterator'] = Vector.prototype.__iterator__;
 Vector.prototype.update = Map.prototype.update;
 Vector.prototype.updateIn = Map.prototype.updateIn;
 Vector.prototype.cursor = Map.prototype.cursor;
@@ -1876,7 +1877,10 @@ var VectorIterator = function VectorIterator(vector, origin, size, level, root, 
           if (index >= 0 && index < stack.max && stack.node.hasOwnProperty(stack.rawIndex)) {
             var value = stack.node[stack.rawIndex];
             stack.rawIndex++;
-            return [index, value];
+            return {
+              value: [index, value],
+              done: true
+            };
           } else {
             stack.rawIndex++;
           }
@@ -1904,9 +1908,7 @@ var VectorIterator = function VectorIterator(vector, origin, size, level, root, 
       }
       stack = this._stack = this._stack.__prev;
     }
-    if (global.StopIteration) {
-      throw global.StopIteration;
-    }
+    return {done: true};
   }}, {});
 function vectorWithLengthOfLongestSeq(vector, seqs) {
   var maxLength = Math.max.apply(null, seqs.map((function(seq) {
