@@ -10,7 +10,7 @@
 import "Sequence"
 import "Map"
 import "is"
-/* global Sequence, IndexedSequence, Map, is */
+/* global Sequence, IndexedSequence, Map, mergeIntoCollectionWith, deepMerger, is */
 /* exported Vector */
 
 
@@ -200,24 +200,20 @@ class Vector extends IndexedSequence {
 
   // @pragma Composition
 
-  merge(...seqs) {
-    return Map.prototype.merge.apply(
-      vectorWithLengthOfLongestSeq(this, seqs), arguments);
+  merge(/*...seqs*/) {
+    return mergeIntoVectorWith(this, null, arguments);
   }
 
-  mergeWith(fn, ...seqs) {
-    return Map.prototype.mergeWith.apply(
-      vectorWithLengthOfLongestSeq(this, seqs), arguments);
+  mergeWith(merger, ...seqs) {
+    return mergeIntoVectorWith(this, merger, seqs);
   }
 
-  mergeDeep(...seqs) {
-    return Map.prototype.mergeDeep.apply(
-      vectorWithLengthOfLongestSeq(this, seqs), arguments);
+  mergeDeep(/*...seqs*/) {
+    return mergeIntoVectorWith(this, deepMerger(null), arguments);
   }
 
-  mergeDeepWith(fn, ...seqs) {
-    return Map.prototype.mergeDeepWith.apply(
-      vectorWithLengthOfLongestSeq(this, seqs), arguments);
+  mergeDeepWith(merger, ...seqs) {
+    return mergeIntoVectorWith(this, deepMerger(merger), seqs);
   }
 
   setLength(length) {
@@ -635,10 +631,17 @@ class VectorIterator {
   }
 }
 
-
-function vectorWithLengthOfLongestSeq(vector, seqs) {
-  var maxLength = Math.max.apply(null, seqs.map(seq => seq.length || 0));
-  return maxLength > vector.length ? vector.setLength(maxLength) : vector;
+function mergeIntoVectorWith(vector, merger, iterables) {
+  var seqs = [];
+  for (var ii = 0; ii < iterables.length; ii++) {
+    var seq = iterables[ii];
+    seq && seqs.push(seq.forEach ? seq : Sequence(seq));
+  }
+  var maxLength = Math.max.apply(null, seqs.map(s => s.length || 0));
+  if (maxLength > vector.length) {
+    vector = vector.setLength(maxLength);
+  }
+  return mergeIntoCollectionWith(vector, merger, seqs);
 }
 
 function rawIndex(index, origin) {

@@ -1307,27 +1307,32 @@ function makeNode(ownerID, shift, hash, key, valOrNode) {
   key != null && (keys[idx] = key);
   return new BitmapIndexedNode(ownerID, 1 << idx, keys, values);
 }
+function mergeIntoMapWith(map, merger, iterables) {
+  var seqs = [];
+  for (var ii = 0; ii < iterables.length; ii++) {
+    var seq = iterables[ii];
+    seq && seqs.push(Array.isArray(seq) ? Sequence(seq).fromEntries() : Sequence(seq));
+  }
+  return mergeIntoCollectionWith(map, merger, seqs);
+}
 function deepMerger(merger) {
   return (function(existing, value) {
     return existing && existing.mergeDeepWith ? existing.mergeDeepWith(merger, value) : merger ? merger(existing, value) : value;
   });
 }
-function mergeIntoMapWith(map, merger, seqs) {
+function mergeIntoCollectionWith(collection, merger, seqs) {
   if (seqs.length === 0) {
-    return map;
+    return collection;
   }
-  return map.withMutations((function(map) {
+  return collection.withMutations((function(collection) {
+    var mergeIntoMap = merger ? (function(value, key) {
+      var existing = collection.get(key, __SENTINEL);
+      collection.set(key, existing === __SENTINEL ? value : merger(existing, value));
+    }) : (function(value, key) {
+      collection.set(key, value);
+    });
     for (var ii = 0; ii < seqs.length; ii++) {
-      var seq = seqs[ii];
-      if (seq) {
-        seq = seq.forEach ? seq : Sequence(seq);
-        seq.forEach(merger ? (function(value, key) {
-          var existing = map.get(key, __SENTINEL);
-          map.set(key, existing === __SENTINEL ? value : merger(existing, value));
-        }) : (function(value, key) {
-          map.set(key, value);
-        }));
-      }
+      seqs[ii].forEach(mergeIntoMap);
     }
   }));
 }
@@ -1516,28 +1521,22 @@ var $Vector = Vector;
     return this._setBounds(1);
   },
   merge: function() {
-    for (var seqs = [],
-        $__7 = 0; $__7 < arguments.length; $__7++)
-      seqs[$__7] = arguments[$__7];
-    return Map.prototype.merge.apply(vectorWithLengthOfLongestSeq(this, seqs), arguments);
+    return mergeIntoVectorWith(this, null, arguments);
   },
-  mergeWith: function(fn) {
+  mergeWith: function(merger) {
+    for (var seqs = [],
+        $__7 = 1; $__7 < arguments.length; $__7++)
+      seqs[$__7 - 1] = arguments[$__7];
+    return mergeIntoVectorWith(this, merger, seqs);
+  },
+  mergeDeep: function() {
+    return mergeIntoVectorWith(this, deepMerger(null), arguments);
+  },
+  mergeDeepWith: function(merger) {
     for (var seqs = [],
         $__8 = 1; $__8 < arguments.length; $__8++)
       seqs[$__8 - 1] = arguments[$__8];
-    return Map.prototype.mergeWith.apply(vectorWithLengthOfLongestSeq(this, seqs), arguments);
-  },
-  mergeDeep: function() {
-    for (var seqs = [],
-        $__9 = 0; $__9 < arguments.length; $__9++)
-      seqs[$__9] = arguments[$__9];
-    return Map.prototype.mergeDeep.apply(vectorWithLengthOfLongestSeq(this, seqs), arguments);
-  },
-  mergeDeepWith: function(fn) {
-    for (var seqs = [],
-        $__10 = 1; $__10 < arguments.length; $__10++)
-      seqs[$__10 - 1] = arguments[$__10];
-    return Map.prototype.mergeDeepWith.apply(vectorWithLengthOfLongestSeq(this, seqs), arguments);
+    return mergeIntoVectorWith(this, deepMerger(merger), seqs);
   },
   setLength: function(length) {
     return this._setBounds(0, length);
@@ -1910,11 +1909,19 @@ var VectorIterator = function VectorIterator(vector, origin, size, level, root, 
     }
     return {done: true};
   }}, {});
-function vectorWithLengthOfLongestSeq(vector, seqs) {
-  var maxLength = Math.max.apply(null, seqs.map((function(seq) {
-    return seq.length || 0;
+function mergeIntoVectorWith(vector, merger, iterables) {
+  var seqs = [];
+  for (var ii = 0; ii < iterables.length; ii++) {
+    var seq = iterables[ii];
+    seq && seqs.push(seq.forEach ? seq : Sequence(seq));
+  }
+  var maxLength = Math.max.apply(null, seqs.map((function(s) {
+    return s.length || 0;
   })));
-  return maxLength > vector.length ? vector.setLength(maxLength) : vector;
+  if (maxLength > vector.length) {
+    vector = vector.setLength(maxLength);
+  }
+  return mergeIntoCollectionWith(vector, merger, seqs);
 }
 function rawIndex(index, origin) {
   if (index < 0)
@@ -1932,8 +1939,8 @@ var __EMPTY_VECT;
 var __EMPTY_VNODE = new VNode([]);
 var Set = function Set() {
   for (var values = [],
-      $__11 = 0; $__11 < arguments.length; $__11++)
-    values[$__11] = arguments[$__11];
+      $__9 = 0; $__9 < arguments.length; $__9++)
+    values[$__9] = arguments[$__9];
   return $Set.from(values);
 };
 var $Set = Set;
@@ -2003,8 +2010,8 @@ var $Set = Set;
   },
   intersect: function() {
     for (var seqs = [],
-        $__12 = 0; $__12 < arguments.length; $__12++)
-      seqs[$__12] = arguments[$__12];
+        $__10 = 0; $__10 < arguments.length; $__10++)
+      seqs[$__10] = arguments[$__10];
     if (seqs.length === 0) {
       return this;
     }
@@ -2024,8 +2031,8 @@ var $Set = Set;
   },
   subtract: function() {
     for (var seqs = [],
-        $__13 = 0; $__13 < arguments.length; $__13++)
-      seqs[$__13] = arguments[$__13];
+        $__11 = 0; $__11 < arguments.length; $__11++)
+      seqs[$__11] = arguments[$__11];
     if (seqs.length === 0) {
       return this;
     }

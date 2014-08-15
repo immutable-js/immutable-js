@@ -884,11 +884,12 @@ declare module 'Immutable' {
      * the provided Sequence or JavaScript Object or Array.
      *
      *     var newMap = Map.from({key: "value"});
+     *     var newMap = Map.from([["key", "value"]]);
      *
      */
     function from<K, V>(sequence: Sequence<K, V>): Map<K, V>;
     function from<V>(object: {[key: string]: V}): Map<string, V>;
-    function from<V>(array: Array<V>): Map<number, V>;
+    function from<V>(entries: Array</*(K, V)*/Array<any>>): Map<any, any>;
   }
 
   /**
@@ -901,7 +902,7 @@ declare module 'Immutable' {
    */
   export function Map<K, V>(sequence: Sequence<K, V>): Map<K, V>;
   export function Map<V>(object: {[key: string]: V}): Map<string, V>;
-  export function Map<V>(array: Array<V>): Map<number, V>;
+  export function Map<V>(entries: Array</*(K, V)*/Array<any>>): Map<any, any>;
 
 
   export interface Map<K, V> extends Sequence<K, V> {

@@ -22,11 +22,11 @@ describe('Map', () => {
     expect(m.get('c')).toBe('C');
   });
 
-  it('constructor provides initial values as array', () => {
-    var m = Map(['A','B','C']);
-    expect(m.get(0)).toBe('A');
-    expect(m.get(1)).toBe('B');
-    expect(m.get(2)).toBe('C');
+  it('constructor provides initial values as array of entries', () => {
+    var m = Map([['a','A'],['b','B'],['c','C']]);
+    expect(m.get('a')).toBe('A');
+    expect(m.get('b')).toBe('B');
+    expect(m.get('c')).toBe('C');
   });
 
   it('constructor provides initial values as sequence', () => {

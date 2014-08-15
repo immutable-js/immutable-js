@@ -399,6 +399,17 @@ function makeNode(ownerID, shift, hash, key, valOrNode) {
   return new BitmapIndexedNode(ownerID, 1 << idx, keys, values);
 }
 
+function mergeIntoMapWith(map, merger, iterables) {
+  var seqs = [];
+  for (var ii = 0; ii < iterables.length; ii++) {
+    var seq = iterables[ii];
+    seq && seqs.push(
+      Array.isArray(seq) ? Sequence(seq).fromEntries() : Sequence(seq)
+    );
+  }
+  return mergeIntoCollectionWith(map, merger, seqs);
+}
+
 function deepMerger(merger) {
   return (existing, value) =>
     existing && existing.mergeDeepWith ?
@@ -406,26 +417,23 @@ function deepMerger(merger) {
       merger ? merger(existing, value) : value;
 }
 
-function mergeIntoMapWith(map, merger, seqs) {
+function mergeIntoCollectionWith(collection, merger, seqs) {
   if (seqs.length === 0) {
-    return map;
+    return collection;
   }
-  return map.withMutations(map => {
-    for (var ii = 0; ii < seqs.length; ii++) {
-      var seq = seqs[ii];
-      if (seq) {
-        seq = seq.forEach ? seq : Sequence(seq);
-        seq.forEach(
-          merger ?
-          (value, key) => {
-            var existing = map.get(key, __SENTINEL);
-            map.set(key, existing === __SENTINEL ? value : merger(existing, value));
-          } :
-          (value, key) => {
-            map.set(key, value);
-          }
+  return collection.withMutations(collection => {
+    var mergeIntoMap = merger ?
+      (value, key) => {
+        var existing = collection.get(key, __SENTINEL);
+        collection.set(
+          key, existing === __SENTINEL ? value : merger(existing, value)
         );
+      } :
+      (value, key) => {
+        collection.set(key, value);
       }
+    for (var ii = 0; ii < seqs.length; ii++) {
+      seqs[ii].forEach(mergeIntoMap);
     }
   });
 }
