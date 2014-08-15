@@ -272,6 +272,9 @@ var $Sequence = Sequence;
     }), null, notFoundValue);
   },
   getIn: function(searchKeyPath, notFoundValue) {
+    if (!searchKeyPath || searchKeyPath.length === 0) {
+      return this;
+    }
     return getInDeepSequence(this, searchKeyPath, notFoundValue, 0);
   },
   contains: function(searchValue) {
@@ -827,10 +830,10 @@ function getInDeepSequence(seq, keyPath, notFoundValue, pathOffset) {
   if (nested === __SENTINEL) {
     return notFoundValue;
   }
-  if (pathOffset === keyPath.length - 1) {
+  if (++pathOffset === keyPath.length) {
     return nested;
   }
-  return getInDeepSequence(nested, keyPath, notFoundValue, pathOffset + 1);
+  return getInDeepSequence(nested, keyPath, notFoundValue, pathOffset);
 }
 function wholeSlice(begin, end, length) {
   return (begin === 0 || (length != null && begin <= -length)) && (end == null || (length != null && end >= length));
@@ -914,6 +917,32 @@ function is(first, second) {
   }
   return false;
 }
+var Cursor = function Cursor(rootData, keyPath, onChange) {
+  this._rootData = rootData;
+  this._keyPath = keyPath;
+  this._onChange = onChange;
+};
+var $Cursor = Cursor;
+($traceurRuntime.createClass)(Cursor, {
+  get: function() {
+    return this._rootData.getIn(this._keyPath, Map.empty());
+  },
+  update: function(updater) {
+    var newRootData = this._rootData.updateIn(this._keyPath, updater);
+    var onChange = this._onChange;
+    onChange && onChange.call(undefined, newRootData, this._rootData);
+    return new $Cursor(newRootData, this._keyPath, onChange);
+  },
+  cursor: function(subKeyPath) {
+    if (subKeyPath && !Array.isArray(subKeyPath)) {
+      subKeyPath = [subKeyPath];
+    }
+    if (!subKeyPath || subKeyPath.length === 0) {
+      return this;
+    }
+    return new $Cursor(this._rootData, this._keyPath ? this._keyPath.concat(subKeyPath) : subKeyPath, this._onChange);
+  }
+}, {});
 var Map = function Map(sequence) {
   if (sequence && sequence.constructor === $Map) {
     return sequence;
@@ -998,7 +1027,20 @@ var $Map = Map;
     return mergeIntoMapWith(this, deepMerger(merger), seqs);
   },
   updateIn: function(keyPath, updater) {
+    if (!keyPath || keyPath.length === 0) {
+      return updater(this);
+    }
     return updateInDeepMap(this, keyPath, updater, 0);
+  },
+  cursor: function(keyPath, onChange) {
+    if (!onChange && typeof keyPath === 'function') {
+      onChange = keyPath;
+      keyPath = null;
+    }
+    if (keyPath && !Array.isArray(keyPath)) {
+      keyPath = [keyPath];
+    }
+    return new Cursor(this, keyPath, onChange);
   },
   withMutations: function(fn) {
     var mutable = this.asMutable();
@@ -1264,9 +1306,12 @@ function updateInDeepMap(collection, keyPath, updater, pathOffset) {
   var key = keyPath[pathOffset];
   var nested = collection.get ? collection.get(key, __SENTINEL) : __SENTINEL;
   if (nested === __SENTINEL) {
-    return collection;
+    nested = Map.empty();
   }
-  return collection.set ? collection.set(key, pathOffset === keyPath.length - 1 ? updater(nested) : updateInDeepMap(nested, keyPath, updater, pathOffset + 1)) : collection;
+  if (!collection.set) {
+    throw new Error('updateIn with invalid keyPath');
+  }
+  return collection.set(key, ++pathOffset === keyPath.length ? updater(nested) : updateInDeepMap(nested, keyPath, updater, pathOffset));
 }
 var __BOOL_REF = {value: false};
 function BoolRef(value) {
@@ -1662,6 +1707,7 @@ var $Vector = Vector;
 }, IndexedSequence);
 Vector.prototype.update = Map.prototype.update;
 Vector.prototype.updateIn = Map.prototype.updateIn;
+Vector.prototype.cursor = Map.prototype.cursor;
 Vector.prototype.withMutations = Map.prototype.withMutations;
 Vector.prototype.asMutable = Map.prototype.asMutable;
 Vector.prototype.asImmutable = Map.prototype.asImmutable;
@@ -2254,6 +2300,7 @@ Record.prototype.mergeDeep = Map.prototype.mergeDeep;
 Record.prototype.mergeDeepWith = Map.prototype.mergeDeepWith;
 Record.prototype.update = Map.prototype.update;
 Record.prototype.updateIn = Map.prototype.updateIn;
+Record.prototype.cursor = Map.prototype.cursor;
 Record.prototype.withMutations = Map.prototype.withMutations;
 Record.prototype.asMutable = Map.prototype.asMutable;
 Record.prototype.asImmutable = Map.prototype.asImmutable;

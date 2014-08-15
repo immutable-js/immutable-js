@@ -271,6 +271,9 @@ class Sequence {
   }
 
   getIn(searchKeyPath, notFoundValue) {
+    if (!searchKeyPath || searchKeyPath.length === 0) {
+      return this;
+    }
     return getInDeepSequence(this, searchKeyPath, notFoundValue, 0);
   }
 
@@ -866,10 +869,10 @@ function getInDeepSequence(seq, keyPath, notFoundValue, pathOffset) {
   if (nested === __SENTINEL) {
     return notFoundValue;
   }
-  if (pathOffset === keyPath.length - 1) {
+  if (++pathOffset === keyPath.length) {
     return nested;
   }
-  return getInDeepSequence(nested, keyPath, notFoundValue, pathOffset + 1);
+  return getInDeepSequence(nested, keyPath, notFoundValue, pathOffset);
 }
 
 function wholeSlice(begin, end, length) {

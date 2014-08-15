@@ -60,18 +60,20 @@ describe('updateIn', () => {
     );
   })
 
-  it('deep update does nothing if path does not match', () => {
+  it('creates new maps if path contains gaps', () => {
     var m = I.fromJS({a: {b: {c: 10}}});
     expect(
       m.updateIn(['a', 'z'], map => map.set('d', 20)).toJS()
     ).toEqual(
-      {a: {b: {c: 10}}}
+      {a: {b: {c: 10}, z: {d: 20}}}
     );
-    expect(
+  })
+
+  it('throws if path cannot be set', () => {
+    var m = I.fromJS({a: {b: {c: 10}}});
+    expect(() => {
       m.updateIn(['a', 'b', 'c', 'd'], map => map.set('d', 20)).toJS()
-    ).toEqual(
-      {a: {b: {c: 10}}}
-    );
+    }).toThrow();
   })
 
 })

@@ -1,3 +1,5 @@
+declare var jasmine: any;
+
 declare function afterEach(fn: any): any;
 declare function beforeEach(fn: any): any;
 declare function describe(name: string, fn: any): void;

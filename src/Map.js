@@ -9,7 +9,8 @@
 
 import "Sequence"
 import "is"
-/* global Sequence, is */
+import "Cursor"
+/* global Sequence, is, Cursor */
 /* exported Map */
 
 
@@ -114,7 +115,21 @@ class Map extends Sequence {
   }
 
   updateIn(keyPath, updater) {
+    if (!keyPath || keyPath.length === 0) {
+      return updater(this);
+    }
     return updateInDeepMap(this, keyPath, updater, 0);
+  }
+
+  cursor(keyPath, onChange) {
+    if (!onChange && typeof keyPath === 'function') {
+      onChange = keyPath;
+      keyPath = null;
+    }
+    if (keyPath && !Array.isArray(keyPath)) {
+      keyPath = [keyPath];
+    }
+    return new Cursor(this, keyPath, onChange);
   }
 
   // @pragma Mutability
@@ -419,14 +434,17 @@ function updateInDeepMap(collection, keyPath, updater, pathOffset) {
   var key = keyPath[pathOffset];
   var nested = collection.get ? collection.get(key, __SENTINEL) : __SENTINEL;
   if (nested === __SENTINEL) {
-    return collection;
+    nested = Map.empty();
   }
-  return collection.set ? collection.set(
+  if (!collection.set) {
+    throw new Error('updateIn with invalid keyPath');
+  }
+  return collection.set(
     key,
-    pathOffset === keyPath.length - 1 ?
+    ++pathOffset === keyPath.length ?
       updater(nested) :
-      updateInDeepMap(nested, keyPath, updater, pathOffset + 1)
-  ) : collection;
+      updateInDeepMap(nested, keyPath, updater, pathOffset)
+  );
 }
 
 var __BOOL_REF = {value: false};

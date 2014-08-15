@@ -12,7 +12,6 @@ interface ExpectWithIs extends Expect {
   not: ExpectWithIs;
 }
 
-// This doesn't work yet because of a jest bug with instanceof.
 describe('Conversion', () => {
 
   beforeEach(function () {

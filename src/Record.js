@@ -137,6 +137,7 @@ Record.prototype.mergeDeep = Map.prototype.mergeDeep;
 Record.prototype.mergeDeepWith = Map.prototype.mergeDeepWith;
 Record.prototype.update = Map.prototype.update;
 Record.prototype.updateIn = Map.prototype.updateIn;
+Record.prototype.cursor = Map.prototype.cursor;
 Record.prototype.withMutations = Map.prototype.withMutations;
 Record.prototype.asMutable = Map.prototype.asMutable;
 Record.prototype.asImmutable = Map.prototype.asImmutable;

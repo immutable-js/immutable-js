@@ -906,6 +906,29 @@ export interface Map<K, V> extends Sequence<K, V> {
   delete(key: K): Map<K, V>;
 
   /**
+   * Returns a new Map containing no keys or values.
+   */
+  clear(): Map<K, V>;
+
+  /**
+   * When this cursor's (or any of its sub-cursors') `update` method is called,
+   * the resulting new data structure will be provided to the `onChange`
+   * function. Use this callback to keep track of the most current value or
+   * update the rest of your application.
+   */
+  cursor(
+    onChange?: (newValue: Map<K, V>, oldValue?: Map<K, V>) => void
+  ): Cursor<Map<K, V>>;
+  cursor(
+    keyPath: Array<any>,
+    onChange?: (newValue: Map<K, V>, oldValue?: Map<K, V>) => void
+  ): Cursor<any>;
+  cursor(
+    key: K,
+    onChange?: (newValue: Map<K, V>, oldValue?: Map<K, V>) => void
+  ): Cursor<V>;
+
+  /**
    * Returns a new Map having updated the value at this `key` with the return
    * value of calling `updater` with the existing value, or undefined if the
    * key was not already set.
@@ -915,13 +938,9 @@ export interface Map<K, V> extends Sequence<K, V> {
   update(key: K, updater: (value: V) => V): Map<K, V>;
 
   /**
-   * Returns a new Map containing no keys or values.
-   */
-  clear(): Map<K, V>;
-
-  /**
    * Returns a new Map having applied the `updater` to the entry found at the
-   * keyPath. If the keyPath does not result in a value, it returns itself.
+   * keyPath. If any keys in `keyPath` do not exist, a new immutable Map will be
+   * created at that key.
    *
    *     var data = Immutable.fromJS({ a: { b: { c: 10 } } });
    *     data.updateIn(['a', 'b'], map => map.set('d', 20));
@@ -1301,15 +1320,6 @@ export interface Vector<T> extends IndexedSequence<T> {
   delete(index: number): Vector<T>;
 
   /**
-   * Returns a new Vector with an updated value at `index` with the return value
-   * of calling `updater` with the existing value, or undefined if `index` was
-   * not set.
-   *
-   * @see Map.update
-   */
-  update(index: number, updater: (value: T) => T): Vector<T>;
-
-  /**
    * Returns a new Vector with 0 length and no values.
    */
   clear(): Vector<T>;
@@ -1345,6 +1355,27 @@ export interface Vector<T> extends IndexedSequence<T> {
    * in this Vector.
    */
   shift(): Vector<T>;
+
+  /**
+   * @see Map.cursor
+   */
+  cursor(
+    onChange?: (newValue: Vector<T>, oldValue?: Vector<T>) => void
+  ): Cursor<Vector<T>>;
+  cursor(
+    keyPath: Array<any>,
+    onChange?: (newValue: Vector<T>, oldValue?: Vector<T>) => void
+  ): Cursor<any>;
+
+
+  /**
+   * Returns a new Vector with an updated value at `index` with the return value
+   * of calling `updater` with the existing value, or undefined if `index` was
+   * not set.
+   *
+   * @see Map.update
+   */
+  update(index: number, updater: (value: T) => T): Vector<T>;
 
   /**
    * @see `Map.prototype.updateIn`
@@ -1420,4 +1451,50 @@ export interface Vector<T> extends IndexedSequence<T> {
    * When no entries remain, throws StopIteration in ES7 otherwise returns null.
    */
   __iterator__(): {next(): /*(number, T)*/Array<any>}
+}
+
+
+/**
+ * Cursors
+ * -------
+ *
+ * Cursors allow you to hold a reference to a path in a nested immutable data
+ * structure, allowing you to pass smaller sections of a larger nested
+ * collection to portions of your application while maintaining a central point
+ * aware of changes to the entire data structure.
+ *
+ * This is particularly useful when used in conjuction with component-based UI
+ * libraries like [React](http://facebook.github.io/react/) or to simulate
+ * "state" throughout an application while maintaining a single flow of logic.
+ *
+ * Cursors provide a simple API for getting the value at that path
+ * (the equivalent of `this.getIn(keyPath)`), updating the value at that path
+ * (the equivalent of `this.updateIn(keyPath)`), and getting a sub-cursor
+ * starting from that path.
+ *
+ * When updated, a new root collection is created and provided to the `onChange`
+ * function provided to the first call to `map.cursor(...)`.
+ *
+ * @see Map.cursor
+ */
+
+export interface Cursor<T> {
+
+  /**
+   * Returns the value at the cursor, if the cursor path does not yet exist,
+   * an empty map (matching the behavior of update).
+   */
+  get(): T;
+
+  /**
+   * Updates the value in the data this cursor points to, triggering the callback
+   * for the root cursor and returning a new cursor pointing to the new data.
+   */
+  update(updater: (value: T) => T): Cursor<T>;
+
+  /**
+   * Returns a sub-cursor following the key-path starting from this cursor.
+   */
+  cursor(subKeyPath: Array<any>): Cursor<any>;
+  cursor(subKey: any): Cursor<any>;
 }
