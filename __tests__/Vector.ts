@@ -9,6 +9,14 @@ jasmineCheck.install();
 import Immutable = require('Immutable');
 import Vector = Immutable.Vector;
 
+function arrayOfSize(s) {
+  var a = new Array(s);
+  for (var ii = 0; ii < s; ii++) {
+    a[ii] = ii;
+  }
+  return a;
+}
+
 describe('Vector', () => {
 
   it('constructor provides initial values', () => {
@@ -141,9 +149,11 @@ describe('Vector', () => {
     expect(v1.toArray()).toEqual(['a', 'b', 'c', 'd', 'e', 'f']);
   });
 
-  check.it('pushes multiple values to the end',
-    [gen.array(gen.int), gen.array(gen.int)],
-    (a1, a2) => {
+  check.it('pushes multiple values to the end', {maxSize: 2000},
+    [gen.posInt, gen.posInt], (s1, s2) => {
+      var a1 = arrayOfSize(s1);
+      var a2 = arrayOfSize(s2);
+
       var v1 = Vector.from(a1);
       var v3 = v1.push.apply(v1, a2);
 
@@ -169,6 +179,20 @@ describe('Vector', () => {
     expect(v.length).toBe(1231);
     expect(v.last()).toBe('X');
   });
+
+  check.it('pop removes the highest index, just like array', {maxSize: 2000},
+    [gen.posInt], len => {
+      var a = arrayOfSize(len);
+      var v = Vector.from(a);
+
+      while (a.length) {
+        expect(v.length).toBe(a.length);
+        expect(v.toArray()).toEqual(a);
+        v = v.pop();
+        a.pop();
+      }
+    }
+  );
 
   it('allows popping an empty vector', () => {
     var v = Vector('a').pop();
@@ -209,9 +233,11 @@ describe('Vector', () => {
     expect(v.toArray()).toEqual(['x', 'y', 'z', 'a', 'b', 'c']);
   });
 
-  check.it('unshifts multiple values to the front',
-    [gen.array(gen.int), gen.array(gen.int)],
-    (a1, a2) => {
+  check.it('unshifts multiple values to the front', {maxSize: 2000},
+    [gen.posInt, gen.posInt], (s1, s2) => {
+      var a1 = arrayOfSize(s1);
+      var a2 = arrayOfSize(s2);
+
       var v1 = Vector.from(a1);
       var v3 = v1.unshift.apply(v1, a2);
 

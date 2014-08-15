@@ -61,7 +61,7 @@ class Vector extends IndexedSequence {
     if (index >= this._size) {
       return undefinedValue;
     }
-    var node = this._nodeFor(index);
+    var node = _nodeFor(this, index);
     var maskedIndex = index & MASK;
     return node && (undefinedValue === undefined || node.array.hasOwnProperty(maskedIndex)) ?
       node.array[maskedIndex] : undefinedValue;
@@ -269,7 +269,7 @@ class Vector extends IndexedSequence {
     // Locate or create the new tail.
     var oldTail = this._tail;
     var newTail = newTailOffset < oldTailOffset ?
-      this._nodeFor(newSize) :
+      _nodeFor(this, newSize - 1) :
       newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
 
     // Merge Tail into tree.
@@ -424,20 +424,20 @@ class Vector extends IndexedSequence {
     vect.__ownerID = ownerID;
     return vect;
   }
+}
 
-  _nodeFor(rawIndex) {
-    if (rawIndex >= getTailOffset(this._size)) {
-      return this._tail;
+function _nodeFor(vector, rawIndex) {
+  if (rawIndex >= getTailOffset(vector._size)) {
+    return vector._tail;
+  }
+  if (rawIndex < 1 << (vector._level + SHIFT)) {
+    var node = vector._root;
+    var level = vector._level;
+    while (node && level > 0) {
+      node = node.array[(rawIndex >>> level) & MASK];
+      level -= SHIFT;
     }
-    if (rawIndex < 1 << (this._level + SHIFT)) {
-      var node = this._root;
-      var level = this._level;
-      while (node && level > 0) {
-        node = node.array[(rawIndex >>> level) & MASK];
-        level -= SHIFT;
-      }
-      return node;
-    }
+    return node;
   }
 }
 
@@ -470,7 +470,7 @@ class VNode {
   // TODO: seems like these methods are very similar
 
   removeBefore(ownerID, level, index) {
-    if (index === 1 << level || this.array.length === 0) {
+    if (index === level ? 1 << level : 0 || this.array.length === 0) {
       return this;
     }
     var originIndex = (index >>> level) & MASK;
@@ -502,7 +502,7 @@ class VNode {
   }
 
   removeAfter(ownerID, level, index) {
-    if (index === 1 << level || this.array.length === 0) {
+    if (index === level ? 1 << level : 0 || this.array.length === 0) {
       return this;
     }
     var sizeIndex = ((index - 1) >>> level) & MASK;

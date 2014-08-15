@@ -1407,7 +1407,7 @@ var $Vector = Vector;
     if (index >= this._size) {
       return undefinedValue;
     }
-    var node = this._nodeFor(index);
+    var node = _nodeFor(this, index);
     var maskedIndex = index & MASK;
     return node && (undefinedValue === undefined || node.array.hasOwnProperty(maskedIndex)) ? node.array[maskedIndex] : undefinedValue;
   },
@@ -1575,7 +1575,7 @@ var $Vector = Vector;
       newLevel += SHIFT;
     }
     var oldTail = this._tail;
-    var newTail = newTailOffset < oldTailOffset ? this._nodeFor(newSize) : newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
+    var newTail = newTailOffset < oldTailOffset ? _nodeFor(this, newSize - 1) : newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
     if (newTailOffset > oldTailOffset && newOrigin < oldSize && oldTail.array.length) {
       newRoot = newRoot.ensureOwner(owner);
       var node = newRoot;
@@ -1684,20 +1684,6 @@ var $Vector = Vector;
       didComplete = this._root.iterate(this._level, -this._origin, tailOffset - this._origin, eachFn, reverse) && this._tail.iterate(0, tailOffset - this._origin, this._size - this._origin, eachFn, reverse);
     }
     return (didComplete ? maxIndex : reverse ? maxIndex - lastIndex : lastIndex) + 1;
-  },
-  _nodeFor: function(rawIndex) {
-    if (rawIndex >= getTailOffset(this._size)) {
-      return this._tail;
-    }
-    if (rawIndex < 1 << (this._level + SHIFT)) {
-      var node = this._root;
-      var level = this._level;
-      while (node && level > 0) {
-        node = node.array[(rawIndex >>> level) & MASK];
-        level -= SHIFT;
-      }
-      return node;
-    }
   }
 }, {
   empty: function() {
@@ -1734,6 +1720,20 @@ var $Vector = Vector;
     return vect;
   }
 }, IndexedSequence);
+function _nodeFor(vector, rawIndex) {
+  if (rawIndex >= getTailOffset(vector._size)) {
+    return vector._tail;
+  }
+  if (rawIndex < 1 << (vector._level + SHIFT)) {
+    var node = vector._root;
+    var level = vector._level;
+    while (node && level > 0) {
+      node = node.array[(rawIndex >>> level) & MASK];
+      level -= SHIFT;
+    }
+    return node;
+  }
+}
 Vector.prototype.update = Map.prototype.update;
 Vector.prototype.updateIn = Map.prototype.updateIn;
 Vector.prototype.cursor = Map.prototype.cursor;
@@ -1755,7 +1755,7 @@ var $VNode = VNode;
     return new $VNode(this.array.slice(), ownerID);
   },
   removeBefore: function(ownerID, level, index) {
-    if (index === 1 << level || this.array.length === 0) {
+    if (index === level ? 1 << level : 0 || this.array.length === 0) {
       return this;
     }
     var originIndex = (index >>> level) & MASK;
@@ -1786,7 +1786,7 @@ var $VNode = VNode;
     return editable;
   },
   removeAfter: function(ownerID, level, index) {
-    if (index === 1 << level || this.array.length === 0) {
+    if (index === level ? 1 << level : 0 || this.array.length === 0) {
       return this;
     }
     var sizeIndex = ((index - 1) >>> level) & MASK;
