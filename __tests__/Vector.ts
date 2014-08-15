@@ -70,6 +70,26 @@ describe('Vector', () => {
     expect(v.last()).toBe('c');
   });
 
+  it('slice helpers make for easier to read code', () => {
+    var v0 = Vector('a', 'b', 'c');
+    var v1 = Vector('a', 'b');
+    var v2 = Vector('a');
+    var v3 = Vector.empty();
+
+    expect(v0.rest().toArray()).toEqual(['b', 'c']);
+    expect(v0.butLast().toArray()).toEqual(['a', 'b']);
+
+    expect(v1.rest().toArray()).toEqual(['b']);
+    expect(v1.butLast().toArray()).toEqual(['a']);
+
+    expect(v2.rest().toArray()).toEqual([]);
+    expect(v2.butLast().toArray()).toEqual([]);
+
+    expect(v3.rest().toArray()).toEqual([]);
+    expect(v3.butLast().toArray()).toEqual([]);
+  });
+
+
   it('can set at arbitrary indices', () => {
     var v0 = Vector('a', 'b', 'c');
     var v1 = v0.set(1, 'B'); // within existing tail
@@ -337,7 +357,9 @@ describe('Vector', () => {
     expect(v1.length).toBe(2000)
     expect(v2.length).toBe(1800);
     expect(v2.first()).toBe(100);
+    expect(v2.rest().length).toBe(1799);
     expect(v2.last()).toBe(1899);
+    expect(v2.butLast().length).toBe(1799);
   });
 
 });

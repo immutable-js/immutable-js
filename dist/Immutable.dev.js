@@ -263,6 +263,12 @@ var $Sequence = Sequence;
   last: function() {
     return this.findLast(returnTrue);
   },
+  rest: function() {
+    return this.slice(1);
+  },
+  butLast: function() {
+    return this.slice(0, -1);
+  },
   has: function(searchKey) {
     return this.get(searchKey, __SENTINEL) !== __SENTINEL;
   },

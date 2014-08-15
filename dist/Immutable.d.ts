@@ -340,6 +340,16 @@ export interface Sequence<K, V> {
   last(): V;
 
   /**
+   * Returns a new Sequence containing all entries except the first.
+   */
+  rest(): Sequence<K, V>
+
+  /**
+   * Returns a new Sequence containing all entries except the last.
+   */
+  butLast(): Sequence<K, V>
+
+  /**
    * True if a key exists within this Sequence.
    */
   has(key: K): boolean;

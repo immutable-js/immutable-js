@@ -13,7 +13,9 @@ describe('Range', () => {
     var v = Range(0, 3);
     expect(v.length).toBe(3);
     expect(v.first()).toBe(0);
+    expect(v.rest().toArray()).toEqual([1,2]);
     expect(v.last()).toBe(2);
+    expect(v.butLast().toArray()).toEqual([0,1]);
     expect(v.toArray()).toEqual([0,1,2]);
   });
 
@@ -21,7 +23,9 @@ describe('Range', () => {
     var v = Range(1, 10, 3);
     expect(v.length).toBe(3);
     expect(v.first()).toBe(1);
+    expect(v.rest().toArray()).toEqual([4,7]);
     expect(v.last()).toBe(7);
+    expect(v.butLast().toArray()).toEqual([1,4]);
     expect(v.toArray()).toEqual([1,4,7]);
   });
 
@@ -29,7 +33,12 @@ describe('Range', () => {
     var v = Range(10);
     expect(v.length).toBe(Infinity);
     expect(v.first()).toBe(10);
+    expect(v.rest().first()).toBe(11);
     expect(v.last()).toBe(Infinity);
+    expect(v.butLast().first()).toBe(10);
+    expect(v.butLast().last()).toBe(Infinity);
+    expect(() => v.rest().toArray()).toThrow('Cannot perform this action with an infinite sequence.');
+    expect(() => v.butLast().toArray()).toThrow('Cannot perform this action with an infinite sequence.');
     expect(() => v.toArray()).toThrow('Cannot perform this action with an infinite sequence.');
   });
 
@@ -45,7 +54,9 @@ describe('Range', () => {
     var v = Range(10, 10);
     expect(v.length).toBe(0);
     expect(v.first()).toBe(undefined);
+    expect(v.rest().toArray()).toEqual([]);
     expect(v.last()).toBe(undefined);
+    expect(v.butLast().toArray()).toEqual([]);
     expect(v.toArray()).toEqual([]);
   });
 
