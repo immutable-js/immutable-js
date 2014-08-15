@@ -1,5 +1,6 @@
 jest.autoMockOff();
-var Immutable = require('../dist/Immutable');
+
+var Immutable = require('Immutable');
 var Record = Immutable.Record;
 
 describe('Record', () => {

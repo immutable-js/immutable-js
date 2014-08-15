@@ -59,11 +59,12 @@ Use these Immutable collections and sequences as you would use native
 collections in your [TypeScript](http://typescriptlang.org) programs while still taking
 advantage of type generics, error detection, and auto-complete in your IDE.
 
-(Because of TypeScript 1.0's issue with NodeJS module resolution, you must
-require the full file path)
+Just add a reference with a relative path to the type declarations at the top
+of your file.
 
 ```javascript
-import Immutable = require('./node_modules/immutable/dist/Immutable');
+///<reference path='./node_modules/immutable/dist/Immutable.d.ts'/>
+import Immutable = require('Immutable');
 var map: Immutable.Map<string, number>;
 map = Immutable.Map({a:1, b:2, c:3});
 map = map.set('b', 20);

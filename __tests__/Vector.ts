@@ -1,10 +1,12 @@
 ///<reference path='../resources/jest.d.ts'/>
+///<reference path='../dist/Immutable.d.ts'/>
+
 jest.autoMockOff();
 
 import jasmineCheck = require('jasmine-check');
 jasmineCheck.install();
 
-import Immutable = require('../dist/Immutable');
+import Immutable = require('Immutable');
 import Vector = Immutable.Vector;
 
 describe('Vector', () => {

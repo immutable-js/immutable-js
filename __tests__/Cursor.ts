@@ -1,7 +1,9 @@
 ///<reference path='../resources/jest.d.ts'/>
+///<reference path='../dist/Immutable.d.ts'/>
+
 jest.autoMockOff();
 
-import Immutable = require('../dist/Immutable');
+import Immutable = require('Immutable');
 
 jasmine.getEnv().addEqualityTester((a, b) =>
   a instanceof Immutable.Sequence && b instanceof Immutable.Sequence ?
