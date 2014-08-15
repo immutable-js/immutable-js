@@ -1503,10 +1503,42 @@ declare module 'Immutable' {
     get(): T;
 
     /**
+     * Returns the value at the `key` in the cursor, or `notFoundValue` if it
+     * does not exist.
+     *
+     * This is shorthand for `cursor.get().get(key)`
+     */
+    get(key: any, notFoundValue?: any): any;
+
+    /**
      * Updates the value in the data this cursor points to, triggering the callback
      * for the root cursor and returning a new cursor pointing to the new data.
      */
     update(updater: (value: T) => T): Cursor<T>;
+
+    /**
+     * Updates the value at `key` in the cursor, returning a new cursor pointing
+     * to the new data.
+     *
+     * This is shorthand for `cursor.update(x => x.update(key, fn))`
+     */
+    update(key: any, updater: (value: any) => any): Cursor<T>;
+
+    /**
+     * Sets `value` at `key` in the cursor, returning a new cursor to the same
+     * point in the new data.
+     *
+     * This is shorthand for `cursor.update(x => x.set(key, value))`
+     */
+    set(key: any, value: any): Cursor<T>;
+
+    /**
+     * Deletes `key` from the cursor, returning a new cursor to the same
+     * point in the new data.
+     *
+     * This is shorthand for `cursor.update(x => x.delete(key))`
+     */
+    delete(key: any): Cursor<T>;
 
     /**
      * Returns a sub-cursor following the key-path starting from this cursor.

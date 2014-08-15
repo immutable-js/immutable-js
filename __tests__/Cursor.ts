@@ -24,6 +24,7 @@ describe('Cursor', () => {
     var deepCursor = cursor.cursor(['a', 'b']);
     expect(deepCursor.get().toJS()).toEqual(json.a.b);
     expect(deepCursor.get()).toBe(data.getIn(['a', 'b']));
+    expect(deepCursor.get('c')).toBe(1);
 
     var leafCursor = deepCursor.cursor('c');
     expect(leafCursor.get()).toBe(1);
@@ -73,6 +74,28 @@ describe('Cursor', () => {
 
     // and update has been called exactly thrice.
     expect(onChange.mock.calls.length).toBe(3);
+  });
+
+  it('has update shorthand', () => {
+    var onChange = jest.genMockFunction();
+
+    var data = Immutable.fromJS(json);
+    var aCursor = data.cursor('a', onChange);
+    var bCursor = aCursor.cursor('b');
+    var cCursor = bCursor.cursor('c');
+
+    expect(bCursor.set('c', 10).get()).toEqual(
+      Immutable.fromJS({ c: 10 })
+    );
+    expect(onChange).lastCalledWith(
+      Immutable.fromJS({ a: { b: { c: 10 } } }),
+      data,
+      ['a', 'b', 'c']
+    );
+  });
+
+  it('creates maps as necessary', () => {
+    //
   });
 
 });

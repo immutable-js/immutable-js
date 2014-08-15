@@ -930,14 +930,31 @@ var Cursor = function Cursor(rootData, keyPath, onChange) {
 };
 var $Cursor = Cursor;
 ($traceurRuntime.createClass)(Cursor, {
-  get: function() {
-    return this._rootData.getIn(this._keyPath, Map.empty());
+  get: function(optKey, optNotFoundValue) {
+    var deref = this._rootData.getIn(this._keyPath, Map.empty());
+    return optKey ? deref.get(optKey, optNotFoundValue) : deref;
   },
-  update: function(updater) {
-    var newRootData = this._rootData.updateIn(this._keyPath, updater);
-    var onChange = this._onChange;
-    onChange && onChange.call(undefined, newRootData, this._rootData, this._keyPath);
-    return new $Cursor(newRootData, this._keyPath, onChange);
+  set: function(key, value) {
+    return _updateCursor(this, (function(m) {
+      return m.set(key, value);
+    }), key);
+  },
+  delete: function(key) {
+    return _updateCursor(this, (function(m) {
+      return m.delete(key);
+    }), key);
+  },
+  update: function(key, updater) {
+    var changeFn;
+    if (typeof key === 'function') {
+      changeFn = key;
+      key = undefined;
+    } else {
+      changeFn = (function(x) {
+        return x.update(key, updater);
+      });
+    }
+    return _updateCursor(this, changeFn, key);
   },
   cursor: function(subKeyPath) {
     if (subKeyPath && !Array.isArray(subKeyPath)) {
@@ -949,6 +966,12 @@ var $Cursor = Cursor;
     return new $Cursor(this._rootData, this._keyPath ? this._keyPath.concat(subKeyPath) : subKeyPath, this._onChange);
   }
 }, {});
+function _updateCursor(cursor, changeFn, changeKey) {
+  var newRootData = cursor._rootData.updateIn(cursor._keyPath, changeFn);
+  var keyPath = cursor._keyPath || [];
+  cursor._onChange && cursor._onChange.call(undefined, newRootData, cursor._rootData, changeKey ? keyPath.concat(changeKey) : keyPath);
+  return new Cursor(newRootData, cursor._keyPath, cursor._onChange);
+}
 var Map = function Map(sequence) {
   if (sequence && sequence.constructor === $Map) {
     return sequence;
