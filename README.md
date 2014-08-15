@@ -294,7 +294,7 @@ Cursors allow you to hold a reference to a path in a nested immutable data
 structure, allowing you to pass smaller sections of a larger nested
 collection to portions of your application while maintaining a central point
 aware of changes to the entire data structure: an `onChange` function which is
-called whenever a cursor or subcursor is `update`d.
+called whenever a cursor or sub-cursor calls `update`.
 
 This is particularly useful when used in conjuction with component-based UI
 libraries like [React](http://facebook.github.io/react/) or to simulate

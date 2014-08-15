@@ -1376,6 +1376,10 @@ export interface Vector<T> extends IndexedSequence<T> {
     keyPath: Array<any>,
     onChange?: (newValue: Vector<T>, oldValue?: Vector<T>) => void
   ): Cursor<any>;
+  cursor(
+    key: number,
+    onChange?: (newValue: Vector<T>, oldValue?: Vector<T>) => void
+  ): Cursor<T>;
 
 
   /**
