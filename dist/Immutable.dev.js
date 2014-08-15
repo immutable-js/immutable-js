@@ -936,7 +936,7 @@ var $Cursor = Cursor;
   update: function(updater) {
     var newRootData = this._rootData.updateIn(this._keyPath, updater);
     var onChange = this._onChange;
-    onChange && onChange.call(undefined, newRootData, this._rootData);
+    onChange && onChange.call(undefined, newRootData, this._rootData, this._keyPath);
     return new $Cursor(newRootData, this._keyPath, onChange);
   },
   cursor: function(subKeyPath) {

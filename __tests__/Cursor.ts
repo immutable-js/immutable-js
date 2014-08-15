@@ -34,9 +34,9 @@ describe('Cursor', () => {
     var onChange = jest.genMockFunction();
 
     var data = Immutable.fromJS(json);
-    var cursor = data.cursor(onChange);
+    var aCursor = data.cursor('a', onChange);
 
-    var deepCursor = cursor.cursor(['a', 'b', 'c']);
+    var deepCursor = aCursor.cursor(['b', 'c']);
     expect(deepCursor.get()).toBe(1);
 
     // cursor edits return new cursors:
@@ -44,14 +44,16 @@ describe('Cursor', () => {
     expect(newDeepCursor.get()).toBe(2);
     expect(onChange).lastCalledWith(
       Immutable.fromJS({a:{b:{c:2}}}),
-      data
+      data,
+      ['a', 'b', 'c']
     );
 
     var newestDeepCursor = newDeepCursor.update(x => x + 1);
     expect(newestDeepCursor.get()).toBe(3);
     expect(onChange).lastCalledWith(
       Immutable.fromJS({a:{b:{c:3}}}),
-      Immutable.fromJS({a:{b:{c:2}}})
+      Immutable.fromJS({a:{b:{c:2}}}),
+      ['a', 'b', 'c']
     );
 
     // meanwhile, data is still immutable:
@@ -63,7 +65,8 @@ describe('Cursor', () => {
     expect(otherNewDeepCursor.get()).toBe(11);
     expect(onChange).lastCalledWith(
       Immutable.fromJS({a:{b:{c:11}}}),
-      data
+      data,
+      ['a', 'b', 'c']
     );
 
     // and update has been called exactly thrice.

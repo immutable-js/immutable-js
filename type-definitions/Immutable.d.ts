@@ -927,15 +927,15 @@ export interface Map<K, V> extends Sequence<K, V> {
    * update the rest of your application.
    */
   cursor(
-    onChange?: (newValue: Map<K, V>, oldValue?: Map<K, V>) => void
+    onChange?: (newValue: Map<K, V>, oldValue?: Map<K, V>, keyPath?: Array<any>) => void
   ): Cursor<Map<K, V>>;
   cursor(
     keyPath: Array<any>,
-    onChange?: (newValue: Map<K, V>, oldValue?: Map<K, V>) => void
+    onChange?: (newValue: Map<K, V>, oldValue?: Map<K, V>, keyPath?: Array<any>) => void
   ): Cursor<any>;
   cursor(
     key: K,
-    onChange?: (newValue: Map<K, V>, oldValue?: Map<K, V>) => void
+    onChange?: (newValue: Map<K, V>, oldValue?: Map<K, V>, keyPath?: Array<any>) => void
   ): Cursor<V>;
 
   /**
@@ -1370,15 +1370,15 @@ export interface Vector<T> extends IndexedSequence<T> {
    * @see Map.cursor
    */
   cursor(
-    onChange?: (newValue: Vector<T>, oldValue?: Vector<T>) => void
+    onChange?: (newValue: Vector<T>, oldValue?: Vector<T>, keyPath?: Array<any>) => void
   ): Cursor<Vector<T>>;
   cursor(
     keyPath: Array<any>,
-    onChange?: (newValue: Vector<T>, oldValue?: Vector<T>) => void
+    onChange?: (newValue: Vector<T>, oldValue?: Vector<T>, keyPath?: Array<any>) => void
   ): Cursor<any>;
   cursor(
     key: number,
-    onChange?: (newValue: Vector<T>, oldValue?: Vector<T>) => void
+    onChange?: (newValue: Vector<T>, oldValue?: Vector<T>, keyPath?: Array<any>) => void
   ): Cursor<T>;
 
 
