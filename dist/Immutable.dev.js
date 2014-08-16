@@ -1426,7 +1426,7 @@ var $Vector = Vector;
     var tailOffset = getTailOffset(this._size);
     if (index >= this.length) {
       return this.withMutations((function(vect) {
-        return vect._setBounds(0, index + 1).set(index, value);
+        return _setBounds(vect, 0, index + 1).set(index, value);
       }));
     }
     if (this.get(index, __SENTINEL) === value) {
@@ -1499,26 +1499,26 @@ var $Vector = Vector;
     var values = arguments;
     var oldLength = this.length;
     return this.withMutations((function(vect) {
-      vect._setBounds(0, oldLength + values.length);
+      _setBounds(vect, 0, oldLength + values.length);
       for (var ii = 0; ii < values.length; ii++) {
         vect.set(oldLength + ii, values[ii]);
       }
     }));
   },
   pop: function() {
-    return this._setBounds(0, -1);
+    return _setBounds(this, 0, -1);
   },
   unshift: function() {
     var values = arguments;
     return this.withMutations((function(vect) {
-      vect._setBounds(-values.length);
+      _setBounds(vect, -values.length);
       for (var ii = 0; ii < values.length; ii++) {
         vect.set(ii, values[ii]);
       }
     }));
   },
   shift: function() {
-    return this._setBounds(1);
+    return _setBounds(this, 1);
   },
   merge: function() {
     return mergeIntoVectorWith(this, null, arguments);
@@ -1539,97 +1539,7 @@ var $Vector = Vector;
     return mergeIntoVectorWith(this, deepMerger(merger), seqs);
   },
   setLength: function(length) {
-    return this._setBounds(0, length);
-  },
-  _setBounds: function(begin, end) {
-    var owner = this.__ownerID || new OwnerID();
-    var oldOrigin = this._origin;
-    var oldSize = this._size;
-    var newOrigin = oldOrigin + begin;
-    var newSize = end == null ? oldSize : end < 0 ? oldSize + end : oldOrigin + end;
-    if (newOrigin === oldOrigin && newSize === oldSize) {
-      return this;
-    }
-    if (newOrigin >= newSize) {
-      return this.clear();
-    }
-    var newLevel = this._level;
-    var newRoot = this._root;
-    var offsetShift = 0;
-    while (newOrigin + offsetShift < 0) {
-      newRoot = new VNode(newRoot.array.length ? [, newRoot] : [], owner);
-      newLevel += SHIFT;
-      offsetShift += 1 << newLevel;
-    }
-    if (offsetShift) {
-      newOrigin += offsetShift;
-      oldOrigin += offsetShift;
-      newSize += offsetShift;
-      oldSize += offsetShift;
-    }
-    var oldTailOffset = getTailOffset(oldSize);
-    var newTailOffset = getTailOffset(newSize);
-    while (newTailOffset >= 1 << (newLevel + SHIFT)) {
-      newRoot = new VNode(newRoot.array.length ? [newRoot] : [], owner);
-      newLevel += SHIFT;
-    }
-    var oldTail = this._tail;
-    var newTail = newTailOffset < oldTailOffset ? _nodeFor(this, newSize - 1) : newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
-    if (newTailOffset > oldTailOffset && newOrigin < oldSize && oldTail.array.length) {
-      newRoot = newRoot.ensureOwner(owner);
-      var node = newRoot;
-      for (var level = newLevel; level > SHIFT; level -= SHIFT) {
-        var idx = (oldTailOffset >>> level) & MASK;
-        node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(owner) : new VNode([], owner);
-      }
-      node.array[(oldTailOffset >>> SHIFT) & MASK] = oldTail;
-    }
-    if (newSize < oldSize) {
-      newTail = newTail.removeAfter(owner, 0, newSize);
-    }
-    if (newOrigin >= newTailOffset) {
-      newOrigin -= newTailOffset;
-      newSize -= newTailOffset;
-      newLevel = SHIFT;
-      newRoot = __EMPTY_VNODE;
-      newTail = newTail.removeBefore(owner, 0, newOrigin);
-    } else if (newOrigin > oldOrigin || newTailOffset < oldTailOffset) {
-      var beginIndex,
-          endIndex;
-      offsetShift = 0;
-      do {
-        beginIndex = ((newOrigin) >>> newLevel) & MASK;
-        endIndex = ((newTailOffset - 1) >>> newLevel) & MASK;
-        if (beginIndex === endIndex) {
-          if (beginIndex) {
-            offsetShift += (1 << newLevel) * beginIndex;
-          }
-          newLevel -= SHIFT;
-          newRoot = newRoot && newRoot.array[beginIndex];
-        }
-      } while (newRoot && beginIndex === endIndex);
-      if (newRoot && newOrigin > oldOrigin) {
-        newRoot = newRoot.removeBefore(owner, newLevel, newOrigin - offsetShift);
-      }
-      if (newRoot && newTailOffset < oldTailOffset) {
-        newRoot = newRoot.removeAfter(owner, newLevel, newTailOffset - offsetShift);
-      }
-      if (offsetShift) {
-        newOrigin -= offsetShift;
-        newSize -= offsetShift;
-      }
-      newRoot = newRoot || __EMPTY_VNODE;
-    }
-    if (this.__ownerID) {
-      this.length = newSize - newOrigin;
-      this._origin = newOrigin;
-      this._size = newSize;
-      this._level = newLevel;
-      this._root = newRoot;
-      this._tail = newTail;
-      return this;
-    }
-    return $Vector._make(newOrigin, newSize, newLevel, newRoot, newTail);
+    return _setBounds(this, 0, length);
   },
   __ensureOwner: function(ownerID) {
     if (ownerID === this.__ownerID) {
@@ -1647,7 +1557,7 @@ var $Vector = Vector;
       var vector = this;
       var length = vector.length;
       sliceSequence.toVector = (function() {
-        return vector._setBounds(begin < 0 ? Math.max(0, length + begin) : length ? Math.min(length, begin) : begin, end == null ? length : end < 0 ? Math.max(0, length + end) : length ? Math.min(length, end) : end);
+        return _setBounds(vector, begin < 0 ? Math.max(0, length + begin) : length ? Math.min(length, begin) : begin, end == null ? length : end < 0 ? Math.max(0, length + end) : length ? Math.min(length, end) : end);
       });
     }
     return sliceSequence;
@@ -1732,6 +1642,96 @@ function _nodeFor(vector, rawIndex) {
     }
     return node;
   }
+}
+function _setBounds(vector, begin, end) {
+  var owner = vector.__ownerID || new OwnerID();
+  var oldOrigin = vector._origin;
+  var oldSize = vector._size;
+  var newOrigin = oldOrigin + begin;
+  var newSize = end == null ? oldSize : end < 0 ? oldSize + end : oldOrigin + end;
+  if (newOrigin === oldOrigin && newSize === oldSize) {
+    return vector;
+  }
+  if (newOrigin >= newSize) {
+    return vector.clear();
+  }
+  var newLevel = vector._level;
+  var newRoot = vector._root;
+  var offsetShift = 0;
+  while (newOrigin + offsetShift < 0) {
+    newRoot = new VNode(newRoot.array.length ? [, newRoot] : [], owner);
+    newLevel += SHIFT;
+    offsetShift += 1 << newLevel;
+  }
+  if (offsetShift) {
+    newOrigin += offsetShift;
+    oldOrigin += offsetShift;
+    newSize += offsetShift;
+    oldSize += offsetShift;
+  }
+  var oldTailOffset = getTailOffset(oldSize);
+  var newTailOffset = getTailOffset(newSize);
+  while (newTailOffset >= 1 << (newLevel + SHIFT)) {
+    newRoot = new VNode(newRoot.array.length ? [newRoot] : [], owner);
+    newLevel += SHIFT;
+  }
+  var oldTail = vector._tail;
+  var newTail = newTailOffset < oldTailOffset ? _nodeFor(vector, newSize - 1) : newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
+  if (newTailOffset > oldTailOffset && newOrigin < oldSize && oldTail.array.length) {
+    newRoot = newRoot.ensureOwner(owner);
+    var node = newRoot;
+    for (var level = newLevel; level > SHIFT; level -= SHIFT) {
+      var idx = (oldTailOffset >>> level) & MASK;
+      node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(owner) : new VNode([], owner);
+    }
+    node.array[(oldTailOffset >>> SHIFT) & MASK] = oldTail;
+  }
+  if (newSize < oldSize) {
+    newTail = newTail.removeAfter(owner, 0, newSize);
+  }
+  if (newOrigin >= newTailOffset) {
+    newOrigin -= newTailOffset;
+    newSize -= newTailOffset;
+    newLevel = SHIFT;
+    newRoot = __EMPTY_VNODE;
+    newTail = newTail.removeBefore(owner, 0, newOrigin);
+  } else if (newOrigin > oldOrigin || newTailOffset < oldTailOffset) {
+    var beginIndex,
+        endIndex;
+    offsetShift = 0;
+    do {
+      beginIndex = ((newOrigin) >>> newLevel) & MASK;
+      endIndex = ((newTailOffset - 1) >>> newLevel) & MASK;
+      if (beginIndex === endIndex) {
+        if (beginIndex) {
+          offsetShift += (1 << newLevel) * beginIndex;
+        }
+        newLevel -= SHIFT;
+        newRoot = newRoot && newRoot.array[beginIndex];
+      }
+    } while (newRoot && beginIndex === endIndex);
+    if (newRoot && newOrigin > oldOrigin) {
+      newRoot = newRoot.removeBefore(owner, newLevel, newOrigin - offsetShift);
+    }
+    if (newRoot && newTailOffset < oldTailOffset) {
+      newRoot = newRoot.removeAfter(owner, newLevel, newTailOffset - offsetShift);
+    }
+    if (offsetShift) {
+      newOrigin -= offsetShift;
+      newSize -= offsetShift;
+    }
+    newRoot = newRoot || __EMPTY_VNODE;
+  }
+  if (vector.__ownerID) {
+    vector.length = newSize - newOrigin;
+    vector._origin = newOrigin;
+    vector._size = newSize;
+    vector._level = newLevel;
+    vector._root = newRoot;
+    vector._tail = newTail;
+    return vector;
+  }
+  return Vector._make(newOrigin, newSize, newLevel, newRoot, newTail);
 }
 Vector.prototype['@@iterator'] = Vector.prototype.__iterator__;
 Vector.prototype.update = Map.prototype.update;

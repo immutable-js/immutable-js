@@ -84,7 +84,7 @@ class Vector extends IndexedSequence {
 
     if (index >= this.length) {
       return this.withMutations(vect =>
-        vect._setBounds(0, index + 1).set(index, value)
+        _setBounds(vect, 0, index + 1).set(index, value)
       );
     }
 
@@ -173,7 +173,7 @@ class Vector extends IndexedSequence {
     var values = arguments;
     var oldLength = this.length;
     return this.withMutations(vect => {
-      vect._setBounds(0, oldLength + values.length);
+      _setBounds(vect, 0, oldLength + values.length);
       for (var ii = 0; ii < values.length; ii++) {
         vect.set(oldLength + ii, values[ii]);
       }
@@ -181,13 +181,13 @@ class Vector extends IndexedSequence {
   }
 
   pop() {
-    return this._setBounds(0, -1);
+    return _setBounds(this, 0, -1);
   }
 
   unshift(/*...values*/) {
     var values = arguments;
     return this.withMutations(vect => {
-      vect._setBounds(-values.length);
+      _setBounds(vect, -values.length);
       for (var ii = 0; ii < values.length; ii++) {
         vect.set(ii, values[ii]);
       }
@@ -195,7 +195,7 @@ class Vector extends IndexedSequence {
   }
 
   shift() {
-    return this._setBounds(1);
+    return _setBounds(this, 1);
   }
 
   // @pragma Composition
@@ -217,124 +217,7 @@ class Vector extends IndexedSequence {
   }
 
   setLength(length) {
-    return this._setBounds(0, length);
-  }
-
-  _setBounds(begin, end) {
-    var owner = this.__ownerID || new OwnerID();
-    var oldOrigin = this._origin;
-    var oldSize = this._size;
-    var newOrigin = oldOrigin + begin;
-    var newSize = end == null ? oldSize : end < 0 ? oldSize + end : oldOrigin + end;
-    if (newOrigin === oldOrigin && newSize === oldSize) {
-      return this;
-    }
-
-    // If it's going to end after it starts, it's empty.
-    if (newOrigin >= newSize) {
-      return this.clear();
-    }
-
-    var newLevel = this._level;
-    var newRoot = this._root;
-
-    // New origin might require creating a higher root.
-    var offsetShift = 0;
-    while (newOrigin + offsetShift < 0) {
-      // TODO: why only ever shifting over by 1?
-      newRoot = new VNode(newRoot.array.length ? [,newRoot] : [], owner);
-      newLevel += SHIFT;
-      offsetShift += 1 << newLevel;
-    }
-    if (offsetShift) {
-      newOrigin += offsetShift;
-      oldOrigin += offsetShift;
-      newSize += offsetShift;
-      oldSize += offsetShift;
-    }
-
-    var oldTailOffset = getTailOffset(oldSize);
-    var newTailOffset = getTailOffset(newSize);
-
-    // New size might require creating a higher root.
-    while (newTailOffset >= 1 << (newLevel + SHIFT)) {
-      newRoot = new VNode(newRoot.array.length ? [newRoot] : [], owner);
-      newLevel += SHIFT;
-    }
-
-    // Locate or create the new tail.
-    var oldTail = this._tail;
-    var newTail = newTailOffset < oldTailOffset ?
-      _nodeFor(this, newSize - 1) :
-      newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
-
-    // Merge Tail into tree.
-    if (newTailOffset > oldTailOffset && newOrigin < oldSize && oldTail.array.length) {
-      newRoot = newRoot.ensureOwner(owner);
-      var node = newRoot;
-      for (var level = newLevel; level > SHIFT; level -= SHIFT) {
-        var idx = (oldTailOffset >>> level) & MASK;
-        node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(owner) : new VNode([], owner);
-      }
-      node.array[(oldTailOffset >>> SHIFT) & MASK] = oldTail;
-    }
-
-    // If the size has been reduced, there's a chance the tail needs to be trimmed.
-    if (newSize < oldSize) {
-      newTail = newTail.removeAfter(owner, 0, newSize);
-    }
-
-    // If the new origin is within the tail, then we do not need a root.
-    if (newOrigin >= newTailOffset) {
-      newOrigin -= newTailOffset;
-      newSize -= newTailOffset;
-      newLevel = SHIFT;
-      newRoot = __EMPTY_VNODE;
-      newTail = newTail.removeBefore(owner, 0, newOrigin);
-
-    // Otherwise, if the root has been trimmed, garbage collect.
-    } else if (newOrigin > oldOrigin || newTailOffset < oldTailOffset) {
-      var beginIndex, endIndex;
-      offsetShift = 0;
-
-      // Identify the new top root node of the subtree of the old root.
-      do {
-        beginIndex = ((newOrigin) >>> newLevel) & MASK;
-        endIndex = ((newTailOffset - 1) >>> newLevel) & MASK;
-        if (beginIndex === endIndex) {
-          if (beginIndex) {
-            offsetShift += (1 << newLevel) * beginIndex;
-          }
-          newLevel -= SHIFT;
-          newRoot = newRoot && newRoot.array[beginIndex];
-        }
-      } while (newRoot && beginIndex === endIndex);
-
-      // Trim the new sides of the new root.
-      if (newRoot && newOrigin > oldOrigin) {
-        newRoot = newRoot.removeBefore(owner, newLevel, newOrigin - offsetShift);
-      }
-      if (newRoot && newTailOffset < oldTailOffset) {
-        newRoot = newRoot.removeAfter(owner, newLevel, newTailOffset - offsetShift);
-      }
-      if (offsetShift) {
-        newOrigin -= offsetShift;
-        newSize -= offsetShift;
-      }
-      // Ensure root is not null.
-      newRoot = newRoot || __EMPTY_VNODE;
-    }
-
-    if (this.__ownerID) {
-      this.length = newSize - newOrigin;
-      this._origin = newOrigin;
-      this._size = newSize;
-      this._level = newLevel;
-      this._root = newRoot;
-      this._tail = newTail;
-      return this;
-    }
-    return Vector._make(newOrigin, newSize, newLevel, newRoot, newTail);
+    return _setBounds(this, 0, length);
   }
 
   // @pragma Mutability
@@ -358,7 +241,8 @@ class Vector extends IndexedSequence {
     if (!maintainIndices && sliceSequence !== this) {
       var vector = this;
       var length = vector.length;
-      sliceSequence.toVector = () => vector._setBounds(
+      sliceSequence.toVector = () => _setBounds(
+        vector,
         begin < 0 ? Math.max(0, length + begin) : length ? Math.min(length, begin) : begin,
         end == null ? length : end < 0 ? Math.max(0, length + end) : length ? Math.min(length, end) : end
       );
@@ -435,6 +319,123 @@ function _nodeFor(vector, rawIndex) {
     }
     return node;
   }
+}
+
+function _setBounds(vector, begin, end) {
+  var owner = vector.__ownerID || new OwnerID();
+  var oldOrigin = vector._origin;
+  var oldSize = vector._size;
+  var newOrigin = oldOrigin + begin;
+  var newSize = end == null ? oldSize : end < 0 ? oldSize + end : oldOrigin + end;
+  if (newOrigin === oldOrigin && newSize === oldSize) {
+    return vector;
+  }
+
+  // If it's going to end after it starts, it's empty.
+  if (newOrigin >= newSize) {
+    return vector.clear();
+  }
+
+  var newLevel = vector._level;
+  var newRoot = vector._root;
+
+  // New origin might require creating a higher root.
+  var offsetShift = 0;
+  while (newOrigin + offsetShift < 0) {
+    // TODO: why only ever shifting over by 1?
+    newRoot = new VNode(newRoot.array.length ? [,newRoot] : [], owner);
+    newLevel += SHIFT;
+    offsetShift += 1 << newLevel;
+  }
+  if (offsetShift) {
+    newOrigin += offsetShift;
+    oldOrigin += offsetShift;
+    newSize += offsetShift;
+    oldSize += offsetShift;
+  }
+
+  var oldTailOffset = getTailOffset(oldSize);
+  var newTailOffset = getTailOffset(newSize);
+
+  // New size might require creating a higher root.
+  while (newTailOffset >= 1 << (newLevel + SHIFT)) {
+    newRoot = new VNode(newRoot.array.length ? [newRoot] : [], owner);
+    newLevel += SHIFT;
+  }
+
+  // Locate or create the new tail.
+  var oldTail = vector._tail;
+  var newTail = newTailOffset < oldTailOffset ?
+    _nodeFor(vector, newSize - 1) :
+    newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
+
+  // Merge Tail into tree.
+  if (newTailOffset > oldTailOffset && newOrigin < oldSize && oldTail.array.length) {
+    newRoot = newRoot.ensureOwner(owner);
+    var node = newRoot;
+    for (var level = newLevel; level > SHIFT; level -= SHIFT) {
+      var idx = (oldTailOffset >>> level) & MASK;
+      node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(owner) : new VNode([], owner);
+    }
+    node.array[(oldTailOffset >>> SHIFT) & MASK] = oldTail;
+  }
+
+  // If the size has been reduced, there's a chance the tail needs to be trimmed.
+  if (newSize < oldSize) {
+    newTail = newTail.removeAfter(owner, 0, newSize);
+  }
+
+  // If the new origin is within the tail, then we do not need a root.
+  if (newOrigin >= newTailOffset) {
+    newOrigin -= newTailOffset;
+    newSize -= newTailOffset;
+    newLevel = SHIFT;
+    newRoot = __EMPTY_VNODE;
+    newTail = newTail.removeBefore(owner, 0, newOrigin);
+
+  // Otherwise, if the root has been trimmed, garbage collect.
+  } else if (newOrigin > oldOrigin || newTailOffset < oldTailOffset) {
+    var beginIndex, endIndex;
+    offsetShift = 0;
+
+    // Identify the new top root node of the subtree of the old root.
+    do {
+      beginIndex = ((newOrigin) >>> newLevel) & MASK;
+      endIndex = ((newTailOffset - 1) >>> newLevel) & MASK;
+      if (beginIndex === endIndex) {
+        if (beginIndex) {
+          offsetShift += (1 << newLevel) * beginIndex;
+        }
+        newLevel -= SHIFT;
+        newRoot = newRoot && newRoot.array[beginIndex];
+      }
+    } while (newRoot && beginIndex === endIndex);
+
+    // Trim the new sides of the new root.
+    if (newRoot && newOrigin > oldOrigin) {
+      newRoot = newRoot.removeBefore(owner, newLevel, newOrigin - offsetShift);
+    }
+    if (newRoot && newTailOffset < oldTailOffset) {
+      newRoot = newRoot.removeAfter(owner, newLevel, newTailOffset - offsetShift);
+    }
+    if (offsetShift) {
+      newOrigin -= offsetShift;
+      newSize -= offsetShift;
+    }
+    // Ensure root is not null.
+    newRoot = newRoot || __EMPTY_VNODE;
+  }
+
+  if (vector.__ownerID) {
+    vector.length = newSize - newOrigin;
+    vector._origin = newOrigin;
+    vector._size = newSize;
+    vector._level = newLevel;
+    vector._root = newRoot;
+    vector._tail = newTail;
+    return vector;
+  }
+  return Vector._make(newOrigin, newSize, newLevel, newRoot, newTail);
 }
 
 Vector.prototype['@@iterator'] = Vector.prototype.__iterator__;
