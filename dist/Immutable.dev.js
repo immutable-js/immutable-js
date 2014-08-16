@@ -270,7 +270,7 @@ var $Sequence = Sequence;
     return this.slice(0, -1);
   },
   has: function(searchKey) {
-    return this.get(searchKey, __SENTINEL) !== __SENTINEL;
+    return this.get(searchKey, SENTINEL) !== SENTINEL;
   },
   get: function(searchKey, notFoundValue) {
     return this.find((function(_, key) {
@@ -286,7 +286,7 @@ var $Sequence = Sequence;
   contains: function(searchValue) {
     return this.find((function(value) {
       return is(value, searchValue);
-    }), null, __SENTINEL) !== __SENTINEL;
+    }), null, SENTINEL) !== SENTINEL;
   },
   find: function(predicate, thisArg, notFoundValue) {
     var foundValue = notFoundValue;
@@ -442,8 +442,8 @@ var $Sequence = Sequence;
     var groups = OrderedMap.empty().withMutations((function(map) {
       seq.forEach((function(value, key, collection) {
         var groupKey = mapper(value, key, collection);
-        var group = map.get(groupKey, __SENTINEL);
-        if (group === __SENTINEL) {
+        var group = map.get(groupKey, SENTINEL);
+        if (group === SENTINEL) {
           group = [];
           map.set(groupKey, group);
         }
@@ -730,8 +730,8 @@ var $IndexedSequence = IndexedSequence;
     var groups = OrderedMap.empty().withMutations((function(map) {
       seq.forEach((function(value, index, collection) {
         var groupKey = mapper(value, index, collection);
-        var group = map.get(groupKey, __SENTINEL);
-        if (group === __SENTINEL) {
+        var group = map.get(groupKey, SENTINEL);
+        if (group === SENTINEL) {
           group = new Array(maintainIndices ? seq.length : 0);
           map.set(groupKey, group);
         }
@@ -832,8 +832,8 @@ function makeIndexedSequence(parent) {
   return newSequence;
 }
 function getInDeepSequence(seq, keyPath, notFoundValue, pathOffset) {
-  var nested = seq.get ? seq.get(keyPath[pathOffset], __SENTINEL) : __SENTINEL;
-  if (nested === __SENTINEL) {
+  var nested = seq.get ? seq.get(keyPath[pathOffset], SENTINEL) : SENTINEL;
+  if (nested === SENTINEL) {
     return notFoundValue;
   }
   if (++pathOffset === keyPath.length) {
@@ -910,7 +910,6 @@ function assertNotInfinite(length) {
     throw new Error('Cannot perform this action with an infinite sequence.');
   }
 }
-var __SENTINEL = {};
 function is(first, second) {
   if (first === second) {
     return first !== 0 || second !== 0 || 1 / first === 1 / second;
@@ -972,6 +971,11 @@ function _updateCursor(cursor, changeFn, changeKey) {
   cursor._onChange && cursor._onChange.call(undefined, newRootData, cursor._rootData, changeKey ? keyPath.concat(changeKey) : keyPath);
   return new Cursor(newRootData, cursor._keyPath, cursor._onChange);
 }
+var SHIFT = 5;
+var SIZE = 1 << SHIFT;
+var MASK = SIZE - 1;
+var SENTINEL = {};
+function OwnerID() {}
 var Map = function Map(sequence) {
   if (sequence && sequence.constructor === $Map) {
     return sequence;
@@ -1095,7 +1099,7 @@ var $Map = Map;
   __deepEqual: function(other) {
     var self = this;
     return other.every((function(v, k) {
-      return is(self.get(k, __SENTINEL), v);
+      return is(self.get(k, SENTINEL), v);
     }));
   },
   __iterate: function(fn, reverse) {
@@ -1103,7 +1107,7 @@ var $Map = Map;
   }
 }, {
   empty: function() {
-    return __EMPTY_MAP || (__EMPTY_MAP = $Map._make(0));
+    return EMPTY_MAP || (EMPTY_MAP = $Map._make(0));
   },
   _make: function(length, root, ownerID) {
     var map = Object.create($Map.prototype);
@@ -1114,8 +1118,6 @@ var $Map = Map;
   }
 }, Sequence);
 Map.from = Map;
-var OwnerID = function OwnerID() {};
-($traceurRuntime.createClass)(OwnerID, {}, {});
 var BitmapIndexedNode = function BitmapIndexedNode(ownerID, bitmap, keys, values) {
   this.ownerID = ownerID;
   this.bitmap = bitmap;
@@ -1326,8 +1328,8 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
   }
   return collection.withMutations((function(collection) {
     var mergeIntoMap = merger ? (function(value, key) {
-      var existing = collection.get(key, __SENTINEL);
-      collection.set(key, existing === __SENTINEL ? value : merger(existing, value));
+      var existing = collection.get(key, SENTINEL);
+      collection.set(key, existing === SENTINEL ? value : merger(existing, value));
     }) : (function(value, key) {
       collection.set(key, value);
     });
@@ -1338,8 +1340,8 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
 }
 function updateInDeepMap(collection, keyPath, updater, pathOffset) {
   var key = keyPath[pathOffset];
-  var nested = collection.get ? collection.get(key, __SENTINEL) : __SENTINEL;
-  if (nested === __SENTINEL) {
+  var nested = collection.get ? collection.get(key, SENTINEL) : SENTINEL;
+  if (nested === SENTINEL) {
     nested = Map.empty();
   }
   if (!collection.set) {
@@ -1347,10 +1349,10 @@ function updateInDeepMap(collection, keyPath, updater, pathOffset) {
   }
   return collection.set(key, ++pathOffset === keyPath.length ? updater(nested) : updateInDeepMap(nested, keyPath, updater, pathOffset));
 }
-var __BOOL_REF = {value: false};
+var BOOL_REF = {value: false};
 function BoolRef(value) {
-  __BOOL_REF.value = value;
-  return __BOOL_REF;
+  BOOL_REF.value = value;
+  return BOOL_REF;
 }
 function hashValue(o) {
   if (!o) {
@@ -1391,11 +1393,7 @@ var STRING_HASH_MAX_VAL = 0x100000000;
 var STRING_HASH_CACHE_MAX_SIZE = 255;
 var STRING_HASH_CACHE_SIZE = 0;
 var STRING_HASH_CACHE = {};
-var SHIFT = 5;
-var SIZE = 1 << SHIFT;
-var MASK = SIZE - 1;
-var __SENTINEL = {};
-var __EMPTY_MAP;
+var EMPTY_MAP;
 var Vector = function Vector() {
   for (var values = [],
       $__6 = 0; $__6 < arguments.length; $__6++)
@@ -1412,7 +1410,7 @@ var $Vector = Vector;
     if (index >= this._size) {
       return undefinedValue;
     }
-    var node = _nodeFor(this, index);
+    var node = vectorNodeFor(this, index);
     var maskedIndex = index & MASK;
     return node && (undefinedValue === undefined || node.array.hasOwnProperty(maskedIndex)) ? node.array[maskedIndex] : undefinedValue;
   },
@@ -1426,10 +1424,10 @@ var $Vector = Vector;
     var tailOffset = getTailOffset(this._size);
     if (index >= this.length) {
       return this.withMutations((function(vect) {
-        return _setBounds(vect, 0, index + 1).set(index, value);
+        return setVectorBounds(vect, 0, index + 1).set(index, value);
       }));
     }
-    if (this.get(index, __SENTINEL) === value) {
+    if (this.get(index, SENTINEL) === value) {
       return this;
     }
     index = rawIndex(index, this._origin);
@@ -1443,7 +1441,7 @@ var $Vector = Vector;
         this._tail = newTail;
         return this;
       }
-      return $Vector._make(this._origin, newSize, this._level, this._root, newTail);
+      return makeVector(this._origin, newSize, this._level, this._root, newTail);
     }
     var newRoot = this._root.ensureOwner(this.__ownerID);
     var node = newRoot;
@@ -1456,7 +1454,7 @@ var $Vector = Vector;
       this._root = newRoot;
       return this;
     }
-    return $Vector._make(this._origin, this._size, this._level, newRoot, this._tail);
+    return makeVector(this._origin, this._size, this._level, newRoot, this._tail);
   },
   delete: function(index) {
     if (!this.has(index)) {
@@ -1471,7 +1469,7 @@ var $Vector = Vector;
         this._tail = newTail;
         return this;
       }
-      return $Vector._make(this._origin, this._size, this._level, this._root, newTail);
+      return makeVector(this._origin, this._size, this._level, this._root, newTail);
     }
     var newRoot = this._root.ensureOwner(this.__ownerID);
     var node = newRoot;
@@ -1484,13 +1482,13 @@ var $Vector = Vector;
       this._root = newRoot;
       return this;
     }
-    return $Vector._make(this._origin, this._size, this._level, newRoot, this._tail);
+    return makeVector(this._origin, this._size, this._level, newRoot, this._tail);
   },
   clear: function() {
     if (this.__ownerID) {
       this.length = this._origin = this._size = 0;
       this._level = SHIFT;
-      this._root = this._tail = __EMPTY_VNODE;
+      this._root = this._tail = EMPTY_VNODE;
       return this;
     }
     return $Vector.empty();
@@ -1499,26 +1497,26 @@ var $Vector = Vector;
     var values = arguments;
     var oldLength = this.length;
     return this.withMutations((function(vect) {
-      _setBounds(vect, 0, oldLength + values.length);
+      setVectorBounds(vect, 0, oldLength + values.length);
       for (var ii = 0; ii < values.length; ii++) {
         vect.set(oldLength + ii, values[ii]);
       }
     }));
   },
   pop: function() {
-    return _setBounds(this, 0, -1);
+    return setVectorBounds(this, 0, -1);
   },
   unshift: function() {
     var values = arguments;
     return this.withMutations((function(vect) {
-      _setBounds(vect, -values.length);
+      setVectorBounds(vect, -values.length);
       for (var ii = 0; ii < values.length; ii++) {
         vect.set(ii, values[ii]);
       }
     }));
   },
   shift: function() {
-    return _setBounds(this, 1);
+    return setVectorBounds(this, 1);
   },
   merge: function() {
     return mergeIntoVectorWith(this, null, arguments);
@@ -1539,17 +1537,7 @@ var $Vector = Vector;
     return mergeIntoVectorWith(this, deepMerger(merger), seqs);
   },
   setLength: function(length) {
-    return _setBounds(this, 0, length);
-  },
-  __ensureOwner: function(ownerID) {
-    if (ownerID === this.__ownerID) {
-      return this;
-    }
-    if (!ownerID) {
-      this.__ownerID = ownerID;
-      return this;
-    }
-    return $Vector._make(this._origin, this._size, this._level, this._root, this._tail, ownerID);
+    return setVectorBounds(this, 0, length);
   },
   slice: function(begin, end, maintainIndices) {
     var sliceSequence = $traceurRuntime.superCall(this, $Vector.prototype, "slice", [begin, end, maintainIndices]);
@@ -1557,17 +1545,10 @@ var $Vector = Vector;
       var vector = this;
       var length = vector.length;
       sliceSequence.toVector = (function() {
-        return _setBounds(vector, begin < 0 ? Math.max(0, length + begin) : length ? Math.min(length, begin) : begin, end == null ? length : end < 0 ? Math.max(0, length + end) : length ? Math.min(length, end) : end);
+        return setVectorBounds(vector, begin < 0 ? Math.max(0, length + begin) : length ? Math.min(length, begin) : begin, end == null ? length : end < 0 ? Math.max(0, length + end) : length ? Math.min(length, end) : end);
       });
     }
     return sliceSequence;
-  },
-  __deepEquals: function(other) {
-    var iterator = this.iterator();
-    return other.every((function(v, k) {
-      var entry = iterator.next().value;
-      return entry && k === entry[0] && is(v, entry[1]);
-    }));
   },
   iterator: function() {
     return new VectorIterator(this, this._origin, this._size, this._level, this._root, this._tail);
@@ -1593,10 +1574,27 @@ var $Vector = Vector;
       didComplete = this._root.iterate(this._level, -this._origin, tailOffset - this._origin, eachFn, reverse) && this._tail.iterate(0, tailOffset - this._origin, this._size - this._origin, eachFn, reverse);
     }
     return (didComplete ? maxIndex : reverse ? maxIndex - lastIndex : lastIndex) + 1;
+  },
+  __deepEquals: function(other) {
+    var iterator = this.iterator();
+    return other.every((function(v, k) {
+      var entry = iterator.next().value;
+      return entry && k === entry[0] && is(v, entry[1]);
+    }));
+  },
+  __ensureOwner: function(ownerID) {
+    if (ownerID === this.__ownerID) {
+      return this;
+    }
+    if (!ownerID) {
+      this.__ownerID = ownerID;
+      return this;
+    }
+    return makeVector(this._origin, this._size, this._level, this._root, this._tail, ownerID);
   }
 }, {
   empty: function() {
-    return __EMPTY_VECT || (__EMPTY_VECT = $Vector._make(0, 0, SHIFT, __EMPTY_VNODE, __EMPTY_VNODE));
+    return EMPTY_VECT || (EMPTY_VECT = makeVector(0, 0, SHIFT, EMPTY_VNODE, EMPTY_VNODE));
   },
   from: function(sequence) {
     if (sequence && sequence.constructor === $Vector) {
@@ -1607,7 +1605,7 @@ var $Vector = Vector;
     }
     var isArray = Array.isArray(sequence);
     if (sequence.length > 0 && sequence.length < SIZE) {
-      return $Vector._make(0, sequence.length, SHIFT, __EMPTY_VNODE, new VNode(isArray ? sequence.slice() : Sequence(sequence).toArray()));
+      return makeVector(0, sequence.length, SHIFT, EMPTY_VNODE, new VNode(isArray ? sequence.slice() : Sequence(sequence).toArray()));
     }
     if (!isArray) {
       sequence = Sequence(sequence);
@@ -1616,20 +1614,28 @@ var $Vector = Vector;
       }
     }
     return $Vector.empty().merge(sequence);
-  },
-  _make: function(origin, size, level, root, tail, ownerID) {
-    var vect = Object.create($Vector.prototype);
-    vect.length = size - origin;
-    vect._origin = origin;
-    vect._size = size;
-    vect._level = level;
-    vect._root = root;
-    vect._tail = tail;
-    vect.__ownerID = ownerID;
-    return vect;
   }
 }, IndexedSequence);
-function _nodeFor(vector, rawIndex) {
+var VectorPrototype = Vector.prototype;
+VectorPrototype['@@iterator'] = VectorPrototype.__iterator__;
+VectorPrototype.update = Map.prototype.update;
+VectorPrototype.updateIn = Map.prototype.updateIn;
+VectorPrototype.cursor = Map.prototype.cursor;
+VectorPrototype.withMutations = Map.prototype.withMutations;
+VectorPrototype.asMutable = Map.prototype.asMutable;
+VectorPrototype.asImmutable = Map.prototype.asImmutable;
+function makeVector(origin, size, level, root, tail, ownerID) {
+  var vect = Object.create(VectorPrototype);
+  vect.length = size - origin;
+  vect._origin = origin;
+  vect._size = size;
+  vect._level = level;
+  vect._root = root;
+  vect._tail = tail;
+  vect.__ownerID = ownerID;
+  return vect;
+}
+function vectorNodeFor(vector, rawIndex) {
   if (rawIndex >= getTailOffset(vector._size)) {
     return vector._tail;
   }
@@ -1643,7 +1649,7 @@ function _nodeFor(vector, rawIndex) {
     return node;
   }
 }
-function _setBounds(vector, begin, end) {
+function setVectorBounds(vector, begin, end) {
   var owner = vector.__ownerID || new OwnerID();
   var oldOrigin = vector._origin;
   var oldSize = vector._size;
@@ -1676,7 +1682,7 @@ function _setBounds(vector, begin, end) {
     newLevel += SHIFT;
   }
   var oldTail = vector._tail;
-  var newTail = newTailOffset < oldTailOffset ? _nodeFor(vector, newSize - 1) : newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
+  var newTail = newTailOffset < oldTailOffset ? vectorNodeFor(vector, newSize - 1) : newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
   if (newTailOffset > oldTailOffset && newOrigin < oldSize && oldTail.array.length) {
     newRoot = newRoot.ensureOwner(owner);
     var node = newRoot;
@@ -1693,7 +1699,7 @@ function _setBounds(vector, begin, end) {
     newOrigin -= newTailOffset;
     newSize -= newTailOffset;
     newLevel = SHIFT;
-    newRoot = __EMPTY_VNODE;
+    newRoot = EMPTY_VNODE;
     newTail = newTail.removeBefore(owner, 0, newOrigin);
   } else if (newOrigin > oldOrigin || newTailOffset < oldTailOffset) {
     var beginIndex,
@@ -1720,7 +1726,7 @@ function _setBounds(vector, begin, end) {
       newOrigin -= offsetShift;
       newSize -= offsetShift;
     }
-    newRoot = newRoot || __EMPTY_VNODE;
+    newRoot = newRoot || EMPTY_VNODE;
   }
   if (vector.__ownerID) {
     vector.length = newSize - newOrigin;
@@ -1731,17 +1737,8 @@ function _setBounds(vector, begin, end) {
     vector._tail = newTail;
     return vector;
   }
-  return Vector._make(newOrigin, newSize, newLevel, newRoot, newTail);
+  return makeVector(newOrigin, newSize, newLevel, newRoot, newTail);
 }
-Vector.prototype['@@iterator'] = Vector.prototype.__iterator__;
-Vector.prototype.update = Map.prototype.update;
-Vector.prototype.updateIn = Map.prototype.updateIn;
-Vector.prototype.cursor = Map.prototype.cursor;
-Vector.prototype.withMutations = Map.prototype.withMutations;
-Vector.prototype.asMutable = Map.prototype.asMutable;
-Vector.prototype.asImmutable = Map.prototype.asImmutable;
-var OwnerID = function OwnerID() {};
-($traceurRuntime.createClass)(OwnerID, {}, {});
 var VNode = function VNode(array, ownerID) {
   this.array = array;
   this.ownerID = ownerID;
@@ -1931,12 +1928,8 @@ function rawIndex(index, origin) {
 function getTailOffset(size) {
   return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
 }
-var SHIFT = 5;
-var SIZE = 1 << SHIFT;
-var MASK = SIZE - 1;
-var __SENTINEL = {};
-var __EMPTY_VECT;
-var __EMPTY_VNODE = new VNode([]);
+var EMPTY_VECT;
+var EMPTY_VNODE = new VNode([]);
 var Set = function Set() {
   for (var values = [],
       $__9 = 0; $__9 < arguments.length; $__9++)

@@ -10,7 +10,9 @@
 import "Sequence"
 import "Map"
 import "is"
-/* global Sequence, IndexedSequence, Map, mergeIntoCollectionWith, deepMerger, is */
+import "TrieUtils"
+/* global Sequence, IndexedSequence, Map, mergeIntoCollectionWith, deepMerger, is,
+          SHIFT, SIZE, MASK, SENTINEL, OwnerID */
 /* exported Vector */
 
 
@@ -23,8 +25,8 @@ class Vector extends IndexedSequence {
   }
 
   static empty() {
-    return __EMPTY_VECT || (__EMPTY_VECT =
-      Vector._make(0, 0, SHIFT, __EMPTY_VNODE, __EMPTY_VNODE)
+    return EMPTY_VECT || (EMPTY_VECT =
+      makeVector(0, 0, SHIFT, EMPTY_VNODE, EMPTY_VNODE)
     );
   }
 
@@ -37,7 +39,7 @@ class Vector extends IndexedSequence {
     }
     var isArray = Array.isArray(sequence);
     if (sequence.length > 0 && sequence.length < SIZE) {
-      return Vector._make(0, sequence.length, SHIFT, __EMPTY_VNODE, new VNode(
+      return makeVector(0, sequence.length, SHIFT, EMPTY_VNODE, new VNode(
         isArray ? sequence.slice() : Sequence(sequence).toArray()
       ));
     }
@@ -61,7 +63,7 @@ class Vector extends IndexedSequence {
     if (index >= this._size) {
       return undefinedValue;
     }
-    var node = _nodeFor(this, index);
+    var node = vectorNodeFor(this, index);
     var maskedIndex = index & MASK;
     return node && (undefinedValue === undefined || node.array.hasOwnProperty(maskedIndex)) ?
       node.array[maskedIndex] : undefinedValue;
@@ -84,11 +86,11 @@ class Vector extends IndexedSequence {
 
     if (index >= this.length) {
       return this.withMutations(vect =>
-        _setBounds(vect, 0, index + 1).set(index, value)
+        setVectorBounds(vect, 0, index + 1).set(index, value)
       );
     }
 
-    if (this.get(index, __SENTINEL) === value) {
+    if (this.get(index, SENTINEL) === value) {
       return this;
     }
 
@@ -105,7 +107,7 @@ class Vector extends IndexedSequence {
         this._tail = newTail;
         return this;
       }
-      return Vector._make(this._origin, newSize, this._level, this._root, newTail);
+      return makeVector(this._origin, newSize, this._level, this._root, newTail);
     }
 
     // Fits within existing tree.
@@ -120,7 +122,7 @@ class Vector extends IndexedSequence {
       this._root = newRoot;
       return this;
     }
-    return Vector._make(this._origin, this._size, this._level, newRoot, this._tail);
+    return makeVector(this._origin, this._size, this._level, newRoot, this._tail);
   }
 
   delete(index) {
@@ -140,7 +142,7 @@ class Vector extends IndexedSequence {
         this._tail = newTail;
         return this;
       }
-      return Vector._make(this._origin, this._size, this._level, this._root, newTail);
+      return makeVector(this._origin, this._size, this._level, this._root, newTail);
     }
 
     // Fits within existing tree.
@@ -156,14 +158,14 @@ class Vector extends IndexedSequence {
       this._root = newRoot;
       return this;
     }
-    return Vector._make(this._origin, this._size, this._level, newRoot, this._tail);
+    return makeVector(this._origin, this._size, this._level, newRoot, this._tail);
   }
 
   clear() {
     if (this.__ownerID) {
       this.length = this._origin = this._size = 0;
       this._level = SHIFT;
-      this._root = this._tail = __EMPTY_VNODE;
+      this._root = this._tail = EMPTY_VNODE;
       return this;
     }
     return Vector.empty();
@@ -173,7 +175,7 @@ class Vector extends IndexedSequence {
     var values = arguments;
     var oldLength = this.length;
     return this.withMutations(vect => {
-      _setBounds(vect, 0, oldLength + values.length);
+      setVectorBounds(vect, 0, oldLength + values.length);
       for (var ii = 0; ii < values.length; ii++) {
         vect.set(oldLength + ii, values[ii]);
       }
@@ -181,13 +183,13 @@ class Vector extends IndexedSequence {
   }
 
   pop() {
-    return _setBounds(this, 0, -1);
+    return setVectorBounds(this, 0, -1);
   }
 
   unshift(/*...values*/) {
     var values = arguments;
     return this.withMutations(vect => {
-      _setBounds(vect, -values.length);
+      setVectorBounds(vect, -values.length);
       for (var ii = 0; ii < values.length; ii++) {
         vect.set(ii, values[ii]);
       }
@@ -195,7 +197,7 @@ class Vector extends IndexedSequence {
   }
 
   shift() {
-    return _setBounds(this, 1);
+    return setVectorBounds(this, 1);
   }
 
   // @pragma Composition
@@ -217,20 +219,7 @@ class Vector extends IndexedSequence {
   }
 
   setLength(length) {
-    return _setBounds(this, 0, length);
-  }
-
-  // @pragma Mutability
-
-  __ensureOwner(ownerID) {
-    if (ownerID === this.__ownerID) {
-      return this;
-    }
-    if (!ownerID) {
-      this.__ownerID = ownerID;
-      return this;
-    }
-    return Vector._make(this._origin, this._size, this._level, this._root, this._tail, ownerID);
+    return setVectorBounds(this, 0, length);
   }
 
   // @pragma Iteration
@@ -241,21 +230,13 @@ class Vector extends IndexedSequence {
     if (!maintainIndices && sliceSequence !== this) {
       var vector = this;
       var length = vector.length;
-      sliceSequence.toVector = () => _setBounds(
+      sliceSequence.toVector = () => setVectorBounds(
         vector,
         begin < 0 ? Math.max(0, length + begin) : length ? Math.min(length, begin) : begin,
         end == null ? length : end < 0 ? Math.max(0, length + end) : length ? Math.min(length, end) : end
       );
     }
     return sliceSequence;
-  }
-
-  __deepEquals(other) {
-    var iterator = this.iterator();
-    return other.every((v, k) => {
-      var entry = iterator.next().value;
-      return entry && k === entry[0] && is(v, entry[1]);
-    });
   }
 
   iterator() {
@@ -291,22 +272,48 @@ class Vector extends IndexedSequence {
     return (didComplete ? maxIndex : reverse ? maxIndex - lastIndex : lastIndex) + 1;
   }
 
-  // @pragma Private
+  __deepEquals(other) {
+    var iterator = this.iterator();
+    return other.every((v, k) => {
+      var entry = iterator.next().value;
+      return entry && k === entry[0] && is(v, entry[1]);
+    });
+  }
 
-  static _make(origin, size, level, root, tail, ownerID) {
-    var vect = Object.create(Vector.prototype);
-    vect.length = size - origin;
-    vect._origin = origin;
-    vect._size = size;
-    vect._level = level;
-    vect._root = root;
-    vect._tail = tail;
-    vect.__ownerID = ownerID;
-    return vect;
+  __ensureOwner(ownerID) {
+    if (ownerID === this.__ownerID) {
+      return this;
+    }
+    if (!ownerID) {
+      this.__ownerID = ownerID;
+      return this;
+    }
+    return makeVector(this._origin, this._size, this._level, this._root, this._tail, ownerID);
   }
 }
 
-function _nodeFor(vector, rawIndex) {
+var VectorPrototype = Vector.prototype;
+VectorPrototype['@@iterator'] = VectorPrototype.__iterator__;
+VectorPrototype.update = Map.prototype.update;
+VectorPrototype.updateIn = Map.prototype.updateIn;
+VectorPrototype.cursor = Map.prototype.cursor;
+VectorPrototype.withMutations = Map.prototype.withMutations;
+VectorPrototype.asMutable = Map.prototype.asMutable;
+VectorPrototype.asImmutable = Map.prototype.asImmutable;
+
+function makeVector(origin, size, level, root, tail, ownerID) {
+  var vect = Object.create(VectorPrototype);
+  vect.length = size - origin;
+  vect._origin = origin;
+  vect._size = size;
+  vect._level = level;
+  vect._root = root;
+  vect._tail = tail;
+  vect.__ownerID = ownerID;
+  return vect;
+}
+
+function vectorNodeFor(vector, rawIndex) {
   if (rawIndex >= getTailOffset(vector._size)) {
     return vector._tail;
   }
@@ -321,7 +328,7 @@ function _nodeFor(vector, rawIndex) {
   }
 }
 
-function _setBounds(vector, begin, end) {
+function setVectorBounds(vector, begin, end) {
   var owner = vector.__ownerID || new OwnerID();
   var oldOrigin = vector._origin;
   var oldSize = vector._size;
@@ -366,7 +373,7 @@ function _setBounds(vector, begin, end) {
   // Locate or create the new tail.
   var oldTail = vector._tail;
   var newTail = newTailOffset < oldTailOffset ?
-    _nodeFor(vector, newSize - 1) :
+    vectorNodeFor(vector, newSize - 1) :
     newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
 
   // Merge Tail into tree.
@@ -390,7 +397,7 @@ function _setBounds(vector, begin, end) {
     newOrigin -= newTailOffset;
     newSize -= newTailOffset;
     newLevel = SHIFT;
-    newRoot = __EMPTY_VNODE;
+    newRoot = EMPTY_VNODE;
     newTail = newTail.removeBefore(owner, 0, newOrigin);
 
   // Otherwise, if the root has been trimmed, garbage collect.
@@ -423,7 +430,7 @@ function _setBounds(vector, begin, end) {
       newSize -= offsetShift;
     }
     // Ensure root is not null.
-    newRoot = newRoot || __EMPTY_VNODE;
+    newRoot = newRoot || EMPTY_VNODE;
   }
 
   if (vector.__ownerID) {
@@ -435,22 +442,8 @@ function _setBounds(vector, begin, end) {
     vector._tail = newTail;
     return vector;
   }
-  return Vector._make(newOrigin, newSize, newLevel, newRoot, newTail);
+  return makeVector(newOrigin, newSize, newLevel, newRoot, newTail);
 }
-
-Vector.prototype['@@iterator'] = Vector.prototype.__iterator__;
-Vector.prototype.update = Map.prototype.update;
-Vector.prototype.updateIn = Map.prototype.updateIn;
-Vector.prototype.cursor = Map.prototype.cursor;
-Vector.prototype.withMutations = Map.prototype.withMutations;
-Vector.prototype.asMutable = Map.prototype.asMutable;
-Vector.prototype.asImmutable = Map.prototype.asImmutable;
-
-
-class OwnerID {
-  constructor() {}
-}
-
 
 class VNode {
   constructor(array, ownerID) {
@@ -654,10 +647,5 @@ function getTailOffset(size) {
   return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
 }
 
-
-var SHIFT = 5; // Resulted in best performance after ______?
-var SIZE = 1 << SHIFT;
-var MASK = SIZE - 1;
-var __SENTINEL = {};
-var __EMPTY_VECT;
-var __EMPTY_VNODE = new VNode([]);
+var EMPTY_VECT;
+var EMPTY_VNODE = new VNode([]);

@@ -10,7 +10,9 @@
 import "Sequence"
 import "is"
 import "Cursor"
-/* global Sequence, is, Cursor */
+import "TrieUtils"
+/* global Sequence, is, Cursor,
+          SHIFT, MASK, SENTINEL, OwnerID */
 /* exported Map */
 
 
@@ -29,7 +31,7 @@ class Map extends Sequence {
   }
 
   static empty() {
-    return __EMPTY_MAP || (__EMPTY_MAP = Map._make(0));
+    return EMPTY_MAP || (EMPTY_MAP = Map._make(0));
   }
 
   toString() {
@@ -165,7 +167,7 @@ class Map extends Sequence {
     // Using Sentinel here ensures that a missing key is not interpretted as an
     // existing key set to be null.
     var self = this;
-    return other.every((v, k) => is(self.get(k, __SENTINEL), v));
+    return other.every((v, k) => is(self.get(k, SENTINEL), v));
   }
 
   __iterate(fn, reverse) {
@@ -184,11 +186,6 @@ class Map extends Sequence {
 }
 
 Map.from = Map;
-
-
-class OwnerID {
-  constructor() {}
-}
 
 
 class BitmapIndexedNode {
@@ -424,9 +421,9 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
   return collection.withMutations(collection => {
     var mergeIntoMap = merger ?
       (value, key) => {
-        var existing = collection.get(key, __SENTINEL);
+        var existing = collection.get(key, SENTINEL);
         collection.set(
-          key, existing === __SENTINEL ? value : merger(existing, value)
+          key, existing === SENTINEL ? value : merger(existing, value)
         );
       } :
       (value, key) => {
@@ -440,8 +437,8 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
 
 function updateInDeepMap(collection, keyPath, updater, pathOffset) {
   var key = keyPath[pathOffset];
-  var nested = collection.get ? collection.get(key, __SENTINEL) : __SENTINEL;
-  if (nested === __SENTINEL) {
+  var nested = collection.get ? collection.get(key, SENTINEL) : SENTINEL;
+  if (nested === SENTINEL) {
     nested = Map.empty();
   }
   if (!collection.set) {
@@ -455,10 +452,10 @@ function updateInDeepMap(collection, keyPath, updater, pathOffset) {
   );
 }
 
-var __BOOL_REF = {value: false};
+var BOOL_REF = {value: false};
 function BoolRef(value) {
-  __BOOL_REF.value = value;
-  return __BOOL_REF;
+  BOOL_REF.value = value;
+  return BOOL_REF;
 }
 
 function hashValue(o) {
@@ -511,9 +508,4 @@ var STRING_HASH_CACHE_MAX_SIZE = 255;
 var STRING_HASH_CACHE_SIZE = 0;
 var STRING_HASH_CACHE = {};
 
-
-var SHIFT = 5; // Resulted in best performance after ______?
-var SIZE = 1 << SHIFT;
-var MASK = SIZE - 1;
-var __SENTINEL = {};
-var __EMPTY_MAP;
+var EMPTY_MAP;
