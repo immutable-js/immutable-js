@@ -8,7 +8,7 @@
  */
 
 /* Sequence has implicit lazy dependencies */
-/* global is, Map, OrderedMap, Vector, Set, SENTINEL */
+/* global is, Map, OrderedMap, Vector, Set, SENTINEL, invariant */
 /* exported Sequence, IndexedSequence */
 
 
@@ -361,8 +361,7 @@ class Sequence {
     // begin or end will be NaN if they were provided as negative numbers and
     // this sequence's length is unknown. In that case, convert it to an
     // IndexedSequence by getting entries() and convert back to a sequence with
-    // fromEntries(). IndexedSequence.prototype.slice will appropriately handle
-    // this case.
+    // fromEntries(). IndexedSequence.slice will appropriately handle this case.
     if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd) {
       return this.entries().slice(begin, end).fromEntries();
     }
@@ -522,9 +521,10 @@ class Sequence {
   }
 }
 
-Sequence.prototype.toJSON = Sequence.prototype.toJS;
-Sequence.prototype.inspect = Sequence.prototype.toSource = function() { return this.toString(); };
-Sequence.prototype.__toJS = Sequence.prototype.toObject;
+var SequencePrototype = Sequence.prototype
+SequencePrototype.toJSON = SequencePrototype.toJS;
+SequencePrototype.__toJS = SequencePrototype.toObject;
+SequencePrototype.inspect = SequencePrototype.toSource = function() { return this.toString(); };
 
 
 class IndexedSequence extends Sequence {
@@ -609,7 +609,7 @@ class IndexedSequence extends Sequence {
       sequence.__iterate(fn, !reverse, flipIndices ^ maintainIndices);
     reversedSequence.reverse = function (_maintainIndices) {
       return maintainIndices === _maintainIndices ? sequence :
-        IndexedSequence.prototype.reverse.call(this, _maintainIndices);
+        IndexedSequencePrototype.reverse.call(this, _maintainIndices);
     }
     return reversedSequence;
   }
@@ -779,8 +779,9 @@ class IndexedSequence extends Sequence {
   }
 }
 
-IndexedSequence.prototype.__toJS = IndexedSequence.prototype.toArray;
-IndexedSequence.prototype.__toStringMapper = quoteString;
+var IndexedSequencePrototype = IndexedSequence.prototype;
+IndexedSequencePrototype.__toJS = IndexedSequencePrototype.toArray;
+IndexedSequencePrototype.__toStringMapper = quoteString;
 
 
 class ObjectSequence extends Sequence {
@@ -863,11 +864,11 @@ ArraySequence.prototype.has = ObjectSequence.prototype.has;
 
 
 function makeSequence() {
-  return Object.create(Sequence.prototype);
+  return Object.create(SequencePrototype);
 }
 
 function makeIndexedSequence(parent) {
-  var newSequence = Object.create(IndexedSequence.prototype);
+  var newSequence = Object.create(IndexedSequencePrototype);
   newSequence.__reversedIndices = parent ? parent.__reversedIndices : false;
   return newSequence;
 }
@@ -967,7 +968,8 @@ function defaultComparator(a, b) {
 }
 
 function assertNotInfinite(length) {
-  if (length === Infinity) {
-    throw new Error('Cannot perform this action with an infinite sequence.');
-  }
+  invariant(
+    length !== Infinity,
+    'Cannot perform this action with an infinite sequence.'
+  );
 }

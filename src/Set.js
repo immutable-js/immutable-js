@@ -22,7 +22,7 @@ class Set extends Sequence {
   }
 
   static empty() {
-    return __EMPTY_SET || (__EMPTY_SET = Set._make());
+    return EMPTY_SET || (EMPTY_SET = makeSet());
   }
 
   static from(sequence) {
@@ -69,7 +69,7 @@ class Set extends Sequence {
       this._map = newMap;
       return this;
     }
-    return newMap === this._map ? this : Set._make(newMap);
+    return newMap === this._map ? this : makeSet(newMap);
   }
 
   delete(value) {
@@ -85,7 +85,7 @@ class Set extends Sequence {
       this._map = newMap;
       return this;
     }
-    return newMap === this._map ? this : Set._make(newMap);
+    return newMap === this._map ? this : makeSet(newMap);
   }
 
   clear() {
@@ -154,7 +154,14 @@ class Set extends Sequence {
     return seq.every(value => set.contains(value));
   }
 
-  // @pragma Mutability
+  __iterate(fn, reverse) {
+    var collection = this;
+    return this._map ? this._map.__iterate((_, k) => fn(k, k, collection), reverse) : 0;
+  }
+
+  __deepEquals(other) {
+    return !(this._map || other._map) || this._map.equals(other._map);
+  }
 
   __ensureOwner(ownerID) {
     if (ownerID === this.__ownerID) {
@@ -166,37 +173,25 @@ class Set extends Sequence {
       this._map = newMap;
       return this;
     }
-    return Set._make(newMap, ownerID);
-  }
-
-  // @pragma Iteration
-
-  __deepEquals(other) {
-    return !(this._map || other._map) || this._map.equals(other._map);
-  }
-
-  __iterate(fn, reverse) {
-    var collection = this;
-    return this._map ? this._map.__iterate((_, k) => fn(k, k, collection), reverse) : 0;
-  }
-
-  // @pragma Private
-
-  static _make(map, ownerID) {
-    var set = Object.create(Set.prototype);
-    set.length = map ? map.length : 0;
-    set._map = map;
-    set.__ownerID = ownerID;
-    return set;
+    return makeSet(newMap, ownerID);
   }
 }
 
-Set.prototype.contains = Set.prototype.has;
-Set.prototype.withMutations = Map.prototype.withMutations;
-Set.prototype.asMutable = Map.prototype.asMutable;
-Set.prototype.asImmutable = Map.prototype.asImmutable;
-Set.prototype.__toJS = IndexedSequence.prototype.__toJS;
-Set.prototype.__toStringMapper = IndexedSequence.prototype.__toStringMapper;
+var SetPrototype = Set.prototype;
+SetPrototype.contains = SetPrototype.has;
+SetPrototype.withMutations = Map.prototype.withMutations;
+SetPrototype.asMutable = Map.prototype.asMutable;
+SetPrototype.asImmutable = Map.prototype.asImmutable;
+SetPrototype.__toJS = IndexedSequence.prototype.__toJS;
+SetPrototype.__toStringMapper = IndexedSequence.prototype.__toStringMapper;
 
 
-var __EMPTY_SET;
+function makeSet(map, ownerID) {
+  var set = Object.create(SetPrototype);
+  set.length = map ? map.length : 0;
+  set._map = map;
+  set.__ownerID = ownerID;
+  return set;
+}
+
+var EMPTY_SET;

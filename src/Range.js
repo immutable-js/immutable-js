@@ -9,8 +9,10 @@
 
 import "Sequence"
 import "Vector"
-/* global IndexedSequence, wholeSlice, resolveBegin, resolveEnd, Vector */
-/* exported Range */
+import "invariant"
+/* global IndexedSequence, wholeSlice, resolveBegin, resolveEnd,
+          VectorPrototype, invariant */
+/* exported Range, RangePrototype */
 
 
 /**
@@ -85,10 +87,6 @@ class Range extends IndexedSequence {
     return new Range(this.get(begin, this._end), this.get(end, this._end), this._step);
   }
 
-  __deepEquals(other) {
-    return this._start === other._start && this._end === other._end && this._step === other._step;
-  }
-
   indexOf(searchValue) {
     var offsetValue = searchValue - this._start;
     if (offsetValue % this._step === 0) {
@@ -125,14 +123,18 @@ class Range extends IndexedSequence {
     }
     return reversedIndices ? this.length : ii;
   }
+
+  __deepEquals(other) {
+    return this._start === other._start &&
+      this._end === other._end &&
+      this._step === other._step;
+  }
 }
 
-Range.prototype.__toJS = Range.prototype.toArray;
-Range.prototype.first = Vector.prototype.first;
-Range.prototype.last = Vector.prototype.last;
+var RangePrototype = Range.prototype;
+
+RangePrototype.__toJS = RangePrototype.toArray;
+RangePrototype.first = VectorPrototype.first;
+RangePrototype.last = VectorPrototype.last;
 
 var __EMPTY_RANGE = Range(0, 0);
-
-function invariant(condition, error) {
-  if (!condition) throw new Error(error);
-}

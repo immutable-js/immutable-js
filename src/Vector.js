@@ -8,12 +8,14 @@
  */
 
 import "Sequence"
-import "Map"
 import "is"
+import "invariant"
+import "Map"
 import "TrieUtils"
-/* global Sequence, IndexedSequence, Map, mergeIntoCollectionWith, deepMerger, is,
+/* global Sequence, IndexedSequence, is, invariant,
+          MapPrototype, mergeIntoCollectionWith, deepMerger,
           SHIFT, SIZE, MASK, SENTINEL, OwnerID */
-/* exported Vector */
+/* exported Vector, VectorPrototype */
 
 
 class Vector extends IndexedSequence {
@@ -294,12 +296,12 @@ class Vector extends IndexedSequence {
 
 var VectorPrototype = Vector.prototype;
 VectorPrototype['@@iterator'] = VectorPrototype.__iterator__;
-VectorPrototype.update = Map.prototype.update;
-VectorPrototype.updateIn = Map.prototype.updateIn;
-VectorPrototype.cursor = Map.prototype.cursor;
-VectorPrototype.withMutations = Map.prototype.withMutations;
-VectorPrototype.asMutable = Map.prototype.asMutable;
-VectorPrototype.asImmutable = Map.prototype.asImmutable;
+VectorPrototype.update = MapPrototype.update;
+VectorPrototype.updateIn = MapPrototype.updateIn;
+VectorPrototype.cursor = MapPrototype.cursor;
+VectorPrototype.withMutations = MapPrototype.withMutations;
+VectorPrototype.asMutable = MapPrototype.asMutable;
+VectorPrototype.asImmutable = MapPrototype.asImmutable;
 
 
 class VNode {
@@ -641,7 +643,7 @@ function mergeIntoVectorWith(vector, merger, iterables) {
 }
 
 function rawIndex(index, origin) {
-  if (index < 0) throw new Error('Index out of bounds');
+  invariant(index >= 0, 'Index out of bounds');
   return index + origin;
 }
 

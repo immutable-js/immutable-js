@@ -10,7 +10,8 @@
 import "Sequence"
 import "Range"
 import "is"
-/* global IndexedSequence, Range, is */
+import "invariant"
+/* global IndexedSequence, RangePrototype, is, invariant */
 /* exported Repeat */
 
 
@@ -21,8 +22,8 @@ import "is"
 class Repeat extends IndexedSequence {
 
   constructor(value, times) {
-    if (times === 0 && __EMPTY_REPEAT) {
-      return __EMPTY_REPEAT;
+    if (times === 0 && EMPTY_REPEAT) {
+      return EMPTY_REPEAT;
     }
     if (!(this instanceof Repeat)) {
       return new Repeat(value, times);
@@ -53,10 +54,6 @@ class Repeat extends IndexedSequence {
     return is(this._value, searchValue);
   }
 
-  __deepEquals(other) {
-    return is(this._value, other._value);
-  }
-
   slice(begin, end, maintainIndices) {
     if (maintainIndices) {
       return super.slice(begin, end, maintainIndices);
@@ -64,7 +61,7 @@ class Repeat extends IndexedSequence {
     var length = this.length;
     begin = begin < 0 ? Math.max(0, length + begin) : Math.min(length, begin);
     end = end == null ? length : end > 0 ? Math.min(length, end) : Math.max(0, length + end);
-    return end > begin ? new Repeat(this._value, end - begin) : __EMPTY_REPEAT;
+    return end > begin ? new Repeat(this._value, end - begin) : EMPTY_REPEAT;
   }
 
   reverse(maintainIndices) {
@@ -96,19 +93,18 @@ class Repeat extends IndexedSequence {
     }
     return reversedIndices ? this.length : ii;
   }
+
+  __deepEquals(other) {
+    return is(this._value, other._value);
+  }
 }
 
-Repeat.prototype.last = Repeat.prototype.first;
-
-Repeat.prototype.has = Range.prototype.has;
-Repeat.prototype.take = Range.prototype.take;
-Repeat.prototype.skip = Range.prototype.skip;
-Repeat.prototype.__toJS = Range.prototype.__toJS;
-
-
-function invariant(condition, error) {
-  if (!condition) throw new Error(error);
-}
+var RepeatPrototype = Repeat.prototype;
+RepeatPrototype.last = RepeatPrototype.first;
+RepeatPrototype.has = RangePrototype.has;
+RepeatPrototype.take = RangePrototype.take;
+RepeatPrototype.skip = RangePrototype.skip;
+RepeatPrototype.__toJS = RangePrototype.__toJS;
 
 
-var __EMPTY_REPEAT = new Repeat(undefined, 0);
+var EMPTY_REPEAT = new Repeat(undefined, 0);

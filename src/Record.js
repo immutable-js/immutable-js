@@ -9,7 +9,8 @@
 
 import "Sequence"
 import "Map"
-/* global Sequence, Map */
+import "invariant"
+/* global Sequence, Map, MapPrototype, invariant */
 /* exported Record */
 
 
@@ -20,10 +21,10 @@ class Record extends Sequence {
       this._map = Map(values);
     };
     defaultValues = Sequence(defaultValues);
-    RecordType.prototype = Object.create(Record.prototype);
-    RecordType.prototype.constructor = RecordType;
-    RecordType.prototype._name = name;
-    RecordType.prototype._defaultValues = defaultValues;
+    var RecordTypePrototype = RecordType.prototype = Object.create(RecordPrototype);
+    RecordTypePrototype.constructor = RecordType;
+    RecordTypePrototype._name = name;
+    RecordTypePrototype._defaultValues = defaultValues;
 
     var keys = Object.keys(defaultValues);
     RecordType.prototype.length = keys.length;
@@ -34,9 +35,7 @@ class Record extends Sequence {
             return this.get(key);
           },
           set: function(value) {
-            if (!this.__ownerID) {
-              throw new Error('Cannot set on an immutable record.');
-            }
+            invariant(this.__ownerID, 'Cannot set on an immutable record.');
             this.set(key, value);
           }
         });
@@ -70,7 +69,8 @@ class Record extends Sequence {
       this._map.clear();
       return this;
     }
-    return this._empty();
+    var Record = Object.getPrototypeOf(this).constructor;
+    return Record._empty || (Record._empty = makeRecord(this, Map.empty()));
   }
 
   set(k, v) {
@@ -81,7 +81,7 @@ class Record extends Sequence {
     if (this.__ownerID || newMap === this._map) {
       return this;
     }
-    return this._make(newMap);
+    return makeRecord(this, newMap);
   }
 
   delete(k) {
@@ -92,10 +92,13 @@ class Record extends Sequence {
     if (this.__ownerID || newMap === this._map) {
       return this;
     }
-    return this._make(newMap);
+    return makeRecord(this, newMap);
   }
 
-  // @pragma Mutability
+  __iterate(fn, reverse) {
+    var record = this;
+    return this._defaultValues.map((_, k) => record.get(k)).__iterate(fn, reverse);
+  }
 
   __ensureOwner(ownerID) {
     if (ownerID === this.__ownerID) {
@@ -107,37 +110,27 @@ class Record extends Sequence {
       this._map = newMap;
       return this;
     }
-    return this._make(newMap, ownerID);
-  }
-
-  // @pragma Iteration
-
-  __iterate(fn, reverse) {
-    var record = this;
-    return this._defaultValues.map((_, k) => record.get(k)).__iterate(fn, reverse);
-  }
-
-  _empty() {
-    var Record = Object.getPrototypeOf(this).constructor;
-    return Record._empty || (Record._empty = this._make(Map.empty()));
-  }
-
-  _make(map, ownerID) {
-    var record = Object.create(Object.getPrototypeOf(this));
-    record._map = map;
-    record.__ownerID = ownerID;
-    return record;
+    return makeRecord(this, newMap, ownerID);
   }
 }
 
-Record.prototype.__deepEqual = Map.prototype.__deepEqual;
-Record.prototype.merge = Map.prototype.merge;
-Record.prototype.mergeWith = Map.prototype.mergeWith;
-Record.prototype.mergeDeep = Map.prototype.mergeDeep;
-Record.prototype.mergeDeepWith = Map.prototype.mergeDeepWith;
-Record.prototype.update = Map.prototype.update;
-Record.prototype.updateIn = Map.prototype.updateIn;
-Record.prototype.cursor = Map.prototype.cursor;
-Record.prototype.withMutations = Map.prototype.withMutations;
-Record.prototype.asMutable = Map.prototype.asMutable;
-Record.prototype.asImmutable = Map.prototype.asImmutable;
+var RecordPrototype = Record.prototype;
+RecordPrototype.__deepEqual = MapPrototype.__deepEqual;
+RecordPrototype.merge = MapPrototype.merge;
+RecordPrototype.mergeWith = MapPrototype.mergeWith;
+RecordPrototype.mergeDeep = MapPrototype.mergeDeep;
+RecordPrototype.mergeDeepWith = MapPrototype.mergeDeepWith;
+RecordPrototype.update = MapPrototype.update;
+RecordPrototype.updateIn = MapPrototype.updateIn;
+RecordPrototype.cursor = MapPrototype.cursor;
+RecordPrototype.withMutations = MapPrototype.withMutations;
+RecordPrototype.asMutable = MapPrototype.asMutable;
+RecordPrototype.asImmutable = MapPrototype.asImmutable;
+
+
+function makeRecord(likeRecord, map, ownerID) {
+  var record = Object.create(Object.getPrototypeOf(likeRecord));
+  record._map = map;
+  record.__ownerID = ownerID;
+  return record;
+}

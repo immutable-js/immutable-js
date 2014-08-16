@@ -29,7 +29,7 @@ class OrderedMap extends Map {
   }
 
   static empty() {
-    return __EMPTY_ORDERED_MAP || (__EMPTY_ORDERED_MAP = OrderedMap._make());
+    return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap());
   }
 
   toString() {
@@ -83,7 +83,7 @@ class OrderedMap extends Map {
       this._vector = newVector;
       return this;
     }
-    return newVector === this._vector ? this : OrderedMap._make(newMap, newVector);
+    return newVector === this._vector ? this : makeOrderedMap(newMap, newVector);
   }
 
   delete(k) {
@@ -106,10 +106,21 @@ class OrderedMap extends Map {
       this._vector = newVector;
       return this;
     }
-    return newMap === this._map ? this : OrderedMap._make(newMap, newVector);
+    return newMap === this._map ? this : makeOrderedMap(newMap, newVector);
   }
 
-  // @pragma Mutability
+  __iterate(fn, reverse) {
+    return this._vector ? this._vector.fromEntries().__iterate(fn, reverse) : 0;
+  }
+
+  __deepEqual(other) {
+    var iterator = this._vector.__iterator__();
+    return other.every((v, k) => {
+      var entry = iterator.next();
+      entry && (entry = entry[1]);
+      return entry && is(k, entry[0]) && is(v, entry[1]);
+    });
+  }
 
   __ensureOwner(ownerID) {
     if (ownerID === this.__ownerID) {
@@ -123,38 +134,19 @@ class OrderedMap extends Map {
       this._vector = newVector;
       return this;
     }
-    return OrderedMap._make(newMap, newVector, ownerID);
-  }
-
-
-  // @pragma Iteration
-
-  __deepEqual(other) {
-    var iterator = this._vector.__iterator__();
-    return other.every((v, k) => {
-      var entry = iterator.next();
-      entry && (entry = entry[1]);
-      return entry && is(k, entry[0]) && is(v, entry[1]);
-    });
-  }
-
-  __iterate(fn, reverse) {
-    return this._vector ? this._vector.fromEntries().__iterate(fn, reverse) : 0;
-  }
-
-  // @pragma Private
-
-  static _make(map, vector, ownerID) {
-    var omap = Object.create(OrderedMap.prototype);
-    omap.length = map ? map.length : 0;
-    omap._map = map;
-    omap._vector = vector;
-    omap.__ownerID = ownerID;
-    return omap;
+    return makeOrderedMap(newMap, newVector, ownerID);
   }
 }
 
 OrderedMap.from = OrderedMap;
 
+function makeOrderedMap(map, vector, ownerID) {
+  var omap = Object.create(OrderedMap.prototype);
+  omap.length = map ? map.length : 0;
+  omap._map = map;
+  omap._vector = vector;
+  omap.__ownerID = ownerID;
+  return omap;
+}
 
-var __EMPTY_ORDERED_MAP;
+var EMPTY_ORDERED_MAP;

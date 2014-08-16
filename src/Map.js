@@ -9,11 +9,12 @@
 
 import "Sequence"
 import "is"
+import "invariant"
 import "Cursor"
 import "TrieUtils"
-/* global Sequence, is, Cursor,
+/* global Sequence, is, invariant, Cursor,
           SHIFT, MASK, SENTINEL, OwnerID */
-/* exported Map */
+/* exported Map, MapPrototype */
 
 
 class Map extends Sequence {
@@ -31,7 +32,7 @@ class Map extends Sequence {
   }
 
   static empty() {
-    return EMPTY_MAP || (EMPTY_MAP = Map._make(0));
+    return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
   }
 
   toString() {
@@ -68,7 +69,7 @@ class Map extends Sequence {
       this._root = newRoot;
       return this;
     }
-    return newRoot === this._root ? this : Map._make(newLength, newRoot);
+    return newRoot === this._root ? this : makeMap(newLength, newRoot);
   }
 
   delete(k) {
@@ -82,7 +83,7 @@ class Map extends Sequence {
       return this;
     }
     var newRoot = this._root.delete(this.__ownerID, 0, hashValue(k), k);
-    return !newRoot ? Map.empty() : newRoot === this._root ? this : Map._make(this.length - 1, newRoot);
+    return !newRoot ? Map.empty() : newRoot === this._root ? this : makeMap(this.length - 1, newRoot);
   }
 
   update(k, updater) {
@@ -150,18 +151,9 @@ class Map extends Sequence {
     return this.__ensureOwner();
   }
 
-  __ensureOwner(ownerID) {
-    if (ownerID === this.__ownerID) {
-      return this;
-    }
-    if (!ownerID) {
-      this.__ownerID = ownerID;
-      return this;
-    }
-    return Map._make(this.length, this._root, ownerID);
+  __iterate(fn, reverse) {
+    return this._root ? this._root.iterate(this, fn, reverse) : 0;
   }
-
-  // @pragma Iteration
 
   __deepEqual(other) {
     // Using Sentinel here ensures that a missing key is not interpretted as an
@@ -170,21 +162,19 @@ class Map extends Sequence {
     return other.every((v, k) => is(self.get(k, SENTINEL), v));
   }
 
-  __iterate(fn, reverse) {
-    return this._root ? this._root.iterate(this, fn, reverse) : 0;
-  }
-
-  // @pragma Private
-
-  static _make(length, root, ownerID) {
-    var map = Object.create(Map.prototype);
-    map.length = length;
-    map._root = root;
-    map.__ownerID = ownerID;
-    return map;
+  __ensureOwner(ownerID) {
+    if (ownerID === this.__ownerID) {
+      return this;
+    }
+    if (!ownerID) {
+      this.__ownerID = ownerID;
+      return this;
+    }
+    return makeMap(this.length, this._root, ownerID);
   }
 }
 
+var MapPrototype = Map.prototype;
 Map.from = Map;
 
 
@@ -386,6 +376,19 @@ class HashCollisionNode {
   }
 }
 
+var BOOL_REF = {value: false};
+function BoolRef(value) {
+  BOOL_REF.value = value;
+  return BOOL_REF;
+}
+
+function makeMap(length, root, ownerID) {
+  var map = Object.create(MapPrototype);
+  map.length = length;
+  map._root = root;
+  map.__ownerID = ownerID;
+  return map;
+}
 
 function makeNode(ownerID, shift, hash, key, valOrNode) {
   var idx = (hash >>> shift) & MASK;
@@ -441,21 +444,13 @@ function updateInDeepMap(collection, keyPath, updater, pathOffset) {
   if (nested === SENTINEL) {
     nested = Map.empty();
   }
-  if (!collection.set) {
-    throw new Error('updateIn with invalid keyPath');
-  }
+  invariant(collection.set, 'updateIn with invalid keyPath');
   return collection.set(
     key,
     ++pathOffset === keyPath.length ?
       updater(nested) :
       updateInDeepMap(nested, keyPath, updater, pathOffset)
   );
-}
-
-var BOOL_REF = {value: false};
-function BoolRef(value) {
-  BOOL_REF.value = value;
-  return BOOL_REF;
 }
 
 function hashValue(o) {
@@ -475,7 +470,7 @@ function hashValue(o) {
   if (type === 'string') {
     return hashString(o);
   }
-  throw new Error('Unable to hash');
+  throw new Error('Unable to hash: ' + o);
 }
 
 // http://jsperf.com/string-hash-to-int
