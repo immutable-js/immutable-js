@@ -3,6 +3,9 @@
 
 jest.autoMockOff();
 
+import jasmineCheck = require('jasmine-check');
+jasmineCheck.install();
+
 import Immutable = require('immutable');
 import Map = Immutable.Map;
 
@@ -177,6 +180,26 @@ describe('Map', () => {
     // order as the order you set into the Map.
     expect(v.get(1)).toBe(2);
     expect(k.get(1)).toBe('b');
+  });
+
+  check.it('deletes', {maxSize: 5000}, [gen.posInt], (len) => {
+    var map = Immutable.Range(0, len).toMap();
+    for (var ii = 0; ii < len; ii++) {
+      expect(map.length).toBe(len - ii);
+      map = map.delete(ii);
+    }
+    expect(map.length).toBe(0);
+    expect(map.toObject()).toEqual({});
+  });
+
+  check.it('deletes from transient', {maxSize: 5000}, [gen.posInt], (len) => {
+    var map = Immutable.Range(0, len).toMap().asMutable();
+    for (var ii = 0; ii < len; ii++) {
+      expect(map.length).toBe(len - ii);
+      map.delete(ii);
+    }
+    expect(map.length).toBe(0);
+    expect(map.toObject()).toEqual({});
   });
 
 });

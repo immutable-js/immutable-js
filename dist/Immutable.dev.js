@@ -1025,13 +1025,13 @@ var $Map = Map;
     if (k == null || this._root == null) {
       return this;
     }
+    var didRemoveLeaf = this.__ownerID && BoolRef();
+    var newRoot = this._root.update(this.__ownerID, 0, hashValue(k), k, NOTHING, didRemoveLeaf);
     if (this.__ownerID) {
-      var didRemoveLeaf = BoolRef();
-      this._root = this._root.update(this.__ownerID, 0, hashValue(k), k, NOTHING, didRemoveLeaf);
+      this._root = newRoot;
       didRemoveLeaf.value && this.length--;
       return this;
     }
-    var newRoot = this._root.update(this.__ownerID, 0, hashValue(k), k, NOTHING);
     return !newRoot ? $Map.empty() : newRoot === this._root ? this : makeMap(this.length - 1, newRoot);
   },
   update: function(k, updater) {
@@ -1142,6 +1142,7 @@ var $BitmapIndexedNode = BitmapIndexedNode;
     var bit = 1 << idx;
     var notSet = (this.bitmap & bit) === 0;
     if (deleted && this.bitmap === bit) {
+      didChangeLength && (didChangeLength.value = true);
       return null;
     }
     if (!deleted && notSet) {
