@@ -58,7 +58,7 @@ class Map extends Sequence {
     var newRoot;
     if (this._root) {
       var didAddLeaf = BoolRef();
-      newRoot = this._root.set(this.__ownerID, 0, hashValue(k), k, v, didAddLeaf);
+      newRoot = this._root.update(this.__ownerID, 0, hashValue(k), k, v, didAddLeaf);
       didAddLeaf.value && newLength++;
     } else {
       newLength++;
@@ -78,11 +78,11 @@ class Map extends Sequence {
     }
     if (this.__ownerID) {
       var didRemoveLeaf = BoolRef();
-      this._root = this._root.delete(this.__ownerID, 0, hashValue(k), k, didRemoveLeaf);
+      this._root = this._root.update(this.__ownerID, 0, hashValue(k), k, NOTHING, didRemoveLeaf);
       didRemoveLeaf.value && this.length--;
       return this;
     }
-    var newRoot = this._root.delete(this.__ownerID, 0, hashValue(k), k);
+    var newRoot = this._root.update(this.__ownerID, 0, hashValue(k), k, NOTHING);
     return !newRoot ? Map.empty() : newRoot === this._root ? this : makeMap(this.length - 1, newRoot);
   }
 
@@ -200,23 +200,36 @@ class BitmapIndexedNode {
     return key === keyOrNull ? valueOrNode : notFound;
   }
 
-  set(ownerID, shift, hash, key, value, didAddLeaf) {
+  update(ownerID, shift, hash, key, value, didChangeLength) {
+    var deleted = value === NOTHING;
     var editable;
+    var newNode;
     var idx = (hash >>> shift) & MASK;
     var bit = 1 << idx;
-    if ((this.bitmap & bit) === 0) {
-      didAddLeaf && (didAddLeaf.value = true);
+    var notSet = (this.bitmap & bit) === 0;
+
+    if (deleted && this.bitmap === bit) {
+      return null;
+    }
+
+    if (!deleted && notSet) {
+      didChangeLength && (didChangeLength.value = true);
       editable = this.ensureOwner(ownerID);
       editable.keys[idx] = key;
       editable.values[idx] = value;
       editable.bitmap |= bit;
       return editable;
     }
+
     var keyOrNull = this.keys[idx];
     var valueOrNode = this.values[idx];
-    var newNode;
+
+    if (deleted && (notSet || (keyOrNull != null && key !== keyOrNull))) {
+      return this;
+    }
+
     if (keyOrNull == null) {
-      newNode = valueOrNode.set(ownerID, shift + SHIFT, hash, key, value, didAddLeaf);
+      newNode = valueOrNode.update(ownerID, shift + SHIFT, hash, key, value, didChangeLength);
       if (newNode === valueOrNode) {
         return this;
       }
@@ -224,6 +237,18 @@ class BitmapIndexedNode {
       editable.values[idx] = newNode;
       return editable;
     }
+
+    if (deleted) {
+      if (keyOrNull != null) {
+        didChangeLength && (didChangeLength.value = true);
+      }
+      editable = this.ensureOwner(ownerID);
+      delete editable.keys[idx];
+      delete editable.values[idx];
+      editable.bitmap ^= bit;
+      return editable;
+    }
+
     if (key === keyOrNull) {
       if (value === valueOrNode) {
         return this;
@@ -232,49 +257,18 @@ class BitmapIndexedNode {
       editable.values[idx] = value;
       return editable;
     }
+
     var originalHash = hashValue(keyOrNull);
     if (hash === originalHash) {
       newNode = new HashCollisionNode(ownerID, hash, [keyOrNull, key], [valueOrNode, value]);
     } else {
       newNode = makeNode(ownerID, shift + SHIFT, originalHash, keyOrNull, valueOrNode)
-        .set(ownerID, shift + SHIFT, hash, key, value);
+        .update(ownerID, shift + SHIFT, hash, key, value);
     }
-    didAddLeaf && (didAddLeaf.value = true);
+    didChangeLength && (didChangeLength.value = true);
     editable = this.ensureOwner(ownerID);
     delete editable.keys[idx];
     editable.values[idx] = newNode;
-    return editable;
-  }
-
-  delete(ownerID, shift, hash, key, didRemoveLeaf) {
-    var editable;
-    var idx = (hash >>> shift) & MASK;
-    var bit = 1 << idx;
-    var keyOrNull = this.keys[idx];
-    if ((this.bitmap & bit) === 0 || (keyOrNull != null && key !== keyOrNull)) {
-      return this;
-    }
-    if (keyOrNull == null) {
-      var node = this.values[idx];
-      var newNode = node.delete(ownerID, shift + SHIFT, hash, key, didRemoveLeaf);
-      if (newNode === node) {
-        return this;
-      }
-      if (newNode) {
-        editable = this.ensureOwner(ownerID);
-        editable.values[idx] = newNode;
-        return editable;
-      }
-    } else {
-      didRemoveLeaf && (didRemoveLeaf.value = true);
-    }
-    if (this.bitmap === bit) {
-      return null;
-    }
-    editable = this.ensureOwner(ownerID);
-    delete editable.keys[idx];
-    delete editable.values[idx];
-    editable.bitmap ^= bit;
     return editable;
   }
 
@@ -320,39 +314,41 @@ class HashCollisionNode {
     return idx === -1 ? notFound : this.values[idx];
   }
 
-  set(ownerID, shift, hash, key, value, didAddLeaf) {
-    if (hash !== this.collisionHash) {
-      didAddLeaf && (didAddLeaf.value = true);
-      return makeNode(ownerID, shift, this.collisionHash, null, this)
-        .set(ownerID, shift, hash, key, value);
-    }
-    var idx = Sequence(this.keys).indexOf(key);
-    if (idx >= 0 && this.values[idx] === value) {
+  update(ownerID, shift, hash, key, value, didChangeLength) {
+    var deleted = value === NOTHING;
+    var editable;
+
+    var idx = this.keys.indexOf(key);
+    if (deleted ? idx === -1 : idx >= 0 && this.values[idx] === value) {
       return this;
     }
-    var editable = this.ensureOwner(ownerID);
+
+    if (deleted) {
+      didChangeLength && (didChangeLength.value = true);
+      if (this.values.length > 1) {
+        editable = this.ensureOwner(ownerID);
+        editable.keys[idx] = editable.keys.pop();
+        editable.values[idx] = editable.values.pop();
+        return editable;
+      }
+      return null;
+    }
+
+    if (hash !== this.collisionHash) {
+      didChangeLength && (didChangeLength.value = true);
+      return makeNode(ownerID, shift, this.collisionHash, null, this)
+        .update(ownerID, shift, hash, key, value);
+    }
+
+    editable = this.ensureOwner(ownerID);
     if (idx === -1) {
       editable.keys.push(key);
       editable.values.push(value);
-      didAddLeaf && (didAddLeaf.value = true);
+      didChangeLength && (didChangeLength.value = true);
     } else {
       editable.values[idx] = value;
     }
     return editable;
-  }
-
-  delete(ownerID, shift, hash, key, didRemoveLeaf) {
-    var idx = this.keys.indexOf(key);
-    if (idx === -1) {
-      return this;
-    }
-    didRemoveLeaf && (didRemoveLeaf.value = true);
-    if (this.values.length > 1) {
-      var editable = this.ensureOwner(ownerID);
-      editable.keys[idx] = editable.keys.pop();
-      editable.values[idx] = editable.values.pop();
-      return editable;
-    }
   }
 
   ensureOwner(ownerID) {
