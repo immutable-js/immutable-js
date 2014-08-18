@@ -270,7 +270,7 @@ var $Sequence = Sequence;
     return this.slice(0, -1);
   },
   has: function(searchKey) {
-    return this.get(searchKey, SENTINEL) !== SENTINEL;
+    return this.get(searchKey, NOTHING) !== NOTHING;
   },
   get: function(searchKey, notFoundValue) {
     return this.find((function(_, key) {
@@ -286,7 +286,7 @@ var $Sequence = Sequence;
   contains: function(searchValue) {
     return this.find((function(value) {
       return is(value, searchValue);
-    }), null, SENTINEL) !== SENTINEL;
+    }), null, NOTHING) !== NOTHING;
   },
   find: function(predicate, thisArg, notFoundValue) {
     var foundValue = notFoundValue;
@@ -442,8 +442,8 @@ var $Sequence = Sequence;
     var groups = OrderedMap.empty().withMutations((function(map) {
       seq.forEach((function(value, key, collection) {
         var groupKey = mapper(value, key, collection);
-        var group = map.get(groupKey, SENTINEL);
-        if (group === SENTINEL) {
+        var group = map.get(groupKey, NOTHING);
+        if (group === NOTHING) {
           group = [];
           map.set(groupKey, group);
         }
@@ -731,8 +731,8 @@ var $IndexedSequence = IndexedSequence;
     var groups = OrderedMap.empty().withMutations((function(map) {
       seq.forEach((function(value, index, collection) {
         var groupKey = mapper(value, index, collection);
-        var group = map.get(groupKey, SENTINEL);
-        if (group === SENTINEL) {
+        var group = map.get(groupKey, NOTHING);
+        if (group === NOTHING) {
           group = new Array(maintainIndices ? seq.length : 0);
           map.set(groupKey, group);
         }
@@ -834,8 +834,8 @@ function makeIndexedSequence(parent) {
   return newSequence;
 }
 function getInDeepSequence(seq, keyPath, notFoundValue, pathOffset) {
-  var nested = seq.get ? seq.get(keyPath[pathOffset], SENTINEL) : SENTINEL;
-  if (nested === SENTINEL) {
+  var nested = seq.get ? seq.get(keyPath[pathOffset], NOTHING) : NOTHING;
+  if (nested === NOTHING) {
     return notFoundValue;
   }
   if (++pathOffset === keyPath.length) {
@@ -978,7 +978,7 @@ function _updateCursor(cursor, changeFn, changeKey) {
 var SHIFT = 5;
 var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
-var SENTINEL = {};
+var NOTHING = {};
 function OwnerID() {}
 var Map = function Map(sequence) {
   if (sequence && sequence.constructor === $Map) {
@@ -1096,7 +1096,7 @@ var $Map = Map;
   __deepEqual: function(other) {
     var self = this;
     return other.every((function(v, k) {
-      return is(self.get(k, SENTINEL), v);
+      return is(self.get(k, NOTHING), v);
     }));
   },
   __ensureOwner: function(ownerID) {
@@ -1336,8 +1336,8 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
   }
   return collection.withMutations((function(collection) {
     var mergeIntoMap = merger ? (function(value, key) {
-      var existing = collection.get(key, SENTINEL);
-      collection.set(key, existing === SENTINEL ? value : merger(existing, value));
+      var existing = collection.get(key, NOTHING);
+      collection.set(key, existing === NOTHING ? value : merger(existing, value));
     }) : (function(value, key) {
       collection.set(key, value);
     });
@@ -1348,8 +1348,8 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
 }
 function updateInDeepMap(collection, keyPath, updater, pathOffset) {
   var key = keyPath[pathOffset];
-  var nested = collection.get ? collection.get(key, SENTINEL) : SENTINEL;
-  if (nested === SENTINEL) {
+  var nested = collection.get ? collection.get(key, NOTHING) : NOTHING;
+  if (nested === NOTHING) {
     nested = Map.empty();
   }
   invariant(collection.set, 'updateIn with invalid keyPath');
@@ -1428,7 +1428,7 @@ var $Vector = Vector;
         return setVectorBounds(vect, 0, index + 1).set(index, value);
       }));
     }
-    if (this.get(index, SENTINEL) === value) {
+    if (this.get(index, NOTHING) === value) {
       return this;
     }
     index = rawIndex(index, this._origin);

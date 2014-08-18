@@ -7,10 +7,18 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-/* exported SHIFT, SIZE, MASK, SENTINEL, OwnerID */
+/* exported SHIFT, SIZE, MASK, NOTHING, OwnerID */
 
+// Constants describing the size of trie nodes.
 var SHIFT = 5; // Resulted in best performance after ______?
 var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
-var SENTINEL = {};
+
+// A consistent shared value representing "not set" which equals nothing other
+// than itself, and nothing that could be provided externally.
+var NOTHING = {};
+
+// A function which returns a value representing an "owner" for transient writes
+// to tries. The return value will only ever equal itself, and will not equal
+// the return of any subsequent call of this function.
 function OwnerID() {}

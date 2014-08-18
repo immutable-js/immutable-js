@@ -14,7 +14,7 @@ import "Map"
 import "TrieUtils"
 /* global Sequence, IndexedSequence, is, invariant,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
-          SHIFT, SIZE, MASK, SENTINEL, OwnerID */
+          SHIFT, SIZE, MASK, NOTHING, OwnerID */
 /* exported Vector, VectorPrototype */
 
 
@@ -92,7 +92,7 @@ class Vector extends IndexedSequence {
       );
     }
 
-    if (this.get(index, SENTINEL) === value) {
+    if (this.get(index, NOTHING) === value) {
       return this;
     }
 

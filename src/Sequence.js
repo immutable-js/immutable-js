@@ -8,7 +8,7 @@
  */
 
 /* Sequence has implicit lazy dependencies */
-/* global is, Map, OrderedMap, Vector, Set, SENTINEL, invariant */
+/* global is, Map, OrderedMap, Vector, Set, NOTHING, invariant */
 /* exported Sequence, IndexedSequence */
 
 
@@ -271,7 +271,7 @@ class Sequence {
   }
 
   has(searchKey) {
-    return this.get(searchKey, SENTINEL) !== SENTINEL;
+    return this.get(searchKey, NOTHING) !== NOTHING;
   }
 
   get(searchKey, notFoundValue) {
@@ -286,7 +286,7 @@ class Sequence {
   }
 
   contains(searchValue) {
-    return this.find(value => is(value, searchValue), null, SENTINEL) !== SENTINEL;
+    return this.find(value => is(value, searchValue), null, NOTHING) !== NOTHING;
   }
 
   find(predicate, thisArg, notFoundValue) {
@@ -453,8 +453,8 @@ class Sequence {
     var groups = OrderedMap.empty().withMutations(map => {
       seq.forEach((value, key, collection) => {
         var groupKey = mapper(value, key, collection);
-        var group = map.get(groupKey, SENTINEL);
-        if (group === SENTINEL) {
+        var group = map.get(groupKey, NOTHING);
+        if (group === NOTHING) {
           group = [];
           map.set(groupKey, group);
         }
@@ -752,8 +752,8 @@ class IndexedSequence extends Sequence {
     var groups = OrderedMap.empty().withMutations(map => {
       seq.forEach((value, index, collection) => {
         var groupKey = mapper(value, index, collection);
-        var group = map.get(groupKey, SENTINEL);
-        if (group === SENTINEL) {
+        var group = map.get(groupKey, NOTHING);
+        if (group === NOTHING) {
           group = new Array(maintainIndices ? seq.length : 0);
           map.set(groupKey, group);
         }
@@ -874,8 +874,8 @@ function makeIndexedSequence(parent) {
 }
 
 function getInDeepSequence(seq, keyPath, notFoundValue, pathOffset) {
-  var nested = seq.get ? seq.get(keyPath[pathOffset], SENTINEL) : SENTINEL;
-  if (nested === SENTINEL) {
+  var nested = seq.get ? seq.get(keyPath[pathOffset], NOTHING) : NOTHING;
+  if (nested === NOTHING) {
     return notFoundValue;
   }
   if (++pathOffset === keyPath.length) {

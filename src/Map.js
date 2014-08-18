@@ -13,7 +13,7 @@ import "invariant"
 import "Cursor"
 import "TrieUtils"
 /* global Sequence, is, invariant, Cursor,
-          SHIFT, MASK, SENTINEL, OwnerID */
+          SHIFT, MASK, NOTHING, OwnerID */
 /* exported Map, MapPrototype */
 
 
@@ -159,7 +159,7 @@ class Map extends Sequence {
     // Using Sentinel here ensures that a missing key is not interpretted as an
     // existing key set to be null.
     var self = this;
-    return other.every((v, k) => is(self.get(k, SENTINEL), v));
+    return other.every((v, k) => is(self.get(k, NOTHING), v));
   }
 
   __ensureOwner(ownerID) {
@@ -424,9 +424,9 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
   return collection.withMutations(collection => {
     var mergeIntoMap = merger ?
       (value, key) => {
-        var existing = collection.get(key, SENTINEL);
+        var existing = collection.get(key, NOTHING);
         collection.set(
-          key, existing === SENTINEL ? value : merger(existing, value)
+          key, existing === NOTHING ? value : merger(existing, value)
         );
       } :
       (value, key) => {
@@ -440,8 +440,8 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
 
 function updateInDeepMap(collection, keyPath, updater, pathOffset) {
   var key = keyPath[pathOffset];
-  var nested = collection.get ? collection.get(key, SENTINEL) : SENTINEL;
-  if (nested === SENTINEL) {
+  var nested = collection.get ? collection.get(key, NOTHING) : NOTHING;
+  if (nested === NOTHING) {
     nested = Map.empty();
   }
   invariant(collection.set, 'updateIn with invalid keyPath');
