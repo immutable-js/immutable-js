@@ -1012,7 +1012,7 @@ var $Map = Map;
       didAddLeaf.value && newLength++;
     } else {
       newLength++;
-      newRoot = makeNode(this.__ownerID, 0, hashValue(k), k, v);
+      newRoot = new ValueNode(this.__ownerID, hashValue(k), [k, v]);
     }
     if (this.__ownerID) {
       this.length = newLength;
@@ -1114,11 +1114,10 @@ var $Map = Map;
   }}, Sequence);
 var MapPrototype = Map.prototype;
 Map.from = Map;
-var BitmapIndexedNode = function BitmapIndexedNode(ownerID, bitmap, keys, values) {
+var BitmapIndexedNode = function BitmapIndexedNode(ownerID, bitmap, nodes) {
   this.ownerID = ownerID;
   this.bitmap = bitmap;
-  this.keys = keys;
-  this.values = values;
+  this.nodes = nodes;
 };
 var $BitmapIndexedNode = BitmapIndexedNode;
 ($traceurRuntime.createClass)(BitmapIndexedNode, {
@@ -1127,161 +1126,158 @@ var $BitmapIndexedNode = BitmapIndexedNode;
     if ((this.bitmap & (1 << idx)) === 0) {
       return notFound;
     }
-    var keyOrNull = this.keys[idx];
-    var valueOrNode = this.values[idx];
-    if (keyOrNull == null) {
-      return valueOrNode.get(shift + SHIFT, hash, key, notFound);
-    }
-    return key === keyOrNull ? valueOrNode : notFound;
+    var node = this.nodes[idx];
+    return node.get(shift + SHIFT, hash, key, notFound);
   },
   update: function(ownerID, shift, hash, key, value, didChangeLength) {
-    var deleted = value === NOTHING;
     var editable;
-    var newNode;
     var idx = (hash >>> shift) & MASK;
     var bit = 1 << idx;
+    var deleted = value === NOTHING;
     var exists = (this.bitmap & bit) !== 0;
-    if (deleted && this.bitmap === bit) {
-      didChangeLength && (didChangeLength.value = true);
-      return null;
-    }
-    if (!deleted && !exists) {
+    if (!exists) {
+      if (deleted) {
+        return this;
+      }
       didChangeLength && (didChangeLength.value = true);
       editable = this.ensureOwner(ownerID);
-      editable.keys[idx] = key;
-      editable.values[idx] = value;
+      editable.nodes[idx] = new ValueNode(ownerID, hash, [key, value]);
       editable.bitmap |= bit;
       return editable;
     }
-    var keyOrNull = this.keys[idx];
-    var valueOrNode = this.values[idx];
-    if (deleted && (!exists || (keyOrNull != null && key !== keyOrNull))) {
+    var node = this.nodes[idx];
+    var newNode = node.update(ownerID, shift + SHIFT, hash, key, value, didChangeLength);
+    if (newNode === node) {
       return this;
     }
-    if (exists && keyOrNull == null) {
-      newNode = valueOrNode.update(ownerID, shift + SHIFT, hash, key, value, didChangeLength);
-      if (newNode === valueOrNode) {
-        return this;
-      }
-      editable = this.ensureOwner(ownerID);
-      editable.values[idx] = newNode;
-      return editable;
+    if (!newNode && this.bitmap === bit) {
+      return null;
     }
-    if (deleted) {
-      if (keyOrNull != null) {
-        didChangeLength && (didChangeLength.value = true);
-      }
-      editable = this.ensureOwner(ownerID);
-      delete editable.keys[idx];
-      delete editable.values[idx];
-      editable.bitmap ^= bit;
-      return editable;
-    }
-    if (key === keyOrNull) {
-      if (value === valueOrNode) {
-        return this;
-      }
-      editable = this.ensureOwner(ownerID);
-      editable.values[idx] = value;
-      return editable;
-    }
-    var originalHash = hashValue(keyOrNull);
-    if (hash === originalHash) {
-      newNode = new HashCollisionNode(ownerID, hash, [keyOrNull, key], [valueOrNode, value]);
-    } else {
-      newNode = makeNode(ownerID, shift + SHIFT, originalHash, keyOrNull, valueOrNode).update(ownerID, shift + SHIFT, hash, key, value);
-    }
-    didChangeLength && (didChangeLength.value = true);
     editable = this.ensureOwner(ownerID);
-    delete editable.keys[idx];
-    editable.values[idx] = newNode;
+    editable.nodes[idx] = newNode;
+    if (!newNode) {
+      editable.bitmap ^= bit;
+    }
     return editable;
   },
   ensureOwner: function(ownerID) {
     if (ownerID && ownerID === this.ownerID) {
       return this;
     }
-    return new $BitmapIndexedNode(ownerID, this.bitmap, this.keys.slice(), this.values.slice());
+    return new $BitmapIndexedNode(ownerID, this.bitmap, this.nodes.slice());
   },
   iterate: function(map, fn, reverse) {
-    var values = this.values;
-    var keys = this.keys;
-    var maxIndex = values.length;
+    var nodes = this.nodes;
+    var maxIndex = nodes.length - 1;
     for (var ii = 0; ii <= maxIndex; ii++) {
       var index = reverse ? maxIndex - ii : ii;
-      var key = keys[index];
-      var valueOrNode = values[index];
-      if (key != null) {
-        if (fn(valueOrNode, key, map) === false) {
-          return false;
-        }
-      } else if (valueOrNode && !valueOrNode.iterate(map, fn, reverse)) {
+      var node = nodes[index];
+      if (node && !node.iterate(map, fn, reverse)) {
         return false;
       }
     }
     return true;
   }
 }, {});
-var HashCollisionNode = function HashCollisionNode(ownerID, collisionHash, keys, values) {
+var HashCollisionNode = function HashCollisionNode(ownerID, hash, entries) {
   this.ownerID = ownerID;
-  this.collisionHash = collisionHash;
-  this.keys = keys;
-  this.values = values;
+  this.hash = hash;
+  this.entries = entries;
 };
 var $HashCollisionNode = HashCollisionNode;
 ($traceurRuntime.createClass)(HashCollisionNode, {
   get: function(shift, hash, key, notFound) {
-    var idx = this.keys.indexOf(key);
-    return idx === -1 ? notFound : this.values[idx];
+    var entries = this.entries;
+    for (var ii = 0,
+        len = entries.length; ii < len; ii++) {
+      if (key === entries[ii][0]) {
+        return entries[ii][1];
+      }
+    }
+    return notFound;
   },
   update: function(ownerID, shift, hash, key, value, didChangeLength) {
     var deleted = value === NOTHING;
     var editable;
-    var idx = this.keys.indexOf(key);
-    if (deleted ? idx === -1 : idx >= 0 && this.values[idx] === value) {
-      return this;
-    }
-    if (deleted) {
+    if (hash !== this.hash) {
       didChangeLength && (didChangeLength.value = true);
-      if (this.values.length > 1) {
+      return mergeNodes(ownerID, shift, this, hash, [key, value]);
+    }
+    var entries = this.entries;
+    for (var ii = 0,
+        len = entries.length; ii < len; ii++) {
+      if (key === entries[ii][0]) {
+        if (deleted) {
+          didChangeLength && (didChangeLength.value = true);
+          if (len === 2) {
+            return new ValueNode(ownerID, this.hash, entries[ii]);
+          }
+          editable = this.ensureOwner(ownerID);
+          ii === len - 1 ? editable.entries.pop() : (editable.entries[ii] = editable.entries.pop());
+          return editable;
+        }
         editable = this.ensureOwner(ownerID);
-        editable.keys[idx] = editable.keys.pop();
-        editable.values[idx] = editable.values.pop();
+        editable.entries[ii] = [key, value];
         return editable;
       }
-      return null;
     }
-    if (hash !== this.collisionHash) {
-      didChangeLength && (didChangeLength.value = true);
-      return makeNode(ownerID, shift, this.collisionHash, null, this).update(ownerID, shift, hash, key, value);
+    if (deleted) {
+      return this;
     }
+    didChangeLength && (didChangeLength.value = true);
     editable = this.ensureOwner(ownerID);
-    if (idx === -1) {
-      editable.keys.push(key);
-      editable.values.push(value);
-      didChangeLength && (didChangeLength.value = true);
-    } else {
-      editable.values[idx] = value;
-    }
+    editable.push([key, value]);
     return editable;
   },
   ensureOwner: function(ownerID) {
     if (ownerID && ownerID === this.ownerID) {
       return this;
     }
-    return new $HashCollisionNode(ownerID, this.collisionHash, this.keys.slice(), this.values.slice());
+    return new $HashCollisionNode(ownerID, this.hash, this.entries.slice());
   },
   iterate: function(map, fn, reverse) {
-    var values = this.values;
-    var keys = this.keys;
-    var maxIndex = values.length - 1;
+    var entries = this.entries;
+    var maxIndex = entries.length - 1;
     for (var ii = 0; ii <= maxIndex; ii++) {
       var index = reverse ? maxIndex - ii : ii;
-      if (fn(values[index], keys[index], map) === false) {
+      if (fn(entries[index][1], entries[index][0], map) === false) {
         return false;
       }
     }
     return true;
+  }
+}, {});
+var ValueNode = function ValueNode(ownerID, hash, entry) {
+  this.ownerID = ownerID;
+  this.hash = hash;
+  this.entry = entry;
+};
+var $ValueNode = ValueNode;
+($traceurRuntime.createClass)(ValueNode, {
+  get: function(shift, hash, key, notFound) {
+    return key === this.entry[0] ? this.entry[1] : notFound;
+  },
+  update: function(ownerID, shift, hash, key, value, didChangeLength) {
+    var keyMatch = key === this.entry[0];
+    if (value === NOTHING) {
+      keyMatch && didChangeLength && (didChangeLength.value = true);
+      return keyMatch ? null : this;
+    }
+    if (keyMatch) {
+      if (value === this.entry[1]) {
+        return this;
+      }
+      if (ownerID && ownerID === this.ownerID) {
+        this.entry[1] = value;
+        return this;
+      }
+      return new $ValueNode(ownerID, hash, [key, value]);
+    }
+    didChangeLength && (didChangeLength.value = true);
+    return mergeNodes(ownerID, shift, this, hash, [key, value]);
+  },
+  iterate: function(map, fn, reverse) {
+    return fn(this.entry[1], this.entry[0], map) !== false;
   }
 }, {});
 var BOOL_REF = {value: false};
@@ -1296,13 +1292,20 @@ function makeMap(length, root, ownerID) {
   map.__ownerID = ownerID;
   return map;
 }
-function makeNode(ownerID, shift, hash, key, valOrNode) {
-  var idx = (hash >>> shift) & MASK;
-  var keys = [];
-  var values = [];
-  values[idx] = valOrNode;
-  key != null && (keys[idx] = key);
-  return new BitmapIndexedNode(ownerID, 1 << idx, keys, values);
+function mergeNodes(ownerID, shift, node, hash, entry) {
+  if (node.hash === hash) {
+    return new HashCollisionNode(ownerID, hash, [node.entry, entry]);
+  }
+  var idx1 = (node.hash >>> shift) & MASK;
+  var idx2 = (hash >>> shift) & MASK;
+  var nodes = [];
+  if (idx1 === idx2) {
+    nodes[idx1] = mergeNodes(ownerID, shift + SHIFT, node, hash, entry);
+  } else {
+    nodes[idx1] = node;
+    nodes[idx2] = new ValueNode(ownerID, hash, entry);
+  }
+  return new BitmapIndexedNode(ownerID, (1 << idx1) | (1 << idx2), nodes);
 }
 function mergeIntoMapWith(map, merger, iterables) {
   var seqs = [];
