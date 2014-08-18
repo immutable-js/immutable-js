@@ -21,7 +21,7 @@
  * and from plain Javascript types.
  */
 
-declare module 'Immutable' {
+declare module 'immutable' {
 
   /**
    * `Immutable.is()` has the same semantics as Object.is(), but treats immutable

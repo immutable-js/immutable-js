@@ -3,7 +3,7 @@
 
 jest.autoMockOff();
 
-import Immutable = require('Immutable');
+import Immutable = require('immutable');
 import Set = Immutable.Set;
 
 declare function expect(val: any): ExpectWithIs;

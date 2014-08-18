@@ -18,11 +18,11 @@ module.exports = {
           src = file.text;
         });
       });
-      return src.replace(/require\('Immutable'\)/g, "require('../')");
+      return src.replace(/require\('immutable'\)/g, "require('../')");
     }
     if (path.match(/\.js$/)) {
       return react.transform(src, {harmony: true})
-        .replace(/require\('Immutable'\)/g, "require('../')");
+        .replace(/require\('immutable'\)/g, "require('../')");
     }
     return src;
   }

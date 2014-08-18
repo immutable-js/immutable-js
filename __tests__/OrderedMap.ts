@@ -3,7 +3,7 @@
 
 jest.autoMockOff();
 
-import Immutable = require('Immutable');
+import Immutable = require('immutable');
 import OrderedMap = Immutable.OrderedMap;
 
 describe('OrderedMap', () => {

@@ -3,7 +3,7 @@
 
 jest.autoMockOff();
 
-import Immutable = require('Immutable');
+import Immutable = require('immutable');
 import Record = Immutable.Record;
 
 describe('Record', () => {

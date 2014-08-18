@@ -64,7 +64,7 @@ of your file.
 
 ```javascript
 ///<reference path='./node_modules/immutable/dist/Immutable.d.ts'/>
-import Immutable = require('Immutable');
+import Immutable = require('immutable');
 var map: Immutable.Map<string, number>;
 map = Immutable.Map({a:1, b:2, c:3});
 map = map.set('b', 20);

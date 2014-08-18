@@ -6,7 +6,7 @@ jest.autoMockOff();
 import jasmineCheck = require('jasmine-check');
 jasmineCheck.install();
 
-import Immutable = require('Immutable');
+import Immutable = require('immutable');
 import Range = Immutable.Range;
 
 describe('Range', () => {

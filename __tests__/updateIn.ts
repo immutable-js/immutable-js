@@ -3,7 +3,7 @@
 
 jest.autoMockOff();
 
-import I = require('Immutable');
+import I = require('immutable');
 
 describe('updateIn', () => {
 

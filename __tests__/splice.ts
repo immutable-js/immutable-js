@@ -3,7 +3,7 @@
 
 jest.autoMockOff();
 
-import I = require('Immutable');
+import I = require('immutable');
 import Sequence = I.Sequence;
 import Vector = I.Vector;
 

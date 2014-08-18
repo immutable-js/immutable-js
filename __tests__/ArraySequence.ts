@@ -2,7 +2,7 @@
 ///<reference path='../dist/Immutable.d.ts'/>
 jest.autoMockOff();
 
-import Immutable = require('Immutable');
+import Immutable = require('immutable');
 
 describe('ArraySequence', () => {
 

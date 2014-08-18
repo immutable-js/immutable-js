@@ -3,7 +3,7 @@
 
 jest.autoMockOff();
 
-import Immutable = require('Immutable');
+import Immutable = require('immutable');
 
 jasmine.getEnv().addEqualityTester((a, b) =>
   a instanceof Immutable.Sequence && b instanceof Immutable.Sequence ?
