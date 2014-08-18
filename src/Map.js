@@ -13,7 +13,7 @@ import "invariant"
 import "Cursor"
 import "TrieUtils"
 /* global Sequence, is, invariant, Cursor,
-          SHIFT, MASK, NOTHING, OwnerID */
+          SIZE, SHIFT, MASK, NOTHING, OwnerID */
 /* exported Map, MapPrototype */
 
 
@@ -187,35 +187,50 @@ class BitmapIndexedNode {
   }
 
   get(shift, hash, key, notFound) {
-    var idx = (hash >>> shift) & MASK;
-    if ((this.bitmap & (1 << idx)) === 0) {
-      return notFound;
-    }
-    var node = this.nodes[idx];
-    return node.get(shift + SHIFT, hash, key, notFound);
+    var bit = (1 << ((hash >>> shift) & MASK));
+    var map = this.bitmap;
+    return (map & bit) === 0 ? notFound :
+      this.nodes[popCount(map & (bit - 1))].get(shift + SHIFT, hash, key, notFound);
   }
 
   update(ownerID, shift, hash, key, value, didChangeLength) {
-    var editable;
-    var idx = (hash >>> shift) & MASK;
-    var bit = 1 << idx;
+    var hashFrag = (hash >>> shift) & MASK;
+    var bit = 1 << hashFrag;
+    var map = this.bitmap;
+    var exists = (map & bit) !== 0;
     var deleted = value === NOTHING;
-    var exists = (this.bitmap & bit) !== 0;
+
+    if (deleted && !exists) {
+      return this;
+    }
+
+    var idx = popCount(map & (bit - 1));
+    var nodes = this.nodes;
+    var editable;
+    var newNode;
 
     if (!exists) {
-      if (deleted) {
-        return this;
-      }
       didChangeLength && (didChangeLength.value = true);
+      newNode = new ValueNode(ownerID, hash, [key, value]);
+      if (nodes.length >= MAX_BITMAP_SIZE) {
+        var count = 0;
+        var newNodes = [];
+        for (var ii = 0; map !== 0; ii++, map >>>= 1) {
+          if (map & 1) {
+            newNodes[ii] = nodes[count++];
+          }
+        }
+        newNodes[hashFrag] = newNode;
+        return new ArrayNode(ownerID, count + 1, newNodes);
+      }
       editable = this.ensureOwner(ownerID);
-      editable.nodes[idx] = new ValueNode(ownerID, hash, [key, value]);
+      editable.nodes.splice(idx, 0, newNode);
       editable.bitmap |= bit;
       return editable;
     }
 
-    var node = this.nodes[idx];
-
-    var newNode = node.update(ownerID, shift + SHIFT, hash, key, value, didChangeLength);
+    var node = nodes[idx];
+    newNode = node.update(ownerID, shift + SHIFT, hash, key, value, didChangeLength);
     if (newNode === node) {
       return this;
     }
@@ -223,9 +238,11 @@ class BitmapIndexedNode {
       return null;
     }
     editable = this.ensureOwner(ownerID);
-    editable.nodes[idx] = newNode;
     if (!newNode) {
+      editable.nodes.splice(idx, 1);
       editable.bitmap ^= bit;
+    } else {
+      editable.nodes[idx] = newNode;
     }
     return editable;
   }
@@ -243,6 +260,82 @@ class BitmapIndexedNode {
     for (var ii = 0; ii <= maxIndex; ii++) {
       var index = reverse ? maxIndex - ii : ii;
       var node = nodes[index];
+      if (!node.iterate(map, fn, reverse)) {
+        return false;
+      }
+    }
+    return true;
+  }
+}
+
+class ArrayNode {
+
+  constructor(ownerID, count, nodes) {
+    this.ownerID = ownerID;
+    this.count = count;
+    this.nodes = nodes;
+  }
+
+  get(shift, hash, key, notFound) {
+    var idx = (hash >>> shift) & MASK;
+    var node = this.nodes[idx];
+    return node ? node.get(shift + SHIFT, hash, key, notFound) : notFound;
+  }
+
+  update(ownerID, shift, hash, key, value, didChangeLength) {
+    var idx = (hash >>> shift) & MASK;
+    var deleted = value === NOTHING;
+    var nodes = this.nodes;
+    var node = nodes[idx];
+
+    if (deleted && !node) {
+      return this;
+    }
+
+    var newNode;
+    var newCount = this.count;
+    if (node) {
+      newNode = node.update(ownerID, shift + SHIFT, hash, key, value, didChangeLength);
+      if (newNode === node) {
+        return this;
+      }
+      if (!newNode) {
+        newCount--;
+        didChangeLength && (didChangeLength.value = true);
+        if (newCount <= MIN_ARRAY_SIZE) {
+          var packedNodes = [];
+          var bitmap = 0;
+          for (var ii = 0, bit = 1, len = nodes.length; ii < len; ii++, bit <<= 1) {
+            var nodeII = nodes[ii];
+            if (ii !== idx && nodeII) {
+              packedNodes.push(nodeII);
+              bitmap |= bit;
+            }
+          }
+          return new BitmapIndexedNode(ownerID, bitmap, packedNodes);
+        }
+      }
+    } else {
+      newNode = new ValueNode(ownerID, hash, [key, value]);
+      newCount++;
+      didChangeLength && (didChangeLength.value = true);
+    }
+
+    if (ownerID && ownerID === this.ownerID) {
+      this.count = newCount;
+      this.nodes[idx] = newNode;
+      return this;
+    }
+
+    var newNodes = nodes.slice();
+    newNodes[idx] = newNode;
+    return new ArrayNode(ownerID, newCount, newNodes);
+  }
+
+  iterate(map, fn, reverse) {
+    var nodes = this.nodes;
+    for (var ii = 0, maxIndex = nodes.length - 1; ii <= maxIndex; ii++) {
+      var node = nodes[reverse ? maxIndex - ii : ii];
       if (node && !node.iterate(map, fn, reverse)) {
         return false;
       }
@@ -274,6 +367,9 @@ class HashCollisionNode {
     var editable;
 
     if (hash !== this.hash) {
+      if (deleted) {
+        return this;
+      }
       didChangeLength && (didChangeLength.value = true);
       return mergeNodes(ownerID, shift, this, hash, [key, value]);
     }
@@ -387,14 +483,10 @@ function mergeNodes(ownerID, shift, node, hash, entry) {
   var idx1 = (node.hash >>> shift) & MASK;
   var idx2 = (hash >>> shift) & MASK;
 
-  var nodes = [];
-
-  if (idx1 === idx2) {
-    nodes[idx1] = mergeNodes(ownerID, shift + SHIFT, node, hash, entry);
-  } else {
-    nodes[idx1] = node;
-    nodes[idx2] = new ValueNode(ownerID, hash, entry);
-  }
+  var newNode;
+  var nodes = idx1 === idx2 ?
+    [mergeNodes(ownerID, shift + SHIFT, node, hash, entry)] :
+    ((newNode = new ValueNode(ownerID, hash, entry)), idx1 < idx2 ? [node, newNode] : [newNode, node]);
 
   return new BitmapIndexedNode(ownerID, (1 << idx1) | (1 << idx2), nodes);
 }
@@ -453,6 +545,15 @@ function updateInDeepMap(collection, keyPath, updater, pathOffset) {
   );
 }
 
+function popCount(x) {
+  x = x - ((x >> 1) & 0x55555555);
+  x = (x & 0x33333333) + ((x >> 2) & 0x33333333);
+  x = (x + (x >> 4)) & 0x0f0f0f0f;
+  x = x + (x >> 8);
+  x = x + (x >> 16);
+  return x & 0x7f;
+}
+
 function hashValue(o) {
   if (!o) { // false, 0, and null
     return 0;
@@ -502,5 +603,8 @@ var STRING_HASH_MAX_VAL = 0x100000000; // 2^32
 var STRING_HASH_CACHE_MAX_SIZE = 255;
 var STRING_HASH_CACHE_SIZE = 0;
 var STRING_HASH_CACHE = {};
+
+var MAX_BITMAP_SIZE = SIZE / 2;
+var MIN_ARRAY_SIZE = SIZE / 4;
 
 var EMPTY_MAP;
