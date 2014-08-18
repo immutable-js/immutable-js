@@ -1140,12 +1140,12 @@ var $BitmapIndexedNode = BitmapIndexedNode;
     var newNode;
     var idx = (hash >>> shift) & MASK;
     var bit = 1 << idx;
-    var notSet = (this.bitmap & bit) === 0;
+    var exists = (this.bitmap & bit) !== 0;
     if (deleted && this.bitmap === bit) {
       didChangeLength && (didChangeLength.value = true);
       return null;
     }
-    if (!deleted && notSet) {
+    if (!deleted && !exists) {
       didChangeLength && (didChangeLength.value = true);
       editable = this.ensureOwner(ownerID);
       editable.keys[idx] = key;
@@ -1155,10 +1155,10 @@ var $BitmapIndexedNode = BitmapIndexedNode;
     }
     var keyOrNull = this.keys[idx];
     var valueOrNode = this.values[idx];
-    if (deleted && (notSet || (keyOrNull != null && key !== keyOrNull))) {
+    if (deleted && (!exists || (keyOrNull != null && key !== keyOrNull))) {
       return this;
     }
-    if (keyOrNull == null) {
+    if (exists && keyOrNull == null) {
       newNode = valueOrNode.update(ownerID, shift + SHIFT, hash, key, value, didChangeLength);
       if (newNode === valueOrNode) {
         return this;
@@ -1231,7 +1231,7 @@ var HashCollisionNode = function HashCollisionNode(ownerID, collisionHash, keys,
 var $HashCollisionNode = HashCollisionNode;
 ($traceurRuntime.createClass)(HashCollisionNode, {
   get: function(shift, hash, key, notFound) {
-    var idx = Sequence(this.keys).indexOf(key);
+    var idx = this.keys.indexOf(key);
     return idx === -1 ? notFound : this.values[idx];
   },
   update: function(ownerID, shift, hash, key, value, didChangeLength) {

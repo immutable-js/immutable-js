@@ -206,14 +206,14 @@ class BitmapIndexedNode {
     var newNode;
     var idx = (hash >>> shift) & MASK;
     var bit = 1 << idx;
-    var notSet = (this.bitmap & bit) === 0;
+    var exists = (this.bitmap & bit) !== 0;
 
     if (deleted && this.bitmap === bit) {
       didChangeLength && (didChangeLength.value = true);
       return null;
     }
 
-    if (!deleted && notSet) {
+    if (!deleted && !exists) {
       didChangeLength && (didChangeLength.value = true);
       editable = this.ensureOwner(ownerID);
       editable.keys[idx] = key;
@@ -225,11 +225,11 @@ class BitmapIndexedNode {
     var keyOrNull = this.keys[idx];
     var valueOrNode = this.values[idx];
 
-    if (deleted && (notSet || (keyOrNull != null && key !== keyOrNull))) {
+    if (deleted && (!exists || (keyOrNull != null && key !== keyOrNull))) {
       return this;
     }
 
-    if (keyOrNull == null) {
+    if (exists && keyOrNull == null) {
       newNode = valueOrNode.update(ownerID, shift + SHIFT, hash, key, value, didChangeLength);
       if (newNode === valueOrNode) {
         return this;
