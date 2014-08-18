@@ -311,7 +311,7 @@ class HashCollisionNode {
   }
 
   get(shift, hash, key, notFound) {
-    var idx = Sequence(this.keys).indexOf(key);
+    var idx = this.keys.indexOf(key);
     return idx === -1 ? notFound : this.values[idx];
   }
 
