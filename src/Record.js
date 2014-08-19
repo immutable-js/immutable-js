@@ -55,9 +55,9 @@ class Record extends Sequence {
     return this._defaultValues.has(k);
   }
 
-  get(k, undefinedValue) {
-    if (undefinedValue !== undefined && !this.has(k)) {
-      return undefinedValue;
+  get(k, notSetValue) {
+    if (notSetValue !== undefined && !this.has(k)) {
+      return notSetValue;
     }
     return this._map.get(k, this._defaultValues.get(k));
   }

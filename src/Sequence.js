@@ -8,7 +8,7 @@
  */
 
 /* Sequence has implicit lazy dependencies */
-/* global is, Map, OrderedMap, Vector, Set, NOTHING, invariant */
+/* global is, Map, OrderedMap, Vector, Set, NOT_SET, invariant */
 /* exported Sequence, IndexedSequence */
 
 
@@ -271,26 +271,26 @@ class Sequence {
   }
 
   has(searchKey) {
-    return this.get(searchKey, NOTHING) !== NOTHING;
+    return this.get(searchKey, NOT_SET) !== NOT_SET;
   }
 
-  get(searchKey, notFoundValue) {
-    return this.find((_, key) => is(key, searchKey), null, notFoundValue);
+  get(searchKey, notSetValue) {
+    return this.find((_, key) => is(key, searchKey), null, notSetValue);
   }
 
-  getIn(searchKeyPath, notFoundValue) {
+  getIn(searchKeyPath, notSetValue) {
     if (!searchKeyPath || searchKeyPath.length === 0) {
       return this;
     }
-    return getInDeepSequence(this, searchKeyPath, notFoundValue, 0);
+    return getInDeepSequence(this, searchKeyPath, notSetValue, 0);
   }
 
   contains(searchValue) {
-    return this.find(value => is(value, searchValue), null, NOTHING) !== NOTHING;
+    return this.find(value => is(value, searchValue), null, NOT_SET) !== NOT_SET;
   }
 
-  find(predicate, thisArg, notFoundValue) {
-    var foundValue = notFoundValue;
+  find(predicate, thisArg, notSetValue) {
+    var foundValue = notSetValue;
     this.forEach((v, k, c) => {
       if (predicate.call(thisArg, v, k, c)) {
         foundValue = v;
@@ -311,8 +311,8 @@ class Sequence {
     return foundKey;
   }
 
-  findLast(predicate, thisArg, notFoundValue) {
-    return this.reverse(true).find(predicate, thisArg, notFoundValue);
+  findLast(predicate, thisArg, notSetValue) {
+    return this.reverse(true).find(predicate, thisArg, notSetValue);
   }
 
   findLastKey(predicate, thisArg) {
@@ -453,8 +453,8 @@ class Sequence {
     var groups = OrderedMap.empty().withMutations(map => {
       seq.forEach((value, key, collection) => {
         var groupKey = mapper(value, key, collection);
-        var group = map.get(groupKey, NOTHING);
-        if (group === NOTHING) {
+        var group = map.get(groupKey, NOT_SET);
+        if (group === NOT_SET) {
           group = [];
           map.set(groupKey, group);
         }
@@ -752,8 +752,8 @@ class IndexedSequence extends Sequence {
     var groups = OrderedMap.empty().withMutations(map => {
       seq.forEach((value, index, collection) => {
         var groupKey = mapper(value, index, collection);
-        var group = map.get(groupKey, NOTHING);
-        if (group === NOTHING) {
+        var group = map.get(groupKey, NOT_SET);
+        if (group === NOT_SET) {
           group = new Array(maintainIndices ? seq.length : 0);
           map.set(groupKey, group);
         }
@@ -796,9 +796,9 @@ class ObjectSequence extends Sequence {
     return this._object;
   }
 
-  get(key, undefinedValue) {
-    if (undefinedValue !== undefined && !this.has(key)) {
-      return undefinedValue;
+  get(key, notSetValue) {
+    if (notSetValue !== undefined && !this.has(key)) {
+      return notSetValue;
     }
     return this._object[key];
   }
@@ -873,15 +873,15 @@ function makeIndexedSequence(parent) {
   return newSequence;
 }
 
-function getInDeepSequence(seq, keyPath, notFoundValue, pathOffset) {
-  var nested = seq.get ? seq.get(keyPath[pathOffset], NOTHING) : NOTHING;
-  if (nested === NOTHING) {
-    return notFoundValue;
+function getInDeepSequence(seq, keyPath, notSetValue, pathOffset) {
+  var nested = seq.get ? seq.get(keyPath[pathOffset], NOT_SET) : NOT_SET;
+  if (nested === NOT_SET) {
+    return notSetValue;
   }
   if (++pathOffset === keyPath.length) {
     return nested;
   }
-  return getInDeepSequence(nested, keyPath, notFoundValue, pathOffset);
+  return getInDeepSequence(nested, keyPath, notSetValue, pathOffset);
 }
 
 function wholeSlice(begin, end, length) {

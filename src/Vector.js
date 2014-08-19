@@ -14,7 +14,7 @@ import "Map"
 import "TrieUtils"
 /* global Sequence, IndexedSequence, is, invariant,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
-          SHIFT, SIZE, MASK, NOTHING, OwnerID */
+          SHIFT, SIZE, MASK, NOT_SET, OwnerID */
 /* exported Vector, VectorPrototype */
 
 
@@ -60,15 +60,15 @@ class Vector extends IndexedSequence {
 
   // @pragma Access
 
-  get(index, undefinedValue) {
+  get(index, notSetValue) {
     index = rawIndex(index, this._origin);
     if (index >= this._size) {
-      return undefinedValue;
+      return notSetValue;
     }
     var node = vectorNodeFor(this, index);
     var maskedIndex = index & MASK;
-    return node && (undefinedValue === undefined || node.array.hasOwnProperty(maskedIndex)) ?
-      node.array[maskedIndex] : undefinedValue;
+    return node && (notSetValue === undefined || node.array.hasOwnProperty(maskedIndex)) ?
+      node.array[maskedIndex] : notSetValue;
   }
 
   first() {
@@ -92,7 +92,7 @@ class Vector extends IndexedSequence {
       );
     }
 
-    if (this.get(index, NOTHING) === value) {
+    if (this.get(index, NOT_SET) === value) {
       return this;
     }
 

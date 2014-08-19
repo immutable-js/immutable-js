@@ -270,26 +270,26 @@ var $Sequence = Sequence;
     return this.slice(0, -1);
   },
   has: function(searchKey) {
-    return this.get(searchKey, NOTHING) !== NOTHING;
+    return this.get(searchKey, NOT_SET) !== NOT_SET;
   },
-  get: function(searchKey, notFoundValue) {
+  get: function(searchKey, notSetValue) {
     return this.find((function(_, key) {
       return is(key, searchKey);
-    }), null, notFoundValue);
+    }), null, notSetValue);
   },
-  getIn: function(searchKeyPath, notFoundValue) {
+  getIn: function(searchKeyPath, notSetValue) {
     if (!searchKeyPath || searchKeyPath.length === 0) {
       return this;
     }
-    return getInDeepSequence(this, searchKeyPath, notFoundValue, 0);
+    return getInDeepSequence(this, searchKeyPath, notSetValue, 0);
   },
   contains: function(searchValue) {
     return this.find((function(value) {
       return is(value, searchValue);
-    }), null, NOTHING) !== NOTHING;
+    }), null, NOT_SET) !== NOT_SET;
   },
-  find: function(predicate, thisArg, notFoundValue) {
-    var foundValue = notFoundValue;
+  find: function(predicate, thisArg, notSetValue) {
+    var foundValue = notSetValue;
     this.forEach((function(v, k, c) {
       if (predicate.call(thisArg, v, k, c)) {
         foundValue = v;
@@ -308,8 +308,8 @@ var $Sequence = Sequence;
     }));
     return foundKey;
   },
-  findLast: function(predicate, thisArg, notFoundValue) {
-    return this.reverse(true).find(predicate, thisArg, notFoundValue);
+  findLast: function(predicate, thisArg, notSetValue) {
+    return this.reverse(true).find(predicate, thisArg, notSetValue);
   },
   findLastKey: function(predicate, thisArg) {
     return this.reverse(true).findKey(predicate, thisArg);
@@ -442,8 +442,8 @@ var $Sequence = Sequence;
     var groups = OrderedMap.empty().withMutations((function(map) {
       seq.forEach((function(value, key, collection) {
         var groupKey = mapper(value, key, collection);
-        var group = map.get(groupKey, NOTHING);
-        if (group === NOTHING) {
+        var group = map.get(groupKey, NOT_SET);
+        if (group === NOT_SET) {
           group = [];
           map.set(groupKey, group);
         }
@@ -731,8 +731,8 @@ var $IndexedSequence = IndexedSequence;
     var groups = OrderedMap.empty().withMutations((function(map) {
       seq.forEach((function(value, index, collection) {
         var groupKey = mapper(value, index, collection);
-        var group = map.get(groupKey, NOTHING);
-        if (group === NOTHING) {
+        var group = map.get(groupKey, NOT_SET);
+        if (group === NOT_SET) {
           group = new Array(maintainIndices ? seq.length : 0);
           map.set(groupKey, group);
         }
@@ -768,9 +768,9 @@ var ObjectSequence = function ObjectSequence(object) {
   toObject: function() {
     return this._object;
   },
-  get: function(key, undefinedValue) {
-    if (undefinedValue !== undefined && !this.has(key)) {
-      return undefinedValue;
+  get: function(key, notSetValue) {
+    if (notSetValue !== undefined && !this.has(key)) {
+      return notSetValue;
     }
     return this._object[key];
   },
@@ -833,15 +833,15 @@ function makeIndexedSequence(parent) {
   newSequence.__reversedIndices = parent ? parent.__reversedIndices : false;
   return newSequence;
 }
-function getInDeepSequence(seq, keyPath, notFoundValue, pathOffset) {
-  var nested = seq.get ? seq.get(keyPath[pathOffset], NOTHING) : NOTHING;
-  if (nested === NOTHING) {
-    return notFoundValue;
+function getInDeepSequence(seq, keyPath, notSetValue, pathOffset) {
+  var nested = seq.get ? seq.get(keyPath[pathOffset], NOT_SET) : NOT_SET;
+  if (nested === NOT_SET) {
+    return notSetValue;
   }
   if (++pathOffset === keyPath.length) {
     return nested;
   }
-  return getInDeepSequence(nested, keyPath, notFoundValue, pathOffset);
+  return getInDeepSequence(nested, keyPath, notSetValue, pathOffset);
 }
 function wholeSlice(begin, end, length) {
   return (begin === 0 || (length != null && begin <= -length)) && (end == null || (length != null && end >= length));
@@ -978,7 +978,7 @@ function _updateCursor(cursor, changeFn, changeKey) {
 var SHIFT = 5;
 var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
-var NOTHING = {};
+var NOT_SET = {};
 function OwnerID() {}
 var Map = function Map(sequence) {
   if (sequence && sequence.constructor === $Map) {
@@ -994,14 +994,14 @@ var $Map = Map;
   toString: function() {
     return this.__toString('Map {', '}');
   },
-  get: function(k, undefinedValue) {
-    return this._root ? this._root.get(0, hashValue(k), k, undefinedValue) : undefinedValue;
+  get: function(k, notSetValue) {
+    return this._root ? this._root.get(0, hashValue(k), k, notSetValue) : notSetValue;
   },
   set: function(k, v) {
     return updateMap(this, k, v);
   },
   delete: function(k) {
-    return updateMap(this, k, NOTHING);
+    return updateMap(this, k, NOT_SET);
   },
   update: function(k, updater) {
     return this.set(k, updater(this.get(k)));
@@ -1076,7 +1076,7 @@ var $Map = Map;
   __deepEqual: function(other) {
     var self = this;
     return other.every((function(v, k) {
-      return is(self.get(k, NOTHING), v);
+      return is(self.get(k, NOT_SET), v);
     }));
   },
   __ensureOwner: function(ownerID) {
@@ -1101,17 +1101,17 @@ var BitmapIndexedNode = function BitmapIndexedNode(ownerID, bitmap, nodes) {
 };
 var $BitmapIndexedNode = BitmapIndexedNode;
 ($traceurRuntime.createClass)(BitmapIndexedNode, {
-  get: function(shift, hash, key, notFound) {
+  get: function(shift, hash, key, notSetValue) {
     var bit = (1 << ((hash >>> shift) & MASK));
     var map = this.bitmap;
-    return (map & bit) === 0 ? notFound : this.nodes[popCount(map & (bit - 1))].get(shift + SHIFT, hash, key, notFound);
+    return (map & bit) === 0 ? notSetValue : this.nodes[popCount(map & (bit - 1))].get(shift + SHIFT, hash, key, notSetValue);
   },
   update: function(ownerID, shift, hash, key, value, didChangeLength) {
     var hashFrag = (hash >>> shift) & MASK;
     var bit = 1 << hashFrag;
     var map = this.bitmap;
     var exists = (map & bit) !== 0;
-    if (!exists && value === NOTHING) {
+    if (!exists && value === NOT_SET) {
       return this;
     }
     var idx = popCount(map & (bit - 1));
@@ -1175,14 +1175,14 @@ var ArrayNode = function ArrayNode(ownerID, count, nodes) {
 };
 var $ArrayNode = ArrayNode;
 ($traceurRuntime.createClass)(ArrayNode, {
-  get: function(shift, hash, key, notFound) {
+  get: function(shift, hash, key, notSetValue) {
     var idx = (hash >>> shift) & MASK;
     var node = this.nodes[idx];
-    return node ? node.get(shift + SHIFT, hash, key, notFound) : notFound;
+    return node ? node.get(shift + SHIFT, hash, key, notSetValue) : notSetValue;
   },
   update: function(ownerID, shift, hash, key, value, didChangeLength) {
     var idx = (hash >>> shift) & MASK;
-    var deleted = value === NOTHING;
+    var deleted = value === NOT_SET;
     var nodes = this.nodes;
     var node = nodes[idx];
     if (deleted && !node) {
@@ -1239,7 +1239,7 @@ var HashCollisionNode = function HashCollisionNode(ownerID, hash, entries) {
 };
 var $HashCollisionNode = HashCollisionNode;
 ($traceurRuntime.createClass)(HashCollisionNode, {
-  get: function(shift, hash, key, notFound) {
+  get: function(shift, hash, key, notSetValue) {
     var entries = this.entries;
     for (var ii = 0,
         len = entries.length; ii < len; ii++) {
@@ -1247,10 +1247,10 @@ var $HashCollisionNode = HashCollisionNode;
         return entries[ii][1];
       }
     }
-    return notFound;
+    return notSetValue;
   },
   update: function(ownerID, shift, hash, key, value, didChangeLength) {
-    var deleted = value === NOTHING;
+    var deleted = value === NOT_SET;
     var editable;
     if (hash !== this.hash) {
       if (deleted) {
@@ -1307,12 +1307,12 @@ var ValueNode = function ValueNode(ownerID, hash, entry) {
 };
 var $ValueNode = ValueNode;
 ($traceurRuntime.createClass)(ValueNode, {
-  get: function(shift, hash, key, notFound) {
-    return key === this.entry[0] ? this.entry[1] : notFound;
+  get: function(shift, hash, key, notSetValue) {
+    return key === this.entry[0] ? this.entry[1] : notSetValue;
   },
   update: function(ownerID, shift, hash, key, value, didChangeLength) {
     var keyMatch = key === this.entry[0];
-    if (value === NOTHING) {
+    if (value === NOT_SET) {
       keyMatch && didChangeLength && (didChangeLength.value = true);
       return keyMatch ? null : this;
     }
@@ -1348,7 +1348,7 @@ function makeMap(length, root, ownerID) {
 function updateMap(map, k, v) {
   var didChangeLength = BoolRef();
   var newRoot = updateNode(map._root, map.__ownerID, 0, hashValue(k), k, v, didChangeLength);
-  var newLength = map.length + (didChangeLength.value ? v === NOTHING ? -1 : 1 : 0);
+  var newLength = map.length + (didChangeLength.value ? v === NOT_SET ? -1 : 1 : 0);
   if (map.__ownerID) {
     map.length = newLength;
     map._root = newRoot;
@@ -1358,7 +1358,7 @@ function updateMap(map, k, v) {
 }
 function updateNode(node, ownerID, shift, hash, key, value, didChangeLength) {
   if (!node) {
-    if (value === NOTHING) {
+    if (value === NOT_SET) {
       return node;
     }
     didChangeLength && (didChangeLength.value = true);
@@ -1398,8 +1398,8 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
   }
   return collection.withMutations((function(collection) {
     var mergeIntoMap = merger ? (function(value, key) {
-      var existing = collection.get(key, NOTHING);
-      collection.set(key, existing === NOTHING ? value : merger(existing, value));
+      var existing = collection.get(key, NOT_SET);
+      collection.set(key, existing === NOT_SET ? value : merger(existing, value));
     }) : (function(value, key) {
       collection.set(key, value);
     });
@@ -1410,8 +1410,8 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
 }
 function updateInDeepMap(collection, keyPath, updater, pathOffset) {
   var key = keyPath[pathOffset];
-  var nested = collection.get ? collection.get(key, NOTHING) : NOTHING;
-  if (nested === NOTHING) {
+  var nested = collection.get ? collection.get(key, NOT_SET) : NOT_SET;
+  if (nested === NOT_SET) {
     nested = Map.empty();
   }
   invariant(collection.set, 'updateIn with invalid keyPath');
@@ -1487,14 +1487,14 @@ var $Vector = Vector;
   toString: function() {
     return this.__toString('Vector [', ']');
   },
-  get: function(index, undefinedValue) {
+  get: function(index, notSetValue) {
     index = rawIndex(index, this._origin);
     if (index >= this._size) {
-      return undefinedValue;
+      return notSetValue;
     }
     var node = vectorNodeFor(this, index);
     var maskedIndex = index & MASK;
-    return node && (undefinedValue === undefined || node.array.hasOwnProperty(maskedIndex)) ? node.array[maskedIndex] : undefinedValue;
+    return node && (notSetValue === undefined || node.array.hasOwnProperty(maskedIndex)) ? node.array[maskedIndex] : notSetValue;
   },
   first: function() {
     return this.get(0);
@@ -1509,7 +1509,7 @@ var $Vector = Vector;
         return setVectorBounds(vect, 0, index + 1).set(index, value);
       }));
     }
-    if (this.get(index, NOTHING) === value) {
+    if (this.get(index, NOT_SET) === value) {
       return this;
     }
     index = rawIndex(index, this._origin);
@@ -2025,8 +2025,8 @@ var $Set = Set;
   has: function(value) {
     return this._map ? this._map.has(value) : false;
   },
-  get: function(value, notFoundValue) {
-    return this.has(value) ? value : notFoundValue;
+  get: function(value, notSetValue) {
+    return this.has(value) ? value : notSetValue;
   },
   add: function(value) {
     if (value == null) {
@@ -2204,14 +2204,14 @@ var $OrderedMap = OrderedMap;
   toString: function() {
     return this.__toString('OrderedMap {', '}');
   },
-  get: function(k, undefinedValue) {
+  get: function(k, notSetValue) {
     if (k != null && this._map) {
       var index = this._map.get(k);
       if (index != null) {
         return this._vector.get(index)[1];
       }
     }
-    return undefinedValue;
+    return notSetValue;
   },
   clear: function() {
     if (this.__ownerID) {
@@ -2340,9 +2340,9 @@ var $Record = Record;
   has: function(k) {
     return this._defaultValues.has(k);
   },
-  get: function(k, undefinedValue) {
-    if (undefinedValue !== undefined && !this.has(k)) {
-      return undefinedValue;
+  get: function(k, notSetValue) {
+    if (notSetValue !== undefined && !this.has(k)) {
+      return notSetValue;
     }
     return this._map.get(k, this._defaultValues.get(k));
   },
@@ -2444,9 +2444,9 @@ var $Range = Range;
     invariant(index >= 0, 'Index out of bounds');
     return index < this.length;
   },
-  get: function(index, undefinedValue) {
+  get: function(index, notSetValue) {
     invariant(index >= 0, 'Index out of bounds');
-    return this.length === Infinity || index < this.length ? this._start + index * this._step : undefinedValue;
+    return this.length === Infinity || index < this.length ? this._start + index * this._step : notSetValue;
   },
   contains: function(searchValue) {
     var possibleIndex = (searchValue - this._start) / this._step;
@@ -2525,9 +2525,9 @@ var $Repeat = Repeat;
     }
     return 'Repeat [ ' + this._value + ' ' + this.length + ' times ]';
   },
-  get: function(index, undefinedValue) {
+  get: function(index, notSetValue) {
     invariant(index >= 0, 'Index out of bounds');
-    return this.length === Infinity || index < this.length ? this._value : undefinedValue;
+    return this.length === Infinity || index < this.length ? this._value : notSetValue;
   },
   first: function() {
     return this._value;

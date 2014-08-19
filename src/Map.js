@@ -13,7 +13,7 @@ import "invariant"
 import "Cursor"
 import "TrieUtils"
 /* global Sequence, is, invariant, Cursor,
-          SIZE, SHIFT, MASK, NOTHING, OwnerID */
+          SIZE, SHIFT, MASK, NOT_SET, OwnerID */
 /* exported Map, MapPrototype */
 
 
@@ -41,10 +41,10 @@ class Map extends Sequence {
 
   // @pragma Access
 
-  get(k, undefinedValue) {
+  get(k, notSetValue) {
     return this._root ?
-      this._root.get(0, hashValue(k), k, undefinedValue) :
-      undefinedValue;
+      this._root.get(0, hashValue(k), k, notSetValue) :
+      notSetValue;
   }
 
   // @pragma Modification
@@ -54,7 +54,7 @@ class Map extends Sequence {
   }
 
   delete(k) {
-    return updateMap(this, k, NOTHING);
+    return updateMap(this, k, NOT_SET);
   }
 
   update(k, updater) {
@@ -138,10 +138,10 @@ class Map extends Sequence {
   }
 
   __deepEqual(other) {
-    // Using Sentinel here ensures that a missing key is not interpretted as an
-    // existing key set to be null.
+    // Using NOT_SET here ensures that a missing key is not interpretted as an
+    // existing key set to be null/undefined.
     var self = this;
-    return other.every((v, k) => is(self.get(k, NOTHING), v));
+    return other.every((v, k) => is(self.get(k, NOT_SET), v));
   }
 
   __ensureOwner(ownerID) {
@@ -168,11 +168,11 @@ class BitmapIndexedNode {
     this.nodes = nodes;
   }
 
-  get(shift, hash, key, notFound) {
+  get(shift, hash, key, notSetValue) {
     var bit = (1 << ((hash >>> shift) & MASK));
     var map = this.bitmap;
-    return (map & bit) === 0 ? notFound :
-      this.nodes[popCount(map & (bit - 1))].get(shift + SHIFT, hash, key, notFound);
+    return (map & bit) === 0 ? notSetValue :
+      this.nodes[popCount(map & (bit - 1))].get(shift + SHIFT, hash, key, notSetValue);
   }
 
   update(ownerID, shift, hash, key, value, didChangeLength) {
@@ -181,7 +181,7 @@ class BitmapIndexedNode {
     var map = this.bitmap;
     var exists = (map & bit) !== 0;
 
-    if (!exists && value === NOTHING) {
+    if (!exists && value === NOT_SET) {
       return this;
     }
 
@@ -256,15 +256,15 @@ class ArrayNode {
     this.nodes = nodes;
   }
 
-  get(shift, hash, key, notFound) {
+  get(shift, hash, key, notSetValue) {
     var idx = (hash >>> shift) & MASK;
     var node = this.nodes[idx];
-    return node ? node.get(shift + SHIFT, hash, key, notFound) : notFound;
+    return node ? node.get(shift + SHIFT, hash, key, notSetValue) : notSetValue;
   }
 
   update(ownerID, shift, hash, key, value, didChangeLength) {
     var idx = (hash >>> shift) & MASK;
-    var deleted = value === NOTHING;
+    var deleted = value === NOT_SET;
     var nodes = this.nodes;
     var node = nodes[idx];
 
@@ -326,18 +326,18 @@ class HashCollisionNode {
     this.entries = entries;
   }
 
-  get(shift, hash, key, notFound) {
+  get(shift, hash, key, notSetValue) {
     var entries = this.entries;
     for (var ii = 0, len = entries.length; ii < len; ii++) {
       if (key === entries[ii][0]) {
         return entries[ii][1];
       }
     }
-    return notFound;
+    return notSetValue;
   }
 
   update(ownerID, shift, hash, key, value, didChangeLength) {
-    var deleted = value === NOTHING;
+    var deleted = value === NOT_SET;
     var editable;
 
     if (hash !== this.hash) {
@@ -401,13 +401,13 @@ class ValueNode {
     this.entry = entry;
   }
 
-  get(shift, hash, key, notFound) {
-    return key === this.entry[0] ? this.entry[1] : notFound;
+  get(shift, hash, key, notSetValue) {
+    return key === this.entry[0] ? this.entry[1] : notSetValue;
   }
 
   update(ownerID, shift, hash, key, value, didChangeLength) {
     var keyMatch = key === this.entry[0];
-    if (value === NOTHING) {
+    if (value === NOT_SET) {
       keyMatch && didChangeLength && (didChangeLength.value = true);
       return keyMatch ? null : this;
     }
@@ -449,7 +449,7 @@ function makeMap(length, root, ownerID) {
 function updateMap(map, k, v) {
   var didChangeLength = BoolRef();
   var newRoot = updateNode(map._root, map.__ownerID, 0, hashValue(k), k, v, didChangeLength);
-  var newLength = map.length + (didChangeLength.value ? v === NOTHING ? -1 : 1 : 0);
+  var newLength = map.length + (didChangeLength.value ? v === NOT_SET ? -1 : 1 : 0);
   if (map.__ownerID) {
     map.length = newLength;
     map._root = newRoot;
@@ -460,7 +460,7 @@ function updateMap(map, k, v) {
 
 function updateNode(node, ownerID, shift, hash, key, value, didChangeLength) {
   if (!node) {
-    if (value === NOTHING) {
+    if (value === NOT_SET) {
       return node;
     }
     didChangeLength && (didChangeLength.value = true);
@@ -514,9 +514,9 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
   return collection.withMutations(collection => {
     var mergeIntoMap = merger ?
       (value, key) => {
-        var existing = collection.get(key, NOTHING);
+        var existing = collection.get(key, NOT_SET);
         collection.set(
-          key, existing === NOTHING ? value : merger(existing, value)
+          key, existing === NOT_SET ? value : merger(existing, value)
         );
       } :
       (value, key) => {
@@ -530,8 +530,8 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
 
 function updateInDeepMap(collection, keyPath, updater, pathOffset) {
   var key = keyPath[pathOffset];
-  var nested = collection.get ? collection.get(key, NOTHING) : NOTHING;
-  if (nested === NOTHING) {
+  var nested = collection.get ? collection.get(key, NOT_SET) : NOT_SET;
+  if (nested === NOT_SET) {
     nested = Map.empty();
   }
   invariant(collection.set, 'updateIn with invalid keyPath');

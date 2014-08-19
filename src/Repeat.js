@@ -39,11 +39,11 @@ class Repeat extends IndexedSequence {
     return 'Repeat [ ' + this._value + ' ' + this.length + ' times ]';
   }
 
-  get(index, undefinedValue) {
+  get(index, notSetValue) {
     invariant(index >= 0, 'Index out of bounds');
     return this.length === Infinity || index < this.length ?
       this._value :
-      undefinedValue;
+      notSetValue;
   }
 
   first() {

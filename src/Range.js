@@ -59,10 +59,10 @@ class Range extends IndexedSequence {
     return index < this.length;
   }
 
-  get(index, undefinedValue) {
+  get(index, notSetValue) {
     invariant(index >= 0, 'Index out of bounds');
     return this.length === Infinity || index < this.length ?
-      this._start + index * this._step : undefinedValue;
+      this._start + index * this._step : notSetValue;
   }
 
   contains(searchValue) {

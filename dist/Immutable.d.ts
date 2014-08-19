@@ -357,19 +357,19 @@ declare module 'immutable' {
     has(key: K): boolean;
 
     /**
-     * Returns the value associated with the provided key, or notFoundValue if
+     * Returns the value associated with the provided key, or notSetValue if
      * the Sequence does not contain this key.
      *
      * Note: it is possible a key may be associated with an `undefined` value, so
-     * if `notFoundValue` is not provided and this method returns `undefined`,
+     * if `notSetValue` is not provided and this method returns `undefined`,
      * that does not guarantee the key was not found.
      */
-    get(key: K, notFoundValue?: V): V;
+    get(key: K, notSetValue?: V): V;
 
     /**
      * Returns the value found by following a key path through nested sequences.
      */
-    getIn(searchKeyPath: Array<K>, notFoundValue?: V): V;
+    getIn(searchKeyPath: Array<K>, notSetValue?: V): V;
 
     /**
      * True if a value exists within this Sequence.
@@ -382,7 +382,7 @@ declare module 'immutable' {
     find(
       predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
       thisArg?: any,
-      notFoundValue?: V
+      notSetValue?: V
     ): V;
 
     /**
@@ -401,7 +401,7 @@ declare module 'immutable' {
     findLast(
       predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
       thisArg?: any,
-      notFoundValue?: V
+      notSetValue?: V
     ): V;
 
     /**
@@ -1505,12 +1505,12 @@ declare module 'immutable' {
     get(): T;
 
     /**
-     * Returns the value at the `key` in the cursor, or `notFoundValue` if it
+     * Returns the value at the `key` in the cursor, or `notSetValue` if it
      * does not exist.
      *
      * This is shorthand for `cursor.get().get(key)`
      */
-    get(key: any, notFoundValue?: any): any;
+    get(key: any, notSetValue?: any): any;
 
     /**
      * Updates the value in the data this cursor points to, triggering the callback

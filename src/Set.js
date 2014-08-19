@@ -49,8 +49,8 @@ class Set extends Sequence {
     return this._map ? this._map.has(value) : false;
   }
 
-  get(value, notFoundValue) {
-    return this.has(value) ? value : notFoundValue;
+  get(value, notSetValue) {
+    return this.has(value) ? value : notSetValue;
   }
 
   // @pragma Modification

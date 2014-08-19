@@ -38,14 +38,14 @@ class OrderedMap extends Map {
 
   // @pragma Access
 
-  get(k, undefinedValue) {
+  get(k, notSetValue) {
     if (k != null && this._map) {
       var index = this._map.get(k);
       if (index != null) {
         return this._vector.get(index)[1];
       }
     }
-    return undefinedValue;
+    return notSetValue;
   }
 
   // @pragma Modification
