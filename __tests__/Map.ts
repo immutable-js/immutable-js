@@ -13,6 +13,7 @@ describe('Map', () => {
 
   it('converts from object', () => {
     var m = Map.from({'a': 'A', 'b': 'B', 'c': 'C'});
+    expect(m.length).toBe(3);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
@@ -20,6 +21,7 @@ describe('Map', () => {
 
   it('constructor provides initial values', () => {
     var m = Map({'a': 'A', 'b': 'B', 'c': 'C'});
+    expect(m.length).toBe(3);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
@@ -27,6 +29,7 @@ describe('Map', () => {
 
   it('constructor provides initial values as array of entries', () => {
     var m = Map([['a','A'],['b','B'],['c','C']]);
+    expect(m.length).toBe(3);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
@@ -35,6 +38,7 @@ describe('Map', () => {
   it('constructor provides initial values as sequence', () => {
     var s = Immutable.Sequence({'a': 'A', 'b': 'B', 'c': 'C'});
     var m = Map(s);
+    expect(m.length).toBe(3);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
@@ -68,6 +72,16 @@ describe('Map', () => {
     expect(m2.toObject()).toEqual({'wow': 'OO', 'd': 'DD', 'b': 'BB'});
     var m3 = m1.merge(m2);
     expect(m3.toObject()).toEqual({'a': 'A', 'b': 'BB', 'c': 'C', 'wow': 'OO', 'd': 'DD'});
+  });
+
+  it('accepts null as a key', () => {
+    var m1 = Map();
+    var m2 = m1.set(null, 'null');
+    var m3 = m2.delete(null);
+    expect(m1.length).toBe(0);
+    expect(m2.length).toBe(1);
+    expect(m3.length).toBe(0);
+    expect(m2.get(null)).toBe('null');
   });
 
   it('is persistent to sets', () => {

@@ -995,44 +995,13 @@ var $Map = Map;
     return this.__toString('Map {', '}');
   },
   get: function(k, undefinedValue) {
-    if (k == null || this._root == null) {
-      return undefinedValue;
-    }
-    return this._root.get(0, hashValue(k), k, undefinedValue);
+    return this._root ? this._root.get(0, hashValue(k), k, undefinedValue) : undefinedValue;
   },
   set: function(k, v) {
-    if (k == null) {
-      return this;
-    }
-    var newLength = this.length;
-    var newRoot;
-    if (this._root) {
-      var didAddLeaf = BoolRef();
-      newRoot = this._root.update(this.__ownerID, 0, hashValue(k), k, v, didAddLeaf);
-      didAddLeaf.value && newLength++;
-    } else {
-      newLength++;
-      newRoot = new ValueNode(this.__ownerID, hashValue(k), [k, v]);
-    }
-    if (this.__ownerID) {
-      this.length = newLength;
-      this._root = newRoot;
-      return this;
-    }
-    return newRoot === this._root ? this : makeMap(newLength, newRoot);
+    return updateMap(this, k, v);
   },
   delete: function(k) {
-    if (k == null || this._root == null) {
-      return this;
-    }
-    var didRemoveLeaf = this.__ownerID && BoolRef();
-    var newRoot = this._root.update(this.__ownerID, 0, hashValue(k), k, NOTHING, didRemoveLeaf);
-    if (this.__ownerID) {
-      this._root = newRoot;
-      didRemoveLeaf.value && this.length--;
-      return this;
-    }
-    return !newRoot ? $Map.empty() : newRoot === this._root ? this : makeMap(this.length - 1, newRoot);
+    return updateMap(this, k, NOTHING);
   },
   update: function(k, updater) {
     return this.set(k, updater(this.get(k)));
@@ -1131,47 +1100,44 @@ var $BitmapIndexedNode = BitmapIndexedNode;
     var bit = 1 << hashFrag;
     var map = this.bitmap;
     var exists = (map & bit) !== 0;
-    var deleted = value === NOTHING;
-    if (deleted && !exists) {
+    if (!exists && value === NOTHING) {
       return this;
     }
     var idx = popCount(map & (bit - 1));
     var nodes = this.nodes;
-    var editable;
-    var newNode;
-    if (!exists) {
-      didChangeLength && (didChangeLength.value = true);
-      newNode = new ValueNode(ownerID, hash, [key, value]);
-      if (nodes.length >= MAX_BITMAP_SIZE) {
-        var count = 0;
-        var newNodes = [];
-        for (var ii = 0; map !== 0; ii++, map >>>= 1) {
-          if (map & 1) {
-            newNodes[ii] = nodes[count++];
-          }
-        }
-        newNodes[hashFrag] = newNode;
-        return new ArrayNode(ownerID, count + 1, newNodes);
-      }
-      editable = this.ensureOwner(ownerID);
-      editable.nodes.splice(idx, 0, newNode);
-      editable.bitmap |= bit;
-      return editable;
-    }
-    var node = nodes[idx];
-    newNode = node.update(ownerID, shift + SHIFT, hash, key, value, didChangeLength);
+    var node = exists ? nodes[idx] : null;
+    var newNode = updateNode(node, ownerID, shift + SHIFT, hash, key, value, didChangeLength);
     if (newNode === node) {
       return this;
     }
-    if (!newNode && this.bitmap === bit) {
-      return null;
+    if (!exists && newNode && nodes.length >= MAX_BITMAP_SIZE) {
+      var count = 0;
+      var newNodes = [];
+      for (var ii = 0; map !== 0; ii++, map >>>= 1) {
+        if (map & 1) {
+          newNodes[ii] = nodes[count++];
+        }
+      }
+      newNodes[hashFrag] = newNode;
+      return new ArrayNode(ownerID, count + 1, newNodes);
     }
-    editable = this.ensureOwner(ownerID);
-    if (!newNode) {
-      editable.nodes.splice(idx, 1);
-      editable.bitmap ^= bit;
+    if (exists && !newNode && nodes.length === 2 && isLeafNode(nodes[idx ^ 1])) {
+      return nodes[idx ^ 1];
+    }
+    if (exists && newNode && nodes.length === 1 && isLeafNode(newNode)) {
+      return newNode;
+    }
+    var editable = this.ensureOwner(ownerID);
+    if (exists) {
+      if (newNode) {
+        editable.nodes[idx] = newNode;
+      } else {
+        editable.nodes.splice(idx, 1);
+        editable.bitmap ^= bit;
+      }
     } else {
-      editable.nodes[idx] = newNode;
+      editable.nodes.splice(idx, 0, newNode);
+      editable.bitmap |= bit;
     }
     return editable;
   },
@@ -1214,35 +1180,29 @@ var $ArrayNode = ArrayNode;
     if (deleted && !node) {
       return this;
     }
-    var newNode;
+    var newNode = updateNode(node, ownerID, shift + SHIFT, hash, key, value, didChangeLength);
+    if (newNode === node) {
+      return this;
+    }
     var newCount = this.count;
-    if (node) {
-      newNode = node.update(ownerID, shift + SHIFT, hash, key, value, didChangeLength);
-      if (newNode === node) {
-        return this;
-      }
-      if (!newNode) {
-        newCount--;
-        didChangeLength && (didChangeLength.value = true);
-        if (newCount <= MIN_ARRAY_SIZE) {
-          var packedNodes = [];
-          var bitmap = 0;
-          for (var ii = 0,
-              bit = 1,
-              len = nodes.length; ii < len; ii++, bit <<= 1) {
-            var nodeII = nodes[ii];
-            if (ii !== idx && nodeII) {
-              packedNodes.push(nodeII);
-              bitmap |= bit;
-            }
-          }
-          return new BitmapIndexedNode(ownerID, bitmap, packedNodes);
-        }
-      }
-    } else {
-      newNode = new ValueNode(ownerID, hash, [key, value]);
+    if (!node) {
       newCount++;
-      didChangeLength && (didChangeLength.value = true);
+    } else if (!newNode) {
+      newCount--;
+      if (newCount <= MIN_ARRAY_SIZE) {
+        var packedNodes = [];
+        var bitmap = 0;
+        for (var ii = 0,
+            bit = 1,
+            len = nodes.length; ii < len; ii++, bit <<= 1) {
+          var nodeII = nodes[ii];
+          if (ii !== idx && nodeII) {
+            packedNodes.push(nodeII);
+            bitmap |= bit;
+          }
+        }
+        return new BitmapIndexedNode(ownerID, bitmap, packedNodes);
+      }
     }
     if (ownerID && ownerID === this.ownerID) {
       this.count = newCount;
@@ -1290,23 +1250,22 @@ var $HashCollisionNode = HashCollisionNode;
         return this;
       }
       didChangeLength && (didChangeLength.value = true);
-      return mergeNodes(ownerID, shift, this, hash, [key, value]);
+      return mergeIntoNode(this, ownerID, shift, hash, [key, value]);
     }
     var entries = this.entries;
     for (var ii = 0,
         len = entries.length; ii < len; ii++) {
       if (key === entries[ii][0]) {
-        if (deleted) {
-          didChangeLength && (didChangeLength.value = true);
-          if (len === 2) {
-            return new ValueNode(ownerID, this.hash, entries[ii]);
-          }
-          editable = this.ensureOwner(ownerID);
-          ii === len - 1 ? editable.entries.pop() : (editable.entries[ii] = editable.entries.pop());
-          return editable;
+        deleted && didChangeLength && (didChangeLength.value = true);
+        if (deleted && len === 2) {
+          return new ValueNode(ownerID, this.hash, entries[ii]);
         }
         editable = this.ensureOwner(ownerID);
-        editable.entries[ii] = [key, value];
+        if (deleted) {
+          ii === len - 1 ? editable.entries.pop() : (editable.entries[ii] = editable.entries.pop());
+        } else {
+          editable.entries[ii] = [key, value];
+        }
         return editable;
       }
     }
@@ -1363,7 +1322,7 @@ var $ValueNode = ValueNode;
       return new $ValueNode(ownerID, hash, [key, value]);
     }
     didChangeLength && (didChangeLength.value = true);
-    return mergeNodes(ownerID, shift, this, hash, [key, value]);
+    return mergeIntoNode(this, ownerID, shift, hash, [key, value]);
   },
   iterate: function(map, fn, reverse) {
     return fn(this.entry[1], this.entry[0], map) !== false;
@@ -1381,14 +1340,38 @@ function makeMap(length, root, ownerID) {
   map.__ownerID = ownerID;
   return map;
 }
-function mergeNodes(ownerID, shift, node, hash, entry) {
+function updateMap(map, k, v) {
+  var didChangeLength = BoolRef();
+  var newRoot = updateNode(map._root, map.__ownerID, 0, hashValue(k), k, v, didChangeLength);
+  var newLength = map.length + (didChangeLength.value ? v === NOTHING ? -1 : 1 : 0);
+  if (map.__ownerID) {
+    map.length = newLength;
+    map._root = newRoot;
+    return map;
+  }
+  return newRoot ? newRoot === map._root ? map : makeMap(newLength, newRoot) : Map.empty();
+}
+function updateNode(node, ownerID, shift, hash, key, value, didChangeLength) {
+  if (!node) {
+    if (value === NOTHING) {
+      return node;
+    }
+    didChangeLength && (didChangeLength.value = true);
+    return new ValueNode(ownerID, hash, [key, value]);
+  }
+  return node.update(ownerID, shift, hash, key, value, didChangeLength);
+}
+function isLeafNode(node) {
+  return node.constructor === ValueNode || node.constructor === HashCollisionNode;
+}
+function mergeIntoNode(node, ownerID, shift, hash, entry) {
   if (node.hash === hash) {
     return new HashCollisionNode(ownerID, hash, [node.entry, entry]);
   }
   var idx1 = (node.hash >>> shift) & MASK;
   var idx2 = (hash >>> shift) & MASK;
   var newNode;
-  var nodes = idx1 === idx2 ? [mergeNodes(ownerID, shift + SHIFT, node, hash, entry)] : ((newNode = new ValueNode(ownerID, hash, entry)), idx1 < idx2 ? [node, newNode] : [newNode, node]);
+  var nodes = idx1 === idx2 ? [mergeIntoNode(node, ownerID, shift + SHIFT, hash, entry)] : ((newNode = new ValueNode(ownerID, hash, entry)), idx1 < idx2 ? [node, newNode] : [newNode, node]);
   return new BitmapIndexedNode(ownerID, (1 << idx1) | (1 << idx2), nodes);
 }
 function mergeIntoMapWith(map, merger, iterables) {
