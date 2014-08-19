@@ -561,33 +561,27 @@ function hashValue(o) {
   if (o === true) {
     return 1;
   }
-  if (typeof o.hashCode === 'function') {
-    return o.hashCode();
-  }
   var type = typeof o;
   if (type === 'number') {
-    return Math.floor(o) % 2147483647; // 2^31-1
+    if ((o | 0) === o) {
+      return o % HASH_MAX_VAL;
+    }
+    o = '' + o;
+    type = 'string';
   }
   if (type === 'string') {
-    return hashString(o);
+    return o.length > STRING_HASH_CACHE_MIN_STRLEN ? cachedHashString(o) : hashString(o);
+  }
+  if (o.hashCode && typeof o.hashCode === 'function') {
+    return o.hashCode();
   }
   throw new Error('Unable to hash: ' + o);
 }
 
-// http://jsperf.com/string-hash-to-int
-function hashString(string) {
+function cachedHashString(string) {
   var hash = STRING_HASH_CACHE[string];
   if (hash == null) {
-    // This is the hash from JVM
-    // The hash code for a string is computed as
-    // s[0] * 31 ^ (n - 1) + s[1] * 31 ^ (n - 2) + ... + s[n - 1],
-    // where s[i] is the ith character of the string and n is the length of
-    // the string. We mod the result to make it between 0 (inclusive) and 2^32
-    // (exclusive).
-    hash = 0;
-    for (var ii = 0; ii < string.length; ii++) {
-      hash = (31 * hash + string.charCodeAt(ii)) % STRING_HASH_MAX_VAL;
-    }
+    hash = hashString(string);
     if (STRING_HASH_CACHE_SIZE === STRING_HASH_CACHE_MAX_SIZE) {
       STRING_HASH_CACHE_SIZE = 0;
       STRING_HASH_CACHE = {};
@@ -598,8 +592,23 @@ function hashString(string) {
   return hash;
 }
 
+// http://jsperf.com/hashing-strings
+function hashString(string) {
+  // This is the hash from JVM
+  // The hash code for a string is computed as
+  // s[0] * 31 ^ (n - 1) + s[1] * 31 ^ (n - 2) + ... + s[n - 1],
+  // where s[i] is the ith character of the string and n is the length of
+  // the string. We mod the result to make it between 0 (inclusive) and 2^32
+  // (exclusive).
+  var hash = 0;
+  for (var ii = 0; ii < string.length; ii++) {
+    hash = (31 * hash + string.charCodeAt(ii));
+  }
+  return hash % HASH_MAX_VAL;
+}
 
-var STRING_HASH_MAX_VAL = 0x100000000; // 2^32
+var HASH_MAX_VAL = 0x100000000; // 2^32
+var STRING_HASH_CACHE_MIN_STRLEN = 16;
 var STRING_HASH_CACHE_MAX_SIZE = 255;
 var STRING_HASH_CACHE_SIZE = 0;
 var STRING_HASH_CACHE = {};
