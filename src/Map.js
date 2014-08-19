@@ -644,9 +644,9 @@ function hashString(string) {
   // (exclusive).
   var hash = 0;
   for (var ii = 0; ii < string.length; ii++) {
-    hash = (31 * hash + string.charCodeAt(ii));
+    hash = (31 * hash + string.charCodeAt(ii)) % HASH_MAX_VAL;
   }
-  return hash % HASH_MAX_VAL;
+  return hash;
 }
 
 var HASH_MAX_VAL = 0x100000000; // 2^32
