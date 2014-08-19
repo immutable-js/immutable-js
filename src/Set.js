@@ -56,9 +56,6 @@ class Set extends Sequence {
   // @pragma Modification
 
   add(value) {
-    if (value == null) {
-      return this;
-    }
     var newMap = this._map;
     if (!newMap) {
       newMap = Map.empty().__ensureOwner(this.__ownerID);
@@ -73,7 +70,7 @@ class Set extends Sequence {
   }
 
   delete(value) {
-    if (value == null || this._map == null) {
+    if (this._map == null) {
       return this;
     }
     var newMap = this._map.delete(value);

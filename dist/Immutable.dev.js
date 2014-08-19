@@ -2074,9 +2074,6 @@ var $Set = Set;
     return this.has(value) ? value : notSetValue;
   },
   add: function(value) {
-    if (value == null) {
-      return this;
-    }
     var newMap = this._map;
     if (!newMap) {
       newMap = Map.empty().__ensureOwner(this.__ownerID);
@@ -2090,7 +2087,7 @@ var $Set = Set;
     return newMap === this._map ? this : makeSet(newMap);
   },
   delete: function(value) {
-    if (value == null || this._map == null) {
+    if (this._map == null) {
       return this;
     }
     var newMap = this._map.delete(value);
