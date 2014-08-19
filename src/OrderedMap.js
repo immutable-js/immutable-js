@@ -114,7 +114,7 @@ class OrderedMap extends Map {
   }
 
   __deepEqual(other) {
-    var iterator = this._vector.__iterator__();
+    var iterator = this._vector.iterator();
     return other.every((v, k) => {
       var entry = iterator.next().value;
       entry && (entry = entry[1]);

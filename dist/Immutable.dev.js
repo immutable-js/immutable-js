@@ -2317,9 +2317,9 @@ var $OrderedMap = OrderedMap;
     return this._vector ? this._vector.fromEntries().__iterate(fn, reverse) : 0;
   },
   __deepEqual: function(other) {
-    var iterator = this._vector.__iterator__();
+    var iterator = this._vector.iterator();
     return other.every((function(v, k) {
-      var entry = iterator.next();
+      var entry = iterator.next().value;
       entry && (entry = entry[1]);
       return entry && is(k, entry[0]) && is(v, entry[1]);
     }));
