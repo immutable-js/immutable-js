@@ -1254,7 +1254,7 @@ var $HashCollisionNode = HashCollisionNode;
     var entries = this.entries;
     for (var ii = 0,
         len = entries.length; ii < len; ii++) {
-      if (key === entries[ii][0]) {
+      if (is(key, entries[ii][0])) {
         return entries[ii][1];
       }
     }
@@ -1272,7 +1272,7 @@ var $HashCollisionNode = HashCollisionNode;
     var entries = this.entries;
     var idx = 0;
     for (var len = entries.length; idx < len; idx++) {
-      if (key === entries[idx][0]) {
+      if (is(key, entries[idx][0])) {
         break;
       }
     }
@@ -1319,10 +1319,10 @@ var ValueNode = function ValueNode(ownerID, hash, entry) {
 var $ValueNode = ValueNode;
 ($traceurRuntime.createClass)(ValueNode, {
   get: function(shift, hash, key, notSetValue) {
-    return key === this.entry[0] ? this.entry[1] : notSetValue;
+    return is(key, this.entry[0]) ? this.entry[1] : notSetValue;
   },
   update: function(ownerID, shift, hash, key, value, didChangeLength) {
-    var keyMatch = key === this.entry[0];
+    var keyMatch = is(key, this.entry[0]);
     if (value === NOT_SET) {
       keyMatch && didChangeLength && (didChangeLength.value = true);
       return keyMatch ? null : this;

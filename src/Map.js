@@ -333,7 +333,7 @@ class HashCollisionNode {
   get(shift, hash, key, notSetValue) {
     var entries = this.entries;
     for (var ii = 0, len = entries.length; ii < len; ii++) {
-      if (key === entries[ii][0]) {
+      if (is(key, entries[ii][0])) {
         return entries[ii][1];
       }
     }
@@ -354,7 +354,7 @@ class HashCollisionNode {
     var entries = this.entries;
     var idx = 0;
     for (var len = entries.length; idx < len; idx++) {
-      if (key === entries[idx][0]) {
+      if (is(key, entries[idx][0])) {
         break;
       }
     }
@@ -410,11 +410,11 @@ class ValueNode {
   }
 
   get(shift, hash, key, notSetValue) {
-    return key === this.entry[0] ? this.entry[1] : notSetValue;
+    return is(key, this.entry[0]) ? this.entry[1] : notSetValue;
   }
 
   update(ownerID, shift, hash, key, value, didChangeLength) {
-    var keyMatch = key === this.entry[0];
+    var keyMatch = is(key, this.entry[0]);
     if (value === NOT_SET) {
       keyMatch && didChangeLength && (didChangeLength.value = true);
       return keyMatch ? null : this;
