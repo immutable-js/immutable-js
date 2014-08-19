@@ -123,7 +123,18 @@ class Map extends Sequence {
   }
 
   __iterate(fn, reverse) {
-    return this._root ? this._root.iterate(this, fn, reverse) : 0;
+    var map = this;
+    if (!map._root) {
+      return 0;
+    }
+    var iterations = 0;
+    this._root.iterate(entry => {
+      if (fn(entry[1], entry[0], map) === false) {
+        return false;
+      }
+      iterations++;
+    }, reverse);
+    return iterations;
   }
 
   __deepEqual(other) {
@@ -227,17 +238,13 @@ class BitmapIndexedNode {
     return new BitmapIndexedNode(ownerID, this.bitmap, this.nodes.slice());
   }
 
-  iterate(map, fn, reverse) {
+  iterate(fn, reverse) {
     var nodes = this.nodes;
-    var maxIndex = nodes.length - 1;
-    for (var ii = 0; ii <= maxIndex; ii++) {
-      var index = reverse ? maxIndex - ii : ii;
-      var node = nodes[index];
-      if (!node.iterate(map, fn, reverse)) {
+    for (var ii = 0, maxIndex = nodes.length - 1; ii <= maxIndex; ii++) {
+      if (nodes[reverse ? maxIndex - ii : ii].iterate(fn, reverse) === false) {
         return false;
       }
     }
-    return true;
   }
 }
 
@@ -300,15 +307,14 @@ class ArrayNode {
     return new ArrayNode(ownerID, newCount, newNodes);
   }
 
-  iterate(map, fn, reverse) {
+  iterate(fn, reverse) {
     var nodes = this.nodes;
     for (var ii = 0, maxIndex = nodes.length - 1; ii <= maxIndex; ii++) {
       var node = nodes[reverse ? maxIndex - ii : ii];
-      if (node && !node.iterate(map, fn, reverse)) {
+      if (node && node.iterate(fn, reverse) === false) {
         return false;
       }
     }
-    return true;
   }
 }
 
@@ -376,16 +382,14 @@ class HashCollisionNode {
     return new HashCollisionNode(ownerID, this.hash, this.entries.slice());
   }
 
-  iterate(map, fn, reverse) {
+  iterate(fn, reverse) {
     var entries = this.entries;
     var maxIndex = entries.length - 1;
     for (var ii = 0; ii <= maxIndex; ii++) {
-      var index = reverse ? maxIndex - ii : ii;
-      if (fn(entries[index][1], entries[index][0], map) === false) {
+      if (fn(entries[reverse ? maxIndex - ii : ii]) === false) {
         return false;
       }
     }
-    return true;
   }
 }
 
@@ -423,8 +427,8 @@ class ValueNode {
     return mergeIntoNode(this, ownerID, shift, hash, [key, value]);
   }
 
-  iterate(map, fn, reverse) {
-    return fn(this.entry[1], this.entry[0], map) !== false;
+  iterate(fn) {
+    return fn(this.entry);
   }
 }
 
