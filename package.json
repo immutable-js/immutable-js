@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/facebook/immutable-js/issues"
   },
-  "main": "dist/Immutable.dev.js",
+  "main": "dist/Immutable.js",
   "scripts": {
     "test": "jest"
   },
