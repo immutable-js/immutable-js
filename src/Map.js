@@ -13,7 +13,7 @@ import "invariant"
 import "Cursor"
 import "TrieUtils"
 /* global Sequence, is, invariant, Cursor,
-          SIZE, SHIFT, MASK, NOT_SET, OwnerID */
+          SIZE, SHIFT, MASK, NOT_SET, OwnerID, arrCopy */
 /* exported Map, MapPrototype */
 
 
@@ -170,22 +170,22 @@ class BitmapIndexedNode {
 
   get(shift, hash, key, notSetValue) {
     var bit = (1 << ((hash >>> shift) & MASK));
-    var map = this.bitmap;
-    return (map & bit) === 0 ? notSetValue :
-      this.nodes[popCount(map & (bit - 1))].get(shift + SHIFT, hash, key, notSetValue);
+    var bitmap = this.bitmap;
+    return (bitmap & bit) === 0 ? notSetValue :
+      this.nodes[popCount(bitmap & (bit - 1))].get(shift + SHIFT, hash, key, notSetValue);
   }
 
   update(ownerID, shift, hash, key, value, didChangeLength) {
     var hashFrag = (hash >>> shift) & MASK;
     var bit = 1 << hashFrag;
-    var map = this.bitmap;
-    var exists = (map & bit) !== 0;
+    var bitmap = this.bitmap;
+    var exists = (bitmap & bit) !== 0;
 
     if (!exists && value === NOT_SET) {
       return this;
     }
 
-    var idx = popCount(map & (bit - 1));
+    var idx = popCount(bitmap & (bit - 1));
     var nodes = this.nodes;
     var node = exists ? nodes[idx] : null;
     var newNode = updateNode(node, ownerID, shift + SHIFT, hash, key, value, didChangeLength);
@@ -196,14 +196,14 @@ class BitmapIndexedNode {
 
     if (!exists && newNode && nodes.length >= MAX_BITMAP_SIZE) {
       var count = 0;
-      var newNodes = [];
-      for (var ii = 0; map !== 0; ii++, map >>>= 1) {
-        if (map & 1) {
-          newNodes[ii] = nodes[count++];
+      var expandedNodes = [];
+      for (var ii = 0; bitmap !== 0; ii++, bitmap >>>= 1) {
+        if (bitmap & 1) {
+          expandedNodes[ii] = nodes[count++];
         }
       }
-      newNodes[hashFrag] = newNode;
-      return new ArrayNode(ownerID, count + 1, newNodes);
+      expandedNodes[hashFrag] = newNode;
+      return new ArrayNode(ownerID, count + 1, expandedNodes);
     }
 
     if (exists && !newNode && nodes.length === 2 && isLeafNode(nodes[idx ^ 1])) {
@@ -214,28 +214,30 @@ class BitmapIndexedNode {
       return newNode;
     }
 
-    var editable = this.ensureOwner(ownerID);
+    var isEditable = ownerID && ownerID === this.ownerID;
+    var newBitmap = bitmap;
+    var newNodes;
 
     if (exists) {
       if (newNode) {
-        editable.nodes[idx] = newNode;
+        newNodes = isEditable ? nodes : arrCopy(nodes);
+        newNodes[idx] = newNode;
       } else {
-        editable.nodes.splice(idx, 1);
-        editable.bitmap ^= bit;
+        newNodes = spliceOut(nodes, idx, isEditable);
+        newBitmap ^= bit;
       }
     } else {
-      editable.nodes.splice(idx, 0, newNode);
-      editable.bitmap |= bit;
+      newNodes = spliceIn(nodes, idx, newNode, isEditable);
+      newBitmap |= bit;
     }
 
-    return editable;
-  }
-
-  ensureOwner(ownerID) {
-    if (ownerID && ownerID === this.ownerID) {
+    if (isEditable) {
+      this.bitmap = newBitmap;
+      this.nodes = newNodes;
       return this;
     }
-    return new BitmapIndexedNode(ownerID, this.bitmap, this.nodes.slice());
+
+    return new BitmapIndexedNode(ownerID, newBitmap, newNodes);
   }
 
   iterate(fn, reverse) {
@@ -296,14 +298,16 @@ class ArrayNode {
       }
     }
 
+    var isEditable = ownerID && ownerID === this.ownerID;
+    var newNodes = isEditable ? nodes : arrCopy(nodes);
+    newNodes[idx] = newNode;
+
     if (ownerID && ownerID === this.ownerID) {
       this.count = newCount;
-      this.nodes[idx] = newNode;
+      this.nodes = newNodes;
       return this;
     }
 
-    var newNodes = nodes.slice();
-    newNodes[idx] = newNode;
     return new ArrayNode(ownerID, newCount, newNodes);
   }
 
@@ -338,7 +342,6 @@ class HashCollisionNode {
 
   update(ownerID, shift, hash, key, value, didChangeLength) {
     var deleted = value === NOT_SET;
-    var editable;
 
     if (hash !== this.hash) {
       if (deleted) {
@@ -349,43 +352,48 @@ class HashCollisionNode {
     }
 
     var entries = this.entries;
-    for (var ii = 0, len = entries.length; ii < len; ii++) {
-      if (key === entries[ii][0]) {
-        deleted && didChangeLength && (didChangeLength.value = true);
-        if (deleted && len === 2) {
-          return new ValueNode(ownerID, this.hash, entries[ii]);
-        }
-        editable = this.ensureOwner(ownerID);
-        if (deleted) {
-          ii === len - 1 ? editable.entries.pop() : (editable.entries[ii] = editable.entries.pop());
-        } else {
-          editable.entries[ii] = [key, value];
-        }
-        return editable;
+    var idx = 0;
+    for (var len = entries.length; idx < len; idx++) {
+      if (key === entries[idx][0]) {
+        break;
       }
     }
+    var exists = idx < len;
 
-    if (deleted) {
+    if (deleted && !exists) {
       return this;
     }
 
-    didChangeLength && (didChangeLength.value = true);
-    editable = this.ensureOwner(ownerID);
-    editable.push([key, value]);
-    return editable;
-  }
+    (deleted || !exists) && didChangeLength && (didChangeLength.value = true);
 
-  ensureOwner(ownerID) {
-    if (ownerID && ownerID === this.ownerID) {
+    if (deleted && len === 2) {
+      return new ValueNode(ownerID, this.hash, entries[idx ^ 1]);
+    }
+
+    var isEditable = ownerID && ownerID === this.ownerID;
+    var newEntries = isEditable ? entries : arrCopy(entries);
+
+    if (exists) {
+      if (deleted) {
+        idx === len - 1 ? newEntries.pop() : (newEntries[idx] = newEntries.pop());
+      } else {
+        newEntries[idx] = [key, value];
+      }
+    } else {
+      newEntries.push([key, value]);
+    }
+
+    if (isEditable) {
+      this.entries = newEntries;
       return this;
     }
-    return new HashCollisionNode(ownerID, this.hash, this.entries.slice());
+
+    return new HashCollisionNode(ownerID, this.hash, newEntries);
   }
 
   iterate(fn, reverse) {
     var entries = this.entries;
-    var maxIndex = entries.length - 1;
-    for (var ii = 0; ii <= maxIndex; ii++) {
+    for (var ii = 0, maxIndex = entries.length - 1; ii <= maxIndex; ii++) {
       if (fn(entries[reverse ? maxIndex - ii : ii]) === false) {
         return false;
       }
@@ -550,6 +558,42 @@ function popCount(x) {
   x = x + (x >> 8);
   x = x + (x >> 16);
   return x & 0x7f;
+}
+
+function spliceIn(array, idx, val, canEdit) {
+  var newLen = array.length + 1;
+  if (canEdit && idx + 1 === newLen) {
+    array[idx] = val;
+    return array;
+  }
+  var newArray = new Array(newLen);
+  var after = 0;
+  for (var ii = 0; ii < newLen; ii++) {
+    if (ii === idx) {
+      newArray[ii] = val;
+      after = -1;
+    } else {
+      newArray[ii] = array[ii + after];
+    }
+  }
+  return newArray;
+}
+
+function spliceOut(array, idx, canEdit) {
+  var newLen = array.length - 1;
+  if (canEdit && idx === newLen) {
+    array.pop();
+    return array;
+  }
+  var newArray = new Array(newLen);
+  var after = 0;
+  for (var ii = 0; ii < newLen; ii++) {
+    if (ii === idx) {
+      after = 1;
+    }
+    newArray[ii] = array[ii + after];
+  }
+  return newArray;
 }
 
 function hashValue(o) {

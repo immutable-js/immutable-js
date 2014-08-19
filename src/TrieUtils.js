@@ -7,7 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-/* exported SHIFT, SIZE, MASK, NOT_SET, OwnerID */
+/* exported SHIFT, SIZE, MASK, NOT_SET, OwnerID, arrCopy */
 
 // Constants describing the size of trie nodes.
 var SHIFT = 5; // Resulted in best performance after ______?
@@ -22,3 +22,13 @@ var NOT_SET = {};
 // to tries. The return value will only ever equal itself, and will not equal
 // the return of any subsequent call of this function.
 function OwnerID() {}
+
+// http://jsperf.com/copy-array-inline
+function arrCopy(arr) {
+  var len = arr.length;
+  var newArr = new Array(len);
+  for (var ii = 0; ii < len; ii++) {
+    newArr[ii] = arr[ii];
+  }
+  return newArr;
+}
