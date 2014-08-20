@@ -989,13 +989,8 @@ function arrCopy(arr) {
   return newArr;
 }
 var Map = function Map(sequence) {
-  if (sequence && sequence.constructor === $Map) {
-    return sequence;
-  }
-  if (!sequence || sequence.length === 0) {
-    return $Map.empty();
-  }
-  return $Map.empty().merge(sequence);
+  var map = $Map.empty();
+  return sequence ? sequence.constructor === $Map ? sequence : map.merge(sequence) : map;
 };
 var $Map = Map;
 ($traceurRuntime.createClass)(Map, {
@@ -1724,15 +1719,15 @@ var $Vector = Vector;
     return EMPTY_VECT || (EMPTY_VECT = makeVector(0, 0, SHIFT, EMPTY_VNODE, EMPTY_VNODE));
   },
   from: function(sequence) {
-    if (sequence && sequence.constructor === $Vector) {
-      return sequence;
-    }
     if (!sequence || sequence.length === 0) {
       return $Vector.empty();
     }
+    if (sequence.constructor === $Vector) {
+      return sequence;
+    }
     var isArray = Array.isArray(sequence);
     if (sequence.length > 0 && sequence.length < SIZE) {
-      return makeVector(0, sequence.length, SHIFT, EMPTY_VNODE, new VNode(isArray ? sequence.slice() : Sequence(sequence).toArray()));
+      return makeVector(0, sequence.length, SHIFT, EMPTY_VNODE, new VNode(isArray ? arrCopy(sequence) : Sequence(sequence).toArray()));
     }
     if (!isArray) {
       sequence = Sequence(sequence);
@@ -2205,13 +2200,8 @@ var $Set = Set;
     return EMPTY_SET || (EMPTY_SET = makeSet());
   },
   from: function(sequence) {
-    if (sequence && sequence.constructor === $Set) {
-      return sequence;
-    }
-    if (!sequence || sequence.length === 0) {
-      return $Set.empty();
-    }
-    return $Set.empty().union(sequence);
+    var set = $Set.empty();
+    return sequence ? sequence.constructor === $Set ? sequence : set.union(sequence) : set;
   },
   fromKeys: function(sequence) {
     return $Set.from(Sequence(sequence).flip());
@@ -2233,13 +2223,8 @@ function makeSet(map, ownerID) {
 }
 var EMPTY_SET;
 var OrderedMap = function OrderedMap(sequence) {
-  if (sequence && sequence.constructor === $OrderedMap) {
-    return sequence;
-  }
-  if (!sequence || sequence.length === 0) {
-    return $OrderedMap.empty();
-  }
-  return $OrderedMap.empty().merge(sequence);
+  var map = $OrderedMap.empty();
+  return sequence ? sequence.constructor === $OrderedMap ? sequence : map.merge(sequence) : map;
 };
 var $OrderedMap = OrderedMap;
 ($traceurRuntime.createClass)(OrderedMap, {

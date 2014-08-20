@@ -14,7 +14,7 @@ import "Map"
 import "TrieUtils"
 /* global Sequence, IndexedSequence, is, invariant,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
-          SHIFT, SIZE, MASK, NOT_SET, OwnerID */
+          SHIFT, SIZE, MASK, NOT_SET, OwnerID, arrCopy */
 /* exported Vector, VectorPrototype */
 
 
@@ -33,16 +33,16 @@ class Vector extends IndexedSequence {
   }
 
   static from(sequence) {
-    if (sequence && sequence.constructor === Vector) {
-      return sequence;
-    }
     if (!sequence || sequence.length === 0) {
       return Vector.empty();
+    }
+    if (sequence.constructor === Vector) {
+      return sequence;
     }
     var isArray = Array.isArray(sequence);
     if (sequence.length > 0 && sequence.length < SIZE) {
       return makeVector(0, sequence.length, SHIFT, EMPTY_VNODE, new VNode(
-        isArray ? sequence.slice() : Sequence(sequence).toArray()
+        isArray ? arrCopy(sequence) : Sequence(sequence).toArray()
       ));
     }
     if (!isArray) {

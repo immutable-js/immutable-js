@@ -22,13 +22,12 @@ class Map extends Sequence {
   // @pragma Construction
 
   constructor(sequence) {
-    if (sequence && sequence.constructor === Map) {
-      return sequence;
-    }
-    if (!sequence || sequence.length === 0) {
-      return Map.empty();
-    }
-    return Map.empty().merge(sequence);
+    var map = Map.empty();
+    return sequence ?
+      sequence.constructor === Map ?
+        sequence :
+        map.merge(sequence) :
+      map;
   }
 
   static empty() {

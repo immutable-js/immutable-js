@@ -26,13 +26,12 @@ class Set extends Sequence {
   }
 
   static from(sequence) {
-    if (sequence && sequence.constructor === Set) {
-      return sequence;
-    }
-    if (!sequence || sequence.length === 0) {
-      return Set.empty();
-    }
-    return Set.empty().union(sequence);
+    var set = Set.empty();
+    return sequence ?
+      sequence.constructor === Set ?
+        sequence :
+        set.union(sequence) :
+      set;
   }
 
   static fromKeys(sequence) {

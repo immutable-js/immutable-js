@@ -19,13 +19,12 @@ class OrderedMap extends Map {
   // @pragma Construction
 
   constructor(sequence) {
-    if (sequence && sequence.constructor === OrderedMap) {
-      return sequence;
-    }
-    if (!sequence || sequence.length === 0) {
-      return OrderedMap.empty();
-    }
-    return OrderedMap.empty().merge(sequence);
+    var map = OrderedMap.empty();
+    return sequence ?
+      sequence.constructor === OrderedMap ?
+        sequence :
+        map.merge(sequence) :
+      map;
   }
 
   static empty() {
