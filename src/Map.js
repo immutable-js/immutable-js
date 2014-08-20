@@ -194,15 +194,7 @@ class BitmapIndexedNode {
     }
 
     if (!exists && newNode && nodes.length >= MAX_BITMAP_SIZE) {
-      var count = 0;
-      var expandedNodes = [];
-      for (var ii = 0; bitmap !== 0; ii++, bitmap >>>= 1) {
-        if (bitmap & 1) {
-          expandedNodes[ii] = nodes[count++];
-        }
-      }
-      expandedNodes[hashFrag] = newNode;
-      return new ArrayNode(ownerID, count + 1, expandedNodes);
+      return expandNodes(ownerID, nodes, bitmap, idx, newNode);
     }
 
     if (exists && !newNode && nodes.length === 2 && isLeafNode(nodes[idx ^ 1])) {
@@ -214,21 +206,11 @@ class BitmapIndexedNode {
     }
 
     var isEditable = ownerID && ownerID === this.ownerID;
-    var newBitmap = bitmap;
-    var newNodes;
-
-    if (exists) {
-      if (newNode) {
-        newNodes = isEditable ? nodes : arrCopy(nodes);
-        newNodes[idx] = newNode;
-      } else {
-        newNodes = spliceOut(nodes, idx, isEditable);
-        newBitmap ^= bit;
-      }
-    } else {
-      newNodes = spliceIn(nodes, idx, newNode, isEditable);
-      newBitmap |= bit;
-    }
+    var newBitmap = exists ? newNode ? bitmap : bitmap ^ bit : bitmap | bit;
+    var newNodes = exists ? newNode ?
+      setIn(nodes, idx, newNode, isEditable) :
+      spliceOut(nodes, idx, isEditable) :
+      spliceIn(nodes, idx, newNode, isEditable);
 
     if (isEditable) {
       this.bitmap = newBitmap;
@@ -283,25 +265,15 @@ class ArrayNode {
       newCount++;
     } else if (!newNode) {
       newCount--;
-      if (newCount <= MIN_ARRAY_SIZE) {
-        var packedNodes = [];
-        var bitmap = 0;
-        for (var ii = 0, bit = 1, len = nodes.length; ii < len; ii++, bit <<= 1) {
-          var nodeII = nodes[ii];
-          if (ii !== idx && nodeII) {
-            packedNodes.push(nodeII);
-            bitmap |= bit;
-          }
-        }
-        return new BitmapIndexedNode(ownerID, bitmap, packedNodes);
+      if (newCount < MIN_ARRAY_SIZE) {
+        return packNodes(ownerID, nodes, newCount, idx);
       }
     }
 
     var isEditable = ownerID && ownerID === this.ownerID;
-    var newNodes = isEditable ? nodes : arrCopy(nodes);
-    newNodes[idx] = newNode;
+    var newNodes = setIn(nodes, idx, newNode, isEditable);
 
-    if (ownerID && ownerID === this.ownerID) {
+    if (isEditable) {
       this.count = newCount;
       this.nodes = newNodes;
       return this;
@@ -496,6 +468,33 @@ function mergeIntoNode(node, ownerID, shift, hash, entry) {
   return new BitmapIndexedNode(ownerID, (1 << idx1) | (1 << idx2), nodes);
 }
 
+function packNodes(ownerID, nodes, count, excluding) {
+  var bitmap = 0;
+  var packedII = 0;
+  var packedNodes = new Array(count);
+  for (var ii = 0, bit = 1, len = nodes.length; ii < len; ii++, bit <<= 1) {
+    var nodeII = nodes[ii];
+    if (nodeII != null && ii !== excluding) {
+      bitmap |= bit;
+      packedNodes[packedII++] = nodeII;
+
+    }
+  }
+  return new BitmapIndexedNode(ownerID, bitmap, packedNodes);
+}
+
+function expandNodes(ownerID, nodes, bitmap, including, node) {
+  var count = 0;
+  var expandedNodes = [];
+  for (var ii = 0; bitmap !== 0; ii++, bitmap >>>= 1) {
+    if (bitmap & 1) {
+      expandedNodes[ii] = nodes[count++];
+    }
+  }
+  expandedNodes[including] = node;
+  return new ArrayNode(ownerID, count + 1, expandedNodes);
+}
+
 function mergeIntoMapWith(map, merger, iterables) {
   var seqs = [];
   for (var ii = 0; ii < iterables.length; ii++) {
@@ -557,6 +556,12 @@ function popCount(x) {
   x = x + (x >> 8);
   x = x + (x >> 16);
   return x & 0x7f;
+}
+
+function setIn(array, idx, val, canEdit) {
+  var newArray = canEdit ? array : arrCopy(array);
+  newArray[idx] = val;
+  return newArray;
 }
 
 function spliceIn(array, idx, val, canEdit) {
