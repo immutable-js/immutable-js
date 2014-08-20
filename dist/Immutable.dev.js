@@ -1879,7 +1879,7 @@ var VectorIterator = function VectorIterator(vector, origin, size, level, root, 
             stack.rawIndex++;
             return {
               value: [index, value],
-              done: true
+              done: false
             };
           } else {
             stack.rawIndex++;

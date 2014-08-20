@@ -452,7 +452,7 @@ class VectorIterator {
           if (index >= 0 && index < stack.max && stack.node.hasOwnProperty(stack.rawIndex)) {
             var value = stack.node[stack.rawIndex];
             stack.rawIndex++;
-            return { value: [index, value], done: true };
+            return { value: [index, value], done: false };
           } else {
             stack.rawIndex++;
           }
