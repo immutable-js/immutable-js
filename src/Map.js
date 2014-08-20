@@ -610,7 +610,7 @@ function hashValue(o) {
   var type = typeof o;
   if (type === 'number') {
     if ((o | 0) === o) {
-      return o % HASH_MAX_VAL;
+      return o & HASH_MAX_VAL;
     }
     o = '' + o;
     type = 'string';
@@ -644,16 +644,16 @@ function hashString(string) {
   // The hash code for a string is computed as
   // s[0] * 31 ^ (n - 1) + s[1] * 31 ^ (n - 2) + ... + s[n - 1],
   // where s[i] is the ith character of the string and n is the length of
-  // the string. We mod the result to make it between 0 (inclusive) and 2^32
-  // (exclusive).
+  // the string. We "mod" the result to make it between 0 (inclusive) and 2^31
+  // (exclusive) by dropping high bits.
   var hash = 0;
   for (var ii = 0; ii < string.length; ii++) {
-    hash = (31 * hash + string.charCodeAt(ii)) % HASH_MAX_VAL;
+    hash = (31 * hash + string.charCodeAt(ii)) & HASH_MAX_VAL;
   }
   return hash;
 }
 
-var HASH_MAX_VAL = 0x100000000; // 2^32
+var HASH_MAX_VAL = 0x7FFFFFFF; // 2^31 - 1
 var STRING_HASH_CACHE_MIN_STRLEN = 16;
 var STRING_HASH_CACHE_MAX_SIZE = 255;
 var STRING_HASH_CACHE_SIZE = 0;

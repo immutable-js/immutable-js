@@ -1474,7 +1474,7 @@ function hashValue(o) {
   var type = typeof o;
   if (type === 'number') {
     if ((o | 0) === o) {
-      return o % HASH_MAX_VAL;
+      return o & HASH_MAX_VAL;
     }
     o = '' + o;
     type = 'string';
@@ -1503,11 +1503,11 @@ function cachedHashString(string) {
 function hashString(string) {
   var hash = 0;
   for (var ii = 0; ii < string.length; ii++) {
-    hash = (31 * hash + string.charCodeAt(ii)) % HASH_MAX_VAL;
+    hash = (31 * hash + string.charCodeAt(ii)) & HASH_MAX_VAL;
   }
   return hash;
 }
-var HASH_MAX_VAL = 0x100000000;
+var HASH_MAX_VAL = 0x7FFFFFFF;
 var STRING_HASH_CACHE_MIN_STRLEN = 16;
 var STRING_HASH_CACHE_MAX_SIZE = 255;
 var STRING_HASH_CACHE_SIZE = 0;
