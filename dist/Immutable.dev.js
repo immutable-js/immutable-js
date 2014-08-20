@@ -1394,17 +1394,20 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
   if (seqs.length === 0) {
     return collection;
   }
-  return collection.withMutations((function(collection) {
-    var mergeIntoMap = merger ? (function(value, key) {
-      var existing = collection.get(key, NOT_SET);
-      collection.set(key, existing === NOT_SET ? value : merger(existing, value));
-    }) : (function(value, key) {
-      collection.set(key, value);
-    });
-    for (var ii = 0; ii < seqs.length; ii++) {
-      seqs[ii].forEach(mergeIntoMap);
+  var didAlter = false;
+  var merged = collection.asMutable();
+  var mergeInto = (function(value, key) {
+    var existing = merged.get(key, NOT_SET);
+    merger && existing !== NOT_SET && (value = merger(existing, value));
+    if (existing !== value) {
+      didAlter = true;
+      merged.set(key, value);
     }
-  }));
+  });
+  for (var ii = 0; ii < seqs.length; ii++) {
+    seqs[ii].forEach(mergeInto);
+  }
+  return didAlter ? merged.__ensureOwner(collection.__ownerID) : collection;
 }
 function updateInDeepMap(collection, keyPath, updater, pathOffset) {
   var key = keyPath[pathOffset];
@@ -1994,7 +1997,7 @@ function mergeIntoVectorWith(vector, merger, iterables) {
   var seqs = [];
   for (var ii = 0; ii < iterables.length; ii++) {
     var seq = iterables[ii];
-    seq && seqs.push(seq.forEach ? seq : Sequence(seq));
+    seq && seqs.push(Sequence(seq));
   }
   var maxLength = Math.max.apply(null, seqs.map((function(s) {
     return s.length || 0;

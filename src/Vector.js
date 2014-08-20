@@ -613,7 +613,7 @@ function mergeIntoVectorWith(vector, merger, iterables) {
   var seqs = [];
   for (var ii = 0; ii < iterables.length; ii++) {
     var seq = iterables[ii];
-    seq && seqs.push(seq.forEach ? seq : Sequence(seq));
+    seq && seqs.push(Sequence(seq));
   }
   var maxLength = Math.max.apply(null, seqs.map(s => s.length || 0));
   if (maxLength > vector.length) {

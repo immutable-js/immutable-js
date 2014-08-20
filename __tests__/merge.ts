@@ -56,4 +56,11 @@ describe('merge', () => {
     ));
   })
 
+  it('returns self when a deep merges is a no-op', () => {
+    var m1 = I.fromJS({a:{b:{c:1,d:2}}});
+    expect(
+      m1.mergeDeep({a:{b:{c:1}}})
+    ).toBe(m1);
+  })
+
 })
