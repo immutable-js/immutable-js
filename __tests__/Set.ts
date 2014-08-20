@@ -93,6 +93,13 @@ describe('Set', () => {
     expect(s3.toArray()).toEqual(['a', 'b', 'c', 'd', 'wow']);
   });
 
+  it('returns self when union results in no-op', () => {
+    var s1 = Set('a', 'b', 'c');
+    var s2 = Set('c', 'a');
+    var s3 = s1.union(s2);
+    expect(s3).toBe(s1);
+  });
+
   it('is persistent to adds', () => {
     var s1 = Set();
     var s2 = s1.add('a');

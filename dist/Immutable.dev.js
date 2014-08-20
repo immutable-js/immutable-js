@@ -2074,15 +2074,19 @@ var $Set = Set;
     if (seqs.length === 0) {
       return this;
     }
-    return this.withMutations((function(set) {
-      for (var ii = 0; ii < seqs.length; ii++) {
-        var seq = seqs[ii];
-        seq = seq.forEach ? seq : Sequence(seq);
-        seq.forEach((function(value) {
-          return set.add(value);
-        }));
+    var didMutate = false;
+    var mutable = this.asMutable();
+    var mergeInto = (function(value) {
+      if (!mutable.has(value)) {
+        didMutate = true;
+        mutable.add(value);
       }
-    }));
+    });
+    for (var ii = 0; ii < seqs.length; ii++) {
+      var seq = seqs[ii];
+      seq && Sequence(seq).forEach(mergeInto);
+    }
+    return didMutate ? mutable.__ensureOwner(this.__ownerID) : this;
   },
   intersect: function() {
     for (var seqs = [],
@@ -2174,11 +2178,18 @@ var $Set = Set;
 }, Sequence);
 var SetPrototype = Set.prototype;
 SetPrototype.contains = SetPrototype.has;
-SetPrototype.withMutations = Map.prototype.withMutations;
-SetPrototype.asMutable = Map.prototype.asMutable;
-SetPrototype.asImmutable = Map.prototype.asImmutable;
-SetPrototype.__toJS = IndexedSequence.prototype.__toJS;
-SetPrototype.__toStringMapper = IndexedSequence.prototype.__toStringMapper;
+SetPrototype.mergeDeep = SetPrototype.merge = SetPrototype.union;
+SetPrototype.mergeDeepWith = SetPrototype.mergeWith = function(merger) {
+  for (var seqs = [],
+      $__12 = 1; $__12 < arguments.length; $__12++)
+    seqs[$__12 - 1] = arguments[$__12];
+  return this.merge.apply(this, seqs);
+};
+SetPrototype.withMutations = MapPrototype.withMutations;
+SetPrototype.asMutable = MapPrototype.asMutable;
+SetPrototype.asImmutable = MapPrototype.asImmutable;
+SetPrototype.__toJS = IndexedSequencePrototype.__toJS;
+SetPrototype.__toStringMapper = IndexedSequencePrototype.__toStringMapper;
 function makeSet(map, ownerID) {
   var set = Object.create(SetPrototype);
   set.length = map ? map.length : 0;

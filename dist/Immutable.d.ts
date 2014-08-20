@@ -1228,6 +1228,13 @@ declare module 'immutable' {
     clear(): Set<T>;
 
     /**
+     * Alias for `union`.
+     * @see `Map.prototype.merge`
+     */
+    merge(...sequences: Sequence<any, T>[]): Set<T>;
+    merge(...sequences: Array<T>[]): Set<T>;
+
+    /**
      * Returns a Set including any value from `sequences` that does not already
      * exist in this Set.
      */

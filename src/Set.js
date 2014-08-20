@@ -9,7 +9,7 @@
 
 import "Sequence"
 import "Map"
-/* global Sequence, IndexedSequence, Map */
+/* global Sequence, IndexedSequencePrototype, Map, MapPrototype */
 /* exported Set */
 
 
@@ -100,13 +100,22 @@ class Set extends Sequence {
     if (seqs.length === 0) {
       return this;
     }
-    return this.withMutations(set => {
-      for (var ii = 0; ii < seqs.length; ii++) {
-        var seq = seqs[ii];
-        seq = seq.forEach ? seq : Sequence(seq);
-        seq.forEach(value => set.add(value));
+
+    var didMutate = false;
+    var mutable = this.asMutable();
+    var mergeInto = value => {
+      if (!mutable.has(value)) {
+        didMutate = true;
+        mutable.add(value);
       }
-    });
+    };
+
+    for (var ii = 0; ii < seqs.length; ii++) {
+      var seq = seqs[ii];
+      seq && Sequence(seq).forEach(mergeInto);
+    }
+
+    return didMutate ? mutable.__ensureOwner(this.__ownerID) : this;
   }
 
   intersect(...seqs) {
@@ -175,11 +184,15 @@ class Set extends Sequence {
 
 var SetPrototype = Set.prototype;
 SetPrototype.contains = SetPrototype.has;
-SetPrototype.withMutations = Map.prototype.withMutations;
-SetPrototype.asMutable = Map.prototype.asMutable;
-SetPrototype.asImmutable = Map.prototype.asImmutable;
-SetPrototype.__toJS = IndexedSequence.prototype.__toJS;
-SetPrototype.__toStringMapper = IndexedSequence.prototype.__toStringMapper;
+SetPrototype.mergeDeep = SetPrototype.merge = SetPrototype.union;
+SetPrototype.mergeDeepWith = SetPrototype.mergeWith = function(merger, ...seqs) {
+  return this.merge.apply(this, seqs);
+};
+SetPrototype.withMutations = MapPrototype.withMutations;
+SetPrototype.asMutable = MapPrototype.asMutable;
+SetPrototype.asImmutable = MapPrototype.asImmutable;
+SetPrototype.__toJS = IndexedSequencePrototype.__toJS;
+SetPrototype.__toStringMapper = IndexedSequencePrototype.__toStringMapper;
 
 
 function makeSet(map, ownerID) {
