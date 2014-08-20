@@ -1816,40 +1816,34 @@ var $VNode = VNode;
     return editable;
   },
   iterate: function(level, offset, max, fn, reverse) {
+    var ii;
+    var array = this.array;
+    var maxII = array.length - 1;
     if (level === 0) {
-      if (reverse) {
-        for (var revRawIndex = this.array.length - 1; revRawIndex >= 0; revRawIndex--) {
-          if (this.array.hasOwnProperty(revRawIndex)) {
-            var index = revRawIndex + offset;
-            if (index >= 0 && index < max && fn(this.array[revRawIndex], index) === false) {
-              return false;
-            }
+      for (ii = 0; ii <= maxII; ii++) {
+        var rawIndex = reverse ? maxII - ii : ii;
+        if (array.hasOwnProperty(rawIndex)) {
+          var index = rawIndex + offset;
+          if (index >= 0 && index < max && fn(array[rawIndex], index) === false) {
+            return false;
           }
         }
-        return true;
-      } else {
-        return this.array.every((function(value, rawIndex) {
-          var index = rawIndex + offset;
-          return index < 0 || index >= max || fn(value, index) !== false;
-        }));
       }
-    }
-    var step = 1 << level;
-    var newLevel = level - SHIFT;
-    if (reverse) {
-      for (var revLevelIndex = this.array.length - 1; revLevelIndex >= 0; revLevelIndex--) {
-        var newOffset = offset + revLevelIndex * step;
-        if (newOffset < max && newOffset + step > 0 && this.array.hasOwnProperty(revLevelIndex) && !this.array[revLevelIndex].iterate(newLevel, newOffset, max, fn, reverse)) {
-          return false;
+    } else {
+      var step = 1 << level;
+      var newLevel = level - SHIFT;
+      for (ii = 0; ii <= maxII; ii++) {
+        var levelIndex = reverse ? maxII - ii : ii;
+        var newOffset = offset + levelIndex * step;
+        if (newOffset < max && newOffset + step > 0) {
+          var node = array[levelIndex];
+          if (node && !node.iterate(newLevel, newOffset, max, fn, reverse)) {
+            return false;
+          }
         }
       }
-      return true;
-    } else {
-      return this.array.every((function(newNode, levelIndex) {
-        var newOffset = offset + levelIndex * step;
-        return newOffset >= max || newOffset + step <= 0 || newNode.iterate(newLevel, newOffset, max, fn, reverse);
-      }));
     }
+    return true;
   }
 }, {});
 var VectorIterator = function VectorIterator(vector, origin, size, level, root, tail) {
