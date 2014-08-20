@@ -1736,7 +1736,7 @@ var $Vector = Vector;
   }
 }, IndexedSequence);
 var VectorPrototype = Vector.prototype;
-VectorPrototype['@@iterator'] = VectorPrototype.__iterator__;
+VectorPrototype['@@iterator'] = VectorPrototype.iterator;
 VectorPrototype.update = MapPrototype.update;
 VectorPrototype.updateIn = MapPrototype.updateIn;
 VectorPrototype.cursor = MapPrototype.cursor;
