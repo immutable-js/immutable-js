@@ -1540,68 +1540,10 @@ var $Vector = Vector;
     return this.get(this.length ? this.length - 1 : 0);
   },
   set: function(index, value) {
-    var tailOffset = getTailOffset(this._size);
-    if (index >= this.length) {
-      return this.withMutations((function(vect) {
-        return setVectorBounds(vect, 0, index + 1).set(index, value);
-      }));
-    }
-    if (this.get(index, NOT_SET) === value) {
-      return this;
-    }
-    index = rawIndex(index, this._origin);
-    if (index >= tailOffset) {
-      var newTail = this._tail.ensureOwner(this.__ownerID);
-      newTail.array[index & MASK] = value;
-      var newSize = index >= this._size ? index + 1 : this._size;
-      if (this.__ownerID) {
-        this.length = newSize - this._origin;
-        this._size = newSize;
-        this._tail = newTail;
-        return this;
-      }
-      return makeVector(this._origin, newSize, this._level, this._root, newTail);
-    }
-    var newRoot = this._root.ensureOwner(this.__ownerID);
-    var node = newRoot;
-    for (var level = this._level; level > 0; level -= SHIFT) {
-      var idx = (index >>> level) & MASK;
-      node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this.__ownerID) : new VNode([], this.__ownerID);
-    }
-    node.array[index & MASK] = value;
-    if (this.__ownerID) {
-      this._root = newRoot;
-      return this;
-    }
-    return makeVector(this._origin, this._size, this._level, newRoot, this._tail);
+    return updateVector(this, index, value);
   },
   delete: function(index) {
-    if (!this.has(index)) {
-      return this;
-    }
-    var tailOffset = getTailOffset(this._size);
-    index = rawIndex(index, this._origin);
-    if (index >= tailOffset) {
-      var newTail = this._tail.ensureOwner(this.__ownerID);
-      delete newTail.array[index & MASK];
-      if (this.__ownerID) {
-        this._tail = newTail;
-        return this;
-      }
-      return makeVector(this._origin, this._size, this._level, this._root, newTail);
-    }
-    var newRoot = this._root.ensureOwner(this.__ownerID);
-    var node = newRoot;
-    for (var level = this._level; level > 0; level -= SHIFT) {
-      var idx = (index >>> level) & MASK;
-      node = node.array[idx] = node.array[idx].ensureOwner(this.__ownerID);
-    }
-    delete node.array[index & MASK];
-    if (this.__ownerID) {
-      this._root = newRoot;
-      return this;
-    }
-    return makeVector(this._origin, this._size, this._level, newRoot, this._tail);
+    return updateVector(this, index, NOT_SET);
   },
   clear: function() {
     if (this.__ownerID) {
@@ -1910,6 +1852,40 @@ function makeVector(origin, size, level, root, tail, ownerID) {
   vect.__ownerID = ownerID;
   return vect;
 }
+function updateVector(vector, index, value) {
+  var deleted = value === NOT_SET;
+  if (!deleted && index >= vector.length) {
+    return vector.withMutations((function(vect) {
+      return setVectorBounds(vect, 0, index + 1).set(index, value);
+    }));
+  }
+  if (vector.get(index, NOT_SET) === value) {
+    return vector;
+  }
+  var tailOffset = getTailOffset(vector._size);
+  index = rawIndex(index, vector._origin);
+  if (index >= tailOffset) {
+    var newTail = vector._tail.ensureOwner(vector.__ownerID);
+    deleted ? (delete newTail.array[index & MASK]) : (newTail.array[index & MASK] = value);
+    if (vector.__ownerID) {
+      vector._tail = newTail;
+      return vector;
+    }
+    return makeVector(vector._origin, vector._size, vector._level, vector._root, newTail);
+  }
+  var newRoot = vector._root.ensureOwner(vector.__ownerID);
+  var node = newRoot;
+  for (var level = vector._level; level > 0; level -= SHIFT) {
+    var idx = (index >>> level) & MASK;
+    node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(vector.__ownerID) : new VNode([], vector.__ownerID);
+  }
+  deleted ? (delete node.array[index & MASK]) : (node.array[index & MASK] = value);
+  if (vector.__ownerID) {
+    vector._root = newRoot;
+    return vector;
+  }
+  return makeVector(vector._origin, vector._size, vector._level, newRoot, vector._tail);
+}
 function vectorNodeFor(vector, rawIndex) {
   if (rawIndex >= getTailOffset(vector._size)) {
     return vector._tail;
@@ -1940,7 +1916,7 @@ function setVectorBounds(vector, begin, end) {
   var newRoot = vector._root;
   var offsetShift = 0;
   while (newOrigin + offsetShift < 0) {
-    newRoot = new VNode(newRoot.array.length ? [, newRoot] : [], owner);
+    newRoot = new VNode(newRoot.array.length ? [null, newRoot] : [], owner);
     newLevel += SHIFT;
     offsetShift += 1 << newLevel;
   }

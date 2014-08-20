@@ -81,86 +81,12 @@ class Vector extends IndexedSequence {
 
   // @pragma Modification
 
-  // TODO: set and delete seem very similar.
-
   set(index, value) {
-    var tailOffset = getTailOffset(this._size);
-
-    if (index >= this.length) {
-      return this.withMutations(vect =>
-        setVectorBounds(vect, 0, index + 1).set(index, value)
-      );
-    }
-
-    if (this.get(index, NOT_SET) === value) {
-      return this;
-    }
-
-    index = rawIndex(index, this._origin);
-
-    // Fits within tail.
-    if (index >= tailOffset) {
-      var newTail = this._tail.ensureOwner(this.__ownerID);
-      newTail.array[index & MASK] = value;
-      var newSize = index >= this._size ? index + 1 : this._size;
-      if (this.__ownerID) {
-        this.length = newSize - this._origin;
-        this._size = newSize;
-        this._tail = newTail;
-        return this;
-      }
-      return makeVector(this._origin, newSize, this._level, this._root, newTail);
-    }
-
-    // Fits within existing tree.
-    var newRoot = this._root.ensureOwner(this.__ownerID);
-    var node = newRoot;
-    for (var level = this._level; level > 0; level -= SHIFT) {
-      var idx = (index >>> level) & MASK;
-      node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(this.__ownerID) : new VNode([], this.__ownerID);
-    }
-    node.array[index & MASK] = value;
-    if (this.__ownerID) {
-      this._root = newRoot;
-      return this;
-    }
-    return makeVector(this._origin, this._size, this._level, newRoot, this._tail);
+    return updateVector(this, index, value);
   }
 
   delete(index) {
-    // Out of bounds, no-op. Probably a more efficient way to do this...
-    if (!this.has(index)) {
-      return this;
-    }
-
-    var tailOffset = getTailOffset(this._size);
-    index = rawIndex(index, this._origin);
-
-    // Delete within tail.
-    if (index >= tailOffset) {
-      var newTail = this._tail.ensureOwner(this.__ownerID);
-      delete newTail.array[index & MASK];
-      if (this.__ownerID) {
-        this._tail = newTail;
-        return this;
-      }
-      return makeVector(this._origin, this._size, this._level, this._root, newTail);
-    }
-
-    // Fits within existing tree.
-    var newRoot = this._root.ensureOwner(this.__ownerID);
-    var node = newRoot;
-    for (var level = this._level; level > 0; level -= SHIFT) {
-      var idx = (index >>> level) & MASK;
-      // TODO: if we don't check "has" above, this could be null.
-      node = node.array[idx] = node.array[idx].ensureOwner(this.__ownerID);
-    }
-    delete node.array[index & MASK];
-    if (this.__ownerID) {
-      this._root = newRoot;
-      return this;
-    }
-    return makeVector(this._origin, this._size, this._level, newRoot, this._tail);
+    return updateVector(this, index, NOT_SET);
   }
 
   clear() {
@@ -382,8 +308,6 @@ class VNode {
   }
 
   iterate(level, offset, max, fn, reverse) {
-    // Note using every() gets us a speed-up of 2x on modern JS VMs, but means
-    // we cannot support IE8 without polyfill.
     var ii;
     var array = this.array;
     var maxII = array.length - 1;
@@ -499,6 +423,61 @@ function makeVector(origin, size, level, root, tail, ownerID) {
   return vect;
 }
 
+function updateVector(vector, index, value) {
+  var deleted = value === NOT_SET;
+
+  // If index is out of bounds, first get a correctly sized vector and
+  // then set.
+  // TODO: it might be faster to do this inline instead of requiring
+  // 2 operations.
+  if (!deleted && index >= vector.length) {
+    return vector.withMutations(vect =>
+      setVectorBounds(vect, 0, index + 1).set(index, value)
+    );
+  }
+
+  if (vector.get(index, NOT_SET) === value) {
+    return vector;
+  }
+
+  var tailOffset = getTailOffset(vector._size);
+  index = rawIndex(index, vector._origin);
+
+  // Fits within tail.
+  if (index >= tailOffset) {
+    var newTail = vector._tail.ensureOwner(vector.__ownerID);
+    deleted ?
+      (delete newTail.array[index & MASK]) :
+      (newTail.array[index & MASK] = value);
+    if (vector.__ownerID) {
+      vector._tail = newTail;
+      return vector;
+    }
+    return makeVector(vector._origin, vector._size, vector._level, vector._root, newTail);
+  }
+
+  // Fits within existing tree.
+  var newRoot = vector._root.ensureOwner(vector.__ownerID);
+  var node = newRoot;
+  for (var level = vector._level; level > 0; level -= SHIFT) {
+    var idx = (index >>> level) & MASK;
+    // TODO: if we don't check "get/has" above, this could be null in the
+    // deleted case and we could accidentically create a new branch. If that
+    // check becomes inline, this needs to change.
+    node = node.array[idx] = node.array[idx] ?
+      node.array[idx].ensureOwner(vector.__ownerID) :
+      new VNode([], vector.__ownerID);
+  }
+  deleted ?
+    (delete node.array[index & MASK]) :
+    (node.array[index & MASK] = value);
+  if (vector.__ownerID) {
+    vector._root = newRoot;
+    return vector;
+  }
+  return makeVector(vector._origin, vector._size, vector._level, newRoot, vector._tail);
+}
+
 function vectorNodeFor(vector, rawIndex) {
   if (rawIndex >= getTailOffset(vector._size)) {
     return vector._tail;
@@ -535,8 +514,7 @@ function setVectorBounds(vector, begin, end) {
   // New origin might require creating a higher root.
   var offsetShift = 0;
   while (newOrigin + offsetShift < 0) {
-    // TODO: why only ever shifting over by 1?
-    newRoot = new VNode(newRoot.array.length ? [,newRoot] : [], owner);
+    newRoot = new VNode(newRoot.array.length ? [null, newRoot] : [], owner);
     newLevel += SHIFT;
     offsetShift += 1 << newLevel;
   }
