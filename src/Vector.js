@@ -428,18 +428,18 @@ class VectorIterator {
 
   constructor(vector, origin, size, level, root, tail) {
     var tailOffset = getTailOffset(size);
-    this._stack = {
-      node: root.array,
-      level: level,
-      offset: -origin,
-      max: tailOffset - origin,
-      __prev: {
-        node: tail.array,
-        level: 0,
-        offset: tailOffset - origin,
-        max: size - origin
-      }
-    };
+    this._stack = iteratorFrame(
+      root.array,
+      level,
+      -origin,
+      tailOffset - origin,
+      iteratorFrame(
+        tail.array,
+        0,
+        tailOffset - origin,
+        size - origin
+      )
+    );
   }
 
   next() /*(number,T)*/ {
@@ -447,43 +447,53 @@ class VectorIterator {
     iteration: while (stack) {
       if (stack.level === 0) {
         stack.rawIndex || (stack.rawIndex = 0);
-        while (stack.rawIndex < stack.node.length) {
+        while (stack.rawIndex < stack.array.length) {
           var index = stack.rawIndex + stack.offset;
-          if (index >= 0 && index < stack.max && stack.node.hasOwnProperty(stack.rawIndex)) {
-            var value = stack.node[stack.rawIndex];
+          if (index >= 0 && index < stack.max && stack.array.hasOwnProperty(stack.rawIndex)) {
+            var value = stack.array[stack.rawIndex];
             stack.rawIndex++;
             return { value: [index, value], done: false };
-          } else {
-            stack.rawIndex++;
           }
+          stack.rawIndex++;
         }
       } else {
         var step = 1 << stack.level;
         stack.levelIndex || (stack.levelIndex = 0);
-        while (stack.levelIndex < stack.node.length) {
+        while (stack.levelIndex < stack.array.length) {
           var newOffset = stack.offset + stack.levelIndex * step;
-          if (newOffset + step > 0 && newOffset < stack.max && stack.node.hasOwnProperty(stack.levelIndex)) {
-            var newNode = stack.node[stack.levelIndex].array;
-            stack.levelIndex++;
-            stack = this._stack = {
-              node: newNode,
-              level: stack.level - SHIFT,
-              offset: newOffset,
-              max: stack.max,
-              __prev: stack
-            };
-            continue iteration;
-          } else {
-            stack.levelIndex++;
+          if (newOffset + step > 0 && newOffset < stack.max) {
+            var node = stack.array[stack.levelIndex];
+            if (node) {
+              stack.levelIndex++;
+              stack = this._stack = iteratorFrame(
+                node.array,
+                stack.level - SHIFT,
+                newOffset,
+                stack.max,
+                stack
+              );
+              continue iteration;
+            }
           }
+          stack.levelIndex++;
         }
       }
       stack = this._stack = this._stack.__prev;
     }
-    return { done: true };
+    return { value: undefined, done: true };
   }
 }
 
+
+function iteratorFrame(array, level, offset, max, prevFrame) {
+  return {
+    array: array,
+    level: level,
+    offset: offset,
+    max: max,
+    __prev: prevFrame
+  };
+}
 
 function makeVector(origin, size, level, root, tail, ownerID) {
   var vect = Object.create(VectorPrototype);
