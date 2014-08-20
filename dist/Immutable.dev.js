@@ -1360,21 +1360,19 @@ function packNodes(ownerID, nodes, count, excluding) {
   for (var ii = 0,
       bit = 1,
       len = nodes.length; ii < len; ii++, bit <<= 1) {
-    var nodeII = nodes[ii];
-    if (nodeII != null && ii !== excluding) {
+    var node = nodes[ii];
+    if (node != null && ii !== excluding) {
       bitmap |= bit;
-      packedNodes[packedII++] = nodeII;
+      packedNodes[packedII++] = node;
     }
   }
   return new BitmapIndexedNode(ownerID, bitmap, packedNodes);
 }
 function expandNodes(ownerID, nodes, bitmap, including, node) {
   var count = 0;
-  var expandedNodes = [];
+  var expandedNodes = new Array(SIZE);
   for (var ii = 0; bitmap !== 0; ii++, bitmap >>>= 1) {
-    if (bitmap & 1) {
-      expandedNodes[ii] = nodes[count++];
-    }
+    expandedNodes[ii] = bitmap & 1 ? nodes[count++] : null;
   }
   expandedNodes[including] = node;
   return new ArrayNode(ownerID, count + 1, expandedNodes);
