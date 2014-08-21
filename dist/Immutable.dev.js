@@ -935,7 +935,7 @@ var $Cursor = Cursor;
 ($traceurRuntime.createClass)(Cursor, {
   get: function(optKey, optNotFoundValue) {
     var deref = this._rootData.getIn(this._keyPath, Map.empty());
-    return optKey ? deref.get(optKey, optNotFoundValue) : deref;
+    return arguments.length ? deref.get(optKey, optNotFoundValue) : deref;
   },
   set: function(key, value) {
     return _updateCursor(this, (function(m) {

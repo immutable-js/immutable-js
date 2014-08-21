@@ -19,7 +19,7 @@ class Cursor {
 
   get(optKey, optNotFoundValue) {
     var deref = this._rootData.getIn(this._keyPath, Map.empty());
-    return optKey ? deref.get(optKey, optNotFoundValue) : deref;
+    return arguments.length ? deref.get(optKey, optNotFoundValue) : deref;
   }
 
   set(key, value) {
