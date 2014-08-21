@@ -330,12 +330,11 @@ Batching Mutations
 >
 > — Rich Hickey, Clojure
 
-There is a performance penalty paid every time you create a new immutable object
-via applying a mutation. If you need to apply a series of mutations
-`immutable` gives you the ability to create a temporary mutable copy of a
-collection and applying a batch of mutations in a highly performant manner by
-using `withMutations`. In fact, this is exactly how `immutable` applies
-complex mutations itself.
+Applying a mutation to create a new immutable object will result in a performance penalty.
+If you need to apply a series of mutations, `immutable` gives you the ability to create a
+temporary mutable copy of a collection and apply a batch of mutations in a highly
+performant manner by using `withMutations`. In fact, this is exactly how `immutable`
+applies complex mutations itself.
 
 As an example, this results in the creation of 2, not 4, new immutable Vectors.
 
