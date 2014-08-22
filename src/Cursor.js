@@ -12,8 +12,10 @@ import "Sequence"
 import "TrieUtils"
 /* global Map, Sequence, NOT_SET */
 
-class Cursor {
+class Cursor extends Sequence {
   constructor(rootData, keyPath, onChange) {
+    var value = rootData.getIn(keyPath);
+    this.length = value instanceof Sequence ? value.length : null;
     this._rootData = rootData;
     this._keyPath = keyPath;
     this._onChange = onChange;
@@ -66,6 +68,11 @@ class Cursor {
       this._keyPath ? this._keyPath.concat(subKeyPath) : subKeyPath,
       this._onChange
     );
+  }
+
+  __iterate() {
+    var value = this.deref();
+    return value && value.__iterate ? value.__iterate.apply(value, arguments) : 0;
   }
 }
 

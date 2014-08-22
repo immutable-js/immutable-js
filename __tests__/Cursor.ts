@@ -37,9 +37,24 @@ describe('Cursor', () => {
     var data = Immutable.fromJS(json);
     var cursor = data.cursor();
     var deepCursor = cursor.getIn(['a', 'b']);
-    expect(deepCursor.deref().toJS()).toEqual(json.a.b);
     expect(deepCursor.deref()).toBe(data.getIn(['a', 'b']));
-    expect(deepCursor.get('c')).toBe(1);
+  });
+
+  it('can be treated as a value', () => {
+    var data = Immutable.fromJS(json);
+    var cursor = data.cursor(['a', 'b']);
+    expect(cursor.toJS()).toEqual(json.a.b);
+    expect(cursor).toEqual(data.getIn(['a', 'b']));
+    expect(cursor.length).toBe(1);
+    expect(cursor.get('c')).toBe(1);
+  });
+
+  it('can be value compared to a primitive', () => {
+    var data = Immutable.Map({ a: 'A' });
+    var aCursor = data.cursor('a');
+    expect(aCursor.length).toBe(null);
+    expect(aCursor.deref()).toBe('A');
+    expect(Immutable.is(aCursor, 'A')).toBe(true);
   });
 
   it('updates at its path', () => {
@@ -85,7 +100,7 @@ describe('Cursor', () => {
     expect(onChange.mock.calls.length).toBe(3);
   });
 
-  it('has update shorthand', () => {
+  it('has map API for update shorthand', () => {
     var onChange = jest.genMockFunction();
 
     var data = Immutable.fromJS(json);
@@ -104,7 +119,17 @@ describe('Cursor', () => {
   });
 
   it('creates maps as necessary', () => {
-    //
+    var data = Immutable.Map();
+    var cursor = data.cursor(['a', 'b', 'c']);
+    expect(cursor.deref()).toBe(undefined);
+    cursor = cursor.set('d', 3);
+    expect(cursor.deref()).toEqual(Immutable.Map({d: 3}));
   });
+
+  it('has the sequence API', () => {
+    var data = Immutable.Map({a: 1, b: 2, c: 3});
+    var cursor = data.cursor();
+    expect(cursor.map(x => x * x)).toEqual(Immutable.Map({a: 1, b: 4, c: 9}));
+  })
 
 });

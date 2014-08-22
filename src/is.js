@@ -8,7 +8,8 @@
  */
 
 import "Sequence"
-/* global Sequence */
+import "Cursor"
+/* global Sequence, Cursor */
 /* exported is */
 
 
@@ -17,6 +18,12 @@ import "Sequence"
  * data, equal when the structure contains equivalent data.
  */
 function is(first, second) {
+  if (first instanceof Cursor) {
+    first = first.deref();
+  }
+  if (second instanceof Cursor) {
+    second = second.deref();
+  }
   if (first === second) {
     return first !== 0 || second !== 0 || 1 / first === 1 / second;
   }

@@ -910,22 +910,6 @@ function defaultComparator(a, b) {
 function assertNotInfinite(length) {
   invariant(length !== Infinity, 'Cannot perform this action with an infinite sequence.');
 }
-function is(first, second) {
-  if (first === second) {
-    return first !== 0 || second !== 0 || 1 / first === 1 / second;
-  }
-  if (first !== first) {
-    return second !== second;
-  }
-  if (first instanceof Sequence) {
-    return first.equals(second);
-  }
-  return false;
-}
-function invariant(condition, error) {
-  if (!condition)
-    throw new Error(error);
-}
 var SHIFT = 5;
 var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
@@ -940,6 +924,8 @@ function arrCopy(arr) {
   return newArr;
 }
 var Cursor = function Cursor(rootData, keyPath, onChange) {
+  var value = rootData.getIn(keyPath);
+  this.length = value instanceof Sequence ? value.length : null;
   this._rootData = rootData;
   this._keyPath = keyPath;
   this._onChange = onChange;
@@ -982,13 +968,39 @@ var $Cursor = Cursor;
       return this;
     }
     return new $Cursor(this._rootData, this._keyPath ? this._keyPath.concat(subKeyPath) : subKeyPath, this._onChange);
+  },
+  __iterate: function() {
+    var value = this.deref();
+    return value && value.__iterate ? value.__iterate.apply(value, arguments) : 0;
   }
-}, {});
+}, {}, Sequence);
 function _updateCursor(cursor, changeFn, changeKey) {
   var newRootData = cursor._rootData.updateIn(cursor._keyPath, changeKey ? Map.empty() : undefined, changeFn);
   var keyPath = cursor._keyPath || [];
   cursor._onChange && cursor._onChange.call(undefined, newRootData, cursor._rootData, changeKey ? keyPath.concat(changeKey) : keyPath);
   return new Cursor(newRootData, cursor._keyPath, cursor._onChange);
+}
+function is(first, second) {
+  if (first instanceof Cursor) {
+    first = first.deref();
+  }
+  if (second instanceof Cursor) {
+    second = second.deref();
+  }
+  if (first === second) {
+    return first !== 0 || second !== 0 || 1 / first === 1 / second;
+  }
+  if (first !== first) {
+    return second !== second;
+  }
+  if (first instanceof Sequence) {
+    return first.equals(second);
+  }
+  return false;
+}
+function invariant(condition, error) {
+  if (!condition)
+    throw new Error(error);
 }
 var Map = function Map(sequence) {
   var map = $Map.empty();

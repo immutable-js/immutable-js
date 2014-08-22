@@ -1516,7 +1516,7 @@ declare module 'immutable' {
    * @see Map.cursor
    */
 
-  export interface Cursor<T> {
+  export interface Cursor<T> extends Sequence<any, any> {
 
     /**
      * Returns the value at the cursor, if the cursor path does not yet exist,
