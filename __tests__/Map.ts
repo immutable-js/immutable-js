@@ -196,15 +196,40 @@ describe('Map', () => {
     expect(k.get(1)).toBe('b');
   });
 
-  check.it('has and gets', [gen.object(gen.int)], obj => {
+  check.it('works like an object', {maxSize: 50}, [gen.object(gen.JSONPrimitive)], obj => {
     var map = Immutable.Map.from(obj);
     Object.keys(obj).forEach(key => {
-      expect(map.has(key)).toBe(true);
       expect(map.get(key)).toBe(obj[key]);
+      expect(map.has(key)).toBe(true);
+    });
+    Object.keys(obj).forEach(key => {
+      expect(map.get(key)).toBe(obj[key]);
+      expect(map.has(key)).toBe(true);
+      map = map.delete(key);
+      expect(map.get(key)).toBe(undefined);
+      expect(map.has(key)).toBe(false);
     });
   });
 
-  check.it('deletes', {maxSize: 5000}, [gen.posInt], (len) => {
+  check.it('sets', {maxSize: 5000}, [gen.posInt], len => {
+    var map = Immutable.Map();
+    for (var ii = 0; ii < len; ii++) {
+      expect(map.length).toBe(ii);
+      map = map.set(''+ii, ii);
+    }
+    expect(map.length).toBe(len);
+    expect(Immutable.is(map.toSet(), Immutable.Range(0, len).toSet())).toBe(true);
+  });
+
+  check.it('has and get', {maxSize: 5000}, [gen.posInt], len => {
+    var map = Immutable.Range(0, len).mapKeys(x => ''+x).toMap();
+    for (var ii = 0; ii < len; ii++) {
+      expect(map.get(''+ii)).toBe(ii);
+      expect(map.has(''+ii)).toBe(true);
+    }
+  });
+
+  check.it('deletes', {maxSize: 5000}, [gen.posInt], len => {
     var map = Immutable.Range(0, len).toMap();
     for (var ii = 0; ii < len; ii++) {
       expect(map.length).toBe(len - ii);
@@ -214,7 +239,7 @@ describe('Map', () => {
     expect(map.toObject()).toEqual({});
   });
 
-  check.it('deletes from transient', {maxSize: 5000}, [gen.posInt], (len) => {
+  check.it('deletes from transient', {maxSize: 5000}, [gen.posInt], len => {
     var map = Immutable.Range(0, len).toMap().asMutable();
     for (var ii = 0; ii < len; ii++) {
       expect(map.length).toBe(len - ii);

@@ -196,7 +196,7 @@ class BitmapIndexedNode {
     }
 
     if (!exists && newNode && nodes.length >= MAX_BITMAP_SIZE) {
-      return expandNodes(ownerID, nodes, bitmap, idx, newNode);
+      return expandNodes(ownerID, nodes, bitmap, hashFrag, newNode);
     }
 
     if (exists && !newNode && nodes.length === 2 && isLeafNode(nodes[idx ^ 1])) {
