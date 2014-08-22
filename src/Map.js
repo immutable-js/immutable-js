@@ -56,8 +56,17 @@ class Map extends Sequence {
     return updateMap(this, k, NOT_SET);
   }
 
-  update(k, updater) {
-    return this.set(k, updater(this.get(k)));
+  update(k, notSetValue, updater) {
+    return this.updateIn([k], notSetValue, updater);
+  }
+
+  updateIn(keyPath, notSetValue, updater) {
+    if (!updater) {
+      [updater, notSetValue] = [notSetValue, updater];
+    }
+    return !keyPath || keyPath.length === 0 ?
+      updater(this) :
+      updateInDeepMap(this, keyPath, notSetValue, updater, 0);
   }
 
   clear() {
@@ -85,13 +94,6 @@ class Map extends Sequence {
 
   mergeDeepWith(merger, ...seqs) {
     return mergeIntoMapWith(this, deepMerger(merger), seqs);
-  }
-
-  updateIn(keyPath, updater) {
-    if (!keyPath || keyPath.length === 0) {
-      return updater(this);
-    }
-    return updateInDeepMap(this, keyPath, updater, 0);
   }
 
   cursor(keyPath, onChange) {
@@ -533,19 +535,21 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
   return didAlter ? merged.__ensureOwner(collection.__ownerID) : collection;
 }
 
-function updateInDeepMap(collection, keyPath, updater, pathOffset) {
+function updateInDeepMap(collection, keyPath, notSetValue, updater, pathOffset) {
   var key = keyPath[pathOffset];
-  var nested = collection.get ? collection.get(key, NOT_SET) : NOT_SET;
-  if (nested === NOT_SET) {
-    nested = Map.empty();
-  }
-  invariant(collection.set, 'updateIn with invalid keyPath');
-  return collection.set(
-    key,
-    ++pathOffset === keyPath.length ?
-      updater(nested) :
-      updateInDeepMap(nested, keyPath, updater, pathOffset)
-  );
+  var existing = collection.get ? collection.get(key, NOT_SET) : NOT_SET;
+  var exists = existing !== NOT_SET;
+  var value = ++pathOffset === keyPath.length ?
+    updater(exists ? existing : notSetValue) :
+    updateInDeepMap(
+      exists ? existing : Map.empty(),
+      keyPath,
+      notSetValue,
+      updater,
+      pathOffset
+    );
+  invariant(!existing || collection.set, 'updateIn with invalid keyPath');
+  return value === existing ? collection : collection.set(key, value);
 }
 
 function popCount(x) {

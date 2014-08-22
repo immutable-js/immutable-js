@@ -943,17 +943,19 @@ declare module 'immutable' {
 
     /**
      * Returns a new Map having updated the value at this `key` with the return
-     * value of calling `updater` with the existing value, or undefined if the
-     * key was not already set.
+     * value of calling `updater` with the existing value, or `notSetValue` if
+     * the key was not set.
      *
-     * Equivalent to: `map.set(key, updater(map.get(key)))`.
+     * Equivalent to: `map.set(key, updater(map.get(key, notSetValue)))`.
      */
     update(key: K, updater: (value: V) => V): Map<K, V>;
+    update(key: K, notSetValue: V, updater: (value: V) => V): Map<K, V>;
 
     /**
      * Returns a new Map having applied the `updater` to the entry found at the
-     * keyPath. If any keys in `keyPath` do not exist, a new immutable Map will be
-     * created at that key.
+     * keyPath. If any keys in `keyPath` do not exist, a new immutable Map will
+     * be created at that key. If the `keyPath` was not previously set,
+     * `updater` is called with `notSetValue` (if provided).
      *
      *     var data = Immutable.fromJS({ a: { b: { c: 10 } } });
      *     data.updateIn(['a', 'b'], map => map.set('d', 20));
@@ -962,6 +964,11 @@ declare module 'immutable' {
      */
     updateIn(
       keyPath: Array<any>,
+      updater: (value: any) => any
+    ): Map<K, V>;
+    updateIn(
+      keyPath: Array<any>,
+      notSetValue: any,
       updater: (value: any) => any
     ): Map<K, V>;
 
@@ -1393,19 +1400,25 @@ declare module 'immutable' {
 
 
     /**
-     * Returns a new Vector with an updated value at `index` with the return value
-     * of calling `updater` with the existing value, or undefined if `index` was
-     * not set.
+     * Returns a new Vector with an updated value at `index` with the return
+     * value of calling `updater` with the existing value, or `notSetValue` if
+     * `index` was not set.
      *
      * @see Map.update
      */
     update(index: number, updater: (value: T) => T): Vector<T>;
+    update(index: number, notSetValue: T, updater: (value: T) => T): Vector<T>;
 
     /**
      * @see `Map.prototype.updateIn`
      */
     updateIn(
       keyPath: Array<any>,
+      updater: (value: any) => any
+    ): Vector<T>;
+    updateIn(
+      keyPath: Array<any>,
+      notSetValue: any,
       updater: (value: any) => any
     ): Vector<T>;
 
@@ -1520,8 +1533,9 @@ declare module 'immutable' {
     get(key: any, notSetValue?: any): any;
 
     /**
-     * Updates the value in the data this cursor points to, triggering the callback
-     * for the root cursor and returning a new cursor pointing to the new data.
+     * Updates the value in the data this cursor points to, triggering the
+     * callback for the root cursor and returning a new cursor pointing to the
+     * new data.
      */
     update(updater: (value: T) => T): Cursor<T>;
 
@@ -1532,6 +1546,7 @@ declare module 'immutable' {
      * This is shorthand for `cursor.update(x => x.update(key, fn))`
      */
     update(key: any, updater: (value: any) => any): Cursor<T>;
+    update(key: any, notSetValue: any, updater: (value: any) => any): Cursor<T>;
 
     /**
      * Sets `value` at `key` in the cursor, returning a new cursor to the same

@@ -18,8 +18,10 @@ class Cursor {
   }
 
   get(optKey, optNotFoundValue) {
-    var deref = this._rootData.getIn(this._keyPath, Map.empty());
-    return arguments.length ? deref.get(optKey, optNotFoundValue) : deref;
+    var deref = this._rootData.getIn(this._keyPath);
+    return arguments.length === 0 ?
+      deref :
+      deref ? deref.get(optKey, optNotFoundValue) : optNotFoundValue;
   }
 
   set(key, value) {
@@ -30,15 +32,10 @@ class Cursor {
     return _updateCursor(this, m => m.delete(key), key);
   }
 
-  update(key, updater) {
-    var changeFn;
-    if (typeof key === 'function') {
-      changeFn = key;
-      key = undefined;
-    } else {
-      changeFn = x => x.update(key, updater);
-    }
-    return _updateCursor(this, changeFn, key);
+  update(key, notSetValue, updater) {
+    return arguments.length === 1 ?
+      _updateCursor(this, key) :
+      _updateCursor(this, map => map.update(key, notSetValue, updater), key);
   }
 
   cursor(subKeyPath) {
@@ -57,7 +54,11 @@ class Cursor {
 }
 
 function _updateCursor(cursor, changeFn, changeKey) {
-  var newRootData = cursor._rootData.updateIn(cursor._keyPath, changeFn);
+  var newRootData = cursor._rootData.updateIn(
+    cursor._keyPath,
+    changeKey ? Map.empty() : undefined,
+    changeFn
+  );
   var keyPath = cursor._keyPath || [];
   cursor._onChange && cursor._onChange.call(
     undefined,

@@ -66,7 +66,7 @@ describe('updateIn', () => {
   it('creates new maps if path contains gaps', () => {
     var m = I.fromJS({a: {b: {c: 10}}});
     expect(
-      m.updateIn(['a', 'z'], map => map.set('d', 20)).toJS()
+      m.updateIn(['a', 'z'], I.Map.empty(), map => map.set('d', 20)).toJS()
     ).toEqual(
       {a: {b: {c: 10}, z: {d: 20}}}
     );
@@ -75,7 +75,7 @@ describe('updateIn', () => {
   it('throws if path cannot be set', () => {
     var m = I.fromJS({a: {b: {c: 10}}});
     expect(() => {
-      m.updateIn(['a', 'b', 'c', 'd'], map => map.set('d', 20)).toJS()
+      m.updateIn(['a', 'b', 'c', 'd'], v => 20).toJS()
     }).toThrow();
   })
 

@@ -934,8 +934,8 @@ var Cursor = function Cursor(rootData, keyPath, onChange) {
 var $Cursor = Cursor;
 ($traceurRuntime.createClass)(Cursor, {
   get: function(optKey, optNotFoundValue) {
-    var deref = this._rootData.getIn(this._keyPath, Map.empty());
-    return arguments.length ? deref.get(optKey, optNotFoundValue) : deref;
+    var deref = this._rootData.getIn(this._keyPath);
+    return arguments.length === 0 ? deref : deref ? deref.get(optKey, optNotFoundValue) : optNotFoundValue;
   },
   set: function(key, value) {
     return _updateCursor(this, (function(m) {
@@ -947,17 +947,10 @@ var $Cursor = Cursor;
       return m.delete(key);
     }), key);
   },
-  update: function(key, updater) {
-    var changeFn;
-    if (typeof key === 'function') {
-      changeFn = key;
-      key = undefined;
-    } else {
-      changeFn = (function(x) {
-        return x.update(key, updater);
-      });
-    }
-    return _updateCursor(this, changeFn, key);
+  update: function(key, notSetValue, updater) {
+    return arguments.length === 1 ? _updateCursor(this, key) : _updateCursor(this, (function(map) {
+      return map.update(key, notSetValue, updater);
+    }), key);
   },
   cursor: function(subKeyPath) {
     if (subKeyPath && !Array.isArray(subKeyPath)) {
@@ -970,7 +963,7 @@ var $Cursor = Cursor;
   }
 }, {});
 function _updateCursor(cursor, changeFn, changeKey) {
-  var newRootData = cursor._rootData.updateIn(cursor._keyPath, changeFn);
+  var newRootData = cursor._rootData.updateIn(cursor._keyPath, changeKey ? Map.empty() : undefined, changeFn);
   var keyPath = cursor._keyPath || [];
   cursor._onChange && cursor._onChange.call(undefined, newRootData, cursor._rootData, changeKey ? keyPath.concat(changeKey) : keyPath);
   return new Cursor(newRootData, cursor._keyPath, cursor._onChange);
@@ -1006,8 +999,15 @@ var $Map = Map;
   delete: function(k) {
     return updateMap(this, k, NOT_SET);
   },
-  update: function(k, updater) {
-    return this.set(k, updater(this.get(k)));
+  update: function(k, notSetValue, updater) {
+    return this.updateIn([k], notSetValue, updater);
+  },
+  updateIn: function(keyPath, notSetValue, updater) {
+    var $__13;
+    if (!updater) {
+      ($__13 = [notSetValue, updater], updater = $__13[0], notSetValue = $__13[1], $__13);
+    }
+    return !keyPath || keyPath.length === 0 ? updater(this) : updateInDeepMap(this, keyPath, notSetValue, updater, 0);
   },
   clear: function() {
     if (this.__ownerID) {
@@ -1034,12 +1034,6 @@ var $Map = Map;
         $__5 = 1; $__5 < arguments.length; $__5++)
       seqs[$__5 - 1] = arguments[$__5];
     return mergeIntoMapWith(this, deepMerger(merger), seqs);
-  },
-  updateIn: function(keyPath, updater) {
-    if (!keyPath || keyPath.length === 0) {
-      return updater(this);
-    }
-    return updateInDeepMap(this, keyPath, updater, 0);
   },
   cursor: function(keyPath, onChange) {
     if (!onChange && typeof keyPath === 'function') {
@@ -1409,14 +1403,13 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
   }
   return didAlter ? merged.__ensureOwner(collection.__ownerID) : collection;
 }
-function updateInDeepMap(collection, keyPath, updater, pathOffset) {
+function updateInDeepMap(collection, keyPath, notSetValue, updater, pathOffset) {
   var key = keyPath[pathOffset];
-  var nested = collection.get ? collection.get(key, NOT_SET) : NOT_SET;
-  if (nested === NOT_SET) {
-    nested = Map.empty();
-  }
-  invariant(collection.set, 'updateIn with invalid keyPath');
-  return collection.set(key, ++pathOffset === keyPath.length ? updater(nested) : updateInDeepMap(nested, keyPath, updater, pathOffset));
+  var existing = collection.get ? collection.get(key, NOT_SET) : NOT_SET;
+  var exists = existing !== NOT_SET;
+  var value = ++pathOffset === keyPath.length ? updater(exists ? existing : notSetValue) : updateInDeepMap(exists ? existing : Map.empty(), keyPath, notSetValue, updater, pathOffset);
+  invariant(!existing || collection.set, 'updateIn with invalid keyPath');
+  return value === existing ? collection : collection.set(key, value);
 }
 function popCount(x) {
   x = x - ((x >> 1) & 0x55555555);

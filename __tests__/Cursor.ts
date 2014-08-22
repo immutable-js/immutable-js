@@ -30,7 +30,7 @@ describe('Cursor', () => {
     expect(leafCursor.get()).toBe(1);
 
     var missCursor = leafCursor.cursor('d');
-    expect(missCursor.get()).toBe(Immutable.Map.empty());
+    expect(missCursor.get()).toBe(undefined);
   });
 
   it('updates at its path', () => {
