@@ -88,7 +88,7 @@ module.exports = function(grunt) {
 
         var copyright = fs.readFileSync('resources/COPYRIGHT');
 
-        fs.writeFileSync(file.dest + '.dev.js', copyright + wrapped);
+        fs.writeFileSync(file.dest + '.js', copyright + wrapped);
 
         var result = uglify.minify(wrapped, {
           fromString: true,
@@ -106,7 +106,7 @@ module.exports = function(grunt) {
           reserved: ['module', 'define', 'Immutable']
         });
 
-        fs.writeFileSync(file.dest + '.js', copyright + result.code);
+        fs.writeFileSync(file.dest + '.min.js', copyright + result.code);
         done();
       });
     });
@@ -117,27 +117,34 @@ module.exports = function(grunt) {
 
   grunt.registerMultiTask('stats', function () {
     var done = this.async();
-    exec('cat dist/Immutable.dev.js | wc -c', function (error, out) {
+    exec('cat dist/Immutable.js | wc -c', function (error, out) {
       if (error) throw new Error(error);
       var rawBytes = parseInt(out);
-      console.log('Concatenated: ' +
-        (rawBytes + ' bytes').cyan
-      );
-      exec('cat dist/Immutable.js | wc -c', function (error, out) {
+      console.log('     Concatenated: ' +
+        (rawBytes + ' bytes').cyan);
+      exec('gzip -c dist/Immutable.js | wc -c', function (error, out) {
         if (error) throw new Error(error);
-        var minifiedBytes = parseInt(out);
-        var pctOfA = Math.floor(10000 * (1 - (minifiedBytes / rawBytes))) / 100;
-        console.log('    Minified: ' +
-          (minifiedBytes + ' bytes').cyan + ' ' +
+        var zippedBytes = parseInt(out);
+        var pctOfA = Math.floor(10000 * (1 - (zippedBytes / rawBytes))) / 100;
+        console.log('       Compressed: ' +
+          (zippedBytes + ' bytes').cyan + ' ' +
           (pctOfA + '%').green);
-        exec('gzip -c dist/Immutable.js | wc -c', function (error, out) {
+        exec('cat dist/Immutable.min.js | wc -c', function (error, out) {
           if (error) throw new Error(error);
-          var zippedBytes = parseInt(out);
-          var pctOfA = Math.floor(10000 * (1 - (zippedBytes / rawBytes))) / 100;
-          console.log('  Compressed: ' +
-            (zippedBytes + ' bytes').cyan + ' ' +
+          var minifiedBytes = parseInt(out);
+          var pctOfA = Math.floor(10000 * (1 - (minifiedBytes / rawBytes))) / 100;
+          console.log('         Minified: ' +
+            (minifiedBytes + ' bytes').cyan + ' ' +
             (pctOfA + '%').green);
-          done();
+          exec('gzip -c dist/Immutable.min.js | wc -c', function (error, out) {
+            if (error) throw new Error(error);
+            var zippedMinBytes = parseInt(out);
+            var pctOfA = Math.floor(10000 * (1 - (zippedMinBytes / rawBytes))) / 100;
+            console.log('  Min\'d & Cmprs\'d: ' +
+              (zippedMinBytes + ' bytes').cyan + ' ' +
+              (pctOfA + '%').green);
+            done();
+          })
         })
       })
     })

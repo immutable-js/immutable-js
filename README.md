@@ -31,12 +31,12 @@ var map = Immutable.Map({a:1, b:2, c:3});
 
 ### Browser
 
-To use `immutable` from a browser, download [dist/Immutable.js](./dist/Immutable.js).
+To use `immutable` from a browser, download [dist/Immutable.min.js](./dist/Immutable.min.js).
 
 Then, add it as a script tag to your page:
 
 ```html
-<script src="Immutable.js"></script>
+<script src="Immutable.min.js"></script>
 <script>
     var map = Immutable.Map({a:1, b:2, c:3});
     map = map.set('b', 20);
