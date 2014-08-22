@@ -196,6 +196,14 @@ describe('Map', () => {
     expect(k.get(1)).toBe('b');
   });
 
+  check.it('has and gets', [gen.object(gen.int)], obj => {
+    var map = Immutable.Map.from(obj);
+    Object.keys(obj).forEach(key => {
+      expect(map.has(key)).toBe(true);
+      expect(map.get(key)).toBe(obj[key]);
+    });
+  });
+
   check.it('deletes', {maxSize: 5000}, [gen.posInt], (len) => {
     var map = Immutable.Range(0, len).toMap();
     for (var ii = 0; ii < len; ii++) {
