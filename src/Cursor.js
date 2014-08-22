@@ -8,7 +8,9 @@
  */
 
 import "Map"
-/* global Map */
+import "Sequence"
+import "TrieUtils"
+/* global Map, Sequence, NOT_SET */
 
 class Cursor {
   constructor(rootData, keyPath, onChange) {
@@ -19,9 +21,16 @@ class Cursor {
 
   get(optKey, optNotFoundValue) {
     var deref = this._rootData.getIn(this._keyPath);
-    return arguments.length === 0 ?
-      deref :
-      deref ? deref.get(optKey, optNotFoundValue) : optNotFoundValue;
+    if (arguments.length === 0) {
+      return deref;
+    }
+    if (!deref) {
+      return optNotFoundValue;
+    }
+    var value = deref.get(optKey, NOT_SET);
+    return value === NOT_SET ? optNotFoundValue :
+      value instanceof Sequence ? this.cursor([optKey]) :
+      value;
   }
 
   set(key, value) {

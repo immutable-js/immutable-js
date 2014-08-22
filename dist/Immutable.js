@@ -926,6 +926,19 @@ function invariant(condition, error) {
   if (!condition)
     throw new Error(error);
 }
+var SHIFT = 5;
+var SIZE = 1 << SHIFT;
+var MASK = SIZE - 1;
+var NOT_SET = {};
+function OwnerID() {}
+function arrCopy(arr) {
+  var len = arr.length;
+  var newArr = new Array(len);
+  for (var ii = 0; ii < len; ii++) {
+    newArr[ii] = arr[ii];
+  }
+  return newArr;
+}
 var Cursor = function Cursor(rootData, keyPath, onChange) {
   this._rootData = rootData;
   this._keyPath = keyPath;
@@ -935,7 +948,14 @@ var $Cursor = Cursor;
 ($traceurRuntime.createClass)(Cursor, {
   get: function(optKey, optNotFoundValue) {
     var deref = this._rootData.getIn(this._keyPath);
-    return arguments.length === 0 ? deref : deref ? deref.get(optKey, optNotFoundValue) : optNotFoundValue;
+    if (arguments.length === 0) {
+      return deref;
+    }
+    if (!deref) {
+      return optNotFoundValue;
+    }
+    var value = deref.get(optKey, NOT_SET);
+    return value === NOT_SET ? optNotFoundValue : value instanceof Sequence ? this.cursor([optKey]) : value;
   },
   set: function(key, value) {
     return _updateCursor(this, (function(m) {
@@ -967,19 +987,6 @@ function _updateCursor(cursor, changeFn, changeKey) {
   var keyPath = cursor._keyPath || [];
   cursor._onChange && cursor._onChange.call(undefined, newRootData, cursor._rootData, changeKey ? keyPath.concat(changeKey) : keyPath);
   return new Cursor(newRootData, cursor._keyPath, cursor._onChange);
-}
-var SHIFT = 5;
-var SIZE = 1 << SHIFT;
-var MASK = SIZE - 1;
-var NOT_SET = {};
-function OwnerID() {}
-function arrCopy(arr) {
-  var len = arr.length;
-  var newArr = new Array(len);
-  for (var ii = 0; ii < len; ii++) {
-    newArr[ii] = arr[ii];
-  }
-  return newArr;
 }
 var Map = function Map(sequence) {
   var map = $Map.empty();
@@ -1405,9 +1412,10 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
 }
 function updateInDeepMap(collection, keyPath, notSetValue, updater, pathOffset) {
   var key = keyPath[pathOffset];
-  var existing = collection.get ? collection.get(key, NOT_SET) : NOT_SET;
-  var exists = existing !== NOT_SET;
-  var value = ++pathOffset === keyPath.length ? updater(exists ? existing : notSetValue) : updateInDeepMap(exists ? existing : Map.empty(), keyPath, notSetValue, updater, pathOffset);
+  var isLastKey = ++pathOffset === keyPath.length;
+  var notSet = isLastKey ? notSetValue : Map.empty();
+  var existing = collection.get ? collection.get(key, notSet) : notSet;
+  var value = isLastKey ? updater(existing) : updateInDeepMap(existing, keyPath, notSetValue, updater, pathOffset);
   invariant(!existing || collection.set, 'updateIn with invalid keyPath');
   return value === existing ? collection : collection.set(key, value);
 }

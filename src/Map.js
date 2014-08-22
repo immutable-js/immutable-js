@@ -537,17 +537,12 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
 
 function updateInDeepMap(collection, keyPath, notSetValue, updater, pathOffset) {
   var key = keyPath[pathOffset];
-  var existing = collection.get ? collection.get(key, NOT_SET) : NOT_SET;
-  var exists = existing !== NOT_SET;
-  var value = ++pathOffset === keyPath.length ?
-    updater(exists ? existing : notSetValue) :
-    updateInDeepMap(
-      exists ? existing : Map.empty(),
-      keyPath,
-      notSetValue,
-      updater,
-      pathOffset
-    );
+  var isLastKey = ++pathOffset === keyPath.length;
+  var notSet = isLastKey ? notSetValue : Map.empty();
+  var existing = collection.get ? collection.get(key, notSet) : notSet;
+  var value = isLastKey ?
+    updater(existing) :
+    updateInDeepMap(existing, keyPath, notSetValue, updater, pathOffset);
   invariant(!existing || collection.set, 'updateIn with invalid keyPath');
   return value === existing ? collection : collection.set(key, value);
 }

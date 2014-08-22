@@ -1528,7 +1528,7 @@ declare module 'immutable' {
      * Returns the value at the `key` in the cursor, or `notSetValue` if it
      * does not exist.
      *
-     * This is shorthand for `cursor.get().get(key)`
+     * If the key would return a collection, a new Cursor is returned.
      */
     get(key: any, notSetValue?: any): any;
 
