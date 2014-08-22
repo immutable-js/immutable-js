@@ -1520,17 +1520,25 @@ declare module 'immutable' {
 
     /**
      * Returns the value at the cursor, if the cursor path does not yet exist,
-     * an empty map (matching the behavior of update).
+     * returns `notSetValue`.
      */
-    get(): T;
+    deref(notSetValue?: T): T;
 
     /**
      * Returns the value at the `key` in the cursor, or `notSetValue` if it
      * does not exist.
      *
-     * This is shorthand for `cursor.get().get(key)`
+     * If the key would return a collection, a new Cursor is returned.
      */
     get(key: any, notSetValue?: any): any;
+
+    /**
+     * Returns the value at the `keyPath` in the cursor, or `notSetValue` if it
+     * does not exist.
+     *
+     * If the keyPath would return a collection, a new Cursor is returned.
+     */
+    getIn(keyPath: Array<any>, notSetValue?: any): any;
 
     /**
      * Updates the value in the data this cursor points to, triggering the

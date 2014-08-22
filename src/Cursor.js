@@ -19,17 +19,24 @@ class Cursor {
     this._onChange = onChange;
   }
 
-  get(optKey, optNotFoundValue) {
-    var deref = this._rootData.getIn(this._keyPath);
-    if (arguments.length === 0) {
-      return deref;
+  deref(notSetValue) {
+    return this._rootData.getIn(this._keyPath, notSetValue);
+  }
+
+  get(key, notSetValue) {
+    return this.getIn([key], notSetValue);
+  }
+
+  getIn(keyPath, notSetValue) {
+    if (!keyPath || !keyPath.length) {
+      return this;
     }
-    if (!deref) {
-      return optNotFoundValue;
-    }
-    var value = deref.get(optKey, NOT_SET);
-    return value === NOT_SET ? optNotFoundValue :
-      value instanceof Sequence ? this.cursor([optKey]) :
+    var value = this._rootData.getIn(
+      (this._keyPath || []).concat(keyPath),
+      NOT_SET
+    );
+    return value === NOT_SET ? notSetValue :
+      value instanceof Sequence ? this.cursor(keyPath) :
       value;
   }
 

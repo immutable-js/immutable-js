@@ -946,16 +946,18 @@ var Cursor = function Cursor(rootData, keyPath, onChange) {
 };
 var $Cursor = Cursor;
 ($traceurRuntime.createClass)(Cursor, {
-  get: function(optKey, optNotFoundValue) {
-    var deref = this._rootData.getIn(this._keyPath);
-    if (arguments.length === 0) {
-      return deref;
+  deref: function(notSetValue) {
+    return this._rootData.getIn(this._keyPath, notSetValue);
+  },
+  get: function(key, notSetValue) {
+    return this.getIn([key], notSetValue);
+  },
+  getIn: function(keyPath, notSetValue) {
+    if (!keyPath || !keyPath.length) {
+      return this;
     }
-    if (!deref) {
-      return optNotFoundValue;
-    }
-    var value = deref.get(optKey, NOT_SET);
-    return value === NOT_SET ? optNotFoundValue : value instanceof Sequence ? this.cursor([optKey]) : value;
+    var value = this._rootData.getIn((this._keyPath || []).concat(keyPath), NOT_SET);
+    return value === NOT_SET ? notSetValue : value instanceof Sequence ? this.cursor(keyPath) : value;
   },
   set: function(key, value) {
     return _updateCursor(this, (function(m) {

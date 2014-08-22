@@ -310,9 +310,9 @@ var cursor = data.cursor(['a', 'b', 'c'], (newData) => {
 
 // ... elsewhere ...
 
-cursor.get(); // 1
+cursor.deref(); // 1
 cursor = cursor.update(x => x + 1);
-cursor.get(); // 2
+cursor.deref(); // 2
 
 // ... back to data ...
 
