@@ -195,12 +195,12 @@ class Vector extends IndexedSequence {
     var tailOffset = getTailOffset(this._size);
     if (reverse) {
       didComplete =
-        this._tail.iterate(0, tailOffset - this._origin, this._size - this._origin, eachFn, reverse) &&
-        this._root.iterate(this._level, -this._origin, tailOffset - this._origin, eachFn, reverse);
+        iterateVNode(this._tail, 0, tailOffset - this._origin, this._size - this._origin, eachFn, reverse) &&
+        iterateVNode(this._root, this._level, -this._origin, tailOffset - this._origin, eachFn, reverse);
     } else {
       didComplete =
-        this._root.iterate(this._level, -this._origin, tailOffset - this._origin, eachFn, reverse) &&
-        this._tail.iterate(0, tailOffset - this._origin, this._size - this._origin, eachFn, reverse);
+        iterateVNode(this._root, this._level, -this._origin, tailOffset - this._origin, eachFn, reverse) &&
+        iterateVNode(this._tail, 0, tailOffset - this._origin, this._size - this._origin, eachFn, reverse);
     }
     return (didComplete ? maxIndex : reverse ? maxIndex - lastIndex : lastIndex) + 1;
   }
@@ -305,10 +305,12 @@ class VNode {
     }
     return editable;
   }
+}
 
-  iterate(level, offset, max, fn, reverse) {
+function iterateVNode(node, level, offset, max, fn, reverse) {
+  if (node) {
     var ii;
-    var array = this.array;
+    var array = node.array;
     var maxII = array.length - 1;
     if (level === 0) {
       for (ii = 0; ii <= maxII; ii++) {
@@ -327,15 +329,15 @@ class VNode {
         var levelIndex = reverse ? maxII - ii : ii;
         var newOffset = offset + levelIndex * step;
         if (newOffset < max && newOffset + step > 0) {
-          var node = array[levelIndex];
-          if (node && !node.iterate(newLevel, newOffset, max, fn, reverse)) {
+          var nextNode = array[levelIndex];
+          if (nextNode && !iterateVNode(nextNode, newLevel, newOffset, max, fn, reverse)) {
             return false;
           }
         }
       }
     }
-    return true;
   }
+  return true;
 }
 
 class VectorIterator {
