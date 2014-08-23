@@ -242,13 +242,6 @@ class VNode {
     this.ownerID = ownerID;
   }
 
-  ensureOwner(ownerID) {
-    if (ownerID && ownerID === this.ownerID) {
-      return this;
-    }
-    return new VNode(this.array.slice(), ownerID);
-  }
-
   // TODO: seems like these methods are very similar
 
   removeBefore(ownerID, level, index) {
@@ -271,7 +264,7 @@ class VNode {
     if (removingFirst && !newChild) {
       return this;
     }
-    var editable = this.ensureOwner();
+    var editable = editableVNode(this, ownerID);
     if (!removingFirst) {
       for (var ii = 0; ii < originIndex; ii++) {
         delete editable.array[ii];
@@ -303,7 +296,7 @@ class VNode {
     if (removingLast && !newChild) {
       return this;
     }
-    var editable = this.ensureOwner();
+    var editable = editableVNode(this, ownerID);
     if (!removingLast) {
       editable.array.length = sizeIndex + 1;
     }
@@ -344,7 +337,6 @@ class VNode {
     return true;
   }
 }
-
 
 class VectorIterator {
 
@@ -463,7 +455,7 @@ function updateVector(vector, index, value) {
 
 function updateVNode(node, ownerID, level, index, value, didAlter) {
   var deleted = value === NOT_SET;
-  // var newNode;
+  var newNode;
   var idx = (index >>> level) & MASK;
   var nodeHas = node && idx < node.array.length && node.array.hasOwnProperty(idx);
   if (deleted && !nodeHas) {
@@ -476,7 +468,7 @@ function updateVNode(node, ownerID, level, index, value, didAlter) {
     if (newLowerNode === lowerNode) {
       return node;
     }
-    newNode = node ? node.ensureOwner(ownerID) : new VNode([], ownerID);
+    newNode = editableVNode(node, ownerID);
     newNode.array[idx] = newLowerNode;
     return newNode;
   }
@@ -487,11 +479,18 @@ function updateVNode(node, ownerID, level, index, value, didAlter) {
 
   SetRef(didAlter);
 
-  var newNode = node ? node.ensureOwner(ownerID) : new VNode([], ownerID);
+  newNode = editableVNode(node, ownerID);
   deleted ?
     (delete newNode.array[idx]) :
     (newNode.array[idx] = value);
   return newNode;
+}
+
+function editableVNode(node, ownerID) {
+  if (ownerID && node && ownerID === node.ownerID) {
+    return node;
+  }
+  return new VNode(node ? node.array.slice() : [], ownerID);
 }
 
 function vectorNodeFor(vector, rawIndex) {
@@ -558,11 +557,11 @@ function setVectorBounds(vector, begin, end) {
 
   // Merge Tail into tree.
   if (newTailOffset > oldTailOffset && newOrigin < oldSize && oldTail.array.length) {
-    newRoot = newRoot.ensureOwner(owner);
+    newRoot = editableVNode(newRoot, owner);
     var node = newRoot;
     for (var level = newLevel; level > SHIFT; level -= SHIFT) {
       var idx = (oldTailOffset >>> level) & MASK;
-      node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(owner) : new VNode([], owner);
+      node = node.array[idx] = editableVNode(node.array[idx], owner);
     }
     node.array[(oldTailOffset >>> SHIFT) & MASK] = oldTail;
   }
