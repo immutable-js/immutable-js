@@ -13,7 +13,8 @@ import "invariant"
 import "Cursor"
 import "TrieUtils"
 /* global Sequence, is, invariant, Cursor,
-          SIZE, SHIFT, MASK, NOT_SET, OwnerID, arrCopy */
+          SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
+          MakeRef, SetRef, arrCopy */
 /* exported Map, MapPrototype */
 
 
@@ -426,18 +427,6 @@ class ValueNode {
   iterate(fn) {
     return fn(this.entry);
   }
-}
-
-var CHANGE_LENGTH = {value: false};
-var DID_ALTER = {value: false};
-
-function MakeRef(ref) {
-  ref.value = false;
-  return ref;
-}
-
-function SetRef(ref) {
-  ref && (ref.value = true);
 }
 
 function makeMap(length, root, ownerID) {

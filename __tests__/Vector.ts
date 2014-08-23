@@ -191,6 +191,24 @@ describe('Vector', () => {
         v = v.pop();
         a.pop();
       }
+      expect(v.length).toBe(a.length);
+      expect(v.toArray()).toEqual(a);
+    }
+  );
+
+  check.it('push adds the next highest index, just like array', {maxSize: 2000},
+    [gen.posInt], len => {
+      var a = [];
+      var v = Vector();
+
+      for (var ii = 0; ii < len; ii++) {
+        expect(v.length).toBe(a.length);
+        expect(v.toArray()).toEqual(a);
+        v = v.push(ii);
+        a.push(ii);
+      }
+      expect(v.length).toBe(a.length);
+      expect(v.toArray()).toEqual(a);
     }
   );
 

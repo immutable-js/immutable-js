@@ -914,6 +914,15 @@ var SHIFT = 5;
 var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
 var NOT_SET = {};
+var CHANGE_LENGTH = {value: false};
+var DID_ALTER = {value: false};
+function MakeRef(ref) {
+  ref.value = false;
+  return ref;
+}
+function SetRef(ref) {
+  ref && (ref.value = true);
+}
 function OwnerID() {}
 function arrCopy(arr) {
   var len = arr.length;
@@ -1334,15 +1343,6 @@ var $ValueNode = ValueNode;
     return fn(this.entry);
   }
 }, {});
-var CHANGE_LENGTH = {value: false};
-var DID_ALTER = {value: false};
-function MakeRef(ref) {
-  ref.value = false;
-  return ref;
-}
-function SetRef(ref) {
-  ref && (ref.value = true);
-}
 function makeMap(length, root, ownerID) {
   var map = Object.create(MapPrototype);
   map.length = length;
@@ -1897,51 +1897,55 @@ function makeVector(origin, size, level, root, tail, ownerID) {
   return vect;
 }
 function updateVector(vector, index, value) {
-  var deleted = value === NOT_SET;
   if (index >= vector.length) {
-    return deleted ? vector : vector.withMutations((function(vect) {
-      return setVectorBounds(vect, 0, index + 1).set(index, value);
+    return value === NOT_SET ? vector : vector.withMutations((function(vect) {
+      setVectorBounds(vect, 0, index + 1).set(index, value);
     }));
   }
-  var tailOffset = getTailOffset(vector._size);
   index = rawIndex(index, vector._origin);
-  if (index >= tailOffset) {
-    var tailHas = vector._tail.array.hasOwnProperty(index & MASK);
-    if (deleted ? !tailHas : tailHas && vector._tail.array[index & MASK] === value) {
-      return vector;
-    }
-    var newTail = vector._tail.ensureOwner(vector.__ownerID);
-    deleted ? (delete newTail.array[index & MASK]) : (newTail.array[index & MASK] = value);
-    if (vector.__ownerID) {
-      vector._tail = newTail;
-      vector.__altered = true;
-      return vector;
-    }
-    return makeVector(vector._origin, vector._size, vector._level, vector._root, newTail);
+  var newTail = vector._tail;
+  var newRoot = vector._root;
+  var didAlter = MakeRef(DID_ALTER);
+  if (index >= getTailOffset(vector._size)) {
+    newTail = updateVNode(newTail, vector.__ownerID, 0, index, value, didAlter);
+  } else {
+    newRoot = updateVNode(newRoot, vector.__ownerID, vector._level, index, value, didAlter);
   }
-  var newRoot = vector._root.ensureOwner(vector.__ownerID);
-  var node = newRoot;
-  for (var level = vector._level; level > 0; level -= SHIFT) {
-    var idx = (index >>> level) & MASK;
-    if (deleted && !node.array[idx]) {
-      return vector;
-    }
-    node = node.array[idx] = node.array[idx] ? node.array[idx].ensureOwner(vector.__ownerID) : new VNode([], vector.__ownerID);
-    if (deleted && !node) {
-      return vector;
-    }
-  }
-  var nodeHas = node.array.hasOwnProperty(index & MASK);
-  if (deleted ? !nodeHas : nodeHas && node.array[index & MASK] === value) {
+  if (!didAlter.value) {
     return vector;
   }
-  deleted ? (delete node.array[index & MASK]) : (node.array[index & MASK] = value);
   if (vector.__ownerID) {
     vector._root = newRoot;
+    vector._tail = newTail;
     vector.__altered = true;
     return vector;
   }
-  return makeVector(vector._origin, vector._size, vector._level, newRoot, vector._tail);
+  return makeVector(vector._origin, vector._size, vector._level, newRoot, newTail);
+}
+function updateVNode(node, ownerID, level, index, value, didAlter) {
+  var deleted = value === NOT_SET;
+  var idx = (index >>> level) & MASK;
+  var nodeHas = node && idx < node.array.length && node.array.hasOwnProperty(idx);
+  if (deleted && !nodeHas) {
+    return node;
+  }
+  if (level > 0) {
+    var lowerNode = node && node.array[idx];
+    var newLowerNode = updateVNode(lowerNode, ownerID, level - SHIFT, index, value, didAlter);
+    if (newLowerNode === lowerNode) {
+      return node;
+    }
+    newNode = node ? node.ensureOwner(ownerID) : new VNode([], ownerID);
+    newNode.array[idx] = newLowerNode;
+    return newNode;
+  }
+  if (!deleted && nodeHas && node.array[idx] === value) {
+    return node;
+  }
+  SetRef(didAlter);
+  var newNode = node ? node.ensureOwner(ownerID) : new VNode([], ownerID);
+  deleted ? (delete newNode.array[idx]) : (newNode.array[idx] = value);
+  return newNode;
 }
 function vectorNodeFor(vector, rawIndex) {
   if (rawIndex >= getTailOffset(vector._size)) {

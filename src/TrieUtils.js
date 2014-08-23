@@ -7,7 +7,8 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-/* exported SHIFT, SIZE, MASK, NOT_SET, OwnerID, arrCopy */
+/* exported SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
+            MakeRef, SetRef, arrCopy */
 
 // Constants describing the size of trie nodes.
 var SHIFT = 5; // Resulted in best performance after ______?
@@ -17,6 +18,19 @@ var MASK = SIZE - 1;
 // A consistent shared value representing "not set" which equals nothing other
 // than itself, and nothing that could be provided externally.
 var NOT_SET = {};
+
+// Boolean references, Rough equivalent of `bool &`.
+var CHANGE_LENGTH = {value: false};
+var DID_ALTER = {value: false};
+
+function MakeRef(ref) {
+  ref.value = false;
+  return ref;
+}
+
+function SetRef(ref) {
+  ref && (ref.value = true);
+}
 
 // A function which returns a value representing an "owner" for transient writes
 // to tries. The return value will only ever equal itself, and will not equal

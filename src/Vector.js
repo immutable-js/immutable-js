@@ -14,7 +14,8 @@ import "Map"
 import "TrieUtils"
 /* global Sequence, IndexedSequence, is, invariant,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
-          SHIFT, SIZE, MASK, NOT_SET, OwnerID, arrCopy */
+          SHIFT, SIZE, MASK, NOT_SET, DID_ALTER, OwnerID, MakeRef, SetRef,
+          arrCopy */
 /* exported Vector, VectorPrototype */
 
 
@@ -430,68 +431,67 @@ function makeVector(origin, size, level, root, tail, ownerID) {
 }
 
 function updateVector(vector, index, value) {
-  var deleted = value === NOT_SET;
-
-  // If index is out of bounds, first get a correctly sized vector and
-  // then set.
-  // TODO: it might be faster to do this inline instead of requiring
-  // 2 operations.
   if (index >= vector.length) {
-    return deleted ? vector : vector.withMutations(vect =>
+    return value === NOT_SET ? vector : vector.withMutations(vect => {
       setVectorBounds(vect, 0, index + 1).set(index, value)
-    );
+    });
   }
 
-  var tailOffset = getTailOffset(vector._size);
   index = rawIndex(index, vector._origin);
 
-  // Fits within tail.
-  if (index >= tailOffset) {
-    var tailHas = vector._tail.array.hasOwnProperty(index & MASK);
-    if (deleted ? !tailHas : tailHas && vector._tail.array[index & MASK] === value) {
-      return vector;
-    }
-    var newTail = vector._tail.ensureOwner(vector.__ownerID);
-    deleted ?
-      (delete newTail.array[index & MASK]) :
-      (newTail.array[index & MASK] = value);
-    if (vector.__ownerID) {
-      vector._tail = newTail;
-      vector.__altered = true;
-      return vector;
-    }
-    return makeVector(vector._origin, vector._size, vector._level, vector._root, newTail);
+  var newTail = vector._tail;
+  var newRoot = vector._root;
+  var didAlter = MakeRef(DID_ALTER);
+  if (index >= getTailOffset(vector._size)) {
+    newTail = updateVNode(newTail, vector.__ownerID, 0, index, value, didAlter);
+  } else {
+    newRoot = updateVNode(newRoot, vector.__ownerID, vector._level, index, value, didAlter);
   }
 
-  // TODO: doing this with recursion will remove the need to create new roots down the chain.
-  // Fits within existing tree.
-  var newRoot = vector._root.ensureOwner(vector.__ownerID);
-  var node = newRoot;
-  for (var level = vector._level; level > 0; level -= SHIFT) {
-    var idx = (index >>> level) & MASK;
-    if (deleted && !node.array[idx]) {
-      return vector;
-    }
-    node = node.array[idx] = node.array[idx] ?
-      node.array[idx].ensureOwner(vector.__ownerID) :
-      new VNode([], vector.__ownerID);
-    if (deleted && !node) {
-      return vector;
-    }
-  }
-  var nodeHas = node.array.hasOwnProperty(index & MASK);
-  if (deleted ? !nodeHas : nodeHas && node.array[index & MASK] === value) {
+  if (!didAlter.value) {
     return vector;
   }
-  deleted ?
-    (delete node.array[index & MASK]) :
-    (node.array[index & MASK] = value);
+
   if (vector.__ownerID) {
     vector._root = newRoot;
+    vector._tail = newTail;
     vector.__altered = true;
     return vector;
   }
-  return makeVector(vector._origin, vector._size, vector._level, newRoot, vector._tail);
+  return makeVector(vector._origin, vector._size, vector._level, newRoot, newTail);
+}
+
+function updateVNode(node, ownerID, level, index, value, didAlter) {
+  var deleted = value === NOT_SET;
+  // var newNode;
+  var idx = (index >>> level) & MASK;
+  var nodeHas = node && idx < node.array.length && node.array.hasOwnProperty(idx);
+  if (deleted && !nodeHas) {
+    return node;
+  }
+
+  if (level > 0) {
+    var lowerNode = node && node.array[idx];
+    var newLowerNode = updateVNode(lowerNode, ownerID, level - SHIFT, index, value, didAlter);
+    if (newLowerNode === lowerNode) {
+      return node;
+    }
+    newNode = node ? node.ensureOwner(ownerID) : new VNode([], ownerID);
+    newNode.array[idx] = newLowerNode;
+    return newNode;
+  }
+
+  if (!deleted && nodeHas && node.array[idx] === value) {
+    return node;
+  }
+
+  SetRef(didAlter);
+
+  var newNode = node ? node.ensureOwner(ownerID) : new VNode([], ownerID);
+  deleted ?
+    (delete newNode.array[idx]) :
+    (newNode.array[idx] = value);
+  return newNode;
 }
 
 function vectorNodeFor(vector, rawIndex) {
