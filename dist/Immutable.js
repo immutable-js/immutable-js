@@ -1590,7 +1590,7 @@ var $Vector = Vector;
     if (this.__ownerID) {
       this.length = this._origin = this._size = 0;
       this._level = SHIFT;
-      this._root = this._tail = EMPTY_VNODE;
+      this._root = this._tail = null;
       this.__altered = true;
       return this;
     }
@@ -1697,7 +1697,7 @@ var $Vector = Vector;
   }
 }, {
   empty: function() {
-    return EMPTY_VECT || (EMPTY_VECT = makeVector(0, 0, SHIFT, EMPTY_VNODE, EMPTY_VNODE));
+    return EMPTY_VECT || (EMPTY_VECT = makeVector(0, 0, SHIFT));
   },
   from: function(sequence) {
     if (!sequence || sequence.length === 0) {
@@ -1708,7 +1708,7 @@ var $Vector = Vector;
     }
     var isArray = Array.isArray(sequence);
     if (sequence.length > 0 && sequence.length < SIZE) {
-      return makeVector(0, sequence.length, SHIFT, EMPTY_VNODE, new VNode(isArray ? arrCopy(sequence) : Sequence(sequence).toArray()));
+      return makeVector(0, sequence.length, SHIFT, null, new VNode(isArray ? arrCopy(sequence) : Sequence(sequence).toArray()));
     }
     if (!isArray) {
       sequence = Sequence(sequence);
@@ -1829,7 +1829,8 @@ function iterateVNode(node, level, offset, max, fn, reverse) {
 }
 var VectorIterator = function VectorIterator(vector, origin, size, level, root, tail) {
   var tailOffset = getTailOffset(size);
-  this._stack = iteratorFrame(root.array, level, -origin, tailOffset - origin, iteratorFrame(tail.array, 0, tailOffset - origin, size - origin));
+  var tailStack = tail && iteratorFrame(tail.array, 0, tailOffset - origin, size - origin);
+  this._stack = root ? iteratorFrame(root.array, level, -origin, tailOffset - origin, tailStack) : tailStack;
 };
 ($traceurRuntime.createClass)(VectorIterator, {next: function() {
     var stack = this._stack;
@@ -1980,7 +1981,7 @@ function setVectorBounds(vector, begin, end) {
   var newRoot = vector._root;
   var offsetShift = 0;
   while (newOrigin + offsetShift < 0) {
-    newRoot = new VNode(newRoot.array.length ? [null, newRoot] : [], owner);
+    newRoot = new VNode(newRoot && newRoot.array.length ? [null, newRoot] : [], owner);
     newLevel += SHIFT;
     offsetShift += 1 << newLevel;
   }
@@ -1993,12 +1994,12 @@ function setVectorBounds(vector, begin, end) {
   var oldTailOffset = getTailOffset(oldSize);
   var newTailOffset = getTailOffset(newSize);
   while (newTailOffset >= 1 << (newLevel + SHIFT)) {
-    newRoot = new VNode(newRoot.array.length ? [newRoot] : [], owner);
+    newRoot = new VNode(newRoot && newRoot.array.length ? [newRoot] : [], owner);
     newLevel += SHIFT;
   }
   var oldTail = vector._tail;
   var newTail = newTailOffset < oldTailOffset ? vectorNodeFor(vector, newSize - 1) : newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
-  if (newTailOffset > oldTailOffset && newOrigin < oldSize && oldTail.array.length) {
+  if (oldTail && newTailOffset > oldTailOffset && newOrigin < oldSize && oldTail.array.length) {
     newRoot = editableVNode(newRoot, owner);
     var node = newRoot;
     for (var level = newLevel; level > SHIFT; level -= SHIFT) {
@@ -2014,7 +2015,7 @@ function setVectorBounds(vector, begin, end) {
     newOrigin -= newTailOffset;
     newSize -= newTailOffset;
     newLevel = SHIFT;
-    newRoot = EMPTY_VNODE;
+    newRoot = null;
     newTail = newTail && newTail.removeBefore(owner, 0, newOrigin);
   } else if (newOrigin > oldOrigin || newTailOffset < oldTailOffset) {
     var beginIndex,
@@ -2032,16 +2033,15 @@ function setVectorBounds(vector, begin, end) {
       }
     } while (newRoot && beginIndex === endIndex);
     if (newRoot && newOrigin > oldOrigin) {
-      newRoot = newRoot.removeBefore(owner, newLevel, newOrigin - offsetShift);
+      newRoot = newRoot && newRoot.removeBefore(owner, newLevel, newOrigin - offsetShift);
     }
     if (newRoot && newTailOffset < oldTailOffset) {
-      newRoot = newRoot.removeAfter(owner, newLevel, newTailOffset - offsetShift);
+      newRoot = newRoot && newRoot.removeAfter(owner, newLevel, newTailOffset - offsetShift);
     }
     if (offsetShift) {
       newOrigin -= offsetShift;
       newSize -= offsetShift;
     }
-    newRoot = newRoot || EMPTY_VNODE;
   }
   if (vector.__ownerID) {
     vector.length = newSize - newOrigin;
@@ -2077,7 +2077,6 @@ function getTailOffset(size) {
   return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
 }
 var EMPTY_VECT;
-var EMPTY_VNODE = new VNode([]);
 var Set = function Set() {
   for (var values = [],
       $__9 = 0; $__9 < arguments.length; $__9++)

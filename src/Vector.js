@@ -28,9 +28,7 @@ class Vector extends IndexedSequence {
   }
 
   static empty() {
-    return EMPTY_VECT || (EMPTY_VECT =
-      makeVector(0, 0, SHIFT, EMPTY_VNODE, EMPTY_VNODE)
-    );
+    return EMPTY_VECT || (EMPTY_VECT = makeVector(0, 0, SHIFT));
   }
 
   static from(sequence) {
@@ -42,7 +40,7 @@ class Vector extends IndexedSequence {
     }
     var isArray = Array.isArray(sequence);
     if (sequence.length > 0 && sequence.length < SIZE) {
-      return makeVector(0, sequence.length, SHIFT, EMPTY_VNODE, new VNode(
+      return makeVector(0, sequence.length, SHIFT, null, new VNode(
         isArray ? arrCopy(sequence) : Sequence(sequence).toArray()
       ));
     }
@@ -97,7 +95,7 @@ class Vector extends IndexedSequence {
     if (this.__ownerID) {
       this.length = this._origin = this._size = 0;
       this._level = SHIFT;
-      this._root = this._tail = EMPTY_VNODE;
+      this._root = this._tail = null;
       this.__altered = true;
       return this;
     }
@@ -344,18 +342,21 @@ class VectorIterator {
 
   constructor(vector, origin, size, level, root, tail) {
     var tailOffset = getTailOffset(size);
-    this._stack = iteratorFrame(
+
+    var tailStack = tail && iteratorFrame(
+      tail.array,
+      0,
+      tailOffset - origin,
+      size - origin
+    );
+
+    this._stack = root ? iteratorFrame(
       root.array,
       level,
       -origin,
       tailOffset - origin,
-      iteratorFrame(
-        tail.array,
-        0,
-        tailOffset - origin,
-        size - origin
-      )
-    );
+      tailStack
+    ) : tailStack;
   }
 
   next() /*(number,T)*/ {
@@ -531,7 +532,7 @@ function setVectorBounds(vector, begin, end) {
   // New origin might require creating a higher root.
   var offsetShift = 0;
   while (newOrigin + offsetShift < 0) {
-    newRoot = new VNode(newRoot.array.length ? [null, newRoot] : [], owner);
+    newRoot = new VNode(newRoot && newRoot.array.length ? [null, newRoot] : [], owner);
     newLevel += SHIFT;
     offsetShift += 1 << newLevel;
   }
@@ -547,7 +548,7 @@ function setVectorBounds(vector, begin, end) {
 
   // New size might require creating a higher root.
   while (newTailOffset >= 1 << (newLevel + SHIFT)) {
-    newRoot = new VNode(newRoot.array.length ? [newRoot] : [], owner);
+    newRoot = new VNode(newRoot && newRoot.array.length ? [newRoot] : [], owner);
     newLevel += SHIFT;
   }
 
@@ -558,7 +559,7 @@ function setVectorBounds(vector, begin, end) {
     newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
 
   // Merge Tail into tree.
-  if (newTailOffset > oldTailOffset && newOrigin < oldSize && oldTail.array.length) {
+  if (oldTail && newTailOffset > oldTailOffset && newOrigin < oldSize && oldTail.array.length) {
     newRoot = editableVNode(newRoot, owner);
     var node = newRoot;
     for (var level = newLevel; level > SHIFT; level -= SHIFT) {
@@ -578,7 +579,7 @@ function setVectorBounds(vector, begin, end) {
     newOrigin -= newTailOffset;
     newSize -= newTailOffset;
     newLevel = SHIFT;
-    newRoot = EMPTY_VNODE;
+    newRoot = null;
     newTail = newTail && newTail.removeBefore(owner, 0, newOrigin);
 
   // Otherwise, if the root has been trimmed, garbage collect.
@@ -601,17 +602,15 @@ function setVectorBounds(vector, begin, end) {
 
     // Trim the new sides of the new root.
     if (newRoot && newOrigin > oldOrigin) {
-      newRoot = newRoot.removeBefore(owner, newLevel, newOrigin - offsetShift);
+      newRoot = newRoot && newRoot.removeBefore(owner, newLevel, newOrigin - offsetShift);
     }
     if (newRoot && newTailOffset < oldTailOffset) {
-      newRoot = newRoot.removeAfter(owner, newLevel, newTailOffset - offsetShift);
+      newRoot = newRoot && newRoot.removeAfter(owner, newLevel, newTailOffset - offsetShift);
     }
     if (offsetShift) {
       newOrigin -= offsetShift;
       newSize -= offsetShift;
     }
-    // Ensure root is not null.
-    newRoot = newRoot || EMPTY_VNODE;
   }
 
   if (vector.__ownerID) {
@@ -650,4 +649,3 @@ function getTailOffset(size) {
 }
 
 var EMPTY_VECT;
-var EMPTY_VNODE = new VNode([]);
