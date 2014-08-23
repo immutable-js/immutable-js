@@ -22,7 +22,7 @@ class Set extends Sequence {
   }
 
   static empty() {
-    return EMPTY_SET || (EMPTY_SET = makeSet());
+    return EMPTY_SET || (EMPTY_SET = makeSet(Map.empty()));
   }
 
   static from(sequence) {
@@ -45,7 +45,7 @@ class Set extends Sequence {
   // @pragma Access
 
   has(value) {
-    return this._map ? this._map.has(value) : false;
+    return this._map.has(value);
   }
 
   get(value, notSetValue) {
@@ -55,11 +55,7 @@ class Set extends Sequence {
   // @pragma Modification
 
   add(value) {
-    var newMap = this._map;
-    if (!newMap) {
-      newMap = Map.empty().__ensureOwner(this.__ownerID);
-    }
-    newMap = newMap.set(value, null);
+    var newMap = this._map.set(value, null);
     if (this.__ownerID) {
       this.length = newMap.length;
       this._map = newMap;
@@ -69,25 +65,22 @@ class Set extends Sequence {
   }
 
   delete(value) {
-    if (this._map == null) {
-      return this;
-    }
     var newMap = this._map.delete(value);
-    if (newMap.length === 0) {
-      return this.clear();
-    }
     if (this.__ownerID) {
       this.length = newMap.length;
       this._map = newMap;
       return this;
     }
-    return newMap === this._map ? this : makeSet(newMap);
+    return newMap === this._map ? this : newMap.length === 0 ? Set.empty() : makeSet(newMap);
   }
 
   clear() {
+    if (this.length === 0) {
+      return this;
+    }
     if (this.__ownerID) {
       this.length = 0;
-      this._map = null;
+      this._map.clear();
       return this;
     }
     return Set.empty();
@@ -100,22 +93,11 @@ class Set extends Sequence {
     if (seqs.length === 0) {
       return this;
     }
-
-    var didMutate = false;
-    var mutable = this.asMutable();
-    var mergeInto = value => {
-      if (!mutable.has(value)) {
-        didMutate = true;
-        mutable.add(value);
+    return this.withMutations(set => {
+      for (var ii = 0; ii < seqs.length; ii++) {
+        Sequence(seqs[ii]).forEach(value => set.add(value));
       }
-    };
-
-    for (var ii = 0; ii < seqs.length; ii++) {
-      var seq = seqs[ii];
-      seq && Sequence(seq).forEach(mergeInto);
-    }
-
-    return didMutate ? mutable.__ensureOwner(this.__ownerID) : this;
+    });
   }
 
   intersect(...seqs) {
@@ -159,20 +141,24 @@ class Set extends Sequence {
     return seq.every(value => set.contains(value));
   }
 
+  wasAltered() {
+    return this._map.wasAltered();
+  }
+
   __iterate(fn, reverse) {
     var collection = this;
-    return this._map ? this._map.__iterate((_, k) => fn(k, k, collection), reverse) : 0;
+    return this._map.__iterate((_, k) => fn(k, k, collection), reverse);
   }
 
   __deepEquals(other) {
-    return !(this._map || other._map) || this._map.equals(other._map);
+    return this._map.equals(other._map);
   }
 
   __ensureOwner(ownerID) {
     if (ownerID === this.__ownerID) {
       return this;
     }
-    var newMap = this._map && this._map.__ensureOwner(ownerID);
+    var newMap = this._map.__ensureOwner(ownerID);
     if (!ownerID) {
       this.__ownerID = ownerID;
       this._map = newMap;

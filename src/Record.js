@@ -95,6 +95,10 @@ class Record extends Sequence {
     return makeRecord(this, newMap);
   }
 
+  wasAltered() {
+    return this._map.wasAltered();
+  }
+
   __iterate(fn, reverse) {
     var record = this;
     return this._defaultValues.map((_, k) => record.get(k)).__iterate(fn, reverse);

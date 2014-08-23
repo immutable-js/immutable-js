@@ -90,10 +90,14 @@ class Vector extends IndexedSequence {
   }
 
   clear() {
+    if (this.length === 0) {
+      return this;
+    }
     if (this.__ownerID) {
       this.length = this._origin = this._size = 0;
       this._level = SHIFT;
       this._root = this._tail = EMPTY_VNODE;
+      this.__altered = true;
       return this;
     }
     return Vector.empty();
@@ -228,6 +232,7 @@ VectorPrototype.cursor = MapPrototype.cursor;
 VectorPrototype.withMutations = MapPrototype.withMutations;
 VectorPrototype.asMutable = MapPrototype.asMutable;
 VectorPrototype.asImmutable = MapPrototype.asImmutable;
+VectorPrototype.wasAltered = MapPrototype.wasAltered;
 
 
 class VNode {
@@ -420,6 +425,7 @@ function makeVector(origin, size, level, root, tail, ownerID) {
   vect._root = root;
   vect._tail = tail;
   vect.__ownerID = ownerID;
+  vect.__altered = false;
   return vect;
 }
 
@@ -430,14 +436,10 @@ function updateVector(vector, index, value) {
   // then set.
   // TODO: it might be faster to do this inline instead of requiring
   // 2 operations.
-  if (!deleted && index >= vector.length) {
-    return vector.withMutations(vect =>
+  if (index >= vector.length) {
+    return deleted ? vector : vector.withMutations(vect =>
       setVectorBounds(vect, 0, index + 1).set(index, value)
     );
-  }
-
-  if (vector.get(index, NOT_SET) === value) {
-    return vector;
   }
 
   var tailOffset = getTailOffset(vector._size);
@@ -445,34 +447,48 @@ function updateVector(vector, index, value) {
 
   // Fits within tail.
   if (index >= tailOffset) {
+    var tailHas = vector._tail.array.hasOwnProperty(index & MASK);
+    if (deleted ? !tailHas : tailHas && vector._tail.array[index & MASK] === value) {
+      return vector;
+    }
     var newTail = vector._tail.ensureOwner(vector.__ownerID);
     deleted ?
       (delete newTail.array[index & MASK]) :
       (newTail.array[index & MASK] = value);
     if (vector.__ownerID) {
       vector._tail = newTail;
+      vector.__altered = true;
       return vector;
     }
     return makeVector(vector._origin, vector._size, vector._level, vector._root, newTail);
   }
 
+  // TODO: doing this with recursion will remove the need to create new roots down the chain.
   // Fits within existing tree.
   var newRoot = vector._root.ensureOwner(vector.__ownerID);
   var node = newRoot;
   for (var level = vector._level; level > 0; level -= SHIFT) {
     var idx = (index >>> level) & MASK;
-    // TODO: if we don't check "get/has" above, this could be null in the
-    // deleted case and we could accidentically create a new branch. If that
-    // check becomes inline, this needs to change.
+    if (deleted && !node.array[idx]) {
+      return vector;
+    }
     node = node.array[idx] = node.array[idx] ?
       node.array[idx].ensureOwner(vector.__ownerID) :
       new VNode([], vector.__ownerID);
+    if (deleted && !node) {
+      return vector;
+    }
+  }
+  var nodeHas = node.array.hasOwnProperty(index & MASK);
+  if (deleted ? !nodeHas : nodeHas && node.array[index & MASK] === value) {
+    return vector;
   }
   deleted ?
     (delete node.array[index & MASK]) :
     (node.array[index & MASK] = value);
   if (vector.__ownerID) {
     vector._root = newRoot;
+    vector.__altered = true;
     return vector;
   }
   return makeVector(vector._origin, vector._size, vector._level, newRoot, vector._tail);
@@ -604,6 +620,7 @@ function setVectorBounds(vector, begin, end) {
     vector._level = newLevel;
     vector._root = newRoot;
     vector._tail = newTail;
+    vector.__altered = true;
     return vector;
   }
   return makeVector(newOrigin, newSize, newLevel, newRoot, newTail);

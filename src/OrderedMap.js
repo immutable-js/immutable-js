@@ -28,7 +28,7 @@ class OrderedMap extends Map {
   }
 
   static empty() {
-    return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap());
+    return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(Map.empty(), Vector.empty()));
   }
 
   toString() {
@@ -38,44 +38,31 @@ class OrderedMap extends Map {
   // @pragma Access
 
   get(k, notSetValue) {
-    if (k != null && this._map) {
-      var index = this._map.get(k);
-      if (index != null) {
-        return this._vector.get(index)[1];
-      }
-    }
-    return notSetValue;
+    var index = this._map.get(k);
+    return index != null ? this._vector.get(index)[1] : notSetValue;
   }
 
   // @pragma Modification
 
   clear() {
+    if (this.length === 0) {
+      return this;
+    }
     if (this.__ownerID) {
       this.length = 0;
-      this._map = this._vector = null;
+      this._map.clear();
+      this._vector.clear();
       return this;
     }
     return OrderedMap.empty();
   }
 
   set(k, v) {
-    if (k == null) {
-      return this;
-    }
-    var newMap = this._map;
-    var newVector = this._vector;
-    if (newMap) {
-      var index = newMap.get(k);
-      if (index == null) {
-        newMap = newMap.set(k, newVector.length);
-        newVector = newVector.push([k, v]);
-      } else if (newVector.get(index)[1] !== v) {
-        newVector = newVector.set(index, [k, v]);
-      }
-    } else {
-      newVector = Vector.empty().__ensureOwner(this.__ownerID).set(0, [k, v]);
-      newMap = Map.empty().__ensureOwner(this.__ownerID).set(k, 0);
-    }
+    var index = this._map.get(k);
+    var has = index != null;
+    var newMap = has ? this._map : this._map.set(k, this._vector.length);
+    var newVector = has ? this._vector.set(index, [k, v]) : this._vector.push([k, v]);
+
     if (this.__ownerID) {
       this.length = newMap.length;
       this._map = newMap;
@@ -86,9 +73,6 @@ class OrderedMap extends Map {
   }
 
   delete(k) {
-    if (k == null || this._map == null) {
-      return this;
-    }
     var index = this._map.get(k);
     if (index == null) {
       return this;
@@ -96,16 +80,17 @@ class OrderedMap extends Map {
     var newMap = this._map.delete(k);
     var newVector = this._vector.delete(index);
 
-    if (newMap.length === 0) {
-      return this.clear();
-    }
     if (this.__ownerID) {
       this.length = newMap.length;
       this._map = newMap;
       this._vector = newVector;
       return this;
     }
-    return newMap === this._map ? this : makeOrderedMap(newMap, newVector);
+    return newMap.length === 0 ? OrderedMap.empty() : makeOrderedMap(newMap, newVector);
+  }
+
+  wasAltered() {
+    return this._map.wasAltered() || this._vector.wasAltered();
   }
 
   __iterate(fn, reverse) {
@@ -125,8 +110,8 @@ class OrderedMap extends Map {
     if (ownerID === this.__ownerID) {
       return this;
     }
-    var newMap = this._map && this._map.__ensureOwner(ownerID);
-    var newVector = this._vector && this._vector.__ensureOwner(ownerID);
+    var newMap = this._map.__ensureOwner(ownerID);
+    var newVector = this._vector.__ensureOwner(ownerID);
     if (!ownerID) {
       this.__ownerID = ownerID;
       this._map = newMap;
