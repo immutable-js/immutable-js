@@ -47,7 +47,7 @@ Then, add it as a script tag to your page:
 Or use an AMD loader (such as [RequireJS](http://requirejs.org/)):
 
 ```javascript
-require(['./Immutable'], function (Immutable) {
+require(['./Immutable.min.js'], function (Immutable) {
     var map = Immutable.Map({a:1, b:2, c:3});
     map = map.set('b', 20);
     map.get('b'); // 20
