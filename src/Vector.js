@@ -569,7 +569,7 @@ function setVectorBounds(vector, begin, end) {
 
   // If the size has been reduced, there's a chance the tail needs to be trimmed.
   if (newSize < oldSize) {
-    newTail = newTail.removeAfter(owner, 0, newSize);
+    newTail = newTail && newTail.removeAfter(owner, 0, newSize);
   }
 
   // If the new origin is within the tail, then we do not need a root.
@@ -578,7 +578,7 @@ function setVectorBounds(vector, begin, end) {
     newSize -= newTailOffset;
     newLevel = SHIFT;
     newRoot = EMPTY_VNODE;
-    newTail = newTail.removeBefore(owner, 0, newOrigin);
+    newTail = newTail && newTail.removeBefore(owner, 0, newOrigin);
 
   // Otherwise, if the root has been trimmed, garbage collect.
   } else if (newOrigin > oldOrigin || newTailOffset < oldTailOffset) {

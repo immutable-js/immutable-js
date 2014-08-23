@@ -2005,14 +2005,14 @@ function setVectorBounds(vector, begin, end) {
     node.array[(oldTailOffset >>> SHIFT) & MASK] = oldTail;
   }
   if (newSize < oldSize) {
-    newTail = newTail.removeAfter(owner, 0, newSize);
+    newTail = newTail && newTail.removeAfter(owner, 0, newSize);
   }
   if (newOrigin >= newTailOffset) {
     newOrigin -= newTailOffset;
     newSize -= newTailOffset;
     newLevel = SHIFT;
     newRoot = EMPTY_VNODE;
-    newTail = newTail.removeBefore(owner, 0, newOrigin);
+    newTail = newTail && newTail.removeBefore(owner, 0, newOrigin);
   } else if (newOrigin > oldOrigin || newTailOffset < oldTailOffset) {
     var beginIndex,
         endIndex;
