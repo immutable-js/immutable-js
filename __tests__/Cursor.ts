@@ -130,6 +130,20 @@ describe('Cursor', () => {
     var data = Immutable.Map({a: 1, b: 2, c: 3});
     var cursor = data.cursor();
     expect(cursor.map(x => x * x)).toEqual(Immutable.Map({a: 1, b: 4, c: 9}));
-  })
+  });
+
+  it('returns wrapped values for sequence API', () => {
+    var data = Immutable.fromJS({a: {v: 1}, b: {v: 2}, c: {v: 3}});
+    var onChange = jest.genMockFunction();
+    var cursor = data.cursor(onChange);
+    var found = cursor.find(map => map.get('v') === 2);
+    expect(typeof found.deref).toBe('function'); // is a cursor!
+    found = found.set('v', 20);
+    expect(onChange).lastCalledWith(
+      Immutable.fromJS({a: {v: 1}, b: {v: 20}, c: {v: 3}}),
+      data,
+      ['b', 'v']
+    );
+  });
 
 });

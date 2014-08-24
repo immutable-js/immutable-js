@@ -932,58 +932,58 @@ function arrCopy(arr) {
   }
   return newArr;
 }
-var Cursor = function Cursor(rootData, keyPath, onChange) {
-  var value = rootData.getIn(keyPath);
+var Cursor = function Cursor(rootData, keyPath, onChange, value) {
+  value = value ? value : rootData.getIn(keyPath);
   this.length = value instanceof Sequence ? value.length : null;
   this._rootData = rootData;
   this._keyPath = keyPath;
   this._onChange = onChange;
 };
-var $Cursor = Cursor;
 ($traceurRuntime.createClass)(Cursor, {
   deref: function(notSetValue) {
     return this._rootData.getIn(this._keyPath, notSetValue);
   },
   get: function(key, notSetValue) {
-    return this.getIn([key], notSetValue);
-  },
-  getIn: function(keyPath, notSetValue) {
-    if (!keyPath || !keyPath.length) {
+    if (Array.isArray(key) && key.length === 0) {
       return this;
     }
-    var value = this._rootData.getIn((this._keyPath || []).concat(keyPath), NOT_SET);
-    return value === NOT_SET ? notSetValue : value instanceof Sequence ? this.cursor(keyPath) : value;
+    var value = this._rootData.getIn(this._keyPath.concat(key), NOT_SET);
+    return value === NOT_SET ? notSetValue : wrappedValue(this, key, value);
   },
   set: function(key, value) {
-    return _updateCursor(this, (function(m) {
+    return updateCursor(this, (function(m) {
       return m.set(key, value);
     }), key);
   },
   delete: function(key) {
-    return _updateCursor(this, (function(m) {
+    return updateCursor(this, (function(m) {
       return m.delete(key);
     }), key);
   },
-  update: function(key, notSetValue, updater) {
-    return arguments.length === 1 ? _updateCursor(this, key) : _updateCursor(this, (function(map) {
-      return map.update(key, notSetValue, updater);
-    }), key);
+  update: function(keyOrFn, notSetValue, updater) {
+    return arguments.length === 1 ? updateCursor(this, keyOrFn) : updateCursor(this, (function(map) {
+      return map.update(keyOrFn, notSetValue, updater);
+    }), keyOrFn);
   },
-  cursor: function(subKeyPath) {
-    if (subKeyPath && !Array.isArray(subKeyPath)) {
-      subKeyPath = [subKeyPath];
-    }
-    if (!subKeyPath || subKeyPath.length === 0) {
-      return this;
-    }
-    return new $Cursor(this._rootData, this._keyPath ? this._keyPath.concat(subKeyPath) : subKeyPath, this._onChange);
+  cursor: function(subKey) {
+    return Array.isArray(subKey) && subKey.length === 0 ? this : subCursor(this, subKey);
   },
-  __iterate: function() {
-    var value = this.deref();
-    return value && value.__iterate ? value.__iterate.apply(value, arguments) : 0;
+  __iterate: function(fn, reverse, flipIndices) {
+    var cursor = this;
+    var deref = cursor.deref();
+    return deref && deref.__iterate ? deref.__iterate((function(value, key, collection) {
+      return fn(wrappedValue(cursor, key, value), key, collection);
+    }), reverse, flipIndices) : 0;
   }
 }, {}, Sequence);
-function _updateCursor(cursor, changeFn, changeKey) {
+Cursor.prototype.getIn = Cursor.prototype.get;
+function wrappedValue(cursor, key, value) {
+  return value instanceof Sequence ? subCursor(cursor, key, value) : value;
+}
+function subCursor(cursor, key, value) {
+  return new Cursor(cursor._rootData, cursor._keyPath.concat(key), cursor._onChange, value);
+}
+function updateCursor(cursor, changeFn, changeKey) {
   var newRootData = cursor._rootData.updateIn(cursor._keyPath, changeKey ? Map.empty() : undefined, changeFn);
   var keyPath = cursor._keyPath || [];
   cursor._onChange && cursor._onChange.call(undefined, newRootData, cursor._rootData, changeKey ? keyPath.concat(changeKey) : keyPath);
@@ -1072,9 +1072,10 @@ var $Map = Map;
   cursor: function(keyPath, onChange) {
     if (!onChange && typeof keyPath === 'function') {
       onChange = keyPath;
-      keyPath = null;
-    }
-    if (keyPath && !Array.isArray(keyPath)) {
+      keyPath = [];
+    } else if (arguments.length === 0) {
+      keyPath = [];
+    } else if (!Array.isArray(keyPath)) {
       keyPath = [keyPath];
     }
     return new Cursor(this, keyPath, onChange);

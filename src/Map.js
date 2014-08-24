@@ -104,9 +104,10 @@ class Map extends Sequence {
   cursor(keyPath, onChange) {
     if (!onChange && typeof keyPath === 'function') {
       onChange = keyPath;
-      keyPath = null;
-    }
-    if (keyPath && !Array.isArray(keyPath)) {
+      keyPath = [];
+    } else if (arguments.length === 0) {
+      keyPath = [];
+    } else if (!Array.isArray(keyPath)) {
       keyPath = [keyPath];
     }
     return new Cursor(this, keyPath, onChange);
