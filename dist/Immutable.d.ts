@@ -268,18 +268,18 @@ declare module 'immutable' {
      * Returns a new indexed sequence of the keys of this sequence,
      * discarding values.
      */
-    keys(): IndexedSequence<K>;
+    keySeq(): IndexedSequence<K>;
 
     /**
      * Returns a new indexed sequence of the keys of this sequence,
      * discarding keys.
      */
-    values(): IndexedSequence<V>;
+    valueSeq(): IndexedSequence<V>;
 
     /**
      * Returns a new indexed sequence of [key, value] tuples.
      */
-    entries(): IndexedSequence</*(K, V)*/Array<any>>;
+    entrySeq(): IndexedSequence</*(K, V)*/Array<any>>;
 
     /**
      * The `sideEffect` is executed for every entry in the sequence.
@@ -624,7 +624,7 @@ declare module 'immutable' {
      * If this is a sequence of entries (key-value tuples), it will return a
      * sequence of those entries.
      */
-    fromEntries(): Sequence<any, any>;
+    fromEntrySeq(): Sequence<any, any>;
 
     /**
      * Returns the first index at which a given value can be found in the
@@ -924,6 +924,21 @@ declare module 'immutable' {
     clear(): Map<K, V>;
 
     /**
+     * An iterator of this Map's keys.
+     */
+    keys(): Iterator<K>;
+
+    /**
+     * An iterator of this Map's values.
+     */
+    values(): Iterator<V>;
+
+    /**
+     * An iterator of this Map's entries as [key, value] tuples.
+     */
+    entries(): Iterator</*[K, V]*/Array<any>>;
+
+    /**
      * When this cursor's (or any of its sub-cursors') `update` method is called,
      * the resulting new data structure will be provided to the `onChange`
      * function. Use this callback to keep track of the most current value or
@@ -1201,7 +1216,7 @@ declare module 'immutable' {
     function from<T>(array: Array<T>): Set<T>;
 
     /**
-     * `Set.fromKeys()` creates a new immutable Set containing the keys from
+     * `Set.fromkeySeq()` creates a new immutable Set containing the keys from
      * this Sequence or JavaScript Object.
      */
     function fromKeys<T>(sequence: Sequence<T, any>): Set<T>;
@@ -1235,6 +1250,21 @@ declare module 'immutable' {
      * Returns a new Set containing no values.
      */
     clear(): Set<T>;
+
+    /**
+     * An iterator of this Set's values (Sets do not have keys).
+     */
+    keys(): Iterator<T>;
+
+    /**
+     * An iterator of this Set's values.
+     */
+    values(): Iterator<T>;
+
+    /**
+     * An iterator of this Sets's entries as [value, value] tuples.
+     */
+    entries(): Iterator</*[T, T]*/Array<T>>;
 
     /**
      * Alias for `union`.
@@ -1352,6 +1382,23 @@ declare module 'immutable' {
      * Returns a new Vector with 0 length and no values.
      */
     clear(): Vector<T>;
+
+    /**
+     * An iterator of this Vector's keys.
+     */
+    keys(sparse?: boolean): Iterator<number>;
+
+    /**
+     * An iterator of this Vector's values.
+     */
+    values(sparse?: boolean): Iterator<T>;
+
+    /**
+     * An iterator of this Vector's entries as [key, value] tuples.
+     *
+     * `sparse` defaults to true for entries.
+     */
+    entries(sparse?: boolean): Iterator</*[number, T]*/Array<any>>;
 
     /**
      * Returns a new Vector with the provided `values` appended, starting at this
@@ -1484,15 +1531,6 @@ declare module 'immutable' {
      * @see `Map.prototype.asImmutable`
      */
     asImmutable(): Vector<T>;
-
-    /**
-     * Allows `Vector` to be used in ES6 for-of expressions, returning an object
-     * that adheres to the `Iterator` interface: it has a `next()` method which
-     * returns the next value or (index, value) tuple when `sparse`.
-     *
-     * When no entries remain, returns `{ done: true }`
-     */
-    iterator(sparse?: boolean): Iterator<any>
   }
 
 

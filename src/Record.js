@@ -95,6 +95,18 @@ class Record extends Sequence {
     return makeRecord(this, newMap);
   }
 
+  keys() {
+    return this._map.keys();
+  }
+
+  values() {
+    return this._map.values();
+  }
+
+  entries() {
+    return this._map.entries();
+  }
+
   wasAltered() {
     return this._map.wasAltered();
   }
@@ -120,6 +132,7 @@ class Record extends Sequence {
 
 var RecordPrototype = Record.prototype;
 RecordPrototype.__deepEqual = MapPrototype.__deepEqual;
+RecordPrototype['@@iterator'] = MapPrototype['@@iterator'];
 RecordPrototype.merge = MapPrototype.merge;
 RecordPrototype.mergeWith = MapPrototype.mergeWith;
 RecordPrototype.mergeDeep = MapPrototype.mergeDeep;

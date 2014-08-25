@@ -176,7 +176,7 @@ describe('Map', () => {
 
   it('derives keys', () => {
     var v = Map({a:1, b:2, c:3, d:4, e:5, f:6});
-    expect(v.keys().toArray()).toEqual(['a', 'b', 'c', 'd', 'e', 'f']);
+    expect(v.keySeq().toArray()).toEqual(['a', 'b', 'c', 'd', 'e', 'f']);
   });
 
   it('flips keys and values', () => {
@@ -187,7 +187,7 @@ describe('Map', () => {
   it('can convert to a vector', () => {
     var m = Map({a:1, b:2, c:3});
     var v = m.toVector();
-    var k = m.keys().toVector();
+    var k = m.keySeq().toVector();
     expect(v.length).toBe(3);
     expect(k.length).toBe(3);
     // Note: Map has undefined ordering, this Vector may not be the same

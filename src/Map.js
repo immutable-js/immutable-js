@@ -133,8 +133,16 @@ class Map extends Sequence {
     return this.__altered;
   }
 
-  iterator() {
-    return new MapIterator(this);
+  keys() {
+    return new MapIterator(this, 0);
+  }
+
+  values() {
+    return new MapIterator(this, 1);
+  }
+
+  entries() {
+    return new MapIterator(this, 2);
   }
 
   __iterate(fn, reverse) {
@@ -173,7 +181,7 @@ class Map extends Sequence {
 }
 
 var MapPrototype = Map.prototype;
-MapPrototype['@@iterator'] = MapPrototype.iterator;
+MapPrototype['@@iterator'] = function() { return this.entries() };
 
 Map.from = Map;
 
@@ -438,29 +446,31 @@ class ValueNode {
 
 class MapIterator extends SequenceIterator {
 
-  constructor(map) {
+  constructor(map, type) {
+    this._type = type;
     this._stack = map._root && mapIteratorFrame(map._root);
   }
 
   next() {
+    var type = this._type;
     var stack = this._stack;
     while (stack) {
       var node = stack.node;
       var index = stack.index++;
       if (node.entry) {
         if (index === 0) {
-          return iteratorValue(node.entry);
+          return mapIteratorValue(type, node.entry);
         }
       } else if (node.entries) {
         if (index < node.entries.length) {
-          return iteratorValue(node.entries[index]);
+          return mapIteratorValue(type, node.entries[index]);
         }
       } else {
         if (index < node.nodes.length) {
           var subNode = node.nodes[index];
           if (subNode) {
             if (subNode.entry) {
-              return iteratorValue(subNode.entry);
+              return mapIteratorValue(type, subNode.entry);
             }
             stack = this._stack = mapIteratorFrame(subNode, stack);
           }
@@ -471,6 +481,10 @@ class MapIterator extends SequenceIterator {
     }
     return iteratorDone();
   }
+}
+
+function mapIteratorValue(type, entry) {
+  return iteratorValue(type === 0 || type === 1 ? entry[type] : entry);
 }
 
 function mapIteratorFrame(node, prev) {
@@ -568,7 +582,7 @@ function mergeIntoMapWith(map, merger, iterables) {
   for (var ii = 0; ii < iterables.length; ii++) {
     var seq = iterables[ii];
     seq && seqs.push(
-      Array.isArray(seq) ? Sequence(seq).fromEntries() : Sequence(seq)
+      Array.isArray(seq) ? Sequence(seq).fromEntrySeq() : Sequence(seq)
     );
   }
   return mergeIntoCollectionWith(map, merger, seqs);

@@ -73,10 +73,10 @@ describe('OrderedMap', () => {
   it('respects order when merging', () => {
     var m1 = OrderedMap({A: 'apple', B: 'banana', C: 'coconut'});
     var m2 = OrderedMap({C: 'chocolate', B: 'butter', D: 'donut'});
-    expect(m1.merge(m2).entries().toArray()).toEqual(
+    expect(m1.merge(m2).entrySeq().toArray()).toEqual(
       [['A','apple'],['B','butter'],['C','chocolate'],['D','donut']]
     );
-    expect(m2.merge(m1).entries().toArray()).toEqual(
+    expect(m2.merge(m1).entrySeq().toArray()).toEqual(
       [['C','coconut'],['B','banana'],['D','donut'],['A','apple']]
     );
   });

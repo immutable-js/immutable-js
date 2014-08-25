@@ -9,7 +9,7 @@
 
 /* Sequence has implicit lazy dependencies */
 /* global is, Map, OrderedMap, Vector, Set, NOT_SET, invariant */
-/* exported Sequence, IndexedSequence, SequenceIterator */
+/* exported Sequence, IndexedSequence, SequenceIterator, iteratorMapper */
 
 
 class Sequence {
@@ -55,7 +55,7 @@ class Sequence {
   toArray() {
     assertNotInfinite(this.length);
     var array = new Array(this.length || 0);
-    this.values().forEach((v, i) => { array[i] = v; });
+    this.valueSeq().forEach((v, i) => { array[i] = v; });
     return array;
   }
 
@@ -109,7 +109,7 @@ class Sequence {
   }
 
   __deepEquals(other) {
-    var entries = this.cacheResult().entries().toArray();
+    var entries = this.cacheResult().entrySeq().toArray();
     var iterations = 0;
     return other.every((v, k) => {
       var entry = entries[iterations++];
@@ -184,16 +184,16 @@ class Sequence {
     return reversedSequence;
   }
 
-  keys() {
-    return this.flip().values();
+  keySeq() {
+    return this.flip().valueSeq();
   }
 
-  values() {
-    // values() always returns an IndexedSequence.
+  valueSeq() {
+    // valueSeq() always returns an IndexedSequence.
     var sequence = this;
     var valuesSequence = makeIndexedSequence(sequence);
     valuesSequence.length = sequence.length;
-    valuesSequence.values = returnThis;
+    valuesSequence.valueSeq = returnThis;
     valuesSequence.__iterateUncached = function (fn, reverse, flipIndices) {
       if (flipIndices && this.length == null) {
         return this.cacheResult().__iterate(fn, reverse, flipIndices);
@@ -212,13 +212,13 @@ class Sequence {
     return valuesSequence;
   }
 
-  entries() {
+  entrySeq() {
     var sequence = this;
     if (sequence._cache) {
       // We cache as an entries array, so we can just return the cache!
       return Sequence(sequence._cache);
     }
-    var entriesSequence = sequence.map(entryMapper).values();
+    var entriesSequence = sequence.map(entryMapper).valueSeq();
     entriesSequence.fromEntries = () => sequence;
     return entriesSequence;
   }
@@ -360,10 +360,10 @@ class Sequence {
     var resolvedEnd = resolveEnd(end, this.length);
     // begin or end will be NaN if they were provided as negative numbers and
     // this sequence's length is unknown. In that case, convert it to an
-    // IndexedSequence by getting entries() and convert back to a sequence with
-    // fromEntries(). IndexedSequence.slice will appropriately handle this case.
+    // IndexedSequence by getting entrySeq() and convert back to a sequence with
+    // fromEntrySeq(). IndexedSequence.slice will appropriately handle this case.
     if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd) {
-      return this.entries().slice(begin, end).fromEntries();
+      return this.entrySeq().slice(begin, end).fromEntrySeq();
     }
     var skipped = resolvedBegin === 0 ? this : this.skip(resolvedBegin);
     return resolvedEnd == null || resolvedEnd === this.length ?
@@ -461,7 +461,7 @@ class Sequence {
         group.push([key, value]);
       });
     })
-    return groups.map(group => Sequence(group).fromEntries());
+    return groups.map(group => Sequence(group).fromEntrySeq());
   }
 
   sort(comparator, maintainIndices) {
@@ -471,19 +471,19 @@ class Sequence {
   sortBy(mapper, comparator, maintainIndices) {
     comparator = comparator || defaultComparator;
     var seq = this;
-    return Sequence(this.entries().entries().toArray().sort(
+    return Sequence(this.entrySeq().entrySeq().toArray().sort(
       (indexedEntryA, indexedEntryB) =>
         comparator(
           mapper(indexedEntryA[1][1], indexedEntryA[1][0], seq),
           mapper(indexedEntryB[1][1], indexedEntryB[1][0], seq)
         ) || indexedEntryA[0] - indexedEntryB[0]
-    )).fromEntries().values().fromEntries();
+    )).fromEntrySeq().valueSeq().fromEntrySeq();
   }
 
   cacheResult() {
     if (!this._cache && this.__iterateUncached) {
       assertNotInfinite(this.length);
-      this._cache = this.entries().toArray();
+      this._cache = this.entrySeq().toArray();
       if (this.length == null) {
         this.length = this._cache.length;
       }
@@ -541,11 +541,11 @@ class IndexedSequence extends Sequence {
     return array;
   }
 
-  fromEntries() {
+  fromEntrySeq() {
     var sequence = this;
     var fromEntriesSequence = makeSequence();
     fromEntriesSequence.length = sequence.length;
-    fromEntriesSequence.entries = () => sequence;
+    fromEntriesSequence.entrySeq = () => sequence;
     fromEntriesSequence.__iterateUncached = (fn, reverse, flipIndices) =>
       sequence.__iterate((entry, _, c) => fn(entry[1], entry[0], c), reverse, flipIndices);
     return fromEntriesSequence;
@@ -586,7 +586,7 @@ class IndexedSequence extends Sequence {
       for (var ii = 0; ii <= maxSequencesIndex && !stoppedIteration; ii++) {
         var sequence = sequences[reverse ? maxSequencesIndex - ii : ii];
         if (!(sequence instanceof IndexedSequence)) {
-          sequence = sequence.values();
+          sequence = sequence.valueSeq();
         }
         iterations += sequence.__iterate((v, index, c) => {
           index += iterations;
@@ -617,8 +617,8 @@ class IndexedSequence extends Sequence {
 
   // Overridden to supply undefined length because it's entirely
   // possible this is sparse.
-  values() {
-    var valuesSequence = super.values();
+  valueSeq() {
+    var valuesSequence = super.valueSeq();
     valuesSequence.length = undefined;
     return valuesSequence;
   }
@@ -767,7 +767,7 @@ class IndexedSequence extends Sequence {
   sortBy(mapper, comparator, maintainIndices) {
     var sortedSeq = super.sortBy(mapper, comparator);
     if (!maintainIndices) {
-      sortedSeq = sortedSeq.values();
+      sortedSeq = sortedSeq.valueSeq();
     }
     sortedSeq.length = this.length;
     return sortedSeq;
@@ -984,4 +984,15 @@ function assertNotInfinite(length) {
     length !== Infinity,
     'Cannot perform this action with an infinite sequence.'
   );
+}
+
+function iteratorMapper(iter, fn) {
+  var newIter = new SequenceIterator();
+  newIter.next = () => {
+    var step = iter.next();
+    if (step.done) return step;
+    step.value = fn(step.value);
+    return step;
+  };
+  return newIter;
 }

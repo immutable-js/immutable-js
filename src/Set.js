@@ -9,7 +9,8 @@
 
 import "Sequence"
 import "Map"
-/* global Sequence, IndexedSequencePrototype, Map, MapPrototype */
+/* global Sequence, IndexedSequencePrototype, iteratorMapper,
+          Map, MapPrototype */
 /* exported Set */
 
 
@@ -145,6 +146,14 @@ class Set extends Sequence {
     return this._map.wasAltered();
   }
 
+  values() {
+    return this._map.keys();
+  }
+
+  entries() {
+    return iteratorMapper(this.values(), key => [key, key]);
+  }
+
   __iterate(fn, reverse) {
     var collection = this;
     return this._map.__iterate((_, k) => fn(k, k, collection), reverse);
@@ -169,6 +178,7 @@ class Set extends Sequence {
 }
 
 var SetPrototype = Set.prototype;
+SetPrototype['@@iterator'] = SetPrototype.keys = SetPrototype.values;
 SetPrototype.contains = SetPrototype.has;
 SetPrototype.mergeDeep = SetPrototype.merge = SetPrototype.union;
 SetPrototype.mergeDeepWith = SetPrototype.mergeWith = function(merger, ...seqs) {

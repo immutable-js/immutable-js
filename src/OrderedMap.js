@@ -7,10 +7,11 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
+import "Sequence"
 import "Map"
 import "Vector"
 import "is"
-/* global Map, Vector, is */
+/* global iteratorMapper, Map, Vector, is */
 /* exported OrderedMap */
 
 
@@ -93,16 +94,24 @@ class OrderedMap extends Map {
     return this._map.wasAltered() || this._vector.wasAltered();
   }
 
-  iterator() {
-    return this._vector.iterator();
+  keys() {
+    return iteratorMapper(this.entries(), entry => entry[0]);
+  }
+
+  values() {
+    return iteratorMapper(this.entries(), entry => entry[1]);
+  }
+
+  entries() {
+    return this._vector.values(true);
   }
 
   __iterate(fn, reverse) {
-    return this._vector.fromEntries().__iterate(fn, reverse);
+    return this._vector.fromEntrySeq().__iterate(fn, reverse);
   }
 
   __deepEqual(other) {
-    var iterator = this._vector.iterator();
+    var iterator = this.entries();
     return other.every((v, k) => {
       var entry = iterator.next().value;
       return entry && is(entry[0], k) && is(entry[1], v);

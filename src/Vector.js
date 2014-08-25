@@ -47,7 +47,7 @@ class Vector extends IndexedSequence {
     if (!isArray) {
       sequence = Sequence(sequence);
       if (!(sequence instanceof IndexedSequence)) {
-        sequence = sequence.values();
+        sequence = sequence.valueSeq();
       }
     }
     return Vector.empty().merge(sequence);
@@ -170,8 +170,16 @@ class Vector extends IndexedSequence {
     return sliceSequence;
   }
 
-  iterator(sparse) {
-    return new VectorIterator(this, sparse);
+  keys(sparse) {
+    return new VectorIterator(this, 0, sparse);
+  }
+
+  values(sparse) {
+    return new VectorIterator(this, 1, sparse);
+  }
+
+  entries(sparse) {
+    return new VectorIterator(this, 2, sparse);
   }
 
   __iterate(fn, reverse, flipIndices) {
@@ -202,7 +210,7 @@ class Vector extends IndexedSequence {
   }
 
   __deepEquals(other) {
-    var iterator = this.iterator(true);
+    var iterator = this.entries(true);
     return other.every((v, i) => {
       var entry = iterator.next().value;
       return entry && entry[0] === i && is(entry[1], v);
@@ -222,7 +230,7 @@ class Vector extends IndexedSequence {
 }
 
 var VectorPrototype = Vector.prototype;
-VectorPrototype['@@iterator'] = VectorPrototype.iterator;
+VectorPrototype['@@iterator'] = VectorPrototype.values;
 VectorPrototype.update = MapPrototype.update;
 VectorPrototype.updateIn = MapPrototype.updateIn;
 VectorPrototype.cursor = MapPrototype.cursor;
@@ -338,8 +346,9 @@ function iterateVNode(node, level, offset, max, fn, reverse) {
 
 class VectorIterator extends SequenceIterator {
 
-  constructor(vector, sparse) {
+  constructor(vector, type, sparse) {
     var tailOffset = getTailOffset(vector._size);
+    this._type = type;
     this._sparse = sparse;
     this._stack = vectIteratorFrame(
       vector._root && vector._root.array,
@@ -356,6 +365,7 @@ class VectorIterator extends SequenceIterator {
   }
 
   next() {
+    var type = this._type;
     var sparse = this._sparse;
     var stack = this._stack;
     while (stack) {
@@ -367,7 +377,7 @@ class VectorIterator extends SequenceIterator {
         var value = array && array[rawIndex];
         if (stack.level === 0) {
           if (!sparse || value || (array && rawIndex < array.length && array.hasOwnProperty(rawIndex))) {
-            return iteratorValue(sparse ? [index, value] : value);
+            return iteratorValue(type === 0 ? index : type === 1 ? value : [index, value]);
           }
         } else if (!sparse || value) {
           this._stack = stack = vectIteratorFrame(

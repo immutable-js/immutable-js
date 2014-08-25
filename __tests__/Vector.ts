@@ -410,9 +410,9 @@ describe('Vector', () => {
 
   check.it('iterates through all values', [gen.posInt], len => {
     var v = Immutable.Range(0, len).toVector();
-    var iterator = v.iterator();
+    var valueIter = v.values();
     for (var ii = 0; ii < len; ii++) {
-      expect(iterator.next().value).toBe(ii);
+      expect(valueIter.next().value).toBe(ii);
     }
   });
 

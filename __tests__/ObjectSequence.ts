@@ -21,7 +21,7 @@ describe('ObjectSequence', () => {
 
   it('extracts keys', () => {
     var i = Immutable.Sequence({'a': 'A', 'b': 'B', 'c': 'C'});
-    var k = i.keys().toArray();
+    var k = i.keySeq().toArray();
     expect(k).toEqual(['a', 'b', 'c']);
   });
 

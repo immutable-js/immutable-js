@@ -53,41 +53,41 @@ describe('ArraySequence', () => {
 
     expect(i.slice(6, null, /*maintainIndices*/true).reverse().reverse().toArray()).toEqual([,,,,,,3,,4,,5,,,,]);
 
-    expect(i.slice(6, null, /*maintainIndices*/true).reverse().reverse(true).entries().toArray()).toEqual(
+    expect(i.slice(6, null, /*maintainIndices*/true).reverse().reverse(true).entrySeq().toArray()).toEqual(
       [[6,3], [4,4], [2,5]]
     );
 
-    expect(i.slice(6, null, /*maintainIndices*/true).reverse(true).reverse().entries().toArray()).toEqual(
+    expect(i.slice(6, null, /*maintainIndices*/true).reverse(true).reverse().entrySeq().toArray()).toEqual(
       [[6,3], [4,4], [2,5]]
     );
 
-    expect(i.reverse(true).slice(6, null, /*maintainIndices*/true).reverse().entries().toArray()).toEqual(
+    expect(i.reverse(true).slice(6, null, /*maintainIndices*/true).reverse().entrySeq().toArray()).toEqual(
       [[10,1], [8,2], [6,3]]
     );
 
-    expect(i.reverse(true).slice(6, null, /*maintainIndices*/true).reverse(true).entries().toArray()).toEqual(
+    expect(i.reverse(true).slice(6, null, /*maintainIndices*/true).reverse(true).entrySeq().toArray()).toEqual(
       [[2,1], [4,2], [6,3]]
     );
 
     var ii = i;
     ii = ii.reverse();
     expect(ii.toArray()).toEqual([,,5,,4,,3,,2,,1,,,,]);
-    expect(ii.entries().toArray()).toEqual([[2,5],[4,4],[6,3],[8,2],[10,1]]);
+    expect(ii.entrySeq().toArray()).toEqual([[2,5],[4,4],[6,3],[8,2],[10,1]]);
     ii = ii.reverse(true);
     expect(ii.toArray()).toEqual([,,5,,4,,3,,2,,1,,,,]);
-    expect(ii.entries().toArray()).toEqual([[10,1],[8,2],[6,3],[4,4],[2,5]]);
+    expect(ii.entrySeq().toArray()).toEqual([[10,1],[8,2],[6,3],[4,4],[2,5]]);
     ii = ii.slice(6, null, true);
     expect(ii.toArray()).toEqual([,,5,,4,,3,,,,,,,,]);
-    expect(ii.entries().toArray()).toEqual([[6,3],[4,4],[2,5]]);
+    expect(ii.entrySeq().toArray()).toEqual([[6,3],[4,4],[2,5]]);
     ii = ii.reverse();
     expect(ii.toArray()).toEqual([,,,,,,3,,4,,5,,,,]);
-    expect(ii.entries().toArray()).toEqual([[10,5],[8,4],[6,3]]);
+    expect(ii.entrySeq().toArray()).toEqual([[10,5],[8,4],[6,3]]);
     ii = ii.reverse(true);
     expect(ii.toArray()).toEqual([,,,,,,3,,4,,5,,,,]);
-    expect(ii.entries().toArray()).toEqual([[6,3],[8,4],[10,5]]);
+    expect(ii.entrySeq().toArray()).toEqual([[6,3],[8,4],[10,5]]);
 
 
-    expect(i.reverse().reverse(true).slice(6, null, /*maintainIndices*/true).reverse().reverse(true).entries().toArray()).toEqual(
+    expect(i.reverse().reverse(true).slice(6, null, /*maintainIndices*/true).reverse().reverse(true).entrySeq().toArray()).toEqual(
       [[6,3],[8,4],[10,5]]
     );
 

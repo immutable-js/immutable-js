@@ -20,12 +20,12 @@ describe('sort', () => {
   })
 
   it('sorts a keyed sequence', () => {
-    expect(Sequence({z:1,y:2,x:3,c:3,b:2,a:1}).sort().entries().toArray())
+    expect(Sequence({z:1,y:2,x:3,c:3,b:2,a:1}).sort().entrySeq().toArray())
       .toEqual([['z', 1],['a', 1],['y', 2],['b', 2],['x', 3],['c', 3]]);
   })
 
   it('sorts an OrderedMap', () => {
-    expect(OrderedMap({z:1,y:2,x:3,c:3,b:2,a:1}).sort().entries().toArray())
+    expect(OrderedMap({z:1,y:2,x:3,c:3,b:2,a:1}).sort().entrySeq().toArray())
       .toEqual([['z', 1],['a', 1],['y', 2],['b', 2],['x', 3],['c', 3]]);
   })
 
