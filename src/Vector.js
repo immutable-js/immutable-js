@@ -366,7 +366,7 @@ class VectorIterator extends SequenceIterator {
       if (rawIndex < SIZE && index > -step && index < stack.max) {
         var value = array && array[rawIndex];
         if (stack.level === 0) {
-          if (!sparse || value || (array && array.hasOwnProperty(rawIndex))) {
+          if (!sparse || value || (array && rawIndex < array.length && array.hasOwnProperty(rawIndex))) {
             return iteratorValue(sparse ? [index, value] : value);
           }
         } else if (!sparse || value) {
