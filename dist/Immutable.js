@@ -932,6 +932,15 @@ function arrCopy(arr) {
   }
   return newArr;
 }
+var ITER_RESULT = {
+  value: undefined,
+  done: false
+};
+function iteratorResult(value) {
+  ITER_RESULT.value = value;
+  ITER_RESULT.done = !value;
+  return ITER_RESULT;
+}
 var Cursor = function Cursor(rootData, keyPath, onChange, value) {
   value = value ? value : rootData.getIn(keyPath);
   this.length = value instanceof Sequence ? value.length : null;
@@ -1099,6 +1108,9 @@ var $Map = Map;
   wasAltered: function() {
     return this.__altered;
   },
+  iterator: function() {
+    return new MapIterator(this);
+  },
   __iterate: function(fn, reverse) {
     var map = this;
     if (!map._root) {
@@ -1134,6 +1146,7 @@ var $Map = Map;
     return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
   }}, Sequence);
 var MapPrototype = Map.prototype;
+MapPrototype['@@iterator'] = MapPrototype.iterator;
 Map.from = Map;
 var BitmapIndexedNode = function BitmapIndexedNode(ownerID, bitmap, nodes) {
   this.ownerID = ownerID;
@@ -1349,6 +1362,45 @@ var $ValueNode = ValueNode;
     return fn(this.entry);
   }
 }, {});
+var MapIterator = function MapIterator(map) {
+  this._stack = map._root && mapIteratorFrame(map._root);
+};
+($traceurRuntime.createClass)(MapIterator, {next: function() {
+    var stack = this._stack;
+    while (stack) {
+      var node = stack.node;
+      var index = stack.index++;
+      if (node.constructor === ValueNode) {
+        if (index === 0) {
+          return iteratorResult(node.entry);
+        }
+      } else if (node.constructor === HashCollisionNode) {
+        if (index < node.entries.length) {
+          return iteratorResult(node.entries[index]);
+        }
+      } else {
+        if (index < node.nodes.length) {
+          var subNode = node.nodes[index];
+          if (subNode) {
+            if (subNode.constructor === ValueNode) {
+              return iteratorResult(subNode.entry);
+            }
+            stack = this._stack = mapIteratorFrame(subNode, stack);
+          }
+          continue;
+        }
+      }
+      stack = this._stack = this._stack.__prev;
+    }
+    return iteratorResult();
+  }}, {});
+function mapIteratorFrame(node, prev) {
+  return {
+    node: node,
+    index: 0,
+    __prev: prev
+  };
+}
 function makeMap(length, root, ownerID) {
   var map = Object.create(MapPrototype);
   map.length = length;
@@ -1838,8 +1890,8 @@ function iterateVNode(node, level, offset, max, fn, reverse) {
 }
 var VectorIterator = function VectorIterator(vector) {
   var tailOffset = getTailOffset(vector._size);
-  var tailStack = vector._tail && iteratorFrame(vector._tail.array, 0, tailOffset - vector._origin, vector._size - vector._origin);
-  this._stack = vector._root ? iteratorFrame(vector._root.array, vector._level, -vector._origin, tailOffset - vector._origin, tailStack) : tailStack;
+  var tailStack = vector._tail && vectIteratorFrame(vector._tail.array, 0, tailOffset - vector._origin, vector._size - vector._origin);
+  this._stack = vector._root ? vectIteratorFrame(vector._root.array, vector._level, -vector._origin, tailOffset - vector._origin, tailStack) : tailStack;
 };
 ($traceurRuntime.createClass)(VectorIterator, {next: function() {
     var stack = this._stack;
@@ -1851,10 +1903,7 @@ var VectorIterator = function VectorIterator(vector) {
           if (index >= 0 && index < stack.max && stack.array.hasOwnProperty(stack.rawIndex)) {
             var value = stack.array[stack.rawIndex];
             stack.rawIndex++;
-            return {
-              value: [index, value],
-              done: false
-            };
+            return iteratorResult([index, value]);
           }
           stack.rawIndex++;
         }
@@ -1867,7 +1916,7 @@ var VectorIterator = function VectorIterator(vector) {
             var node = stack.array[stack.levelIndex];
             if (node) {
               stack.levelIndex++;
-              stack = this._stack = iteratorFrame(node.array, stack.level - SHIFT, newOffset, stack.max, stack);
+              stack = this._stack = vectIteratorFrame(node.array, stack.level - SHIFT, newOffset, stack.max, stack);
               continue iteration;
             }
           }
@@ -1876,12 +1925,9 @@ var VectorIterator = function VectorIterator(vector) {
       }
       stack = this._stack = this._stack.__prev;
     }
-    return {
-      value: undefined,
-      done: true
-    };
+    return iteratorResult();
   }}, {});
-function iteratorFrame(array, level, offset, max, prevFrame) {
+function vectIteratorFrame(array, level, offset, max, prevFrame) {
   return {
     array: array,
     level: level,

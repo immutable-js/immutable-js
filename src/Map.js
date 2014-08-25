@@ -14,7 +14,7 @@ import "Cursor"
 import "TrieUtils"
 /* global Sequence, is, invariant, Cursor,
           SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
-          MakeRef, SetRef, arrCopy */
+          MakeRef, SetRef, arrCopy, iteratorResult */
 /* exported Map, MapPrototype */
 
 
@@ -133,6 +133,10 @@ class Map extends Sequence {
     return this.__altered;
   }
 
+  iterator() {
+    return new MapIterator(this);
+  }
+
   __iterate(fn, reverse) {
     var map = this;
     if (!map._root) {
@@ -169,6 +173,8 @@ class Map extends Sequence {
 }
 
 var MapPrototype = Map.prototype;
+MapPrototype['@@iterator'] = MapPrototype.iterator;
+
 Map.from = Map;
 
 
@@ -428,6 +434,51 @@ class ValueNode {
   iterate(fn) {
     return fn(this.entry);
   }
+}
+
+class MapIterator {
+
+  constructor(map) {
+    this._stack = map._root && mapIteratorFrame(map._root);
+  }
+
+  next() {
+    var stack = this._stack;
+    while (stack) {
+      var node = stack.node;
+      var index = stack.index++;
+      if (node.constructor === ValueNode) {
+        if (index === 0) {
+          return iteratorResult(node.entry);
+        }
+      } else if (node.constructor === HashCollisionNode) {
+        if (index < node.entries.length) {
+          return iteratorResult(node.entries[index]);
+        }
+      } else {
+        if (index < node.nodes.length) {
+          var subNode = node.nodes[index];
+          if (subNode) {
+            if (subNode.constructor === ValueNode) {
+              return iteratorResult(subNode.entry);
+            }
+            stack = this._stack = mapIteratorFrame(subNode, stack);
+          }
+          continue;
+        }
+      }
+      stack = this._stack = this._stack.__prev;
+    }
+    return iteratorResult();
+  }
+}
+
+function mapIteratorFrame(node, prev) {
+  return {
+    node: node,
+    index: 0,
+    __prev: prev
+  };
 }
 
 function makeMap(length, root, ownerID) {

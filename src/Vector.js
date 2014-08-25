@@ -15,7 +15,7 @@ import "TrieUtils"
 /* global Sequence, IndexedSequence, is, invariant,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
           SHIFT, SIZE, MASK, NOT_SET, DID_ALTER, OwnerID, MakeRef, SetRef,
-          arrCopy */
+          arrCopy, iteratorResult */
 /* exported Vector, VectorPrototype */
 
 
@@ -341,14 +341,14 @@ class VectorIterator {
   constructor(vector) {
     var tailOffset = getTailOffset(vector._size);
 
-    var tailStack = vector._tail && iteratorFrame(
+    var tailStack = vector._tail && vectIteratorFrame(
       vector._tail.array,
       0,
       tailOffset - vector._origin,
       vector._size - vector._origin
     );
 
-    this._stack = vector._root ? iteratorFrame(
+    this._stack = vector._root ? vectIteratorFrame(
       vector._root.array,
       vector._level,
       -vector._origin,
@@ -367,7 +367,7 @@ class VectorIterator {
           if (index >= 0 && index < stack.max && stack.array.hasOwnProperty(stack.rawIndex)) {
             var value = stack.array[stack.rawIndex];
             stack.rawIndex++;
-            return { value: [index, value], done: false };
+            return iteratorResult([index, value]);
           }
           stack.rawIndex++;
         }
@@ -380,7 +380,7 @@ class VectorIterator {
             var node = stack.array[stack.levelIndex];
             if (node) {
               stack.levelIndex++;
-              stack = this._stack = iteratorFrame(
+              stack = this._stack = vectIteratorFrame(
                 node.array,
                 stack.level - SHIFT,
                 newOffset,
@@ -395,12 +395,11 @@ class VectorIterator {
       }
       stack = this._stack = this._stack.__prev;
     }
-    return { value: undefined, done: true };
+    return iteratorResult();
   }
 }
 
-
-function iteratorFrame(array, level, offset, max, prevFrame) {
+function vectIteratorFrame(array, level, offset, max, prevFrame) {
   return {
     array: array,
     level: level,
