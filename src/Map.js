@@ -447,11 +447,11 @@ class MapIterator {
     while (stack) {
       var node = stack.node;
       var index = stack.index++;
-      if (node.constructor === ValueNode) {
+      if (node.entry) {
         if (index === 0) {
           return iteratorValue(node.entry);
         }
-      } else if (node.constructor === HashCollisionNode) {
+      } else if (node.entries) {
         if (index < node.entries.length) {
           return iteratorValue(node.entries[index]);
         }
@@ -459,7 +459,7 @@ class MapIterator {
         if (index < node.nodes.length) {
           var subNode = node.nodes[index];
           if (subNode) {
-            if (subNode.constructor === ValueNode) {
+            if (subNode.entry) {
               return iteratorValue(subNode.entry);
             }
             stack = this._stack = mapIteratorFrame(subNode, stack);
