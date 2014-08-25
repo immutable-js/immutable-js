@@ -944,10 +944,12 @@ declare module 'immutable' {
     /**
      * Returns a new Map having updated the value at this `key` with the return
      * value of calling `updater` with the existing value, or `notSetValue` if
-     * the key was not set.
+     * the key was not set. If called with only a single argument, `updater` is
+     * called with the Map itself.
      *
      * Equivalent to: `map.set(key, updater(map.get(key, notSetValue)))`.
      */
+    update(updater: (value: Map<K, V>) => Map<K, V>): Map<K, V>;
     update(key: K, updater: (value: V) => V): Map<K, V>;
     update(key: K, notSetValue: V, updater: (value: V) => V): Map<K, V>;
 
@@ -1402,10 +1404,12 @@ declare module 'immutable' {
     /**
      * Returns a new Vector with an updated value at `index` with the return
      * value of calling `updater` with the existing value, or `notSetValue` if
-     * `index` was not set.
+     * `index` was not set. If called with a single argument, `updater` is
+     * called with the Vector itself.
      *
      * @see Map.update
      */
+    update(updater: (value: Vector<T>) => Vector<T>): Vector<T>;
     update(index: number, updater: (value: T) => T): Vector<T>;
     update(index: number, notSetValue: T, updater: (value: T) => T): Vector<T>;
 
@@ -1519,6 +1523,12 @@ declare module 'immutable' {
   export interface Cursor<T> extends Sequence<any, any> {
 
     /**
+     * Returns a sub-cursor following the key-path starting from this cursor.
+     */
+    cursor(subKeyPath: Array<any>): Cursor<any>;
+    cursor(subKey: any): Cursor<any>;
+
+    /**
      * Returns the value at the cursor, if the cursor path does not yet exist,
      * returns `notSetValue`.
      */
@@ -1541,42 +1551,25 @@ declare module 'immutable' {
     getIn(keyPath: Array<any>, notSetValue?: any): any;
 
     /**
-     * Updates the value in the data this cursor points to, triggering the
-     * callback for the root cursor and returning a new cursor pointing to the
-     * new data.
-     */
-    update(updater: (value: T) => T): Cursor<T>;
-
-    /**
-     * Updates the value at `key` in the cursor, returning a new cursor pointing
-     * to the new data.
-     *
-     * This is shorthand for `cursor.update(x => x.update(key, fn))`
-     */
-    update(key: any, updater: (value: any) => any): Cursor<T>;
-    update(key: any, notSetValue: any, updater: (value: any) => any): Cursor<T>;
-
-    /**
      * Sets `value` at `key` in the cursor, returning a new cursor to the same
      * point in the new data.
-     *
-     * This is shorthand for `cursor.update(x => x.set(key, value))`
      */
     set(key: any, value: any): Cursor<T>;
 
     /**
      * Deletes `key` from the cursor, returning a new cursor to the same
      * point in the new data.
-     *
-     * This is shorthand for `cursor.update(x => x.delete(key))`
      */
     delete(key: any): Cursor<T>;
 
     /**
-     * Returns a sub-cursor following the key-path starting from this cursor.
+     * Updates the value in the data this cursor points to, triggering the
+     * callback for the root cursor and returning a new cursor pointing to the
+     * new data.
      */
-    cursor(subKeyPath: Array<any>): Cursor<any>;
-    cursor(subKey: any): Cursor<any>;
+    update(updater: (value: T) => T): Cursor<T>;
+    update(key: any, updater: (value: any) => any): Cursor<T>;
+    update(key: any, notSetValue: any, updater: (value: any) => any): Cursor<T>;
   }
 
 }

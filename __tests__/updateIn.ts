@@ -79,4 +79,13 @@ describe('updateIn', () => {
     }).toThrow();
   })
 
+  it('updates self for empty path', () => {
+    var m = I.fromJS({a: 1, b: 2, c: 3});
+    expect(
+      m.updateIn([], map => map.set('b', 20)).toJS()
+    ).toEqual(
+      {a: 1, b: 20, c: 3}
+    )
+  })
+
 })
