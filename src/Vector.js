@@ -171,9 +171,7 @@ class Vector extends IndexedSequence {
   }
 
   iterator() {
-    return new VectorIterator(
-      this, this._origin, this._size, this._level, this._root, this._tail
-    );
+    return new VectorIterator(this);
   }
 
   __iterate(fn, reverse, flipIndices) {
@@ -340,21 +338,21 @@ function iterateVNode(node, level, offset, max, fn, reverse) {
 
 class VectorIterator {
 
-  constructor(vector, origin, size, level, root, tail) {
-    var tailOffset = getTailOffset(size);
+  constructor(vector) {
+    var tailOffset = getTailOffset(vector._size);
 
-    var tailStack = tail && iteratorFrame(
-      tail.array,
+    var tailStack = vector._tail && iteratorFrame(
+      vector._tail.array,
       0,
-      tailOffset - origin,
-      size - origin
+      tailOffset - vector._origin,
+      vector._size - vector._origin
     );
 
-    this._stack = root ? iteratorFrame(
-      root.array,
-      level,
-      -origin,
-      tailOffset - origin,
+    this._stack = vector._root ? iteratorFrame(
+      vector._root.array,
+      vector._level,
+      -vector._origin,
+      tailOffset - vector._origin,
       tailStack
     ) : tailStack;
   }
