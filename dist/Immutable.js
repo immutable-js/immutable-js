@@ -2355,15 +2355,17 @@ var $OrderedMap = OrderedMap;
   wasAltered: function() {
     return this._map.wasAltered() || this._vector.wasAltered();
   },
+  iterator: function() {
+    return this._vector.iterator();
+  },
   __iterate: function(fn, reverse) {
-    return this._vector ? this._vector.fromEntries().__iterate(fn, reverse) : 0;
+    return this._vector.fromEntries().__iterate(fn, reverse);
   },
   __deepEqual: function(other) {
     var iterator = this._vector.iterator();
     return other.every((function(v, k) {
       var entry = iterator.next().value;
-      entry && (entry = entry[1]);
-      return entry && is(k, entry[0]) && is(v, entry[1]);
+      return entry && is(entry[0], k) && is(entry[1], v);
     }));
   },
   __ensureOwner: function(ownerID) {
