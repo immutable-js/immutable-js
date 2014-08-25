@@ -41,6 +41,52 @@ $traceurRuntime.createClass = createClass;
 $traceurRuntime.superCall = superCall;
 $traceurRuntime.defaultSuperCall = defaultSuperCall;
 "use strict";
+var SHIFT = 5;
+var SIZE = 1 << SHIFT;
+var MASK = SIZE - 1;
+var NOT_SET = {};
+var CHANGE_LENGTH = {value: false};
+var DID_ALTER = {value: false};
+function MakeRef(ref) {
+  ref.value = false;
+  return ref;
+}
+function SetRef(ref) {
+  ref && (ref.value = true);
+}
+function OwnerID() {}
+function arrCopy(arr) {
+  var len = arr.length;
+  var newArr = new Array(len);
+  for (var ii = 0; ii < len; ii++) {
+    newArr[ii] = arr[ii];
+  }
+  return newArr;
+}
+var ITER_RESULT = {
+  value: undefined,
+  done: false
+};
+function iteratorValue(value) {
+  ITER_RESULT.value = value;
+  ITER_RESULT.done = false;
+  return ITER_RESULT;
+}
+function iteratorDone() {
+  ITER_RESULT.value = undefined;
+  ITER_RESULT.done = true;
+  return ITER_RESULT;
+}
+function invariant(condition, error) {
+  if (!condition)
+    throw new Error(error);
+}
+if (typeof Symbol === 'undefined') {
+  Symbol = {};
+}
+if (!Symbol.iterator) {
+  Symbol.iterator = '@@iterator';
+}
 var Sequence = function Sequence(value) {
   return $Sequence.from(arguments.length === 1 ? value : Array.prototype.slice.call(arguments));
 };
@@ -830,6 +876,7 @@ var SequenceIterator = function SequenceIterator() {};
     return '[Iterator]';
   }}, {});
 var SequenceIteratorPrototype = SequenceIterator.prototype;
+SequenceIteratorPrototype[Symbol.iterator] = returnThis;
 SequenceIteratorPrototype.inspect = SequenceIteratorPrototype.toSource = function() {
   return this.toString();
 };
@@ -929,42 +976,6 @@ function iteratorMapper(iter, fn) {
   });
   return newIter;
 }
-var SHIFT = 5;
-var SIZE = 1 << SHIFT;
-var MASK = SIZE - 1;
-var NOT_SET = {};
-var CHANGE_LENGTH = {value: false};
-var DID_ALTER = {value: false};
-function MakeRef(ref) {
-  ref.value = false;
-  return ref;
-}
-function SetRef(ref) {
-  ref && (ref.value = true);
-}
-function OwnerID() {}
-function arrCopy(arr) {
-  var len = arr.length;
-  var newArr = new Array(len);
-  for (var ii = 0; ii < len; ii++) {
-    newArr[ii] = arr[ii];
-  }
-  return newArr;
-}
-var ITER_RESULT = {
-  value: undefined,
-  done: false
-};
-function iteratorValue(value) {
-  ITER_RESULT.value = value;
-  ITER_RESULT.done = false;
-  return ITER_RESULT;
-}
-function iteratorDone() {
-  ITER_RESULT.value = undefined;
-  ITER_RESULT.done = true;
-  return ITER_RESULT;
-}
 var Cursor = function Cursor(rootData, keyPath, onChange, value) {
   value = value ? value : rootData.getIn(keyPath);
   this.length = value instanceof Sequence ? value.length : null;
@@ -1044,10 +1055,6 @@ function is(first, second) {
     return first.equals(second);
   }
   return false;
-}
-function invariant(condition, error) {
-  if (!condition)
-    throw new Error(error);
 }
 var Map = function Map(sequence) {
   var map = $Map.empty();
@@ -1176,7 +1183,7 @@ var $Map = Map;
     return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
   }}, Sequence);
 var MapPrototype = Map.prototype;
-MapPrototype['@@iterator'] = function() {
+MapPrototype[Symbol.iterator] = function() {
   return this.entries();
 };
 Map.from = Map;
@@ -1824,7 +1831,7 @@ var $Vector = Vector;
   }
 }, IndexedSequence);
 var VectorPrototype = Vector.prototype;
-VectorPrototype['@@iterator'] = VectorPrototype.values;
+VectorPrototype[Symbol.iterator] = VectorPrototype.values;
 VectorPrototype.update = MapPrototype.update;
 VectorPrototype.updateIn = MapPrototype.updateIn;
 VectorPrototype.cursor = MapPrototype.cursor;
@@ -2326,7 +2333,7 @@ var $Set = Set;
   }
 }, Sequence);
 var SetPrototype = Set.prototype;
-SetPrototype['@@iterator'] = SetPrototype.keys = SetPrototype.values;
+SetPrototype[Symbol.iterator] = SetPrototype.keys = SetPrototype.values;
 SetPrototype.contains = SetPrototype.has;
 SetPrototype.mergeDeep = SetPrototype.merge = SetPrototype.union;
 SetPrototype.mergeDeepWith = SetPrototype.mergeWith = function(merger) {
@@ -2555,7 +2562,7 @@ var $Record = Record;
 }, {}, Sequence);
 var RecordPrototype = Record.prototype;
 RecordPrototype.__deepEqual = MapPrototype.__deepEqual;
-RecordPrototype['@@iterator'] = MapPrototype['@@iterator'];
+RecordPrototype[Symbol.iterator] = MapPrototype[Symbol.iterator];
 RecordPrototype.merge = MapPrototype.merge;
 RecordPrototype.mergeWith = MapPrototype.mergeWith;
 RecordPrototype.mergeDeep = MapPrototype.mergeDeep;

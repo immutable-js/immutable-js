@@ -12,10 +12,11 @@ import "is"
 import "invariant"
 import "Map"
 import "TrieUtils"
+import "Symbol"
 /* global Sequence, IndexedSequence, SequenceIterator, is, invariant,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
           SHIFT, SIZE, MASK, NOT_SET, DID_ALTER, OwnerID, MakeRef, SetRef,
-          arrCopy, iteratorValue, iteratorDone */
+          arrCopy, iteratorValue, iteratorDone, Symbol */
 /* exported Vector, VectorPrototype */
 
 
@@ -230,7 +231,7 @@ class Vector extends IndexedSequence {
 }
 
 var VectorPrototype = Vector.prototype;
-VectorPrototype['@@iterator'] = VectorPrototype.values;
+VectorPrototype[Symbol.iterator] = VectorPrototype.values;
 VectorPrototype.update = MapPrototype.update;
 VectorPrototype.updateIn = MapPrototype.updateIn;
 VectorPrototype.cursor = MapPrototype.cursor;

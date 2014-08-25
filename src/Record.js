@@ -10,7 +10,8 @@
 import "Sequence"
 import "Map"
 import "invariant"
-/* global Sequence, Map, MapPrototype, invariant */
+import "Symbol"
+/* global Sequence, Map, MapPrototype, invariant, Symbol */
 /* exported Record */
 
 
@@ -132,7 +133,7 @@ class Record extends Sequence {
 
 var RecordPrototype = Record.prototype;
 RecordPrototype.__deepEqual = MapPrototype.__deepEqual;
-RecordPrototype['@@iterator'] = MapPrototype['@@iterator'];
+RecordPrototype[Symbol.iterator] = MapPrototype[Symbol.iterator];
 RecordPrototype.merge = MapPrototype.merge;
 RecordPrototype.mergeWith = MapPrototype.mergeWith;
 RecordPrototype.mergeDeep = MapPrototype.mergeDeep;
