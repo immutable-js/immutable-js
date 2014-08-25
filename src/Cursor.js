@@ -41,6 +41,10 @@ class Cursor extends Sequence {
     return updateCursor(this, m => m.delete(key), key);
   }
 
+  clear() {
+    return updateCursor(this, m => m.clear());
+  }
+
   update(keyOrFn, notSetValue, updater) {
     return arguments.length === 1 ?
       updateCursor(this, keyOrFn) :

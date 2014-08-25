@@ -960,6 +960,11 @@ var Cursor = function Cursor(rootData, keyPath, onChange, value) {
       return m.delete(key);
     }), key);
   },
+  clear: function() {
+    return updateCursor(this, (function(m) {
+      return m.clear();
+    }));
+  },
   update: function(keyOrFn, notSetValue, updater) {
     return arguments.length === 1 ? updateCursor(this, keyOrFn) : updateCursor(this, (function(map) {
       return map.update(keyOrFn, notSetValue, updater);

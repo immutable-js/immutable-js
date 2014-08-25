@@ -1563,6 +1563,12 @@ declare module 'immutable' {
     delete(key: any): Cursor<T>;
 
     /**
+     * Clears the value at this cursor, returning a new cursor to the same
+     * point in the new data.
+     */
+    clear(): Cursor<T>;
+
+    /**
      * Updates the value in the data this cursor points to, triggering the
      * callback for the root cursor and returning a new cursor pointing to the
      * new data.
