@@ -12,7 +12,7 @@ import "is"
 import "invariant"
 import "Cursor"
 import "TrieUtils"
-/* global Sequence, is, invariant, Cursor,
+/* global Sequence, SequenceIterator, is, invariant, Cursor,
           SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
           MakeRef, SetRef, arrCopy, iteratorValue, iteratorDone */
 /* exported Map, MapPrototype */
@@ -436,7 +436,7 @@ class ValueNode {
   }
 }
 
-class MapIterator {
+class MapIterator extends SequenceIterator {
 
   constructor(map) {
     this._stack = map._root && mapIteratorFrame(map._root);

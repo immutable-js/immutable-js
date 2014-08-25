@@ -12,7 +12,7 @@ import "is"
 import "invariant"
 import "Map"
 import "TrieUtils"
-/* global Sequence, IndexedSequence, is, invariant,
+/* global Sequence, IndexedSequence, SequenceIterator, is, invariant,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
           SHIFT, SIZE, MASK, NOT_SET, DID_ALTER, OwnerID, MakeRef, SetRef,
           arrCopy, iteratorValue, iteratorDone */
@@ -336,7 +336,7 @@ function iterateVNode(node, level, offset, max, fn, reverse) {
   return true;
 }
 
-class VectorIterator {
+class VectorIterator extends SequenceIterator {
 
   constructor(vector, sparse) {
     var tailOffset = getTailOffset(vector._size);

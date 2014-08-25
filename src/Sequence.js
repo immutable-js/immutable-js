@@ -9,7 +9,7 @@
 
 /* Sequence has implicit lazy dependencies */
 /* global is, Map, OrderedMap, Vector, Set, NOT_SET, invariant */
-/* exported Sequence, IndexedSequence */
+/* exported Sequence, IndexedSequence, SequenceIterator */
 
 
 class Sequence {
@@ -524,7 +524,8 @@ class Sequence {
 var SequencePrototype = Sequence.prototype
 SequencePrototype.toJSON = SequencePrototype.toJS;
 SequencePrototype.__toJS = SequencePrototype.toObject;
-SequencePrototype.inspect = SequencePrototype.toSource = function() { return this.toString(); };
+SequencePrototype.inspect =
+SequencePrototype.toSource = function() { return this.toString(); };
 
 
 class IndexedSequence extends Sequence {
@@ -861,6 +862,17 @@ class ArraySequence extends IndexedSequence {
 
 ArraySequence.prototype.get = ObjectSequence.prototype.get;
 ArraySequence.prototype.has = ObjectSequence.prototype.has;
+
+
+class SequenceIterator {
+  toString() {
+    return '[Iterator]';
+  }
+}
+
+var SequenceIteratorPrototype = SequenceIterator.prototype;
+SequenceIteratorPrototype.inspect =
+SequenceIteratorPrototype.toSource = function () { return this.toString(); }
 
 
 function makeSequence() {

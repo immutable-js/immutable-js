@@ -825,6 +825,14 @@ var ArraySequence = function ArraySequence(array) {
 }, {}, IndexedSequence);
 ArraySequence.prototype.get = ObjectSequence.prototype.get;
 ArraySequence.prototype.has = ObjectSequence.prototype.has;
+var SequenceIterator = function SequenceIterator() {};
+($traceurRuntime.createClass)(SequenceIterator, {toString: function() {
+    return '[Iterator]';
+  }}, {});
+var SequenceIteratorPrototype = SequenceIterator.prototype;
+SequenceIteratorPrototype.inspect = SequenceIteratorPrototype.toSource = function() {
+  return this.toString();
+};
 function makeSequence() {
   return Object.create(SequencePrototype);
 }
@@ -1398,7 +1406,7 @@ var MapIterator = function MapIterator(map) {
       stack = this._stack = this._stack.__prev;
     }
     return iteratorDone();
-  }}, {});
+  }}, {}, SequenceIterator);
 function mapIteratorFrame(node, prev) {
   return {
     node: node,
@@ -1920,7 +1928,7 @@ var VectorIterator = function VectorIterator(vector, sparse) {
       stack = this._stack = this._stack.__prev;
     }
     return iteratorDone();
-  }}, {});
+  }}, {}, SequenceIterator);
 function vectIteratorFrame(array, level, offset, max, prevFrame) {
   return {
     array: array,
