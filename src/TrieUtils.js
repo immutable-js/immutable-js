@@ -8,7 +8,7 @@
  */
 
 /* exported SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
-            MakeRef, SetRef, arrCopy, iteratorResult */
+            MakeRef, SetRef, arrCopy, iteratorValue, iteratorDone */
 
 // Constants describing the size of trie nodes.
 var SHIFT = 5; // Resulted in best performance after ______?
@@ -48,8 +48,13 @@ function arrCopy(arr) {
 }
 
 var ITER_RESULT = { value: undefined, done: false };
-function iteratorResult(value) {
+function iteratorValue(value) {
   ITER_RESULT.value = value;
-  ITER_RESULT.done = !value;
+  ITER_RESULT.done = false;
+  return ITER_RESULT;
+}
+function iteratorDone() {
+  ITER_RESULT.value = undefined;
+  ITER_RESULT.done = true;
   return ITER_RESULT;
 }

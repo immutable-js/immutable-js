@@ -1488,11 +1488,11 @@ declare module 'immutable' {
     /**
      * Allows `Vector` to be used in ES6 for-of expressions, returning an object
      * that adheres to the `Iterator` interface: it has a `next()` method which
-     * returns the next (index, value) tuple.
+     * returns the next value or (index, value) tuple when `sparse`.
      *
      * When no entries remain, returns `{ done: true }`
      */
-    iterator(): { next(): { value: /*(number, T)*/Array<any>; done: boolean; } }
+    iterator(sparse?: boolean): Iterator<any>
   }
 
 
@@ -1576,6 +1576,11 @@ declare module 'immutable' {
     update(updater: (value: T) => T): Cursor<T>;
     update(key: any, updater: (value: any) => any): Cursor<T>;
     update(key: any, notSetValue: any, updater: (value: any) => any): Cursor<T>;
+  }
+
+  // Shim for ES6 Iterator
+  export interface Iterator<T> {
+    next(): { value: T; done: boolean; }
   }
 
 }

@@ -14,7 +14,7 @@ import "Cursor"
 import "TrieUtils"
 /* global Sequence, is, invariant, Cursor,
           SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
-          MakeRef, SetRef, arrCopy, iteratorResult */
+          MakeRef, SetRef, arrCopy, iteratorValue, iteratorDone */
 /* exported Map, MapPrototype */
 
 
@@ -449,18 +449,18 @@ class MapIterator {
       var index = stack.index++;
       if (node.constructor === ValueNode) {
         if (index === 0) {
-          return iteratorResult(node.entry);
+          return iteratorValue(node.entry);
         }
       } else if (node.constructor === HashCollisionNode) {
         if (index < node.entries.length) {
-          return iteratorResult(node.entries[index]);
+          return iteratorValue(node.entries[index]);
         }
       } else {
         if (index < node.nodes.length) {
           var subNode = node.nodes[index];
           if (subNode) {
             if (subNode.constructor === ValueNode) {
-              return iteratorResult(subNode.entry);
+              return iteratorValue(subNode.entry);
             }
             stack = this._stack = mapIteratorFrame(subNode, stack);
           }
@@ -469,7 +469,7 @@ class MapIterator {
       }
       stack = this._stack = this._stack.__prev;
     }
-    return iteratorResult();
+    return iteratorDone();
   }
 }
 

@@ -408,4 +408,12 @@ describe('Vector', () => {
     expect(v2.butLast().length).toBe(1799);
   });
 
+  check.it('iterates through all values', [gen.posInt], len => {
+    var v = Immutable.Range(0, len).toVector();
+    var iterator = v.iterator();
+    for (var ii = 0; ii < len; ii++) {
+      expect(iterator.next().value).toBe(ii);
+    }
+  });
+
 });

@@ -15,7 +15,7 @@ import "TrieUtils"
 /* global Sequence, IndexedSequence, is, invariant,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
           SHIFT, SIZE, MASK, NOT_SET, DID_ALTER, OwnerID, MakeRef, SetRef,
-          arrCopy, iteratorResult */
+          arrCopy, iteratorValue, iteratorDone */
 /* exported Vector, VectorPrototype */
 
 
@@ -170,8 +170,8 @@ class Vector extends IndexedSequence {
     return sliceSequence;
   }
 
-  iterator() {
-    return new VectorIterator(this);
+  iterator(sparse) {
+    return new VectorIterator(this, sparse);
   }
 
   __iterate(fn, reverse, flipIndices) {
@@ -202,10 +202,10 @@ class Vector extends IndexedSequence {
   }
 
   __deepEquals(other) {
-    var iterator = this.iterator();
-    return other.every((v, k) => {
+    var iterator = this.iterator(true);
+    return other.every((v, i) => {
       var entry = iterator.next().value;
-      return entry && k === entry[0] && is(v, entry[1]);
+      return entry && entry[0] === i && is(entry[1], v);
     });
   }
 
@@ -338,64 +338,51 @@ function iterateVNode(node, level, offset, max, fn, reverse) {
 
 class VectorIterator {
 
-  constructor(vector) {
+  constructor(vector, sparse) {
     var tailOffset = getTailOffset(vector._size);
-
-    var tailStack = vector._tail && vectIteratorFrame(
-      vector._tail.array,
-      0,
-      tailOffset - vector._origin,
-      vector._size - vector._origin
-    );
-
-    this._stack = vector._root ? vectIteratorFrame(
-      vector._root.array,
+    this._sparse = sparse;
+    this._stack = vectIteratorFrame(
+      vector._root && vector._root.array,
       vector._level,
       -vector._origin,
       tailOffset - vector._origin,
-      tailStack
-    ) : tailStack;
+      vectIteratorFrame(
+        vector._tail && vector._tail.array,
+        0,
+        tailOffset - vector._origin,
+        vector._size - vector._origin
+      )
+    );
   }
 
-  next() /*(number,T)*/ {
+  next() {
+    var sparse = this._sparse;
     var stack = this._stack;
-    iteration: while (stack) {
-      if (stack.level === 0) {
-        stack.rawIndex || (stack.rawIndex = 0);
-        while (stack.rawIndex < stack.array.length) {
-          var index = stack.rawIndex + stack.offset;
-          if (index >= 0 && index < stack.max && stack.array.hasOwnProperty(stack.rawIndex)) {
-            var value = stack.array[stack.rawIndex];
-            stack.rawIndex++;
-            return iteratorResult([index, value]);
+    while (stack) {
+      var array = stack.array;
+      var rawIndex = stack.index++;
+      var step = 1 << stack.level;
+      var index = stack.offset + rawIndex * step;
+      if (rawIndex < SIZE && index > -step && index < stack.max) {
+        var value = array && array[rawIndex];
+        if (stack.level === 0) {
+          if (!sparse || value || (array && array.hasOwnProperty(rawIndex))) {
+            return iteratorValue(sparse ? [index, value] : value);
           }
-          stack.rawIndex++;
+        } else if (!sparse || value) {
+          this._stack = stack = vectIteratorFrame(
+            value && value.array,
+            stack.level - SHIFT,
+            index,
+            stack.max,
+            stack
+          );
         }
-      } else {
-        var step = 1 << stack.level;
-        stack.levelIndex || (stack.levelIndex = 0);
-        while (stack.levelIndex < stack.array.length) {
-          var newOffset = stack.offset + stack.levelIndex * step;
-          if (newOffset + step > 0 && newOffset < stack.max) {
-            var node = stack.array[stack.levelIndex];
-            if (node) {
-              stack.levelIndex++;
-              stack = this._stack = vectIteratorFrame(
-                node.array,
-                stack.level - SHIFT,
-                newOffset,
-                stack.max,
-                stack
-              );
-              continue iteration;
-            }
-          }
-          stack.levelIndex++;
-        }
+        continue;
       }
       stack = this._stack = this._stack.__prev;
     }
-    return iteratorResult();
+    return iteratorDone();
   }
 }
 
@@ -405,6 +392,7 @@ function vectIteratorFrame(array, level, offset, max, prevFrame) {
     level: level,
     offset: offset,
     max: max,
+    index: 0,
     __prev: prevFrame
   };
 }
