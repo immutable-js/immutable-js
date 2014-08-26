@@ -7,6 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
+/* global Symbol */
 /* exported hash, HASH_MAX_VAL */
 
 function hash(o) {
@@ -88,6 +89,9 @@ var HASH_MAX_VAL = 0x7FFFFFFF; // 2^31 - 1 is an efficiently stored int
 
 var UID_HASH_COUNT = 0;
 var UID_HASH_KEY = '__immutablehash__';
+if (typeof Symbol !== 'undefined') {
+  UID_HASH_KEY = Symbol(UID_HASH_KEY);
+}
 var isIE8 = false;
 
 var STRING_HASH_CACHE_MIN_STRLEN = 16;

@@ -11,4 +11,4 @@
 /* exported DELETE, ITERATOR */
 
 var DELETE = 'delete';
-var ITERATOR = typeof Symbol === 'undefined' ? '@@iterator' : Symbol.iterator;
+var ITERATOR = typeof Symbol !== 'undefined' ? Symbol.iterator : '@@iterator';

@@ -82,7 +82,7 @@ function invariant(condition, error) {
     throw new Error(error);
 }
 var DELETE = 'delete';
-var ITERATOR = typeof Symbol === 'undefined' ? '@@iterator' : Symbol.iterator;
+var ITERATOR = typeof Symbol !== 'undefined' ? Symbol.iterator : '@@iterator';
 function hash(o) {
   if (!o) {
     return 0;
@@ -150,6 +150,9 @@ function hashJSObj(obj) {
 var HASH_MAX_VAL = 0x7FFFFFFF;
 var UID_HASH_COUNT = 0;
 var UID_HASH_KEY = '__immutablehash__';
+if (typeof Symbol !== 'undefined') {
+  UID_HASH_KEY = Symbol(UID_HASH_KEY);
+}
 var isIE8 = false;
 var STRING_HASH_CACHE_MIN_STRLEN = 16;
 var STRING_HASH_CACHE_MAX_SIZE = 255;
