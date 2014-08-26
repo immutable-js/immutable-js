@@ -85,11 +85,11 @@ class Record extends Sequence {
     return makeRecord(this, newMap);
   }
 
-  delete(k) {
+  remove(k) {
     if (k == null || !this.has(k)) {
       return this;
     }
-    var newMap = this._map.delete(k);
+    var newMap = this._map.remove(k);
     if (this.__ownerID || newMap === this._map) {
       return this;
     }
@@ -132,7 +132,7 @@ class Record extends Sequence {
 }
 
 var RecordPrototype = Record.prototype;
-RecordPrototype.__deepEqual = MapPrototype.__deepEqual;
+RecordPrototype['delete'] = RecordPrototype.remove;
 RecordPrototype[Symbol.iterator] = MapPrototype[Symbol.iterator];
 RecordPrototype.merge = MapPrototype.merge;
 RecordPrototype.mergeWith = MapPrototype.mergeWith;
@@ -144,6 +144,7 @@ RecordPrototype.cursor = MapPrototype.cursor;
 RecordPrototype.withMutations = MapPrototype.withMutations;
 RecordPrototype.asMutable = MapPrototype.asMutable;
 RecordPrototype.asImmutable = MapPrototype.asImmutable;
+RecordPrototype.__deepEqual = MapPrototype.__deepEqual;
 
 
 function makeRecord(likeRecord, map, ownerID) {

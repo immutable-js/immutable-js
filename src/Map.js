@@ -55,7 +55,7 @@ class Map extends Sequence {
     return updateMap(this, k, v);
   }
 
-  delete(k) {
+  remove(k) {
     return updateMap(this, k, NOT_SET);
   }
 
@@ -188,6 +188,7 @@ class Map extends Sequence {
 }
 
 var MapPrototype = Map.prototype;
+MapPrototype['delete'] = MapPrototype.remove;
 MapPrototype[Symbol.iterator] = function() { return this.entries() };
 
 Map.from = Map;
@@ -281,11 +282,11 @@ class ArrayNode {
 
   update(ownerID, shift, hash, key, value, didChangeLength, didAlter) {
     var idx = (hash >>> shift) & MASK;
-    var deleted = value === NOT_SET;
+    var removed = value === NOT_SET;
     var nodes = this.nodes;
     var node = nodes[idx];
 
-    if (deleted && !node) {
+    if (removed && !node) {
       return this;
     }
 
@@ -346,10 +347,10 @@ class HashCollisionNode {
   }
 
   update(ownerID, shift, hash, key, value, didChangeLength, didAlter) {
-    var deleted = value === NOT_SET;
+    var removed = value === NOT_SET;
 
     if (hash !== this.hash) {
-      if (deleted) {
+      if (removed) {
         return this;
       }
       SetRef(didAlter);
@@ -366,14 +367,14 @@ class HashCollisionNode {
     }
     var exists = idx < len;
 
-    if (deleted && !exists) {
+    if (removed && !exists) {
       return this;
     }
 
     SetRef(didAlter);
-    (deleted || !exists) && SetRef(didChangeLength);
+    (removed || !exists) && SetRef(didChangeLength);
 
-    if (deleted && len === 2) {
+    if (removed && len === 2) {
       return new ValueNode(ownerID, this.hash, entries[idx ^ 1]);
     }
 
@@ -381,7 +382,7 @@ class HashCollisionNode {
     var newEntries = isEditable ? entries : arrCopy(entries);
 
     if (exists) {
-      if (deleted) {
+      if (removed) {
         idx === len - 1 ? newEntries.pop() : (newEntries[idx] = newEntries.pop());
       } else {
         newEntries[idx] = [key, value];
@@ -421,15 +422,15 @@ class ValueNode {
   }
 
   update(ownerID, shift, hash, key, value, didChangeLength, didAlter) {
-    var deleted = value === NOT_SET;
+    var removed = value === NOT_SET;
     var keyMatch = is(key, this.entry[0]);
-    if (keyMatch ? value === this.entry[1] : deleted) {
+    if (keyMatch ? value === this.entry[1] : removed) {
       return this;
     }
 
     SetRef(didAlter);
 
-    if (deleted) {
+    if (removed) {
       SetRef(didChangeLength);
       return null;
     }

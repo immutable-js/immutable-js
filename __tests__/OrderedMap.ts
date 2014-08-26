@@ -57,7 +57,7 @@ describe('OrderedMap', () => {
     var m = OrderedMap()
       .set('A', 'aardvark')
       .set('Z', 'zebra')
-      .delete('A')
+      .remove('A')
       .set('A', 'antelope');
     expect(m.length).toBe(2);
     expect(m.toArray()).toEqual(['zebra', 'antelope']);

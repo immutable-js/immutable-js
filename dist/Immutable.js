@@ -153,7 +153,7 @@ function hashJSObj(obj) {
 }
 var HASH_MAX_VAL = 0x7FFFFFFF;
 var UID_HASH_COUNT = 0;
-var UID_HASH_KEY = '__hash__';
+var UID_HASH_KEY = '__immutablehash__';
 var isIE8 = false;
 var STRING_HASH_CACHE_MIN_STRLEN = 16;
 var STRING_HASH_CACHE_MAX_SIZE = 255;
@@ -1079,9 +1079,9 @@ var Cursor = function Cursor(rootData, keyPath, onChange, value) {
       return m.set(key, value);
     }), key);
   },
-  delete: function(key) {
+  remove: function(key) {
     return updateCursor(this, (function(m) {
-      return m.delete(key);
+      return m.remove(key);
     }), key);
   },
   clear: function() {
@@ -1105,6 +1105,7 @@ var Cursor = function Cursor(rootData, keyPath, onChange, value) {
     }), reverse, flipIndices) : 0;
   }
 }, {}, Sequence);
+Cursor.prototype['delete'] = Cursor.prototype.remove;
 Cursor.prototype.getIn = Cursor.prototype.get;
 function wrappedValue(cursor, key, value) {
   return value instanceof Sequence ? subCursor(cursor, key, value) : value;
@@ -1151,7 +1152,7 @@ var $Map = Map;
   set: function(k, v) {
     return updateMap(this, k, v);
   },
-  delete: function(k) {
+  remove: function(k) {
     return updateMap(this, k, NOT_SET);
   },
   update: function(k, notSetValue, updater) {
@@ -1267,6 +1268,7 @@ var $Map = Map;
     return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
   }}, Sequence);
 var MapPrototype = Map.prototype;
+MapPrototype['delete'] = MapPrototype.remove;
 MapPrototype[Symbol.iterator] = function() {
   return this.entries();
 };
@@ -1341,10 +1343,10 @@ var $ArrayNode = ArrayNode;
   },
   update: function(ownerID, shift, hash, key, value, didChangeLength, didAlter) {
     var idx = (hash >>> shift) & MASK;
-    var deleted = value === NOT_SET;
+    var removed = value === NOT_SET;
     var nodes = this.nodes;
     var node = nodes[idx];
-    if (deleted && !node) {
+    if (removed && !node) {
       return this;
     }
     var newNode = updateNode(node, ownerID, shift + SHIFT, hash, key, value, didChangeLength, didAlter);
@@ -1398,9 +1400,9 @@ var $HashCollisionNode = HashCollisionNode;
     return notSetValue;
   },
   update: function(ownerID, shift, hash, key, value, didChangeLength, didAlter) {
-    var deleted = value === NOT_SET;
+    var removed = value === NOT_SET;
     if (hash !== this.hash) {
-      if (deleted) {
+      if (removed) {
         return this;
       }
       SetRef(didAlter);
@@ -1415,18 +1417,18 @@ var $HashCollisionNode = HashCollisionNode;
       }
     }
     var exists = idx < len;
-    if (deleted && !exists) {
+    if (removed && !exists) {
       return this;
     }
     SetRef(didAlter);
-    (deleted || !exists) && SetRef(didChangeLength);
-    if (deleted && len === 2) {
+    (removed || !exists) && SetRef(didChangeLength);
+    if (removed && len === 2) {
       return new ValueNode(ownerID, this.hash, entries[idx ^ 1]);
     }
     var isEditable = ownerID && ownerID === this.ownerID;
     var newEntries = isEditable ? entries : arrCopy(entries);
     if (exists) {
-      if (deleted) {
+      if (removed) {
         idx === len - 1 ? newEntries.pop() : (newEntries[idx] = newEntries.pop());
       } else {
         newEntries[idx] = [key, value];
@@ -1461,13 +1463,13 @@ var $ValueNode = ValueNode;
     return is(key, this.entry[0]) ? this.entry[1] : notSetValue;
   },
   update: function(ownerID, shift, hash, key, value, didChangeLength, didAlter) {
-    var deleted = value === NOT_SET;
+    var removed = value === NOT_SET;
     var keyMatch = is(key, this.entry[0]);
-    if (keyMatch ? value === this.entry[1] : deleted) {
+    if (keyMatch ? value === this.entry[1] : removed) {
       return this;
     }
     SetRef(didAlter);
-    if (deleted) {
+    if (removed) {
       SetRef(didChangeLength);
       return null;
     }
@@ -1727,7 +1729,7 @@ var $Vector = Vector;
   set: function(index, value) {
     return updateVector(this, index, value);
   },
-  delete: function(index) {
+  remove: function(index) {
     return updateVector(this, index, NOT_SET);
   },
   clear: function() {
@@ -1877,6 +1879,7 @@ var $Vector = Vector;
   }
 }, IndexedSequence);
 var VectorPrototype = Vector.prototype;
+VectorPrototype['delete'] = VectorPrototype.remove;
 VectorPrototype[Symbol.iterator] = VectorPrototype.values;
 VectorPrototype.update = MapPrototype.update;
 VectorPrototype.updateIn = MapPrototype.updateIn;
@@ -2084,11 +2087,11 @@ function updateVector(vector, index, value) {
   return makeVector(vector._origin, vector._size, vector._level, newRoot, newTail);
 }
 function updateVNode(node, ownerID, level, index, value, didAlter) {
-  var deleted = value === NOT_SET;
+  var removed = value === NOT_SET;
   var newNode;
   var idx = (index >>> level) & MASK;
   var nodeHas = node && idx < node.array.length && node.array.hasOwnProperty(idx);
-  if (deleted && !nodeHas) {
+  if (removed && !nodeHas) {
     return node;
   }
   if (level > 0) {
@@ -2101,12 +2104,12 @@ function updateVNode(node, ownerID, level, index, value, didAlter) {
     newNode.array[idx] = newLowerNode;
     return newNode;
   }
-  if (!deleted && nodeHas && node.array[idx] === value) {
+  if (!removed && nodeHas && node.array[idx] === value) {
     return node;
   }
   SetRef(didAlter);
   newNode = editableVNode(node, ownerID);
-  deleted ? (delete newNode.array[idx]) : (newNode.array[idx] = value);
+  removed ? (delete newNode.array[idx]) : (newNode.array[idx] = value);
   return newNode;
 }
 function editableVNode(node, ownerID) {
@@ -2268,8 +2271,8 @@ var $Set = Set;
     }
     return newMap === this._map ? this : makeSet(newMap);
   },
-  delete: function(value) {
-    var newMap = this._map.delete(value);
+  remove: function(value) {
+    var newMap = this._map.remove(value);
     if (this.__ownerID) {
       this.length = newMap.length;
       this._map = newMap;
@@ -2317,7 +2320,7 @@ var $Set = Set;
         if (!seqs.every((function(seq) {
           return seq.contains(value);
         }))) {
-          set.delete(value);
+          set.remove(value);
         }
       }));
     }));
@@ -2338,7 +2341,7 @@ var $Set = Set;
         if (seqs.some((function(seq) {
           return seq.contains(value);
         }))) {
-          set.delete(value);
+          set.remove(value);
         }
       }));
     }));
@@ -2404,6 +2407,7 @@ var $Set = Set;
   }
 }, Sequence);
 var SetPrototype = Set.prototype;
+SetPrototype['delete'] = SetPrototype.remove;
 SetPrototype[Symbol.iterator] = SetPrototype.keys = SetPrototype.values;
 SetPrototype.contains = SetPrototype.has;
 SetPrototype.mergeDeep = SetPrototype.merge = SetPrototype.union;
@@ -2454,7 +2458,7 @@ var $OrderedMap = OrderedMap;
   set: function(k, v) {
     return updateOrderedMap(this, k, v);
   },
-  delete: function(k) {
+  remove: function(k) {
     return updateOrderedMap(this, k, NOT_SET);
   },
   wasAltered: function() {
@@ -2501,6 +2505,7 @@ var $OrderedMap = OrderedMap;
     return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(Map.empty(), Vector.empty()));
   }}, Map);
 OrderedMap.from = OrderedMap;
+OrderedMap.prototype['delete'] = OrderedMap.prototype.remove;
 function makeOrderedMap(map, vector, ownerID, hash) {
   var omap = Object.create(OrderedMap.prototype);
   omap.length = map ? map.length : 0;
@@ -2515,15 +2520,15 @@ function updateOrderedMap(omap, k, v) {
   var vector = omap._vector;
   var i = map.get(k);
   var has = i !== undefined;
-  var deleted = v === NOT_SET;
-  if ((!has && deleted) || (has && v === vector.get(i)[1])) {
+  var removed = v === NOT_SET;
+  if ((!has && removed) || (has && v === vector.get(i)[1])) {
     return omap;
   }
   if (!has) {
     i = vector.length;
   }
-  var newMap = deleted ? map.delete(k) : has ? map : map.set(k, i);
-  var newVector = deleted ? vector.delete(i) : vector.set(i, [k, v]);
+  var newMap = removed ? map.remove(k) : has ? map : map.set(k, i);
+  var newVector = removed ? vector.remove(i) : vector.set(i, [k, v]);
   if (omap.__ownerID) {
     omap.length = newMap.length;
     omap._map = newMap;
@@ -2592,11 +2597,11 @@ var $Record = Record;
     }
     return makeRecord(this, newMap);
   },
-  delete: function(k) {
+  remove: function(k) {
     if (k == null || !this.has(k)) {
       return this;
     }
-    var newMap = this._map.delete(k);
+    var newMap = this._map.remove(k);
     if (this.__ownerID || newMap === this._map) {
       return this;
     }
@@ -2634,7 +2639,7 @@ var $Record = Record;
   }
 }, {}, Sequence);
 var RecordPrototype = Record.prototype;
-RecordPrototype.__deepEqual = MapPrototype.__deepEqual;
+RecordPrototype['delete'] = RecordPrototype.remove;
 RecordPrototype[Symbol.iterator] = MapPrototype[Symbol.iterator];
 RecordPrototype.merge = MapPrototype.merge;
 RecordPrototype.mergeWith = MapPrototype.mergeWith;
@@ -2646,6 +2651,7 @@ RecordPrototype.cursor = MapPrototype.cursor;
 RecordPrototype.withMutations = MapPrototype.withMutations;
 RecordPrototype.asMutable = MapPrototype.asMutable;
 RecordPrototype.asImmutable = MapPrototype.asImmutable;
+RecordPrototype.__deepEqual = MapPrototype.__deepEqual;
 function makeRecord(likeRecord, map, ownerID) {
   var record = Object.create(Object.getPrototypeOf(likeRecord));
   record._map = map;

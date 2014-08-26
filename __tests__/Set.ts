@@ -118,7 +118,7 @@ describe('Set', () => {
     var s2 = s1.add('a');
     var s3 = s2.add('b');
     var s4 = s3.add('c');
-    var s5 = s4.delete('b');
+    var s5 = s4.remove('b');
     expect(s1.length).toBe(0);
     expect(s2.length).toBe(1);
     expect(s3.length).toBe(2);
@@ -129,7 +129,7 @@ describe('Set', () => {
   });
 
   it('deletes down to empty set', () => {
-    var s = Set('A').delete('A');
+    var s = Set('A').remove('A');
     expect(s).toBe(Set.empty());
   });
 

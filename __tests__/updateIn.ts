@@ -27,10 +27,10 @@ describe('updateIn', () => {
     );
   })
 
-  it('deep delete', () => {
+  it('deep remove', () => {
     var m = I.fromJS({a: {b: {c: 10}}});
     expect(
-      m.updateIn(['a', 'b'], map => map.delete('c')).toJS()
+      m.updateIn(['a', 'b'], map => map.remove('c')).toJS()
     ).toEqual(
       {a: {b: {}}}
     );

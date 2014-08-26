@@ -66,8 +66,8 @@ class Set extends Sequence {
     return newMap === this._map ? this : makeSet(newMap);
   }
 
-  delete(value) {
-    var newMap = this._map.delete(value);
+  remove(value) {
+    var newMap = this._map.remove(value);
     if (this.__ownerID) {
       this.length = newMap.length;
       this._map = newMap;
@@ -111,7 +111,7 @@ class Set extends Sequence {
     return this.withMutations(set => {
       originalSet.forEach(value => {
         if (!seqs.every(seq => seq.contains(value))) {
-          set.delete(value);
+          set.remove(value);
         }
       });
     });
@@ -126,7 +126,7 @@ class Set extends Sequence {
     return this.withMutations(set => {
       originalSet.forEach(value => {
         if (seqs.some(seq => seq.contains(value))) {
-          set.delete(value);
+          set.remove(value);
         }
       });
     });
@@ -183,6 +183,7 @@ class Set extends Sequence {
 }
 
 var SetPrototype = Set.prototype;
+SetPrototype['delete'] = SetPrototype.remove;
 SetPrototype[Symbol.iterator] = SetPrototype.keys = SetPrototype.values;
 SetPrototype.contains = SetPrototype.has;
 SetPrototype.mergeDeep = SetPrototype.merge = SetPrototype.union;

@@ -37,8 +37,8 @@ class Cursor extends Sequence {
     return updateCursor(this, m => m.set(key, value), key);
   }
 
-  delete(key) {
-    return updateCursor(this, m => m.delete(key), key);
+  remove(key) {
+    return updateCursor(this, m => m.remove(key), key);
   }
 
   clear() {
@@ -67,6 +67,7 @@ class Cursor extends Sequence {
   }
 }
 
+Cursor.prototype['delete'] = Cursor.prototype.remove;
 Cursor.prototype.getIn = Cursor.prototype.get;
 
 function wrappedValue(cursor, key, value) {

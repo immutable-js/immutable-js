@@ -33,7 +33,7 @@ describe('Record', () => {
 
     var t1 = new MyType({a: 10, b:20});
     var t2 = t1.set('d', 4);
-    var t3 = t2.delete('a');
+    var t3 = t2.remove('a');
     var t4 = t3.clear();
 
     expect(t1.length).toBe(3);

@@ -128,7 +128,7 @@ describe('Vector', () => {
   })
 
   it('describes a sparse vector', () => {
-    var v = Vector('a', 'b', 'c').push('d').set(10000, 'e').set(64, undefined).delete(1);
+    var v = Vector('a', 'b', 'c').push('d').set(10000, 'e').set(64, undefined).remove(1);
     expect(v.length).toBe(10001);
     expect(v.has(2)).toBe(true); // original end
     expect(v.has(3)).toBe(true); // end after push
@@ -221,8 +221,8 @@ describe('Vector', () => {
     expect(v.toArray()).toEqual([]);
   });
 
-  it('delete removes an index, but does not affect length', () => {
-    var v = Vector('a', 'b', 'c').delete(2).delete(0);
+  it('remove removes an index, but does not affect length', () => {
+    var v = Vector('a', 'b', 'c').remove(2).remove(0);
     expect(v.length).toBe(3);
     expect(v.get(0)).toBe(undefined);
     expect(v.get(1)).toBe('b');

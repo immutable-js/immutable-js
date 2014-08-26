@@ -63,7 +63,7 @@ class OrderedMap extends Map {
     return updateOrderedMap(this, k, v);
   }
 
-  delete(k) {
+  remove(k) {
     return updateOrderedMap(this, k, NOT_SET);
   }
 
@@ -112,6 +112,7 @@ class OrderedMap extends Map {
 }
 
 OrderedMap.from = OrderedMap;
+OrderedMap.prototype['delete'] = OrderedMap.prototype.remove;
 
 function makeOrderedMap(map, vector, ownerID, hash) {
   var omap = Object.create(OrderedMap.prototype);
@@ -128,15 +129,15 @@ function updateOrderedMap(omap, k, v) {
   var vector = omap._vector;
   var i = map.get(k);
   var has = i !== undefined;
-  var deleted = v === NOT_SET;
-  if ((!has && deleted) || (has && v === vector.get(i)[1])) {
+  var removed = v === NOT_SET;
+  if ((!has && removed) || (has && v === vector.get(i)[1])) {
     return omap;
   }
   if (!has) {
     i = vector.length;
   }
-  var newMap = deleted ? map.delete(k) : has ? map : map.set(k, i);
-  var newVector = deleted ? vector.delete(i) : vector.set(i, [k, v]);
+  var newMap = removed ? map.remove(k) : has ? map : map.set(k, i);
+  var newVector = removed ? vector.remove(i) : vector.set(i, [k, v]);
   if (omap.__ownerID) {
     omap.length = newMap.length;
     omap._map = newMap;

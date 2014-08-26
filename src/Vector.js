@@ -85,7 +85,7 @@ class Vector extends IndexedSequence {
     return updateVector(this, index, value);
   }
 
-  delete(index) {
+  remove(index) {
     return updateVector(this, index, NOT_SET);
   }
 
@@ -236,6 +236,7 @@ class Vector extends IndexedSequence {
 }
 
 var VectorPrototype = Vector.prototype;
+VectorPrototype['delete'] = VectorPrototype.remove;
 VectorPrototype[Symbol.iterator] = VectorPrototype.values;
 VectorPrototype.update = MapPrototype.update;
 VectorPrototype.updateIn = MapPrototype.updateIn;
@@ -478,11 +479,11 @@ function updateVector(vector, index, value) {
 }
 
 function updateVNode(node, ownerID, level, index, value, didAlter) {
-  var deleted = value === NOT_SET;
+  var removed = value === NOT_SET;
   var newNode;
   var idx = (index >>> level) & MASK;
   var nodeHas = node && idx < node.array.length && node.array.hasOwnProperty(idx);
-  if (deleted && !nodeHas) {
+  if (removed && !nodeHas) {
     return node;
   }
 
@@ -497,14 +498,14 @@ function updateVNode(node, ownerID, level, index, value, didAlter) {
     return newNode;
   }
 
-  if (!deleted && nodeHas && node.array[idx] === value) {
+  if (!removed && nodeHas && node.array[idx] === value) {
     return node;
   }
 
   SetRef(didAlter);
 
   newNode = editableVNode(node, ownerID);
-  deleted ?
+  removed ?
     (delete newNode.array[idx]) :
     (newNode.array[idx] = value);
   return newNode;

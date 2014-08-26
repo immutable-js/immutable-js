@@ -915,7 +915,11 @@ declare module 'immutable' {
 
     /**
      * Returns a new Map which excludes this `key`.
+     *
+     * Note: `delete` cannot be safely used in IE8
+     * @alias delete
      */
+    remove(key: K): Map<K, V>;
     delete(key: K): Map<K, V>;
 
     /**
@@ -1149,11 +1153,11 @@ declare module 'immutable' {
    *     var ABRecord = Record({a:1, b:2})
    *     var myRecord = new ABRecord({b:3})
    *
-   * Records always have a value for the keys they define. `delete()`ing a key
+   * Records always have a value for the keys they define. `remove`ing a key
    * from a record simply resets it to the default value for that key.
    *
    *     myRecord.length // 2
-   *     myRecordWithoutB = myRecord.delete('b')
+   *     myRecordWithoutB = myRecord.remove('b')
    *     myRecordWithoutB.get('b') // 2
    *     myRecordWithoutB.length // 2
    *
@@ -1243,7 +1247,11 @@ declare module 'immutable' {
 
     /**
      * Returns a new Set which excludes this value.
+     *
+     * Note: `delete` cannot be safely used in IE8
+     * @alias delete
      */
+    remove(value: T): Set<T>;
     delete(value: T): Set<T>;
 
     /**
@@ -1375,7 +1383,11 @@ declare module 'immutable' {
     /**
      * Returns a new Vector which excludes this `index`. It will not affect the
      * length of the Vector, instead leaving a sparse hole.
+     *
+     * Note: `delete` cannot be safely used in IE8
+     * @alias delete
      */
+    remove(index: number): Vector<T>;
     delete(index: number): Vector<T>;
 
     /**
@@ -1597,7 +1609,11 @@ declare module 'immutable' {
     /**
      * Deletes `key` from the cursor, returning a new cursor to the same
      * point in the new data.
+     *
+     * Note: `delete` cannot be safely used in IE8
+     * @alias delete
      */
+    remove(key: any): Cursor<T>;
     delete(key: any): Cursor<T>;
 
     /**

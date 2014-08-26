@@ -77,7 +77,7 @@ describe('Map', () => {
   it('accepts null as a key', () => {
     var m1 = Map();
     var m2 = m1.set(null, 'null');
-    var m3 = m2.delete(null);
+    var m3 = m2.remove(null);
     expect(m1.length).toBe(0);
     expect(m2.length).toBe(1);
     expect(m3.length).toBe(0);
@@ -104,7 +104,7 @@ describe('Map', () => {
     var m2 = m1.set('a', 'Aardvark');
     var m3 = m2.set('b', 'Baboon');
     var m4 = m3.set('c', 'Canary');
-    var m5 = m4.delete('b');
+    var m5 = m4.remove('b');
     expect(m1.length).toBe(0);
     expect(m2.length).toBe(1);
     expect(m3.length).toBe(2);
@@ -119,9 +119,9 @@ describe('Map', () => {
 
   it('deletes down to empty map', () => {
     var m1 = Map({a:'A', b:'B', c:'C'});
-    var m2 = m1.delete('a');
-    var m3 = m2.delete('b');
-    var m4 = m3.delete('c');
+    var m2 = m1.remove('a');
+    var m3 = m2.remove('b');
+    var m4 = m3.remove('c');
     expect(m1.length).toBe(3);
     expect(m2.length).toBe(2);
     expect(m3.length).toBe(1);
@@ -205,7 +205,7 @@ describe('Map', () => {
     Object.keys(obj).forEach(key => {
       expect(map.get(key)).toBe(obj[key]);
       expect(map.has(key)).toBe(true);
-      map = map.delete(key);
+      map = map.remove(key);
       expect(map.get(key)).toBe(undefined);
       expect(map.has(key)).toBe(false);
     });
@@ -233,7 +233,7 @@ describe('Map', () => {
     var map = Immutable.Range(0, len).toMap();
     for (var ii = 0; ii < len; ii++) {
       expect(map.length).toBe(len - ii);
-      map = map.delete(ii);
+      map = map.remove(ii);
     }
     expect(map.length).toBe(0);
     expect(map.toObject()).toEqual({});
@@ -243,7 +243,7 @@ describe('Map', () => {
     var map = Immutable.Range(0, len).toMap().asMutable();
     for (var ii = 0; ii < len; ii++) {
       expect(map.length).toBe(len - ii);
-      map.delete(ii);
+      map.remove(ii);
     }
     expect(map.length).toBe(0);
     expect(map.toObject()).toEqual({});
