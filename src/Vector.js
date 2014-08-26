@@ -16,7 +16,7 @@ import "Symbol"
 /* global Sequence, IndexedSequence, SequenceIterator, is, invariant,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
           SHIFT, SIZE, MASK, NOT_SET, DID_ALTER, OwnerID, MakeRef, SetRef,
-          arrCopy, iteratorValue, iteratorDone, Symbol */
+          arrCopy, iteratorValue, iteratorDone, DELETE, ITERATOR */
 /* exported Vector, VectorPrototype */
 
 
@@ -236,8 +236,8 @@ class Vector extends IndexedSequence {
 }
 
 var VectorPrototype = Vector.prototype;
-VectorPrototype['delete'] = VectorPrototype.remove;
-VectorPrototype[Symbol.iterator] = VectorPrototype.values;
+VectorPrototype[DELETE] = VectorPrototype.remove;
+VectorPrototype[ITERATOR] = VectorPrototype.values;
 VectorPrototype.update = MapPrototype.update;
 VectorPrototype.updateIn = MapPrototype.updateIn;
 VectorPrototype.cursor = MapPrototype.cursor;

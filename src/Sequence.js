@@ -12,7 +12,7 @@ import "TrieUtils"
 import "invariant"
 import "Symbol"
 import "Hash"
-/* global is, Map, OrderedMap, Vector, Set, NOT_SET, invariant, Symbol,
+/* global is, Map, OrderedMap, Vector, Set, NOT_SET, invariant, ITERATOR,
           hash, HASH_MAX_VAL */
 /* exported Sequence, IndexedSequence, SequenceIterator, iteratorMapper */
 
@@ -887,7 +887,7 @@ class SequenceIterator {
 }
 
 var SequenceIteratorPrototype = SequenceIterator.prototype;
-SequenceIteratorPrototype[Symbol.iterator] = returnThis;
+SequenceIteratorPrototype[ITERATOR] = returnThis;
 SequenceIteratorPrototype.inspect =
 SequenceIteratorPrototype.toSource = function () { return this.toString(); }
 

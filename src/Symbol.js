@@ -8,11 +8,7 @@
  */
 
 /* global Symbol */
+/* exported DELETE, ITERATOR */
 
-if (typeof Symbol === 'undefined') {
-  Symbol = {}; // jshint ignore: line
-}
-
-if (!Symbol.iterator) {
-  Symbol.iterator = '@@iterator';
-}
+var DELETE = 'delete';
+var ITERATOR = typeof Symbol === 'undefined' ? '@@iterator' : Symbol.iterator;

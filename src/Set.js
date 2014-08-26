@@ -11,7 +11,7 @@ import "Sequence"
 import "Map"
 import "Symbol"
 /* global Sequence, IndexedSequencePrototype, iteratorMapper,
-          Map, MapPrototype, Symbol */
+          Map, MapPrototype, DELETE, ITERATOR */
 /* exported Set */
 
 
@@ -183,8 +183,8 @@ class Set extends Sequence {
 }
 
 var SetPrototype = Set.prototype;
-SetPrototype['delete'] = SetPrototype.remove;
-SetPrototype[Symbol.iterator] = SetPrototype.keys = SetPrototype.values;
+SetPrototype[DELETE] = SetPrototype.remove;
+SetPrototype[ITERATOR] = SetPrototype.keys = SetPrototype.values;
 SetPrototype.contains = SetPrototype.has;
 SetPrototype.mergeDeep = SetPrototype.merge = SetPrototype.union;
 SetPrototype.mergeDeepWith = SetPrototype.mergeWith = function(merger, ...seqs) {

@@ -11,7 +11,7 @@ import "Sequence"
 import "Map"
 import "invariant"
 import "Symbol"
-/* global Sequence, Map, MapPrototype, invariant, Symbol */
+/* global Sequence, Map, MapPrototype, invariant, DELETE, ITERATOR */
 /* exported Record */
 
 
@@ -132,8 +132,8 @@ class Record extends Sequence {
 }
 
 var RecordPrototype = Record.prototype;
-RecordPrototype['delete'] = RecordPrototype.remove;
-RecordPrototype[Symbol.iterator] = MapPrototype[Symbol.iterator];
+RecordPrototype[DELETE] = RecordPrototype.remove;
+RecordPrototype[ITERATOR] = MapPrototype[ITERATOR];
 RecordPrototype.merge = MapPrototype.merge;
 RecordPrototype.mergeWith = MapPrototype.mergeWith;
 RecordPrototype.mergeDeep = MapPrototype.mergeDeep;

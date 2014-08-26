@@ -12,7 +12,8 @@ import "Map"
 import "Vector"
 import "is"
 import "TrieUtils"
-/* global iteratorMapper, Map, Vector, is, NOT_SET */
+import "Symbol"
+/* global iteratorMapper, Map, Vector, is, NOT_SET, DELETE */
 /* exported OrderedMap */
 
 
@@ -112,7 +113,7 @@ class OrderedMap extends Map {
 }
 
 OrderedMap.from = OrderedMap;
-OrderedMap.prototype['delete'] = OrderedMap.prototype.remove;
+OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
 
 function makeOrderedMap(map, vector, ownerID, hash) {
   var omap = Object.create(OrderedMap.prototype);

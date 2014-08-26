@@ -16,7 +16,8 @@ import "Symbol"
 import "Hash"
 /* global Sequence, SequenceIterator, is, invariant, Cursor,
           SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
-          MakeRef, SetRef, arrCopy, iteratorValue, iteratorDone, Symbol, hash */
+          MakeRef, SetRef, arrCopy, iteratorValue, iteratorDone,
+          DELETE, ITERATOR, hash */
 /* exported Map, MapPrototype */
 
 
@@ -188,8 +189,8 @@ class Map extends Sequence {
 }
 
 var MapPrototype = Map.prototype;
-MapPrototype['delete'] = MapPrototype.remove;
-MapPrototype[Symbol.iterator] = function() { return this.entries() };
+MapPrototype[DELETE] = MapPrototype.remove;
+MapPrototype[ITERATOR] = function() { return this.entries() };
 
 Map.from = Map;
 

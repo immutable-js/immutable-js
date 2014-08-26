@@ -10,7 +10,8 @@
 import "Map"
 import "Sequence"
 import "TrieUtils"
-/* global Map, Sequence, NOT_SET */
+import "Symbol"
+/* global Map, Sequence, NOT_SET, DELETE */
 
 class Cursor extends Sequence {
   constructor(rootData, keyPath, onChange, value) {
@@ -67,7 +68,7 @@ class Cursor extends Sequence {
   }
 }
 
-Cursor.prototype['delete'] = Cursor.prototype.remove;
+Cursor.prototype[DELETE] = Cursor.prototype.remove;
 Cursor.prototype.getIn = Cursor.prototype.get;
 
 function wrappedValue(cursor, key, value) {

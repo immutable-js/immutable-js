@@ -81,12 +81,8 @@ function invariant(condition, error) {
   if (!condition)
     throw new Error(error);
 }
-if (typeof Symbol === 'undefined') {
-  Symbol = {};
-}
-if (!Symbol.iterator) {
-  Symbol.iterator = '@@iterator';
-}
+var DELETE = 'delete';
+var ITERATOR = typeof Symbol === 'undefined' ? '@@iterator' : Symbol.iterator;
 function hash(o) {
   if (!o) {
     return 0;
@@ -956,7 +952,7 @@ var SequenceIterator = function SequenceIterator() {};
     return '[Iterator]';
   }}, {});
 var SequenceIteratorPrototype = SequenceIterator.prototype;
-SequenceIteratorPrototype[Symbol.iterator] = returnThis;
+SequenceIteratorPrototype[ITERATOR] = returnThis;
 SequenceIteratorPrototype.inspect = SequenceIteratorPrototype.toSource = function() {
   return this.toString();
 };
@@ -1105,7 +1101,7 @@ var Cursor = function Cursor(rootData, keyPath, onChange, value) {
     }), reverse, flipIndices) : 0;
   }
 }, {}, Sequence);
-Cursor.prototype['delete'] = Cursor.prototype.remove;
+Cursor.prototype[DELETE] = Cursor.prototype.remove;
 Cursor.prototype.getIn = Cursor.prototype.get;
 function wrappedValue(cursor, key, value) {
   return value instanceof Sequence ? subCursor(cursor, key, value) : value;
@@ -1268,8 +1264,8 @@ var $Map = Map;
     return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
   }}, Sequence);
 var MapPrototype = Map.prototype;
-MapPrototype['delete'] = MapPrototype.remove;
-MapPrototype[Symbol.iterator] = function() {
+MapPrototype[DELETE] = MapPrototype.remove;
+MapPrototype[ITERATOR] = function() {
   return this.entries();
 };
 Map.from = Map;
@@ -1879,8 +1875,8 @@ var $Vector = Vector;
   }
 }, IndexedSequence);
 var VectorPrototype = Vector.prototype;
-VectorPrototype['delete'] = VectorPrototype.remove;
-VectorPrototype[Symbol.iterator] = VectorPrototype.values;
+VectorPrototype[DELETE] = VectorPrototype.remove;
+VectorPrototype[ITERATOR] = VectorPrototype.values;
 VectorPrototype.update = MapPrototype.update;
 VectorPrototype.updateIn = MapPrototype.updateIn;
 VectorPrototype.cursor = MapPrototype.cursor;
@@ -2407,8 +2403,8 @@ var $Set = Set;
   }
 }, Sequence);
 var SetPrototype = Set.prototype;
-SetPrototype['delete'] = SetPrototype.remove;
-SetPrototype[Symbol.iterator] = SetPrototype.keys = SetPrototype.values;
+SetPrototype[DELETE] = SetPrototype.remove;
+SetPrototype[ITERATOR] = SetPrototype.keys = SetPrototype.values;
 SetPrototype.contains = SetPrototype.has;
 SetPrototype.mergeDeep = SetPrototype.merge = SetPrototype.union;
 SetPrototype.mergeDeepWith = SetPrototype.mergeWith = function(merger) {
@@ -2505,7 +2501,7 @@ var $OrderedMap = OrderedMap;
     return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(Map.empty(), Vector.empty()));
   }}, Map);
 OrderedMap.from = OrderedMap;
-OrderedMap.prototype['delete'] = OrderedMap.prototype.remove;
+OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
 function makeOrderedMap(map, vector, ownerID, hash) {
   var omap = Object.create(OrderedMap.prototype);
   omap.length = map ? map.length : 0;
@@ -2639,8 +2635,8 @@ var $Record = Record;
   }
 }, {}, Sequence);
 var RecordPrototype = Record.prototype;
-RecordPrototype['delete'] = RecordPrototype.remove;
-RecordPrototype[Symbol.iterator] = MapPrototype[Symbol.iterator];
+RecordPrototype[DELETE] = RecordPrototype.remove;
+RecordPrototype[ITERATOR] = MapPrototype[ITERATOR];
 RecordPrototype.merge = MapPrototype.merge;
 RecordPrototype.mergeWith = MapPrototype.mergeWith;
 RecordPrototype.mergeDeep = MapPrototype.mergeDeep;
