@@ -183,6 +183,10 @@ class Vector extends IndexedSequence {
     return new VectorIterator(this, 2, sparse);
   }
 
+  __iterator(reverse, flipIndices, sparse) {
+    return new VectorIterator(this, 2, sparse, reverse, flipIndices);
+  }
+
   __iterate(fn, reverse, flipIndices) {
     var vector = this;
     var lastIndex = 0;
@@ -347,44 +351,61 @@ function iterateVNode(node, level, offset, max, fn, reverse) {
 
 class VectorIterator extends SequenceIterator {
 
-  constructor(vector, type, sparse) {
-    var tailOffset = getTailOffset(vector._size);
+  constructor(vector, type, sparse, reverse, flipIndices) {
     this._type = type;
-    this._sparse = sparse;
-    this._stack = vectIteratorFrame(
+    this._sparse = !!sparse;
+    this._reverse = !!reverse;
+    this._flipIndices = !!(flipIndices ^ reverse);
+    this._maxIndex = vector.length - 1;
+    var tailOffset = getTailOffset(vector._size);
+    var rootStack = vectIteratorFrame(
       vector._root && vector._root.array,
       vector._level,
       -vector._origin,
-      tailOffset - vector._origin,
-      vectIteratorFrame(
-        vector._tail && vector._tail.array,
-        0,
-        tailOffset - vector._origin,
-        vector._size - vector._origin
-      )
+      tailOffset - vector._origin - 1
     );
+    var tailStack = vectIteratorFrame(
+      vector._tail && vector._tail.array,
+      0,
+      tailOffset - vector._origin,
+      vector._size - vector._origin - 1
+    );
+    this._stack = reverse ? tailStack : rootStack;
+    this._stack.__prev = reverse ? rootStack : tailStack;
   }
 
   next() {
-    var type = this._type;
     var sparse = this._sparse;
     var stack = this._stack;
     while (stack) {
       var array = stack.array;
       var rawIndex = stack.index++;
-      var step = 1 << stack.level;
-      var index = stack.offset + rawIndex * step;
-      if (rawIndex < SIZE && index > -step && index < stack.max) {
+      if (this._reverse) {
+        rawIndex = MASK - rawIndex;
+        if (rawIndex > stack.rawMax) {
+          rawIndex = stack.rawMax;
+          stack.index = SIZE - rawIndex;
+        }
+      }
+      if (rawIndex >= 0 && rawIndex < SIZE && rawIndex <= stack.rawMax) {
         var value = array && array[rawIndex];
         if (stack.level === 0) {
-          if (!sparse || value || (array && rawIndex < array.length && array.hasOwnProperty(rawIndex))) {
+          if (!sparse || value != null || (array && rawIndex < array.length && array.hasOwnProperty(rawIndex))) {
+            var type = this._type;
+            var index;
+            if (type !== 1) {
+              index = stack.offset + (rawIndex << stack.level);
+              if (this._flipIndices) {
+                index = this._maxIndex - index;
+              }
+            }
             return iteratorValue(type === 0 ? index : type === 1 ? value : [index, value]);
           }
-        } else if (!sparse || value) {
+        } else if (!sparse || value != null) {
           this._stack = stack = vectIteratorFrame(
             value && value.array,
             stack.level - SHIFT,
-            index,
+            stack.offset + (rawIndex << stack.level),
             stack.max,
             stack
           );
@@ -403,6 +424,7 @@ function vectIteratorFrame(array, level, offset, max, prevFrame) {
     level: level,
     offset: offset,
     max: max,
+    rawMax: ((max - offset) >> level),
     index: 0,
     __prev: prevFrame
   };

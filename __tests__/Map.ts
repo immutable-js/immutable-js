@@ -249,4 +249,14 @@ describe('Map', () => {
     expect(map.toObject()).toEqual({});
   });
 
+  check.it('iterates through all entries', [gen.posInt], len => {
+    var v = Immutable.Range(0, len).toMap();
+    var a = v.toArray();
+    var iter = v.entries();
+    for (var ii = 0; ii < len; ii++) {
+      delete a[ iter.next().value[0] ];
+    }
+    expect(a).toEqual(new Array(len));
+  });
+
 });

@@ -1148,6 +1148,9 @@ var $Map = Map;
   entries: function() {
     return new MapIterator(this, 2);
   },
+  __iterator: function(reverse) {
+    return new MapIterator(this, 2, reverse);
+  },
   __iterate: function(fn, reverse) {
     var map = this;
     if (!map._root) {
@@ -1401,8 +1404,9 @@ var $ValueNode = ValueNode;
     return fn(this.entry);
   }
 }, {});
-var MapIterator = function MapIterator(map, type) {
+var MapIterator = function MapIterator(map, type, reverse) {
   this._type = type;
+  this._reverse = reverse;
   this._stack = map._root && mapIteratorFrame(map._root);
 };
 ($traceurRuntime.createClass)(MapIterator, {next: function() {
@@ -1411,17 +1415,20 @@ var MapIterator = function MapIterator(map, type) {
     while (stack) {
       var node = stack.node;
       var index = stack.index++;
+      var maxIndex;
       if (node.entry) {
         if (index === 0) {
           return mapIteratorValue(type, node.entry);
         }
       } else if (node.entries) {
-        if (index < node.entries.length) {
-          return mapIteratorValue(type, node.entries[index]);
+        maxIndex = node.entries.length - 1;
+        if (index <= maxIndex) {
+          return mapIteratorValue(type, node.entries[this._reverse ? maxIndex - index : index]);
         }
       } else {
-        if (index < node.nodes.length) {
-          var subNode = node.nodes[index];
+        maxIndex = node.nodes.length - 1;
+        if (index <= maxIndex) {
+          var subNode = node.nodes[this._reverse ? maxIndex - index : index];
           if (subNode) {
             if (subNode.entry) {
               return mapIteratorValue(type, subNode.entry);
@@ -1436,7 +1443,7 @@ var MapIterator = function MapIterator(map, type) {
     return iteratorDone();
   }}, {}, SequenceIterator);
 function mapIteratorValue(type, entry) {
-  return iteratorValue(type === 0 || type === 1 ? entry[type] : entry);
+  return iteratorValue(type === 0 || type === 1 ? entry[type] : [entry[0], entry[1]]);
 }
 function mapIteratorFrame(node, prev) {
   return {
@@ -1767,6 +1774,9 @@ var $Vector = Vector;
   entries: function(sparse) {
     return new VectorIterator(this, 2, sparse);
   },
+  __iterator: function(reverse, flipIndices, sparse) {
+    return new VectorIterator(this, 2, sparse, reverse, flipIndices);
+  },
   __iterate: function(fn, reverse, flipIndices) {
     var vector = this;
     var lastIndex = 0;
@@ -1938,29 +1948,47 @@ function iterateVNode(node, level, offset, max, fn, reverse) {
   }
   return true;
 }
-var VectorIterator = function VectorIterator(vector, type, sparse) {
-  var tailOffset = getTailOffset(vector._size);
+var VectorIterator = function VectorIterator(vector, type, sparse, reverse, flipIndices) {
   this._type = type;
-  this._sparse = sparse;
-  this._stack = vectIteratorFrame(vector._root && vector._root.array, vector._level, -vector._origin, tailOffset - vector._origin, vectIteratorFrame(vector._tail && vector._tail.array, 0, tailOffset - vector._origin, vector._size - vector._origin));
+  this._sparse = !!sparse;
+  this._reverse = !!reverse;
+  this._flipIndices = !!(flipIndices ^ reverse);
+  this._maxIndex = vector.length - 1;
+  var tailOffset = getTailOffset(vector._size);
+  var rootStack = vectIteratorFrame(vector._root && vector._root.array, vector._level, -vector._origin, tailOffset - vector._origin - 1);
+  var tailStack = vectIteratorFrame(vector._tail && vector._tail.array, 0, tailOffset - vector._origin, vector._size - vector._origin - 1);
+  this._stack = reverse ? tailStack : rootStack;
+  this._stack.__prev = reverse ? rootStack : tailStack;
 };
 ($traceurRuntime.createClass)(VectorIterator, {next: function() {
-    var type = this._type;
     var sparse = this._sparse;
     var stack = this._stack;
     while (stack) {
       var array = stack.array;
       var rawIndex = stack.index++;
-      var step = 1 << stack.level;
-      var index = stack.offset + rawIndex * step;
-      if (rawIndex < SIZE && index > -step && index < stack.max) {
+      if (this._reverse) {
+        rawIndex = MASK - rawIndex;
+        if (rawIndex > stack.rawMax) {
+          rawIndex = stack.rawMax;
+          stack.index = SIZE - rawIndex;
+        }
+      }
+      if (rawIndex >= 0 && rawIndex < SIZE && rawIndex <= stack.rawMax) {
         var value = array && array[rawIndex];
         if (stack.level === 0) {
-          if (!sparse || value || (array && rawIndex < array.length && array.hasOwnProperty(rawIndex))) {
+          if (!sparse || value != null || (array && rawIndex < array.length && array.hasOwnProperty(rawIndex))) {
+            var type = this._type;
+            var index;
+            if (type !== 1) {
+              index = stack.offset + (rawIndex << stack.level);
+              if (this._flipIndices) {
+                index = this._maxIndex - index;
+              }
+            }
             return iteratorValue(type === 0 ? index : type === 1 ? value : [index, value]);
           }
-        } else if (!sparse || value) {
-          this._stack = stack = vectIteratorFrame(value && value.array, stack.level - SHIFT, index, stack.max, stack);
+        } else if (!sparse || value != null) {
+          this._stack = stack = vectIteratorFrame(value && value.array, stack.level - SHIFT, stack.offset + (rawIndex << stack.level), stack.max, stack);
         }
         continue;
       }
@@ -1974,6 +2002,7 @@ function vectIteratorFrame(array, level, offset, max, prevFrame) {
     level: level,
     offset: offset,
     max: max,
+    rawMax: ((max - offset) >> level),
     index: 0,
     __prev: prevFrame
   };

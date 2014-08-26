@@ -146,6 +146,10 @@ class Map extends Sequence {
     return new MapIterator(this, 2);
   }
 
+  __iterator(reverse) {
+    return new MapIterator(this, 2, reverse);
+  }
+
   __iterate(fn, reverse) {
     var map = this;
     if (!map._root) {
@@ -447,8 +451,9 @@ class ValueNode {
 
 class MapIterator extends SequenceIterator {
 
-  constructor(map, type) {
+  constructor(map, type, reverse) {
     this._type = type;
+    this._reverse = reverse;
     this._stack = map._root && mapIteratorFrame(map._root);
   }
 
@@ -458,17 +463,20 @@ class MapIterator extends SequenceIterator {
     while (stack) {
       var node = stack.node;
       var index = stack.index++;
+      var maxIndex;
       if (node.entry) {
         if (index === 0) {
           return mapIteratorValue(type, node.entry);
         }
       } else if (node.entries) {
-        if (index < node.entries.length) {
-          return mapIteratorValue(type, node.entries[index]);
+        maxIndex = node.entries.length - 1;
+        if (index <= maxIndex) {
+          return mapIteratorValue(type, node.entries[this._reverse ? maxIndex - index : index]);
         }
       } else {
-        if (index < node.nodes.length) {
-          var subNode = node.nodes[index];
+        maxIndex = node.nodes.length - 1;
+        if (index <= maxIndex) {
+          var subNode = node.nodes[this._reverse ? maxIndex - index : index];
           if (subNode) {
             if (subNode.entry) {
               return mapIteratorValue(type, subNode.entry);
@@ -485,7 +493,7 @@ class MapIterator extends SequenceIterator {
 }
 
 function mapIteratorValue(type, entry) {
-  return iteratorValue(type === 0 || type === 1 ? entry[type] : entry);
+  return iteratorValue(type === 0 || type === 1 ? entry[type] : [entry[0], entry[1]]);
 }
 
 function mapIteratorFrame(node, prev) {
