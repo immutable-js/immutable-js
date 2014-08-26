@@ -87,6 +87,78 @@ if (typeof Symbol === 'undefined') {
 if (!Symbol.iterator) {
   Symbol.iterator = '@@iterator';
 }
+function hash(o) {
+  if (!o) {
+    return 0;
+  }
+  if (o === true) {
+    return 1;
+  }
+  var type = typeof o;
+  if (type === 'number') {
+    if ((o | 0) === o) {
+      return o & HASH_MAX_VAL;
+    }
+    o = '' + o;
+    type = 'string';
+  }
+  if (type === 'string') {
+    return o.length > STRING_HASH_CACHE_MIN_STRLEN ? cachedHashString(o) : hashString(o);
+  }
+  if (o.hashCode) {
+    return hash(typeof o.hashCode === 'function' ? o.hashCode() : o.hashCode);
+  }
+  return hashJSObj(o);
+}
+function cachedHashString(string) {
+  var hash = STRING_HASH_CACHE[string];
+  if (hash == null) {
+    hash = hashString(string);
+    if (STRING_HASH_CACHE_SIZE === STRING_HASH_CACHE_MAX_SIZE) {
+      STRING_HASH_CACHE_SIZE = 0;
+      STRING_HASH_CACHE = {};
+    }
+    STRING_HASH_CACHE_SIZE++;
+    STRING_HASH_CACHE[string] = hash;
+  }
+  return hash;
+}
+function hashString(string) {
+  var hash = 0;
+  for (var ii = 0; ii < string.length; ii++) {
+    hash = (31 * hash + string.charCodeAt(ii)) & HASH_MAX_VAL;
+  }
+  return hash;
+}
+function hashJSObj(obj) {
+  if (obj[UID_HASH_KEY]) {
+    return obj[UID_HASH_KEY];
+  }
+  var uid = ++UID_HASH_COUNT & HASH_MAX_VAL;
+  if (!isIE8) {
+    try {
+      Object.defineProperty(obj, UID_HASH_KEY, {
+        'enumerable': false,
+        'configurable': false,
+        'writable': false,
+        'value': uid
+      });
+      return uid;
+    } catch (e) {
+      isIE8 = true;
+    }
+  }
+  obj[UID_HASH_KEY] = uid;
+  return uid;
+}
+var HASH_MAX_VAL = 0x7FFFFFFF;
+var UID_HASH_COUNT = 0;
+var UID_HASH_KEY = '__hash__';
+var isIE8 = false;
+var STRING_HASH_CACHE_MIN_STRLEN = 16;
+var STRING_HASH_CACHE_MAX_SIZE = 255;
+var STRING_HASH_CACHE_SIZE = 0;
+var STRING_HASH_CACHE = {};
 var Sequence = function Sequence(value) {
   return $Sequence.from(arguments.length === 1 ? value : Array.prototype.slice.call(arguments));
 };
@@ -141,6 +213,11 @@ var $Sequence = Sequence;
     assertNotInfinite(this.length);
     return Set.from(this);
   },
+  hashCode: function() {
+    return this.__hash || (this.__hash = this.length === Infinity ? 0 : this.reduce((function(h, v, k) {
+      return (h + (hash(v) ^ (v === k ? 0 : hash(k)))) & HASH_MAX_VAL;
+    }), 0));
+  },
   equals: function(other) {
     if (this === other) {
       return true;
@@ -155,6 +232,9 @@ var $Sequence = Sequence;
       if (this.length === 0 && other.length === 0) {
         return true;
       }
+    }
+    if (this.__hash != null && other.__hash != null && this.__hash !== other.__hash) {
+      return false;
     }
     return this.__deepEquals(other);
   },
@@ -1066,7 +1146,7 @@ var $Map = Map;
     return this.__toString('Map {', '}');
   },
   get: function(k, notSetValue) {
-    return this._root ? this._root.get(0, hashValue(k), k, notSetValue) : notSetValue;
+    return this._root ? this._root.get(0, hash(k), k, notSetValue) : notSetValue;
   },
   set: function(k, v) {
     return updateMap(this, k, v);
@@ -1091,6 +1171,7 @@ var $Map = Map;
     if (this.__ownerID) {
       this.length = 0;
       this._root = null;
+      this.__hash = undefined;
       this.__altered = true;
       return this;
     }
@@ -1180,7 +1261,7 @@ var $Map = Map;
       this.__altered = false;
       return this;
     }
-    return makeMap(this.length, this._root, ownerID);
+    return makeMap(this.length, this._root, ownerID, this.__hash);
   }
 }, {empty: function() {
     return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
@@ -1452,18 +1533,19 @@ function mapIteratorFrame(node, prev) {
     __prev: prev
   };
 }
-function makeMap(length, root, ownerID) {
+function makeMap(length, root, ownerID, hash) {
   var map = Object.create(MapPrototype);
   map.length = length;
   map._root = root;
   map.__ownerID = ownerID;
+  map.__hash = hash;
   map.__altered = false;
   return map;
 }
 function updateMap(map, k, v) {
   var didChangeLength = MakeRef(CHANGE_LENGTH);
   var didAlter = MakeRef(DID_ALTER);
-  var newRoot = updateNode(map._root, map.__ownerID, 0, hashValue(k), k, v, didChangeLength, didAlter);
+  var newRoot = updateNode(map._root, map.__ownerID, 0, hash(k), k, v, didChangeLength, didAlter);
   if (!didAlter.value) {
     return map;
   }
@@ -1471,6 +1553,7 @@ function updateMap(map, k, v) {
   if (map.__ownerID) {
     map.length = newLength;
     map._root = newRoot;
+    map.__hash = undefined;
     map.__altered = true;
     return map;
   }
@@ -1612,54 +1695,6 @@ function spliceOut(array, idx, canEdit) {
   }
   return newArray;
 }
-function hashValue(o) {
-  if (!o) {
-    return 0;
-  }
-  if (o === true) {
-    return 1;
-  }
-  var type = typeof o;
-  if (type === 'number') {
-    if ((o | 0) === o) {
-      return o & HASH_MAX_VAL;
-    }
-    o = '' + o;
-    type = 'string';
-  }
-  if (type === 'string') {
-    return o.length > STRING_HASH_CACHE_MIN_STRLEN ? cachedHashString(o) : hashString(o);
-  }
-  if (o.hashCode && typeof o.hashCode === 'function') {
-    return o.hashCode();
-  }
-  throw new Error('Unable to hash: ' + o);
-}
-function cachedHashString(string) {
-  var hash = STRING_HASH_CACHE[string];
-  if (hash == null) {
-    hash = hashString(string);
-    if (STRING_HASH_CACHE_SIZE === STRING_HASH_CACHE_MAX_SIZE) {
-      STRING_HASH_CACHE_SIZE = 0;
-      STRING_HASH_CACHE = {};
-    }
-    STRING_HASH_CACHE_SIZE++;
-    STRING_HASH_CACHE[string] = hash;
-  }
-  return hash;
-}
-function hashString(string) {
-  var hash = 0;
-  for (var ii = 0; ii < string.length; ii++) {
-    hash = (31 * hash + string.charCodeAt(ii)) & HASH_MAX_VAL;
-  }
-  return hash;
-}
-var HASH_MAX_VAL = 0x7FFFFFFF;
-var STRING_HASH_CACHE_MIN_STRLEN = 16;
-var STRING_HASH_CACHE_MAX_SIZE = 255;
-var STRING_HASH_CACHE_SIZE = 0;
-var STRING_HASH_CACHE = {};
 var MAX_BITMAP_SIZE = SIZE / 2;
 var MIN_ARRAY_SIZE = SIZE / 4;
 var EMPTY_MAP;
@@ -1703,6 +1738,7 @@ var $Vector = Vector;
       this.length = this._origin = this._size = 0;
       this._level = SHIFT;
       this._root = this._tail = null;
+      this.__hash = undefined;
       this.__altered = true;
       return this;
     }
@@ -1814,7 +1850,7 @@ var $Vector = Vector;
       this.__ownerID = ownerID;
       return this;
     }
-    return makeVector(this._origin, this._size, this._level, this._root, this._tail, ownerID);
+    return makeVector(this._origin, this._size, this._level, this._root, this._tail, ownerID, this.__hash);
   }
 }, {
   empty: function() {
@@ -2007,7 +2043,7 @@ function vectIteratorFrame(array, level, offset, max, prevFrame) {
     __prev: prevFrame
   };
 }
-function makeVector(origin, size, level, root, tail, ownerID) {
+function makeVector(origin, size, level, root, tail, ownerID, hash) {
   var vect = Object.create(VectorPrototype);
   vect.length = size - origin;
   vect._origin = origin;
@@ -2016,6 +2052,7 @@ function makeVector(origin, size, level, root, tail, ownerID) {
   vect._root = root;
   vect._tail = tail;
   vect.__ownerID = ownerID;
+  vect.__hash = hash;
   vect.__altered = false;
   return vect;
 }
@@ -2040,6 +2077,7 @@ function updateVector(vector, index, value) {
   if (vector.__ownerID) {
     vector._root = newRoot;
     vector._tail = newTail;
+    vector.__hash = undefined;
     vector.__altered = true;
     return vector;
   }
@@ -2176,6 +2214,7 @@ function setVectorBounds(vector, begin, end) {
     vector._level = newLevel;
     vector._root = newRoot;
     vector._tail = newTail;
+    vector.__hash = undefined;
     vector.__altered = true;
     return vector;
   }
@@ -2328,14 +2367,17 @@ var $Set = Set;
       return [key, key];
     }));
   },
+  hashCode: function() {
+    return this._map.hashCode();
+  },
+  equals: function(other) {
+    return this._map.equals(other._map);
+  },
   __iterate: function(fn, reverse) {
     var collection = this;
     return this._map.__iterate((function(_, k) {
       return fn(k, k, collection);
     }), reverse);
-  },
-  __deepEquals: function(other) {
-    return this._map.equals(other._map);
   },
   __ensureOwner: function(ownerID) {
     if (ownerID === this.__ownerID) {
@@ -2410,32 +2452,10 @@ var $OrderedMap = OrderedMap;
     return $OrderedMap.empty();
   },
   set: function(k, v) {
-    var index = this._map.get(k);
-    var has = index != null;
-    var newMap = has ? this._map : this._map.set(k, this._vector.length);
-    var newVector = has ? this._vector.set(index, [k, v]) : this._vector.push([k, v]);
-    if (this.__ownerID) {
-      this.length = newMap.length;
-      this._map = newMap;
-      this._vector = newVector;
-      return this;
-    }
-    return newVector === this._vector ? this : makeOrderedMap(newMap, newVector);
+    return updateOrderedMap(this, k, v);
   },
   delete: function(k) {
-    var index = this._map.get(k);
-    if (index == null) {
-      return this;
-    }
-    var newMap = this._map.delete(k);
-    var newVector = this._vector.delete(index);
-    if (this.__ownerID) {
-      this.length = newMap.length;
-      this._map = newMap;
-      this._vector = newVector;
-      return this;
-    }
-    return newMap.length === 0 ? $OrderedMap.empty() : makeOrderedMap(newMap, newVector);
+    return updateOrderedMap(this, k, NOT_SET);
   },
   wasAltered: function() {
     return this._map.wasAltered() || this._vector.wasAltered();
@@ -2475,19 +2495,43 @@ var $OrderedMap = OrderedMap;
       this._vector = newVector;
       return this;
     }
-    return makeOrderedMap(newMap, newVector, ownerID);
+    return makeOrderedMap(newMap, newVector, ownerID, this.__hash);
   }
 }, {empty: function() {
     return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(Map.empty(), Vector.empty()));
   }}, Map);
 OrderedMap.from = OrderedMap;
-function makeOrderedMap(map, vector, ownerID) {
+function makeOrderedMap(map, vector, ownerID, hash) {
   var omap = Object.create(OrderedMap.prototype);
   omap.length = map ? map.length : 0;
   omap._map = map;
   omap._vector = vector;
   omap.__ownerID = ownerID;
+  omap.__hash = hash;
   return omap;
+}
+function updateOrderedMap(omap, k, v) {
+  var map = omap._map;
+  var vector = omap._vector;
+  var i = map.get(k);
+  var has = i !== undefined;
+  var deleted = v === NOT_SET;
+  if ((!has && deleted) || (has && v === vector.get(i)[1])) {
+    return omap;
+  }
+  if (!has) {
+    i = vector.length;
+  }
+  var newMap = deleted ? map.delete(k) : has ? map : map.set(k, i);
+  var newVector = deleted ? vector.delete(i) : vector.set(i, [k, v]);
+  if (omap.__ownerID) {
+    omap.length = newMap.length;
+    omap._map = newMap;
+    omap._vector = newVector;
+    omap.__hash = undefined;
+    return omap;
+  }
+  return makeOrderedMap(newMap, newVector);
 }
 var EMPTY_ORDERED_MAP;
 var Record = function Record(defaultValues, name) {

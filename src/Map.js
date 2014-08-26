@@ -13,9 +13,10 @@ import "invariant"
 import "Cursor"
 import "TrieUtils"
 import "Symbol"
+import "Hash"
 /* global Sequence, SequenceIterator, is, invariant, Cursor,
           SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
-          MakeRef, SetRef, arrCopy, iteratorValue, iteratorDone, Symbol */
+          MakeRef, SetRef, arrCopy, iteratorValue, iteratorDone, Symbol, hash */
 /* exported Map, MapPrototype */
 
 
@@ -44,7 +45,7 @@ class Map extends Sequence {
 
   get(k, notSetValue) {
     return this._root ?
-      this._root.get(0, hashValue(k), k, notSetValue) :
+      this._root.get(0, hash(k), k, notSetValue) :
       notSetValue;
   }
 
@@ -78,6 +79,7 @@ class Map extends Sequence {
     if (this.__ownerID) {
       this.length = 0;
       this._root = null;
+      this.__hash = undefined;
       this.__altered = true;
       return this;
     }
@@ -181,7 +183,7 @@ class Map extends Sequence {
       this.__altered = false;
       return this;
     }
-    return makeMap(this.length, this._root, ownerID);
+    return makeMap(this.length, this._root, ownerID, this.__hash);
   }
 }
 
@@ -504,11 +506,12 @@ function mapIteratorFrame(node, prev) {
   };
 }
 
-function makeMap(length, root, ownerID) {
+function makeMap(length, root, ownerID, hash) {
   var map = Object.create(MapPrototype);
   map.length = length;
   map._root = root;
   map.__ownerID = ownerID;
+  map.__hash = hash;
   map.__altered = false;
   return map;
 }
@@ -516,7 +519,7 @@ function makeMap(length, root, ownerID) {
 function updateMap(map, k, v) {
   var didChangeLength = MakeRef(CHANGE_LENGTH);
   var didAlter = MakeRef(DID_ALTER);
-  var newRoot = updateNode(map._root, map.__ownerID, 0, hashValue(k), k, v, didChangeLength, didAlter);
+  var newRoot = updateNode(map._root, map.__ownerID, 0, hash(k), k, v, didChangeLength, didAlter);
   if (!didAlter.value) {
     return map;
   }
@@ -524,6 +527,7 @@ function updateMap(map, k, v) {
   if (map.__ownerID) {
     map.length = newLength;
     map._root = newRoot;
+    map.__hash = undefined;
     map.__altered = true;
     return map;
   }
@@ -688,65 +692,6 @@ function spliceOut(array, idx, canEdit) {
   }
   return newArray;
 }
-
-function hashValue(o) {
-  if (!o) { // false, 0, and null
-    return 0;
-  }
-  if (o === true) {
-    return 1;
-  }
-  var type = typeof o;
-  if (type === 'number') {
-    if ((o | 0) === o) {
-      return o & HASH_MAX_VAL;
-    }
-    o = '' + o;
-    type = 'string';
-  }
-  if (type === 'string') {
-    return o.length > STRING_HASH_CACHE_MIN_STRLEN ? cachedHashString(o) : hashString(o);
-  }
-  if (o.hashCode && typeof o.hashCode === 'function') {
-    return o.hashCode();
-  }
-  throw new Error('Unable to hash: ' + o);
-}
-
-function cachedHashString(string) {
-  var hash = STRING_HASH_CACHE[string];
-  if (hash == null) {
-    hash = hashString(string);
-    if (STRING_HASH_CACHE_SIZE === STRING_HASH_CACHE_MAX_SIZE) {
-      STRING_HASH_CACHE_SIZE = 0;
-      STRING_HASH_CACHE = {};
-    }
-    STRING_HASH_CACHE_SIZE++;
-    STRING_HASH_CACHE[string] = hash;
-  }
-  return hash;
-}
-
-// http://jsperf.com/hashing-strings
-function hashString(string) {
-  // This is the hash from JVM
-  // The hash code for a string is computed as
-  // s[0] * 31 ^ (n - 1) + s[1] * 31 ^ (n - 2) + ... + s[n - 1],
-  // where s[i] is the ith character of the string and n is the length of
-  // the string. We "mod" the result to make it between 0 (inclusive) and 2^31
-  // (exclusive) by dropping high bits.
-  var hash = 0;
-  for (var ii = 0; ii < string.length; ii++) {
-    hash = (31 * hash + string.charCodeAt(ii)) & HASH_MAX_VAL;
-  }
-  return hash;
-}
-
-var HASH_MAX_VAL = 0x7FFFFFFF; // 2^31 - 1
-var STRING_HASH_CACHE_MIN_STRLEN = 16;
-var STRING_HASH_CACHE_MAX_SIZE = 255;
-var STRING_HASH_CACHE_SIZE = 0;
-var STRING_HASH_CACHE = {};
 
 var MAX_BITMAP_SIZE = SIZE / 2;
 var MIN_ARRAY_SIZE = SIZE / 4;

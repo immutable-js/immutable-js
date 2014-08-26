@@ -11,7 +11,9 @@
 import "TrieUtils"
 import "invariant"
 import "Symbol"
-/* global is, Map, OrderedMap, Vector, Set, NOT_SET, invariant, Symbol */
+import "Hash"
+/* global is, Map, OrderedMap, Vector, Set, NOT_SET, invariant, Symbol,
+          hash, HASH_MAX_VAL */
 /* exported Sequence, IndexedSequence, SequenceIterator, iteratorMapper */
 
 
@@ -93,6 +95,13 @@ class Sequence {
     return Set.from(this);
   }
 
+  hashCode() {
+    return this.__hash || (this.__hash =
+      this.length === Infinity ? 0 : this.reduce(
+        (h, v, k) => (h + (hash(v) ^ (v === k ? 0 : hash(k)))) & HASH_MAX_VAL, 0
+    ));
+  }
+
   equals(other) {
     if (this === other) {
       return true;
@@ -107,6 +116,10 @@ class Sequence {
       if (this.length === 0 && other.length === 0) {
         return true;
       }
+    }
+    if (this.__hash != null && other.__hash != null &&
+        this.__hash !== other.__hash) {
+      return false;
     }
     return this.__deepEquals(other);
   }

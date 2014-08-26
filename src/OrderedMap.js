@@ -11,7 +11,8 @@ import "Sequence"
 import "Map"
 import "Vector"
 import "is"
-/* global iteratorMapper, Map, Vector, is */
+import "TrieUtils"
+/* global iteratorMapper, Map, Vector, is, NOT_SET */
 /* exported OrderedMap */
 
 
@@ -59,35 +60,11 @@ class OrderedMap extends Map {
   }
 
   set(k, v) {
-    var index = this._map.get(k);
-    var has = index != null;
-    var newMap = has ? this._map : this._map.set(k, this._vector.length);
-    var newVector = has ? this._vector.set(index, [k, v]) : this._vector.push([k, v]);
-
-    if (this.__ownerID) {
-      this.length = newMap.length;
-      this._map = newMap;
-      this._vector = newVector;
-      return this;
-    }
-    return newVector === this._vector ? this : makeOrderedMap(newMap, newVector);
+    return updateOrderedMap(this, k, v);
   }
 
   delete(k) {
-    var index = this._map.get(k);
-    if (index == null) {
-      return this;
-    }
-    var newMap = this._map.delete(k);
-    var newVector = this._vector.delete(index);
-
-    if (this.__ownerID) {
-      this.length = newMap.length;
-      this._map = newMap;
-      this._vector = newVector;
-      return this;
-    }
-    return newMap.length === 0 ? OrderedMap.empty() : makeOrderedMap(newMap, newVector);
+    return updateOrderedMap(this, k, NOT_SET);
   }
 
   wasAltered() {
@@ -130,19 +107,44 @@ class OrderedMap extends Map {
       this._vector = newVector;
       return this;
     }
-    return makeOrderedMap(newMap, newVector, ownerID);
+    return makeOrderedMap(newMap, newVector, ownerID, this.__hash);
   }
 }
 
 OrderedMap.from = OrderedMap;
 
-function makeOrderedMap(map, vector, ownerID) {
+function makeOrderedMap(map, vector, ownerID, hash) {
   var omap = Object.create(OrderedMap.prototype);
   omap.length = map ? map.length : 0;
   omap._map = map;
   omap._vector = vector;
   omap.__ownerID = ownerID;
+  omap.__hash = hash;
   return omap;
+}
+
+function updateOrderedMap(omap, k, v) {
+  var map = omap._map;
+  var vector = omap._vector;
+  var i = map.get(k);
+  var has = i !== undefined;
+  var deleted = v === NOT_SET;
+  if ((!has && deleted) || (has && v === vector.get(i)[1])) {
+    return omap;
+  }
+  if (!has) {
+    i = vector.length;
+  }
+  var newMap = deleted ? map.delete(k) : has ? map : map.set(k, i);
+  var newVector = deleted ? vector.delete(i) : vector.set(i, [k, v]);
+  if (omap.__ownerID) {
+    omap.length = newMap.length;
+    omap._map = newMap;
+    omap._vector = newVector;
+    omap.__hash = undefined;
+    return omap;
+  }
+  return makeOrderedMap(newMap, newVector);
 }
 
 var EMPTY_ORDERED_MAP;

@@ -97,6 +97,7 @@ class Vector extends IndexedSequence {
       this.length = this._origin = this._size = 0;
       this._level = SHIFT;
       this._root = this._tail = null;
+      this.__hash = undefined;
       this.__altered = true;
       return this;
     }
@@ -230,7 +231,7 @@ class Vector extends IndexedSequence {
       this.__ownerID = ownerID;
       return this;
     }
-    return makeVector(this._origin, this._size, this._level, this._root, this._tail, ownerID);
+    return makeVector(this._origin, this._size, this._level, this._root, this._tail, ownerID, this.__hash);
   }
 }
 
@@ -430,7 +431,7 @@ function vectIteratorFrame(array, level, offset, max, prevFrame) {
   };
 }
 
-function makeVector(origin, size, level, root, tail, ownerID) {
+function makeVector(origin, size, level, root, tail, ownerID, hash) {
   var vect = Object.create(VectorPrototype);
   vect.length = size - origin;
   vect._origin = origin;
@@ -439,6 +440,7 @@ function makeVector(origin, size, level, root, tail, ownerID) {
   vect._root = root;
   vect._tail = tail;
   vect.__ownerID = ownerID;
+  vect.__hash = hash;
   vect.__altered = false;
   return vect;
 }
@@ -468,6 +470,7 @@ function updateVector(vector, index, value) {
   if (vector.__ownerID) {
     vector._root = newRoot;
     vector._tail = newTail;
+    vector.__hash = undefined;
     vector.__altered = true;
     return vector;
   }
@@ -638,6 +641,7 @@ function setVectorBounds(vector, begin, end) {
     vector._level = newLevel;
     vector._root = newRoot;
     vector._tail = newTail;
+    vector.__hash = undefined;
     vector.__altered = true;
     return vector;
   }
