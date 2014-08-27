@@ -12,8 +12,8 @@ import "TrieUtils"
 import "invariant"
 import "Symbol"
 import "Hash"
-/* global is, Map, OrderedMap, Vector, Set, NOT_SET, invariant, ITERATOR,
-          hash, HASH_MAX_VAL */
+/* global is, Map, OrderedMap, Vector, Set, arrCopy, NOT_SET, invariant,
+          ITERATOR, hash, HASH_MAX_VAL */
 /* exported Sequence, IndexedSequence, SequenceIterator, iteratorMapper */
 
 
@@ -701,11 +701,20 @@ class IndexedSequence extends Sequence {
     return sliceSequence;
   }
 
-  splice(index, removeNum, ...values) {
-    if (removeNum === 0 && values.length === 0) {
+  splice(index, removeNum /*, ...values*/) {
+    var numArgs = arguments.length;
+    removeNum = Math.max(removeNum | 0, 0);
+    if (numArgs === 0 || (numArgs === 2 && !removeNum)) {
       return this;
     }
-    return this.slice(0, index).concat(values, this.slice(index + removeNum));
+    index = resolveBegin(index, this.length);
+    var spliced = this.slice(0, index);
+    return numArgs === 1 ?
+      spliced :
+      spliced.concat(
+        arrCopy(arguments, 2),
+        this.slice(index + removeNum)
+      );
   }
 
   // Overrides to get length correct.
@@ -919,11 +928,21 @@ function wholeSlice(begin, end, length) {
 }
 
 function resolveBegin(begin, length) {
-  return begin < 0 ? Math.max(0, length + begin) : length ? Math.min(length, begin) : begin;
+  return resolveIndex(begin, length, 0);
 }
 
 function resolveEnd(end, length) {
-  return end == null ? length : end < 0 ? Math.max(0, length + end) : length ? Math.min(length, end) : end;
+  return resolveIndex(end, length, length);
+}
+
+function resolveIndex(index, length, defaultIndex) {
+  return index == null ?
+    defaultIndex :
+    index < 0 ?
+      Math.max(0, length + index) :
+      length ?
+        Math.min(length, index) :
+        index;
 }
 
 function valueMapper(v) {

@@ -55,11 +55,12 @@ function SetRef(ref) {
   ref && (ref.value = true);
 }
 function OwnerID() {}
-function arrCopy(arr) {
-  var len = arr.length;
+function arrCopy(arr, offset) {
+  offset = offset || 0;
+  var len = Math.max(0, arr.length - offset);
   var newArr = new Array(len);
   for (var ii = 0; ii < len; ii++) {
-    newArr[ii] = arr[ii];
+    newArr[ii] = arr[ii + offset];
   }
   return newArr;
 }
@@ -793,13 +794,14 @@ var $IndexedSequence = IndexedSequence;
     return sliceSequence;
   },
   splice: function(index, removeNum) {
-    for (var values = [],
-        $__3 = 2; $__3 < arguments.length; $__3++)
-      values[$__3 - 2] = arguments[$__3];
-    if (removeNum === 0 && values.length === 0) {
+    var numArgs = arguments.length;
+    removeNum = Math.max(removeNum | 0, 0);
+    if (numArgs === 0 || (numArgs === 2 && !removeNum)) {
       return this;
     }
-    return this.slice(0, index).concat(values, this.slice(index + removeNum));
+    index = resolveBegin(index, this.length);
+    var spliced = this.slice(0, index);
+    return numArgs === 1 ? spliced : spliced.concat(arrCopy(arguments, 2), this.slice(index + removeNum));
   },
   takeWhile: function(predicate, thisArg, maintainIndices) {
     var sequence = this;
@@ -981,10 +983,13 @@ function wholeSlice(begin, end, length) {
   return (begin === 0 || (length != null && begin <= -length)) && (end == null || (length != null && end >= length));
 }
 function resolveBegin(begin, length) {
-  return begin < 0 ? Math.max(0, length + begin) : length ? Math.min(length, begin) : begin;
+  return resolveIndex(begin, length, 0);
 }
 function resolveEnd(end, length) {
-  return end == null ? length : end < 0 ? Math.max(0, length + end) : length ? Math.min(length, end) : end;
+  return resolveIndex(end, length, length);
+}
+function resolveIndex(index, length, defaultIndex) {
+  return index == null ? defaultIndex : index < 0 ? Math.max(0, length + index) : length ? Math.min(length, index) : index;
 }
 function valueMapper(v) {
   return v;
@@ -1158,9 +1163,9 @@ var $Map = Map;
     return arguments.length === 1 ? this.updateIn([], null, k) : this.updateIn([k], notSetValue, updater);
   },
   updateIn: function(keyPath, notSetValue, updater) {
-    var $__13;
+    var $__12;
     if (!updater) {
-      ($__13 = [notSetValue, updater], updater = $__13[0], notSetValue = $__13[1], $__13);
+      ($__12 = [notSetValue, updater], updater = $__12[0], notSetValue = $__12[1], $__12);
     }
     return updateInDeepMap(this, keyPath, notSetValue, updater, 0);
   },
@@ -1182,8 +1187,8 @@ var $Map = Map;
   },
   mergeWith: function(merger) {
     for (var seqs = [],
-        $__4 = 1; $__4 < arguments.length; $__4++)
-      seqs[$__4 - 1] = arguments[$__4];
+        $__3 = 1; $__3 < arguments.length; $__3++)
+      seqs[$__3 - 1] = arguments[$__3];
     return mergeIntoMapWith(this, merger, seqs);
   },
   mergeDeep: function() {
@@ -1191,8 +1196,8 @@ var $Map = Map;
   },
   mergeDeepWith: function(merger) {
     for (var seqs = [],
-        $__5 = 1; $__5 < arguments.length; $__5++)
-      seqs[$__5 - 1] = arguments[$__5];
+        $__4 = 1; $__4 < arguments.length; $__4++)
+      seqs[$__4 - 1] = arguments[$__4];
     return mergeIntoMapWith(this, deepMerger(merger), seqs);
   },
   cursor: function(keyPath, onChange) {
@@ -1701,8 +1706,8 @@ var MIN_ARRAY_SIZE = SIZE / 4;
 var EMPTY_MAP;
 var Vector = function Vector() {
   for (var values = [],
-      $__6 = 0; $__6 < arguments.length; $__6++)
-    values[$__6] = arguments[$__6];
+      $__5 = 0; $__5 < arguments.length; $__5++)
+    values[$__5] = arguments[$__5];
   return $Vector.from(values);
 };
 var $Vector = Vector;
@@ -1775,8 +1780,8 @@ var $Vector = Vector;
   },
   mergeWith: function(merger) {
     for (var seqs = [],
-        $__7 = 1; $__7 < arguments.length; $__7++)
-      seqs[$__7 - 1] = arguments[$__7];
+        $__6 = 1; $__6 < arguments.length; $__6++)
+      seqs[$__6 - 1] = arguments[$__6];
     return mergeIntoVectorWith(this, merger, seqs);
   },
   mergeDeep: function() {
@@ -1784,8 +1789,8 @@ var $Vector = Vector;
   },
   mergeDeepWith: function(merger) {
     for (var seqs = [],
-        $__8 = 1; $__8 < arguments.length; $__8++)
-      seqs[$__8 - 1] = arguments[$__8];
+        $__7 = 1; $__7 < arguments.length; $__7++)
+      seqs[$__7 - 1] = arguments[$__7];
     return mergeIntoVectorWith(this, deepMerger(merger), seqs);
   },
   setLength: function(length) {
@@ -2246,8 +2251,8 @@ function getTailOffset(size) {
 var EMPTY_VECT;
 var Set = function Set() {
   for (var values = [],
-      $__9 = 0; $__9 < arguments.length; $__9++)
-    values[$__9] = arguments[$__9];
+      $__8 = 0; $__8 < arguments.length; $__8++)
+    values[$__8] = arguments[$__8];
   return $Set.from(values);
 };
 var $Set = Set;
@@ -2305,8 +2310,8 @@ var $Set = Set;
   },
   intersect: function() {
     for (var seqs = [],
-        $__10 = 0; $__10 < arguments.length; $__10++)
-      seqs[$__10] = arguments[$__10];
+        $__9 = 0; $__9 < arguments.length; $__9++)
+      seqs[$__9] = arguments[$__9];
     if (seqs.length === 0) {
       return this;
     }
@@ -2326,8 +2331,8 @@ var $Set = Set;
   },
   subtract: function() {
     for (var seqs = [],
-        $__11 = 0; $__11 < arguments.length; $__11++)
-      seqs[$__11] = arguments[$__11];
+        $__10 = 0; $__10 < arguments.length; $__10++)
+      seqs[$__10] = arguments[$__10];
     if (seqs.length === 0) {
       return this;
     }
@@ -2412,8 +2417,8 @@ SetPrototype.contains = SetPrototype.has;
 SetPrototype.mergeDeep = SetPrototype.merge = SetPrototype.union;
 SetPrototype.mergeDeepWith = SetPrototype.mergeWith = function(merger) {
   for (var seqs = [],
-      $__12 = 1; $__12 < arguments.length; $__12++)
-    seqs[$__12 - 1] = arguments[$__12];
+      $__11 = 1; $__11 < arguments.length; $__11++)
+    seqs[$__11 - 1] = arguments[$__11];
   return this.merge.apply(this, seqs);
 };
 SetPrototype.withMutations = MapPrototype.withMutations;
