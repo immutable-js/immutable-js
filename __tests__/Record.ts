@@ -54,4 +54,11 @@ describe('Record', () => {
     expect(t.toObject()).toEqual({a:10, b:20, c:3})
   })
 
+  it('allows for functional construction', () => {
+    var MyType = Record({a:1, b:2, c:3});
+    var seq = Immutable.Sequence({a: 10, b:20});
+    var t = MyType(seq);
+    expect(t.toObject()).toEqual({a:10, b:20, c:3})
+  })
+
 });

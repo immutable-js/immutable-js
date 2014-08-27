@@ -19,6 +19,9 @@ class Record extends Sequence {
 
   constructor(defaultValues, name) {
     var RecordType = function(values) {
+      if (!(this instanceof RecordType)) {
+        return new RecordType(values);
+      }
       this._map = Map(values);
     };
     defaultValues = Sequence(defaultValues);

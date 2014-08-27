@@ -2545,6 +2545,9 @@ function updateOrderedMap(omap, k, v) {
 var EMPTY_ORDERED_MAP;
 var Record = function Record(defaultValues, name) {
   var RecordType = function(values) {
+    if (!(this instanceof RecordType)) {
+      return new RecordType(values);
+    }
     this._map = Map(values);
   };
   defaultValues = Sequence(defaultValues);
