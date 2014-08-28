@@ -1100,7 +1100,7 @@ var Cursor = function Cursor(rootData, keyPath, onChange, value) {
   },
   withMutations: function(fn) {
     return updateCursor(this, (function(m) {
-      return m.withMutations(fn);
+      return (m || Map.empty()).withMutations(fn);
     }));
   },
   cursor: function(subKey) {

@@ -53,7 +53,7 @@ class Cursor extends Sequence {
   }
 
   withMutations(fn) {
-    return updateCursor(this, m => m.withMutations(fn));
+    return updateCursor(this, m => (m || Map.empty()).withMutations(fn));
   }
 
   cursor(subKey) {

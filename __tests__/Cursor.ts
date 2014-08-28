@@ -156,6 +156,20 @@ describe('Cursor', () => {
     expect(c1.deref().toObject()).toEqual({'a': 1});
     expect(c2.deref().toObject()).toEqual({'a': 1, 'b': 2, 'c': 3, 'd': 4});
     expect(onChange.mock.calls.length).toBe(1);
-   });
+  });
+
+  it('can use withMutations on an unfulfilled cursor', () => {
+    var onChange = jest.genMockFunction();
+    var data = Immutable.fromJS({});
+
+    var c1 = data.cursor(['a', 'b', 'c'], onChange);
+    var c2 = c1.withMutations(m => m.set('x', 1).set('y', 2).set('z', 3));
+
+    expect(c1.deref()).toEqual(undefined);
+    expect(c2.deref()).toEqual(Immutable.fromJS(
+      { x: 1, y: 2, z: 3 }
+    ));
+    expect(onChange.mock.calls.length).toBe(1);
+  });
 
 });
