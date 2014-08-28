@@ -1098,6 +1098,11 @@ var Cursor = function Cursor(rootData, keyPath, onChange, value) {
       return map.update(keyOrFn, notSetValue, updater);
     }), keyOrFn);
   },
+  withMutations: function(fn) {
+    return updateCursor(this, (function(m) {
+      return m.withMutations(fn);
+    }));
+  },
   cursor: function(subKey) {
     return Array.isArray(subKey) && subKey.length === 0 ? this : subCursor(this, subKey);
   },

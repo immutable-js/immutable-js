@@ -52,6 +52,10 @@ class Cursor extends Sequence {
       updateCursor(this, map => map.update(keyOrFn, notSetValue, updater), keyOrFn);
   }
 
+  withMutations(fn) {
+    return updateCursor(this, m => m.withMutations(fn));
+  }
+
   cursor(subKey) {
     return Array.isArray(subKey) && subKey.length === 0 ?
       this : subCursor(this, subKey);
