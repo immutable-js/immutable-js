@@ -259,4 +259,16 @@ describe('Map', () => {
     expect(a).toEqual(new Array(len));
   });
 
+  it('allows chained mutations', () => {
+    var m1 = Map();
+    var m2 = m1.set('a', 1);
+    var m3 = m2.withMutations(m => m.set('b', 2).set('c', 3));
+    var m4 = m3.set('d', 4);
+
+    expect(m1.toObject()).toEqual({});
+    expect(m2.toObject()).toEqual({'a':1});
+    expect(m3.toObject()).toEqual({'a': 1, 'b': 2, 'c': 3});
+    expect(m4.toObject()).toEqual({'a': 1, 'b': 2, 'c': 3, 'd': 4});
+  });
+
 });

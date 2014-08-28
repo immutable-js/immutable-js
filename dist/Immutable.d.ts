@@ -1065,8 +1065,8 @@ declare module 'immutable' {
      * creating all of the intermediate immutable Maps.
      *
      * If you need to apply a series of mutations to produce a new immutable
-     * Map, `withMutations()` create a temporary mutable copy of the Map which
-     * can applying mutations in a highly performant manner. In fact, this is
+     * Map, `withMutations()` creates a temporary mutable copy of the Map which
+     * can apply mutations in a highly performant manner. In fact, this is
      * exactly how complex mutations like `merge` are done.
      *
      * As an example, this results in the creation of 2, not 4, new Maps:
@@ -1630,6 +1630,17 @@ declare module 'immutable' {
     update(updater: (value: T) => T): Cursor<T>;
     update(key: any, updater: (value: any) => any): Cursor<T>;
     update(key: any, notSetValue: any, updater: (value: any) => any): Cursor<T>;
+
+
+    /**
+     * Every time you call one of the above functions, a new immutable value is
+     * created and the callback is triggered. If you need to apply a series of
+     * mutations to a Cursor without triggering the callback repeatedly,
+     * `withMutations()` creates a temporary mutable copy of the value which
+     * can apply mutations in a highly performant manner. Afterwards the
+     * callback is triggered with the final value.
+     */
+    withMutations(mutator: (mutable: T) => T): Cursor<T>;
   }
 
   // Shim for ES6 Iterator

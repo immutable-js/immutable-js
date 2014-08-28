@@ -146,4 +146,16 @@ describe('Cursor', () => {
     );
   });
 
+  it('can have mutations apply with a single callback', () => {
+    var onChange = jest.genMockFunction();
+    var data = Immutable.fromJS({'a': 1});
+
+    var c1 = data.cursor(onChange);
+    var c2 = c1.withMutations(m => m.set('b', 2).set('c', 3).set('d', 4));
+
+    expect(c1.deref().toObject()).toEqual({'a': 1});
+    expect(c2.deref().toObject()).toEqual({'a': 1, 'b': 2, 'c': 3, 'd': 4});
+    expect(onChange.mock.calls.length).toBe(1);
+   });
+
 });
