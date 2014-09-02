@@ -492,12 +492,27 @@ var $Sequence = Sequence;
     return resolvedEnd == null || resolvedEnd === this.length ? skipped : skipped.take(resolvedEnd - resolvedBegin);
   },
   take: function(amount) {
-    var iterations = 0;
-    var sequence = this.takeWhile((function() {
-      return iterations++ < amount;
-    }));
-    sequence.length = this.length && Math.min(this.length, amount);
-    return sequence;
+    var sequence = this;
+    if (amount > sequence.length) {
+      return sequence;
+    }
+    var takeSequence = sequence.__makeSequence();
+    takeSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      if (reverse) {
+        return this.cacheResult().__iterate(fn, reverse, flipIndices);
+      }
+      var iterations = 0;
+      sequence.__iterate((function(v, k, c) {
+        if (iterations < amount && fn(v, k, c) !== false) {
+          iterations++;
+        } else {
+          return false;
+        }
+      }), reverse, flipIndices);
+      return iterations;
+    };
+    takeSequence.length = this.length && Math.min(this.length, amount);
+    return takeSequence;
   },
   takeLast: function(amount, maintainIndices) {
     return this.reverse(maintainIndices).take(amount).reverse(maintainIndices);
@@ -525,15 +540,31 @@ var $Sequence = Sequence;
     return this.takeWhile(not(predicate), thisArg, maintainIndices);
   },
   skip: function(amount, maintainIndices) {
+    var sequence = this;
     if (amount === 0) {
-      return this;
+      return sequence;
     }
-    var iterations = 0;
-    var sequence = this.skipWhile((function() {
-      return iterations++ < amount;
-    }), null, maintainIndices);
-    sequence.length = this.length && Math.max(0, this.length - amount);
-    return sequence;
+    var skipSequence = sequence.__makeSequence();
+    skipSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      if (reverse) {
+        return this.cacheResult().__iterate(fn, reverse, flipIndices);
+      }
+      var isSkipping = true;
+      var iterations = 0;
+      var skipped = 0;
+      sequence.__iterate((function(v, k, c) {
+        if (!(isSkipping && (isSkipping = skipped++ < amount))) {
+          if (fn(v, k, c) !== false) {
+            iterations++;
+          } else {
+            return false;
+          }
+        }
+      }), reverse, flipIndices);
+      return iterations;
+    };
+    skipSequence.length = this.length && Math.max(0, this.length - amount);
+    return skipSequence;
   },
   skipLast: function(amount, maintainIndices) {
     return this.reverse(maintainIndices).skip(amount).reverse(maintainIndices);
@@ -803,6 +834,32 @@ var $IndexedSequence = IndexedSequence;
     var spliced = this.slice(0, index);
     return numArgs === 1 ? spliced : spliced.concat(arrCopy(arguments, 2), this.slice(index + removeNum));
   },
+  take: function(amount) {
+    var sequence = this;
+    if (amount > sequence.length) {
+      return sequence;
+    }
+    var takeSequence = sequence.__makeSequence();
+    takeSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      if (reverse) {
+        return this.cacheResult().__iterate(fn, reverse, flipIndices);
+      }
+      var taken = 0;
+      var iterations = 0;
+      var didFinish = true;
+      var length = sequence.__iterate((function(v, ii, c) {
+        if (taken++ < amount && fn(v, ii, c) !== false) {
+          iterations = ii;
+        } else {
+          didFinish = false;
+          return false;
+        }
+      }), reverse, flipIndices);
+      return didFinish ? length : iterations + 1;
+    };
+    takeSequence.length = this.length && Math.min(this.length, amount);
+    return takeSequence;
+  },
   takeWhile: function(predicate, thisArg, maintainIndices) {
     var sequence = this;
     var takeSequence = sequence.__makeSequence();
@@ -826,6 +883,37 @@ var $IndexedSequence = IndexedSequence;
       takeSequence.length = this.length;
     }
     return takeSequence;
+  },
+  skip: function(amount, maintainIndices) {
+    var sequence = this;
+    if (amount === 0) {
+      return sequence;
+    }
+    var skipSequence = sequence.__makeSequence();
+    if (maintainIndices) {
+      skipSequence.length = this.length;
+    }
+    skipSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      if (reverse) {
+        return this.cacheResult().__iterate(fn, reverse, flipIndices);
+      }
+      var reversedIndices = sequence.__reversedIndices ^ flipIndices;
+      var isSkipping = true;
+      var indexOffset = 0;
+      var skipped = 0;
+      var length = sequence.__iterate((function(v, ii, c) {
+        if (isSkipping) {
+          isSkipping = skipped++ < amount;
+          if (!isSkipping) {
+            indexOffset = ii;
+          }
+        }
+        return isSkipping || fn(v, flipIndices || maintainIndices ? ii : ii - indexOffset, c) !== false;
+      }), reverse, flipIndices);
+      return maintainIndices ? length : reversedIndices ? indexOffset + 1 : length - indexOffset;
+    };
+    skipSequence.length = this.length && Math.max(0, this.length - amount);
+    return skipSequence;
   },
   skipWhile: function(predicate, thisArg, maintainIndices) {
     var sequence = this;

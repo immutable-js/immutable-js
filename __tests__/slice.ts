@@ -3,6 +3,9 @@
 
 jest.autoMockOff();
 
+import jasmineCheck = require('jasmine-check');
+jasmineCheck.install();
+
 import I = require('immutable');
 import Sequence = I.Sequence;
 import Vector = I.Vector;
@@ -15,6 +18,14 @@ describe('slice', () => {
     expect(Sequence(1,2,3,4,5,6).slice(-3, -1).toArray()).toEqual([4,5]);
     expect(Sequence(1,2,3,4,5,6).slice(-1).toArray()).toEqual([6]);
     expect(Sequence(1,2,3,4,5,6).slice(0, -1).toArray()).toEqual([1,2,3,4,5]);
+  })
+
+  it('creates an immutable stable sequence', () => {
+    var seq = Sequence(1,2,3,4,5,6);
+    var sliced = seq.slice(2, -2);
+    expect(sliced.toArray()).toEqual([3, 4]);
+    expect(sliced.toArray()).toEqual([3, 4]);
+    expect(sliced.toArray()).toEqual([3, 4]);
   })
 
   it('slices a sparse indexed sequence', () => {
@@ -62,6 +73,34 @@ describe('slice', () => {
 
   it('creates a sliced vector in O(log32(n))', () => {
     expect(Vector(1,2,3,4,5).slice(-3, -1).toVector().toArray()).toBe([3,4]);
+  })
+
+  check.it('works like Array.prototype.slice',
+           [gen.int, gen.array(gen.oneOf([gen.int, gen.undefined]), 0, 3)],
+           (valuesLen, args) => {
+    var a = I.Range(0, valuesLen).toArray();
+    var v = Vector.from(a);
+    var slicedV = v.slice.apply(v, args);
+    var slicedA = a.slice.apply(a, args);
+    expect(slicedV.toArray()).toEqual(slicedA);
+  })
+
+  describe('take', () => {
+
+    check.it('takes the first n from a list', [gen.int, gen.int], (len, num) => {
+      var a = I.Range(0, len).toArray();
+      var v = Vector.from(a);
+      expect(v.take(num).toArray()).toEqual(a.slice(0, num));
+    })
+
+    it('creates an immutable stable sequence', () => {
+      var seq = Sequence(1,2,3,4,5,6);
+      var sliced = seq.take(3);
+      expect(sliced.toArray()).toEqual([1, 2, 3]);
+      expect(sliced.toArray()).toEqual([1, 2, 3]);
+      expect(sliced.toArray()).toEqual([1, 2, 3]);
+    })
+
   })
 
 })

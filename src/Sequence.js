@@ -387,10 +387,28 @@ class Sequence {
   }
 
   take(amount) {
-    var iterations = 0;
-    var sequence = this.takeWhile(() => iterations++ < amount);
-    sequence.length = this.length && Math.min(this.length, amount);
-    return sequence;
+    var sequence = this;
+    if (amount > sequence.length) {
+      return sequence;
+    }
+    var takeSequence = sequence.__makeSequence();
+    takeSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      if (reverse) {
+        // TODO: can we do a better job of this?
+        return this.cacheResult().__iterate(fn, reverse, flipIndices);
+      }
+      var iterations = 0;
+      sequence.__iterate((v, k, c) => {
+        if (iterations < amount && fn(v, k, c) !== false) {
+          iterations++;
+        } else {
+          return false;
+        }
+      }, reverse, flipIndices);
+      return iterations;
+    };
+    takeSequence.length = this.length && Math.min(this.length, amount);
+    return takeSequence;
   }
 
   takeLast(amount, maintainIndices) {
@@ -423,13 +441,32 @@ class Sequence {
   }
 
   skip(amount, maintainIndices) {
+    var sequence = this;
     if (amount === 0) {
-      return this;
+      return sequence;
     }
-    var iterations = 0;
-    var sequence = this.skipWhile(() => iterations++ < amount, null, maintainIndices);
-    sequence.length = this.length && Math.max(0, this.length - amount);
-    return sequence;
+    var skipSequence = sequence.__makeSequence();
+    skipSequence.__iterateUncached = function (fn, reverse, flipIndices) {
+      if (reverse) {
+        // TODO: can we do a better job of this?
+        return this.cacheResult().__iterate(fn, reverse, flipIndices);
+      }
+      var isSkipping = true;
+      var iterations = 0;
+      var skipped = 0;
+      sequence.__iterate((v, k, c) => {
+        if (!(isSkipping && (isSkipping = skipped++ < amount))) {
+          if (fn(v, k, c) !== false) {
+            iterations++;
+          } else {
+            return false;
+          }
+        }
+      }, reverse, flipIndices);
+      return iterations;
+    };
+    skipSequence.length = this.length && Math.max(0, this.length - amount);
+    return skipSequence;
   }
 
   skipLast(amount, maintainIndices) {
@@ -718,6 +755,36 @@ class IndexedSequence extends Sequence {
   }
 
   // Overrides to get length correct.
+
+  take(amount) {
+    var sequence = this;
+    if (amount > sequence.length) {
+      return sequence;
+    }
+    var takeSequence = sequence.__makeSequence();
+    takeSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      if (reverse) {
+        // TODO: can we do a better job of this?
+        return this.cacheResult().__iterate(fn, reverse, flipIndices);
+      }
+      var taken = 0;
+      var iterations = 0;
+      // TODO: ensure didFinish is necessary here
+      var didFinish = true;
+      var length = sequence.__iterate((v, ii, c) => {
+        if (taken++ < amount && fn(v, ii, c) !== false) {
+          iterations = ii;
+        } else {
+          didFinish = false;
+          return false;
+        }
+      }, reverse, flipIndices);
+      return didFinish ? length : iterations + 1;
+    };
+    takeSequence.length = this.length && Math.min(this.length, amount);
+    return takeSequence;
+  }
+
   takeWhile(predicate, thisArg, maintainIndices) {
     var sequence = this;
     var takeSequence = sequence.__makeSequence();
@@ -743,6 +810,39 @@ class IndexedSequence extends Sequence {
       takeSequence.length = this.length;
     }
     return takeSequence;
+  }
+
+  skip(amount, maintainIndices) {
+    var sequence = this;
+    if (amount === 0) {
+      return sequence;
+    }
+    var skipSequence = sequence.__makeSequence();
+    if (maintainIndices) {
+      skipSequence.length = this.length;
+    }
+    skipSequence.__iterateUncached = function (fn, reverse, flipIndices) {
+      if (reverse) {
+        // TODO: can we do a better job of this?
+        return this.cacheResult().__iterate(fn, reverse, flipIndices)
+      }
+      var reversedIndices = sequence.__reversedIndices ^ flipIndices;
+      var isSkipping = true;
+      var indexOffset = 0;
+      var skipped = 0;
+      var length = sequence.__iterate((v, ii, c) => {
+        if (isSkipping) {
+          isSkipping = skipped++ < amount;
+          if (!isSkipping) {
+            indexOffset = ii;
+          }
+        }
+        return isSkipping || fn(v, flipIndices || maintainIndices ? ii : ii - indexOffset, c) !== false;
+      }, reverse, flipIndices);
+      return maintainIndices ? length : reversedIndices ? indexOffset + 1 : length - indexOffset;
+    };
+    skipSequence.length = this.length && Math.max(0, this.length - amount);
+    return skipSequence;
   }
 
   skipWhile(predicate, thisArg, maintainIndices) {
