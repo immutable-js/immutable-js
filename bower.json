@@ -1,0 +1,26 @@
+{
+  "name": "immutable",
+  "version": "2.0.16",
+  "description": "Immutable Data Collections",
+  "homepage": "https://github.com/facebook/immutable-js",
+  "main": "dist/Immutable.js",
+  "keywords": [
+    "immutable",
+    "persistent",
+    "lazy",
+    "data",
+    "datastructure",
+    "functional",
+    "collection",
+    "stateless",
+    "sequence",
+    "iteration"
+  ],
+  "ignore": [
+    "**/.*",
+    "__tests__",
+    "resources",
+    "src"
+  ],
+  "license": "BSD"
+}
