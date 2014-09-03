@@ -204,14 +204,14 @@ class BitmapIndexedNode {
   }
 
   get(shift, hash, key, notSetValue) {
-    var bit = (1 << ((hash >>> shift) & MASK));
+    var bit = (1 << ((shift === 0 ? hash : hash >>> shift) & MASK));
     var bitmap = this.bitmap;
     return (bitmap & bit) === 0 ? notSetValue :
       this.nodes[popCount(bitmap & (bit - 1))].get(shift + SHIFT, hash, key, notSetValue);
   }
 
   update(ownerID, shift, hash, key, value, didChangeLength, didAlter) {
-    var hashFrag = (hash >>> shift) & MASK;
+    var hashFrag = (shift === 0 ? hash : hash >>> shift) & MASK;
     var bit = 1 << hashFrag;
     var bitmap = this.bitmap;
     var exists = (bitmap & bit) !== 0;
@@ -276,13 +276,13 @@ class ArrayNode {
   }
 
   get(shift, hash, key, notSetValue) {
-    var idx = (hash >>> shift) & MASK;
+    var idx = (shift === 0 ? hash : hash >>> shift) & MASK;
     var node = this.nodes[idx];
     return node ? node.get(shift + SHIFT, hash, key, notSetValue) : notSetValue;
   }
 
   update(ownerID, shift, hash, key, value, didChangeLength, didAlter) {
-    var idx = (hash >>> shift) & MASK;
+    var idx = (shift === 0 ? hash : hash >>> shift) & MASK;
     var removed = value === NOT_SET;
     var nodes = this.nodes;
     var node = nodes[idx];
@@ -557,8 +557,8 @@ function mergeIntoNode(node, ownerID, shift, hash, entry) {
     return new HashCollisionNode(ownerID, hash, [node.entry, entry]);
   }
 
-  var idx1 = (node.hash >>> shift) & MASK;
-  var idx2 = (hash >>> shift) & MASK;
+  var idx1 = (shift === 0 ? node.hash : node.hash >>> shift) & MASK;
+  var idx2 = (shift === 0 ? hash : hash >>> shift) & MASK;
 
   var newNode;
   var nodes = idx1 === idx2 ?

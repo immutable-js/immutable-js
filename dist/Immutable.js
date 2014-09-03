@@ -1378,12 +1378,12 @@ var BitmapIndexedNode = function BitmapIndexedNode(ownerID, bitmap, nodes) {
 var $BitmapIndexedNode = BitmapIndexedNode;
 ($traceurRuntime.createClass)(BitmapIndexedNode, {
   get: function(shift, hash, key, notSetValue) {
-    var bit = (1 << ((hash >>> shift) & MASK));
+    var bit = (1 << ((shift === 0 ? hash : hash >>> shift) & MASK));
     var bitmap = this.bitmap;
     return (bitmap & bit) === 0 ? notSetValue : this.nodes[popCount(bitmap & (bit - 1))].get(shift + SHIFT, hash, key, notSetValue);
   },
   update: function(ownerID, shift, hash, key, value, didChangeLength, didAlter) {
-    var hashFrag = (hash >>> shift) & MASK;
+    var hashFrag = (shift === 0 ? hash : hash >>> shift) & MASK;
     var bit = 1 << hashFrag;
     var bitmap = this.bitmap;
     var exists = (bitmap & bit) !== 0;
@@ -1434,12 +1434,12 @@ var ArrayNode = function ArrayNode(ownerID, count, nodes) {
 var $ArrayNode = ArrayNode;
 ($traceurRuntime.createClass)(ArrayNode, {
   get: function(shift, hash, key, notSetValue) {
-    var idx = (hash >>> shift) & MASK;
+    var idx = (shift === 0 ? hash : hash >>> shift) & MASK;
     var node = this.nodes[idx];
     return node ? node.get(shift + SHIFT, hash, key, notSetValue) : notSetValue;
   },
   update: function(ownerID, shift, hash, key, value, didChangeLength, didAlter) {
-    var idx = (hash >>> shift) & MASK;
+    var idx = (shift === 0 ? hash : hash >>> shift) & MASK;
     var removed = value === NOT_SET;
     var nodes = this.nodes;
     var node = nodes[idx];
@@ -1676,8 +1676,8 @@ function mergeIntoNode(node, ownerID, shift, hash, entry) {
   if (node.hash === hash) {
     return new HashCollisionNode(ownerID, hash, [node.entry, entry]);
   }
-  var idx1 = (node.hash >>> shift) & MASK;
-  var idx2 = (hash >>> shift) & MASK;
+  var idx1 = (shift === 0 ? node.hash : node.hash >>> shift) & MASK;
+  var idx2 = (shift === 0 ? hash : hash >>> shift) & MASK;
   var newNode;
   var nodes = idx1 === idx2 ? [mergeIntoNode(node, ownerID, shift + SHIFT, hash, entry)] : ((newNode = new ValueNode(ownerID, hash, entry)), idx1 < idx2 ? [node, newNode] : [newNode, node]);
   return new BitmapIndexedNode(ownerID, (1 << idx1) | (1 << idx2), nodes);
