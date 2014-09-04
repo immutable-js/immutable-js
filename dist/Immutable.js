@@ -1344,7 +1344,7 @@ var $Map = Map;
     }), reverse);
     return iterations;
   },
-  __deepEqual: function(other) {
+  __deepEquals: function(other) {
     var self = this;
     return other.every((function(v, k) {
       return is(self.get(k, NOT_SET), v);
@@ -2470,14 +2470,14 @@ var $Set = Set;
   hashCode: function() {
     return this._map.hashCode();
   },
-  equals: function(other) {
-    return this._map.equals(other._map);
-  },
   __iterate: function(fn, reverse) {
     var collection = this;
     return this._map.__iterate((function(_, k) {
       return fn(k, k, collection);
     }), reverse);
+  },
+  __deepEquals: function(other) {
+    return this.isSuperset(other);
   },
   __ensureOwner: function(ownerID) {
     if (ownerID === this.__ownerID) {
@@ -2577,7 +2577,7 @@ var $OrderedMap = OrderedMap;
   __iterate: function(fn, reverse) {
     return this._vector.fromEntrySeq().__iterate(fn, reverse);
   },
-  __deepEqual: function(other) {
+  __deepEquals: function(other) {
     var iterator = this.entries();
     return other.every((function(v, k) {
       var entry = iterator.next().value;
@@ -2751,7 +2751,7 @@ RecordPrototype.cursor = MapPrototype.cursor;
 RecordPrototype.withMutations = MapPrototype.withMutations;
 RecordPrototype.asMutable = MapPrototype.asMutable;
 RecordPrototype.asImmutable = MapPrototype.asImmutable;
-RecordPrototype.__deepEqual = MapPrototype.__deepEqual;
+RecordPrototype.__deepEquals = MapPrototype.__deepEquals;
 function makeRecord(likeRecord, map, ownerID) {
   var record = Object.create(Object.getPrototypeOf(likeRecord));
   record._map = map;

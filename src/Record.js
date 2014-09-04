@@ -147,7 +147,7 @@ RecordPrototype.cursor = MapPrototype.cursor;
 RecordPrototype.withMutations = MapPrototype.withMutations;
 RecordPrototype.asMutable = MapPrototype.asMutable;
 RecordPrototype.asImmutable = MapPrototype.asImmutable;
-RecordPrototype.__deepEqual = MapPrototype.__deepEqual;
+RecordPrototype.__deepEquals = MapPrototype.__deepEquals;
 
 
 function makeRecord(likeRecord, map, ownerID) {

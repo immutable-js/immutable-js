@@ -159,13 +159,13 @@ class Set extends Sequence {
     return this._map.hashCode();
   }
 
-  equals(other) {
-    return this._map.equals(other._map);
-  }
-
   __iterate(fn, reverse) {
     var collection = this;
     return this._map.__iterate((_, k) => fn(k, k, collection), reverse);
+  }
+
+  __deepEquals(other) {
+    return this.isSuperset(other);
   }
 
   __ensureOwner(ownerID) {

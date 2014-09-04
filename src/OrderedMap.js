@@ -88,7 +88,7 @@ class OrderedMap extends Map {
     return this._vector.fromEntrySeq().__iterate(fn, reverse);
   }
 
-  __deepEqual(other) {
+  __deepEquals(other) {
     var iterator = this.entries();
     return other.every((v, k) => {
       var entry = iterator.next().value;

@@ -148,6 +148,19 @@ describe('Set', () => {
     expect(s).is(Set('A'));
   });
 
+  it('expresses value equality with set-ish sequences', () => {
+    var s1 = Set('A', 'B', 'C');
+    expect(s1.equals(null)).toBe(false);
+
+    var s2 = Set('C', 'B', 'A');
+    expect(s1 === s2).toBe(false);
+    expect(Immutable.is(s1, s2)).toBe(true);
+    expect(s1.equals(s2)).toBe(true);
+
+    var v1 = Immutable.Vector('A', 'B', 'C');
+    expect(Immutable.is(s1, v1)).toBe(true);
+  });
+
   // TODO: more tests
 
 });

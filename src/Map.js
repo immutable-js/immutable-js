@@ -168,7 +168,7 @@ class Map extends Sequence {
     return iterations;
   }
 
-  __deepEqual(other) {
+  __deepEquals(other) {
     // Using NOT_SET here ensures that a missing key is not interpretted as an
     // existing key set to be null/undefined.
     var self = this;
