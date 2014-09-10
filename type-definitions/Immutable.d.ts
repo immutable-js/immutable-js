@@ -271,7 +271,7 @@ declare module 'immutable' {
     keySeq(): IndexedSequence<K>;
 
     /**
-     * Returns a new indexed sequence of the keys of this sequence,
+     * Returns a new indexed sequence of the values of this sequence,
      * discarding keys.
      */
     valueSeq(): IndexedSequence<V>;
