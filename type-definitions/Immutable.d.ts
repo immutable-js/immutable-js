@@ -1033,27 +1033,27 @@ declare module 'immutable' {
      *
      *     var x = Immutable.fromJS({a: { x: 10, y: 10 }, b: { x: 20, y: 50 } });
      *     var y = Immutable.fromJS({a: { x: 2 }, b: { y: 5 }, c: { z: 3 } });
-     *     x.deepMerge(y) // {a: { x: 2, y: 10 }, b: { x: 20, y: 5 }, c: { z: 3 } }
+     *     x.mergeDeep(y) // {a: { x: 2, y: 10 }, b: { x: 20, y: 5 }, c: { z: 3 } }
      *
      */
-    deepMerge(...sequences: Sequence<K, V>[]): Map<K, V>;
-    deepMerge(...sequences: {[key: string]: V}[]): Map<string, V>;
+    mergeDeep(...sequences: Sequence<K, V>[]): Map<K, V>;
+    mergeDeep(...sequences: {[key: string]: V}[]): Map<string, V>;
 
     /**
-     * Like `deepMerge()`, but when two non-Sequences conflict, it uses the
+     * Like `mergeDeep()`, but when two non-Sequences conflict, it uses the
      * `merger` function to determine the resulting value.
      *
      *     var x = Immutable.fromJS({a: { x: 10, y: 10 }, b: { x: 20, y: 50 } });
      *     var y = Immutable.fromJS({a: { x: 2 }, b: { y: 5 }, c: { z: 3 } });
-     *     x.deepMergeWith((prev, next) => prev / next, y)
+     *     x.mergeDeepWith((prev, next) => prev / next, y)
      *     // {a: { x: 5, y: 10 }, b: { x: 20, y: 10 }, c: { z: 3 } }
      *
      */
-    deepMergeWith(
+    mergeDeepWith(
       merger: (previous?: V, next?: V) => V,
       ...sequences: Sequence<K, V>[]
     ): Map<K, V>;
-    deepMergeWith(
+    mergeDeepWith(
       merger: (previous?: V, next?: V) => V,
       ...sequences: {[key: string]: V}[]
     ): Map<string, V>;
@@ -1504,19 +1504,19 @@ declare module 'immutable' {
     ): Vector<T>;
 
     /**
-     * @see `Map.prototype.deepMerge`
+     * @see `Map.prototype.mergeDeep`
      */
-    deepMerge(...sequences: IndexedSequence<T>[]): Vector<T>;
-    deepMerge(...sequences: Array<T>[]): Vector<T>;
+    mergeDeep(...sequences: IndexedSequence<T>[]): Vector<T>;
+    mergeDeep(...sequences: Array<T>[]): Vector<T>;
 
     /**
-     * @see `Map.prototype.deepMergeWith`
+     * @see `Map.prototype.mergeDeepWith`
      */
-    deepMergeWith(
+    mergeDeepWith(
       merger: (previous?: T, next?: T) => T,
       ...sequences: IndexedSequence<T>[]
     ): Vector<T>;
-    deepMergeWith(
+    mergeDeepWith(
       merger: (previous?: T, next?: T) => T,
       ...sequences: Array<T>[]
     ): Vector<T>;
