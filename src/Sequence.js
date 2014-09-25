@@ -684,6 +684,14 @@ class IndexedSequence extends Sequence {
     return filterSequence;
   }
 
+  get(index, notSetValue) {
+    // modify index to count from the end of the Sequence if it is negative
+    if (index < 0 && this.length && this.length < Infinity) {
+      index = this.length + index;
+    }
+    return this.find((_, key) => key === index, null, notSetValue);
+  }
+
   indexOf(searchValue) {
     return this.findIndex(value => is(value, searchValue));
   }
@@ -958,6 +966,23 @@ class ArraySequence extends IndexedSequence {
     return this._array;
   }
 
+  get(index, notSetValue) {
+    if (index < 0) {
+      index = this.length + index;
+      if (index < 0) {
+        return notSetValue;
+      }
+    }
+    else if (index >= this._array.length) {
+      return notSetValue;
+    }
+    return this._array[index];
+  }
+
+  has(index) {
+    return Math.abs(index) < this._array.length;
+  }
+
   __iterate(fn, reverse, flipIndices) {
     var array = this._array;
     var maxIndex = array.length - 1;
@@ -984,9 +1009,6 @@ class ArraySequence extends IndexedSequence {
     }
   }
 }
-
-ArraySequence.prototype.get = ObjectSequence.prototype.get;
-ArraySequence.prototype.has = ObjectSequence.prototype.has;
 
 
 class SequenceIterator {

@@ -61,6 +61,13 @@ class Vector extends IndexedSequence {
   // @pragma Access
 
   get(index, notSetValue) {
+    // modify index to count from the end of the Vector if it is negative
+    if (index < 0) {
+      index = this.length + index;
+      if (index < 0) {
+        return notSetValue;
+      }
+    }
     index = rawIndex(index, this._origin);
     if (index >= this._size) {
       return notSetValue;

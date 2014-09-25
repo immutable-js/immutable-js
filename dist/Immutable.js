@@ -780,6 +780,14 @@ var $IndexedSequence = IndexedSequence;
     }
     return filterSequence;
   },
+  get: function(index, notSetValue) {
+    if (index < 0 && this.length && this.length < Infinity) {
+      index = this.length + index;
+    }
+    return this.find((function(_, key) {
+      return key === index;
+    }), null, notSetValue);
+  },
   indexOf: function(searchValue) {
     return this.findIndex((function(value) {
       return is(value, searchValue);
@@ -1013,6 +1021,20 @@ var ArraySequence = function ArraySequence(array) {
   toArray: function() {
     return this._array;
   },
+  get: function(index, notSetValue) {
+    if (index < 0) {
+      index = this.length + index;
+      if (index < 0) {
+        return notSetValue;
+      }
+    } else if (index >= this._array.length) {
+      return notSetValue;
+    }
+    return this._array[index];
+  },
+  has: function(index) {
+    return Math.abs(index) < this._array.length;
+  },
   __iterate: function(fn, reverse, flipIndices) {
     var array = this._array;
     var maxIndex = array.length - 1;
@@ -1038,8 +1060,6 @@ var ArraySequence = function ArraySequence(array) {
     }
   }
 }, {}, IndexedSequence);
-ArraySequence.prototype.get = ObjectSequence.prototype.get;
-ArraySequence.prototype.has = ObjectSequence.prototype.has;
 var SequenceIterator = function SequenceIterator() {};
 ($traceurRuntime.createClass)(SequenceIterator, {toString: function() {
     return '[Iterator]';
@@ -1809,6 +1829,12 @@ var $Vector = Vector;
     return this.__toString('Vector [', ']');
   },
   get: function(index, notSetValue) {
+    if (index < 0) {
+      index = this.length + index;
+      if (index < 0) {
+        return notSetValue;
+      }
+    }
     index = rawIndex(index, this._origin);
     if (index >= this._size) {
       return notSetValue;

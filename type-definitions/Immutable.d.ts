@@ -682,6 +682,14 @@ declare module 'immutable' {
     toVector(): Vector<T>;
 
     /**
+     * Returns the value associated with the provided index, or notSetValue if
+     * the index is beyond the bounds of the sequence.
+     * If the index is negative, it counts backwards from the end of the 
+     * sequence, so an index of -1 will return the last value.
+     */
+    get(index: number, notSetValue?: T): T;
+
+    /**
      * This new behavior will iterate through the values and sequences with
      * increasing indices.
      * @override
