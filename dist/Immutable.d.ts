@@ -296,6 +296,11 @@ declare module 'immutable' {
     /**
      * Reduces the sequence to a value by calling the `reducer` for every entry
      * in the sequence and passing along the reduced value.
+     *
+     * If `initialReduction` is not provided, or is null, the first item in the
+     * sequence will be used.
+     *
+     * @see `Array.prototype.reduce`.
      */
     reduce<R>(
       reducer: (reduction?: R, value?: V, key?: K, seq?: Sequence<K, V>) => R,
@@ -311,7 +316,7 @@ declare module 'immutable' {
      */
     reduceRight<R>(
       reducer: (reduction?: R, value?: V, key?: K, seq?: Sequence<K, V>) => R,
-      initialReduction: R,
+      initialReduction?: R,
       thisArg?: any
     ): R;
 

@@ -361,14 +361,26 @@ var $Sequence = Sequence;
     return this.__iterate(thisArg ? sideEffect.bind(thisArg) : sideEffect);
   },
   reduce: function(reducer, initialReduction, thisArg) {
-    var reduction = initialReduction;
+    var reduction;
+    var useFirst;
+    if (arguments.length < 2 || initialReduction === null) {
+      useFirst = true;
+    } else {
+      reduction = initialReduction;
+    }
     this.forEach((function(v, k, c) {
-      reduction = reducer.call(thisArg, reduction, v, k, c);
+      if (useFirst) {
+        useFirst = false;
+        reduction = v;
+      } else {
+        reduction = reducer.call(thisArg, reduction, v, k, c);
+      }
     }));
     return reduction;
   },
   reduceRight: function(reducer, initialReduction, thisArg) {
-    return this.reverse(true).reduce(reducer, initialReduction, thisArg);
+    var reversed = this.reverse(true);
+    return reversed.reduce.apply(reversed, arguments);
   },
   every: function(predicate, thisArg) {
     var returnValue = true;

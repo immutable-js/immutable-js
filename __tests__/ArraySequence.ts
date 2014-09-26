@@ -28,7 +28,7 @@ describe('ArraySequence', () => {
 
   it('reduces', () => {
     var i = Immutable.Sequence([1,2,3]);
-    var r = i.reduce<number>((r, x) => r + x, 0);
+    var r = i.reduce<number>((r, x) => r + x);
     expect(r).toEqual(6);
   });
 

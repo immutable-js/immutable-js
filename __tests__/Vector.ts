@@ -301,13 +301,13 @@ describe('Vector', () => {
 
   it('reduces values', () => {
     var v = Vector(1,10,100);
-    var r = v.reduce<number>((reduction, value) => reduction + value, 0);
+    var r = v.reduce<number>((reduction, value) => reduction + value);
     expect(r).toEqual(111);
   });
 
   it('reduces from the right', () => {
     var v = Vector('a','b','c');
-    var r = v.reduceRight((reduction, value) => reduction + value, '');
+    var r = v.reduceRight((reduction, value) => reduction + value);
     expect(r).toEqual('cba');
   });
 
