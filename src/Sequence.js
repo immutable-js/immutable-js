@@ -134,7 +134,9 @@ class Sequence {
   }
 
   join(separator) {
-    separator = separator || ',';
+    if (separator === undefined) {
+      separator = ',';
+    }
     var string = '';
     var isFirst = true;
     this.forEach((v, k) => {
@@ -605,7 +607,9 @@ class IndexedSequence extends Sequence {
   }
 
   join(separator) {
-    separator = separator || ',';
+    if (separator === undefined) {
+      separator = ',';
+    }
     var string = '';
     var prevIndex = 0;
     this.forEach((v, i) => {

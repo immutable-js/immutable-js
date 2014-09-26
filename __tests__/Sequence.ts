@@ -24,4 +24,8 @@ describe('Sequence', () => {
     expect(Immutable.Sequence(seq).length).toBe(3);
   });
 
+  it('joins on the empty string', () => {
+    expect(Immutable.Sequence(1,2,3).join('')).toBe('123');
+  });
+
 });

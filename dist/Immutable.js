@@ -247,7 +247,9 @@ var $Sequence = Sequence;
     }));
   },
   join: function(separator) {
-    separator = separator || ',';
+    if (separator === undefined) {
+      separator = ',';
+    }
     var string = '';
     var isFirst = true;
     this.forEach((function(v, k) {
@@ -706,7 +708,9 @@ var $IndexedSequence = IndexedSequence;
     return fromEntriesSequence;
   },
   join: function(separator) {
-    separator = separator || ',';
+    if (separator === undefined) {
+      separator = ',';
+    }
     var string = '';
     var prevIndex = 0;
     this.forEach((function(v, i) {
