@@ -11,7 +11,7 @@ import "Sequence"
 import "Vector"
 import "invariant"
 /* global IndexedSequence, wholeSlice, resolveBegin, resolveEnd,
-          VectorPrototype, invariant */
+          VectorPrototype, invariant, wrapIndex */
 /* exported Range, RangePrototype */
 
 
@@ -55,14 +55,15 @@ class Range extends IndexedSequence {
   }
 
   has(index) {
-    invariant(index >= 0, 'Index out of bounds');
-    return index < this.length;
+    index = wrapIndex(this, index);
+    return index >= 0 && (this.length === Infinity || index < this.length);
   }
 
   get(index, notSetValue) {
-    invariant(index >= 0, 'Index out of bounds');
-    return this.length === Infinity || index < this.length ?
-      this._start + index * this._step : notSetValue;
+    index = wrapIndex(this, index);
+    return this.has(index) ?
+      this._start + index * this._step :
+      notSetValue;
   }
 
   contains(searchValue) {

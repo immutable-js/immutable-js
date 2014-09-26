@@ -55,6 +55,14 @@ describe('Vector', () => {
     expect(v.get(0)).toBe('value');
   });
 
+  it('counts from the end of the vector on negative index', () => {
+    var i = Immutable.Vector(1, 2, 3, 4, 5, 6, 7);
+    expect(i.get(-1)).toBe(7);
+    expect(i.get(-5)).toBe(3);
+    expect(i.get(-9)).toBe(undefined);
+    expect(i.get(-999, 1000)).toBe(1000);
+  });
+
   it('setting creates a new instance', () => {
     var v0 = Vector('a');
     var v1 = v0.set(0, 'A');

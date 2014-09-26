@@ -661,6 +661,9 @@ declare module 'immutable' {
      * with new values. If values are not provided, it only skips the region to
      * be removed.
      *
+     * `index` may be a negative number, which indexes back from the end of the
+     * Sequence. `s.splice(-2)` splices after the second to last item.
+     *
      *     Sequence(['a','b','c','d']).splice(1, 2, 'q', 'r', 's')
      *     // ['a', 'q', 'r', 's', 'd']
      *
@@ -680,6 +683,15 @@ declare module 'immutable' {
      * @override
      */
     toVector(): Vector<T>;
+
+    /**
+     * Returns the value associated with the provided index, or notSetValue if
+     * the index is beyond the bounds of the sequence.
+     *
+     * `index` may be a negative number, which indexes back from the end of the
+     * Sequence. `s.get(-1)` gets the last item in the Sequence.
+     */
+    get(index: number, notSetValue?: T): T;
 
     /**
      * This new behavior will iterate through the values and sequences with
@@ -1377,12 +1389,18 @@ declare module 'immutable' {
     /**
      * Returns a new Vector which includes `value` at `index`. If `index` already
      * exists in this Vector, it will be replaced.
+     *
+     * `index` may be a negative number, which indexes back from the end of the
+     * Vector. `v.set(-1, "value")` sets the last item in the Vector.
      */
     set(index: number, value: T): Vector<T>;
 
     /**
      * Returns a new Vector which excludes this `index`. It will not affect the
      * length of the Vector, instead leaving a sparse hole.
+     *
+     * `index` may be a negative number, which indexes back from the end of the
+     * Vector. `v.delete(-1)` deletes the last item in the Vector.
      *
      * Note: `delete` cannot be safely used in IE8
      * @alias delete
@@ -1465,6 +1483,9 @@ declare module 'immutable' {
      * value of calling `updater` with the existing value, or `notSetValue` if
      * `index` was not set. If called with a single argument, `updater` is
      * called with the Vector itself.
+     *
+     * `index` may be a negative number, which indexes back from the end of the
+     * Vector. `v.update(-1)` updates the last item in the Vector.
      *
      * @see Map.update
      */

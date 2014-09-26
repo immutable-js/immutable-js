@@ -40,10 +40,7 @@ class Repeat extends IndexedSequence {
   }
 
   get(index, notSetValue) {
-    invariant(index >= 0, 'Index out of bounds');
-    return this.length === Infinity || index < this.length ?
-      this._value :
-      notSetValue;
+    return this.has(index) ? this._value : notSetValue;
   }
 
   first() {

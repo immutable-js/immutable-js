@@ -780,6 +780,12 @@ var $IndexedSequence = IndexedSequence;
     }
     return filterSequence;
   },
+  get: function(index, notSetValue) {
+    index = wrapIndex(this, index);
+    return this.find((function(_, key) {
+      return key === index;
+    }), null, notSetValue);
+  },
   indexOf: function(searchValue) {
     return this.findIndex((function(value) {
       return is(value, searchValue);
@@ -1013,6 +1019,17 @@ var ArraySequence = function ArraySequence(array) {
   toArray: function() {
     return this._array;
   },
+  get: function(index, notSetValue) {
+    index = wrapIndex(this, index);
+    if (notSetValue !== undefined && !this.has(index)) {
+      return notSetValue;
+    }
+    return this._array[index];
+  },
+  has: function(index) {
+    index = wrapIndex(this, index);
+    return index >= 0 && index < this.length && this._array.hasOwnProperty(index);
+  },
   __iterate: function(fn, reverse, flipIndices) {
     var array = this._array;
     var maxIndex = array.length - 1;
@@ -1038,8 +1055,6 @@ var ArraySequence = function ArraySequence(array) {
     }
   }
 }, {}, IndexedSequence);
-ArraySequence.prototype.get = ObjectSequence.prototype.get;
-ArraySequence.prototype.has = ObjectSequence.prototype.has;
 var SequenceIterator = function SequenceIterator() {};
 ($traceurRuntime.createClass)(SequenceIterator, {toString: function() {
     return '[Iterator]';
@@ -1133,6 +1148,15 @@ function repeatString(string, times) {
 }
 function defaultComparator(a, b) {
   return a > b ? 1 : a < b ? -1 : 0;
+}
+function wrapIndex(seq, index) {
+  if (index < 0) {
+    if (seq.length == null) {
+      seq.cacheResult();
+    }
+    return seq.length + index;
+  }
+  return index;
 }
 function assertNotInfinite(length) {
   invariant(length !== Infinity, 'Cannot perform this action with an infinite sequence.');
@@ -1809,10 +1833,11 @@ var $Vector = Vector;
     return this.__toString('Vector [', ']');
   },
   get: function(index, notSetValue) {
-    index = rawIndex(index, this._origin);
-    if (index >= this._size) {
+    index = wrapIndex(this, index);
+    if (index >= this.length || index < 0) {
       return notSetValue;
     }
+    index += this._origin;
     var node = vectorNodeFor(this, index);
     var maskedIndex = index & MASK;
     return node && (notSetValue === undefined || node.array.hasOwnProperty(maskedIndex)) ? node.array[maskedIndex] : notSetValue;
@@ -2157,12 +2182,13 @@ function makeVector(origin, size, level, root, tail, ownerID, hash) {
   return vect;
 }
 function updateVector(vector, index, value) {
-  if (index >= vector.length) {
+  index = wrapIndex(vector, index);
+  if (index >= vector.length || index < 0) {
     return value === NOT_SET ? vector : vector.withMutations((function(vect) {
-      setVectorBounds(vect, 0, index + 1).set(index, value);
+      index < 0 ? setVectorBounds(vect, index).set(0, value) : setVectorBounds(vect, 0, index + 1).set(index, value);
     }));
   }
-  index = rawIndex(index, vector._origin);
+  index += vector._origin;
   var newTail = vector._tail;
   var newRoot = vector._root;
   var didAlter = MakeRef(DID_ALTER);
@@ -2333,10 +2359,6 @@ function mergeIntoVectorWith(vector, merger, iterables) {
     vector = vector.setLength(maxLength);
   }
   return mergeIntoCollectionWith(vector, merger, seqs);
-}
-function rawIndex(index, origin) {
-  invariant(index >= 0, 'Index out of bounds');
-  return index + origin;
 }
 function getTailOffset(size) {
   return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
@@ -2788,12 +2810,12 @@ var $Range = Range;
     return 'Range [ ' + this._start + '...' + this._end + (this._step > 1 ? ' by ' + this._step : '') + ' ]';
   },
   has: function(index) {
-    invariant(index >= 0, 'Index out of bounds');
-    return index < this.length;
+    index = wrapIndex(this, index);
+    return index >= 0 && (this.length === Infinity || index < this.length);
   },
   get: function(index, notSetValue) {
-    invariant(index >= 0, 'Index out of bounds');
-    return this.length === Infinity || index < this.length ? this._start + index * this._step : notSetValue;
+    index = wrapIndex(this, index);
+    return this.has(index) ? this._start + index * this._step : notSetValue;
   },
   contains: function(searchValue) {
     var possibleIndex = (searchValue - this._start) / this._step;
@@ -2873,8 +2895,7 @@ var $Repeat = Repeat;
     return 'Repeat [ ' + this._value + ' ' + this.length + ' times ]';
   },
   get: function(index, notSetValue) {
-    invariant(index >= 0, 'Index out of bounds');
-    return this.length === Infinity || index < this.length ? this._value : notSetValue;
+    return this.has(index) ? this._value : notSetValue;
   },
   first: function() {
     return this._value;
