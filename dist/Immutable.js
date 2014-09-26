@@ -363,7 +363,7 @@ var $Sequence = Sequence;
   reduce: function(reducer, initialReduction, thisArg) {
     var reduction;
     var useFirst;
-    if (arguments.length < 2 || initialReduction === null) {
+    if (arguments.length < 2) {
       useFirst = true;
     } else {
       reduction = initialReduction;

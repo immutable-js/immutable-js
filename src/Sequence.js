@@ -246,12 +246,7 @@ class Sequence {
   reduce(reducer, initialReduction, thisArg) {
     var reduction;
     var useFirst;
-    // Note: for some reason, the explicitly provided value `undefined` is to be
-    // used as the initialReduction, while not providing a value, or providing
-    // it as `null` implies there is no initialReduction. This seems universal
-    // behavior by all modern browsers, although the ES5 spec is unclear:
-    // http://es5.github.io/#x15.4.4.21
-    if (arguments.length < 2 || initialReduction === null) {
+    if (arguments.length < 2) {
       useFirst = true;
     } else {
       reduction = initialReduction;
