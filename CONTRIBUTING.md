@@ -15,10 +15,9 @@ your [pull requests](https://help.github.com/articles/creating-a-pull-request).
  3. Install the grunt CLI tools. (`npm install -g grunt-cli`)
  4. If you've added code, add tests.
  5. If you've changed APIs, update the documentation.
- 6. Ensure all tests pass. (`grunt test`)
- 7. Make sure your code passes lint. (`grunt lint`)
- 8. Be sure to commit the generated JS in `/dist`.
- 9. If you haven't already, complete the Contributor License Agreement ("CLA").
+ 6. Build generated JS, run tests and ensure your code passes lint. (`grunt`)
+ 7. Be sure to commit the generated JS in `/dist`.
+ 8. If you haven't already, complete the Contributor License Agreement ("CLA").
 
 ## Contributor License Agreement ("CLA")
 
