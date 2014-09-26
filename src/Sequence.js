@@ -685,6 +685,11 @@ class IndexedSequence extends Sequence {
     return filterSequence;
   }
 
+  get(index, notSetValue) {
+    index = wrapIndex(this, index);
+    return this.find((_, key) => key === index, null, notSetValue);
+  }
+
   indexOf(searchValue) {
     return this.findIndex(value => is(value, searchValue));
   }
@@ -959,6 +964,19 @@ class ArraySequence extends IndexedSequence {
     return this._array;
   }
 
+  get(index, notSetValue) {
+    index = wrapIndex(this, index);
+    if (notSetValue !== undefined && !this.has(index)) {
+      return notSetValue;
+    }
+    return this._array[index];
+  }
+
+  has(index) {
+    index = wrapIndex(this, index);
+    return index >= 0 && index < this.length && this._array.hasOwnProperty(index);
+  }
+
   __iterate(fn, reverse, flipIndices) {
     var array = this._array;
     var maxIndex = array.length - 1;
@@ -985,9 +1003,6 @@ class ArraySequence extends IndexedSequence {
     }
   }
 }
-
-ArraySequence.prototype.get = ObjectSequence.prototype.get;
-ArraySequence.prototype.has = ObjectSequence.prototype.has;
 
 
 class SequenceIterator {
@@ -1114,6 +1129,16 @@ function repeatString(string, times) {
 
 function defaultComparator(a, b) {
   return a > b ? 1 : a < b ? -1 : 0;
+}
+
+function wrapIndex(seq, index) {
+  if (index < 0) {
+    if (seq.length == null) {
+      seq.cacheResult();
+    }
+    return seq.length + index;
+  }
+  return index;
 }
 
 function assertNotInfinite(length) {

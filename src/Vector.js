@@ -13,7 +13,7 @@ import "invariant"
 import "Map"
 import "TrieUtils"
 import "Symbol"
-/* global Sequence, IndexedSequence, SequenceIterator, is, invariant,
+/* global Sequence, IndexedSequence, SequenceIterator, is, wrapIndex,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
           SHIFT, SIZE, MASK, NOT_SET, DID_ALTER, OwnerID, MakeRef, SetRef,
           arrCopy, iteratorValue, iteratorDone, DELETE, ITERATOR */
@@ -61,10 +61,11 @@ class Vector extends IndexedSequence {
   // @pragma Access
 
   get(index, notSetValue) {
-    index = rawIndex(index, this._origin);
-    if (index >= this._size) {
+    index = wrapIndex(this, index);
+    if (index >= this.length || index < 0) {
       return notSetValue;
     }
+    index += this._origin;
     var node = vectorNodeFor(this, index);
     var maskedIndex = index & MASK;
     return node && (notSetValue === undefined || node.array.hasOwnProperty(maskedIndex)) ?
@@ -447,13 +448,17 @@ function makeVector(origin, size, level, root, tail, ownerID, hash) {
 }
 
 function updateVector(vector, index, value) {
-  if (index >= vector.length) {
+  index = wrapIndex(vector, index);
+
+  if (index >= vector.length || index < 0) {
     return value === NOT_SET ? vector : vector.withMutations(vect => {
-      setVectorBounds(vect, 0, index + 1).set(index, value)
+      index < 0 ?
+        setVectorBounds(vect, index).set(0, value) :
+        setVectorBounds(vect, 0, index + 1).set(index, value)
     });
   }
 
-  index = rawIndex(index, vector._origin);
+  index += vector._origin;
 
   var newTail = vector._tail;
   var newRoot = vector._root;
@@ -660,11 +665,6 @@ function mergeIntoVectorWith(vector, merger, iterables) {
     vector = vector.setLength(maxLength);
   }
   return mergeIntoCollectionWith(vector, merger, seqs);
-}
-
-function rawIndex(index, origin) {
-  invariant(index >= 0, 'Index out of bounds');
-  return index + origin;
 }
 
 function getTailOffset(size) {
