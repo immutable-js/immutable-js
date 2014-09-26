@@ -247,15 +247,15 @@ var $Sequence = Sequence;
     }));
   },
   join: function(separator) {
-    separator = separator || ',';
+    separator = separator !== undefined ? '' + separator : ',';
     var string = '';
     var isFirst = true;
     this.forEach((function(v, k) {
       if (isFirst) {
         isFirst = false;
-        string += v;
+        string += (v != null ? v : '');
       } else {
-        string += separator + v;
+        string += separator + (v != null ? v : '');
       }
     }));
     return string;
@@ -706,13 +706,13 @@ var $IndexedSequence = IndexedSequence;
     return fromEntriesSequence;
   },
   join: function(separator) {
-    separator = separator || ',';
+    separator = separator !== undefined ? '' + separator : ',';
     var string = '';
     var prevIndex = 0;
     this.forEach((function(v, i) {
       var numSeparators = i - prevIndex;
       prevIndex = i;
-      string += (numSeparators === 1 ? separator : repeatString(separator, numSeparators)) + v;
+      string += (numSeparators === 1 ? separator : repeatString(separator, numSeparators)) + (v != null ? v : '');
     }));
     if (this.length && prevIndex < this.length - 1) {
       string += repeatString(separator, this.length - 1 - prevIndex);

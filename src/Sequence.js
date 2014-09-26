@@ -134,15 +134,15 @@ class Sequence {
   }
 
   join(separator) {
-    separator = separator || ',';
+    separator = separator !== undefined ? '' + separator : ',';
     var string = '';
     var isFirst = true;
     this.forEach((v, k) => {
       if (isFirst) {
         isFirst = false;
-        string += v;
+        string += (v != null ? v : '');
       } else {
-        string += separator + v;
+        string += separator + (v != null ? v : '');
       }
     });
     return string;
@@ -605,13 +605,14 @@ class IndexedSequence extends Sequence {
   }
 
   join(separator) {
-    separator = separator || ',';
+    separator = separator !== undefined ? '' + separator : ',';
     var string = '';
     var prevIndex = 0;
     this.forEach((v, i) => {
       var numSeparators = i - prevIndex;
       prevIndex = i;
-      string += (numSeparators === 1 ? separator : repeatString(separator, numSeparators)) + v;
+      string += (numSeparators === 1 ? separator : repeatString(separator, numSeparators)) +
+        (v != null ? v : '');
     });
     if (this.length && prevIndex < this.length - 1) {
       string += repeatString(separator, this.length - 1 - prevIndex);
