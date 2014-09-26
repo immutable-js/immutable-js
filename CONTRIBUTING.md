@@ -2,7 +2,8 @@
 
 We want to make contributing to this project as easy and transparent as
 possible. Hopefully this document makes the process for contributing clear and
-answers any questions you may have. If not, feel free to open an [Issue](https://github.com/facebook/immutable-js/issues).
+answers any questions you may have. If not, feel free to open an
+[Issue](https://github.com/facebook/immutable-js/issues).
 
 ## Pull Requests
 
@@ -10,11 +11,14 @@ All active development of Immutable JS happens on GitHub. We actively welcome
 your [pull requests](https://help.github.com/articles/creating-a-pull-request).
 
  1. Fork the repo and create your branch from `master`.
- 2. If you've added code, add tests.
- 3. If you've changed APIs, update the documentation.
- 4. Ensure all tests pass. (`grunt test`)
- 5. Make sure your code passes lint. (`grunt lint`)
- 6. If you haven't already, complete the Contributor License Agreement ("CLA").
+ 2. Install all dependencies. (`npm install`)
+ 3. Install the grunt CLI tools. (`npm install -g grunt-cli`)
+ 4. If you've added code, add tests.
+ 5. If you've changed APIs, update the documentation.
+ 6. Ensure all tests pass. (`grunt test`)
+ 7. Make sure your code passes lint. (`grunt lint`)
+ 8. Be sure to commit the generated JS in `/dist`.
+ 9. If you haven't already, complete the Contributor License Agreement ("CLA").
 
 ## Contributor License Agreement ("CLA")
 
@@ -51,7 +55,6 @@ outlined on that page and do not file a public issue.
 * Use semicolons;
 * Trailing commas,
 * Avd abbr wrds.
-
 
 ## License
 
