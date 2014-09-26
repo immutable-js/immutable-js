@@ -18,7 +18,7 @@ your [pull requests](https://help.github.com/articles/creating-a-pull-request).
  6. Ensure all tests pass. (`grunt test`)
  7. Make sure your code passes lint. (`grunt lint`)
  8. Be sure to commit the generated JS in `/dist`.
- 8. If you haven't already, complete the Contributor License Agreement ("CLA").
+ 9. If you haven't already, complete the Contributor License Agreement ("CLA").
 
 ## Contributor License Agreement ("CLA")
 
