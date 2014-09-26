@@ -732,6 +732,27 @@ declare module 'immutable' {
      */
     slice(start: number, end?: number, maintainIndices?: boolean): IndexedSequence<T>;
 
+
+    /**
+     * Flattens nested Sequences by one level.
+     *
+     * Note: `flatten` operates on IndexedSequence<IndexedSequence<T>> and
+     * returns IndexedSequence<T>
+     */
+    flatten(): IndexedSequence<any>;
+
+    /**
+     * Flat-maps the Sequence.
+     */
+    flatMap<M>(
+      mapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => IndexedSequence<M>,
+      thisArg?: any
+    ): IndexedSequence<M>;
+    flatMap<M>(
+      mapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => M[],
+      thisArg?: any
+    ): IndexedSequence<M>;
+
     /**
      * Has the same altered behavior as `takeWhile`.
      * @override

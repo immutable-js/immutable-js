@@ -279,8 +279,8 @@ var $Sequence = Sequence;
   },
   concat: function() {
     for (var values = [],
-        $__1 = 0; $__1 < arguments.length; $__1++)
-      values[$__1] = arguments[$__1];
+        $__2 = 0; $__2 < arguments.length; $__2++)
+      values[$__2] = arguments[$__2];
     var sequences = [this].concat(values.map((function(value) {
       return $Sequence(value);
     })));
@@ -733,8 +733,8 @@ var $IndexedSequence = IndexedSequence;
   },
   concat: function() {
     for (var values = [],
-        $__2 = 0; $__2 < arguments.length; $__2++)
-      values[$__2] = arguments[$__2];
+        $__3 = 0; $__3 < arguments.length; $__3++)
+      values[$__3] = arguments[$__3];
     var sequences = [this].concat(values).map((function(value) {
       return Sequence(value);
     }));
@@ -851,6 +851,26 @@ var $IndexedSequence = IndexedSequence;
     index = resolveBegin(index, this.length);
     var spliced = this.slice(0, index);
     return numArgs === 1 ? spliced : spliced.concat(arrCopy(arguments, 2), this.slice(index + removeNum));
+  },
+  flatten: function() {
+    var $__0 = this;
+    var sequence = this;
+    var flatSequence = makeSequence();
+    flatSequence.__iterateUncached = (function(fn, reverse, flipIndices) {
+      if (flipIndices) {
+        return $__0.cacheResult().__iterate(fn, reverse, flipIndices);
+      }
+      var index = 0;
+      return sequence.__iterate((function(seq, _i, c) {
+        index += Sequence(seq).__iterate((function(v, i) {
+          return fn(v, index + i, c) !== false;
+        }), reverse, flipIndices);
+      }), reverse, flipIndices);
+    });
+    return flatSequence;
+  },
+  flatMap: function(mapper, thisArg) {
+    return this.map(mapper, thisArg).flatten();
   },
   take: function(amount) {
     var sequence = this;
@@ -991,6 +1011,7 @@ var $IndexedSequence = IndexedSequence;
 var IndexedSequencePrototype = IndexedSequence.prototype;
 IndexedSequencePrototype.__toJS = IndexedSequencePrototype.toArray;
 IndexedSequencePrototype.__toStringMapper = quoteString;
+IndexedSequencePrototype.chain = IndexedSequencePrototype.flatMap;
 var ObjectSequence = function ObjectSequence(object) {
   var keys = Object.keys(object);
   this._object = object;
@@ -1292,9 +1313,9 @@ var $Map = Map;
     return arguments.length === 1 ? this.updateIn([], null, k) : this.updateIn([k], notSetValue, updater);
   },
   updateIn: function(keyPath, notSetValue, updater) {
-    var $__12;
+    var $__13;
     if (!updater) {
-      ($__12 = [notSetValue, updater], updater = $__12[0], notSetValue = $__12[1], $__12);
+      ($__13 = [notSetValue, updater], updater = $__13[0], notSetValue = $__13[1], $__13);
     }
     return updateInDeepMap(this, keyPath, notSetValue, updater, 0);
   },
@@ -1316,8 +1337,8 @@ var $Map = Map;
   },
   mergeWith: function(merger) {
     for (var seqs = [],
-        $__3 = 1; $__3 < arguments.length; $__3++)
-      seqs[$__3 - 1] = arguments[$__3];
+        $__4 = 1; $__4 < arguments.length; $__4++)
+      seqs[$__4 - 1] = arguments[$__4];
     return mergeIntoMapWith(this, merger, seqs);
   },
   mergeDeep: function() {
@@ -1325,8 +1346,8 @@ var $Map = Map;
   },
   mergeDeepWith: function(merger) {
     for (var seqs = [],
-        $__4 = 1; $__4 < arguments.length; $__4++)
-      seqs[$__4 - 1] = arguments[$__4];
+        $__5 = 1; $__5 < arguments.length; $__5++)
+      seqs[$__5 - 1] = arguments[$__5];
     return mergeIntoMapWith(this, deepMerger(merger), seqs);
   },
   cursor: function(keyPath, onChange) {
@@ -1835,8 +1856,8 @@ var MIN_ARRAY_SIZE = SIZE / 4;
 var EMPTY_MAP;
 var Vector = function Vector() {
   for (var values = [],
-      $__5 = 0; $__5 < arguments.length; $__5++)
-    values[$__5] = arguments[$__5];
+      $__6 = 0; $__6 < arguments.length; $__6++)
+    values[$__6] = arguments[$__6];
   return $Vector.from(values);
 };
 var $Vector = Vector;
@@ -1910,8 +1931,8 @@ var $Vector = Vector;
   },
   mergeWith: function(merger) {
     for (var seqs = [],
-        $__6 = 1; $__6 < arguments.length; $__6++)
-      seqs[$__6 - 1] = arguments[$__6];
+        $__7 = 1; $__7 < arguments.length; $__7++)
+      seqs[$__7 - 1] = arguments[$__7];
     return mergeIntoVectorWith(this, merger, seqs);
   },
   mergeDeep: function() {
@@ -1919,8 +1940,8 @@ var $Vector = Vector;
   },
   mergeDeepWith: function(merger) {
     for (var seqs = [],
-        $__7 = 1; $__7 < arguments.length; $__7++)
-      seqs[$__7 - 1] = arguments[$__7];
+        $__8 = 1; $__8 < arguments.length; $__8++)
+      seqs[$__8 - 1] = arguments[$__8];
     return mergeIntoVectorWith(this, deepMerger(merger), seqs);
   },
   setLength: function(length) {
@@ -2378,8 +2399,8 @@ function getTailOffset(size) {
 var EMPTY_VECT;
 var Set = function Set() {
   for (var values = [],
-      $__8 = 0; $__8 < arguments.length; $__8++)
-    values[$__8] = arguments[$__8];
+      $__9 = 0; $__9 < arguments.length; $__9++)
+    values[$__9] = arguments[$__9];
   return $Set.from(values);
 };
 var $Set = Set;
@@ -2437,8 +2458,8 @@ var $Set = Set;
   },
   intersect: function() {
     for (var seqs = [],
-        $__9 = 0; $__9 < arguments.length; $__9++)
-      seqs[$__9] = arguments[$__9];
+        $__10 = 0; $__10 < arguments.length; $__10++)
+      seqs[$__10] = arguments[$__10];
     if (seqs.length === 0) {
       return this;
     }
@@ -2458,8 +2479,8 @@ var $Set = Set;
   },
   subtract: function() {
     for (var seqs = [],
-        $__10 = 0; $__10 < arguments.length; $__10++)
-      seqs[$__10] = arguments[$__10];
+        $__11 = 0; $__11 < arguments.length; $__11++)
+      seqs[$__11] = arguments[$__11];
     if (seqs.length === 0) {
       return this;
     }
@@ -2544,8 +2565,8 @@ SetPrototype.contains = SetPrototype.has;
 SetPrototype.mergeDeep = SetPrototype.merge = SetPrototype.union;
 SetPrototype.mergeDeepWith = SetPrototype.mergeWith = function(merger) {
   for (var seqs = [],
-      $__11 = 1; $__11 < arguments.length; $__11++)
-    seqs[$__11 - 1] = arguments[$__11];
+      $__12 = 1; $__12 < arguments.length; $__12++)
+    seqs[$__12 - 1] = arguments[$__12];
   return this.merge.apply(this, seqs);
 };
 SetPrototype.withMutations = MapPrototype.withMutations;
@@ -2867,17 +2888,16 @@ var $Range = Range;
     return maintainIndices ? $traceurRuntime.superCall(this, $Range.prototype, "skip", [amount]) : this.slice(amount);
   },
   __iterate: function(fn, reverse, flipIndices) {
-    var reversedIndices = reverse ^ flipIndices;
     var maxIndex = this.length - 1;
     var step = this._step;
     var value = reverse ? this._start + maxIndex * step : this._start;
     for (var ii = 0; ii <= maxIndex; ii++) {
-      if (fn(value, reversedIndices ? maxIndex - ii : ii, this) === false) {
+      if (fn(value, flipIndices ? maxIndex - ii : ii, this) === false) {
         break;
       }
       value += reverse ? -step : step;
     }
-    return reversedIndices ? this.length : ii;
+    return flipIndices ? this.length : ii;
   },
   __deepEquals: function(other) {
     return this._start === other._start && this._end === other._end && this._step === other._step;

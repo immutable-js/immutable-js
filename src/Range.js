@@ -112,17 +112,16 @@ class Range extends IndexedSequence {
   }
 
   __iterate(fn, reverse, flipIndices) {
-    var reversedIndices = reverse ^ flipIndices;
     var maxIndex = this.length - 1;
     var step = this._step;
     var value = reverse ? this._start + maxIndex * step : this._start;
     for (var ii = 0; ii <= maxIndex; ii++) {
-      if (fn(value, reversedIndices ? maxIndex - ii : ii, this) === false) {
+      if (fn(value, flipIndices ? maxIndex - ii : ii, this) === false) {
         break;
       }
       value += reverse ? -step : step;
     }
-    return reversedIndices ? this.length : ii;
+    return flipIndices ? this.length : ii;
   }
 
   __deepEquals(other) {

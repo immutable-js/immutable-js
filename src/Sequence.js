@@ -777,6 +777,33 @@ class IndexedSequence extends Sequence {
       );
   }
 
+  flatten() {
+    var sequence = this;
+    var flatSequence = makeSequence();
+    flatSequence.__iterateUncached = (fn, reverse, flipIndices) => {
+      if (flipIndices) {
+        return this.cacheResult().__iterate(fn, reverse, flipIndices);
+      }
+      var index = 0;
+      return sequence.__iterate(
+        (seq, _i, c) => {
+          index += Sequence(seq).__iterate(
+            (v, i) => fn(v, index + i, c) !== false,
+            reverse,
+            flipIndices
+          )
+        },
+        reverse,
+        flipIndices
+      );
+    };
+    return flatSequence;
+  }
+
+  flatMap(mapper, thisArg) {
+    return this.map(mapper, thisArg).flatten();
+  }
+
   // Overrides to get length correct.
 
   take(amount) {
@@ -931,6 +958,7 @@ class IndexedSequence extends Sequence {
 var IndexedSequencePrototype = IndexedSequence.prototype;
 IndexedSequencePrototype.__toJS = IndexedSequencePrototype.toArray;
 IndexedSequencePrototype.__toStringMapper = quoteString;
+IndexedSequencePrototype.chain = IndexedSequencePrototype.flatMap;
 
 
 class ObjectSequence extends Sequence {
