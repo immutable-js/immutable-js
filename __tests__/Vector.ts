@@ -135,18 +135,16 @@ describe('Vector', () => {
     });
   })
 
-  it('describes a sparse vector', () => {
-    var v = Vector('a', 'b', 'c').push('d').set(10000, 'e').set(64, undefined).remove(1);
-    expect(v.length).toBe(10001);
+  it('describes a dense vector', () => {
+    var v = Vector('a', 'b', 'c').push('d').set(14, 'o').set(6, undefined).remove(1);
+    expect(v.length).toBe(15);
     expect(v.has(2)).toBe(true); // original end
     expect(v.has(3)).toBe(true); // end after push
-    expect(v.has(10000)).toBe(true); // end after set
-    expect(v.has(64)).toBe(true); // set as undefined, still has index
-    expect(v.has(1)).toBe(false); // was removed
-    expect(v.has(10001)).toBe(false); // out of bounds
-    expect(v.has(9999)).toBe(false); // never set
-    expect(v.has(1234)).toBe(false); // never set
-    expect(v.has(4)).toBe(false); // never set
+    expect(v.has(14)).toBe(true); // end after set
+    expect(v.has(6)).toBe(true); // set as undefined, still has index
+    expect(v.has(1)).toBe(true); // was removed, but still in bounds
+    expect(v.has(15)).toBe(false); // out of bounds
+    expect(v.has(13)).toBe(true); // never set, but still in bounds
   });
 
   it('push inserts at highest index', () => {

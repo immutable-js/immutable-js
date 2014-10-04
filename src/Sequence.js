@@ -612,7 +612,9 @@ class IndexedSequence extends Sequence {
     fromEntriesSequence.length = sequence.length;
     fromEntriesSequence.entrySeq = () => sequence;
     fromEntriesSequence.__iterateUncached = (fn, reverse, flipIndices) =>
-      sequence.__iterate((entry, _, c) => fn(entry[1], entry[0], c), reverse, flipIndices);
+      // Check if entry exists first so array access doesn't throw for holes
+      // in the parent iteration.
+      sequence.__iterate((entry, _, c) => entry && fn(entry[1], entry[0], c), reverse, flipIndices);
     return fromEntriesSequence;
   }
 

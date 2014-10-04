@@ -712,7 +712,7 @@ var $IndexedSequence = IndexedSequence;
     });
     fromEntriesSequence.__iterateUncached = (function(fn, reverse, flipIndices) {
       return sequence.__iterate((function(entry, _, c) {
-        return fn(entry[1], entry[0], c);
+        return entry && fn(entry[1], entry[0], c);
       }), reverse, flipIndices);
     });
     return fromEntriesSequence;
@@ -1865,15 +1865,18 @@ var $Vector = Vector;
   toString: function() {
     return this.__toString('Vector [', ']');
   },
+  has: function(index) {
+    index = wrapIndex(this, index);
+    return index >= 0 && index < this.length;
+  },
   get: function(index, notSetValue) {
     index = wrapIndex(this, index);
-    if (index >= this.length || index < 0) {
+    if (index < 0 || index >= this.length) {
       return notSetValue;
     }
     index += this._origin;
     var node = vectorNodeFor(this, index);
-    var maskedIndex = index & MASK;
-    return node && (notSetValue === undefined || node.array.hasOwnProperty(maskedIndex)) ? node.array[maskedIndex] : notSetValue;
+    return node && node.array[index & MASK];
   },
   first: function() {
     return this.get(0);
@@ -1958,17 +1961,17 @@ var $Vector = Vector;
     }
     return sliceSequence;
   },
-  keys: function(sparse) {
-    return new VectorIterator(this, 0, sparse);
+  keys: function() {
+    return new VectorIterator(this, 0);
   },
-  values: function(sparse) {
-    return new VectorIterator(this, 1, sparse);
+  values: function() {
+    return new VectorIterator(this, 1);
   },
-  entries: function(sparse) {
-    return new VectorIterator(this, 2, sparse);
+  entries: function() {
+    return new VectorIterator(this, 2);
   },
-  __iterator: function(reverse, flipIndices, sparse) {
-    return new VectorIterator(this, 2, sparse, reverse, flipIndices);
+  __iterator: function(reverse, flipIndices) {
+    return new VectorIterator(this, 2, reverse, flipIndices);
   },
   __iterate: function(fn, reverse, flipIndices) {
     var vector = this;
@@ -2072,7 +2075,7 @@ var $VNode = VNode;
     var editable = editableVNode(this, ownerID);
     if (!removingFirst) {
       for (var ii = 0; ii < originIndex; ii++) {
-        delete editable.array[ii];
+        editable.array[ii] = undefined;
       }
     }
     if (newChild) {
@@ -2102,7 +2105,7 @@ var $VNode = VNode;
     }
     var editable = editableVNode(this, ownerID);
     if (!removingLast) {
-      editable.array.length = sizeIndex + 1;
+      editable.array.pop();
     }
     if (newChild) {
       editable.array[sizeIndex] = newChild;
@@ -2118,11 +2121,9 @@ function iterateVNode(node, level, offset, max, fn, reverse) {
     if (level === 0) {
       for (ii = 0; ii <= maxII; ii++) {
         var rawIndex = reverse ? maxII - ii : ii;
-        if (array.hasOwnProperty(rawIndex)) {
-          var index = rawIndex + offset;
-          if (index >= 0 && index < max && fn(array[rawIndex], index) === false) {
-            return false;
-          }
+        var index = rawIndex + offset;
+        if (index >= 0 && index < max && fn(array[rawIndex], index) === false) {
+          return false;
         }
       }
     } else {
@@ -2142,9 +2143,8 @@ function iterateVNode(node, level, offset, max, fn, reverse) {
   }
   return true;
 }
-var VectorIterator = function VectorIterator(vector, type, sparse, reverse, flipIndices) {
+var VectorIterator = function VectorIterator(vector, type, reverse, flipIndices) {
   this._type = type;
-  this._sparse = !!sparse;
   this._reverse = !!reverse;
   this._flipIndices = !!(flipIndices ^ reverse);
   this._maxIndex = vector.length - 1;
@@ -2155,7 +2155,6 @@ var VectorIterator = function VectorIterator(vector, type, sparse, reverse, flip
   this._stack.__prev = reverse ? rootStack : tailStack;
 };
 ($traceurRuntime.createClass)(VectorIterator, {next: function() {
-    var sparse = this._sparse;
     var stack = this._stack;
     while (stack) {
       var array = stack.array;
@@ -2170,18 +2169,16 @@ var VectorIterator = function VectorIterator(vector, type, sparse, reverse, flip
       if (rawIndex >= 0 && rawIndex < SIZE && rawIndex <= stack.rawMax) {
         var value = array && array[rawIndex];
         if (stack.level === 0) {
-          if (!sparse || value != null || (array && rawIndex < array.length && array.hasOwnProperty(rawIndex))) {
-            var type = this._type;
-            var index;
-            if (type !== 1) {
-              index = stack.offset + (rawIndex << stack.level);
-              if (this._flipIndices) {
-                index = this._maxIndex - index;
-              }
+          var type = this._type;
+          var index;
+          if (type !== 1) {
+            index = stack.offset + (rawIndex << stack.level);
+            if (this._flipIndices) {
+              index = this._maxIndex - index;
             }
-            return iteratorValue(type === 0 ? index : type === 1 ? value : [index, value]);
           }
-        } else if (!sparse || value != null) {
+          return iteratorValue(type === 0 ? index : type === 1 ? value : [index, value]);
+        } else {
           this._stack = stack = vectIteratorFrame(value && value.array, stack.level - SHIFT, stack.offset + (rawIndex << stack.level), stack.max, stack);
         }
         continue;
@@ -2246,7 +2243,7 @@ function updateVNode(node, ownerID, level, index, value, didAlter) {
   var removed = value === NOT_SET;
   var newNode;
   var idx = (index >>> level) & MASK;
-  var nodeHas = node && idx < node.array.length && node.array.hasOwnProperty(idx);
+  var nodeHas = node && idx < node.array.length;
   if (removed && !nodeHas) {
     return node;
   }
@@ -2265,7 +2262,11 @@ function updateVNode(node, ownerID, level, index, value, didAlter) {
   }
   SetRef(didAlter);
   newNode = editableVNode(node, ownerID);
-  removed ? (delete newNode.array[idx]) : (newNode.array[idx] = value);
+  if (removed && idx === newNode.array.length - 1) {
+    newNode.array.pop();
+  } else {
+    newNode.array[idx] = removed ? undefined : value;
+  }
   return newNode;
 }
 function editableVNode(node, ownerID) {

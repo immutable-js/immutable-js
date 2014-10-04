@@ -60,16 +60,19 @@ class Vector extends IndexedSequence {
 
   // @pragma Access
 
+  has(index) {
+    index = wrapIndex(this, index);
+    return index >= 0 && index < this.length;
+  }
+
   get(index, notSetValue) {
     index = wrapIndex(this, index);
-    if (index >= this.length || index < 0) {
+    if (index < 0 || index >= this.length) {
       return notSetValue;
     }
     index += this._origin;
     var node = vectorNodeFor(this, index);
-    var maskedIndex = index & MASK;
-    return node && (notSetValue === undefined || node.array.hasOwnProperty(maskedIndex)) ?
-      node.array[maskedIndex] : notSetValue;
+    return node && node.array[index & MASK];
   }
 
   first() {
@@ -173,20 +176,20 @@ class Vector extends IndexedSequence {
     return sliceSequence;
   }
 
-  keys(sparse) {
-    return new VectorIterator(this, 0, sparse);
+  keys() {
+    return new VectorIterator(this, 0);
   }
 
-  values(sparse) {
-    return new VectorIterator(this, 1, sparse);
+  values() {
+    return new VectorIterator(this, 1);
   }
 
-  entries(sparse) {
-    return new VectorIterator(this, 2, sparse);
+  entries() {
+    return new VectorIterator(this, 2);
   }
 
-  __iterator(reverse, flipIndices, sparse) {
-    return new VectorIterator(this, 2, sparse, reverse, flipIndices);
+  __iterator(reverse, flipIndices) {
+    return new VectorIterator(this, 2, reverse, flipIndices);
   }
 
   __iterate(fn, reverse, flipIndices) {
@@ -279,7 +282,7 @@ class VNode {
     var editable = editableVNode(this, ownerID);
     if (!removingFirst) {
       for (var ii = 0; ii < originIndex; ii++) {
-        delete editable.array[ii];
+        editable.array[ii] = undefined;
       }
     }
     if (newChild) {
@@ -310,7 +313,7 @@ class VNode {
     }
     var editable = editableVNode(this, ownerID);
     if (!removingLast) {
-      editable.array.length = sizeIndex + 1;
+      editable.array.pop();
     }
     if (newChild) {
       editable.array[sizeIndex] = newChild;
@@ -319,6 +322,8 @@ class VNode {
   }
 }
 
+// TODO: test this to ensure dense iteration happens as expected
+// Especially test reverse.
 function iterateVNode(node, level, offset, max, fn, reverse) {
   if (node) {
     var ii;
@@ -327,11 +332,9 @@ function iterateVNode(node, level, offset, max, fn, reverse) {
     if (level === 0) {
       for (ii = 0; ii <= maxII; ii++) {
         var rawIndex = reverse ? maxII - ii : ii;
-        if (array.hasOwnProperty(rawIndex)) {
-          var index = rawIndex + offset;
-          if (index >= 0 && index < max && fn(array[rawIndex], index) === false) {
-            return false;
-          }
+        var index = rawIndex + offset;
+        if (index >= 0 && index < max && fn(array[rawIndex], index) === false) {
+          return false;
         }
       }
     } else {
@@ -354,9 +357,8 @@ function iterateVNode(node, level, offset, max, fn, reverse) {
 
 class VectorIterator extends SequenceIterator {
 
-  constructor(vector, type, sparse, reverse, flipIndices) {
+  constructor(vector, type, reverse, flipIndices) {
     this._type = type;
-    this._sparse = !!sparse;
     this._reverse = !!reverse;
     this._flipIndices = !!(flipIndices ^ reverse);
     this._maxIndex = vector.length - 1;
@@ -378,7 +380,6 @@ class VectorIterator extends SequenceIterator {
   }
 
   next() {
-    var sparse = this._sparse;
     var stack = this._stack;
     while (stack) {
       var array = stack.array;
@@ -393,18 +394,16 @@ class VectorIterator extends SequenceIterator {
       if (rawIndex >= 0 && rawIndex < SIZE && rawIndex <= stack.rawMax) {
         var value = array && array[rawIndex];
         if (stack.level === 0) {
-          if (!sparse || value != null || (array && rawIndex < array.length && array.hasOwnProperty(rawIndex))) {
-            var type = this._type;
-            var index;
-            if (type !== 1) {
-              index = stack.offset + (rawIndex << stack.level);
-              if (this._flipIndices) {
-                index = this._maxIndex - index;
-              }
+          var type = this._type;
+          var index;
+          if (type !== 1) {
+            index = stack.offset + (rawIndex << stack.level);
+            if (this._flipIndices) {
+              index = this._maxIndex - index;
             }
-            return iteratorValue(type === 0 ? index : type === 1 ? value : [index, value]);
           }
-        } else if (!sparse || value != null) {
+          return iteratorValue(type === 0 ? index : type === 1 ? value : [index, value]);
+        } else {
           this._stack = stack = vectIteratorFrame(
             value && value.array,
             stack.level - SHIFT,
@@ -487,7 +486,7 @@ function updateVNode(node, ownerID, level, index, value, didAlter) {
   var removed = value === NOT_SET;
   var newNode;
   var idx = (index >>> level) & MASK;
-  var nodeHas = node && idx < node.array.length && node.array.hasOwnProperty(idx);
+  var nodeHas = node && idx < node.array.length;
   if (removed && !nodeHas) {
     return node;
   }
@@ -510,9 +509,11 @@ function updateVNode(node, ownerID, level, index, value, didAlter) {
   SetRef(didAlter);
 
   newNode = editableVNode(node, ownerID);
-  removed ?
-    (delete newNode.array[idx]) :
-    (newNode.array[idx] = value);
+  if (removed && idx === newNode.array.length - 1) {
+    newNode.array.pop()
+  } else {
+    newNode.array[idx] = removed ? undefined : value;
+  }
   return newNode;
 }
 
