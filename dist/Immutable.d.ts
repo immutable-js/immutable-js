@@ -757,26 +757,7 @@ declare module 'immutable' {
      * Has the same altered behavior as `takeWhile`.
      * @override
      */
-    take(amount: number, maintainIndices?: boolean): IndexedSequence<T>;
-
-    /**
-     * Has the same altered behavior as `takeWhile`.
-     * @override
-     */
     takeLast(amount: number, maintainIndices?: boolean): IndexedSequence<T>;
-
-    /**
-     * Indexed sequences have a different `takeWhile` behavior. The first
-     * value will have an index of 0 and the length of the sequence could be
-     * truncated. If you want to preserve the original indicies, set
-     * maintainIndices to true.
-     * @override
-     */
-    takeWhile(
-      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
-      thisArg?: any,
-      maintainIndices?: boolean
-    ): IndexedSequence<T>;
 
     /**
      * Has the same altered behavior as `takeWhile`.
