@@ -620,18 +620,11 @@ class IndexedSequence extends Sequence {
 
   join(separator) {
     separator = separator !== undefined ? '' + separator : ',';
-    var string = '';
-    var prevIndex = 0;
-    this.forEach((v, i) => {
-      var numSeparators = i - prevIndex;
-      prevIndex = i;
-      string += (numSeparators === 1 ? separator : repeatString(separator, numSeparators)) +
-        (v != null ? v : '');
+    var joined = '';
+    this.forEach((v, ii) => {
+      joined += (ii ? separator : '') + (v != null ? v : '');
     });
-    if (this.length && prevIndex < this.length - 1) {
-      string += repeatString(separator, this.length - 1 - prevIndex);
-    }
-    return string;
+    return joined;
   }
 
   concat(...values) {
@@ -1083,19 +1076,6 @@ function not(predicate) {
 
 function quoteString(value) {
   return typeof value === 'string' ? JSON.stringify(value) : value;
-}
-
-function repeatString(string, times) {
-  var repeated = '';
-  while (times) {
-    if (times & 1) {
-      repeated += string;
-    }
-    if ((times >>= 1)) {
-      string += string;
-    }
-  }
-  return repeated;
 }
 
 function defaultComparator(a, b) {

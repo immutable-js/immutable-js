@@ -719,17 +719,11 @@ var $IndexedSequence = IndexedSequence;
   },
   join: function(separator) {
     separator = separator !== undefined ? '' + separator : ',';
-    var string = '';
-    var prevIndex = 0;
-    this.forEach((function(v, i) {
-      var numSeparators = i - prevIndex;
-      prevIndex = i;
-      string += (numSeparators === 1 ? separator : repeatString(separator, numSeparators)) + (v != null ? v : '');
+    var joined = '';
+    this.forEach((function(v, ii) {
+      joined += (ii ? separator : '') + (v != null ? v : '');
     }));
-    if (this.length && prevIndex < this.length - 1) {
-      string += repeatString(separator, this.length - 1 - prevIndex);
-    }
-    return string;
+    return joined;
   },
   concat: function() {
     for (var values = [],
@@ -1102,18 +1096,6 @@ function not(predicate) {
 }
 function quoteString(value) {
   return typeof value === 'string' ? JSON.stringify(value) : value;
-}
-function repeatString(string, times) {
-  var repeated = '';
-  while (times) {
-    if (times & 1) {
-      repeated += string;
-    }
-    if ((times >>= 1)) {
-      string += string;
-    }
-  }
-  return repeated;
 }
 function defaultComparator(a, b) {
   return a > b ? 1 : a < b ? -1 : 0;
