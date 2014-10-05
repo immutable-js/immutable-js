@@ -2114,29 +2114,30 @@ var $VNode = VNode;
   }
 }, {});
 function iterateVNode(node, level, offset, max, fn, reverse) {
-  if (node) {
-    var ii;
-    var array = node.array;
-    var maxII = array.length - 1;
-    if (level === 0) {
-      for (ii = 0; ii <= maxII; ii++) {
-        var rawIndex = reverse ? maxII - ii : ii;
-        var index = rawIndex + offset;
-        if (index >= 0 && index < max && fn(array[rawIndex], index) === false) {
-          return false;
-        }
+  var ii;
+  var array = node && node.array;
+  if (level === 0) {
+    var from = offset < 0 ? 0 : offset;
+    var to = offset + SIZE;
+    if (to > max) {
+      to = max;
+    }
+    for (ii = from; ii < to; ii++) {
+      var index = reverse ? from + to - 1 - ii : ii;
+      if (fn(array && array[index - offset], index) === false) {
+        return false;
       }
-    } else {
-      var step = 1 << level;
-      var newLevel = level - SHIFT;
-      for (ii = 0; ii <= maxII; ii++) {
-        var levelIndex = reverse ? maxII - ii : ii;
-        var newOffset = offset + levelIndex * step;
-        if (newOffset < max && newOffset + step > 0) {
-          var nextNode = array[levelIndex];
-          if (nextNode && !iterateVNode(nextNode, newLevel, newOffset, max, fn, reverse)) {
-            return false;
-          }
+    }
+  } else {
+    var step = 1 << level;
+    var newLevel = level - SHIFT;
+    for (ii = 0; ii <= MASK; ii++) {
+      var levelIndex = reverse ? MASK - ii : ii;
+      var newOffset = offset + (levelIndex << level);
+      if (newOffset < max && newOffset + step > 0) {
+        var nextNode = array && array[levelIndex];
+        if (!iterateVNode(nextNode, newLevel, newOffset, max, fn, reverse)) {
+          return false;
         }
       }
     }

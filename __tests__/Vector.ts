@@ -147,6 +147,62 @@ describe('Vector', () => {
     expect(v.has(13)).toBe(true); // never set, but still in bounds
   });
 
+  it('iterates a dense vector', () => {
+    var v = Vector.empty().setLength(11).set(1,1).set(3,3).set(5,5).set(7,7).set(9,9);
+    expect(v.length).toBe(11);
+
+    var forEachResults = [];
+    v.forEach((val, i) => forEachResults.push([i, val]));
+    expect(forEachResults).toEqual([
+      [0,undefined],
+      [1,1],
+      [2,undefined],
+      [3,3],
+      [4,undefined],
+      [5,5],
+      [6,undefined],
+      [7,7],
+      [8,undefined],
+      [9,9],
+      [10,undefined],
+    ]);
+
+    var arrayResults = v.toArray();
+    expect(arrayResults).toEqual([
+      undefined,
+      1,
+      undefined,
+      3,
+      undefined,
+      5,
+      undefined,
+      7,
+      undefined,
+      9,
+      undefined,
+    ]);
+
+    var iteratorResults = [];
+    var iterator = v.entries();
+    var step;
+    while (!(step = iterator.next()).done) {
+      iteratorResults.push(step.value);
+    }
+    expect(iteratorResults).toEqual([
+      [0,undefined],
+      [1,1],
+      [2,undefined],
+      [3,3],
+      [4,undefined],
+      [5,5],
+      [6,undefined],
+      [7,7],
+      [8,undefined],
+      [9,9],
+      [10,undefined],
+    ]);
+  });
+
   it('push inserts at highest index', () => {
     var v0 = Vector('a', 'b', 'c');
     var v1 = v0.push('d', 'e', 'f');
