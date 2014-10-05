@@ -711,6 +711,7 @@ class IndexedSequence extends Sequence {
     if (wholeSlice(begin, end, sequence.length)) {
       return sequence;
     }
+    // TODO: re-evaluate if this needs to be more complex than .skip().take()
     var sliceSequence = sequence.__makeSequence();
     var resolvedBegin = resolveBegin(begin, sequence.length);
     var resolvedEnd = resolveEnd(end, sequence.length);
