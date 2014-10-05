@@ -676,14 +676,6 @@ class IndexedSequence extends Sequence {
     return reversedSequence;
   }
 
-  // Overridden to supply undefined length because it's entirely
-  // possible this is sparse.
-  valueSeq() {
-    var valuesSequence = super.valueSeq();
-    valuesSequence.length = undefined;
-    return valuesSequence;
-  }
-
   filter(predicate, thisArg, maintainIndices) {
     var filterSequence = filterFactory(this, predicate, thisArg, maintainIndices, maintainIndices);
     if (maintainIndices) {

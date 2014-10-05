@@ -774,11 +774,6 @@ var $IndexedSequence = IndexedSequence;
     };
     return reversedSequence;
   },
-  valueSeq: function() {
-    var valuesSequence = $traceurRuntime.superCall(this, $IndexedSequence.prototype, "valueSeq", []);
-    valuesSequence.length = undefined;
-    return valuesSequence;
-  },
   filter: function(predicate, thisArg, maintainIndices) {
     var filterSequence = filterFactory(this, predicate, thisArg, maintainIndices, maintainIndices);
     if (maintainIndices) {
