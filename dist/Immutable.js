@@ -853,18 +853,19 @@ var $IndexedSequence = IndexedSequence;
   },
   flatten: function() {
     var sequence = this;
-    var flatSequence = makeSequence();
+    var flatSequence = sequence.__makeSequence();
     flatSequence.__iterateUncached = function(fn, reverse, flipIndices) {
       var $__0 = this;
       if (flipIndices) {
         return this.cacheResult().__iterate(fn, reverse, flipIndices);
       }
       var index = 0;
-      return sequence.__iterate((function(seq) {
+      sequence.__iterate((function(seq) {
         index += Sequence(seq).__iterate((function(v, i) {
           return fn(v, index + i, $__0) !== false;
         }), reverse, flipIndices);
       }), reverse, flipIndices);
+      return index;
     };
     return flatSequence;
   },
