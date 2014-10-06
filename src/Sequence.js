@@ -353,8 +353,9 @@ class Sequence {
     var flipSequence = makeSequence();
     flipSequence.length = sequence.length;
     flipSequence.flip = () => sequence;
-    flipSequence.__iterateUncached = (fn, reverse) =>
-      sequence.__iterate((v, k, c) => fn(k, v, c) !== false, reverse);
+    flipSequence.__iterateUncached = function (fn, reverse) {
+      return sequence.__iterate((v, k) => fn(k, v, this) !== false, reverse);
+    }
     return flipSequence;
   }
 
@@ -362,8 +363,12 @@ class Sequence {
     var sequence = this;
     var mappedSequence = sequence.__makeSequence();
     mappedSequence.length = sequence.length;
-    mappedSequence.__iterateUncached = (fn, reverse) =>
-      sequence.__iterate((v, k, c) => fn(mapper.call(thisArg, v, k, c), k, c) !== false, reverse);
+    mappedSequence.__iterateUncached = function (fn, reverse) {
+      return sequence.__iterate(
+        (v, k, c) => fn(mapper.call(thisArg, v, k, c), k, this) !== false,
+        reverse
+      );
+    }
     return mappedSequence;
   }
 
@@ -371,8 +376,12 @@ class Sequence {
     var sequence = this;
     var mappedSequence = sequence.__makeSequence();
     mappedSequence.length = sequence.length;
-    mappedSequence.__iterateUncached = (fn, reverse) =>
-      sequence.__iterate((v, k, c) => fn(v, mapper.call(thisArg, k, v, c), c) !== false, reverse);
+    mappedSequence.__iterateUncached = function (fn, reverse) {
+      return sequence.__iterate(
+        (v, k, c) => fn(v, mapper.call(thisArg, k, v, c), this) !== false,
+        reverse
+      );
+    }
     return mappedSequence;
   }
 
@@ -410,8 +419,8 @@ class Sequence {
         return this.cacheResult().__iterate(fn, reverse, flipIndices);
       }
       var iterations = 0;
-      sequence.__iterate((v, k, c) => {
-        if (iterations < amount && fn(v, k, c) !== false) {
+      sequence.__iterate((v, k) => {
+        if (iterations < amount && fn(v, k, this) !== false) {
           iterations++;
         } else {
           return false;
@@ -437,7 +446,7 @@ class Sequence {
       }
       var iterations = 0;
       sequence.__iterate((v, k, c) => {
-        if (predicate.call(thisArg, v, k, c) && fn(v, k, c) !== false) {
+        if (predicate.call(thisArg, v, k, c) && fn(v, k, this) !== false) {
           iterations++;
         } else {
           return false;
@@ -466,9 +475,9 @@ class Sequence {
       var isSkipping = true;
       var iterations = 0;
       var skipped = 0;
-      sequence.__iterate((v, k, c) => {
+      sequence.__iterate((v, k) => {
         if (!(isSkipping && (isSkipping = skipped++ < amount))) {
-          if (fn(v, k, c) !== false) {
+          if (fn(v, k, this) !== false) {
             iterations++;
           } else {
             return false;
@@ -497,7 +506,7 @@ class Sequence {
       var iterations = 0;
       sequence.__iterate((v, k, c) => {
         if (!(isSkipping && (isSkipping = predicate.call(thisArg, v, k, c)))) {
-          if (fn(v, k, c) !== false) {
+          if (fn(v, k, this) !== false) {
             iterations++;
           } else {
             return false;
@@ -611,10 +620,15 @@ class IndexedSequence extends Sequence {
     var fromEntriesSequence = makeSequence();
     fromEntriesSequence.length = sequence.length;
     fromEntriesSequence.entrySeq = () => sequence;
-    fromEntriesSequence.__iterateUncached = (fn, reverse, flipIndices) =>
+    fromEntriesSequence.__iterateUncached = function (fn, reverse, flipIndices) {
       // Check if entry exists first so array access doesn't throw for holes
       // in the parent iteration.
-      sequence.__iterate((entry, _, c) => entry && fn(entry[1], entry[0], c), reverse, flipIndices);
+      return sequence.__iterate(
+        entry => entry && fn(entry[1], entry[0], this),
+        reverse,
+        flipIndices
+      );
+    }
     return fromEntriesSequence;
   }
 
@@ -649,9 +663,9 @@ class IndexedSequence extends Sequence {
         if (!(sequence instanceof IndexedSequence)) {
           sequence = sequence.valueSeq();
         }
-        iterations += sequence.__iterate((v, index, c) => {
+        iterations += sequence.__iterate((v, index) => {
           index += iterations;
-          if (fn(v, flipIndices ? maxIndex - index : index, c) === false) {
+          if (fn(v, flipIndices ? maxIndex - index : index, this) === false) {
             stoppedIteration = true;
             return false;
           }
@@ -732,10 +746,10 @@ class IndexedSequence extends Sequence {
       }
       var iiBegin = reversedIndices ? sequence.length - resolvedEnd : resolvedBegin;
       var iiEnd = reversedIndices ? sequence.length - resolvedBegin : resolvedEnd;
-      var lengthIterated = sequence.__iterate((v, ii, c) =>
+      var lengthIterated = sequence.__iterate((v, ii) =>
         reversedIndices ?
-          (iiEnd != null && ii >= iiEnd) || (ii >= iiBegin) && fn(v, maintainIndices ? ii : ii - iiBegin, c) !== false :
-          (ii < iiBegin) || (iiEnd == null || ii < iiEnd) && fn(v, maintainIndices ? ii : ii - iiBegin, c) !== false,
+          (iiEnd != null && ii >= iiEnd) || (ii >= iiBegin) && fn(v, maintainIndices ? ii : ii - iiBegin, this) !== false :
+          (ii < iiBegin) || (iiEnd == null || ii < iiEnd) && fn(v, maintainIndices ? ii : ii - iiBegin, this) !== false,
         reverse, flipIndices
       );
       return this.length != null ? this.length :
@@ -763,15 +777,15 @@ class IndexedSequence extends Sequence {
   flatten() {
     var sequence = this;
     var flatSequence = makeSequence();
-    flatSequence.__iterateUncached = (fn, reverse, flipIndices) => {
+    flatSequence.__iterateUncached = function (fn, reverse, flipIndices) {
       if (flipIndices) {
         return this.cacheResult().__iterate(fn, reverse, flipIndices);
       }
       var index = 0;
       return sequence.__iterate(
-        (seq, _i, c) => {
+        seq => {
           index += Sequence(seq).__iterate(
-            (v, i) => fn(v, index + i, c) !== false,
+            (v, i) => fn(v, index + i, this) !== false,
             reverse,
             flipIndices
           )
@@ -807,14 +821,14 @@ class IndexedSequence extends Sequence {
       var isSkipping = true;
       var indexOffset = 0;
       var skipped = 0;
-      var length = sequence.__iterate((v, ii, c) => {
+      var length = sequence.__iterate((v, ii) => {
         if (isSkipping) {
           isSkipping = skipped++ < amount;
           if (!isSkipping) {
             indexOffset = ii;
           }
         }
-        return isSkipping || fn(v, flipIndices || maintainIndices ? ii : ii - indexOffset, c) !== false;
+        return isSkipping || fn(v, flipIndices || maintainIndices ? ii : ii - indexOffset, this) !== false;
       }, reverse, flipIndices);
       return maintainIndices ? length : reversedIndices ? indexOffset + 1 : length - indexOffset;
     };
@@ -843,7 +857,7 @@ class IndexedSequence extends Sequence {
             indexOffset = ii;
           }
         }
-        return isSkipping || fn(v, flipIndices || maintainIndices ? ii : ii - indexOffset, c) !== false;
+        return isSkipping || fn(v, flipIndices || maintainIndices ? ii : ii - indexOffset, this) !== false;
       }, reverse, flipIndices);
       return maintainIndices ? length : reversedIndices ? indexOffset + 1 : length - indexOffset;
     };
@@ -1045,11 +1059,11 @@ function increment(value) {
  */
 function filterFactory(sequence, predicate, thisArg, useKeys, maintainIndices) {
   var filterSequence = sequence.__makeSequence();
-  filterSequence.__iterateUncached = (fn, reverse, flipIndices) => {
+  filterSequence.__iterateUncached = function (fn, reverse, flipIndices) {
     var iterations = 0;
     var length = sequence.__iterate((v, k, c) => {
       if (predicate.call(thisArg, v, k, c)) {
-        if (fn(v, useKeys ? k : iterations, c) !== false) {
+        if (fn(v, useKeys ? k : iterations, this) !== false) {
           iterations++;
         } else {
           return false;

@@ -459,33 +459,36 @@ var $Sequence = Sequence;
     flipSequence.flip = (function() {
       return sequence;
     });
-    flipSequence.__iterateUncached = (function(fn, reverse) {
-      return sequence.__iterate((function(v, k, c) {
-        return fn(k, v, c) !== false;
+    flipSequence.__iterateUncached = function(fn, reverse) {
+      var $__0 = this;
+      return sequence.__iterate((function(v, k) {
+        return fn(k, v, $__0) !== false;
       }), reverse);
-    });
+    };
     return flipSequence;
   },
   map: function(mapper, thisArg) {
     var sequence = this;
     var mappedSequence = sequence.__makeSequence();
     mappedSequence.length = sequence.length;
-    mappedSequence.__iterateUncached = (function(fn, reverse) {
+    mappedSequence.__iterateUncached = function(fn, reverse) {
+      var $__0 = this;
       return sequence.__iterate((function(v, k, c) {
-        return fn(mapper.call(thisArg, v, k, c), k, c) !== false;
+        return fn(mapper.call(thisArg, v, k, c), k, $__0) !== false;
       }), reverse);
-    });
+    };
     return mappedSequence;
   },
   mapKeys: function(mapper, thisArg) {
     var sequence = this;
     var mappedSequence = sequence.__makeSequence();
     mappedSequence.length = sequence.length;
-    mappedSequence.__iterateUncached = (function(fn, reverse) {
+    mappedSequence.__iterateUncached = function(fn, reverse) {
+      var $__0 = this;
       return sequence.__iterate((function(v, k, c) {
-        return fn(v, mapper.call(thisArg, k, v, c), c) !== false;
+        return fn(v, mapper.call(thisArg, k, v, c), $__0) !== false;
       }), reverse);
-    });
+    };
     return mappedSequence;
   },
   filter: function(predicate, thisArg) {
@@ -510,12 +513,13 @@ var $Sequence = Sequence;
     }
     var takeSequence = sequence.__makeSequence();
     takeSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      var $__0 = this;
       if (reverse) {
         return this.cacheResult().__iterate(fn, reverse, flipIndices);
       }
       var iterations = 0;
-      sequence.__iterate((function(v, k, c) {
-        if (iterations < amount && fn(v, k, c) !== false) {
+      sequence.__iterate((function(v, k) {
+        if (iterations < amount && fn(v, k, $__0) !== false) {
           iterations++;
         } else {
           return false;
@@ -533,12 +537,13 @@ var $Sequence = Sequence;
     var sequence = this;
     var takeSequence = sequence.__makeSequence();
     takeSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      var $__0 = this;
       if (reverse) {
         return this.cacheResult().__iterate(fn, reverse, flipIndices);
       }
       var iterations = 0;
       sequence.__iterate((function(v, k, c) {
-        if (predicate.call(thisArg, v, k, c) && fn(v, k, c) !== false) {
+        if (predicate.call(thisArg, v, k, c) && fn(v, k, $__0) !== false) {
           iterations++;
         } else {
           return false;
@@ -558,15 +563,16 @@ var $Sequence = Sequence;
     }
     var skipSequence = sequence.__makeSequence();
     skipSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      var $__0 = this;
       if (reverse) {
         return this.cacheResult().__iterate(fn, reverse, flipIndices);
       }
       var isSkipping = true;
       var iterations = 0;
       var skipped = 0;
-      sequence.__iterate((function(v, k, c) {
+      sequence.__iterate((function(v, k) {
         if (!(isSkipping && (isSkipping = skipped++ < amount))) {
-          if (fn(v, k, c) !== false) {
+          if (fn(v, k, $__0) !== false) {
             iterations++;
           } else {
             return false;
@@ -585,6 +591,7 @@ var $Sequence = Sequence;
     var sequence = this;
     var skipSequence = sequence.__makeSequence();
     skipSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      var $__0 = this;
       if (reverse) {
         return this.cacheResult().__iterate(fn, reverse, flipIndices);
       }
@@ -592,7 +599,7 @@ var $Sequence = Sequence;
       var iterations = 0;
       sequence.__iterate((function(v, k, c) {
         if (!(isSkipping && (isSkipping = predicate.call(thisArg, v, k, c)))) {
-          if (fn(v, k, c) !== false) {
+          if (fn(v, k, $__0) !== false) {
             iterations++;
           } else {
             return false;
@@ -710,11 +717,12 @@ var $IndexedSequence = IndexedSequence;
     fromEntriesSequence.entrySeq = (function() {
       return sequence;
     });
-    fromEntriesSequence.__iterateUncached = (function(fn, reverse, flipIndices) {
-      return sequence.__iterate((function(entry, _, c) {
-        return entry && fn(entry[1], entry[0], c);
+    fromEntriesSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      var $__0 = this;
+      return sequence.__iterate((function(entry) {
+        return entry && fn(entry[1], entry[0], $__0);
       }), reverse, flipIndices);
-    });
+    };
     return fromEntriesSequence;
   },
   join: function(separator) {
@@ -737,6 +745,7 @@ var $IndexedSequence = IndexedSequence;
       return sum != null && seq.length != null ? sum + seq.length : undefined;
     }), 0);
     concatSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      var $__0 = this;
       if (flipIndices && !this.length) {
         return this.cacheResult().__iterate(fn, reverse, flipIndices);
       }
@@ -749,9 +758,9 @@ var $IndexedSequence = IndexedSequence;
         if (!(sequence instanceof $IndexedSequence)) {
           sequence = sequence.valueSeq();
         }
-        iterations += sequence.__iterate((function(v, index, c) {
+        iterations += sequence.__iterate((function(v, index) {
           index += iterations;
-          if (fn(v, flipIndices ? maxIndex - index : index, c) === false) {
+          if (fn(v, flipIndices ? maxIndex - index : index, $__0) === false) {
             stoppedIteration = true;
             return false;
           }
@@ -813,6 +822,7 @@ var $IndexedSequence = IndexedSequence;
     sliceSequence.length = sequence.length && (maintainIndices ? sequence.length : resolvedEnd - resolvedBegin);
     sliceSequence.__reversedIndices = sequence.__reversedIndices;
     sliceSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      var $__0 = this;
       if (reverse) {
         return this.cacheResult().__iterate(fn, reverse, flipIndices);
       }
@@ -824,8 +834,8 @@ var $IndexedSequence = IndexedSequence;
       }
       var iiBegin = reversedIndices ? sequence.length - resolvedEnd : resolvedBegin;
       var iiEnd = reversedIndices ? sequence.length - resolvedBegin : resolvedEnd;
-      var lengthIterated = sequence.__iterate((function(v, ii, c) {
-        return reversedIndices ? (iiEnd != null && ii >= iiEnd) || (ii >= iiBegin) && fn(v, maintainIndices ? ii : ii - iiBegin, c) !== false : (ii < iiBegin) || (iiEnd == null || ii < iiEnd) && fn(v, maintainIndices ? ii : ii - iiBegin, c) !== false;
+      var lengthIterated = sequence.__iterate((function(v, ii) {
+        return reversedIndices ? (iiEnd != null && ii >= iiEnd) || (ii >= iiBegin) && fn(v, maintainIndices ? ii : ii - iiBegin, $__0) !== false : (ii < iiBegin) || (iiEnd == null || ii < iiEnd) && fn(v, maintainIndices ? ii : ii - iiBegin, $__0) !== false;
       }), reverse, flipIndices);
       return this.length != null ? this.length : maintainIndices ? lengthIterated : Math.max(0, lengthIterated - iiBegin);
     };
@@ -842,20 +852,20 @@ var $IndexedSequence = IndexedSequence;
     return numArgs === 1 ? spliced : spliced.concat(arrCopy(arguments, 2), this.slice(index + removeNum));
   },
   flatten: function() {
-    var $__0 = this;
     var sequence = this;
     var flatSequence = makeSequence();
-    flatSequence.__iterateUncached = (function(fn, reverse, flipIndices) {
+    flatSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      var $__0 = this;
       if (flipIndices) {
-        return $__0.cacheResult().__iterate(fn, reverse, flipIndices);
+        return this.cacheResult().__iterate(fn, reverse, flipIndices);
       }
       var index = 0;
-      return sequence.__iterate((function(seq, _i, c) {
+      return sequence.__iterate((function(seq) {
         index += Sequence(seq).__iterate((function(v, i) {
-          return fn(v, index + i, c) !== false;
+          return fn(v, index + i, $__0) !== false;
         }), reverse, flipIndices);
       }), reverse, flipIndices);
-    });
+    };
     return flatSequence;
   },
   flatMap: function(mapper, thisArg) {
@@ -871,6 +881,7 @@ var $IndexedSequence = IndexedSequence;
       skipSequence.length = this.length;
     }
     skipSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      var $__0 = this;
       if (reverse) {
         return this.cacheResult().__iterate(fn, reverse, flipIndices);
       }
@@ -878,14 +889,14 @@ var $IndexedSequence = IndexedSequence;
       var isSkipping = true;
       var indexOffset = 0;
       var skipped = 0;
-      var length = sequence.__iterate((function(v, ii, c) {
+      var length = sequence.__iterate((function(v, ii) {
         if (isSkipping) {
           isSkipping = skipped++ < amount;
           if (!isSkipping) {
             indexOffset = ii;
           }
         }
-        return isSkipping || fn(v, flipIndices || maintainIndices ? ii : ii - indexOffset, c) !== false;
+        return isSkipping || fn(v, flipIndices || maintainIndices ? ii : ii - indexOffset, $__0) !== false;
       }), reverse, flipIndices);
       return maintainIndices ? length : reversedIndices ? indexOffset + 1 : length - indexOffset;
     };
@@ -899,6 +910,7 @@ var $IndexedSequence = IndexedSequence;
       skipWhileSequence.length = this.length;
     }
     skipWhileSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      var $__0 = this;
       if (reverse) {
         return this.cacheResult().__iterate(fn, reverse, flipIndices);
       }
@@ -912,7 +924,7 @@ var $IndexedSequence = IndexedSequence;
             indexOffset = ii;
           }
         }
-        return isSkipping || fn(v, flipIndices || maintainIndices ? ii : ii - indexOffset, c) !== false;
+        return isSkipping || fn(v, flipIndices || maintainIndices ? ii : ii - indexOffset, $__0) !== false;
       }), reverse, flipIndices);
       return maintainIndices ? length : reversedIndices ? indexOffset + 1 : length - indexOffset;
     };
@@ -1069,11 +1081,12 @@ function increment(value) {
 }
 function filterFactory(sequence, predicate, thisArg, useKeys, maintainIndices) {
   var filterSequence = sequence.__makeSequence();
-  filterSequence.__iterateUncached = (function(fn, reverse, flipIndices) {
+  filterSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+    var $__0 = this;
     var iterations = 0;
     var length = sequence.__iterate((function(v, k, c) {
       if (predicate.call(thisArg, v, k, c)) {
-        if (fn(v, useKeys ? k : iterations, c) !== false) {
+        if (fn(v, useKeys ? k : iterations, $__0) !== false) {
           iterations++;
         } else {
           return false;
@@ -1081,7 +1094,7 @@ function filterFactory(sequence, predicate, thisArg, useKeys, maintainIndices) {
       }
     }), reverse, flipIndices);
     return maintainIndices ? length : iterations;
-  });
+  };
   return filterSequence;
 }
 function not(predicate) {
