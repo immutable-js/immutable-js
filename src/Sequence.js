@@ -776,13 +776,13 @@ class IndexedSequence extends Sequence {
 
   flatten() {
     var sequence = this;
-    var flatSequence = makeSequence();
+    var flatSequence = sequence.__makeSequence();
     flatSequence.__iterateUncached = function (fn, reverse, flipIndices) {
       if (flipIndices) {
         return this.cacheResult().__iterate(fn, reverse, flipIndices);
       }
       var index = 0;
-      return sequence.__iterate(
+      sequence.__iterate(
         seq => {
           index += Sequence(seq).__iterate(
             (v, i) => fn(v, index + i, this) !== false,
@@ -793,6 +793,7 @@ class IndexedSequence extends Sequence {
         reverse,
         flipIndices
       );
+      return index;
     };
     return flatSequence;
   }

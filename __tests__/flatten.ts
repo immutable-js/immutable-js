@@ -16,7 +16,19 @@ describe('flatten', () => {
     expect(flat.toJS()).toEqual([1,2,3,4,5,6]);
   })
 
-  it('flattens anything sequencible', () => {
+  it('returns an indexed sequence', () => {
+    var nested = I.fromJS([[1],2,3,[4,5,6]]);
+    var flat = nested.flatten();
+    expect(flat.toString()).toEqual("Seq [ 1, 2, 3, 4, 5, 6 ]");
+  })
+
+  it('gives the correct iteration count', () => {
+    var nested = I.fromJS([[1,2,3],[4,5,6]]);
+    var flat = nested.flatten();
+    expect(flat.forEach(x => x < 6)).toEqual(5);
+  })
+
+  it('flattens anything sequenceable', () => {
     var nested = I.Sequence(I.Range(1,3),[3,4],I.Vector(5,6,7),8);
     var flat = nested.flatten();
     expect(flat.toJS()).toEqual([1,2,3,4,5,6,7,8]);
