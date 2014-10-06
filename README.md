@@ -8,7 +8,7 @@ chaining of sequence methods like `map` and `filter` without creating
 intermediate representations.
 
 `immutable` provides `Sequence`, `Range`, `Repeat`, `Map`, `OrderedMap`, `Set`
-and a sparse `Vector` by using lazy sequences and [hash maps tries](http://en.wikipedia.org/wiki/Hash_array_mapped_trie).
+and `Vector` by using lazy sequences and [hash maps tries](http://en.wikipedia.org/wiki/Hash_array_mapped_trie).
 They achieve efficiency by using structural sharing and minimizing the need to
 copy or cache data.
 
