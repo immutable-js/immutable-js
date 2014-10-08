@@ -633,14 +633,14 @@ var $Sequence = Sequence;
       return $Sequence(group).fromEntrySeq();
     }));
   },
-  sort: function(comparator, maintainIndices) {
-    return this.sortBy(valueMapper, comparator, maintainIndices);
+  sort: function(comparator) {
+    return this.sortBy(valueMapper, comparator);
   },
-  sortBy: function(mapper, comparator, maintainIndices) {
+  sortBy: function(mapper, comparator) {
     comparator = comparator || defaultComparator;
     var seq = this;
-    return $Sequence(this.entrySeq().entrySeq().toArray().sort((function(indexedEntryA, indexedEntryB) {
-      return comparator(mapper(indexedEntryA[1][1], indexedEntryA[1][0], seq), mapper(indexedEntryB[1][1], indexedEntryB[1][0], seq)) || indexedEntryA[0] - indexedEntryB[0];
+    return $Sequence(this.entrySeq().entrySeq().toArray().sort((function(a, b) {
+      return comparator(mapper(a[1][1], a[1][0], seq), mapper(b[1][1], b[1][0], seq)) || a[0] - b[0];
     }))).fromEntrySeq().valueSeq().fromEntrySeq();
   },
   cacheResult: function() {
@@ -948,13 +948,12 @@ var $IndexedSequence = IndexedSequence;
       return Sequence(group);
     }));
   },
-  sortBy: function(mapper, comparator, maintainIndices) {
-    var sortedSeq = $traceurRuntime.superCall(this, $IndexedSequence.prototype, "sortBy", [mapper, comparator]);
-    if (!maintainIndices) {
-      sortedSeq = sortedSeq.valueSeq();
-    }
-    sortedSeq.length = this.length;
-    return sortedSeq;
+  sortBy: function(mapper, comparator) {
+    comparator = comparator || defaultComparator;
+    var seq = this;
+    return Sequence(this.entrySeq().toArray().sort((function(a, b) {
+      return comparator(mapper(a[1], a[0], seq), mapper(b[1], b[0], seq)) || a[0] - b[0];
+    }))).fromEntrySeq().valueSeq();
   },
   __makeSequence: function() {
     return makeIndexedSequence(this);

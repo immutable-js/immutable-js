@@ -542,19 +542,18 @@ class Sequence {
     return groups.map(group => Sequence(group).fromEntrySeq());
   }
 
-  sort(comparator, maintainIndices) {
-    return this.sortBy(valueMapper, comparator, maintainIndices);
+  sort(comparator) {
+    return this.sortBy(valueMapper, comparator);
   }
 
-  sortBy(mapper, comparator, maintainIndices) {
+  sortBy(mapper, comparator) {
     comparator = comparator || defaultComparator;
     var seq = this;
     return Sequence(this.entrySeq().entrySeq().toArray().sort(
-      (indexedEntryA, indexedEntryB) =>
-        comparator(
-          mapper(indexedEntryA[1][1], indexedEntryA[1][0], seq),
-          mapper(indexedEntryB[1][1], indexedEntryB[1][0], seq)
-        ) || indexedEntryA[0] - indexedEntryB[0]
+      (a, b) => comparator(
+        mapper(a[1][1], a[1][0], seq),
+        mapper(b[1][1], b[1][0], seq)
+      ) || a[0] - b[0]
     )).fromEntrySeq().valueSeq().fromEntrySeq();
   }
 
@@ -881,13 +880,15 @@ class IndexedSequence extends Sequence {
     return groups.map(group => Sequence(group));
   }
 
-  sortBy(mapper, comparator, maintainIndices) {
-    var sortedSeq = super.sortBy(mapper, comparator);
-    if (!maintainIndices) {
-      sortedSeq = sortedSeq.valueSeq();
-    }
-    sortedSeq.length = this.length;
-    return sortedSeq;
+  sortBy(mapper, comparator) {
+    comparator = comparator || defaultComparator;
+    var seq = this;
+    return Sequence(this.entrySeq().toArray().sort(
+      (a, b) => comparator(
+        mapper(a[1], a[0], seq),
+        mapper(b[1], b[0], seq)
+      ) || a[0] - b[0]
+    )).fromEntrySeq().valueSeq();
   }
 
   // abstract __iterateUncached(fn, reverse, flipIndices)
