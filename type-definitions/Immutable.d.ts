@@ -619,8 +619,9 @@ declare module 'immutable' {
    * better mirror the behavior of JavaScript's `Array`, and add others which do
    * not make sense on non-indexed sequences such as `indexOf`.
    *
-   * Like JavaScript arrays, `IndexedSequence`s may be sparse, skipping over some
-   * indices and may have a length larger than the highest index.
+   * Unlike JavaScript arrays, `IndexedSequence`s are always dense. "Unset"
+   * indices and `undefined` indices are indistinguishable, and all indices from
+   * 0 to `length` are visited when iterated.
    */
 
   export interface IndexedSequence<T> extends Sequence<number, T> {
@@ -1374,12 +1375,10 @@ declare module 'immutable' {
    * Vector
    * ------
    *
-   * Vectors are like a Map with numeric keys which always iterate in the order
-   * of their keys. They may be sparse: if an index has not been set, it will not
-   * be iterated over. Also, via `setBounds` (or `fromArray` with a sparse array),
-   * a Vector may have a length higher than the highest index.
-   *
-   * @see: [MDN: Array relationship between length and numeric properties](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#Relationship_between_length_and_numerical_properties_2).
+   * Vectors are ordered indexed dense collections, much like a JavaScript
+   * Array. Unlike a JavaScript Array, there is no distinction between an
+   * "unset" index and an index set to `undefined`. `Vector#forEach` visits all
+   * indices from 0 to length, regardless of if they are defined.
    */
 
   export module Vector {
@@ -1425,7 +1424,7 @@ declare module 'immutable' {
 
     /**
      * Returns a new Vector which excludes this `index`. It will not affect the
-     * length of the Vector, instead leaving a sparse hole.
+     * length of the Vector, instead leaving an undefined value.
      *
      * `index` may be a negative number, which indexes back from the end of the
      * Vector. `v.delete(-1)` deletes the last item in the Vector.
@@ -1444,19 +1443,17 @@ declare module 'immutable' {
     /**
      * An iterator of this Vector's keys.
      */
-    keys(sparse?: boolean): Iterator<number>;
+    keys(): Iterator<number>;
 
     /**
      * An iterator of this Vector's values.
      */
-    values(sparse?: boolean): Iterator<T>;
+    values(): Iterator<T>;
 
     /**
      * An iterator of this Vector's entries as [key, value] tuples.
-     *
-     * `sparse` defaults to true for entries.
      */
-    entries(sparse?: boolean): Iterator</*[number, T]*/Array<any>>;
+    entries(): Iterator</*[number, T]*/Array<any>>;
 
     /**
      * Returns a new Vector with the provided `values` appended, starting at this
@@ -1574,7 +1571,7 @@ declare module 'immutable' {
      * Returns a new Vector with length `length`. If `length` is less than this
      * Vector's length, the new Vector will exclude values at the higher indices.
      * If `length` is greater than this Vector's length, the new Vector will have
-     * unset sparse holes for the newly available indices.
+     * undefined values for the newly available indices.
      */
     setLength(length: number): Vector<T>;
 
