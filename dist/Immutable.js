@@ -617,21 +617,7 @@ var $Sequence = Sequence;
     return this.skipWhile(not(predicate), thisArg);
   },
   groupBy: function(mapper, context) {
-    var seq = this;
-    var groups = OrderedMap.empty().withMutations((function(map) {
-      seq.forEach((function(value, key, collection) {
-        var groupKey = mapper(value, key, collection);
-        var group = map.get(groupKey, NOT_SET);
-        if (group === NOT_SET) {
-          group = [];
-          map.set(groupKey, group);
-        }
-        group.push([key, value]);
-      }));
-    }));
-    return groups.map((function(group) {
-      return $Sequence(group).fromEntrySeq();
-    }));
+    return groupByFactory(this, mapper, context, true);
   },
   sort: function(comparator) {
     return this.sortBy(valueMapper, comparator);
@@ -931,22 +917,8 @@ var $IndexedSequence = IndexedSequence;
     };
     return skipWhileSequence;
   },
-  groupBy: function(mapper, context, maintainIndices) {
-    var seq = this;
-    var groups = OrderedMap.empty().withMutations((function(map) {
-      seq.forEach((function(value, index, collection) {
-        var groupKey = mapper(value, index, collection);
-        var group = map.get(groupKey, NOT_SET);
-        if (group === NOT_SET) {
-          group = new Array(maintainIndices ? seq.length : 0);
-          map.set(groupKey, group);
-        }
-        maintainIndices ? (group[index] = value) : group.push(value);
-      }));
-    }));
-    return groups.map((function(group) {
-      return Sequence(group);
-    }));
+  groupBy: function(mapper, context) {
+    return groupByFactory(this, mapper, context, false);
   },
   sortBy: function(mapper, comparator) {
     comparator = comparator || defaultComparator;
@@ -1111,6 +1083,24 @@ function filterFactory(sequence, predicate, thisArg, useKeys) {
     return iterations;
   };
   return filterSequence;
+}
+function groupByFactory(seq, mapper, context, useKeys) {
+  var groups = OrderedMap.empty().withMutations((function(map) {
+    seq.forEach((function(value, key, collection) {
+      var groupKey = mapper.call(context, value, key, seq);
+      var group = map.get(groupKey);
+      if (!group) {
+        group = [];
+        map.set(groupKey, group);
+      }
+      group.push(useKeys ? [key, value] : value);
+    }));
+  }));
+  return groups.map(useKeys ? (function(group) {
+    return Sequence(group).fromEntrySeq();
+  }) : (function(group) {
+    return Sequence(group);
+  }));
 }
 function not(predicate) {
   return function() {

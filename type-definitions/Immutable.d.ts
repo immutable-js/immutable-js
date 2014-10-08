@@ -823,29 +823,30 @@ declare module 'immutable' {
     ): IndexedSequence<T>;
 
     /**
-     * Indexed sequences have a different `groupBy` behavior. Each group will be
-     * a new indexed sequence starting with an index of 0. If you want to preserve
-     * the original indicies, set maintainIndices to true.
+     * Returns Map<G, IndexedSequence<T>>
      * @override
      */
     groupBy<G>(
       grouper: (value?: T, index?: number, seq?: IndexedSequence<T>) => G,
-      thisArg?: any,
-      maintainIndices?: boolean
+      thisArg?: any
     ): Map<G, any/*IndexedSequence<T>*/>; // Bug: exposing this causes the type checker to implode.
 
-
+    /**
+     * Returns an IndexedSequence
+     * @override
+     */
     sort(
-      comparator?: (valueA: T, valueB: T) => number,
-      maintainIndices?: boolean
+      comparator?: (valueA: T, valueB: T) => number
     ): IndexedSequence<T>;
 
+    /**
+     * Returns an IndexedSequence
+     * @override
+     */
     sortBy<S>(
       sortValueMapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => S,
-      comparator?: (valueA: S, valueB: S) => number,
-      maintainIndices?: boolean
+      comparator?: (valueA: S, valueB: S) => number
     ): IndexedSequence<T>;
-
 
     /**
      * Returns an IndexedSequence
