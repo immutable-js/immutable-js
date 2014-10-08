@@ -406,6 +406,9 @@ class Sequence {
     if (amount > sequence.length) {
       return sequence;
     }
+    if (amount < 0) {
+      amount = 0;
+    }
     var takeSequence = sequence.__makeSequence();
     takeSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
       if (reverse) {
@@ -933,7 +936,7 @@ function groupByFactory(seq, mapper, context, useKeys) {
 }
 
 function skipFactory(sequence, amount, useKeys) {
-  if (amount === 0) {
+  if (amount <= 0) {
     return sequence;
   }
   var skipSequence = sequence.__makeSequence();

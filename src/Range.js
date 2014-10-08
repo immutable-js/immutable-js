@@ -101,11 +101,11 @@ class Range extends IndexedSequence {
   }
 
   take(amount) {
-    return this.slice(0, amount);
+    return this.slice(0, Math.max(0, amount));
   }
 
   skip(amount) {
-    return this.slice(amount);
+    return this.slice(Math.max(0, amount));
   }
 
   __iterate(fn, reverse, reverseIndices) {

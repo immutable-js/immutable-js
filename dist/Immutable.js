@@ -505,6 +505,9 @@ var $Sequence = Sequence;
     if (amount > sequence.length) {
       return sequence;
     }
+    if (amount < 0) {
+      amount = 0;
+    }
     var takeSequence = sequence.__makeSequence();
     takeSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
       var $__0 = this;
@@ -951,7 +954,7 @@ function groupByFactory(seq, mapper, context, useKeys) {
   }));
 }
 function skipFactory(sequence, amount, useKeys) {
-  if (amount === 0) {
+  if (amount <= 0) {
     return sequence;
   }
   var skipSequence = sequence.__makeSequence();
@@ -2697,10 +2700,10 @@ var $Range = Range;
     return this.indexOf(searchValue);
   },
   take: function(amount) {
-    return this.slice(0, amount);
+    return this.slice(0, Math.max(0, amount));
   },
   skip: function(amount) {
-    return this.slice(amount);
+    return this.slice(Math.max(0, amount));
   },
   __iterate: function(fn, reverse, reverseIndices) {
     var maxIndex = this.length - 1;

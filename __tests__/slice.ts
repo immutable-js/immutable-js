@@ -47,7 +47,7 @@ describe('slice', () => {
     ]);
   })
 
-  it.only('slices an unindexed sequence', () => {
+  it('slices an unindexed sequence', () => {
     expect(Sequence({a:1,b:2,c:3}).slice(1).toObject()).toEqual({b:2,c:3});
     expect(Sequence({a:1,b:2,c:3}).slice(1, 2).toObject()).toEqual({b:2});
     expect(Sequence({a:1,b:2,c:3}).slice(0, 2).toObject()).toEqual({a:1,b:2});
@@ -88,7 +88,7 @@ describe('slice', () => {
   })
 
   it('creates a sliced vector in O(log32(n))', () => {
-    expect(Vector(1,2,3,4,5).slice(-3, -1).toVector().toArray()).toBe([3,4]);
+    expect(Vector(1,2,3,4,5).slice(-3, -1).toVector().toArray()).toEqual([3,4]);
   })
 
   check.it('works like Array.prototype.slice',
@@ -101,9 +101,21 @@ describe('slice', () => {
     expect(slicedV.toArray()).toEqual(slicedA);
   })
 
+  check.it('works like Array.prototype.slice on sparse array input',
+           [gen.array(gen.array([gen.posInt, gen.int])),
+            gen.array(gen.oneOf([gen.int, gen.undefined]), 0, 3)],
+           (entries, args) => {
+    var a = [];
+    entries.forEach(entry => a[entry[0]] = entry[1]);
+    var s = Sequence(a);
+    var slicedS = s.slice.apply(s, args);
+    var slicedA = a.slice.apply(a, args);
+    expect(slicedS.toArray()).toEqual(slicedA);
+  })
+
   describe('take', () => {
 
-    check.it('takes the first n from a list', [gen.int, gen.int], (len, num) => {
+    check.it('takes the first n from a list', [gen.int, gen.posInt], (len, num) => {
       var a = I.Range(0, len).toArray();
       var v = Vector.from(a);
       expect(v.take(num).toArray()).toEqual(a.slice(0, num));
