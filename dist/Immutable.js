@@ -272,13 +272,21 @@ var $Sequence = Sequence;
     }
     return this.filter(predicate, thisArg).count();
   },
-  countBy: function(mapper, context) {
-    var seq = this;
-    return OrderedMap.empty().withMutations((function(map) {
-      seq.forEach((function(value, key, collection) {
-        map.update(mapper(value, key, collection), increment);
-      }));
+  countBy: function(grouper, context) {
+    var $__0 = this;
+    var groupMap = {};
+    var groups = [];
+    this.forEach((function(v, k) {
+      var g = grouper.call(context, v, k, $__0);
+      var h = hash(g);
+      if (!groupMap.hasOwnProperty(h)) {
+        groupMap[h] = groups.length;
+        groups.push([g, 1]);
+      } else {
+        groups[groupMap[h]][1]++;
+      }
     }));
+    return $Sequence(groups).fromEntrySeq();
   },
   concat: function() {
     for (var values = [],
@@ -557,8 +565,8 @@ var $Sequence = Sequence;
   skipUntil: function(predicate, thisArg) {
     return this.skipWhile(not(predicate), thisArg);
   },
-  groupBy: function(mapper, context) {
-    return groupByFactory(this, mapper, context, true);
+  groupBy: function(grouper, context) {
+    return groupByFactory(this, grouper, context, true);
   },
   sort: function(comparator) {
     return this.sortBy(valueMapper, comparator);
@@ -754,8 +762,8 @@ var $IndexedSequence = IndexedSequence;
   skipWhile: function(predicate, thisArg) {
     return skipWhileFactory(this, predicate, thisArg, false);
   },
-  groupBy: function(mapper, context) {
-    return groupByFactory(this, mapper, context, false);
+  groupBy: function(grouper, context) {
+    return groupByFactory(this, grouper, context, false);
   },
   sortBy: function(mapper, comparator) {
     comparator = comparator || defaultComparator;
@@ -917,9 +925,6 @@ function returnTrue() {
 function returnThis() {
   return this;
 }
-function increment(value) {
-  return (value || 0) + 1;
-}
 function filterFactory(sequence, predicate, context, useKeys) {
   var filterSequence = sequence.__makeSequence();
   filterSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
@@ -935,19 +940,21 @@ function filterFactory(sequence, predicate, context, useKeys) {
   };
   return filterSequence;
 }
-function groupByFactory(seq, mapper, context, useKeys) {
-  var groups = OrderedMap.empty().withMutations((function(map) {
-    seq.forEach((function(value, key, collection) {
-      var groupKey = mapper.call(context, value, key, seq);
-      var group = map.get(groupKey);
-      if (!group) {
-        group = [];
-        map.set(groupKey, group);
-      }
-      group.push(useKeys ? [key, value] : value);
-    }));
+function groupByFactory(seq, grouper, context, useKeys) {
+  var groupMap = {};
+  var groups = [];
+  seq.forEach((function(v, k) {
+    var g = grouper.call(context, v, k, seq);
+    var h = hash(g);
+    var e = useKeys ? [k, v] : v;
+    if (!groupMap.hasOwnProperty(h)) {
+      groupMap[h] = groups.length;
+      groups.push([g, [e]]);
+    } else {
+      groups[groupMap[h]][1].push(e);
+    }
   }));
-  return groups.map(useKeys ? (function(group) {
+  return Sequence(groups).fromEntrySeq().map(useKeys ? (function(group) {
     return Sequence(group).fromEntrySeq();
   }) : (function(group) {
     return Sequence(group);

@@ -162,13 +162,20 @@ class Sequence {
     return this.filter(predicate, thisArg).count();
   }
 
-  countBy(mapper, context) {
-    var seq = this;
-    return OrderedMap.empty().withMutations(map => {
-      seq.forEach((value, key, collection) => {
-        map.update(mapper(value, key, collection), increment);
-      });
+  countBy(grouper, context) {
+    var groupMap = {};
+    var groups = [];
+    this.forEach((v, k) => {
+      var g = grouper.call(context, v, k, this);
+      var h = hash(g);
+      if (!groupMap.hasOwnProperty(h)) {
+        groupMap[h] = groups.length;
+        groups.push([g, 1]);
+      } else {
+        groups[groupMap[h]][1]++;
+      }
     });
+    return Sequence(groups).fromEntrySeq();
   }
 
   concat(...values) {
@@ -464,8 +471,8 @@ class Sequence {
     return this.skipWhile(not(predicate), thisArg);
   }
 
-  groupBy(mapper, context) {
-    return groupByFactory(this, mapper, context, true);
+  groupBy(grouper, context) {
+    return groupByFactory(this, grouper, context, true);
   }
 
   sort(comparator) {
@@ -677,8 +684,8 @@ class IndexedSequence extends Sequence {
     return skipWhileFactory(this, predicate, thisArg, false);
   }
 
-  groupBy(mapper, context) {
-    return groupByFactory(this, mapper, context, false);
+  groupBy(grouper, context) {
+    return groupByFactory(this, grouper, context, false);
   }
 
   sortBy(mapper, comparator) {
@@ -893,10 +900,6 @@ function returnThis() {
   return this;
 }
 
-function increment(value) {
-  return (value || 0) + 1;
-}
-
 /**
  * Sequence.prototype.filter and IndexedSequence.prototype.filter are so close
  * in behavior that it makes sense to build a factory with the few differences
@@ -917,19 +920,21 @@ function filterFactory(sequence, predicate, context, useKeys) {
   return filterSequence;
 }
 
-function groupByFactory(seq, mapper, context, useKeys) {
-  var groups = OrderedMap.empty().withMutations(map => {
-    seq.forEach((value, key, collection) => {
-      var groupKey = mapper.call(context, value, key, seq);
-      var group = map.get(groupKey);
-      if (!group) {
-        group = [];
-        map.set(groupKey, group);
-      }
-      group.push(useKeys ? [key, value] : value);
-    });
-  })
-  return groups.map(useKeys ?
+function groupByFactory(seq, grouper, context, useKeys) {
+  var groupMap = {};
+  var groups = [];
+  seq.forEach((v, k) => {
+    var g = grouper.call(context, v, k, seq);
+    var h = hash(g);
+    var e = useKeys ? [k, v] : v;
+    if (!groupMap.hasOwnProperty(h)) {
+      groupMap[h] = groups.length;
+      groups.push([g, [e]]);
+    } else {
+      groups[groupMap[h]][1].push(e);
+    }
+  });
+  return Sequence(groups).fromEntrySeq().map(useKeys ?
     group => Sequence(group).fromEntrySeq() :
     group => Sequence(group)
   );

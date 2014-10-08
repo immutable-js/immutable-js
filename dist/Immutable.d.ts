@@ -598,26 +598,26 @@ declare module 'immutable' {
     ): Sequence<K, V>;
 
     /**
-     * Returns a `Map` of counts, grouped by the return value of the
+     * Returns a `Sequence` of counts, grouped by the return value of the
      * `grouper` function.
      *
-     * Note: Because this returns a Map, this method is not lazy.
+     * Note: This is not a lazy operation.
      */
     countBy<G>(
       grouper: (value?: V, key?: K, seq?: Sequence<K, V>) => G,
       thisArg?: any
-    ): Map<G, number>;
+    ): Sequence<G, number>;
 
     /**
-     * Returns a `Map` of sequences, grouped by the return value of the
+     * Returns a `Sequence` of `Sequences`, grouped by the return value of the
      * `grouper` function.
      *
-     * Note: Because this returns a Map, this method is not lazy.
+     * Note: This is not a lazy operation.
      */
     groupBy<G>(
       grouper: (value?: V, key?: K, seq?: Sequence<K, V>) => G,
       thisArg?: any
-    ): Map<G, Sequence<K, V>>;
+    ): Sequence<G, Sequence<K, V>>;
 
     sort(comparator?: (valueA: V, valueB: V) => number): Sequence<K, V>;
 
@@ -823,13 +823,13 @@ declare module 'immutable' {
     ): IndexedSequence<T>;
 
     /**
-     * Returns Map<G, IndexedSequence<T>>
+     * Returns Sequence<G, IndexedSequence<T>>
      * @override
      */
     groupBy<G>(
       grouper: (value?: T, index?: number, seq?: IndexedSequence<T>) => G,
       thisArg?: any
-    ): Map<G, any/*IndexedSequence<T>*/>; // Bug: exposing this causes the type checker to implode.
+    ): Sequence<G, any/*IndexedSequence<T>*/>; // Bug: exposing this causes the type checker to implode.
 
     /**
      * Returns an IndexedSequence
