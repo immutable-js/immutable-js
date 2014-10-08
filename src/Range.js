@@ -107,8 +107,8 @@ class Range extends IndexedSequence {
     return this.slice(0, amount);
   }
 
-  skip(amount, maintainIndices) {
-    return maintainIndices ? super.skip(amount) : this.slice(amount);
+  skip(amount) {
+    return this.slice(amount);
   }
 
   __iterate(fn, reverse, flipIndices) {

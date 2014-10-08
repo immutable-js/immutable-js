@@ -61,8 +61,8 @@ class Repeat extends IndexedSequence {
     return end > begin ? new Repeat(this._value, end - begin) : EMPTY_REPEAT;
   }
 
-  reverse(maintainIndices) {
-    return maintainIndices ? super.reverse(maintainIndices) : this;
+  reverse() {
+    return this;
   }
 
   indexOf(searchValue) {

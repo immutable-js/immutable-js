@@ -2828,8 +2828,8 @@ var $Range = Range;
   take: function(amount) {
     return this.slice(0, amount);
   },
-  skip: function(amount, maintainIndices) {
-    return maintainIndices ? $traceurRuntime.superCall(this, $Range.prototype, "skip", [amount]) : this.slice(amount);
+  skip: function(amount) {
+    return this.slice(amount);
   },
   __iterate: function(fn, reverse, flipIndices) {
     var maxIndex = this.length - 1;
@@ -2888,8 +2888,8 @@ var $Repeat = Repeat;
     end = end == null ? length : end > 0 ? Math.min(length, end) : Math.max(0, length + end);
     return end > begin ? new $Repeat(this._value, end - begin) : EMPTY_REPEAT;
   },
-  reverse: function(maintainIndices) {
-    return maintainIndices ? $traceurRuntime.superCall(this, $Repeat.prototype, "reverse", [maintainIndices]) : this;
+  reverse: function() {
+    return this;
   },
   indexOf: function(searchValue) {
     if (is(this._value, searchValue)) {
