@@ -329,23 +329,21 @@ var $Sequence = Sequence;
     valuesSequence.length = sequence.length;
     valuesSequence.valueSeq = returnThis;
     valuesSequence.__iterateUncached = function(fn, reverse, flipIndices) {
-      if (flipIndices && this.length == null) {
-        return this.cacheResult().__iterate(fn, reverse, flipIndices);
-      }
+      var $__0 = this;
       var iterations = 0;
       var predicate;
       if (flipIndices) {
-        iterations = this.length - 1;
+        var maxIndex = this.length - 1;
         predicate = (function(v, k, c) {
-          return fn(v, iterations--, c) !== false;
+          return fn(v, maxIndex - iterations++, $__0) !== false;
         });
       } else {
         predicate = (function(v, k, c) {
-          return fn(v, iterations++, c) !== false;
+          return fn(v, iterations++, $__0) !== false;
         });
       }
       sequence.__iterate(predicate, reverse);
-      return flipIndices ? this.length : iterations;
+      return iterations;
     };
     return valuesSequence;
   },

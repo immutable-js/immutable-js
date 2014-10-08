@@ -215,19 +215,16 @@ class Sequence {
     valuesSequence.length = sequence.length;
     valuesSequence.valueSeq = returnThis;
     valuesSequence.__iterateUncached = function (fn, reverse, flipIndices) {
-      if (flipIndices && this.length == null) {
-        return this.cacheResult().__iterate(fn, reverse, flipIndices);
-      }
       var iterations = 0;
       var predicate;
       if (flipIndices) {
-        iterations = this.length - 1;
-        predicate = (v, k, c) => fn(v, iterations--, c) !== false;
+        var maxIndex = this.length - 1;
+        predicate = (v, k, c) => fn(v, maxIndex - iterations++, this) !== false;
       } else {
-        predicate = (v, k, c) => fn(v, iterations++, c) !== false;
+        predicate = (v, k, c) => fn(v, iterations++, this) !== false;
       }
       sequence.__iterate(predicate, reverse); // intentionally do not pass flipIndices
-      return flipIndices ? this.length : iterations;
+      return iterations;
     }
     return valuesSequence;
   }
