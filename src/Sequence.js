@@ -1040,19 +1040,19 @@ function increment(value) {
  * in behavior that it makes sense to build a factory with the few differences
  * encoded as booleans.
  */
-function filterFactory(sequence, predicate, thisArg, useKeys) {
+function filterFactory(sequence, predicate, context, useKeys) {
   var filterSequence = sequence.__makeSequence();
   filterSequence.__iterateUncached = function (fn, reverse, flipIndices) {
     var iterations = 0;
     sequence.__iterate((v, k, c) => {
-      if (predicate.call(thisArg, v, k, c)) {
+      if (predicate.call(context, v, k, c)) {
         if (fn(v, useKeys ? k : iterations, this) !== false) {
           iterations++;
         } else {
           return false;
         }
       }
-    }, reverse, flipIndices);
+    }, reverse);
     return iterations;
   };
   return filterSequence;

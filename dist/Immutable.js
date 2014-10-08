@@ -1056,20 +1056,20 @@ function returnThis() {
 function increment(value) {
   return (value || 0) + 1;
 }
-function filterFactory(sequence, predicate, thisArg, useKeys) {
+function filterFactory(sequence, predicate, context, useKeys) {
   var filterSequence = sequence.__makeSequence();
   filterSequence.__iterateUncached = function(fn, reverse, flipIndices) {
     var $__0 = this;
     var iterations = 0;
     sequence.__iterate((function(v, k, c) {
-      if (predicate.call(thisArg, v, k, c)) {
+      if (predicate.call(context, v, k, c)) {
         if (fn(v, useKeys ? k : iterations, $__0) !== false) {
           iterations++;
         } else {
           return false;
         }
       }
-    }), reverse, flipIndices);
+    }), reverse);
     return iterations;
   };
   return filterSequence;
