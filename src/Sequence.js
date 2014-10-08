@@ -558,27 +558,19 @@ class Sequence {
 
   // abstract __iterateUncached(fn, reverse)
 
-  __iterate(fn, reverse, flipIndices) {
-    if (!this._cache) {
-      return this.__iterateUncached(fn, reverse, flipIndices);
-    }
-    var maxIndex = this.length - 1;
+  __iterate(fn, reverse) {
     var cache = this._cache;
-    var c = this;
-    if (reverse) {
-      for (var ii = cache.length - 1; ii >= 0; ii--) {
-        var revEntry = cache[ii];
-        if (fn(revEntry[1], flipIndices ? revEntry[0] : maxIndex - revEntry[0], c) === false) {
+    if (cache) {
+      var maxIndex = cache.length - 1;
+      for (var ii = 0; ii <= maxIndex; ii++) {
+        var entry = cache[reverse ? maxIndex - ii : ii];
+        if (fn(entry[1], entry[0], this) === false) {
           break;
         }
       }
-    } else {
-      cache.every(flipIndices ?
-        entry => fn(entry[1], maxIndex - entry[0], c) !== false :
-        entry => fn(entry[1], entry[0], c) !== false
-      );
+      return ii;
     }
-    return this.length;
+    return this.__iterateUncached(fn, reverse);
   }
 
   __makeSequence() {
@@ -642,12 +634,6 @@ class IndexedSequence extends Sequence {
       (sum, seq) => sum != null && seq.length != null ? sum + seq.length : undefined, 0
     );
     concatSequence.__iterateUncached = function(fn, reverse, flipIndices) {
-      if (flipIndices && !this.length) {
-        // In order to reverse indices, first we must create a cached
-        // representation. This ensures we will have the correct total length
-        // so index reversal works as expected.
-        return this.cacheResult().__iterate(fn, reverse, flipIndices);
-      }
       var iterations = 0;
       var stoppedIteration;
       var maxIndex = flipIndices && this.length - 1;
@@ -677,12 +663,6 @@ class IndexedSequence extends Sequence {
     reversedSequence.length = sequence.length;
     reversedSequence.__reversedIndices = sequence.__reversedIndices;
     reversedSequence.__iterateUncached = function (fn, reverse, flipIndices) {
-      if (flipIndices && !this.length) {
-        // In order to reverse indices, first we must create a cached
-        // representation. This ensures we will have the correct total length
-        // so index reversal works as expected.
-        return this.cacheResult().__iterate(fn, reverse, flipIndices);
-      }
       var i = flipIndices ? this.length : 0;
       return sequence.__iterate(
         v => fn(v, flipIndices ? --i : i++, this) !== false,
@@ -872,6 +852,29 @@ class IndexedSequence extends Sequence {
   }
 
   // abstract __iterateUncached(fn, reverse, flipIndices)
+
+  __iterate(fn, reverse, flipIndices) {
+    var cache = this._cache;
+    if (cache) {
+      flipIndices ^= reverse;
+      var maxIndex = cache.length - 1;
+      for (var ii = 0; ii <= maxIndex; ii++) {
+        var entry = cache[reverse ? maxIndex - ii : ii];
+        var key = entry[0];
+        if (fn(entry[1], flipIndices ? maxIndex - key : key, this) === false) {
+          break;
+        }
+      }
+      return ii;
+    }
+    if (flipIndices && !this.length) {
+      // In order to reverse indices, first we must create a cached
+      // representation. This ensures we will have the correct total length
+      // so index reversal works as expected.
+      return this.cacheResult().__iterate(fn, reverse, flipIndices);
+    }
+    return this.__iterateUncached(fn, reverse, flipIndices);
+  }
 
   __makeSequence() {
     return makeIndexedSequence(this);

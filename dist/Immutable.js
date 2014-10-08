@@ -639,28 +639,19 @@ var $Sequence = Sequence;
     }
     return this;
   },
-  __iterate: function(fn, reverse, flipIndices) {
-    if (!this._cache) {
-      return this.__iterateUncached(fn, reverse, flipIndices);
-    }
-    var maxIndex = this.length - 1;
+  __iterate: function(fn, reverse) {
     var cache = this._cache;
-    var c = this;
-    if (reverse) {
-      for (var ii = cache.length - 1; ii >= 0; ii--) {
-        var revEntry = cache[ii];
-        if (fn(revEntry[1], flipIndices ? revEntry[0] : maxIndex - revEntry[0], c) === false) {
+    if (cache) {
+      var maxIndex = cache.length - 1;
+      for (var ii = 0; ii <= maxIndex; ii++) {
+        var entry = cache[reverse ? maxIndex - ii : ii];
+        if (fn(entry[1], entry[0], this) === false) {
           break;
         }
       }
-    } else {
-      cache.every(flipIndices ? (function(entry) {
-        return fn(entry[1], maxIndex - entry[0], c) !== false;
-      }) : (function(entry) {
-        return fn(entry[1], entry[0], c) !== false;
-      }));
+      return ii;
     }
-    return this.length;
+    return this.__iterateUncached(fn, reverse);
   },
   __makeSequence: function() {
     return makeSequence();
@@ -738,9 +729,6 @@ var $IndexedSequence = IndexedSequence;
     }), 0);
     concatSequence.__iterateUncached = function(fn, reverse, flipIndices) {
       var $__0 = this;
-      if (flipIndices && !this.length) {
-        return this.cacheResult().__iterate(fn, reverse, flipIndices);
-      }
       var iterations = 0;
       var stoppedIteration;
       var maxIndex = flipIndices && this.length - 1;
@@ -772,9 +760,6 @@ var $IndexedSequence = IndexedSequence;
     reversedSequence.__reversedIndices = sequence.__reversedIndices;
     reversedSequence.__iterateUncached = function(fn, reverse, flipIndices) {
       var $__0 = this;
-      if (flipIndices && !this.length) {
-        return this.cacheResult().__iterate(fn, reverse, flipIndices);
-      }
       var i = flipIndices ? this.length : 0;
       return sequence.__iterate((function(v) {
         return fn(v, flipIndices ? --i : i++, $__0) !== false;
@@ -929,6 +914,25 @@ var $IndexedSequence = IndexedSequence;
     return Sequence(this.entrySeq().toArray().sort((function(a, b) {
       return comparator(mapper(a[1], a[0], seq), mapper(b[1], b[0], seq)) || a[0] - b[0];
     }))).fromEntrySeq().valueSeq();
+  },
+  __iterate: function(fn, reverse, flipIndices) {
+    var cache = this._cache;
+    if (cache) {
+      flipIndices ^= reverse;
+      var maxIndex = cache.length - 1;
+      for (var ii = 0; ii <= maxIndex; ii++) {
+        var entry = cache[reverse ? maxIndex - ii : ii];
+        var key = entry[0];
+        if (fn(entry[1], flipIndices ? maxIndex - key : key, this) === false) {
+          break;
+        }
+      }
+      return ii;
+    }
+    if (flipIndices && !this.length) {
+      return this.cacheResult().__iterate(fn, reverse, flipIndices);
+    }
+    return this.__iterateUncached(fn, reverse, flipIndices);
   },
   __makeSequence: function() {
     return makeIndexedSequence(this);
