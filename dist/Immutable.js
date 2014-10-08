@@ -327,7 +327,6 @@ var $Sequence = Sequence;
     var sequence = this;
     var valuesSequence = makeIndexedSequence(sequence);
     valuesSequence.length = sequence.length;
-    valuesSequence.valueSeq = returnThis;
     valuesSequence.__iterateUncached = function(fn, reverse, flipIndices) {
       var $__0 = this;
       var iterations = 0;
@@ -690,6 +689,9 @@ var $IndexedSequence = IndexedSequence;
   },
   toKeyedSeq: function() {
     return new KeyedIndexedSequence(this);
+  },
+  valueSeq: function() {
+    return this;
   },
   fromEntrySeq: function() {
     var sequence = this;

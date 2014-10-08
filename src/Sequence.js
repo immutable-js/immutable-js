@@ -213,7 +213,6 @@ class Sequence {
     var sequence = this;
     var valuesSequence = makeIndexedSequence(sequence);
     valuesSequence.length = sequence.length;
-    valuesSequence.valueSeq = returnThis;
     valuesSequence.__iterateUncached = function (fn, reverse, flipIndices) {
       var iterations = 0;
       var predicate;
@@ -593,6 +592,10 @@ class IndexedSequence extends Sequence {
 
   toKeyedSeq() {
     return new KeyedIndexedSequence(this);
+  }
+
+  valueSeq() {
+    return this;
   }
 
   fromEntrySeq() {
