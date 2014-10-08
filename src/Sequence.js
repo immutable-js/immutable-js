@@ -615,6 +615,10 @@ class IndexedSequence extends Sequence {
     return array;
   }
 
+  toKeyedSeq() {
+    return new KeyedIndexedSequence(this);
+  }
+
   fromEntrySeq() {
     var sequence = this;
     var fromEntriesSequence = makeSequence();
@@ -829,7 +833,7 @@ class IndexedSequence extends Sequence {
             indexOffset = ii;
           }
         }
-        return isSkipping || fn(v, flipIndices || maintainIndices ? ii : ii - indexOffset, this) !== false;
+        return isSkipping || fn(v, reversedIndices || maintainIndices ? ii : ii - indexOffset, this) !== false;
       }, reverse, flipIndices);
       return maintainIndices ? length : reversedIndices ? indexOffset + 1 : length - indexOffset;
     };
@@ -858,7 +862,7 @@ class IndexedSequence extends Sequence {
             indexOffset = ii;
           }
         }
-        return isSkipping || fn(v, flipIndices || maintainIndices ? ii : ii - indexOffset, this) !== false;
+        return isSkipping || fn(v, reversedIndices || maintainIndices ? ii : ii - indexOffset, this) !== false;
       }, reverse, flipIndices);
       return maintainIndices ? length : reversedIndices ? indexOffset + 1 : length - indexOffset;
     };
@@ -901,6 +905,26 @@ var IndexedSequencePrototype = IndexedSequence.prototype;
 IndexedSequencePrototype.__toJS = IndexedSequencePrototype.toArray;
 IndexedSequencePrototype.__toStringMapper = quoteString;
 IndexedSequencePrototype.chain = IndexedSequencePrototype.flatMap;
+
+
+class KeyedIndexedSequence extends Sequence {
+  constructor(indexedSeq) {
+    this._seq = indexedSeq;
+    this.length = indexedSeq.length;
+  }
+
+  get(key, notSetValue) {
+    return this._seq.get(key, notSetValue);
+  }
+
+  has(key) {
+    return this._seq.has(key);
+  }
+
+  __iterate(fn, reverse) {
+    return this._seq.__iterate(fn, reverse, reverse);
+  }
+}
 
 
 class ObjectSequence extends Sequence {

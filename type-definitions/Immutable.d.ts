@@ -626,6 +626,27 @@ declare module 'immutable' {
   export interface IndexedSequence<T> extends Sequence<number, T> {
 
     /**
+     * Returns a new Sequence identical to this one, but does not behave as
+     * indexed. Instead the indices are treated as keys. This is useful if you
+     * want to operate on an IndexedSequence and preserve the index, value
+     * pairs.
+     *
+     * This is the generalized (and lazy) form of converting a Vector to Map.
+     *
+     * The returned Sequence will have identical iteration order as
+     * this Sequence.
+     *
+     * Example:
+     *
+     *     var indexedSeq = Immutable.Sequence('A', 'B', 'C');
+     *     indexedSeq.filter(v => v === 'B').toString() // Seq [ 'B' ]
+     *     var keyedSeq = indexedSeq.toKeyedSeq();
+     *     keyedSeq.filter(v => v === 'B').toString() // Seq { 1: 'B' }
+     *
+     */
+    toKeyedSeq(): Sequence<number, T>;
+
+    /**
      * If this is a sequence of entries (key-value tuples), it will return a
      * sequence of those entries.
      */

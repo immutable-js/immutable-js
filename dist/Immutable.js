@@ -710,6 +710,9 @@ var $IndexedSequence = IndexedSequence;
     }));
     return array;
   },
+  toKeyedSeq: function() {
+    return new KeyedIndexedSequence(this);
+  },
   fromEntrySeq: function() {
     var sequence = this;
     var fromEntriesSequence = makeSequence();
@@ -897,7 +900,7 @@ var $IndexedSequence = IndexedSequence;
             indexOffset = ii;
           }
         }
-        return isSkipping || fn(v, flipIndices || maintainIndices ? ii : ii - indexOffset, $__0) !== false;
+        return isSkipping || fn(v, reversedIndices || maintainIndices ? ii : ii - indexOffset, $__0) !== false;
       }), reverse, flipIndices);
       return maintainIndices ? length : reversedIndices ? indexOffset + 1 : length - indexOffset;
     };
@@ -925,7 +928,7 @@ var $IndexedSequence = IndexedSequence;
             indexOffset = ii;
           }
         }
-        return isSkipping || fn(v, flipIndices || maintainIndices ? ii : ii - indexOffset, $__0) !== false;
+        return isSkipping || fn(v, reversedIndices || maintainIndices ? ii : ii - indexOffset, $__0) !== false;
       }), reverse, flipIndices);
       return maintainIndices ? length : reversedIndices ? indexOffset + 1 : length - indexOffset;
     };
@@ -964,6 +967,21 @@ var IndexedSequencePrototype = IndexedSequence.prototype;
 IndexedSequencePrototype.__toJS = IndexedSequencePrototype.toArray;
 IndexedSequencePrototype.__toStringMapper = quoteString;
 IndexedSequencePrototype.chain = IndexedSequencePrototype.flatMap;
+var KeyedIndexedSequence = function KeyedIndexedSequence(indexedSeq) {
+  this._seq = indexedSeq;
+  this.length = indexedSeq.length;
+};
+($traceurRuntime.createClass)(KeyedIndexedSequence, {
+  get: function(key, notSetValue) {
+    return this._seq.get(key, notSetValue);
+  },
+  has: function(key) {
+    return this._seq.has(key);
+  },
+  __iterate: function(fn, reverse) {
+    return this._seq.__iterate(fn, reverse, reverse);
+  }
+}, {}, Sequence);
 var ObjectSequence = function ObjectSequence(object) {
   var keys = Object.keys(object);
   this._object = object;
