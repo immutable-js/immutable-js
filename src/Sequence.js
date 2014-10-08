@@ -439,13 +439,9 @@ class Sequence {
         return this.cacheResult().__iterate(fn, reverse, flipIndices);
       }
       var iterations = 0;
-      sequence.__iterate((v, k, c) => {
-        if (predicate.call(thisArg, v, k, c) && fn(v, k, this) !== false) {
-          iterations++;
-        } else {
-          return false;
-        }
-      });
+      sequence.__iterate((v, k, c) =>
+        predicate.call(thisArg, v, k, c) && ++iterations && fn(v, k, this)
+      );
       return iterations;
     };
     return takeSequence;

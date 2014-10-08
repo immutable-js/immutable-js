@@ -539,11 +539,7 @@ var $Sequence = Sequence;
       }
       var iterations = 0;
       sequence.__iterate((function(v, k, c) {
-        if (predicate.call(thisArg, v, k, c) && fn(v, k, $__0) !== false) {
-          iterations++;
-        } else {
-          return false;
-        }
+        return predicate.call(thisArg, v, k, c) && ++iterations && fn(v, k, $__0);
       }));
       return iterations;
     };
