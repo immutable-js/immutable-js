@@ -75,14 +75,6 @@ class Vector extends IndexedSequence {
     return node && node.array[index & MASK];
   }
 
-  first() {
-    return this.get(0);
-  }
-
-  last() {
-    return this.get(this.length ? this.length - 1 : 0);
-  }
-
   // @pragma Modification
 
   set(index, value) {

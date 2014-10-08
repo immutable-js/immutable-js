@@ -43,14 +43,6 @@ class Repeat extends IndexedSequence {
     return this.has(index) ? this._value : notSetValue;
   }
 
-  first() {
-    return this._value;
-  }
-
-  last() {
-    return this._value;
-  }
-
   contains(searchValue) {
     return is(this._value, searchValue);
   }

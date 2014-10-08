@@ -704,6 +704,12 @@ var $IndexedSequence = IndexedSequence;
       return key === index;
     }), null, notSetValue);
   },
+  first: function() {
+    return this.get(0);
+  },
+  last: function() {
+    return this.get(this.length ? this.length - 1 : 0);
+  },
   indexOf: function(searchValue) {
     return this.findIndex((function(value) {
       return is(value, searchValue);
@@ -1707,12 +1713,6 @@ var $Vector = Vector;
     index += this._origin;
     var node = vectorNodeFor(this, index);
     return node && node.array[index & MASK];
-  },
-  first: function() {
-    return this.get(0);
-  },
-  last: function() {
-    return this.get(this.length ? this.length - 1 : 0);
   },
   set: function(index, value) {
     return updateVector(this, index, value);
@@ -2757,12 +2757,6 @@ var $Repeat = Repeat;
   },
   get: function(index, notSetValue) {
     return this.has(index) ? this._value : notSetValue;
-  },
-  first: function() {
-    return this._value;
-  },
-  last: function() {
-    return this._value;
   },
   contains: function(searchValue) {
     return is(this._value, searchValue);

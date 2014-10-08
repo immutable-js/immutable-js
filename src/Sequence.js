@@ -612,6 +612,14 @@ class IndexedSequence extends Sequence {
     return this.find((_, key) => key === index, null, notSetValue);
   }
 
+  first() {
+    return this.get(0);
+  }
+
+  last() {
+    return this.get(this.length ? this.length - 1 : 0);
+  }
+
   indexOf(searchValue) {
     return this.findIndex(value => is(value, searchValue));
   }
