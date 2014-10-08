@@ -107,7 +107,6 @@ describe('Vector', () => {
     expect(v3.butLast().toArray()).toEqual([]);
   });
 
-
   it('can set at arbitrary indices', () => {
     var v0 = Vector('a', 'b', 'c');
     var v1 = v0.set(1, 'B'); // within existing tail

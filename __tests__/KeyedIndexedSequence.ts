@@ -61,11 +61,8 @@ describe('KeyedIndexedSequence', () => {
       [96, 96],
       [95, 95],
     ]);
-
   });
 
-
-/* TODO: fix this test
   it('works with double reverse', () => {
     var seq = Immutable.Range(0, 100);
 
@@ -86,8 +83,6 @@ describe('KeyedIndexedSequence', () => {
       [11, 88],
       [10, 89],
     ]);
-
   });
-*/
 
 });
