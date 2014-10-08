@@ -794,10 +794,10 @@ declare module 'immutable' {
     ): IndexedSequence<T>;
 
     /**
-     * Has the same altered behavior as `skipWhile`.
+     * Returns IndexedSequence
      * @override
      */
-    skip(amount: number, maintainIndices?: boolean): IndexedSequence<T>;
+    skip(amount: number): IndexedSequence<T>;
 
     /**
      * Returns IndexedSequence
@@ -806,25 +806,21 @@ declare module 'immutable' {
     skipLast(amount: number): IndexedSequence<T>;
 
     /**
-     * Indexed sequences have a different `skipWhile` behavior. The first
-     * non-skipped value will have an index of 0. If you want to preserve the
-     * original indicies, set maintainIndices to true.
+     * Returns IndexedSequence
      * @override
      */
     skipWhile(
       predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
-      thisArg?: any,
-      maintainIndices?: boolean
+      thisArg?: any
     ): IndexedSequence<T>;
 
     /**
-     * Has the same altered behavior as `skipWhile`.
+     * Returns IndexedSequence
      * @override
      */
     skipUntil(
       predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
-      thisArg?: any,
-      maintainIndices?: boolean
+      thisArg?: any
     ): IndexedSequence<T>;
 
     /**

@@ -559,7 +559,7 @@ var $Sequence = Sequence;
   takeUntil: function(predicate, thisArg, maintainIndices) {
     return this.takeWhile(not(predicate), thisArg, maintainIndices);
   },
-  skip: function(amount, maintainIndices) {
+  skip: function(amount) {
     var sequence = this;
     if (amount === 0) {
       return sequence;
@@ -590,7 +590,7 @@ var $Sequence = Sequence;
   skipLast: function(amount) {
     return this.reverse().skip(amount).reverse();
   },
-  skipWhile: function(predicate, thisArg, maintainIndices) {
+  skipWhile: function(predicate, thisArg) {
     var sequence = this;
     var skipSequence = sequence.__makeSequence();
     skipSequence.__iterateUncached = function(fn, reverse, flipIndices) {
@@ -613,8 +613,8 @@ var $Sequence = Sequence;
     };
     return skipSequence;
   },
-  skipUntil: function(predicate, thisArg, maintainIndices) {
-    return this.skipWhile(not(predicate), thisArg, maintainIndices);
+  skipUntil: function(predicate, thisArg) {
+    return this.skipWhile(not(predicate), thisArg);
   },
   groupBy: function(mapper, context) {
     var seq = this;
@@ -878,15 +878,12 @@ var $IndexedSequence = IndexedSequence;
   flatMap: function(mapper, thisArg) {
     return this.map(mapper, thisArg).flatten();
   },
-  skip: function(amount, maintainIndices) {
+  skip: function(amount) {
     var sequence = this;
     if (amount === 0) {
       return sequence;
     }
     var skipSequence = sequence.__makeSequence();
-    if (maintainIndices) {
-      skipSequence.length = this.length;
-    }
     skipSequence.__iterateUncached = function(fn, reverse, flipIndices) {
       var $__0 = this;
       if (reverse) {
@@ -903,19 +900,16 @@ var $IndexedSequence = IndexedSequence;
             indexOffset = ii;
           }
         }
-        return isSkipping || fn(v, reversedIndices || maintainIndices ? ii : ii - indexOffset, $__0) !== false;
+        return isSkipping || fn(v, reversedIndices ? ii : ii - indexOffset, $__0) !== false;
       }), reverse, flipIndices);
-      return maintainIndices ? length : reversedIndices ? indexOffset + 1 : length - indexOffset;
+      return reversedIndices ? indexOffset + 1 : length - indexOffset;
     };
     skipSequence.length = this.length && Math.max(0, this.length - amount);
     return skipSequence;
   },
-  skipWhile: function(predicate, thisArg, maintainIndices) {
+  skipWhile: function(predicate, thisArg) {
     var sequence = this;
     var skipWhileSequence = sequence.__makeSequence();
-    if (maintainIndices) {
-      skipWhileSequence.length = this.length;
-    }
     skipWhileSequence.__iterateUncached = function(fn, reverse, flipIndices) {
       var $__0 = this;
       if (reverse) {
@@ -931,9 +925,9 @@ var $IndexedSequence = IndexedSequence;
             indexOffset = ii;
           }
         }
-        return isSkipping || fn(v, reversedIndices || maintainIndices ? ii : ii - indexOffset, $__0) !== false;
+        return isSkipping || fn(v, reversedIndices ? ii : ii - indexOffset, $__0) !== false;
       }), reverse, flipIndices);
-      return maintainIndices ? length : reversedIndices ? indexOffset + 1 : length - indexOffset;
+      return reversedIndices ? indexOffset + 1 : length - indexOffset;
     };
     return skipWhileSequence;
   },
