@@ -593,7 +593,6 @@ class IndexedSequence extends Sequence {
     var reversedSequence = sequence.__makeSequence();
     reversedSequence.reverse = () => sequence;
     reversedSequence.length = sequence.length;
-    reversedSequence.__reversedIndices = sequence.__reversedIndices;
     reversedSequence.__iterateUncached = function (fn, reverse, flipIndices) {
       var i = flipIndices ? this.length : 0;
       return sequence.__iterate(
@@ -841,9 +840,7 @@ function makeSequence() {
 }
 
 function makeIndexedSequence(parent) {
-  var newSequence = Object.create(IndexedSequencePrototype);
-  newSequence.__reversedIndices = parent ? parent.__reversedIndices : false;
-  return newSequence;
+  return Object.create(IndexedSequencePrototype);
 }
 
 function getInDeepSequence(seq, keyPath, notSetValue, pathOffset) {

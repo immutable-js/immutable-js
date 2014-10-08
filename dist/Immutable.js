@@ -686,7 +686,6 @@ var $IndexedSequence = IndexedSequence;
       return sequence;
     });
     reversedSequence.length = sequence.length;
-    reversedSequence.__reversedIndices = sequence.__reversedIndices;
     reversedSequence.__iterateUncached = function(fn, reverse, flipIndices) {
       var $__0 = this;
       var i = flipIndices ? this.length : 0;
@@ -887,9 +886,7 @@ function makeSequence() {
   return Object.create(SequencePrototype);
 }
 function makeIndexedSequence(parent) {
-  var newSequence = Object.create(IndexedSequencePrototype);
-  newSequence.__reversedIndices = parent ? parent.__reversedIndices : false;
-  return newSequence;
+  return Object.create(IndexedSequencePrototype);
 }
 function getInDeepSequence(seq, keyPath, notSetValue, pathOffset) {
   var nested = seq.get ? seq.get(keyPath[pathOffset], NOT_SET) : NOT_SET;
