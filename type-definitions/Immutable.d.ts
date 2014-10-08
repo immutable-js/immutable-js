@@ -719,20 +719,6 @@ declare module 'immutable' {
     splice(index: number, removeNum: number, ...values: any[]): IndexedSequence<T>;
 
     /**
-     * When IndexedSequence is converted to an array, the index keys are
-     * maintained. This differs from the behavior of Sequence which
-     * simply makes a dense array of all values.
-     * @override
-     */
-    toArray(): Array<T>;
-
-    /**
-     * This has the same altered behavior as `toArray`.
-     * @override
-     */
-    toVector(): Vector<T>;
-
-    /**
      * Returns the value associated with the provided index, or notSetValue if
      * the index is beyond the bounds of the sequence.
      *

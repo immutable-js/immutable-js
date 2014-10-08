@@ -526,13 +526,6 @@ class IndexedSequence extends Sequence {
     return this.__toString('Seq [', ']');
   }
 
-  toArray() {
-    assertNotInfinite(this.length);
-    var array = new Array(this.length || 0);
-    array.length = this.forEach((v, i) => { array[i] = v; });
-    return array;
-  }
-
   toKeyedSeq() {
     return new KeyedIndexedSequence(this);
   }

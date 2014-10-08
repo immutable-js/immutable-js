@@ -620,14 +620,6 @@ var $IndexedSequence = IndexedSequence;
   toString: function() {
     return this.__toString('Seq [', ']');
   },
-  toArray: function() {
-    assertNotInfinite(this.length);
-    var array = new Array(this.length || 0);
-    array.length = this.forEach((function(v, i) {
-      array[i] = v;
-    }));
-    return array;
-  },
   toKeyedSeq: function() {
     return new KeyedIndexedSequence(this);
   },
