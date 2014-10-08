@@ -1854,10 +1854,7 @@ var $Vector = Vector;
       return makeVector(0, sequence.length, SHIFT, null, new VNode(isArray ? arrCopy(sequence) : Sequence(sequence).toArray()));
     }
     if (!isArray) {
-      sequence = Sequence(sequence);
-      if (!(sequence instanceof IndexedSequence)) {
-        sequence = sequence.valueSeq();
-      }
+      sequence = Sequence(sequence).valueSeq();
     }
     return $Vector.empty().merge(sequence);
   }

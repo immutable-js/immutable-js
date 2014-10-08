@@ -46,10 +46,7 @@ class Vector extends IndexedSequence {
       ));
     }
     if (!isArray) {
-      sequence = Sequence(sequence);
-      if (!(sequence instanceof IndexedSequence)) {
-        sequence = sequence.valueSeq();
-      }
+      sequence = Sequence(sequence).valueSeq();
     }
     return Vector.empty().merge(sequence);
   }
