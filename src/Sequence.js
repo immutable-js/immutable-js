@@ -418,13 +418,9 @@ class Sequence {
         return this.cacheResult().__iterate(fn, reverse, flipIndices);
       }
       var iterations = 0;
-      sequence.__iterate((v, k) => {
-        if (iterations < amount && fn(v, k, this) !== false) {
-          iterations++;
-        } else {
-          return false;
-        }
-      });
+      sequence.__iterate((v, k) =>
+        iterations < amount && ++iterations && fn(v, k, this)
+      );
       return iterations;
     };
     takeSequence.length = this.length && Math.min(this.length, amount);

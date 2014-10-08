@@ -519,11 +519,7 @@ var $Sequence = Sequence;
       }
       var iterations = 0;
       sequence.__iterate((function(v, k) {
-        if (iterations < amount && fn(v, k, $__0) !== false) {
-          iterations++;
-        } else {
-          return false;
-        }
+        return iterations < amount && ++iterations && fn(v, k, $__0);
       }));
       return iterations;
     };
