@@ -155,6 +155,67 @@ declare module 'immutable' {
 
   export interface Sequence<K, V> {
 
+    // ### Conversion to other types
+
+    /**
+     * Converts this sequence to an Array, discarding keys.
+     */
+    toArray(): Array<V>;
+
+    /**
+     * Deeply converts this sequence to equivalent JS.
+     *
+     * IndexedSequences, Vectors, Ranges, Repeats and Sets become Arrays, while
+     * other Sequences become Objects.
+     */
+    toJS(): any;
+
+    /**
+     * Converts this sequence to a Map, Throws if keys are not hashable.
+     *
+     * Note: This is equivalent to `Map.from(this)`, but provided to allow for
+     * chained expressions.
+     */
+    toMap(): Map<K, V>;
+
+    /**
+     * Converts this sequence to an Object. Throws if keys are not strings.
+     */
+    toObject(): Object;
+
+    /**
+     * Converts this sequence to a Map, maintaining the order of iteration.
+     *
+     * Note: This is equivalent to `OrderedMap.from(this)`, but provided to
+     * allow for chained expressions.
+     */
+    toOrderedMap(): Map<K, V>;
+
+    /**
+     * Converts this sequence to a Set, discarding keys. Throws if values
+     * are not hashable.
+     *
+     * Note: This is equivalent to `Set.from(this)`, but provided to allow for
+     * chained expressions.
+     */
+    toSet(): Set<V>;
+
+    /**
+     * Converts this sequence to a Vector, discarding keys.
+     *
+     * Note: This is equivalent to `Vector.from(this)`, but provided to allow
+     * for chained expressions.
+     */
+    toVector(): Vector<V>;
+
+
+    // ### Common JavaScript methods and properties
+
+    /**
+     * Deeply converts this sequence to a string.
+     */
+    toString(): string;
+
     /**
      * Some sequences can describe their length lazily. When this is the case,
      * length will be an integer. Otherwise it will be undefined.
@@ -162,10 +223,170 @@ declare module 'immutable' {
      * For example, the new Sequences returned from map() or reverse()
      * preserve the length of the original sequence while filter() does not.
      *
-     * Note: All original collections will have a length, including Maps, Vectors,
-     * Sets, Ranges, Repeats and Sequences made from Arrays and Objects.
+     * Note: All original collections will have a length, including Maps,
+     * Vectors, Sets, Ranges, Repeats and Sequences made from
+     * Arrays and Objects.
      */
     length: number;
+
+
+    // ### Sequential methods mirring those found on Array (ES6)
+
+    /**
+     * Returns a new sequence with other values and sequences concatenated to
+     * this one. All entries will be present in the resulting sequence, even if
+     * they have the same key.
+     */
+    concat(...valuesOrSequences: any[]): Sequence<any, any>;
+
+    /**
+     * True if a value exists within this Sequence.
+     */
+    contains(value: V): boolean;
+
+    /**
+     * True if `predicate` returns true for all entries in the sequence.
+     */
+    every(
+      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      context?: any
+    ): boolean;
+
+    /**
+     * Returns a new sequence with only the entries for which the `predicate`
+     * function returns true.
+     *
+     *     Sequence({a:1,b:2,c:3,d:4}).filter(x => x % 2 === 0) // { b: 2, d: 4 }
+     *
+     */
+    filter(
+      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      context?: any
+    ): Sequence<K, V>;
+
+    /**
+     * Returns the value for which the `predicate` returns true.
+     */
+    find(
+      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      context?: any,
+      notSetValue?: V
+    ): V;
+
+    /**
+     * The `sideEffect` is executed for every entry in the sequence.
+     *
+     * Unlike `Array.prototype.forEach`, if any call of `sideEffect` returns
+     * `false`, the iteration will stop. Returns the length of the sequence which
+     * was iterated (including the last iteration which returned false).
+     */
+    forEach(
+      sideEffect: (value?: V, key?: K, seq?: Sequence<K, V>) => any,
+      context?: any
+    ): number;
+
+    /**
+     * Joins values together as a string, inserting a separator between each.
+     * The default separator is ",".
+     */
+    join(separator?: string): string;
+
+    /**
+     * Returns a new sequence with values passed through a `mapper` function.
+     *
+     *     Sequence({ a: 1, b: 2 }).map(x => 10 * x) // { a: 10, b: 20 }
+     *
+     */
+    map<M>(
+      mapper: (value?: V, key?: K, seq?: Sequence<K, V>) => M,
+      context?: any
+    ): Sequence<K, M>;
+
+    /**
+     * Reduces the sequence to a value by calling the `reducer` for every entry
+     * in the sequence and passing along the reduced value.
+     *
+     * If `initialReduction` is not provided, or is null, the first item in the
+     * sequence will be used.
+     *
+     * @see `Array.prototype.reduce`.
+     */
+    reduce<R>(
+      reducer: (reduction?: R, value?: V, key?: K, seq?: Sequence<K, V>) => R,
+      initialReduction?: R,
+      context?: any
+    ): R;
+
+    /**
+     * Reduces the sequence in reverse (from the right side).
+     *
+     * Note: Equivalent to this.reverse().reduce(), but provided for parity
+     * with `Array.prototype.reduceRight`.
+     */
+    reduceRight<R>(
+      reducer: (reduction?: R, value?: V, key?: K, seq?: Sequence<K, V>) => R,
+      initialReduction?: R,
+      context?: any
+    ): R;
+
+    /**
+     * Returns a new sequence which iterates in reverse order of this sequence.
+     */
+    reverse(): Sequence<K, V>;
+
+    /**
+     * Returns a new sequence representing a portion of this sequence from start
+     * up to but not including end.
+     *
+     * If begin is negative, it is offset from the end of the sequence. e.g.
+     * `slice(-2)` returns a sequence of the last two entries. If it is not
+     * provided the new sequence will begin at the beginning of this sequence.
+     *
+     * If end is negative, it is offset from the end of the sequence. e.g.
+     * `slice(0, -1)` returns a sequence of everything but the last entry. If it
+     * is not provided, the new sequence will continue through the end of
+     * this sequence.
+     *
+     * If the requested slice is equivalent to the current Sequence, then it will
+     * return itself.
+     *
+     * Note: unlike `Array.prototype.slice`, this function is O(1) and copies
+     * no data. The resulting sequence is also lazy, and a copy is only made when
+     * it is converted such as via `toArray()` or `toVector()`.
+     */
+    slice(begin?: number, end?: number): Sequence<K, V>;
+
+    /**
+     * True if `predicate` returns true for any entry in the sequence.
+     */
+    some(
+      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      context?: any
+    ): boolean;
+
+    /**
+     * Returns a new Sequence which contains the same [key, value] entries,
+     * (stable) sorted by using a comparator.
+     *
+     * If a comparator is not provided, a default comparator uses `a < b`.
+     *
+     * `comparator(valueA, valueB)`:
+     *
+     *   * Returns `0` if the elements should not be swapped.
+     *   * Returns `-1` (or any negative number) if `valueA` comes before `valueB`
+     *   * Returns `1` (or any positive number) if `valueA` comes after `valueB`
+     *   * Is pure, i.e. it must always return the same value for the same pair
+     *     of values.
+     */
+    sort(comparator?: (valueA: V, valueB: V) => number): Sequence<K, V>;
+
+
+    // ### More sequential methods
+
+    /**
+     * Returns a new Sequence containing all entries except the last.
+     */
+    butLast(): Sequence<K, V>;
 
     /**
      * Regardless of if this sequence can describe its length lazily, this method
@@ -178,64 +399,236 @@ declare module 'immutable' {
     count(): number;
     count(
       predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-      thisArg?: any
+      context?: any
     ): number;
 
     /**
-     * Deeply converts this sequence to a string.
-     */
-    toString(): string;
-
-    /**
-     * Deeply converts this sequence to equivalent JS.
+     * Returns a `Sequence` of counts, grouped by the return value of the
+     * `grouper` function.
      *
-     * IndexedSequences, Vectors, Ranges, Repeats and Sets become Arrays, while
-     * other Sequences become Objects.
+     * Note: This is not a lazy operation.
      */
-    toJS(): any;
+    countBy<G>(
+      grouper: (value?: V, key?: K, seq?: Sequence<K, V>) => G,
+      context?: any
+    ): Sequence<G, number>;
 
     /**
-     * Converts this sequence to an Array, discarding keys.
-     */
-    toArray(): Array<V>;
-
-    /**
-     * Converts this sequence to an Object. Throws if keys are not strings.
-     */
-    toObject(): Object;
-
-    /**
-     * Converts this sequence to a Vector, discarding keys.
+     * True if this and the other sequence have value equality, as defined
+     * by `Immutable.is()`.
      *
-     * Note: This is equivalent to `Vector.from(this)`, but provided to allow for
-     * chained expressions.
+     * Note: This is equivalent to `Immutable.is(this, other)`, but provided to
+     * allow for chained expressions.
      */
-    toVector(): Vector<V>;
+    equals(other: Sequence<K, V>): boolean;
 
     /**
-     * Converts this sequence to a Map, Throws if keys are not hashable.
-     *
-     * Note: This is equivalent to `Map.from(this)`, but provided to allow for
-     * chained expressions.
+     * Returns a new indexed sequence of [key, value] tuples.
      */
-    toMap(): Map<K, V>;
+    entrySeq(): IndexedSequence</*(K, V)*/Array<any>>;
 
     /**
-     * Converts this sequence to a Map, maintaining the order of iteration.
-     *
-     * Note: This is equivalent to `OrderedMap.from(this)`, but provided to allow
-     * for chained expressions.
+     * Returns the key for which the `predicate` returns true.
      */
-    toOrderedMap(): Map<K, V>;
+    findKey(
+      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      context?: any
+    ): K;
 
     /**
-     * Converts this sequence to a Set, discarding keys. Throws if values
-     * are not hashable.
+     * Returns the last value for which the `predicate` returns true.
      *
-     * Note: This is equivalent to `Set.from(this)`, but provided to allow for
-     * chained expressions.
+     * Note: `predicate` will be called for each entry in reverse.
      */
-    toSet(): Set<V>;
+    findLast(
+      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      context?: any,
+      notSetValue?: V
+    ): V;
+
+    /**
+     * Returns the last key for which the `predicate` returns true.
+     *
+     * Note: `predicate` will be called for each entry in reverse.
+     */
+    findLastKey(
+      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      context?: any
+    ): K;
+
+    /**
+     * The first value in the sequence.
+     */
+    first(): V;
+
+    /**
+     * Returns a new sequence with this sequences's keys as it's values, and this
+     * sequences's values as it's keys.
+     *
+     *     Sequence({ a: 'z', b: 'y' }).flip() // { z: 'a', y: 'b' }
+     *
+     */
+    flip(): Sequence<V, K>;
+
+    /**
+     * Returns the value associated with the provided key, or notSetValue if
+     * the Sequence does not contain this key.
+     *
+     * Note: it is possible a key may be associated with an `undefined` value, so
+     * if `notSetValue` is not provided and this method returns `undefined`,
+     * that does not guarantee the key was not found.
+     */
+    get(key: K, notSetValue?: V): V;
+
+    /**
+     * Returns the value found by following a key path through nested sequences.
+     */
+    getIn(searchKeyPath: Array<K>, notSetValue?: V): V;
+
+    /**
+     * Returns a `Sequence` of `Sequences`, grouped by the return value of the
+     * `grouper` function.
+     *
+     * Note: This is not a lazy operation.
+     */
+    groupBy<G>(
+      grouper: (value?: V, key?: K, seq?: Sequence<K, V>) => G,
+      context?: any
+    ): Sequence<G, Sequence<K, V>>;
+
+    /**
+     * True if a key exists within this Sequence.
+     */
+    has(key: K): boolean;
+
+    /**
+     * Returns a new indexed sequence of the keys of this sequence,
+     * discarding values.
+     */
+    keySeq(): IndexedSequence<K>;
+
+    /**
+     * The last value in the sequence.
+     */
+    last(): V;
+
+    /**
+     * Returns a new sequence with entries ([key, value] tuples) passed through
+     * a `mapper` function.
+     *
+     *     Sequence({ a: 1, b: 2 })
+     *       .mapEntries(([k, v]) => [k.toUpperCase(), v * 2])
+     *     // { A: 2, B: 4 }
+     *
+     */
+    mapEntries<KM, VM>(
+      mapper: (entry?: /*(K, V)*/Array<any>, index?: number, seq?: Sequence<K, V>) => /*(KM, VM)*/Array<any>,
+      context?: any
+    ): Sequence<KM, VM>;
+
+    /**
+     * Returns a new sequence with keys passed through a `mapper` function.
+     *
+     *     Sequence({ a: 1, b: 2 }).mapKeys(x => x.toUpperCase()) // { A: 1, B: 2 }
+     *
+     */
+    mapKeys<M>(
+      mapper: (key?: K, value?: V, seq?: Sequence<K, V>) => M,
+      context?: any
+    ): Sequence<M, V>;
+
+    /**
+     * Returns a new Sequence containing all entries except the first.
+     */
+    rest(): Sequence<K, V>
+
+    /**
+     * Returns a new sequence which excludes the first `amount` entries from
+     * this sequence.
+     */
+    skip(amount: number): Sequence<K, V>;
+
+    /**
+     * Returns a new sequence which excludes the last `amount` entries from
+     * this sequence.
+     */
+    skipLast(amount: number): Sequence<K, V>;
+
+    /**
+     * Returns a new sequence which contains entries starting from when
+     * `predicate` first returns false.
+     *
+     *     Sequence('dog','frog','cat','hat','god').skipWhile(x => x.match(/g/))
+     *     // ['cat', 'hat', 'god']
+     *
+     */
+    skipWhile(
+      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      context?: any
+    ): Sequence<K, V>;
+
+    /**
+     * Returns a new sequence which contains entries starting from when
+     * `predicate` first returns true.
+     *
+     *     Sequence('dog','frog','cat','hat','god').skipUntil(x => x.match(/hat/))
+     *     // ['hat', 'god']
+     *
+     */
+    skipUntil(
+      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      context?: any
+    ): Sequence<K, V>;
+
+    /**
+     * Like `sort`, but also accepts a `sortValueMapper` which allows for
+     * sorting by more sophisticated means:
+     *
+     *     hitters.sortBy(hitter => hitter.avgHits);
+     *
+     */
+    sortBy<S>(
+      sortValueMapper: (value?: V, key?: K, seq?: Sequence<K, V>) => S,
+      comparator?: (valueA: S, valueB: S) => number
+    ): Sequence<K, V>;
+
+    /**
+     * Returns a new sequence which contains the first `amount` entries from
+     * this sequence.
+     */
+    take(amount: number): Sequence<K, V>;
+
+    /**
+     * Returns a new sequence which contains the last `amount` entries from
+     * this sequence.
+     */
+    takeLast(amount: number): Sequence<K, V>;
+
+    /**
+     * Returns a new sequence which contains entries from this sequence as long
+     * as the `predicate` returns true.
+     *
+     *     Sequence('dog','frog','cat','hat','god').takeWhile(x => x.match(/o/))
+     *     // ['dog', 'frog']
+     *
+     */
+    takeWhile(
+      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      context?: any
+    ): Sequence<K, V>;
+
+    /**
+     * Returns a new sequence which contains entries from this sequence as long
+     * as the `predicate` returns false.
+     *
+     *     Sequence('dog','frog','cat','hat','god').takeUntil(x => x.match(/at/))
+     *     // ['dog', 'frog']
+     *
+     */
+    takeUntil(
+      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      context?: any
+    ): Sequence<K, V>;
 
     /**
      * Returns a new Sequence identical to this one, but does not behave as
@@ -261,370 +654,13 @@ declare module 'immutable' {
     toKeyedSeq(): Sequence<K, V>;
 
     /**
-     * True if this and the other sequence have value equality, as defined
-     * by `Immutable.is()`.
-     *
-     * Note: This is equivalent to `Immutable.is(this, other)`, but provided to
-     * allow for chained expressions.
-     */
-    equals(other: Sequence<K, V>): boolean;
-
-    /**
-     * Joins values together as a string, inserting a separator between each.
-     * The default separator is ",".
-     */
-    join(separator?: string): string;
-
-    /**
-     * Returns a new sequence with other values and sequences concatenated to
-     * this one. All entries will be present in the resulting sequence, even if
-     * they have the same key.
-     */
-    concat(...valuesOrSequences: any[]): Sequence<any, any>;
-
-    /**
-     * Returns a new sequence which iterates in reverse order of this sequence.
-     */
-    reverse(): Sequence<K, V>;
-
-    /**
-     * Returns a new indexed sequence of the keys of this sequence,
-     * discarding values.
-     */
-    keySeq(): IndexedSequence<K>;
-
-    /**
      * Returns a new indexed sequence of the values of this sequence,
      * discarding keys.
      */
     valueSeq(): IndexedSequence<V>;
 
-    /**
-     * Returns a new indexed sequence of [key, value] tuples.
-     */
-    entrySeq(): IndexedSequence</*(K, V)*/Array<any>>;
 
-    /**
-     * The `sideEffect` is executed for every entry in the sequence.
-     *
-     * Unlike `Array.prototype.forEach`, if any call of `sideEffect` returns
-     * `false`, the iteration will stop. Returns the length of the sequence which
-     * was iterated (including the last iteration which returned false).
-     */
-    forEach(
-      sideEffect: (value?: V, key?: K, seq?: Sequence<K, V>) => any,
-      thisArg?: any
-    ): number;
-
-    /**
-     * Reduces the sequence to a value by calling the `reducer` for every entry
-     * in the sequence and passing along the reduced value.
-     *
-     * If `initialReduction` is not provided, or is null, the first item in the
-     * sequence will be used.
-     *
-     * @see `Array.prototype.reduce`.
-     */
-    reduce<R>(
-      reducer: (reduction?: R, value?: V, key?: K, seq?: Sequence<K, V>) => R,
-      initialReduction?: R,
-      thisArg?: any
-    ): R;
-
-    /**
-     * Reduces the sequence in reverse (from the right side).
-     *
-     * Note: Equivalent to this.reverse().reduce(), but provided for parity
-     * with `Array.prototype.reduceRight`.
-     */
-    reduceRight<R>(
-      reducer: (reduction?: R, value?: V, key?: K, seq?: Sequence<K, V>) => R,
-      initialReduction?: R,
-      thisArg?: any
-    ): R;
-
-    /**
-     * True if `predicate` returns true for all entries in the sequence.
-     */
-    every(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-      thisArg?: any
-    ): boolean;
-
-    /**
-     * True if `predicate` returns true for any entry in the sequence.
-     */
-    some(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-      thisArg?: any
-    ): boolean;
-
-    /**
-     * The first value in the sequence.
-     */
-    first(): V;
-
-    /**
-     * The last value in the sequence.
-     */
-    last(): V;
-
-    /**
-     * Returns a new Sequence containing all entries except the first.
-     */
-    rest(): Sequence<K, V>
-
-    /**
-     * Returns a new Sequence containing all entries except the last.
-     */
-    butLast(): Sequence<K, V>
-
-    /**
-     * True if a key exists within this Sequence.
-     */
-    has(key: K): boolean;
-
-    /**
-     * Returns the value associated with the provided key, or notSetValue if
-     * the Sequence does not contain this key.
-     *
-     * Note: it is possible a key may be associated with an `undefined` value, so
-     * if `notSetValue` is not provided and this method returns `undefined`,
-     * that does not guarantee the key was not found.
-     */
-    get(key: K, notSetValue?: V): V;
-
-    /**
-     * Returns the value found by following a key path through nested sequences.
-     */
-    getIn(searchKeyPath: Array<K>, notSetValue?: V): V;
-
-    /**
-     * True if a value exists within this Sequence.
-     */
-    contains(value: V): boolean;
-
-    /**
-     * Returns the value for which the `predicate` returns true.
-     */
-    find(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-      thisArg?: any,
-      notSetValue?: V
-    ): V;
-
-    /**
-     * Returns the key for which the `predicate` returns true.
-     */
-    findKey(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-      thisArg?: any
-    ): K;
-
-    /**
-     * Returns the last value for which the `predicate` returns true.
-     *
-     * Note: `predicate` will be called for each entry in reverse.
-     */
-    findLast(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-      thisArg?: any,
-      notSetValue?: V
-    ): V;
-
-    /**
-     * Returns the last key for which the `predicate` returns true.
-     *
-     * Note: `predicate` will be called for each entry in reverse.
-     */
-    findLastKey(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-      thisArg?: any
-    ): K;
-
-    /**
-     * Returns a new sequence with this sequences's keys as it's values, and this
-     * sequences's values as it's keys.
-     *
-     *     Sequence({ a: 'z', b: 'y' }).flip() // { z: 'a', y: 'b' }
-     *
-     */
-    flip(): Sequence<V, K>;
-
-    /**
-     * Returns a new sequence with values passed through a `mapper` function.
-     *
-     *     Sequence({ a: 1, b: 2 }).map(x => 10 * x) // { a: 10, b: 20 }
-     *
-     */
-    map<M>(
-      mapper: (value?: V, key?: K, seq?: Sequence<K, V>) => M,
-      thisArg?: any
-    ): Sequence<K, M>;
-
-    /**
-     * Returns a new sequence with keys passed through a `mapper` function.
-     *
-     *     Sequence({ a: 1, b: 2 }).mapKeys(x => x.toUpperCase()) // { A: 1, B: 2 }
-     *
-     */
-    mapKeys<M>(
-      mapper: (key?: K, value?: V, seq?: Sequence<K, V>) => M,
-      thisArg?: any
-    ): Sequence<M, V>;
-
-    /**
-     * Returns a new sequence with entries ([key, value] tuples) passed through
-     * a `mapper` function.
-     *
-     *     Sequence({ a: 1, b: 2 })
-     *       .mapEntries(([k, v]) => [k.toUpperCase(), v * 2])
-     *     // { A: 2, B: 4 }
-     *
-     */
-    mapEntries<KM, VM>(
-      mapper: (entry?: /*(K, V)*/Array<any>, index?: number, seq?: Sequence<K, V>) => /*(KM, VM)*/Array<any>,
-      thisArg?: any
-    ): Sequence<KM, VM>;
-
-    /**
-     * Returns a new sequence with only the entries for which the `predicate`
-     * function returns true.
-     *
-     *     Sequence({a:1,b:2,c:3,d:4}).filter(x => x % 2 === 0) // { b: 2, d: 4 }
-     *
-     */
-    filter(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-      thisArg?: any
-    ): Sequence<K, V>;
-
-    /**
-     * Returns a new sequence representing a portion of this sequence from start
-     * up to but not including end.
-     *
-     * If begin is negative, it is offset from the end of the sequence. e.g.
-     * `slice(-2)` returns a sequence of the last two entries. If it is not
-     * provided the new sequence will begin at the beginning of this sequence.
-     *
-     * If end is negative, it is offset from the end of the sequence. e.g.
-     * `slice(0, -1)` returns a sequence of everything but the last entry. If it
-     * is not provided, the new sequence will continue through the end of
-     * this sequence.
-     *
-     * If the requested slice is equivalent to the current Sequence, then it will
-     * return itself.
-     *
-     * Note: unlike `Array.prototype.slice`, this function is O(1) and copies
-     * no data. The resulting sequence is also lazy, and a copy is only made when
-     * it is converted such as via `toArray()` or `toVector()`.
-     */
-    slice(begin?: number, end?: number): Sequence<K, V>;
-
-    /**
-     * Returns a new sequence which contains the first `amount` entries from
-     * this sequence.
-     */
-    take(amount: number): Sequence<K, V>;
-
-    /**
-     * Returns a new sequence which contains the last `amount` entries from
-     * this sequence.
-     */
-    takeLast(amount: number): Sequence<K, V>;
-
-    /**
-     * Returns a new sequence which contains entries from this sequence as long
-     * as the `predicate` returns true.
-     *
-     *     Sequence('dog','frog','cat','hat','god').takeWhile(x => x.match(/o/))
-     *     // ['dog', 'frog']
-     *
-     */
-    takeWhile(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-      thisArg?: any
-    ): Sequence<K, V>;
-
-    /**
-     * Returns a new sequence which contains entries from this sequence as long
-     * as the `predicate` returns false.
-     *
-     *     Sequence('dog','frog','cat','hat','god').takeUntil(x => x.match(/at/))
-     *     // ['dog', 'frog']
-     *
-     */
-    takeUntil(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-      thisArg?: any
-    ): Sequence<K, V>;
-
-    /**
-     * Returns a new sequence which excludes the first `amount` entries from
-     * this sequence.
-     */
-    skip(amount: number): Sequence<K, V>;
-
-    /**
-     * Returns a new sequence which excludes the last `amount` entries from
-     * this sequence.
-     */
-    skipLast(amount: number): Sequence<K, V>;
-
-    /**
-     * Returns a new sequence which contains entries starting from when
-     * `predicate` first returns false.
-     *
-     *     Sequence('dog','frog','cat','hat','god').skipWhile(x => x.match(/g/))
-     *     // ['cat', 'hat', 'god']
-     *
-     */
-    skipWhile(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-      thisArg?: any
-    ): Sequence<K, V>;
-
-    /**
-     * Returns a new sequence which contains entries starting from when
-     * `predicate` first returns true.
-     *
-     *     Sequence('dog','frog','cat','hat','god').skipUntil(x => x.match(/hat/))
-     *     // ['hat', 'god']
-     *
-     */
-    skipUntil(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
-      thisArg?: any
-    ): Sequence<K, V>;
-
-    /**
-     * Returns a `Sequence` of counts, grouped by the return value of the
-     * `grouper` function.
-     *
-     * Note: This is not a lazy operation.
-     */
-    countBy<G>(
-      grouper: (value?: V, key?: K, seq?: Sequence<K, V>) => G,
-      thisArg?: any
-    ): Sequence<G, number>;
-
-    /**
-     * Returns a `Sequence` of `Sequences`, grouped by the return value of the
-     * `grouper` function.
-     *
-     * Note: This is not a lazy operation.
-     */
-    groupBy<G>(
-      grouper: (value?: V, key?: K, seq?: Sequence<K, V>) => G,
-      thisArg?: any
-    ): Sequence<G, Sequence<K, V>>;
-
-    sort(comparator?: (valueA: V, valueB: V) => number): Sequence<K, V>;
-
-    sortBy<S>(
-      sortValueMapper: (value?: V, key?: K, seq?: Sequence<K, V>) => S,
-      comparator?: (valueA: S, valueB: S) => number
-    ): Sequence<K, V>;
+    // ### Lazy Sequence methods
 
     /**
      * Because Sequences are lazy and designed to be chained together, they do
@@ -668,11 +704,60 @@ declare module 'immutable' {
 
   export interface IndexedSequence<T> extends Sequence<number, T> {
 
+    // ### Sequential methods mirring those found on Array (ES6)
+
     /**
-     * If this is a sequence of entries (key-value tuples), it will return a
-     * sequence of those entries.
+     * This new behavior will iterate through the values and sequences with
+     * increasing indices.
+     * @override
      */
-    fromEntrySeq(): Sequence<any, any>;
+    concat(...valuesOrSequences: any[]): IndexedSequence<any>;
+
+    /**
+     * Predicate takes IndexedSequence.
+     * @override
+     */
+    every(
+      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      context?: any
+    ): boolean;
+
+    /**
+     * Returns IndexedSequence.
+     * @override
+     */
+    filter(
+      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      context?: any
+    ): IndexedSequence<T>;
+
+    /**
+     * Predicate takes IndexedSequence.
+     * @override
+     */
+    find(
+      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      context?: any,
+      notSetValue?: T
+    ): T;
+
+    /**
+     * Returns the first index in the sequence where a value satisfies the
+     * provided predicate function. Otherwise -1 is returned.
+     */
+    findIndex(
+      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      context?: any
+    ): number;
+
+    /**
+     * Side effect takes IndexedSequence.
+     * @override
+     */
+    forEach(
+      sideEffect: (value?: T, index?: number, seq?: IndexedSequence<T>) => any,
+      context?: any
+    ): number;
 
     /**
      * Returns the first index at which a given value can be found in the
@@ -687,22 +772,63 @@ declare module 'immutable' {
     lastIndexOf(searchValue: T): number;
 
     /**
-     * Returns the first index in the sequence where a value satisfies the
-     * provided predicate function. Otherwise -1 is returned.
+     * Returns an IndexedSequence
+     * @override
      */
-    findIndex(
-      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
-      thisArg?: any
-    ): number;
+    map<M>(
+      mapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => M,
+      context?: any
+    ): IndexedSequence<M>;
 
     /**
-     * Returns the last index in the sequence where a value satisfies the
-     * provided predicate function. Otherwise -1 is returned.
+     * Reducer takes IndexedSequence.
+     * @override
      */
-    findLastIndex(
+    reduce<R>(
+      reducer: (reduction?: R, value?: T, index?: number, seq?: IndexedSequence<T>) => R,
+      initialReduction?: R,
+      context?: any
+    ): R;
+
+    /**
+     * Reducer takes IndexedSequence.
+     * @override
+     */
+    reduceRight<R>(
+      reducer: (reduction?: R, value?: T, index?: number, seq?: IndexedSequence<T>) => R,
+      initialReduction?: R,
+      context?: any
+    ): R;
+
+    /**
+     * Returns a new IndexedSequence with this sequences values in the
+     * reversed order.
+     * @override
+     */
+    reverse(): IndexedSequence<T>;
+
+    /**
+     * Returns IndexedSequence.
+     * @override
+     */
+    slice(begin?: number, end?: number): IndexedSequence<T>;
+
+    /**
+     * Predicate takes IndexedSequence.
+     * @override
+     */
+    some(
       predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
-      thisArg?: any
-    ): number;
+      context?: any
+    ): boolean;
+
+    /**
+     * Returns an IndexedSequence
+     * @override
+     */
+    sort(
+      comparator?: (valueA: T, valueB: T) => number
+    ): IndexedSequence<T>;
 
     /**
      * Splice returns a new indexed sequence by replacing a region of this sequence
@@ -718,44 +844,73 @@ declare module 'immutable' {
      */
     splice(index: number, removeNum: number, ...values: any[]): IndexedSequence<T>;
 
-    /**
-     * Returns the value associated with the provided index, or notSetValue if
-     * the index is beyond the bounds of the sequence.
-     *
-     * `index` may be a negative number, which indexes back from the end of the
-     * Sequence. `s.get(-1)` gets the last item in the Sequence.
-     */
-    get(index: number, notSetValue?: T): T;
+
+    // ### More sequential methods
 
     /**
-     * This new behavior will iterate through the values and sequences with
-     * increasing indices.
+     * Returns an IndexedSequence
      * @override
      */
-    concat(...valuesOrSequences: any[]): IndexedSequence<any>;
+    butLast(): IndexedSequence<T>;
 
     /**
-     * Returns a new IndexedSequence with this sequences values in the
-     * reversed order.
+     * Predicate takes IndexedSequence.
      * @override
      */
-    reverse(): IndexedSequence<T>;
-
-    /**
-     * Returns IndexedSequence.
-     * @override
-     */
-    filter(
+    count(): number;
+    count(
       predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
-      thisArg?: any
-    ): IndexedSequence<T>;
+      context?: any
+    ): number;
 
     /**
-     * Returns IndexedSequence.
+     * Predicate takes IndexedSequence.
      * @override
      */
-    slice(begin?: number, end?: number): IndexedSequence<T>;
+    findKey(
+      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      context?: any
+    ): number;
 
+    /**
+     * Predicate takes IndexedSequence.
+     * @override
+     */
+    findLast(
+      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      context?: any,
+      notSetValue?: T
+    ): T;
+
+    /**
+     * Returns the last index in the sequence where a value satisfies the
+     * provided predicate function. Otherwise -1 is returned.
+     */
+    findLastIndex(
+      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      context?: any
+    ): number;
+
+    /**
+     * Predicate takes IndexedSequence.
+     * @override
+     */
+    findLastKey(
+      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      context?: any
+    ): number;
+
+    /**
+     * Flat-maps the Sequence.
+     */
+    flatMap<M>(
+      mapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => IndexedSequence<M>,
+      context?: any
+    ): IndexedSequence<M>;
+    flatMap<M>(
+      mapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => M[],
+      context?: any
+    ): IndexedSequence<M>;
 
     /**
      * Flattens nested Sequences by one level.
@@ -766,31 +921,52 @@ declare module 'immutable' {
     flatten(): IndexedSequence<any>;
 
     /**
-     * Flat-maps the Sequence.
+     * If this is a sequence of entries (key-value tuples), it will return a
+     * sequence of those entries.
      */
-    flatMap<M>(
-      mapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => IndexedSequence<M>,
-      thisArg?: any
-    ): IndexedSequence<M>;
-    flatMap<M>(
-      mapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => M[],
-      thisArg?: any
-    ): IndexedSequence<M>;
+    fromEntrySeq(): Sequence<any, any>;
+
+    /**
+     * Returns the value associated with the provided index, or notSetValue if
+     * the index is beyond the bounds of the sequence.
+     *
+     * `index` may be a negative number, which indexes back from the end of the
+     * Sequence. `s.get(-1)` gets the last item in the Sequence.
+     */
+    get(index: number, notSetValue?: T): T;
+
+    /**
+     * Returns Sequence<G, IndexedSequence<T>>
+     * @override
+     */
+    groupBy<G>(
+      grouper: (value?: T, index?: number, seq?: IndexedSequence<T>) => G,
+      context?: any
+    ): Sequence<G, any/*IndexedSequence<T>*/>; // Bug: exposing this causes the type checker to implode.
+
+    /**
+     * Mapper takes IndexedSequence.
+     * @override
+     */
+    mapEntries<KM, VM>(
+      mapper: (entry?: /*(K, V)*/Array<any>, index?: number, seq?: IndexedSequence<T>) => /*(KM, VM)*/Array<any>,
+      context?: any
+    ): Sequence<KM, VM>;
+
+    /**
+     * Mapper takes IndexedSequence.
+     * @override
+     */
+    mapKeys<M>(
+      mapper: (index?: number, value?: T, seq?: IndexedSequence<T>) => M,
+      context?: any
+    ): Sequence<M, T>;
 
     /**
      * Returns IndexedSequence
      * @override
      */
-    takeLast(amount: number): IndexedSequence<T>;
-
-    /**
-     * Returns IndexedSequence
-     * @override
-     */
-    takeUntil(
-      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
-      thisArg?: any
-    ): IndexedSequence<T>;
+    rest(): IndexedSequence<T>;
 
     /**
      * Returns IndexedSequence
@@ -810,7 +986,7 @@ declare module 'immutable' {
      */
     skipWhile(
       predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
-      thisArg?: any
+      context?: any
     ): IndexedSequence<T>;
 
     /**
@@ -819,24 +995,7 @@ declare module 'immutable' {
      */
     skipUntil(
       predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
-      thisArg?: any
-    ): IndexedSequence<T>;
-
-    /**
-     * Returns Sequence<G, IndexedSequence<T>>
-     * @override
-     */
-    groupBy<G>(
-      grouper: (value?: T, index?: number, seq?: IndexedSequence<T>) => G,
-      thisArg?: any
-    ): Sequence<G, any/*IndexedSequence<T>*/>; // Bug: exposing this causes the type checker to implode.
-
-    /**
-     * Returns an IndexedSequence
-     * @override
-     */
-    sort(
-      comparator?: (valueA: T, valueB: T) => number
+      context?: any
     ): IndexedSequence<T>;
 
     /**
@@ -849,13 +1008,37 @@ declare module 'immutable' {
     ): IndexedSequence<T>;
 
     /**
-     * Returns an IndexedSequence
+     * Returns IndexedSequence
      * @override
      */
-    map<M>(
-      mapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => M,
-      thisArg?: any
-    ): IndexedSequence<M>;
+    take(amount: number): IndexedSequence<T>;
+
+    /**
+     * Returns IndexedSequence
+     * @override
+     */
+    takeLast(amount: number): IndexedSequence<T>;
+
+    /**
+     * Returns IndexedSequence
+     * @override
+     */
+    takeWhile(
+      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      context?: any
+    ): IndexedSequence<T>;
+
+    /**
+     * Returns IndexedSequence
+     * @override
+     */
+    takeUntil(
+      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      context?: any
+    ): IndexedSequence<T>;
+
+
+    // ### Lazy Sequence methods
 
     /**
      * Returns an IndexedSequence
