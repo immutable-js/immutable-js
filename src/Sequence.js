@@ -198,9 +198,9 @@ class Sequence {
   reverse() {
     var sequence = this;
     var reversedSequence = sequence.__makeSequence();
+    reversedSequence.reverse = () => sequence;
     reversedSequence.length = sequence.length;
     reversedSequence.__iterateUncached = (fn, reverse) => sequence.__iterate(fn, !reverse);
-    reversedSequence.reverse = () => sequence;
     return reversedSequence;
   }
 
@@ -615,13 +615,12 @@ class IndexedSequence extends Sequence {
     var fromEntriesSequence = makeSequence();
     fromEntriesSequence.length = sequence.length;
     fromEntriesSequence.entrySeq = () => sequence;
-    fromEntriesSequence.__iterateUncached = function (fn, reverse, flipIndices) {
+    fromEntriesSequence.__iterateUncached = function (fn, reverse) {
       // Check if entry exists first so array access doesn't throw for holes
       // in the parent iteration.
       return sequence.__iterate(
         entry => entry && fn(entry[1], entry[0], this),
-        reverse,
-        flipIndices
+        reverse
       );
     }
     return fromEntriesSequence;
@@ -674,17 +673,22 @@ class IndexedSequence extends Sequence {
   reverse() {
     var sequence = this;
     var reversedSequence = sequence.__makeSequence();
+    reversedSequence.reverse = () => sequence;
     reversedSequence.length = sequence.length;
     reversedSequence.__reversedIndices = sequence.__reversedIndices;
     reversedSequence.__iterateUncached = function (fn, reverse, flipIndices) {
-      var i = 0;
+      if (flipIndices && !this.length) {
+        // In order to reverse indices, first we must create a cached
+        // representation. This ensures we will have the correct total length
+        // so index reversal works as expected.
+        return this.cacheResult().__iterate(fn, reverse, flipIndices);
+      }
+      var i = flipIndices ? this.length : 0;
       return sequence.__iterate(
-        v => fn(v, i++, this) !== false,
-        !reverse,
-        flipIndices
+        v => fn(v, flipIndices ? --i : i++, this) !== false,
+        !reverse
       );
     }
-    reversedSequence.reverse = () => sequence;
     return reversedSequence;
   }
 

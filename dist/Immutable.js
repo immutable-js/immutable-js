@@ -311,12 +311,12 @@ var $Sequence = Sequence;
   reverse: function() {
     var sequence = this;
     var reversedSequence = sequence.__makeSequence();
+    reversedSequence.reverse = (function() {
+      return sequence;
+    });
     reversedSequence.length = sequence.length;
     reversedSequence.__iterateUncached = (function(fn, reverse) {
       return sequence.__iterate(fn, !reverse);
-    });
-    reversedSequence.reverse = (function() {
-      return sequence;
     });
     return reversedSequence;
   },
@@ -709,11 +709,11 @@ var $IndexedSequence = IndexedSequence;
     fromEntriesSequence.entrySeq = (function() {
       return sequence;
     });
-    fromEntriesSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+    fromEntriesSequence.__iterateUncached = function(fn, reverse) {
       var $__0 = this;
       return sequence.__iterate((function(entry) {
         return entry && fn(entry[1], entry[0], $__0);
-      }), reverse, flipIndices);
+      }), reverse);
     };
     return fromEntriesSequence;
   },
@@ -765,18 +765,21 @@ var $IndexedSequence = IndexedSequence;
   reverse: function() {
     var sequence = this;
     var reversedSequence = sequence.__makeSequence();
+    reversedSequence.reverse = (function() {
+      return sequence;
+    });
     reversedSequence.length = sequence.length;
     reversedSequence.__reversedIndices = sequence.__reversedIndices;
     reversedSequence.__iterateUncached = function(fn, reverse, flipIndices) {
       var $__0 = this;
-      var i = 0;
+      if (flipIndices && !this.length) {
+        return this.cacheResult().__iterate(fn, reverse, flipIndices);
+      }
+      var i = flipIndices ? this.length : 0;
       return sequence.__iterate((function(v) {
-        return fn(v, i++, $__0) !== false;
-      }), !reverse, flipIndices);
+        return fn(v, flipIndices ? --i : i++, $__0) !== false;
+      }), !reverse);
     };
-    reversedSequence.reverse = (function() {
-      return sequence;
-    });
     return reversedSequence;
   },
   filter: function(predicate, thisArg) {
