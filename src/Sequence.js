@@ -396,11 +396,10 @@ class Sequence {
     var resolvedBegin = resolveBegin(begin, this.length);
     var resolvedEnd = resolveEnd(end, this.length);
     // begin or end will be NaN if they were provided as negative numbers and
-    // this sequence's length is unknown. In that case, convert it to an
-    // IndexedSequence by getting entrySeq() and convert back to a sequence with
-    // fromEntrySeq(). IndexedSequence.slice will appropriately handle this case.
+    // this sequence's length is unknown. In that case, cache first so there is
+    // a known length.
     if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd) {
-      return this.entrySeq().slice(begin, end).fromEntrySeq();
+      return this.cacheResult().slice(begin, end);
     }
     var skipped = resolvedBegin === 0 ? this : this.skip(resolvedBegin);
     return resolvedEnd == null || resolvedEnd === this.length ?

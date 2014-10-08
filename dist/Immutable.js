@@ -501,7 +501,7 @@ var $Sequence = Sequence;
     var resolvedBegin = resolveBegin(begin, this.length);
     var resolvedEnd = resolveEnd(end, this.length);
     if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd) {
-      return this.entrySeq().slice(begin, end).fromEntrySeq();
+      return this.cacheResult().slice(begin, end);
     }
     var skipped = resolvedBegin === 0 ? this : this.skip(resolvedBegin);
     return resolvedEnd == null || resolvedEnd === this.length ? skipped : skipped.take(resolvedEnd - resolvedBegin);
