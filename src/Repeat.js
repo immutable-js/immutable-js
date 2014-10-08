@@ -80,11 +80,11 @@ class Repeat extends IndexedSequence {
     return -1;
   }
 
-  __iterate(fn, reverse, flipIndices) {
-    invariant(!flipIndices || this.length < Infinity, 'Cannot access end of infinite range.');
+  __iterate(fn, reverse, reverseIndices) {
+    invariant(!reverseIndices || this.length < Infinity, 'Cannot access end of infinite range.');
     var maxIndex = this.length - 1;
     for (var ii = 0; ii <= maxIndex; ii++) {
-      if (fn(this._value, flipIndices ? maxIndex - ii : ii, this) === false) {
+      if (fn(this._value, reverseIndices ? maxIndex - ii : ii, this) === false) {
         break;
       }
     }

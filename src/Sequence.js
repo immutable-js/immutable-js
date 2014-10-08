@@ -213,10 +213,10 @@ class Sequence {
     var sequence = this;
     var valuesSequence = makeIndexedSequence(sequence);
     valuesSequence.length = sequence.length;
-    valuesSequence.__iterateUncached = function (fn, reverse, flipIndices) {
+    valuesSequence.__iterateUncached = function (fn, reverse, reverseIndices) {
       var iterations = 0;
       var predicate;
-      if (flipIndices) {
+      if (reverseIndices) {
         var maxIndex = this.length - 1;
         predicate = (v, k, c) => fn(v, maxIndex - iterations++, this) !== false;
       } else {
@@ -412,9 +412,9 @@ class Sequence {
       return sequence;
     }
     var takeSequence = sequence.__makeSequence();
-    takeSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+    takeSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
       if (reverse) {
-        return this.cacheResult().__iterate(fn, reverse, flipIndices);
+        return this.cacheResult().__iterate(fn, reverse, reverseIndices);
       }
       var iterations = 0;
       sequence.__iterate((v, k) =>
@@ -433,9 +433,9 @@ class Sequence {
   takeWhile(predicate, thisArg) {
     var sequence = this;
     var takeSequence = sequence.__makeSequence();
-    takeSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+    takeSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
       if (reverse) {
-        return this.cacheResult().__iterate(fn, reverse, flipIndices);
+        return this.cacheResult().__iterate(fn, reverse, reverseIndices);
       }
       var iterations = 0;
       sequence.__iterate((v, k, c) =>
@@ -593,10 +593,10 @@ class IndexedSequence extends Sequence {
     var reversedSequence = sequence.__makeSequence();
     reversedSequence.reverse = () => sequence;
     reversedSequence.length = sequence.length;
-    reversedSequence.__iterateUncached = function (fn, reverse, flipIndices) {
-      var i = flipIndices ? this.length : 0;
+    reversedSequence.__iterateUncached = function (fn, reverse, reverseIndices) {
+      var i = reverseIndices ? this.length : 0;
       return sequence.__iterate(
-        v => fn(v, flipIndices ? --i : i++, this) !== false,
+        v => fn(v, reverseIndices ? --i : i++, this) !== false,
         !reverse
       );
     }
@@ -648,13 +648,13 @@ class IndexedSequence extends Sequence {
   flatten() {
     var sequence = this;
     var flatSequence = this.__makeSequence();
-    flatSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+    flatSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
       var iterations = 0;
       var maxIndex = this.length - 1;
       sequence.__iterate(seq => {
         var stopped = false;
         Sequence(seq).__iterate(v => {
-          if (fn(v, flipIndices ? maxIndex - iterations++ : iterations++, this) === false) {
+          if (fn(v, reverseIndices ? maxIndex - iterations++ : iterations++, this) === false) {
             stopped = true;
             return false;
           }
@@ -693,29 +693,29 @@ class IndexedSequence extends Sequence {
     )).fromEntrySeq().valueSeq();
   }
 
-  // abstract __iterateUncached(fn, reverse, flipIndices)
+  // abstract __iterateUncached(fn, reverse, reverseIndices)
 
-  __iterate(fn, reverse, flipIndices) {
+  __iterate(fn, reverse, reverseIndices) {
     var cache = this._cache;
     if (cache) {
-      flipIndices ^= reverse;
+      reverseIndices ^= reverse;
       var maxIndex = cache.length - 1;
       for (var ii = 0; ii <= maxIndex; ii++) {
         var entry = cache[reverse ? maxIndex - ii : ii];
         var key = entry[0];
-        if (fn(entry[1], flipIndices ? maxIndex - key : key, this) === false) {
+        if (fn(entry[1], reverseIndices ? maxIndex - key : key, this) === false) {
           break;
         }
       }
       return ii;
     }
-    if (flipIndices && !this.length) {
+    if (reverseIndices && !this.length) {
       // In order to reverse indices, first we must create a cached
       // representation. This ensures we will have the correct total length
       // so index reversal works as expected.
-      return this.cacheResult().__iterate(fn, reverse, flipIndices);
+      return this.cacheResult().__iterate(fn, reverse, reverseIndices);
     }
-    return this.__iterateUncached(fn, reverse, flipIndices);
+    return this.__iterateUncached(fn, reverse, reverseIndices);
   }
 
   __makeSequence() {
@@ -806,15 +806,15 @@ class ArraySequence extends IndexedSequence {
     return index >= 0 && index < this.length;
   }
 
-  __iterate(fn, reverse, flipIndices) {
+  __iterate(fn, reverse, reverseIndices) {
     var array = this._array;
     var maxIndex = array.length - 1;
     var ii, rr;
 
-    var reversedIndices = reverse ^ flipIndices;
+    var reversedIndices = reverse ^ reverseIndices;
     for (ii = 0; ii <= maxIndex; ii++) {
       rr = maxIndex - ii;
-      if (fn(array[reverse ? rr : ii], flipIndices ? rr : ii, array) === false) {
+      if (fn(array[reverse ? rr : ii], reverseIndices ? rr : ii, array) === false) {
         return reversedIndices ? reverse ? rr : ii : array.length;
       }
     }
@@ -904,7 +904,7 @@ function increment(value) {
  */
 function filterFactory(sequence, predicate, context, useKeys) {
   var filterSequence = sequence.__makeSequence();
-  filterSequence.__iterateUncached = function (fn, reverse, flipIndices) {
+  filterSequence.__iterateUncached = function (fn, reverse, reverseIndices) {
     var iterations = 0;
     sequence.__iterate((v, k, c) => {
       if (predicate.call(context, v, k, c)) {
@@ -940,9 +940,9 @@ function skipFactory(sequence, amount, useKeys) {
     return sequence;
   }
   var skipSequence = sequence.__makeSequence();
-  skipSequence.__iterateUncached = function (fn, reverse, flipIndices) {
+  skipSequence.__iterateUncached = function (fn, reverse, reverseIndices) {
     if (reverse) {
-      return this.cacheResult().__iterate(fn, reverse, flipIndices);
+      return this.cacheResult().__iterate(fn, reverse, reverseIndices);
     }
     var skipped = 0;
     var isSkipping = true;
@@ -961,9 +961,9 @@ function skipFactory(sequence, amount, useKeys) {
 
 function skipWhileFactory(sequence, predicate, thisArg, useKeys) {
   var skipSequence = sequence.__makeSequence();
-  skipSequence.__iterateUncached = function (fn, reverse, flipIndices) {
+  skipSequence.__iterateUncached = function (fn, reverse, reverseIndices) {
     if (reverse) {
-      return this.cacheResult().__iterate(fn, reverse, flipIndices);
+      return this.cacheResult().__iterate(fn, reverse, reverseIndices);
     }
     var isSkipping = true;
     var iterations = 0;

@@ -61,13 +61,13 @@ class Cursor extends Sequence {
       this : subCursor(this, subKey);
   }
 
-  __iterate(fn, reverse, flipIndices) {
+  __iterate(fn, reverse, reverseIndices) {
     var cursor = this;
     var deref = cursor.deref();
     return deref && deref.__iterate ? deref.__iterate(
       (value, key, collection) => fn(wrappedValue(cursor, key, value), key, collection),
       reverse,
-      flipIndices
+      reverseIndices
     ) : 0;
   }
 }

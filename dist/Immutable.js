@@ -327,11 +327,11 @@ var $Sequence = Sequence;
     var sequence = this;
     var valuesSequence = makeIndexedSequence(sequence);
     valuesSequence.length = sequence.length;
-    valuesSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+    valuesSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
       var $__0 = this;
       var iterations = 0;
       var predicate;
-      if (flipIndices) {
+      if (reverseIndices) {
         var maxIndex = this.length - 1;
         predicate = (function(v, k, c) {
           return fn(v, maxIndex - iterations++, $__0) !== false;
@@ -512,10 +512,10 @@ var $Sequence = Sequence;
       return sequence;
     }
     var takeSequence = sequence.__makeSequence();
-    takeSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+    takeSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
       var $__0 = this;
       if (reverse) {
-        return this.cacheResult().__iterate(fn, reverse, flipIndices);
+        return this.cacheResult().__iterate(fn, reverse, reverseIndices);
       }
       var iterations = 0;
       sequence.__iterate((function(v, k) {
@@ -532,10 +532,10 @@ var $Sequence = Sequence;
   takeWhile: function(predicate, thisArg) {
     var sequence = this;
     var takeSequence = sequence.__makeSequence();
-    takeSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+    takeSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
       var $__0 = this;
       if (reverse) {
-        return this.cacheResult().__iterate(fn, reverse, flipIndices);
+        return this.cacheResult().__iterate(fn, reverse, reverseIndices);
       }
       var iterations = 0;
       sequence.__iterate((function(v, k, c) {
@@ -686,11 +686,11 @@ var $IndexedSequence = IndexedSequence;
       return sequence;
     });
     reversedSequence.length = sequence.length;
-    reversedSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+    reversedSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
       var $__0 = this;
-      var i = flipIndices ? this.length : 0;
+      var i = reverseIndices ? this.length : 0;
       return sequence.__iterate((function(v) {
-        return fn(v, flipIndices ? --i : i++, $__0) !== false;
+        return fn(v, reverseIndices ? --i : i++, $__0) !== false;
       }), !reverse);
     };
     return reversedSequence;
@@ -732,14 +732,14 @@ var $IndexedSequence = IndexedSequence;
   flatten: function() {
     var sequence = this;
     var flatSequence = this.__makeSequence();
-    flatSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+    flatSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
       var $__0 = this;
       var iterations = 0;
       var maxIndex = this.length - 1;
       sequence.__iterate((function(seq) {
         var stopped = false;
         Sequence(seq).__iterate((function(v) {
-          if (fn(v, flipIndices ? maxIndex - iterations++ : iterations++, $__0) === false) {
+          if (fn(v, reverseIndices ? maxIndex - iterations++ : iterations++, $__0) === false) {
             stopped = true;
             return false;
           }
@@ -769,24 +769,24 @@ var $IndexedSequence = IndexedSequence;
       return comparator(mapper(a[1], a[0], seq), mapper(b[1], b[0], seq)) || a[0] - b[0];
     }))).fromEntrySeq().valueSeq();
   },
-  __iterate: function(fn, reverse, flipIndices) {
+  __iterate: function(fn, reverse, reverseIndices) {
     var cache = this._cache;
     if (cache) {
-      flipIndices ^= reverse;
+      reverseIndices ^= reverse;
       var maxIndex = cache.length - 1;
       for (var ii = 0; ii <= maxIndex; ii++) {
         var entry = cache[reverse ? maxIndex - ii : ii];
         var key = entry[0];
-        if (fn(entry[1], flipIndices ? maxIndex - key : key, this) === false) {
+        if (fn(entry[1], reverseIndices ? maxIndex - key : key, this) === false) {
           break;
         }
       }
       return ii;
     }
-    if (flipIndices && !this.length) {
-      return this.cacheResult().__iterate(fn, reverse, flipIndices);
+    if (reverseIndices && !this.length) {
+      return this.cacheResult().__iterate(fn, reverse, reverseIndices);
     }
-    return this.__iterateUncached(fn, reverse, flipIndices);
+    return this.__iterateUncached(fn, reverse, reverseIndices);
   },
   __makeSequence: function() {
     return makeIndexedSequence(this);
@@ -858,15 +858,15 @@ var ArraySequence = function ArraySequence(array) {
     index = wrapIndex(this, index);
     return index >= 0 && index < this.length;
   },
-  __iterate: function(fn, reverse, flipIndices) {
+  __iterate: function(fn, reverse, reverseIndices) {
     var array = this._array;
     var maxIndex = array.length - 1;
     var ii,
         rr;
-    var reversedIndices = reverse ^ flipIndices;
+    var reversedIndices = reverse ^ reverseIndices;
     for (ii = 0; ii <= maxIndex; ii++) {
       rr = maxIndex - ii;
-      if (fn(array[reverse ? rr : ii], flipIndices ? rr : ii, array) === false) {
+      if (fn(array[reverse ? rr : ii], reverseIndices ? rr : ii, array) === false) {
         return reversedIndices ? reverse ? rr : ii : array.length;
       }
     }
@@ -927,7 +927,7 @@ function increment(value) {
 }
 function filterFactory(sequence, predicate, context, useKeys) {
   var filterSequence = sequence.__makeSequence();
-  filterSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+  filterSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
     var $__0 = this;
     var iterations = 0;
     sequence.__iterate((function(v, k, c) {
@@ -963,10 +963,10 @@ function skipFactory(sequence, amount, useKeys) {
     return sequence;
   }
   var skipSequence = sequence.__makeSequence();
-  skipSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+  skipSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
     var $__0 = this;
     if (reverse) {
-      return this.cacheResult().__iterate(fn, reverse, flipIndices);
+      return this.cacheResult().__iterate(fn, reverse, reverseIndices);
     }
     var skipped = 0;
     var isSkipping = true;
@@ -984,10 +984,10 @@ function skipFactory(sequence, amount, useKeys) {
 }
 function skipWhileFactory(sequence, predicate, thisArg, useKeys) {
   var skipSequence = sequence.__makeSequence();
-  skipSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+  skipSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
     var $__0 = this;
     if (reverse) {
-      return this.cacheResult().__iterate(fn, reverse, flipIndices);
+      return this.cacheResult().__iterate(fn, reverse, reverseIndices);
     }
     var isSkipping = true;
     var iterations = 0;
@@ -1081,12 +1081,12 @@ var Cursor = function Cursor(rootData, keyPath, onChange, value) {
   cursor: function(subKey) {
     return Array.isArray(subKey) && subKey.length === 0 ? this : subCursor(this, subKey);
   },
-  __iterate: function(fn, reverse, flipIndices) {
+  __iterate: function(fn, reverse, reverseIndices) {
     var cursor = this;
     var deref = cursor.deref();
     return deref && deref.__iterate ? deref.__iterate((function(value, key, collection) {
       return fn(wrappedValue(cursor, key, value), key, collection);
-    }), reverse, flipIndices) : 0;
+    }), reverse, reverseIndices) : 0;
   }
 }, {}, Sequence);
 Cursor.prototype[DELETE] = Cursor.prototype.remove;
@@ -1800,16 +1800,16 @@ var $Vector = Vector;
   entries: function() {
     return new VectorIterator(this, 2);
   },
-  __iterator: function(reverse, flipIndices) {
-    return new VectorIterator(this, 2, reverse, flipIndices);
+  __iterator: function(reverse, reverseIndices) {
+    return new VectorIterator(this, 2, reverse, reverseIndices);
   },
-  __iterate: function(fn, reverse, flipIndices) {
+  __iterate: function(fn, reverse, reverseIndices) {
     var vector = this;
     var lastIndex = 0;
     var maxIndex = vector.length - 1;
-    flipIndices ^= reverse;
+    reverseIndices ^= reverse;
     var eachFn = (function(value, ii) {
-      if (fn(value, flipIndices ? maxIndex - ii : ii, vector) === false) {
+      if (fn(value, reverseIndices ? maxIndex - ii : ii, vector) === false) {
         return false;
       } else {
         lastIndex = ii;
@@ -1974,10 +1974,10 @@ function iterateVNode(node, level, offset, max, fn, reverse) {
   }
   return true;
 }
-var VectorIterator = function VectorIterator(vector, type, reverse, flipIndices) {
+var VectorIterator = function VectorIterator(vector, type, reverse, reverseIndices) {
   this._type = type;
   this._reverse = !!reverse;
-  this._flipIndices = !!(flipIndices ^ reverse);
+  this._reverseIndices = !!(reverseIndices ^ reverse);
   this._maxIndex = vector.length - 1;
   var tailOffset = getTailOffset(vector._size);
   var rootStack = vectIteratorFrame(vector._root && vector._root.array, vector._level, -vector._origin, tailOffset - vector._origin - 1);
@@ -2004,7 +2004,7 @@ var VectorIterator = function VectorIterator(vector, type, reverse, flipIndices)
           var index;
           if (type !== 1) {
             index = stack.offset + (rawIndex << stack.level);
-            if (this._flipIndices) {
+            if (this._reverseIndices) {
               index = this._maxIndex - index;
             }
           }
@@ -2716,12 +2716,12 @@ var $Range = Range;
   skip: function(amount) {
     return this.slice(amount);
   },
-  __iterate: function(fn, reverse, flipIndices) {
+  __iterate: function(fn, reverse, reverseIndices) {
     var maxIndex = this.length - 1;
     var step = this._step;
     var value = reverse ? this._start + maxIndex * step : this._start;
     for (var ii = 0; ii <= maxIndex; ii++) {
-      if (fn(value, flipIndices ? maxIndex - ii : ii, this) === false) {
+      if (fn(value, reverseIndices ? maxIndex - ii : ii, this) === false) {
         break;
       }
       value += reverse ? -step : step;
@@ -2788,11 +2788,11 @@ var $Repeat = Repeat;
     }
     return -1;
   },
-  __iterate: function(fn, reverse, flipIndices) {
-    invariant(!flipIndices || this.length < Infinity, 'Cannot access end of infinite range.');
+  __iterate: function(fn, reverse, reverseIndices) {
+    invariant(!reverseIndices || this.length < Infinity, 'Cannot access end of infinite range.');
     var maxIndex = this.length - 1;
     for (var ii = 0; ii <= maxIndex; ii++) {
-      if (fn(this._value, flipIndices ? maxIndex - ii : ii, this) === false) {
+      if (fn(this._value, reverseIndices ? maxIndex - ii : ii, this) === false) {
         break;
       }
     }
