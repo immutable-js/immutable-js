@@ -817,7 +817,7 @@ var $IndexedSequence = IndexedSequence;
   findLastIndex: function(predicate, thisArg) {
     return this.toKeyedSeq().reverse().findIndex(predicate, thisArg);
   },
-  slice: function(begin, end, maintainIndices) {
+  slice: function(begin, end) {
     var sequence = this;
     if (wholeSlice(begin, end, sequence.length)) {
       return sequence;
@@ -825,7 +825,7 @@ var $IndexedSequence = IndexedSequence;
     var sliceSequence = sequence.__makeSequence();
     var resolvedBegin = resolveBegin(begin, sequence.length);
     var resolvedEnd = resolveEnd(end, sequence.length);
-    sliceSequence.length = sequence.length && (maintainIndices ? sequence.length : resolvedEnd - resolvedBegin);
+    sliceSequence.length = sequence.length && resolvedEnd - resolvedBegin;
     sliceSequence.__reversedIndices = sequence.__reversedIndices;
     sliceSequence.__iterateUncached = function(fn, reverse, flipIndices) {
       var $__0 = this;
@@ -841,9 +841,9 @@ var $IndexedSequence = IndexedSequence;
       var iiBegin = reversedIndices ? sequence.length - resolvedEnd : resolvedBegin;
       var iiEnd = reversedIndices ? sequence.length - resolvedBegin : resolvedEnd;
       var lengthIterated = sequence.__iterate((function(v, ii) {
-        return reversedIndices ? (iiEnd != null && ii >= iiEnd) || (ii >= iiBegin) && fn(v, maintainIndices ? ii : ii - iiBegin, $__0) !== false : (ii < iiBegin) || (iiEnd == null || ii < iiEnd) && fn(v, maintainIndices ? ii : ii - iiBegin, $__0) !== false;
+        return reversedIndices ? (iiEnd != null && ii >= iiEnd) || (ii >= iiBegin) && fn(v, ii - iiBegin, $__0) !== false : (ii < iiBegin) || (iiEnd == null || ii < iiEnd) && fn(v, ii - iiBegin, $__0) !== false;
       }), reverse, flipIndices);
-      return this.length != null ? this.length : maintainIndices ? lengthIterated : Math.max(0, lengthIterated - iiBegin);
+      return this.length != null ? this.length : Math.max(0, lengthIterated - iiBegin);
     };
     return sliceSequence;
   },
@@ -1892,9 +1892,9 @@ var $Vector = Vector;
   setLength: function(length) {
     return setVectorBounds(this, 0, length);
   },
-  slice: function(begin, end, maintainIndices) {
-    var sliceSequence = $traceurRuntime.superCall(this, $Vector.prototype, "slice", [begin, end, maintainIndices]);
-    if (!maintainIndices && sliceSequence !== this) {
+  slice: function(begin, end) {
+    var sliceSequence = $traceurRuntime.superCall(this, $Vector.prototype, "slice", [begin, end]);
+    if (sliceSequence !== this) {
       var vector = this;
       var length = vector.length;
       sliceSequence.toVector = (function() {
@@ -2798,12 +2798,9 @@ var $Range = Range;
     var possibleIndex = (searchValue - this._start) / this._step;
     return possibleIndex >= 0 && possibleIndex < this.length && possibleIndex === Math.floor(possibleIndex);
   },
-  slice: function(begin, end, maintainIndices) {
+  slice: function(begin, end) {
     if (wholeSlice(begin, end, this.length)) {
       return this;
-    }
-    if (maintainIndices) {
-      return $traceurRuntime.superCall(this, $Range.prototype, "slice", [begin, end, maintainIndices]);
     }
     begin = resolveBegin(begin, this.length);
     end = resolveEnd(end, this.length);
@@ -2879,10 +2876,7 @@ var $Repeat = Repeat;
   contains: function(searchValue) {
     return is(this._value, searchValue);
   },
-  slice: function(begin, end, maintainIndices) {
-    if (maintainIndices) {
-      return $traceurRuntime.superCall(this, $Repeat.prototype, "slice", [begin, end, maintainIndices]);
-    }
+  slice: function(begin, end) {
     var length = this.length;
     begin = begin < 0 ? Math.max(0, length + begin) : Math.min(length, begin);
     end = end == null ? length : end > 0 ? Math.min(length, end) : Math.max(0, length + end);

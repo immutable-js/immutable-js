@@ -727,7 +727,7 @@ class IndexedSequence extends Sequence {
     return this.toKeyedSeq().reverse().findIndex(predicate, thisArg);
   }
 
-  slice(begin, end, maintainIndices) {
+  slice(begin, end) {
     var sequence = this;
     if (wholeSlice(begin, end, sequence.length)) {
       return sequence;
@@ -736,7 +736,7 @@ class IndexedSequence extends Sequence {
     var sliceSequence = sequence.__makeSequence();
     var resolvedBegin = resolveBegin(begin, sequence.length);
     var resolvedEnd = resolveEnd(end, sequence.length);
-    sliceSequence.length = sequence.length && (maintainIndices ? sequence.length : resolvedEnd - resolvedBegin);
+    sliceSequence.length = sequence.length && resolvedEnd - resolvedBegin;
     sliceSequence.__reversedIndices = sequence.__reversedIndices;
     sliceSequence.__iterateUncached = function(fn, reverse, flipIndices) {
       if (reverse) {
@@ -755,12 +755,11 @@ class IndexedSequence extends Sequence {
       var iiEnd = reversedIndices ? sequence.length - resolvedBegin : resolvedEnd;
       var lengthIterated = sequence.__iterate((v, ii) =>
         reversedIndices ?
-          (iiEnd != null && ii >= iiEnd) || (ii >= iiBegin) && fn(v, maintainIndices ? ii : ii - iiBegin, this) !== false :
-          (ii < iiBegin) || (iiEnd == null || ii < iiEnd) && fn(v, maintainIndices ? ii : ii - iiBegin, this) !== false,
+          (iiEnd != null && ii >= iiEnd) || (ii >= iiBegin) && fn(v, ii - iiBegin, this) !== false :
+          (ii < iiBegin) || (iiEnd == null || ii < iiEnd) && fn(v, ii - iiBegin, this) !== false,
         reverse, flipIndices
       );
-      return this.length != null ? this.length :
-        maintainIndices ? lengthIterated : Math.max(0, lengthIterated - iiBegin);
+      return this.length != null ? this.length : Math.max(0, lengthIterated - iiBegin);
     };
     return sliceSequence;
   }

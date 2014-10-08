@@ -51,10 +51,7 @@ class Repeat extends IndexedSequence {
     return is(this._value, searchValue);
   }
 
-  slice(begin, end, maintainIndices) {
-    if (maintainIndices) {
-      return super.slice(begin, end, maintainIndices);
-    }
+  slice(begin, end) {
     var length = this.length;
     begin = begin < 0 ? Math.max(0, length + begin) : Math.min(length, begin);
     end = end == null ? length : end > 0 ? Math.min(length, end) : Math.max(0, length + end);

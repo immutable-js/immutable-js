@@ -73,12 +73,9 @@ class Range extends IndexedSequence {
       possibleIndex === Math.floor(possibleIndex);
   }
 
-  slice(begin, end, maintainIndices) {
+  slice(begin, end) {
     if (wholeSlice(begin, end, this.length)) {
       return this;
-    }
-    if (maintainIndices) {
-      return super.slice(begin, end, maintainIndices);
     }
     begin = resolveBegin(begin, this.length);
     end = resolveEnd(end, this.length);

@@ -34,9 +34,17 @@ describe('slice', () => {
     expect(Sequence([1,,2,,3,,4,,5,,6]).slice(3, -3).toArray()).toEqual([,3,,4,,,]); // one trailing hole.
   })
 
-  it('can maintain indices for an indexed sequence', () => {
-    expect(Sequence(1,2,3,4,5,6).slice(2, null, true).toArray()).toEqual([,,3,4,5,6]);
-    expect(Sequence(1,2,3,4,5,6).slice(2, 4, true).toArray()).toEqual([,,3,4,,,,]); // two trailing holes.
+  it('can maintain indices for an keyed indexed sequence', () => {
+    expect(Sequence(1,2,3,4,5,6).toKeyedSeq().slice(2).entrySeq().toArray()).toEqual([
+      [2,3],
+      [3,4],
+      [4,5],
+      [5,6],
+    ]);
+    expect(Sequence(1,2,3,4,5,6).toKeyedSeq().slice(2, 4).entrySeq().toArray()).toEqual([
+      [2,3],
+      [3,4],
+    ]);
   })
 
   it.only('slices an unindexed sequence', () => {
@@ -50,8 +58,16 @@ describe('slice', () => {
   it('is reversable', () => {
     expect(Sequence(1,2,3,4,5,6).slice(2).reverse().toArray()).toEqual([6,5,4,3]);
     expect(Sequence(1,2,3,4,5,6).slice(2, 4).reverse().toArray()).toEqual([4,3]);
-    expect(Sequence(1,2,3,4,5,6).slice(2, null, true).reverse().toArray()).toEqual([6,5,4,3,,,,]); // two trailing holes.
-    expect(Sequence(1,2,3,4,5,6).slice(2, 4, true).reverse().toArray()).toEqual([,,4,3,,,,]); // two trailing holes.
+    expect(Sequence(1,2,3,4,5,6).toKeyedSeq().slice(2).reverse().entrySeq().toArray()).toEqual([
+      [5,6],
+      [4,5],
+      [3,4],
+      [2,3],
+    ]);
+    expect(Sequence(1,2,3,4,5,6).toKeyedSeq().slice(2, 4).reverse().entrySeq().toArray()).toEqual([
+      [3,4],
+      [2,3],
+    ]);
   })
 
   it('slices a vector', () => {

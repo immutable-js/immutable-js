@@ -161,10 +161,10 @@ class Vector extends IndexedSequence {
 
   // @pragma Iteration
 
-  slice(begin, end, maintainIndices) {
-    var sliceSequence = super.slice(begin, end, maintainIndices);
+  slice(begin, end) {
+    var sliceSequence = super.slice(begin, end);
     // Optimize the case of vector.slice(b, e).toVector()
-    if (!maintainIndices && sliceSequence !== this) {
+    if (sliceSequence !== this) {
       var vector = this;
       var length = vector.length;
       sliceSequence.toVector = () => setVectorBounds(

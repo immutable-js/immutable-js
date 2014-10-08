@@ -751,10 +751,10 @@ declare module 'immutable' {
     ): IndexedSequence<T>;
 
     /**
-     * Adds the ability to maintain original indices.
+     * Returns IndexedSequence.
      * @override
      */
-    slice(start: number, end?: number, maintainIndices?: boolean): IndexedSequence<T>;
+    slice(begin?: number, end?: number): IndexedSequence<T>;
 
 
     /**
