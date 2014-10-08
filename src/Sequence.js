@@ -222,7 +222,7 @@ class Sequence {
       } else {
         predicate = (v, k, c) => fn(v, iterations++, this) !== false;
       }
-      sequence.__iterate(predicate, reverse); // intentionally do not pass flipIndices
+      sequence.__iterate(predicate, reverse);
       return iterations;
     }
     return valuesSequence;
