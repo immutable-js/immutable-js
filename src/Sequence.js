@@ -373,16 +373,11 @@ class Sequence {
   }
 
   mapKeys(mapper, thisArg) {
-    var sequence = this;
-    var mappedSequence = sequence.__makeSequence();
-    mappedSequence.length = sequence.length;
-    mappedSequence.__iterateUncached = function (fn, reverse) {
-      return sequence.__iterate(
-        (v, k, c) => fn(v, mapper.call(thisArg, k, v, c), this) !== false,
-        reverse
-      );
-    }
-    return mappedSequence;
+    return this.flip().map(mapper, thisArg).flip();
+  }
+
+  mapEntries(mapper, thisArg) {
+    return this.entrySeq().map(mapper, thisArg).fromEntrySeq();
   }
 
   filter(predicate, thisArg) {

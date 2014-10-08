@@ -474,6 +474,20 @@ declare module 'immutable' {
     ): Sequence<M, V>;
 
     /**
+     * Returns a new sequence with entries ([key, value] tuples) passed through
+     * a `mapper` function.
+     *
+     *     Sequence({ a: 1, b: 2 })
+     *       .mapEntries(([k, v]) => [k.toUpperCase(), v * 2])
+     *     // { A: 2, B: 4 }
+     *
+     */
+    mapEntries<KM, VM>(
+      mapper: (entry?: /*(K, V)*/Array<any>, index?: number, seq?: Sequence<K, V>) => /*(KM, VM)*/Array<any>,
+      thisArg?: any
+    ): Sequence<KM, VM>;
+
+    /**
      * Returns a new sequence with only the entries for which the `predicate`
      * function returns true.
      *

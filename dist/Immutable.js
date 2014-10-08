@@ -480,16 +480,10 @@ var $Sequence = Sequence;
     return mappedSequence;
   },
   mapKeys: function(mapper, thisArg) {
-    var sequence = this;
-    var mappedSequence = sequence.__makeSequence();
-    mappedSequence.length = sequence.length;
-    mappedSequence.__iterateUncached = function(fn, reverse) {
-      var $__0 = this;
-      return sequence.__iterate((function(v, k, c) {
-        return fn(v, mapper.call(thisArg, k, v, c), $__0) !== false;
-      }), reverse);
-    };
-    return mappedSequence;
+    return this.flip().map(mapper, thisArg).flip();
+  },
+  mapEntries: function(mapper, thisArg) {
+    return this.entrySeq().map(mapper, thisArg).fromEntrySeq();
   },
   filter: function(predicate, thisArg) {
     return filterFactory(this, predicate, thisArg, true);
