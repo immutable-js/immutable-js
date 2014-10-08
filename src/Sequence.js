@@ -1046,11 +1046,8 @@ function filterFactory(sequence, predicate, context, useKeys) {
     var iterations = 0;
     sequence.__iterate((v, k, c) => {
       if (predicate.call(context, v, k, c)) {
-        if (fn(v, useKeys ? k : iterations, this) !== false) {
-          iterations++;
-        } else {
-          return false;
-        }
+        iterations++;
+        return fn(v, useKeys ? k : iterations - 1, this);
       }
     }, reverse);
     return iterations;
