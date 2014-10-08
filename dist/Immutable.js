@@ -720,36 +720,6 @@ var $IndexedSequence = IndexedSequence;
   findLastIndex: function(predicate, thisArg) {
     return this.toKeyedSeq().reverse().findIndex(predicate, thisArg);
   },
-  slice: function(begin, end) {
-    var sequence = this;
-    if (wholeSlice(begin, end, sequence.length)) {
-      return sequence;
-    }
-    var sliceSequence = sequence.__makeSequence();
-    var resolvedBegin = resolveBegin(begin, sequence.length);
-    var resolvedEnd = resolveEnd(end, sequence.length);
-    sliceSequence.length = sequence.length && resolvedEnd - resolvedBegin;
-    sliceSequence.__reversedIndices = sequence.__reversedIndices;
-    sliceSequence.__iterateUncached = function(fn, reverse, flipIndices) {
-      var $__0 = this;
-      if (reverse) {
-        return this.cacheResult().__iterate(fn, reverse, flipIndices);
-      }
-      var reversedIndices = this.__reversedIndices ^ flipIndices;
-      if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd || (reversedIndices && sequence.length == null)) {
-        var exactLength = sequence.count();
-        resolvedBegin = resolveBegin(begin, exactLength);
-        resolvedEnd = resolveEnd(end, exactLength);
-      }
-      var iiBegin = reversedIndices ? sequence.length - resolvedEnd : resolvedBegin;
-      var iiEnd = reversedIndices ? sequence.length - resolvedBegin : resolvedEnd;
-      var lengthIterated = sequence.__iterate((function(v, ii) {
-        return reversedIndices ? (iiEnd != null && ii >= iiEnd) || (ii >= iiBegin) && fn(v, ii - iiBegin, $__0) !== false : (ii < iiBegin) || (iiEnd == null || ii < iiEnd) && fn(v, ii - iiBegin, $__0) !== false;
-      }), reverse, flipIndices);
-      return this.length != null ? this.length : Math.max(0, lengthIterated - iiBegin);
-    };
-    return sliceSequence;
-  },
   splice: function(index, removeNum) {
     var numArgs = arguments.length;
     removeNum = Math.max(removeNum | 0, 0);
