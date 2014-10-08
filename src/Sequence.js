@@ -241,7 +241,7 @@ class Sequence {
       // We cache as an entries array, so we can just return the cache!
       return Sequence(sequence._cache);
     }
-    var entriesSequence = sequence.map(entryMapper).valueSeq();
+    var entriesSequence = sequence.toKeyedSeq().map(entryMapper).valueSeq();
     entriesSequence.fromEntries = () => sequence;
     return entriesSequence;
   }
@@ -379,11 +379,15 @@ class Sequence {
   }
 
   mapKeys(mapper, thisArg) {
-    return this.flip().map(mapper, thisArg).flip();
+    return this.flip().map(
+      (k, v) => mapper.call(thisArg, k, v, this)
+    ).flip();
   }
 
   mapEntries(mapper, thisArg) {
-    return this.entrySeq().map(mapper, thisArg).fromEntrySeq();
+    return this.entrySeq().map(
+      (entry, index) => mapper.call(thisArg, entry, index, this)
+    ).fromEntrySeq();
   }
 
   filter(predicate, thisArg) {

@@ -359,7 +359,7 @@ var $Sequence = Sequence;
     if (sequence._cache) {
       return $Sequence(sequence._cache);
     }
-    var entriesSequence = sequence.map(entryMapper).valueSeq();
+    var entriesSequence = sequence.toKeyedSeq().map(entryMapper).valueSeq();
     entriesSequence.fromEntries = (function() {
       return sequence;
     });
@@ -488,10 +488,16 @@ var $Sequence = Sequence;
     return mappedSequence;
   },
   mapKeys: function(mapper, thisArg) {
-    return this.flip().map(mapper, thisArg).flip();
+    var $__0 = this;
+    return this.flip().map((function(k, v) {
+      return mapper.call(thisArg, k, v, $__0);
+    })).flip();
   },
   mapEntries: function(mapper, thisArg) {
-    return this.entrySeq().map(mapper, thisArg).fromEntrySeq();
+    var $__0 = this;
+    return this.entrySeq().map((function(entry, index) {
+      return mapper.call(thisArg, entry, index, $__0);
+    })).fromEntrySeq();
   },
   filter: function(predicate, thisArg) {
     return filterFactory(this, predicate, thisArg, true);
