@@ -1807,9 +1807,9 @@ var $Vector = Vector;
     var vector = this;
     var lastIndex = 0;
     var maxIndex = vector.length - 1;
-    reverseIndices ^= reverse;
+    var flipIndices = reverse && !reverseIndices;
     var eachFn = (function(value, ii) {
-      if (fn(value, reverseIndices ? maxIndex - ii : ii, vector) === false) {
+      if (fn(value, flipIndices ? maxIndex - ii : ii, vector) === false) {
         return false;
       } else {
         lastIndex = ii;

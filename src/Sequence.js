@@ -693,6 +693,7 @@ class IndexedSequence extends Sequence {
     )).fromEntrySeq().valueSeq();
   }
 
+  // reverseIndices is only true when reverse is also true
   // abstract __iterateUncached(fn, reverse, reverseIndices)
 
   __iterate(fn, reverse, reverseIndices) {
