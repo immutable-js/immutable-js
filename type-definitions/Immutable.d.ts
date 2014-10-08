@@ -778,10 +778,10 @@ declare module 'immutable' {
     ): IndexedSequence<M>;
 
     /**
-     * Has the same altered behavior as `takeWhile`.
+     * Returns IndexedSequence
      * @override
      */
-    takeLast(amount: number, maintainIndices?: boolean): IndexedSequence<T>;
+    takeLast(amount: number): IndexedSequence<T>;
 
     /**
      * Has the same altered behavior as `takeWhile`.
@@ -800,10 +800,10 @@ declare module 'immutable' {
     skip(amount: number, maintainIndices?: boolean): IndexedSequence<T>;
 
     /**
-     * Has the same altered behavior as `skipWhile`.
+     * Returns IndexedSequence
      * @override
      */
-    skipLast(amount: number, maintainIndices?: boolean): IndexedSequence<T>;
+    skipLast(amount: number): IndexedSequence<T>;
 
     /**
      * Indexed sequences have a different `skipWhile` behavior. The first

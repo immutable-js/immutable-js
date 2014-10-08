@@ -533,8 +533,8 @@ var $Sequence = Sequence;
     takeSequence.length = this.length && Math.min(this.length, amount);
     return takeSequence;
   },
-  takeLast: function(amount, maintainIndices) {
-    return this.reverse(maintainIndices).take(amount).reverse(maintainIndices);
+  takeLast: function(amount) {
+    return this.reverse().take(amount).reverse();
   },
   takeWhile: function(predicate, thisArg) {
     var sequence = this;
@@ -587,8 +587,8 @@ var $Sequence = Sequence;
     skipSequence.length = this.length && Math.max(0, this.length - amount);
     return skipSequence;
   },
-  skipLast: function(amount, maintainIndices) {
-    return this.reverse(maintainIndices).skip(amount).reverse(maintainIndices);
+  skipLast: function(amount) {
+    return this.reverse().skip(amount).reverse();
   },
   skipWhile: function(predicate, thisArg, maintainIndices) {
     var sequence = this;

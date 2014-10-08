@@ -436,8 +436,8 @@ class Sequence {
     return takeSequence;
   }
 
-  takeLast(amount, maintainIndices) {
-    return this.reverse(maintainIndices).take(amount).reverse(maintainIndices);
+  takeLast(amount) {
+    return this.reverse().take(amount).reverse();
   }
 
   takeWhile(predicate, thisArg) {
@@ -494,8 +494,8 @@ class Sequence {
     return skipSequence;
   }
 
-  skipLast(amount, maintainIndices) {
-    return this.reverse(maintainIndices).skip(amount).reverse(maintainIndices);
+  skipLast(amount) {
+    return this.reverse().skip(amount).reverse();
   }
 
   skipWhile(predicate, thisArg, maintainIndices) {
