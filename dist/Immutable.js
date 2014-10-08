@@ -549,58 +549,13 @@ var $Sequence = Sequence;
     return this.takeWhile(not(predicate), thisArg);
   },
   skip: function(amount) {
-    var sequence = this;
-    if (amount === 0) {
-      return sequence;
-    }
-    var skipSequence = sequence.__makeSequence();
-    skipSequence.__iterateUncached = function(fn, reverse, flipIndices) {
-      var $__0 = this;
-      if (reverse) {
-        return this.cacheResult().__iterate(fn, reverse, flipIndices);
-      }
-      var isSkipping = true;
-      var iterations = 0;
-      var skipped = 0;
-      sequence.__iterate((function(v, k) {
-        if (!(isSkipping && (isSkipping = skipped++ < amount))) {
-          if (fn(v, k, $__0) !== false) {
-            iterations++;
-          } else {
-            return false;
-          }
-        }
-      }));
-      return iterations;
-    };
-    skipSequence.length = this.length && Math.max(0, this.length - amount);
-    return skipSequence;
+    return skipFactory(this, amount, true);
   },
   skipLast: function(amount) {
     return this.reverse().skip(amount).reverse();
   },
   skipWhile: function(predicate, thisArg) {
-    var sequence = this;
-    var skipSequence = sequence.__makeSequence();
-    skipSequence.__iterateUncached = function(fn, reverse, flipIndices) {
-      var $__0 = this;
-      if (reverse) {
-        return this.cacheResult().__iterate(fn, reverse, flipIndices);
-      }
-      var isSkipping = true;
-      var iterations = 0;
-      sequence.__iterate((function(v, k, c) {
-        if (!(isSkipping && (isSkipping = predicate.call(thisArg, v, k, c)))) {
-          if (fn(v, k, $__0) !== false) {
-            iterations++;
-          } else {
-            return false;
-          }
-        }
-      }));
-      return iterations;
-    };
-    return skipSequence;
+    return skipWhileFactory(this, predicate, thisArg, true);
   },
   skipUntil: function(predicate, thisArg) {
     return this.skipWhile(not(predicate), thisArg);
@@ -830,57 +785,10 @@ var $IndexedSequence = IndexedSequence;
     return this.map(mapper, thisArg).flatten();
   },
   skip: function(amount) {
-    var sequence = this;
-    if (amount === 0) {
-      return sequence;
-    }
-    var skipSequence = sequence.__makeSequence();
-    skipSequence.__iterateUncached = function(fn, reverse, flipIndices) {
-      var $__0 = this;
-      if (reverse) {
-        return this.cacheResult().__iterate(fn, reverse, flipIndices);
-      }
-      var reversedIndices = sequence.__reversedIndices ^ flipIndices;
-      var isSkipping = true;
-      var indexOffset = 0;
-      var skipped = 0;
-      var length = sequence.__iterate((function(v, ii) {
-        if (isSkipping) {
-          isSkipping = skipped++ < amount;
-          if (!isSkipping) {
-            indexOffset = ii;
-          }
-        }
-        return isSkipping || fn(v, reversedIndices ? ii : ii - indexOffset, $__0) !== false;
-      }), reverse, flipIndices);
-      return reversedIndices ? indexOffset + 1 : length - indexOffset;
-    };
-    skipSequence.length = this.length && Math.max(0, this.length - amount);
-    return skipSequence;
+    return skipFactory(this, amount, false);
   },
   skipWhile: function(predicate, thisArg) {
-    var sequence = this;
-    var skipWhileSequence = sequence.__makeSequence();
-    skipWhileSequence.__iterateUncached = function(fn, reverse, flipIndices) {
-      var $__0 = this;
-      if (reverse) {
-        return this.cacheResult().__iterate(fn, reverse, flipIndices);
-      }
-      var reversedIndices = sequence.__reversedIndices ^ flipIndices;
-      var isSkipping = true;
-      var indexOffset = 0;
-      var length = sequence.__iterate((function(v, ii, c) {
-        if (isSkipping) {
-          isSkipping = predicate.call(thisArg, v, ii, c);
-          if (!isSkipping) {
-            indexOffset = ii;
-          }
-        }
-        return isSkipping || fn(v, reversedIndices ? ii : ii - indexOffset, $__0) !== false;
-      }), reverse, flipIndices);
-      return reversedIndices ? indexOffset + 1 : length - indexOffset;
-    };
-    return skipWhileSequence;
+    return skipWhileFactory(this, predicate, thisArg, false);
   },
   groupBy: function(mapper, context) {
     return groupByFactory(this, mapper, context, false);
@@ -1082,6 +990,49 @@ function groupByFactory(seq, mapper, context, useKeys) {
   }) : (function(group) {
     return Sequence(group);
   }));
+}
+function skipFactory(sequence, amount, useKeys) {
+  if (amount === 0) {
+    return sequence;
+  }
+  var skipSequence = sequence.__makeSequence();
+  skipSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+    var $__0 = this;
+    if (reverse) {
+      return this.cacheResult().__iterate(fn, reverse, flipIndices);
+    }
+    var skipped = 0;
+    var isSkipping = true;
+    var iterations = 0;
+    sequence.__iterate((function(v, k) {
+      if (!(isSkipping && (isSkipping = skipped++ < amount))) {
+        iterations++;
+        return fn(v, useKeys ? k : iterations - 1, $__0);
+      }
+    }));
+    return iterations;
+  };
+  skipSequence.length = sequence.length && Math.max(0, sequence.length - amount);
+  return skipSequence;
+}
+function skipWhileFactory(sequence, predicate, thisArg, useKeys) {
+  var skipSequence = sequence.__makeSequence();
+  skipSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+    var $__0 = this;
+    if (reverse) {
+      return this.cacheResult().__iterate(fn, reverse, flipIndices);
+    }
+    var isSkipping = true;
+    var iterations = 0;
+    sequence.__iterate((function(v, k, c) {
+      if (!(isSkipping && (isSkipping = predicate.call(thisArg, v, k, c)))) {
+        iterations++;
+        return fn(v, useKeys ? k : iterations - 1, $__0);
+      }
+    }));
+    return iterations;
+  };
+  return skipSequence;
 }
 function not(predicate) {
   return function() {
