@@ -25,7 +25,7 @@ describe('flatten', () => {
   it('gives the correct iteration count', () => {
     var nested = I.fromJS([[1,2,3],[4,5,6]]);
     var flat = nested.flatten();
-    expect(flat.forEach(x => x < 6)).toEqual(5);
+    expect(flat.forEach(x => x < 4)).toEqual(4);
   })
 
   it('flattens anything sequenceable', () => {

@@ -416,7 +416,6 @@ class Sequence {
     var takeSequence = sequence.__makeSequence();
     takeSequence.__iterateUncached = function(fn, reverse, flipIndices) {
       if (reverse) {
-        // TODO: can we do a better job of this?
         return this.cacheResult().__iterate(fn, reverse, flipIndices);
       }
       var iterations = 0;
@@ -426,7 +425,7 @@ class Sequence {
         } else {
           return false;
         }
-      }, reverse, flipIndices);
+      });
       return iterations;
     };
     takeSequence.length = this.length && Math.min(this.length, amount);
@@ -442,7 +441,6 @@ class Sequence {
     var takeSequence = sequence.__makeSequence();
     takeSequence.__iterateUncached = function(fn, reverse, flipIndices) {
       if (reverse) {
-        // TODO: can we do a better job of this?
         return this.cacheResult().__iterate(fn, reverse, flipIndices);
       }
       var iterations = 0;
@@ -452,7 +450,7 @@ class Sequence {
         } else {
           return false;
         }
-      }, reverse, flipIndices);
+      });
       return iterations;
     };
     return takeSequence;
@@ -470,7 +468,6 @@ class Sequence {
     var skipSequence = sequence.__makeSequence();
     skipSequence.__iterateUncached = function (fn, reverse, flipIndices) {
       if (reverse) {
-        // TODO: can we do a better job of this?
         return this.cacheResult().__iterate(fn, reverse, flipIndices);
       }
       var isSkipping = true;
@@ -484,7 +481,7 @@ class Sequence {
             return false;
           }
         }
-      }, reverse, flipIndices);
+      });
       return iterations;
     };
     skipSequence.length = this.length && Math.max(0, this.length - amount);
@@ -500,7 +497,6 @@ class Sequence {
     var skipSequence = sequence.__makeSequence();
     skipSequence.__iterateUncached = function (fn, reverse, flipIndices) {
       if (reverse) {
-        // TODO: can we do a better job of this?
         return this.cacheResult().__iterate(fn, reverse, flipIndices);
       }
       var isSkipping = true;
@@ -513,7 +509,7 @@ class Sequence {
             return false;
           }
         }
-      }, reverse, flipIndices);
+      });
       return iterations;
     };
     return skipSequence;
@@ -625,31 +621,19 @@ class IndexedSequence extends Sequence {
   }
 
   concat(...values) {
-    var sequences = [this].concat(values).map(value => Sequence(value));
-    var concatSequence = this.__makeSequence();
+    var sequences = [this].concat(values);
+    var concatSequence = Sequence(sequences).flatten();
     concatSequence.length = sequences.reduce(
-      (sum, seq) => sum != null && seq.length != null ? sum + seq.length : undefined, 0
-    );
-    concatSequence.__iterateUncached = function(fn, reverse, flipIndices) {
-      var iterations = 0;
-      var stoppedIteration;
-      var maxIndex = flipIndices && this.length - 1;
-      var maxSequencesIndex = sequences.length - 1;
-      for (var ii = 0; ii <= maxSequencesIndex && !stoppedIteration; ii++) {
-        var sequence = sequences[reverse ? maxSequencesIndex - ii : ii];
-        if (!(sequence instanceof IndexedSequence)) {
-          sequence = sequence.valueSeq();
-        }
-        iterations += sequence.__iterate((v, index) => {
-          index += iterations;
-          if (fn(v, flipIndices ? maxIndex - index : index, this) === false) {
-            stoppedIteration = true;
-            return false;
+      (sum, seq) => {
+        if (sum !== undefined) {
+          var len = Sequence(seq).length;
+          if (len != null) {
+            return sum + len;
           }
-        }, reverse); // intentionally do not pass flipIndices
-      }
-      return iterations;
-    }
+        }
+      },
+      0
+    );
     return concatSequence;
   }
 
@@ -750,25 +734,22 @@ class IndexedSequence extends Sequence {
 
   flatten() {
     var sequence = this;
-    var flatSequence = sequence.__makeSequence();
-    flatSequence.__iterateUncached = function (fn, reverse, flipIndices) {
-      if (flipIndices) {
-        return this.cacheResult().__iterate(fn, reverse, flipIndices);
-      }
-      var index = 0;
-      sequence.__iterate(
-        seq => {
-          index += Sequence(seq).__iterate(
-            (v, i) => fn(v, index + i, this) !== false,
-            reverse,
-            flipIndices
-          )
-        },
-        reverse,
-        flipIndices
-      );
-      return index;
-    };
+    var flatSequence = this.__makeSequence();
+    flatSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      var iterations = 0;
+      var maxIndex = this.length - 1;
+      sequence.__iterate(seq => {
+        var stopped = false;
+        Sequence(seq).__iterate(v => {
+          if (fn(v, flipIndices ? maxIndex - iterations++ : iterations++, this) === false) {
+            stopped = true;
+            return false;
+          }
+        }, reverse);
+        return !stopped;
+      }, reverse);
+      return iterations;
+    }
     return flatSequence;
   }
 

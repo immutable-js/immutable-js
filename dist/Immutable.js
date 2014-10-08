@@ -525,7 +525,7 @@ var $Sequence = Sequence;
         } else {
           return false;
         }
-      }), reverse, flipIndices);
+      }));
       return iterations;
     };
     takeSequence.length = this.length && Math.min(this.length, amount);
@@ -549,7 +549,7 @@ var $Sequence = Sequence;
         } else {
           return false;
         }
-      }), reverse, flipIndices);
+      }));
       return iterations;
     };
     return takeSequence;
@@ -579,7 +579,7 @@ var $Sequence = Sequence;
             return false;
           }
         }
-      }), reverse, flipIndices);
+      }));
       return iterations;
     };
     skipSequence.length = this.length && Math.max(0, this.length - amount);
@@ -606,7 +606,7 @@ var $Sequence = Sequence;
             return false;
           }
         }
-      }), reverse, flipIndices);
+      }));
       return iterations;
     };
     return skipSequence;
@@ -718,34 +718,16 @@ var $IndexedSequence = IndexedSequence;
     for (var values = [],
         $__3 = 0; $__3 < arguments.length; $__3++)
       values[$__3] = arguments[$__3];
-    var sequences = [this].concat(values).map((function(value) {
-      return Sequence(value);
-    }));
-    var concatSequence = this.__makeSequence();
+    var sequences = [this].concat(values);
+    var concatSequence = Sequence(sequences).flatten();
     concatSequence.length = sequences.reduce((function(sum, seq) {
-      return sum != null && seq.length != null ? sum + seq.length : undefined;
-    }), 0);
-    concatSequence.__iterateUncached = function(fn, reverse, flipIndices) {
-      var $__0 = this;
-      var iterations = 0;
-      var stoppedIteration;
-      var maxIndex = flipIndices && this.length - 1;
-      var maxSequencesIndex = sequences.length - 1;
-      for (var ii = 0; ii <= maxSequencesIndex && !stoppedIteration; ii++) {
-        var sequence = sequences[reverse ? maxSequencesIndex - ii : ii];
-        if (!(sequence instanceof $IndexedSequence)) {
-          sequence = sequence.valueSeq();
+      if (sum !== undefined) {
+        var len = Sequence(seq).length;
+        if (len != null) {
+          return sum + len;
         }
-        iterations += sequence.__iterate((function(v, index) {
-          index += iterations;
-          if (fn(v, flipIndices ? maxIndex - index : index, $__0) === false) {
-            stoppedIteration = true;
-            return false;
-          }
-        }), reverse);
       }
-      return iterations;
-    };
+    }), 0);
     return concatSequence;
   },
   reverse: function() {
@@ -831,19 +813,22 @@ var $IndexedSequence = IndexedSequence;
   },
   flatten: function() {
     var sequence = this;
-    var flatSequence = sequence.__makeSequence();
+    var flatSequence = this.__makeSequence();
     flatSequence.__iterateUncached = function(fn, reverse, flipIndices) {
       var $__0 = this;
-      if (flipIndices) {
-        return this.cacheResult().__iterate(fn, reverse, flipIndices);
-      }
-      var index = 0;
+      var iterations = 0;
+      var maxIndex = this.length - 1;
       sequence.__iterate((function(seq) {
-        index += Sequence(seq).__iterate((function(v, i) {
-          return fn(v, index + i, $__0) !== false;
-        }), reverse, flipIndices);
-      }), reverse, flipIndices);
-      return index;
+        var stopped = false;
+        Sequence(seq).__iterate((function(v) {
+          if (fn(v, flipIndices ? maxIndex - iterations++ : iterations++, $__0) === false) {
+            stopped = true;
+            return false;
+          }
+        }), reverse);
+        return !stopped;
+      }), reverse);
+      return iterations;
     };
     return flatSequence;
   },

@@ -309,7 +309,7 @@ declare module 'immutable' {
      *
      * Unlike `Array.prototype.forEach`, if any call of `sideEffect` returns
      * `false`, the iteration will stop. Returns the length of the sequence which
-     * was iterated.
+     * was iterated (including the last iteration which returned false).
      */
     forEach(
       sideEffect: (value?: V, key?: K, seq?: Sequence<K, V>) => any,
