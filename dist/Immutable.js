@@ -461,8 +461,8 @@ var $Sequence = Sequence;
     return this.toKeyedSeq().reverse().findKey(predicate, thisArg);
   },
   flip: function() {
-    var sequence = this;
-    var flipSequence = makeSequence();
+    var sequence = this.toKeyedSeq();
+    var flipSequence = sequence.__makeSequence();
     flipSequence.length = sequence.length;
     flipSequence.flip = (function() {
       return sequence;

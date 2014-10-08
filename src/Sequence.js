@@ -355,9 +355,8 @@ class Sequence {
   }
 
   flip() {
-    // flip() always returns a non-indexed Sequence.
-    var sequence = this;
-    var flipSequence = makeSequence();
+    var sequence = this.toKeyedSeq();
+    var flipSequence = sequence.__makeSequence();
     flipSequence.length = sequence.length;
     flipSequence.flip = () => sequence;
     flipSequence.__iterateUncached = function (fn, reverse) {
