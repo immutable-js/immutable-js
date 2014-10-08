@@ -784,13 +784,12 @@ declare module 'immutable' {
     takeLast(amount: number): IndexedSequence<T>;
 
     /**
-     * Has the same altered behavior as `takeWhile`.
+     * Returns IndexedSequence
      * @override
      */
     takeUntil(
       predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
-      thisArg?: any,
-      maintainIndices?: boolean
+      thisArg?: any
     ): IndexedSequence<T>;
 
     /**

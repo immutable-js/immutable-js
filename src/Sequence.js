@@ -461,8 +461,8 @@ class Sequence {
     return takeSequence;
   }
 
-  takeUntil(predicate, thisArg, maintainIndices) {
-    return this.takeWhile(not(predicate), thisArg, maintainIndices);
+  takeUntil(predicate, thisArg) {
+    return this.takeWhile(not(predicate), thisArg);
   }
 
   skip(amount) {

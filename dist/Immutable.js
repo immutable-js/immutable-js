@@ -556,8 +556,8 @@ var $Sequence = Sequence;
     };
     return takeSequence;
   },
-  takeUntil: function(predicate, thisArg, maintainIndices) {
-    return this.takeWhile(not(predicate), thisArg, maintainIndices);
+  takeUntil: function(predicate, thisArg) {
+    return this.takeWhile(not(predicate), thisArg);
   },
   skip: function(amount) {
     var sequence = this;
