@@ -238,6 +238,29 @@ declare module 'immutable' {
     toSet(): Set<V>;
 
     /**
+     * Returns a new Sequence identical to this one, but does not behave as
+     * indexed. Instead the indices are treated as keys. This is useful if you
+     * want to operate on an IndexedSequence and preserve the index, value
+     * pairs.
+     *
+     * This is the generalized (and lazy) form of converting a Vector to Map.
+     *
+     * The returned Sequence will have identical iteration order as
+     * this Sequence.
+     *
+     * For already Keyed sequences, simply returns itself.
+     *
+     * Example:
+     *
+     *     var indexedSeq = Immutable.Sequence('A', 'B', 'C');
+     *     indexedSeq.filter(v => v === 'B').toString() // Seq [ 'B' ]
+     *     var keyedSeq = indexedSeq.toKeyedSeq();
+     *     keyedSeq.filter(v => v === 'B').toString() // Seq { 1: 'B' }
+     *
+     */
+    toKeyedSeq(): Sequence<K, V>;
+
+    /**
      * True if this and the other sequence have value equality, as defined
      * by `Immutable.is()`.
      *
@@ -622,30 +645,14 @@ declare module 'immutable' {
    * Unlike JavaScript arrays, `IndexedSequence`s are always dense. "Unset"
    * indices and `undefined` indices are indistinguishable, and all indices from
    * 0 to `length` are visited when iterated.
+   *
+   * All IndexedSequence methods return re-indexed Sequences. In other words,
+   * indices always start at 0 and increment until length. If you wish to
+   * preserve indices, using them as keys, use `toKeyedSeq()`.
+   *
    */
 
   export interface IndexedSequence<T> extends Sequence<number, T> {
-
-    /**
-     * Returns a new Sequence identical to this one, but does not behave as
-     * indexed. Instead the indices are treated as keys. This is useful if you
-     * want to operate on an IndexedSequence and preserve the index, value
-     * pairs.
-     *
-     * This is the generalized (and lazy) form of converting a Vector to Map.
-     *
-     * The returned Sequence will have identical iteration order as
-     * this Sequence.
-     *
-     * Example:
-     *
-     *     var indexedSeq = Immutable.Sequence('A', 'B', 'C');
-     *     indexedSeq.filter(v => v === 'B').toString() // Seq [ 'B' ]
-     *     var keyedSeq = indexedSeq.toKeyedSeq();
-     *     keyedSeq.filter(v => v === 'B').toString() // Seq { 1: 'B' }
-     *
-     */
-    toKeyedSeq(): Sequence<number, T>;
 
     /**
      * If this is a sequence of entries (key-value tuples), it will return a
@@ -728,24 +735,19 @@ declare module 'immutable' {
     concat(...valuesOrSequences: any[]): IndexedSequence<any>;
 
     /**
-     * This new behavior will not only iterate through the sequence in reverse,
-     * but it will also reverse the indices so the last value will report being
-     * at index 0. If you wish to preserve the original indices, set
-     * maintainIndices to true.
+     * Returns a new IndexedSequence with this sequences values in the
+     * reversed order.
      * @override
      */
-    reverse(maintainIndices?: boolean): IndexedSequence<T>;
+    reverse(): IndexedSequence<T>;
 
     /**
-     * Indexed sequences have a different `filter` behavior, where the filtered
-     * values have new indicies incrementing from 0. If you want to preserve the
-     * original indicies, set maintainIndices to true.
+     * Returns IndexedSequence.
      * @override
      */
     filter(
       predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
-      thisArg?: any,
-      maintainIndices?: boolean
+      thisArg?: any
     ): IndexedSequence<T>;
 
     /**

@@ -93,8 +93,8 @@ describe('concat', () => {
 
   it('lazily reverses indexed sequences with unknown length, maintaining indicies', () => {
     var a = Sequence([1,2,3]).filter(x=>true);
-    expect(a.concat(a, a).reverse(true).length).toBe(undefined);
-    expect(a.concat(a, a).reverse(true).entrySeq().toArray()).toEqual(
+    expect(a.concat(a, a).toKeyedSeq().reverse().length).toBe(undefined);
+    expect(a.concat(a, a).toKeyedSeq().reverse().entrySeq().toArray()).toEqual(
       [[8,3],[7,2],[6,1],[5,3],[4,2],[3,1],[2,3],[1,2],[0,1]]
     );
   })

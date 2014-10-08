@@ -213,6 +213,9 @@ var $Sequence = Sequence;
     assertNotInfinite(this.length);
     return Set.from(this);
   },
+  toKeyedSeq: function() {
+    return this;
+  },
   hashCode: function() {
     return this.__hash || (this.__hash = this.length === Infinity ? 0 : this.reduce((function(h, v, k) {
       return (h + (hash(v) ^ (v === k ? 0 : hash(k)))) & HASH_MAX_VAL;
@@ -379,7 +382,7 @@ var $Sequence = Sequence;
     return reduction;
   },
   reduceRight: function(reducer, initialReduction, thisArg) {
-    var reversed = this.reverse(true);
+    var reversed = this.toKeyedSeq().reverse();
     return reversed.reduce.apply(reversed, arguments);
   },
   every: function(predicate, thisArg) {
@@ -447,10 +450,10 @@ var $Sequence = Sequence;
     return foundKey;
   },
   findLast: function(predicate, thisArg, notSetValue) {
-    return this.reverse(true).find(predicate, thisArg, notSetValue);
+    return this.toKeyedSeq().reverse().find(predicate, thisArg, notSetValue);
   },
   findLastKey: function(predicate, thisArg) {
-    return this.reverse(true).findKey(predicate, thisArg);
+    return this.toKeyedSeq().reverse().findKey(predicate, thisArg);
   },
   flip: function() {
     var sequence = this;
@@ -492,7 +495,7 @@ var $Sequence = Sequence;
     return mappedSequence;
   },
   filter: function(predicate, thisArg) {
-    return filterFactory(this, predicate, thisArg, true, false);
+    return filterFactory(this, predicate, thisArg, true);
   },
   slice: function(begin, end) {
     if (wholeSlice(begin, end, this.length)) {
@@ -773,25 +776,25 @@ var $IndexedSequence = IndexedSequence;
     };
     return concatSequence;
   },
-  reverse: function(maintainIndices) {
+  reverse: function() {
     var sequence = this;
     var reversedSequence = sequence.__makeSequence();
     reversedSequence.length = sequence.length;
-    reversedSequence.__reversedIndices = !!(maintainIndices ^ sequence.__reversedIndices);
-    reversedSequence.__iterateUncached = (function(fn, reverse, flipIndices) {
-      return sequence.__iterate(fn, !reverse, flipIndices ^ maintainIndices);
-    });
-    reversedSequence.reverse = function(_maintainIndices) {
-      return maintainIndices === _maintainIndices ? sequence : IndexedSequencePrototype.reverse.call(this, _maintainIndices);
+    reversedSequence.__reversedIndices = sequence.__reversedIndices;
+    reversedSequence.__iterateUncached = function(fn, reverse, flipIndices) {
+      var $__0 = this;
+      var i = 0;
+      return sequence.__iterate((function(v) {
+        return fn(v, i++, $__0) !== false;
+      }), !reverse, flipIndices);
     };
+    reversedSequence.reverse = (function() {
+      return sequence;
+    });
     return reversedSequence;
   },
-  filter: function(predicate, thisArg, maintainIndices) {
-    var filterSequence = filterFactory(this, predicate, thisArg, maintainIndices, maintainIndices);
-    if (maintainIndices) {
-      filterSequence.length = this.length;
-    }
-    return filterSequence;
+  filter: function(predicate, thisArg) {
+    return filterFactory(this, predicate, thisArg, false);
   },
   get: function(index, notSetValue) {
     index = wrapIndex(this, index);
@@ -805,14 +808,14 @@ var $IndexedSequence = IndexedSequence;
     }));
   },
   lastIndexOf: function(searchValue) {
-    return this.reverse(true).indexOf(searchValue);
+    return this.toKeyedSeq().reverse().indexOf(searchValue);
   },
   findIndex: function(predicate, thisArg) {
     var key = this.findKey(predicate, thisArg);
     return key == null ? -1 : key;
   },
   findLastIndex: function(predicate, thisArg) {
-    return this.reverse(true).findIndex(predicate, thisArg);
+    return this.toKeyedSeq().reverse().findIndex(predicate, thisArg);
   },
   slice: function(begin, end, maintainIndices) {
     var sequence = this;
@@ -1098,12 +1101,12 @@ function returnThis() {
 function increment(value) {
   return (value || 0) + 1;
 }
-function filterFactory(sequence, predicate, thisArg, useKeys, maintainIndices) {
+function filterFactory(sequence, predicate, thisArg, useKeys) {
   var filterSequence = sequence.__makeSequence();
   filterSequence.__iterateUncached = function(fn, reverse, flipIndices) {
     var $__0 = this;
     var iterations = 0;
-    var length = sequence.__iterate((function(v, k, c) {
+    sequence.__iterate((function(v, k, c) {
       if (predicate.call(thisArg, v, k, c)) {
         if (fn(v, useKeys ? k : iterations, $__0) !== false) {
           iterations++;
@@ -1112,7 +1115,7 @@ function filterFactory(sequence, predicate, thisArg, useKeys, maintainIndices) {
         }
       }
     }), reverse, flipIndices);
-    return maintainIndices ? length : iterations;
+    return iterations;
   };
   return filterSequence;
 }

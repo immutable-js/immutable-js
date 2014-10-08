@@ -95,6 +95,10 @@ class Sequence {
     return Set.from(this);
   }
 
+  toKeyedSeq() {
+    return this;
+  }
+
   hashCode() {
     return this.__hash || (this.__hash =
       this.length === Infinity ? 0 : this.reduce(
@@ -263,7 +267,7 @@ class Sequence {
   }
 
   reduceRight(reducer, initialReduction, thisArg) {
-    var reversed = this.reverse(true);
+    var reversed = this.toKeyedSeq().reverse();
     return reversed.reduce.apply(reversed, arguments);
   }
 
@@ -340,11 +344,11 @@ class Sequence {
   }
 
   findLast(predicate, thisArg, notSetValue) {
-    return this.reverse(true).find(predicate, thisArg, notSetValue);
+    return this.toKeyedSeq().reverse().find(predicate, thisArg, notSetValue);
   }
 
   findLastKey(predicate, thisArg) {
-    return this.reverse(true).findKey(predicate, thisArg);
+    return this.toKeyedSeq().reverse().findKey(predicate, thisArg);
   }
 
   flip() {
@@ -386,7 +390,7 @@ class Sequence {
   }
 
   filter(predicate, thisArg) {
-    return filterFactory(this, predicate, thisArg, true, false);
+    return filterFactory(this, predicate, thisArg, true);
   }
 
   slice(begin, end) {
@@ -680,26 +684,25 @@ class IndexedSequence extends Sequence {
     return concatSequence;
   }
 
-  reverse(maintainIndices) {
+  reverse() {
     var sequence = this;
     var reversedSequence = sequence.__makeSequence();
     reversedSequence.length = sequence.length;
-    reversedSequence.__reversedIndices = !!(maintainIndices ^ sequence.__reversedIndices);
-    reversedSequence.__iterateUncached = (fn, reverse, flipIndices) =>
-      sequence.__iterate(fn, !reverse, flipIndices ^ maintainIndices);
-    reversedSequence.reverse = function (_maintainIndices) {
-      return maintainIndices === _maintainIndices ? sequence :
-        IndexedSequencePrototype.reverse.call(this, _maintainIndices);
+    reversedSequence.__reversedIndices = sequence.__reversedIndices;
+    reversedSequence.__iterateUncached = function (fn, reverse, flipIndices) {
+      var i = 0;
+      return sequence.__iterate(
+        v => fn(v, i++, this) !== false,
+        !reverse,
+        flipIndices
+      );
     }
+    reversedSequence.reverse = () => sequence;
     return reversedSequence;
   }
 
-  filter(predicate, thisArg, maintainIndices) {
-    var filterSequence = filterFactory(this, predicate, thisArg, maintainIndices, maintainIndices);
-    if (maintainIndices) {
-      filterSequence.length = this.length;
-    }
-    return filterSequence;
+  filter(predicate, thisArg) {
+    return filterFactory(this, predicate, thisArg, false);
   }
 
   get(index, notSetValue) {
@@ -712,7 +715,7 @@ class IndexedSequence extends Sequence {
   }
 
   lastIndexOf(searchValue) {
-    return this.reverse(true).indexOf(searchValue);
+    return this.toKeyedSeq().reverse().indexOf(searchValue);
   }
 
   findIndex(predicate, thisArg) {
@@ -721,7 +724,7 @@ class IndexedSequence extends Sequence {
   }
 
   findLastIndex(predicate, thisArg) {
-    return this.reverse(true).findIndex(predicate, thisArg);
+    return this.toKeyedSeq().reverse().findIndex(predicate, thisArg);
   }
 
   slice(begin, end, maintainIndices) {
@@ -1082,11 +1085,11 @@ function increment(value) {
  * in behavior that it makes sense to build a factory with the few differences
  * encoded as booleans.
  */
-function filterFactory(sequence, predicate, thisArg, useKeys, maintainIndices) {
+function filterFactory(sequence, predicate, thisArg, useKeys) {
   var filterSequence = sequence.__makeSequence();
   filterSequence.__iterateUncached = function (fn, reverse, flipIndices) {
     var iterations = 0;
-    var length = sequence.__iterate((v, k, c) => {
+    sequence.__iterate((v, k, c) => {
       if (predicate.call(thisArg, v, k, c)) {
         if (fn(v, useKeys ? k : iterations, this) !== false) {
           iterations++;
@@ -1095,7 +1098,7 @@ function filterFactory(sequence, predicate, thisArg, useKeys, maintainIndices) {
         }
       }
     }, reverse, flipIndices);
-    return maintainIndices ? length : iterations;
+    return iterations;
   };
   return filterSequence;
 }
