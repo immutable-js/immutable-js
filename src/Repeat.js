@@ -47,6 +47,10 @@ class Repeat extends IndexedSequence {
     return this._value;
   }
 
+  last() {
+    return this._value;
+  }
+
   contains(searchValue) {
     return is(this._value, searchValue);
   }
@@ -77,15 +81,14 @@ class Repeat extends IndexedSequence {
   }
 
   __iterate(fn, reverse, flipIndices) {
-    var reversedIndices = reverse ^ flipIndices;
-    invariant(!reversedIndices || this.length < Infinity, 'Cannot access end of infinite range.');
+    invariant(!flipIndices || this.length < Infinity, 'Cannot access end of infinite range.');
     var maxIndex = this.length - 1;
     for (var ii = 0; ii <= maxIndex; ii++) {
-      if (fn(this._value, reversedIndices ? maxIndex - ii : ii, this) === false) {
+      if (fn(this._value, flipIndices ? maxIndex - ii : ii, this) === false) {
         break;
       }
     }
-    return reversedIndices ? this.length : ii;
+    return ii;
   }
 
   __deepEquals(other) {

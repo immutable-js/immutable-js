@@ -118,7 +118,7 @@ class Range extends IndexedSequence {
       }
       value += reverse ? -step : step;
     }
-    return flipIndices ? this.length : ii;
+    return ii;
   }
 
   __deepEquals(other) {
