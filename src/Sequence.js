@@ -139,17 +139,13 @@ class Sequence {
 
   join(separator) {
     separator = separator !== undefined ? '' + separator : ',';
-    var string = '';
+    var joined = '';
     var isFirst = true;
-    this.forEach((v, k) => {
-      if (isFirst) {
-        isFirst = false;
-        string += (v != null ? v : '');
-      } else {
-        string += separator + (v != null ? v : '');
-      }
+    this.forEach(v => {
+      isFirst ? (isFirst = false) : (joined += separator);
+      joined += v != null ? v : '';
     });
-    return string;
+    return joined;
   }
 
   count(predicate, thisArg) {
@@ -544,15 +540,6 @@ class IndexedSequence extends Sequence {
       );
     }
     return fromEntriesSequence;
-  }
-
-  join(separator) {
-    separator = separator !== undefined ? '' + separator : ',';
-    var joined = '';
-    this.forEach((v, ii) => {
-      joined += (ii ? separator : '') + (v != null ? v : '');
-    });
-    return joined;
   }
 
   concat(...values) {

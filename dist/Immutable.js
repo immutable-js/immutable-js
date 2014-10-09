@@ -251,17 +251,13 @@ var $Sequence = Sequence;
   },
   join: function(separator) {
     separator = separator !== undefined ? '' + separator : ',';
-    var string = '';
+    var joined = '';
     var isFirst = true;
-    this.forEach((function(v, k) {
-      if (isFirst) {
-        isFirst = false;
-        string += (v != null ? v : '');
-      } else {
-        string += separator + (v != null ? v : '');
-      }
+    this.forEach((function(v) {
+      isFirst ? (isFirst = false) : (joined += separator);
+      joined += v != null ? v : '';
     }));
-    return string;
+    return joined;
   },
   count: function(predicate, thisArg) {
     if (!predicate) {
@@ -632,14 +628,6 @@ var $IndexedSequence = IndexedSequence;
       }), reverse);
     };
     return fromEntriesSequence;
-  },
-  join: function(separator) {
-    separator = separator !== undefined ? '' + separator : ',';
-    var joined = '';
-    this.forEach((function(v, ii) {
-      joined += (ii ? separator : '') + (v != null ? v : '');
-    }));
-    return joined;
   },
   concat: function() {
     for (var values = [],
