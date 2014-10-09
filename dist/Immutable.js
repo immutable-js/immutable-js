@@ -144,25 +144,59 @@ function hashString(string) {
   return hash;
 }
 function hashJSObj(obj) {
-  if (obj[UID_HASH_KEY]) {
-    return obj[UID_HASH_KEY];
+  var hash = obj[UID_HASH_KEY];
+  if (hash)
+    return hash;
+  if (!canDefineProperty) {
+    hash = obj.propertyIsEnumerable && obj.propertyIsEnumerable[UID_HASH_KEY];
+    if (hash)
+      return hash;
+    hash = getIENodeHash(obj);
+    if (hash)
+      return hash;
   }
-  var uid = ++UID_HASH_COUNT & HASH_MAX_VAL;
-  if (!isIE8) {
-    try {
+  if (!canDefineProperty || Object.isExtensible(obj)) {
+    hash = ++UID_HASH_COUNT & HASH_MAX_VAL;
+    if (canDefineProperty) {
       Object.defineProperty(obj, UID_HASH_KEY, {
         'enumerable': false,
         'configurable': false,
         'writable': false,
-        'value': uid
+        'value': hash
       });
-      return uid;
-    } catch (e) {
-      isIE8 = true;
+    } else if (obj.propertyIsEnumerable === propertyIsEnumerable) {
+      obj.propertyIsEnumerable = function() {
+        return Object.prototype.propertyIsEnumerable.apply(this, arguments);
+      };
+      obj.propertyIsEnumerable[UID_HASH_KEY] = hash;
+    } else if (obj.nodeType) {
+      obj[UID_HASH_KEY] = hash;
+    } else {
+      throw new Error('Unable to set a non-enumerable property on object.');
+    }
+    return hash;
+  } else {
+    throw new Error('Non-extensible objects are not allowed as keys.');
+  }
+}
+var propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
+var canDefineProperty = (function() {
+  try {
+    Object.defineProperty({}, 'x', {});
+    return true;
+  } catch (e) {
+    return false;
+  }
+}());
+function getIENodeHash(node) {
+  if (node && node.nodeType > 0) {
+    switch (node.nodeType) {
+      case 1:
+        return node.uniqueID;
+      case 9:
+        return node.documentElement && node.documentElement.uniqueID;
     }
   }
-  obj[UID_HASH_KEY] = uid;
-  return uid;
 }
 var HASH_MAX_VAL = 0x7FFFFFFF;
 var UID_HASH_COUNT = 0;
@@ -170,7 +204,6 @@ var UID_HASH_KEY = '__immutablehash__';
 if (typeof Symbol !== 'undefined') {
   UID_HASH_KEY = Symbol(UID_HASH_KEY);
 }
-var isIE8 = false;
 var STRING_HASH_CACHE_MIN_STRLEN = 16;
 var STRING_HASH_CACHE_MAX_SIZE = 255;
 var STRING_HASH_CACHE_SIZE = 0;
