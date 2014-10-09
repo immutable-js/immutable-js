@@ -191,12 +191,7 @@ class Sequence {
   }
 
   reverse() {
-    var sequence = this;
-    var reversedSequence = sequence.__makeSequence();
-    reversedSequence.reverse = () => sequence;
-    reversedSequence.length = sequence.length;
-    reversedSequence.__iterateUncached = (fn, reverse) => sequence.__iterate(fn, !reverse);
-    return reversedSequence;
+    return reverseFactory(this, true);
   }
 
   keySeq() {
@@ -565,18 +560,7 @@ class IndexedSequence extends Sequence {
   }
 
   reverse() {
-    var sequence = this;
-    var reversedSequence = sequence.__makeSequence();
-    reversedSequence.reverse = () => sequence;
-    reversedSequence.length = sequence.length;
-    reversedSequence.__iterateUncached = function (fn, reverse, reverseIndices) {
-      var i = reverseIndices ? this.length : 0;
-      return sequence.__iterate(
-        v => fn(v, reverseIndices ? --i : i++, this) !== false,
-        !reverse
-      );
-    }
-    return reversedSequence;
+    return reverseFactory(this, false);
   }
 
   filter(predicate, thisArg) {
@@ -857,11 +841,21 @@ function returnThis() {
   return this;
 }
 
+function reverseFactory(sequence, useKeys) {
+  var reversedSequence = sequence.__makeSequence();
+  reversedSequence.reverse = () => sequence;
+  reversedSequence.length = sequence.length;
+  reversedSequence.__iterateUncached = function (fn, reverse, reverseIndices) {
+    var i = reverseIndices ? this.length : 0;
+    return sequence.__iterate(
+      (v, k) => fn(v, useKeys ? k : reverseIndices ? --i : i++, this),
+      !reverse
+    );
+  }
+  return reversedSequence;
+}
+
 /**
- * Sequence.prototype.filter and IndexedSequence.prototype.filter are so close
- * in behavior that it makes sense to build a factory with the few differences
- * encoded as booleans.
- *
  * Filter sequences always have indeterminate length, so reverseIndices will
  * never be true here, and so it is not used here.
  */

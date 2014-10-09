@@ -301,16 +301,7 @@ var $Sequence = Sequence;
     return this.map(mapper, thisArg).flatten();
   },
   reverse: function() {
-    var sequence = this;
-    var reversedSequence = sequence.__makeSequence();
-    reversedSequence.reverse = (function() {
-      return sequence;
-    });
-    reversedSequence.length = sequence.length;
-    reversedSequence.__iterateUncached = (function(fn, reverse) {
-      return sequence.__iterate(fn, !reverse);
-    });
-    return reversedSequence;
+    return reverseFactory(this, true);
   },
   keySeq: function() {
     return this.flip().valueSeq();
@@ -657,20 +648,7 @@ var $IndexedSequence = IndexedSequence;
     return concatFactory(this, values, false);
   },
   reverse: function() {
-    var sequence = this;
-    var reversedSequence = sequence.__makeSequence();
-    reversedSequence.reverse = (function() {
-      return sequence;
-    });
-    reversedSequence.length = sequence.length;
-    reversedSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
-      var $__0 = this;
-      var i = reverseIndices ? this.length : 0;
-      return sequence.__iterate((function(v) {
-        return fn(v, reverseIndices ? --i : i++, $__0) !== false;
-      }), !reverse);
-    };
-    return reversedSequence;
+    return reverseFactory(this, false);
   },
   filter: function(predicate, thisArg) {
     return filterFactory(this, predicate, thisArg, false);
@@ -883,6 +861,21 @@ function returnTrue() {
 }
 function returnThis() {
   return this;
+}
+function reverseFactory(sequence, useKeys) {
+  var reversedSequence = sequence.__makeSequence();
+  reversedSequence.reverse = (function() {
+    return sequence;
+  });
+  reversedSequence.length = sequence.length;
+  reversedSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
+    var $__0 = this;
+    var i = reverseIndices ? this.length : 0;
+    return sequence.__iterate((function(v, k) {
+      return fn(v, useKeys ? k : reverseIndices ? --i : i++, $__0);
+    }), !reverse);
+  };
+  return reversedSequence;
 }
 function filterFactory(sequence, predicate, context, useKeys) {
   var filterSequence = sequence.__makeSequence();
