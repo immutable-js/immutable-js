@@ -292,29 +292,13 @@ var $Sequence = Sequence;
     for (var values = [],
         $__2 = 0; $__2 < arguments.length; $__2++)
       values[$__2] = arguments[$__2];
-    var sequences = [this].concat(values.map((function(value) {
-      return $Sequence(value);
-    })));
-    var concatSequence = this.__makeSequence();
-    concatSequence.length = sequences.reduce((function(sum, seq) {
-      return sum != null && seq.length != null ? sum + seq.length : undefined;
-    }), 0);
-    concatSequence.__iterateUncached = (function(fn, reverse) {
-      var iterations = 0;
-      var stoppedIteration;
-      var lastIndex = sequences.length - 1;
-      for (var ii = 0; ii <= lastIndex && !stoppedIteration; ii++) {
-        var seq = sequences[reverse ? lastIndex - ii : ii];
-        iterations += seq.__iterate((function(v, k, c) {
-          if (fn(v, k, c) === false) {
-            stoppedIteration = true;
-            return false;
-          }
-        }), reverse);
-      }
-      return iterations;
-    });
-    return concatSequence;
+    return concatFactory(this, values, true);
+  },
+  flatten: function() {
+    return flattenFactory(this, true);
+  },
+  flatMap: function(mapper, thisArg) {
+    return this.map(mapper, thisArg).flatten();
   },
   reverse: function() {
     var sequence = this;
@@ -670,17 +654,7 @@ var $IndexedSequence = IndexedSequence;
     for (var values = [],
         $__3 = 0; $__3 < arguments.length; $__3++)
       values[$__3] = arguments[$__3];
-    var sequences = [this].concat(values);
-    var concatSequence = Sequence(sequences).flatten();
-    concatSequence.length = sequences.reduce((function(sum, seq) {
-      if (sum !== undefined) {
-        var len = Sequence(seq).length;
-        if (len != null) {
-          return sum + len;
-        }
-      }
-    }), 0);
-    return concatSequence;
+    return concatFactory(this, values, false);
   },
   reverse: function() {
     var sequence = this;
@@ -739,28 +713,7 @@ var $IndexedSequence = IndexedSequence;
     return numArgs === 1 ? spliced : spliced.concat(arrCopy(arguments, 2), this.slice(index + removeNum));
   },
   flatten: function() {
-    var sequence = this;
-    var flatSequence = this.__makeSequence();
-    flatSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
-      var $__0 = this;
-      var iterations = 0;
-      var maxIndex = this.length - 1;
-      sequence.__iterate((function(seq) {
-        var stopped = false;
-        Sequence(seq).__iterate((function(v) {
-          if (fn(v, reverseIndices ? maxIndex - iterations++ : iterations++, $__0) === false) {
-            stopped = true;
-            return false;
-          }
-        }), reverse);
-        return !stopped;
-      }), reverse);
-      return iterations;
-    };
-    return flatSequence;
-  },
-  flatMap: function(mapper, thisArg) {
-    return this.map(mapper, thisArg).flatten();
+    return flattenFactory(this, false);
   },
   skip: function(amount) {
     return skipFactory(this, amount, false);
@@ -1008,6 +961,44 @@ function skipWhileFactory(sequence, predicate, thisArg, useKeys) {
     return iterations;
   };
   return skipSequence;
+}
+function concatFactory(sequence, values, useKeys) {
+  var sequences = [sequence].concat(values);
+  var concatSequence = Sequence(sequences);
+  if (useKeys) {
+    concatSequence = concatSequence.toKeyedSeq();
+  }
+  concatSequence = concatSequence.flatten();
+  concatSequence.length = sequences.reduce((function(sum, seq) {
+    if (sum !== undefined) {
+      var len = Sequence(seq).length;
+      if (len != null) {
+        return sum + len;
+      }
+    }
+  }), 0);
+  return concatSequence;
+}
+function flattenFactory(sequence, useKeys) {
+  var flatSequence = sequence.__makeSequence();
+  flatSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
+    var $__0 = this;
+    var iterations = 0;
+    var len = this.length;
+    sequence.__iterate((function(seq) {
+      var stopped = false;
+      Sequence(seq).__iterate((function(v, k) {
+        iterations++;
+        if (fn(v, useKeys ? k : reverseIndices ? len - iterations : iterations - 1, $__0) === false) {
+          stopped = true;
+          return false;
+        }
+      }), reverse);
+      return !stopped;
+    }), reverse);
+    return iterations;
+  };
+  return flatSequence;
 }
 function not(predicate) {
   return function() {

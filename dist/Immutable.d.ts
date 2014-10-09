@@ -462,6 +462,22 @@ declare module 'immutable' {
     first(): V;
 
     /**
+     * Flat-maps the Sequence.
+     */
+    flatMap<MK, MV>(
+      mapper: (value?: V, key?: K, seq?: Sequence<K, V>) => Sequence<MK, MV>,
+      context?: any
+    ): Sequence<MK, MV>;
+
+    /**
+     * Flattens nested Sequences by one level.
+     *
+     * Note: `flatten` operates on Sequence<any, Sequence<K, V>> and
+     * returns Sequence<K, V>
+     */
+    flatten(): Sequence<any, any>;
+
+    /**
      * Returns a new sequence with this sequences's keys as it's values, and this
      * sequences's values as it's keys.
      *
@@ -901,7 +917,8 @@ declare module 'immutable' {
     ): number;
 
     /**
-     * Flat-maps the Sequence.
+     * Returns IndexedSequence<M>
+     * @override
      */
     flatMap<M>(
       mapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => IndexedSequence<M>,
@@ -913,10 +930,8 @@ declare module 'immutable' {
     ): IndexedSequence<M>;
 
     /**
-     * Flattens nested Sequences by one level.
-     *
-     * Note: `flatten` operates on IndexedSequence<IndexedSequence<T>> and
-     * returns IndexedSequence<T>
+     * Returns IndexedSequence<T>
+     * @override
      */
     flatten(): IndexedSequence<any>;
 

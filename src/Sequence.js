@@ -179,27 +179,15 @@ class Sequence {
   }
 
   concat(...values) {
-    var sequences = [this].concat(values.map(value => Sequence(value)));
-    var concatSequence = this.__makeSequence();
-    concatSequence.length = sequences.reduce(
-      (sum, seq) => sum != null && seq.length != null ? sum + seq.length : undefined, 0
-    );
-    concatSequence.__iterateUncached = (fn, reverse) => {
-      var iterations = 0;
-      var stoppedIteration;
-      var lastIndex = sequences.length - 1;
-      for (var ii = 0; ii <= lastIndex && !stoppedIteration; ii++) {
-        var seq = sequences[reverse ? lastIndex - ii : ii];
-        iterations += seq.__iterate((v, k, c) => {
-          if (fn(v, k, c) === false) {
-            stoppedIteration = true;
-            return false;
-          }
-        }, reverse);
-      }
-      return iterations;
-    };
-    return concatSequence;
+    return concatFactory(this, values, true);
+  }
+
+  flatten() {
+    return flattenFactory(this, true);
+  }
+
+  flatMap(mapper, thisArg) {
+    return this.map(mapper, thisArg).flatten();
   }
 
   reverse() {
@@ -573,20 +561,7 @@ class IndexedSequence extends Sequence {
   }
 
   concat(...values) {
-    var sequences = [this].concat(values);
-    var concatSequence = Sequence(sequences).flatten();
-    concatSequence.length = sequences.reduce(
-      (sum, seq) => {
-        if (sum !== undefined) {
-          var len = Sequence(seq).length;
-          if (len != null) {
-            return sum + len;
-          }
-        }
-      },
-      0
-    );
-    return concatSequence;
+    return concatFactory(this, values, false);
   }
 
   reverse() {
@@ -655,28 +630,7 @@ class IndexedSequence extends Sequence {
   }
 
   flatten() {
-    var sequence = this;
-    var flatSequence = this.__makeSequence();
-    flatSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
-      var iterations = 0;
-      var maxIndex = this.length - 1;
-      sequence.__iterate(seq => {
-        var stopped = false;
-        Sequence(seq).__iterate(v => {
-          if (fn(v, reverseIndices ? maxIndex - iterations++ : iterations++, this) === false) {
-            stopped = true;
-            return false;
-          }
-        }, reverse);
-        return !stopped;
-      }, reverse);
-      return iterations;
-    }
-    return flatSequence;
-  }
-
-  flatMap(mapper, thisArg) {
-    return this.map(mapper, thisArg).flatten();
+    return flattenFactory(this, false);
   }
 
   skip(amount) {
@@ -984,6 +938,48 @@ function skipWhileFactory(sequence, predicate, thisArg, useKeys) {
     return iterations;
   };
   return skipSequence;
+}
+
+function concatFactory(sequence, values, useKeys) {
+  var sequences = [sequence].concat(values);
+  var concatSequence = Sequence(sequences);
+  if (useKeys) {
+    concatSequence = concatSequence.toKeyedSeq();
+  }
+  concatSequence = concatSequence.flatten();
+  concatSequence.length = sequences.reduce(
+    (sum, seq) => {
+      if (sum !== undefined) {
+        var len = Sequence(seq).length;
+        if (len != null) {
+          return sum + len;
+        }
+      }
+    },
+    0
+  );
+  return concatSequence;
+}
+
+function flattenFactory(sequence, useKeys) {
+  var flatSequence = sequence.__makeSequence();
+  flatSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
+    var iterations = 0;
+    var len = this.length;
+    sequence.__iterate(seq => {
+      var stopped = false;
+      Sequence(seq).__iterate((v, k) => {
+        iterations++;
+        if (fn(v, useKeys ? k : reverseIndices ? len - iterations : iterations - 1, this) === false) {
+          stopped = true;
+          return false;
+        }
+      }, reverse);
+      return !stopped;
+    }, reverse);
+    return iterations;
+  }
+  return flatSequence;
 }
 
 function not(predicate) {
