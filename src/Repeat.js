@@ -77,7 +77,7 @@ class Repeat extends IndexedSequence {
     var maxIndex = this.length - 1;
     for (var ii = 0; ii <= maxIndex; ii++) {
       if (fn(this._value, reverseIndices ? maxIndex - ii : ii, this) === false) {
-        break;
+        return ii + 1;
       }
     }
     return ii;

@@ -182,30 +182,19 @@ class Vector extends IndexedSequence {
   }
 
   __iterate(fn, reverse, reverseIndices) {
-    var vector = this;
-    var lastIndex = 0;
-    var maxIndex = vector.length - 1;
-    var flipIndices = reverse && !reverseIndices;
-    var eachFn = (value, ii) => {
-      if (fn(value, flipIndices ? maxIndex - ii : ii, vector) === false) {
-        return false;
-      } else {
-        lastIndex = ii;
-        return true;
-      }
-    };
-    var didComplete;
+    var iterations = 0;
+    var len = this.length;
+    var eachFn =
+      v => fn(v, reverseIndices ? len - ++iterations : iterations++, this);
     var tailOffset = getTailOffset(this._size);
     if (reverse) {
-      didComplete =
-        iterateVNode(this._tail, 0, tailOffset - this._origin, this._size - this._origin, eachFn, reverse) &&
+      iterateVNode(this._tail, 0, tailOffset - this._origin, this._size - this._origin, eachFn, reverse) &&
         iterateVNode(this._root, this._level, -this._origin, tailOffset - this._origin, eachFn, reverse);
     } else {
-      didComplete =
-        iterateVNode(this._root, this._level, -this._origin, tailOffset - this._origin, eachFn, reverse) &&
+      iterateVNode(this._root, this._level, -this._origin, tailOffset - this._origin, eachFn, reverse) &&
         iterateVNode(this._tail, 0, tailOffset - this._origin, this._size - this._origin, eachFn, reverse);
     }
-    return (didComplete ? maxIndex : reverse ? maxIndex - lastIndex : lastIndex) + 1;
+    return iterations;
   }
 
   __deepEquals(other) {
@@ -311,20 +300,17 @@ class VNode {
   }
 }
 
-// TODO: test this to ensure dense iteration happens as expected
-// Especially test reverse.
 function iterateVNode(node, level, offset, max, fn, reverse) {
     var ii;
     var array = node && node.array;
     if (level === 0) {
-      var from = offset < 0 ? 0 : offset;
-      var to = offset + SIZE;
-      if (to > max) {
-        to = max;
+      var from = offset < 0 ? -offset : 0;
+      var to = max - offset;
+      if (to > SIZE) {
+        to = SIZE;
       }
       for (ii = from; ii < to; ii++) {
-        var index = reverse ? from + to - 1 - ii : ii;
-        if (fn(array && array[index - offset], index) === false) {
+        if (fn(array && array[reverse ? from + to - 1 - ii : ii]) === false) {
           return false;
         }
       }

@@ -114,7 +114,7 @@ class Range extends IndexedSequence {
     var value = reverse ? this._start + maxIndex * step : this._start;
     for (var ii = 0; ii <= maxIndex; ii++) {
       if (fn(value, reverseIndices ? maxIndex - ii : ii, this) === false) {
-        break;
+        return ii + 1;
       }
       value += reverse ? -step : step;
     }

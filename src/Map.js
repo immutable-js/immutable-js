@@ -154,16 +154,10 @@ class Map extends Sequence {
   }
 
   __iterate(fn, reverse) {
-    var map = this;
-    if (!map._root) {
-      return 0;
-    }
     var iterations = 0;
-    this._root.iterate(entry => {
-      if (fn(entry[1], entry[0], map) === false) {
-        return false;
-      }
+    this._root && this._root.iterate(entry => {
       iterations++;
+      return fn(entry[1], entry[0], this);
     }, reverse);
     return iterations;
   }

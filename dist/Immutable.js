@@ -1210,16 +1210,11 @@ var $Map = Map;
     return new MapIterator(this, 2, reverse);
   },
   __iterate: function(fn, reverse) {
-    var map = this;
-    if (!map._root) {
-      return 0;
-    }
+    var $__0 = this;
     var iterations = 0;
-    this._root.iterate((function(entry) {
-      if (fn(entry[1], entry[0], map) === false) {
-        return false;
-      }
+    this._root && this._root.iterate((function(entry) {
       iterations++;
+      return fn(entry[1], entry[0], $__0);
     }), reverse);
     return iterations;
   },
@@ -1790,26 +1785,19 @@ var $Vector = Vector;
     return new VectorIterator(this, 2, reverse, reverseIndices);
   },
   __iterate: function(fn, reverse, reverseIndices) {
-    var vector = this;
-    var lastIndex = 0;
-    var maxIndex = vector.length - 1;
-    var flipIndices = reverse && !reverseIndices;
-    var eachFn = (function(value, ii) {
-      if (fn(value, flipIndices ? maxIndex - ii : ii, vector) === false) {
-        return false;
-      } else {
-        lastIndex = ii;
-        return true;
-      }
+    var $__0 = this;
+    var iterations = 0;
+    var len = this.length;
+    var eachFn = (function(v) {
+      return fn(v, reverseIndices ? len - ++iterations : iterations++, $__0);
     });
-    var didComplete;
     var tailOffset = getTailOffset(this._size);
     if (reverse) {
-      didComplete = iterateVNode(this._tail, 0, tailOffset - this._origin, this._size - this._origin, eachFn, reverse) && iterateVNode(this._root, this._level, -this._origin, tailOffset - this._origin, eachFn, reverse);
+      iterateVNode(this._tail, 0, tailOffset - this._origin, this._size - this._origin, eachFn, reverse) && iterateVNode(this._root, this._level, -this._origin, tailOffset - this._origin, eachFn, reverse);
     } else {
-      didComplete = iterateVNode(this._root, this._level, -this._origin, tailOffset - this._origin, eachFn, reverse) && iterateVNode(this._tail, 0, tailOffset - this._origin, this._size - this._origin, eachFn, reverse);
+      iterateVNode(this._root, this._level, -this._origin, tailOffset - this._origin, eachFn, reverse) && iterateVNode(this._tail, 0, tailOffset - this._origin, this._size - this._origin, eachFn, reverse);
     }
-    return (didComplete ? maxIndex : reverse ? maxIndex - lastIndex : lastIndex) + 1;
+    return iterations;
   },
   __deepEquals: function(other) {
     var iterator = this.entries(true);
@@ -1930,14 +1918,13 @@ function iterateVNode(node, level, offset, max, fn, reverse) {
   var ii;
   var array = node && node.array;
   if (level === 0) {
-    var from = offset < 0 ? 0 : offset;
-    var to = offset + SIZE;
-    if (to > max) {
-      to = max;
+    var from = offset < 0 ? -offset : 0;
+    var to = max - offset;
+    if (to > SIZE) {
+      to = SIZE;
     }
     for (ii = from; ii < to; ii++) {
-      var index = reverse ? from + to - 1 - ii : ii;
-      if (fn(array && array[index - offset], index) === false) {
+      if (fn(array && array[reverse ? from + to - 1 - ii : ii]) === false) {
         return false;
       }
     }
@@ -2705,7 +2692,7 @@ var $Range = Range;
     var value = reverse ? this._start + maxIndex * step : this._start;
     for (var ii = 0; ii <= maxIndex; ii++) {
       if (fn(value, reverseIndices ? maxIndex - ii : ii, this) === false) {
-        break;
+        return ii + 1;
       }
       value += reverse ? -step : step;
     }
@@ -2770,7 +2757,7 @@ var $Repeat = Repeat;
     var maxIndex = this.length - 1;
     for (var ii = 0; ii <= maxIndex; ii++) {
       if (fn(this._value, reverseIndices ? maxIndex - ii : ii, this) === false) {
-        break;
+        return ii + 1;
       }
     }
     return ii;
