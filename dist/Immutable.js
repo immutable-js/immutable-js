@@ -83,7 +83,23 @@ function invariant(condition, error) {
     throw new Error(error);
 }
 var DELETE = 'delete';
-var ITERATOR = typeof Symbol !== 'undefined' ? Symbol.iterator : '@@iterator';
+var FAUX_ITERATOR = '@@iterator';
+var ITERATOR = typeof Symbol !== 'undefined' ? Symbol.iterator : FAUX_ITERATOR;
+function isIterable(maybeIterable) {
+  return !!_iteratorFn(maybeIterable);
+}
+function isIterator(maybeIterator) {
+  return maybeIterator && typeof maybeIterator.next === 'function';
+}
+function getIterator(iterable) {
+  var iteratorFn = _iteratorFn(iterable);
+  if (typeof iteratorFn === 'function') {
+    return iteratorFn.call(iterable);
+  }
+}
+function _iteratorFn(iterable) {
+  return iterable && (iterable[ITERATOR] || iterable[FAUX_ITERATOR]);
+}
 function hash(o) {
   if (!o) {
     return 0;
@@ -496,12 +512,15 @@ var $Sequence = Sequence;
     var takeSequence = sequence.__makeSequence();
     takeSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
       var $__0 = this;
+      if (amount === 0) {
+        return 0;
+      }
       if (reverse) {
         return this.cacheResult().__iterate(fn, reverse, reverseIndices);
       }
       var iterations = 0;
       sequence.__iterate((function(v, k) {
-        return iterations < amount && ++iterations && fn(v, k, $__0);
+        return ++iterations && fn(v, k, $__0) !== false && iterations < amount;
       }));
       return iterations;
     };
@@ -587,6 +606,12 @@ var $Sequence = Sequence;
       return value;
     }
     if (!Array.isArray(value)) {
+      if (isIterator(value)) {
+        return new IteratorSequence(value);
+      }
+      if (isIterable(value)) {
+        return new IterableSequence(value);
+      }
       if (value && value.constructor === Object) {
         return new ObjectSequence(value);
       }
@@ -739,6 +764,53 @@ var KeyedIndexedSequence = function KeyedIndexedSequence(indexedSeq) {
     return this._seq.__iterate(fn, reverse, reverse);
   }
 }, {}, Sequence);
+var IteratorSequence = function IteratorSequence(iterator) {
+  this._iterator = iterator;
+  this._iteratorCache = [];
+};
+($traceurRuntime.createClass)(IteratorSequence, {__iterateUncached: function(fn, reverse, reverseIndices) {
+    if (reverse) {
+      return this.cacheResult().__iterate(fn, reverse, reverseIndices);
+    }
+    var iterator = this._iterator;
+    var cache = this._iteratorCache;
+    var iterations = 0;
+    while (iterations < cache.length) {
+      if (fn(cache[iterations], iterations++, this) === false) {
+        return iterations;
+      }
+    }
+    var step;
+    while (!(step = iterator.next()).done) {
+      var val = step.value;
+      cache[iterations] = val;
+      if (fn(val, iterations++, this) === false) {
+        break;
+      }
+    }
+    return iterations;
+  }}, {}, IndexedSequence);
+var IterableSequence = function IterableSequence(iterable) {
+  this._iterable = iterable;
+  this.length = iterable.length || iterable.size;
+};
+($traceurRuntime.createClass)(IterableSequence, {__iterateUncached: function(fn, reverse, reverseIndices) {
+    if (reverse) {
+      return this.cacheResult().__iterate(fn, reverse, reverseIndices);
+    }
+    var iterable = this._iterable;
+    var iterator = getIterator(iterable);
+    var iterations = 0;
+    if (isIterator(iterator)) {
+      var step;
+      while (!(step = iterator.next()).done) {
+        if (fn(step.value, iterations++, iterable) === false) {
+          break;
+        }
+      }
+    }
+    return iterations;
+  }}, {}, IndexedSequence);
 var ObjectSequence = function ObjectSequence(object) {
   var keys = Object.keys(object);
   this._object = object;

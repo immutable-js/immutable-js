@@ -13,7 +13,7 @@ import "invariant"
 import "Symbol"
 import "Hash"
 /* global is, Map, OrderedMap, Vector, Set, arrCopy, NOT_SET, invariant,
-          ITERATOR, hash, HASH_MAX_VAL */
+          ITERATOR, isIterable, isIterator, getIterator, hash, HASH_MAX_VAL */
 /* exported Sequence, IndexedSequence, SequenceIterator, iteratorMapper */
 
 
@@ -30,6 +30,12 @@ class Sequence {
       return value;
     }
     if (!Array.isArray(value)) {
+      if (isIterator(value)) {
+        return new IteratorSequence(value);
+      }
+      if (isIterable(value)) {
+        return new IterableSequence(value);
+      }
       if (value && value.constructor === Object) {
         return new ObjectSequence(value);
       }
@@ -400,12 +406,15 @@ class Sequence {
     }
     var takeSequence = sequence.__makeSequence();
     takeSequence.__iterateUncached = function(fn, reverse, reverseIndices) {
+      if (amount === 0) {
+        return 0;
+      }
       if (reverse) {
         return this.cacheResult().__iterate(fn, reverse, reverseIndices);
       }
       var iterations = 0;
       sequence.__iterate((v, k) =>
-        iterations < amount && ++iterations && fn(v, k, this)
+        ++iterations && fn(v, k, this) !== false && iterations < amount
       );
       return iterations;
     };
@@ -680,6 +689,63 @@ class KeyedIndexedSequence extends Sequence {
 
   __iterate(fn, reverse) {
     return this._seq.__iterate(fn, reverse, reverse);
+  }
+}
+
+
+class IteratorSequence extends IndexedSequence {
+  constructor(iterator) {
+    this._iterator = iterator;
+    this._iteratorCache = [];
+  }
+
+  __iterateUncached(fn, reverse, reverseIndices) {
+    if (reverse) {
+      return this.cacheResult().__iterate(fn, reverse, reverseIndices);
+    }
+    var iterator = this._iterator;
+    var cache = this._iteratorCache;
+    var iterations = 0;
+    while (iterations < cache.length) {
+      if (fn(cache[iterations], iterations++, this) === false) {
+        return iterations;
+      }
+    }
+    var step;
+    while (!(step = iterator.next()).done) {
+      var val = step.value;
+      cache[iterations] = val;
+      if (fn(val, iterations++, this) === false) {
+        break;
+      }
+    }
+    return iterations;
+  }
+}
+
+
+class IterableSequence extends IndexedSequence {
+  constructor(iterable) {
+    this._iterable = iterable;
+    this.length = iterable.length || iterable.size;
+  }
+
+  __iterateUncached(fn, reverse, reverseIndices) {
+    if (reverse) {
+      return this.cacheResult().__iterate(fn, reverse, reverseIndices);
+    }
+    var iterable = this._iterable;
+    var iterator = getIterator(iterable);
+    var iterations = 0;
+    if (isIterator(iterator)) {
+      var step;
+      while (!(step = iterator.next()).done) {
+        if (fn(step.value, iterations++, iterable) === false) {
+          break;
+        }
+      }
+    }
+    return iterations;
   }
 }
 

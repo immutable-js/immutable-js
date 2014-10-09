@@ -138,6 +138,7 @@ declare module 'immutable' {
   export function Sequence<T>(array: Array<T>): IndexedSequence<T>;
   export function Sequence<K, V>(seq: Sequence<K, V>): Sequence<K, V>;
   export function Sequence<V>(obj: {[key: string]: V}): Sequence<string, V>;
+  export function Sequence(iterable: Object/*Iterable<T>*/): IndexedSequence<any>;
   export function Sequence<T>(...values: T[]): IndexedSequence<T>;
   export function Sequence(): Sequence<any, any>;
 
