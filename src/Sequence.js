@@ -861,6 +861,9 @@ function returnThis() {
  * Sequence.prototype.filter and IndexedSequence.prototype.filter are so close
  * in behavior that it makes sense to build a factory with the few differences
  * encoded as booleans.
+ *
+ * Filter sequences always have indeterminate length, so reverseIndices will
+ * never be true here, and so it is not used here.
  */
 function filterFactory(sequence, predicate, context, useKeys) {
   var filterSequence = sequence.__makeSequence();
