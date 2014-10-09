@@ -780,7 +780,7 @@ class ObjectSequence extends Sequence {
     for (var ii = 0; ii <= maxIndex; ii++) {
       var iteration = reverse ? maxIndex - ii : ii;
       if (fn(object[keys[iteration]], keys[iteration], object) === false) {
-        break;
+        return ii + 1;
       }
     }
     return ii;
