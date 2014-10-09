@@ -1644,7 +1644,13 @@ function mergeIntoMapWith(map, merger, iterables) {
   var seqs = [];
   for (var ii = 0; ii < iterables.length; ii++) {
     var seq = iterables[ii];
-    seq && seqs.push(Array.isArray(seq) ? Sequence(seq).fromEntrySeq() : Sequence(seq));
+    if (!(seq instanceof Sequence)) {
+      seq = Sequence(seq);
+      if (seq instanceof IndexedSequence) {
+        seq = seq.fromEntrySeq();
+      }
+    }
+    seq && seqs.push(seq);
   }
   return mergeIntoCollectionWith(map, merger, seqs);
 }

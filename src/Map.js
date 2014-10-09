@@ -14,7 +14,7 @@ import "Cursor"
 import "TrieUtils"
 import "Symbol"
 import "Hash"
-/* global Sequence, SequenceIterator, is, invariant, Cursor,
+/* global Sequence, IndexedSequence, SequenceIterator, is, invariant, Cursor,
           SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
           MakeRef, SetRef, arrCopy, iteratorValue, iteratorDone,
           DELETE, ITERATOR, hash */
@@ -590,9 +590,13 @@ function mergeIntoMapWith(map, merger, iterables) {
   var seqs = [];
   for (var ii = 0; ii < iterables.length; ii++) {
     var seq = iterables[ii];
-    seq && seqs.push(
-      Array.isArray(seq) ? Sequence(seq).fromEntrySeq() : Sequence(seq)
-    );
+    if (!(seq instanceof Sequence)) {
+      seq = Sequence(seq);
+      if (seq instanceof IndexedSequence) {
+        seq = seq.fromEntrySeq();
+      }
+    }
+    seq && seqs.push(seq);
   }
   return mergeIntoCollectionWith(map, merger, seqs);
 }
