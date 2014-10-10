@@ -694,7 +694,7 @@ class KeyedIndexedSequence extends Sequence {
   }
 
   __iterate(fn, reverse) {
-    return this._seq.__iterate(fn, reverse, reverse);
+    return this._seq.__iterate((v, k) => fn(v, k, this), reverse, reverse);
   }
 }
 
@@ -746,7 +746,7 @@ class IterableSequence extends IndexedSequence {
     if (isIterator(iterator)) {
       var step;
       while (!(step = iterator.next()).done) {
-        if (fn(step.value, iterations++, iterable) === false) {
+        if (fn(step.value, iterations++, this) === false) {
           break;
         }
       }
@@ -785,7 +785,7 @@ class ObjectSequence extends Sequence {
     var maxIndex = keys.length - 1;
     for (var ii = 0; ii <= maxIndex; ii++) {
       var iteration = reverse ? maxIndex - ii : ii;
-      if (fn(object[keys[iteration]], keys[iteration], object) === false) {
+      if (fn(object[keys[iteration]], keys[iteration], this) === false) {
         return ii + 1;
       }
     }
@@ -816,16 +816,13 @@ class ArraySequence extends IndexedSequence {
   __iterate(fn, reverse, reverseIndices) {
     var array = this._array;
     var maxIndex = array.length - 1;
-    var ii, rr;
-
-    var reversedIndices = reverse ^ reverseIndices;
-    for (ii = 0; ii <= maxIndex; ii++) {
-      rr = maxIndex - ii;
-      if (fn(array[reverse ? rr : ii], reverseIndices ? rr : ii, array) === false) {
-        return reversedIndices ? reverse ? rr : ii : array.length;
+    for (var ii = 0; ii <= maxIndex; ii++) {
+      var rr = maxIndex - ii;
+      if (fn(array[reverse ? rr : ii], reverseIndices ? rr : ii, this) === false) {
+        return ii + 1;
       }
     }
-    return array.length;
+    return ii;
   }
 }
 
