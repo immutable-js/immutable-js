@@ -35,15 +35,15 @@ function hash(o) {
 }
 
 function cachedHashString(string) {
-  var hash = STRING_HASH_CACHE[string];
+  var hash = stringHashCache[string];
   if (hash == null) {
     hash = hashString(string);
     if (STRING_HASH_CACHE_SIZE === STRING_HASH_CACHE_MAX_SIZE) {
       STRING_HASH_CACHE_SIZE = 0;
-      STRING_HASH_CACHE = {};
+      stringHashCache = {};
     }
     STRING_HASH_CACHE_SIZE++;
-    STRING_HASH_CACHE[string] = hash;
+    stringHashCache[string] = hash;
   }
   return hash;
 }
@@ -76,7 +76,7 @@ function hashJSObj(obj) {
   }
 
   if (!canDefineProperty || Object.isExtensible(obj)) {
-    hash = ++UID_HASH_COUNT & HASH_MAX_VAL;
+    hash = ++objHashUID & HASH_MAX_VAL;
 
     if (canDefineProperty) {
       Object.defineProperty(obj, UID_HASH_KEY, {
@@ -137,7 +137,8 @@ function getIENodeHash(node) {
 
 var HASH_MAX_VAL = 0x7FFFFFFF; // 2^31 - 1 is an efficiently stored int
 
-var UID_HASH_COUNT = 0;
+var objHashUID = 0;
+
 var UID_HASH_KEY = '__immutablehash__';
 if (typeof Symbol !== 'undefined') {
   UID_HASH_KEY = Symbol(UID_HASH_KEY);
@@ -146,4 +147,4 @@ if (typeof Symbol !== 'undefined') {
 var STRING_HASH_CACHE_MIN_STRLEN = 16;
 var STRING_HASH_CACHE_MAX_SIZE = 255;
 var STRING_HASH_CACHE_SIZE = 0;
-var STRING_HASH_CACHE = {};
+var stringHashCache = {};
