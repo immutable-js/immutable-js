@@ -164,9 +164,9 @@ function hashJSObj(obj) {
         'writable': false,
         'value': hash
       });
-    } else if (obj.propertyIsEnumerable === propertyIsEnumerable) {
+    } else if (propertyIsEnumerable && obj.propertyIsEnumerable === propertyIsEnumerable) {
       obj.propertyIsEnumerable = function() {
-        return Object.prototype.propertyIsEnumerable.apply(this, arguments);
+        return propertyIsEnumerable.apply(this, arguments);
       };
       obj.propertyIsEnumerable[UID_HASH_KEY] = hash;
     } else if (obj.nodeType) {
