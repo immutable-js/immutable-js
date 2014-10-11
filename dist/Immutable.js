@@ -764,89 +764,6 @@ var IndexedSequencePrototype = IndexedSequence.prototype;
 IndexedSequencePrototype[ITERATOR_SYMBOL] = IndexedSequencePrototype.values;
 IndexedSequencePrototype.__toJS = IndexedSequencePrototype.toArray;
 IndexedSequencePrototype.__toStringMapper = quoteString;
-var ValuesSequence = function ValuesSequence(seq) {
-  this._seq = seq;
-  this.length = seq.length;
-};
-($traceurRuntime.createClass)(ValuesSequence, {
-  get: function(key, notSetValue) {
-    return this._seq.get(key, notSetValue);
-  },
-  has: function(key) {
-    return this._seq.has(key);
-  },
-  cacheResult: function() {
-    this._seq.cacheResult();
-    this.length = this._seq.length;
-    return this;
-  },
-  __iterate: function(fn, reverse) {
-    var $__0 = this;
-    var iterations = 0;
-    return this._seq.__iterate((function(v) {
-      return fn(v, iterations++, $__0);
-    }), reverse);
-  },
-  __iterator: function(type, reverse) {
-    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
-    var iterations = 0;
-    var step;
-    return new Iterator((function() {
-      return (step = iterator.next()).done ? iteratorDone() : iteratorValue(type, iterations++, step.value);
-    }));
-  }
-}, {}, IndexedSequence);
-var KeyedIndexedSequence = function KeyedIndexedSequence(indexedSeq) {
-  this._seq = indexedSeq;
-  this.length = indexedSeq.length;
-};
-($traceurRuntime.createClass)(KeyedIndexedSequence, {
-  get: function(key, notSetValue) {
-    return this._seq.get(key, notSetValue);
-  },
-  has: function(key) {
-    return this._seq.has(key);
-  },
-  valueSeq: function() {
-    return this._seq;
-  },
-  reverse: function() {
-    var $__0 = this;
-    var reversedSequence = reverseFactory(this);
-    reversedSequence.valueSeq = (function() {
-      return $__0._seq.reverse();
-    });
-    return reversedSequence;
-  },
-  map: function(mapper, context) {
-    var $__0 = this;
-    var mappedSequence = mapFactory(this, mapper, context);
-    mappedSequence.valueSeq = (function() {
-      return $__0._seq.map(mapper, context);
-    });
-    return mappedSequence;
-  },
-  cacheResult: function() {
-    this._seq.cacheResult();
-    this.length = this._seq.length;
-    return this;
-  },
-  __iterate: function(fn, reverse) {
-    var $__0 = this;
-    var ii = reverse ? ensureLength(this) : 0;
-    return this._seq.__iterate((function(v) {
-      return fn(v, reverse ? --ii : ii++, $__0);
-    }), reverse);
-  },
-  __iterator: function(type, reverse) {
-    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
-    var ii = reverse ? ensureLength(this) : 0;
-    return new Iterator((function() {
-      var step = iterator.next();
-      return step.done ? step : iteratorValue(type, reverse ? --ii : ii++, step.value);
-    }));
-  }
-}, {}, Sequence);
 var IteratorSequence = function IteratorSequence(iterator) {
   this._iterator = iterator;
   this._iteratorCache = [];
@@ -1043,6 +960,29 @@ function entryMapper(v, k) {
 function returnTrue() {
   return true;
 }
+function not(predicate) {
+  return function() {
+    return !predicate.apply(this, arguments);
+  };
+}
+function quoteString(value) {
+  return typeof value === 'string' ? JSON.stringify(value) : value;
+}
+function defaultComparator(a, b) {
+  return a > b ? 1 : a < b ? -1 : 0;
+}
+function wrapIndex(seq, index) {
+  if (index < 0) {
+    if (seq.length == null) {
+      seq.cacheResult();
+    }
+    return seq.length + index;
+  }
+  return index;
+}
+function assertNotInfinite(length) {
+  invariant(length !== Infinity, 'Cannot perform this action with an infinite sequence.');
+}
 function iterate(sequence, fn, reverse, useKeys) {
   var cache = sequence._cache;
   if (cache) {
@@ -1072,6 +1012,89 @@ function iterator(sequence, type, reverse, useKeys) {
   }
   return sequence.__iteratorUncached(type, reverse);
 }
+var ValuesSequence = function ValuesSequence(seq) {
+  this._seq = seq;
+  this.length = seq.length;
+};
+($traceurRuntime.createClass)(ValuesSequence, {
+  get: function(key, notSetValue) {
+    return this._seq.get(key, notSetValue);
+  },
+  has: function(key) {
+    return this._seq.has(key);
+  },
+  cacheResult: function() {
+    this._seq.cacheResult();
+    this.length = this._seq.length;
+    return this;
+  },
+  __iterate: function(fn, reverse) {
+    var $__0 = this;
+    var iterations = 0;
+    return this._seq.__iterate((function(v) {
+      return fn(v, iterations++, $__0);
+    }), reverse);
+  },
+  __iterator: function(type, reverse) {
+    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
+    var iterations = 0;
+    var step;
+    return new Iterator((function() {
+      return (step = iterator.next()).done ? iteratorDone() : iteratorValue(type, iterations++, step.value);
+    }));
+  }
+}, {}, IndexedSequence);
+var KeyedIndexedSequence = function KeyedIndexedSequence(indexedSeq) {
+  this._seq = indexedSeq;
+  this.length = indexedSeq.length;
+};
+($traceurRuntime.createClass)(KeyedIndexedSequence, {
+  get: function(key, notSetValue) {
+    return this._seq.get(key, notSetValue);
+  },
+  has: function(key) {
+    return this._seq.has(key);
+  },
+  valueSeq: function() {
+    return this._seq;
+  },
+  reverse: function() {
+    var $__0 = this;
+    var reversedSequence = reverseFactory(this);
+    reversedSequence.valueSeq = (function() {
+      return $__0._seq.reverse();
+    });
+    return reversedSequence;
+  },
+  map: function(mapper, context) {
+    var $__0 = this;
+    var mappedSequence = mapFactory(this, mapper, context);
+    mappedSequence.valueSeq = (function() {
+      return $__0._seq.map(mapper, context);
+    });
+    return mappedSequence;
+  },
+  cacheResult: function() {
+    this._seq.cacheResult();
+    this.length = this._seq.length;
+    return this;
+  },
+  __iterate: function(fn, reverse) {
+    var $__0 = this;
+    var ii = reverse ? ensureLength(this) : 0;
+    return this._seq.__iterate((function(v) {
+      return fn(v, reverse ? --ii : ii++, $__0);
+    }), reverse);
+  },
+  __iterator: function(type, reverse) {
+    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
+    var ii = reverse ? ensureLength(this) : 0;
+    return new Iterator((function() {
+      var step = iterator.next();
+      return step.done ? step : iteratorValue(type, reverse ? --ii : ii++, step.value);
+    }));
+  }
+}, {}, Sequence);
 function flipFactory(sequence) {
   var flipSequence = sequence.__makeSequence();
   flipSequence.length = sequence.length;
@@ -1306,29 +1329,6 @@ function flattenFactory(sequence, useKeys) {
     return iterations;
   };
   return flatSequence;
-}
-function not(predicate) {
-  return function() {
-    return !predicate.apply(this, arguments);
-  };
-}
-function quoteString(value) {
-  return typeof value === 'string' ? JSON.stringify(value) : value;
-}
-function defaultComparator(a, b) {
-  return a > b ? 1 : a < b ? -1 : 0;
-}
-function wrapIndex(seq, index) {
-  if (index < 0) {
-    if (seq.length == null) {
-      seq.cacheResult();
-    }
-    return seq.length + index;
-  }
-  return index;
-}
-function assertNotInfinite(length) {
-  invariant(length !== Infinity, 'Cannot perform this action with an infinite sequence.');
 }
 var Cursor = function Cursor(rootData, keyPath, onChange, value) {
   value = value ? value : rootData.getIn(keyPath);

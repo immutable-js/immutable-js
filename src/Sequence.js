@@ -644,99 +644,8 @@ IndexedSequencePrototype.__toJS = IndexedSequencePrototype.toArray;
 IndexedSequencePrototype.__toStringMapper = quoteString;
 
 
-class ValuesSequence extends IndexedSequence {
-  constructor(seq) {
-    this._seq = seq;
-    this.length = seq.length;
-  }
 
-  get(key, notSetValue) {
-    return this._seq.get(key, notSetValue);
-  }
-
-  has(key) {
-    return this._seq.has(key);
-  }
-
-  cacheResult() {
-    this._seq.cacheResult();
-    this.length = this._seq.length;
-    return this;
-  }
-
-  __iterate(fn, reverse) {
-    var iterations = 0;
-    return this._seq.__iterate(v => fn(v, iterations++, this), reverse);
-  }
-
-  __iterator(type, reverse) {
-    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
-    var iterations = 0;
-    var step;
-    return new Iterator(() =>
-      (step = iterator.next()).done ?
-        iteratorDone() :
-        iteratorValue(type, iterations++, step.value)
-    );
-  }
-}
-
-
-class KeyedIndexedSequence extends Sequence {
-  constructor(indexedSeq) {
-    this._seq = indexedSeq;
-    this.length = indexedSeq.length;
-  }
-
-  get(key, notSetValue) {
-    return this._seq.get(key, notSetValue);
-  }
-
-  has(key) {
-    return this._seq.has(key);
-  }
-
-  valueSeq() {
-    return this._seq;
-  }
-
-  reverse() {
-    var reversedSequence = reverseFactory(this);
-    reversedSequence.valueSeq = () => this._seq.reverse();
-    return reversedSequence;
-  }
-
-  map(mapper, context) {
-    var mappedSequence = mapFactory(this, mapper, context);
-    mappedSequence.valueSeq = () => this._seq.map(mapper, context);
-    return mappedSequence;
-  }
-
-  cacheResult() {
-    this._seq.cacheResult();
-    this.length = this._seq.length;
-    return this;
-  }
-
-  __iterate(fn, reverse) {
-    var ii = reverse ? ensureLength(this) : 0;
-    return this._seq.__iterate(
-      v => fn(v, reverse ? --ii : ii++, this),
-      reverse
-    );
-  }
-
-  __iterator(type, reverse) {
-    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
-    var ii = reverse ? ensureLength(this) : 0;
-    return new Iterator(() => {
-      var step = iterator.next();
-      return step.done ? step :
-        iteratorValue(type, reverse ? --ii : ii++, step.value)
-    });
-  }
-}
-
+// #pragma Root Sequences
 
 class IteratorSequence extends IndexedSequence {
   constructor(iterator) {
@@ -924,6 +833,9 @@ class ArraySequence extends IndexedSequence {
 }
 
 
+
+// #pragma Helper functions
+
 function makeSequence() {
   return Object.create(SequencePrototype);
 }
@@ -975,6 +887,40 @@ function returnTrue() {
   return true;
 }
 
+function not(predicate) {
+  return function() {
+    return !predicate.apply(this, arguments);
+  }
+}
+
+function quoteString(value) {
+  return typeof value === 'string' ? JSON.stringify(value) : value;
+}
+
+function defaultComparator(a, b) {
+  return a > b ? 1 : a < b ? -1 : 0;
+}
+
+function wrapIndex(seq, index) {
+  if (index < 0) {
+    if (seq.length == null) {
+      seq.cacheResult();
+    }
+    return seq.length + index;
+  }
+  return index;
+}
+
+function assertNotInfinite(length) {
+  invariant(
+    length !== Infinity,
+    'Cannot perform this action with an infinite sequence.'
+  );
+}
+
+
+// #pragma Iteration Base Implementations
+
 function iterate(sequence, fn, reverse, useKeys) {
   var cache = sequence._cache;
   if (cache) {
@@ -1008,6 +954,104 @@ function iterator(sequence, type, reverse, useKeys) {
   }
   return sequence.__iteratorUncached(type, reverse);
 }
+
+
+
+// #pragma Lazy Sequence Factories
+
+class ValuesSequence extends IndexedSequence {
+  constructor(seq) {
+    this._seq = seq;
+    this.length = seq.length;
+  }
+
+  get(key, notSetValue) {
+    return this._seq.get(key, notSetValue);
+  }
+
+  has(key) {
+    return this._seq.has(key);
+  }
+
+  cacheResult() {
+    this._seq.cacheResult();
+    this.length = this._seq.length;
+    return this;
+  }
+
+  __iterate(fn, reverse) {
+    var iterations = 0;
+    return this._seq.__iterate(v => fn(v, iterations++, this), reverse);
+  }
+
+  __iterator(type, reverse) {
+    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
+    var iterations = 0;
+    var step;
+    return new Iterator(() =>
+      (step = iterator.next()).done ?
+        iteratorDone() :
+        iteratorValue(type, iterations++, step.value)
+    );
+  }
+}
+
+
+class KeyedIndexedSequence extends Sequence {
+  constructor(indexedSeq) {
+    this._seq = indexedSeq;
+    this.length = indexedSeq.length;
+  }
+
+  get(key, notSetValue) {
+    return this._seq.get(key, notSetValue);
+  }
+
+  has(key) {
+    return this._seq.has(key);
+  }
+
+  valueSeq() {
+    return this._seq;
+  }
+
+  reverse() {
+    var reversedSequence = reverseFactory(this);
+    reversedSequence.valueSeq = () => this._seq.reverse();
+    return reversedSequence;
+  }
+
+  map(mapper, context) {
+    var mappedSequence = mapFactory(this, mapper, context);
+    mappedSequence.valueSeq = () => this._seq.map(mapper, context);
+    return mappedSequence;
+  }
+
+  cacheResult() {
+    this._seq.cacheResult();
+    this.length = this._seq.length;
+    return this;
+  }
+
+  __iterate(fn, reverse) {
+    var ii = reverse ? ensureLength(this) : 0;
+    return this._seq.__iterate(
+      v => fn(v, reverse ? --ii : ii++, this),
+      reverse
+    );
+  }
+
+  __iterator(type, reverse) {
+    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
+    var ii = reverse ? ensureLength(this) : 0;
+    return new Iterator(() => {
+      var step = iterator.next();
+      return step.done ? step :
+        iteratorValue(type, reverse ? --ii : ii++, step.value)
+    });
+  }
+}
+
 
 function flipFactory(sequence) {
   var flipSequence = sequence.__makeSequence();
@@ -1229,35 +1273,4 @@ function flattenFactory(sequence, useKeys) {
     return iterations;
   }
   return flatSequence;
-}
-
-function not(predicate) {
-  return function() {
-    return !predicate.apply(this, arguments);
-  }
-}
-
-function quoteString(value) {
-  return typeof value === 'string' ? JSON.stringify(value) : value;
-}
-
-function defaultComparator(a, b) {
-  return a > b ? 1 : a < b ? -1 : 0;
-}
-
-function wrapIndex(seq, index) {
-  if (index < 0) {
-    if (seq.length == null) {
-      seq.cacheResult();
-    }
-    return seq.length + index;
-  }
-  return index;
-}
-
-function assertNotInfinite(length) {
-  invariant(
-    length !== Infinity,
-    'Cannot perform this action with an infinite sequence.'
-  );
 }
