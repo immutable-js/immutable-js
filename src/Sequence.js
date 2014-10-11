@@ -779,6 +779,24 @@ class IterableSequence extends IndexedSequence {
     }
     return iterations;
   }
+
+  __iteratorUncached(type, reverse) {
+    if (reverse) {
+      return this.cacheResult().__iterator(type, reverse);
+    }
+    var iterable = this._iterable;
+    var iterator = getIterator(iterable);
+    if (!isIterator(iterator)) {
+      return new Iterator(() => iteratorDone());
+    }
+    var iterations = 0;
+    var step;
+    return new Iterator(() =>
+      (step = iterator.next()).done ?
+        iteratorDone() :
+        iteratorValue(type, iterations++, step.value)
+    );
+  }
 }
 
 
