@@ -1090,6 +1090,14 @@ function iterator(sequence, type, reverse, useKeys) {
 }
 function filterFactory(sequence, predicate, context, useKeys) {
   var filterSequence = sequence.__makeSequence();
+  filterSequence.has = (function(key) {
+    var v = sequence.get(key, NOT_SET);
+    return v !== NOT_SET && predicate.call(context, v, key, sequence);
+  });
+  filterSequence.get = (function(key, notSetValue) {
+    var v = sequence.get(key, NOT_SET);
+    return v !== NOT_SET && predicate.call(context, v, key, sequence) ? v : notSetValue;
+  });
   filterSequence.__iterateUncached = function(fn, reverse) {
     var $__0 = this;
     var iterations = 0;

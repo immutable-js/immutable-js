@@ -357,7 +357,7 @@ class Sequence {
     var sequence = this;
     var mappedSequence = sequence.__makeSequence();
     mappedSequence.length = sequence.length;
-    mappedSequence.has = (key) => sequence.has(key);
+    mappedSequence.has = key => sequence.has(key);
     mappedSequence.get = (key, notSetValue) => {
       var v = sequence.get(key, NOT_SET);
       return v === NOT_SET ?
@@ -1019,6 +1019,15 @@ function iterator(sequence, type, reverse, useKeys) {
 
 function filterFactory(sequence, predicate, context, useKeys) {
   var filterSequence = sequence.__makeSequence();
+  filterSequence.has = key => {
+    var v = sequence.get(key, NOT_SET);
+    return v !== NOT_SET && predicate.call(context, v, key, sequence);
+  };
+  filterSequence.get = (key, notSetValue) => {
+    var v = sequence.get(key, NOT_SET);
+    return v !== NOT_SET && predicate.call(context, v, key, sequence) ?
+      v : notSetValue;
+  };
   filterSequence.__iterateUncached = function (fn, reverse) {
     var iterations = 0;
     sequence.__iterate((v, k, c) => {
