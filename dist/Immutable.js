@@ -512,6 +512,12 @@ var $Sequence = Sequence;
     flipSequence.flip = (function() {
       return sequence;
     });
+    flipSequence.has = (function(key) {
+      return sequence.contains(key);
+    });
+    flipSequence.contains = (function(key) {
+      return sequence.has(key);
+    });
     flipSequence.__iterateUncached = function(fn, reverse) {
       var $__0 = this;
       return sequence.__iterate((function(v, k) {
@@ -1092,7 +1098,7 @@ function filterFactory(sequence, predicate, context, useKeys) {
   var filterSequence = sequence.__makeSequence();
   filterSequence.has = (function(key) {
     var v = sequence.get(key, NOT_SET);
-    return v !== NOT_SET && predicate.call(context, v, key, sequence);
+    return v !== NOT_SET && !!predicate.call(context, v, key, sequence);
   });
   filterSequence.get = (function(key, notSetValue) {
     var v = sequence.get(key, NOT_SET);
