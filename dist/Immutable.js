@@ -524,6 +524,13 @@ var $Sequence = Sequence;
     var sequence = this;
     var mappedSequence = sequence.__makeSequence();
     mappedSequence.length = sequence.length;
+    mappedSequence.has = (function(key) {
+      return sequence.has(key);
+    });
+    mappedSequence.get = (function(key, notSetValue) {
+      var v = sequence.get(key, NOT_SET);
+      return v === NOT_SET ? notSetValue : mapper.call(context, v, key, sequence);
+    });
     mappedSequence.__iterateUncached = function(fn, reverse) {
       var $__0 = this;
       return sequence.__iterate((function(v, k, c) {
@@ -685,6 +692,7 @@ SequencePrototype.__toJS = SequencePrototype.toObject;
 SequencePrototype.inspect = SequencePrototype.toSource = function() {
   return this.toString();
 };
+SequencePrototype.chain = SequencePrototype.flatMap;
 var IndexedSequence = function IndexedSequence() {
   $traceurRuntime.defaultSuperCall(this, $IndexedSequence.prototype, arguments);
 };
@@ -793,7 +801,6 @@ var IndexedSequencePrototype = IndexedSequence.prototype;
 IndexedSequencePrototype[ITERATOR_SYMBOL] = IndexedSequencePrototype.values;
 IndexedSequencePrototype.__toJS = IndexedSequencePrototype.toArray;
 IndexedSequencePrototype.__toStringMapper = quoteString;
-IndexedSequencePrototype.chain = IndexedSequencePrototype.flatMap;
 var ValuesSequence = function ValuesSequence(seq) {
   this._seq = seq;
   this.length = seq.length;

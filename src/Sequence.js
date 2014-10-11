@@ -357,6 +357,13 @@ class Sequence {
     var sequence = this;
     var mappedSequence = sequence.__makeSequence();
     mappedSequence.length = sequence.length;
+    mappedSequence.has = (key) => sequence.has(key);
+    mappedSequence.get = (key, notSetValue) => {
+      var v = sequence.get(key, NOT_SET);
+      return v === NOT_SET ?
+        notSetValue :
+        mapper.call(context, v, key, sequence);
+    };
     mappedSequence.__iterateUncached = function (fn, reverse) {
       return sequence.__iterate(
         (v, k, c) => fn(mapper.call(context, v, k, c), k, this) !== false,
