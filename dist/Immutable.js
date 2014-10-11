@@ -947,6 +947,14 @@ var ArraySequence = function ArraySequence(array) {
       }
     }
     return ii;
+  },
+  __iterator: function(type, reverse) {
+    var array = this._array;
+    var maxIndex = array.length - 1;
+    var ii = 0;
+    return new Iterator((function() {
+      return ii > maxIndex ? iteratorDone() : iteratorValue(type, ii, array[reverse ? maxIndex - ii++ : ii++]);
+    }));
   }
 }, {}, IndexedSequence);
 function makeSequence() {

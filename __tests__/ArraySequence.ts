@@ -66,4 +66,14 @@ describe('ArraySequence', () => {
     expect(seq.flip().flip().toArray().length).toBe(10);
   });
 
+  it('can be iterated', () => {
+    var a = [1,2,3];
+    var seq = Immutable.Sequence(a);
+    var entries = seq.entries();
+    expect(entries.next()).toEqual({ value: [0, 1], done: false });
+    expect(entries.next()).toEqual({ value: [1, 2], done: false });
+    expect(entries.next()).toEqual({ value: [2, 3], done: false });
+    expect(entries.next()).toEqual({ value: undefined, done: true });
+  });
+
 });

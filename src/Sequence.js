@@ -16,6 +16,7 @@ import "Iterator"
           arrCopy, NOT_SET,
           invariant,
           hash, HASH_MAX_VAL,
+          Iterator, iteratorValue, iteratorDone,
           isIterable, isIterator, getIterator,
           ITERATOR_SYMBOL, ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES */
 /* exported Sequence, IndexedSequence */
@@ -841,6 +842,17 @@ class ArraySequence extends IndexedSequence {
       }
     }
     return ii;
+  }
+
+  __iterator(type, reverse) {
+    var array = this._array;
+    var maxIndex = array.length - 1;
+    var ii = 0;
+    return new Iterator(() =>
+      ii > maxIndex ?
+        iteratorDone() :
+        iteratorValue(type, ii, array[reverse ? maxIndex - ii++ : ii++])
+    );
   }
 }
 
