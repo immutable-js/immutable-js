@@ -364,18 +364,7 @@ var $Sequence = Sequence;
     return this.flip().valueSeq();
   },
   valueSeq: function() {
-    var sequence = this;
-    var valuesSequence = makeIndexedSequence(sequence);
-    valuesSequence.length = sequence.length;
-    valuesSequence.__iterateUncached = function(fn, reverse) {
-      var $__0 = this;
-      var iterations = 0;
-      sequence.__iterate((function(v) {
-        return fn(v, iterations++, $__0);
-      }), reverse);
-      return iterations;
-    };
-    return valuesSequence;
+    return new ValuesSequence(this);
   },
   entrySeq: function() {
     var sequence = this;
@@ -761,6 +750,29 @@ var IndexedSequencePrototype = IndexedSequence.prototype;
 IndexedSequencePrototype.__toJS = IndexedSequencePrototype.toArray;
 IndexedSequencePrototype.__toStringMapper = quoteString;
 IndexedSequencePrototype.chain = IndexedSequencePrototype.flatMap;
+var ValuesSequence = function ValuesSequence(seq) {
+  this._seq = seq;
+  this.length = seq.length;
+};
+($traceurRuntime.createClass)(ValuesSequence, {
+  get: function(key, notSetValue) {
+    return this._seq.get(key, notSetValue);
+  },
+  has: function(key) {
+    return this._seq.has(key);
+  },
+  cacheResult: function() {
+    this._seq.cacheResult();
+    this.length = this._seq.length;
+  },
+  __iterate: function(fn, reverse) {
+    var $__0 = this;
+    var iterations = 0;
+    return this._seq.__iterate((function(v) {
+      return fn(v, iterations++, $__0);
+    }), reverse);
+  }
+}, {}, IndexedSequence);
 var KeyedIndexedSequence = function KeyedIndexedSequence(indexedSeq) {
   this._seq = indexedSeq;
   this.length = indexedSeq.length;

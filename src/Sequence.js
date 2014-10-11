@@ -208,16 +208,7 @@ class Sequence {
   }
 
   valueSeq() {
-    // valueSeq() always returns an IndexedSequence.
-    var sequence = this;
-    var valuesSequence = makeIndexedSequence(sequence);
-    valuesSequence.length = sequence.length;
-    valuesSequence.__iterateUncached = function (fn, reverse) {
-      var iterations = 0;
-      sequence.__iterate(v => fn(v, iterations++, this), reverse);
-      return iterations;
-    }
-    return valuesSequence;
+    return new ValuesSequence(this);
   }
 
   entrySeq() {
@@ -640,6 +631,32 @@ var IndexedSequencePrototype = IndexedSequence.prototype;
 IndexedSequencePrototype.__toJS = IndexedSequencePrototype.toArray;
 IndexedSequencePrototype.__toStringMapper = quoteString;
 IndexedSequencePrototype.chain = IndexedSequencePrototype.flatMap;
+
+
+class ValuesSequence extends IndexedSequence {
+  constructor(seq) {
+    this._seq = seq;
+    this.length = seq.length;
+  }
+
+  get(key, notSetValue) {
+    return this._seq.get(key, notSetValue);
+  }
+
+  has(key) {
+    return this._seq.has(key);
+  }
+
+  cacheResult() {
+    this._seq.cacheResult();
+    this.length = this._seq.length;
+  }
+
+  __iterate(fn, reverse) {
+    var iterations = 0;
+    return this._seq.__iterate(v => fn(v, iterations++, this), reverse);
+  }
+}
 
 
 class KeyedIndexedSequence extends Sequence {
