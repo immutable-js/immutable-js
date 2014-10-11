@@ -340,39 +340,7 @@ class Sequence {
   }
 
   map(mapper, context) {
-    var sequence = this;
-    var mappedSequence = sequence.__makeSequence();
-    mappedSequence.length = sequence.length;
-    mappedSequence.has = key => sequence.has(key);
-    mappedSequence.get = (key, notSetValue) => {
-      var v = sequence.get(key, NOT_SET);
-      return v === NOT_SET ?
-        notSetValue :
-        mapper.call(context, v, key, sequence);
-    };
-    mappedSequence.__iterateUncached = function (fn, reverse) {
-      return sequence.__iterate(
-        (v, k, c) => fn(mapper.call(context, v, k, c), k, this) !== false,
-        reverse
-      );
-    }
-    mappedSequence.__iteratorUncached = function (type, reverse) {
-      var iterator = sequence.__iterator(ITERATE_ENTRIES, reverse);
-      return new Iterator(() => {
-        var step = iterator.next();
-        if (step.done) {
-          return step;
-        }
-        var entry = step.value;
-        var key = entry[0];
-        return iteratorValue(
-          type,
-          key,
-          mapper.call(context, entry[1], key, sequence)
-        );
-      });
-    }
-    return mappedSequence;
+    return mapFactory(this, mapper, context);
   }
 
   mapKeys(mapper, context) {
@@ -690,16 +658,6 @@ class ValuesSequence extends IndexedSequence {
     return this._seq.has(key);
   }
 
-  toKeyedSeq() {
-    return this._seq;
-  }
-
-  reverse() {
-    var reversedSequence = reverseFactory(this);
-    reversedSequence.toKeyedSeq = () => this._seq.reverse();
-    return reversedSequence;
-  }
-
   cacheResult() {
     this._seq.cacheResult();
     this.length = this._seq.length;
@@ -746,6 +704,12 @@ class KeyedIndexedSequence extends Sequence {
     var reversedSequence = reverseFactory(this);
     reversedSequence.valueSeq = () => this._seq.reverse();
     return reversedSequence;
+  }
+
+  map(mapper, context) {
+    var mappedSequence = mapFactory(this, mapper, context);
+    mappedSequence.valueSeq = () => this._seq.map(mapper, context);
+    return mappedSequence;
   }
 
   cacheResult() {
@@ -1060,6 +1024,41 @@ function flipFactory(sequence) {
     return sequence.__iterate((v, k) => fn(k, v, this) !== false, reverse);
   }
   return flipSequence;
+}
+
+function mapFactory(sequence, mapper, context) {
+  var mappedSequence = sequence.__makeSequence();
+  mappedSequence.length = sequence.length;
+  mappedSequence.has = key => sequence.has(key);
+  mappedSequence.get = (key, notSetValue) => {
+    var v = sequence.get(key, NOT_SET);
+    return v === NOT_SET ?
+      notSetValue :
+      mapper.call(context, v, key, sequence);
+  };
+  mappedSequence.__iterateUncached = function (fn, reverse) {
+    return sequence.__iterate(
+      (v, k, c) => fn(mapper.call(context, v, k, c), k, this) !== false,
+      reverse
+    );
+  }
+  mappedSequence.__iteratorUncached = function (type, reverse) {
+    var iterator = sequence.__iterator(ITERATE_ENTRIES, reverse);
+    return new Iterator(() => {
+      var step = iterator.next();
+      if (step.done) {
+        return step;
+      }
+      var entry = step.value;
+      var key = entry[0];
+      return iteratorValue(
+        type,
+        key,
+        mapper.call(context, entry[1], key, sequence)
+      );
+    });
+  }
+  return mappedSequence;
 }
 
 function reverseFactory(sequence) {

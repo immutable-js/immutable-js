@@ -497,35 +497,7 @@ var $Sequence = Sequence;
     return flipFactory(this);
   },
   map: function(mapper, context) {
-    var sequence = this;
-    var mappedSequence = sequence.__makeSequence();
-    mappedSequence.length = sequence.length;
-    mappedSequence.has = (function(key) {
-      return sequence.has(key);
-    });
-    mappedSequence.get = (function(key, notSetValue) {
-      var v = sequence.get(key, NOT_SET);
-      return v === NOT_SET ? notSetValue : mapper.call(context, v, key, sequence);
-    });
-    mappedSequence.__iterateUncached = function(fn, reverse) {
-      var $__0 = this;
-      return sequence.__iterate((function(v, k, c) {
-        return fn(mapper.call(context, v, k, c), k, $__0) !== false;
-      }), reverse);
-    };
-    mappedSequence.__iteratorUncached = function(type, reverse) {
-      var iterator = sequence.__iterator(ITERATE_ENTRIES, reverse);
-      return new Iterator((function() {
-        var step = iterator.next();
-        if (step.done) {
-          return step;
-        }
-        var entry = step.value;
-        var key = entry[0];
-        return iteratorValue(type, key, mapper.call(context, entry[1], key, sequence));
-      }));
-    };
-    return mappedSequence;
+    return mapFactory(this, mapper, context);
   },
   mapKeys: function(mapper, context) {
     var $__0 = this;
@@ -803,17 +775,6 @@ var ValuesSequence = function ValuesSequence(seq) {
   has: function(key) {
     return this._seq.has(key);
   },
-  toKeyedSeq: function() {
-    return this._seq;
-  },
-  reverse: function() {
-    var $__0 = this;
-    var reversedSequence = reverseFactory(this);
-    reversedSequence.toKeyedSeq = (function() {
-      return $__0._seq.reverse();
-    });
-    return reversedSequence;
-  },
   cacheResult: function() {
     this._seq.cacheResult();
     this.length = this._seq.length;
@@ -856,6 +817,14 @@ var KeyedIndexedSequence = function KeyedIndexedSequence(indexedSeq) {
       return $__0._seq.reverse();
     });
     return reversedSequence;
+  },
+  map: function(mapper, context) {
+    var $__0 = this;
+    var mappedSequence = mapFactory(this, mapper, context);
+    mappedSequence.valueSeq = (function() {
+      return $__0._seq.map(mapper, context);
+    });
+    return mappedSequence;
   },
   cacheResult: function() {
     this._seq.cacheResult();
@@ -1129,6 +1098,36 @@ function flipFactory(sequence) {
     }), reverse);
   };
   return flipSequence;
+}
+function mapFactory(sequence, mapper, context) {
+  var mappedSequence = sequence.__makeSequence();
+  mappedSequence.length = sequence.length;
+  mappedSequence.has = (function(key) {
+    return sequence.has(key);
+  });
+  mappedSequence.get = (function(key, notSetValue) {
+    var v = sequence.get(key, NOT_SET);
+    return v === NOT_SET ? notSetValue : mapper.call(context, v, key, sequence);
+  });
+  mappedSequence.__iterateUncached = function(fn, reverse) {
+    var $__0 = this;
+    return sequence.__iterate((function(v, k, c) {
+      return fn(mapper.call(context, v, k, c), k, $__0) !== false;
+    }), reverse);
+  };
+  mappedSequence.__iteratorUncached = function(type, reverse) {
+    var iterator = sequence.__iterator(ITERATE_ENTRIES, reverse);
+    return new Iterator((function() {
+      var step = iterator.next();
+      if (step.done) {
+        return step;
+      }
+      var entry = step.value;
+      var key = entry[0];
+      return iteratorValue(type, key, mapper.call(context, entry[1], key, sequence));
+    }));
+  };
+  return mappedSequence;
 }
 function reverseFactory(sequence) {
   var reversedSequence = sequence.__makeSequence();
