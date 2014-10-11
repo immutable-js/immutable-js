@@ -154,14 +154,14 @@ class Sequence {
     return joined;
   }
 
-  count(predicate, thisArg) {
+  count(predicate, context) {
     if (!predicate) {
       if (this.length == null) {
         this.length = this.forEach(returnTrue);
       }
       return this.length;
     }
-    return this.filter(predicate, thisArg).count();
+    return this.filter(predicate, context).count();
   }
 
   countBy(grouper, context) {
@@ -188,8 +188,8 @@ class Sequence {
     return flattenFactory(this, true);
   }
 
-  flatMap(mapper, thisArg) {
-    return this.map(mapper, thisArg).flatten();
+  flatMap(mapper, context) {
+    return this.map(mapper, context).flatten();
   }
 
   reverse() {
@@ -231,11 +231,11 @@ class Sequence {
     return entriesSequence;
   }
 
-  forEach(sideEffect, thisArg) {
-    return this.__iterate(thisArg ? sideEffect.bind(thisArg) : sideEffect);
+  forEach(sideEffect, context) {
+    return this.__iterate(context ? sideEffect.bind(context) : sideEffect);
   }
 
-  reduce(reducer, initialReduction, thisArg) {
+  reduce(reducer, initialReduction, context) {
     var reduction;
     var useFirst;
     if (arguments.length < 2) {
@@ -248,21 +248,21 @@ class Sequence {
         useFirst = false;
         reduction = v;
       } else {
-        reduction = reducer.call(thisArg, reduction, v, k, c);
+        reduction = reducer.call(context, reduction, v, k, c);
       }
     });
     return reduction;
   }
 
-  reduceRight(reducer, initialReduction, thisArg) {
+  reduceRight(reducer, initialReduction, context) {
     var reversed = this.toKeyedSeq().reverse();
     return reversed.reduce.apply(reversed, arguments);
   }
 
-  every(predicate, thisArg) {
+  every(predicate, context) {
     var returnValue = true;
     this.forEach((v, k, c) => {
-      if (!predicate.call(thisArg, v, k, c)) {
+      if (!predicate.call(context, v, k, c)) {
         returnValue = false;
         return false;
       }
@@ -270,8 +270,8 @@ class Sequence {
     return returnValue;
   }
 
-  some(predicate, thisArg) {
-    return !this.every(not(predicate), thisArg);
+  some(predicate, context) {
+    return !this.every(not(predicate), context);
   }
 
   first() {
@@ -315,10 +315,10 @@ class Sequence {
     return this.find(value => is(value, searchValue), null, NOT_SET) !== NOT_SET;
   }
 
-  find(predicate, thisArg, notSetValue) {
+  find(predicate, context, notSetValue) {
     var foundValue = notSetValue;
     this.forEach((v, k, c) => {
-      if (predicate.call(thisArg, v, k, c)) {
+      if (predicate.call(context, v, k, c)) {
         foundValue = v;
         return false;
       }
@@ -326,10 +326,10 @@ class Sequence {
     return foundValue;
   }
 
-  findKey(predicate, thisArg) {
+  findKey(predicate, context) {
     var foundKey;
     this.forEach((v, k, c) => {
-      if (predicate.call(thisArg, v, k, c)) {
+      if (predicate.call(context, v, k, c)) {
         foundKey = k;
         return false;
       }
@@ -337,12 +337,12 @@ class Sequence {
     return foundKey;
   }
 
-  findLast(predicate, thisArg, notSetValue) {
-    return this.toKeyedSeq().reverse().find(predicate, thisArg, notSetValue);
+  findLast(predicate, context, notSetValue) {
+    return this.toKeyedSeq().reverse().find(predicate, context, notSetValue);
   }
 
-  findLastKey(predicate, thisArg) {
-    return this.toKeyedSeq().reverse().findKey(predicate, thisArg);
+  findLastKey(predicate, context) {
+    return this.toKeyedSeq().reverse().findKey(predicate, context);
   }
 
   flip() {
@@ -356,33 +356,33 @@ class Sequence {
     return flipSequence;
   }
 
-  map(mapper, thisArg) {
+  map(mapper, context) {
     var sequence = this;
     var mappedSequence = sequence.__makeSequence();
     mappedSequence.length = sequence.length;
     mappedSequence.__iterateUncached = function (fn, reverse) {
       return sequence.__iterate(
-        (v, k, c) => fn(mapper.call(thisArg, v, k, c), k, this) !== false,
+        (v, k, c) => fn(mapper.call(context, v, k, c), k, this) !== false,
         reverse
       );
     }
     return mappedSequence;
   }
 
-  mapKeys(mapper, thisArg) {
+  mapKeys(mapper, context) {
     return this.flip().map(
-      (k, v) => mapper.call(thisArg, k, v, this)
+      (k, v) => mapper.call(context, k, v, this)
     ).flip();
   }
 
-  mapEntries(mapper, thisArg) {
+  mapEntries(mapper, context) {
     return this.entrySeq().map(
-      (entry, index) => mapper.call(thisArg, entry, index, this)
+      (entry, index) => mapper.call(context, entry, index, this)
     ).fromEntrySeq();
   }
 
-  filter(predicate, thisArg) {
-    return filterFactory(this, predicate, thisArg, true);
+  filter(predicate, context) {
+    return filterFactory(this, predicate, context, true);
   }
 
   slice(begin, end) {
@@ -432,7 +432,7 @@ class Sequence {
     return this.reverse().take(amount).reverse();
   }
 
-  takeWhile(predicate, thisArg) {
+  takeWhile(predicate, context) {
     var sequence = this;
     var takeSequence = sequence.__makeSequence();
     takeSequence.__iterateUncached = function(fn, reverse) {
@@ -441,15 +441,15 @@ class Sequence {
       }
       var iterations = 0;
       sequence.__iterate((v, k, c) =>
-        predicate.call(thisArg, v, k, c) && ++iterations && fn(v, k, this)
+        predicate.call(context, v, k, c) && ++iterations && fn(v, k, this)
       );
       return iterations;
     };
     return takeSequence;
   }
 
-  takeUntil(predicate, thisArg) {
-    return this.takeWhile(not(predicate), thisArg);
+  takeUntil(predicate, context) {
+    return this.takeWhile(not(predicate), context);
   }
 
   skip(amount) {
@@ -460,12 +460,12 @@ class Sequence {
     return this.reverse().skip(amount).reverse();
   }
 
-  skipWhile(predicate, thisArg) {
-    return skipWhileFactory(this, predicate, thisArg, true);
+  skipWhile(predicate, context) {
+    return skipWhileFactory(this, predicate, context, true);
   }
 
-  skipUntil(predicate, thisArg) {
-    return this.skipWhile(not(predicate), thisArg);
+  skipUntil(predicate, context) {
+    return this.skipWhile(not(predicate), context);
   }
 
   groupBy(grouper, context) {
@@ -550,8 +550,8 @@ class IndexedSequence extends Sequence {
     return concatFactory(this, values, false);
   }
 
-  filter(predicate, thisArg) {
-    return filterFactory(this, predicate, thisArg, false);
+  filter(predicate, context) {
+    return filterFactory(this, predicate, context, false);
   }
 
   get(index, notSetValue) {
@@ -575,13 +575,13 @@ class IndexedSequence extends Sequence {
     return this.toKeyedSeq().reverse().indexOf(searchValue);
   }
 
-  findIndex(predicate, thisArg) {
-    var key = this.findKey(predicate, thisArg);
+  findIndex(predicate, context) {
+    var key = this.findKey(predicate, context);
     return key == null ? -1 : key;
   }
 
-  findLastIndex(predicate, thisArg) {
-    return this.toKeyedSeq().reverse().findIndex(predicate, thisArg);
+  findLastIndex(predicate, context) {
+    return this.toKeyedSeq().reverse().findIndex(predicate, context);
   }
 
   splice(index, removeNum /*, ...values*/) {
@@ -608,8 +608,8 @@ class IndexedSequence extends Sequence {
     return skipFactory(this, amount, false);
   }
 
-  skipWhile(predicate, thisArg) {
-    return skipWhileFactory(this, predicate, thisArg, false);
+  skipWhile(predicate, context) {
+    return skipWhileFactory(this, predicate, context, false);
   }
 
   groupBy(grouper, context) {
@@ -938,7 +938,7 @@ function skipFactory(sequence, amount, useKeys) {
   return skipSequence;
 }
 
-function skipWhileFactory(sequence, predicate, thisArg, useKeys) {
+function skipWhileFactory(sequence, predicate, context, useKeys) {
   var skipSequence = sequence.__makeSequence();
   skipSequence.__iterateUncached = function (fn, reverse) {
     if (reverse) {
@@ -947,7 +947,7 @@ function skipWhileFactory(sequence, predicate, thisArg, useKeys) {
     var isSkipping = true;
     var iterations = 0;
     sequence.__iterate((v, k, c) => {
-      if (!(isSkipping && (isSkipping = predicate.call(thisArg, v, k, c)))) {
+      if (!(isSkipping && (isSkipping = predicate.call(context, v, k, c)))) {
         iterations++;
         return fn(v, useKeys ? k : iterations - 1, this);
       }
