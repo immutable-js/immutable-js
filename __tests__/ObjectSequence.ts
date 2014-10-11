@@ -37,4 +37,14 @@ describe('ObjectSequence', () => {
     expect(k).toEqual(['A', 'B', 'C']);
   });
 
+  it('can be iterated', () => {
+    var obj = { a: 1, b: 2, c: 3 };
+    var seq = Immutable.Sequence(obj);
+    var entries = seq.entries();
+    expect(entries.next()).toEqual({ value: ['a', 1], done: false });
+    expect(entries.next()).toEqual({ value: ['b', 2], done: false });
+    expect(entries.next()).toEqual({ value: ['c', 3], done: false });
+    expect(entries.next()).toEqual({ value: undefined, done: true });
+  });
+
 });

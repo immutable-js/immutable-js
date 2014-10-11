@@ -915,12 +915,22 @@ var ObjectSequence = function ObjectSequence(object) {
     var keys = this._keys;
     var maxIndex = keys.length - 1;
     for (var ii = 0; ii <= maxIndex; ii++) {
-      var iteration = reverse ? maxIndex - ii : ii;
-      if (fn(object[keys[iteration]], keys[iteration], this) === false) {
+      var key = keys[reverse ? maxIndex - ii : ii];
+      if (fn(object[key], key, this) === false) {
         return ii + 1;
       }
     }
     return ii;
+  },
+  __iterator: function(type, reverse) {
+    var object = this._object;
+    var keys = this._keys;
+    var maxIndex = keys.length - 1;
+    var ii = 0;
+    return new Iterator((function() {
+      var key = keys[reverse ? maxIndex - ii : ii];
+      return ii++ > maxIndex ? iteratorDone() : iteratorValue(type, key, object[key]);
+    }));
   }
 }, {}, Sequence);
 var ArraySequence = function ArraySequence(array) {
