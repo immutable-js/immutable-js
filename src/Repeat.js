@@ -10,8 +10,7 @@
 import "Sequence"
 import "Range"
 import "is"
-import "invariant"
-/* global IndexedSequence, RangePrototype, is, invariant */
+/* global IndexedSequence, RangePrototype, is */
 /* exported Repeat */
 
 
@@ -72,11 +71,9 @@ class Repeat extends IndexedSequence {
     return -1;
   }
 
-  __iterate(fn, reverse, reverseIndices) {
-    invariant(!reverseIndices || this.length < Infinity, 'Cannot access end of infinite range.');
-    var maxIndex = this.length - 1;
-    for (var ii = 0; ii <= maxIndex; ii++) {
-      if (fn(this._value, reverseIndices ? maxIndex - ii : ii, this) === false) {
+  __iterate(fn, reverse) {
+    for (var ii = 0; ii < this.length; ii++) {
+      if (fn(this._value, ii, this) === false) {
         return ii + 1;
       }
     }

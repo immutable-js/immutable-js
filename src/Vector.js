@@ -177,15 +177,13 @@ class Vector extends IndexedSequence {
     return new VectorIterator(this, 2);
   }
 
-  __iterator(reverse, reverseIndices) {
-    return new VectorIterator(this, 2, reverse, reverseIndices);
+  __iterator(reverse) {
+    return new VectorIterator(this, 2, reverse);
   }
 
-  __iterate(fn, reverse, reverseIndices) {
+  __iterate(fn, reverse) {
     var iterations = 0;
-    var len = this.length;
-    var eachFn =
-      v => fn(v, reverseIndices ? len - ++iterations : iterations++, this);
+    var eachFn = v => fn(v, iterations++, this);
     var tailOffset = getTailOffset(this._size);
     if (reverse) {
       iterateVNode(this._tail, 0, tailOffset - this._origin, this._size - this._origin, eachFn, reverse) &&
@@ -333,10 +331,9 @@ function iterateVNode(node, level, offset, max, fn, reverse) {
 
 class VectorIterator extends SequenceIterator {
 
-  constructor(vector, type, reverse, reverseIndices) {
+  constructor(vector, type, reverse) {
     this._type = type;
     this._reverse = !!reverse;
-    this._reverseIndices = !!(reverseIndices ^ reverse);
     this._maxIndex = vector.length - 1;
     var tailOffset = getTailOffset(vector._size);
     var rootStack = vectIteratorFrame(
@@ -374,7 +371,7 @@ class VectorIterator extends SequenceIterator {
           var index;
           if (type !== 1) {
             index = stack.offset + (rawIndex << stack.level);
-            if (this._reverseIndices) {
+            if (this._reverse) {
               index = this._maxIndex - index;
             }
           }
