@@ -686,6 +686,17 @@ class ValuesSequence extends IndexedSequence {
     var iterations = 0;
     return this._seq.__iterate(v => fn(v, iterations++, this), reverse);
   }
+
+  __iterator(type, reverse) {
+    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
+    var iterations = 0;
+    var step;
+    return new Iterator(() =>
+      (step = iterator.next()).done ?
+        iteratorDone() :
+        iteratorValue(type, iterations++, step.value)
+    );
+  }
 }
 
 
@@ -709,18 +720,21 @@ class KeyedIndexedSequence extends Sequence {
   }
 
   __iterate(fn, reverse) {
-    var maxIndex;
-    if (reverse) {
-      if (this.length == null) {
-        this.cacheResult();
-      }
-      invariant(this.length < Infinity, 'Cannot reverse infinite range.');
-      maxIndex = this.length - 1;
-    }
+    var ii = reverse ? ensureLength(this) : 0;
     return this._seq.__iterate(
-      (v, i) => fn(v, reverse ? maxIndex - i : i, this),
+      v => fn(v, reverse ? --ii : ii++, this),
       reverse
     );
+  }
+
+  __iterator(type, reverse) {
+    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
+    var ii = reverse ? ensureLength(this) : 0;
+    return new Iterator(() => {
+      var step = iterator.next();
+      return step.done ? step :
+        iteratorValue(type, reverse ? --ii : ii++, step.value)
+    });
   }
 }
 
@@ -765,7 +779,7 @@ class IteratorSequence extends IndexedSequence {
       if (iterations >= cache.length) {
         var step = iterator.next();
         if (step.done) {
-          return iteratorDone();
+          return step;
         }
         cache[iterations] = step.value;
       }
@@ -809,12 +823,10 @@ class IterableSequence extends IndexedSequence {
       return new Iterator(() => iteratorDone());
     }
     var iterations = 0;
-    var step;
-    return new Iterator(() =>
-      (step = iterator.next()).done ?
-        iteratorDone() :
-        iteratorValue(type, iterations++, step.value)
-    );
+    return new Iterator(() => {
+      var step = iterator.next();
+      return step.done ? step : iteratorValue(type, iterations++, step.value);
+    });
   }
 }
 
@@ -919,6 +931,14 @@ function makeSequence() {
 
 function makeIndexedSequence(parent) {
   return Object.create(IndexedSequencePrototype);
+}
+
+function ensureLength(indexedSeq) {
+  if (indexedSeq.length == null) {
+    indexedSeq.cacheResult();
+  }
+  invariant(indexedSeq.length < Infinity, 'Cannot reverse infinite range.');
+  return indexedSeq.length;
 }
 
 function wholeSlice(begin, end, length) {

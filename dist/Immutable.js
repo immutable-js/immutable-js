@@ -815,6 +815,14 @@ var ValuesSequence = function ValuesSequence(seq) {
     return this._seq.__iterate((function(v) {
       return fn(v, iterations++, $__0);
     }), reverse);
+  },
+  __iterator: function(type, reverse) {
+    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
+    var iterations = 0;
+    var step;
+    return new Iterator((function() {
+      return (step = iterator.next()).done ? iteratorDone() : iteratorValue(type, iterations++, step.value);
+    }));
   }
 }, {}, IndexedSequence);
 var KeyedIndexedSequence = function KeyedIndexedSequence(indexedSeq) {
@@ -834,17 +842,18 @@ var KeyedIndexedSequence = function KeyedIndexedSequence(indexedSeq) {
   },
   __iterate: function(fn, reverse) {
     var $__0 = this;
-    var maxIndex;
-    if (reverse) {
-      if (this.length == null) {
-        this.cacheResult();
-      }
-      invariant(this.length < Infinity, 'Cannot reverse infinite range.');
-      maxIndex = this.length - 1;
-    }
-    return this._seq.__iterate((function(v, i) {
-      return fn(v, reverse ? maxIndex - i : i, $__0);
+    var ii = reverse ? ensureLength(this) : 0;
+    return this._seq.__iterate((function(v) {
+      return fn(v, reverse ? --ii : ii++, $__0);
     }), reverse);
+  },
+  __iterator: function(type, reverse) {
+    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
+    var ii = reverse ? ensureLength(this) : 0;
+    return new Iterator((function() {
+      var step = iterator.next();
+      return step.done ? step : iteratorValue(type, reverse ? --ii : ii++, step.value);
+    }));
   }
 }, {}, Sequence);
 var IteratorSequence = function IteratorSequence(iterator) {
@@ -885,7 +894,7 @@ var IteratorSequence = function IteratorSequence(iterator) {
       if (iterations >= cache.length) {
         var step = iterator.next();
         if (step.done) {
-          return iteratorDone();
+          return step;
         }
         cache[iterations] = step.value;
       }
@@ -927,9 +936,9 @@ var IterableSequence = function IterableSequence(iterable) {
       }));
     }
     var iterations = 0;
-    var step;
     return new Iterator((function() {
-      return (step = iterator.next()).done ? iteratorDone() : iteratorValue(type, iterations++, step.value);
+      var step = iterator.next();
+      return step.done ? step : iteratorValue(type, iterations++, step.value);
     }));
   }
 }, {}, IndexedSequence);
@@ -1014,6 +1023,13 @@ function makeSequence() {
 }
 function makeIndexedSequence(parent) {
   return Object.create(IndexedSequencePrototype);
+}
+function ensureLength(indexedSeq) {
+  if (indexedSeq.length == null) {
+    indexedSeq.cacheResult();
+  }
+  invariant(indexedSeq.length < Infinity, 'Cannot reverse infinite range.');
+  return indexedSeq.length;
 }
 function wholeSlice(begin, end, length) {
   return (begin === 0 || (length != null && begin <= -length)) && (end == null || (length != null && end >= length));
