@@ -231,7 +231,7 @@ declare module 'immutable' {
     length: number;
 
 
-    // ### Sequential methods mirring those found on Array (ES6)
+    // ### Sequential methods mirring those found on Array and Map (ES6)
 
     /**
      * Returns a new sequence with other values and sequences concatenated to
@@ -244,6 +244,11 @@ declare module 'immutable' {
      * True if a value exists within this Sequence.
      */
     contains(value: V): boolean;
+
+    /**
+     * An iterator of this Map's entries as [key, value] tuples.
+     */
+    entries(): Iterator</*[K, V]*/Array<any>>;
 
     /**
      * True if `predicate` returns true for all entries in the sequence.
@@ -291,6 +296,11 @@ declare module 'immutable' {
      * The default separator is ",".
      */
     join(separator?: string): string;
+
+    /**
+     * An iterator of this Map's keys.
+     */
+    keys(): Iterator<K>;
 
     /**
      * Returns a new sequence with values passed through a `mapper` function.
@@ -380,6 +390,11 @@ declare module 'immutable' {
      *     of values.
      */
     sort(comparator?: (valueA: V, valueB: V) => number): Sequence<K, V>;
+
+    /**
+     * An iterator of this Map's values.
+     */
+    values(): Iterator<V>;
 
 
     // ### More sequential methods
@@ -1166,21 +1181,6 @@ declare module 'immutable' {
     clear(): Map<K, V>;
 
     /**
-     * An iterator of this Map's keys.
-     */
-    keys(): Iterator<K>;
-
-    /**
-     * An iterator of this Map's values.
-     */
-    values(): Iterator<V>;
-
-    /**
-     * An iterator of this Map's entries as [key, value] tuples.
-     */
-    entries(): Iterator</*[K, V]*/Array<any>>;
-
-    /**
      * When this cursor's (or any of its sub-cursors') `update` method is called,
      * the resulting new data structure will be provided to the `onChange`
      * function. Use this callback to keep track of the most current value or
@@ -1498,21 +1498,6 @@ declare module 'immutable' {
     clear(): Set<T>;
 
     /**
-     * An iterator of this Set's values (Sets do not have keys).
-     */
-    keys(): Iterator<T>;
-
-    /**
-     * An iterator of this Set's values.
-     */
-    values(): Iterator<T>;
-
-    /**
-     * An iterator of this Sets's entries as [value, value] tuples.
-     */
-    entries(): Iterator</*[T, T]*/Array<T>>;
-
-    /**
      * Alias for `union`.
      * @see `Map.prototype.merge`
      */
@@ -1636,21 +1621,6 @@ declare module 'immutable' {
      * Returns a new Vector with 0 length and no values.
      */
     clear(): Vector<T>;
-
-    /**
-     * An iterator of this Vector's keys.
-     */
-    keys(): Iterator<number>;
-
-    /**
-     * An iterator of this Vector's values.
-     */
-    values(): Iterator<T>;
-
-    /**
-     * An iterator of this Vector's entries as [key, value] tuples.
-     */
-    entries(): Iterator</*[number, T]*/Array<any>>;
 
     /**
      * Returns a new Vector with the provided `values` appended, starting at this
@@ -1886,7 +1856,7 @@ declare module 'immutable' {
     withMutations(mutator: (mutable: T) => T): Cursor<T>;
   }
 
-  // Shim for ES6 Iterator
+  // ES6 Iterator
   export interface Iterator<T> {
     next(): { value: T; done: boolean; }
   }
