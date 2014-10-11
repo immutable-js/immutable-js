@@ -2918,6 +2918,17 @@ var $Range = Range;
     }
     return ii;
   },
+  __iterator: function(type, reverse) {
+    var maxIndex = this.length - 1;
+    var step = this._step;
+    var value = reverse ? this._start + maxIndex * step : this._start;
+    var ii = 0;
+    return new Iterator((function() {
+      var v = value;
+      value += reverse ? -step : step;
+      return ii > maxIndex ? iteratorDone() : iteratorValue(type, ii++, v);
+    }));
+  },
   __deepEquals: function(other) {
     return this._start === other._start && this._end === other._end && this._step === other._step;
   }
@@ -2979,6 +2990,13 @@ var $Repeat = Repeat;
       }
     }
     return ii;
+  },
+  __iterator: function(type, reverse) {
+    var $__0 = this;
+    var ii = 0;
+    return new Iterator((function() {
+      return ii < $__0.length ? iteratorValue(type, ii++, $__0._value) : iteratorDone();
+    }));
   },
   __deepEquals: function(other) {
     return is(this._value, other._value);

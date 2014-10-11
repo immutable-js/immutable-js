@@ -10,8 +10,10 @@
 import "Sequence"
 import "Vector"
 import "invariant"
+import "Iterator"
 /* global IndexedSequence, wholeSlice, resolveBegin, resolveEnd,
-          VectorPrototype, invariant, wrapIndex */
+          VectorPrototype, wrapIndex, invariant,
+          Iterator, iteratorValue, iteratorDone */
 /* exported Range, RangePrototype */
 
 
@@ -119,6 +121,18 @@ class Range extends IndexedSequence {
       value += reverse ? -step : step;
     }
     return ii;
+  }
+
+  __iterator(type, reverse) {
+    var maxIndex = this.length - 1;
+    var step = this._step;
+    var value = reverse ? this._start + maxIndex * step : this._start;
+    var ii = 0;
+    return new Iterator(() => {
+      var v = value;
+      value += reverse ? -step : step;
+      return ii > maxIndex ? iteratorDone() : iteratorValue(type, ii++, v);
+    });
   }
 
   __deepEquals(other) {

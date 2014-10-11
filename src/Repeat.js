@@ -10,7 +10,9 @@
 import "Sequence"
 import "Range"
 import "is"
-/* global IndexedSequence, RangePrototype, is */
+import "Iterator"
+/* global IndexedSequence, RangePrototype, is,
+          Iterator, iteratorValue, iteratorDone */
 /* exported Repeat */
 
 
@@ -78,6 +80,13 @@ class Repeat extends IndexedSequence {
       }
     }
     return ii;
+  }
+
+  __iterator(type, reverse) {
+    var ii = 0;
+    return new Iterator(() =>
+      ii < this.length ? iteratorValue(type, ii++, this._value) : iteratorDone()
+    );
   }
 
   __deepEquals(other) {
