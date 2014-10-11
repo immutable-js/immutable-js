@@ -372,6 +372,22 @@ class Sequence {
         reverse
       );
     }
+    mappedSequence.__iteratorUncached = function (type, reverse) {
+      var iterator = sequence.__iterator(ITERATE_ENTRIES, reverse);
+      return new Iterator(() => {
+        var step = iterator.next();
+        if (step.done) {
+          return step;
+        }
+        var entry = step.value;
+        var key = entry[0];
+        return iteratorValue(
+          type,
+          key,
+          mapper.call(context, entry[1], key, sequence)
+        );
+      });
+    }
     return mappedSequence;
   }
 
@@ -1040,6 +1056,24 @@ function filterFactory(sequence, predicate, context, useKeys) {
     }, reverse);
     return iterations;
   };
+  filterSequence.__iteratorUncached = function (type, reverse) {
+    var iterator = sequence.__iterator(ITERATE_ENTRIES, reverse);
+    var iterations = 0;
+    return new Iterator(() => {
+      while (true) {
+        var step = iterator.next();
+        if (step.done) {
+          return step;
+        }
+        var entry = step.value;
+        var key = entry[0];
+        var value = entry[1];
+        if (predicate.call(context, value, key, sequence)) {
+          return iteratorValue(type, useKeys ? key : iterations++, value);
+        }
+      }
+    });
+  }
   return filterSequence;
 }
 

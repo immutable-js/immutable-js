@@ -8,13 +8,13 @@ import Immutable = require('immutable');
 describe('IterableSequence', () => {
 
   it('creates a sequence from an iterable', () => {
-    var i = new SimpleIterable(10);
+    var i = new SimpleIterable();
     var s = Immutable.Sequence(i);
     expect(s.take(5).toArray()).toEqual([ 0,1,2,3,4 ]);
   })
 
   it('is stable', () => {
-    var i = new SimpleIterable(10);
+    var i = new SimpleIterable();
     var s = Immutable.Sequence(i);
     expect(s.take(5).toArray()).toEqual([ 0,1,2,3,4 ]);
     expect(s.take(5).toArray()).toEqual([ 0,1,2,3,4 ]);
@@ -59,6 +59,17 @@ describe('IterableSequence', () => {
     expect(entries.next()).toEqual({ value: [2, 2], done: false });
     expect(entries.next()).toEqual({ value: undefined, done: true });
     expect(mockFn.mock.calls).toEqual([[0],[1],[2],[0],[1],[2]]);
+  })
+
+  it('can be mapped and filtered', () => {
+    var mockFn = jest.genMockFunction();
+    var i = new SimpleIterable(undefined, mockFn); // infinite
+    var seq = Immutable.Sequence(i).filter(x => x % 2 === 1).map(x => x * x);
+    var entries = seq.entries();
+    expect(entries.next()).toEqual({ value: [0, 1], done: false });
+    expect(entries.next()).toEqual({ value: [1, 9], done: false });
+    expect(entries.next()).toEqual({ value: [2, 25], done: false });
+    expect(mockFn.mock.calls).toEqual([[0],[1],[2],[3],[4],[5]]);
   })
 
   describe('IteratorSequence', () => {
