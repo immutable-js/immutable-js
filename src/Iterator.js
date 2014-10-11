@@ -8,9 +8,19 @@
  */
 
 /* global Symbol */
-/* exported Iterator, iteratorValue, iteratorDone, iteratorMapper,
-            isIterable, isIterator, getIterator,
-            ITERATOR_SYMBOL, ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES */
+/* exported ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES, ITERATOR_SYMBOL,
+            Iterator, iteratorValue, iteratorDone, iteratorMapper,
+            isIterable, isIterator, getIterator */
+
+var ITERATE_KEYS = 0;
+var ITERATE_VALUES = 1;
+var ITERATE_ENTRIES = 2;
+
+var FAUX_ITERATOR_SYMBOL =  '@@iterator';
+var ITERATOR_SYMBOL = typeof Symbol !== 'undefined' ?
+  Symbol.iterator :
+  FAUX_ITERATOR_SYMBOL;
+
 
 class Iterator {
   constructor(next) {
@@ -73,12 +83,3 @@ function getIterator(iterable) {
 function _iteratorFn(iterable) {
   return iterable && (iterable[ITERATOR_SYMBOL] || iterable[FAUX_ITERATOR_SYMBOL]);
 }
-
-
-var FAUX_ITERATOR_SYMBOL =  '@@iterator';
-var ITERATOR_SYMBOL = typeof Symbol !== 'undefined' ?
-  Symbol.iterator :
-  FAUX_ITERATOR_SYMBOL;
-var ITERATE_KEYS = 0;
-var ITERATE_VALUES = 1;
-var ITERATE_ENTRIES = 2;
