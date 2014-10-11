@@ -10,7 +10,6 @@
 import "Map"
 import "Sequence"
 import "TrieUtils"
-import "Symbol"
 /* global Map, Sequence, NOT_SET, DELETE */
 
 class Cursor extends Sequence {

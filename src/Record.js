@@ -10,8 +10,8 @@
 import "Sequence"
 import "Map"
 import "invariant"
-import "Symbol"
-/* global Sequence, Map, MapPrototype, invariant, DELETE, ITERATOR */
+import "TrieUtils"
+/* global Sequence, Map, MapPrototype, invariant, DELETE */
 /* exported Record */
 
 
@@ -115,6 +115,10 @@ class Record extends Sequence {
     return this._map.wasAltered();
   }
 
+  __iterator(type, reverse) {
+    return this._map.__iterator(type, reverse);
+  }
+
   __iterate(fn, reverse) {
     var record = this;
     return this._defaultValues.map((_, k) => record.get(k)).__iterate(fn, reverse);
@@ -136,7 +140,6 @@ class Record extends Sequence {
 
 var RecordPrototype = Record.prototype;
 RecordPrototype[DELETE] = RecordPrototype.remove;
-RecordPrototype[ITERATOR] = MapPrototype[ITERATOR];
 RecordPrototype.merge = MapPrototype.merge;
 RecordPrototype.mergeWith = MapPrototype.mergeWith;
 RecordPrototype.mergeDeep = MapPrototype.mergeDeep;

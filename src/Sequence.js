@@ -10,12 +10,15 @@
 /* Sequence has implicit lazy dependencies */
 import "TrieUtils"
 import "invariant"
-import "Symbol"
 import "Hash"
-/* global is, Map, OrderedMap, Vector, Set, arrCopy, NOT_SET, invariant,
-          ITERATOR, isIterable, isIterator, getIterator, hash, HASH_MAX_VAL */
-/* exported Sequence, IndexedSequence, SequenceIterator, iteratorMapper */
-
+import "Iterator"
+/* global is, Map, OrderedMap, Vector, Set,
+          arrCopy, NOT_SET,
+          invariant,
+          hash, HASH_MAX_VAL,
+          isIterable, isIterator, getIterator,
+          ITERATOR_SYMBOL, ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES */
+/* exported Sequence, IndexedSequence */
 
 class Sequence {
 
@@ -60,7 +63,9 @@ class Sequence {
   }
 
   toJS() {
-    return this.map(value => value instanceof Sequence ? value.toJS() : value).__toJS();
+    return this.map(
+      value => value instanceof Sequence ? value.toJS() : value
+    ).__toJS();
   }
 
   toArray() {
@@ -489,6 +494,22 @@ class Sequence {
     return this;
   }
 
+  keys() {
+    return this.__iterator(ITERATE_KEYS);
+  }
+
+  values() {
+    return this.__iterator(ITERATE_VALUES);
+  }
+
+  entries() {
+    return this.__iterator(ITERATE_ENTRIES);
+  }
+
+  __iterator(type, reverse) {
+    throw new Error('Sequence is not iterable.');
+  }
+
   // abstract __iterateUncached(fn, reverse)
 
   __iterate(fn, reverse) {
@@ -501,6 +522,7 @@ class Sequence {
 }
 
 var SequencePrototype = Sequence.prototype
+SequencePrototype[ITERATOR_SYMBOL] = SequencePrototype.entries;
 SequencePrototype.toJSON = SequencePrototype.toJS;
 SequencePrototype.__toJS = SequencePrototype.toObject;
 SequencePrototype.inspect =
@@ -628,6 +650,7 @@ class IndexedSequence extends Sequence {
 }
 
 var IndexedSequencePrototype = IndexedSequence.prototype;
+IndexedSequencePrototype[ITERATOR_SYMBOL] = IndexedSequencePrototype.values;
 IndexedSequencePrototype.__toJS = IndexedSequencePrototype.toArray;
 IndexedSequencePrototype.__toStringMapper = quoteString;
 IndexedSequencePrototype.chain = IndexedSequencePrototype.flatMap;
@@ -822,18 +845,6 @@ class ArraySequence extends IndexedSequence {
 }
 
 
-class SequenceIterator {
-  toString() {
-    return '[Iterator]';
-  }
-}
-
-var SequenceIteratorPrototype = SequenceIterator.prototype;
-SequenceIteratorPrototype[ITERATOR] = returnThis;
-SequenceIteratorPrototype.inspect =
-SequenceIteratorPrototype.toSource = function () { return this.toString(); }
-
-
 function makeSequence() {
   return Object.create(SequencePrototype);
 }
@@ -875,10 +886,6 @@ function entryMapper(v, k) {
 
 function returnTrue() {
   return true;
-}
-
-function returnThis() {
-  return this;
 }
 
 function iterate(sequence, fn, reverse, useKeys) {
@@ -1043,15 +1050,4 @@ function assertNotInfinite(length) {
     length !== Infinity,
     'Cannot perform this action with an infinite sequence.'
   );
-}
-
-function iteratorMapper(iter, fn) {
-  var newIter = new SequenceIterator();
-  newIter.next = () => {
-    var step = iter.next();
-    if (step.done) return step;
-    step.value = fn(step.value);
-    return step;
-  };
-  return newIter;
 }

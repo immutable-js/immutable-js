@@ -12,12 +12,12 @@ import "is"
 import "invariant"
 import "Cursor"
 import "TrieUtils"
-import "Symbol"
 import "Hash"
-/* global Sequence, IndexedSequence, SequenceIterator, is, invariant, Cursor,
-          SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
-          MakeRef, SetRef, arrCopy, iteratorValue, iteratorDone,
-          DELETE, ITERATOR, hash */
+import "Iterator"
+/* global Sequence, IndexedSequence, is, invariant, Cursor,
+          DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
+          MakeRef, SetRef, arrCopy, hash,
+          Iterator, iteratorValue, iteratorDone */
 /* exported Map, MapPrototype */
 
 
@@ -137,20 +137,8 @@ class Map extends Sequence {
     return this.__altered;
   }
 
-  keys() {
-    return new MapIterator(this, 0);
-  }
-
-  values() {
-    return new MapIterator(this, 1);
-  }
-
-  entries() {
-    return new MapIterator(this, 2);
-  }
-
-  __iterator(reverse) {
-    return new MapIterator(this, 2, reverse);
+  __iterator(type, reverse) {
+    return new MapIterator(this, type, reverse);
   }
 
   __iterate(fn, reverse) {
@@ -184,7 +172,6 @@ class Map extends Sequence {
 
 var MapPrototype = Map.prototype;
 MapPrototype[DELETE] = MapPrototype.remove;
-MapPrototype[ITERATOR] = function() { return this.entries() };
 
 Map.from = Map;
 
@@ -447,7 +434,7 @@ class ValueNode {
   }
 }
 
-class MapIterator extends SequenceIterator {
+class MapIterator extends Iterator {
 
   constructor(map, type, reverse) {
     this._type = type;
@@ -491,7 +478,7 @@ class MapIterator extends SequenceIterator {
 }
 
 function mapIteratorValue(type, entry) {
-  return iteratorValue(type === 0 || type === 1 ? entry[type] : [entry[0], entry[1]]);
+  return iteratorValue(type, entry[0], entry[1]);
 }
 
 function mapIteratorFrame(node, prev) {

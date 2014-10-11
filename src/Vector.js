@@ -9,14 +9,13 @@
 
 import "Sequence"
 import "is"
-import "invariant"
 import "Map"
 import "TrieUtils"
-import "Symbol"
-/* global Sequence, IndexedSequence, SequenceIterator, is, wrapIndex,
+import "Iterator"
+/* global Sequence, IndexedSequence, is, wrapIndex,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
-          SHIFT, SIZE, MASK, NOT_SET, DID_ALTER, OwnerID, MakeRef, SetRef,
-          arrCopy, iteratorValue, iteratorDone, DELETE, ITERATOR */
+          DELETE, SHIFT, SIZE, MASK, NOT_SET, DID_ALTER, OwnerID, MakeRef,
+          SetRef, arrCopy, Iterator, iteratorValue, iteratorDone */
 /* exported Vector, VectorPrototype */
 
 
@@ -165,20 +164,8 @@ class Vector extends IndexedSequence {
     return sliceSequence;
   }
 
-  keys() {
-    return new VectorIterator(this, 0);
-  }
-
-  values() {
-    return new VectorIterator(this, 1);
-  }
-
-  entries() {
-    return new VectorIterator(this, 2);
-  }
-
-  __iterator(reverse) {
-    return new VectorIterator(this, 2, reverse);
+  __iterator(type, reverse) {
+    return new VectorIterator(this, type, reverse);
   }
 
   __iterate(fn, reverse) {
@@ -217,7 +204,6 @@ class Vector extends IndexedSequence {
 
 var VectorPrototype = Vector.prototype;
 VectorPrototype[DELETE] = VectorPrototype.remove;
-VectorPrototype[ITERATOR] = VectorPrototype.values;
 VectorPrototype.update = MapPrototype.update;
 VectorPrototype.updateIn = MapPrototype.updateIn;
 VectorPrototype.cursor = MapPrototype.cursor;
@@ -329,7 +315,7 @@ function iterateVNode(node, level, offset, max, fn, reverse) {
   return true;
 }
 
-class VectorIterator extends SequenceIterator {
+class VectorIterator extends Iterator {
 
   constructor(vector, type, reverse) {
     this._type = type;
@@ -375,7 +361,7 @@ class VectorIterator extends SequenceIterator {
               index = this._maxIndex - index;
             }
           }
-          return iteratorValue(type === 0 ? index : type === 1 ? value : [index, value]);
+          return iteratorValue(type, index, value);
         } else {
           this._stack = stack = vectIteratorFrame(
             value && value.array,

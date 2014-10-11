@@ -7,13 +7,13 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "Sequence"
 import "Map"
 import "Vector"
 import "is"
 import "TrieUtils"
-import "Symbol"
-/* global iteratorMapper, Map, Vector, is, NOT_SET, DELETE */
+import "Iterator"
+/* global Map, Vector, is, DELETE, NOT_SET,
+          iteratorMapper, ITERATE_KEYS, ITERATE_VALUES */
 /* exported OrderedMap */
 
 
@@ -72,16 +72,13 @@ class OrderedMap extends Map {
     return this._map.wasAltered() || this._vector.wasAltered();
   }
 
-  keys() {
-    return iteratorMapper(this.entries(), entry => entry[0]);
-  }
-
-  values() {
-    return iteratorMapper(this.entries(), entry => entry[1]);
-  }
-
-  entries() {
-    return this._vector.values(true);
+  __iterator(type, reverse) {
+    var iterator = this._vector.__iterator(ITERATE_VALUES, reverse);
+    return type === ITERATE_KEYS ?
+      iteratorMapper(iterator, entry => entry[0]) :
+      type === ITERATE_VALUES ?
+        iteratorMapper(iterator, entry => entry[1]) :
+        iterator;
   }
 
   __iterate(fn, reverse) {

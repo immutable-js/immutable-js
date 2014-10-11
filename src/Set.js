@@ -9,9 +9,11 @@
 
 import "Sequence"
 import "Map"
-import "Symbol"
+import "TrieUtils"
+import "Iterator"
 /* global Sequence, IndexedSequencePrototype, iteratorMapper,
-          Map, MapPrototype, DELETE, ITERATOR */
+          Map, MapPrototype, DELETE,
+          ITERATOR_SYMBOL, ITERATE_KEYS, ITERATE_ENTRIES */
 /* exported Set */
 
 
@@ -147,16 +149,15 @@ class Set extends Sequence {
     return this._map.wasAltered();
   }
 
-  values() {
-    return this._map.keys();
-  }
-
-  entries() {
-    return iteratorMapper(this.values(), key => [key, key]);
-  }
-
   hashCode() {
     return this._map.hashCode();
+  }
+
+  __iterator(type, reverse) {
+    var iterator = this._map.__iterator(ITERATE_KEYS, reverse);
+    return type === ITERATE_ENTRIES ?
+      iteratorMapper(iterator, key => [key, key]) :
+      iterator;
   }
 
   __iterate(fn, reverse) {
@@ -184,7 +185,7 @@ class Set extends Sequence {
 
 var SetPrototype = Set.prototype;
 SetPrototype[DELETE] = SetPrototype.remove;
-SetPrototype[ITERATOR] = SetPrototype.keys = SetPrototype.values;
+SetPrototype[ITERATOR_SYMBOL] = SetPrototype.values;
 SetPrototype.contains = SetPrototype.has;
 SetPrototype.mergeDeep = SetPrototype.merge = SetPrototype.union;
 SetPrototype.mergeDeepWith = SetPrototype.mergeWith = function(merger, ...seqs) {

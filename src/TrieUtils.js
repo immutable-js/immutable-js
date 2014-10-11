@@ -7,8 +7,11 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-/* exported SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
-            MakeRef, SetRef, arrCopy, iteratorValue, iteratorDone */
+/* exported DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER,
+            OwnerID, MakeRef, SetRef, arrCopy */
+
+// Used for setting prototype methods that IE8 chokes on.
+var DELETE = 'delete';
 
 // Constants describing the size of trie nodes.
 var SHIFT = 5; // Resulted in best performance after ______?
@@ -20,8 +23,8 @@ var MASK = SIZE - 1;
 var NOT_SET = {};
 
 // Boolean references, Rough equivalent of `bool &`.
-var CHANGE_LENGTH = {value: false};
-var DID_ALTER = {value: false};
+var CHANGE_LENGTH = { value: false };
+var DID_ALTER = { value: false };
 
 function MakeRef(ref) {
   ref.value = false;
@@ -46,16 +49,4 @@ function arrCopy(arr, offset) {
     newArr[ii] = arr[ii + offset];
   }
   return newArr;
-}
-
-var ITER_RESULT = { value: undefined, done: false };
-function iteratorValue(value) {
-  ITER_RESULT.value = value;
-  ITER_RESULT.done = false;
-  return ITER_RESULT;
-}
-function iteratorDone() {
-  ITER_RESULT.value = undefined;
-  ITER_RESULT.done = true;
-  return ITER_RESULT;
 }

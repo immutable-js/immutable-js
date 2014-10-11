@@ -41,6 +41,7 @@ $traceurRuntime.createClass = createClass;
 $traceurRuntime.superCall = superCall;
 $traceurRuntime.defaultSuperCall = defaultSuperCall;
 "use strict";
+var DELETE = 'delete';
 var SHIFT = 5;
 var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
@@ -64,41 +65,9 @@ function arrCopy(arr, offset) {
   }
   return newArr;
 }
-var ITER_RESULT = {
-  value: undefined,
-  done: false
-};
-function iteratorValue(value) {
-  ITER_RESULT.value = value;
-  ITER_RESULT.done = false;
-  return ITER_RESULT;
-}
-function iteratorDone() {
-  ITER_RESULT.value = undefined;
-  ITER_RESULT.done = true;
-  return ITER_RESULT;
-}
 function invariant(condition, error) {
   if (!condition)
     throw new Error(error);
-}
-var DELETE = 'delete';
-var FAUX_ITERATOR = '@@iterator';
-var ITERATOR = typeof Symbol !== 'undefined' ? Symbol.iterator : FAUX_ITERATOR;
-function isIterable(maybeIterable) {
-  return !!_iteratorFn(maybeIterable);
-}
-function isIterator(maybeIterator) {
-  return maybeIterator && typeof maybeIterator.next === 'function';
-}
-function getIterator(iterable) {
-  var iteratorFn = _iteratorFn(iterable);
-  if (typeof iteratorFn === 'function') {
-    return iteratorFn.call(iterable);
-  }
-}
-function _iteratorFn(iterable) {
-  return iterable && (iterable[ITERATOR] || iterable[FAUX_ITERATOR]);
 }
 function hash(o) {
   if (!o) {
@@ -208,6 +177,64 @@ var STRING_HASH_CACHE_MIN_STRLEN = 16;
 var STRING_HASH_CACHE_MAX_SIZE = 255;
 var STRING_HASH_CACHE_SIZE = 0;
 var stringHashCache = {};
+var Iterator = function Iterator(next) {
+  this.next = next;
+};
+($traceurRuntime.createClass)(Iterator, {toString: function() {
+    return '[Iterator]';
+  }}, {});
+var IteratorPrototype = Iterator.prototype;
+IteratorPrototype.inspect = IteratorPrototype.toSource = function() {
+  return this.toString();
+};
+IteratorPrototype[ITERATOR_SYMBOL] = function() {
+  return this;
+};
+var iteratorResult = {
+  value: undefined,
+  done: false
+};
+function iteratorValue(type, key, value) {
+  iteratorResult.value = type === 0 ? key : type === 1 ? value : [key, value];
+  iteratorResult.done = false;
+  return iteratorResult;
+}
+function iteratorDone() {
+  iteratorResult.value = undefined;
+  iteratorResult.done = true;
+  return iteratorResult;
+}
+function iteratorMapper(iter, fn) {
+  var newIter = new Iterator();
+  newIter.next = (function() {
+    var step = iter.next();
+    if (step.done)
+      return step;
+    step.value = fn(step.value);
+    return step;
+  });
+  return newIter;
+}
+function isIterable(maybeIterable) {
+  return !!_iteratorFn(maybeIterable);
+}
+function isIterator(maybeIterator) {
+  return maybeIterator && typeof maybeIterator.next === 'function';
+}
+function getIterator(iterable) {
+  var iteratorFn = _iteratorFn(iterable);
+  if (typeof iteratorFn === 'function') {
+    return iteratorFn.call(iterable);
+  }
+}
+function _iteratorFn(iterable) {
+  return iterable && (iterable[ITERATOR_SYMBOL] || iterable[FAUX_ITERATOR_SYMBOL]);
+}
+var FAUX_ITERATOR_SYMBOL = '@@iterator';
+var ITERATOR_SYMBOL = typeof Symbol !== 'undefined' ? Symbol.iterator : FAUX_ITERATOR_SYMBOL;
+var ITERATE_KEYS = 0;
+var ITERATE_VALUES = 1;
+var ITERATE_ENTRIES = 2;
 var Sequence = function Sequence(value) {
   return $Sequence.from(arguments.length === 1 ? value : Array.prototype.slice.call(arguments));
 };
@@ -615,6 +642,18 @@ var $Sequence = Sequence;
     }
     return this;
   },
+  keys: function() {
+    return this.__iterator(ITERATE_KEYS);
+  },
+  values: function() {
+    return this.__iterator(ITERATE_VALUES);
+  },
+  entries: function() {
+    return this.__iterator(ITERATE_ENTRIES);
+  },
+  __iterator: function(type, reverse) {
+    throw new Error('Sequence is not iterable.');
+  },
   __iterate: function(fn, reverse) {
     return iterate(this, fn, reverse, true);
   },
@@ -640,6 +679,7 @@ var $Sequence = Sequence;
     return new ArraySequence(value);
   }});
 var SequencePrototype = Sequence.prototype;
+SequencePrototype[ITERATOR_SYMBOL] = SequencePrototype.entries;
 SequencePrototype.toJSON = SequencePrototype.toJS;
 SequencePrototype.__toJS = SequencePrototype.toObject;
 SequencePrototype.inspect = SequencePrototype.toSource = function() {
@@ -747,6 +787,7 @@ var $IndexedSequence = IndexedSequence;
   }
 }, {}, Sequence);
 var IndexedSequencePrototype = IndexedSequence.prototype;
+IndexedSequencePrototype[ITERATOR_SYMBOL] = IndexedSequencePrototype.values;
 IndexedSequencePrototype.__toJS = IndexedSequencePrototype.toArray;
 IndexedSequencePrototype.__toStringMapper = quoteString;
 IndexedSequencePrototype.chain = IndexedSequencePrototype.flatMap;
@@ -908,15 +949,6 @@ var ArraySequence = function ArraySequence(array) {
     return ii;
   }
 }, {}, IndexedSequence);
-var SequenceIterator = function SequenceIterator() {};
-($traceurRuntime.createClass)(SequenceIterator, {toString: function() {
-    return '[Iterator]';
-  }}, {});
-var SequenceIteratorPrototype = SequenceIterator.prototype;
-SequenceIteratorPrototype[ITERATOR] = returnThis;
-SequenceIteratorPrototype.inspect = SequenceIteratorPrototype.toSource = function() {
-  return this.toString();
-};
 function makeSequence() {
   return Object.create(SequencePrototype);
 }
@@ -943,9 +975,6 @@ function entryMapper(v, k) {
 }
 function returnTrue() {
   return true;
-}
-function returnThis() {
-  return this;
 }
 function iterate(sequence, fn, reverse, useKeys) {
   var cache = sequence._cache;
@@ -1097,17 +1126,6 @@ function wrapIndex(seq, index) {
 }
 function assertNotInfinite(length) {
   invariant(length !== Infinity, 'Cannot perform this action with an infinite sequence.');
-}
-function iteratorMapper(iter, fn) {
-  var newIter = new SequenceIterator();
-  newIter.next = (function() {
-    var step = iter.next();
-    if (step.done)
-      return step;
-    step.value = fn(step.value);
-    return step;
-  });
-  return newIter;
 }
 var Cursor = function Cursor(rootData, keyPath, onChange, value) {
   value = value ? value : rootData.getIn(keyPath);
@@ -1280,17 +1298,8 @@ var $Map = Map;
   wasAltered: function() {
     return this.__altered;
   },
-  keys: function() {
-    return new MapIterator(this, 0);
-  },
-  values: function() {
-    return new MapIterator(this, 1);
-  },
-  entries: function() {
-    return new MapIterator(this, 2);
-  },
-  __iterator: function(reverse) {
-    return new MapIterator(this, 2, reverse);
+  __iterator: function(type, reverse) {
+    return new MapIterator(this, type, reverse);
   },
   __iterate: function(fn, reverse) {
     var $__0 = this;
@@ -1323,9 +1332,6 @@ var $Map = Map;
   }}, Sequence);
 var MapPrototype = Map.prototype;
 MapPrototype[DELETE] = MapPrototype.remove;
-MapPrototype[ITERATOR] = function() {
-  return this.entries();
-};
 Map.from = Map;
 var BitmapIndexedNode = function BitmapIndexedNode(ownerID, bitmap, nodes) {
   this.ownerID = ownerID;
@@ -1578,9 +1584,9 @@ var MapIterator = function MapIterator(map, type, reverse) {
       stack = this._stack = this._stack.__prev;
     }
     return iteratorDone();
-  }}, {}, SequenceIterator);
+  }}, {}, Iterator);
 function mapIteratorValue(type, entry) {
-  return iteratorValue(type === 0 || type === 1 ? entry[type] : [entry[0], entry[1]]);
+  return iteratorValue(type, entry[0], entry[1]);
 }
 function mapIteratorFrame(node, prev) {
   return {
@@ -1861,17 +1867,8 @@ var $Vector = Vector;
     }
     return sliceSequence;
   },
-  keys: function() {
-    return new VectorIterator(this, 0);
-  },
-  values: function() {
-    return new VectorIterator(this, 1);
-  },
-  entries: function() {
-    return new VectorIterator(this, 2);
-  },
-  __iterator: function(reverse) {
-    return new VectorIterator(this, 2, reverse);
+  __iterator: function(type, reverse) {
+    return new VectorIterator(this, type, reverse);
   },
   __iterate: function(fn, reverse) {
     var $__0 = this;
@@ -1927,7 +1924,6 @@ var $Vector = Vector;
 }, IndexedSequence);
 var VectorPrototype = Vector.prototype;
 VectorPrototype[DELETE] = VectorPrototype.remove;
-VectorPrototype[ITERATOR] = VectorPrototype.values;
 VectorPrototype.update = MapPrototype.update;
 VectorPrototype.updateIn = MapPrototype.updateIn;
 VectorPrototype.cursor = MapPrototype.cursor;
@@ -2065,7 +2061,7 @@ var VectorIterator = function VectorIterator(vector, type, reverse) {
               index = this._maxIndex - index;
             }
           }
-          return iteratorValue(type === 0 ? index : type === 1 ? value : [index, value]);
+          return iteratorValue(type, index, value);
         } else {
           this._stack = stack = vectIteratorFrame(value && value.array, stack.level - SHIFT, stack.offset + (rawIndex << stack.level), stack.max, stack);
         }
@@ -2074,7 +2070,7 @@ var VectorIterator = function VectorIterator(vector, type, reverse) {
       stack = this._stack = this._stack.__prev;
     }
     return iteratorDone();
-  }}, {}, SequenceIterator);
+  }}, {}, Iterator);
 function vectIteratorFrame(array, level, offset, max, prevFrame) {
   return {
     array: array,
@@ -2403,16 +2399,14 @@ var $Set = Set;
   wasAltered: function() {
     return this._map.wasAltered();
   },
-  values: function() {
-    return this._map.keys();
-  },
-  entries: function() {
-    return iteratorMapper(this.values(), (function(key) {
-      return [key, key];
-    }));
-  },
   hashCode: function() {
     return this._map.hashCode();
+  },
+  __iterator: function(type, reverse) {
+    var iterator = this._map.__iterator(ITERATE_KEYS, reverse);
+    return type === ITERATE_ENTRIES ? iteratorMapper(iterator, (function(key) {
+      return [key, key];
+    })) : iterator;
   },
   __iterate: function(fn, reverse) {
     var collection = this;
@@ -2449,7 +2443,7 @@ var $Set = Set;
 }, Sequence);
 var SetPrototype = Set.prototype;
 SetPrototype[DELETE] = SetPrototype.remove;
-SetPrototype[ITERATOR] = SetPrototype.keys = SetPrototype.values;
+SetPrototype[ITERATOR_SYMBOL] = SetPrototype.values;
 SetPrototype.contains = SetPrototype.has;
 SetPrototype.mergeDeep = SetPrototype.merge = SetPrototype.union;
 SetPrototype.mergeDeepWith = SetPrototype.mergeWith = function(merger) {
@@ -2505,18 +2499,13 @@ var $OrderedMap = OrderedMap;
   wasAltered: function() {
     return this._map.wasAltered() || this._vector.wasAltered();
   },
-  keys: function() {
-    return iteratorMapper(this.entries(), (function(entry) {
+  __iterator: function(type, reverse) {
+    var iterator = this._vector.__iterator(ITERATE_VALUES, reverse);
+    return type === ITERATE_KEYS ? iteratorMapper(iterator, (function(entry) {
       return entry[0];
-    }));
-  },
-  values: function() {
-    return iteratorMapper(this.entries(), (function(entry) {
+    })) : type === ITERATE_VALUES ? iteratorMapper(iterator, (function(entry) {
       return entry[1];
-    }));
-  },
-  entries: function() {
-    return this._vector.values(true);
+    })) : iterator;
   },
   __iterate: function(fn, reverse) {
     return this._vector.fromEntrySeq().__iterate(fn, reverse);
@@ -2663,6 +2652,9 @@ var $Record = Record;
   wasAltered: function() {
     return this._map.wasAltered();
   },
+  __iterator: function(type, reverse) {
+    return this._map.__iterator(type, reverse);
+  },
   __iterate: function(fn, reverse) {
     var record = this;
     return this._defaultValues.map((function(_, k) {
@@ -2684,7 +2676,6 @@ var $Record = Record;
 }, {}, Sequence);
 var RecordPrototype = Record.prototype;
 RecordPrototype[DELETE] = RecordPrototype.remove;
-RecordPrototype[ITERATOR] = MapPrototype[ITERATOR];
 RecordPrototype.merge = MapPrototype.merge;
 RecordPrototype.mergeWith = MapPrototype.mergeWith;
 RecordPrototype.mergeDeep = MapPrototype.mergeDeep;
