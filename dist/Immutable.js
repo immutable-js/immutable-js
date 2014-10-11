@@ -494,25 +494,7 @@ var $Sequence = Sequence;
     return this.toKeyedSeq().reverse().findKey(predicate, context);
   },
   flip: function() {
-    var sequence = this.toKeyedSeq();
-    var flipSequence = sequence.__makeSequence();
-    flipSequence.length = sequence.length;
-    flipSequence.flip = (function() {
-      return sequence;
-    });
-    flipSequence.has = (function(key) {
-      return sequence.contains(key);
-    });
-    flipSequence.contains = (function(key) {
-      return sequence.has(key);
-    });
-    flipSequence.__iterateUncached = function(fn, reverse) {
-      var $__0 = this;
-      return sequence.__iterate((function(v, k) {
-        return fn(k, v, $__0) !== false;
-      }), reverse);
-    };
-    return flipSequence;
+    return flipFactory(this);
   },
   map: function(mapper, context) {
     var sequence = this;
@@ -773,6 +755,9 @@ var $IndexedSequence = IndexedSequence;
     index = resolveBegin(index, this.length);
     var spliced = this.slice(0, index);
     return numArgs === 1 ? spliced : spliced.concat(arrCopy(arguments, 2), this.slice(index + removeNum));
+  },
+  flip: function() {
+    return flipFactory(this.toKeyedSeq());
   },
   flatten: function() {
     return flattenFactory(this, false);
@@ -1118,12 +1103,46 @@ function iterator(sequence, type, reverse, useKeys) {
   }
   return sequence.__iteratorUncached(type, reverse);
 }
+function flipFactory(sequence) {
+  var flipSequence = sequence.__makeSequence();
+  flipSequence.length = sequence.length;
+  flipSequence.flip = (function() {
+    return sequence;
+  });
+  flipSequence.reverse = function() {
+    var reversedSequence = sequence.reverse.apply(this);
+    reversedSequence.flip = (function() {
+      return sequence.reverse();
+    });
+    return reversedSequence;
+  };
+  flipSequence.has = (function(key) {
+    return sequence.contains(key);
+  });
+  flipSequence.contains = (function(key) {
+    return sequence.has(key);
+  });
+  flipSequence.__iterateUncached = function(fn, reverse) {
+    var $__0 = this;
+    return sequence.__iterate((function(v, k) {
+      return fn(k, v, $__0) !== false;
+    }), reverse);
+  };
+  return flipSequence;
+}
 function reverseFactory(sequence) {
   var reversedSequence = sequence.__makeSequence();
+  reversedSequence.length = sequence.length;
   reversedSequence.reverse = (function() {
     return sequence;
   });
-  reversedSequence.length = sequence.length;
+  reversedSequence.flip = function() {
+    var flipSequence = sequence.flip.apply(this);
+    flipSequence.reverse = (function() {
+      return sequence.flip();
+    });
+    return flipSequence;
+  };
   reversedSequence.get = (function(key, notSetValue) {
     return sequence.get(key, notSetValue);
   });

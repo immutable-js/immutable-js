@@ -336,16 +336,7 @@ class Sequence {
   }
 
   flip() {
-    var sequence = this.toKeyedSeq();
-    var flipSequence = sequence.__makeSequence();
-    flipSequence.length = sequence.length;
-    flipSequence.flip = () => sequence;
-    flipSequence.has = key => sequence.contains(key);
-    flipSequence.contains = key => sequence.has(key);
-    flipSequence.__iterateUncached = function (fn, reverse) {
-      return sequence.__iterate((v, k) => fn(k, v, this) !== false, reverse);
-    }
-    return flipSequence;
+    return flipFactory(this);
   }
 
   map(mapper, context) {
@@ -633,6 +624,10 @@ class IndexedSequence extends Sequence {
         arrCopy(arguments, 2),
         this.slice(index + removeNum)
       );
+  }
+
+  flip() {
+    return flipFactory(this.toKeyedSeq());
   }
 
   flatten() {
@@ -1050,10 +1045,32 @@ function iterator(sequence, type, reverse, useKeys) {
   return sequence.__iteratorUncached(type, reverse);
 }
 
+function flipFactory(sequence) {
+  var flipSequence = sequence.__makeSequence();
+  flipSequence.length = sequence.length;
+  flipSequence.flip = () => sequence;
+  flipSequence.reverse = function () {
+    var reversedSequence = sequence.reverse.apply(this); // super.reverse()
+    reversedSequence.flip = () => sequence.reverse();
+    return reversedSequence;
+  };
+  flipSequence.has = key => sequence.contains(key);
+  flipSequence.contains = key => sequence.has(key);
+  flipSequence.__iterateUncached = function (fn, reverse) {
+    return sequence.__iterate((v, k) => fn(k, v, this) !== false, reverse);
+  }
+  return flipSequence;
+}
+
 function reverseFactory(sequence) {
   var reversedSequence = sequence.__makeSequence();
-  reversedSequence.reverse = () => sequence;
   reversedSequence.length = sequence.length;
+  reversedSequence.reverse = () => sequence;
+  reversedSequence.flip = function () {
+    var flipSequence = sequence.flip.apply(this); // super.flip()
+    flipSequence.reverse = () => sequence.flip();
+    return flipSequence;
+  };
   reversedSequence.get = (key, notSetValue) => sequence.get(key, notSetValue);
   reversedSequence.has = key => sequence.has(key);
   reversedSequence.contains = value => sequence.contains(value);
