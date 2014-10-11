@@ -66,14 +66,14 @@ class Sequence {
   toArray() {
     assertNotInfinite(this.length);
     var array = new Array(this.length || 0);
-    this.valueSeq().forEach((v, i) => { array[i] = v; });
+    this.valueSeq().__iterate((v, i) => { array[i] = v; });
     return array;
   }
 
   toObject() {
     assertNotInfinite(this.length);
     var object = {};
-    this.forEach((v, k) => { object[k] = v; });
+    this.__iterate((v, k) => { object[k] = v; });
     return object;
   }
 
@@ -147,7 +147,7 @@ class Sequence {
     separator = separator !== undefined ? '' + separator : ',';
     var joined = '';
     var isFirst = true;
-    this.forEach(v => {
+    this.__iterate(v => {
       isFirst ? (isFirst = false) : (joined += separator);
       joined += v != null ? v : '';
     });
@@ -157,7 +157,7 @@ class Sequence {
   count(predicate, context) {
     if (!predicate) {
       if (this.length == null) {
-        this.length = this.forEach(returnTrue);
+        this.length = this.__iterate(returnTrue);
       }
       return this.length;
     }
@@ -167,7 +167,7 @@ class Sequence {
   countBy(grouper, context) {
     var groupMap = {};
     var groups = [];
-    this.forEach((v, k) => {
+    this.__iterate((v, k) => {
       var g = grouper.call(context, v, k, this);
       var h = hash(g);
       if (!groupMap.hasOwnProperty(h)) {
@@ -243,7 +243,7 @@ class Sequence {
     } else {
       reduction = initialReduction;
     }
-    this.forEach((v, k, c) => {
+    this.__iterate((v, k, c) => {
       if (useFirst) {
         useFirst = false;
         reduction = v;
@@ -261,7 +261,7 @@ class Sequence {
 
   every(predicate, context) {
     var returnValue = true;
-    this.forEach((v, k, c) => {
+    this.__iterate((v, k, c) => {
       if (!predicate.call(context, v, k, c)) {
         returnValue = false;
         return false;
@@ -317,7 +317,7 @@ class Sequence {
 
   find(predicate, context, notSetValue) {
     var foundValue = notSetValue;
-    this.forEach((v, k, c) => {
+    this.__iterate((v, k, c) => {
       if (predicate.call(context, v, k, c)) {
         foundValue = v;
         return false;
@@ -328,7 +328,7 @@ class Sequence {
 
   findKey(predicate, context) {
     var foundKey;
-    this.forEach((v, k, c) => {
+    this.__iterate((v, k, c) => {
       if (predicate.call(context, v, k, c)) {
         foundKey = k;
         return false;
@@ -897,7 +897,7 @@ function filterFactory(sequence, predicate, context, useKeys) {
 function groupByFactory(seq, grouper, context, useKeys) {
   var groupMap = {};
   var groups = [];
-  seq.forEach((v, k) => {
+  seq.__iterate((v, k) => {
     var g = grouper.call(context, v, k, seq);
     var h = hash(g);
     var e = useKeys ? [k, v] : v;

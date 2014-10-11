@@ -233,7 +233,7 @@ var $Sequence = Sequence;
   toArray: function() {
     assertNotInfinite(this.length);
     var array = new Array(this.length || 0);
-    this.valueSeq().forEach((function(v, i) {
+    this.valueSeq().__iterate((function(v, i) {
       array[i] = v;
     }));
     return array;
@@ -241,7 +241,7 @@ var $Sequence = Sequence;
   toObject: function() {
     assertNotInfinite(this.length);
     var object = {};
-    this.forEach((function(v, k) {
+    this.__iterate((function(v, k) {
       object[k] = v;
     }));
     return object;
@@ -302,7 +302,7 @@ var $Sequence = Sequence;
     separator = separator !== undefined ? '' + separator : ',';
     var joined = '';
     var isFirst = true;
-    this.forEach((function(v) {
+    this.__iterate((function(v) {
       isFirst ? (isFirst = false) : (joined += separator);
       joined += v != null ? v : '';
     }));
@@ -311,7 +311,7 @@ var $Sequence = Sequence;
   count: function(predicate, context) {
     if (!predicate) {
       if (this.length == null) {
-        this.length = this.forEach(returnTrue);
+        this.length = this.__iterate(returnTrue);
       }
       return this.length;
     }
@@ -321,7 +321,7 @@ var $Sequence = Sequence;
     var $__0 = this;
     var groupMap = {};
     var groups = [];
-    this.forEach((function(v, k) {
+    this.__iterate((function(v, k) {
       var g = grouper.call(context, v, k, $__0);
       var h = hash(g);
       if (!groupMap.hasOwnProperty(h)) {
@@ -399,7 +399,7 @@ var $Sequence = Sequence;
     } else {
       reduction = initialReduction;
     }
-    this.forEach((function(v, k, c) {
+    this.__iterate((function(v, k, c) {
       if (useFirst) {
         useFirst = false;
         reduction = v;
@@ -415,7 +415,7 @@ var $Sequence = Sequence;
   },
   every: function(predicate, context) {
     var returnValue = true;
-    this.forEach((function(v, k, c) {
+    this.__iterate((function(v, k, c) {
       if (!predicate.call(context, v, k, c)) {
         returnValue = false;
         return false;
@@ -465,7 +465,7 @@ var $Sequence = Sequence;
   },
   find: function(predicate, context, notSetValue) {
     var foundValue = notSetValue;
-    this.forEach((function(v, k, c) {
+    this.__iterate((function(v, k, c) {
       if (predicate.call(context, v, k, c)) {
         foundValue = v;
         return false;
@@ -475,7 +475,7 @@ var $Sequence = Sequence;
   },
   findKey: function(predicate, context) {
     var foundKey;
-    this.forEach((function(v, k, c) {
+    this.__iterate((function(v, k, c) {
       if (predicate.call(context, v, k, c)) {
         foundKey = k;
         return false;
@@ -967,7 +967,7 @@ function filterFactory(sequence, predicate, context, useKeys) {
 function groupByFactory(seq, grouper, context, useKeys) {
   var groupMap = {};
   var groups = [];
-  seq.forEach((function(v, k) {
+  seq.__iterate((function(v, k) {
     var g = grouper.call(context, v, k, seq);
     var h = hash(g);
     var e = useKeys ? [k, v] : v;
