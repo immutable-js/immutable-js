@@ -322,8 +322,8 @@ var $Sequence = Sequence;
     var iterations = 0;
     return other.every((function(v, k) {
       var entry = entries[iterations++];
-      return is(k, entry[0]) && is(v, entry[1]);
-    }));
+      return entry && is(k, entry[0]) && is(v, entry[1]);
+    })) && iterations === entries.length;
   },
   join: function(separator) {
     separator = separator !== undefined ? '' + separator : ',';
