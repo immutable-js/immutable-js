@@ -199,23 +199,7 @@ class Sequence {
   }
 
   reverse() {
-    var sequence = this;
-    var reversedSequence = sequence.__makeSequence();
-    reversedSequence.reverse = () => sequence;
-    reversedSequence.length = sequence.length;
-    reversedSequence.get = (key, notSetValue) => sequence.get(key, notSetValue);
-    reversedSequence.has = key => sequence.has(key);
-    reversedSequence.contains = value => sequence.contains(value);
-    reversedSequence.cacheResult = function () {
-      sequence.cacheResult();
-      this.length = sequence.length;
-    };
-    reversedSequence.__iterate = function (fn, reverse) {
-      return sequence.__iterate((v, k) => fn(v, k, this), !reverse);
-    };
-    reversedSequence.__iterator =
-      (type, reverse) => sequence.__iterator(type, !reverse);
-    return reversedSequence;
+    return reverseFactory(this);
   }
 
   keySeq() {
@@ -711,9 +695,20 @@ class ValuesSequence extends IndexedSequence {
     return this._seq.has(key);
   }
 
+  toKeyedSeq() {
+    return this._seq;
+  }
+
+  reverse() {
+    var reversedSequence = reverseFactory(this);
+    reversedSequence.toKeyedSeq = () => this._seq.reverse();
+    return reversedSequence;
+  }
+
   cacheResult() {
     this._seq.cacheResult();
     this.length = this._seq.length;
+    return this;
   }
 
   __iterate(fn, reverse) {
@@ -748,9 +743,20 @@ class KeyedIndexedSequence extends Sequence {
     return this._seq.has(key);
   }
 
+  valueSeq() {
+    return this._seq;
+  }
+
+  reverse() {
+    var reversedSequence = reverseFactory(this);
+    reversedSequence.valueSeq = () => this._seq.reverse();
+    return reversedSequence;
+  }
+
   cacheResult() {
     this._seq.cacheResult();
     this.length = this._seq.length;
+    return this;
   }
 
   __iterate(fn, reverse) {
@@ -1042,6 +1048,26 @@ function iterator(sequence, type, reverse, useKeys) {
     return sequence.cacheResult().__iterator(type, reverse);
   }
   return sequence.__iteratorUncached(type, reverse);
+}
+
+function reverseFactory(sequence) {
+  var reversedSequence = sequence.__makeSequence();
+  reversedSequence.reverse = () => sequence;
+  reversedSequence.length = sequence.length;
+  reversedSequence.get = (key, notSetValue) => sequence.get(key, notSetValue);
+  reversedSequence.has = key => sequence.has(key);
+  reversedSequence.contains = value => sequence.contains(value);
+  reversedSequence.cacheResult = function () {
+    sequence.cacheResult();
+    this.length = sequence.length;
+    return this;
+  };
+  reversedSequence.__iterate = function (fn, reverse) {
+    return sequence.__iterate((v, k) => fn(v, k, this), !reverse);
+  };
+  reversedSequence.__iterator =
+    (type, reverse) => sequence.__iterator(type, !reverse);
+  return reversedSequence;
 }
 
 function filterFactory(sequence, predicate, context, useKeys) {
