@@ -851,7 +851,8 @@ var IteratorSequence = function IteratorSequence(iterator) {
   this._iterator = iterator;
   this._iteratorCache = [];
 };
-($traceurRuntime.createClass)(IteratorSequence, {__iterateUncached: function(fn, reverse) {
+($traceurRuntime.createClass)(IteratorSequence, {
+  __iterateUncached: function(fn, reverse) {
     if (reverse) {
       return this.cacheResult().__iterate(fn, reverse);
     }
@@ -872,7 +873,26 @@ var IteratorSequence = function IteratorSequence(iterator) {
       }
     }
     return iterations;
-  }}, {}, IndexedSequence);
+  },
+  __iteratorUncached: function(type, reverse) {
+    if (reverse) {
+      return this.cacheResult().__iterator(type, reverse);
+    }
+    var iterator = this._iterator;
+    var cache = this._iteratorCache;
+    var iterations = 0;
+    return new Iterator((function() {
+      if (iterations >= cache.length) {
+        var step = iterator.next();
+        if (step.done) {
+          return iteratorDone();
+        }
+        cache[iterations] = step.value;
+      }
+      return iteratorValue(type, iterations, cache[iterations++]);
+    }));
+  }
+}, {}, IndexedSequence);
 var IterableSequence = function IterableSequence(iterable) {
   this._iterable = iterable;
   this.length = iterable.length || iterable.size;

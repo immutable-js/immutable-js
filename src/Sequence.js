@@ -753,6 +753,25 @@ class IteratorSequence extends IndexedSequence {
     }
     return iterations;
   }
+
+  __iteratorUncached(type, reverse) {
+    if (reverse) {
+      return this.cacheResult().__iterator(type, reverse);
+    }
+    var iterator = this._iterator;
+    var cache = this._iteratorCache;
+    var iterations = 0;
+    return new Iterator(() => {
+      if (iterations >= cache.length) {
+        var step = iterator.next();
+        if (step.done) {
+          return iteratorDone();
+        }
+        cache[iterations] = step.value;
+      }
+      return iteratorValue(type, iterations, cache[iterations++]);
+    });
+  }
 }
 
 

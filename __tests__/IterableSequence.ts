@@ -35,7 +35,29 @@ describe('IterableSequence', () => {
     var s = Immutable.Sequence(i);
     expect(s.toArray()).toEqual([ 0,1,2 ]);
     expect(mockFn.mock.calls).toEqual([[0],[1],[2]]);
+    // The iterator is recreated for the second time.
     expect(s.toArray()).toEqual([ 0,1,2 ]);
+    expect(mockFn.mock.calls).toEqual([[0],[1],[2],[0],[1],[2]]);
+  })
+
+  it('can be iterated', () => {
+    var mockFn = jest.genMockFunction();
+    var i = new SimpleIterable(3, mockFn);
+    var seq = Immutable.Sequence(i);
+    var entries = seq.entries();
+    expect(entries.next()).toEqual({ value: [0, 0], done: false });
+    // The iteration is lazy
+    expect(mockFn.mock.calls).toEqual([[0]]);
+    expect(entries.next()).toEqual({ value: [1, 1], done: false });
+    expect(entries.next()).toEqual({ value: [2, 2], done: false });
+    expect(entries.next()).toEqual({ value: undefined, done: true });
+    expect(mockFn.mock.calls).toEqual([[0],[1],[2]]);
+    // The iterator is recreated for the second time.
+    entries = seq.entries();
+    expect(entries.next()).toEqual({ value: [0, 0], done: false });
+    expect(entries.next()).toEqual({ value: [1, 1], done: false });
+    expect(entries.next()).toEqual({ value: [2, 2], done: false });
+    expect(entries.next()).toEqual({ value: undefined, done: true });
     expect(mockFn.mock.calls).toEqual([[0],[1],[2],[0],[1],[2]]);
   })
 
@@ -77,6 +99,27 @@ describe('IterableSequence', () => {
       // Further ahead in the iterator yields more results.
       expect(s.take(5).toArray()).toEqual([ 0,1,2,3,4 ]);
       expect(mockFn.mock.calls).toEqual([[0],[1],[2],[3],[4]]);
+    })
+
+    it('can be iterated', () => {
+      var mockFn = jest.genMockFunction();
+      var i = new SimpleIterable(3, mockFn);
+      var seq = Immutable.Sequence(i['@@iterator']());
+      var entries = seq.entries();
+      expect(entries.next()).toEqual({ value: [0, 0], done: false });
+      // The iteration is lazy
+      expect(mockFn.mock.calls).toEqual([[0]]);
+      expect(entries.next()).toEqual({ value: [1, 1], done: false });
+      expect(entries.next()).toEqual({ value: [2, 2], done: false });
+      expect(entries.next()).toEqual({ value: undefined, done: true });
+      expect(mockFn.mock.calls).toEqual([[0],[1],[2]]);
+      // The iterator has been memoized for the second time.
+      entries = seq.entries();
+      expect(entries.next()).toEqual({ value: [0, 0], done: false });
+      expect(entries.next()).toEqual({ value: [1, 1], done: false });
+      expect(entries.next()).toEqual({ value: [2, 2], done: false });
+      expect(entries.next()).toEqual({ value: undefined, done: true });
+      expect(mockFn.mock.calls).toEqual([[0],[1],[2]]);
     })
 
   })
