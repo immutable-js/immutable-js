@@ -203,9 +203,18 @@ class Sequence {
     var reversedSequence = sequence.__makeSequence();
     reversedSequence.reverse = () => sequence;
     reversedSequence.length = sequence.length;
-    reversedSequence.__iterateUncached = function (fn, reverse) {
+    reversedSequence.get = (key, notSetValue) => sequence.get(key, notSetValue);
+    reversedSequence.has = key => sequence.has(key);
+    reversedSequence.contains = value => sequence.contains(value);
+    reversedSequence.cacheResult = function () {
+      sequence.cacheResult();
+      this.length = sequence.length;
+    };
+    reversedSequence.__iterate = function (fn, reverse) {
       return sequence.__iterate((v, k) => fn(v, k, this), !reverse);
-    }
+    };
+    reversedSequence.__iterator =
+      (type, reverse) => sequence.__iterator(type, !reverse);
     return reversedSequence;
   }
 

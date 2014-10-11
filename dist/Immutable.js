@@ -379,12 +379,28 @@ var $Sequence = Sequence;
       return sequence;
     });
     reversedSequence.length = sequence.length;
-    reversedSequence.__iterateUncached = function(fn, reverse) {
+    reversedSequence.get = (function(key, notSetValue) {
+      return sequence.get(key, notSetValue);
+    });
+    reversedSequence.has = (function(key) {
+      return sequence.has(key);
+    });
+    reversedSequence.contains = (function(value) {
+      return sequence.contains(value);
+    });
+    reversedSequence.cacheResult = function() {
+      sequence.cacheResult();
+      this.length = sequence.length;
+    };
+    reversedSequence.__iterate = function(fn, reverse) {
       var $__0 = this;
       return sequence.__iterate((function(v, k) {
         return fn(v, k, $__0);
       }), !reverse);
     };
+    reversedSequence.__iterator = (function(type, reverse) {
+      return sequence.__iterator(type, !reverse);
+    });
     return reversedSequence;
   },
   keySeq: function() {
