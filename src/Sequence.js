@@ -507,14 +507,16 @@ class Sequence {
     return this.__iterator(ITERATE_ENTRIES);
   }
 
-  __iterator(type, reverse) {
-    throw new Error('Sequence is not iterable.');
-  }
-
   // abstract __iterateUncached(fn, reverse)
 
   __iterate(fn, reverse) {
     return iterate(this, fn, reverse, true);
+  }
+
+  // abstract __iteratorUncached(type, reverse)
+
+  __iterator(type, reverse) {
+    return iterator(this, type, reverse, true);
   }
 
   __makeSequence() {
@@ -643,6 +645,10 @@ class IndexedSequence extends Sequence {
 
   __iterate(fn, reverse) {
     return iterate(this, fn, reverse, false);
+  }
+
+  __iterator(type, reverse) {
+    return iterator(this, type, reverse, false);
   }
 
   __makeSequence() {
@@ -926,6 +932,25 @@ function iterate(sequence, fn, reverse, useKeys) {
     return ii;
   }
   return sequence.__iterateUncached(fn, reverse);
+}
+
+function iterator(sequence, type, reverse, useKeys) {
+  var cache = sequence._cache;
+  if (cache) {
+    var maxIndex = cache.length - 1;
+    var ii = 0;
+    return new Iterator(() => {
+      var entry = cache[reverse ? maxIndex - ii : ii];
+      return ii++ > maxIndex ?
+        iteratorDone() :
+        iteratorValue(type, useKeys ? entry[0] : ii - 1, entry[1]);
+    });
+  }
+  // TODO: remove when all Sequences implement __iterator or __iteratorUncached
+  if (!sequence.__iteratorUncached) {
+    return sequence.cacheResult().__iterator(type, reverse);
+  }
+  return sequence.__iteratorUncached(type, reverse);
 }
 
 function filterFactory(sequence, predicate, context, useKeys) {

@@ -651,11 +651,11 @@ var $Sequence = Sequence;
   entries: function() {
     return this.__iterator(ITERATE_ENTRIES);
   },
-  __iterator: function(type, reverse) {
-    throw new Error('Sequence is not iterable.');
-  },
   __iterate: function(fn, reverse) {
     return iterate(this, fn, reverse, true);
+  },
+  __iterator: function(type, reverse) {
+    return iterator(this, type, reverse, true);
   },
   __makeSequence: function() {
     return makeSequence();
@@ -781,6 +781,9 @@ var $IndexedSequence = IndexedSequence;
   },
   __iterate: function(fn, reverse) {
     return iterate(this, fn, reverse, false);
+  },
+  __iterator: function(type, reverse) {
+    return iterator(this, type, reverse, false);
   },
   __makeSequence: function() {
     return makeIndexedSequence(this);
@@ -1007,6 +1010,21 @@ function iterate(sequence, fn, reverse, useKeys) {
     return ii;
   }
   return sequence.__iterateUncached(fn, reverse);
+}
+function iterator(sequence, type, reverse, useKeys) {
+  var cache = sequence._cache;
+  if (cache) {
+    var maxIndex = cache.length - 1;
+    var ii = 0;
+    return new Iterator((function() {
+      var entry = cache[reverse ? maxIndex - ii : ii];
+      return ii++ > maxIndex ? iteratorDone() : iteratorValue(type, useKeys ? entry[0] : ii - 1, entry[1]);
+    }));
+  }
+  if (!sequence.__iteratorUncached) {
+    return sequence.cacheResult().__iterator(type, reverse);
+  }
+  return sequence.__iteratorUncached(type, reverse);
 }
 function filterFactory(sequence, predicate, context, useKeys) {
   var filterSequence = sequence.__makeSequence();
