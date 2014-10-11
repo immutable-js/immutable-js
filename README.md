@@ -16,7 +16,7 @@ copy or cache data.
 Getting started
 ---------------
 
-Install `immutable` using npm
+Install `immutable` using npm.
 
 ```shell
 npm install immutable
