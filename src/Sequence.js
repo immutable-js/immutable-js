@@ -530,6 +530,7 @@ SequencePrototype.toJSON = SequencePrototype.toJS;
 SequencePrototype.__toJS = SequencePrototype.toObject;
 SequencePrototype.inspect =
 SequencePrototype.toSource = function() { return this.toString(); };
+SequencePrototype.chain = SequencePrototype.flatMap;
 
 
 class IndexedSequence extends Sequence {
@@ -660,7 +661,6 @@ var IndexedSequencePrototype = IndexedSequence.prototype;
 IndexedSequencePrototype[ITERATOR_SYMBOL] = IndexedSequencePrototype.values;
 IndexedSequencePrototype.__toJS = IndexedSequencePrototype.toArray;
 IndexedSequencePrototype.__toStringMapper = quoteString;
-IndexedSequencePrototype.chain = IndexedSequencePrototype.flatMap;
 
 
 class ValuesSequence extends IndexedSequence {
