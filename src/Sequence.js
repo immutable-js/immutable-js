@@ -463,7 +463,7 @@ class Sequence {
   }
 
   __makeSequence() {
-    return makeSequence();
+    return Object.create(SequencePrototype);
   }
 }
 
@@ -612,7 +612,7 @@ class IndexedSequence extends Sequence {
   }
 
   __makeSequence() {
-    return makeIndexedSequence(this);
+    return Object.create(IndexedSequencePrototype);
   }
 }
 
@@ -808,14 +808,6 @@ class ArraySequence extends IndexedSequence {
 
 
 // #pragma Helper functions
-
-function makeSequence() {
-  return Object.create(SequencePrototype);
-}
-
-function makeIndexedSequence(parent) {
-  return Object.create(IndexedSequencePrototype);
-}
 
 function ensureLength(indexedSeq) {
   if (indexedSeq.length == null) {

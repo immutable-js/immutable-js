@@ -578,7 +578,7 @@ var $Sequence = Sequence;
     return iterator(this, type, reverse, true);
   },
   __makeSequence: function() {
-    return makeSequence();
+    return Object.create(SequencePrototype);
   }
 }, {from: function(value) {
     if (value instanceof $Sequence) {
@@ -719,7 +719,7 @@ var $IndexedSequence = IndexedSequence;
     return iterator(this, type, reverse, false);
   },
   __makeSequence: function() {
-    return makeIndexedSequence(this);
+    return Object.create(IndexedSequencePrototype);
   }
 }, {}, Sequence);
 var IndexedSequencePrototype = IndexedSequence.prototype;
@@ -884,12 +884,6 @@ var ArraySequence = function ArraySequence(array) {
     }));
   }
 }, {}, IndexedSequence);
-function makeSequence() {
-  return Object.create(SequencePrototype);
-}
-function makeIndexedSequence(parent) {
-  return Object.create(IndexedSequencePrototype);
-}
 function ensureLength(indexedSeq) {
   if (indexedSeq.length == null) {
     indexedSeq.cacheResult();
