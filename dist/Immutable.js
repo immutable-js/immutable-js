@@ -1076,7 +1076,7 @@ var FromEntriesSequence = function FromEntriesSequence(entriesSeq) {
         }
         var entry = step.value;
         if (entry) {
-          return iteratorValue(type, entry[0], entry[1], step);
+          return type === ITERATE_ENTRIES ? step : iteratorValue(type, entry[0], entry[1], step);
         }
       }
     }));
@@ -1285,7 +1285,7 @@ function takeFactory(sequence, amount) {
       if (iterations++ > amount) {
         return iteratorDone();
       }
-      return iterator.step();
+      return iterator.next();
     }));
   };
   takeSequence.length = sequence.length && Math.min(sequence.length, amount);
@@ -1320,11 +1320,13 @@ function takeWhileFactory(sequence, predicate, context) {
         return step;
       }
       var entry = step.value;
-      if (!predicate.call(context, entry[1], entry[0], $__0)) {
+      var k = entry[0];
+      var v = entry[1];
+      if (!predicate.call(context, v, k, $__0)) {
         iterating = false;
         return iteratorDone();
       }
-      return type === ITERATE_ENTRIES ? step : iteratorValue(type, entry[0], entry[1], step);
+      return type === ITERATE_ENTRIES ? step : iteratorValue(type, k, v, step);
     }));
   };
   return takeSequence;
@@ -1350,6 +1352,20 @@ function skipFactory(sequence, amount, useKeys) {
     }));
     return iterations;
   };
+  skipSequence.__iteratorUncached = function(type, reverse) {
+    if (reverse) {
+      return this.cacheResult().__iterator(type, reverse);
+    }
+    var iterator = amount && sequence.__iterator(type, reverse);
+    var skipped = 0;
+    return new Iterator((function() {
+      while (skipped < amount) {
+        skipped++;
+        iterator.next();
+      }
+      return iterator.next();
+    }));
+  };
   skipSequence.length = sequence.length && Math.max(0, sequence.length - amount);
   return skipSequence;
 }
@@ -1369,6 +1385,30 @@ function skipWhileFactory(sequence, predicate, context, useKeys) {
       }
     }));
     return iterations;
+  };
+  skipSequence.__iteratorUncached = function(type, reverse) {
+    var $__0 = this;
+    if (reverse) {
+      return this.cacheResult().__iterator(type, reverse);
+    }
+    var iterator = sequence.__iterator(ITERATE_ENTRIES, reverse);
+    var skipping = true;
+    return new Iterator((function() {
+      var step,
+          k,
+          v;
+      do {
+        step = iterator.next();
+        if (step.done) {
+          return step;
+        }
+        var entry = step.value;
+        k = entry[0];
+        v = entry[1];
+        skipping && (skipping = predicate.call(context, v, k, $__0));
+      } while (skipping);
+      return type === ITERATE_ENTRIES ? step : iteratorValue(type, k, v, step);
+    }));
   };
   return skipSequence;
 }
