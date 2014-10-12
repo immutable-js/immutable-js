@@ -584,6 +584,10 @@ class IndexedSequence extends Sequence {
     );
   }
 
+  interpose(separator) {
+    return interposeFactory(this, separator);
+  }
+
   last() {
     return this.get(this.length ? this.length - 1 : 0);
   }
@@ -1482,4 +1486,35 @@ function flattenFactory(sequence, useKeys) {
     });
   }
   return flatSequence;
+}
+
+function interposeFactory(sequence, separator) {
+  var interposedSequence = sequence.__makeSequence();
+  interposedSequence.length = sequence.length && sequence.length * 2 -1;
+  interposedSequence.__iterateUncached = function(fn, reverse) {
+    var iterations = 0;
+    sequence.__iterate((v, k) =>
+      (!iterations || fn(separator, iterations++, this) !== false) &&
+      fn(v, iterations++, this) !== false,
+      reverse
+    );
+    return iterations;
+  };
+  interposedSequence.__iteratorUncached = function(type, reverse) {
+    var iterator = sequence.__iterator(ITERATE_VALUES, reverse);
+    var iterations = 0;
+    var step;
+    return new Iterator(() => {
+      if (!step || iterations % 2) {
+        step = iterator.next();
+        if (step.done) {
+          return step;
+        }
+      }
+      return iterations % 2 ?
+        iteratorValue(type, iterations++, separator) :
+        iteratorValue(type, iterations++, step.value, step);
+    });
+  };
+  return interposedSequence;
 }

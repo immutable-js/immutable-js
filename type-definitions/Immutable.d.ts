@@ -976,6 +976,12 @@ declare module 'immutable' {
     ): Sequence<G, any/*IndexedSequence<T>*/>; // Bug: exposing this causes the type checker to implode.
 
     /**
+     * Returns a lazy sequence with `separator` between each item in this
+     * sequence.
+     */
+    interpose(separator: T): IndexedSequence<T>;
+
+    /**
      * Mapper takes IndexedSequence.
      * @override
      */
