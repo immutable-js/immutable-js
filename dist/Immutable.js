@@ -632,19 +632,7 @@ var $IndexedSequence = IndexedSequence;
     return this;
   },
   fromEntrySeq: function() {
-    var sequence = this;
-    var fromEntriesSequence = makeSequence();
-    fromEntriesSequence.length = sequence.length;
-    fromEntriesSequence.entrySeq = (function() {
-      return sequence;
-    });
-    fromEntriesSequence.__iterateUncached = function(fn, reverse) {
-      var $__0 = this;
-      return sequence.__iterate((function(entry) {
-        return entry && fn(entry[1], entry[0], $__0);
-      }), reverse);
-    };
-    return fromEntriesSequence;
+    return new FromEntriesSequence(this);
   },
   concat: function() {
     for (var values = [],
@@ -1073,6 +1061,41 @@ var KeyedIndexedSequence = function KeyedIndexedSequence(indexedSeq) {
     return new Iterator((function() {
       var step = iterator.next();
       return step.done ? step : iteratorValue(type, reverse ? --ii : ii++, step.value);
+    }));
+  }
+}, {}, Sequence);
+var FromEntriesSequence = function FromEntriesSequence(entriesSeq) {
+  this._seq = entriesSeq;
+  this.length = entriesSeq.length;
+};
+($traceurRuntime.createClass)(FromEntriesSequence, {
+  entrySeq: function() {
+    return this._seq;
+  },
+  cacheResult: function() {
+    this._seq.cacheResult();
+    this.length = this._seq.length;
+    return this;
+  },
+  __iterate: function(fn, reverse) {
+    var $__0 = this;
+    return this._seq.__iterate((function(entry) {
+      return entry && fn(entry[1], entry[0], $__0);
+    }), reverse);
+  },
+  __iterator: function(type, reverse) {
+    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
+    return new Iterator((function() {
+      while (true) {
+        var step = iterator.next();
+        if (step.done) {
+          return iteratorDone();
+        }
+        var entry = step.value;
+        if (entry) {
+          return iteratorValue(type, entry[0], entry[1]);
+        }
+      }
     }));
   }
 }, {}, Sequence);

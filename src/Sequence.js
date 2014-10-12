@@ -491,19 +491,7 @@ class IndexedSequence extends Sequence {
   }
 
   fromEntrySeq() {
-    var sequence = this;
-    var fromEntriesSequence = makeSequence();
-    fromEntriesSequence.length = sequence.length;
-    fromEntriesSequence.entrySeq = () => sequence;
-    fromEntriesSequence.__iterateUncached = function (fn, reverse) {
-      // Check if entry exists first so array access doesn't throw for holes
-      // in the parent iteration.
-      return sequence.__iterate(
-        entry => entry && fn(entry[1], entry[0], this),
-        reverse
-      );
-    }
-    return fromEntriesSequence;
+    return new FromEntriesSequence(this);
   }
 
   concat(...values) {
@@ -1033,6 +1021,51 @@ class KeyedIndexedSequence extends Sequence {
       var step = iterator.next();
       return step.done ? step :
         iteratorValue(type, reverse ? --ii : ii++, step.value)
+    });
+  }
+}
+
+
+class FromEntriesSequence extends Sequence {
+  constructor(entriesSeq) {
+    this._seq = entriesSeq;
+    this.length = entriesSeq.length;
+  }
+
+  entrySeq() {
+    return this._seq;
+  }
+
+  cacheResult() {
+    this._seq.cacheResult();
+    this.length = this._seq.length;
+    return this;
+  }
+
+  __iterate(fn, reverse) {
+    // Check if entry exists first so array access doesn't throw for holes
+    // in the parent iteration.
+    return this._seq.__iterate(
+      entry => entry && fn(entry[1], entry[0], this),
+      reverse
+    );
+  }
+
+  __iterator(type, reverse) {
+    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
+    return new Iterator(() => {
+      while (true) {
+        var step = iterator.next();
+        if (step.done) {
+          return iteratorDone();
+        }
+        var entry = step.value;
+        // Check if entry exists first so array access doesn't throw for holes
+        // in the parent iteration.
+        if (entry) {
+          return iteratorValue(type, entry[0], entry[1]);
+        }
+      }
     });
   }
 }
