@@ -1281,6 +1281,19 @@ function takeFactory(sequence, amount) {
     }));
     return iterations;
   };
+  takeSequence.__iteratorUncached = function(type, reverse) {
+    if (reverse) {
+      return this.cacheResult().__iterator(type, reverse);
+    }
+    var iterator = amount && sequence.__iterator(type, reverse);
+    var iterations = 0;
+    return new Iterator((function() {
+      if (iterations++ > amount) {
+        return iteratorDone();
+      }
+      return iterator.step();
+    }));
+  };
   takeSequence.length = sequence.length && Math.min(sequence.length, amount);
   return takeSequence;
 }
@@ -1296,6 +1309,29 @@ function takeWhileFactory(sequence, predicate, context) {
       return predicate.call(context, v, k, c) && ++iterations && fn(v, k, $__0);
     }));
     return iterations;
+  };
+  takeSequence.__iteratorUncached = function(type, reverse) {
+    var $__0 = this;
+    if (reverse) {
+      return this.cacheResult().__iterator(type, reverse);
+    }
+    var iterator = sequence.__iterator(ITERATE_ENTRIES, reverse);
+    var iterating = true;
+    return new Iterator((function() {
+      if (!iterating) {
+        return iteratorDone();
+      }
+      var step = iterator.next();
+      if (step.done) {
+        return step;
+      }
+      var entry = step.value;
+      if (!predicate.call(context, entry[1], entry[0], $__0)) {
+        iterating = false;
+        return iteratorDone();
+      }
+      return type === ITERATE_ENTRIES ? step : iteratorValue(type, entry[0], entry[1], step);
+    }));
   };
   return takeSequence;
 }

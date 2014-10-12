@@ -1249,7 +1249,20 @@ function takeFactory(sequence, amount) {
     );
     return iterations;
   };
-  // TODO: iterator
+  takeSequence.__iteratorUncached = function(type, reverse) {
+    if (reverse) {
+      return this.cacheResult().__iterator(type, reverse);
+    }
+    // Don't bother instantiating parent iterator if taking 0.
+    var iterator = amount && sequence.__iterator(type, reverse);
+    var iterations = 0;
+    return new Iterator(() => {
+      if (iterations++ > amount) {
+        return iteratorDone();
+      }
+      return iterator.step();
+    });
+  };
   takeSequence.length = sequence.length && Math.min(sequence.length, amount);
   return takeSequence;
 }
@@ -1266,7 +1279,29 @@ function takeWhileFactory(sequence, predicate, context) {
     );
     return iterations;
   };
-  // TODO: iterator
+  takeSequence.__iteratorUncached = function(type, reverse) {
+    if (reverse) {
+      return this.cacheResult().__iterator(type, reverse);
+    }
+    var iterator = sequence.__iterator(ITERATE_ENTRIES, reverse);
+    var iterating = true;
+    return new Iterator(() => {
+      if (!iterating) {
+        return iteratorDone();
+      }
+      var step = iterator.next();
+      if (step.done) {
+        return step;
+      }
+      var entry = step.value;
+      if (!predicate.call(context, entry[1], entry[0], this)) {
+        iterating = false;
+        return iteratorDone();
+      }
+      return type === ITERATE_ENTRIES ? step :
+        iteratorValue(type, entry[0], entry[1], step);
+    });
+  };
   return takeSequence;
 }
 
