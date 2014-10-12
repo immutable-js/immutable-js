@@ -307,11 +307,12 @@ var $Sequence = Sequence;
     return this.__deepEquals(other);
   },
   __deepEquals: function(other) {
-    var entries = this.entries();
+    var entries = this.cacheResult().entrySeq().toArray();
+    var iterations = 0;
     return other.every((function(v, k) {
-      var entry = entries.next().value;
+      var entry = entries[iterations++];
       return entry && is(k, entry[0]) && is(v, entry[1]);
-    })) && entries.next().done;
+    })) && iterations === entries.length;
   },
   join: function(separator) {
     separator = separator !== undefined ? '' + separator : ',';
@@ -1536,11 +1537,28 @@ var Cursor = function Cursor(rootData, keyPath, onChange, value) {
   },
   __iterate: function(fn, reverse) {
     var $__0 = this;
-    var cursor = this;
-    var deref = cursor.deref();
-    return deref && deref.__iterate ? deref.__iterate((function(value, key) {
-      return fn(wrappedValue(cursor, key, value), key, $__0);
+    var deref = this.deref();
+    return deref && deref.__iterate ? deref.__iterate((function(v, k) {
+      return fn(wrappedValue($__0, k, v), k, $__0);
     }), reverse) : 0;
+  },
+  __iterator: function(type, reverse) {
+    var $__0 = this;
+    var deref = this.deref();
+    var iterator = deref && deref.__iterator && deref.__iterator(ITERATE_ENTRIES, reverse);
+    return new Iterator((function() {
+      if (!iterator) {
+        return iteratorDone();
+      }
+      var step = iterator.next();
+      if (step.done) {
+        return step;
+      }
+      var entry = step.value;
+      var k = entry[0];
+      var v = entry[1];
+      return iteratorValue(type, k, wrappedValue($__0, k, v), step);
+    }));
   }
 }, {}, Sequence);
 Cursor.prototype[DELETE] = Cursor.prototype.remove;

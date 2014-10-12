@@ -10,7 +10,9 @@
 import "Map"
 import "Sequence"
 import "TrieUtils"
-/* global Map, Sequence, NOT_SET, DELETE */
+import "Iterator"
+/* global Map, Sequence, NOT_SET, DELETE,
+          ITERATE_ENTRIES, Iterator, iteratorDone, iteratorValue */
 
 class Cursor extends Sequence {
   constructor(rootData, keyPath, onChange, value) {
@@ -61,12 +63,29 @@ class Cursor extends Sequence {
   }
 
   __iterate(fn, reverse) {
-    var cursor = this;
-    var deref = cursor.deref();
+    var deref = this.deref();
     return deref && deref.__iterate ? deref.__iterate(
-      (value, key) => fn(wrappedValue(cursor, key, value), key, this),
+      (v, k) => fn(wrappedValue(this, k, v), k, this),
       reverse
     ) : 0;
+  }
+
+  __iterator(type, reverse) {
+    var deref = this.deref();
+    var iterator = deref && deref.__iterator && deref.__iterator(ITERATE_ENTRIES, reverse);
+    return new Iterator(() => {
+      if (!iterator) {
+        return iteratorDone();
+      }
+      var step = iterator.next();
+      if (step.done) {
+        return step;
+      }
+      var entry = step.value;
+      var k = entry[0];
+      var v = entry[1];
+      return iteratorValue(type, k, wrappedValue(this, k, v), step);
+    });
   }
 }
 
