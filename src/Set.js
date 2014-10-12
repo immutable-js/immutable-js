@@ -11,9 +11,8 @@ import "Sequence"
 import "Map"
 import "TrieUtils"
 import "Iterator"
-/* global Sequence, IndexedSequencePrototype, iteratorMapper,
-          Map, MapPrototype, DELETE,
-          ITERATOR_SYMBOL, ITERATE_KEYS, ITERATE_ENTRIES */
+/* global Sequence, IndexedSequencePrototype, Map, MapPrototype, DELETE,
+          ITERATOR_SYMBOL */
 /* exported Set */
 
 
@@ -153,16 +152,12 @@ class Set extends Sequence {
     return this._map.hashCode();
   }
 
-  __iterator(type, reverse) {
-    var iterator = this._map.__iterator(ITERATE_KEYS, reverse);
-    return type === ITERATE_ENTRIES ?
-      iteratorMapper(iterator, key => [key, key]) :
-      iterator;
+  __iterate(fn, reverse) {
+    return this._map.__iterate((_, k) => fn(k, k, this), reverse);
   }
 
-  __iterate(fn, reverse) {
-    var collection = this;
-    return this._map.__iterate((_, k) => fn(k, k, collection), reverse);
+  __iterator(type, reverse) {
+    return this._map.map((_, k) => k).__iterator(type, reverse);
   }
 
   __deepEquals(other) {

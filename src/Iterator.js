@@ -9,7 +9,7 @@
 
 /* global Symbol */
 /* exported ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES, ITERATOR_SYMBOL,
-            Iterator, iteratorValue, iteratorDone, iteratorMapper,
+            Iterator, iteratorValue, iteratorDone,
             isIterable, isIterator, getIterator */
 
 var ITERATE_KEYS = 0;
@@ -40,29 +40,16 @@ IteratorPrototype[ITERATOR_SYMBOL] = function () {
 };
 
 
-var iteratorResult = { value: undefined, done: false };
-
-function iteratorValue(type, key, value) {
-  iteratorResult.value = type === 0 ? key : type === 1 ? value : [key, value];
-  iteratorResult.done = false;
+function iteratorValue(type, k, v, iteratorResult) {
+  var value = type === 0 ? k : type === 1 ? v : [k, v];
+  iteratorResult ? (iteratorResult.value = value) : (iteratorResult = {
+    value: value, done: false
+  });
   return iteratorResult;
 }
 
 function iteratorDone() {
-  iteratorResult.value = undefined;
-  iteratorResult.done = true;
-  return iteratorResult;
-}
-
-function iteratorMapper(iter, fn) {
-  var newIter = new Iterator();
-  newIter.next = () => {
-    var step = iter.next();
-    if (step.done) return step;
-    step.value = fn(step.value);
-    return step;
-  };
-  return newIter;
+  return { value: undefined, done: true };
 }
 
 function isIterable(maybeIterable) {

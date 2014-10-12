@@ -11,9 +11,7 @@ import "Map"
 import "Vector"
 import "is"
 import "TrieUtils"
-import "Iterator"
-/* global Map, Vector, is, DELETE, NOT_SET,
-          iteratorMapper, ITERATE_KEYS, ITERATE_VALUES */
+/* global Map, Vector, is, DELETE, NOT_SET */
 /* exported OrderedMap */
 
 
@@ -72,17 +70,15 @@ class OrderedMap extends Map {
     return this._map.wasAltered() || this._vector.wasAltered();
   }
 
-  __iterator(type, reverse) {
-    var iterator = this._vector.__iterator(ITERATE_VALUES, reverse);
-    return type === ITERATE_KEYS ?
-      iteratorMapper(iterator, entry => entry[0]) :
-      type === ITERATE_VALUES ?
-        iteratorMapper(iterator, entry => entry[1]) :
-        iterator;
+  __iterate(fn, reverse) {
+    return this._vector.__iterate(
+      entry => entry && fn(entry[1], entry[0], this),
+      reverse
+    );
   }
 
-  __iterate(fn, reverse) {
-    return this._vector.fromEntrySeq().__iterate(fn, reverse);
+  __iterator(type, reverse) {
+    return this._vector.fromEntrySeq().__iterator(type, reverse);
   }
 
   __deepEquals(other) {

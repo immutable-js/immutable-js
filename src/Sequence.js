@@ -960,12 +960,11 @@ class ValuesSequence extends IndexedSequence {
   __iterator(type, reverse) {
     var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
     var iterations = 0;
-    var step;
-    return new Iterator(() =>
-      (step = iterator.next()).done ?
-        iteratorDone() :
-        iteratorValue(type, iterations++, step.value)
-    );
+    return new Iterator(() => {
+      var step = iterator.next();
+      return step.done ? step :
+        iteratorValue(type, iterations++, step.value, step)
+    });
   }
 }
 
@@ -1020,7 +1019,7 @@ class KeyedIndexedSequence extends Sequence {
     return new Iterator(() => {
       var step = iterator.next();
       return step.done ? step :
-        iteratorValue(type, reverse ? --ii : ii++, step.value)
+        iteratorValue(type, reverse ? --ii : ii++, step.value, step)
     });
   }
 }
@@ -1057,13 +1056,13 @@ class FromEntriesSequence extends Sequence {
       while (true) {
         var step = iterator.next();
         if (step.done) {
-          return iteratorDone();
+          return step;
         }
         var entry = step.value;
         // Check if entry exists first so array access doesn't throw for holes
         // in the parent iteration.
         if (entry) {
-          return iteratorValue(type, entry[0], entry[1]);
+          return iteratorValue(type, entry[0], entry[1], step);
         }
       }
     });
@@ -1117,7 +1116,8 @@ function mapFactory(sequence, mapper, context) {
       return iteratorValue(
         type,
         key,
-        mapper.call(context, entry[1], key, sequence)
+        mapper.call(context, entry[1], key, sequence),
+        step
       );
     });
   }
@@ -1183,7 +1183,7 @@ function filterFactory(sequence, predicate, context, useKeys) {
         var key = entry[0];
         var value = entry[1];
         if (predicate.call(context, value, key, sequence)) {
-          return iteratorValue(type, useKeys ? key : iterations++, value);
+          return iteratorValue(type, useKeys ? key : iterations++, value, step);
         }
       }
     });

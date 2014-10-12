@@ -195,30 +195,19 @@ IteratorPrototype.inspect = IteratorPrototype.toSource = function() {
 IteratorPrototype[ITERATOR_SYMBOL] = function() {
   return this;
 };
-var iteratorResult = {
-  value: undefined,
-  done: false
-};
-function iteratorValue(type, key, value) {
-  iteratorResult.value = type === 0 ? key : type === 1 ? value : [key, value];
-  iteratorResult.done = false;
+function iteratorValue(type, k, v, iteratorResult) {
+  var value = type === 0 ? k : type === 1 ? v : [k, v];
+  iteratorResult ? (iteratorResult.value = value) : (iteratorResult = {
+    value: value,
+    done: false
+  });
   return iteratorResult;
 }
 function iteratorDone() {
-  iteratorResult.value = undefined;
-  iteratorResult.done = true;
-  return iteratorResult;
-}
-function iteratorMapper(iter, fn) {
-  var newIter = new Iterator();
-  newIter.next = (function() {
-    var step = iter.next();
-    if (step.done)
-      return step;
-    step.value = fn(step.value);
-    return step;
-  });
-  return newIter;
+  return {
+    value: undefined,
+    done: true
+  };
 }
 function isIterable(maybeIterable) {
   return !!_iteratorFn(maybeIterable);
@@ -1007,9 +996,9 @@ var ValuesSequence = function ValuesSequence(seq) {
   __iterator: function(type, reverse) {
     var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
     var iterations = 0;
-    var step;
     return new Iterator((function() {
-      return (step = iterator.next()).done ? iteratorDone() : iteratorValue(type, iterations++, step.value);
+      var step = iterator.next();
+      return step.done ? step : iteratorValue(type, iterations++, step.value, step);
     }));
   }
 }, {}, IndexedSequence);
@@ -1060,7 +1049,7 @@ var KeyedIndexedSequence = function KeyedIndexedSequence(indexedSeq) {
     var ii = reverse ? ensureLength(this) : 0;
     return new Iterator((function() {
       var step = iterator.next();
-      return step.done ? step : iteratorValue(type, reverse ? --ii : ii++, step.value);
+      return step.done ? step : iteratorValue(type, reverse ? --ii : ii++, step.value, step);
     }));
   }
 }, {}, Sequence);
@@ -1089,11 +1078,11 @@ var FromEntriesSequence = function FromEntriesSequence(entriesSeq) {
       while (true) {
         var step = iterator.next();
         if (step.done) {
-          return iteratorDone();
+          return step;
         }
         var entry = step.value;
         if (entry) {
-          return iteratorValue(type, entry[0], entry[1]);
+          return iteratorValue(type, entry[0], entry[1], step);
         }
       }
     }));
@@ -1151,7 +1140,7 @@ function mapFactory(sequence, mapper, context) {
       }
       var entry = step.value;
       var key = entry[0];
-      return iteratorValue(type, key, mapper.call(context, entry[1], key, sequence));
+      return iteratorValue(type, key, mapper.call(context, entry[1], key, sequence), step);
     }));
   };
   return mappedSequence;
@@ -1228,7 +1217,7 @@ function filterFactory(sequence, predicate, context, useKeys) {
         var key = entry[0];
         var value = entry[1];
         if (predicate.call(context, value, key, sequence)) {
-          return iteratorValue(type, useKeys ? key : iterations++, value);
+          return iteratorValue(type, useKeys ? key : iterations++, value, step);
         }
       }
     }));
@@ -2645,17 +2634,16 @@ var $Set = Set;
   hashCode: function() {
     return this._map.hashCode();
   },
-  __iterator: function(type, reverse) {
-    var iterator = this._map.__iterator(ITERATE_KEYS, reverse);
-    return type === ITERATE_ENTRIES ? iteratorMapper(iterator, (function(key) {
-      return [key, key];
-    })) : iterator;
-  },
   __iterate: function(fn, reverse) {
-    var collection = this;
+    var $__0 = this;
     return this._map.__iterate((function(_, k) {
-      return fn(k, k, collection);
+      return fn(k, k, $__0);
     }), reverse);
+  },
+  __iterator: function(type, reverse) {
+    return this._map.map((function(_, k) {
+      return k;
+    })).__iterator(type, reverse);
   },
   __deepEquals: function(other) {
     return this.isSuperset(other);
@@ -2742,16 +2730,14 @@ var $OrderedMap = OrderedMap;
   wasAltered: function() {
     return this._map.wasAltered() || this._vector.wasAltered();
   },
-  __iterator: function(type, reverse) {
-    var iterator = this._vector.__iterator(ITERATE_VALUES, reverse);
-    return type === ITERATE_KEYS ? iteratorMapper(iterator, (function(entry) {
-      return entry[0];
-    })) : type === ITERATE_VALUES ? iteratorMapper(iterator, (function(entry) {
-      return entry[1];
-    })) : iterator;
-  },
   __iterate: function(fn, reverse) {
-    return this._vector.fromEntrySeq().__iterate(fn, reverse);
+    var $__0 = this;
+    return this._vector.__iterate((function(entry) {
+      return entry && fn(entry[1], entry[0], $__0);
+    }), reverse);
+  },
+  __iterator: function(type, reverse) {
+    return this._vector.fromEntrySeq().__iterator(type, reverse);
   },
   __deepEquals: function(other) {
     var iterator = this.entries();
