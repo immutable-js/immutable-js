@@ -1084,7 +1084,24 @@ function flipFactory(sequence) {
   flipSequence.__iterateUncached = function (fn, reverse) {
     return sequence.__iterate((v, k) => fn(k, v, this) !== false, reverse);
   }
-  // TODO: iterator
+  flipSequence.__iteratorUncached = function(type, reverse) {
+    if (type === ITERATE_ENTRIES) {
+      var iterator = sequence.__iterator(type, reverse);
+      return new Iterator(() => {
+        var step = iterator.next();
+        if (!step.done) {
+          var k = step.value[0];
+          step.value[0] = step.value[1];
+          step.value[1] = k;
+        }
+        return step;
+      });
+    }
+    return sequence.__iterator(
+      type === ITERATE_VALUES ? ITERATE_KEYS : ITERATE_VALUES,
+      reverse
+    );
+  }
   return flipSequence;
 }
 
