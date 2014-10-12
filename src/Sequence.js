@@ -1416,6 +1416,24 @@ function flattenFactory(sequence, useKeys) {
     }, reverse);
     return iterations;
   }
-  // TODO: iterator
+  flatSequence.__iteratorUncached = function(type, reverse) {
+    var sequenceIterator = sequence.__iterator(ITERATE_VALUES, reverse);
+    var iterator;
+    return new Iterator(() => {
+      while (true) {
+        if (iterator) {
+          var step = iterator.next();
+          if (!step.done) {
+            return step;
+          }
+        }
+        var sequenceStep = sequenceIterator.next();
+        if (sequenceStep.done) {
+          return sequenceStep;
+        }
+        iterator = Sequence(sequenceStep.value).__iterator(type, reverse);
+      }
+    });
+  }
   return flatSequence;
 }
