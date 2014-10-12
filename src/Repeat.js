@@ -90,7 +90,9 @@ class Repeat extends IndexedSequence {
   }
 
   __deepEquals(other) {
-    return is(this._value, other._value);
+    return other instanceof Repeat ?
+      is(this._value, other._value) :
+      super.__deepEquals(other);
   }
 }
 

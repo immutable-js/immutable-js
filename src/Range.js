@@ -131,9 +131,11 @@ class Range extends IndexedSequence {
   }
 
   __deepEquals(other) {
-    return this._start === other._start &&
+    return other instanceof Range ?
+      this._start === other._start &&
       this._end === other._end &&
-      this._step === other._step;
+      this._step === other._step :
+      super.__deepEquals(other);
   }
 }
 

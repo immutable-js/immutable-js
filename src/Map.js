@@ -150,13 +150,6 @@ class Map extends Sequence {
     return iterations;
   }
 
-  __deepEquals(other) {
-    // Using NOT_SET here ensures that a missing key is not interpretted as an
-    // existing key set to be null/undefined.
-    var self = this;
-    return other.every((v, k) => is(self.get(k, NOT_SET), v));
-  }
-
   __ensureOwner(ownerID) {
     if (ownerID === this.__ownerID) {
       return this;

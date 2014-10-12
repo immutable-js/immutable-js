@@ -157,7 +157,7 @@ describe('Set', () => {
     expect(Immutable.is(s1, s2)).toBe(true);
     expect(s1.equals(s2)).toBe(true);
 
-    var v1 = Immutable.Vector('A', 'B', 'C');
+    var v1 = Immutable.Map({ A: 'A', B: 'B', C: 'C' });
     expect(Immutable.is(s1, v1)).toBe(true);
   });
 

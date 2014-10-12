@@ -8,11 +8,10 @@
  */
 
 import "Sequence"
-import "is"
 import "Map"
 import "TrieUtils"
 import "Iterator"
-/* global Sequence, IndexedSequence, is, wrapIndex,
+/* global Sequence, IndexedSequence, wrapIndex,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
           DELETE, SHIFT, SIZE, MASK, NOT_SET, DID_ALTER, OwnerID, MakeRef,
           SetRef, arrCopy, Iterator, iteratorValue, iteratorDone */
@@ -175,14 +174,6 @@ class Vector extends IndexedSequence {
         iterateVNode(this._tail, 0, tailOffset - this._origin, this._size - this._origin, eachFn, reverse);
     }
     return iterations;
-  }
-
-  __deepEquals(other) {
-    var iterator = this.entries(true);
-    return other.every((v, i) => {
-      var entry = iterator.next().value;
-      return entry && entry[0] === i && is(entry[1], v);
-    });
   }
 
   __ensureOwner(ownerID) {

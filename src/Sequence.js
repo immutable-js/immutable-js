@@ -141,12 +141,11 @@ class Sequence {
   }
 
   __deepEquals(other) {
-    var entries = this.cacheResult().entrySeq().toArray();
-    var iterations = 0;
+    var entries = this.entries();
     return other.every((v, k) => {
-      var entry = entries[iterations++];
-      return entry && is(k, entry[0]) && is(v, entry[1]);
-    }) && iterations === entries.length;
+      var entry = entries.next().value;
+      return entry && is(entry[0], k) && is(entry[1], v);
+    }) && entries.next().done;
   }
 
   join(separator) {
@@ -912,10 +911,6 @@ function iterator(sequence, type, reverse, useKeys) {
         iteratorDone() :
         iteratorValue(type, useKeys ? entry[0] : ii - 1, entry[1]);
     });
-  }
-  // TODO: remove when all Sequences implement __iterator or __iteratorUncached
-  if (!sequence.__iteratorUncached) {
-    return sequence.cacheResult().__iterator(type, reverse);
   }
   return sequence.__iteratorUncached(type, reverse);
 }

@@ -160,10 +160,6 @@ class Set extends Sequence {
     return this._map.map((_, k) => k).__iterator(type, reverse);
   }
 
-  __deepEquals(other) {
-    return this.isSuperset(other);
-  }
-
   __ensureOwner(ownerID) {
     if (ownerID === this.__ownerID) {
       return this;

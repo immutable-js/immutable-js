@@ -307,12 +307,11 @@ var $Sequence = Sequence;
     return this.__deepEquals(other);
   },
   __deepEquals: function(other) {
-    var entries = this.cacheResult().entrySeq().toArray();
-    var iterations = 0;
+    var entries = this.entries();
     return other.every((function(v, k) {
-      var entry = entries[iterations++];
-      return entry && is(k, entry[0]) && is(v, entry[1]);
-    })) && iterations === entries.length;
+      var entry = entries.next().value;
+      return entry && is(entry[0], k) && is(entry[1], v);
+    })) && entries.next().done;
   },
   join: function(separator) {
     separator = separator !== undefined ? '' + separator : ',';
@@ -958,9 +957,6 @@ function iterator(sequence, type, reverse, useKeys) {
       var entry = cache[reverse ? maxIndex - ii : ii];
       return ii++ > maxIndex ? iteratorDone() : iteratorValue(type, useKeys ? entry[0] : ii - 1, entry[1]);
     }));
-  }
-  if (!sequence.__iteratorUncached) {
-    return sequence.cacheResult().__iterator(type, reverse);
   }
   return sequence.__iteratorUncached(type, reverse);
 }
@@ -1689,12 +1685,6 @@ var $Map = Map;
     }), reverse);
     return iterations;
   },
-  __deepEquals: function(other) {
-    var self = this;
-    return other.every((function(v, k) {
-      return is(self.get(k, NOT_SET), v);
-    }));
-  },
   __ensureOwner: function(ownerID) {
     if (ownerID === this.__ownerID) {
       return this;
@@ -2259,13 +2249,6 @@ var $Vector = Vector;
     }
     return iterations;
   },
-  __deepEquals: function(other) {
-    var iterator = this.entries(true);
-    return other.every((function(v, i) {
-      var entry = iterator.next().value;
-      return entry && entry[0] === i && is(entry[1], v);
-    }));
-  },
   __ensureOwner: function(ownerID) {
     if (ownerID === this.__ownerID) {
       return this;
@@ -2788,9 +2771,6 @@ var $Set = Set;
       return k;
     })).__iterator(type, reverse);
   },
-  __deepEquals: function(other) {
-    return this.isSuperset(other);
-  },
   __ensureOwner: function(ownerID) {
     if (ownerID === this.__ownerID) {
       return this;
@@ -2881,13 +2861,6 @@ var $OrderedMap = OrderedMap;
   },
   __iterator: function(type, reverse) {
     return this._vector.fromEntrySeq().__iterator(type, reverse);
-  },
-  __deepEquals: function(other) {
-    var iterator = this.entries();
-    return other.every((function(v, k) {
-      var entry = iterator.next().value;
-      return entry && is(entry[0], k) && is(entry[1], v);
-    }));
   },
   __ensureOwner: function(ownerID) {
     if (ownerID === this.__ownerID) {
@@ -3058,7 +3031,6 @@ RecordPrototype.cursor = MapPrototype.cursor;
 RecordPrototype.withMutations = MapPrototype.withMutations;
 RecordPrototype.asMutable = MapPrototype.asMutable;
 RecordPrototype.asImmutable = MapPrototype.asImmutable;
-RecordPrototype.__deepEquals = MapPrototype.__deepEquals;
 function makeRecord(likeRecord, map, ownerID) {
   var record = Object.create(Object.getPrototypeOf(likeRecord));
   record._map = map;
@@ -3156,7 +3128,7 @@ var $Range = Range;
     }));
   },
   __deepEquals: function(other) {
-    return this._start === other._start && this._end === other._end && this._step === other._step;
+    return other instanceof $Range ? this._start === other._start && this._end === other._end && this._step === other._step : $traceurRuntime.superCall(this, $Range.prototype, "__deepEquals", [other]);
   }
 }, {}, IndexedSequence);
 var RangePrototype = Range.prototype;
@@ -3225,7 +3197,7 @@ var $Repeat = Repeat;
     }));
   },
   __deepEquals: function(other) {
-    return is(this._value, other._value);
+    return other instanceof $Repeat ? is(this._value, other._value) : $traceurRuntime.superCall(this, $Repeat.prototype, "__deepEquals", [other]);
   }
 }, {}, IndexedSequence);
 var RepeatPrototype = Repeat.prototype;

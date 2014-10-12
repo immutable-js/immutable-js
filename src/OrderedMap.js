@@ -9,9 +9,8 @@
 
 import "Map"
 import "Vector"
-import "is"
 import "TrieUtils"
-/* global Map, Vector, is, DELETE, NOT_SET */
+/* global Map, Vector, DELETE, NOT_SET */
 /* exported OrderedMap */
 
 
@@ -79,14 +78,6 @@ class OrderedMap extends Map {
 
   __iterator(type, reverse) {
     return this._vector.fromEntrySeq().__iterator(type, reverse);
-  }
-
-  __deepEquals(other) {
-    var iterator = this.entries();
-    return other.every((v, k) => {
-      var entry = iterator.next().value;
-      return entry && is(entry[0], k) && is(entry[1], v);
-    });
   }
 
   __ensureOwner(ownerID) {
