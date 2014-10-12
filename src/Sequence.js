@@ -377,29 +377,7 @@ class Sequence {
   }
 
   take(amount) {
-    var sequence = this;
-    if (amount > sequence.length) {
-      return sequence;
-    }
-    if (amount < 0) {
-      amount = 0;
-    }
-    var takeSequence = sequence.__makeSequence();
-    takeSequence.__iterateUncached = function(fn, reverse) {
-      if (amount === 0) {
-        return 0;
-      }
-      if (reverse) {
-        return this.cacheResult().__iterate(fn, reverse);
-      }
-      var iterations = 0;
-      sequence.__iterate((v, k) =>
-        ++iterations && fn(v, k, this) !== false && iterations < amount
-      );
-      return iterations;
-    };
-    takeSequence.length = this.length && Math.min(this.length, amount);
-    return takeSequence;
+    return takeFactory(this, amount);
   }
 
   takeLast(amount) {
@@ -407,19 +385,7 @@ class Sequence {
   }
 
   takeWhile(predicate, context) {
-    var sequence = this;
-    var takeSequence = sequence.__makeSequence();
-    takeSequence.__iterateUncached = function(fn, reverse) {
-      if (reverse) {
-        return this.cacheResult().__iterate(fn, reverse);
-      }
-      var iterations = 0;
-      sequence.__iterate((v, k, c) =>
-        predicate.call(context, v, k, c) && ++iterations && fn(v, k, this)
-      );
-      return iterations;
-    };
-    return takeSequence;
+    return takeWhileFactory(this, predicate, context);
   }
 
   takeUntil(predicate, context) {
@@ -550,7 +516,18 @@ class IndexedSequence extends Sequence {
 
   get(index, notSetValue) {
     index = wrapIndex(this, index);
-    return this.find((_, key) => key === index, null, notSetValue);
+    return (index < 0 || (this.length === Infinity ||
+        (this.length != null && index > this.length))) ?
+      notSetValue :
+      this.find((_, key) => key === index, null, notSetValue);
+  }
+
+  has(index) {
+    index = wrapIndex(this, index);
+    return index >= 0 && (this.length != null ?
+      this.length === Infinity || index < this.length :
+      this.indexOf(index) !== -1
+    );
   }
 
   first() {
@@ -602,8 +579,21 @@ class IndexedSequence extends Sequence {
     return flattenFactory(this, false);
   }
 
+  take(amount) {
+    var takeSeq = takeFactory(this, amount);
+    if (takeSeq !== this) {
+      takeSeq.get = (index, notSetValue) =>
+        index < amount ? this.get(index, notSetValue) : notSetValue;
+    }
+    return takeSeq;
+  }
+
   skip(amount) {
-    return skipFactory(this, amount, false);
+    var skipSeq = skipFactory(this, amount, false);
+    if (skipSeq !== this) {
+      skipSeq.get = (index, notSetValue) => this.get(index - amount, notSetValue);
+    }
+    return skipSeq;
   }
 
   skipWhile(predicate, context) {
@@ -802,11 +792,6 @@ class ArraySequence extends IndexedSequence {
 
   get(index, notSetValue) {
     return this.has(index) ? this._array[wrapIndex(this, index)] : notSetValue;
-  }
-
-  has(index) {
-    index = wrapIndex(this, index);
-    return index >= 0 && index < this.length;
   }
 
   __iterate(fn, reverse) {
@@ -1190,6 +1175,46 @@ function groupByFactory(seq, grouper, context, useKeys) {
     group => Sequence(group).fromEntrySeq() :
     group => Sequence(group)
   );
+}
+
+function takeFactory(sequence, amount) {
+  if (amount > sequence.length) {
+    return sequence;
+  }
+  if (amount < 0) {
+    amount = 0;
+  }
+  var takeSequence = sequence.__makeSequence();
+  takeSequence.__iterateUncached = function(fn, reverse) {
+    if (amount === 0) {
+      return 0;
+    }
+    if (reverse) {
+      return this.cacheResult().__iterate(fn, reverse);
+    }
+    var iterations = 0;
+    sequence.__iterate((v, k) =>
+      ++iterations && fn(v, k, this) !== false && iterations < amount
+    );
+    return iterations;
+  };
+  takeSequence.length = sequence.length && Math.min(sequence.length, amount);
+  return takeSequence;
+}
+
+function takeWhileFactory(sequence, predicate, context) {
+  var takeSequence = sequence.__makeSequence();
+  takeSequence.__iterateUncached = function(fn, reverse) {
+    if (reverse) {
+      return this.cacheResult().__iterate(fn, reverse);
+    }
+    var iterations = 0;
+    sequence.__iterate((v, k, c) =>
+      predicate.call(context, v, k, c) && ++iterations && fn(v, k, this)
+    );
+    return iterations;
+  };
+  return takeSequence;
 }
 
 function skipFactory(sequence, amount, useKeys) {

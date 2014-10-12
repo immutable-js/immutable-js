@@ -56,11 +56,6 @@ class Range extends IndexedSequence {
     ' ]';
   }
 
-  has(index) {
-    index = wrapIndex(this, index);
-    return index >= 0 && (this.length === Infinity || index < this.length);
-  }
-
   get(index, notSetValue) {
     index = wrapIndex(this, index);
     return this.has(index) ?

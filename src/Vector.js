@@ -56,11 +56,6 @@ class Vector extends IndexedSequence {
 
   // @pragma Access
 
-  has(index) {
-    index = wrapIndex(this, index);
-    return index >= 0 && index < this.length;
-  }
-
   get(index, notSetValue) {
     index = wrapIndex(this, index);
     if (index < 0 || index >= this.length) {
