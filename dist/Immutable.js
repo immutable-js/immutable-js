@@ -307,12 +307,11 @@ var $Sequence = Sequence;
     return this.__deepEquals(other);
   },
   __deepEquals: function(other) {
-    var entries = this.cacheResult().entrySeq().toArray();
-    var iterations = 0;
+    var entries = this.entries();
     return other.every((function(v, k) {
-      var entry = entries[iterations++];
+      var entry = entries.next().value;
       return entry && is(k, entry[0]) && is(v, entry[1]);
-    })) && iterations === entries.length;
+    })) && entries.next().done;
   },
   join: function(separator) {
     separator = separator !== undefined ? '' + separator : ',';
@@ -1359,12 +1358,20 @@ function skipFactory(sequence, amount, useKeys) {
     }
     var iterator = amount && sequence.__iterator(type, reverse);
     var skipped = 0;
+    var iterations = 0;
     return new Iterator((function() {
       while (skipped < amount) {
         skipped++;
         iterator.next();
       }
-      return iterator.next();
+      var step = iterator.next();
+      if (useKeys || type === ITERATE_VALUES) {
+        return step;
+      } else if (type === ITERATE_KEYS) {
+        return iteratorValue(type, iterations++, null, step);
+      } else {
+        return iteratorValue(type, iterations++, step.value[1], step);
+      }
     }));
   };
   return skipSequence;
@@ -1393,6 +1400,7 @@ function skipWhileFactory(sequence, predicate, context, useKeys) {
     }
     var iterator = sequence.__iterator(ITERATE_ENTRIES, reverse);
     var skipping = true;
+    var iterations = 0;
     return new Iterator((function() {
       var step,
           k,
@@ -1400,7 +1408,13 @@ function skipWhileFactory(sequence, predicate, context, useKeys) {
       do {
         step = iterator.next();
         if (step.done) {
-          return step;
+          if (useKeys || type === ITERATE_VALUES) {
+            return step;
+          } else if (type === ITERATE_KEYS) {
+            return iteratorValue(type, iterations++, null, step);
+          } else {
+            return iteratorValue(type, iterations++, step.value[1], step);
+          }
         }
         var entry = step.value;
         k = entry[0];
@@ -1449,12 +1463,19 @@ function flattenFactory(sequence, useKeys) {
   flatSequence.__iteratorUncached = function(type, reverse) {
     var sequenceIterator = sequence.__iterator(ITERATE_VALUES, reverse);
     var iterator;
+    var iterations = 0;
     return new Iterator((function() {
       while (true) {
         if (iterator) {
           var step = iterator.next();
           if (!step.done) {
-            return step;
+            if (useKeys || type === ITERATE_VALUES) {
+              return step;
+            } else if (type === ITERATE_KEYS) {
+              return iteratorValue(type, iterations++, null, step);
+            } else {
+              return iteratorValue(type, iterations++, step.value[1], step);
+            }
           }
         }
         var sequenceStep = sequenceIterator.next();

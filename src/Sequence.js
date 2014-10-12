@@ -1327,12 +1327,20 @@ function skipFactory(sequence, amount, useKeys) {
     }
     var iterator = amount && sequence.__iterator(type, reverse);
     var skipped = 0;
+    var iterations = 0;
     return new Iterator(() => {
       while (skipped < amount) {
         skipped++;
         iterator.next();
       }
-      return iterator.next();
+      var step = iterator.next();
+      if (useKeys || type === ITERATE_VALUES) {
+        return step;
+      } else if (type === ITERATE_KEYS) {
+        return iteratorValue(type, iterations++, null, step);
+      } else {
+        return iteratorValue(type, iterations++, step.value[1], step);
+      }
     });
   };
   return skipSequence;
@@ -1360,12 +1368,19 @@ function skipWhileFactory(sequence, predicate, context, useKeys) {
     }
     var iterator = sequence.__iterator(ITERATE_ENTRIES, reverse);
     var skipping = true;
+    var iterations = 0;
     return new Iterator(() => {
       var step, k, v;
       do {
         step = iterator.next();
         if (step.done) {
-          return step;
+          if (useKeys || type === ITERATE_VALUES) {
+            return step;
+          } else if (type === ITERATE_KEYS) {
+            return iteratorValue(type, iterations++, null, step);
+          } else {
+            return iteratorValue(type, iterations++, step.value[1], step);
+          }
         }
         var entry = step.value;
         k = entry[0];
@@ -1419,12 +1434,19 @@ function flattenFactory(sequence, useKeys) {
   flatSequence.__iteratorUncached = function(type, reverse) {
     var sequenceIterator = sequence.__iterator(ITERATE_VALUES, reverse);
     var iterator;
+    var iterations = 0;
     return new Iterator(() => {
       while (true) {
         if (iterator) {
           var step = iterator.next();
           if (!step.done) {
-            return step;
+            if (useKeys || type === ITERATE_VALUES) {
+              return step;
+            } else if (type === ITERATE_KEYS) {
+              return iteratorValue(type, iterations++, null, step);
+            } else {
+              return iteratorValue(type, iterations++, step.value[1], step);
+            }
           }
         }
         var sequenceStep = sequenceIterator.next();
