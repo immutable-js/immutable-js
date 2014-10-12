@@ -1085,6 +1085,7 @@ function flipFactory(sequence) {
   flipSequence.__iterateUncached = function (fn, reverse) {
     return sequence.__iterate((v, k) => fn(k, v, this) !== false, reverse);
   }
+  // TODO: iterator
   return flipSequence;
 }
 
@@ -1231,6 +1232,7 @@ function takeFactory(sequence, amount) {
     );
     return iterations;
   };
+  // TODO: iterator
   takeSequence.length = sequence.length && Math.min(sequence.length, amount);
   return takeSequence;
 }
@@ -1247,6 +1249,7 @@ function takeWhileFactory(sequence, predicate, context) {
     );
     return iterations;
   };
+  // TODO: iterator
   return takeSequence;
 }
 
@@ -1270,6 +1273,7 @@ function skipFactory(sequence, amount, useKeys) {
     });
     return iterations;
   };
+  // TODO: iterator
   skipSequence.length = sequence.length && Math.max(0, sequence.length - amount);
   return skipSequence;
 }
@@ -1290,6 +1294,7 @@ function skipWhileFactory(sequence, predicate, context, useKeys) {
     });
     return iterations;
   };
+  // TODO: iterator
   return skipSequence;
 }
 
@@ -1330,5 +1335,6 @@ function flattenFactory(sequence, useKeys) {
     }, reverse);
     return iterations;
   }
+  // TODO: iterator
   return flatSequence;
 }
