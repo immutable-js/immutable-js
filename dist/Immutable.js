@@ -229,6 +229,43 @@ var Sequence = function Sequence(value) {
 };
 var $Sequence = Sequence;
 ($traceurRuntime.createClass)(Sequence, {
+  toArray: function() {
+    assertNotInfinite(this.length);
+    var array = new Array(this.length || 0);
+    this.valueSeq().__iterate((function(v, i) {
+      array[i] = v;
+    }));
+    return array;
+  },
+  toJS: function() {
+    return this.map((function(value) {
+      return value instanceof $Sequence ? value.toJS() : value;
+    })).__toJS();
+  },
+  toMap: function() {
+    assertNotInfinite(this.length);
+    return Map.from(this);
+  },
+  toObject: function() {
+    assertNotInfinite(this.length);
+    var object = {};
+    this.__iterate((function(v, k) {
+      object[k] = v;
+    }));
+    return object;
+  },
+  toOrderedMap: function() {
+    assertNotInfinite(this.length);
+    return OrderedMap.from(this);
+  },
+  toSet: function() {
+    assertNotInfinite(this.length);
+    return Set.from(this);
+  },
+  toVector: function() {
+    assertNotInfinite(this.length);
+    return Vector.from(this);
+  },
   toString: function() {
     return this.__toString('Seq {', '}');
   },
@@ -241,50 +278,135 @@ var $Sequence = Sequence;
   __toStringMapper: function(v, k) {
     return k + ': ' + quoteString(v);
   },
-  toJS: function() {
-    return this.map((function(value) {
-      return value instanceof $Sequence ? value.toJS() : value;
-    })).__toJS();
+  concat: function() {
+    for (var values = [],
+        $__2 = 0; $__2 < arguments.length; $__2++)
+      values[$__2] = arguments[$__2];
+    return concatFactory(this, values, true);
   },
-  toArray: function() {
-    assertNotInfinite(this.length);
-    var array = new Array(this.length || 0);
-    this.valueSeq().__iterate((function(v, i) {
-      array[i] = v;
+  contains: function(searchValue) {
+    return this.find((function(value) {
+      return is(value, searchValue);
+    }), null, NOT_SET) !== NOT_SET;
+  },
+  entries: function() {
+    return this.__iterator(ITERATE_ENTRIES);
+  },
+  every: function(predicate, context) {
+    var returnValue = true;
+    this.__iterate((function(v, k, c) {
+      if (!predicate.call(context, v, k, c)) {
+        returnValue = false;
+        return false;
+      }
     }));
-    return array;
+    return returnValue;
   },
-  toObject: function() {
-    assertNotInfinite(this.length);
-    var object = {};
+  filter: function(predicate, context) {
+    return filterFactory(this, predicate, context, true);
+  },
+  find: function(predicate, context, notSetValue) {
+    var foundValue = notSetValue;
+    this.__iterate((function(v, k, c) {
+      if (predicate.call(context, v, k, c)) {
+        foundValue = v;
+        return false;
+      }
+    }));
+    return foundValue;
+  },
+  forEach: function(sideEffect, context) {
+    return this.__iterate(context ? sideEffect.bind(context) : sideEffect);
+  },
+  join: function(separator) {
+    separator = separator !== undefined ? '' + separator : ',';
+    var joined = '';
+    var isFirst = true;
+    this.__iterate((function(v) {
+      isFirst ? (isFirst = false) : (joined += separator);
+      joined += v != null ? v : '';
+    }));
+    return joined;
+  },
+  keys: function() {
+    return this.__iterator(ITERATE_KEYS);
+  },
+  map: function(mapper, context) {
+    return mapFactory(this, mapper, context);
+  },
+  reduce: function(reducer, initialReduction, context) {
+    var reduction;
+    var useFirst;
+    if (arguments.length < 2) {
+      useFirst = true;
+    } else {
+      reduction = initialReduction;
+    }
+    this.__iterate((function(v, k, c) {
+      if (useFirst) {
+        useFirst = false;
+        reduction = v;
+      } else {
+        reduction = reducer.call(context, reduction, v, k, c);
+      }
+    }));
+    return reduction;
+  },
+  reduceRight: function(reducer, initialReduction, context) {
+    var reversed = this.toKeyedSeq().reverse();
+    return reversed.reduce.apply(reversed, arguments);
+  },
+  reverse: function() {
+    return reverseFactory(this);
+  },
+  slice: function(begin, end) {
+    if (wholeSlice(begin, end, this.length)) {
+      return this;
+    }
+    var resolvedBegin = resolveBegin(begin, this.length);
+    var resolvedEnd = resolveEnd(end, this.length);
+    if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd) {
+      return this.cacheResult().slice(begin, end);
+    }
+    var skipped = resolvedBegin === 0 ? this : this.skip(resolvedBegin);
+    return resolvedEnd == null || resolvedEnd === this.length ? skipped : skipped.take(resolvedEnd - resolvedBegin);
+  },
+  some: function(predicate, context) {
+    return !this.every(not(predicate), context);
+  },
+  sort: function(comparator) {
+    return this.sortBy(valueMapper, comparator);
+  },
+  values: function() {
+    return this.__iterator(ITERATE_VALUES);
+  },
+  butLast: function() {
+    return this.slice(0, -1);
+  },
+  count: function(predicate, context) {
+    if (!predicate) {
+      if (this.length == null) {
+        this.length = this.__iterate(returnTrue);
+      }
+      return this.length;
+    }
+    return this.filter(predicate, context).count();
+  },
+  countBy: function(grouper, context) {
+    var $__0 = this;
+    var groupMap = {};
+    var groups = [];
     this.__iterate((function(v, k) {
-      object[k] = v;
+      var g = grouper.call(context, v, k, $__0);
+      var h = hash(g);
+      if (!groupMap.hasOwnProperty(h)) {
+        groupMap[h] = groups.length;
+        groups.push([g, 1]);
+      } else {
+        groups[groupMap[h]][1]++;
+      }
     }));
-    return object;
-  },
-  toVector: function() {
-    assertNotInfinite(this.length);
-    return Vector.from(this);
-  },
-  toMap: function() {
-    assertNotInfinite(this.length);
-    return Map.from(this);
-  },
-  toOrderedMap: function() {
-    assertNotInfinite(this.length);
-    return OrderedMap.from(this);
-  },
-  toSet: function() {
-    assertNotInfinite(this.length);
-    return Set.from(this);
-  },
-  toKeyedSeq: function() {
-    return this;
-  },
-  hashCode: function() {
-    return this.__hash || (this.__hash = this.length === Infinity ? 0 : this.reduce((function(h, v, k) {
-      return (h + (hash(v) ^ (v === k ? 0 : hash(k)))) & HASH_MAX_VAL;
-    }), 0));
+    return $Sequence(groups).fromEntrySeq();
   },
   equals: function(other) {
     if (this === other) {
@@ -313,62 +435,6 @@ var $Sequence = Sequence;
       return entry && is(entry[0], k) && is(entry[1], v);
     })) && entries.next().done;
   },
-  join: function(separator) {
-    separator = separator !== undefined ? '' + separator : ',';
-    var joined = '';
-    var isFirst = true;
-    this.__iterate((function(v) {
-      isFirst ? (isFirst = false) : (joined += separator);
-      joined += v != null ? v : '';
-    }));
-    return joined;
-  },
-  count: function(predicate, context) {
-    if (!predicate) {
-      if (this.length == null) {
-        this.length = this.__iterate(returnTrue);
-      }
-      return this.length;
-    }
-    return this.filter(predicate, context).count();
-  },
-  countBy: function(grouper, context) {
-    var $__0 = this;
-    var groupMap = {};
-    var groups = [];
-    this.__iterate((function(v, k) {
-      var g = grouper.call(context, v, k, $__0);
-      var h = hash(g);
-      if (!groupMap.hasOwnProperty(h)) {
-        groupMap[h] = groups.length;
-        groups.push([g, 1]);
-      } else {
-        groups[groupMap[h]][1]++;
-      }
-    }));
-    return $Sequence(groups).fromEntrySeq();
-  },
-  concat: function() {
-    for (var values = [],
-        $__2 = 0; $__2 < arguments.length; $__2++)
-      values[$__2] = arguments[$__2];
-    return concatFactory(this, values, true);
-  },
-  flatten: function() {
-    return flattenFactory(this, true);
-  },
-  flatMap: function(mapper, context) {
-    return this.map(mapper, context).flatten();
-  },
-  reverse: function() {
-    return reverseFactory(this);
-  },
-  keySeq: function() {
-    return this.flip().valueSeq();
-  },
-  valueSeq: function() {
-    return new ValuesSequence(this);
-  },
   entrySeq: function() {
     var sequence = this;
     if (sequence._cache) {
@@ -380,58 +446,33 @@ var $Sequence = Sequence;
     });
     return entriesSequence;
   },
-  forEach: function(sideEffect, context) {
-    return this.__iterate(context ? sideEffect.bind(context) : sideEffect);
-  },
-  reduce: function(reducer, initialReduction, context) {
-    var reduction;
-    var useFirst;
-    if (arguments.length < 2) {
-      useFirst = true;
-    } else {
-      reduction = initialReduction;
-    }
+  findKey: function(predicate, context) {
+    var foundKey;
     this.__iterate((function(v, k, c) {
-      if (useFirst) {
-        useFirst = false;
-        reduction = v;
-      } else {
-        reduction = reducer.call(context, reduction, v, k, c);
-      }
-    }));
-    return reduction;
-  },
-  reduceRight: function(reducer, initialReduction, context) {
-    var reversed = this.toKeyedSeq().reverse();
-    return reversed.reduce.apply(reversed, arguments);
-  },
-  every: function(predicate, context) {
-    var returnValue = true;
-    this.__iterate((function(v, k, c) {
-      if (!predicate.call(context, v, k, c)) {
-        returnValue = false;
+      if (predicate.call(context, v, k, c)) {
+        foundKey = k;
         return false;
       }
     }));
-    return returnValue;
+    return foundKey;
   },
-  some: function(predicate, context) {
-    return !this.every(not(predicate), context);
+  findLast: function(predicate, context, notSetValue) {
+    return this.toKeyedSeq().reverse().find(predicate, context, notSetValue);
+  },
+  findLastKey: function(predicate, context) {
+    return this.toKeyedSeq().reverse().findKey(predicate, context);
   },
   first: function() {
     return this.find(returnTrue);
   },
-  last: function() {
-    return this.findLast(returnTrue);
+  flatMap: function(mapper, context) {
+    return this.map(mapper, context).flatten();
   },
-  rest: function() {
-    return this.slice(1);
+  flatten: function() {
+    return flattenFactory(this, true);
   },
-  butLast: function() {
-    return this.slice(0, -1);
-  },
-  has: function(searchKey) {
-    return this.get(searchKey, NOT_SET) !== NOT_SET;
+  flip: function() {
+    return flipFactory(this);
   },
   get: function(searchKey, notSetValue) {
     return this.find((function(_, key) {
@@ -450,48 +491,17 @@ var $Sequence = Sequence;
     }
     return nested;
   },
-  contains: function(searchValue) {
-    return this.find((function(value) {
-      return is(value, searchValue);
-    }), null, NOT_SET) !== NOT_SET;
+  groupBy: function(grouper, context) {
+    return groupByFactory(this, grouper, context, true);
   },
-  find: function(predicate, context, notSetValue) {
-    var foundValue = notSetValue;
-    this.__iterate((function(v, k, c) {
-      if (predicate.call(context, v, k, c)) {
-        foundValue = v;
-        return false;
-      }
-    }));
-    return foundValue;
+  has: function(searchKey) {
+    return this.get(searchKey, NOT_SET) !== NOT_SET;
   },
-  findKey: function(predicate, context) {
-    var foundKey;
-    this.__iterate((function(v, k, c) {
-      if (predicate.call(context, v, k, c)) {
-        foundKey = k;
-        return false;
-      }
-    }));
-    return foundKey;
+  keySeq: function() {
+    return this.flip().valueSeq();
   },
-  findLast: function(predicate, context, notSetValue) {
-    return this.toKeyedSeq().reverse().find(predicate, context, notSetValue);
-  },
-  findLastKey: function(predicate, context) {
-    return this.toKeyedSeq().reverse().findKey(predicate, context);
-  },
-  flip: function() {
-    return flipFactory(this);
-  },
-  map: function(mapper, context) {
-    return mapFactory(this, mapper, context);
-  },
-  mapKeys: function(mapper, context) {
-    var $__0 = this;
-    return this.flip().map((function(k, v) {
-      return mapper.call(context, k, v, $__0);
-    })).flip();
+  last: function() {
+    return this.findLast(returnTrue);
   },
   mapEntries: function(mapper, context) {
     var $__0 = this;
@@ -499,32 +509,14 @@ var $Sequence = Sequence;
       return mapper.call(context, entry, index, $__0);
     })).fromEntrySeq();
   },
-  filter: function(predicate, context) {
-    return filterFactory(this, predicate, context, true);
+  mapKeys: function(mapper, context) {
+    var $__0 = this;
+    return this.flip().map((function(k, v) {
+      return mapper.call(context, k, v, $__0);
+    })).flip();
   },
-  slice: function(begin, end) {
-    if (wholeSlice(begin, end, this.length)) {
-      return this;
-    }
-    var resolvedBegin = resolveBegin(begin, this.length);
-    var resolvedEnd = resolveEnd(end, this.length);
-    if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd) {
-      return this.cacheResult().slice(begin, end);
-    }
-    var skipped = resolvedBegin === 0 ? this : this.skip(resolvedBegin);
-    return resolvedEnd == null || resolvedEnd === this.length ? skipped : skipped.take(resolvedEnd - resolvedBegin);
-  },
-  take: function(amount) {
-    return takeFactory(this, amount);
-  },
-  takeLast: function(amount) {
-    return this.reverse().take(amount).reverse();
-  },
-  takeWhile: function(predicate, context) {
-    return takeWhileFactory(this, predicate, context);
-  },
-  takeUntil: function(predicate, context) {
-    return this.takeWhile(not(predicate), context);
+  rest: function() {
+    return this.slice(1);
   },
   skip: function(amount) {
     return skipFactory(this, amount, true);
@@ -538,18 +530,30 @@ var $Sequence = Sequence;
   skipUntil: function(predicate, context) {
     return this.skipWhile(not(predicate), context);
   },
-  groupBy: function(grouper, context) {
-    return groupByFactory(this, grouper, context, true);
-  },
-  sort: function(comparator) {
-    return this.sortBy(valueMapper, comparator);
-  },
   sortBy: function(mapper, comparator) {
     comparator = comparator || defaultComparator;
     var seq = this;
     return $Sequence(this.entrySeq().entrySeq().toArray().sort((function(a, b) {
       return comparator(mapper(a[1][1], a[1][0], seq), mapper(b[1][1], b[1][0], seq)) || a[0] - b[0];
     }))).fromEntrySeq().valueSeq().fromEntrySeq();
+  },
+  take: function(amount) {
+    return takeFactory(this, amount);
+  },
+  takeLast: function(amount) {
+    return this.reverse().take(amount).reverse();
+  },
+  takeWhile: function(predicate, context) {
+    return takeWhileFactory(this, predicate, context);
+  },
+  takeUntil: function(predicate, context) {
+    return this.takeWhile(not(predicate), context);
+  },
+  toKeyedSeq: function() {
+    return this;
+  },
+  valueSeq: function() {
+    return new ValuesSequence(this);
   },
   cacheResult: function() {
     if (!this._cache && this.__iterateUncached) {
@@ -561,23 +565,19 @@ var $Sequence = Sequence;
     }
     return this;
   },
-  keys: function() {
-    return this.__iterator(ITERATE_KEYS);
+  hashCode: function() {
+    return this.__hash || (this.__hash = this.length === Infinity ? 0 : this.reduce((function(h, v, k) {
+      return (h + (hash(v) ^ (v === k ? 0 : hash(k)))) & HASH_MAX_VAL;
+    }), 0));
   },
-  values: function() {
-    return this.__iterator(ITERATE_VALUES);
-  },
-  entries: function() {
-    return this.__iterator(ITERATE_ENTRIES);
+  __makeSequence: function() {
+    return Object.create(SequencePrototype);
   },
   __iterate: function(fn, reverse) {
     return iterate(this, fn, reverse, true);
   },
   __iterator: function(type, reverse) {
     return iterator(this, type, reverse, true);
-  },
-  __makeSequence: function() {
-    return Object.create(SequencePrototype);
   }
 }, {from: function(value) {
     if (value instanceof $Sequence) {
@@ -613,15 +613,6 @@ var $IndexedSequence = IndexedSequence;
   toString: function() {
     return this.__toString('Seq [', ']');
   },
-  toKeyedSeq: function() {
-    return new KeyedIndexedSequence(this);
-  },
-  valueSeq: function() {
-    return this;
-  },
-  fromEntrySeq: function() {
-    return new FromEntriesSequence(this);
-  },
   concat: function() {
     for (var values = [],
         $__3 = 0; $__3 < arguments.length; $__3++)
@@ -631,21 +622,9 @@ var $IndexedSequence = IndexedSequence;
   filter: function(predicate, context) {
     return filterFactory(this, predicate, context, false);
   },
-  get: function(index, notSetValue) {
-    index = wrapIndex(this, index);
-    return (index < 0 || (this.length === Infinity || (this.length != null && index > this.length))) ? notSetValue : this.find((function(_, key) {
-      return key === index;
-    }), null, notSetValue);
-  },
-  has: function(index) {
-    index = wrapIndex(this, index);
-    return index >= 0 && (this.length != null ? this.length === Infinity || index < this.length : this.indexOf(index) !== -1);
-  },
-  first: function() {
-    return this.get(0);
-  },
-  last: function() {
-    return this.get(this.length ? this.length - 1 : 0);
+  findIndex: function(predicate, context) {
+    var key = this.findKey(predicate, context);
+    return key == null ? -1 : key;
   },
   indexOf: function(searchValue) {
     return this.findIndex((function(value) {
@@ -654,13 +633,6 @@ var $IndexedSequence = IndexedSequence;
   },
   lastIndexOf: function(searchValue) {
     return this.toKeyedSeq().reverse().indexOf(searchValue);
-  },
-  findIndex: function(predicate, context) {
-    var key = this.findKey(predicate, context);
-    return key == null ? -1 : key;
-  },
-  findLastIndex: function(predicate, context) {
-    return this.toKeyedSeq().reverse().findIndex(predicate, context);
   },
   splice: function(index, removeNum) {
     var numArgs = arguments.length;
@@ -672,21 +644,36 @@ var $IndexedSequence = IndexedSequence;
     var spliced = this.slice(0, index);
     return numArgs === 1 ? spliced : spliced.concat(arrCopy(arguments, 2), this.slice(index + removeNum));
   },
-  flip: function() {
-    return flipFactory(this.toKeyedSeq());
+  findLastIndex: function(predicate, context) {
+    return this.toKeyedSeq().reverse().findIndex(predicate, context);
+  },
+  first: function() {
+    return this.get(0);
   },
   flatten: function() {
     return flattenFactory(this, false);
   },
-  take: function(amount) {
-    var $__0 = this;
-    var takeSeq = takeFactory(this, amount);
-    if (takeSeq !== this) {
-      takeSeq.get = (function(index, notSetValue) {
-        return index < amount ? $__0.get(index, notSetValue) : notSetValue;
-      });
-    }
-    return takeSeq;
+  flip: function() {
+    return flipFactory(this.toKeyedSeq());
+  },
+  fromEntrySeq: function() {
+    return new FromEntriesSequence(this);
+  },
+  get: function(index, notSetValue) {
+    index = wrapIndex(this, index);
+    return (index < 0 || (this.length === Infinity || (this.length != null && index > this.length))) ? notSetValue : this.find((function(_, key) {
+      return key === index;
+    }), null, notSetValue);
+  },
+  groupBy: function(grouper, context) {
+    return groupByFactory(this, grouper, context, false);
+  },
+  has: function(index) {
+    index = wrapIndex(this, index);
+    return index >= 0 && (this.length != null ? this.length === Infinity || index < this.length : this.indexOf(index) !== -1);
+  },
+  last: function() {
+    return this.get(this.length ? this.length - 1 : 0);
   },
   skip: function(amount) {
     var $__0 = this;
@@ -701,9 +688,6 @@ var $IndexedSequence = IndexedSequence;
   skipWhile: function(predicate, context) {
     return skipWhileFactory(this, predicate, context, false);
   },
-  groupBy: function(grouper, context) {
-    return groupByFactory(this, grouper, context, false);
-  },
   sortBy: function(mapper, comparator) {
     comparator = comparator || defaultComparator;
     var seq = this;
@@ -711,14 +695,30 @@ var $IndexedSequence = IndexedSequence;
       return comparator(mapper(a[1], a[0], seq), mapper(b[1], b[0], seq)) || a[0] - b[0];
     }))).fromEntrySeq().valueSeq();
   },
+  take: function(amount) {
+    var $__0 = this;
+    var takeSeq = takeFactory(this, amount);
+    if (takeSeq !== this) {
+      takeSeq.get = (function(index, notSetValue) {
+        return index < amount ? $__0.get(index, notSetValue) : notSetValue;
+      });
+    }
+    return takeSeq;
+  },
+  toKeyedSeq: function() {
+    return new KeyedIndexedSequence(this);
+  },
+  valueSeq: function() {
+    return this;
+  },
+  __makeSequence: function() {
+    return Object.create(IndexedSequencePrototype);
+  },
   __iterate: function(fn, reverse) {
     return iterate(this, fn, reverse, false);
   },
   __iterator: function(type, reverse) {
     return iterator(this, type, reverse, false);
-  },
-  __makeSequence: function() {
-    return Object.create(IndexedSequencePrototype);
   }
 }, {}, Sequence);
 var IndexedSequencePrototype = IndexedSequence.prototype;

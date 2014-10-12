@@ -231,7 +231,7 @@ declare module 'immutable' {
     length: number;
 
 
-    // ### Sequential methods mirring those found on Array and Map (ES6)
+    // ### ES6 Sequence methods (ES6 Array and Map)
 
     /**
      * Returns a new sequence with other values and sequences concatenated to
@@ -736,7 +736,7 @@ declare module 'immutable' {
 
   export interface IndexedSequence<T> extends Sequence<number, T> {
 
-    // ### Sequential methods mirring those found on Array (ES6)
+    // ### ES6 Sequence methods (ES6 Array and Map)
 
     /**
      * This new behavior will iterate through the values and sequences with
