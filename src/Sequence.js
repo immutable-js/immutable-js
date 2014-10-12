@@ -1229,6 +1229,7 @@ function takeFactory(sequence, amount) {
     amount = 0;
   }
   var takeSequence = sequence.__makeSequence();
+  takeSequence.length = sequence.length && Math.min(sequence.length, amount);
   takeSequence.__iterateUncached = function(fn, reverse) {
     if (amount === 0) {
       return 0;
@@ -1256,7 +1257,6 @@ function takeFactory(sequence, amount) {
       return iterator.next();
     });
   };
-  takeSequence.length = sequence.length && Math.min(sequence.length, amount);
   return takeSequence;
 }
 
@@ -1305,6 +1305,7 @@ function skipFactory(sequence, amount, useKeys) {
     return sequence;
   }
   var skipSequence = sequence.__makeSequence();
+  skipSequence.length = sequence.length && Math.max(0, sequence.length - amount);
   skipSequence.__iterateUncached = function (fn, reverse) {
     if (reverse) {
       return this.cacheResult().__iterate(fn, reverse);
@@ -1334,7 +1335,6 @@ function skipFactory(sequence, amount, useKeys) {
       return iterator.next();
     });
   };
-  skipSequence.length = sequence.length && Math.max(0, sequence.length - amount);
   return skipSequence;
 }
 
