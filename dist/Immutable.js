@@ -1641,9 +1641,9 @@ var $Map = Map;
     return arguments.length === 1 ? this.updateIn([], null, k) : this.updateIn([k], notSetValue, updater);
   },
   updateIn: function(keyPath, notSetValue, updater) {
-    var $__13;
+    var $__14;
     if (!updater) {
-      ($__13 = [notSetValue, updater], updater = $__13[0], notSetValue = $__13[1], $__13);
+      ($__14 = [notSetValue, updater], updater = $__14[0], notSetValue = $__14[1], $__14);
     }
     return updateInDeepMap(this, keyPath, notSetValue, updater, 0);
   },
@@ -2670,10 +2670,180 @@ function getTailOffset(size) {
   return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
 }
 var EMPTY_VECT;
-var Set = function Set() {
+var Stack = function Stack() {
   for (var values = [],
       $__9 = 0; $__9 < arguments.length; $__9++)
     values[$__9] = arguments[$__9];
+  return $Stack.from(values);
+};
+var $Stack = Stack;
+($traceurRuntime.createClass)(Stack, {
+  toString: function() {
+    return this.__toString('Stack [', ']');
+  },
+  get: function(index, notSetValue) {
+    var head = this._head;
+    while (head && index--) {
+      head = head.next;
+    }
+    return head ? head.value : notSetValue;
+  },
+  peek: function() {
+    return this._head && this._head.value;
+  },
+  unshift: function() {
+    if (arguments.length === 0) {
+      return this;
+    }
+    var newLength = this.length + arguments.length;
+    var head = this._head;
+    for (var ii = arguments.length - 1; ii >= 0; ii--) {
+      head = {
+        value: arguments[ii],
+        next: head
+      };
+    }
+    if (this.__ownerID) {
+      this.length = newLength;
+      this._head = head;
+      this.__hash = undefined;
+      this.__altered = true;
+      return this;
+    }
+    return makeStack(newLength, head);
+  },
+  unshiftAll: function(seq) {
+    seq = Sequence(seq);
+    if (seq.length === 0) {
+      return this;
+    }
+    var newLength = this.length;
+    var head = this._head;
+    seq.reverse().forEach((function(value) {
+      newLength++;
+      head = {
+        value: value,
+        next: head
+      };
+    }));
+    if (this.__ownerID) {
+      this.length = newLength;
+      this._head = head;
+      this.__hash = undefined;
+      this.__altered = true;
+      return this;
+    }
+    return makeStack(newLength, head);
+  },
+  shift: function() {
+    return this.slice(1);
+  },
+  clear: function() {
+    if (this.length === 0) {
+      return this;
+    }
+    if (this.__ownerID) {
+      this.length = 0;
+      this._head = undefined;
+      this.__hash = undefined;
+      this.__altered = true;
+      return this;
+    }
+    return $Stack.empty();
+  },
+  slice: function(begin, end) {
+    if (wholeSlice(begin, end, this.length)) {
+      return this;
+    }
+    var resolvedBegin = resolveBegin(begin, this.length);
+    var resolvedEnd = resolveEnd(end, this.length);
+    if (resolvedEnd !== this.length) {
+      return $traceurRuntime.superCall(this, $Stack.prototype, "slice", [begin, end]);
+    }
+    var newLength = this.length - resolvedBegin;
+    var head = this._head;
+    while (resolvedBegin--) {
+      head = head.next;
+    }
+    if (this.__ownerID) {
+      this.length = newLength;
+      this._head = head;
+      this.__hash = undefined;
+      this.__altered = true;
+      return this;
+    }
+    return makeStack(newLength, head);
+  },
+  __ensureOwner: function(ownerID) {
+    if (ownerID === this.__ownerID) {
+      return this;
+    }
+    if (!ownerID) {
+      this.__ownerID = ownerID;
+      this.__altered = false;
+      return this;
+    }
+    return makeStack(this.length, this._head, ownerID, this.__hash);
+  },
+  __iterateUncached: function(fn, reverse) {
+    if (reverse) {
+      return this.cacheResult().__iterate(fn, reverse);
+    }
+    var iterations = 0;
+    var node = this._head;
+    while (node) {
+      if (fn(node.value, iterations++, this) === false) {
+        break;
+      }
+      node = node.next;
+    }
+    return iterations;
+  },
+  __iteratorUncached: function(type, reverse) {
+    if (reverse) {
+      return this.cacheResult().__iterator(type, reverse);
+    }
+    var iterations = 0;
+    var node = this._head;
+    return new Iterator((function() {
+      if (node) {
+        var value = node.value;
+        node = node.next;
+        return iteratorValue(type, iterations++, value);
+      }
+      return iteratorDone();
+    }));
+  }
+}, {
+  empty: function() {
+    return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
+  },
+  from: function(sequence) {
+    var stack = $Stack.empty();
+    return sequence ? sequence.constructor === $Stack ? sequence : stack.unshiftAll(sequence) : stack;
+  }
+}, IndexedSequence);
+var StackPrototype = Stack.prototype;
+StackPrototype.push = StackPrototype.unshift;
+StackPrototype.pop = StackPrototype.shift;
+StackPrototype.withMutations = MapPrototype.withMutations;
+StackPrototype.asMutable = MapPrototype.asMutable;
+StackPrototype.asImmutable = MapPrototype.asImmutable;
+StackPrototype.wasAltered = MapPrototype.wasAltered;
+function makeStack(length, head, ownerID, hash) {
+  var map = Object.create(StackPrototype);
+  map.length = length;
+  map._head = head;
+  map.__ownerID = ownerID;
+  map.__hash = hash;
+  map.__altered = false;
+  return map;
+}
+var EMPTY_STACK;
+var Set = function Set() {
+  for (var values = [],
+      $__10 = 0; $__10 < arguments.length; $__10++)
+    values[$__10] = arguments[$__10];
   return $Set.from(values);
 };
 var $Set = Set;
@@ -2731,8 +2901,8 @@ var $Set = Set;
   },
   intersect: function() {
     for (var seqs = [],
-        $__10 = 0; $__10 < arguments.length; $__10++)
-      seqs[$__10] = arguments[$__10];
+        $__11 = 0; $__11 < arguments.length; $__11++)
+      seqs[$__11] = arguments[$__11];
     if (seqs.length === 0) {
       return this;
     }
@@ -2752,8 +2922,8 @@ var $Set = Set;
   },
   subtract: function() {
     for (var seqs = [],
-        $__11 = 0; $__11 < arguments.length; $__11++)
-      seqs[$__11] = arguments[$__11];
+        $__12 = 0; $__12 < arguments.length; $__12++)
+      seqs[$__12] = arguments[$__12];
     if (seqs.length === 0) {
       return this;
     }
@@ -2832,8 +3002,8 @@ SetPrototype.contains = SetPrototype.has;
 SetPrototype.mergeDeep = SetPrototype.merge = SetPrototype.union;
 SetPrototype.mergeDeepWith = SetPrototype.mergeWith = function(merger) {
   for (var seqs = [],
-      $__12 = 1; $__12 < arguments.length; $__12++)
-    seqs[$__12 - 1] = arguments[$__12];
+      $__13 = 1; $__13 < arguments.length; $__13++)
+    seqs[$__13 - 1] = arguments[$__13];
   return this.merge.apply(this, seqs);
 };
 SetPrototype.withMutations = MapPrototype.withMutations;
@@ -3266,6 +3436,7 @@ var Immutable = {
   Sequence: Sequence,
   Map: Map,
   Vector: Vector,
+  Stack: Stack,
   Set: Set,
   OrderedMap: OrderedMap,
   Record: Record,

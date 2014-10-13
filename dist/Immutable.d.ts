@@ -1645,7 +1645,7 @@ declare module 'immutable' {
     pop(): Vector<T>;
 
     /**
-     * Returns a new Vector with the provided `values` prepended, pushing other
+     * Returns a new Vector with the provided `values` prepended, shifting other
      * values ahead to higher indices.
      */
     unshift(...values: T[]): Vector<T>;
@@ -1655,8 +1655,8 @@ declare module 'immutable' {
      * the first index in this Vector, shifting all other values to a lower index.
      *
      * Note: this differs from `Array.prototype.shift` because it returns a new
-     * Vector rather than the removed value. Use `first()` to get the last value
-     * in this Vector.
+     * Vector rather than the removed value. Use `first()` to get the first
+     * value in this Vector.
      */
     shift(): Vector<T>;
 
@@ -1747,6 +1747,111 @@ declare module 'immutable' {
      * undefined values for the newly available indices.
      */
     setLength(length: number): Vector<T>;
+
+    /**
+     * @see `Map.prototype.withMutations`
+     */
+    withMutations(mutator: (mutable: Vector<T>) => any): Vector<T>;
+
+    /**
+     * @see `Map.prototype.asMutable`
+     */
+    asMutable(): Vector<T>;
+
+    /**
+     * @see `Map.prototype.asImmutable`
+     */
+    asImmutable(): Vector<T>;
+  }
+
+
+  /**
+   * Stack
+   * -----
+   *
+   * Stacks are indexed collections which support very efficient addition and
+   * removal from the front using `unshift(v)` and `shift()`.
+   *
+   * For familiarity, Stack also provides `push(v)`, `pop()`, and `peek()`, but
+   * be aware that they also operate on the front of the list, unlike Vector or
+   * a JavaScript Array.
+   */
+
+  export module Stack {
+
+    /**
+     * `Stack.empty()` returns a Stack of length 0.
+     */
+    function empty<T>(): Stack<T>;
+
+    /**
+     * `Stack.from()` returns a Stack of the same length of the provided
+     * `values` JavaScript Array or Sequence, containing the values at the
+     * same indices.
+     *
+     * If a non-indexed Sequence is provided, its keys will be discarded and
+     * its values will be used to fill the returned Stack.
+     */
+    function from<T>(array: Array<T>): Stack<T>;
+    function from<T>(sequence: Sequence<any, T>): Stack<T>;
+  }
+
+  /**
+   * Alias for `Stack.empty()`
+   */
+  export function Stack<T>(): Stack<T>;
+
+  /**
+   * Like `Stack.from()`, but accepts variable arguments instead of an Array.
+   */
+  export function Stack<T>(...values: T[]): Stack<T>;
+
+
+  export interface Stack<T> extends IndexedSequence<T> {
+
+    /**
+     * Returns a new Stack with 0 length and no values.
+     */
+    clear(): Stack<T>;
+
+    /**
+     * Returns a new Stack with the provided `values` prepended, shifting other
+     * values ahead to higher indices.
+     *
+     * This is very efficient for Stack.
+     */
+    unshift(...values: T[]): Stack<T>;
+
+    /**
+     * Like `Stack#unshift`, but accepts a sequencable rather than varargs.
+     */
+    unshiftAll(seq: Sequence<any, T>): Stack<T>;
+    unshiftAll(seq: Array<T>): Stack<T>;
+
+    /**
+     * Returns a new Stack with a length ones less than this Stack, excluding
+     * the first item in this Stack, shifting all other values to a lower index.
+     *
+     * Note: this differs from `Array.prototype.shift` because it returns a new
+     * Stack rather than the removed value. Use `first()` or `peek()` to get the
+     * first value in this Stack.
+     */
+    shift(): Stack<T>;
+
+    /**
+     * Alias for `Stack#unshift` and is not equivalent to `Vector#push`.
+     */
+    push(...values: T[]): Stack<T>;
+
+    /**
+     * Alias for `Stack#shift` and is not equivalent to `Vector#pop`.
+     */
+    pop(): Stack<T>;
+
+    /**
+     * Alias for `Stack.first()`.
+     */
+    peek(): T;
 
     /**
      * @see `Map.prototype.withMutations`

@@ -10,6 +10,7 @@
 import "Sequence"
 import "Map"
 import "Vector"
+import "Stack"
 import "Set"
 import "OrderedMap"
 import "Record"
@@ -17,7 +18,7 @@ import "Range"
 import "Repeat"
 import "is"
 import "fromJS"
-/* global Sequence, Map, Vector, Set, OrderedMap, Record, Range, Repeat, is, fromJS */
+/* global Sequence, Map, Vector, Stack, Set, OrderedMap, Record, Range, Repeat, is, fromJS */
 /* exported Immutable */
 
 
@@ -25,6 +26,7 @@ var Immutable = {
   Sequence: Sequence,
   Map: Map,
   Vector: Vector,
+  Stack: Stack,
   Set: Set,
   OrderedMap: OrderedMap,
   Record: Record,
