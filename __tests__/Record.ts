@@ -28,21 +28,27 @@ describe('Record', () => {
     expect(t2.length).toBe(3);
   })
 
-  it('only persists values it knows about', () => {
+  it('only allows setting what it knows about', () => {
     var MyType = Record({a:1, b:2, c:3});
 
     var t1 = new MyType({a: 10, b:20});
-    var t2 = t1.set('d', 4);
-    var t3 = t2.remove('a');
+    expect(() => {
+      t1.set('d', 4);
+    }).toThrow('Cannot set unknown key "d" on Record');
+  });
+
+  it('has a fixed length and falls back to default values', () => {
+    var MyType = Record({a:1, b:2, c:3});
+
+    var t1 = new MyType({a: 10, b:20});
+    var t3 = t1.remove('a');
     var t4 = t3.clear();
 
     expect(t1.length).toBe(3);
-    expect(t2.length).toBe(3);
     expect(t3.length).toBe(3);
     expect(t4.length).toBe(3);
 
     expect(t1.get('a')).toBe(10);
-    expect(t2.get('d')).toBe(undefined);
     expect(t3.get('a')).toBe(1);
     expect(t4.get('b')).toBe(2);
   })

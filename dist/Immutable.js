@@ -3121,15 +3121,15 @@ var Record = function Record(defaultValues, name) {
     }
     this._map = Map(values);
   };
-  defaultValues = Sequence(defaultValues);
+  var keys = Object.keys(defaultValues);
   var RecordTypePrototype = RecordType.prototype = Object.create(RecordPrototype);
   RecordTypePrototype.constructor = RecordType;
-  RecordTypePrototype._name = name;
+  name && (RecordTypePrototype._name = name);
   RecordTypePrototype._defaultValues = defaultValues;
-  var keys = Object.keys(defaultValues);
-  RecordType.prototype.length = keys.length;
-  if (Object.defineProperty) {
-    defaultValues.forEach((function(_, key) {
+  RecordTypePrototype._keys = keys;
+  RecordTypePrototype.length = keys.length;
+  try {
+    Sequence(defaultValues).forEach((function(_, key) {
       Object.defineProperty(RecordType.prototype, key, {
         get: function() {
           return this.get(key);
@@ -3140,22 +3140,22 @@ var Record = function Record(defaultValues, name) {
         }
       });
     }));
-  }
+  } catch (error) {}
   return RecordType;
 };
 var $Record = Record;
 ($traceurRuntime.createClass)(Record, {
   toString: function() {
-    return this.__toString((this._name || 'Record') + ' {', '}');
+    return this.__toString(this._name + ' {', '}');
   },
   has: function(k) {
-    return this._defaultValues.has(k);
+    return this._defaultValues.hasOwnProperty(k);
   },
   get: function(k, notSetValue) {
     if (notSetValue !== undefined && !this.has(k)) {
       return notSetValue;
     }
-    return this._map.get(k, this._defaultValues.get(k));
+    return this._map.get(k, this._defaultValues[k]);
   },
   clear: function() {
     if (this.__ownerID) {
@@ -3166,8 +3166,8 @@ var $Record = Record;
     return $Record._empty || ($Record._empty = makeRecord(this, Map.empty()));
   },
   set: function(k, v) {
-    if (k == null || !this.has(k)) {
-      return this;
+    if (!this.has(k)) {
+      throw new Error('Cannot set unknown key "' + k + '" on ' + this._name);
     }
     var newMap = this._map.set(k, v);
     if (this.__ownerID || newMap === this._map) {
@@ -3201,9 +3201,9 @@ var $Record = Record;
     return this._map.__iterator(type, reverse);
   },
   __iterate: function(fn, reverse) {
-    var record = this;
-    return this._defaultValues.map((function(_, k) {
-      return record.get(k);
+    var $__0 = this;
+    return Sequence(this._defaultValues).map((function(_, k) {
+      return $__0.get(k);
     })).__iterate(fn, reverse);
   },
   __ensureOwner: function(ownerID) {
@@ -3220,6 +3220,7 @@ var $Record = Record;
   }
 }, {}, Sequence);
 var RecordPrototype = Record.prototype;
+RecordPrototype._name = 'Record';
 RecordPrototype[DELETE] = RecordPrototype.remove;
 RecordPrototype.merge = MapPrototype.merge;
 RecordPrototype.mergeWith = MapPrototype.mergeWith;

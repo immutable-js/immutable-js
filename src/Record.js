@@ -24,16 +24,18 @@ class Record extends Sequence {
       }
       this._map = Map(values);
     };
-    defaultValues = Sequence(defaultValues);
-    var RecordTypePrototype = RecordType.prototype = Object.create(RecordPrototype);
-    RecordTypePrototype.constructor = RecordType;
-    RecordTypePrototype._name = name;
-    RecordTypePrototype._defaultValues = defaultValues;
 
     var keys = Object.keys(defaultValues);
-    RecordType.prototype.length = keys.length;
-    if (Object.defineProperty) {
-      defaultValues.forEach((_, key) => {
+
+    var RecordTypePrototype = RecordType.prototype = Object.create(RecordPrototype);
+    RecordTypePrototype.constructor = RecordType;
+    name && (RecordTypePrototype._name = name);
+    RecordTypePrototype._defaultValues = defaultValues;
+    RecordTypePrototype._keys = keys;
+    RecordTypePrototype.length = keys.length;
+
+    try {
+      Sequence(defaultValues).forEach((_, key) => {
         Object.defineProperty(RecordType.prototype, key, {
           get: function() {
             return this.get(key);
@@ -44,26 +46,28 @@ class Record extends Sequence {
           }
         });
       });
+    } catch (error) {
+      // Object.defineProperty failed. Probably IE8.
     }
 
     return RecordType;
   }
 
   toString() {
-    return this.__toString((this._name || 'Record') + ' {', '}');
+    return this.__toString(this._name + ' {', '}');
   }
 
   // @pragma Access
 
   has(k) {
-    return this._defaultValues.has(k);
+    return this._defaultValues.hasOwnProperty(k);
   }
 
   get(k, notSetValue) {
     if (notSetValue !== undefined && !this.has(k)) {
       return notSetValue;
     }
-    return this._map.get(k, this._defaultValues.get(k));
+    return this._map.get(k, this._defaultValues[k]);
   }
 
   // @pragma Modification
@@ -78,8 +82,8 @@ class Record extends Sequence {
   }
 
   set(k, v) {
-    if (k == null || !this.has(k)) {
-      return this;
+    if (!this.has(k)) {
+      throw new Error('Cannot set unknown key "' + k + '" on ' + this._name);
     }
     var newMap = this._map.set(k, v);
     if (this.__ownerID || newMap === this._map) {
@@ -120,8 +124,7 @@ class Record extends Sequence {
   }
 
   __iterate(fn, reverse) {
-    var record = this;
-    return this._defaultValues.map((_, k) => record.get(k)).__iterate(fn, reverse);
+    return Sequence(this._defaultValues).map((_, k) => this.get(k)).__iterate(fn, reverse);
   }
 
   __ensureOwner(ownerID) {
@@ -139,6 +142,7 @@ class Record extends Sequence {
 }
 
 var RecordPrototype = Record.prototype;
+RecordPrototype._name = 'Record';
 RecordPrototype[DELETE] = RecordPrototype.remove;
 RecordPrototype.merge = MapPrototype.merge;
 RecordPrototype.mergeWith = MapPrototype.mergeWith;
