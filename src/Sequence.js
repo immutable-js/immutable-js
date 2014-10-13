@@ -593,9 +593,14 @@ class IndexedSequence extends Sequence {
   }
 
   skip(amount) {
-    var skipSeq = skipFactory(this, amount, false);
-    if (skipSeq !== this) {
-      skipSeq.get = (index, notSetValue) => this.get(index + amount, notSetValue);
+    var seq = this;
+    var skipSeq = skipFactory(seq, amount, false);
+    if (skipSeq !== seq) {
+      skipSeq.get = function (index, notSetValue) {
+        index = wrapIndex(this, index);
+        return index < 0 ? notSetValue :
+          seq.get(index + amount, notSetValue);
+      }
     }
     return skipSeq;
   }
@@ -616,10 +621,13 @@ class IndexedSequence extends Sequence {
   }
 
   take(amount) {
-    var takeSeq = takeFactory(this, amount);
-    if (takeSeq !== this) {
-      takeSeq.get = (index, notSetValue) =>
-        index < amount ? this.get(index, notSetValue) : notSetValue;
+    var seq = this;
+    var takeSeq = takeFactory(seq, amount);
+    if (takeSeq !== seq) {
+      takeSeq.get = function (index, notSetValue) {
+        index = wrapIndex(this, index);
+        return index < amount ? seq.get(index, notSetValue) : notSetValue;
+      }
     }
     return takeSeq;
   }

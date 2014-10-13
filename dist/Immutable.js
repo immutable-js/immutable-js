@@ -679,12 +679,13 @@ var $IndexedSequence = IndexedSequence;
     return this.get(this.length ? this.length - 1 : 0);
   },
   skip: function(amount) {
-    var $__0 = this;
-    var skipSeq = skipFactory(this, amount, false);
-    if (skipSeq !== this) {
-      skipSeq.get = (function(index, notSetValue) {
-        return $__0.get(index + amount, notSetValue);
-      });
+    var seq = this;
+    var skipSeq = skipFactory(seq, amount, false);
+    if (skipSeq !== seq) {
+      skipSeq.get = function(index, notSetValue) {
+        index = wrapIndex(this, index);
+        return index < 0 ? notSetValue : seq.get(index + amount, notSetValue);
+      };
     }
     return skipSeq;
   },
@@ -699,12 +700,13 @@ var $IndexedSequence = IndexedSequence;
     }))).fromEntrySeq().valueSeq();
   },
   take: function(amount) {
-    var $__0 = this;
-    var takeSeq = takeFactory(this, amount);
-    if (takeSeq !== this) {
-      takeSeq.get = (function(index, notSetValue) {
-        return index < amount ? $__0.get(index, notSetValue) : notSetValue;
-      });
+    var seq = this;
+    var takeSeq = takeFactory(seq, amount);
+    if (takeSeq !== seq) {
+      takeSeq.get = function(index, notSetValue) {
+        index = wrapIndex(this, index);
+        return index < amount ? seq.get(index, notSetValue) : notSetValue;
+      };
     }
     return takeSeq;
   },
