@@ -684,7 +684,7 @@ var $IndexedSequence = IndexedSequence;
     if (skipSeq !== seq) {
       skipSeq.get = function(index, notSetValue) {
         index = wrapIndex(this, index);
-        return index < 0 ? notSetValue : seq.get(index + amount, notSetValue);
+        return index >= 0 ? seq.get(index + amount, notSetValue) : notSetValue;
       };
     }
     return skipSeq;
@@ -705,7 +705,7 @@ var $IndexedSequence = IndexedSequence;
     if (takeSeq !== seq) {
       takeSeq.get = function(index, notSetValue) {
         index = wrapIndex(this, index);
-        return index < amount ? seq.get(index, notSetValue) : notSetValue;
+        return index >= 0 && index < amount ? seq.get(index, notSetValue) : notSetValue;
       };
     }
     return takeSeq;
@@ -3270,8 +3270,7 @@ var $Range = Range;
     return 'Range [ ' + this._start + '...' + this._end + (this._step > 1 ? ' by ' + this._step : '') + ' ]';
   },
   get: function(index, notSetValue) {
-    index = wrapIndex(this, index);
-    return this.has(index) ? this._start + index * this._step : notSetValue;
+    return this.has(index) ? this._start + wrapIndex(this, index) * this._step : notSetValue;
   },
   contains: function(searchValue) {
     var possibleIndex = (searchValue - this._start) / this._step;

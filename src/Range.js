@@ -57,9 +57,8 @@ class Range extends IndexedSequence {
   }
 
   get(index, notSetValue) {
-    index = wrapIndex(this, index);
     return this.has(index) ?
-      this._start + index * this._step :
+      this._start + wrapIndex(this, index) * this._step :
       notSetValue;
   }
 

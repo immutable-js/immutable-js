@@ -598,8 +598,7 @@ class IndexedSequence extends Sequence {
     if (skipSeq !== seq) {
       skipSeq.get = function (index, notSetValue) {
         index = wrapIndex(this, index);
-        return index < 0 ? notSetValue :
-          seq.get(index + amount, notSetValue);
+        return index >= 0 ? seq.get(index + amount, notSetValue) : notSetValue;
       }
     }
     return skipSeq;
@@ -626,7 +625,7 @@ class IndexedSequence extends Sequence {
     if (takeSeq !== seq) {
       takeSeq.get = function (index, notSetValue) {
         index = wrapIndex(this, index);
-        return index < amount ? seq.get(index, notSetValue) : notSetValue;
+        return index >= 0 && index < amount ? seq.get(index, notSetValue) : notSetValue;
       }
     }
     return takeSeq;
