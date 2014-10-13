@@ -683,7 +683,7 @@ var $IndexedSequence = IndexedSequence;
     var skipSeq = skipFactory(this, amount, false);
     if (skipSeq !== this) {
       skipSeq.get = (function(index, notSetValue) {
-        return $__0.get(index - amount, notSetValue);
+        return $__0.get(index + amount, notSetValue);
       });
     }
     return skipSeq;
