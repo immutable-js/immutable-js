@@ -595,7 +595,7 @@ class IndexedSequence extends Sequence {
   skip(amount) {
     var skipSeq = skipFactory(this, amount, false);
     if (skipSeq !== this) {
-      skipSeq.get = (index, notSetValue) => this.get(index - amount, notSetValue);
+      skipSeq.get = (index, notSetValue) => this.get(index + amount, notSetValue);
     }
     return skipSeq;
   }
