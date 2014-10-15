@@ -7,14 +7,14 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "Sequence"
 import "is"
+import "Sequence"
 import "invariant"
 import "Cursor"
 import "TrieUtils"
 import "Hash"
 import "Iterator"
-/* global Sequence, IndexedSequence, is, invariant, Cursor,
+/* global is, Sequence, IndexedSequence, invariant, makeCursor,
           DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
           MakeRef, SetRef, arrCopy, hash,
           Iterator, iteratorValue, iteratorDone */
@@ -114,7 +114,7 @@ class Map extends Sequence {
     } else if (!Array.isArray(keyPath)) {
       keyPath = [keyPath];
     }
-    return new Cursor(this, keyPath, onChange);
+    return makeCursor(this, keyPath, onChange);
   }
 
   // @pragma Mutability

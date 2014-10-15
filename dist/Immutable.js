@@ -41,6 +41,18 @@ $traceurRuntime.createClass = createClass;
 $traceurRuntime.superCall = superCall;
 $traceurRuntime.defaultSuperCall = defaultSuperCall;
 "use strict";
+function is(first, second) {
+  if (first === second) {
+    return first !== 0 || second !== 0 || 1 / first === 1 / second;
+  }
+  if (first !== first) {
+    return second !== second;
+  }
+  if (first && typeof first.equals === 'function') {
+    return first.equals(second);
+  }
+  return false;
+}
 var DELETE = 'delete';
 var SHIFT = 5;
 var SIZE = 1 << SHIFT;
@@ -1514,14 +1526,16 @@ function interposeFactory(sequence, separator) {
   };
   return interposedSequence;
 }
-var Cursor = function Cursor(rootData, keyPath, onChange, value) {
-  value = value ? value : rootData.getIn(keyPath);
-  this.length = value instanceof Sequence ? value.length : null;
+var Cursor = function Cursor(rootData, keyPath, onChange, length) {
+  this.length = length;
   this._rootData = rootData;
   this._keyPath = keyPath;
   this._onChange = onChange;
 };
 ($traceurRuntime.createClass)(Cursor, {
+  equals: function(second) {
+    return is(this.deref(), second && (typeof second.deref === 'function' ? second.deref() : second));
+  },
   deref: function(notSetValue) {
     return this._rootData.getIn(this._keyPath, notSetValue);
   },
@@ -1588,35 +1602,24 @@ var Cursor = function Cursor(rootData, keyPath, onChange, value) {
 }, {}, Sequence);
 Cursor.prototype[DELETE] = Cursor.prototype.remove;
 Cursor.prototype.getIn = Cursor.prototype.get;
+function makeCursor(rootData, keyPath, onChange, value) {
+  if (arguments.length < 4) {
+    value = rootData.getIn(keyPath);
+  }
+  var length = value instanceof Sequence ? value.length : null;
+  return new Cursor(rootData, keyPath, onChange, length);
+}
 function wrappedValue(cursor, key, value) {
   return value instanceof Sequence ? subCursor(cursor, key, value) : value;
 }
 function subCursor(cursor, key, value) {
-  return new Cursor(cursor._rootData, cursor._keyPath.concat(key), cursor._onChange, value);
+  return makeCursor(cursor._rootData, cursor._keyPath.concat(key), cursor._onChange, value);
 }
 function updateCursor(cursor, changeFn, changeKey) {
   var newRootData = cursor._rootData.updateIn(cursor._keyPath, changeKey ? Map.empty() : undefined, changeFn);
   var keyPath = cursor._keyPath || [];
   cursor._onChange && cursor._onChange.call(undefined, newRootData, cursor._rootData, changeKey ? keyPath.concat(changeKey) : keyPath);
-  return new Cursor(newRootData, cursor._keyPath, cursor._onChange);
-}
-function is(first, second) {
-  if (first instanceof Cursor) {
-    first = first.deref();
-  }
-  if (second instanceof Cursor) {
-    second = second.deref();
-  }
-  if (first === second) {
-    return first !== 0 || second !== 0 || 1 / first === 1 / second;
-  }
-  if (first !== first) {
-    return second !== second;
-  }
-  if (first instanceof Sequence) {
-    return first.equals(second);
-  }
-  return false;
+  return makeCursor(newRootData, cursor._keyPath, cursor._onChange);
 }
 var Map = function Map(sequence) {
   var map = $Map.empty();
@@ -1686,7 +1689,7 @@ var $Map = Map;
     } else if (!Array.isArray(keyPath)) {
       keyPath = [keyPath];
     }
-    return new Cursor(this, keyPath, onChange);
+    return makeCursor(this, keyPath, onChange);
   },
   withMutations: function(fn) {
     var mutable = this.asMutable();

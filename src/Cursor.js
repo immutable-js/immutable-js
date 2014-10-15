@@ -7,20 +7,28 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "Map"
+import "is"
 import "Sequence"
+import "Map"
 import "TrieUtils"
 import "Iterator"
-/* global Map, Sequence, NOT_SET, DELETE,
+/* global is, Sequence, Map, NOT_SET, DELETE,
           ITERATE_ENTRIES, Iterator, iteratorDone, iteratorValue */
+/* exported makeCursor */
 
 class Cursor extends Sequence {
-  constructor(rootData, keyPath, onChange, value) {
-    value = value ? value : rootData.getIn(keyPath);
-    this.length = value instanceof Sequence ? value.length : null;
+  constructor(rootData, keyPath, onChange, length) {
+    this.length = length;
     this._rootData = rootData;
     this._keyPath = keyPath;
     this._onChange = onChange;
+  }
+
+  equals(second) {
+    return is(
+      this.deref(),
+      second && (typeof second.deref === 'function' ? second.deref() : second)
+    );
   }
 
   deref(notSetValue) {
@@ -92,12 +100,21 @@ class Cursor extends Sequence {
 Cursor.prototype[DELETE] = Cursor.prototype.remove;
 Cursor.prototype.getIn = Cursor.prototype.get;
 
+
+function makeCursor(rootData, keyPath, onChange, value) {
+  if (arguments.length < 4) {
+    value = rootData.getIn(keyPath);
+  }
+  var length = value instanceof Sequence ? value.length : null;
+  return new Cursor(rootData, keyPath, onChange, length);
+}
+
 function wrappedValue(cursor, key, value) {
   return value instanceof Sequence ? subCursor(cursor, key, value) : value;
 }
 
 function subCursor(cursor, key, value) {
-  return new Cursor(
+  return makeCursor(
     cursor._rootData,
     cursor._keyPath.concat(key),
     cursor._onChange,
@@ -118,5 +135,5 @@ function updateCursor(cursor, changeFn, changeKey) {
     cursor._rootData,
     changeKey ? keyPath.concat(changeKey) : keyPath
   );
-  return new Cursor(newRootData, cursor._keyPath, cursor._onChange);
+  return makeCursor(newRootData, cursor._keyPath, cursor._onChange);
 }

@@ -8,6 +8,7 @@
  */
 
 /* Sequence has implicit lazy dependencies */
+import "is"
 import "TrieUtils"
 import "invariant"
 import "Hash"
