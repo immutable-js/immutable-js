@@ -965,12 +965,8 @@ class ValuesSequence extends IndexedSequence {
     this.length = seq.length;
   }
 
-  get(key, notSetValue) {
-    return this._seq.get(key, notSetValue);
-  }
-
-  has(key) {
-    return this._seq.has(key);
+  contains(value) {
+    return this._seq.contains(value);
   }
 
   cacheResult() {

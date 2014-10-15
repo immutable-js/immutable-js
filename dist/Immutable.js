@@ -970,11 +970,8 @@ var ValuesSequence = function ValuesSequence(seq) {
   this.length = seq.length;
 };
 ($traceurRuntime.createClass)(ValuesSequence, {
-  get: function(key, notSetValue) {
-    return this._seq.get(key, notSetValue);
-  },
-  has: function(key) {
-    return this._seq.has(key);
+  contains: function(value) {
+    return this._seq.contains(value);
   },
   cacheResult: function() {
     this._seq.cacheResult();
