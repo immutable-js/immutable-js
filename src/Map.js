@@ -10,7 +10,7 @@
 import "is"
 import "Sequence"
 import "invariant"
-import "Cursor"
+// import "Cursor" // lazy dependency
 import "TrieUtils"
 import "Hash"
 import "Iterator"
@@ -62,13 +62,14 @@ class Map extends Sequence {
 
   update(k, notSetValue, updater) {
     return arguments.length === 1 ?
-      this.updateIn([], null, k) :
+      this.updateIn([], undefined, k) :
       this.updateIn([k], notSetValue, updater);
   }
 
   updateIn(keyPath, notSetValue, updater) {
     if (!updater) {
-      [updater, notSetValue] = [notSetValue, updater];
+      updater = notSetValue;
+      notSetValue = undefined;
     }
     return updateInDeepMap(this, keyPath, notSetValue, updater, 0);
   }
@@ -105,15 +106,11 @@ class Map extends Sequence {
     return mergeIntoMapWith(this, deepMerger(merger), seqs);
   }
 
-  cursor(keyPath, onChange) {
-    if (!onChange && typeof keyPath === 'function') {
-      onChange = keyPath;
-      keyPath = [];
-    } else if (arguments.length === 0) {
-      keyPath = [];
-    } else if (!Array.isArray(keyPath)) {
-      keyPath = [keyPath];
-    }
+  cursor(maybeKeyPath, onChange) {
+    var keyPath =
+      arguments.length === 0 ||
+      typeof maybeKeyPath === 'function' && (onChange = maybeKeyPath) ? [] :
+      Array.isArray(maybeKeyPath) ? maybeKeyPath : [maybeKeyPath];
     return makeCursor(this, keyPath, onChange);
   }
 

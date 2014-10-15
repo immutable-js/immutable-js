@@ -1526,101 +1526,6 @@ function interposeFactory(sequence, separator) {
   };
   return interposedSequence;
 }
-var Cursor = function Cursor(rootData, keyPath, onChange, length) {
-  this.length = length;
-  this._rootData = rootData;
-  this._keyPath = keyPath;
-  this._onChange = onChange;
-};
-($traceurRuntime.createClass)(Cursor, {
-  equals: function(second) {
-    return is(this.deref(), second && (typeof second.deref === 'function' ? second.deref() : second));
-  },
-  deref: function(notSetValue) {
-    return this._rootData.getIn(this._keyPath, notSetValue);
-  },
-  get: function(key, notSetValue) {
-    if (Array.isArray(key) && key.length === 0) {
-      return this;
-    }
-    var value = this._rootData.getIn(this._keyPath.concat(key), NOT_SET);
-    return value === NOT_SET ? notSetValue : wrappedValue(this, key, value);
-  },
-  set: function(key, value) {
-    return updateCursor(this, (function(m) {
-      return m.set(key, value);
-    }), key);
-  },
-  remove: function(key) {
-    return updateCursor(this, (function(m) {
-      return m.remove(key);
-    }), key);
-  },
-  clear: function() {
-    return updateCursor(this, (function(m) {
-      return m.clear();
-    }));
-  },
-  update: function(keyOrFn, notSetValue, updater) {
-    return arguments.length === 1 ? updateCursor(this, keyOrFn) : updateCursor(this, (function(map) {
-      return map.update(keyOrFn, notSetValue, updater);
-    }), keyOrFn);
-  },
-  withMutations: function(fn) {
-    return updateCursor(this, (function(m) {
-      return (m || Map.empty()).withMutations(fn);
-    }));
-  },
-  cursor: function(subKey) {
-    return Array.isArray(subKey) && subKey.length === 0 ? this : subCursor(this, subKey);
-  },
-  __iterate: function(fn, reverse) {
-    var $__0 = this;
-    var deref = this.deref();
-    return deref && deref.__iterate ? deref.__iterate((function(v, k) {
-      return fn(wrappedValue($__0, k, v), k, $__0);
-    }), reverse) : 0;
-  },
-  __iterator: function(type, reverse) {
-    var $__0 = this;
-    var deref = this.deref();
-    var iterator = deref && deref.__iterator && deref.__iterator(ITERATE_ENTRIES, reverse);
-    return new Iterator((function() {
-      if (!iterator) {
-        return iteratorDone();
-      }
-      var step = iterator.next();
-      if (step.done) {
-        return step;
-      }
-      var entry = step.value;
-      var k = entry[0];
-      var v = entry[1];
-      return iteratorValue(type, k, wrappedValue($__0, k, v), step);
-    }));
-  }
-}, {}, Sequence);
-Cursor.prototype[DELETE] = Cursor.prototype.remove;
-Cursor.prototype.getIn = Cursor.prototype.get;
-function makeCursor(rootData, keyPath, onChange, value) {
-  if (arguments.length < 4) {
-    value = rootData.getIn(keyPath);
-  }
-  var length = value instanceof Sequence ? value.length : null;
-  return new Cursor(rootData, keyPath, onChange, length);
-}
-function wrappedValue(cursor, key, value) {
-  return value instanceof Sequence ? subCursor(cursor, key, value) : value;
-}
-function subCursor(cursor, key, value) {
-  return makeCursor(cursor._rootData, cursor._keyPath.concat(key), cursor._onChange, value);
-}
-function updateCursor(cursor, changeFn, changeKey) {
-  var newRootData = cursor._rootData.updateIn(cursor._keyPath, changeKey ? Map.empty() : undefined, changeFn);
-  var keyPath = cursor._keyPath || [];
-  cursor._onChange && cursor._onChange.call(undefined, newRootData, cursor._rootData, changeKey ? keyPath.concat(changeKey) : keyPath);
-  return makeCursor(newRootData, cursor._keyPath, cursor._onChange);
-}
 var Map = function Map(sequence) {
   var map = $Map.empty();
   return sequence ? sequence.constructor === $Map ? sequence : map.merge(sequence) : map;
@@ -1640,12 +1545,12 @@ var $Map = Map;
     return updateMap(this, k, NOT_SET);
   },
   update: function(k, notSetValue, updater) {
-    return arguments.length === 1 ? this.updateIn([], null, k) : this.updateIn([k], notSetValue, updater);
+    return arguments.length === 1 ? this.updateIn([], undefined, k) : this.updateIn([k], notSetValue, updater);
   },
   updateIn: function(keyPath, notSetValue, updater) {
-    var $__14;
     if (!updater) {
-      ($__14 = [notSetValue, updater], updater = $__14[0], notSetValue = $__14[1], $__14);
+      updater = notSetValue;
+      notSetValue = undefined;
     }
     return updateInDeepMap(this, keyPath, notSetValue, updater, 0);
   },
@@ -1680,15 +1585,8 @@ var $Map = Map;
       seqs[$__5 - 1] = arguments[$__5];
     return mergeIntoMapWith(this, deepMerger(merger), seqs);
   },
-  cursor: function(keyPath, onChange) {
-    if (!onChange && typeof keyPath === 'function') {
-      onChange = keyPath;
-      keyPath = [];
-    } else if (arguments.length === 0) {
-      keyPath = [];
-    } else if (!Array.isArray(keyPath)) {
-      keyPath = [keyPath];
-    }
+  cursor: function(maybeKeyPath, onChange) {
+    var keyPath = arguments.length === 0 || typeof maybeKeyPath === 'function' && (onChange = maybeKeyPath) ? [] : Array.isArray(maybeKeyPath) ? maybeKeyPath : [maybeKeyPath];
     return makeCursor(this, keyPath, onChange);
   },
   withMutations: function(fn) {
@@ -2167,6 +2065,116 @@ function spliceOut(array, idx, canEdit) {
 var MAX_BITMAP_SIZE = SIZE / 2;
 var MIN_ARRAY_SIZE = SIZE / 4;
 var EMPTY_MAP;
+var Cursor = function Cursor(rootData, keyPath, onChange, length) {
+  this.length = length;
+  this._rootData = rootData;
+  this._keyPath = keyPath;
+  this._onChange = onChange;
+};
+($traceurRuntime.createClass)(Cursor, {
+  equals: function(second) {
+    return is(this.deref(), second && (typeof second.deref === 'function' ? second.deref() : second));
+  },
+  deref: function(notSetValue) {
+    return this._rootData.getIn(this._keyPath, notSetValue);
+  },
+  get: function(key, notSetValue) {
+    return this.getIn([key], notSetValue);
+  },
+  getIn: function(searchKeyPath, notSetValue) {
+    if (!searchKeyPath || (Array.isArray(searchKeyPath) && searchKeyPath.length === 0)) {
+      return this;
+    }
+    var value = this._rootData.getIn(this._keyPath.concat(searchKeyPath), NOT_SET);
+    return value === NOT_SET ? notSetValue : wrappedValue(this, searchKeyPath, value);
+  },
+  set: function(key, value) {
+    return updateCursor(this, (function(m) {
+      return m.set(key, value);
+    }), key);
+  },
+  remove: function(key) {
+    return updateCursor(this, (function(m) {
+      return m.remove(key);
+    }), key);
+  },
+  update: function(keyOrFn, notSetValue, updater) {
+    return arguments.length === 1 ? updateCursor(this, keyOrFn) : updateCursor(this, (function(map) {
+      return map.update(keyOrFn, notSetValue, updater);
+    }), keyOrFn);
+  },
+  updateIn: function(keyPath, notSetValue, updater) {
+    return updateCursor(this, (function(m) {
+      return m.updateIn(keyPath, notSetValue, updater);
+    }), keyPath);
+  },
+  clear: function() {
+    return updateCursor(this, (function(m) {
+      return m.clear();
+    }));
+  },
+  cursor: function(maybeKeyPath, onChange) {
+    var keyPath = arguments.length === 0 || typeof maybeKeyPath === 'function' && (onChange = maybeKeyPath) ? [] : Array.isArray(maybeKeyPath) ? maybeKeyPath : [maybeKeyPath];
+    if (!onChange) {
+      if (keyPath.length === 0) {
+        return this;
+      }
+      return subCursor(this, keyPath);
+    }
+    return makeCursor(this, keyPath, onChange, this.deref().getIn(keyPath));
+  },
+  withMutations: function(fn) {
+    return updateCursor(this, (function(m) {
+      return (m || Map.empty()).withMutations(fn);
+    }));
+  },
+  __iterate: function(fn, reverse) {
+    var $__0 = this;
+    var deref = this.deref();
+    return deref && deref.__iterate ? deref.__iterate((function(v, k) {
+      return fn(wrappedValue($__0, k, v), k, $__0);
+    }), reverse) : 0;
+  },
+  __iterator: function(type, reverse) {
+    var $__0 = this;
+    var deref = this.deref();
+    var iterator = deref && deref.__iterator && deref.__iterator(ITERATE_ENTRIES, reverse);
+    return new Iterator((function() {
+      if (!iterator) {
+        return iteratorDone();
+      }
+      var step = iterator.next();
+      if (step.done) {
+        return step;
+      }
+      var entry = step.value;
+      var k = entry[0];
+      var v = entry[1];
+      return iteratorValue(type, k, wrappedValue($__0, k, v), step);
+    }));
+  }
+}, {}, Sequence);
+Cursor.prototype[DELETE] = Cursor.prototype.remove;
+function makeCursor(rootData, keyPath, onChange, value) {
+  if (arguments.length < 4) {
+    value = rootData.getIn(keyPath);
+  }
+  var length = value instanceof Sequence ? value.length : null;
+  return new Cursor(rootData, keyPath, onChange, length);
+}
+function wrappedValue(cursor, key, value) {
+  return value instanceof Sequence ? subCursor(cursor, key, value) : value;
+}
+function subCursor(cursor, key, value) {
+  return makeCursor(cursor._rootData, cursor._keyPath.concat(key), cursor._onChange, value);
+}
+function updateCursor(cursor, changeFn, changeKey) {
+  var updatingSelf = arguments.length < 3 || (Array.isArray(changeKey) && changeKey.length === 0);
+  var newRootData = cursor._rootData.updateIn(cursor._keyPath, updatingSelf ? undefined : Map.empty(), changeFn);
+  var keyPath = cursor._keyPath || [];
+  cursor._onChange && cursor._onChange.call(undefined, newRootData, cursor._rootData, updatingSelf ? keyPath : keyPath.concat(changeKey));
+  return makeCursor(newRootData, cursor._keyPath, cursor._onChange);
+}
 var Vector = function Vector() {
   for (var values = [],
       $__6 = 0; $__6 < arguments.length; $__6++)

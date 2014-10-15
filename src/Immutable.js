@@ -8,6 +8,7 @@
  */
 
 import "Sequence"
+import "Cursor" // Fix a dependency cycle with Cursor -> Map
 import "Map"
 import "Vector"
 import "Stack"

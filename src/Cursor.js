@@ -36,11 +36,15 @@ class Cursor extends Sequence {
   }
 
   get(key, notSetValue) {
-    if (Array.isArray(key) && key.length === 0) {
+    return this.getIn([key], notSetValue);
+  }
+
+  getIn(searchKeyPath, notSetValue) {
+    if (!searchKeyPath || (Array.isArray(searchKeyPath) && searchKeyPath.length === 0)) {
       return this;
     }
-    var value = this._rootData.getIn(this._keyPath.concat(key), NOT_SET);
-    return value === NOT_SET ? notSetValue : wrappedValue(this, key, value);
+    var value = this._rootData.getIn(this._keyPath.concat(searchKeyPath), NOT_SET);
+    return value === NOT_SET ? notSetValue : wrappedValue(this, searchKeyPath, value);
   }
 
   set(key, value) {
@@ -51,23 +55,36 @@ class Cursor extends Sequence {
     return updateCursor(this, m => m.remove(key), key);
   }
 
-  clear() {
-    return updateCursor(this, m => m.clear());
-  }
-
   update(keyOrFn, notSetValue, updater) {
     return arguments.length === 1 ?
       updateCursor(this, keyOrFn) :
       updateCursor(this, map => map.update(keyOrFn, notSetValue, updater), keyOrFn);
   }
 
-  withMutations(fn) {
-    return updateCursor(this, m => (m || Map.empty()).withMutations(fn));
+  updateIn(keyPath, notSetValue, updater) {
+    return updateCursor(this, m => m.updateIn(keyPath, notSetValue, updater), keyPath);
   }
 
-  cursor(subKey) {
-    return Array.isArray(subKey) && subKey.length === 0 ?
-      this : subCursor(this, subKey);
+  clear() {
+    return updateCursor(this, m => m.clear());
+  }
+
+  cursor(maybeKeyPath, onChange) {
+    var keyPath =
+      arguments.length === 0 ||
+      typeof maybeKeyPath === 'function' && (onChange = maybeKeyPath) ? [] :
+      Array.isArray(maybeKeyPath) ? maybeKeyPath : [maybeKeyPath];
+    if (!onChange) {
+      if (keyPath.length === 0) {
+        return this;
+      }
+      return subCursor(this, keyPath);
+    }
+    return makeCursor(this, keyPath, onChange, this.deref().getIn(keyPath));
+  }
+
+  withMutations(fn) {
+    return updateCursor(this, m => (m || Map.empty()).withMutations(fn));
   }
 
   __iterate(fn, reverse) {
@@ -98,7 +115,7 @@ class Cursor extends Sequence {
 }
 
 Cursor.prototype[DELETE] = Cursor.prototype.remove;
-Cursor.prototype.getIn = Cursor.prototype.get;
+
 
 
 function makeCursor(rootData, keyPath, onChange, value) {
@@ -123,9 +140,12 @@ function subCursor(cursor, key, value) {
 }
 
 function updateCursor(cursor, changeFn, changeKey) {
+  var updatingSelf =
+    arguments.length < 3 ||
+    (Array.isArray(changeKey) && changeKey.length === 0);
   var newRootData = cursor._rootData.updateIn(
     cursor._keyPath,
-    changeKey ? Map.empty() : undefined,
+    updatingSelf ? undefined : Map.empty(),
     changeFn
   );
   var keyPath = cursor._keyPath || [];
@@ -133,7 +153,7 @@ function updateCursor(cursor, changeFn, changeKey) {
     undefined,
     newRootData,
     cursor._rootData,
-    changeKey ? keyPath.concat(changeKey) : keyPath
+    updatingSelf ? keyPath : keyPath.concat(changeKey)
   );
   return makeCursor(newRootData, cursor._keyPath, cursor._onChange);
 }
