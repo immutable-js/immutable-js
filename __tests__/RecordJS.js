@@ -49,4 +49,19 @@ describe('Record', () => {
     expect(t2.soup()).toBe(204);
   });
 
+  it('can be cleared', () => {
+    var MyType = Record({a:1, b:2, c:3});
+    var t = new MyType({c:'cats'});
+
+    expect(t.c).toBe('cats');
+    t = t.clear();
+    expect(t.c).toBe(3);
+
+    var MyType2 = Record({d:4, e:5, f:6});
+    var t2 = new MyType2({d:'dogs'});
+
+    expect(t2.d).toBe('dogs');
+    t2 = t2.clear();
+    expect(t2.d).toBe(4);
+  });
 });
