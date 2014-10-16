@@ -12,11 +12,11 @@ import "Sequence"
 import "Map"
 import "TrieUtils"
 import "Iterator"
-/* global is, Sequence, Map, MapPrototype, NOT_SET, DELETE,
+/* global is, Sequence, Map, NOT_SET, DELETE,
           ITERATE_ENTRIES, Iterator, iteratorDone, iteratorValue */
 /* exported makeCursor */
 
-class Cursor extends Sequence {
+class MapCursor extends Map {
   constructor(rootData, keyPath, onChange, length) {
     this.length = length;
     this._rootData = rootData;
@@ -54,6 +54,8 @@ class Cursor extends Sequence {
   remove(key) {
     return updateCursor(this, m => m.remove(key), key);
   }
+
+  // update intentionally provided by Map
 
   updateIn(keyPath, notSetValue, updater) {
     return updateCursor(this, m => m.updateIn(keyPath, notSetValue, updater), keyPath);
@@ -109,6 +111,11 @@ class Cursor extends Sequence {
     return updateCursor(this, m => m.asImmutable());
   }
 
+  wasAltered() {
+    var deref = this.deref();
+    return !!(deref && deref.__altered);
+  }
+
   __iterate(fn, reverse) {
     var deref = this.deref();
     return deref && deref.__iterate ? deref.__iterate(
@@ -134,10 +141,14 @@ class Cursor extends Sequence {
       return iteratorValue(type, k, wrappedValue(this, k, v), step);
     });
   }
+
+  __ensureOwner(ownerID) {
+    return updateCursor(this, m => m.__ensureOwner(ownerID));
+  }
 }
 
-Cursor.prototype[DELETE] = Cursor.prototype.remove;
-Cursor.prototype.update = MapPrototype.update;
+MapCursor.prototype[DELETE] = MapCursor.prototype.remove;
+
 
 
 function makeCursor(rootData, keyPath, onChange, value) {
@@ -145,7 +156,7 @@ function makeCursor(rootData, keyPath, onChange, value) {
     value = rootData.getIn(keyPath);
   }
   var length = value instanceof Sequence ? value.length : null;
-  return new Cursor(rootData, keyPath, onChange, length);
+  return new MapCursor(rootData, keyPath, onChange, length);
 }
 
 function wrappedValue(cursor, key, value) {
@@ -176,8 +187,11 @@ function updateCursor(cursor, changeFn, changeKey) {
     updateCursor(rootData, updateIn, editPath) :
     updateIn(rootData);
 
-  onChange && onChange(newRootData, rootData, editPath);
+  if (newRootData === rootData) {
+    return rootData;
+  }
 
+  onChange && onChange(newRootData, rootData, editPath);
   return makeCursor(newRootData, keyPath, onChange);
 }
 

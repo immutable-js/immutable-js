@@ -2065,13 +2065,13 @@ function spliceOut(array, idx, canEdit) {
 var MAX_BITMAP_SIZE = SIZE / 2;
 var MIN_ARRAY_SIZE = SIZE / 4;
 var EMPTY_MAP;
-var Cursor = function Cursor(rootData, keyPath, onChange, length) {
+var MapCursor = function MapCursor(rootData, keyPath, onChange, length) {
   this.length = length;
   this._rootData = rootData;
   this._keyPath = keyPath;
   this._onChange = onChange;
 };
-($traceurRuntime.createClass)(Cursor, {
+($traceurRuntime.createClass)(MapCursor, {
   equals: function(second) {
     return is(this.deref(), second && (typeof second.deref === 'function' ? second.deref() : second));
   },
@@ -2157,6 +2157,10 @@ var Cursor = function Cursor(rootData, keyPath, onChange, length) {
       return m.asImmutable();
     }));
   },
+  wasAltered: function() {
+    var deref = this.deref();
+    return !!(deref && deref.__altered);
+  },
   __iterate: function(fn, reverse) {
     var $__0 = this;
     var deref = this.deref();
@@ -2181,16 +2185,20 @@ var Cursor = function Cursor(rootData, keyPath, onChange, length) {
       var v = entry[1];
       return iteratorValue(type, k, wrappedValue($__0, k, v), step);
     }));
+  },
+  __ensureOwner: function(ownerID) {
+    return updateCursor(this, (function(m) {
+      return m.__ensureOwner(ownerID);
+    }));
   }
-}, {}, Sequence);
-Cursor.prototype[DELETE] = Cursor.prototype.remove;
-Cursor.prototype.update = MapPrototype.update;
+}, {}, Map);
+MapCursor.prototype[DELETE] = MapCursor.prototype.remove;
 function makeCursor(rootData, keyPath, onChange, value) {
   if (arguments.length < 4) {
     value = rootData.getIn(keyPath);
   }
   var length = value instanceof Sequence ? value.length : null;
-  return new Cursor(rootData, keyPath, onChange, length);
+  return new MapCursor(rootData, keyPath, onChange, length);
 }
 function wrappedValue(cursor, key, value) {
   return value instanceof Sequence ? subCursor(cursor, key, value) : value;
@@ -2208,6 +2216,9 @@ function updateCursor(cursor, changeFn, changeKey) {
   }
   var updateIn = applyUpdateIn(keyPath, changeFn);
   var newRootData = typeof rootData.deref === 'function' ? updateCursor(rootData, updateIn, editPath) : updateIn(rootData);
+  if (newRootData === rootData) {
+    return rootData;
+  }
   onChange && onChange(newRootData, rootData, editPath);
   return makeCursor(newRootData, keyPath, onChange);
 }

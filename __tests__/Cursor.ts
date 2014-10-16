@@ -33,6 +33,12 @@ describe('Cursor', () => {
     expect(missCursor.deref()).toBe(undefined);
   });
 
+  it('appears to be the type it points to', () => {
+    var data = Immutable.fromJS(json);
+    var cursor = data.cursor();
+    expect(cursor instanceof Immutable.Map).toBe(true);
+  });
+
   it('gets return new cursors', () => {
     var data = Immutable.fromJS(json);
     var cursor = data.cursor();
