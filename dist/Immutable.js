@@ -3196,7 +3196,6 @@ var Record = function Record(defaultValues, name) {
   } catch (error) {}
   return RecordType;
 };
-var $Record = Record;
 ($traceurRuntime.createClass)(Record, {
   toString: function() {
     return this.__toString(this._name + ' {', '}');
@@ -3215,8 +3214,8 @@ var $Record = Record;
       this._map.clear();
       return this;
     }
-    var Record = Object.getPrototypeOf(this).constructor;
-    return $Record._empty || ($Record._empty = makeRecord(this, Map.empty()));
+    var SuperRecord = Object.getPrototypeOf(this).constructor;
+    return SuperRecord._empty || (SuperRecord._empty = makeRecord(this, Map.empty()));
   },
   set: function(k, v) {
     if (!this.has(k)) {

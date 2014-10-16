@@ -77,8 +77,8 @@ class Record extends Sequence {
       this._map.clear();
       return this;
     }
-    var Record = Object.getPrototypeOf(this).constructor;
-    return Record._empty || (Record._empty = makeRecord(this, Map.empty()));
+    var SuperRecord = Object.getPrototypeOf(this).constructor;
+    return SuperRecord._empty || (SuperRecord._empty = makeRecord(this, Map.empty()));
   }
 
   set(k, v) {
