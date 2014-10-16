@@ -515,7 +515,7 @@ declare module 'immutable' {
     /**
      * Returns the value found by following a key path through nested sequences.
      */
-    getIn(searchKeyPath: Array<K>, notSetValue?: V): V;
+    getIn(searchKeyPath: Array<any>, notSetValue?: any): any;
 
     /**
      * Returns a `Sequence` of `Sequences`, grouped by the return value of the
@@ -1187,24 +1187,6 @@ declare module 'immutable' {
     clear(): Map<K, V>;
 
     /**
-     * When this cursor's (or any of its sub-cursors') `update` method is called,
-     * the resulting new data structure will be provided to the `onChange`
-     * function. Use this callback to keep track of the most current value or
-     * update the rest of your application.
-     */
-    cursor(
-      onChange?: (newValue: Map<K, V>, oldValue?: Map<K, V>, keyPath?: Array<any>) => void
-    ): Cursor<Map<K, V>>;
-    cursor(
-      keyPath: Array<any>,
-      onChange?: (newValue: Map<K, V>, oldValue?: Map<K, V>, keyPath?: Array<any>) => void
-    ): Cursor<any>;
-    cursor(
-      key: K,
-      onChange?: (newValue: Map<K, V>, oldValue?: Map<K, V>, keyPath?: Array<any>) => void
-    ): Cursor<V>;
-
-    /**
      * Returns a new Map having updated the value at this `key` with the return
      * value of calling `updater` with the existing value, or `notSetValue` if
      * the key was not set. If called with only a single argument, `updater` is
@@ -1343,6 +1325,69 @@ declare module 'immutable' {
      * copy has become immutable and can be safely returned from a function.
      */
     asImmutable(): Map<K, V>;
+
+    /**
+     * Cursors allow you to hold a reference to a path in a nested immutable
+     * data structure, allowing you to pass smaller sections of a larger nested
+     * collection to portions of your application while maintaining a central
+     * point aware of changes to the entire data structure.
+     *
+     * This is particularly useful when used in conjuction with component-based
+     * UI libraries like [React](http://facebook.github.io/react/) or to
+     * simulate "state" throughout an application while maintaining a single
+     * flow of logic.
+     *
+     * Cursors provide a simple API for getting the value at that path
+     * (the equivalent of `this.getIn(keyPath)`), updating the value at that
+     * path (the equivalent of `this.updateIn(keyPath)`), and getting a
+     * sub-cursor starting from that path.
+     *
+     * When updated, a new root collection is created and provided to the
+     * `onChange` function provided to the first call to `map.cursor(...)`. Use
+     * this callback to keep track of the most current value or update the rest
+     * of your application.
+     *
+     * Cursors assume the type of the data they point to. For example:
+     *
+     *     var map = Immutable.Map({ x: Immutable.Vector(1, 2, 3) });
+     *     assert(map.cursor('x') instanceof Immutable.Vector);
+     *
+     * A cursor to a value that is not an Immutable Sequence simply returns that
+     * value, any edits to which are not tracked:
+     *
+     *     var mapToJSArray = Immutable.Map({ x: [1, 2, 3] });
+     *     var jsArray = mapToJSArray.cursor('x');
+     *     assert(Array.is(jsArray));
+     *
+     * The `onChange` callback is invoked whenever an edit occurs on the cursor,
+     * it is provided the new value, the previous value, and a key-path
+     * illustrating where the change occurred.
+     *
+     *     var map = Immutable.fromJS({ a: { b: { x: 1, y: 2 } } });
+     *     var ab = map.cursor(['a', 'b'], function (newValue, oldValue, path) {
+     *       map = newValue;
+     *       console.log('New:', newValue);
+     *       console.log('Old:', oldValue);
+     *       console.log('Path:', path);
+     *     });
+     *     ab = ab.set('y', 10);
+     *     // New: Map { a: Map { b: Map { x: 1, y: 10 } } }
+     *     // Old: Map { a: Map { b: Map { x: 1, y: 2 } } }
+     *     // Path: [ 'a', 'b', 'y' ]
+     *     console.log(ab); // Map { x: 1, y: 10 }
+     *
+     */
+    cursor(
+      onChange?: (newValue: Map<K, V>, oldValue?: Map<K, V>, changePath?: Array<any>) => void
+    ): Map<K, V>;
+    cursor(
+      keyPath: Array<any>,
+      onChange?: (newValue: Map<K, V>, oldValue?: Map<K, V>, changePath?: Array<any>) => void
+    ): any;
+    cursor(
+      key: K,
+      onChange?: (newValue: Map<K, V>, oldValue?: Map<K, V>, changePath?: Array<any>) => void
+    ): V;
   }
 
 
@@ -1661,22 +1706,6 @@ declare module 'immutable' {
     shift(): Vector<T>;
 
     /**
-     * @see Map.cursor
-     */
-    cursor(
-      onChange?: (newValue: Vector<T>, oldValue?: Vector<T>, keyPath?: Array<any>) => void
-    ): Cursor<Vector<T>>;
-    cursor(
-      keyPath: Array<any>,
-      onChange?: (newValue: Vector<T>, oldValue?: Vector<T>, keyPath?: Array<any>) => void
-    ): Cursor<any>;
-    cursor(
-      key: number,
-      onChange?: (newValue: Vector<T>, oldValue?: Vector<T>, keyPath?: Array<any>) => void
-    ): Cursor<T>;
-
-
-    /**
      * Returns a new Vector with an updated value at `index` with the return
      * value of calling `updater` with the existing value, or `notSetValue` if
      * `index` was not set. If called with a single argument, `updater` is
@@ -1762,6 +1791,21 @@ declare module 'immutable' {
      * @see `Map.prototype.asImmutable`
      */
     asImmutable(): Vector<T>;
+
+    /**
+     * @see Map.cursor
+     */
+    cursor(
+      onChange?: (newValue: Vector<T>, oldValue?: Vector<T>, changePath?: Array<any>) => void
+    ): Vector<T>;
+    cursor(
+      keyPath: Array<any>,
+      onChange?: (newValue: Vector<T>, oldValue?: Vector<T>, changePath?: Array<any>) => void
+    ): any;
+    cursor(
+      key: number,
+      onChange?: (newValue: Vector<T>, oldValue?: Vector<T>, changePath?: Array<any>) => void
+    ): T;
   }
 
 
@@ -1876,102 +1920,6 @@ declare module 'immutable' {
   }
 
 
-  /**
-   * Cursors
-   * -------
-   *
-   * Cursors allow you to hold a reference to a path in a nested immutable data
-   * structure, allowing you to pass smaller sections of a larger nested
-   * collection to portions of your application while maintaining a central point
-   * aware of changes to the entire data structure.
-   *
-   * This is particularly useful when used in conjuction with component-based UI
-   * libraries like [React](http://facebook.github.io/react/) or to simulate
-   * "state" throughout an application while maintaining a single flow of logic.
-   *
-   * Cursors provide a simple API for getting the value at that path
-   * (the equivalent of `this.getIn(keyPath)`), updating the value at that path
-   * (the equivalent of `this.updateIn(keyPath)`), and getting a sub-cursor
-   * starting from that path.
-   *
-   * When updated, a new root collection is created and provided to the `onChange`
-   * function provided to the first call to `map.cursor(...)`.
-   *
-   * @see Map.cursor
-   */
-
-  export interface Cursor<T> extends Sequence<any, any> {
-
-    /**
-     * Returns a sub-cursor following the key-path starting from this cursor.
-     */
-    cursor(subKeyPath: Array<any>): Cursor<any>;
-    cursor(subKey: any): Cursor<any>;
-
-    /**
-     * Returns the value at the cursor, if the cursor path does not yet exist,
-     * returns `notSetValue`.
-     */
-    deref(notSetValue?: T): T;
-
-    /**
-     * Returns the value at the `key` in the cursor, or `notSetValue` if it
-     * does not exist.
-     *
-     * If the key would return a collection, a new Cursor is returned.
-     */
-    get(key: any, notSetValue?: any): any;
-
-    /**
-     * Returns the value at the `keyPath` in the cursor, or `notSetValue` if it
-     * does not exist.
-     *
-     * If the keyPath would return a collection, a new Cursor is returned.
-     */
-    getIn(keyPath: Array<any>, notSetValue?: any): any;
-
-    /**
-     * Sets `value` at `key` in the cursor, returning a new cursor to the same
-     * point in the new data.
-     */
-    set(key: any, value: any): Cursor<T>;
-
-    /**
-     * Deletes `key` from the cursor, returning a new cursor to the same
-     * point in the new data.
-     *
-     * Note: `delete` cannot be safely used in IE8
-     * @alias delete
-     */
-    remove(key: any): Cursor<T>;
-    delete(key: any): Cursor<T>;
-
-    /**
-     * Clears the value at this cursor, returning a new cursor to the same
-     * point in the new data.
-     */
-    clear(): Cursor<T>;
-
-    /**
-     * Updates the value in the data this cursor points to, triggering the
-     * callback for the root cursor and returning a new cursor pointing to the
-     * new data.
-     */
-    update(updater: (value: T) => T): Cursor<T>;
-    update(key: any, updater: (value: any) => any): Cursor<T>;
-    update(key: any, notSetValue: any, updater: (value: any) => any): Cursor<T>;
-
-
-    /**
-     * Every time you call one of the above functions, a new immutable value is
-     * created and the callback is triggered. If you need to apply a series of
-     * mutations to a Cursor without triggering the callback repeatedly,
-     * `withMutations()` creates a temporary mutable copy of the value which
-     * can apply mutations in a highly performant manner. Afterwards the
-     * callback is triggered with the final value.
-     */
-    withMutations(mutator: (mutable: T) => T): Cursor<T>;
-  }
 
   // ES6 Iterator
   export interface Iterator<T> {
