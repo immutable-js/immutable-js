@@ -54,6 +54,8 @@ require(['./Immutable.min.js'], function (Immutable) {
 });
 ```
 
+You can also use a CDN like [jsDelivr](http://cdn.jsdelivr.net/immutable.js/latest/Immutable.min.js)
+
 ### TypeScript
 Use these Immutable collections and sequences as you would use native
 collections in your [TypeScript](http://typescriptlang.org) programs while still taking
