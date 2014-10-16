@@ -11,9 +11,10 @@ import "is"
 import "Sequence"
 import "Map"
 import "Vector"
+import "Set"
 import "TrieUtils"
 import "Iterator"
-/* global is, Sequence, Map, Vector, NOT_SET, DELETE,
+/* global is, Sequence, Map, Vector, Set, NOT_SET, DELETE,
           ITERATE_ENTRIES, Iterator, iteratorDone, iteratorValue */
 /* exported makeCursor */
 
@@ -151,11 +152,11 @@ class MapCursor extends Map {
   __ensureOwner(ownerID) {
     return updateCursor(this, m => m.__ensureOwner(ownerID));
   }
-
-  __empty() {
-    return Map.empty();
-  }
 }
+
+var MapCursorPrototype = MapCursor.prototype;
+MapCursorPrototype[DELETE] = MapCursorPrototype.remove;
+
 
 
 class VectorCursor extends Vector {
@@ -193,16 +194,10 @@ class VectorCursor extends Vector {
     var args = arguments;
     return updateCursor(this, v => v.slice.apply(v, args));
   }
-
-  __empty() {
-    return Vector.empty();
-  }
 }
 
-
-var MapCursorPrototype = MapCursor.prototype;
 var VectorCursorPrototype = VectorCursor.prototype;
-VectorCursorPrototype[DELETE] = VectorCursorPrototype.remove = MapCursorPrototype[DELETE] = MapCursorPrototype.remove;
+VectorCursorPrototype[DELETE] = VectorCursorPrototype.remove = MapCursorPrototype.remove;
 VectorCursorPrototype.toString = MapCursorPrototype.toString;
 VectorCursorPrototype.equals = MapCursorPrototype.equals;
 VectorCursorPrototype.deref = MapCursorPrototype.deref;
@@ -224,6 +219,66 @@ VectorCursorPrototype.wasAltered = MapCursorPrototype.wasAltered;
 VectorCursorPrototype.__iterate = MapCursorPrototype.__iterate;
 VectorCursorPrototype.__iterator = MapCursorPrototype.__iterator;
 VectorCursorPrototype.__ensureOwner = MapCursorPrototype.__ensureOwner;
+
+
+
+class SetCursor extends Set {
+
+  constructor(rootData, keyPath, onChange, length) {
+    this.length = length;
+    this._rootData = rootData;
+    this._keyPath = keyPath;
+    this._onChange = onChange;
+  }
+
+  add(value) {
+    return updateCursor(this, s => s.add(value));
+  }
+
+  contains(value) {
+    return value.deref().contains(value);
+  }
+
+  union(/*...seqs*/) {
+    var args = arguments;
+    return updateCursor(this, s => s.union.apply(s, args));
+  }
+
+  intersect(/*...seqs*/) {
+    var args = arguments;
+    return updateCursor(this, s => s.intersect.apply(s, args));
+  }
+
+  subtract(/*...seqs*/) {
+    var args = arguments;
+    return updateCursor(this, s => s.subtract.apply(s, args));
+  }
+
+  isSubset(seq) {
+    return this.deref().isSubset(seq);
+  }
+
+  isSuperset(seq) {
+    return this.deref().isSuperset(seq);
+  }
+}
+
+var SetCursorPrototype = SetCursor.prototype;
+SetCursorPrototype[DELETE] = SetCursorPrototype.remove = MapCursorPrototype.remove;
+SetCursorPrototype.toString = MapCursorPrototype.toString;
+SetCursorPrototype.equals = MapCursorPrototype.equals;
+SetCursorPrototype.deref = MapCursorPrototype.deref;
+SetCursorPrototype.get = MapCursorPrototype.get;
+SetCursorPrototype.getIn = MapCursorPrototype.getIn;
+SetCursorPrototype.remove = MapCursorPrototype.remove;
+SetCursorPrototype.clear = MapCursorPrototype.clear;
+SetCursorPrototype.withMutations = MapCursorPrototype.withMutations;
+SetCursorPrototype.asMutable = MapCursorPrototype.asMutable;
+SetCursorPrototype.asImmutable = MapCursorPrototype.asImmutable;
+SetCursorPrototype.wasAltered = MapCursorPrototype.wasAltered;
+SetCursorPrototype.__iterate = MapCursorPrototype.__iterate;
+SetCursorPrototype.__iterator = MapCursorPrototype.__iterator;
+SetCursorPrototype.__ensureOwner = MapCursorPrototype.__ensureOwner;
 
 
 
@@ -264,7 +319,7 @@ function updateCursor(cursor, changeFn, changeKey) {
     editPath = editPath.concat(changeKey);
   }
 
-  var updateIn = applyUpdateIn(keyPath, changeFn, cursor.__empty());
+  var updateIn = applyUpdateIn(keyPath, changeFn);
   var newRootData = typeof rootData.deref === 'function' ?
     updateCursor(rootData, updateIn, editPath) :
     updateIn(rootData);
@@ -277,11 +332,8 @@ function updateCursor(cursor, changeFn, changeKey) {
   return makeCursor(newRootData, keyPath, onChange);
 }
 
-function applyUpdateIn(keyPath, changeFn, empty) {
+function applyUpdateIn(keyPath, changeFn) {
   return function(collection) {
-    return collection.updateIn(
-      keyPath,
-      prev => changeFn(prev instanceof Map ? prev : empty)
-    );
+    return collection.updateIn(keyPath, Map.empty(), changeFn);
   };
 }

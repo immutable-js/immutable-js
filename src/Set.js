@@ -47,12 +47,12 @@ class Set extends Sequence {
 
   // @pragma Access
 
-  has(value) {
-    return this._map.has(value);
+  get(value, notSetValue) {
+    return this._map.has(value) ? value : notSetValue;
   }
 
-  get(value, notSetValue) {
-    return this.has(value) ? value : notSetValue;
+  contains(value) {
+    return this._map.has(value);
   }
 
   // @pragma Modification
@@ -144,12 +144,16 @@ class Set extends Sequence {
     return seq.every(value => set.contains(value));
   }
 
-  wasAltered() {
-    return this._map.wasAltered();
+  merge() {
+    return this.union.apply(this, arguments);
   }
 
-  hashCode() {
-    return this._map.hashCode();
+  mergeWith(merger, ...seqs) {
+    return this.union.apply(this, seqs);
+  }
+
+  wasAltered() {
+    return this._map.wasAltered();
   }
 
   __iterate(fn, reverse) {
@@ -177,11 +181,8 @@ class Set extends Sequence {
 var SetPrototype = Set.prototype;
 SetPrototype[DELETE] = SetPrototype.remove;
 SetPrototype[ITERATOR_SYMBOL] = SetPrototype.values;
-SetPrototype.contains = SetPrototype.has;
-SetPrototype.mergeDeep = SetPrototype.merge = SetPrototype.union;
-SetPrototype.mergeDeepWith = SetPrototype.mergeWith = function(merger, ...seqs) {
-  return this.merge.apply(this, seqs);
-};
+SetPrototype.mergeDeep = SetPrototype.merge;
+SetPrototype.mergeDeepWith = SetPrototype.mergeWith;
 SetPrototype.withMutations = MapPrototype.withMutations;
 SetPrototype.asMutable = MapPrototype.asMutable;
 SetPrototype.asImmutable = MapPrototype.asImmutable;
