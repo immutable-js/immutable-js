@@ -22,21 +22,24 @@ describe('Cursor', () => {
     expect(cursor.deref()).toBe(data);
 
     var deepCursor = cursor.cursor(['a', 'b']);
-    expect(deepCursor.deref().toJS()).toEqual(json.a.b);
-    expect(deepCursor.deref()).toBe(data.getIn(['a', 'b']));
+    expect(deepCursor.toJS()).toEqual(json.a.b);
+    expect(deepCursor).toEqual(data.getIn(['a', 'b']));
     expect(deepCursor.get('c')).toBe(1);
 
     var leafCursor = deepCursor.cursor('c');
-    expect(leafCursor.deref()).toBe(1);
+    expect(leafCursor).toBe(1);
 
-    var missCursor = leafCursor.cursor('d');
+    var missCursor = deepCursor.cursor('d');
+    expect(Immutable.is(missCursor, undefined)).toBe(true);
     expect(missCursor.deref()).toBe(undefined);
   });
 
   it('appears to be the type it points to', () => {
-    var data = Immutable.fromJS(json);
+    var data = Immutable.fromJS({a:[1,2,3]});
     var cursor = data.cursor();
+    var aCursor = cursor.cursor('a');
     expect(cursor instanceof Immutable.Map).toBe(true);
+    expect(aCursor instanceof Immutable.Vector).toBe(true);
   });
 
   it('gets return new cursors', () => {
@@ -55,12 +58,10 @@ describe('Cursor', () => {
     expect(cursor.get('c')).toBe(1);
   });
 
-  it('can be value compared to a primitive', () => {
+  it('returns scalars directly', () => {
     var data = Immutable.Map({ a: 'A' });
     var aCursor = data.cursor('a');
-    expect(aCursor.length).toBe(null);
-    expect(aCursor.deref()).toBe('A');
-    expect(Immutable.is(aCursor, 'A')).toBe(true);
+    expect(aCursor).toBe('A');
   });
 
   it('updates at its path', () => {
@@ -115,7 +116,7 @@ describe('Cursor', () => {
     var bCursor = aCursor.cursor('b');
     var cCursor = bCursor.cursor('c');
 
-    expect(bCursor.set('c', 10).deref()).toEqual(
+    expect(bCursor.set('c', 10)).toEqual(
       Immutable.fromJS({ c: 10 })
     );
     expect(onChange).lastCalledWith(

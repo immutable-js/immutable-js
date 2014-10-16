@@ -10,18 +10,24 @@
 import "is"
 import "Sequence"
 import "Map"
+import "Vector"
 import "TrieUtils"
 import "Iterator"
-/* global is, Sequence, Map, NOT_SET, DELETE,
+/* global is, Sequence, Map, Vector, NOT_SET, DELETE,
           ITERATE_ENTRIES, Iterator, iteratorDone, iteratorValue */
 /* exported makeCursor */
 
 class MapCursor extends Map {
+
   constructor(rootData, keyPath, onChange, length) {
     this.length = length;
     this._rootData = rootData;
     this._keyPath = keyPath;
     this._onChange = onChange;
+  }
+
+  toString() {
+    return (this.deref() || Map.empty()).toString();
   }
 
   equals(second) {
@@ -82,7 +88,7 @@ class MapCursor extends Map {
   }
 
   clear() {
-    return updateCursor(this, m => m && m.clear());
+    return updateCursor(this, m => m.clear());
   }
 
   cursor(maybeKeyPath, onChange) {
@@ -145,18 +151,94 @@ class MapCursor extends Map {
   __ensureOwner(ownerID) {
     return updateCursor(this, m => m.__ensureOwner(ownerID));
   }
+
+  __empty() {
+    return Map.empty();
+  }
 }
 
-MapCursor.prototype[DELETE] = MapCursor.prototype.remove;
+
+class VectorCursor extends Vector {
+
+  constructor(rootData, keyPath, onChange, length) {
+    this.length = length;
+    this._rootData = rootData;
+    this._keyPath = keyPath;
+    this._onChange = onChange;
+  }
+
+  push(/*...values*/) {
+    var args = arguments;
+    return updateCursor(this, v => v.push.apply(v, args));
+  }
+
+  pop() {
+    return updateCursor(this, v => v.pop());
+  }
+
+  unshift(/*...values*/) {
+    var args = arguments;
+    return updateCursor(this, v => v.unshift.apply(v, args));
+  }
+
+  shift() {
+    return updateCursor(this, v => v.shift());
+  }
+
+  setLength(length) {
+    return updateCursor(this, v => v.setLength(length));
+  }
+
+  slice(begin, end) {
+    var args = arguments;
+    return updateCursor(this, v => v.slice.apply(v, args));
+  }
+
+  __empty() {
+    return Vector.empty();
+  }
+}
+
+
+var MapCursorPrototype = MapCursor.prototype;
+var VectorCursorPrototype = VectorCursor.prototype;
+VectorCursorPrototype[DELETE] = VectorCursorPrototype.remove = MapCursorPrototype[DELETE] = MapCursorPrototype.remove;
+VectorCursorPrototype.toString = MapCursorPrototype.toString;
+VectorCursorPrototype.equals = MapCursorPrototype.equals;
+VectorCursorPrototype.deref = MapCursorPrototype.deref;
+VectorCursorPrototype.get = MapCursorPrototype.get;
+VectorCursorPrototype.getIn = MapCursorPrototype.getIn;
+VectorCursorPrototype.set = MapCursorPrototype.set;
+VectorCursorPrototype.remove = MapCursorPrototype.remove;
+VectorCursorPrototype.updateIn = MapCursorPrototype.updateIn;
+VectorCursorPrototype.merge = MapCursorPrototype.merge;
+VectorCursorPrototype.mergeWith = MapCursorPrototype.mergeWith;
+VectorCursorPrototype.mergeDeep = MapCursorPrototype.mergeDeep;
+VectorCursorPrototype.mergeDeepWith = MapCursorPrototype.mergeDeepWith;
+VectorCursorPrototype.clear = MapCursorPrototype.clear;
+VectorCursorPrototype.cursor = MapCursorPrototype.cursor;
+VectorCursorPrototype.withMutations = MapCursorPrototype.withMutations;
+VectorCursorPrototype.asMutable = MapCursorPrototype.asMutable;
+VectorCursorPrototype.asImmutable = MapCursorPrototype.asImmutable;
+VectorCursorPrototype.wasAltered = MapCursorPrototype.wasAltered;
+VectorCursorPrototype.__iterate = MapCursorPrototype.__iterate;
+VectorCursorPrototype.__iterator = MapCursorPrototype.__iterator;
+VectorCursorPrototype.__ensureOwner = MapCursorPrototype.__ensureOwner;
 
 
 
 function makeCursor(rootData, keyPath, onChange, value) {
-  if (arguments.length < 4) {
-    value = rootData.getIn(keyPath);
+  value = value || rootData.getIn(keyPath, NOT_SET);
+  if (value === NOT_SET || value instanceof Sequence) {
+    var length = value && value.length;
+    if (value instanceof Vector) {
+      return new VectorCursor(rootData, keyPath, onChange, length);
+    } else {
+      return new MapCursor(rootData, keyPath, onChange, length);
+    }
+  } else {
+    return value;
   }
-  var length = value instanceof Sequence ? value.length : null;
-  return new MapCursor(rootData, keyPath, onChange, length);
 }
 
 function wrappedValue(cursor, key, value) {
@@ -182,7 +264,7 @@ function updateCursor(cursor, changeFn, changeKey) {
     editPath = editPath.concat(changeKey);
   }
 
-  var updateIn = applyUpdateIn(keyPath, changeFn);
+  var updateIn = applyUpdateIn(keyPath, changeFn, cursor.__empty());
   var newRootData = typeof rootData.deref === 'function' ?
     updateCursor(rootData, updateIn, editPath) :
     updateIn(rootData);
@@ -195,11 +277,11 @@ function updateCursor(cursor, changeFn, changeKey) {
   return makeCursor(newRootData, keyPath, onChange);
 }
 
-function applyUpdateIn(keyPath, changeFn) {
+function applyUpdateIn(keyPath, changeFn, empty) {
   return function(collection) {
     return collection.updateIn(
       keyPath,
-      prev => changeFn(prev instanceof Map ? prev : Map.empty())
+      prev => changeFn(prev instanceof Map ? prev : empty)
     );
   };
 }

@@ -2065,170 +2065,6 @@ function spliceOut(array, idx, canEdit) {
 var MAX_BITMAP_SIZE = SIZE / 2;
 var MIN_ARRAY_SIZE = SIZE / 4;
 var EMPTY_MAP;
-var MapCursor = function MapCursor(rootData, keyPath, onChange, length) {
-  this.length = length;
-  this._rootData = rootData;
-  this._keyPath = keyPath;
-  this._onChange = onChange;
-};
-($traceurRuntime.createClass)(MapCursor, {
-  equals: function(second) {
-    return is(this.deref(), second && (typeof second.deref === 'function' ? second.deref() : second));
-  },
-  deref: function(notSetValue) {
-    return this._rootData.getIn(this._keyPath, notSetValue);
-  },
-  get: function(key, notSetValue) {
-    return this.getIn([key], notSetValue);
-  },
-  getIn: function(searchKeyPath, notSetValue) {
-    if (!searchKeyPath || (Array.isArray(searchKeyPath) && searchKeyPath.length === 0)) {
-      return this;
-    }
-    var value = this._rootData.getIn(this._keyPath.concat(searchKeyPath), NOT_SET);
-    return value === NOT_SET ? notSetValue : wrappedValue(this, searchKeyPath, value);
-  },
-  set: function(key, value) {
-    return updateCursor(this, (function(m) {
-      return m.set(key, value);
-    }), key);
-  },
-  remove: function(key) {
-    return updateCursor(this, (function(m) {
-      return m.remove(key);
-    }), key);
-  },
-  updateIn: function(keyPath, notSetValue, updater) {
-    return updateCursor(this, (function(m) {
-      return m.updateIn(keyPath, notSetValue, updater);
-    }), keyPath);
-  },
-  merge: function() {
-    var args = arguments;
-    return updateCursor(this, (function(m) {
-      return m.merge.apply(m, args);
-    }));
-  },
-  mergeWith: function() {
-    var args = arguments;
-    return updateCursor(this, (function(m) {
-      return m.mergeWith.apply(m, args);
-    }));
-  },
-  mergeDeep: function() {
-    var args = arguments;
-    return updateCursor(this, (function(m) {
-      return m.mergeDeep.apply(m, args);
-    }));
-  },
-  mergeDeepWith: function() {
-    var args = arguments;
-    return updateCursor(this, (function(m) {
-      return m.mergeDeepWith.apply(m, args);
-    }));
-  },
-  clear: function() {
-    return updateCursor(this, (function(m) {
-      return m && m.clear();
-    }));
-  },
-  cursor: function(maybeKeyPath, onChange) {
-    var keyPath = arguments.length === 0 || typeof maybeKeyPath === 'function' && (onChange = maybeKeyPath) ? [] : Array.isArray(maybeKeyPath) ? maybeKeyPath : [maybeKeyPath];
-    if (!onChange) {
-      if (keyPath.length === 0) {
-        return this;
-      }
-      return subCursor(this, keyPath);
-    }
-    return makeCursor(this, keyPath, onChange);
-  },
-  withMutations: function(fn) {
-    return updateCursor(this, (function(m) {
-      return m.withMutations(fn);
-    }));
-  },
-  asMutable: function() {
-    return updateCursor(this, (function(m) {
-      return m.asMutable();
-    }));
-  },
-  asImmutable: function() {
-    return updateCursor(this, (function(m) {
-      return m.asImmutable();
-    }));
-  },
-  wasAltered: function() {
-    var deref = this.deref();
-    return !!(deref && deref.__altered);
-  },
-  __iterate: function(fn, reverse) {
-    var $__0 = this;
-    var deref = this.deref();
-    return deref && deref.__iterate ? deref.__iterate((function(v, k) {
-      return fn(wrappedValue($__0, k, v), k, $__0);
-    }), reverse) : 0;
-  },
-  __iterator: function(type, reverse) {
-    var $__0 = this;
-    var deref = this.deref();
-    var iterator = deref && deref.__iterator && deref.__iterator(ITERATE_ENTRIES, reverse);
-    return new Iterator((function() {
-      if (!iterator) {
-        return iteratorDone();
-      }
-      var step = iterator.next();
-      if (step.done) {
-        return step;
-      }
-      var entry = step.value;
-      var k = entry[0];
-      var v = entry[1];
-      return iteratorValue(type, k, wrappedValue($__0, k, v), step);
-    }));
-  },
-  __ensureOwner: function(ownerID) {
-    return updateCursor(this, (function(m) {
-      return m.__ensureOwner(ownerID);
-    }));
-  }
-}, {}, Map);
-MapCursor.prototype[DELETE] = MapCursor.prototype.remove;
-function makeCursor(rootData, keyPath, onChange, value) {
-  if (arguments.length < 4) {
-    value = rootData.getIn(keyPath);
-  }
-  var length = value instanceof Sequence ? value.length : null;
-  return new MapCursor(rootData, keyPath, onChange, length);
-}
-function wrappedValue(cursor, key, value) {
-  return value instanceof Sequence ? subCursor(cursor, key, value) : value;
-}
-function subCursor(cursor, key, value) {
-  return makeCursor(cursor._rootData, cursor._keyPath.concat(key), cursor._onChange, value);
-}
-function updateCursor(cursor, changeFn, changeKey) {
-  var rootData = cursor._rootData;
-  var keyPath = cursor._keyPath;
-  var onChange = cursor._onChange;
-  var editPath = keyPath || [];
-  if (arguments.length > 2) {
-    editPath = editPath.concat(changeKey);
-  }
-  var updateIn = applyUpdateIn(keyPath, changeFn);
-  var newRootData = typeof rootData.deref === 'function' ? updateCursor(rootData, updateIn, editPath) : updateIn(rootData);
-  if (newRootData === rootData) {
-    return rootData;
-  }
-  onChange && onChange(newRootData, rootData, editPath);
-  return makeCursor(newRootData, keyPath, onChange);
-}
-function applyUpdateIn(keyPath, changeFn) {
-  return function(collection) {
-    return collection.updateIn(keyPath, (function(prev) {
-      return changeFn(prev instanceof Map ? prev : Map.empty());
-    }));
-  };
-}
 var Vector = function Vector() {
   for (var values = [],
       $__6 = 0; $__6 < arguments.length; $__6++)
@@ -2734,6 +2570,249 @@ function getTailOffset(size) {
   return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
 }
 var EMPTY_VECT;
+var MapCursor = function MapCursor(rootData, keyPath, onChange, length) {
+  this.length = length;
+  this._rootData = rootData;
+  this._keyPath = keyPath;
+  this._onChange = onChange;
+};
+($traceurRuntime.createClass)(MapCursor, {
+  toString: function() {
+    return (this.deref() || Map.empty()).toString();
+  },
+  equals: function(second) {
+    return is(this.deref(), second && (typeof second.deref === 'function' ? second.deref() : second));
+  },
+  deref: function(notSetValue) {
+    return this._rootData.getIn(this._keyPath, notSetValue);
+  },
+  get: function(key, notSetValue) {
+    return this.getIn([key], notSetValue);
+  },
+  getIn: function(searchKeyPath, notSetValue) {
+    if (!searchKeyPath || (Array.isArray(searchKeyPath) && searchKeyPath.length === 0)) {
+      return this;
+    }
+    var value = this._rootData.getIn(this._keyPath.concat(searchKeyPath), NOT_SET);
+    return value === NOT_SET ? notSetValue : wrappedValue(this, searchKeyPath, value);
+  },
+  set: function(key, value) {
+    return updateCursor(this, (function(m) {
+      return m.set(key, value);
+    }), key);
+  },
+  remove: function(key) {
+    return updateCursor(this, (function(m) {
+      return m.remove(key);
+    }), key);
+  },
+  updateIn: function(keyPath, notSetValue, updater) {
+    return updateCursor(this, (function(m) {
+      return m.updateIn(keyPath, notSetValue, updater);
+    }), keyPath);
+  },
+  merge: function() {
+    var args = arguments;
+    return updateCursor(this, (function(m) {
+      return m.merge.apply(m, args);
+    }));
+  },
+  mergeWith: function() {
+    var args = arguments;
+    return updateCursor(this, (function(m) {
+      return m.mergeWith.apply(m, args);
+    }));
+  },
+  mergeDeep: function() {
+    var args = arguments;
+    return updateCursor(this, (function(m) {
+      return m.mergeDeep.apply(m, args);
+    }));
+  },
+  mergeDeepWith: function() {
+    var args = arguments;
+    return updateCursor(this, (function(m) {
+      return m.mergeDeepWith.apply(m, args);
+    }));
+  },
+  clear: function() {
+    return updateCursor(this, (function(m) {
+      return m.clear();
+    }));
+  },
+  cursor: function(maybeKeyPath, onChange) {
+    var keyPath = arguments.length === 0 || typeof maybeKeyPath === 'function' && (onChange = maybeKeyPath) ? [] : Array.isArray(maybeKeyPath) ? maybeKeyPath : [maybeKeyPath];
+    if (!onChange) {
+      if (keyPath.length === 0) {
+        return this;
+      }
+      return subCursor(this, keyPath);
+    }
+    return makeCursor(this, keyPath, onChange);
+  },
+  withMutations: function(fn) {
+    return updateCursor(this, (function(m) {
+      return m.withMutations(fn);
+    }));
+  },
+  asMutable: function() {
+    return updateCursor(this, (function(m) {
+      return m.asMutable();
+    }));
+  },
+  asImmutable: function() {
+    return updateCursor(this, (function(m) {
+      return m.asImmutable();
+    }));
+  },
+  wasAltered: function() {
+    var deref = this.deref();
+    return !!(deref && deref.__altered);
+  },
+  __iterate: function(fn, reverse) {
+    var $__0 = this;
+    var deref = this.deref();
+    return deref && deref.__iterate ? deref.__iterate((function(v, k) {
+      return fn(wrappedValue($__0, k, v), k, $__0);
+    }), reverse) : 0;
+  },
+  __iterator: function(type, reverse) {
+    var $__0 = this;
+    var deref = this.deref();
+    var iterator = deref && deref.__iterator && deref.__iterator(ITERATE_ENTRIES, reverse);
+    return new Iterator((function() {
+      if (!iterator) {
+        return iteratorDone();
+      }
+      var step = iterator.next();
+      if (step.done) {
+        return step;
+      }
+      var entry = step.value;
+      var k = entry[0];
+      var v = entry[1];
+      return iteratorValue(type, k, wrappedValue($__0, k, v), step);
+    }));
+  },
+  __ensureOwner: function(ownerID) {
+    return updateCursor(this, (function(m) {
+      return m.__ensureOwner(ownerID);
+    }));
+  },
+  __empty: function() {
+    return Map.empty();
+  }
+}, {}, Map);
+var VectorCursor = function VectorCursor(rootData, keyPath, onChange, length) {
+  this.length = length;
+  this._rootData = rootData;
+  this._keyPath = keyPath;
+  this._onChange = onChange;
+};
+($traceurRuntime.createClass)(VectorCursor, {
+  push: function() {
+    var args = arguments;
+    return updateCursor(this, (function(v) {
+      return v.push.apply(v, args);
+    }));
+  },
+  pop: function() {
+    return updateCursor(this, (function(v) {
+      return v.pop();
+    }));
+  },
+  unshift: function() {
+    var args = arguments;
+    return updateCursor(this, (function(v) {
+      return v.unshift.apply(v, args);
+    }));
+  },
+  shift: function() {
+    return updateCursor(this, (function(v) {
+      return v.shift();
+    }));
+  },
+  setLength: function(length) {
+    return updateCursor(this, (function(v) {
+      return v.setLength(length);
+    }));
+  },
+  slice: function(begin, end) {
+    var args = arguments;
+    return updateCursor(this, (function(v) {
+      return v.slice.apply(v, args);
+    }));
+  },
+  __empty: function() {
+    return Vector.empty();
+  }
+}, {}, Vector);
+var MapCursorPrototype = MapCursor.prototype;
+var VectorCursorPrototype = VectorCursor.prototype;
+VectorCursorPrototype[DELETE] = VectorCursorPrototype.remove = MapCursorPrototype[DELETE] = MapCursorPrototype.remove;
+VectorCursorPrototype.toString = MapCursorPrototype.toString;
+VectorCursorPrototype.equals = MapCursorPrototype.equals;
+VectorCursorPrototype.deref = MapCursorPrototype.deref;
+VectorCursorPrototype.get = MapCursorPrototype.get;
+VectorCursorPrototype.getIn = MapCursorPrototype.getIn;
+VectorCursorPrototype.set = MapCursorPrototype.set;
+VectorCursorPrototype.remove = MapCursorPrototype.remove;
+VectorCursorPrototype.updateIn = MapCursorPrototype.updateIn;
+VectorCursorPrototype.merge = MapCursorPrototype.merge;
+VectorCursorPrototype.mergeWith = MapCursorPrototype.mergeWith;
+VectorCursorPrototype.mergeDeep = MapCursorPrototype.mergeDeep;
+VectorCursorPrototype.mergeDeepWith = MapCursorPrototype.mergeDeepWith;
+VectorCursorPrototype.clear = MapCursorPrototype.clear;
+VectorCursorPrototype.cursor = MapCursorPrototype.cursor;
+VectorCursorPrototype.withMutations = MapCursorPrototype.withMutations;
+VectorCursorPrototype.asMutable = MapCursorPrototype.asMutable;
+VectorCursorPrototype.asImmutable = MapCursorPrototype.asImmutable;
+VectorCursorPrototype.wasAltered = MapCursorPrototype.wasAltered;
+VectorCursorPrototype.__iterate = MapCursorPrototype.__iterate;
+VectorCursorPrototype.__iterator = MapCursorPrototype.__iterator;
+VectorCursorPrototype.__ensureOwner = MapCursorPrototype.__ensureOwner;
+function makeCursor(rootData, keyPath, onChange, value) {
+  value = value || rootData.getIn(keyPath, NOT_SET);
+  if (value === NOT_SET || value instanceof Sequence) {
+    var length = value && value.length;
+    if (value instanceof Vector) {
+      return new VectorCursor(rootData, keyPath, onChange, length);
+    } else {
+      return new MapCursor(rootData, keyPath, onChange, length);
+    }
+  } else {
+    return value;
+  }
+}
+function wrappedValue(cursor, key, value) {
+  return value instanceof Sequence ? subCursor(cursor, key, value) : value;
+}
+function subCursor(cursor, key, value) {
+  return makeCursor(cursor._rootData, cursor._keyPath.concat(key), cursor._onChange, value);
+}
+function updateCursor(cursor, changeFn, changeKey) {
+  var rootData = cursor._rootData;
+  var keyPath = cursor._keyPath;
+  var onChange = cursor._onChange;
+  var editPath = keyPath || [];
+  if (arguments.length > 2) {
+    editPath = editPath.concat(changeKey);
+  }
+  var updateIn = applyUpdateIn(keyPath, changeFn, cursor.__empty());
+  var newRootData = typeof rootData.deref === 'function' ? updateCursor(rootData, updateIn, editPath) : updateIn(rootData);
+  if (newRootData === rootData) {
+    return rootData;
+  }
+  onChange && onChange(newRootData, rootData, editPath);
+  return makeCursor(newRootData, keyPath, onChange);
+}
+function applyUpdateIn(keyPath, changeFn, empty) {
+  return function(collection) {
+    return collection.updateIn(keyPath, (function(prev) {
+      return changeFn(prev instanceof Map ? prev : empty);
+    }));
+  };
+}
 var Stack = function Stack() {
   for (var values = [],
       $__9 = 0; $__9 < arguments.length; $__9++)
