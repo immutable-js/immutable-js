@@ -40,6 +40,12 @@ describe('Cursor', () => {
     var aCursor = cursor.cursor('a');
     expect(cursor instanceof Immutable.Map).toBe(true);
     expect(aCursor instanceof Immutable.Vector).toBe(true);
+    expect(
+      aCursor.update(() => Immutable.Set.empty()) instanceof Immutable.Set
+    ).toBe(true);
+    expect(
+      aCursor.update(() => Immutable.Stack.empty()) instanceof Immutable.Stack
+    ).toBe(true);
   });
 
   it('gets return new cursors', () => {

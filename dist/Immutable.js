@@ -2749,6 +2749,183 @@ function makeSet(map, ownerID) {
   return set;
 }
 var EMPTY_SET;
+var Stack = function Stack() {
+  for (var values = [],
+      $__13 = 0; $__13 < arguments.length; $__13++)
+    values[$__13] = arguments[$__13];
+  return $Stack.from(values);
+};
+var $Stack = Stack;
+($traceurRuntime.createClass)(Stack, {
+  toString: function() {
+    return this.__toString('Stack [', ']');
+  },
+  get: function(index, notSetValue) {
+    var head = this._head;
+    while (head && index--) {
+      head = head.next;
+    }
+    return head ? head.value : notSetValue;
+  },
+  peek: function() {
+    return this._head && this._head.value;
+  },
+  push: function() {
+    if (arguments.length === 0) {
+      return this;
+    }
+    var newLength = this.length + arguments.length;
+    var head = this._head;
+    for (var ii = arguments.length - 1; ii >= 0; ii--) {
+      head = {
+        value: arguments[ii],
+        next: head
+      };
+    }
+    if (this.__ownerID) {
+      this.length = newLength;
+      this._head = head;
+      this.__hash = undefined;
+      this.__altered = true;
+      return this;
+    }
+    return makeStack(newLength, head);
+  },
+  pushAll: function(seq) {
+    seq = Sequence(seq);
+    if (seq.length === 0) {
+      return this;
+    }
+    var newLength = this.length;
+    var head = this._head;
+    seq.reverse().forEach((function(value) {
+      newLength++;
+      head = {
+        value: value,
+        next: head
+      };
+    }));
+    if (this.__ownerID) {
+      this.length = newLength;
+      this._head = head;
+      this.__hash = undefined;
+      this.__altered = true;
+      return this;
+    }
+    return makeStack(newLength, head);
+  },
+  pop: function() {
+    return this.slice(1);
+  },
+  unshift: function() {
+    return this.push.apply(this, arguments);
+  },
+  unshiftAll: function(seq) {
+    return this.pushAll(seq);
+  },
+  shift: function() {
+    return this.pop.apply(this, arguments);
+  },
+  clear: function() {
+    if (this.length === 0) {
+      return this;
+    }
+    if (this.__ownerID) {
+      this.length = 0;
+      this._head = undefined;
+      this.__hash = undefined;
+      this.__altered = true;
+      return this;
+    }
+    return $Stack.empty();
+  },
+  slice: function(begin, end) {
+    if (wholeSlice(begin, end, this.length)) {
+      return this;
+    }
+    var resolvedBegin = resolveBegin(begin, this.length);
+    var resolvedEnd = resolveEnd(end, this.length);
+    if (resolvedEnd !== this.length) {
+      return $traceurRuntime.superCall(this, $Stack.prototype, "slice", [begin, end]);
+    }
+    var newLength = this.length - resolvedBegin;
+    var head = this._head;
+    while (resolvedBegin--) {
+      head = head.next;
+    }
+    if (this.__ownerID) {
+      this.length = newLength;
+      this._head = head;
+      this.__hash = undefined;
+      this.__altered = true;
+      return this;
+    }
+    return makeStack(newLength, head);
+  },
+  __ensureOwner: function(ownerID) {
+    if (ownerID === this.__ownerID) {
+      return this;
+    }
+    if (!ownerID) {
+      this.__ownerID = ownerID;
+      this.__altered = false;
+      return this;
+    }
+    return makeStack(this.length, this._head, ownerID, this.__hash);
+  },
+  __iterateUncached: function(fn, reverse) {
+    if (reverse) {
+      return this.cacheResult().__iterate(fn, reverse);
+    }
+    var iterations = 0;
+    var node = this._head;
+    while (node) {
+      if (fn(node.value, iterations++, this) === false) {
+        break;
+      }
+      node = node.next;
+    }
+    return iterations;
+  },
+  __iteratorUncached: function(type, reverse) {
+    if (reverse) {
+      return this.cacheResult().__iterator(type, reverse);
+    }
+    var iterations = 0;
+    var node = this._head;
+    return new Iterator((function() {
+      if (node) {
+        var value = node.value;
+        node = node.next;
+        return iteratorValue(type, iterations++, value);
+      }
+      return iteratorDone();
+    }));
+  }
+}, {
+  empty: function() {
+    return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
+  },
+  from: function(sequence) {
+    var stack = $Stack.empty();
+    return sequence ? sequence.constructor === $Stack ? sequence : stack.unshiftAll(sequence) : stack;
+  }
+}, IndexedSequence);
+var StackPrototype = Stack.prototype;
+StackPrototype.withMutations = MapPrototype.withMutations;
+StackPrototype.asMutable = MapPrototype.asMutable;
+StackPrototype.asImmutable = MapPrototype.asImmutable;
+StackPrototype.wasAltered = MapPrototype.wasAltered;
+function makeStack(length, head, ownerID, hash) {
+  var map = Object.create(StackPrototype);
+  map.length = length;
+  map._head = head;
+  map.__ownerID = ownerID;
+  map.__hash = hash;
+  map.__altered = false;
+  return map;
+}
+var EMPTY_STACK;
 var MapCursor = function MapCursor(rootData, keyPath, onChange, length) {
   this.length = length;
   this._rootData = rootData;
@@ -3001,12 +3178,49 @@ SetCursorPrototype.wasAltered = MapCursorPrototype.wasAltered;
 SetCursorPrototype.__iterate = MapCursorPrototype.__iterate;
 SetCursorPrototype.__iterator = MapCursorPrototype.__iterator;
 SetCursorPrototype.__ensureOwner = MapCursorPrototype.__ensureOwner;
+var StackCursor = function StackCursor(rootData, keyPath, onChange, length) {
+  this.length = length;
+  this._rootData = rootData;
+  this._keyPath = keyPath;
+  this._onChange = onChange;
+};
+($traceurRuntime.createClass)(StackCursor, {
+  pushAll: function(seq) {
+    return updateCursor(this, (function(v) {
+      return v.pushAll(seq);
+    }));
+  },
+  peek: function() {
+    return this.deref().peek();
+  }
+}, {}, Stack);
+var StackCursorPrototype = StackCursor.prototype;
+StackCursorPrototype.toString = MapCursorPrototype.toString;
+StackCursorPrototype.equals = MapCursorPrototype.equals;
+StackCursorPrototype.deref = MapCursorPrototype.deref;
+StackCursorPrototype.get = MapCursorPrototype.get;
+StackCursorPrototype.getIn = MapCursorPrototype.getIn;
+StackCursorPrototype.push = VectorCursorPrototype.push;
+StackCursorPrototype.pop = VectorCursorPrototype.pop;
+StackCursorPrototype.slice = VectorCursorPrototype.slice;
+StackCursorPrototype.clear = MapCursorPrototype.clear;
+StackCursorPrototype.withMutations = MapCursorPrototype.withMutations;
+StackCursorPrototype.asMutable = MapCursorPrototype.asMutable;
+StackCursorPrototype.asImmutable = MapCursorPrototype.asImmutable;
+StackCursorPrototype.wasAltered = MapCursorPrototype.wasAltered;
+StackCursorPrototype.__iterate = MapCursorPrototype.__iterate;
+StackCursorPrototype.__iterator = MapCursorPrototype.__iterator;
+StackCursorPrototype.__ensureOwner = MapCursorPrototype.__ensureOwner;
 function makeCursor(rootData, keyPath, onChange, value) {
   value = value || rootData.getIn(keyPath, NOT_SET);
   if (value === NOT_SET || value instanceof Sequence) {
     var length = value && value.length;
     if (value instanceof Vector) {
       return new VectorCursor(rootData, keyPath, onChange, length);
+    } else if (value instanceof Set) {
+      return new SetCursor(rootData, keyPath, onChange, length);
+    } else if (value instanceof Stack) {
+      return new StackCursor(rootData, keyPath, onChange, length);
     } else {
       return new MapCursor(rootData, keyPath, onChange, length);
     }
@@ -3041,176 +3255,6 @@ function applyUpdateIn(keyPath, changeFn) {
     return collection.updateIn(keyPath, Map.empty(), changeFn);
   };
 }
-var Stack = function Stack() {
-  for (var values = [],
-      $__13 = 0; $__13 < arguments.length; $__13++)
-    values[$__13] = arguments[$__13];
-  return $Stack.from(values);
-};
-var $Stack = Stack;
-($traceurRuntime.createClass)(Stack, {
-  toString: function() {
-    return this.__toString('Stack [', ']');
-  },
-  get: function(index, notSetValue) {
-    var head = this._head;
-    while (head && index--) {
-      head = head.next;
-    }
-    return head ? head.value : notSetValue;
-  },
-  peek: function() {
-    return this._head && this._head.value;
-  },
-  unshift: function() {
-    if (arguments.length === 0) {
-      return this;
-    }
-    var newLength = this.length + arguments.length;
-    var head = this._head;
-    for (var ii = arguments.length - 1; ii >= 0; ii--) {
-      head = {
-        value: arguments[ii],
-        next: head
-      };
-    }
-    if (this.__ownerID) {
-      this.length = newLength;
-      this._head = head;
-      this.__hash = undefined;
-      this.__altered = true;
-      return this;
-    }
-    return makeStack(newLength, head);
-  },
-  unshiftAll: function(seq) {
-    seq = Sequence(seq);
-    if (seq.length === 0) {
-      return this;
-    }
-    var newLength = this.length;
-    var head = this._head;
-    seq.reverse().forEach((function(value) {
-      newLength++;
-      head = {
-        value: value,
-        next: head
-      };
-    }));
-    if (this.__ownerID) {
-      this.length = newLength;
-      this._head = head;
-      this.__hash = undefined;
-      this.__altered = true;
-      return this;
-    }
-    return makeStack(newLength, head);
-  },
-  shift: function() {
-    return this.slice(1);
-  },
-  clear: function() {
-    if (this.length === 0) {
-      return this;
-    }
-    if (this.__ownerID) {
-      this.length = 0;
-      this._head = undefined;
-      this.__hash = undefined;
-      this.__altered = true;
-      return this;
-    }
-    return $Stack.empty();
-  },
-  slice: function(begin, end) {
-    if (wholeSlice(begin, end, this.length)) {
-      return this;
-    }
-    var resolvedBegin = resolveBegin(begin, this.length);
-    var resolvedEnd = resolveEnd(end, this.length);
-    if (resolvedEnd !== this.length) {
-      return $traceurRuntime.superCall(this, $Stack.prototype, "slice", [begin, end]);
-    }
-    var newLength = this.length - resolvedBegin;
-    var head = this._head;
-    while (resolvedBegin--) {
-      head = head.next;
-    }
-    if (this.__ownerID) {
-      this.length = newLength;
-      this._head = head;
-      this.__hash = undefined;
-      this.__altered = true;
-      return this;
-    }
-    return makeStack(newLength, head);
-  },
-  __ensureOwner: function(ownerID) {
-    if (ownerID === this.__ownerID) {
-      return this;
-    }
-    if (!ownerID) {
-      this.__ownerID = ownerID;
-      this.__altered = false;
-      return this;
-    }
-    return makeStack(this.length, this._head, ownerID, this.__hash);
-  },
-  __iterateUncached: function(fn, reverse) {
-    if (reverse) {
-      return this.cacheResult().__iterate(fn, reverse);
-    }
-    var iterations = 0;
-    var node = this._head;
-    while (node) {
-      if (fn(node.value, iterations++, this) === false) {
-        break;
-      }
-      node = node.next;
-    }
-    return iterations;
-  },
-  __iteratorUncached: function(type, reverse) {
-    if (reverse) {
-      return this.cacheResult().__iterator(type, reverse);
-    }
-    var iterations = 0;
-    var node = this._head;
-    return new Iterator((function() {
-      if (node) {
-        var value = node.value;
-        node = node.next;
-        return iteratorValue(type, iterations++, value);
-      }
-      return iteratorDone();
-    }));
-  }
-}, {
-  empty: function() {
-    return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
-  },
-  from: function(sequence) {
-    var stack = $Stack.empty();
-    return sequence ? sequence.constructor === $Stack ? sequence : stack.unshiftAll(sequence) : stack;
-  }
-}, IndexedSequence);
-var StackPrototype = Stack.prototype;
-StackPrototype.push = StackPrototype.unshift;
-StackPrototype.pop = StackPrototype.shift;
-StackPrototype.withMutations = MapPrototype.withMutations;
-StackPrototype.asMutable = MapPrototype.asMutable;
-StackPrototype.asImmutable = MapPrototype.asImmutable;
-StackPrototype.wasAltered = MapPrototype.wasAltered;
-function makeStack(length, head, ownerID, hash) {
-  var map = Object.create(StackPrototype);
-  map.length = length;
-  map._head = head;
-  map.__ownerID = ownerID;
-  map.__hash = hash;
-  map.__altered = false;
-  return map;
-}
-var EMPTY_STACK;
 var OrderedMap = function OrderedMap(sequence) {
   var map = $OrderedMap.empty();
   return sequence ? sequence.constructor === $OrderedMap ? sequence : map.merge(sequence) : map;

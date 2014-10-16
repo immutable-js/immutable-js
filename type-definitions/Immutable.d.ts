@@ -1844,6 +1844,12 @@ declare module 'immutable' {
     push(...values: T[]): Stack<T>;
 
     /**
+     * Alias for `Stack#unshiftAll`.
+     */
+    pushAll(seq: Sequence<any, T>): Stack<T>;
+    pushAll(seq: Array<T>): Stack<T>;
+
+    /**
      * Alias for `Stack#shift` and is not equivalent to `Vector#pop`.
      */
     pop(): Stack<T>;

@@ -12,9 +12,10 @@ import "Sequence"
 import "Map"
 import "Vector"
 import "Set"
+import "Stack"
 import "TrieUtils"
 import "Iterator"
-/* global is, Sequence, Map, Vector, Set, NOT_SET, DELETE,
+/* global is, Sequence, Map, Vector, Set, Stack, NOT_SET, DELETE,
           ITERATE_ENTRIES, Iterator, iteratorDone, iteratorValue */
 /* exported makeCursor */
 
@@ -282,12 +283,54 @@ SetCursorPrototype.__ensureOwner = MapCursorPrototype.__ensureOwner;
 
 
 
+class StackCursor extends Stack {
+
+  constructor(rootData, keyPath, onChange, length) {
+    this.length = length;
+    this._rootData = rootData;
+    this._keyPath = keyPath;
+    this._onChange = onChange;
+  }
+
+  pushAll(seq) {
+    return updateCursor(this, v => v.pushAll(seq));
+  }
+
+  peek() {
+    return this.deref().peek();
+  }
+}
+
+var StackCursorPrototype = StackCursor.prototype;
+StackCursorPrototype.toString = MapCursorPrototype.toString;
+StackCursorPrototype.equals = MapCursorPrototype.equals;
+StackCursorPrototype.deref = MapCursorPrototype.deref;
+StackCursorPrototype.get = MapCursorPrototype.get;
+StackCursorPrototype.getIn = MapCursorPrototype.getIn;
+StackCursorPrototype.push = VectorCursorPrototype.push;
+StackCursorPrototype.pop = VectorCursorPrototype.pop;
+StackCursorPrototype.slice = VectorCursorPrototype.slice;
+StackCursorPrototype.clear = MapCursorPrototype.clear;
+StackCursorPrototype.withMutations = MapCursorPrototype.withMutations;
+StackCursorPrototype.asMutable = MapCursorPrototype.asMutable;
+StackCursorPrototype.asImmutable = MapCursorPrototype.asImmutable;
+StackCursorPrototype.wasAltered = MapCursorPrototype.wasAltered;
+StackCursorPrototype.__iterate = MapCursorPrototype.__iterate;
+StackCursorPrototype.__iterator = MapCursorPrototype.__iterator;
+StackCursorPrototype.__ensureOwner = MapCursorPrototype.__ensureOwner;
+
+
+
 function makeCursor(rootData, keyPath, onChange, value) {
   value = value || rootData.getIn(keyPath, NOT_SET);
   if (value === NOT_SET || value instanceof Sequence) {
     var length = value && value.length;
     if (value instanceof Vector) {
       return new VectorCursor(rootData, keyPath, onChange, length);
+    } else if (value instanceof Set) {
+      return new SetCursor(rootData, keyPath, onChange, length);
+    } else if (value instanceof Stack) {
+      return new StackCursor(rootData, keyPath, onChange, length);
     } else {
       return new MapCursor(rootData, keyPath, onChange, length);
     }

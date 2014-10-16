@@ -56,7 +56,7 @@ class Stack extends IndexedSequence {
 
   // @pragma Modification
 
-  unshift(/*...values*/) {
+  push(/*...values*/) {
     if (arguments.length === 0) {
       return this;
     }
@@ -78,7 +78,7 @@ class Stack extends IndexedSequence {
     return makeStack(newLength, head);
   }
 
-  unshiftAll(seq) {
+  pushAll(seq) {
     seq = Sequence(seq);
     if (seq.length === 0) {
       return this;
@@ -102,8 +102,20 @@ class Stack extends IndexedSequence {
     return makeStack(newLength, head);
   }
 
-  shift() {
+  pop() {
     return this.slice(1);
+  }
+
+  unshift(/*...values*/) {
+    return this.push.apply(this, arguments);
+  }
+
+  unshiftAll(seq) {
+    return this.pushAll(seq);
+  }
+
+  shift() {
+    return this.pop.apply(this, arguments);
   }
 
   clear() {
@@ -193,8 +205,6 @@ class Stack extends IndexedSequence {
 }
 
 var StackPrototype = Stack.prototype;
-StackPrototype.push = StackPrototype.unshift;
-StackPrototype.pop = StackPrototype.shift;
 StackPrototype.withMutations = MapPrototype.withMutations;
 StackPrototype.asMutable = MapPrototype.asMutable;
 StackPrototype.asImmutable = MapPrototype.asImmutable;
