@@ -8,7 +8,6 @@
  */
 
 import "Sequence"
-import "Cursor" // Fix a dependency cycle with Cursor -> Map
 import "Map"
 import "Vector"
 import "Stack"
@@ -19,7 +18,9 @@ import "Range"
 import "Repeat"
 import "is"
 import "fromJS"
-/* global Sequence, Map, Vector, Stack, Set, OrderedMap, Record, Range, Repeat, is, fromJS */
+import "Cursor"
+/* global Sequence, Map, Vector, Stack, Set, OrderedMap, Record, Range, Repeat,
+          is, fromJS, isCursor, unCursor */
 /* exported Immutable */
 
 
@@ -35,4 +36,6 @@ var Immutable = {
   Repeat: Repeat,
   is: is,
   fromJS: fromJS,
+  isCursor: isCursor,
+  unCursor: unCursor
 };

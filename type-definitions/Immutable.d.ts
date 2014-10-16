@@ -1921,6 +1921,24 @@ declare module 'immutable' {
 
 
 
+  /**
+   * Returns true if the collection provided is actually a Cursor to a
+   * collection.
+   *
+   * @see Map#cursor
+   */
+  export function isCursor(maybeCursor: any): boolean;
+
+  /**
+   * If a Cursor, returns the collection referenced, otherwise returns the
+   * non-cursor value provided.
+   *
+   * @see Map#cursor
+   */
+  export function unCursor(maybeCursor: any): any;
+
+
+
   // ES6 Iterator
   export interface Iterator<T> {
     next(): { value: T; done: boolean; }

@@ -17,7 +17,7 @@ import "TrieUtils"
 import "Iterator"
 /* global is, Sequence, Map, Vector, Set, Stack, NOT_SET, DELETE,
           ITERATE_ENTRIES, Iterator, iteratorDone, iteratorValue */
-/* exported makeCursor */
+/* exported makeCursor, isCursor, unCursor */
 
 class MapCursor extends Map {
 
@@ -29,18 +29,11 @@ class MapCursor extends Map {
   }
 
   toString() {
-    return (this.deref() || Map.empty()).toString();
+    return this.__deref().toString();
   }
 
   equals(second) {
-    return is(
-      this.deref(),
-      second && (typeof second.deref === 'function' ? second.deref() : second)
-    );
-  }
-
-  deref(notSetValue) {
-    return this._rootData.getIn(this._keyPath, notSetValue);
+    return is(this.__deref(), unCursor(second));
   }
 
   get(key, notSetValue) {
@@ -120,21 +113,18 @@ class MapCursor extends Map {
   }
 
   wasAltered() {
-    var deref = this.deref();
-    return !!(deref && deref.__altered);
+    return this.__deref().wasAltered();
   }
 
   __iterate(fn, reverse) {
-    var deref = this.deref();
-    return deref && deref.__iterate ? deref.__iterate(
+    return this.__deref().__iterate(
       (v, k) => fn(wrappedValue(this, k, v), k, this),
       reverse
-    ) : 0;
+    );
   }
 
   __iterator(type, reverse) {
-    var deref = this.deref();
-    var iterator = deref && deref.__iterator && deref.__iterator(ITERATE_ENTRIES, reverse);
+    var iterator = this.__deref().__iterator(ITERATE_ENTRIES, reverse);
     return new Iterator(() => {
       if (!iterator) {
         return iteratorDone();
@@ -152,6 +142,10 @@ class MapCursor extends Map {
 
   __ensureOwner(ownerID) {
     return updateCursor(this, m => m.__ensureOwner(ownerID));
+  }
+
+  __deref() {
+    return this._rootData.getIn(this._keyPath, Map.empty());
   }
 }
 
@@ -201,7 +195,7 @@ var VectorCursorPrototype = VectorCursor.prototype;
 VectorCursorPrototype[DELETE] = VectorCursorPrototype.remove = MapCursorPrototype.remove;
 VectorCursorPrototype.toString = MapCursorPrototype.toString;
 VectorCursorPrototype.equals = MapCursorPrototype.equals;
-VectorCursorPrototype.deref = MapCursorPrototype.deref;
+VectorCursorPrototype.__deref = MapCursorPrototype.__deref;
 VectorCursorPrototype.get = MapCursorPrototype.get;
 VectorCursorPrototype.getIn = MapCursorPrototype.getIn;
 VectorCursorPrototype.set = MapCursorPrototype.set;
@@ -237,7 +231,7 @@ class SetCursor extends Set {
   }
 
   contains(value) {
-    return value.deref().contains(value);
+    return value.__deref().contains(value);
   }
 
   union(/*...seqs*/) {
@@ -256,11 +250,11 @@ class SetCursor extends Set {
   }
 
   isSubset(seq) {
-    return this.deref().isSubset(seq);
+    return this.__deref().isSubset(seq);
   }
 
   isSuperset(seq) {
-    return this.deref().isSuperset(seq);
+    return this.__deref().isSuperset(seq);
   }
 }
 
@@ -268,7 +262,7 @@ var SetCursorPrototype = SetCursor.prototype;
 SetCursorPrototype[DELETE] = SetCursorPrototype.remove = MapCursorPrototype.remove;
 SetCursorPrototype.toString = MapCursorPrototype.toString;
 SetCursorPrototype.equals = MapCursorPrototype.equals;
-SetCursorPrototype.deref = MapCursorPrototype.deref;
+SetCursorPrototype.__deref = MapCursorPrototype.__deref;
 SetCursorPrototype.get = MapCursorPrototype.get;
 SetCursorPrototype.getIn = MapCursorPrototype.getIn;
 SetCursorPrototype.remove = MapCursorPrototype.remove;
@@ -297,14 +291,14 @@ class StackCursor extends Stack {
   }
 
   peek() {
-    return this.deref().peek();
+    return this.__deref().peek();
   }
 }
 
 var StackCursorPrototype = StackCursor.prototype;
 StackCursorPrototype.toString = MapCursorPrototype.toString;
 StackCursorPrototype.equals = MapCursorPrototype.equals;
-StackCursorPrototype.deref = MapCursorPrototype.deref;
+StackCursorPrototype.__deref = MapCursorPrototype.__deref;
 StackCursorPrototype.get = MapCursorPrototype.get;
 StackCursorPrototype.getIn = MapCursorPrototype.getIn;
 StackCursorPrototype.push = VectorCursorPrototype.push;
@@ -320,6 +314,15 @@ StackCursorPrototype.__iterator = MapCursorPrototype.__iterator;
 StackCursorPrototype.__ensureOwner = MapCursorPrototype.__ensureOwner;
 
 
+
+function isCursor(maybeCursor) {
+  return maybeCursor instanceof Sequence &&
+    typeof maybeCursor.__deref === 'function';
+}
+
+function unCursor(cursor) {
+  return isCursor(cursor) ? cursor.__deref() : cursor;
+}
 
 function makeCursor(rootData, keyPath, onChange, value) {
   value = value || rootData.getIn(keyPath, NOT_SET);
@@ -363,7 +366,7 @@ function updateCursor(cursor, changeFn, changeKey) {
   }
 
   var updateIn = applyUpdateIn(keyPath, changeFn);
-  var newRootData = typeof rootData.deref === 'function' ?
+  var newRootData = isCursor(rootData) ?
     updateCursor(rootData, updateIn, editPath) :
     updateIn(rootData);
 

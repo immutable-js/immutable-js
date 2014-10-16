@@ -4,6 +4,7 @@
 jest.autoMockOff();
 
 import Immutable = require('immutable');
+import Map = Immutable.Map;
 
 jasmine.getEnv().addEqualityTester((a, b) =>
   a instanceof Immutable.Sequence && b instanceof Immutable.Sequence ?
@@ -19,7 +20,7 @@ describe('Cursor', () => {
     var data = Immutable.fromJS(json);
     var cursor = data.cursor();
 
-    expect(cursor.deref()).toBe(data);
+    expect(Immutable.unCursor(cursor)).toBe(data);
 
     var deepCursor = cursor.cursor(['a', 'b']);
     expect(deepCursor.toJS()).toEqual(json.a.b);
@@ -30,8 +31,8 @@ describe('Cursor', () => {
     expect(leafCursor).toBe(1);
 
     var missCursor = deepCursor.cursor('d');
-    expect(Immutable.is(missCursor, undefined)).toBe(true);
-    expect(missCursor.deref()).toBe(undefined);
+    expect(Immutable.is(missCursor, Map.empty())).toBe(true);
+    expect(Immutable.unCursor(missCursor)).toEqual(Map.empty());
   });
 
   it('appears to be the type it points to', () => {
@@ -48,11 +49,17 @@ describe('Cursor', () => {
     ).toBe(true);
   });
 
+  it('can detect cursors', () => {
+    var data = Immutable.fromJS(json);
+    expect(Immutable.isCursor(data.get('a'))).toBe(false);
+    expect(Immutable.isCursor(data.cursor('a'))).toBe(true);
+  });
+
   it('gets return new cursors', () => {
     var data = Immutable.fromJS(json);
     var cursor = data.cursor();
     var deepCursor = cursor.getIn(['a', 'b']);
-    expect(deepCursor.deref()).toBe(data.getIn(['a', 'b']));
+    expect(Immutable.unCursor(deepCursor)).toBe(data.getIn(['a', 'b']));
   });
 
   it('can be treated as a value', () => {
@@ -135,9 +142,9 @@ describe('Cursor', () => {
   it('creates maps as necessary', () => {
     var data = Immutable.Map();
     var cursor = data.cursor(['a', 'b', 'c']);
-    expect(cursor.deref()).toBe(undefined);
+    expect(cursor).toEqual(Map.empty());
     cursor = cursor.set('d', 3);
-    expect(cursor.deref()).toEqual(Immutable.Map({d: 3}));
+    expect(cursor).toEqual(Immutable.Map({d: 3}));
   });
 
   it('has the sequence API', () => {
@@ -151,7 +158,7 @@ describe('Cursor', () => {
     var onChange = jest.genMockFunction();
     var cursor = data.cursor(onChange);
     var found = cursor.find(map => map.get('v') === 2);
-    expect(typeof found.deref).toBe('function'); // is a cursor!
+    expect(Immutable.isCursor(found)).toBe(true);
     found = found.set('v', 20);
     expect(onChange).lastCalledWith(
       Immutable.fromJS({a: {v: 1}, b: {v: 20}, c: {v: 3}}),
@@ -167,8 +174,8 @@ describe('Cursor', () => {
     var c1 = data.cursor(onChange);
     var c2 = c1.withMutations(m => m.set('b', 2).set('c', 3).set('d', 4));
 
-    expect(c1.deref().toObject()).toEqual({'a': 1});
-    expect(c2.deref().toObject()).toEqual({'a': 1, 'b': 2, 'c': 3, 'd': 4});
+    expect(c1.toObject()).toEqual({'a': 1});
+    expect(c2.toObject()).toEqual({'a': 1, 'b': 2, 'c': 3, 'd': 4});
     expect(onChange.mock.calls.length).toBe(1);
   });
 
@@ -179,8 +186,8 @@ describe('Cursor', () => {
     var c1 = data.cursor(['a', 'b', 'c'], onChange);
     var c2 = c1.withMutations(m => m.set('x', 1).set('y', 2).set('z', 3));
 
-    expect(c1.deref()).toEqual(undefined);
-    expect(c2.deref()).toEqual(Immutable.fromJS(
+    expect(c1).toEqual(Map.empty());
+    expect(c2).toEqual(Immutable.fromJS(
       { x: 1, y: 2, z: 3 }
     ));
     expect(onChange.mock.calls.length).toBe(1);
