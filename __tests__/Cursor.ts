@@ -172,4 +172,29 @@ describe('Cursor', () => {
     expect(onChange.mock.calls.length).toBe(1);
   });
 
+  it('can create sub-cursors', () => {
+    var onChange = jest.genMockFunction();
+    var data = Immutable.fromJS({a:{b:{c:1}}});
+
+    var cursorA = data.cursor('a', onChange);
+    var cursorAB = cursorA.cursor('b', onChange);
+
+    cursorAB.update('c', v => v + 1);
+
+    expect(data.getIn(['a', 'b', 'c'])).toBe(1); // persistent
+
+    expect(onChange.mock.calls).toEqual([
+      [
+        Immutable.fromJS({ a: { b: { c: 2 } } }),
+        Immutable.fromJS({ a: { b: { c: 1 } } }),
+        [ 'a', 'b', 'c' ]
+      ],
+      [
+        Immutable.fromJS({ b: { c: 2 } }),
+        Immutable.fromJS({ b: { c: 1 } }),
+        [ 'b', 'c' ]
+      ]
+    ]);
+  });
+
 });

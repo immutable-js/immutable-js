@@ -2121,7 +2121,7 @@ var Cursor = function Cursor(rootData, keyPath, onChange, length) {
       }
       return subCursor(this, keyPath);
     }
-    return makeCursor(this, keyPath, onChange, this.deref().getIn(keyPath));
+    return makeCursor(this, keyPath, onChange);
   },
   withMutations: function(fn) {
     return updateCursor(this, (function(m) {
@@ -2170,10 +2170,20 @@ function subCursor(cursor, key, value) {
 }
 function updateCursor(cursor, changeFn, changeKey) {
   var updatingSelf = arguments.length < 3 || (Array.isArray(changeKey) && changeKey.length === 0);
-  var newRootData = cursor._rootData.updateIn(cursor._keyPath, updatingSelf ? undefined : Map.empty(), changeFn);
-  var keyPath = cursor._keyPath || [];
-  cursor._onChange && cursor._onChange.call(undefined, newRootData, cursor._rootData, updatingSelf ? keyPath : keyPath.concat(changeKey));
+  var rootData = cursor._rootData;
+  var editPath = cursor._keyPath || [];
+  if (!updatingSelf) {
+    editPath = editPath.concat(changeKey);
+  }
+  var updateIn = applyUpdateIn(cursor._keyPath, updatingSelf ? undefined : Map.empty(), changeFn);
+  var newRootData = typeof rootData.deref === 'function' ? updateCursor(rootData, updateIn, editPath) : updateIn(rootData);
+  cursor._onChange && cursor._onChange(newRootData, rootData, editPath);
   return makeCursor(newRootData, cursor._keyPath, cursor._onChange);
+}
+function applyUpdateIn(keyPath, notSetValue, changeFn) {
+  return function(collection) {
+    return collection.updateIn(keyPath, notSetValue, changeFn);
+  };
 }
 var Vector = function Vector() {
   for (var values = [],
