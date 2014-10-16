@@ -333,11 +333,13 @@ class Sequence {
   }
 
   flatMap(mapper, context) {
-    return this.map(mapper, context).flatten();
+    return this.map(
+      (v, k, c) => Sequence(mapper.call(context, v, k, c))
+    ).flatten(true);
   }
 
-  flatten() {
-    return flattenFactory(this, true);
+  flatten(depth) {
+    return flattenFactory(this, depth, true);
   }
 
   flip() {
@@ -553,8 +555,8 @@ class IndexedSequence extends Sequence {
     return this.get(0);
   }
 
-  flatten() {
-    return flattenFactory(this, false);
+  flatten(depth) {
+    return flattenFactory(this, depth, false);
   }
 
   flip() {
@@ -1432,7 +1434,7 @@ function concatFactory(sequence, values, useKeys) {
   if (useKeys) {
     concatSequence = concatSequence.toKeyedSeq();
   }
-  concatSequence = concatSequence.flatten();
+  concatSequence = concatSequence.flatMap(valueMapper);
   concatSequence.length = sequences.reduce(
     (sum, seq) => {
       if (sum !== undefined) {
@@ -1447,46 +1449,47 @@ function concatFactory(sequence, values, useKeys) {
   return concatSequence;
 }
 
-function flattenFactory(sequence, useKeys) {
+function flattenFactory(sequence, depth, useKeys) {
   var flatSequence = sequence.__makeSequence();
   flatSequence.__iterateUncached = function(fn, reverse) {
     var iterations = 0;
-    sequence.__iterate(seq => {
-      var stopped = false;
-      Sequence(seq).__iterate((v, k) => {
-        if (fn(v, useKeys ? k : iterations++, this) === false) {
+    var stopped = false;
+    function flatDeep(seq, currentDepth) {
+      seq.__iterate((v, k) => {
+        if ((!depth || currentDepth < depth) && v instanceof Sequence) {
+          flatDeep(v, currentDepth + 1);
+        } else if (fn(v, useKeys ? k : iterations++, this) === false) {
           stopped = true;
-          return false;
         }
+        return !stopped;
       }, reverse);
-      return !stopped;
-    }, reverse);
+    }
+    flatDeep(sequence, 0);
     return iterations;
   }
   flatSequence.__iteratorUncached = function(type, reverse) {
-    var sequenceIterator = sequence.__iterator(ITERATE_VALUES, reverse);
-    var iterator;
+    var iterator = sequence.__iterator(type, reverse);
+    var stack = [];
     var iterations = 0;
     return new Iterator(() => {
-      while (true) {
-        if (iterator) {
-          var step = iterator.next();
-          if (!step.done) {
-            if (useKeys || type === ITERATE_VALUES) {
-              return step;
-            } else if (type === ITERATE_KEYS) {
-              return iteratorValue(type, iterations++, null, step);
-            } else {
-              return iteratorValue(type, iterations++, step.value[1], step);
-            }
-          }
+      while (iterator) {
+        var step = iterator.next();
+        if (step.done !== false) {
+          iterator = stack.pop();
+          continue;
         }
-        var sequenceStep = sequenceIterator.next();
-        if (sequenceStep.done) {
-          return sequenceStep;
+        var value = step.value;
+        if (type === ITERATE_ENTRIES) {
+          value = value[1];
         }
-        iterator = Sequence(sequenceStep.value).__iterator(type, reverse);
+        if ((!depth || stack.length < depth) && value instanceof Sequence) {
+          stack.push(iterator);
+          iterator = value.__iterator(type, reverse);
+        } else {
+          return useKeys ? step : iteratorValue(type, iterations++, value, step);
+        }
       }
+      return iteratorDone();
     });
   }
   return flatSequence;

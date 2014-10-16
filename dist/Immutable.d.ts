@@ -486,12 +486,21 @@ declare module 'immutable' {
     ): Sequence<MK, MV>;
 
     /**
-     * Flattens nested Sequences by one level.
+     * Flattens nested Sequences.
      *
-     * Note: `flatten` operates on Sequence<any, Sequence<K, V>> and
+     * Will deeply flatten the Sequence by default, but a `depth` can be
+     * provided in the form of a number or boolean (where true means to
+     * shallowly flatten one level). A depth of 0 (or shallow: false) will
+     * deeply flatten.
+     *
+     * Flattens anything Sequencible (Arrays, Objects) with the exception of
+     * Strings.
+     *
+     * Note: `flatten(true)` operates on Sequence<any, Sequence<K, V>> and
      * returns Sequence<K, V>
      */
-    flatten(): Sequence<any, any>;
+    flatten(depth?: number): Sequence<any, any>;
+    flatten(shallow?: boolean): Sequence<any, any>;
 
     /**
      * Returns a new sequence with this sequences's keys as it's values, and this
@@ -949,7 +958,8 @@ declare module 'immutable' {
      * Returns IndexedSequence<T>
      * @override
      */
-    flatten(): IndexedSequence<any>;
+    flatten(depth?: number): IndexedSequence<any>;
+    flatten(shallow?: boolean): IndexedSequence<any>;
 
     /**
      * If this is a sequence of entries (key-value tuples), it will return a

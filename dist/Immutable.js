@@ -478,10 +478,12 @@ var $Sequence = Sequence;
     return this.find(returnTrue);
   },
   flatMap: function(mapper, context) {
-    return this.map(mapper, context).flatten();
+    return this.map((function(v, k, c) {
+      return $Sequence(mapper.call(context, v, k, c));
+    })).flatten(true);
   },
-  flatten: function() {
-    return flattenFactory(this, true);
+  flatten: function(depth) {
+    return flattenFactory(this, depth, true);
   },
   flip: function() {
     return flipFactory(this);
@@ -662,8 +664,8 @@ var $IndexedSequence = IndexedSequence;
   first: function() {
     return this.get(0);
   },
-  flatten: function() {
-    return flattenFactory(this, false);
+  flatten: function(depth) {
+    return flattenFactory(this, depth, false);
   },
   flip: function() {
     return flipFactory(this.toKeyedSeq());
@@ -1443,7 +1445,7 @@ function concatFactory(sequence, values, useKeys) {
   if (useKeys) {
     concatSequence = concatSequence.toKeyedSeq();
   }
-  concatSequence = concatSequence.flatten();
+  concatSequence = concatSequence.flatMap(valueMapper);
   concatSequence.length = sequences.reduce((function(sum, seq) {
     if (sum !== undefined) {
       var len = Sequence(seq).length;
@@ -1454,47 +1456,48 @@ function concatFactory(sequence, values, useKeys) {
   }), 0);
   return concatSequence;
 }
-function flattenFactory(sequence, useKeys) {
+function flattenFactory(sequence, depth, useKeys) {
   var flatSequence = sequence.__makeSequence();
   flatSequence.__iterateUncached = function(fn, reverse) {
-    var $__0 = this;
     var iterations = 0;
-    sequence.__iterate((function(seq) {
-      var stopped = false;
-      Sequence(seq).__iterate((function(v, k) {
-        if (fn(v, useKeys ? k : iterations++, $__0) === false) {
+    var stopped = false;
+    function flatDeep(seq, currentDepth) {
+      var $__0 = this;
+      seq.__iterate((function(v, k) {
+        if ((!depth || currentDepth < depth) && v instanceof Sequence) {
+          flatDeep(v, currentDepth + 1);
+        } else if (fn(v, useKeys ? k : iterations++, $__0) === false) {
           stopped = true;
-          return false;
         }
+        return !stopped;
       }), reverse);
-      return !stopped;
-    }), reverse);
+    }
+    flatDeep(sequence, 0);
     return iterations;
   };
   flatSequence.__iteratorUncached = function(type, reverse) {
-    var sequenceIterator = sequence.__iterator(ITERATE_VALUES, reverse);
-    var iterator;
+    var iterator = sequence.__iterator(type, reverse);
+    var stack = [];
     var iterations = 0;
     return new Iterator((function() {
-      while (true) {
-        if (iterator) {
-          var step = iterator.next();
-          if (!step.done) {
-            if (useKeys || type === ITERATE_VALUES) {
-              return step;
-            } else if (type === ITERATE_KEYS) {
-              return iteratorValue(type, iterations++, null, step);
-            } else {
-              return iteratorValue(type, iterations++, step.value[1], step);
-            }
-          }
+      while (iterator) {
+        var step = iterator.next();
+        if (step.done !== false) {
+          iterator = stack.pop();
+          continue;
         }
-        var sequenceStep = sequenceIterator.next();
-        if (sequenceStep.done) {
-          return sequenceStep;
+        var value = step.value;
+        if (type === ITERATE_ENTRIES) {
+          value = value[1];
         }
-        iterator = Sequence(sequenceStep.value).__iterator(type, reverse);
+        if ((!depth || stack.length < depth) && value instanceof Sequence) {
+          stack.push(iterator);
+          iterator = value.__iterator(type, reverse);
+        } else {
+          return useKeys ? step : iteratorValue(type, iterations++, value, step);
+        }
       }
+      return iteratorDone();
     }));
   };
   return flatSequence;
