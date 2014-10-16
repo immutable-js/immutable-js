@@ -304,15 +304,15 @@ libraries like [React](http://facebook.github.io/react/) or to simulate
 
 ```javascript
 var data = Immutable.fromJS({ a: { b: { c: 1 } } });
-var cursor = data.cursor(['a', 'b', 'c'], newData => {
+var cursor = data.cursor(['a', 'b'], newData => {
   data = newData;
 });
 
 // ... elsewhere ...
 
-cursor.deref(); // 1
-cursor = cursor.update(x => x + 1);
-cursor.deref(); // 2
+cursor.get('c'); // 1
+cursor = cursor.update('c', x => x + 1);
+cursor.get('c'); // 2
 
 // ... back to data ...
 
