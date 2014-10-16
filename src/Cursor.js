@@ -12,7 +12,7 @@ import "Sequence"
 import "Map"
 import "TrieUtils"
 import "Iterator"
-/* global is, Sequence, Map, NOT_SET, DELETE,
+/* global is, Sequence, Map, MapPrototype, NOT_SET, DELETE,
           ITERATE_ENTRIES, Iterator, iteratorDone, iteratorValue */
 /* exported makeCursor */
 
@@ -55,18 +55,32 @@ class Cursor extends Sequence {
     return updateCursor(this, m => m.remove(key), key);
   }
 
-  update(keyOrFn, notSetValue, updater) {
-    return arguments.length === 1 ?
-      updateCursor(this, keyOrFn) :
-      updateCursor(this, map => map.update(keyOrFn, notSetValue, updater), keyOrFn);
-  }
-
   updateIn(keyPath, notSetValue, updater) {
     return updateCursor(this, m => m.updateIn(keyPath, notSetValue, updater), keyPath);
   }
 
+  merge(/*...seqs*/) {
+    var args = arguments;
+    return updateCursor(this, m => m.merge.apply(m, args));
+  }
+
+  mergeWith(/*merger, ...seqs*/) {
+    var args = arguments;
+    return updateCursor(this, m => m.mergeWith.apply(m, args));
+  }
+
+  mergeDeep(/*...seqs*/) {
+    var args = arguments;
+    return updateCursor(this, m => m.mergeDeep.apply(m, args));
+  }
+
+  mergeDeepWith(/*merger, ...seqs*/) {
+    var args = arguments;
+    return updateCursor(this, m => m.mergeDeepWith.apply(m, args));
+  }
+
   clear() {
-    return updateCursor(this, m => m.clear());
+    return updateCursor(this, m => m && m.clear());
   }
 
   cursor(maybeKeyPath, onChange) {
@@ -84,15 +98,15 @@ class Cursor extends Sequence {
   }
 
   withMutations(fn) {
-    return updateCursor(this, m => (m || Map.empty()).withMutations(fn));
+    return updateCursor(this, m => m.withMutations(fn));
   }
 
   asMutable() {
-    return updateCursor(this, m => (m || Map.empty()).asMutable());
+    return updateCursor(this, m => m.asMutable());
   }
 
   asImmutable() {
-    return updateCursor(this, m => (m || Map.empty()).asImmutable());
+    return updateCursor(this, m => m.asImmutable());
   }
 
   __iterate(fn, reverse) {
@@ -123,7 +137,7 @@ class Cursor extends Sequence {
 }
 
 Cursor.prototype[DELETE] = Cursor.prototype.remove;
-
+Cursor.prototype.update = MapPrototype.update;
 
 
 function makeCursor(rootData, keyPath, onChange, value) {
@@ -148,33 +162,30 @@ function subCursor(cursor, key, value) {
 }
 
 function updateCursor(cursor, changeFn, changeKey) {
-  var updatingSelf =
-    arguments.length < 3 ||
-    (Array.isArray(changeKey) && changeKey.length === 0);
-
   var rootData = cursor._rootData;
-  var editPath = cursor._keyPath || [];
-  if (!updatingSelf) {
+  var keyPath = cursor._keyPath;
+  var onChange = cursor._onChange;
+
+  var editPath = keyPath || [];
+  if (arguments.length > 2) {
     editPath = editPath.concat(changeKey);
   }
 
-  var updateIn = applyUpdateIn(
-    cursor._keyPath,
-    updatingSelf ? undefined : Map.empty(),
-    changeFn
-  );
-
+  var updateIn = applyUpdateIn(keyPath, changeFn);
   var newRootData = typeof rootData.deref === 'function' ?
     updateCursor(rootData, updateIn, editPath) :
     updateIn(rootData);
 
-  cursor._onChange && cursor._onChange(newRootData, rootData, editPath);
+  onChange && onChange(newRootData, rootData, editPath);
 
-  return makeCursor(newRootData, cursor._keyPath, cursor._onChange);
+  return makeCursor(newRootData, keyPath, onChange);
 }
 
-function applyUpdateIn(keyPath, notSetValue, changeFn) {
+function applyUpdateIn(keyPath, changeFn) {
   return function(collection) {
-    return collection.updateIn(keyPath, notSetValue, changeFn);
+    return collection.updateIn(
+      keyPath,
+      prev => changeFn(prev instanceof Map ? prev : Map.empty())
+    );
   };
 }

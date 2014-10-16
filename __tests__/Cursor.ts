@@ -63,20 +63,21 @@ describe('Cursor', () => {
     var data = Immutable.fromJS(json);
     var aCursor = data.cursor('a', onChange);
 
-    var deepCursor = aCursor.cursor(['b', 'c']);
-    expect(deepCursor.deref()).toBe(1);
+    var deepCursor = aCursor.cursor('b');
+    expect(deepCursor.get('c')).toBe(1);
 
     // cursor edits return new cursors:
-    var newDeepCursor = deepCursor.update(x => x + 1);
-    expect(newDeepCursor.deref()).toBe(2);
+    var newDeepCursor = deepCursor.update('c', x => x + 1);
+    expect(newDeepCursor.get('c')).toBe(2);
+
     expect(onChange).lastCalledWith(
       Immutable.fromJS({a:{b:{c:2}}}),
       data,
       ['a', 'b', 'c']
     );
 
-    var newestDeepCursor = newDeepCursor.update(x => x + 1);
-    expect(newestDeepCursor.deref()).toBe(3);
+    var newestDeepCursor = newDeepCursor.update('c', x => x + 1);
+    expect(newestDeepCursor.get('c')).toBe(3);
     expect(onChange).lastCalledWith(
       Immutable.fromJS({a:{b:{c:3}}}),
       Immutable.fromJS({a:{b:{c:2}}}),
@@ -87,9 +88,9 @@ describe('Cursor', () => {
     expect(data.toJS()).toEqual(json);
 
     // as is the original cursor.
-    expect(deepCursor.deref()).toBe(1);
-    var otherNewDeepCursor = deepCursor.update(x => x + 10);
-    expect(otherNewDeepCursor.deref()).toBe(11);
+    expect(deepCursor.get('c')).toBe(1);
+    var otherNewDeepCursor = deepCursor.update('c', x => x + 10);
+    expect(otherNewDeepCursor.get('c')).toBe(11);
     expect(onChange).lastCalledWith(
       Immutable.fromJS({a:{b:{c:11}}}),
       data,
@@ -174,7 +175,7 @@ describe('Cursor', () => {
 
   it('can create sub-cursors', () => {
     var onChange = jest.genMockFunction();
-    var data = Immutable.fromJS({a:{b:{c:1}}});
+    var data = Immutable.fromJS(json);
 
     var cursorA = data.cursor('a', onChange);
     var cursorAB = cursorA.cursor('b', onChange);
