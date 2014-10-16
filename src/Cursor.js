@@ -87,6 +87,14 @@ class Cursor extends Sequence {
     return updateCursor(this, m => (m || Map.empty()).withMutations(fn));
   }
 
+  asMutable() {
+    return updateCursor(this, m => (m || Map.empty()).asMutable());
+  }
+
+  asImmutable() {
+    return updateCursor(this, m => (m || Map.empty()).asImmutable());
+  }
+
   __iterate(fn, reverse) {
     var deref = this.deref();
     return deref && deref.__iterate ? deref.__iterate(

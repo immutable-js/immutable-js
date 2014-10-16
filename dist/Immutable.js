@@ -2128,6 +2128,16 @@ var Cursor = function Cursor(rootData, keyPath, onChange, length) {
       return (m || Map.empty()).withMutations(fn);
     }));
   },
+  asMutable: function() {
+    return updateCursor(this, (function(m) {
+      return (m || Map.empty()).asMutable();
+    }));
+  },
+  asImmutable: function() {
+    return updateCursor(this, (function(m) {
+      return (m || Map.empty()).asImmutable();
+    }));
+  },
   __iterate: function(fn, reverse) {
     var $__0 = this;
     var deref = this.deref();
