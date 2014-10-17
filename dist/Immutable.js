@@ -3424,14 +3424,36 @@ var Cursor = function Cursor(rootData, keyPath, onChange, length) {
     }));
   }
 }, {}, Sequence);
-Cursor.prototype[DELETE] = Cursor.prototype.remove;
-Cursor.prototype.getIn = Cursor.prototype.get;
+var CursorPrototype = Cursor.prototype;
+CursorPrototype[DELETE] = CursorPrototype.remove;
+CursorPrototype.getIn = CursorPrototype.get;
+var IndexedCursor = function IndexedCursor(rootData, keyPath, onChange, length) {
+  this.length = length;
+  this._rootData = rootData;
+  this._keyPath = keyPath;
+  this._onChange = onChange;
+};
+($traceurRuntime.createClass)(IndexedCursor, {}, {}, IndexedSequence);
+var IndexedCursorPrototype = IndexedCursor.prototype;
+IndexedCursorPrototype.equals = CursorPrototype.equals;
+IndexedCursorPrototype.deref = CursorPrototype.deref;
+IndexedCursorPrototype.get = CursorPrototype.get;
+IndexedCursorPrototype.getIn = CursorPrototype.getIn;
+IndexedCursorPrototype.set = CursorPrototype.set;
+IndexedCursorPrototype[DELETE] = IndexedCursorPrototype.remove = CursorPrototype.remove;
+IndexedCursorPrototype.clear = CursorPrototype.clear;
+IndexedCursorPrototype.update = CursorPrototype.update;
+IndexedCursorPrototype.withMutations = CursorPrototype.withMutations;
+IndexedCursorPrototype.cursor = CursorPrototype.cursor;
+IndexedCursorPrototype.__iterate = CursorPrototype.__iterate;
+IndexedCursorPrototype.__iterator = CursorPrototype.__iterator;
 function makeCursor(rootData, keyPath, onChange, value) {
   if (arguments.length < 4) {
     value = rootData.getIn(keyPath);
   }
   var length = value instanceof Sequence ? value.length : null;
-  return new Cursor(rootData, keyPath, onChange, length);
+  var CursorClass = value instanceof IndexedSequence ? IndexedCursor : Cursor;
+  return new CursorClass(rootData, keyPath, onChange, length);
 }
 function wrappedValue(cursor, key, value) {
   return value instanceof Sequence ? subCursor(cursor, key, value) : value;

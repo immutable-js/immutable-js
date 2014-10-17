@@ -172,4 +172,10 @@ describe('Cursor', () => {
     expect(onChange.mock.calls.length).toBe(1);
   });
 
+  it('maintains indexed sequences', () => {
+    var data = Immutable.fromJS([]);
+    var c = data.cursor();
+    expect(c.toJS()).toEqual([]);
+  });
+
 });
