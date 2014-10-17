@@ -519,7 +519,7 @@ var $Sequence = Sequence;
     return this.flip().valueSeq();
   },
   last: function() {
-    return this.findLast(returnTrue);
+    return this.reverse().first();
   },
   mapEntries: function(mapper, context) {
     var $__0 = this;
@@ -697,7 +697,7 @@ var $IndexedSequence = IndexedSequence;
     return interposeFactory(this, separator);
   },
   last: function() {
-    return this.get(this.length ? this.length - 1 : 0);
+    return this.get(-1);
   },
   skip: function(amount) {
     var seq = this;
@@ -1190,7 +1190,7 @@ function reverseFactory(sequence, useKeys) {
     return sequence.get(useKeys ? key : -1 - key, notSetValue);
   });
   reversedSequence.has = (function(key) {
-    return sequence.has(key);
+    return sequence.has(useKeys ? key : -1 - key);
   });
   reversedSequence.contains = (function(value) {
     return sequence.contains(value);
@@ -1213,14 +1213,16 @@ function reverseFactory(sequence, useKeys) {
 }
 function filterFactory(sequence, predicate, context, useKeys) {
   var filterSequence = sequence.__makeSequence();
-  filterSequence.has = (function(key) {
-    var v = sequence.get(key, NOT_SET);
-    return v !== NOT_SET && !!predicate.call(context, v, key, sequence);
-  });
-  filterSequence.get = (function(key, notSetValue) {
-    var v = sequence.get(key, NOT_SET);
-    return v !== NOT_SET && predicate.call(context, v, key, sequence) ? v : notSetValue;
-  });
+  if (useKeys) {
+    filterSequence.has = (function(key) {
+      var v = sequence.get(key, NOT_SET);
+      return v !== NOT_SET && !!predicate.call(context, v, key, sequence);
+    });
+    filterSequence.get = (function(key, notSetValue) {
+      var v = sequence.get(key, NOT_SET);
+      return v !== NOT_SET && predicate.call(context, v, key, sequence) ? v : notSetValue;
+    });
+  }
   filterSequence.__iterateUncached = function(fn, reverse) {
     var $__0 = this;
     var iterations = 0;

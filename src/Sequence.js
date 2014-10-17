@@ -382,7 +382,7 @@ class Sequence {
   }
 
   last() {
-    return this.findLast(returnTrue);
+    return this.reverse().first();
   }
 
   mapEntries(mapper, context) {
@@ -602,7 +602,7 @@ class IndexedSequence extends Sequence {
   }
 
   last() {
-    return this.get(this.length ? this.length - 1 : 0);
+    return this.get(-1);
   }
 
   skip(amount) {
@@ -1189,7 +1189,8 @@ function reverseFactory(sequence, useKeys) {
   };
   reversedSequence.get = (key, notSetValue) =>
     sequence.get(useKeys ? key : -1 - key, notSetValue);
-  reversedSequence.has = key => sequence.has(key);
+  reversedSequence.has = key =>
+    sequence.has(useKeys ? key : -1 - key);
   reversedSequence.contains = value => sequence.contains(value);
   reversedSequence.cacheResult = function () {
     sequence.cacheResult();
@@ -1206,15 +1207,17 @@ function reverseFactory(sequence, useKeys) {
 
 function filterFactory(sequence, predicate, context, useKeys) {
   var filterSequence = sequence.__makeSequence();
-  filterSequence.has = key => {
-    var v = sequence.get(key, NOT_SET);
-    return v !== NOT_SET && !!predicate.call(context, v, key, sequence);
-  };
-  filterSequence.get = (key, notSetValue) => {
-    var v = sequence.get(key, NOT_SET);
-    return v !== NOT_SET && predicate.call(context, v, key, sequence) ?
-      v : notSetValue;
-  };
+  if (useKeys) {
+    filterSequence.has = key => {
+      var v = sequence.get(key, NOT_SET);
+      return v !== NOT_SET && !!predicate.call(context, v, key, sequence);
+    };
+    filterSequence.get = (key, notSetValue) => {
+      var v = sequence.get(key, NOT_SET);
+      return v !== NOT_SET && predicate.call(context, v, key, sequence) ?
+        v : notSetValue;
+    };
+  }
   filterSequence.__iterateUncached = function (fn, reverse) {
     var iterations = 0;
     sequence.__iterate((v, k, c) => {
