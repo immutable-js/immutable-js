@@ -31,7 +31,7 @@ var map = Immutable.Map({a:1, b:2, c:3});
 
 ### Browser
 
-To use `immutable` from a browser, download [dist/Immutable.min.js](./dist/Immutable.min.js).
+To use `immutable` from a browser, download [dist/Immutable.min.js](./dist/Immutable.min.js) or use a CDN such as [jsDelivr](http://cdn.jsdelivr.net/immutable.js/latest/Immutable.min.js).
 
 Then, add it as a script tag to your page:
 
@@ -53,8 +53,6 @@ require(['./Immutable.min.js'], function (Immutable) {
     map.get('b'); // 20
 });
 ```
-
-You can also use a CDN like [jsDelivr](http://cdn.jsdelivr.net/immutable.js/latest/Immutable.min.js)
 
 ### TypeScript
 Use these Immutable collections and sequences as you would use native
