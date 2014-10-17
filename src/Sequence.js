@@ -13,7 +13,7 @@ import "TrieUtils"
 import "invariant"
 import "Hash"
 import "Iterator"
-/* global is, Map, OrderedMap, Vector, Set,
+/* global is, Map, OrderedMap, Vector, Set, Stack,
           arrCopy, NOT_SET,
           invariant,
           hash, HASH_MAX_VAL,
@@ -88,6 +88,12 @@ class Sequence {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.length);
     return Set.from(this);
+  }
+
+  toStack() {
+    // Use Late Binding here to solve the circular dependency.
+    assertNotInfinite(this.length);
+    return Stack.from(this);
   }
 
   toVector() {

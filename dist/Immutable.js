@@ -274,6 +274,10 @@ var $Sequence = Sequence;
     assertNotInfinite(this.length);
     return Set.from(this);
   },
+  toStack: function() {
+    assertNotInfinite(this.length);
+    return Stack.from(this);
+  },
   toVector: function() {
     assertNotInfinite(this.length);
     return Vector.from(this);

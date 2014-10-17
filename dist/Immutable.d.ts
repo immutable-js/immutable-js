@@ -202,6 +202,15 @@ declare module 'immutable' {
     toSet(): Set<V>;
 
     /**
+     * Converts this sequence to a Stack, discarding keys. Throws if values
+     * are not hashable.
+     *
+     * Note: This is equivalent to `Stack.from(this)`, but provided to allow for
+     * chained expressions.
+     */
+    toStack(): Stack<V>;
+
+    /**
      * Converts this sequence to a Vector, discarding keys.
      *
      * Note: This is equivalent to `Vector.from(this)`, but provided to allow
