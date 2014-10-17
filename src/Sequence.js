@@ -209,7 +209,7 @@ class Sequence {
   }
 
   reverse() {
-    return reverseFactory(this);
+    return reverseFactory(this, true);
   }
 
   slice(begin, end) {
@@ -532,6 +532,10 @@ class IndexedSequence extends Sequence {
 
   lastIndexOf(searchValue) {
     return this.toKeyedSeq().reverse().indexOf(searchValue);
+  }
+
+  reverse() {
+    return reverseFactory(this, false);
   }
 
   splice(index, removeNum /*, ...values*/) {
@@ -1020,7 +1024,7 @@ class KeyedIndexedSequence extends Sequence {
   }
 
   reverse() {
-    var reversedSequence = reverseFactory(this);
+    var reversedSequence = reverseFactory(this, true);
     reversedSequence.valueSeq = () => this._seq.reverse();
     return reversedSequence;
   }
@@ -1174,7 +1178,7 @@ function mapFactory(sequence, mapper, context) {
   return mappedSequence;
 }
 
-function reverseFactory(sequence) {
+function reverseFactory(sequence, useKeys) {
   var reversedSequence = sequence.__makeSequence();
   reversedSequence.length = sequence.length;
   reversedSequence.reverse = () => sequence;
@@ -1183,7 +1187,8 @@ function reverseFactory(sequence) {
     flipSequence.reverse = () => sequence.flip();
     return flipSequence;
   };
-  reversedSequence.get = (key, notSetValue) => sequence.get(key, notSetValue);
+  reversedSequence.get = (key, notSetValue) =>
+    sequence.get(useKeys ? key : -1 - key, notSetValue);
   reversedSequence.has = key => sequence.has(key);
   reversedSequence.contains = value => sequence.contains(value);
   reversedSequence.cacheResult = function () {
