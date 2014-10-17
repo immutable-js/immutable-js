@@ -373,7 +373,7 @@ var $Sequence = Sequence;
     return reversed.reduce.apply(reversed, arguments);
   },
   reverse: function() {
-    return reverseFactory(this);
+    return reverseFactory(this, true);
   },
   slice: function(begin, end) {
     if (wholeSlice(begin, end, this.length)) {
@@ -651,6 +651,9 @@ var $IndexedSequence = IndexedSequence;
   },
   lastIndexOf: function(searchValue) {
     return this.toKeyedSeq().reverse().indexOf(searchValue);
+  },
+  reverse: function() {
+    return reverseFactory(this, false);
   },
   splice: function(index, removeNum) {
     var numArgs = arguments.length;
@@ -1028,7 +1031,7 @@ var KeyedIndexedSequence = function KeyedIndexedSequence(indexedSeq) {
   },
   reverse: function() {
     var $__0 = this;
-    var reversedSequence = reverseFactory(this);
+    var reversedSequence = reverseFactory(this, true);
     reversedSequence.valueSeq = (function() {
       return $__0._seq.reverse();
     });
@@ -1170,8 +1173,7 @@ function mapFactory(sequence, mapper, context) {
   };
   return mappedSequence;
 }
-function reverseFactory(sequence) {
-  var isIndexedSequence = (sequence instanceof IndexedSequence);
+function reverseFactory(sequence, useKeys) {
   var reversedSequence = sequence.__makeSequence();
   reversedSequence.length = sequence.length;
   reversedSequence.reverse = (function() {
@@ -1184,16 +1186,9 @@ function reverseFactory(sequence) {
     });
     return flipSequence;
   };
-  if (isIndexedSequence) {
-    var reverseIndexOffset = sequence.length - 1;
-    reversedSequence.get = (function(key, notSetValue) {
-      return sequence.get(reverseIndexOffset - key, notSetValue);
-    });
-  } else {
-    reversedSequence.get = (function(key, notSetValue) {
-      return sequence.get(key, notSetValue);
-    });
-  }
+  reversedSequence.get = (function(key, notSetValue) {
+    return sequence.get(useKeys ? key : -1 - key, notSetValue);
+  });
   reversedSequence.has = (function(key) {
     return sequence.has(key);
   });
