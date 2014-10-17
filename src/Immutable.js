@@ -18,9 +18,9 @@ import "Range"
 import "Repeat"
 import "is"
 import "fromJS"
-import "Cursor"
+import "Cursor" // Solve circular dependency
 /* global Sequence, Map, Vector, Stack, Set, OrderedMap, Record, Range, Repeat,
-          is, fromJS, isCursor, unCursor */
+          is, fromJS */
 /* exported Immutable */
 
 
@@ -36,6 +36,4 @@ var Immutable = {
   Repeat: Repeat,
   is: is,
   fromJS: fromJS,
-  isCursor: isCursor,
-  unCursor: unCursor
 };
