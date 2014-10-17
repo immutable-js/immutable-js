@@ -24,4 +24,16 @@ describe('IndexedSequence', () => {
     expect(operated.first()).toEqual('B');
   });
 
+  it('reverses correctly', () => {
+    var seq = Immutable.Sequence.from(['A', 'B', 'C', 'D', 'E']);
+
+    // This is what we expect for IndexedSequences
+    var operated = seq.reverse();
+    expect(operated.get(0)).toEqual('E');
+    expect(operated.get(1)).toEqual('D');
+    expect(operated.get(4)).toEqual('A');
+
+    expect(operated.first()).toEqual('E');
+    expect(operated.last()).toEqual('A');
+  });
 });

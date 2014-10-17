@@ -1169,6 +1169,7 @@ function mapFactory(sequence, mapper, context) {
 }
 
 function reverseFactory(sequence) {
+  var isIndexedSequence = (sequence instanceof IndexedSequence);
   var reversedSequence = sequence.__makeSequence();
   reversedSequence.length = sequence.length;
   reversedSequence.reverse = () => sequence;
@@ -1177,7 +1178,12 @@ function reverseFactory(sequence) {
     flipSequence.reverse = () => sequence.flip();
     return flipSequence;
   };
-  reversedSequence.get = (key, notSetValue) => sequence.get(key, notSetValue);
+  if (isIndexedSequence) {
+    var reverseIndexOffset = sequence.length - 1;
+    reversedSequence.get = (key, notSetValue) => sequence.get(reverseIndexOffset - key, notSetValue);
+  } else {
+    reversedSequence.get = (key, notSetValue) => sequence.get(key, notSetValue);
+  }
   reversedSequence.has = key => sequence.has(key);
   reversedSequence.contains = value => sequence.contains(value);
   reversedSequence.cacheResult = function () {

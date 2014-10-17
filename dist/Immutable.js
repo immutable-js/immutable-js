@@ -1167,6 +1167,7 @@ function mapFactory(sequence, mapper, context) {
   return mappedSequence;
 }
 function reverseFactory(sequence) {
+  var isIndexedSequence = (sequence instanceof IndexedSequence);
   var reversedSequence = sequence.__makeSequence();
   reversedSequence.length = sequence.length;
   reversedSequence.reverse = (function() {
@@ -1179,9 +1180,16 @@ function reverseFactory(sequence) {
     });
     return flipSequence;
   };
-  reversedSequence.get = (function(key, notSetValue) {
-    return sequence.get(key, notSetValue);
-  });
+  if (isIndexedSequence) {
+    var reverseIndexOffset = sequence.length - 1;
+    reversedSequence.get = (function(key, notSetValue) {
+      return sequence.get(reverseIndexOffset - key, notSetValue);
+    });
+  } else {
+    reversedSequence.get = (function(key, notSetValue) {
+      return sequence.get(key, notSetValue);
+    });
+  }
   reversedSequence.has = (function(key) {
     return sequence.has(key);
   });
