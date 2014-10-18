@@ -137,13 +137,6 @@ describe('Cursor', () => {
     var onChange = jest.genMockFunction();
     var cursor = data.cursor(onChange);
 
-    var mapped = cursor.map(val => {
-      expect(typeof val.deref).toBe('function'); // mapped values are cursors.
-      return val;
-    });
-    // created a map of cursors.
-    expect(typeof mapped.get('a').deref).toBe('function');
-
     var found = cursor.find(map => map.get('v') === 2);
     expect(typeof found.deref).toBe('function'); // is a cursor!
     found = found.set('v', 20);
@@ -152,6 +145,31 @@ describe('Cursor', () => {
       data,
       ['b', 'v']
     );
+  });
+
+  it('can map over values to get subcursors', () => {
+    var data = Immutable.fromJS({a: {v: 1}, b: {v: 2}, c: {v: 3}});
+    var cursor = data.cursor();
+
+    var mapped = cursor.map(val => {
+      expect(typeof val.deref).toBe('function'); // mapped values are cursors.
+      return val;
+    }).toMap();
+    // Mapped is not a cursor, but it is a sequence of cursors.
+    expect(typeof mapped.deref).not.toBe('function');
+    expect(typeof mapped.get('a').deref).toBe('function');
+
+    // Same for indexed cursors
+    var data2 = Immutable.fromJS({x: [{v: 1}, {v: 2}, {v: 3}]});
+    var cursor2 = data2.cursor();
+
+    var mapped2 = cursor2.get('x').map(val => {
+      expect(typeof val.deref).toBe('function'); // mapped values are cursors.
+      return val;
+    }).toVector();
+    // Mapped is not a cursor, but it is a sequence of cursors.
+    expect(typeof mapped2.deref).not.toBe('function');
+    expect(typeof mapped2.get(0).deref).toBe('function');
   });
 
   it('can have mutations apply with a single callback', () => {
