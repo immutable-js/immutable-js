@@ -16,7 +16,7 @@ var ITERATE_KEYS = 0;
 var ITERATE_VALUES = 1;
 var ITERATE_ENTRIES = 2;
 
-var FAUX_ITERATOR_SYMBOL =  '@@iterator';
+var FAUX_ITERATOR_SYMBOL = '@@iterator';
 var ITERATOR_SYMBOL = typeof Symbol !== 'undefined' ?
   Symbol.iterator :
   FAUX_ITERATOR_SYMBOL;
@@ -62,11 +62,15 @@ function isIterator(maybeIterator) {
 
 function getIterator(iterable) {
   var iteratorFn = _iteratorFn(iterable);
-  if (typeof iteratorFn === 'function') {
-    return iteratorFn.call(iterable);
-  }
+  return iteratorFn && iteratorFn.call(iterable);
 }
 
 function _iteratorFn(iterable) {
-  return iterable && (iterable[ITERATOR_SYMBOL] || iterable[FAUX_ITERATOR_SYMBOL]);
+  var iteratorFn = iterable && (
+    (ITERATOR_SYMBOL && iterable[ITERATOR_SYMBOL]) ||
+    iterable[FAUX_ITERATOR_SYMBOL]
+  );
+  if (typeof iteratorFn === 'function') {
+    return iteratorFn;
+  }
 }

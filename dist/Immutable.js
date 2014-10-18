@@ -229,12 +229,13 @@ function isIterator(maybeIterator) {
 }
 function getIterator(iterable) {
   var iteratorFn = _iteratorFn(iterable);
-  if (typeof iteratorFn === 'function') {
-    return iteratorFn.call(iterable);
-  }
+  return iteratorFn && iteratorFn.call(iterable);
 }
 function _iteratorFn(iterable) {
-  return iterable && (iterable[ITERATOR_SYMBOL] || iterable[FAUX_ITERATOR_SYMBOL]);
+  var iteratorFn = iterable && ((ITERATOR_SYMBOL && iterable[ITERATOR_SYMBOL]) || iterable[FAUX_ITERATOR_SYMBOL]);
+  if (typeof iteratorFn === 'function') {
+    return iteratorFn;
+  }
 }
 var Sequence = function Sequence(value) {
   return $Sequence.from(arguments.length === 1 ? value : Array.prototype.slice.call(arguments));
