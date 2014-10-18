@@ -136,6 +136,14 @@ describe('Cursor', () => {
     var data = Immutable.fromJS({a: {v: 1}, b: {v: 2}, c: {v: 3}});
     var onChange = jest.genMockFunction();
     var cursor = data.cursor(onChange);
+
+    var mapped = cursor.map(val => {
+      expect(typeof val.deref).toBe('function'); // mapped values are cursors.
+      return val;
+    });
+    // created a map of cursors.
+    expect(typeof mapped.get('a').deref).toBe('function');
+
     var found = cursor.find(map => map.get('v') === 2);
     expect(typeof found.deref).toBe('function'); // is a cursor!
     found = found.set('v', 20);
