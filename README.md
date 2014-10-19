@@ -244,15 +244,15 @@ never used:
       .filter(x => x % 2).map(x => x * x);
 
 Once the sequence is used, it performs only the work necessary. In this
-example, no intermediate arrays are ever created, filter is only called
-twice, and map is only called once:
+example, no intermediate arrays are ever created, filter is called three times
+twice, and map is only called two times:
 
-    console.log(oddSquares.last()); // 49
+    console.log(oddSquares.get(1)); // 9
 
-Lazy Sequences allow for the efficient chaining of sequence operations, allowing
-for the expression of logic that can otherwise be very tedious:
+Lazy Sequences allow for the efficient chaining of sequence operations,
+especially when converting to a different concrete type (such as to a JS object):
 
-    Immutable.Sequence({a:1, b:1, c:1})
+    Immutable.Map({a:1, b:1, c:1})
       .flip().map(key => key.toUpperCase()).flip().toObject();
     // Map { A: 1, B: 1, C: 1 }
 
@@ -265,6 +265,12 @@ As well as expressing logic that would otherwise seem memory-limited:
       .take(2)
       .reduce((r, n) => r * n, 1);
     // 1006008
+
+A common pattern is reifying (converting to real form) back to the original
+collection type. For example, mapping over a Vector:
+
+    var numsVect = Immutable.Vector.from([1,2,3,4,5]);
+    var squaresVect = numsVect.map(x => x * x).toVector();
 
 Note: A sequence is always iterated in the same order, however that order may
 not always be well defined, as is the case for the `Map`.
