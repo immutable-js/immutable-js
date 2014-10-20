@@ -887,7 +887,7 @@ var ArraySequence = function ArraySequence(array) {
 };
 ($traceurRuntime.createClass)(ArraySequence, {
   toArray: function() {
-    return this._array;
+    return this._array.slice();
   },
   get: function(index, notSetValue) {
     return this.has(index) ? this._array[wrapIndex(this, index)] : notSetValue;

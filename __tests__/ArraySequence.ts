@@ -76,4 +76,13 @@ describe('ArraySequence', () => {
     expect(entries.next()).toEqual({ value: undefined, done: true });
   });
 
+  it('toArray is not a mutation vector', () => {
+    var seq = Immutable.Sequence(['A', 'B', 'C']);
+
+    var firstReverse = Immutable.Sequence(seq.toArray().reverse());
+    var secondReverse = Immutable.Sequence(seq.toArray().reverse());
+
+    expect(firstReverse.get(0)).toEqual('C');
+    expect(secondReverse.get(0)).toEqual('C');
+  });
 });

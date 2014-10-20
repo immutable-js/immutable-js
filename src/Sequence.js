@@ -827,7 +827,7 @@ class ArraySequence extends IndexedSequence {
   }
 
   toArray() {
-    return this._array;
+    return this._array.slice();
   }
 
   get(index, notSetValue) {
