@@ -39,17 +39,15 @@ module.exports = function(grunt) {
       build: {
         files: [{
           src: 'src/Immutable.js',
-          dest: 'dist/Immutable'
+          dest: 'dist/immutable'
         }]
       }
     },
     copy: {
       build: {
         files: [{
-          expand: true,
-          cwd: 'type-definitions',
-          src: ['**/*.d.ts'],
-          dest: 'dist/'
+          src: 'type-definitions/Immutable.d.ts',
+          dest: 'dist/immutable.d.ts'
         }]
       }
     },
@@ -117,26 +115,26 @@ module.exports = function(grunt) {
 
   grunt.registerMultiTask('stats', function () {
     var done = this.async();
-    exec('cat dist/Immutable.js | wc -c', function (error, out) {
+    exec('cat dist/immutable.js | wc -c', function (error, out) {
       if (error) throw new Error(error);
       var rawBytes = parseInt(out);
       console.log('     Concatenated: ' +
         (rawBytes + ' bytes').cyan);
-      exec('gzip -c dist/Immutable.js | wc -c', function (error, out) {
+      exec('gzip -c dist/immutable.js | wc -c', function (error, out) {
         if (error) throw new Error(error);
         var zippedBytes = parseInt(out);
         var pctOfA = Math.floor(10000 * (1 - (zippedBytes / rawBytes))) / 100;
         console.log('       Compressed: ' +
           (zippedBytes + ' bytes').cyan + ' ' +
           (pctOfA + '%').green);
-        exec('cat dist/Immutable.min.js | wc -c', function (error, out) {
+        exec('cat dist/immutable.min.js | wc -c', function (error, out) {
           if (error) throw new Error(error);
           var minifiedBytes = parseInt(out);
           var pctOfA = Math.floor(10000 * (1 - (minifiedBytes / rawBytes))) / 100;
           console.log('         Minified: ' +
             (minifiedBytes + ' bytes').cyan + ' ' +
             (pctOfA + '%').green);
-          exec('gzip -c dist/Immutable.min.js | wc -c', function (error, out) {
+          exec('gzip -c dist/immutable.min.js | wc -c', function (error, out) {
             if (error) throw new Error(error);
             var zippedMinBytes = parseInt(out);
             var pctOfA = Math.floor(10000 * (1 - (zippedMinBytes / rawBytes))) / 100;

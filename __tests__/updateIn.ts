@@ -1,5 +1,5 @@
 ///<reference path='../resources/jest.d.ts'/>
-///<reference path='../dist/Immutable.d.ts'/>
+///<reference path='../dist/immutable.d.ts'/>
 
 jest.autoMockOff();
 

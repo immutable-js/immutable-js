@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git://github.com/facebook/immutable-js.git"
   },
-  "main": "dist/Immutable.js",
+  "main": "dist/immutable.js",
   "ignore": [
     "**/.*",
     "__tests__",
