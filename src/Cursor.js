@@ -12,7 +12,7 @@ import "Sequence"
 import "Map"
 import "TrieUtils"
 import "Iterator"
-/* global is, Sequence, IndexedSequence, Map, NOT_SET, DELETE,
+/* global is, Sequence, IndexedSequence, Map, DELETE,
           ITERATE_ENTRIES, Iterator, iteratorDone, iteratorValue */
 /* exported makeCursor */
 
@@ -39,6 +39,7 @@ class Cursor extends Sequence {
     if (Array.isArray(key) && key.length === 0) {
       return this;
     }
+    var NOT_SET = {};
     var value = this._rootData.getIn(this._keyPath.concat(key), NOT_SET);
     return value === NOT_SET ? notSetValue : wrappedValue(this, key, value);
   }

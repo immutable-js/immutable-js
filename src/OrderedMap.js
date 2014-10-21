@@ -10,7 +10,7 @@
 import "Map"
 import "Vector"
 import "TrieUtils"
-/* global Map, Vector, DELETE, NOT_SET */
+/* global Map, Vector, DELETE */
 /* exported OrderedMap */
 
 
@@ -62,7 +62,7 @@ class OrderedMap extends Map {
   }
 
   remove(k) {
-    return updateOrderedMap(this, k, NOT_SET);
+    return updateOrderedMap(this, k, undefined, true);
   }
 
   wasAltered() {
@@ -109,12 +109,11 @@ function makeOrderedMap(map, vector, ownerID, hash) {
   return omap;
 }
 
-function updateOrderedMap(omap, k, v) {
+function updateOrderedMap(omap, k, v, removed) {
   var map = omap._map;
   var vector = omap._vector;
   var i = map.get(k);
   var has = i !== undefined;
-  var removed = v === NOT_SET;
   if ((!has && removed) || (has && v === vector.get(i)[1])) {
     return omap;
   }

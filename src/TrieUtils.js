@@ -7,7 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-/* exported DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER,
+/* exported DELETE, SHIFT, SIZE, MASK, CHANGE_LENGTH, DID_ALTER,
             OwnerID, MakeRef, SetRef, arrCopy */
 
 // Used for setting prototype methods that IE8 chokes on.
@@ -17,10 +17,6 @@ var DELETE = 'delete';
 var SHIFT = 5; // Resulted in best performance after ______?
 var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
-
-// A consistent shared value representing "not set" which equals nothing other
-// than itself, and nothing that could be provided externally.
-var NOT_SET = {};
 
 // Boolean references, Rough equivalent of `bool &`.
 var CHANGE_LENGTH = { value: false };

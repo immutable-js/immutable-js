@@ -57,7 +57,6 @@ var DELETE = 'delete';
 var SHIFT = 5;
 var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
-var NOT_SET = {};
 var CHANGE_LENGTH = {value: false};
 var DID_ALTER = {value: false};
 function MakeRef(ref) {
@@ -303,6 +302,7 @@ var $Sequence = Sequence;
     return concatFactory(this, values, true);
   },
   contains: function(searchValue) {
+    var NOT_SET = {};
     return this.find((function(value) {
       return is(value, searchValue);
     }), null, NOT_SET) !== NOT_SET;
@@ -500,7 +500,8 @@ var $Sequence = Sequence;
     }), null, notSetValue);
   },
   getIn: function(searchKeyPath, notSetValue) {
-    var nested = this;
+    var nested = this,
+        NOT_SET = {};
     if (searchKeyPath) {
       for (var ii = 0; ii < searchKeyPath.length; ii++) {
         nested = nested && nested.get ? nested.get(searchKeyPath[ii], NOT_SET) : NOT_SET;
@@ -515,6 +516,7 @@ var $Sequence = Sequence;
     return groupByFactory(this, grouper, context, true);
   },
   has: function(searchKey) {
+    var NOT_SET = {};
     return this.get(searchKey, NOT_SET) !== NOT_SET;
   },
   keySeq: function() {
@@ -1146,7 +1148,8 @@ function flipFactory(sequence) {
   return flipSequence;
 }
 function mapFactory(sequence, mapper, context) {
-  var mappedSequence = sequence.__makeSequence();
+  var NOT_SET = {},
+      mappedSequence = sequence.__makeSequence();
   mappedSequence.length = sequence.length;
   mappedSequence.has = (function(key) {
     return sequence.has(key);
@@ -1214,7 +1217,8 @@ function reverseFactory(sequence, useKeys) {
   return reversedSequence;
 }
 function filterFactory(sequence, predicate, context, useKeys) {
-  var filterSequence = sequence.__makeSequence();
+  var NOT_SET = {},
+      filterSequence = sequence.__makeSequence();
   if (useKeys) {
     filterSequence.has = (function(key) {
       var v = sequence.get(key, NOT_SET);
@@ -1556,7 +1560,7 @@ var $Map = Map;
     return updateMap(this, k, v);
   },
   remove: function(k) {
-    return updateMap(this, k, NOT_SET);
+    return updateMap(this, k, undefined, true);
   },
   update: function(k, notSetValue, updater) {
     return arguments.length === 1 ? this.updateIn([], undefined, k) : this.updateIn([k], notSetValue, updater);
@@ -1658,18 +1662,18 @@ var $BitmapIndexedNode = BitmapIndexedNode;
     var bitmap = this.bitmap;
     return (bitmap & bit) === 0 ? notSetValue : this.nodes[popCount(bitmap & (bit - 1))].get(shift + SHIFT, hash, key, notSetValue);
   },
-  update: function(ownerID, shift, hash, key, value, didChangeLength, didAlter) {
+  update: function(ownerID, shift, hash, key, value, didChangeLength, didAlter, removed) {
     var hashFrag = (shift === 0 ? hash : hash >>> shift) & MASK;
     var bit = 1 << hashFrag;
     var bitmap = this.bitmap;
     var exists = (bitmap & bit) !== 0;
-    if (!exists && value === NOT_SET) {
+    if (!exists && removed) {
       return this;
     }
     var idx = popCount(bitmap & (bit - 1));
     var nodes = this.nodes;
     var node = exists ? nodes[idx] : null;
-    var newNode = updateNode(node, ownerID, shift + SHIFT, hash, key, value, didChangeLength, didAlter);
+    var newNode = updateNode(node, ownerID, shift + SHIFT, hash, key, value, didChangeLength, didAlter, removed);
     if (newNode === node) {
       return this;
     }
@@ -1714,15 +1718,14 @@ var $ArrayNode = ArrayNode;
     var node = this.nodes[idx];
     return node ? node.get(shift + SHIFT, hash, key, notSetValue) : notSetValue;
   },
-  update: function(ownerID, shift, hash, key, value, didChangeLength, didAlter) {
+  update: function(ownerID, shift, hash, key, value, didChangeLength, didAlter, removed) {
     var idx = (shift === 0 ? hash : hash >>> shift) & MASK;
-    var removed = value === NOT_SET;
     var nodes = this.nodes;
     var node = nodes[idx];
     if (removed && !node) {
       return this;
     }
-    var newNode = updateNode(node, ownerID, shift + SHIFT, hash, key, value, didChangeLength, didAlter);
+    var newNode = updateNode(node, ownerID, shift + SHIFT, hash, key, value, didChangeLength, didAlter, removed);
     if (newNode === node) {
       return this;
     }
@@ -1772,8 +1775,7 @@ var $HashCollisionNode = HashCollisionNode;
     }
     return notSetValue;
   },
-  update: function(ownerID, shift, hash, key, value, didChangeLength, didAlter) {
-    var removed = value === NOT_SET;
+  update: function(ownerID, shift, hash, key, value, didChangeLength, didAlter, removed) {
     if (hash !== this.hash) {
       if (removed) {
         return this;
@@ -1835,8 +1837,7 @@ var $ValueNode = ValueNode;
   get: function(shift, hash, key, notSetValue) {
     return is(key, this.entry[0]) ? this.entry[1] : notSetValue;
   },
-  update: function(ownerID, shift, hash, key, value, didChangeLength, didAlter) {
-    var removed = value === NOT_SET;
+  update: function(ownerID, shift, hash, key, value, didChangeLength, didAlter, removed) {
     var keyMatch = is(key, this.entry[0]);
     if (keyMatch ? value === this.entry[1] : removed) {
       return this;
@@ -1917,14 +1918,14 @@ function makeMap(length, root, ownerID, hash) {
   map.__altered = false;
   return map;
 }
-function updateMap(map, k, v) {
+function updateMap(map, k, v, removed) {
   var didChangeLength = MakeRef(CHANGE_LENGTH);
   var didAlter = MakeRef(DID_ALTER);
-  var newRoot = updateNode(map._root, map.__ownerID, 0, hash(k), k, v, didChangeLength, didAlter);
+  var newRoot = updateNode(map._root, map.__ownerID, 0, hash(k), k, v, didChangeLength, didAlter, removed);
   if (!didAlter.value) {
     return map;
   }
-  var newLength = map.length + (didChangeLength.value ? v === NOT_SET ? -1 : 1 : 0);
+  var newLength = map.length + (didChangeLength.value ? removed ? -1 : 1 : 0);
   if (map.__ownerID) {
     map.length = newLength;
     map._root = newRoot;
@@ -1934,16 +1935,16 @@ function updateMap(map, k, v) {
   }
   return newRoot ? makeMap(newLength, newRoot) : Map.empty();
 }
-function updateNode(node, ownerID, shift, hash, key, value, didChangeLength, didAlter) {
+function updateNode(node, ownerID, shift, hash, key, value, didChangeLength, didAlter, removed) {
   if (!node) {
-    if (value === NOT_SET) {
+    if (removed) {
       return node;
     }
     SetRef(didAlter);
     SetRef(didChangeLength);
     return new ValueNode(ownerID, hash, [key, value]);
   }
-  return node.update(ownerID, shift, hash, key, value, didChangeLength, didAlter);
+  return node.update(ownerID, shift, hash, key, value, didChangeLength, didAlter, removed);
 }
 function isLeafNode(node) {
   return node.constructor === ValueNode || node.constructor === HashCollisionNode;
@@ -2005,6 +2006,7 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
   if (seqs.length === 0) {
     return collection;
   }
+  var NOT_SET = {};
   return collection.withMutations((function(collection) {
     var mergeIntoMap = merger ? (function(value, key) {
       var existing = collection.get(key, NOT_SET);
@@ -2103,7 +2105,7 @@ var $Vector = Vector;
     return updateVector(this, index, value);
   },
   remove: function(index) {
-    return updateVector(this, index, NOT_SET);
+    return updateVector(this, index, {}, true);
   },
   clear: function() {
     if (this.length === 0) {
@@ -2397,10 +2399,10 @@ function makeVector(origin, size, level, root, tail, ownerID, hash) {
   vect.__altered = false;
   return vect;
 }
-function updateVector(vector, index, value) {
+function updateVector(vector, index, value, removed) {
   index = wrapIndex(vector, index);
   if (index >= vector.length || index < 0) {
-    return value === NOT_SET ? vector : vector.withMutations((function(vect) {
+    return removed ? vector : vector.withMutations((function(vect) {
       index < 0 ? setVectorBounds(vect, index).set(0, value) : setVectorBounds(vect, 0, index + 1).set(index, value);
     }));
   }
@@ -2409,9 +2411,9 @@ function updateVector(vector, index, value) {
   var newRoot = vector._root;
   var didAlter = MakeRef(DID_ALTER);
   if (index >= getTailOffset(vector._size)) {
-    newTail = updateVNode(newTail, vector.__ownerID, 0, index, value, didAlter);
+    newTail = updateVNode(newTail, vector.__ownerID, 0, index, value, didAlter, removed);
   } else {
-    newRoot = updateVNode(newRoot, vector.__ownerID, vector._level, index, value, didAlter);
+    newRoot = updateVNode(newRoot, vector.__ownerID, vector._level, index, value, didAlter, removed);
   }
   if (!didAlter.value) {
     return vector;
@@ -2425,8 +2427,7 @@ function updateVector(vector, index, value) {
   }
   return makeVector(vector._origin, vector._size, vector._level, newRoot, newTail);
 }
-function updateVNode(node, ownerID, level, index, value, didAlter) {
-  var removed = value === NOT_SET;
+function updateVNode(node, ownerID, level, index, value, didAlter, removed) {
   var newNode;
   var idx = (index >>> level) & MASK;
   var nodeHas = node && idx < node.array.length;
@@ -2435,7 +2436,7 @@ function updateVNode(node, ownerID, level, index, value, didAlter) {
   }
   if (level > 0) {
     var lowerNode = node && node.array[idx];
-    var newLowerNode = updateVNode(lowerNode, ownerID, level - SHIFT, index, value, didAlter);
+    var newLowerNode = updateVNode(lowerNode, ownerID, level - SHIFT, index, value, didAlter, removed);
     if (newLowerNode === lowerNode) {
       return node;
     }
@@ -2969,7 +2970,7 @@ var $OrderedMap = OrderedMap;
     return updateOrderedMap(this, k, v);
   },
   remove: function(k) {
-    return updateOrderedMap(this, k, NOT_SET);
+    return updateOrderedMap(this, k, undefined, true);
   },
   wasAltered: function() {
     return this._map.wasAltered() || this._vector.wasAltered();
@@ -3011,12 +3012,11 @@ function makeOrderedMap(map, vector, ownerID, hash) {
   omap.__hash = hash;
   return omap;
 }
-function updateOrderedMap(omap, k, v) {
+function updateOrderedMap(omap, k, v, removed) {
   var map = omap._map;
   var vector = omap._vector;
   var i = map.get(k);
   var has = i !== undefined;
-  var removed = v === NOT_SET;
   if ((!has && removed) || (has && v === vector.get(i)[1])) {
     return omap;
   }
@@ -3369,6 +3369,7 @@ var Cursor = function Cursor(rootData, keyPath, onChange, length) {
     if (Array.isArray(key) && key.length === 0) {
       return this;
     }
+    var NOT_SET = {};
     var value = this._rootData.getIn(this._keyPath.concat(key), NOT_SET);
     return value === NOT_SET ? notSetValue : wrappedValue(this, key, value);
   },
