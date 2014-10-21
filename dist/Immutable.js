@@ -851,9 +851,6 @@ var ObjectSequence = function ObjectSequence(object) {
   this.length = keys.length;
 };
 ($traceurRuntime.createClass)(ObjectSequence, {
-  toObject: function() {
-    return this._object;
-  },
   get: function(key, notSetValue) {
     if (notSetValue !== undefined && !this.has(key)) {
       return notSetValue;
@@ -891,9 +888,6 @@ var ArraySequence = function ArraySequence(array) {
   this.length = array.length;
 };
 ($traceurRuntime.createClass)(ArraySequence, {
-  toArray: function() {
-    return this._array;
-  },
   get: function(index, notSetValue) {
     return this.has(index) ? this._array[wrapIndex(this, index)] : notSetValue;
   },

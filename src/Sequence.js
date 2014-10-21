@@ -777,10 +777,6 @@ class ObjectSequence extends Sequence {
     this.length = keys.length;
   }
 
-  toObject() {
-    return this._object;
-  }
-
   get(key, notSetValue) {
     if (notSetValue !== undefined && !this.has(key)) {
       return notSetValue;
@@ -824,10 +820,6 @@ class ArraySequence extends IndexedSequence {
   constructor(array) {
     this._array = array;
     this.length = array.length;
-  }
-
-  toArray() {
-    return this._array;
   }
 
   get(index, notSetValue) {
