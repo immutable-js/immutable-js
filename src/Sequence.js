@@ -14,7 +14,7 @@ import "invariant"
 import "Hash"
 import "Iterator"
 /* global is, Map, OrderedMap, Vector, Set, Stack,
-          arrCopy, NOT_SET,
+          arrCopy,
           invariant,
           hash, HASH_MAX_VAL,
           Iterator, iteratorValue, iteratorDone,
@@ -128,6 +128,7 @@ class Sequence {
   }
 
   contains(searchValue) {
+    var NOT_SET = {};
     return this.find(value => is(value, searchValue), null, NOT_SET) !== NOT_SET;
   }
 
@@ -357,7 +358,7 @@ class Sequence {
   }
 
   getIn(searchKeyPath, notSetValue) {
-    var nested = this;
+    var nested = this, NOT_SET = {};
     if (searchKeyPath) {
       for (var ii = 0; ii < searchKeyPath.length; ii++) {
         nested = nested && nested.get ? nested.get(searchKeyPath[ii], NOT_SET) : NOT_SET;
@@ -374,6 +375,7 @@ class Sequence {
   }
 
   has(searchKey) {
+    var NOT_SET = {};
     return this.get(searchKey, NOT_SET) !== NOT_SET;
   }
 
@@ -1143,7 +1145,7 @@ function flipFactory(sequence) {
 }
 
 function mapFactory(sequence, mapper, context) {
-  var mappedSequence = sequence.__makeSequence();
+  var NOT_SET = {}, mappedSequence = sequence.__makeSequence();
   mappedSequence.length = sequence.length;
   mappedSequence.has = key => sequence.has(key);
   mappedSequence.get = (key, notSetValue) => {
@@ -1206,7 +1208,7 @@ function reverseFactory(sequence, useKeys) {
 }
 
 function filterFactory(sequence, predicate, context, useKeys) {
-  var filterSequence = sequence.__makeSequence();
+  var NOT_SET = {}, filterSequence = sequence.__makeSequence();
   if (useKeys) {
     filterSequence.has = key => {
       var v = sequence.get(key, NOT_SET);

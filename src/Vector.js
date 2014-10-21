@@ -13,7 +13,7 @@ import "TrieUtils"
 import "Iterator"
 /* global Sequence, IndexedSequence, wrapIndex,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
-          DELETE, SHIFT, SIZE, MASK, NOT_SET, DID_ALTER, OwnerID, MakeRef,
+          DELETE, SHIFT, SIZE, MASK, DID_ALTER, OwnerID, MakeRef,
           SetRef, arrCopy, Iterator, iteratorValue, iteratorDone */
 /* exported Vector, VectorPrototype */
 
@@ -72,7 +72,7 @@ class Vector extends IndexedSequence {
   }
 
   remove(index) {
-    return updateVector(this, index, NOT_SET);
+    return updateVector(this, index, undefined, true);
   }
 
   clear() {
@@ -391,11 +391,11 @@ function makeVector(origin, size, level, root, tail, ownerID, hash) {
   return vect;
 }
 
-function updateVector(vector, index, value) {
+function updateVector(vector, index, value, removed) {
   index = wrapIndex(vector, index);
 
   if (index >= vector.length || index < 0) {
-    return value === NOT_SET ? vector : vector.withMutations(vect => {
+    return removed ? vector : vector.withMutations(vect => {
       index < 0 ?
         setVectorBounds(vect, index).set(0, value) :
         setVectorBounds(vect, 0, index + 1).set(index, value)
@@ -408,9 +408,9 @@ function updateVector(vector, index, value) {
   var newRoot = vector._root;
   var didAlter = MakeRef(DID_ALTER);
   if (index >= getTailOffset(vector._size)) {
-    newTail = updateVNode(newTail, vector.__ownerID, 0, index, value, didAlter);
+    newTail = updateVNode(newTail, vector.__ownerID, 0, index, value, didAlter, removed);
   } else {
-    newRoot = updateVNode(newRoot, vector.__ownerID, vector._level, index, value, didAlter);
+    newRoot = updateVNode(newRoot, vector.__ownerID, vector._level, index, value, didAlter, removed);
   }
 
   if (!didAlter.value) {
@@ -427,8 +427,7 @@ function updateVector(vector, index, value) {
   return makeVector(vector._origin, vector._size, vector._level, newRoot, newTail);
 }
 
-function updateVNode(node, ownerID, level, index, value, didAlter) {
-  var removed = value === NOT_SET;
+function updateVNode(node, ownerID, level, index, value, didAlter, removed) {
   var newNode;
   var idx = (index >>> level) & MASK;
   var nodeHas = node && idx < node.array.length;
@@ -438,7 +437,7 @@ function updateVNode(node, ownerID, level, index, value, didAlter) {
 
   if (level > 0) {
     var lowerNode = node && node.array[idx];
-    var newLowerNode = updateVNode(lowerNode, ownerID, level - SHIFT, index, value, didAlter);
+    var newLowerNode = updateVNode(lowerNode, ownerID, level - SHIFT, index, value, didAlter, removed);
     if (newLowerNode === lowerNode) {
       return node;
     }
