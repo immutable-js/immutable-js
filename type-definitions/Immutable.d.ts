@@ -182,7 +182,7 @@ declare module 'immutable' {
     /**
      * Converts this sequence to an Object. Throws if keys are not strings.
      */
-    toObject(): Object;
+    toObject(): { [key: string]: V };
 
     /**
      * Converts this sequence to a Map, maintaining the order of iteration.

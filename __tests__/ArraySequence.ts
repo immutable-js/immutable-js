@@ -76,4 +76,13 @@ describe('ArraySequence', () => {
     expect(entries.next()).toEqual({ value: undefined, done: true });
   });
 
+  it('cannot be mutated after calling toArray', () => {
+    var seq = Immutable.Sequence(['A', 'B', 'C']);
+
+    var firstReverse = Immutable.Sequence(seq.toArray().reverse());
+    var secondReverse = Immutable.Sequence(seq.toArray().reverse());
+
+    expect(firstReverse.get(0)).toEqual('C');
+    expect(secondReverse.get(0)).toEqual('C');
+  });
 });

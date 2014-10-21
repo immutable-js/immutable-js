@@ -47,4 +47,14 @@ describe('ObjectSequence', () => {
     expect(entries.next()).toEqual({ value: undefined, done: true });
   });
 
+  it('cannot be mutated after calling toObject', () => {
+    var seq = Immutable.Sequence({ a: 1, b: 2, c: 3 });
+
+    var obj = seq.toObject();
+    obj['c'] = 10;
+    var seq2 = Immutable.Sequence(obj);
+
+    expect(seq.get('c')).toEqual(3);
+    expect(seq2.get('c')).toEqual(10);
+  });
 });
