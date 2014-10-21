@@ -7,7 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-/* global Symbol */
+/* global Symbol, WeakMap */
 /* exported hash, HASH_MAX_VAL */
 
 function hash(o) {
@@ -64,7 +64,10 @@ function hashString(string) {
 }
 
 function hashJSObj(obj) {
-  var hash = obj[UID_HASH_KEY];
+  var hash = weakMap && weakMap.get(obj);
+  if (hash) return hash;
+
+  hash = obj[UID_HASH_KEY];
   if (hash) return hash;
 
   if (!canDefineProperty) {
@@ -75,39 +78,42 @@ function hashJSObj(obj) {
     if (hash) return hash;
   }
 
-  if (!canDefineProperty || Object.isExtensible(obj)) {
-    hash = ++objHashUID & HASH_MAX_VAL;
-
-    if (canDefineProperty) {
-      Object.defineProperty(obj, UID_HASH_KEY, {
-        'enumerable': false,
-        'configurable': false,
-        'writable': false,
-        'value': hash
-      });
-    } else if (propertyIsEnumerable &&
-               obj.propertyIsEnumerable === propertyIsEnumerable) {
-      // Since we can't define a non-enumerable property on the object
-      // we'll hijack one of the less-used non-enumerable properties to
-      // save our hash on it. Since this is a function it will not show up in
-      // `JSON.stringify` which is what we want.
-      obj.propertyIsEnumerable = function() {
-        return propertyIsEnumerable.apply(this, arguments);
-      };
-      obj.propertyIsEnumerable[UID_HASH_KEY] = hash;
-    } else if (obj.nodeType) {
-      // At this point we couldn't get the IE `uniqueID` to use as a hash
-      // and we couldn't use a non-enumerable property to exploit the
-      // dontEnum bug so we simply add the `UID_HASH_KEY` on the node
-      // itself.
-      obj[UID_HASH_KEY] = hash;
-    } else {
-      throw new Error('Unable to set a non-enumerable property on object.');
-    }
-    return hash;
-  } else {
+  if (canDefineProperty && !Object.isExtensible(obj)) {
     throw new Error('Non-extensible objects are not allowed as keys.');
   }
+
+  hash = ++objHashUID & HASH_MAX_VAL;
+
+  if (weakMap) {
+    weakMap.set(obj, hash);
+  } else if (canDefineProperty) {
+    Object.defineProperty(obj, UID_HASH_KEY, {
+      'enumerable': false,
+      'configurable': false,
+      'writable': false,
+      'value': hash
+    });
+  } else if (propertyIsEnumerable &&
+             obj.propertyIsEnumerable === propertyIsEnumerable) {
+    // Since we can't define a non-enumerable property on the object
+    // we'll hijack one of the less-used non-enumerable properties to
+    // save our hash on it. Since this is a function it will not show up in
+    // `JSON.stringify` which is what we want.
+    obj.propertyIsEnumerable = function() {
+      return propertyIsEnumerable.apply(this, arguments);
+    };
+    obj.propertyIsEnumerable[UID_HASH_KEY] = hash;
+  } else if (obj.nodeType) {
+    // At this point we couldn't get the IE `uniqueID` to use as a hash
+    // and we couldn't use a non-enumerable property to exploit the
+    // dontEnum bug so we simply add the `UID_HASH_KEY` on the node
+    // itself.
+    obj[UID_HASH_KEY] = hash;
+  } else {
+    throw new Error('Unable to set a non-enumerable property on object.');
+  }
+
+  return hash;
 }
 
 var propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
@@ -135,12 +141,15 @@ function getIENodeHash(node) {
   }
 }
 
+// If possible, use a WeakMap.
+var weakMap = typeof WeakMap === 'function' && new WeakMap();
+
 var HASH_MAX_VAL = 0x7FFFFFFF; // 2^31 - 1 is an efficiently stored int
 
 var objHashUID = 0;
 
 var UID_HASH_KEY = '__immutablehash__';
-if (typeof Symbol !== 'undefined') {
+if (typeof Symbol === 'function') {
   UID_HASH_KEY = Symbol(UID_HASH_KEY);
 }
 
