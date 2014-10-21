@@ -62,7 +62,7 @@ class Map extends Sequence {
 
   update(k, notSetValue, updater) {
     return arguments.length === 1 ?
-      this.updateIn([], undefined, k) :
+      k(this) :
       this.updateIn([k], notSetValue, updater);
   }
 
@@ -71,7 +71,9 @@ class Map extends Sequence {
       updater = notSetValue;
       notSetValue = undefined;
     }
-    return updateInDeepMap(this, keyPath, notSetValue, updater, 0);
+    return keyPath.length === 0 ?
+      updater(this) :
+      updateInDeepMap(this, keyPath, notSetValue, updater, 0);
   }
 
   clear() {
@@ -606,17 +608,26 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
   });
 }
 
-function updateInDeepMap(collection, keyPath, notSetValue, updater, pathOffset) {
-  var pathLen = keyPath.length;
-  if (pathOffset === pathLen) {
-    return updater(collection);
-  }
-  invariant(collection.set, 'updateIn with invalid keyPath');
-  var notSet = pathOffset === pathLen - 1 ? notSetValue : Map.empty();
-  var key = keyPath[pathOffset];
-  var existing = collection.get(key, notSet);
-  var value = updateInDeepMap(existing, keyPath, notSetValue, updater, pathOffset + 1);
-  return value === existing ? collection : collection.set(key, value);
+function updateInDeepMap(collection, keyPath, notSetValue, updater, offset) {
+  invariant(!collection || collection.set, 'updateIn with invalid keyPath');
+
+  var key = keyPath[offset];
+  var existing = collection ? collection.get(key, NOT_SET) : NOT_SET;
+  var existingValue = existing === NOT_SET ? undefined : existing;
+
+  var value = offset === keyPath.length - 1 ?
+    updater(existing === NOT_SET ? notSetValue : existing) :
+    updateInDeepMap(
+      existingValue,
+      keyPath,
+      notSetValue,
+      updater,
+      offset + 1
+    );
+
+  return value === existingValue ?
+    collection :
+    (collection || Map.empty()).set(key, value);
 }
 
 function popCount(x) {

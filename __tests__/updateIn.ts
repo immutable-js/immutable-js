@@ -88,4 +88,25 @@ describe('updateIn', () => {
     )
   })
 
+  it('performs edit when notSetValue is what you return from updater', () => {
+    var m = I.Map();
+
+    m = m.updateIn(['a', 'b', 'c'], I.Set.empty(), id => id);
+
+    expect(m.length).toBe(1);
+
+    expect(m.getIn(['a', 'b', 'c'])).toBe(I.Set.empty());
+  })
+
+  it('does not perform edit when new value is the same as old value', () => {
+    var m = I.Map();
+
+    m = m.updateIn(['a', 'b', 'c'], I.Set.empty(), id => undefined);
+
+    expect(m.length).toBe(0);
+
+    var nothing = {}; // sentinel.
+    expect(m.getIn(['a', 'b', 'c'], nothing)).toBe(nothing);
+  })
+
 })

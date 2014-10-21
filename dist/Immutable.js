@@ -1558,14 +1558,14 @@ var $Map = Map;
     return updateMap(this, k, NOT_SET);
   },
   update: function(k, notSetValue, updater) {
-    return arguments.length === 1 ? this.updateIn([], undefined, k) : this.updateIn([k], notSetValue, updater);
+    return arguments.length === 1 ? k(this) : this.updateIn([k], notSetValue, updater);
   },
   updateIn: function(keyPath, notSetValue, updater) {
     if (!updater) {
       updater = notSetValue;
       notSetValue = undefined;
     }
-    return updateInDeepMap(this, keyPath, notSetValue, updater, 0);
+    return keyPath.length === 0 ? updater(this) : updateInDeepMap(this, keyPath, notSetValue, updater, 0);
   },
   clear: function() {
     if (this.length === 0) {
@@ -2016,17 +2016,13 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
     }
   }));
 }
-function updateInDeepMap(collection, keyPath, notSetValue, updater, pathOffset) {
-  var pathLen = keyPath.length;
-  if (pathOffset === pathLen) {
-    return updater(collection);
-  }
-  invariant(collection.set, 'updateIn with invalid keyPath');
-  var notSet = pathOffset === pathLen - 1 ? notSetValue : Map.empty();
-  var key = keyPath[pathOffset];
-  var existing = collection.get(key, notSet);
-  var value = updateInDeepMap(existing, keyPath, notSetValue, updater, pathOffset + 1);
-  return value === existing ? collection : collection.set(key, value);
+function updateInDeepMap(collection, keyPath, notSetValue, updater, offset) {
+  invariant(!collection || collection.set, 'updateIn with invalid keyPath');
+  var key = keyPath[offset];
+  var existing = collection ? collection.get(key, NOT_SET) : NOT_SET;
+  var existingValue = existing === NOT_SET ? undefined : existing;
+  var value = offset === keyPath.length - 1 ? updater(existing === NOT_SET ? notSetValue : existing) : updateInDeepMap(existingValue, keyPath, notSetValue, updater, offset + 1);
+  return value === existingValue ? collection : (collection || Map.empty()).set(key, value);
 }
 function popCount(x) {
   x = x - ((x >> 1) & 0x55555555);
