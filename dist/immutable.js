@@ -2281,15 +2281,19 @@ var $Vector = Vector;
     return EMPTY_VECT || (EMPTY_VECT = makeVector(0, 0, SHIFT));
   },
   from: function(sequence) {
-    if (!sequence || sequence.length === 0 || sequence.size === 0) {
+    if (!sequence) {
       return $Vector.empty();
     }
     if (sequence.constructor === $Vector) {
       return sequence;
     }
     var isArray = Array.isArray(sequence);
-    if (sequence.size > 0 && sequence.size < SIZE) {
-      return makeVector(0, sequence.size, SHIFT, null, new VNode(isArray ? arrCopy(sequence) : Sequence(sequence).toArray()));
+    var size = isArray ? sequence.length : sequence.size;
+    if (size === 0) {
+      return $Vector.empty();
+    }
+    if (size > 0 && size < SIZE) {
+      return makeVector(0, size, SHIFT, null, new VNode(isArray ? arrCopy(sequence) : (sequence.toArray ? sequence : Sequence(sequence)).toArray()));
     }
     if (!isArray) {
       sequence = Sequence(sequence).valueSeq();
