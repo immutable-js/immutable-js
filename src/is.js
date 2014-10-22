@@ -11,7 +11,7 @@
 
 /**
  * The same semantics as Object.is(), but treats immutable sequences as
- * data, equal when the structure contains equivalent data.
+ * values, equal when the structure contains equivalent values.
  */
 function is(first, second) {
   if (first === second) {

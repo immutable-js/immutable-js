@@ -61,7 +61,7 @@ class Sequence {
 
   toJS() {
     return this.map(
-      value => value instanceof Sequence ? value.toJS() : value
+      value => value && typeof value.toJS === 'function' ? value.toJS() : value
     ).__toJS();
   }
 
@@ -278,7 +278,7 @@ class Sequence {
     if (this === other) {
       return true;
     }
-    if (!(other instanceof Sequence)) {
+    if (!other || typeof other.equals !== 'function') {
       return false;
     }
     if (this.length != null && other.length != null) {
@@ -298,7 +298,7 @@ class Sequence {
 
   __deepEquals(other) {
     var entries = this.entries();
-    return other.every((v, k) => {
+    return typeof other.every === 'function' && other.every((v, k) => {
       var entry = entries.next().value;
       return entry && is(entry[0], k) && is(entry[1], v);
     }) && entries.next().done;
@@ -1462,7 +1462,7 @@ function flattenFactory(sequence, depth, useKeys) {
     var stopped = false;
     function flatDeep(seq, currentDepth) {
       seq.__iterate((v, k) => {
-        if ((!depth || currentDepth < depth) && v instanceof Sequence) {
+        if ((!depth || currentDepth < depth) && isFlattenable(v)) {
           flatDeep(v, currentDepth + 1);
         } else if (fn(v, useKeys ? k : iterations++, this) === false) {
           stopped = true;
@@ -1484,21 +1484,28 @@ function flattenFactory(sequence, depth, useKeys) {
           iterator = stack.pop();
           continue;
         }
-        var value = step.value;
+        var v = step.value;
         if (type === ITERATE_ENTRIES) {
-          value = value[1];
+          v = v[1];
         }
-        if ((!depth || stack.length < depth) && value instanceof Sequence) {
+        if ((!depth || stack.length < depth) && isFlattenable(v)) {
           stack.push(iterator);
-          iterator = value.__iterator(type, reverse);
+          iterator = v.__iterator(type, reverse);
         } else {
-          return useKeys ? step : iteratorValue(type, iterations++, value, step);
+          return useKeys ? step : iteratorValue(type, iterations++, v, step);
         }
       }
       return iteratorDone();
     });
   }
   return flatSequence;
+}
+
+function isFlattenable(maybeFlattenable) {
+  return maybeFlattenable &&
+    typeof maybeFlattenable.flatten === 'function' &&
+    typeof maybeFlattenable.__iterate === 'function' &&
+    typeof maybeFlattenable.__iterator === 'function';
 }
 
 function interposeFactory(sequence, separator) {
