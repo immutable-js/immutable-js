@@ -123,10 +123,6 @@ class Sequence {
     return head + ' ' + this.map(this.__toStringMapper).join(', ') + ' ' + tail;
   }
 
-  __toStringMapper(v, k) {
-    return k + ': ' + quoteString(v);
-  }
-
 
   // ### ES6 Sequence methods (ES6 Array and Map)
 
@@ -363,6 +359,10 @@ class Sequence {
     return flipFactory(this);
   }
 
+  fromEntrySeq() {
+    return new FromEntriesSequence(this);
+  }
+
   get(searchKey, notSetValue) {
     return this.find((_, key) => is(key, searchKey), null, notSetValue);
   }
@@ -488,7 +488,7 @@ class Sequence {
   }
 
   toKeyedSeq() {
-    return this;
+    return new ToKeyedSequence(this, true);
   }
 
   valueSeq() {
@@ -539,10 +539,11 @@ class Sequence {
   }
 }
 
-var SequencePrototype = Sequence.prototype
-SequencePrototype[ITERATOR_SYMBOL] = SequencePrototype.entries;
+var SequencePrototype = Sequence.prototype;
+SequencePrototype[ITERATOR_SYMBOL] = SequencePrototype.values;
 SequencePrototype.toJSON = SequencePrototype.toJS;
-SequencePrototype.__toJS = SequencePrototype.toObject;
+SequencePrototype.__toJS = SequencePrototype.toArray;
+SequencePrototype.__toStringMapper = quoteString;
 SequencePrototype.inspect =
 SequencePrototype.toSource = function() { return this.toString(); };
 SequencePrototype.chain = SequencePrototype.flatMap;
@@ -571,6 +572,28 @@ SequencePrototype.chain = SequencePrototype.flatMap;
     });
   } catch (e) {}
 })();
+
+
+
+class KeyedSequence extends Sequence {
+
+  toKeyedSeq() {
+    return this;
+  }
+
+  // ### Internal
+
+  __makeSequence() {
+    return Object.create(KeyedSequencePrototype);
+  }
+}
+
+var KeyedSequencePrototype = KeyedSequence.prototype;
+KeyedSequencePrototype[ITERATOR_SYMBOL] = SequencePrototype.entries;
+KeyedSequencePrototype.__toJS = SequencePrototype.toObject;
+KeyedSequencePrototype.__toStringMapper = (v, k) => k + ': ' + quoteString(v);
+
+
 
 class IndexedSequence extends Sequence {
 
@@ -638,10 +661,6 @@ class IndexedSequence extends Sequence {
 
   flip() {
     return flipFactory(this.toKeyedSeq());
-  }
-
-  fromEntrySeq() {
-    return new FromEntriesSequence(this);
   }
 
   get(index, notSetValue) {
@@ -712,7 +731,7 @@ class IndexedSequence extends Sequence {
   }
 
   toKeyedSeq() {
-    return new KeyedIndexedSequence(this);
+    return new ToKeyedSequence(this, false);
   }
 
   valueSeq() {
@@ -736,9 +755,6 @@ class IndexedSequence extends Sequence {
 }
 
 var IndexedSequencePrototype = IndexedSequence.prototype;
-IndexedSequencePrototype[ITERATOR_SYMBOL] = IndexedSequencePrototype.values;
-IndexedSequencePrototype.__toJS = IndexedSequencePrototype.toArray;
-IndexedSequencePrototype.__toStringMapper = quoteString;
 
 
 
@@ -836,7 +852,7 @@ class IterableSequence extends IndexedSequence {
 }
 
 
-class ObjectSequence extends Sequence {
+class ObjectSequence extends KeyedSequence {
   constructor(object) {
     var keys = Object.keys(object);
     this._object = object;
@@ -1076,9 +1092,10 @@ class ValuesSequence extends IndexedSequence {
 }
 
 
-class KeyedIndexedSequence extends Sequence {
-  constructor(indexedSeq) {
+class ToKeyedSequence extends KeyedSequence {
+  constructor(indexedSeq, useKeys) {
     this._seq = indexedSeq;
+    this._useKeys = useKeys;
     this.size = indexedSeq.size;
   }
 
@@ -1113,26 +1130,32 @@ class KeyedIndexedSequence extends Sequence {
   }
 
   __iterate(fn, reverse) {
-    var ii = reverse ? resolveSize(this) : 0;
+    var ii;
     return this._seq.__iterate(
-      v => fn(v, reverse ? --ii : ii++, this),
+      this._useKeys ?
+        (v, k) => fn(v, k, this) :
+        ((ii = reverse ? resolveSize(this) : 0),
+          v => fn(v, reverse ? --ii : ii++, this)),
       reverse
     );
   }
 
   __iterator(type, reverse) {
+    if (this._useKeys) {
+      return this._seq.__iterator(type, reverse);
+    }
     var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
     var ii = reverse ? resolveSize(this) : 0;
     return new Iterator(() => {
       var step = iterator.next();
       return step.done ? step :
-        iteratorValue(type, reverse ? --ii : ii++, step.value, step)
+        iteratorValue(type, reverse ? --ii : ii++, step.value, step);
     });
   }
 }
 
 
-class FromEntriesSequence extends Sequence {
+class FromEntriesSequence extends KeyedSequence {
   constructor(entriesSeq) {
     this._seq = entriesSeq;
     this.size = entriesSeq.size;

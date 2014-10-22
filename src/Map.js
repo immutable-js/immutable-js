@@ -14,14 +14,14 @@ import "invariant"
 import "TrieUtils"
 import "Hash"
 import "Iterator"
-/* global is, Sequence, IndexedSequence, invariant, makeCursor,
+/* global is, Sequence, KeyedSequence, IndexedSequence, invariant, makeCursor,
           DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
           MakeRef, SetRef, arrCopy, hash,
           Iterator, iteratorValue, iteratorDone */
 /* exported Map, MapPrototype */
 
 
-class Map extends Sequence {
+class Map extends KeyedSequence {
 
   // @pragma Construction
 

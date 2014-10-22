@@ -10,9 +10,7 @@
 import "Sequence"
 import "Map"
 import "TrieUtils"
-import "Iterator"
-/* global Sequence, IndexedSequencePrototype, Map, MapPrototype, DELETE,
-          ITERATOR_SYMBOL */
+/* global Sequence, Map, MapPrototype, DELETE */
 /* exported Set */
 
 
@@ -39,10 +37,6 @@ class Set extends Sequence {
 
   static fromKeys(sequence) {
     return Set.from(Sequence(sequence).flip());
-  }
-
-  toString() {
-    return this.__toString('Set {', '}');
   }
 
   // @pragma Access
@@ -180,14 +174,11 @@ class Set extends Sequence {
 
 var SetPrototype = Set.prototype;
 SetPrototype[DELETE] = SetPrototype.remove;
-SetPrototype[ITERATOR_SYMBOL] = SetPrototype.values;
 SetPrototype.mergeDeep = SetPrototype.merge;
 SetPrototype.mergeDeepWith = SetPrototype.mergeWith;
 SetPrototype.withMutations = MapPrototype.withMutations;
 SetPrototype.asMutable = MapPrototype.asMutable;
 SetPrototype.asImmutable = MapPrototype.asImmutable;
-SetPrototype.__toJS = IndexedSequencePrototype.__toJS;
-SetPrototype.__toStringMapper = IndexedSequencePrototype.__toStringMapper;
 
 
 function makeSet(map, ownerID) {

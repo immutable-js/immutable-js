@@ -12,11 +12,11 @@ import "Sequence"
 import "Map"
 import "TrieUtils"
 import "Iterator"
-/* global is, Sequence, IndexedSequence, Map, NOT_SET, DELETE,
+/* global is, Sequence, KeyedSequence, IndexedSequence, Map, NOT_SET, DELETE,
           ITERATE_ENTRIES, Iterator, iteratorDone, iteratorValue */
 /* exported makeCursor */
 
-class Cursor extends Sequence {
+class Cursor extends KeyedSequence {
   constructor(rootData, keyPath, onChange, size) {
     this.size = size;
     this._rootData = rootData;
