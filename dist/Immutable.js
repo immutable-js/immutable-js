@@ -464,7 +464,7 @@ var $Sequence = Sequence;
       return $Sequence(sequence._cache);
     }
     var entriesSequence = sequence.toKeyedSeq().map(entryMapper).valueSeq();
-    entriesSequence.fromEntries = (function() {
+    entriesSequence.fromEntrySeq = (function() {
       return sequence;
     });
     return entriesSequence;

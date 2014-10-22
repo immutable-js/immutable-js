@@ -311,7 +311,7 @@ class Sequence {
       return Sequence(sequence._cache);
     }
     var entriesSequence = sequence.toKeyedSeq().map(entryMapper).valueSeq();
-    entriesSequence.fromEntries = () => sequence;
+    entriesSequence.fromEntrySeq = () => sequence;
     return entriesSequence;
   }
 
