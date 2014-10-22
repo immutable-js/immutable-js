@@ -186,12 +186,36 @@ declare module 'immutable' {
     toArray(): Array<V>;
 
     /**
+     * Converts this sequence to an indexed sequence of the values of this
+     * sequence, discarding keys.
+     */
+    toIndexedSeq(): IndexedSequence<V>;
+
+    /**
      * Deeply converts this sequence to equivalent JS.
      *
      * IndexedSequences, Vectors, Ranges, Repeats and Sets become Arrays, while
      * other Sequences become Objects.
      */
     toJS(): any;
+
+    /**
+     * Converts this sequence into an identical sequence where indices are
+     * treated as keys. This is useful if you want to operate on an
+     * IndexedSequence and preserve the [index, value] pairs.
+     *
+     * The returned Sequence will have identical iteration order as
+     * this Sequence.
+     *
+     * Example:
+     *
+     *     var indexedSeq = Immutable.Sequence('A', 'B', 'C');
+     *     indexedSeq.filter(v => v === 'B').toString() // Seq [ 'B' ]
+     *     var keyedSeq = indexedSeq.toKeyedSeq();
+     *     keyedSeq.filter(v => v === 'B').toString() // Seq { 1: 'B' }
+     *
+     */
+    toKeyedSeq(): KeyedSequence<K, V>;
 
     /**
      * Converts this sequence to a Map, Throws if keys are not hashable.
@@ -222,6 +246,12 @@ declare module 'immutable' {
      * chained expressions.
      */
     toSet(): Set<V>;
+
+    /**
+     * Converts this sequence to an set sequence of the values of this
+     * sequence, discarding keys.
+     */
+    toSetSeq(): SetSequence<V>;
 
     /**
      * Converts this sequence to a Stack, discarding keys. Throws if values
@@ -586,6 +616,18 @@ declare module 'immutable' {
     has(key: K): boolean;
 
     /**
+     * True if `sequence` contains every value in this Set.
+     */
+    isSubset(sequence: Sequence<any, V>): boolean;
+    isSubset(sequence: Array<V>): boolean;
+
+    /**
+     * True if this Set contains every value in `sequence`.
+     */
+    isSuperset(sequence: Sequence<any, V>): boolean;
+    isSuperset(sequence: Array<V>): boolean;
+
+    /**
      * Returns a new indexed sequence of the keys of this sequence,
      * discarding values.
      */
@@ -757,29 +799,6 @@ declare module 'immutable' {
     ): Sequence<K, V>;
 
     /**
-     * Returns a new Sequence identical to this one, but does not behave as
-     * indexed. Instead the indices are treated as keys. This is useful if you
-     * want to operate on an IndexedSequence and preserve the index, value
-     * pairs.
-     *
-     * This is the generalized (and lazy) form of converting a Vector to Map.
-     *
-     * The returned Sequence will have identical iteration order as
-     * this Sequence.
-     *
-     * For already Keyed sequences, simply returns itself.
-     *
-     * Example:
-     *
-     *     var indexedSeq = Immutable.Sequence('A', 'B', 'C');
-     *     indexedSeq.filter(v => v === 'B').toString() // Seq [ 'B' ]
-     *     var keyedSeq = indexedSeq.toKeyedSeq();
-     *     keyedSeq.filter(v => v === 'B').toString() // Seq { 1: 'B' }
-     *
-     */
-    toKeyedSeq(): Sequence<K, V>;
-
-    /**
      * Returns a new indexed sequence of the values of this sequence,
      * discarding keys.
      */
@@ -810,13 +829,50 @@ declare module 'immutable' {
 
 
   /**
+   * Keyed Sequence
+   * --------------
+   *
+   * Keyed Sequences have discrete keys tied to each value.
+   *
+   * When iterating `KeyedSequence`, each iteration will yield a `[K, V]` tuple,
+   * in other words, `Sequence#entries` is the default iterator for Keyed
+   * Sequences.
+   */
+
+  export interface KeyedSequence<K, V> extends Sequence<K, V> {
+    // TODO: All sequence methods return KeyedSequence here.
+  }
+
+
+  /**
+   * Set Sequence
+   * ------------
+   *
+   * Set Sequences only represent values. They have no associated keys or
+   * indices. Duplicate values are possible in lazy Set Sequences, however the
+   * concrete `Set` does not allow duplicate values.
+   *
+   * Sequence methods on SetSequence such as `map` and `forEach` will provide
+   * the value as both the first and second arguments to the provided function.
+   *
+   *     var seq = SetSequence.of('A', 'B', 'C');
+   *     assert.equal(seq.every((v, k) => v === k), true);
+   *
+   */
+
+  export interface SetSequence<T> extends Sequence<T, T> {
+    // TODO: All sequence methods return SetSequence here.
+  }
+
+
+  /**
    * Indexed Sequence
    * ----------------
    *
    * Indexed Sequences have incrementing numeric keys. They exhibit
-   * slightly different behavior than `Sequence` for some methods in order to
-   * better mirror the behavior of JavaScript's `Array`, and add others which do
-   * not make sense on non-indexed sequences such as `indexOf`.
+   * slightly different behavior than `KeyedSequence` for some methods in order
+   * to better mirror the behavior of JavaScript's `Array`, and add others which
+   * do not make sense on non-indexed sequences such as `indexOf`.
    *
    * Unlike JavaScript arrays, `IndexedSequence`s are always dense. "Unset"
    * indices and `undefined` indices are indistinguishable, and all indices from
@@ -824,8 +880,8 @@ declare module 'immutable' {
    *
    * All IndexedSequence methods return re-indexed Sequences. In other words,
    * indices always start at 0 and increment until size. If you wish to
-   * preserve indices, using them as keys, use `toKeyedSeq()`.
-   *
+   * preserve indices, using them as keys, convert to a KeyedSequence by calling
+   * `toKeyedSeq`.
    */
 
   export interface IndexedSequence<T> extends Sequence<number, T> {
@@ -1664,18 +1720,6 @@ declare module 'immutable' {
      */
     subtract(...sequences: Sequence<any, T>[]): Set<T>;
     subtract(...sequences: Array<T>[]): Set<T>;
-
-    /**
-     * True if `sequence` contains every value in this Set.
-     */
-    isSubset(sequence: Sequence<any, T>): boolean;
-    isSubset(sequence: Array<T>): boolean;
-
-    /**
-     * True if this Set contains every value in `sequence`.
-     */
-    isSuperset(sequence: Sequence<any, T>): boolean;
-    isSuperset(sequence: Array<T>): boolean;
 
     /**
      * @see `Map.prototype.withMutations`

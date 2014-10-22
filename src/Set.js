@@ -10,11 +10,11 @@
 import "Sequence"
 import "Map"
 import "TrieUtils"
-/* global Sequence, Map, MapPrototype, DELETE */
+/* global Sequence, SetSequence, Map, MapPrototype, DELETE */
 /* exported Set */
 
 
-class Set extends Sequence {
+class Set extends SetSequence {
 
   // @pragma Construction
 
@@ -41,11 +41,7 @@ class Set extends Sequence {
 
   // @pragma Access
 
-  get(value, notSetValue) {
-    return this._map.has(value) ? value : notSetValue;
-  }
-
-  contains(value) {
+  has(value) {
     return this._map.has(value);
   }
 
@@ -125,17 +121,6 @@ class Set extends Sequence {
         }
       });
     });
-  }
-
-  isSubset(seq) {
-    seq = Sequence(seq);
-    return this.every(value => seq.contains(value));
-  }
-
-  isSuperset(seq) {
-    var set = this;
-    seq = Sequence(seq);
-    return seq.every(value => set.contains(value));
   }
 
   merge() {

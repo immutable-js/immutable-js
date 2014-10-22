@@ -20,7 +20,7 @@ import "Iterator"
           Iterator, iteratorValue, iteratorDone,
           isIterable, isIterator, getIterator,
           ITERATOR_SYMBOL, ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES */
-/* exported Sequence, IndexedSequence */
+/* exported Sequence, KeyedSequence, SetSequence, IndexedSequence */
 
 class Sequence {
 
@@ -66,10 +66,18 @@ class Sequence {
     return array;
   }
 
+  toIndexedSeq() {
+    return new ToIndexedSequence(this);
+  }
+
   toJS() {
     return this.map(
       value => value && typeof value.toJS === 'function' ? value.toJS() : value
     ).__toJS();
+  }
+
+  toKeyedSeq() {
+    return new ToKeyedSequence(this, true);
   }
 
   toMap() {
@@ -95,6 +103,10 @@ class Sequence {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);
     return Set.from(this);
+  }
+
+  toSetSeq() {
+    return new ToSetSequence(this, true);
   }
 
   toStack() {
@@ -313,7 +325,7 @@ class Sequence {
       // We cache as an entries array, so we can just return the cache!
       return Sequence(sequence._cache);
     }
-    var entriesSequence = sequence.toKeyedSeq().map(entryMapper).valueSeq();
+    var entriesSequence = sequence.toKeyedSeq().map(entryMapper).toIndexedSeq();
     entriesSequence.fromEntrySeq = () => sequence;
     return entriesSequence;
   }
@@ -388,8 +400,17 @@ class Sequence {
     return this.get(searchKey, NOT_SET) !== NOT_SET;
   }
 
+  isSubset(seq) {
+    seq = typeof seq.contains === 'function' ? seq : Sequence(seq);
+    return this.every(value => seq.contains(value));
+  }
+
+  isSuperset(seq) {
+    return seq.isSubset(this);
+  }
+
   keySeq() {
-    return this.flip().valueSeq();
+    return this.flip().toIndexedSeq();
   }
 
   last() {
@@ -487,12 +508,8 @@ class Sequence {
     return this.takeWhile(not(predicate), context);
   }
 
-  toKeyedSeq() {
-    return new ToKeyedSequence(this, true);
-  }
-
   valueSeq() {
-    return new ValuesSequence(this);
+    return this.toIndexedSeq();
   }
 
 
@@ -577,9 +594,19 @@ SequencePrototype.chain = SequencePrototype.flatMap;
 
 class KeyedSequence extends Sequence {
 
+  constructor(iterable) {
+    return iterable instanceof KeyedSequence ?
+      iterable :
+      this.constructor.from(iterable);
+  }
+
+
+  // ### Conversion to other types
+
   toKeyedSeq() {
     return this;
   }
+
 
   // ### Internal
 
@@ -595,11 +622,90 @@ KeyedSequencePrototype.__toStringMapper = (v, k) => k + ': ' + quoteString(v);
 
 
 
+class SetSequence extends Sequence {
+
+  constructor(iterable) {
+    return iterable instanceof SetSequence ?
+      iterable :
+      this.constructor.from(iterable);
+  }
+
+  static of(/*...values*/) {
+    return this.constructor(
+      arguments.length === 0 ?
+        Sequence.empty() :
+        new ArraySequence(arguments)
+    );
+  }
+
+
+  // ### Conversion to other types
+
+  toSetSeq() {
+    return this;
+  }
+
+
+  // ### ES6 Sequence methods (ES6 Array and Map)
+
+  get(value, notSetValue) {
+    return this.has(value) ? value : notSetValue;
+  }
+
+  contains(value) {
+    return this.has(value);
+  }
+
+
+  // ### More sequential methods
+
+  flip() {
+    return this;
+  }
+
+
+  // ### Internal
+
+  __makeSequence() {
+    return Object.create(SetSequencePrototype);
+  }
+}
+
+var SetSequencePrototype = SetSequence.prototype;
+SetSequencePrototype.has = SequencePrototype.contains;
+
+
+
 class IndexedSequence extends Sequence {
+
+  constructor(iterable) {
+    return iterable instanceof IndexedSequence ?
+      iterable :
+      this.constructor.from(iterable);
+  }
+
+  static of(/*...values*/) {
+    return this.constructor(
+      arguments.length === 0 ?
+        Sequence.empty() :
+        new ArraySequence(arguments)
+    );
+  }
+
+
+  // ### Conversion to other types
+
+  toIndexedSeq() {
+    return this;
+  }
+
+
+  // ### Common JavaScript methods and properties
 
   toString() {
     return this.__toString('Seq [', ']');
   }
+
 
   // ### ES6 Sequence methods (ES6 Array and Map)
 
@@ -1059,7 +1165,7 @@ function iterator(sequence, type, reverse, useKeys) {
 
 // #pragma Lazy Sequence Factories
 
-class ValuesSequence extends IndexedSequence {
+class ToIndexedSequence extends IndexedSequence {
   constructor(seq) {
     this._seq = seq;
     this.size = seq.size;
@@ -1108,18 +1214,22 @@ class ToKeyedSequence extends KeyedSequence {
   }
 
   valueSeq() {
-    return this._seq;
+    return this._useKeys ? this._seq.valueSeq() : this._seq;
   }
 
   reverse() {
     var reversedSequence = reverseFactory(this, true);
-    reversedSequence.valueSeq = () => this._seq.reverse();
+    if (!this._useKeys) {
+      reversedSequence.valueSeq = () => this._seq.reverse();
+    }
     return reversedSequence;
   }
 
   map(mapper, context) {
     var mappedSequence = mapFactory(this, mapper, context);
-    mappedSequence.valueSeq = () => this._seq.map(mapper, context);
+    if (!this._useKeys) {
+      mappedSequence.valueSeq = () => this._seq.map(mapper, context);
+    }
     return mappedSequence;
   }
 
@@ -1150,6 +1260,37 @@ class ToKeyedSequence extends KeyedSequence {
       var step = iterator.next();
       return step.done ? step :
         iteratorValue(type, reverse ? --ii : ii++, step.value, step);
+    });
+  }
+}
+
+
+class ToSetSequence extends SetSequence {
+  constructor(seq) {
+    this._seq = seq;
+    this.size = seq.size;
+  }
+
+  has(key) {
+    return this._seq.contains(key);
+  }
+
+  cacheResult() {
+    this._seq.cacheResult();
+    this.size = this._seq.size;
+    return this;
+  }
+
+  __iterate(fn, reverse) {
+    return this._seq.__iterate(v => fn(v, v, this), reverse);
+  }
+
+  __iterator(type, reverse) {
+    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
+    return new Iterator(() => {
+      var step = iterator.next();
+      return step.done ? step :
+        iteratorValue(type, step.value, step.value, step);
     });
   }
 }
