@@ -922,6 +922,8 @@ class ArraySequence extends IndexedSequence {
 
 function seqFromValue(value, maybeSingleton) {
   return value instanceof Sequence ? value :
+    // TODO: once the length warning is removed, change Array.isArray to
+    // ES6 Array.from "arraylike" semantics.
     Array.isArray(value) ? new ArraySequence(value) :
     isIterator(value) ? new IteratorSequence(value) :
     isIterable(value) ? new IterableSequence(value) :
