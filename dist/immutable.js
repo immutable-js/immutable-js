@@ -654,6 +654,22 @@ SequencePrototype.inspect = SequencePrototype.toSource = function() {
   return this.toString();
 };
 SequencePrototype.chain = SequencePrototype.flatMap;
+(function() {
+  try {
+    Object.defineProperty(SequencePrototype, 'length', {get: function() {
+        var stack;
+        try {
+          throw new Error();
+        } catch (error) {
+          stack = error.stack;
+        }
+        if (stack.indexOf('_wrapObject') === -1) {
+          console && console.warn && console.warn('sequence.length has been deprecated, ' + 'use sequence.size or sequence.count(). ' + 'This warning will become a silent error in a future version. ' + stack);
+          return this.size;
+        }
+      }});
+  } catch (e) {}
+})();
 var IndexedSequence = function IndexedSequence() {
   $traceurRuntime.defaultSuperCall(this, $IndexedSequence.prototype, arguments);
 };

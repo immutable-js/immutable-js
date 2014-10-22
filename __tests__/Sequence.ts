@@ -47,4 +47,22 @@ describe('Sequence', () => {
     expect(Immutable.Sequence.from(seq).size).toBe(3);
   });
 
+  it('temporarily warns about sequence length', function () {
+    this.spyOn(console, 'warn');
+
+    var seq = Immutable.Sequence.of(1,2,3);
+
+    // Note: `length` has been removed from the type definitions.
+    var length = (<any>seq).length;
+
+    expect((<any>console).warn.mostRecentCall.args[0]).toContain(
+      'sequence.length has been deprecated, '+
+      'use sequence.size or sequence.count(). '+
+      'This warning will become a silent error in a future version.'
+    );
+
+    expect(length).toBe(3);
+  });
+
+
 });
