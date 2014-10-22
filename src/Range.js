@@ -43,11 +43,11 @@ class Range extends IndexedSequence {
     this._start = start;
     this._end = end;
     this._step = step;
-    this.length = Math.max(0, Math.ceil((end - start) / step - 1) + 1);
+    this.size = Math.max(0, Math.ceil((end - start) / step - 1) + 1);
   }
 
   toString() {
-    if (this.length === 0) {
+    if (this.size === 0) {
       return 'Range []';
     }
     return 'Range [ ' +
@@ -65,16 +65,16 @@ class Range extends IndexedSequence {
   contains(searchValue) {
     var possibleIndex = (searchValue - this._start) / this._step;
     return possibleIndex >= 0 &&
-      possibleIndex < this.length &&
+      possibleIndex < this.size &&
       possibleIndex === Math.floor(possibleIndex);
   }
 
   slice(begin, end) {
-    if (wholeSlice(begin, end, this.length)) {
+    if (wholeSlice(begin, end, this.size)) {
       return this;
     }
-    begin = resolveBegin(begin, this.length);
-    end = resolveEnd(end, this.length);
+    begin = resolveBegin(begin, this.size);
+    end = resolveEnd(end, this.size);
     if (end <= begin) {
       return __EMPTY_RANGE;
     }
@@ -85,7 +85,7 @@ class Range extends IndexedSequence {
     var offsetValue = searchValue - this._start;
     if (offsetValue % this._step === 0) {
       var index = offsetValue / this._step;
-      if (index >= 0 && index < this.length) {
+      if (index >= 0 && index < this.size) {
         return index
       }
     }
@@ -105,7 +105,7 @@ class Range extends IndexedSequence {
   }
 
   __iterate(fn, reverse) {
-    var maxIndex = this.length - 1;
+    var maxIndex = this.size - 1;
     var step = this._step;
     var value = reverse ? this._start + maxIndex * step : this._start;
     for (var ii = 0; ii <= maxIndex; ii++) {
@@ -118,7 +118,7 @@ class Range extends IndexedSequence {
   }
 
   __iterator(type, reverse) {
-    var maxIndex = this.length - 1;
+    var maxIndex = this.size - 1;
     var step = this._step;
     var value = reverse ? this._start + maxIndex * step : this._start;
     var ii = 0;

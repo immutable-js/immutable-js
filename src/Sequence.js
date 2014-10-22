@@ -60,8 +60,8 @@ class Sequence {
   // ### Conversion to other types
 
   toArray() {
-    assertNotInfinite(this.length);
-    var array = new Array(this.length || 0);
+    assertNotInfinite(this.size);
+    var array = new Array(this.size || 0);
     this.valueSeq().__iterate((v, i) => { array[i] = v; });
     return array;
   }
@@ -74,12 +74,12 @@ class Sequence {
 
   toMap() {
     // Use Late Binding here to solve the circular dependency.
-    assertNotInfinite(this.length);
+    assertNotInfinite(this.size);
     return Map.from(this);
   }
 
   toObject() {
-    assertNotInfinite(this.length);
+    assertNotInfinite(this.size);
     var object = {};
     this.__iterate((v, k) => { object[k] = v; });
     return object;
@@ -87,25 +87,25 @@ class Sequence {
 
   toOrderedMap() {
     // Use Late Binding here to solve the circular dependency.
-    assertNotInfinite(this.length);
+    assertNotInfinite(this.size);
     return OrderedMap.from(this);
   }
 
   toSet() {
     // Use Late Binding here to solve the circular dependency.
-    assertNotInfinite(this.length);
+    assertNotInfinite(this.size);
     return Set.from(this);
   }
 
   toStack() {
     // Use Late Binding here to solve the circular dependency.
-    assertNotInfinite(this.length);
+    assertNotInfinite(this.size);
     return Stack.from(this);
   }
 
   toVector() {
     // Use Late Binding here to solve the circular dependency.
-    assertNotInfinite(this.length);
+    assertNotInfinite(this.size);
     return Vector.from(this);
   }
 
@@ -117,7 +117,7 @@ class Sequence {
   }
 
   __toString(head, tail) {
-    if (this.length === 0) {
+    if (this.size === 0) {
       return head + tail;
     }
     return head + ' ' + this.map(this.__toStringMapper).join(', ') + ' ' + tail;
@@ -220,19 +220,19 @@ class Sequence {
   }
 
   slice(begin, end) {
-    if (wholeSlice(begin, end, this.length)) {
+    if (wholeSlice(begin, end, this.size)) {
       return this;
     }
-    var resolvedBegin = resolveBegin(begin, this.length);
-    var resolvedEnd = resolveEnd(end, this.length);
+    var resolvedBegin = resolveBegin(begin, this.size);
+    var resolvedEnd = resolveEnd(end, this.size);
     // begin or end will be NaN if they were provided as negative numbers and
-    // this sequence's length is unknown. In that case, cache first so there is
-    // a known length.
+    // this sequence's size is unknown. In that case, cache first so there is
+    // a known size.
     if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd) {
       return this.cacheResult().slice(begin, end);
     }
     var skipped = resolvedBegin === 0 ? this : this.skip(resolvedBegin);
-    return resolvedEnd == null || resolvedEnd === this.length ?
+    return resolvedEnd == null || resolvedEnd === this.size ?
       skipped : skipped.take(resolvedEnd - resolvedBegin);
   }
 
@@ -257,10 +257,10 @@ class Sequence {
 
   count(predicate, context) {
     if (!predicate) {
-      if (this.length == null) {
-        this.length = this.__iterate(returnTrue);
+      if (this.size == null) {
+        this.size = this.__iterate(returnTrue);
       }
-      return this.length;
+      return this.size;
     }
     return this.filter(predicate, context).count();
   }
@@ -288,11 +288,11 @@ class Sequence {
     if (!other || typeof other.equals !== 'function') {
       return false;
     }
-    if (this.length != null && other.length != null) {
-      if (this.length !== other.length) {
+    if (this.size != null && other.size != null) {
+      if (this.size !== other.size) {
         return false;
       }
-      if (this.length === 0 && other.length === 0) {
+      if (this.size === 0 && other.size === 0) {
         return true;
       }
     }
@@ -500,10 +500,10 @@ class Sequence {
 
   cacheResult() {
     if (!this._cache && this.__iterateUncached) {
-      assertNotInfinite(this.length);
+      assertNotInfinite(this.size);
       this._cache = this.entrySeq().toArray();
-      if (this.length == null) {
-        this.length = this._cache.length;
+      if (this.size == null) {
+        this.size = this._cache.length;
       }
     }
     return this;
@@ -514,7 +514,7 @@ class Sequence {
 
   hashCode() {
     return this.__hash || (this.__hash =
-      this.length === Infinity ? 0 : this.reduce(
+      this.size === Infinity ? 0 : this.reduce(
         (h, v, k) => (h + (hash(v) ^ (v === k ? 0 : hash(k)))) & HASH_MAX_VAL, 0
     ));
   }
@@ -587,7 +587,7 @@ class IndexedSequence extends Sequence {
     if (numArgs === 0 || (numArgs === 2 && !removeNum)) {
       return this;
     }
-    index = resolveBegin(index, this.length);
+    index = resolveBegin(index, this.size);
     var spliced = this.slice(0, index);
     return numArgs === 1 ?
       spliced :
@@ -622,8 +622,8 @@ class IndexedSequence extends Sequence {
 
   get(index, notSetValue) {
     index = wrapIndex(this, index);
-    return (index < 0 || (this.length === Infinity ||
-        (this.length != null && index > this.length))) ?
+    return (index < 0 || (this.size === Infinity ||
+        (this.size != null && index > this.size))) ?
       notSetValue :
       this.find((_, key) => key === index, null, notSetValue);
   }
@@ -634,8 +634,8 @@ class IndexedSequence extends Sequence {
 
   has(index) {
     index = wrapIndex(this, index);
-    return index >= 0 && (this.length != null ?
-      this.length === Infinity || index < this.length :
+    return index >= 0 && (this.size != null ?
+      this.size === Infinity || index < this.size :
       this.indexOf(index) !== -1
     );
   }
@@ -773,7 +773,7 @@ class IteratorSequence extends IndexedSequence {
 class IterableSequence extends IndexedSequence {
   constructor(iterable) {
     this._iterable = iterable;
-    this.length = iterable.length || iterable.size;
+    this.size = iterable.length || iterable.size;
   }
 
   __iterateUncached(fn, reverse) {
@@ -817,7 +817,7 @@ class ObjectSequence extends Sequence {
     var keys = Object.keys(object);
     this._object = object;
     this._keys = keys;
-    this.length = keys.length;
+    this.size = keys.length;
   }
 
   get(key, notSetValue) {
@@ -862,7 +862,7 @@ class ObjectSequence extends Sequence {
 class ArraySequence extends IndexedSequence {
   constructor(array) {
     this._array = array;
-    this.length = array.length;
+    this.size = array.length;
   }
 
   get(index, notSetValue) {
@@ -906,35 +906,27 @@ function seqFromValue(value, maybeSingleton) {
       new ArraySequence([value]);
 }
 
-function ensureLength(indexedSeq) {
-  if (indexedSeq.length == null) {
-    indexedSeq.cacheResult();
-  }
-  invariant(indexedSeq.length < Infinity, 'Cannot reverse infinite range.');
-  return indexedSeq.length;
+function wholeSlice(begin, end, size) {
+  return (begin === 0 || (size != null && begin <= -size)) &&
+    (end == null || (size != null && end >= size));
 }
 
-function wholeSlice(begin, end, length) {
-  return (begin === 0 || (length != null && begin <= -length)) &&
-    (end == null || (length != null && end >= length));
+function resolveBegin(begin, size) {
+  return resolveIndex(begin, size, 0);
 }
 
-function resolveBegin(begin, length) {
-  return resolveIndex(begin, length, 0);
+function resolveEnd(end, size) {
+  return resolveIndex(end, size, size);
 }
 
-function resolveEnd(end, length) {
-  return resolveIndex(end, length, length);
-}
-
-function resolveIndex(index, length, defaultIndex) {
+function resolveIndex(index, size, defaultIndex) {
   return index == null ?
     defaultIndex :
     index < 0 ?
-      Math.max(0, length + index) :
-      length == null ?
+      Math.max(0, size + index) :
+      size == null ?
         index :
-        Math.min(length, index);
+        Math.min(size, index);
 }
 
 function valueMapper(v) {
@@ -965,17 +957,25 @@ function defaultComparator(a, b) {
 
 function wrapIndex(seq, index) {
   if (index < 0) {
-    if (seq.length == null) {
+    if (seq.size == null) {
       seq.cacheResult();
     }
-    return seq.length + index;
+    return seq.size + index;
   }
   return index;
 }
 
-function assertNotInfinite(length) {
+function resolveSize(indexedSeq) {
+  if (indexedSeq.size == null) {
+    indexedSeq.cacheResult();
+  }
+  assertNotInfinite(indexedSeq.size);
+  return indexedSeq.size;
+}
+
+function assertNotInfinite(size) {
   invariant(
-    length !== Infinity,
+    size !== Infinity,
     'Cannot perform this action with an infinite sequence.'
   );
 }
@@ -1020,7 +1020,7 @@ function iterator(sequence, type, reverse, useKeys) {
 class ValuesSequence extends IndexedSequence {
   constructor(seq) {
     this._seq = seq;
-    this.length = seq.length;
+    this.size = seq.size;
   }
 
   contains(value) {
@@ -1029,7 +1029,7 @@ class ValuesSequence extends IndexedSequence {
 
   cacheResult() {
     this._seq.cacheResult();
-    this.length = this._seq.length;
+    this.size = this._seq.size;
     return this;
   }
 
@@ -1053,7 +1053,7 @@ class ValuesSequence extends IndexedSequence {
 class KeyedIndexedSequence extends Sequence {
   constructor(indexedSeq) {
     this._seq = indexedSeq;
-    this.length = indexedSeq.length;
+    this.size = indexedSeq.size;
   }
 
   get(key, notSetValue) {
@@ -1082,12 +1082,12 @@ class KeyedIndexedSequence extends Sequence {
 
   cacheResult() {
     this._seq.cacheResult();
-    this.length = this._seq.length;
+    this.size = this._seq.size;
     return this;
   }
 
   __iterate(fn, reverse) {
-    var ii = reverse ? ensureLength(this) : 0;
+    var ii = reverse ? resolveSize(this) : 0;
     return this._seq.__iterate(
       v => fn(v, reverse ? --ii : ii++, this),
       reverse
@@ -1096,7 +1096,7 @@ class KeyedIndexedSequence extends Sequence {
 
   __iterator(type, reverse) {
     var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
-    var ii = reverse ? ensureLength(this) : 0;
+    var ii = reverse ? resolveSize(this) : 0;
     return new Iterator(() => {
       var step = iterator.next();
       return step.done ? step :
@@ -1109,7 +1109,7 @@ class KeyedIndexedSequence extends Sequence {
 class FromEntriesSequence extends Sequence {
   constructor(entriesSeq) {
     this._seq = entriesSeq;
-    this.length = entriesSeq.length;
+    this.size = entriesSeq.size;
   }
 
   entrySeq() {
@@ -1118,7 +1118,7 @@ class FromEntriesSequence extends Sequence {
 
   cacheResult() {
     this._seq.cacheResult();
-    this.length = this._seq.length;
+    this.size = this._seq.size;
     return this;
   }
 
@@ -1154,7 +1154,7 @@ class FromEntriesSequence extends Sequence {
 
 function flipFactory(sequence) {
   var flipSequence = sequence.__makeSequence();
-  flipSequence.length = sequence.length;
+  flipSequence.size = sequence.size;
   flipSequence.flip = () => sequence;
   flipSequence.reverse = function () {
     var reversedSequence = sequence.reverse.apply(this); // super.reverse()
@@ -1189,7 +1189,7 @@ function flipFactory(sequence) {
 
 function mapFactory(sequence, mapper, context) {
   var mappedSequence = sequence.__makeSequence();
-  mappedSequence.length = sequence.length;
+  mappedSequence.size = sequence.size;
   mappedSequence.has = key => sequence.has(key);
   mappedSequence.get = (key, notSetValue) => {
     var v = sequence.get(key, NOT_SET);
@@ -1225,7 +1225,7 @@ function mapFactory(sequence, mapper, context) {
 
 function reverseFactory(sequence, useKeys) {
   var reversedSequence = sequence.__makeSequence();
-  reversedSequence.length = sequence.length;
+  reversedSequence.size = sequence.size;
   reversedSequence.reverse = () => sequence;
   reversedSequence.flip = function () {
     var flipSequence = sequence.flip.apply(this); // super.flip()
@@ -1239,7 +1239,7 @@ function reverseFactory(sequence, useKeys) {
   reversedSequence.contains = value => sequence.contains(value);
   reversedSequence.cacheResult = function () {
     sequence.cacheResult();
-    this.length = sequence.length;
+    this.size = sequence.size;
     return this;
   };
   reversedSequence.__iterate = function (fn, reverse) {
@@ -1315,14 +1315,14 @@ function groupByFactory(seq, grouper, context, useKeys) {
 }
 
 function takeFactory(sequence, amount) {
-  if (amount > sequence.length) {
+  if (amount > sequence.size) {
     return sequence;
   }
   if (amount < 0) {
     amount = 0;
   }
   var takeSequence = sequence.__makeSequence();
-  takeSequence.length = sequence.length && Math.min(sequence.length, amount);
+  takeSequence.size = sequence.size && Math.min(sequence.size, amount);
   takeSequence.__iterateUncached = function(fn, reverse) {
     if (amount === 0) {
       return 0;
@@ -1398,7 +1398,7 @@ function skipFactory(sequence, amount, useKeys) {
     return sequence;
   }
   var skipSequence = sequence.__makeSequence();
-  skipSequence.length = sequence.length && Math.max(0, sequence.length - amount);
+  skipSequence.size = sequence.size && Math.max(0, sequence.size - amount);
   skipSequence.__iterateUncached = function (fn, reverse) {
     if (reverse) {
       return this.cacheResult().__iterate(fn, reverse);
@@ -1494,12 +1494,12 @@ function concatFactory(sequence, values, useKeys) {
     concatSequence = concatSequence.toKeyedSeq();
   }
   concatSequence = concatSequence.flatMap(valueMapper);
-  concatSequence.length = sequences.reduce(
+  concatSequence.size = sequences.reduce(
     (sum, seq) => {
       if (sum !== undefined) {
-        var len = Sequence(seq).length;
-        if (len != null) {
-          return sum + len;
+        var size = Sequence(seq).size;
+        if (size != null) {
+          return sum + size;
         }
       }
     },
@@ -1563,7 +1563,7 @@ function isFlattenable(maybeFlattenable) {
 
 function interposeFactory(sequence, separator) {
   var interposedSequence = sequence.__makeSequence();
-  interposedSequence.length = sequence.length && sequence.length * 2 -1;
+  interposedSequence.size = sequence.size && sequence.size * 2 -1;
   interposedSequence.__iterateUncached = function(fn, reverse) {
     var iterations = 0;
     sequence.__iterate((v, k) =>

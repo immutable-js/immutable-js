@@ -249,17 +249,17 @@ declare module 'immutable' {
     toString(): string;
 
     /**
-     * Some sequences can describe their length lazily. When this is the case,
-     * length will be an integer. Otherwise it will be undefined.
+     * Some sequences can describe their size lazily. When this is the case,
+     * size will be an integer. Otherwise it will be undefined.
      *
      * For example, the new Sequences returned from map() or reverse()
-     * preserve the length of the original sequence while filter() does not.
+     * preserve the size of the original sequence while filter() does not.
      *
-     * Note: All original collections will have a length, including Maps,
+     * Note: All original collections will have a size, including Maps,
      * Vectors, Sets, Ranges, Repeats and Sequences made from
      * Arrays and Objects.
      */
-    length: number;
+    size: number;
 
 
     // ### ES6 Sequence methods (ES6 Array and Map)
@@ -314,8 +314,8 @@ declare module 'immutable' {
      * The `sideEffect` is executed for every entry in the sequence.
      *
      * Unlike `Array.prototype.forEach`, if any call of `sideEffect` returns
-     * `false`, the iteration will stop. Returns the length of the sequence which
-     * was iterated (including the last iteration which returned false).
+     * `false`, the iteration will stop. Returns the number of entries iterated
+     * (including the last iteration which returned false).
      */
     forEach(
       sideEffect: (value?: V, key?: K, seq?: Sequence<K, V>) => any,
@@ -436,8 +436,8 @@ declare module 'immutable' {
     butLast(): Sequence<K, V>;
 
     /**
-     * Regardless of if this sequence can describe its length lazily, this method
-     * will always return the correct length. E.g. it evaluates the full sequence
+     * Regardless of if this sequence can describe its size lazily, this method
+     * will always return the correct size. E.g. it evaluates the full sequence
      * if necessary.
      *
      * If `predicate` is provided, then this returns the count of entries in the
@@ -803,7 +803,7 @@ declare module 'immutable' {
      *
      * Use this method judiciously, as it must fully evaluate a lazy Sequence.
      *
-     * Note: after calling `cacheResult()`, a Sequence will always have a length.
+     * Note: after calling `cacheResult()`, a Sequence will always have a size.
      */
     cacheResult(): Sequence<K, V>;
   }
@@ -820,10 +820,10 @@ declare module 'immutable' {
    *
    * Unlike JavaScript arrays, `IndexedSequence`s are always dense. "Unset"
    * indices and `undefined` indices are indistinguishable, and all indices from
-   * 0 to `length` are visited when iterated.
+   * 0 to `size` are visited when iterated.
    *
    * All IndexedSequence methods return re-indexed Sequences. In other words,
-   * indices always start at 0 and increment until length. If you wish to
+   * indices always start at 0 and increment until size. If you wish to
    * preserve indices, using them as keys, use `toKeyedSeq()`.
    *
    */
@@ -1256,7 +1256,7 @@ declare module 'immutable' {
   export module Map {
 
     /**
-     * `Map.empty()` creates a new immutable map of length 0.
+     * `Map.empty()` creates a new immutable map of size 0.
      */
     function empty<K, V>(): Map<K, V>;
 
@@ -1436,8 +1436,8 @@ declare module 'immutable' {
      *     var map2 = map1.withMutations(map => {
      *       map.set('a', 1).set('b', 2).set('c', 3);
      *     });
-     *     assert(map1.length === 0);
-     *     assert(map2.length === 3);
+     *     assert(map1.size === 0);
+     *     assert(map2.size === 3);
      *
      */
     withMutations(mutator: (mutable: Map<K, V>) => any): Map<K, V>;
@@ -1493,7 +1493,7 @@ declare module 'immutable' {
   export module OrderedMap {
 
     /**
-     * `OrderedMap.empty()` creates a new immutable ordered Map of length 0.
+     * `OrderedMap.empty()` creates a new immutable ordered Map of size 0.
      */
     function empty<K, V>(): Map<K, V>;
 
@@ -1535,10 +1535,10 @@ declare module 'immutable' {
    * Records always have a value for the keys they define. `remove`ing a key
    * from a record simply resets it to the default value for that key.
    *
-   *     myRecord.length // 2
+   *     myRecord.size // 2
    *     myRecordWithoutB = myRecord.remove('b')
    *     myRecordWithoutB.get('b') // 2
-   *     myRecordWithoutB.length // 2
+   *     myRecordWithoutB.size // 2
    *
    * Because Records have a known set of string keys, property get access works as
    * expected, however property sets will throw an Error.
@@ -1587,7 +1587,7 @@ declare module 'immutable' {
   export module Set {
 
     /**
-     * `Set.empty()` creates a new immutable set of length 0.
+     * `Set.empty()` creates a new immutable set of size 0.
      */
     function empty<T>(): Set<T>;
 
@@ -1701,18 +1701,18 @@ declare module 'immutable' {
    * Vectors are ordered indexed dense collections, much like a JavaScript
    * Array. Unlike a JavaScript Array, there is no distinction between an
    * "unset" index and an index set to `undefined`. `Vector#forEach` visits all
-   * indices from 0 to length, regardless of if they are defined.
+   * indices from 0 to size, regardless of if they are defined.
    */
 
   export module Vector {
 
     /**
-     * `Vector.empty()` returns a Vector of length 0.
+     * `Vector.empty()` returns a Vector of size 0.
      */
     function empty<T>(): Vector<T>;
 
     /**
-     * `Vector.from()` returns a Vector of the same length of the provided
+     * `Vector.from()` returns a Vector of the same size of the provided
      * `values` JavaScript Array or Sequence, containing the values at the
      * same indices.
      *
@@ -1753,7 +1753,7 @@ declare module 'immutable' {
 
     /**
      * Returns a new Vector which excludes this `index`. It will not affect the
-     * length of the Vector, instead leaving an undefined value.
+     * size of the Vector, instead leaving an undefined value.
      *
      * `index` may be a negative number, which indexes back from the end of the
      * Vector. `v.delete(-1)` deletes the last item in the Vector.
@@ -1772,18 +1772,18 @@ declare module 'immutable' {
     removeIn(keyPath: Array<any>): Vector<T>;
 
     /**
-     * Returns a new Vector with 0 length and no values.
+     * Returns a new Vector with 0 size and no values.
      */
     clear(): Vector<T>;
 
     /**
      * Returns a new Vector with the provided `values` appended, starting at this
-     * Vector's `length`.
+     * Vector's `size`.
      */
     push(...values: T[]): Vector<T>;
 
     /**
-     * Returns a new Vector with a length ones less than this Vector, excluding
+     * Returns a new Vector with a size ones less than this Vector, excluding
      * the last index in this Vector.
      *
      * Note: this differs from `Array.prototype.pop` because it returns a new
@@ -1799,7 +1799,7 @@ declare module 'immutable' {
     unshift(...values: T[]): Vector<T>;
 
     /**
-     * Returns a new Vector with a length ones less than this Vector, excluding
+     * Returns a new Vector with a size ones less than this Vector, excluding
      * the first index in this Vector, shifting all other values to a lower index.
      *
      * Note: this differs from `Array.prototype.shift` because it returns a new
@@ -1873,12 +1873,12 @@ declare module 'immutable' {
     ): Vector<T>;
 
     /**
-     * Returns a new Vector with length `length`. If `length` is less than this
-     * Vector's length, the new Vector will exclude values at the higher indices.
-     * If `length` is greater than this Vector's length, the new Vector will have
+     * Returns a new Vector with size `size`. If `size` is less than this
+     * Vector's size, the new Vector will exclude values at the higher indices.
+     * If `size` is greater than this Vector's size, the new Vector will have
      * undefined values for the newly available indices.
      */
-    setLength(length: number): Vector<T>;
+    setSize(size: number): Vector<T>;
 
     /**
      * @see `Map.prototype.withMutations`
@@ -1927,12 +1927,12 @@ declare module 'immutable' {
   export module Stack {
 
     /**
-     * `Stack.empty()` returns a Stack of length 0.
+     * `Stack.empty()` returns a Stack of size 0.
      */
     function empty<T>(): Stack<T>;
 
     /**
-     * `Stack.from()` returns a Stack of the same length of the provided
+     * `Stack.from()` returns a Stack of the same size of the provided
      * `values` JavaScript Array or Sequence, containing the values at the
      * same indices.
      *
@@ -1957,7 +1957,7 @@ declare module 'immutable' {
   export interface Stack<T> extends IndexedSequence<T> {
 
     /**
-     * Returns a new Stack with 0 length and no values.
+     * Returns a new Stack with 0 size and no values.
      */
     clear(): Stack<T>;
 
@@ -1976,7 +1976,7 @@ declare module 'immutable' {
     unshiftAll(seq: Array<T>): Stack<T>;
 
     /**
-     * Returns a new Stack with a length ones less than this Stack, excluding
+     * Returns a new Stack with a size ones less than this Stack, excluding
      * the first item in this Stack, shifting all other values to a lower index.
      *
      * Note: this differs from `Array.prototype.shift` because it returns a new

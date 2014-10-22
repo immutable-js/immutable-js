@@ -13,7 +13,7 @@ describe('Map', () => {
 
   it('converts from object', () => {
     var m = Map.from({'a': 'A', 'b': 'B', 'c': 'C'});
-    expect(m.length).toBe(3);
+    expect(m.size).toBe(3);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
@@ -21,7 +21,7 @@ describe('Map', () => {
 
   it('constructor provides initial values', () => {
     var m = Map({'a': 'A', 'b': 'B', 'c': 'C'});
-    expect(m.length).toBe(3);
+    expect(m.size).toBe(3);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
@@ -29,7 +29,7 @@ describe('Map', () => {
 
   it('constructor provides initial values as array of entries', () => {
     var m = Map([['a','A'],['b','B'],['c','C']]);
-    expect(m.length).toBe(3);
+    expect(m.size).toBe(3);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
@@ -38,7 +38,7 @@ describe('Map', () => {
   it('constructor provides initial values as sequence', () => {
     var s = Immutable.Sequence({'a': 'A', 'b': 'B', 'c': 'C'});
     var m = Map(s);
-    expect(m.length).toBe(3);
+    expect(m.size).toBe(3);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
@@ -78,9 +78,9 @@ describe('Map', () => {
     var m1 = Map();
     var m2 = m1.set(null, 'null');
     var m3 = m2.remove(null);
-    expect(m1.length).toBe(0);
-    expect(m2.length).toBe(1);
-    expect(m3.length).toBe(0);
+    expect(m1.size).toBe(0);
+    expect(m2.size).toBe(1);
+    expect(m3.size).toBe(0);
     expect(m2.get(null)).toBe('null');
   });
 
@@ -90,11 +90,11 @@ describe('Map', () => {
     var m3 = m2.set('b', 'Baboon');
     var m4 = m3.set('c', 'Canary');
     var m5 = m4.set('b', 'Bonobo');
-    expect(m1.length).toBe(0);
-    expect(m2.length).toBe(1);
-    expect(m3.length).toBe(2);
-    expect(m4.length).toBe(3);
-    expect(m5.length).toBe(3);
+    expect(m1.size).toBe(0);
+    expect(m2.size).toBe(1);
+    expect(m3.size).toBe(2);
+    expect(m4.size).toBe(3);
+    expect(m5.size).toBe(3);
     expect(m3.get('b')).toBe('Baboon');
     expect(m5.get('b')).toBe('Bonobo');
   });
@@ -105,11 +105,11 @@ describe('Map', () => {
     var m3 = m2.set('b', 'Baboon');
     var m4 = m3.set('c', 'Canary');
     var m5 = m4.remove('b');
-    expect(m1.length).toBe(0);
-    expect(m2.length).toBe(1);
-    expect(m3.length).toBe(2);
-    expect(m4.length).toBe(3);
-    expect(m5.length).toBe(2);
+    expect(m1.size).toBe(0);
+    expect(m2.size).toBe(1);
+    expect(m3.size).toBe(2);
+    expect(m4.size).toBe(3);
+    expect(m5.size).toBe(2);
     expect(m3.has('b')).toBe(true);
     expect(m3.get('b')).toBe('Baboon');
     expect(m5.has('b')).toBe(false);
@@ -122,10 +122,10 @@ describe('Map', () => {
     var m2 = m1.remove('a');
     var m3 = m2.remove('b');
     var m4 = m3.remove('c');
-    expect(m1.length).toBe(3);
-    expect(m2.length).toBe(2);
-    expect(m3.length).toBe(1);
-    expect(m4.length).toBe(0);
+    expect(m1.size).toBe(3);
+    expect(m2.size).toBe(2);
+    expect(m3.size).toBe(1);
+    expect(m4.size).toBe(0);
     expect(m4).toBe(Map.empty());
   });
 
@@ -134,13 +134,13 @@ describe('Map', () => {
     for (var ii = 0; ii < 2000; ii++) {
        m = m.set('thing:' + ii, ii);
     }
-    expect(m.length).toBe(2000);
+    expect(m.size).toBe(2000);
     expect(m.get('thing:1234')).toBe(1234);
   });
 
   it('can map items known to hash collide', () => {
     var m = Map().set('AAA', 'letters').set(64545, 'numbers');
-    expect(m.length).toBe(2);
+    expect(m.size).toBe(2);
     expect(m.get('AAA')).toEqual('letters');
     expect(m.get(64545)).toEqual('numbers');
   });
@@ -150,7 +150,7 @@ describe('Map', () => {
     map = map.set('@', '@');
     map = map.set(64, 64);
     map = map.set(96, 96);
-    expect(map.length).toBe(3);
+    expect(map.size).toBe(3);
     expect(map.get('@')).toBe('@');
     expect(map.get(64)).toBe(64);
     expect(map.get(96)).toBe(96);
@@ -194,8 +194,8 @@ describe('Map', () => {
     var m = Map({a:1, b:2, c:3});
     var v = m.toVector();
     var k = m.keySeq().toVector();
-    expect(v.length).toBe(3);
-    expect(k.length).toBe(3);
+    expect(v.size).toBe(3);
+    expect(k.size).toBe(3);
     // Note: Map has undefined ordering, this Vector may not be the same
     // order as the order you set into the Map.
     expect(v.get(1)).toBe(2);
@@ -220,10 +220,10 @@ describe('Map', () => {
   check.it('sets', {maxSize: 5000}, [gen.posInt], len => {
     var map = Immutable.Map();
     for (var ii = 0; ii < len; ii++) {
-      expect(map.length).toBe(ii);
+      expect(map.size).toBe(ii);
       map = map.set(''+ii, ii);
     }
-    expect(map.length).toBe(len);
+    expect(map.size).toBe(len);
     expect(Immutable.is(map.toSet(), Immutable.Range(0, len).toSet())).toBe(true);
   });
 
@@ -238,20 +238,20 @@ describe('Map', () => {
   check.it('deletes', {maxSize: 5000}, [gen.posInt], len => {
     var map = Immutable.Range(0, len).toMap();
     for (var ii = 0; ii < len; ii++) {
-      expect(map.length).toBe(len - ii);
+      expect(map.size).toBe(len - ii);
       map = map.remove(ii);
     }
-    expect(map.length).toBe(0);
+    expect(map.size).toBe(0);
     expect(map.toObject()).toEqual({});
   });
 
   check.it('deletes from transient', {maxSize: 5000}, [gen.posInt], len => {
     var map = Immutable.Range(0, len).toMap().asMutable();
     for (var ii = 0; ii < len; ii++) {
-      expect(map.length).toBe(len - ii);
+      expect(map.size).toBe(len - ii);
       map.remove(ii);
     }
-    expect(map.length).toBe(0);
+    expect(map.size).toBe(0);
     expect(map.toObject()).toEqual({});
   });
 

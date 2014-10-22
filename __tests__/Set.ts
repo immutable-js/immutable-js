@@ -106,11 +106,11 @@ describe('Set', () => {
     var s3 = s2.add('b');
     var s4 = s3.add('c');
     var s5 = s4.add('b');
-    expect(s1.length).toBe(0);
-    expect(s2.length).toBe(1);
-    expect(s3.length).toBe(2);
-    expect(s4.length).toBe(3);
-    expect(s5.length).toBe(3);
+    expect(s1.size).toBe(0);
+    expect(s2.size).toBe(1);
+    expect(s3.size).toBe(2);
+    expect(s4.size).toBe(3);
+    expect(s5.size).toBe(3);
   });
 
   it('is persistent to deletes', () => {
@@ -119,11 +119,11 @@ describe('Set', () => {
     var s3 = s2.add('b');
     var s4 = s3.add('c');
     var s5 = s4.remove('b');
-    expect(s1.length).toBe(0);
-    expect(s2.length).toBe(1);
-    expect(s3.length).toBe(2);
-    expect(s4.length).toBe(3);
-    expect(s5.length).toBe(2);
+    expect(s1.size).toBe(0);
+    expect(s2.size).toBe(1);
+    expect(s3.size).toBe(2);
+    expect(s4.size).toBe(3);
+    expect(s5.size).toBe(2);
     expect(s3.has('b')).toBe(true);
     expect(s5.has('b')).toBe(false);
   });

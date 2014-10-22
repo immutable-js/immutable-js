@@ -13,7 +13,7 @@ describe('Range', () => {
 
   it('fixed range', () => {
     var v = Range(0, 3);
-    expect(v.length).toBe(3);
+    expect(v.size).toBe(3);
     expect(v.first()).toBe(0);
     expect(v.rest().toArray()).toEqual([1,2]);
     expect(v.last()).toBe(2);
@@ -23,7 +23,7 @@ describe('Range', () => {
 
   it('stepped range', () => {
     var v = Range(1, 10, 3);
-    expect(v.length).toBe(3);
+    expect(v.size).toBe(3);
     expect(v.first()).toBe(1);
     expect(v.rest().toArray()).toEqual([4,7]);
     expect(v.last()).toBe(7);
@@ -33,7 +33,7 @@ describe('Range', () => {
 
   it('open range', () => {
     var v = Range(10);
-    expect(v.length).toBe(Infinity);
+    expect(v.size).toBe(Infinity);
     expect(v.first()).toBe(10);
     expect(v.rest().first()).toBe(11);
     expect(v.last()).toBe(Infinity);
@@ -46,7 +46,7 @@ describe('Range', () => {
 
   it('backwards range', () => {
     var v = Range(10, 1, 3);
-    expect(v.length).toBe(3);
+    expect(v.size).toBe(3);
     expect(v.first()).toBe(10);
     expect(v.last()).toBe(4);
     expect(v.toArray()).toEqual([10,7,4]);
@@ -54,7 +54,7 @@ describe('Range', () => {
 
   it('empty range', () => {
     var v = Range(10, 10);
-    expect(v.length).toBe(0);
+    expect(v.size).toBe(0);
     expect(v.first()).toBe(undefined);
     expect(v.rest().toArray()).toEqual([]);
     expect(v.last()).toBe(undefined);
@@ -64,16 +64,16 @@ describe('Range', () => {
 
   check.it('includes first, excludes last', [gen.int, gen.int], function (from, to) {
     var isIncreasing = to >= from;
-    var length = isIncreasing ? to - from : from - to;
+    var size = isIncreasing ? to - from : from - to;
     var r = Range(from, to);
     var a = r.toArray();
-    expect(r.length).toBe(length);
-    expect(a.length).toBe(length);
-    expect(r.get(0)).toBe(length ? from : undefined);
-    expect(a[0]).toBe(length ? from : undefined);
+    expect(r.size).toBe(size);
+    expect(a.length).toBe(size);
+    expect(r.get(0)).toBe(size ? from : undefined);
+    expect(a[0]).toBe(size ? from : undefined);
     var last = to + (isIncreasing ? -1 : 1);
-    expect(r.last()).toBe(length ? last : undefined);
-    if (length) {
+    expect(r.last()).toBe(size ? last : undefined);
+    if (size) {
       expect(a[a.length - 1]).toBe(last);
     }
   });
@@ -92,39 +92,39 @@ describe('Range', () => {
   it('slices range', () => {
     var v = Range(1, 11, 2);
     var s = v.slice(1, -2);
-    expect(s.length).toBe(2);
+    expect(s.size).toBe(2);
     expect(s.toArray()).toEqual([3,5]);
   });
 
   it('empty slice of range', () => {
     var v = Range(1, 11, 2);
     var s = v.slice(100, 200);
-    expect(s.length).toBe(0);
+    expect(s.size).toBe(0);
     expect(s.toArray()).toEqual([]);
   });
 
   it('slices empty range', () => {
     var v = Range(10, 10);
     var s = v.slice(1, -2);
-    expect(s.length).toBe(0);
+    expect(s.size).toBe(0);
     expect(s.toArray()).toEqual([]);
   });
 
   it('stepped range does not land on end', () => {
     var v = Range(0, 7, 2);
-    expect(v.length).toBe(4);
+    expect(v.size).toBe(4);
     expect(v.toArray()).toEqual([0,2,4,6]);
   });
 
   it('can be float', () => {
     var v = Range(0.5, 2.5, 0.5);
-    expect(v.length).toBe(4);
+    expect(v.size).toBe(4);
     expect(v.toArray()).toEqual([0.5, 1, 1.5, 2]);
   });
 
   it('can be negative', () => {
     var v = Range(10, -10, 5);
-    expect(v.length).toBe(4);
+    expect(v.size).toBe(4);
     expect(v.toArray()).toEqual([10,5,0,-5]);
   });
 

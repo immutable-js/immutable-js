@@ -32,7 +32,7 @@ class Record extends Sequence {
     name && (RecordTypePrototype._name = name);
     RecordTypePrototype._defaultValues = defaultValues;
     RecordTypePrototype._keys = keys;
-    RecordTypePrototype.length = keys.length;
+    RecordTypePrototype.size = keys.length;
 
     try {
       Sequence(defaultValues).forEach((_, key) => {

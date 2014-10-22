@@ -45,11 +45,11 @@ class OrderedMap extends Map {
   // @pragma Modification
 
   clear() {
-    if (this.length === 0) {
+    if (this.size === 0) {
       return this;
     }
     if (this.__ownerID) {
-      this.length = 0;
+      this.size = 0;
       this._map.clear();
       this._vector.clear();
       return this;
@@ -101,7 +101,7 @@ OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
 
 function makeOrderedMap(map, vector, ownerID, hash) {
   var omap = Object.create(OrderedMap.prototype);
-  omap.length = map ? map.length : 0;
+  omap.size = map ? map.size : 0;
   omap._map = map;
   omap._vector = vector;
   omap.__ownerID = ownerID;
@@ -119,12 +119,12 @@ function updateOrderedMap(omap, k, v) {
     return omap;
   }
   if (!has) {
-    i = vector.length;
+    i = vector.size;
   }
   var newMap = removed ? map.remove(k) : has ? map : map.set(k, i);
   var newVector = removed ? vector.remove(i) : vector.set(i, [k, v]);
   if (omap.__ownerID) {
-    omap.length = newMap.length;
+    omap.size = newMap.size;
     omap._map = newMap;
     omap._vector = newVector;
     omap.__hash = undefined;

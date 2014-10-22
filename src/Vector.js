@@ -31,15 +31,15 @@ class Vector extends IndexedSequence {
   }
 
   static from(sequence) {
-    if (!sequence || sequence.length === 0) {
+    if (!sequence || sequence.length === 0 || sequence.size === 0) {
       return Vector.empty();
     }
     if (sequence.constructor === Vector) {
       return sequence;
     }
     var isArray = Array.isArray(sequence);
-    if (sequence.length > 0 && sequence.length < SIZE) {
-      return makeVector(0, sequence.length, SHIFT, null, new VNode(
+    if (sequence.size > 0 && sequence.size < SIZE) {
+      return makeVector(0, sequence.size, SHIFT, null, new VNode(
         isArray ? arrCopy(sequence) : Sequence(sequence).toArray()
       ));
     }
@@ -57,7 +57,7 @@ class Vector extends IndexedSequence {
 
   get(index, notSetValue) {
     index = wrapIndex(this, index);
-    if (index < 0 || index >= this.length) {
+    if (index < 0 || index >= this.size) {
       return notSetValue;
     }
     index += this._origin;
@@ -76,11 +76,11 @@ class Vector extends IndexedSequence {
   }
 
   clear() {
-    if (this.length === 0) {
+    if (this.size === 0) {
       return this;
     }
     if (this.__ownerID) {
-      this.length = this._origin = this._size = 0;
+      this.size = this._origin = this._capacity = 0;
       this._level = SHIFT;
       this._root = this._tail = null;
       this.__hash = undefined;
@@ -92,11 +92,11 @@ class Vector extends IndexedSequence {
 
   push(/*...values*/) {
     var values = arguments;
-    var oldLength = this.length;
+    var oldSize = this.size;
     return this.withMutations(vect => {
-      setVectorBounds(vect, 0, oldLength + values.length);
+      setVectorBounds(vect, 0, oldSize + values.length);
       for (var ii = 0; ii < values.length; ii++) {
-        vect.set(oldLength + ii, values[ii]);
+        vect.set(oldSize + ii, values[ii]);
       }
     });
   }
@@ -137,8 +137,8 @@ class Vector extends IndexedSequence {
     return mergeIntoVectorWith(this, deepMerger(merger), seqs);
   }
 
-  setLength(length) {
-    return setVectorBounds(this, 0, length);
+  setSize(size) {
+    return setVectorBounds(this, 0, size);
   }
 
   // @pragma Iteration
@@ -148,11 +148,11 @@ class Vector extends IndexedSequence {
     // Optimize the case of vector.slice(b, e).toVector()
     if (sliceSequence !== this) {
       var vector = this;
-      var length = vector.length;
+      var size = vector.size;
       sliceSequence.toVector = () => setVectorBounds(
         vector,
-        begin < 0 ? Math.max(0, length + begin) : length ? Math.min(length, begin) : begin,
-        end == null ? length : end < 0 ? Math.max(0, length + end) : length ? Math.min(length, end) : end
+        begin < 0 ? Math.max(0, size + begin) : size ? Math.min(size, begin) : begin,
+        end == null ? size : end < 0 ? Math.max(0, size + end) : size ? Math.min(size, end) : end
       );
     }
     return sliceSequence;
@@ -165,13 +165,13 @@ class Vector extends IndexedSequence {
   __iterate(fn, reverse) {
     var iterations = 0;
     var eachFn = v => fn(v, iterations++, this);
-    var tailOffset = getTailOffset(this._size);
+    var tailOffset = getTailOffset(this._capacity);
     if (reverse) {
-      iterateVNode(this._tail, 0, tailOffset - this._origin, this._size - this._origin, eachFn, reverse) &&
+      iterateVNode(this._tail, 0, tailOffset - this._origin, this._capacity - this._origin, eachFn, reverse) &&
         iterateVNode(this._root, this._level, -this._origin, tailOffset - this._origin, eachFn, reverse);
     } else {
       iterateVNode(this._root, this._level, -this._origin, tailOffset - this._origin, eachFn, reverse) &&
-        iterateVNode(this._tail, 0, tailOffset - this._origin, this._size - this._origin, eachFn, reverse);
+        iterateVNode(this._tail, 0, tailOffset - this._origin, this._capacity - this._origin, eachFn, reverse);
     }
     return iterations;
   }
@@ -184,7 +184,7 @@ class Vector extends IndexedSequence {
       this.__ownerID = ownerID;
       return this;
     }
-    return makeVector(this._origin, this._size, this._level, this._root, this._tail, ownerID, this.__hash);
+    return makeVector(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
   }
 }
 
@@ -308,8 +308,8 @@ class VectorIterator extends Iterator {
   constructor(vector, type, reverse) {
     this._type = type;
     this._reverse = !!reverse;
-    this._maxIndex = vector.length - 1;
-    var tailOffset = getTailOffset(vector._size);
+    this._maxIndex = vector.size - 1;
+    var tailOffset = getTailOffset(vector._capacity);
     var rootStack = vectIteratorFrame(
       vector._root && vector._root.array,
       vector._level,
@@ -320,7 +320,7 @@ class VectorIterator extends Iterator {
       vector._tail && vector._tail.array,
       0,
       tailOffset - vector._origin,
-      vector._size - vector._origin - 1
+      vector._capacity - vector._origin - 1
     );
     this._stack = reverse ? tailStack : rootStack;
     this._stack.__prev = reverse ? rootStack : tailStack;
@@ -379,11 +379,11 @@ function vectIteratorFrame(array, level, offset, max, prevFrame) {
   };
 }
 
-function makeVector(origin, size, level, root, tail, ownerID, hash) {
+function makeVector(origin, capacity, level, root, tail, ownerID, hash) {
   var vect = Object.create(VectorPrototype);
-  vect.length = size - origin;
+  vect.size = capacity - origin;
   vect._origin = origin;
-  vect._size = size;
+  vect._capacity = capacity;
   vect._level = level;
   vect._root = root;
   vect._tail = tail;
@@ -396,7 +396,7 @@ function makeVector(origin, size, level, root, tail, ownerID, hash) {
 function updateVector(vector, index, value) {
   index = wrapIndex(vector, index);
 
-  if (index >= vector.length || index < 0) {
+  if (index >= vector.size || index < 0) {
     return value === NOT_SET ? vector : vector.withMutations(vect => {
       index < 0 ?
         setVectorBounds(vect, index).set(0, value) :
@@ -409,7 +409,7 @@ function updateVector(vector, index, value) {
   var newTail = vector._tail;
   var newRoot = vector._root;
   var didAlter = MakeRef(DID_ALTER);
-  if (index >= getTailOffset(vector._size)) {
+  if (index >= getTailOffset(vector._capacity)) {
     newTail = updateVNode(newTail, vector.__ownerID, 0, index, value, didAlter);
   } else {
     newRoot = updateVNode(newRoot, vector.__ownerID, vector._level, index, value, didAlter);
@@ -426,7 +426,7 @@ function updateVector(vector, index, value) {
     vector.__altered = true;
     return vector;
   }
-  return makeVector(vector._origin, vector._size, vector._level, newRoot, newTail);
+  return makeVector(vector._origin, vector._capacity, vector._level, newRoot, newTail);
 }
 
 function updateVNode(node, ownerID, level, index, value, didAlter) {
@@ -472,7 +472,7 @@ function editableVNode(node, ownerID) {
 }
 
 function vectorNodeFor(vector, rawIndex) {
-  if (rawIndex >= getTailOffset(vector._size)) {
+  if (rawIndex >= getTailOffset(vector._capacity)) {
     return vector._tail;
   }
   if (rawIndex < 1 << (vector._level + SHIFT)) {
@@ -489,15 +489,15 @@ function vectorNodeFor(vector, rawIndex) {
 function setVectorBounds(vector, begin, end) {
   var owner = vector.__ownerID || new OwnerID();
   var oldOrigin = vector._origin;
-  var oldSize = vector._size;
+  var oldCapacity = vector._capacity;
   var newOrigin = oldOrigin + begin;
-  var newSize = end == null ? oldSize : end < 0 ? oldSize + end : oldOrigin + end;
-  if (newOrigin === oldOrigin && newSize === oldSize) {
+  var newCapacity = end == null ? oldCapacity : end < 0 ? oldCapacity + end : oldOrigin + end;
+  if (newOrigin === oldOrigin && newCapacity === oldCapacity) {
     return vector;
   }
 
   // If it's going to end after it starts, it's empty.
-  if (newOrigin >= newSize) {
+  if (newOrigin >= newCapacity) {
     return vector.clear();
   }
 
@@ -514,12 +514,12 @@ function setVectorBounds(vector, begin, end) {
   if (offsetShift) {
     newOrigin += offsetShift;
     oldOrigin += offsetShift;
-    newSize += offsetShift;
-    oldSize += offsetShift;
+    newCapacity += offsetShift;
+    oldCapacity += offsetShift;
   }
 
-  var oldTailOffset = getTailOffset(oldSize);
-  var newTailOffset = getTailOffset(newSize);
+  var oldTailOffset = getTailOffset(oldCapacity);
+  var newTailOffset = getTailOffset(newCapacity);
 
   // New size might require creating a higher root.
   while (newTailOffset >= 1 << (newLevel + SHIFT)) {
@@ -530,11 +530,11 @@ function setVectorBounds(vector, begin, end) {
   // Locate or create the new tail.
   var oldTail = vector._tail;
   var newTail = newTailOffset < oldTailOffset ?
-    vectorNodeFor(vector, newSize - 1) :
+    vectorNodeFor(vector, newCapacity - 1) :
     newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
 
   // Merge Tail into tree.
-  if (oldTail && newTailOffset > oldTailOffset && newOrigin < oldSize && oldTail.array.length) {
+  if (oldTail && newTailOffset > oldTailOffset && newOrigin < oldCapacity && oldTail.array.length) {
     newRoot = editableVNode(newRoot, owner);
     var node = newRoot;
     for (var level = newLevel; level > SHIFT; level -= SHIFT) {
@@ -545,14 +545,14 @@ function setVectorBounds(vector, begin, end) {
   }
 
   // If the size has been reduced, there's a chance the tail needs to be trimmed.
-  if (newSize < oldSize) {
-    newTail = newTail && newTail.removeAfter(owner, 0, newSize);
+  if (newCapacity < oldCapacity) {
+    newTail = newTail && newTail.removeAfter(owner, 0, newCapacity);
   }
 
   // If the new origin is within the tail, then we do not need a root.
   if (newOrigin >= newTailOffset) {
     newOrigin -= newTailOffset;
-    newSize -= newTailOffset;
+    newCapacity -= newTailOffset;
     newLevel = SHIFT;
     newRoot = null;
     newTail = newTail && newTail.removeBefore(owner, 0, newOrigin);
@@ -583,14 +583,14 @@ function setVectorBounds(vector, begin, end) {
     }
     if (offsetShift) {
       newOrigin -= offsetShift;
-      newSize -= offsetShift;
+      newCapacity -= offsetShift;
     }
   }
 
   if (vector.__ownerID) {
-    vector.length = newSize - newOrigin;
+    vector.size = newCapacity - newOrigin;
     vector._origin = newOrigin;
-    vector._size = newSize;
+    vector._capacity = newCapacity;
     vector._level = newLevel;
     vector._root = newRoot;
     vector._tail = newTail;
@@ -598,7 +598,7 @@ function setVectorBounds(vector, begin, end) {
     vector.__altered = true;
     return vector;
   }
-  return makeVector(newOrigin, newSize, newLevel, newRoot, newTail);
+  return makeVector(newOrigin, newCapacity, newLevel, newRoot, newTail);
 }
 
 function mergeIntoVectorWith(vector, merger, iterables) {
@@ -607,9 +607,9 @@ function mergeIntoVectorWith(vector, merger, iterables) {
     var seq = iterables[ii];
     seq && seqs.push(Sequence(seq));
   }
-  var maxLength = Math.max.apply(null, seqs.map(s => s.length || 0));
-  if (maxLength > vector.length) {
-    vector = vector.setLength(maxLength);
+  var maxSize = Math.max.apply(null, seqs.map(s => s.size || 0));
+  if (maxSize > vector.size) {
+    vector = vector.setSize(maxSize);
   }
   return mergeIntoCollectionWith(vector, merger, seqs);
 }

@@ -70,15 +70,15 @@ describe('Vector', () => {
     expect(v1.get(0)).toBe('A');
   });
 
-  it('length includes the highest index', () => {
+  it('size includes the highest index', () => {
     var v0 = Vector();
     var v1 = v0.set(0, 'a');
     var v2 = v1.set(1, 'b');
     var v3 = v2.set(2, 'c');
-    expect(v0.length).toBe(0);
-    expect(v1.length).toBe(1);
-    expect(v2.length).toBe(2);
-    expect(v3.length).toBe(3);
+    expect(v0.size).toBe(0);
+    expect(v1.size).toBe(1);
+    expect(v2.size).toBe(2);
+    expect(v3.size).toBe(3);
   });
 
   it('get helpers make for easier to read code', () => {
@@ -116,7 +116,7 @@ describe('Vector', () => {
     var v5 = v4.set(1023, 'g'); // (testing internal guts)
     var v6 = v5.set(1024, 'h'); // (testing internal guts)
     var v7 = v6.set(32, 'F'); // set within existing tree
-    expect(v7.length).toBe(1025);
+    expect(v7.size).toBe(1025);
     var expectedArray = ['a', 'B', 'c', 'd'];
     expectedArray[31] = 'e';
     expectedArray[32] = 'F';
@@ -136,7 +136,7 @@ describe('Vector', () => {
 
   it('describes a dense vector', () => {
     var v = Vector('a', 'b', 'c').push('d').set(14, 'o').set(6, undefined).remove(1);
-    expect(v.length).toBe(15);
+    expect(v.size).toBe(15);
     expect(v.has(2)).toBe(true); // original end
     expect(v.has(3)).toBe(true); // end after push
     expect(v.has(14)).toBe(true); // end after set
@@ -147,8 +147,8 @@ describe('Vector', () => {
   });
 
   it('iterates a dense vector', () => {
-    var v = Vector.empty().setLength(11).set(1,1).set(3,3).set(5,5).set(7,7).set(9,9);
-    expect(v.length).toBe(11);
+    var v = Vector.empty().setSize(11).set(1,1).set(3,3).set(5,5).set(7,7).set(9,9);
+    expect(v.size).toBe(11);
 
     var forEachResults = [];
     v.forEach((val, i) => forEachResults.push([i, val]));
@@ -205,8 +205,8 @@ describe('Vector', () => {
   it('push inserts at highest index', () => {
     var v0 = Vector('a', 'b', 'c');
     var v1 = v0.push('d', 'e', 'f');
-    expect(v0.length).toBe(3);
-    expect(v1.length).toBe(6);
+    expect(v0.size).toBe(3);
+    expect(v1.size).toBe(6);
     expect(v1.toArray()).toEqual(['a', 'b', 'c', 'd', 'e', 'f']);
   });
 
@@ -221,23 +221,23 @@ describe('Vector', () => {
       var a3 = a1.slice();
       a3.push.apply(a3, a2);
 
-      expect(v3.length).toEqual(a3.length);
+      expect(v3.size).toEqual(a3.length);
       expect(v3.toArray()).toEqual(a3);
     }
   );
 
-  it('pop removes the highest index, decrementing length', () => {
+  it('pop removes the highest index, decrementing size', () => {
     var v = Vector('a', 'b', 'c').pop();
     expect(v.last()).toBe('b');
     expect(v.toArray()).toEqual(['a','b']);
     v = v.set(1230, 'x');
-    expect(v.length).toBe(1231);
+    expect(v.size).toBe(1231);
     expect(v.last()).toBe('x');
     v = v.pop();
-    expect(v.length).toBe(1230);
+    expect(v.size).toBe(1230);
     expect(v.last()).toBe(undefined);
     v = v.push('X');
-    expect(v.length).toBe(1231);
+    expect(v.size).toBe(1231);
     expect(v.last()).toBe('X');
   });
 
@@ -247,12 +247,12 @@ describe('Vector', () => {
       var v = Vector.from(a);
 
       while (a.length) {
-        expect(v.length).toBe(a.length);
+        expect(v.size).toBe(a.length);
         expect(v.toArray()).toEqual(a);
         v = v.pop();
         a.pop();
       }
-      expect(v.length).toBe(a.length);
+      expect(v.size).toBe(a.length);
       expect(v.toArray()).toEqual(a);
     }
   );
@@ -263,28 +263,28 @@ describe('Vector', () => {
       var v = Vector();
 
       for (var ii = 0; ii < len; ii++) {
-        expect(v.length).toBe(a.length);
+        expect(v.size).toBe(a.length);
         expect(v.toArray()).toEqual(a);
         v = v.push(ii);
         a.push(ii);
       }
-      expect(v.length).toBe(a.length);
+      expect(v.size).toBe(a.length);
       expect(v.toArray()).toEqual(a);
     }
   );
 
   it('allows popping an empty vector', () => {
     var v = Vector('a').pop();
-    expect(v.length).toBe(0);
+    expect(v.size).toBe(0);
     expect(v.toArray()).toEqual([]);
     v = v.pop().pop().pop().pop().pop();
-    expect(v.length).toBe(0);
+    expect(v.size).toBe(0);
     expect(v.toArray()).toEqual([]);
   });
 
-  it('remove removes an index, but does not affect length', () => {
+  it('remove removes an index, but does not affect size', () => {
     var v = Vector('a', 'b', 'c').remove(2).remove(0);
-    expect(v.length).toBe(3);
+    expect(v.size).toBe(3);
     expect(v.get(0)).toBe(undefined);
     expect(v.get(1)).toBe('b');
     expect(v.get(2)).toBe(undefined);
@@ -294,7 +294,7 @@ describe('Vector', () => {
     // JS interprets the third as a hole.
     expect(v.toArray()).toEqual([,'b',,,]);
     v = v.push('d');
-    expect(v.length).toBe(4);
+    expect(v.size).toBe(4);
     expect(v.get(3)).toBe('d');
     expect(v.toArray()).toEqual([,'b',,'d']);
   });
@@ -302,13 +302,13 @@ describe('Vector', () => {
   it('shifts values from the front', () => {
     var v = Vector('a', 'b', 'c').shift();
     expect(v.first()).toBe('b');
-    expect(v.length).toBe(2);
+    expect(v.size).toBe(2);
   });
 
   it('unshifts values to the front', () => {
     var v = Vector('a', 'b', 'c').unshift('x', 'y', 'z');
     expect(v.first()).toBe('x');
-    expect(v.length).toBe(6);
+    expect(v.size).toBe(6);
     expect(v.toArray()).toEqual(['x', 'y', 'z', 'a', 'b', 'c']);
   });
 
@@ -323,7 +323,7 @@ describe('Vector', () => {
       var a3 = a1.slice();
       a3.unshift.apply(a3, a2);
 
-      expect(v3.length).toEqual(a3.length);
+      expect(v3.size).toEqual(a3.length);
       expect(v3.toArray()).toEqual(a3);
     }
   );
@@ -386,7 +386,7 @@ describe('Vector', () => {
   it('can convert to a map', () => {
     var v = Vector('a', 'b', 'c');
     var m = v.toMap();
-    expect(m.length).toBe(3);
+    expect(m.size).toBe(3);
     expect(m.get(1)).toBe('b');
   });
 
@@ -440,13 +440,13 @@ describe('Vector', () => {
     expect(v4.toArray()).toEqual([1,2,3,4,5]);
   });
 
-  it('allows length to be set', () => {
+  it('allows size to be set', () => {
     var v1 = Immutable.Range(0,2000).toVector();
-    var v2 = v1.setLength(1000);
-    var v3 = v2.setLength(1500);
-    expect(v1.length).toBe(2000);
-    expect(v2.length).toBe(1000);
-    expect(v3.length).toBe(1500);
+    var v2 = v1.setSize(1000);
+    var v3 = v2.setSize(1500);
+    expect(v1.size).toBe(2000);
+    expect(v2.size).toBe(1000);
+    expect(v3.size).toBe(1500);
     expect(v1.get(900)).toBe(900);
     expect(v1.get(1300)).toBe(1300);
     expect(v1.get(1800)).toBe(1800);
@@ -461,12 +461,12 @@ describe('Vector', () => {
   it('can be efficiently sliced', () => {
     var v1 = Immutable.Range(0,2000).toVector();
     var v2 = v1.slice(100,-100).toVector();
-    expect(v1.length).toBe(2000)
-    expect(v2.length).toBe(1800);
+    expect(v1.size).toBe(2000)
+    expect(v2.size).toBe(1800);
     expect(v2.first()).toBe(100);
-    expect(v2.rest().length).toBe(1799);
+    expect(v2.rest().size).toBe(1799);
     expect(v2.last()).toBe(1899);
-    expect(v2.butLast().length).toBe(1799);
+    expect(v2.butLast().size).toBe(1799);
   });
 
   check.it('iterates through all values', [gen.posInt], len => {

@@ -53,16 +53,16 @@ describe('ArraySequence', () => {
     var a = [1,2,3];
     a.length = 10;
     var seq = Immutable.Sequence(a);
-    expect(seq.length).toBe(10);
+    expect(seq.size).toBe(10);
     expect(seq.toArray().length).toBe(10);
-    expect(seq.map(x => x*x).length).toBe(10);
+    expect(seq.map(x => x*x).size).toBe(10);
     expect(seq.map(x => x*x).toArray().length).toBe(10);
     expect(seq.skip(2).toArray().length).toBe(8);
     expect(seq.take(2).toArray().length).toBe(2);
     expect(seq.take(5).toArray().length).toBe(5);
     expect(seq.filter(x => x%2==1).toArray().length).toBe(2);
-    expect(seq.flip().length).toBe(10);
-    expect(seq.flip().flip().length).toBe(10);
+    expect(seq.flip().size).toBe(10);
+    expect(seq.flip().flip().size).toBe(10);
     expect(seq.flip().flip().toArray().length).toBe(10);
   });
 

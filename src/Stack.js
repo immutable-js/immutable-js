@@ -60,7 +60,7 @@ class Stack extends IndexedSequence {
     if (arguments.length === 0) {
       return this;
     }
-    var newLength = this.length + arguments.length;
+    var newSize = this.size + arguments.length;
     var head = this._head;
     for (var ii = arguments.length - 1; ii >= 0; ii--) {
       head = {
@@ -69,37 +69,37 @@ class Stack extends IndexedSequence {
       };
     }
     if (this.__ownerID) {
-      this.length = newLength;
+      this.size = newSize;
       this._head = head;
       this.__hash = undefined;
       this.__altered = true;
       return this;
     }
-    return makeStack(newLength, head);
+    return makeStack(newSize, head);
   }
 
   pushAll(seq) {
     seq = Sequence(seq);
-    if (seq.length === 0) {
+    if (seq.size === 0) {
       return this;
     }
-    var newLength = this.length;
+    var newSize = this.size;
     var head = this._head;
     seq.reverse().forEach(value => {
-      newLength++;
+      newSize++;
       head = {
         value: value,
         next: head
       };
     });
     if (this.__ownerID) {
-      this.length = newLength;
+      this.size = newSize;
       this._head = head;
       this.__hash = undefined;
       this.__altered = true;
       return this;
     }
-    return makeStack(newLength, head);
+    return makeStack(newSize, head);
   }
 
   pop() {
@@ -119,11 +119,11 @@ class Stack extends IndexedSequence {
   }
 
   clear() {
-    if (this.length === 0) {
+    if (this.size === 0) {
       return this;
     }
     if (this.__ownerID) {
-      this.length = 0;
+      this.size = 0;
       this._head = undefined;
       this.__hash = undefined;
       this.__altered = true;
@@ -133,27 +133,27 @@ class Stack extends IndexedSequence {
   }
 
   slice(begin, end) {
-    if (wholeSlice(begin, end, this.length)) {
+    if (wholeSlice(begin, end, this.size)) {
       return this;
     }
-    var resolvedBegin = resolveBegin(begin, this.length);
-    var resolvedEnd = resolveEnd(end, this.length);
-    if (resolvedEnd !== this.length) {
+    var resolvedBegin = resolveBegin(begin, this.size);
+    var resolvedEnd = resolveEnd(end, this.size);
+    if (resolvedEnd !== this.size) {
       return super.slice(begin, end);
     }
-    var newLength = this.length - resolvedBegin;
+    var newSize = this.size - resolvedBegin;
     var head = this._head;
     while (resolvedBegin--) {
       head = head.next;
     }
     if (this.__ownerID) {
-      this.length = newLength;
+      this.size = newSize;
       this._head = head;
       this.__hash = undefined;
       this.__altered = true;
       return this;
     }
-    return makeStack(newLength, head);
+    return makeStack(newSize, head);
   }
 
   // @pragma Mutability
@@ -167,7 +167,7 @@ class Stack extends IndexedSequence {
       this.__altered = false;
       return this;
     }
-    return makeStack(this.length, this._head, ownerID, this.__hash);
+    return makeStack(this.size, this._head, ownerID, this.__hash);
   }
 
   // @pragma Iteration
@@ -211,9 +211,9 @@ StackPrototype.asImmutable = MapPrototype.asImmutable;
 StackPrototype.wasAltered = MapPrototype.wasAltered;
 
 
-function makeStack(length, head, ownerID, hash) {
+function makeStack(size, head, ownerID, hash) {
   var map = Object.create(StackPrototype);
-  map.length = length;
+  map.size = size;
   map._head = head;
   map.__ownerID = ownerID;
   map.__hash = hash;

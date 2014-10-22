@@ -23,19 +23,19 @@ describe('concat', () => {
     })
   })
 
-  it('concats two sequences', () => {
+  it.only('concats two sequences', () => {
     var a = Sequence.of(1,2,3);
     var b = Sequence.of(4,5,6);
     expect(a.concat(b)).is(Sequence.of(1,2,3,4,5,6))
-    expect(a.concat(b).length).toBe(6);
+    expect(a.concat(b).size).toBe(6);
     expect(a.concat(b).toArray()).toEqual([1,2,3,4,5,6]);
   })
 
   it('concats two object sequences', () => {
     var a = Sequence({a:1,b:2,c:3});
     var b = Sequence({d:4,e:5,f:6});
-    expect(a.length).toBe(3);
-    expect(a.concat(b).length).toBe(6);
+    expect(a.size).toBe(3);
+    expect(a.concat(b).size).toBe(6);
     expect(a.concat(b).toObject()).toEqual({a:1,b:2,c:3,d:4,e:5,f:6});
   })
 
@@ -48,13 +48,13 @@ describe('concat', () => {
   it('concats arrays', () => {
     var a = Sequence.of(1,2,3);
     var b = [4,5,6];
-    expect(a.concat(b).length).toBe(6);
+    expect(a.concat(b).size).toBe(6);
     expect(a.concat(b).toObject()).toEqual([1,2,3,4,5,6]);
   })
 
   it('concats values', () => {
     var a = Sequence.of(1,2,3);
-    expect(a.concat(4,5,6).length).toBe(6);
+    expect(a.concat(4,5,6).size).toBe(6);
     expect(a.concat(4,5,6).toObject()).toEqual([1,2,3,4,5,6]);
   })
 
@@ -62,13 +62,13 @@ describe('concat', () => {
     var a = Sequence.of(1,2,3);
     var b = [4,5,6];
     var c = [7,8,9];
-    expect(a.concat(b, c).length).toBe(9);
+    expect(a.concat(b, c).size).toBe(9);
     expect(a.concat(b, c).toObject()).toEqual([1,2,3,4,5,6,7,8,9]);
   })
 
   it('can concat itself!', () => {
     var a = Sequence.of(1,2,3);
-    expect(a.concat(a, a).length).toBe(9);
+    expect(a.concat(a, a).size).toBe(9);
     expect(a.concat(a, a).toObject()).toEqual([1,2,3,1,2,3,1,2,3]);
   })
 
@@ -87,13 +87,13 @@ describe('concat', () => {
 
   it('lazily reverses indexed sequences', () => {
     var a = Sequence([1,2,3]);
-    expect(a.concat(a, a).reverse().length).toBe(9);
+    expect(a.concat(a, a).reverse().size).toBe(9);
     expect(a.concat(a, a).reverse().toArray()).toEqual([3,2,1,3,2,1,3,2,1]);
   })
 
-  it('lazily reverses indexed sequences with unknown length, maintaining indicies', () => {
+  it('lazily reverses indexed sequences with unknown size, maintaining indicies', () => {
     var a = Sequence([1,2,3]).filter(x=>true);
-    expect(a.concat(a, a).toKeyedSeq().reverse().length).toBe(undefined);
+    expect(a.concat(a, a).toKeyedSeq().reverse().size).toBe(undefined);
     expect(a.concat(a, a).toKeyedSeq().reverse().entrySeq().toArray()).toEqual(
       [[8,3],[7,2],[6,1],[5,3],[4,2],[3,1],[2,3],[1,2],[0,1]]
     );

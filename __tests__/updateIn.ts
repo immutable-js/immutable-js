@@ -93,7 +93,7 @@ describe('updateIn', () => {
 
     m = m.updateIn(['a', 'b', 'c'], I.Set.empty(), id => id);
 
-    expect(m.length).toBe(1);
+    expect(m.size).toBe(1);
 
     expect(m.getIn(['a', 'b', 'c'])).toBe(I.Set.empty());
   })
@@ -103,7 +103,7 @@ describe('updateIn', () => {
 
     m = m.updateIn(['a', 'b', 'c'], I.Set.empty(), id => undefined);
 
-    expect(m.length).toBe(0);
+    expect(m.size).toBe(0);
 
     var nothing = {}; // sentinel.
     expect(m.getIn(['a', 'b', 'c'], nothing)).toBe(nothing);

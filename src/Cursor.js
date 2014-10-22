@@ -17,8 +17,8 @@ import "Iterator"
 /* exported makeCursor */
 
 class Cursor extends Sequence {
-  constructor(rootData, keyPath, onChange, length) {
-    this.length = length;
+  constructor(rootData, keyPath, onChange, size) {
+    this.size = size;
     this._rootData = rootData;
     this._keyPath = keyPath;
     this._onChange = onChange;
@@ -103,8 +103,8 @@ CursorPrototype.getIn = CursorPrototype.get;
 
 
 class IndexedCursor extends IndexedSequence {
-  constructor(rootData, keyPath, onChange, length) {
-    this.length = length;
+  constructor(rootData, keyPath, onChange, size) {
+    this.size = size;
     this._rootData = rootData;
     this._keyPath = keyPath;
     this._onChange = onChange;
@@ -131,9 +131,9 @@ function makeCursor(rootData, keyPath, onChange, value) {
   if (arguments.length < 4) {
     value = rootData.getIn(keyPath);
   }
-  var length = value instanceof Sequence ? value.length : null;
+  var size = value instanceof Sequence ? value.size : undefined;
   var CursorClass = value instanceof IndexedSequence ? IndexedCursor : Cursor;
-  return new CursorClass(rootData, keyPath, onChange, length);
+  return new CursorClass(rootData, keyPath, onChange, size);
 }
 
 function wrappedValue(cursor, key, value) {

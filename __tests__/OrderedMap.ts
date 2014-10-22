@@ -21,7 +21,7 @@ describe('OrderedMap', () => {
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
-    expect(m.length).toBe(3);
+    expect(m.size).toBe(3);
     expect(m.toArray()).toEqual(['A','B','C']);
   });
 
@@ -30,7 +30,7 @@ describe('OrderedMap', () => {
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
-    expect(m.length).toBe(3);
+    expect(m.size).toBe(3);
     expect(m.toArray()).toEqual(['C','B','A']);
   });
 
@@ -40,7 +40,7 @@ describe('OrderedMap', () => {
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
-    expect(m.length).toBe(3);
+    expect(m.size).toBe(3);
     expect(m.toArray()).toEqual(['C','B','A']);
   });
 
@@ -49,7 +49,7 @@ describe('OrderedMap', () => {
       .set('A', 'aardvark')
       .set('Z', 'zebra')
       .set('A', 'antelope');
-    expect(m.length).toBe(2);
+    expect(m.size).toBe(2);
     expect(m.toArray()).toEqual(['antelope', 'zebra']);
   });
 
@@ -59,7 +59,7 @@ describe('OrderedMap', () => {
       .set('Z', 'zebra')
       .remove('A')
       .set('A', 'antelope');
-    expect(m.length).toBe(2);
+    expect(m.size).toBe(2);
     expect(m.toArray()).toEqual(['zebra', 'antelope']);
   });
 

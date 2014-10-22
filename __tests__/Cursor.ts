@@ -45,14 +45,14 @@ describe('Cursor', () => {
     var cursor = data.cursor(['a', 'b']);
     expect(cursor.toJS()).toEqual(json.a.b);
     expect(cursor).toEqual(data.getIn(['a', 'b']));
-    expect(cursor.length).toBe(1);
+    expect(cursor.size).toBe(1);
     expect(cursor.get('c')).toBe(1);
   });
 
   it('can be value compared to a primitive', () => {
     var data = Immutable.Map({ a: 'A' });
     var aCursor = data.cursor('a');
-    expect(aCursor.length).toBe(null);
+    expect(aCursor.size).toBe(undefined);
     expect(aCursor.deref()).toBe('A');
     expect(Immutable.is(aCursor, 'A')).toBe(true);
   });

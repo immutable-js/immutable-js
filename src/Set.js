@@ -60,7 +60,7 @@ class Set extends Sequence {
   add(value) {
     var newMap = this._map.set(value, null);
     if (this.__ownerID) {
-      this.length = newMap.length;
+      this.size = newMap.size;
       this._map = newMap;
       return this;
     }
@@ -70,19 +70,19 @@ class Set extends Sequence {
   remove(value) {
     var newMap = this._map.remove(value);
     if (this.__ownerID) {
-      this.length = newMap.length;
+      this.size = newMap.size;
       this._map = newMap;
       return this;
     }
-    return newMap === this._map ? this : newMap.length === 0 ? Set.empty() : makeSet(newMap);
+    return newMap === this._map ? this : newMap.size === 0 ? Set.empty() : makeSet(newMap);
   }
 
   clear() {
-    if (this.length === 0) {
+    if (this.size === 0) {
       return this;
     }
     if (this.__ownerID) {
-      this.length = 0;
+      this.size = 0;
       this._map.clear();
       return this;
     }
@@ -192,7 +192,7 @@ SetPrototype.__toStringMapper = IndexedSequencePrototype.__toStringMapper;
 
 function makeSet(map, ownerID) {
   var set = Object.create(SetPrototype);
-  set.length = map ? map.length : 0;
+  set.size = map ? map.size : 0;
   set._map = map;
   set.__ownerID = ownerID;
   return set;

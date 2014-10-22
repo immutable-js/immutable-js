@@ -68,7 +68,7 @@ describe('Stack', () => {
 
   it('iterable', () => {
     var s = Stack('a', 'b', 'c');
-    expect(s.length).toBe(3);
+    expect(s.size).toBe(3);
 
     var forEachResults = [];
     s.forEach((val, i) => forEachResults.push([i, val]));
@@ -94,12 +94,12 @@ describe('Stack', () => {
   it('push inserts at lowest index', () => {
     var s0 = Stack('a', 'b', 'c');
     var s1 = s0.push('d', 'e', 'f');
-    expect(s0.length).toBe(3);
-    expect(s1.length).toBe(6);
+    expect(s0.size).toBe(3);
+    expect(s1.size).toBe(6);
     expect(s1.toArray()).toEqual(['d', 'e', 'f', 'a', 'b', 'c']);
   });
 
-  it('pop removes the lowest index, decrementing length', () => {
+  it('pop removes the lowest index, decrementing size', () => {
     var s = Stack('a', 'b', 'c').pop();
     expect(s.peek()).toBe('b');
     expect(s.toArray()).toEqual([ 'b', 'c' ]);
@@ -111,12 +111,12 @@ describe('Stack', () => {
       var s = Stack.from(a);
 
       while (a.length) {
-        expect(s.length).toBe(a.length);
+        expect(s.size).toBe(a.length);
         expect(s.toArray()).toEqual(a);
         s = s.shift();
         a.shift();
       }
-      expect(s.length).toBe(a.length);
+      expect(s.size).toBe(a.length);
       expect(s.toArray()).toEqual(a);
     }
   );
@@ -127,12 +127,12 @@ describe('Stack', () => {
       var s = Stack();
 
       for (var ii = 0; ii < len; ii++) {
-        expect(s.length).toBe(a.length);
+        expect(s.size).toBe(a.length);
         expect(s.toArray()).toEqual(a);
         s = s.unshift(ii);
         a.unshift(ii);
       }
-      expect(s.length).toBe(a.length);
+      expect(s.size).toBe(a.length);
       expect(s.toArray()).toEqual(a);
     }
   );
@@ -148,7 +148,7 @@ describe('Stack', () => {
       var a3 = a1.slice();
       a3.unshift.apply(a3, a2);
 
-      expect(s3.length).toEqual(a3.length);
+      expect(s3.size).toEqual(a3.length);
       expect(s3.toArray()).toEqual(a3);
     }
   );

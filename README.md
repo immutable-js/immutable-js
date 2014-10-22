@@ -137,10 +137,10 @@ var vect1 = Immutable.Vector(1, 2);
 var vect2 = vect1.push(3, 4, 5);
 var vect3 = vect2.unshift(0);
 var vect4 = vect1.concat(vect2, vect3);
-assert(vect1.length === 2);
-assert(vect2.length === 5);
-assert(vect3.length === 6);
-assert(vect4.length === 13);
+assert(vect1.size === 2);
+assert(vect2.size === 5);
+assert(vect3.size === 6);
+assert(vect4.size === 13);
 assert(vect4.get(0) === 1);
 ```
 
@@ -353,8 +353,8 @@ var vect1 = Immutable.Vector(1,2,3);
 var vect2 = vect1.withMutations(function (vect) {
   vect.push(4).push(5).push(6);
 });
-assert(vect1.length === 3);
-assert(vect2.length === 6);
+assert(vect1.size === 3);
+assert(vect2.size === 6);
 ```
 
 Note: `immutable` also provides `asMutable` and `asImmutable`, but only

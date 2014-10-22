@@ -30,14 +30,14 @@ class Repeat extends IndexedSequence {
       return new Repeat(value, times);
     }
     this._value = value;
-    this.length = times == null ? Infinity : Math.max(0, times);
+    this.size = times == null ? Infinity : Math.max(0, times);
   }
 
   toString() {
-    if (this.length === 0) {
+    if (this.size === 0) {
       return 'Repeat []';
     }
-    return 'Repeat [ ' + this._value + ' ' + this.length + ' times ]';
+    return 'Repeat [ ' + this._value + ' ' + this.size + ' times ]';
   }
 
   get(index, notSetValue) {
@@ -49,9 +49,9 @@ class Repeat extends IndexedSequence {
   }
 
   slice(begin, end) {
-    var length = this.length;
-    begin = begin < 0 ? Math.max(0, length + begin) : Math.min(length, begin);
-    end = end == null ? length : end > 0 ? Math.min(length, end) : Math.max(0, length + end);
+    var size = this.size;
+    begin = begin < 0 ? Math.max(0, size + begin) : Math.min(size, begin);
+    end = end == null ? size : end > 0 ? Math.min(size, end) : Math.max(0, size + end);
     return end > begin ? new Repeat(this._value, end - begin) : EMPTY_REPEAT;
   }
 
@@ -68,13 +68,13 @@ class Repeat extends IndexedSequence {
 
   lastIndexOf(searchValue) {
     if (is(this._value, searchValue)) {
-      return this.length;
+      return this.size;
     }
     return -1;
   }
 
   __iterate(fn, reverse) {
-    for (var ii = 0; ii < this.length; ii++) {
+    for (var ii = 0; ii < this.size; ii++) {
       if (fn(this._value, ii, this) === false) {
         return ii + 1;
       }
@@ -85,7 +85,7 @@ class Repeat extends IndexedSequence {
   __iterator(type, reverse) {
     var ii = 0;
     return new Iterator(() =>
-      ii < this.length ? iteratorValue(type, ii++, this._value) : iteratorDone()
+      ii < this.size ? iteratorValue(type, ii++, this._value) : iteratorDone()
     );
   }
 
