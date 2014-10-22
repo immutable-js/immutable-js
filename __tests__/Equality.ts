@@ -52,10 +52,10 @@ describe('Equality', () => {
   });
 
   it('compares sequences', () => {
-    var arraySeq = Immutable.Sequence(1,2,3);
+    var arraySeq = Immutable.Sequence.of(1,2,3);
     var arraySeq2 = Immutable.Sequence([1,2,3]);
     expectIs(arraySeq, arraySeq);
-    expectIs(arraySeq, Immutable.Sequence(1,2,3));
+    expectIs(arraySeq, Immutable.Sequence.of(1,2,3));
     expectIs(arraySeq2, arraySeq2);
     expectIs(arraySeq2, Immutable.Sequence([1,2,3]));
     expectIsNot(arraySeq, [1,2,3]);
@@ -70,7 +70,7 @@ describe('Equality', () => {
     expectIs(vector, vector);
     expectIsNot(vector, [1,2,3]);
 
-    expectIs(vector, Immutable.Sequence(1,2,3));
+    expectIs(vector, Immutable.Sequence.of(1,2,3));
     expectIs(vector, Immutable.Vector(1,2,3));
 
     var vectorLonger = vector.push(4);

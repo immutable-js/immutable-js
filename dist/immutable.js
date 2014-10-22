@@ -243,7 +243,7 @@ function _iteratorFn(iterable) {
   }
 }
 var Sequence = function Sequence(value) {
-  return $Sequence.from(arguments.length === 1 ? value : Array.prototype.slice.call(arguments));
+  return arguments.length === 0 ? $Sequence.empty() : seqFromValue(value, true);
 };
 var $Sequence = Sequence;
 ($traceurRuntime.createClass)(Sequence, {
@@ -628,24 +628,24 @@ var $Sequence = Sequence;
   __iterator: function(type, reverse) {
     return iterator(this, type, reverse, true);
   }
-}, {from: function(value) {
-    if (value instanceof $Sequence) {
-      return value;
+}, {
+  empty: function() {
+    return EMPTY_SEQ || (EMPTY_SEQ = new ArraySequence([]));
+  },
+  from: function(seqLike) {
+    if (typeof seqLike !== 'object') {
+      throw new TypeError('Sequence.from requires a sequenceable object, not: ' + seqLike);
     }
-    if (!Array.isArray(value)) {
-      if (isIterator(value)) {
-        return new IteratorSequence(value);
-      }
-      if (isIterable(value)) {
-        return new IterableSequence(value);
-      }
-      if (value && value.constructor === Object) {
-        return new ObjectSequence(value);
-      }
-      value = [value];
+    var seq = seqFromValue(seqLike, false);
+    if (arguments.length > 1) {
+      seq = seq.map(arguments[1], arguments.length > 2 ? arguments[2] : undefined);
     }
-    return new ArraySequence(value);
-  }});
+    return seq;
+  },
+  of: function() {
+    return arguments.length === 0 ? $Sequence.empty() : new ArraySequence(arguments);
+  }
+});
 var SequencePrototype = Sequence.prototype;
 SequencePrototype[ITERATOR_SYMBOL] = SequencePrototype.entries;
 SequencePrototype.toJSON = SequencePrototype.toJS;
@@ -934,6 +934,9 @@ var ArraySequence = function ArraySequence(array) {
     }));
   }
 }, {}, IndexedSequence);
+function seqFromValue(value, maybeSingleton) {
+  return value instanceof Sequence ? value : Array.isArray(value) ? new ArraySequence(value) : isIterator(value) ? new IteratorSequence(value) : isIterable(value) ? new IterableSequence(value) : !maybeSingleton || (value && value.constructor === Object) ? new ObjectSequence(value) : new ArraySequence([value]);
+}
 function ensureLength(indexedSeq) {
   if (indexedSeq.length == null) {
     indexedSeq.cacheResult();
@@ -1566,6 +1569,7 @@ function interposeFactory(sequence, separator) {
   };
   return interposedSequence;
 }
+var EMPTY_SEQ;
 var Map = function Map(sequence) {
   var map = $Map.empty();
   return sequence ? sequence.constructor === $Map ? sequence : map.merge(sequence) : map;
@@ -3376,12 +3380,12 @@ function _fromJSWith(converter, json, key, parentJSON) {
   return json;
 }
 function _fromJSDefault(json) {
-  if (json) {
+  if (typeof json === 'object') {
     if (Array.isArray(json)) {
-      return Sequence(json).map(_fromJSDefault).toVector();
+      return Sequence.from(json, _fromJSDefault).toVector();
     }
     if (json.constructor === Object) {
-      return Sequence(json).map(_fromJSDefault).toMap();
+      return Sequence.from(json, _fromJSDefault).toMap();
     }
   }
   return json;

@@ -176,7 +176,7 @@ results, these operations are extremely efficient.
 
 ```javascript
 var myObject = {a:1,b:2,c:3};
-Sequence(myObject).map(x => x * x).toObject();
+Sequence.from(myObject).map(x => x * x).toObject();
 // { a: 1, b: 4, c: 9 }
 ```
 
@@ -244,7 +244,7 @@ to any method call.
 For example, the following does not perform any work, because the resulting sequence is
 never used:
 
-    var oddSquares = Immutable.Sequence(1,2,3,4,5,6,7,8)
+    var oddSquares = Immutable.Sequence.of(1,2,3,4,5,6,7,8)
       .filter(x => x % 2).map(x => x * x);
 
 Once the sequence is used, it performs only the work necessary. In this

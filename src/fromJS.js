@@ -26,12 +26,12 @@ function _fromJSWith(converter, json, key, parentJSON) {
 }
 
 function _fromJSDefault(json) {
-  if (json) {
+  if (typeof json === 'object') {
     if (Array.isArray(json)) {
-      return Sequence(json).map(_fromJSDefault).toVector();
+      return Sequence.from(json, _fromJSDefault).toVector();
     }
     if (json.constructor === Object) {
-      return Sequence(json).map(_fromJSDefault).toMap();
+      return Sequence.from(json, _fromJSDefault).toMap();
     }
   }
   return json;

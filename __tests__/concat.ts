@@ -24,9 +24,9 @@ describe('concat', () => {
   })
 
   it('concats two sequences', () => {
-    var a = Sequence(1,2,3);
-    var b = Sequence(4,5,6);
-    expect(a.concat(b)).is(Sequence(1,2,3,4,5,6))
+    var a = Sequence.of(1,2,3);
+    var b = Sequence.of(4,5,6);
+    expect(a.concat(b)).is(Sequence.of(1,2,3,4,5,6))
     expect(a.concat(b).length).toBe(6);
     expect(a.concat(b).toArray()).toEqual([1,2,3,4,5,6]);
   })
@@ -46,20 +46,20 @@ describe('concat', () => {
   })
 
   it('concats arrays', () => {
-    var a = Sequence(1,2,3);
+    var a = Sequence.of(1,2,3);
     var b = [4,5,6];
     expect(a.concat(b).length).toBe(6);
     expect(a.concat(b).toObject()).toEqual([1,2,3,4,5,6]);
   })
 
   it('concats values', () => {
-    var a = Sequence(1,2,3);
+    var a = Sequence.of(1,2,3);
     expect(a.concat(4,5,6).length).toBe(6);
     expect(a.concat(4,5,6).toObject()).toEqual([1,2,3,4,5,6]);
   })
 
   it('concats multiple arguments', () => {
-    var a = Sequence(1,2,3);
+    var a = Sequence.of(1,2,3);
     var b = [4,5,6];
     var c = [7,8,9];
     expect(a.concat(b, c).length).toBe(9);
@@ -67,7 +67,7 @@ describe('concat', () => {
   })
 
   it('can concat itself!', () => {
-    var a = Sequence(1,2,3);
+    var a = Sequence.of(1,2,3);
     expect(a.concat(a, a).length).toBe(9);
     expect(a.concat(a, a).toObject()).toEqual([1,2,3,1,2,3,1,2,3]);
   })

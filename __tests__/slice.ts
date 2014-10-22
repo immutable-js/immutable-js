@@ -13,15 +13,15 @@ import Vector = I.Vector;
 describe('slice', () => {
 
   it('slices a sequence', () => {
-    expect(Sequence(1,2,3,4,5,6).slice(2).toArray()).toEqual([3,4,5,6]);
-    expect(Sequence(1,2,3,4,5,6).slice(2, 4).toArray()).toEqual([3,4]);
-    expect(Sequence(1,2,3,4,5,6).slice(-3, -1).toArray()).toEqual([4,5]);
-    expect(Sequence(1,2,3,4,5,6).slice(-1).toArray()).toEqual([6]);
-    expect(Sequence(1,2,3,4,5,6).slice(0, -1).toArray()).toEqual([1,2,3,4,5]);
+    expect(Sequence.of(1,2,3,4,5,6).slice(2).toArray()).toEqual([3,4,5,6]);
+    expect(Sequence.of(1,2,3,4,5,6).slice(2, 4).toArray()).toEqual([3,4]);
+    expect(Sequence.of(1,2,3,4,5,6).slice(-3, -1).toArray()).toEqual([4,5]);
+    expect(Sequence.of(1,2,3,4,5,6).slice(-1).toArray()).toEqual([6]);
+    expect(Sequence.of(1,2,3,4,5,6).slice(0, -1).toArray()).toEqual([1,2,3,4,5]);
   })
 
   it('creates an immutable stable sequence', () => {
-    var seq = Sequence(1,2,3,4,5,6);
+    var seq = Sequence.of(1,2,3,4,5,6);
     var sliced = seq.slice(2, -2);
     expect(sliced.toArray()).toEqual([3, 4]);
     expect(sliced.toArray()).toEqual([3, 4]);
@@ -35,13 +35,13 @@ describe('slice', () => {
   })
 
   it('can maintain indices for an keyed indexed sequence', () => {
-    expect(Sequence(1,2,3,4,5,6).toKeyedSeq().slice(2).entrySeq().toArray()).toEqual([
+    expect(Sequence.of(1,2,3,4,5,6).toKeyedSeq().slice(2).entrySeq().toArray()).toEqual([
       [2,3],
       [3,4],
       [4,5],
       [5,6],
     ]);
-    expect(Sequence(1,2,3,4,5,6).toKeyedSeq().slice(2, 4).entrySeq().toArray()).toEqual([
+    expect(Sequence.of(1,2,3,4,5,6).toKeyedSeq().slice(2, 4).entrySeq().toArray()).toEqual([
       [2,3],
       [3,4],
     ]);
@@ -56,15 +56,15 @@ describe('slice', () => {
   })
 
   it('is reversable', () => {
-    expect(Sequence(1,2,3,4,5,6).slice(2).reverse().toArray()).toEqual([6,5,4,3]);
-    expect(Sequence(1,2,3,4,5,6).slice(2, 4).reverse().toArray()).toEqual([4,3]);
-    expect(Sequence(1,2,3,4,5,6).toKeyedSeq().slice(2).reverse().entrySeq().toArray()).toEqual([
+    expect(Sequence.of(1,2,3,4,5,6).slice(2).reverse().toArray()).toEqual([6,5,4,3]);
+    expect(Sequence.of(1,2,3,4,5,6).slice(2, 4).reverse().toArray()).toEqual([4,3]);
+    expect(Sequence.of(1,2,3,4,5,6).toKeyedSeq().slice(2).reverse().entrySeq().toArray()).toEqual([
       [5,6],
       [4,5],
       [3,4],
       [2,3],
     ]);
-    expect(Sequence(1,2,3,4,5,6).toKeyedSeq().slice(2, 4).reverse().entrySeq().toArray()).toEqual([
+    expect(Sequence.of(1,2,3,4,5,6).toKeyedSeq().slice(2, 4).reverse().entrySeq().toArray()).toEqual([
       [3,4],
       [2,3],
     ]);
@@ -76,7 +76,7 @@ describe('slice', () => {
   })
 
   it('returns self for whole slices', () => {
-    var s = Sequence(1,2,3);
+    var s = Sequence.of(1,2,3);
     expect(s.slice(0)).toBe(s);
     expect(s.slice(0, 3)).toBe(s);
     expect(s.slice(-4, 4)).toBe(s);
@@ -128,7 +128,7 @@ describe('slice', () => {
     })
 
     it('creates an immutable stable sequence', () => {
-      var seq = Sequence(1,2,3,4,5,6);
+      var seq = Sequence.of(1,2,3,4,5,6);
       var sliced = seq.take(3);
       expect(sliced.toArray()).toEqual([1, 2, 3]);
       expect(sliced.toArray()).toEqual([1, 2, 3]);

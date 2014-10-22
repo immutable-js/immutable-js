@@ -25,28 +25,35 @@ import "Iterator"
 class Sequence {
 
   constructor(value) {
-    return Sequence.from(
-      arguments.length === 1 ? value : Array.prototype.slice.call(arguments)
-    );
+    return arguments.length === 0 ?
+      Sequence.empty() :
+      seqFromValue(value, true);
   }
 
-  static from(value) {
-    if (value instanceof Sequence) {
-      return value;
+  static empty() {
+    return EMPTY_SEQ || (EMPTY_SEQ = new ArraySequence([]));
+  }
+
+  static from(seqLike/*[, mapFn[, context]]*/) {
+    if (typeof seqLike !== 'object') {
+      throw new TypeError(
+        'Sequence.from requires a sequenceable object, not: ' + seqLike
+      );
     }
-    if (!Array.isArray(value)) {
-      if (isIterator(value)) {
-        return new IteratorSequence(value);
-      }
-      if (isIterable(value)) {
-        return new IterableSequence(value);
-      }
-      if (value && value.constructor === Object) {
-        return new ObjectSequence(value);
-      }
-      value = [value];
+    var seq = seqFromValue(seqLike, false);
+    if (arguments.length > 1) {
+      seq = seq.map(
+        arguments[1],
+        arguments.length > 2 ? arguments[2] : undefined
+      );
     }
-    return new ArraySequence(value);
+    return seq;
+  }
+
+  static of(/*...values*/) {
+    return arguments.length === 0 ?
+      Sequence.empty() :
+      new ArraySequence(arguments);
   }
 
 
@@ -889,6 +896,16 @@ class ArraySequence extends IndexedSequence {
 
 // #pragma Helper functions
 
+function seqFromValue(value, maybeSingleton) {
+  return value instanceof Sequence ? value :
+    Array.isArray(value) ? new ArraySequence(value) :
+    isIterator(value) ? new IteratorSequence(value) :
+    isIterable(value) ? new IterableSequence(value) :
+    !maybeSingleton || (value && value.constructor === Object) ?
+      new ObjectSequence(value) :
+      new ArraySequence([value]);
+}
+
 function ensureLength(indexedSeq) {
   if (indexedSeq.length == null) {
     indexedSeq.cacheResult();
@@ -1574,3 +1591,5 @@ function interposeFactory(sequence, separator) {
   };
   return interposedSequence;
 }
+
+var EMPTY_SEQ;

@@ -42,7 +42,7 @@ describe('ArraySequence', () => {
   });
 
   it('counts from the end of the sequence on negative index', () => {
-    var i = Immutable.Sequence(1, 2, 3, 4, 5, 6, 7);
+    var i = Immutable.Sequence.of(1, 2, 3, 4, 5, 6, 7);
     expect(i.get(-1)).toBe(7);
     expect(i.get(-5)).toBe(3);
     expect(i.get(-9)).toBe(undefined);

@@ -15,13 +15,36 @@ describe('Sequence', () => {
     expect(Immutable.Sequence([1,2,3]).length).toBe(3);
   });
 
-  it('accepts varargs', () => {
-    expect(Immutable.Sequence(1,2,3).length).toBe(3);
+  it('accepts an object', () => {
+    expect(Immutable.Sequence({a:1,b:2,c:3}).length).toBe(3);
   });
 
-  it('accepts another sequence', () => {
-    var seq = Immutable.Sequence(1,2,3);
-    expect(Immutable.Sequence(seq).length).toBe(3);
+  it('accepts a scalar', () => {
+    expect(Immutable.Sequence('foo').length).toBe(1);
+  });
+
+  it('accepts a class', () => {
+    function Foo() {
+      this.bar = 'bar';
+      this.baz = 'baz';
+    }
+    expect(Immutable.Sequence(new Foo()).length).toBe(1);
+  });
+
+  it('empty returns an empty Sequence.', () => {
+    var e1 = Immutable.Sequence.empty();
+    var e2 = Immutable.Sequence.empty();
+    expect(e1.length).toBe(0);
+    expect(e1).toBe(e2);
+  });
+
+  it('of accepts varargs', () => {
+    expect(Immutable.Sequence.of(1,2,3).length).toBe(3);
+  });
+
+  it('from accepts another sequence', () => {
+    var seq = Immutable.Sequence.of(1,2,3);
+    expect(Immutable.Sequence.from(seq).length).toBe(3);
   });
 
 });

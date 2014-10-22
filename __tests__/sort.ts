@@ -12,7 +12,7 @@ import Range = I.Range;
 describe('sort', () => {
 
   it('sorts a sequence', () => {
-    expect(Sequence(4,5,6,3,2,1).sort().toArray()).toEqual([1,2,3,4,5,6]);
+    expect(Sequence.of(4,5,6,3,2,1).sort().toArray()).toEqual([1,2,3,4,5,6]);
   })
 
   it('sorts a vector', () => {
@@ -30,7 +30,7 @@ describe('sort', () => {
   })
 
   it('accepts a sort function', () => {
-    expect(Sequence(4,5,6,3,2,1).sort((a, b) => b - a).toArray()).toEqual([6,5,4,3,2,1]);
+    expect(Sequence.of(4,5,6,3,2,1).sort((a, b) => b - a).toArray()).toEqual([6,5,4,3,2,1]);
   })
 
   it('sorts by using a mapper', () => {

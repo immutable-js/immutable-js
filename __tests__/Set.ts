@@ -32,7 +32,7 @@ describe('Set', () => {
   });
 
   it('converts from sequence of values', () => {
-    var seq = Immutable.Sequence(1,2,3);
+    var seq = Immutable.Sequence.of(1,2,3);
     var s = Set.from(seq);
     expect(s.has(1)).toBe(true);
     expect(s.has(2)).toBe(true);

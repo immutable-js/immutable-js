@@ -120,38 +120,60 @@ declare module 'immutable' {
    * Note: A sequence is always iterated in the same order, however that order may
    * not always be well defined, as is the case for the `Map`.
    */
+  export module Sequence {
+
+    /**
+     * `Sequence.empty()` returns a Sequence of no values.
+     */
+    function empty(): Sequence<any, any>;
+
+    /**
+     * `Immutable.Sequence()` returns a sequence of its parameters.
+     *
+     *   * If provided a single argument:
+     *     * If a Sequence, that same Sequence is returned.
+     *     * If an Array, an `IndexedSequence` is returned.
+     *     * If a plain Object, a `Sequence` is returned, iterated in the same order
+     *       as the for-in would iterate through the Object itself.
+     *   * An `IndexedSequence` of all arguments is returned.
+     *
+     * Note: if a Sequence is created from a JavaScript Array or Object, then it can
+     * still possibly mutated if the underlying Array or Object is ever mutated.
+     */
+    function from<T>(seq: IndexedSequence<T>): IndexedSequence<T>;
+    function from<T>(array: Array<T>): IndexedSequence<T>;
+    function from<K, V>(seq: Sequence<K, V>): Sequence<K, V>;
+    function from<V>(obj: {[key: string]: V}): Sequence<string, V>;
+    function from<T>(iterator: Iterator<T>): IndexedSequence<T>;
+    function from<T>(iterable: /*Iterable<T>*/Object): IndexedSequence<T>;
+
+    /**
+     * Provides an Indexed Sequence of the values provided.
+     */
+    function of<T>(...values: T[]): IndexedSequence<T>;
+
+  }
 
   /**
-   * `Immutable.Sequence()` returns a sequence of its parameters.
+   * Like `Immutable.Sequence.from()`, `Immutable.Sequence()` returns a
+   * sequence from a sequenceable, but also accepts a non-sequenceable value
+   * which becomes a Sequence of that one value, or 0 arguments to create an
+   * empty Sequence.
    *
-   *   * If provided a single argument:
-   *     * If a Sequence, that same Sequence is returned.
-   *     * If an Array, an `IndexedSequence` is returned.
-   *     * If a plain Object, a `Sequence` is returned, iterated in the same order
-   *       as the for-in would iterate through the Object itself.
-   *   * An `IndexedSequence` of all arguments is returned.
-   *
-   * Note: if a Sequence is created from a JavaScript Array or Object, then it can
-   * still possibly mutated if the underlying Array or Object is ever mutated.
+   * This method is useful when converting from an any arbitrary value to a
+   * Sequence but changes the behavior for JS objects. Only plain Objects
+   * (e.g. created as `{}`) will be converted to Sequences. If you want to
+   * ensure that a Sequence of one item is returned, use `Sequence.of`, if you
+   * want to force a conversion of objects to Sequences, use `Sequence.from`.
    */
   export function Sequence<T>(seq: IndexedSequence<T>): IndexedSequence<T>;
   export function Sequence<T>(array: Array<T>): IndexedSequence<T>;
   export function Sequence<K, V>(seq: Sequence<K, V>): Sequence<K, V>;
   export function Sequence<V>(obj: {[key: string]: V}): Sequence<string, V>;
-  export function Sequence(iterable: Object/*Iterable<T>*/): IndexedSequence<any>;
-  export function Sequence<T>(...values: T[]): IndexedSequence<T>;
+  export function Sequence<T>(iterator: Iterator<T>): IndexedSequence<T>;
+  export function Sequence<T>(iterable: /*Iterable<T>*/Object): IndexedSequence<T>;
+  export function Sequence<V>(value: V): IndexedSequence<V>;
   export function Sequence(): Sequence<any, any>;
-
-  /**
-   * Like `Immutable.Sequence()`, `Immutable.Sequence.from()` returns a sequence,
-   * but always expects a single argument.
-   */
-  export module Sequence {
-    function from<T>(seq: IndexedSequence<T>): IndexedSequence<T>;
-    function from<T>(array: Array<T>): IndexedSequence<T>;
-    function from<K, V>(seq: Sequence<K, V>): Sequence<K, V>;
-    function from<V>(obj: {[key: string]: V}): Sequence<string, V>;
-  }
 
 
   export interface Sequence<K, V> {
