@@ -16,10 +16,10 @@ describe('flatten', () => {
     expect(flat.toJS()).toEqual([1,2,3,4,5,6]);
   })
 
-  it('returns an indexed sequence', () => {
+  it('flattening a Vector returns a Vector', () => {
     var nested = I.fromJS([[1],2,3,[4,5,6]]);
     var flat = nested.flatten();
-    expect(flat.toString()).toEqual("Seq [ 1, 2, 3, 4, 5, 6 ]");
+    expect(flat.toString()).toEqual("Vector [ 1, 2, 3, 4, 5, 6 ]");
   })
 
   it('gives the correct iteration count', () => {

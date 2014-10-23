@@ -262,7 +262,7 @@ var $Sequence = Sequence;
     return new ToIndexedSequence(this);
   },
   toJS: function() {
-    return this.map((function(value) {
+    return this.toSeq().map((function(value) {
       return value && typeof value.toJS === 'function' ? value.toJS() : value;
     })).__toJS();
   },
@@ -310,7 +310,7 @@ var $Sequence = Sequence;
     if (this.size === 0) {
       return head + tail;
     }
-    return head + ' ' + this.map(this.__toStringMapper).join(', ') + ' ' + tail;
+    return head + ' ' + this.toSeq().map(this.__toStringMapper).join(', ') + ' ' + tail;
   },
   concat: function() {
     for (var values = [],
@@ -337,7 +337,7 @@ var $Sequence = Sequence;
     return returnValue;
   },
   filter: function(predicate, context) {
-    return filterFactory(this, predicate, context, true);
+    return eager(this, filterFactory(this, predicate, context, true));
   },
   find: function(predicate, context, notSetValue) {
     var foundValue = notSetValue;
@@ -366,7 +366,7 @@ var $Sequence = Sequence;
     return this.__iterator(ITERATE_KEYS);
   },
   map: function(mapper, context) {
-    return mapFactory(this, mapper, context);
+    return eager(this, mapFactory(this, mapper, context));
   },
   reduce: function(reducer, initialReduction, context) {
     var reduction;
@@ -391,7 +391,7 @@ var $Sequence = Sequence;
     return reversed.reduce.apply(reversed, arguments);
   },
   reverse: function() {
-    return reverseFactory(this, true);
+    return eager(this, reverseFactory(this, true));
   },
   slice: function(begin, end) {
     if (wholeSlice(begin, end, this.size)) {
@@ -403,7 +403,7 @@ var $Sequence = Sequence;
       return this.cacheResult().slice(begin, end);
     }
     var skipped = resolvedBegin === 0 ? this : this.skip(resolvedBegin);
-    return resolvedEnd == null || resolvedEnd === this.size ? skipped : skipped.take(resolvedEnd - resolvedBegin);
+    return eager(this, resolvedEnd == null || resolvedEnd === this.size ? skipped : skipped.take(resolvedEnd - resolvedBegin));
   },
   some: function(predicate, context) {
     return !this.every(not(predicate), context);
@@ -418,13 +418,13 @@ var $Sequence = Sequence;
     return this.slice(0, -1);
   },
   count: function(predicate, context) {
-    if (!predicate) {
-      if (this.size == null) {
-        this.size = this.__iterate(returnTrue);
-      }
-      return this.size;
+    if (predicate) {
+      return this.toSeq().filter(predicate, context).count();
     }
-    return this.filter(predicate, context).count();
+    if (this.size == null) {
+      this.size = this.__iterate(returnTrue);
+    }
+    return this.size;
   },
   countBy: function(grouper, context) {
     var $__0 = this;
@@ -503,15 +503,15 @@ var $Sequence = Sequence;
     return this.find(returnTrue);
   },
   flatMap: function(mapper, context) {
-    return this.map((function(v, k, c) {
+    return eager(this, this.toSeq().map((function(v, k, c) {
       return $Sequence(mapper.call(context, v, k, c));
-    })).flatten(true);
+    })).flatten(true));
   },
   flatten: function(depth) {
-    return flattenFactory(this, depth, true);
+    return eager(this, flattenFactory(this, depth, true));
   },
   flip: function() {
-    return flipFactory(this);
+    return eager(this, flipFactory(this));
   },
   fromEntrySeq: function() {
     return new FromEntriesSequence(this);
@@ -549,22 +549,22 @@ var $Sequence = Sequence;
     return seq.isSubset(this);
   },
   keySeq: function() {
-    return this.flip().toIndexedSeq();
+    return this.toSeq().flip().toIndexedSeq();
   },
   last: function() {
-    return this.reverse().first();
+    return this.toSeq().reverse().first();
   },
   mapEntries: function(mapper, context) {
     var $__0 = this;
-    return this.entrySeq().map((function(entry, index) {
+    return eager(this, this.entrySeq().map((function(entry, index) {
       return mapper.call(context, entry, index, $__0);
-    })).fromEntrySeq();
+    })).fromEntrySeq());
   },
   mapKeys: function(mapper, context) {
     var $__0 = this;
-    return this.flip().map((function(k, v) {
+    return eager(this, this.toSeq().flip().map((function(k, v) {
       return mapper.call(context, k, v, $__0);
-    })).flip();
+    })).flip());
   },
   max: function(comparator) {
     return this.maxBy(valueMapper, comparator);
@@ -592,13 +592,13 @@ var $Sequence = Sequence;
     return this.slice(1);
   },
   skip: function(amount) {
-    return skipFactory(this, amount, true);
+    return eager(this, skipFactory(this, amount, true));
   },
   skipLast: function(amount) {
-    return this.reverse().skip(amount).reverse();
+    return eager(this, this.toSeq().reverse().skip(amount).reverse());
   },
   skipWhile: function(predicate, context) {
-    return skipWhileFactory(this, predicate, context, true);
+    return eager(this, skipWhileFactory(this, predicate, context, true));
   },
   skipUntil: function(predicate, context) {
     return this.skipWhile(not(predicate), context);
@@ -606,18 +606,18 @@ var $Sequence = Sequence;
   sortBy: function(mapper, comparator) {
     comparator = comparator || defaultComparator;
     var seq = this;
-    return $Sequence(seq.entrySeq().entrySeq().toArray().sort((function(a, b) {
+    return eager(this, $Sequence(seq.entrySeq().entrySeq().toArray().sort((function(a, b) {
       return comparator(mapper(a[1][1], a[1][0], seq), mapper(b[1][1], b[1][0], seq)) || a[0] - b[0];
-    }))).fromEntrySeq().valueSeq().fromEntrySeq();
+    }))).fromEntrySeq().valueSeq().fromEntrySeq());
   },
   take: function(amount) {
-    return takeFactory(this, amount);
+    return eager(this, takeFactory(this, amount));
   },
   takeLast: function(amount) {
-    return this.reverse().take(amount).reverse();
+    return eager(this, this.toSeq().reverse().take(amount).reverse());
   },
   takeWhile: function(predicate, context) {
-    return takeWhileFactory(this, predicate, context);
+    return eager(this, takeWhileFactory(this, predicate, context));
   },
   takeUntil: function(predicate, context) {
     return this.takeWhile(not(predicate), context);
@@ -726,10 +726,10 @@ var $IndexedSequence = IndexedSequence;
     for (var values = [],
         $__3 = 0; $__3 < arguments.length; $__3++)
       values[$__3] = arguments[$__3];
-    return concatFactory(this, values, false);
+    return eager(this, concatFactory(this, values, false));
   },
   filter: function(predicate, context) {
-    return filterFactory(this, predicate, context, false);
+    return eager(this, filterFactory(this, predicate, context, false));
   },
   findIndex: function(predicate, context) {
     var key = this.findKey(predicate, context);
@@ -744,7 +744,7 @@ var $IndexedSequence = IndexedSequence;
     return this.toKeyedSeq().reverse().indexOf(searchValue);
   },
   reverse: function() {
-    return reverseFactory(this, false);
+    return eager(this, reverseFactory(this, false));
   },
   splice: function(index, removeNum) {
     var numArgs = arguments.length;
@@ -754,7 +754,7 @@ var $IndexedSequence = IndexedSequence;
     }
     index = resolveBegin(index, this.size);
     var spliced = this.slice(0, index);
-    return numArgs === 1 ? spliced : spliced.concat(arrCopy(arguments, 2), this.slice(index + removeNum));
+    return eager(this, numArgs === 1 ? spliced : spliced.concat(arrCopy(arguments, 2), this.slice(index + removeNum)));
   },
   findLastIndex: function(predicate, context) {
     return this.toKeyedSeq().reverse().findIndex(predicate, context);
@@ -763,10 +763,10 @@ var $IndexedSequence = IndexedSequence;
     return this.get(0);
   },
   flatten: function(depth) {
-    return flattenFactory(this, depth, false);
+    return eager(this, flattenFactory(this, depth, false));
   },
   flip: function() {
-    return flipFactory(this.toKeyedSeq());
+    return eager(this, flipFactory(this.toKeyedSeq()));
   },
   get: function(index, notSetValue) {
     index = wrapIndex(this, index);
@@ -782,7 +782,7 @@ var $IndexedSequence = IndexedSequence;
     return index >= 0 && (this.size != null ? this.size === Infinity || index < this.size : this.indexOf(index) !== -1);
   },
   interpose: function(separator) {
-    return interposeFactory(this, separator);
+    return eager(this, interposeFactory(this, separator));
   },
   last: function() {
     return this.get(-1);
@@ -796,17 +796,17 @@ var $IndexedSequence = IndexedSequence;
         return index >= 0 ? seq.get(index + amount, notSetValue) : notSetValue;
       };
     }
-    return skipSeq;
+    return eager(this, skipSeq);
   },
   skipWhile: function(predicate, context) {
-    return skipWhileFactory(this, predicate, context, false);
+    return eager(this, skipWhileFactory(this, predicate, context, false));
   },
   sortBy: function(mapper, comparator) {
     comparator = comparator || defaultComparator;
     var seq = this;
-    return Sequence(this.entrySeq().toArray().sort((function(a, b) {
+    return eager(this, Sequence(this.entrySeq().toArray().sort((function(a, b) {
       return comparator(mapper(a[1], a[0], seq), mapper(b[1], b[0], seq)) || a[0] - b[0];
-    }))).fromEntrySeq().valueSeq();
+    }))).fromEntrySeq().valueSeq());
   },
   take: function(amount) {
     var seq = this;
@@ -817,7 +817,7 @@ var $IndexedSequence = IndexedSequence;
         return index >= 0 && index < amount ? seq.get(index, notSetValue) : notSetValue;
       };
     }
-    return takeSeq;
+    return eager(this, takeSeq);
   },
   __makeSequence: function() {
     return Object.create(LazyIndexedSequence.prototype);
@@ -1068,6 +1068,9 @@ var ArraySequence = function ArraySequence(array) {
     }));
   }
 }, {}, LazyIndexedSequence);
+function eager(kind, seq) {
+  return isLazy(kind) ? seq : kind.constructor.from(seq);
+}
 function seqFromValue(value, maybeSingleton) {
   var seq = isSequence(value) ? value : maybeSingleton && typeof value === 'string' ? new ArraySequence([value]) : isArrayLike(value) ? new ArraySequence(value) : isIterator(value) ? new IteratorSequence(value) : isIterable(value) ? new IterableSequence(value) : (maybeSingleton ? isPlainObj(value) : typeof value === 'object') ? new ObjectSequence(value) : maybeSingleton ? new ArraySequence([value]) : null;
   if (!seq) {
@@ -1200,14 +1203,14 @@ var ToKeyedSequence = function ToKeyedSequence(indexedSeq, useKeys) {
     return this._seq.has(key);
   },
   valueSeq: function() {
-    return this._useKeys ? this._seq.valueSeq() : this._seq;
+    return this._seq.valueSeq();
   },
   reverse: function() {
     var $__0 = this;
     var reversedSequence = reverseFactory(this, true);
     if (!this._useKeys) {
       reversedSequence.valueSeq = (function() {
-        return $__0._seq.reverse();
+        return $__0._seq.toSeq().reverse();
       });
     }
     return reversedSequence;
@@ -1217,7 +1220,7 @@ var ToKeyedSequence = function ToKeyedSequence(indexedSeq, useKeys) {
     var mappedSequence = mapFactory(this, mapper, context);
     if (!this._useKeys) {
       mappedSequence.valueSeq = (function() {
-        return $__0._seq.map(mapper, context);
+        return $__0._seq.toSeq().map(mapper, context);
       });
     }
     return mappedSequence;
@@ -1326,9 +1329,10 @@ function flipFactory(sequence) {
     return sequence;
   });
   flipSequence.reverse = function() {
-    var reversedSequence = sequence.reverse.apply(this);
+    var seq = sequence.toSeq();
+    var reversedSequence = seq.reverse.apply(this);
     reversedSequence.flip = (function() {
-      return sequence.reverse();
+      return seq.reverse();
     });
     return reversedSequence;
   };
@@ -1398,9 +1402,10 @@ function reverseFactory(sequence, useKeys) {
     return sequence;
   });
   reversedSequence.flip = function() {
-    var flipSequence = sequence.flip.apply(this);
+    var seq = sequence.toSeq();
+    var flipSequence = seq.flip.apply(this);
     flipSequence.reverse = (function() {
-      return sequence.flip();
+      return seq.flip();
     });
     return flipSequence;
   };
