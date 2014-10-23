@@ -31,7 +31,9 @@ var map = Immutable.Map({a:1, b:2, c:3});
 
 ### Browser
 
-To use `immutable` from a browser, download [dist/Immutable.min.js](./dist/Immutable.min.js) or use a CDN such as [jsDelivr](http://cdn.jsdelivr.net/immutable.js/latest/Immutable.min.js).
+To use `immutable` from a browser, download [dist/Immutable.min.js](./dist/Immutable.min.js)
+or use a CDN hosted version such as [CDNJS](//cdnjs.cloudflare.com/ajax/libs/immutable/2.5.1/immutable.min.js)
+or [jsDelivr](//cdn.jsdelivr.net/immutable.js/2.5.1/Immutable.min.js).
 
 Then, add it as a script tag to your page:
 
