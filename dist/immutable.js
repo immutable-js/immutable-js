@@ -1655,7 +1655,7 @@ function flattenFactory(sequence, depth, useKeys) {
     function flatDeep(seq, currentDepth) {
       var $__0 = this;
       seq.__iterate((function(v, k) {
-        if ((!depth || currentDepth < depth) && isFlattenable(v)) {
+        if ((!depth || currentDepth < depth) && isSequence(v)) {
           flatDeep(v, currentDepth + 1);
         } else if (fn(v, useKeys ? k : iterations++, $__0) === false) {
           stopped = true;
@@ -1681,7 +1681,7 @@ function flattenFactory(sequence, depth, useKeys) {
         if (type === ITERATE_ENTRIES) {
           v = v[1];
         }
-        if ((!depth || stack.length < depth) && isFlattenable(v)) {
+        if ((!depth || stack.length < depth) && isSequence(v)) {
           stack.push(iterator);
           iterator = v.__iterator(type, reverse);
         } else {
@@ -1692,9 +1692,6 @@ function flattenFactory(sequence, depth, useKeys) {
     }));
   };
   return flatSequence;
-}
-function isFlattenable(maybeFlattenable) {
-  return maybeFlattenable && typeof maybeFlattenable.flatten === 'function' && typeof maybeFlattenable.__iterate === 'function' && typeof maybeFlattenable.__iterator === 'function';
 }
 function interposeFactory(sequence, separator) {
   var interposedSequence = sequence.__makeSequence();
