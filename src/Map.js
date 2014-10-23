@@ -56,8 +56,18 @@ class Map extends Sequence {
     return updateMap(this, k, v);
   }
 
+  setIn(keyPath, v) {
+    invariant(keyPath.length > 0, 'Requires non-empty key path.');
+    return this.updateIn(keyPath, () => v);
+  }
+
   remove(k) {
     return updateMap(this, k, NOT_SET);
+  }
+
+  removeIn(keyPath) {
+    invariant(keyPath.length > 0, 'Requires non-empty key path.');
+    return this.updateIn(keyPath, () => NOT_SET);
   }
 
   update(k, notSetValue, updater) {
@@ -625,8 +635,8 @@ function updateInDeepMap(collection, keyPath, notSetValue, updater, offset) {
       offset + 1
     );
 
-  return value === existingValue ?
-    collection :
+  return value === existingValue ? collection :
+    value === NOT_SET ? collection && collection.remove(key) :
     (collection || Map.empty()).set(key, value);
 }
 

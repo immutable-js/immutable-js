@@ -1192,6 +1192,12 @@ declare module 'immutable' {
     set(key: K, value: V): Map<K, V>;
 
     /**
+     * Returns a new Map having set `value` at this `keyPath`. If any keys in
+     * `keyPath` do not exist, a new immutable Map will be created at that key.
+     */
+    setIn(keyPath: Array<any>, value: V): Map<K, V>;
+
+    /**
      * Returns a new Map which excludes this `key`.
      *
      * Note: `delete` cannot be safely used in IE8
@@ -1199,6 +1205,13 @@ declare module 'immutable' {
      */
     remove(key: K): Map<K, V>;
     delete(key: K): Map<K, V>;
+
+    /**
+     * Returns a new Map having removed the value at this `keyPath`. If any keys
+     * in `keyPath` do not exist, a new immutable Map will be created at
+     * that key.
+     */
+    removeIn(keyPath: Array<any>): Map<K, V>;
 
     /**
      * Returns a new Map containing no keys or values.
@@ -1630,6 +1643,12 @@ declare module 'immutable' {
     set(index: number, value: T): Vector<T>;
 
     /**
+     * Returns a new Vector having set `value` at this `keyPath`. If any keys in
+     * `keyPath` do not exist, a new immutable Map will be created at that key.
+     */
+    setIn(keyPath: Array<any>, value: T): Vector<T>;
+
+    /**
      * Returns a new Vector which excludes this `index`. It will not affect the
      * length of the Vector, instead leaving an undefined value.
      *
@@ -1641,6 +1660,13 @@ declare module 'immutable' {
      */
     remove(index: number): Vector<T>;
     delete(index: number): Vector<T>;
+
+    /**
+     * Returns a new Vector having removed the value at this `keyPath`. If any
+     * keys in `keyPath` do not exist, a new immutable Map will be created at
+     * that key.
+     */
+    removeIn(keyPath: Array<any>): Vector<T>;
 
     /**
      * Returns a new Vector with 0 length and no values.

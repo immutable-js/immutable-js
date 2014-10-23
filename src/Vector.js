@@ -190,6 +190,8 @@ class Vector extends IndexedSequence {
 
 var VectorPrototype = Vector.prototype;
 VectorPrototype[DELETE] = VectorPrototype.remove;
+VectorPrototype.setIn = MapPrototype.setIn;
+VectorPrototype.removeIn = MapPrototype.removeIn;
 VectorPrototype.update = MapPrototype.update;
 VectorPrototype.updateIn = MapPrototype.updateIn;
 VectorPrototype.cursor = MapPrototype.cursor;

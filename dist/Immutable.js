@@ -1556,8 +1556,20 @@ var $Map = Map;
   set: function(k, v) {
     return updateMap(this, k, v);
   },
+  setIn: function(keyPath, v) {
+    invariant(keyPath.length > 0, 'Requires non-empty key path.');
+    return this.updateIn(keyPath, (function() {
+      return v;
+    }));
+  },
   remove: function(k) {
     return updateMap(this, k, NOT_SET);
+  },
+  removeIn: function(keyPath) {
+    invariant(keyPath.length > 0, 'Requires non-empty key path.');
+    return this.updateIn(keyPath, (function() {
+      return NOT_SET;
+    }));
   },
   update: function(k, notSetValue, updater) {
     return arguments.length === 1 ? k(this) : this.updateIn([k], notSetValue, updater);
@@ -2024,7 +2036,7 @@ function updateInDeepMap(collection, keyPath, notSetValue, updater, offset) {
   var existing = collection ? collection.get(key, NOT_SET) : NOT_SET;
   var existingValue = existing === NOT_SET ? undefined : existing;
   var value = offset === keyPath.length - 1 ? updater(existing === NOT_SET ? notSetValue : existing) : updateInDeepMap(existingValue, keyPath, notSetValue, updater, offset + 1);
-  return value === existingValue ? collection : (collection || Map.empty()).set(key, value);
+  return value === existingValue ? collection : value === NOT_SET ? collection && collection.remove(key) : (collection || Map.empty()).set(key, value);
 }
 function popCount(x) {
   x = x - ((x >> 1) & 0x55555555);
@@ -2223,6 +2235,8 @@ var $Vector = Vector;
 }, IndexedSequence);
 var VectorPrototype = Vector.prototype;
 VectorPrototype[DELETE] = VectorPrototype.remove;
+VectorPrototype.setIn = MapPrototype.setIn;
+VectorPrototype.removeIn = MapPrototype.removeIn;
 VectorPrototype.update = MapPrototype.update;
 VectorPrototype.updateIn = MapPrototype.updateIn;
 VectorPrototype.cursor = MapPrototype.cursor;

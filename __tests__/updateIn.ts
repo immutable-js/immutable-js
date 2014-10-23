@@ -109,4 +109,27 @@ describe('updateIn', () => {
     expect(m.getIn(['a', 'b', 'c'], nothing)).toBe(nothing);
   })
 
+  describe('setIn', () => {
+
+    it('provides shorthand for updateIn to set a single value', () => {
+      var m = I.Map().setIn(['a','b','c'], 'X');
+      expect(m.toJS()).toEqual({a:{b:{c:'X'}}});
+    })
+
+  })
+
+  describe('removeIn', () => {
+
+    it('provides shorthand for updateIn to remove a single value', () => {
+      var m = I.fromJS({a:{b:{c:'X', d:'Y'}}});
+      expect(m.removeIn(['a','b','c']).toJS()).toEqual({a:{b:{d:'Y'}}});
+    })
+
+    it('does not create empty maps for an unset path', () => {
+      var m = I.Map();
+      expect(m.removeIn(['a','b','c']).toJS()).toEqual({});
+    })
+
+  })
+
 })
