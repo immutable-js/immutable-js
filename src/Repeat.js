@@ -11,7 +11,7 @@ import "Sequence"
 import "Range"
 import "is"
 import "Iterator"
-/* global IndexedSequence, RangePrototype, is,
+/* global LazyIndexedSequence, RangePrototype, is,
           Iterator, iteratorValue, iteratorDone */
 /* exported Repeat */
 
@@ -20,7 +20,7 @@ import "Iterator"
  * Returns a lazy seq of `value` repeated `times` times. When `times` is
  * undefined, returns an infinite sequence of `value`.
  */
-class Repeat extends IndexedSequence {
+class Repeat extends LazyIndexedSequence {
 
   constructor(value, times) {
     if (times === 0 && EMPTY_REPEAT) {

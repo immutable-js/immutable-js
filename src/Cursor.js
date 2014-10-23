@@ -12,12 +12,12 @@ import "Sequence"
 import "Map"
 import "TrieUtils"
 import "Iterator"
-/* global is, Sequence, KeyedSequence, IndexedSequence, isSequence, isIndexed,
+/* global is, Sequence, LazyKeyedSequence, LazyIndexedSequence, isSequence, isIndexed,
           Map, NOT_SET, DELETE,
           ITERATE_ENTRIES, Iterator, iteratorDone, iteratorValue */
 /* exported makeCursor */
 
-class Cursor extends KeyedSequence {
+class Cursor extends LazyKeyedSequence {
   constructor(rootData, keyPath, onChange, size) {
     this.size = size;
     this._rootData = rootData;
@@ -103,7 +103,7 @@ CursorPrototype[DELETE] = CursorPrototype.remove;
 CursorPrototype.getIn = CursorPrototype.get;
 
 
-class IndexedCursor extends IndexedSequence {
+class IndexedCursor extends LazyIndexedSequence {
   constructor(rootData, keyPath, onChange, size) {
     this.size = size;
     this._rootData = rootData;

@@ -155,6 +155,12 @@ declare module 'immutable' {
     function isSequence(maybeSequence): boolean;
 
     /**
+     * True if `maybeLazy` is a lazy Sequence, it is not backed by a concrete
+     * structure such as Map, Vector, or Set.
+     */
+    function isLazy(maybeLazy): boolean;
+
+    /**
      * True if `maybeKeyed` is a KeyedSequence, or any of its subclasses.
      */
     function isKeyed(maybeKeyed): boolean;
@@ -165,7 +171,7 @@ declare module 'immutable' {
     function isIndexed(maybeIndexed): boolean;
 
     /**
-     * True if `maybeAssociative` is either keyed or indexed.
+     * True if `maybeAssociative` is either a keyed or indexed Sequence.
      */
     function isAssociative(maybeAssociative): boolean;
 

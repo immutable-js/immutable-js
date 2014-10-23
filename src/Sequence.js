@@ -530,6 +530,9 @@ class Sequence {
 }
 
 var IS_SEQUENCE_SENTINEL = '@@__IMMUTABLE_SEQUENCE__@@';
+var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
+var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
+var IS_LAZY_SENTINEL = '@@__IMMUTABLE_LAZY__@@';
 
 var SequencePrototype = Sequence.prototype;
 SequencePrototype[IS_SEQUENCE_SENTINEL] = true;
@@ -576,30 +579,12 @@ class KeyedSequence extends Sequence {
       KeyedSequence.from(seqable);
   }
 
-  static from(seqable/*[, mapFn[, context]]*/) {
-    var seq = sequenceFrom.apply(KeyedSequence, arguments);
-    if (!isKeyed(seq)) {
-      seq = seq.fromEntrySeq();
-    }
-    return this(seq);
-  }
-
-
-  // ### Conversion to other types
-
-  toKeyedSeq() {
-    return this;
-  }
-
-
   // ### Internal
 
   __makeSequence() {
-    return Object.create(KeyedSequencePrototype);
+    return Object.create(LazyKeyedSequence.prototype);
   }
 }
-
-var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
 
 var KeyedSequencePrototype = KeyedSequence.prototype;
 KeyedSequencePrototype[IS_KEYED_SENTINEL] = true;
@@ -615,27 +600,6 @@ class SetSequence extends Sequence {
     return isSequence(seqable) && !isAssociative(seqable) ?
       seqable :
       SetSequence.from(seqable);
-  }
-
-  static from(seqable/*[, mapFn[, context]]*/) {
-    return this(
-      sequenceFrom.apply(IndexedSequence, arguments).toSetSeq()
-    );
-  }
-
-  static of(/*...values*/) {
-    return this(
-      arguments.length === 0 ?
-        Sequence.empty() :
-        new ArraySequence(arguments)
-    );
-  }
-
-
-  // ### Conversion to other types
-
-  toSetSeq() {
-    return this;
   }
 
 
@@ -660,7 +624,7 @@ class SetSequence extends Sequence {
   // ### Internal
 
   __makeSequence() {
-    return Object.create(SetSequencePrototype);
+    return Object.create(LazySetSequence.prototype);
   }
 }
 
@@ -672,30 +636,16 @@ SetSequencePrototype.has = SequencePrototype.contains;
 class IndexedSequence extends Sequence {
 
   constructor(seqable) {
-    return Sequence.isIterable(seqable) ?
+    return Sequence.isIndexed(seqable) ?
       seqable :
       IndexedSequence.from(seqable);
-  }
-
-  static from(seqable/*[, mapFn[, context]]*/) {
-    return this(
-      sequenceFrom.apply(IndexedSequence, arguments).toIndexedSeq()
-    );
-  }
-
-  static of(/*...values*/) {
-    return this(
-      arguments.length === 0 ?
-        Sequence.empty() :
-        new ArraySequence(arguments)
-    );
   }
 
 
   // ### Conversion to other types
 
-  toIndexedSeq() {
-    return this;
+  toKeyedSeq() {
+    return new ToKeyedSequence(this, false);
   }
 
 
@@ -835,19 +785,11 @@ class IndexedSequence extends Sequence {
     return takeSeq;
   }
 
-  toKeyedSeq() {
-    return new ToKeyedSequence(this, false);
-  }
-
-  valueSeq() {
-    return this;
-  }
-
 
   // ### Internal
 
   __makeSequence() {
-    return Object.create(IndexedSequencePrototype);
+    return Object.create(LazyIndexedSequence.prototype);
   }
 
   __iterate(fn, reverse) {
@@ -859,16 +801,43 @@ class IndexedSequence extends Sequence {
   }
 }
 
-var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
-
 var IndexedSequencePrototype = IndexedSequence.prototype;
 IndexedSequencePrototype[IS_INDEXED_SENTINEL] = true;
+
+
+
+class LazyKeyedSequence extends KeyedSequence {
+  toKeyedSeq() {
+    return this;
+  }
+}
+
+class LazySetSequence extends SetSequence {
+  toSetSeq() {
+    return this;
+  }
+}
+
+class LazyIndexedSequence extends IndexedSequence {
+  toIndexedSeq() {
+    return this;
+  }
+}
+
+LazyKeyedSequence.prototype[IS_LAZY_SENTINEL] =
+  LazySetSequence.prototype[IS_LAZY_SENTINEL] =
+  LazyIndexedSequence.prototype[IS_LAZY_SENTINEL] = true;
+
 
 
 // #pragma Sequence static methods
 
 function isSequence(maybeSequence) {
   return !!(maybeSequence && maybeSequence[IS_SEQUENCE_SENTINEL]);
+}
+
+function isLazy(maybeLazy) {
+  return !!(maybeLazy && maybeLazy[IS_LAZY_SENTINEL]);
 }
 
 function isKeyed(maybeKeyed) {
@@ -906,17 +875,59 @@ function sequenceFrom(seqLike/*[, mapFn[, context]]*/) {
 }
 
 Sequence.isSequence = isSequence;
+Sequence.isLazy = isLazy;
 Sequence.isKeyed = isKeyed;
 Sequence.isIndexed = isIndexed;
 Sequence.isAssociative = isAssociative;
 Sequence.empty = emptySequence;
 Sequence.from = sequenceFrom;
-Sequence.of = IndexedSequence.of;
+
+KeyedSequence.from = function(seqable/*[, mapFn[, context]]*/) {
+  var seq = sequenceFrom.apply(KeyedSequence, arguments);
+  if (!isKeyed(seq)) {
+    seq = seq.fromEntrySeq();
+  }
+  return this(seq);
+};
+
+SetSequence.from = function(seqable/*[, mapFn[, context]]*/) {
+  var seq = sequenceFrom.apply(IndexedSequence, arguments);
+  if (isAssociative(seq)) {
+    seq = seq.toSetSeq();
+  }
+  return this(seq);
+};
+
+IndexedSequence.from = function(seqable/*[, mapFn[, context]]*/) {
+  var seq = sequenceFrom.apply(KeyedSequence, arguments);
+  if (!isIndexed(seq)) {
+    seq = seq.toIndexedSeq();
+  }
+  return this(seq);
+};
+
+SetSequence.of = function(/*...values*/) {
+  return this(
+    arguments.length === 0 ?
+      Sequence.empty() :
+      new ArraySequence(arguments)
+  );
+};
+
+Sequence.of =
+IndexedSequence.of = function(/*...values*/) {
+  return this(
+    arguments.length === 0 ?
+      Sequence.empty() :
+      new ArraySequence(arguments)
+  );
+};
+
 
 
 // #pragma Root Sequences
 
-class IteratorSequence extends IndexedSequence {
+class IteratorSequence extends LazyIndexedSequence {
   constructor(iterator) {
     this._iterator = iterator;
     this._iteratorCache = [];
@@ -966,7 +977,7 @@ class IteratorSequence extends IndexedSequence {
 }
 
 
-class IterableSequence extends IndexedSequence {
+class IterableSequence extends LazyIndexedSequence {
   constructor(iterable) {
     this._iterable = iterable;
     this.size = iterable.length || iterable.size;
@@ -1008,7 +1019,7 @@ class IterableSequence extends IndexedSequence {
 }
 
 
-class ObjectSequence extends KeyedSequence {
+class ObjectSequence extends LazyKeyedSequence {
   constructor(object) {
     var keys = Object.keys(object);
     this._object = object;
@@ -1055,7 +1066,7 @@ class ObjectSequence extends KeyedSequence {
 }
 
 
-class ArraySequence extends IndexedSequence {
+class ArraySequence extends LazyIndexedSequence {
   constructor(array) {
     this._array = array;
     this.size = array.length;
@@ -1215,7 +1226,7 @@ function iterator(sequence, type, reverse, useKeys) {
 
 // #pragma Lazy Sequence Factories
 
-class ToIndexedSequence extends IndexedSequence {
+class ToIndexedSequence extends LazyIndexedSequence {
   constructor(seq) {
     this._seq = seq;
     this.size = seq.size;
@@ -1248,7 +1259,7 @@ class ToIndexedSequence extends IndexedSequence {
 }
 
 
-class ToKeyedSequence extends KeyedSequence {
+class ToKeyedSequence extends LazyKeyedSequence {
   constructor(indexedSeq, useKeys) {
     this._seq = indexedSeq;
     this._useKeys = useKeys;
@@ -1270,7 +1281,7 @@ class ToKeyedSequence extends KeyedSequence {
   reverse() {
     var reversedSequence = reverseFactory(this, true);
     if (!this._useKeys) {
-      reversedSequence.valueSeq = () => this._seq.reverse();
+      reversedSequence.valueSeq = () => this._seq.reverse(); // .toSeq().reverse ?
     }
     return reversedSequence;
   }
@@ -1278,7 +1289,7 @@ class ToKeyedSequence extends KeyedSequence {
   map(mapper, context) {
     var mappedSequence = mapFactory(this, mapper, context);
     if (!this._useKeys) {
-      mappedSequence.valueSeq = () => this._seq.map(mapper, context);
+      mappedSequence.valueSeq = () => this._seq.map(mapper, context); // .toSeq().map ?
     }
     return mappedSequence;
   }
@@ -1315,7 +1326,7 @@ class ToKeyedSequence extends KeyedSequence {
 }
 
 
-class ToSetSequence extends SetSequence {
+class ToSetSequence extends LazySetSequence {
   constructor(seq) {
     this._seq = seq;
     this.size = seq.size;
@@ -1346,14 +1357,14 @@ class ToSetSequence extends SetSequence {
 }
 
 
-class FromEntriesSequence extends KeyedSequence {
+class FromEntriesSequence extends LazyKeyedSequence {
   constructor(entriesSeq) {
     this._seq = entriesSeq;
     this.size = entriesSeq.size;
   }
 
   entrySeq() {
-    return this._seq;
+    return this._seq; // .toSeq()
   }
 
   cacheResult() {
