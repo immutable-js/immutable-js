@@ -144,6 +144,8 @@ class Record extends Sequence {
 var RecordPrototype = Record.prototype;
 RecordPrototype._name = 'Record';
 RecordPrototype[DELETE] = RecordPrototype.remove;
+RecordPrototype.pick = MapPrototype.pick;
+RecordPrototype.omit = MapPrototype.omit;
 RecordPrototype.merge = MapPrototype.merge;
 RecordPrototype.mergeWith = MapPrototype.mergeWith;
 RecordPrototype.mergeDeep = MapPrototype.mergeDeep;

@@ -60,6 +60,28 @@ describe('Record', () => {
     expect(t.toObject()).toEqual({a:10, b:20, c:3})
   })
 
+  it('can pick keys', () => {
+    var MyType = Record({a:1, b:2, c:3});
+    var t1 = new MyType({a:11, b:22, c:33});
+    var t2 = t1.pick(['a', 'b']);
+    var t3 = t2.pick(['a']);
+
+    expect(t1.toObject()).toEqual({a:11, b:22, c:33});
+    expect(t2.toObject()).toEqual({a:11, b:22, c:3});
+    expect(t3.toObject()).toEqual({a:11, b:2, c:3});
+  });
+
+  it('can omit keys', () => {
+    var MyType = Record({a:1, b:2, c:3});
+    var t1 = new MyType({a:11, b:22, c:33});
+    var t2 = t1.omit(['a']);
+    var t3 = t2.omit(['b', 'c']);
+
+    expect(t1.toObject()).toEqual({a:11, b:22, c:33});
+    expect(t2.toObject()).toEqual({a:1, b:22, c:33});
+    expect(t3.toObject()).toEqual({a:1, b:2, c:3});
+  });
+
   it('allows for functional construction', () => {
     var MyType = Record({a:1, b:2, c:3});
     var seq = Immutable.Sequence({a: 10, b:20});

@@ -271,4 +271,34 @@ describe('Map', () => {
     expect(m4.toObject()).toEqual({'a': 1, 'b': 2, 'c': 3, 'd': 4});
   });
 
+  it('can pick keys', () => {
+    var m1 = Map({'a': 'A', 'b': 'B', 'c': 'C', 'd': 'D'});
+    var m2 = m1.pick(['a', 'b', 'c', 'd', 'e']);
+    var m3 = m2.pick(['a', 'b', 'f']);
+    var m4 = m3.withMutations(m => m.pick(['a']));
+    var m5a = m4.pick([]);
+    var m5b = m4.pick(['g']);
+
+    expect(m2.toObject()).toEqual({'a': 'A', 'b': 'B', 'c': 'C', 'd': 'D'});
+    expect(m3.toObject()).toEqual({'a': 'A', 'b': 'B'});
+    expect(m4.toObject()).toEqual({'a': 'A'});
+    expect(m5a.toObject()).toEqual({});
+    expect(m5b.toObject()).toEqual({});
+  });
+
+  it('can omit keys', () => {
+    var m1 = Map({'a': 'A', 'b': 'B', 'c': 'C', 'd': 'D'});
+    var m2 = m1.omit(['e']);
+    var m3 = m2.omit(['a', 'b', 'f']);
+    var m4 = m3.withMutations(m => m.omit(['c']));
+    var m5 = m4.omit([]);
+    var m6 = m5.omit(['d']);
+
+    expect(m2.toObject()).toEqual({'a': 'A', 'b': 'B', 'c': 'C', 'd': 'D'});
+    expect(m3.toObject()).toEqual({'c': 'C', 'd': 'D'});
+    expect(m4.toObject()).toEqual({'d': 'D'});
+    expect(m5.toObject()).toEqual({'d': 'D'});
+    expect(m6.toObject()).toEqual({});
+  });
+
 });

@@ -1582,6 +1582,24 @@ var $Map = Map;
     }
     return $Map.empty();
   },
+  pick: function(keys) {
+    invariant(Array.isArray(keys), 'pick with invalid keys');
+    if (this.__ownerID) {
+      return pickFromMap(this, keys);
+    }
+    return this.withMutations((function(mutable) {
+      return pickFromMap(mutable, keys);
+    }));
+  },
+  omit: function(keys) {
+    invariant(Array.isArray(keys), 'omit with invalid keys');
+    if (this.__ownerID) {
+      return omitFromMap(this, keys);
+    }
+    return this.withMutations((function(mutable) {
+      return omitFromMap(mutable, keys);
+    }));
+  },
   merge: function() {
     return mergeIntoMapWith(this, null, arguments);
   },
@@ -1982,6 +2000,31 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
   }
   expandedNodes[including] = node;
   return new ArrayNode(ownerID, count + 1, expandedNodes);
+}
+function pickFromMap(map, keys) {
+  var picked = [];
+  for (var ii = 0,
+      len = keys.length - 1; ii <= len; ii++) {
+    var key = keys[ii];
+    var value = map.get(key, NOT_SET);
+    if (value !== NOT_SET) {
+      picked.push([key, value]);
+    }
+  }
+  map.clear();
+  for (var ii = 0,
+      len = picked.length - 1; ii <= len; ii++) {
+    var entry = picked[ii];
+    map.set(entry[0], entry[1]);
+  }
+  return map;
+}
+function omitFromMap(map, keys) {
+  for (var ii = 0,
+      len = keys.length - 1; ii <= len; ii++) {
+    map.remove(keys[ii]);
+  }
+  return map;
 }
 function mergeIntoMapWith(map, merger, iterables) {
   var seqs = [];
@@ -3139,6 +3182,8 @@ var Record = function Record(defaultValues, name) {
 var RecordPrototype = Record.prototype;
 RecordPrototype._name = 'Record';
 RecordPrototype[DELETE] = RecordPrototype.remove;
+RecordPrototype.pick = MapPrototype.pick;
+RecordPrototype.omit = MapPrototype.omit;
 RecordPrototype.merge = MapPrototype.merge;
 RecordPrototype.mergeWith = MapPrototype.mergeWith;
 RecordPrototype.mergeDeep = MapPrototype.mergeDeep;
