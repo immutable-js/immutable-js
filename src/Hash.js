@@ -78,7 +78,7 @@ function hashJSObj(obj) {
     if (hash) return hash;
   }
 
-  if (canDefineProperty && !Object.isExtensible(obj)) {
+  if (Object.isExtensible && !Object.isExtensible(obj)) {
     throw new Error('Non-extensible objects are not allowed as keys.');
   }
 
@@ -94,13 +94,13 @@ function hashJSObj(obj) {
       'value': hash
     });
   } else if (propertyIsEnumerable &&
-             obj.propertyIsEnumerable === propertyIsEnumerable) {
+             obj.propertyIsEnumerable === obj.constructor.prototype.propertyIsEnumerable) {
     // Since we can't define a non-enumerable property on the object
     // we'll hijack one of the less-used non-enumerable properties to
     // save our hash on it. Since this is a function it will not show up in
     // `JSON.stringify` which is what we want.
     obj.propertyIsEnumerable = function() {
-      return propertyIsEnumerable.apply(this, arguments);
+      return this.constructor.prototype.propertyIsEnumerable.apply(this, arguments);
     };
     obj.propertyIsEnumerable[UID_HASH_KEY] = hash;
   } else if (obj.nodeType) {
@@ -115,8 +115,6 @@ function hashJSObj(obj) {
 
   return hash;
 }
-
-var propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
 
 // True if Object.defineProperty works as expected. IE8 fails this test.
 var canDefineProperty = (function() {
