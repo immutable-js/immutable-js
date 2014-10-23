@@ -859,11 +859,6 @@ function emptySequence() {
 }
 
 function sequenceFrom(seqLike/*[, mapFn[, context]]*/) {
-  if (typeof seqLike !== 'object') {
-    throw new TypeError(
-      'Sequence.from requires a sequenceable object, not: ' + seqLike
-    );
-  }
   var seq = seqFromValue(seqLike, false);
   if (arguments.length > 1) {
     seq = seq.map(
@@ -1104,15 +1099,29 @@ class ArraySequence extends LazyIndexedSequence {
 // #pragma Helper functions
 
 function seqFromValue(value, maybeSingleton) {
-  return isSequence(value) ? value :
-    // TODO: once the length warning is removed, change Array.isArray to
-    // ES6 Array.from "arraylike" semantics.
-    Array.isArray(value) ? new ArraySequence(value) :
+  var seq =
+    isSequence(value) ? value :
+    maybeSingleton && typeof value === 'string' ? new ArraySequence([value]) :
+    isArrayLike(value) ? new ArraySequence(value) :
     isIterator(value) ? new IteratorSequence(value) :
     isIterable(value) ? new IterableSequence(value) :
-    !maybeSingleton || (value && value.constructor === Object) ?
-      new ObjectSequence(value) :
-      new ArraySequence([value]);
+    (maybeSingleton ? isPlainObj(value) : typeof value === 'object') ? new ObjectSequence(value) :
+    maybeSingleton ? new ArraySequence([value]) :
+    null;
+  if (!seq) {
+    throw new TypeError(
+      'from requires a sequenceable, not: ' + value
+    );
+  }
+  return seq;
+}
+
+function isArrayLike(value) {
+  return value && typeof value.length === 'number';
+}
+
+function isPlainObj(value) {
+  return value && value.constructor === Object;
 }
 
 function wholeSlice(begin, end, size) {

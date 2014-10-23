@@ -870,9 +870,6 @@ function emptySequence() {
   return this(EMPTY_SEQ || (EMPTY_SEQ = new ArraySequence([])));
 }
 function sequenceFrom(seqLike) {
-  if (typeof seqLike !== 'object') {
-    throw new TypeError('Sequence.from requires a sequenceable object, not: ' + seqLike);
-  }
   var seq = seqFromValue(seqLike, false);
   if (arguments.length > 1) {
     seq = seq.map(arguments[1], arguments.length > 2 ? arguments[2] : undefined);
@@ -1066,7 +1063,17 @@ var ArraySequence = function ArraySequence(array) {
   }
 }, {}, LazyIndexedSequence);
 function seqFromValue(value, maybeSingleton) {
-  return isSequence(value) ? value : Array.isArray(value) ? new ArraySequence(value) : isIterator(value) ? new IteratorSequence(value) : isIterable(value) ? new IterableSequence(value) : !maybeSingleton || (value && value.constructor === Object) ? new ObjectSequence(value) : new ArraySequence([value]);
+  var seq = isSequence(value) ? value : maybeSingleton && typeof value === 'string' ? new ArraySequence([value]) : isArrayLike(value) ? new ArraySequence(value) : isIterator(value) ? new IteratorSequence(value) : isIterable(value) ? new IterableSequence(value) : (maybeSingleton ? isPlainObj(value) : typeof value === 'object') ? new ObjectSequence(value) : maybeSingleton ? new ArraySequence([value]) : null;
+  if (!seq) {
+    throw new TypeError('from requires a sequenceable, not: ' + value);
+  }
+  return seq;
+}
+function isArrayLike(value) {
+  return value && typeof value.length === 'number';
+}
+function isPlainObj(value) {
+  return value && value.constructor === Object;
 }
 function wholeSlice(begin, end, size) {
   return (begin === 0 || (size != null && begin <= -size)) && (end == null || (size != null && end >= size));

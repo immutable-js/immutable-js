@@ -47,6 +47,13 @@ describe('Sequence', () => {
     expect(Immutable.Sequence.from(seq).size).toBe(3);
   });
 
+  it('from accepts a string', () => {
+    var seq = Immutable.Sequence.from('abc');
+    expect(seq.size).toBe(3);
+    expect(seq.get(1)).toBe('b');
+    expect(seq.join('')).toBe('abc');
+  });
+
   it('temporarily warns about sequence length', function () {
     this.spyOn(console, 'warn');
 
