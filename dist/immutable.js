@@ -1284,7 +1284,7 @@ var FromEntriesSequence = function FromEntriesSequence(entriesSeq) {
 };
 ($traceurRuntime.createClass)(FromEntriesSequence, {
   entrySeq: function() {
-    return this._seq;
+    return this._seq.toSeq();
   },
   cacheResult: function() {
     this._seq.cacheResult();

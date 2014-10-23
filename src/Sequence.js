@@ -1403,7 +1403,7 @@ class FromEntriesSequence extends LazyKeyedSequence {
   }
 
   entrySeq() {
-    return this._seq; // .toSeq()
+    return this._seq.toSeq();
   }
 
   cacheResult() {
