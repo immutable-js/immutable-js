@@ -139,7 +139,7 @@ function hashJSObj(obj) {
     if (hash)
       return hash;
   }
-  if (canDefineProperty && !Object.isExtensible(obj)) {
+  if (Object.isExtensible && !Object.isExtensible(obj)) {
     throw new Error('Non-extensible objects are not allowed as keys.');
   }
   hash = ++objHashUID & HASH_MAX_VAL;
@@ -152,9 +152,9 @@ function hashJSObj(obj) {
       'writable': false,
       'value': hash
     });
-  } else if (propertyIsEnumerable && obj.propertyIsEnumerable === propertyIsEnumerable) {
+  } else if (obj.propertyIsEnumerable && obj.propertyIsEnumerable === obj.constructor.prototype.propertyIsEnumerable) {
     obj.propertyIsEnumerable = function() {
-      return propertyIsEnumerable.apply(this, arguments);
+      return this.constructor.prototype.propertyIsEnumerable.apply(this, arguments);
     };
     obj.propertyIsEnumerable[UID_HASH_KEY] = hash;
   } else if (obj.nodeType) {
@@ -164,7 +164,6 @@ function hashJSObj(obj) {
   }
   return hash;
 }
-var propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
 var canDefineProperty = (function() {
   try {
     Object.defineProperty({}, 'x', {});

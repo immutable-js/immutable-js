@@ -93,7 +93,7 @@ function hashJSObj(obj) {
       'writable': false,
       'value': hash
     });
-  } else if (propertyIsEnumerable &&
+  } else if (obj.propertyIsEnumerable &&
              obj.propertyIsEnumerable === obj.constructor.prototype.propertyIsEnumerable) {
     // Since we can't define a non-enumerable property on the object
     // we'll hijack one of the less-used non-enumerable properties to
