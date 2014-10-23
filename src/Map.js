@@ -90,6 +90,22 @@ class Map extends Sequence {
     return Map.empty();
   }
 
+  pick(keys) {
+    invariant(Array.isArray(keys), 'pick with invalid keys');
+    if (this.__ownerID) {
+      return pickFromMap(this, keys);
+    }
+    return this.withMutations(mutable => pickFromMap(mutable, keys));
+  }
+
+  omit(keys) {
+    invariant(Array.isArray(keys), 'omit with invalid keys');
+    if (this.__ownerID) {
+      return omitFromMap(this, keys);
+    }
+    return this.withMutations(mutable => omitFromMap(mutable, keys));
+  }
+
   // @pragma Composition
 
   merge(/*...seqs*/) {
@@ -563,6 +579,30 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
   }
   expandedNodes[including] = node;
   return new ArrayNode(ownerID, count + 1, expandedNodes);
+}
+
+function pickFromMap(map, keys) {
+  var picked = [];
+  for (var ii = 0, len = keys.length - 1; ii <= len; ii++) {
+    var key = keys[ii];
+    var value = map.get(key, NOT_SET);
+    if (value !== NOT_SET) {
+      picked.push([key, value]);
+    }
+  }
+  map.clear();
+  for (var ii = 0, len = picked.length - 1; ii <= len; ii++) {
+    var entry = picked[ii];
+    map.set(entry[0], entry[1]);
+  }
+  return map;
+}
+
+function omitFromMap(map, keys) {
+  for (var ii = 0, len = keys.length - 1; ii <= len; ii++) {
+    map.remove(keys[ii]);
+  }
+  return map;
 }
 
 function mergeIntoMapWith(map, merger, iterables) {

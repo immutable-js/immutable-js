@@ -81,4 +81,48 @@ describe('OrderedMap', () => {
     );
   });
 
+  it('can pick keys', () => {
+    var m1 = OrderedMap({'a': 'A', 'b': 'B', 'c': 'C', 'd': 'D'});
+    var m2 = m1.pick(['a', 'b', 'c', 'd', 'e']);
+    var m3 = m2.pick(['f', 'b', 'c', 'a']);
+    var m4 = m3.withMutations(m => m.pick(['a', 'c']));
+    var m5a = m4.pick([]);
+    var m5b = m4.pick(['g']);
+
+    expect(m2.entrySeq().toArray()).toEqual(
+      [['a', 'A'],['b','B'],['c','C'],['d','D']]
+    );
+    expect(m3.entrySeq().toArray()).toEqual(
+      [['b','B'],['c','C'],['a', 'A']]
+    );
+    expect(m4.entrySeq().toArray()).toEqual(
+      [['a', 'A'],['c','C']]
+    );
+    expect(m5a.length).toBe(0);
+    expect(m5b.length).toBe(0);
+  });
+
+  it('can omit keys', () => {
+    var m1 = OrderedMap({'a': 'A', 'b': 'B', 'c': 'C', 'd': 'D'});
+    var m2 = m1.omit(['e']);
+    var m3 = m2.omit(['a', 'b', 'f']);
+    var m4 = m3.withMutations(m => m.omit(['c']));
+    var m5 = m4.omit([]);
+    var m6 = m5.omit(['d']);
+
+    expect(m2.entrySeq().toArray()).toEqual(
+      [['a', 'A'],['b','B'],['c','C'],['d','D']]
+    );
+    expect(m3.entrySeq().toArray()).toEqual(
+      [['c','C'],['d','D']]
+    );
+    expect(m4.entrySeq().toArray()).toEqual(
+      [['d','D']]
+    );
+    expect(m5.entrySeq().toArray()).toEqual(
+      [['d','D']]
+    );
+    expect(m6.length).toBe(0);
+  });
+
 });

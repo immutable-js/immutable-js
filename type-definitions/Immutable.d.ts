@@ -1206,6 +1206,16 @@ declare module 'immutable' {
     clear(): Map<K, V>;
 
     /**
+     * Returns a new Map containing only the key value pairs from `keys`.
+     */
+    pick(keys: Array<any>): Map<K, V>;
+
+    /**
+     * Returns a new Map which excludes the key value pairs from `keys`.
+     */
+    omit(keys: Array<any>): Map<K, V>;
+
+    /**
      * Returns a new Map having updated the value at this `key` with the return
      * value of calling `updater` with the existing value, or `notSetValue` if
      * the key was not set. If called with only a single argument, `updater` is
