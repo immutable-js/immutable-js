@@ -468,6 +468,9 @@ var $Sequence = Sequence;
     });
     return entriesSequence;
   },
+  filterNot: function(predicate, context) {
+    return this.filter(not(predicate), context);
+  },
   findKey: function(predicate, context) {
     var foundKey;
     this.__iterate((function(v, k, c) {

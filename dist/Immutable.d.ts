@@ -453,6 +453,18 @@ declare module 'immutable' {
     entrySeq(): IndexedSequence</*(K, V)*/Array<any>>;
 
     /**
+     * Returns a new sequence with only the entries for which the `predicate`
+     * function returns false.
+     *
+     *     Sequence({a:1,b:2,c:3,d:4}).filterNot(x => x % 2 === 0) // { a: 1, c: 3 }
+     *
+     */
+    filterNot(
+      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      context?: any
+    ): Sequence<K, V>;
+
+    /**
      * Returns the key for which the `predicate` returns true.
      */
     findKey(
@@ -912,6 +924,15 @@ declare module 'immutable' {
       predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
       context?: any
     ): number;
+
+    /**
+     * Returns an IndexedSequence
+     * @override
+     */
+    filterNot(
+      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      context?: any
+    ): IndexedSequence<T>;
 
     /**
      * Predicate takes IndexedSequence.

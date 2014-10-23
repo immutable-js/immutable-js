@@ -315,6 +315,10 @@ class Sequence {
     return entriesSequence;
   }
 
+  filterNot(predicate, context) {
+    return this.filter(not(predicate), context);
+  }
+
   findKey(predicate, context) {
     var foundKey;
     this.__iterate((v, k, c) => {
