@@ -20,7 +20,10 @@ import "Iterator"
           Iterator, iteratorValue, iteratorDone,
           isIterable, isIterator, getIterator,
           ITERATOR_SYMBOL, ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES */
-/* exported Sequence, KeyedSequence, SetSequence, IndexedSequence */
+/* exported Sequence,
+            isSequence, isLazy, isKeyed, isIndexed, isAssociative
+            LazyKeyedSequence, LazySetSequence, LazyIndexedSequence,
+            KeyedCollection, IndexedCollection, SetCollection */
 
 class Sequence {
 
@@ -573,12 +576,6 @@ SequencePrototype.chain = SequencePrototype.flatMap;
 
 class KeyedSequence extends Sequence {
 
-  constructor(seqable) {
-    return Sequence.isKeyed(seqable) ?
-      seqable :
-      KeyedSequence.from(seqable);
-  }
-
   // ### Internal
 
   __makeSequence() {
@@ -595,13 +592,6 @@ KeyedSequencePrototype.__toStringMapper = (v, k) => k + ': ' + quoteString(v);
 
 
 class SetSequence extends Sequence {
-
-  constructor(seqable) {
-    return isSequence(seqable) && !isAssociative(seqable) ?
-      seqable :
-      SetSequence.from(seqable);
-  }
-
 
   // ### ES6 Sequence methods (ES6 Array and Map)
 
@@ -634,13 +624,6 @@ SetSequencePrototype.has = SequencePrototype.contains;
 
 
 class IndexedSequence extends Sequence {
-
-  constructor(seqable) {
-    return Sequence.isIndexed(seqable) ?
-      seqable :
-      IndexedSequence.from(seqable);
-  }
-
 
   // ### Conversion to other types
 
@@ -807,18 +790,47 @@ IndexedSequencePrototype[IS_INDEXED_SENTINEL] = true;
 
 
 class LazyKeyedSequence extends KeyedSequence {
+  constructor(seqable) {
+    return isKeyed(seqable) ? seqable : LazyKeyedSequence.from(seqable);
+  }
+
+  static from(seqable/*[, mapFn[, context]]*/) {
+    var seq = sequenceFrom.apply(this, arguments);
+    return isKeyed(seq) ? seq : seq.fromEntrySeq();
+  }
+
   toKeyedSeq() {
     return this;
   }
 }
 
 class LazySetSequence extends SetSequence {
+  constructor(seqable) {
+    return isSequence(seqable) && !isAssociative(seqable) ?
+      seqable :
+      LazySetSequence.from(seqable);
+  }
+
+  static from(seqable/*[, mapFn[, context]]*/) {
+    var seq = sequenceFrom.apply(this, arguments);
+    return !isAssociative(seq) ? seq : seq.toSetSeq();
+  }
+
   toSetSeq() {
     return this;
   }
 }
 
 class LazyIndexedSequence extends IndexedSequence {
+  constructor(seqable) {
+    return isIndexed(seqable) ? seqable : LazyIndexedSequence.from(seqable);
+  }
+
+  static from(seqable/*[, mapFn[, context]]*/) {
+    var seq = sequenceFrom.apply(this, arguments);
+    return isIndexed(seq) ? seq : seq.toIndexedSeq();
+  }
+
   toIndexedSeq() {
     return this;
   }
@@ -827,6 +839,38 @@ class LazyIndexedSequence extends IndexedSequence {
 LazyKeyedSequence.prototype[IS_LAZY_SENTINEL] =
   LazySetSequence.prototype[IS_LAZY_SENTINEL] =
   LazyIndexedSequence.prototype[IS_LAZY_SENTINEL] = true;
+
+
+
+class KeyedCollection extends KeyedSequence {
+  constructor() {
+    throw TypeError('Abstract');
+  }
+
+  static from(seqable/*[, mapFn[, context]]*/) {
+    return this(LazyKeyedSequence.from.apply(this, arguments));
+  }
+}
+
+class SetCollection extends SetSequence {
+  constructor() {
+    throw TypeError('Abstract');
+  }
+
+  static from(seqable/*[, mapFn[, context]]*/) {
+    return this(LazySetSequence.from.apply(this, arguments));
+  }
+}
+
+class IndexedCollection extends IndexedSequence {
+  constructor() {
+    throw TypeError('Abstract');
+  }
+
+  static from(seqable/*[, mapFn[, context]]*/) {
+    return this(LazyIndexedSequence.from.apply(this, arguments));
+  }
+}
 
 
 
@@ -876,47 +920,13 @@ Sequence.isIndexed = isIndexed;
 Sequence.isAssociative = isAssociative;
 Sequence.empty = emptySequence;
 Sequence.from = sequenceFrom;
-
-KeyedSequence.from = function(seqable/*[, mapFn[, context]]*/) {
-  var seq = sequenceFrom.apply(KeyedSequence, arguments);
-  if (!isKeyed(seq)) {
-    seq = seq.fromEntrySeq();
-  }
-  return this(seq);
-};
-
-SetSequence.from = function(seqable/*[, mapFn[, context]]*/) {
-  var seq = sequenceFrom.apply(IndexedSequence, arguments);
-  if (isAssociative(seq)) {
-    seq = seq.toSetSeq();
-  }
-  return this(seq);
-};
-
-IndexedSequence.from = function(seqable/*[, mapFn[, context]]*/) {
-  var seq = sequenceFrom.apply(KeyedSequence, arguments);
-  if (!isIndexed(seq)) {
-    seq = seq.toIndexedSeq();
-  }
-  return this(seq);
-};
-
-SetSequence.of = function(/*...values*/) {
-  return this(
-    arguments.length === 0 ?
-      Sequence.empty() :
-      new ArraySequence(arguments)
-  );
-};
-
 Sequence.of =
-IndexedSequence.of = function(/*...values*/) {
-  return this(
-    arguments.length === 0 ?
-      Sequence.empty() :
-      new ArraySequence(arguments)
-  );
-};
+LazySetSequence.of =
+SetCollection.of =
+LazyIndexedSequence.of =
+IndexedCollection.of = function(/*...values*/) {
+  return this.from(arguments);
+}
 
 
 

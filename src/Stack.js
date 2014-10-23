@@ -10,12 +10,12 @@
 import "Sequence"
 import "Map"
 import "Iterator"
-/* global Sequence, IndexedSequence, wholeSlice, resolveBegin, resolveEnd,
+/* global Sequence, IndexedCollection, wholeSlice, resolveBegin, resolveEnd,
           MapPrototype, Iterator, iteratorValue, iteratorDone */
 /* exported Stack */
 
 
-class Stack extends IndexedSequence {
+class Stack extends IndexedCollection {
 
   // @pragma Construction
 

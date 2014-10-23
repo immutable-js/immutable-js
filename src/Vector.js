@@ -11,14 +11,14 @@ import "Sequence"
 import "Map"
 import "TrieUtils"
 import "Iterator"
-/* global Sequence, IndexedSequence, wrapIndex,
+/* global Sequence, IndexedCollection, wrapIndex,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
           DELETE, SHIFT, SIZE, MASK, NOT_SET, DID_ALTER, OwnerID, MakeRef,
           SetRef, arrCopy, Iterator, iteratorValue, iteratorDone */
 /* exported Vector, VectorPrototype */
 
 
-class Vector extends IndexedSequence {
+class Vector extends IndexedCollection {
 
   // @pragma Construction
 

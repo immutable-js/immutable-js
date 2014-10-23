@@ -10,11 +10,11 @@
 import "Sequence"
 import "Map"
 import "TrieUtils"
-/* global Sequence, SetSequence, Map, MapPrototype, DELETE */
+/* global Sequence, SetCollection, Map, MapPrototype, DELETE */
 /* exported Set */
 
 
-class Set extends SetSequence {
+class Set extends SetCollection {
 
   // @pragma Construction
 

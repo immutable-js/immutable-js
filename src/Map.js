@@ -14,14 +14,14 @@ import "invariant"
 import "TrieUtils"
 import "Hash"
 import "Iterator"
-/* global is, KeyedSequence, invariant, makeCursor,
+/* global is, KeyedCollection, LazyKeyedSequence, invariant, makeCursor,
           DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
           MakeRef, SetRef, arrCopy, hash,
           Iterator, iteratorValue, iteratorDone */
 /* exported Map, MapPrototype */
 
 
-class Map extends KeyedSequence {
+class Map extends KeyedCollection {
 
   // @pragma Construction
 
@@ -576,7 +576,7 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
 function mergeIntoMapWith(map, merger, seqable) {
   var seqs = [];
   for (var ii = 0; ii < seqable.length; ii++) {
-    seqable[ii] && seqs.push(KeyedSequence(seqable[ii]));
+    seqable[ii] && seqs.push(LazyKeyedSequence(seqable[ii]));
   }
   return mergeIntoCollectionWith(map, merger, seqs);
 }

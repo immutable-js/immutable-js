@@ -674,8 +674,8 @@ SequencePrototype.chain = SequencePrototype.flatMap;
       }});
   } catch (e) {}
 })();
-var KeyedSequence = function KeyedSequence(seqable) {
-  return Sequence.isKeyed(seqable) ? seqable : $KeyedSequence.from(seqable);
+var KeyedSequence = function KeyedSequence() {
+  $traceurRuntime.defaultSuperCall(this, $KeyedSequence.prototype, arguments);
 };
 var $KeyedSequence = KeyedSequence;
 ($traceurRuntime.createClass)(KeyedSequence, {__makeSequence: function() {
@@ -688,8 +688,8 @@ KeyedSequencePrototype.__toJS = SequencePrototype.toObject;
 KeyedSequencePrototype.__toStringMapper = (function(v, k) {
   return k + ': ' + quoteString(v);
 });
-var SetSequence = function SetSequence(seqable) {
-  return isSequence(seqable) && !isAssociative(seqable) ? seqable : $SetSequence.from(seqable);
+var SetSequence = function SetSequence() {
+  $traceurRuntime.defaultSuperCall(this, $SetSequence.prototype, arguments);
 };
 var $SetSequence = SetSequence;
 ($traceurRuntime.createClass)(SetSequence, {
@@ -708,8 +708,8 @@ var $SetSequence = SetSequence;
 }, {}, Sequence);
 var SetSequencePrototype = SetSequence.prototype;
 SetSequencePrototype.has = SequencePrototype.contains;
-var IndexedSequence = function IndexedSequence(seqable) {
-  return Sequence.isIndexed(seqable) ? seqable : $IndexedSequence.from(seqable);
+var IndexedSequence = function IndexedSequence() {
+  $traceurRuntime.defaultSuperCall(this, $IndexedSequence.prototype, arguments);
 };
 var $IndexedSequence = IndexedSequence;
 ($traceurRuntime.createClass)(IndexedSequence, {
@@ -828,28 +828,55 @@ var $IndexedSequence = IndexedSequence;
 }, {}, Sequence);
 var IndexedSequencePrototype = IndexedSequence.prototype;
 IndexedSequencePrototype[IS_INDEXED_SENTINEL] = true;
-var LazyKeyedSequence = function LazyKeyedSequence() {
-  $traceurRuntime.defaultSuperCall(this, $LazyKeyedSequence.prototype, arguments);
+var LazyKeyedSequence = function LazyKeyedSequence(seqable) {
+  return isKeyed(seqable) ? seqable : $LazyKeyedSequence.from(seqable);
 };
 var $LazyKeyedSequence = LazyKeyedSequence;
 ($traceurRuntime.createClass)(LazyKeyedSequence, {toKeyedSeq: function() {
     return this;
-  }}, {}, KeyedSequence);
-var LazySetSequence = function LazySetSequence() {
-  $traceurRuntime.defaultSuperCall(this, $LazySetSequence.prototype, arguments);
+  }}, {from: function(seqable) {
+    var seq = sequenceFrom.apply(this, arguments);
+    return isKeyed(seq) ? seq : seq.fromEntrySeq();
+  }}, KeyedSequence);
+var LazySetSequence = function LazySetSequence(seqable) {
+  return isSequence(seqable) && !isAssociative(seqable) ? seqable : $LazySetSequence.from(seqable);
 };
 var $LazySetSequence = LazySetSequence;
 ($traceurRuntime.createClass)(LazySetSequence, {toSetSeq: function() {
     return this;
-  }}, {}, SetSequence);
-var LazyIndexedSequence = function LazyIndexedSequence() {
-  $traceurRuntime.defaultSuperCall(this, $LazyIndexedSequence.prototype, arguments);
+  }}, {from: function(seqable) {
+    var seq = sequenceFrom.apply(this, arguments);
+    return !isAssociative(seq) ? seq : seq.toSetSeq();
+  }}, SetSequence);
+var LazyIndexedSequence = function LazyIndexedSequence(seqable) {
+  return isIndexed(seqable) ? seqable : $LazyIndexedSequence.from(seqable);
 };
 var $LazyIndexedSequence = LazyIndexedSequence;
 ($traceurRuntime.createClass)(LazyIndexedSequence, {toIndexedSeq: function() {
     return this;
-  }}, {}, IndexedSequence);
+  }}, {from: function(seqable) {
+    var seq = sequenceFrom.apply(this, arguments);
+    return isIndexed(seq) ? seq : seq.toIndexedSeq();
+  }}, IndexedSequence);
 LazyKeyedSequence.prototype[IS_LAZY_SENTINEL] = LazySetSequence.prototype[IS_LAZY_SENTINEL] = LazyIndexedSequence.prototype[IS_LAZY_SENTINEL] = true;
+var KeyedCollection = function KeyedCollection() {
+  throw TypeError('Abstract');
+};
+($traceurRuntime.createClass)(KeyedCollection, {}, {from: function(seqable) {
+    return this(LazyKeyedSequence.from.apply(this, arguments));
+  }}, KeyedSequence);
+var SetCollection = function SetCollection() {
+  throw TypeError('Abstract');
+};
+($traceurRuntime.createClass)(SetCollection, {}, {from: function(seqable) {
+    return this(LazySetSequence.from.apply(this, arguments));
+  }}, SetSequence);
+var IndexedCollection = function IndexedCollection() {
+  throw TypeError('Abstract');
+};
+($traceurRuntime.createClass)(IndexedCollection, {}, {from: function(seqable) {
+    return this(LazyIndexedSequence.from.apply(this, arguments));
+  }}, IndexedSequence);
 function isSequence(maybeSequence) {
   return !!(maybeSequence && maybeSequence[IS_SEQUENCE_SENTINEL]);
 }
@@ -883,32 +910,8 @@ Sequence.isIndexed = isIndexed;
 Sequence.isAssociative = isAssociative;
 Sequence.empty = emptySequence;
 Sequence.from = sequenceFrom;
-KeyedSequence.from = function(seqable) {
-  var seq = sequenceFrom.apply(KeyedSequence, arguments);
-  if (!isKeyed(seq)) {
-    seq = seq.fromEntrySeq();
-  }
-  return this(seq);
-};
-SetSequence.from = function(seqable) {
-  var seq = sequenceFrom.apply(IndexedSequence, arguments);
-  if (isAssociative(seq)) {
-    seq = seq.toSetSeq();
-  }
-  return this(seq);
-};
-IndexedSequence.from = function(seqable) {
-  var seq = sequenceFrom.apply(KeyedSequence, arguments);
-  if (!isIndexed(seq)) {
-    seq = seq.toIndexedSeq();
-  }
-  return this(seq);
-};
-SetSequence.of = function() {
-  return this(arguments.length === 0 ? Sequence.empty() : new ArraySequence(arguments));
-};
-Sequence.of = IndexedSequence.of = function() {
-  return this(arguments.length === 0 ? Sequence.empty() : new ArraySequence(arguments));
+Sequence.of = LazySetSequence.of = SetCollection.of = LazyIndexedSequence.of = IndexedCollection.of = function() {
+  return this.from(arguments);
 };
 var IteratorSequence = function IteratorSequence(iterator) {
   this._iterator = iterator;
@@ -1863,7 +1866,7 @@ var $Map = Map;
   }
 }, {empty: function() {
     return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
-  }}, KeyedSequence);
+  }}, KeyedCollection);
 var MapPrototype = Map.prototype;
 MapPrototype[DELETE] = MapPrototype.remove;
 var BitmapIndexedNode = function BitmapIndexedNode(ownerID, bitmap, nodes) {
@@ -2205,7 +2208,7 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
 function mergeIntoMapWith(map, merger, seqable) {
   var seqs = [];
   for (var ii = 0; ii < seqable.length; ii++) {
-    seqable[ii] && seqs.push(KeyedSequence(seqable[ii]));
+    seqable[ii] && seqs.push(LazyKeyedSequence(seqable[ii]));
   }
   return mergeIntoCollectionWith(map, merger, seqs);
 }
@@ -2433,7 +2436,7 @@ var $Vector = Vector;
     }
     return $Vector.empty().merge(sequence);
   }
-}, IndexedSequence);
+}, IndexedCollection);
 var VectorPrototype = Vector.prototype;
 VectorPrototype[DELETE] = VectorPrototype.remove;
 VectorPrototype.setIn = MapPrototype.setIn;
@@ -2946,7 +2949,7 @@ var $Stack = Stack;
   }
 }, {empty: function() {
     return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
-  }}, IndexedSequence);
+  }}, IndexedCollection);
 var StackPrototype = Stack.prototype;
 StackPrototype.withMutations = MapPrototype.withMutations;
 StackPrototype.asMutable = MapPrototype.asMutable;
@@ -3096,7 +3099,7 @@ var $Set = Set;
   fromKeys: function(seqable) {
     return $Set(Sequence(seqable).flip());
   }
-}, SetSequence);
+}, SetCollection);
 var SetPrototype = Set.prototype;
 SetPrototype[DELETE] = SetPrototype.remove;
 SetPrototype.mergeDeep = SetPrototype.merge;
@@ -3308,7 +3311,7 @@ var Record = function Record(defaultValues, name) {
     }
     return makeRecord(this, newMap, ownerID);
   }
-}, {}, KeyedSequence);
+}, {}, KeyedCollection);
 var RecordPrototype = Record.prototype;
 RecordPrototype._name = 'Record';
 RecordPrototype[DELETE] = RecordPrototype.remove;

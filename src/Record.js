@@ -11,11 +11,11 @@ import "Sequence"
 import "Map"
 import "invariant"
 import "TrieUtils"
-/* global Sequence, KeyedSequence, Map, MapPrototype, invariant, DELETE */
+/* global Sequence, KeyedCollection, Map, MapPrototype, invariant, DELETE */
 /* exported Record */
 
 
-class Record extends KeyedSequence {
+class Record extends KeyedCollection {
 
   constructor(defaultValues, name) {
     var RecordType = function(values) {
