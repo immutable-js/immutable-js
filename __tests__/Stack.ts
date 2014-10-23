@@ -20,14 +20,14 @@ function arrayOfSize(s) {
 describe('Stack', () => {
 
   it('constructor provides initial values', () => {
-    var s = Stack('a', 'b', 'c');
+    var s = Stack.of('a', 'b', 'c');
     expect(s.get(0)).toBe('a');
     expect(s.get(1)).toBe('b');
     expect(s.get(2)).toBe('c');
   });
 
   it('toArray provides a JS array', () => {
-    var s = Stack('a', 'b', 'c');
+    var s = Stack.of('a', 'b', 'c');
     expect(s.toArray()).toEqual(['a', 'b', 'c']);
   });
 
@@ -49,25 +49,25 @@ describe('Stack', () => {
   });
 
   it('pushing creates a new instance', () => {
-    var s0 = Stack('a');
+    var s0 = Stack.of('a');
     var s1 = s0.push('A');
     expect(s0.get(0)).toBe('a');
     expect(s1.get(0)).toBe('A');
   });
 
   it('get helpers make for easier to read code', () => {
-    var s = Stack('a', 'b', 'c');
+    var s = Stack.of('a', 'b', 'c');
     expect(s.first()).toBe('a');
     expect(s.peek()).toBe('a');
   });
 
   it('slice helpers make for easier to read code', () => {
-    var s = Stack('a', 'b', 'c');
+    var s = Stack.of('a', 'b', 'c');
     expect(s.rest().toArray()).toEqual(['b', 'c']);
   });
 
   it('iterable', () => {
-    var s = Stack('a', 'b', 'c');
+    var s = Stack.of('a', 'b', 'c');
     expect(s.size).toBe(3);
 
     var forEachResults = [];
@@ -92,7 +92,7 @@ describe('Stack', () => {
   });
 
   it('push inserts at lowest index', () => {
-    var s0 = Stack('a', 'b', 'c');
+    var s0 = Stack.of('a', 'b', 'c');
     var s1 = s0.push('d', 'e', 'f');
     expect(s0.size).toBe(3);
     expect(s1.size).toBe(6);
@@ -100,7 +100,7 @@ describe('Stack', () => {
   });
 
   it('pop removes the lowest index, decrementing size', () => {
-    var s = Stack('a', 'b', 'c').pop();
+    var s = Stack.of('a', 'b', 'c').pop();
     expect(s.peek()).toBe('b');
     expect(s.toArray()).toEqual([ 'b', 'c' ]);
   });
@@ -154,7 +154,7 @@ describe('Stack', () => {
   );
 
   it('finds values using indexOf', () => {
-    var s = Stack('a', 'b', 'c', 'b', 'a');
+    var s = Stack.of('a', 'b', 'c', 'b', 'a');
     expect(s.indexOf('b')).toBe(1);
     expect(s.indexOf('c')).toBe(2);
     expect(s.indexOf('d')).toBe(-1);

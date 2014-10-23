@@ -50,7 +50,7 @@ describe('Conversion', () => {
   var Point = Immutable.Record({x:0, y:0}, 'Point');
 
   var immutableData = Map({
-    deepList: Vector(
+    deepList: Vector.of(
       Map({
         position: "first"
       }),
@@ -67,11 +67,11 @@ describe('Conversion', () => {
     }),
     point: Map({x: 10, y: 20}),
     string: "Hello",
-    list: Vector(1, 2, 3)
+    list: Vector.of(1, 2, 3)
   });
 
   var immutableOrderedData = OrderedMap({
-    deepList: Vector(
+    deepList: Vector.of(
       OrderedMap({
         position: "first"
       }),
@@ -88,7 +88,7 @@ describe('Conversion', () => {
     }),
     point: new Point({x: 10, y: 20}),
     string: "Hello",
-    list: Vector(1, 2, 3)
+    list: Vector.of(1, 2, 3)
   });
 
   var immutableOrderedDataString = 'OrderedMap { ' +

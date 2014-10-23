@@ -45,7 +45,7 @@ describe('MultiRequire', () => {
     var nested = Immutable1.Vector(
       Immutable2.Vector(
         Immutable1.Vector(
-          Immutable2.Vector(1,2)
+          Immutable2.Vector.of(1, 2)
         )
       )
     );

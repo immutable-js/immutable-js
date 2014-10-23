@@ -20,6 +20,9 @@ function createClass(ctor, methods, staticMethods, superClass) {
   $Object.keys(methods).forEach(function (key) {
     proto[key] = methods[key];
   });
+  superClass && $Object.keys(superClass).forEach(function (key) {
+    ctor[key] = superClass[key];
+  });
   $Object.keys(staticMethods).forEach(function (key) {
     ctor[key] = staticMethods[key];
   });
@@ -268,7 +271,7 @@ var $Sequence = Sequence;
   },
   toMap: function() {
     assertNotInfinite(this.size);
-    return Map.from(this);
+    return Map.from(this.toKeyedSeq());
   },
   toObject: function() {
     assertNotInfinite(this.size);
@@ -280,7 +283,7 @@ var $Sequence = Sequence;
   },
   toOrderedMap: function() {
     assertNotInfinite(this.size);
-    return OrderedMap.from(this);
+    return OrderedMap.from(this.toKeyedSeq());
   },
   toSet: function() {
     assertNotInfinite(this.size);
@@ -645,7 +648,7 @@ var $Sequence = Sequence;
   }
 }, {
   empty: function() {
-    return EMPTY_SEQ || (EMPTY_SEQ = new ArraySequence([]));
+    return this(EMPTY_SEQ || (EMPTY_SEQ = new ArraySequence([])));
   },
   from: function(seqLike) {
     if (typeof seqLike !== 'object') {
@@ -658,7 +661,7 @@ var $Sequence = Sequence;
     return seq;
   },
   of: function() {
-    return arguments.length === 0 ? $Sequence.empty() : new ArraySequence(arguments);
+    return IndexedSequence.of.apply(IndexedSequence, arguments);
   }
 });
 var SequencePrototype = Sequence.prototype;
@@ -687,7 +690,7 @@ SequencePrototype.chain = SequencePrototype.flatMap;
   } catch (e) {}
 })();
 var KeyedSequence = function KeyedSequence(iterable) {
-  return iterable instanceof $KeyedSequence ? iterable : this.constructor.from(iterable);
+  return iterable instanceof $KeyedSequence ? iterable : $KeyedSequence.from(iterable);
 };
 var $KeyedSequence = KeyedSequence;
 ($traceurRuntime.createClass)(KeyedSequence, {
@@ -697,7 +700,14 @@ var $KeyedSequence = KeyedSequence;
   __makeSequence: function() {
     return Object.create(KeyedSequencePrototype);
   }
-}, {}, Sequence);
+}, {from: function(seqable) {
+    var seq = Sequence.from.apply($KeyedSequence, arguments);
+    if (!(seq instanceof $KeyedSequence)) {
+      seq = seq.fromEntrySeq();
+    }
+    return this(seq);
+  }}, Sequence);
+delete KeyedSequence.of;
 var KeyedSequencePrototype = KeyedSequence.prototype;
 KeyedSequencePrototype[ITERATOR_SYMBOL] = SequencePrototype.entries;
 KeyedSequencePrototype.__toJS = SequencePrototype.toObject;
@@ -705,7 +715,7 @@ KeyedSequencePrototype.__toStringMapper = (function(v, k) {
   return k + ': ' + quoteString(v);
 });
 var SetSequence = function SetSequence(iterable) {
-  return iterable instanceof $SetSequence ? iterable : this.constructor.from(iterable);
+  return iterable instanceof $SetSequence ? iterable : $SetSequence.from(iterable);
 };
 var $SetSequence = SetSequence;
 ($traceurRuntime.createClass)(SetSequence, {
@@ -724,13 +734,18 @@ var $SetSequence = SetSequence;
   __makeSequence: function() {
     return Object.create(SetSequencePrototype);
   }
-}, {of: function() {
-    return this.constructor(arguments.length === 0 ? Sequence.empty() : new ArraySequence(arguments));
-  }}, Sequence);
+}, {
+  from: function(seqable) {
+    return this(Sequence.from.apply(IndexedSequence, arguments).toSetSeq());
+  },
+  of: function() {
+    return this(arguments.length === 0 ? Sequence.empty() : new ArraySequence(arguments));
+  }
+}, Sequence);
 var SetSequencePrototype = SetSequence.prototype;
 SetSequencePrototype.has = SequencePrototype.contains;
 var IndexedSequence = function IndexedSequence(iterable) {
-  return iterable instanceof $IndexedSequence ? iterable : this.constructor.from(iterable);
+  return iterable instanceof $IndexedSequence ? iterable : $IndexedSequence.from(iterable);
 };
 var $IndexedSequence = IndexedSequence;
 ($traceurRuntime.createClass)(IndexedSequence, {
@@ -852,9 +867,14 @@ var $IndexedSequence = IndexedSequence;
   __iterator: function(type, reverse) {
     return iterator(this, type, reverse, false);
   }
-}, {of: function() {
-    return this.constructor(arguments.length === 0 ? Sequence.empty() : new ArraySequence(arguments));
-  }}, Sequence);
+}, {
+  from: function(seqable) {
+    return this(Sequence.from.apply($IndexedSequence, arguments).toIndexedSeq());
+  },
+  of: function() {
+    return this(arguments.length === 0 ? Sequence.empty() : new ArraySequence(arguments));
+  }
+}, Sequence);
 var IndexedSequencePrototype = IndexedSequence.prototype;
 var IteratorSequence = function IteratorSequence(iterator) {
   this._iterator = iterator;
@@ -1221,7 +1241,12 @@ var FromEntriesSequence = function FromEntriesSequence(entriesSeq) {
   __iterate: function(fn, reverse) {
     var $__0 = this;
     return this._seq.__iterate((function(entry) {
-      return entry && fn(entry[1], entry[0], $__0);
+      if (entry) {
+        if (entry !== Object(entry)) {
+          throw new TypeError('Expected values to be [K, V] entries.');
+        }
+        return fn(entry[1], entry[0], $__0);
+      }
     }), reverse);
   },
   __iterator: function(type, reverse) {
@@ -1681,9 +1706,8 @@ function interposeFactory(sequence, separator) {
   return interposedSequence;
 }
 var EMPTY_SEQ;
-var Map = function Map(sequence) {
-  var map = $Map.empty();
-  return sequence ? sequence.constructor === $Map ? sequence : map.merge(sequence) : map;
+var Map = function Map(seqable) {
+  return arguments.length === 0 ? $Map.empty() : seqable && seqable.constructor === $Map ? seqable : $Map.empty().merge(seqable);
 };
 var $Map = Map;
 ($traceurRuntime.createClass)(Map, {
@@ -1798,7 +1822,6 @@ var $Map = Map;
   }}, KeyedSequence);
 var MapPrototype = Map.prototype;
 MapPrototype[DELETE] = MapPrototype.remove;
-Map.from = Map;
 var BitmapIndexedNode = function BitmapIndexedNode(ownerID, bitmap, nodes) {
   this.ownerID = ownerID;
   this.bitmap = bitmap;
@@ -2228,11 +2251,8 @@ function spliceOut(array, idx, canEdit) {
 var MAX_BITMAP_SIZE = SIZE / 2;
 var MIN_ARRAY_SIZE = SIZE / 4;
 var EMPTY_MAP;
-var Vector = function Vector() {
-  for (var values = [],
-      $__6 = 0; $__6 < arguments.length; $__6++)
-    values[$__6] = arguments[$__6];
-  return $Vector.from(values);
+var Vector = function Vector(seqable) {
+  return $Vector.from(seqable);
 };
 var $Vector = Vector;
 ($traceurRuntime.createClass)(Vector, {
@@ -2298,8 +2318,8 @@ var $Vector = Vector;
   },
   mergeWith: function(merger) {
     for (var seqs = [],
-        $__7 = 1; $__7 < arguments.length; $__7++)
-      seqs[$__7 - 1] = arguments[$__7];
+        $__6 = 1; $__6 < arguments.length; $__6++)
+      seqs[$__6 - 1] = arguments[$__6];
     return mergeIntoVectorWith(this, merger, seqs);
   },
   mergeDeep: function() {
@@ -2307,8 +2327,8 @@ var $Vector = Vector;
   },
   mergeDeepWith: function(merger) {
     for (var seqs = [],
-        $__8 = 1; $__8 < arguments.length; $__8++)
-      seqs[$__8 - 1] = arguments[$__8];
+        $__7 = 1; $__7 < arguments.length; $__7++)
+      seqs[$__7 - 1] = arguments[$__7];
     return mergeIntoVectorWith(this, deepMerger(merger), seqs);
   },
   setSize: function(size) {
@@ -2737,11 +2757,8 @@ function getTailOffset(size) {
   return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
 }
 var EMPTY_VECT;
-var Stack = function Stack() {
-  for (var values = [],
-      $__9 = 0; $__9 < arguments.length; $__9++)
-    values[$__9] = arguments[$__9];
-  return $Stack.from(values);
+var Stack = function Stack(seqable) {
+  return arguments.length === 0 ? $Stack.empty() : seqable && seqable.constructor === $Stack ? seqable : $Stack.empty().unshiftAll(seqable);
 };
 var $Stack = Stack;
 ($traceurRuntime.createClass)(Stack, {
@@ -2890,15 +2907,9 @@ var $Stack = Stack;
       return iteratorDone();
     }));
   }
-}, {
-  empty: function() {
+}, {empty: function() {
     return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
-  },
-  from: function(sequence) {
-    var stack = $Stack.empty();
-    return sequence ? sequence.constructor === $Stack ? sequence : stack.unshiftAll(sequence) : stack;
-  }
-}, IndexedSequence);
+  }}, IndexedSequence);
 var StackPrototype = Stack.prototype;
 StackPrototype.withMutations = MapPrototype.withMutations;
 StackPrototype.asMutable = MapPrototype.asMutable;
@@ -2914,11 +2925,8 @@ function makeStack(size, head, ownerID, hash) {
   return map;
 }
 var EMPTY_STACK;
-var Set = function Set() {
-  for (var values = [],
-      $__10 = 0; $__10 < arguments.length; $__10++)
-    values[$__10] = arguments[$__10];
-  return $Set.from(values);
+var Set = function Set(seqable) {
+  return arguments.length === 0 ? $Set.empty() : seqable && seqable.constructor === $Set ? seqable : $Set.empty().union(seqable);
 };
 var $Set = Set;
 ($traceurRuntime.createClass)(Set, {
@@ -2969,8 +2977,8 @@ var $Set = Set;
   },
   intersect: function() {
     for (var seqs = [],
-        $__11 = 0; $__11 < arguments.length; $__11++)
-      seqs[$__11] = arguments[$__11];
+        $__8 = 0; $__8 < arguments.length; $__8++)
+      seqs[$__8] = arguments[$__8];
     if (seqs.length === 0) {
       return this;
     }
@@ -2990,8 +2998,8 @@ var $Set = Set;
   },
   subtract: function() {
     for (var seqs = [],
-        $__12 = 0; $__12 < arguments.length; $__12++)
-      seqs[$__12] = arguments[$__12];
+        $__9 = 0; $__9 < arguments.length; $__9++)
+      seqs[$__9] = arguments[$__9];
     if (seqs.length === 0) {
       return this;
     }
@@ -3014,8 +3022,8 @@ var $Set = Set;
   },
   mergeWith: function(merger) {
     for (var seqs = [],
-        $__13 = 1; $__13 < arguments.length; $__13++)
-      seqs[$__13 - 1] = arguments[$__13];
+        $__10 = 1; $__10 < arguments.length; $__10++)
+      seqs[$__10 - 1] = arguments[$__10];
     return this.union.apply(this, seqs);
   },
   wasAltered: function() {
@@ -3048,12 +3056,8 @@ var $Set = Set;
   empty: function() {
     return EMPTY_SET || (EMPTY_SET = makeSet(Map.empty()));
   },
-  from: function(sequence) {
-    var set = $Set.empty();
-    return sequence ? sequence.constructor === $Set ? sequence : set.union(sequence) : set;
-  },
-  fromKeys: function(sequence) {
-    return $Set.from(Sequence(sequence).flip());
+  fromKeys: function(seqable) {
+    return $Set(Sequence(seqable).flip());
   }
 }, SetSequence);
 var SetPrototype = Set.prototype;
@@ -3071,9 +3075,8 @@ function makeSet(map, ownerID) {
   return set;
 }
 var EMPTY_SET;
-var OrderedMap = function OrderedMap(sequence) {
-  var map = $OrderedMap.empty();
-  return sequence ? sequence.constructor === $OrderedMap ? sequence : map.merge(sequence) : map;
+var OrderedMap = function OrderedMap(seqable) {
+  return arguments.length === 0 ? $OrderedMap.empty() : seqable && seqable.constructor === $OrderedMap ? seqable : $OrderedMap.empty().merge(seqable);
 };
 var $OrderedMap = OrderedMap;
 ($traceurRuntime.createClass)(OrderedMap, {
@@ -3131,7 +3134,6 @@ var $OrderedMap = OrderedMap;
 }, {empty: function() {
     return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(Map.empty(), Vector.empty()));
   }}, Map);
-OrderedMap.from = OrderedMap;
 OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
 function makeOrderedMap(map, vector, ownerID, hash) {
   var omap = Object.create(OrderedMap.prototype);
@@ -3602,6 +3604,9 @@ function updateCursor(cursor, changeFn, changeKey) {
 }
 var Immutable = {
   Sequence: Sequence,
+  KeyedSequence: KeyedSequence,
+  SetSequence: SetSequence,
+  IndexedSequence: IndexedSequence,
   Map: Map,
   Vector: Vector,
   Stack: Stack,

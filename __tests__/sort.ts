@@ -16,7 +16,7 @@ describe('sort', () => {
   })
 
   it('sorts a vector', () => {
-    expect(Vector(4,5,6,3,2,1).sort().toArray()).toEqual([1,2,3,4,5,6]);
+    expect(Vector.of(4,5,6,3,2,1).sort().toArray()).toEqual([1,2,3,4,5,6]);
   })
 
   it('sorts a keyed sequence', () => {

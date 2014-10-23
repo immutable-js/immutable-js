@@ -18,25 +18,20 @@ class Set extends SetSequence {
 
   // @pragma Construction
 
-  constructor(...values) {
-    return Set.from(values);
+  constructor(seqable) {
+    return arguments.length === 0 ?
+      Set.empty() :
+      seqable && seqable.constructor === Set ?
+        seqable :
+        Set.empty().union(seqable);
   }
 
   static empty() {
     return EMPTY_SET || (EMPTY_SET = makeSet(Map.empty()));
   }
 
-  static from(sequence) {
-    var set = Set.empty();
-    return sequence ?
-      sequence.constructor === Set ?
-        sequence :
-        set.union(sequence) :
-      set;
-  }
-
-  static fromKeys(sequence) {
-    return Set.from(Sequence(sequence).flip());
+  static fromKeys(seqable) {
+    return Set(Sequence(seqable).flip());
   }
 
   // @pragma Access

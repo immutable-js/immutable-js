@@ -100,7 +100,7 @@ describe('concat', () => {
   })
 
   it('counts from the end of the indexed sequence on negative index', () => {
-    var i = I.Vector(9, 5, 3, 1).map(x => - x);
+    var i = I.Vector.of(9, 5, 3, 1).map(x => - x);
     expect(i.get(0)).toBe(-9);
     expect(i.get(-1)).toBe(-1);
     expect(i.get(-4)).toBe(-9);

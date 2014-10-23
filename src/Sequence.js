@@ -31,7 +31,7 @@ class Sequence {
   }
 
   static empty() {
-    return EMPTY_SEQ || (EMPTY_SEQ = new ArraySequence([]));
+    return this(EMPTY_SEQ || (EMPTY_SEQ = new ArraySequence([])));
   }
 
   static from(seqLike/*[, mapFn[, context]]*/) {
@@ -51,9 +51,7 @@ class Sequence {
   }
 
   static of(/*...values*/) {
-    return arguments.length === 0 ?
-      Sequence.empty() :
-      new ArraySequence(arguments);
+    return IndexedSequence.of.apply(IndexedSequence, arguments);
   }
 
 
@@ -83,7 +81,7 @@ class Sequence {
   toMap() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);
-    return Map.from(this);
+    return Map.from(this.toKeyedSeq());
   }
 
   toObject() {
@@ -96,7 +94,7 @@ class Sequence {
   toOrderedMap() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);
-    return OrderedMap.from(this);
+    return OrderedMap.from(this.toKeyedSeq());
   }
 
   toSet() {
@@ -597,7 +595,15 @@ class KeyedSequence extends Sequence {
   constructor(iterable) {
     return iterable instanceof KeyedSequence ?
       iterable :
-      this.constructor.from(iterable);
+      KeyedSequence.from(iterable);
+  }
+
+  static from(seqable/*[, mapFn[, context]]*/) {
+    var seq = Sequence.from.apply(KeyedSequence, arguments);
+    if (!(seq instanceof KeyedSequence)) {
+      seq = seq.fromEntrySeq();
+    }
+    return this(seq);
   }
 
 
@@ -615,6 +621,7 @@ class KeyedSequence extends Sequence {
   }
 }
 
+delete KeyedSequence.of;
 var KeyedSequencePrototype = KeyedSequence.prototype;
 KeyedSequencePrototype[ITERATOR_SYMBOL] = SequencePrototype.entries;
 KeyedSequencePrototype.__toJS = SequencePrototype.toObject;
@@ -627,11 +634,17 @@ class SetSequence extends Sequence {
   constructor(iterable) {
     return iterable instanceof SetSequence ?
       iterable :
-      this.constructor.from(iterable);
+      SetSequence.from(iterable);
+  }
+
+  static from(seqable/*[, mapFn[, context]]*/) {
+    return this(
+      Sequence.from.apply(IndexedSequence, arguments).toSetSeq()
+    );
   }
 
   static of(/*...values*/) {
-    return this.constructor(
+    return this(
       arguments.length === 0 ?
         Sequence.empty() :
         new ArraySequence(arguments)
@@ -681,11 +694,17 @@ class IndexedSequence extends Sequence {
   constructor(iterable) {
     return iterable instanceof IndexedSequence ?
       iterable :
-      this.constructor.from(iterable);
+      IndexedSequence.from(iterable);
+  }
+
+  static from(seqable/*[, mapFn[, context]]*/) {
+    return this(
+      Sequence.from.apply(IndexedSequence, arguments).toIndexedSeq()
+    );
   }
 
   static of(/*...values*/) {
-    return this.constructor(
+    return this(
       arguments.length === 0 ?
         Sequence.empty() :
         new ArraySequence(arguments)
@@ -1315,10 +1334,14 @@ class FromEntriesSequence extends KeyedSequence {
   __iterate(fn, reverse) {
     // Check if entry exists first so array access doesn't throw for holes
     // in the parent iteration.
-    return this._seq.__iterate(
-      entry => entry && fn(entry[1], entry[0], this),
-      reverse
-    );
+    return this._seq.__iterate(entry => {
+      if (entry) {
+        if (entry !== Object(entry)) {
+          throw new TypeError('Expected values to be [K, V] entries.');
+        }
+        return fn(entry[1], entry[0], this);
+      }
+    }, reverse);
   }
 
   __iterator(type, reverse) {

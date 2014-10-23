@@ -66,12 +66,12 @@ describe('Equality', () => {
   });
 
   it('compares vectors', () => {
-    var vector = Immutable.Vector(1,2,3);
+    var vector = Immutable.Vector.of(1,2,3);
     expectIs(vector, vector);
     expectIsNot(vector, [1,2,3]);
 
     expectIs(vector, Immutable.Sequence.of(1,2,3));
-    expectIs(vector, Immutable.Vector(1,2,3));
+    expectIs(vector, Immutable.Vector.of(1,2,3));
 
     var vectorLonger = vector.push(4);
     expectIsNot(vector, vectorLonger);

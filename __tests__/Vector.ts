@@ -20,14 +20,14 @@ function arrayOfSize(s) {
 describe('Vector', () => {
 
   it('constructor provides initial values', () => {
-    var v = Vector('a', 'b', 'c');
+    var v = Vector.of('a', 'b', 'c');
     expect(v.get(0)).toBe('a');
     expect(v.get(1)).toBe('b');
     expect(v.get(2)).toBe('c');
   });
 
   it('toArray provides a JS array', () => {
-    var v = Vector('a', 'b', 'c');
+    var v = Vector.of('a', 'b', 'c');
     expect(v.toArray()).toEqual(['a', 'b', 'c']);
   });
 
@@ -56,7 +56,7 @@ describe('Vector', () => {
   });
 
   it('counts from the end of the vector on negative index', () => {
-    var i = Immutable.Vector(1, 2, 3, 4, 5, 6, 7);
+    var i = Immutable.Vector.of(1, 2, 3, 4, 5, 6, 7);
     expect(i.get(-1)).toBe(7);
     expect(i.get(-5)).toBe(3);
     expect(i.get(-9)).toBe(undefined);
@@ -64,7 +64,7 @@ describe('Vector', () => {
   });
 
   it('setting creates a new instance', () => {
-    var v0 = Vector('a');
+    var v0 = Vector.of('a');
     var v1 = v0.set(0, 'A');
     expect(v0.get(0)).toBe('a');
     expect(v1.get(0)).toBe('A');
@@ -82,16 +82,16 @@ describe('Vector', () => {
   });
 
   it('get helpers make for easier to read code', () => {
-    var v = Vector('a', 'b', 'c');
+    var v = Vector.of('a', 'b', 'c');
     expect(v.first()).toBe('a');
     expect(v.get(1)).toBe('b');
     expect(v.last()).toBe('c');
   });
 
   it('slice helpers make for easier to read code', () => {
-    var v0 = Vector('a', 'b', 'c');
-    var v1 = Vector('a', 'b');
-    var v2 = Vector('a');
+    var v0 = Vector.of('a', 'b', 'c');
+    var v1 = Vector.of('a', 'b');
+    var v2 = Vector.of('a');
     var v3 = Vector.empty();
 
     expect(v0.rest().toArray()).toEqual(['b', 'c']);
@@ -108,7 +108,7 @@ describe('Vector', () => {
   });
 
   it('can set at arbitrary indices', () => {
-    var v0 = Vector('a', 'b', 'c');
+    var v0 = Vector.of('a', 'b', 'c');
     var v1 = v0.set(1, 'B'); // within existing tail
     var v2 = v1.set(3, 'd'); // at last position
     var v3 = v2.set(31, 'e'); // (testing internal guts)
@@ -135,7 +135,7 @@ describe('Vector', () => {
   })
 
   it('describes a dense vector', () => {
-    var v = Vector('a', 'b', 'c').push('d').set(14, 'o').set(6, undefined).remove(1);
+    var v = Vector.of('a', 'b', 'c').push('d').set(14, 'o').set(6, undefined).remove(1);
     expect(v.size).toBe(15);
     expect(v.has(2)).toBe(true); // original end
     expect(v.has(3)).toBe(true); // end after push
@@ -203,7 +203,7 @@ describe('Vector', () => {
   });
 
   it('push inserts at highest index', () => {
-    var v0 = Vector('a', 'b', 'c');
+    var v0 = Vector.of('a', 'b', 'c');
     var v1 = v0.push('d', 'e', 'f');
     expect(v0.size).toBe(3);
     expect(v1.size).toBe(6);
@@ -227,7 +227,7 @@ describe('Vector', () => {
   );
 
   it('pop removes the highest index, decrementing size', () => {
-    var v = Vector('a', 'b', 'c').pop();
+    var v = Vector.of('a', 'b', 'c').pop();
     expect(v.last()).toBe('b');
     expect(v.toArray()).toEqual(['a','b']);
     v = v.set(1230, 'x');
@@ -274,7 +274,7 @@ describe('Vector', () => {
   );
 
   it('allows popping an empty vector', () => {
-    var v = Vector('a').pop();
+    var v = Vector.of('a').pop();
     expect(v.size).toBe(0);
     expect(v.toArray()).toEqual([]);
     v = v.pop().pop().pop().pop().pop();
@@ -283,7 +283,7 @@ describe('Vector', () => {
   });
 
   it('remove removes an index, but does not affect size', () => {
-    var v = Vector('a', 'b', 'c').remove(2).remove(0);
+    var v = Vector.of('a', 'b', 'c').remove(2).remove(0);
     expect(v.size).toBe(3);
     expect(v.get(0)).toBe(undefined);
     expect(v.get(1)).toBe('b');
@@ -300,13 +300,13 @@ describe('Vector', () => {
   });
 
   it('shifts values from the front', () => {
-    var v = Vector('a', 'b', 'c').shift();
+    var v = Vector.of('a', 'b', 'c').shift();
     expect(v.first()).toBe('b');
     expect(v.size).toBe(2);
   });
 
   it('unshifts values to the front', () => {
-    var v = Vector('a', 'b', 'c').unshift('x', 'y', 'z');
+    var v = Vector.of('a', 'b', 'c').unshift('x', 'y', 'z');
     expect(v.first()).toBe('x');
     expect(v.size).toBe(6);
     expect(v.toArray()).toEqual(['x', 'y', 'z', 'a', 'b', 'c']);
@@ -329,49 +329,49 @@ describe('Vector', () => {
   );
 
   it('finds values using indexOf', () => {
-    var v = Vector('a', 'b', 'c', 'b', 'a');
+    var v = Vector.of('a', 'b', 'c', 'b', 'a');
     expect(v.indexOf('b')).toBe(1);
     expect(v.indexOf('c')).toBe(2);
     expect(v.indexOf('d')).toBe(-1);
   });
 
   it('finds values using findIndex', () => {
-    var v = Vector('a', 'b', 'c', 'B', 'a');
+    var v = Vector.of('a', 'b', 'c', 'B', 'a');
     expect(v.findIndex(value => value.toUpperCase() === value)).toBe(3);
   });
 
   it('maps values', () => {
-    var v = Vector('a', 'b', 'c');
+    var v = Vector.of('a', 'b', 'c');
     var r = v.map(value => value.toUpperCase());
     expect(r.toArray()).toEqual(['A', 'B', 'C']);
   });
 
   it('filters values', () => {
-    var v = Vector('a', 'b', 'c', 'd', 'e', 'f');
+    var v = Vector.of('a', 'b', 'c', 'd', 'e', 'f');
     var r = v.filter((value, index) => index % 2 === 1);
     expect(r.toArray()).toEqual(['b', 'd', 'f']);
   });
 
   it('reduces values', () => {
-    var v = Vector(1,10,100);
+    var v = Vector.of(1,10,100);
     var r = v.reduce<number>((reduction, value) => reduction + value);
     expect(r).toEqual(111);
   });
 
   it('reduces from the right', () => {
-    var v = Vector('a','b','c');
+    var v = Vector.of('a','b','c');
     var r = v.reduceRight((reduction, value) => reduction + value);
     expect(r).toEqual('cba');
   });
 
   it('takes and skips values', () => {
-    var v = Vector('a', 'b', 'c', 'd', 'e', 'f');
+    var v = Vector.of('a', 'b', 'c', 'd', 'e', 'f');
     var r = v.skip(2).take(2);
     expect(r.toArray()).toEqual(['c', 'd']);
   });
 
   it('efficiently chains array methods', () => {
-    var v = Vector(1,2,3,4,5,6,7,8,9,10,11,12,13,14);
+    var v = Vector.of(1,2,3,4,5,6,7,8,9,10,11,12,13,14);
 
     var r = v
       .filter(x => x % 2 == 0)
@@ -384,14 +384,14 @@ describe('Vector', () => {
   });
 
   it('can convert to a map', () => {
-    var v = Vector('a', 'b', 'c');
+    var v = Vector.of('a', 'b', 'c');
     var m = v.toMap();
     expect(m.size).toBe(3);
     expect(m.get(1)).toBe('b');
   });
 
   it('reverses', () => {
-    var v = Vector('a', 'b', 'c');
+    var v = Vector.of('a', 'b', 'c');
     expect(v.reverse().toArray()).toEqual(['c', 'b', 'a']);
   });
 
@@ -410,8 +410,8 @@ describe('Vector', () => {
   // TODO: assert that forEach iterates in the correct order and is only called as much as it needs to be.
 
   it('concat works like Array.prototype.concat', () => {
-    var v1 = Vector(1, 2, 3);
-    var v2 = v1.concat(4, Vector(5, 6), [7, 8], Immutable.Sequence({a:9,b:10}), Immutable.Set(11,12), null);
+    var v1 = Vector.of(1, 2, 3);
+    var v2 = v1.concat(4, Vector.of(5, 6), [7, 8], Immutable.Sequence({a:9,b:10}), Immutable.Set.of(11,12), null);
     expect(v1.toArray()).toEqual([1, 2, 3]);
     expect(v2.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, null]);
   });

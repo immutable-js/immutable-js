@@ -25,13 +25,12 @@ class Map extends KeyedSequence {
 
   // @pragma Construction
 
-  constructor(sequence) {
-    var map = Map.empty();
-    return sequence ?
-      sequence.constructor === Map ?
-        sequence :
-        map.merge(sequence) :
-      map;
+  constructor(seqable) {
+    return arguments.length === 0 ?
+      Map.empty() :
+      seqable && seqable.constructor === Map ?
+        seqable :
+        Map.empty().merge(seqable);
   }
 
   static empty() {
@@ -175,7 +174,6 @@ class Map extends KeyedSequence {
 var MapPrototype = Map.prototype;
 MapPrototype[DELETE] = MapPrototype.remove;
 
-Map.from = Map;
 
 
 class BitmapIndexedNode {

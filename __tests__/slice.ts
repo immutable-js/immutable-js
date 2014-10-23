@@ -71,8 +71,8 @@ describe('slice', () => {
   })
 
   it('slices a vector', () => {
-    expect(Vector(1,2,3,4,5,6).slice(2).toArray()).toEqual([3,4,5,6]);
-    expect(Vector(1,2,3,4,5,6).slice(2, 4).toArray()).toEqual([3,4]);
+    expect(Vector.of(1,2,3,4,5,6).slice(2).toArray()).toEqual([3,4,5,6]);
+    expect(Vector.of(1,2,3,4,5,6).slice(2, 4).toArray()).toEqual([3,4]);
   })
 
   it('returns self for whole slices', () => {
@@ -81,14 +81,14 @@ describe('slice', () => {
     expect(s.slice(0, 3)).toBe(s);
     expect(s.slice(-4, 4)).toBe(s);
 
-    var v = Vector(1,2,3);
+    var v = Vector.of(1,2,3);
     expect(v.slice(-4, 4)).toBe(v);
     expect(v.slice(-3)).toBe(v);
     expect(v.slice(-4, 4).toVector()).toBe(v);
   })
 
   it('creates a sliced vector in O(log32(n))', () => {
-    expect(Vector(1,2,3,4,5).slice(-3, -1).toVector().toArray()).toEqual([3,4]);
+    expect(Vector.of(1,2,3,4,5).slice(-3, -1).toVector().toArray()).toEqual([3,4]);
   })
 
   it('has the same behavior as array slice in known edge cases', () => {

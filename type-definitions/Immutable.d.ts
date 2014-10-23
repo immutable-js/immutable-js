@@ -125,24 +125,21 @@ declare module 'immutable' {
     /**
      * `Sequence.empty()` returns a Sequence of no values.
      */
-    function empty(): Sequence<any, any>;
+    function empty<K, V>(): Sequence<K, V>;
 
     /**
-     * `Immutable.Sequence()` returns a sequence of its parameters.
+     * `Immutable.Sequence.from()` returns a particular kind of Sequence based
+     * on the input.
      *
-     *   * If provided a single argument:
-     *     * If a Sequence, that same Sequence is returned.
-     *     * If an Array, an `IndexedSequence` is returned.
-     *     * If a plain Object, a `Sequence` is returned, iterated in the same order
-     *       as the for-in would iterate through the Object itself.
-     *   * An `IndexedSequence` of all arguments is returned.
+     *   * If a `Sequence`, that same `Sequence`.
+     *   * If an Array, an `IndexedSequence`.
+     *   * If an Iterable, an `IndexedSequence`.
+     *   * If an Iterator, an `IndexedSequence`.
+     *   * If a plain Object, a `KeyedSequence`.
      *
-     * Note: if a Sequence is created from a JavaScript Array or Object, then it can
-     * still possibly mutated if the underlying Array or Object is ever mutated.
      */
-    function from<T>(seq: IndexedSequence<T>): IndexedSequence<T>;
-    function from<T>(array: Array<T>): IndexedSequence<T>;
     function from<K, V>(seq: Sequence<K, V>): Sequence<K, V>;
+    function from<T>(array: Array<T>): IndexedSequence<T>;
     function from<V>(obj: {[key: string]: V}): Sequence<string, V>;
     function from<T>(iterator: Iterator<T>): IndexedSequence<T>;
     function from<T>(iterable: /*Iterable<T>*/Object): IndexedSequence<T>;
@@ -166,14 +163,13 @@ declare module 'immutable' {
    * ensure that a Sequence of one item is returned, use `Sequence.of`, if you
    * want to force a conversion of objects to Sequences, use `Sequence.from`.
    */
-  export function Sequence<T>(seq: IndexedSequence<T>): IndexedSequence<T>;
-  export function Sequence<T>(array: Array<T>): IndexedSequence<T>;
   export function Sequence<K, V>(seq: Sequence<K, V>): Sequence<K, V>;
+  export function Sequence<T>(array: Array<T>): IndexedSequence<T>;
   export function Sequence<V>(obj: {[key: string]: V}): Sequence<string, V>;
   export function Sequence<T>(iterator: Iterator<T>): IndexedSequence<T>;
   export function Sequence<T>(iterable: /*Iterable<T>*/Object): IndexedSequence<T>;
   export function Sequence<V>(value: V): IndexedSequence<V>;
-  export function Sequence(): Sequence<any, any>;
+  export function Sequence<K, V>(): Sequence<K, V>;
 
 
   export interface Sequence<K, V> {
@@ -220,8 +216,8 @@ declare module 'immutable' {
     /**
      * Converts this sequence to a Map, Throws if keys are not hashable.
      *
-     * Note: This is equivalent to `Map.from(this)`, but provided to allow for
-     * chained expressions.
+     * Note: This is equivalent to `Map.from(this.toKeyedSeq())`, but provided
+     * for convenience and to allow for chained expressions.
      */
     toMap(): Map<K, V>;
 
@@ -233,8 +229,8 @@ declare module 'immutable' {
     /**
      * Converts this sequence to a Map, maintaining the order of iteration.
      *
-     * Note: This is equivalent to `OrderedMap.from(this)`, but provided to
-     * allow for chained expressions.
+     * Note: This is equivalent to `OrderedMap.from(this.toKeyedSeq())`, but
+     * provided for convenience and to allow for chained expressions.
      */
     toOrderedMap(): Map<K, V>;
 
@@ -839,6 +835,38 @@ declare module 'immutable' {
    * Sequences.
    */
 
+  export module KeyedSequence {
+
+    /**
+     * @see Sequence.empty
+     */
+    function empty<K, V>(): KeyedSequence<K, V>;
+
+    /**
+     * Similar to `Sequence.from`, however it expects sequences of [K, V] tuples
+     * if not constructed from another KeyedSequence or JS Object.
+     */
+    function from<K, V>(seq: KeyedSequence<K, V>): KeyedSequence<K, V>;
+    function from<K, V>(seq: Sequence<any, /*[K,V]*/Array<any>>): KeyedSequence<K, V>;
+    function from<K, V>(array: Array</*[K,V]*/Array<any>>): KeyedSequence<K, V>;
+    function from<V>(obj: {[key: string]: V}): KeyedSequence<string, V>;
+    function from<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): KeyedSequence<K, V>;
+    function from<K, V>(iterable: /*Iterable<[K,V]>*/Object): KeyedSequence<K, V>;
+
+  }
+
+  /**
+   * Alias for `KeyedSequence.empty` and `KeyedSequence.from`.
+   */
+  export function KeyedSequence<K, V>(): KeyedSequence<K, V>;
+  export function KeyedSequence<K, V>(seq: KeyedSequence<K, V>): KeyedSequence<K, V>;
+  export function KeyedSequence<K, V>(seq: Sequence<any, /*[K,V]*/any>): KeyedSequence<K, V>;
+  export function KeyedSequence<K, V>(array: Array</*[K,V]*/any>): KeyedSequence<K, V>;
+  export function KeyedSequence<V>(obj: {[key: string]: V}): KeyedSequence<string, V>;
+  export function KeyedSequence<K, V>(iterator: Iterator</*[K,V]*/any>): KeyedSequence<K, V>;
+  export function KeyedSequence<K, V>(iterable: /*Iterable<[K,V]>*/Object): KeyedSequence<K, V>;
+
+
   export interface KeyedSequence<K, V> extends Sequence<K, V> {
     // TODO: All sequence methods return KeyedSequence here.
   }
@@ -859,6 +887,40 @@ declare module 'immutable' {
    *     assert.equal(seq.every((v, k) => v === k), true);
    *
    */
+
+  export module SetSequence {
+
+    /**
+     * @see Sequence.empty
+     */
+    function empty<T>(): SetSequence<T>;
+
+    /**
+     * @see Sequence.from
+     */
+    function from<T>(seq: Sequence<any, T>): SetSequence<T>;
+    function from<T>(array: Array<T>): SetSequence<T>;
+    function from<T>(obj: {[key: string]: T}): SetSequence<T>;
+    function from<T>(iterator: Iterator<T>): SetSequence<T>;
+    function from<T>(iterable: /*Iterable<T>*/Object): SetSequence<T>;
+
+    /**
+     * @see Sequence.of
+     */
+    function of<T>(...values: T[]): SetSequence<T>;
+
+  }
+
+  /**
+   * Alias for `SetSequence.empty` and `SetSequence.from`.
+   */
+  export function SetSequence<T>(): SetSequence<T>;
+  export function SetSequence<T>(seq: Sequence<any, T>): SetSequence<T>;
+  export function SetSequence<T>(array: Array<T>): SetSequence<T>;
+  export function SetSequence<T>(obj: {[key: string]: T}): SetSequence<T>;
+  export function SetSequence<T>(iterator: Iterator<T>): SetSequence<T>;
+  export function SetSequence<T>(iterable: /*Iterable<T>*/Object): SetSequence<T>;
+
 
   export interface SetSequence<T> extends Sequence<T, T> {
     // TODO: All sequence methods return SetSequence here.
@@ -883,6 +945,40 @@ declare module 'immutable' {
    * preserve indices, using them as keys, convert to a KeyedSequence by calling
    * `toKeyedSeq`.
    */
+
+  export module IndexedSequence {
+
+    /**
+     * @see Sequence.empty
+     */
+    function empty<T>(): IndexedSequence<T>;
+
+    /**
+     * @see Sequence.from
+     */
+    function from<T>(seq: Sequence<any, T>): IndexedSequence<T>;
+    function from<T>(array: Array<T>): IndexedSequence<T>;
+    function from<T>(obj: {[key: string]: T}): IndexedSequence<T>;
+    function from<T>(iterator: Iterator<T>): IndexedSequence<T>;
+    function from<T>(iterable: /*Iterable<T>*/Object): IndexedSequence<T>;
+
+    /**
+     * @see Sequence.of
+     */
+    function of<T>(...values: T[]): IndexedSequence<T>;
+
+  }
+
+  /**
+   * Alias for `IndexedSequence.empty` and `IndexedSequence.from`.
+   */
+  export function IndexedSequence<T>(): IndexedSequence<T>;
+  export function IndexedSequence<T>(seq: Sequence<any, T>): IndexedSequence<T>;
+  export function IndexedSequence<T>(array: Array<T>): IndexedSequence<T>;
+  export function IndexedSequence<T>(obj: {[key: string]: T}): IndexedSequence<T>;
+  export function IndexedSequence<T>(iterator: Iterator<T>): IndexedSequence<T>;
+  export function IndexedSequence<T>(iterable: /*Iterable<T>*/Object): IndexedSequence<T>;
+
 
   export interface IndexedSequence<T> extends Sequence<number, T> {
 
@@ -1312,37 +1408,41 @@ declare module 'immutable' {
   export module Map {
 
     /**
-     * `Map.empty()` creates a new immutable map of size 0.
+     * `Map.empty()` creates a new immutable Map of size 0.
      */
     function empty<K, V>(): Map<K, V>;
 
     /**
      * `Map.from()` creates a new immutable Map with the same key value pairs as
-     * the provided Sequence or JavaScript Object or Array.
+     * the provided KeyedSequence or JavaScript Object or expects an Iterable
+     * of [K, V] tuple entries.
      *
      *     var newMap = Map.from({key: "value"});
      *     var newMap = Map.from([["key", "value"]]);
      *
      */
-    function from<K, V>(sequence: Sequence<K, V>): Map<K, V>;
-    function from<V>(object: {[key: string]: V}): Map<string, V>;
-    function from<V>(entries: Array</*(K, V)*/Array<any>>): Map<any, any>;
+    function from<K, V>(seq: KeyedSequence<K, V>): Map<K, V>;
+    function from<K, V>(seq: Sequence<any, /*[K,V]*/Array<any>>): Map<K, V>;
+    function from<K, V>(array: Array</*[K,V]*/Array<any>>): Map<K, V>;
+    function from<V>(obj: {[key: string]: V}): Map<string, V>;
+    function from<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): Map<K, V>;
+    function from<K, V>(iterable: /*Iterable<[K,V]>*/Object): Map<K, V>;
+
   }
 
   /**
-   * Alias for `Map.empty()`.
+   * Alias for `Map.empty` and `Map.from`.
    */
   export function Map<K, V>(): Map<K, V>;
+  export function Map<K, V>(seq: KeyedSequence<K, V>): Map<K, V>;
+  export function Map<K, V>(seq: Sequence<any, /*[K,V]*/Array<any>>): Map<K, V>;
+  export function Map<K, V>(array: Array</*[K,V]*/Array<any>>): Map<K, V>;
+  export function Map<V>(obj: {[key: string]: V}): Map<string, V>;
+  export function Map<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): Map<K, V>;
+  export function Map<K, V>(iterable: /*Iterable<[K,V]>*/Object): Map<K, V>;
 
-  /**
-   * Alias for `Map.from()`.
-   */
-  export function Map<K, V>(sequence: Sequence<K, V>): Map<K, V>;
-  export function Map<V>(object: {[key: string]: V}): Map<string, V>;
-  export function Map<V>(entries: Array</*(K, V)*/Array<any>>): Map<any, any>;
 
-
-  export interface Map<K, V> extends Sequence<K, V> {
+  export interface Map<K, V> extends KeyedSequence<K, V> {
 
     /**
      * Returns a new Map also containing the new key, value pair. If an equivalent
@@ -1555,27 +1655,32 @@ declare module 'immutable' {
 
     /**
      * `OrderedMap.from()` creates a new immutable ordered Map with the same key
-     * value pairs as the provided Sequence or JavaScript Object or Array.
+     * value pairs as the provided KeyedSequence or JavaScript Object or expects
+     * an Iterable of [K, V] tuple entries.
      *
-     *   var newMap = OrderedMap.from({key: "value"});
+     *     var newOrderedMap = OrderedMap.from({key: "value"});
+     *     var newOrderedMap = OrderedMap.from([["key", "value"]]);
      *
      */
-    function from<K, V>(sequence: Sequence<K, V>): Map<K, V>;
-    function from<V>(object: {[key: string]: V}): Map<string, V>;
-    function from<V>(array: Array<V>): Map<number, V>;
+    function from<K, V>(seq: KeyedSequence<K, V>): Map<K, V>;
+    function from<K, V>(seq: Sequence<any, /*[K,V]*/Array<any>>): Map<K, V>;
+    function from<K, V>(array: Array</*[K,V]*/Array<any>>): Map<K, V>;
+    function from<V>(obj: {[key: string]: V}): Map<string, V>;
+    function from<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): Map<K, V>;
+    function from<K, V>(iterable: /*Iterable<[K,V]>*/Object): Map<K, V>;
+
   }
 
   /**
-   * Alias for `OrderedMap.empty()`.
+   * Alias for `OrderedMap.empty` and `OrderedMap.from`.
    */
   export function OrderedMap<K, V>(): Map<K, V>;
-
-  /**
-   * Alias for `OrderedMap.from()`.
-   */
-  export function OrderedMap<K, V>(sequence: Sequence<K, V>): Map<K, V>;
-  export function OrderedMap<V>(object: {[key: string]: V}): Map<string, V>;
-  export function OrderedMap<V>(array: Array<V>): Map<number, V>;
+  export function OrderedMap<K, V>(seq: KeyedSequence<K, V>): Map<K, V>;
+  export function OrderedMap<K, V>(seq: Sequence<any, /*[K,V]*/Array<any>>): Map<K, V>;
+  export function OrderedMap<K, V>(array: Array</*[K,V]*/Array<any>>): Map<K, V>;
+  export function OrderedMap<V>(obj: {[key: string]: V}): Map<string, V>;
+  export function OrderedMap<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): Map<K, V>;
+  export function OrderedMap<K, V>(iterable: /*Iterable<[K,V]>*/Object): Map<K, V>;
 
 
   /**
@@ -1643,37 +1748,46 @@ declare module 'immutable' {
   export module Set {
 
     /**
-     * `Set.empty()` creates a new immutable set of size 0.
+     * `Set.empty()` creates a new immutable Set of size 0.
      */
     function empty<T>(): Set<T>;
 
     /**
-     * `Set.from()` creates a new immutable Set containing the values from this
-     * Sequence or JavaScript Array.
+     * Create a new immutable Set containing the values of the provided
+     * sequenceable.
      */
-    function from<T>(sequence: Sequence<any, T>): Set<T>;
+    function from<T>(seq: Sequence<any, T>): Set<T>;
     function from<T>(array: Array<T>): Set<T>;
+    function from<T>(obj: {[key: string]: T}): Set<T>;
+    function from<T>(iterator: Iterator<T>): Set<T>;
+    function from<T>(iterable: /*Iterable<T>*/Object): Set<T>;
 
     /**
-     * `Set.fromkeySeq()` creates a new immutable Set containing the keys from
+     * `Set.fromKeys()` creates a new immutable Set containing the keys from
      * this Sequence or JavaScript Object.
      */
-    function fromKeys<T>(sequence: Sequence<T, any>): Set<T>;
-    function fromKeys(object: {[key: string]: any}): Set<string>;
+    function fromKeys<T>(seq: Sequence<T, any>): Set<T>;
+    function fromKeys(obj: {[key: string]: any}): Set<string>;
+
+    /**
+     * Creates a new Set containing `values`.
+     */
+    function of<T>(...values: T[]): Set<T>;
+
   }
 
   /**
-   * Alias for `Set.empty()`
+   * Alias for `Set.empty` and `Set.from`.
    */
   export function Set<T>(): Set<T>;
+  export function Set<T>(seq: Sequence<any, T>): Set<T>;
+  export function Set<T>(array: Array<T>): Set<T>;
+  export function Set<T>(obj: {[key: string]: T}): Set<T>;
+  export function Set<T>(iterator: Iterator<T>): Set<T>;
+  export function Set<T>(iterable: /*Iterable<T>*/Object): Set<T>;
 
-  /**
-   * Like `Set.from()`, but accepts variable arguments instead of an Array.
-   */
-  export function Set<T>(...values: T[]): Set<T>;
 
-
-  export interface Set<T> extends Sequence<T, T> {
+  export interface Set<T> extends SetSequence<T> {
 
     /**
      * Returns a new Set which also includes this value.
@@ -1751,31 +1865,36 @@ declare module 'immutable' {
   export module Vector {
 
     /**
-     * `Vector.empty()` returns a Vector of size 0.
+     * `Vector.empty()` creates a new immutable Vector of size 0.
      */
     function empty<T>(): Vector<T>;
 
     /**
-     * `Vector.from()` returns a Vector of the same size of the provided
-     * `values` JavaScript Array or Sequence, containing the values at the
-     * same indices.
-     *
-     * If a non-indexed Sequence is provided, its keys will be discarded and
-     * its values will be used to fill the returned Vector.
+     * Create a new immutable Vector containing the values of the provided
+     * sequenceable.
      */
+    function from<T>(seq: Sequence<any, T>): Vector<T>;
     function from<T>(array: Array<T>): Vector<T>;
-    function from<T>(sequence: Sequence<any, T>): Vector<T>;
+    function from<T>(obj: {[key: string]: T}): Vector<T>;
+    function from<T>(iterator: Iterator<T>): Vector<T>;
+    function from<T>(iterable: /*Iterable<T>*/Object): Vector<T>;
+
+    /**
+     * Creates a new Vector containing `values`.
+     */
+    function of<T>(...values: T[]): Vector<T>;
+
   }
 
   /**
-   * Alias for `Vector.empty()`
+   * Alias for `Vector.empty` and `Vector.from`.
    */
   export function Vector<T>(): Vector<T>;
-
-  /**
-   * Like `Vector.from()`, but accepts variable arguments instead of an Array.
-   */
-  export function Vector<T>(...values: T[]): Vector<T>;
+  export function Vector<T>(seq: Sequence<any, T>): Vector<T>;
+  export function Vector<T>(array: Array<T>): Vector<T>;
+  export function Vector<T>(obj: {[key: string]: T}): Vector<T>;
+  export function Vector<T>(iterator: Iterator<T>): Vector<T>;
+  export function Vector<T>(iterable: /*Iterable<T>*/Object): Vector<T>;
 
 
   export interface Vector<T> extends IndexedSequence<T> {
@@ -1971,31 +2090,36 @@ declare module 'immutable' {
   export module Stack {
 
     /**
-     * `Stack.empty()` returns a Stack of size 0.
+     * `Stack.empty()` creates a new immutable Stack of size 0.
      */
     function empty<T>(): Stack<T>;
 
     /**
-     * `Stack.from()` returns a Stack of the same size of the provided
-     * `values` JavaScript Array or Sequence, containing the values at the
-     * same indices.
-     *
-     * If a non-indexed Sequence is provided, its keys will be discarded and
-     * its values will be used to fill the returned Stack.
+     * Create a new immutable Stack containing the values of the provided
+     * sequenceable.
      */
+    function from<T>(seq: Sequence<any, T>): Stack<T>;
     function from<T>(array: Array<T>): Stack<T>;
-    function from<T>(sequence: Sequence<any, T>): Stack<T>;
+    function from<T>(obj: {[key: string]: T}): Stack<T>;
+    function from<T>(iterator: Iterator<T>): Stack<T>;
+    function from<T>(iterable: /*Iterable<T>*/Object): Stack<T>;
+
+    /**
+     * Creates a new Stack containing `values`.
+     */
+    function of<T>(...values: T[]): Stack<T>;
+
   }
 
   /**
-   * Alias for `Stack.empty()`
+   * Alias for `Stack.empty` and `Stack.from`.
    */
   export function Stack<T>(): Stack<T>;
-
-  /**
-   * Like `Stack.from()`, but accepts variable arguments instead of an Array.
-   */
-  export function Stack<T>(...values: T[]): Stack<T>;
+  export function Stack<T>(seq: Sequence<any, T>): Stack<T>;
+  export function Stack<T>(array: Array<T>): Stack<T>;
+  export function Stack<T>(obj: {[key: string]: T}): Stack<T>;
+  export function Stack<T>(iterator: Iterator<T>): Stack<T>;
+  export function Stack<T>(iterable: /*Iterable<T>*/Object): Stack<T>;
 
 
   export interface Stack<T> extends IndexedSequence<T> {

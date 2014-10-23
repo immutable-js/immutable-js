@@ -18,13 +18,12 @@ class OrderedMap extends Map {
 
   // @pragma Construction
 
-  constructor(sequence) {
-    var map = OrderedMap.empty();
-    return sequence ?
-      sequence.constructor === OrderedMap ?
-        sequence :
-        map.merge(sequence) :
-      map;
+  constructor(seqable) {
+    return arguments.length === 0 ?
+      OrderedMap.empty() :
+      seqable && seqable.constructor === OrderedMap ?
+        seqable :
+        OrderedMap.empty().merge(seqable);
   }
 
   static empty() {
@@ -96,8 +95,9 @@ class OrderedMap extends Map {
   }
 }
 
-OrderedMap.from = OrderedMap;
 OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
+
+
 
 function makeOrderedMap(map, vector, ownerID, hash) {
   var omap = Object.create(OrderedMap.prototype);

@@ -19,21 +19,16 @@ class Stack extends IndexedSequence {
 
   // @pragma Construction
 
-  constructor(...values) {
-    return Stack.from(values);
+  constructor(seqable) {
+    return arguments.length === 0 ?
+      Stack.empty() :
+      seqable && seqable.constructor === Stack ?
+        seqable :
+        Stack.empty().unshiftAll(seqable);
   }
 
   static empty() {
     return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
-  }
-
-  static from(sequence) {
-    var stack = Stack.empty();
-    return sequence ?
-      sequence.constructor === Stack ?
-        sequence :
-        stack.unshiftAll(sequence) :
-      stack;
   }
 
   toString() {

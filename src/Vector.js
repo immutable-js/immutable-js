@@ -22,8 +22,8 @@ class Vector extends IndexedSequence {
 
   // @pragma Construction
 
-  constructor(...values) {
-    return Vector.from(values);
+  constructor(seqable) {
+    return Vector.from(seqable);
   }
 
   static empty() {
