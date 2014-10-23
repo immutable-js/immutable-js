@@ -542,6 +542,28 @@ var $Sequence = Sequence;
       return mapper.call(context, k, v, $__0);
     })).flip();
   },
+  max: function(comparator) {
+    return this.maxBy(valueMapper, comparator);
+  },
+  maxBy: function(mapper, comparator) {
+    comparator = comparator || defaultComparator;
+    var seq = this;
+    var maxEntry = seq.entrySeq().reduce((function(max, next) {
+      return comparator(mapper(next[1], next[0], seq), mapper(max[1], max[0], seq)) > 0 ? next : max;
+    }));
+    return maxEntry && maxEntry[1];
+  },
+  min: function(comparator) {
+    return this.minBy(valueMapper, comparator);
+  },
+  minBy: function(mapper, comparator) {
+    comparator = comparator || defaultComparator;
+    var seq = this;
+    var minEntry = seq.entrySeq().reduce((function(min, next) {
+      return comparator(mapper(next[1], next[0], seq), mapper(min[1], min[0], seq)) < 0 ? next : min;
+    }));
+    return minEntry && minEntry[1];
+  },
   rest: function() {
     return this.slice(1);
   },
@@ -560,7 +582,7 @@ var $Sequence = Sequence;
   sortBy: function(mapper, comparator) {
     comparator = comparator || defaultComparator;
     var seq = this;
-    return $Sequence(this.entrySeq().entrySeq().toArray().sort((function(a, b) {
+    return $Sequence(seq.entrySeq().entrySeq().toArray().sort((function(a, b) {
       return comparator(mapper(a[1][1], a[1][0], seq), mapper(b[1][1], b[1][0], seq)) || a[0] - b[0];
     }))).fromEntrySeq().valueSeq().fromEntrySeq();
   },

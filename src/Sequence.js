@@ -401,6 +401,38 @@ class Sequence {
     ).flip();
   }
 
+  max(comparator) {
+    return this.maxBy(valueMapper, comparator);
+  }
+
+  maxBy(mapper, comparator) {
+    comparator = comparator || defaultComparator;
+    var seq = this;
+    var maxEntry = seq.entrySeq().reduce((max, next) => {
+      return comparator(
+        mapper(next[1], next[0], seq),
+        mapper(max[1], max[0], seq)
+      ) > 0 ? next : max
+    });
+    return maxEntry && maxEntry[1];
+  }
+
+  min(comparator) {
+    return this.minBy(valueMapper, comparator);
+  }
+
+  minBy(mapper, comparator) {
+    comparator = comparator || defaultComparator;
+    var seq = this;
+    var minEntry = seq.entrySeq().reduce((min, next) => {
+      return comparator(
+        mapper(next[1], next[0], seq),
+        mapper(min[1], min[0], seq)
+      ) < 0 ? next : min
+    });
+    return minEntry && minEntry[1];
+  }
+
   rest() {
     return this.slice(1);
   }
@@ -424,7 +456,7 @@ class Sequence {
   sortBy(mapper, comparator) {
     comparator = comparator || defaultComparator;
     var seq = this;
-    return Sequence(this.entrySeq().entrySeq().toArray().sort(
+    return Sequence(seq.entrySeq().entrySeq().toArray().sort(
       (a, b) => comparator(
         mapper(a[1][1], a[1][0], seq),
         mapper(b[1][1], b[1][0], seq)

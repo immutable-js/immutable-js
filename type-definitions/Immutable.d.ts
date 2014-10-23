@@ -600,6 +600,48 @@ declare module 'immutable' {
     ): Sequence<M, V>;
 
     /**
+     * Returns the maximum value in this collection. If any values are
+     * comparatively equivalent, the first one found will be returned.
+     *
+     * The `comparator` is used in the same way as `Sequence#sort`. If it is not
+     * provided, the default comparator is `a > b`.
+     */
+    max(comparator?: (valueA: V, valueB: V) => number): V;
+
+    /**
+     * Like `max`, but also accepts a `comparatorValueMapper` which allows for
+     * comparing by more sophisticated means:
+     *
+     *     hitters.maxBy(hitter => hitter.avgHits);
+     *
+     */
+    maxBy<C>(
+      comparatorValueMapper: (value?: V, key?: K, seq?: Sequence<K, V>) => C,
+      comparator?: (valueA: C, valueB: C) => number
+    ): V;
+
+    /**
+     * Returns the maximum value in this collection. If any values are
+     * comparatively equivalent, the first one found will be returned.
+     *
+     * The `comparator` is used in the same way as `Sequence#sort`. If it is not
+     * provided, the default comparator is `a > b`.
+     */
+    min(comparator?: (valueA: V, valueB: V) => number): V;
+
+    /**
+     * Like `min`, but also accepts a `comparatorValueMapper` which allows for
+     * comparing by more sophisticated means:
+     *
+     *     hitters.minBy(hitter => hitter.avgHits);
+     *
+     */
+    minBy<C>(
+      comparatorValueMapper: (value?: V, key?: K, seq?: Sequence<K, V>) => C,
+      comparator?: (valueA: C, valueB: C) => number
+    ): V;
+
+    /**
      * Returns a new Sequence containing all entries except the first.
      */
     rest(): Sequence<K, V>
@@ -643,15 +685,15 @@ declare module 'immutable' {
     ): Sequence<K, V>;
 
     /**
-     * Like `sort`, but also accepts a `sortValueMapper` which allows for
+     * Like `sort`, but also accepts a `comparatorValueMapper` which allows for
      * sorting by more sophisticated means:
      *
      *     hitters.sortBy(hitter => hitter.avgHits);
      *
      */
-    sortBy<S>(
-      sortValueMapper: (value?: V, key?: K, seq?: Sequence<K, V>) => S,
-      comparator?: (valueA: S, valueB: S) => number
+    sortBy<C>(
+      comparatorValueMapper: (value?: V, key?: K, seq?: Sequence<K, V>) => C,
+      comparator?: (valueA: C, valueB: C) => number
     ): Sequence<K, V>;
 
     /**
@@ -1040,6 +1082,24 @@ declare module 'immutable' {
     ): Sequence<M, T>;
 
     /**
+     * Mapper takes IndexedSequence.
+     * @override
+     */
+    maxBy<C>(
+      comparatorValueMapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => C,
+      comparator?: (valueA: C, valueB: C) => number
+    ): T;
+
+    /**
+     * Mapper takes IndexedSequence.
+     * @override
+     */
+    minBy<C>(
+      comparatorValueMapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => C,
+      comparator?: (valueA: C, valueB: C) => number
+    ): T;
+
+    /**
      * Returns IndexedSequence
      * @override
      */
@@ -1079,9 +1139,9 @@ declare module 'immutable' {
      * Returns an IndexedSequence
      * @override
      */
-    sortBy<S>(
-      sortValueMapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => S,
-      comparator?: (valueA: S, valueB: S) => number
+    sortBy<C>(
+      comparatorValueMapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => C,
+      comparator?: (valueA: C, valueB: C) => number
     ): IndexedSequence<T>;
 
     /**
