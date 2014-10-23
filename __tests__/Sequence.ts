@@ -64,5 +64,9 @@ describe('Sequence', () => {
     expect(length).toBe(3);
   });
 
+  it('detects sequences', () => {
+    var seq = Immutable.Sequence.of(1,2,3);
+    expect(Immutable.Sequence.isSequence(seq)).toBe(true);
+  });
 
 });

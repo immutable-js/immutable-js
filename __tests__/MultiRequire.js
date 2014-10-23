@@ -12,6 +12,13 @@ describe('MultiRequire', () => {
     expect(Immutable2.Map({a: 1}).toJS()).toEqual({a: 1});
   });
 
+  it('detects sequences', () => {
+    var x = Immutable1.Map({a: 1});
+    var y = Immutable2.Map({a: 1});
+    expect(Immutable1.Sequence.isSequence(y)).toBe(true);
+    expect(Immutable2.Sequence.isSequence(x)).toBe(true);
+  });
+
   it('converts to JS when inter-nested', () => {
     var deep = Immutable1.Map({
       a: 1,

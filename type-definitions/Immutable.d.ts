@@ -149,6 +149,26 @@ declare module 'immutable' {
      */
     function of<T>(...values: T[]): IndexedSequence<T>;
 
+    /**
+     * True if `maybeSequence` is a Sequence, or any of its subclasses.
+     */
+    function isSequence(maybeSequence): boolean;
+
+    /**
+     * True if `maybeKeyed` is a KeyedSequence, or any of its subclasses.
+     */
+    function isKeyed(maybeKeyed): boolean;
+
+    /**
+     * True if `maybeIndexed` is a IndexedSequence, or any of its subclasses.
+     */
+    function isIndexed(maybeIndexed): boolean;
+
+    /**
+     * True if `maybeAssociative` is either keyed or indexed.
+     */
+    function isAssociative(maybeAssociative): boolean;
+
   }
 
   /**

@@ -14,7 +14,7 @@ import "invariant"
 import "TrieUtils"
 import "Hash"
 import "Iterator"
-/* global is, Sequence, KeyedSequence, IndexedSequence, invariant, makeCursor,
+/* global is, KeyedSequence, invariant, makeCursor,
           DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
           MakeRef, SetRef, arrCopy, hash,
           Iterator, iteratorValue, iteratorDone */
@@ -573,17 +573,10 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
   return new ArrayNode(ownerID, count + 1, expandedNodes);
 }
 
-function mergeIntoMapWith(map, merger, iterables) {
+function mergeIntoMapWith(map, merger, seqable) {
   var seqs = [];
-  for (var ii = 0; ii < iterables.length; ii++) {
-    var seq = iterables[ii];
-    if (!(seq instanceof Sequence)) {
-      seq = Sequence(seq);
-      if (seq instanceof IndexedSequence) {
-        seq = seq.fromEntrySeq();
-      }
-    }
-    seq && seqs.push(seq);
+  for (var ii = 0; ii < seqable.length; ii++) {
+    seqable[ii] && seqs.push(KeyedSequence(seqable[ii]));
   }
   return mergeIntoCollectionWith(map, merger, seqs);
 }

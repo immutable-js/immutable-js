@@ -30,30 +30,7 @@ class Sequence {
       seqFromValue(value, true);
   }
 
-  static empty() {
-    return this(EMPTY_SEQ || (EMPTY_SEQ = new ArraySequence([])));
-  }
-
-  static from(seqLike/*[, mapFn[, context]]*/) {
-    if (typeof seqLike !== 'object') {
-      throw new TypeError(
-        'Sequence.from requires a sequenceable object, not: ' + seqLike
-      );
-    }
-    var seq = seqFromValue(seqLike, false);
-    if (arguments.length > 1) {
-      seq = seq.map(
-        arguments[1],
-        arguments.length > 2 ? arguments[2] : undefined
-      );
-    }
-    return seq;
-  }
-
-  static of(/*...values*/) {
-    return IndexedSequence.of.apply(IndexedSequence, arguments);
-  }
-
+  // Statics are added after subclasses are constructed.
 
   // ### Conversion to other types
 
@@ -537,9 +514,7 @@ class Sequence {
 
   // ### Internal
 
-  __makeSequence() {
-    return Object.create(SequencePrototype);
-  }
+  // abstract __makeSequence
 
   // abstract __iterateUncached(fn, reverse)
 
@@ -554,7 +529,10 @@ class Sequence {
   }
 }
 
+var IS_SEQUENCE_SENTINEL = '@@__IMMUTABLE_SEQUENCE__@@';
+
 var SequencePrototype = Sequence.prototype;
+SequencePrototype[IS_SEQUENCE_SENTINEL] = true;
 SequencePrototype[ITERATOR_SYMBOL] = SequencePrototype.values;
 SequencePrototype.toJSON = SequencePrototype.toJS;
 SequencePrototype.__toJS = SequencePrototype.toArray;
@@ -592,15 +570,15 @@ SequencePrototype.chain = SequencePrototype.flatMap;
 
 class KeyedSequence extends Sequence {
 
-  constructor(iterable) {
-    return iterable instanceof KeyedSequence ?
-      iterable :
-      KeyedSequence.from(iterable);
+  constructor(seqable) {
+    return Sequence.isKeyed(seqable) ?
+      seqable :
+      KeyedSequence.from(seqable);
   }
 
   static from(seqable/*[, mapFn[, context]]*/) {
-    var seq = Sequence.from.apply(KeyedSequence, arguments);
-    if (!(seq instanceof KeyedSequence)) {
+    var seq = sequenceFrom.apply(KeyedSequence, arguments);
+    if (!isKeyed(seq)) {
       seq = seq.fromEntrySeq();
     }
     return this(seq);
@@ -621,8 +599,10 @@ class KeyedSequence extends Sequence {
   }
 }
 
-delete KeyedSequence.of;
+var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
+
 var KeyedSequencePrototype = KeyedSequence.prototype;
+KeyedSequencePrototype[IS_KEYED_SENTINEL] = true;
 KeyedSequencePrototype[ITERATOR_SYMBOL] = SequencePrototype.entries;
 KeyedSequencePrototype.__toJS = SequencePrototype.toObject;
 KeyedSequencePrototype.__toStringMapper = (v, k) => k + ': ' + quoteString(v);
@@ -631,15 +611,15 @@ KeyedSequencePrototype.__toStringMapper = (v, k) => k + ': ' + quoteString(v);
 
 class SetSequence extends Sequence {
 
-  constructor(iterable) {
-    return iterable instanceof SetSequence ?
-      iterable :
-      SetSequence.from(iterable);
+  constructor(seqable) {
+    return isSequence(seqable) && !isAssociative(seqable) ?
+      seqable :
+      SetSequence.from(seqable);
   }
 
   static from(seqable/*[, mapFn[, context]]*/) {
     return this(
-      Sequence.from.apply(IndexedSequence, arguments).toSetSeq()
+      sequenceFrom.apply(IndexedSequence, arguments).toSetSeq()
     );
   }
 
@@ -691,15 +671,15 @@ SetSequencePrototype.has = SequencePrototype.contains;
 
 class IndexedSequence extends Sequence {
 
-  constructor(iterable) {
-    return iterable instanceof IndexedSequence ?
-      iterable :
-      IndexedSequence.from(iterable);
+  constructor(seqable) {
+    return Sequence.isIterable(seqable) ?
+      seqable :
+      IndexedSequence.from(seqable);
   }
 
   static from(seqable/*[, mapFn[, context]]*/) {
     return this(
-      Sequence.from.apply(IndexedSequence, arguments).toIndexedSeq()
+      sequenceFrom.apply(IndexedSequence, arguments).toIndexedSeq()
     );
   }
 
@@ -879,8 +859,59 @@ class IndexedSequence extends Sequence {
   }
 }
 
-var IndexedSequencePrototype = IndexedSequence.prototype;
+var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
 
+var IndexedSequencePrototype = IndexedSequence.prototype;
+IndexedSequencePrototype[IS_INDEXED_SENTINEL] = true;
+
+
+// #pragma Sequence static methods
+
+function isSequence(maybeSequence) {
+  return !!(maybeSequence && maybeSequence[IS_SEQUENCE_SENTINEL]);
+}
+
+function isKeyed(maybeKeyed) {
+  return !!(maybeKeyed && maybeKeyed[IS_KEYED_SENTINEL]);
+}
+
+function isIndexed(maybeIndexed) {
+  return !!(maybeIndexed && maybeIndexed[IS_INDEXED_SENTINEL]);
+}
+
+function isAssociative(maybeAssociative) {
+  return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
+}
+
+var EMPTY_SEQ;
+
+function emptySequence() {
+  return this(EMPTY_SEQ || (EMPTY_SEQ = new ArraySequence([])));
+}
+
+function sequenceFrom(seqLike/*[, mapFn[, context]]*/) {
+  if (typeof seqLike !== 'object') {
+    throw new TypeError(
+      'Sequence.from requires a sequenceable object, not: ' + seqLike
+    );
+  }
+  var seq = seqFromValue(seqLike, false);
+  if (arguments.length > 1) {
+    seq = seq.map(
+      arguments[1],
+      arguments.length > 2 ? arguments[2] : undefined
+    );
+  }
+  return seq;
+}
+
+Sequence.isSequence = isSequence;
+Sequence.isKeyed = isKeyed;
+Sequence.isIndexed = isIndexed;
+Sequence.isAssociative = isAssociative;
+Sequence.empty = emptySequence;
+Sequence.from = sequenceFrom;
+Sequence.of = IndexedSequence.of;
 
 
 // #pragma Root Sequences
@@ -1062,7 +1093,7 @@ class ArraySequence extends IndexedSequence {
 // #pragma Helper functions
 
 function seqFromValue(value, maybeSingleton) {
-  return value instanceof Sequence ? value :
+  return isSequence(value) ? value :
     // TODO: once the length warning is removed, change Array.isArray to
     // ES6 Array.from "arraylike" semantics.
     Array.isArray(value) ? new ArraySequence(value) :
@@ -1804,5 +1835,3 @@ function interposeFactory(sequence, separator) {
   };
   return interposedSequence;
 }
-
-var EMPTY_SEQ;

@@ -637,34 +637,16 @@ var $Sequence = Sequence;
       return (h + (hash(v) ^ (v === k ? 0 : hash(k)))) & HASH_MAX_VAL;
     }), 0));
   },
-  __makeSequence: function() {
-    return Object.create(SequencePrototype);
-  },
   __iterate: function(fn, reverse) {
     return iterate(this, fn, reverse, true);
   },
   __iterator: function(type, reverse) {
     return iterator(this, type, reverse, true);
   }
-}, {
-  empty: function() {
-    return this(EMPTY_SEQ || (EMPTY_SEQ = new ArraySequence([])));
-  },
-  from: function(seqLike) {
-    if (typeof seqLike !== 'object') {
-      throw new TypeError('Sequence.from requires a sequenceable object, not: ' + seqLike);
-    }
-    var seq = seqFromValue(seqLike, false);
-    if (arguments.length > 1) {
-      seq = seq.map(arguments[1], arguments.length > 2 ? arguments[2] : undefined);
-    }
-    return seq;
-  },
-  of: function() {
-    return IndexedSequence.of.apply(IndexedSequence, arguments);
-  }
-});
+}, {});
+var IS_SEQUENCE_SENTINEL = '@@__IMMUTABLE_SEQUENCE__@@';
 var SequencePrototype = Sequence.prototype;
+SequencePrototype[IS_SEQUENCE_SENTINEL] = true;
 SequencePrototype[ITERATOR_SYMBOL] = SequencePrototype.values;
 SequencePrototype.toJSON = SequencePrototype.toJS;
 SequencePrototype.__toJS = SequencePrototype.toArray;
@@ -689,8 +671,8 @@ SequencePrototype.chain = SequencePrototype.flatMap;
       }});
   } catch (e) {}
 })();
-var KeyedSequence = function KeyedSequence(iterable) {
-  return iterable instanceof $KeyedSequence ? iterable : $KeyedSequence.from(iterable);
+var KeyedSequence = function KeyedSequence(seqable) {
+  return Sequence.isKeyed(seqable) ? seqable : $KeyedSequence.from(seqable);
 };
 var $KeyedSequence = KeyedSequence;
 ($traceurRuntime.createClass)(KeyedSequence, {
@@ -701,21 +683,22 @@ var $KeyedSequence = KeyedSequence;
     return Object.create(KeyedSequencePrototype);
   }
 }, {from: function(seqable) {
-    var seq = Sequence.from.apply($KeyedSequence, arguments);
-    if (!(seq instanceof $KeyedSequence)) {
+    var seq = sequenceFrom.apply($KeyedSequence, arguments);
+    if (!isKeyed(seq)) {
       seq = seq.fromEntrySeq();
     }
     return this(seq);
   }}, Sequence);
-delete KeyedSequence.of;
+var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
 var KeyedSequencePrototype = KeyedSequence.prototype;
+KeyedSequencePrototype[IS_KEYED_SENTINEL] = true;
 KeyedSequencePrototype[ITERATOR_SYMBOL] = SequencePrototype.entries;
 KeyedSequencePrototype.__toJS = SequencePrototype.toObject;
 KeyedSequencePrototype.__toStringMapper = (function(v, k) {
   return k + ': ' + quoteString(v);
 });
-var SetSequence = function SetSequence(iterable) {
-  return iterable instanceof $SetSequence ? iterable : $SetSequence.from(iterable);
+var SetSequence = function SetSequence(seqable) {
+  return isSequence(seqable) && !isAssociative(seqable) ? seqable : $SetSequence.from(seqable);
 };
 var $SetSequence = SetSequence;
 ($traceurRuntime.createClass)(SetSequence, {
@@ -736,7 +719,7 @@ var $SetSequence = SetSequence;
   }
 }, {
   from: function(seqable) {
-    return this(Sequence.from.apply(IndexedSequence, arguments).toSetSeq());
+    return this(sequenceFrom.apply(IndexedSequence, arguments).toSetSeq());
   },
   of: function() {
     return this(arguments.length === 0 ? Sequence.empty() : new ArraySequence(arguments));
@@ -744,8 +727,8 @@ var $SetSequence = SetSequence;
 }, Sequence);
 var SetSequencePrototype = SetSequence.prototype;
 SetSequencePrototype.has = SequencePrototype.contains;
-var IndexedSequence = function IndexedSequence(iterable) {
-  return iterable instanceof $IndexedSequence ? iterable : $IndexedSequence.from(iterable);
+var IndexedSequence = function IndexedSequence(seqable) {
+  return Sequence.isIterable(seqable) ? seqable : $IndexedSequence.from(seqable);
 };
 var $IndexedSequence = IndexedSequence;
 ($traceurRuntime.createClass)(IndexedSequence, {
@@ -869,13 +852,48 @@ var $IndexedSequence = IndexedSequence;
   }
 }, {
   from: function(seqable) {
-    return this(Sequence.from.apply($IndexedSequence, arguments).toIndexedSeq());
+    return this(sequenceFrom.apply($IndexedSequence, arguments).toIndexedSeq());
   },
   of: function() {
     return this(arguments.length === 0 ? Sequence.empty() : new ArraySequence(arguments));
   }
 }, Sequence);
+var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
 var IndexedSequencePrototype = IndexedSequence.prototype;
+IndexedSequencePrototype[IS_INDEXED_SENTINEL] = true;
+function isSequence(maybeSequence) {
+  return !!(maybeSequence && maybeSequence[IS_SEQUENCE_SENTINEL]);
+}
+function isKeyed(maybeKeyed) {
+  return !!(maybeKeyed && maybeKeyed[IS_KEYED_SENTINEL]);
+}
+function isIndexed(maybeIndexed) {
+  return !!(maybeIndexed && maybeIndexed[IS_INDEXED_SENTINEL]);
+}
+function isAssociative(maybeAssociative) {
+  return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
+}
+var EMPTY_SEQ;
+function emptySequence() {
+  return this(EMPTY_SEQ || (EMPTY_SEQ = new ArraySequence([])));
+}
+function sequenceFrom(seqLike) {
+  if (typeof seqLike !== 'object') {
+    throw new TypeError('Sequence.from requires a sequenceable object, not: ' + seqLike);
+  }
+  var seq = seqFromValue(seqLike, false);
+  if (arguments.length > 1) {
+    seq = seq.map(arguments[1], arguments.length > 2 ? arguments[2] : undefined);
+  }
+  return seq;
+}
+Sequence.isSequence = isSequence;
+Sequence.isKeyed = isKeyed;
+Sequence.isIndexed = isIndexed;
+Sequence.isAssociative = isAssociative;
+Sequence.empty = emptySequence;
+Sequence.from = sequenceFrom;
+Sequence.of = IndexedSequence.of;
 var IteratorSequence = function IteratorSequence(iterator) {
   this._iterator = iterator;
   this._iteratorCache = [];
@@ -1029,7 +1047,7 @@ var ArraySequence = function ArraySequence(array) {
   }
 }, {}, IndexedSequence);
 function seqFromValue(value, maybeSingleton) {
-  return value instanceof Sequence ? value : Array.isArray(value) ? new ArraySequence(value) : isIterator(value) ? new IteratorSequence(value) : isIterable(value) ? new IterableSequence(value) : !maybeSingleton || (value && value.constructor === Object) ? new ObjectSequence(value) : new ArraySequence([value]);
+  return isSequence(value) ? value : Array.isArray(value) ? new ArraySequence(value) : isIterator(value) ? new IteratorSequence(value) : isIterable(value) ? new IterableSequence(value) : !maybeSingleton || (value && value.constructor === Object) ? new ObjectSequence(value) : new ArraySequence([value]);
 }
 function wholeSlice(begin, end, size) {
   return (begin === 0 || (size != null && begin <= -size)) && (end == null || (size != null && end >= size));
@@ -1705,7 +1723,6 @@ function interposeFactory(sequence, separator) {
   };
   return interposedSequence;
 }
-var EMPTY_SEQ;
 var Map = function Map(seqable) {
   return arguments.length === 0 ? $Map.empty() : seqable && seqable.constructor === $Map ? seqable : $Map.empty().merge(seqable);
 };
@@ -2158,17 +2175,10 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
   expandedNodes[including] = node;
   return new ArrayNode(ownerID, count + 1, expandedNodes);
 }
-function mergeIntoMapWith(map, merger, iterables) {
+function mergeIntoMapWith(map, merger, seqable) {
   var seqs = [];
-  for (var ii = 0; ii < iterables.length; ii++) {
-    var seq = iterables[ii];
-    if (!(seq instanceof Sequence)) {
-      seq = Sequence(seq);
-      if (seq instanceof IndexedSequence) {
-        seq = seq.fromEntrySeq();
-      }
-    }
-    seq && seqs.push(seq);
+  for (var ii = 0; ii < seqable.length; ii++) {
+    seqable[ii] && seqs.push(KeyedSequence(seqable[ii]));
   }
   return mergeIntoCollectionWith(map, merger, seqs);
 }
@@ -3586,12 +3596,12 @@ function makeCursor(rootData, keyPath, onChange, value) {
   if (arguments.length < 4) {
     value = rootData.getIn(keyPath);
   }
-  var size = value instanceof Sequence ? value.size : undefined;
-  var CursorClass = value instanceof IndexedSequence ? IndexedCursor : Cursor;
+  var size = isSequence(value) ? value.size : undefined;
+  var CursorClass = isIndexed(value) ? IndexedCursor : Cursor;
   return new CursorClass(rootData, keyPath, onChange, size);
 }
 function wrappedValue(cursor, key, value) {
-  return value instanceof Sequence ? subCursor(cursor, key, value) : value;
+  return Sequence.isSequence(value) ? subCursor(cursor, key, value) : value;
 }
 function subCursor(cursor, key, value) {
   return makeCursor(cursor._rootData, cursor._keyPath.concat(key), cursor._onChange, value);
