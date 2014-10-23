@@ -7,10 +7,10 @@ as lazy evaluation. Immutable JS provides a lazy `Sequence`, allowing efficient
 chaining of sequence methods like `map` and `filter` without creating
 intermediate representations.
 
-`immutable` provides `Sequence`, `Range`, `Repeat`, `Map`, `OrderedMap`, `Set`
-and `Vector` by using lazy sequences and [hash maps tries](http://en.wikipedia.org/wiki/Hash_array_mapped_trie).
-They achieve efficiency by using structural sharing and minimizing the need to
-copy or cache data.
+`immutable` provides `Sequence`, `Range`, `Repeat`, `Vector`, `Stack`, `Map`,
+`OrderedMap`, and `Set` by using lazy sequences and [hash maps tries](http://en.wikipedia.org/wiki/Hash_array_mapped_trie).
+They achieve efficiency on modern JavaScript VMs by using structural sharing and
+minimizing the need to copy or cache data.
 
 
 Getting started
@@ -133,7 +133,7 @@ immutable collection. Methods which return new arrays like `slice` or `concat`
 instead return new immutable collections.
 
 ```javascript
-var vect1 = Immutable.Vector(1, 2);
+var vect1 = Immutable.Vector.of(1, 2);
 var vect2 = vect1.push(3, 4, 5);
 var vect3 = vect2.unshift(0);
 var vect4 = vect1.concat(vect2, vect3);
@@ -188,7 +188,7 @@ All sequences also implement `toJSON()` allowing them to be passed to
 `JSON.stringify` directly.
 
 ```javascript
-var deep = Immutable.Map({a:1, b:2, c:Immutable.Vector(3,4,5)});
+var deep = Immutable.Map({a:1, b:2, c:Immutable.Vector.of(3,4,5)});
 deep.toObject() // { a: 1, b: 2, c: Vector [ 3, 4, 5 ] }
 deep.toArray() // [ 1, 2, Vector [ 3, 4, 5 ] ]
 deep.toJS() // { a: 1, b: 2, c: [ 3, 4, 5 ] }
@@ -273,7 +273,7 @@ As well as expressing logic that would otherwise seem memory-limited:
 A common pattern is reifying (converting to real form) back to the original
 collection type. For example, mapping over a Vector:
 
-    var numsVect = Immutable.Vector.from([1,2,3,4,5]);
+    var numsVect = Immutable.Vector.of(1,2,3,4,5);
     var squaresVect = numsVect.map(x => x * x).toVector();
 
 Note: A sequence is always iterated in the same order, however that order may
@@ -349,7 +349,7 @@ applies complex mutations itself.
 As an example, this results in the creation of 2, not 4, new immutable Vectors.
 
 ```javascript
-var vect1 = Immutable.Vector(1,2,3);
+var vect1 = Immutable.Vector.of(1,2,3);
 var vect2 = vect1.withMutations(function (vect) {
   vect.push(4).push(5).push(6);
 });

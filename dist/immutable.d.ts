@@ -91,14 +91,14 @@ declare module 'immutable' {
    * For example, the following does no work, because the resulting sequence is
    * never used:
    *
-   *     var oddSquares = Immutable.Sequence(1,2,3,4,5,6,7,8)
+   *     var oddSquares = Immutable.Sequence.of(1,2,3,4,5,6,7,8)
    *       .filter(x => x % 2).map(x => x * x);
    *
    * Once the sequence is used, it performs only the work necessary. In this
    * example, no intermediate arrays are ever created, filter is only called
-   * twice, and map is only called once:
+   * three times, and map is only called twice:
    *
-   *     console.log(evenSquares.last()); // 49
+   *     console.log(evenSquares.get(1)); // 9
    *
    * Lazy Sequences allow for the efficient chaining of sequence operations,
    * allowing for the expression of logic that can otherwise be very tedious:
@@ -205,7 +205,7 @@ declare module 'immutable' {
      *
      * Example:
      *
-     *     var indexedSeq = Immutable.Sequence('A', 'B', 'C');
+     *     var indexedSeq = Immutable.Sequence.of('A', 'B', 'C');
      *     indexedSeq.filter(v => v === 'B').toString() // Seq [ 'B' ]
      *     var keyedSeq = indexedSeq.toKeyedSeq();
      *     keyedSeq.filter(v => v === 'B').toString() // Seq { 1: 'B' }
@@ -722,7 +722,7 @@ declare module 'immutable' {
      * Returns a new sequence which contains entries starting from when
      * `predicate` first returns false.
      *
-     *     Sequence('dog','frog','cat','hat','god').skipWhile(x => x.match(/g/))
+     *     Sequence.of('dog','frog','cat','hat','god').skipWhile(x => x.match(/g/))
      *     // ['cat', 'hat', 'god']
      *
      */
@@ -735,7 +735,7 @@ declare module 'immutable' {
      * Returns a new sequence which contains entries starting from when
      * `predicate` first returns true.
      *
-     *     Sequence('dog','frog','cat','hat','god').skipUntil(x => x.match(/hat/))
+     *     Sequence.of('dog','frog','cat','hat','god').skipUntil(x => x.match(/hat/))
      *     // ['hat', 'god']
      *
      */
@@ -772,7 +772,7 @@ declare module 'immutable' {
      * Returns a new sequence which contains entries from this sequence as long
      * as the `predicate` returns true.
      *
-     *     Sequence('dog','frog','cat','hat','god').takeWhile(x => x.match(/o/))
+     *     Sequence.of('dog','frog','cat','hat','god').takeWhile(x => x.match(/o/))
      *     // ['dog', 'frog']
      *
      */
@@ -785,7 +785,7 @@ declare module 'immutable' {
      * Returns a new sequence which contains entries from this sequence as long
      * as the `predicate` returns false.
      *
-     *     Sequence('dog','frog','cat','hat','god').takeUntil(x => x.match(/at/))
+     *     Sequence.of('dog','frog','cat','hat','god').takeUntil(x => x.match(/at/))
      *     // ['dog', 'frog']
      *
      */
@@ -807,13 +807,13 @@ declare module 'immutable' {
      * Because Sequences are lazy and designed to be chained together, they do
      * not cache their results. For example, this map function is called 6 times:
      *
-     *     var squares = Sequence(1,2,3).map(x => x * x);
+     *     var squares = Sequence.of(1,2,3).map(x => x * x);
      *     squares.join() + squares.join();
      *
      * If you know a derived sequence will be used multiple times, it may be more
      * efficient to first cache it. Here, map is called 3 times:
      *
-     *     var squares = Sequence(1,2,3).map(x => x * x).cacheResult();
+     *     var squares = Sequence.of(1,2,3).map(x => x * x).cacheResult();
      *     squares.join() + squares.join();
      *
      * Use this method judiciously, as it must fully evaluate a lazy Sequence.
