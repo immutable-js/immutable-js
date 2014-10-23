@@ -1383,13 +1383,11 @@ class FromEntriesSequence extends LazyKeyedSequence {
   }
 
   __iterate(fn, reverse) {
-    // Check if entry exists first so array access doesn't throw for holes
-    // in the parent iteration.
     return this._seq.__iterate(entry => {
+      // Check if entry exists first so array access doesn't throw for holes
+      // in the parent iteration.
       if (entry) {
-        if (entry !== Object(entry)) {
-          throw new TypeError('Expected values to be [K, V] entries.');
-        }
+        validateEntry(entry);
         return fn(entry[1], entry[0], this);
       }
     }, reverse);
@@ -1407,11 +1405,18 @@ class FromEntriesSequence extends LazyKeyedSequence {
         // Check if entry exists first so array access doesn't throw for holes
         // in the parent iteration.
         if (entry) {
+          validateEntry(entry);
           return type === ITERATE_ENTRIES ? step :
             iteratorValue(type, entry[0], entry[1], step);
         }
       }
     });
+  }
+}
+
+function validateEntry(entry) {
+  if (entry !== Object(entry)) {
+    throw new TypeError('Expected values to be [K, V] entries.');
   }
 }
 

@@ -1286,9 +1286,7 @@ var FromEntriesSequence = function FromEntriesSequence(entriesSeq) {
     var $__0 = this;
     return this._seq.__iterate((function(entry) {
       if (entry) {
-        if (entry !== Object(entry)) {
-          throw new TypeError('Expected values to be [K, V] entries.');
-        }
+        validateEntry(entry);
         return fn(entry[1], entry[0], $__0);
       }
     }), reverse);
@@ -1303,12 +1301,18 @@ var FromEntriesSequence = function FromEntriesSequence(entriesSeq) {
         }
         var entry = step.value;
         if (entry) {
+          validateEntry(entry);
           return type === ITERATE_ENTRIES ? step : iteratorValue(type, entry[0], entry[1], step);
         }
       }
     }));
   }
 }, {}, LazyKeyedSequence);
+function validateEntry(entry) {
+  if (entry !== Object(entry)) {
+    throw new TypeError('Expected values to be [K, V] entries.');
+  }
+}
 function flipFactory(sequence) {
   var flipSequence = sequence.__makeSequence();
   flipSequence.size = sequence.size;
