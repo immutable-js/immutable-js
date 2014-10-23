@@ -87,6 +87,12 @@ class Sequence {
     return new ToSetSequence(this, true);
   }
 
+  toSeq() {
+    return isIndexed(this) ? this.toIndexedSeq() :
+      isKeyed(this) ? this.toKeyedSeq() :
+      this.toSetSeq();
+  }
+
   toStack() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);

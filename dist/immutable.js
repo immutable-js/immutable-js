@@ -292,6 +292,9 @@ var $Sequence = Sequence;
   toSetSeq: function() {
     return new ToSetSequence(this, true);
   },
+  toSeq: function() {
+    return isIndexed(this) ? this.toIndexedSeq() : isKeyed(this) ? this.toKeyedSeq() : this.toSetSeq();
+  },
   toStack: function() {
     assertNotInfinite(this.size);
     return Stack.from(this);

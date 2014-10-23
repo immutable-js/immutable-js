@@ -276,6 +276,12 @@ declare module 'immutable' {
     toSetSeq(): SetSequence<V>;
 
     /**
+     * Converts this sequence to a lazy sequence of the same kind (indexed,
+     * keyed, or set).
+     */
+    toSeq(): Sequence<K, V>;
+
+    /**
      * Converts this sequence to a Stack, discarding keys. Throws if values
      * are not hashable.
      *
@@ -894,6 +900,13 @@ declare module 'immutable' {
 
 
   export interface KeyedSequence<K, V> extends Sequence<K, V> {
+
+    /**
+     * Returns KeyedSequence.
+     * @override
+     */
+    toSeq(): KeyedSequence<K, V>;
+
     // TODO: All sequence methods return KeyedSequence here.
   }
 
@@ -949,6 +962,13 @@ declare module 'immutable' {
 
 
   export interface SetSequence<T> extends Sequence<T, T> {
+
+    /**
+     * Returns SetSequence.
+     * @override
+     */
+    toSeq(): SetSequence<T>;
+
     // TODO: All sequence methods return SetSequence here.
   }
 
@@ -1007,6 +1027,12 @@ declare module 'immutable' {
 
 
   export interface IndexedSequence<T> extends Sequence<number, T> {
+
+    /**
+     * Returns IndexedSequence.
+     * @override
+     */
+    toSeq(): IndexedSequence<T>;
 
     // ### ES6 Sequence methods (ES6 Array and Map)
 
