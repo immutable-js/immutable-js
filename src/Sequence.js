@@ -597,6 +597,20 @@ SequencePrototype.chain = SequencePrototype.flatMap;
 
 class KeyedSequence extends Sequence {
 
+  constructor(seqable) {
+    var seq = Sequence.apply(this, arguments);
+    return isKeyed(seq) ? seq : seq.fromEntrySeq();
+  }
+
+  static empty() {
+    return KeyedSequence(emptySequence());
+  }
+
+  static from(seqable/*[, mapFn[, context]]*/) {
+    return KeyedSequence(sequenceFrom.apply(this, arguments));
+  }
+
+
   // ### Internal
 
   __makeSequence() {
@@ -613,6 +627,19 @@ KeyedSequencePrototype.__toStringMapper = (v, k) => k + ': ' + quoteString(v);
 
 
 class SetSequence extends Sequence {
+
+  constructor(seqable) {
+    return Sequence.apply(this, arguments).toSetSeq();
+  }
+
+  static empty() {
+    return SetSequence(emptySequence());
+  }
+
+  static from(seqable/*[, mapFn[, context]]*/) {
+    return SetSequence(sequenceFrom.apply(this, arguments));
+  }
+
 
   // ### ES6 Sequence methods (ES6 Array and Map)
 
@@ -645,6 +672,19 @@ SetSequencePrototype.has = SequencePrototype.contains;
 
 
 class IndexedSequence extends Sequence {
+
+  constructor(seqable) {
+    return Sequence.apply(this, arguments).toIndexedSeq();
+  }
+
+  static empty() {
+    return IndexedSequence(emptySequence());
+  }
+
+  static from(seqable/*[, mapFn[, context]]*/) {
+    return IndexedSequence(sequenceFrom.apply(this, arguments));
+  }
+
 
   // ### Conversion to other types
 
@@ -863,59 +903,54 @@ function LazySequence(value) {
 
 class LazyKeyedSequence extends KeyedSequence {
   constructor(seqable) {
-    return isKeyed(seqable) ? seqable : LazyKeyedSequence.from(seqable);
-  }
-
-  static empty() {
-    return emptySequence().toKeyedSeq();
+    return KeyedSequence.apply(this, arguments).toSeq();
   }
 
   static from(seqable/*[, mapFn[, context]]*/) {
-    var seq = sequenceFrom.apply(this, arguments);
-    return isKeyed(seq) ? seq : seq.fromEntrySeq();
+    return LazyKeyedSequence(sequenceFrom.apply(this, arguments));
   }
 
   toKeyedSeq() {
+    return this;
+  }
+
+  toSeq() {
     return this;
   }
 }
 
 class LazySetSequence extends SetSequence {
   constructor(seqable) {
-    return isSequence(seqable) && !isAssociative(seqable) ?
-      seqable :
-      LazySetSequence.from(seqable);
-  }
-
-  static empty() {
-    return emptySequence().toSetSeq();
+    return SetSequence.apply(this, arguments).toSeq();
   }
 
   static from(seqable/*[, mapFn[, context]]*/) {
-    var seq = sequenceFrom.apply(this, arguments);
-    return !isAssociative(seq) ? seq : seq.toSetSeq();
+    return LazySetSequence(sequenceFrom.apply(this, arguments));
   }
 
   toSetSeq() {
+    return this;
+  }
+
+  toSeq() {
     return this;
   }
 }
 
 class LazyIndexedSequence extends IndexedSequence {
   constructor(seqable) {
-    return isIndexed(seqable) ? seqable : LazyIndexedSequence.from(seqable);
-  }
-
-  static empty() {
-    return emptySequence().toIndexedSeq();
+    return IndexedSequence.apply(this, arguments).toSeq();
   }
 
   static from(seqable/*[, mapFn[, context]]*/) {
-    var seq = sequenceFrom.apply(this, arguments);
-    return isIndexed(seq) ? seq : seq.toIndexedSeq();
+    return LazyIndexedSequence(sequenceFrom.apply(this, arguments));
   }
 
   toIndexedSeq() {
+    return this;
+  }
+
+  toSeq() {
     return this;
   }
 }
