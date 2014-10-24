@@ -167,9 +167,9 @@ class Stack extends IndexedCollection {
 
   // @pragma Iteration
 
-  __iterateUncached(fn, reverse) {
+  __iterate(fn, reverse) {
     if (reverse) {
-      return this.cacheResult().__iterate(fn, reverse);
+      return this.toSeq().cacheResult.__iterate(fn, reverse);
     }
     var iterations = 0;
     var node = this._head;
@@ -182,9 +182,9 @@ class Stack extends IndexedCollection {
     return iterations;
   }
 
-  __iteratorUncached(type, reverse) {
+  __iterator(type, reverse) {
     if (reverse) {
-      return this.cacheResult().__iterator(type, reverse);
+      return this.toSeq().cacheResult().__iterator(type, reverse);
     }
     var iterations = 0;
     var node = this._head;

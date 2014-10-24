@@ -750,28 +750,6 @@ declare module 'immutable' {
      * discarding keys.
      */
     valueSeq(): LazyIndexedSequence<V>;
-
-
-    // ### LazySequence methods
-
-    /**
-     * Because Sequences are lazy and designed to be chained together, they do
-     * not cache their results. For example, this map function is called 6 times:
-     *
-     *     var squares = LazySequence.of(1,2,3).map(x => x * x);
-     *     squares.join() + squares.join();
-     *
-     * If you know a derived sequence will be used multiple times, it may be more
-     * efficient to first cache it. Here, map is called 3 times:
-     *
-     *     var squares = LazySequence.of(1,2,3).map(x => x * x).cacheResult();
-     *     squares.join() + squares.join();
-     *
-     * Use this method judiciously, as it must fully evaluate a LazySequence.
-     *
-     * Note: after calling `cacheResult()`, a LazySequence will always have a size.
-     */
-    cacheResult(): LazySequence<K, V>;
   }
 
 
@@ -1328,15 +1306,6 @@ declare module 'immutable' {
       predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
       context?: any
     ): IndexedIterable<T>;
-
-
-    // ### LazySequence methods
-
-    /**
-     * Returns an LazyIndexedSequence
-     * @override
-     */
-    cacheResult(): LazyIndexedSequence<T>;
   }
 
 
@@ -1442,7 +1411,25 @@ declare module 'immutable' {
   export function LazySequence<V>(value: V): LazyIndexedSequence<V>;
 
   export interface LazySequence<K, V> extends Iterable<K, V> {
-    //
+
+    /**
+     * Because Sequences are lazy and designed to be chained together, they do
+     * not cache their results. For example, this map function is called 6 times:
+     *
+     *     var squares = LazySequence.of(1,2,3).map(x => x * x);
+     *     squares.join() + squares.join();
+     *
+     * If you know a derived sequence will be used multiple times, it may be more
+     * efficient to first cache it. Here, map is called 3 times:
+     *
+     *     var squares = LazySequence.of(1,2,3).map(x => x * x).cacheResult();
+     *     squares.join() + squares.join();
+     *
+     * Use this method judiciously, as it must fully evaluate a LazySequence.
+     *
+     * Note: after calling `cacheResult()`, a LazySequence will always have a size.
+     */
+    cacheResult(): /*this*/LazySequence<K, V>;
   }
 
 
@@ -1472,6 +1459,7 @@ declare module 'immutable' {
 
   export interface LazyKeyedSequence<K, V> extends /*LazySequence<K, V>,*/ KeyedIterable<K, V> {
     //
+    cacheResult(): /*this*/LazyKeyedSequence<K, V>;
   }
 
 
@@ -1504,6 +1492,7 @@ declare module 'immutable' {
 
   export interface LazySetSequence<T> extends /*LazySequence<T, T>,*/ SetIterable<T> {
     //
+    cacheResult(): /*this*/LazySetSequence<T>;
   }
 
 
@@ -1536,6 +1525,7 @@ declare module 'immutable' {
 
   export interface LazyIndexedSequence<T> extends /*LazySequence<number, T>,*/ IndexedIterable<T> {
     //
+    cacheResult(): /*this*/LazyIndexedSequence<T>;
   }
 
 

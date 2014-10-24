@@ -217,7 +217,7 @@ class Iterable {
     // this iterable's size is unknown. In that case, cache first so there is
     // a known size.
     if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd) {
-      return this.cacheResult().slice(begin, end);
+      return this.toSeq().cacheResult().slice(begin, end);
     }
     var skipped = resolvedBegin === 0 ? this : this.skip(resolvedBegin);
     return reify(
@@ -480,20 +480,6 @@ class Iterable {
 
   valueSeq() {
     return this.toIndexedSeq();
-  }
-
-
-  // ### LazySequence methods
-
-  cacheResult() {
-    if (!this._cache && this.__iterateUncached) {
-      assertNotInfinite(this.size);
-      this._cache = this.entrySeq().toArray();
-      if (this.size == null) {
-        this.size = this._cache.length;
-      }
-    }
-    return this;
   }
 
 
@@ -972,6 +958,20 @@ LazySetSequence.of =
 LazyIndexedSequence.of = function(/*...values*/) {
   return this.from(arguments);
 };
+
+LazyKeyedSequence.prototype.cacheResult =
+LazySetSequence.prototype.cacheResult =
+LazyIndexedSequence.prototype.cacheResult = function() {
+  if (!this._cache && this.__iterateUncached) {
+    assertNotInfinite(this.size);
+    this._cache = this.entrySeq().toArray();
+    if (this.size == null) {
+      this.size = this._cache.length;
+    }
+  }
+  return this;
+}
+
 
 LazySequence.empty = emptySequence;
 LazySequence.isLazy = isLazy;

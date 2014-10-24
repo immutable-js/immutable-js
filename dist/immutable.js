@@ -400,7 +400,7 @@ var $Iterable = Iterable;
     var resolvedBegin = resolveBegin(begin, this.size);
     var resolvedEnd = resolveEnd(end, this.size);
     if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd) {
-      return this.cacheResult().slice(begin, end);
+      return this.toSeq().cacheResult().slice(begin, end);
     }
     var skipped = resolvedBegin === 0 ? this : this.skip(resolvedBegin);
     return reify(this, resolvedEnd == null || resolvedEnd === this.size ? skipped : skipped.take(resolvedEnd - resolvedBegin));
@@ -609,16 +609,6 @@ var $Iterable = Iterable;
   },
   valueSeq: function() {
     return this.toIndexedSeq();
-  },
-  cacheResult: function() {
-    if (!this._cache && this.__iterateUncached) {
-      assertNotInfinite(this.size);
-      this._cache = this.entrySeq().toArray();
-      if (this.size == null) {
-        this.size = this._cache.length;
-      }
-    }
-    return this;
   },
   hashCode: function() {
     return this.__hash || (this.__hash = this.size === Infinity ? 0 : this.reduce((function(h, v, k) {
@@ -936,6 +926,16 @@ LazySequence.from = function(value) {
 };
 LazySequence.of = LazyKeyedSequence.of = LazySetSequence.of = LazyIndexedSequence.of = function() {
   return this.from(arguments);
+};
+LazyKeyedSequence.prototype.cacheResult = LazySetSequence.prototype.cacheResult = LazyIndexedSequence.prototype.cacheResult = function() {
+  if (!this._cache && this.__iterateUncached) {
+    assertNotInfinite(this.size);
+    this._cache = this.entrySeq().toArray();
+    if (this.size == null) {
+      this.size = this._cache.length;
+    }
+  }
+  return this;
 };
 LazySequence.empty = emptySequence;
 LazySequence.isLazy = isLazy;
@@ -2989,9 +2989,9 @@ var $Stack = Stack;
     }
     return makeStack(this.size, this._head, ownerID, this.__hash);
   },
-  __iterateUncached: function(fn, reverse) {
+  __iterate: function(fn, reverse) {
     if (reverse) {
-      return this.cacheResult().__iterate(fn, reverse);
+      return this.toSeq().cacheResult.__iterate(fn, reverse);
     }
     var iterations = 0;
     var node = this._head;
@@ -3003,9 +3003,9 @@ var $Stack = Stack;
     }
     return iterations;
   },
-  __iteratorUncached: function(type, reverse) {
+  __iterator: function(type, reverse) {
     if (reverse) {
-      return this.cacheResult().__iterator(type, reverse);
+      return this.toSeq().cacheResult().__iterator(type, reverse);
     }
     var iterations = 0;
     var node = this._head;
