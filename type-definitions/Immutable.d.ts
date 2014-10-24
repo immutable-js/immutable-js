@@ -1412,6 +1412,89 @@ declare module 'immutable' {
 
 
   /**
+   * Lazy Sequence
+   * -------------
+   *
+   *
+   */
+
+  export module LazySequence {
+
+    /**
+     * `LazySequence.empty()` returns a Lazy Sequence of no values.
+     */
+    function empty<K, V>(): Sequence<K, V>;
+
+    /**
+     * `Immutable.LazySequence.from()` returns a particular kind of Sequence based
+     * on the input.
+     *
+     *   * If a `LazySequence`, that same `LazySequence`.
+     *   * If a `Sequence`, a `LazySequence` of the same kind.
+     *   * If an Array, an `LazyIndexedSequence`.
+     *   * If an Iterable, an `LazyIndexedSequence`.
+     *   * If an Iterator, an `LazyIndexedSequence`.
+     *   * If a plain Object, a `LazyKeyedSequence`.
+     *
+     */
+    function from<K, V>(seq: Sequence<K, V>): Sequence<K, V>;
+    function from<T>(array: Array<T>): IndexedSequence<T>;
+    function from<V>(obj: {[key: string]: V}): Sequence<string, V>;
+    function from<T>(iterator: Iterator<T>): IndexedSequence<T>;
+    function from<T>(iterable: /*Iterable<T>*/Object): IndexedSequence<T>;
+
+    /**
+     * Provides a Lazy Indexed Sequence of the values provided.
+     */
+    function of<T>(...values: T[]): IndexedSequence<T>;
+
+    /**
+     * True if `maybeLazy` is a lazy Sequence, it is not backed by a concrete
+     * structure such as Map, Vector, or Set.
+     */
+    function isLazy(maybeLazy): boolean;
+
+  }
+
+  /**
+   * Like `Immutable.LazySequence.from()`, `Immutable.LazySequence()` returns a
+   * lazy sequence from a sequenceable, but also accepts a non-sequenceable value
+   * which becomes a Sequence of that one value, or 0 arguments to create an
+   * empty Sequence.
+   *
+   * This method is useful when converting from an any arbitrary value to a
+   * Sequence but changes the behavior for JS objects. Only plain Objects
+   * (e.g. created as `{}`) will be converted to Sequences. If you want to
+   * ensure that a Sequence of one item is returned, use `Sequence.of`, if you
+   * want to force a conversion of objects to Sequences, use `Sequence.from`.
+   */
+  export function LazySequence<K, V>(seq: Sequence<K, V>): LazySequence<K, V>;
+  export function LazySequence<T>(array: Array<T>): LazyIndexedSequence<T>;
+  export function LazySequence<V>(obj: {[key: string]: V}): LazySequence<string, V>;
+  export function LazySequence<T>(iterator: Iterator<T>): LazyIndexedSequence<T>;
+  export function LazySequence<T>(iterable: /*Iterable<T>*/Object): LazyIndexedSequence<T>;
+  export function LazySequence<V>(value: V): LazyIndexedSequence<V>;
+  export function LazySequence<K, V>(): LazySequence<K, V>;
+
+
+  export interface LazySequence<K, V>/* extends Sequence<K, V>*/ {
+    //
+  }
+
+  export interface LazyKeyedSequence<K, V> extends LazySequence<K, V>, KeyedSequence<K, V> {
+    //
+  }
+
+  export interface LazySetSequence<T> extends LazySequence<T, T>, SetSequence<T> {
+    //
+  }
+
+  export interface LazyIndexedSequence<T> extends LazySequence<number, T>, IndexedSequence<T> {
+    //
+  }
+
+
+  /**
    * Range
    * -----
    *
@@ -1427,7 +1510,7 @@ declare module 'immutable' {
    *     Range(30,30,5) // []
    *
    */
-  export function Range(start?: number, end?: number, step?: number): IndexedSequence<number>;
+  export function Range(start?: number, end?: number, step?: number): LazyIndexedSequence<number>;
 
 
   /**
@@ -1441,7 +1524,7 @@ declare module 'immutable' {
    *     Repeat('bar',4) // ['bar','bar','bar','bar']
    *
    */
-  export function Repeat<T>(value: T, times?: number): IndexedSequence<T>;
+  export function Repeat<T>(value: T, times?: number): LazyIndexedSequence<T>;
 
 
   /**
