@@ -22,18 +22,21 @@ import "Iterator"
           ITERATOR_SYMBOL, ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES */
 /* exported Sequence,
             isSequence, isLazy, isKeyed, isIndexed, isAssociative
-            LazyKeyedSequence, LazySetSequence, LazyIndexedSequence,
+            LazySequence, LazyKeyedSequence, LazySetSequence, LazyIndexedSequence,
             KeyedCollection, IndexedCollection, SetCollection */
 
 class Sequence {
 
   constructor(value) {
     return arguments.length === 0 ?
-      Sequence.empty() :
-      seqFromValue(value, true);
+      emptySequence() :
+      isSequence(value) ? value : seqFromValue(value, true);
   }
 
-  // Statics are added after subclasses are constructed.
+  static of(/*...values*/) {
+    return this.from(arguments);
+  }
+
 
   // ### Conversion to other types
 
@@ -551,7 +554,9 @@ class Sequence {
 var IS_SEQUENCE_SENTINEL = '@@__IMMUTABLE_SEQUENCE__@@';
 var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
 var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
-var IS_LAZY_SENTINEL = '@@__IMMUTABLE_LAZY__@@';
+
+Sequence.empty = emptySequence;
+Sequence.from = sequenceFrom;
 
 var SequencePrototype = Sequence.prototype;
 SequencePrototype[IS_SEQUENCE_SENTINEL] = true;
@@ -805,9 +810,64 @@ IndexedSequencePrototype[IS_INDEXED_SENTINEL] = true;
 
 
 
+// #pragma Sequence static methods
+
+function isSequence(maybeSequence) {
+  return !!(maybeSequence && maybeSequence[IS_SEQUENCE_SENTINEL]);
+}
+
+function isKeyed(maybeKeyed) {
+  return !!(maybeKeyed && maybeKeyed[IS_KEYED_SENTINEL]);
+}
+
+function isIndexed(maybeIndexed) {
+  return !!(maybeIndexed && maybeIndexed[IS_INDEXED_SENTINEL]);
+}
+
+function isAssociative(maybeAssociative) {
+  return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
+}
+
+var EMPTY_SEQ;
+
+function emptySequence() {
+  return EMPTY_SEQ || (EMPTY_SEQ = new ArraySequence([]));
+}
+
+function sequenceFrom(seqLike/*[, mapFn[, context]]*/) {
+  var seq = isSequence(seqLike) ? seqLike : seqFromValue(seqLike, false);
+  if (arguments.length > 1) {
+    seq = seq.map(
+      arguments[1],
+      arguments.length > 2 ? arguments[2] : undefined
+    );
+  }
+  return seq;
+}
+
+Sequence.isSequence = isSequence;
+Sequence.isKeyed = isKeyed;
+Sequence.isIndexed = isIndexed;
+Sequence.isAssociative = isAssociative;
+Sequence.Keyed = KeyedSequence;
+Sequence.Set = SetSequence;
+Sequence.Indexed = IndexedSequence;
+
+
+
+// #pragma Lazy Sequence
+
+function LazySequence(value) {
+  return Sequence.apply(this, arguments).toSeq();
+}
+
 class LazyKeyedSequence extends KeyedSequence {
   constructor(seqable) {
     return isKeyed(seqable) ? seqable : LazyKeyedSequence.from(seqable);
+  }
+
+  static empty() {
+    return emptySequence().toKeyedSeq();
   }
 
   static from(seqable/*[, mapFn[, context]]*/) {
@@ -827,6 +887,10 @@ class LazySetSequence extends SetSequence {
       LazySetSequence.from(seqable);
   }
 
+  static empty() {
+    return emptySequence().toSetSeq();
+  }
+
   static from(seqable/*[, mapFn[, context]]*/) {
     var seq = sequenceFrom.apply(this, arguments);
     return !isAssociative(seq) ? seq : seq.toSetSeq();
@@ -842,6 +906,10 @@ class LazyIndexedSequence extends IndexedSequence {
     return isIndexed(seqable) ? seqable : LazyIndexedSequence.from(seqable);
   }
 
+  static empty() {
+    return emptySequence().toIndexedSeq();
+  }
+
   static from(seqable/*[, mapFn[, context]]*/) {
     var seq = sequenceFrom.apply(this, arguments);
     return isIndexed(seq) ? seq : seq.toIndexedSeq();
@@ -852,15 +920,33 @@ class LazyIndexedSequence extends IndexedSequence {
   }
 }
 
+LazySequence.of = Sequence.of;
+LazySequence.isLazy = isLazy;
+LazySequence.Keyed = LazyKeyedSequence;
+LazySequence.Set = LazySetSequence;
+LazySequence.Indexed = LazyIndexedSequence;
+
+var IS_LAZY_SENTINEL = '@@__IMMUTABLE_LAZY__@@';
+
 LazyKeyedSequence.prototype[IS_LAZY_SENTINEL] =
   LazySetSequence.prototype[IS_LAZY_SENTINEL] =
   LazyIndexedSequence.prototype[IS_LAZY_SENTINEL] = true;
 
+function isLazy(maybeLazy) {
+  return !!(maybeLazy && maybeLazy[IS_LAZY_SENTINEL]);
+}
 
+
+
+// #pragma Collections
 
 class KeyedCollection extends KeyedSequence {
   constructor() {
     throw TypeError('Abstract');
+  }
+
+  static empty() {
+    return this(emptySequence());
   }
 
   static from(seqable/*[, mapFn[, context]]*/) {
@@ -873,6 +959,10 @@ class SetCollection extends SetSequence {
     throw TypeError('Abstract');
   }
 
+  static empty() {
+    return this(emptySequence());
+  }
+
   static from(seqable/*[, mapFn[, context]]*/) {
     return this(LazySetSequence.from.apply(this, arguments));
   }
@@ -883,65 +973,13 @@ class IndexedCollection extends IndexedSequence {
     throw TypeError('Abstract');
   }
 
+  static empty() {
+    return this(emptySequence());
+  }
+
   static from(seqable/*[, mapFn[, context]]*/) {
     return this(LazyIndexedSequence.from.apply(this, arguments));
   }
-}
-
-
-
-// #pragma Sequence static methods
-
-function isSequence(maybeSequence) {
-  return !!(maybeSequence && maybeSequence[IS_SEQUENCE_SENTINEL]);
-}
-
-function isLazy(maybeLazy) {
-  return !!(maybeLazy && maybeLazy[IS_LAZY_SENTINEL]);
-}
-
-function isKeyed(maybeKeyed) {
-  return !!(maybeKeyed && maybeKeyed[IS_KEYED_SENTINEL]);
-}
-
-function isIndexed(maybeIndexed) {
-  return !!(maybeIndexed && maybeIndexed[IS_INDEXED_SENTINEL]);
-}
-
-function isAssociative(maybeAssociative) {
-  return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
-}
-
-var EMPTY_SEQ;
-
-function emptySequence() {
-  return this(EMPTY_SEQ || (EMPTY_SEQ = new ArraySequence([])));
-}
-
-function sequenceFrom(seqLike/*[, mapFn[, context]]*/) {
-  var seq = seqFromValue(seqLike, false);
-  if (arguments.length > 1) {
-    seq = seq.map(
-      arguments[1],
-      arguments.length > 2 ? arguments[2] : undefined
-    );
-  }
-  return seq;
-}
-
-Sequence.isSequence = isSequence;
-Sequence.isLazy = isLazy;
-Sequence.isKeyed = isKeyed;
-Sequence.isIndexed = isIndexed;
-Sequence.isAssociative = isAssociative;
-Sequence.empty = emptySequence;
-Sequence.from = sequenceFrom;
-Sequence.of =
-LazySetSequence.of =
-SetCollection.of =
-LazyIndexedSequence.of =
-IndexedCollection.of = function(/*...values*/) {
-  return this.from(arguments);
 }
 
 
@@ -1130,7 +1168,6 @@ function eager(kind, seq) {
 
 function seqFromValue(value, maybeSingleton) {
   var seq =
-    isSequence(value) ? value :
     maybeSingleton && typeof value === 'string' ? new ArraySequence([value]) :
     isArrayLike(value) ? new ArraySequence(value) :
     isIterator(value) ? new IteratorSequence(value) :

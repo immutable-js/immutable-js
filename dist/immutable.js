@@ -246,7 +246,7 @@ function _iteratorFn(iterable) {
   }
 }
 var Sequence = function Sequence(value) {
-  return arguments.length === 0 ? $Sequence.empty() : seqFromValue(value, true);
+  return arguments.length === 0 ? emptySequence() : isSequence(value) ? value : seqFromValue(value, true);
 };
 var $Sequence = Sequence;
 ($traceurRuntime.createClass)(Sequence, {
@@ -646,11 +646,14 @@ var $Sequence = Sequence;
   __iterator: function(type, reverse) {
     return iterator(this, type, reverse, true);
   }
-}, {});
+}, {of: function() {
+    return this.from(arguments);
+  }});
 var IS_SEQUENCE_SENTINEL = '@@__IMMUTABLE_SEQUENCE__@@';
 var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
 var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
-var IS_LAZY_SENTINEL = '@@__IMMUTABLE_LAZY__@@';
+Sequence.empty = emptySequence;
+Sequence.from = sequenceFrom;
 var SequencePrototype = Sequence.prototype;
 SequencePrototype[IS_SEQUENCE_SENTINEL] = true;
 SequencePrototype[ITERATOR_SYMBOL] = SequencePrototype.values;
@@ -831,60 +834,8 @@ var $IndexedSequence = IndexedSequence;
 }, {}, Sequence);
 var IndexedSequencePrototype = IndexedSequence.prototype;
 IndexedSequencePrototype[IS_INDEXED_SENTINEL] = true;
-var LazyKeyedSequence = function LazyKeyedSequence(seqable) {
-  return isKeyed(seqable) ? seqable : $LazyKeyedSequence.from(seqable);
-};
-var $LazyKeyedSequence = LazyKeyedSequence;
-($traceurRuntime.createClass)(LazyKeyedSequence, {toKeyedSeq: function() {
-    return this;
-  }}, {from: function(seqable) {
-    var seq = sequenceFrom.apply(this, arguments);
-    return isKeyed(seq) ? seq : seq.fromEntrySeq();
-  }}, KeyedSequence);
-var LazySetSequence = function LazySetSequence(seqable) {
-  return isSequence(seqable) && !isAssociative(seqable) ? seqable : $LazySetSequence.from(seqable);
-};
-var $LazySetSequence = LazySetSequence;
-($traceurRuntime.createClass)(LazySetSequence, {toSetSeq: function() {
-    return this;
-  }}, {from: function(seqable) {
-    var seq = sequenceFrom.apply(this, arguments);
-    return !isAssociative(seq) ? seq : seq.toSetSeq();
-  }}, SetSequence);
-var LazyIndexedSequence = function LazyIndexedSequence(seqable) {
-  return isIndexed(seqable) ? seqable : $LazyIndexedSequence.from(seqable);
-};
-var $LazyIndexedSequence = LazyIndexedSequence;
-($traceurRuntime.createClass)(LazyIndexedSequence, {toIndexedSeq: function() {
-    return this;
-  }}, {from: function(seqable) {
-    var seq = sequenceFrom.apply(this, arguments);
-    return isIndexed(seq) ? seq : seq.toIndexedSeq();
-  }}, IndexedSequence);
-LazyKeyedSequence.prototype[IS_LAZY_SENTINEL] = LazySetSequence.prototype[IS_LAZY_SENTINEL] = LazyIndexedSequence.prototype[IS_LAZY_SENTINEL] = true;
-var KeyedCollection = function KeyedCollection() {
-  throw TypeError('Abstract');
-};
-($traceurRuntime.createClass)(KeyedCollection, {}, {from: function(seqable) {
-    return this(LazyKeyedSequence.from.apply(this, arguments));
-  }}, KeyedSequence);
-var SetCollection = function SetCollection() {
-  throw TypeError('Abstract');
-};
-($traceurRuntime.createClass)(SetCollection, {}, {from: function(seqable) {
-    return this(LazySetSequence.from.apply(this, arguments));
-  }}, SetSequence);
-var IndexedCollection = function IndexedCollection() {
-  throw TypeError('Abstract');
-};
-($traceurRuntime.createClass)(IndexedCollection, {}, {from: function(seqable) {
-    return this(LazyIndexedSequence.from.apply(this, arguments));
-  }}, IndexedSequence);
 function isSequence(maybeSequence) {
   return !!(maybeSequence && maybeSequence[IS_SEQUENCE_SENTINEL]);
-}
-function isLazy(maybeLazy) {
-  return !!(maybeLazy && maybeLazy[IS_LAZY_SENTINEL]);
 }
 function isKeyed(maybeKeyed) {
   return !!(maybeKeyed && maybeKeyed[IS_KEYED_SENTINEL]);
@@ -897,25 +848,113 @@ function isAssociative(maybeAssociative) {
 }
 var EMPTY_SEQ;
 function emptySequence() {
-  return this(EMPTY_SEQ || (EMPTY_SEQ = new ArraySequence([])));
+  return EMPTY_SEQ || (EMPTY_SEQ = new ArraySequence([]));
 }
 function sequenceFrom(seqLike) {
-  var seq = seqFromValue(seqLike, false);
+  var seq = isSequence(seqLike) ? seqLike : seqFromValue(seqLike, false);
   if (arguments.length > 1) {
     seq = seq.map(arguments[1], arguments.length > 2 ? arguments[2] : undefined);
   }
   return seq;
 }
 Sequence.isSequence = isSequence;
-Sequence.isLazy = isLazy;
 Sequence.isKeyed = isKeyed;
 Sequence.isIndexed = isIndexed;
 Sequence.isAssociative = isAssociative;
-Sequence.empty = emptySequence;
-Sequence.from = sequenceFrom;
-Sequence.of = LazySetSequence.of = SetCollection.of = LazyIndexedSequence.of = IndexedCollection.of = function() {
-  return this.from(arguments);
+Sequence.Keyed = KeyedSequence;
+Sequence.Set = SetSequence;
+Sequence.Indexed = IndexedSequence;
+function LazySequence(value) {
+  return Sequence.apply(this, arguments).toSeq();
+}
+var LazyKeyedSequence = function LazyKeyedSequence(seqable) {
+  return isKeyed(seqable) ? seqable : $LazyKeyedSequence.from(seqable);
 };
+var $LazyKeyedSequence = LazyKeyedSequence;
+($traceurRuntime.createClass)(LazyKeyedSequence, {toKeyedSeq: function() {
+    return this;
+  }}, {
+  empty: function() {
+    return emptySequence().toKeyedSeq();
+  },
+  from: function(seqable) {
+    var seq = sequenceFrom.apply(this, arguments);
+    return isKeyed(seq) ? seq : seq.fromEntrySeq();
+  }
+}, KeyedSequence);
+var LazySetSequence = function LazySetSequence(seqable) {
+  return isSequence(seqable) && !isAssociative(seqable) ? seqable : $LazySetSequence.from(seqable);
+};
+var $LazySetSequence = LazySetSequence;
+($traceurRuntime.createClass)(LazySetSequence, {toSetSeq: function() {
+    return this;
+  }}, {
+  empty: function() {
+    return emptySequence().toSetSeq();
+  },
+  from: function(seqable) {
+    var seq = sequenceFrom.apply(this, arguments);
+    return !isAssociative(seq) ? seq : seq.toSetSeq();
+  }
+}, SetSequence);
+var LazyIndexedSequence = function LazyIndexedSequence(seqable) {
+  return isIndexed(seqable) ? seqable : $LazyIndexedSequence.from(seqable);
+};
+var $LazyIndexedSequence = LazyIndexedSequence;
+($traceurRuntime.createClass)(LazyIndexedSequence, {toIndexedSeq: function() {
+    return this;
+  }}, {
+  empty: function() {
+    return emptySequence().toIndexedSeq();
+  },
+  from: function(seqable) {
+    var seq = sequenceFrom.apply(this, arguments);
+    return isIndexed(seq) ? seq : seq.toIndexedSeq();
+  }
+}, IndexedSequence);
+LazySequence.of = Sequence.of;
+LazySequence.isLazy = isLazy;
+LazySequence.Keyed = LazyKeyedSequence;
+LazySequence.Set = LazySetSequence;
+LazySequence.Indexed = LazyIndexedSequence;
+var IS_LAZY_SENTINEL = '@@__IMMUTABLE_LAZY__@@';
+LazyKeyedSequence.prototype[IS_LAZY_SENTINEL] = LazySetSequence.prototype[IS_LAZY_SENTINEL] = LazyIndexedSequence.prototype[IS_LAZY_SENTINEL] = true;
+function isLazy(maybeLazy) {
+  return !!(maybeLazy && maybeLazy[IS_LAZY_SENTINEL]);
+}
+var KeyedCollection = function KeyedCollection() {
+  throw TypeError('Abstract');
+};
+($traceurRuntime.createClass)(KeyedCollection, {}, {
+  empty: function() {
+    return this(emptySequence());
+  },
+  from: function(seqable) {
+    return this(LazyKeyedSequence.from.apply(this, arguments));
+  }
+}, KeyedSequence);
+var SetCollection = function SetCollection() {
+  throw TypeError('Abstract');
+};
+($traceurRuntime.createClass)(SetCollection, {}, {
+  empty: function() {
+    return this(emptySequence());
+  },
+  from: function(seqable) {
+    return this(LazySetSequence.from.apply(this, arguments));
+  }
+}, SetSequence);
+var IndexedCollection = function IndexedCollection() {
+  throw TypeError('Abstract');
+};
+($traceurRuntime.createClass)(IndexedCollection, {}, {
+  empty: function() {
+    return this(emptySequence());
+  },
+  from: function(seqable) {
+    return this(LazyIndexedSequence.from.apply(this, arguments));
+  }
+}, IndexedSequence);
 var IteratorSequence = function IteratorSequence(iterator) {
   this._iterator = iterator;
   this._iteratorCache = [];
@@ -1072,7 +1111,7 @@ function eager(kind, seq) {
   return isLazy(kind) ? seq : kind.constructor.from(seq);
 }
 function seqFromValue(value, maybeSingleton) {
-  var seq = isSequence(value) ? value : maybeSingleton && typeof value === 'string' ? new ArraySequence([value]) : isArrayLike(value) ? new ArraySequence(value) : isIterator(value) ? new IteratorSequence(value) : isIterable(value) ? new IterableSequence(value) : (maybeSingleton ? isPlainObj(value) : typeof value === 'object') ? new ObjectSequence(value) : maybeSingleton ? new ArraySequence([value]) : null;
+  var seq = maybeSingleton && typeof value === 'string' ? new ArraySequence([value]) : isArrayLike(value) ? new ArraySequence(value) : isIterator(value) ? new IteratorSequence(value) : isIterable(value) ? new IterableSequence(value) : (maybeSingleton ? isPlainObj(value) : typeof value === 'object') ? new ObjectSequence(value) : maybeSingleton ? new ArraySequence([value]) : null;
   if (!seq) {
     throw new TypeError('from requires a sequenceable, not: ' + value);
   }
@@ -3652,9 +3691,7 @@ function updateCursor(cursor, changeFn, changeKey) {
 }
 var Immutable = {
   Sequence: Sequence,
-  KeyedSequence: KeyedSequence,
-  SetSequence: SetSequence,
-  IndexedSequence: IndexedSequence,
+  LazySequence: LazySequence,
   Map: Map,
   Vector: Vector,
   Stack: Stack,
