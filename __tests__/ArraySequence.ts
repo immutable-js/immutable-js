@@ -61,9 +61,9 @@ describe('ArraySequence', () => {
     expect(seq.take(2).toArray().length).toBe(2);
     expect(seq.take(5).toArray().length).toBe(5);
     expect(seq.filter(x => x%2==1).toArray().length).toBe(2);
-    expect(seq.flip().size).toBe(10);
-    expect(seq.flip().flip().size).toBe(10);
-    expect(seq.flip().flip().toArray().length).toBe(10);
+    expect(seq.toKeyedSeq().flip().size).toBe(10);
+    expect(seq.toKeyedSeq().flip().flip().size).toBe(10);
+    expect(seq.toKeyedSeq().flip().flip().toArray().length).toBe(10);
   });
 
   it('can be iterated', () => {

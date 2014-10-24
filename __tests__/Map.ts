@@ -188,7 +188,7 @@ describe('Map', () => {
 
   it('maps keys', () => {
     var m = Map({a:'a', b:'b', c:'c'});
-    var r = m.mapKeys(value => value.toUpperCase());
+    var r = m.mapKeys(key => key.toUpperCase());
     expect(r.toObject()).toEqual({A:'a', B:'b', C:'c'});
   });
 
@@ -252,7 +252,7 @@ describe('Map', () => {
   });
 
   check.it('has and get', {maxSize: 5000}, [gen.posInt], len => {
-    var map = Immutable.Range(0, len).mapKeys(x => ''+x).toMap();
+    var map = Immutable.Range(0, len).toKeyedSeq().mapKeys(x => ''+x).toMap();
     for (var ii = 0; ii < len; ii++) {
       expect(map.get(''+ii)).toBe(ii);
       expect(map.has(''+ii)).toBe(true);

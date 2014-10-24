@@ -270,11 +270,13 @@ declare module 'immutable' {
     // ### ES6 Collection methods (ES6 Array and Map)
 
     /**
-     * Returns a new sequence with other values and sequences concatenated to
-     * this one. All entries will be present in the resulting sequence, even if
-     * they have the same key.
+     * Returns a new Iterable of the same type with other values and
+     * iterable-like concatenated to this one.
+     *
+     * For LazySequences, all entries will be present in
+     * the resulting iterable, even if they have the same key.
      */
-    concat(...valuesOrSequences: any[]): Iterable<any, any>;
+    concat(...valuesOrSequences: any[]): /*this*/Iterable<any, any>;
 
     /**
      * True if a value exists within this Iterable.
@@ -290,27 +292,28 @@ declare module 'immutable' {
      * True if `predicate` returns true for all entries in the sequence.
      */
     every(
-      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): boolean;
 
     /**
-     * Returns a new sequence with only the entries for which the `predicate`
-     * function returns true.
+     * Returns a new Iterable of the same type with only the entries for which
+     * the `predicate` function returns true.
      *
-     *     Iterable({a:1,b:2,c:3,d:4}).filter(x => x % 2 === 0) // { b: 2, d: 4 }
+     *     LazySequence({a:1,b:2,c:3,d:4}).filter(x => x % 2 === 0)
+     *     // Seq { b: 2, d: 4 }
      *
      */
     filter(
-      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any
-    ): Iterable<K, V>;
+    ): /*this*/Iterable<K, V>;
 
     /**
      * Returns the value for which the `predicate` returns true.
      */
     find(
-      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any,
       notSetValue?: V
     ): V;
@@ -323,7 +326,7 @@ declare module 'immutable' {
      * (including the last iteration which returned false).
      */
     forEach(
-      sideEffect: (value?: V, key?: K, seq?: Iterable<K, V>) => any,
+      sideEffect: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => any,
       context?: any
     ): number;
 
@@ -339,18 +342,20 @@ declare module 'immutable' {
     keys(): Iterator<K>;
 
     /**
-     * Returns a new sequence with values passed through a `mapper` function.
+     * Returns a new Iterable of the same type with values passed through a
+     * `mapper` function.
      *
-     *     Iterable({ a: 1, b: 2 }).map(x => 10 * x) // { a: 10, b: 20 }
+     *     LazySequence({ a: 1, b: 2 }).map(x => 10 * x)
+     *     // Seq { a: 10, b: 20 }
      *
      */
     map<M>(
-      mapper: (value?: V, key?: K, seq?: Iterable<K, V>) => M,
+      mapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => M,
       context?: any
-    ): Iterable<K, M>;
+    ): /*this*/Iterable<K, M>;
 
     /**
-     * Reduces the sequence to a value by calling the `reducer` for every entry
+     * Reduces the Iterable to a value by calling the `reducer` for every entry
      * in the sequence and passing along the reduced value.
      *
      * If `initialReduction` is not provided, or is null, the first item in the
@@ -359,16 +364,16 @@ declare module 'immutable' {
      * @see `Array.prototype.reduce`.
      */
     reduce<R>(
-      reducer: (reduction?: R, value?: V, key?: K, seq?: Iterable<K, V>) => R,
+      reducer: (reduction?: R, value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => R,
       initialReduction?: R,
       context?: any
     ): R;
 
     /**
-     * Reduces the sequence in reverse (from the right side).
+     * Reduces the Iterable in reverse (from the right side).
      *
-     * Note: Equivalent to this.reverse().reduce(), but provided for parity
-     * with `Array.prototype.reduceRight`.
+     * Note: Similar to this.reverse().reduce(), and provided for parity
+     * with `Array#reduceRight`.
      */
     reduceRight<R>(
       reducer: (reduction?: R, value?: V, key?: K, seq?: Iterable<K, V>) => R,
@@ -377,13 +382,13 @@ declare module 'immutable' {
     ): R;
 
     /**
-     * Returns a new sequence which iterates in reverse order of this sequence.
+     * Returns a new Iterable of the same type in reverse order.
      */
-    reverse(): Iterable<K, V>;
+    reverse(): /*this*/Iterable<K, V>;
 
     /**
-     * Returns a new sequence representing a portion of this sequence from start
-     * up to but not including end.
+     * Returns a new Iterable of the same type representing a portion of this
+     * Iterable from start up to but not including end.
      *
      * If begin is negative, it is offset from the end of the sequence. e.g.
      * `slice(-2)` returns a sequence of the last two entries. If it is not
@@ -394,28 +399,24 @@ declare module 'immutable' {
      * is not provided, the new sequence will continue through the end of
      * this sequence.
      *
-     * If the requested slice is equivalent to the current Iterable, then it will
-     * return itself.
-     *
-     * Note: unlike `Array.prototype.slice`, this function is O(1) and copies
-     * no data. The resulting sequence is also lazy, and a copy is only made when
-     * it is converted such as via `toArray()` or `toVector()`.
+     * If the requested slice is equivalent to the current Iterable, then it
+     * will return itself.
      */
-    slice(begin?: number, end?: number): Iterable<K, V>;
+    slice(begin?: number, end?: number): /*this*/Iterable<K, V>;
 
     /**
      * True if `predicate` returns true for any entry in the sequence.
      */
     some(
-      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): boolean;
 
     /**
-     * Returns a new Iterable which contains the same [key, value] entries,
-     * (stable) sorted by using a comparator.
+     * Returns a new Iterable of the same type which contains the same entries,
+     * stably sorted by using a `comparator`.
      *
-     * If a comparator is not provided, a default comparator uses `a < b`.
+     * If a `comparator` is not provided, a default comparator uses `<` and `>`.
      *
      * `comparator(valueA, valueB)`:
      *
@@ -425,7 +426,7 @@ declare module 'immutable' {
      *   * Is pure, i.e. it must always return the same value for the same pair
      *     of values.
      */
-    sort(comparator?: (valueA: V, valueB: V) => number): Iterable<K, V>;
+    sort(comparator?: (valueA: V, valueB: V) => number): /*this*/Iterable<K, V>;
 
     /**
      * An iterator of this Map's values.
@@ -436,12 +437,13 @@ declare module 'immutable' {
     // ### More sequential methods
 
     /**
-     * Returns a new Iterable containing all entries except the last.
+     * Returns a new Iterable of the same type containing all entries except
+     * the last.
      */
-    butLast(): Iterable<K, V>;
+    butLast(): /*this*/Iterable<K, V>;
 
     /**
-     * Regardless of if this sequence can describe its size lazily, this method
+     * Regardless of if this Iterable can describe its size lazily, this method
      * will always return the correct size. E.g. it evaluates the full sequence
      * if necessary.
      *
@@ -450,18 +452,18 @@ declare module 'immutable' {
      */
     count(): number;
     count(
-      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): number;
 
     /**
-     * Returns a `Iterable` of counts, grouped by the return value of the
-     * `grouper` function.
+     * Returns a `LazyKeyedSequence` of counts, grouped by the return value of
+     * the `grouper` function.
      *
-     * Note: This is not a lazy operation.
+     * Note: This is never a lazy operation.
      */
     countBy<G>(
-      grouper: (value?: V, key?: K, seq?: Iterable<K, V>) => G,
+      grouper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => G,
       context?: any
     ): LazyKeyedSequence<G, number>;
 
@@ -475,28 +477,28 @@ declare module 'immutable' {
     equals(other: Iterable<K, V>): boolean;
 
     /**
-     * Returns a new indexed sequence of [key, value] tuples.
+     * Returns a new LazyIndexedSequence of [key, value] tuples.
      */
     entrySeq(): LazyIndexedSequence</*(K, V)*/Array<any>>;
 
     /**
-     * Returns a new sequence with only the entries for which the `predicate`
-     * function returns false.
+     * Returns a new Iterable of the same type with only the entries for which
+     * the `predicate` function returns false.
      *
      *     LazySequence({a:1,b:2,c:3,d:4}).filterNot(x => x % 2 === 0)
      *     // Seq { a: 1, c: 3 }
      *
      */
     filterNot(
-      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any
-    ): Iterable<K, V>;
+    ): /*this*/Iterable<K, V>;
 
     /**
      * Returns the key for which the `predicate` returns true.
      */
     findKey(
-      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): K;
 
@@ -506,7 +508,7 @@ declare module 'immutable' {
      * Note: `predicate` will be called for each entry in reverse.
      */
     findLast(
-      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any,
       notSetValue?: V
     ): V;
@@ -517,7 +519,7 @@ declare module 'immutable' {
      * Note: `predicate` will be called for each entry in reverse.
      */
     findLastKey(
-      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): K;
 
@@ -527,38 +529,28 @@ declare module 'immutable' {
     first(): V;
 
     /**
-     * Flat-maps the Iterable.
+     * Flat-maps the Iterable, returning an Iterable of the same type.
      */
     flatMap<MK, MV>(
-      mapper: (value?: V, key?: K, seq?: Iterable<K, V>) => Iterable<MK, MV>,
+      mapper: (value?: V, key?: K, seq?: /*this*/Iterable<K, V>) => Iterable<MK, MV>,
       context?: any
-    ): Iterable<MK, MV>;
+    ): /*this*/Iterable<MK, MV>;
 
     /**
      * Flattens nested Iterables.
      *
-     * Will deeply flatten the Iterable by default, but a `depth` can be
-     * provided in the form of a number or boolean (where true means to
-     * shallowly flatten one level). A depth of 0 (or shallow: false) will
-     * deeply flatten.
+     * Will deeply flatten the Iterable by default, returning an Iterable of the
+     * same type, but a `depth` can be provided in the form of a number or
+     * boolean (where true means to shallowly flatten one level). A depth of 0
+     * (or shallow: false) will deeply flatten.
      *
-     * Flattens anything Sequencible (Arrays, Objects) with the exception of
-     * Strings.
+     * Flattens only others Iterable, not Arrays or Objects.
      *
      * Note: `flatten(true)` operates on Iterable<any, Iterable<K, V>> and
      * returns Iterable<K, V>
      */
-    flatten(depth?: number): Iterable<any, any>;
-    flatten(shallow?: boolean): Iterable<any, any>;
-
-    /**
-     * Returns a new sequence with this sequences's keys as it's values, and this
-     * sequences's values as it's keys.
-     *
-     *     LazySequence({ a: 'z', b: 'y' }).flip() // { z: 'a', y: 'b' }
-     *
-     */
-    flip(): Iterable<V, K>;
+    flatten(depth?: number): /*this*/Iterable<any, any>;
+    flatten(shallow?: boolean): /*this*/Iterable<any, any>;
 
     /**
      * Returns the value associated with the provided key, or notSetValue if
@@ -576,15 +568,15 @@ declare module 'immutable' {
     getIn(searchKeyPath: Array<any>, notSetValue?: any): any;
 
     /**
-     * Returns a `Iterable` of `Iterables`, grouped by the return value of the
-     * `grouper` function.
+     * Returns a `KeyedIterable` of `KeyedIterables`, grouped by the return
+     * value of the `grouper` function.
      *
      * Note: This is not a lazy operation.
      */
     groupBy<G>(
-      grouper: (value?: V, key?: K, seq?: Iterable<K, V>) => G,
+      grouper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => G,
       context?: any
-    ): LazyKeyedSequence<G, LazyKeyedSequence<K, V>>;
+    ): LazyKeyedSequence<G, /*this*/Iterable<K, V>>;
 
     /**
      * True if a key exists within this Iterable.
@@ -615,31 +607,6 @@ declare module 'immutable' {
     last(): V;
 
     /**
-     * Returns a new sequence with entries ([key, value] tuples) passed through
-     * a `mapper` function.
-     *
-     *     LazySequence({ a: 1, b: 2 })
-     *       .mapEntries(([k, v]) => [k.toUpperCase(), v * 2])
-     *     // { A: 2, B: 4 }
-     *
-     */
-    mapEntries<KM, VM>(
-      mapper: (entry?: /*(K, V)*/Array<any>, index?: number, seq?: Iterable<K, V>) => /*(KM, VM)*/Array<any>,
-      context?: any
-    ): Iterable<KM, VM>;
-
-    /**
-     * Returns a new sequence with keys passed through a `mapper` function.
-     *
-     *     LazySequence({ a: 1, b: 2 }).mapKeys(x => x.toUpperCase()) // { A: 1, B: 2 }
-     *
-     */
-    mapKeys<M>(
-      mapper: (key?: K, value?: V, seq?: Iterable<K, V>) => M,
-      context?: any
-    ): Iterable<M, V>;
-
-    /**
      * Returns the maximum value in this collection. If any values are
      * comparatively equivalent, the first one found will be returned.
      *
@@ -656,7 +623,7 @@ declare module 'immutable' {
      *
      */
     maxBy<C>(
-      comparatorValueMapper: (value?: V, key?: K, seq?: Iterable<K, V>) => C,
+      comparatorValueMapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => C,
       comparator?: (valueA: C, valueB: C) => number
     ): V;
 
@@ -677,52 +644,55 @@ declare module 'immutable' {
      *
      */
     minBy<C>(
-      comparatorValueMapper: (value?: V, key?: K, seq?: Iterable<K, V>) => C,
+      comparatorValueMapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => C,
       comparator?: (valueA: C, valueB: C) => number
     ): V;
 
     /**
-     * Returns a new Iterable containing all entries except the first.
+     * Returns a new Iterable of the same type containing all entries except
+     * the first.
      */
-    rest(): Iterable<K, V>
+    rest(): /*this*/Iterable<K, V>
 
     /**
-     * Returns a new Iterable which excludes the first `amount` entries from
-     * this sequence.
+     * Returns a new Iterable of the same type which excludes the first `amount`
+     * entries from this Iterable.
      */
-    skip(amount: number): Iterable<K, V>;
+    skip(amount: number): /*this*/Iterable<K, V>;
 
     /**
-     * Returns a new sequence which excludes the last `amount` entries from
-     * this sequence.
+     * Returns a new Iterable of the same type which excludes the last `amount`
+     * entries from this sequence.
      */
-    skipLast(amount: number): Iterable<K, V>;
+    skipLast(amount: number): /*this*/Iterable<K, V>;
 
     /**
-     * Returns a new sequence which contains entries starting from when
-     * `predicate` first returns false.
+     * Returns a new Iterable of the same type which contains entries starting
+     * from when `predicate` first returns false.
      *
-     *     LazySequence.of('dog','frog','cat','hat','god').skipWhile(x => x.match(/g/))
-     *     // ['cat', 'hat', 'god']
+     *     LazySequence.of('dog','frog','cat','hat','god')
+     *       .skipWhile(x => x.match(/g/))
+     *     // Seq [ 'cat', 'hat', 'god' ]
      *
      */
     skipWhile(
-      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any
-    ): Iterable<K, V>;
+    ): /*this*/Iterable<K, V>;
 
     /**
-     * Returns a new sequence which contains entries starting from when
-     * `predicate` first returns true.
+     * Returns a new Iterable of the same type which contains entries starting
+     * from when `predicate` first returns true.
      *
-     *     LazySequence.of('dog','frog','cat','hat','god').skipUntil(x => x.match(/hat/))
-     *     // ['hat', 'god']
+     *     LazySequence.of('dog','frog','cat','hat','god')
+     *       .skipUntil(x => x.match(/hat/))
+     *     // Seq [ 'hat', 'god' ]
      *
      */
     skipUntil(
-      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any
-    ): Iterable<K, V>;
+    ): /*this*/Iterable<K, V>;
 
     /**
      * Like `sort`, but also accepts a `comparatorValueMapper` which allows for
@@ -732,34 +702,35 @@ declare module 'immutable' {
      *
      */
     sortBy<C>(
-      comparatorValueMapper: (value?: V, key?: K, seq?: Iterable<K, V>) => C,
+      comparatorValueMapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => C,
       comparator?: (valueA: C, valueB: C) => number
-    ): Iterable<K, V>;
+    ): /*this*/Iterable<K, V>;
 
     /**
-     * Returns a new sequence which contains the first `amount` entries from
-     * this sequence.
+     * Returns a new Iterable of the same type which contains the first `amount`
+     * entries from this sequence.
      */
-    take(amount: number): Iterable<K, V>;
+    take(amount: number): /*this*/Iterable<K, V>;
 
     /**
-     * Returns a new sequence which contains the last `amount` entries from
-     * this sequence.
+     * Returns a new Iterable of the same type which contains the last `amount`
+     * entries from this sequence.
      */
-    takeLast(amount: number): Iterable<K, V>;
+    takeLast(amount: number): /*this*/Iterable<K, V>;
 
     /**
-     * Returns a new sequence which contains entries from this sequence as long
-     * as the `predicate` returns true.
+     * Returns a new Iterable of the same type which contains entries from this
+     * sequence as long as the `predicate` returns true.
      *
-     *     LazySequence.of('dog','frog','cat','hat','god').takeWhile(x => x.match(/o/))
-     *     // ['dog', 'frog']
+     *     LazySequence.of('dog','frog','cat','hat','god')
+     *       .takeWhile(x => x.match(/o/))
+     *     // Seq [ 'dog', 'frog' ]
      *
      */
     takeWhile(
-      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any
-    ): Iterable<K, V>;
+    ): /*this*/Iterable<K, V>;
 
     /**
      * Returns a new sequence which contains entries from this sequence as long
@@ -770,12 +741,12 @@ declare module 'immutable' {
      *
      */
     takeUntil(
-      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any
-    ): Iterable<K, V>;
+    ): /*this*/Iterable<K, V>;
 
     /**
-     * Returns a new indexed sequence of the values of this sequence,
+     * Returns a new LazyIndexedSequence of the values of this sequence,
      * discarding keys.
      */
     valueSeq(): LazyIndexedSequence<V>;
@@ -848,6 +819,44 @@ declare module 'immutable' {
      * @override
      */
     toSeq(): LazyKeyedSequence<K, V>;
+
+
+    /**
+     * Returns a new KeyedIterable of the same type where the keys and values
+     * have been flipped.
+     *
+     *     LazySequence({ a: 'z', b: 'y' }).flip() // { z: 'a', y: 'b' }
+     *
+     */
+    flip(): /*this*/KeyedIterable<V, K>;
+
+    /**
+     * Returns a new KeyedIterable of the same type with entries
+     * ([key, value] tuples) passed through a `mapper` function.
+     *
+     *     LazySequence({ a: 1, b: 2 })
+     *       .mapEntries(([k, v]) => [k.toUpperCase(), v * 2])
+     *     // Seq { A: 2, B: 4 }
+     *
+     */
+    mapEntries<KM, VM>(
+      mapper: (entry?: /*(K, V)*/Array<any>, index?: number, iter?: /*this*/KeyedIterable<K, V>) => /*[KM, VM]*/Array<any>,
+      context?: any
+    ): /*this*/KeyedIterable<KM, VM>;
+
+    /**
+     * Returns a new KeyedIterable of the same type with keys passed through a
+     * `mapper` function.
+     *
+     *     LazySequence({ a: 1, b: 2 })
+     *       .mapKeys(x => x.toUpperCase())
+     *     // Seq { A: 1, B: 2 }
+     *
+     */
+    mapKeys<M>(
+      mapper: (key?: K, value?: V, seq?: /*this*/KeyedIterable<K, V>) => M,
+      context?: any
+    ): KeyedIterable<M, V>;
 
     // TODO: All sequence methods return KeyedIterable here.
   }
@@ -1201,7 +1210,7 @@ declare module 'immutable' {
     groupBy<G>(
       grouper: (value?: T, index?: number, seq?: IndexedIterable<T>) => G,
       context?: any
-    ): LazyKeyedSequence<G, any/*LazyIndexedSequence<T>*/>; // Bug: exposing this causes the type checker to implode.
+    ): LazyKeyedSequence<G, any/*IndexedIterable<T>*/>; // Bug: exposing this causes the type checker to implode.
 
     /**
      * Returns an iterable with `separator` between each item in this
@@ -1427,7 +1436,7 @@ declare module 'immutable' {
   export function LazySequence<K, V>(): LazySequence<K, V>;
   export function LazySequence<K, V>(iterable: Iterable<K, V>): LazySequence<K, V>;
   export function LazySequence<T>(array: Array<T>): LazyIndexedSequence<T>;
-  export function LazySequence<V>(obj: {[key: string]: V}): LazySequence<string, V>;
+  export function LazySequence<V>(obj: {[key: string]: V}): LazyKeyedSequence<string, V>;
   export function LazySequence<T>(iterator: Iterator<T>): LazyIndexedSequence<T>;
   export function LazySequence<T>(iterable: /*ES6Iterable<T>*/Object): LazyIndexedSequence<T>;
   export function LazySequence<V>(value: V): LazyIndexedSequence<V>;

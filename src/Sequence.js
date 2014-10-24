@@ -309,7 +309,7 @@ class Iterable {
       // We cache as an entries array, so we can just return the cache!
       return IndexedIterable(iterable._cache);
     }
-    var entriesSequence = iterable.toKeyedSeq().map(entryMapper).toIndexedSeq();
+    var entriesSequence = iterable.toSeq().map(entryMapper).toIndexedSeq();
     entriesSequence.fromEntrySeq = () => iterable.toSeq();
     return entriesSequence;
   }
@@ -353,10 +353,6 @@ class Iterable {
     return reify(this, flattenFactory(this, depth, true));
   }
 
-  flip() {
-    return reify(this, flipFactory(this));
-  }
-
   fromEntrySeq() {
     return new FromEntriesSequence(this);
   }
@@ -396,27 +392,11 @@ class Iterable {
   }
 
   keySeq() {
-    return this.toSeq().flip().toIndexedSeq();
+    return this.toSeq().map(keyMapper).toIndexedSeq();
   }
 
   last() {
     return this.toSeq().reverse().first();
-  }
-
-  mapEntries(mapper, context) {
-    return reify(this,
-      this.entrySeq().map(
-        (entry, index) => mapper.call(context, entry, index, this)
-      ).fromEntrySeq()
-    );
-  }
-
-  mapKeys(mapper, context) {
-    return reify(this,
-      this.toSeq().flip().map(
-        (k, v) => mapper.call(context, k, v, this)
-      ).flip()
-    );
   }
 
   max(comparator) {
@@ -601,6 +581,30 @@ class KeyedIterable extends Iterable {
   }
 
 
+  // ### More sequential methods
+
+  flip() {
+    return reify(this, flipFactory(this));
+  }
+
+  mapEntries(mapper, context) {
+    var iterations = 0;
+    return reify(this,
+      this.toSeq().map(
+        (v, k) => mapper.call(context, [k, v], iterations++, this)
+      ).fromEntrySeq()
+    );
+  }
+
+  mapKeys(mapper, context) {
+    return reify(this,
+      this.toSeq().flip().map(
+        (k, v) => mapper.call(context, k, v, this)
+      ).flip()
+    );
+  }
+
+
   // ### Internal
 
   __makeSequence() {
@@ -643,8 +647,8 @@ class SetIterable extends Iterable {
 
   // ### More sequential methods
 
-  flip() {
-    return this;
+  keySeq() {
+    return this.valueSeq();
   }
 
 
@@ -743,10 +747,6 @@ class IndexedIterable extends Iterable {
 
   flatten(depth) {
     return reify(this, flattenFactory(this, depth, false));
-  }
-
-  flip() {
-    return reify(this, flipFactory(this.toKeyedSeq()));
   }
 
   get(index, notSetValue) {
@@ -1273,6 +1273,10 @@ function valueMapper(v) {
   return v;
 }
 
+function keyMapper(v, k) {
+  return k;
+}
+
 function entryMapper(v, k) {
   return [k, v];
 }
@@ -1546,11 +1550,10 @@ function validateEntry(entry) {
 function flipFactory(iterable) {
   var flipSequence = iterable.__makeSequence();
   flipSequence.size = iterable.size;
-  flipSequence.flip = () => iterable.toSeq();
+  flipSequence.flip = () => iterable;
   flipSequence.reverse = function () {
-    var seq = iterable.toSeq();
-    var reversedSequence = seq.reverse.apply(this); // super.reverse()
-    reversedSequence.flip = () => seq.reverse();
+    var reversedSequence = iterable.reverse.apply(this); // super.reverse()
+    reversedSequence.flip = () => iterable.reverse();
     return reversedSequence;
   };
   flipSequence.has = key => iterable.contains(key);
@@ -1618,13 +1621,14 @@ function mapFactory(iterable, mapper, context) {
 function reverseFactory(iterable, useKeys) {
   var reversedSequence = iterable.__makeSequence();
   reversedSequence.size = iterable.size;
-  reversedSequence.reverse = () => iterable.toSeq();
-  reversedSequence.flip = function () {
-    var seq = iterable.toSeq();
-    var flipSequence = seq.flip.apply(this); // super.flip()
-    flipSequence.reverse = () => seq.flip();
-    return flipSequence;
-  };
+  reversedSequence.reverse = () => iterable;
+  if (iterable.flip) {
+    reversedSequence.flip = function () {
+      var flipSequence = flipFactory(iterable);
+      flipSequence.reverse = () => iterable.flip();
+      return flipSequence;
+    };
+  }
   reversedSequence.get = (key, notSetValue) =>
     iterable.get(useKeys ? key : -1 - key, notSetValue);
   reversedSequence.has = key =>

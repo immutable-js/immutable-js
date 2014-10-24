@@ -474,7 +474,7 @@ var $Iterable = Iterable;
     if (iterable._cache) {
       return IndexedIterable(iterable._cache);
     }
-    var entriesSequence = iterable.toKeyedSeq().map(entryMapper).toIndexedSeq();
+    var entriesSequence = iterable.toSeq().map(entryMapper).toIndexedSeq();
     entriesSequence.fromEntrySeq = (function() {
       return iterable.toSeq();
     });
@@ -509,9 +509,6 @@ var $Iterable = Iterable;
   },
   flatten: function(depth) {
     return reify(this, flattenFactory(this, depth, true));
-  },
-  flip: function() {
-    return reify(this, flipFactory(this));
   },
   fromEntrySeq: function() {
     return new FromEntriesSequence(this);
@@ -549,22 +546,10 @@ var $Iterable = Iterable;
     return seq.isSubset(this);
   },
   keySeq: function() {
-    return this.toSeq().flip().toIndexedSeq();
+    return this.toSeq().map(keyMapper).toIndexedSeq();
   },
   last: function() {
     return this.toSeq().reverse().first();
-  },
-  mapEntries: function(mapper, context) {
-    var $__0 = this;
-    return reify(this, this.entrySeq().map((function(entry, index) {
-      return mapper.call(context, entry, index, $__0);
-    })).fromEntrySeq());
-  },
-  mapKeys: function(mapper, context) {
-    var $__0 = this;
-    return reify(this, this.toSeq().flip().map((function(k, v) {
-      return mapper.call(context, k, v, $__0);
-    })).flip());
   },
   max: function(comparator) {
     return this.maxBy(valueMapper, comparator);
@@ -684,9 +669,27 @@ var KeyedIterable = function KeyedIterable(seqable) {
   return isKeyed(seqable) ? seqable : seqable.fromEntrySeq();
 };
 var $KeyedIterable = KeyedIterable;
-($traceurRuntime.createClass)(KeyedIterable, {__makeSequence: function() {
+($traceurRuntime.createClass)(KeyedIterable, {
+  flip: function() {
+    return reify(this, flipFactory(this));
+  },
+  mapEntries: function(mapper, context) {
+    var $__0 = this;
+    var iterations = 0;
+    return reify(this, this.toSeq().map((function(v, k) {
+      return mapper.call(context, [k, v], iterations++, $__0);
+    })).fromEntrySeq());
+  },
+  mapKeys: function(mapper, context) {
+    var $__0 = this;
+    return reify(this, this.toSeq().flip().map((function(k, v) {
+      return mapper.call(context, k, v, $__0);
+    })).flip());
+  },
+  __makeSequence: function() {
     return Object.create(LazyKeyedSequence.prototype);
-  }}, {from: function(seqable) {
+  }
+}, {from: function(seqable) {
     return $KeyedIterable(iteratorFrom.apply(this, arguments));
   }}, Iterable);
 var KeyedIterablePrototype = KeyedIterable.prototype;
@@ -708,8 +711,8 @@ var $SetIterable = SetIterable;
   contains: function(value) {
     return this.has(value);
   },
-  flip: function() {
-    return this;
+  keySeq: function() {
+    return this.valueSeq();
   },
   __makeSequence: function() {
     return Object.create(LazySetSequence.prototype);
@@ -772,9 +775,6 @@ var $IndexedIterable = IndexedIterable;
   },
   flatten: function(depth) {
     return reify(this, flattenFactory(this, depth, false));
-  },
-  flip: function() {
-    return reify(this, flipFactory(this.toKeyedSeq()));
   },
   get: function(index, notSetValue) {
     index = wrapIndex(this, index);
@@ -1162,6 +1162,9 @@ function resolveIndex(index, size, defaultIndex) {
 function valueMapper(v) {
   return v;
 }
+function keyMapper(v, k) {
+  return k;
+}
 function entryMapper(v, k) {
   return [k, v];
 }
@@ -1389,13 +1392,12 @@ function flipFactory(iterable) {
   var flipSequence = iterable.__makeSequence();
   flipSequence.size = iterable.size;
   flipSequence.flip = (function() {
-    return iterable.toSeq();
+    return iterable;
   });
   flipSequence.reverse = function() {
-    var seq = iterable.toSeq();
-    var reversedSequence = seq.reverse.apply(this);
+    var reversedSequence = iterable.reverse.apply(this);
     reversedSequence.flip = (function() {
-      return seq.reverse();
+      return iterable.reverse();
     });
     return reversedSequence;
   };
@@ -1462,16 +1464,17 @@ function reverseFactory(iterable, useKeys) {
   var reversedSequence = iterable.__makeSequence();
   reversedSequence.size = iterable.size;
   reversedSequence.reverse = (function() {
-    return iterable.toSeq();
+    return iterable;
   });
-  reversedSequence.flip = function() {
-    var seq = iterable.toSeq();
-    var flipSequence = seq.flip.apply(this);
-    flipSequence.reverse = (function() {
-      return seq.flip();
-    });
-    return flipSequence;
-  };
+  if (iterable.flip) {
+    reversedSequence.flip = function() {
+      var flipSequence = flipFactory(iterable);
+      flipSequence.reverse = (function() {
+        return iterable.flip();
+      });
+      return flipSequence;
+    };
+  }
   reversedSequence.get = (function(key, notSetValue) {
     return iterable.get(useKeys ? key : -1 - key, notSetValue);
   });
