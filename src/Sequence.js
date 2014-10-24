@@ -277,7 +277,7 @@ class Sequence {
         groups[groupMap[h]][1]++;
       }
     });
-    return Sequence(groups).fromEntrySeq();
+    return IndexedSequence(groups).fromEntrySeq();
   }
 
   equals(other) {
@@ -314,7 +314,7 @@ class Sequence {
     var sequence = this;
     if (sequence._cache) {
       // We cache as an entries array, so we can just return the cache!
-      return Sequence(sequence._cache);
+      return IndexedSequence(sequence._cache);
     }
     var entriesSequence = sequence.toKeyedSeq().map(entryMapper).toIndexedSeq();
     entriesSequence.fromEntrySeq = () => sequence;
@@ -598,12 +598,17 @@ SequencePrototype.chain = SequencePrototype.flatMap;
 class KeyedSequence extends Sequence {
 
   constructor(seqable) {
-    var seq = Sequence.apply(this, arguments);
-    return isKeyed(seq) ? seq : seq.fromEntrySeq();
+    if (arguments.length === 0) {
+      return emptySequence().toKeyedSeq();
+    }
+    if (!isSequence(seqable)) {
+      seqable = seqFromValue(seqable, false);
+    }
+    return isKeyed(seqable) ? seqable : seqable.fromEntrySeq();
   }
 
   static empty() {
-    return KeyedSequence(emptySequence());
+    return KeyedSequence();
   }
 
   static from(seqable/*[, mapFn[, context]]*/) {
@@ -629,11 +634,16 @@ KeyedSequencePrototype.__toStringMapper = (v, k) => k + ': ' + quoteString(v);
 class SetSequence extends Sequence {
 
   constructor(seqable) {
-    return Sequence.apply(this, arguments).toSetSeq();
+    var isSeq = isSequence(seqable);
+    return isSeq && !isAssociative(seqable) ? seqable : (
+      isSeq ? seqable :
+      arguments.length === 0 ? emptySequence() :
+      seqFromValue(seqable, false)
+    ).toSetSeq();
   }
 
   static empty() {
-    return SetSequence(emptySequence());
+    return SetSequence();
   }
 
   static from(seqable/*[, mapFn[, context]]*/) {
@@ -674,11 +684,15 @@ SetSequencePrototype.has = SequencePrototype.contains;
 class IndexedSequence extends Sequence {
 
   constructor(seqable) {
-    return Sequence.apply(this, arguments).toIndexedSeq();
+    return isIndexed(seqable) ? seqable : (
+      isSequence(seqable) ? seqable :
+      arguments.length === 0 ? emptySequence() :
+      seqFromValue(seqable, false)
+    ).toIndexedSeq();
   }
 
   static empty() {
-    return IndexedSequence(emptySequence());
+    return IndexedSequence();
   }
 
   static from(seqable/*[, mapFn[, context]]*/) {
@@ -1211,9 +1225,7 @@ function seqFromValue(value, maybeSingleton) {
     maybeSingleton ? new ArraySequence([value]) :
     null;
   if (!seq) {
-    throw new TypeError(
-      'from requires a sequenceable, not: ' + value
-    );
+    throw new TypeError('Expected a sequenceable: ' + value);
   }
   return seq;
 }
@@ -1518,7 +1530,7 @@ class FromEntriesSequence extends LazyKeyedSequence {
 
 function validateEntry(entry) {
   if (entry !== Object(entry)) {
-    throw new TypeError('Expected values to be [K, V] entries.');
+    throw new TypeError('Expected [K, V] tuple: ' + entry);
   }
 }
 
@@ -1681,9 +1693,9 @@ function groupByFactory(seq, grouper, context, useKeys) {
       groups[groupMap[h]][1].push(e);
     }
   });
-  return Sequence(groups).fromEntrySeq().map(useKeys ?
-    group => Sequence(group).fromEntrySeq() :
-    group => Sequence(group)
+  return IndexedSequence(groups).fromEntrySeq().map(useKeys ?
+    group => IndexedSequence(group).fromEntrySeq() :
+    group => IndexedSequence(group)
   );
 }
 
@@ -1862,7 +1874,7 @@ function skipWhileFactory(sequence, predicate, context, useKeys) {
 
 function concatFactory(sequence, values, useKeys) {
   var sequences = [sequence].concat(values);
-  var concatSequence = Sequence(sequences);
+  var concatSequence = IndexedSequence(sequences);
   if (useKeys) {
     concatSequence = concatSequence.toKeyedSeq();
   }

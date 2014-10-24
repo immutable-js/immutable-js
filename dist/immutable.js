@@ -440,7 +440,7 @@ var $Sequence = Sequence;
         groups[groupMap[h]][1]++;
       }
     }));
-    return $Sequence(groups).fromEntrySeq();
+    return IndexedSequence(groups).fromEntrySeq();
   },
   equals: function(other) {
     if (this === other) {
@@ -472,7 +472,7 @@ var $Sequence = Sequence;
   entrySeq: function() {
     var sequence = this;
     if (sequence._cache) {
-      return $Sequence(sequence._cache);
+      return IndexedSequence(sequence._cache);
     }
     var entriesSequence = sequence.toKeyedSeq().map(entryMapper).toIndexedSeq();
     entriesSequence.fromEntrySeq = (function() {
@@ -681,15 +681,20 @@ SequencePrototype.chain = SequencePrototype.flatMap;
   } catch (e) {}
 })();
 var KeyedSequence = function KeyedSequence(seqable) {
-  var seq = Sequence.apply(this, arguments);
-  return isKeyed(seq) ? seq : seq.fromEntrySeq();
+  if (arguments.length === 0) {
+    return emptySequence().toKeyedSeq();
+  }
+  if (!isSequence(seqable)) {
+    seqable = seqFromValue(seqable, false);
+  }
+  return isKeyed(seqable) ? seqable : seqable.fromEntrySeq();
 };
 var $KeyedSequence = KeyedSequence;
 ($traceurRuntime.createClass)(KeyedSequence, {__makeSequence: function() {
     return Object.create(LazyKeyedSequence.prototype);
   }}, {
   empty: function() {
-    return $KeyedSequence(emptySequence());
+    return $KeyedSequence();
   },
   from: function(seqable) {
     return $KeyedSequence(sequenceFrom.apply(this, arguments));
@@ -703,7 +708,8 @@ KeyedSequencePrototype.__toStringMapper = (function(v, k) {
   return k + ': ' + quoteString(v);
 });
 var SetSequence = function SetSequence(seqable) {
-  return Sequence.apply(this, arguments).toSetSeq();
+  var isSeq = isSequence(seqable);
+  return isSeq && !isAssociative(seqable) ? seqable : (isSeq ? seqable : arguments.length === 0 ? emptySequence() : seqFromValue(seqable, false)).toSetSeq();
 };
 var $SetSequence = SetSequence;
 ($traceurRuntime.createClass)(SetSequence, {
@@ -721,7 +727,7 @@ var $SetSequence = SetSequence;
   }
 }, {
   empty: function() {
-    return $SetSequence(emptySequence());
+    return $SetSequence();
   },
   from: function(seqable) {
     return $SetSequence(sequenceFrom.apply(this, arguments));
@@ -730,7 +736,7 @@ var $SetSequence = SetSequence;
 var SetSequencePrototype = SetSequence.prototype;
 SetSequencePrototype.has = SequencePrototype.contains;
 var IndexedSequence = function IndexedSequence(seqable) {
-  return Sequence.apply(this, arguments).toIndexedSeq();
+  return isIndexed(seqable) ? seqable : (isSequence(seqable) ? seqable : arguments.length === 0 ? emptySequence() : seqFromValue(seqable, false)).toIndexedSeq();
 };
 var $IndexedSequence = IndexedSequence;
 ($traceurRuntime.createClass)(IndexedSequence, {
@@ -848,7 +854,7 @@ var $IndexedSequence = IndexedSequence;
   }
 }, {
   empty: function() {
-    return $IndexedSequence(emptySequence());
+    return $IndexedSequence();
   },
   from: function(seqable) {
     return $IndexedSequence(sequenceFrom.apply(this, arguments));
@@ -1132,7 +1138,7 @@ function reify(kind, seq) {
 function seqFromValue(value, maybeSingleton) {
   var seq = maybeSingleton && typeof value === 'string' ? new ArraySequence([value]) : isArrayLike(value) ? new ArraySequence(value) : isIterator(value) ? new IteratorSequence(value) : isIterable(value) ? new IterableSequence(value) : (maybeSingleton ? isPlainObj(value) : typeof value === 'object') ? new ObjectSequence(value) : maybeSingleton ? new ArraySequence([value]) : null;
   if (!seq) {
-    throw new TypeError('from requires a sequenceable, not: ' + value);
+    throw new TypeError('Expected a sequenceable: ' + value);
   }
   return seq;
 }
@@ -1377,7 +1383,7 @@ var FromEntriesSequence = function FromEntriesSequence(entriesSeq) {
 }, {}, LazyKeyedSequence);
 function validateEntry(entry) {
   if (entry !== Object(entry)) {
-    throw new TypeError('Expected values to be [K, V] entries.');
+    throw new TypeError('Expected [K, V] tuple: ' + entry);
   }
 }
 function flipFactory(sequence) {
@@ -1549,10 +1555,10 @@ function groupByFactory(seq, grouper, context, useKeys) {
       groups[groupMap[h]][1].push(e);
     }
   }));
-  return Sequence(groups).fromEntrySeq().map(useKeys ? (function(group) {
-    return Sequence(group).fromEntrySeq();
+  return IndexedSequence(groups).fromEntrySeq().map(useKeys ? (function(group) {
+    return IndexedSequence(group).fromEntrySeq();
   }) : (function(group) {
-    return Sequence(group);
+    return IndexedSequence(group);
   }));
 }
 function takeFactory(sequence, amount) {
@@ -1731,7 +1737,7 @@ function skipWhileFactory(sequence, predicate, context, useKeys) {
 }
 function concatFactory(sequence, values, useKeys) {
   var sequences = [sequence].concat(values);
-  var concatSequence = Sequence(sequences);
+  var concatSequence = IndexedSequence(sequences);
   if (useKeys) {
     concatSequence = concatSequence.toKeyedSeq();
   }
@@ -2358,7 +2364,7 @@ var MAX_BITMAP_SIZE = SIZE / 2;
 var MIN_ARRAY_SIZE = SIZE / 4;
 var EMPTY_MAP;
 var Vector = function Vector(seqable) {
-  return $Vector.from(seqable);
+  return arguments.length === 0 ? $Vector.empty() : $Vector.from(seqable);
 };
 var $Vector = Vector;
 ($traceurRuntime.createClass)(Vector, {
@@ -2482,25 +2488,22 @@ var $Vector = Vector;
   empty: function() {
     return EMPTY_VECT || (EMPTY_VECT = makeVector(0, 0, SHIFT));
   },
-  from: function(sequence) {
-    if (!sequence) {
-      return $Vector.empty();
+  from: function(seqable) {
+    if (seqable && seqable.constructor === $Vector) {
+      return seqable;
     }
-    if (sequence.constructor === $Vector) {
-      return sequence;
+    var isArray = Array.isArray(seqable);
+    if (!isArray) {
+      seqable = Sequence.from(seqable);
     }
-    var isArray = Array.isArray(sequence);
-    var size = isArray ? sequence.length : sequence.size;
+    var size = isArray ? seqable.length : seqable.size;
     if (size === 0) {
       return $Vector.empty();
     }
     if (size > 0 && size < SIZE) {
-      return makeVector(0, size, SHIFT, null, new VNode(isArray ? arrCopy(sequence) : (sequence.toArray ? sequence : Sequence(sequence)).toArray()));
+      return makeVector(0, size, SHIFT, null, new VNode(isArray ? arrCopy(seqable) : seqable.toArray()));
     }
-    if (!isArray) {
-      sequence = Sequence(sequence).valueSeq();
-    }
-    return $Vector.empty().merge(sequence);
+    return $Vector.empty().merge(seqable);
   }
 }, IndexedCollection);
 var VectorPrototype = Vector.prototype;

@@ -50,6 +50,30 @@ describe('Map', () => {
     expect(m2).toBe(m1);
   });
 
+  it('constructor does not accept a scalar', () => {
+    expect(() => {
+      Map(3);
+    }).toThrow('Expected a sequenceable: 3');
+  });
+
+  it('from does not accept a scalar', () => {
+    expect(() => {
+      Map.from(3);
+    }).toThrow('Expected a sequenceable: 3');
+  });
+
+  it('constructor does not accept a scalar', () => {
+    expect(() => {
+      Map([1,2,3]);
+    }).toThrow('Expected [K, V] tuple: 1');
+  });
+
+  it('from does not accept a non-entries array', () => {
+    expect(() => {
+      Map.from([1,2,3]);
+    }).toThrow('Expected [K, V] tuple: 1');
+  });
+
   it('converts back to JS object', () => {
     var m = Map({'a': 'A', 'b': 'B', 'c': 'C'});
     expect(m.toObject()).toEqual({'a': 'A', 'b': 'B', 'c': 'C'});

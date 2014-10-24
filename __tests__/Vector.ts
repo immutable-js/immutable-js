@@ -19,7 +19,7 @@ function arrayOfSize(s) {
 
 describe('Vector', () => {
 
-  it('constructor provides initial values', () => {
+  it('of provides initial values', () => {
     var v = Vector.of('a', 'b', 'c');
     expect(v.get(0)).toBe('a');
     expect(v.get(1)).toBe('b');
@@ -29,6 +29,18 @@ describe('Vector', () => {
   it('toArray provides a JS array', () => {
     var v = Vector.of('a', 'b', 'c');
     expect(v.toArray()).toEqual(['a', 'b', 'c']);
+  });
+
+  it('constructor does not accept a scalar', () => {
+    expect(() => {
+      Immutable.Vector(3);
+    }).toThrow('Expected a sequenceable: 3');
+  });
+
+  it('from does not accept a scalar', () => {
+    expect(() => {
+      Immutable.Vector.from(3);
+    }).toThrow('Expected a sequenceable: 3');
   });
 
   it('from consumes a JS array', () => {

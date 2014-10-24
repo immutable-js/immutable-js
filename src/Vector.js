@@ -23,36 +23,31 @@ class Vector extends IndexedCollection {
   // @pragma Construction
 
   constructor(seqable) {
-    return Vector.from(seqable);
+    return arguments.length === 0 ? Vector.empty() : Vector.from(seqable);
   }
 
   static empty() {
     return EMPTY_VECT || (EMPTY_VECT = makeVector(0, 0, SHIFT));
   }
 
-  static from(sequence) {
-    if (!sequence) {
-      return Vector.empty();
+  static from(seqable) {
+    if (seqable && seqable.constructor === Vector) {
+      return seqable;
     }
-    if (sequence.constructor === Vector) {
-      return sequence;
+    var isArray = Array.isArray(seqable);
+    if (!isArray) {
+      seqable = Sequence.from(seqable);
     }
-    var isArray = Array.isArray(sequence);
-    var size = isArray ? sequence.length : sequence.size;
+    var size = isArray ? seqable.length : seqable.size;
     if (size === 0) {
       return Vector.empty();
     }
     if (size > 0 && size < SIZE) {
       return makeVector(0, size, SHIFT, null, new VNode(
-        isArray ?
-          arrCopy(sequence) :
-          (sequence.toArray ? sequence : Sequence(sequence)).toArray()
+        isArray ? arrCopy(seqable) : seqable.toArray()
       ));
     }
-    if (!isArray) {
-      sequence = Sequence(sequence).valueSeq();
-    }
-    return Vector.empty().merge(sequence);
+    return Vector.empty().merge(seqable);
   }
 
   toString() {

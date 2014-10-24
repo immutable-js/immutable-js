@@ -54,6 +54,20 @@ describe('Sequence', () => {
     expect(seq.join('')).toBe('abc');
   });
 
+  it('from accepts an array-like', () => {
+    var alike = { length: 2, 0: 'a', 1: 'b' };
+    var seq = Immutable.Sequence.from(alike);
+    expect(Immutable.Sequence.isIndexed(seq)).toBe(true);
+    expect(seq.size).toBe(2);
+    expect(seq.get(1)).toBe('b');
+  });
+
+  it('from does not accept a scalar', () => {
+    expect(() => {
+      Immutable.Sequence.from(3);
+    }).toThrow('Expected a sequenceable: 3');
+  });
+
   it('temporarily warns about sequence length', function () {
     this.spyOn(console, 'warn');
 
