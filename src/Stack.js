@@ -10,7 +10,7 @@
 import "Sequence"
 import "Map"
 import "Iterator"
-/* global Sequence, IndexedCollection, wholeSlice, resolveBegin, resolveEnd,
+/* global Iterable, IndexedCollection, wholeSlice, resolveBegin, resolveEnd,
           MapPrototype, Iterator, iteratorValue, iteratorDone */
 /* exported Stack */
 
@@ -74,7 +74,7 @@ class Stack extends IndexedCollection {
   }
 
   pushAll(seq) {
-    seq = Sequence(seq);
+    seq = Iterable(seq);
     if (seq.size === 0) {
       return this;
     }

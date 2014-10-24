@@ -55,14 +55,14 @@ describe('Record', () => {
 
   it('converts sequences to records', () => {
     var MyType = Record({a:1, b:2, c:3});
-    var seq = Immutable.Sequence({a: 10, b:20});
+    var seq = Immutable.LazySequence({a: 10, b:20});
     var t = new MyType(seq);
     expect(t.toObject()).toEqual({a:10, b:20, c:3})
   })
 
   it('allows for functional construction', () => {
     var MyType = Record({a:1, b:2, c:3});
-    var seq = Immutable.Sequence({a: 10, b:20});
+    var seq = Immutable.LazySequence({a: 10, b:20});
     var t = MyType(seq);
     expect(t.toObject()).toEqual({a:10, b:20, c:3})
   })

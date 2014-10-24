@@ -10,7 +10,7 @@ import Immutable = require('immutable');
 describe('IndexedSequence', () => {
 
   it('maintains skipped offset', () => {
-    var seq = Immutable.Sequence(['A', 'B', 'C', 'D', 'E']);
+    var seq = Immutable.LazySequence(['A', 'B', 'C', 'D', 'E']);
 
     // This is what we expect for IndexedSequences
     var operated = seq.skip(1);
@@ -25,7 +25,7 @@ describe('IndexedSequence', () => {
   });
 
   it('reverses correctly', () => {
-    var seq = Immutable.Sequence.from(['A', 'B', 'C', 'D', 'E']);
+    var seq = Immutable.LazySequence.from(['A', 'B', 'C', 'D', 'E']);
 
     // This is what we expect for IndexedSequences
     var operated = seq.reverse();

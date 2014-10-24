@@ -11,7 +11,7 @@ import "Sequence"
 import "Map"
 import "TrieUtils"
 import "Iterator"
-/* global Sequence, IndexedCollection, wrapIndex,
+/* global Iterable, IndexedCollection, wrapIndex,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
           DELETE, SHIFT, SIZE, MASK, NOT_SET, DID_ALTER, OwnerID, MakeRef,
           SetRef, arrCopy, Iterator, iteratorValue, iteratorDone */
@@ -36,7 +36,7 @@ class Vector extends IndexedCollection {
     }
     var isArray = Array.isArray(seqable);
     if (!isArray) {
-      seqable = Sequence.from(seqable);
+      seqable = Iterable.from(seqable);
     }
     var size = isArray ? seqable.length : seqable.size;
     if (size === 0) {
@@ -606,7 +606,7 @@ function mergeIntoVectorWith(vector, merger, iterables) {
   var seqs = [];
   for (var ii = 0; ii < iterables.length; ii++) {
     var seq = iterables[ii];
-    seq && seqs.push(Sequence(seq));
+    seq && seqs.push(Iterable(seq));
   }
   var maxSize = Math.max.apply(null, seqs.map(s => s.size || 0));
   if (maxSize > vector.size) {

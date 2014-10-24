@@ -12,7 +12,7 @@ import "Sequence"
 import "Map"
 import "TrieUtils"
 import "Iterator"
-/* global is, Sequence, LazyKeyedSequence, LazyIndexedSequence, isSequence, isIndexed,
+/* global is, LazyKeyedSequence, LazyIndexedSequence, isIterable, isIndexed,
           Map, NOT_SET, DELETE,
           ITERATE_ENTRIES, Iterator, iteratorDone, iteratorValue */
 /* exported makeCursor */
@@ -132,13 +132,13 @@ function makeCursor(rootData, keyPath, onChange, value) {
   if (arguments.length < 4) {
     value = rootData.getIn(keyPath);
   }
-  var size = isSequence(value) ? value.size : undefined;
+  var size = isIterable(value) ? value.size : undefined;
   var CursorClass = isIndexed(value) ? IndexedCursor : Cursor;
   return new CursorClass(rootData, keyPath, onChange, size);
 }
 
 function wrappedValue(cursor, key, value) {
-  return Sequence.isSequence(value) ? subCursor(cursor, key, value) : value;
+  return isIterable(value) ? subCursor(cursor, key, value) : value;
 }
 
 function subCursor(cursor, key, value) {

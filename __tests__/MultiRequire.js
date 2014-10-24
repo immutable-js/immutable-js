@@ -15,8 +15,8 @@ describe('MultiRequire', () => {
   it('detects sequences', () => {
     var x = Immutable1.Map({a: 1});
     var y = Immutable2.Map({a: 1});
-    expect(Immutable1.Sequence.isSequence(y)).toBe(true);
-    expect(Immutable2.Sequence.isSequence(x)).toBe(true);
+    expect(Immutable1.Iterable.isIterable(y)).toBe(true);
+    expect(Immutable2.Iterable.isIterable(x)).toBe(true);
   });
 
   it('converts to JS when inter-nested', () => {

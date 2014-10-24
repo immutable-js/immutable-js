@@ -43,15 +43,15 @@ declare module 'immutable' {
    *
    * If a `converter` is optionally provided, it will be called with every
    * sequence (beginning with the most nested sequences and proceeding to the
-   * original sequence itself), along with the key refering to this Sequence
+   * original sequence itself), along with the key refering to this Iterable
    * and the parent JS object provided as `this`. For the top level, object,
-   * the key will be "". This `converter` is expected to return a new Sequence,
+   * the key will be "". This `converter` is expected to return a new Iterable,
    * allowing for custom convertions from deep JS objects.
    *
    * This example converts JSON to Vector and OrderedMap:
    *
    *     Immutable.fromJS({a: {b: [10, 20, 30]}, c: 40}, function (value, key) {
-   *       var isIndexed = value instanceof IndexedSequence;
+   *       var isIndexed = Immutable.Sequence.isIndexed(value);
    *       console.log(isIndexed, key, this);
    *       return isIndexed ? value.toVector() : value.toOrderedMap();
    *     });
@@ -68,137 +68,95 @@ declare module 'immutable' {
    */
   export function fromJS(
     json: any,
-    converter?: (k: any, v: Sequence<any, any>) => any
+    converter?: (k: any, v: Iterable<any, any>) => any
   ): any;
 
 
 
   /**
-   * Sequence
+   * Iterable
    * --------
    *
-   * The `Sequence` is a set of (key, value) entries which can be iterated, and
+   * The `Iterable` is a set of (key, value) entries which can be iterated, and
    * is the base class for all collections in `immutable`, allowing them to
-   * make use of all the Sequence methods (such as `map` and `filter`).
+   * make use of all the Iterable methods (such as `map` and `filter`).
    *
-   * **Sequences are immutable** — Once a sequence is created, it cannot be
-   * changed, appended to, rearranged or otherwise modified. Instead, any mutative
-   * method called on a sequence will return a new immutable sequence.
-   *
-   * **Sequences are lazy** — Sequences do as little work as necessary to respond
-   * to any method call.
-   *
-   * For example, the following does no work, because the resulting sequence is
-   * never used:
-   *
-   *     var oddSquares = Immutable.Sequence.of(1,2,3,4,5,6,7,8)
-   *       .filter(x => x % 2).map(x => x * x);
-   *
-   * Once the sequence is used, it performs only the work necessary. In this
-   * example, no intermediate arrays are ever created, filter is only called
-   * three times, and map is only called twice:
-   *
-   *     console.log(evenSquares.get(1)); // 9
-   *
-   * Lazy Sequences allow for the efficient chaining of sequence operations,
-   * allowing for the expression of logic that can otherwise be very tedious:
-   *
-   *     Immutable.Sequence({a:1, b:1, c:1})
-   *       .flip().map(key => key.toUpperCase()).flip().toObject();
-   *     // Map { A: 1, B: 1, C: 1 }
-   *
-   * As well as expressing logic that would otherwise seem memory-limited:
-   *
-   *     Immutable.Range(1, Infinity)
-   *       .skip(1000)
-   *       .map(n => -n)
-   *       .filter(n => n % 2 === 0)
-   *       .take(2)
-   *       .reduce((r, n) => r * n, 1);
-   *     // 1006008
-   *
-   * Note: A sequence is always iterated in the same order, however that order may
-   * not always be well defined, as is the case for the `Map`.
+   * Note: An iterable is always iterated in the same order, however that order
+   * may not always be well defined, as is the case for the `Map` and `Set`.
    */
-  export module Sequence {
+  export module Iterable {
 
     /**
-     * `Sequence.empty()` returns a Sequence of no values.
+     * `Iterable.empty()` returns a Iterable of no values.
      */
-    function empty<K, V>(): Sequence<K, V>;
+    function empty<K, V>(): Iterable<K, V>;
 
     /**
-     * `Immutable.Sequence.from()` returns a particular kind of Sequence based
+     * `Immutable.Iterable.from()` returns a particular kind of Iterable based
      * on the input.
      *
-     *   * If a `Sequence`, that same `Sequence`.
-     *   * If an Array, an `IndexedSequence`.
-     *   * If an Iterable, an `IndexedSequence`.
-     *   * If an Iterator, an `IndexedSequence`.
-     *   * If a plain Object, a `KeyedSequence`.
+     *   * If a `Iterable`, that same `Iterable`.
+     *   * If an Array, an `IndexedIterable`.
+     *   * If an Iterable, an `IndexedIterable`.
+     *   * If an Iterator, an `IndexedIterable`.
+     *   * If a plain Object, a `KeyedIterable`.
      *
      */
-    function from<K, V>(seq: Sequence<K, V>): Sequence<K, V>;
-    function from<T>(array: Array<T>): IndexedSequence<T>;
-    function from<V>(obj: {[key: string]: V}): Sequence<string, V>;
-    function from<T>(iterator: Iterator<T>): IndexedSequence<T>;
-    function from<T>(iterable: /*Iterable<T>*/Object): IndexedSequence<T>;
+    function from<K, V>(iterable: Iterable<K, V>): Iterable<K, V>;
+    function from<T>(array: Array<T>): IndexedIterable<T>;
+    function from<V>(obj: {[key: string]: V}): Iterable<string, V>;
+    function from<T>(iterator: Iterator<T>): IndexedIterable<T>;
+    function from<T>(iterable: /*Iterable<T>*/Object): IndexedIterable<T>;
 
     /**
-     * Provides an Indexed Sequence of the values provided.
+     * Provides an IndexedIterable of the values provided.
      */
-    function of<T>(...values: T[]): IndexedSequence<T>;
+    function of<T>(...values: T[]): IndexedIterable<T>;
 
     /**
-     * True if `maybeSequence` is a Sequence, or any of its subclasses.
+     * True if `maybeIterable` is an Iterable, or any of its subclasses.
      */
-    function isSequence(maybeSequence): boolean;
+    function isIterable(maybeIterable): boolean;
 
     /**
-     * True if `maybeLazy` is a lazy Sequence, it is not backed by a concrete
-     * structure such as Map, Vector, or Set.
-     */
-    function isLazy(maybeLazy): boolean;
-
-    /**
-     * True if `maybeKeyed` is a KeyedSequence, or any of its subclasses.
+     * True if `maybeKeyed` is a KeyedIterable, or any of its subclasses.
      */
     function isKeyed(maybeKeyed): boolean;
 
     /**
-     * True if `maybeIndexed` is a IndexedSequence, or any of its subclasses.
+     * True if `maybeIndexed` is a IndexedIterable, or any of its subclasses.
      */
     function isIndexed(maybeIndexed): boolean;
 
     /**
-     * True if `maybeAssociative` is either a keyed or indexed Sequence.
+     * True if `maybeAssociative` is either a keyed or indexed Iterable.
      */
     function isAssociative(maybeAssociative): boolean;
 
   }
 
   /**
-   * Like `Immutable.Sequence.from()`, `Immutable.Sequence()` returns a
+   * Like `Immutable.Iterable.from()`, `Immutable.Iterable()` returns a
    * sequence from a sequenceable, but also accepts a non-sequenceable value
-   * which becomes a Sequence of that one value, or 0 arguments to create an
-   * empty Sequence.
+   * which becomes a Iterable of that one value, or 0 arguments to create an
+   * empty Iterable.
    *
    * This method is useful when converting from an any arbitrary value to a
-   * Sequence but changes the behavior for JS objects. Only plain Objects
+   * Iterable but changes the behavior for JS objects. Only plain Objects
    * (e.g. created as `{}`) will be converted to Sequences. If you want to
-   * ensure that a Sequence of one item is returned, use `Sequence.of`, if you
-   * want to force a conversion of objects to Sequences, use `Sequence.from`.
+   * ensure that a Iterable of one item is returned, use `Iterable.of`, if you
+   * want to force a conversion of objects to Sequences, use `Iterable.from`.
    */
-  export function Sequence<K, V>(seq: Sequence<K, V>): Sequence<K, V>;
-  export function Sequence<T>(array: Array<T>): IndexedSequence<T>;
-  export function Sequence<V>(obj: {[key: string]: V}): Sequence<string, V>;
-  export function Sequence<T>(iterator: Iterator<T>): IndexedSequence<T>;
-  export function Sequence<T>(iterable: /*Iterable<T>*/Object): IndexedSequence<T>;
-  export function Sequence<V>(value: V): IndexedSequence<V>;
-  export function Sequence<K, V>(): Sequence<K, V>;
+  export function Iterable<K, V>(iterable: Iterable<K, V>): Iterable<K, V>;
+  export function Iterable<T>(array: Array<T>): IndexedIterable<T>;
+  export function Iterable<V>(obj: {[key: string]: V}): KeyedIterable<string, V>;
+  export function Iterable<T>(iterator: Iterator<T>): IndexedIterable<T>;
+  export function Iterable<T>(iterable: /*ES6Iterable<T>*/Object): IndexedIterable<T>;
+  export function Iterable<V>(value: V): IndexedIterable<V>;
+  export function Iterable<K, V>(): Iterable<K, V>;
 
 
-  export interface Sequence<K, V> {
+  export interface Iterable<K, V> {
 
     // ### Conversion to other types
 
@@ -211,7 +169,7 @@ declare module 'immutable' {
      * Converts this sequence to an indexed sequence of the values of this
      * sequence, discarding keys.
      */
-    toIndexedSeq(): IndexedSequence<V>;
+    toIndexedSeq(): LazyIndexedSequence<V>;
 
     /**
      * Deeply converts this sequence to equivalent JS.
@@ -224,20 +182,20 @@ declare module 'immutable' {
     /**
      * Converts this sequence into an identical sequence where indices are
      * treated as keys. This is useful if you want to operate on an
-     * IndexedSequence and preserve the [index, value] pairs.
+     * IndexedIterable and preserve the [index, value] pairs.
      *
      * The returned Sequence will have identical iteration order as
      * this Sequence.
      *
      * Example:
      *
-     *     var indexedSeq = Immutable.Sequence.of('A', 'B', 'C');
+     *     var indexedSeq = Immutable.Iterable.of('A', 'B', 'C');
      *     indexedSeq.filter(v => v === 'B').toString() // Seq [ 'B' ]
      *     var keyedSeq = indexedSeq.toKeyedSeq();
      *     keyedSeq.filter(v => v === 'B').toString() // Seq { 1: 'B' }
      *
      */
-    toKeyedSeq(): KeyedSequence<K, V>;
+    toKeyedSeq(): LazyKeyedSequence<K, V>;
 
     /**
      * Converts this sequence to a Map, Throws if keys are not hashable.
@@ -273,13 +231,13 @@ declare module 'immutable' {
      * Converts this sequence to an set sequence of the values of this
      * sequence, discarding keys.
      */
-    toSetSeq(): SetSequence<V>;
+    toSetSeq(): LazySetSequence<V>;
 
     /**
      * Converts this sequence to a lazy sequence of the same kind (indexed,
      * keyed, or set).
      */
-    toSeq(): Sequence<K, V>;
+    toSeq(): LazySequence<K, V>;
 
     /**
      * Converts this sequence to a Stack, discarding keys. Throws if values
@@ -320,17 +278,17 @@ declare module 'immutable' {
     size: number;
 
 
-    // ### ES6 Sequence methods (ES6 Array and Map)
+    // ### ES6 Collection methods (ES6 Array and Map)
 
     /**
      * Returns a new sequence with other values and sequences concatenated to
      * this one. All entries will be present in the resulting sequence, even if
      * they have the same key.
      */
-    concat(...valuesOrSequences: any[]): Sequence<any, any>;
+    concat(...valuesOrSequences: any[]): Iterable<any, any>;
 
     /**
-     * True if a value exists within this Sequence.
+     * True if a value exists within this Iterable.
      */
     contains(value: V): boolean;
 
@@ -343,7 +301,7 @@ declare module 'immutable' {
      * True if `predicate` returns true for all entries in the sequence.
      */
     every(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
       context?: any
     ): boolean;
 
@@ -351,19 +309,19 @@ declare module 'immutable' {
      * Returns a new sequence with only the entries for which the `predicate`
      * function returns true.
      *
-     *     Sequence({a:1,b:2,c:3,d:4}).filter(x => x % 2 === 0) // { b: 2, d: 4 }
+     *     Iterable({a:1,b:2,c:3,d:4}).filter(x => x % 2 === 0) // { b: 2, d: 4 }
      *
      */
     filter(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
       context?: any
-    ): Sequence<K, V>;
+    ): Iterable<K, V>;
 
     /**
      * Returns the value for which the `predicate` returns true.
      */
     find(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
       context?: any,
       notSetValue?: V
     ): V;
@@ -376,7 +334,7 @@ declare module 'immutable' {
      * (including the last iteration which returned false).
      */
     forEach(
-      sideEffect: (value?: V, key?: K, seq?: Sequence<K, V>) => any,
+      sideEffect: (value?: V, key?: K, seq?: Iterable<K, V>) => any,
       context?: any
     ): number;
 
@@ -394,13 +352,13 @@ declare module 'immutable' {
     /**
      * Returns a new sequence with values passed through a `mapper` function.
      *
-     *     Sequence({ a: 1, b: 2 }).map(x => 10 * x) // { a: 10, b: 20 }
+     *     Iterable({ a: 1, b: 2 }).map(x => 10 * x) // { a: 10, b: 20 }
      *
      */
     map<M>(
-      mapper: (value?: V, key?: K, seq?: Sequence<K, V>) => M,
+      mapper: (value?: V, key?: K, seq?: Iterable<K, V>) => M,
       context?: any
-    ): Sequence<K, M>;
+    ): Iterable<K, M>;
 
     /**
      * Reduces the sequence to a value by calling the `reducer` for every entry
@@ -412,7 +370,7 @@ declare module 'immutable' {
      * @see `Array.prototype.reduce`.
      */
     reduce<R>(
-      reducer: (reduction?: R, value?: V, key?: K, seq?: Sequence<K, V>) => R,
+      reducer: (reduction?: R, value?: V, key?: K, seq?: Iterable<K, V>) => R,
       initialReduction?: R,
       context?: any
     ): R;
@@ -424,7 +382,7 @@ declare module 'immutable' {
      * with `Array.prototype.reduceRight`.
      */
     reduceRight<R>(
-      reducer: (reduction?: R, value?: V, key?: K, seq?: Sequence<K, V>) => R,
+      reducer: (reduction?: R, value?: V, key?: K, seq?: Iterable<K, V>) => R,
       initialReduction?: R,
       context?: any
     ): R;
@@ -432,7 +390,7 @@ declare module 'immutable' {
     /**
      * Returns a new sequence which iterates in reverse order of this sequence.
      */
-    reverse(): Sequence<K, V>;
+    reverse(): Iterable<K, V>;
 
     /**
      * Returns a new sequence representing a portion of this sequence from start
@@ -447,25 +405,25 @@ declare module 'immutable' {
      * is not provided, the new sequence will continue through the end of
      * this sequence.
      *
-     * If the requested slice is equivalent to the current Sequence, then it will
+     * If the requested slice is equivalent to the current Iterable, then it will
      * return itself.
      *
      * Note: unlike `Array.prototype.slice`, this function is O(1) and copies
      * no data. The resulting sequence is also lazy, and a copy is only made when
      * it is converted such as via `toArray()` or `toVector()`.
      */
-    slice(begin?: number, end?: number): Sequence<K, V>;
+    slice(begin?: number, end?: number): Iterable<K, V>;
 
     /**
      * True if `predicate` returns true for any entry in the sequence.
      */
     some(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
       context?: any
     ): boolean;
 
     /**
-     * Returns a new Sequence which contains the same [key, value] entries,
+     * Returns a new Iterable which contains the same [key, value] entries,
      * (stable) sorted by using a comparator.
      *
      * If a comparator is not provided, a default comparator uses `a < b`.
@@ -478,7 +436,7 @@ declare module 'immutable' {
      *   * Is pure, i.e. it must always return the same value for the same pair
      *     of values.
      */
-    sort(comparator?: (valueA: V, valueB: V) => number): Sequence<K, V>;
+    sort(comparator?: (valueA: V, valueB: V) => number): Iterable<K, V>;
 
     /**
      * An iterator of this Map's values.
@@ -489,9 +447,9 @@ declare module 'immutable' {
     // ### More sequential methods
 
     /**
-     * Returns a new Sequence containing all entries except the last.
+     * Returns a new Iterable containing all entries except the last.
      */
-    butLast(): Sequence<K, V>;
+    butLast(): Iterable<K, V>;
 
     /**
      * Regardless of if this sequence can describe its size lazily, this method
@@ -503,20 +461,20 @@ declare module 'immutable' {
      */
     count(): number;
     count(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
       context?: any
     ): number;
 
     /**
-     * Returns a `Sequence` of counts, grouped by the return value of the
+     * Returns a `Iterable` of counts, grouped by the return value of the
      * `grouper` function.
      *
      * Note: This is not a lazy operation.
      */
     countBy<G>(
-      grouper: (value?: V, key?: K, seq?: Sequence<K, V>) => G,
+      grouper: (value?: V, key?: K, seq?: Iterable<K, V>) => G,
       context?: any
-    ): Sequence<G, number>;
+    ): LazyKeyedSequence<G, number>;
 
     /**
      * True if this and the other sequence have value equality, as defined
@@ -525,30 +483,31 @@ declare module 'immutable' {
      * Note: This is equivalent to `Immutable.is(this, other)`, but provided to
      * allow for chained expressions.
      */
-    equals(other: Sequence<K, V>): boolean;
+    equals(other: Iterable<K, V>): boolean;
 
     /**
      * Returns a new indexed sequence of [key, value] tuples.
      */
-    entrySeq(): IndexedSequence</*(K, V)*/Array<any>>;
+    entrySeq(): LazyIndexedSequence</*(K, V)*/Array<any>>;
 
     /**
      * Returns a new sequence with only the entries for which the `predicate`
      * function returns false.
      *
-     *     Sequence({a:1,b:2,c:3,d:4}).filterNot(x => x % 2 === 0) // { a: 1, c: 3 }
+     *     LazySequence({a:1,b:2,c:3,d:4}).filterNot(x => x % 2 === 0)
+     *     // Seq { a: 1, c: 3 }
      *
      */
     filterNot(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
       context?: any
-    ): Sequence<K, V>;
+    ): Iterable<K, V>;
 
     /**
      * Returns the key for which the `predicate` returns true.
      */
     findKey(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
       context?: any
     ): K;
 
@@ -558,7 +517,7 @@ declare module 'immutable' {
      * Note: `predicate` will be called for each entry in reverse.
      */
     findLast(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
       context?: any,
       notSetValue?: V
     ): V;
@@ -569,7 +528,7 @@ declare module 'immutable' {
      * Note: `predicate` will be called for each entry in reverse.
      */
     findLastKey(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
       context?: any
     ): K;
 
@@ -579,17 +538,17 @@ declare module 'immutable' {
     first(): V;
 
     /**
-     * Flat-maps the Sequence.
+     * Flat-maps the Iterable.
      */
     flatMap<MK, MV>(
-      mapper: (value?: V, key?: K, seq?: Sequence<K, V>) => Sequence<MK, MV>,
+      mapper: (value?: V, key?: K, seq?: Iterable<K, V>) => Iterable<MK, MV>,
       context?: any
-    ): Sequence<MK, MV>;
+    ): Iterable<MK, MV>;
 
     /**
-     * Flattens nested Sequences.
+     * Flattens nested Iterables.
      *
-     * Will deeply flatten the Sequence by default, but a `depth` can be
+     * Will deeply flatten the Iterable by default, but a `depth` can be
      * provided in the form of a number or boolean (where true means to
      * shallowly flatten one level). A depth of 0 (or shallow: false) will
      * deeply flatten.
@@ -597,24 +556,24 @@ declare module 'immutable' {
      * Flattens anything Sequencible (Arrays, Objects) with the exception of
      * Strings.
      *
-     * Note: `flatten(true)` operates on Sequence<any, Sequence<K, V>> and
-     * returns Sequence<K, V>
+     * Note: `flatten(true)` operates on Iterable<any, Iterable<K, V>> and
+     * returns Iterable<K, V>
      */
-    flatten(depth?: number): Sequence<any, any>;
-    flatten(shallow?: boolean): Sequence<any, any>;
+    flatten(depth?: number): Iterable<any, any>;
+    flatten(shallow?: boolean): Iterable<any, any>;
 
     /**
      * Returns a new sequence with this sequences's keys as it's values, and this
      * sequences's values as it's keys.
      *
-     *     Sequence({ a: 'z', b: 'y' }).flip() // { z: 'a', y: 'b' }
+     *     LazySequence({ a: 'z', b: 'y' }).flip() // { z: 'a', y: 'b' }
      *
      */
-    flip(): Sequence<V, K>;
+    flip(): Iterable<V, K>;
 
     /**
      * Returns the value associated with the provided key, or notSetValue if
-     * the Sequence does not contain this key.
+     * the Iterable does not contain this key.
      *
      * Note: it is possible a key may be associated with an `undefined` value, so
      * if `notSetValue` is not provided and this method returns `undefined`,
@@ -628,38 +587,38 @@ declare module 'immutable' {
     getIn(searchKeyPath: Array<any>, notSetValue?: any): any;
 
     /**
-     * Returns a `Sequence` of `Sequences`, grouped by the return value of the
+     * Returns a `Iterable` of `Iterables`, grouped by the return value of the
      * `grouper` function.
      *
      * Note: This is not a lazy operation.
      */
     groupBy<G>(
-      grouper: (value?: V, key?: K, seq?: Sequence<K, V>) => G,
+      grouper: (value?: V, key?: K, seq?: Iterable<K, V>) => G,
       context?: any
-    ): Sequence<G, Sequence<K, V>>;
+    ): LazyKeyedSequence<G, LazyKeyedSequence<K, V>>;
 
     /**
-     * True if a key exists within this Sequence.
+     * True if a key exists within this Iterable.
      */
     has(key: K): boolean;
 
     /**
      * True if `sequence` contains every value in this Set.
      */
-    isSubset(sequence: Sequence<any, V>): boolean;
+    isSubset(sequence: Iterable<any, V>): boolean;
     isSubset(sequence: Array<V>): boolean;
 
     /**
      * True if this Set contains every value in `sequence`.
      */
-    isSuperset(sequence: Sequence<any, V>): boolean;
+    isSuperset(sequence: Iterable<any, V>): boolean;
     isSuperset(sequence: Array<V>): boolean;
 
     /**
      * Returns a new indexed sequence of the keys of this sequence,
      * discarding values.
      */
-    keySeq(): IndexedSequence<K>;
+    keySeq(): LazyIndexedSequence<K>;
 
     /**
      * The last value in the sequence.
@@ -670,32 +629,32 @@ declare module 'immutable' {
      * Returns a new sequence with entries ([key, value] tuples) passed through
      * a `mapper` function.
      *
-     *     Sequence({ a: 1, b: 2 })
+     *     LazySequence({ a: 1, b: 2 })
      *       .mapEntries(([k, v]) => [k.toUpperCase(), v * 2])
      *     // { A: 2, B: 4 }
      *
      */
     mapEntries<KM, VM>(
-      mapper: (entry?: /*(K, V)*/Array<any>, index?: number, seq?: Sequence<K, V>) => /*(KM, VM)*/Array<any>,
+      mapper: (entry?: /*(K, V)*/Array<any>, index?: number, seq?: Iterable<K, V>) => /*(KM, VM)*/Array<any>,
       context?: any
-    ): Sequence<KM, VM>;
+    ): Iterable<KM, VM>;
 
     /**
      * Returns a new sequence with keys passed through a `mapper` function.
      *
-     *     Sequence({ a: 1, b: 2 }).mapKeys(x => x.toUpperCase()) // { A: 1, B: 2 }
+     *     LazySequence({ a: 1, b: 2 }).mapKeys(x => x.toUpperCase()) // { A: 1, B: 2 }
      *
      */
     mapKeys<M>(
-      mapper: (key?: K, value?: V, seq?: Sequence<K, V>) => M,
+      mapper: (key?: K, value?: V, seq?: Iterable<K, V>) => M,
       context?: any
-    ): Sequence<M, V>;
+    ): Iterable<M, V>;
 
     /**
      * Returns the maximum value in this collection. If any values are
      * comparatively equivalent, the first one found will be returned.
      *
-     * The `comparator` is used in the same way as `Sequence#sort`. If it is not
+     * The `comparator` is used in the same way as `Iterable#sort`. If it is not
      * provided, the default comparator is `a > b`.
      */
     max(comparator?: (valueA: V, valueB: V) => number): V;
@@ -708,7 +667,7 @@ declare module 'immutable' {
      *
      */
     maxBy<C>(
-      comparatorValueMapper: (value?: V, key?: K, seq?: Sequence<K, V>) => C,
+      comparatorValueMapper: (value?: V, key?: K, seq?: Iterable<K, V>) => C,
       comparator?: (valueA: C, valueB: C) => number
     ): V;
 
@@ -716,7 +675,7 @@ declare module 'immutable' {
      * Returns the maximum value in this collection. If any values are
      * comparatively equivalent, the first one found will be returned.
      *
-     * The `comparator` is used in the same way as `Sequence#sort`. If it is not
+     * The `comparator` is used in the same way as `Iterable#sort`. If it is not
      * provided, the default comparator is `a > b`.
      */
     min(comparator?: (valueA: V, valueB: V) => number): V;
@@ -729,52 +688,52 @@ declare module 'immutable' {
      *
      */
     minBy<C>(
-      comparatorValueMapper: (value?: V, key?: K, seq?: Sequence<K, V>) => C,
+      comparatorValueMapper: (value?: V, key?: K, seq?: Iterable<K, V>) => C,
       comparator?: (valueA: C, valueB: C) => number
     ): V;
 
     /**
-     * Returns a new Sequence containing all entries except the first.
+     * Returns a new Iterable containing all entries except the first.
      */
-    rest(): Sequence<K, V>
+    rest(): Iterable<K, V>
 
     /**
-     * Returns a new sequence which excludes the first `amount` entries from
+     * Returns a new Iterable which excludes the first `amount` entries from
      * this sequence.
      */
-    skip(amount: number): Sequence<K, V>;
+    skip(amount: number): Iterable<K, V>;
 
     /**
      * Returns a new sequence which excludes the last `amount` entries from
      * this sequence.
      */
-    skipLast(amount: number): Sequence<K, V>;
+    skipLast(amount: number): Iterable<K, V>;
 
     /**
      * Returns a new sequence which contains entries starting from when
      * `predicate` first returns false.
      *
-     *     Sequence.of('dog','frog','cat','hat','god').skipWhile(x => x.match(/g/))
+     *     LazySequence.of('dog','frog','cat','hat','god').skipWhile(x => x.match(/g/))
      *     // ['cat', 'hat', 'god']
      *
      */
     skipWhile(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
       context?: any
-    ): Sequence<K, V>;
+    ): Iterable<K, V>;
 
     /**
      * Returns a new sequence which contains entries starting from when
      * `predicate` first returns true.
      *
-     *     Sequence.of('dog','frog','cat','hat','god').skipUntil(x => x.match(/hat/))
+     *     LazySequence.of('dog','frog','cat','hat','god').skipUntil(x => x.match(/hat/))
      *     // ['hat', 'god']
      *
      */
     skipUntil(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
       context?: any
-    ): Sequence<K, V>;
+    ): Iterable<K, V>;
 
     /**
      * Like `sort`, but also accepts a `comparatorValueMapper` which allows for
@@ -784,289 +743,289 @@ declare module 'immutable' {
      *
      */
     sortBy<C>(
-      comparatorValueMapper: (value?: V, key?: K, seq?: Sequence<K, V>) => C,
+      comparatorValueMapper: (value?: V, key?: K, seq?: Iterable<K, V>) => C,
       comparator?: (valueA: C, valueB: C) => number
-    ): Sequence<K, V>;
+    ): Iterable<K, V>;
 
     /**
      * Returns a new sequence which contains the first `amount` entries from
      * this sequence.
      */
-    take(amount: number): Sequence<K, V>;
+    take(amount: number): Iterable<K, V>;
 
     /**
      * Returns a new sequence which contains the last `amount` entries from
      * this sequence.
      */
-    takeLast(amount: number): Sequence<K, V>;
+    takeLast(amount: number): Iterable<K, V>;
 
     /**
      * Returns a new sequence which contains entries from this sequence as long
      * as the `predicate` returns true.
      *
-     *     Sequence.of('dog','frog','cat','hat','god').takeWhile(x => x.match(/o/))
+     *     LazySequence.of('dog','frog','cat','hat','god').takeWhile(x => x.match(/o/))
      *     // ['dog', 'frog']
      *
      */
     takeWhile(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
       context?: any
-    ): Sequence<K, V>;
+    ): Iterable<K, V>;
 
     /**
      * Returns a new sequence which contains entries from this sequence as long
      * as the `predicate` returns false.
      *
-     *     Sequence.of('dog','frog','cat','hat','god').takeUntil(x => x.match(/at/))
+     *     LazySequence.of('dog','frog','cat','hat','god').takeUntil(x => x.match(/at/))
      *     // ['dog', 'frog']
      *
      */
     takeUntil(
-      predicate: (value?: V, key?: K, seq?: Sequence<K, V>) => boolean,
+      predicate: (value?: V, key?: K, seq?: Iterable<K, V>) => boolean,
       context?: any
-    ): Sequence<K, V>;
+    ): Iterable<K, V>;
 
     /**
      * Returns a new indexed sequence of the values of this sequence,
      * discarding keys.
      */
-    valueSeq(): IndexedSequence<V>;
+    valueSeq(): LazyIndexedSequence<V>;
 
 
-    // ### Lazy Sequence methods
+    // ### LazySequence methods
 
     /**
      * Because Sequences are lazy and designed to be chained together, they do
      * not cache their results. For example, this map function is called 6 times:
      *
-     *     var squares = Sequence.of(1,2,3).map(x => x * x);
+     *     var squares = LazySequence.of(1,2,3).map(x => x * x);
      *     squares.join() + squares.join();
      *
      * If you know a derived sequence will be used multiple times, it may be more
      * efficient to first cache it. Here, map is called 3 times:
      *
-     *     var squares = Sequence.of(1,2,3).map(x => x * x).cacheResult();
+     *     var squares = LazySequence.of(1,2,3).map(x => x * x).cacheResult();
      *     squares.join() + squares.join();
      *
-     * Use this method judiciously, as it must fully evaluate a lazy Sequence.
+     * Use this method judiciously, as it must fully evaluate a LazySequence.
      *
-     * Note: after calling `cacheResult()`, a Sequence will always have a size.
+     * Note: after calling `cacheResult()`, a LazySequence will always have a size.
      */
-    cacheResult(): Sequence<K, V>;
+    cacheResult(): LazySequence<K, V>;
   }
 
 
   /**
-   * Keyed Sequence
+   * Keyed Iterable
    * --------------
    *
-   * Keyed Sequences have discrete keys tied to each value.
+   * Keyed Iterables have discrete keys tied to each value.
    *
-   * When iterating `KeyedSequence`, each iteration will yield a `[K, V]` tuple,
-   * in other words, `Sequence#entries` is the default iterator for Keyed
+   * When iterating `KeyedIterable`, each iteration will yield a `[K, V]` tuple,
+   * in other words, `Iterable#entries` is the default iterator for Keyed
    * Sequences.
    */
 
-  export module KeyedSequence {
+  export module KeyedIterable {
 
     /**
-     * @see Sequence.empty
+     * @see Iterable.empty
      */
-    function empty<K, V>(): KeyedSequence<K, V>;
+    function empty<K, V>(): KeyedIterable<K, V>;
 
     /**
-     * Similar to `Sequence.from`, however it expects sequences of [K, V] tuples
-     * if not constructed from another KeyedSequence or JS Object.
+     * Similar to `Iterable.from`, however it expects sequences of [K, V] tuples
+     * if not constructed from another KeyedIterable or JS Object.
      */
-    function from<K, V>(seq: KeyedSequence<K, V>): KeyedSequence<K, V>;
-    function from<K, V>(seq: Sequence<any, /*[K,V]*/Array<any>>): KeyedSequence<K, V>;
-    function from<K, V>(array: Array</*[K,V]*/Array<any>>): KeyedSequence<K, V>;
-    function from<V>(obj: {[key: string]: V}): KeyedSequence<string, V>;
-    function from<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): KeyedSequence<K, V>;
-    function from<K, V>(iterable: /*Iterable<[K,V]>*/Object): KeyedSequence<K, V>;
+    function from<K, V>(seq: KeyedIterable<K, V>): KeyedIterable<K, V>;
+    function from<K, V>(seq: Iterable<any, /*[K,V]*/Array<any>>): KeyedIterable<K, V>;
+    function from<K, V>(array: Array</*[K,V]*/Array<any>>): KeyedIterable<K, V>;
+    function from<V>(obj: {[key: string]: V}): KeyedIterable<string, V>;
+    function from<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): KeyedIterable<K, V>;
+    function from<K, V>(iterable: /*Iterable<[K,V]>*/Object): KeyedIterable<K, V>;
 
   }
 
   /**
-   * Alias for `KeyedSequence.empty` and `KeyedSequence.from`.
+   * Alias for `KeyedIterable.empty` and `KeyedIterable.from`.
    */
-  export function KeyedSequence<K, V>(): KeyedSequence<K, V>;
-  export function KeyedSequence<K, V>(seq: KeyedSequence<K, V>): KeyedSequence<K, V>;
-  export function KeyedSequence<K, V>(seq: Sequence<any, /*[K,V]*/any>): KeyedSequence<K, V>;
-  export function KeyedSequence<K, V>(array: Array</*[K,V]*/any>): KeyedSequence<K, V>;
-  export function KeyedSequence<V>(obj: {[key: string]: V}): KeyedSequence<string, V>;
-  export function KeyedSequence<K, V>(iterator: Iterator</*[K,V]*/any>): KeyedSequence<K, V>;
-  export function KeyedSequence<K, V>(iterable: /*Iterable<[K,V]>*/Object): KeyedSequence<K, V>;
+  export function KeyedIterable<K, V>(): KeyedIterable<K, V>;
+  export function KeyedIterable<K, V>(seq: KeyedIterable<K, V>): KeyedIterable<K, V>;
+  export function KeyedIterable<K, V>(seq: Iterable<any, /*[K,V]*/any>): KeyedIterable<K, V>;
+  export function KeyedIterable<K, V>(array: Array</*[K,V]*/any>): KeyedIterable<K, V>;
+  export function KeyedIterable<V>(obj: {[key: string]: V}): KeyedIterable<string, V>;
+  export function KeyedIterable<K, V>(iterator: Iterator</*[K,V]*/any>): KeyedIterable<K, V>;
+  export function KeyedIterable<K, V>(iterable: /*Iterable<[K,V]>*/Object): KeyedIterable<K, V>;
 
 
-  export interface KeyedSequence<K, V> extends Sequence<K, V> {
+  export interface KeyedIterable<K, V> extends Iterable<K, V> {
 
     /**
-     * Returns KeyedSequence.
+     * Returns LazyKeyedSequence.
      * @override
      */
-    toSeq(): KeyedSequence<K, V>;
+    toSeq(): LazyKeyedSequence<K, V>;
 
-    // TODO: All sequence methods return KeyedSequence here.
+    // TODO: All sequence methods return KeyedIterable here.
   }
 
 
   /**
-   * Set Sequence
+   * Set Iterable
    * ------------
    *
    * Set Sequences only represent values. They have no associated keys or
    * indices. Duplicate values are possible in lazy Set Sequences, however the
    * concrete `Set` does not allow duplicate values.
    *
-   * Sequence methods on SetSequence such as `map` and `forEach` will provide
+   * Iterable methods on SetIterable such as `map` and `forEach` will provide
    * the value as both the first and second arguments to the provided function.
    *
-   *     var seq = SetSequence.of('A', 'B', 'C');
+   *     var seq = LazySetSequence.of('A', 'B', 'C');
    *     assert.equal(seq.every((v, k) => v === k), true);
    *
    */
 
-  export module SetSequence {
+  export module SetIterable {
 
     /**
-     * @see Sequence.empty
+     * @see Iterable.empty
      */
-    function empty<T>(): SetSequence<T>;
+    function empty<T>(): SetIterable<T>;
 
     /**
-     * @see Sequence.from
+     * @see Iterable.from
      */
-    function from<T>(seq: Sequence<any, T>): SetSequence<T>;
-    function from<T>(array: Array<T>): SetSequence<T>;
-    function from<T>(obj: {[key: string]: T}): SetSequence<T>;
-    function from<T>(iterator: Iterator<T>): SetSequence<T>;
-    function from<T>(iterable: /*Iterable<T>*/Object): SetSequence<T>;
+    function from<T>(seq: Iterable<any, T>): SetIterable<T>;
+    function from<T>(array: Array<T>): SetIterable<T>;
+    function from<T>(obj: {[key: string]: T}): SetIterable<T>;
+    function from<T>(iterator: Iterator<T>): SetIterable<T>;
+    function from<T>(iterable: /*Iterable<T>*/Object): SetIterable<T>;
 
     /**
-     * @see Sequence.of
+     * @see Iterable.of
      */
-    function of<T>(...values: T[]): SetSequence<T>;
+    function of<T>(...values: T[]): SetIterable<T>;
 
   }
 
   /**
-   * Alias for `SetSequence.empty` and `SetSequence.from`.
+   * Alias for `SetIterable.empty` and `SetIterable.from`.
    */
-  export function SetSequence<T>(): SetSequence<T>;
-  export function SetSequence<T>(seq: Sequence<any, T>): SetSequence<T>;
-  export function SetSequence<T>(array: Array<T>): SetSequence<T>;
-  export function SetSequence<T>(obj: {[key: string]: T}): SetSequence<T>;
-  export function SetSequence<T>(iterator: Iterator<T>): SetSequence<T>;
-  export function SetSequence<T>(iterable: /*Iterable<T>*/Object): SetSequence<T>;
+  export function SetIterable<T>(): SetIterable<T>;
+  export function SetIterable<T>(seq: Iterable<any, T>): SetIterable<T>;
+  export function SetIterable<T>(array: Array<T>): SetIterable<T>;
+  export function SetIterable<T>(obj: {[key: string]: T}): SetIterable<T>;
+  export function SetIterable<T>(iterator: Iterator<T>): SetIterable<T>;
+  export function SetIterable<T>(iterable: /*Iterable<T>*/Object): SetIterable<T>;
 
 
-  export interface SetSequence<T> extends Sequence<T, T> {
+  export interface SetIterable<T> extends Iterable<T, T> {
 
     /**
-     * Returns SetSequence.
+     * Returns LazySetSequence.
      * @override
      */
-    toSeq(): SetSequence<T>;
+    toSeq(): LazySetSequence<T>;
 
-    // TODO: All sequence methods return SetSequence here.
+    // TODO: All sequence methods return SetIterable here.
   }
 
 
   /**
-   * Indexed Sequence
+   * Indexed Iterable
    * ----------------
    *
    * Indexed Sequences have incrementing numeric keys. They exhibit
-   * slightly different behavior than `KeyedSequence` for some methods in order
+   * slightly different behavior than `KeyedIterable` for some methods in order
    * to better mirror the behavior of JavaScript's `Array`, and add others which
    * do not make sense on non-indexed sequences such as `indexOf`.
    *
-   * Unlike JavaScript arrays, `IndexedSequence`s are always dense. "Unset"
+   * Unlike JavaScript arrays, `IndexedIterable`s are always dense. "Unset"
    * indices and `undefined` indices are indistinguishable, and all indices from
    * 0 to `size` are visited when iterated.
    *
-   * All IndexedSequence methods return re-indexed Sequences. In other words,
+   * All IndexedIterable methods return re-indexed Sequences. In other words,
    * indices always start at 0 and increment until size. If you wish to
-   * preserve indices, using them as keys, convert to a KeyedSequence by calling
+   * preserve indices, using them as keys, convert to a KeyedIterable by calling
    * `toKeyedSeq`.
    */
 
-  export module IndexedSequence {
+  export module IndexedIterable {
 
     /**
-     * @see Sequence.empty
+     * @see Iterable.empty
      */
-    function empty<T>(): IndexedSequence<T>;
+    function empty<T>(): IndexedIterable<T>;
 
     /**
-     * @see Sequence.from
+     * @see Iterable.from
      */
-    function from<T>(seq: Sequence<any, T>): IndexedSequence<T>;
-    function from<T>(array: Array<T>): IndexedSequence<T>;
-    function from<T>(obj: {[key: string]: T}): IndexedSequence<T>;
-    function from<T>(iterator: Iterator<T>): IndexedSequence<T>;
-    function from<T>(iterable: /*Iterable<T>*/Object): IndexedSequence<T>;
+    function from<T>(seq: Iterable<any, T>): IndexedIterable<T>;
+    function from<T>(array: Array<T>): IndexedIterable<T>;
+    function from<T>(obj: {[key: string]: T}): IndexedIterable<T>;
+    function from<T>(iterator: Iterator<T>): IndexedIterable<T>;
+    function from<T>(iterable: /*Iterable<T>*/Object): IndexedIterable<T>;
 
     /**
-     * @see Sequence.of
+     * @see Iterable.of
      */
-    function of<T>(...values: T[]): IndexedSequence<T>;
+    function of<T>(...values: T[]): IndexedIterable<T>;
 
   }
 
   /**
-   * Alias for `IndexedSequence.empty` and `IndexedSequence.from`.
+   * Alias for `IndexedIterable.empty` and `IndexedIterable.from`.
    */
-  export function IndexedSequence<T>(): IndexedSequence<T>;
-  export function IndexedSequence<T>(seq: Sequence<any, T>): IndexedSequence<T>;
-  export function IndexedSequence<T>(array: Array<T>): IndexedSequence<T>;
-  export function IndexedSequence<T>(obj: {[key: string]: T}): IndexedSequence<T>;
-  export function IndexedSequence<T>(iterator: Iterator<T>): IndexedSequence<T>;
-  export function IndexedSequence<T>(iterable: /*Iterable<T>*/Object): IndexedSequence<T>;
+  export function IndexedIterable<T>(): IndexedIterable<T>;
+  export function IndexedIterable<T>(seq: Iterable<any, T>): IndexedIterable<T>;
+  export function IndexedIterable<T>(array: Array<T>): IndexedIterable<T>;
+  export function IndexedIterable<T>(obj: {[key: string]: T}): IndexedIterable<T>;
+  export function IndexedIterable<T>(iterator: Iterator<T>): IndexedIterable<T>;
+  export function IndexedIterable<T>(iterable: /*Iterable<T>*/Object): IndexedIterable<T>;
 
 
-  export interface IndexedSequence<T> extends Sequence<number, T> {
+  export interface IndexedIterable<T> extends Iterable<number, T> {
 
     /**
-     * Returns IndexedSequence.
+     * Returns LazyIndexedSequence.
      * @override
      */
-    toSeq(): IndexedSequence<T>;
+    toSeq(): LazyIndexedSequence<T>;
 
-    // ### ES6 Sequence methods (ES6 Array and Map)
+    // ### ES6 Collection methods (ES6 Array and Map)
 
     /**
      * This new behavior will iterate through the values and sequences with
      * increasing indices.
      * @override
      */
-    concat(...valuesOrSequences: any[]): IndexedSequence<any>;
+    concat(...valuesOrSequences: any[]): IndexedIterable<any>;
 
     /**
-     * Predicate takes IndexedSequence.
+     * Predicate takes IndexedIterable.
      * @override
      */
     every(
-      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
       context?: any
     ): boolean;
 
     /**
-     * Returns IndexedSequence.
+     * Returns IndexedIterable.
      * @override
      */
     filter(
-      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
       context?: any
-    ): IndexedSequence<T>;
+    ): IndexedIterable<T>;
 
     /**
-     * Predicate takes IndexedSequence.
+     * Predicate takes IndexedIterable.
      * @override
      */
     find(
-      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
       context?: any,
       notSetValue?: T
     ): T;
@@ -1076,16 +1035,16 @@ declare module 'immutable' {
      * provided predicate function. Otherwise -1 is returned.
      */
     findIndex(
-      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
       context?: any
     ): number;
 
     /**
-     * Side effect takes IndexedSequence.
+     * Side effect takes IndexedIterable.
      * @override
      */
     forEach(
-      sideEffect: (value?: T, index?: number, seq?: IndexedSequence<T>) => any,
+      sideEffect: (value?: T, index?: number, seq?: IndexedIterable<T>) => any,
       context?: any
     ): number;
 
@@ -1102,63 +1061,63 @@ declare module 'immutable' {
     lastIndexOf(searchValue: T): number;
 
     /**
-     * Returns an IndexedSequence
+     * Returns an IndexedIterable
      * @override
      */
     map<M>(
-      mapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => M,
+      mapper: (value?: T, index?: number, seq?: IndexedIterable<T>) => M,
       context?: any
-    ): IndexedSequence<M>;
+    ): IndexedIterable<M>;
 
     /**
-     * Reducer takes IndexedSequence.
+     * Reducer takes IndexedIterable.
      * @override
      */
     reduce<R>(
-      reducer: (reduction?: R, value?: T, index?: number, seq?: IndexedSequence<T>) => R,
+      reducer: (reduction?: R, value?: T, index?: number, seq?: IndexedIterable<T>) => R,
       initialReduction?: R,
       context?: any
     ): R;
 
     /**
-     * Reducer takes IndexedSequence.
+     * Reducer takes IndexedIterable.
      * @override
      */
     reduceRight<R>(
-      reducer: (reduction?: R, value?: T, index?: number, seq?: IndexedSequence<T>) => R,
+      reducer: (reduction?: R, value?: T, index?: number, seq?: IndexedIterable<T>) => R,
       initialReduction?: R,
       context?: any
     ): R;
 
     /**
-     * Returns a new IndexedSequence with this sequences values in the
+     * Returns a new IndexedIterable with this sequences values in the
      * reversed order.
      * @override
      */
-    reverse(): IndexedSequence<T>;
+    reverse(): IndexedIterable<T>;
 
     /**
-     * Returns IndexedSequence.
+     * Returns IndexedIterable.
      * @override
      */
-    slice(begin?: number, end?: number): IndexedSequence<T>;
+    slice(begin?: number, end?: number): IndexedIterable<T>;
 
     /**
-     * Predicate takes IndexedSequence.
+     * Predicate takes IndexedIterable.
      * @override
      */
     some(
-      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
       context?: any
     ): boolean;
 
     /**
-     * Returns an IndexedSequence
+     * Returns an IndexedIterable
      * @override
      */
     sort(
       comparator?: (valueA: T, valueB: T) => number
-    ): IndexedSequence<T>;
+    ): IndexedIterable<T>;
 
     /**
      * Splice returns a new indexed sequence by replacing a region of this sequence
@@ -1166,57 +1125,57 @@ declare module 'immutable' {
      * be removed.
      *
      * `index` may be a negative number, which indexes back from the end of the
-     * Sequence. `s.splice(-2)` splices after the second to last item.
+     * Iterable. `s.splice(-2)` splices after the second to last item.
      *
-     *     Sequence(['a','b','c','d']).splice(1, 2, 'q', 'r', 's')
+     *     LazySequence(['a','b','c','d']).splice(1, 2, 'q', 'r', 's')
      *     // ['a', 'q', 'r', 's', 'd']
      *
      */
-    splice(index: number, removeNum: number, ...values: any[]): IndexedSequence<T>;
+    splice(index: number, removeNum: number, ...values: any[]): IndexedIterable<T>;
 
 
     // ### More sequential methods
 
     /**
-     * Returns an IndexedSequence
+     * Returns an IndexedIterable
      * @override
      */
-    butLast(): IndexedSequence<T>;
+    butLast(): IndexedIterable<T>;
 
     /**
-     * Predicate takes IndexedSequence.
+     * Predicate takes IndexedIterable.
      * @override
      */
     count(): number;
     count(
-      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
       context?: any
     ): number;
 
     /**
-     * Returns an IndexedSequence
+     * Returns an IndexedIterable
      * @override
      */
     filterNot(
-      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
       context?: any
-    ): IndexedSequence<T>;
+    ): IndexedIterable<T>;
 
     /**
-     * Predicate takes IndexedSequence.
+     * Predicate takes IndexedIterable.
      * @override
      */
     findKey(
-      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
       context?: any
     ): number;
 
     /**
-     * Predicate takes IndexedSequence.
+     * Predicate takes IndexedIterable.
      * @override
      */
     findLast(
-      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
       context?: any,
       notSetValue?: T
     ): T;
@@ -1226,195 +1185,231 @@ declare module 'immutable' {
      * provided predicate function. Otherwise -1 is returned.
      */
     findLastIndex(
-      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
       context?: any
     ): number;
 
     /**
-     * Predicate takes IndexedSequence.
+     * Predicate takes IndexedIterable.
      * @override
      */
     findLastKey(
-      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
       context?: any
     ): number;
 
     /**
-     * Returns IndexedSequence<M>
+     * Returns IndexedIterable<M>
      * @override
      */
     flatMap<M>(
-      mapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => IndexedSequence<M>,
+      mapper: (value?: T, index?: number, seq?: IndexedIterable<T>) => IndexedIterable<M>,
       context?: any
-    ): IndexedSequence<M>;
+    ): IndexedIterable<M>;
     flatMap<M>(
-      mapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => M[],
+      mapper: (value?: T, index?: number, seq?: IndexedIterable<T>) => M[],
       context?: any
-    ): IndexedSequence<M>;
+    ): IndexedIterable<M>;
 
     /**
-     * Returns IndexedSequence<T>
+     * Returns IndexedIterable<T>
      * @override
      */
-    flatten(depth?: number): IndexedSequence<any>;
-    flatten(shallow?: boolean): IndexedSequence<any>;
+    flatten(depth?: number): IndexedIterable<any>;
+    flatten(shallow?: boolean): IndexedIterable<any>;
 
     /**
      * If this is a sequence of entries (key-value tuples), it will return a
      * sequence of those entries.
      */
-    fromEntrySeq(): Sequence<any, any>;
+    fromEntrySeq(): Iterable<any, any>;
 
     /**
      * Returns the value associated with the provided index, or notSetValue if
      * the index is beyond the bounds of the sequence.
      *
      * `index` may be a negative number, which indexes back from the end of the
-     * Sequence. `s.get(-1)` gets the last item in the Sequence.
+     * Iterable. `s.get(-1)` gets the last item in the Iterable.
      */
     get(index: number, notSetValue?: T): T;
 
     /**
-     * Returns Sequence<G, IndexedSequence<T>>
+     * Returns LazyKeyedIterable<G, LazyIndexedSequence<T>>
      * @override
      */
     groupBy<G>(
-      grouper: (value?: T, index?: number, seq?: IndexedSequence<T>) => G,
+      grouper: (value?: T, index?: number, seq?: IndexedIterable<T>) => G,
       context?: any
-    ): Sequence<G, any/*IndexedSequence<T>*/>; // Bug: exposing this causes the type checker to implode.
+    ): LazyKeyedSequence<G, any/*LazyIndexedSequence<T>*/>; // Bug: exposing this causes the type checker to implode.
 
     /**
-     * Returns a lazy sequence with `separator` between each item in this
+     * Returns an iterable with `separator` between each item in this
      * sequence.
      */
-    interpose(separator: T): IndexedSequence<T>;
+    interpose(separator: T): IndexedIterable<T>;
 
     /**
-     * Mapper takes IndexedSequence.
+     * Mapper takes IndexedIterable.
      * @override
      */
     mapEntries<KM, VM>(
-      mapper: (entry?: /*(K, V)*/Array<any>, index?: number, seq?: IndexedSequence<T>) => /*(KM, VM)*/Array<any>,
+      mapper: (entry?: /*(K, V)*/Array<any>, index?: number, seq?: IndexedIterable<T>) => /*(KM, VM)*/Array<any>,
       context?: any
-    ): Sequence<KM, VM>;
+    ): Iterable<KM, VM>;
 
     /**
-     * Mapper takes IndexedSequence.
+     * Mapper takes IndexedIterable.
      * @override
      */
     mapKeys<M>(
-      mapper: (index?: number, value?: T, seq?: IndexedSequence<T>) => M,
+      mapper: (index?: number, value?: T, seq?: IndexedIterable<T>) => M,
       context?: any
-    ): Sequence<M, T>;
+    ): Iterable<M, T>;
 
     /**
-     * Mapper takes IndexedSequence.
+     * Mapper takes IndexedIterable.
      * @override
      */
     maxBy<C>(
-      comparatorValueMapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => C,
+      comparatorValueMapper: (value?: T, index?: number, seq?: IndexedIterable<T>) => C,
       comparator?: (valueA: C, valueB: C) => number
     ): T;
 
     /**
-     * Mapper takes IndexedSequence.
+     * Mapper takes IndexedIterable.
      * @override
      */
     minBy<C>(
-      comparatorValueMapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => C,
+      comparatorValueMapper: (value?: T, index?: number, seq?: IndexedIterable<T>) => C,
       comparator?: (valueA: C, valueB: C) => number
     ): T;
 
     /**
-     * Returns IndexedSequence
+     * Returns IndexedIterable
      * @override
      */
-    rest(): IndexedSequence<T>;
+    rest(): IndexedIterable<T>;
 
     /**
-     * Returns IndexedSequence
+     * Returns IndexedIterable
      * @override
      */
-    skip(amount: number): IndexedSequence<T>;
+    skip(amount: number): IndexedIterable<T>;
 
     /**
-     * Returns IndexedSequence
+     * Returns IndexedIterable
      * @override
      */
-    skipLast(amount: number): IndexedSequence<T>;
+    skipLast(amount: number): IndexedIterable<T>;
 
     /**
-     * Returns IndexedSequence
+     * Returns IndexedIterable
      * @override
      */
     skipWhile(
-      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
       context?: any
-    ): IndexedSequence<T>;
+    ): IndexedIterable<T>;
 
     /**
-     * Returns IndexedSequence
+     * Returns IndexedIterable
      * @override
      */
     skipUntil(
-      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
       context?: any
-    ): IndexedSequence<T>;
+    ): IndexedIterable<T>;
 
     /**
-     * Returns an IndexedSequence
+     * Returns an IndexedIterable
      * @override
      */
     sortBy<C>(
-      comparatorValueMapper: (value?: T, index?: number, seq?: IndexedSequence<T>) => C,
+      comparatorValueMapper: (value?: T, index?: number, seq?: IndexedIterable<T>) => C,
       comparator?: (valueA: C, valueB: C) => number
-    ): IndexedSequence<T>;
+    ): IndexedIterable<T>;
 
     /**
-     * Returns IndexedSequence
+     * Returns IndexedIterable
      * @override
      */
-    take(amount: number): IndexedSequence<T>;
+    take(amount: number): IndexedIterable<T>;
 
     /**
-     * Returns IndexedSequence
+     * Returns IndexedIterable
      * @override
      */
-    takeLast(amount: number): IndexedSequence<T>;
+    takeLast(amount: number): IndexedIterable<T>;
 
     /**
-     * Returns IndexedSequence
+     * Returns IndexedIterable
      * @override
      */
     takeWhile(
-      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
       context?: any
-    ): IndexedSequence<T>;
+    ): IndexedIterable<T>;
 
     /**
-     * Returns IndexedSequence
+     * Returns IndexedIterable
      * @override
      */
     takeUntil(
-      predicate: (value?: T, index?: number, seq?: IndexedSequence<T>) => boolean,
+      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
       context?: any
-    ): IndexedSequence<T>;
+    ): IndexedIterable<T>;
 
 
-    // ### Lazy Sequence methods
+    // ### LazySequence methods
 
     /**
-     * Returns an IndexedSequence
+     * Returns an LazyIndexedSequence
      * @override
      */
-    cacheResult(): IndexedSequence<T>;
+    cacheResult(): LazyIndexedSequence<T>;
   }
+
 
 
   /**
    * Lazy Sequence
    * -------------
    *
+   * **Sequences are immutable** — Once a sequence is created, it cannot be
+   * changed, appended to, rearranged or otherwise modified. Instead, any mutative
+   * method called on a sequence will return a new immutable sequence.
+   *
+   * **Sequences are lazy** — Sequences do as little work as necessary to respond
+   * to any method call.
+   *
+   * For example, the following does no work, because the resulting sequence is
+   * never used:
+   *
+   *     var oddSquares = Immutable.LazySequence.of(1,2,3,4,5,6,7,8)
+   *       .filter(x => x % 2).map(x => x * x);
+   *
+   * Once the sequence is used, it performs only the work necessary. In this
+   * example, no intermediate arrays are ever created, filter is only called
+   * three times, and map is only called twice:
+   *
+   *     console.log(evenSquares.get(1)); // 9
+   *
+   * Lazy Sequences allow for the efficient chaining of sequence operations,
+   * allowing for the expression of logic that can otherwise be very tedious:
+   *
+   *     Immutable.LazySequence({a:1, b:1, c:1})
+   *       .flip().map(key => key.toUpperCase()).flip().toObject();
+   *     // Map { A: 1, B: 1, C: 1 }
+   *
+   * As well as expressing logic that would otherwise seem memory-limited:
+   *
+   *     Immutable.Range(1, Infinity)
+   *       .skip(1000)
+   *       .map(n => -n)
+   *       .filter(n => n % 2 === 0)
+   *       .take(2)
+   *       .reduce((r, n) => r * n, 1);
+   *     // 1006008
    *
    */
 
@@ -1423,33 +1418,33 @@ declare module 'immutable' {
     /**
      * `LazySequence.empty()` returns a Lazy Sequence of no values.
      */
-    function empty<K, V>(): Sequence<K, V>;
+    function empty<K, V>(): LazySequence<K, V>;
 
     /**
      * `Immutable.LazySequence.from()` returns a particular kind of Sequence based
      * on the input.
      *
      *   * If a `LazySequence`, that same `LazySequence`.
-     *   * If a `Sequence`, a `LazySequence` of the same kind.
+     *   * If a `Iterable`, a `LazySequence` of the same kind.
      *   * If an Array, an `LazyIndexedSequence`.
      *   * If an Iterable, an `LazyIndexedSequence`.
      *   * If an Iterator, an `LazyIndexedSequence`.
      *   * If a plain Object, a `LazyKeyedSequence`.
      *
      */
-    function from<K, V>(seq: Sequence<K, V>): Sequence<K, V>;
-    function from<T>(array: Array<T>): IndexedSequence<T>;
-    function from<V>(obj: {[key: string]: V}): Sequence<string, V>;
-    function from<T>(iterator: Iterator<T>): IndexedSequence<T>;
-    function from<T>(iterable: /*Iterable<T>*/Object): IndexedSequence<T>;
+    function from<K, V>(seq: Iterable<K, V>): LazySequence<K, V>;
+    function from<T>(array: Array<T>): LazyIndexedSequence<T>;
+    function from<V>(obj: {[key: string]: V}): LazySequence<string, V>;
+    function from<T>(iterator: Iterator<T>): LazyIndexedSequence<T>;
+    function from<T>(hasIterator: /*ES6Iterable<T>*/Object): LazyIndexedSequence<T>;
 
     /**
      * Provides a Lazy Indexed Sequence of the values provided.
      */
-    function of<T>(...values: T[]): IndexedSequence<T>;
+    function of<T>(...values: T[]): LazyIndexedSequence<T>;
 
     /**
-     * True if `maybeLazy` is a lazy Sequence, it is not backed by a concrete
+     * True if `maybeLazy` is a LazySequence, it is not backed by a concrete
      * structure such as Map, Vector, or Set.
      */
     function isLazy(maybeLazy): boolean;
@@ -1468,28 +1463,28 @@ declare module 'immutable' {
    * ensure that a Sequence of one item is returned, use `Sequence.of`, if you
    * want to force a conversion of objects to Sequences, use `Sequence.from`.
    */
-  export function LazySequence<K, V>(seq: Sequence<K, V>): LazySequence<K, V>;
+  export function LazySequence<K, V>(iterable: Iterable<K, V>): LazySequence<K, V>;
   export function LazySequence<T>(array: Array<T>): LazyIndexedSequence<T>;
   export function LazySequence<V>(obj: {[key: string]: V}): LazySequence<string, V>;
   export function LazySequence<T>(iterator: Iterator<T>): LazyIndexedSequence<T>;
-  export function LazySequence<T>(iterable: /*Iterable<T>*/Object): LazyIndexedSequence<T>;
+  export function LazySequence<T>(iterable: /*ES6Iterable<T>*/Object): LazyIndexedSequence<T>;
   export function LazySequence<V>(value: V): LazyIndexedSequence<V>;
   export function LazySequence<K, V>(): LazySequence<K, V>;
 
 
-  export interface LazySequence<K, V>/* extends Sequence<K, V>*/ {
+  export interface LazySequence<K, V> extends Iterable<K, V> {
     //
   }
 
-  export interface LazyKeyedSequence<K, V> extends LazySequence<K, V>, KeyedSequence<K, V> {
+  export interface LazyKeyedSequence<K, V> extends /*LazySequence<K, V>,*/ KeyedIterable<K, V> {
     //
   }
 
-  export interface LazySetSequence<T> extends LazySequence<T, T>, SetSequence<T> {
+  export interface LazySetSequence<T> extends /*LazySequence<T, T>,*/ SetIterable<T> {
     //
   }
 
-  export interface LazyIndexedSequence<T> extends LazySequence<number, T>, IndexedSequence<T> {
+  export interface LazyIndexedSequence<T> extends /*LazySequence<number, T>,*/ IndexedIterable<T> {
     //
   }
 
@@ -1531,7 +1526,7 @@ declare module 'immutable' {
    * Map
    * ---
    *
-   * A Map is a Sequence of (key, value) pairs with `O(log32 N)` gets and sets.
+   * A Map is a Iterable of (key, value) pairs with `O(log32 N)` gets and sets.
    *
    * Map is a hash map and requires keys that are hashable, either a primitive
    * (string or number) or an object with a `hashCode(): number` method.
@@ -1549,15 +1544,15 @@ declare module 'immutable' {
 
     /**
      * `Map.from()` creates a new immutable Map with the same key value pairs as
-     * the provided KeyedSequence or JavaScript Object or expects an Iterable
+     * the provided KeyedIterable or JavaScript Object or expects an Iterable
      * of [K, V] tuple entries.
      *
      *     var newMap = Map.from({key: "value"});
      *     var newMap = Map.from([["key", "value"]]);
      *
      */
-    function from<K, V>(seq: KeyedSequence<K, V>): Map<K, V>;
-    function from<K, V>(seq: Sequence<any, /*[K,V]*/Array<any>>): Map<K, V>;
+    function from<K, V>(seq: KeyedIterable<K, V>): Map<K, V>;
+    function from<K, V>(seq: Iterable<any, /*[K,V]*/Array<any>>): Map<K, V>;
     function from<K, V>(array: Array</*[K,V]*/Array<any>>): Map<K, V>;
     function from<V>(obj: {[key: string]: V}): Map<string, V>;
     function from<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): Map<K, V>;
@@ -1569,15 +1564,15 @@ declare module 'immutable' {
    * Alias for `Map.empty` and `Map.from`.
    */
   export function Map<K, V>(): Map<K, V>;
-  export function Map<K, V>(seq: KeyedSequence<K, V>): Map<K, V>;
-  export function Map<K, V>(seq: Sequence<any, /*[K,V]*/Array<any>>): Map<K, V>;
+  export function Map<K, V>(seq: KeyedIterable<K, V>): Map<K, V>;
+  export function Map<K, V>(seq: Iterable<any, /*[K,V]*/Array<any>>): Map<K, V>;
   export function Map<K, V>(array: Array</*[K,V]*/Array<any>>): Map<K, V>;
   export function Map<V>(obj: {[key: string]: V}): Map<string, V>;
   export function Map<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): Map<K, V>;
   export function Map<K, V>(iterable: /*Iterable<[K,V]>*/Object): Map<K, V>;
 
 
-  export interface Map<K, V> extends KeyedSequence<K, V> {
+  export interface Map<K, V> extends KeyedIterable<K, V> {
 
     /**
      * Returns a new Map also containing the new key, value pair. If an equivalent
@@ -1656,7 +1651,7 @@ declare module 'immutable' {
      *     y.merge(x) // { b: 20, a: 10, d: 60, c: 30 }
      *
      */
-    merge(...sequences: Sequence<K, V>[]): Map<K, V>;
+    merge(...sequences: Iterable<K, V>[]): Map<K, V>;
     merge(...sequences: {[key: string]: V}[]): Map<string, V>;
 
     /**
@@ -1672,7 +1667,7 @@ declare module 'immutable' {
      */
     mergeWith(
       merger: (previous?: V, next?: V) => V,
-      ...sequences: Sequence<K, V>[]
+      ...sequences: Iterable<K, V>[]
     ): Map<K, V>;
     mergeWith(
       merger: (previous?: V, next?: V) => V,
@@ -1688,7 +1683,7 @@ declare module 'immutable' {
      *     x.mergeDeep(y) // {a: { x: 2, y: 10 }, b: { x: 20, y: 5 }, c: { z: 3 } }
      *
      */
-    mergeDeep(...sequences: Sequence<K, V>[]): Map<K, V>;
+    mergeDeep(...sequences: Iterable<K, V>[]): Map<K, V>;
     mergeDeep(...sequences: {[key: string]: V}[]): Map<string, V>;
 
     /**
@@ -1703,7 +1698,7 @@ declare module 'immutable' {
      */
     mergeDeepWith(
       merger: (previous?: V, next?: V) => V,
-      ...sequences: Sequence<K, V>[]
+      ...sequences: Iterable<K, V>[]
     ): Map<K, V>;
     mergeDeepWith(
       merger: (previous?: V, next?: V) => V,
@@ -1790,15 +1785,15 @@ declare module 'immutable' {
 
     /**
      * `OrderedMap.from()` creates a new immutable ordered Map with the same key
-     * value pairs as the provided KeyedSequence or JavaScript Object or expects
+     * value pairs as the provided KeyedIterable or JavaScript Object or expects
      * an Iterable of [K, V] tuple entries.
      *
      *     var newOrderedMap = OrderedMap.from({key: "value"});
      *     var newOrderedMap = OrderedMap.from([["key", "value"]]);
      *
      */
-    function from<K, V>(seq: KeyedSequence<K, V>): Map<K, V>;
-    function from<K, V>(seq: Sequence<any, /*[K,V]*/Array<any>>): Map<K, V>;
+    function from<K, V>(seq: KeyedIterable<K, V>): Map<K, V>;
+    function from<K, V>(seq: Iterable<any, /*[K,V]*/Array<any>>): Map<K, V>;
     function from<K, V>(array: Array</*[K,V]*/Array<any>>): Map<K, V>;
     function from<V>(obj: {[key: string]: V}): Map<string, V>;
     function from<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): Map<K, V>;
@@ -1810,8 +1805,8 @@ declare module 'immutable' {
    * Alias for `OrderedMap.empty` and `OrderedMap.from`.
    */
   export function OrderedMap<K, V>(): Map<K, V>;
-  export function OrderedMap<K, V>(seq: KeyedSequence<K, V>): Map<K, V>;
-  export function OrderedMap<K, V>(seq: Sequence<any, /*[K,V]*/Array<any>>): Map<K, V>;
+  export function OrderedMap<K, V>(seq: KeyedIterable<K, V>): Map<K, V>;
+  export function OrderedMap<K, V>(seq: Iterable<any, /*[K,V]*/Array<any>>): Map<K, V>;
   export function OrderedMap<K, V>(array: Array</*[K,V]*/Array<any>>): Map<K, V>;
   export function OrderedMap<V>(obj: {[key: string]: V}): Map<string, V>;
   export function OrderedMap<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): Map<K, V>;
@@ -1856,12 +1851,12 @@ declare module 'immutable' {
    *     myRecord.getAB() // 4
    *
    */
-  export function Record(defaultValues: Sequence<string, any>, name?: string): RecordClass;
+  export function Record(defaultValues: Iterable<string, any>, name?: string): RecordClass;
   export function Record(defaultValues: {[key: string]: any}, name?: string): RecordClass;
 
   export interface RecordClass {
     new (): Map<string, any>;
-    new (values: Sequence<string, any>): Map<string, any>;
+    new (values: Iterable<string, any>): Map<string, any>;
     new (values: {[key: string]: any}): Map<string, any>;
   }
 
@@ -1870,7 +1865,7 @@ declare module 'immutable' {
    * Set
    * ---
    *
-   * A Set is a Sequence of unique values with `O(log32 N)` gets and sets.
+   * A Set is a Iterable of unique values with `O(log32 N)` gets and sets.
    *
    * Sets, like Maps, require that their values are hashable, either a primitive
    * (string or number) or an object with a `hashCode(): number` method.
@@ -1891,7 +1886,7 @@ declare module 'immutable' {
      * Create a new immutable Set containing the values of the provided
      * sequenceable.
      */
-    function from<T>(seq: Sequence<any, T>): Set<T>;
+    function from<T>(seq: Iterable<any, T>): Set<T>;
     function from<T>(array: Array<T>): Set<T>;
     function from<T>(obj: {[key: string]: T}): Set<T>;
     function from<T>(iterator: Iterator<T>): Set<T>;
@@ -1899,9 +1894,9 @@ declare module 'immutable' {
 
     /**
      * `Set.fromKeys()` creates a new immutable Set containing the keys from
-     * this Sequence or JavaScript Object.
+     * this Iterable or JavaScript Object.
      */
-    function fromKeys<T>(seq: Sequence<T, any>): Set<T>;
+    function fromKeys<T>(seq: Iterable<T, any>): Set<T>;
     function fromKeys(obj: {[key: string]: any}): Set<string>;
 
     /**
@@ -1915,14 +1910,14 @@ declare module 'immutable' {
    * Alias for `Set.empty` and `Set.from`.
    */
   export function Set<T>(): Set<T>;
-  export function Set<T>(seq: Sequence<any, T>): Set<T>;
+  export function Set<T>(seq: Iterable<any, T>): Set<T>;
   export function Set<T>(array: Array<T>): Set<T>;
   export function Set<T>(obj: {[key: string]: T}): Set<T>;
   export function Set<T>(iterator: Iterator<T>): Set<T>;
   export function Set<T>(iterable: /*Iterable<T>*/Object): Set<T>;
 
 
-  export interface Set<T> extends SetSequence<T> {
+  export interface Set<T> extends SetIterable<T> {
 
     /**
      * Returns a new Set which also includes this value.
@@ -1947,27 +1942,27 @@ declare module 'immutable' {
      * Alias for `union`.
      * @see `Map.prototype.merge`
      */
-    merge(...sequences: Sequence<any, T>[]): Set<T>;
+    merge(...sequences: Iterable<any, T>[]): Set<T>;
     merge(...sequences: Array<T>[]): Set<T>;
 
     /**
      * Returns a Set including any value from `sequences` that does not already
      * exist in this Set.
      */
-    union(...sequences: Sequence<any, T>[]): Set<T>;
+    union(...sequences: Iterable<any, T>[]): Set<T>;
     union(...sequences: Array<T>[]): Set<T>;
 
     /**
      * Returns a Set which has removed any values not also contained
      * within `sequences`.
      */
-    intersect(...sequences: Sequence<any, T>[]): Set<T>;
+    intersect(...sequences: Iterable<any, T>[]): Set<T>;
     intersect(...sequences: Array<T>[]): Set<T>;
 
     /**
      * Returns a Set excluding any values contained within `sequences`.
      */
-    subtract(...sequences: Sequence<any, T>[]): Set<T>;
+    subtract(...sequences: Iterable<any, T>[]): Set<T>;
     subtract(...sequences: Array<T>[]): Set<T>;
 
     /**
@@ -2008,7 +2003,7 @@ declare module 'immutable' {
      * Create a new immutable Vector containing the values of the provided
      * sequenceable.
      */
-    function from<T>(seq: Sequence<any, T>): Vector<T>;
+    function from<T>(seq: Iterable<any, T>): Vector<T>;
     function from<T>(array: Array<T>): Vector<T>;
     function from<T>(obj: {[key: string]: T}): Vector<T>;
     function from<T>(iterator: Iterator<T>): Vector<T>;
@@ -2025,14 +2020,14 @@ declare module 'immutable' {
    * Alias for `Vector.empty` and `Vector.from`.
    */
   export function Vector<T>(): Vector<T>;
-  export function Vector<T>(seq: Sequence<any, T>): Vector<T>;
+  export function Vector<T>(seq: Iterable<any, T>): Vector<T>;
   export function Vector<T>(array: Array<T>): Vector<T>;
   export function Vector<T>(obj: {[key: string]: T}): Vector<T>;
   export function Vector<T>(iterator: Iterator<T>): Vector<T>;
   export function Vector<T>(iterable: /*Iterable<T>*/Object): Vector<T>;
 
 
-  export interface Vector<T> extends IndexedSequence<T> {
+  export interface Vector<T> extends IndexedIterable<T> {
 
     /**
      * Returns a new Vector which includes `value` at `index`. If `index` already
@@ -2137,7 +2132,7 @@ declare module 'immutable' {
     /**
      * @see `Map.prototype.merge`
      */
-    merge(...sequences: IndexedSequence<T>[]): Vector<T>;
+    merge(...sequences: IndexedIterable<T>[]): Vector<T>;
     merge(...sequences: Array<T>[]): Vector<T>;
 
     /**
@@ -2145,7 +2140,7 @@ declare module 'immutable' {
      */
     mergeWith(
       merger: (previous?: T, next?: T) => T,
-      ...sequences: IndexedSequence<T>[]
+      ...sequences: IndexedIterable<T>[]
     ): Vector<T>;
     mergeWith(
       merger: (previous?: T, next?: T) => T,
@@ -2155,7 +2150,7 @@ declare module 'immutable' {
     /**
      * @see `Map.prototype.mergeDeep`
      */
-    mergeDeep(...sequences: IndexedSequence<T>[]): Vector<T>;
+    mergeDeep(...sequences: IndexedIterable<T>[]): Vector<T>;
     mergeDeep(...sequences: Array<T>[]): Vector<T>;
 
     /**
@@ -2163,7 +2158,7 @@ declare module 'immutable' {
      */
     mergeDeepWith(
       merger: (previous?: T, next?: T) => T,
-      ...sequences: IndexedSequence<T>[]
+      ...sequences: IndexedIterable<T>[]
     ): Vector<T>;
     mergeDeepWith(
       merger: (previous?: T, next?: T) => T,
@@ -2233,7 +2228,7 @@ declare module 'immutable' {
      * Create a new immutable Stack containing the values of the provided
      * sequenceable.
      */
-    function from<T>(seq: Sequence<any, T>): Stack<T>;
+    function from<T>(seq: Iterable<any, T>): Stack<T>;
     function from<T>(array: Array<T>): Stack<T>;
     function from<T>(obj: {[key: string]: T}): Stack<T>;
     function from<T>(iterator: Iterator<T>): Stack<T>;
@@ -2250,14 +2245,14 @@ declare module 'immutable' {
    * Alias for `Stack.empty` and `Stack.from`.
    */
   export function Stack<T>(): Stack<T>;
-  export function Stack<T>(seq: Sequence<any, T>): Stack<T>;
+  export function Stack<T>(seq: Iterable<any, T>): Stack<T>;
   export function Stack<T>(array: Array<T>): Stack<T>;
   export function Stack<T>(obj: {[key: string]: T}): Stack<T>;
   export function Stack<T>(iterator: Iterator<T>): Stack<T>;
   export function Stack<T>(iterable: /*Iterable<T>*/Object): Stack<T>;
 
 
-  export interface Stack<T> extends IndexedSequence<T> {
+  export interface Stack<T> extends IndexedIterable<T> {
 
     /**
      * Returns a new Stack with 0 size and no values.
@@ -2275,7 +2270,7 @@ declare module 'immutable' {
     /**
      * Like `Stack#unshift`, but accepts a sequencable rather than varargs.
      */
-    unshiftAll(seq: Sequence<any, T>): Stack<T>;
+    unshiftAll(seq: Iterable<any, T>): Stack<T>;
     unshiftAll(seq: Array<T>): Stack<T>;
 
     /**
@@ -2296,7 +2291,7 @@ declare module 'immutable' {
     /**
      * Alias for `Stack#unshiftAll`.
      */
-    pushAll(seq: Sequence<any, T>): Stack<T>;
+    pushAll(seq: Iterable<any, T>): Stack<T>;
     pushAll(seq: Array<T>): Stack<T>;
 
     /**
@@ -2350,7 +2345,7 @@ declare module 'immutable' {
    * @see Map.cursor
    */
 
-  export interface Cursor<T> extends Sequence<any, any> {
+  export interface Cursor<T> extends LazyKeyedSequence<any, any> {
 
     /**
      * Returns a sub-cursor following the key-path starting from this cursor.

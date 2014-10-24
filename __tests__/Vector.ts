@@ -34,13 +34,13 @@ describe('Vector', () => {
   it('constructor does not accept a scalar', () => {
     expect(() => {
       Immutable.Vector(3);
-    }).toThrow('Expected a sequenceable: 3');
+    }).toThrow('Expected iterable: 3');
   });
 
   it('from does not accept a scalar', () => {
     expect(() => {
       Immutable.Vector.from(3);
-    }).toThrow('Expected a sequenceable: 3');
+    }).toThrow('Expected iterable: 3');
   });
 
   it('from consumes a JS array', () => {
@@ -48,14 +48,14 @@ describe('Vector', () => {
     expect(v.toArray()).toEqual(['a', 'b', 'c']);
   });
 
-  it('from consumes a Sequence', () => {
-    var seq = Immutable.Sequence(['a', 'b', 'c']);
+  it('from consumes a LazySequence', () => {
+    var seq = Immutable.LazySequence(['a', 'b', 'c']);
     var v = Vector.from(seq);
     expect(v.toArray()).toEqual(['a', 'b', 'c']);
   });
 
-  it('from consumes a non-indexed Sequence', () => {
-    var seq = Immutable.Sequence({a:null, b:null, c:null}).flip();
+  it('from consumes a non-indexed LazySequence', () => {
+    var seq = Immutable.LazySequence({a:null, b:null, c:null}).flip();
     var v = Vector.from(seq);
     expect(v.toArray()).toEqual(['a', 'b', 'c']);
   });
@@ -423,7 +423,7 @@ describe('Vector', () => {
 
   it('concat works like Array.prototype.concat', () => {
     var v1 = Vector.of(1, 2, 3);
-    var v2 = v1.concat(4, Vector.of(5, 6), [7, 8], Immutable.Sequence({a:9,b:10}), Immutable.Set.of(11,12), null);
+    var v2 = v1.concat(4, Vector.of(5, 6), [7, 8], Immutable.LazySequence({a:9,b:10}), Immutable.Set.of(11,12), null);
     expect(v1.toArray()).toEqual([1, 2, 3]);
     expect(v2.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, null]);
   });

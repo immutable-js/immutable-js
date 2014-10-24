@@ -7,33 +7,33 @@ import Immutable = require('immutable');
 describe('ArraySequence', () => {
 
   it('every is true when predicate is true for all entries', () => {
-    expect(Immutable.Sequence([]).every(() => false)).toBe(true);
-    expect(Immutable.Sequence([1,2,3]).every(v => v > 0)).toBe(true);
-    expect(Immutable.Sequence([1,2,3]).every(v => v < 3)).toBe(false);
+    expect(Immutable.LazySequence([]).every(() => false)).toBe(true);
+    expect(Immutable.LazySequence([1,2,3]).every(v => v > 0)).toBe(true);
+    expect(Immutable.LazySequence([1,2,3]).every(v => v < 3)).toBe(false);
   });
 
   it('some is true when predicate is true for any entry', () => {
-    expect(Immutable.Sequence([]).some(() => true)).toBe(false);
-    expect(Immutable.Sequence([1,2,3]).some(v => v > 0)).toBe(true);
-    expect(Immutable.Sequence([1,2,3]).some(v => v < 3)).toBe(true);
-    expect(Immutable.Sequence([1,2,3]).some(v => v > 1)).toBe(true);
-    expect(Immutable.Sequence([1,2,3]).some(v => v < 0)).toBe(false);
+    expect(Immutable.LazySequence([]).some(() => true)).toBe(false);
+    expect(Immutable.LazySequence([1,2,3]).some(v => v > 0)).toBe(true);
+    expect(Immutable.LazySequence([1,2,3]).some(v => v < 3)).toBe(true);
+    expect(Immutable.LazySequence([1,2,3]).some(v => v > 1)).toBe(true);
+    expect(Immutable.LazySequence([1,2,3]).some(v => v < 0)).toBe(false);
   });
 
   it('maps', () => {
-    var i = Immutable.Sequence([1,2,3]);
+    var i = Immutable.LazySequence([1,2,3]);
     var m = i.map(x => x + x).toObject();
     expect(m).toEqual([2,4,6]);
   });
 
   it('reduces', () => {
-    var i = Immutable.Sequence([1,2,3]);
+    var i = Immutable.LazySequence([1,2,3]);
     var r = i.reduce<number>((r, x) => r + x);
     expect(r).toEqual(6);
   });
 
   it('efficiently chains iteration methods', () => {
-    var i = Immutable.Sequence('abcdefghijklmnopqrstuvwxyz'.split(''));
+    var i = Immutable.LazySequence('abcdefghijklmnopqrstuvwxyz'.split(''));
     function studly(letter, index) {
       return index % 2 === 0 ? letter : letter.toUpperCase();
     }
@@ -42,7 +42,7 @@ describe('ArraySequence', () => {
   });
 
   it('counts from the end of the sequence on negative index', () => {
-    var i = Immutable.Sequence.of(1, 2, 3, 4, 5, 6, 7);
+    var i = Immutable.LazySequence.of(1, 2, 3, 4, 5, 6, 7);
     expect(i.get(-1)).toBe(7);
     expect(i.get(-5)).toBe(3);
     expect(i.get(-9)).toBe(undefined);
@@ -52,7 +52,7 @@ describe('ArraySequence', () => {
   it('handles trailing holes', () => {
     var a = [1,2,3];
     a.length = 10;
-    var seq = Immutable.Sequence(a);
+    var seq = Immutable.LazySequence(a);
     expect(seq.size).toBe(10);
     expect(seq.toArray().length).toBe(10);
     expect(seq.map(x => x*x).size).toBe(10);
@@ -68,7 +68,7 @@ describe('ArraySequence', () => {
 
   it('can be iterated', () => {
     var a = [1,2,3];
-    var seq = Immutable.Sequence(a);
+    var seq = Immutable.LazySequence(a);
     var entries = seq.entries();
     expect(entries.next()).toEqual({ value: [0, 1], done: false });
     expect(entries.next()).toEqual({ value: [1, 2], done: false });
@@ -77,10 +77,10 @@ describe('ArraySequence', () => {
   });
 
   it('cannot be mutated after calling toArray', () => {
-    var seq = Immutable.Sequence(['A', 'B', 'C']);
+    var seq = Immutable.LazySequence(['A', 'B', 'C']);
 
-    var firstReverse = Immutable.Sequence(seq.toArray().reverse());
-    var secondReverse = Immutable.Sequence(seq.toArray().reverse());
+    var firstReverse = Immutable.LazySequence(seq.toArray().reverse());
+    var secondReverse = Immutable.LazySequence(seq.toArray().reverse());
 
     expect(firstReverse.get(0)).toEqual('C');
     expect(secondReverse.get(0)).toEqual('C');

@@ -8,7 +8,7 @@
  */
 
 import "Sequence"
-/* global Sequence */
+/* global Iterable */
 /* exported fromJS */
 
 function fromJS(json, converter) {
@@ -20,7 +20,7 @@ function fromJS(json, converter) {
 
 function _fromJSWith(converter, json, key, parentJSON) {
   if (json && (Array.isArray(json) || json.constructor === Object)) {
-    return converter.call(parentJSON, key, Sequence(json).map((v, k) => _fromJSWith(converter, v, k, json)));
+    return converter.call(parentJSON, key, Iterable(json).map((v, k) => _fromJSWith(converter, v, k, json)));
   }
   return json;
 }
@@ -28,10 +28,10 @@ function _fromJSWith(converter, json, key, parentJSON) {
 function _fromJSDefault(json) {
   if (json && typeof json === 'object') {
     if (Array.isArray(json)) {
-      return Sequence.from(json, _fromJSDefault).toVector();
+      return Iterable.from(json, _fromJSDefault).toVector();
     }
     if (json.constructor === Object) {
-      return Sequence.from(json, _fromJSDefault).toMap();
+      return Iterable.from(json, _fromJSDefault).toMap();
     }
   }
   return json;

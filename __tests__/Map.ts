@@ -36,7 +36,7 @@ describe('Map', () => {
   });
 
   it('constructor provides initial values as sequence', () => {
-    var s = Immutable.Sequence({'a': 'A', 'b': 'B', 'c': 'C'});
+    var s = Immutable.LazySequence({'a': 'A', 'b': 'B', 'c': 'C'});
     var m = Map(s);
     expect(m.size).toBe(3);
     expect(m.get('a')).toBe('A');
@@ -53,13 +53,13 @@ describe('Map', () => {
   it('constructor does not accept a scalar', () => {
     expect(() => {
       Map(3);
-    }).toThrow('Expected a sequenceable: 3');
+    }).toThrow('Expected iterable: 3');
   });
 
   it('from does not accept a scalar', () => {
     expect(() => {
       Map.from(3);
-    }).toThrow('Expected a sequenceable: 3');
+    }).toThrow('Expected iterable: 3');
   });
 
   it('constructor does not accept a scalar', () => {

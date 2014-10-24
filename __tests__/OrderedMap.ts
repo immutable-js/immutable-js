@@ -35,7 +35,7 @@ describe('OrderedMap', () => {
   });
 
   it('constructor accepts sequences', () => {
-    var s = Immutable.Sequence({'c': 'C', 'b': 'B', 'a': 'A'});
+    var s = Immutable.LazySequence({'c': 'C', 'b': 'B', 'a': 'A'});
     var m = OrderedMap(s);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');

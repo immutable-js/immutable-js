@@ -7,21 +7,21 @@ import jasmineCheck = require('jasmine-check');
 jasmineCheck.install();
 
 import I = require('immutable');
-import Sequence = I.Sequence;
+import LazySequence = I.LazySequence;
 import Vector = I.Vector;
 
 describe('slice', () => {
 
   it('slices a sequence', () => {
-    expect(Sequence.of(1,2,3,4,5,6).slice(2).toArray()).toEqual([3,4,5,6]);
-    expect(Sequence.of(1,2,3,4,5,6).slice(2, 4).toArray()).toEqual([3,4]);
-    expect(Sequence.of(1,2,3,4,5,6).slice(-3, -1).toArray()).toEqual([4,5]);
-    expect(Sequence.of(1,2,3,4,5,6).slice(-1).toArray()).toEqual([6]);
-    expect(Sequence.of(1,2,3,4,5,6).slice(0, -1).toArray()).toEqual([1,2,3,4,5]);
+    expect(LazySequence.of(1,2,3,4,5,6).slice(2).toArray()).toEqual([3,4,5,6]);
+    expect(LazySequence.of(1,2,3,4,5,6).slice(2, 4).toArray()).toEqual([3,4]);
+    expect(LazySequence.of(1,2,3,4,5,6).slice(-3, -1).toArray()).toEqual([4,5]);
+    expect(LazySequence.of(1,2,3,4,5,6).slice(-1).toArray()).toEqual([6]);
+    expect(LazySequence.of(1,2,3,4,5,6).slice(0, -1).toArray()).toEqual([1,2,3,4,5]);
   })
 
   it('creates an immutable stable sequence', () => {
-    var seq = Sequence.of(1,2,3,4,5,6);
+    var seq = LazySequence.of(1,2,3,4,5,6);
     var sliced = seq.slice(2, -2);
     expect(sliced.toArray()).toEqual([3, 4]);
     expect(sliced.toArray()).toEqual([3, 4]);
@@ -29,42 +29,42 @@ describe('slice', () => {
   })
 
   it('slices a sparse indexed sequence', () => {
-    expect(Sequence([1,,2,,3,,4,,5,,6]).slice(1).toArray()).toEqual([,2,,3,,4,,5,,6]);
-    expect(Sequence([1,,2,,3,,4,,5,,6]).slice(2).toArray()).toEqual([2,,3,,4,,5,,6]);
-    expect(Sequence([1,,2,,3,,4,,5,,6]).slice(3, -3).toArray()).toEqual([,3,,4,,,]); // one trailing hole.
+    expect(LazySequence([1,,2,,3,,4,,5,,6]).slice(1).toArray()).toEqual([,2,,3,,4,,5,,6]);
+    expect(LazySequence([1,,2,,3,,4,,5,,6]).slice(2).toArray()).toEqual([2,,3,,4,,5,,6]);
+    expect(LazySequence([1,,2,,3,,4,,5,,6]).slice(3, -3).toArray()).toEqual([,3,,4,,,]); // one trailing hole.
   })
 
   it('can maintain indices for an keyed indexed sequence', () => {
-    expect(Sequence.of(1,2,3,4,5,6).toKeyedSeq().slice(2).entrySeq().toArray()).toEqual([
+    expect(LazySequence.of(1,2,3,4,5,6).toKeyedSeq().slice(2).entrySeq().toArray()).toEqual([
       [2,3],
       [3,4],
       [4,5],
       [5,6],
     ]);
-    expect(Sequence.of(1,2,3,4,5,6).toKeyedSeq().slice(2, 4).entrySeq().toArray()).toEqual([
+    expect(LazySequence.of(1,2,3,4,5,6).toKeyedSeq().slice(2, 4).entrySeq().toArray()).toEqual([
       [2,3],
       [3,4],
     ]);
   })
 
   it('slices an unindexed sequence', () => {
-    expect(Sequence({a:1,b:2,c:3}).slice(1).toObject()).toEqual({b:2,c:3});
-    expect(Sequence({a:1,b:2,c:3}).slice(1, 2).toObject()).toEqual({b:2});
-    expect(Sequence({a:1,b:2,c:3}).slice(0, 2).toObject()).toEqual({a:1,b:2});
-    expect(Sequence({a:1,b:2,c:3}).slice(-1).toObject()).toEqual({c:3});
-    expect(Sequence({a:1,b:2,c:3}).slice(1, -1).toObject()).toEqual({b:2});
+    expect(LazySequence({a:1,b:2,c:3}).slice(1).toObject()).toEqual({b:2,c:3});
+    expect(LazySequence({a:1,b:2,c:3}).slice(1, 2).toObject()).toEqual({b:2});
+    expect(LazySequence({a:1,b:2,c:3}).slice(0, 2).toObject()).toEqual({a:1,b:2});
+    expect(LazySequence({a:1,b:2,c:3}).slice(-1).toObject()).toEqual({c:3});
+    expect(LazySequence({a:1,b:2,c:3}).slice(1, -1).toObject()).toEqual({b:2});
   })
 
   it('is reversable', () => {
-    expect(Sequence.of(1,2,3,4,5,6).slice(2).reverse().toArray()).toEqual([6,5,4,3]);
-    expect(Sequence.of(1,2,3,4,5,6).slice(2, 4).reverse().toArray()).toEqual([4,3]);
-    expect(Sequence.of(1,2,3,4,5,6).toKeyedSeq().slice(2).reverse().entrySeq().toArray()).toEqual([
+    expect(LazySequence.of(1,2,3,4,5,6).slice(2).reverse().toArray()).toEqual([6,5,4,3]);
+    expect(LazySequence.of(1,2,3,4,5,6).slice(2, 4).reverse().toArray()).toEqual([4,3]);
+    expect(LazySequence.of(1,2,3,4,5,6).toKeyedSeq().slice(2).reverse().entrySeq().toArray()).toEqual([
       [5,6],
       [4,5],
       [3,4],
       [2,3],
     ]);
-    expect(Sequence.of(1,2,3,4,5,6).toKeyedSeq().slice(2, 4).reverse().entrySeq().toArray()).toEqual([
+    expect(LazySequence.of(1,2,3,4,5,6).toKeyedSeq().slice(2, 4).reverse().entrySeq().toArray()).toEqual([
       [3,4],
       [2,3],
     ]);
@@ -76,7 +76,7 @@ describe('slice', () => {
   })
 
   it('returns self for whole slices', () => {
-    var s = Sequence.of(1,2,3);
+    var s = LazySequence.of(1,2,3);
     expect(s.slice(0)).toBe(s);
     expect(s.slice(0, 3)).toBe(s);
     expect(s.slice(-4, 4)).toBe(s);
@@ -113,7 +113,7 @@ describe('slice', () => {
            (entries, args) => {
     var a = [];
     entries.forEach(entry => a[entry[0]] = entry[1]);
-    var s = Sequence(a);
+    var s = LazySequence(a);
     var slicedS = s.slice.apply(s, args);
     var slicedA = a.slice.apply(a, args);
     expect(slicedS.toArray()).toEqual(slicedA);
@@ -128,7 +128,7 @@ describe('slice', () => {
     })
 
     it('creates an immutable stable sequence', () => {
-      var seq = Sequence.of(1,2,3,4,5,6);
+      var seq = LazySequence.of(1,2,3,4,5,6);
       var sliced = seq.take(3);
       expect(sliced.toArray()).toEqual([1, 2, 3]);
       expect(sliced.toArray()).toEqual([1, 2, 3]);

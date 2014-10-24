@@ -10,7 +10,7 @@
 import "Sequence"
 import "Map"
 import "TrieUtils"
-/* global Sequence, SetCollection, Map, MapPrototype, DELETE */
+/* global Iterable, SetCollection, Map, MapPrototype, DELETE */
 /* exported Set */
 
 
@@ -31,7 +31,7 @@ class Set extends SetCollection {
   }
 
   static fromKeys(seqable) {
-    return Set(Sequence(seqable).flip());
+    return Set(Iterable(seqable).flip());
   }
 
   // @pragma Access
@@ -83,7 +83,7 @@ class Set extends SetCollection {
     }
     return this.withMutations(set => {
       for (var ii = 0; ii < seqs.length; ii++) {
-        Sequence(seqs[ii]).forEach(value => set.add(value));
+        Iterable(seqs[ii]).forEach(value => set.add(value));
       }
     });
   }
@@ -92,7 +92,7 @@ class Set extends SetCollection {
     if (seqs.length === 0) {
       return this;
     }
-    seqs = seqs.map(seq => Sequence(seq));
+    seqs = seqs.map(seq => Iterable(seq));
     var originalSet = this;
     return this.withMutations(set => {
       originalSet.forEach(value => {
@@ -107,7 +107,7 @@ class Set extends SetCollection {
     if (seqs.length === 0) {
       return this;
     }
-    seqs = seqs.map(seq => Sequence(seq));
+    seqs = seqs.map(seq => Iterable(seq));
     var originalSet = this;
     return this.withMutations(set => {
       originalSet.forEach(value => {

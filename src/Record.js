@@ -11,7 +11,7 @@ import "Sequence"
 import "Map"
 import "invariant"
 import "TrieUtils"
-/* global Sequence, KeyedCollection, Map, MapPrototype, invariant, DELETE */
+/* global Iterable, KeyedCollection, Map, MapPrototype, invariant, DELETE */
 /* exported Record */
 
 
@@ -35,7 +35,7 @@ class Record extends KeyedCollection {
     RecordTypePrototype.size = keys.length;
 
     try {
-      Sequence(defaultValues).forEach((_, key) => {
+      Iterable(defaultValues).forEach((_, key) => {
         Object.defineProperty(RecordType.prototype, key, {
           get: function() {
             return this.get(key);
@@ -124,7 +124,7 @@ class Record extends KeyedCollection {
   }
 
   __iterate(fn, reverse) {
-    return Sequence(this._defaultValues).map((_, k) => this.get(k)).__iterate(fn, reverse);
+    return Iterable(this._defaultValues).map((_, k) => this.get(k)).__iterate(fn, reverse);
   }
 
   __ensureOwner(ownerID) {

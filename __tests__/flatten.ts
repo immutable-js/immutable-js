@@ -29,13 +29,13 @@ describe('flatten', () => {
   })
 
   it('flattens only Sequences (not sequenceables)', () => {
-    var nested = I.Sequence.of(I.Range(1,3),[3,4],I.Vector.of(5,6,7),8);
+    var nested = I.LazySequence.of(I.Range(1,3),[3,4],I.Vector.of(5,6,7),8);
     var flat = nested.flatten();
     expect(flat.toJS()).toEqual([1,2,[3,4],5,6,7,8]);
   })
 
   it('can be reversed', () => {
-    var nested = I.Sequence.of(I.Range(1,3),[3,4],I.Vector.of(5,6,7),8);
+    var nested = I.LazySequence.of(I.Range(1,3),[3,4],I.Vector.of(5,6,7),8);
     var flat = nested.flatten();
     var reversed = flat.reverse();
     expect(reversed.toJS()).toEqual([8,7,6,5,[3,4],2,1]);
@@ -124,8 +124,8 @@ describe('flatten', () => {
 
     it('maps to sequenceables, not only Sequences.', () => {
       var numbers = I.Range(97, 100);
-      // map returns Array, rather than Sequence. Array is sequenceable, so this
-      // works just fine.
+      // the map function returns an Array, rather than an Iterable.
+      // Array is sequenceable, so this works just fine.
       var letters = numbers.flatMap(v => [
         String.fromCharCode(v),
         String.fromCharCode(v).toUpperCase()
