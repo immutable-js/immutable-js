@@ -26,7 +26,7 @@ function _fromJSWith(converter, json, key, parentJSON) {
 }
 
 function _fromJSDefault(json) {
-  if (typeof json === 'object') {
+  if (json && typeof json === 'object') {
     if (Array.isArray(json)) {
       return Sequence.from(json, _fromJSDefault).toVector();
     }
