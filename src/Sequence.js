@@ -149,7 +149,7 @@ class Sequence {
   }
 
   filter(predicate, context) {
-    return eager(this, filterFactory(this, predicate, context, true));
+    return reify(this, filterFactory(this, predicate, context, true));
   }
 
   find(predicate, context, notSetValue) {
@@ -183,7 +183,7 @@ class Sequence {
   }
 
   map(mapper, context) {
-    return eager(this, mapFactory(this, mapper, context));
+    return reify(this, mapFactory(this, mapper, context));
   }
 
   reduce(reducer, initialReduction, context) {
@@ -211,7 +211,7 @@ class Sequence {
   }
 
   reverse() {
-    return eager(this, reverseFactory(this, true));
+    return reify(this, reverseFactory(this, true));
   }
 
   slice(begin, end) {
@@ -227,7 +227,7 @@ class Sequence {
       return this.cacheResult().slice(begin, end);
     }
     var skipped = resolvedBegin === 0 ? this : this.skip(resolvedBegin);
-    return eager(
+    return reify(
       this,
       resolvedEnd == null || resolvedEnd === this.size ?
         skipped :
@@ -349,7 +349,7 @@ class Sequence {
   }
 
   flatMap(mapper, context) {
-    return eager(this,
+    return reify(this,
       this.toSeq().map(
         (v, k, c) => Sequence(mapper.call(context, v, k, c))
       ).flatten(true)
@@ -357,11 +357,11 @@ class Sequence {
   }
 
   flatten(depth) {
-    return eager(this, flattenFactory(this, depth, true));
+    return reify(this, flattenFactory(this, depth, true));
   }
 
   flip() {
-    return eager(this, flipFactory(this));
+    return reify(this, flipFactory(this));
   }
 
   fromEntrySeq() {
@@ -411,7 +411,7 @@ class Sequence {
   }
 
   mapEntries(mapper, context) {
-    return eager(this,
+    return reify(this,
       this.entrySeq().map(
         (entry, index) => mapper.call(context, entry, index, this)
       ).fromEntrySeq()
@@ -419,7 +419,7 @@ class Sequence {
   }
 
   mapKeys(mapper, context) {
-    return eager(this,
+    return reify(this,
       this.toSeq().flip().map(
         (k, v) => mapper.call(context, k, v, this)
       ).flip()
@@ -463,15 +463,15 @@ class Sequence {
   }
 
   skip(amount) {
-    return eager(this, skipFactory(this, amount, true));
+    return reify(this, skipFactory(this, amount, true));
   }
 
   skipLast(amount) {
-    return eager(this, this.toSeq().reverse().skip(amount).reverse());
+    return reify(this, this.toSeq().reverse().skip(amount).reverse());
   }
 
   skipWhile(predicate, context) {
-    return eager(this, skipWhileFactory(this, predicate, context, true));
+    return reify(this, skipWhileFactory(this, predicate, context, true));
   }
 
   skipUntil(predicate, context) {
@@ -481,7 +481,7 @@ class Sequence {
   sortBy(mapper, comparator) {
     comparator = comparator || defaultComparator;
     var seq = this;
-    return eager(this, Sequence(seq.entrySeq().entrySeq().toArray().sort(
+    return reify(this, Sequence(seq.entrySeq().entrySeq().toArray().sort(
       (a, b) => comparator(
         mapper(a[1][1], a[1][0], seq),
         mapper(b[1][1], b[1][0], seq)
@@ -490,15 +490,15 @@ class Sequence {
   }
 
   take(amount) {
-    return eager(this, takeFactory(this, amount));
+    return reify(this, takeFactory(this, amount));
   }
 
   takeLast(amount) {
-    return eager(this, this.toSeq().reverse().take(amount).reverse());
+    return reify(this, this.toSeq().reverse().take(amount).reverse());
   }
 
   takeWhile(predicate, context) {
-    return eager(this, takeWhileFactory(this, predicate, context));
+    return reify(this, takeWhileFactory(this, predicate, context));
   }
 
   takeUntil(predicate, context) {
@@ -663,11 +663,11 @@ class IndexedSequence extends Sequence {
   // ### ES6 Sequence methods (ES6 Array and Map)
 
   concat(...values) {
-    return eager(this, concatFactory(this, values, false));
+    return reify(this, concatFactory(this, values, false));
   }
 
   filter(predicate, context) {
-    return eager(this, filterFactory(this, predicate, context, false));
+    return reify(this, filterFactory(this, predicate, context, false));
   }
 
   findIndex(predicate, context) {
@@ -684,7 +684,7 @@ class IndexedSequence extends Sequence {
   }
 
   reverse() {
-    return eager(this, reverseFactory(this, false));
+    return reify(this, reverseFactory(this, false));
   }
 
   splice(index, removeNum /*, ...values*/) {
@@ -695,7 +695,7 @@ class IndexedSequence extends Sequence {
     }
     index = resolveBegin(index, this.size);
     var spliced = this.slice(0, index);
-    return eager(
+    return reify(
       this,
       numArgs === 1 ?
         spliced :
@@ -715,11 +715,11 @@ class IndexedSequence extends Sequence {
   }
 
   flatten(depth) {
-    return eager(this, flattenFactory(this, depth, false));
+    return reify(this, flattenFactory(this, depth, false));
   }
 
   flip() {
-    return eager(this, flipFactory(this.toKeyedSeq()));
+    return reify(this, flipFactory(this.toKeyedSeq()));
   }
 
   get(index, notSetValue) {
@@ -743,7 +743,7 @@ class IndexedSequence extends Sequence {
   }
 
   interpose(separator) {
-    return eager(this, interposeFactory(this, separator));
+    return reify(this, interposeFactory(this, separator));
   }
 
   last() {
@@ -759,17 +759,17 @@ class IndexedSequence extends Sequence {
         return index >= 0 ? seq.get(index + amount, notSetValue) : notSetValue;
       }
     }
-    return eager(this, skipSeq);
+    return reify(this, skipSeq);
   }
 
   skipWhile(predicate, context) {
-    return eager(this, skipWhileFactory(this, predicate, context, false));
+    return reify(this, skipWhileFactory(this, predicate, context, false));
   }
 
   sortBy(mapper, comparator) {
     comparator = comparator || defaultComparator;
     var seq = this;
-    return eager(this, Sequence(this.entrySeq().toArray().sort(
+    return reify(this, Sequence(this.entrySeq().toArray().sort(
       (a, b) => comparator(
         mapper(a[1], a[0], seq),
         mapper(b[1], b[0], seq)
@@ -786,7 +786,7 @@ class IndexedSequence extends Sequence {
         return index >= 0 && index < amount ? seq.get(index, notSetValue) : notSetValue;
       }
     }
-    return eager(this, takeSeq);
+    return reify(this, takeSeq);
   }
 
 
@@ -1162,7 +1162,7 @@ class ArraySequence extends LazyIndexedSequence {
 
 // #pragma Helper functions
 
-function eager(kind, seq) {
+function reify(kind, seq) {
   return isLazy(kind) ? seq : kind.constructor.from(seq);
 }
 
