@@ -90,7 +90,7 @@ to changes throughout the model is a dead-end and new data can only ever be
 passed from above.
 
 This model of data flow aligns well with the architecture of [React](http://facebook.github.io/react/)
-and especially well with an application designed using the ideas of [Flux](http://facebook.github.io/react/docs/flux-overview.html).
+and especially well with an application designed using the ideas of [Flux](http://facebook.github.io/flux/docs/overview.html).
 
 When data is passed from above rather than being subscribed to, and you're only
 interested in doing work when something has changed, you can use equality.
