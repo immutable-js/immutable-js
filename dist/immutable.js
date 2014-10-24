@@ -246,7 +246,7 @@ function _iteratorFn(iterable) {
   }
 }
 var Iterable = function Iterable(value) {
-  return arguments.length === 0 ? emptySequence() : isIterable(value) ? value : seqFromValue(value, true);
+  return isIterable(value) ? value : seqFromValue(value, true);
 };
 var $Iterable = Iterable;
 ($traceurRuntime.createClass)(Iterable, {
@@ -646,13 +646,10 @@ var $Iterable = Iterable;
   __iterator: function(type, reverse) {
     return iterator(this, type, reverse, true);
   }
-}, {of: function() {
-    return this.from(arguments);
-  }});
+}, {});
 var IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
 var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
 var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
-Iterable.empty = emptySequence;
 Iterable.from = iteratorFrom;
 var IterablePrototype = Iterable.prototype;
 IterablePrototype[IS_ITERABLE_SENTINEL] = true;
@@ -681,9 +678,6 @@ IterablePrototype.chain = IterablePrototype.flatMap;
   } catch (e) {}
 })();
 var KeyedIterable = function KeyedIterable(seqable) {
-  if (arguments.length === 0) {
-    return emptySequence().toKeyedSeq();
-  }
   if (!isIterable(seqable)) {
     seqable = seqFromValue(seqable, false);
   }
@@ -692,14 +686,9 @@ var KeyedIterable = function KeyedIterable(seqable) {
 var $KeyedIterable = KeyedIterable;
 ($traceurRuntime.createClass)(KeyedIterable, {__makeSequence: function() {
     return Object.create(LazyKeyedSequence.prototype);
-  }}, {
-  empty: function() {
-    return $KeyedIterable();
-  },
-  from: function(seqable) {
+  }}, {from: function(seqable) {
     return $KeyedIterable(iteratorFrom.apply(this, arguments));
-  }
-}, Iterable);
+  }}, Iterable);
 var KeyedIterablePrototype = KeyedIterable.prototype;
 KeyedIterablePrototype[IS_KEYED_SENTINEL] = true;
 KeyedIterablePrototype[ITERATOR_SYMBOL] = IterablePrototype.entries;
@@ -709,7 +698,7 @@ KeyedIterablePrototype.__toStringMapper = (function(v, k) {
 });
 var SetIterable = function SetIterable(seqable) {
   var isIter = isIterable(seqable);
-  return isIter && !isAssociative(seqable) ? seqable : (isIter ? seqable : arguments.length === 0 ? emptySequence() : seqFromValue(seqable, false)).toSetSeq();
+  return isIter && !isAssociative(seqable) ? seqable : (isIter ? seqable : seqFromValue(seqable, false)).toSetSeq();
 };
 var $SetIterable = SetIterable;
 ($traceurRuntime.createClass)(SetIterable, {
@@ -725,18 +714,13 @@ var $SetIterable = SetIterable;
   __makeSequence: function() {
     return Object.create(LazySetSequence.prototype);
   }
-}, {
-  empty: function() {
-    return $SetIterable();
-  },
-  from: function(seqable) {
+}, {from: function(seqable) {
     return $SetIterable(iteratorFrom.apply(this, arguments));
-  }
-}, Iterable);
+  }}, Iterable);
 var SetIterablePrototype = SetIterable.prototype;
 SetIterablePrototype.has = IterablePrototype.contains;
 var IndexedIterable = function IndexedIterable(seqable) {
-  return isIndexed(seqable) ? seqable : (isIterable(seqable) ? seqable : arguments.length === 0 ? emptySequence() : seqFromValue(seqable, false)).toIndexedSeq();
+  return isIndexed(seqable) ? seqable : (isIterable(seqable) ? seqable : seqFromValue(seqable, false)).toIndexedSeq();
 };
 var $IndexedIterable = IndexedIterable;
 ($traceurRuntime.createClass)(IndexedIterable, {
@@ -852,14 +836,9 @@ var $IndexedIterable = IndexedIterable;
   __iterator: function(type, reverse) {
     return iterator(this, type, reverse, false);
   }
-}, {
-  empty: function() {
-    return $IndexedIterable();
-  },
-  from: function(seqable) {
+}, {from: function(seqable) {
     return $IndexedIterable(iteratorFrom.apply(this, arguments));
-  }
-}, Iterable);
+  }}, Iterable);
 var IndexedIterablePrototype = IndexedIterable.prototype;
 IndexedIterablePrototype[IS_INDEXED_SENTINEL] = true;
 function isIterable(maybeIterable) {
@@ -893,10 +872,10 @@ Iterable.Keyed = KeyedIterable;
 Iterable.Set = SetIterable;
 Iterable.Indexed = IndexedIterable;
 function LazySequence(value) {
-  return Iterable.apply(this, arguments).toSeq();
+  return arguments.length === 0 ? emptySequence() : Iterable(value).toSeq();
 }
-var LazyKeyedSequence = function LazyKeyedSequence(seqable) {
-  return KeyedIterable.apply(this, arguments).toSeq();
+var LazyKeyedSequence = function LazyKeyedSequence(value) {
+  return arguments.length === 0 ? emptySequence().toKeyedSeq() : KeyedIterable(value).toSeq();
 };
 var $LazyKeyedSequence = LazyKeyedSequence;
 ($traceurRuntime.createClass)(LazyKeyedSequence, {
@@ -906,11 +885,16 @@ var $LazyKeyedSequence = LazyKeyedSequence;
   toSeq: function() {
     return this;
   }
-}, {from: function(seqable) {
+}, {
+  empty: function() {
+    return $LazyKeyedSequence();
+  },
+  from: function(seqable) {
     return $LazyKeyedSequence(iteratorFrom.apply(this, arguments));
-  }}, KeyedIterable);
-var LazySetSequence = function LazySetSequence(seqable) {
-  return SetIterable.apply(this, arguments).toSeq();
+  }
+}, KeyedIterable);
+var LazySetSequence = function LazySetSequence(value) {
+  return arguments.length === 0 ? emptySequence().toSetSeq() : SetIterable(value).toSeq();
 };
 var $LazySetSequence = LazySetSequence;
 ($traceurRuntime.createClass)(LazySetSequence, {
@@ -920,11 +904,16 @@ var $LazySetSequence = LazySetSequence;
   toSeq: function() {
     return this;
   }
-}, {from: function(seqable) {
+}, {
+  empty: function() {
+    return $LazySetSequence();
+  },
+  from: function(seqable) {
     return $LazySetSequence(iteratorFrom.apply(this, arguments));
-  }}, SetIterable);
-var LazyIndexedSequence = function LazyIndexedSequence(seqable) {
-  return IndexedIterable.apply(this, arguments).toSeq();
+  }
+}, SetIterable);
+var LazyIndexedSequence = function LazyIndexedSequence(value) {
+  return arguments.length === 0 ? emptySequence() : IndexedIterable(value).toSeq();
 };
 var $LazyIndexedSequence = LazyIndexedSequence;
 ($traceurRuntime.createClass)(LazyIndexedSequence, {
@@ -934,13 +923,20 @@ var $LazyIndexedSequence = LazyIndexedSequence;
   toSeq: function() {
     return this;
   }
-}, {from: function(seqable) {
+}, {
+  empty: function() {
+    return $LazyIndexedSequence();
+  },
+  from: function(seqable) {
     return $LazyIndexedSequence(iteratorFrom.apply(this, arguments));
-  }}, IndexedIterable);
+  }
+}, IndexedIterable);
 LazySequence.from = function(value) {
   return iteratorFrom.apply(this, arguments).toSeq();
 };
-LazySequence.of = Iterable.of;
+LazySequence.of = LazyKeyedSequence.of = LazySetSequence.of = LazyIndexedSequence.of = function() {
+  return this.from(arguments);
+};
 LazySequence.empty = emptySequence;
 LazySequence.isLazy = isLazy;
 LazySequence.Keyed = LazyKeyedSequence;
@@ -984,6 +980,7 @@ var IndexedCollection = function IndexedCollection() {
     return this(LazyIndexedSequence.from.apply(this, arguments));
   }
 }, IndexedIterable);
+KeyedCollection.of = SetCollection.of = IndexedCollection.of = LazySequence.of;
 var IteratorSequence = function IteratorSequence(iterator) {
   this._iterator = iterator;
   this._iteratorCache = [];

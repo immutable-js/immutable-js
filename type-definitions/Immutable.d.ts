@@ -87,11 +87,6 @@ declare module 'immutable' {
   export module Iterable {
 
     /**
-     * `Iterable.empty()` returns a Iterable of no values.
-     */
-    function empty<K, V>(): Iterable<K, V>;
-
-    /**
      * `Immutable.Iterable.from()` returns a particular kind of Iterable based
      * on the input.
      *
@@ -107,11 +102,6 @@ declare module 'immutable' {
     function from<V>(obj: {[key: string]: V}): Iterable<string, V>;
     function from<T>(iterator: Iterator<T>): IndexedIterable<T>;
     function from<T>(iterable: /*Iterable<T>*/Object): IndexedIterable<T>;
-
-    /**
-     * Provides an IndexedIterable of the values provided.
-     */
-    function of<T>(...values: T[]): IndexedIterable<T>;
 
     /**
      * True if `maybeIterable` is an Iterable, or any of its subclasses.
@@ -137,15 +127,15 @@ declare module 'immutable' {
 
   /**
    * Like `Immutable.Iterable.from()`, `Immutable.Iterable()` returns a
-   * sequence from a sequenceable, but also accepts a non-sequenceable value
-   * which becomes a Iterable of that one value, or 0 arguments to create an
-   * empty Iterable.
+   * Iterable from a iterable-like, but also accepts a non-sequenceable value
+   * which becomes an Iterable of that one value.
    *
    * This method is useful when converting from an any arbitrary value to a
-   * Iterable but changes the behavior for JS objects. Only plain Objects
-   * (e.g. created as `{}`) will be converted to Sequences. If you want to
-   * ensure that a Iterable of one item is returned, use `Iterable.of`, if you
-   * want to force a conversion of objects to Sequences, use `Iterable.from`.
+   * Iterable but changes the behavior for JS objects and strings. Only plain
+   * Objects (e.g. created as `{}`) will be converted to Sequences. If you want
+   * to ensure that a Iterable of one item is returned, use `Sequence.of`, if
+   * you want to force a conversion of objects and strings to Iterables, use
+   * `Iterable.from`.
    */
   export function Iterable<K, V>(iterable: Iterable<K, V>): Iterable<K, V>;
   export function Iterable<T>(array: Array<T>): IndexedIterable<T>;
@@ -153,7 +143,6 @@ declare module 'immutable' {
   export function Iterable<T>(iterator: Iterator<T>): IndexedIterable<T>;
   export function Iterable<T>(iterable: /*ES6Iterable<T>*/Object): IndexedIterable<T>;
   export function Iterable<V>(value: V): IndexedIterable<V>;
-  export function Iterable<K, V>(): Iterable<K, V>;
 
 
   export interface Iterable<K, V> {
@@ -829,11 +818,6 @@ declare module 'immutable' {
   export module KeyedIterable {
 
     /**
-     * @see Iterable.empty
-     */
-    function empty<K, V>(): KeyedIterable<K, V>;
-
-    /**
      * Similar to `Iterable.from`, however it expects sequences of [K, V] tuples
      * if not constructed from another KeyedIterable or JS Object.
      */
@@ -847,9 +831,8 @@ declare module 'immutable' {
   }
 
   /**
-   * Alias for `KeyedIterable.empty` and `KeyedIterable.from`.
+   * Alias for `KeyedIterable.from`.
    */
-  export function KeyedIterable<K, V>(): KeyedIterable<K, V>;
   export function KeyedIterable<K, V>(seq: KeyedIterable<K, V>): KeyedIterable<K, V>;
   export function KeyedIterable<K, V>(seq: Iterable<any, /*[K,V]*/any>): KeyedIterable<K, V>;
   export function KeyedIterable<K, V>(array: Array</*[K,V]*/any>): KeyedIterable<K, V>;
@@ -889,11 +872,6 @@ declare module 'immutable' {
   export module SetIterable {
 
     /**
-     * @see Iterable.empty
-     */
-    function empty<T>(): SetIterable<T>;
-
-    /**
      * @see Iterable.from
      */
     function from<T>(seq: Iterable<any, T>): SetIterable<T>;
@@ -902,17 +880,11 @@ declare module 'immutable' {
     function from<T>(iterator: Iterator<T>): SetIterable<T>;
     function from<T>(iterable: /*Iterable<T>*/Object): SetIterable<T>;
 
-    /**
-     * @see Iterable.of
-     */
-    function of<T>(...values: T[]): SetIterable<T>;
-
   }
 
   /**
-   * Alias for `SetIterable.empty` and `SetIterable.from`.
+   * Alias for `SetIterable.from`.
    */
-  export function SetIterable<T>(): SetIterable<T>;
   export function SetIterable<T>(seq: Iterable<any, T>): SetIterable<T>;
   export function SetIterable<T>(array: Array<T>): SetIterable<T>;
   export function SetIterable<T>(obj: {[key: string]: T}): SetIterable<T>;
@@ -954,11 +926,6 @@ declare module 'immutable' {
   export module IndexedIterable {
 
     /**
-     * @see Iterable.empty
-     */
-    function empty<T>(): IndexedIterable<T>;
-
-    /**
      * @see Iterable.from
      */
     function from<T>(seq: Iterable<any, T>): IndexedIterable<T>;
@@ -967,17 +934,11 @@ declare module 'immutable' {
     function from<T>(iterator: Iterator<T>): IndexedIterable<T>;
     function from<T>(iterable: /*Iterable<T>*/Object): IndexedIterable<T>;
 
-    /**
-     * @see Iterable.of
-     */
-    function of<T>(...values: T[]): IndexedIterable<T>;
-
   }
 
   /**
-   * Alias for `IndexedIterable.empty` and `IndexedIterable.from`.
+   * Alias for `IndexedIterable.from`.
    */
-  export function IndexedIterable<T>(): IndexedIterable<T>;
   export function IndexedIterable<T>(seq: Iterable<any, T>): IndexedIterable<T>;
   export function IndexedIterable<T>(array: Array<T>): IndexedIterable<T>;
   export function IndexedIterable<T>(obj: {[key: string]: T}): IndexedIterable<T>;
@@ -1416,19 +1377,14 @@ declare module 'immutable' {
   export module LazySequence {
 
     /**
-     * `LazySequence.empty()` returns a Lazy Sequence of no values.
-     */
-    function empty<K, V>(): LazySequence<K, V>;
-
-    /**
      * `Immutable.LazySequence.from()` returns a particular kind of Sequence based
      * on the input.
      *
      *   * If a `LazySequence`, that same `LazySequence`.
      *   * If a `Iterable`, a `LazySequence` of the same kind.
      *   * If an Array, an `LazyIndexedSequence`.
-     *   * If an Iterable, an `LazyIndexedSequence`.
-     *   * If an Iterator, an `LazyIndexedSequence`.
+     *   * If object with an iterator, an `LazyIndexedSequence`.
+     *   * If an iterator, an `LazyIndexedSequence`.
      *   * If a plain Object, a `LazyKeyedSequence`.
      *
      */
@@ -1437,6 +1393,11 @@ declare module 'immutable' {
     function from<V>(obj: {[key: string]: V}): LazySequence<string, V>;
     function from<T>(iterator: Iterator<T>): LazyIndexedSequence<T>;
     function from<T>(hasIterator: /*ES6Iterable<T>*/Object): LazyIndexedSequence<T>;
+
+    /**
+     * `LazySequence.empty()` returns a Lazy Sequence of no values.
+     */
+    function empty<K, V>(): LazySequence<K, V>;
 
     /**
      * Provides a Lazy Indexed Sequence of the values provided.
@@ -1463,26 +1424,106 @@ declare module 'immutable' {
    * ensure that a Sequence of one item is returned, use `Sequence.of`, if you
    * want to force a conversion of objects to Sequences, use `Sequence.from`.
    */
+  export function LazySequence<K, V>(): LazySequence<K, V>;
   export function LazySequence<K, V>(iterable: Iterable<K, V>): LazySequence<K, V>;
   export function LazySequence<T>(array: Array<T>): LazyIndexedSequence<T>;
   export function LazySequence<V>(obj: {[key: string]: V}): LazySequence<string, V>;
   export function LazySequence<T>(iterator: Iterator<T>): LazyIndexedSequence<T>;
   export function LazySequence<T>(iterable: /*ES6Iterable<T>*/Object): LazyIndexedSequence<T>;
   export function LazySequence<V>(value: V): LazyIndexedSequence<V>;
-  export function LazySequence<K, V>(): LazySequence<K, V>;
-
 
   export interface LazySequence<K, V> extends Iterable<K, V> {
     //
   }
 
+
+  export module LazyKeyedSequence {
+
+    function from<K, V>(seq: KeyedIterable<K, V>): LazyKeyedSequence<K, V>;
+    function from<K, V>(seq: Iterable<any, /*[K,V]*/Array<any>>): LazyKeyedSequence<K, V>;
+    function from<K, V>(array: Array</*[K,V]*/Array<any>>): LazyKeyedSequence<K, V>;
+    function from<V>(obj: {[key: string]: V}): LazyKeyedSequence<string, V>;
+    function from<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): LazyKeyedSequence<K, V>;
+    function from<K, V>(iterable: /*Iterable<[K,V]>*/Object): LazyKeyedSequence<K, V>;
+
+    function empty<K, V>(): LazySequence<K, V>;
+
+  }
+
+  /**
+   * Alias for `LazyKeyedSequence.empty` and `LazyKeyedSequence.from`.
+   */
+  export function LazyKeyedSequence<K, V>(): LazyKeyedSequence<K, V>;
+  export function LazyKeyedSequence<K, V>(seq: KeyedIterable<K, V>): LazyKeyedSequence<K, V>;
+  export function LazyKeyedSequence<K, V>(seq: Iterable<any, /*[K,V]*/any>): LazyKeyedSequence<K, V>;
+  export function LazyKeyedSequence<K, V>(array: Array</*[K,V]*/any>): LazyKeyedSequence<K, V>;
+  export function LazyKeyedSequence<V>(obj: {[key: string]: V}): LazyKeyedSequence<string, V>;
+  export function LazyKeyedSequence<K, V>(iterator: Iterator</*[K,V]*/any>): LazyKeyedSequence<K, V>;
+  export function LazyKeyedSequence<K, V>(iterable: /*Iterable<[K,V]>*/Object): LazyKeyedSequence<K, V>;
+
   export interface LazyKeyedSequence<K, V> extends /*LazySequence<K, V>,*/ KeyedIterable<K, V> {
     //
   }
 
+
+  export module LazySetSequence {
+
+    /**
+     * @see Iterable.from
+     */
+    function from<T>(seq: Iterable<any, T>): LazySetSequence<T>;
+    function from<T>(array: Array<T>): LazySetSequence<T>;
+    function from<T>(obj: {[key: string]: T}): LazySetSequence<T>;
+    function from<T>(iterator: Iterator<T>): LazySetSequence<T>;
+    function from<T>(iterable: /*Iterable<T>*/Object): LazySetSequence<T>;
+
+    function empty<T>(): LazySetSequence<T>;
+
+    function of<T>(...values: T[]): LazySetSequence<T>;
+
+  }
+
+  /**
+   * Alias for `LazySetSequence.empty` and `LazySetSequence.from`.
+   */
+  export function LazySetSequence<T>(): LazySetSequence<T>;
+  export function LazySetSequence<T>(seq: Iterable<any, T>): LazySetSequence<T>;
+  export function LazySetSequence<T>(array: Array<T>): LazySetSequence<T>;
+  export function LazySetSequence<T>(obj: {[key: string]: T}): LazySetSequence<T>;
+  export function LazySetSequence<T>(iterator: Iterator<T>): LazySetSequence<T>;
+  export function LazySetSequence<T>(iterable: /*Iterable<T>*/Object): LazySetSequence<T>;
+
   export interface LazySetSequence<T> extends /*LazySequence<T, T>,*/ SetIterable<T> {
     //
   }
+
+
+  export module LazyIndexedSequence {
+
+    /**
+     * @see Iterable.from
+     */
+    function from<T>(seq: Iterable<any, T>): LazyIndexedSequence<T>;
+    function from<T>(array: Array<T>): LazyIndexedSequence<T>;
+    function from<T>(obj: {[key: string]: T}): LazyIndexedSequence<T>;
+    function from<T>(iterator: Iterator<T>): LazyIndexedSequence<T>;
+    function from<T>(iterable: /*Iterable<T>*/Object): LazyIndexedSequence<T>;
+
+    function empty<T>(): LazyIndexedSequence<T>;
+
+    function of<T>(...values: T[]): LazyIndexedSequence<T>;
+
+  }
+
+  /**
+   * Alias for `LazyIndexedSequence.empty` and `LazyIndexedSequence.from`.
+   */
+  export function LazyIndexedSequence<T>(): LazyIndexedSequence<T>;
+  export function LazyIndexedSequence<T>(seq: Iterable<any, T>): LazyIndexedSequence<T>;
+  export function LazyIndexedSequence<T>(array: Array<T>): LazyIndexedSequence<T>;
+  export function LazyIndexedSequence<T>(obj: {[key: string]: T}): LazyIndexedSequence<T>;
+  export function LazyIndexedSequence<T>(iterator: Iterator<T>): LazyIndexedSequence<T>;
+  export function LazyIndexedSequence<T>(iterable: /*Iterable<T>*/Object): LazyIndexedSequence<T>;
 
   export interface LazyIndexedSequence<T> extends /*LazySequence<number, T>,*/ IndexedIterable<T> {
     //

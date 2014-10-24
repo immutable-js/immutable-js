@@ -28,15 +28,8 @@ import "Iterator"
 class Iterable {
 
   constructor(value) {
-    return arguments.length === 0 ?
-      emptySequence() :
-      isIterable(value) ? value : seqFromValue(value, true);
+    return isIterable(value) ? value : seqFromValue(value, true);
   }
-
-  static of(/*...values*/) {
-    return this.from(arguments);
-  }
-
 
   // ### Conversion to other types
 
@@ -555,7 +548,6 @@ var IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
 var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
 var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
 
-Iterable.empty = emptySequence;
 Iterable.from = iteratorFrom;
 
 var IterablePrototype = Iterable.prototype;
@@ -598,17 +590,10 @@ IterablePrototype.chain = IterablePrototype.flatMap;
 class KeyedIterable extends Iterable {
 
   constructor(seqable) {
-    if (arguments.length === 0) {
-      return emptySequence().toKeyedSeq();
-    }
     if (!isIterable(seqable)) {
       seqable = seqFromValue(seqable, false);
     }
     return isKeyed(seqable) ? seqable : seqable.fromEntrySeq();
-  }
-
-  static empty() {
-    return KeyedIterable();
   }
 
   static from(seqable/*[, mapFn[, context]]*/) {
@@ -636,14 +621,8 @@ class SetIterable extends Iterable {
   constructor(seqable) {
     var isIter = isIterable(seqable);
     return isIter && !isAssociative(seqable) ? seqable : (
-      isIter ? seqable :
-      arguments.length === 0 ? emptySequence() :
-      seqFromValue(seqable, false)
+      isIter ? seqable : seqFromValue(seqable, false)
     ).toSetSeq();
-  }
-
-  static empty() {
-    return SetIterable();
   }
 
   static from(seqable/*[, mapFn[, context]]*/) {
@@ -685,14 +664,8 @@ class IndexedIterable extends Iterable {
 
   constructor(seqable) {
     return isIndexed(seqable) ? seqable : (
-      isIterable(seqable) ? seqable :
-      arguments.length === 0 ? emptySequence() :
-      seqFromValue(seqable, false)
+      isIterable(seqable) ? seqable : seqFromValue(seqable, false)
     ).toIndexedSeq();
-  }
-
-  static empty() {
-    return IndexedIterable();
   }
 
   static from(seqable/*[, mapFn[, context]]*/) {
@@ -912,12 +885,20 @@ Iterable.Indexed = IndexedIterable;
 // #pragma LazySequence
 
 function LazySequence(value) {
-  return Iterable.apply(this, arguments).toSeq();
+  return arguments.length === 0 ?
+    emptySequence() :
+    Iterable(value).toSeq();
 }
 
 class LazyKeyedSequence extends KeyedIterable {
-  constructor(seqable) {
-    return KeyedIterable.apply(this, arguments).toSeq();
+  constructor(value) {
+    return arguments.length === 0 ?
+      emptySequence().toKeyedSeq() :
+      KeyedIterable(value).toSeq();
+  }
+
+  static empty() {
+    return LazyKeyedSequence();
   }
 
   static from(seqable/*[, mapFn[, context]]*/) {
@@ -934,8 +915,14 @@ class LazyKeyedSequence extends KeyedIterable {
 }
 
 class LazySetSequence extends SetIterable {
-  constructor(seqable) {
-    return SetIterable.apply(this, arguments).toSeq();
+  constructor(value) {
+    return arguments.length === 0 ?
+      emptySequence().toSetSeq() :
+      SetIterable(value).toSeq();
+  }
+
+  static empty() {
+    return LazySetSequence();
   }
 
   static from(seqable/*[, mapFn[, context]]*/) {
@@ -952,8 +939,14 @@ class LazySetSequence extends SetIterable {
 }
 
 class LazyIndexedSequence extends IndexedIterable {
-  constructor(seqable) {
-    return IndexedIterable.apply(this, arguments).toSeq();
+  constructor(value) {
+    return arguments.length === 0 ?
+      emptySequence() :
+      IndexedIterable(value).toSeq();
+  }
+
+  static empty() {
+    return LazyIndexedSequence();
   }
 
   static from(seqable/*[, mapFn[, context]]*/) {
@@ -973,7 +966,13 @@ LazySequence.from = function (value) {
   return iteratorFrom.apply(this, arguments).toSeq();
 }
 
-LazySequence.of = Iterable.of;
+LazySequence.of =
+LazyKeyedSequence.of =
+LazySetSequence.of =
+LazyIndexedSequence.of = function(/*...values*/) {
+  return this.from(arguments);
+};
+
 LazySequence.empty = emptySequence;
 LazySequence.isLazy = isLazy;
 LazySequence.Keyed = LazyKeyedSequence;
@@ -1035,6 +1034,10 @@ class IndexedCollection extends IndexedIterable {
     return this(LazyIndexedSequence.from.apply(this, arguments));
   }
 }
+
+KeyedCollection.of =
+SetCollection.of =
+IndexedCollection.of = LazySequence.of;
 
 
 
