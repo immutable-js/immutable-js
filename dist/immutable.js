@@ -44,6 +44,13 @@ $traceurRuntime.createClass = createClass;
 $traceurRuntime.superCall = superCall;
 $traceurRuntime.defaultSuperCall = defaultSuperCall;
 "use strict";
+function mixin(ctor, methods) {
+  var proto = ctor.prototype;
+  Object.keys(methods).forEach(function(key) {
+    proto[key] = methods[key];
+  });
+  return ctor;
+}
 function is(first, second) {
   if (first === second) {
     return first !== 0 || second !== 0 || 1 / first === 1 / second;
@@ -861,9 +868,31 @@ Iterable.isAssociative = isAssociative;
 Iterable.Keyed = KeyedIterable;
 Iterable.Set = SetIterable;
 Iterable.Indexed = IndexedIterable;
-function LazySequence(value) {
+var LazySequence = function LazySequence(value) {
   return arguments.length === 0 ? emptySequence() : Iterable(value).toSeq();
-}
+};
+($traceurRuntime.createClass)(LazySequence, {
+  toSeq: function() {
+    return this;
+  },
+  cacheResult: function() {
+    if (!this._cache && this.__iterateUncached) {
+      assertNotInfinite(this.size);
+      this._cache = this.entrySeq().toArray();
+      if (this.size == null) {
+        this.size = this._cache.length;
+      }
+    }
+    return this;
+  }
+}, {
+  from: function(seqable) {
+    return iteratorFrom.apply(this, arguments).toSeq();
+  },
+  of: function() {
+    return this.from(arguments);
+  }
+}, Iterable);
 var LazyKeyedSequence = function LazyKeyedSequence(value) {
   return arguments.length === 0 ? emptySequence().toKeyedSeq() : KeyedIterable(value).toSeq();
 };
@@ -882,68 +911,45 @@ var $LazyKeyedSequence = LazyKeyedSequence;
   from: function(seqable) {
     return $LazyKeyedSequence(iteratorFrom.apply(this, arguments));
   }
-}, KeyedIterable);
+}, LazySequence);
+mixin(LazyKeyedSequence, KeyedIterable.prototype);
 var LazySetSequence = function LazySetSequence(value) {
   return arguments.length === 0 ? emptySequence().toSetSeq() : SetIterable(value).toSeq();
 };
 var $LazySetSequence = LazySetSequence;
-($traceurRuntime.createClass)(LazySetSequence, {
-  toSetSeq: function() {
+($traceurRuntime.createClass)(LazySetSequence, {toSetSeq: function() {
     return this;
-  },
-  toSeq: function() {
-    return this;
-  }
-}, {
+  }}, {
   empty: function() {
     return $LazySetSequence();
   },
   from: function(seqable) {
     return $LazySetSequence(iteratorFrom.apply(this, arguments));
   }
-}, SetIterable);
+}, LazySequence);
+mixin(LazySetSequence, SetIterable.prototype);
 var LazyIndexedSequence = function LazyIndexedSequence(value) {
   return arguments.length === 0 ? emptySequence() : IndexedIterable(value).toSeq();
 };
 var $LazyIndexedSequence = LazyIndexedSequence;
-($traceurRuntime.createClass)(LazyIndexedSequence, {
-  toIndexedSeq: function() {
+($traceurRuntime.createClass)(LazyIndexedSequence, {toIndexedSeq: function() {
     return this;
-  },
-  toSeq: function() {
-    return this;
-  }
-}, {
+  }}, {
   empty: function() {
     return $LazyIndexedSequence();
   },
   from: function(seqable) {
     return $LazyIndexedSequence(iteratorFrom.apply(this, arguments));
   }
-}, IndexedIterable);
-LazySequence.from = function(value) {
-  return iteratorFrom.apply(this, arguments).toSeq();
-};
-LazySequence.of = LazyKeyedSequence.of = LazySetSequence.of = LazyIndexedSequence.of = function() {
-  return this.from(arguments);
-};
-LazyKeyedSequence.prototype.cacheResult = LazySetSequence.prototype.cacheResult = LazyIndexedSequence.prototype.cacheResult = function() {
-  if (!this._cache && this.__iterateUncached) {
-    assertNotInfinite(this.size);
-    this._cache = this.entrySeq().toArray();
-    if (this.size == null) {
-      this.size = this._cache.length;
-    }
-  }
-  return this;
-};
+}, LazySequence);
+mixin(LazyIndexedSequence, IndexedIterable.prototype);
 LazySequence.empty = emptySequence;
 LazySequence.isLazy = isLazy;
 LazySequence.Keyed = LazyKeyedSequence;
 LazySequence.Set = LazySetSequence;
 LazySequence.Indexed = LazyIndexedSequence;
 var IS_LAZY_SENTINEL = '@@__IMMUTABLE_LAZY__@@';
-LazyKeyedSequence.prototype[IS_LAZY_SENTINEL] = LazySetSequence.prototype[IS_LAZY_SENTINEL] = LazyIndexedSequence.prototype[IS_LAZY_SENTINEL] = true;
+LazySequence.prototype[IS_LAZY_SENTINEL] = true;
 function isLazy(maybeLazy) {
   return !!(maybeLazy && maybeLazy[IS_LAZY_SENTINEL]);
 }
