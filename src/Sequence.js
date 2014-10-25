@@ -24,7 +24,7 @@ import "Iterator"
 /* exported Iterable,
             isIterable, isLazy, isKeyed, isIndexed, isAssociative
             LazySequence, LazyKeyedSequence, LazySetSequence, LazyIndexedSequence,
-            KeyedCollection, IndexedCollection, SetCollection */
+            Collection, KeyedCollection, SetCollection, IndexedCollection */
 
 class Iterable {
 
@@ -941,9 +941,9 @@ function isLazy(maybeLazy) {
 
 
 
-// #pragma Collections
+// #pragma Collection
 
-class KeyedCollection extends KeyedIterable {
+class Collection extends Iterable {
   constructor() {
     throw TypeError('Abstract');
   }
@@ -952,42 +952,36 @@ class KeyedCollection extends KeyedIterable {
     return this(emptySequence());
   }
 
+  static of(/*...values*/) {
+    return this(arguments);
+  }
+}
+
+class KeyedCollection extends Collection {
   static from(seqable/*[, mapFn[, context]]*/) {
     return this(LazyKeyedSequence.from.apply(this, arguments));
   }
 }
+mixin(KeyedCollection, KeyedIterable.prototype);
 
-class SetCollection extends SetIterable {
-  constructor() {
-    throw TypeError('Abstract');
-  }
-
-  static empty() {
-    return this(emptySequence());
-  }
-
+class SetCollection extends Collection {
   static from(seqable/*[, mapFn[, context]]*/) {
     return this(LazySetSequence.from.apply(this, arguments));
   }
 }
+mixin(SetCollection, SetIterable.prototype);
 
-class IndexedCollection extends IndexedIterable {
-  constructor() {
-    throw TypeError('Abstract');
-  }
-
-  static empty() {
-    return this(emptySequence());
-  }
-
+class IndexedCollection extends Collection {
   static from(seqable/*[, mapFn[, context]]*/) {
     return this(LazyIndexedSequence.from.apply(this, arguments));
   }
 }
+mixin(IndexedCollection, IndexedIterable.prototype);
 
-KeyedCollection.of =
-SetCollection.of =
-IndexedCollection.of = LazySequence.of;
+
+Collection.Keyed = KeyedCollection;
+Collection.Set = SetCollection;
+Collection.Indexed = IndexedCollection;
 
 
 

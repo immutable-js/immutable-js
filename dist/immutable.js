@@ -923,40 +923,44 @@ LazySequence.prototype[IS_LAZY_SENTINEL] = true;
 function isLazy(maybeLazy) {
   return !!(maybeLazy && maybeLazy[IS_LAZY_SENTINEL]);
 }
+var Collection = function Collection() {
+  throw TypeError('Abstract');
+};
+($traceurRuntime.createClass)(Collection, {}, {
+  empty: function() {
+    return this(emptySequence());
+  },
+  of: function() {
+    return this(arguments);
+  }
+}, Iterable);
 var KeyedCollection = function KeyedCollection() {
-  throw TypeError('Abstract');
+  $traceurRuntime.defaultSuperCall(this, $KeyedCollection.prototype, arguments);
 };
-($traceurRuntime.createClass)(KeyedCollection, {}, {
-  empty: function() {
-    return this(emptySequence());
-  },
-  from: function(seqable) {
+var $KeyedCollection = KeyedCollection;
+($traceurRuntime.createClass)(KeyedCollection, {}, {from: function(seqable) {
     return this(LazyKeyedSequence.from.apply(this, arguments));
-  }
-}, KeyedIterable);
+  }}, Collection);
+mixin(KeyedCollection, KeyedIterable.prototype);
 var SetCollection = function SetCollection() {
-  throw TypeError('Abstract');
+  $traceurRuntime.defaultSuperCall(this, $SetCollection.prototype, arguments);
 };
-($traceurRuntime.createClass)(SetCollection, {}, {
-  empty: function() {
-    return this(emptySequence());
-  },
-  from: function(seqable) {
+var $SetCollection = SetCollection;
+($traceurRuntime.createClass)(SetCollection, {}, {from: function(seqable) {
     return this(LazySetSequence.from.apply(this, arguments));
-  }
-}, SetIterable);
+  }}, Collection);
+mixin(SetCollection, SetIterable.prototype);
 var IndexedCollection = function IndexedCollection() {
-  throw TypeError('Abstract');
+  $traceurRuntime.defaultSuperCall(this, $IndexedCollection.prototype, arguments);
 };
-($traceurRuntime.createClass)(IndexedCollection, {}, {
-  empty: function() {
-    return this(emptySequence());
-  },
-  from: function(seqable) {
+var $IndexedCollection = IndexedCollection;
+($traceurRuntime.createClass)(IndexedCollection, {}, {from: function(seqable) {
     return this(LazyIndexedSequence.from.apply(this, arguments));
-  }
-}, IndexedIterable);
-KeyedCollection.of = SetCollection.of = IndexedCollection.of = LazySequence.of;
+  }}, Collection);
+mixin(IndexedCollection, IndexedIterable.prototype);
+Collection.Keyed = KeyedCollection;
+Collection.Set = SetCollection;
+Collection.Indexed = IndexedCollection;
 function isIterable(maybeIterable) {
   return !!(maybeIterable && maybeIterable[IS_ITERABLE_SENTINEL]);
 }
@@ -3722,6 +3726,7 @@ function updateCursor(cursor, changeFn, changeKey) {
 var Immutable = {
   Iterable: Iterable,
   LazySequence: LazySequence,
+  Collection: Collection,
   Map: Map,
   Vector: Vector,
   Stack: Stack,

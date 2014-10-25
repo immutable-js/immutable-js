@@ -19,7 +19,7 @@ import "Repeat"
 import "is"
 import "fromJS"
 import "Cursor" // Solve circular dependency
-/* global Iterable, LazySequence,
+/* global Iterable, LazySequence, Collection,
           Map, Vector, Stack, Set, OrderedMap, Record, Range, Repeat,
           is, fromJS */
 /* exported Immutable */
@@ -28,8 +28,8 @@ import "Cursor" // Solve circular dependency
 var Immutable = {
 
   Iterable: Iterable,
-
   LazySequence: LazySequence,
+  Collection: Collection,
 
   Map: Map,
   Vector: Vector,
