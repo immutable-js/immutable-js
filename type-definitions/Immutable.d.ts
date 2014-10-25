@@ -276,7 +276,7 @@ declare module 'immutable' {
      * For LazySequences, all entries will be present in
      * the resulting iterable, even if they have the same key.
      */
-    concat(...valuesOrSequences: any[]): /*this*/Iterable<any, any>;
+    concat(...valuesOrIterables: any[]): /*this*/Iterable<any, any>;
 
     /**
      * True if a value exists within this Iterable.
@@ -337,7 +337,7 @@ declare module 'immutable' {
     join(separator?: string): string;
 
     /**
-     * An iterator of this Map's keys.
+     * An iterator of this Iterable's keys.
      */
     keys(): Iterator<K>;
 
@@ -356,10 +356,10 @@ declare module 'immutable' {
 
     /**
      * Reduces the Iterable to a value by calling the `reducer` for every entry
-     * in the sequence and passing along the reduced value.
+     * in the Iterable and passing along the reduced value.
      *
      * If `initialReduction` is not provided, or is null, the first item in the
-     * sequence will be used.
+     * Iterable will be used.
      *
      * @see `Array.prototype.reduce`.
      */
@@ -376,7 +376,7 @@ declare module 'immutable' {
      * with `Array#reduceRight`.
      */
     reduceRight<R>(
-      reducer: (reduction?: R, value?: V, key?: K, seq?: Iterable<K, V>) => R,
+      reducer: (reduction?: R, value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => R,
       initialReduction?: R,
       context?: any
     ): R;
@@ -390,14 +390,14 @@ declare module 'immutable' {
      * Returns a new Iterable of the same type representing a portion of this
      * Iterable from start up to but not including end.
      *
-     * If begin is negative, it is offset from the end of the sequence. e.g.
-     * `slice(-2)` returns a sequence of the last two entries. If it is not
-     * provided the new sequence will begin at the beginning of this sequence.
+     * If begin is negative, it is offset from the end of the Iterable. e.g.
+     * `slice(-2)` returns a Iterable of the last two entries. If it is not
+     * provided the new Iterable will begin at the beginning of this Iterable.
      *
-     * If end is negative, it is offset from the end of the sequence. e.g.
-     * `slice(0, -1)` returns a sequence of everything but the last entry. If it
-     * is not provided, the new sequence will continue through the end of
-     * this sequence.
+     * If end is negative, it is offset from the end of the Iterable. e.g.
+     * `slice(0, -1)` returns an Iterable of everything but the last entry. If
+     * it is not provided, the new Iterable will continue through the end of
+     * this Iterable.
      *
      * If the requested slice is equivalent to the current Iterable, then it
      * will return itself.
@@ -405,7 +405,7 @@ declare module 'immutable' {
     slice(begin?: number, end?: number): /*this*/Iterable<K, V>;
 
     /**
-     * True if `predicate` returns true for any entry in the sequence.
+     * True if `predicate` returns true for any entry in the Iterable.
      */
     some(
       predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
@@ -434,7 +434,7 @@ declare module 'immutable' {
     values(): Iterator<V>;
 
 
-    // ### More sequential methods
+    // ### More collection methods
 
     /**
      * Returns a new Iterable of the same type containing all entries except
@@ -443,12 +443,12 @@ declare module 'immutable' {
     butLast(): /*this*/Iterable<K, V>;
 
     /**
-     * Regardless of if this Iterable can describe its size lazily, this method
-     * will always return the correct size. E.g. it evaluates the full sequence
-     * if necessary.
+     * Regardless of if this Iterable can describe its size (some LazySequences
+     * cannot), this method will always return the correct size. E.g. it
+     * evaluates a LazySequence if necessary.
      *
      * If `predicate` is provided, then this returns the count of entries in the
-     * sequence for which the `predicate` returns true.
+     * Iterable for which the `predicate` returns true.
      */
     count(): number;
     count(
@@ -460,7 +460,7 @@ declare module 'immutable' {
      * Returns a `LazyKeyedSequence` of counts, grouped by the return value of
      * the `grouper` function.
      *
-     * Note: This is never a lazy operation.
+     * Note: This is not a lazy operation.
      */
     countBy<G>(
       grouper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => G,
@@ -468,7 +468,7 @@ declare module 'immutable' {
     ): LazyKeyedSequence<G, number>;
 
     /**
-     * True if this and the other sequence have value equality, as defined
+     * True if this and the other Iterable have value equality, as defined
      * by `Immutable.is()`.
      *
      * Note: This is equivalent to `Immutable.is(this, other)`, but provided to
@@ -524,7 +524,7 @@ declare module 'immutable' {
     ): K;
 
     /**
-     * The first value in the sequence.
+     * The first value in the Iterable.
      */
     first(): V;
 
@@ -532,7 +532,7 @@ declare module 'immutable' {
      * Flat-maps the Iterable, returning an Iterable of the same type.
      */
     flatMap<MK, MV>(
-      mapper: (value?: V, key?: K, seq?: /*this*/Iterable<K, V>) => Iterable<MK, MV>,
+      mapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => Iterable<MK, MV>,
       context?: any
     ): /*this*/Iterable<MK, MV>;
 
@@ -563,7 +563,7 @@ declare module 'immutable' {
     get(key: K, notSetValue?: V): V;
 
     /**
-     * Returns the value found by following a key path through nested sequences.
+     * Returns the value found by following a key path through nested Iterables.
      */
     getIn(searchKeyPath: Array<any>, notSetValue?: any): any;
 
@@ -584,25 +584,25 @@ declare module 'immutable' {
     has(key: K): boolean;
 
     /**
-     * True if `sequence` contains every value in this Set.
+     * True if `iter` contains every value in this Iterable.
      */
-    isSubset(sequence: Iterable<any, V>): boolean;
-    isSubset(sequence: Array<V>): boolean;
+    isSubset(iter: Iterable<any, V>): boolean;
+    isSubset(iter: Array<V>): boolean;
 
     /**
-     * True if this Set contains every value in `sequence`.
+     * True if this Iterable contains every value in `iter`.
      */
-    isSuperset(sequence: Iterable<any, V>): boolean;
-    isSuperset(sequence: Array<V>): boolean;
+    isSuperset(iter: Iterable<any, V>): boolean;
+    isSuperset(iter: Array<V>): boolean;
 
     /**
-     * Returns a new indexed sequence of the keys of this sequence,
+     * Returns a new LazyIndexedSequence of the keys of this Iterable,
      * discarding values.
      */
     keySeq(): LazyIndexedSequence<K>;
 
     /**
-     * The last value in the sequence.
+     * The last value in the Iterable.
      */
     last(): V;
 
@@ -662,7 +662,7 @@ declare module 'immutable' {
 
     /**
      * Returns a new Iterable of the same type which excludes the last `amount`
-     * entries from this sequence.
+     * entries from this Iterable.
      */
     skipLast(amount: number): /*this*/Iterable<K, V>;
 
@@ -708,19 +708,19 @@ declare module 'immutable' {
 
     /**
      * Returns a new Iterable of the same type which contains the first `amount`
-     * entries from this sequence.
+     * entries from this Iterable.
      */
     take(amount: number): /*this*/Iterable<K, V>;
 
     /**
      * Returns a new Iterable of the same type which contains the last `amount`
-     * entries from this sequence.
+     * entries from this Iterable.
      */
     takeLast(amount: number): /*this*/Iterable<K, V>;
 
     /**
      * Returns a new Iterable of the same type which contains entries from this
-     * sequence as long as the `predicate` returns true.
+     * Iterable as long as the `predicate` returns true.
      *
      *     LazySequence.of('dog','frog','cat','hat','god')
      *       .takeWhile(x => x.match(/o/))
@@ -733,8 +733,8 @@ declare module 'immutable' {
     ): /*this*/Iterable<K, V>;
 
     /**
-     * Returns a new sequence which contains entries from this sequence as long
-     * as the `predicate` returns false.
+     * Returns a new Iterable of the same type which contains entries from this
+     * Iterable as long as the `predicate` returns false.
      *
      *     LazySequence.of('dog','frog','cat','hat','god').takeUntil(x => x.match(/at/))
      *     // ['dog', 'frog']
@@ -746,7 +746,7 @@ declare module 'immutable' {
     ): /*this*/Iterable<K, V>;
 
     /**
-     * Returns a new LazyIndexedSequence of the values of this sequence,
+     * Returns a new LazyIndexedSequence of the values of this Iterable,
      * discarding keys.
      */
     valueSeq(): LazyIndexedSequence<V>;
@@ -767,11 +767,11 @@ declare module 'immutable' {
   export module KeyedIterable {
 
     /**
-     * Similar to `Iterable.from`, however it expects sequences of [K, V] tuples
-     * if not constructed from another KeyedIterable or JS Object.
+     * Similar to `Iterable.from`, however it expects iterable-likes of [K, V]
+     * tuples if not constructed from a KeyedIterable or JS Object.
      */
-    function from<K, V>(seq: KeyedIterable<K, V>): KeyedIterable<K, V>;
-    function from<K, V>(seq: Iterable<any, /*[K,V]*/Array<any>>): KeyedIterable<K, V>;
+    function from<K, V>(iter: KeyedIterable<K, V>): KeyedIterable<K, V>;
+    function from<K, V>(iter: Iterable<any, /*[K,V]*/Array<any>>): KeyedIterable<K, V>;
     function from<K, V>(array: Array</*[K,V]*/Array<any>>): KeyedIterable<K, V>;
     function from<V>(obj: {[key: string]: V}): KeyedIterable<string, V>;
     function from<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): KeyedIterable<K, V>;
@@ -782,8 +782,8 @@ declare module 'immutable' {
   /**
    * Alias for `KeyedIterable.from`.
    */
-  export function KeyedIterable<K, V>(seq: KeyedIterable<K, V>): KeyedIterable<K, V>;
-  export function KeyedIterable<K, V>(seq: Iterable<any, /*[K,V]*/any>): KeyedIterable<K, V>;
+  export function KeyedIterable<K, V>(iter: KeyedIterable<K, V>): KeyedIterable<K, V>;
+  export function KeyedIterable<K, V>(iter: Iterable<any, /*[K,V]*/any>): KeyedIterable<K, V>;
   export function KeyedIterable<K, V>(array: Array</*[K,V]*/any>): KeyedIterable<K, V>;
   export function KeyedIterable<V>(obj: {[key: string]: V}): KeyedIterable<string, V>;
   export function KeyedIterable<K, V>(iterator: Iterator</*[K,V]*/any>): KeyedIterable<K, V>;
@@ -832,7 +832,7 @@ declare module 'immutable' {
      *
      */
     mapKeys<M>(
-      mapper: (key?: K, value?: V, seq?: /*this*/KeyedIterable<K, V>) => M,
+      mapper: (key?: K, value?: V, iter?: /*this*/KeyedIterable<K, V>) => M,
       context?: any
     ): KeyedIterable<M, V>;
 
@@ -845,7 +845,7 @@ declare module 'immutable' {
    * ------------
    *
    * Set Sequences only represent values. They have no associated keys or
-   * indices. Duplicate values are possible in lazy Set Sequences, however the
+   * indices. Duplicate values are possible in LazySetSequences, however the
    * concrete `Set` does not allow duplicate values.
    *
    * Iterable methods on SetIterable such as `map` and `forEach` will provide
@@ -861,7 +861,7 @@ declare module 'immutable' {
     /**
      * @see Iterable.from
      */
-    function from<T>(seq: Iterable<any, T>): SetIterable<T>;
+    function from<T>(iter: Iterable<any, T>): SetIterable<T>;
     function from<T>(array: Array<T>): SetIterable<T>;
     function from<T>(obj: {[key: string]: T}): SetIterable<T>;
     function from<T>(iterator: Iterator<T>): SetIterable<T>;
@@ -872,7 +872,7 @@ declare module 'immutable' {
   /**
    * Alias for `SetIterable.from`.
    */
-  export function SetIterable<T>(seq: Iterable<any, T>): SetIterable<T>;
+  export function SetIterable<T>(iter: Iterable<any, T>): SetIterable<T>;
   export function SetIterable<T>(array: Array<T>): SetIterable<T>;
   export function SetIterable<T>(obj: {[key: string]: T}): SetIterable<T>;
   export function SetIterable<T>(iterator: Iterator<T>): SetIterable<T>;
@@ -898,7 +898,7 @@ declare module 'immutable' {
    * Indexed Sequences have incrementing numeric keys. They exhibit
    * slightly different behavior than `KeyedIterable` for some methods in order
    * to better mirror the behavior of JavaScript's `Array`, and add others which
-   * do not make sense on non-indexed sequences such as `indexOf`.
+   * do not make sense on non-indexed Iterables such as `indexOf`.
    *
    * Unlike JavaScript arrays, `IndexedIterable`s are always dense. "Unset"
    * indices and `undefined` indices are indistinguishable, and all indices from
@@ -915,7 +915,7 @@ declare module 'immutable' {
     /**
      * @see Iterable.from
      */
-    function from<T>(seq: Iterable<any, T>): IndexedIterable<T>;
+    function from<T>(iter: Iterable<any, T>): IndexedIterable<T>;
     function from<T>(array: Array<T>): IndexedIterable<T>;
     function from<T>(obj: {[key: string]: T}): IndexedIterable<T>;
     function from<T>(iterator: Iterator<T>): IndexedIterable<T>;
@@ -926,7 +926,7 @@ declare module 'immutable' {
   /**
    * Alias for `IndexedIterable.from`.
    */
-  export function IndexedIterable<T>(seq: Iterable<any, T>): IndexedIterable<T>;
+  export function IndexedIterable<T>(iter: Iterable<any, T>): IndexedIterable<T>;
   export function IndexedIterable<T>(array: Array<T>): IndexedIterable<T>;
   export function IndexedIterable<T>(obj: {[key: string]: T}): IndexedIterable<T>;
   export function IndexedIterable<T>(iterator: Iterator<T>): IndexedIterable<T>;
@@ -944,18 +944,18 @@ declare module 'immutable' {
     // ### ES6 Collection methods (ES6 Array and Map)
 
     /**
-     * This new behavior will iterate through the values and sequences with
+     * This new behavior will iterate through the values and iterable-likes with
      * increasing indices.
      * @override
      */
-    concat(...valuesOrSequences: any[]): IndexedIterable<any>;
+    concat(...valuesOrIterables: any[]): IndexedIterable<any>;
 
     /**
      * Predicate takes IndexedIterable.
      * @override
      */
     every(
-      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
+      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
       context?: any
     ): boolean;
 
@@ -964,16 +964,16 @@ declare module 'immutable' {
      * @override
      */
     filter(
-      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
+      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
       context?: any
-    ): IndexedIterable<T>;
+    ): /*this*/IndexedIterable<T>;
 
     /**
      * Predicate takes IndexedIterable.
      * @override
      */
     find(
-      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
+      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
       context?: any,
       notSetValue?: T
     ): T;
@@ -983,7 +983,7 @@ declare module 'immutable' {
      * provided predicate function. Otherwise -1 is returned.
      */
     findIndex(
-      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
+      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
       context?: any
     ): number;
 
@@ -992,19 +992,19 @@ declare module 'immutable' {
      * @override
      */
     forEach(
-      sideEffect: (value?: T, index?: number, seq?: IndexedIterable<T>) => any,
+      sideEffect: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => any,
       context?: any
     ): number;
 
     /**
      * Returns the first index at which a given value can be found in the
-     * sequence, or -1 if it is not present.
+     * Iterable, or -1 if it is not present.
      */
     indexOf(searchValue: T): number;
 
     /**
      * Returns the last index at which a given value can be found in the
-     * sequence, or -1 if it is not present.
+     * Iterable, or -1 if it is not present.
      */
     lastIndexOf(searchValue: T): number;
 
@@ -1013,16 +1013,16 @@ declare module 'immutable' {
      * @override
      */
     map<M>(
-      mapper: (value?: T, index?: number, seq?: IndexedIterable<T>) => M,
+      mapper: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => M,
       context?: any
-    ): IndexedIterable<M>;
+    ): /*this*/IndexedIterable<M>;
 
     /**
      * Reducer takes IndexedIterable.
      * @override
      */
     reduce<R>(
-      reducer: (reduction?: R, value?: T, index?: number, seq?: IndexedIterable<T>) => R,
+      reducer: (reduction?: R, value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => R,
       initialReduction?: R,
       context?: any
     ): R;
@@ -1032,30 +1032,29 @@ declare module 'immutable' {
      * @override
      */
     reduceRight<R>(
-      reducer: (reduction?: R, value?: T, index?: number, seq?: IndexedIterable<T>) => R,
+      reducer: (reduction?: R, value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => R,
       initialReduction?: R,
       context?: any
     ): R;
 
     /**
-     * Returns a new IndexedIterable with this sequences values in the
-     * reversed order.
+     * Returns IndexedIterable.
      * @override
      */
-    reverse(): IndexedIterable<T>;
+    reverse(): /*this*/IndexedIterable<T>;
 
     /**
      * Returns IndexedIterable.
      * @override
      */
-    slice(begin?: number, end?: number): IndexedIterable<T>;
+    slice(begin?: number, end?: number): /*this*/IndexedIterable<T>;
 
     /**
      * Predicate takes IndexedIterable.
      * @override
      */
     some(
-      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
+      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
       context?: any
     ): boolean;
 
@@ -1065,21 +1064,21 @@ declare module 'immutable' {
      */
     sort(
       comparator?: (valueA: T, valueB: T) => number
-    ): IndexedIterable<T>;
+    ): /*this*/IndexedIterable<T>;
 
     /**
-     * Splice returns a new indexed sequence by replacing a region of this sequence
-     * with new values. If values are not provided, it only skips the region to
-     * be removed.
+     * Splice returns a new indexed sequence by replacing a region of this
+     * Iterable with new values. If values are not provided, it only skips the
+     * region to be removed.
      *
      * `index` may be a negative number, which indexes back from the end of the
      * Iterable. `s.splice(-2)` splices after the second to last item.
      *
      *     LazySequence(['a','b','c','d']).splice(1, 2, 'q', 'r', 's')
-     *     // ['a', 'q', 'r', 's', 'd']
+     *     // Seq ['a', 'q', 'r', 's', 'd']
      *
      */
-    splice(index: number, removeNum: number, ...values: any[]): IndexedIterable<T>;
+    splice(index: number, removeNum: number, ...values: any[]): /*this*/IndexedIterable<T>;
 
 
     // ### More sequential methods
@@ -1088,7 +1087,7 @@ declare module 'immutable' {
      * Returns an IndexedIterable
      * @override
      */
-    butLast(): IndexedIterable<T>;
+    butLast(): /*this*/IndexedIterable<T>;
 
     /**
      * Predicate takes IndexedIterable.
@@ -1096,7 +1095,7 @@ declare module 'immutable' {
      */
     count(): number;
     count(
-      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
+      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
       context?: any
     ): number;
 
@@ -1105,16 +1104,16 @@ declare module 'immutable' {
      * @override
      */
     filterNot(
-      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
+      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
       context?: any
-    ): IndexedIterable<T>;
+    ): /*this*/IndexedIterable<T>;
 
     /**
      * Predicate takes IndexedIterable.
      * @override
      */
     findKey(
-      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
+      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
       context?: any
     ): number;
 
@@ -1123,7 +1122,7 @@ declare module 'immutable' {
      * @override
      */
     findLast(
-      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
+      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
       context?: any,
       notSetValue?: T
     ): T;
@@ -1133,7 +1132,7 @@ declare module 'immutable' {
      * provided predicate function. Otherwise -1 is returned.
      */
     findLastIndex(
-      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
+      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
       context?: any
     ): number;
 
@@ -1142,7 +1141,7 @@ declare module 'immutable' {
      * @override
      */
     findLastKey(
-      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
+      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
       context?: any
     ): number;
 
@@ -1151,20 +1150,20 @@ declare module 'immutable' {
      * @override
      */
     flatMap<M>(
-      mapper: (value?: T, index?: number, seq?: IndexedIterable<T>) => IndexedIterable<M>,
+      mapper: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => IndexedIterable<M>,
       context?: any
-    ): IndexedIterable<M>;
+    ): /*this*/IndexedIterable<M>;
     flatMap<M>(
-      mapper: (value?: T, index?: number, seq?: IndexedIterable<T>) => M[],
+      mapper: (value?: T, index?: number, seq?: /*this*/IndexedIterable<T>) => M[],
       context?: any
-    ): IndexedIterable<M>;
+    ): /*this*/IndexedIterable<M>;
 
     /**
      * Returns IndexedIterable<T>
      * @override
      */
-    flatten(depth?: number): IndexedIterable<any>;
-    flatten(shallow?: boolean): IndexedIterable<any>;
+    flatten(depth?: number): /*this*/IndexedIterable<any>;
+    flatten(shallow?: boolean): /*this*/IndexedIterable<any>;
 
     /**
      * If this is a sequence of entries (key-value tuples), it will return a
@@ -1182,44 +1181,26 @@ declare module 'immutable' {
     get(index: number, notSetValue?: T): T;
 
     /**
-     * Returns LazyKeyedIterable<G, LazyIndexedSequence<T>>
+     * Returns LazyKeyedIterable<G, IndexedIterable<T>>
      * @override
      */
     groupBy<G>(
-      grouper: (value?: T, index?: number, seq?: IndexedIterable<T>) => G,
+      grouper: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => G,
       context?: any
     ): LazyKeyedSequence<G, any/*IndexedIterable<T>*/>; // Bug: exposing this causes the type checker to implode.
 
     /**
-     * Returns an iterable with `separator` between each item in this
-     * sequence.
+     * Returns an Iterable of the same type with `separator` between each item
+     * in this Iterable.
      */
-    interpose(separator: T): IndexedIterable<T>;
-
-    /**
-     * Mapper takes IndexedIterable.
-     * @override
-     */
-    mapEntries<KM, VM>(
-      mapper: (entry?: /*(K, V)*/Array<any>, index?: number, seq?: IndexedIterable<T>) => /*(KM, VM)*/Array<any>,
-      context?: any
-    ): Iterable<KM, VM>;
-
-    /**
-     * Mapper takes IndexedIterable.
-     * @override
-     */
-    mapKeys<M>(
-      mapper: (index?: number, value?: T, seq?: IndexedIterable<T>) => M,
-      context?: any
-    ): Iterable<M, T>;
+    interpose(separator: T): /*this*/IndexedIterable<T>;
 
     /**
      * Mapper takes IndexedIterable.
      * @override
      */
     maxBy<C>(
-      comparatorValueMapper: (value?: T, index?: number, seq?: IndexedIterable<T>) => C,
+      comparatorValueMapper: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => C,
       comparator?: (valueA: C, valueB: C) => number
     ): T;
 
@@ -1228,7 +1209,7 @@ declare module 'immutable' {
      * @override
      */
     minBy<C>(
-      comparatorValueMapper: (value?: T, index?: number, seq?: IndexedIterable<T>) => C,
+      comparatorValueMapper: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => C,
       comparator?: (valueA: C, valueB: C) => number
     ): T;
 
@@ -1236,76 +1217,76 @@ declare module 'immutable' {
      * Returns IndexedIterable
      * @override
      */
-    rest(): IndexedIterable<T>;
+    rest(): /*this*/IndexedIterable<T>;
 
     /**
      * Returns IndexedIterable
      * @override
      */
-    skip(amount: number): IndexedIterable<T>;
+    skip(amount: number): /*this*/IndexedIterable<T>;
 
     /**
      * Returns IndexedIterable
      * @override
      */
-    skipLast(amount: number): IndexedIterable<T>;
+    skipLast(amount: number): /*this*/IndexedIterable<T>;
 
     /**
      * Returns IndexedIterable
      * @override
      */
     skipWhile(
-      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
+      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
       context?: any
-    ): IndexedIterable<T>;
+    ): /*this*/IndexedIterable<T>;
 
     /**
      * Returns IndexedIterable
      * @override
      */
     skipUntil(
-      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
+      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
       context?: any
-    ): IndexedIterable<T>;
+    ): /*this*/IndexedIterable<T>;
 
     /**
      * Returns an IndexedIterable
      * @override
      */
     sortBy<C>(
-      comparatorValueMapper: (value?: T, index?: number, seq?: IndexedIterable<T>) => C,
+      comparatorValueMapper: (value?: T, index?: number, iter?: IndexedIterable<T>) => C,
       comparator?: (valueA: C, valueB: C) => number
-    ): IndexedIterable<T>;
+    ): /*this*/IndexedIterable<T>;
 
     /**
      * Returns IndexedIterable
      * @override
      */
-    take(amount: number): IndexedIterable<T>;
+    take(amount: number): /*this*/IndexedIterable<T>;
 
     /**
      * Returns IndexedIterable
      * @override
      */
-    takeLast(amount: number): IndexedIterable<T>;
+    takeLast(amount: number): /*this*/IndexedIterable<T>;
 
     /**
      * Returns IndexedIterable
      * @override
      */
     takeWhile(
-      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
+      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
       context?: any
-    ): IndexedIterable<T>;
+    ): /*this*/IndexedIterable<T>;
 
     /**
      * Returns IndexedIterable
      * @override
      */
     takeUntil(
-      predicate: (value?: T, index?: number, seq?: IndexedIterable<T>) => boolean,
+      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
       context?: any
-    ): IndexedIterable<T>;
+    ): /*this*/IndexedIterable<T>;
   }
 
 
