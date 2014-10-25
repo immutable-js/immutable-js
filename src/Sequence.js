@@ -824,51 +824,6 @@ IndexedIterablePrototype[IS_INDEXED_SENTINEL] = true;
 
 
 
-// #pragma Iterable static methods
-
-function isIterable(maybeIterable) {
-  return !!(maybeIterable && maybeIterable[IS_ITERABLE_SENTINEL]);
-}
-
-function isKeyed(maybeKeyed) {
-  return !!(maybeKeyed && maybeKeyed[IS_KEYED_SENTINEL]);
-}
-
-function isIndexed(maybeIndexed) {
-  return !!(maybeIndexed && maybeIndexed[IS_INDEXED_SENTINEL]);
-}
-
-function isAssociative(maybeAssociative) {
-  return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
-}
-
-var EMPTY_SEQ;
-
-function emptySequence() {
-  return EMPTY_SEQ || (EMPTY_SEQ = new ArraySequence([]));
-}
-
-function iteratorFrom(iterLike/*[, mapFn[, context]]*/) {
-  var iter = isIterable(iterLike) ? iterLike : seqFromValue(iterLike, false);
-  if (arguments.length > 1) {
-    iter = iter.map(
-      arguments[1],
-      arguments.length > 2 ? arguments[2] : undefined
-    );
-  }
-  return iter;
-}
-
-Iterable.isIterable = isIterable;
-Iterable.isKeyed = isKeyed;
-Iterable.isIndexed = isIndexed;
-Iterable.isAssociative = isAssociative;
-Iterable.Keyed = KeyedIterable;
-Iterable.Set = SetIterable;
-Iterable.Indexed = IndexedIterable;
-
-
-
 // #pragma LazySequence
 
 class LazySequence extends Iterable {
@@ -1033,6 +988,51 @@ class IndexedCollection extends IndexedIterable {
 KeyedCollection.of =
 SetCollection.of =
 IndexedCollection.of = LazySequence.of;
+
+
+
+// #pragma Iterable static methods
+
+function isIterable(maybeIterable) {
+  return !!(maybeIterable && maybeIterable[IS_ITERABLE_SENTINEL]);
+}
+
+function isKeyed(maybeKeyed) {
+  return !!(maybeKeyed && maybeKeyed[IS_KEYED_SENTINEL]);
+}
+
+function isIndexed(maybeIndexed) {
+  return !!(maybeIndexed && maybeIndexed[IS_INDEXED_SENTINEL]);
+}
+
+function isAssociative(maybeAssociative) {
+  return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
+}
+
+var EMPTY_SEQ;
+
+function emptySequence() {
+  return EMPTY_SEQ || (EMPTY_SEQ = new ArraySequence([]));
+}
+
+function iteratorFrom(iterLike/*[, mapFn[, context]]*/) {
+  var iter = isIterable(iterLike) ? iterLike : seqFromValue(iterLike, false);
+  if (arguments.length > 1) {
+    iter = iter.map(
+      arguments[1],
+      arguments.length > 2 ? arguments[2] : undefined
+    );
+  }
+  return iter;
+}
+
+Iterable.isIterable = isIterable;
+Iterable.isKeyed = isKeyed;
+Iterable.isIndexed = isIndexed;
+Iterable.isAssociative = isAssociative;
+Iterable.Keyed = KeyedIterable;
+Iterable.Set = SetIterable;
+Iterable.Indexed = IndexedIterable;
 
 
 
