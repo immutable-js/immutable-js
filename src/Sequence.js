@@ -515,8 +515,6 @@ var IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
 var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
 var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
 
-Iterable.from = iteratorFrom;
-
 var IterablePrototype = Iterable.prototype;
 IterablePrototype[IS_ITERABLE_SENTINEL] = true;
 IterablePrototype[ITERATOR_SYMBOL] = IterablePrototype.values;
@@ -1020,6 +1018,7 @@ function iteratorFrom(iterLike/*[, mapFn[, context]]*/) {
   return iter;
 }
 
+Iterable.from = iteratorFrom;
 Iterable.isIterable = isIterable;
 Iterable.isKeyed = isKeyed;
 Iterable.isIndexed = isIndexed;
