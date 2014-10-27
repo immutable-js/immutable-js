@@ -28,7 +28,7 @@ Then require it into any module.
 var Immutable = require('immutable');
 var map = Immutable.Map({a:1, b:2, c:3});
 ```
-.
+
 ### Browser
 
 To use `immutable` from a browser, download [dist/immutable.min.js](./dist/immutable.min.js)
