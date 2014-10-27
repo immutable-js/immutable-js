@@ -1248,7 +1248,7 @@ function resolveEnd(end, size) {
 }
 
 function resolveIndex(index, size, defaultIndex) {
-  return index == null ?
+  return index === undefined ?
     defaultIndex :
     index < 0 ?
       Math.max(0, size + index) :

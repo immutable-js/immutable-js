@@ -12,6 +12,7 @@ import "Map"
 import "TrieUtils"
 import "Iterator"
 /* global Iterable, IndexedCollection, wrapIndex,
+          wholeSlice, resolveBegin, resolveEnd,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
           DELETE, SHIFT, SIZE, MASK, NOT_SET, DID_ALTER, OwnerID, MakeRef,
           SetRef, arrCopy, Iterator, iteratorValue, iteratorDone */
@@ -145,18 +146,15 @@ class Vector extends IndexedCollection {
   // @pragma Iteration
 
   slice(begin, end) {
-    var sliceSequence = super.slice(begin, end);
-    // Optimize the case of vector.slice(b, e).toVector()
-    if (sliceSequence !== this) {
-      var vector = this;
-      var size = vector.size;
-      sliceSequence.toVector = () => setVectorBounds(
-        vector,
-        begin < 0 ? Math.max(0, size + begin) : size ? Math.min(size, begin) : begin,
-        end == null ? size : end < 0 ? Math.max(0, size + end) : size ? Math.min(size, end) : end
-      );
+    var size = this.size;
+    if (wholeSlice(begin, end, size)) {
+      return this;
     }
-    return sliceSequence;
+    return setVectorBounds(
+      this,
+      resolveBegin(begin, size),
+      resolveEnd(end, size)
+    );
   }
 
   __iterator(type, reverse) {
