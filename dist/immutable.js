@@ -2564,25 +2564,23 @@ function setVectorBounds(vector, begin, end) {
     newRoot = null;
     newTail = newTail && newTail.removeBefore(owner, 0, newOrigin);
   } else if (newOrigin > oldOrigin || newTailOffset < oldTailOffset) {
-    var beginIndex,
-        endIndex;
     offsetShift = 0;
-    do {
-      beginIndex = ((newOrigin) >>> newLevel) & MASK;
-      endIndex = ((newTailOffset - 1) >>> newLevel) & MASK;
-      if (beginIndex === endIndex) {
-        if (beginIndex) {
-          offsetShift += (1 << newLevel) * beginIndex;
-        }
-        newLevel -= SHIFT;
-        newRoot = newRoot && newRoot.array[beginIndex];
+    while (newRoot) {
+      var beginIndex = (newOrigin >>> newLevel) & MASK;
+      if (beginIndex !== (newTailOffset >>> newLevel) & MASK) {
+        break;
       }
-    } while (newRoot && beginIndex === endIndex);
+      if (beginIndex) {
+        offsetShift += (1 << newLevel) * beginIndex;
+      }
+      newLevel -= SHIFT;
+      newRoot = newRoot.array[beginIndex];
+    }
     if (newRoot && newOrigin > oldOrigin) {
-      newRoot = newRoot && newRoot.removeBefore(owner, newLevel, newOrigin - offsetShift);
+      newRoot = newRoot.removeBefore(owner, newLevel, newOrigin - offsetShift);
     }
     if (newRoot && newTailOffset < oldTailOffset) {
-      newRoot = newRoot && newRoot.removeAfter(owner, newLevel, newTailOffset - offsetShift);
+      newRoot = newRoot.removeAfter(owner, newLevel, newTailOffset - offsetShift);
     }
     if (offsetShift) {
       newOrigin -= offsetShift;

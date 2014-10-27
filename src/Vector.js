@@ -559,28 +559,27 @@ function setVectorBounds(vector, begin, end) {
 
   // Otherwise, if the root has been trimmed, garbage collect.
   } else if (newOrigin > oldOrigin || newTailOffset < oldTailOffset) {
-    var beginIndex, endIndex;
     offsetShift = 0;
 
     // Identify the new top root node of the subtree of the old root.
-    do {
-      beginIndex = ((newOrigin) >>> newLevel) & MASK;
-      endIndex = ((newTailOffset - 1) >>> newLevel) & MASK;
-      if (beginIndex === endIndex) {
-        if (beginIndex) {
-          offsetShift += (1 << newLevel) * beginIndex;
-        }
-        newLevel -= SHIFT;
-        newRoot = newRoot && newRoot.array[beginIndex];
+    while (newRoot) {
+      var beginIndex = (newOrigin >>> newLevel) & MASK;
+      if (beginIndex !== (newTailOffset >>> newLevel) & MASK) {
+        break;
       }
-    } while (newRoot && beginIndex === endIndex);
+      if (beginIndex) {
+        offsetShift += (1 << newLevel) * beginIndex;
+      }
+      newLevel -= SHIFT;
+      newRoot = newRoot.array[beginIndex];
+    }
 
     // Trim the new sides of the new root.
     if (newRoot && newOrigin > oldOrigin) {
-      newRoot = newRoot && newRoot.removeBefore(owner, newLevel, newOrigin - offsetShift);
+      newRoot = newRoot.removeBefore(owner, newLevel, newOrigin - offsetShift);
     }
     if (newRoot && newTailOffset < oldTailOffset) {
-      newRoot = newRoot && newRoot.removeAfter(owner, newLevel, newTailOffset - offsetShift);
+      newRoot = newRoot.removeAfter(owner, newLevel, newTailOffset - offsetShift);
     }
     if (offsetShift) {
       newOrigin -= offsetShift;
