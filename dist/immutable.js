@@ -447,7 +447,7 @@ var $Iterable = Iterable;
         groups[groupMap[h]][1]++;
       }
     }));
-    return IndexedIterable(groups).fromEntrySeq();
+    return new ArraySequence(groups).fromEntrySeq();
   },
   equals: function(other) {
     if (this === other) {
@@ -479,7 +479,7 @@ var $Iterable = Iterable;
   entrySeq: function() {
     var iterable = this;
     if (iterable._cache) {
-      return IndexedIterable(iterable._cache);
+      return new ArraySequence(iterable._cache);
     }
     var entriesSequence = iterable.toSeq().map(entryMapper).toIndexedSeq();
     entriesSequence.fromEntrySeq = (function() {
@@ -598,7 +598,7 @@ var $Iterable = Iterable;
   sortBy: function(mapper, comparator) {
     comparator = comparator || defaultComparator;
     var seq = this;
-    return reify(this, $Iterable(seq.entrySeq().entrySeq().toArray().sort((function(a, b) {
+    return reify(this, new ArraySequence(seq.entrySeq().entrySeq().toArray().sort((function(a, b) {
       return comparator(mapper(a[1][1], a[1][0], seq), mapper(b[1][1], b[1][0], seq)) || a[0] - b[0];
     }))).fromEntrySeq().valueSeq().fromEntrySeq());
   },
@@ -675,9 +675,6 @@ var $KeyedIterable = KeyedIterable;
     return reify(this, this.toSeq().flip().map((function(k, v) {
       return mapper.call(context, k, v, $__0);
     })).flip());
-  },
-  __makeSequence: function() {
-    return Object.create(LazyKeyedSequence.prototype);
   }
 }, {from: function(seqable) {
     return $KeyedIterable(iteratorFrom.apply(this, arguments));
@@ -703,9 +700,6 @@ var $SetIterable = SetIterable;
   },
   keySeq: function() {
     return this.valueSeq();
-  },
-  __makeSequence: function() {
-    return Object.create(LazySetSequence.prototype);
   }
 }, {from: function(seqable) {
     return $SetIterable(iteratorFrom.apply(this, arguments));
@@ -802,7 +796,7 @@ var $IndexedIterable = IndexedIterable;
   sortBy: function(mapper, comparator) {
     comparator = comparator || defaultComparator;
     var seq = this;
-    return reify(this, Iterable(this.entrySeq().toArray().sort((function(a, b) {
+    return reify(this, new ArraySequence(this.entrySeq().toArray().sort((function(a, b) {
       return comparator(mapper(a[1], a[0], seq), mapper(b[1], b[0], seq)) || a[0] - b[0];
     }))).fromEntrySeq().valueSeq());
   },
@@ -816,9 +810,6 @@ var $IndexedIterable = IndexedIterable;
       };
     }
     return reify(this, takeSeq);
-  },
-  __makeSequence: function() {
-    return Object.create(LazyIndexedSequence.prototype);
   }
 }, {from: function(seqable) {
     return $IndexedIterable(iteratorFrom.apply(this, arguments));
@@ -1400,8 +1391,11 @@ function validateEntry(entry) {
     throw new TypeError('Expected [K, V] tuple: ' + entry);
   }
 }
+function makeSequence(iterable) {
+  return Object.create((isKeyed(iterable) ? LazyKeyedSequence : isIndexed(iterable) ? LazyIndexedSequence : LazySetSequence).prototype);
+}
 function flipFactory(iterable) {
-  var flipSequence = iterable.__makeSequence();
+  var flipSequence = makeSequence(iterable);
   flipSequence.size = iterable.size;
   flipSequence.flip = (function() {
     return iterable;
@@ -1443,7 +1437,7 @@ function flipFactory(iterable) {
   return flipSequence;
 }
 function mapFactory(iterable, mapper, context) {
-  var mappedSequence = iterable.__makeSequence();
+  var mappedSequence = makeSequence(iterable);
   mappedSequence.size = iterable.size;
   mappedSequence.has = (function(key) {
     return iterable.has(key);
@@ -1473,7 +1467,7 @@ function mapFactory(iterable, mapper, context) {
   return mappedSequence;
 }
 function reverseFactory(iterable, useKeys) {
-  var reversedSequence = iterable.__makeSequence();
+  var reversedSequence = makeSequence(iterable);
   reversedSequence.size = iterable.size;
   reversedSequence.reverse = (function() {
     return iterable;
@@ -1513,7 +1507,7 @@ function reverseFactory(iterable, useKeys) {
   return reversedSequence;
 }
 function filterFactory(iterable, predicate, context, useKeys) {
-  var filterSequence = iterable.__makeSequence();
+  var filterSequence = makeSequence(iterable);
   if (useKeys) {
     filterSequence.has = (function(key) {
       var v = iterable.get(key, NOT_SET);
@@ -1569,10 +1563,10 @@ function groupByFactory(seq, grouper, context, useKeys) {
       groups[groupMap[h]][1].push(e);
     }
   }));
-  return IndexedIterable(groups).fromEntrySeq().map(useKeys ? (function(group) {
-    return IndexedIterable(group).fromEntrySeq();
+  return new ArraySequence(groups).fromEntrySeq().map(useKeys ? (function(group) {
+    return new ArraySequence(group).fromEntrySeq();
   }) : (function(group) {
-    return IndexedIterable(group);
+    return new ArraySequence(group);
   }));
 }
 function takeFactory(iterable, amount) {
@@ -1582,7 +1576,7 @@ function takeFactory(iterable, amount) {
   if (amount < 0) {
     amount = 0;
   }
-  var takeSequence = iterable.__makeSequence();
+  var takeSequence = makeSequence(iterable);
   takeSequence.size = iterable.size && Math.min(iterable.size, amount);
   takeSequence.__iterateUncached = function(fn, reverse) {
     var $__0 = this;
@@ -1614,7 +1608,7 @@ function takeFactory(iterable, amount) {
   return takeSequence;
 }
 function takeWhileFactory(iterable, predicate, context) {
-  var takeSequence = iterable.__makeSequence();
+  var takeSequence = makeSequence(iterable);
   takeSequence.__iterateUncached = function(fn, reverse) {
     var $__0 = this;
     if (reverse) {
@@ -1657,7 +1651,7 @@ function skipFactory(iterable, amount, useKeys) {
   if (amount <= 0) {
     return iterable;
   }
-  var skipSequence = iterable.__makeSequence();
+  var skipSequence = makeSequence(iterable);
   skipSequence.size = iterable.size && Math.max(0, iterable.size - amount);
   skipSequence.__iterateUncached = function(fn, reverse) {
     var $__0 = this;
@@ -1700,7 +1694,7 @@ function skipFactory(iterable, amount, useKeys) {
   return skipSequence;
 }
 function skipWhileFactory(iterable, predicate, context, useKeys) {
-  var skipSequence = iterable.__makeSequence();
+  var skipSequence = makeSequence(iterable);
   skipSequence.__iterateUncached = function(fn, reverse) {
     var $__0 = this;
     if (reverse) {
@@ -1767,7 +1761,7 @@ function concatFactory(iterable, values, useKeys) {
   return concatSequence;
 }
 function flattenFactory(iterable, depth, useKeys) {
-  var flatSequence = iterable.__makeSequence();
+  var flatSequence = makeSequence(iterable);
   flatSequence.__iterateUncached = function(fn, reverse) {
     var iterations = 0;
     var stopped = false;
@@ -1813,7 +1807,7 @@ function flattenFactory(iterable, depth, useKeys) {
   return flatSequence;
 }
 function interposeFactory(iterable, separator) {
-  var interposedSequence = iterable.__makeSequence();
+  var interposedSequence = makeSequence(iterable);
   interposedSequence.size = iterable.size && iterable.size * 2 - 1;
   interposedSequence.__iterateUncached = function(fn, reverse) {
     var $__0 = this;
