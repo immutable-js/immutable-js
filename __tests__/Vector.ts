@@ -148,14 +148,10 @@ describe('Vector', () => {
 
   it('describes a dense vector', () => {
     var v = Vector.of('a', 'b', 'c').push('d').set(14, 'o').set(6, undefined).remove(1);
-    expect(v.size).toBe(15);
-    expect(v.has(2)).toBe(true); // original end
-    expect(v.has(3)).toBe(true); // end after push
-    expect(v.has(14)).toBe(true); // end after set
-    expect(v.has(6)).toBe(true); // set as undefined, still has index
-    expect(v.has(1)).toBe(true); // was removed, but still in bounds
-    expect(v.has(15)).toBe(false); // out of bounds
-    expect(v.has(13)).toBe(true); // never set, but still in bounds
+    expect(v.size).toBe(14);
+    expect(v.toJS()).toEqual(
+      ['a','c','d',,,,,,,,,,,'o']
+    );
   });
 
   it('iterates a dense vector', () => {
@@ -294,21 +290,17 @@ describe('Vector', () => {
     expect(v.toArray()).toEqual([]);
   });
 
-  it('remove removes an index, but does not affect size', () => {
+  it('remove removes any index', () => {
     var v = Vector.of('a', 'b', 'c').remove(2).remove(0);
-    expect(v.size).toBe(3);
-    expect(v.get(0)).toBe(undefined);
-    expect(v.get(1)).toBe('b');
+    expect(v.size).toBe(1);
+    expect(v.get(0)).toBe('b');
+    expect(v.get(1)).toBe(undefined);
     expect(v.get(2)).toBe(undefined);
-    // explicit triplicate trailing comma.
-    // Typescript consumes the first.
-    // Node consumes the second.
-    // JS interprets the third as a hole.
-    expect(v.toArray()).toEqual([,'b',,,]);
+    expect(v.toArray()).toEqual(['b']);
     v = v.push('d');
-    expect(v.size).toBe(4);
-    expect(v.get(3)).toBe('d');
-    expect(v.toArray()).toEqual([,'b',,'d']);
+    expect(v.size).toBe(2);
+    expect(v.get(1)).toBe('d');
+    expect(v.toArray()).toEqual(['b','d']);
   });
 
   it('shifts values from the front', () => {

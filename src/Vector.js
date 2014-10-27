@@ -14,7 +14,7 @@ import "Iterator"
 /* global Iterable, IndexedCollection, wrapIndex,
           wholeSlice, resolveBegin, resolveEnd,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
-          DELETE, SHIFT, SIZE, MASK, NOT_SET, DID_ALTER, OwnerID, MakeRef,
+          DELETE, SHIFT, SIZE, MASK, DID_ALTER, OwnerID, MakeRef,
           SetRef, arrCopy, Iterator, iteratorValue, iteratorDone */
 /* exported Vector, VectorPrototype */
 
@@ -74,7 +74,10 @@ class Vector extends IndexedCollection {
   }
 
   remove(index) {
-    return updateVector(this, index, NOT_SET);
+    return !this.has(index) ? this :
+      index === 0 ? this.shift() :
+      index === this.size - 1 ? this.pop() :
+      this.splice(index, 1);
   }
 
   clear() {
@@ -396,7 +399,7 @@ function updateVector(vector, index, value) {
   index = wrapIndex(vector, index);
 
   if (index >= vector.size || index < 0) {
-    return value === NOT_SET ? vector : vector.withMutations(vect => {
+    return vector.withMutations(vect => {
       index < 0 ?
         setVectorBounds(vect, index).set(0, value) :
         setVectorBounds(vect, 0, index + 1).set(index, value)
@@ -429,13 +432,13 @@ function updateVector(vector, index, value) {
 }
 
 function updateVNode(node, ownerID, level, index, value, didAlter) {
-  var removed = value === NOT_SET;
-  var newNode;
   var idx = (index >>> level) & MASK;
   var nodeHas = node && idx < node.array.length;
-  if (removed && !nodeHas) {
+  if (!nodeHas && value === undefined) {
     return node;
   }
+
+  var newNode;
 
   if (level > 0) {
     var lowerNode = node && node.array[idx];
@@ -448,17 +451,17 @@ function updateVNode(node, ownerID, level, index, value, didAlter) {
     return newNode;
   }
 
-  if (!removed && nodeHas && node.array[idx] === value) {
+  if (nodeHas && node.array[idx] === value) {
     return node;
   }
 
   SetRef(didAlter);
 
   newNode = editableVNode(node, ownerID);
-  if (removed && idx === newNode.array.length - 1) {
-    newNode.array.pop()
+  if (value === undefined && idx === newNode.array.length - 1) {
+    newNode.array.pop();
   } else {
-    newNode.array[idx] = removed ? undefined : value;
+    newNode.array[idx] = value;
   }
   return newNode;
 }
