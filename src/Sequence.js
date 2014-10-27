@@ -915,9 +915,9 @@ function resolveIndex(index, length, defaultIndex) {
     defaultIndex :
     index < 0 ?
       Math.max(0, length + index) :
-      length ?
-        Math.min(length, index) :
-        index;
+      length == null ?
+        index :
+        Math.min(length, index);
 }
 
 function valueMapper(v) {

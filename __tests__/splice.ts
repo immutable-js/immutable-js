@@ -31,7 +31,7 @@ describe('splice', () => {
     var a = I.Range(0, 49).toArray();
     var v = Vector.from(a);
     a.splice(-18, 0, 0);
-    expect(v.splice(-18, 0, 0).toArray()).toEqual(a);
+    expect(v.splice(-18, 0, 0).toVector().toArray()).toEqual(a);
   })
 
   check.it('has the same behavior as array splice',

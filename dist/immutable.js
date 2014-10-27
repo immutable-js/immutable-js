@@ -951,7 +951,7 @@ function resolveEnd(end, length) {
   return resolveIndex(end, length, length);
 }
 function resolveIndex(index, length, defaultIndex) {
-  return index == null ? defaultIndex : index < 0 ? Math.max(0, length + index) : length ? Math.min(length, index) : index;
+  return index == null ? defaultIndex : index < 0 ? Math.max(0, length + index) : length == null ? index : Math.min(length, index);
 }
 function valueMapper(v) {
   return v;

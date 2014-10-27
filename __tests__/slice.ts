@@ -94,7 +94,7 @@ describe('slice', () => {
   it('has the same behavior as array slice in known edge cases', () => {
     var a = I.Range(0, 33).toArray();
     var v = Vector.from(a);
-    expect(v.slice(31).toArray()).toEqual(a.slice(31));
+    expect(v.slice(31).toVector().toArray()).toEqual(a.slice(31));
   })
 
   check.it('works like Array.prototype.slice',
