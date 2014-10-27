@@ -11,7 +11,8 @@ import "Sequence"
 import "Range"
 import "is"
 import "Iterator"
-/* global LazyIndexedSequence, RangePrototype, is,
+/* global LazyIndexedSequence, wholeSlice, resolveBegin, resolveEnd,
+          RangePrototype, is,
           Iterator, iteratorValue, iteratorDone */
 /* exported Repeat */
 
@@ -23,14 +24,17 @@ import "Iterator"
 class Repeat extends LazyIndexedSequence {
 
   constructor(value, times) {
-    if (times === 0 && EMPTY_REPEAT) {
+    if (times <= 0 && EMPTY_REPEAT) {
       return EMPTY_REPEAT;
     }
     if (!(this instanceof Repeat)) {
       return new Repeat(value, times);
     }
     this._value = value;
-    this.size = times == null ? Infinity : Math.max(0, times);
+    this.size = times === undefined ? Infinity : Math.max(0, times);
+    if (this.size === 0) {
+      EMPTY_REPEAT = this;
+    }
   }
 
   toString() {
@@ -50,9 +54,8 @@ class Repeat extends LazyIndexedSequence {
 
   slice(begin, end) {
     var size = this.size;
-    begin = begin < 0 ? Math.max(0, size + begin) : Math.min(size, begin);
-    end = end == null ? size : end > 0 ? Math.min(size, end) : Math.max(0, size + end);
-    return end > begin ? new Repeat(this._value, end - begin) : EMPTY_REPEAT;
+    return wholeSlice(begin, end, size) ? this :
+      new Repeat(this._value, resolveEnd(end, size) - resolveBegin(begin, size));
   }
 
   reverse() {
@@ -104,4 +107,4 @@ RepeatPrototype.skip = RangePrototype.skip;
 RepeatPrototype.__toJS = RangePrototype.__toJS;
 
 
-var EMPTY_REPEAT = new Repeat(undefined, 0);
+var EMPTY_REPEAT;

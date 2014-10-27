@@ -102,7 +102,7 @@ class Map extends KeyedCollection {
   // @pragma Composition
 
   merge(/*...seqs*/) {
-    return mergeIntoMapWith(this, null, arguments);
+    return mergeIntoMapWith(this, undefined, arguments);
   }
 
   mergeWith(merger, ...seqs) {
@@ -110,7 +110,7 @@ class Map extends KeyedCollection {
   }
 
   mergeDeep(/*...seqs*/) {
-    return mergeIntoMapWith(this, deepMerger(null), arguments);
+    return mergeIntoMapWith(this, deepMerger(undefined), arguments);
   }
 
   mergeDeepWith(merger, ...seqs) {
@@ -203,7 +203,7 @@ class BitmapIndexedNode {
 
     var idx = popCount(bitmap & (bit - 1));
     var nodes = this.nodes;
-    var node = exists ? nodes[idx] : null;
+    var node = exists ? nodes[idx] : undefined;
     var newNode = updateNode(node, ownerID, shift + SHIFT, hash, key, value, didChangeSize, didAlter);
 
     if (newNode === node) {
@@ -414,7 +414,7 @@ class ValueNode {
 
     if (removed) {
       SetRef(didChangeSize);
-      return null;
+      return; // undefined
     }
 
     if (keyMatch) {
@@ -555,7 +555,7 @@ function packNodes(ownerID, nodes, count, excluding) {
   var packedNodes = new Array(count);
   for (var ii = 0, bit = 1, len = nodes.length; ii < len; ii++, bit <<= 1) {
     var node = nodes[ii];
-    if (node != null && ii !== excluding) {
+    if (node !== undefined && ii !== excluding) {
       bitmap |= bit;
       packedNodes[packedII++] = node;
     }
@@ -567,7 +567,7 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
   var count = 0;
   var expandedNodes = new Array(SIZE);
   for (var ii = 0; bitmap !== 0; ii++, bitmap >>>= 1) {
-    expandedNodes[ii] = bitmap & 1 ? nodes[count++] : null;
+    expandedNodes[ii] = bitmap & 1 ? nodes[count++] : undefined;
   }
   expandedNodes[including] = node;
   return new ArrayNode(ownerID, count + 1, expandedNodes);

@@ -43,7 +43,7 @@ class Set extends SetCollection {
   // @pragma Modification
 
   add(value) {
-    var newMap = this._map.set(value, null);
+    var newMap = this._map.set(value, true);
     if (this.__ownerID) {
       this.size = newMap.size;
       this._map = newMap;

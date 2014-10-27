@@ -11,7 +11,7 @@
 /* exported hash, HASH_MAX_VAL */
 
 function hash(o) {
-  if (!o) { // false, 0, and null
+  if (!o) { // "", false, 0, null, and undefined
     return 0;
   }
   if (o === true) {
@@ -36,7 +36,7 @@ function hash(o) {
 
 function cachedHashString(string) {
   var hash = stringHashCache[string];
-  if (hash == null) {
+  if (hash === undefined) {
     hash = hashString(string);
     if (STRING_HASH_CACHE_SIZE === STRING_HASH_CACHE_MAX_SIZE) {
       STRING_HASH_CACHE_SIZE = 0;

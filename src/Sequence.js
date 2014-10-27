@@ -124,7 +124,7 @@ class Iterable {
   }
 
   contains(searchValue) {
-    return this.find(value => is(value, searchValue), null, NOT_SET) !== NOT_SET;
+    return this.some(value => is(value, searchValue));
   }
 
   entries() {
@@ -167,7 +167,7 @@ class Iterable {
     var isFirst = true;
     this.__iterate(v => {
       isFirst ? (isFirst = false) : (joined += separator);
-      joined += v != null ? v : '';
+      joined += v !== null && v !== undefined ? v : '';
     });
     return joined;
   }
@@ -223,7 +223,7 @@ class Iterable {
     var skipped = resolvedBegin === 0 ? this : this.skip(resolvedBegin);
     return reify(
       this,
-      resolvedEnd == null || resolvedEnd === this.size ?
+      resolvedEnd === undefined || resolvedEnd === this.size ?
         skipped :
         skipped.take(resolvedEnd - resolvedBegin)
     );
@@ -252,7 +252,7 @@ class Iterable {
     if (predicate) {
       return this.toSeq().filter(predicate, context).count();
     }
-    if (this.size == null) {
+    if (this.size === undefined) {
       this.size = this.__iterate(returnTrue);
     }
     return this.size;
@@ -281,7 +281,7 @@ class Iterable {
     if (!other || typeof other.equals !== 'function') {
       return false;
     }
-    if (this.size != null && other.size != null) {
+    if (this.size !== undefined && other.size !== undefined) {
       if (this.size !== other.size) {
         return false;
       }
@@ -289,7 +289,7 @@ class Iterable {
         return true;
       }
     }
-    if (this.__hash != null && other.__hash != null &&
+    if (this.__hash !== undefined && other.__hash !== undefined &&
         this.__hash !== other.__hash) {
       return false;
     }
@@ -359,7 +359,7 @@ class Iterable {
   }
 
   get(searchKey, notSetValue) {
-    return this.find((_, key) => is(key, searchKey), null, notSetValue);
+    return this.find((_, key) => is(key, searchKey), undefined, notSetValue);
   }
 
   getIn(searchKeyPath, notSetValue) {
@@ -664,7 +664,7 @@ class IndexedIterable extends Iterable {
 
   findIndex(predicate, context) {
     var key = this.findKey(predicate, context);
-    return key == null ? -1 : key;
+    return key === undefined ? -1 : key;
   }
 
   indexOf(searchValue) {
@@ -713,9 +713,9 @@ class IndexedIterable extends Iterable {
   get(index, notSetValue) {
     index = wrapIndex(this, index);
     return (index < 0 || (this.size === Infinity ||
-        (this.size != null && index > this.size))) ?
+        (this.size !== undefined && index > this.size))) ?
       notSetValue :
-      this.find((_, key) => key === index, null, notSetValue);
+      this.find((_, key) => key === index, undefined, notSetValue);
   }
 
   groupBy(grouper, context) {
@@ -724,7 +724,7 @@ class IndexedIterable extends Iterable {
 
   has(index) {
     index = wrapIndex(this, index);
-    return index >= 0 && (this.size != null ?
+    return index >= 0 && (this.size !== undefined ?
       this.size === Infinity || index < this.size :
       this.indexOf(index) !== -1
     );
@@ -808,7 +808,7 @@ class LazySequence extends Iterable {
     if (!this._cache && this.__iterateUncached) {
       assertNotInfinite(this.size);
       this._cache = this.entrySeq().toArray();
-      if (this.size == null) {
+      if (this.size === undefined) {
         this.size = this._cache.length;
       }
     }
@@ -1200,7 +1200,7 @@ function seqFromValue(value, maybeSingleton) {
     hasIterator(value) ? new IterableSequence(value) :
     (maybeSingleton ? isPlainObj(value) : typeof value === 'object') ? new ObjectSequence(value) :
     maybeSingleton ? new ArraySequence([value]) :
-    null;
+    undefined;
   if (!seq) {
     throw new TypeError('Expected iterable: ' + value);
   }
@@ -1216,8 +1216,8 @@ function isPlainObj(value) {
 }
 
 function wholeSlice(begin, end, size) {
-  return (begin === 0 || (size != null && begin <= -size)) &&
-    (end == null || (size != null && end >= size));
+  return (begin === 0 || (size !== undefined && begin <= -size)) &&
+    (end === undefined || (size !== undefined && end >= size));
 }
 
 function resolveBegin(begin, size) {
@@ -1233,7 +1233,7 @@ function resolveIndex(index, size, defaultIndex) {
     defaultIndex :
     index < 0 ?
       Math.max(0, size + index) :
-      size == null ?
+      size === undefined ?
         index :
         Math.min(size, index);
 }
@@ -1270,7 +1270,7 @@ function defaultComparator(a, b) {
 
 function wrapIndex(seq, index) {
   if (index < 0) {
-    if (seq.size == null) {
+    if (seq.size === undefined) {
       seq.cacheResult();
     }
     return seq.size + index;
@@ -1279,7 +1279,7 @@ function wrapIndex(seq, index) {
 }
 
 function resolveSize(indexedSeq) {
-  if (indexedSeq.size == null) {
+  if (indexedSeq.size === undefined) {
     indexedSeq.cacheResult();
   }
   assertNotInfinite(indexedSeq.size);
@@ -1806,7 +1806,7 @@ function skipFactory(iterable, amount, useKeys) {
       if (useKeys || type === ITERATE_VALUES) {
         return step;
       } else if (type === ITERATE_KEYS) {
-        return iteratorValue(type, iterations++, null, step);
+        return iteratorValue(type, iterations++, undefined, step);
       } else {
         return iteratorValue(type, iterations++, step.value[1], step);
       }
@@ -1846,7 +1846,7 @@ function skipWhileFactory(iterable, predicate, context, useKeys) {
           if (useKeys || type === ITERATE_VALUES) {
             return step;
           } else if (type === ITERATE_KEYS) {
-            return iteratorValue(type, iterations++, null, step);
+            return iteratorValue(type, iterations++, undefined, step);
           } else {
             return iteratorValue(type, iterations++, step.value[1], step);
           }
@@ -1874,7 +1874,7 @@ function concatFactory(iterable, values, useKeys) {
     (sum, seq) => {
       if (sum !== undefined) {
         var size = Iterable(seq).size;
-        if (size != null) {
+        if (size !== undefined) {
           return sum + size;
         }
       }

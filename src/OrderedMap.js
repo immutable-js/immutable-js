@@ -38,7 +38,7 @@ class OrderedMap extends Map {
 
   get(k, notSetValue) {
     var index = this._map.get(k);
-    return index != null ? this._vector.get(index)[1] : notSetValue;
+    return index !== undefined ? this._vector.get(index)[1] : notSetValue;
   }
 
   // @pragma Modification

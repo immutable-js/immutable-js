@@ -127,7 +127,7 @@ class Vector extends IndexedCollection {
   // @pragma Composition
 
   merge(/*...seqs*/) {
-    return mergeIntoVectorWith(this, null, arguments);
+    return mergeIntoVectorWith(this, undefined, arguments);
   }
 
   mergeWith(merger, ...seqs) {
@@ -135,7 +135,7 @@ class Vector extends IndexedCollection {
   }
 
   mergeDeep(/*...seqs*/) {
-    return mergeIntoVectorWith(this, deepMerger(null), arguments);
+    return mergeIntoVectorWith(this, deepMerger(undefined), arguments);
   }
 
   mergeDeepWith(merger, ...seqs) {
@@ -493,7 +493,7 @@ function setVectorBounds(vector, begin, end) {
   var oldOrigin = vector._origin;
   var oldCapacity = vector._capacity;
   var newOrigin = oldOrigin + begin;
-  var newCapacity = end == null ? oldCapacity : end < 0 ? oldCapacity + end : oldOrigin + end;
+  var newCapacity = end === undefined ? oldCapacity : end < 0 ? oldCapacity + end : oldOrigin + end;
   if (newOrigin === oldOrigin && newCapacity === oldCapacity) {
     return vector;
   }
@@ -509,7 +509,7 @@ function setVectorBounds(vector, begin, end) {
   // New origin might require creating a higher root.
   var offsetShift = 0;
   while (newOrigin + offsetShift < 0) {
-    newRoot = new VNode(newRoot && newRoot.array.length ? [null, newRoot] : [], owner);
+    newRoot = new VNode(newRoot && newRoot.array.length ? [undefined, newRoot] : [], owner);
     newLevel += SHIFT;
     offsetShift += 1 << newLevel;
   }
@@ -609,7 +609,7 @@ function mergeIntoVectorWith(vector, merger, iterables) {
     var seq = iterables[ii];
     seq && seqs.push(Iterable(seq));
   }
-  var maxSize = Math.max.apply(null, seqs.map(s => s.size || 0));
+  var maxSize = Math.max.apply(Math, seqs.map(s => s.size || 0));
   if (maxSize > vector.size) {
     vector = vector.setSize(maxSize);
   }

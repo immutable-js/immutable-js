@@ -30,13 +30,13 @@ class Range extends LazyIndexedSequence {
     }
     invariant(step !== 0, 'Cannot step a Range by 0');
     start = start || 0;
-    if (end == null) {
+    if (end === undefined) {
       end = Infinity;
     }
     if (start === end && __EMPTY_RANGE) {
       return __EMPTY_RANGE;
     }
-    step = step == null ? 1 : Math.abs(step);
+    step = step === undefined ? 1 : Math.abs(step);
     if (end < start) {
       step = -step;
     }

@@ -93,7 +93,7 @@ class Record extends KeyedCollection {
   }
 
   remove(k) {
-    if (k == null || !this.has(k)) {
+    if (!this.has(k)) {
       return this;
     }
     var newMap = this._map.remove(k);
