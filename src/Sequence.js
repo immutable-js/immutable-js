@@ -498,17 +498,9 @@ class Iterable {
 
   // abstract __makeSequence
 
-  // abstract __iterateUncached(fn, reverse)
+  // abstract __iterate(fn, reverse)
 
-  __iterate(fn, reverse) {
-    return iterate(this, fn, reverse, true);
-  }
-
-  // abstract __iteratorUncached(type, reverse)
-
-  __iterator(type, reverse) {
-    return iterator(this, type, reverse, true);
-  }
+  // abstract __iterator(type, reverse)
 }
 
 var IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
@@ -807,14 +799,6 @@ class IndexedIterable extends Iterable {
   __makeSequence() {
     return Object.create(LazyIndexedSequence.prototype);
   }
-
-  __iterate(fn, reverse) {
-    return iterate(this, fn, reverse, false);
-  }
-
-  __iterator(type, reverse) {
-    return iterator(this, type, reverse, false);
-  }
 }
 
 var IndexedIterablePrototype = IndexedIterable.prototype;
@@ -852,6 +836,18 @@ class LazySequence extends Iterable {
       }
     }
     return this;
+  }
+
+  // abstract __iterateUncached(fn, reverse)
+
+  __iterate(fn, reverse) {
+    return iterate(this, fn, reverse, true);
+  }
+
+  // abstract __iteratorUncached(type, reverse)
+
+  __iterator(type, reverse) {
+    return iterator(this, type, reverse, true);
   }
 }
 
@@ -918,6 +914,14 @@ class LazyIndexedSequence extends LazySequence {
 
   toIndexedSeq() {
     return this;
+  }
+
+  __iterate(fn, reverse) {
+    return iterate(this, fn, reverse, false);
+  }
+
+  __iterator(type, reverse) {
+    return iterator(this, type, reverse, false);
   }
 }
 mixin(LazyIndexedSequence, IndexedIterable.prototype);

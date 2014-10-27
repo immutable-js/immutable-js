@@ -621,12 +621,6 @@ var $Iterable = Iterable;
     return this.__hash || (this.__hash = this.size === Infinity ? 0 : this.reduce((function(h, v, k) {
       return (h + (hash(v) ^ (v === k ? 0 : hash(k)))) & HASH_MAX_VAL;
     }), 0));
-  },
-  __iterate: function(fn, reverse) {
-    return iterate(this, fn, reverse, true);
-  },
-  __iterator: function(type, reverse) {
-    return iterator(this, type, reverse, true);
   }
 }, {});
 var IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
@@ -825,12 +819,6 @@ var $IndexedIterable = IndexedIterable;
   },
   __makeSequence: function() {
     return Object.create(LazyIndexedSequence.prototype);
-  },
-  __iterate: function(fn, reverse) {
-    return iterate(this, fn, reverse, false);
-  },
-  __iterator: function(type, reverse) {
-    return iterator(this, type, reverse, false);
   }
 }, {from: function(seqable) {
     return $IndexedIterable(iteratorFrom.apply(this, arguments));
@@ -853,6 +841,12 @@ var LazySequence = function LazySequence(value) {
       }
     }
     return this;
+  },
+  __iterate: function(fn, reverse) {
+    return iterate(this, fn, reverse, true);
+  },
+  __iterator: function(type, reverse) {
+    return iterator(this, type, reverse, true);
   }
 }, {
   from: function(seqable) {
@@ -901,9 +895,17 @@ var LazyIndexedSequence = function LazyIndexedSequence(value) {
   return arguments.length === 0 ? emptySequence() : IndexedIterable(value).toSeq();
 };
 var $LazyIndexedSequence = LazyIndexedSequence;
-($traceurRuntime.createClass)(LazyIndexedSequence, {toIndexedSeq: function() {
+($traceurRuntime.createClass)(LazyIndexedSequence, {
+  toIndexedSeq: function() {
     return this;
-  }}, {
+  },
+  __iterate: function(fn, reverse) {
+    return iterate(this, fn, reverse, false);
+  },
+  __iterator: function(type, reverse) {
+    return iterator(this, type, reverse, false);
+  }
+}, {
   empty: function() {
     return $LazyIndexedSequence();
   },
