@@ -54,6 +54,8 @@ require(['./immutable.min.js'], function (Immutable) {
     map = map.set('b', 20);
     map.get('b'); // 20
 });
+
+If you're using [browserify](http://browserify.org/), the `immutable` npm module also works from the browser.
 ```
 
 ### TypeScript
