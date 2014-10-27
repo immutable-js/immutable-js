@@ -31,14 +31,14 @@ var map = Immutable.Map({a:1, b:2, c:3});
 
 ### Browser
 
-To use `immutable` from a browser, download [dist/Immutable.min.js](./dist/Immutable.min.js)
-or use a CDN hosted version such as [CDNJS](//cdnjs.cloudflare.com/ajax/libs/immutable/2.5.1/immutable.min.js)
-or [jsDelivr](//cdn.jsdelivr.net/immutable.js/2.5.1/Immutable.min.js).
+To use `immutable` from a browser, download [dist/immutable.min.js](./dist/immutable.min.js)
+or use a CDN such as [CDNJS](https://cdnjs.com/libraries/immutable)
+or [jsDelivr](http://www.jsdelivr.com/#!immutable.js).
 
 Then, add it as a script tag to your page:
 
 ```html
-<script src="Immutable.min.js"></script>
+<script src="immutable.min.js"></script>
 <script>
     var map = Immutable.Map({a:1, b:2, c:3});
     map = map.set('b', 20);
@@ -49,7 +49,7 @@ Then, add it as a script tag to your page:
 Or use an AMD loader (such as [RequireJS](http://requirejs.org/)):
 
 ```javascript
-require(['./Immutable.min.js'], function (Immutable) {
+require(['./immutable.min.js'], function (Immutable) {
     var map = Immutable.Map({a:1, b:2, c:3});
     map = map.set('b', 20);
     map.get('b'); // 20
