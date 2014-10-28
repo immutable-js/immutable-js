@@ -7,13 +7,17 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
+import "TrieUtils"
+import "invariant"
 import "Seq"
 import "Iterable"
 import "Vector"
 import "invariant"
 import "Iterator"
-/* global LazyIndexedSequence, wholeSlice, resolveBegin, resolveEnd,
-          VectorPrototype, wrapIndex, invariant,
+/* global wrapIndex, wholeSlice, resolveBegin, resolveEnd,
+          invariant,
+          LazyIndexedSequence,
+          VectorPrototype,
           Iterator, iteratorValue, iteratorDone */
 /* exported Range, RangePrototype */
 

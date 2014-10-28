@@ -7,16 +7,17 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
+import "TrieUtils"
 import "Iterable"
 import "Collection"
 import "Map"
-import "TrieUtils"
 import "Iterator"
-/* global Iterable, IndexedCollection, wrapIndex,
-          wholeSlice, resolveBegin, resolveEnd,
+/* global DELETE, SHIFT, SIZE, MASK, DID_ALTER, OwnerID, MakeRef,
+          SetRef, arrCopy, wrapIndex, wholeSlice, resolveBegin, resolveEnd,
+          Iterable,
+          IndexedCollection,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
-          DELETE, SHIFT, SIZE, MASK, DID_ALTER, OwnerID, MakeRef,
-          SetRef, arrCopy, Iterator, iteratorValue, iteratorDone */
+          Iterator, iteratorValue, iteratorDone */
 /* exported Vector, VectorPrototype */
 
 

@@ -7,12 +7,16 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
+import "TrieUtils"
 import "Iterable"
 import "Collection"
 import "Map"
 import "Iterator"
-/* global Iterable, IndexedCollection, wholeSlice, resolveBegin, resolveEnd,
-          MapPrototype, Iterator, iteratorValue, iteratorDone */
+/* global wholeSlice, resolveBegin, resolveEnd,
+          Iterable,
+          IndexedCollection,
+          MapPrototype,
+          Iterator, iteratorValue, iteratorDone */
 /* exported Stack */
 
 

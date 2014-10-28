@@ -14,7 +14,8 @@ import "Hash"
 import "Iterator"
 /* global Map, OrderedMap, Vector, Set, Stack,
           is,
-          arrCopy, NOT_SET, assertNotInfinite,
+          arrCopy, NOT_SET, assertNotInfinite, ensureSize, wrapIndex,
+          returnTrue, wholeSlice, resolveBegin, resolveEnd,
           hash, HASH_MAX_VAL,
           Iterator,
           ITERATOR_SYMBOL, ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES,
@@ -255,13 +256,9 @@ class Iterable {
   }
 
   count(predicate, context) {
-    if (predicate) {
-      return this.toSeq().filter(predicate, context).count();
-    }
-    if (this.size === undefined) {
-      this.size = this.__iterate(returnTrue);
-    }
-    return this.size;
+    return ensureSize(
+      predicate ? this.toSeq().filter(predicate, context) : this
+    );
   }
 
   countBy(grouper, context) {
@@ -806,29 +803,6 @@ function reify(kind, seq) {
   return isLazy(kind) ? seq : kind.constructor(seq);
 }
 
-function wholeSlice(begin, end, size) {
-  return (begin === 0 || (size !== undefined && begin <= -size)) &&
-    (end === undefined || (size !== undefined && end >= size));
-}
-
-function resolveBegin(begin, size) {
-  return resolveIndex(begin, size, 0);
-}
-
-function resolveEnd(end, size) {
-  return resolveIndex(end, size, size);
-}
-
-function resolveIndex(index, size, defaultIndex) {
-  return index === undefined ?
-    defaultIndex :
-    index < 0 ?
-      Math.max(0, size + index) :
-      size === undefined ?
-        index :
-        Math.min(size, index);
-}
-
 function valueMapper(v) {
   return v;
 }
@@ -839,10 +813,6 @@ function keyMapper(v, k) {
 
 function entryMapper(v, k) {
   return [k, v];
-}
-
-function returnTrue() {
-  return true;
 }
 
 function not(predicate) {
@@ -857,16 +827,6 @@ function quoteString(value) {
 
 function defaultComparator(a, b) {
   return a > b ? 1 : a < b ? -1 : 0;
-}
-
-function wrapIndex(seq, index) {
-  if (index < 0) {
-    if (seq.size === undefined) {
-      seq.cacheResult();
-    }
-    return seq.size + index;
-  }
-  return index;
 }
 
 function iterableClass(iterable) {

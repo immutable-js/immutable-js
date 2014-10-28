@@ -84,6 +84,30 @@ function arrCopy(arr, offset) {
 function assertNotInfinite(size) {
   invariant(size !== Infinity, 'Cannot perform this action with an infinite size.');
 }
+function ensureSize(iter) {
+  if (iter.size === undefined) {
+    iter.size = iter.__iterate(returnTrue);
+  }
+  return iter.size;
+}
+function wrapIndex(iter, index) {
+  return index >= 0 ? index : ensureSize(iter) + index;
+}
+function returnTrue() {
+  return true;
+}
+function wholeSlice(begin, end, size) {
+  return (begin === 0 || (size !== undefined && begin <= -size)) && (end === undefined || (size !== undefined && end >= size));
+}
+function resolveBegin(begin, size) {
+  return resolveIndex(begin, size, 0);
+}
+function resolveEnd(end, size) {
+  return resolveIndex(end, size, size);
+}
+function resolveIndex(index, size, defaultIndex) {
+  return index === undefined ? defaultIndex : index < 0 ? Math.max(0, size + index) : size === undefined ? index : Math.min(size, index);
+}
 function hash(o) {
   if (!o) {
     return 0;
@@ -418,13 +442,7 @@ var $Iterable = Iterable;
     return this.slice(0, -1);
   },
   count: function(predicate, context) {
-    if (predicate) {
-      return this.toSeq().filter(predicate, context).count();
-    }
-    if (this.size === undefined) {
-      this.size = this.__iterate(returnTrue);
-    }
-    return this.size;
+    return ensureSize(predicate ? this.toSeq().filter(predicate, context) : this);
   },
   countBy: function(grouper, context) {
     var $__0 = this;
@@ -819,18 +837,6 @@ Iterable.Iterator = Iterator;
 function reify(kind, seq) {
   return isLazy(kind) ? seq : kind.constructor(seq);
 }
-function wholeSlice(begin, end, size) {
-  return (begin === 0 || (size !== undefined && begin <= -size)) && (end === undefined || (size !== undefined && end >= size));
-}
-function resolveBegin(begin, size) {
-  return resolveIndex(begin, size, 0);
-}
-function resolveEnd(end, size) {
-  return resolveIndex(end, size, size);
-}
-function resolveIndex(index, size, defaultIndex) {
-  return index === undefined ? defaultIndex : index < 0 ? Math.max(0, size + index) : size === undefined ? index : Math.min(size, index);
-}
 function valueMapper(v) {
   return v;
 }
@@ -839,9 +845,6 @@ function keyMapper(v, k) {
 }
 function entryMapper(v, k) {
   return [k, v];
-}
-function returnTrue() {
-  return true;
 }
 function not(predicate) {
   return function() {
@@ -853,15 +856,6 @@ function quoteString(value) {
 }
 function defaultComparator(a, b) {
   return a > b ? 1 : a < b ? -1 : 0;
-}
-function wrapIndex(seq, index) {
-  if (index < 0) {
-    if (seq.size === undefined) {
-      seq.cacheResult();
-    }
-    return seq.size + index;
-  }
-  return index;
 }
 function iterableClass(iterable) {
   return isKeyed(iterable) ? KeyedIterable : isIndexed(iterable) ? IndexedIterable : SetIterable;
