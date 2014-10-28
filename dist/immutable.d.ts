@@ -122,7 +122,6 @@ declare module 'immutable' {
      * True if `maybeAssociative` is either a keyed or indexed Iterable.
      */
     function isAssociative(maybeAssociative): boolean;
-
   }
 
   /**
@@ -780,7 +779,6 @@ declare module 'immutable' {
     function from<V>(obj: {[key: string]: V}): KeyedIterable<string, V>;
     function from<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): KeyedIterable<K, V>;
     function from<K, V>(iterable: /*Iterable<[K,V]>*/Object): KeyedIterable<K, V>;
-
   }
 
   /**
@@ -838,9 +836,7 @@ declare module 'immutable' {
     mapKeys<M>(
       mapper: (key?: K, value?: V, iter?: /*this*/KeyedIterable<K, V>) => M,
       context?: any
-    ): KeyedIterable<M, V>;
-
-    // TODO: All sequence methods return KeyedIterable here.
+    ): /*this*/KeyedIterable<M, V>;
   }
 
 
@@ -870,7 +866,6 @@ declare module 'immutable' {
     function from<T>(obj: {[key: string]: T}): SetIterable<T>;
     function from<T>(iterator: Iterator<T>): SetIterable<T>;
     function from<T>(iterable: /*Iterable<T>*/Object): SetIterable<T>;
-
   }
 
   /**
@@ -890,8 +885,6 @@ declare module 'immutable' {
      * @override
      */
     toSeq(): LazySetSequence<T>;
-
-    // TODO: All sequence methods return SetIterable here.
   }
 
 
@@ -924,7 +917,6 @@ declare module 'immutable' {
     function from<T>(obj: {[key: string]: T}): IndexedIterable<T>;
     function from<T>(iterator: Iterator<T>): IndexedIterable<T>;
     function from<T>(iterable: /*Iterable<T>*/Object): IndexedIterable<T>;
-
   }
 
   /**
@@ -981,7 +973,11 @@ declare module 'immutable' {
      *     // Seq ['a', 'q', 'r', 's', 'd']
      *
      */
-    splice(index: number, removeNum: number, ...values: /*Array<IndexedIterable<T> | T>*/any[]): /*this*/IndexedIterable<T>;
+    splice(
+      index: number,
+      removeNum: number,
+      ...values: /*Array<IndexedIterable<T> | T>*/any[]
+    ): /*this*/IndexedIterable<T>;
 
 
     // ### More sequential methods
@@ -996,10 +992,10 @@ declare module 'immutable' {
     ): number;
 
     /**
-     * If this is a sequence of entries (key-value tuples), it will return a
-     * sequence of those entries.
+     * If this is an iterable of [key, value] entry tuples, it will return a
+     * keyed sequence of those entries.
      */
-    fromEntrySeq(): Iterable<any, any>;
+    fromEntrySeq(): LazyKeyedSequence<any, any>;
 
     /**
      * Returns the value associated with the provided index, or notSetValue if
@@ -1096,7 +1092,6 @@ declare module 'immutable' {
      * structure such as Map, Vector, or Set.
      */
     function isLazy(maybeLazy): boolean;
-
   }
 
   /**
@@ -1152,7 +1147,6 @@ declare module 'immutable' {
     function from<K, V>(iterable: /*Iterable<[K,V]>*/Object): LazyKeyedSequence<K, V>;
 
     function empty<K, V>(): LazySequence<K, V>;
-
   }
 
   /**
@@ -1166,9 +1160,12 @@ declare module 'immutable' {
   export function LazyKeyedSequence<K, V>(iterator: Iterator</*[K,V]*/any>): LazyKeyedSequence<K, V>;
   export function LazyKeyedSequence<K, V>(iterable: /*Iterable<[K,V]>*/Object): LazyKeyedSequence<K, V>;
 
-  export interface LazyKeyedSequence<K, V> extends /*LazySequence<K, V>,*/ KeyedIterable<K, V> {
-    //
-    cacheResult(): /*this*/LazyKeyedSequence<K, V>;
+  export interface LazyKeyedSequence<K, V> extends LazySequence<K, V>, KeyedIterable<K, V> {
+
+    /**
+     * Returns itself
+     */
+    toSeq(): /*this*/LazyKeyedSequence<K, V>
   }
 
 
@@ -1186,7 +1183,6 @@ declare module 'immutable' {
     function empty<T>(): LazySetSequence<T>;
 
     function of<T>(...values: T[]): LazySetSequence<T>;
-
   }
 
   /**
@@ -1199,9 +1195,12 @@ declare module 'immutable' {
   export function LazySetSequence<T>(iterator: Iterator<T>): LazySetSequence<T>;
   export function LazySetSequence<T>(iterable: /*Iterable<T>*/Object): LazySetSequence<T>;
 
-  export interface LazySetSequence<T> extends /*LazySequence<T, T>,*/ SetIterable<T> {
-    //
-    cacheResult(): /*this*/LazySetSequence<T>;
+  export interface LazySetSequence<T> extends LazySequence<T, T>, SetIterable<T> {
+
+    /**
+     * Returns itself
+     */
+    toSeq(): /*this*/LazySetSequence<T>
   }
 
 
@@ -1219,7 +1218,6 @@ declare module 'immutable' {
     function empty<T>(): LazyIndexedSequence<T>;
 
     function of<T>(...values: T[]): LazyIndexedSequence<T>;
-
   }
 
   /**
@@ -1232,9 +1230,12 @@ declare module 'immutable' {
   export function LazyIndexedSequence<T>(iterator: Iterator<T>): LazyIndexedSequence<T>;
   export function LazyIndexedSequence<T>(iterable: /*Iterable<T>*/Object): LazyIndexedSequence<T>;
 
-  export interface LazyIndexedSequence<T> extends /*LazySequence<number, T>,*/ IndexedIterable<T> {
-    //
-    cacheResult(): /*this*/LazyIndexedSequence<T>;
+  export interface LazyIndexedSequence<T> extends LazySequence<number, T>, IndexedIterable<T> {
+
+    /**
+     * Returns itself
+     */
+    toSeq(): /*this*/LazyIndexedSequence<T>
   }
 
 
@@ -1306,7 +1307,6 @@ declare module 'immutable' {
     function from<V>(obj: {[key: string]: V}): Map<string, V>;
     function from<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): Map<K, V>;
     function from<K, V>(iterable: /*Iterable<[K,V]>*/Object): Map<K, V>;
-
   }
 
   /**
@@ -1547,7 +1547,6 @@ declare module 'immutable' {
     function from<V>(obj: {[key: string]: V}): Map<string, V>;
     function from<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): Map<K, V>;
     function from<K, V>(iterable: /*Iterable<[K,V]>*/Object): Map<K, V>;
-
   }
 
   /**
@@ -1652,7 +1651,6 @@ declare module 'immutable' {
      * Creates a new Set containing `values`.
      */
     function of<T>(...values: T[]): Set<T>;
-
   }
 
   /**
@@ -1762,7 +1760,6 @@ declare module 'immutable' {
      * Creates a new Vector containing `values`.
      */
     function of<T>(...values: T[]): Vector<T>;
-
   }
 
   /**
@@ -1987,7 +1984,6 @@ declare module 'immutable' {
      * Creates a new Stack containing `values`.
      */
     function of<T>(...values: T[]): Stack<T>;
-
   }
 
   /**
