@@ -12,7 +12,7 @@ import "Seq"
 import "Range"
 import "is"
 import "Iterator"
-/* global assertNotInfinite, wholeSlice, resolveBegin, resolveEnd,
+/* global wholeSlice, resolveBegin, resolveEnd,
           LazyIndexedSequence,
           RangePrototype,
           is,
@@ -80,7 +80,6 @@ class Repeat extends LazyIndexedSequence {
   }
 
   __iterate(fn, reverse) {
-    assertNotInfinite(this.size);
     for (var ii = 0; ii < this.size; ii++) {
       if (fn(this._value, ii, this) === false) {
         return ii + 1;

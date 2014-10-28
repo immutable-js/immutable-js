@@ -275,6 +275,7 @@ var Iterable = function Iterable(value) {
 var $Iterable = Iterable;
 ($traceurRuntime.createClass)(Iterable, {
   toArray: function() {
+    assertNotInfinite(this.size);
     var array = new Array(this.size || 0);
     this.valueSeq().__iterate((function(v, i) {
       array[i] = v;
@@ -293,9 +294,11 @@ var $Iterable = Iterable;
     return new ToKeyedSequence(this, true);
   },
   toMap: function() {
+    assertNotInfinite(this.size);
     return Map(this.toKeyedSeq());
   },
   toObject: function() {
+    assertNotInfinite(this.size);
     var object = {};
     this.__iterate((function(v, k) {
       object[k] = v;
@@ -303,9 +306,11 @@ var $Iterable = Iterable;
     return object;
   },
   toOrderedMap: function() {
+    assertNotInfinite(this.size);
     return OrderedMap(this.toKeyedSeq());
   },
   toSet: function() {
+    assertNotInfinite(this.size);
     return Set(this);
   },
   toSetSeq: function() {
@@ -315,9 +320,11 @@ var $Iterable = Iterable;
     return isIndexed(this) ? this.toIndexedSeq() : isKeyed(this) ? this.toKeyedSeq() : this.toSetSeq();
   },
   toStack: function() {
+    assertNotInfinite(this.size);
     return Stack(this);
   },
   toVector: function() {
+    assertNotInfinite(this.size);
     return Vector(this);
   },
   toString: function() {
@@ -1229,7 +1236,7 @@ var ToKeyedSequence = function ToKeyedSequence(indexed, useKeys) {
     var ii;
     return this._iter.__iterate(this._useKeys ? (function(v, k) {
       return fn(v, k, $__0);
-    }) : ((ii = reverse ? ensureSize(this) : 0), (function(v) {
+    }) : ((ii = reverse ? resolveSize(this) : 0), (function(v) {
       return fn(v, reverse ? --ii : ii++, $__0);
     })), reverse);
   },
@@ -1238,7 +1245,7 @@ var ToKeyedSequence = function ToKeyedSequence(indexed, useKeys) {
       return this._iter.__iterator(type, reverse);
     }
     var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
-    var ii = reverse ? ensureSize(this) : 0;
+    var ii = reverse ? resolveSize(this) : 0;
     return new Iterator((function() {
       var step = iterator.next();
       return step.done ? step : iteratorValue(type, reverse ? --ii : ii++, step.value, step);
@@ -1764,6 +1771,10 @@ function validateEntry(entry) {
   if (entry !== Object(entry)) {
     throw new TypeError('Expected [K, V] tuple: ' + entry);
   }
+}
+function resolveSize(iter) {
+  assertNotInfinite(iter.size);
+  return ensureSize(iter);
 }
 function makeSequence(iterable) {
   return Object.create((isKeyed(iterable) ? LazyKeyedSequence : isIndexed(iterable) ? LazyIndexedSequence : LazySetSequence).prototype);
@@ -3455,7 +3466,6 @@ var $Range = Range;
     return this.slice(Math.max(0, amount));
   },
   __iterate: function(fn, reverse) {
-    assertNotInfinite(this.size);
     var maxIndex = this.size - 1;
     var step = this._step;
     var value = reverse ? this._start + maxIndex * step : this._start;
@@ -3534,7 +3544,6 @@ var $Repeat = Repeat;
     return -1;
   },
   __iterate: function(fn, reverse) {
-    assertNotInfinite(this.size);
     for (var ii = 0; ii < this.size; ii++) {
       if (fn(this._value, ii, this) === false) {
         return ii + 1;

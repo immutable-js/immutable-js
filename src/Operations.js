@@ -11,7 +11,7 @@ import "TrieUtils"
 import "Iterable"
 import "Iterator"
 import "Seq"
-/* global NOT_SET, ensureSize,
+/* global NOT_SET, assertNotInfinite, ensureSize,
           isIterable, isKeyed, isIndexed, KeyedIterable,
           hash,
           Iterator, iteratorValue, iteratorDone,
@@ -104,7 +104,7 @@ class ToKeyedSequence extends LazyKeyedSequence {
     return this._iter.__iterate(
       this._useKeys ?
         (v, k) => fn(v, k, this) :
-        ((ii = reverse ? ensureSize(this) : 0),
+        ((ii = reverse ? resolveSize(this) : 0),
           v => fn(v, reverse ? --ii : ii++, this)),
       reverse
     );
@@ -115,7 +115,7 @@ class ToKeyedSequence extends LazyKeyedSequence {
       return this._iter.__iterator(type, reverse);
     }
     var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
-    var ii = reverse ? ensureSize(this) : 0;
+    var ii = reverse ? resolveSize(this) : 0;
     return new Iterator(() => {
       var step = iterator.next();
       return step.done ? step :
@@ -670,6 +670,11 @@ function validateEntry(entry) {
   if (entry !== Object(entry)) {
     throw new TypeError('Expected [K, V] tuple: ' + entry);
   }
+}
+
+function resolveSize(iter) {
+  assertNotInfinite(iter.size);
+  return ensureSize(iter);
 }
 
 function makeSequence(iterable) {
