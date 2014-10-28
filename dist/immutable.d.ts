@@ -276,7 +276,7 @@ declare module 'immutable' {
      * For LazySequences, all entries will be present in
      * the resulting iterable, even if they have the same key.
      */
-    concat(...valuesOrIterables: any[]): /*this*/Iterable<any, any>;
+    concat(...valuesOrIterables: /*Array<Iterable<K, V>|V*/any[]): /*this*/Iterable<K, V>;
 
     /**
      * True if a value exists within this Iterable.
@@ -533,6 +533,10 @@ declare module 'immutable' {
      */
     flatMap<MK, MV>(
       mapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => Iterable<MK, MV>,
+      context?: any
+    ): /*this*/Iterable<MK, MV>;
+    flatMap<MK, MV>(
+      mapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => /*iterable-like*/any,
       context?: any
     ): /*this*/Iterable<MK, MV>;
 
@@ -941,42 +945,8 @@ declare module 'immutable' {
      */
     toSeq(): LazyIndexedSequence<T>;
 
+
     // ### ES6 Collection methods (ES6 Array and Map)
-
-    /**
-     * This new behavior will iterate through the values and iterable-likes with
-     * increasing indices.
-     * @override
-     */
-    concat(...valuesOrIterables: any[]): IndexedIterable<any>;
-
-    /**
-     * Predicate takes IndexedIterable.
-     * @override
-     */
-    every(
-      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
-      context?: any
-    ): boolean;
-
-    /**
-     * Returns IndexedIterable.
-     * @override
-     */
-    filter(
-      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
-      context?: any
-    ): /*this*/IndexedIterable<T>;
-
-    /**
-     * Predicate takes IndexedIterable.
-     * @override
-     */
-    find(
-      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
-      context?: any,
-      notSetValue?: T
-    ): T;
 
     /**
      * Returns the first index in the sequence where a value satisfies the
@@ -984,15 +954,6 @@ declare module 'immutable' {
      */
     findIndex(
       predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
-      context?: any
-    ): number;
-
-    /**
-     * Side effect takes IndexedIterable.
-     * @override
-     */
-    forEach(
-      sideEffect: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => any,
       context?: any
     ): number;
 
@@ -1009,64 +970,6 @@ declare module 'immutable' {
     lastIndexOf(searchValue: T): number;
 
     /**
-     * Returns an IndexedIterable
-     * @override
-     */
-    map<M>(
-      mapper: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => M,
-      context?: any
-    ): /*this*/IndexedIterable<M>;
-
-    /**
-     * Reducer takes IndexedIterable.
-     * @override
-     */
-    reduce<R>(
-      reducer: (reduction?: R, value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => R,
-      initialReduction?: R,
-      context?: any
-    ): R;
-
-    /**
-     * Reducer takes IndexedIterable.
-     * @override
-     */
-    reduceRight<R>(
-      reducer: (reduction?: R, value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => R,
-      initialReduction?: R,
-      context?: any
-    ): R;
-
-    /**
-     * Returns IndexedIterable.
-     * @override
-     */
-    reverse(): /*this*/IndexedIterable<T>;
-
-    /**
-     * Returns IndexedIterable.
-     * @override
-     */
-    slice(begin?: number, end?: number): /*this*/IndexedIterable<T>;
-
-    /**
-     * Predicate takes IndexedIterable.
-     * @override
-     */
-    some(
-      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
-      context?: any
-    ): boolean;
-
-    /**
-     * Returns an IndexedIterable
-     * @override
-     */
-    sort(
-      comparator?: (valueA: T, valueB: T) => number
-    ): /*this*/IndexedIterable<T>;
-
-    /**
      * Splice returns a new indexed sequence by replacing a region of this
      * Iterable with new values. If values are not provided, it only skips the
      * region to be removed.
@@ -1078,54 +981,10 @@ declare module 'immutable' {
      *     // Seq ['a', 'q', 'r', 's', 'd']
      *
      */
-    splice(index: number, removeNum: number, ...values: any[]): /*this*/IndexedIterable<T>;
+    splice(index: number, removeNum: number, ...values: /*Array<IndexedIterable<T> | T>*/any[]): /*this*/IndexedIterable<T>;
 
 
     // ### More sequential methods
-
-    /**
-     * Returns an IndexedIterable
-     * @override
-     */
-    butLast(): /*this*/IndexedIterable<T>;
-
-    /**
-     * Predicate takes IndexedIterable.
-     * @override
-     */
-    count(): number;
-    count(
-      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
-      context?: any
-    ): number;
-
-    /**
-     * Returns an IndexedIterable
-     * @override
-     */
-    filterNot(
-      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
-      context?: any
-    ): /*this*/IndexedIterable<T>;
-
-    /**
-     * Predicate takes IndexedIterable.
-     * @override
-     */
-    findKey(
-      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
-      context?: any
-    ): number;
-
-    /**
-     * Predicate takes IndexedIterable.
-     * @override
-     */
-    findLast(
-      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
-      context?: any,
-      notSetValue?: T
-    ): T;
 
     /**
      * Returns the last index in the sequence where a value satisfies the
@@ -1135,35 +994,6 @@ declare module 'immutable' {
       predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
       context?: any
     ): number;
-
-    /**
-     * Predicate takes IndexedIterable.
-     * @override
-     */
-    findLastKey(
-      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
-      context?: any
-    ): number;
-
-    /**
-     * Returns IndexedIterable<M>
-     * @override
-     */
-    flatMap<M>(
-      mapper: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => IndexedIterable<M>,
-      context?: any
-    ): /*this*/IndexedIterable<M>;
-    flatMap<M>(
-      mapper: (value?: T, index?: number, seq?: /*this*/IndexedIterable<T>) => M[],
-      context?: any
-    ): /*this*/IndexedIterable<M>;
-
-    /**
-     * Returns IndexedIterable<T>
-     * @override
-     */
-    flatten(depth?: number): /*this*/IndexedIterable<any>;
-    flatten(shallow?: boolean): /*this*/IndexedIterable<any>;
 
     /**
      * If this is a sequence of entries (key-value tuples), it will return a
@@ -1181,112 +1011,10 @@ declare module 'immutable' {
     get(index: number, notSetValue?: T): T;
 
     /**
-     * Returns LazyKeyedIterable<G, IndexedIterable<T>>
-     * @override
-     */
-    groupBy<G>(
-      grouper: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => G,
-      context?: any
-    ): LazyKeyedSequence<G, any/*IndexedIterable<T>*/>; // Bug: exposing this causes the type checker to implode.
-
-    /**
      * Returns an Iterable of the same type with `separator` between each item
      * in this Iterable.
      */
     interpose(separator: T): /*this*/IndexedIterable<T>;
-
-    /**
-     * Mapper takes IndexedIterable.
-     * @override
-     */
-    maxBy<C>(
-      comparatorValueMapper: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => C,
-      comparator?: (valueA: C, valueB: C) => number
-    ): T;
-
-    /**
-     * Mapper takes IndexedIterable.
-     * @override
-     */
-    minBy<C>(
-      comparatorValueMapper: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => C,
-      comparator?: (valueA: C, valueB: C) => number
-    ): T;
-
-    /**
-     * Returns IndexedIterable
-     * @override
-     */
-    rest(): /*this*/IndexedIterable<T>;
-
-    /**
-     * Returns IndexedIterable
-     * @override
-     */
-    skip(amount: number): /*this*/IndexedIterable<T>;
-
-    /**
-     * Returns IndexedIterable
-     * @override
-     */
-    skipLast(amount: number): /*this*/IndexedIterable<T>;
-
-    /**
-     * Returns IndexedIterable
-     * @override
-     */
-    skipWhile(
-      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
-      context?: any
-    ): /*this*/IndexedIterable<T>;
-
-    /**
-     * Returns IndexedIterable
-     * @override
-     */
-    skipUntil(
-      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
-      context?: any
-    ): /*this*/IndexedIterable<T>;
-
-    /**
-     * Returns an IndexedIterable
-     * @override
-     */
-    sortBy<C>(
-      comparatorValueMapper: (value?: T, index?: number, iter?: IndexedIterable<T>) => C,
-      comparator?: (valueA: C, valueB: C) => number
-    ): /*this*/IndexedIterable<T>;
-
-    /**
-     * Returns IndexedIterable
-     * @override
-     */
-    take(amount: number): /*this*/IndexedIterable<T>;
-
-    /**
-     * Returns IndexedIterable
-     * @override
-     */
-    takeLast(amount: number): /*this*/IndexedIterable<T>;
-
-    /**
-     * Returns IndexedIterable
-     * @override
-     */
-    takeWhile(
-      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
-      context?: any
-    ): /*this*/IndexedIterable<T>;
-
-    /**
-     * Returns IndexedIterable
-     * @override
-     */
-    takeUntil(
-      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
-      context?: any
-    ): /*this*/IndexedIterable<T>;
   }
 
 
