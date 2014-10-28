@@ -203,7 +203,6 @@ ListPrototype.setIn = MapPrototype.setIn;
 ListPrototype.removeIn = MapPrototype.removeIn;
 ListPrototype.update = MapPrototype.update;
 ListPrototype.updateIn = MapPrototype.updateIn;
-ListPrototype.cursor = MapPrototype.cursor;
 ListPrototype.withMutations = MapPrototype.withMutations;
 ListPrototype.asMutable = MapPrototype.asMutable;
 ListPrototype.asImmutable = MapPrototype.asImmutable;

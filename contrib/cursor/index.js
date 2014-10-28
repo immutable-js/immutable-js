@@ -1,0 +1,187 @@
+/**
+ *  Copyright (c) 2014, Facebook, Inc.
+ *  All rights reserved.
+ *
+ *  This source code is licensed under the BSD-style license found in the
+ *  LICENSE file in the root directory of this source tree. An additional grant
+ *  of patent rights can be found in the PATENTS file in the same directory.
+ */
+
+var Immutable = require('../../');
+var Iterable = Immutable.Iterable;
+var Iterator = Iterable.Iterator;
+var Seq = Immutable.Seq;
+var Map = Immutable.Map;
+
+
+function cursorFrom(rootData, keyPath, onChange) {
+  keyPath =
+    arguments.length === 1 ||
+    typeof keyPath === 'function' && (onChange = keyPath) ? [] :
+    Array.isArray(keyPath) ? keyPath : [keyPath];
+  return makeCursor(rootData, keyPath, onChange);
+}
+
+
+var KeyedCursorPrototype = Object.create(Seq.Keyed.prototype);
+var IndexedCursorPrototype = Object.create(Seq.Indexed.prototype);
+
+function KeyedCursor(rootData, keyPath, onChange, size) {
+  this.size = size;
+  this._rootData = rootData;
+  this._keyPath = keyPath;
+  this._onChange = onChange;
+}
+KeyedCursorPrototype.constructor = KeyedCursor;
+
+function IndexedCursor(rootData, keyPath, onChange, size) {
+  this.size = size;
+  this._rootData = rootData;
+  this._keyPath = keyPath;
+  this._onChange = onChange;
+}
+IndexedCursorPrototype.constructor = IndexedCursor;
+
+KeyedCursorPrototype.toString = function() {
+  return this.__toString('Cursor {', '}');
+}
+IndexedCursorPrototype.toString = function() {
+  return this.__toString('Cursor [', ']');
+}
+
+KeyedCursorPrototype.equals =
+IndexedCursorPrototype.equals = function(second) {
+  return Immutable.is(
+    this.deref(),
+    second && (typeof second.deref === 'function' ? second.deref() : second)
+  );
+}
+
+KeyedCursorPrototype.deref =
+IndexedCursorPrototype.deref = function(notSetValue) {
+  return this._rootData.getIn(this._keyPath, notSetValue);
+}
+
+KeyedCursorPrototype.get =
+KeyedCursorPrototype.getIn =
+IndexedCursorPrototype.get =
+IndexedCursorPrototype.getIn = function(key, notSetValue) {
+  if (Array.isArray(key) && key.length === 0) {
+    return this;
+  }
+  var value = this._rootData.getIn(this._keyPath.concat(key), NOT_SET);
+  return value === NOT_SET ? notSetValue : wrappedValue(this, key, value);
+}
+
+IndexedCursorPrototype.set =
+KeyedCursorPrototype.set = function(key, value) {
+  return updateCursor(this, m => m.set(key, value), key);
+}
+
+KeyedCursorPrototype.remove =
+KeyedCursorPrototype['delete'] =
+IndexedCursorPrototype.remove =
+IndexedCursorPrototype['delete'] = function(key) {
+  return updateCursor(this, m => m.remove(key), key);
+}
+
+KeyedCursorPrototype.clear =
+IndexedCursorPrototype.clear = function() {
+  return updateCursor(this, m => m.clear());
+}
+
+IndexedCursorPrototype.update =
+KeyedCursorPrototype.update = function(keyOrFn, notSetValue, updater) {
+  return arguments.length === 1 ?
+    updateCursor(this, keyOrFn) :
+    updateCursor(this, map => map.update(keyOrFn, notSetValue, updater), keyOrFn);
+}
+
+KeyedCursorPrototype.withMutations =
+IndexedCursorPrototype.withMutations = function(fn) {
+  return updateCursor(this, m => (m || Map.empty()).withMutations(fn));
+}
+
+KeyedCursorPrototype.cursor =
+IndexedCursorPrototype.cursor = function(subKey) {
+  return Array.isArray(subKey) && subKey.length === 0 ?
+    this : subCursor(this, subKey);
+}
+
+KeyedCursorPrototype.__iterate =
+IndexedCursorPrototype.__iterate = function(fn, reverse) {
+  var deref = this.deref();
+  return deref && deref.__iterate ? deref.__iterate(
+    (v, k) => fn(wrappedValue(this, k, v), k, this),
+    reverse
+  ) : 0;
+}
+
+KeyedCursorPrototype.__iterator =
+IndexedCursorPrototype.__iterator = function(type, reverse) {
+  var deref = this.deref();
+  var iterator = deref && deref.__iterator && deref.__iterator(Iterator.ENTRIES, reverse);
+  return new Iterator(function () {
+    if (!iterator) {
+      return { value: undefined, done: true };
+    }
+    var step = iterator.next();
+    if (step.done) {
+      return step;
+    }
+    var entry = step.value;
+    var k = entry[0];
+    var v = wrappedValue(this, k, entry[1]);
+    return {
+      value: type === Iterator.KEYS ? k : type === Iterator.VALUES ? v : [k, v],
+      done: false
+    };
+  });
+}
+
+KeyedCursor.prototype = KeyedCursorPrototype;
+IndexedCursor.prototype = IndexedCursorPrototype;
+
+
+var NOT_SET = {}; // Sentinel value
+
+function makeCursor(rootData, keyPath, onChange, value) {
+  if (arguments.length < 4) {
+    value = rootData.getIn(keyPath);
+  }
+  var size = value && value.size;
+  var CursorClass = Iterable.isIndexed(value) ? IndexedCursor : KeyedCursor;
+  return new CursorClass(rootData, keyPath, onChange, size);
+}
+
+function wrappedValue(cursor, key, value) {
+  return Iterable.isIterable(value) ? subCursor(cursor, key, value) : value;
+}
+
+function subCursor(cursor, key, value) {
+  return makeCursor(
+    cursor._rootData,
+    cursor._keyPath.concat(key),
+    cursor._onChange,
+    value
+  );
+}
+
+function updateCursor(cursor, changeFn, changeKey) {
+  var newRootData = cursor._rootData.updateIn(
+    cursor._keyPath,
+    changeKey ? Map.empty() : undefined,
+    changeFn
+  );
+  var keyPath = cursor._keyPath || [];
+  cursor._onChange && cursor._onChange.call(
+    undefined,
+    newRootData,
+    cursor._rootData,
+    changeKey ? keyPath.concat(changeKey) : keyPath
+  );
+  return makeCursor(newRootData, cursor._keyPath, cursor._onChange);
+}
+
+
+exports.from = cursorFrom;

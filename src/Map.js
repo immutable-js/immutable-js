@@ -11,11 +11,10 @@ import "is"
 import "Iterable"
 import "Collection"
 import "invariant"
-// import "Cursor" // lazy dependency
 import "TrieUtils"
 import "Hash"
 import "Iterator"
-/* global is, KeyedIterable, KeyedCollection, invariant, makeCursor,
+/* global is, KeyedIterable, KeyedCollection, invariant,
           DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
           MakeRef, SetRef, arrCopy, hash,
           Iterator, iteratorValue, iteratorDone */
@@ -118,14 +117,6 @@ class Map extends KeyedCollection {
 
   mergeDeepWith(merger, ...iters) {
     return mergeIntoMapWith(this, deepMerger(merger), iters);
-  }
-
-  cursor(maybeKeyPath, onChange) {
-    var keyPath =
-      arguments.length === 0 ||
-      typeof maybeKeyPath === 'function' && (onChange = maybeKeyPath) ? [] :
-      Array.isArray(maybeKeyPath) ? maybeKeyPath : [maybeKeyPath];
-    return makeCursor(this, keyPath, onChange);
   }
 
   // @pragma Mutability

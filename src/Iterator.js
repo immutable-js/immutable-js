@@ -31,6 +31,10 @@ class Iterator {
   }
 }
 
+Iterator.KEYS = ITERATE_KEYS;
+Iterator.VALUES = ITERATE_VALUES;
+Iterator.ENTRIES = ITERATE_ENTRIES;
+
 var IteratorPrototype = Iterator.prototype;
 IteratorPrototype.inspect =
 IteratorPrototype.toSource = function () { return this.toString(); }

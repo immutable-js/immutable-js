@@ -20,7 +20,6 @@ import "Range"
 import "Repeat"
 import "is"
 import "fromJS"
-import "Cursor" // Solve circular dependency
 /* global Iterable, Seq, Collection,
           Map, List, Stack, Set, OrderedMap, Record, Range, Repeat,
           is, fromJS */

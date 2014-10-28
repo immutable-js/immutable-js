@@ -232,6 +232,9 @@ var Iterator = function Iterator(next) {
 ($traceurRuntime.createClass)(Iterator, {toString: function() {
     return '[Iterator]';
   }}, {});
+Iterator.KEYS = ITERATE_KEYS;
+Iterator.VALUES = ITERATE_VALUES;
+Iterator.ENTRIES = ITERATE_ENTRIES;
 var IteratorPrototype = Iterator.prototype;
 IteratorPrototype.inspect = IteratorPrototype.toSource = function() {
   return this.toString();
@@ -1230,10 +1233,6 @@ var $Map = Map;
         $__5 = 1; $__5 < arguments.length; $__5++)
       iters[$__5 - 1] = arguments[$__5];
     return mergeIntoMapWith(this, deepMerger(merger), iters);
-  },
-  cursor: function(maybeKeyPath, onChange) {
-    var keyPath = arguments.length === 0 || typeof maybeKeyPath === 'function' && (onChange = maybeKeyPath) ? [] : Array.isArray(maybeKeyPath) ? maybeKeyPath : [maybeKeyPath];
-    return makeCursor(this, keyPath, onChange);
   },
   withMutations: function(fn) {
     var mutable = this.asMutable();
@@ -2473,7 +2472,6 @@ ListPrototype.setIn = MapPrototype.setIn;
 ListPrototype.removeIn = MapPrototype.removeIn;
 ListPrototype.update = MapPrototype.update;
 ListPrototype.updateIn = MapPrototype.updateIn;
-ListPrototype.cursor = MapPrototype.cursor;
 ListPrototype.withMutations = MapPrototype.withMutations;
 ListPrototype.asMutable = MapPrototype.asMutable;
 ListPrototype.asImmutable = MapPrototype.asImmutable;
@@ -3366,7 +3364,6 @@ RecordPrototype.mergeDeep = MapPrototype.mergeDeep;
 RecordPrototype.mergeDeepWith = MapPrototype.mergeDeepWith;
 RecordPrototype.update = MapPrototype.update;
 RecordPrototype.updateIn = MapPrototype.updateIn;
-RecordPrototype.cursor = MapPrototype.cursor;
 RecordPrototype.withMutations = MapPrototype.withMutations;
 RecordPrototype.asMutable = MapPrototype.asMutable;
 RecordPrototype.asImmutable = MapPrototype.asImmutable;
@@ -3570,123 +3567,6 @@ function _fromJSDefault(json) {
     }
   }
   return json;
-}
-var Cursor = function Cursor(rootData, keyPath, onChange, size) {
-  this.size = size;
-  this._rootData = rootData;
-  this._keyPath = keyPath;
-  this._onChange = onChange;
-};
-($traceurRuntime.createClass)(Cursor, {
-  equals: function(second) {
-    return is(this.deref(), second && (typeof second.deref === 'function' ? second.deref() : second));
-  },
-  deref: function(notSetValue) {
-    return this._rootData.getIn(this._keyPath, notSetValue);
-  },
-  get: function(key, notSetValue) {
-    if (Array.isArray(key) && key.length === 0) {
-      return this;
-    }
-    var value = this._rootData.getIn(this._keyPath.concat(key), NOT_SET);
-    return value === NOT_SET ? notSetValue : wrappedValue(this, key, value);
-  },
-  set: function(key, value) {
-    return updateCursor(this, (function(m) {
-      return m.set(key, value);
-    }), key);
-  },
-  remove: function(key) {
-    return updateCursor(this, (function(m) {
-      return m.remove(key);
-    }), key);
-  },
-  clear: function() {
-    return updateCursor(this, (function(m) {
-      return m.clear();
-    }));
-  },
-  update: function(keyOrFn, notSetValue, updater) {
-    return arguments.length === 1 ? updateCursor(this, keyOrFn) : updateCursor(this, (function(map) {
-      return map.update(keyOrFn, notSetValue, updater);
-    }), keyOrFn);
-  },
-  withMutations: function(fn) {
-    return updateCursor(this, (function(m) {
-      return (m || Map.empty()).withMutations(fn);
-    }));
-  },
-  cursor: function(subKey) {
-    return Array.isArray(subKey) && subKey.length === 0 ? this : subCursor(this, subKey);
-  },
-  __iterate: function(fn, reverse) {
-    var $__0 = this;
-    var deref = this.deref();
-    return deref && deref.__iterate ? deref.__iterate((function(v, k) {
-      return fn(wrappedValue($__0, k, v), k, $__0);
-    }), reverse) : 0;
-  },
-  __iterator: function(type, reverse) {
-    var $__0 = this;
-    var deref = this.deref();
-    var iterator = deref && deref.__iterator && deref.__iterator(ITERATE_ENTRIES, reverse);
-    return new Iterator((function() {
-      if (!iterator) {
-        return iteratorDone();
-      }
-      var step = iterator.next();
-      if (step.done) {
-        return step;
-      }
-      var entry = step.value;
-      var k = entry[0];
-      var v = entry[1];
-      return iteratorValue(type, k, wrappedValue($__0, k, v), step);
-    }));
-  }
-}, {}, KeyedSeq);
-var CursorPrototype = Cursor.prototype;
-CursorPrototype[DELETE] = CursorPrototype.remove;
-CursorPrototype.getIn = CursorPrototype.get;
-var IndexedCursor = function IndexedCursor(rootData, keyPath, onChange, size) {
-  this.size = size;
-  this._rootData = rootData;
-  this._keyPath = keyPath;
-  this._onChange = onChange;
-};
-($traceurRuntime.createClass)(IndexedCursor, {}, {}, IndexedSeq);
-var IndexedCursorPrototype = IndexedCursor.prototype;
-IndexedCursorPrototype.equals = CursorPrototype.equals;
-IndexedCursorPrototype.deref = CursorPrototype.deref;
-IndexedCursorPrototype.get = CursorPrototype.get;
-IndexedCursorPrototype.getIn = CursorPrototype.getIn;
-IndexedCursorPrototype.set = CursorPrototype.set;
-IndexedCursorPrototype[DELETE] = IndexedCursorPrototype.remove = CursorPrototype.remove;
-IndexedCursorPrototype.clear = CursorPrototype.clear;
-IndexedCursorPrototype.update = CursorPrototype.update;
-IndexedCursorPrototype.withMutations = CursorPrototype.withMutations;
-IndexedCursorPrototype.cursor = CursorPrototype.cursor;
-IndexedCursorPrototype.__iterate = CursorPrototype.__iterate;
-IndexedCursorPrototype.__iterator = CursorPrototype.__iterator;
-function makeCursor(rootData, keyPath, onChange, value) {
-  if (arguments.length < 4) {
-    value = rootData.getIn(keyPath);
-  }
-  var size = isIterable(value) ? value.size : undefined;
-  var CursorClass = isIndexed(value) ? IndexedCursor : Cursor;
-  return new CursorClass(rootData, keyPath, onChange, size);
-}
-function wrappedValue(cursor, key, value) {
-  return isIterable(value) ? subCursor(cursor, key, value) : value;
-}
-function subCursor(cursor, key, value) {
-  return makeCursor(cursor._rootData, cursor._keyPath.concat(key), cursor._onChange, value);
-}
-function updateCursor(cursor, changeFn, changeKey) {
-  var newRootData = cursor._rootData.updateIn(cursor._keyPath, changeKey ? Map.empty() : undefined, changeFn);
-  var keyPath = cursor._keyPath || [];
-  cursor._onChange && cursor._onChange.call(undefined, newRootData, cursor._rootData, changeKey ? keyPath.concat(changeKey) : keyPath);
-  return makeCursor(newRootData, cursor._keyPath, cursor._onChange);
 }
 var Immutable = {
   Iterable: Iterable,
