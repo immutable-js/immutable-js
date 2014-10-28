@@ -8,6 +8,7 @@
  */
 
 import "Iterable"
+import "Collection"
 import "Map"
 import "TrieUtils"
 import "Iterator"

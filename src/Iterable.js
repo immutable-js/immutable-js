@@ -8,13 +8,12 @@
  */
 
 /* Iterable has implicit lazy dependencies */
-import "mixin"
 import "is"
 import "TrieUtils"
 import "Hash"
 import "Iterator"
 /* global Map, OrderedMap, Vector, Set, Stack,
-          mixin, is,
+          is,
           arrCopy, NOT_SET, assertNotInfinite,
           hash, HASH_MAX_VAL,
           Iterator,
@@ -772,32 +771,6 @@ IndexedIterable.prototype[IS_INDEXED_SENTINEL] = true;
 
 
 
-
-
-// #pragma Collection
-
-class Collection extends Iterable {
-  constructor() {
-    throw TypeError('Abstract');
-  }
-}
-
-class KeyedCollection extends Collection {}
-mixin(KeyedCollection, KeyedIterable.prototype);
-
-class SetCollection extends Collection {}
-mixin(SetCollection, SetIterable.prototype);
-
-class IndexedCollection extends Collection {}
-mixin(IndexedCollection, IndexedIterable.prototype);
-
-
-Collection.Keyed = KeyedCollection;
-Collection.Set = SetCollection;
-Collection.Indexed = IndexedCollection;
-
-
-
 // #pragma Iterable static methods
 
 function isIterable(maybeIterable) {
@@ -816,7 +789,6 @@ function isAssociative(maybeAssociative) {
   return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
 }
 
-
 Iterable.isIterable = isIterable;
 Iterable.isKeyed = isKeyed;
 Iterable.isIndexed = isIndexed;
@@ -825,9 +797,6 @@ Iterable.Keyed = KeyedIterable;
 Iterable.Set = SetIterable;
 Iterable.Indexed = IndexedIterable;
 Iterable.Iterator = Iterator;
-
-
-
 
 
 

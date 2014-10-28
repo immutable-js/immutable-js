@@ -8,6 +8,7 @@
  */
 
 import "Iterable"
+import "Collection"
 import "Map"
 import "Iterator"
 /* global Iterable, IndexedCollection, wholeSlice, resolveBegin, resolveEnd,

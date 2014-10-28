@@ -8,9 +8,11 @@
  */
 
 import "Iterable"
+import "Collection"
+import "Seq"
 import "Map"
 import "TrieUtils"
-/* global Iterable, SetCollection, Map, MapPrototype, DELETE */
+/* global Iterable, SetCollection, LazyKeyedSequence, Map, MapPrototype, DELETE */
 /* exported Set */
 
 
@@ -35,7 +37,7 @@ class Set extends SetCollection {
   }
 
   static fromKeys(seqable) {
-    return Set(Iterable(seqable).flip());
+    return this(LazyKeyedSequence(seqable).flip());
   }
 
   // @pragma Access

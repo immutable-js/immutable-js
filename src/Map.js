@@ -9,12 +9,13 @@
 
 import "is"
 import "Iterable"
+import "Collection"
 import "invariant"
 // import "Cursor" // lazy dependency
 import "TrieUtils"
 import "Hash"
 import "Iterator"
-/* global is, KeyedCollection, LazyKeyedSequence, invariant, makeCursor,
+/* global is, KeyedIterable, KeyedCollection, invariant, makeCursor,
           DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
           MakeRef, SetRef, arrCopy, hash,
           Iterator, iteratorValue, iteratorDone */
@@ -580,7 +581,7 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
 function mergeIntoMapWith(map, merger, seqable) {
   var seqs = [];
   for (var ii = 0; ii < seqable.length; ii++) {
-    seqable[ii] && seqs.push(LazyKeyedSequence(seqable[ii]));
+    seqable[ii] && seqs.push(KeyedIterable(seqable[ii]));
   }
   return mergeIntoCollectionWith(map, merger, seqs);
 }

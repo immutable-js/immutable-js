@@ -41,13 +41,6 @@ $traceurRuntime.createClass = createClass;
 $traceurRuntime.superCall = superCall;
 $traceurRuntime.defaultSuperCall = defaultSuperCall;
 "use strict";
-function mixin(ctor, methods) {
-  var proto = ctor.prototype;
-  Object.keys(methods).forEach(function(key) {
-    proto[key] = methods[key];
-  });
-  return ctor;
-}
 function is(first, second) {
   if (first === second) {
     return first !== 0 || second !== 0 || 1 / first === 1 / second;
@@ -803,31 +796,6 @@ var IndexedIterable = function IndexedIterable(value) {
   }
 }, {}, Iterable);
 IndexedIterable.prototype[IS_INDEXED_SENTINEL] = true;
-var Collection = function Collection() {
-  throw TypeError('Abstract');
-};
-($traceurRuntime.createClass)(Collection, {}, {}, Iterable);
-var KeyedCollection = function KeyedCollection() {
-  $traceurRuntime.defaultSuperCall(this, $KeyedCollection.prototype, arguments);
-};
-var $KeyedCollection = KeyedCollection;
-($traceurRuntime.createClass)(KeyedCollection, {}, {}, Collection);
-mixin(KeyedCollection, KeyedIterable.prototype);
-var SetCollection = function SetCollection() {
-  $traceurRuntime.defaultSuperCall(this, $SetCollection.prototype, arguments);
-};
-var $SetCollection = SetCollection;
-($traceurRuntime.createClass)(SetCollection, {}, {}, Collection);
-mixin(SetCollection, SetIterable.prototype);
-var IndexedCollection = function IndexedCollection() {
-  $traceurRuntime.defaultSuperCall(this, $IndexedCollection.prototype, arguments);
-};
-var $IndexedCollection = IndexedCollection;
-($traceurRuntime.createClass)(IndexedCollection, {}, {}, Collection);
-mixin(IndexedCollection, IndexedIterable.prototype);
-Collection.Keyed = KeyedCollection;
-Collection.Set = SetCollection;
-Collection.Indexed = IndexedCollection;
 function isIterable(maybeIterable) {
   return !!(maybeIterable && maybeIterable[IS_ITERABLE_SENTINEL]);
 }
@@ -897,6 +865,13 @@ function wrapIndex(seq, index) {
 }
 function iterableClass(iterable) {
   return isKeyed(iterable) ? KeyedIterable : isIndexed(iterable) ? IndexedIterable : SetIterable;
+}
+function mixin(ctor, methods) {
+  var proto = ctor.prototype;
+  Object.keys(methods).forEach(function(key) {
+    proto[key] = methods[key];
+  });
+  return ctor;
 }
 var LazySequence = function LazySequence(value) {
   return arguments.length === 0 ? emptySequence() : (isIterable(value) ? value : seqFromValue(value, false)).toSeq();
@@ -1812,6 +1787,31 @@ function resolveSize(indexedSeq) {
 function makeSequence(iterable) {
   return Object.create((isKeyed(iterable) ? LazyKeyedSequence : isIndexed(iterable) ? LazyIndexedSequence : LazySetSequence).prototype);
 }
+var Collection = function Collection() {
+  throw TypeError('Abstract');
+};
+($traceurRuntime.createClass)(Collection, {}, {}, Iterable);
+var KeyedCollection = function KeyedCollection() {
+  $traceurRuntime.defaultSuperCall(this, $KeyedCollection.prototype, arguments);
+};
+var $KeyedCollection = KeyedCollection;
+($traceurRuntime.createClass)(KeyedCollection, {}, {}, Collection);
+mixin(KeyedCollection, KeyedIterable.prototype);
+var SetCollection = function SetCollection() {
+  $traceurRuntime.defaultSuperCall(this, $SetCollection.prototype, arguments);
+};
+var $SetCollection = SetCollection;
+($traceurRuntime.createClass)(SetCollection, {}, {}, Collection);
+mixin(SetCollection, SetIterable.prototype);
+var IndexedCollection = function IndexedCollection() {
+  $traceurRuntime.defaultSuperCall(this, $IndexedCollection.prototype, arguments);
+};
+var $IndexedCollection = IndexedCollection;
+($traceurRuntime.createClass)(IndexedCollection, {}, {}, Collection);
+mixin(IndexedCollection, IndexedIterable.prototype);
+Collection.Keyed = KeyedCollection;
+Collection.Set = SetCollection;
+Collection.Indexed = IndexedCollection;
 var Map = function Map(seqable) {
   return arguments.length === 0 ? $Map.empty() : seqable && seqable.constructor === $Map ? seqable : $Map.empty().merge(seqable);
 };
@@ -2272,7 +2272,7 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
 function mergeIntoMapWith(map, merger, seqable) {
   var seqs = [];
   for (var ii = 0; ii < seqable.length; ii++) {
-    seqable[ii] && seqs.push(LazyKeyedSequence(seqable[ii]));
+    seqable[ii] && seqs.push(KeyedIterable(seqable[ii]));
   }
   return mergeIntoCollectionWith(map, merger, seqs);
 }
@@ -3165,7 +3165,7 @@ var $Set = Set;
     return this(arguments);
   },
   fromKeys: function(seqable) {
-    return $Set(Iterable(seqable).flip());
+    return this(LazyKeyedSequence(seqable).flip());
   }
 }, SetCollection);
 var SetPrototype = Set.prototype;
