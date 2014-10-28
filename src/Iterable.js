@@ -387,13 +387,13 @@ class Iterable {
     return this.get(searchKey, NOT_SET) !== NOT_SET;
   }
 
-  isSubset(seq) {
-    seq = typeof seq.contains === 'function' ? seq : Iterable(seq);
-    return this.every(value => seq.contains(value));
+  isSubset(iter) {
+    iter = typeof iter.contains === 'function' ? iter : Iterable(iter);
+    return this.every(value => iter.contains(value));
   }
 
-  isSuperset(seq) {
-    return seq.isSubset(this);
+  isSuperset(iter) {
+    return iter.isSubset(this);
   }
 
   keySeq() {
@@ -410,11 +410,10 @@ class Iterable {
 
   maxBy(mapper, comparator) {
     comparator = comparator || defaultComparator;
-    var seq = this;
-    var maxEntry = seq.entrySeq().reduce((max, next) => {
+    var maxEntry = this.entrySeq().reduce((max, next) => {
       return comparator(
-        mapper(next[1], next[0], seq),
-        mapper(max[1], max[0], seq)
+        mapper(next[1], next[0], this),
+        mapper(max[1], max[0], this)
       ) > 0 ? next : max
     });
     return maxEntry && maxEntry[1];
@@ -426,11 +425,10 @@ class Iterable {
 
   minBy(mapper, comparator) {
     comparator = comparator || defaultComparator;
-    var seq = this;
-    var minEntry = seq.entrySeq().reduce((min, next) => {
+    var minEntry = this.entrySeq().reduce((min, next) => {
       return comparator(
-        mapper(next[1], next[0], seq),
-        mapper(min[1], min[0], seq)
+        mapper(next[1], next[0], this),
+        mapper(min[1], min[0], this)
       ) < 0 ? next : min
     });
     return minEntry && minEntry[1];
@@ -458,11 +456,10 @@ class Iterable {
 
   sortBy(mapper, comparator) {
     comparator = comparator || defaultComparator;
-    var seq = this;
-    return reify(this, new ArraySequence(seq.entrySeq().entrySeq().toArray().sort(
+    return reify(this, new ArraySequence(this.entrySeq().entrySeq().toArray().sort(
       (a, b) => comparator(
-        mapper(a[1][1], a[1][0], seq),
-        mapper(b[1][1], b[1][0], seq)
+        mapper(a[1][1], a[1][0], this),
+        mapper(b[1][1], b[1][0], this)
       ) || a[0] - b[0]
     )).fromEntrySeq().valueSeq().fromEntrySeq());
   }
@@ -675,7 +672,7 @@ class IndexedIterable extends Iterable {
   }
 
 
-  // ### More sequential methods
+  // ### More collection methods
 
   findLastIndex(predicate, context) {
     return this.toKeyedSeq().reverse().findIndex(predicate, context);
@@ -718,12 +715,12 @@ class IndexedIterable extends Iterable {
   }
 
   skip(amount) {
-    var seq = this;
-    var skipSeq = skipFactory(seq, amount, false);
-    if (skipSeq !== seq) {
+    var iter = this;
+    var skipSeq = skipFactory(iter, amount, false);
+    if (isLazy(iter) && skipSeq !== iter) {
       skipSeq.get = function (index, notSetValue) {
         index = wrapIndex(this, index);
-        return index >= 0 ? seq.get(index + amount, notSetValue) : notSetValue;
+        return index >= 0 ? iter.get(index + amount, notSetValue) : notSetValue;
       }
     }
     return reify(this, skipSeq);
@@ -735,22 +732,21 @@ class IndexedIterable extends Iterable {
 
   sortBy(mapper, comparator) {
     comparator = comparator || defaultComparator;
-    var seq = this;
     return reify(this, new ArraySequence(this.entrySeq().toArray().sort(
       (a, b) => comparator(
-        mapper(a[1], a[0], seq),
-        mapper(b[1], b[0], seq)
+        mapper(a[1], a[0], this),
+        mapper(b[1], b[0], this)
       ) || a[0] - b[0]
     )).fromEntrySeq().valueSeq());
   }
 
   take(amount) {
-    var seq = this;
-    var takeSeq = takeFactory(seq, amount);
-    if (takeSeq !== seq) {
+    var iter = this;
+    var takeSeq = takeFactory(iter, amount);
+    if (isLazy(iter) && takeSeq !== iter) {
       takeSeq.get = function (index, notSetValue) {
         index = wrapIndex(this, index);
-        return index >= 0 && index < amount ? seq.get(index, notSetValue) : notSetValue;
+        return index >= 0 && index < amount ? iter.get(index, notSetValue) : notSetValue;
       }
     }
     return reify(this, takeSeq);
@@ -792,8 +788,8 @@ Iterable.Iterator = Iterator;
 
 // #pragma Helper functions
 
-function reify(kind, seq) {
-  return isLazy(kind) ? seq : kind.constructor(seq);
+function reify(iter, seq) {
+  return isLazy(iter) ? seq : iter.constructor(seq);
 }
 
 function valueMapper(v) {

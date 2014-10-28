@@ -556,14 +556,14 @@ var $Iterable = Iterable;
   has: function(searchKey) {
     return this.get(searchKey, NOT_SET) !== NOT_SET;
   },
-  isSubset: function(seq) {
-    seq = typeof seq.contains === 'function' ? seq : $Iterable(seq);
+  isSubset: function(iter) {
+    iter = typeof iter.contains === 'function' ? iter : $Iterable(iter);
     return this.every((function(value) {
-      return seq.contains(value);
+      return iter.contains(value);
     }));
   },
-  isSuperset: function(seq) {
-    return seq.isSubset(this);
+  isSuperset: function(iter) {
+    return iter.isSubset(this);
   },
   keySeq: function() {
     return this.toSeq().map(keyMapper).toIndexedSeq();
@@ -575,10 +575,10 @@ var $Iterable = Iterable;
     return this.maxBy(valueMapper, comparator);
   },
   maxBy: function(mapper, comparator) {
+    var $__0 = this;
     comparator = comparator || defaultComparator;
-    var seq = this;
-    var maxEntry = seq.entrySeq().reduce((function(max, next) {
-      return comparator(mapper(next[1], next[0], seq), mapper(max[1], max[0], seq)) > 0 ? next : max;
+    var maxEntry = this.entrySeq().reduce((function(max, next) {
+      return comparator(mapper(next[1], next[0], $__0), mapper(max[1], max[0], $__0)) > 0 ? next : max;
     }));
     return maxEntry && maxEntry[1];
   },
@@ -586,10 +586,10 @@ var $Iterable = Iterable;
     return this.minBy(valueMapper, comparator);
   },
   minBy: function(mapper, comparator) {
+    var $__0 = this;
     comparator = comparator || defaultComparator;
-    var seq = this;
-    var minEntry = seq.entrySeq().reduce((function(min, next) {
-      return comparator(mapper(next[1], next[0], seq), mapper(min[1], min[0], seq)) < 0 ? next : min;
+    var minEntry = this.entrySeq().reduce((function(min, next) {
+      return comparator(mapper(next[1], next[0], $__0), mapper(min[1], min[0], $__0)) < 0 ? next : min;
     }));
     return minEntry && minEntry[1];
   },
@@ -609,10 +609,10 @@ var $Iterable = Iterable;
     return this.skipWhile(not(predicate), context);
   },
   sortBy: function(mapper, comparator) {
+    var $__0 = this;
     comparator = comparator || defaultComparator;
-    var seq = this;
-    return reify(this, new ArraySequence(seq.entrySeq().entrySeq().toArray().sort((function(a, b) {
-      return comparator(mapper(a[1][1], a[1][0], seq), mapper(b[1][1], b[1][0], seq)) || a[0] - b[0];
+    return reify(this, new ArraySequence(this.entrySeq().entrySeq().toArray().sort((function(a, b) {
+      return comparator(mapper(a[1][1], a[1][0], $__0), mapper(b[1][1], b[1][0], $__0)) || a[0] - b[0];
     }))).fromEntrySeq().valueSeq().fromEntrySeq());
   },
   take: function(amount) {
@@ -778,12 +778,12 @@ var IndexedIterable = function IndexedIterable(value) {
     return this.get(-1);
   },
   skip: function(amount) {
-    var seq = this;
-    var skipSeq = skipFactory(seq, amount, false);
-    if (skipSeq !== seq) {
+    var iter = this;
+    var skipSeq = skipFactory(iter, amount, false);
+    if (isLazy(iter) && skipSeq !== iter) {
       skipSeq.get = function(index, notSetValue) {
         index = wrapIndex(this, index);
-        return index >= 0 ? seq.get(index + amount, notSetValue) : notSetValue;
+        return index >= 0 ? iter.get(index + amount, notSetValue) : notSetValue;
       };
     }
     return reify(this, skipSeq);
@@ -792,19 +792,19 @@ var IndexedIterable = function IndexedIterable(value) {
     return reify(this, skipWhileFactory(this, predicate, context, false));
   },
   sortBy: function(mapper, comparator) {
+    var $__0 = this;
     comparator = comparator || defaultComparator;
-    var seq = this;
     return reify(this, new ArraySequence(this.entrySeq().toArray().sort((function(a, b) {
-      return comparator(mapper(a[1], a[0], seq), mapper(b[1], b[0], seq)) || a[0] - b[0];
+      return comparator(mapper(a[1], a[0], $__0), mapper(b[1], b[0], $__0)) || a[0] - b[0];
     }))).fromEntrySeq().valueSeq());
   },
   take: function(amount) {
-    var seq = this;
-    var takeSeq = takeFactory(seq, amount);
-    if (takeSeq !== seq) {
+    var iter = this;
+    var takeSeq = takeFactory(iter, amount);
+    if (isLazy(iter) && takeSeq !== iter) {
       takeSeq.get = function(index, notSetValue) {
         index = wrapIndex(this, index);
-        return index >= 0 && index < amount ? seq.get(index, notSetValue) : notSetValue;
+        return index >= 0 && index < amount ? iter.get(index, notSetValue) : notSetValue;
       };
     }
     return reify(this, takeSeq);
@@ -831,8 +831,8 @@ Iterable.Keyed = KeyedIterable;
 Iterable.Set = SetIterable;
 Iterable.Indexed = IndexedIterable;
 Iterable.Iterator = Iterator;
-function reify(kind, seq) {
-  return isLazy(kind) ? seq : kind.constructor(seq);
+function reify(iter, seq) {
+  return isLazy(iter) ? seq : iter.constructor(seq);
 }
 function valueMapper(v) {
   return v;
