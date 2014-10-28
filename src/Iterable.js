@@ -113,7 +113,7 @@ class Iterable {
   // ### Common JavaScript methods and properties
 
   toString() {
-    return this.__toString('Seq {', '}');
+    return '[Iterable]';
   }
 
   __toString(head, tail) {
@@ -628,13 +628,6 @@ class IndexedIterable extends Iterable {
 
   toKeyedSeq() {
     return new ToKeyedSequence(this, false);
-  }
-
-
-  // ### Common JavaScript methods and properties
-
-  toString() {
-    return this.__toString('Seq [', ']');
   }
 
 

@@ -40,6 +40,10 @@ class Set extends SetCollection {
     return this(LazyKeyedSequence(seqable).flip());
   }
 
+  toString() {
+    return this.__toString('Set {', '}');
+  }
+
   // @pragma Access
 
   has(value) {

@@ -328,7 +328,7 @@ var $Iterable = Iterable;
     return Vector(this);
   },
   toString: function() {
-    return this.__toString('Seq {', '}');
+    return '[Iterable]';
   },
   __toString: function(head, tail) {
     if (this.size === 0) {
@@ -715,9 +715,6 @@ var IndexedIterable = function IndexedIterable(value) {
   toKeyedSeq: function() {
     return new ToKeyedSequence(this, false);
   },
-  toString: function() {
-    return this.__toString('Seq [', ']');
-  },
   concat: function() {
     for (var values = [],
         $__3 = 0; $__3 < arguments.length; $__3++)
@@ -875,6 +872,9 @@ var $LazySequence = LazySequence;
   toSeq: function() {
     return this;
   },
+  toString: function() {
+    return this.__toString('Seq {', '}');
+  },
   cacheResult: function() {
     if (!this._cache && this.__iterateUncached) {
       assertNotInfinite(this.size);
@@ -942,6 +942,9 @@ var $LazyIndexedSequence = LazyIndexedSequence;
 ($traceurRuntime.createClass)(LazyIndexedSequence, {
   toIndexedSeq: function() {
     return this;
+  },
+  toString: function() {
+    return this.__toString('Seq [', ']');
   },
   __iterate: function(fn, reverse) {
     return seqIterate(this, fn, reverse, false);
@@ -3029,6 +3032,9 @@ var Set = function Set(seqable) {
 };
 var $Set = Set;
 ($traceurRuntime.createClass)(Set, {
+  toString: function() {
+    return this.__toString('Set {', '}');
+  },
   has: function(value) {
     return this._map.has(value);
   },

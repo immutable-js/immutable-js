@@ -35,6 +35,10 @@ class LazySequence extends Iterable {
     return this;
   }
 
+  toString() {
+    return this.__toString('Seq {', '}');
+  }
+
   cacheResult() {
     if (!this._cache && this.__iterateUncached) {
       assertNotInfinite(this.size);
@@ -126,6 +130,10 @@ class LazyIndexedSequence extends LazySequence {
 
   toIndexedSeq() {
     return this;
+  }
+
+  toString() {
+    return this.__toString('Seq [', ']');
   }
 
   __iterate(fn, reverse) {
