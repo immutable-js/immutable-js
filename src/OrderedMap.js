@@ -72,7 +72,7 @@ class OrderedMap extends Map {
 
   __iterate(fn, reverse) {
     return this._list.__iterate(
-      entry => entry && fn(entry[1], entry[0], this),
+      entry => fn(entry[1], entry[0], this),
       reverse
     );
   }

@@ -3191,7 +3191,7 @@ var $OrderedMap = OrderedMap;
   __iterate: function(fn, reverse) {
     var $__0 = this;
     return this._list.__iterate((function(entry) {
-      return entry && fn(entry[1], entry[0], $__0);
+      return fn(entry[1], entry[0], $__0);
     }), reverse);
   },
   __iterator: function(type, reverse) {
