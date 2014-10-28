@@ -706,8 +706,7 @@ var SetIterable = function SetIterable(seqable) {
     return this.valueSeq();
   }
 }, {}, Iterable);
-var SetIterablePrototype = SetIterable.prototype;
-SetIterablePrototype.has = IterablePrototype.contains;
+SetIterable.prototype.has = IterablePrototype.contains;
 var IndexedIterable = function IndexedIterable(seqable) {
   return arguments.length === 0 ? emptySequence() : isIndexed(seqable) ? seqable : (isIterable(seqable) ? seqable : seqFromValue(seqable, false)).toIndexedSeq();
 };
@@ -813,8 +812,7 @@ var IndexedIterable = function IndexedIterable(seqable) {
     return reify(this, takeSeq);
   }
 }, {}, Iterable);
-var IndexedIterablePrototype = IndexedIterable.prototype;
-IndexedIterablePrototype[IS_INDEXED_SENTINEL] = true;
+IndexedIterable.prototype[IS_INDEXED_SENTINEL] = true;
 var LazySequence = function LazySequence(value) {
   return Iterable.apply(this, arguments).toSeq();
 };
@@ -965,6 +963,7 @@ Iterable.isAssociative = isAssociative;
 Iterable.Keyed = KeyedIterable;
 Iterable.Set = SetIterable;
 Iterable.Indexed = IndexedIterable;
+Iterable.Iterator = Iterator;
 var IteratorSequence = function IteratorSequence(iterator) {
   this._iterator = iterator;
   this._iteratorCache = [];

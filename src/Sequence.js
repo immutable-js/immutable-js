@@ -620,8 +620,7 @@ class SetIterable extends Iterable {
   }
 }
 
-var SetIterablePrototype = SetIterable.prototype;
-SetIterablePrototype.has = IterablePrototype.contains;
+SetIterable.prototype.has = IterablePrototype.contains;
 
 
 
@@ -775,8 +774,7 @@ class IndexedIterable extends Iterable {
   }
 }
 
-var IndexedIterablePrototype = IndexedIterable.prototype;
-IndexedIterablePrototype[IS_INDEXED_SENTINEL] = true;
+IndexedIterable.prototype[IS_INDEXED_SENTINEL] = true;
 
 
 
@@ -968,6 +966,7 @@ Iterable.isAssociative = isAssociative;
 Iterable.Keyed = KeyedIterable;
 Iterable.Set = SetIterable;
 Iterable.Indexed = IndexedIterable;
+Iterable.Iterator = Iterator;
 
 
 
