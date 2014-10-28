@@ -130,7 +130,7 @@ describe('Set', () => {
 
   it('deletes down to empty set', () => {
     var s = Set.of('A').remove('A');
-    expect(s).toBe(Set.empty());
+    expect(s).toBe(Set());
   });
 
   it('unions multiple sets', () => {

@@ -150,7 +150,7 @@ describe('Map', () => {
     expect(m2.size).toBe(2);
     expect(m3.size).toBe(1);
     expect(m4.size).toBe(0);
-    expect(m4).toBe(Map.empty());
+    expect(m4).toBe(Map());
   });
 
   it('can map many items', () => {

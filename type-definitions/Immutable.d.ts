@@ -1234,10 +1234,6 @@ declare module 'immutable' {
 
   export module Map {
 
-    /**
-     * `Map.empty()` creates a new immutable Map of size 0.
-     */
-    function empty<K, V>(): Map<K, V>;
   }
 
   /**
@@ -1446,10 +1442,6 @@ declare module 'immutable' {
 
   export module OrderedMap {
 
-    /**
-     * `OrderedMap.empty()` creates a new immutable ordered Map of size 0.
-     */
-    function empty<K, V>(): Map<K, V>;
   }
 
   /**
@@ -1535,9 +1527,9 @@ declare module 'immutable' {
   export module Set {
 
     /**
-     * `Set.empty()` creates a new immutable Set of size 0.
+     * Creates a new Set containing `values`.
      */
-    function empty<T>(): Set<T>;
+    function of<T>(...values: T[]): Set<T>;
 
     /**
      * `Set.fromKeys()` creates a new immutable Set containing the keys from
@@ -1545,11 +1537,6 @@ declare module 'immutable' {
      */
     function fromKeys<T>(iter: Iterable<T, any>): Set<T>;
     function fromKeys(obj: {[key: string]: any}): Set<string>;
-
-    /**
-     * Creates a new Set containing `values`.
-     */
-    function of<T>(...values: T[]): Set<T>;
   }
 
   /**
@@ -1640,11 +1627,6 @@ declare module 'immutable' {
    */
 
   export module List {
-
-    /**
-     * `List.empty()` creates a new immutable List of size 0.
-     */
-    function empty<T>(): List<T>;
 
     /**
      * Creates a new List containing `values`.
@@ -1840,11 +1822,6 @@ declare module 'immutable' {
    */
 
   export module Stack {
-
-    /**
-     * `Stack.empty()` creates a new immutable Stack of size 0.
-     */
-    function empty<T>(): Stack<T>;
 
     /**
      * Creates a new Stack containing `values`.

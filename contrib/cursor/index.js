@@ -99,7 +99,7 @@ KeyedCursorPrototype.update = function(keyOrFn, notSetValue, updater) {
 
 KeyedCursorPrototype.withMutations =
 IndexedCursorPrototype.withMutations = function(fn) {
-  return updateCursor(this, m => (m || Map.empty()).withMutations(fn));
+  return updateCursor(this, m => (m || Map()).withMutations(fn));
 }
 
 KeyedCursorPrototype.cursor =
@@ -170,7 +170,7 @@ function subCursor(cursor, key, value) {
 function updateCursor(cursor, changeFn, changeKey) {
   var newRootData = cursor._rootData.updateIn(
     cursor._keyPath,
-    changeKey ? Map.empty() : undefined,
+    changeKey ? Map() : undefined,
     changeFn
   );
   var keyPath = cursor._keyPath || [];

@@ -25,15 +25,9 @@ class Stack extends IndexedCollection {
   // @pragma Construction
 
   constructor(value) {
-    return arguments.length === 0 ?
-      Stack.empty() :
-      value && value.constructor === Stack ?
-        value :
-        Stack.empty().unshiftAll(value);
-  }
-
-  static empty() {
-    return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
+    return arguments.length === 0 ? emptyStack() :
+      value && value.constructor === Stack ? value :
+      emptyStack().unshiftAll(value);
   }
 
   static of(/*...values*/) {
@@ -133,7 +127,7 @@ class Stack extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return Stack.empty();
+    return emptyStack();
   }
 
   slice(begin, end) {
@@ -226,3 +220,6 @@ function makeStack(size, head, ownerID, hash) {
 }
 
 var EMPTY_STACK;
+function emptyStack() {
+  return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
+}

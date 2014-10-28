@@ -26,7 +26,7 @@ class List extends IndexedCollection {
   // @pragma Construction
 
   constructor(value) {
-    var empty = List.empty();
+    var empty = emptyList();
     if (arguments.length === 0) {
       return empty;
     }
@@ -48,10 +48,6 @@ class List extends IndexedCollection {
     }
     return empty.merge(value);
 
-  }
-
-  static empty() {
-    return EMPTY_VECT || (EMPTY_VECT = makeList(0, 0, SHIFT));
   }
 
   static of(/*...values*/) {
@@ -99,7 +95,7 @@ class List extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return List.empty();
+    return emptyList();
   }
 
   push(/*...values*/) {
@@ -401,6 +397,11 @@ function makeList(origin, capacity, level, root, tail, ownerID, hash) {
   return list;
 }
 
+var EMPTY_LIST;
+function emptyList() {
+  return EMPTY_LIST || (EMPTY_LIST = makeList(0, 0, SHIFT));
+}
+
 function updateList(list, index, value) {
   index = wrapIndex(list, index);
 
@@ -625,5 +626,3 @@ function mergeIntoListWith(list, merger, iterables) {
 function getTailOffset(size) {
   return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
 }
-
-var EMPTY_VECT;

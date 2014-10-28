@@ -1149,7 +1149,7 @@ Collection.Keyed = KeyedCollection;
 Collection.Set = SetCollection;
 Collection.Indexed = IndexedCollection;
 var Map = function Map(value) {
-  return arguments.length === 0 ? $Map.empty() : value && value.constructor === $Map ? value : $Map.empty().merge(value);
+  return arguments.length === 0 ? emptyMap() : value && value.constructor === $Map ? value : emptyMap().merge(value);
 };
 var $Map = Map;
 ($traceurRuntime.createClass)(Map, {
@@ -1198,7 +1198,7 @@ var $Map = Map;
       this.__altered = true;
       return this;
     }
-    return $Map.empty();
+    return emptyMap();
   },
   merge: function() {
     return mergeIntoMapWith(this, undefined, arguments);
@@ -1255,14 +1255,7 @@ var $Map = Map;
     }
     return makeMap(this.size, this._root, ownerID, this.__hash);
   }
-}, {
-  empty: function() {
-    return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
-  },
-  of: function() {
-    return this(arguments);
-  }
-}, KeyedCollection);
+}, {}, KeyedCollection);
 var MapPrototype = Map.prototype;
 MapPrototype[DELETE] = MapPrototype.remove;
 var BitmapIndexedNode = function BitmapIndexedNode(ownerID, bitmap, nodes) {
@@ -1536,6 +1529,10 @@ function makeMap(size, root, ownerID, hash) {
   map.__altered = false;
   return map;
 }
+var EMPTY_MAP;
+function emptyMap() {
+  return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
+}
 function updateMap(map, k, v) {
   var didChangeSize = MakeRef(CHANGE_LENGTH);
   var didAlter = MakeRef(DID_ALTER);
@@ -1551,7 +1548,7 @@ function updateMap(map, k, v) {
     map.__altered = true;
     return map;
   }
-  return newRoot ? makeMap(newSize, newRoot) : Map.empty();
+  return newRoot ? makeMap(newSize, newRoot) : emptyMap();
 }
 function updateNode(node, ownerID, shift, hash, key, value, didChangeSize, didAlter) {
   if (!node) {
@@ -1635,7 +1632,7 @@ function updateInDeepMap(collection, keyPath, notSetValue, updater, offset) {
   var existing = collection ? collection.get(key, NOT_SET) : NOT_SET;
   var existingValue = existing === NOT_SET ? undefined : existing;
   var value = offset === keyPath.length - 1 ? updater(existing === NOT_SET ? notSetValue : existing) : updateInDeepMap(existingValue, keyPath, notSetValue, updater, offset + 1);
-  return value === existingValue ? collection : value === NOT_SET ? collection && collection.remove(key) : (collection || Map.empty()).set(key, value);
+  return value === existingValue ? collection : value === NOT_SET ? collection && collection.remove(key) : (collection || emptyMap()).set(key, value);
 }
 function popCount(x) {
   x = x - ((x >> 1) & 0x55555555);
@@ -1686,7 +1683,6 @@ function spliceOut(array, idx, canEdit) {
 }
 var MAX_BITMAP_SIZE = SIZE / 2;
 var MIN_ARRAY_SIZE = SIZE / 4;
-var EMPTY_MAP;
 var ToIndexedSequence = function ToIndexedSequence(iter) {
   this._iter = iter;
   this.size = iter.size;
@@ -2308,7 +2304,7 @@ function cacheResultThrough() {
   }
 }
 var List = function List(value) {
-  var empty = $List.empty();
+  var empty = emptyList();
   if (arguments.length === 0) {
     return empty;
   }
@@ -2360,7 +2356,7 @@ var $List = List;
       this.__altered = true;
       return this;
     }
-    return $List.empty();
+    return emptyList();
   },
   push: function() {
     var values = arguments;
@@ -2442,14 +2438,9 @@ var $List = List;
     }
     return makeList(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
   }
-}, {
-  empty: function() {
-    return EMPTY_VECT || (EMPTY_VECT = makeList(0, 0, SHIFT));
-  },
-  of: function() {
+}, {of: function() {
     return this(arguments);
-  }
-}, IndexedCollection);
+  }}, IndexedCollection);
 var ListPrototype = List.prototype;
 ListPrototype[DELETE] = ListPrototype.remove;
 ListPrototype.setIn = MapPrototype.setIn;
@@ -2623,6 +2614,10 @@ function makeList(origin, capacity, level, root, tail, ownerID, hash) {
   list.__hash = hash;
   list.__altered = false;
   return list;
+}
+var EMPTY_LIST;
+function emptyList() {
+  return EMPTY_LIST || (EMPTY_LIST = makeList(0, 0, SHIFT));
 }
 function updateList(list, index, value) {
   index = wrapIndex(list, index);
@@ -2807,9 +2802,8 @@ function mergeIntoListWith(list, merger, iterables) {
 function getTailOffset(size) {
   return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
 }
-var EMPTY_VECT;
 var Stack = function Stack(value) {
-  return arguments.length === 0 ? $Stack.empty() : value && value.constructor === $Stack ? value : $Stack.empty().unshiftAll(value);
+  return arguments.length === 0 ? emptyStack() : value && value.constructor === $Stack ? value : emptyStack().unshiftAll(value);
 };
 var $Stack = Stack;
 ($traceurRuntime.createClass)(Stack, {
@@ -2893,7 +2887,7 @@ var $Stack = Stack;
       this.__altered = true;
       return this;
     }
-    return $Stack.empty();
+    return emptyStack();
   },
   slice: function(begin, end) {
     if (wholeSlice(begin, end, this.size)) {
@@ -2958,14 +2952,9 @@ var $Stack = Stack;
       return iteratorDone();
     }));
   }
-}, {
-  empty: function() {
-    return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
-  },
-  of: function() {
+}, {of: function() {
     return this(arguments);
-  }
-}, IndexedCollection);
+  }}, IndexedCollection);
 var StackPrototype = Stack.prototype;
 StackPrototype.withMutations = MapPrototype.withMutations;
 StackPrototype.asMutable = MapPrototype.asMutable;
@@ -2981,8 +2970,11 @@ function makeStack(size, head, ownerID, hash) {
   return map;
 }
 var EMPTY_STACK;
+function emptyStack() {
+  return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
+}
 var Set = function Set(value) {
-  return arguments.length === 0 ? $Set.empty() : value && value.constructor === $Set ? value : $Set.empty().union(value);
+  return arguments.length === 0 ? emptySet() : value && value.constructor === $Set ? value : emptySet().union(value);
 };
 var $Set = Set;
 ($traceurRuntime.createClass)(Set, {
@@ -3008,7 +3000,7 @@ var $Set = Set;
       this._map = newMap;
       return this;
     }
-    return newMap === this._map ? this : newMap.size === 0 ? $Set.empty() : makeSet(newMap);
+    return newMap === this._map ? this : newMap.size === 0 ? emptySet() : makeSet(newMap);
   },
   clear: function() {
     if (this.size === 0) {
@@ -3019,7 +3011,7 @@ var $Set = Set;
       this._map.clear();
       return this;
     }
-    return $Set.empty();
+    return emptySet();
   },
   union: function() {
     var iters = arguments;
@@ -3112,9 +3104,6 @@ var $Set = Set;
     return makeSet(newMap, ownerID);
   }
 }, {
-  empty: function() {
-    return EMPTY_SET || (EMPTY_SET = makeSet(Map.empty()));
-  },
   of: function() {
     return this(arguments);
   },
@@ -3137,8 +3126,11 @@ function makeSet(map, ownerID) {
   return set;
 }
 var EMPTY_SET;
+function emptySet() {
+  return EMPTY_SET || (EMPTY_SET = makeSet(emptyMap()));
+}
 var OrderedMap = function OrderedMap(value) {
-  return arguments.length === 0 ? $OrderedMap.empty() : value && value.constructor === $OrderedMap ? value : $OrderedMap.empty().merge(value);
+  return arguments.length === 0 ? emptyOrderedMap() : value && value.constructor === $OrderedMap ? value : emptyOrderedMap().merge(value);
 };
 var $OrderedMap = OrderedMap;
 ($traceurRuntime.createClass)(OrderedMap, {
@@ -3159,7 +3151,7 @@ var $OrderedMap = OrderedMap;
       this._list.clear();
       return this;
     }
-    return $OrderedMap.empty();
+    return emptyOrderedMap();
   },
   set: function(k, v) {
     return updateOrderedMap(this, k, v);
@@ -3193,14 +3185,9 @@ var $OrderedMap = OrderedMap;
     }
     return makeOrderedMap(newMap, newList, ownerID, this.__hash);
   }
-}, {
-  empty: function() {
-    return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(Map.empty(), List.empty()));
-  },
-  of: function() {
+}, {of: function() {
     return this(arguments);
-  }
-}, Map);
+  }}, Map);
 OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
 function makeOrderedMap(map, list, ownerID, hash) {
   var omap = Object.create(OrderedMap.prototype);
@@ -3210,6 +3197,10 @@ function makeOrderedMap(map, list, ownerID, hash) {
   omap.__ownerID = ownerID;
   omap.__hash = hash;
   return omap;
+}
+var EMPTY_ORDERED_MAP;
+function emptyOrderedMap() {
+  return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(emptyMap(), emptyList()));
 }
 function updateOrderedMap(omap, k, v) {
   var map = omap._map;
@@ -3234,7 +3225,6 @@ function updateOrderedMap(omap, k, v) {
   }
   return makeOrderedMap(newMap, newList);
 }
-var EMPTY_ORDERED_MAP;
 var Record = function Record(defaultValues, name) {
   var RecordType = function(values) {
     if (!(this instanceof RecordType)) {
@@ -3283,7 +3273,7 @@ var Record = function Record(defaultValues, name) {
       return this;
     }
     var SuperRecord = Object.getPrototypeOf(this).constructor;
-    return SuperRecord._empty || (SuperRecord._empty = makeRecord(this, Map.empty()));
+    return SuperRecord._empty || (SuperRecord._empty = makeRecord(this, emptyMap()));
   },
   set: function(k, v) {
     if (!this.has(k)) {

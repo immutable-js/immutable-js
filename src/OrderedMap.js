@@ -10,7 +10,7 @@
 import "Map"
 import "List"
 import "TrieUtils"
-/* global Map, List, DELETE, NOT_SET */
+/* global Map, emptyMap, emptyList, DELETE, NOT_SET */
 /* exported OrderedMap */
 
 
@@ -19,13 +19,9 @@ class OrderedMap extends Map {
   // @pragma Construction
 
   constructor(value) {
-    return arguments.length === 0 ? OrderedMap.empty() :
+    return arguments.length === 0 ? emptyOrderedMap() :
       value && value.constructor === OrderedMap ? value :
-      OrderedMap.empty().merge(value);
-  }
-
-  static empty() {
-    return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(Map.empty(), List.empty()));
+      emptyOrderedMap().merge(value);
   }
 
   static of(/*...values*/) {
@@ -55,7 +51,7 @@ class OrderedMap extends Map {
       this._list.clear();
       return this;
     }
-    return OrderedMap.empty();
+    return emptyOrderedMap();
   }
 
   set(k, v) {
@@ -111,6 +107,11 @@ function makeOrderedMap(map, list, ownerID, hash) {
   return omap;
 }
 
+var EMPTY_ORDERED_MAP;
+function emptyOrderedMap() {
+  return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(emptyMap(), emptyList()));
+}
+
 function updateOrderedMap(omap, k, v) {
   var map = omap._map;
   var list = omap._list;
@@ -134,5 +135,3 @@ function updateOrderedMap(omap, k, v) {
   }
   return makeOrderedMap(newMap, newList);
 }
-
-var EMPTY_ORDERED_MAP;

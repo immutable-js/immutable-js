@@ -26,17 +26,9 @@ class Map extends KeyedCollection {
   // @pragma Construction
 
   constructor(value) {
-    return arguments.length === 0 ? Map.empty() :
+    return arguments.length === 0 ? emptyMap() :
       value && value.constructor === Map ? value :
-      Map.empty().merge(value);
-  }
-
-  static empty() {
-    return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
-  }
-
-  static of(/*...values*/) {
-    return this(arguments);
+      emptyMap().merge(value);
   }
 
   toString() {
@@ -98,7 +90,7 @@ class Map extends KeyedCollection {
       this.__altered = true;
       return this;
     }
-    return Map.empty();
+    return emptyMap();
   }
 
   // @pragma Composition
@@ -493,6 +485,11 @@ function makeMap(size, root, ownerID, hash) {
   return map;
 }
 
+var EMPTY_MAP;
+function emptyMap() {
+  return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
+}
+
 function updateMap(map, k, v) {
   var didChangeSize = MakeRef(CHANGE_LENGTH);
   var didAlter = MakeRef(DID_ALTER);
@@ -508,7 +505,7 @@ function updateMap(map, k, v) {
     map.__altered = true;
     return map;
   }
-  return newRoot ? makeMap(newSize, newRoot) : Map.empty();
+  return newRoot ? makeMap(newSize, newRoot) : emptyMap();
 }
 
 function updateNode(node, ownerID, shift, hash, key, value, didChangeSize, didAlter) {
@@ -622,7 +619,7 @@ function updateInDeepMap(collection, keyPath, notSetValue, updater, offset) {
 
   return value === existingValue ? collection :
     value === NOT_SET ? collection && collection.remove(key) :
-    (collection || Map.empty()).set(key, value);
+    (collection || emptyMap()).set(key, value);
 }
 
 function popCount(x) {
@@ -678,5 +675,3 @@ function spliceOut(array, idx, canEdit) {
 
 var MAX_BITMAP_SIZE = SIZE / 2;
 var MIN_ARRAY_SIZE = SIZE / 4;
-
-var EMPTY_MAP;

@@ -12,7 +12,7 @@ import "Collection"
 import "Seq"
 import "Map"
 import "TrieUtils"
-/* global Iterable, SetCollection, KeyedSeq, Map, MapPrototype, DELETE */
+/* global Iterable, SetCollection, KeyedSeq, MapPrototype, emptyMap, DELETE */
 /* exported Set */
 
 
@@ -21,13 +21,9 @@ class Set extends SetCollection {
   // @pragma Construction
 
   constructor(value) {
-    return arguments.length === 0 ? Set.empty() :
+    return arguments.length === 0 ? emptySet() :
       value && value.constructor === Set ? value :
-      Set.empty().union(value);
-  }
-
-  static empty() {
-    return EMPTY_SET || (EMPTY_SET = makeSet(Map.empty()));
+      emptySet().union(value);
   }
 
   static of(/*...values*/) {
@@ -67,7 +63,7 @@ class Set extends SetCollection {
       this._map = newMap;
       return this;
     }
-    return newMap === this._map ? this : newMap.size === 0 ? Set.empty() : makeSet(newMap);
+    return newMap === this._map ? this : newMap.size === 0 ? emptySet() : makeSet(newMap);
   }
 
   clear() {
@@ -79,7 +75,7 @@ class Set extends SetCollection {
       this._map.clear();
       return this;
     }
-    return Set.empty();
+    return emptySet();
   }
 
   // @pragma Composition
@@ -178,3 +174,6 @@ function makeSet(map, ownerID) {
 }
 
 var EMPTY_SET;
+function emptySet() {
+  return EMPTY_SET || (EMPTY_SET = makeSet(emptyMap()));
+}

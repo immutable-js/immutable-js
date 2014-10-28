@@ -104,7 +104,7 @@ describe('List', () => {
     var v0 = List.of('a', 'b', 'c');
     var v1 = List.of('a', 'b');
     var v2 = List.of('a');
-    var v3 = List.empty();
+    var v3 = List();
 
     expect(v0.rest().toArray()).toEqual(['b', 'c']);
     expect(v0.butLast().toArray()).toEqual(['a', 'b']);
@@ -155,7 +155,7 @@ describe('List', () => {
   });
 
   it('iterates a dense list', () => {
-    var v = List.empty().setSize(11).set(1,1).set(3,3).set(5,5).set(7,7).set(9,9);
+    var v = List().setSize(11).set(1,1).set(3,3).set(5,5).set(7,7).set(9,9);
     expect(v.size).toBe(11);
 
     var forEachResults = [];

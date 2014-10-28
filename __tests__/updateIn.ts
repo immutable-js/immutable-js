@@ -66,7 +66,7 @@ describe('updateIn', () => {
   it('creates new maps if path contains gaps', () => {
     var m = I.fromJS({a: {b: {c: 10}}});
     expect(
-      m.updateIn(['a', 'z'], I.Map.empty(), map => map.set('d', 20)).toJS()
+      m.updateIn(['a', 'z'], I.Map(), map => map.set('d', 20)).toJS()
     ).toEqual(
       {a: {b: {c: 10}, z: {d: 20}}}
     );
@@ -91,17 +91,17 @@ describe('updateIn', () => {
   it('performs edit when notSetValue is what you return from updater', () => {
     var m = I.Map();
 
-    m = m.updateIn(['a', 'b', 'c'], I.Set.empty(), id => id);
+    m = m.updateIn(['a', 'b', 'c'], I.Set(), id => id);
 
     expect(m.size).toBe(1);
 
-    expect(m.getIn(['a', 'b', 'c'])).toBe(I.Set.empty());
+    expect(m.getIn(['a', 'b', 'c'])).toBe(I.Set());
   })
 
   it('does not perform edit when new value is the same as old value', () => {
     var m = I.Map();
 
-    m = m.updateIn(['a', 'b', 'c'], I.Set.empty(), id => undefined);
+    m = m.updateIn(['a', 'b', 'c'], I.Set(), id => undefined);
 
     expect(m.size).toBe(0);
 

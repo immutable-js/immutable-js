@@ -11,7 +11,7 @@ import "Iterable"
 import "Map"
 import "invariant"
 import "TrieUtils"
-/* global Iterable, KeyedCollection, Map, MapPrototype, invariant, DELETE */
+/* global Iterable, KeyedCollection, Map, MapPrototype, emptyMap, invariant, DELETE */
 /* exported Record */
 
 
@@ -78,7 +78,7 @@ class Record extends KeyedCollection {
       return this;
     }
     var SuperRecord = Object.getPrototypeOf(this).constructor;
-    return SuperRecord._empty || (SuperRecord._empty = makeRecord(this, Map.empty()));
+    return SuperRecord._empty || (SuperRecord._empty = makeRecord(this, emptyMap()));
   }
 
   set(k, v) {
