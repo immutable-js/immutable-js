@@ -7,7 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "Sequence"
+import "Iterable"
 import "Map"
 import "TrieUtils"
 /* global Iterable, SetCollection, Map, MapPrototype, DELETE */

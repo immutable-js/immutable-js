@@ -8,7 +8,7 @@
  */
 
 import "is"
-import "Sequence"
+import "Iterable"
 import "invariant"
 // import "Cursor" // lazy dependency
 import "TrieUtils"

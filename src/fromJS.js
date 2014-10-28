@@ -7,7 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "Sequence"
+import "Iterable"
 /* global Iterable */
 /* exported fromJS */
 

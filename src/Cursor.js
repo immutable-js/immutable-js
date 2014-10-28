@@ -8,7 +8,7 @@
  */
 
 import "is"
-import "Sequence"
+import "Iterable"
 import "Map"
 import "TrieUtils"
 import "Iterator"
