@@ -7,10 +7,10 @@ jasmineCheck.install();
 
 import Immutable = require('immutable');
 
-describe('KeyedIndexedSequence', () => {
+describe('KeyedSeq', () => {
 
   check.it('is equivalent', [gen.array(gen.int)], (ints) => {
-    var seq = Immutable.LazySequence(ints);
+    var seq = Immutable.Seq(ints);
     var keyed = seq.toKeyedSeq();
     expect(seq.equals(keyed)).toBe(true);
   });

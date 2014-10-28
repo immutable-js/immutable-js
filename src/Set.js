@@ -12,7 +12,7 @@ import "Collection"
 import "Seq"
 import "Map"
 import "TrieUtils"
-/* global Iterable, SetCollection, LazyKeyedSequence, Map, MapPrototype, DELETE */
+/* global Iterable, SetCollection, KeyedSeq, Map, MapPrototype, DELETE */
 /* exported Set */
 
 
@@ -35,7 +35,7 @@ class Set extends SetCollection {
   }
 
   static fromKeys(value) {
-    return this(LazyKeyedSequence(value).flip());
+    return this(KeyedSeq(value).flip());
   }
 
   toString() {

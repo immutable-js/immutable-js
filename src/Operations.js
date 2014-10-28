@@ -17,8 +17,8 @@ import "Map"
           KeyedIterable, SetIterable, IndexedIterable,
           Iterator, iteratorValue, iteratorDone,
           ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES,
-          isLazy, LazySequence, LazyKeyedSequence, LazySetSequence, LazyIndexedSequence,
-          seqFromValue, ArraySequence,
+          isSeq, Seq, KeyedSeq, SetSeq, IndexedSeq,
+          seqFromValue, ArraySeq,
           Map */
 /* exported reify, ToIndexedSequence, ToKeyedSequence, ToSetSequence,
             FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
@@ -27,7 +27,7 @@ import "Map"
             flattenFactory, flatMapFactory, interposeFactory */
 
 
-class ToIndexedSequence extends LazyIndexedSequence {
+class ToIndexedSequence extends IndexedSeq {
   constructor(iter) {
     this._iter = iter;
     this.size = iter.size;
@@ -54,7 +54,7 @@ class ToIndexedSequence extends LazyIndexedSequence {
 }
 
 
-class ToKeyedSequence extends LazyKeyedSequence {
+class ToKeyedSequence extends KeyedSeq {
   constructor(indexed, useKeys) {
     this._iter = indexed;
     this._useKeys = useKeys;
@@ -115,7 +115,7 @@ class ToKeyedSequence extends LazyKeyedSequence {
 }
 
 
-class ToSetSequence extends LazySetSequence {
+class ToSetSequence extends SetSeq {
   constructor(iter) {
     this._iter = iter;
     this.size = iter.size;
@@ -140,7 +140,7 @@ class ToSetSequence extends LazySetSequence {
 }
 
 
-class FromEntriesSequence extends LazyKeyedSequence {
+class FromEntriesSequence extends KeyedSeq {
   constructor(entries) {
     this._iter = entries;
     this.size = entries.size;
@@ -543,7 +543,7 @@ function skipWhileFactory(iterable, predicate, context, useKeys) {
 
 function concatFactory(iterable, values, useKeys) {
   var isKeyedIter = isKeyed(iterable);
-  var iters = new ArraySequence([iterable].concat(values)).map(v => {
+  var iters = new ArraySeq([iterable].concat(values)).map(v => {
     if (!isIterable(v)) {
       v = seqFromValue(v, true);
     }
@@ -664,7 +664,7 @@ function interposeFactory(iterable, separator) {
 // #pragma Helper Functions
 
 function reify(iter, seq) {
-  return isLazy(iter) ? seq : iter.constructor(seq);
+  return isSeq(iter) ? seq : iter.constructor(seq);
 }
 
 function validateEntry(entry) {
@@ -687,9 +687,9 @@ function iterableClass(iterable) {
 function makeSequence(iterable) {
   return Object.create(
     (
-      isKeyed(iterable) ? LazyKeyedSequence :
-      isIndexed(iterable) ? LazyIndexedSequence :
-      LazySetSequence
+      isKeyed(iterable) ? KeyedSeq :
+      isIndexed(iterable) ? IndexedSeq :
+      SetSeq
     ).prototype
   );
 }
@@ -700,6 +700,6 @@ function cacheResultThrough() {
     this.size = this._iter.size;
     return this;
   } else {
-    return LazySequence.prototype.cacheResult.call(this);
+    return Seq.prototype.cacheResult.call(this);
   }
 }

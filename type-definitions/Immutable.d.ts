@@ -43,7 +43,7 @@ declare module 'immutable' {
    * Immutable Maps and Vectors.
    *
    * If a `reviver` is optionally provided, it will be called with every
-   * collection as a LazySequence (beginning with the most nested collections
+   * collection as a Seq (beginning with the most nested collections
    * and proceeding to the top-level collection itself), along with the key
    * refering to each collection and the parent JS object provided as `this`.
    * For the top level, object, the key will be "". This `reviver` is expected
@@ -118,7 +118,7 @@ declare module 'immutable' {
    *
    * This methods forces the conversion of Objects and Strings to Iterables.
    * If you want to ensure that a Iterable of one item is returned, use
-   * `LazySequence.of`.
+   * `Seq.of`.
    */
   export function Iterable<K, V>(iterable: Iterable<K, V>): Iterable<K, V>;
   export function Iterable<T>(array: Array<T>): IndexedIterable<T>;
@@ -138,9 +138,9 @@ declare module 'immutable' {
     toArray(): Array<V>;
 
     /**
-     * Returns a LazySequence of the values of this Iterable, discarding keys.
+     * Returns a Seq of the values of this Iterable, discarding keys.
      */
-    toIndexedSeq(): LazyIndexedSequence<V>;
+    toIndexedSeq(): IndexedSeq<V>;
 
     /**
      * Deeply converts this Iterable to equivalent JS.
@@ -151,22 +151,22 @@ declare module 'immutable' {
     toJS(): any;
 
     /**
-     * Converts this Iterable into an identical LazySequence where indices are
+     * Converts this Iterable into an identical Seq where indices are
      * treated as keys. This is useful if you want to operate on an
      * IndexedIterable and preserve the [index, value] pairs.
      *
-     * The returned LazySequence will have identical iteration order as
+     * The returned Seq will have identical iteration order as
      * this Iterable.
      *
      * Example:
      *
-     *     var indexedSeq = Immutable.LazySequence.of('A', 'B', 'C');
+     *     var indexedSeq = Immutable.Seq.of('A', 'B', 'C');
      *     indexedSeq.filter(v => v === 'B').toString() // Seq [ 'B' ]
      *     var keyedSeq = indexedSeq.toKeyedSeq();
      *     keyedSeq.filter(v => v === 'B').toString() // Seq { 1: 'B' }
      *
      */
-    toKeyedSeq(): LazyKeyedSequence<K, V>;
+    toKeyedSeq(): KeyedSeq<K, V>;
 
     /**
      * Converts this Iterable to a Map, Throws if keys are not hashable.
@@ -199,16 +199,16 @@ declare module 'immutable' {
     toSet(): Set<V>;
 
     /**
-     * Converts this Iterable to a LazySequence of the values of this Iterable,
+     * Converts this Iterable to a Seq of the values of this Iterable,
      * discarding keys, and behaving as a set.
      */
-    toSetSeq(): LazySetSequence<V>;
+    toSetSeq(): SetSeq<V>;
 
     /**
-     * Converts this Iterable to a LazySequence of the same kind (indexed,
+     * Converts this Iterable to a Seq of the same kind (indexed,
      * keyed, or set).
      */
-    toSeq(): LazySequence<K, V>;
+    toSeq(): Seq<K, V>;
 
     /**
      * Converts this Iterable to a Stack, discarding keys. Throws if values
@@ -242,7 +242,7 @@ declare module 'immutable' {
      * Returns a new Iterable of the same type with other values and
      * iterable-like concatenated to this one.
      *
-     * For LazySequences, all entries will be present in
+     * For Seqs, all entries will be present in
      * the resulting iterable, even if they have the same key.
      */
     concat(...valuesOrIterables: /*Array<Iterable<K, V>|V*/any[]): /*this*/Iterable<K, V>;
@@ -269,7 +269,7 @@ declare module 'immutable' {
      * Returns a new Iterable of the same type with only the entries for which
      * the `predicate` function returns true.
      *
-     *     LazySequence({a:1,b:2,c:3,d:4}).filter(x => x % 2 === 0)
+     *     Seq({a:1,b:2,c:3,d:4}).filter(x => x % 2 === 0)
      *     // Seq { b: 2, d: 4 }
      *
      */
@@ -314,7 +314,7 @@ declare module 'immutable' {
      * Returns a new Iterable of the same type with values passed through a
      * `mapper` function.
      *
-     *     LazySequence({ a: 1, b: 2 }).map(x => 10 * x)
+     *     Seq({ a: 1, b: 2 }).map(x => 10 * x)
      *     // Seq { a: 10, b: 20 }
      *
      */
@@ -412,9 +412,9 @@ declare module 'immutable' {
     butLast(): /*this*/Iterable<K, V>;
 
     /**
-     * Regardless of if this Iterable can describe its size (some LazySequences
+     * Regardless of if this Iterable can describe its size (some Seqs
      * cannot), this method will always return the correct size. E.g. it
-     * evaluates a LazySequence if necessary.
+     * evaluates a Seq if necessary.
      *
      * If `predicate` is provided, then this returns the count of entries in the
      * Iterable for which the `predicate` returns true.
@@ -426,7 +426,7 @@ declare module 'immutable' {
     ): number;
 
     /**
-     * Returns a `LazyKeyedSequence` of counts, grouped by the return value of
+     * Returns a `KeyedSeq` of counts, grouped by the return value of
      * the `grouper` function.
      *
      * Note: This is not a lazy operation.
@@ -446,15 +446,15 @@ declare module 'immutable' {
     equals(other: Iterable<K, V>): boolean;
 
     /**
-     * Returns a new LazyIndexedSequence of [key, value] tuples.
+     * Returns a new IndexedSeq of [key, value] tuples.
      */
-    entrySeq(): LazyIndexedSequence</*(K, V)*/Array<any>>;
+    entrySeq(): IndexedSeq</*(K, V)*/Array<any>>;
 
     /**
      * Returns a new Iterable of the same type with only the entries for which
      * the `predicate` function returns false.
      *
-     *     LazySequence({a:1,b:2,c:3,d:4}).filterNot(x => x % 2 === 0)
+     *     Seq({a:1,b:2,c:3,d:4}).filterNot(x => x % 2 === 0)
      *     // Seq { a: 1, c: 3 }
      *
      */
@@ -549,7 +549,7 @@ declare module 'immutable' {
     groupBy<G>(
       grouper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => G,
       context?: any
-    ): /*Map*/LazyKeyedSequence<G, /*this*/Iterable<K, V>>;
+    ): /*Map*/KeyedSeq<G, /*this*/Iterable<K, V>>;
 
     /**
      * True if a key exists within this Iterable.
@@ -569,10 +569,10 @@ declare module 'immutable' {
     isSuperset(iter: Array<V>): boolean;
 
     /**
-     * Returns a new LazyIndexedSequence of the keys of this Iterable,
+     * Returns a new IndexedSeq of the keys of this Iterable,
      * discarding values.
      */
-    keySeq(): LazyIndexedSequence<K>;
+    keySeq(): IndexedSeq<K>;
 
     /**
      * The last value in the Iterable.
@@ -643,7 +643,7 @@ declare module 'immutable' {
      * Returns a new Iterable of the same type which contains entries starting
      * from when `predicate` first returns false.
      *
-     *     LazySequence.of('dog','frog','cat','hat','god')
+     *     Seq.of('dog','frog','cat','hat','god')
      *       .skipWhile(x => x.match(/g/))
      *     // Seq [ 'cat', 'hat', 'god' ]
      *
@@ -657,7 +657,7 @@ declare module 'immutable' {
      * Returns a new Iterable of the same type which contains entries starting
      * from when `predicate` first returns true.
      *
-     *     LazySequence.of('dog','frog','cat','hat','god')
+     *     Seq.of('dog','frog','cat','hat','god')
      *       .skipUntil(x => x.match(/hat/))
      *     // Seq [ 'hat', 'god' ]
      *
@@ -695,7 +695,7 @@ declare module 'immutable' {
      * Returns a new Iterable of the same type which contains entries from this
      * Iterable as long as the `predicate` returns true.
      *
-     *     LazySequence.of('dog','frog','cat','hat','god')
+     *     Seq.of('dog','frog','cat','hat','god')
      *       .takeWhile(x => x.match(/o/))
      *     // Seq [ 'dog', 'frog' ]
      *
@@ -709,7 +709,7 @@ declare module 'immutable' {
      * Returns a new Iterable of the same type which contains entries from this
      * Iterable as long as the `predicate` returns false.
      *
-     *     LazySequence.of('dog','frog','cat','hat','god').takeUntil(x => x.match(/at/))
+     *     Seq.of('dog','frog','cat','hat','god').takeUntil(x => x.match(/at/))
      *     // ['dog', 'frog']
      *
      */
@@ -719,15 +719,15 @@ declare module 'immutable' {
     ): /*this*/Iterable<K, V>;
 
     /**
-     * Returns a new LazyIndexedSequence of the values of this Iterable,
+     * Returns a new IndexedSeq of the values of this Iterable,
      * discarding keys.
      */
-    valueSeq(): LazyIndexedSequence<V>;
+    valueSeq(): IndexedSeq<V>;
 
     /**
      * Note: this is here as a convenience to work around an issue with
      * TypeScript https://github.com/Microsoft/TypeScript/issues/285, but
-     * Iterable does not define `size`, instead `LazySequence` defines `size` as
+     * Iterable does not define `size`, instead `Seq` defines `size` as
      * nullable number, and `Collection` defines `size` as always a number.
      */
     size: number;
@@ -760,17 +760,17 @@ declare module 'immutable' {
   export interface KeyedIterable<K, V> extends Iterable<K, V> {
 
     /**
-     * Returns LazyKeyedSequence.
+     * Returns KeyedSeq.
      * @override
      */
-    toSeq(): LazyKeyedSequence<K, V>;
+    toSeq(): KeyedSeq<K, V>;
 
 
     /**
      * Returns a new KeyedIterable of the same type where the keys and values
      * have been flipped.
      *
-     *     LazySequence({ a: 'z', b: 'y' }).flip() // { z: 'a', y: 'b' }
+     *     Seq({ a: 'z', b: 'y' }).flip() // { z: 'a', y: 'b' }
      *
      */
     flip(): /*this*/KeyedIterable<V, K>;
@@ -779,7 +779,7 @@ declare module 'immutable' {
      * Returns a new KeyedIterable of the same type with entries
      * ([key, value] tuples) passed through a `mapper` function.
      *
-     *     LazySequence({ a: 1, b: 2 })
+     *     Seq({ a: 1, b: 2 })
      *       .mapEntries(([k, v]) => [k.toUpperCase(), v * 2])
      *     // Seq { A: 2, B: 4 }
      *
@@ -793,7 +793,7 @@ declare module 'immutable' {
      * Returns a new KeyedIterable of the same type with keys passed through a
      * `mapper` function.
      *
-     *     LazySequence({ a: 1, b: 2 })
+     *     Seq({ a: 1, b: 2 })
      *       .mapKeys(x => x.toUpperCase())
      *     // Seq { A: 1, B: 2 }
      *
@@ -810,13 +810,13 @@ declare module 'immutable' {
    * ------------
    *
    * Set Iterables only represent values. They have no associated keys or
-   * indices. Duplicate values are possible in LazySetSequences, however the
+   * indices. Duplicate values are possible in SetSeqs, however the
    * concrete `Set` does not allow duplicate values.
    *
    * Iterable methods on SetIterable such as `map` and `forEach` will provide
    * the value as both the first and second arguments to the provided function.
    *
-   *     var seq = LazySetSequence.of('A', 'B', 'C');
+   *     var seq = SetSeq.of('A', 'B', 'C');
    *     assert.equal(seq.every((v, k) => v === k), true);
    *
    */
@@ -835,10 +835,10 @@ declare module 'immutable' {
   export interface SetIterable<T> extends Iterable<T, T> {
 
     /**
-     * Returns LazySetSequence.
+     * Returns SetSeq.
      * @override
      */
-    toSeq(): LazySetSequence<T>;
+    toSeq(): SetSeq<T>;
   }
 
 
@@ -875,10 +875,10 @@ declare module 'immutable' {
   export interface IndexedIterable<T> extends Iterable<number, T> {
 
     /**
-     * Returns LazyIndexedSequence.
+     * Returns IndexedSeq.
      * @override
      */
-    toSeq(): LazyIndexedSequence<T>;
+    toSeq(): IndexedSeq<T>;
 
 
     // ### ES6 Collection methods (ES6 Array and Map)
@@ -912,7 +912,7 @@ declare module 'immutable' {
      * `index` may be a negative number, which indexes back from the end of the
      * Iterable. `s.splice(-2)` splices after the second to last item.
      *
-     *     LazySequence(['a','b','c','d']).splice(1, 2, 'q', 'r', 's')
+     *     Seq(['a','b','c','d']).splice(1, 2, 'q', 'r', 's')
      *     // Seq ['a', 'q', 'r', 's', 'd']
      *
      */
@@ -936,9 +936,9 @@ declare module 'immutable' {
 
     /**
      * If this is an iterable of [key, value] entry tuples, it will return a
-     * LazyKeyedSequence of those entries.
+     * KeyedSeq of those entries.
      */
-    fromEntrySeq(): LazyKeyedSequence<any, any>;
+    fromEntrySeq(): KeyedSeq<any, any>;
 
     /**
      * Returns the value associated with the provided index, or notSetValue if
@@ -959,8 +959,8 @@ declare module 'immutable' {
 
 
   /**
-   * Lazy Sequence
-   * -------------
+   * Seq
+   * ---
    *
    * **Sequences are immutable** — Once a sequence is created, it cannot be
    * changed, appended to, rearranged or otherwise modified. Instead, any mutative
@@ -972,7 +972,7 @@ declare module 'immutable' {
    * For example, the following does no work, because the resulting sequence is
    * never used:
    *
-   *     var oddSquares = Immutable.LazySequence.of(1,2,3,4,5,6,7,8)
+   *     var oddSquares = Immutable.Seq.of(1,2,3,4,5,6,7,8)
    *       .filter(x => x % 2).map(x => x * x);
    *
    * Once the sequence is used, it performs only the work necessary. In this
@@ -984,7 +984,7 @@ declare module 'immutable' {
    * Lazy Sequences allow for the efficient chaining of sequence operations,
    * allowing for the expression of logic that can otherwise be very tedious:
    *
-   *     Immutable.LazySequence({a:1, b:1, c:1})
+   *     Immutable.Seq({a:1, b:1, c:1})
    *       .flip().map(key => key.toUpperCase()).flip().toObject();
    *     // Map { A: 1, B: 1, C: 1 }
    *
@@ -1000,54 +1000,54 @@ declare module 'immutable' {
    *
    */
 
-  export module LazySequence {
+  export module Seq {
     /**
-     * `LazySequence.empty()` returns a Lazy Sequence of no values.
+     * `Seq.empty()` returns a Lazy Sequence of no values.
      */
-    function empty<K, V>(): LazySequence<K, V>;
+    function empty<K, V>(): Seq<K, V>;
 
     /**
      * Provides a Lazy Indexed Sequence of the values provided.
      */
-    function of<T>(...values: T[]): LazyIndexedSequence<T>;
+    function of<T>(...values: T[]): IndexedSeq<T>;
 
     /**
-     * True if `maybeLazy` is a LazySequence, it is not backed by a concrete
+     * True if `maybeSeq` is a Seq, it is not backed by a concrete
      * structure such as Map, Vector, or Set.
      */
-    function isLazy(maybeLazy): boolean;
+    function isSeq(maybeSeq): boolean;
   }
 
   /**
-   * `Immutable.LazySequence()` returns a particular kind of Sequence based
+   * `Immutable.Seq()` returns a particular kind of Sequence based
    * on the input.
    *
-   *   * If a `LazySequence`, that same `LazySequence`.
-   *   * If a `Iterable`, a `LazySequence` of the same kind.
-   *   * If an Array, an `LazyIndexedSequence`.
-   *   * If object with an iterator, an `LazyIndexedSequence`.
-   *   * If an iterator, an `LazyIndexedSequence`.
-   *   * If a plain Object, a `LazyKeyedSequence`.
+   *   * If a `Seq`, that same `Seq`.
+   *   * If a `Iterable`, a `Seq` of the same kind.
+   *   * If an Array, an `IndexedSeq`.
+   *   * If object with an iterator, an `IndexedSeq`.
+   *   * If an iterator, an `IndexedSeq`.
+   *   * If a plain Object, a `KeyedSeq`.
    *
    */
-  export function LazySequence<K, V>(): LazySequence<K, V>;
-  export function LazySequence<K, V>(seq: LazySequence<K, V>): LazySequence<K, V>;
-  export function LazySequence<K, V>(iterable: Iterable<K, V>): LazySequence<K, V>;
-  export function LazySequence<T>(array: Array<T>): LazyIndexedSequence<T>;
-  export function LazySequence<V>(obj: {[key: string]: V}): LazyKeyedSequence<string, V>;
-  export function LazySequence<T>(iterator: Iterator<T>): LazyIndexedSequence<T>;
-  export function LazySequence<T>(iterable: /*ES6Iterable<T>*/Object): LazyIndexedSequence<T>;
+  export function Seq<K, V>(): Seq<K, V>;
+  export function Seq<K, V>(seq: Seq<K, V>): Seq<K, V>;
+  export function Seq<K, V>(iterable: Iterable<K, V>): Seq<K, V>;
+  export function Seq<T>(array: Array<T>): IndexedSeq<T>;
+  export function Seq<V>(obj: {[key: string]: V}): KeyedSeq<string, V>;
+  export function Seq<T>(iterator: Iterator<T>): IndexedSeq<T>;
+  export function Seq<T>(iterable: /*ES6Iterable<T>*/Object): IndexedSeq<T>;
 
-  export interface LazySequence<K, V> extends Iterable<K, V> {
+  export interface Seq<K, V> extends Iterable<K, V> {
 
     /**
-     * Some LazySequences can describe their size lazily. When this is the case,
+     * Some Seqs can describe their size lazily. When this is the case,
      * size will be an integer. Otherwise it will be undefined.
      *
-     * For example, LazySequences returned from map() or reverse()
-     * preserve the size of the original LazySequence while filter() does not.
+     * For example, Seqs returned from map() or reverse()
+     * preserve the size of the original Seq while filter() does not.
      *
-     * Note: Ranges, Repeats and LazySequences made from Arrays and Objects will
+     * Note: Ranges, Repeats and Seqs made from Arrays and Objects will
      * always have a size.
      */
     size: number/*?*/;
@@ -1056,99 +1056,99 @@ declare module 'immutable' {
      * Because Sequences are lazy and designed to be chained together, they do
      * not cache their results. For example, this map function is called 6 times:
      *
-     *     var squares = LazySequence.of(1,2,3).map(x => x * x);
+     *     var squares = Seq.of(1,2,3).map(x => x * x);
      *     squares.join() + squares.join();
      *
      * If you know a derived sequence will be used multiple times, it may be more
      * efficient to first cache it. Here, map is called 3 times:
      *
-     *     var squares = LazySequence.of(1,2,3).map(x => x * x).cacheResult();
+     *     var squares = Seq.of(1,2,3).map(x => x * x).cacheResult();
      *     squares.join() + squares.join();
      *
-     * Use this method judiciously, as it must fully evaluate a LazySequence.
+     * Use this method judiciously, as it must fully evaluate a Seq.
      *
-     * Note: after calling `cacheResult()`, a LazySequence will always have a size.
+     * Note: after calling `cacheResult()`, a Seq will always have a size.
      */
-    cacheResult(): /*this*/LazySequence<K, V>;
+    cacheResult(): /*this*/Seq<K, V>;
   }
 
 
-  export module LazyKeyedSequence {
+  export module KeyedSeq {
 
-    function empty<K, V>(): LazySequence<K, V>;
+    function empty<K, V>(): Seq<K, V>;
   }
 
   /**
-   * Always returns a LazyKeyedSequence, if input is not keyed, expects an
+   * Always returns a KeyedSeq, if input is not keyed, expects an
    * iterable of [K, V] tuples.
    */
-  export function LazyKeyedSequence<K, V>(): LazyKeyedSequence<K, V>;
-  export function LazyKeyedSequence<K, V>(seq: KeyedIterable<K, V>): LazyKeyedSequence<K, V>;
-  export function LazyKeyedSequence<K, V>(seq: Iterable<any, /*[K,V]*/any>): LazyKeyedSequence<K, V>;
-  export function LazyKeyedSequence<K, V>(array: Array</*[K,V]*/any>): LazyKeyedSequence<K, V>;
-  export function LazyKeyedSequence<V>(obj: {[key: string]: V}): LazyKeyedSequence<string, V>;
-  export function LazyKeyedSequence<K, V>(iterator: Iterator</*[K,V]*/any>): LazyKeyedSequence<K, V>;
-  export function LazyKeyedSequence<K, V>(iterable: /*Iterable<[K,V]>*/Object): LazyKeyedSequence<K, V>;
+  export function KeyedSeq<K, V>(): KeyedSeq<K, V>;
+  export function KeyedSeq<K, V>(seq: KeyedIterable<K, V>): KeyedSeq<K, V>;
+  export function KeyedSeq<K, V>(seq: Iterable<any, /*[K,V]*/any>): KeyedSeq<K, V>;
+  export function KeyedSeq<K, V>(array: Array</*[K,V]*/any>): KeyedSeq<K, V>;
+  export function KeyedSeq<V>(obj: {[key: string]: V}): KeyedSeq<string, V>;
+  export function KeyedSeq<K, V>(iterator: Iterator</*[K,V]*/any>): KeyedSeq<K, V>;
+  export function KeyedSeq<K, V>(iterable: /*Iterable<[K,V]>*/Object): KeyedSeq<K, V>;
 
-  export interface LazyKeyedSequence<K, V> extends LazySequence<K, V>, KeyedIterable<K, V> {
+  export interface KeyedSeq<K, V> extends Seq<K, V>, KeyedIterable<K, V> {
 
     /**
      * Returns itself
      */
-    toSeq(): /*this*/LazyKeyedSequence<K, V>
+    toSeq(): /*this*/KeyedSeq<K, V>
   }
 
 
-  export module LazySetSequence {
+  export module SetSeq {
 
-    function empty<T>(): LazySetSequence<T>;
+    function empty<T>(): SetSeq<T>;
 
-    function of<T>(...values: T[]): LazySetSequence<T>;
+    function of<T>(...values: T[]): SetSeq<T>;
   }
 
   /**
-   * Always returns a LazySetSequence, discarding associated indices or keys.
+   * Always returns a SetSeq, discarding associated indices or keys.
    */
-  export function LazySetSequence<T>(): LazySetSequence<T>;
-  export function LazySetSequence<T>(seq: Iterable<any, T>): LazySetSequence<T>;
-  export function LazySetSequence<T>(array: Array<T>): LazySetSequence<T>;
-  export function LazySetSequence<T>(obj: {[key: string]: T}): LazySetSequence<T>;
-  export function LazySetSequence<T>(iterator: Iterator<T>): LazySetSequence<T>;
-  export function LazySetSequence<T>(iterable: /*Iterable<T>*/Object): LazySetSequence<T>;
+  export function SetSeq<T>(): SetSeq<T>;
+  export function SetSeq<T>(seq: Iterable<any, T>): SetSeq<T>;
+  export function SetSeq<T>(array: Array<T>): SetSeq<T>;
+  export function SetSeq<T>(obj: {[key: string]: T}): SetSeq<T>;
+  export function SetSeq<T>(iterator: Iterator<T>): SetSeq<T>;
+  export function SetSeq<T>(iterable: /*Iterable<T>*/Object): SetSeq<T>;
 
-  export interface LazySetSequence<T> extends LazySequence<T, T>, SetIterable<T> {
+  export interface SetSeq<T> extends Seq<T, T>, SetIterable<T> {
 
     /**
      * Returns itself
      */
-    toSeq(): /*this*/LazySetSequence<T>
+    toSeq(): /*this*/SetSeq<T>
   }
 
 
-  export module LazyIndexedSequence {
+  export module IndexedSeq {
 
-    function empty<T>(): LazyIndexedSequence<T>;
+    function empty<T>(): IndexedSeq<T>;
 
-    function of<T>(...values: T[]): LazyIndexedSequence<T>;
+    function of<T>(...values: T[]): IndexedSeq<T>;
   }
 
   /**
-   * Always returns LazyIndexedSequence, discarding associated keys and
+   * Always returns IndexedSeq, discarding associated keys and
    * supplying incrementing indices.
    */
-  export function LazyIndexedSequence<T>(): LazyIndexedSequence<T>;
-  export function LazyIndexedSequence<T>(seq: Iterable<any, T>): LazyIndexedSequence<T>;
-  export function LazyIndexedSequence<T>(array: Array<T>): LazyIndexedSequence<T>;
-  export function LazyIndexedSequence<T>(obj: {[key: string]: T}): LazyIndexedSequence<T>;
-  export function LazyIndexedSequence<T>(iterator: Iterator<T>): LazyIndexedSequence<T>;
-  export function LazyIndexedSequence<T>(iterable: /*Iterable<T>*/Object): LazyIndexedSequence<T>;
+  export function IndexedSeq<T>(): IndexedSeq<T>;
+  export function IndexedSeq<T>(seq: Iterable<any, T>): IndexedSeq<T>;
+  export function IndexedSeq<T>(array: Array<T>): IndexedSeq<T>;
+  export function IndexedSeq<T>(obj: {[key: string]: T}): IndexedSeq<T>;
+  export function IndexedSeq<T>(iterator: Iterator<T>): IndexedSeq<T>;
+  export function IndexedSeq<T>(iterable: /*Iterable<T>*/Object): IndexedSeq<T>;
 
-  export interface LazyIndexedSequence<T> extends LazySequence<number, T>, IndexedIterable<T> {
+  export interface IndexedSeq<T> extends Seq<number, T>, IndexedIterable<T> {
 
     /**
      * Returns itself
      */
-    toSeq(): /*this*/LazyIndexedSequence<T>
+    toSeq(): /*this*/IndexedSeq<T>
   }
 
 
@@ -1156,7 +1156,7 @@ declare module 'immutable' {
    * Range
    * -----
    *
-   * Returns a LazyIndexedSequence of numbers from `start` (inclusive) to `end`
+   * Returns a IndexedSeq of numbers from `start` (inclusive) to `end`
    * (exclusive), by `step`, where `start` defaults to 0, `step` to 1, and `end` to
    * infinity. When `start` is equal to `end`, returns empty range.
    *
@@ -1168,21 +1168,21 @@ declare module 'immutable' {
    *     Range(30,30,5) // []
    *
    */
-  export function Range(start?: number, end?: number, step?: number): LazyIndexedSequence<number>;
+  export function Range(start?: number, end?: number, step?: number): IndexedSeq<number>;
 
 
   /**
    * Repeat
    * ------
    *
-   * Returns a LazyIndexedSequence of `value` repeated `times` times. When `times` is
+   * Returns a IndexedSeq of `value` repeated `times` times. When `times` is
    * not defined, returns an infinite sequence of `value`.
    *
    *     Repeat('foo') // ['foo','foo','foo',...]
    *     Repeat('bar',4) // ['bar','bar','bar','bar']
    *
    */
-  export function Repeat<T>(value: T, times?: number): LazyIndexedSequence<T>;
+  export function Repeat<T>(value: T, times?: number): IndexedSeq<T>;
 
 
 
@@ -1201,28 +1201,28 @@ declare module 'immutable' {
   export interface KeyedCollection<K, V> extends Collection<K, V>, KeyedIterable<K, V> {
 
     /**
-     * Returns LazyKeyedSequence.
+     * Returns KeyedSeq.
      * @override
      */
-    toSeq(): LazyKeyedSequence<K, V>;
+    toSeq(): KeyedSeq<K, V>;
   }
 
   export interface SetCollection<T> extends Collection<T, T>, SetIterable<T> {
 
     /**
-     * Returns LazySetSequence.
+     * Returns SetSeq.
      * @override
      */
-    toSeq(): LazySetSequence<T>;
+    toSeq(): SetSeq<T>;
   }
 
   export interface IndexedCollection<T> extends Collection<number, T>, IndexedIterable<T> {
 
     /**
-     * Returns LazyIndexedSequence.
+     * Returns IndexedSeq.
      * @override
      */
-    toSeq(): LazyIndexedSequence<T>;
+    toSeq(): IndexedSeq<T>;
   }
 
 
@@ -1998,7 +1998,7 @@ declare module 'immutable' {
    * @see Map.cursor
    */
 
-  export interface Cursor<T> extends LazyKeyedSequence<any, any> {
+  export interface Cursor<T> extends KeyedSeq<any, any> {
 
     /**
      * Returns a sub-cursor following the key-path starting from this cursor.

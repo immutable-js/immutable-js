@@ -13,7 +13,7 @@ import "Range"
 import "is"
 import "Iterator"
 /* global wholeSlice, resolveBegin, resolveEnd,
-          LazyIndexedSequence,
+          IndexedSeq,
           RangePrototype,
           is,
           Iterator, iteratorValue, iteratorDone */
@@ -24,7 +24,7 @@ import "Iterator"
  * Returns a lazy Seq of `value` repeated `times` times. When `times` is
  * undefined, returns an infinite sequence of `value`.
  */
-class Repeat extends LazyIndexedSequence {
+class Repeat extends IndexedSeq {
 
   constructor(value, times) {
     if (times <= 0 && EMPTY_REPEAT) {

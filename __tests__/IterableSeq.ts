@@ -9,13 +9,13 @@ describe('IterableSequence', () => {
 
   it('creates a sequence from an iterable', () => {
     var i = new SimpleIterable();
-    var s = Immutable.LazySequence(i);
+    var s = Immutable.Seq(i);
     expect(s.take(5).toArray()).toEqual([ 0,1,2,3,4 ]);
   })
 
   it('is stable', () => {
     var i = new SimpleIterable();
-    var s = Immutable.LazySequence(i);
+    var s = Immutable.Seq(i);
     expect(s.take(5).toArray()).toEqual([ 0,1,2,3,4 ]);
     expect(s.take(5).toArray()).toEqual([ 0,1,2,3,4 ]);
     expect(s.take(5).toArray()).toEqual([ 0,1,2,3,4 ]);
@@ -23,7 +23,7 @@ describe('IterableSequence', () => {
 
   it('counts iterations', () => {
     var i = new SimpleIterable(10);
-    var s = Immutable.LazySequence(i);
+    var s = Immutable.Seq(i);
     expect(s.forEach(x => x)).toEqual(10);
     expect(s.take(5).forEach(x => x)).toEqual(5);
     expect(s.forEach(x => x < 3)).toEqual(4);
@@ -32,7 +32,7 @@ describe('IterableSequence', () => {
   it('creates a new iterator on every operations', () => {
     var mockFn = jest.genMockFunction();
     var i = new SimpleIterable(3, mockFn);
-    var s = Immutable.LazySequence(i);
+    var s = Immutable.Seq(i);
     expect(s.toArray()).toEqual([ 0,1,2 ]);
     expect(mockFn.mock.calls).toEqual([[0],[1],[2]]);
     // The iterator is recreated for the second time.
@@ -43,7 +43,7 @@ describe('IterableSequence', () => {
   it('can be iterated', () => {
     var mockFn = jest.genMockFunction();
     var i = new SimpleIterable(3, mockFn);
-    var seq = Immutable.LazySequence(i);
+    var seq = Immutable.Seq(i);
     var entries = seq.entries();
     expect(entries.next()).toEqual({ value: [0, 0], done: false });
     // The iteration is lazy
@@ -64,7 +64,7 @@ describe('IterableSequence', () => {
   it('can be mapped and filtered', () => {
     var mockFn = jest.genMockFunction();
     var i = new SimpleIterable(undefined, mockFn); // infinite
-    var seq = Immutable.LazySequence<number, number>(i)
+    var seq = Immutable.Seq<number, number>(i)
       .filter(x => x % 2 === 1)
       .map(x => x * x);
     var entries = seq.entries();
@@ -78,13 +78,13 @@ describe('IterableSequence', () => {
 
     it('creates a sequence from a raw iterable', () => {
       var i = new SimpleIterable(10);
-      var s = Immutable.LazySequence(i['@@iterator']());
+      var s = Immutable.Seq(i['@@iterator']());
       expect(s.take(5).toArray()).toEqual([ 0,1,2,3,4 ]);
     })
 
     it('is stable', () => {
       var i = new SimpleIterable(10);
-      var s = Immutable.LazySequence(i['@@iterator']());
+      var s = Immutable.Seq(i['@@iterator']());
       expect(s.take(5).toArray()).toEqual([ 0,1,2,3,4 ]);
       expect(s.take(5).toArray()).toEqual([ 0,1,2,3,4 ]);
       expect(s.take(5).toArray()).toEqual([ 0,1,2,3,4 ]);
@@ -92,7 +92,7 @@ describe('IterableSequence', () => {
 
     it('counts iterations', () => {
       var i = new SimpleIterable(10);
-      var s = Immutable.LazySequence(i['@@iterator']());
+      var s = Immutable.Seq(i['@@iterator']());
       expect(s.forEach(x => x)).toEqual(10);
       expect(s.take(5).forEach(x => x)).toEqual(5);
       expect(s.forEach(x => x < 3)).toEqual(4);
@@ -101,7 +101,7 @@ describe('IterableSequence', () => {
     it('memoizes the iterator', () => {
       var mockFn = jest.genMockFunction();
       var i = new SimpleIterable(10, mockFn);
-      var s = Immutable.LazySequence(i['@@iterator']());
+      var s = Immutable.Seq(i['@@iterator']());
       expect(s.take(3).toArray()).toEqual([ 0,1,2 ]);
       expect(mockFn.mock.calls).toEqual([[0],[1],[2]]);
 
@@ -117,7 +117,7 @@ describe('IterableSequence', () => {
     it('can be iterated', () => {
       var mockFn = jest.genMockFunction();
       var i = new SimpleIterable(3, mockFn);
-      var seq = Immutable.LazySequence(i['@@iterator']());
+      var seq = Immutable.Seq(i['@@iterator']());
       var entries = seq.entries();
       expect(entries.next()).toEqual({ value: [0, 0], done: false });
       // The iteration is lazy

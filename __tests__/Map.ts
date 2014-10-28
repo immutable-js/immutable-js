@@ -36,7 +36,7 @@ describe('Map', () => {
   });
 
   it('constructor provides initial values as sequence', () => {
-    var s = Immutable.LazySequence({'a': 'A', 'b': 'B', 'c': 'C'});
+    var s = Immutable.Seq({'a': 'A', 'b': 'B', 'c': 'C'});
     var m = Map(s);
     expect(m.size).toBe(3);
     expect(m.get('a')).toBe('A');

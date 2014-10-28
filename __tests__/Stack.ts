@@ -36,14 +36,14 @@ describe('Stack', () => {
     expect(s.toArray()).toEqual(['a', 'b', 'c']);
   });
 
-  it('from consumes a LazySequence', () => {
-    var seq = Immutable.LazySequence(['a', 'b', 'c']);
+  it('from consumes a Seq', () => {
+    var seq = Immutable.Seq(['a', 'b', 'c']);
     var s = Stack(seq);
     expect(s.toArray()).toEqual(['a', 'b', 'c']);
   });
 
-  it('from consumes a non-indexed LazySequence', () => {
-    var seq = Immutable.LazySequence({a:null, b:null, c:null}).flip();
+  it('from consumes a non-indexed Seq', () => {
+    var seq = Immutable.Seq({a:null, b:null, c:null}).flip();
     var s = Stack(seq);
     expect(s.toArray()).toEqual(['a', 'b', 'c']);
   });

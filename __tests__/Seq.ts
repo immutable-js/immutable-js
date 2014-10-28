@@ -5,22 +5,22 @@ jest.autoMockOff();
 
 import Immutable = require('immutable');
 
-describe('LazySequence', () => {
+describe('Seq', () => {
 
   it('can be empty', () => {
-    expect(Immutable.LazySequence().size).toBe(0);
+    expect(Immutable.Seq().size).toBe(0);
   });
 
   it('accepts an array', () => {
-    expect(Immutable.LazySequence([1,2,3]).size).toBe(3);
+    expect(Immutable.Seq([1,2,3]).size).toBe(3);
   });
 
   it('accepts an object', () => {
-    expect(Immutable.LazySequence({a:1,b:2,c:3}).size).toBe(3);
+    expect(Immutable.Seq({a:1,b:2,c:3}).size).toBe(3);
   });
 
   it('accepts an iterable string', () => {
-    expect(Immutable.LazySequence('foo').size).toBe(3);
+    expect(Immutable.Seq('foo').size).toBe(3);
   });
 
   it('accepts arbitrary objects', () => {
@@ -28,27 +28,27 @@ describe('LazySequence', () => {
       this.bar = 'bar';
       this.baz = 'baz';
     }
-    expect(Immutable.LazySequence(new Foo()).size).toBe(2);
+    expect(Immutable.Seq(new Foo()).size).toBe(2);
   });
 
-  it('empty returns an empty LazySequence.', () => {
-    var e1 = Immutable.LazySequence.empty();
-    var e2 = Immutable.LazySequence.empty();
+  it('empty returns an empty Seq.', () => {
+    var e1 = Immutable.Seq.empty();
+    var e2 = Immutable.Seq.empty();
     expect(e1.size).toBe(0);
     expect(e1).toBe(e2);
   });
 
   it('of accepts varargs', () => {
-    expect(Immutable.LazySequence.of(1,2,3).size).toBe(3);
+    expect(Immutable.Seq.of(1,2,3).size).toBe(3);
   });
 
   it('from accepts another sequence', () => {
-    var seq = Immutable.LazySequence.of(1,2,3);
-    expect(Immutable.LazySequence(seq).size).toBe(3);
+    var seq = Immutable.Seq.of(1,2,3);
+    expect(Immutable.Seq(seq).size).toBe(3);
   });
 
   it('from accepts a string', () => {
-    var seq = Immutable.LazySequence('abc');
+    var seq = Immutable.Seq('abc');
     expect(seq.size).toBe(3);
     expect(seq.get(1)).toBe('b');
     expect(seq.join('')).toBe('abc');
@@ -56,7 +56,7 @@ describe('LazySequence', () => {
 
   it('from accepts an array-like', () => {
     var alike = { length: 2, 0: 'a', 1: 'b' };
-    var seq = Immutable.LazySequence(alike);
+    var seq = Immutable.Seq(alike);
     expect(Immutable.Iterable.isIndexed(seq)).toBe(true);
     expect(seq.size).toBe(2);
     expect(seq.get(1)).toBe('b');
@@ -64,14 +64,14 @@ describe('LazySequence', () => {
 
   it('from does not accept a scalar', () => {
     expect(() => {
-      Immutable.LazySequence(3);
+      Immutable.Seq(3);
     }).toThrow('Expected iterable: 3');
   });
 
   it('temporarily warns about iterable length', function () {
     this.spyOn(console, 'warn');
 
-    var seq = Immutable.LazySequence.of(1,2,3);
+    var seq = Immutable.Seq.of(1,2,3);
 
     // Note: `length` has been removed from the type definitions.
     var length = (<any>seq).length;
@@ -86,8 +86,8 @@ describe('LazySequence', () => {
   });
 
   it('detects sequences', () => {
-    var seq = Immutable.LazySequence.of(1,2,3);
-    expect(Immutable.LazySequence.isLazy(seq)).toBe(true);
+    var seq = Immutable.Seq.of(1,2,3);
+    expect(Immutable.Seq.isSeq(seq)).toBe(true);
     expect(Immutable.Iterable.isIterable(seq)).toBe(true);
   });
 

@@ -19,9 +19,9 @@ import "Iterator"
           hash, HASH_MAX_VAL,
           Iterator,
           ITERATOR_SYMBOL, ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES,
-          isLazy,
-          LazySequence, LazyKeyedSequence, LazySetSequence, LazyIndexedSequence,
-          ArraySequence,
+          isSeq,
+          Seq, KeyedSeq, SetSeq, IndexedSeq,
+          ArraySeq,
           reify, ToIndexedSequence, ToKeyedSequence, ToSetSequence,
           FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
           filterFactory, countByFactory, groupByFactory, takeFactory,
@@ -36,7 +36,7 @@ class Iterable {
 
   constructor(value) {
     return isIterable(value) ? value :
-      LazySequence.apply(undefined, arguments);
+      Seq.apply(undefined, arguments);
   }
 
   // ### Conversion to other types
@@ -299,7 +299,7 @@ class Iterable {
     var iterable = this;
     if (iterable._cache) {
       // We cache as an entries array, so we can just return the cache!
-      return new ArraySequence(iterable._cache);
+      return new ArraySeq(iterable._cache);
     }
     var entriesSequence = iterable.toSeq().map(entryMapper).toIndexedSeq();
     entriesSequence.fromEntrySeq = () => iterable.toSeq();
@@ -439,7 +439,7 @@ class Iterable {
 
   sortBy(mapper, comparator) {
     comparator = comparator || defaultComparator;
-    return reify(this, new ArraySequence(this.entrySeq().entrySeq().toArray().sort(
+    return reify(this, new ArraySeq(this.entrySeq().entrySeq().toArray().sort(
       (a, b) => comparator(
         mapper(a[1][1], a[1][0], this),
         mapper(b[1][1], b[1][0], this)
@@ -530,7 +530,7 @@ class KeyedIterable extends Iterable {
 
   constructor(value) {
     return isKeyed(value) ? value :
-      LazyKeyedSequence.apply(undefined, arguments);
+      KeyedSeq.apply(undefined, arguments);
   }
 
 
@@ -570,7 +570,7 @@ class SetIterable extends Iterable {
 
   constructor(value) {
     return isIterable(value) && !isAssociative(value) ? value :
-      LazySetSequence.apply(undefined, arguments);
+      SetSeq.apply(undefined, arguments);
   }
 
 
@@ -600,7 +600,7 @@ class IndexedIterable extends Iterable {
 
   constructor(value) {
     return isIndexed(value) ? value :
-      LazyIndexedSequence.apply(undefined, arguments);
+      IndexedSeq.apply(undefined, arguments);
   }
 
 
@@ -696,7 +696,7 @@ class IndexedIterable extends Iterable {
   skip(amount) {
     var iter = this;
     var skipSeq = skipFactory(iter, amount, false);
-    if (isLazy(iter) && skipSeq !== iter) {
+    if (isSeq(iter) && skipSeq !== iter) {
       skipSeq.get = function (index, notSetValue) {
         index = wrapIndex(this, index);
         return index >= 0 ? iter.get(index + amount, notSetValue) : notSetValue;
@@ -711,7 +711,7 @@ class IndexedIterable extends Iterable {
 
   sortBy(mapper, comparator) {
     comparator = comparator || defaultComparator;
-    return reify(this, new ArraySequence(this.entrySeq().toArray().sort(
+    return reify(this, new ArraySeq(this.entrySeq().toArray().sort(
       (a, b) => comparator(
         mapper(a[1], a[0], this),
         mapper(b[1], b[0], this)
@@ -722,7 +722,7 @@ class IndexedIterable extends Iterable {
   take(amount) {
     var iter = this;
     var takeSeq = takeFactory(iter, amount);
-    if (isLazy(iter) && takeSeq !== iter) {
+    if (isSeq(iter) && takeSeq !== iter) {
       takeSeq.get = function (index, notSetValue) {
         index = wrapIndex(this, index);
         return index >= 0 && index < amount ? iter.get(index, notSetValue) : notSetValue;

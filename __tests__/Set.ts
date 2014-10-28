@@ -32,7 +32,7 @@ describe('Set', () => {
   });
 
   it('converts from sequence of values', () => {
-    var seq = Immutable.LazySequence.of(1,2,3);
+    var seq = Immutable.Seq.of(1,2,3);
     var s = Set(seq);
     expect(s.has(1)).toBe(true);
     expect(s.has(2)).toBe(true);
@@ -49,7 +49,7 @@ describe('Set', () => {
   });
 
   it('converts from sequence keys', () => {
-    var seq = Immutable.LazySequence({a:null, b:null, c:null});
+    var seq = Immutable.Seq({a:null, b:null, c:null});
     var s = Set.fromKeys(seq);
     expect(s.has('a')).toBe(true);
     expect(s.has('b')).toBe(true);

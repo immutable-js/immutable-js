@@ -16,7 +16,7 @@ import "invariant"
 import "Iterator"
 /* global wrapIndex, wholeSlice, resolveBegin, resolveEnd,
           invariant,
-          LazyIndexedSequence,
+          IndexedSeq,
           VectorPrototype,
           Iterator, iteratorValue, iteratorDone */
 /* exported Range, RangePrototype */
@@ -27,7 +27,7 @@ import "Iterator"
  * (exclusive), by step, where start defaults to 0, step to 1, and end to
  * infinity. When start is equal to end, returns empty list.
  */
-class Range extends LazyIndexedSequence {
+class Range extends IndexedSeq {
 
   constructor(start, end, step) {
     if (!(this instanceof Range)) {

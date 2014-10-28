@@ -176,7 +176,7 @@ results, these operations are extremely efficient.
 
 ```javascript
 var myObject = {a:1,b:2,c:3};
-Sequence(myObject).map(x => x * x).toObject();
+Seq(myObject).map(x => x * x).toObject();
 // { a: 1, b: 4, c: 9 }
 ```
 
@@ -274,7 +274,7 @@ A common pattern is reifying (converting to real form) back to the original
 collection type. For example, mapping over a Vector:
 
     var numsVect = Immutable.Vector.of(1,2,3,4,5);
-    var squaresVect = numsVect.map(x => x * x).toVector();
+    var squaresVect = numsVect.map(x => x * x);
 
 Note: A sequence is always iterated in the same order, however that order may
 not always be well defined, as is the case for the `Map`.

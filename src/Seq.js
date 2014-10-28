@@ -15,12 +15,12 @@ import "Iterator"
           assertNotInfinite, wrapIndex,
           isIterable, isKeyed, Iterable, KeyedIterable, SetIterable, IndexedIterable,
           Iterator, iteratorValue, iteratorDone, hasIterator, isIterator, getIterator */
-/* exported isLazy,
-            LazySequence, LazyKeyedSequence, LazySetSequence, LazyIndexedSequence,
-            ArraySequence */
+/* exported isSeq,
+            Seq, KeyedSeq, SetSeq, IndexedSeq,
+            ArraySeq */
 
 
-class LazySequence extends Iterable {
+class Seq extends Iterable {
   constructor(value) {
     return arguments.length === 0 ? emptySequence() : (
       isIterable(value) ? value : seqFromValue(value, false)
@@ -28,7 +28,7 @@ class LazySequence extends Iterable {
   }
 
   static of(/*...values*/) {
-    return LazySequence(arguments);
+    return Seq(arguments);
   }
 
   toSeq() {
@@ -60,7 +60,7 @@ class LazySequence extends Iterable {
   }
 }
 
-class LazyKeyedSequence extends LazySequence {
+class KeyedSeq extends Seq {
   constructor(value) {
     if (arguments.length === 0) {
       return emptySequence().toKeyedSeq();
@@ -72,11 +72,11 @@ class LazyKeyedSequence extends LazySequence {
   }
 
   static empty() {
-    return LazyKeyedSequence();
+    return KeyedSeq();
   }
 
   static of(/*...values*/) {
-    return LazyKeyedSequence(arguments);
+    return KeyedSeq(arguments);
   }
 
   toKeyedSeq() {
@@ -87,9 +87,9 @@ class LazyKeyedSequence extends LazySequence {
     return this;
   }
 }
-mixin(LazyKeyedSequence, KeyedIterable.prototype);
+mixin(KeyedSeq, KeyedIterable.prototype);
 
-class LazySetSequence extends LazySequence {
+class SetSeq extends Seq {
   constructor(value) {
     return arguments.length === 0 ? emptySequence().toSetSeq() : (
       isIterable(value) ? value : seqFromValue(value, false)
@@ -97,20 +97,20 @@ class LazySetSequence extends LazySequence {
   }
 
   static empty() {
-    return LazySetSequence();
+    return SetSeq();
   }
 
   static of(/*...values*/) {
-    return LazySetSequence(arguments);
+    return SetSeq(arguments);
   }
 
   toSetSeq() {
     return this;
   }
 }
-mixin(LazySetSequence, SetIterable.prototype);
+mixin(SetSeq, SetIterable.prototype);
 
-class LazyIndexedSequence extends LazySequence {
+class IndexedSeq extends Seq {
   constructor(value) {
     return arguments.length === 0 ? emptySequence() : (
       isIterable(value) ? value : seqFromValue(value, false)
@@ -118,11 +118,11 @@ class LazyIndexedSequence extends LazySequence {
   }
 
   static empty() {
-    return LazyIndexedSequence();
+    return IndexedSeq();
   }
 
   static of(/*...values*/) {
-    return LazyIndexedSequence(arguments);
+    return IndexedSeq(arguments);
   }
 
   toIndexedSeq() {
@@ -141,24 +141,24 @@ class LazyIndexedSequence extends LazySequence {
     return seqIterator(this, type, reverse, false);
   }
 }
-mixin(LazyIndexedSequence, IndexedIterable.prototype);
+mixin(IndexedSeq, IndexedIterable.prototype);
 
 
-LazySequence.empty = emptySequence;
-LazySequence.isLazy = isLazy;
-LazySequence.Keyed = LazyKeyedSequence;
-LazySequence.Set = LazySetSequence;
-LazySequence.Indexed = LazyIndexedSequence;
+Seq.empty = emptySequence;
+Seq.isSeq = isSeq;
+Seq.Keyed = KeyedSeq;
+Seq.Set = SetSeq;
+Seq.Indexed = IndexedSeq;
 
 var IS_LAZY_SENTINEL = '@@__IMMUTABLE_LAZY__@@';
 
-LazySequence.prototype[IS_LAZY_SENTINEL] = true;
+Seq.prototype[IS_LAZY_SENTINEL] = true;
 
 
 
 // #pragma Root Sequences
 
-class ArraySequence extends LazyIndexedSequence {
+class ArraySeq extends IndexedSeq {
   constructor(array) {
     this._array = array;
     this.size = array.length;
@@ -192,7 +192,7 @@ class ArraySequence extends LazyIndexedSequence {
 }
 
 
-class ObjectSequence extends LazyKeyedSequence {
+class ObjectSeq extends KeyedSeq {
   constructor(object) {
     var keys = Object.keys(object);
     this._object = object;
@@ -239,7 +239,7 @@ class ObjectSequence extends LazyKeyedSequence {
 }
 
 
-class IterableSequence extends LazyIndexedSequence {
+class IterableSeq extends IndexedSeq {
   constructor(iterable) {
     this._iterable = iterable;
     this.size = iterable.length || iterable.size;
@@ -281,7 +281,7 @@ class IterableSequence extends LazyIndexedSequence {
 }
 
 
-class IteratorSequence extends LazyIndexedSequence {
+class IteratorSeq extends IndexedSeq {
   constructor(iterator) {
     this._iterator = iterator;
     this._iteratorCache = [];
@@ -334,24 +334,24 @@ class IteratorSequence extends LazyIndexedSequence {
 
 // # pragma Helper functions
 
-function isLazy(maybeLazy) {
+function isSeq(maybeLazy) {
   return !!(maybeLazy && maybeLazy[IS_LAZY_SENTINEL]);
 }
 
 var EMPTY_SEQ;
 
 function emptySequence() {
-  return EMPTY_SEQ || (EMPTY_SEQ = new ArraySequence([]));
+  return EMPTY_SEQ || (EMPTY_SEQ = new ArraySeq([]));
 }
 
 function seqFromValue(value, maybeSingleton) {
   var seq =
-    maybeSingleton && typeof value === 'string' ? new ArraySequence([value]) :
-    isArrayLike(value) ? new ArraySequence(value) :
-    isIterator(value) ? new IteratorSequence(value) :
-    hasIterator(value) ? new IterableSequence(value) :
-    (maybeSingleton ? isPlainObj(value) : typeof value === 'object') ? new ObjectSequence(value) :
-    maybeSingleton ? new ArraySequence([value]) :
+    maybeSingleton && typeof value === 'string' ? new ArraySeq([value]) :
+    isArrayLike(value) ? new ArraySeq(value) :
+    isIterator(value) ? new IteratorSeq(value) :
+    hasIterator(value) ? new IterableSeq(value) :
+    (maybeSingleton ? isPlainObj(value) : typeof value === 'object') ? new ObjectSeq(value) :
+    maybeSingleton ? new ArraySeq([value]) :
     undefined;
   if (!seq) {
     throw new TypeError('Expected iterable: ' + value);

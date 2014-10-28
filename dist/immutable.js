@@ -270,7 +270,7 @@ function _iteratorFn(iterable) {
   }
 }
 var Iterable = function Iterable(value) {
-  return isIterable(value) ? value : LazySequence.apply(undefined, arguments);
+  return isIterable(value) ? value : Seq.apply(undefined, arguments);
 };
 var $Iterable = Iterable;
 ($traceurRuntime.createClass)(Iterable, {
@@ -477,7 +477,7 @@ var $Iterable = Iterable;
   entrySeq: function() {
     var iterable = this;
     if (iterable._cache) {
-      return new ArraySequence(iterable._cache);
+      return new ArraySeq(iterable._cache);
     }
     var entriesSequence = iterable.toSeq().map(entryMapper).toIndexedSeq();
     entriesSequence.fromEntrySeq = (function() {
@@ -594,7 +594,7 @@ var $Iterable = Iterable;
   sortBy: function(mapper, comparator) {
     var $__0 = this;
     comparator = comparator || defaultComparator;
-    return reify(this, new ArraySequence(this.entrySeq().entrySeq().toArray().sort((function(a, b) {
+    return reify(this, new ArraySeq(this.entrySeq().entrySeq().toArray().sort((function(a, b) {
       return comparator(mapper(a[1][1], a[1][0], $__0), mapper(b[1][1], b[1][0], $__0)) || a[0] - b[0];
     }))).fromEntrySeq().valueSeq().fromEntrySeq());
   },
@@ -649,7 +649,7 @@ IterablePrototype.chain = IterablePrototype.flatMap;
   } catch (e) {}
 })();
 var KeyedIterable = function KeyedIterable(value) {
-  return isKeyed(value) ? value : LazyKeyedSequence.apply(undefined, arguments);
+  return isKeyed(value) ? value : KeyedSeq.apply(undefined, arguments);
 };
 ($traceurRuntime.createClass)(KeyedIterable, {
   flip: function() {
@@ -677,7 +677,7 @@ KeyedIterablePrototype.__toStringMapper = (function(v, k) {
   return k + ': ' + quoteString(v);
 });
 var SetIterable = function SetIterable(value) {
-  return isIterable(value) && !isAssociative(value) ? value : LazySetSequence.apply(undefined, arguments);
+  return isIterable(value) && !isAssociative(value) ? value : SetSeq.apply(undefined, arguments);
 };
 ($traceurRuntime.createClass)(SetIterable, {
   get: function(value, notSetValue) {
@@ -692,7 +692,7 @@ var SetIterable = function SetIterable(value) {
 }, {}, Iterable);
 SetIterable.prototype.has = IterablePrototype.contains;
 var IndexedIterable = function IndexedIterable(value) {
-  return isIndexed(value) ? value : LazyIndexedSequence.apply(undefined, arguments);
+  return isIndexed(value) ? value : IndexedSeq.apply(undefined, arguments);
 };
 ($traceurRuntime.createClass)(IndexedIterable, {
   toKeyedSeq: function() {
@@ -760,7 +760,7 @@ var IndexedIterable = function IndexedIterable(value) {
   skip: function(amount) {
     var iter = this;
     var skipSeq = skipFactory(iter, amount, false);
-    if (isLazy(iter) && skipSeq !== iter) {
+    if (isSeq(iter) && skipSeq !== iter) {
       skipSeq.get = function(index, notSetValue) {
         index = wrapIndex(this, index);
         return index >= 0 ? iter.get(index + amount, notSetValue) : notSetValue;
@@ -774,14 +774,14 @@ var IndexedIterable = function IndexedIterable(value) {
   sortBy: function(mapper, comparator) {
     var $__0 = this;
     comparator = comparator || defaultComparator;
-    return reify(this, new ArraySequence(this.entrySeq().toArray().sort((function(a, b) {
+    return reify(this, new ArraySeq(this.entrySeq().toArray().sort((function(a, b) {
       return comparator(mapper(a[1], a[0], $__0), mapper(b[1], b[0], $__0)) || a[0] - b[0];
     }))).fromEntrySeq().valueSeq());
   },
   take: function(amount) {
     var iter = this;
     var takeSeq = takeFactory(iter, amount);
-    if (isLazy(iter) && takeSeq !== iter) {
+    if (isSeq(iter) && takeSeq !== iter) {
       takeSeq.get = function(index, notSetValue) {
         index = wrapIndex(this, index);
         return index >= 0 && index < amount ? iter.get(index, notSetValue) : notSetValue;
@@ -838,11 +838,11 @@ function mixin(ctor, methods) {
   });
   return ctor;
 }
-var LazySequence = function LazySequence(value) {
+var Seq = function Seq(value) {
   return arguments.length === 0 ? emptySequence() : (isIterable(value) ? value : seqFromValue(value, false)).toSeq();
 };
-var $LazySequence = LazySequence;
-($traceurRuntime.createClass)(LazySequence, {
+var $Seq = Seq;
+($traceurRuntime.createClass)(Seq, {
   toSeq: function() {
     return this;
   },
@@ -863,9 +863,9 @@ var $LazySequence = LazySequence;
     return seqIterator(this, type, reverse, true);
   }
 }, {of: function() {
-    return $LazySequence(arguments);
+    return $Seq(arguments);
   }}, Iterable);
-var LazyKeyedSequence = function LazyKeyedSequence(value) {
+var KeyedSeq = function KeyedSeq(value) {
   if (arguments.length === 0) {
     return emptySequence().toKeyedSeq();
   }
@@ -874,8 +874,8 @@ var LazyKeyedSequence = function LazyKeyedSequence(value) {
   }
   return isKeyed(value) ? value.toSeq() : value.fromEntrySeq();
 };
-var $LazyKeyedSequence = LazyKeyedSequence;
-($traceurRuntime.createClass)(LazyKeyedSequence, {
+var $KeyedSeq = KeyedSeq;
+($traceurRuntime.createClass)(KeyedSeq, {
   toKeyedSeq: function() {
     return this;
   },
@@ -884,33 +884,33 @@ var $LazyKeyedSequence = LazyKeyedSequence;
   }
 }, {
   empty: function() {
-    return $LazyKeyedSequence();
+    return $KeyedSeq();
   },
   of: function() {
-    return $LazyKeyedSequence(arguments);
+    return $KeyedSeq(arguments);
   }
-}, LazySequence);
-mixin(LazyKeyedSequence, KeyedIterable.prototype);
-var LazySetSequence = function LazySetSequence(value) {
+}, Seq);
+mixin(KeyedSeq, KeyedIterable.prototype);
+var SetSeq = function SetSeq(value) {
   return arguments.length === 0 ? emptySequence().toSetSeq() : (isIterable(value) ? value : seqFromValue(value, false)).toSetSeq();
 };
-var $LazySetSequence = LazySetSequence;
-($traceurRuntime.createClass)(LazySetSequence, {toSetSeq: function() {
+var $SetSeq = SetSeq;
+($traceurRuntime.createClass)(SetSeq, {toSetSeq: function() {
     return this;
   }}, {
   empty: function() {
-    return $LazySetSequence();
+    return $SetSeq();
   },
   of: function() {
-    return $LazySetSequence(arguments);
+    return $SetSeq(arguments);
   }
-}, LazySequence);
-mixin(LazySetSequence, SetIterable.prototype);
-var LazyIndexedSequence = function LazyIndexedSequence(value) {
+}, Seq);
+mixin(SetSeq, SetIterable.prototype);
+var IndexedSeq = function IndexedSeq(value) {
   return arguments.length === 0 ? emptySequence() : (isIterable(value) ? value : seqFromValue(value, false)).toIndexedSeq();
 };
-var $LazyIndexedSequence = LazyIndexedSequence;
-($traceurRuntime.createClass)(LazyIndexedSequence, {
+var $IndexedSeq = IndexedSeq;
+($traceurRuntime.createClass)(IndexedSeq, {
   toIndexedSeq: function() {
     return this;
   },
@@ -925,25 +925,25 @@ var $LazyIndexedSequence = LazyIndexedSequence;
   }
 }, {
   empty: function() {
-    return $LazyIndexedSequence();
+    return $IndexedSeq();
   },
   of: function() {
-    return $LazyIndexedSequence(arguments);
+    return $IndexedSeq(arguments);
   }
-}, LazySequence);
-mixin(LazyIndexedSequence, IndexedIterable.prototype);
-LazySequence.empty = emptySequence;
-LazySequence.isLazy = isLazy;
-LazySequence.Keyed = LazyKeyedSequence;
-LazySequence.Set = LazySetSequence;
-LazySequence.Indexed = LazyIndexedSequence;
+}, Seq);
+mixin(IndexedSeq, IndexedIterable.prototype);
+Seq.empty = emptySequence;
+Seq.isSeq = isSeq;
+Seq.Keyed = KeyedSeq;
+Seq.Set = SetSeq;
+Seq.Indexed = IndexedSeq;
 var IS_LAZY_SENTINEL = '@@__IMMUTABLE_LAZY__@@';
-LazySequence.prototype[IS_LAZY_SENTINEL] = true;
-var ArraySequence = function ArraySequence(array) {
+Seq.prototype[IS_LAZY_SENTINEL] = true;
+var ArraySeq = function ArraySeq(array) {
   this._array = array;
   this.size = array.length;
 };
-($traceurRuntime.createClass)(ArraySequence, {
+($traceurRuntime.createClass)(ArraySeq, {
   get: function(index, notSetValue) {
     return this.has(index) ? this._array[wrapIndex(this, index)] : notSetValue;
   },
@@ -965,14 +965,14 @@ var ArraySequence = function ArraySequence(array) {
       return ii > maxIndex ? iteratorDone() : iteratorValue(type, ii, array[reverse ? maxIndex - ii++ : ii++]);
     }));
   }
-}, {}, LazyIndexedSequence);
-var ObjectSequence = function ObjectSequence(object) {
+}, {}, IndexedSeq);
+var ObjectSeq = function ObjectSeq(object) {
   var keys = Object.keys(object);
   this._object = object;
   this._keys = keys;
   this.size = keys.length;
 };
-($traceurRuntime.createClass)(ObjectSequence, {
+($traceurRuntime.createClass)(ObjectSeq, {
   get: function(key, notSetValue) {
     if (notSetValue !== undefined && !this.has(key)) {
       return notSetValue;
@@ -1004,12 +1004,12 @@ var ObjectSequence = function ObjectSequence(object) {
       return ii++ > maxIndex ? iteratorDone() : iteratorValue(type, key, object[key]);
     }));
   }
-}, {}, LazyKeyedSequence);
-var IterableSequence = function IterableSequence(iterable) {
+}, {}, KeyedSeq);
+var IterableSeq = function IterableSeq(iterable) {
   this._iterable = iterable;
   this.size = iterable.length || iterable.size;
 };
-($traceurRuntime.createClass)(IterableSequence, {
+($traceurRuntime.createClass)(IterableSeq, {
   __iterateUncached: function(fn, reverse) {
     if (reverse) {
       return this.cacheResult().__iterate(fn, reverse);
@@ -1042,12 +1042,12 @@ var IterableSequence = function IterableSequence(iterable) {
       return step.done ? step : iteratorValue(type, iterations++, step.value);
     }));
   }
-}, {}, LazyIndexedSequence);
-var IteratorSequence = function IteratorSequence(iterator) {
+}, {}, IndexedSeq);
+var IteratorSeq = function IteratorSeq(iterator) {
   this._iterator = iterator;
   this._iteratorCache = [];
 };
-($traceurRuntime.createClass)(IteratorSequence, {
+($traceurRuntime.createClass)(IteratorSeq, {
   __iterateUncached: function(fn, reverse) {
     if (reverse) {
       return this.cacheResult().__iterate(fn, reverse);
@@ -1088,16 +1088,16 @@ var IteratorSequence = function IteratorSequence(iterator) {
       return iteratorValue(type, iterations, cache[iterations++]);
     }));
   }
-}, {}, LazyIndexedSequence);
-function isLazy(maybeLazy) {
+}, {}, IndexedSeq);
+function isSeq(maybeLazy) {
   return !!(maybeLazy && maybeLazy[IS_LAZY_SENTINEL]);
 }
 var EMPTY_SEQ;
 function emptySequence() {
-  return EMPTY_SEQ || (EMPTY_SEQ = new ArraySequence([]));
+  return EMPTY_SEQ || (EMPTY_SEQ = new ArraySeq([]));
 }
 function seqFromValue(value, maybeSingleton) {
-  var seq = maybeSingleton && typeof value === 'string' ? new ArraySequence([value]) : isArrayLike(value) ? new ArraySequence(value) : isIterator(value) ? new IteratorSequence(value) : hasIterator(value) ? new IterableSequence(value) : (maybeSingleton ? isPlainObj(value) : typeof value === 'object') ? new ObjectSequence(value) : maybeSingleton ? new ArraySequence([value]) : undefined;
+  var seq = maybeSingleton && typeof value === 'string' ? new ArraySeq([value]) : isArrayLike(value) ? new ArraySeq(value) : isIterator(value) ? new IteratorSeq(value) : hasIterator(value) ? new IterableSeq(value) : (maybeSingleton ? isPlainObj(value) : typeof value === 'object') ? new ObjectSeq(value) : maybeSingleton ? new ArraySeq([value]) : undefined;
   if (!seq) {
     throw new TypeError('Expected iterable: ' + value);
   }
@@ -1727,7 +1727,7 @@ var ToIndexedSequence = function ToIndexedSequence(iter) {
       return step.done ? step : iteratorValue(type, iterations++, step.value, step);
     }));
   }
-}, {}, LazyIndexedSequence);
+}, {}, IndexedSeq);
 var ToKeyedSequence = function ToKeyedSequence(indexed, useKeys) {
   this._iter = indexed;
   this._useKeys = useKeys;
@@ -1783,7 +1783,7 @@ var ToKeyedSequence = function ToKeyedSequence(indexed, useKeys) {
       return step.done ? step : iteratorValue(type, reverse ? --ii : ii++, step.value, step);
     }));
   }
-}, {}, LazyKeyedSequence);
+}, {}, KeyedSeq);
 var ToSetSequence = function ToSetSequence(iter) {
   this._iter = iter;
   this.size = iter.size;
@@ -1805,7 +1805,7 @@ var ToSetSequence = function ToSetSequence(iter) {
       return step.done ? step : iteratorValue(type, step.value, step.value, step);
     }));
   }
-}, {}, LazySetSequence);
+}, {}, SetSeq);
 var FromEntriesSequence = function FromEntriesSequence(entries) {
   this._iter = entries;
   this.size = entries.size;
@@ -1839,7 +1839,7 @@ var FromEntriesSequence = function FromEntriesSequence(entries) {
       }
     }));
   }
-}, {}, LazyKeyedSequence);
+}, {}, KeyedSeq);
 ToIndexedSequence.prototype.cacheResult = ToKeyedSequence.prototype.cacheResult = ToSetSequence.prototype.cacheResult = FromEntriesSequence.prototype.cacheResult = cacheResultThrough;
 function flipFactory(iterable) {
   var flipSequence = makeSequence(iterable);
@@ -2193,7 +2193,7 @@ function skipWhileFactory(iterable, predicate, context, useKeys) {
 }
 function concatFactory(iterable, values, useKeys) {
   var isKeyedIter = isKeyed(iterable);
-  var iters = new ArraySequence([iterable].concat(values)).map((function(v) {
+  var iters = new ArraySeq([iterable].concat(values)).map((function(v) {
     if (!isIterable(v)) {
       v = seqFromValue(v, true);
     }
@@ -2298,7 +2298,7 @@ function interposeFactory(iterable, separator) {
   return interposedSequence;
 }
 function reify(iter, seq) {
-  return isLazy(iter) ? seq : iter.constructor(seq);
+  return isSeq(iter) ? seq : iter.constructor(seq);
 }
 function validateEntry(entry) {
   if (entry !== Object(entry)) {
@@ -2313,7 +2313,7 @@ function iterableClass(iterable) {
   return isKeyed(iterable) ? KeyedIterable : isIndexed(iterable) ? IndexedIterable : SetIterable;
 }
 function makeSequence(iterable) {
-  return Object.create((isKeyed(iterable) ? LazyKeyedSequence : isIndexed(iterable) ? LazyIndexedSequence : LazySetSequence).prototype);
+  return Object.create((isKeyed(iterable) ? KeyedSeq : isIndexed(iterable) ? IndexedSeq : SetSeq).prototype);
 }
 function cacheResultThrough() {
   if (this._iter.cacheResult) {
@@ -2321,7 +2321,7 @@ function cacheResultThrough() {
     this.size = this._iter.size;
     return this;
   } else {
-    return LazySequence.prototype.cacheResult.call(this);
+    return Seq.prototype.cacheResult.call(this);
   }
 }
 var Vector = function Vector(value) {
@@ -3137,7 +3137,7 @@ var $Set = Set;
     return this(arguments);
   },
   fromKeys: function(value) {
-    return this(LazyKeyedSequence(value).flip());
+    return this(KeyedSeq(value).flip());
   }
 }, SetCollection);
 var SetPrototype = Set.prototype;
@@ -3468,7 +3468,7 @@ var $Range = Range;
   __deepEquals: function(other) {
     return other instanceof $Range ? this._start === other._start && this._end === other._end && this._step === other._step : $traceurRuntime.superCall(this, $Range.prototype, "__deepEquals", [other]);
   }
-}, {}, LazyIndexedSequence);
+}, {}, IndexedSeq);
 var RangePrototype = Range.prototype;
 RangePrototype.__toJS = RangePrototype.toArray;
 RangePrototype.first = VectorPrototype.first;
@@ -3538,7 +3538,7 @@ var $Repeat = Repeat;
   __deepEquals: function(other) {
     return other instanceof $Repeat ? is(this._value, other._value) : $traceurRuntime.superCall(this, $Repeat.prototype, "__deepEquals", [other]);
   }
-}, {}, LazyIndexedSequence);
+}, {}, IndexedSeq);
 var RepeatPrototype = Repeat.prototype;
 RepeatPrototype.last = RepeatPrototype.first;
 RepeatPrototype.has = RangePrototype.has;
@@ -3644,7 +3644,7 @@ var Cursor = function Cursor(rootData, keyPath, onChange, size) {
       return iteratorValue(type, k, wrappedValue($__0, k, v), step);
     }));
   }
-}, {}, LazyKeyedSequence);
+}, {}, KeyedSeq);
 var CursorPrototype = Cursor.prototype;
 CursorPrototype[DELETE] = CursorPrototype.remove;
 CursorPrototype.getIn = CursorPrototype.get;
@@ -3654,7 +3654,7 @@ var IndexedCursor = function IndexedCursor(rootData, keyPath, onChange, size) {
   this._keyPath = keyPath;
   this._onChange = onChange;
 };
-($traceurRuntime.createClass)(IndexedCursor, {}, {}, LazyIndexedSequence);
+($traceurRuntime.createClass)(IndexedCursor, {}, {}, IndexedSeq);
 var IndexedCursorPrototype = IndexedCursor.prototype;
 IndexedCursorPrototype.equals = CursorPrototype.equals;
 IndexedCursorPrototype.deref = CursorPrototype.deref;
@@ -3690,7 +3690,7 @@ function updateCursor(cursor, changeFn, changeKey) {
 }
 var Immutable = {
   Iterable: Iterable,
-  LazySequence: LazySequence,
+  Seq: Seq,
   Collection: Collection,
   Map: Map,
   Vector: Vector,
