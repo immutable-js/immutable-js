@@ -19,16 +19,16 @@ describe('LazySequence', () => {
     expect(Immutable.LazySequence({a:1,b:2,c:3}).size).toBe(3);
   });
 
-  it('accepts a scalar', () => {
-    expect(Immutable.LazySequence('foo').size).toBe(1);
+  it('accepts an iterable string', () => {
+    expect(Immutable.LazySequence('foo').size).toBe(3);
   });
 
-  it('accepts a class', () => {
+  it('accepts arbitrary objects', () => {
     function Foo() {
       this.bar = 'bar';
       this.baz = 'baz';
     }
-    expect(Immutable.LazySequence(new Foo()).size).toBe(1);
+    expect(Immutable.LazySequence(new Foo()).size).toBe(2);
   });
 
   it('empty returns an empty LazySequence.', () => {

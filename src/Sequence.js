@@ -29,7 +29,8 @@ import "Iterator"
 class Iterable {
 
   constructor(value) {
-    return isIterable(value) ? value : seqFromValue(value, true);
+    return arguments.length === 0 ? emptySequence() :
+      isIterable(value) ? value : seqFromValue(value, false);
   }
 
   // ### Conversion to other types
@@ -120,7 +121,7 @@ class Iterable {
   // ### ES6 Collection methods (ES6 Array and Map)
 
   concat(...values) {
-    return concatFactory(this, values, true);
+    return reify(this, concatFactory(this, values, true));
   }
 
   contains(searchValue) {
@@ -343,9 +344,10 @@ class Iterable {
   }
 
   flatMap(mapper, context) {
+    var coerce = iterableClass(this);
     return reify(this,
       this.toSeq().map(
-        (v, k, c) => Iterable(mapper.call(context, v, k, c))
+        (v, k) => coerce(mapper.call(context, v, k, this))
       ).flatten(true)
     );
   }
@@ -545,6 +547,9 @@ IterablePrototype.chain = IterablePrototype.flatMap;
 class KeyedIterable extends Iterable {
 
   constructor(seqable) {
+    if (arguments.length === 0) {
+      return emptySequence().toKeyedSeq();
+    }
     if (!isIterable(seqable)) {
       seqable = seqFromValue(seqable, false);
     }
@@ -591,6 +596,9 @@ KeyedIterablePrototype.__toStringMapper = (v, k) => k + ': ' + quoteString(v);
 class SetIterable extends Iterable {
 
   constructor(seqable) {
+    if (arguments.length === 0) {
+      return emptySequence().toSetSeq();
+    }
     var isIter = isIterable(seqable);
     return isIter && !isAssociative(seqable) ? seqable : (
       isIter ? seqable : seqFromValue(seqable, false)
@@ -628,9 +636,10 @@ SetIterablePrototype.has = IterablePrototype.contains;
 class IndexedIterable extends Iterable {
 
   constructor(seqable) {
-    return isIndexed(seqable) ? seqable : (
-      isIterable(seqable) ? seqable : seqFromValue(seqable, false)
-    ).toIndexedSeq();
+    return arguments.length === 0 ? emptySequence() :
+      isIndexed(seqable) ? seqable : (
+        isIterable(seqable) ? seqable : seqFromValue(seqable, false)
+      ).toIndexedSeq();
   }
 
   static from(seqable/*[, mapFn[, context]]*/) {
@@ -787,9 +796,7 @@ IndexedIterablePrototype[IS_INDEXED_SENTINEL] = true;
 
 class LazySequence extends Iterable {
   constructor(value) {
-    return arguments.length === 0 ?
-      emptySequence() :
-      Iterable(value).toSeq();
+    return Iterable.apply(this, arguments).toSeq();
   }
 
   static from(seqable/*[, mapFn[, context]]*/) {
@@ -830,9 +837,7 @@ class LazySequence extends Iterable {
 
 class LazyKeyedSequence extends LazySequence {
   constructor(value) {
-    return arguments.length === 0 ?
-      emptySequence().toKeyedSeq() :
-      KeyedIterable(value).toSeq();
+    return KeyedIterable.apply(this, arguments).toSeq();
   }
 
   static empty() {
@@ -855,9 +860,7 @@ mixin(LazyKeyedSequence, KeyedIterable.prototype);
 
 class LazySetSequence extends LazySequence {
   constructor(value) {
-    return arguments.length === 0 ?
-      emptySequence().toSetSeq() :
-      SetIterable(value).toSeq();
+    return SetIterable.apply(this, arguments).toSeq();
   }
 
   static empty() {
@@ -876,9 +879,7 @@ mixin(LazySetSequence, SetIterable.prototype);
 
 class LazyIndexedSequence extends LazySequence {
   constructor(value) {
-    return arguments.length === 0 ?
-      emptySequence() :
-      IndexedIterable(value).toSeq();
+    return IndexedIterable.apply(this, arguments).toSeq();
   }
 
   static empty() {
@@ -1515,6 +1516,12 @@ function validateEntry(entry) {
   }
 }
 
+function iterableClass(iterable) {
+  return isKeyed(iterable) ? KeyedIterable :
+    isIndexed(iterable) ? IndexedIterable :
+    SetIterable;
+}
+
 function makeSequence(iterable) {
   return Object.create(
     (
@@ -1864,16 +1871,26 @@ function skipWhileFactory(iterable, predicate, context, useKeys) {
 }
 
 function concatFactory(iterable, values, useKeys) {
-  var iterables = [iterable].concat(values);
-  var concatSequence = LazyIndexedSequence(iterables);
-  if (useKeys) {
-    concatSequence = concatSequence.toKeyedSeq();
+  var isKeyedIter = isKeyed(iterable);
+  var iters = new ArraySequence([iterable].concat(values)).map(v => {
+    if (!isIterable(v)) {
+      v = seqFromValue(v, true);
+    }
+    if (isKeyedIter) {
+      v = KeyedIterable(v);
+    }
+    return v;
+  });
+  if (isKeyedIter) {
+    iters = iters.toKeyedSeq();
+  } else if (!isIndexed(iterable)) {
+    iters = iters.toSetSeq();
   }
-  concatSequence = concatSequence.flatMap(valueMapper);
-  concatSequence.size = iterables.reduce(
+  var flat = iters.flatten(true);
+  flat.size = iters.reduce(
     (sum, seq) => {
       if (sum !== undefined) {
-        var size = Iterable(seq).size;
+        var size = seq.size;
         if (size !== undefined) {
           return sum + size;
         }
@@ -1881,7 +1898,7 @@ function concatFactory(iterable, values, useKeys) {
     },
     0
   );
-  return concatSequence;
+  return flat;
 }
 
 function flattenFactory(iterable, depth, useKeys) {
