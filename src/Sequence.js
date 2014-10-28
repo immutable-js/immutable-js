@@ -909,14 +909,6 @@ class Collection extends Iterable {
   constructor() {
     throw TypeError('Abstract');
   }
-
-  static empty() {
-    return this(emptySequence());
-  }
-
-  static of(/*...values*/) {
-    return this(arguments);
-  }
 }
 
 class KeyedCollection extends Collection {}

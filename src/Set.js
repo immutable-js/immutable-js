@@ -30,6 +30,10 @@ class Set extends SetCollection {
     return EMPTY_SET || (EMPTY_SET = makeSet(Map.empty()));
   }
 
+  static of(/*...values*/) {
+    return this(arguments);
+  }
+
   static fromKeys(seqable) {
     return Set(Iterable(seqable).flip());
   }

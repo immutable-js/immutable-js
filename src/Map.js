@@ -37,6 +37,10 @@ class Map extends KeyedCollection {
     return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
   }
 
+  static of(/*...values*/) {
+    return this(arguments);
+  }
+
   toString() {
     return this.__toString('Map {', '}');
   }

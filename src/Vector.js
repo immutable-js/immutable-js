@@ -52,6 +52,10 @@ class Vector extends IndexedCollection {
     return EMPTY_VECT || (EMPTY_VECT = makeVector(0, 0, SHIFT));
   }
 
+  static of(/*...values*/) {
+    return this(arguments);
+  }
+
   toString() {
     return this.__toString('Vector [', ']');
   }

@@ -31,6 +31,10 @@ class Stack extends IndexedCollection {
     return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
   }
 
+  static of(/*...values*/) {
+    return this(arguments);
+  }
+
   toString() {
     return this.__toString('Stack [', ']');
   }

@@ -30,6 +30,10 @@ class OrderedMap extends Map {
     return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(Map.empty(), Vector.empty()));
   }
 
+  static of(/*...values*/) {
+    return this(arguments);
+  }
+
   toString() {
     return this.__toString('OrderedMap {', '}');
   }

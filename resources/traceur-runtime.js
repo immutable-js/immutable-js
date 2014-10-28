@@ -11,9 +11,6 @@ function createClass(ctor, methods, staticMethods, superClass) {
   $Object.keys(methods).forEach(function (key) {
     proto[key] = methods[key];
   });
-  superClass && $Object.keys(superClass).forEach(function (key) {
-    ctor[key] = superClass[key];
-  });
   $Object.keys(staticMethods).forEach(function (key) {
     ctor[key] = staticMethods[key];
   });

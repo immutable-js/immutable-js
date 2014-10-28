@@ -20,9 +20,6 @@ function createClass(ctor, methods, staticMethods, superClass) {
   $Object.keys(methods).forEach(function (key) {
     proto[key] = methods[key];
   });
-  superClass && $Object.keys(superClass).forEach(function (key) {
-    ctor[key] = superClass[key];
-  });
   $Object.keys(staticMethods).forEach(function (key) {
     ctor[key] = staticMethods[key];
   });
@@ -911,14 +908,7 @@ function isLazy(maybeLazy) {
 var Collection = function Collection() {
   throw TypeError('Abstract');
 };
-($traceurRuntime.createClass)(Collection, {}, {
-  empty: function() {
-    return this(emptySequence());
-  },
-  of: function() {
-    return this(arguments);
-  }
-}, Iterable);
+($traceurRuntime.createClass)(Collection, {}, {}, Iterable);
 var KeyedCollection = function KeyedCollection() {
   $traceurRuntime.defaultSuperCall(this, $KeyedCollection.prototype, arguments);
 };
@@ -1937,9 +1927,14 @@ var $Map = Map;
     }
     return makeMap(this.size, this._root, ownerID, this.__hash);
   }
-}, {empty: function() {
+}, {
+  empty: function() {
     return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
-  }}, KeyedCollection);
+  },
+  of: function() {
+    return this(arguments);
+  }
+}, KeyedCollection);
 var MapPrototype = Map.prototype;
 MapPrototype[DELETE] = MapPrototype.remove;
 var BitmapIndexedNode = function BitmapIndexedNode(ownerID, bitmap, nodes) {
@@ -2499,9 +2494,14 @@ var $Vector = Vector;
     }
     return makeVector(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
   }
-}, {empty: function() {
+}, {
+  empty: function() {
     return EMPTY_VECT || (EMPTY_VECT = makeVector(0, 0, SHIFT));
-  }}, IndexedCollection);
+  },
+  of: function() {
+    return this(arguments);
+  }
+}, IndexedCollection);
 var VectorPrototype = Vector.prototype;
 VectorPrototype[DELETE] = VectorPrototype.remove;
 VectorPrototype.setIn = MapPrototype.setIn;
@@ -3011,9 +3011,14 @@ var $Stack = Stack;
       return iteratorDone();
     }));
   }
-}, {empty: function() {
+}, {
+  empty: function() {
     return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
-  }}, IndexedCollection);
+  },
+  of: function() {
+    return this(arguments);
+  }
+}, IndexedCollection);
 var StackPrototype = Stack.prototype;
 StackPrototype.withMutations = MapPrototype.withMutations;
 StackPrototype.asMutable = MapPrototype.asMutable;
@@ -3160,6 +3165,9 @@ var $Set = Set;
   empty: function() {
     return EMPTY_SET || (EMPTY_SET = makeSet(Map.empty()));
   },
+  of: function() {
+    return this(arguments);
+  },
   fromKeys: function(seqable) {
     return $Set(Iterable(seqable).flip());
   }
@@ -3235,9 +3243,14 @@ var $OrderedMap = OrderedMap;
     }
     return makeOrderedMap(newMap, newVector, ownerID, this.__hash);
   }
-}, {empty: function() {
+}, {
+  empty: function() {
     return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(Map.empty(), Vector.empty()));
-  }}, Map);
+  },
+  of: function() {
+    return this(arguments);
+  }
+}, Map);
 OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
 function makeOrderedMap(map, vector, ownerID, hash) {
   var omap = Object.create(OrderedMap.prototype);
