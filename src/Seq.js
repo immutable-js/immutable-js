@@ -71,10 +71,6 @@ class KeyedSeq extends Seq {
     return isKeyed(value) ? value.toSeq() : value.fromEntrySeq();
   }
 
-  static empty() {
-    return KeyedSeq();
-  }
-
   static of(/*...values*/) {
     return KeyedSeq(arguments);
   }
@@ -96,10 +92,6 @@ class SetSeq extends Seq {
     ).toSetSeq();
   }
 
-  static empty() {
-    return SetSeq();
-  }
-
   static of(/*...values*/) {
     return SetSeq(arguments);
   }
@@ -115,10 +107,6 @@ class IndexedSeq extends Seq {
     return arguments.length === 0 ? emptySequence() : (
       isIterable(value) ? value : seqFromValue(value, false)
     ).toIndexedSeq();
-  }
-
-  static empty() {
-    return IndexedSeq();
   }
 
   static of(/*...values*/) {
@@ -144,7 +132,6 @@ class IndexedSeq extends Seq {
 mixin(IndexedSeq, IndexedIterable.prototype);
 
 
-Seq.empty = emptySequence;
 Seq.isSeq = isSeq;
 Seq.Keyed = KeyedSeq;
 Seq.Set = SetSeq;

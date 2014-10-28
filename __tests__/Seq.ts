@@ -31,13 +31,6 @@ describe('Seq', () => {
     expect(Immutable.Seq(new Foo()).size).toBe(2);
   });
 
-  it('empty returns an empty Seq.', () => {
-    var e1 = Immutable.Seq.empty();
-    var e2 = Immutable.Seq.empty();
-    expect(e1.size).toBe(0);
-    expect(e1).toBe(e2);
-  });
-
   it('of accepts varargs', () => {
     expect(Immutable.Seq.of(1,2,3).size).toBe(3);
   });

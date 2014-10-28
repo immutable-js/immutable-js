@@ -885,14 +885,9 @@ var $KeyedSeq = KeyedSeq;
   toSeq: function() {
     return this;
   }
-}, {
-  empty: function() {
-    return $KeyedSeq();
-  },
-  of: function() {
+}, {of: function() {
     return $KeyedSeq(arguments);
-  }
-}, Seq);
+  }}, Seq);
 mixin(KeyedSeq, KeyedIterable.prototype);
 var SetSeq = function SetSeq(value) {
   return arguments.length === 0 ? emptySequence().toSetSeq() : (isIterable(value) ? value : seqFromValue(value, false)).toSetSeq();
@@ -900,14 +895,9 @@ var SetSeq = function SetSeq(value) {
 var $SetSeq = SetSeq;
 ($traceurRuntime.createClass)(SetSeq, {toSetSeq: function() {
     return this;
-  }}, {
-  empty: function() {
-    return $SetSeq();
-  },
-  of: function() {
+  }}, {of: function() {
     return $SetSeq(arguments);
-  }
-}, Seq);
+  }}, Seq);
 mixin(SetSeq, SetIterable.prototype);
 var IndexedSeq = function IndexedSeq(value) {
   return arguments.length === 0 ? emptySequence() : (isIterable(value) ? value : seqFromValue(value, false)).toIndexedSeq();
@@ -926,16 +916,10 @@ var $IndexedSeq = IndexedSeq;
   __iterator: function(type, reverse) {
     return seqIterator(this, type, reverse, false);
   }
-}, {
-  empty: function() {
-    return $IndexedSeq();
-  },
-  of: function() {
+}, {of: function() {
     return $IndexedSeq(arguments);
-  }
-}, Seq);
+  }}, Seq);
 mixin(IndexedSeq, IndexedIterable.prototype);
-Seq.empty = emptySequence;
 Seq.isSeq = isSeq;
 Seq.Keyed = KeyedSeq;
 Seq.Set = SetSeq;

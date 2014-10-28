@@ -1002,20 +1002,15 @@ declare module 'immutable' {
 
   export module Seq {
     /**
-     * `Seq.empty()` returns a Lazy Sequence of no values.
-     */
-    function empty<K, V>(): Seq<K, V>;
-
-    /**
-     * Provides a Lazy Indexed Sequence of the values provided.
-     */
-    function of<T>(...values: T[]): IndexedSeq<T>;
-
-    /**
      * True if `maybeSeq` is a Seq, it is not backed by a concrete
      * structure such as Map, List, or Set.
      */
     function isSeq(maybeSeq): boolean;
+
+    /**
+     * Returns a Seq of the values provided. Alias for `IndexedSeq.of()`.
+     */
+    function of<T>(...values: T[]): IndexedSeq<T>;
   }
 
   /**
@@ -1073,11 +1068,6 @@ declare module 'immutable' {
   }
 
 
-  export module KeyedSeq {
-
-    function empty<K, V>(): Seq<K, V>;
-  }
-
   /**
    * Always returns a KeyedSeq, if input is not keyed, expects an
    * iterable of [K, V] tuples.
@@ -1101,8 +1091,9 @@ declare module 'immutable' {
 
   export module SetSeq {
 
-    function empty<T>(): SetSeq<T>;
-
+    /**
+     * Returns a SetSeq of the provided values
+     */
     function of<T>(...values: T[]): SetSeq<T>;
   }
 
@@ -1127,8 +1118,9 @@ declare module 'immutable' {
 
   export module IndexedSeq {
 
-    function empty<T>(): IndexedSeq<T>;
-
+    /**
+     * Provides an IndexedSeq of the values provided.
+     */
     function of<T>(...values: T[]): IndexedSeq<T>;
   }
 
