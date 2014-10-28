@@ -28,10 +28,10 @@ function _fromJSWith(converter, json, key, parentJSON) {
 function _fromJSDefault(json) {
   if (json && typeof json === 'object') {
     if (Array.isArray(json)) {
-      return Iterable.from(json, _fromJSDefault).toVector();
+      return Iterable(json).map(_fromJSDefault).toVector();
     }
     if (json.constructor === Object) {
-      return Iterable.from(json, _fromJSDefault).toMap();
+      return Iterable(json).map(_fromJSDefault).toMap();
     }
   }
   return json;

@@ -64,7 +64,9 @@ describe('IterableSequence', () => {
   it('can be mapped and filtered', () => {
     var mockFn = jest.genMockFunction();
     var i = new SimpleIterable(undefined, mockFn); // infinite
-    var seq = Immutable.LazySequence(i).filter(x => x % 2 === 1).map(x => x * x);
+    var seq = Immutable.LazySequence<number, number>(i)
+      .filter(x => x % 2 === 1)
+      .map(x => x * x);
     var entries = seq.entries();
     expect(entries.next()).toEqual({ value: [0, 1], done: false });
     expect(entries.next()).toEqual({ value: [1, 9], done: false });

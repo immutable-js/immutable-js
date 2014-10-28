@@ -176,7 +176,7 @@ results, these operations are extremely efficient.
 
 ```javascript
 var myObject = {a:1,b:2,c:3};
-Sequence.from(myObject).map(x => x * x).toObject();
+Sequence(myObject).map(x => x * x).toObject();
 // { a: 1, b: 4, c: 9 }
 ```
 

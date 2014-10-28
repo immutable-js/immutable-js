@@ -59,7 +59,7 @@ class Iterable {
   toMap() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);
-    return Map.from(this.toKeyedSeq());
+    return Map(this.toKeyedSeq());
   }
 
   toObject() {
@@ -72,13 +72,13 @@ class Iterable {
   toOrderedMap() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);
-    return OrderedMap.from(this.toKeyedSeq());
+    return OrderedMap(this.toKeyedSeq());
   }
 
   toSet() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);
-    return Set.from(this);
+    return Set(this);
   }
 
   toSetSeq() {
@@ -94,13 +94,13 @@ class Iterable {
   toStack() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);
-    return Stack.from(this);
+    return Stack(this);
   }
 
   toVector() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);
-    return Vector.from(this);
+    return Vector(this);
   }
 
 
@@ -556,10 +556,6 @@ class KeyedIterable extends Iterable {
     return isKeyed(seqable) ? seqable : seqable.fromEntrySeq();
   }
 
-  static from(seqable/*[, mapFn[, context]]*/) {
-    return KeyedIterable(iteratorFrom.apply(this, arguments));
-  }
-
 
   // ### More sequential methods
 
@@ -605,10 +601,6 @@ class SetIterable extends Iterable {
     ).toSetSeq();
   }
 
-  static from(seqable/*[, mapFn[, context]]*/) {
-    return SetIterable(iteratorFrom.apply(this, arguments));
-  }
-
 
   // ### ES6 Collection methods (ES6 Array and Map)
 
@@ -640,10 +632,6 @@ class IndexedIterable extends Iterable {
       isIndexed(seqable) ? seqable : (
         isIterable(seqable) ? seqable : seqFromValue(seqable, false)
       ).toIndexedSeq();
-  }
-
-  static from(seqable/*[, mapFn[, context]]*/) {
-    return IndexedIterable(iteratorFrom.apply(this, arguments));
   }
 
 
@@ -799,12 +787,8 @@ class LazySequence extends Iterable {
     return Iterable.apply(this, arguments).toSeq();
   }
 
-  static from(seqable/*[, mapFn[, context]]*/) {
-    return iteratorFrom.apply(this, arguments).toSeq();
-  }
-
   static of(/*...values*/) {
-    return this.from(arguments);
+    return LazySequence(arguments);
   }
 
   toSeq() {
@@ -844,8 +828,8 @@ class LazyKeyedSequence extends LazySequence {
     return LazyKeyedSequence();
   }
 
-  static from(seqable/*[, mapFn[, context]]*/) {
-    return LazyKeyedSequence(iteratorFrom.apply(this, arguments));
+  static of(/*...values*/) {
+    return LazyKeyedSequence(arguments);
   }
 
   toKeyedSeq() {
@@ -867,8 +851,8 @@ class LazySetSequence extends LazySequence {
     return LazySetSequence();
   }
 
-  static from(seqable/*[, mapFn[, context]]*/) {
-    return LazySetSequence(iteratorFrom.apply(this, arguments));
+  static of(/*...values*/) {
+    return LazySetSequence(arguments);
   }
 
   toSetSeq() {
@@ -886,8 +870,8 @@ class LazyIndexedSequence extends LazySequence {
     return LazyIndexedSequence();
   }
 
-  static from(seqable/*[, mapFn[, context]]*/) {
-    return LazyIndexedSequence(iteratorFrom.apply(this, arguments));
+  static of(/*...values*/) {
+    return LazyIndexedSequence(arguments);
   }
 
   toIndexedSeq() {
@@ -937,25 +921,13 @@ class Collection extends Iterable {
   }
 }
 
-class KeyedCollection extends Collection {
-  static from(seqable/*[, mapFn[, context]]*/) {
-    return this(LazyKeyedSequence.from.apply(this, arguments));
-  }
-}
+class KeyedCollection extends Collection {}
 mixin(KeyedCollection, KeyedIterable.prototype);
 
-class SetCollection extends Collection {
-  static from(seqable/*[, mapFn[, context]]*/) {
-    return this(LazySetSequence.from.apply(this, arguments));
-  }
-}
+class SetCollection extends Collection {}
 mixin(SetCollection, SetIterable.prototype);
 
-class IndexedCollection extends Collection {
-  static from(seqable/*[, mapFn[, context]]*/) {
-    return this(LazyIndexedSequence.from.apply(this, arguments));
-  }
-}
+class IndexedCollection extends Collection {}
 mixin(IndexedCollection, IndexedIterable.prototype);
 
 
@@ -989,18 +961,6 @@ function emptySequence() {
   return EMPTY_SEQ || (EMPTY_SEQ = new ArraySequence([]));
 }
 
-function iteratorFrom(iterLike/*[, mapFn[, context]]*/) {
-  var iter = isIterable(iterLike) ? iterLike : seqFromValue(iterLike, false);
-  if (arguments.length > 1) {
-    iter = iter.map(
-      arguments[1],
-      arguments.length > 2 ? arguments[2] : undefined
-    );
-  }
-  return iter;
-}
-
-Iterable.from = iteratorFrom;
 Iterable.isIterable = isIterable;
 Iterable.isKeyed = isKeyed;
 Iterable.isIndexed = isIndexed;
@@ -1190,7 +1150,7 @@ class ArraySequence extends LazyIndexedSequence {
 // #pragma Helper functions
 
 function reify(kind, seq) {
-  return isLazy(kind) ? seq : kind.constructor.from(seq);
+  return isLazy(kind) ? seq : kind.constructor(seq);
 }
 
 function seqFromValue(value, maybeSingleton) {

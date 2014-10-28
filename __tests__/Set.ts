@@ -24,7 +24,7 @@ describe('Set', () => {
   })
 
   it('converts from array of values', () => {
-    var s = Set.from([1,2,3]);
+    var s = Set([1,2,3]);
     expect(s.has(1)).toBe(true);
     expect(s.has(2)).toBe(true);
     expect(s.has(3)).toBe(true);
@@ -33,7 +33,7 @@ describe('Set', () => {
 
   it('converts from sequence of values', () => {
     var seq = Immutable.LazySequence.of(1,2,3);
-    var s = Set.from(seq);
+    var s = Set(seq);
     expect(s.has(1)).toBe(true);
     expect(s.has(2)).toBe(true);
     expect(s.has(3)).toBe(true);

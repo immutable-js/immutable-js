@@ -25,7 +25,7 @@ describe('IndexedSequence', () => {
   });
 
   it('reverses correctly', () => {
-    var seq = Immutable.LazySequence.from(['A', 'B', 'C', 'D', 'E']);
+    var seq = Immutable.LazySequence(['A', 'B', 'C', 'D', 'E']);
 
     // This is what we expect for IndexedSequences
     var operated = seq.reverse();

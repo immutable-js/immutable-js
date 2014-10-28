@@ -278,7 +278,7 @@ var $Iterable = Iterable;
   },
   toMap: function() {
     assertNotInfinite(this.size);
-    return Map.from(this.toKeyedSeq());
+    return Map(this.toKeyedSeq());
   },
   toObject: function() {
     assertNotInfinite(this.size);
@@ -290,11 +290,11 @@ var $Iterable = Iterable;
   },
   toOrderedMap: function() {
     assertNotInfinite(this.size);
-    return OrderedMap.from(this.toKeyedSeq());
+    return OrderedMap(this.toKeyedSeq());
   },
   toSet: function() {
     assertNotInfinite(this.size);
-    return Set.from(this);
+    return Set(this);
   },
   toSetSeq: function() {
     return new ToSetSequence(this, true);
@@ -304,11 +304,11 @@ var $Iterable = Iterable;
   },
   toStack: function() {
     assertNotInfinite(this.size);
-    return Stack.from(this);
+    return Stack(this);
   },
   toVector: function() {
     assertNotInfinite(this.size);
-    return Vector.from(this);
+    return Vector(this);
   },
   toString: function() {
     return this.__toString('Seq {', '}');
@@ -663,7 +663,6 @@ var KeyedIterable = function KeyedIterable(seqable) {
   }
   return isKeyed(seqable) ? seqable : seqable.fromEntrySeq();
 };
-var $KeyedIterable = KeyedIterable;
 ($traceurRuntime.createClass)(KeyedIterable, {
   flip: function() {
     return reify(this, flipFactory(this));
@@ -681,9 +680,7 @@ var $KeyedIterable = KeyedIterable;
       return mapper.call(context, k, v, $__0);
     })).flip());
   }
-}, {from: function(seqable) {
-    return $KeyedIterable(iteratorFrom.apply(this, arguments));
-  }}, Iterable);
+}, {}, Iterable);
 var KeyedIterablePrototype = KeyedIterable.prototype;
 KeyedIterablePrototype[IS_KEYED_SENTINEL] = true;
 KeyedIterablePrototype[ITERATOR_SYMBOL] = IterablePrototype.entries;
@@ -698,7 +695,6 @@ var SetIterable = function SetIterable(seqable) {
   var isIter = isIterable(seqable);
   return isIter && !isAssociative(seqable) ? seqable : (isIter ? seqable : seqFromValue(seqable, false)).toSetSeq();
 };
-var $SetIterable = SetIterable;
 ($traceurRuntime.createClass)(SetIterable, {
   get: function(value, notSetValue) {
     return this.has(value) ? value : notSetValue;
@@ -709,15 +705,12 @@ var $SetIterable = SetIterable;
   keySeq: function() {
     return this.valueSeq();
   }
-}, {from: function(seqable) {
-    return $SetIterable(iteratorFrom.apply(this, arguments));
-  }}, Iterable);
+}, {}, Iterable);
 var SetIterablePrototype = SetIterable.prototype;
 SetIterablePrototype.has = IterablePrototype.contains;
 var IndexedIterable = function IndexedIterable(seqable) {
   return arguments.length === 0 ? emptySequence() : isIndexed(seqable) ? seqable : (isIterable(seqable) ? seqable : seqFromValue(seqable, false)).toIndexedSeq();
 };
-var $IndexedIterable = IndexedIterable;
 ($traceurRuntime.createClass)(IndexedIterable, {
   toKeyedSeq: function() {
     return new ToKeyedSequence(this, false);
@@ -819,14 +812,13 @@ var $IndexedIterable = IndexedIterable;
     }
     return reify(this, takeSeq);
   }
-}, {from: function(seqable) {
-    return $IndexedIterable(iteratorFrom.apply(this, arguments));
-  }}, Iterable);
+}, {}, Iterable);
 var IndexedIterablePrototype = IndexedIterable.prototype;
 IndexedIterablePrototype[IS_INDEXED_SENTINEL] = true;
 var LazySequence = function LazySequence(value) {
   return Iterable.apply(this, arguments).toSeq();
 };
+var $LazySequence = LazySequence;
 ($traceurRuntime.createClass)(LazySequence, {
   toSeq: function() {
     return this;
@@ -847,14 +839,9 @@ var LazySequence = function LazySequence(value) {
   __iterator: function(type, reverse) {
     return iterator(this, type, reverse, true);
   }
-}, {
-  from: function(seqable) {
-    return iteratorFrom.apply(this, arguments).toSeq();
-  },
-  of: function() {
-    return this.from(arguments);
-  }
-}, Iterable);
+}, {of: function() {
+    return $LazySequence(arguments);
+  }}, Iterable);
 var LazyKeyedSequence = function LazyKeyedSequence(value) {
   return KeyedIterable.apply(this, arguments).toSeq();
 };
@@ -870,8 +857,8 @@ var $LazyKeyedSequence = LazyKeyedSequence;
   empty: function() {
     return $LazyKeyedSequence();
   },
-  from: function(seqable) {
-    return $LazyKeyedSequence(iteratorFrom.apply(this, arguments));
+  of: function() {
+    return $LazyKeyedSequence(arguments);
   }
 }, LazySequence);
 mixin(LazyKeyedSequence, KeyedIterable.prototype);
@@ -885,8 +872,8 @@ var $LazySetSequence = LazySetSequence;
   empty: function() {
     return $LazySetSequence();
   },
-  from: function(seqable) {
-    return $LazySetSequence(iteratorFrom.apply(this, arguments));
+  of: function() {
+    return $LazySetSequence(arguments);
   }
 }, LazySequence);
 mixin(LazySetSequence, SetIterable.prototype);
@@ -908,8 +895,8 @@ var $LazyIndexedSequence = LazyIndexedSequence;
   empty: function() {
     return $LazyIndexedSequence();
   },
-  from: function(seqable) {
-    return $LazyIndexedSequence(iteratorFrom.apply(this, arguments));
+  of: function() {
+    return $LazyIndexedSequence(arguments);
   }
 }, LazySequence);
 mixin(LazyIndexedSequence, IndexedIterable.prototype);
@@ -938,25 +925,19 @@ var KeyedCollection = function KeyedCollection() {
   $traceurRuntime.defaultSuperCall(this, $KeyedCollection.prototype, arguments);
 };
 var $KeyedCollection = KeyedCollection;
-($traceurRuntime.createClass)(KeyedCollection, {}, {from: function(seqable) {
-    return this(LazyKeyedSequence.from.apply(this, arguments));
-  }}, Collection);
+($traceurRuntime.createClass)(KeyedCollection, {}, {}, Collection);
 mixin(KeyedCollection, KeyedIterable.prototype);
 var SetCollection = function SetCollection() {
   $traceurRuntime.defaultSuperCall(this, $SetCollection.prototype, arguments);
 };
 var $SetCollection = SetCollection;
-($traceurRuntime.createClass)(SetCollection, {}, {from: function(seqable) {
-    return this(LazySetSequence.from.apply(this, arguments));
-  }}, Collection);
+($traceurRuntime.createClass)(SetCollection, {}, {}, Collection);
 mixin(SetCollection, SetIterable.prototype);
 var IndexedCollection = function IndexedCollection() {
   $traceurRuntime.defaultSuperCall(this, $IndexedCollection.prototype, arguments);
 };
 var $IndexedCollection = IndexedCollection;
-($traceurRuntime.createClass)(IndexedCollection, {}, {from: function(seqable) {
-    return this(LazyIndexedSequence.from.apply(this, arguments));
-  }}, Collection);
+($traceurRuntime.createClass)(IndexedCollection, {}, {}, Collection);
 mixin(IndexedCollection, IndexedIterable.prototype);
 Collection.Keyed = KeyedCollection;
 Collection.Set = SetCollection;
@@ -977,14 +958,6 @@ var EMPTY_SEQ;
 function emptySequence() {
   return EMPTY_SEQ || (EMPTY_SEQ = new ArraySequence([]));
 }
-function iteratorFrom(iterLike) {
-  var iter = isIterable(iterLike) ? iterLike : seqFromValue(iterLike, false);
-  if (arguments.length > 1) {
-    iter = iter.map(arguments[1], arguments.length > 2 ? arguments[2] : undefined);
-  }
-  return iter;
-}
-Iterable.from = iteratorFrom;
 Iterable.isIterable = isIterable;
 Iterable.isKeyed = isKeyed;
 Iterable.isIndexed = isIndexed;
@@ -1143,7 +1116,7 @@ var ArraySequence = function ArraySequence(array) {
   }
 }, {}, LazyIndexedSequence);
 function reify(kind, seq) {
-  return isLazy(kind) ? seq : kind.constructor.from(seq);
+  return isLazy(kind) ? seq : kind.constructor(seq);
 }
 function seqFromValue(value, maybeSingleton) {
   var seq = maybeSingleton && typeof value === 'string' ? new ArraySequence([value]) : isArrayLike(value) ? new ArraySequence(value) : isIterator(value) ? new IteratorSequence(value) : hasIterator(value) ? new IterableSequence(value) : (maybeSingleton ? isPlainObj(value) : typeof value === 'object') ? new ObjectSequence(value) : maybeSingleton ? new ArraySequence([value]) : undefined;
@@ -2393,7 +2366,25 @@ var MAX_BITMAP_SIZE = SIZE / 2;
 var MIN_ARRAY_SIZE = SIZE / 4;
 var EMPTY_MAP;
 var Vector = function Vector(seqable) {
-  return arguments.length === 0 ? $Vector.empty() : $Vector.from(seqable);
+  var empty = $Vector.empty();
+  if (arguments.length === 0) {
+    return empty;
+  }
+  if (seqable && seqable.constructor === $Vector) {
+    return seqable;
+  }
+  var isArray = Array.isArray(seqable);
+  if (!isArray) {
+    seqable = Iterable(seqable);
+  }
+  var size = isArray ? seqable.length : seqable.size;
+  if (size === 0) {
+    return empty;
+  }
+  if (size > 0 && size < SIZE) {
+    return makeVector(0, size, SHIFT, null, new VNode(isArray ? arrCopy(seqable) : seqable.toArray()));
+  }
+  return empty.merge(seqable);
 };
 var $Vector = Vector;
 ($traceurRuntime.createClass)(Vector, {
@@ -2509,28 +2500,9 @@ var $Vector = Vector;
     }
     return makeVector(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
   }
-}, {
-  empty: function() {
+}, {empty: function() {
     return EMPTY_VECT || (EMPTY_VECT = makeVector(0, 0, SHIFT));
-  },
-  from: function(seqable) {
-    if (seqable && seqable.constructor === $Vector) {
-      return seqable;
-    }
-    var isArray = Array.isArray(seqable);
-    if (!isArray) {
-      seqable = Iterable.from(seqable);
-    }
-    var size = isArray ? seqable.length : seqable.size;
-    if (size === 0) {
-      return $Vector.empty();
-    }
-    if (size > 0 && size < SIZE) {
-      return makeVector(0, size, SHIFT, null, new VNode(isArray ? arrCopy(seqable) : seqable.toArray()));
-    }
-    return $Vector.empty().merge(seqable);
-  }
-}, IndexedCollection);
+  }}, IndexedCollection);
 var VectorPrototype = Vector.prototype;
 VectorPrototype[DELETE] = VectorPrototype.remove;
 VectorPrototype.setIn = MapPrototype.setIn;
@@ -3611,10 +3583,10 @@ function _fromJSWith(converter, json, key, parentJSON) {
 function _fromJSDefault(json) {
   if (json && typeof json === 'object') {
     if (Array.isArray(json)) {
-      return Iterable.from(json, _fromJSDefault).toVector();
+      return Iterable(json).map(_fromJSDefault).toVector();
     }
     if (json.constructor === Object) {
-      return Iterable.from(json, _fromJSDefault).toMap();
+      return Iterable(json).map(_fromJSDefault).toMap();
     }
   }
   return json;

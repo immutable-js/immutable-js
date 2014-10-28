@@ -29,7 +29,7 @@ describe('splice', () => {
   it('has the same behavior as array splice in known edge cases', () => {
     // arbitary numbers that sum to 31
     var a = I.Range(0, 49).toArray();
-    var v = Vector.from(a);
+    var v = Vector(a);
     a.splice(-18, 0, 0);
     expect(v.splice(-18, 0, 0).toVector().toArray()).toEqual(a);
   })
@@ -37,7 +37,7 @@ describe('splice', () => {
   check.it('has the same behavior as array splice',
            [gen.array(gen.int), gen.array(gen.oneOf([gen.int, gen.undefined]))],
            (values, args) => {
-    var v = Vector.from(values);
+    var v = Vector(values);
     var a = values.slice(); // clone
     var splicedV = v.splice.apply(v, args); // persistent
     a.splice.apply(a, args); // mutative

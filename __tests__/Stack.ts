@@ -32,19 +32,19 @@ describe('Stack', () => {
   });
 
   it('from consumes a JS array', () => {
-    var s = Stack.from(['a', 'b', 'c']);
+    var s = Stack(['a', 'b', 'c']);
     expect(s.toArray()).toEqual(['a', 'b', 'c']);
   });
 
   it('from consumes a LazySequence', () => {
     var seq = Immutable.LazySequence(['a', 'b', 'c']);
-    var s = Stack.from(seq);
+    var s = Stack(seq);
     expect(s.toArray()).toEqual(['a', 'b', 'c']);
   });
 
   it('from consumes a non-indexed LazySequence', () => {
     var seq = Immutable.LazySequence({a:null, b:null, c:null}).flip();
-    var s = Stack.from(seq);
+    var s = Stack(seq);
     expect(s.toArray()).toEqual(['a', 'b', 'c']);
   });
 
@@ -108,7 +108,7 @@ describe('Stack', () => {
   check.it('shift removes the lowest index, just like array', {maxSize: 2000},
     [gen.posInt], len => {
       var a = arrayOfSize(len);
-      var s = Stack.from(a);
+      var s = Stack(a);
 
       while (a.length) {
         expect(s.size).toBe(a.length);
@@ -142,7 +142,7 @@ describe('Stack', () => {
       var a1 = arrayOfSize(size1);
       var a2 = arrayOfSize(size2);
 
-      var s1 = Stack.from(a1);
+      var s1 = Stack(a1);
       var s3 = s1.unshift.apply(s1, a2);
 
       var a3 = a1.slice();

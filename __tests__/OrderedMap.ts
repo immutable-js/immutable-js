@@ -9,7 +9,7 @@ import OrderedMap = Immutable.OrderedMap;
 describe('OrderedMap', () => {
 
   it('converts from object', () => {
-    var m = OrderedMap.from({'c': 'C', 'b': 'B', 'a': 'A'});
+    var m = OrderedMap({'c': 'C', 'b': 'B', 'a': 'A'});
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');

@@ -12,7 +12,7 @@ import Map = Immutable.Map;
 describe('Map', () => {
 
   it('converts from object', () => {
-    var m = Map.from({'a': 'A', 'b': 'B', 'c': 'C'});
+    var m = Map({'a': 'A', 'b': 'B', 'c': 'C'});
     expect(m.size).toBe(3);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
@@ -58,7 +58,7 @@ describe('Map', () => {
 
   it('from does not accept a scalar', () => {
     expect(() => {
-      Map.from(3);
+      Map(3);
     }).toThrow('Expected iterable: 3');
   });
 
@@ -70,7 +70,7 @@ describe('Map', () => {
 
   it('from does not accept a non-entries array', () => {
     expect(() => {
-      Map.from([1,2,3]);
+      Map([1,2,3]);
     }).toThrow('Expected [K, V] tuple: 1');
   });
 
@@ -227,7 +227,7 @@ describe('Map', () => {
   });
 
   check.it('works like an object', {maxSize: 50}, [gen.object(gen.JSONPrimitive)], obj => {
-    var map = Immutable.Map.from(obj);
+    var map = Immutable.Map(obj);
     Object.keys(obj).forEach(key => {
       expect(map.get(key)).toBe(obj[key]);
       expect(map.has(key)).toBe(true);

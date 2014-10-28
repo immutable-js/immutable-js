@@ -39,24 +39,24 @@ describe('Vector', () => {
 
   it('from does not accept a scalar', () => {
     expect(() => {
-      Immutable.Vector.from(3);
+      Immutable.Vector(3);
     }).toThrow('Expected iterable: 3');
   });
 
   it('from consumes a JS array', () => {
-    var v = Vector.from(['a', 'b', 'c']);
+    var v = Vector(['a', 'b', 'c']);
     expect(v.toArray()).toEqual(['a', 'b', 'c']);
   });
 
   it('from consumes a LazySequence', () => {
     var seq = Immutable.LazySequence(['a', 'b', 'c']);
-    var v = Vector.from(seq);
+    var v = Vector(seq);
     expect(v.toArray()).toEqual(['a', 'b', 'c']);
   });
 
   it('from consumes a non-indexed LazySequence', () => {
     var seq = Immutable.LazySequence({a:null, b:null, c:null}).flip();
-    var v = Vector.from(seq);
+    var v = Vector(seq);
     expect(v.toArray()).toEqual(['a', 'b', 'c']);
   });
 
@@ -223,7 +223,7 @@ describe('Vector', () => {
       var a1 = arrayOfSize(s1);
       var a2 = arrayOfSize(s2);
 
-      var v1 = Vector.from(a1);
+      var v1 = Vector(a1);
       var v3 = v1.push.apply(v1, a2);
 
       var a3 = a1.slice();
@@ -252,7 +252,7 @@ describe('Vector', () => {
   check.it('pop removes the highest index, just like array', {maxSize: 2000},
     [gen.posInt], len => {
       var a = arrayOfSize(len);
-      var v = Vector.from(a);
+      var v = Vector(a);
 
       while (a.length) {
         expect(v.size).toBe(a.length);
@@ -321,7 +321,7 @@ describe('Vector', () => {
       var a1 = arrayOfSize(s1);
       var a2 = arrayOfSize(s2);
 
-      var v1 = Vector.from(a1);
+      var v1 = Vector(a1);
       var v3 = v1.unshift.apply(v1, a2);
 
       var a3 = a1.slice();
@@ -402,8 +402,8 @@ describe('Vector', () => {
   it('ensures equality', () => {
     // Make a sufficiently long vector.
     var a = Array(100).join('abcdefghijklmnopqrstuvwxyz').split('');
-    var v1 = Vector.from(a);
-    var v2 = Vector.from(a);
+    var v1 = Vector(a);
+    var v2 = Vector(a);
     expect(v1 == v2).not.toBe(true);
     expect(v1 === v2).not.toBe(true);
     expect(v1.equals(v2)).toBe(true);

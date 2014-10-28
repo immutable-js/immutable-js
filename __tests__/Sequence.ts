@@ -44,11 +44,11 @@ describe('LazySequence', () => {
 
   it('from accepts another sequence', () => {
     var seq = Immutable.LazySequence.of(1,2,3);
-    expect(Immutable.LazySequence.from(seq).size).toBe(3);
+    expect(Immutable.LazySequence(seq).size).toBe(3);
   });
 
   it('from accepts a string', () => {
-    var seq = Immutable.LazySequence.from('abc');
+    var seq = Immutable.LazySequence('abc');
     expect(seq.size).toBe(3);
     expect(seq.get(1)).toBe('b');
     expect(seq.join('')).toBe('abc');
@@ -56,7 +56,7 @@ describe('LazySequence', () => {
 
   it('from accepts an array-like', () => {
     var alike = { length: 2, 0: 'a', 1: 'b' };
-    var seq = Immutable.LazySequence.from(alike);
+    var seq = Immutable.LazySequence(alike);
     expect(Immutable.Iterable.isIndexed(seq)).toBe(true);
     expect(seq.size).toBe(2);
     expect(seq.get(1)).toBe('b');
@@ -64,7 +64,7 @@ describe('LazySequence', () => {
 
   it('from does not accept a scalar', () => {
     expect(() => {
-      Immutable.LazySequence.from(3);
+      Immutable.LazySequence(3);
     }).toThrow('Expected iterable: 3');
   });
 

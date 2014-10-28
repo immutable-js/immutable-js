@@ -93,7 +93,7 @@ describe('slice', () => {
 
   it('has the same behavior as array slice in known edge cases', () => {
     var a = I.Range(0, 33).toArray();
-    var v = Vector.from(a);
+    var v = Vector(a);
     expect(v.slice(31).toVector().toArray()).toEqual(a.slice(31));
   })
 
@@ -101,7 +101,7 @@ describe('slice', () => {
            [gen.int, gen.array(gen.oneOf([gen.int, gen.undefined]), 0, 3)],
            (valuesLen, args) => {
     var a = I.Range(0, valuesLen).toArray();
-    var v = Vector.from(a);
+    var v = Vector(a);
     var slicedV = v.slice.apply(v, args);
     var slicedA = a.slice.apply(a, args);
     expect(slicedV.toArray()).toEqual(slicedA);
@@ -123,7 +123,7 @@ describe('slice', () => {
 
     check.it('takes the first n from a list', [gen.int, gen.posInt], (len, num) => {
       var a = I.Range(0, len).toArray();
-      var v = Vector.from(a);
+      var v = Vector(a);
       expect(v.take(num).toArray()).toEqual(a.slice(0, num));
     })
 
