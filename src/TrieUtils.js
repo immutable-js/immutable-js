@@ -7,8 +7,11 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
+import "invariant"
+/* global invariant */
 /* exported DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER,
-            OwnerID, MakeRef, SetRef, arrCopy */
+            OwnerID, MakeRef, SetRef, arrCopy, assertNotInfinite */
+
 
 // Used for setting prototype methods that IE8 chokes on.
 var DELETE = 'delete';
@@ -49,4 +52,11 @@ function arrCopy(arr, offset) {
     newArr[ii] = arr[ii + offset];
   }
   return newArr;
+}
+
+function assertNotInfinite(size) {
+  invariant(
+    size !== Infinity,
+    'Cannot perform this action with an infinite size.'
+  );
 }

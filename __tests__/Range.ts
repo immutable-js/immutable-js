@@ -39,9 +39,9 @@ describe('Range', () => {
     expect(v.last()).toBe(Infinity);
     expect(v.butLast().first()).toBe(10);
     expect(v.butLast().last()).toBe(Infinity);
-    expect(() => v.rest().toArray()).toThrow('Cannot perform this action with an infinite sequence.');
-    expect(() => v.butLast().toArray()).toThrow('Cannot perform this action with an infinite sequence.');
-    expect(() => v.toArray()).toThrow('Cannot perform this action with an infinite sequence.');
+    expect(() => v.rest().toArray()).toThrow('Cannot perform this action with an infinite size.');
+    expect(() => v.butLast().toArray()).toThrow('Cannot perform this action with an infinite size.');
+    expect(() => v.toArray()).toThrow('Cannot perform this action with an infinite size.');
   });
 
   it('backwards range', () => {

@@ -8,6 +8,8 @@
  */
 
 import "Iterable"
+import "Seq"
+import "Operations" // Break circular dependency
 import "Map"
 import "Vector"
 import "Stack"
