@@ -1170,11 +1170,6 @@ var ToIndexedSequence = function ToIndexedSequence(iter) {
   contains: function(value) {
     return this._iter.contains(value);
   },
-  cacheResult: function() {
-    this._iter.cacheResult();
-    this.size = this._iter.size;
-    return this;
-  },
   __iterate: function(fn, reverse) {
     var $__0 = this;
     var iterations = 0;
@@ -1226,11 +1221,6 @@ var ToKeyedSequence = function ToKeyedSequence(indexed, useKeys) {
     }
     return mappedSequence;
   },
-  cacheResult: function() {
-    this._iter.cacheResult();
-    this.size = this._iter.size;
-    return this;
-  },
   __iterate: function(fn, reverse) {
     var $__0 = this;
     var ii;
@@ -1260,11 +1250,6 @@ var ToSetSequence = function ToSetSequence(iter) {
   has: function(key) {
     return this._iter.contains(key);
   },
-  cacheResult: function() {
-    this._iter.cacheResult();
-    this.size = this._iter.size;
-    return this;
-  },
   __iterate: function(fn, reverse) {
     var $__0 = this;
     return this._iter.__iterate((function(v) {
@@ -1286,11 +1271,6 @@ var FromEntriesSequence = function FromEntriesSequence(entries) {
 ($traceurRuntime.createClass)(FromEntriesSequence, {
   entrySeq: function() {
     return this._iter.toSeq();
-  },
-  cacheResult: function() {
-    this._iter.cacheResult();
-    this.size = this._iter.size;
-    return this;
   },
   __iterate: function(fn, reverse) {
     var $__0 = this;
@@ -1318,8 +1298,10 @@ var FromEntriesSequence = function FromEntriesSequence(entries) {
     }));
   }
 }, {}, LazyKeyedSequence);
+ToIndexedSequence.prototype.cacheResult = ToKeyedSequence.prototype.cacheResult = ToSetSequence.prototype.cacheResult = FromEntriesSequence.prototype.cacheResult = cacheResultThrough;
 function flipFactory(iterable) {
   var flipSequence = makeSequence(iterable);
+  flipSequence._iter = iterable;
   flipSequence.size = iterable.size;
   flipSequence.flip = (function() {
     return iterable;
@@ -1337,6 +1319,7 @@ function flipFactory(iterable) {
   flipSequence.contains = (function(key) {
     return iterable.has(key);
   });
+  flipSequence.cacheResult = cacheResultThrough;
   flipSequence.__iterateUncached = function(fn, reverse) {
     var $__0 = this;
     return iterable.__iterate((function(v, k) {
@@ -1392,6 +1375,7 @@ function mapFactory(iterable, mapper, context) {
 }
 function reverseFactory(iterable, useKeys) {
   var reversedSequence = makeSequence(iterable);
+  reversedSequence._iter = iterable;
   reversedSequence.size = iterable.size;
   reversedSequence.reverse = (function() {
     return iterable;
@@ -1414,11 +1398,7 @@ function reverseFactory(iterable, useKeys) {
   reversedSequence.contains = (function(value) {
     return iterable.contains(value);
   });
-  reversedSequence.cacheResult = function() {
-    iterable.cacheResult();
-    this.size = iterable.size;
-    return this;
-  };
+  reversedSequence.cacheResult = cacheResultThrough;
   reversedSequence.__iterate = function(fn, reverse) {
     var $__0 = this;
     return iterable.__iterate((function(v, k) {
@@ -1778,6 +1758,15 @@ function resolveSize(iter) {
 }
 function makeSequence(iterable) {
   return Object.create((isKeyed(iterable) ? LazyKeyedSequence : isIndexed(iterable) ? LazyIndexedSequence : LazySetSequence).prototype);
+}
+function cacheResultThrough() {
+  if (this._iter.cacheResult) {
+    this._iter.cacheResult();
+    this.size = this._iter.size;
+    return this;
+  } else {
+    return LazySequence.prototype.cacheResult.call(this);
+  }
 }
 var Collection = function Collection() {
   throw TypeError('Abstract');

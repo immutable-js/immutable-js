@@ -16,7 +16,7 @@ import "Seq"
           hash,
           Iterator, iteratorValue, iteratorDone,
           ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES,
-          LazyKeyedSequence, LazySetSequence, LazyIndexedSequence,
+          LazySequence, LazyKeyedSequence, LazySetSequence, LazyIndexedSequence,
           seqFromValue, ArraySequence */
 /* exported ToIndexedSequence, ToKeyedSequence, ToSetSequence,
             FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
@@ -33,12 +33,6 @@ class ToIndexedSequence extends LazyIndexedSequence {
 
   contains(value) {
     return this._iter.contains(value);
-  }
-
-  cacheResult() {
-    this._iter.cacheResult();
-    this.size = this._iter.size;
-    return this;
   }
 
   __iterate(fn, reverse) {
@@ -93,12 +87,6 @@ class ToKeyedSequence extends LazyKeyedSequence {
     return mappedSequence;
   }
 
-  cacheResult() {
-    this._iter.cacheResult();
-    this.size = this._iter.size;
-    return this;
-  }
-
   __iterate(fn, reverse) {
     var ii;
     return this._iter.__iterate(
@@ -135,12 +123,6 @@ class ToSetSequence extends LazySetSequence {
     return this._iter.contains(key);
   }
 
-  cacheResult() {
-    this._iter.cacheResult();
-    this.size = this._iter.size;
-    return this;
-  }
-
   __iterate(fn, reverse) {
     return this._iter.__iterate(v => fn(v, v, this), reverse);
   }
@@ -164,12 +146,6 @@ class FromEntriesSequence extends LazyKeyedSequence {
 
   entrySeq() {
     return this._iter.toSeq();
-  }
-
-  cacheResult() {
-    this._iter.cacheResult();
-    this.size = this._iter.size;
-    return this;
   }
 
   __iterate(fn, reverse) {
@@ -204,9 +180,16 @@ class FromEntriesSequence extends LazyKeyedSequence {
   }
 }
 
+ToIndexedSequence.prototype.cacheResult =
+ToKeyedSequence.prototype.cacheResult =
+ToSetSequence.prototype.cacheResult =
+FromEntriesSequence.prototype.cacheResult =
+  cacheResultThrough;
+
 
 function flipFactory(iterable) {
   var flipSequence = makeSequence(iterable);
+  flipSequence._iter = iterable;
   flipSequence.size = iterable.size;
   flipSequence.flip = () => iterable;
   flipSequence.reverse = function () {
@@ -216,6 +199,7 @@ function flipFactory(iterable) {
   };
   flipSequence.has = key => iterable.contains(key);
   flipSequence.contains = key => iterable.has(key);
+  flipSequence.cacheResult = cacheResultThrough;
   flipSequence.__iterateUncached = function (fn, reverse) {
     return iterable.__iterate((v, k) => fn(k, v, this) !== false, reverse);
   }
@@ -280,6 +264,7 @@ function mapFactory(iterable, mapper, context) {
 
 function reverseFactory(iterable, useKeys) {
   var reversedSequence = makeSequence(iterable);
+  reversedSequence._iter = iterable;
   reversedSequence.size = iterable.size;
   reversedSequence.reverse = () => iterable;
   if (iterable.flip) {
@@ -294,11 +279,7 @@ function reverseFactory(iterable, useKeys) {
   reversedSequence.has = key =>
     iterable.has(useKeys ? key : -1 - key);
   reversedSequence.contains = value => iterable.contains(value);
-  reversedSequence.cacheResult = function () {
-    iterable.cacheResult(); // iterable is a Seq
-    this.size = iterable.size;
-    return this;
-  };
+  reversedSequence.cacheResult = cacheResultThrough;
   reversedSequence.__iterate = function (fn, reverse) {
     return iterable.__iterate((v, k) => fn(v, k, this), !reverse);
   };
@@ -685,4 +666,14 @@ function makeSequence(iterable) {
       LazySetSequence
     ).prototype
   );
+}
+
+function cacheResultThrough() {
+  if (this._iter.cacheResult) {
+    this._iter.cacheResult();
+    this.size = this._iter.size;
+    return this;
+  } else {
+    return LazySequence.prototype.cacheResult.call(this);
+  }
 }
