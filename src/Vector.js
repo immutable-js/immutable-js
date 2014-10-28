@@ -25,28 +25,28 @@ class Vector extends IndexedCollection {
 
   // @pragma Construction
 
-  constructor(seqable) {
+  constructor(value) {
     var empty = Vector.empty();
     if (arguments.length === 0) {
       return empty;
     }
-    if (seqable && seqable.constructor === Vector) {
-      return seqable;
+    if (value && value.constructor === Vector) {
+      return value;
     }
-    var isArray = Array.isArray(seqable);
+    var isArray = Array.isArray(value);
     if (!isArray) {
-      seqable = Iterable(seqable);
+      value = Iterable(value);
     }
-    var size = isArray ? seqable.length : seqable.size;
+    var size = isArray ? value.length : value.size;
     if (size === 0) {
       return empty;
     }
     if (size > 0 && size < SIZE) {
       return makeVector(0, size, SHIFT, null, new VNode(
-        isArray ? arrCopy(seqable) : seqable.toArray()
+        isArray ? arrCopy(value) : value.toArray()
       ));
     }
-    return empty.merge(seqable);
+    return empty.merge(value);
 
   }
 
@@ -133,20 +133,20 @@ class Vector extends IndexedCollection {
 
   // @pragma Composition
 
-  merge(/*...seqs*/) {
+  merge(/*...iters*/) {
     return mergeIntoVectorWith(this, undefined, arguments);
   }
 
-  mergeWith(merger, ...seqs) {
-    return mergeIntoVectorWith(this, merger, seqs);
+  mergeWith(merger, ...iters) {
+    return mergeIntoVectorWith(this, merger, iters);
   }
 
-  mergeDeep(/*...seqs*/) {
+  mergeDeep(/*...iters*/) {
     return mergeIntoVectorWith(this, deepMerger(undefined), arguments);
   }
 
-  mergeDeepWith(merger, ...seqs) {
-    return mergeIntoVectorWith(this, deepMerger(merger), seqs);
+  mergeDeepWith(merger, ...iters) {
+    return mergeIntoVectorWith(this, deepMerger(merger), iters);
   }
 
   setSize(size) {
@@ -611,16 +611,16 @@ function setVectorBounds(vector, begin, end) {
 }
 
 function mergeIntoVectorWith(vector, merger, iterables) {
-  var seqs = [];
+  var iters = [];
   for (var ii = 0; ii < iterables.length; ii++) {
-    var seq = iterables[ii];
-    seq && seqs.push(Iterable(seq));
+    var iter = iterables[ii];
+    iter && iters.push(Iterable(iter));
   }
-  var maxSize = Math.max.apply(Math, seqs.map(s => s.size || 0));
+  var maxSize = Math.max.apply(Math, iters.map(s => s.size || 0));
   if (maxSize > vector.size) {
     vector = vector.setSize(maxSize);
   }
-  return mergeIntoCollectionWith(vector, merger, seqs);
+  return mergeIntoCollectionWith(vector, merger, iters);
 }
 
 function getTailOffset(size) {

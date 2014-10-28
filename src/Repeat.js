@@ -12,7 +12,7 @@ import "Seq"
 import "Range"
 import "is"
 import "Iterator"
-/* global wholeSlice, resolveBegin, resolveEnd,
+/* global assertNotInfinite, wholeSlice, resolveBegin, resolveEnd,
           LazyIndexedSequence,
           RangePrototype,
           is,
@@ -21,7 +21,7 @@ import "Iterator"
 
 
 /**
- * Returns a lazy seq of `value` repeated `times` times. When `times` is
+ * Returns a lazy Seq of `value` repeated `times` times. When `times` is
  * undefined, returns an infinite sequence of `value`.
  */
 class Repeat extends LazyIndexedSequence {
@@ -80,6 +80,7 @@ class Repeat extends LazyIndexedSequence {
   }
 
   __iterate(fn, reverse) {
+    assertNotInfinite(this.size);
     for (var ii = 0; ii < this.size; ii++) {
       if (fn(this._value, ii, this) === false) {
         return ii + 1;

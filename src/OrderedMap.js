@@ -18,12 +18,10 @@ class OrderedMap extends Map {
 
   // @pragma Construction
 
-  constructor(seqable) {
-    return arguments.length === 0 ?
-      OrderedMap.empty() :
-      seqable && seqable.constructor === OrderedMap ?
-        seqable :
-        OrderedMap.empty().merge(seqable);
+  constructor(value) {
+    return arguments.length === 0 ? OrderedMap.empty() :
+      value && value.constructor === OrderedMap ? value :
+      OrderedMap.empty().merge(value);
   }
 
   static empty() {

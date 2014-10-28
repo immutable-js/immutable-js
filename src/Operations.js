@@ -11,9 +11,8 @@ import "TrieUtils"
 import "Iterable"
 import "Iterator"
 import "Seq"
-/* global NOT_SET,
+/* global NOT_SET, ensureSize,
           isIterable, isKeyed, isIndexed, KeyedIterable,
-          assertNotInfinite,
           hash,
           Iterator, iteratorValue, iteratorDone,
           ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES,
@@ -27,28 +26,28 @@ import "Seq"
 
 
 class ToIndexedSequence extends LazyIndexedSequence {
-  constructor(seq) {
-    this._seq = seq;
-    this.size = seq.size;
+  constructor(iter) {
+    this._iter = iter;
+    this.size = iter.size;
   }
 
   contains(value) {
-    return this._seq.contains(value);
+    return this._iter.contains(value);
   }
 
   cacheResult() {
-    this._seq.cacheResult();
-    this.size = this._seq.size;
+    this._iter.cacheResult();
+    this.size = this._iter.size;
     return this;
   }
 
   __iterate(fn, reverse) {
     var iterations = 0;
-    return this._seq.__iterate(v => fn(v, iterations++, this), reverse);
+    return this._iter.__iterate(v => fn(v, iterations++, this), reverse);
   }
 
   __iterator(type, reverse) {
-    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
+    var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
     var iterations = 0;
     return new Iterator(() => {
       var step = iterator.next();
@@ -60,28 +59,28 @@ class ToIndexedSequence extends LazyIndexedSequence {
 
 
 class ToKeyedSequence extends LazyKeyedSequence {
-  constructor(indexedSeq, useKeys) {
-    this._seq = indexedSeq;
+  constructor(indexed, useKeys) {
+    this._iter = indexed;
     this._useKeys = useKeys;
-    this.size = indexedSeq.size;
+    this.size = indexed.size;
   }
 
   get(key, notSetValue) {
-    return this._seq.get(key, notSetValue);
+    return this._iter.get(key, notSetValue);
   }
 
   has(key) {
-    return this._seq.has(key);
+    return this._iter.has(key);
   }
 
   valueSeq() {
-    return this._seq.valueSeq();
+    return this._iter.valueSeq();
   }
 
   reverse() {
     var reversedSequence = reverseFactory(this, true);
     if (!this._useKeys) {
-      reversedSequence.valueSeq = () => this._seq.toSeq().reverse();
+      reversedSequence.valueSeq = () => this._iter.toSeq().reverse();
     }
     return reversedSequence;
   }
@@ -89,23 +88,23 @@ class ToKeyedSequence extends LazyKeyedSequence {
   map(mapper, context) {
     var mappedSequence = mapFactory(this, mapper, context);
     if (!this._useKeys) {
-      mappedSequence.valueSeq = () => this._seq.toSeq().map(mapper, context);
+      mappedSequence.valueSeq = () => this._iter.toSeq().map(mapper, context);
     }
     return mappedSequence;
   }
 
   cacheResult() {
-    this._seq.cacheResult();
-    this.size = this._seq.size;
+    this._iter.cacheResult();
+    this.size = this._iter.size;
     return this;
   }
 
   __iterate(fn, reverse) {
     var ii;
-    return this._seq.__iterate(
+    return this._iter.__iterate(
       this._useKeys ?
         (v, k) => fn(v, k, this) :
-        ((ii = reverse ? resolveSize(this) : 0),
+        ((ii = reverse ? ensureSize(this) : 0),
           v => fn(v, reverse ? --ii : ii++, this)),
       reverse
     );
@@ -113,10 +112,10 @@ class ToKeyedSequence extends LazyKeyedSequence {
 
   __iterator(type, reverse) {
     if (this._useKeys) {
-      return this._seq.__iterator(type, reverse);
+      return this._iter.__iterator(type, reverse);
     }
-    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
-    var ii = reverse ? resolveSize(this) : 0;
+    var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
+    var ii = reverse ? ensureSize(this) : 0;
     return new Iterator(() => {
       var step = iterator.next();
       return step.done ? step :
@@ -127,27 +126,27 @@ class ToKeyedSequence extends LazyKeyedSequence {
 
 
 class ToSetSequence extends LazySetSequence {
-  constructor(seq) {
-    this._seq = seq;
-    this.size = seq.size;
+  constructor(iter) {
+    this._iter = iter;
+    this.size = iter.size;
   }
 
   has(key) {
-    return this._seq.contains(key);
+    return this._iter.contains(key);
   }
 
   cacheResult() {
-    this._seq.cacheResult();
-    this.size = this._seq.size;
+    this._iter.cacheResult();
+    this.size = this._iter.size;
     return this;
   }
 
   __iterate(fn, reverse) {
-    return this._seq.__iterate(v => fn(v, v, this), reverse);
+    return this._iter.__iterate(v => fn(v, v, this), reverse);
   }
 
   __iterator(type, reverse) {
-    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
+    var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
     return new Iterator(() => {
       var step = iterator.next();
       return step.done ? step :
@@ -158,23 +157,23 @@ class ToSetSequence extends LazySetSequence {
 
 
 class FromEntriesSequence extends LazyKeyedSequence {
-  constructor(entriesSeq) {
-    this._seq = entriesSeq;
-    this.size = entriesSeq.size;
+  constructor(entries) {
+    this._iter = entries;
+    this.size = entries.size;
   }
 
   entrySeq() {
-    return this._seq.toSeq();
+    return this._iter.toSeq();
   }
 
   cacheResult() {
-    this._seq.cacheResult();
-    this.size = this._seq.size;
+    this._iter.cacheResult();
+    this.size = this._iter.size;
     return this;
   }
 
   __iterate(fn, reverse) {
-    return this._seq.__iterate(entry => {
+    return this._iter.__iterate(entry => {
       // Check if entry exists first so array access doesn't throw for holes
       // in the parent iteration.
       if (entry) {
@@ -185,7 +184,7 @@ class FromEntriesSequence extends LazyKeyedSequence {
   }
 
   __iterator(type, reverse) {
-    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
+    var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
     return new Iterator(() => {
       while (true) {
         var step = iterator.next();
@@ -590,8 +589,8 @@ function flattenFactory(iterable, depth, useKeys) {
   flatSequence.__iterateUncached = function(fn, reverse) {
     var iterations = 0;
     var stopped = false;
-    function flatDeep(seq, currentDepth) {
-      seq.__iterate((v, k) => {
+    function flatDeep(iter, currentDepth) {
+      iter.__iterate((v, k) => {
         if ((!depth || currentDepth < depth) && isIterable(v)) {
           flatDeep(v, currentDepth + 1);
         } else if (fn(v, useKeys ? k : iterations++, this) === false) {
@@ -671,14 +670,6 @@ function validateEntry(entry) {
   if (entry !== Object(entry)) {
     throw new TypeError('Expected [K, V] tuple: ' + entry);
   }
-}
-
-function resolveSize(indexedSeq) {
-  if (indexedSeq.size === undefined) {
-    indexedSeq.cacheResult();
-  }
-  assertNotInfinite(indexedSeq.size);
-  return indexedSeq.size;
 }
 
 function makeSequence(iterable) {

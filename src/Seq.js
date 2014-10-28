@@ -41,11 +41,8 @@ class LazySequence extends Iterable {
 
   cacheResult() {
     if (!this._cache && this.__iterateUncached) {
-      assertNotInfinite(this.size);
       this._cache = this.entrySeq().toArray();
-      if (this.size === undefined) {
-        this.size = this._cache.length;
-      }
+      this.size = this._cache.length;
     }
     return this;
   }
@@ -370,23 +367,24 @@ function isPlainObj(value) {
   return value && value.constructor === Object;
 }
 
-function seqIterate(sequence, fn, reverse, useKeys) {
-  var cache = sequence._cache;
+function seqIterate(seq, fn, reverse, useKeys) {
+  assertNotInfinite(seq.size);
+  var cache = seq._cache;
   if (cache) {
     var maxIndex = cache.length - 1;
     for (var ii = 0; ii <= maxIndex; ii++) {
       var entry = cache[reverse ? maxIndex - ii : ii];
-      if (fn(entry[1], useKeys ? entry[0] : ii, sequence) === false) {
+      if (fn(entry[1], useKeys ? entry[0] : ii, seq) === false) {
         return ii + 1;
       }
     }
     return ii;
   }
-  return sequence.__iterateUncached(fn, reverse);
+  return seq.__iterateUncached(fn, reverse);
 }
 
-function seqIterator(sequence, type, reverse, useKeys) {
-  var cache = sequence._cache;
+function seqIterator(seq, type, reverse, useKeys) {
+  var cache = seq._cache;
   if (cache) {
     var maxIndex = cache.length - 1;
     var ii = 0;
@@ -397,5 +395,5 @@ function seqIterator(sequence, type, reverse, useKeys) {
         iteratorValue(type, useKeys ? entry[0] : ii - 1, entry[1]);
     });
   }
-  return sequence.__iteratorUncached(type, reverse);
+  return seq.__iteratorUncached(type, reverse);
 }

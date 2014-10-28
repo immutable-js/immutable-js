@@ -14,7 +14,7 @@ import "Hash"
 import "Iterator"
 /* global Map, OrderedMap, Vector, Set, Stack,
           is,
-          arrCopy, NOT_SET, assertNotInfinite, ensureSize, wrapIndex,
+          arrCopy, NOT_SET, ensureSize, wrapIndex,
           returnTrue, wholeSlice, resolveBegin, resolveEnd,
           hash, HASH_MAX_VAL,
           Iterator,
@@ -42,7 +42,6 @@ class Iterable {
   // ### Conversion to other types
 
   toArray() {
-    assertNotInfinite(this.size);
     var array = new Array(this.size || 0);
     this.valueSeq().__iterate((v, i) => { array[i] = v; });
     return array;
@@ -64,12 +63,10 @@ class Iterable {
 
   toMap() {
     // Use Late Binding here to solve the circular dependency.
-    assertNotInfinite(this.size);
     return Map(this.toKeyedSeq());
   }
 
   toObject() {
-    assertNotInfinite(this.size);
     var object = {};
     this.__iterate((v, k) => { object[k] = v; });
     return object;
@@ -77,13 +74,11 @@ class Iterable {
 
   toOrderedMap() {
     // Use Late Binding here to solve the circular dependency.
-    assertNotInfinite(this.size);
     return OrderedMap(this.toKeyedSeq());
   }
 
   toSet() {
     // Use Late Binding here to solve the circular dependency.
-    assertNotInfinite(this.size);
     return Set(this);
   }
 
@@ -99,13 +94,11 @@ class Iterable {
 
   toStack() {
     // Use Late Binding here to solve the circular dependency.
-    assertNotInfinite(this.size);
     return Stack(this);
   }
 
   toVector() {
     // Use Late Binding here to solve the circular dependency.
-    assertNotInfinite(this.size);
     return Vector(this);
   }
 

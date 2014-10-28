@@ -14,7 +14,7 @@ import "Iterable"
 import "Vector"
 import "invariant"
 import "Iterator"
-/* global wrapIndex, wholeSlice, resolveBegin, resolveEnd,
+/* global assertNotInfinite, wrapIndex, wholeSlice, resolveBegin, resolveEnd,
           invariant,
           LazyIndexedSequence,
           VectorPrototype,
@@ -110,6 +110,7 @@ class Range extends LazyIndexedSequence {
   }
 
   __iterate(fn, reverse) {
+    assertNotInfinite(this.size);
     var maxIndex = this.size - 1;
     var step = this._step;
     var value = reverse ? this._start + maxIndex * step : this._start;

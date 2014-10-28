@@ -118,7 +118,7 @@ declare module 'immutable' {
    *
    * This methods forces the conversion of Objects and Strings to Iterables.
    * If you want to ensure that a Iterable of one item is returned, use
-   * `Sequence.of`.
+   * `LazySequence.of`.
    */
   export function Iterable<K, V>(iterable: Iterable<K, V>): Iterable<K, V>;
   export function Iterable<T>(array: Array<T>): IndexedIterable<T>;
@@ -258,7 +258,7 @@ declare module 'immutable' {
     entries(): Iterator</*[K, V]*/Array<any>>;
 
     /**
-     * True if `predicate` returns true for all entries in the sequence.
+     * True if `predicate` returns true for all entries in the Iterable.
      */
     every(
       predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
@@ -288,7 +288,7 @@ declare module 'immutable' {
     ): V;
 
     /**
-     * The `sideEffect` is executed for every entry in the sequence.
+     * The `sideEffect` is executed for every entry in the Iterable.
      *
      * Unlike `Array.prototype.forEach`, if any call of `sideEffect` returns
      * `false`, the iteration will stop. Returns the number of entries iterated
@@ -742,7 +742,7 @@ declare module 'immutable' {
    *
    * When iterating `KeyedIterable`, each iteration will yield a `[K, V]` tuple,
    * in other words, `Iterable#entries` is the default iterator for Keyed
-   * Sequences.
+   * Iterables.
    */
 
   /**
@@ -809,7 +809,7 @@ declare module 'immutable' {
    * Set Iterable
    * ------------
    *
-   * Set Sequences only represent values. They have no associated keys or
+   * Set Iterables only represent values. They have no associated keys or
    * indices. Duplicate values are possible in LazySetSequences, however the
    * concrete `Set` does not allow duplicate values.
    *
@@ -846,7 +846,7 @@ declare module 'immutable' {
    * Indexed Iterable
    * ----------------
    *
-   * Indexed Sequences have incrementing numeric keys. They exhibit
+   * Indexed Iterables have incrementing numeric keys. They exhibit
    * slightly different behavior than `KeyedIterable` for some methods in order
    * to better mirror the behavior of JavaScript's `Array`, and add others which
    * do not make sense on non-indexed Iterables such as `indexOf`.
@@ -855,7 +855,7 @@ declare module 'immutable' {
    * indices and `undefined` indices are indistinguishable, and all indices from
    * 0 to `size` are visited when iterated.
    *
-   * All IndexedIterable methods return re-indexed Sequences. In other words,
+   * All IndexedIterable methods return re-indexed Iterables. In other words,
    * indices always start at 0 and increment until size. If you wish to
    * preserve indices, using them as keys, convert to a KeyedIterable by calling
    * `toKeyedSeq`.
@@ -884,7 +884,7 @@ declare module 'immutable' {
     // ### ES6 Collection methods (ES6 Array and Map)
 
     /**
-     * Returns the first index in the sequence where a value satisfies the
+     * Returns the first index in the Iterable where a value satisfies the
      * provided predicate function. Otherwise -1 is returned.
      */
     findIndex(
@@ -905,7 +905,7 @@ declare module 'immutable' {
     lastIndexOf(searchValue: T): number;
 
     /**
-     * Splice returns a new indexed sequence by replacing a region of this
+     * Splice returns a new indexed Iterable by replacing a region of this
      * Iterable with new values. If values are not provided, it only skips the
      * region to be removed.
      *
@@ -923,10 +923,10 @@ declare module 'immutable' {
     ): /*this*/IndexedIterable<T>;
 
 
-    // ### More sequential methods
+    // ### More collection methods
 
     /**
-     * Returns the last index in the sequence where a value satisfies the
+     * Returns the last index in the Iterable where a value satisfies the
      * provided predicate function. Otherwise -1 is returned.
      */
     findLastIndex(
@@ -936,13 +936,13 @@ declare module 'immutable' {
 
     /**
      * If this is an iterable of [key, value] entry tuples, it will return a
-     * keyed sequence of those entries.
+     * LazyKeyedSequence of those entries.
      */
     fromEntrySeq(): LazyKeyedSequence<any, any>;
 
     /**
      * Returns the value associated with the provided index, or notSetValue if
-     * the index is beyond the bounds of the sequence.
+     * the index is beyond the bounds of the Iterable.
      *
      * `index` may be a negative number, which indexes back from the end of the
      * Iterable. `s.get(-1)` gets the last item in the Iterable.
@@ -1156,7 +1156,7 @@ declare module 'immutable' {
    * Range
    * -----
    *
-   * Returns a lazy indexed sequence of numbers from `start` (inclusive) to `end`
+   * Returns a LazyIndexedSequence of numbers from `start` (inclusive) to `end`
    * (exclusive), by `step`, where `start` defaults to 0, `step` to 1, and `end` to
    * infinity. When `start` is equal to `end`, returns empty range.
    *
@@ -1175,7 +1175,7 @@ declare module 'immutable' {
    * Repeat
    * ------
    *
-   * Returns a lazy sequence of `value` repeated `times` times. When `times` is
+   * Returns a LazyIndexedSequence of `value` repeated `times` times. When `times` is
    * not defined, returns an infinite sequence of `value`.
    *
    *     Repeat('foo') // ['foo','foo','foo',...]
@@ -1258,8 +1258,8 @@ declare module 'immutable' {
    *
    */
   export function Map<K, V>(): Map<K, V>;
-  export function Map<K, V>(seq: KeyedIterable<K, V>): Map<K, V>;
-  export function Map<K, V>(seq: Iterable<any, /*[K,V]*/Array<any>>): Map<K, V>;
+  export function Map<K, V>(iter: KeyedIterable<K, V>): Map<K, V>;
+  export function Map<K, V>(iter: Iterable<any, /*[K,V]*/Array<any>>): Map<K, V>;
   export function Map<K, V>(array: Array</*[K,V]*/Array<any>>): Map<K, V>;
   export function Map<V>(obj: {[key: string]: V}): Map<string, V>;
   export function Map<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): Map<K, V>;
@@ -1335,9 +1335,9 @@ declare module 'immutable' {
     ): Map<K, V>;
 
     /**
-     * Returns a new Map resulting from merging the provided Sequences
+     * Returns a new Map resulting from merging the provided Iterables
      * (or JS objects) into this Map. In other words, this takes each entry of
-     * each sequence and sets it on this Map.
+     * each iterable and sets it on this Map.
      *
      *     var x = Immutable.Map({a: 10, b: 20, c: 30});
      *     var y = Immutable.Map({b: 40, a: 50, d: 60});
@@ -1345,13 +1345,13 @@ declare module 'immutable' {
      *     y.merge(x) // { b: 20, a: 10, d: 60, c: 30 }
      *
      */
-    merge(...sequences: Iterable<K, V>[]): Map<K, V>;
-    merge(...sequences: {[key: string]: V}[]): Map<string, V>;
+    merge(...iterables: Iterable<K, V>[]): Map<K, V>;
+    merge(...iterables: {[key: string]: V}[]): Map<string, V>;
 
     /**
-     * Like `merge()`, `mergeWith()` returns a new Map resulting from merging the
-     * provided Sequences (or JS objects) into this Map, but uses the `merger`
-     * function for dealing with conflicts.
+     * Like `merge()`, `mergeWith()` returns a new Map resulting from merging
+     * the provided Iterables (or JS objects) into this Map, but uses the
+     * `merger` function for dealing with conflicts.
      *
      *     var x = Immutable.Map({a: 10, b: 20, c: 30});
      *     var y = Immutable.Map({b: 40, a: 50, d: 60});
@@ -1361,15 +1361,15 @@ declare module 'immutable' {
      */
     mergeWith(
       merger: (previous?: V, next?: V) => V,
-      ...sequences: Iterable<K, V>[]
+      ...iterables: Iterable<K, V>[]
     ): Map<K, V>;
     mergeWith(
       merger: (previous?: V, next?: V) => V,
-      ...sequences: {[key: string]: V}[]
+      ...iterables: {[key: string]: V}[]
     ): Map<string, V>;
 
     /**
-     * Like `merge()`, but when two Sequences conflict, it merges them as well,
+     * Like `merge()`, but when two Iterables conflict, it merges them as well,
      * recursing deeply through the nested data.
      *
      *     var x = Immutable.fromJS({a: { x: 10, y: 10 }, b: { x: 20, y: 50 } });
@@ -1377,11 +1377,11 @@ declare module 'immutable' {
      *     x.mergeDeep(y) // {a: { x: 2, y: 10 }, b: { x: 20, y: 5 }, c: { z: 3 } }
      *
      */
-    mergeDeep(...sequences: Iterable<K, V>[]): Map<K, V>;
-    mergeDeep(...sequences: {[key: string]: V}[]): Map<string, V>;
+    mergeDeep(...iterables: Iterable<K, V>[]): Map<K, V>;
+    mergeDeep(...iterables: {[key: string]: V}[]): Map<string, V>;
 
     /**
-     * Like `mergeDeep()`, but when two non-Sequences conflict, it uses the
+     * Like `mergeDeep()`, but when two non-Iterables conflict, it uses the
      * `merger` function to determine the resulting value.
      *
      *     var x = Immutable.fromJS({a: { x: 10, y: 10 }, b: { x: 20, y: 50 } });
@@ -1392,11 +1392,11 @@ declare module 'immutable' {
      */
     mergeDeepWith(
       merger: (previous?: V, next?: V) => V,
-      ...sequences: Iterable<K, V>[]
+      ...iterables: Iterable<K, V>[]
     ): Map<K, V>;
     mergeDeepWith(
       merger: (previous?: V, next?: V) => V,
-      ...sequences: {[key: string]: V}[]
+      ...iterables: {[key: string]: V}[]
     ): Map<string, V>;
 
     /**
@@ -1488,8 +1488,8 @@ declare module 'immutable' {
    *
    */
   export function OrderedMap<K, V>(): Map<K, V>;
-  export function OrderedMap<K, V>(seq: KeyedIterable<K, V>): Map<K, V>;
-  export function OrderedMap<K, V>(seq: Iterable<any, /*[K,V]*/Array<any>>): Map<K, V>;
+  export function OrderedMap<K, V>(iter: KeyedIterable<K, V>): Map<K, V>;
+  export function OrderedMap<K, V>(iter: Iterable<any, /*[K,V]*/Array<any>>): Map<K, V>;
   export function OrderedMap<K, V>(array: Array</*[K,V]*/Array<any>>): Map<K, V>;
   export function OrderedMap<V>(obj: {[key: string]: V}): Map<string, V>;
   export function OrderedMap<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): Map<K, V>;
@@ -1569,7 +1569,7 @@ declare module 'immutable' {
      * `Set.fromKeys()` creates a new immutable Set containing the keys from
      * this Iterable or JavaScript Object.
      */
-    function fromKeys<T>(seq: Iterable<T, any>): Set<T>;
+    function fromKeys<T>(iter: Iterable<T, any>): Set<T>;
     function fromKeys(obj: {[key: string]: any}): Set<string>;
 
     /**
@@ -1583,7 +1583,7 @@ declare module 'immutable' {
    * iterable-like.
    */
   export function Set<T>(): Set<T>;
-  export function Set<T>(seq: Iterable<any, T>): Set<T>;
+  export function Set<T>(iter: Iterable<any, T>): Set<T>;
   export function Set<T>(array: Array<T>): Set<T>;
   export function Set<T>(obj: {[key: string]: T}): Set<T>;
   export function Set<T>(iterator: Iterator<T>): Set<T>;
@@ -1615,28 +1615,28 @@ declare module 'immutable' {
      * Alias for `union`.
      * @see `Map.prototype.merge`
      */
-    merge(...sequences: Iterable<any, T>[]): Set<T>;
-    merge(...sequences: Array<T>[]): Set<T>;
+    merge(...iterables: Iterable<any, T>[]): Set<T>;
+    merge(...iterables: Array<T>[]): Set<T>;
 
     /**
-     * Returns a Set including any value from `sequences` that does not already
+     * Returns a Set including any value from `iterables` that does not already
      * exist in this Set.
      */
-    union(...sequences: Iterable<any, T>[]): Set<T>;
-    union(...sequences: Array<T>[]): Set<T>;
+    union(...iterables: Iterable<any, T>[]): Set<T>;
+    union(...iterables: Array<T>[]): Set<T>;
 
     /**
      * Returns a Set which has removed any values not also contained
-     * within `sequences`.
+     * within `iterables`.
      */
-    intersect(...sequences: Iterable<any, T>[]): Set<T>;
-    intersect(...sequences: Array<T>[]): Set<T>;
+    intersect(...iterables: Iterable<any, T>[]): Set<T>;
+    intersect(...iterables: Array<T>[]): Set<T>;
 
     /**
-     * Returns a Set excluding any values contained within `sequences`.
+     * Returns a Set excluding any values contained within `iterables`.
      */
-    subtract(...sequences: Iterable<any, T>[]): Set<T>;
-    subtract(...sequences: Array<T>[]): Set<T>;
+    subtract(...iterables: Iterable<any, T>[]): Set<T>;
+    subtract(...iterables: Array<T>[]): Set<T>;
 
     /**
      * @see `Map.prototype.withMutations`
@@ -1683,7 +1683,7 @@ declare module 'immutable' {
    * iterable-like.
    */
   export function Vector<T>(): Vector<T>;
-  export function Vector<T>(seq: Iterable<any, T>): Vector<T>;
+  export function Vector<T>(iter: Iterable<any, T>): Vector<T>;
   export function Vector<T>(array: Array<T>): Vector<T>;
   export function Vector<T>(obj: {[key: string]: T}): Vector<T>;
   export function Vector<T>(iterator: Iterator<T>): Vector<T>;
@@ -1795,37 +1795,37 @@ declare module 'immutable' {
     /**
      * @see `Map.prototype.merge`
      */
-    merge(...sequences: IndexedIterable<T>[]): Vector<T>;
-    merge(...sequences: Array<T>[]): Vector<T>;
+    merge(...iterables: IndexedIterable<T>[]): Vector<T>;
+    merge(...iterables: Array<T>[]): Vector<T>;
 
     /**
      * @see `Map.prototype.mergeWith`
      */
     mergeWith(
       merger: (previous?: T, next?: T) => T,
-      ...sequences: IndexedIterable<T>[]
+      ...iterables: IndexedIterable<T>[]
     ): Vector<T>;
     mergeWith(
       merger: (previous?: T, next?: T) => T,
-      ...sequences: Array<T>[]
+      ...iterables: Array<T>[]
     ): Vector<T>;
 
     /**
      * @see `Map.prototype.mergeDeep`
      */
-    mergeDeep(...sequences: IndexedIterable<T>[]): Vector<T>;
-    mergeDeep(...sequences: Array<T>[]): Vector<T>;
+    mergeDeep(...iterables: IndexedIterable<T>[]): Vector<T>;
+    mergeDeep(...iterables: Array<T>[]): Vector<T>;
 
     /**
      * @see `Map.prototype.mergeDeepWith`
      */
     mergeDeepWith(
       merger: (previous?: T, next?: T) => T,
-      ...sequences: IndexedIterable<T>[]
+      ...iterables: IndexedIterable<T>[]
     ): Vector<T>;
     mergeDeepWith(
       merger: (previous?: T, next?: T) => T,
-      ...sequences: Array<T>[]
+      ...iterables: Array<T>[]
     ): Vector<T>;
 
     /**
@@ -1895,10 +1895,10 @@ declare module 'immutable' {
 
   /**
    * Create a new immutable Stack containing the values of the provided
-   * sequenceable.
+   * iterable.
    */
   export function Stack<T>(): Stack<T>;
-  export function Stack<T>(seq: Iterable<any, T>): Stack<T>;
+  export function Stack<T>(iter: Iterable<any, T>): Stack<T>;
   export function Stack<T>(array: Array<T>): Stack<T>;
   export function Stack<T>(obj: {[key: string]: T}): Stack<T>;
   export function Stack<T>(iterator: Iterator<T>): Stack<T>;
@@ -1921,10 +1921,10 @@ declare module 'immutable' {
     unshift(...values: T[]): Stack<T>;
 
     /**
-     * Like `Stack#unshift`, but accepts a sequencable rather than varargs.
+     * Like `Stack#unshift`, but accepts a iterable rather than varargs.
      */
-    unshiftAll(seq: Iterable<any, T>): Stack<T>;
-    unshiftAll(seq: Array<T>): Stack<T>;
+    unshiftAll(iter: Iterable<any, T>): Stack<T>;
+    unshiftAll(iter: Array<T>): Stack<T>;
 
     /**
      * Returns a new Stack with a size ones less than this Stack, excluding
@@ -1944,8 +1944,8 @@ declare module 'immutable' {
     /**
      * Alias for `Stack#unshiftAll`.
      */
-    pushAll(seq: Iterable<any, T>): Stack<T>;
-    pushAll(seq: Array<T>): Stack<T>;
+    pushAll(iter: Iterable<any, T>): Stack<T>;
+    pushAll(iter: Array<T>): Stack<T>;
 
     /**
      * Alias for `Stack#shift` and is not equivalent to `Vector#pop`.

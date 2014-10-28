@@ -26,12 +26,10 @@ class Map extends KeyedCollection {
 
   // @pragma Construction
 
-  constructor(seqable) {
-    return arguments.length === 0 ?
-      Map.empty() :
-      seqable && seqable.constructor === Map ?
-        seqable :
-        Map.empty().merge(seqable);
+  constructor(value) {
+    return arguments.length === 0 ? Map.empty() :
+      value && value.constructor === Map ? value :
+      Map.empty().merge(value);
   }
 
   static empty() {
@@ -106,20 +104,20 @@ class Map extends KeyedCollection {
 
   // @pragma Composition
 
-  merge(/*...seqs*/) {
+  merge(/*...iters*/) {
     return mergeIntoMapWith(this, undefined, arguments);
   }
 
-  mergeWith(merger, ...seqs) {
-    return mergeIntoMapWith(this, merger, seqs);
+  mergeWith(merger, ...iters) {
+    return mergeIntoMapWith(this, merger, iters);
   }
 
-  mergeDeep(/*...seqs*/) {
+  mergeDeep(/*...iters*/) {
     return mergeIntoMapWith(this, deepMerger(undefined), arguments);
   }
 
-  mergeDeepWith(merger, ...seqs) {
-    return mergeIntoMapWith(this, deepMerger(merger), seqs);
+  mergeDeepWith(merger, ...iters) {
+    return mergeIntoMapWith(this, deepMerger(merger), iters);
   }
 
   cursor(maybeKeyPath, onChange) {
@@ -578,12 +576,12 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
   return new ArrayNode(ownerID, count + 1, expandedNodes);
 }
 
-function mergeIntoMapWith(map, merger, seqable) {
-  var seqs = [];
-  for (var ii = 0; ii < seqable.length; ii++) {
-    seqable[ii] && seqs.push(KeyedIterable(seqable[ii]));
+function mergeIntoMapWith(map, merger, iterables) {
+  var iters = [];
+  for (var ii = 0; ii < iterables.length; ii++) {
+    iterables[ii] && iters.push(KeyedIterable(iterables[ii]));
   }
-  return mergeIntoCollectionWith(map, merger, seqs);
+  return mergeIntoCollectionWith(map, merger, iters);
 }
 
 function deepMerger(merger) {
@@ -593,8 +591,8 @@ function deepMerger(merger) {
       merger ? merger(existing, value) : value;
 }
 
-function mergeIntoCollectionWith(collection, merger, seqs) {
-  if (seqs.length === 0) {
+function mergeIntoCollectionWith(collection, merger, iters) {
+  if (iters.length === 0) {
     return collection;
   }
   return collection.withMutations(collection => {
@@ -608,8 +606,8 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
       (value, key) => {
         collection.set(key, value);
       }
-    for (var ii = 0; ii < seqs.length; ii++) {
-      seqs[ii].forEach(mergeIntoMap);
+    for (var ii = 0; ii < iters.length; ii++) {
+      iters[ii].forEach(mergeIntoMap);
     }
   });
 }

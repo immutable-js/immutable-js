@@ -275,7 +275,6 @@ var Iterable = function Iterable(value) {
 var $Iterable = Iterable;
 ($traceurRuntime.createClass)(Iterable, {
   toArray: function() {
-    assertNotInfinite(this.size);
     var array = new Array(this.size || 0);
     this.valueSeq().__iterate((function(v, i) {
       array[i] = v;
@@ -294,11 +293,9 @@ var $Iterable = Iterable;
     return new ToKeyedSequence(this, true);
   },
   toMap: function() {
-    assertNotInfinite(this.size);
     return Map(this.toKeyedSeq());
   },
   toObject: function() {
-    assertNotInfinite(this.size);
     var object = {};
     this.__iterate((function(v, k) {
       object[k] = v;
@@ -306,11 +303,9 @@ var $Iterable = Iterable;
     return object;
   },
   toOrderedMap: function() {
-    assertNotInfinite(this.size);
     return OrderedMap(this.toKeyedSeq());
   },
   toSet: function() {
-    assertNotInfinite(this.size);
     return Set(this);
   },
   toSetSeq: function() {
@@ -320,11 +315,9 @@ var $Iterable = Iterable;
     return isIndexed(this) ? this.toIndexedSeq() : isKeyed(this) ? this.toKeyedSeq() : this.toSetSeq();
   },
   toStack: function() {
-    assertNotInfinite(this.size);
     return Stack(this);
   },
   toVector: function() {
-    assertNotInfinite(this.size);
     return Vector(this);
   },
   toString: function() {
@@ -877,11 +870,8 @@ var $LazySequence = LazySequence;
   },
   cacheResult: function() {
     if (!this._cache && this.__iterateUncached) {
-      assertNotInfinite(this.size);
       this._cache = this.entrySeq().toArray();
-      if (this.size === undefined) {
-        this.size = this._cache.length;
-      }
+      this.size = this._cache.length;
     }
     return this;
   },
@@ -1138,22 +1128,23 @@ function isArrayLike(value) {
 function isPlainObj(value) {
   return value && value.constructor === Object;
 }
-function seqIterate(sequence, fn, reverse, useKeys) {
-  var cache = sequence._cache;
+function seqIterate(seq, fn, reverse, useKeys) {
+  assertNotInfinite(seq.size);
+  var cache = seq._cache;
   if (cache) {
     var maxIndex = cache.length - 1;
     for (var ii = 0; ii <= maxIndex; ii++) {
       var entry = cache[reverse ? maxIndex - ii : ii];
-      if (fn(entry[1], useKeys ? entry[0] : ii, sequence) === false) {
+      if (fn(entry[1], useKeys ? entry[0] : ii, seq) === false) {
         return ii + 1;
       }
     }
     return ii;
   }
-  return sequence.__iterateUncached(fn, reverse);
+  return seq.__iterateUncached(fn, reverse);
 }
-function seqIterator(sequence, type, reverse, useKeys) {
-  var cache = sequence._cache;
+function seqIterator(seq, type, reverse, useKeys) {
+  var cache = seq._cache;
   if (cache) {
     var maxIndex = cache.length - 1;
     var ii = 0;
@@ -1162,30 +1153,30 @@ function seqIterator(sequence, type, reverse, useKeys) {
       return ii++ > maxIndex ? iteratorDone() : iteratorValue(type, useKeys ? entry[0] : ii - 1, entry[1]);
     }));
   }
-  return sequence.__iteratorUncached(type, reverse);
+  return seq.__iteratorUncached(type, reverse);
 }
-var ToIndexedSequence = function ToIndexedSequence(seq) {
-  this._seq = seq;
-  this.size = seq.size;
+var ToIndexedSequence = function ToIndexedSequence(iter) {
+  this._iter = iter;
+  this.size = iter.size;
 };
 ($traceurRuntime.createClass)(ToIndexedSequence, {
   contains: function(value) {
-    return this._seq.contains(value);
+    return this._iter.contains(value);
   },
   cacheResult: function() {
-    this._seq.cacheResult();
-    this.size = this._seq.size;
+    this._iter.cacheResult();
+    this.size = this._iter.size;
     return this;
   },
   __iterate: function(fn, reverse) {
     var $__0 = this;
     var iterations = 0;
-    return this._seq.__iterate((function(v) {
+    return this._iter.__iterate((function(v) {
       return fn(v, iterations++, $__0);
     }), reverse);
   },
   __iterator: function(type, reverse) {
-    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
+    var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
     var iterations = 0;
     return new Iterator((function() {
       var step = iterator.next();
@@ -1193,27 +1184,27 @@ var ToIndexedSequence = function ToIndexedSequence(seq) {
     }));
   }
 }, {}, LazyIndexedSequence);
-var ToKeyedSequence = function ToKeyedSequence(indexedSeq, useKeys) {
-  this._seq = indexedSeq;
+var ToKeyedSequence = function ToKeyedSequence(indexed, useKeys) {
+  this._iter = indexed;
   this._useKeys = useKeys;
-  this.size = indexedSeq.size;
+  this.size = indexed.size;
 };
 ($traceurRuntime.createClass)(ToKeyedSequence, {
   get: function(key, notSetValue) {
-    return this._seq.get(key, notSetValue);
+    return this._iter.get(key, notSetValue);
   },
   has: function(key) {
-    return this._seq.has(key);
+    return this._iter.has(key);
   },
   valueSeq: function() {
-    return this._seq.valueSeq();
+    return this._iter.valueSeq();
   },
   reverse: function() {
     var $__0 = this;
     var reversedSequence = reverseFactory(this, true);
     if (!this._useKeys) {
       reversedSequence.valueSeq = (function() {
-        return $__0._seq.toSeq().reverse();
+        return $__0._iter.toSeq().reverse();
       });
     }
     return reversedSequence;
@@ -1223,80 +1214,80 @@ var ToKeyedSequence = function ToKeyedSequence(indexedSeq, useKeys) {
     var mappedSequence = mapFactory(this, mapper, context);
     if (!this._useKeys) {
       mappedSequence.valueSeq = (function() {
-        return $__0._seq.toSeq().map(mapper, context);
+        return $__0._iter.toSeq().map(mapper, context);
       });
     }
     return mappedSequence;
   },
   cacheResult: function() {
-    this._seq.cacheResult();
-    this.size = this._seq.size;
+    this._iter.cacheResult();
+    this.size = this._iter.size;
     return this;
   },
   __iterate: function(fn, reverse) {
     var $__0 = this;
     var ii;
-    return this._seq.__iterate(this._useKeys ? (function(v, k) {
+    return this._iter.__iterate(this._useKeys ? (function(v, k) {
       return fn(v, k, $__0);
-    }) : ((ii = reverse ? resolveSize(this) : 0), (function(v) {
+    }) : ((ii = reverse ? ensureSize(this) : 0), (function(v) {
       return fn(v, reverse ? --ii : ii++, $__0);
     })), reverse);
   },
   __iterator: function(type, reverse) {
     if (this._useKeys) {
-      return this._seq.__iterator(type, reverse);
+      return this._iter.__iterator(type, reverse);
     }
-    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
-    var ii = reverse ? resolveSize(this) : 0;
+    var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
+    var ii = reverse ? ensureSize(this) : 0;
     return new Iterator((function() {
       var step = iterator.next();
       return step.done ? step : iteratorValue(type, reverse ? --ii : ii++, step.value, step);
     }));
   }
 }, {}, LazyKeyedSequence);
-var ToSetSequence = function ToSetSequence(seq) {
-  this._seq = seq;
-  this.size = seq.size;
+var ToSetSequence = function ToSetSequence(iter) {
+  this._iter = iter;
+  this.size = iter.size;
 };
 ($traceurRuntime.createClass)(ToSetSequence, {
   has: function(key) {
-    return this._seq.contains(key);
+    return this._iter.contains(key);
   },
   cacheResult: function() {
-    this._seq.cacheResult();
-    this.size = this._seq.size;
+    this._iter.cacheResult();
+    this.size = this._iter.size;
     return this;
   },
   __iterate: function(fn, reverse) {
     var $__0 = this;
-    return this._seq.__iterate((function(v) {
+    return this._iter.__iterate((function(v) {
       return fn(v, v, $__0);
     }), reverse);
   },
   __iterator: function(type, reverse) {
-    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
+    var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
     return new Iterator((function() {
       var step = iterator.next();
       return step.done ? step : iteratorValue(type, step.value, step.value, step);
     }));
   }
 }, {}, LazySetSequence);
-var FromEntriesSequence = function FromEntriesSequence(entriesSeq) {
-  this._seq = entriesSeq;
-  this.size = entriesSeq.size;
+var FromEntriesSequence = function FromEntriesSequence(entries) {
+  this._iter = entries;
+  this.size = entries.size;
 };
 ($traceurRuntime.createClass)(FromEntriesSequence, {
   entrySeq: function() {
-    return this._seq.toSeq();
+    return this._iter.toSeq();
   },
   cacheResult: function() {
-    this._seq.cacheResult();
-    this.size = this._seq.size;
+    this._iter.cacheResult();
+    this.size = this._iter.size;
     return this;
   },
   __iterate: function(fn, reverse) {
     var $__0 = this;
-    return this._seq.__iterate((function(entry) {
+    return this._iter.__iterate((function(entry) {
       if (entry) {
         validateEntry(entry);
         return fn(entry[1], entry[0], $__0);
@@ -1304,7 +1295,7 @@ var FromEntriesSequence = function FromEntriesSequence(entriesSeq) {
     }), reverse);
   },
   __iterator: function(type, reverse) {
-    var iterator = this._seq.__iterator(ITERATE_VALUES, reverse);
+    var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
     return new Iterator((function() {
       while (true) {
         var step = iterator.next();
@@ -1701,9 +1692,9 @@ function flattenFactory(iterable, depth, useKeys) {
   flatSequence.__iterateUncached = function(fn, reverse) {
     var iterations = 0;
     var stopped = false;
-    function flatDeep(seq, currentDepth) {
+    function flatDeep(iter, currentDepth) {
       var $__0 = this;
-      seq.__iterate((function(v, k) {
+      iter.__iterate((function(v, k) {
         if ((!depth || currentDepth < depth) && isIterable(v)) {
           flatDeep(v, currentDepth + 1);
         } else if (fn(v, useKeys ? k : iterations++, $__0) === false) {
@@ -1774,13 +1765,6 @@ function validateEntry(entry) {
     throw new TypeError('Expected [K, V] tuple: ' + entry);
   }
 }
-function resolveSize(indexedSeq) {
-  if (indexedSeq.size === undefined) {
-    indexedSeq.cacheResult();
-  }
-  assertNotInfinite(indexedSeq.size);
-  return indexedSeq.size;
-}
 function makeSequence(iterable) {
   return Object.create((isKeyed(iterable) ? LazyKeyedSequence : isIndexed(iterable) ? LazyIndexedSequence : LazySetSequence).prototype);
 }
@@ -1809,8 +1793,8 @@ mixin(IndexedCollection, IndexedIterable.prototype);
 Collection.Keyed = KeyedCollection;
 Collection.Set = SetCollection;
 Collection.Indexed = IndexedCollection;
-var Map = function Map(seqable) {
-  return arguments.length === 0 ? $Map.empty() : seqable && seqable.constructor === $Map ? seqable : $Map.empty().merge(seqable);
+var Map = function Map(value) {
+  return arguments.length === 0 ? $Map.empty() : value && value.constructor === $Map ? value : $Map.empty().merge(value);
 };
 var $Map = Map;
 ($traceurRuntime.createClass)(Map, {
@@ -1865,19 +1849,19 @@ var $Map = Map;
     return mergeIntoMapWith(this, undefined, arguments);
   },
   mergeWith: function(merger) {
-    for (var seqs = [],
+    for (var iters = [],
         $__4 = 1; $__4 < arguments.length; $__4++)
-      seqs[$__4 - 1] = arguments[$__4];
-    return mergeIntoMapWith(this, merger, seqs);
+      iters[$__4 - 1] = arguments[$__4];
+    return mergeIntoMapWith(this, merger, iters);
   },
   mergeDeep: function() {
     return mergeIntoMapWith(this, deepMerger(undefined), arguments);
   },
   mergeDeepWith: function(merger) {
-    for (var seqs = [],
+    for (var iters = [],
         $__5 = 1; $__5 < arguments.length; $__5++)
-      seqs[$__5 - 1] = arguments[$__5];
-    return mergeIntoMapWith(this, deepMerger(merger), seqs);
+      iters[$__5 - 1] = arguments[$__5];
+    return mergeIntoMapWith(this, deepMerger(merger), iters);
   },
   cursor: function(maybeKeyPath, onChange) {
     var keyPath = arguments.length === 0 || typeof maybeKeyPath === 'function' && (onChange = maybeKeyPath) ? [] : Array.isArray(maybeKeyPath) ? maybeKeyPath : [maybeKeyPath];
@@ -2266,20 +2250,20 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
   expandedNodes[including] = node;
   return new ArrayNode(ownerID, count + 1, expandedNodes);
 }
-function mergeIntoMapWith(map, merger, seqable) {
-  var seqs = [];
-  for (var ii = 0; ii < seqable.length; ii++) {
-    seqable[ii] && seqs.push(KeyedIterable(seqable[ii]));
+function mergeIntoMapWith(map, merger, iterables) {
+  var iters = [];
+  for (var ii = 0; ii < iterables.length; ii++) {
+    iterables[ii] && iters.push(KeyedIterable(iterables[ii]));
   }
-  return mergeIntoCollectionWith(map, merger, seqs);
+  return mergeIntoCollectionWith(map, merger, iters);
 }
 function deepMerger(merger) {
   return (function(existing, value) {
     return existing && existing.mergeDeepWith ? existing.mergeDeepWith(merger, value) : merger ? merger(existing, value) : value;
   });
 }
-function mergeIntoCollectionWith(collection, merger, seqs) {
-  if (seqs.length === 0) {
+function mergeIntoCollectionWith(collection, merger, iters) {
+  if (iters.length === 0) {
     return collection;
   }
   return collection.withMutations((function(collection) {
@@ -2289,8 +2273,8 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
     }) : (function(value, key) {
       collection.set(key, value);
     });
-    for (var ii = 0; ii < seqs.length; ii++) {
-      seqs[ii].forEach(mergeIntoMap);
+    for (var ii = 0; ii < iters.length; ii++) {
+      iters[ii].forEach(mergeIntoMap);
     }
   }));
 }
@@ -2352,26 +2336,26 @@ function spliceOut(array, idx, canEdit) {
 var MAX_BITMAP_SIZE = SIZE / 2;
 var MIN_ARRAY_SIZE = SIZE / 4;
 var EMPTY_MAP;
-var Vector = function Vector(seqable) {
+var Vector = function Vector(value) {
   var empty = $Vector.empty();
   if (arguments.length === 0) {
     return empty;
   }
-  if (seqable && seqable.constructor === $Vector) {
-    return seqable;
+  if (value && value.constructor === $Vector) {
+    return value;
   }
-  var isArray = Array.isArray(seqable);
+  var isArray = Array.isArray(value);
   if (!isArray) {
-    seqable = Iterable(seqable);
+    value = Iterable(value);
   }
-  var size = isArray ? seqable.length : seqable.size;
+  var size = isArray ? value.length : value.size;
   if (size === 0) {
     return empty;
   }
   if (size > 0 && size < SIZE) {
-    return makeVector(0, size, SHIFT, null, new VNode(isArray ? arrCopy(seqable) : seqable.toArray()));
+    return makeVector(0, size, SHIFT, null, new VNode(isArray ? arrCopy(value) : value.toArray()));
   }
-  return empty.merge(seqable);
+  return empty.merge(value);
 };
 var $Vector = Vector;
 ($traceurRuntime.createClass)(Vector, {
@@ -2436,19 +2420,19 @@ var $Vector = Vector;
     return mergeIntoVectorWith(this, undefined, arguments);
   },
   mergeWith: function(merger) {
-    for (var seqs = [],
+    for (var iters = [],
         $__6 = 1; $__6 < arguments.length; $__6++)
-      seqs[$__6 - 1] = arguments[$__6];
-    return mergeIntoVectorWith(this, merger, seqs);
+      iters[$__6 - 1] = arguments[$__6];
+    return mergeIntoVectorWith(this, merger, iters);
   },
   mergeDeep: function() {
     return mergeIntoVectorWith(this, deepMerger(undefined), arguments);
   },
   mergeDeepWith: function(merger) {
-    for (var seqs = [],
+    for (var iters = [],
         $__7 = 1; $__7 < arguments.length; $__7++)
-      seqs[$__7 - 1] = arguments[$__7];
-    return mergeIntoVectorWith(this, deepMerger(merger), seqs);
+      iters[$__7 - 1] = arguments[$__7];
+    return mergeIntoVectorWith(this, deepMerger(merger), iters);
   },
   setSize: function(size) {
     return setVectorBounds(this, 0, size);
@@ -2837,25 +2821,25 @@ function setVectorBounds(vector, begin, end) {
   return makeVector(newOrigin, newCapacity, newLevel, newRoot, newTail);
 }
 function mergeIntoVectorWith(vector, merger, iterables) {
-  var seqs = [];
+  var iters = [];
   for (var ii = 0; ii < iterables.length; ii++) {
-    var seq = iterables[ii];
-    seq && seqs.push(Iterable(seq));
+    var iter = iterables[ii];
+    iter && iters.push(Iterable(iter));
   }
-  var maxSize = Math.max.apply(Math, seqs.map((function(s) {
+  var maxSize = Math.max.apply(Math, iters.map((function(s) {
     return s.size || 0;
   })));
   if (maxSize > vector.size) {
     vector = vector.setSize(maxSize);
   }
-  return mergeIntoCollectionWith(vector, merger, seqs);
+  return mergeIntoCollectionWith(vector, merger, iters);
 }
 function getTailOffset(size) {
   return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
 }
 var EMPTY_VECT;
-var Stack = function Stack(seqable) {
-  return arguments.length === 0 ? $Stack.empty() : seqable && seqable.constructor === $Stack ? seqable : $Stack.empty().unshiftAll(seqable);
+var Stack = function Stack(value) {
+  return arguments.length === 0 ? $Stack.empty() : value && value.constructor === $Stack ? value : $Stack.empty().unshiftAll(value);
 };
 var $Stack = Stack;
 ($traceurRuntime.createClass)(Stack, {
@@ -2893,14 +2877,14 @@ var $Stack = Stack;
     }
     return makeStack(newSize, head);
   },
-  pushAll: function(seq) {
-    seq = Iterable(seq);
-    if (seq.size === 0) {
+  pushAll: function(iter) {
+    iter = Iterable(iter);
+    if (iter.size === 0) {
       return this;
     }
     var newSize = this.size;
     var head = this._head;
-    seq.reverse().forEach((function(value) {
+    iter.reverse().forEach((function(value) {
       newSize++;
       head = {
         value: value,
@@ -2922,8 +2906,8 @@ var $Stack = Stack;
   unshift: function() {
     return this.push.apply(this, arguments);
   },
-  unshiftAll: function(seq) {
-    return this.pushAll(seq);
+  unshiftAll: function(iter) {
+    return this.pushAll(iter);
   },
   shift: function() {
     return this.pop.apply(this, arguments);
@@ -3027,8 +3011,8 @@ function makeStack(size, head, ownerID, hash) {
   return map;
 }
 var EMPTY_STACK;
-var Set = function Set(seqable) {
-  return arguments.length === 0 ? $Set.empty() : seqable && seqable.constructor === $Set ? seqable : $Set.empty().union(seqable);
+var Set = function Set(value) {
+  return arguments.length === 0 ? $Set.empty() : value && value.constructor === $Set ? value : $Set.empty().union(value);
 };
 var $Set = Set;
 ($traceurRuntime.createClass)(Set, {
@@ -3068,33 +3052,33 @@ var $Set = Set;
     return $Set.empty();
   },
   union: function() {
-    var seqs = arguments;
-    if (seqs.length === 0) {
+    var iters = arguments;
+    if (iters.length === 0) {
       return this;
     }
     return this.withMutations((function(set) {
-      for (var ii = 0; ii < seqs.length; ii++) {
-        Iterable(seqs[ii]).forEach((function(value) {
+      for (var ii = 0; ii < iters.length; ii++) {
+        Iterable(iters[ii]).forEach((function(value) {
           return set.add(value);
         }));
       }
     }));
   },
   intersect: function() {
-    for (var seqs = [],
+    for (var iters = [],
         $__8 = 0; $__8 < arguments.length; $__8++)
-      seqs[$__8] = arguments[$__8];
-    if (seqs.length === 0) {
+      iters[$__8] = arguments[$__8];
+    if (iters.length === 0) {
       return this;
     }
-    seqs = seqs.map((function(seq) {
-      return Iterable(seq);
+    iters = iters.map((function(iter) {
+      return Iterable(iter);
     }));
     var originalSet = this;
     return this.withMutations((function(set) {
       originalSet.forEach((function(value) {
-        if (!seqs.every((function(seq) {
-          return seq.contains(value);
+        if (!iters.every((function(iter) {
+          return iter.contains(value);
         }))) {
           set.remove(value);
         }
@@ -3102,20 +3086,20 @@ var $Set = Set;
     }));
   },
   subtract: function() {
-    for (var seqs = [],
+    for (var iters = [],
         $__9 = 0; $__9 < arguments.length; $__9++)
-      seqs[$__9] = arguments[$__9];
-    if (seqs.length === 0) {
+      iters[$__9] = arguments[$__9];
+    if (iters.length === 0) {
       return this;
     }
-    seqs = seqs.map((function(seq) {
-      return Iterable(seq);
+    iters = iters.map((function(iter) {
+      return Iterable(iter);
     }));
     var originalSet = this;
     return this.withMutations((function(set) {
       originalSet.forEach((function(value) {
-        if (seqs.some((function(seq) {
-          return seq.contains(value);
+        if (iters.some((function(iter) {
+          return iter.contains(value);
         }))) {
           set.remove(value);
         }
@@ -3126,10 +3110,10 @@ var $Set = Set;
     return this.union.apply(this, arguments);
   },
   mergeWith: function(merger) {
-    for (var seqs = [],
+    for (var iters = [],
         $__10 = 1; $__10 < arguments.length; $__10++)
-      seqs[$__10 - 1] = arguments[$__10];
-    return this.union.apply(this, seqs);
+      iters[$__10 - 1] = arguments[$__10];
+    return this.union.apply(this, iters);
   },
   wasAltered: function() {
     return this._map.wasAltered();
@@ -3164,8 +3148,8 @@ var $Set = Set;
   of: function() {
     return this(arguments);
   },
-  fromKeys: function(seqable) {
-    return this(LazyKeyedSequence(seqable).flip());
+  fromKeys: function(value) {
+    return this(LazyKeyedSequence(value).flip());
   }
 }, SetCollection);
 var SetPrototype = Set.prototype;
@@ -3183,8 +3167,8 @@ function makeSet(map, ownerID) {
   return set;
 }
 var EMPTY_SET;
-var OrderedMap = function OrderedMap(seqable) {
-  return arguments.length === 0 ? $OrderedMap.empty() : seqable && seqable.constructor === $OrderedMap ? seqable : $OrderedMap.empty().merge(seqable);
+var OrderedMap = function OrderedMap(value) {
+  return arguments.length === 0 ? $OrderedMap.empty() : value && value.constructor === $OrderedMap ? value : $OrderedMap.empty().merge(value);
 };
 var $OrderedMap = OrderedMap;
 ($traceurRuntime.createClass)(OrderedMap, {
@@ -3471,6 +3455,7 @@ var $Range = Range;
     return this.slice(Math.max(0, amount));
   },
   __iterate: function(fn, reverse) {
+    assertNotInfinite(this.size);
     var maxIndex = this.size - 1;
     var step = this._step;
     var value = reverse ? this._start + maxIndex * step : this._start;
@@ -3549,6 +3534,7 @@ var $Repeat = Repeat;
     return -1;
   },
   __iterate: function(fn, reverse) {
+    assertNotInfinite(this.size);
     for (var ii = 0; ii < this.size; ii++) {
       if (fn(this._value, ii, this) === false) {
         return ii + 1;

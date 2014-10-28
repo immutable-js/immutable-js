@@ -24,12 +24,12 @@ class Stack extends IndexedCollection {
 
   // @pragma Construction
 
-  constructor(seqable) {
+  constructor(value) {
     return arguments.length === 0 ?
       Stack.empty() :
-      seqable && seqable.constructor === Stack ?
-        seqable :
-        Stack.empty().unshiftAll(seqable);
+      value && value.constructor === Stack ?
+        value :
+        Stack.empty().unshiftAll(value);
   }
 
   static empty() {
@@ -82,14 +82,14 @@ class Stack extends IndexedCollection {
     return makeStack(newSize, head);
   }
 
-  pushAll(seq) {
-    seq = Iterable(seq);
-    if (seq.size === 0) {
+  pushAll(iter) {
+    iter = Iterable(iter);
+    if (iter.size === 0) {
       return this;
     }
     var newSize = this.size;
     var head = this._head;
-    seq.reverse().forEach(value => {
+    iter.reverse().forEach(value => {
       newSize++;
       head = {
         value: value,
@@ -114,8 +114,8 @@ class Stack extends IndexedCollection {
     return this.push.apply(this, arguments);
   }
 
-  unshiftAll(seq) {
-    return this.pushAll(seq);
+  unshiftAll(iter) {
+    return this.pushAll(iter);
   }
 
   shift() {

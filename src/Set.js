@@ -20,12 +20,10 @@ class Set extends SetCollection {
 
   // @pragma Construction
 
-  constructor(seqable) {
-    return arguments.length === 0 ?
-      Set.empty() :
-      seqable && seqable.constructor === Set ?
-        seqable :
-        Set.empty().union(seqable);
+  constructor(value) {
+    return arguments.length === 0 ? Set.empty() :
+      value && value.constructor === Set ? value :
+      Set.empty().union(value);
   }
 
   static empty() {
@@ -36,8 +34,8 @@ class Set extends SetCollection {
     return this(arguments);
   }
 
-  static fromKeys(seqable) {
-    return this(LazyKeyedSequence(seqable).flip());
+  static fromKeys(value) {
+    return this(LazyKeyedSequence(value).flip());
   }
 
   toString() {
@@ -86,42 +84,42 @@ class Set extends SetCollection {
 
   // @pragma Composition
 
-  union(/*...seqs*/) {
-    var seqs = arguments;
-    if (seqs.length === 0) {
+  union(/*...iters*/) {
+    var iters = arguments;
+    if (iters.length === 0) {
       return this;
     }
     return this.withMutations(set => {
-      for (var ii = 0; ii < seqs.length; ii++) {
-        Iterable(seqs[ii]).forEach(value => set.add(value));
+      for (var ii = 0; ii < iters.length; ii++) {
+        Iterable(iters[ii]).forEach(value => set.add(value));
       }
     });
   }
 
-  intersect(...seqs) {
-    if (seqs.length === 0) {
+  intersect(...iters) {
+    if (iters.length === 0) {
       return this;
     }
-    seqs = seqs.map(seq => Iterable(seq));
+    iters = iters.map(iter => Iterable(iter));
     var originalSet = this;
     return this.withMutations(set => {
       originalSet.forEach(value => {
-        if (!seqs.every(seq => seq.contains(value))) {
+        if (!iters.every(iter => iter.contains(value))) {
           set.remove(value);
         }
       });
     });
   }
 
-  subtract(...seqs) {
-    if (seqs.length === 0) {
+  subtract(...iters) {
+    if (iters.length === 0) {
       return this;
     }
-    seqs = seqs.map(seq => Iterable(seq));
+    iters = iters.map(iter => Iterable(iter));
     var originalSet = this;
     return this.withMutations(set => {
       originalSet.forEach(value => {
-        if (seqs.some(seq => seq.contains(value))) {
+        if (iters.some(iter => iter.contains(value))) {
           set.remove(value);
         }
       });
@@ -132,8 +130,8 @@ class Set extends SetCollection {
     return this.union.apply(this, arguments);
   }
 
-  mergeWith(merger, ...seqs) {
-    return this.union.apply(this, seqs);
+  mergeWith(merger, ...iters) {
+    return this.union.apply(this, iters);
   }
 
   wasAltered() {
