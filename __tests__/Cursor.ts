@@ -166,7 +166,7 @@ describe('Cursor', () => {
     var mapped2 = cursor2.get('x').map(val => {
       expect(typeof val.deref).toBe('function'); // mapped values are cursors.
       return val;
-    }).toVector();
+    }).toList();
     // Mapped is not a cursor, but it is a sequence of cursors.
     expect(typeof mapped2.deref).not.toBe('function');
     expect(typeof mapped2.get(0).deref).toBe('function');

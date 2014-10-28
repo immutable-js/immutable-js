@@ -12,7 +12,7 @@ import "is"
 import "TrieUtils"
 import "Hash"
 import "Iterator"
-/* global Map, OrderedMap, Vector, Set, Stack,
+/* global Map, OrderedMap, List, Set, Stack,
           is,
           arrCopy, NOT_SET, assertNotInfinite, ensureSize, wrapIndex,
           returnTrue, wholeSlice, resolveBegin, resolveEnd,
@@ -103,10 +103,10 @@ class Iterable {
     return Stack(this);
   }
 
-  toVector() {
+  toList() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);
-    return Vector(this);
+    return List(this);
   }
 
 

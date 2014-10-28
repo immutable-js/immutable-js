@@ -7,7 +7,7 @@ import jasmineCheck = require('jasmine-check');
 jasmineCheck.install();
 
 import Immutable = require('immutable');
-import Vector = Immutable.Vector;
+import List = Immutable.List;
 
 function arrayOfSize(s) {
   var a = new Array(s);
@@ -17,58 +17,58 @@ function arrayOfSize(s) {
   return a;
 }
 
-describe('Vector', () => {
+describe('List', () => {
 
   it('of provides initial values', () => {
-    var v = Vector.of('a', 'b', 'c');
+    var v = List.of('a', 'b', 'c');
     expect(v.get(0)).toBe('a');
     expect(v.get(1)).toBe('b');
     expect(v.get(2)).toBe('c');
   });
 
   it('toArray provides a JS array', () => {
-    var v = Vector.of('a', 'b', 'c');
+    var v = List.of('a', 'b', 'c');
     expect(v.toArray()).toEqual(['a', 'b', 'c']);
   });
 
   it('constructor does not accept a scalar', () => {
     expect(() => {
-      Immutable.Vector(3);
+      Immutable.List(3);
     }).toThrow('Expected iterable: 3');
   });
 
   it('from does not accept a scalar', () => {
     expect(() => {
-      Immutable.Vector(3);
+      Immutable.List(3);
     }).toThrow('Expected iterable: 3');
   });
 
   it('from consumes a JS array', () => {
-    var v = Vector(['a', 'b', 'c']);
+    var v = List(['a', 'b', 'c']);
     expect(v.toArray()).toEqual(['a', 'b', 'c']);
   });
 
   it('from consumes a Seq', () => {
     var seq = Immutable.Seq(['a', 'b', 'c']);
-    var v = Vector(seq);
+    var v = List(seq);
     expect(v.toArray()).toEqual(['a', 'b', 'c']);
   });
 
   it('from consumes a non-indexed Seq', () => {
     var seq = Immutable.Seq({a:null, b:null, c:null}).flip();
-    var v = Vector(seq);
+    var v = List(seq);
     expect(v.toArray()).toEqual(['a', 'b', 'c']);
   });
 
   it('can set and get a value', () => {
-    var v = Vector();
+    var v = List();
     expect(v.get(0)).toBe(undefined);
     v = v.set(0, 'value');
     expect(v.get(0)).toBe('value');
   });
 
-  it('counts from the end of the vector on negative index', () => {
-    var i = Immutable.Vector.of(1, 2, 3, 4, 5, 6, 7);
+  it('counts from the end of the list on negative index', () => {
+    var i = Immutable.List.of(1, 2, 3, 4, 5, 6, 7);
     expect(i.get(-1)).toBe(7);
     expect(i.get(-5)).toBe(3);
     expect(i.get(-9)).toBe(undefined);
@@ -76,14 +76,14 @@ describe('Vector', () => {
   });
 
   it('setting creates a new instance', () => {
-    var v0 = Vector.of('a');
+    var v0 = List.of('a');
     var v1 = v0.set(0, 'A');
     expect(v0.get(0)).toBe('a');
     expect(v1.get(0)).toBe('A');
   });
 
   it('size includes the highest index', () => {
-    var v0 = Vector();
+    var v0 = List();
     var v1 = v0.set(0, 'a');
     var v2 = v1.set(1, 'b');
     var v3 = v2.set(2, 'c');
@@ -94,17 +94,17 @@ describe('Vector', () => {
   });
 
   it('get helpers make for easier to read code', () => {
-    var v = Vector.of('a', 'b', 'c');
+    var v = List.of('a', 'b', 'c');
     expect(v.first()).toBe('a');
     expect(v.get(1)).toBe('b');
     expect(v.last()).toBe('c');
   });
 
   it('slice helpers make for easier to read code', () => {
-    var v0 = Vector.of('a', 'b', 'c');
-    var v1 = Vector.of('a', 'b');
-    var v2 = Vector.of('a');
-    var v3 = Vector.empty();
+    var v0 = List.of('a', 'b', 'c');
+    var v1 = List.of('a', 'b');
+    var v2 = List.of('a');
+    var v3 = List.empty();
 
     expect(v0.rest().toArray()).toEqual(['b', 'c']);
     expect(v0.butLast().toArray()).toEqual(['a', 'b']);
@@ -120,7 +120,7 @@ describe('Vector', () => {
   });
 
   it('can set at arbitrary indices', () => {
-    var v0 = Vector.of('a', 'b', 'c');
+    var v0 = List.of('a', 'b', 'c');
     var v1 = v0.set(1, 'B'); // within existing tail
     var v2 = v1.set(3, 'd'); // at last position
     var v3 = v2.set(31, 'e'); // (testing internal guts)
@@ -138,7 +138,7 @@ describe('Vector', () => {
   });
 
   it('can contain a large number of indices', () => {
-    var v = Immutable.Range(0,20000).toVector();
+    var v = Immutable.Range(0,20000).toList();
     var iterations = 0;
     v.forEach(v => {
       expect(v).toBe(iterations);
@@ -146,16 +146,16 @@ describe('Vector', () => {
     });
   })
 
-  it('describes a dense vector', () => {
-    var v = Vector.of('a', 'b', 'c').push('d').set(14, 'o').set(6, undefined).remove(1);
+  it('describes a dense list', () => {
+    var v = List.of('a', 'b', 'c').push('d').set(14, 'o').set(6, undefined).remove(1);
     expect(v.size).toBe(14);
     expect(v.toJS()).toEqual(
       ['a','c','d',,,,,,,,,,,'o']
     );
   });
 
-  it('iterates a dense vector', () => {
-    var v = Vector.empty().setSize(11).set(1,1).set(3,3).set(5,5).set(7,7).set(9,9);
+  it('iterates a dense list', () => {
+    var v = List.empty().setSize(11).set(1,1).set(3,3).set(5,5).set(7,7).set(9,9);
     expect(v.size).toBe(11);
 
     var forEachResults = [];
@@ -211,7 +211,7 @@ describe('Vector', () => {
   });
 
   it('push inserts at highest index', () => {
-    var v0 = Vector.of('a', 'b', 'c');
+    var v0 = List.of('a', 'b', 'c');
     var v1 = v0.push('d', 'e', 'f');
     expect(v0.size).toBe(3);
     expect(v1.size).toBe(6);
@@ -223,7 +223,7 @@ describe('Vector', () => {
       var a1 = arrayOfSize(s1);
       var a2 = arrayOfSize(s2);
 
-      var v1 = Vector(a1);
+      var v1 = List(a1);
       var v3 = v1.push.apply(v1, a2);
 
       var a3 = a1.slice();
@@ -235,7 +235,7 @@ describe('Vector', () => {
   );
 
   it('pop removes the highest index, decrementing size', () => {
-    var v = Vector.of('a', 'b', 'c').pop();
+    var v = List.of('a', 'b', 'c').pop();
     expect(v.last()).toBe('b');
     expect(v.toArray()).toEqual(['a','b']);
     v = v.set(1230, 'x');
@@ -252,7 +252,7 @@ describe('Vector', () => {
   check.it('pop removes the highest index, just like array', {maxSize: 2000},
     [gen.posInt], len => {
       var a = arrayOfSize(len);
-      var v = Vector(a);
+      var v = List(a);
 
       while (a.length) {
         expect(v.size).toBe(a.length);
@@ -268,7 +268,7 @@ describe('Vector', () => {
   check.it('push adds the next highest index, just like array', {maxSize: 2000},
     [gen.posInt], len => {
       var a = [];
-      var v = Vector();
+      var v = List();
 
       for (var ii = 0; ii < len; ii++) {
         expect(v.size).toBe(a.length);
@@ -281,8 +281,8 @@ describe('Vector', () => {
     }
   );
 
-  it('allows popping an empty vector', () => {
-    var v = Vector.of('a').pop();
+  it('allows popping an empty list', () => {
+    var v = List.of('a').pop();
     expect(v.size).toBe(0);
     expect(v.toArray()).toEqual([]);
     v = v.pop().pop().pop().pop().pop();
@@ -291,7 +291,7 @@ describe('Vector', () => {
   });
 
   it('remove removes any index', () => {
-    var v = Vector.of('a', 'b', 'c').remove(2).remove(0);
+    var v = List.of('a', 'b', 'c').remove(2).remove(0);
     expect(v.size).toBe(1);
     expect(v.get(0)).toBe('b');
     expect(v.get(1)).toBe(undefined);
@@ -304,13 +304,13 @@ describe('Vector', () => {
   });
 
   it('shifts values from the front', () => {
-    var v = Vector.of('a', 'b', 'c').shift();
+    var v = List.of('a', 'b', 'c').shift();
     expect(v.first()).toBe('b');
     expect(v.size).toBe(2);
   });
 
   it('unshifts values to the front', () => {
-    var v = Vector.of('a', 'b', 'c').unshift('x', 'y', 'z');
+    var v = List.of('a', 'b', 'c').unshift('x', 'y', 'z');
     expect(v.first()).toBe('x');
     expect(v.size).toBe(6);
     expect(v.toArray()).toEqual(['x', 'y', 'z', 'a', 'b', 'c']);
@@ -321,7 +321,7 @@ describe('Vector', () => {
       var a1 = arrayOfSize(s1);
       var a2 = arrayOfSize(s2);
 
-      var v1 = Vector(a1);
+      var v1 = List(a1);
       var v3 = v1.unshift.apply(v1, a2);
 
       var a3 = a1.slice();
@@ -333,49 +333,49 @@ describe('Vector', () => {
   );
 
   it('finds values using indexOf', () => {
-    var v = Vector.of('a', 'b', 'c', 'b', 'a');
+    var v = List.of('a', 'b', 'c', 'b', 'a');
     expect(v.indexOf('b')).toBe(1);
     expect(v.indexOf('c')).toBe(2);
     expect(v.indexOf('d')).toBe(-1);
   });
 
   it('finds values using findIndex', () => {
-    var v = Vector.of('a', 'b', 'c', 'B', 'a');
+    var v = List.of('a', 'b', 'c', 'B', 'a');
     expect(v.findIndex(value => value.toUpperCase() === value)).toBe(3);
   });
 
   it('maps values', () => {
-    var v = Vector.of('a', 'b', 'c');
+    var v = List.of('a', 'b', 'c');
     var r = v.map(value => value.toUpperCase());
     expect(r.toArray()).toEqual(['A', 'B', 'C']);
   });
 
   it('filters values', () => {
-    var v = Vector.of('a', 'b', 'c', 'd', 'e', 'f');
+    var v = List.of('a', 'b', 'c', 'd', 'e', 'f');
     var r = v.filter((value, index) => index % 2 === 1);
     expect(r.toArray()).toEqual(['b', 'd', 'f']);
   });
 
   it('reduces values', () => {
-    var v = Vector.of(1,10,100);
+    var v = List.of(1,10,100);
     var r = v.reduce<number>((reduction, value) => reduction + value);
     expect(r).toEqual(111);
   });
 
   it('reduces from the right', () => {
-    var v = Vector.of('a','b','c');
+    var v = List.of('a','b','c');
     var r = v.reduceRight((reduction, value) => reduction + value);
     expect(r).toEqual('cba');
   });
 
   it('takes and skips values', () => {
-    var v = Vector.of('a', 'b', 'c', 'd', 'e', 'f');
+    var v = List.of('a', 'b', 'c', 'd', 'e', 'f');
     var r = v.skip(2).take(2);
     expect(r.toArray()).toEqual(['c', 'd']);
   });
 
   it('efficiently chains array methods', () => {
-    var v = Vector.of(1,2,3,4,5,6,7,8,9,10,11,12,13,14);
+    var v = List.of(1,2,3,4,5,6,7,8,9,10,11,12,13,14);
 
     var r = v
       .filter(x => x % 2 == 0)
@@ -388,22 +388,22 @@ describe('Vector', () => {
   });
 
   it('can convert to a map', () => {
-    var v = Vector.of('a', 'b', 'c');
+    var v = List.of('a', 'b', 'c');
     var m = v.toMap();
     expect(m.size).toBe(3);
     expect(m.get(1)).toBe('b');
   });
 
   it('reverses', () => {
-    var v = Vector.of('a', 'b', 'c');
+    var v = List.of('a', 'b', 'c');
     expect(v.reverse().toArray()).toEqual(['c', 'b', 'a']);
   });
 
   it('ensures equality', () => {
-    // Make a sufficiently long vector.
+    // Make a sufficiently long list.
     var a = Array(100).join('abcdefghijklmnopqrstuvwxyz').split('');
-    var v1 = Vector(a);
-    var v2 = Vector(a);
+    var v1 = List(a);
+    var v2 = List(a);
     expect(v1 == v2).not.toBe(true);
     expect(v1 === v2).not.toBe(true);
     expect(v1.equals(v2)).toBe(true);
@@ -414,14 +414,14 @@ describe('Vector', () => {
   // TODO: assert that forEach iterates in the correct order and is only called as much as it needs to be.
 
   it('concat works like Array.prototype.concat', () => {
-    var v1 = Vector.of(1, 2, 3);
-    var v2 = v1.concat(4, Vector.of(5, 6), [7, 8], Immutable.Seq({a:9,b:10}), Immutable.Set.of(11,12), null);
+    var v1 = List.of(1, 2, 3);
+    var v2 = v1.concat(4, List.of(5, 6), [7, 8], Immutable.Seq({a:9,b:10}), Immutable.Set.of(11,12), null);
     expect(v1.toArray()).toEqual([1, 2, 3]);
     expect(v2.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, null]);
   });
 
   it('allows chained mutations', () => {
-    var v1 = Vector();
+    var v1 = List();
     var v2 = v1.push(1);
     var v3 = v2.withMutations(v => v.push(2).push(3).push(4));
     var v4 = v3.push(5);
@@ -433,7 +433,7 @@ describe('Vector', () => {
   });
 
   it('allows chained mutations using alternative API', () => {
-    var v1 = Vector();
+    var v1 = List();
     var v2 = v1.push(1);
     var v3 = v2.asMutable().push(2).push(3).push(4).asImmutable();
     var v4 = v3.push(5);
@@ -445,7 +445,7 @@ describe('Vector', () => {
   });
 
   it('allows size to be set', () => {
-    var v1 = Immutable.Range(0,2000).toVector();
+    var v1 = Immutable.Range(0,2000).toList();
     var v2 = v1.setSize(1000);
     var v3 = v2.setSize(1500);
     expect(v1.size).toBe(2000);
@@ -463,8 +463,8 @@ describe('Vector', () => {
   });
 
   it('can be efficiently sliced', () => {
-    var v1 = Immutable.Range(0,2000).toVector();
-    var v2 = v1.slice(100,-100).toVector();
+    var v1 = Immutable.Range(0,2000).toList();
+    var v2 = v1.slice(100,-100).toList();
     expect(v1.size).toBe(2000)
     expect(v2.size).toBe(1800);
     expect(v2.first()).toBe(100);
@@ -474,7 +474,7 @@ describe('Vector', () => {
   });
 
   check.it('iterates through all values', [gen.posInt], len => {
-    var v = Immutable.Range(0, len).toVector();
+    var v = Immutable.Range(0, len).toList();
     var valueIter = v.values();
     for (var ii = 0; ii < len; ii++) {
       expect(valueIter.next().value).toBe(ii);

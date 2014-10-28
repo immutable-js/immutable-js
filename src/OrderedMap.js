@@ -8,9 +8,9 @@
  */
 
 import "Map"
-import "Vector"
+import "List"
 import "TrieUtils"
-/* global Map, Vector, DELETE, NOT_SET */
+/* global Map, List, DELETE, NOT_SET */
 /* exported OrderedMap */
 
 
@@ -25,7 +25,7 @@ class OrderedMap extends Map {
   }
 
   static empty() {
-    return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(Map.empty(), Vector.empty()));
+    return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(Map.empty(), List.empty()));
   }
 
   static of(/*...values*/) {
@@ -40,7 +40,7 @@ class OrderedMap extends Map {
 
   get(k, notSetValue) {
     var index = this._map.get(k);
-    return index !== undefined ? this._vector.get(index)[1] : notSetValue;
+    return index !== undefined ? this._list.get(index)[1] : notSetValue;
   }
 
   // @pragma Modification
@@ -52,7 +52,7 @@ class OrderedMap extends Map {
     if (this.__ownerID) {
       this.size = 0;
       this._map.clear();
-      this._vector.clear();
+      this._list.clear();
       return this;
     }
     return OrderedMap.empty();
@@ -67,18 +67,18 @@ class OrderedMap extends Map {
   }
 
   wasAltered() {
-    return this._map.wasAltered() || this._vector.wasAltered();
+    return this._map.wasAltered() || this._list.wasAltered();
   }
 
   __iterate(fn, reverse) {
-    return this._vector.__iterate(
+    return this._list.__iterate(
       entry => entry && fn(entry[1], entry[0], this),
       reverse
     );
   }
 
   __iterator(type, reverse) {
-    return this._vector.fromEntrySeq().__iterator(type, reverse);
+    return this._list.fromEntrySeq().__iterator(type, reverse);
   }
 
   __ensureOwner(ownerID) {
@@ -86,14 +86,14 @@ class OrderedMap extends Map {
       return this;
     }
     var newMap = this._map.__ensureOwner(ownerID);
-    var newVector = this._vector.__ensureOwner(ownerID);
+    var newList = this._list.__ensureOwner(ownerID);
     if (!ownerID) {
       this.__ownerID = ownerID;
       this._map = newMap;
-      this._vector = newVector;
+      this._list = newList;
       return this;
     }
-    return makeOrderedMap(newMap, newVector, ownerID, this.__hash);
+    return makeOrderedMap(newMap, newList, ownerID, this.__hash);
   }
 }
 
@@ -101,11 +101,11 @@ OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
 
 
 
-function makeOrderedMap(map, vector, ownerID, hash) {
+function makeOrderedMap(map, list, ownerID, hash) {
   var omap = Object.create(OrderedMap.prototype);
   omap.size = map ? map.size : 0;
   omap._map = map;
-  omap._vector = vector;
+  omap._list = list;
   omap.__ownerID = ownerID;
   omap.__hash = hash;
   return omap;
@@ -113,26 +113,26 @@ function makeOrderedMap(map, vector, ownerID, hash) {
 
 function updateOrderedMap(omap, k, v) {
   var map = omap._map;
-  var vector = omap._vector;
+  var list = omap._list;
   var i = map.get(k);
   var has = i !== undefined;
   var removed = v === NOT_SET;
-  if ((!has && removed) || (has && v === vector.get(i)[1])) {
+  if ((!has && removed) || (has && v === list.get(i)[1])) {
     return omap;
   }
   if (!has) {
-    i = vector.size;
+    i = list.size;
   }
   var newMap = removed ? map.remove(k) : has ? map : map.set(k, i);
-  var newVector = removed ? vector.remove(i) : vector.set(i, [k, v]);
+  var newList = removed ? list.remove(i) : list.set(i, [k, v]);
   if (omap.__ownerID) {
     omap.size = newMap.size;
     omap._map = newMap;
-    omap._vector = newVector;
+    omap._list = newList;
     omap.__hash = undefined;
     return omap;
   }
-  return makeOrderedMap(newMap, newVector);
+  return makeOrderedMap(newMap, newList);
 }
 
 var EMPTY_ORDERED_MAP;

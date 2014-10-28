@@ -65,19 +65,19 @@ describe('Equality', () => {
     expectIs(arraySeq2, arraySeq2.map(x => x));
   });
 
-  it('compares vectors', () => {
-    var vector = Immutable.Vector.of(1,2,3);
-    expectIs(vector, vector);
-    expectIsNot(vector, [1,2,3]);
+  it('compares lists', () => {
+    var list = Immutable.List.of(1,2,3);
+    expectIs(list, list);
+    expectIsNot(list, [1,2,3]);
 
-    expectIs(vector, Immutable.Seq.of(1,2,3));
-    expectIs(vector, Immutable.Vector.of(1,2,3));
+    expectIs(list, Immutable.Seq.of(1,2,3));
+    expectIs(list, Immutable.List.of(1,2,3));
 
-    var vectorLonger = vector.push(4);
-    expectIsNot(vector, vectorLonger);
-    var vectorShorter = vectorLonger.pop();
-    expect(vector === vectorShorter).toBe(false);
-    expectIs(vector, vectorShorter);
+    var listLonger = list.push(4);
+    expectIsNot(list, listLonger);
+    var listShorter = listLonger.pop();
+    expect(list === listShorter).toBe(false);
+    expectIs(list, listShorter);
   });
 
   // TODO: more tests

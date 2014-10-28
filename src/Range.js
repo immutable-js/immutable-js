@@ -11,13 +11,13 @@ import "TrieUtils"
 import "invariant"
 import "Seq"
 import "Iterable"
-import "Vector"
+import "List"
 import "invariant"
 import "Iterator"
 /* global wrapIndex, wholeSlice, resolveBegin, resolveEnd,
           invariant,
           IndexedSeq,
-          VectorPrototype,
+          ListPrototype,
           Iterator, iteratorValue, iteratorDone */
 /* exported Range, RangePrototype */
 
@@ -146,7 +146,7 @@ class Range extends IndexedSeq {
 var RangePrototype = Range.prototype;
 
 RangePrototype.__toJS = RangePrototype.toArray;
-RangePrototype.first = VectorPrototype.first;
-RangePrototype.last = VectorPrototype.last;
+RangePrototype.first = ListPrototype.first;
+RangePrototype.last = ListPrototype.last;
 
 var __EMPTY_RANGE = Range(0, 0);

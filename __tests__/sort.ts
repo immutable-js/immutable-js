@@ -5,7 +5,7 @@ jest.autoMockOff();
 
 import I = require('immutable');
 import Seq = I.Seq;
-import Vector = I.Vector;
+import List = I.List;
 import OrderedMap = I.OrderedMap;
 import Range = I.Range;
 
@@ -15,8 +15,8 @@ describe('sort', () => {
     expect(Seq.of(4,5,6,3,2,1).sort().toArray()).toEqual([1,2,3,4,5,6]);
   })
 
-  it('sorts a vector', () => {
-    expect(Vector.of(4,5,6,3,2,1).sort().toArray()).toEqual([1,2,3,4,5,6]);
+  it('sorts a list', () => {
+    expect(List.of(4,5,6,3,2,1).sort().toArray()).toEqual([1,2,3,4,5,6]);
   })
 
   it('sorts a keyed sequence', () => {

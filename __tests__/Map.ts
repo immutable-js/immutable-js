@@ -214,13 +214,13 @@ describe('Map', () => {
     expect(v.flip().toObject()).toEqual({1:'a', 2:'b', 3:'c', 4:'d', 5:'e', 6:'f'});
   });
 
-  it('can convert to a vector', () => {
+  it('can convert to a list', () => {
     var m = Map({a:1, b:2, c:3});
-    var v = m.toVector();
-    var k = m.keySeq().toVector();
+    var v = m.toList();
+    var k = m.keySeq().toList();
     expect(v.size).toBe(3);
     expect(k.size).toBe(3);
-    // Note: Map has undefined ordering, this Vector may not be the same
+    // Note: Map has undefined ordering, this List may not be the same
     // order as the order you set into the Map.
     expect(v.get(1)).toBe(2);
     expect(k.get(1)).toBe('b');

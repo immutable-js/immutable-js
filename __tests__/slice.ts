@@ -8,7 +8,7 @@ jasmineCheck.install();
 
 import I = require('immutable');
 import Seq = I.Seq;
-import Vector = I.Vector;
+import List = I.List;
 
 describe('slice', () => {
 
@@ -70,9 +70,9 @@ describe('slice', () => {
     ]);
   })
 
-  it('slices a vector', () => {
-    expect(Vector.of(1,2,3,4,5,6).slice(2).toArray()).toEqual([3,4,5,6]);
-    expect(Vector.of(1,2,3,4,5,6).slice(2, 4).toArray()).toEqual([3,4]);
+  it('slices a list', () => {
+    expect(List.of(1,2,3,4,5,6).slice(2).toArray()).toEqual([3,4,5,6]);
+    expect(List.of(1,2,3,4,5,6).slice(2, 4).toArray()).toEqual([3,4]);
   })
 
   it('returns self for whole slices', () => {
@@ -81,27 +81,27 @@ describe('slice', () => {
     expect(s.slice(0, 3)).toBe(s);
     expect(s.slice(-4, 4)).toBe(s);
 
-    var v = Vector.of(1,2,3);
+    var v = List.of(1,2,3);
     expect(v.slice(-4, 4)).toBe(v);
     expect(v.slice(-3)).toBe(v);
-    expect(v.slice(-4, 4).toVector()).toBe(v);
+    expect(v.slice(-4, 4).toList()).toBe(v);
   })
 
-  it('creates a sliced vector in O(log32(n))', () => {
-    expect(Vector.of(1,2,3,4,5).slice(-3, -1).toVector().toArray()).toEqual([3,4]);
+  it('creates a sliced list in O(log32(n))', () => {
+    expect(List.of(1,2,3,4,5).slice(-3, -1).toList().toArray()).toEqual([3,4]);
   })
 
   it('has the same behavior as array slice in known edge cases', () => {
     var a = I.Range(0, 33).toArray();
-    var v = Vector(a);
-    expect(v.slice(31).toVector().toArray()).toEqual(a.slice(31));
+    var v = List(a);
+    expect(v.slice(31).toList().toArray()).toEqual(a.slice(31));
   })
 
   check.it('works like Array.prototype.slice',
            [gen.int, gen.array(gen.oneOf([gen.int, gen.undefined]), 0, 3)],
            (valuesLen, args) => {
     var a = I.Range(0, valuesLen).toArray();
-    var v = Vector(a);
+    var v = List(a);
     var slicedV = v.slice.apply(v, args);
     var slicedA = a.slice.apply(a, args);
     expect(slicedV.toArray()).toEqual(slicedA);
@@ -123,7 +123,7 @@ describe('slice', () => {
 
     check.it('takes the first n from a list', [gen.int, gen.posInt], (len, num) => {
       var a = I.Range(0, len).toArray();
-      var v = Vector(a);
+      var v = List(a);
       expect(v.take(num).toArray()).toEqual(a.slice(0, num));
     })
 

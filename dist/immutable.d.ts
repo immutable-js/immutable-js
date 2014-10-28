@@ -40,7 +40,7 @@ declare module 'immutable' {
 
   /**
    * `Immutable.fromJS()` deeply converts plain JS objects and arrays to
-   * Immutable Maps and Vectors.
+   * Immutable Maps and Lists.
    *
    * If a `reviver` is optionally provided, it will be called with every
    * collection as a Seq (beginning with the most nested collections
@@ -50,11 +50,11 @@ declare module 'immutable' {
    * to return a new Immutable Iterable, allowing for custom convertions from
    * deep JS objects.
    *
-   * This example converts JSON to Vector and OrderedMap:
+   * This example converts JSON to List and OrderedMap:
    *
    *     Immutable.fromJS({a: {b: [10, 20, 30]}, c: 40}, function (value, key) {
    *       var isIndexed = Immutable.Iterable.isIndexed(value);
-   *       return isIndexed ? value.toVector() : value.toOrderedMap();
+   *       return isIndexed ? value.toList() : value.toOrderedMap();
    *     });
    *
    *     // true, "b", {b: [10, 20, 30]}
@@ -62,7 +62,7 @@ declare module 'immutable' {
    *     // false, "", {"": {a: {b: [10, 20, 30]}, c: 40}}
    *
    * If `reviver` is not provided, the default behavior will convert Arrays into
-   * Vectors and Objects into Maps.
+   * Lists and Objects into Maps.
    *
    * Note: `reviver` acts similarly to [`JSON.parse`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Example.3A_Using_the_reviver_parameter).
    */
@@ -220,12 +220,12 @@ declare module 'immutable' {
     toStack(): Stack<V>;
 
     /**
-     * Converts this Iterable to a Vector, discarding keys.
+     * Converts this Iterable to a List, discarding keys.
      *
-     * Note: This is equivalent to `Vector(this)`, but provided to allow
+     * Note: This is equivalent to `List(this)`, but provided to allow
      * for chained expressions.
      */
-    toVector(): Vector<V>;
+    toList(): List<V>;
 
 
     // ### Common JavaScript methods and properties
@@ -1013,7 +1013,7 @@ declare module 'immutable' {
 
     /**
      * True if `maybeSeq` is a Seq, it is not backed by a concrete
-     * structure such as Map, Vector, or Set.
+     * structure such as Map, List, or Set.
      */
     function isSeq(maybeSeq): boolean;
   }
@@ -1656,128 +1656,128 @@ declare module 'immutable' {
 
 
   /**
-   * Vector
+   * List
    * ------
    *
-   * Vectors are ordered indexed dense collections, much like a JavaScript
+   * Lists are ordered indexed dense collections, much like a JavaScript
    * Array. Unlike a JavaScript Array, there is no distinction between an
-   * "unset" index and an index set to `undefined`. `Vector#forEach` visits all
+   * "unset" index and an index set to `undefined`. `List#forEach` visits all
    * indices from 0 to size, regardless of if they are defined.
    */
 
-  export module Vector {
+  export module List {
 
     /**
-     * `Vector.empty()` creates a new immutable Vector of size 0.
+     * `List.empty()` creates a new immutable List of size 0.
      */
-    function empty<T>(): Vector<T>;
+    function empty<T>(): List<T>;
 
     /**
-     * Creates a new Vector containing `values`.
+     * Creates a new List containing `values`.
      */
-    function of<T>(...values: T[]): Vector<T>;
+    function of<T>(...values: T[]): List<T>;
   }
 
   /**
-   * Create a new immutable Vector containing the values of the provided
+   * Create a new immutable List containing the values of the provided
    * iterable-like.
    */
-  export function Vector<T>(): Vector<T>;
-  export function Vector<T>(iter: Iterable<any, T>): Vector<T>;
-  export function Vector<T>(array: Array<T>): Vector<T>;
-  export function Vector<T>(obj: {[key: string]: T}): Vector<T>;
-  export function Vector<T>(iterator: Iterator<T>): Vector<T>;
-  export function Vector<T>(iterable: /*Iterable<T>*/Object): Vector<T>;
+  export function List<T>(): List<T>;
+  export function List<T>(iter: Iterable<any, T>): List<T>;
+  export function List<T>(array: Array<T>): List<T>;
+  export function List<T>(obj: {[key: string]: T}): List<T>;
+  export function List<T>(iterator: Iterator<T>): List<T>;
+  export function List<T>(iterable: /*Iterable<T>*/Object): List<T>;
 
 
-  export interface Vector<T> extends IndexedCollection<T> {
+  export interface List<T> extends IndexedCollection<T> {
 
     /**
-     * Returns a new Vector which includes `value` at `index`. If `index` already
-     * exists in this Vector, it will be replaced.
+     * Returns a new List which includes `value` at `index`. If `index` already
+     * exists in this List, it will be replaced.
      *
      * `index` may be a negative number, which indexes back from the end of the
-     * Vector. `v.set(-1, "value")` sets the last item in the Vector.
+     * List. `v.set(-1, "value")` sets the last item in the List.
      */
-    set(index: number, value: T): Vector<T>;
+    set(index: number, value: T): List<T>;
 
     /**
-     * Returns a new Vector having set `value` at this `keyPath`. If any keys in
+     * Returns a new List having set `value` at this `keyPath`. If any keys in
      * `keyPath` do not exist, a new immutable Map will be created at that key.
      */
-    setIn(keyPath: Array<any>, value: T): Vector<T>;
+    setIn(keyPath: Array<any>, value: T): List<T>;
 
     /**
-     * Returns a new Vector which excludes this `index`. It will not affect the
-     * size of the Vector, instead leaving an undefined value.
+     * Returns a new List which excludes this `index`. It will not affect the
+     * size of the List, instead leaving an undefined value.
      *
      * `index` may be a negative number, which indexes back from the end of the
-     * Vector. `v.delete(-1)` deletes the last item in the Vector.
+     * List. `v.delete(-1)` deletes the last item in the List.
      *
      * Note: `delete` cannot be safely used in IE8
      * @alias delete
      */
-    remove(index: number): Vector<T>;
-    delete(index: number): Vector<T>;
+    remove(index: number): List<T>;
+    delete(index: number): List<T>;
 
     /**
-     * Returns a new Vector having removed the value at this `keyPath`. If any
+     * Returns a new List having removed the value at this `keyPath`. If any
      * keys in `keyPath` do not exist, a new immutable Map will be created at
      * that key.
      */
-    removeIn(keyPath: Array<any>): Vector<T>;
+    removeIn(keyPath: Array<any>): List<T>;
 
     /**
-     * Returns a new Vector with 0 size and no values.
+     * Returns a new List with 0 size and no values.
      */
-    clear(): Vector<T>;
+    clear(): List<T>;
 
     /**
-     * Returns a new Vector with the provided `values` appended, starting at this
-     * Vector's `size`.
+     * Returns a new List with the provided `values` appended, starting at this
+     * List's `size`.
      */
-    push(...values: T[]): Vector<T>;
+    push(...values: T[]): List<T>;
 
     /**
-     * Returns a new Vector with a size ones less than this Vector, excluding
-     * the last index in this Vector.
+     * Returns a new List with a size ones less than this List, excluding
+     * the last index in this List.
      *
      * Note: this differs from `Array.prototype.pop` because it returns a new
-     * Vector rather than the removed value. Use `last()` to get the last value
-     * in this Vector.
+     * List rather than the removed value. Use `last()` to get the last value
+     * in this List.
      */
-    pop(): Vector<T>;
+    pop(): List<T>;
 
     /**
-     * Returns a new Vector with the provided `values` prepended, shifting other
+     * Returns a new List with the provided `values` prepended, shifting other
      * values ahead to higher indices.
      */
-    unshift(...values: T[]): Vector<T>;
+    unshift(...values: T[]): List<T>;
 
     /**
-     * Returns a new Vector with a size ones less than this Vector, excluding
-     * the first index in this Vector, shifting all other values to a lower index.
+     * Returns a new List with a size ones less than this List, excluding
+     * the first index in this List, shifting all other values to a lower index.
      *
      * Note: this differs from `Array.prototype.shift` because it returns a new
-     * Vector rather than the removed value. Use `first()` to get the first
-     * value in this Vector.
+     * List rather than the removed value. Use `first()` to get the first
+     * value in this List.
      */
-    shift(): Vector<T>;
+    shift(): List<T>;
 
     /**
-     * Returns a new Vector with an updated value at `index` with the return
+     * Returns a new List with an updated value at `index` with the return
      * value of calling `updater` with the existing value, or `notSetValue` if
      * `index` was not set. If called with a single argument, `updater` is
-     * called with the Vector itself.
+     * called with the List itself.
      *
      * `index` may be a negative number, which indexes back from the end of the
-     * Vector. `v.update(-1)` updates the last item in the Vector.
+     * List. `v.update(-1)` updates the last item in the List.
      *
      * @see Map.update
      */
-    update(updater: (value: Vector<T>) => Vector<T>): Vector<T>;
-    update(index: number, updater: (value: T) => T): Vector<T>;
-    update(index: number, notSetValue: T, updater: (value: T) => T): Vector<T>;
+    update(updater: (value: List<T>) => List<T>): List<T>;
+    update(index: number, updater: (value: T) => T): List<T>;
+    update(index: number, notSetValue: T, updater: (value: T) => T): List<T>;
 
     /**
      * @see `Map.prototype.updateIn`
@@ -1785,18 +1785,18 @@ declare module 'immutable' {
     updateIn(
       keyPath: Array<any>,
       updater: (value: any) => any
-    ): Vector<T>;
+    ): List<T>;
     updateIn(
       keyPath: Array<any>,
       notSetValue: any,
       updater: (value: any) => any
-    ): Vector<T>;
+    ): List<T>;
 
     /**
      * @see `Map.prototype.merge`
      */
-    merge(...iterables: IndexedIterable<T>[]): Vector<T>;
-    merge(...iterables: Array<T>[]): Vector<T>;
+    merge(...iterables: IndexedIterable<T>[]): List<T>;
+    merge(...iterables: Array<T>[]): List<T>;
 
     /**
      * @see `Map.prototype.mergeWith`
@@ -1804,17 +1804,17 @@ declare module 'immutable' {
     mergeWith(
       merger: (previous?: T, next?: T) => T,
       ...iterables: IndexedIterable<T>[]
-    ): Vector<T>;
+    ): List<T>;
     mergeWith(
       merger: (previous?: T, next?: T) => T,
       ...iterables: Array<T>[]
-    ): Vector<T>;
+    ): List<T>;
 
     /**
      * @see `Map.prototype.mergeDeep`
      */
-    mergeDeep(...iterables: IndexedIterable<T>[]): Vector<T>;
-    mergeDeep(...iterables: Array<T>[]): Vector<T>;
+    mergeDeep(...iterables: IndexedIterable<T>[]): List<T>;
+    mergeDeep(...iterables: Array<T>[]): List<T>;
 
     /**
      * @see `Map.prototype.mergeDeepWith`
@@ -1822,48 +1822,48 @@ declare module 'immutable' {
     mergeDeepWith(
       merger: (previous?: T, next?: T) => T,
       ...iterables: IndexedIterable<T>[]
-    ): Vector<T>;
+    ): List<T>;
     mergeDeepWith(
       merger: (previous?: T, next?: T) => T,
       ...iterables: Array<T>[]
-    ): Vector<T>;
+    ): List<T>;
 
     /**
-     * Returns a new Vector with size `size`. If `size` is less than this
-     * Vector's size, the new Vector will exclude values at the higher indices.
-     * If `size` is greater than this Vector's size, the new Vector will have
+     * Returns a new List with size `size`. If `size` is less than this
+     * List's size, the new List will exclude values at the higher indices.
+     * If `size` is greater than this List's size, the new List will have
      * undefined values for the newly available indices.
      */
-    setSize(size: number): Vector<T>;
+    setSize(size: number): List<T>;
 
     /**
      * @see `Map.prototype.withMutations`
      */
-    withMutations(mutator: (mutable: Vector<T>) => any): Vector<T>;
+    withMutations(mutator: (mutable: List<T>) => any): List<T>;
 
     /**
      * @see `Map.prototype.asMutable`
      */
-    asMutable(): Vector<T>;
+    asMutable(): List<T>;
 
     /**
      * @see `Map.prototype.asImmutable`
      */
-    asImmutable(): Vector<T>;
+    asImmutable(): List<T>;
 
     /**
      * @see Map.cursor
      */
     cursor(
-      onChange?: (newValue: Vector<T>, oldValue?: Vector<T>, keyPath?: Array<any>) => void
-    ): Cursor<Vector<T>>;
+      onChange?: (newValue: List<T>, oldValue?: List<T>, keyPath?: Array<any>) => void
+    ): Cursor<List<T>>;
     cursor(
       keyPath: Array<any>,
-      onChange?: (newValue: Vector<T>, oldValue?: Vector<T>, keyPath?: Array<any>) => void
+      onChange?: (newValue: List<T>, oldValue?: List<T>, keyPath?: Array<any>) => void
     ): Cursor<any>;
     cursor(
       key: number,
-      onChange?: (newValue: Vector<T>, oldValue?: Vector<T>, keyPath?: Array<any>) => void
+      onChange?: (newValue: List<T>, oldValue?: List<T>, keyPath?: Array<any>) => void
     ): Cursor<T>;
   }
 
@@ -1876,7 +1876,7 @@ declare module 'immutable' {
    * removal from the front using `unshift(v)` and `shift()`.
    *
    * For familiarity, Stack also provides `push(v)`, `pop()`, and `peek()`, but
-   * be aware that they also operate on the front of the list, unlike Vector or
+   * be aware that they also operate on the front of the list, unlike List or
    * a JavaScript Array.
    */
 
@@ -1937,7 +1937,7 @@ declare module 'immutable' {
     shift(): Stack<T>;
 
     /**
-     * Alias for `Stack#unshift` and is not equivalent to `Vector#push`.
+     * Alias for `Stack#unshift` and is not equivalent to `List#push`.
      */
     push(...values: T[]): Stack<T>;
 
@@ -1948,7 +1948,7 @@ declare module 'immutable' {
     pushAll(iter: Array<T>): Stack<T>;
 
     /**
-     * Alias for `Stack#shift` and is not equivalent to `Vector#pop`.
+     * Alias for `Stack#shift` and is not equivalent to `List#pop`.
      */
     pop(): Stack<T>;
 
@@ -1960,17 +1960,17 @@ declare module 'immutable' {
     /**
      * @see `Map.prototype.withMutations`
      */
-    withMutations(mutator: (mutable: Vector<T>) => any): Vector<T>;
+    withMutations(mutator: (mutable: List<T>) => any): List<T>;
 
     /**
      * @see `Map.prototype.asMutable`
      */
-    asMutable(): Vector<T>;
+    asMutable(): List<T>;
 
     /**
      * @see `Map.prototype.asImmutable`
      */
-    asImmutable(): Vector<T>;
+    asImmutable(): List<T>;
   }
 
 

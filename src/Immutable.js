@@ -11,7 +11,7 @@ import "Iterable"
 import "Seq"
 import "Operations" // Break circular dependency
 import "Map"
-import "Vector"
+import "List"
 import "Stack"
 import "Set"
 import "OrderedMap"
@@ -22,7 +22,7 @@ import "is"
 import "fromJS"
 import "Cursor" // Solve circular dependency
 /* global Iterable, Seq, Collection,
-          Map, Vector, Stack, Set, OrderedMap, Record, Range, Repeat,
+          Map, List, Stack, Set, OrderedMap, Record, Range, Repeat,
           is, fromJS */
 /* exported Immutable */
 
@@ -34,7 +34,7 @@ var Immutable = {
   Seq: Seq,
   Collection: Collection,
   Map: Map,
-  Vector: Vector,
+  List: List,
   Stack: Stack,
   Set: Set,
   OrderedMap: OrderedMap,

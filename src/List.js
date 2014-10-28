@@ -18,19 +18,19 @@ import "Iterator"
           IndexedCollection,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
           Iterator, iteratorValue, iteratorDone */
-/* exported Vector, VectorPrototype */
+/* exported List, ListPrototype */
 
 
-class Vector extends IndexedCollection {
+class List extends IndexedCollection {
 
   // @pragma Construction
 
   constructor(value) {
-    var empty = Vector.empty();
+    var empty = List.empty();
     if (arguments.length === 0) {
       return empty;
     }
-    if (value && value.constructor === Vector) {
+    if (value && value.constructor === List) {
       return value;
     }
     var isArray = Array.isArray(value);
@@ -42,7 +42,7 @@ class Vector extends IndexedCollection {
       return empty;
     }
     if (size > 0 && size < SIZE) {
-      return makeVector(0, size, SHIFT, null, new VNode(
+      return makeList(0, size, SHIFT, null, new VNode(
         isArray ? arrCopy(value) : value.toArray()
       ));
     }
@@ -51,7 +51,7 @@ class Vector extends IndexedCollection {
   }
 
   static empty() {
-    return EMPTY_VECT || (EMPTY_VECT = makeVector(0, 0, SHIFT));
+    return EMPTY_VECT || (EMPTY_VECT = makeList(0, 0, SHIFT));
   }
 
   static of(/*...values*/) {
@@ -59,7 +59,7 @@ class Vector extends IndexedCollection {
   }
 
   toString() {
-    return this.__toString('Vector [', ']');
+    return this.__toString('List [', ']');
   }
 
   // @pragma Access
@@ -70,14 +70,14 @@ class Vector extends IndexedCollection {
       return notSetValue;
     }
     index += this._origin;
-    var node = vectorNodeFor(this, index);
+    var node = listNodeFor(this, index);
     return node && node.array[index & MASK];
   }
 
   // @pragma Modification
 
   set(index, value) {
-    return updateVector(this, index, value);
+    return updateList(this, index, value);
   }
 
   remove(index) {
@@ -99,58 +99,58 @@ class Vector extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return Vector.empty();
+    return List.empty();
   }
 
   push(/*...values*/) {
     var values = arguments;
     var oldSize = this.size;
-    return this.withMutations(vect => {
-      setVectorBounds(vect, 0, oldSize + values.length);
+    return this.withMutations(list => {
+      setListBounds(list, 0, oldSize + values.length);
       for (var ii = 0; ii < values.length; ii++) {
-        vect.set(oldSize + ii, values[ii]);
+        list.set(oldSize + ii, values[ii]);
       }
     });
   }
 
   pop() {
-    return setVectorBounds(this, 0, -1);
+    return setListBounds(this, 0, -1);
   }
 
   unshift(/*...values*/) {
     var values = arguments;
-    return this.withMutations(vect => {
-      setVectorBounds(vect, -values.length);
+    return this.withMutations(list => {
+      setListBounds(list, -values.length);
       for (var ii = 0; ii < values.length; ii++) {
-        vect.set(ii, values[ii]);
+        list.set(ii, values[ii]);
       }
     });
   }
 
   shift() {
-    return setVectorBounds(this, 1);
+    return setListBounds(this, 1);
   }
 
   // @pragma Composition
 
   merge(/*...iters*/) {
-    return mergeIntoVectorWith(this, undefined, arguments);
+    return mergeIntoListWith(this, undefined, arguments);
   }
 
   mergeWith(merger, ...iters) {
-    return mergeIntoVectorWith(this, merger, iters);
+    return mergeIntoListWith(this, merger, iters);
   }
 
   mergeDeep(/*...iters*/) {
-    return mergeIntoVectorWith(this, deepMerger(undefined), arguments);
+    return mergeIntoListWith(this, deepMerger(undefined), arguments);
   }
 
   mergeDeepWith(merger, ...iters) {
-    return mergeIntoVectorWith(this, deepMerger(merger), iters);
+    return mergeIntoListWith(this, deepMerger(merger), iters);
   }
 
   setSize(size) {
-    return setVectorBounds(this, 0, size);
+    return setListBounds(this, 0, size);
   }
 
   // @pragma Iteration
@@ -160,7 +160,7 @@ class Vector extends IndexedCollection {
     if (wholeSlice(begin, end, size)) {
       return this;
     }
-    return setVectorBounds(
+    return setListBounds(
       this,
       resolveBegin(begin, size),
       resolveEnd(end, size)
@@ -168,7 +168,7 @@ class Vector extends IndexedCollection {
   }
 
   __iterator(type, reverse) {
-    return new VectorIterator(this, type, reverse);
+    return new ListIterator(this, type, reverse);
   }
 
   __iterate(fn, reverse) {
@@ -193,21 +193,21 @@ class Vector extends IndexedCollection {
       this.__ownerID = ownerID;
       return this;
     }
-    return makeVector(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
+    return makeList(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
   }
 }
 
-var VectorPrototype = Vector.prototype;
-VectorPrototype[DELETE] = VectorPrototype.remove;
-VectorPrototype.setIn = MapPrototype.setIn;
-VectorPrototype.removeIn = MapPrototype.removeIn;
-VectorPrototype.update = MapPrototype.update;
-VectorPrototype.updateIn = MapPrototype.updateIn;
-VectorPrototype.cursor = MapPrototype.cursor;
-VectorPrototype.withMutations = MapPrototype.withMutations;
-VectorPrototype.asMutable = MapPrototype.asMutable;
-VectorPrototype.asImmutable = MapPrototype.asImmutable;
-VectorPrototype.wasAltered = MapPrototype.wasAltered;
+var ListPrototype = List.prototype;
+ListPrototype[DELETE] = ListPrototype.remove;
+ListPrototype.setIn = MapPrototype.setIn;
+ListPrototype.removeIn = MapPrototype.removeIn;
+ListPrototype.update = MapPrototype.update;
+ListPrototype.updateIn = MapPrototype.updateIn;
+ListPrototype.cursor = MapPrototype.cursor;
+ListPrototype.withMutations = MapPrototype.withMutations;
+ListPrototype.asMutable = MapPrototype.asMutable;
+ListPrototype.asImmutable = MapPrototype.asImmutable;
+ListPrototype.wasAltered = MapPrototype.wasAltered;
 
 
 class VNode {
@@ -312,24 +312,24 @@ function iterateVNode(node, level, offset, max, fn, reverse) {
   return true;
 }
 
-class VectorIterator extends Iterator {
+class ListIterator extends Iterator {
 
-  constructor(vector, type, reverse) {
+  constructor(list, type, reverse) {
     this._type = type;
     this._reverse = !!reverse;
-    this._maxIndex = vector.size - 1;
-    var tailOffset = getTailOffset(vector._capacity);
-    var rootStack = vectIteratorFrame(
-      vector._root && vector._root.array,
-      vector._level,
-      -vector._origin,
-      tailOffset - vector._origin - 1
+    this._maxIndex = list.size - 1;
+    var tailOffset = getTailOffset(list._capacity);
+    var rootStack = listIteratorFrame(
+      list._root && list._root.array,
+      list._level,
+      -list._origin,
+      tailOffset - list._origin - 1
     );
-    var tailStack = vectIteratorFrame(
-      vector._tail && vector._tail.array,
+    var tailStack = listIteratorFrame(
+      list._tail && list._tail.array,
       0,
-      tailOffset - vector._origin,
-      vector._capacity - vector._origin - 1
+      tailOffset - list._origin,
+      list._capacity - list._origin - 1
     );
     this._stack = reverse ? tailStack : rootStack;
     this._stack.__prev = reverse ? rootStack : tailStack;
@@ -360,7 +360,7 @@ class VectorIterator extends Iterator {
           }
           return iteratorValue(type, index, value);
         } else {
-          this._stack = stack = vectIteratorFrame(
+          this._stack = stack = listIteratorFrame(
             value && value.array,
             stack.level - SHIFT,
             stack.offset + (rawIndex << stack.level),
@@ -376,7 +376,7 @@ class VectorIterator extends Iterator {
   }
 }
 
-function vectIteratorFrame(array, level, offset, max, prevFrame) {
+function listIteratorFrame(array, level, offset, max, prevFrame) {
   return {
     array: array,
     level: level,
@@ -388,54 +388,54 @@ function vectIteratorFrame(array, level, offset, max, prevFrame) {
   };
 }
 
-function makeVector(origin, capacity, level, root, tail, ownerID, hash) {
-  var vect = Object.create(VectorPrototype);
-  vect.size = capacity - origin;
-  vect._origin = origin;
-  vect._capacity = capacity;
-  vect._level = level;
-  vect._root = root;
-  vect._tail = tail;
-  vect.__ownerID = ownerID;
-  vect.__hash = hash;
-  vect.__altered = false;
-  return vect;
+function makeList(origin, capacity, level, root, tail, ownerID, hash) {
+  var list = Object.create(ListPrototype);
+  list.size = capacity - origin;
+  list._origin = origin;
+  list._capacity = capacity;
+  list._level = level;
+  list._root = root;
+  list._tail = tail;
+  list.__ownerID = ownerID;
+  list.__hash = hash;
+  list.__altered = false;
+  return list;
 }
 
-function updateVector(vector, index, value) {
-  index = wrapIndex(vector, index);
+function updateList(list, index, value) {
+  index = wrapIndex(list, index);
 
-  if (index >= vector.size || index < 0) {
-    return vector.withMutations(vect => {
+  if (index >= list.size || index < 0) {
+    return list.withMutations(list => {
       index < 0 ?
-        setVectorBounds(vect, index).set(0, value) :
-        setVectorBounds(vect, 0, index + 1).set(index, value)
+        setListBounds(list, index).set(0, value) :
+        setListBounds(list, 0, index + 1).set(index, value)
     });
   }
 
-  index += vector._origin;
+  index += list._origin;
 
-  var newTail = vector._tail;
-  var newRoot = vector._root;
+  var newTail = list._tail;
+  var newRoot = list._root;
   var didAlter = MakeRef(DID_ALTER);
-  if (index >= getTailOffset(vector._capacity)) {
-    newTail = updateVNode(newTail, vector.__ownerID, 0, index, value, didAlter);
+  if (index >= getTailOffset(list._capacity)) {
+    newTail = updateVNode(newTail, list.__ownerID, 0, index, value, didAlter);
   } else {
-    newRoot = updateVNode(newRoot, vector.__ownerID, vector._level, index, value, didAlter);
+    newRoot = updateVNode(newRoot, list.__ownerID, list._level, index, value, didAlter);
   }
 
   if (!didAlter.value) {
-    return vector;
+    return list;
   }
 
-  if (vector.__ownerID) {
-    vector._root = newRoot;
-    vector._tail = newTail;
-    vector.__hash = undefined;
-    vector.__altered = true;
-    return vector;
+  if (list.__ownerID) {
+    list._root = newRoot;
+    list._tail = newTail;
+    list.__hash = undefined;
+    list.__altered = true;
+    return list;
   }
-  return makeVector(vector._origin, vector._capacity, vector._level, newRoot, newTail);
+  return makeList(list._origin, list._capacity, list._level, newRoot, newTail);
 }
 
 function updateVNode(node, ownerID, level, index, value, didAlter) {
@@ -480,13 +480,13 @@ function editableVNode(node, ownerID) {
   return new VNode(node ? node.array.slice() : [], ownerID);
 }
 
-function vectorNodeFor(vector, rawIndex) {
-  if (rawIndex >= getTailOffset(vector._capacity)) {
-    return vector._tail;
+function listNodeFor(list, rawIndex) {
+  if (rawIndex >= getTailOffset(list._capacity)) {
+    return list._tail;
   }
-  if (rawIndex < 1 << (vector._level + SHIFT)) {
-    var node = vector._root;
-    var level = vector._level;
+  if (rawIndex < 1 << (list._level + SHIFT)) {
+    var node = list._root;
+    var level = list._level;
     while (node && level > 0) {
       node = node.array[(rawIndex >>> level) & MASK];
       level -= SHIFT;
@@ -495,23 +495,23 @@ function vectorNodeFor(vector, rawIndex) {
   }
 }
 
-function setVectorBounds(vector, begin, end) {
-  var owner = vector.__ownerID || new OwnerID();
-  var oldOrigin = vector._origin;
-  var oldCapacity = vector._capacity;
+function setListBounds(list, begin, end) {
+  var owner = list.__ownerID || new OwnerID();
+  var oldOrigin = list._origin;
+  var oldCapacity = list._capacity;
   var newOrigin = oldOrigin + begin;
   var newCapacity = end === undefined ? oldCapacity : end < 0 ? oldCapacity + end : oldOrigin + end;
   if (newOrigin === oldOrigin && newCapacity === oldCapacity) {
-    return vector;
+    return list;
   }
 
   // If it's going to end after it starts, it's empty.
   if (newOrigin >= newCapacity) {
-    return vector.clear();
+    return list.clear();
   }
 
-  var newLevel = vector._level;
-  var newRoot = vector._root;
+  var newLevel = list._level;
+  var newRoot = list._root;
 
   // New origin might require creating a higher root.
   var offsetShift = 0;
@@ -537,9 +537,9 @@ function setVectorBounds(vector, begin, end) {
   }
 
   // Locate or create the new tail.
-  var oldTail = vector._tail;
+  var oldTail = list._tail;
   var newTail = newTailOffset < oldTailOffset ?
-    vectorNodeFor(vector, newCapacity - 1) :
+    listNodeFor(list, newCapacity - 1) :
     newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
 
   // Merge Tail into tree.
@@ -596,31 +596,31 @@ function setVectorBounds(vector, begin, end) {
     }
   }
 
-  if (vector.__ownerID) {
-    vector.size = newCapacity - newOrigin;
-    vector._origin = newOrigin;
-    vector._capacity = newCapacity;
-    vector._level = newLevel;
-    vector._root = newRoot;
-    vector._tail = newTail;
-    vector.__hash = undefined;
-    vector.__altered = true;
-    return vector;
+  if (list.__ownerID) {
+    list.size = newCapacity - newOrigin;
+    list._origin = newOrigin;
+    list._capacity = newCapacity;
+    list._level = newLevel;
+    list._root = newRoot;
+    list._tail = newTail;
+    list.__hash = undefined;
+    list.__altered = true;
+    return list;
   }
-  return makeVector(newOrigin, newCapacity, newLevel, newRoot, newTail);
+  return makeList(newOrigin, newCapacity, newLevel, newRoot, newTail);
 }
 
-function mergeIntoVectorWith(vector, merger, iterables) {
+function mergeIntoListWith(list, merger, iterables) {
   var iters = [];
   for (var ii = 0; ii < iterables.length; ii++) {
     var iter = iterables[ii];
     iter && iters.push(Iterable(iter));
   }
   var maxSize = Math.max.apply(Math, iters.map(s => s.size || 0));
-  if (maxSize > vector.size) {
-    vector = vector.setSize(maxSize);
+  if (maxSize > list.size) {
+    list = list.setSize(maxSize);
   }
-  return mergeIntoCollectionWith(vector, merger, iters);
+  return mergeIntoCollectionWith(list, merger, iters);
 }
 
 function getTailOffset(size) {

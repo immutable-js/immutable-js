@@ -49,10 +49,10 @@ describe('MultiRequire', () => {
   });
 
   it('flattens nested values', () => {
-    var nested = Immutable1.Vector(
-      Immutable2.Vector(
-        Immutable1.Vector(
-          Immutable2.Vector.of(1, 2)
+    var nested = Immutable1.List(
+      Immutable2.List(
+        Immutable1.List(
+          Immutable2.List.of(1, 2)
         )
       )
     );

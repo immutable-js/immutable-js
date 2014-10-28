@@ -28,7 +28,7 @@ function _fromJSWith(converter, json, key, parentJSON) {
 function _fromJSDefault(json) {
   if (json && typeof json === 'object') {
     if (Array.isArray(json)) {
-      return Iterable(json).map(_fromJSDefault).toVector();
+      return Iterable(json).map(_fromJSDefault).toList();
     }
     if (json.constructor === Object) {
       return Iterable(json).map(_fromJSDefault).toMap();

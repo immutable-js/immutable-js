@@ -7,7 +7,7 @@ as lazy evaluation. Immutable JS provides a lazy `Sequence`, allowing efficient
 chaining of sequence methods like `map` and `filter` without creating
 intermediate representations.
 
-`immutable` provides `Sequence`, `Range`, `Repeat`, `Vector`, `Stack`, `Map`,
+`immutable` provides `Sequence`, `Range`, `Repeat`, `List`, `Stack`, `Map`,
 `OrderedMap`, and `Set` by using lazy sequences and [hash maps tries](http://en.wikipedia.org/wiki/Hash_array_mapped_trie).
 They achieve efficiency on modern JavaScript VMs by using structural sharing and
 minimizing the need to copy or cache data.
@@ -133,19 +133,19 @@ immutable collection. Methods which return new arrays like `slice` or `concat`
 instead return new immutable collections.
 
 ```javascript
-var vect1 = Immutable.Vector.of(1, 2);
-var vect2 = vect1.push(3, 4, 5);
-var vect3 = vect2.unshift(0);
-var vect4 = vect1.concat(vect2, vect3);
-assert(vect1.size === 2);
-assert(vect2.size === 5);
-assert(vect3.size === 6);
-assert(vect4.size === 13);
-assert(vect4.get(0) === 1);
+var list1 = Immutable.List.of(1, 2);
+var list2 = list1.push(3, 4, 5);
+var list3 = list2.unshift(0);
+var list4 = list1.concat(list2, list3);
+assert(list1.size === 2);
+assert(list2.size === 5);
+assert(list3.size === 6);
+assert(list4.size === 13);
+assert(list4.get(0) === 1);
 ```
 
 Almost all of the methods on `Array` will be found in similar form on
-`Immutable.Vector`, those of `Map` found on `Immutable.Map`, and those of `Set`
+`Immutable.List`, those of `Map` found on `Immutable.Map`, and those of `Set`
 found on `Immutable.Set`, including sequence operations like `forEach` and `map`.
 
 ```javascript
@@ -188,9 +188,9 @@ All sequences also implement `toJSON()` allowing them to be passed to
 `JSON.stringify` directly.
 
 ```javascript
-var deep = Immutable.Map({a:1, b:2, c:Immutable.Vector.of(3,4,5)});
-deep.toObject() // { a: 1, b: 2, c: Vector [ 3, 4, 5 ] }
-deep.toArray() // [ 1, 2, Vector [ 3, 4, 5 ] ]
+var deep = Immutable.Map({a:1, b:2, c:Immutable.List.of(3,4,5)});
+deep.toObject() // { a: 1, b: 2, c: List [ 3, 4, 5 ] }
+deep.toArray() // [ 1, 2, List [ 3, 4, 5 ] ]
 deep.toJS() // { a: 1, b: 2, c: [ 3, 4, 5 ] }
 JSON.stringify(deep) // '{"a":1,"b":2,"c":[3,4,5]}'
 ```
@@ -204,26 +204,26 @@ trees of data, similar to JSON.
 
 ```javascript
 var nested = Immutable.fromJS({a:{b:{c:[3,4,5]}}});
-// Map { a: Map { b: Map { c: Vector [ 3, 4, 5 ] } } }
+// Map { a: Map { b: Map { c: List [ 3, 4, 5 ] } } }
 ```
 
 A few power-tools allow for reading and operating on nested data. The
-most useful are `mergeDeep`, `getIn` and `updateIn`, found on `Vector`, `Map`
+most useful are `mergeDeep`, `getIn` and `updateIn`, found on `List`, `Map`
 and `OrderedMap`.
 
 ```javascript
 var nested2 = nested.mergeDeep({a:{b:{d:6}}});
-// Map { a: Map { b: Map { c: Vector [ 3, 4, 5 ], d: 6 } } }
+// Map { a: Map { b: Map { c: List [ 3, 4, 5 ], d: 6 } } }
 ```
 
 ```javascript
 nested2.getIn(['a', 'b', 'd']); // 6
 
 var nested3 = nested2.updateIn(['a', 'b', 'd'], value => value + 1);
-// Map { a: Map { b: Map { c: Vector [ 3, 4, 5 ], d: 7 } } }
+// Map { a: Map { b: Map { c: List [ 3, 4, 5 ], d: 7 } } }
 
-var nested4 = nested3.updateIn(['a', 'b', 'c'], vect => vect.push(6));
-// Map { a: Map { b: Map { c: Vector [ 3, 4, 5, 6 ], d: 7 } } }
+var nested4 = nested3.updateIn(['a', 'b', 'c'], list => list.push(6));
+// Map { a: Map { b: Map { c: List [ 3, 4, 5, 6 ], d: 7 } } }
 ```
 
 
@@ -271,10 +271,10 @@ As well as expressing logic that would otherwise seem memory-limited:
     // 1006008
 
 A common pattern is reifying (converting to real form) back to the original
-collection type. For example, mapping over a Vector:
+collection type. For example, mapping over a List:
 
-    var numsVect = Immutable.Vector.of(1,2,3,4,5);
-    var squaresVect = numsVect.map(x => x * x);
+    var numsList = Immutable.List.of(1,2,3,4,5);
+    var squaresList = numsList.map(x => x * x);
 
 Note: A sequence is always iterated in the same order, however that order may
 not always be well defined, as is the case for the `Map`.
@@ -346,15 +346,15 @@ temporary mutable copy of a collection and apply a batch of mutations in a highl
 performant manner by using `withMutations`. In fact, this is exactly how `immutable`
 applies complex mutations itself.
 
-As an example, this results in the creation of 2, not 4, new immutable Vectors.
+As an example, this results in the creation of 2, not 4, new immutable Lists.
 
 ```javascript
-var vect1 = Immutable.Vector.of(1,2,3);
-var vect2 = vect1.withMutations(function (vect) {
-  vect.push(4).push(5).push(6);
+var list1 = Immutable.List.of(1,2,3);
+var list2 = list1.withMutations(function (list) {
+  list.push(4).push(5).push(6);
 });
-assert(vect1.size === 3);
-assert(vect2.size === 6);
+assert(list1.size === 3);
+assert(list2.size === 6);
 ```
 
 Note: `immutable` also provides `asMutable` and `asImmutable`, but only

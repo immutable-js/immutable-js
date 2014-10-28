@@ -6,7 +6,7 @@ jest.autoMockOff();
 import Immutable = require('immutable');
 import Map = Immutable.Map;
 import OrderedMap = Immutable.OrderedMap;
-import Vector = Immutable.Vector;
+import List = Immutable.List;
 
 declare function expect(val: any): ExpectWithIs;
 
@@ -50,7 +50,7 @@ describe('Conversion', () => {
   var Point = Immutable.Record({x:0, y:0}, 'Point');
 
   var immutableData = Map({
-    deepList: Vector.of(
+    deepList: List.of(
       Map({
         position: "first"
       }),
@@ -67,11 +67,11 @@ describe('Conversion', () => {
     }),
     point: Map({x: 10, y: 20}),
     string: "Hello",
-    list: Vector.of(1, 2, 3)
+    list: List.of(1, 2, 3)
   });
 
   var immutableOrderedData = OrderedMap({
-    deepList: Vector.of(
+    deepList: List.of(
       OrderedMap({
         position: "first"
       }),
@@ -88,11 +88,11 @@ describe('Conversion', () => {
     }),
     point: new Point({x: 10, y: 20}),
     string: "Hello",
-    list: Vector.of(1, 2, 3)
+    list: List.of(1, 2, 3)
   });
 
   var immutableOrderedDataString = 'OrderedMap { ' +
-    'deepList: Vector [ '+
+    'deepList: List [ '+
       'OrderedMap { '+
         'position: "first"'+
       ' }, ' +
@@ -109,7 +109,7 @@ describe('Conversion', () => {
     ' }, '+
     'point: Point { x: 10, y: 20 }, '+
     'string: "Hello", '+
-    'list: Vector [ 1, 2, 3 ]'+
+    'list: List [ 1, 2, 3 ]'+
   ' }';
 
   it('Converts deep JS to deep immutable sequences', () => {
@@ -121,7 +121,7 @@ describe('Conversion', () => {
       if (key === 'point') {
         return new Point(sequence);
       }
-      return Array.isArray(this[key]) ? sequence.toVector() : sequence.toOrderedMap();
+      return Array.isArray(this[key]) ? sequence.toList() : sequence.toOrderedMap();
     });
     expect(seq).is(immutableOrderedData);
     expect(seq.toString()).is(immutableOrderedDataString);

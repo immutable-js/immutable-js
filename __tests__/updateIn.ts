@@ -48,7 +48,7 @@ describe('updateIn', () => {
   it('deep push', () => {
     var m = I.fromJS({a: {b: [1,2,3]}});
     expect(
-      m.updateIn(['a', 'b'], vect => vect.push(4)).toJS()
+      m.updateIn(['a', 'b'], list => list.push(4)).toJS()
     ).toEqual(
       {a: {b: [1,2,3,4]}}
     );
@@ -57,7 +57,7 @@ describe('updateIn', () => {
   it('deep map', () => {
     var m = I.fromJS({a: {b: [1,2,3]}});
     expect(
-      m.updateIn(['a', 'b'], vect => vect.map(value => value * 10)).toJS()
+      m.updateIn(['a', 'b'], list => list.map(value => value * 10)).toJS()
     ).toEqual(
       {a: {b: [10, 20, 30]}}
     );
