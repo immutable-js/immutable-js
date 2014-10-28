@@ -11,18 +11,20 @@ import "TrieUtils"
 import "Iterable"
 import "Iterator"
 import "Seq"
+import "Map"
 /* global NOT_SET, assertNotInfinite, ensureSize,
-          isIterable, isKeyed, isIndexed, KeyedIterable,
-          hash,
+          isIterable, isKeyed, isIndexed,
+          KeyedIterable, SetIterable, IndexedIterable,
           Iterator, iteratorValue, iteratorDone,
           ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES,
-          LazySequence, LazyKeyedSequence, LazySetSequence, LazyIndexedSequence,
-          seqFromValue, ArraySequence */
-/* exported ToIndexedSequence, ToKeyedSequence, ToSetSequence,
+          isLazy, LazySequence, LazyKeyedSequence, LazySetSequence, LazyIndexedSequence,
+          seqFromValue, ArraySequence,
+          Map */
+/* exported reify, ToIndexedSequence, ToKeyedSequence, ToSetSequence,
             FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
-            filterFactory, groupByFactory, takeFactory, takeWhileFactory,
-            skipFactory, skipWhileFactory, concatFactory, flattenFactory,
-            interposeFactory */
+            filterFactory, countByFactory, groupByFactory, takeFactory,
+            takeWhileFactory, skipFactory, skipWhileFactory, concatFactory,
+            flattenFactory, flatMapFactory, interposeFactory */
 
 
 class ToIndexedSequence extends LazyIndexedSequence {
@@ -334,25 +336,31 @@ function filterFactory(iterable, predicate, context, useKeys) {
 }
 
 
-function groupByFactory(seq, grouper, context, useKeys) {
-  var groupMap = {};
-  var groups = [];
-  seq.__iterate((v, k) => {
-    var g = grouper.call(context, v, k, seq);
-    var h = hash(g);
-    var e = useKeys ? [k, v] : v;
-    if (!groupMap.hasOwnProperty(h)) {
-      groupMap[h] = groups.length;
-      groups.push([g, [e]]);
-    } else {
-      groups[groupMap[h]][1].push(e);
-    }
+function countByFactory(iterable, grouper, context) {
+  var groups = Map().asMutable();
+  iterable.__iterate((v, k) => {
+    groups.update(
+      grouper.call(context, v, k, iterable),
+      0,
+      a => a + 1
+    );
   });
-  return new ArraySequence(groups).fromEntrySeq().map(
-    useKeys ?
-      group => new ArraySequence(group).fromEntrySeq() :
-      group => new ArraySequence(group)
-  );
+  return groups.asImmutable();
+}
+
+
+function groupByFactory(iterable, grouper, context) {
+  var isKeyedIter = isKeyed(iterable);
+  var groups = Map().asMutable();
+  iterable.__iterate((v, k) => {
+    groups.update(
+      grouper.call(context, v, k, iterable),
+      [],
+      a => (a.push(isKeyedIter ? [k, v] : v), a)
+    );
+  });
+  var coerce = iterableClass(iterable);
+  return groups.map(arr => reify(iterable, coerce(arr)));
 }
 
 
@@ -612,6 +620,14 @@ function flattenFactory(iterable, depth, useKeys) {
 }
 
 
+function flatMapFactory(iterable, mapper, context) {
+  var coerce = iterableClass(iterable);
+  return iterable.toSeq().map(
+    (v, k) => coerce(mapper.call(context, v, k, iterable))
+  ).flatten(true);
+}
+
+
 function interposeFactory(iterable, separator) {
   var interposedSequence = makeSequence(iterable);
   interposedSequence.size = iterable.size && iterable.size * 2 -1;
@@ -647,6 +663,10 @@ function interposeFactory(iterable, separator) {
 
 // #pragma Helper Functions
 
+function reify(iter, seq) {
+  return isLazy(iter) ? seq : iter.constructor(seq);
+}
+
 function validateEntry(entry) {
   if (entry !== Object(entry)) {
     throw new TypeError('Expected [K, V] tuple: ' + entry);
@@ -656,6 +676,12 @@ function validateEntry(entry) {
 function resolveSize(iter) {
   assertNotInfinite(iter.size);
   return ensureSize(iter);
+}
+
+function iterableClass(iterable) {
+  return isKeyed(iterable) ? KeyedIterable :
+    isIndexed(iterable) ? IndexedIterable :
+    SetIterable;
 }
 
 function makeSequence(iterable) {

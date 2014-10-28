@@ -22,11 +22,11 @@ import "Iterator"
           isLazy,
           LazySequence, LazyKeyedSequence, LazySetSequence, LazyIndexedSequence,
           ArraySequence,
-          ToIndexedSequence, ToKeyedSequence, ToSetSequence,
+          reify, ToIndexedSequence, ToKeyedSequence, ToSetSequence,
           FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
-          filterFactory, groupByFactory, takeFactory, takeWhileFactory,
-          skipFactory, skipWhileFactory, concatFactory, flattenFactory,
-          interposeFactory */
+          filterFactory, countByFactory, groupByFactory, takeFactory,
+          takeWhileFactory, skipFactory, skipWhileFactory, concatFactory,
+          flattenFactory, flatMapFactory, interposeFactory */
 /* exported Iterable,
             isIterable, isKeyed, isIndexed, isAssociative,
             Collection, KeyedCollection, SetCollection, IndexedCollection */
@@ -262,19 +262,7 @@ class Iterable {
   }
 
   countBy(grouper, context) {
-    var groupMap = {};
-    var groups = [];
-    this.__iterate((v, k) => {
-      var g = grouper.call(context, v, k, this);
-      var h = hash(g);
-      if (!groupMap.hasOwnProperty(h)) {
-        groupMap[h] = groups.length;
-        groups.push([g, 1]);
-      } else {
-        groups[groupMap[h]][1]++;
-      }
-    });
-    return new ArraySequence(groups).fromEntrySeq();
+    return countByFactory(this, grouper, context);
   }
 
   equals(other) {
@@ -346,12 +334,7 @@ class Iterable {
   }
 
   flatMap(mapper, context) {
-    var coerce = iterableClass(this);
-    return reify(this,
-      this.toSeq().map(
-        (v, k) => coerce(mapper.call(context, v, k, this))
-      ).flatten(true)
-    );
+    return reify(this, flatMapFactory(this, mapper, context));
   }
 
   flatten(depth) {
@@ -380,7 +363,7 @@ class Iterable {
   }
 
   groupBy(grouper, context) {
-    return groupByFactory(this, grouper, context, true);
+    return groupByFactory(this, grouper, context);
   }
 
   has(searchKey) {
@@ -694,10 +677,6 @@ class IndexedIterable extends Iterable {
       this.find((_, key) => key === index, undefined, notSetValue);
   }
 
-  groupBy(grouper, context) {
-    return groupByFactory(this, grouper, context, false);
-  }
-
   has(index) {
     index = wrapIndex(this, index);
     return index >= 0 && (this.size !== undefined ?
@@ -788,10 +767,6 @@ Iterable.Iterator = Iterator;
 
 // #pragma Helper functions
 
-function reify(iter, seq) {
-  return isLazy(iter) ? seq : iter.constructor(seq);
-}
-
 function valueMapper(v) {
   return v;
 }
@@ -816,10 +791,4 @@ function quoteString(value) {
 
 function defaultComparator(a, b) {
   return a > b ? 1 : a < b ? -1 : 0;
-}
-
-function iterableClass(iterable) {
-  return isKeyed(iterable) ? KeyedIterable :
-    isIndexed(iterable) ? IndexedIterable :
-    SetIterable;
 }

@@ -434,7 +434,7 @@ declare module 'immutable' {
     countBy<G>(
       grouper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => G,
       context?: any
-    ): LazyKeyedSequence<G, number>;
+    ): Map<G, number>;
 
     /**
      * True if this and the other Iterable have value equality, as defined
@@ -549,7 +549,7 @@ declare module 'immutable' {
     groupBy<G>(
       grouper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => G,
       context?: any
-    ): LazyKeyedSequence<G, /*this*/Iterable<K, V>>;
+    ): /*Map*/LazyKeyedSequence<G, /*this*/Iterable<K, V>>;
 
     /**
      * True if a key exists within this Iterable.

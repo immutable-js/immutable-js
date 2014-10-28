@@ -445,20 +445,7 @@ var $Iterable = Iterable;
     return ensureSize(predicate ? this.toSeq().filter(predicate, context) : this);
   },
   countBy: function(grouper, context) {
-    var $__0 = this;
-    var groupMap = {};
-    var groups = [];
-    this.__iterate((function(v, k) {
-      var g = grouper.call(context, v, k, $__0);
-      var h = hash(g);
-      if (!groupMap.hasOwnProperty(h)) {
-        groupMap[h] = groups.length;
-        groups.push([g, 1]);
-      } else {
-        groups[groupMap[h]][1]++;
-      }
-    }));
-    return new ArraySequence(groups).fromEntrySeq();
+    return countByFactory(this, grouper, context);
   },
   equals: function(other) {
     if (this === other) {
@@ -521,11 +508,7 @@ var $Iterable = Iterable;
     return this.find(returnTrue);
   },
   flatMap: function(mapper, context) {
-    var $__0 = this;
-    var coerce = iterableClass(this);
-    return reify(this, this.toSeq().map((function(v, k) {
-      return coerce(mapper.call(context, v, k, $__0));
-    })).flatten(true));
+    return reify(this, flatMapFactory(this, mapper, context));
   },
   flatten: function(depth) {
     return reify(this, flattenFactory(this, depth, true));
@@ -551,7 +534,7 @@ var $Iterable = Iterable;
     return nested;
   },
   groupBy: function(grouper, context) {
-    return groupByFactory(this, grouper, context, true);
+    return groupByFactory(this, grouper, context);
   },
   has: function(searchKey) {
     return this.get(searchKey, NOT_SET) !== NOT_SET;
@@ -764,9 +747,6 @@ var IndexedIterable = function IndexedIterable(value) {
       return key === index;
     }), undefined, notSetValue);
   },
-  groupBy: function(grouper, context) {
-    return groupByFactory(this, grouper, context, false);
-  },
   has: function(index) {
     index = wrapIndex(this, index);
     return index >= 0 && (this.size !== undefined ? this.size === Infinity || index < this.size : this.indexOf(index) !== -1);
@@ -831,9 +811,6 @@ Iterable.Keyed = KeyedIterable;
 Iterable.Set = SetIterable;
 Iterable.Indexed = IndexedIterable;
 Iterable.Iterator = Iterator;
-function reify(iter, seq) {
-  return isLazy(iter) ? seq : iter.constructor(seq);
-}
 function valueMapper(v) {
   return v;
 }
@@ -853,9 +830,6 @@ function quoteString(value) {
 }
 function defaultComparator(a, b) {
   return a > b ? 1 : a < b ? -1 : 0;
-}
-function iterableClass(iterable) {
-  return isKeyed(iterable) ? KeyedIterable : isIndexed(iterable) ? IndexedIterable : SetIterable;
 }
 function mixin(ctor, methods) {
   var proto = ctor.prototype;
@@ -1161,612 +1135,6 @@ function seqIterator(seq, type, reverse, useKeys) {
     }));
   }
   return seq.__iteratorUncached(type, reverse);
-}
-var ToIndexedSequence = function ToIndexedSequence(iter) {
-  this._iter = iter;
-  this.size = iter.size;
-};
-($traceurRuntime.createClass)(ToIndexedSequence, {
-  contains: function(value) {
-    return this._iter.contains(value);
-  },
-  __iterate: function(fn, reverse) {
-    var $__0 = this;
-    var iterations = 0;
-    return this._iter.__iterate((function(v) {
-      return fn(v, iterations++, $__0);
-    }), reverse);
-  },
-  __iterator: function(type, reverse) {
-    var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
-    var iterations = 0;
-    return new Iterator((function() {
-      var step = iterator.next();
-      return step.done ? step : iteratorValue(type, iterations++, step.value, step);
-    }));
-  }
-}, {}, LazyIndexedSequence);
-var ToKeyedSequence = function ToKeyedSequence(indexed, useKeys) {
-  this._iter = indexed;
-  this._useKeys = useKeys;
-  this.size = indexed.size;
-};
-($traceurRuntime.createClass)(ToKeyedSequence, {
-  get: function(key, notSetValue) {
-    return this._iter.get(key, notSetValue);
-  },
-  has: function(key) {
-    return this._iter.has(key);
-  },
-  valueSeq: function() {
-    return this._iter.valueSeq();
-  },
-  reverse: function() {
-    var $__0 = this;
-    var reversedSequence = reverseFactory(this, true);
-    if (!this._useKeys) {
-      reversedSequence.valueSeq = (function() {
-        return $__0._iter.toSeq().reverse();
-      });
-    }
-    return reversedSequence;
-  },
-  map: function(mapper, context) {
-    var $__0 = this;
-    var mappedSequence = mapFactory(this, mapper, context);
-    if (!this._useKeys) {
-      mappedSequence.valueSeq = (function() {
-        return $__0._iter.toSeq().map(mapper, context);
-      });
-    }
-    return mappedSequence;
-  },
-  __iterate: function(fn, reverse) {
-    var $__0 = this;
-    var ii;
-    return this._iter.__iterate(this._useKeys ? (function(v, k) {
-      return fn(v, k, $__0);
-    }) : ((ii = reverse ? resolveSize(this) : 0), (function(v) {
-      return fn(v, reverse ? --ii : ii++, $__0);
-    })), reverse);
-  },
-  __iterator: function(type, reverse) {
-    if (this._useKeys) {
-      return this._iter.__iterator(type, reverse);
-    }
-    var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
-    var ii = reverse ? resolveSize(this) : 0;
-    return new Iterator((function() {
-      var step = iterator.next();
-      return step.done ? step : iteratorValue(type, reverse ? --ii : ii++, step.value, step);
-    }));
-  }
-}, {}, LazyKeyedSequence);
-var ToSetSequence = function ToSetSequence(iter) {
-  this._iter = iter;
-  this.size = iter.size;
-};
-($traceurRuntime.createClass)(ToSetSequence, {
-  has: function(key) {
-    return this._iter.contains(key);
-  },
-  __iterate: function(fn, reverse) {
-    var $__0 = this;
-    return this._iter.__iterate((function(v) {
-      return fn(v, v, $__0);
-    }), reverse);
-  },
-  __iterator: function(type, reverse) {
-    var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
-    return new Iterator((function() {
-      var step = iterator.next();
-      return step.done ? step : iteratorValue(type, step.value, step.value, step);
-    }));
-  }
-}, {}, LazySetSequence);
-var FromEntriesSequence = function FromEntriesSequence(entries) {
-  this._iter = entries;
-  this.size = entries.size;
-};
-($traceurRuntime.createClass)(FromEntriesSequence, {
-  entrySeq: function() {
-    return this._iter.toSeq();
-  },
-  __iterate: function(fn, reverse) {
-    var $__0 = this;
-    return this._iter.__iterate((function(entry) {
-      if (entry) {
-        validateEntry(entry);
-        return fn(entry[1], entry[0], $__0);
-      }
-    }), reverse);
-  },
-  __iterator: function(type, reverse) {
-    var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
-    return new Iterator((function() {
-      while (true) {
-        var step = iterator.next();
-        if (step.done) {
-          return step;
-        }
-        var entry = step.value;
-        if (entry) {
-          validateEntry(entry);
-          return type === ITERATE_ENTRIES ? step : iteratorValue(type, entry[0], entry[1], step);
-        }
-      }
-    }));
-  }
-}, {}, LazyKeyedSequence);
-ToIndexedSequence.prototype.cacheResult = ToKeyedSequence.prototype.cacheResult = ToSetSequence.prototype.cacheResult = FromEntriesSequence.prototype.cacheResult = cacheResultThrough;
-function flipFactory(iterable) {
-  var flipSequence = makeSequence(iterable);
-  flipSequence._iter = iterable;
-  flipSequence.size = iterable.size;
-  flipSequence.flip = (function() {
-    return iterable;
-  });
-  flipSequence.reverse = function() {
-    var reversedSequence = iterable.reverse.apply(this);
-    reversedSequence.flip = (function() {
-      return iterable.reverse();
-    });
-    return reversedSequence;
-  };
-  flipSequence.has = (function(key) {
-    return iterable.contains(key);
-  });
-  flipSequence.contains = (function(key) {
-    return iterable.has(key);
-  });
-  flipSequence.cacheResult = cacheResultThrough;
-  flipSequence.__iterateUncached = function(fn, reverse) {
-    var $__0 = this;
-    return iterable.__iterate((function(v, k) {
-      return fn(k, v, $__0) !== false;
-    }), reverse);
-  };
-  flipSequence.__iteratorUncached = function(type, reverse) {
-    if (type === ITERATE_ENTRIES) {
-      var iterator = iterable.__iterator(type, reverse);
-      return new Iterator((function() {
-        var step = iterator.next();
-        if (!step.done) {
-          var k = step.value[0];
-          step.value[0] = step.value[1];
-          step.value[1] = k;
-        }
-        return step;
-      }));
-    }
-    return iterable.__iterator(type === ITERATE_VALUES ? ITERATE_KEYS : ITERATE_VALUES, reverse);
-  };
-  return flipSequence;
-}
-function mapFactory(iterable, mapper, context) {
-  var mappedSequence = makeSequence(iterable);
-  mappedSequence.size = iterable.size;
-  mappedSequence.has = (function(key) {
-    return iterable.has(key);
-  });
-  mappedSequence.get = (function(key, notSetValue) {
-    var v = iterable.get(key, NOT_SET);
-    return v === NOT_SET ? notSetValue : mapper.call(context, v, key, iterable);
-  });
-  mappedSequence.__iterateUncached = function(fn, reverse) {
-    var $__0 = this;
-    return iterable.__iterate((function(v, k, c) {
-      return fn(mapper.call(context, v, k, c), k, $__0) !== false;
-    }), reverse);
-  };
-  mappedSequence.__iteratorUncached = function(type, reverse) {
-    var iterator = iterable.__iterator(ITERATE_ENTRIES, reverse);
-    return new Iterator((function() {
-      var step = iterator.next();
-      if (step.done) {
-        return step;
-      }
-      var entry = step.value;
-      var key = entry[0];
-      return iteratorValue(type, key, mapper.call(context, entry[1], key, iterable), step);
-    }));
-  };
-  return mappedSequence;
-}
-function reverseFactory(iterable, useKeys) {
-  var reversedSequence = makeSequence(iterable);
-  reversedSequence._iter = iterable;
-  reversedSequence.size = iterable.size;
-  reversedSequence.reverse = (function() {
-    return iterable;
-  });
-  if (iterable.flip) {
-    reversedSequence.flip = function() {
-      var flipSequence = flipFactory(iterable);
-      flipSequence.reverse = (function() {
-        return iterable.flip();
-      });
-      return flipSequence;
-    };
-  }
-  reversedSequence.get = (function(key, notSetValue) {
-    return iterable.get(useKeys ? key : -1 - key, notSetValue);
-  });
-  reversedSequence.has = (function(key) {
-    return iterable.has(useKeys ? key : -1 - key);
-  });
-  reversedSequence.contains = (function(value) {
-    return iterable.contains(value);
-  });
-  reversedSequence.cacheResult = cacheResultThrough;
-  reversedSequence.__iterate = function(fn, reverse) {
-    var $__0 = this;
-    return iterable.__iterate((function(v, k) {
-      return fn(v, k, $__0);
-    }), !reverse);
-  };
-  reversedSequence.__iterator = (function(type, reverse) {
-    return iterable.__iterator(type, !reverse);
-  });
-  return reversedSequence;
-}
-function filterFactory(iterable, predicate, context, useKeys) {
-  var filterSequence = makeSequence(iterable);
-  if (useKeys) {
-    filterSequence.has = (function(key) {
-      var v = iterable.get(key, NOT_SET);
-      return v !== NOT_SET && !!predicate.call(context, v, key, iterable);
-    });
-    filterSequence.get = (function(key, notSetValue) {
-      var v = iterable.get(key, NOT_SET);
-      return v !== NOT_SET && predicate.call(context, v, key, iterable) ? v : notSetValue;
-    });
-  }
-  filterSequence.__iterateUncached = function(fn, reverse) {
-    var $__0 = this;
-    var iterations = 0;
-    iterable.__iterate((function(v, k, c) {
-      if (predicate.call(context, v, k, c)) {
-        iterations++;
-        return fn(v, useKeys ? k : iterations - 1, $__0);
-      }
-    }), reverse);
-    return iterations;
-  };
-  filterSequence.__iteratorUncached = function(type, reverse) {
-    var iterator = iterable.__iterator(ITERATE_ENTRIES, reverse);
-    var iterations = 0;
-    return new Iterator((function() {
-      while (true) {
-        var step = iterator.next();
-        if (step.done) {
-          return step;
-        }
-        var entry = step.value;
-        var key = entry[0];
-        var value = entry[1];
-        if (predicate.call(context, value, key, iterable)) {
-          return iteratorValue(type, useKeys ? key : iterations++, value, step);
-        }
-      }
-    }));
-  };
-  return filterSequence;
-}
-function groupByFactory(seq, grouper, context, useKeys) {
-  var groupMap = {};
-  var groups = [];
-  seq.__iterate((function(v, k) {
-    var g = grouper.call(context, v, k, seq);
-    var h = hash(g);
-    var e = useKeys ? [k, v] : v;
-    if (!groupMap.hasOwnProperty(h)) {
-      groupMap[h] = groups.length;
-      groups.push([g, [e]]);
-    } else {
-      groups[groupMap[h]][1].push(e);
-    }
-  }));
-  return new ArraySequence(groups).fromEntrySeq().map(useKeys ? (function(group) {
-    return new ArraySequence(group).fromEntrySeq();
-  }) : (function(group) {
-    return new ArraySequence(group);
-  }));
-}
-function takeFactory(iterable, amount) {
-  if (amount > iterable.size) {
-    return iterable;
-  }
-  if (amount < 0) {
-    amount = 0;
-  }
-  var takeSequence = makeSequence(iterable);
-  takeSequence.size = iterable.size && Math.min(iterable.size, amount);
-  takeSequence.__iterateUncached = function(fn, reverse) {
-    var $__0 = this;
-    if (amount === 0) {
-      return 0;
-    }
-    if (reverse) {
-      return this.cacheResult().__iterate(fn, reverse);
-    }
-    var iterations = 0;
-    iterable.__iterate((function(v, k) {
-      return ++iterations && fn(v, k, $__0) !== false && iterations < amount;
-    }));
-    return iterations;
-  };
-  takeSequence.__iteratorUncached = function(type, reverse) {
-    if (reverse) {
-      return this.cacheResult().__iterator(type, reverse);
-    }
-    var iterator = amount && iterable.__iterator(type, reverse);
-    var iterations = 0;
-    return new Iterator((function() {
-      if (iterations++ > amount) {
-        return iteratorDone();
-      }
-      return iterator.next();
-    }));
-  };
-  return takeSequence;
-}
-function takeWhileFactory(iterable, predicate, context) {
-  var takeSequence = makeSequence(iterable);
-  takeSequence.__iterateUncached = function(fn, reverse) {
-    var $__0 = this;
-    if (reverse) {
-      return this.cacheResult().__iterate(fn, reverse);
-    }
-    var iterations = 0;
-    iterable.__iterate((function(v, k, c) {
-      return predicate.call(context, v, k, c) && ++iterations && fn(v, k, $__0);
-    }));
-    return iterations;
-  };
-  takeSequence.__iteratorUncached = function(type, reverse) {
-    var $__0 = this;
-    if (reverse) {
-      return this.cacheResult().__iterator(type, reverse);
-    }
-    var iterator = iterable.__iterator(ITERATE_ENTRIES, reverse);
-    var iterating = true;
-    return new Iterator((function() {
-      if (!iterating) {
-        return iteratorDone();
-      }
-      var step = iterator.next();
-      if (step.done) {
-        return step;
-      }
-      var entry = step.value;
-      var k = entry[0];
-      var v = entry[1];
-      if (!predicate.call(context, v, k, $__0)) {
-        iterating = false;
-        return iteratorDone();
-      }
-      return type === ITERATE_ENTRIES ? step : iteratorValue(type, k, v, step);
-    }));
-  };
-  return takeSequence;
-}
-function skipFactory(iterable, amount, useKeys) {
-  if (amount <= 0) {
-    return iterable;
-  }
-  var skipSequence = makeSequence(iterable);
-  skipSequence.size = iterable.size && Math.max(0, iterable.size - amount);
-  skipSequence.__iterateUncached = function(fn, reverse) {
-    var $__0 = this;
-    if (reverse) {
-      return this.cacheResult().__iterate(fn, reverse);
-    }
-    var skipped = 0;
-    var isSkipping = true;
-    var iterations = 0;
-    iterable.__iterate((function(v, k) {
-      if (!(isSkipping && (isSkipping = skipped++ < amount))) {
-        iterations++;
-        return fn(v, useKeys ? k : iterations - 1, $__0);
-      }
-    }));
-    return iterations;
-  };
-  skipSequence.__iteratorUncached = function(type, reverse) {
-    if (reverse) {
-      return this.cacheResult().__iterator(type, reverse);
-    }
-    var iterator = amount && iterable.__iterator(type, reverse);
-    var skipped = 0;
-    var iterations = 0;
-    return new Iterator((function() {
-      while (skipped < amount) {
-        skipped++;
-        iterator.next();
-      }
-      var step = iterator.next();
-      if (useKeys || type === ITERATE_VALUES) {
-        return step;
-      } else if (type === ITERATE_KEYS) {
-        return iteratorValue(type, iterations++, undefined, step);
-      } else {
-        return iteratorValue(type, iterations++, step.value[1], step);
-      }
-    }));
-  };
-  return skipSequence;
-}
-function skipWhileFactory(iterable, predicate, context, useKeys) {
-  var skipSequence = makeSequence(iterable);
-  skipSequence.__iterateUncached = function(fn, reverse) {
-    var $__0 = this;
-    if (reverse) {
-      return this.cacheResult().__iterate(fn, reverse);
-    }
-    var isSkipping = true;
-    var iterations = 0;
-    iterable.__iterate((function(v, k, c) {
-      if (!(isSkipping && (isSkipping = predicate.call(context, v, k, c)))) {
-        iterations++;
-        return fn(v, useKeys ? k : iterations - 1, $__0);
-      }
-    }));
-    return iterations;
-  };
-  skipSequence.__iteratorUncached = function(type, reverse) {
-    var $__0 = this;
-    if (reverse) {
-      return this.cacheResult().__iterator(type, reverse);
-    }
-    var iterator = iterable.__iterator(ITERATE_ENTRIES, reverse);
-    var skipping = true;
-    var iterations = 0;
-    return new Iterator((function() {
-      var step,
-          k,
-          v;
-      do {
-        step = iterator.next();
-        if (step.done) {
-          if (useKeys || type === ITERATE_VALUES) {
-            return step;
-          } else if (type === ITERATE_KEYS) {
-            return iteratorValue(type, iterations++, undefined, step);
-          } else {
-            return iteratorValue(type, iterations++, step.value[1], step);
-          }
-        }
-        var entry = step.value;
-        k = entry[0];
-        v = entry[1];
-        skipping && (skipping = predicate.call(context, v, k, $__0));
-      } while (skipping);
-      return type === ITERATE_ENTRIES ? step : iteratorValue(type, k, v, step);
-    }));
-  };
-  return skipSequence;
-}
-function concatFactory(iterable, values, useKeys) {
-  var isKeyedIter = isKeyed(iterable);
-  var iters = new ArraySequence([iterable].concat(values)).map((function(v) {
-    if (!isIterable(v)) {
-      v = seqFromValue(v, true);
-    }
-    if (isKeyedIter) {
-      v = KeyedIterable(v);
-    }
-    return v;
-  }));
-  if (isKeyedIter) {
-    iters = iters.toKeyedSeq();
-  } else if (!isIndexed(iterable)) {
-    iters = iters.toSetSeq();
-  }
-  var flat = iters.flatten(true);
-  flat.size = iters.reduce((function(sum, seq) {
-    if (sum !== undefined) {
-      var size = seq.size;
-      if (size !== undefined) {
-        return sum + size;
-      }
-    }
-  }), 0);
-  return flat;
-}
-function flattenFactory(iterable, depth, useKeys) {
-  var flatSequence = makeSequence(iterable);
-  flatSequence.__iterateUncached = function(fn, reverse) {
-    var iterations = 0;
-    var stopped = false;
-    function flatDeep(iter, currentDepth) {
-      var $__0 = this;
-      iter.__iterate((function(v, k) {
-        if ((!depth || currentDepth < depth) && isIterable(v)) {
-          flatDeep(v, currentDepth + 1);
-        } else if (fn(v, useKeys ? k : iterations++, $__0) === false) {
-          stopped = true;
-        }
-        return !stopped;
-      }), reverse);
-    }
-    flatDeep(iterable, 0);
-    return iterations;
-  };
-  flatSequence.__iteratorUncached = function(type, reverse) {
-    var iterator = iterable.__iterator(type, reverse);
-    var stack = [];
-    var iterations = 0;
-    return new Iterator((function() {
-      while (iterator) {
-        var step = iterator.next();
-        if (step.done !== false) {
-          iterator = stack.pop();
-          continue;
-        }
-        var v = step.value;
-        if (type === ITERATE_ENTRIES) {
-          v = v[1];
-        }
-        if ((!depth || stack.length < depth) && isIterable(v)) {
-          stack.push(iterator);
-          iterator = v.__iterator(type, reverse);
-        } else {
-          return useKeys ? step : iteratorValue(type, iterations++, v, step);
-        }
-      }
-      return iteratorDone();
-    }));
-  };
-  return flatSequence;
-}
-function interposeFactory(iterable, separator) {
-  var interposedSequence = makeSequence(iterable);
-  interposedSequence.size = iterable.size && iterable.size * 2 - 1;
-  interposedSequence.__iterateUncached = function(fn, reverse) {
-    var $__0 = this;
-    var iterations = 0;
-    iterable.__iterate((function(v, k) {
-      return (!iterations || fn(separator, iterations++, $__0) !== false) && fn(v, iterations++, $__0) !== false;
-    }), reverse);
-    return iterations;
-  };
-  interposedSequence.__iteratorUncached = function(type, reverse) {
-    var iterator = iterable.__iterator(ITERATE_VALUES, reverse);
-    var iterations = 0;
-    var step;
-    return new Iterator((function() {
-      if (!step || iterations % 2) {
-        step = iterator.next();
-        if (step.done) {
-          return step;
-        }
-      }
-      return iterations % 2 ? iteratorValue(type, iterations++, separator) : iteratorValue(type, iterations++, step.value, step);
-    }));
-  };
-  return interposedSequence;
-}
-function validateEntry(entry) {
-  if (entry !== Object(entry)) {
-    throw new TypeError('Expected [K, V] tuple: ' + entry);
-  }
-}
-function resolveSize(iter) {
-  assertNotInfinite(iter.size);
-  return ensureSize(iter);
-}
-function makeSequence(iterable) {
-  return Object.create((isKeyed(iterable) ? LazyKeyedSequence : isIndexed(iterable) ? LazyIndexedSequence : LazySetSequence).prototype);
-}
-function cacheResultThrough() {
-  if (this._iter.cacheResult) {
-    this._iter.cacheResult();
-    this.size = this._iter.size;
-    return this;
-  } else {
-    return LazySequence.prototype.cacheResult.call(this);
-  }
 }
 var Collection = function Collection() {
   throw TypeError('Abstract');
@@ -2336,6 +1704,626 @@ function spliceOut(array, idx, canEdit) {
 var MAX_BITMAP_SIZE = SIZE / 2;
 var MIN_ARRAY_SIZE = SIZE / 4;
 var EMPTY_MAP;
+var ToIndexedSequence = function ToIndexedSequence(iter) {
+  this._iter = iter;
+  this.size = iter.size;
+};
+($traceurRuntime.createClass)(ToIndexedSequence, {
+  contains: function(value) {
+    return this._iter.contains(value);
+  },
+  __iterate: function(fn, reverse) {
+    var $__0 = this;
+    var iterations = 0;
+    return this._iter.__iterate((function(v) {
+      return fn(v, iterations++, $__0);
+    }), reverse);
+  },
+  __iterator: function(type, reverse) {
+    var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
+    var iterations = 0;
+    return new Iterator((function() {
+      var step = iterator.next();
+      return step.done ? step : iteratorValue(type, iterations++, step.value, step);
+    }));
+  }
+}, {}, LazyIndexedSequence);
+var ToKeyedSequence = function ToKeyedSequence(indexed, useKeys) {
+  this._iter = indexed;
+  this._useKeys = useKeys;
+  this.size = indexed.size;
+};
+($traceurRuntime.createClass)(ToKeyedSequence, {
+  get: function(key, notSetValue) {
+    return this._iter.get(key, notSetValue);
+  },
+  has: function(key) {
+    return this._iter.has(key);
+  },
+  valueSeq: function() {
+    return this._iter.valueSeq();
+  },
+  reverse: function() {
+    var $__0 = this;
+    var reversedSequence = reverseFactory(this, true);
+    if (!this._useKeys) {
+      reversedSequence.valueSeq = (function() {
+        return $__0._iter.toSeq().reverse();
+      });
+    }
+    return reversedSequence;
+  },
+  map: function(mapper, context) {
+    var $__0 = this;
+    var mappedSequence = mapFactory(this, mapper, context);
+    if (!this._useKeys) {
+      mappedSequence.valueSeq = (function() {
+        return $__0._iter.toSeq().map(mapper, context);
+      });
+    }
+    return mappedSequence;
+  },
+  __iterate: function(fn, reverse) {
+    var $__0 = this;
+    var ii;
+    return this._iter.__iterate(this._useKeys ? (function(v, k) {
+      return fn(v, k, $__0);
+    }) : ((ii = reverse ? resolveSize(this) : 0), (function(v) {
+      return fn(v, reverse ? --ii : ii++, $__0);
+    })), reverse);
+  },
+  __iterator: function(type, reverse) {
+    if (this._useKeys) {
+      return this._iter.__iterator(type, reverse);
+    }
+    var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
+    var ii = reverse ? resolveSize(this) : 0;
+    return new Iterator((function() {
+      var step = iterator.next();
+      return step.done ? step : iteratorValue(type, reverse ? --ii : ii++, step.value, step);
+    }));
+  }
+}, {}, LazyKeyedSequence);
+var ToSetSequence = function ToSetSequence(iter) {
+  this._iter = iter;
+  this.size = iter.size;
+};
+($traceurRuntime.createClass)(ToSetSequence, {
+  has: function(key) {
+    return this._iter.contains(key);
+  },
+  __iterate: function(fn, reverse) {
+    var $__0 = this;
+    return this._iter.__iterate((function(v) {
+      return fn(v, v, $__0);
+    }), reverse);
+  },
+  __iterator: function(type, reverse) {
+    var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
+    return new Iterator((function() {
+      var step = iterator.next();
+      return step.done ? step : iteratorValue(type, step.value, step.value, step);
+    }));
+  }
+}, {}, LazySetSequence);
+var FromEntriesSequence = function FromEntriesSequence(entries) {
+  this._iter = entries;
+  this.size = entries.size;
+};
+($traceurRuntime.createClass)(FromEntriesSequence, {
+  entrySeq: function() {
+    return this._iter.toSeq();
+  },
+  __iterate: function(fn, reverse) {
+    var $__0 = this;
+    return this._iter.__iterate((function(entry) {
+      if (entry) {
+        validateEntry(entry);
+        return fn(entry[1], entry[0], $__0);
+      }
+    }), reverse);
+  },
+  __iterator: function(type, reverse) {
+    var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
+    return new Iterator((function() {
+      while (true) {
+        var step = iterator.next();
+        if (step.done) {
+          return step;
+        }
+        var entry = step.value;
+        if (entry) {
+          validateEntry(entry);
+          return type === ITERATE_ENTRIES ? step : iteratorValue(type, entry[0], entry[1], step);
+        }
+      }
+    }));
+  }
+}, {}, LazyKeyedSequence);
+ToIndexedSequence.prototype.cacheResult = ToKeyedSequence.prototype.cacheResult = ToSetSequence.prototype.cacheResult = FromEntriesSequence.prototype.cacheResult = cacheResultThrough;
+function flipFactory(iterable) {
+  var flipSequence = makeSequence(iterable);
+  flipSequence._iter = iterable;
+  flipSequence.size = iterable.size;
+  flipSequence.flip = (function() {
+    return iterable;
+  });
+  flipSequence.reverse = function() {
+    var reversedSequence = iterable.reverse.apply(this);
+    reversedSequence.flip = (function() {
+      return iterable.reverse();
+    });
+    return reversedSequence;
+  };
+  flipSequence.has = (function(key) {
+    return iterable.contains(key);
+  });
+  flipSequence.contains = (function(key) {
+    return iterable.has(key);
+  });
+  flipSequence.cacheResult = cacheResultThrough;
+  flipSequence.__iterateUncached = function(fn, reverse) {
+    var $__0 = this;
+    return iterable.__iterate((function(v, k) {
+      return fn(k, v, $__0) !== false;
+    }), reverse);
+  };
+  flipSequence.__iteratorUncached = function(type, reverse) {
+    if (type === ITERATE_ENTRIES) {
+      var iterator = iterable.__iterator(type, reverse);
+      return new Iterator((function() {
+        var step = iterator.next();
+        if (!step.done) {
+          var k = step.value[0];
+          step.value[0] = step.value[1];
+          step.value[1] = k;
+        }
+        return step;
+      }));
+    }
+    return iterable.__iterator(type === ITERATE_VALUES ? ITERATE_KEYS : ITERATE_VALUES, reverse);
+  };
+  return flipSequence;
+}
+function mapFactory(iterable, mapper, context) {
+  var mappedSequence = makeSequence(iterable);
+  mappedSequence.size = iterable.size;
+  mappedSequence.has = (function(key) {
+    return iterable.has(key);
+  });
+  mappedSequence.get = (function(key, notSetValue) {
+    var v = iterable.get(key, NOT_SET);
+    return v === NOT_SET ? notSetValue : mapper.call(context, v, key, iterable);
+  });
+  mappedSequence.__iterateUncached = function(fn, reverse) {
+    var $__0 = this;
+    return iterable.__iterate((function(v, k, c) {
+      return fn(mapper.call(context, v, k, c), k, $__0) !== false;
+    }), reverse);
+  };
+  mappedSequence.__iteratorUncached = function(type, reverse) {
+    var iterator = iterable.__iterator(ITERATE_ENTRIES, reverse);
+    return new Iterator((function() {
+      var step = iterator.next();
+      if (step.done) {
+        return step;
+      }
+      var entry = step.value;
+      var key = entry[0];
+      return iteratorValue(type, key, mapper.call(context, entry[1], key, iterable), step);
+    }));
+  };
+  return mappedSequence;
+}
+function reverseFactory(iterable, useKeys) {
+  var reversedSequence = makeSequence(iterable);
+  reversedSequence._iter = iterable;
+  reversedSequence.size = iterable.size;
+  reversedSequence.reverse = (function() {
+    return iterable;
+  });
+  if (iterable.flip) {
+    reversedSequence.flip = function() {
+      var flipSequence = flipFactory(iterable);
+      flipSequence.reverse = (function() {
+        return iterable.flip();
+      });
+      return flipSequence;
+    };
+  }
+  reversedSequence.get = (function(key, notSetValue) {
+    return iterable.get(useKeys ? key : -1 - key, notSetValue);
+  });
+  reversedSequence.has = (function(key) {
+    return iterable.has(useKeys ? key : -1 - key);
+  });
+  reversedSequence.contains = (function(value) {
+    return iterable.contains(value);
+  });
+  reversedSequence.cacheResult = cacheResultThrough;
+  reversedSequence.__iterate = function(fn, reverse) {
+    var $__0 = this;
+    return iterable.__iterate((function(v, k) {
+      return fn(v, k, $__0);
+    }), !reverse);
+  };
+  reversedSequence.__iterator = (function(type, reverse) {
+    return iterable.__iterator(type, !reverse);
+  });
+  return reversedSequence;
+}
+function filterFactory(iterable, predicate, context, useKeys) {
+  var filterSequence = makeSequence(iterable);
+  if (useKeys) {
+    filterSequence.has = (function(key) {
+      var v = iterable.get(key, NOT_SET);
+      return v !== NOT_SET && !!predicate.call(context, v, key, iterable);
+    });
+    filterSequence.get = (function(key, notSetValue) {
+      var v = iterable.get(key, NOT_SET);
+      return v !== NOT_SET && predicate.call(context, v, key, iterable) ? v : notSetValue;
+    });
+  }
+  filterSequence.__iterateUncached = function(fn, reverse) {
+    var $__0 = this;
+    var iterations = 0;
+    iterable.__iterate((function(v, k, c) {
+      if (predicate.call(context, v, k, c)) {
+        iterations++;
+        return fn(v, useKeys ? k : iterations - 1, $__0);
+      }
+    }), reverse);
+    return iterations;
+  };
+  filterSequence.__iteratorUncached = function(type, reverse) {
+    var iterator = iterable.__iterator(ITERATE_ENTRIES, reverse);
+    var iterations = 0;
+    return new Iterator((function() {
+      while (true) {
+        var step = iterator.next();
+        if (step.done) {
+          return step;
+        }
+        var entry = step.value;
+        var key = entry[0];
+        var value = entry[1];
+        if (predicate.call(context, value, key, iterable)) {
+          return iteratorValue(type, useKeys ? key : iterations++, value, step);
+        }
+      }
+    }));
+  };
+  return filterSequence;
+}
+function countByFactory(iterable, grouper, context) {
+  var groups = Map().asMutable();
+  iterable.__iterate((function(v, k) {
+    groups.update(grouper.call(context, v, k, iterable), 0, (function(a) {
+      return a + 1;
+    }));
+  }));
+  return groups.asImmutable();
+}
+function groupByFactory(iterable, grouper, context) {
+  var isKeyedIter = isKeyed(iterable);
+  var groups = Map().asMutable();
+  iterable.__iterate((function(v, k) {
+    groups.update(grouper.call(context, v, k, iterable), [], (function(a) {
+      return (a.push(isKeyedIter ? [k, v] : v), a);
+    }));
+  }));
+  var coerce = iterableClass(iterable);
+  return groups.map((function(arr) {
+    return reify(iterable, coerce(arr));
+  }));
+}
+function takeFactory(iterable, amount) {
+  if (amount > iterable.size) {
+    return iterable;
+  }
+  if (amount < 0) {
+    amount = 0;
+  }
+  var takeSequence = makeSequence(iterable);
+  takeSequence.size = iterable.size && Math.min(iterable.size, amount);
+  takeSequence.__iterateUncached = function(fn, reverse) {
+    var $__0 = this;
+    if (amount === 0) {
+      return 0;
+    }
+    if (reverse) {
+      return this.cacheResult().__iterate(fn, reverse);
+    }
+    var iterations = 0;
+    iterable.__iterate((function(v, k) {
+      return ++iterations && fn(v, k, $__0) !== false && iterations < amount;
+    }));
+    return iterations;
+  };
+  takeSequence.__iteratorUncached = function(type, reverse) {
+    if (reverse) {
+      return this.cacheResult().__iterator(type, reverse);
+    }
+    var iterator = amount && iterable.__iterator(type, reverse);
+    var iterations = 0;
+    return new Iterator((function() {
+      if (iterations++ > amount) {
+        return iteratorDone();
+      }
+      return iterator.next();
+    }));
+  };
+  return takeSequence;
+}
+function takeWhileFactory(iterable, predicate, context) {
+  var takeSequence = makeSequence(iterable);
+  takeSequence.__iterateUncached = function(fn, reverse) {
+    var $__0 = this;
+    if (reverse) {
+      return this.cacheResult().__iterate(fn, reverse);
+    }
+    var iterations = 0;
+    iterable.__iterate((function(v, k, c) {
+      return predicate.call(context, v, k, c) && ++iterations && fn(v, k, $__0);
+    }));
+    return iterations;
+  };
+  takeSequence.__iteratorUncached = function(type, reverse) {
+    var $__0 = this;
+    if (reverse) {
+      return this.cacheResult().__iterator(type, reverse);
+    }
+    var iterator = iterable.__iterator(ITERATE_ENTRIES, reverse);
+    var iterating = true;
+    return new Iterator((function() {
+      if (!iterating) {
+        return iteratorDone();
+      }
+      var step = iterator.next();
+      if (step.done) {
+        return step;
+      }
+      var entry = step.value;
+      var k = entry[0];
+      var v = entry[1];
+      if (!predicate.call(context, v, k, $__0)) {
+        iterating = false;
+        return iteratorDone();
+      }
+      return type === ITERATE_ENTRIES ? step : iteratorValue(type, k, v, step);
+    }));
+  };
+  return takeSequence;
+}
+function skipFactory(iterable, amount, useKeys) {
+  if (amount <= 0) {
+    return iterable;
+  }
+  var skipSequence = makeSequence(iterable);
+  skipSequence.size = iterable.size && Math.max(0, iterable.size - amount);
+  skipSequence.__iterateUncached = function(fn, reverse) {
+    var $__0 = this;
+    if (reverse) {
+      return this.cacheResult().__iterate(fn, reverse);
+    }
+    var skipped = 0;
+    var isSkipping = true;
+    var iterations = 0;
+    iterable.__iterate((function(v, k) {
+      if (!(isSkipping && (isSkipping = skipped++ < amount))) {
+        iterations++;
+        return fn(v, useKeys ? k : iterations - 1, $__0);
+      }
+    }));
+    return iterations;
+  };
+  skipSequence.__iteratorUncached = function(type, reverse) {
+    if (reverse) {
+      return this.cacheResult().__iterator(type, reverse);
+    }
+    var iterator = amount && iterable.__iterator(type, reverse);
+    var skipped = 0;
+    var iterations = 0;
+    return new Iterator((function() {
+      while (skipped < amount) {
+        skipped++;
+        iterator.next();
+      }
+      var step = iterator.next();
+      if (useKeys || type === ITERATE_VALUES) {
+        return step;
+      } else if (type === ITERATE_KEYS) {
+        return iteratorValue(type, iterations++, undefined, step);
+      } else {
+        return iteratorValue(type, iterations++, step.value[1], step);
+      }
+    }));
+  };
+  return skipSequence;
+}
+function skipWhileFactory(iterable, predicate, context, useKeys) {
+  var skipSequence = makeSequence(iterable);
+  skipSequence.__iterateUncached = function(fn, reverse) {
+    var $__0 = this;
+    if (reverse) {
+      return this.cacheResult().__iterate(fn, reverse);
+    }
+    var isSkipping = true;
+    var iterations = 0;
+    iterable.__iterate((function(v, k, c) {
+      if (!(isSkipping && (isSkipping = predicate.call(context, v, k, c)))) {
+        iterations++;
+        return fn(v, useKeys ? k : iterations - 1, $__0);
+      }
+    }));
+    return iterations;
+  };
+  skipSequence.__iteratorUncached = function(type, reverse) {
+    var $__0 = this;
+    if (reverse) {
+      return this.cacheResult().__iterator(type, reverse);
+    }
+    var iterator = iterable.__iterator(ITERATE_ENTRIES, reverse);
+    var skipping = true;
+    var iterations = 0;
+    return new Iterator((function() {
+      var step,
+          k,
+          v;
+      do {
+        step = iterator.next();
+        if (step.done) {
+          if (useKeys || type === ITERATE_VALUES) {
+            return step;
+          } else if (type === ITERATE_KEYS) {
+            return iteratorValue(type, iterations++, undefined, step);
+          } else {
+            return iteratorValue(type, iterations++, step.value[1], step);
+          }
+        }
+        var entry = step.value;
+        k = entry[0];
+        v = entry[1];
+        skipping && (skipping = predicate.call(context, v, k, $__0));
+      } while (skipping);
+      return type === ITERATE_ENTRIES ? step : iteratorValue(type, k, v, step);
+    }));
+  };
+  return skipSequence;
+}
+function concatFactory(iterable, values, useKeys) {
+  var isKeyedIter = isKeyed(iterable);
+  var iters = new ArraySequence([iterable].concat(values)).map((function(v) {
+    if (!isIterable(v)) {
+      v = seqFromValue(v, true);
+    }
+    if (isKeyedIter) {
+      v = KeyedIterable(v);
+    }
+    return v;
+  }));
+  if (isKeyedIter) {
+    iters = iters.toKeyedSeq();
+  } else if (!isIndexed(iterable)) {
+    iters = iters.toSetSeq();
+  }
+  var flat = iters.flatten(true);
+  flat.size = iters.reduce((function(sum, seq) {
+    if (sum !== undefined) {
+      var size = seq.size;
+      if (size !== undefined) {
+        return sum + size;
+      }
+    }
+  }), 0);
+  return flat;
+}
+function flattenFactory(iterable, depth, useKeys) {
+  var flatSequence = makeSequence(iterable);
+  flatSequence.__iterateUncached = function(fn, reverse) {
+    var iterations = 0;
+    var stopped = false;
+    function flatDeep(iter, currentDepth) {
+      var $__0 = this;
+      iter.__iterate((function(v, k) {
+        if ((!depth || currentDepth < depth) && isIterable(v)) {
+          flatDeep(v, currentDepth + 1);
+        } else if (fn(v, useKeys ? k : iterations++, $__0) === false) {
+          stopped = true;
+        }
+        return !stopped;
+      }), reverse);
+    }
+    flatDeep(iterable, 0);
+    return iterations;
+  };
+  flatSequence.__iteratorUncached = function(type, reverse) {
+    var iterator = iterable.__iterator(type, reverse);
+    var stack = [];
+    var iterations = 0;
+    return new Iterator((function() {
+      while (iterator) {
+        var step = iterator.next();
+        if (step.done !== false) {
+          iterator = stack.pop();
+          continue;
+        }
+        var v = step.value;
+        if (type === ITERATE_ENTRIES) {
+          v = v[1];
+        }
+        if ((!depth || stack.length < depth) && isIterable(v)) {
+          stack.push(iterator);
+          iterator = v.__iterator(type, reverse);
+        } else {
+          return useKeys ? step : iteratorValue(type, iterations++, v, step);
+        }
+      }
+      return iteratorDone();
+    }));
+  };
+  return flatSequence;
+}
+function flatMapFactory(iterable, mapper, context) {
+  var coerce = iterableClass(iterable);
+  return iterable.toSeq().map((function(v, k) {
+    return coerce(mapper.call(context, v, k, iterable));
+  })).flatten(true);
+}
+function interposeFactory(iterable, separator) {
+  var interposedSequence = makeSequence(iterable);
+  interposedSequence.size = iterable.size && iterable.size * 2 - 1;
+  interposedSequence.__iterateUncached = function(fn, reverse) {
+    var $__0 = this;
+    var iterations = 0;
+    iterable.__iterate((function(v, k) {
+      return (!iterations || fn(separator, iterations++, $__0) !== false) && fn(v, iterations++, $__0) !== false;
+    }), reverse);
+    return iterations;
+  };
+  interposedSequence.__iteratorUncached = function(type, reverse) {
+    var iterator = iterable.__iterator(ITERATE_VALUES, reverse);
+    var iterations = 0;
+    var step;
+    return new Iterator((function() {
+      if (!step || iterations % 2) {
+        step = iterator.next();
+        if (step.done) {
+          return step;
+        }
+      }
+      return iterations % 2 ? iteratorValue(type, iterations++, separator) : iteratorValue(type, iterations++, step.value, step);
+    }));
+  };
+  return interposedSequence;
+}
+function reify(iter, seq) {
+  return isLazy(iter) ? seq : iter.constructor(seq);
+}
+function validateEntry(entry) {
+  if (entry !== Object(entry)) {
+    throw new TypeError('Expected [K, V] tuple: ' + entry);
+  }
+}
+function resolveSize(iter) {
+  assertNotInfinite(iter.size);
+  return ensureSize(iter);
+}
+function iterableClass(iterable) {
+  return isKeyed(iterable) ? KeyedIterable : isIndexed(iterable) ? IndexedIterable : SetIterable;
+}
+function makeSequence(iterable) {
+  return Object.create((isKeyed(iterable) ? LazyKeyedSequence : isIndexed(iterable) ? LazyIndexedSequence : LazySetSequence).prototype);
+}
+function cacheResultThrough() {
+  if (this._iter.cacheResult) {
+    this._iter.cacheResult();
+    this.size = this._iter.size;
+    return this;
+  } else {
+    return LazySequence.prototype.cacheResult.call(this);
+  }
+}
 var Vector = function Vector(value) {
   var empty = $Vector.empty();
   if (arguments.length === 0) {
