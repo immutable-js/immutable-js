@@ -7,6 +7,14 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
+/**
+ * Cursor is expected to be required in a node or other CommonJS context:
+ *
+ *     var Cursor = require('immutable/contrib/cursor');
+ *
+ * If you wish to use it in the browser, please check out Browserify or WebPack!
+ */
+
 var Immutable = require('../../');
 var Iterable = Immutable.Iterable;
 var Iterator = Iterable.Iterator;
@@ -79,31 +87,35 @@ IndexedCursorPrototype.getIn = function(key, notSetValue) {
 
 IndexedCursorPrototype.set =
 KeyedCursorPrototype.set = function(key, value) {
-  return updateCursor(this, m => m.set(key, value), key);
+  return updateCursor(this, function (m) { return m.set(key, value); }, key);
 }
 
 KeyedCursorPrototype.remove =
 KeyedCursorPrototype['delete'] =
 IndexedCursorPrototype.remove =
 IndexedCursorPrototype['delete'] = function(key) {
-  return updateCursor(this, m => m.remove(key), key);
+  return updateCursor(this, function (m) { return m.remove(key); }, key);
 }
 
 KeyedCursorPrototype.clear =
 IndexedCursorPrototype.clear = function() {
-  return updateCursor(this, m => m.clear());
+  return updateCursor(this, function (m) { return m.clear(); });
 }
 
 IndexedCursorPrototype.update =
 KeyedCursorPrototype.update = function(keyOrFn, notSetValue, updater) {
   return arguments.length === 1 ?
     updateCursor(this, keyOrFn) :
-    updateCursor(this, map => map.update(keyOrFn, notSetValue, updater), keyOrFn);
+    updateCursor(this, function (map) {
+      return map.update(keyOrFn, notSetValue, updater);
+    }, keyOrFn);
 }
 
 KeyedCursorPrototype.withMutations =
 IndexedCursorPrototype.withMutations = function(fn) {
-  return updateCursor(this, m => (m || Map()).withMutations(fn));
+  return updateCursor(this, function (m) {
+    return (m || Map()).withMutations(fn);
+  });
 }
 
 KeyedCursorPrototype.cursor =
@@ -117,9 +129,10 @@ IndexedCursorPrototype.cursor = function(subKey) {
  */
 KeyedCursorPrototype.__iterate =
 IndexedCursorPrototype.__iterate = function(fn, reverse) {
-  var deref = this.deref();
+  var cursor = this;
+  var deref = cursor.deref();
   return deref && deref.__iterate ? deref.__iterate(
-    (v, k) => fn(wrappedValue(this, k, v), k, this),
+    function (v, k) { return fn(wrappedValue(cursor, k, v), k, cursor); },
     reverse
   ) : 0;
 }
