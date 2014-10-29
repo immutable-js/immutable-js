@@ -10,8 +10,8 @@
 import "mixin"
 import "Iterable"
 /* global mixin,
-          Iterable, KeyedIterable, SetIterable, IndexedIterable */
-/* exported Collection, KeyedCollection, SetCollection, IndexedCollection */
+          Iterable, KeyedIterable, IndexedIterable, SetIterable */
+/* exported Collection, KeyedCollection, IndexedCollection, SetCollection */
 
 
 class Collection extends Iterable {
@@ -23,13 +23,13 @@ class Collection extends Iterable {
 class KeyedCollection extends Collection {}
 mixin(KeyedCollection, KeyedIterable.prototype);
 
-class SetCollection extends Collection {}
-mixin(SetCollection, SetIterable.prototype);
-
 class IndexedCollection extends Collection {}
 mixin(IndexedCollection, IndexedIterable.prototype);
 
+class SetCollection extends Collection {}
+mixin(SetCollection, SetIterable.prototype);
+
 
 Collection.Keyed = KeyedCollection;
-Collection.Set = SetCollection;
 Collection.Indexed = IndexedCollection;
+Collection.Set = SetCollection;

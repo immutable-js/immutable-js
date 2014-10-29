@@ -20,16 +20,16 @@ import "Iterator"
           Iterator,
           ITERATOR_SYMBOL, ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES,
           isSeq,
-          Seq, KeyedSeq, SetSeq, IndexedSeq,
+          Seq, KeyedSeq, IndexedSeq, SetSeq,
           ArraySeq,
-          reify, ToIndexedSequence, ToKeyedSequence, ToSetSequence,
+          reify, ToKeyedSequence, ToIndexedSequence, ToSetSequence,
           FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
           filterFactory, countByFactory, groupByFactory, takeFactory,
           takeWhileFactory, skipFactory, skipWhileFactory, concatFactory,
           flattenFactory, flatMapFactory, interposeFactory */
 /* exported Iterable,
             isIterable, isKeyed, isIndexed, isAssociative,
-            Collection, KeyedCollection, SetCollection, IndexedCollection */
+            Collection, KeyedCollection, IndexedCollection, SetCollection */
 
 
 class Iterable {
@@ -574,36 +574,6 @@ KeyedIterablePrototype.__toStringMapper = (v, k) => k + ': ' + quoteString(v);
 
 
 
-class SetIterable extends Iterable {
-
-  constructor(value) {
-    return isIterable(value) && !isAssociative(value) ? value :
-      SetSeq.apply(undefined, arguments);
-  }
-
-
-  // ### ES6 Collection methods (ES6 Array and Map)
-
-  get(value, notSetValue) {
-    return this.has(value) ? value : notSetValue;
-  }
-
-  contains(value) {
-    return this.has(value);
-  }
-
-
-  // ### More sequential methods
-
-  keySeq() {
-    return this.valueSeq();
-  }
-}
-
-SetIterable.prototype.has = IterablePrototype.contains;
-
-
-
 class IndexedIterable extends Iterable {
 
   constructor(value) {
@@ -747,6 +717,36 @@ IndexedIterable.prototype[IS_INDEXED_SENTINEL] = true;
 
 
 
+class SetIterable extends Iterable {
+
+  constructor(value) {
+    return isIterable(value) && !isAssociative(value) ? value :
+      SetSeq.apply(undefined, arguments);
+  }
+
+
+  // ### ES6 Collection methods (ES6 Array and Map)
+
+  get(value, notSetValue) {
+    return this.has(value) ? value : notSetValue;
+  }
+
+  contains(value) {
+    return this.has(value);
+  }
+
+
+  // ### More sequential methods
+
+  keySeq() {
+    return this.valueSeq();
+  }
+}
+
+SetIterable.prototype.has = IterablePrototype.contains;
+
+
+
 // #pragma Iterable static methods
 
 function isIterable(maybeIterable) {
@@ -770,8 +770,8 @@ Iterable.isKeyed = isKeyed;
 Iterable.isIndexed = isIndexed;
 Iterable.isAssociative = isAssociative;
 Iterable.Keyed = KeyedIterable;
-Iterable.Set = SetIterable;
 Iterable.Indexed = IndexedIterable;
+Iterable.Set = SetIterable;
 Iterable.Iterator = Iterator;
 
 

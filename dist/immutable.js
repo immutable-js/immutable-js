@@ -687,21 +687,6 @@ KeyedIterablePrototype.__toJS = IterablePrototype.toObject;
 KeyedIterablePrototype.__toStringMapper = (function(v, k) {
   return k + ': ' + quoteString(v);
 });
-var SetIterable = function SetIterable(value) {
-  return isIterable(value) && !isAssociative(value) ? value : SetSeq.apply(undefined, arguments);
-};
-($traceurRuntime.createClass)(SetIterable, {
-  get: function(value, notSetValue) {
-    return this.has(value) ? value : notSetValue;
-  },
-  contains: function(value) {
-    return this.has(value);
-  },
-  keySeq: function() {
-    return this.valueSeq();
-  }
-}, {}, Iterable);
-SetIterable.prototype.has = IterablePrototype.contains;
 var IndexedIterable = function IndexedIterable(value) {
   return isIndexed(value) ? value : IndexedSeq.apply(undefined, arguments);
 };
@@ -803,6 +788,21 @@ var IndexedIterable = function IndexedIterable(value) {
   }
 }, {}, Iterable);
 IndexedIterable.prototype[IS_INDEXED_SENTINEL] = true;
+var SetIterable = function SetIterable(value) {
+  return isIterable(value) && !isAssociative(value) ? value : SetSeq.apply(undefined, arguments);
+};
+($traceurRuntime.createClass)(SetIterable, {
+  get: function(value, notSetValue) {
+    return this.has(value) ? value : notSetValue;
+  },
+  contains: function(value) {
+    return this.has(value);
+  },
+  keySeq: function() {
+    return this.valueSeq();
+  }
+}, {}, Iterable);
+SetIterable.prototype.has = IterablePrototype.contains;
 function isIterable(maybeIterable) {
   return !!(maybeIterable && maybeIterable[IS_ITERABLE_SENTINEL]);
 }
@@ -820,8 +820,8 @@ Iterable.isKeyed = isKeyed;
 Iterable.isIndexed = isIndexed;
 Iterable.isAssociative = isAssociative;
 Iterable.Keyed = KeyedIterable;
-Iterable.Set = SetIterable;
 Iterable.Indexed = IndexedIterable;
+Iterable.Set = SetIterable;
 Iterable.Iterator = Iterator;
 function valueMapper(v) {
   return v;
@@ -898,16 +898,6 @@ var $KeyedSeq = KeyedSeq;
     return $KeyedSeq(arguments);
   }}, Seq);
 mixin(KeyedSeq, KeyedIterable.prototype);
-var SetSeq = function SetSeq(value) {
-  return arguments.length === 0 ? emptySequence().toSetSeq() : (isIterable(value) ? value : seqFromValue(value, false)).toSetSeq();
-};
-var $SetSeq = SetSeq;
-($traceurRuntime.createClass)(SetSeq, {toSetSeq: function() {
-    return this;
-  }}, {of: function() {
-    return $SetSeq(arguments);
-  }}, Seq);
-mixin(SetSeq, SetIterable.prototype);
 var IndexedSeq = function IndexedSeq(value) {
   return arguments.length === 0 ? emptySequence() : (isIterable(value) ? value : seqFromValue(value, false)).toIndexedSeq();
 };
@@ -929,6 +919,16 @@ var $IndexedSeq = IndexedSeq;
     return $IndexedSeq(arguments);
   }}, Seq);
 mixin(IndexedSeq, IndexedIterable.prototype);
+var SetSeq = function SetSeq(value) {
+  return arguments.length === 0 ? emptySequence().toSetSeq() : (isIterable(value) ? value : seqFromValue(value, false)).toSetSeq();
+};
+var $SetSeq = SetSeq;
+($traceurRuntime.createClass)(SetSeq, {toSetSeq: function() {
+    return this;
+  }}, {of: function() {
+    return $SetSeq(arguments);
+  }}, Seq);
+mixin(SetSeq, SetIterable.prototype);
 Seq.isSeq = isSeq;
 Seq.Keyed = KeyedSeq;
 Seq.Set = SetSeq;
@@ -1142,21 +1142,21 @@ var KeyedCollection = function KeyedCollection() {
 var $KeyedCollection = KeyedCollection;
 ($traceurRuntime.createClass)(KeyedCollection, {}, {}, Collection);
 mixin(KeyedCollection, KeyedIterable.prototype);
-var SetCollection = function SetCollection() {
-  $traceurRuntime.defaultSuperCall(this, $SetCollection.prototype, arguments);
-};
-var $SetCollection = SetCollection;
-($traceurRuntime.createClass)(SetCollection, {}, {}, Collection);
-mixin(SetCollection, SetIterable.prototype);
 var IndexedCollection = function IndexedCollection() {
   $traceurRuntime.defaultSuperCall(this, $IndexedCollection.prototype, arguments);
 };
 var $IndexedCollection = IndexedCollection;
 ($traceurRuntime.createClass)(IndexedCollection, {}, {}, Collection);
 mixin(IndexedCollection, IndexedIterable.prototype);
+var SetCollection = function SetCollection() {
+  $traceurRuntime.defaultSuperCall(this, $SetCollection.prototype, arguments);
+};
+var $SetCollection = SetCollection;
+($traceurRuntime.createClass)(SetCollection, {}, {}, Collection);
+mixin(SetCollection, SetIterable.prototype);
 Collection.Keyed = KeyedCollection;
-Collection.Set = SetCollection;
 Collection.Indexed = IndexedCollection;
+Collection.Set = SetCollection;
 var Map = function Map(value) {
   return arguments.length === 0 ? emptyMap() : value && value.constructor === $Map ? value : emptyMap().merge(value);
 };
@@ -1692,30 +1692,6 @@ function spliceOut(array, idx, canEdit) {
 }
 var MAX_BITMAP_SIZE = SIZE / 2;
 var MIN_ARRAY_SIZE = SIZE / 4;
-var ToIndexedSequence = function ToIndexedSequence(iter) {
-  this._iter = iter;
-  this.size = iter.size;
-};
-($traceurRuntime.createClass)(ToIndexedSequence, {
-  contains: function(value) {
-    return this._iter.contains(value);
-  },
-  __iterate: function(fn, reverse) {
-    var $__0 = this;
-    var iterations = 0;
-    return this._iter.__iterate((function(v) {
-      return fn(v, iterations++, $__0);
-    }), reverse);
-  },
-  __iterator: function(type, reverse) {
-    var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
-    var iterations = 0;
-    return new Iterator((function() {
-      var step = iterator.next();
-      return step.done ? step : iteratorValue(type, iterations++, step.value, step);
-    }));
-  }
-}, {}, IndexedSeq);
 var ToKeyedSequence = function ToKeyedSequence(indexed, useKeys) {
   this._iter = indexed;
   this._useKeys = useKeys;
@@ -1772,6 +1748,30 @@ var ToKeyedSequence = function ToKeyedSequence(indexed, useKeys) {
     }));
   }
 }, {}, KeyedSeq);
+var ToIndexedSequence = function ToIndexedSequence(iter) {
+  this._iter = iter;
+  this.size = iter.size;
+};
+($traceurRuntime.createClass)(ToIndexedSequence, {
+  contains: function(value) {
+    return this._iter.contains(value);
+  },
+  __iterate: function(fn, reverse) {
+    var $__0 = this;
+    var iterations = 0;
+    return this._iter.__iterate((function(v) {
+      return fn(v, iterations++, $__0);
+    }), reverse);
+  },
+  __iterator: function(type, reverse) {
+    var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
+    var iterations = 0;
+    return new Iterator((function() {
+      var step = iterator.next();
+      return step.done ? step : iteratorValue(type, iterations++, step.value, step);
+    }));
+  }
+}, {}, IndexedSeq);
 var ToSetSequence = function ToSetSequence(iter) {
   this._iter = iter;
   this.size = iter.size;

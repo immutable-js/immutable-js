@@ -20,38 +20,11 @@ import "Map"
           isSeq, Seq, KeyedSeq, SetSeq, IndexedSeq,
           seqFromValue, ArraySeq,
           Map */
-/* exported reify, ToIndexedSequence, ToKeyedSequence, ToSetSequence,
+/* exported reify, ToKeyedSequence, ToIndexedSequence, ToSetSequence,
             FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
             filterFactory, countByFactory, groupByFactory, takeFactory,
             takeWhileFactory, skipFactory, skipWhileFactory, concatFactory,
             flattenFactory, flatMapFactory, interposeFactory */
-
-
-class ToIndexedSequence extends IndexedSeq {
-  constructor(iter) {
-    this._iter = iter;
-    this.size = iter.size;
-  }
-
-  contains(value) {
-    return this._iter.contains(value);
-  }
-
-  __iterate(fn, reverse) {
-    var iterations = 0;
-    return this._iter.__iterate(v => fn(v, iterations++, this), reverse);
-  }
-
-  __iterator(type, reverse) {
-    var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
-    var iterations = 0;
-    return new Iterator(() => {
-      var step = iterator.next();
-      return step.done ? step :
-        iteratorValue(type, iterations++, step.value, step)
-    });
-  }
-}
 
 
 class ToKeyedSequence extends KeyedSeq {
@@ -110,6 +83,33 @@ class ToKeyedSequence extends KeyedSeq {
       var step = iterator.next();
       return step.done ? step :
         iteratorValue(type, reverse ? --ii : ii++, step.value, step);
+    });
+  }
+}
+
+
+class ToIndexedSequence extends IndexedSeq {
+  constructor(iter) {
+    this._iter = iter;
+    this.size = iter.size;
+  }
+
+  contains(value) {
+    return this._iter.contains(value);
+  }
+
+  __iterate(fn, reverse) {
+    var iterations = 0;
+    return this._iter.__iterate(v => fn(v, iterations++, this), reverse);
+  }
+
+  __iterator(type, reverse) {
+    var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
+    var iterations = 0;
+    return new Iterator(() => {
+      var step = iterator.next();
+      return step.done ? step :
+        iteratorValue(type, iterations++, step.value, step)
     });
   }
 }

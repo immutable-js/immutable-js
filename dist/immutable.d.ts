@@ -816,43 +816,6 @@ declare module 'immutable' {
 
 
   /**
-   * Set Iterable
-   * ------------
-   *
-   * Set Iterables only represent values. They have no associated keys or
-   * indices. Duplicate values are possible in SetSeqs, however the
-   * concrete `Set` does not allow duplicate values.
-   *
-   * Iterable methods on SetIterable such as `map` and `forEach` will provide
-   * the value as both the first and second arguments to the provided function.
-   *
-   *     var seq = SetSeq.of('A', 'B', 'C');
-   *     assert.equal(seq.every((v, k) => v === k), true);
-   *
-   */
-
-  /**
-   * Similar to `Iterable()`, but always returns a SetIterable, discarding
-   * associated keys or indices.
-   */
-  export function SetIterable<T>(iter: Iterable<any, T>): SetIterable<T>;
-  export function SetIterable<T>(array: Array<T>): SetIterable<T>;
-  export function SetIterable<T>(obj: {[key: string]: T}): SetIterable<T>;
-  export function SetIterable<T>(iterator: Iterator<T>): SetIterable<T>;
-  export function SetIterable<T>(iterable: /*Iterable<T>*/Object): SetIterable<T>;
-
-
-  export interface SetIterable<T> extends Iterable<T, T> {
-
-    /**
-     * Returns SetSeq.
-     * @override
-     */
-    toSeq(): SetSeq<T>;
-  }
-
-
-  /**
    * Indexed Iterable
    * ----------------
    *
@@ -966,6 +929,42 @@ declare module 'immutable' {
     interpose(separator: T): /*this*/IndexedIterable<T>;
   }
 
+
+  /**
+   * Set Iterable
+   * ------------
+   *
+   * Set Iterables only represent values. They have no associated keys or
+   * indices. Duplicate values are possible in SetSeqs, however the
+   * concrete `Set` does not allow duplicate values.
+   *
+   * Iterable methods on SetIterable such as `map` and `forEach` will provide
+   * the value as both the first and second arguments to the provided function.
+   *
+   *     var seq = SetSeq.of('A', 'B', 'C');
+   *     assert.equal(seq.every((v, k) => v === k), true);
+   *
+   */
+
+  /**
+   * Similar to `Iterable()`, but always returns a SetIterable, discarding
+   * associated keys or indices.
+   */
+  export function SetIterable<T>(iter: Iterable<any, T>): SetIterable<T>;
+  export function SetIterable<T>(array: Array<T>): SetIterable<T>;
+  export function SetIterable<T>(obj: {[key: string]: T}): SetIterable<T>;
+  export function SetIterable<T>(iterator: Iterator<T>): SetIterable<T>;
+  export function SetIterable<T>(iterable: /*Iterable<T>*/Object): SetIterable<T>;
+
+
+  export interface SetIterable<T> extends Iterable<T, T> {
+
+    /**
+     * Returns SetSeq.
+     * @override
+     */
+    toSeq(): SetSeq<T>;
+  }
 
 
   /**
@@ -1099,33 +1098,6 @@ declare module 'immutable' {
   }
 
 
-  export module SetSeq {
-
-    /**
-     * Returns a SetSeq of the provided values
-     */
-    function of<T>(...values: T[]): SetSeq<T>;
-  }
-
-  /**
-   * Always returns a SetSeq, discarding associated indices or keys.
-   */
-  export function SetSeq<T>(): SetSeq<T>;
-  export function SetSeq<T>(seq: Iterable<any, T>): SetSeq<T>;
-  export function SetSeq<T>(array: Array<T>): SetSeq<T>;
-  export function SetSeq<T>(obj: {[key: string]: T}): SetSeq<T>;
-  export function SetSeq<T>(iterator: Iterator<T>): SetSeq<T>;
-  export function SetSeq<T>(iterable: /*Iterable<T>*/Object): SetSeq<T>;
-
-  export interface SetSeq<T> extends Seq<T, T>, SetIterable<T> {
-
-    /**
-     * Returns itself
-     */
-    toSeq(): /*this*/SetSeq<T>
-  }
-
-
   export module IndexedSeq {
 
     /**
@@ -1151,6 +1123,32 @@ declare module 'immutable' {
      * Returns itself
      */
     toSeq(): /*this*/IndexedSeq<T>
+  }
+
+  export module SetSeq {
+
+    /**
+     * Returns a SetSeq of the provided values
+     */
+    function of<T>(...values: T[]): SetSeq<T>;
+  }
+
+  /**
+   * Always returns a SetSeq, discarding associated indices or keys.
+   */
+  export function SetSeq<T>(): SetSeq<T>;
+  export function SetSeq<T>(seq: Iterable<any, T>): SetSeq<T>;
+  export function SetSeq<T>(array: Array<T>): SetSeq<T>;
+  export function SetSeq<T>(obj: {[key: string]: T}): SetSeq<T>;
+  export function SetSeq<T>(iterator: Iterator<T>): SetSeq<T>;
+  export function SetSeq<T>(iterable: /*Iterable<T>*/Object): SetSeq<T>;
+
+  export interface SetSeq<T> extends Seq<T, T>, SetIterable<T> {
+
+    /**
+     * Returns itself
+     */
+    toSeq(): /*this*/SetSeq<T>
   }
 
 
@@ -1187,7 +1185,6 @@ declare module 'immutable' {
   export function Repeat<T>(value: T, times?: number): IndexedSeq<T>;
 
 
-
   /**
    * Collections
    * -----------
@@ -1209,15 +1206,6 @@ declare module 'immutable' {
     toSeq(): KeyedSeq<K, V>;
   }
 
-  export interface SetCollection<T> extends Collection<T, T>, SetIterable<T> {
-
-    /**
-     * Returns SetSeq.
-     * @override
-     */
-    toSeq(): SetSeq<T>;
-  }
-
   export interface IndexedCollection<T> extends Collection<number, T>, IndexedIterable<T> {
 
     /**
@@ -1227,6 +1215,14 @@ declare module 'immutable' {
     toSeq(): IndexedSeq<T>;
   }
 
+  export interface SetCollection<T> extends Collection<T, T>, SetIterable<T> {
+
+    /**
+     * Returns SetSeq.
+     * @override
+     */
+    toSeq(): SetSeq<T>;
+  }
 
 
   /**

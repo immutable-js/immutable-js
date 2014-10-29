@@ -13,11 +13,9 @@ import "Iterable"
 import "Iterator"
 /* global mixin,
           assertNotInfinite, wrapIndex,
-          isIterable, isKeyed, Iterable, KeyedIterable, SetIterable, IndexedIterable,
+          isIterable, isKeyed, Iterable, KeyedIterable, IndexedIterable, SetIterable,
           Iterator, iteratorValue, iteratorDone, hasIterator, isIterator, getIterator */
-/* exported isSeq,
-            Seq, KeyedSeq, SetSeq, IndexedSeq,
-            ArraySeq */
+/* exported isSeq, Seq, KeyedSeq, IndexedSeq, SetSeq, ArraySeq */
 
 
 class Seq extends Iterable {
@@ -85,23 +83,6 @@ class KeyedSeq extends Seq {
 }
 mixin(KeyedSeq, KeyedIterable.prototype);
 
-class SetSeq extends Seq {
-  constructor(value) {
-    return arguments.length === 0 ? emptySequence().toSetSeq() : (
-      isIterable(value) ? value : seqFromValue(value, false)
-    ).toSetSeq();
-  }
-
-  static of(/*...values*/) {
-    return SetSeq(arguments);
-  }
-
-  toSetSeq() {
-    return this;
-  }
-}
-mixin(SetSeq, SetIterable.prototype);
-
 class IndexedSeq extends Seq {
   constructor(value) {
     return arguments.length === 0 ? emptySequence() : (
@@ -130,6 +111,23 @@ class IndexedSeq extends Seq {
   }
 }
 mixin(IndexedSeq, IndexedIterable.prototype);
+
+class SetSeq extends Seq {
+  constructor(value) {
+    return arguments.length === 0 ? emptySequence().toSetSeq() : (
+      isIterable(value) ? value : seqFromValue(value, false)
+    ).toSetSeq();
+  }
+
+  static of(/*...values*/) {
+    return SetSeq(arguments);
+  }
+
+  toSetSeq() {
+    return this;
+  }
+}
+mixin(SetSeq, SetIterable.prototype);
 
 
 Seq.isSeq = isSeq;
