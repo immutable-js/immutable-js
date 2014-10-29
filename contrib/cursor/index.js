@@ -15,10 +15,14 @@ var Map = Immutable.Map;
 
 
 function cursorFrom(rootData, keyPath, onChange) {
-  keyPath =
-    arguments.length === 1 ||
-    typeof keyPath === 'function' && (onChange = keyPath) ? [] :
-    Array.isArray(keyPath) ? keyPath : [keyPath];
+  if (arguments.length === 1) {
+    keyPath = [];
+  } else if (typeof keyPath === 'function') {
+    onChange = keyPath;
+    keyPath = [];
+  } else if (!Array.isArray(keyPath)) {
+    keyPath = [keyPath];
+  }
   return makeCursor(rootData, keyPath, onChange);
 }
 
@@ -108,6 +112,9 @@ IndexedCursorPrototype.cursor = function(subKey) {
     this : subCursor(this, subKey);
 }
 
+/**
+ * All iterables need to implement __iterate
+ */
 KeyedCursorPrototype.__iterate =
 IndexedCursorPrototype.__iterate = function(fn, reverse) {
   var deref = this.deref();
@@ -117,10 +124,14 @@ IndexedCursorPrototype.__iterate = function(fn, reverse) {
   ) : 0;
 }
 
+/**
+ * All iterables need to implement __iterator
+ */
 KeyedCursorPrototype.__iterator =
 IndexedCursorPrototype.__iterator = function(type, reverse) {
   var deref = this.deref();
-  var iterator = deref && deref.__iterator && deref.__iterator(Iterator.ENTRIES, reverse);
+  var iterator = deref && deref.__iterator &&
+    deref.__iterator(Iterator.ENTRIES, reverse);
   return new Iterator(function () {
     if (!iterator) {
       return { value: undefined, done: true };

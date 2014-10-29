@@ -8,7 +8,8 @@
  */
 
 import "Iterable"
-/* global Iterable */
+import "TrieUtils"
+/* global Iterable, isPlainObj */
 /* exported fromJS */
 
 function fromJS(json, converter) {
@@ -19,7 +20,7 @@ function fromJS(json, converter) {
 }
 
 function _fromJSWith(converter, json, key, parentJSON) {
-  if (json && (Array.isArray(json) || json.constructor === Object)) {
+  if (Array.isArray(json) || isPlainObj(json)) {
     return converter.call(parentJSON, key, Iterable(json).map((v, k) => _fromJSWith(converter, v, k, json)));
   }
   return json;

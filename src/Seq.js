@@ -12,7 +12,7 @@ import "TrieUtils"
 import "Iterable"
 import "Iterator"
 /* global mixin,
-          assertNotInfinite, wrapIndex,
+          assertNotInfinite, wrapIndex, isPlainObj,
           isIterable, isKeyed, Iterable, KeyedIterable, IndexedIterable, SetIterable,
           Iterator, iteratorValue, iteratorDone, hasIterator, isIterator, getIterator */
 /* exported isSeq, Seq, KeyedSeq, IndexedSeq, SetSeq, ArraySeq */
@@ -346,10 +346,6 @@ function seqFromValue(value, maybeSingleton) {
 
 function isArrayLike(value) {
   return value && typeof value.length === 'number';
-}
-
-function isPlainObj(value) {
-  return value && value.constructor === Object;
 }
 
 function seqIterate(seq, fn, reverse, useKeys) {

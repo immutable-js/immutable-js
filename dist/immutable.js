@@ -96,6 +96,9 @@ function wrapIndex(iter, index) {
 function returnTrue() {
   return true;
 }
+function isPlainObj(value) {
+  return value && value.constructor === Object;
+}
 function wholeSlice(begin, end, size) {
   return (begin === 0 || (size !== undefined && begin <= -size)) && (end === undefined || (size !== undefined && end >= size));
 }
@@ -1101,9 +1104,6 @@ function seqFromValue(value, maybeSingleton) {
 }
 function isArrayLike(value) {
   return value && typeof value.length === 'number';
-}
-function isPlainObj(value) {
-  return value && value.constructor === Object;
 }
 function seqIterate(seq, fn, reverse, useKeys) {
   assertNotInfinite(seq.size);
@@ -3533,7 +3533,7 @@ function fromJS(json, converter) {
   return _fromJSDefault(json);
 }
 function _fromJSWith(converter, json, key, parentJSON) {
-  if (json && (Array.isArray(json) || json.constructor === Object)) {
+  if (Array.isArray(json) || isPlainObj(json)) {
     return converter.call(parentJSON, key, Iterable(json).map((function(v, k) {
       return _fromJSWith(converter, v, k, json);
     })));
