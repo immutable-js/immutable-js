@@ -1,6 +1,8 @@
 Immutable Data Collections
 ==========================
 
+**Converting to v3 from v2? Check out the [upgrade guide](https://github.com/facebook/immutable-js/wiki/Upgrading-to-Immutable-v3).**
+
 Immutable data cannot be changed once created, leading to much simpler
 application development, no defensive copying, and enabling advanced memoization
 techniques.
@@ -81,7 +83,6 @@ map = map.set('b', 20);
 map.get('b'); // 20
 ```
 
-### Converting to v3 from v2? Check out the [upgrade guide](https://github.com/facebook/immutable-js/wiki/Upgrading-to-Immutable-v3).
 
 The case for Immutability
 -------------------------
