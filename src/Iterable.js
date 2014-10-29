@@ -310,23 +310,8 @@ class Iterable {
     return this.filter(not(predicate), context);
   }
 
-  findKey(predicate, context) {
-    var foundKey;
-    this.__iterate((v, k, c) => {
-      if (predicate.call(context, v, k, c)) {
-        foundKey = k;
-        return false;
-      }
-    });
-    return foundKey;
-  }
-
   findLast(predicate, context, notSetValue) {
     return this.toKeyedSeq().reverse().find(predicate, context, notSetValue);
-  }
-
-  findLastKey(predicate, context) {
-    return this.toKeyedSeq().reverse().findKey(predicate, context);
   }
 
   first() {
@@ -540,6 +525,29 @@ class KeyedIterable extends Iterable {
     return reify(this, flipFactory(this));
   }
 
+  findKey(predicate, context) {
+    var foundKey;
+    this.__iterate((v, k, c) => {
+      if (predicate.call(context, v, k, c)) {
+        foundKey = k;
+        return false;
+      }
+    });
+    return foundKey;
+  }
+
+  findLastKey(predicate, context) {
+    return this.toSeq().reverse().findKey(predicate, context);
+  }
+
+  keyOf(searchValue) {
+    return this.findKey(value => is(value, searchValue));
+  }
+
+  lastKeyOf(searchValue) {
+    return this.toSeq().reverse().keyOf(searchValue);
+  }
+
   mapEntries(mapper, context) {
     var iterations = 0;
     return reify(this,
@@ -622,16 +630,18 @@ class IndexedIterable extends Iterable {
   }
 
   findIndex(predicate, context) {
-    var key = this.findKey(predicate, context);
+    var key = this.toKeyedSeq().findKey(predicate, context);
     return key === undefined ? -1 : key;
   }
 
   indexOf(searchValue) {
-    return this.findIndex(value => is(value, searchValue));
+    var key = this.toKeyedSeq().keyOf(searchValue);
+    return key === undefined ? -1 : key;
   }
 
   lastIndexOf(searchValue) {
-    return this.toKeyedSeq().reverse().indexOf(searchValue);
+    var key = this.toKeyedSeq().lastKeyOf(searchValue);
+    return key === undefined ? -1 : key;
   }
 
   reverse() {
@@ -658,7 +668,8 @@ class IndexedIterable extends Iterable {
   // ### More collection methods
 
   findLastIndex(predicate, context) {
-    return this.toKeyedSeq().reverse().findIndex(predicate, context);
+    var key = this.toKeyedSeq().findLastKey(predicate, context);
+    return key === undefined ? -1 : key;
   }
 
   first() {

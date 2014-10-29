@@ -464,14 +464,6 @@ declare module 'immutable' {
     ): /*this*/Iterable<K, V>;
 
     /**
-     * Returns the key for which the `predicate` returns true.
-     */
-    findKey(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
-      context?: any
-    ): K;
-
-    /**
      * Returns the last value for which the `predicate` returns true.
      *
      * Note: `predicate` will be called for each entry in reverse.
@@ -481,16 +473,6 @@ declare module 'immutable' {
       context?: any,
       notSetValue?: V
     ): V;
-
-    /**
-     * Returns the last key for which the `predicate` returns true.
-     *
-     * Note: `predicate` will be called for each entry in reverse.
-     */
-    findLastKey(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
-      context?: any
-    ): K;
 
     /**
      * The first value in the Iterable.
@@ -774,6 +756,34 @@ declare module 'immutable' {
      *
      */
     flip(): /*this*/KeyedIterable<V, K>;
+
+    /**
+     * Returns the key for which the `predicate` returns true.
+     */
+    findKey(
+      predicate: (value?: V, key?: K, iter?: /*this*/KeyedIterable<K, V>) => boolean,
+      context?: any
+    ): K;
+
+    /**
+     * Returns the last key for which the `predicate` returns true.
+     *
+     * Note: `predicate` will be called for each entry in reverse.
+     */
+    findLastKey(
+      predicate: (value?: V, key?: K, iter?: /*this*/KeyedIterable<K, V>) => boolean,
+      context?: any
+    ): K;
+
+    /**
+     * Returns the key associated with the search value, or undefined.
+     */
+    keyOf(searchValue: V): K;
+
+    /**
+     * Returns the last key associated with the search value, or undefined.
+     */
+    lastKeyOf(searchValue: V): K;
 
     /**
      * Returns a new KeyedIterable of the same type with entries

@@ -491,21 +491,8 @@ var $Iterable = Iterable;
   filterNot: function(predicate, context) {
     return this.filter(not(predicate), context);
   },
-  findKey: function(predicate, context) {
-    var foundKey;
-    this.__iterate((function(v, k, c) {
-      if (predicate.call(context, v, k, c)) {
-        foundKey = k;
-        return false;
-      }
-    }));
-    return foundKey;
-  },
   findLast: function(predicate, context, notSetValue) {
     return this.toKeyedSeq().reverse().find(predicate, context, notSetValue);
-  },
-  findLastKey: function(predicate, context) {
-    return this.toKeyedSeq().reverse().findKey(predicate, context);
   },
   first: function() {
     return this.find(returnTrue);
@@ -658,6 +645,27 @@ var KeyedIterable = function KeyedIterable(value) {
   flip: function() {
     return reify(this, flipFactory(this));
   },
+  findKey: function(predicate, context) {
+    var foundKey;
+    this.__iterate((function(v, k, c) {
+      if (predicate.call(context, v, k, c)) {
+        foundKey = k;
+        return false;
+      }
+    }));
+    return foundKey;
+  },
+  findLastKey: function(predicate, context) {
+    return this.toSeq().reverse().findKey(predicate, context);
+  },
+  keyOf: function(searchValue) {
+    return this.findKey((function(value) {
+      return is(value, searchValue);
+    }));
+  },
+  lastKeyOf: function(searchValue) {
+    return this.toSeq().reverse().keyOf(searchValue);
+  },
   mapEntries: function(mapper, context) {
     var $__0 = this;
     var iterations = 0;
@@ -711,16 +719,16 @@ var IndexedIterable = function IndexedIterable(value) {
     return reify(this, filterFactory(this, predicate, context, false));
   },
   findIndex: function(predicate, context) {
-    var key = this.findKey(predicate, context);
+    var key = this.toKeyedSeq().findKey(predicate, context);
     return key === undefined ? -1 : key;
   },
   indexOf: function(searchValue) {
-    return this.findIndex((function(value) {
-      return is(value, searchValue);
-    }));
+    var key = this.toKeyedSeq().keyOf(searchValue);
+    return key === undefined ? -1 : key;
   },
   lastIndexOf: function(searchValue) {
-    return this.toKeyedSeq().reverse().indexOf(searchValue);
+    var key = this.toKeyedSeq().lastKeyOf(searchValue);
+    return key === undefined ? -1 : key;
   },
   reverse: function() {
     return reify(this, reverseFactory(this, false));
@@ -736,7 +744,8 @@ var IndexedIterable = function IndexedIterable(value) {
     return reify(this, numArgs === 1 ? spliced : spliced.concat(arrCopy(arguments, 2), this.slice(index + removeNum)));
   },
   findLastIndex: function(predicate, context) {
-    return this.toKeyedSeq().reverse().findIndex(predicate, context);
+    var key = this.toKeyedSeq().findLastKey(predicate, context);
+    return key === undefined ? -1 : key;
   },
   first: function() {
     return this.get(0);
