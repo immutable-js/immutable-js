@@ -24,7 +24,7 @@ describe('Set', () => {
   })
 
   it('converts from array of values', () => {
-    var s = Set.from([1,2,3]);
+    var s = Set([1,2,3]);
     expect(s.has(1)).toBe(true);
     expect(s.has(2)).toBe(true);
     expect(s.has(3)).toBe(true);
@@ -32,8 +32,8 @@ describe('Set', () => {
   });
 
   it('converts from sequence of values', () => {
-    var seq = Immutable.Sequence(1,2,3);
-    var s = Set.from(seq);
+    var seq = Immutable.Seq.of(1,2,3);
+    var s = Set(seq);
     expect(s.has(1)).toBe(true);
     expect(s.has(2)).toBe(true);
     expect(s.has(3)).toBe(true);
@@ -49,7 +49,7 @@ describe('Set', () => {
   });
 
   it('converts from sequence keys', () => {
-    var seq = Immutable.Sequence({a:null, b:null, c:null});
+    var seq = Immutable.Seq({a:null, b:null, c:null});
     var s = Set.fromKeys(seq);
     expect(s.has('a')).toBe(true);
     expect(s.has('b')).toBe(true);
@@ -58,7 +58,7 @@ describe('Set', () => {
   });
 
   it('constructor provides initial values', () => {
-    var s = Set(1,2,3);
+    var s = Set.of(1,2,3);
     expect(s.has(1)).toBe(true);
     expect(s.has(2)).toBe(true);
     expect(s.has(3)).toBe(true);
@@ -66,17 +66,17 @@ describe('Set', () => {
   });
 
   it('converts back to JS array', () => {
-    var s = Set(1,2,3);
+    var s = Set.of(1,2,3);
     expect(s.toArray()).toEqual([1,2,3]);
   });
 
   it('converts back to JS object', () => {
-    var s = Set('a','b','c');
+    var s = Set.of('a','b','c');
     expect(s.toObject()).toEqual({a:'a',b:'b',c:'c'});
   });
 
   it('iterates values', () => {
-    var s = Set(1,2,3);
+    var s = Set.of(1,2,3);
     var iterator = jest.genMockFunction();
     s.forEach(iterator);
     expect(iterator.mock.calls).toEqual([
@@ -87,15 +87,15 @@ describe('Set', () => {
   });
 
   it('unions two sets', () => {
-    var s1 = Set('a', 'b', 'c');
-    var s2 = Set('wow', 'd', 'b');
+    var s1 = Set.of('a', 'b', 'c');
+    var s2 = Set.of('wow', 'd', 'b');
     var s3 = s1.union(s2);
     expect(s3.toArray()).toEqual(['a', 'b', 'c', 'd', 'wow']);
   });
 
   it('returns self when union results in no-op', () => {
-    var s1 = Set('a', 'b', 'c');
-    var s2 = Set('c', 'a');
+    var s1 = Set.of('a', 'b', 'c');
+    var s2 = Set.of('c', 'a');
     var s3 = s1.union(s2);
     expect(s3).toBe(s1);
   });
@@ -106,11 +106,11 @@ describe('Set', () => {
     var s3 = s2.add('b');
     var s4 = s3.add('c');
     var s5 = s4.add('b');
-    expect(s1.length).toBe(0);
-    expect(s2.length).toBe(1);
-    expect(s3.length).toBe(2);
-    expect(s4.length).toBe(3);
-    expect(s5.length).toBe(3);
+    expect(s1.size).toBe(0);
+    expect(s2.size).toBe(1);
+    expect(s3.size).toBe(2);
+    expect(s4.size).toBe(3);
+    expect(s5.size).toBe(3);
   });
 
   it('is persistent to deletes', () => {
@@ -119,40 +119,40 @@ describe('Set', () => {
     var s3 = s2.add('b');
     var s4 = s3.add('c');
     var s5 = s4.remove('b');
-    expect(s1.length).toBe(0);
-    expect(s2.length).toBe(1);
-    expect(s3.length).toBe(2);
-    expect(s4.length).toBe(3);
-    expect(s5.length).toBe(2);
+    expect(s1.size).toBe(0);
+    expect(s2.size).toBe(1);
+    expect(s3.size).toBe(2);
+    expect(s4.size).toBe(3);
+    expect(s5.size).toBe(2);
     expect(s3.has('b')).toBe(true);
     expect(s5.has('b')).toBe(false);
   });
 
   it('deletes down to empty set', () => {
-    var s = Set('A').remove('A');
-    expect(s).toBe(Set.empty());
+    var s = Set.of('A').remove('A');
+    expect(s).toBe(Set());
   });
 
   it('unions multiple sets', () => {
-    var s = Set('A', 'B', 'C').union(Set('C', 'D', 'E'), Set('D', 'B', 'F'));
-    expect(s).is(Set('A','B','C','D','E','F'));
+    var s = Set.of('A', 'B', 'C').union(Set.of('C', 'D', 'E'), Set.of('D', 'B', 'F'));
+    expect(s).is(Set.of('A','B','C','D','E','F'));
   });
 
   it('intersects multiple sets', () => {
-    var s = Set('A', 'B', 'C').intersect(Set('B', 'C', 'D'), Set('A', 'C', 'E'));
-    expect(s).is(Set('C'));
+    var s = Set.of('A', 'B', 'C').intersect(Set.of('B', 'C', 'D'), Set.of('A', 'C', 'E'));
+    expect(s).is(Set.of('C'));
   });
 
   it('diffs multiple sets', () => {
-    var s = Set('A', 'B', 'C').subtract(Set('C', 'D', 'E'), Set('D', 'B', 'F'));
-    expect(s).is(Set('A'));
+    var s = Set.of('A', 'B', 'C').subtract(Set.of('C', 'D', 'E'), Set.of('D', 'B', 'F'));
+    expect(s).is(Set.of('A'));
   });
 
   it('expresses value equality with set-ish sequences', () => {
-    var s1 = Set('A', 'B', 'C');
+    var s1 = Set.of('A', 'B', 'C');
     expect(s1.equals(null)).toBe(false);
 
-    var s2 = Set('C', 'B', 'A');
+    var s2 = Set.of('C', 'B', 'A');
     expect(s1 === s2).toBe(false);
     expect(Immutable.is(s1, s2)).toBe(true);
     expect(s1.equals(s2)).toBe(true);

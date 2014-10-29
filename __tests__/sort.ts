@@ -4,23 +4,23 @@
 jest.autoMockOff();
 
 import I = require('immutable');
-import Sequence = I.Sequence;
-import Vector = I.Vector;
+import Seq = I.Seq;
+import List = I.List;
 import OrderedMap = I.OrderedMap;
 import Range = I.Range;
 
 describe('sort', () => {
 
   it('sorts a sequence', () => {
-    expect(Sequence(4,5,6,3,2,1).sort().toArray()).toEqual([1,2,3,4,5,6]);
+    expect(Seq.of(4,5,6,3,2,1).sort().toArray()).toEqual([1,2,3,4,5,6]);
   })
 
-  it('sorts a vector', () => {
-    expect(Vector(4,5,6,3,2,1).sort().toArray()).toEqual([1,2,3,4,5,6]);
+  it('sorts a list', () => {
+    expect(List.of(4,5,6,3,2,1).sort().toArray()).toEqual([1,2,3,4,5,6]);
   })
 
   it('sorts a keyed sequence', () => {
-    expect(Sequence({z:1,y:2,x:3,c:3,b:2,a:1}).sort().entrySeq().toArray())
+    expect(Seq({z:1,y:2,x:3,c:3,b:2,a:1}).sort().entrySeq().toArray())
       .toEqual([['z', 1],['a', 1],['y', 2],['b', 2],['x', 3],['c', 3]]);
   })
 
@@ -30,7 +30,7 @@ describe('sort', () => {
   })
 
   it('accepts a sort function', () => {
-    expect(Sequence(4,5,6,3,2,1).sort((a, b) => b - a).toArray()).toEqual([6,5,4,3,2,1]);
+    expect(Seq.of(4,5,6,3,2,1).sort((a, b) => b - a).toArray()).toEqual([6,5,4,3,2,1]);
   })
 
   it('sorts by using a mapper', () => {

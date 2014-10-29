@@ -7,8 +7,13 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
+import "invariant"
+/* global invariant */
 /* exported DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER,
-            OwnerID, MakeRef, SetRef, arrCopy */
+            OwnerID, MakeRef, SetRef, arrCopy, assertNotInfinite,
+            ensureSize, wrapIndex, returnTrue, isPlainObj,
+            wholeSlice, resolveBegin, resolveEnd */
+
 
 // Used for setting prototype methods that IE8 chokes on.
 var DELETE = 'delete';
@@ -49,4 +54,53 @@ function arrCopy(arr, offset) {
     newArr[ii] = arr[ii + offset];
   }
   return newArr;
+}
+
+function assertNotInfinite(size) {
+  invariant(
+    size !== Infinity,
+    'Cannot perform this action with an infinite size.'
+  );
+}
+
+function ensureSize(iter) {
+  if (iter.size === undefined) {
+    iter.size = iter.__iterate(returnTrue);
+  }
+  return iter.size;
+}
+
+function wrapIndex(iter, index) {
+  return index >= 0 ? index : ensureSize(iter) + index;
+}
+
+function returnTrue() {
+  return true;
+}
+
+function isPlainObj(value) {
+  return value && value.constructor === Object;
+}
+
+function wholeSlice(begin, end, size) {
+  return (begin === 0 || (size !== undefined && begin <= -size)) &&
+    (end === undefined || (size !== undefined && end >= size));
+}
+
+function resolveBegin(begin, size) {
+  return resolveIndex(begin, size, 0);
+}
+
+function resolveEnd(end, size) {
+  return resolveIndex(end, size, size);
+}
+
+function resolveIndex(index, size, defaultIndex) {
+  return index === undefined ?
+    defaultIndex :
+    index < 0 ?
+      Math.max(0, size + index) :
+      size === undefined ?
+        index :
+        Math.min(size, index);
 }

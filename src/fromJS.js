@@ -7,8 +7,9 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "Sequence"
-/* global Sequence */
+import "Iterable"
+import "TrieUtils"
+/* global Iterable, isPlainObj */
 /* exported fromJS */
 
 function fromJS(json, converter) {
@@ -19,19 +20,19 @@ function fromJS(json, converter) {
 }
 
 function _fromJSWith(converter, json, key, parentJSON) {
-  if (json && (Array.isArray(json) || json.constructor === Object)) {
-    return converter.call(parentJSON, key, Sequence(json).map((v, k) => _fromJSWith(converter, v, k, json)));
+  if (Array.isArray(json) || isPlainObj(json)) {
+    return converter.call(parentJSON, key, Iterable(json).map((v, k) => _fromJSWith(converter, v, k, json)));
   }
   return json;
 }
 
 function _fromJSDefault(json) {
-  if (json) {
+  if (json && typeof json === 'object') {
     if (Array.isArray(json)) {
-      return Sequence(json).map(_fromJSDefault).toVector();
+      return Iterable(json).map(_fromJSDefault).toList();
     }
     if (json.constructor === Object) {
-      return Sequence(json).map(_fromJSDefault).toMap();
+      return Iterable(json).map(_fromJSDefault).toMap();
     }
   }
   return json;

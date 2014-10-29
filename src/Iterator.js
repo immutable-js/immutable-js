@@ -10,7 +10,7 @@
 /* global Symbol */
 /* exported ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES, ITERATOR_SYMBOL,
             Iterator, iteratorValue, iteratorDone,
-            isIterable, isIterator, getIterator */
+            hasIterator, isIterator, getIterator */
 
 var ITERATE_KEYS = 0;
 var ITERATE_VALUES = 1;
@@ -30,6 +30,10 @@ class Iterator {
     return '[Iterator]';
   }
 }
+
+Iterator.KEYS = ITERATE_KEYS;
+Iterator.VALUES = ITERATE_VALUES;
+Iterator.ENTRIES = ITERATE_ENTRIES;
 
 var IteratorPrototype = Iterator.prototype;
 IteratorPrototype.inspect =
@@ -51,7 +55,7 @@ function iteratorDone() {
   return { value: undefined, done: true };
 }
 
-function isIterable(maybeIterable) {
+function hasIterator(maybeIterable) {
   return !!_iteratorFn(maybeIterable);
 }
 

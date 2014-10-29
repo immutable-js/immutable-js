@@ -45,6 +45,7 @@
   },
   "files": [
     "dist",
+    "contrib",
     "README.md",
     "LICENSE",
     "PATENTS"

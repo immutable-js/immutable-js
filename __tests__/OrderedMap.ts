@@ -9,7 +9,7 @@ import OrderedMap = Immutable.OrderedMap;
 describe('OrderedMap', () => {
 
   it('converts from object', () => {
-    var m = OrderedMap.from({'c': 'C', 'b': 'B', 'a': 'A'});
+    var m = OrderedMap({'c': 'C', 'b': 'B', 'a': 'A'});
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
@@ -21,7 +21,7 @@ describe('OrderedMap', () => {
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
-    expect(m.length).toBe(3);
+    expect(m.size).toBe(3);
     expect(m.toArray()).toEqual(['A','B','C']);
   });
 
@@ -30,17 +30,17 @@ describe('OrderedMap', () => {
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
-    expect(m.length).toBe(3);
+    expect(m.size).toBe(3);
     expect(m.toArray()).toEqual(['C','B','A']);
   });
 
   it('constructor accepts sequences', () => {
-    var s = Immutable.Sequence({'c': 'C', 'b': 'B', 'a': 'A'});
+    var s = Immutable.Seq({'c': 'C', 'b': 'B', 'a': 'A'});
     var m = OrderedMap(s);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
-    expect(m.length).toBe(3);
+    expect(m.size).toBe(3);
     expect(m.toArray()).toEqual(['C','B','A']);
   });
 
@@ -49,7 +49,7 @@ describe('OrderedMap', () => {
       .set('A', 'aardvark')
       .set('Z', 'zebra')
       .set('A', 'antelope');
-    expect(m.length).toBe(2);
+    expect(m.size).toBe(2);
     expect(m.toArray()).toEqual(['antelope', 'zebra']);
   });
 
@@ -59,7 +59,7 @@ describe('OrderedMap', () => {
       .set('Z', 'zebra')
       .remove('A')
       .set('A', 'antelope');
-    expect(m.length).toBe(2);
+    expect(m.size).toBe(2);
     expect(m.toArray()).toEqual(['zebra', 'antelope']);
   });
 

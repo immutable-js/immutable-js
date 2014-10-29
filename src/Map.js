@@ -8,34 +8,27 @@
  */
 
 import "is"
-import "Sequence"
+import "Iterable"
+import "Collection"
 import "invariant"
-// import "Cursor" // lazy dependency
 import "TrieUtils"
 import "Hash"
 import "Iterator"
-/* global is, Sequence, IndexedSequence, invariant, makeCursor,
+/* global is, KeyedIterable, KeyedCollection, invariant,
           DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
           MakeRef, SetRef, arrCopy, hash,
           Iterator, iteratorValue, iteratorDone */
 /* exported Map, MapPrototype */
 
 
-class Map extends Sequence {
+class Map extends KeyedCollection {
 
   // @pragma Construction
 
-  constructor(sequence) {
-    var map = Map.empty();
-    return sequence ?
-      sequence.constructor === Map ?
-        sequence :
-        map.merge(sequence) :
-      map;
-  }
-
-  static empty() {
-    return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
+  constructor(value) {
+    return arguments.length === 0 ? emptyMap() :
+      value && value.constructor === Map ? value :
+      emptyMap().merge(value);
   }
 
   toString() {
@@ -87,43 +80,35 @@ class Map extends Sequence {
   }
 
   clear() {
-    if (this.length === 0) {
+    if (this.size === 0) {
       return this;
     }
     if (this.__ownerID) {
-      this.length = 0;
+      this.size = 0;
       this._root = null;
       this.__hash = undefined;
       this.__altered = true;
       return this;
     }
-    return Map.empty();
+    return emptyMap();
   }
 
   // @pragma Composition
 
-  merge(/*...seqs*/) {
-    return mergeIntoMapWith(this, null, arguments);
+  merge(/*...iters*/) {
+    return mergeIntoMapWith(this, undefined, arguments);
   }
 
-  mergeWith(merger, ...seqs) {
-    return mergeIntoMapWith(this, merger, seqs);
+  mergeWith(merger, ...iters) {
+    return mergeIntoMapWith(this, merger, iters);
   }
 
-  mergeDeep(/*...seqs*/) {
-    return mergeIntoMapWith(this, deepMerger(null), arguments);
+  mergeDeep(/*...iters*/) {
+    return mergeIntoMapWith(this, deepMerger(undefined), arguments);
   }
 
-  mergeDeepWith(merger, ...seqs) {
-    return mergeIntoMapWith(this, deepMerger(merger), seqs);
-  }
-
-  cursor(maybeKeyPath, onChange) {
-    var keyPath =
-      arguments.length === 0 ||
-      typeof maybeKeyPath === 'function' && (onChange = maybeKeyPath) ? [] :
-      Array.isArray(maybeKeyPath) ? maybeKeyPath : [maybeKeyPath];
-    return makeCursor(this, keyPath, onChange);
+  mergeDeepWith(merger, ...iters) {
+    return mergeIntoMapWith(this, deepMerger(merger), iters);
   }
 
   // @pragma Mutability
@@ -168,14 +153,22 @@ class Map extends Sequence {
       this.__altered = false;
       return this;
     }
-    return makeMap(this.length, this._root, ownerID, this.__hash);
+    return makeMap(this.size, this._root, ownerID, this.__hash);
   }
 }
 
+function isMap(maybeMap) {
+  return !!(maybeMap && maybeMap[IS_MAP_SENTINEL]);
+}
+
+Map.isMap = isMap;
+
+var IS_MAP_SENTINEL = '@@__IMMUTABLE_MAP__@@';
+
 var MapPrototype = Map.prototype;
+MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 
-Map.from = Map;
 
 
 class BitmapIndexedNode {
@@ -193,7 +186,7 @@ class BitmapIndexedNode {
       this.nodes[popCount(bitmap & (bit - 1))].get(shift + SHIFT, hash, key, notSetValue);
   }
 
-  update(ownerID, shift, hash, key, value, didChangeLength, didAlter) {
+  update(ownerID, shift, hash, key, value, didChangeSize, didAlter) {
     var hashFrag = (shift === 0 ? hash : hash >>> shift) & MASK;
     var bit = 1 << hashFrag;
     var bitmap = this.bitmap;
@@ -205,8 +198,8 @@ class BitmapIndexedNode {
 
     var idx = popCount(bitmap & (bit - 1));
     var nodes = this.nodes;
-    var node = exists ? nodes[idx] : null;
-    var newNode = updateNode(node, ownerID, shift + SHIFT, hash, key, value, didChangeLength, didAlter);
+    var node = exists ? nodes[idx] : undefined;
+    var newNode = updateNode(node, ownerID, shift + SHIFT, hash, key, value, didChangeSize, didAlter);
 
     if (newNode === node) {
       return this;
@@ -264,7 +257,7 @@ class ArrayNode {
     return node ? node.get(shift + SHIFT, hash, key, notSetValue) : notSetValue;
   }
 
-  update(ownerID, shift, hash, key, value, didChangeLength, didAlter) {
+  update(ownerID, shift, hash, key, value, didChangeSize, didAlter) {
     var idx = (shift === 0 ? hash : hash >>> shift) & MASK;
     var removed = value === NOT_SET;
     var nodes = this.nodes;
@@ -274,7 +267,7 @@ class ArrayNode {
       return this;
     }
 
-    var newNode = updateNode(node, ownerID, shift + SHIFT, hash, key, value, didChangeLength, didAlter);
+    var newNode = updateNode(node, ownerID, shift + SHIFT, hash, key, value, didChangeSize, didAlter);
     if (newNode === node) {
       return this;
     }
@@ -330,7 +323,7 @@ class HashCollisionNode {
     return notSetValue;
   }
 
-  update(ownerID, shift, hash, key, value, didChangeLength, didAlter) {
+  update(ownerID, shift, hash, key, value, didChangeSize, didAlter) {
     var removed = value === NOT_SET;
 
     if (hash !== this.hash) {
@@ -338,7 +331,7 @@ class HashCollisionNode {
         return this;
       }
       SetRef(didAlter);
-      SetRef(didChangeLength);
+      SetRef(didChangeSize);
       return mergeIntoNode(this, ownerID, shift, hash, [key, value]);
     }
 
@@ -356,7 +349,7 @@ class HashCollisionNode {
     }
 
     SetRef(didAlter);
-    (removed || !exists) && SetRef(didChangeLength);
+    (removed || !exists) && SetRef(didChangeSize);
 
     if (removed && len === 2) {
       return new ValueNode(ownerID, this.hash, entries[idx ^ 1]);
@@ -405,7 +398,7 @@ class ValueNode {
     return is(key, this.entry[0]) ? this.entry[1] : notSetValue;
   }
 
-  update(ownerID, shift, hash, key, value, didChangeLength, didAlter) {
+  update(ownerID, shift, hash, key, value, didChangeSize, didAlter) {
     var removed = value === NOT_SET;
     var keyMatch = is(key, this.entry[0]);
     if (keyMatch ? value === this.entry[1] : removed) {
@@ -415,8 +408,8 @@ class ValueNode {
     SetRef(didAlter);
 
     if (removed) {
-      SetRef(didChangeLength);
-      return null;
+      SetRef(didChangeSize);
+      return; // undefined
     }
 
     if (keyMatch) {
@@ -427,7 +420,7 @@ class ValueNode {
       return new ValueNode(ownerID, hash, [key, value]);
     }
 
-    SetRef(didChangeLength);
+    SetRef(didChangeSize);
     return mergeIntoNode(this, ownerID, shift, hash, [key, value]);
   }
 
@@ -491,9 +484,9 @@ function mapIteratorFrame(node, prev) {
   };
 }
 
-function makeMap(length, root, ownerID, hash) {
+function makeMap(size, root, ownerID, hash) {
   var map = Object.create(MapPrototype);
-  map.length = length;
+  map.size = size;
   map._root = root;
   map.__ownerID = ownerID;
   map.__hash = hash;
@@ -501,34 +494,39 @@ function makeMap(length, root, ownerID, hash) {
   return map;
 }
 
+var EMPTY_MAP;
+function emptyMap() {
+  return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
+}
+
 function updateMap(map, k, v) {
-  var didChangeLength = MakeRef(CHANGE_LENGTH);
+  var didChangeSize = MakeRef(CHANGE_LENGTH);
   var didAlter = MakeRef(DID_ALTER);
-  var newRoot = updateNode(map._root, map.__ownerID, 0, hash(k), k, v, didChangeLength, didAlter);
+  var newRoot = updateNode(map._root, map.__ownerID, 0, hash(k), k, v, didChangeSize, didAlter);
   if (!didAlter.value) {
     return map;
   }
-  var newLength = map.length + (didChangeLength.value ? v === NOT_SET ? -1 : 1 : 0);
+  var newSize = map.size + (didChangeSize.value ? v === NOT_SET ? -1 : 1 : 0);
   if (map.__ownerID) {
-    map.length = newLength;
+    map.size = newSize;
     map._root = newRoot;
     map.__hash = undefined;
     map.__altered = true;
     return map;
   }
-  return newRoot ? makeMap(newLength, newRoot) : Map.empty();
+  return newRoot ? makeMap(newSize, newRoot) : emptyMap();
 }
 
-function updateNode(node, ownerID, shift, hash, key, value, didChangeLength, didAlter) {
+function updateNode(node, ownerID, shift, hash, key, value, didChangeSize, didAlter) {
   if (!node) {
     if (value === NOT_SET) {
       return node;
     }
     SetRef(didAlter);
-    SetRef(didChangeLength);
+    SetRef(didChangeSize);
     return new ValueNode(ownerID, hash, [key, value]);
   }
-  return node.update(ownerID, shift, hash, key, value, didChangeLength, didAlter);
+  return node.update(ownerID, shift, hash, key, value, didChangeSize, didAlter);
 }
 
 function isLeafNode(node) {
@@ -557,7 +555,7 @@ function packNodes(ownerID, nodes, count, excluding) {
   var packedNodes = new Array(count);
   for (var ii = 0, bit = 1, len = nodes.length; ii < len; ii++, bit <<= 1) {
     var node = nodes[ii];
-    if (node != null && ii !== excluding) {
+    if (node !== undefined && ii !== excluding) {
       bitmap |= bit;
       packedNodes[packedII++] = node;
     }
@@ -569,25 +567,18 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
   var count = 0;
   var expandedNodes = new Array(SIZE);
   for (var ii = 0; bitmap !== 0; ii++, bitmap >>>= 1) {
-    expandedNodes[ii] = bitmap & 1 ? nodes[count++] : null;
+    expandedNodes[ii] = bitmap & 1 ? nodes[count++] : undefined;
   }
   expandedNodes[including] = node;
   return new ArrayNode(ownerID, count + 1, expandedNodes);
 }
 
 function mergeIntoMapWith(map, merger, iterables) {
-  var seqs = [];
+  var iters = [];
   for (var ii = 0; ii < iterables.length; ii++) {
-    var seq = iterables[ii];
-    if (!(seq instanceof Sequence)) {
-      seq = Sequence(seq);
-      if (seq instanceof IndexedSequence) {
-        seq = seq.fromEntrySeq();
-      }
-    }
-    seq && seqs.push(seq);
+    iterables[ii] && iters.push(KeyedIterable(iterables[ii]));
   }
-  return mergeIntoCollectionWith(map, merger, seqs);
+  return mergeIntoCollectionWith(map, merger, iters);
 }
 
 function deepMerger(merger) {
@@ -597,8 +588,8 @@ function deepMerger(merger) {
       merger ? merger(existing, value) : value;
 }
 
-function mergeIntoCollectionWith(collection, merger, seqs) {
-  if (seqs.length === 0) {
+function mergeIntoCollectionWith(collection, merger, iters) {
+  if (iters.length === 0) {
     return collection;
   }
   return collection.withMutations(collection => {
@@ -612,8 +603,8 @@ function mergeIntoCollectionWith(collection, merger, seqs) {
       (value, key) => {
         collection.set(key, value);
       }
-    for (var ii = 0; ii < seqs.length; ii++) {
-      seqs[ii].forEach(mergeIntoMap);
+    for (var ii = 0; ii < iters.length; ii++) {
+      iters[ii].forEach(mergeIntoMap);
     }
   });
 }
@@ -637,7 +628,7 @@ function updateInDeepMap(collection, keyPath, notSetValue, updater, offset) {
 
   return value === existingValue ? collection :
     value === NOT_SET ? collection && collection.remove(key) :
-    (collection || Map.empty()).set(key, value);
+    (collection || emptyMap()).set(key, value);
 }
 
 function popCount(x) {
@@ -693,5 +684,3 @@ function spliceOut(array, idx, canEdit) {
 
 var MAX_BITMAP_SIZE = SIZE / 2;
 var MIN_ARRAY_SIZE = SIZE / 4;
-
-var EMPTY_MAP;

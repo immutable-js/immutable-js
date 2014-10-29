@@ -7,15 +7,15 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "Sequence"
+import "Iterable"
 import "Map"
 import "invariant"
 import "TrieUtils"
-/* global Sequence, Map, MapPrototype, invariant, DELETE */
+/* global Iterable, KeyedCollection, Map, MapPrototype, emptyMap, invariant, DELETE */
 /* exported Record */
 
 
-class Record extends Sequence {
+class Record extends KeyedCollection {
 
   constructor(defaultValues, name) {
     var RecordType = function(values) {
@@ -32,10 +32,10 @@ class Record extends Sequence {
     name && (RecordTypePrototype._name = name);
     RecordTypePrototype._defaultValues = defaultValues;
     RecordTypePrototype._keys = keys;
-    RecordTypePrototype.length = keys.length;
+    RecordTypePrototype.size = keys.length;
 
     try {
-      Sequence(defaultValues).forEach((_, key) => {
+      Iterable(defaultValues).forEach((_, key) => {
         Object.defineProperty(RecordType.prototype, key, {
           get: function() {
             return this.get(key);
@@ -78,7 +78,7 @@ class Record extends Sequence {
       return this;
     }
     var SuperRecord = Object.getPrototypeOf(this).constructor;
-    return SuperRecord._empty || (SuperRecord._empty = makeRecord(this, Map.empty()));
+    return SuperRecord._empty || (SuperRecord._empty = makeRecord(this, emptyMap()));
   }
 
   set(k, v) {
@@ -93,7 +93,7 @@ class Record extends Sequence {
   }
 
   remove(k) {
-    if (k == null || !this.has(k)) {
+    if (!this.has(k)) {
       return this;
     }
     var newMap = this._map.remove(k);
@@ -124,7 +124,7 @@ class Record extends Sequence {
   }
 
   __iterate(fn, reverse) {
-    return Sequence(this._defaultValues).map((_, k) => this.get(k)).__iterate(fn, reverse);
+    return Iterable(this._defaultValues).map((_, k) => this.get(k)).__iterate(fn, reverse);
   }
 
   __ensureOwner(ownerID) {
@@ -150,7 +150,6 @@ RecordPrototype.mergeDeep = MapPrototype.mergeDeep;
 RecordPrototype.mergeDeepWith = MapPrototype.mergeDeepWith;
 RecordPrototype.update = MapPrototype.update;
 RecordPrototype.updateIn = MapPrototype.updateIn;
-RecordPrototype.cursor = MapPrototype.cursor;
 RecordPrototype.withMutations = MapPrototype.withMutations;
 RecordPrototype.asMutable = MapPrototype.asMutable;
 RecordPrototype.asImmutable = MapPrototype.asImmutable;

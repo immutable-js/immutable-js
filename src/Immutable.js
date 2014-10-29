@@ -7,9 +7,11 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "Sequence"
+import "Iterable"
+import "Seq"
+import "Operations" // Break circular dependency
 import "Map"
-import "Vector"
+import "List"
 import "Stack"
 import "Set"
 import "OrderedMap"
@@ -18,22 +20,28 @@ import "Range"
 import "Repeat"
 import "is"
 import "fromJS"
-import "Cursor" // Solve circular dependency
-/* global Sequence, Map, Vector, Stack, Set, OrderedMap, Record, Range, Repeat,
+/* global Iterable, Seq, Collection,
+          Map, List, Stack, Set, OrderedMap, Record, Range, Repeat,
           is, fromJS */
 /* exported Immutable */
 
 
 var Immutable = {
-  Sequence: Sequence,
+
+  Iterable: Iterable,
+
+  Seq: Seq,
+  Collection: Collection,
   Map: Map,
-  Vector: Vector,
+  List: List,
   Stack: Stack,
   Set: Set,
   OrderedMap: OrderedMap,
+
   Record: Record,
   Range: Range,
   Repeat: Repeat,
+
   is: is,
   fromJS: fromJS,
 };

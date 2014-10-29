@@ -20,55 +20,55 @@ function arrayOfSize(s) {
 describe('Stack', () => {
 
   it('constructor provides initial values', () => {
-    var s = Stack('a', 'b', 'c');
+    var s = Stack.of('a', 'b', 'c');
     expect(s.get(0)).toBe('a');
     expect(s.get(1)).toBe('b');
     expect(s.get(2)).toBe('c');
   });
 
   it('toArray provides a JS array', () => {
-    var s = Stack('a', 'b', 'c');
+    var s = Stack.of('a', 'b', 'c');
     expect(s.toArray()).toEqual(['a', 'b', 'c']);
   });
 
   it('from consumes a JS array', () => {
-    var s = Stack.from(['a', 'b', 'c']);
+    var s = Stack(['a', 'b', 'c']);
     expect(s.toArray()).toEqual(['a', 'b', 'c']);
   });
 
-  it('from consumes a Sequence', () => {
-    var seq = Immutable.Sequence(['a', 'b', 'c']);
-    var s = Stack.from(seq);
+  it('from consumes a Seq', () => {
+    var seq = Immutable.Seq(['a', 'b', 'c']);
+    var s = Stack(seq);
     expect(s.toArray()).toEqual(['a', 'b', 'c']);
   });
 
-  it('from consumes a non-indexed Sequence', () => {
-    var seq = Immutable.Sequence({a:null, b:null, c:null}).flip();
-    var s = Stack.from(seq);
+  it('from consumes a non-indexed Seq', () => {
+    var seq = Immutable.Seq({a:null, b:null, c:null}).flip();
+    var s = Stack(seq);
     expect(s.toArray()).toEqual(['a', 'b', 'c']);
   });
 
   it('pushing creates a new instance', () => {
-    var s0 = Stack('a');
+    var s0 = Stack.of('a');
     var s1 = s0.push('A');
     expect(s0.get(0)).toBe('a');
     expect(s1.get(0)).toBe('A');
   });
 
   it('get helpers make for easier to read code', () => {
-    var s = Stack('a', 'b', 'c');
+    var s = Stack.of('a', 'b', 'c');
     expect(s.first()).toBe('a');
     expect(s.peek()).toBe('a');
   });
 
   it('slice helpers make for easier to read code', () => {
-    var s = Stack('a', 'b', 'c');
+    var s = Stack.of('a', 'b', 'c');
     expect(s.rest().toArray()).toEqual(['b', 'c']);
   });
 
   it('iterable', () => {
-    var s = Stack('a', 'b', 'c');
-    expect(s.length).toBe(3);
+    var s = Stack.of('a', 'b', 'c');
+    expect(s.size).toBe(3);
 
     var forEachResults = [];
     s.forEach((val, i) => forEachResults.push([i, val]));
@@ -92,15 +92,15 @@ describe('Stack', () => {
   });
 
   it('push inserts at lowest index', () => {
-    var s0 = Stack('a', 'b', 'c');
+    var s0 = Stack.of('a', 'b', 'c');
     var s1 = s0.push('d', 'e', 'f');
-    expect(s0.length).toBe(3);
-    expect(s1.length).toBe(6);
+    expect(s0.size).toBe(3);
+    expect(s1.size).toBe(6);
     expect(s1.toArray()).toEqual(['d', 'e', 'f', 'a', 'b', 'c']);
   });
 
-  it('pop removes the lowest index, decrementing length', () => {
-    var s = Stack('a', 'b', 'c').pop();
+  it('pop removes the lowest index, decrementing size', () => {
+    var s = Stack.of('a', 'b', 'c').pop();
     expect(s.peek()).toBe('b');
     expect(s.toArray()).toEqual([ 'b', 'c' ]);
   });
@@ -108,15 +108,15 @@ describe('Stack', () => {
   check.it('shift removes the lowest index, just like array', {maxSize: 2000},
     [gen.posInt], len => {
       var a = arrayOfSize(len);
-      var s = Stack.from(a);
+      var s = Stack(a);
 
       while (a.length) {
-        expect(s.length).toBe(a.length);
+        expect(s.size).toBe(a.length);
         expect(s.toArray()).toEqual(a);
         s = s.shift();
         a.shift();
       }
-      expect(s.length).toBe(a.length);
+      expect(s.size).toBe(a.length);
       expect(s.toArray()).toEqual(a);
     }
   );
@@ -127,12 +127,12 @@ describe('Stack', () => {
       var s = Stack();
 
       for (var ii = 0; ii < len; ii++) {
-        expect(s.length).toBe(a.length);
+        expect(s.size).toBe(a.length);
         expect(s.toArray()).toEqual(a);
         s = s.unshift(ii);
         a.unshift(ii);
       }
-      expect(s.length).toBe(a.length);
+      expect(s.size).toBe(a.length);
       expect(s.toArray()).toEqual(a);
     }
   );
@@ -142,19 +142,19 @@ describe('Stack', () => {
       var a1 = arrayOfSize(size1);
       var a2 = arrayOfSize(size2);
 
-      var s1 = Stack.from(a1);
+      var s1 = Stack(a1);
       var s3 = s1.unshift.apply(s1, a2);
 
       var a3 = a1.slice();
       a3.unshift.apply(a3, a2);
 
-      expect(s3.length).toEqual(a3.length);
+      expect(s3.size).toEqual(a3.length);
       expect(s3.toArray()).toEqual(a3);
     }
   );
 
   it('finds values using indexOf', () => {
-    var s = Stack('a', 'b', 'c', 'b', 'a');
+    var s = Stack.of('a', 'b', 'c', 'b', 'a');
     expect(s.indexOf('b')).toBe(1);
     expect(s.indexOf('c')).toBe(2);
     expect(s.indexOf('d')).toBe(-1);

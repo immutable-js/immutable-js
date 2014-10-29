@@ -12,6 +12,13 @@ describe('MultiRequire', () => {
     expect(Immutable2.Map({a: 1}).toJS()).toEqual({a: 1});
   });
 
+  it('detects sequences', () => {
+    var x = Immutable1.Map({a: 1});
+    var y = Immutable2.Map({a: 1});
+    expect(Immutable1.Iterable.isIterable(y)).toBe(true);
+    expect(Immutable2.Iterable.isIterable(x)).toBe(true);
+  });
+
   it('converts to JS when inter-nested', () => {
     var deep = Immutable1.Map({
       a: 1,
@@ -42,15 +49,42 @@ describe('MultiRequire', () => {
   });
 
   it('flattens nested values', () => {
-    var nested = Immutable1.Vector(
-      Immutable2.Vector(
-        Immutable1.Vector(
-          Immutable2.Vector(1,2)
+    var nested = Immutable1.List(
+      Immutable2.List(
+        Immutable1.List(
+          Immutable2.List.of(1, 2)
         )
       )
     );
 
     expect(nested.flatten().toJS()).toEqual([1,2]);
+  });
+
+  it('detects types', () => {
+    var c1 = Immutable1.Map();
+    var c2 = Immutable2.Map();
+    expect(Immutable1.Map.isMap(c2)).toBe(true);
+    expect(Immutable2.Map.isMap(c1)).toBe(true);
+
+    var c1 = Immutable1.OrderedMap();
+    var c2 = Immutable2.OrderedMap();
+    expect(Immutable1.OrderedMap.isOrderedMap(c2)).toBe(true);
+    expect(Immutable2.OrderedMap.isOrderedMap(c1)).toBe(true);
+
+    var c1 = Immutable1.List();
+    var c2 = Immutable2.List();
+    expect(Immutable1.List.isList(c2)).toBe(true);
+    expect(Immutable2.List.isList(c1)).toBe(true);
+
+    var c1 = Immutable1.Stack();
+    var c2 = Immutable2.Stack();
+    expect(Immutable1.Stack.isStack(c2)).toBe(true);
+    expect(Immutable2.Stack.isStack(c1)).toBe(true);
+
+    var c1 = Immutable1.Set();
+    var c2 = Immutable2.Set();
+    expect(Immutable1.Set.isSet(c2)).toBe(true);
+    expect(Immutable2.Set.isSet(c1)).toBe(true);
   });
 
 });

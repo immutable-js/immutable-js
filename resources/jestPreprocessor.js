@@ -1,11 +1,12 @@
 // preprocessor.js
+var path = require('path');
 var ts = require('ts-compiler');
 var react = require('react-tools');
 
 module.exports = {
-  process: function(src, path) {
-    if (path.match(/\.ts$/) && !path.match(/\.d\.ts$/)) {
-      ts.compile([path], {
+  process: function(src, filePath) {
+    if (filePath.match(/\.ts$/) && !filePath.match(/\.d\.ts$/)) {
+      ts.compile([filePath], {
         skipWrite: true,
         module: 'commonjs'
       }, function(err, results) {
@@ -18,11 +19,13 @@ module.exports = {
           src = file.text;
         });
       });
-      return src.replace(/require\('immutable'\)/g, "require('../')");
+      return src;
     }
-    if (path.match(/\.js$/)) {
-      return react.transform(src, {harmony: true})
-        .replace(/require\('immutable'\)/g, "require('../')");
+    if (filePath.match(/\.js$/)) {
+      return react.transform(src, {harmony: true}).replace(
+        /require\('immutable/g,
+        "require('" + path.relative(path.dirname(filePath), process.cwd())
+      );
     }
     return src;
   }

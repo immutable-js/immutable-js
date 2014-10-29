@@ -10,7 +10,7 @@
 /* exported is */
 
 /**
- * The same semantics as Object.is(), but treats immutable sequences as
+ * The same semantics as Object.is(), but treats immutable iterables as
  * values, equal when the structure contains equivalent values.
  */
 function is(first, second) {
