@@ -93,6 +93,15 @@ class OrderedMap extends Map {
   }
 }
 
+function isOrderedMap(maybeOrderedMap) {
+  return !!(maybeOrderedMap && maybeOrderedMap[IS_ORDERED_MAP_SENTINEL]);
+}
+
+OrderedMap.isOrderedMap = isOrderedMap;
+
+var IS_ORDERED_MAP_SENTINEL = '@@__IMMUTABLE_ORDERED_MAP__@@';
+
+OrderedMap.prototype[IS_ORDERED_MAP_SENTINEL] = true;
 OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
 
 

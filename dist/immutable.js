@@ -936,8 +936,8 @@ Seq.isSeq = isSeq;
 Seq.Keyed = KeyedSeq;
 Seq.Set = SetSeq;
 Seq.Indexed = IndexedSeq;
-var IS_LAZY_SENTINEL = '@@__IMMUTABLE_LAZY__@@';
-Seq.prototype[IS_LAZY_SENTINEL] = true;
+var IS_SEQ_SENTINEL = '@@__IMMUTABLE_SEQ__@@';
+Seq.prototype[IS_SEQ_SENTINEL] = true;
 var ArraySeq = function ArraySeq(array) {
   this._array = array;
   this.size = array.length;
@@ -1088,8 +1088,8 @@ var IteratorSeq = function IteratorSeq(iterator) {
     }));
   }
 }, {}, IndexedSeq);
-function isSeq(maybeLazy) {
-  return !!(maybeLazy && maybeLazy[IS_LAZY_SENTINEL]);
+function isSeq(maybeSeq) {
+  return !!(maybeSeq && maybeSeq[IS_SEQ_SENTINEL]);
 }
 var EMPTY_SEQ;
 function emptySequence() {
@@ -1265,7 +1265,13 @@ var $Map = Map;
     return makeMap(this.size, this._root, ownerID, this.__hash);
   }
 }, {}, KeyedCollection);
+function isMap(maybeMap) {
+  return !!(maybeMap && maybeMap[IS_MAP_SENTINEL]);
+}
+Map.isMap = isMap;
+var IS_MAP_SENTINEL = '@@__IMMUTABLE_MAP__@@';
 var MapPrototype = Map.prototype;
+MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 var BitmapIndexedNode = function BitmapIndexedNode(ownerID, bitmap, nodes) {
   this.ownerID = ownerID;
@@ -2450,7 +2456,13 @@ var $List = List;
 }, {of: function() {
     return this(arguments);
   }}, IndexedCollection);
+function isList(maybeList) {
+  return !!(maybeList && maybeList[IS_LIST_SENTINEL]);
+}
+List.isList = isList;
+var IS_LIST_SENTINEL = '@@__IMMUTABLE_LIST__@@';
 var ListPrototype = List.prototype;
+ListPrototype[IS_LIST_SENTINEL] = true;
 ListPrototype[DELETE] = ListPrototype.remove;
 ListPrototype.setIn = MapPrototype.setIn;
 ListPrototype.removeIn = MapPrototype.removeIn;
@@ -2964,7 +2976,13 @@ var $Stack = Stack;
 }, {of: function() {
     return this(arguments);
   }}, IndexedCollection);
+function isStack(maybeStack) {
+  return !!(maybeStack && maybeStack[IS_STACK_SENTINEL]);
+}
+Stack.isStack = isStack;
+var IS_STACK_SENTINEL = '@@__IMMUTABLE_STACK__@@';
 var StackPrototype = Stack.prototype;
+StackPrototype[IS_STACK_SENTINEL] = true;
 StackPrototype.withMutations = MapPrototype.withMutations;
 StackPrototype.asMutable = MapPrototype.asMutable;
 StackPrototype.asImmutable = MapPrototype.asImmutable;
@@ -3120,7 +3138,13 @@ var $Set = Set;
     return this(KeyedSeq(value).flip());
   }
 }, SetCollection);
+function isSet(maybeSet) {
+  return !!(maybeSet && maybeSet[IS_SET_SENTINEL]);
+}
+Set.isSet = isSet;
+var IS_SET_SENTINEL = '@@__IMMUTABLE_SET__@@';
 var SetPrototype = Set.prototype;
+SetPrototype[IS_SET_SENTINEL] = true;
 SetPrototype[DELETE] = SetPrototype.remove;
 SetPrototype.mergeDeep = SetPrototype.merge;
 SetPrototype.mergeDeepWith = SetPrototype.mergeWith;
@@ -3197,6 +3221,12 @@ var $OrderedMap = OrderedMap;
 }, {of: function() {
     return this(arguments);
   }}, Map);
+function isOrderedMap(maybeOrderedMap) {
+  return !!(maybeOrderedMap && maybeOrderedMap[IS_ORDERED_MAP_SENTINEL]);
+}
+OrderedMap.isOrderedMap = isOrderedMap;
+var IS_ORDERED_MAP_SENTINEL = '@@__IMMUTABLE_ORDERED_MAP__@@';
+OrderedMap.prototype[IS_ORDERED_MAP_SENTINEL] = true;
 OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
 function makeOrderedMap(map, list, ownerID, hash) {
   var omap = Object.create(OrderedMap.prototype);

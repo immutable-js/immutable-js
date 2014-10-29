@@ -193,7 +193,16 @@ class List extends IndexedCollection {
   }
 }
 
+function isList(maybeList) {
+  return !!(maybeList && maybeList[IS_LIST_SENTINEL]);
+}
+
+List.isList = isList;
+
+var IS_LIST_SENTINEL = '@@__IMMUTABLE_LIST__@@';
+
 var ListPrototype = List.prototype;
+ListPrototype[IS_LIST_SENTINEL] = true;
 ListPrototype[DELETE] = ListPrototype.remove;
 ListPrototype.setIn = MapPrototype.setIn;
 ListPrototype.removeIn = MapPrototype.removeIn;

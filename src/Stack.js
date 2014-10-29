@@ -202,7 +202,16 @@ class Stack extends IndexedCollection {
   }
 }
 
+function isStack(maybeStack) {
+  return !!(maybeStack && maybeStack[IS_STACK_SENTINEL]);
+}
+
+Stack.isStack = isStack;
+
+var IS_STACK_SENTINEL = '@@__IMMUTABLE_STACK__@@';
+
 var StackPrototype = Stack.prototype;
+StackPrototype[IS_STACK_SENTINEL] = true;
 StackPrototype.withMutations = MapPrototype.withMutations;
 StackPrototype.asMutable = MapPrototype.asMutable;
 StackPrototype.asImmutable = MapPrototype.asImmutable;

@@ -156,7 +156,16 @@ class Set extends SetCollection {
   }
 }
 
+function isSet(maybeSet) {
+  return !!(maybeSet && maybeSet[IS_SET_SENTINEL]);
+}
+
+Set.isSet = isSet;
+
+var IS_SET_SENTINEL = '@@__IMMUTABLE_SET__@@';
+
 var SetPrototype = Set.prototype;
+SetPrototype[IS_SET_SENTINEL] = true;
 SetPrototype[DELETE] = SetPrototype.remove;
 SetPrototype.mergeDeep = SetPrototype.merge;
 SetPrototype.mergeDeepWith = SetPrototype.mergeWith;

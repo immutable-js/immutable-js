@@ -157,7 +157,16 @@ class Map extends KeyedCollection {
   }
 }
 
+function isMap(maybeMap) {
+  return !!(maybeMap && maybeMap[IS_MAP_SENTINEL]);
+}
+
+Map.isMap = isMap;
+
+var IS_MAP_SENTINEL = '@@__IMMUTABLE_MAP__@@';
+
 var MapPrototype = Map.prototype;
+MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 
 

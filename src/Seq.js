@@ -135,9 +135,9 @@ Seq.Keyed = KeyedSeq;
 Seq.Set = SetSeq;
 Seq.Indexed = IndexedSeq;
 
-var IS_LAZY_SENTINEL = '@@__IMMUTABLE_LAZY__@@';
+var IS_SEQ_SENTINEL = '@@__IMMUTABLE_SEQ__@@';
 
-Seq.prototype[IS_LAZY_SENTINEL] = true;
+Seq.prototype[IS_SEQ_SENTINEL] = true;
 
 
 
@@ -319,8 +319,8 @@ class IteratorSeq extends IndexedSeq {
 
 // # pragma Helper functions
 
-function isSeq(maybeLazy) {
-  return !!(maybeLazy && maybeLazy[IS_LAZY_SENTINEL]);
+function isSeq(maybeSeq) {
+  return !!(maybeSeq && maybeSeq[IS_SEQ_SENTINEL]);
 }
 
 var EMPTY_SEQ;

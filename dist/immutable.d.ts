@@ -1240,6 +1240,10 @@ declare module 'immutable' {
 
   export module Map {
 
+    /**
+     * True if the provided value is a Map
+     */
+    function isMap(maybeMap: any): boolean;
   }
 
   /**
@@ -1448,6 +1452,10 @@ declare module 'immutable' {
 
   export module OrderedMap {
 
+    /**
+     * True if the provided value is an OrderedMap.
+     */
+    function isOrderedMap(maybeOrderedMap: any): boolean;
   }
 
   /**
@@ -1531,6 +1539,11 @@ declare module 'immutable' {
    */
 
   export module Set {
+
+    /**
+     * True if the provided value is a Set
+     */
+    function isSet(maybeSet: any): boolean;
 
     /**
      * Creates a new Set containing `values`.
@@ -1633,6 +1646,11 @@ declare module 'immutable' {
    */
 
   export module List {
+
+    /**
+     * True if the provided value is a List
+     */
+    function isList(maybeList: any): boolean;
 
     /**
      * Creates a new List containing `values`.
@@ -1828,6 +1846,11 @@ declare module 'immutable' {
    */
 
   export module Stack {
+
+    /**
+     * True if the provided value is a Stack
+     */
+    function isStack(maybeStack: any): boolean;
 
     /**
      * Creates a new Stack containing `values`.
