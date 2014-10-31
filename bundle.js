@@ -394,16 +394,23 @@ var Header = React.createClass({displayName: 'Header',
   },
 
   componentDidMount: function () {
+    this.offsetHeight = this.getDOMNode().offsetHeight;
     window.addEventListener('scroll', this.handleScroll);
+    window.addEventListener('resize', this.handleResize);
   },
 
   componentWillUnmount: function () {
     window.removeEventListener('scroll', this.handleScroll);
+    window.removeEventListener('resize', this.handleResize);
+  },
+
+  handleResize: function (event) {
+    this.offsetHeight = this.getDOMNode().offsetHeight;
   },
 
   handleScroll: function (event) {
     var scrollPos = window.scrollY;
-    if (scrollPos < this.getDOMNode().offsetHeight) {
+    if (scrollPos < this.offsetHeight) {
       this.setState({ scroll: scrollPos });
     }
   },
