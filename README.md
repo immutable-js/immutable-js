@@ -7,8 +7,8 @@ Immutable data cannot be changed once created, leading to much simpler
 application development, no defensive copying, and enabling advanced memoization
 techniques.
 
-`Immutable` provides `List`, `Stack`, `Map`,
-`OrderedMap`, and `Set` by using persistent [hash maps tries](http://en.wikipedia.org/wiki/Hash_array_mapped_trie)
+`Immutable` provides `List`, `Stack`, `Map`, `OrderedMap`, `Record`
+and `Set` by using persistent [hash maps tries](http://en.wikipedia.org/wiki/Hash_array_mapped_trie)
 and [vector tries](http://hypirion.com/musings/understanding-persistent-vector-pt-1)
 as popularized by Clojure and Scala. They achieve efficiency on modern
 JavaScript VMs by using structural sharing and minimizing the need to copy or
