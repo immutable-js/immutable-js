@@ -1097,10 +1097,17 @@ var EMPTY_SEQ;
 function emptySequence() {
   return EMPTY_SEQ || (EMPTY_SEQ = new ArraySeq([]));
 }
+function maybeSeqFromValue(value, maybeSingleton) {
+  return (maybeSingleton && typeof value === 'string' ? undefined : isArrayLike(value) ? new ArraySeq(value) : isIterator(value) ? new IteratorSeq(value) : hasIterator(value) ? new IterableSeq(value) : (maybeSingleton ? isPlainObj(value) : typeof value === 'object') ? new ObjectSeq(value) : undefined);
+}
 function seqFromValue(value, maybeSingleton) {
-  var seq = maybeSingleton && typeof value === 'string' ? new ArraySeq([value]) : isArrayLike(value) ? new ArraySeq(value) : isIterator(value) ? new IteratorSeq(value) : hasIterator(value) ? new IterableSeq(value) : (maybeSingleton ? isPlainObj(value) : typeof value === 'object') ? new ObjectSeq(value) : maybeSingleton ? new ArraySeq([value]) : undefined;
-  if (!seq) {
-    throw new TypeError('Expected iterable: ' + value);
+  var seq = maybeSeqFromValue(value, maybeSingleton);
+  if (seq === undefined) {
+    if (maybeSingleton) {
+      seq = new ArraySeq([value]);
+    } else {
+      throw new TypeError('Expected iterable: ' + value);
+    }
   }
   return seq;
 }
@@ -1624,7 +1631,13 @@ function mergeIntoMapWith(map, merger, iterables) {
 }
 function deepMerger(merger) {
   return (function(existing, value) {
-    return existing && existing.mergeDeepWith ? existing.mergeDeepWith(merger, value) : merger ? merger(existing, value) : value;
+    if (existing && existing.mergeDeepWith) {
+      var iterable = isIterable(value) ? value : maybeSeqFromValue(value, true);
+      if (iterable) {
+        return existing.mergeDeepWith(merger, iterable);
+      }
+    }
+    return merger ? merger(existing, value) : value;
   });
 }
 function mergeIntoCollectionWith(collection, merger, iters) {
@@ -1633,8 +1646,9 @@ function mergeIntoCollectionWith(collection, merger, iters) {
   }
   return collection.withMutations((function(collection) {
     var mergeIntoMap = merger ? (function(value, key) {
-      var existing = collection.get(key, NOT_SET);
-      collection.set(key, existing === NOT_SET ? value : merger(existing, value));
+      collection.update(key, NOT_SET, (function(existing) {
+        return existing === NOT_SET ? value : merger(existing, value);
+      }));
     }) : (function(value, key) {
       collection.set(key, value);
     });

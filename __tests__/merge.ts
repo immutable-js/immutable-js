@@ -28,6 +28,12 @@ describe('merge', () => {
     expect(m1.merge(m2)).is(I.Map({a:1,b:20,c:3,d:10,e:30}));
   })
 
+  it('can merge in an explicitly empty value', () => {
+    var m1 = I.Map({a:1,b:2});
+    var m2 = I.Map({a:undefined});
+    expect(m1.merge(m2)).is(I.Map({a:undefined,b:2}));
+  })
+
   it('merges two maps with a merge function', () => {
     var m1 = I.Map({a:1,b:2,c:3});
     var m2 = I.Map({d:10,b:20,e:30});
@@ -61,6 +67,23 @@ describe('merge', () => {
     expect(
       m1.mergeDeep({a:{b:{c:1}}})
     ).toBe(m1);
+  })
+
+  it('can overwrite existing maps', () => {
+    expect(
+      I.fromJS({ a: { x: 1, y: 1 }, b: { x: 2, y: 2 } })
+        .merge({ a: null, b: { x: 10 } })
+        .toJS()
+    ).toEqual(
+      { a: null, b: { x: 10 } }
+    );
+    expect(
+      I.fromJS({ a: { x: 1, y: 1 }, b: { x: 2, y: 2 } })
+        .mergeDeep({ a: null, b: { x: 10 } })
+        .toJS()
+    ).toEqual(
+      { a: null, b: { x: 10, y: 2 } }
+    );
   })
 
 })

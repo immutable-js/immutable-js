@@ -15,7 +15,7 @@ import "Iterator"
           assertNotInfinite, wrapIndex, isPlainObj,
           isIterable, isKeyed, Iterable, KeyedIterable, IndexedIterable, SetIterable,
           Iterator, iteratorValue, iteratorDone, hasIterator, isIterator, getIterator */
-/* exported isSeq, Seq, KeyedSeq, IndexedSeq, SetSeq, ArraySeq */
+/* exported isSeq, Seq, KeyedSeq, IndexedSeq, SetSeq, ArraySeq, maybeSeqFromValue */
 
 
 class Seq extends Iterable {
@@ -329,17 +329,25 @@ function emptySequence() {
   return EMPTY_SEQ || (EMPTY_SEQ = new ArraySeq([]));
 }
 
-function seqFromValue(value, maybeSingleton) {
-  var seq =
-    maybeSingleton && typeof value === 'string' ? new ArraySeq([value]) :
+function maybeSeqFromValue(value, maybeSingleton) {
+  return (
+    maybeSingleton && typeof value === 'string' ? undefined :
     isArrayLike(value) ? new ArraySeq(value) :
     isIterator(value) ? new IteratorSeq(value) :
     hasIterator(value) ? new IterableSeq(value) :
     (maybeSingleton ? isPlainObj(value) : typeof value === 'object') ? new ObjectSeq(value) :
-    maybeSingleton ? new ArraySeq([value]) :
-    undefined;
-  if (!seq) {
-    throw new TypeError('Expected iterable: ' + value);
+    undefined
+  );
+}
+
+function seqFromValue(value, maybeSingleton) {
+  var seq = maybeSeqFromValue(value, maybeSingleton);
+  if (seq === undefined) {
+    if (maybeSingleton) {
+      seq = new ArraySeq([value]);
+    } else {
+      throw new TypeError('Expected iterable: ' + value);
+    }
   }
   return seq;
 }

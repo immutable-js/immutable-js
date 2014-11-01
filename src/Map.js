@@ -9,12 +9,13 @@
 
 import "is"
 import "Iterable"
+import "Seq"
 import "Collection"
 import "invariant"
 import "TrieUtils"
 import "Hash"
 import "Iterator"
-/* global is, KeyedIterable, KeyedCollection, invariant,
+/* global is, isIterable, KeyedIterable, maybeSeqFromValue, KeyedCollection, invariant,
           DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
           MakeRef, SetRef, arrCopy, hash,
           Iterator, iteratorValue, iteratorDone */
@@ -582,10 +583,15 @@ function mergeIntoMapWith(map, merger, iterables) {
 }
 
 function deepMerger(merger) {
-  return (existing, value) =>
-    existing && existing.mergeDeepWith ?
-      existing.mergeDeepWith(merger, value) :
-      merger ? merger(existing, value) : value;
+  return (existing, value) => {
+    if (existing && existing.mergeDeepWith) {
+      var iterable = isIterable(value) ? value : maybeSeqFromValue(value, true);
+      if (iterable) {
+        return existing.mergeDeepWith(merger, iterable);
+      }
+    }
+    return merger ? merger(existing, value) : value;
+  }
 }
 
 function mergeIntoCollectionWith(collection, merger, iters) {
@@ -595,9 +601,8 @@ function mergeIntoCollectionWith(collection, merger, iters) {
   return collection.withMutations(collection => {
     var mergeIntoMap = merger ?
       (value, key) => {
-        var existing = collection.get(key, NOT_SET);
-        collection.set(
-          key, existing === NOT_SET ? value : merger(existing, value)
+        collection.update(key, NOT_SET, existing =>
+          existing === NOT_SET ? value : merger(existing, value)
         );
       } :
       (value, key) => {
