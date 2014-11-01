@@ -8,6 +8,7 @@
  */
 
 import "is"
+import "fromJS"
 import "Iterable"
 import "Seq"
 import "Collection"
@@ -15,7 +16,7 @@ import "invariant"
 import "TrieUtils"
 import "Hash"
 import "Iterator"
-/* global is, isIterable, KeyedIterable, maybeSeqFromValue, KeyedCollection, invariant,
+/* global is, fromJS, isIterable, KeyedIterable, KeyedCollection, invariant,
           DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
           MakeRef, SetRef, arrCopy, hash,
           Iterator, iteratorValue, iteratorDone */
@@ -29,7 +30,7 @@ class Map extends KeyedCollection {
   constructor(value) {
     return arguments.length === 0 ? emptyMap() :
       value && value.constructor === Map ? value :
-      emptyMap().merge(value);
+      emptyMap().merge(KeyedIterable(value));
   }
 
   toString() {
@@ -577,21 +578,21 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
 function mergeIntoMapWith(map, merger, iterables) {
   var iters = [];
   for (var ii = 0; ii < iterables.length; ii++) {
-    iterables[ii] && iters.push(KeyedIterable(iterables[ii]));
+    var value = iterables[ii];
+    var iter = KeyedIterable(value);
+    if (!isIterable(value)) {
+      iter = iter.map(v => fromJS(v));
+    }
+    iters.push(iter);
   }
   return mergeIntoCollectionWith(map, merger, iters);
 }
 
 function deepMerger(merger) {
-  return (existing, value) => {
-    if (existing && existing.mergeDeepWith) {
-      var iterable = isIterable(value) ? value : maybeSeqFromValue(value, true);
-      if (iterable) {
-        return existing.mergeDeepWith(merger, iterable);
-      }
-    }
-    return merger ? merger(existing, value) : value;
-  }
+  return (existing, value) =>
+    existing && existing.mergeDeepWith && isIterable(value) ?
+      existing.mergeDeepWith(merger, value) :
+      merger ? merger(existing, value) : value;
 }
 
 function mergeIntoCollectionWith(collection, merger, iters) {

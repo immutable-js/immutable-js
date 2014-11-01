@@ -1141,6 +1141,31 @@ function seqIterator(seq, type, reverse, useKeys) {
   }
   return seq.__iteratorUncached(type, reverse);
 }
+function fromJS(json, converter) {
+  if (converter) {
+    return _fromJSWith(converter, json, '', {'': json});
+  }
+  return _fromJSDefault(json);
+}
+function _fromJSWith(converter, json, key, parentJSON) {
+  if (Array.isArray(json) || isPlainObj(json)) {
+    return converter.call(parentJSON, key, Iterable(json).map((function(v, k) {
+      return _fromJSWith(converter, v, k, json);
+    })));
+  }
+  return json;
+}
+function _fromJSDefault(json) {
+  if (json && typeof json === 'object') {
+    if (Array.isArray(json)) {
+      return Iterable(json).map(_fromJSDefault).toList();
+    }
+    if (json.constructor === Object) {
+      return Iterable(json).map(_fromJSDefault).toMap();
+    }
+  }
+  return json;
+}
 var Collection = function Collection() {
   throw TypeError('Abstract');
 };
@@ -1167,7 +1192,7 @@ Collection.Keyed = KeyedCollection;
 Collection.Indexed = IndexedCollection;
 Collection.Set = SetCollection;
 var Map = function Map(value) {
-  return arguments.length === 0 ? emptyMap() : value && value.constructor === $Map ? value : emptyMap().merge(value);
+  return arguments.length === 0 ? emptyMap() : value && value.constructor === $Map ? value : emptyMap().merge(KeyedIterable(value));
 };
 var $Map = Map;
 ($traceurRuntime.createClass)(Map, {
@@ -1625,19 +1650,20 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
 function mergeIntoMapWith(map, merger, iterables) {
   var iters = [];
   for (var ii = 0; ii < iterables.length; ii++) {
-    iterables[ii] && iters.push(KeyedIterable(iterables[ii]));
+    var value = iterables[ii];
+    var iter = KeyedIterable(value);
+    if (!isIterable(value)) {
+      iter = iter.map((function(v) {
+        return fromJS(v);
+      }));
+    }
+    iters.push(iter);
   }
   return mergeIntoCollectionWith(map, merger, iters);
 }
 function deepMerger(merger) {
   return (function(existing, value) {
-    if (existing && existing.mergeDeepWith) {
-      var iterable = isIterable(value) ? value : maybeSeqFromValue(value, true);
-      if (iterable) {
-        return existing.mergeDeepWith(merger, iterable);
-      }
-    }
-    return merger ? merger(existing, value) : value;
+    return existing && existing.mergeDeepWith && isIterable(value) ? existing.mergeDeepWith(merger, value) : merger ? merger(existing, value) : value;
   });
 }
 function mergeIntoCollectionWith(collection, merger, iters) {
@@ -2342,16 +2368,13 @@ var List = function List(value) {
   if (value && value.constructor === $List) {
     return value;
   }
-  var isArray = Array.isArray(value);
-  if (!isArray) {
-    value = Iterable(value);
-  }
-  var size = isArray ? value.length : value.size;
+  value = Iterable(value);
+  var size = value.size;
   if (size === 0) {
     return empty;
   }
   if (size > 0 && size < SIZE) {
-    return makeList(0, size, SHIFT, null, new VNode(isArray ? arrCopy(value) : value.toArray()));
+    return makeList(0, size, SHIFT, null, new VNode(value.toArray()));
   }
   return empty.merge(value);
 };
@@ -2824,13 +2847,20 @@ function setListBounds(list, begin, end) {
 }
 function mergeIntoListWith(list, merger, iterables) {
   var iters = [];
+  var maxSize = 0;
   for (var ii = 0; ii < iterables.length; ii++) {
-    var iter = iterables[ii];
-    iter && iters.push(Iterable(iter));
+    var value = iterables[ii];
+    var iter = Iterable(value);
+    if (iter.size > maxSize) {
+      maxSize = iter.size;
+    }
+    if (!isIterable(value)) {
+      iter = iter.map((function(v) {
+        return fromJS(v);
+      }));
+    }
+    iters.push(iter);
   }
-  var maxSize = Math.max.apply(Math, iters.map((function(s) {
-    return s.size || 0;
-  })));
   if (maxSize > list.size) {
     list = list.setSize(maxSize);
   }
@@ -3179,7 +3209,7 @@ function emptySet() {
   return EMPTY_SET || (EMPTY_SET = makeSet(emptyMap()));
 }
 var OrderedMap = function OrderedMap(value) {
-  return arguments.length === 0 ? emptyOrderedMap() : value && value.constructor === $OrderedMap ? value : emptyOrderedMap().merge(value);
+  return arguments.length === 0 ? emptyOrderedMap() : value && value.constructor === $OrderedMap ? value : emptyOrderedMap().merge(KeyedIterable(value));
 };
 var $OrderedMap = OrderedMap;
 ($traceurRuntime.createClass)(OrderedMap, {
@@ -3285,7 +3315,7 @@ var Record = function Record(defaultValues, name) {
     if (!(this instanceof RecordType)) {
       return new RecordType(values);
     }
-    this._map = Map(values);
+    this._map = arguments.length === 0 ? Map() : Map(values);
   };
   var keys = Object.keys(defaultValues);
   var RecordTypePrototype = RecordType.prototype = Object.create(RecordPrototype);
@@ -3572,31 +3602,6 @@ RepeatPrototype.take = RangePrototype.take;
 RepeatPrototype.skip = RangePrototype.skip;
 RepeatPrototype.__toJS = RangePrototype.__toJS;
 var EMPTY_REPEAT;
-function fromJS(json, converter) {
-  if (converter) {
-    return _fromJSWith(converter, json, '', {'': json});
-  }
-  return _fromJSDefault(json);
-}
-function _fromJSWith(converter, json, key, parentJSON) {
-  if (Array.isArray(json) || isPlainObj(json)) {
-    return converter.call(parentJSON, key, Iterable(json).map((function(v, k) {
-      return _fromJSWith(converter, v, k, json);
-    })));
-  }
-  return json;
-}
-function _fromJSDefault(json) {
-  if (json && typeof json === 'object') {
-    if (Array.isArray(json)) {
-      return Iterable(json).map(_fromJSDefault).toList();
-    }
-    if (json.constructor === Object) {
-      return Iterable(json).map(_fromJSDefault).toMap();
-    }
-  }
-  return json;
-}
 var Immutable = {
   Iterable: Iterable,
   Seq: Seq,

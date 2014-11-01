@@ -15,7 +15,7 @@ import "Iterator"
           assertNotInfinite, wrapIndex, isPlainObj,
           isIterable, isKeyed, Iterable, KeyedIterable, IndexedIterable, SetIterable,
           Iterator, iteratorValue, iteratorDone, hasIterator, isIterator, getIterator */
-/* exported isSeq, Seq, KeyedSeq, IndexedSeq, SetSeq, ArraySeq, maybeSeqFromValue */
+/* exported isSeq, Seq, KeyedSeq, IndexedSeq, SetSeq, ArraySeq */
 
 
 class Seq extends Iterable {

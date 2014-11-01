@@ -1337,6 +1337,12 @@ declare module 'immutable' {
      * (or JS objects) into this Map. In other words, this takes each entry of
      * each iterable and sets it on this Map.
      *
+     * If any of the values provided to `merge` are not Iterable (would return
+     * false for `Immutable.isIterable`) then they are deeply converted via
+     * `Immutable.fromJS` before being merged. However, if the value is an
+     * Iterable but contains non-iterable JS objects or arrays, those nested
+     * values will be preserved.
+     *
      *     var x = Immutable.Map({a: 10, b: 20, c: 30});
      *     var y = Immutable.Map({b: 40, a: 50, d: 60});
      *     x.merge(y) // { a: 50, b: 40, c: 30, d: 60 }

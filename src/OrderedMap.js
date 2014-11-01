@@ -7,10 +7,11 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
+import "Iterable"
 import "Map"
 import "List"
 import "TrieUtils"
-/* global Map, emptyMap, emptyList, DELETE, NOT_SET */
+/* global KeyedIterable, Map, emptyMap, emptyList, DELETE, NOT_SET */
 /* exported OrderedMap */
 
 
@@ -21,7 +22,7 @@ class OrderedMap extends Map {
   constructor(value) {
     return arguments.length === 0 ? emptyOrderedMap() :
       value && value.constructor === OrderedMap ? value :
-      emptyOrderedMap().merge(value);
+      emptyOrderedMap().merge(KeyedIterable(value));
   }
 
   static of(/*...values*/) {

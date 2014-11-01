@@ -7,14 +7,16 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
+import "fromJS"
 import "TrieUtils"
 import "Iterable"
 import "Collection"
 import "Map"
 import "Iterator"
-/* global DELETE, SHIFT, SIZE, MASK, DID_ALTER, OwnerID, MakeRef,
-          SetRef, arrCopy, wrapIndex, wholeSlice, resolveBegin, resolveEnd,
-          Iterable,
+/* global fromJS,
+          DELETE, SHIFT, SIZE, MASK, DID_ALTER, OwnerID, MakeRef,
+          SetRef, wrapIndex, wholeSlice, resolveBegin, resolveEnd,
+          isIterable, Iterable,
           IndexedCollection,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
           Iterator, iteratorValue, iteratorDone */
@@ -33,21 +35,15 @@ class List extends IndexedCollection {
     if (value && value.constructor === List) {
       return value;
     }
-    var isArray = Array.isArray(value);
-    if (!isArray) {
-      value = Iterable(value);
-    }
-    var size = isArray ? value.length : value.size;
+    value = Iterable(value);
+    var size = value.size;
     if (size === 0) {
       return empty;
     }
     if (size > 0 && size < SIZE) {
-      return makeList(0, size, SHIFT, null, new VNode(
-        isArray ? arrCopy(value) : value.toArray()
-      ));
+      return makeList(0, size, SHIFT, null, new VNode(value.toArray()));
     }
     return empty.merge(value);
-
   }
 
   static of(/*...values*/) {
@@ -621,11 +617,18 @@ function setListBounds(list, begin, end) {
 
 function mergeIntoListWith(list, merger, iterables) {
   var iters = [];
+  var maxSize = 0;
   for (var ii = 0; ii < iterables.length; ii++) {
-    var iter = iterables[ii];
-    iter && iters.push(Iterable(iter));
+    var value = iterables[ii];
+    var iter = Iterable(value);
+    if (iter.size > maxSize) {
+      maxSize = iter.size;
+    }
+    if (!isIterable(value)) {
+      iter = iter.map(v => fromJS(v));
+    }
+    iters.push(iter);
   }
-  var maxSize = Math.max.apply(Math, iters.map(s => s.size || 0));
   if (maxSize > list.size) {
     list = list.setSize(maxSize);
   }

@@ -86,4 +86,36 @@ describe('merge', () => {
     );
   })
 
+  it('can overwrite existing maps with objects', () => {
+    var m1 = I.fromJS({ a: { x: 1, y: 1 } }); // deep conversion.
+    var m2 = I.Map({ a: { z: 10 } }); // shallow conversion to Map.
+
+    // raw object simply replaces map.
+    expect(m1.merge(m2).get('a')).toEqual({z: 10}) // raw object.
+    expect(m1.mergeDeep(m2).get('a')).toEqual({z: 10}) // raw object.
+  })
+
+  it('merges map entries with Vector values', () => {
+    expect(
+      I.fromJS({a:[1]}).merge({b:[2]})
+    ).is(I.fromJS(
+      {a:[1], b:[2]}
+    ));
+    expect(
+      I.fromJS({a:[1]}).mergeDeep({b:[2]})
+    ).is(I.fromJS(
+      {a:[1], b:[2]}
+    ));
+  })
+
+  it('maintains JS values inside immutable collections', () => {
+    var m1 = I.fromJS({a:{b:[{imm:'map'}]}});
+    var m2 = m1.mergeDeep(
+      I.Map({a: I.Map({b: I.List.of( {plain:'obj'} )})})
+    );
+
+    expect(m1.getIn(['a', 'b', 0])).is(I.Map([['imm', 'map']]));
+    expect(m2.getIn(['a', 'b', 0])).toEqual({plain: 'obj'});
+  })
+
 })
