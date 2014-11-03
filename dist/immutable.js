@@ -3321,7 +3321,7 @@ var Record = function Record(defaultValues, name) {
   var RecordTypePrototype = RecordType.prototype = Object.create(RecordPrototype);
   RecordTypePrototype.constructor = RecordType;
   name && (RecordTypePrototype._name = name);
-  RecordTypePrototype._defaultValues = defaultValues;
+  RecordTypePrototype._defaultValues = arguments.length === 0 ? Map() : Map(defaultValues);
   RecordTypePrototype._keys = keys;
   RecordTypePrototype.size = keys.length;
   try {
@@ -3344,13 +3344,13 @@ var Record = function Record(defaultValues, name) {
     return this.__toString(this._name + ' {', '}');
   },
   has: function(k) {
-    return this._defaultValues.hasOwnProperty(k);
+    return this._defaultValues.has(k);
   },
   get: function(k, notSetValue) {
     if (notSetValue !== undefined && !this.has(k)) {
       return notSetValue;
     }
-    return this._map.get(k, this._defaultValues[k]);
+    return this._map.get(k, this._defaultValues.get(k));
   },
   clear: function() {
     if (this.__ownerID) {
@@ -3381,19 +3381,19 @@ var Record = function Record(defaultValues, name) {
     return makeRecord(this, newMap);
   },
   keys: function() {
-    return this._map.keys();
+    return this._defaultValues.keys();
   },
   values: function() {
-    return this._map.values();
+    return this._defaultValues.merge(this._map).values();
   },
   entries: function() {
-    return this._map.entries();
+    return this._defaultValues.merge(this._map).entries();
   },
   wasAltered: function() {
     return this._map.wasAltered();
   },
   __iterator: function(type, reverse) {
-    return this._map.__iterator(type, reverse);
+    return this._defaultValues.merge(this._map).__iterator(type, reverse);
   },
   __iterate: function(fn, reverse) {
     var $__0 = this;

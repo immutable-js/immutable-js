@@ -30,7 +30,7 @@ class Record extends KeyedCollection {
     var RecordTypePrototype = RecordType.prototype = Object.create(RecordPrototype);
     RecordTypePrototype.constructor = RecordType;
     name && (RecordTypePrototype._name = name);
-    RecordTypePrototype._defaultValues = defaultValues;
+    RecordTypePrototype._defaultValues = arguments.length === 0 ? Map() : Map(defaultValues);
     RecordTypePrototype._keys = keys;
     RecordTypePrototype.size = keys.length;
 
@@ -60,14 +60,14 @@ class Record extends KeyedCollection {
   // @pragma Access
 
   has(k) {
-    return this._defaultValues.hasOwnProperty(k);
+    return this._defaultValues.has(k);
   }
 
   get(k, notSetValue) {
     if (notSetValue !== undefined && !this.has(k)) {
       return notSetValue;
     }
-    return this._map.get(k, this._defaultValues[k]);
+    return this._map.get(k, this._defaultValues.get(k));
   }
 
   // @pragma Modification
@@ -104,15 +104,15 @@ class Record extends KeyedCollection {
   }
 
   keys() {
-    return this._map.keys();
+    return this._defaultValues.keys();
   }
 
   values() {
-    return this._map.values();
+    return this._defaultValues.merge(this._map).values();
   }
 
   entries() {
-    return this._map.entries();
+    return this._defaultValues.merge(this._map).entries();
   }
 
   wasAltered() {
@@ -120,7 +120,7 @@ class Record extends KeyedCollection {
   }
 
   __iterator(type, reverse) {
-    return this._map.__iterator(type, reverse);
+    return this._defaultValues.merge(this._map).__iterator(type, reverse);
   }
 
   __iterate(fn, reverse) {
