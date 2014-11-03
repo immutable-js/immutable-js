@@ -252,7 +252,7 @@ method call.
 For example, the following does not perform any work, because the resulting
 Seq is never used:
 
-    var oddSquares = Immutable.Sequence.of(1,2,3,4,5,6,7,8)
+    var oddSquares = Immutable.Seq.of(1,2,3,4,5,6,7,8)
       .filter(x => x % 2).map(x => x * x);
 
 Once the Seq is used, it performs only the work necessary. In this
