@@ -1209,7 +1209,7 @@ var $Map = Map;
     return updateMap(this, k, v);
   },
   setIn: function(keyPath, v) {
-    invariant(size(keyPath) > 0, 'Requires non-empty key path.');
+    invariant(keyPathLength(keyPath) > 0, 'Requires non-empty key path.');
     return this.updateIn(keyPath, (function() {
       return v;
     }));
@@ -1218,7 +1218,7 @@ var $Map = Map;
     return updateMap(this, k, NOT_SET);
   },
   removeIn: function(keyPath) {
-    invariant(size(keyPath) > 0, 'Requires non-empty key path.');
+    invariant(keyPathLength(keyPath) > 0, 'Requires non-empty key path.');
     return this.updateIn(keyPath, (function() {
       return NOT_SET;
     }));
@@ -1231,7 +1231,7 @@ var $Map = Map;
       updater = notSetValue;
       notSetValue = undefined;
     }
-    return size(keyPath) === 0 ? updater(this) : updateInDeepMap(this, keyPath, notSetValue, updater, 0);
+    return keyPathLength(keyPath) === 0 ? updater(this) : updateInDeepMap(this, keyPath, notSetValue, updater, 0);
   },
   clear: function() {
     if (this.size === 0) {
@@ -1691,7 +1691,7 @@ function updateInDeepMap(collection, keyPath, notSetValue, updater, offset) {
   var key = isIterable(keyPath) ? keyPath.get(offset) : keyPath[offset];
   var existing = collection ? collection.get(key, NOT_SET) : NOT_SET;
   var existingValue = existing === NOT_SET ? undefined : existing;
-  var value = offset === size(keyPath) - 1 ? updater(existing === NOT_SET ? notSetValue : existing) : updateInDeepMap(existingValue, keyPath, notSetValue, updater, offset + 1);
+  var value = offset === keyPathLength(keyPath) - 1 ? updater(existing === NOT_SET ? notSetValue : existing) : updateInDeepMap(existingValue, keyPath, notSetValue, updater, offset + 1);
   return value === existingValue ? collection : value === NOT_SET ? collection && collection.remove(key) : (collection || emptyMap()).set(key, value);
 }
 function popCount(x) {
@@ -1741,7 +1741,7 @@ function spliceOut(array, idx, canEdit) {
   }
   return newArray;
 }
-function size(keyPath) {
+function keyPathLength(keyPath) {
   return isIterable(keyPath) ? keyPath.size : keyPath.length;
 }
 var MAX_BITMAP_SIZE = SIZE / 2;

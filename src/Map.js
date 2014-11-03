@@ -52,7 +52,7 @@ class Map extends KeyedCollection {
   }
 
   setIn(keyPath, v) {
-    invariant(size(keyPath) > 0, 'Requires non-empty key path.');
+    invariant(keyPathLength(keyPath) > 0, 'Requires non-empty key path.');
     return this.updateIn(keyPath, () => v);
   }
 
@@ -61,7 +61,7 @@ class Map extends KeyedCollection {
   }
 
   removeIn(keyPath) {
-    invariant(size(keyPath) > 0, 'Requires non-empty key path.');
+    invariant(keyPathLength(keyPath) > 0, 'Requires non-empty key path.');
     return this.updateIn(keyPath, () => NOT_SET);
   }
 
@@ -76,7 +76,7 @@ class Map extends KeyedCollection {
       updater = notSetValue;
       notSetValue = undefined;
     }
-    return size(keyPath) === 0 ?
+    return keyPathLength(keyPath) === 0 ?
       updater(this) :
       updateInDeepMap(this, keyPath, notSetValue, updater, 0);
   }
@@ -622,7 +622,7 @@ function updateInDeepMap(collection, keyPath, notSetValue, updater, offset) {
   var existing = collection ? collection.get(key, NOT_SET) : NOT_SET;
   var existingValue = existing === NOT_SET ? undefined : existing;
 
-  var value = offset === size(keyPath) - 1 ?
+  var value = offset === keyPathLength(keyPath) - 1 ?
     updater(existing === NOT_SET ? notSetValue : existing) :
     updateInDeepMap(
       existingValue,
@@ -688,7 +688,7 @@ function spliceOut(array, idx, canEdit) {
   return newArray;
 }
 
-function size(keyPath) {
+function keyPathLength(keyPath)  {
   return isIterable(keyPath) ? keyPath.size : keyPath.length;
 }
 

@@ -20,7 +20,7 @@ var Iterable = Immutable.Iterable;
 var Iterator = Iterable.Iterator;
 var Seq = Immutable.Seq;
 var Map = Immutable.Map;
-
+var isIterable = Iterable.isIterable;
 
 function cursorFrom(rootData, keyPath, onChange) {
   if (arguments.length === 1) {
@@ -28,7 +28,7 @@ function cursorFrom(rootData, keyPath, onChange) {
   } else if (typeof keyPath === 'function') {
     onChange = keyPath;
     keyPath = [];
-  } else if (!Array.isArray(keyPath)) {
+  } else if (!Array.isArray(keyPath) && !isIterable(keyPath)) {
     keyPath = [keyPath];
   }
   return makeCursor(rootData, keyPath, onChange);
@@ -198,11 +198,12 @@ function updateCursor(cursor, changeFn, changeKey) {
     changeFn
   );
   var keyPath = cursor._keyPath || [];
+  var newKeyPath = changeKey ? keyPath.concat(changeKey) : keyPath;
   cursor._onChange && cursor._onChange.call(
     undefined,
     newRootData,
     cursor._rootData,
-    changeKey ? keyPath.concat(changeKey) : keyPath
+    isIterable(newKeyPath) ? newKeyPath.toArray() : newKeyPath
   );
   return makeCursor(newRootData, cursor._keyPath, cursor._onChange);
 }
