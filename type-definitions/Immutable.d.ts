@@ -521,6 +521,7 @@ declare module 'immutable' {
      * Returns the value found by following a key path through nested Iterables.
      */
     getIn(searchKeyPath: Array<any>, notSetValue?: any): any;
+    getIn(searchKeyPath: IndexedIterable<T>, notSetValue?: any): any;
 
     /**
      * Returns a `KeyedIterable` of `KeyedIterables`, grouped by the return
@@ -1277,6 +1278,7 @@ declare module 'immutable' {
      * `keyPath` do not exist, a new immutable Map will be created at that key.
      */
     setIn(keyPath: Array<any>, value: V): Map<K, V>;
+    setIn(keyPath: IndexedIterable<T>, value: V): Map<K, V>;
 
     /**
      * Returns a new Map which excludes this `key`.
@@ -1293,6 +1295,7 @@ declare module 'immutable' {
      * that key.
      */
     removeIn(keyPath: Array<any>): Map<K, V>;
+    removeIn(keyPath: IndexedIterable<T>): Map<K, V>;
 
     /**
      * Returns a new Map containing no keys or values.
@@ -1328,6 +1331,15 @@ declare module 'immutable' {
     ): Map<K, V>;
     updateIn(
       keyPath: Array<any>,
+      notSetValue: any,
+      updater: (value: any) => any
+    ): Map<K, V>;
+    updateIn(
+      keyPath: IndexedIterable<T>,
+      updater: (value: any) => any
+    ): Map<K, V>;
+    updateIn(
+      keyPath: IndexedIterable<T>,
       notSetValue: any,
       updater: (value: any) => any
     ): Map<K, V>;
@@ -1692,6 +1704,7 @@ declare module 'immutable' {
      * `keyPath` do not exist, a new immutable Map will be created at that key.
      */
     setIn(keyPath: Array<any>, value: T): List<T>;
+    setIn(keyPath: IndexedIterable<T>, value: T): List<T>;
 
     /**
      * Returns a new List which excludes this `index`. It will not affect the
@@ -1712,6 +1725,7 @@ declare module 'immutable' {
      * that key.
      */
     removeIn(keyPath: Array<any>): List<T>;
+    removeIn(keyPath: IndexedIterable<T>): List<T>;
 
     /**
      * Returns a new List with 0 size and no values.
@@ -1777,6 +1791,15 @@ declare module 'immutable' {
       notSetValue: any,
       updater: (value: any) => any
     ): List<T>;
+    updateIn(
+      keyPath: IndexedIterable<T>,
+      updater: (value: any) => any
+    ): List<T>;
+    updateIn(
+      keyPath: IndexedIterable<T>,
+      notSetValue: any,
+      updater: (value: any) => any
+    ): List<T>;    
 
     /**
      * @see `Map.prototype.merge`

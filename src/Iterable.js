@@ -337,8 +337,11 @@ class Iterable {
   getIn(searchKeyPath, notSetValue) {
     var nested = this;
     if (searchKeyPath) {
-      for (var ii = 0; ii < searchKeyPath.length; ii++) {
-        nested = nested && nested.get ? nested.get(searchKeyPath[ii], NOT_SET) : NOT_SET;
+      var indexed = isIndexed(searchKeyPath);
+      var length = indexed ? searchKeyPath.size : searchKeyPath.length;
+      for (var ii = 0; ii < length; ii++) {
+        var key = indexed ? searchKeyPath.get(ii) : searchKeyPath[ii];
+        nested = nested && nested.get ? nested.get(key, NOT_SET) : NOT_SET;
         if (nested === NOT_SET) {
           return notSetValue;
         }
