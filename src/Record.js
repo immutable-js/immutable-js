@@ -22,7 +22,7 @@ class Record extends KeyedCollection {
       if (!(this instanceof RecordType)) {
         return new RecordType(values);
       }
-      this._map = arguments.length === 0 ? Map() : Map(values);
+      this._map = Map(values);
     };
 
     var keys = Object.keys(defaultValues);

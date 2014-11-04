@@ -29,10 +29,10 @@ class List extends IndexedCollection {
 
   constructor(value) {
     var empty = emptyList();
-    if (arguments.length === 0) {
+    if (value === null || value === undefined) {
       return empty;
     }
-    if (value && value.constructor === List) {
+    if (isList(value)) {
       return value;
     }
     value = Iterable(value);

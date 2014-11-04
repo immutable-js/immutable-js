@@ -20,9 +20,9 @@ import "Iterator"
 
 class Seq extends Iterable {
   constructor(value) {
-    return arguments.length === 0 ? emptySequence() : (
-      isIterable(value) ? value : seqFromValue(value, false)
-    ).toSeq();
+    return value === null || value === undefined ?
+      emptySequence() :
+      (isIterable(value) ? value : seqFromValue(value, false)).toSeq();
   }
 
   static of(/*...values*/) {
@@ -60,7 +60,7 @@ class Seq extends Iterable {
 
 class KeyedSeq extends Seq {
   constructor(value) {
-    if (arguments.length === 0) {
+    if (value === null || value === undefined) {
       return emptySequence().toKeyedSeq();
     }
     if (!isIterable(value)) {
@@ -85,9 +85,9 @@ mixin(KeyedSeq, KeyedIterable.prototype);
 
 class IndexedSeq extends Seq {
   constructor(value) {
-    return arguments.length === 0 ? emptySequence() : (
-      isIterable(value) ? value : seqFromValue(value, false)
-    ).toIndexedSeq();
+    return value === null || value === undefined ?
+      emptySequence() :
+      (isIterable(value) ? value : seqFromValue(value, false)).toIndexedSeq();
   }
 
   static of(/*...values*/) {
@@ -114,9 +114,9 @@ mixin(IndexedSeq, IndexedIterable.prototype);
 
 class SetSeq extends Seq {
   constructor(value) {
-    return arguments.length === 0 ? emptySequence().toSetSeq() : (
-      isIterable(value) ? value : seqFromValue(value, false)
-    ).toSetSeq();
+    return value === null || value === undefined ?
+      emptySequence().toSetSeq() :
+      (isIterable(value) ? value : seqFromValue(value, false)).toSetSeq();
   }
 
   static of(/*...values*/) {

@@ -28,8 +28,8 @@ class Map extends KeyedCollection {
   // @pragma Construction
 
   constructor(value) {
-    return arguments.length === 0 ? emptyMap() :
-      value && value.constructor === Map ? value :
+    return value === null || value === undefined ? emptyMap() :
+      isMap(value) ? value :
       emptyMap().merge(KeyedIterable(value));
   }
 

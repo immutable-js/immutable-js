@@ -35,8 +35,7 @@ import "Iterator"
 class Iterable {
 
   constructor(value) {
-    return isIterable(value) ? value :
-      Seq.apply(undefined, arguments);
+    return isIterable(value) ? value : Seq(value);
   }
 
   // ### Conversion to other types
@@ -516,8 +515,7 @@ IterablePrototype.chain = IterablePrototype.flatMap;
 class KeyedIterable extends Iterable {
 
   constructor(value) {
-    return isKeyed(value) ? value :
-      KeyedSeq.apply(undefined, arguments);
+    return isKeyed(value) ? value : KeyedSeq(value);
   }
 
 
@@ -579,8 +577,7 @@ KeyedIterablePrototype.__toStringMapper = (v, k) => k + ': ' + quoteString(v);
 class IndexedIterable extends Iterable {
 
   constructor(value) {
-    return isIndexed(value) ? value :
-      IndexedSeq.apply(undefined, arguments);
+    return isIndexed(value) ? value : IndexedSeq(value);
   }
 
 
@@ -722,8 +719,7 @@ IndexedIterable.prototype[IS_INDEXED_SENTINEL] = true;
 class SetIterable extends Iterable {
 
   constructor(value) {
-    return isIterable(value) && !isAssociative(value) ? value :
-      SetSeq.apply(undefined, arguments);
+    return isIterable(value) && !isAssociative(value) ? value : SetSeq(value);
   }
 
 

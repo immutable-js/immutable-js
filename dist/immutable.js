@@ -276,7 +276,7 @@ function _iteratorFn(iterable) {
   }
 }
 var Iterable = function Iterable(value) {
-  return isIterable(value) ? value : Seq.apply(undefined, arguments);
+  return isIterable(value) ? value : Seq(value);
 };
 var $Iterable = Iterable;
 ($traceurRuntime.createClass)(Iterable, {
@@ -644,7 +644,7 @@ IterablePrototype.chain = IterablePrototype.flatMap;
   } catch (e) {}
 })();
 var KeyedIterable = function KeyedIterable(value) {
-  return isKeyed(value) ? value : KeyedSeq.apply(undefined, arguments);
+  return isKeyed(value) ? value : KeyedSeq(value);
 };
 ($traceurRuntime.createClass)(KeyedIterable, {
   flip: function() {
@@ -693,7 +693,7 @@ KeyedIterablePrototype.__toStringMapper = (function(v, k) {
   return k + ': ' + quoteString(v);
 });
 var IndexedIterable = function IndexedIterable(value) {
-  return isIndexed(value) ? value : IndexedSeq.apply(undefined, arguments);
+  return isIndexed(value) ? value : IndexedSeq(value);
 };
 ($traceurRuntime.createClass)(IndexedIterable, {
   toKeyedSeq: function() {
@@ -794,7 +794,7 @@ var IndexedIterable = function IndexedIterable(value) {
 }, {}, Iterable);
 IndexedIterable.prototype[IS_INDEXED_SENTINEL] = true;
 var SetIterable = function SetIterable(value) {
-  return isIterable(value) && !isAssociative(value) ? value : SetSeq.apply(undefined, arguments);
+  return isIterable(value) && !isAssociative(value) ? value : SetSeq(value);
 };
 ($traceurRuntime.createClass)(SetIterable, {
   get: function(value, notSetValue) {
@@ -856,7 +856,7 @@ function mixin(ctor, methods) {
   return ctor;
 }
 var Seq = function Seq(value) {
-  return arguments.length === 0 ? emptySequence() : (isIterable(value) ? value : seqFromValue(value, false)).toSeq();
+  return value === null || value === undefined ? emptySequence() : (isIterable(value) ? value : seqFromValue(value, false)).toSeq();
 };
 var $Seq = Seq;
 ($traceurRuntime.createClass)(Seq, {
@@ -883,7 +883,7 @@ var $Seq = Seq;
     return $Seq(arguments);
   }}, Iterable);
 var KeyedSeq = function KeyedSeq(value) {
-  if (arguments.length === 0) {
+  if (value === null || value === undefined) {
     return emptySequence().toKeyedSeq();
   }
   if (!isIterable(value)) {
@@ -904,7 +904,7 @@ var $KeyedSeq = KeyedSeq;
   }}, Seq);
 mixin(KeyedSeq, KeyedIterable.prototype);
 var IndexedSeq = function IndexedSeq(value) {
-  return arguments.length === 0 ? emptySequence() : (isIterable(value) ? value : seqFromValue(value, false)).toIndexedSeq();
+  return value === null || value === undefined ? emptySequence() : (isIterable(value) ? value : seqFromValue(value, false)).toIndexedSeq();
 };
 var $IndexedSeq = IndexedSeq;
 ($traceurRuntime.createClass)(IndexedSeq, {
@@ -925,7 +925,7 @@ var $IndexedSeq = IndexedSeq;
   }}, Seq);
 mixin(IndexedSeq, IndexedIterable.prototype);
 var SetSeq = function SetSeq(value) {
-  return arguments.length === 0 ? emptySequence().toSetSeq() : (isIterable(value) ? value : seqFromValue(value, false)).toSetSeq();
+  return value === null || value === undefined ? emptySequence().toSetSeq() : (isIterable(value) ? value : seqFromValue(value, false)).toSetSeq();
 };
 var $SetSeq = SetSeq;
 ($traceurRuntime.createClass)(SetSeq, {toSetSeq: function() {
@@ -1192,9 +1192,8 @@ Collection.Keyed = KeyedCollection;
 Collection.Indexed = IndexedCollection;
 Collection.Set = SetCollection;
 var Map = function Map(value) {
-  return arguments.length === 0 ? emptyMap() : value && value.constructor === $Map ? value : emptyMap().merge(KeyedIterable(value));
+  return value === null || value === undefined ? emptyMap() : isMap(value) ? value : emptyMap().merge(KeyedIterable(value));
 };
-var $Map = Map;
 ($traceurRuntime.createClass)(Map, {
   toString: function() {
     return this.__toString('Map {', '}');
@@ -2362,10 +2361,10 @@ function cacheResultThrough() {
 }
 var List = function List(value) {
   var empty = emptyList();
-  if (arguments.length === 0) {
+  if (value === null || value === undefined) {
     return empty;
   }
-  if (value && value.constructor === $List) {
+  if (isList(value)) {
     return value;
   }
   value = Iterable(value);
@@ -2378,7 +2377,6 @@ var List = function List(value) {
   }
   return empty.merge(value);
 };
-var $List = List;
 ($traceurRuntime.createClass)(List, {
   toString: function() {
     return this.__toString('List [', ']');
@@ -2870,7 +2868,7 @@ function getTailOffset(size) {
   return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
 }
 var Stack = function Stack(value) {
-  return arguments.length === 0 ? emptyStack() : value && value.constructor === $Stack ? value : emptyStack().unshiftAll(value);
+  return value === null || value === undefined ? emptyStack() : isStack(value) ? value : emptyStack().unshiftAll(value);
 };
 var $Stack = Stack;
 ($traceurRuntime.createClass)(Stack, {
@@ -3047,9 +3045,8 @@ function emptyStack() {
   return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
 }
 var Set = function Set(value) {
-  return arguments.length === 0 ? emptySet() : value && value.constructor === $Set ? value : emptySet().union(value);
+  return value === null || value === undefined ? emptySet() : isSet(value) ? value : emptySet().union(value);
 };
-var $Set = Set;
 ($traceurRuntime.createClass)(Set, {
   toString: function() {
     return this.__toString('Set {', '}');
@@ -3209,9 +3206,8 @@ function emptySet() {
   return EMPTY_SET || (EMPTY_SET = makeSet(emptyMap()));
 }
 var OrderedMap = function OrderedMap(value) {
-  return arguments.length === 0 ? emptyOrderedMap() : value && value.constructor === $OrderedMap ? value : emptyOrderedMap().merge(KeyedIterable(value));
+  return value === null || value === undefined ? emptyOrderedMap() : isOrderedMap(value) ? value : emptyOrderedMap().merge(KeyedIterable(value));
 };
-var $OrderedMap = OrderedMap;
 ($traceurRuntime.createClass)(OrderedMap, {
   toString: function() {
     return this.__toString('OrderedMap {', '}');
@@ -3315,7 +3311,7 @@ var Record = function Record(defaultValues, name) {
     if (!(this instanceof RecordType)) {
       return new RecordType(values);
     }
-    this._map = arguments.length === 0 ? Map() : Map(values);
+    this._map = Map(values);
   };
   var keys = Object.keys(defaultValues);
   var RecordTypePrototype = RecordType.prototype = Object.create(RecordPrototype);

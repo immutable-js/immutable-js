@@ -20,8 +20,8 @@ class OrderedMap extends Map {
   // @pragma Construction
 
   constructor(value) {
-    return arguments.length === 0 ? emptyOrderedMap() :
-      value && value.constructor === OrderedMap ? value :
+    return value === null || value === undefined ? emptyOrderedMap() :
+      isOrderedMap(value) ? value :
       emptyOrderedMap().merge(KeyedIterable(value));
   }
 

@@ -25,8 +25,8 @@ class Stack extends IndexedCollection {
   // @pragma Construction
 
   constructor(value) {
-    return arguments.length === 0 ? emptyStack() :
-      value && value.constructor === Stack ? value :
+    return value === null || value === undefined ? emptyStack() :
+      isStack(value) ? value :
       emptyStack().unshiftAll(value);
   }
 

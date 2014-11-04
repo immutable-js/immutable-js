@@ -21,8 +21,8 @@ class Set extends SetCollection {
   // @pragma Construction
 
   constructor(value) {
-    return arguments.length === 0 ? emptySet() :
-      value && value.constructor === Set ? value :
+    return value === null || value === undefined ? emptySet() :
+      isSet(value) ? value :
       emptySet().union(value);
   }
 
