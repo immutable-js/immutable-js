@@ -23,7 +23,7 @@ describe('concat', () => {
     })
   })
 
-  it.only('concats two sequences', () => {
+  it('concats two sequences', () => {
     var a = Seq.of(1,2,3);
     var b = Seq.of(4,5,6);
     expect(a.concat(b)).is(Seq.of(1,2,3,4,5,6))
