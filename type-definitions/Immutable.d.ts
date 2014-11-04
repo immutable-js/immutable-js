@@ -88,22 +88,22 @@ declare module 'immutable' {
     /**
      * True if `maybeIterable` is an Iterable, or any of its subclasses.
      */
-    function isIterable(maybeIterable): boolean;
+    function isIterable(maybeIterable: any): boolean;
 
     /**
      * True if `maybeKeyed` is a KeyedIterable, or any of its subclasses.
      */
-    function isKeyed(maybeKeyed): boolean;
+    function isKeyed(maybeKeyed: any): boolean;
 
     /**
      * True if `maybeIndexed` is a IndexedIterable, or any of its subclasses.
      */
-    function isIndexed(maybeIndexed): boolean;
+    function isIndexed(maybeIndexed: any): boolean;
 
     /**
      * True if `maybeAssociative` is either a keyed or indexed Iterable.
      */
-    function isAssociative(maybeAssociative): boolean;
+    function isAssociative(maybeAssociative: any): boolean;
   }
 
   /**
@@ -1014,7 +1014,7 @@ declare module 'immutable' {
      * True if `maybeSeq` is a Seq, it is not backed by a concrete
      * structure such as Map, List, or Set.
      */
-    function isSeq(maybeSeq): boolean;
+    function isSeq(maybeSeq: any): boolean;
 
     /**
      * Returns a Seq of the values provided. Alias for `IndexedSeq.of()`.
