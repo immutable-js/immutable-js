@@ -69,7 +69,7 @@ class OrderedMap extends Map {
 
   __iterate(fn, reverse) {
     return this._list.__iterate(
-      entry => fn(entry[1], entry[0], this),
+      entry => entry && fn(entry[1], entry[0], this),
       reverse
     );
   }
@@ -135,7 +135,7 @@ function updateOrderedMap(omap, k, v) {
     i = list.size;
   }
   var newMap = removed ? map.remove(k) : has ? map : map.set(k, i);
-  var newList = removed ? list.remove(i) : list.set(i, [k, v]);
+  var newList = removed ? list.set(i, undefined) : list.set(i, [k, v]);
   if (omap.__ownerID) {
     omap.size = newMap.size;
     omap._map = newMap;

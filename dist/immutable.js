@@ -3240,7 +3240,7 @@ var OrderedMap = function OrderedMap(value) {
   __iterate: function(fn, reverse) {
     var $__0 = this;
     return this._list.__iterate((function(entry) {
-      return fn(entry[1], entry[0], $__0);
+      return entry && fn(entry[1], entry[0], $__0);
     }), reverse);
   },
   __iterator: function(type, reverse) {
@@ -3296,7 +3296,7 @@ function updateOrderedMap(omap, k, v) {
     i = list.size;
   }
   var newMap = removed ? map.remove(k) : has ? map : map.set(k, i);
-  var newList = removed ? list.remove(i) : list.set(i, [k, v]);
+  var newList = removed ? list.set(i, undefined) : list.set(i, [k, v]);
   if (omap.__ownerID) {
     omap.size = newMap.size;
     omap._map = newMap;
