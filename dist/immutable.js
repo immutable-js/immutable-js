@@ -3304,7 +3304,7 @@ function updateOrderedMap(omap, k, v) {
   return makeOrderedMap(newMap, newList);
 }
 var Record = function Record(defaultValues, name) {
-  var RecordType = function(values) {
+  var RecordType = function Record(values) {
     if (!(this instanceof RecordType)) {
       return new RecordType(values);
     }
@@ -3318,7 +3318,7 @@ var Record = function Record(defaultValues, name) {
   RecordTypePrototype._keys = keys;
   RecordTypePrototype.size = keys.length;
   try {
-    KeyedIterable(defaultValues).forEach((function(_, key) {
+    keys.forEach((function(key) {
       Object.defineProperty(RecordType.prototype, key, {
         get: function() {
           return this.get(key);
@@ -3334,7 +3334,7 @@ var Record = function Record(defaultValues, name) {
 };
 ($traceurRuntime.createClass)(Record, {
   toString: function() {
-    return this.__toString(this._name + ' {', '}');
+    return this.__toString(recordName(this) + ' {', '}');
   },
   has: function(k) {
     return this._defaultValues.hasOwnProperty(k);
@@ -3343,11 +3343,12 @@ var Record = function Record(defaultValues, name) {
     if (notSetValue !== undefined && !this.has(k)) {
       return notSetValue;
     }
-    return this._map.get(k, this._defaultValues[k]);
+    var defaultVal = this._defaultValues[k];
+    return this._map ? this._map.get(k, defaultVal) : defaultVal;
   },
   clear: function() {
     if (this.__ownerID) {
-      this._map.clear();
+      this._map && this._map.clear();
       return this;
     }
     var SuperRecord = Object.getPrototypeOf(this).constructor;
@@ -3355,9 +3356,9 @@ var Record = function Record(defaultValues, name) {
   },
   set: function(k, v) {
     if (!this.has(k)) {
-      throw new Error('Cannot set unknown key "' + k + '" on ' + this._name);
+      throw new Error('Cannot set unknown key "' + k + '" on ' + recordName(this));
     }
-    var newMap = this._map.set(k, v);
+    var newMap = this._map && this._map.set(k, v);
     if (this.__ownerID || newMap === this._map) {
       return this;
     }
@@ -3367,26 +3368,20 @@ var Record = function Record(defaultValues, name) {
     if (!this.has(k)) {
       return this;
     }
-    var newMap = this._map.remove(k);
+    var newMap = this._map && this._map.remove(k);
     if (this.__ownerID || newMap === this._map) {
       return this;
     }
     return makeRecord(this, newMap);
   },
-  keys: function() {
-    return this._map.keys();
-  },
-  values: function() {
-    return this._map.values();
-  },
-  entries: function() {
-    return this._map.entries();
-  },
   wasAltered: function() {
     return this._map.wasAltered();
   },
   __iterator: function(type, reverse) {
-    return this._map.__iterator(type, reverse);
+    var $__0 = this;
+    return KeyedIterable(this._defaultValues).map((function(_, k) {
+      return $__0.get(k);
+    })).__iterator(type, reverse);
   },
   __iterate: function(fn, reverse) {
     var $__0 = this;
@@ -3408,7 +3403,6 @@ var Record = function Record(defaultValues, name) {
   }
 }, {}, KeyedCollection);
 var RecordPrototype = Record.prototype;
-RecordPrototype._name = 'Record';
 RecordPrototype[DELETE] = RecordPrototype.remove;
 RecordPrototype.merge = MapPrototype.merge;
 RecordPrototype.mergeWith = MapPrototype.mergeWith;
@@ -3424,6 +3418,9 @@ function makeRecord(likeRecord, map, ownerID) {
   record._map = map;
   record.__ownerID = ownerID;
   return record;
+}
+function recordName(record) {
+  return record._name || record.constructor.name;
 }
 var Range = function Range(start, end, step) {
   if (!(this instanceof $Range)) {

@@ -1492,8 +1492,9 @@ declare module 'immutable' {
    * Record
    * ------
    *
-   * Creates a new Class which produces maps with a specific set of allowed string
-   * keys and have default values.
+   * Creates a new Class which produces Record instances. A record is similar to
+   * a JS object, but enforce a specific set of allowed string keys, and have
+   * default values.
    *
    *     var ABRecord = Record({a:1, b:2})
    *     var myRecord = new ABRecord({b:3})
@@ -1506,15 +1507,19 @@ declare module 'immutable' {
    *     myRecordWithoutB.get('b') // 2
    *     myRecordWithoutB.size // 2
    *
-   * Because Records have a known set of string keys, property get access works as
-   * expected, however property sets will throw an Error.
+   * Because Records have a known set of string keys, property get access works
+   * as expected, however property sets will throw an Error.
+   *
+   * Note: IE8 does not support property access.
    *
    *     myRecord.b // 3
    *     myRecord.b = 5 // throws Error
    *
    * Record Classes can be extended as well, allowing for custom methods on your
-   * Record. This isn't how things are done in functional environments, but is a
-   * common pattern in many JS programs.
+   * Record. This is not a common pattern in functional environments, but is in
+   * many JS programs.
+   *
+   * Note: TypeScript does not support this type of subclassing.
    *
    *     class ABRecord extends Record({a:1,b:2}) {
    *       getAB() {
@@ -1526,13 +1531,14 @@ declare module 'immutable' {
    *     myRecord.getAB() // 4
    *
    */
-  export function Record(defaultValues: Iterable<string, any>, name?: string): RecordClass;
-  export function Record(defaultValues: {[key: string]: any}, name?: string): RecordClass;
+  export function Record(
+    defaultValues: {[key: string]: any}, name?: string
+  ): RecordType;
 
-  export interface RecordClass {
+  export interface RecordType {
     new (): Map<string, any>;
-    new (values: Iterable<string, any>): Map<string, any>;
     new (values: {[key: string]: any}): Map<string, any>;
+    new (values: Iterable<string, any>): Map<string, any>; // deprecated
   }
 
 
