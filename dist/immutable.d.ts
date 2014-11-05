@@ -64,7 +64,11 @@ declare module 'immutable' {
    * If `reviver` is not provided, the default behavior will convert Arrays into
    * Lists and Objects into Maps.
    *
-   * Note: `reviver` acts similarly to [`JSON.parse`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Example.3A_Using_the_reviver_parameter).
+   * `reviver` acts similarly to [`JSON.parse`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Example.3A_Using_the_reviver_parameter).
+   *
+   * `Immutable.fromJS` is conservative in it's conversion. It will only convert
+   * arrays which pass `Array.isArray` to Lists, and only raw objects (no custom
+   * prototype) to Map.
    */
   export function fromJS(
     json: any,
@@ -110,9 +114,9 @@ declare module 'immutable' {
    * `Immutable.Iterable()` returns a particular kind of Iterable based
    * on the input.
    *
-   *   * If a `Iterable`, that same `Iterable`.
+   *   * If an `Iterable`, that same `Iterable`.
    *   * If an Array-like, an `IndexedIterable`.
-   *   * If an Iterable, an `IndexedIterable`.
+   *   * If an Object with an Iterator, an `IndexedIterable`.
    *   * If an Iterator, an `IndexedIterable`.
    *   * If an Object, a `KeyedIterable`.
    *
@@ -835,12 +839,12 @@ declare module 'immutable' {
    */
 
   /**
-   * Similar to `Iterable()`, but always returns an IndexedIterable, discarding
-   * associated keys, and replacing them with incrementing indices.
+   * Similar to `Iterable()`, but always returns an IndexedIterable.
    */
-  export function IndexedIterable<T>(iter: Iterable<any, T>): IndexedIterable<T>;
+  export function IndexedIterable<T>(iter: IndexedIterable<T>): IndexedIterable<T>;
+  export function IndexedIterable<T>(iter: SetIterable<T>): IndexedIterable<T>;
+  export function IndexedIterable<K, V>(iter: KeyedIterable<K, V>): IndexedIterable</*[K,V]*/any>;
   export function IndexedIterable<T>(array: Array<T>): IndexedIterable<T>;
-  export function IndexedIterable<T>(obj: {[key: string]: T}): IndexedIterable<T>;
   export function IndexedIterable<T>(iterator: Iterator<T>): IndexedIterable<T>;
   export function IndexedIterable<T>(iterable: /*Iterable<T>*/Object): IndexedIterable<T>;
 
@@ -947,12 +951,12 @@ declare module 'immutable' {
    */
 
   /**
-   * Similar to `Iterable()`, but always returns a SetIterable, discarding
-   * associated keys or indices.
+   * Similar to `Iterable()`, but always returns a SetIterable.
    */
-  export function SetIterable<T>(iter: Iterable<any, T>): SetIterable<T>;
+  export function SetIterable<T>(iter: SetIterable<T>): SetIterable<T>;
+  export function SetIterable<T>(iter: IndexedIterable<T>): SetIterable<T>;
+  export function SetIterable<K, V>(iter: KeyedIterable<K, V>): SetIterable</*[K,V]*/any>;
   export function SetIterable<T>(array: Array<T>): SetIterable<T>;
-  export function SetIterable<T>(obj: {[key: string]: T}): SetIterable<T>;
   export function SetIterable<T>(iterator: Iterator<T>): SetIterable<T>;
   export function SetIterable<T>(iterable: /*Iterable<T>*/Object): SetIterable<T>;
 
@@ -1027,11 +1031,11 @@ declare module 'immutable' {
    * on the input.
    *
    *   * If a `Seq`, that same `Seq`.
-   *   * If a `Iterable`, a `Seq` of the same kind.
-   *   * If an Array, an `IndexedSeq`.
-   *   * If object with an iterator, an `IndexedSeq`.
-   *   * If an iterator, an `IndexedSeq`.
-   *   * If a plain Object, a `KeyedSeq`.
+   *   * If an `Iterable`, a `Seq` of the same kind (Keyed, Indexed, or Set).
+   *   * If an Array-like, an `IndexedSeq`.
+   *   * If an Object with an Iterator, an `IndexedSeq`.
+   *   * If an Iterator, an `IndexedSeq`.
+   *   * If an Object, a `KeyedSeq`.
    *
    */
   export function Seq<K, V>(): Seq<K, V>;
@@ -1111,9 +1115,10 @@ declare module 'immutable' {
    * supplying incrementing indices.
    */
   export function IndexedSeq<T>(): IndexedSeq<T>;
-  export function IndexedSeq<T>(seq: Iterable<any, T>): IndexedSeq<T>;
+  export function IndexedSeq<T>(seq: IndexedIterable<T>): IndexedSeq<T>;
+  export function IndexedSeq<T>(seq: SetIterable<T>): IndexedSeq<T>;
+  export function IndexedSeq<K, V>(seq: KeyedIterable<K, V>): IndexedSeq</*[K,V]*/any>;
   export function IndexedSeq<T>(array: Array<T>): IndexedSeq<T>;
-  export function IndexedSeq<T>(obj: {[key: string]: T}): IndexedSeq<T>;
   export function IndexedSeq<T>(iterator: Iterator<T>): IndexedSeq<T>;
   export function IndexedSeq<T>(iterable: /*Iterable<T>*/Object): IndexedSeq<T>;
 
@@ -1137,9 +1142,10 @@ declare module 'immutable' {
    * Always returns a SetSeq, discarding associated indices or keys.
    */
   export function SetSeq<T>(): SetSeq<T>;
-  export function SetSeq<T>(seq: Iterable<any, T>): SetSeq<T>;
+  export function SetSeq<T>(seq: SetIterable<T>): SetSeq<T>;
+  export function SetSeq<T>(seq: IndexedIterable<T>): SetSeq<T>;
+  export function SetSeq<K, V>(seq: KeyedIterable<K, V>): SetSeq</*[K,V]*/any>;
   export function SetSeq<T>(array: Array<T>): SetSeq<T>;
-  export function SetSeq<T>(obj: {[key: string]: T}): SetSeq<T>;
   export function SetSeq<T>(iterator: Iterator<T>): SetSeq<T>;
   export function SetSeq<T>(iterable: /*Iterable<T>*/Object): SetSeq<T>;
 

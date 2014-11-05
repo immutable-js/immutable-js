@@ -12,7 +12,7 @@ import "Collection"
 import "Seq"
 import "Map"
 import "TrieUtils"
-/* global Iterable, SetCollection, KeyedSeq, MapPrototype, emptyMap, DELETE */
+/* global SetIterable, SetCollection, KeyedSeq, MapPrototype, emptyMap, DELETE */
 /* exported Set */
 
 
@@ -31,7 +31,7 @@ class Set extends SetCollection {
   }
 
   static fromKeys(value) {
-    return this(KeyedSeq(value).flip());
+    return this(KeyedSeq(value).flip().valueSeq());
   }
 
   toString() {
@@ -87,7 +87,7 @@ class Set extends SetCollection {
     }
     return this.withMutations(set => {
       for (var ii = 0; ii < iters.length; ii++) {
-        Iterable(iters[ii]).forEach(value => set.add(value));
+        SetIterable(iters[ii]).forEach(value => set.add(value));
       }
     });
   }
@@ -96,7 +96,7 @@ class Set extends SetCollection {
     if (iters.length === 0) {
       return this;
     }
-    iters = iters.map(iter => Iterable(iter));
+    iters = iters.map(iter => SetIterable(iter));
     var originalSet = this;
     return this.withMutations(set => {
       originalSet.forEach(value => {
@@ -111,7 +111,7 @@ class Set extends SetCollection {
     if (iters.length === 0) {
       return this;
     }
-    iters = iters.map(iter => Iterable(iter));
+    iters = iters.map(iter => SetIterable(iter));
     var originalSet = this;
     return this.withMutations(set => {
       originalSet.forEach(value => {

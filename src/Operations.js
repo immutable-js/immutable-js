@@ -18,7 +18,7 @@ import "Map"
           Iterator, iteratorValue, iteratorDone,
           ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES,
           isSeq, Seq, KeyedSeq, SetSeq, IndexedSeq,
-          seqFromValue, ArraySeq,
+          keyedSeqFromValue, indexedSeqFromValue, ArraySeq,
           Map */
 /* exported reify, ToKeyedSequence, ToIndexedSequence, ToSetSequence,
             FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
@@ -541,18 +541,19 @@ function skipWhileFactory(iterable, predicate, context, useKeys) {
 }
 
 
-function concatFactory(iterable, values, useKeys) {
-  var isKeyedIter = isKeyed(iterable);
+function concatFactory(iterable, values) {
+  var isKeyedIterable = isKeyed(iterable);
   var iters = new ArraySeq([iterable].concat(values)).map(v => {
     if (!isIterable(v)) {
-      v = seqFromValue(v, true);
-    }
-    if (isKeyedIter) {
+      v = isKeyedIterable ?
+        keyedSeqFromValue(v) :
+        indexedSeqFromValue(Array.isArray(v) ? v : [v]);
+    } else if (isKeyedIterable) {
       v = KeyedIterable(v);
     }
     return v;
   });
-  if (isKeyedIter) {
+  if (isKeyedIterable) {
     iters = iters.toKeyedSeq();
   } else if (!isIndexed(iterable)) {
     iters = iters.toSetSeq();

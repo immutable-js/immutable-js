@@ -13,7 +13,7 @@ import "Collection"
 import "Map"
 import "Iterator"
 /* global wholeSlice, resolveBegin, resolveEnd,
-          Iterable,
+          IndexedIterable,
           IndexedCollection,
           MapPrototype,
           Iterator, iteratorValue, iteratorDone */
@@ -77,7 +77,7 @@ class Stack extends IndexedCollection {
   }
 
   pushAll(iter) {
-    iter = Iterable(iter);
+    iter = IndexedIterable(iter);
     if (iter.size === 0) {
       return this;
     }

@@ -96,9 +96,6 @@ function wrapIndex(iter, index) {
 function returnTrue() {
   return true;
 }
-function isPlainObj(value) {
-  return value && value.constructor === Object;
-}
 function wholeSlice(begin, end, size) {
   return (begin === 0 || (size !== undefined && begin <= -size)) && (end === undefined || (size !== undefined && end >= size));
 }
@@ -317,21 +314,21 @@ var $Iterable = Iterable;
   },
   toSet: function() {
     assertNotInfinite(this.size);
-    return Set(this);
+    return Set(isKeyed(this) ? this.valueSeq() : this);
   },
   toSetSeq: function() {
-    return new ToSetSequence(this, true);
+    return new ToSetSequence(this);
   },
   toSeq: function() {
     return isIndexed(this) ? this.toIndexedSeq() : isKeyed(this) ? this.toKeyedSeq() : this.toSetSeq();
   },
   toStack: function() {
     assertNotInfinite(this.size);
-    return Stack(this);
+    return Stack(isKeyed(this) ? this.valueSeq() : this);
   },
   toList: function() {
     assertNotInfinite(this.size);
-    return List(this);
+    return List(isKeyed(this) ? this.valueSeq() : this);
   },
   toString: function() {
     return '[Iterable]';
@@ -346,7 +343,7 @@ var $Iterable = Iterable;
     for (var values = [],
         $__2 = 0; $__2 < arguments.length; $__2++)
       values[$__2] = arguments[$__2];
-    return reify(this, concatFactory(this, values, true));
+    return reify(this, concatFactory(this, values));
   },
   contains: function(searchValue) {
     return this.some((function(value) {
@@ -699,12 +696,6 @@ var IndexedIterable = function IndexedIterable(value) {
   toKeyedSeq: function() {
     return new ToKeyedSequence(this, false);
   },
-  concat: function() {
-    for (var values = [],
-        $__3 = 0; $__3 < arguments.length; $__3++)
-      values[$__3] = arguments[$__3];
-    return reify(this, concatFactory(this, values, false));
-  },
   filter: function(predicate, context) {
     return reify(this, filterFactory(this, predicate, context, false));
   },
@@ -856,7 +847,7 @@ function mixin(ctor, methods) {
   return ctor;
 }
 var Seq = function Seq(value) {
-  return value === null || value === undefined ? emptySequence() : (isIterable(value) ? value : seqFromValue(value, false)).toSeq();
+  return value === null || value === undefined ? emptySequence() : isIterable(value) ? value.toSeq() : seqFromValue(value);
 };
 var $Seq = Seq;
 ($traceurRuntime.createClass)(Seq, {
@@ -883,13 +874,7 @@ var $Seq = Seq;
     return $Seq(arguments);
   }}, Iterable);
 var KeyedSeq = function KeyedSeq(value) {
-  if (value === null || value === undefined) {
-    return emptySequence().toKeyedSeq();
-  }
-  if (!isIterable(value)) {
-    value = seqFromValue(value, false);
-  }
-  return isKeyed(value) ? value.toSeq() : value.fromEntrySeq();
+  return value === null || value === undefined ? emptySequence().toKeyedSeq() : isIterable(value) ? (isKeyed(value) ? value.toSeq() : value.fromEntrySeq()) : keyedSeqFromValue(value);
 };
 var $KeyedSeq = KeyedSeq;
 ($traceurRuntime.createClass)(KeyedSeq, {
@@ -904,7 +889,7 @@ var $KeyedSeq = KeyedSeq;
   }}, Seq);
 mixin(KeyedSeq, KeyedIterable.prototype);
 var IndexedSeq = function IndexedSeq(value) {
-  return value === null || value === undefined ? emptySequence() : (isIterable(value) ? value : seqFromValue(value, false)).toIndexedSeq();
+  return value === null || value === undefined ? emptySequence() : !isIterable(value) ? indexedSeqFromValue(value) : isKeyed(value) ? value.entrySeq() : value.toIndexedSeq();
 };
 var $IndexedSeq = IndexedSeq;
 ($traceurRuntime.createClass)(IndexedSeq, {
@@ -925,7 +910,7 @@ var $IndexedSeq = IndexedSeq;
   }}, Seq);
 mixin(IndexedSeq, IndexedIterable.prototype);
 var SetSeq = function SetSeq(value) {
-  return value === null || value === undefined ? emptySequence().toSetSeq() : (isIterable(value) ? value : seqFromValue(value, false)).toSetSeq();
+  return (value === null || value === undefined ? emptySequence() : !isIterable(value) ? indexedSeqFromValue(value) : isKeyed(value) ? value.entrySeq() : value).toSetSeq();
 };
 var $SetSeq = SetSeq;
 ($traceurRuntime.createClass)(SetSeq, {toSetSeq: function() {
@@ -1097,19 +1082,29 @@ var EMPTY_SEQ;
 function emptySequence() {
   return EMPTY_SEQ || (EMPTY_SEQ = new ArraySeq([]));
 }
-function maybeSeqFromValue(value, maybeSingleton) {
-  return (maybeSingleton && typeof value === 'string' ? undefined : isArrayLike(value) ? new ArraySeq(value) : isIterator(value) ? new IteratorSeq(value) : hasIterator(value) ? new IterableSeq(value) : (maybeSingleton ? isPlainObj(value) : typeof value === 'object') ? new ObjectSeq(value) : undefined);
-}
-function seqFromValue(value, maybeSingleton) {
-  var seq = maybeSeqFromValue(value, maybeSingleton);
-  if (seq === undefined) {
-    if (maybeSingleton) {
-      seq = new ArraySeq([value]);
-    } else {
-      throw new TypeError('Expected iterable: ' + value);
-    }
+function keyedSeqFromValue(value) {
+  var seq = Array.isArray(value) ? new ArraySeq(value).fromEntrySeq() : isIterator(value) ? new IteratorSeq(value).fromEntrySeq() : hasIterator(value) ? new IterableSeq(value).fromEntrySeq() : typeof value === 'object' ? new ObjectSeq(value) : undefined;
+  if (!seq) {
+    throw new TypeError('Expected Array or iterable object of [k, v] entries, ' + 'or keyed object: ' + value);
   }
   return seq;
+}
+function indexedSeqFromValue(value) {
+  var seq = maybeIndexedSeqFromValue(value);
+  if (!seq) {
+    throw new TypeError('Expected Array or iterable object of values: ' + value);
+  }
+  return seq;
+}
+function seqFromValue(value) {
+  var seq = maybeIndexedSeqFromValue(value) || (typeof value === 'object' && new ObjectSeq(value));
+  if (!seq) {
+    throw new TypeError('Expected Array or iterable object of values, or keyed object: ' + value);
+  }
+  return seq;
+}
+function maybeIndexedSeqFromValue(value) {
+  return (isArrayLike(value) ? new ArraySeq(value) : isIterator(value) ? new IteratorSeq(value) : hasIterator(value) ? new IterableSeq(value) : undefined);
 }
 function isArrayLike(value) {
   return value && typeof value.length === 'number';
@@ -1142,29 +1137,32 @@ function seqIterator(seq, type, reverse, useKeys) {
   return seq.__iteratorUncached(type, reverse);
 }
 function fromJS(json, converter) {
-  if (converter) {
-    return _fromJSWith(converter, json, '', {'': json});
-  }
-  return _fromJSDefault(json);
+  return converter ? _fromJSWith(converter, json, '', {'': json}) : _fromJSDefault(json);
 }
 function _fromJSWith(converter, json, key, parentJSON) {
-  if (Array.isArray(json) || isPlainObj(json)) {
-    return converter.call(parentJSON, key, Iterable(json).map((function(v, k) {
+  if (Array.isArray(json)) {
+    return converter.call(parentJSON, key, IndexedSeq(json).map((function(v, k) {
+      return _fromJSWith(converter, v, k, json);
+    })));
+  }
+  if (isPlainObj(json)) {
+    return converter.call(parentJSON, key, KeyedSeq(json).map((function(v, k) {
       return _fromJSWith(converter, v, k, json);
     })));
   }
   return json;
 }
 function _fromJSDefault(json) {
-  if (json && typeof json === 'object') {
-    if (Array.isArray(json)) {
-      return Iterable(json).map(_fromJSDefault).toList();
-    }
-    if (json.constructor === Object) {
-      return Iterable(json).map(_fromJSDefault).toMap();
-    }
+  if (Array.isArray(json)) {
+    return IndexedSeq(json).map(_fromJSDefault).toList();
+  }
+  if (isPlainObj(json)) {
+    return KeyedSeq(json).map(_fromJSDefault).toMap();
   }
   return json;
+}
+function isPlainObj(value) {
+  return value && value.constructor === Object;
 }
 var Collection = function Collection() {
   throw TypeError('Abstract');
@@ -1247,8 +1245,8 @@ var Map = function Map(value) {
   },
   mergeWith: function(merger) {
     for (var iters = [],
-        $__4 = 1; $__4 < arguments.length; $__4++)
-      iters[$__4 - 1] = arguments[$__4];
+        $__3 = 1; $__3 < arguments.length; $__3++)
+      iters[$__3 - 1] = arguments[$__3];
     return mergeIntoMapWith(this, merger, iters);
   },
   mergeDeep: function() {
@@ -1256,8 +1254,8 @@ var Map = function Map(value) {
   },
   mergeDeepWith: function(merger) {
     for (var iters = [],
-        $__5 = 1; $__5 < arguments.length; $__5++)
-      iters[$__5 - 1] = arguments[$__5];
+        $__4 = 1; $__4 < arguments.length; $__4++)
+      iters[$__4 - 1] = arguments[$__4];
     return mergeIntoMapWith(this, deepMerger(merger), iters);
   },
   withMutations: function(fn) {
@@ -2226,18 +2224,17 @@ function skipWhileFactory(iterable, predicate, context, useKeys) {
   };
   return skipSequence;
 }
-function concatFactory(iterable, values, useKeys) {
-  var isKeyedIter = isKeyed(iterable);
+function concatFactory(iterable, values) {
+  var isKeyedIterable = isKeyed(iterable);
   var iters = new ArraySeq([iterable].concat(values)).map((function(v) {
     if (!isIterable(v)) {
-      v = seqFromValue(v, true);
-    }
-    if (isKeyedIter) {
+      v = isKeyedIterable ? keyedSeqFromValue(v) : indexedSeqFromValue(Array.isArray(v) ? v : [v]);
+    } else if (isKeyedIterable) {
       v = KeyedIterable(v);
     }
     return v;
   }));
-  if (isKeyedIter) {
+  if (isKeyedIterable) {
     iters = iters.toKeyedSeq();
   } else if (!isIndexed(iterable)) {
     iters = iters.toSetSeq();
@@ -2367,7 +2364,7 @@ var List = function List(value) {
   if (isList(value)) {
     return value;
   }
-  value = Iterable(value);
+  value = IndexedIterable(value);
   var size = value.size;
   if (size === 0) {
     return empty;
@@ -2440,8 +2437,8 @@ var List = function List(value) {
   },
   mergeWith: function(merger) {
     for (var iters = [],
-        $__6 = 1; $__6 < arguments.length; $__6++)
-      iters[$__6 - 1] = arguments[$__6];
+        $__5 = 1; $__5 < arguments.length; $__5++)
+      iters[$__5 - 1] = arguments[$__5];
     return mergeIntoListWith(this, merger, iters);
   },
   mergeDeep: function() {
@@ -2449,8 +2446,8 @@ var List = function List(value) {
   },
   mergeDeepWith: function(merger) {
     for (var iters = [],
-        $__7 = 1; $__7 < arguments.length; $__7++)
-      iters[$__7 - 1] = arguments[$__7];
+        $__6 = 1; $__6 < arguments.length; $__6++)
+      iters[$__6 - 1] = arguments[$__6];
     return mergeIntoListWith(this, deepMerger(merger), iters);
   },
   setSize: function(size) {
@@ -2848,7 +2845,7 @@ function mergeIntoListWith(list, merger, iterables) {
   var maxSize = 0;
   for (var ii = 0; ii < iterables.length; ii++) {
     var value = iterables[ii];
-    var iter = Iterable(value);
+    var iter = IndexedIterable(value);
     if (iter.size > maxSize) {
       maxSize = iter.size;
     }
@@ -2907,7 +2904,7 @@ var $Stack = Stack;
     return makeStack(newSize, head);
   },
   pushAll: function(iter) {
-    iter = Iterable(iter);
+    iter = IndexedIterable(iter);
     if (iter.size === 0) {
       return this;
     }
@@ -3090,7 +3087,7 @@ var Set = function Set(value) {
     }
     return this.withMutations((function(set) {
       for (var ii = 0; ii < iters.length; ii++) {
-        Iterable(iters[ii]).forEach((function(value) {
+        SetIterable(iters[ii]).forEach((function(value) {
           return set.add(value);
         }));
       }
@@ -3098,13 +3095,13 @@ var Set = function Set(value) {
   },
   intersect: function() {
     for (var iters = [],
-        $__8 = 0; $__8 < arguments.length; $__8++)
-      iters[$__8] = arguments[$__8];
+        $__7 = 0; $__7 < arguments.length; $__7++)
+      iters[$__7] = arguments[$__7];
     if (iters.length === 0) {
       return this;
     }
     iters = iters.map((function(iter) {
-      return Iterable(iter);
+      return SetIterable(iter);
     }));
     var originalSet = this;
     return this.withMutations((function(set) {
@@ -3119,13 +3116,13 @@ var Set = function Set(value) {
   },
   subtract: function() {
     for (var iters = [],
-        $__9 = 0; $__9 < arguments.length; $__9++)
-      iters[$__9] = arguments[$__9];
+        $__8 = 0; $__8 < arguments.length; $__8++)
+      iters[$__8] = arguments[$__8];
     if (iters.length === 0) {
       return this;
     }
     iters = iters.map((function(iter) {
-      return Iterable(iter);
+      return SetIterable(iter);
     }));
     var originalSet = this;
     return this.withMutations((function(set) {
@@ -3143,8 +3140,8 @@ var Set = function Set(value) {
   },
   mergeWith: function(merger) {
     for (var iters = [],
-        $__10 = 1; $__10 < arguments.length; $__10++)
-      iters[$__10 - 1] = arguments[$__10];
+        $__9 = 1; $__9 < arguments.length; $__9++)
+      iters[$__9 - 1] = arguments[$__9];
     return this.union.apply(this, iters);
   },
   wasAltered: function() {
@@ -3178,7 +3175,7 @@ var Set = function Set(value) {
     return this(arguments);
   },
   fromKeys: function(value) {
-    return this(KeyedSeq(value).flip());
+    return this(KeyedSeq(value).flip().valueSeq());
   }
 }, SetCollection);
 function isSet(maybeSet) {
@@ -3321,7 +3318,7 @@ var Record = function Record(defaultValues, name) {
   RecordTypePrototype._keys = keys;
   RecordTypePrototype.size = keys.length;
   try {
-    Iterable(defaultValues).forEach((function(_, key) {
+    KeyedIterable(defaultValues).forEach((function(_, key) {
       Object.defineProperty(RecordType.prototype, key, {
         get: function() {
           return this.get(key);
@@ -3393,7 +3390,7 @@ var Record = function Record(defaultValues, name) {
   },
   __iterate: function(fn, reverse) {
     var $__0 = this;
-    return Iterable(this._defaultValues).map((function(_, k) {
+    return KeyedIterable(this._defaultValues).map((function(_, k) {
       return $__0.get(k);
     })).__iterate(fn, reverse);
   },

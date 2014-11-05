@@ -11,7 +11,7 @@ import "invariant"
 /* global invariant */
 /* exported DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER,
             OwnerID, MakeRef, SetRef, arrCopy, assertNotInfinite,
-            ensureSize, wrapIndex, returnTrue, isPlainObj,
+            ensureSize, wrapIndex, returnTrue,
             wholeSlice, resolveBegin, resolveEnd */
 
 
@@ -76,10 +76,6 @@ function wrapIndex(iter, index) {
 
 function returnTrue() {
   return true;
-}
-
-function isPlainObj(value) {
-  return value && value.constructor === Object;
 }
 
 function wholeSlice(begin, end, size) {

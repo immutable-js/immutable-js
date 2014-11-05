@@ -35,19 +35,19 @@ describe('Seq', () => {
     expect(Immutable.Seq.of(1,2,3).size).toBe(3);
   });
 
-  it('from accepts another sequence', () => {
+  it('accepts another sequence', () => {
     var seq = Immutable.Seq.of(1,2,3);
     expect(Immutable.Seq(seq).size).toBe(3);
   });
 
-  it('from accepts a string', () => {
+  it('accepts a string', () => {
     var seq = Immutable.Seq('abc');
     expect(seq.size).toBe(3);
     expect(seq.get(1)).toBe('b');
     expect(seq.join('')).toBe('abc');
   });
 
-  it('from accepts an array-like', () => {
+  it('accepts an array-like', () => {
     var alike = { length: 2, 0: 'a', 1: 'b' };
     var seq = Immutable.Seq(alike);
     expect(Immutable.Iterable.isIndexed(seq)).toBe(true);
@@ -55,10 +55,10 @@ describe('Seq', () => {
     expect(seq.get(1)).toBe('b');
   });
 
-  it('from does not accept a scalar', () => {
+  it('does not accept a scalar', () => {
     expect(() => {
       Immutable.Seq(3);
-    }).toThrow('Expected iterable: 3');
+    }).toThrow('Expected Array or iterable object of values, or keyed object: 3');
   });
 
   it('temporarily warns about iterable length', function () {

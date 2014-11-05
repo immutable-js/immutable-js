@@ -16,7 +16,7 @@ import "Iterator"
 /* global fromJS,
           DELETE, SHIFT, SIZE, MASK, DID_ALTER, OwnerID, MakeRef,
           SetRef, wrapIndex, wholeSlice, resolveBegin, resolveEnd,
-          isIterable, Iterable,
+          isIterable, IndexedIterable,
           IndexedCollection,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
           Iterator, iteratorValue, iteratorDone */
@@ -35,7 +35,7 @@ class List extends IndexedCollection {
     if (isList(value)) {
       return value;
     }
-    value = Iterable(value);
+    value = IndexedIterable(value);
     var size = value.size;
     if (size === 0) {
       return empty;
@@ -620,7 +620,7 @@ function mergeIntoListWith(list, merger, iterables) {
   var maxSize = 0;
   for (var ii = 0; ii < iterables.length; ii++) {
     var value = iterables[ii];
-    var iter = Iterable(value);
+    var iter = IndexedIterable(value);
     if (iter.size > maxSize) {
       maxSize = iter.size;
     }

@@ -12,17 +12,17 @@ import "TrieUtils"
 import "Iterable"
 import "Iterator"
 /* global mixin,
-          assertNotInfinite, wrapIndex, isPlainObj,
+          assertNotInfinite, wrapIndex,
           isIterable, isKeyed, Iterable, KeyedIterable, IndexedIterable, SetIterable,
           Iterator, iteratorValue, iteratorDone, hasIterator, isIterator, getIterator */
-/* exported isSeq, Seq, KeyedSeq, IndexedSeq, SetSeq, ArraySeq */
+/* exported isSeq, Seq, KeyedSeq, IndexedSeq, SetSeq, ArraySeq,
+            keyedSeqFromValue, indexedSeqFromValue */
 
 
 class Seq extends Iterable {
   constructor(value) {
-    return value === null || value === undefined ?
-      emptySequence() :
-      (isIterable(value) ? value : seqFromValue(value, false)).toSeq();
+    return value === null || value === undefined ? emptySequence() :
+      isIterable(value) ? value.toSeq() : seqFromValue(value);
   }
 
   static of(/*...values*/) {
@@ -60,13 +60,11 @@ class Seq extends Iterable {
 
 class KeyedSeq extends Seq {
   constructor(value) {
-    if (value === null || value === undefined) {
-      return emptySequence().toKeyedSeq();
-    }
-    if (!isIterable(value)) {
-      value = seqFromValue(value, false);
-    }
-    return isKeyed(value) ? value.toSeq() : value.fromEntrySeq();
+    return value === null || value === undefined ?
+      emptySequence().toKeyedSeq() :
+      isIterable(value) ?
+        (isKeyed(value) ? value.toSeq() : value.fromEntrySeq()) :
+        keyedSeqFromValue(value);
   }
 
   static of(/*...values*/) {
@@ -85,9 +83,9 @@ mixin(KeyedSeq, KeyedIterable.prototype);
 
 class IndexedSeq extends Seq {
   constructor(value) {
-    return value === null || value === undefined ?
-      emptySequence() :
-      (isIterable(value) ? value : seqFromValue(value, false)).toIndexedSeq();
+    return value === null || value === undefined ? emptySequence() :
+      !isIterable(value) ? indexedSeqFromValue(value) :
+      isKeyed(value) ? value.entrySeq() : value.toIndexedSeq();
   }
 
   static of(/*...values*/) {
@@ -114,9 +112,11 @@ mixin(IndexedSeq, IndexedIterable.prototype);
 
 class SetSeq extends Seq {
   constructor(value) {
-    return value === null || value === undefined ?
-      emptySequence().toSetSeq() :
-      (isIterable(value) ? value : seqFromValue(value, false)).toSetSeq();
+    return (
+      value === null || value === undefined ? emptySequence() :
+      !isIterable(value) ? indexedSeqFromValue(value) :
+      isKeyed(value) ? value.entrySeq() : value
+    ).toSetSeq();
   }
 
   static of(/*...values*/) {
@@ -329,27 +329,50 @@ function emptySequence() {
   return EMPTY_SEQ || (EMPTY_SEQ = new ArraySeq([]));
 }
 
-function maybeSeqFromValue(value, maybeSingleton) {
+function keyedSeqFromValue(value) {
+  var seq =
+    Array.isArray(value) ? new ArraySeq(value).fromEntrySeq() :
+    isIterator(value) ? new IteratorSeq(value).fromEntrySeq() :
+    hasIterator(value) ? new IterableSeq(value).fromEntrySeq() :
+    typeof value === 'object' ? new ObjectSeq(value) :
+    undefined;
+  if (!seq) {
+    throw new TypeError(
+      'Expected Array or iterable object of [k, v] entries, '+
+      'or keyed object: ' + value
+    );
+  }
+  return seq;
+}
+
+function indexedSeqFromValue(value) {
+  var seq = maybeIndexedSeqFromValue(value);
+  if (!seq) {
+    throw new TypeError(
+      'Expected Array or iterable object of values: ' + value
+    );
+  }
+  return seq;
+}
+
+function seqFromValue(value) {
+  var seq = maybeIndexedSeqFromValue(value) ||
+    (typeof value === 'object' && new ObjectSeq(value));
+  if (!seq) {
+    throw new TypeError(
+      'Expected Array or iterable object of values, or keyed object: ' + value
+    );
+  }
+  return seq;
+}
+
+function maybeIndexedSeqFromValue(value) {
   return (
-    maybeSingleton && typeof value === 'string' ? undefined :
     isArrayLike(value) ? new ArraySeq(value) :
     isIterator(value) ? new IteratorSeq(value) :
     hasIterator(value) ? new IterableSeq(value) :
-    (maybeSingleton ? isPlainObj(value) : typeof value === 'object') ? new ObjectSeq(value) :
     undefined
   );
-}
-
-function seqFromValue(value, maybeSingleton) {
-  var seq = maybeSeqFromValue(value, maybeSingleton);
-  if (seq === undefined) {
-    if (maybeSingleton) {
-      seq = new ArraySeq([value]);
-    } else {
-      throw new TypeError('Expected iterable: ' + value);
-    }
-  }
-  return seq;
 }
 
 function isArrayLike(value) {

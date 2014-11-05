@@ -8,10 +8,11 @@
  */
 
 import "Iterable"
+import "Collection"
 import "Map"
 import "invariant"
 import "TrieUtils"
-/* global Iterable, KeyedCollection, Map, MapPrototype, emptyMap, invariant, DELETE */
+/* global KeyedIterable, KeyedCollection, Map, MapPrototype, emptyMap, invariant, DELETE */
 /* exported Record */
 
 
@@ -35,7 +36,7 @@ class Record extends KeyedCollection {
     RecordTypePrototype.size = keys.length;
 
     try {
-      Iterable(defaultValues).forEach((_, key) => {
+      KeyedIterable(defaultValues).forEach((_, key) => {
         Object.defineProperty(RecordType.prototype, key, {
           get: function() {
             return this.get(key);
@@ -124,7 +125,7 @@ class Record extends KeyedCollection {
   }
 
   __iterate(fn, reverse) {
-    return Iterable(this._defaultValues).map((_, k) => this.get(k)).__iterate(fn, reverse);
+    return KeyedIterable(this._defaultValues).map((_, k) => this.get(k)).__iterate(fn, reverse);
   }
 
   __ensureOwner(ownerID) {

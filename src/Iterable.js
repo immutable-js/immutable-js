@@ -83,11 +83,11 @@ class Iterable {
   toSet() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);
-    return Set(this);
+    return Set(isKeyed(this) ? this.valueSeq() : this);
   }
 
   toSetSeq() {
-    return new ToSetSequence(this, true);
+    return new ToSetSequence(this);
   }
 
   toSeq() {
@@ -99,13 +99,13 @@ class Iterable {
   toStack() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);
-    return Stack(this);
+    return Stack(isKeyed(this) ? this.valueSeq() : this);
   }
 
   toList() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);
-    return List(this);
+    return List(isKeyed(this) ? this.valueSeq() : this);
   }
 
 
@@ -126,7 +126,7 @@ class Iterable {
   // ### ES6 Collection methods (ES6 Array and Map)
 
   concat(...values) {
-    return reify(this, concatFactory(this, values, true));
+    return reify(this, concatFactory(this, values));
   }
 
   contains(searchValue) {
@@ -589,10 +589,6 @@ class IndexedIterable extends Iterable {
 
 
   // ### ES6 Collection methods (ES6 Array and Map)
-
-  concat(...values) {
-    return reify(this, concatFactory(this, values, false));
-  }
 
   filter(predicate, context) {
     return reify(this, filterFactory(this, predicate, context, false));

@@ -50,28 +50,29 @@ describe('Map', () => {
     expect(m2).toBe(m1);
   });
 
-  it('constructor does not accept a scalar', () => {
+  it('does not accept a scalar', () => {
     expect(() => {
       Map(3);
-    }).toThrow('Expected iterable: 3');
+    }).toThrow('Expected Array or iterable object of [k, v] entries, or keyed object: 3');
   });
 
-  it('from does not accept a scalar', () => {
+  it('does not accept strings (iterable, but scalar)', () => {
     expect(() => {
-      Map(3);
-    }).toThrow('Expected iterable: 3');
+      Map('abc');
+    }).toThrow('Expected Array or iterable object of [k, v] entries, or keyed object: abc');
   });
 
-  it('constructor does not accept a scalar', () => {
+  it('does not accept non-entries array', () => {
     expect(() => {
       Map([1,2,3]);
     }).toThrow('Expected [K, V] tuple: 1');
   });
 
-  it('from does not accept a non-entries array', () => {
-    expect(() => {
-      Map([1,2,3]);
-    }).toThrow('Expected [K, V] tuple: 1');
+  it('accepts non-iterable array-like objects as keyed collections', () => {
+    var m = Map({ 'length': 3, '1': 'one' });
+    expect(m.get('length')).toBe(3);
+    expect(m.get('1')).toBe('one');
+    expect(m.toJS()).toEqual({ 'length': 3, '1': 'one' });
   });
 
   it('converts back to JS object', () => {

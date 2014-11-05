@@ -31,33 +31,46 @@ describe('List', () => {
     expect(v.toArray()).toEqual(['a', 'b', 'c']);
   });
 
-  it('constructor does not accept a scalar', () => {
+  it('does not accept a scalar', () => {
     expect(() => {
       Immutable.List(3);
-    }).toThrow('Expected iterable: 3');
+    }).toThrow('Expected Array or iterable object of values: 3');
   });
 
-  it('from does not accept a scalar', () => {
-    expect(() => {
-      Immutable.List(3);
-    }).toThrow('Expected iterable: 3');
-  });
-
-  it('from consumes a JS array', () => {
+  it('accepts an array', () => {
     var v = List(['a', 'b', 'c']);
+    expect(v.get(1)).toBe('b');
     expect(v.toArray()).toEqual(['a', 'b', 'c']);
   });
 
-  it('from consumes a Seq', () => {
+  it('accepts an array-like', () => {
+    var v = List({ 'length': 3, '1': 'b' });
+    expect(v.get(1)).toBe('b');
+    expect(v.toArray()).toEqual([undefined, 'b', undefined]);
+  });
+
+  it('accepts any array-like iterable, including strings', () => {
+    var v = List('abc');
+    expect(v.get(1)).toBe('b');
+    expect(v.toArray()).toEqual(['a', 'b', 'c']);
+  });
+
+  it('accepts an indexed Seq', () => {
     var seq = Immutable.Seq(['a', 'b', 'c']);
     var v = List(seq);
     expect(v.toArray()).toEqual(['a', 'b', 'c']);
   });
 
-  it('from consumes a non-indexed Seq', () => {
+  it('accepts a keyed Seq as a list of entries', () => {
     var seq = Immutable.Seq({a:null, b:null, c:null}).flip();
     var v = List(seq);
-    expect(v.toArray()).toEqual(['a', 'b', 'c']);
+    expect(v.toArray()).toEqual([[null,'a'], [null,'b'], [null,'c']]);
+    // Explicitly getting the values sequence
+    var v2 = List(seq.valueSeq());
+    expect(v2.toArray()).toEqual(['a','b','c']);
+    // toList() does this for you.
+    var v3 = seq.toList();
+    expect(v3.toArray()).toEqual(['a', 'b', 'c']);
   });
 
   it('can set and get a value', () => {
