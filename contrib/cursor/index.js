@@ -143,6 +143,7 @@ IndexedCursorPrototype.__iterate = function(fn, reverse) {
 KeyedCursorPrototype.__iterator =
 IndexedCursorPrototype.__iterator = function(type, reverse) {
   var deref = this.deref();
+  var cursor = this;
   var iterator = deref && deref.__iterator &&
     deref.__iterator(Iterator.ENTRIES, reverse);
   return new Iterator(function () {
@@ -155,7 +156,7 @@ IndexedCursorPrototype.__iterator = function(type, reverse) {
     }
     var entry = step.value;
     var k = entry[0];
-    var v = wrappedValue(this, k, entry[1]);
+    var v = wrappedValue(cursor, k, entry[1]);
     return {
       value: type === Iterator.KEYS ? k : type === Iterator.VALUES ? v : [k, v],
       done: false
