@@ -841,9 +841,11 @@ function defaultComparator(a, b) {
 }
 function mixin(ctor, methods) {
   var proto = ctor.prototype;
-  Object.keys(methods).forEach(function(key) {
+  var keyCopier = (function(key) {
     proto[key] = methods[key];
   });
+  Object.keys(methods).forEach(keyCopier);
+  Object.getOwnPropertySymbols && Object.getOwnPropertySymbols(methods).forEach(keyCopier);
   return ctor;
 }
 var Seq = function Seq(value) {
