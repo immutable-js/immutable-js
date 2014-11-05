@@ -63,6 +63,16 @@ describe('OrderedMap', () => {
     expect(m.toArray()).toEqual(['zebra', 'antelope']);
   });
 
+  it('removes correctly', () => {
+    var m = OrderedMap({
+      'A': 'aardvark',
+      'Z': 'zebra'
+    }).remove('A');
+    expect(m.size).toBe(1);
+    expect(m.get('A')).toBe(undefined);
+    expect(m.get('Z')).toBe('zebra');
+  });
+
   it('respects order for equality', () => {
     var m1 = OrderedMap().set('A', 'aardvark').set('Z', 'zebra');
     var m2 = OrderedMap().set('Z', 'zebra').set('A', 'aardvark');
