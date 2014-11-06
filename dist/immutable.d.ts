@@ -1503,9 +1503,17 @@ declare module 'immutable' {
    * from a record simply resets it to the default value for that key.
    *
    *     myRecord.size // 2
+   *     myRecord.get('a') // 1
+   *     myRecord.get('b') // 3
    *     myRecordWithoutB = myRecord.remove('b')
    *     myRecordWithoutB.get('b') // 2
    *     myRecordWithoutB.size // 2
+   *
+   * Values provided to the constructor not found in the Record type will
+   * be ignored:
+   *
+   *     var myRecord = new ABRecord({b:3, x:10})
+   *     myRecord.get('x') // undefined
    *
    * Because Records have a known set of string keys, property get access works
    * as expected, however property sets will throw an Error.
