@@ -74,4 +74,14 @@ describe('Record', () => {
     expect(t.toObject()).toEqual({a:10, b:20, c:3})
   })
 
+  it('skips unknown keys', () => {
+    var MyType = Record({a:1, b:2});
+    var seq = Immutable.Seq({b:20, c:30});
+    var t = new MyType(seq);
+
+    expect(t.get('a')).toEqual(1);
+    expect(t.get('b')).toEqual(20);
+    expect(t.get('c')).toBeUndefined();
+  })
+
 });
