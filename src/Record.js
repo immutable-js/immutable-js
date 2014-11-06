@@ -65,7 +65,7 @@ class Record extends KeyedCollection {
   }
 
   get(k, notSetValue) {
-    if (notSetValue !== undefined && !this.has(k)) {
+    if (!this.has(k)) {
       return notSetValue;
     }
     var defaultVal = this._defaultValues[k];

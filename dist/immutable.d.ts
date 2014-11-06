@@ -1496,13 +1496,15 @@ declare module 'immutable' {
    * a JS object, but enforce a specific set of allowed string keys, and have
    * default values.
    *
-   *     var ABRecord = Record({a:1, b:2})
-   *     var myRecord = new ABRecord({b:3})
+   *     var ABRecord = Record({a:1, b:2, c:3})
+   *     var myRecord = new ABRecord({b:3, d:4})
    *
    * Records always have a value for the keys they define. `remove`ing a key
    * from a record simply resets it to the default value for that key.
    *
-   *     myRecord.size // 2
+   *     myRecord.size // 3
+   *     myRecord.get('b') // 3
+   *     myRecord.get('d') // undefined
    *     myRecordWithoutB = myRecord.remove('b')
    *     myRecordWithoutB.get('b') // 2
    *     myRecordWithoutB.size // 2
