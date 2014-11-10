@@ -9,10 +9,9 @@
 
 import "Iterable"
 import "Collection"
-import "Seq"
 import "Map"
 import "TrieUtils"
-/* global SetIterable, SetCollection, KeyedSeq, MapPrototype, emptyMap, DELETE */
+/* global SetIterable, KeyedIterable, SetCollection, MapPrototype, emptyMap, DELETE */
 /* exported Set */
 
 
@@ -23,7 +22,7 @@ class Set extends SetCollection {
   constructor(value) {
     return value === null || value === undefined ? emptySet() :
       isSet(value) ? value :
-      emptySet().union(value);
+      emptySet().union(SetIterable(value));
   }
 
   static of(/*...values*/) {
@@ -31,7 +30,7 @@ class Set extends SetCollection {
   }
 
   static fromKeys(value) {
-    return this(KeyedSeq(value).flip().valueSeq());
+    return this(KeyedIterable(value).keySeq());
   }
 
   toString() {
@@ -47,35 +46,15 @@ class Set extends SetCollection {
   // @pragma Modification
 
   add(value) {
-    var newMap = this._map.set(value, true);
-    if (this.__ownerID) {
-      this.size = newMap.size;
-      this._map = newMap;
-      return this;
-    }
-    return newMap === this._map ? this : makeSet(newMap);
+    return updateSet(this, this._map.set(value, true));
   }
 
   remove(value) {
-    var newMap = this._map.remove(value);
-    if (this.__ownerID) {
-      this.size = newMap.size;
-      this._map = newMap;
-      return this;
-    }
-    return newMap === this._map ? this : newMap.size === 0 ? emptySet() : makeSet(newMap);
+    return updateSet(this, this._map.remove(value));
   }
 
   clear() {
-    if (this.size === 0) {
-      return this;
-    }
-    if (this.__ownerID) {
-      this.size = 0;
-      this._map.clear();
-      return this;
-    }
-    return emptySet();
+    return updateSet(this, this._map.clear());
   }
 
   // @pragma Composition
@@ -152,7 +131,7 @@ class Set extends SetCollection {
       this._map = newMap;
       return this;
     }
-    return makeSet(newMap, ownerID);
+    return this.__make(newMap, ownerID);
   }
 }
 
@@ -173,6 +152,19 @@ SetPrototype.withMutations = MapPrototype.withMutations;
 SetPrototype.asMutable = MapPrototype.asMutable;
 SetPrototype.asImmutable = MapPrototype.asImmutable;
 
+SetPrototype.__empty = emptySet;
+SetPrototype.__make = makeSet;
+
+function updateSet(set, newMap) {
+  if (set.__ownerID) {
+    set.size = newMap.size;
+    set._map = newMap;
+    return set;
+  }
+  return newMap === set._map ? set :
+    newMap.size === 0 ? set.__empty() :
+    set.__make(newMap);
+}
 
 function makeSet(map, ownerID) {
   var set = Object.create(SetPrototype);

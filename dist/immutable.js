@@ -312,6 +312,10 @@ var $Iterable = Iterable;
     assertNotInfinite(this.size);
     return OrderedMap(this.toKeyedSeq());
   },
+  toOrderedSet: function() {
+    assertNotInfinite(this.size);
+    return OrderedSet(isKeyed(this) ? this.valueSeq() : this);
+  },
   toSet: function() {
     assertNotInfinite(this.size);
     return Set(isKeyed(this) ? this.valueSeq() : this);
@@ -2866,6 +2870,107 @@ function mergeIntoListWith(list, merger, iterables) {
 function getTailOffset(size) {
   return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
 }
+var OrderedMap = function OrderedMap(value) {
+  return value === null || value === undefined ? emptyOrderedMap() : isOrderedMap(value) ? value : emptyOrderedMap().merge(KeyedIterable(value));
+};
+($traceurRuntime.createClass)(OrderedMap, {
+  toString: function() {
+    return this.__toString('OrderedMap {', '}');
+  },
+  get: function(k, notSetValue) {
+    var index = this._map.get(k);
+    return index !== undefined ? this._list.get(index)[1] : notSetValue;
+  },
+  clear: function() {
+    if (this.size === 0) {
+      return this;
+    }
+    if (this.__ownerID) {
+      this.size = 0;
+      this._map.clear();
+      this._list.clear();
+      return this;
+    }
+    return emptyOrderedMap();
+  },
+  set: function(k, v) {
+    return updateOrderedMap(this, k, v);
+  },
+  remove: function(k) {
+    return updateOrderedMap(this, k, NOT_SET);
+  },
+  wasAltered: function() {
+    return this._map.wasAltered() || this._list.wasAltered();
+  },
+  __iterate: function(fn, reverse) {
+    var $__0 = this;
+    return this._list.__iterate((function(entry) {
+      return entry && fn(entry[1], entry[0], $__0);
+    }), reverse);
+  },
+  __iterator: function(type, reverse) {
+    return this._list.fromEntrySeq().__iterator(type, reverse);
+  },
+  __ensureOwner: function(ownerID) {
+    if (ownerID === this.__ownerID) {
+      return this;
+    }
+    var newMap = this._map.__ensureOwner(ownerID);
+    var newList = this._list.__ensureOwner(ownerID);
+    if (!ownerID) {
+      this.__ownerID = ownerID;
+      this._map = newMap;
+      this._list = newList;
+      return this;
+    }
+    return makeOrderedMap(newMap, newList, ownerID, this.__hash);
+  }
+}, {of: function() {
+    return this(arguments);
+  }}, Map);
+function isOrderedMap(maybeOrderedMap) {
+  return !!(maybeOrderedMap && maybeOrderedMap[IS_ORDERED_MAP_SENTINEL]);
+}
+OrderedMap.isOrderedMap = isOrderedMap;
+var IS_ORDERED_MAP_SENTINEL = '@@__IMMUTABLE_ORDERED_MAP__@@';
+OrderedMap.prototype[IS_ORDERED_MAP_SENTINEL] = true;
+OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
+function makeOrderedMap(map, list, ownerID, hash) {
+  var omap = Object.create(OrderedMap.prototype);
+  omap.size = map ? map.size : 0;
+  omap._map = map;
+  omap._list = list;
+  omap.__ownerID = ownerID;
+  omap.__hash = hash;
+  return omap;
+}
+var EMPTY_ORDERED_MAP;
+function emptyOrderedMap() {
+  return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(emptyMap(), emptyList()));
+}
+function updateOrderedMap(omap, k, v) {
+  var map = omap._map;
+  var list = omap._list;
+  var i = map.get(k);
+  var has = i !== undefined;
+  var removed = v === NOT_SET;
+  if ((!has && removed) || (has && v === list.get(i)[1])) {
+    return omap;
+  }
+  if (!has) {
+    i = list.size;
+  }
+  var newMap = removed ? map.remove(k) : has ? map : map.set(k, i);
+  var newList = removed ? list.set(i, undefined) : list.set(i, [k, v]);
+  if (omap.__ownerID) {
+    omap.size = newMap.size;
+    omap._map = newMap;
+    omap._list = newList;
+    omap.__hash = undefined;
+    return omap;
+  }
+  return makeOrderedMap(newMap, newList);
+}
 var Stack = function Stack(value) {
   return value === null || value === undefined ? emptyStack() : isStack(value) ? value : emptyStack().unshiftAll(value);
 };
@@ -3044,7 +3149,7 @@ function emptyStack() {
   return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
 }
 var Set = function Set(value) {
-  return value === null || value === undefined ? emptySet() : isSet(value) ? value : emptySet().union(value);
+  return value === null || value === undefined ? emptySet() : isSet(value) ? value : emptySet().union(SetIterable(value));
 };
 ($traceurRuntime.createClass)(Set, {
   toString: function() {
@@ -3054,33 +3159,13 @@ var Set = function Set(value) {
     return this._map.has(value);
   },
   add: function(value) {
-    var newMap = this._map.set(value, true);
-    if (this.__ownerID) {
-      this.size = newMap.size;
-      this._map = newMap;
-      return this;
-    }
-    return newMap === this._map ? this : makeSet(newMap);
+    return updateSet(this, this._map.set(value, true));
   },
   remove: function(value) {
-    var newMap = this._map.remove(value);
-    if (this.__ownerID) {
-      this.size = newMap.size;
-      this._map = newMap;
-      return this;
-    }
-    return newMap === this._map ? this : newMap.size === 0 ? emptySet() : makeSet(newMap);
+    return updateSet(this, this._map.remove(value));
   },
   clear: function() {
-    if (this.size === 0) {
-      return this;
-    }
-    if (this.__ownerID) {
-      this.size = 0;
-      this._map.clear();
-      return this;
-    }
-    return emptySet();
+    return updateSet(this, this._map.clear());
   },
   union: function() {
     var iters = arguments;
@@ -3170,14 +3255,14 @@ var Set = function Set(value) {
       this._map = newMap;
       return this;
     }
-    return makeSet(newMap, ownerID);
+    return this.__make(newMap, ownerID);
   }
 }, {
   of: function() {
     return this(arguments);
   },
   fromKeys: function(value) {
-    return this(KeyedSeq(value).flip().valueSeq());
+    return this(KeyedIterable(value).keySeq());
   }
 }, SetCollection);
 function isSet(maybeSet) {
@@ -3193,6 +3278,16 @@ SetPrototype.mergeDeepWith = SetPrototype.mergeWith;
 SetPrototype.withMutations = MapPrototype.withMutations;
 SetPrototype.asMutable = MapPrototype.asMutable;
 SetPrototype.asImmutable = MapPrototype.asImmutable;
+SetPrototype.__empty = emptySet;
+SetPrototype.__make = makeSet;
+function updateSet(set, newMap) {
+  if (set.__ownerID) {
+    set.size = newMap.size;
+    set._map = newMap;
+    return set;
+  }
+  return newMap === set._map ? set : newMap.size === 0 ? set.__empty() : set.__make(newMap);
+}
 function makeSet(map, ownerID) {
   var set = Object.create(SetPrototype);
   set.size = map ? map.size : 0;
@@ -3204,106 +3299,38 @@ var EMPTY_SET;
 function emptySet() {
   return EMPTY_SET || (EMPTY_SET = makeSet(emptyMap()));
 }
-var OrderedMap = function OrderedMap(value) {
-  return value === null || value === undefined ? emptyOrderedMap() : isOrderedMap(value) ? value : emptyOrderedMap().merge(KeyedIterable(value));
+var OrderedSet = function OrderedSet(value) {
+  return value === null || value === undefined ? emptyOrderedSet() : isOrderedSet(value) ? value : emptyOrderedSet().union(SetIterable(value));
 };
-($traceurRuntime.createClass)(OrderedMap, {
-  toString: function() {
-    return this.__toString('OrderedMap {', '}');
-  },
-  get: function(k, notSetValue) {
-    var index = this._map.get(k);
-    return index !== undefined ? this._list.get(index)[1] : notSetValue;
-  },
-  clear: function() {
-    if (this.size === 0) {
-      return this;
-    }
-    if (this.__ownerID) {
-      this.size = 0;
-      this._map.clear();
-      this._list.clear();
-      return this;
-    }
-    return emptyOrderedMap();
-  },
-  set: function(k, v) {
-    return updateOrderedMap(this, k, v);
-  },
-  remove: function(k) {
-    return updateOrderedMap(this, k, NOT_SET);
-  },
-  wasAltered: function() {
-    return this._map.wasAltered() || this._list.wasAltered();
-  },
-  __iterate: function(fn, reverse) {
-    var $__0 = this;
-    return this._list.__iterate((function(entry) {
-      return entry && fn(entry[1], entry[0], $__0);
-    }), reverse);
-  },
-  __iterator: function(type, reverse) {
-    return this._list.fromEntrySeq().__iterator(type, reverse);
-  },
-  __ensureOwner: function(ownerID) {
-    if (ownerID === this.__ownerID) {
-      return this;
-    }
-    var newMap = this._map.__ensureOwner(ownerID);
-    var newList = this._list.__ensureOwner(ownerID);
-    if (!ownerID) {
-      this.__ownerID = ownerID;
-      this._map = newMap;
-      this._list = newList;
-      return this;
-    }
-    return makeOrderedMap(newMap, newList, ownerID, this.__hash);
-  }
-}, {of: function() {
+($traceurRuntime.createClass)(OrderedSet, {toString: function() {
+    return this.__toString('OrderedSet {', '}');
+  }}, {
+  of: function() {
     return this(arguments);
-  }}, Map);
-function isOrderedMap(maybeOrderedMap) {
-  return !!(maybeOrderedMap && maybeOrderedMap[IS_ORDERED_MAP_SENTINEL]);
-}
-OrderedMap.isOrderedMap = isOrderedMap;
-var IS_ORDERED_MAP_SENTINEL = '@@__IMMUTABLE_ORDERED_MAP__@@';
-OrderedMap.prototype[IS_ORDERED_MAP_SENTINEL] = true;
-OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
-function makeOrderedMap(map, list, ownerID, hash) {
-  var omap = Object.create(OrderedMap.prototype);
-  omap.size = map ? map.size : 0;
-  omap._map = map;
-  omap._list = list;
-  omap.__ownerID = ownerID;
-  omap.__hash = hash;
-  return omap;
-}
-var EMPTY_ORDERED_MAP;
-function emptyOrderedMap() {
-  return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(emptyMap(), emptyList()));
-}
-function updateOrderedMap(omap, k, v) {
-  var map = omap._map;
-  var list = omap._list;
-  var i = map.get(k);
-  var has = i !== undefined;
-  var removed = v === NOT_SET;
-  if ((!has && removed) || (has && v === list.get(i)[1])) {
-    return omap;
+  },
+  fromKeys: function(value) {
+    return this(KeyedIterable(value).keySeq());
   }
-  if (!has) {
-    i = list.size;
-  }
-  var newMap = removed ? map.remove(k) : has ? map : map.set(k, i);
-  var newList = removed ? list.set(i, undefined) : list.set(i, [k, v]);
-  if (omap.__ownerID) {
-    omap.size = newMap.size;
-    omap._map = newMap;
-    omap._list = newList;
-    omap.__hash = undefined;
-    return omap;
-  }
-  return makeOrderedMap(newMap, newList);
+}, Set);
+function isOrderedSet(maybeOrderedSet) {
+  return !!(maybeOrderedSet && maybeOrderedSet[IS_ORDERED_SET_SENTINEL]);
+}
+OrderedSet.isOrderedSet = isOrderedSet;
+var IS_ORDERED_SET_SENTINEL = '@@__IMMUTABLE_ORDERED_SET__@@';
+var OrderedSetPrototype = OrderedSet.prototype;
+OrderedSetPrototype[IS_ORDERED_SET_SENTINEL] = true;
+OrderedSetPrototype.__empty = emptyOrderedSet;
+OrderedSetPrototype.__make = makeOrderedSet;
+function makeOrderedSet(map, ownerID) {
+  var set = Object.create(OrderedSetPrototype);
+  set.size = map ? map.size : 0;
+  set._map = map;
+  set.__ownerID = ownerID;
+  return set;
+}
+var EMPTY_ORDERED_SET;
+function emptyOrderedSet() {
+  return EMPTY_ORDERED_SET || (EMPTY_ORDERED_SET = makeOrderedSet(emptyOrderedMap()));
 }
 var Record = function Record(defaultValues, name) {
   var RecordType = function Record(values) {
@@ -3599,10 +3626,11 @@ var Immutable = {
   Seq: Seq,
   Collection: Collection,
   Map: Map,
+  OrderedMap: OrderedMap,
   List: List,
   Stack: Stack,
   Set: Set,
-  OrderedMap: OrderedMap,
+  OrderedSet: OrderedSet,
   Record: Record,
   Range: Range,
   Repeat: Repeat,

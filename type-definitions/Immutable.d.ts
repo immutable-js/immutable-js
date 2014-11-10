@@ -194,6 +194,15 @@ declare module 'immutable' {
     toOrderedMap(): Map<K, V>;
 
     /**
+     * Converts this Iterable to a Set, maintaining the order of iteration and
+     * discarding keys.
+     *
+     * Note: This is equivalent to `OrderedSet(this.valueSeq())`, but provided
+     * for convenience and to allow for chained expressions.
+     */
+    toOrderedSet(): Set<V>;
+
+    /**
      * Converts this Iterable to a Set, discarding keys. Throws if values
      * are not hashable.
      *
@@ -1659,6 +1668,47 @@ declare module 'immutable' {
      */
     asImmutable(): Set<T>;
   }
+
+
+  /**
+   * Ordered Set
+   * -----------
+   *
+   * OrderedSet constructors return a Set which has the additional guarantee of
+   * the iteration order of entries to match the order in which they were added.
+   * This makes OrderedSet behave similarly to native JS objects or arrays.
+   */
+
+  export module OrderedSet {
+
+    /**
+     * True if the provided value is an OrderedSet.
+     */
+    function isOrderedSet(maybeOrderedSet: any): boolean;
+
+    /**
+     * Creates a new ordered Set containing `values`.
+     */
+    function of<T>(...values: T[]): Set<T>;
+
+    /**
+     * `OrderedSet.fromKeys()` creates a new immutable ordered Set containing
+     * the keys from this Iterable or JavaScript Object.
+     */
+    function fromKeys<T>(iter: Iterable<T, any>): Set<T>;
+    function fromKeys(obj: {[key: string]: any}): Set<string>;
+  }
+
+  /**
+   * Create a new immutable ordered Set containing the values of the provided
+   * iterable-like.
+   */
+  export function OrderedSet<T>(): Set<T>;
+  export function OrderedSet<T>(iter: Iterable<any, T>): Set<T>;
+  export function OrderedSet<T>(array: Array<T>): Set<T>;
+  export function OrderedSet<T>(obj: {[key: string]: T}): Set<T>;
+  export function OrderedSet<T>(iterator: Iterator<T>): Set<T>;
+  export function OrderedSet<T>(iterable: /*Iterable<T>*/Object): Set<T>;
 
 
   /**

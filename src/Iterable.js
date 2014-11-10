@@ -12,7 +12,7 @@ import "is"
 import "TrieUtils"
 import "Hash"
 import "Iterator"
-/* global Map, OrderedMap, List, Set, Stack,
+/* global Map, OrderedMap, List, Set, OrderedSet, Stack,
           is,
           arrCopy, NOT_SET, assertNotInfinite, ensureSize, wrapIndex,
           returnTrue, wholeSlice, resolveBegin, resolveEnd,
@@ -78,6 +78,12 @@ class Iterable {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);
     return OrderedMap(this.toKeyedSeq());
+  }
+
+  toOrderedSet() {
+    // Use Late Binding here to solve the circular dependency.
+    assertNotInfinite(this.size);
+    return OrderedSet(isKeyed(this) ? this.valueSeq() : this);
   }
 
   toSet() {
