@@ -20,12 +20,12 @@ import "Map"
           isSeq, Seq, KeyedSeq, SetSeq, IndexedSeq,
           keyedSeqFromValue, indexedSeqFromValue, ArraySeq,
           Map */
-/* exported reify, defaultComparator,
-            ToKeyedSequence, ToIndexedSequence, ToSetSequence,
+/* exported reify, ToKeyedSequence, ToIndexedSequence, ToSetSequence,
             FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
             filterFactory, countByFactory, groupByFactory, takeFactory,
             takeWhileFactory, skipFactory, skipWhileFactory, concatFactory,
-            flattenFactory, flatMapFactory, interposeFactory, sortFactory */
+            flattenFactory, flatMapFactory, interposeFactory, sortFactory,
+            maxFactory */
 
 
 class ToKeyedSequence extends KeyedSeq {
@@ -662,9 +662,6 @@ function interposeFactory(iterable, separator) {
 }
 
 function sortFactory(iterable, comparator, mapper) {
-  if (!comparator) {
-    comparator = defaultComparator;
-  }
   var sortFn = mapper ?
     (a, b) => comparator(
       mapper(a[1][1], a[1][0], iterable),
@@ -685,16 +682,27 @@ function sortFactory(iterable, comparator, mapper) {
     SetSeq(entries);
 }
 
+function maxFactory(iterable, comparator, mapper) {
+  if (mapper) {
+    var entry = iterable.entrySeq().reduce(
+      (max, next) => comparator(
+        mapper(next[1], next[0], iterable),
+        mapper(max[1], max[0], iterable)
+      ) > 0 ? next : max
+    );
+    return entry && entry[1];
+  } else {
+    return iterable.reduce(
+      (max, next) => comparator(next, max) > 0 ? next : max
+    );
+  }
+}
 
 
 // #pragma Helper Functions
 
 function reify(iter, seq) {
   return isSeq(iter) ? seq : iter.constructor(seq);
-}
-
-function defaultComparator(a, b) {
-  return a > b ? 1 : a < b ? -1 : 0;
 }
 
 function validateEntry(entry) {

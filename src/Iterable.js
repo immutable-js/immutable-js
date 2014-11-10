@@ -22,12 +22,12 @@ import "Iterator"
           isSeq,
           Seq, KeyedSeq, IndexedSeq, SetSeq,
           ArraySeq,
-          reify, defaultComparator,
-          ToKeyedSequence, ToIndexedSequence, ToSetSequence,
+          reify, ToKeyedSequence, ToIndexedSequence, ToSetSequence,
           FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
           filterFactory, countByFactory, groupByFactory, takeFactory,
           takeWhileFactory, skipFactory, skipWhileFactory, concatFactory,
-          flattenFactory, flatMapFactory, interposeFactory, sortFactory */
+          flattenFactory, flatMapFactory, interposeFactory, sortFactory,
+          maxFactory */
 /* exported Iterable,
             isIterable, isKeyed, isIndexed, isAssociative,
             Collection, KeyedCollection, IndexedCollection, SetCollection */
@@ -247,7 +247,7 @@ class Iterable {
   }
 
   sort(comparator) {
-    return reify(this, sortFactory(this, comparator));
+    return reify(this, sortFactory(this, comparator || defaultComparator));
   }
 
   values() {
@@ -379,33 +379,19 @@ class Iterable {
   }
 
   max(comparator) {
-    return this.maxBy(valueMapper, comparator);
+    return maxFactory(this, comparator || defaultComparator);
   }
 
   maxBy(mapper, comparator) {
-    comparator = comparator || defaultComparator;
-    var maxEntry = this.entrySeq().reduce((max, next) => {
-      return comparator(
-        mapper(next[1], next[0], this),
-        mapper(max[1], max[0], this)
-      ) > 0 ? next : max
-    });
-    return maxEntry && maxEntry[1];
+    return maxFactory(this, comparator || defaultComparator, mapper);
   }
 
   min(comparator) {
-    return this.minBy(valueMapper, comparator);
+    return maxFactory(this, neg(comparator || defaultComparator));
   }
 
   minBy(mapper, comparator) {
-    comparator = comparator || defaultComparator;
-    var minEntry = this.entrySeq().reduce((min, next) => {
-      return comparator(
-        mapper(next[1], next[0], this),
-        mapper(min[1], min[0], this)
-      ) < 0 ? next : min
-    });
-    return minEntry && minEntry[1];
+    return maxFactory(this, neg(comparator || defaultComparator), mapper);
   }
 
   rest() {
@@ -429,7 +415,7 @@ class Iterable {
   }
 
   sortBy(mapper, comparator) {
-    return reify(this, sortFactory(this, comparator, mapper));
+    return reify(this, sortFactory(this, comparator || defaultComparator, mapper));
   }
 
   take(amount) {
@@ -763,10 +749,6 @@ Iterable.Iterator = Iterator;
 
 // #pragma Helper functions
 
-function valueMapper(v) {
-  return v;
-}
-
 function keyMapper(v, k) {
   return k;
 }
@@ -781,6 +763,16 @@ function not(predicate) {
   }
 }
 
+function neg(predicate) {
+  return function() {
+    return -predicate.apply(this, arguments);
+  }
+}
+
 function quoteString(value) {
   return typeof value === 'string' ? JSON.stringify(value) : value;
+}
+
+function defaultComparator(a, b) {
+  return a > b ? 1 : a < b ? -1 : 0;
 }
