@@ -20,11 +20,12 @@ import "Map"
           isSeq, Seq, KeyedSeq, SetSeq, IndexedSeq,
           keyedSeqFromValue, indexedSeqFromValue, ArraySeq,
           Map */
-/* exported reify, ToKeyedSequence, ToIndexedSequence, ToSetSequence,
+/* exported reify, defaultComparator,
+            ToKeyedSequence, ToIndexedSequence, ToSetSequence,
             FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
             filterFactory, countByFactory, groupByFactory, takeFactory,
             takeWhileFactory, skipFactory, skipWhileFactory, concatFactory,
-            flattenFactory, flatMapFactory, interposeFactory */
+            flattenFactory, flatMapFactory, interposeFactory, sortFactory */
 
 
 class ToKeyedSequence extends KeyedSeq {
@@ -660,12 +661,40 @@ function interposeFactory(iterable, separator) {
   return interposedSequence;
 }
 
+function sortFactory(iterable, comparator, mapper) {
+  if (!comparator) {
+    comparator = defaultComparator;
+  }
+  var sortFn = mapper ?
+    (a, b) => comparator(
+      mapper(a[1][1], a[1][0], iterable),
+      mapper(b[1][1], b[1][0], iterable)
+    ) || a[0] - b[0] :
+    (a, b) => comparator(a[1][1], b[1][1]) || a[0] - b[0];
+  var entries = [];
+  iterable.forEach((v, k) => { entries.push([entries.length, [k, v]]); });
+  entries.sort(sortFn);
+  var isKeyedIterable = isKeyed(iterable);
+  entries.forEach(
+    isKeyedIterable ?
+    (v, i) => { entries[i] = v[1] } :
+    (v, i) => { entries[i] = v[1][1] }
+  );
+  return isKeyedIterable ? KeyedSeq(entries) :
+    isIndexed(iterable) ? IndexedSeq(entries) :
+    SetSeq(entries);
+}
+
 
 
 // #pragma Helper Functions
 
 function reify(iter, seq) {
   return isSeq(iter) ? seq : iter.constructor(seq);
+}
+
+function defaultComparator(a, b) {
+  return a > b ? 1 : a < b ? -1 : 0;
 }
 
 function validateEntry(entry) {

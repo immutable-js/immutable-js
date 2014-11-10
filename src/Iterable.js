@@ -22,11 +22,12 @@ import "Iterator"
           isSeq,
           Seq, KeyedSeq, IndexedSeq, SetSeq,
           ArraySeq,
-          reify, ToKeyedSequence, ToIndexedSequence, ToSetSequence,
+          reify, defaultComparator,
+          ToKeyedSequence, ToIndexedSequence, ToSetSequence,
           FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
           filterFactory, countByFactory, groupByFactory, takeFactory,
           takeWhileFactory, skipFactory, skipWhileFactory, concatFactory,
-          flattenFactory, flatMapFactory, interposeFactory */
+          flattenFactory, flatMapFactory, interposeFactory, sortFactory */
 /* exported Iterable,
             isIterable, isKeyed, isIndexed, isAssociative,
             Collection, KeyedCollection, IndexedCollection, SetCollection */
@@ -246,7 +247,7 @@ class Iterable {
   }
 
   sort(comparator) {
-    return this.sortBy(valueMapper, comparator);
+    return reify(this, sortFactory(this, comparator));
   }
 
   values() {
@@ -428,13 +429,7 @@ class Iterable {
   }
 
   sortBy(mapper, comparator) {
-    comparator = comparator || defaultComparator;
-    return reify(this, new ArraySeq(this.entrySeq().entrySeq().toArray().sort(
-      (a, b) => comparator(
-        mapper(a[1][1], a[1][0], this),
-        mapper(b[1][1], b[1][0], this)
-      ) || a[0] - b[0]
-    )).fromEntrySeq().valueSeq().fromEntrySeq());
+    return reify(this, sortFactory(this, comparator, mapper));
   }
 
   take(amount) {
@@ -691,16 +686,6 @@ class IndexedIterable extends Iterable {
     return reify(this, skipWhileFactory(this, predicate, context, false));
   }
 
-  sortBy(mapper, comparator) {
-    comparator = comparator || defaultComparator;
-    return reify(this, new ArraySeq(this.entrySeq().toArray().sort(
-      (a, b) => comparator(
-        mapper(a[1], a[0], this),
-        mapper(b[1], b[0], this)
-      ) || a[0] - b[0]
-    )).fromEntrySeq().valueSeq());
-  }
-
   take(amount) {
     var iter = this;
     var takeSeq = takeFactory(iter, amount);
@@ -798,8 +783,4 @@ function not(predicate) {
 
 function quoteString(value) {
   return typeof value === 'string' ? JSON.stringify(value) : value;
-}
-
-function defaultComparator(a, b) {
-  return a > b ? 1 : a < b ? -1 : 0;
 }
