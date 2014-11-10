@@ -662,6 +662,9 @@ function interposeFactory(iterable, separator) {
 }
 
 function sortFactory(iterable, comparator, mapper) {
+  if (!comparator) {
+    comparator = defaultComparator;
+  }
   var isKeyedIterable = isKeyed(iterable);
   var index = 0;
   var entries = iterable.toSeq().map(
@@ -678,6 +681,9 @@ function sortFactory(iterable, comparator, mapper) {
 }
 
 function maxFactory(iterable, comparator, mapper) {
+  if (!comparator) {
+    comparator = defaultComparator;
+  }
   if (mapper) {
     var entry = iterable.toSeq()
       .map((v, k) => [v, mapper(v, k, iterable)])
@@ -732,4 +738,8 @@ function cacheResultThrough() {
   } else {
     return Seq.prototype.cacheResult.call(this);
   }
+}
+
+function defaultComparator(a, b) {
+  return a > b ? 1 : a < b ? -1 : 0;
 }

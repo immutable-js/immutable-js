@@ -11,7 +11,9 @@ import "Iterable"
 import "Collection"
 import "Map"
 import "TrieUtils"
-/* global SetIterable, KeyedIterable, SetCollection, MapPrototype, emptyMap, DELETE */
+import "Operations"
+/* global SetIterable, KeyedIterable, SetCollection, MapPrototype,
+          emptyMap, DELETE, sortFactory, OrderedSet */
 /* exported Set */
 
 
@@ -107,6 +109,16 @@ class Set extends SetCollection {
 
   mergeWith(merger, ...iters) {
     return this.union.apply(this, iters);
+  }
+
+  sort(comparator) {
+    // Late binding
+    return OrderedSet(sortFactory(this, comparator));
+  }
+
+  sortBy(mapper, comparator) {
+    // Late binding
+    return OrderedSet(sortFactory(this, comparator, mapper));
   }
 
   wasAltered() {

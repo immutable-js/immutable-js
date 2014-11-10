@@ -16,9 +16,10 @@ import "invariant"
 import "TrieUtils"
 import "Hash"
 import "Iterator"
+import "Operations"
 /* global is, fromJS, isIterable, KeyedIterable, KeyedCollection, invariant,
           DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
-          MakeRef, SetRef, arrCopy, hash,
+          MakeRef, SetRef, arrCopy, hash, sortFactory, OrderedMap,
           Iterator, iteratorValue, iteratorDone */
 /* exported Map, MapPrototype */
 
@@ -111,6 +112,16 @@ class Map extends KeyedCollection {
 
   mergeDeepWith(merger, ...iters) {
     return mergeIntoMapWith(this, deepMerger(merger), iters);
+  }
+
+  sort(comparator) {
+    // Late binding
+    return OrderedMap(sortFactory(this, comparator));
+  }
+
+  sortBy(mapper, comparator) {
+    // Late binding
+    return OrderedMap(sortFactory(this, comparator, mapper));
   }
 
   // @pragma Mutability

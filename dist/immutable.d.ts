@@ -407,6 +407,9 @@ declare module 'immutable' {
      *   * Returns `1` (or any positive number) if `valueA` comes after `valueB`
      *   * Is pure, i.e. it must always return the same value for the same pair
      *     of values.
+     *
+     * When sorting collections which have no defined order, their ordered
+     * equivalents will be returned. e.g. `map.sort()` returns OrderedMap.
      */
     sort(comparator?: (valueA: V, valueB: V) => number): /*this*/Iterable<K, V>;
 

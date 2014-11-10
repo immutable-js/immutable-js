@@ -440,7 +440,7 @@ var $Iterable = Iterable;
     return !this.every(not(predicate), context);
   },
   sort: function(comparator) {
-    return reify(this, sortFactory(this, comparator || defaultComparator));
+    return reify(this, sortFactory(this, comparator));
   },
   values: function() {
     return this.__iterator(ITERATE_VALUES);
@@ -549,16 +549,16 @@ var $Iterable = Iterable;
     return this.toSeq().reverse().first();
   },
   max: function(comparator) {
-    return maxFactory(this, comparator || defaultComparator);
+    return maxFactory(this, comparator);
   },
   maxBy: function(mapper, comparator) {
-    return maxFactory(this, comparator || defaultComparator, mapper);
+    return maxFactory(this, comparator, mapper);
   },
   min: function(comparator) {
-    return maxFactory(this, neg(comparator || defaultComparator));
+    return maxFactory(this, comparator ? neg(comparator) : defaultNegComparator);
   },
   minBy: function(mapper, comparator) {
-    return maxFactory(this, neg(comparator || defaultComparator), mapper);
+    return maxFactory(this, comparator ? neg(comparator) : defaultNegComparator, mapper);
   },
   rest: function() {
     return this.slice(1);
@@ -576,7 +576,7 @@ var $Iterable = Iterable;
     return this.skipWhile(not(predicate), context);
   },
   sortBy: function(mapper, comparator) {
-    return reify(this, sortFactory(this, comparator || defaultComparator, mapper));
+    return reify(this, sortFactory(this, comparator, mapper));
   },
   take: function(amount) {
     return reify(this, takeFactory(this, amount));
@@ -821,8 +821,8 @@ function neg(predicate) {
 function quoteString(value) {
   return typeof value === 'string' ? JSON.stringify(value) : value;
 }
-function defaultComparator(a, b) {
-  return a > b ? 1 : a < b ? -1 : 0;
+function defaultNegComparator(a, b) {
+  return a > b ? -1 : a < b ? 1 : 0;
 }
 function mixin(ctor, methods) {
   var proto = ctor.prototype;
@@ -1244,6 +1244,12 @@ var Map = function Map(value) {
         $__4 = 1; $__4 < arguments.length; $__4++)
       iters[$__4 - 1] = arguments[$__4];
     return mergeIntoMapWith(this, deepMerger(merger), iters);
+  },
+  sort: function(comparator) {
+    return OrderedMap(sortFactory(this, comparator));
+  },
+  sortBy: function(mapper, comparator) {
+    return OrderedMap(sortFactory(this, comparator, mapper));
   },
   withMutations: function(fn) {
     var mutable = this.asMutable();
@@ -2317,6 +2323,9 @@ function interposeFactory(iterable, separator) {
   return interposedSequence;
 }
 function sortFactory(iterable, comparator, mapper) {
+  if (!comparator) {
+    comparator = defaultComparator;
+  }
   var isKeyedIterable = isKeyed(iterable);
   var index = 0;
   var entries = iterable.toSeq().map((function(v, k) {
@@ -2332,6 +2341,9 @@ function sortFactory(iterable, comparator, mapper) {
   return isKeyedIterable ? KeyedSeq(entries) : isIndexed(iterable) ? IndexedSeq(entries) : SetSeq(entries);
 }
 function maxFactory(iterable, comparator, mapper) {
+  if (!comparator) {
+    comparator = defaultComparator;
+  }
   if (mapper) {
     var entry = iterable.toSeq().map((function(v, k) {
       return [v, mapper(v, k, iterable)];
@@ -2371,6 +2383,9 @@ function cacheResultThrough() {
   } else {
     return Seq.prototype.cacheResult.call(this);
   }
+}
+function defaultComparator(a, b) {
+  return a > b ? 1 : a < b ? -1 : 0;
 }
 var List = function List(value) {
   var empty = emptyList();
@@ -3240,6 +3255,12 @@ var Set = function Set(value) {
         $__9 = 1; $__9 < arguments.length; $__9++)
       iters[$__9 - 1] = arguments[$__9];
     return this.union.apply(this, iters);
+  },
+  sort: function(comparator) {
+    return OrderedSet(sortFactory(this, comparator));
+  },
+  sortBy: function(mapper, comparator) {
+    return OrderedSet(sortFactory(this, comparator, mapper));
   },
   wasAltered: function() {
     return this._map.wasAltered();

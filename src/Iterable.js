@@ -247,7 +247,7 @@ class Iterable {
   }
 
   sort(comparator) {
-    return reify(this, sortFactory(this, comparator || defaultComparator));
+    return reify(this, sortFactory(this, comparator));
   }
 
   values() {
@@ -379,19 +379,19 @@ class Iterable {
   }
 
   max(comparator) {
-    return maxFactory(this, comparator || defaultComparator);
+    return maxFactory(this, comparator);
   }
 
   maxBy(mapper, comparator) {
-    return maxFactory(this, comparator || defaultComparator, mapper);
+    return maxFactory(this, comparator, mapper);
   }
 
   min(comparator) {
-    return maxFactory(this, neg(comparator || defaultComparator));
+    return maxFactory(this, comparator ? neg(comparator) : defaultNegComparator);
   }
 
   minBy(mapper, comparator) {
-    return maxFactory(this, neg(comparator || defaultComparator), mapper);
+    return maxFactory(this, comparator ? neg(comparator) : defaultNegComparator, mapper);
   }
 
   rest() {
@@ -415,7 +415,7 @@ class Iterable {
   }
 
   sortBy(mapper, comparator) {
-    return reify(this, sortFactory(this, comparator || defaultComparator, mapper));
+    return reify(this, sortFactory(this, comparator, mapper));
   }
 
   take(amount) {
@@ -773,6 +773,6 @@ function quoteString(value) {
   return typeof value === 'string' ? JSON.stringify(value) : value;
 }
 
-function defaultComparator(a, b) {
-  return a > b ? 1 : a < b ? -1 : 0;
+function defaultNegComparator(a, b) {
+  return a > b ? -1 : a < b ? 1 : 0;
 }
