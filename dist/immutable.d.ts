@@ -1714,8 +1714,11 @@ declare module 'immutable' {
     setIn(keyPath: Array<any>, value: T): List<T>;
 
     /**
-     * Returns a new List which excludes this `index`. It will not affect the
-     * size of the List, instead leaving an undefined value.
+     * Returns a new List which excludes this `index` and with a size 1 less
+     * than this List. Values at indicies above `index` are shifted down by 1 to
+     * fill the position.
+     *
+     * This is synonymous with `list.splice(index, 1)`.
      *
      * `index` may be a negative number, which indexes back from the end of the
      * List. `v.delete(-1)` deletes the last item in the List.
