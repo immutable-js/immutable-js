@@ -1598,9 +1598,10 @@ declare module 'immutable' {
    * iterable-like.
    */
   export function Set<T>(): Set<T>;
-  export function Set<T>(iter: Iterable<any, T>): Set<T>;
+  export function Set<T>(iter: SetIterable<T>): Set<T>;
+  export function Set<T>(iter: IndexedIterable<T>): Set<T>;
+  export function Set<K, V>(iter: KeyedIterable<K, V>): Set</*[K,V]*/any>;
   export function Set<T>(array: Array<T>): Set<T>;
-  export function Set<T>(obj: {[key: string]: T}): Set<T>;
   export function Set<T>(iterator: Iterator<T>): Set<T>;
   export function Set<T>(iterable: /*Iterable<T>*/Object): Set<T>;
 
@@ -1704,9 +1705,10 @@ declare module 'immutable' {
    * iterable-like.
    */
   export function OrderedSet<T>(): Set<T>;
-  export function OrderedSet<T>(iter: Iterable<any, T>): Set<T>;
+  export function OrderedSet<T>(iter: SetIterable<T>): Set<T>;
+  export function OrderedSet<T>(iter: IndexedIterable<T>): Set<T>;
+  export function OrderedSet<K, V>(iter: KeyedIterable<K, V>): Set</*[K,V]*/any>;
   export function OrderedSet<T>(array: Array<T>): Set<T>;
-  export function OrderedSet<T>(obj: {[key: string]: T}): Set<T>;
   export function OrderedSet<T>(iterator: Iterator<T>): Set<T>;
   export function OrderedSet<T>(iterable: /*Iterable<T>*/Object): Set<T>;
 
@@ -1739,9 +1741,10 @@ declare module 'immutable' {
    * iterable-like.
    */
   export function List<T>(): List<T>;
-  export function List<T>(iter: Iterable<any, T>): List<T>;
+  export function List<T>(iter: IndexedIterable<T>): List<T>;
+  export function List<T>(iter: SetIterable<T>): List<T>;
+  export function List<K, V>(iter: KeyedIterable<K, V>): List</*[K,V]*/any>;
   export function List<T>(array: Array<T>): List<T>;
-  export function List<T>(obj: {[key: string]: T}): List<T>;
   export function List<T>(iterator: Iterator<T>): List<T>;
   export function List<T>(iterable: /*Iterable<T>*/Object): List<T>;
 
@@ -1942,9 +1945,10 @@ declare module 'immutable' {
    * iterable.
    */
   export function Stack<T>(): Stack<T>;
-  export function Stack<T>(iter: Iterable<any, T>): Stack<T>;
+  export function Stack<T>(iter: IndexedIterable<T>): Stack<T>;
+  export function Stack<T>(iter: SetIterable<T>): Stack<T>;
+  export function Stack<K, V>(iter: KeyedIterable<K, V>): Stack</*[K,V]*/any>;
   export function Stack<T>(array: Array<T>): Stack<T>;
-  export function Stack<T>(obj: {[key: string]: T}): Stack<T>;
   export function Stack<T>(iterator: Iterator<T>): Stack<T>;
   export function Stack<T>(iterable: /*Iterable<T>*/Object): Stack<T>;
 
