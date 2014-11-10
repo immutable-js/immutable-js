@@ -684,13 +684,10 @@ function sortFactory(iterable, comparator, mapper) {
 
 function maxFactory(iterable, comparator, mapper) {
   if (mapper) {
-    var entry = iterable.entrySeq().reduce(
-      (max, next) => comparator(
-        mapper(next[1], next[0], iterable),
-        mapper(max[1], max[0], iterable)
-      ) > 0 ? next : max
-    );
-    return entry && entry[1];
+    var entry = iterable.toSeq()
+      .map((v, k) => [v, mapper(v, k, iterable)])
+      .reduce((max, next) => comparator(next[1], max[1]) > 0 ? next : max);
+    return entry && entry[0];
   } else {
     return iterable.reduce(
       (max, next) => comparator(next, max) > 0 ? next : max

@@ -2337,10 +2337,12 @@ function sortFactory(iterable, comparator, mapper) {
 }
 function maxFactory(iterable, comparator, mapper) {
   if (mapper) {
-    var entry = iterable.entrySeq().reduce((function(max, next) {
-      return comparator(mapper(next[1], next[0], iterable), mapper(max[1], max[0], iterable)) > 0 ? next : max;
+    var entry = iterable.toSeq().map((function(v, k) {
+      return [v, mapper(v, k, iterable)];
+    })).reduce((function(max, next) {
+      return comparator(next[1], max[1]) > 0 ? next : max;
     }));
-    return entry && entry[1];
+    return entry && entry[0];
   } else {
     return iterable.reduce((function(max, next) {
       return comparator(next, max) > 0 ? next : max;
