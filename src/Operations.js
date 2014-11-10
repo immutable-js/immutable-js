@@ -662,20 +662,15 @@ function interposeFactory(iterable, separator) {
 }
 
 function sortFactory(iterable, comparator, mapper) {
-  var sortFn = mapper ?
-    (a, b) => comparator(
-      mapper(a[1][1], a[1][0], iterable),
-      mapper(b[1][1], b[1][0], iterable)
-    ) || a[0] - b[0] :
-    (a, b) => comparator(a[1][1], b[1][1]) || a[0] - b[0];
-  var entries = [];
-  iterable.forEach((v, k) => { entries.push([entries.length, [k, v]]); });
-  entries.sort(sortFn);
   var isKeyedIterable = isKeyed(iterable);
-  entries.forEach(
+  var index = 0;
+  var entries = iterable.toSeq().map(
+    (v, k) => [k, v, index++, mapper ? mapper(v, k, iterable) : v]
+  ).toArray();
+  entries.sort((a, b) => comparator(a[3], b[3]) || a[2] - b[2]).forEach(
     isKeyedIterable ?
-    (v, i) => { entries[i] = v[1] } :
-    (v, i) => { entries[i] = v[1][1] }
+    (v, i) => { entries[i].length = 2; } :
+    (v, i) => { entries[i] = v[1]; }
   );
   return isKeyedIterable ? KeyedSeq(entries) :
     isIndexed(iterable) ? IndexedSeq(entries) :

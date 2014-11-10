@@ -2317,21 +2317,17 @@ function interposeFactory(iterable, separator) {
   return interposedSequence;
 }
 function sortFactory(iterable, comparator, mapper) {
-  var sortFn = mapper ? (function(a, b) {
-    return comparator(mapper(a[1][1], a[1][0], iterable), mapper(b[1][1], b[1][0], iterable)) || a[0] - b[0];
-  }) : (function(a, b) {
-    return comparator(a[1][1], b[1][1]) || a[0] - b[0];
-  });
-  var entries = [];
-  iterable.forEach((function(v, k) {
-    entries.push([entries.length, [k, v]]);
-  }));
-  entries.sort(sortFn);
   var isKeyedIterable = isKeyed(iterable);
-  entries.forEach(isKeyedIterable ? (function(v, i) {
-    entries[i] = v[1];
+  var index = 0;
+  var entries = iterable.toSeq().map((function(v, k) {
+    return [k, v, index++, mapper ? mapper(v, k, iterable) : v];
+  })).toArray();
+  entries.sort((function(a, b) {
+    return comparator(a[3], b[3]) || a[2] - b[2];
+  })).forEach(isKeyedIterable ? (function(v, i) {
+    entries[i].length = 2;
   }) : (function(v, i) {
-    entries[i] = v[1][1];
+    entries[i] = v[1];
   }));
   return isKeyedIterable ? KeyedSeq(entries) : isIndexed(iterable) ? IndexedSeq(entries) : SetSeq(entries);
 }
