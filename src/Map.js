@@ -42,7 +42,7 @@ class Map extends KeyedCollection {
 
   get(k, notSetValue) {
     return this._root ?
-      this._root.get(0, hash(k), k, notSetValue) :
+      this._root.get(0, undefined, k, notSetValue) :
       notSetValue;
   }
 
@@ -183,6 +183,81 @@ MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 
 
+class ArrayMapNode {
+
+  constructor(ownerID, entries) {
+    this.ownerID = ownerID;
+    this.entries = entries;
+  }
+
+  get(shift, keyHash, key, notSetValue) {
+    var entries = this.entries;
+    for (var ii = 0, len = entries.length; ii < len; ii++) {
+      if (is(key, entries[ii][0])) {
+        return entries[ii][1];
+      }
+    }
+    return notSetValue;
+  }
+
+  update(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
+    var removed = value === NOT_SET;
+
+    var entries = this.entries;
+    var idx = 0;
+    for (var len = entries.length; idx < len; idx++) {
+      if (is(key, entries[idx][0])) {
+        break;
+      }
+    }
+    var exists = idx < len;
+
+    if (exists ? entries[idx][1] === value : removed) {
+      return this;
+    }
+
+    SetRef(didAlter);
+    (removed || !exists) && SetRef(didChangeSize);
+
+    if (removed && entries.length === 1) {
+      return; // undefined
+    }
+
+    if (!exists && !removed && entries.length >= MAX_ARRAY_MAP_SIZE) {
+      return createNodes(ownerID, entries, key, value);
+    }
+
+    var isEditable = ownerID && ownerID === this.ownerID;
+    var newEntries = isEditable ? entries : arrCopy(entries);
+
+    if (exists) {
+      if (removed) {
+        idx === len - 1 ? newEntries.pop() : (newEntries[idx] = newEntries.pop());
+      } else {
+        newEntries[idx] = [key, value];
+      }
+    } else {
+      newEntries.push([key, value]);
+    }
+
+    if (isEditable) {
+      this.entries = newEntries;
+      return this;
+    }
+
+    return new ArrayMapNode(ownerID, newEntries);
+  }
+
+  iterate(fn, reverse) {
+    var entries = this.entries;
+    for (var ii = 0, maxIndex = entries.length - 1; ii <= maxIndex; ii++) {
+      if (fn(entries[reverse ? maxIndex - ii : ii]) === false) {
+        return false;
+      }
+    }
+  }
+}
+
 class BitmapIndexedNode {
 
   constructor(ownerID, bitmap, nodes) {
@@ -191,16 +266,22 @@ class BitmapIndexedNode {
     this.nodes = nodes;
   }
 
-  get(shift, hash, key, notSetValue) {
-    var bit = (1 << ((shift === 0 ? hash : hash >>> shift) & MASK));
+  get(shift, keyHash, key, notSetValue) {
+    if (keyHash === undefined) {
+      keyHash = hash(key);
+    }
+    var bit = (1 << ((shift === 0 ? keyHash : keyHash >>> shift) & MASK));
     var bitmap = this.bitmap;
     return (bitmap & bit) === 0 ? notSetValue :
-      this.nodes[popCount(bitmap & (bit - 1))].get(shift + SHIFT, hash, key, notSetValue);
+      this.nodes[popCount(bitmap & (bit - 1))].get(shift + SHIFT, keyHash, key, notSetValue);
   }
 
-  update(ownerID, shift, hash, key, value, didChangeSize, didAlter) {
-    var hashFrag = (shift === 0 ? hash : hash >>> shift) & MASK;
-    var bit = 1 << hashFrag;
+  update(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
+    if (keyHash === undefined) {
+      keyHash = hash(key);
+    }
+    var keyHashFrag = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
+    var bit = 1 << keyHashFrag;
     var bitmap = this.bitmap;
     var exists = (bitmap & bit) !== 0;
 
@@ -211,14 +292,14 @@ class BitmapIndexedNode {
     var idx = popCount(bitmap & (bit - 1));
     var nodes = this.nodes;
     var node = exists ? nodes[idx] : undefined;
-    var newNode = updateNode(node, ownerID, shift + SHIFT, hash, key, value, didChangeSize, didAlter);
+    var newNode = updateNode(node, ownerID, shift + SHIFT, keyHash, key, value, didChangeSize, didAlter);
 
     if (newNode === node) {
       return this;
     }
 
     if (!exists && newNode && nodes.length >= MAX_BITMAP_INDEXED_SIZE) {
-      return expandNodes(ownerID, nodes, bitmap, hashFrag, newNode);
+      return expandNodes(ownerID, nodes, bitmap, keyHashFrag, newNode);
     }
 
     if (exists && !newNode && nodes.length === 2 && isLeafNode(nodes[idx ^ 1])) {
@@ -263,14 +344,20 @@ class HashArrayMapNode {
     this.nodes = nodes;
   }
 
-  get(shift, hash, key, notSetValue) {
-    var idx = (shift === 0 ? hash : hash >>> shift) & MASK;
+  get(shift, keyHash, key, notSetValue) {
+    if (keyHash === undefined) {
+      keyHash = hash(key);
+    }
+    var idx = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
     var node = this.nodes[idx];
-    return node ? node.get(shift + SHIFT, hash, key, notSetValue) : notSetValue;
+    return node ? node.get(shift + SHIFT, keyHash, key, notSetValue) : notSetValue;
   }
 
-  update(ownerID, shift, hash, key, value, didChangeSize, didAlter) {
-    var idx = (shift === 0 ? hash : hash >>> shift) & MASK;
+  update(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
+    if (keyHash === undefined) {
+      keyHash = hash(key);
+    }
+    var idx = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
     var removed = value === NOT_SET;
     var nodes = this.nodes;
     var node = nodes[idx];
@@ -279,7 +366,7 @@ class HashArrayMapNode {
       return this;
     }
 
-    var newNode = updateNode(node, ownerID, shift + SHIFT, hash, key, value, didChangeSize, didAlter);
+    var newNode = updateNode(node, ownerID, shift + SHIFT, keyHash, key, value, didChangeSize, didAlter);
     if (newNode === node) {
       return this;
     }
@@ -319,13 +406,13 @@ class HashArrayMapNode {
 
 class HashCollisionNode {
 
-  constructor(ownerID, hash, entries) {
+  constructor(ownerID, keyHash, entries) {
     this.ownerID = ownerID;
-    this.hash = hash;
+    this.keyHash = keyHash;
     this.entries = entries;
   }
 
-  get(shift, hash, key, notSetValue) {
+  get(shift, keyHash, key, notSetValue) {
     var entries = this.entries;
     for (var ii = 0, len = entries.length; ii < len; ii++) {
       if (is(key, entries[ii][0])) {
@@ -335,16 +422,20 @@ class HashCollisionNode {
     return notSetValue;
   }
 
-  update(ownerID, shift, hash, key, value, didChangeSize, didAlter) {
+  update(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
+    if (keyHash === undefined) {
+      keyHash = hash(key);
+    }
+
     var removed = value === NOT_SET;
 
-    if (hash !== this.hash) {
+    if (keyHash !== this.keyHash) {
       if (removed) {
         return this;
       }
       SetRef(didAlter);
       SetRef(didChangeSize);
-      return mergeIntoNode(this, ownerID, shift, hash, [key, value]);
+      return mergeIntoNode(this, ownerID, shift, keyHash, [key, value]);
     }
 
     var entries = this.entries;
@@ -364,7 +455,7 @@ class HashCollisionNode {
     (removed || !exists) && SetRef(didChangeSize);
 
     if (removed && len === 2) {
-      return new ValueNode(ownerID, this.hash, entries[idx ^ 1]);
+      return new ValueNode(ownerID, this.keyHash, entries[idx ^ 1]);
     }
 
     var isEditable = ownerID && ownerID === this.ownerID;
@@ -385,7 +476,7 @@ class HashCollisionNode {
       return this;
     }
 
-    return new HashCollisionNode(ownerID, this.hash, newEntries);
+    return new HashCollisionNode(ownerID, this.keyHash, newEntries);
   }
 
   iterate(fn, reverse) {
@@ -400,17 +491,17 @@ class HashCollisionNode {
 
 class ValueNode {
 
-  constructor(ownerID, hash, entry) {
+  constructor(ownerID, keyHash, entry) {
     this.ownerID = ownerID;
-    this.hash = hash;
+    this.keyHash = keyHash;
     this.entry = entry;
   }
 
-  get(shift, hash, key, notSetValue) {
+  get(shift, keyHash, key, notSetValue) {
     return is(key, this.entry[0]) ? this.entry[1] : notSetValue;
   }
 
-  update(ownerID, shift, hash, key, value, didChangeSize, didAlter) {
+  update(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
     var removed = value === NOT_SET;
     var keyMatch = is(key, this.entry[0]);
     if (keyMatch ? value === this.entry[1] : removed) {
@@ -429,11 +520,11 @@ class ValueNode {
         this.entry[1] = value;
         return this;
       }
-      return new ValueNode(ownerID, hash, [key, value]);
+      return new ValueNode(ownerID, this.keyHash, [key, value]);
     }
 
     SetRef(didChangeSize);
-    return mergeIntoNode(this, ownerID, shift, hash, [key, value]);
+    return mergeIntoNode(this, ownerID, shift, hash(key), [key, value]);
   }
 
   iterate(fn) {
@@ -512,13 +603,23 @@ function emptyMap() {
 }
 
 function updateMap(map, k, v) {
-  var didChangeSize = MakeRef(CHANGE_LENGTH);
-  var didAlter = MakeRef(DID_ALTER);
-  var newRoot = updateNode(map._root, map.__ownerID, 0, hash(k), k, v, didChangeSize, didAlter);
-  if (!didAlter.value) {
-    return map;
+  var newRoot;
+  var newSize;
+  if (!map._root) {
+    if (v === NOT_SET) {
+      return map;
+    }
+    newSize = 1;
+    newRoot = new ArrayMapNode(map.__ownerID, [[k, v]]);
+  } else {
+    var didChangeSize = MakeRef(CHANGE_LENGTH);
+    var didAlter = MakeRef(DID_ALTER);
+    newRoot = updateNode(map._root, map.__ownerID, 0, undefined, k, v, didChangeSize, didAlter);
+    if (!didAlter.value) {
+      return map;
+    }
+    newSize = map.size + (didChangeSize.value ? v === NOT_SET ? -1 : 1 : 0);
   }
-  var newSize = map.size + (didChangeSize.value ? v === NOT_SET ? -1 : 1 : 0);
   if (map.__ownerID) {
     map.size = newSize;
     map._root = newRoot;
@@ -529,36 +630,48 @@ function updateMap(map, k, v) {
   return newRoot ? makeMap(newSize, newRoot) : emptyMap();
 }
 
-function updateNode(node, ownerID, shift, hash, key, value, didChangeSize, didAlter) {
+function updateNode(node, ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
   if (!node) {
     if (value === NOT_SET) {
       return node;
     }
     SetRef(didAlter);
     SetRef(didChangeSize);
-    return new ValueNode(ownerID, hash, [key, value]);
+    return new ValueNode(ownerID, keyHash, [key, value]);
   }
-  return node.update(ownerID, shift, hash, key, value, didChangeSize, didAlter);
+  return node.update(ownerID, shift, keyHash, key, value, didChangeSize, didAlter);
 }
 
 function isLeafNode(node) {
   return node.constructor === ValueNode || node.constructor === HashCollisionNode;
 }
 
-function mergeIntoNode(node, ownerID, shift, hash, entry) {
-  if (node.hash === hash) {
-    return new HashCollisionNode(ownerID, hash, [node.entry, entry]);
+function mergeIntoNode(node, ownerID, shift, keyHash, entry) {
+  if (node.keyHash === keyHash) {
+    return new HashCollisionNode(ownerID, keyHash, [node.entry, entry]);
   }
 
-  var idx1 = (shift === 0 ? node.hash : node.hash >>> shift) & MASK;
-  var idx2 = (shift === 0 ? hash : hash >>> shift) & MASK;
+  var idx1 = (shift === 0 ? node.keyHash : node.keyHash >>> shift) & MASK;
+  var idx2 = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
 
   var newNode;
   var nodes = idx1 === idx2 ?
-    [mergeIntoNode(node, ownerID, shift + SHIFT, hash, entry)] :
-    ((newNode = new ValueNode(ownerID, hash, entry)), idx1 < idx2 ? [node, newNode] : [newNode, node]);
+    [mergeIntoNode(node, ownerID, shift + SHIFT, keyHash, entry)] :
+    ((newNode = new ValueNode(ownerID, keyHash, entry)), idx1 < idx2 ? [node, newNode] : [newNode, node]);
 
   return new BitmapIndexedNode(ownerID, (1 << idx1) | (1 << idx2), nodes);
+}
+
+function createNodes(ownerID, entries, key, value) {
+  if (!ownerID) {
+    ownerID = new OwnerID();
+  }
+  var node = new ValueNode(ownerID, hash(key), [key, value]);
+  for (var ii = 0; ii < entries.length; ii++) {
+    var entry = entries[ii];
+    node = node.update(ownerID, 0, undefined, entry[0], entry[1]);
+  }
+  return node;
 }
 
 function packNodes(ownerID, nodes, count, excluding) {
@@ -698,5 +811,6 @@ function spliceOut(array, idx, canEdit) {
   return newArray;
 }
 
+var MAX_ARRAY_MAP_SIZE = SIZE / 4;
 var MAX_BITMAP_INDEXED_SIZE = SIZE / 2;
 var MIN_HASH_ARRAY_MAP_SIZE = SIZE / 4;

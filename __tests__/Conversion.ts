@@ -141,8 +141,8 @@ describe('Conversion', () => {
   });
 
   it('is conservative with array-likes, only accepting true Arrays.', () => {
-    expect(Immutable.fromJS({length: 3, 1: 2})).is(
-      Immutable.Map().set('length', 3).set('1', 2)
+    expect(Immutable.fromJS({1: 2, length: 3})).is(
+      Immutable.Map().set('1', 2).set('length', 3)
     );
     expect(Immutable.fromJS('string')).toEqual('string');
   });

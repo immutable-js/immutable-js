@@ -117,7 +117,7 @@ describe('Set', () => {
 
   it('unions two sets', () => {
     var s1 = Set.of('a', 'b', 'c');
-    var s2 = Set.of('wow', 'd', 'b');
+    var s2 = Set.of('d', 'b', 'wow');
     var s3 = s1.union(s2);
     expect(s3.toArray()).toEqual(['a', 'b', 'c', 'd', 'wow']);
   });
@@ -181,7 +181,7 @@ describe('Set', () => {
     var s1 = Set.of('A', 'B', 'C');
     expect(s1.equals(null)).toBe(false);
 
-    var s2 = Set.of('C', 'B', 'A');
+    var s2 = Set.of('A', 'B', 'C');
     expect(s1 === s2).toBe(false);
     expect(Immutable.is(s1, s2)).toBe(true);
     expect(s1.equals(s2)).toBe(true);

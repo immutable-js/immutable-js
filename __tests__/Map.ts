@@ -142,16 +142,14 @@ describe('Map', () => {
     expect(m5.get('c')).toBe('Canary');
   });
 
-  it('deletes down to empty map', () => {
-    var m1 = Map({a:'A', b:'B', c:'C'});
-    var m2 = m1.remove('a');
-    var m3 = m2.remove('b');
-    var m4 = m3.remove('c');
-    expect(m1.size).toBe(3);
-    expect(m2.size).toBe(2);
-    expect(m3.size).toBe(1);
-    expect(m4.size).toBe(0);
-    expect(m4).toBe(Map());
+  check.it('deletes down to empty map', [gen.posInt], size => {
+    var m = Immutable.Range(0, size).toMap();
+    expect(m.size).toBe(size);
+    for (var ii = size - 1; ii >= 0; ii--) {
+      m = m.remove(ii);
+      expect(m.size).toBe(ii);
+    }
+    expect(m).toBe(Map());
   });
 
   it('can map many items', () => {
