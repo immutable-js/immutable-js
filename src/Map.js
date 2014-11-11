@@ -183,6 +183,8 @@ MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 
 
+// #pragma Trie Nodes
+
 class ArrayMapNode {
 
   constructor(ownerID, entries) {
@@ -246,15 +248,6 @@ class ArrayMapNode {
     }
 
     return new ArrayMapNode(ownerID, newEntries);
-  }
-
-  iterate(fn, reverse) {
-    var entries = this.entries;
-    for (var ii = 0, maxIndex = entries.length - 1; ii <= maxIndex; ii++) {
-      if (fn(entries[reverse ? maxIndex - ii : ii]) === false) {
-        return false;
-      }
-    }
   }
 }
 
@@ -325,15 +318,6 @@ class BitmapIndexedNode {
 
     return new BitmapIndexedNode(ownerID, newBitmap, newNodes);
   }
-
-  iterate(fn, reverse) {
-    var nodes = this.nodes;
-    for (var ii = 0, maxIndex = nodes.length - 1; ii <= maxIndex; ii++) {
-      if (nodes[reverse ? maxIndex - ii : ii].iterate(fn, reverse) === false) {
-        return false;
-      }
-    }
-  }
 }
 
 class HashArrayMapNode {
@@ -391,16 +375,6 @@ class HashArrayMapNode {
     }
 
     return new HashArrayMapNode(ownerID, newCount, newNodes);
-  }
-
-  iterate(fn, reverse) {
-    var nodes = this.nodes;
-    for (var ii = 0, maxIndex = nodes.length - 1; ii <= maxIndex; ii++) {
-      var node = nodes[reverse ? maxIndex - ii : ii];
-      if (node && node.iterate(fn, reverse) === false) {
-        return false;
-      }
-    }
   }
 }
 
@@ -478,15 +452,6 @@ class HashCollisionNode {
 
     return new HashCollisionNode(ownerID, this.keyHash, newEntries);
   }
-
-  iterate(fn, reverse) {
-    var entries = this.entries;
-    for (var ii = 0, maxIndex = entries.length - 1; ii <= maxIndex; ii++) {
-      if (fn(entries[reverse ? maxIndex - ii : ii]) === false) {
-        return false;
-      }
-    }
-  }
 }
 
 class ValueNode {
@@ -526,10 +491,34 @@ class ValueNode {
     SetRef(didChangeSize);
     return mergeIntoNode(this, ownerID, shift, hash(key), [key, value]);
   }
+}
 
-  iterate(fn) {
-    return fn(this.entry);
+
+// #pragma Iterators
+
+ArrayMapNode.prototype.iterate =
+HashCollisionNode.prototype.iterate = function (fn, reverse) {
+  var entries = this.entries;
+  for (var ii = 0, maxIndex = entries.length - 1; ii <= maxIndex; ii++) {
+    if (fn(entries[reverse ? maxIndex - ii : ii]) === false) {
+      return false;
+    }
   }
+}
+
+BitmapIndexedNode.prototype.iterate =
+HashArrayMapNode.prototype.iterate = function (fn, reverse) {
+  var nodes = this.nodes;
+  for (var ii = 0, maxIndex = nodes.length - 1; ii <= maxIndex; ii++) {
+    var node = nodes[reverse ? maxIndex - ii : ii];
+    if (node && node.iterate(fn, reverse) === false) {
+      return false;
+    }
+  }
+}
+
+ValueNode.prototype.iterate = function (fn, reverse) {
+  return fn(this.entry);
 }
 
 class MapIterator extends Iterator {

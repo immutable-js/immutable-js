@@ -1350,15 +1350,6 @@ var $ArrayMapNode = ArrayMapNode;
       return this;
     }
     return new $ArrayMapNode(ownerID, newEntries);
-  },
-  iterate: function(fn, reverse) {
-    var entries = this.entries;
-    for (var ii = 0,
-        maxIndex = entries.length - 1; ii <= maxIndex; ii++) {
-      if (fn(entries[reverse ? maxIndex - ii : ii]) === false) {
-        return false;
-      }
-    }
   }
 }, {});
 var BitmapIndexedNode = function BitmapIndexedNode(ownerID, bitmap, nodes) {
@@ -1412,15 +1403,6 @@ var $BitmapIndexedNode = BitmapIndexedNode;
       return this;
     }
     return new $BitmapIndexedNode(ownerID, newBitmap, newNodes);
-  },
-  iterate: function(fn, reverse) {
-    var nodes = this.nodes;
-    for (var ii = 0,
-        maxIndex = nodes.length - 1; ii <= maxIndex; ii++) {
-      if (nodes[reverse ? maxIndex - ii : ii].iterate(fn, reverse) === false) {
-        return false;
-      }
-    }
   }
 }, {});
 var HashArrayMapNode = function HashArrayMapNode(ownerID, count, nodes) {
@@ -1470,16 +1452,6 @@ var $HashArrayMapNode = HashArrayMapNode;
       return this;
     }
     return new $HashArrayMapNode(ownerID, newCount, newNodes);
-  },
-  iterate: function(fn, reverse) {
-    var nodes = this.nodes;
-    for (var ii = 0,
-        maxIndex = nodes.length - 1; ii <= maxIndex; ii++) {
-      var node = nodes[reverse ? maxIndex - ii : ii];
-      if (node && node.iterate(fn, reverse) === false) {
-        return false;
-      }
-    }
   }
 }, {});
 var HashCollisionNode = function HashCollisionNode(ownerID, keyHash, entries) {
@@ -1544,15 +1516,6 @@ var $HashCollisionNode = HashCollisionNode;
       return this;
     }
     return new $HashCollisionNode(ownerID, this.keyHash, newEntries);
-  },
-  iterate: function(fn, reverse) {
-    var entries = this.entries;
-    for (var ii = 0,
-        maxIndex = entries.length - 1; ii <= maxIndex; ii++) {
-      if (fn(entries[reverse ? maxIndex - ii : ii]) === false) {
-        return false;
-      }
-    }
   }
 }, {});
 var ValueNode = function ValueNode(ownerID, keyHash, entry) {
@@ -1585,11 +1548,30 @@ var $ValueNode = ValueNode;
     }
     SetRef(didChangeSize);
     return mergeIntoNode(this, ownerID, shift, hash(key), [key, value]);
-  },
-  iterate: function(fn) {
-    return fn(this.entry);
   }
 }, {});
+ArrayMapNode.prototype.iterate = HashCollisionNode.prototype.iterate = function(fn, reverse) {
+  var entries = this.entries;
+  for (var ii = 0,
+      maxIndex = entries.length - 1; ii <= maxIndex; ii++) {
+    if (fn(entries[reverse ? maxIndex - ii : ii]) === false) {
+      return false;
+    }
+  }
+};
+BitmapIndexedNode.prototype.iterate = HashArrayMapNode.prototype.iterate = function(fn, reverse) {
+  var nodes = this.nodes;
+  for (var ii = 0,
+      maxIndex = nodes.length - 1; ii <= maxIndex; ii++) {
+    var node = nodes[reverse ? maxIndex - ii : ii];
+    if (node && node.iterate(fn, reverse) === false) {
+      return false;
+    }
+  }
+};
+ValueNode.prototype.iterate = function(fn, reverse) {
+  return fn(this.entry);
+};
 var MapIterator = function MapIterator(map, type, reverse) {
   this._type = type;
   this._reverse = reverse;
