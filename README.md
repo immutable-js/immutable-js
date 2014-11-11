@@ -1,5 +1,7 @@
-Immutable Data Collections
-==========================
+Immutable.js [![Build Status](https://travis-ci.org/facebook/immutable-js.svg)](https://travis-ci.org/facebook/immutable-js)
+============
+
+Persistent immutable data collections for JavaScript.
 
 **Converting to v3 from v2? Check out the [upgrade guide](https://github.com/facebook/immutable-js/wiki/Upgrading-to-Immutable-v3).**
 
