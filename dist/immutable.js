@@ -1441,7 +1441,7 @@ var $HashCollisionNode = HashCollisionNode;
       }
     }
     var exists = idx < len;
-    if (removed && !exists) {
+    if (exists ? entries[idx][1] === value : removed) {
       return this;
     }
     SetRef(didAlter);

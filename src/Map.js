@@ -183,7 +183,6 @@ MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 
 
-
 class BitmapIndexedNode {
 
   constructor(ownerID, bitmap, nodes) {
@@ -357,7 +356,7 @@ class HashCollisionNode {
     }
     var exists = idx < len;
 
-    if (removed && !exists) {
+    if (exists ? entries[idx][1] === value : removed) {
       return this;
     }
 
