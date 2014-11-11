@@ -16,7 +16,7 @@
   },
   "main": "dist/immutable.js",
   "scripts": {
-    "test": "jest"
+    "test": "grunt test"
   },
   "jest": {
     "scriptPreprocessor": "resources/jestPreprocessor.js",
