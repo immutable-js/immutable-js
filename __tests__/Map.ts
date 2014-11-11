@@ -162,18 +162,21 @@ describe('Map', () => {
   });
 
   it('can map items known to hash collide', () => {
-    var m = Map().set('AAA', 'letters').set(64545, 'numbers');
-    expect(m.size).toBe(2);
+    // make a big map, so it hashmaps
+    var m: Map<any, any> = Immutable.Range(0, 32).toMap();
+    var m = m.set('AAA', 'letters').set(64545, 'numbers');
+    expect(m.size).toBe(34);
     expect(m.get('AAA')).toEqual('letters');
     expect(m.get(64545)).toEqual('numbers');
   });
 
   it('can progressively add items known to collide', () => {
-    var map = Map();
+    // make a big map, so it hashmaps
+    var map: Map<any, any> = Immutable.Range(0, 32).toMap();
     map = map.set('@', '@');
     map = map.set(64, 64);
     map = map.set(96, 96);
-    expect(map.size).toBe(3);
+    expect(map.size).toBe(35);
     expect(map.get('@')).toBe('@');
     expect(map.get(64)).toBe(64);
     expect(map.get(96)).toBe(96);
