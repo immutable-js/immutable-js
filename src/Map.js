@@ -217,7 +217,7 @@ class BitmapIndexedNode {
       return this;
     }
 
-    if (!exists && newNode && nodes.length >= MAX_BITMAP_SIZE) {
+    if (!exists && newNode && nodes.length >= MAX_BITMAP_INDEXED_SIZE) {
       return expandNodes(ownerID, nodes, bitmap, hashFrag, newNode);
     }
 
@@ -255,7 +255,7 @@ class BitmapIndexedNode {
   }
 }
 
-class ArrayNode {
+class HashArrayMapNode {
 
   constructor(ownerID, count, nodes) {
     this.ownerID = ownerID;
@@ -289,7 +289,7 @@ class ArrayNode {
       newCount++;
     } else if (!newNode) {
       newCount--;
-      if (newCount < MIN_ARRAY_SIZE) {
+      if (newCount < MIN_HASH_ARRAY_MAP_SIZE) {
         return packNodes(ownerID, nodes, newCount, idx);
       }
     }
@@ -303,7 +303,7 @@ class ArrayNode {
       return this;
     }
 
-    return new ArrayNode(ownerID, newCount, newNodes);
+    return new HashArrayMapNode(ownerID, newCount, newNodes);
   }
 
   iterate(fn, reverse) {
@@ -582,7 +582,7 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
     expandedNodes[ii] = bitmap & 1 ? nodes[count++] : undefined;
   }
   expandedNodes[including] = node;
-  return new ArrayNode(ownerID, count + 1, expandedNodes);
+  return new HashArrayMapNode(ownerID, count + 1, expandedNodes);
 }
 
 function mergeIntoMapWith(map, merger, iterables) {
@@ -698,5 +698,5 @@ function spliceOut(array, idx, canEdit) {
   return newArray;
 }
 
-var MAX_BITMAP_SIZE = SIZE / 2;
-var MIN_ARRAY_SIZE = SIZE / 4;
+var MAX_BITMAP_INDEXED_SIZE = SIZE / 2;
+var MIN_HASH_ARRAY_MAP_SIZE = SIZE / 4;

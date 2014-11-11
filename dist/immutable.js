@@ -1324,7 +1324,7 @@ var $BitmapIndexedNode = BitmapIndexedNode;
     if (newNode === node) {
       return this;
     }
-    if (!exists && newNode && nodes.length >= MAX_BITMAP_SIZE) {
+    if (!exists && newNode && nodes.length >= MIN_BITMAP_INDEXED_SIZE) {
       return expandNodes(ownerID, nodes, bitmap, hashFrag, newNode);
     }
     if (exists && !newNode && nodes.length === 2 && isLeafNode(nodes[idx ^ 1])) {
@@ -1353,13 +1353,13 @@ var $BitmapIndexedNode = BitmapIndexedNode;
     }
   }
 }, {});
-var ArrayNode = function ArrayNode(ownerID, count, nodes) {
+var HashArrayMapNode = function HashArrayMapNode(ownerID, count, nodes) {
   this.ownerID = ownerID;
   this.count = count;
   this.nodes = nodes;
 };
-var $ArrayNode = ArrayNode;
-($traceurRuntime.createClass)(ArrayNode, {
+var $HashArrayMapNode = HashArrayMapNode;
+($traceurRuntime.createClass)(HashArrayMapNode, {
   get: function(shift, hash, key, notSetValue) {
     var idx = (shift === 0 ? hash : hash >>> shift) & MASK;
     var node = this.nodes[idx];
@@ -1382,7 +1382,7 @@ var $ArrayNode = ArrayNode;
       newCount++;
     } else if (!newNode) {
       newCount--;
-      if (newCount < MIN_ARRAY_SIZE) {
+      if (newCount < MIN_HASH_ARRAY_MAP_SIZE) {
         return packNodes(ownerID, nodes, newCount, idx);
       }
     }
@@ -1393,7 +1393,7 @@ var $ArrayNode = ArrayNode;
       this.nodes = newNodes;
       return this;
     }
-    return new $ArrayNode(ownerID, newCount, newNodes);
+    return new $HashArrayMapNode(ownerID, newCount, newNodes);
   },
   iterate: function(fn, reverse) {
     var nodes = this.nodes;
@@ -1635,7 +1635,7 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
     expandedNodes[ii] = bitmap & 1 ? nodes[count++] : undefined;
   }
   expandedNodes[including] = node;
-  return new ArrayNode(ownerID, count + 1, expandedNodes);
+  return new HashArrayMapNode(ownerID, count + 1, expandedNodes);
 }
 function mergeIntoMapWith(map, merger, iterables) {
   var iters = [];
@@ -1728,8 +1728,8 @@ function spliceOut(array, idx, canEdit) {
   }
   return newArray;
 }
-var MAX_BITMAP_SIZE = SIZE / 2;
-var MIN_ARRAY_SIZE = SIZE / 4;
+var MIN_BITMAP_INDEXED_SIZE = SIZE / 2;
+var MIN_HASH_ARRAY_MAP_SIZE = SIZE / 4;
 var ToKeyedSequence = function ToKeyedSequence(indexed, useKeys) {
   this._iter = indexed;
   this._useKeys = useKeys;
