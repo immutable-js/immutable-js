@@ -88,6 +88,14 @@ describe('List', () => {
     expect(i.get(-999, 1000)).toBe(1000);
   });
 
+  it('coerces numeric-string keys', () => {
+    // Of course, TypeScript protects us from this, so cast to "any" to test.
+    var i: any = Immutable.List.of(1, 2, 3, 4, 5, 6);
+    expect(i.get('1')).toBe(2);
+    expect(i.get('-1')).toBe(6);
+    expect(i.set('3', 10).get('-3')).toBe(10);
+  });
+
   it('setting creates a new instance', () => {
     var v0 = List.of('a');
     var v1 = v0.set(0, 'A');

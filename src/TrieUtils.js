@@ -71,7 +71,7 @@ function ensureSize(iter) {
 }
 
 function wrapIndex(iter, index) {
-  return index >= 0 ? index : ensureSize(iter) + index;
+  return index >= 0 ? (+index) : ensureSize(iter) + (+index);
 }
 
 function returnTrue() {
