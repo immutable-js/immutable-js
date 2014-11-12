@@ -4,4 +4,4 @@
 node -e "require('ts-compiler')"
 
 # Run all tests using jest
-jest
+jest -i
