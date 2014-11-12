@@ -4,4 +4,7 @@
 node -e "require('ts-compiler')"
 
 # Run all tests using jest
-jest -i
+if [[ $TRAVIS ]]
+then jest -i # Travis tests are run inline
+else jest
+fi
