@@ -602,6 +602,7 @@ var $Iterable = Iterable;
 var IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
 var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
 var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
+var IS_ORDERED_SENTINEL = '@@__IMMUTABLE_ORDERED__@@';
 var IterablePrototype = Iterable.prototype;
 IterablePrototype[IS_ITERABLE_SENTINEL] = true;
 IterablePrototype[ITERATOR_SYMBOL] = IterablePrototype.values;
@@ -767,6 +768,7 @@ var IndexedIterable = function IndexedIterable(value) {
   }
 }, {}, Iterable);
 IndexedIterable.prototype[IS_INDEXED_SENTINEL] = true;
+IndexedIterable.prototype[IS_ORDERED_SENTINEL] = true;
 var SetIterable = function SetIterable(value) {
   return isIterable(value) && !isAssociative(value) ? value : SetSeq(value);
 };
@@ -794,10 +796,14 @@ function isIndexed(maybeIndexed) {
 function isAssociative(maybeAssociative) {
   return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
 }
+function isOrdered(maybeOrdered) {
+  return !!(maybeOrdered && maybeOrdered[IS_ORDERED_SENTINEL]);
+}
 Iterable.isIterable = isIterable;
 Iterable.isKeyed = isKeyed;
 Iterable.isIndexed = isIndexed;
 Iterable.isAssociative = isAssociative;
+Iterable.isOrdered = isOrdered;
 Iterable.Keyed = KeyedIterable;
 Iterable.Indexed = IndexedIterable;
 Iterable.Set = SetIterable;
@@ -3037,11 +3043,10 @@ var OrderedMap = function OrderedMap(value) {
     return this(arguments);
   }}, Map);
 function isOrderedMap(maybeOrderedMap) {
-  return !!(maybeOrderedMap && maybeOrderedMap[IS_ORDERED_MAP_SENTINEL]);
+  return isMap(maybeOrderedMap) && isOrdered(maybeOrderedMap);
 }
 OrderedMap.isOrderedMap = isOrderedMap;
-var IS_ORDERED_MAP_SENTINEL = '@@__IMMUTABLE_ORDERED_MAP__@@';
-OrderedMap.prototype[IS_ORDERED_MAP_SENTINEL] = true;
+OrderedMap.prototype[IS_ORDERED_SENTINEL] = true;
 OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
 function makeOrderedMap(map, list, ownerID, hash) {
   var omap = Object.create(OrderedMap.prototype);
@@ -3450,12 +3455,11 @@ var OrderedSet = function OrderedSet(value) {
   }
 }, Set);
 function isOrderedSet(maybeOrderedSet) {
-  return !!(maybeOrderedSet && maybeOrderedSet[IS_ORDERED_SET_SENTINEL]);
+  return isSet(maybeOrderedSet) && isOrdered(maybeOrderedSet);
 }
 OrderedSet.isOrderedSet = isOrderedSet;
-var IS_ORDERED_SET_SENTINEL = '@@__IMMUTABLE_ORDERED_SET__@@';
 var OrderedSetPrototype = OrderedSet.prototype;
-OrderedSetPrototype[IS_ORDERED_SET_SENTINEL] = true;
+OrderedSetPrototype[IS_ORDERED_SENTINEL] = true;
 OrderedSetPrototype.__empty = emptyOrderedSet;
 OrderedSetPrototype.__make = makeOrderedSet;
 function makeOrderedSet(map, ownerID) {

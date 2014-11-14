@@ -10,7 +10,8 @@
 import "Iterable"
 import "Set"
 import "OrderedMap"
-/* global SetIterable, KeyedIterable, Set, emptyOrderedMap */
+/* global SetIterable, KeyedIterable, IS_ORDERED_SENTINEL, isOrdered,
+          Set, isSet, emptyOrderedMap */
 /* exported OrderedSet */
 
 
@@ -38,15 +39,13 @@ class OrderedSet extends Set {
 }
 
 function isOrderedSet(maybeOrderedSet) {
-  return !!(maybeOrderedSet && maybeOrderedSet[IS_ORDERED_SET_SENTINEL]);
+  return isSet(maybeOrderedSet) && isOrdered(maybeOrderedSet);
 }
 
 OrderedSet.isOrderedSet = isOrderedSet;
 
-var IS_ORDERED_SET_SENTINEL = '@@__IMMUTABLE_ORDERED_SET__@@';
-
 var OrderedSetPrototype = OrderedSet.prototype;
-OrderedSetPrototype[IS_ORDERED_SET_SENTINEL] = true;
+OrderedSetPrototype[IS_ORDERED_SENTINEL] = true;
 
 OrderedSetPrototype.__empty = emptyOrderedSet;
 OrderedSetPrototype.__make = makeOrderedSet;

@@ -14,7 +14,7 @@ import "TrieUtils"
 import "Operations"
 /* global SetIterable, KeyedIterable, SetCollection, MapPrototype,
           emptyMap, DELETE, sortFactory, OrderedSet */
-/* exported Set */
+/* exported Set, isSet */
 
 
 class Set extends SetCollection {

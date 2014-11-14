@@ -21,7 +21,7 @@ import "Operations"
           DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
           MakeRef, SetRef, arrCopy, hash, sortFactory, OrderedMap,
           Iterator, iteratorValue, iteratorDone */
-/* exported Map, MapPrototype */
+/* exported Map, isMap, MapPrototype */
 
 
 class Map extends KeyedCollection {

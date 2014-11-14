@@ -11,7 +11,8 @@ import "Iterable"
 import "Map"
 import "List"
 import "TrieUtils"
-/* global KeyedIterable, Map, emptyMap, emptyList, DELETE, NOT_SET, SIZE */
+/* global KeyedIterable, IS_ORDERED_SENTINEL, isOrdered,
+          Map, isMap, emptyMap, emptyList, DELETE, NOT_SET, SIZE */
 /* exported OrderedMap */
 
 
@@ -95,14 +96,12 @@ class OrderedMap extends Map {
 }
 
 function isOrderedMap(maybeOrderedMap) {
-  return !!(maybeOrderedMap && maybeOrderedMap[IS_ORDERED_MAP_SENTINEL]);
+  return isMap(maybeOrderedMap) && isOrdered(maybeOrderedMap);
 }
 
 OrderedMap.isOrderedMap = isOrderedMap;
 
-var IS_ORDERED_MAP_SENTINEL = '@@__IMMUTABLE_ORDERED_MAP__@@';
-
-OrderedMap.prototype[IS_ORDERED_MAP_SENTINEL] = true;
+OrderedMap.prototype[IS_ORDERED_SENTINEL] = true;
 OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
 
 

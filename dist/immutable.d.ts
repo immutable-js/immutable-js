@@ -108,6 +108,12 @@ declare module 'immutable' {
      * True if `maybeAssociative` is either a keyed or indexed Iterable.
      */
     function isAssociative(maybeAssociative: any): boolean;
+
+    /**
+     * True if `maybeOrdered` is an Iterable where iteration order is well
+     * defined. True for IndexedIterable as well as OrderedMap and OrderedSet.
+     */
+    function isOrdered(maybeOrdered: any): boolean;
   }
 
   /**

@@ -30,7 +30,8 @@ import "Iterator"
           maxFactory */
 /* exported Iterable,
             isIterable, isKeyed, isIndexed, isAssociative,
-            Collection, KeyedCollection, IndexedCollection, SetCollection */
+            Collection, KeyedCollection, IndexedCollection, SetCollection,
+            isOrdered, IS_ORDERED_SENTINEL */
 
 
 class Iterable {
@@ -459,6 +460,7 @@ class Iterable {
 var IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
 var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
 var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
+var IS_ORDERED_SENTINEL = '@@__IMMUTABLE_ORDERED__@@';
 
 var IterablePrototype = Iterable.prototype;
 IterablePrototype[IS_ITERABLE_SENTINEL] = true;
@@ -686,6 +688,7 @@ class IndexedIterable extends Iterable {
 }
 
 IndexedIterable.prototype[IS_INDEXED_SENTINEL] = true;
+IndexedIterable.prototype[IS_ORDERED_SENTINEL] = true;
 
 
 
@@ -736,10 +739,15 @@ function isAssociative(maybeAssociative) {
   return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
 }
 
+function isOrdered(maybeOrdered) {
+  return !!(maybeOrdered && maybeOrdered[IS_ORDERED_SENTINEL]);
+}
+
 Iterable.isIterable = isIterable;
 Iterable.isKeyed = isKeyed;
 Iterable.isIndexed = isIndexed;
 Iterable.isAssociative = isAssociative;
+Iterable.isOrdered = isOrdered;
 Iterable.Keyed = KeyedIterable;
 Iterable.Indexed = IndexedIterable;
 Iterable.Set = SetIterable;
