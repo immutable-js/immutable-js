@@ -13,7 +13,7 @@ import "Iterable"
 import "Iterator"
 /* global mixin,
           assertNotInfinite, wrapIndex,
-          isIterable, isKeyed, Iterable, KeyedIterable, IndexedIterable, SetIterable,
+          isIterable, isKeyed, Iterable, KeyedIterable, IndexedIterable, SetIterable, IS_ORDERED_SENTINEL,
           Iterator, iteratorValue, iteratorDone, hasIterator, isIterator, getIterator */
 /* exported isSeq, Seq, KeyedSeq, IndexedSeq, SetSeq, ArraySeq,
             keyedSeqFromValue, indexedSeqFromValue */
@@ -138,6 +138,7 @@ Seq.Indexed = IndexedSeq;
 var IS_SEQ_SENTINEL = '@@__IMMUTABLE_SEQ__@@';
 
 Seq.prototype[IS_SEQ_SENTINEL] = true;
+Seq.prototype[IS_ORDERED_SENTINEL] = true;
 
 
 

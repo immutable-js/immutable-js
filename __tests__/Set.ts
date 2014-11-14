@@ -181,12 +181,12 @@ describe('Set', () => {
     var s1 = Set.of('A', 'B', 'C');
     expect(s1.equals(null)).toBe(false);
 
-    var s2 = Set.of('A', 'B', 'C');
+    var s2 = Set.of('C', 'B', 'A');
     expect(s1 === s2).toBe(false);
     expect(Immutable.is(s1, s2)).toBe(true);
     expect(s1.equals(s2)).toBe(true);
 
-    var v1 = Immutable.Map({ A: 'A', B: 'B', C: 'C' });
+    var v1 = Immutable.Map({ A: 'A', C: 'C', B: 'B' });
     expect(Immutable.is(s1, v1)).toBe(true);
   });
 

@@ -11,11 +11,13 @@ import "TrieUtils"
 import "Seq"
 import "Range"
 import "is"
+import "Iterable"
 import "Iterator"
 /* global wholeSlice, resolveBegin, resolveEnd,
           IndexedSeq,
           RangePrototype,
           is,
+          deepEqual,
           Iterator, iteratorValue, iteratorDone */
 /* exported Repeat */
 
@@ -98,7 +100,7 @@ class Repeat extends IndexedSeq {
   __deepEquals(other) {
     return other instanceof Repeat ?
       is(this._value, other._value) :
-      super.__deepEquals(other);
+      deepEqual(other);
   }
 }
 

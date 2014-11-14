@@ -303,4 +303,10 @@ describe('Map', () => {
     expect(m4.toObject()).toEqual({'a': 1, 'b': 2, 'c': 3, 'd': 4});
   });
 
+  it('expresses value equality with unordered sequences', () => {
+    var m1 = Map({ A: 1, B: 2, C: 3 });
+    var m2 = Map({ C: 3, B: 2, A: 1 });
+    expect(Immutable.is(m1, m2)).toBe(true);
+  });
+
 });

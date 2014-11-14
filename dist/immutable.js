@@ -475,11 +475,7 @@ var $Iterable = Iterable;
     return this.__deepEquals(other);
   },
   __deepEquals: function(other) {
-    var entries = this.entries();
-    return typeof other.every === 'function' && other.every((function(v, k) {
-      var entry = entries.next().value;
-      return entry && is(entry[0], k) && is(entry[1], v);
-    })) && entries.next().done;
+    return deepEqual(this, other);
   },
   entrySeq: function() {
     var iterable = this;
@@ -830,6 +826,35 @@ function quoteString(value) {
 function defaultNegComparator(a, b) {
   return a > b ? -1 : a < b ? 1 : 0;
 }
+function deepEqual(a, b) {
+  var bothNotAssociative = !isAssociative(a) && !isAssociative(b);
+  if (isOrdered(a)) {
+    var entries = a.entries();
+    return b.every((function(v, k) {
+      var entry = entries.next().value;
+      return entry && is(entry[1], v) && (bothNotAssociative || is(entry[0], k));
+    })) && entries.next().done;
+  }
+  var flipped = false;
+  if (a.size === undefined) {
+    if (b.size === undefined) {
+      a.cacheResult();
+    } else {
+      flipped = true;
+      var _ = a;
+      a = b;
+      b = _;
+    }
+  }
+  var allEqual = true;
+  var bSize = b.__iterate((function(v, k) {
+    if (bothNotAssociative ? !a.has(v) : flipped ? !is(v, a.get(k, NOT_SET)) : !is(a.get(k, NOT_SET), v)) {
+      allEqual = false;
+      return false;
+    }
+  }));
+  return allEqual && a.size === bSize;
+}
 function mixin(ctor, methods) {
   var proto = ctor.prototype;
   var keyCopier = (function(key) {
@@ -918,6 +943,7 @@ Seq.Set = SetSeq;
 Seq.Indexed = IndexedSeq;
 var IS_SEQ_SENTINEL = '@@__IMMUTABLE_SEQ__@@';
 Seq.prototype[IS_SEQ_SENTINEL] = true;
+Seq.prototype[IS_ORDERED_SENTINEL] = true;
 var ArraySeq = function ArraySeq(array) {
   this._array = array;
   this.size = array.length;
@@ -3682,7 +3708,7 @@ var $Range = Range;
     }));
   },
   __deepEquals: function(other) {
-    return other instanceof $Range ? this._start === other._start && this._end === other._end && this._step === other._step : $traceurRuntime.superCall(this, $Range.prototype, "__deepEquals", [other]);
+    return other instanceof $Range ? this._start === other._start && this._end === other._end && this._step === other._step : deepEqual(this, other);
   }
 }, {}, IndexedSeq);
 var RangePrototype = Range.prototype;
@@ -3752,7 +3778,7 @@ var $Repeat = Repeat;
     }));
   },
   __deepEquals: function(other) {
-    return other instanceof $Repeat ? is(this._value, other._value) : $traceurRuntime.superCall(this, $Repeat.prototype, "__deepEquals", [other]);
+    return other instanceof $Repeat ? is(this._value, other._value) : deepEqual(other);
   }
 }, {}, IndexedSeq);
 var RepeatPrototype = Repeat.prototype;

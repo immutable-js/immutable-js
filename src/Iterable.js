@@ -295,11 +295,7 @@ class Iterable {
   }
 
   __deepEquals(other) {
-    var entries = this.entries();
-    return typeof other.every === 'function' && other.every((v, k) => {
-      var entry = entries.next().value;
-      return entry && is(entry[0], k) && is(entry[1], v);
-    }) && entries.next().done;
+    return deepEqual(this, other);
   }
 
   entrySeq() {
@@ -783,4 +779,35 @@ function quoteString(value) {
 
 function defaultNegComparator(a, b) {
   return a > b ? -1 : a < b ? 1 : 0;
+}
+
+function deepEqual(a, b) {
+  var bothNotAssociative = !isAssociative(a) && !isAssociative(b);
+  if (isOrdered(a)) {
+    var entries = a.entries();
+    return b.every((v, k) => {
+      var entry = entries.next().value;
+      return entry && is(entry[1], v) && (bothNotAssociative || is(entry[0], k));
+    }) && entries.next().done;
+  }
+  var flipped = false;
+  if (a.size === undefined) {
+    if (b.size === undefined) {
+      a.cacheResult();
+    } else {
+      flipped = true;
+      var _ = a;
+      a = b;
+      b = _;
+    }
+  }
+  var allEqual = true;
+  var bSize = b.__iterate((v, k) => {
+    if (bothNotAssociative ? !a.has(v) :
+        flipped ? !is(v, a.get(k, NOT_SET)) : !is(a.get(k, NOT_SET), v)) {
+      allEqual = false;
+      return false;
+    }
+  });
+  return allEqual && a.size === bSize;
 }

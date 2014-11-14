@@ -12,11 +12,11 @@ import "invariant"
 import "Seq"
 import "Iterable"
 import "List"
-import "invariant"
 import "Iterator"
 /* global wrapIndex, wholeSlice, resolveBegin, resolveEnd,
           invariant,
           IndexedSeq,
+          deepEqual,
           ListPrototype,
           Iterator, iteratorValue, iteratorDone */
 /* exported Range, RangePrototype */
@@ -139,7 +139,7 @@ class Range extends IndexedSeq {
       this._start === other._start &&
       this._end === other._end &&
       this._step === other._step :
-      super.__deepEquals(other);
+      deepEqual(this, other);
   }
 }
 
