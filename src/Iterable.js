@@ -784,6 +784,9 @@ function defaultNegComparator(a, b) {
 function deepEqual(a, b) {
   var bothNotAssociative = !isAssociative(a) && !isAssociative(b);
   if (isOrdered(a)) {
+    if (!isOrdered(b)) {
+      return false;
+    }
     var entries = a.entries();
     return b.every((v, k) => {
       var entry = entries.next().value;

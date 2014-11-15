@@ -829,6 +829,9 @@ function defaultNegComparator(a, b) {
 function deepEqual(a, b) {
   var bothNotAssociative = !isAssociative(a) && !isAssociative(b);
   if (isOrdered(a)) {
+    if (!isOrdered(b)) {
+      return false;
+    }
     var entries = a.entries();
     return b.every((function(v, k) {
       var entry = entries.next().value;
@@ -943,7 +946,6 @@ Seq.Set = SetSeq;
 Seq.Indexed = IndexedSeq;
 var IS_SEQ_SENTINEL = '@@__IMMUTABLE_SEQ__@@';
 Seq.prototype[IS_SEQ_SENTINEL] = true;
-Seq.prototype[IS_ORDERED_SENTINEL] = true;
 var ArraySeq = function ArraySeq(array) {
   this._array = array;
   this.size = array.length;
@@ -1010,6 +1012,7 @@ var ObjectSeq = function ObjectSeq(object) {
     }));
   }
 }, {}, KeyedSeq);
+ObjectSeq.prototype[IS_ORDERED_SENTINEL] = true;
 var IterableSeq = function IterableSeq(iterable) {
   this._iterable = iterable;
   this.size = iterable.length || iterable.size;
@@ -1901,6 +1904,7 @@ var ToKeyedSequence = function ToKeyedSequence(indexed, useKeys) {
     }));
   }
 }, {}, KeyedSeq);
+ToKeyedSequence.prototype[IS_ORDERED_SENTINEL] = true;
 var ToIndexedSequence = function ToIndexedSequence(iter) {
   this._iter = iter;
   this.size = iter.size;

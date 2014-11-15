@@ -14,7 +14,7 @@ import "Seq"
 import "Map"
 /* global NOT_SET, assertNotInfinite, ensureSize,
           isIterable, isKeyed, isIndexed,
-          KeyedIterable, SetIterable, IndexedIterable,
+          KeyedIterable, SetIterable, IndexedIterable, IS_ORDERED_SENTINEL,
           Iterator, iteratorValue, iteratorDone,
           ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES,
           isSeq, Seq, KeyedSeq, SetSeq, IndexedSeq,
@@ -87,6 +87,7 @@ class ToKeyedSequence extends KeyedSeq {
     });
   }
 }
+ToKeyedSequence.prototype[IS_ORDERED_SENTINEL] = true;
 
 
 class ToIndexedSequence extends IndexedSeq {

@@ -138,7 +138,6 @@ Seq.Indexed = IndexedSeq;
 var IS_SEQ_SENTINEL = '@@__IMMUTABLE_SEQ__@@';
 
 Seq.prototype[IS_SEQ_SENTINEL] = true;
-Seq.prototype[IS_ORDERED_SENTINEL] = true;
 
 
 
@@ -223,6 +222,7 @@ class ObjectSeq extends KeyedSeq {
     });
   }
 }
+ObjectSeq.prototype[IS_ORDERED_SENTINEL] = true;
 
 
 class IterableSeq extends IndexedSeq {
