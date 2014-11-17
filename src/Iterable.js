@@ -273,28 +273,6 @@ class Iterable {
   }
 
   equals(other) {
-    if (this === other) {
-      return true;
-    }
-    if (!other || typeof other.equals !== 'function') {
-      return false;
-    }
-    if (this.size !== undefined && other.size !== undefined) {
-      if (this.size !== other.size) {
-        return false;
-      }
-      if (this.size === 0 && other.size === 0) {
-        return true;
-      }
-    }
-    if (this.__hash !== undefined && other.__hash !== undefined &&
-        this.__hash !== other.__hash) {
-      return false;
-    }
-    return this.__deepEquals(other);
-  }
-
-  __deepEquals(other) {
     return deepEqual(this, other);
   }
 
@@ -782,18 +760,37 @@ function defaultNegComparator(a, b) {
 }
 
 function deepEqual(a, b) {
-  var bothNotAssociative = !isAssociative(a) && !isAssociative(b);
+  if (a === b) {
+    return true;
+  }
+
+  if (
+    !isIterable(b) ||
+    a.size !== undefined && b.size !== undefined && a.size !== b.size ||
+    a.__hash !== undefined && b.__hash !== undefined && a.__hash !== b.__hash ||
+    isKeyed(a) !== isKeyed(b) ||
+    isIndexed(a) !== isIndexed(b) ||
+    isOrdered(a) !== isOrdered(b)
+  ) {
+    return false;
+  }
+
+  if (a.size === 0 && b.size === 0) {
+    return true;
+  }
+
+  var notAssociative = !isAssociative(a);
+
   if (isOrdered(a)) {
-    if (!isOrdered(b)) {
-      return false;
-    }
     var entries = a.entries();
     return b.every((v, k) => {
       var entry = entries.next().value;
-      return entry && is(entry[1], v) && (bothNotAssociative || is(entry[0], k));
+      return entry && is(entry[1], v) && (notAssociative || is(entry[0], k));
     }) && entries.next().done;
   }
+
   var flipped = false;
+
   if (a.size === undefined) {
     if (b.size === undefined) {
       a.cacheResult();
@@ -804,13 +801,15 @@ function deepEqual(a, b) {
       b = _;
     }
   }
+
   var allEqual = true;
   var bSize = b.__iterate((v, k) => {
-    if (bothNotAssociative ? !a.has(v) :
+    if (notAssociative ? !a.has(v) :
         flipped ? !is(v, a.get(k, NOT_SET)) : !is(a.get(k, NOT_SET), v)) {
       allEqual = false;
       return false;
     }
   });
+
   return allEqual && a.size === bSize;
 }

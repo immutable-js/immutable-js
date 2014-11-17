@@ -455,26 +455,6 @@ var $Iterable = Iterable;
     return countByFactory(this, grouper, context);
   },
   equals: function(other) {
-    if (this === other) {
-      return true;
-    }
-    if (!other || typeof other.equals !== 'function') {
-      return false;
-    }
-    if (this.size !== undefined && other.size !== undefined) {
-      if (this.size !== other.size) {
-        return false;
-      }
-      if (this.size === 0 && other.size === 0) {
-        return true;
-      }
-    }
-    if (this.__hash !== undefined && other.__hash !== undefined && this.__hash !== other.__hash) {
-      return false;
-    }
-    return this.__deepEquals(other);
-  },
-  __deepEquals: function(other) {
     return deepEqual(this, other);
   },
   entrySeq: function() {
@@ -827,15 +807,21 @@ function defaultNegComparator(a, b) {
   return a > b ? -1 : a < b ? 1 : 0;
 }
 function deepEqual(a, b) {
-  var bothNotAssociative = !isAssociative(a) && !isAssociative(b);
+  if (a === b) {
+    return true;
+  }
+  if (!isIterable(b) || a.size !== undefined && b.size !== undefined && a.size !== b.size || a.__hash !== undefined && b.__hash !== undefined && a.__hash !== b.__hash || isKeyed(a) !== isKeyed(b) || isIndexed(a) !== isIndexed(b) || isOrdered(a) !== isOrdered(b)) {
+    return false;
+  }
+  if (a.size === 0 && b.size === 0) {
+    return true;
+  }
+  var notAssociative = !isAssociative(a);
   if (isOrdered(a)) {
-    if (!isOrdered(b)) {
-      return false;
-    }
     var entries = a.entries();
     return b.every((function(v, k) {
       var entry = entries.next().value;
-      return entry && is(entry[1], v) && (bothNotAssociative || is(entry[0], k));
+      return entry && is(entry[1], v) && (notAssociative || is(entry[0], k));
     })) && entries.next().done;
   }
   var flipped = false;
@@ -851,7 +837,7 @@ function deepEqual(a, b) {
   }
   var allEqual = true;
   var bSize = b.__iterate((function(v, k) {
-    if (bothNotAssociative ? !a.has(v) : flipped ? !is(v, a.get(k, NOT_SET)) : !is(a.get(k, NOT_SET), v)) {
+    if (notAssociative ? !a.has(v) : flipped ? !is(v, a.get(k, NOT_SET)) : !is(a.get(k, NOT_SET), v)) {
       allEqual = false;
       return false;
     }
@@ -3711,7 +3697,7 @@ var $Range = Range;
       return ii > maxIndex ? iteratorDone() : iteratorValue(type, ii++, v);
     }));
   },
-  __deepEquals: function(other) {
+  equals: function(other) {
     return other instanceof $Range ? this._start === other._start && this._end === other._end && this._step === other._step : deepEqual(this, other);
   }
 }, {}, IndexedSeq);
@@ -3781,7 +3767,7 @@ var $Repeat = Repeat;
       return ii < $__0.size ? iteratorValue(type, ii++, $__0._value) : iteratorDone();
     }));
   },
-  __deepEquals: function(other) {
+  equals: function(other) {
     return other instanceof $Repeat ? is(this._value, other._value) : deepEqual(other);
   }
 }, {}, IndexedSeq);

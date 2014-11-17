@@ -177,7 +177,7 @@ describe('Set', () => {
     expect(s).is(Set.of('A'));
   });
 
-  it('expresses value equality with set-ish sequences', () => {
+  it('expresses value equality with set sequences', () => {
     var s1 = Set.of('A', 'B', 'C');
     expect(s1.equals(null)).toBe(false);
 
@@ -186,8 +186,9 @@ describe('Set', () => {
     expect(Immutable.is(s1, s2)).toBe(true);
     expect(s1.equals(s2)).toBe(true);
 
+    // Map and Set are not the same (keyed vs unkeyed)
     var v1 = Immutable.Map({ A: 'A', C: 'C', B: 'B' });
-    expect(Immutable.is(s1, v1)).toBe(true);
+    expect(Immutable.is(s1, v1)).toBe(false);
   });
 
   // TODO: more tests

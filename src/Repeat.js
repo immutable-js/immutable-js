@@ -97,7 +97,7 @@ class Repeat extends IndexedSeq {
     );
   }
 
-  __deepEquals(other) {
+  equals(other) {
     return other instanceof Repeat ?
       is(this._value, other._value) :
       deepEqual(other);
