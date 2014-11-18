@@ -494,8 +494,11 @@ var $Iterable = Iterable;
   getIn: function(searchKeyPath, notSetValue) {
     var nested = this;
     if (searchKeyPath) {
-      for (var ii = 0; ii < searchKeyPath.length; ii++) {
-        nested = nested && nested.get ? nested.get(searchKeyPath[ii], NOT_SET) : NOT_SET;
+      var indexed = isIndexed(searchKeyPath);
+      var length = indexed ? searchKeyPath.size : searchKeyPath.length;
+      for (var ii = 0; ii < length; ii++) {
+        var key = indexed ? searchKeyPath.get(ii) : searchKeyPath[ii];
+        nested = nested && nested.get ? nested.get(key, NOT_SET) : NOT_SET;
         if (nested === NOT_SET) {
           return notSetValue;
         }
@@ -1252,7 +1255,7 @@ var Map = function Map(value) {
     return updateMap(this, k, v);
   },
   setIn: function(keyPath, v) {
-    invariant(keyPath.length > 0, 'Requires non-empty key path.');
+    invariant(keyPathLength(keyPath) > 0, 'Requires non-empty key path.');
     return this.updateIn(keyPath, (function() {
       return v;
     }));
@@ -1261,7 +1264,7 @@ var Map = function Map(value) {
     return updateMap(this, k, NOT_SET);
   },
   removeIn: function(keyPath) {
-    invariant(keyPath.length > 0, 'Requires non-empty key path.');
+    invariant(keyPathLength(keyPath) > 0, 'Requires non-empty key path.');
     return this.updateIn(keyPath, (function() {
       return NOT_SET;
     }));
@@ -1274,7 +1277,7 @@ var Map = function Map(value) {
       updater = notSetValue;
       notSetValue = undefined;
     }
-    return keyPath.length === 0 ? updater(this) : updateInDeepMap(this, keyPath, notSetValue, updater, 0);
+    return keyPathLength(keyPath) === 0 ? updater(this) : updateInDeepMap(this, keyPath, notSetValue, updater, 0);
   },
   clear: function() {
     if (this.size === 0) {
@@ -1819,10 +1822,10 @@ function mergeIntoCollectionWith(collection, merger, iters) {
 }
 function updateInDeepMap(collection, keyPath, notSetValue, updater, offset) {
   invariant(!collection || collection.set, 'updateIn with invalid keyPath');
-  var key = keyPath[offset];
+  var key = isIterable(keyPath) ? keyPath.get(offset) : keyPath[offset];
   var existing = collection ? collection.get(key, NOT_SET) : NOT_SET;
   var existingValue = existing === NOT_SET ? undefined : existing;
-  var value = offset === keyPath.length - 1 ? updater(existing === NOT_SET ? notSetValue : existing) : updateInDeepMap(existingValue, keyPath, notSetValue, updater, offset + 1);
+  var value = offset === keyPathLength(keyPath) - 1 ? updater(existing === NOT_SET ? notSetValue : existing) : updateInDeepMap(existingValue, keyPath, notSetValue, updater, offset + 1);
   return value === existingValue ? collection : value === NOT_SET ? collection && collection.remove(key) : (collection || emptyMap()).set(key, value);
 }
 function popCount(x) {
@@ -1871,6 +1874,9 @@ function spliceOut(array, idx, canEdit) {
     newArray[ii] = array[ii + after];
   }
   return newArray;
+}
+function keyPathLength(keyPath) {
+  return isIterable(keyPath) ? keyPath.size : keyPath.length;
 }
 var MAX_ARRAY_MAP_SIZE = SIZE / 4;
 var MAX_BITMAP_INDEXED_SIZE = SIZE / 2;

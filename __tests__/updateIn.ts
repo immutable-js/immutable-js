@@ -12,6 +12,11 @@ describe('updateIn', () => {
     expect(m.getIn(['a', 'b', 'c'])).toEqual(10);
   })
 
+  it('deep get with list as keyPath', () => {
+    var m = I.fromJS({a: {b: {c: 10}}});
+    expect(m.getIn(I.fromJS(['a', 'b', 'c']))).toEqual(10);
+  })
+
   it('deep get returns not found if path does not match', () => {
     var m = I.fromJS({a: {b: {c: 10}}});
     expect(m.getIn(['a', 'b', 'z'])).toEqual(undefined);
@@ -116,6 +121,11 @@ describe('updateIn', () => {
       expect(m.toJS()).toEqual({a:{b:{c:'X'}}});
     })
 
+    it('accepts a list as a keyPath', () => {
+      var m = I.Map().setIn(I.fromJS(['a','b','c']), 'X');
+      expect(m.toJS()).toEqual({a:{b:{c:'X'}}});
+    })
+
   })
 
   describe('removeIn', () => {
@@ -123,6 +133,11 @@ describe('updateIn', () => {
     it('provides shorthand for updateIn to remove a single value', () => {
       var m = I.fromJS({a:{b:{c:'X', d:'Y'}}});
       expect(m.removeIn(['a','b','c']).toJS()).toEqual({a:{b:{d:'Y'}}});
+    })
+
+    it('accepts a list as a keyPath', () => {
+      var m = I.fromJS({a:{b:{c:'X', d:'Y'}}});
+      expect(m.removeIn(I.fromJS(['a','b','c'])).toJS()).toEqual({a:{b:{d:'Y'}}});
     })
 
     it('does not create empty maps for an unset path', () => {

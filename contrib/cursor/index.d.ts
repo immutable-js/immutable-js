@@ -55,6 +55,11 @@ declare module 'immutable/contrib/cursor' {
     key: any,
     onChange?: (newValue: any, oldValue?: any, keyPath?: Array<any>) => void
   ): Cursor;
+  export function from(
+    collection: Immutable.Collection<any, any>,
+    keyPath: Immutable.IndexedIterable<any>,
+    onChange?: (newValue: any, oldValue?: any, keyPath?: Array<any>) => void
+  ): Cursor;
 
 
   export interface Cursor extends Immutable.Seq<any, any> {
@@ -86,6 +91,7 @@ declare module 'immutable/contrib/cursor' {
      * If the keyPath would return a collection, a new Cursor is returned.
      */
     getIn(keyPath: Array<any>, notSetValue?: any): any;
+    getIn(keyPath: Immutable.IndexedIterable<any>, notSetValue?: any): any;
 
     /**
      * Sets `value` at `key` in the cursor, returning a new cursor to the same
