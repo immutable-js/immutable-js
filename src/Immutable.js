@@ -11,17 +11,18 @@ import "Iterable"
 import "Seq"
 import "Operations" // Break circular dependency
 import "Map"
+import "OrderedMap"
 import "List"
 import "Stack"
 import "Set"
-import "OrderedMap"
+import "OrderedSet"
 import "Record"
 import "Range"
 import "Repeat"
 import "is"
 import "fromJS"
 /* global Iterable, Seq, Collection,
-          Map, List, Stack, Set, OrderedMap, Record, Range, Repeat,
+          Map, OrderedMap, List, Stack, Set, OrderedSet, Record, Range, Repeat,
           is, fromJS */
 /* exported Immutable */
 
@@ -33,10 +34,11 @@ var Immutable = {
   Seq: Seq,
   Collection: Collection,
   Map: Map,
+  OrderedMap: OrderedMap,
   List: List,
   Stack: Stack,
   Set: Set,
-  OrderedMap: OrderedMap,
+  OrderedSet: OrderedSet,
 
   Record: Record,
   Range: Range,

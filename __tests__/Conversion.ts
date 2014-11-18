@@ -3,6 +3,9 @@
 
 jest.autoMockOff();
 
+import jasmineCheck = require('jasmine-check');
+jasmineCheck.install();
+
 import Immutable = require('immutable');
 import Map = Immutable.Map;
 import OrderedMap = Immutable.OrderedMap;
@@ -135,6 +138,18 @@ describe('Conversion', () => {
 
   it('JSON.stringify() works equivalently on immutable sequences', () => {
     expect(JSON.stringify(js)).toBe(JSON.stringify(immutableData));
+  });
+
+  it('is conservative with array-likes, only accepting true Arrays.', () => {
+    expect(Immutable.fromJS({1: 2, length: 3})).is(
+      Immutable.Map().set('1', 2).set('length', 3)
+    );
+    expect(Immutable.fromJS('string')).toEqual('string');
+  });
+
+  check.it('toJS isomorphic value', {maxSize: 30}, [gen.JSONValue], (js) => {
+    var imm = Immutable.fromJS(js);
+    expect(imm && imm.toJS ? imm.toJS() : imm).toEqual(js);
   });
 
 });

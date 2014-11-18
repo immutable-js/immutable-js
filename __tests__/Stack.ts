@@ -31,21 +31,27 @@ describe('Stack', () => {
     expect(s.toArray()).toEqual(['a', 'b', 'c']);
   });
 
-  it('from consumes a JS array', () => {
+  it('accepts a JS array', () => {
     var s = Stack(['a', 'b', 'c']);
     expect(s.toArray()).toEqual(['a', 'b', 'c']);
   });
 
-  it('from consumes a Seq', () => {
+  it('accepts a Seq', () => {
     var seq = Immutable.Seq(['a', 'b', 'c']);
     var s = Stack(seq);
     expect(s.toArray()).toEqual(['a', 'b', 'c']);
   });
 
-  it('from consumes a non-indexed Seq', () => {
+  it('accepts a keyed Seq', () => {
     var seq = Immutable.Seq({a:null, b:null, c:null}).flip();
     var s = Stack(seq);
-    expect(s.toArray()).toEqual(['a', 'b', 'c']);
+    expect(s.toArray()).toEqual([[null,'a'], [null,'b'], [null,'c']]);
+    // Explicit values
+    var s2 = Stack(seq.valueSeq());
+    expect(s2.toArray()).toEqual(['a', 'b', 'c']);
+    // toStack() does this for you.
+    var s3 = seq.toStack();
+    expect(s3.toArray()).toEqual(['a', 'b', 'c']);
   });
 
   it('pushing creates a new instance', () => {

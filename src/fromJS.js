@@ -7,33 +7,36 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "Iterable"
-import "TrieUtils"
-/* global Iterable, isPlainObj */
+import "Seq"
+/* global KeyedSeq, IndexedSeq */
 /* exported fromJS */
 
 function fromJS(json, converter) {
-  if (converter) {
-    return _fromJSWith(converter, json, '', {'': json});
-  }
-  return _fromJSDefault(json);
+  return converter ?
+    _fromJSWith(converter, json, '', {'': json}) :
+    _fromJSDefault(json);
 }
 
 function _fromJSWith(converter, json, key, parentJSON) {
-  if (Array.isArray(json) || isPlainObj(json)) {
-    return converter.call(parentJSON, key, Iterable(json).map((v, k) => _fromJSWith(converter, v, k, json)));
+  if (Array.isArray(json)) {
+    return converter.call(parentJSON, key, IndexedSeq(json).map((v, k) => _fromJSWith(converter, v, k, json)));
+  }
+  if (isPlainObj(json)) {
+    return converter.call(parentJSON, key, KeyedSeq(json).map((v, k) => _fromJSWith(converter, v, k, json)));
   }
   return json;
 }
 
 function _fromJSDefault(json) {
-  if (json && typeof json === 'object') {
-    if (Array.isArray(json)) {
-      return Iterable(json).map(_fromJSDefault).toList();
-    }
-    if (json.constructor === Object) {
-      return Iterable(json).map(_fromJSDefault).toMap();
-    }
+  if (Array.isArray(json)) {
+    return IndexedSeq(json).map(_fromJSDefault).toList();
+  }
+  if (isPlainObj(json)) {
+    return KeyedSeq(json).map(_fromJSDefault).toMap();
   }
   return json;
+}
+
+function isPlainObj(value) {
+  return value && value.constructor === Object;
 }

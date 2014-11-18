@@ -9,11 +9,12 @@
 
 import "Iterable"
 import "Collection"
-import "Seq"
 import "Map"
 import "TrieUtils"
-/* global Iterable, SetCollection, KeyedSeq, MapPrototype, emptyMap, DELETE */
-/* exported Set */
+import "Operations"
+/* global SetIterable, KeyedIterable, SetCollection, MapPrototype,
+          emptyMap, DELETE, sortFactory, OrderedSet */
+/* exported Set, isSet */
 
 
 class Set extends SetCollection {
@@ -21,9 +22,9 @@ class Set extends SetCollection {
   // @pragma Construction
 
   constructor(value) {
-    return arguments.length === 0 ? emptySet() :
-      value && value.constructor === Set ? value :
-      emptySet().union(value);
+    return value === null || value === undefined ? emptySet() :
+      isSet(value) ? value :
+      emptySet().union(SetIterable(value));
   }
 
   static of(/*...values*/) {
@@ -31,7 +32,7 @@ class Set extends SetCollection {
   }
 
   static fromKeys(value) {
-    return this(KeyedSeq(value).flip());
+    return this(KeyedIterable(value).keySeq());
   }
 
   toString() {
@@ -47,35 +48,15 @@ class Set extends SetCollection {
   // @pragma Modification
 
   add(value) {
-    var newMap = this._map.set(value, true);
-    if (this.__ownerID) {
-      this.size = newMap.size;
-      this._map = newMap;
-      return this;
-    }
-    return newMap === this._map ? this : makeSet(newMap);
+    return updateSet(this, this._map.set(value, true));
   }
 
   remove(value) {
-    var newMap = this._map.remove(value);
-    if (this.__ownerID) {
-      this.size = newMap.size;
-      this._map = newMap;
-      return this;
-    }
-    return newMap === this._map ? this : newMap.size === 0 ? emptySet() : makeSet(newMap);
+    return updateSet(this, this._map.remove(value));
   }
 
   clear() {
-    if (this.size === 0) {
-      return this;
-    }
-    if (this.__ownerID) {
-      this.size = 0;
-      this._map.clear();
-      return this;
-    }
-    return emptySet();
+    return updateSet(this, this._map.clear());
   }
 
   // @pragma Composition
@@ -87,7 +68,7 @@ class Set extends SetCollection {
     }
     return this.withMutations(set => {
       for (var ii = 0; ii < iters.length; ii++) {
-        Iterable(iters[ii]).forEach(value => set.add(value));
+        SetIterable(iters[ii]).forEach(value => set.add(value));
       }
     });
   }
@@ -96,7 +77,7 @@ class Set extends SetCollection {
     if (iters.length === 0) {
       return this;
     }
-    iters = iters.map(iter => Iterable(iter));
+    iters = iters.map(iter => SetIterable(iter));
     var originalSet = this;
     return this.withMutations(set => {
       originalSet.forEach(value => {
@@ -111,7 +92,7 @@ class Set extends SetCollection {
     if (iters.length === 0) {
       return this;
     }
-    iters = iters.map(iter => Iterable(iter));
+    iters = iters.map(iter => SetIterable(iter));
     var originalSet = this;
     return this.withMutations(set => {
       originalSet.forEach(value => {
@@ -128,6 +109,16 @@ class Set extends SetCollection {
 
   mergeWith(merger, ...iters) {
     return this.union.apply(this, iters);
+  }
+
+  sort(comparator) {
+    // Late binding
+    return OrderedSet(sortFactory(this, comparator));
+  }
+
+  sortBy(mapper, comparator) {
+    // Late binding
+    return OrderedSet(sortFactory(this, comparator, mapper));
   }
 
   wasAltered() {
@@ -152,7 +143,7 @@ class Set extends SetCollection {
       this._map = newMap;
       return this;
     }
-    return makeSet(newMap, ownerID);
+    return this.__make(newMap, ownerID);
   }
 }
 
@@ -173,6 +164,19 @@ SetPrototype.withMutations = MapPrototype.withMutations;
 SetPrototype.asMutable = MapPrototype.asMutable;
 SetPrototype.asImmutable = MapPrototype.asImmutable;
 
+SetPrototype.__empty = emptySet;
+SetPrototype.__make = makeSet;
+
+function updateSet(set, newMap) {
+  if (set.__ownerID) {
+    set.size = newMap.size;
+    set._map = newMap;
+    return set;
+  }
+  return newMap === set._map ? set :
+    newMap.size === 0 ? set.__empty() :
+    set.__make(newMap);
+}
 
 function makeSet(map, ownerID) {
   var set = Object.create(SetPrototype);

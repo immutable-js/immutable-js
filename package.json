@@ -1,6 +1,6 @@
 {
   "name": "immutable",
-  "version": "3.0.2",
+  "version": "3.2.1",
   "description": "Immutable Data Collections",
   "homepage": "https://github.com/facebook/immutable-js",
   "author": {
@@ -16,7 +16,7 @@
   },
   "main": "dist/immutable.js",
   "scripts": {
-    "test": "jest"
+    "test": "./resources/node_test.sh"
   },
   "jest": {
     "scriptPreprocessor": "resources/jestPreprocessor.js",

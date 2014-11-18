@@ -13,7 +13,7 @@ import "Collection"
 import "Map"
 import "Iterator"
 /* global wholeSlice, resolveBegin, resolveEnd,
-          Iterable,
+          IndexedIterable,
           IndexedCollection,
           MapPrototype,
           Iterator, iteratorValue, iteratorDone */
@@ -25,8 +25,8 @@ class Stack extends IndexedCollection {
   // @pragma Construction
 
   constructor(value) {
-    return arguments.length === 0 ? emptyStack() :
-      value && value.constructor === Stack ? value :
+    return value === null || value === undefined ? emptyStack() :
+      isStack(value) ? value :
       emptyStack().unshiftAll(value);
   }
 
@@ -77,7 +77,7 @@ class Stack extends IndexedCollection {
   }
 
   pushAll(iter) {
-    iter = Iterable(iter);
+    iter = IndexedIterable(iter);
     if (iter.size === 0) {
       return this;
     }

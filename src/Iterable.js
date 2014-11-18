@@ -12,11 +12,11 @@ import "is"
 import "TrieUtils"
 import "Hash"
 import "Iterator"
-/* global Map, OrderedMap, List, Set, Stack,
+/* global Map, OrderedMap, List, Set, OrderedSet, Stack,
           is,
           arrCopy, NOT_SET, assertNotInfinite, ensureSize, wrapIndex,
           returnTrue, wholeSlice, resolveBegin, resolveEnd,
-          hash, HASH_MAX_VAL,
+          hash,
           Iterator,
           ITERATOR_SYMBOL, ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES,
           isSeq,
@@ -26,17 +26,18 @@ import "Iterator"
           FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
           filterFactory, countByFactory, groupByFactory, takeFactory,
           takeWhileFactory, skipFactory, skipWhileFactory, concatFactory,
-          flattenFactory, flatMapFactory, interposeFactory */
+          flattenFactory, flatMapFactory, interposeFactory, sortFactory,
+          maxFactory */
 /* exported Iterable,
             isIterable, isKeyed, isIndexed, isAssociative,
-            Collection, KeyedCollection, IndexedCollection, SetCollection */
+            Collection, KeyedCollection, IndexedCollection, SetCollection,
+            isOrdered, IS_ORDERED_SENTINEL */
 
 
 class Iterable {
 
   constructor(value) {
-    return isIterable(value) ? value :
-      Seq.apply(undefined, arguments);
+    return isIterable(value) ? value : Seq(value);
   }
 
   // ### Conversion to other types
@@ -81,14 +82,20 @@ class Iterable {
     return OrderedMap(this.toKeyedSeq());
   }
 
+  toOrderedSet() {
+    // Use Late Binding here to solve the circular dependency.
+    assertNotInfinite(this.size);
+    return OrderedSet(isKeyed(this) ? this.valueSeq() : this);
+  }
+
   toSet() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);
-    return Set(this);
+    return Set(isKeyed(this) ? this.valueSeq() : this);
   }
 
   toSetSeq() {
-    return new ToSetSequence(this, true);
+    return new ToSetSequence(this);
   }
 
   toSeq() {
@@ -100,13 +107,13 @@ class Iterable {
   toStack() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);
-    return Stack(this);
+    return Stack(isKeyed(this) ? this.valueSeq() : this);
   }
 
   toList() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);
-    return List(this);
+    return List(isKeyed(this) ? this.valueSeq() : this);
   }
 
 
@@ -127,7 +134,7 @@ class Iterable {
   // ### ES6 Collection methods (ES6 Array and Map)
 
   concat(...values) {
-    return reify(this, concatFactory(this, values, true));
+    return reify(this, concatFactory(this, values));
   }
 
   contains(searchValue) {
@@ -241,7 +248,7 @@ class Iterable {
   }
 
   sort(comparator) {
-    return this.sortBy(valueMapper, comparator);
+    return reify(this, sortFactory(this, comparator));
   }
 
   values() {
@@ -266,33 +273,7 @@ class Iterable {
   }
 
   equals(other) {
-    if (this === other) {
-      return true;
-    }
-    if (!other || typeof other.equals !== 'function') {
-      return false;
-    }
-    if (this.size !== undefined && other.size !== undefined) {
-      if (this.size !== other.size) {
-        return false;
-      }
-      if (this.size === 0 && other.size === 0) {
-        return true;
-      }
-    }
-    if (this.__hash !== undefined && other.__hash !== undefined &&
-        this.__hash !== other.__hash) {
-      return false;
-    }
-    return this.__deepEquals(other);
-  }
-
-  __deepEquals(other) {
-    var entries = this.entries();
-    return typeof other.every === 'function' && other.every((v, k) => {
-      var entry = entries.next().value;
-      return entry && is(entry[0], k) && is(entry[1], v);
-    }) && entries.next().done;
+    return deepEqual(this, other);
   }
 
   entrySeq() {
@@ -376,33 +357,19 @@ class Iterable {
   }
 
   max(comparator) {
-    return this.maxBy(valueMapper, comparator);
+    return maxFactory(this, comparator);
   }
 
   maxBy(mapper, comparator) {
-    comparator = comparator || defaultComparator;
-    var maxEntry = this.entrySeq().reduce((max, next) => {
-      return comparator(
-        mapper(next[1], next[0], this),
-        mapper(max[1], max[0], this)
-      ) > 0 ? next : max
-    });
-    return maxEntry && maxEntry[1];
+    return maxFactory(this, comparator, mapper);
   }
 
   min(comparator) {
-    return this.minBy(valueMapper, comparator);
+    return maxFactory(this, comparator ? neg(comparator) : defaultNegComparator);
   }
 
   minBy(mapper, comparator) {
-    comparator = comparator || defaultComparator;
-    var minEntry = this.entrySeq().reduce((min, next) => {
-      return comparator(
-        mapper(next[1], next[0], this),
-        mapper(min[1], min[0], this)
-      ) < 0 ? next : min
-    });
-    return minEntry && minEntry[1];
+    return maxFactory(this, comparator ? neg(comparator) : defaultNegComparator, mapper);
   }
 
   rest() {
@@ -426,13 +393,7 @@ class Iterable {
   }
 
   sortBy(mapper, comparator) {
-    comparator = comparator || defaultComparator;
-    return reify(this, new ArraySeq(this.entrySeq().entrySeq().toArray().sort(
-      (a, b) => comparator(
-        mapper(a[1][1], a[1][0], this),
-        mapper(b[1][1], b[1][0], this)
-      ) || a[0] - b[0]
-    )).fromEntrySeq().valueSeq().fromEntrySeq());
+    return reify(this, sortFactory(this, comparator, mapper));
   }
 
   take(amount) {
@@ -459,10 +420,7 @@ class Iterable {
   // ### Hashable Object
 
   hashCode() {
-    return this.__hash || (this.__hash =
-      this.size === Infinity ? 0 : this.reduce(
-        (h, v, k) => (h + (hash(v) ^ (v === k ? 0 : hash(k)))) & HASH_MAX_VAL, 0
-    ));
+    return this.__hash || (this.__hash = hashIterable(this));
   }
 
 
@@ -476,6 +434,7 @@ class Iterable {
 var IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
 var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
 var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
+var IS_ORDERED_SENTINEL = '@@__IMMUTABLE_ORDERED__@@';
 
 var IterablePrototype = Iterable.prototype;
 IterablePrototype[IS_ITERABLE_SENTINEL] = true;
@@ -519,8 +478,7 @@ IterablePrototype.chain = IterablePrototype.flatMap;
 class KeyedIterable extends Iterable {
 
   constructor(value) {
-    return isKeyed(value) ? value :
-      KeyedSeq.apply(undefined, arguments);
+    return isKeyed(value) ? value : KeyedSeq(value);
   }
 
 
@@ -582,8 +540,7 @@ KeyedIterablePrototype.__toStringMapper = (v, k) => k + ': ' + quoteString(v);
 class IndexedIterable extends Iterable {
 
   constructor(value) {
-    return isIndexed(value) ? value :
-      IndexedSeq.apply(undefined, arguments);
+    return isIndexed(value) ? value : IndexedSeq(value);
   }
 
 
@@ -595,10 +552,6 @@ class IndexedIterable extends Iterable {
 
 
   // ### ES6 Collection methods (ES6 Array and Map)
-
-  concat(...values) {
-    return reify(this, concatFactory(this, values, false));
-  }
 
   filter(predicate, context) {
     return reify(this, filterFactory(this, predicate, context, false));
@@ -695,16 +648,6 @@ class IndexedIterable extends Iterable {
     return reify(this, skipWhileFactory(this, predicate, context, false));
   }
 
-  sortBy(mapper, comparator) {
-    comparator = comparator || defaultComparator;
-    return reify(this, new ArraySeq(this.entrySeq().toArray().sort(
-      (a, b) => comparator(
-        mapper(a[1], a[0], this),
-        mapper(b[1], b[0], this)
-      ) || a[0] - b[0]
-    )).fromEntrySeq().valueSeq());
-  }
-
   take(amount) {
     var iter = this;
     var takeSeq = takeFactory(iter, amount);
@@ -719,14 +662,14 @@ class IndexedIterable extends Iterable {
 }
 
 IndexedIterable.prototype[IS_INDEXED_SENTINEL] = true;
+IndexedIterable.prototype[IS_ORDERED_SENTINEL] = true;
 
 
 
 class SetIterable extends Iterable {
 
   constructor(value) {
-    return isIterable(value) && !isAssociative(value) ? value :
-      SetSeq.apply(undefined, arguments);
+    return isIterable(value) && !isAssociative(value) ? value : SetSeq(value);
   }
 
 
@@ -770,10 +713,15 @@ function isAssociative(maybeAssociative) {
   return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
 }
 
+function isOrdered(maybeOrdered) {
+  return !!(maybeOrdered && maybeOrdered[IS_ORDERED_SENTINEL]);
+}
+
 Iterable.isIterable = isIterable;
 Iterable.isKeyed = isKeyed;
 Iterable.isIndexed = isIndexed;
 Iterable.isAssociative = isAssociative;
+Iterable.isOrdered = isOrdered;
 Iterable.Keyed = KeyedIterable;
 Iterable.Indexed = IndexedIterable;
 Iterable.Set = SetIterable;
@@ -782,10 +730,6 @@ Iterable.Iterator = Iterator;
 
 
 // #pragma Helper functions
-
-function valueMapper(v) {
-  return v;
-}
 
 function keyMapper(v, k) {
   return k;
@@ -801,10 +745,120 @@ function not(predicate) {
   }
 }
 
+function neg(predicate) {
+  return function() {
+    return -predicate.apply(this, arguments);
+  }
+}
+
 function quoteString(value) {
   return typeof value === 'string' ? JSON.stringify(value) : value;
 }
 
-function defaultComparator(a, b) {
-  return a > b ? 1 : a < b ? -1 : 0;
+function defaultNegComparator(a, b) {
+  return a > b ? -1 : a < b ? 1 : 0;
+}
+
+function deepEqual(a, b) {
+  if (a === b) {
+    return true;
+  }
+
+  if (
+    !isIterable(b) ||
+    a.size !== undefined && b.size !== undefined && a.size !== b.size ||
+    a.__hash !== undefined && b.__hash !== undefined && a.__hash !== b.__hash ||
+    isKeyed(a) !== isKeyed(b) ||
+    isIndexed(a) !== isIndexed(b) ||
+    isOrdered(a) !== isOrdered(b)
+  ) {
+    return false;
+  }
+
+  if (a.size === 0 && b.size === 0) {
+    return true;
+  }
+
+  var notAssociative = !isAssociative(a);
+
+  if (isOrdered(a)) {
+    var entries = a.entries();
+    return b.every((v, k) => {
+      var entry = entries.next().value;
+      return entry && is(entry[1], v) && (notAssociative || is(entry[0], k));
+    }) && entries.next().done;
+  }
+
+  var flipped = false;
+
+  if (a.size === undefined) {
+    if (b.size === undefined) {
+      a.cacheResult();
+    } else {
+      flipped = true;
+      var _ = a;
+      a = b;
+      b = _;
+    }
+  }
+
+  var allEqual = true;
+  var bSize = b.__iterate((v, k) => {
+    if (notAssociative ? !a.has(v) :
+        flipped ? !is(v, a.get(k, NOT_SET)) : !is(a.get(k, NOT_SET), v)) {
+      allEqual = false;
+      return false;
+    }
+  });
+
+  return allEqual && a.size === bSize;
+}
+
+// Polyfill Math.imul if necessary, preserving ASM markers.
+if (typeof Math.imul !== 'function' || Math.imul(0xffffffff, 2) !== -2) {
+  Math.imul = function imul(a, b) {
+    a = a | 0; // int
+    b = b | 0; // int
+    var c = a & 0xffff;
+    var d = b & 0xffff;
+    // Shift by 0 fixes the sign on the high part.
+    return (c * d) + ((((a >>> 16) * d + c * (b >>> 16)) << 16) >>> 0) | 0; // int
+  };
+}
+
+function hashIterable(iterable) {
+  if (iterable.size === Infinity) {
+    return 0;
+  }
+  var ordered = isOrdered(iterable);
+  var keyed = isKeyed(iterable);
+  var h = ordered ? 1 : 0;
+  var size = iterable.__iterate(
+    keyed ?
+      ordered ?
+        (v, k) => { h = Math.imul(31, h) + hashMerge(hash(v), hash(k)) | 0; } :
+        (v, k) => { h = h + hashMerge(hash(v), hash(k)) | 0; } :
+      ordered ?
+        v => { h = Math.imul(31, h) + hash(v) | 0; } :
+        v => { h = h + hash(v) | 0; }
+  );
+  return murmurHashOfSize(size, h);
+}
+
+function murmurHashOfSize(size, h) {
+  size = size | 0; // int
+  h = h | 0; // int
+  h = Math.imul(h, 0xCC9E2D51);
+  h = Math.imul(h << 15 | h >>> -15, 0x1B873593);
+  h = Math.imul(h << 13 | h >>> -13, 5);
+  h = (h + 0xE6546B64 | 0) ^ size;
+  h = Math.imul(h ^ h >>> 16, 0x85EBCA6B);
+  h = Math.imul(h ^ h >>> 13, 0xC2B2AE35);
+  return h ^ h >>> 16 | 0; // int
+}
+
+function hashMerge(a, b) {
+  a = a | 0; // int
+  b = b | 0; // int
+  return (a ^ b + 0x9E3779B9 + (a << 6) + (a >> 2)) | 0; // int
 }

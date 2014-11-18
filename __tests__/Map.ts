@@ -50,28 +50,29 @@ describe('Map', () => {
     expect(m2).toBe(m1);
   });
 
-  it('constructor does not accept a scalar', () => {
+  it('does not accept a scalar', () => {
     expect(() => {
       Map(3);
-    }).toThrow('Expected iterable: 3');
+    }).toThrow('Expected Array or iterable object of [k, v] entries, or keyed object: 3');
   });
 
-  it('from does not accept a scalar', () => {
+  it('does not accept strings (iterable, but scalar)', () => {
     expect(() => {
-      Map(3);
-    }).toThrow('Expected iterable: 3');
+      Map('abc');
+    }).toThrow('Expected Array or iterable object of [k, v] entries, or keyed object: abc');
   });
 
-  it('constructor does not accept a scalar', () => {
+  it('does not accept non-entries array', () => {
     expect(() => {
       Map([1,2,3]);
     }).toThrow('Expected [K, V] tuple: 1');
   });
 
-  it('from does not accept a non-entries array', () => {
-    expect(() => {
-      Map([1,2,3]);
-    }).toThrow('Expected [K, V] tuple: 1');
+  it('accepts non-iterable array-like objects as keyed collections', () => {
+    var m = Map({ 'length': 3, '1': 'one' });
+    expect(m.get('length')).toBe(3);
+    expect(m.get('1')).toBe('one');
+    expect(m.toJS()).toEqual({ 'length': 3, '1': 'one' });
   });
 
   it('converts back to JS object', () => {
@@ -141,16 +142,14 @@ describe('Map', () => {
     expect(m5.get('c')).toBe('Canary');
   });
 
-  it('deletes down to empty map', () => {
-    var m1 = Map({a:'A', b:'B', c:'C'});
-    var m2 = m1.remove('a');
-    var m3 = m2.remove('b');
-    var m4 = m3.remove('c');
-    expect(m1.size).toBe(3);
-    expect(m2.size).toBe(2);
-    expect(m3.size).toBe(1);
-    expect(m4.size).toBe(0);
-    expect(m4).toBe(Map());
+  check.it('deletes down to empty map', [gen.posInt], size => {
+    var m = Immutable.Range(0, size).toMap();
+    expect(m.size).toBe(size);
+    for (var ii = size - 1; ii >= 0; ii--) {
+      m = m.remove(ii);
+      expect(m.size).toBe(ii);
+    }
+    expect(m).toBe(Map());
   });
 
   it('can map many items', () => {
@@ -163,18 +162,21 @@ describe('Map', () => {
   });
 
   it('can map items known to hash collide', () => {
-    var m = Map().set('AAA', 'letters').set(64545, 'numbers');
-    expect(m.size).toBe(2);
+    // make a big map, so it hashmaps
+    var m: Map<any, any> = Immutable.Range(0, 32).toMap();
+    var m = m.set('AAA', 'letters').set(64545, 'numbers');
+    expect(m.size).toBe(34);
     expect(m.get('AAA')).toEqual('letters');
     expect(m.get(64545)).toEqual('numbers');
   });
 
   it('can progressively add items known to collide', () => {
-    var map = Map();
+    // make a big map, so it hashmaps
+    var map: Map<any, any> = Immutable.Range(0, 32).toMap();
     map = map.set('@', '@');
     map = map.set(64, 64);
     map = map.set(96, 96);
-    expect(map.size).toBe(3);
+    expect(map.size).toBe(35);
     expect(map.get('@')).toBe('@');
     expect(map.get(64)).toBe(64);
     expect(map.get(96)).toBe(96);
@@ -299,6 +301,12 @@ describe('Map', () => {
     expect(m2.toObject()).toEqual({'a':1});
     expect(m3.toObject()).toEqual({'a': 1, 'b': 2, 'c': 3});
     expect(m4.toObject()).toEqual({'a': 1, 'b': 2, 'c': 3, 'd': 4});
+  });
+
+  it('expresses value equality with unordered sequences', () => {
+    var m1 = Map({ A: 1, B: 2, C: 3 });
+    var m2 = Map({ C: 3, B: 2, A: 1 });
+    expect(Immutable.is(m1, m2)).toBe(true);
   });
 
 });

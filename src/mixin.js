@@ -14,8 +14,9 @@
  */
 function mixin(ctor, methods) {
   var proto = ctor.prototype;
-  Object.keys(methods).forEach(function (key) {
-    proto[key] = methods[key];
-  });
+  var keyCopier = key => { proto[key] = methods[key]; };
+  Object.keys(methods).forEach(keyCopier);
+  Object.getOwnPropertySymbols &&
+    Object.getOwnPropertySymbols(methods).forEach(keyCopier);
   return ctor;
 }

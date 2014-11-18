@@ -11,7 +11,8 @@ import "Iterable"
 import "Map"
 import "List"
 import "TrieUtils"
-/* global KeyedIterable, Map, emptyMap, emptyList, DELETE, NOT_SET */
+/* global KeyedIterable, IS_ORDERED_SENTINEL, isOrdered,
+          Map, isMap, emptyMap, emptyList, DELETE, NOT_SET, SIZE */
 /* exported OrderedMap */
 
 
@@ -20,8 +21,8 @@ class OrderedMap extends Map {
   // @pragma Construction
 
   constructor(value) {
-    return arguments.length === 0 ? emptyOrderedMap() :
-      value && value.constructor === OrderedMap ? value :
+    return value === null || value === undefined ? emptyOrderedMap() :
+      isOrderedMap(value) ? value :
       emptyOrderedMap().merge(KeyedIterable(value));
   }
 
@@ -69,7 +70,7 @@ class OrderedMap extends Map {
 
   __iterate(fn, reverse) {
     return this._list.__iterate(
-      entry => fn(entry[1], entry[0], this),
+      entry => entry && fn(entry[1], entry[0], this),
       reverse
     );
   }
@@ -95,14 +96,12 @@ class OrderedMap extends Map {
 }
 
 function isOrderedMap(maybeOrderedMap) {
-  return !!(maybeOrderedMap && maybeOrderedMap[IS_ORDERED_MAP_SENTINEL]);
+  return isMap(maybeOrderedMap) && isOrdered(maybeOrderedMap);
 }
 
 OrderedMap.isOrderedMap = isOrderedMap;
 
-var IS_ORDERED_MAP_SENTINEL = '@@__IMMUTABLE_ORDERED_MAP__@@';
-
-OrderedMap.prototype[IS_ORDERED_MAP_SENTINEL] = true;
+OrderedMap.prototype[IS_ORDERED_SENTINEL] = true;
 OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
 
 
@@ -127,15 +126,34 @@ function updateOrderedMap(omap, k, v) {
   var list = omap._list;
   var i = map.get(k);
   var has = i !== undefined;
-  var removed = v === NOT_SET;
-  if ((!has && removed) || (has && v === list.get(i)[1])) {
-    return omap;
+  var newMap;
+  var newList;
+  if (v === NOT_SET) { // removed
+    if (!has) {
+      return omap;
+    }
+    if (list.size >= SIZE && list.size >= map.size * 2) {
+      newList = list.filter((entry, idx) => entry !== undefined && i !== idx);
+      newMap = newList.toKeyedSeq().map(entry => entry[0]).flip().toMap();
+      if (omap.__ownerID) {
+        newMap.__ownerID = newList.__ownerID = omap.__ownerID;
+      }
+    } else {
+      newMap = map.remove(k);
+      newList = i === list.size - 1 ? list.pop() : list.set(i, undefined);
+    }
+  } else {
+    if (has) {
+      if (v === list.get(i)[1]) {
+        return omap;
+      }
+      newMap = map;
+      newList = list.set(i, [k, v]);
+    } else {
+      newMap = map.set(k, list.size);
+      newList = list.set(list.size, [k, v]);
+    }
   }
-  if (!has) {
-    i = list.size;
-  }
-  var newMap = removed ? map.remove(k) : has ? map : map.set(k, i);
-  var newList = removed ? list.remove(i) : list.set(i, [k, v]);
   if (omap.__ownerID) {
     omap.size = newMap.size;
     omap._map = newMap;

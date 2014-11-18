@@ -41,16 +41,23 @@ describe('Record', () => {
     var MyType = Record({a:1, b:2, c:3});
 
     var t1 = new MyType({a: 10, b:20});
+    var t2 = new MyType({b: 20});
     var t3 = t1.remove('a');
     var t4 = t3.clear();
 
     expect(t1.size).toBe(3);
+    expect(t2.size).toBe(3);
     expect(t3.size).toBe(3);
     expect(t4.size).toBe(3);
 
     expect(t1.get('a')).toBe(10);
+    expect(t2.get('a')).toBe(1);
     expect(t3.get('a')).toBe(1);
     expect(t4.get('b')).toBe(2);
+
+    expect(t2.equals(t3)).toBe(true);
+    expect(t2.equals(t4)).toBe(false);
+    expect(t4.equals(new MyType())).toBe(true);
   })
 
   it('converts sequences to records', () => {
@@ -65,6 +72,16 @@ describe('Record', () => {
     var seq = Immutable.Seq({a: 10, b:20});
     var t = MyType(seq);
     expect(t.toObject()).toEqual({a:10, b:20, c:3})
+  })
+
+  it('skips unknown keys', () => {
+    var MyType = Record({a:1, b:2});
+    var seq = Immutable.Seq({b:20, c:30});
+    var t = new MyType(seq);
+
+    expect(t.get('a')).toEqual(1);
+    expect(t.get('b')).toEqual(20);
+    expect(t.get('c')).toBeUndefined();
   })
 
 });

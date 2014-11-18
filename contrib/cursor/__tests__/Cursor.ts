@@ -206,4 +206,11 @@ describe('Cursor', () => {
     expect(c.toJS()).toEqual([]);
   });
 
+  it('properly acts as an iterable', () => {
+    var data = Immutable.fromJS({key: {val: 1}});
+    var c = Cursor.from(data).values();
+    var c1 = c.next().value.get('val');
+    expect(c1).toBe(1);
+  })
+
 });

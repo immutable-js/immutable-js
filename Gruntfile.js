@@ -54,9 +54,6 @@ module.exports = function(grunt) {
       options: {
         testPathPattern: /.*/
       }
-    },
-    stats: {
-      build: {}
     }
   });
 
@@ -112,7 +109,7 @@ module.exports = function(grunt) {
 
   var exec = require('child_process').exec;
 
-  grunt.registerMultiTask('stats', function () {
+  grunt.registerTask('stats', function () {
     var done = this.async();
     exec('cat dist/immutable.js | wc -c', function (error, out) {
       if (error) throw new Error(error);
@@ -147,6 +144,16 @@ module.exports = function(grunt) {
     })
   });
 
+  grunt.registerTask('init_ts_compiler', function () {
+    // LOL. This is because requiring ts-compiler for the first time actually
+    // calls fs.writeFileSync(), which when called from within a parallel
+    // test-runner, freaks out the file system and fails. This is pretty
+    // poor-form from TypeScript. The solution is to first require ts-compiler
+    // from this main process, before our test runner can access it, so
+    // fs.writeFileSync() has an opportunity to succeed.
+    var ts = require('ts-compiler');
+  });
+
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-copy');
@@ -156,6 +163,6 @@ module.exports = function(grunt) {
 
   grunt.registerTask('lint', 'Lint all source javascript', ['jshint']);
   grunt.registerTask('build', 'Build distributed javascript', ['clean', 'smash', 'copy']);
-  grunt.registerTask('test', 'Test built javascript', ['jest']);
+  grunt.registerTask('test', 'Test built javascript', ['init_ts_compiler', 'jest']);
   grunt.registerTask('default', 'Lint, build and test.', ['lint', 'build', 'stats', 'test']);
 }

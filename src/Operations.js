@@ -14,17 +14,18 @@ import "Seq"
 import "Map"
 /* global NOT_SET, assertNotInfinite, ensureSize,
           isIterable, isKeyed, isIndexed,
-          KeyedIterable, SetIterable, IndexedIterable,
+          KeyedIterable, SetIterable, IndexedIterable, IS_ORDERED_SENTINEL,
           Iterator, iteratorValue, iteratorDone,
           ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES,
           isSeq, Seq, KeyedSeq, SetSeq, IndexedSeq,
-          seqFromValue, ArraySeq,
+          keyedSeqFromValue, indexedSeqFromValue, ArraySeq,
           Map */
 /* exported reify, ToKeyedSequence, ToIndexedSequence, ToSetSequence,
             FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
             filterFactory, countByFactory, groupByFactory, takeFactory,
             takeWhileFactory, skipFactory, skipWhileFactory, concatFactory,
-            flattenFactory, flatMapFactory, interposeFactory */
+            flattenFactory, flatMapFactory, interposeFactory, sortFactory,
+            maxFactory */
 
 
 class ToKeyedSequence extends KeyedSeq {
@@ -86,6 +87,7 @@ class ToKeyedSequence extends KeyedSeq {
     });
   }
 }
+ToKeyedSequence.prototype[IS_ORDERED_SENTINEL] = true;
 
 
 class ToIndexedSequence extends IndexedSeq {
@@ -541,18 +543,19 @@ function skipWhileFactory(iterable, predicate, context, useKeys) {
 }
 
 
-function concatFactory(iterable, values, useKeys) {
-  var isKeyedIter = isKeyed(iterable);
+function concatFactory(iterable, values) {
+  var isKeyedIterable = isKeyed(iterable);
   var iters = new ArraySeq([iterable].concat(values)).map(v => {
     if (!isIterable(v)) {
-      v = seqFromValue(v, true);
-    }
-    if (isKeyedIter) {
+      v = isKeyedIterable ?
+        keyedSeqFromValue(v) :
+        indexedSeqFromValue(Array.isArray(v) ? v : [v]);
+    } else if (isKeyedIterable) {
       v = KeyedIterable(v);
     }
     return v;
   });
-  if (isKeyedIter) {
+  if (isKeyedIterable) {
     iters = iters.toKeyedSeq();
   } else if (!isIndexed(iterable)) {
     iters = iters.toSetSeq();
@@ -659,6 +662,40 @@ function interposeFactory(iterable, separator) {
   return interposedSequence;
 }
 
+function sortFactory(iterable, comparator, mapper) {
+  if (!comparator) {
+    comparator = defaultComparator;
+  }
+  var isKeyedIterable = isKeyed(iterable);
+  var index = 0;
+  var entries = iterable.toSeq().map(
+    (v, k) => [k, v, index++, mapper ? mapper(v, k, iterable) : v]
+  ).toArray();
+  entries.sort((a, b) => comparator(a[3], b[3]) || a[2] - b[2]).forEach(
+    isKeyedIterable ?
+    (v, i) => { entries[i].length = 2; } :
+    (v, i) => { entries[i] = v[1]; }
+  );
+  return isKeyedIterable ? KeyedSeq(entries) :
+    isIndexed(iterable) ? IndexedSeq(entries) :
+    SetSeq(entries);
+}
+
+function maxFactory(iterable, comparator, mapper) {
+  if (!comparator) {
+    comparator = defaultComparator;
+  }
+  if (mapper) {
+    var entry = iterable.toSeq()
+      .map((v, k) => [v, mapper(v, k, iterable)])
+      .reduce((max, next) => comparator(next[1], max[1]) > 0 ? next : max);
+    return entry && entry[0];
+  } else {
+    return iterable.reduce(
+      (max, next) => comparator(next, max) > 0 ? next : max
+    );
+  }
+}
 
 
 // #pragma Helper Functions
@@ -702,4 +739,8 @@ function cacheResultThrough() {
   } else {
     return Seq.prototype.cacheResult.call(this);
   }
+}
+
+function defaultComparator(a, b) {
+  return a > b ? 1 : a < b ? -1 : 0;
 }

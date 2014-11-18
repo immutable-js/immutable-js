@@ -23,7 +23,7 @@ describe('concat', () => {
     })
   })
 
-  it.only('concats two sequences', () => {
+  it('concats two sequences', () => {
     var a = Seq.of(1,2,3);
     var b = Seq.of(4,5,6);
     expect(a.concat(b)).is(Seq.of(1,2,3,4,5,6))
@@ -39,13 +39,21 @@ describe('concat', () => {
     expect(a.concat(b).toObject()).toEqual({a:1,b:2,c:3,d:4,e:5,f:6});
   })
 
-  it('concats objects', () => {
+  it('concats objects to keyed seq', () => {
     var a = Seq({a:1,b:2,c:3});
     var b = {d:4,e:5,f:6};
     expect(a.concat(b).toObject()).toEqual({a:1,b:2,c:3,d:4,e:5,f:6});
   })
 
-  it('concats arrays', () => {
+  it('doesnt concat raw arrays to keyed seq', () => {
+    var a = Seq({a:1,b:2,c:3});
+    var b = [4,5,6];
+    expect(() => {
+      a.concat(b).toJS();
+    }).toThrow('Expected [K, V] tuple: 4');
+  })
+
+  it('concats arrays to indexed seq', () => {
     var a = Seq.of(1,2,3);
     var b = [4,5,6];
     expect(a.concat(b).size).toBe(6);
@@ -56,6 +64,15 @@ describe('concat', () => {
     var a = Seq.of(1,2,3);
     expect(a.concat(4,5,6).size).toBe(6);
     expect(a.concat(4,5,6).toObject()).toEqual([1,2,3,4,5,6]);
+  })
+
+  it('doesnt concat objects to indexed seq', () => {
+    var a = Seq.of(0,1,2,3);
+    var b = {4:4};
+    var i = a.concat(b);
+    expect(i.size).toBe(5);
+    expect(i.get(4)).toBe(b);
+    expect(i.toArray()).toEqual([0,1,2,3,{4:4}]);
   })
 
   it('concats multiple arguments', () => {

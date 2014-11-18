@@ -64,7 +64,11 @@ declare module 'immutable' {
    * If `reviver` is not provided, the default behavior will convert Arrays into
    * Lists and Objects into Maps.
    *
-   * Note: `reviver` acts similarly to [`JSON.parse`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Example.3A_Using_the_reviver_parameter).
+   * `reviver` acts similarly to [`JSON.parse`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Example.3A_Using_the_reviver_parameter).
+   *
+   * `Immutable.fromJS` is conservative in it's conversion. It will only convert
+   * arrays which pass `Array.isArray` to Lists, and only raw objects (no custom
+   * prototype) to Map.
    */
   export function fromJS(
     json: any,
@@ -88,31 +92,37 @@ declare module 'immutable' {
     /**
      * True if `maybeIterable` is an Iterable, or any of its subclasses.
      */
-    function isIterable(maybeIterable): boolean;
+    function isIterable(maybeIterable: any): boolean;
 
     /**
      * True if `maybeKeyed` is a KeyedIterable, or any of its subclasses.
      */
-    function isKeyed(maybeKeyed): boolean;
+    function isKeyed(maybeKeyed: any): boolean;
 
     /**
      * True if `maybeIndexed` is a IndexedIterable, or any of its subclasses.
      */
-    function isIndexed(maybeIndexed): boolean;
+    function isIndexed(maybeIndexed: any): boolean;
 
     /**
      * True if `maybeAssociative` is either a keyed or indexed Iterable.
      */
-    function isAssociative(maybeAssociative): boolean;
+    function isAssociative(maybeAssociative: any): boolean;
+
+    /**
+     * True if `maybeOrdered` is an Iterable where iteration order is well
+     * defined. True for IndexedIterable as well as OrderedMap and OrderedSet.
+     */
+    function isOrdered(maybeOrdered: any): boolean;
   }
 
   /**
    * `Immutable.Iterable()` returns a particular kind of Iterable based
    * on the input.
    *
-   *   * If a `Iterable`, that same `Iterable`.
+   *   * If an `Iterable`, that same `Iterable`.
    *   * If an Array-like, an `IndexedIterable`.
-   *   * If an Iterable, an `IndexedIterable`.
+   *   * If an Object with an Iterator, an `IndexedIterable`.
    *   * If an Iterator, an `IndexedIterable`.
    *   * If an Object, a `KeyedIterable`.
    *
@@ -188,6 +198,15 @@ declare module 'immutable' {
      * provided for convenience and to allow for chained expressions.
      */
     toOrderedMap(): Map<K, V>;
+
+    /**
+     * Converts this Iterable to a Set, maintaining the order of iteration and
+     * discarding keys.
+     *
+     * Note: This is equivalent to `OrderedSet(this.valueSeq())`, but provided
+     * for convenience and to allow for chained expressions.
+     */
+    toOrderedSet(): Set<V>;
 
     /**
      * Converts this Iterable to a Set, discarding keys. Throws if values
@@ -394,6 +413,9 @@ declare module 'immutable' {
      *   * Returns `1` (or any positive number) if `valueA` comes after `valueB`
      *   * Is pure, i.e. it must always return the same value for the same pair
      *     of values.
+     *
+     * When sorting collections which have no defined order, their ordered
+     * equivalents will be returned. e.g. `map.sort()` returns OrderedMap.
      */
     sort(comparator?: (valueA: V, valueB: V) => number): /*this*/Iterable<K, V>;
 
@@ -836,12 +858,12 @@ declare module 'immutable' {
    */
 
   /**
-   * Similar to `Iterable()`, but always returns an IndexedIterable, discarding
-   * associated keys, and replacing them with incrementing indices.
+   * Similar to `Iterable()`, but always returns an IndexedIterable.
    */
-  export function IndexedIterable<T>(iter: Iterable<any, T>): IndexedIterable<T>;
+  export function IndexedIterable<T>(iter: IndexedIterable<T>): IndexedIterable<T>;
+  export function IndexedIterable<T>(iter: SetIterable<T>): IndexedIterable<T>;
+  export function IndexedIterable<K, V>(iter: KeyedIterable<K, V>): IndexedIterable</*[K,V]*/any>;
   export function IndexedIterable<T>(array: Array<T>): IndexedIterable<T>;
-  export function IndexedIterable<T>(obj: {[key: string]: T}): IndexedIterable<T>;
   export function IndexedIterable<T>(iterator: Iterator<T>): IndexedIterable<T>;
   export function IndexedIterable<T>(iterable: /*Iterable<T>*/Object): IndexedIterable<T>;
 
@@ -948,12 +970,12 @@ declare module 'immutable' {
    */
 
   /**
-   * Similar to `Iterable()`, but always returns a SetIterable, discarding
-   * associated keys or indices.
+   * Similar to `Iterable()`, but always returns a SetIterable.
    */
-  export function SetIterable<T>(iter: Iterable<any, T>): SetIterable<T>;
+  export function SetIterable<T>(iter: SetIterable<T>): SetIterable<T>;
+  export function SetIterable<T>(iter: IndexedIterable<T>): SetIterable<T>;
+  export function SetIterable<K, V>(iter: KeyedIterable<K, V>): SetIterable</*[K,V]*/any>;
   export function SetIterable<T>(array: Array<T>): SetIterable<T>;
-  export function SetIterable<T>(obj: {[key: string]: T}): SetIterable<T>;
   export function SetIterable<T>(iterator: Iterator<T>): SetIterable<T>;
   export function SetIterable<T>(iterable: /*Iterable<T>*/Object): SetIterable<T>;
 
@@ -1015,7 +1037,7 @@ declare module 'immutable' {
      * True if `maybeSeq` is a Seq, it is not backed by a concrete
      * structure such as Map, List, or Set.
      */
-    function isSeq(maybeSeq): boolean;
+    function isSeq(maybeSeq: any): boolean;
 
     /**
      * Returns a Seq of the values provided. Alias for `IndexedSeq.of()`.
@@ -1028,11 +1050,11 @@ declare module 'immutable' {
    * on the input.
    *
    *   * If a `Seq`, that same `Seq`.
-   *   * If a `Iterable`, a `Seq` of the same kind.
-   *   * If an Array, an `IndexedSeq`.
-   *   * If object with an iterator, an `IndexedSeq`.
-   *   * If an iterator, an `IndexedSeq`.
-   *   * If a plain Object, a `KeyedSeq`.
+   *   * If an `Iterable`, a `Seq` of the same kind (Keyed, Indexed, or Set).
+   *   * If an Array-like, an `IndexedSeq`.
+   *   * If an Object with an Iterator, an `IndexedSeq`.
+   *   * If an Iterator, an `IndexedSeq`.
+   *   * If an Object, a `KeyedSeq`.
    *
    */
   export function Seq<K, V>(): Seq<K, V>;
@@ -1112,9 +1134,10 @@ declare module 'immutable' {
    * supplying incrementing indices.
    */
   export function IndexedSeq<T>(): IndexedSeq<T>;
-  export function IndexedSeq<T>(seq: Iterable<any, T>): IndexedSeq<T>;
+  export function IndexedSeq<T>(seq: IndexedIterable<T>): IndexedSeq<T>;
+  export function IndexedSeq<T>(seq: SetIterable<T>): IndexedSeq<T>;
+  export function IndexedSeq<K, V>(seq: KeyedIterable<K, V>): IndexedSeq</*[K,V]*/any>;
   export function IndexedSeq<T>(array: Array<T>): IndexedSeq<T>;
-  export function IndexedSeq<T>(obj: {[key: string]: T}): IndexedSeq<T>;
   export function IndexedSeq<T>(iterator: Iterator<T>): IndexedSeq<T>;
   export function IndexedSeq<T>(iterable: /*Iterable<T>*/Object): IndexedSeq<T>;
 
@@ -1138,9 +1161,10 @@ declare module 'immutable' {
    * Always returns a SetSeq, discarding associated indices or keys.
    */
   export function SetSeq<T>(): SetSeq<T>;
-  export function SetSeq<T>(seq: Iterable<any, T>): SetSeq<T>;
+  export function SetSeq<T>(seq: SetIterable<T>): SetSeq<T>;
+  export function SetSeq<T>(seq: IndexedIterable<T>): SetSeq<T>;
+  export function SetSeq<K, V>(seq: KeyedIterable<K, V>): SetSeq</*[K,V]*/any>;
   export function SetSeq<T>(array: Array<T>): SetSeq<T>;
-  export function SetSeq<T>(obj: {[key: string]: T}): SetSeq<T>;
   export function SetSeq<T>(iterator: Iterator<T>): SetSeq<T>;
   export function SetSeq<T>(iterable: /*Iterable<T>*/Object): SetSeq<T>;
 
@@ -1498,8 +1522,9 @@ declare module 'immutable' {
    * Record
    * ------
    *
-   * Creates a new Class which produces maps with a specific set of allowed string
-   * keys and have default values.
+   * Creates a new Class which produces Record instances. A record is similar to
+   * a JS object, but enforce a specific set of allowed string keys, and have
+   * default values.
    *
    *     var ABRecord = Record({a:1, b:2})
    *     var myRecord = new ABRecord({b:3})
@@ -1508,19 +1533,31 @@ declare module 'immutable' {
    * from a record simply resets it to the default value for that key.
    *
    *     myRecord.size // 2
+   *     myRecord.get('a') // 1
+   *     myRecord.get('b') // 3
    *     myRecordWithoutB = myRecord.remove('b')
    *     myRecordWithoutB.get('b') // 2
    *     myRecordWithoutB.size // 2
    *
-   * Because Records have a known set of string keys, property get access works as
-   * expected, however property sets will throw an Error.
+   * Values provided to the constructor not found in the Record type will
+   * be ignored:
+   *
+   *     var myRecord = new ABRecord({b:3, x:10})
+   *     myRecord.get('x') // undefined
+   *
+   * Because Records have a known set of string keys, property get access works
+   * as expected, however property sets will throw an Error.
+   *
+   * Note: IE8 does not support property access.
    *
    *     myRecord.b // 3
    *     myRecord.b = 5 // throws Error
    *
    * Record Classes can be extended as well, allowing for custom methods on your
-   * Record. This isn't how things are done in functional environments, but is a
-   * common pattern in many JS programs.
+   * Record. This is not a common pattern in functional environments, but is in
+   * many JS programs.
+   *
+   * Note: TypeScript does not support this type of subclassing.
    *
    *     class ABRecord extends Record({a:1,b:2}) {
    *       getAB() {
@@ -1532,13 +1569,14 @@ declare module 'immutable' {
    *     myRecord.getAB() // 4
    *
    */
-  export function Record(defaultValues: Iterable<string, any>, name?: string): RecordClass;
-  export function Record(defaultValues: {[key: string]: any}, name?: string): RecordClass;
+  export function Record(
+    defaultValues: {[key: string]: any}, name?: string
+  ): RecordType;
 
-  export interface RecordClass {
+  export interface RecordType {
     new (): Map<string, any>;
-    new (values: Iterable<string, any>): Map<string, any>;
     new (values: {[key: string]: any}): Map<string, any>;
+    new (values: Iterable<string, any>): Map<string, any>; // deprecated
   }
 
 
@@ -1581,9 +1619,10 @@ declare module 'immutable' {
    * iterable-like.
    */
   export function Set<T>(): Set<T>;
-  export function Set<T>(iter: Iterable<any, T>): Set<T>;
+  export function Set<T>(iter: SetIterable<T>): Set<T>;
+  export function Set<T>(iter: IndexedIterable<T>): Set<T>;
+  export function Set<K, V>(iter: KeyedIterable<K, V>): Set</*[K,V]*/any>;
   export function Set<T>(array: Array<T>): Set<T>;
-  export function Set<T>(obj: {[key: string]: T}): Set<T>;
   export function Set<T>(iterator: Iterator<T>): Set<T>;
   export function Set<T>(iterable: /*Iterable<T>*/Object): Set<T>;
 
@@ -1654,6 +1693,48 @@ declare module 'immutable' {
 
 
   /**
+   * Ordered Set
+   * -----------
+   *
+   * OrderedSet constructors return a Set which has the additional guarantee of
+   * the iteration order of entries to match the order in which they were added.
+   * This makes OrderedSet behave similarly to native JS objects or arrays.
+   */
+
+  export module OrderedSet {
+
+    /**
+     * True if the provided value is an OrderedSet.
+     */
+    function isOrderedSet(maybeOrderedSet: any): boolean;
+
+    /**
+     * Creates a new ordered Set containing `values`.
+     */
+    function of<T>(...values: T[]): Set<T>;
+
+    /**
+     * `OrderedSet.fromKeys()` creates a new immutable ordered Set containing
+     * the keys from this Iterable or JavaScript Object.
+     */
+    function fromKeys<T>(iter: Iterable<T, any>): Set<T>;
+    function fromKeys(obj: {[key: string]: any}): Set<string>;
+  }
+
+  /**
+   * Create a new immutable ordered Set containing the values of the provided
+   * iterable-like.
+   */
+  export function OrderedSet<T>(): Set<T>;
+  export function OrderedSet<T>(iter: SetIterable<T>): Set<T>;
+  export function OrderedSet<T>(iter: IndexedIterable<T>): Set<T>;
+  export function OrderedSet<K, V>(iter: KeyedIterable<K, V>): Set</*[K,V]*/any>;
+  export function OrderedSet<T>(array: Array<T>): Set<T>;
+  export function OrderedSet<T>(iterator: Iterator<T>): Set<T>;
+  export function OrderedSet<T>(iterable: /*Iterable<T>*/Object): Set<T>;
+
+
+  /**
    * List
    * ------
    *
@@ -1681,9 +1762,10 @@ declare module 'immutable' {
    * iterable-like.
    */
   export function List<T>(): List<T>;
-  export function List<T>(iter: Iterable<any, T>): List<T>;
+  export function List<T>(iter: IndexedIterable<T>): List<T>;
+  export function List<T>(iter: SetIterable<T>): List<T>;
+  export function List<K, V>(iter: KeyedIterable<K, V>): List</*[K,V]*/any>;
   export function List<T>(array: Array<T>): List<T>;
-  export function List<T>(obj: {[key: string]: T}): List<T>;
   export function List<T>(iterator: Iterator<T>): List<T>;
   export function List<T>(iterable: /*Iterable<T>*/Object): List<T>;
 
@@ -1707,8 +1789,11 @@ declare module 'immutable' {
     setIn(keyPath: IndexedIterable<any>, value: T): List<T>;
 
     /**
-     * Returns a new List which excludes this `index`. It will not affect the
-     * size of the List, instead leaving an undefined value.
+     * Returns a new List which excludes this `index` and with a size 1 less
+     * than this List. Values at indicies above `index` are shifted down by 1 to
+     * fill the position.
+     *
+     * This is synonymous with `list.splice(index, 1)`.
      *
      * `index` may be a negative number, which indexes back from the end of the
      * List. `v.delete(-1)` deletes the last item in the List.
@@ -1892,9 +1977,10 @@ declare module 'immutable' {
    * iterable.
    */
   export function Stack<T>(): Stack<T>;
-  export function Stack<T>(iter: Iterable<any, T>): Stack<T>;
+  export function Stack<T>(iter: IndexedIterable<T>): Stack<T>;
+  export function Stack<T>(iter: SetIterable<T>): Stack<T>;
+  export function Stack<K, V>(iter: KeyedIterable<K, V>): Stack</*[K,V]*/any>;
   export function Stack<T>(array: Array<T>): Stack<T>;
-  export function Stack<T>(obj: {[key: string]: T}): Stack<T>;
   export function Stack<T>(iterator: Iterator<T>): Stack<T>;
   export function Stack<T>(iterable: /*Iterable<T>*/Object): Stack<T>;
 
