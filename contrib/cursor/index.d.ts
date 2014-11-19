@@ -86,6 +86,7 @@ declare module 'immutable/contrib/cursor' {
      * If the keyPath would return a collection, a new Cursor is returned.
      */
     getIn(keyPath: Array<any>, notSetValue?: any): any;
+    getIn(keyPath: Immutable.Iterable<any, any>, notSetValue?: any): any;
 
     /**
      * Sets `value` at `key` in the cursor, returning a new cursor to the same
