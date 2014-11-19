@@ -17,10 +17,11 @@ import "TrieUtils"
 import "Hash"
 import "Iterator"
 import "Operations"
-/* global is, fromJS, isIterable, KeyedIterable, KeyedCollection, invariant,
+/* global is, fromJS, isIterable, Iterable, KeyedIterable, KeyedCollection,
+          invariant,
           DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
           MakeRef, SetRef, arrCopy, hash, sortFactory, OrderedMap,
-          Iterator, iteratorValue, iteratorDone */
+          Iterator, getIterator, iteratorValue, iteratorDone */
 /* exported Map, isMap, MapPrototype */
 
 
@@ -77,9 +78,12 @@ class Map extends KeyedCollection {
       updater = notSetValue;
       notSetValue = undefined;
     }
-    return keyPath.length === 0 ?
-      updater(this) :
-      updateInDeepMap(this, keyPath, notSetValue, updater, 0);
+    return updateInDeepMap(
+      this,
+      getIterator(keyPath) || getIterator(Iterable(keyPath)),
+      notSetValue,
+      updater
+    );
   }
 
   clear() {
@@ -727,26 +731,29 @@ function mergeIntoCollectionWith(collection, merger, iters) {
   });
 }
 
-function updateInDeepMap(collection, keyPath, notSetValue, updater, offset) {
-  invariant(!collection || collection.set, 'updateIn with invalid keyPath');
-
-  var key = keyPath[offset];
-  var existing = collection ? collection.get(key, NOT_SET) : NOT_SET;
-  var existingValue = existing === NOT_SET ? undefined : existing;
-
-  var value = offset === keyPath.length - 1 ?
-    updater(existing === NOT_SET ? notSetValue : existing) :
-    updateInDeepMap(
-      existingValue,
-      keyPath,
-      notSetValue,
-      updater,
-      offset + 1
-    );
-
-  return value === existingValue ? collection :
-    value === NOT_SET ? collection && collection.remove(key) :
-    (collection || emptyMap()).set(key, value);
+function updateInDeepMap(existing, keyPathIter, notSetValue, updater) {
+  var isNotSet = existing === NOT_SET;
+  var step = keyPathIter.next();
+  if (step.done) {
+    var existingValue = isNotSet ? notSetValue : existing;
+    var newValue = updater(existingValue);
+    return newValue === existingValue ? existing : newValue;
+  }
+  invariant(
+    isNotSet || (existing && existing.set),
+    'invalid keyPath'
+  );
+  var key = step.value;
+  var nextExisting = isNotSet ? NOT_SET : existing.get(key, NOT_SET);
+  var nextUpdated = updateInDeepMap(
+    nextExisting,
+    keyPathIter,
+    notSetValue,
+    updater
+  );
+  return nextUpdated === nextExisting ? existing :
+    nextUpdated === NOT_SET ? existing.remove(key) :
+    (isNotSet ? emptyMap() : existing).set(key, nextUpdated);
 }
 
 function popCount(x) {

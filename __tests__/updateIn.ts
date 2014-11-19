@@ -12,6 +12,11 @@ describe('updateIn', () => {
     expect(m.getIn(['a', 'b', 'c'])).toEqual(10);
   })
 
+  it('deep get with list as keyPath', () => {
+    var m = I.fromJS({a: {b: {c: 10}}});
+    expect(m.getIn(I.fromJS(['a', 'b', 'c']))).toEqual(10);
+  })
+
   it('deep get returns not found if path does not match', () => {
     var m = I.fromJS({a: {b: {c: 10}}});
     expect(m.getIn(['a', 'b', 'z'])).toEqual(undefined);
@@ -22,6 +27,15 @@ describe('updateIn', () => {
     var m = I.fromJS({a: {b: {c: 10}}});
     expect(
       m.updateIn(['a', 'b', 'c'], value => value * 2).toJS()
+    ).toEqual(
+      {a: {b: {c: 20}}}
+    );
+  })
+
+  it('deep edit with list as keyPath', () => {
+    var m = I.fromJS({a: {b: {c: 10}}});
+    expect(
+      m.updateIn(I.fromJS(['a', 'b', 'c']), value => value * 2).toJS()
     ).toEqual(
       {a: {b: {c: 20}}}
     );
@@ -88,31 +102,37 @@ describe('updateIn', () => {
     )
   })
 
-  it('performs edit when notSetValue is what you return from updater', () => {
-    var m = I.Map();
-
-    m = m.updateIn(['a', 'b', 'c'], I.Set(), id => id);
-
-    expect(m.size).toBe(1);
-
-    expect(m.getIn(['a', 'b', 'c'])).toBe(I.Set());
+  it('does not perform edit when new value is the same as old value', () => {
+    var m = I.fromJS({a: {b: {c: 10}}});
+    var m2 = m.updateIn(['a', 'b', 'c'], id => id);
+    expect(m2).toBe(m);
   })
 
-  it('does not perform edit when new value is the same as old value', () => {
+  it('does not perform edit when notSetValue is what you return from updater', () => {
     var m = I.Map();
+    var spiedOnID;
+    var m2 = m.updateIn(['a', 'b', 'c'], I.Set(), id => (spiedOnID = id));
+    expect(m2).toBe(m);
+    expect(spiedOnID).toBe(I.Set());
+  })
 
-    m = m.updateIn(['a', 'b', 'c'], I.Set(), id => undefined);
-
-    expect(m.size).toBe(0);
-
-    var nothing = {}; // sentinel.
-    expect(m.getIn(['a', 'b', 'c'], nothing)).toBe(nothing);
+  it('provides default notSetValue of undefined', () => {
+    var m = I.Map();
+    var spiedOnID;
+    var m2 = m.updateIn(['a', 'b', 'c'], id => (spiedOnID = id));
+    expect(m2).toBe(m);
+    expect(spiedOnID).toBe(undefined);
   })
 
   describe('setIn', () => {
 
     it('provides shorthand for updateIn to set a single value', () => {
       var m = I.Map().setIn(['a','b','c'], 'X');
+      expect(m.toJS()).toEqual({a:{b:{c:'X'}}});
+    })
+
+    it('accepts a list as a keyPath', () => {
+      var m = I.Map().setIn(I.fromJS(['a','b','c']), 'X');
       expect(m.toJS()).toEqual({a:{b:{c:'X'}}});
     })
 
@@ -123,6 +143,11 @@ describe('updateIn', () => {
     it('provides shorthand for updateIn to remove a single value', () => {
       var m = I.fromJS({a:{b:{c:'X', d:'Y'}}});
       expect(m.removeIn(['a','b','c']).toJS()).toEqual({a:{b:{d:'Y'}}});
+    })
+
+    it('accepts a list as a keyPath', () => {
+      var m = I.fromJS({a:{b:{c:'X', d:'Y'}}});
+      expect(m.removeIn(I.fromJS(['a','b','c'])).toJS()).toEqual({a:{b:{d:'Y'}}});
     })
 
     it('does not create empty maps for an unset path', () => {

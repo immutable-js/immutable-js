@@ -507,8 +507,11 @@ var $Iterable = Iterable;
   getIn: function(searchKeyPath, notSetValue) {
     var nested = this;
     if (searchKeyPath) {
-      for (var ii = 0; ii < searchKeyPath.length; ii++) {
-        nested = nested && nested.get ? nested.get(searchKeyPath[ii], NOT_SET) : NOT_SET;
+      var iter = getIterator(searchKeyPath) || getIterator($Iterable(searchKeyPath));
+      var step;
+      while (!(step = iter.next()).done) {
+        var key = step.value;
+        nested = nested && nested.get ? nested.get(key, NOT_SET) : NOT_SET;
         if (nested === NOT_SET) {
           return notSetValue;
         }
@@ -1275,7 +1278,7 @@ var Map = function Map(value) {
       updater = notSetValue;
       notSetValue = undefined;
     }
-    return keyPath.length === 0 ? updater(this) : updateInDeepMap(this, keyPath, notSetValue, updater, 0);
+    return updateInDeepMap(this, getIterator(keyPath) || getIterator(Iterable(keyPath)), notSetValue, updater);
   },
   clear: function() {
     if (this.size === 0) {
@@ -1818,13 +1821,19 @@ function mergeIntoCollectionWith(collection, merger, iters) {
     }
   }));
 }
-function updateInDeepMap(collection, keyPath, notSetValue, updater, offset) {
-  invariant(!collection || collection.set, 'updateIn with invalid keyPath');
-  var key = keyPath[offset];
-  var existing = collection ? collection.get(key, NOT_SET) : NOT_SET;
-  var existingValue = existing === NOT_SET ? undefined : existing;
-  var value = offset === keyPath.length - 1 ? updater(existing === NOT_SET ? notSetValue : existing) : updateInDeepMap(existingValue, keyPath, notSetValue, updater, offset + 1);
-  return value === existingValue ? collection : value === NOT_SET ? collection && collection.remove(key) : (collection || emptyMap()).set(key, value);
+function updateInDeepMap(existing, keyPathIter, notSetValue, updater) {
+  var isNotSet = existing === NOT_SET;
+  var step = keyPathIter.next();
+  if (step.done) {
+    var existingValue = isNotSet ? notSetValue : existing;
+    var newValue = updater(existingValue);
+    return newValue === existingValue ? existing : newValue;
+  }
+  invariant(isNotSet || (existing && existing.set), 'invalid keyPath');
+  var key = step.value;
+  var nextExisting = isNotSet ? NOT_SET : existing.get(key, NOT_SET);
+  var nextUpdated = updateInDeepMap(nextExisting, keyPathIter, notSetValue, updater);
+  return nextUpdated === nextExisting ? existing : nextUpdated === NOT_SET ? existing.remove(key) : (isNotSet ? emptyMap() : existing).set(key, nextUpdated);
 }
 function popCount(x) {
   x = x - ((x >> 1) & 0x55555555);
@@ -2181,8 +2190,8 @@ function groupByFactory(iterable, grouper, context) {
   var isKeyedIter = isKeyed(iterable);
   var groups = Map().asMutable();
   iterable.__iterate((function(v, k) {
-    groups.update(grouper.call(context, v, k, iterable), [], (function(a) {
-      return (a.push(isKeyedIter ? [k, v] : v), a);
+    groups.update(grouper.call(context, v, k, iterable), (function(a) {
+      return (a = a || [], a.push(isKeyedIter ? [k, v] : v), a);
     }));
   }));
   var coerce = iterableClass(iterable);

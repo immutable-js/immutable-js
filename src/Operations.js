@@ -357,8 +357,7 @@ function groupByFactory(iterable, grouper, context) {
   iterable.__iterate((v, k) => {
     groups.update(
       grouper.call(context, v, k, iterable),
-      [],
-      a => (a.push(isKeyedIter ? [k, v] : v), a)
+      a => (a = a || [], a.push(isKeyedIter ? [k, v] : v), a)
     );
   });
   var coerce = iterableClass(iterable);

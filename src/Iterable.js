@@ -18,7 +18,7 @@ import "Iterator"
           arrCopy, NOT_SET, assertNotInfinite, ensureSize, wrapIndex,
           returnTrue, wholeSlice, resolveBegin, resolveEnd,
           hash, imul, smi,
-          Iterator,
+          Iterator, getIterator,
           ITERATOR_SYMBOL, ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES,
           isSeq,
           Seq, KeyedSeq, IndexedSeq, SetSeq,
@@ -319,8 +319,15 @@ class Iterable {
   getIn(searchKeyPath, notSetValue) {
     var nested = this;
     if (searchKeyPath) {
-      for (var ii = 0; ii < searchKeyPath.length; ii++) {
-        nested = nested && nested.get ? nested.get(searchKeyPath[ii], NOT_SET) : NOT_SET;
+      // Array might not be iterable in this environment, so we need a fallback
+      // to our wrapped type.
+      // Note: in an ES6 environment, we would prefer:
+      // for (var key of searchKeyPath) {
+      var iter = getIterator(searchKeyPath) || getIterator(Iterable(searchKeyPath));
+      var step;
+      while (!(step = iter.next()).done) {
+        var key = step.value;
+        nested = nested && nested.get ? nested.get(key, NOT_SET) : NOT_SET;
         if (nested === NOT_SET) {
           return notSetValue;
         }
