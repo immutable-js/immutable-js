@@ -11,12 +11,13 @@
 import "is"
 import "TrieUtils"
 import "Hash"
+import "Math"
 import "Iterator"
 /* global Map, OrderedMap, List, Set, OrderedSet, Stack,
           is,
           arrCopy, NOT_SET, assertNotInfinite, ensureSize, wrapIndex,
           returnTrue, wholeSlice, resolveBegin, resolveEnd,
-          hash,
+          hash, imul, smi,
           Iterator,
           ITERATOR_SYMBOL, ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES,
           isSeq,
@@ -811,18 +812,6 @@ function deepEqual(a, b) {
   return allEqual && a.size === bSize;
 }
 
-// Polyfill Math.imul if necessary, preserving ASM markers.
-if (typeof Math.imul !== 'function' || Math.imul(0xffffffff, 2) !== -2) {
-  Math.imul = function imul(a, b) {
-    a = a | 0; // int
-    b = b | 0; // int
-    var c = a & 0xffff;
-    var d = b & 0xffff;
-    // Shift by 0 fixes the sign on the high part.
-    return (c * d) + ((((a >>> 16) * d + c * (b >>> 16)) << 16) >>> 0) | 0; // int
-  };
-}
-
 function hashIterable(iterable) {
   if (iterable.size === Infinity) {
     return 0;
@@ -833,29 +822,26 @@ function hashIterable(iterable) {
   var size = iterable.__iterate(
     keyed ?
       ordered ?
-        (v, k) => { h = Math.imul(31, h) + hashMerge(hash(v), hash(k)) | 0; } :
+        (v, k) => { h = 31 * h + hashMerge(hash(v), hash(k)) | 0; } :
         (v, k) => { h = h + hashMerge(hash(v), hash(k)) | 0; } :
       ordered ?
-        v => { h = Math.imul(31, h) + hash(v) | 0; } :
+        v => { h = 31 * h + hash(v) | 0; } :
         v => { h = h + hash(v) | 0; }
   );
   return murmurHashOfSize(size, h);
 }
 
 function murmurHashOfSize(size, h) {
-  size = size | 0; // int
-  h = h | 0; // int
-  h = Math.imul(h, 0xCC9E2D51);
-  h = Math.imul(h << 15 | h >>> -15, 0x1B873593);
-  h = Math.imul(h << 13 | h >>> -13, 5);
+  h = imul(h, 0xCC9E2D51);
+  h = imul(h << 15 | h >>> -15, 0x1B873593);
+  h = imul(h << 13 | h >>> -13, 5);
   h = (h + 0xE6546B64 | 0) ^ size;
-  h = Math.imul(h ^ h >>> 16, 0x85EBCA6B);
-  h = Math.imul(h ^ h >>> 13, 0xC2B2AE35);
-  return h ^ h >>> 16 | 0; // int
+  h = imul(h ^ h >>> 16, 0x85EBCA6B);
+  h = imul(h ^ h >>> 13, 0xC2B2AE35);
+  h = smi(h ^ h >>> 16);
+  return h;
 }
 
 function hashMerge(a, b) {
-  a = a | 0; // int
-  b = b | 0; // int
-  return (a ^ b + 0x9E3779B9 + (a << 6) + (a >> 2)) | 0; // int
+  return a ^ b + 0x9E3779B9 + (a << 6) + (a >> 2) | 0; // int
 }

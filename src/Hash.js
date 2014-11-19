@@ -7,8 +7,9 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-/* global Symbol, WeakMap */
-/* exported hash, HASH_MAX_VAL */
+import "Math"
+/* global Symbol, WeakMap, smi */
+/* exported hash */
 
 function hash(o) {
   if (!o) { // "", false, 0, null, and undefined
@@ -19,11 +20,12 @@ function hash(o) {
   }
   var type = typeof o;
   if (type === 'number') {
-    if ((o | 0) === o) {
-      return o & HASH_MAX_VAL;
+    var h = o | 0;
+    while (o > 0xFFFFFFFF) {
+      o /= 0xFFFFFFFF;
+      h ^= o;
     }
-    o = '' + o;
-    type = 'string';
+    return smi(h);
   }
   if (type === 'string') {
     return o.length > STRING_HASH_CACHE_MIN_STRLEN ? cachedHashString(o) : hashString(o);
@@ -58,9 +60,9 @@ function hashString(string) {
   // (exclusive) by dropping high bits.
   var hash = 0;
   for (var ii = 0; ii < string.length; ii++) {
-    hash = (31 * hash + string.charCodeAt(ii)) & HASH_MAX_VAL;
+    hash = 31 * hash + string.charCodeAt(ii) | 0;
   }
-  return hash;
+  return smi(hash);
 }
 
 function hashJSObj(obj) {
@@ -82,7 +84,10 @@ function hashJSObj(obj) {
     throw new Error('Non-extensible objects are not allowed as keys.');
   }
 
-  hash = ++objHashUID & HASH_MAX_VAL;
+  hash = ++objHashUID;
+  if (objHashUID & 0x40000000) {
+    objHashUID = 0;
+  }
 
   if (weakMap) {
     weakMap.set(obj, hash);
@@ -141,8 +146,6 @@ function getIENodeHash(node) {
 
 // If possible, use a WeakMap.
 var weakMap = typeof WeakMap === 'function' && new WeakMap();
-
-var HASH_MAX_VAL = 0x7FFFFFFF; // 2^31 - 1 is an efficiently stored int
 
 var objHashUID = 0;
 

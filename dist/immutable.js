@@ -108,6 +108,16 @@ function resolveEnd(end, size) {
 function resolveIndex(index, size, defaultIndex) {
   return index === undefined ? defaultIndex : index < 0 ? Math.max(0, size + index) : size === undefined ? index : Math.min(size, index);
 }
+var imul = typeof Math.imul === 'function' && Math.imul(0xffffffff, 2) === -2 ? Math.imul : function imul(a, b) {
+  a = a | 0;
+  b = b | 0;
+  var c = a & 0xffff;
+  var d = b & 0xffff;
+  return (c * d) + ((((a >>> 16) * d + c * (b >>> 16)) << 16) >>> 0) | 0;
+};
+function smi(i32) {
+  return ((i32 >>> 1) & 0x40000000) | (i32 & 0xBFFFFFFF);
+}
 function hash(o) {
   if (!o) {
     return 0;
@@ -117,11 +127,12 @@ function hash(o) {
   }
   var type = typeof o;
   if (type === 'number') {
-    if ((o | 0) === o) {
-      return o & HASH_MAX_VAL;
+    var h = o | 0;
+    while (o > 0xFFFFFFFF) {
+      o /= 0xFFFFFFFF;
+      h ^= o;
     }
-    o = '' + o;
-    type = 'string';
+    return smi(h);
   }
   if (type === 'string') {
     return o.length > STRING_HASH_CACHE_MIN_STRLEN ? cachedHashString(o) : hashString(o);
@@ -147,9 +158,9 @@ function cachedHashString(string) {
 function hashString(string) {
   var hash = 0;
   for (var ii = 0; ii < string.length; ii++) {
-    hash = (31 * hash + string.charCodeAt(ii)) & HASH_MAX_VAL;
+    hash = 31 * hash + string.charCodeAt(ii) | 0;
   }
-  return hash;
+  return smi(hash);
 }
 function hashJSObj(obj) {
   var hash = weakMap && weakMap.get(obj);
@@ -169,7 +180,10 @@ function hashJSObj(obj) {
   if (Object.isExtensible && !Object.isExtensible(obj)) {
     throw new Error('Non-extensible objects are not allowed as keys.');
   }
-  hash = ++objHashUID & HASH_MAX_VAL;
+  hash = ++objHashUID;
+  if (objHashUID & 0x40000000) {
+    objHashUID = 0;
+  }
   if (weakMap) {
     weakMap.set(obj, hash);
   } else if (canDefineProperty) {
@@ -210,7 +224,6 @@ function getIENodeHash(node) {
   }
 }
 var weakMap = typeof WeakMap === 'function' && new WeakMap();
-var HASH_MAX_VAL = 0x7FFFFFFF;
 var objHashUID = 0;
 var UID_HASH_KEY = '__immutablehash__';
 if (typeof Symbol === 'function') {
@@ -842,15 +855,6 @@ function deepEqual(a, b) {
   }));
   return allEqual && a.size === bSize;
 }
-if (typeof Math.imul !== 'function' || Math.imul(0xffffffff, 2) !== -2) {
-  Math.imul = function imul(a, b) {
-    a = a | 0;
-    b = b | 0;
-    var c = a & 0xffff;
-    var d = b & 0xffff;
-    return (c * d) + ((((a >>> 16) * d + c * (b >>> 16)) << 16) >>> 0) | 0;
-  };
-}
 function hashIterable(iterable) {
   if (iterable.size === Infinity) {
     return 0;
@@ -859,31 +863,28 @@ function hashIterable(iterable) {
   var keyed = isKeyed(iterable);
   var h = ordered ? 1 : 0;
   var size = iterable.__iterate(keyed ? ordered ? (function(v, k) {
-    h = Math.imul(31, h) + hashMerge(hash(v), hash(k)) | 0;
+    h = 31 * h + hashMerge(hash(v), hash(k)) | 0;
   }) : (function(v, k) {
     h = h + hashMerge(hash(v), hash(k)) | 0;
   }) : ordered ? (function(v) {
-    h = Math.imul(31, h) + hash(v) | 0;
+    h = 31 * h + hash(v) | 0;
   }) : (function(v) {
     h = h + hash(v) | 0;
   }));
   return murmurHashOfSize(size, h);
 }
 function murmurHashOfSize(size, h) {
-  size = size | 0;
-  h = h | 0;
-  h = Math.imul(h, 0xCC9E2D51);
-  h = Math.imul(h << 15 | h >>> -15, 0x1B873593);
-  h = Math.imul(h << 13 | h >>> -13, 5);
+  h = imul(h, 0xCC9E2D51);
+  h = imul(h << 15 | h >>> -15, 0x1B873593);
+  h = imul(h << 13 | h >>> -13, 5);
   h = (h + 0xE6546B64 | 0) ^ size;
-  h = Math.imul(h ^ h >>> 16, 0x85EBCA6B);
-  h = Math.imul(h ^ h >>> 13, 0xC2B2AE35);
-  return h ^ h >>> 16 | 0;
+  h = imul(h ^ h >>> 16, 0x85EBCA6B);
+  h = imul(h ^ h >>> 13, 0xC2B2AE35);
+  h = smi(h ^ h >>> 16);
+  return h;
 }
 function hashMerge(a, b) {
-  a = a | 0;
-  b = b | 0;
-  return (a ^ b + 0x9E3779B9 + (a << 6) + (a >> 2)) | 0;
+  return a ^ b + 0x9E3779B9 + (a << 6) + (a >> 2) | 0;
 }
 function mixin(ctor, methods) {
   var proto = ctor.prototype;
