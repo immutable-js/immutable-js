@@ -136,6 +136,11 @@ describe('updateIn', () => {
       expect(m.toJS()).toEqual({a:{b:{c:'X'}}});
     })
 
+    it('returns value when setting empty path', () => {
+      var m = I.Map();
+      expect(m.setIn([], 'X')).toBe('X')
+    })
+
   })
 
   describe('removeIn', () => {
@@ -153,6 +158,11 @@ describe('updateIn', () => {
     it('does not create empty maps for an unset path', () => {
       var m = I.Map();
       expect(m.removeIn(['a','b','c']).toJS()).toEqual({});
+    })
+
+    it('removes itself when removing empty path', () => {
+      var m = I.Map();
+      expect(m.removeIn([])).toBe(undefined)
     })
 
   })
