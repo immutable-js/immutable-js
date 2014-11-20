@@ -544,7 +544,7 @@ function skipWhileFactory(iterable, predicate, context, useKeys) {
 
 function concatFactory(iterable, values) {
   var isKeyedIterable = isKeyed(iterable);
-  var iters = new ArraySeq([iterable].concat(values)).map(v => {
+  var iters = [iterable].concat(values).map(v => {
     if (!isIterable(v)) {
       v = isKeyedIterable ?
         keyedSeqFromValue(v) :
@@ -553,14 +553,29 @@ function concatFactory(iterable, values) {
       v = KeyedIterable(v);
     }
     return v;
-  });
-  if (isKeyedIterable) {
-    iters = iters.toKeyedSeq();
-  } else if (!isIndexed(iterable)) {
-    iters = iters.toSetSeq();
+  }).filter(v => v.size !== 0);
+
+  if (iters.length === 0) {
+    return iterable;
   }
-  var flat = iters.flatten(true);
-  flat.size = iters.reduce(
+
+  if (iters.length === 1) {
+    var singleton = iters[0];
+    if (singleton === iterable ||
+        isKeyedIterable && isKeyed(singleton) ||
+        isIndexed(iterable) && isIndexed(singleton)) {
+      return singleton;
+    }
+  }
+
+  var concatSeq = new ArraySeq(iters);
+  if (isKeyedIterable) {
+    concatSeq = concatSeq.toKeyedSeq();
+  } else if (!isIndexed(iterable)) {
+    concatSeq = concatSeq.toSetSeq();
+  }
+  concatSeq = concatSeq.flatten(true);
+  concatSeq.size = iters.reduce(
     (sum, seq) => {
       if (sum !== undefined) {
         var size = seq.size;
@@ -571,7 +586,7 @@ function concatFactory(iterable, values) {
     },
     0
   );
-  return flat;
+  return concatSeq;
 }
 
 

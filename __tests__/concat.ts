@@ -89,6 +89,30 @@ describe('concat', () => {
     expect(a.concat(a, a).toObject()).toEqual([1,2,3,1,2,3,1,2,3]);
   })
 
+  it('returns itself when concat does nothing', () => {
+    var a = Seq.of(1,2,3);
+    var b = Seq();
+    expect(a.concat()).toBe(a);
+    expect(a.concat(b)).toBe(a);
+    expect(b.concat(b)).toBe(b);
+  })
+
+  it('returns non-empty item when concat does nothing', () => {
+    var a = Seq.of(1,2,3);
+    var b = Seq();
+    expect(a.concat(b)).toBe(a);
+    expect(b.concat(a)).toBe(a);
+    expect(b.concat(b, b, b, a, b, b)).toBe(a);
+  })
+
+  it('always returns the same type', () => {
+    var a = I.Set.of(1,2,3);
+    var b = I.List();
+    expect(b.concat(a)).not.toBe(a);
+    expect(I.List.isList(b.concat(a))).toBe(true);
+    expect(b.concat(a)).is(I.List.of(1,2,3));
+  })
+
   it('iterates repeated keys', () => {
     var a = Seq({a:1,b:2,c:3});
     expect(a.concat(a, a).toObject()).toEqual({a:1,b:2,c:3});
