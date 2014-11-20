@@ -1256,7 +1256,6 @@ var Map = function Map(value) {
     return updateMap(this, k, v);
   },
   setIn: function(keyPath, v) {
-    invariant(keyPath.length > 0, 'Requires non-empty key path.');
     return this.updateIn(keyPath, (function() {
       return v;
     }));
@@ -1265,7 +1264,6 @@ var Map = function Map(value) {
     return updateMap(this, k, NOT_SET);
   },
   removeIn: function(keyPath) {
-    invariant(keyPath.length > 0, 'Requires non-empty key path.');
     return this.updateIn(keyPath, (function() {
       return NOT_SET;
     }));
@@ -1278,7 +1276,8 @@ var Map = function Map(value) {
       updater = notSetValue;
       notSetValue = undefined;
     }
-    return updateInDeepMap(this, getIterator(keyPath) || getIterator(Iterable(keyPath)), notSetValue, updater);
+    var updatedValue = updateInDeepMap(this, getIterator(keyPath) || getIterator(Iterable(keyPath)), notSetValue, updater);
+    return updatedValue === NOT_SET ? undefined : updatedValue;
   },
   clear: function() {
     if (this.size === 0) {

@@ -54,7 +54,6 @@ class Map extends KeyedCollection {
   }
 
   setIn(keyPath, v) {
-    invariant(keyPath.length > 0, 'Requires non-empty key path.');
     return this.updateIn(keyPath, () => v);
   }
 
@@ -63,7 +62,6 @@ class Map extends KeyedCollection {
   }
 
   removeIn(keyPath) {
-    invariant(keyPath.length > 0, 'Requires non-empty key path.');
     return this.updateIn(keyPath, () => NOT_SET);
   }
 
@@ -78,12 +76,13 @@ class Map extends KeyedCollection {
       updater = notSetValue;
       notSetValue = undefined;
     }
-    return updateInDeepMap(
+    var updatedValue = updateInDeepMap(
       this,
       getIterator(keyPath) || getIterator(Iterable(keyPath)),
       notSetValue,
       updater
     );
+    return updatedValue === NOT_SET ? undefined : updatedValue;
   }
 
   clear() {
