@@ -75,10 +75,16 @@ IndexedCursorPrototype.deref = function(notSetValue) {
 }
 
 KeyedCursorPrototype.get =
+IndexedCursorPrototype.get = function(key, notSetValue) {
+  return this.getIn([key], notSetValue);
+}
+
 KeyedCursorPrototype.getIn =
-IndexedCursorPrototype.get =
 IndexedCursorPrototype.getIn = function(key, notSetValue) {
-  if (Array.isArray(key) && key.length === 0) {
+  if (!Array.isArray(key)) {
+    key = Immutable.Iterable(key).toArray();
+  }
+  if (key.length === 0) {
     return this;
   }
   var value = this._rootData.getIn(this._keyPath.concat(key), NOT_SET);
