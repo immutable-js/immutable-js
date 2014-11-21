@@ -1409,6 +1409,28 @@ declare module 'immutable' {
     ): Map<string, V>;
 
     /**
+     * A combination of `updateIn` and `merge`, returning a new Map, but
+     * performing the merge at a point arrived at by following the keyPath.
+     * In other words, these two lines are equivalent:
+     *
+     *     x.updateIn(['a', 'b', 'c'], abc => abc.merge(y));
+     *     x.mergeIn(['a', 'b', 'c'], y);
+     *
+     */
+    mergeIn(
+      keyPath: Iterable<any, any>,
+      ...iterables: Iterable<K, V>[]
+    ): Map<K, V>;
+    mergeIn(
+      keyPath: Array<any>,
+      ...iterables: Iterable<K, V>[]
+    ): Map<K, V>;
+    mergeIn(
+      keyPath: Array<any>,
+      ...iterables: {[key: string]: V}[]
+    ): Map<string, V>;
+
+    /**
      * Like `merge()`, but when two Iterables conflict, it merges them as well,
      * recursing deeply through the nested data.
      *
@@ -1436,6 +1458,28 @@ declare module 'immutable' {
     ): Map<K, V>;
     mergeDeepWith(
       merger: (previous?: V, next?: V) => V,
+      ...iterables: {[key: string]: V}[]
+    ): Map<string, V>;
+
+    /**
+     * A combination of `updateIn` and `mergeDeep`, returning a new Map, but
+     * performing the deep merge at a point arrived at by following the keyPath.
+     * In other words, these two lines are equivalent:
+     *
+     *     x.updateIn(['a', 'b', 'c'], abc => abc.mergeDeep(y));
+     *     x.mergeDeepIn(['a', 'b', 'c'], y);
+     *
+     */
+    mergeDeepIn(
+      keyPath: Iterable<any, any>,
+      ...iterables: Iterable<K, V>[]
+    ): Map<K, V>;
+    mergeDeepIn(
+      keyPath: Array<any>,
+      ...iterables: Iterable<K, V>[]
+    ): Map<K, V>;
+    mergeDeepIn(
+      keyPath: Array<any>,
       ...iterables: {[key: string]: V}[]
     ): Map<string, V>;
 
@@ -1905,6 +1949,22 @@ declare module 'immutable' {
     ): List<T>;
 
     /**
+     * @see `Map.prototype.mergeIn`
+     */
+    mergeIn(
+      keyPath: Iterable<any, any>,
+      ...iterables: IndexedIterable<T>[]
+    ): List<T>;
+    mergeIn(
+      keyPath: Array<any>,
+      ...iterables: IndexedIterable<T>[]
+    ): List<T>;
+    mergeIn(
+      keyPath: Array<any>,
+      ...iterables: Array<T>[]
+    ): List<T>;
+
+    /**
      * @see `Map.prototype.mergeDeep`
      */
     mergeDeep(...iterables: IndexedIterable<T>[]): List<T>;
@@ -1919,6 +1979,22 @@ declare module 'immutable' {
     ): List<T>;
     mergeDeepWith(
       merger: (previous?: T, next?: T) => T,
+      ...iterables: Array<T>[]
+    ): List<T>;
+
+    /**
+     * @see `Map.prototype.mergeDeepIn`
+     */
+    mergeDeepIn(
+      keyPath: Iterable<any, any>,
+      ...iterables: IndexedIterable<T>[]
+    ): List<T>;
+    mergeDeepIn(
+      keyPath: Array<any>,
+      ...iterables: IndexedIterable<T>[]
+    ): List<T>;
+    mergeDeepIn(
+      keyPath: Array<any>,
       ...iterables: Array<T>[]
     ): List<T>;
 

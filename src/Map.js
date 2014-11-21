@@ -109,12 +109,20 @@ class Map extends KeyedCollection {
     return mergeIntoMapWith(this, merger, iters);
   }
 
+  mergeIn(keyPath, ...iters) {
+    return this.updateIn(keyPath, emptyMap(), m => m.merge.apply(m, iters));
+  }
+
   mergeDeep(/*...iters*/) {
     return mergeIntoMapWith(this, deepMerger(undefined), arguments);
   }
 
   mergeDeepWith(merger, ...iters) {
     return mergeIntoMapWith(this, deepMerger(merger), iters);
+  }
+
+  mergeDeepIn(keyPath, ...iters) {
+    return this.updateIn(keyPath, emptyMap(), m => m.mergeDeep.apply(m, iters));
   }
 
   sort(comparator) {

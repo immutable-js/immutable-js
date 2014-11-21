@@ -1301,14 +1301,30 @@ var Map = function Map(value) {
       iters[$__3 - 1] = arguments[$__3];
     return mergeIntoMapWith(this, merger, iters);
   },
+  mergeIn: function(keyPath) {
+    for (var iters = [],
+        $__4 = 1; $__4 < arguments.length; $__4++)
+      iters[$__4 - 1] = arguments[$__4];
+    return this.updateIn(keyPath, emptyMap(), (function(m) {
+      return m.merge.apply(m, iters);
+    }));
+  },
   mergeDeep: function() {
     return mergeIntoMapWith(this, deepMerger(undefined), arguments);
   },
   mergeDeepWith: function(merger) {
     for (var iters = [],
-        $__4 = 1; $__4 < arguments.length; $__4++)
-      iters[$__4 - 1] = arguments[$__4];
+        $__5 = 1; $__5 < arguments.length; $__5++)
+      iters[$__5 - 1] = arguments[$__5];
     return mergeIntoMapWith(this, deepMerger(merger), iters);
+  },
+  mergeDeepIn: function(keyPath) {
+    for (var iters = [],
+        $__6 = 1; $__6 < arguments.length; $__6++)
+      iters[$__6 - 1] = arguments[$__6];
+    return this.updateIn(keyPath, emptyMap(), (function(m) {
+      return m.mergeDeep.apply(m, iters);
+    }));
   },
   sort: function(comparator) {
     return OrderedMap(sortFactory(this, comparator));
@@ -2635,8 +2651,8 @@ var List = function List(value) {
   },
   mergeWith: function(merger) {
     for (var iters = [],
-        $__5 = 1; $__5 < arguments.length; $__5++)
-      iters[$__5 - 1] = arguments[$__5];
+        $__7 = 1; $__7 < arguments.length; $__7++)
+      iters[$__7 - 1] = arguments[$__7];
     return mergeIntoListWith(this, merger, iters);
   },
   mergeDeep: function() {
@@ -2644,8 +2660,8 @@ var List = function List(value) {
   },
   mergeDeepWith: function(merger) {
     for (var iters = [],
-        $__6 = 1; $__6 < arguments.length; $__6++)
-      iters[$__6 - 1] = arguments[$__6];
+        $__8 = 1; $__8 < arguments.length; $__8++)
+      iters[$__8 - 1] = arguments[$__8];
     return mergeIntoListWith(this, deepMerger(merger), iters);
   },
   setSize: function(size) {
@@ -2700,6 +2716,8 @@ ListPrototype.setIn = MapPrototype.setIn;
 ListPrototype.removeIn = MapPrototype.removeIn;
 ListPrototype.update = MapPrototype.update;
 ListPrototype.updateIn = MapPrototype.updateIn;
+ListPrototype.mergeIn = MapPrototype.mergeIn;
+ListPrototype.mergeDeepIn = MapPrototype.mergeDeepIn;
 ListPrototype.withMutations = MapPrototype.withMutations;
 ListPrototype.asMutable = MapPrototype.asMutable;
 ListPrototype.asImmutable = MapPrototype.asImmutable;
@@ -3396,8 +3414,8 @@ var Set = function Set(value) {
   },
   intersect: function() {
     for (var iters = [],
-        $__7 = 0; $__7 < arguments.length; $__7++)
-      iters[$__7] = arguments[$__7];
+        $__9 = 0; $__9 < arguments.length; $__9++)
+      iters[$__9] = arguments[$__9];
     if (iters.length === 0) {
       return this;
     }
@@ -3417,8 +3435,8 @@ var Set = function Set(value) {
   },
   subtract: function() {
     for (var iters = [],
-        $__8 = 0; $__8 < arguments.length; $__8++)
-      iters[$__8] = arguments[$__8];
+        $__10 = 0; $__10 < arguments.length; $__10++)
+      iters[$__10] = arguments[$__10];
     if (iters.length === 0) {
       return this;
     }
@@ -3441,8 +3459,8 @@ var Set = function Set(value) {
   },
   mergeWith: function(merger) {
     for (var iters = [],
-        $__9 = 1; $__9 < arguments.length; $__9++)
-      iters[$__9 - 1] = arguments[$__9];
+        $__11 = 1; $__11 < arguments.length; $__11++)
+      iters[$__11 - 1] = arguments[$__11];
     return this.union.apply(this, iters);
   },
   sort: function(comparator) {
@@ -3654,8 +3672,10 @@ var RecordPrototype = Record.prototype;
 RecordPrototype[DELETE] = RecordPrototype.remove;
 RecordPrototype.merge = MapPrototype.merge;
 RecordPrototype.mergeWith = MapPrototype.mergeWith;
+RecordPrototype.mergeIn = MapPrototype.mergeIn;
 RecordPrototype.mergeDeep = MapPrototype.mergeDeep;
 RecordPrototype.mergeDeepWith = MapPrototype.mergeDeepWith;
+RecordPrototype.mergeDeepIn = MapPrototype.mergeDeepIn;
 RecordPrototype.setIn = MapPrototype.setIn;
 RecordPrototype.update = MapPrototype.update;
 RecordPrototype.updateIn = MapPrototype.updateIn;

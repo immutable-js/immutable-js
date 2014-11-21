@@ -167,4 +167,72 @@ describe('updateIn', () => {
 
   })
 
+  describe('mergeIn', () => {
+
+    it('provides shorthand for updateIn to merge a nested value', () => {
+      var m1 = I.fromJS({x:{a:1,b:2,c:3}});
+      var m2 = I.fromJS({d:10,b:20,e:30});
+      expect(m1.mergeIn(['x'], m2).toJS()).toEqual(
+        {x: {a:1,b:20,c:3,d:10,e:30}}
+      );
+    })
+
+    it('accepts a list as a keyPath', () => {
+      var m1 = I.fromJS({x:{a:1,b:2,c:3}});
+      var m2 = I.fromJS({d:10,b:20,e:30});
+      expect(m1.mergeIn(I.fromJS(['x']), m2).toJS()).toEqual(
+        {x: {a:1,b:20,c:3,d:10,e:30}}
+      );
+    })
+
+    it('does not create empty maps for a no-op merge', () => {
+      var m = I.Map();
+      expect(m.mergeIn(['a','b','c'], I.Map()).toJS()).toEqual({});
+    })
+
+    it('merges into itself for empty path', () => {
+      var m = I.Map({a:1,b:2,c:3});
+      expect(
+        m.mergeIn([], I.Map({d:10,b:20,e:30})).toJS()
+      ).toEqual(
+        {a:1,b:20,c:3,d:10,e:30}
+      )
+    })
+
+  })
+
+  describe('mergeDeepIn', () => {
+
+    it('provides shorthand for updateIn to merge a nested value', () => {
+      var m1 = I.fromJS({x:{a:1,b:2,c:3}});
+      var m2 = I.fromJS({d:10,b:20,e:30});
+      expect(m1.mergeDeepIn(['x'], m2).toJS()).toEqual(
+        {x: {a:1,b:20,c:3,d:10,e:30}}
+      );
+    })
+
+    it('accepts a list as a keyPath', () => {
+      var m1 = I.fromJS({x:{a:1,b:2,c:3}});
+      var m2 = I.fromJS({d:10,b:20,e:30});
+      expect(m1.mergeDeepIn(I.fromJS(['x']), m2).toJS()).toEqual(
+        {x: {a:1,b:20,c:3,d:10,e:30}}
+      );
+    })
+
+    it('does not create empty maps for a no-op merge', () => {
+      var m = I.Map();
+      expect(m.mergeDeepIn(['a','b','c'], I.Map()).toJS()).toEqual({});
+    })
+
+    it('merges into itself for empty path', () => {
+      var m = I.Map({a:1,b:2,c:3});
+      expect(
+        m.mergeDeepIn([], I.Map({d:10,b:20,e:30})).toJS()
+      ).toEqual(
+        {a:1,b:20,c:3,d:10,e:30}
+      )
+    })
+
+  })
+
 })
