@@ -1,1 +1,3 @@
 language: node_js
+
+sudo: false
