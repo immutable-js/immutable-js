@@ -52,7 +52,7 @@ declare module 'immutable' {
    *
    * This example converts JSON to List and OrderedMap:
    *
-   *     Immutable.fromJS({a: {b: [10, 20, 30]}, c: 40}, function (value, key) {
+   *     Immutable.fromJS({a: {b: [10, 20, 30]}, c: 40}, function (key, value) {
    *       var isIndexed = Immutable.Iterable.isIndexed(value);
    *       return isIndexed ? value.toList() : value.toOrderedMap();
    *     });
