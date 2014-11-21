@@ -1243,7 +1243,11 @@ Collection.Keyed = KeyedCollection;
 Collection.Indexed = IndexedCollection;
 Collection.Set = SetCollection;
 var Map = function Map(value) {
-  return value === null || value === undefined ? emptyMap() : isMap(value) ? value : emptyMap().merge(KeyedIterable(value));
+  return value === null || value === undefined ? emptyMap() : isMap(value) ? value : emptyMap().withMutations((function(map) {
+    KeyedIterable(value).forEach((function(v, k) {
+      return map.set(k, v);
+    }));
+  }));
 };
 ($traceurRuntime.createClass)(Map, {
   toString: function() {
@@ -1820,8 +1824,14 @@ function deepMerger(merger) {
   });
 }
 function mergeIntoCollectionWith(collection, merger, iters) {
+  iters = iters.filter((function(x) {
+    return x.size !== 0;
+  }));
   if (iters.length === 0) {
     return collection;
+  }
+  if (collection.size === 0 && iters.length === 1) {
+    return collection.constructor(iters[0]);
   }
   return collection.withMutations((function(collection) {
     var mergeIntoMap = merger ? (function(value, key) {
@@ -2586,7 +2596,12 @@ var List = function List(value) {
   if (size > 0 && size < SIZE) {
     return makeList(0, size, SHIFT, null, new VNode(value.toArray()));
   }
-  return empty.merge(value);
+  return empty.withMutations((function(list) {
+    list.setSize(size);
+    value.forEach((function(v, i) {
+      return list.set(i, v);
+    }));
+  }));
 };
 ($traceurRuntime.createClass)(List, {
   toString: function() {
@@ -3081,7 +3096,11 @@ function getTailOffset(size) {
   return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
 }
 var OrderedMap = function OrderedMap(value) {
-  return value === null || value === undefined ? emptyOrderedMap() : isOrderedMap(value) ? value : emptyOrderedMap().merge(KeyedIterable(value));
+  return value === null || value === undefined ? emptyOrderedMap() : isOrderedMap(value) ? value : emptyOrderedMap().withMutations((function(map) {
+    KeyedIterable(value).forEach((function(v, k) {
+      return map.set(k, v);
+    }));
+  }));
 };
 ($traceurRuntime.createClass)(OrderedMap, {
   toString: function() {
@@ -3381,7 +3400,11 @@ function emptyStack() {
   return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
 }
 var Set = function Set(value) {
-  return value === null || value === undefined ? emptySet() : isSet(value) ? value : emptySet().union(SetIterable(value));
+  return value === null || value === undefined ? emptySet() : isSet(value) ? value : emptySet().withMutations((function(set) {
+    SetIterable(value).forEach((function(v) {
+      return set.add(v);
+    }));
+  }));
 };
 ($traceurRuntime.createClass)(Set, {
   toString: function() {
@@ -3400,9 +3423,17 @@ var Set = function Set(value) {
     return updateSet(this, this._map.clear());
   },
   union: function() {
-    var iters = arguments;
+    for (var iters = [],
+        $__9 = 0; $__9 < arguments.length; $__9++)
+      iters[$__9] = arguments[$__9];
+    iters = iters.filter((function(x) {
+      return x.size !== 0;
+    }));
     if (iters.length === 0) {
       return this;
+    }
+    if (this.size === 0 && iters.length === 1) {
+      return this.constructor(iters[0]);
     }
     return this.withMutations((function(set) {
       for (var ii = 0; ii < iters.length; ii++) {
@@ -3414,8 +3445,8 @@ var Set = function Set(value) {
   },
   intersect: function() {
     for (var iters = [],
-        $__9 = 0; $__9 < arguments.length; $__9++)
-      iters[$__9] = arguments[$__9];
+        $__10 = 0; $__10 < arguments.length; $__10++)
+      iters[$__10] = arguments[$__10];
     if (iters.length === 0) {
       return this;
     }
@@ -3435,8 +3466,8 @@ var Set = function Set(value) {
   },
   subtract: function() {
     for (var iters = [],
-        $__10 = 0; $__10 < arguments.length; $__10++)
-      iters[$__10] = arguments[$__10];
+        $__11 = 0; $__11 < arguments.length; $__11++)
+      iters[$__11] = arguments[$__11];
     if (iters.length === 0) {
       return this;
     }
@@ -3459,8 +3490,8 @@ var Set = function Set(value) {
   },
   mergeWith: function(merger) {
     for (var iters = [],
-        $__11 = 1; $__11 < arguments.length; $__11++)
-      iters[$__11 - 1] = arguments[$__11];
+        $__12 = 1; $__12 < arguments.length; $__12++)
+      iters[$__12 - 1] = arguments[$__12];
     return this.union.apply(this, iters);
   },
   sort: function(comparator) {
@@ -3538,7 +3569,11 @@ function emptySet() {
   return EMPTY_SET || (EMPTY_SET = makeSet(emptyMap()));
 }
 var OrderedSet = function OrderedSet(value) {
-  return value === null || value === undefined ? emptyOrderedSet() : isOrderedSet(value) ? value : emptyOrderedSet().union(SetIterable(value));
+  return value === null || value === undefined ? emptyOrderedSet() : isOrderedSet(value) ? value : emptyOrderedSet().withMutations((function(set) {
+    SetIterable(value).forEach((function(v) {
+      return set.add(v);
+    }));
+  }));
 };
 ($traceurRuntime.createClass)(OrderedSet, {toString: function() {
     return this.__toString('OrderedSet {', '}');

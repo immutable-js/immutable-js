@@ -24,7 +24,9 @@ class Set extends SetCollection {
   constructor(value) {
     return value === null || value === undefined ? emptySet() :
       isSet(value) ? value :
-      emptySet().union(SetIterable(value));
+      emptySet().withMutations(set => {
+        SetIterable(value).forEach(v => set.add(v));
+      });
   }
 
   static of(/*...values*/) {
@@ -61,10 +63,13 @@ class Set extends SetCollection {
 
   // @pragma Composition
 
-  union(/*...iters*/) {
-    var iters = arguments;
+  union(...iters) {
+    iters = iters.filter(x => x.size !== 0);
     if (iters.length === 0) {
       return this;
+    }
+    if (this.size === 0 && iters.length === 1) {
+      return this.constructor(iters[0]);
     }
     return this.withMutations(set => {
       for (var ii = 0; ii < iters.length; ii++) {

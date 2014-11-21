@@ -28,7 +28,7 @@ describe('merge', () => {
     expect(m1.merge(m2)).is(I.Map({a:1,b:20,c:3,d:10,e:30}));
   })
 
-  it('can merge in an explicitly empty value', () => {
+  it('can merge in an explicitly undefined value', () => {
     var m1 = I.Map({a:1,b:2});
     var m2 = I.Map({a:undefined});
     expect(m1.merge(m2)).is(I.Map({a:undefined,b:2}));
@@ -66,6 +66,13 @@ describe('merge', () => {
     var m1 = I.fromJS({a:{b:{c:1,d:2}}});
     expect(
       m1.mergeDeep({a:{b:{c:1}}})
+    ).toBe(m1);
+  })
+
+  it('returns arg when a deep merges is a no-op', () => {
+    var m1 = I.fromJS({a:{b:{c:1,d:2}}});
+    expect(
+      I.Map().mergeDeep(m1)
     ).toBe(m1);
   })
 

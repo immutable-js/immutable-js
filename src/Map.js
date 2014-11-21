@@ -32,7 +32,9 @@ class Map extends KeyedCollection {
   constructor(value) {
     return value === null || value === undefined ? emptyMap() :
       isMap(value) ? value :
-      emptyMap().merge(KeyedIterable(value));
+      emptyMap().withMutations(map => {
+        KeyedIterable(value).forEach((v, k) => map.set(k, v));
+      });
   }
 
   toString() {
@@ -719,8 +721,12 @@ function deepMerger(merger) {
 }
 
 function mergeIntoCollectionWith(collection, merger, iters) {
+  iters = iters.filter(x => x.size !== 0);
   if (iters.length === 0) {
     return collection;
+  }
+  if (collection.size === 0 && iters.length === 1) {
+    return collection.constructor(iters[0]);
   }
   return collection.withMutations(collection => {
     var mergeIntoMap = merger ?

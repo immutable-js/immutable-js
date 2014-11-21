@@ -43,7 +43,10 @@ class List extends IndexedCollection {
     if (size > 0 && size < SIZE) {
       return makeList(0, size, SHIFT, null, new VNode(value.toArray()));
     }
-    return empty.merge(value);
+    return empty.withMutations(list => {
+      list.setSize(size);
+      value.forEach((v, i) => list.set(i, v));
+    });
   }
 
   static of(/*...values*/) {

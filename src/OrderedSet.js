@@ -22,7 +22,9 @@ class OrderedSet extends Set {
   constructor(value) {
     return value === null || value === undefined ? emptyOrderedSet() :
       isOrderedSet(value) ? value :
-      emptyOrderedSet().union(SetIterable(value));
+      emptyOrderedSet().withMutations(set => {
+        SetIterable(value).forEach(v => set.add(v));
+      });
   }
 
   static of(/*...values*/) {

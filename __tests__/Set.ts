@@ -129,6 +129,13 @@ describe('Set', () => {
     expect(s3).toBe(s1);
   });
 
+  it('returns arg when union results in no-op', () => {
+    var s1 = Set();
+    var s2 = Set.of('a', 'b', 'c');
+    var s3 = s1.union(s2);
+    expect(s3).toBe(s2);
+  });
+
   it('is persistent to adds', () => {
     var s1 = Set();
     var s2 = s1.add('a');

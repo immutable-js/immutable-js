@@ -23,7 +23,9 @@ class OrderedMap extends Map {
   constructor(value) {
     return value === null || value === undefined ? emptyOrderedMap() :
       isOrderedMap(value) ? value :
-      emptyOrderedMap().merge(KeyedIterable(value));
+      emptyOrderedMap().withMutations(map => {
+        KeyedIterable(value).forEach((v, k) => map.set(k, v));
+      });
   }
 
   static of(/*...values*/) {
