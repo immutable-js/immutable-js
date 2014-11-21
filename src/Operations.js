@@ -353,7 +353,14 @@ function countByFactory(iterable, grouper, context) {
 
 function groupByFactory(iterable, grouper, context) {
   var isKeyedIter = isKeyed(iterable);
-  var groups = Map().asMutable();
+  var groups;
+  
+  if(iterable.isOrdered(iterable)){
+    groups = OrderedMap().asMutable();
+  } else {
+    groups = Map().asMutable();
+  }
+  
   iterable.__iterate((v, k) => {
     groups.update(
       grouper.call(context, v, k, iterable),
