@@ -109,6 +109,56 @@ describe('Cursor', () => {
     expect(onChange.mock.calls.length).toBe(3);
   });
 
+  it('updates with the return value of onChange', () => {
+    var onChange = jest.genMockFunction();
+
+    var data = Immutable.fromJS(json);
+    var deepCursor = Cursor.from(data, ['a', 'b', 'c'], onChange);
+
+    onChange.mockReturnValueOnce(undefined);
+    // onChange returning undefined has no effect
+    var newCursor = deepCursor.update(x => x + 1);
+    expect(newCursor.deref()).toBe(2);
+    expect(onChange).lastCalledWith(
+      Immutable.fromJS({a:{b:{c:2}}}),
+      data,
+      ['a', 'b', 'c']
+    );
+
+    onChange.mockReturnValueOnce(null);
+    // onChange returning null has no effect
+    newCursor = newCursor.update(x => x + 1);
+    expect(newCursor.deref()).toBe(3);
+    expect(onChange).lastCalledWith(
+      Immutable.fromJS({a:{b:{c:3}}}),
+      Immutable.fromJS({a:{b:{c:2}}}),
+      ['a', 'b', 'c']
+    );
+
+    onChange.mockReturnValueOnce(false);
+    // onChange returning false has no effect
+    newCursor = newCursor.update(x => x + 1);
+    expect(newCursor.deref()).toBe(4);
+    expect(onChange).lastCalledWith(
+      Immutable.fromJS({a:{b:{c:4}}}),
+      Immutable.fromJS({a:{b:{c:3}}}),
+      ['a', 'b', 'c']
+    );
+
+    onChange.mockReturnValueOnce(Immutable.fromJS({a:{b:{c:11}}}));
+    // onChange returning something else has an effect
+    newCursor = newCursor.update(x => 999);
+    expect(newCursor.deref()).toBe(11);
+    expect(onChange).lastCalledWith(
+      Immutable.fromJS({a:{b:{c:999}}}),
+      Immutable.fromJS({a:{b:{c:4}}}),
+      ['a', 'b', 'c']
+    );
+
+    // and update has been called exactly four times
+    expect(onChange.mock.calls.length).toBe(4);
+  });
+
   it('has map API for update shorthand', () => {
     var onChange = jest.genMockFunction();
 

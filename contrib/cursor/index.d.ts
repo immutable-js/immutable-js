@@ -43,17 +43,17 @@ declare module 'immutable/contrib/cursor' {
 
   export function from(
     collection: Immutable.Collection<any, any>,
-    onChange?: (newValue: any, oldValue?: any, keyPath?: Array<any>) => void
+    onChange?: (newValue: any, oldValue?: any, keyPath?: Array<any>) => any
   ): Cursor;
   export function from(
     collection: Immutable.Collection<any, any>,
     keyPath: Array<any>,
-    onChange?: (newValue: any, oldValue?: any, keyPath?: Array<any>) => void
+    onChange?: (newValue: any, oldValue?: any, keyPath?: Array<any>) => any
   ): Cursor;
   export function from(
     collection: Immutable.Collection<any, any>,
     key: any,
-    onChange?: (newValue: any, oldValue?: any, keyPath?: Array<any>) => void
+    onChange?: (newValue: any, oldValue?: any, keyPath?: Array<any>) => any
   ): Cursor;
 
 
