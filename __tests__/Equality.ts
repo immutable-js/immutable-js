@@ -3,6 +3,9 @@
 
 jest.autoMockOff();
 
+import jasmineCheck = require('jasmine-check');
+jasmineCheck.install();
+
 import Immutable = require('immutable');
 
 describe('Equality', () => {
@@ -80,6 +83,22 @@ describe('Equality', () => {
     expectIs(list, listShorter);
   });
 
-  // TODO: more tests
+  var genSimpleVal = gen.returnOneOf(['A', 1]);
+
+  var genVal = gen.oneOf([
+    gen.map(Immutable.List, gen.array(genSimpleVal, 0, 4)),
+    gen.map(Immutable.Set, gen.array(genSimpleVal, 0, 4)),
+    gen.map(Immutable.Map, gen.array(gen.array(genSimpleVal, 2), 0, 4))
+  ]);
+
+  check.it('has symmetric equality', {times: 1000}, [genVal, genVal], (a, b) => {
+    expect(Immutable.is(a, b)).toBe(Immutable.is(b, a));
+  });
+
+  check.it('has hash equality', {times: 1000}, [genVal, genVal], (a, b) => {
+    if (Immutable.is(a, b)) {
+      expect(a.hashCode()).toBe(b.hashCode());
+    }
+  });
 
 });
