@@ -1254,13 +1254,26 @@ declare module 'immutable' {
    * Map
    * ---
    *
-   * A Map is a Iterable of (key, value) pairs with `O(log32 N)` gets and sets.
-   *
-   * Map is a hash map and requires keys that are hashable, either a primitive
-   * (string or number) or an object with a `hashCode(): number` method.
+   * A Map is a Iterable of (key, value) pairs with `O(log32 N)` gets and sets
+   * implemented by an unordered hash map using a hash-array mapped trie.
    *
    * Iteration order of a Map is undefined, however is stable. Multiple iterations
    * of the same Map will iterate in the same order.
+   *
+   * Map's keys can be of any type, and use `Immutable.is` to determine key
+   * equality. This allows the use of NaN as a key.
+   *
+   * Because `Immutable.is` returns equality based on value semantics, and
+   * Immutable collections are treated as values, any Immutable collection may
+   * be used as a key.
+   *
+   *     Map().set(List.of(1), 'listofone').get(List.of(1));
+   *     // 'listofone'
+   *
+   * Any JavaScript object may be used as a key, however strict identity is used
+   * to evaluate key equality. Two similar looking objects will represent two
+   * different keys.
+   *
    */
 
   export module Map {
