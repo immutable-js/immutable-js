@@ -1544,9 +1544,10 @@ declare module 'immutable' {
    * Ordered Map
    * -----------
    *
-   * OrderedMap constructors return a Map which has the additional guarantee of
-   * the iteration order of entries to match the order in which they were set().
-   * This makes OrderedMap behave similarly to native JS objects.
+   * OrderedMap constructors return an OrderedMap which is a Map that has the
+   * additional guarantee of the iteration order of entries to match the order
+   * in which they were set(). This makes OrderedMap behave similarly to native
+   * JS objects and ES6 Map.
    */
 
   export module OrderedMap {
@@ -1558,7 +1559,7 @@ declare module 'immutable' {
   }
 
   /**
-   * `OrderedMap()` creates a new immutable ordered Map with the same key
+   * `OrderedMap()` creates a new immutable OrderedMap with the same key
    * value pairs as the provided KeyedIterable or JavaScript Object or expects
    * an Iterable of [K, V] tuple entries.
    *
@@ -1566,13 +1567,16 @@ declare module 'immutable' {
    *     var newOrderedMap = OrderedMap([["key", "value"]]);
    *
    */
-  export function OrderedMap<K, V>(): Map<K, V>;
-  export function OrderedMap<K, V>(iter: KeyedIterable<K, V>): Map<K, V>;
-  export function OrderedMap<K, V>(iter: Iterable<any, /*[K,V]*/Array<any>>): Map<K, V>;
-  export function OrderedMap<K, V>(array: Array</*[K,V]*/Array<any>>): Map<K, V>;
-  export function OrderedMap<V>(obj: {[key: string]: V}): Map<string, V>;
-  export function OrderedMap<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): Map<K, V>;
-  export function OrderedMap<K, V>(iterable: /*Iterable<[K,V]>*/Object): Map<K, V>;
+  export function OrderedMap<K, V>(): OrderedMap<K, V>;
+  export function OrderedMap<K, V>(iter: KeyedIterable<K, V>): OrderedMap<K, V>;
+  export function OrderedMap<K, V>(iter: Iterable<any, /*[K,V]*/Array<any>>): OrderedMap<K, V>;
+  export function OrderedMap<K, V>(array: Array</*[K,V]*/Array<any>>): OrderedMap<K, V>;
+  export function OrderedMap<V>(obj: {[key: string]: V}): OrderedMap<string, V>;
+  export function OrderedMap<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): OrderedMap<K, V>;
+  export function OrderedMap<K, V>(iterable: /*Iterable<[K,V]>*/Object): OrderedMap<K, V>;
+
+
+  export interface OrderedMap<K, V> extends Map<K, V> {}
 
 
   /**
@@ -1755,7 +1759,8 @@ declare module 'immutable' {
    *
    * OrderedSet constructors return a Set which has the additional guarantee of
    * the iteration order of entries to match the order in which they were added.
-   * This makes OrderedSet behave similarly to native JS objects or arrays.
+   * This makes OrderedSet behave similarly to native JS objects, arrays and
+   * ES6 Sets.
    */
 
   export module OrderedSet {
@@ -1766,29 +1771,32 @@ declare module 'immutable' {
     function isOrderedSet(maybeOrderedSet: any): boolean;
 
     /**
-     * Creates a new ordered Set containing `values`.
+     * Creates a new OrderedSet containing `values`.
      */
-    function of<T>(...values: T[]): Set<T>;
+    function of<T>(...values: T[]): OrderedSet<T>;
 
     /**
-     * `OrderedSet.fromKeys()` creates a new immutable ordered Set containing
+     * `OrderedSet.fromKeys()` creates a new immutable OrderedSet containing
      * the keys from this Iterable or JavaScript Object.
      */
-    function fromKeys<T>(iter: Iterable<T, any>): Set<T>;
-    function fromKeys(obj: {[key: string]: any}): Set<string>;
+    function fromKeys<T>(iter: Iterable<T, any>): OrderedSet<T>;
+    function fromKeys(obj: {[key: string]: any}): OrderedSet<string>;
   }
 
   /**
-   * Create a new immutable ordered Set containing the values of the provided
+   * Create a new immutable OrderedSet containing the values of the provided
    * iterable-like.
    */
-  export function OrderedSet<T>(): Set<T>;
-  export function OrderedSet<T>(iter: SetIterable<T>): Set<T>;
-  export function OrderedSet<T>(iter: IndexedIterable<T>): Set<T>;
-  export function OrderedSet<K, V>(iter: KeyedIterable<K, V>): Set</*[K,V]*/any>;
-  export function OrderedSet<T>(array: Array<T>): Set<T>;
-  export function OrderedSet<T>(iterator: Iterator<T>): Set<T>;
-  export function OrderedSet<T>(iterable: /*Iterable<T>*/Object): Set<T>;
+  export function OrderedSet<T>(): OrderedSet<T>;
+  export function OrderedSet<T>(iter: SetIterable<T>): OrderedSet<T>;
+  export function OrderedSet<T>(iter: IndexedIterable<T>): OrderedSet<T>;
+  export function OrderedSet<K, V>(iter: KeyedIterable<K, V>): OrderedSet</*[K,V]*/any>;
+  export function OrderedSet<T>(array: Array<T>): OrderedSet<T>;
+  export function OrderedSet<T>(iterator: Iterator<T>): OrderedSet<T>;
+  export function OrderedSet<T>(iterable: /*Iterable<T>*/Object): OrderedSet<T>;
+
+
+  export interface OrderedSet<T> extends Set<T> {}
 
 
   /**
