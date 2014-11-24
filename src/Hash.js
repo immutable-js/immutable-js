@@ -12,8 +12,14 @@ import "Math"
 /* exported hash */
 
 function hash(o) {
-  if (!o) { // "", false, 0, null, and undefined
+  if (o === false || o === null || o === undefined) {
     return 0;
+  }
+  if (typeof o.valueOf === 'function') {
+    o = o.valueOf();
+    if (o === false || o === null || o === undefined) {
+      return 0;
+    }
   }
   if (o === true) {
     return 1;
@@ -30,8 +36,8 @@ function hash(o) {
   if (type === 'string') {
     return o.length > STRING_HASH_CACHE_MIN_STRLEN ? cachedHashString(o) : hashString(o);
   }
-  if (o.hashCode) {
-    return hash(typeof o.hashCode === 'function' ? o.hashCode() : o.hashCode);
+  if (typeof o.hashCode === 'function') {
+    return o.hashCode();
   }
   return hashJSObj(o);
 }

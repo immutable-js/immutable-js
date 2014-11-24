@@ -41,17 +41,18 @@ $traceurRuntime.createClass = createClass;
 $traceurRuntime.superCall = superCall;
 $traceurRuntime.defaultSuperCall = defaultSuperCall;
 "use strict";
-function is(first, second) {
-  if (first === second) {
-    return first !== 0 || second !== 0 || 1 / first === 1 / second;
+function is(valueA, valueB) {
+  if (valueA === valueB || (valueA !== valueA && valueB !== valueB)) {
+    return true;
   }
-  if (first !== first) {
-    return second !== second;
+  if (!valueA || !valueB) {
+    return false;
   }
-  if (first && typeof first.equals === 'function') {
-    return first.equals(second);
+  if (typeof valueA.valueOf === 'function' && typeof valueB.valueOf === 'function') {
+    valueA = valueA.valueOf();
+    valueB = valueB.valueOf();
   }
-  return false;
+  return typeof valueA.equals === 'function' && typeof valueB.equals === 'function' ? valueA.equals(valueB) : valueA === valueB || (valueA !== valueA && valueB !== valueB);
 }
 function invariant(condition, error) {
   if (!condition)
@@ -119,8 +120,14 @@ function smi(i32) {
   return ((i32 >>> 1) & 0x40000000) | (i32 & 0xBFFFFFFF);
 }
 function hash(o) {
-  if (!o) {
+  if (o === false || o === null || o === undefined) {
     return 0;
+  }
+  if (typeof o.valueOf === 'function') {
+    o = o.valueOf();
+    if (o === false || o === null || o === undefined) {
+      return 0;
+    }
   }
   if (o === true) {
     return 1;
@@ -137,8 +144,8 @@ function hash(o) {
   if (type === 'string') {
     return o.length > STRING_HASH_CACHE_MIN_STRLEN ? cachedHashString(o) : hashString(o);
   }
-  if (o.hashCode) {
-    return hash(typeof o.hashCode === 'function' ? o.hashCode() : o.hashCode);
+  if (typeof o.hashCode === 'function') {
+    return o.hashCode();
   }
   return hashJSObj(o);
 }

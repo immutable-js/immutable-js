@@ -61,16 +61,10 @@ IndexedCursorPrototype.toString = function() {
   return this.__toString('Cursor [', ']');
 }
 
-KeyedCursorPrototype.equals =
-IndexedCursorPrototype.equals = function(second) {
-  return Immutable.is(
-    this.deref(),
-    second && (typeof second.deref === 'function' ? second.deref() : second)
-  );
-}
-
 KeyedCursorPrototype.deref =
-IndexedCursorPrototype.deref = function(notSetValue) {
+KeyedCursorPrototype.valueOf =
+IndexedCursorPrototype.deref =
+IndexedCursorPrototype.valueOf = function(notSetValue) {
   return this._rootData.getIn(this._keyPath, notSetValue);
 }
 
