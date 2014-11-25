@@ -40,23 +40,22 @@ var Header = React.createClass({
     var s = neg ? 0 : this.state.scroll;
     var sp = fixed ? 35 : 70;
 
+    var miniHeaderContents =
+      <div className="miniHeaderContents">
+        <a href="docs/" target="_self">Documentation</a>
+        <a href="https://github.com/facebook/immutable-js/issues/">Support</a>
+        <a href="https://github.com/facebook/immutable-js/">Github</a>
+      </div>;
+
     return (
       <div className="header">
         <div className="miniHeader">
-          <div className="miniHeaderContents">
-            <a href="https://github.com/facebook/immutable-js/blob/master/type-definitions/Immutable.d.ts">Documentation</a>
-            <a href="https://github.com/facebook/immutable-js/issues/">Support</a>
-            <a href="https://github.com/facebook/immutable-js/">Github</a>
-          </div>
+          {miniHeaderContents}
         </div>
         <div className="cover">
         <div className={"coverFixed" + (fixed ? ' fixed' : '')} style={fixed ? {}: t(s, 1)}>
           <div className="filler">
-            <div className="miniHeaderContents">
-              <a href="https://github.com/facebook/immutable-js/blob/master/type-definitions/Immutable.d.ts">Documentation</a>
-              <a href="https://github.com/facebook/immutable-js/issues/">Support</a>
-              <a href="https://github.com/facebook/immutable-js/">Github</a>
-            </div>
+            {miniHeaderContents}
           </div>
           <div className="synopsis" >
             <div className="logo">
