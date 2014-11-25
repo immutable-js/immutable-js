@@ -42,7 +42,8 @@ var Header = React.createClass({
 
     var miniHeaderContents =
       <div className="miniHeaderContents">
-        <a href="docs/" target="_self">Documentation</a>
+        {/*<a href="docs/" target="_self">Documentation</a>*/}
+        <a href="https://github.com/facebook/immutable-js/blob/master/type-definitions/Immutable.d.ts">Documentation</a>
         <a href="https://github.com/facebook/immutable-js/issues/">Support</a>
         <a href="https://github.com/facebook/immutable-js/">Github</a>
       </div>;

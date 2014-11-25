@@ -422,7 +422,8 @@ var Header = React.createClass({displayName: 'Header',
 
     var miniHeaderContents =
       React.createElement("div", {className: "miniHeaderContents"}, 
-        React.createElement("a", {href: "docs/", target: "_self"}, "Documentation"), 
+        /*<a href="docs/" target="_self">Documentation</a>*/
+        React.createElement("a", {href: "https://github.com/facebook/immutable-js/blob/master/type-definitions/Immutable.d.ts"}, "Documentation"), 
         React.createElement("a", {href: "https://github.com/facebook/immutable-js/issues/"}, "Support"), 
         React.createElement("a", {href: "https://github.com/facebook/immutable-js/"}, "Github")
       );
@@ -637,7 +638,7 @@ function loadJSON(url, then) {
 module.exports = global.React;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},["./src/index.js"])
+},{}]},{},[])
 
 
 //# sourceMappingURL=maps/bundle.js.map
