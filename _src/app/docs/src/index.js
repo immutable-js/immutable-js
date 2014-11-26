@@ -1,10 +1,8 @@
 var React = require('react');
 var Router = require('react-router');
 var { Route, DefaultRoute, RouteHandler, Link } = Router;
-var Immutable = require('immutable');
-var Seq = Immutable.Seq;
-
-
+var { Seq } = require('immutable');
+var TypeKind = require('../../../src/TypeKind');
 var defs = require('../../../resources/immutable.d.json');
 
 
@@ -23,15 +21,15 @@ var Overview = React.createClass({
         <h2>Functions</h2>
         <ul>
           {Seq(d.types).filter(t => !t.interface && !t.module).map((t, name) =>
-            <li>
-              {name}
+            <li key={name}>
+              <FunctionDef name={name} def={t.call} />
             </li>
           ).toArray()}
         </ul>
         <h2>Types</h2>
         <ul>
           {Seq(d.types).filter(t => t.interface || t.module).map((t, name) =>
-            <li>
+            <li key={name}>
               <Link to={'/' + name}>{name}</Link>
             </li>
           ).toArray()}
@@ -53,6 +51,8 @@ var Type = React.createClass({
       return <NotFound />;
     }
 
+    console.log(type);
+
     return (
       <div>
         <h1>{typeName}</h1>
@@ -64,10 +64,12 @@ var Type = React.createClass({
         {(type.call || type.module) && [
           <h2>Functions</h2>,
           <ul>
-            {type.call && <li>{typeName + '()'}</li>}
+            {type.call && <li>
+              <FunctionDef name={typeName} def={type.call} />
+            </li>}
             {type.module && Seq(type.module.types).map((t, name) =>
-              <li>
-                {typeName + '.' + name + '()'}
+              <li key={name}>
+                <FunctionDef name={name} def={t.call} module={typeName} />
               </li>
             ).toArray()}
           </ul>
@@ -76,21 +78,101 @@ var Type = React.createClass({
           <h3>
             {typeName}
             {type.interface.typeParams &&
-              ['<', Seq(type.interface.typeParams).map(t => <span>{t}</span>).interpose(', ').toArray(), '>']
+              ['<', Seq(type.interface.typeParams).map((t, k) => <span key={k}>{t}</span>).interpose(', ').toArray(), '>']
+            }
+            {type.interface.extends &&
+              [' extends ', Seq(type.interface.extends).map(e =>
+                <TypeDef type={e} />
+              ).interpose(', ').toArray()]
             }
           </h3>
           {type.interface.groups && type.interface.groups.map(g => [
             g.title && <h4>{g.title}</h4>,
             <ul>
               {Seq(g.properties).map((p, propName) =>
-                <li>{propName}</li>
+                <li key={propName}>{propName}</li>
               ).toArray()}
               {Seq(g.methods).map((m, methodName) =>
-                <li>{methodName + '()'}</li>
+                <li key={methodName}>{methodName + '()'}</li>
               ).toArray()}
             </ul>
           ])}
         </section>}
+      </div>
+    );
+  }
+});
+
+var TypeDef = React.createClass({
+  render: function() {
+    var type = this.props.type;
+    switch (type.k) {
+      case TypeKind.Any: return <span>any</span>;
+      case TypeKind.Boolean: return <span>boolean</span>;
+      case TypeKind.Number: return <span>number</span>;
+      case TypeKind.String: return <span>string</span>;
+      case TypeKind.Object: return <span>{'TODO'}</span>
+      // case TypeKind.Array:
+      case TypeKind.Function: return <span>
+        {['(', functionParams(type.params), ') => ', <TypeDef type={type.type} />]}
+      </span>;
+      case TypeKind.Param: return <span>{type.param}</span>;
+      case TypeKind.Type: return <span>
+        {type.name}
+        {type.args && ['<', Seq(type.args).map(a =>
+          <TypeDef type={a} />
+        ).interpose(', ').toArray(), '>']}
+      </span>;
+    }
+    throw new Error('Unknown kind ' + type.k);
+  }
+});
+
+function functionParams(params) {
+  return Seq(params).map(t => [
+    t.varArgs ? '...' : null,
+    <span>{t.name}</span>,
+    t.optional ? '?: ' : ': ',
+    <TypeDef type={t.type} />
+  ]).interpose(', ').toArray();
+}
+
+var FunctionDef = React.createClass({
+  getInitialState: function() {
+    return { detail: false };
+  },
+
+  toggleDetail: function() {
+    this.setState({ detail: !this.state.detail });
+  },
+
+  render: function() {
+    var module = this.props.module;
+    var name = this.props.name;
+    var def = this.props.def;
+    console.log(name, def);
+
+    return (
+      <div>
+        <div onClick={this.toggleDetail}>
+          {(module ? module + '.' + name : name) + '()'}
+        </div>
+        {this.state.detail && <div>
+          {def.doc && <pre>
+            {def.doc.join('')}
+          </pre>}
+          {def.impl.map(impl =>
+            <div>
+              {module ? module + '.' + name : name}
+              {impl.typeParams &&
+                ['<', Seq(impl.typeParams).map(t =>
+                  <span>{t}</span>
+                ).interpose(', ').toArray(), '>']
+              }
+              {['(', functionParams(impl.params), ')']}
+            </div>
+          )}
+        </div>}
       </div>
     );
   }

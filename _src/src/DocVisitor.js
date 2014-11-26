@@ -124,15 +124,7 @@ class DocVisitor extends TypeScript.SyntaxWalker {
           throw new Error('Unknown type');
         }
         hc.typeNames.forEach(function (tn) {
-          var heritageObj = {
-            name: tn.name.text(),
-          };
-          pushIn(this.data, [type], heritageObj);
-          if (tn.typeArgumentList) {
-            heritageObj.args = tn.typeArgumentList.typeArguments.map(function (ta) {
-              return parseType(ta);
-            });
-          }
+          pushIn(this.data, [type], parseType(tn));
         }, this);
       }, this);
     }
