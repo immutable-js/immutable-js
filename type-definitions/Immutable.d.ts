@@ -749,6 +749,7 @@ declare module 'immutable' {
    * in other words, `Iterable#entries` is the default iterator for Keyed
    * Iterables.
    */
+  export module KeyedIterable {}
 
   /**
    * Similar to `Iterable()`, however it expects iterable-likes of [K, V]
@@ -856,6 +857,7 @@ declare module 'immutable' {
    * preserve indices, using them as keys, convert to a KeyedIterable by calling
    * `toKeyedSeq`.
    */
+  export module IndexedIterable {}
 
   /**
    * Similar to `Iterable()`, but always returns an IndexedIterable.
@@ -968,6 +970,7 @@ declare module 'immutable' {
    *     assert.equal(seq.every((v, k) => v === k), true);
    *
    */
+  export module SetIterable {}
 
   /**
    * Similar to `Iterable()`, but always returns a SetIterable.
@@ -1099,6 +1102,8 @@ declare module 'immutable' {
     cacheResult(): /*this*/Seq<K, V>;
   }
 
+
+  export module KeyedSeq {}
 
   /**
    * Always returns a KeyedSeq, if input is not keyed, expects an
@@ -1630,15 +1635,18 @@ declare module 'immutable' {
    *     myRecord.getAB() // 4
    *
    */
+  export module Record {
+    interface Class {
+      new (): Map<string, any>;
+      new (values: {[key: string]: any}): Map<string, any>;
+      new (values: Iterable<string, any>): Map<string, any>; // deprecated
+    }
+  }
+
   export function Record(
     defaultValues: {[key: string]: any}, name?: string
-  ): RecordType;
+  ): Record.Class;
 
-  export interface RecordType {
-    new (): Map<string, any>;
-    new (values: {[key: string]: any}): Map<string, any>;
-    new (values: Iterable<string, any>): Map<string, any>; // deprecated
-  }
 
 
   /**
