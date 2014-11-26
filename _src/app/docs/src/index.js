@@ -5,10 +5,11 @@ var { Seq } = require('immutable');
 var TypeKind = require('../../../src/TypeKind');
 var defs = require('../../../resources/immutable.d.json');
 
+console.log(defs);
 
 var Overview = React.createClass({
   render: function() {
-    var d = defs.module;
+    var d = defs.Immutable;
 
     return (
       <div>
@@ -20,7 +21,7 @@ var Overview = React.createClass({
         </section>
         <h2>Functions</h2>
         <ul>
-          {Seq(d.types).filter(t => !t.interface && !t.module).map((t, name) =>
+          {Seq(d.module).filter(t => !t.interface && !t.module).map((t, name) =>
             <li key={name}>
               <FunctionDef name={name} def={t.call} />
             </li>
@@ -28,7 +29,7 @@ var Overview = React.createClass({
         </ul>
         <h2>Types</h2>
         <ul>
-          {Seq(d.types).filter(t => t.interface || t.module).map((t, name) =>
+          {Seq(d.module).filter(t => t.interface || t.module).map((t, name) =>
             <li key={name}>
               <Link to={'/' + name}>{name}</Link>
             </li>
@@ -45,8 +46,7 @@ var Type = React.createClass({
   render: function() {
     var typeName = this.getParams().typeName;
     // var methodName = this.getParams().methodName;
-    var d = defs.module;
-    var type = d.types[typeName];
+    var type = defs.Immutable.module[typeName];
     if (!type) {
       return <NotFound />;
     }
@@ -78,7 +78,8 @@ var Type = React.createClass({
           <h3>
             {typeName}
             {type.interface.typeParams &&
-              ['<', Seq(type.interface.typeParams).map((t, k) => <span key={k}>{t}</span>).interpose(', ').toArray(), '>']
+              ['<', Seq(type.interface.typeParams).map((t, k) =>
+                <span key={k}>{t}</span>).interpose(', ').toArray(), '>']
             }
             {type.interface.extends &&
               [' extends ', Seq(type.interface.extends).map(e =>
@@ -111,7 +112,9 @@ var TypeDef = React.createClass({
       case TypeKind.Boolean: return <span>boolean</span>;
       case TypeKind.Number: return <span>number</span>;
       case TypeKind.String: return <span>string</span>;
-      case TypeKind.Object: return <span>{'TODO'}</span>
+      case TypeKind.Object: return <span>
+        {['{', objMembers(type.members) ,'}']}
+      </span>
       // case TypeKind.Array:
       case TypeKind.Function: return <span>
         {['(', functionParams(type.params), ') => ', <TypeDef type={type.type} />]}
@@ -133,6 +136,13 @@ function functionParams(params) {
     t.varArgs ? '...' : null,
     <span>{t.name}</span>,
     t.optional ? '?: ' : ': ',
+    <TypeDef type={t.type} />
+  ]).interpose(', ').toArray();
+}
+
+function objMembers(members) {
+  return Seq(members).map(t => [
+    t.index ? ['[', functionParams(t.params) , ']: '] : [t.name, ': '],
     <TypeDef type={t.type} />
   ]).interpose(', ').toArray();
 }
@@ -161,15 +171,16 @@ var FunctionDef = React.createClass({
           {def.doc && <pre>
             {def.doc.join('')}
           </pre>}
-          {def.impl.map(impl =>
+          {def.signatures.map(callSig =>
             <div>
               {module ? module + '.' + name : name}
-              {impl.typeParams &&
-                ['<', Seq(impl.typeParams).map(t =>
+              {callSig.typeParams &&
+                ['<', Seq(callSig.typeParams).map(t =>
                   <span>{t}</span>
                 ).interpose(', ').toArray(), '>']
               }
-              {['(', functionParams(impl.params), ')']}
+              {['(', functionParams(callSig.params), ')']}
+              {callSig.type && [': ', <TypeDef type={callSig.type} />]}
             </div>
           )}
         </div>}

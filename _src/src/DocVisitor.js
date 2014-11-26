@@ -1,6 +1,7 @@
 var TypeScript = require('./typescript-services');
 var TypeKind = require('./TypeKind');
 
+
 class DocVisitor extends TypeScript.SyntaxWalker {
 
   constructor(text) {
@@ -26,28 +27,30 @@ class DocVisitor extends TypeScript.SyntaxWalker {
     );
   }
 
-  visitModuleDeclaration(node) {
-    var moduleObj = {
-      line: this.getLineNum(node.moduleKeyword),
-    };
+  getDoc(node) {
+    return parseComment(
+      last(
+        TypeScript.ASTHelpers.docComments(node, this.text)
+      )
+    );
+  }
 
-    if (node.name) {
-      var name = node.name.text();
-      // moduleObj.name = name; // redundant
-      setIn(this.data, ['types', name, 'module'], moduleObj);
-    } else {
-      if (node.stringLiteral) {
-        moduleObj.literalName = node.stringLiteral.text();
-      }
-      this.data.module = moduleObj;
+  visitModuleDeclaration(node) {
+    var name =
+      node.name ? node.name.text() :
+      node.stringLiteral ? node.stringLiteral.text() :
+      '';
+
+    var moduleObj = {};
+
+    setIn(this.data, [name, 'module'], moduleObj);
+
+    var comment = this.getDoc(node);
+    if (comment) {
+      pushIn(this.data, [name, 'doc'], comment);
     }
 
     this.push(moduleObj);
-
-    var comment = parseComment(last(TypeScript.ASTHelpers.docComments(node, this.text)));
-    if (comment) {
-      pushIn(this.data, ['doc'], comment);
-    }
 
     super.visitModuleDeclaration(node);
 
@@ -56,35 +59,14 @@ class DocVisitor extends TypeScript.SyntaxWalker {
 
   visitFunctionDeclaration(node) {
     var name = node.identifier.text();
-    var functionObj = {
-      line: this.getLineNum(node),
-    };
 
-    pushIn(this.data, ['types', name, 'call', 'impl'], functionObj);
+    var callSignature = parseCallSignature(node.callSignature);
+    callSignature.line = this.getLineNum(node);
+    pushIn(this.data, [name, 'call', 'signatures'], callSignature);
 
-    var comment = parseComment(last(TypeScript.ASTHelpers.docComments(node, this.text)));
+    var comment = this.getDoc(node);
     if (comment) {
-      pushIn(this.data, ['types', name, 'call', 'doc'], comment);
-    }
-
-    if (node.callSignature.typeParameterList &&
-        node.callSignature.typeParameterList.typeParameters.length) {
-      functionObj.typeParams = node.callSignature.typeParameterList.typeParameters.map(function (tp) {
-        if (tp.constraint) {
-          throw new Error('Not yet implemented: type constraint');
-        }
-        return tp.identifier.text();
-      });
-    }
-
-    if (node.callSignature.parameterList.parameters.length) {
-      functionObj.params = node.callSignature.parameterList.parameters.map(function (p) {
-        return parseParam(p);
-      });
-    }
-
-    if (node.callSignature.typeAnnotation) {
-      functionObj.type = parseType(node.callSignature.typeAnnotation.type);
+      pushIn(this.data, [name, 'call', 'doc'], comment);
     }
 
     super.visitFunctionDeclaration(node);
@@ -92,21 +74,16 @@ class DocVisitor extends TypeScript.SyntaxWalker {
 
   visitInterfaceDeclaration(node) {
     var name = node.identifier.text();
+
     var interfaceObj = {
-      line: this.getLineNum(node),
-      // name: name // redundant
+      line: this.getLineNum(node)
     };
-
-    setIn(this.data, ['types', name, 'interface'], interfaceObj);
-    this.push(interfaceObj);
-
-    var comment = parseComment(last(TypeScript.ASTHelpers.docComments(node, this.text)));
+    var comment = this.getDoc(node);
     if (comment) {
-      pushIn(this.data, ['doc'], comment);
+      interfaceObj.doc = comment;
     }
-
     if (node.typeParameterList) {
-      interfaceObj.typeParams = node.typeParameterList.typeParameters.map(function (tp) {
+      interfaceObj.typeParams = node.typeParameterList.typeParameters.map(tp => {
         if (tp.constraint) {
           throw new Error('Not yet implemented: type constraint');
         }
@@ -114,20 +91,21 @@ class DocVisitor extends TypeScript.SyntaxWalker {
       });
     }
     if (node.heritageClauses) {
-      node.heritageClauses.forEach(function (hc) {
-        var type;
+      node.heritageClauses.forEach(hc => {
+        var kind;
         if (hc.extendsOrImplementsKeyword.kind() === TypeScript.SyntaxKind.ExtendsKeyword) {
-          type = 'extends';
+          kind = 'extends';
         } else if (hc.extendsOrImplementsKeyword.kind() === TypeScript.SyntaxKind.ImplementsKeyword) {
-          type = 'implements';
+          kind = 'implements';
         } else {
-          throw new Error('Unknown type');
+          throw new Error('Unknown hertitageClause');
         }
-        hc.typeNames.forEach(function (tn) {
-          pushIn(this.data, [type], parseType(tn));
-        }, this);
-      }, this);
+        interfaceObj[kind] = hc.typeNames.map(c => parseType(c));
+      });
     }
+    setIn(this.data, [name, 'interface'], interfaceObj);
+
+    this.push(interfaceObj);
 
     super.visitInterfaceDeclaration(node);
 
@@ -186,12 +164,10 @@ class DocVisitor extends TypeScript.SyntaxWalker {
     this.ensureGroup(node);
 
     var name = node.propertyName.text();
-    var methodObj = {
-      line: this.getLineNum(node),
-      // name: name // redundant
-    };
+    var callSignature = parseCallSignature(node.callSignature);
+    callSignature.line = this.getLineNum(node);
 
-    setIn(last(this.data.groups), ['methods', name, 'impl'], methodObj);
+    setIn(last(this.data.groups), ['methods', name, 'signatures'], callSignature);
 
     var comment = parseComment(last(TypeScript.ASTHelpers.docComments(node, this.text)));
     if (comment) {
@@ -200,26 +176,6 @@ class DocVisitor extends TypeScript.SyntaxWalker {
 
     if (node.questionToken) {
       throw new Error('NYI: questionToken');
-    }
-
-    if (node.callSignature.typeParameterList &&
-        node.callSignature.typeParameterList.typeParameters.length) {
-      methodObj.typeParams = node.callSignature.typeParameterList.typeParameters.map(function (tp) {
-        if (tp.constraint) {
-          throw new Error('Not yet implemented: type constraint');
-        }
-        return tp.identifier.text();
-      });
-    }
-
-    if (node.callSignature.parameterList.parameters.length) {
-      methodObj.params = node.callSignature.parameterList.parameters.map(function (p) {
-        return parseParam(p);
-      });
-    }
-
-    if (node.callSignature.typeAnnotation) {
-      methodObj.type = parseType(node.callSignature.typeAnnotation.type);
     }
 
     super.visitMethodSignature(node);
@@ -254,6 +210,31 @@ function parseComment(node) {
   }
   var lines = node.split('\n').slice(1, -1).map(l => l.trim().substr(2)).join('\n');
   return lines;
+}
+
+function parseCallSignature(node) {
+  var callSignature = {};
+
+  if (node.typeParameterList &&
+      node.typeParameterList.typeParameters.length) {
+    callSignature.typeParams = node.typeParameterList.typeParameters.map(tp => {
+      if (tp.constraint) {
+        throw new Error('Not yet implemented: type constraint');
+      }
+      return tp.identifier.text();
+    });
+  }
+
+  if (node.parameterList.parameters.length) {
+    callSignature.params =
+      node.parameterList.parameters.map(p => parseParam(p));
+  }
+
+  if (node.typeAnnotation) {
+    callSignature.type = parseType(node.typeAnnotation.type);
+  }
+
+  return callSignature;
 }
 
 function parseParam(node) {

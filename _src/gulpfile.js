@@ -35,12 +35,19 @@ var BUILD_DIR = '../';
 // });
 
 gulp.task('typedefs', function() {
-  var typeDefPath = path.join(path.dirname(require.resolve('immutable')), 'immutable.d.ts');
+  var typeDefPath = path.join(
+    path.dirname(require.resolve('immutable')),
+    'immutable.d.ts'
+  );
   return gulp.src(typeDefPath)
     .pipe(through.obj(function(file, enc, cb) {
+      var fileSource = file.contents.toString(enc).replace(
+        'module \'immutable\'',
+        'module Immutable'
+      );
       file.path = path.join(path.dirname(file.path), 'immutable.d.json');
       file.contents = new Buffer(JSON.stringify(
-        genTypeDefData(file.relative, file.contents.toString(enc))
+        genTypeDefData(file.relative, fileSource)
       ));
       this.push(file);
       cb();
@@ -231,7 +238,8 @@ function preRender(subDir) {
             '<div id="' + id + '">'+
             vm.runInNewContext(
               fs.readFileSync(BUILD_DIR+subDir+'bundle.js') + // ugly
-              '\nrequire("react").renderToString(require("react").createElement(require(component)));',
+              ';require("react").renderToString('+
+              'require("react").createElement(require(component)))',
               {
                 global: {
                   React: React,
@@ -277,8 +285,10 @@ function reactTransform() {
       return cb();
     }
     try {
-      file.contents =
-        new Buffer(reactTools.transform(file.contents.toString(enc), {harmony:true}), enc);
+      file.contents = new Buffer(reactTools.transform(
+        file.contents.toString(enc),
+        {harmony: true}
+      ), enc);
       this.push(file);
       cb();
     } catch (error) {
