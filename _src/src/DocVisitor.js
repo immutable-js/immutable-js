@@ -47,7 +47,7 @@ class DocVisitor extends TypeScript.SyntaxWalker {
 
     var comment = this.getDoc(node);
     if (comment) {
-      pushIn(this.data, [name, 'doc'], comment);
+      setIn(this.data, [name, 'doc'], comment);
     }
 
     this.push(moduleObj);
@@ -66,7 +66,7 @@ class DocVisitor extends TypeScript.SyntaxWalker {
 
     var comment = this.getDoc(node);
     if (comment) {
-      pushIn(this.data, [name, 'call', 'doc'], comment);
+      setIn(this.data, [name, 'call', 'doc'], comment);
     }
 
     super.visitFunctionDeclaration(node);
@@ -144,9 +144,9 @@ class DocVisitor extends TypeScript.SyntaxWalker {
 
     setIn(last(this.data.groups), ['properties', '#'+name], propertyObj);
 
-    var comment = parseComment(last(TypeScript.ASTHelpers.docComments(node, this.text)));
+    var comment = this.getDoc(node);
     if (comment) {
-      pushIn(last(this.data.groups), ['properties', '#'+name, 'doc'], comment);
+      setIn(last(this.data.groups), ['properties', '#'+name, 'doc'], comment);
     }
 
     if (node.questionToken) {
@@ -169,9 +169,9 @@ class DocVisitor extends TypeScript.SyntaxWalker {
     callSignature.line = this.getLineNum(node);
     pushIn(last(this.data.groups), ['methods', '#'+name, 'signatures'], callSignature);
 
-    var comment = parseComment(last(TypeScript.ASTHelpers.docComments(node, this.text)));
+    var comment = this.getDoc(node);
     if (comment) {
-      pushIn(last(this.data.groups), ['methods', '#'+name, 'doc'], comment);
+      setIn(last(this.data.groups), ['methods', '#'+name, 'doc'], comment);
     }
 
     if (node.questionToken) {
