@@ -241,7 +241,7 @@ function preRender(subDir) {
             '<div id="' + id + '">'+
             vm.runInNewContext(
               fs.readFileSync(BUILD_DIR+subDir+'bundle.js') + // ugly
-              ';require("react").renderToString('+
+              '\nrequire("react").renderToString('+
               'require("react").createElement(require(component)))',
               {
                 global: {

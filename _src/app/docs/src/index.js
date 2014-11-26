@@ -5,8 +5,6 @@ var { Seq } = require('immutable');
 var TypeKind = require('../../../src/TypeKind');
 var defs = require('../../../resources/immutable.d.json');
 
-console.log(defs);
-
 var Type = React.createClass({
   mixins: [ Router.State ],
 
@@ -31,7 +29,6 @@ var TypeDoc = React.createClass({
     var typeName = this.props.name;
     return (
       <div>
-        <h1>{typeName}</h1>
         {type.doc && <section>
           <pre>
             {type.doc.join()}
@@ -104,21 +101,22 @@ var TypeDef = React.createClass({
         {['{', objMembers(type.members) ,'}']}
       </span>
       case TypeKind.Array: return <span>
-        {[<TypeDef type={type.type} />], '[]'}
+        <TypeDef type={type.type} />
+        {'[]'}
       </span>;
       case TypeKind.Function: return <span>
         {['(', functionParams(type.params), ') => ', <TypeDef type={type.type} />]}
       </span>;
       case TypeKind.Param: return <span>{type.param}</span>;
       case TypeKind.Type: return <span>
-        {type.name}
+        <Link to={'/' + (type.qualifier ? type.qualifier.join('.') + '.' : '') + type.name}>
+          {type.qualifier && type.qualifier.join('.') + '.'}
+          {type.name}
+        </Link>
         {type.args && ['<', Seq(type.args).map(a =>
           <TypeDef type={a} />
         ).interpose(', ').toArray(), '>']}
       </span>;
-      case TypeKind.QualifiedType: return <span>
-        {[type.qualifier, '.', <TypeDef type={type.type} />]}
-      </span>
     }
     throw new Error('Unknown kind ' + type.k);
   }
@@ -153,7 +151,6 @@ var FunctionDef = React.createClass({
     var module = this.props.module;
     var name = this.props.name;
     var def = this.props.def;
-    console.log(name, def);
 
     return (
       <div>

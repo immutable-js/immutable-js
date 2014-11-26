@@ -10,7 +10,6 @@ var TypeKind = {
 
   Param: 7,
   Type: 8,
-  QualifiedType: 9,
 };
 
 module.exports = TypeKind;

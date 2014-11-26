@@ -258,11 +258,6 @@ function parseParam(node) {
 
 function parseType(node) {
   switch (node.kind()) {
-    case TypeScript.SyntaxKind.IdentifierName:
-      return {
-        k: TypeKind.Param,
-        param: node.text()
-      };
     case TypeScript.SyntaxKind.AnyKeyword:
       return {
         k: TypeKind.Any
@@ -312,6 +307,20 @@ function parseType(node) {
         }),
         type: parseType(node.type)
       };
+    case TypeScript.SyntaxKind.IdentifierName:
+      var text = node.text();
+      // TODO: be smarter by keeping scope of visited type params
+      if (text.length === 1) {
+        return {
+          k: TypeKind.Param,
+          param: node.text()
+        };
+      } else {
+        return {
+          k: TypeKind.Type,
+          name: node.text()
+        };
+      }
     case TypeScript.SyntaxKind.GenericType:
       var t = {
         k: TypeKind.Type,
@@ -324,11 +333,9 @@ function parseType(node) {
       }
       return t;
     case TypeScript.SyntaxKind.QualifiedName:
-      return {
-        k: TypeKind.QualifiedType,
-        qualifier: node.left.text(),
-        type: parseType(node.right),
-      };
+      var type = parseType(node.right);
+      type.qualifier = [node.left.text()].concat(type.qualifier || []);
+      return type;
   }
   throw new Error('Unknown type kind: ' + node.kind());
 }
