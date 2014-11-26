@@ -1,38 +1,41 @@
 var browserify = require('browserify');
 var browserSync = require('browser-sync');
+var buffer = require('vinyl-buffer');
 var child_process = require('child_process');
-var gulp = require('gulp');
 var concat = require('gulp-concat');
+var del = require('del');
 var filter = require('gulp-filter');
 var fs = require('fs');
+var gulp = require('gulp');
+var gutil = require('gulp-util');
 var header = require('gulp-header');
 var Immutable = require('immutable');
 var jest = require('gulp-jest');
 var jshint = require('gulp-jshint');
 var less = require('gulp-less');
 var path = require('path');
-var clean = require('gulp-rimraf');
-var size = require('gulp-size');
-var sourcemaps = require('gulp-sourcemaps');
-var uglify = require('gulp-uglify');
-var gutil = require('gulp-util');
-var stylish = require('jshint-stylish');
 var React = require('react');
 var reactTools = require('react-tools');
 var sequence = require('run-sequence');
-var through = require('through2');
-var buffer = require('vinyl-buffer');
+var size = require('gulp-size');
 var source = require('vinyl-source-stream');
+var sourcemaps = require('gulp-sourcemaps');
+var stylish = require('jshint-stylish');
+var through = require('through2');
+var uglify = require('gulp-uglify');
 var vm = require('vm');
+
 var genTypeDefData = require('./src/genTypeDefData');
 
 var SRC_DIR = './app/';
 var BUILD_DIR = '../';
 
-// gulp.task('clean', function () {
-//   return gulp.src('../static', { read: false })
-//     .pipe(clean());
-// });
+gulp.task('clean', function (done) {
+  del([
+    '../static/**',
+    '../docs/static/**',
+  ], {force: true}, done);
+});
 
 gulp.task('typedefs', function() {
   var typeDefPath = path.join(
@@ -187,7 +190,7 @@ gulp.task('build', function (done) {
 });
 
 gulp.task('default', function (done) {
-  sequence(/*'clean', */'lint', /*'test',*/ 'build', done);
+  sequence('clean', 'lint', /*'test',*/ 'build', done);
 });
 
 // watch files for changes and reload

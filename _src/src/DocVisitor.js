@@ -142,11 +142,11 @@ class DocVisitor extends TypeScript.SyntaxWalker {
       // name: name // redundant
     };
 
-    setIn(last(this.data.groups), ['properties', name], propertyObj);
+    setIn(last(this.data.groups), ['properties', '#'+name], propertyObj);
 
     var comment = parseComment(last(TypeScript.ASTHelpers.docComments(node, this.text)));
     if (comment) {
-      pushIn(last(this.data.groups), ['properties', name, 'doc'], comment);
+      pushIn(last(this.data.groups), ['properties', '#'+name, 'doc'], comment);
     }
 
     if (node.questionToken) {
@@ -164,14 +164,14 @@ class DocVisitor extends TypeScript.SyntaxWalker {
     this.ensureGroup(node);
 
     var name = node.propertyName.text();
+
     var callSignature = parseCallSignature(node.callSignature);
     callSignature.line = this.getLineNum(node);
-
-    setIn(last(this.data.groups), ['methods', name, 'signatures'], callSignature);
+    pushIn(last(this.data.groups), ['methods', '#'+name, 'signatures'], callSignature);
 
     var comment = parseComment(last(TypeScript.ASTHelpers.docComments(node, this.text)));
     if (comment) {
-      pushIn(last(this.data.groups), ['methods', name, 'doc'], comment);
+      pushIn(last(this.data.groups), ['methods', '#'+name, 'doc'], comment);
     }
 
     if (node.questionToken) {
@@ -265,23 +265,19 @@ function parseType(node) {
       };
     case TypeScript.SyntaxKind.AnyKeyword:
       return {
-        k: TypeKind.Any,
-        // primitive: 'any' // redundant
+        k: TypeKind.Any
       };
     case TypeScript.SyntaxKind.BooleanKeyword:
       return {
-        k: TypeKind.Boolean,
-        // primitive: 'boolean' // redundant
+        k: TypeKind.Boolean
       };
     case TypeScript.SyntaxKind.NumberKeyword:
       return {
-        k: TypeKind.Number,
-        // primitive: 'number' // redundant
+        k: TypeKind.Number
       };
     case TypeScript.SyntaxKind.StringKeyword:
       return {
-        k: TypeKind.String,
-        // primitive: 'string' // redundant
+        k: TypeKind.String
       };
     case TypeScript.SyntaxKind.ObjectType:
       return {
@@ -327,6 +323,12 @@ function parseType(node) {
         });
       }
       return t;
+    case TypeScript.SyntaxKind.QualifiedName:
+      return {
+        k: TypeKind.QualifiedType,
+        qualifier: node.left.text(),
+        type: parseType(node.right),
+      };
   }
   throw new Error('Unknown type kind: ' + node.kind());
 }

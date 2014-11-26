@@ -7,52 +7,28 @@ var defs = require('../../../resources/immutable.d.json');
 
 console.log(defs);
 
-var Overview = React.createClass({
-  render: function() {
-    var d = defs.Immutable;
-
-    return (
-      <div>
-        <h1>Immutable</h1>
-        <section>
-          <pre>
-            {d.doc.join()}
-          </pre>
-        </section>
-        <h2>Functions</h2>
-        <ul>
-          {Seq(d.module).filter(t => !t.interface && !t.module).map((t, name) =>
-            <li key={name}>
-              <FunctionDef name={name} def={t.call} />
-            </li>
-          ).toArray()}
-        </ul>
-        <h2>Types</h2>
-        <ul>
-          {Seq(d.module).filter(t => t.interface || t.module).map((t, name) =>
-            <li key={name}>
-              <Link to={'/' + name}>{name}</Link>
-            </li>
-          ).toArray()}
-        </ul>
-      </div>
-    );
-  }
-});
-
 var Type = React.createClass({
   mixins: [ Router.State ],
 
   render: function() {
+    var type = defs.Immutable;
     var typeName = this.getParams().typeName;
-    // var methodName = this.getParams().methodName;
-    var type = defs.Immutable.module[typeName];
+    var typePath = typeName ? typeName.split('.') : [];
+    type = typePath.reduce(
+      (type, name) => type && type.module && type.module[name],
+      type
+    );
     if (!type) {
       return <NotFound />;
     }
+    return <TypeDoc type={type} name={typeName} />
+  }
+});
 
-    console.log(type);
-
+var TypeDoc = React.createClass({
+  render: function() {
+    var type = this.props.type;
+    var typeName = this.props.name;
     return (
       <div>
         <h1>{typeName}</h1>
@@ -67,13 +43,23 @@ var Type = React.createClass({
             {type.call && <li>
               <FunctionDef name={typeName} def={type.call} />
             </li>}
-            {type.module && Seq(type.module.types).map((t, name) =>
+            {type.module && Seq(type.module).filter(t => !t.interface && !t.module).map((t, name) =>
               <li key={name}>
                 <FunctionDef name={name} def={t.call} module={typeName} />
               </li>
             ).toArray()}
           </ul>
         ]}
+        <h2>Types</h2>
+        <ul>
+          {Seq(type.module).filter(t => t.interface || t.module).map((t, name) =>
+            <li key={name}>
+              <Link to={'/' + (typeName?typeName+'.'+name:name)}>
+                {(typeName?typeName+'.'+name:name)}
+              </Link>
+            </li>
+          ).toArray()}
+        </ul>
         {type.interface && <section>
           <h3>
             {typeName}
@@ -91,10 +77,12 @@ var Type = React.createClass({
             g.title && <h4>{g.title}</h4>,
             <ul>
               {Seq(g.properties).map((p, propName) =>
-                <li key={propName}>{propName}</li>
+                <li key={propName}>{propName.substr(1)}</li>
               ).toArray()}
               {Seq(g.methods).map((m, methodName) =>
-                <li key={methodName}>{methodName + '()'}</li>
+                <li key={methodName}>
+                  <FunctionDef def={m} name={methodName.substr(1)} />
+                </li>
               ).toArray()}
             </ul>
           ])}
@@ -115,7 +103,9 @@ var TypeDef = React.createClass({
       case TypeKind.Object: return <span>
         {['{', objMembers(type.members) ,'}']}
       </span>
-      // case TypeKind.Array:
+      case TypeKind.Array: return <span>
+        {[<TypeDef type={type.type} />], '[]'}
+      </span>;
       case TypeKind.Function: return <span>
         {['(', functionParams(type.params), ') => ', <TypeDef type={type.type} />]}
       </span>;
@@ -126,6 +116,9 @@ var TypeDef = React.createClass({
           <TypeDef type={a} />
         ).interpose(', ').toArray(), '>']}
       </span>;
+      case TypeKind.QualifiedType: return <span>
+        {[type.qualifier, '.', <TypeDef type={type.type} />]}
+      </span>
     }
     throw new Error('Unknown kind ' + type.k);
   }
@@ -206,7 +199,7 @@ var NotFound = React.createClass({
 
 var routes =
   <Route handler={Docs} path="/">
-    <DefaultRoute handler={Overview} />
+    <DefaultRoute handler={Type} />
     <Route name="type" path="/:typeName" handler={Type} />
     <Route name="method" path="/:typeName/:methodName" handler={Type} />
   </Route>;
