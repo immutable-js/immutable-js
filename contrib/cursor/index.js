@@ -211,7 +211,7 @@ function updateCursor(cursor, changeFn, changeKey) {
     cursor._rootData,
     changeKey ? keyPath.concat(changeKey) : keyPath
   );
-  if (result) {
+  if (result !== undefined) {
     newRootData = result;
   }
   return makeCursor(newRootData, cursor._keyPath, cursor._onChange);
