@@ -633,12 +633,17 @@ function loadJSON(url, then) {
   oReq.send();
 }
 
+},{}],"immutable":[function(require,module,exports){
+(function (global){
+module.exports = global.Immutable;
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],"react":[function(require,module,exports){
 (function (global){
 module.exports = global.React;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[])
+},{}]},{},["./src/index.js"])
 
 
 //# sourceMappingURL=maps/bundle.js.map

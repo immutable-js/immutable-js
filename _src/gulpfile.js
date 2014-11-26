@@ -6,6 +6,7 @@ var concat = require('gulp-concat');
 var filter = require('gulp-filter');
 var fs = require('fs');
 var header = require('gulp-header');
+var Immutable = require('immutable');
 var jest = require('gulp-jest');
 var jshint = require('gulp-jshint');
 var less = require('gulp-less');
@@ -95,6 +96,10 @@ function gulpJS(subDir) {
     path.resolve(SRC_DIR+subDir),
     path.resolve('./resources/react-global.js')
   );
+  var immutableGlobalModulePath = path.relative(
+    path.resolve(SRC_DIR+subDir),
+    path.resolve('./resources/immutable-global.js')
+  );
   return function() {
     return browserify({
         debug: true,
@@ -103,6 +108,7 @@ function gulpJS(subDir) {
       .add('./src/index.js')
       .require('./src/index.js')
       .require(reactGlobalModulePath, { expose: 'react' })
+      .require(immutableGlobalModulePath, { expose: 'immutable' })
       .transform(reactTransformify)
       .bundle()
       .on('error', handleError)
@@ -188,12 +194,20 @@ gulp.task('dev', ['default'], function() {
 
   gulp.watch('./app/**/*.less', ['less', 'less-docs']);
   gulp.watch('./app/src/**/*.js', ['rebuild-js']);
+  gulp.watch('./app/docs/src/**/*.js', ['rebuild-js-docs']);
   gulp.watch('./app/**/*.html', ['pre-render', 'pre-render-docs']);
   gulp.watch('./app/static/**/*', ['statics', 'statics-docs']);
 });
 
 gulp.task('rebuild-js', function (done) {
-  sequence('lint', /*'test',*/ ['pre-render', 'pre-render-docs'], function () {
+  sequence('lint', 'js', /*'test',*/ ['pre-render'], function () {
+    browserSync.reload();
+    done();
+  });
+});
+
+gulp.task('rebuild-js-docs', function (done) {
+  sequence('lint', 'js-docs', /*'test',*/ ['pre-render-docs'], function () {
     browserSync.reload();
     done();
   });
@@ -219,7 +233,10 @@ function preRender(subDir) {
               fs.readFileSync(BUILD_DIR+subDir+'bundle.js') + // ugly
               '\nrequire("react").renderToString(require("react").createElement(require(component)));',
               {
-                global: { React: React },
+                global: {
+                  React: React,
+                  Immutable: Immutable
+                },
                 window: {},
                 component: component,
                 console: console,
