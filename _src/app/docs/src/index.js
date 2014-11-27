@@ -1,8 +1,10 @@
 var React = require('react');
 var Router = require('react-router');
 var { Route, DefaultRoute, RouteHandler } = Router;
-var TypeDocumentation = require('./TypeDocumentation');
 var DocHeader = require('./DocHeader');
+var DocOverview = require('./DocOverview');
+var TypeDocumentation = require('./TypeDocumentation');
+
 
 
 var Documentation = React.createClass({
@@ -26,7 +28,7 @@ module.exports = React.createClass({
     Router.create({
       routes:
         <Route handler={Documentation} path="/">
-          <DefaultRoute handler={TypeDocumentation} />
+          <DefaultRoute handler={DocOverview} />
           <Route name="type" path="/:typeName" handler={TypeDocumentation} />
           <Route name="method" path="/:typeName/:methodName" handler={TypeDocumentation} />
         </Route>,
