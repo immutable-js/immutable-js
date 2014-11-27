@@ -137,7 +137,7 @@ var InterfaceDef = React.createClass({
           <section>
             {title && <h4>{title}</h4>}
             {members.map(member =>
-              <MemberDef key={member.memberName} member={member} />
+              <MemberDef key={member.memberName} parentName={name} member={member} />
             )}
           </section>
         ).toArray()}
@@ -148,11 +148,21 @@ var InterfaceDef = React.createClass({
 });
 
 var MemberDef = React.createClass({
+  mixins: [ Router.State, Router.Navigation ],
+
   getInitialState: function() {
-    return { detail: false };
+    var member = this.props.member;
+    var name = member.memberName.substr(1);
+    var pathMethodName = this.getParams().methodName;
+    return { detail: pathMethodName === name };
   },
 
   toggleDetail: function() {
+    if (!this.state.detail) {
+      var member = this.props.member;
+      var name = member.memberName.substr(1);
+      this.replaceWith('/' + this.props.parentName + '/' + name );
+    }
     this.setState({ detail: !this.state.detail });
   },
 
@@ -362,17 +372,28 @@ var NotFound = React.createClass({
 });
 
 
-var routes =
-  <Route handler={Docs} path="/">
-    <DefaultRoute handler={Type} />
-    <Route name="type" path="/:typeName" handler={Type} />
-    <Route name="method" path="/:typeName/:methodName" handler={Type} />
-  </Route>;
-
-
-var App = React.createClass({
+module.exports = React.createClass({
   componentWillMount: function() {
-    Router.run(routes, Handler => {
+    Router.create({
+      routes:
+        <Route handler={Docs} path="/">
+          <DefaultRoute handler={Type} />
+          <Route name="type" path="/:typeName" handler={Type} />
+          <Route name="method" path="/:typeName/:methodName" handler={Type} />
+        </Route>,
+
+      scrollBehavior: window.document && {
+        updateScrollPosition: function (position, actionType) {
+          switch (actionType) {
+            case 'push': return window.scrollTo(0, 0);
+            case 'pop': return window.scrollTo(
+              position ? position.x : 0,
+              position ? position.y : 0
+            );
+          }
+        }
+      }
+    }).run(Handler => {
       this.setState({handler: Handler});
     });
   },
@@ -381,6 +402,3 @@ var App = React.createClass({
     return <Handler />;
   }
 });
-
-
-module.exports = App;

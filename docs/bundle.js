@@ -138,7 +138,7 @@ var InterfaceDef = React.createClass({displayName: 'InterfaceDef',
           React.createElement("section", null, 
             title && React.createElement("h4", null, title), 
             members.map(function(member) 
-              {return React.createElement(MemberDef, {key: member.memberName, member: member});}
+              {return React.createElement(MemberDef, {key: member.memberName, parentName: name, member: member});}
             )
           );}
         ).toArray()
@@ -149,11 +149,21 @@ var InterfaceDef = React.createClass({displayName: 'InterfaceDef',
 });
 
 var MemberDef = React.createClass({displayName: 'MemberDef',
+  mixins: [ Router.State, Router.Navigation ],
+
   getInitialState: function() {
-    return { detail: false };
+    var member = this.props.member;
+    var name = member.memberName.substr(1);
+    var pathMethodName = this.getParams().methodName;
+    return { detail: pathMethodName === name };
   },
 
   toggleDetail: function() {
+    if (!this.state.detail) {
+      var member = this.props.member;
+      var name = member.memberName.substr(1);
+      this.replaceWith('/' + this.props.parentName + '/' + name );
+    }
     this.setState({ detail: !this.state.detail });
   },
 
@@ -363,17 +373,28 @@ var NotFound = React.createClass({displayName: 'NotFound',
 });
 
 
-var routes =
-  React.createElement(Route, {handler: Docs, path: "/"}, 
-    React.createElement(DefaultRoute, {handler: Type}), 
-    React.createElement(Route, {name: "type", path: "/:typeName", handler: Type}), 
-    React.createElement(Route, {name: "method", path: "/:typeName/:methodName", handler: Type})
-  );
-
-
-var App = React.createClass({displayName: 'App',
+module.exports = React.createClass({displayName: 'exports',
   componentWillMount: function() {
-    Router.run(routes, function(Handler)  {
+    Router.create({
+      routes:
+        React.createElement(Route, {handler: Docs, path: "/"}, 
+          React.createElement(DefaultRoute, {handler: Type}), 
+          React.createElement(Route, {name: "type", path: "/:typeName", handler: Type}), 
+          React.createElement(Route, {name: "method", path: "/:typeName/:methodName", handler: Type})
+        ),
+
+      scrollBehavior: window.document && {
+        updateScrollPosition: function (position, actionType) {
+          switch (actionType) {
+            case 'push': return window.scrollTo(0, 0);
+            case 'pop': return window.scrollTo(
+              position ? position.x : 0,
+              position ? position.y : 0
+            );
+          }
+        }
+      }
+    }).run(function(Handler)  {
       this.setState({handler: Handler});
     }.bind(this));
   },
@@ -382,9 +403,6 @@ var App = React.createClass({displayName: 'App',
     return React.createElement(Handler, null);
   }
 });
-
-
-module.exports = App;
 
 },{"../../../resources/immutable.d.json":51,"../../../src/TypeKind":52,"immutable":undefined,"react":undefined,"react-router":14}],1:[function(require,module,exports){
 /*!
@@ -5448,7 +5466,7 @@ module.exports = global.Immutable;
 module.exports = global.React;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},["./src/index.js"])
+},{}]},{},[])
 
 
 //# sourceMappingURL=maps/bundle.js.map
