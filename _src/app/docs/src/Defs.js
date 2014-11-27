@@ -49,8 +49,9 @@ var CallSigDef = React.createClass({
     var callSig = this.props.callSig;
 
     return (
-      <span>
-        {module ? module + '.' + name : name}
+      <span className="t callSig">
+        {module && [<span className="t fnQualifier">{module}</span>, '.']}
+        <span className="t fnName">{name}</span>
         {callSig.typeParams &&
           ['<', Seq(callSig.typeParams).map(t =>
             <span className="t typeParam">{t}</span>
@@ -87,8 +88,10 @@ var TypeDef = React.createClass({
       case TypeKind.Param: return <span className="t typeParam">{type.param}</span>;
       case TypeKind.Type: return <span className="t type">
         <Router.Link to={'/' + (type.qualifier ? type.qualifier.join('.') + '.' : '') + type.name}>
-          {type.qualifier && type.qualifier.join('.') + '.'}
-          {type.name}
+          {type.qualifier && [Seq(type.qualifier).map(q =>
+            <span className="t typeQualifier">{q}</span>
+          ).interpose('.').toArray(), '.']}
+          <span className="t typeName">{type.name}</span>
         </Router.Link>
         {type.args && ['<', Seq(type.args).map(a =>
           <TypeDef type={a} />

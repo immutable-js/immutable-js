@@ -107,8 +107,9 @@ var CallSigDef = React.createClass({displayName: 'CallSigDef',
     var callSig = this.props.callSig;
 
     return (
-      React.createElement("span", null, 
-        module ? module + '.' + name : name, 
+      React.createElement("span", {className: "t callSig"}, 
+        module && [React.createElement("span", {className: "t fnQualifier"}, module), '.'], 
+        React.createElement("span", {className: "t fnName"}, name), 
         callSig.typeParams &&
           ['<', Seq(callSig.typeParams).map(function(t) 
             {return React.createElement("span", {className: "t typeParam"}, t);}
@@ -145,8 +146,10 @@ var TypeDef = React.createClass({displayName: 'TypeDef',
       case TypeKind.Param: return React.createElement("span", {className: "t typeParam"}, type.param);
       case TypeKind.Type: return React.createElement("span", {className: "t type"}, 
         React.createElement(Router.Link, {to: '/' + (type.qualifier ? type.qualifier.join('.') + '.' : '') + type.name}, 
-          type.qualifier && type.qualifier.join('.') + '.', 
-          type.name
+          type.qualifier && [Seq(type.qualifier).map(function(q) 
+            {return React.createElement("span", {className: "t typeQualifier"}, q);}
+          ).interpose('.').toArray(), '.'], 
+          React.createElement("span", {className: "t typeName"}, type.name)
         ), 
         type.args && ['<', Seq(type.args).map(function(a) 
           {return React.createElement(TypeDef, {type: a});}

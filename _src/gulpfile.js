@@ -159,6 +159,7 @@ function gulpLess(subDir) {
       .pipe(less({
         compress: true
       }))
+      .on('error', handleError)
       .pipe(concat('bundle.css'))
       .pipe(sourcemaps.write('./maps'))
       .pipe(gulp.dest(BUILD_DIR+subDir))
@@ -176,6 +177,7 @@ function gulpStatics(subDir) {
   return function() {
     return gulp.src(SRC_DIR+subDir+'static/**/*')
       .pipe(gulp.dest(BUILD_DIR+subDir+'static'))
+      .on('error', handleError)
       .pipe(browserSync.reload({ stream:true }))
       .on('error', handleError);
   }
