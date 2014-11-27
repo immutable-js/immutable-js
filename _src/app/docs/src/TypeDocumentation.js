@@ -2,7 +2,7 @@ var React = require('react');
 var Router = require('react-router');
 var { Seq } = require('immutable');
 var defs = require('../../../resources/immutable.d.json');
-var { TypeDef, FunctionDef, functionParams } = require('./Defs');
+var { FunctionDef, CallSigDef, TypeDef } = require('./Defs');
 
 
 var TypeDocumentation = React.createClass({
@@ -182,14 +182,7 @@ var MemberDef = React.createClass({
           {doc.synopsis && <pre>{doc.synopsis}</pre>}
           {isProp || def.signatures.map(callSig =>
             <div>
-              {name}
-              {callSig.typeParams &&
-                ['<', Seq(callSig.typeParams).map(t =>
-                  <span>{t}</span>
-                ).interpose(', ').toArray(), '>']
-              }
-              {['(', functionParams(callSig.params), ')']}
-              {callSig.type && [': ', <TypeDef type={callSig.type} />]}
+              <CallSigDef name={name} callSig={callSig} />
             </div>
           )}
           {member.inherited &&

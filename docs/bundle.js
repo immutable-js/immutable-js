@@ -86,14 +86,7 @@ var FunctionDef = React.createClass({displayName: 'FunctionDef',
           doc.synopsis && React.createElement("pre", null, doc.synopsis), 
           def.signatures.map(function(callSig) 
             {return React.createElement("div", null, 
-              module ? module + '.' + name : name, 
-              callSig.typeParams &&
-                ['<', Seq(callSig.typeParams).map(function(t) 
-                  {return React.createElement("span", null, t);}
-                ).interpose(', ').toArray(), '>'], 
-              
-              ['(', functionParams(callSig.params), ')'], 
-              callSig.type && [': ', React.createElement(TypeDef, {type: callSig.type})]
+              React.createElement(CallSigDef, {module: module, name: name, callSig: callSig})
             );}
           ), 
           doc.description && React.createElement("pre", null, doc.description), 
@@ -107,14 +100,38 @@ var FunctionDef = React.createClass({displayName: 'FunctionDef',
 exports.FunctionDef = FunctionDef;
 
 
+var CallSigDef = React.createClass({displayName: 'CallSigDef',
+  render: function() {
+    var module = this.props.module;
+    var name = this.props.name;
+    var callSig = this.props.callSig;
+
+    return (
+      React.createElement("span", null, 
+        module ? module + '.' + name : name, 
+        callSig.typeParams &&
+          ['<', Seq(callSig.typeParams).map(function(t) 
+            {return React.createElement("span", {className: "t typeParam"}, t);}
+          ).interpose(', ').toArray(), '>'], 
+        
+        ['(', functionParams(callSig.params), ')'], 
+        callSig.type && [': ', React.createElement(TypeDef, {type: callSig.type})]
+      )
+    );
+  }
+});
+
+exports.CallSigDef = CallSigDef;
+
+
 var TypeDef = React.createClass({displayName: 'TypeDef',
   render: function() {
     var type = this.props.type;
     switch (type.k) {
-      case TypeKind.Any: return React.createElement("span", null, "any");
-      case TypeKind.Boolean: return React.createElement("span", null, "boolean");
-      case TypeKind.Number: return React.createElement("span", null, "number");
-      case TypeKind.String: return React.createElement("span", null, "string");
+      case TypeKind.Any: return React.createElement("span", {className: "t primitive"}, "any");
+      case TypeKind.Boolean: return React.createElement("span", {className: "t primitive"}, "boolean");
+      case TypeKind.Number: return React.createElement("span", {className: "t primitive"}, "number");
+      case TypeKind.String: return React.createElement("span", {className: "t primitive"}, "string");
       case TypeKind.Object: return React.createElement("span", null, 
         ['{', objMembers(type.members) ,'}']
       )
@@ -125,8 +142,8 @@ var TypeDef = React.createClass({displayName: 'TypeDef',
       case TypeKind.Function: return React.createElement("span", null, 
         ['(', functionParams(type.params), ') => ', React.createElement(TypeDef, {type: type.type})]
       );
-      case TypeKind.Param: return React.createElement("span", null, type.param);
-      case TypeKind.Type: return React.createElement("span", null, 
+      case TypeKind.Param: return React.createElement("span", {className: "t typeParam"}, type.param);
+      case TypeKind.Type: return React.createElement("span", {className: "t type"}, 
         React.createElement(Router.Link, {to: '/' + (type.qualifier ? type.qualifier.join('.') + '.' : '') + type.name}, 
           type.qualifier && type.qualifier.join('.') + '.', 
           type.name
@@ -146,23 +163,20 @@ exports.TypeDef = TypeDef;
 function functionParams(params) {
   return Seq(params).map(function(t)  {return [
     t.varArgs ? '...' : null,
-    React.createElement("span", null, t.name),
+    React.createElement("span", {className: "t param"}, t.name),
     t.optional ? '?: ' : ': ',
     React.createElement(TypeDef, {type: t.type})
   ];}).interpose(', ').toArray();
 }
 
-exports.functionParams = functionParams;
-
-
 function objMembers(members) {
   return Seq(members).map(function(t)  {return [
-    t.index ? ['[', functionParams(t.params) , ']: '] : [t.name, ': '],
+    t.index ?
+      ['[', functionParams(t.params) , ']: '] :
+      [React.createElement("span", {className: "t member"}, t.name), ': '],
     React.createElement(TypeDef, {type: t.type})
   ];}).interpose(', ').toArray();
 }
-
-exports.objMembers = objMembers;
 
 },{"../../../src/TypeKind":58,"immutable":undefined,"react":undefined,"react-router":20}],2:[function(require,module,exports){
 var React = require('react');
@@ -262,7 +276,7 @@ var React = require('react');
 var Router = require('react-router');
 var $__0=    require('immutable'),Seq=$__0.Seq;
 var defs = require('../../../resources/immutable.d.json');
-var $__1=      require('./Defs'),TypeDef=$__1.TypeDef,FunctionDef=$__1.FunctionDef,functionParams=$__1.functionParams;
+var $__1=      require('./Defs'),FunctionDef=$__1.FunctionDef,CallSigDef=$__1.CallSigDef,TypeDef=$__1.TypeDef;
 
 
 var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
@@ -442,14 +456,7 @@ var MemberDef = React.createClass({displayName: 'MemberDef',
           doc.synopsis && React.createElement("pre", null, doc.synopsis), 
           isProp || def.signatures.map(function(callSig) 
             {return React.createElement("div", null, 
-              name, 
-              callSig.typeParams &&
-                ['<', Seq(callSig.typeParams).map(function(t) 
-                  {return React.createElement("span", null, t);}
-                ).interpose(', ').toArray(), '>'], 
-              
-              ['(', functionParams(callSig.params), ')'], 
-              callSig.type && [': ', React.createElement(TypeDef, {type: callSig.type})]
+              React.createElement(CallSigDef, {name: name, callSig: callSig})
             );}
           ), 
           member.inherited &&

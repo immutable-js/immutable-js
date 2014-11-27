@@ -28,14 +28,7 @@ var FunctionDef = React.createClass({
           {doc.synopsis && <pre>{doc.synopsis}</pre>}
           {def.signatures.map(callSig =>
             <div>
-              {module ? module + '.' + name : name}
-              {callSig.typeParams &&
-                ['<', Seq(callSig.typeParams).map(t =>
-                  <span>{t}</span>
-                ).interpose(', ').toArray(), '>']
-              }
-              {['(', functionParams(callSig.params), ')']}
-              {callSig.type && [': ', <TypeDef type={callSig.type} />]}
+              <CallSigDef module={module} name={name} callSig={callSig} />
             </div>
           )}
           {doc.description && <pre>{doc.description}</pre>}
@@ -49,14 +42,38 @@ var FunctionDef = React.createClass({
 exports.FunctionDef = FunctionDef;
 
 
+var CallSigDef = React.createClass({
+  render: function() {
+    var module = this.props.module;
+    var name = this.props.name;
+    var callSig = this.props.callSig;
+
+    return (
+      <span>
+        {module ? module + '.' + name : name}
+        {callSig.typeParams &&
+          ['<', Seq(callSig.typeParams).map(t =>
+            <span className="t typeParam">{t}</span>
+          ).interpose(', ').toArray(), '>']
+        }
+        {['(', functionParams(callSig.params), ')']}
+        {callSig.type && [': ', <TypeDef type={callSig.type} />]}
+      </span>
+    );
+  }
+});
+
+exports.CallSigDef = CallSigDef;
+
+
 var TypeDef = React.createClass({
   render: function() {
     var type = this.props.type;
     switch (type.k) {
-      case TypeKind.Any: return <span>any</span>;
-      case TypeKind.Boolean: return <span>boolean</span>;
-      case TypeKind.Number: return <span>number</span>;
-      case TypeKind.String: return <span>string</span>;
+      case TypeKind.Any: return <span className="t primitive">any</span>;
+      case TypeKind.Boolean: return <span className="t primitive">boolean</span>;
+      case TypeKind.Number: return <span className="t primitive">number</span>;
+      case TypeKind.String: return <span className="t primitive">string</span>;
       case TypeKind.Object: return <span>
         {['{', objMembers(type.members) ,'}']}
       </span>
@@ -67,8 +84,8 @@ var TypeDef = React.createClass({
       case TypeKind.Function: return <span>
         {['(', functionParams(type.params), ') => ', <TypeDef type={type.type} />]}
       </span>;
-      case TypeKind.Param: return <span>{type.param}</span>;
-      case TypeKind.Type: return <span>
+      case TypeKind.Param: return <span className="t typeParam">{type.param}</span>;
+      case TypeKind.Type: return <span className="t type">
         <Router.Link to={'/' + (type.qualifier ? type.qualifier.join('.') + '.' : '') + type.name}>
           {type.qualifier && type.qualifier.join('.') + '.'}
           {type.name}
@@ -88,20 +105,17 @@ exports.TypeDef = TypeDef;
 function functionParams(params) {
   return Seq(params).map(t => [
     t.varArgs ? '...' : null,
-    <span>{t.name}</span>,
+    <span className="t param">{t.name}</span>,
     t.optional ? '?: ' : ': ',
     <TypeDef type={t.type} />
   ]).interpose(', ').toArray();
 }
 
-exports.functionParams = functionParams;
-
-
 function objMembers(members) {
   return Seq(members).map(t => [
-    t.index ? ['[', functionParams(t.params) , ']: '] : [t.name, ': '],
+    t.index ?
+      ['[', functionParams(t.params) , ']: '] :
+      [<span className="t member">{t.name}</span>, ': '],
     <TypeDef type={t.type} />
   ]).interpose(', ').toArray();
 }
-
-exports.objMembers = objMembers;
