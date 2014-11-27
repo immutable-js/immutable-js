@@ -1,2 +1,48 @@
 @import (less) '../../src/base.less';
 
+.pageBody {
+  padding: 0 36px;
+  position: relative;
+}
+
+.contents {
+  margin: 0 auto;
+  max-width: 740px;
+  padding: 64px 0;
+}
+
+.miniHeader {
+  background: #d7dadb;
+  position: fixed;
+  width: 100%;
+  z-index: 1;
+}
+
+.miniHeaderContents {
+  text-align: right;
+  margin: 0 auto;
+  max-width: 740px;
+  padding: 12px 36px;
+  position: relative;
+}
+
+.logo {
+  float: left;
+  top: 12px;
+  left: -140px;
+}
+
+.logo > .svg {
+  height: 24px;
+}
+
+.miniHeaderContents a {
+  color: #fff;
+  margin-right: 1em;
+  text-decoration: none;
+  text-shadow: 0 1px rgba(0,0,0,0.15);
+}
+
+.miniHeaderContents a:last-child {
+  margin-right: 0;
+}
