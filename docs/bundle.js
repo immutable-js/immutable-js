@@ -124,7 +124,7 @@ var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
 
         call && React.createElement(FunctionDef, {name: typeName, def: call}), 
 
-        functions &&
+        functions.count() > 0 &&
           React.createElement("section", null, 
             functions.map(function(t, name) 
               {return React.createElement(FunctionDef, {key: name, name: name, def: t.call, module: typeName});}
@@ -132,7 +132,7 @@ var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
           ), 
         
 
-        types &&
+        types.count() > 0 &&
           React.createElement("section", null, 
             React.createElement("h2", null, "Types"), 
             types.map(function(t, name) 

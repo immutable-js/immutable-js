@@ -37,7 +37,7 @@ var TypeDocumentation = React.createClass({
 
         {call && <FunctionDef name={typeName} def={call} />}
 
-        {functions &&
+        {functions.count() > 0 &&
           <section>
             {functions.map((t, name) =>
               <FunctionDef key={name} name={name} def={t.call} module={typeName} />
@@ -45,7 +45,7 @@ var TypeDocumentation = React.createClass({
           </section>
         }
 
-        {types &&
+        {types.count() > 0 &&
           <section>
             <h2>Types</h2>
             {types.map((t, name) =>
