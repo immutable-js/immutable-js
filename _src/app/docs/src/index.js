@@ -28,7 +28,7 @@ var TypeDoc = React.createClass({
     var type = this.props.type;
     var typeName = this.props.name;
 
-    var doc = this.doc;
+    var doc = type.doc;
     var call = type.call;
     var functions = Seq(type.module).filter(t => !t.interface && !t.module);
     var types = Seq(type.module).filter(t => t.interface || t.module);
@@ -37,14 +37,18 @@ var TypeDoc = React.createClass({
     return (
       <div>
 
-        {doc && <section><pre>{type.doc}</pre></section>}
+        {doc && <section>
+          <pre>{doc.synopsis}</pre>
+          {doc.description && <pre>{doc.description}</pre>}
+          {doc.notes && <pre>{doc.notes}</pre>}
+        </section>}
 
         {call && <FunctionDef name={typeName} def={call} />}
 
         {functions &&
           <section>
             {functions.map((t, name) =>
-              <FunctionDef name={name} def={t.call} module={typeName} />
+              <FunctionDef key={name} name={name} def={t.call} module={typeName} />
             ).toArray()}
           </section>
         }
@@ -53,7 +57,7 @@ var TypeDoc = React.createClass({
           <section>
             <h2>Types</h2>
             {types.map((t, name) =>
-              <div ref={name}>
+              <div key={name}>
                 <Link to={'/' + (typeName?typeName+'.'+name:name)}>
                   {(typeName?typeName+'.'+name:name)}
                 </Link>
@@ -156,6 +160,7 @@ var MemberDef = React.createClass({
     var member = this.props.member;
     var name = member.memberName.substr(1);
     var def = member.memberDef;
+    var doc = def.doc || {};
     var isProp = !def.signatures;
 
     return (
@@ -166,7 +171,7 @@ var MemberDef = React.createClass({
             name + '()'}
         </div>
         {this.state.detail && <div>
-          {def.doc && <pre>{def.doc}</pre>}
+          {doc.synopsis && <pre>{doc.synopsis}</pre>}
           {isProp || def.signatures.map(callSig =>
             <div>
               {name}
@@ -195,6 +200,8 @@ var MemberDef = React.createClass({
               </Link>
             </section>
           }
+          {doc.description && <pre>{doc.description}</pre>}
+          {doc.notes && <pre>{doc.notes}</pre>}
         </div>}
       </div>
     );
@@ -311,6 +318,7 @@ var FunctionDef = React.createClass({
     var module = this.props.module;
     var name = this.props.name;
     var def = this.props.def;
+    var doc = def.doc || {};
 
     return (
       <div>
@@ -318,7 +326,7 @@ var FunctionDef = React.createClass({
           {(module ? module + '.' + name : name) + '()'}
         </div>
         {this.state.detail && <div>
-          {def.doc && <pre>{def.doc}</pre>}
+          {doc.synopsis && <pre>{doc.synopsis}</pre>}
           {def.signatures.map(callSig =>
             <div>
               {module ? module + '.' + name : name}
@@ -331,6 +339,8 @@ var FunctionDef = React.createClass({
               {callSig.type && [': ', <TypeDef type={callSig.type} />]}
             </div>
           )}
+          {doc.description && <pre>{doc.description}</pre>}
+          {doc.notes && <pre>{doc.notes}</pre>}
         </div>}
       </div>
     );

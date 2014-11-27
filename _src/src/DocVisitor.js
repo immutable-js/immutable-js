@@ -200,16 +200,38 @@ function setIn(obj, path, value) {
   obj[path[path.length - 1]] = value;
 }
 
+var COMMENT_NOTE_RX = /@(\w+)\s+(.*)/;
+
 function parseComment(node) {
   if (!node) {
     return node;
   }
-  node = node.fullText();
-  if (node.substr(0, 2) === '//') {
-    return node.substr(2);
+  var text = node.fullText();
+  var lines;
+  if (text.substr(0, 2) === '//') {
+    lines = text.substr(2);
+  } else {
+    lines = text.split('\n').slice(1, -1).map(l => l.trim().substr(2));
   }
-  var lines = node.split('\n').slice(1, -1).map(l => l.trim().substr(2)).join('\n');
-  return lines;
+
+  var notes = lines
+    .map(l => l.match(COMMENT_NOTE_RX))
+    .filter(n => n !== null)
+    .map(n => ({ name: n[1], body: n[2] }));
+  var paragraphs =
+    lines.filter(l => !COMMENT_NOTE_RX.test(l)).join('\n').split('\n\n');
+  var synopsis = paragraphs.shift();
+  var description = paragraphs.join('\n\n');
+
+  var comment = { synopsis };
+  if (notes.length) {
+    comment.notes = notes;
+  }
+  if (description) {
+    comment.description = description;
+  }
+
+  return comment;
 }
 
 function parseCallSignature(node) {
