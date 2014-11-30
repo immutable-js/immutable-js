@@ -33,7 +33,13 @@ var BUILD_DIR = '../';
 gulp.task('clean', function (done) {
   del([
     '../static/**',
+    '../maps/**',
+    '../bundle.*',
+    '../index.*',
     '../docs/static/**',
+    '../docs/maps/**',
+    '../docs/bundle.*',
+    '../docs/index.*',
   ], {force: true}, done);
 });
 
@@ -119,6 +125,9 @@ function gulpJS(subDir) {
       .require('./src/index.js')
       .require(reactGlobalModulePath, { expose: 'react' })
       .require(immutableGlobalModulePath, { expose: 'immutable' })
+      // Helpful when developing with no wifi
+      // .require('react', { expose: 'react' })
+      // .require('immutable', { expose: 'immutable' })
       .transform(reactTransformify)
       .bundle()
       .on('error', handleError)

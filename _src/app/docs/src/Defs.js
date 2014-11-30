@@ -48,6 +48,8 @@ var CallSigDef = React.createClass({
     var name = this.props.name;
     var callSig = this.props.callSig;
 
+    var shouldWrap = callSigLength(module, name, callSig) > 80;
+
     return (
       <span className="t callSig">
         {module && [<span className="t fnQualifier">{module}</span>, '.']}
@@ -57,12 +59,62 @@ var CallSigDef = React.createClass({
             <span className="t typeParam">{t}</span>
           ).interpose(', ').toArray(), '>']
         }
-        {['(', functionParams(callSig.params), ')']}
+        {['(', functionParams(callSig.params, shouldWrap), ')']}
         {callSig.type && [': ', <TypeDef type={callSig.type} />]}
       </span>
     );
   }
 });
+
+function callSigLength(module, name, sig) {
+  return (
+    (module ? module.length + 1 : 0) +
+    name.length +
+    (sig.typeParams ? 2 + sig.typeParams.join(', ').length : 0) +
+    2 + (sig.params ? paramLength(sig.params) : 0) +
+    (sig.type ? 2 + typeLength(sig.type) : 0)
+  );
+}
+
+function paramLength(params) {
+  return params.reduce((s, p) =>
+    s +
+    (p.varArgs ? 3 : 0) +
+    p.name.length +
+    (p.optional ? 3 : 2) +
+    typeLength(p.type),
+    (params.length - 1) * 2
+  );
+}
+
+function memberLength(members) {
+  return members.reduce((s, m) =>
+    s + (m.index ? paramLength(m.params) + 4 : m.name + 2) +
+    typeLength(m.type),
+    (members.length - 1) * 2
+  );
+}
+
+function typeLength(type) {
+  switch (type.k) {
+    case TypeKind.Any: return 3;
+    case TypeKind.Boolean: return 7;
+    case TypeKind.Number: return 6;
+    case TypeKind.String: return 6;
+    case TypeKind.Object: return 2 + memberLength(type.members);
+    case TypeKind.Array: return typeLength(type.type) + 2;
+    case TypeKind.Function:
+      return paramLength(type.params) + 6 + typeLength(type.type);
+    case TypeKind.Param: return type.param.length;
+    case TypeKind.Type: return (
+      (type.qualifier ? 1 + type.qualifier.join('.').length : 0) +
+      type.name.length +
+      (!type.args ? 0 :
+        type.args.reduce((s, a) => s + typeLength(a), type.args.length * 2))
+    );
+  }
+  throw new Error('Unknown kind ' + type.k);
+}
 
 exports.CallSigDef = CallSigDef;
 
@@ -105,13 +157,16 @@ var TypeDef = React.createClass({
 exports.TypeDef = TypeDef;
 
 
-function functionParams(params) {
-  return Seq(params).map(t => [
+function functionParams(params, shouldWrap) {
+  var elements = Seq(params).map(t => [
     t.varArgs ? '...' : null,
     <span className="t param">{t.name}</span>,
     t.optional ? '?: ' : ': ',
     <TypeDef type={t.type} />
-  ]).interpose(', ').toArray();
+  ]).interpose(shouldWrap ? [',', <br />] : ', ').toArray();
+  return shouldWrap ?
+    <div className="t blockParams">{elements}</div> :
+    elements;
 }
 
 function objMembers(members) {
