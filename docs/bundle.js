@@ -82,22 +82,55 @@ var FunctionDef = React.createClass({displayName: 'FunctionDef',
         React.createElement("div", {onClick: this.toggleDetail}, 
           (module ? module + '.' + name : name) + '()'
         ), 
-        this.state.detail && React.createElement("div", null, 
-          doc.synopsis && React.createElement("pre", null, doc.synopsis), 
-          def.signatures.map(function(callSig) 
-            {return React.createElement("div", null, 
-              React.createElement(CallSigDef, {module: module, name: name, callSig: callSig})
-            );}
-          ), 
-          doc.description && React.createElement("pre", null, doc.description), 
-          doc.notes && React.createElement("pre", null, doc.notes)
-        )
+        this.state.detail &&
+          React.createElement("div", {className: "detail"}, 
+            doc.synopsis && React.createElement("pre", null, doc.synopsis), 
+            def.signatures.map(function(callSig) 
+              {return React.createElement("div", null, 
+                React.createElement(CallSigDef, {module: module, name: name, callSig: callSig})
+              );}
+            ), 
+            doc.description && React.createElement("pre", null, doc.description), 
+            doc.notes && React.createElement("pre", null, doc.notes)
+          )
       )
     );
   }
 });
 
 exports.FunctionDef = FunctionDef;
+
+
+var InterfaceDef = React.createClass({displayName: 'InterfaceDef',
+  render: function() {
+    var name = this.props.name;
+    var def = this.props.def;
+    return (
+      React.createElement("span", {className: "t interfaceDef"}, 
+        React.createElement("span", {className: "t typeName"}, name), 
+        def.typeParams &&
+          ['<', Seq(def.typeParams).map(function(t, k) 
+            {return React.createElement("span", {className: "t typeParam", key: k}, t);}
+          ).interpose(', ').toArray(), '>'], 
+        
+        def.extends && [
+          React.createElement("span", {className: "t keyword"}, ' extends '),
+          Seq(def.extends).map(function(e, i) 
+            {return React.createElement(TypeDef, {key: i, type: e});}
+          ).interpose(', ').toArray()
+        ], 
+        def.implements && [
+          React.createElement("span", {className: "t keyword"}, ' implements '),
+          Seq(def.implements).map(function(e, i) 
+            {return React.createElement(TypeDef, {key: i, type: e});}
+          ).interpose(', ').toArray()
+        ]
+      )
+    );
+  }
+});
+
+exports.InterfaceDef = InterfaceDef;
 
 
 var CallSigDef = React.createClass({displayName: 'CallSigDef',
@@ -334,7 +367,7 @@ var React = require('react');
 var Router = require('react-router');
 var $__0=    require('immutable'),Seq=$__0.Seq;
 var defs = require('../../../resources/immutable.d.json');
-var $__1=      require('./Defs'),FunctionDef=$__1.FunctionDef,CallSigDef=$__1.CallSigDef,TypeDef=$__1.TypeDef;
+var $__1=       require('./Defs'),FunctionDef=$__1.FunctionDef,InterfaceDef=$__1.InterfaceDef,CallSigDef=$__1.CallSigDef,TypeDef=$__1.TypeDef;
 
 
 var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
@@ -390,7 +423,7 @@ var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
           ), 
         
 
-        interfaceDef && React.createElement(InterfaceDef, {def: interfaceDef, name: typeName})
+        interfaceDef && React.createElement(InterfaceDoc, {def: interfaceDef, name: typeName})
 
       )
     );
@@ -403,7 +436,7 @@ var NotFound = React.createClass({displayName: 'NotFound',
   }
 });
 
-var InterfaceDef = React.createClass({displayName: 'InterfaceDef',
+var InterfaceDoc = React.createClass({displayName: 'InterfaceDoc',
   getInitialState: function() {
     return {
       showInherited: true,
@@ -443,22 +476,8 @@ var InterfaceDef = React.createClass({displayName: 'InterfaceDef',
     return (
       React.createElement("section", null, 
         React.createElement("h3", null, 
-          name, 
-          def.typeParams &&
-            ['<', Seq(def.typeParams).map(function(t, k) 
-              {return React.createElement("span", {key: k}, t);}
-            ).interpose(', ').toArray(), '>'], 
-          
-          def.extends &&
-            [' extends ', Seq(def.extends).map(function(e, i) 
-              {return React.createElement(TypeDef, {key: i, type: e});}
-            ).interpose(', ').toArray()], 
-          
-          def.implements &&
-            [' implements ', Seq(def.implements).map(function(e, i) 
-              {return React.createElement(TypeDef, {key: i, type: e});}
-            ).interpose(', ').toArray()]
-          
+          React.createElement(InterfaceDef, {name: name, def: def})
+
         ), 
         React.createElement("div", {onClick: this.toggleShowInGroups}, "Toggle Groups"), 
         React.createElement("div", {onClick: this.toggleShowInherited}, "Toggle Inherited"), 
@@ -510,31 +529,32 @@ var MemberDef = React.createClass({displayName: 'MemberDef',
             [name, def.type && [': ', React.createElement(TypeDef, {type: def.type})]] :
             name + '()'
         ), 
-        this.state.detail && React.createElement("div", null, 
-          doc.synopsis && React.createElement("pre", null, doc.synopsis), 
-          isProp || def.signatures.map(function(callSig) 
-            {return React.createElement("div", null, 
-              React.createElement(CallSigDef, {name: name, callSig: callSig})
-            );}
-          ), 
-          member.inherited &&
-            React.createElement("section", null, 
-              'Inherited from: ', 
-              React.createElement(Router.Link, {to: '/' + member.inherited.name}, 
-                member.inherited.name + '#' + name
-              )
+        this.state.detail &&
+          React.createElement("div", {className: "detail"}, 
+            doc.synopsis && React.createElement("pre", null, doc.synopsis), 
+            isProp || def.signatures.map(function(callSig) 
+              {return React.createElement("div", null, 
+                React.createElement(CallSigDef, {name: name, callSig: callSig})
+              );}
             ), 
-          
-          member.overrides &&
-            React.createElement("section", null, 
-              'Overrides: ', 
-              React.createElement(Router.Link, {to: '/' + member.overrides.name}, 
-                member.overrides.name + '#' + name
-              )
-            ), 
-          
-          doc.description && React.createElement("pre", null, doc.description), 
-          doc.notes && React.createElement("pre", null, doc.notes)
+            member.inherited &&
+              React.createElement("section", null, 
+                'Inherited from: ', 
+                React.createElement(Router.Link, {to: '/' + member.inherited.name}, 
+                  member.inherited.name + '#' + name
+                )
+              ), 
+            
+            member.overrides &&
+              React.createElement("section", null, 
+                'Overrides: ', 
+                React.createElement(Router.Link, {to: '/' + member.overrides.name}, 
+                  member.overrides.name + '#' + name
+                )
+              ), 
+            
+            doc.description && React.createElement("pre", null, doc.description), 
+            doc.notes && React.createElement("pre", null, doc.notes)
         )
       )
     );

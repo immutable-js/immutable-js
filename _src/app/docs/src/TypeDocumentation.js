@@ -2,7 +2,7 @@ var React = require('react');
 var Router = require('react-router');
 var { Seq } = require('immutable');
 var defs = require('../../../resources/immutable.d.json');
-var { FunctionDef, CallSigDef, TypeDef } = require('./Defs');
+var { FunctionDef, InterfaceDef, CallSigDef, TypeDef } = require('./Defs');
 
 
 var TypeDocumentation = React.createClass({
@@ -58,7 +58,7 @@ var TypeDocumentation = React.createClass({
           </section>
         }
 
-        {interfaceDef && <InterfaceDef def={interfaceDef} name={typeName} />}
+        {interfaceDef && <InterfaceDoc def={interfaceDef} name={typeName} />}
 
       </div>
     );
@@ -71,7 +71,7 @@ var NotFound = React.createClass({
   }
 });
 
-var InterfaceDef = React.createClass({
+var InterfaceDoc = React.createClass({
   getInitialState: function() {
     return {
       showInherited: true,
@@ -111,22 +111,8 @@ var InterfaceDef = React.createClass({
     return (
       <section>
         <h3>
-          {name}
-          {def.typeParams &&
-            ['<', Seq(def.typeParams).map((t, k) =>
-              <span key={k}>{t}</span>
-            ).interpose(', ').toArray(), '>']
-          }
-          {def.extends &&
-            [' extends ', Seq(def.extends).map((e, i) =>
-              <TypeDef key={i} type={e} />
-            ).interpose(', ').toArray()]
-          }
-          {def.implements &&
-            [' implements ', Seq(def.implements).map((e, i) =>
-              <TypeDef key={i} type={e} />
-            ).interpose(', ').toArray()]
-          }
+          <InterfaceDef name={name} def={def} />
+
         </h3>
         <div onClick={this.toggleShowInGroups}>Toggle Groups</div>
         <div onClick={this.toggleShowInherited}>Toggle Inherited</div>
@@ -178,31 +164,32 @@ var MemberDef = React.createClass({
             [name, def.type && [': ', <TypeDef type={def.type} />]] :
             name + '()'}
         </div>
-        {this.state.detail && <div>
-          {doc.synopsis && <pre>{doc.synopsis}</pre>}
-          {isProp || def.signatures.map(callSig =>
-            <div>
-              <CallSigDef name={name} callSig={callSig} />
-            </div>
-          )}
-          {member.inherited &&
-            <section>
-              {'Inherited from: '}
-              <Router.Link to={'/' + member.inherited.name}>
-                {member.inherited.name + '#' + name}
-              </Router.Link>
-            </section>
-          }
-          {member.overrides &&
-            <section>
-              {'Overrides: '}
-              <Router.Link to={'/' + member.overrides.name}>
-                {member.overrides.name + '#' + name}
-              </Router.Link>
-            </section>
-          }
-          {doc.description && <pre>{doc.description}</pre>}
-          {doc.notes && <pre>{doc.notes}</pre>}
+        {this.state.detail &&
+          <div className="detail">
+            {doc.synopsis && <pre>{doc.synopsis}</pre>}
+            {isProp || def.signatures.map(callSig =>
+              <div>
+                <CallSigDef name={name} callSig={callSig} />
+              </div>
+            )}
+            {member.inherited &&
+              <section>
+                {'Inherited from: '}
+                <Router.Link to={'/' + member.inherited.name}>
+                  {member.inherited.name + '#' + name}
+                </Router.Link>
+              </section>
+            }
+            {member.overrides &&
+              <section>
+                {'Overrides: '}
+                <Router.Link to={'/' + member.overrides.name}>
+                  {member.overrides.name + '#' + name}
+                </Router.Link>
+              </section>
+            }
+            {doc.description && <pre>{doc.description}</pre>}
+            {doc.notes && <pre>{doc.notes}</pre>}
         </div>}
       </div>
     );

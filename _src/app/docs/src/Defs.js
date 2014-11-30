@@ -24,22 +24,55 @@ var FunctionDef = React.createClass({
         <div onClick={this.toggleDetail}>
           {(module ? module + '.' + name : name) + '()'}
         </div>
-        {this.state.detail && <div>
-          {doc.synopsis && <pre>{doc.synopsis}</pre>}
-          {def.signatures.map(callSig =>
-            <div>
-              <CallSigDef module={module} name={name} callSig={callSig} />
-            </div>
-          )}
-          {doc.description && <pre>{doc.description}</pre>}
-          {doc.notes && <pre>{doc.notes}</pre>}
-        </div>}
+        {this.state.detail &&
+          <div className="detail">
+            {doc.synopsis && <pre>{doc.synopsis}</pre>}
+            {def.signatures.map(callSig =>
+              <div>
+                <CallSigDef module={module} name={name} callSig={callSig} />
+              </div>
+            )}
+            {doc.description && <pre>{doc.description}</pre>}
+            {doc.notes && <pre>{doc.notes}</pre>}
+          </div>}
       </div>
     );
   }
 });
 
 exports.FunctionDef = FunctionDef;
+
+
+var InterfaceDef = React.createClass({
+  render: function() {
+    var name = this.props.name;
+    var def = this.props.def;
+    return (
+      <span className="t interfaceDef">
+        <span className="t typeName">{name}</span>
+        {def.typeParams &&
+          ['<', Seq(def.typeParams).map((t, k) =>
+            <span className="t typeParam" key={k}>{t}</span>
+          ).interpose(', ').toArray(), '>']
+        }
+        {def.extends && [
+          <span className="t keyword">{' extends '}</span>,
+          Seq(def.extends).map((e, i) =>
+            <TypeDef key={i} type={e} />
+          ).interpose(', ').toArray()
+        ]}
+        {def.implements && [
+          <span className="t keyword">{' implements '}</span>,
+          Seq(def.implements).map((e, i) =>
+            <TypeDef key={i} type={e} />
+          ).interpose(', ').toArray()
+        ]}
+      </span>
+    );
+  }
+});
+
+exports.InterfaceDef = InterfaceDef;
 
 
 var CallSigDef = React.createClass({
