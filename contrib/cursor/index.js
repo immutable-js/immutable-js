@@ -199,12 +199,15 @@ function updateCursor(cursor, changeFn, changeKey) {
     changeFn
   );
   var keyPath = cursor._keyPath || [];
-  cursor._onChange && cursor._onChange.call(
+  var result = cursor._onChange && cursor._onChange.call(
     undefined,
     newRootData,
     cursor._rootData,
     changeKey ? keyPath.concat(changeKey) : keyPath
   );
+  if (result !== undefined) {
+    newRootData = result;
+  }
   return makeCursor(newRootData, cursor._keyPath, cursor._onChange);
 }
 

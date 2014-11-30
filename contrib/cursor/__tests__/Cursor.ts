@@ -109,6 +109,36 @@ describe('Cursor', () => {
     expect(onChange.mock.calls.length).toBe(3);
   });
 
+  it('updates with the return value of onChange', () => {
+    var onChange = jest.genMockFunction();
+
+    var data = Immutable.fromJS(json);
+    var deepCursor = Cursor.from(data, ['a', 'b', 'c'], onChange);
+
+    onChange.mockReturnValueOnce(undefined);
+    // onChange returning undefined has no effect
+    var newCursor = deepCursor.update(x => x + 1);
+    expect(newCursor.deref()).toBe(2);
+    expect(onChange).lastCalledWith(
+      Immutable.fromJS({a:{b:{c:2}}}),
+      data,
+      ['a', 'b', 'c']
+    );
+
+    onChange.mockReturnValueOnce(Immutable.fromJS({a:{b:{c:11}}}));
+    // onChange returning something else has an effect
+    newCursor = newCursor.update(x => 999);
+    expect(newCursor.deref()).toBe(11);
+    expect(onChange).lastCalledWith(
+      Immutable.fromJS({a:{b:{c:999}}}),
+      Immutable.fromJS({a:{b:{c:2}}}),
+      ['a', 'b', 'c']
+    );
+
+    // and update has been called exactly twice
+    expect(onChange.mock.calls.length).toBe(2);
+  });
+
   it('has map API for update shorthand', () => {
     var onChange = jest.genMockFunction();
 
