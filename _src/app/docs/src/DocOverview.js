@@ -27,7 +27,7 @@ var DocOverview = React.createClass({
 
         {functions.count() > 0 &&
           <section>
-            <h2>Functions</h2>
+            <h4 className="groupTitle">Functions</h4>
             {functions.map((t, name) =>
               <MemberDoc key={name} showDetail={name === memberName} member={{
                 memberName: name,
@@ -40,17 +40,21 @@ var DocOverview = React.createClass({
 
         {types.count() > 0 &&
           <section>
-            <h2>Types</h2>
+            <h4 className="groupTitle">Types</h4>
+            <table className="typeTable">
             {types.map((t, name) =>
-              <div key={name}>
-                <Router.Link to={'/' + name}>
-                  {name}
-                </Router.Link>
-                {t.doc && <div>
-                  {t.doc.synopsis}
-                </div>}
-              </div>
+              <tr key={name}>
+                <th>
+                  <Router.Link to={'/' + name}>
+                    {name}
+                  </Router.Link>
+                </th>
+                <td>
+                  {t.doc && t.doc.synopsis}
+                </td>
+              </tr>
             ).toArray()}
+            </table>
           </section>
         }
 

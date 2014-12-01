@@ -412,7 +412,7 @@ var DocOverview = React.createClass({displayName: 'DocOverview',
 
         functions.count() > 0 &&
           React.createElement("section", null, 
-            React.createElement("h2", null, "Functions"), 
+            React.createElement("h4", {className: "groupTitle"}, "Functions"), 
             functions.map(function(t, name) 
               {return React.createElement(MemberDoc, {key: name, showDetail: name === memberName, member: {
                 memberName: name,
@@ -425,17 +425,21 @@ var DocOverview = React.createClass({displayName: 'DocOverview',
 
         types.count() > 0 &&
           React.createElement("section", null, 
-            React.createElement("h2", null, "Types"), 
+            React.createElement("h4", {className: "groupTitle"}, "Types"), 
+            React.createElement("table", {className: "typeTable"}, 
             types.map(function(t, name) 
-              {return React.createElement("div", {key: name}, 
-                React.createElement(Router.Link, {to: '/' + name}, 
-                  name
+              {return React.createElement("tr", {key: name}, 
+                React.createElement("th", null, 
+                  React.createElement(Router.Link, {to: '/' + name}, 
+                    name
+                  )
                 ), 
-                t.doc && React.createElement("div", null, 
-                  t.doc.synopsis
+                React.createElement("td", null, 
+                  t.doc && t.doc.synopsis
                 )
               );}
             ).toArray()
+            )
           )
         
 
