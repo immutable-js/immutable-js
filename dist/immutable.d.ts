@@ -178,6 +178,9 @@ declare module 'immutable' {
      */
     last(): V;
 
+
+    // Reading deep values
+
     /**
      * Returns the value found by following a path of keys or indices through
      * nested Iterables.
@@ -1332,28 +1335,14 @@ declare module 'immutable' {
     set(key: K, value: V): Map<K, V>;
 
     /**
-     * Returns a new Map having set `value` at this `keyPath`. If any keys in
-     * `keyPath` do not exist, a new immutable Map will be created at that key.
-     */
-    setIn(keyPath: Array<any>, value: V): Map<K, V>;
-    setIn(KeyPath: Iterable<any, any>, value: V): Map<K, V>;
-
-    /**
      * Returns a new Map which excludes this `key`.
      *
-     * Note: `delete` cannot be safely used in IE8
+     * Note: `delete` cannot be safely used in IE8, but is provided to mirror
+     * the ES6 collection API.
      * @alias delete
      */
     remove(key: K): Map<K, V>;
     delete(key: K): Map<K, V>;
-
-    /**
-     * Returns a new Map having removed the value at this `keyPath`. If any keys
-     * in `keyPath` do not exist, a new immutable Map will be created at
-     * that key.
-     */
-    removeIn(keyPath: Array<any>): Map<K, V>;
-    removeIn(keyPath: Iterable<any, any>): Map<K, V>;
 
     /**
      * Returns a new Map containing no keys or values.
@@ -1371,36 +1360,6 @@ declare module 'immutable' {
     update(updater: (value: Map<K, V>) => Map<K, V>): Map<K, V>;
     update(key: K, updater: (value: V) => V): Map<K, V>;
     update(key: K, notSetValue: V, updater: (value: V) => V): Map<K, V>;
-
-    /**
-     * Returns a new Map having applied the `updater` to the entry found at the
-     * keyPath. If any keys in `keyPath` do not exist, a new immutable Map will
-     * be created at that key. If the `keyPath` was not previously set,
-     * `updater` is called with `notSetValue` (if provided).
-     *
-     *     var data = Immutable.fromJS({ a: { b: { c: 10 } } });
-     *     data.updateIn(['a', 'b'], map => map.set('d', 20));
-     *     // { a: { b: { c: 10, d: 20 } } }
-     *
-     */
-    updateIn(
-      keyPath: Array<any>,
-      updater: (value: any) => any
-    ): Map<K, V>;
-    updateIn(
-      keyPath: Array<any>,
-      notSetValue: any,
-      updater: (value: any) => any
-    ): Map<K, V>;
-    updateIn(
-      keyPath: Iterable<any, any>,
-      updater: (value: any) => any
-    ): Map<K, V>;
-    updateIn(
-      keyPath: Iterable<any, any>,
-      notSetValue: any,
-      updater: (value: any) => any
-    ): Map<K, V>;
 
     /**
      * Returns a new Map resulting from merging the provided Iterables
@@ -1443,28 +1402,6 @@ declare module 'immutable' {
     ): Map<string, V>;
 
     /**
-     * A combination of `updateIn` and `merge`, returning a new Map, but
-     * performing the merge at a point arrived at by following the keyPath.
-     * In other words, these two lines are equivalent:
-     *
-     *     x.updateIn(['a', 'b', 'c'], abc => abc.merge(y));
-     *     x.mergeIn(['a', 'b', 'c'], y);
-     *
-     */
-    mergeIn(
-      keyPath: Iterable<any, any>,
-      ...iterables: Iterable<K, V>[]
-    ): Map<K, V>;
-    mergeIn(
-      keyPath: Array<any>,
-      ...iterables: Iterable<K, V>[]
-    ): Map<K, V>;
-    mergeIn(
-      keyPath: Array<any>,
-      ...iterables: {[key: string]: V}[]
-    ): Map<string, V>;
-
-    /**
      * Like `merge()`, but when two Iterables conflict, it merges them as well,
      * recursing deeply through the nested data.
      *
@@ -1492,6 +1429,76 @@ declare module 'immutable' {
     ): Map<K, V>;
     mergeDeepWith(
       merger: (previous?: V, next?: V) => V,
+      ...iterables: {[key: string]: V}[]
+    ): Map<string, V>;
+
+
+    // Deep persistent changes
+
+    /**
+     * Returns a new Map having set `value` at this `keyPath`. If any keys in
+     * `keyPath` do not exist, a new immutable Map will be created at that key.
+     */
+    setIn(keyPath: Array<any>, value: V): Map<K, V>;
+    setIn(KeyPath: Iterable<any, any>, value: V): Map<K, V>;
+
+    /**
+     * Returns a new Map having removed the value at this `keyPath`. If any keys
+     * in `keyPath` do not exist, a new immutable Map will be created at
+     * that key.
+     */
+    removeIn(keyPath: Array<any>): Map<K, V>;
+    removeIn(keyPath: Iterable<any, any>): Map<K, V>;
+
+    /**
+     * Returns a new Map having applied the `updater` to the entry found at the
+     * keyPath. If any keys in `keyPath` do not exist, a new immutable Map will
+     * be created at that key. If the `keyPath` was not previously set,
+     * `updater` is called with `notSetValue` (if provided).
+     *
+     *     var data = Immutable.fromJS({ a: { b: { c: 10 } } });
+     *     data.updateIn(['a', 'b'], map => map.set('d', 20));
+     *     // { a: { b: { c: 10, d: 20 } } }
+     *
+     */
+    updateIn(
+      keyPath: Array<any>,
+      updater: (value: any) => any
+    ): Map<K, V>;
+    updateIn(
+      keyPath: Array<any>,
+      notSetValue: any,
+      updater: (value: any) => any
+    ): Map<K, V>;
+    updateIn(
+      keyPath: Iterable<any, any>,
+      updater: (value: any) => any
+    ): Map<K, V>;
+    updateIn(
+      keyPath: Iterable<any, any>,
+      notSetValue: any,
+      updater: (value: any) => any
+    ): Map<K, V>;
+
+    /**
+     * A combination of `updateIn` and `merge`, returning a new Map, but
+     * performing the merge at a point arrived at by following the keyPath.
+     * In other words, these two lines are equivalent:
+     *
+     *     x.updateIn(['a', 'b', 'c'], abc => abc.merge(y));
+     *     x.mergeIn(['a', 'b', 'c'], y);
+     *
+     */
+    mergeIn(
+      keyPath: Iterable<any, any>,
+      ...iterables: Iterable<K, V>[]
+    ): Map<K, V>;
+    mergeIn(
+      keyPath: Array<any>,
+      ...iterables: Iterable<K, V>[]
+    ): Map<K, V>;
+    mergeIn(
+      keyPath: Array<any>,
       ...iterables: {[key: string]: V}[]
     ): Map<string, V>;
 
@@ -1889,16 +1896,6 @@ declare module 'immutable' {
     set(index: number, value: T): List<T>;
 
     /**
-     * Returns a new List having set `value` at this `keyPath`. If any keys in
-     * `keyPath` do not exist, a new immutable Map will be created at that key.
-     *
-     * Index numbers are used as keys to determine the path to follow in
-     * the List.
-     */
-    setIn(keyPath: Array<any>, value: T): List<T>;
-    setIn(keyPath: Iterable<any, any>, value: T): List<T>;
-
-    /**
      * Returns a new List which excludes this `index` and with a size 1 less
      * than this List. Values at indicies above `index` are shifted down by 1 to
      * fill the position.
@@ -1913,14 +1910,6 @@ declare module 'immutable' {
      */
     remove(index: number): List<T>;
     delete(index: number): List<T>;
-
-    /**
-     * Returns a new List having removed the value at this `keyPath`. If any
-     * keys in `keyPath` do not exist, a new immutable Map will be created at
-     * that key.
-     */
-    removeIn(keyPath: Array<any>): List<T>;
-    removeIn(keyPath: Iterable<any, any>): List<T>;
 
     /**
      * Returns a new List with 0 size and no values.
@@ -1975,28 +1964,6 @@ declare module 'immutable' {
     update(index: number, notSetValue: T, updater: (value: T) => T): List<T>;
 
     /**
-     * @see `Map.prototype.updateIn`
-     */
-    updateIn(
-      keyPath: Array<any>,
-      updater: (value: any) => any
-    ): List<T>;
-    updateIn(
-      keyPath: Array<any>,
-      notSetValue: any,
-      updater: (value: any) => any
-    ): List<T>;
-    updateIn(
-      keyPath: Iterable<any, any>,
-      updater: (value: any) => any
-    ): List<T>;
-    updateIn(
-      keyPath: Iterable<any, any>,
-      notSetValue: any,
-      updater: (value: any) => any
-    ): List<T>;
-
-    /**
      * @see `Map.prototype.merge`
      */
     merge(...iterables: IndexedIterable<T>[]): List<T>;
@@ -2011,22 +1978,6 @@ declare module 'immutable' {
     ): List<T>;
     mergeWith(
       merger: (previous?: T, next?: T) => T,
-      ...iterables: Array<T>[]
-    ): List<T>;
-
-    /**
-     * @see `Map.prototype.mergeIn`
-     */
-    mergeIn(
-      keyPath: Iterable<any, any>,
-      ...iterables: IndexedIterable<T>[]
-    ): List<T>;
-    mergeIn(
-      keyPath: Array<any>,
-      ...iterables: IndexedIterable<T>[]
-    ): List<T>;
-    mergeIn(
-      keyPath: Array<any>,
       ...iterables: Array<T>[]
     ): List<T>;
 
@@ -2049,6 +2000,77 @@ declare module 'immutable' {
     ): List<T>;
 
     /**
+     * Returns a new List with size `size`. If `size` is less than this
+     * List's size, the new List will exclude values at the higher indices.
+     * If `size` is greater than this List's size, the new List will have
+     * undefined values for the newly available indices.
+     *
+     * When building a new List and the final size is known up front, `setSize`
+     * used in conjunction with `withMutations` may result in the more
+     * performant construction.
+     */
+    setSize(size: number): List<T>;
+
+
+    // Deep persistent changes
+
+    /**
+     * Returns a new List having set `value` at this `keyPath`. If any keys in
+     * `keyPath` do not exist, a new immutable Map will be created at that key.
+     *
+     * Index numbers are used as keys to determine the path to follow in
+     * the List.
+     */
+    setIn(keyPath: Array<any>, value: T): List<T>;
+    setIn(keyPath: Iterable<any, any>, value: T): List<T>;
+
+    /**
+     * Returns a new List having removed the value at this `keyPath`. If any
+     * keys in `keyPath` do not exist, a new immutable Map will be created at
+     * that key.
+     */
+    removeIn(keyPath: Array<any>): List<T>;
+    removeIn(keyPath: Iterable<any, any>): List<T>;
+
+    /**
+     * @see `Map.prototype.updateIn`
+     */
+    updateIn(
+      keyPath: Array<any>,
+      updater: (value: any) => any
+    ): List<T>;
+    updateIn(
+      keyPath: Array<any>,
+      notSetValue: any,
+      updater: (value: any) => any
+    ): List<T>;
+    updateIn(
+      keyPath: Iterable<any, any>,
+      updater: (value: any) => any
+    ): List<T>;
+    updateIn(
+      keyPath: Iterable<any, any>,
+      notSetValue: any,
+      updater: (value: any) => any
+    ): List<T>;
+
+    /**
+     * @see `Map.prototype.mergeIn`
+     */
+    mergeIn(
+      keyPath: Iterable<any, any>,
+      ...iterables: IndexedIterable<T>[]
+    ): List<T>;
+    mergeIn(
+      keyPath: Array<any>,
+      ...iterables: IndexedIterable<T>[]
+    ): List<T>;
+    mergeIn(
+      keyPath: Array<any>,
+      ...iterables: Array<T>[]
+    ): List<T>;
+
+    /**
      * @see `Map.prototype.mergeDeepIn`
      */
     mergeDeepIn(
@@ -2063,18 +2085,6 @@ declare module 'immutable' {
       keyPath: Array<any>,
       ...iterables: Array<T>[]
     ): List<T>;
-
-    /**
-     * Returns a new List with size `size`. If `size` is less than this
-     * List's size, the new List will exclude values at the higher indices.
-     * If `size` is greater than this List's size, the new List will have
-     * undefined values for the newly available indices.
-     *
-     * When building a new List and the final size is known up front, `setSize`
-     * used in conjunction with `withMutations` may result in the more
-     * performant construction.
-     */
-    setSize(size: number): List<T>;
 
 
     // Transient changes
