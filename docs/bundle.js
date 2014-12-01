@@ -47,11 +47,13 @@ function determineDoc(path) {
     function(def, name)  {return def && def.module && def.module[name];},
     def
   );
-  if (typePath.length === 1 && !def.interface && !def.module) {
+
+  if (typePath.length === 1 && !def || !(def.interface || def.module)) {
     memberName = typeName;
     typeName = null;
     def = defs.Immutable;
   }
+
   return { def:def, typeName:typeName, memberName:memberName };
 }
 
@@ -129,6 +131,7 @@ var CSSCore = require('react/lib/CSSCore');
 var Router = require('react-router');
 var $__0=    require('immutable'),Seq=$__0.Seq;
 var TypeKind = require('../../../src/TypeKind');
+var defs = require('../../../resources/immutable.d.json');
 
 
 var InterfaceDef = React.createClass({displayName: 'InterfaceDef',
@@ -214,17 +217,31 @@ var TypeDef = React.createClass({displayName: 'TypeDef',
         '(', functionParams(type.params), ') => ', React.createElement(TypeDef, {type: type.type})
       ]);
       case TypeKind.Param: return this.wrap('typeParam', type.param);
-      case TypeKind.Type: return this.wrap('type', [
-        React.createElement(Router.Link, {to: '/' + (type.qualifier ? type.qualifier.join('.') + '.' : '') + type.name}, 
+      case TypeKind.Type:
+        var qualifiedType = (type.qualifier || []).concat([type.name]);
+        var qualifiedTypeName = qualifiedType.join('.');
+        var def = qualifiedType.reduce(
+          function(def, name)  {return def && def.module && def.module[name];},
+          defs.Immutable
+        );
+        var typeNameElement = [
           type.qualifier && [Seq(type.qualifier).map(function(q) 
             {return React.createElement("span", {className: "t typeQualifier"}, q);}
-          ).interpose('.').toArray(), '.'], 
+          ).interpose('.').toArray(), '.'],
           React.createElement("span", {className: "t typeName"}, type.name)
-        ),
-        type.args && ['<', Seq(type.args).map(function(a) 
-          {return React.createElement(TypeDef, {type: a});}
-        ).interpose(', ').toArray(), '>']
-      ]);
+        ];
+        if (def) {
+          typeNameElement =
+            React.createElement(Router.Link, {to: '/' + qualifiedTypeName}, 
+              typeNameElement
+            )
+        }
+        return this.wrap('type', [
+          typeNameElement,
+          type.args && ['<', Seq(type.args).map(function(a) 
+            {return React.createElement(TypeDef, {type: a});}
+          ).interpose(', ').toArray(), '>']
+        ]);
     }
     throw new Error('Unknown kind ' + type.k);
   },
@@ -334,7 +351,7 @@ function typeLength(type) {
   throw new Error('Unknown kind ' + type.k);
 }
 
-},{"../../../src/TypeKind":64,"immutable":undefined,"react":undefined,"react-router":23,"react/lib/CSSCore":55}],2:[function(require,module,exports){
+},{"../../../resources/immutable.d.json":63,"../../../src/TypeKind":64,"immutable":undefined,"react":undefined,"react-router":23,"react/lib/CSSCore":55}],2:[function(require,module,exports){
 var React = require('react');
 var SVGSet = require('../../src/SVGSet');
 var Logo = require('../../src/Logo');

@@ -46,11 +46,13 @@ function determineDoc(path) {
     (def, name) => def && def.module && def.module[name],
     def
   );
-  if (typePath.length === 1 && !def.interface && !def.module) {
+
+  if (typePath.length === 1 && !def || !(def.interface || def.module)) {
     memberName = typeName;
     typeName = null;
     def = defs.Immutable;
   }
+
   return { def, typeName, memberName };
 }
 

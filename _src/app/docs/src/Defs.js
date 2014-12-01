@@ -3,6 +3,7 @@ var CSSCore = require('react/lib/CSSCore');
 var Router = require('react-router');
 var { Seq } = require('immutable');
 var TypeKind = require('../../../src/TypeKind');
+var defs = require('../../../resources/immutable.d.json');
 
 
 var InterfaceDef = React.createClass({
@@ -88,17 +89,31 @@ var TypeDef = React.createClass({
         '(', functionParams(type.params), ') => ', <TypeDef type={type.type} />
       ]);
       case TypeKind.Param: return this.wrap('typeParam', type.param);
-      case TypeKind.Type: return this.wrap('type', [
-        <Router.Link to={'/' + (type.qualifier ? type.qualifier.join('.') + '.' : '') + type.name}>
-          {type.qualifier && [Seq(type.qualifier).map(q =>
+      case TypeKind.Type:
+        var qualifiedType = (type.qualifier || []).concat([type.name]);
+        var qualifiedTypeName = qualifiedType.join('.');
+        var def = qualifiedType.reduce(
+          (def, name) => def && def.module && def.module[name],
+          defs.Immutable
+        );
+        var typeNameElement = [
+          type.qualifier && [Seq(type.qualifier).map(q =>
             <span className="t typeQualifier">{q}</span>
-          ).interpose('.').toArray(), '.']}
+          ).interpose('.').toArray(), '.'],
           <span className="t typeName">{type.name}</span>
-        </Router.Link>,
-        type.args && ['<', Seq(type.args).map(a =>
-          <TypeDef type={a} />
-        ).interpose(', ').toArray(), '>']
-      ]);
+        ];
+        if (def) {
+          typeNameElement =
+            <Router.Link to={'/' + qualifiedTypeName}>
+              {typeNameElement}
+            </Router.Link>
+        }
+        return this.wrap('type', [
+          typeNameElement,
+          type.args && ['<', Seq(type.args).map(a =>
+            <TypeDef type={a} />
+          ).interpose(', ').toArray(), '>']
+        ]);
     }
     throw new Error('Unknown kind ' + type.k);
   },
