@@ -2211,17 +2211,17 @@ declare module 'immutable' {
     /**
      * @see `Map.prototype.withMutations`
      */
-    withMutations(mutator: (mutable: List<T>) => any): List<T>;
+    withMutations(mutator: (mutable: Stack<T>) => any): Stack<T>;
 
     /**
      * @see `Map.prototype.asMutable`
      */
-    asMutable(): List<T>;
+    asMutable(): Stack<T>;
 
     /**
      * @see `Map.prototype.asImmutable`
      */
-    asImmutable(): List<T>;
+    asImmutable(): Stack<T>;
   }
 
 
