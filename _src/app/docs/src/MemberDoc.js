@@ -70,7 +70,7 @@ var MemberDoc = React.createClass({
                   <h4 className="infoHeader">
                     Inherited from
                   </h4>
-                  <Router.Link to={'/' + member.inherited.name}>
+                  <Router.Link to={'/' + member.inherited.name + '/' + name}>
                     {member.inherited.name + '#' + name}
                   </Router.Link>
                 </section>
@@ -80,7 +80,7 @@ var MemberDoc = React.createClass({
                   <h4 className="infoHeader">
                     Overrides
                   </h4>
-                  <Router.Link to={'/' + member.overrides.name}>
+                  <Router.Link to={'/' + member.overrides.name + '/' + name}>
                     {member.overrides.name + '#' + name}
                   </Router.Link>
                 </section>

@@ -460,7 +460,7 @@ var MemberDoc = React.createClass({displayName: 'MemberDoc',
                   React.createElement("h4", {className: "infoHeader"}, 
                     "Inherited from"
                   ), 
-                  React.createElement(Router.Link, {to: '/' + member.inherited.name}, 
+                  React.createElement(Router.Link, {to: '/' + member.inherited.name + '/' + name}, 
                     member.inherited.name + '#' + name
                   )
                 ), 
@@ -470,7 +470,7 @@ var MemberDoc = React.createClass({displayName: 'MemberDoc',
                   React.createElement("h4", {className: "infoHeader"}, 
                     "Overrides"
                   ), 
-                  React.createElement(Router.Link, {to: '/' + member.overrides.name}, 
+                  React.createElement(Router.Link, {to: '/' + member.overrides.name + '/' + name}, 
                     member.overrides.name + '#' + name
                   )
                 ), 
