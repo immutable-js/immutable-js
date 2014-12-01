@@ -4,7 +4,7 @@ var { Route, DefaultRoute, RouteHandler } = Router;
 var DocHeader = require('./DocHeader');
 var DocOverview = require('./DocOverview');
 var TypeDocumentation = require('./TypeDocumentation');
-
+var defs = require('../../../resources/immutable.d.json');
 
 
 var Documentation = React.createClass({
@@ -22,15 +22,41 @@ var Documentation = React.createClass({
   }
 });
 
+var DocDeterminer = React.createClass({
+  mixins: [ Router.State ],
+
+  render: function () {
+    var typeName = this.getParams().typeName;
+    var memberName = this.getParams().memberName;
+
+    var type = defs.Immutable;
+    var typePath = typeName ? typeName.split('.') : [];
+    type = typePath.reduce(
+      (type, name) => type && type.module && type.module[name],
+      type
+    );
+    if (typePath.length === 1 && !type.interface && !type.module) {
+      memberName = typeName;
+      typeName = null;
+      type = defs.Immutable;
+    }
+    if (typeName) {
+      return <TypeDocumentation />;
+    } else {
+      return <DocOverview memberName={memberName} />;
+    }
+  }
+});
+
 
 module.exports = React.createClass({
   componentWillMount: function() {
     Router.create({
       routes:
         <Route handler={Documentation} path="/">
-          <DefaultRoute handler={DocOverview} />
-          <Route name="type" path="/:typeName" handler={TypeDocumentation} />
-          <Route name="method" path="/:typeName/:methodName" handler={TypeDocumentation} />
+          <DefaultRoute handler={DocDeterminer} />
+          <Route name="type" path="/:typeName" handler={DocDeterminer} />
+          <Route name="method" path="/:typeName/:memberName" handler={DocDeterminer} />
         </Route>,
 
       scrollBehavior: window.document && {

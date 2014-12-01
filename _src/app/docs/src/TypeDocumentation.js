@@ -1,9 +1,9 @@
 var React = require('react');
-var { classSet, TransitionGroup } = React.addons;
 var Router = require('react-router');
 var { Seq } = require('immutable');
 var defs = require('../../../resources/immutable.d.json');
-var { InterfaceDef, CallSigDef, MemberDef } = require('./Defs');
+var { InterfaceDef } = require('./Defs');
+var MemberDoc = require('./MemberDoc');
 
 
 var TypeDocumentation = React.createClass({
@@ -39,19 +39,28 @@ var TypeDocumentation = React.createClass({
         </section>}
 
         {call &&
-          <MemberDoc parentName={typeName} member={{
-            memberName: '.'+typeName,
-            memberDef: call
-          }} />}
+          <MemberDoc
+            showDetail={typeName === this.getParams().memberName}
+            parentName={typeName}
+            member={{
+              memberName: typeName,
+              memberDef: call
+            }}
+          />}
 
         {functions.count() > 0 &&
           <section>
             {functions.map((t, name) =>
-              <MemberDoc key={name} parentName={typeName} member={{
-                memberName: '.'+name,
-                memberDef: t.call,
-                isStatic: true
-              }} />
+              <MemberDoc
+                key={name}
+                showDetail={name === this.getParams().memberName}
+                parentName={typeName}
+                member={{
+                  memberName: name,
+                  memberDef: t.call,
+                  isStatic: true
+                }}
+              />
             ).toArray()}
           </section>
         }
@@ -83,6 +92,8 @@ var NotFound = React.createClass({
 });
 
 var InterfaceDoc = React.createClass({
+  mixins: [ Router.State ],
+
   getInitialState: function() {
     return {
       showInherited: true,
@@ -129,9 +140,14 @@ var InterfaceDoc = React.createClass({
         {Seq(groups).map((members, title) =>
           members.length === 0 ? null :
           <section>
-            {title && <h4 className="groupTitle">{title}</h4>}
+            <h4 className="groupTitle">{title || 'Methods'}</h4>
             {members.map(member =>
-              <MemberDoc key={member.memberName} parentName={name} member={member} />
+              <MemberDoc
+                key={member.memberName}
+                showDetail={member.memberName === this.getParams().memberName}
+                parentName={name}
+                member={member}
+              />
             )}
           </section>
         ).toArray()}
@@ -141,154 +157,6 @@ var InterfaceDoc = React.createClass({
   }
 });
 
-var MemberDoc = React.createClass({
-  mixins: [ Router.State, Router.Navigation ],
-
-  getInitialState: function() {
-    var member = this.props.member;
-    var name = member.memberName.substr(1);
-    var pathMethodName = this.getParams().methodName;
-    return { detail: pathMethodName === name };
-  },
-
-  toggleDetail: function() {
-    var isOpening = !this.state.detail;
-    var member = this.props.member;
-    var name = member.memberName.substr(1);
-    var pathMethodName = this.getParams().methodName;
-    if (isOpening) {
-      this.replaceWith('/' + this.props.parentName + '/' + name );
-    } else if (!isOpening && pathMethodName === name) {
-      this.replaceWith('/' + this.props.parentName );
-    }
-    this.setState({ detail: isOpening });
-  },
-
-  render: function() {
-    var member = this.props.member;
-    var module = member.isStatic ? this.props.parentName : null;
-    var name = member.memberName.substr(1);
-    var def = member.memberDef;
-    var doc = def.doc || {};
-    var isProp = !def.signatures;
-
-    var className = classSet({
-      memberLabel: true,
-      open: this.state.detail,
-    });
-
-    return (
-      <div className="interfaceMember">
-        <div onClick={this.toggleDetail} className={className}>
-          {isProp ?
-            <MemberDef module={module} member={{name}} /> :
-            <CallSigDef module={module} name={name} />}
-          {member.inherited && <span className="inherited">inherited</span>}
-          {member.overrides && <span className="override">override</span>}
-        </div>
-        <TransitionGroup childFactory={makeSlideDown}>
-          {this.state.detail &&
-            <div key="detail" className="detail">
-              {doc.synopsis && <pre>{doc.synopsis}</pre>}
-              <h4 className="infoHeader">
-                {'Definition' + (def.signatures && def.signatures.length !== 1 ? 's' : '')}
-              </h4>
-              {isProp ?
-                <div className="codeBlock memberSignature">
-                  <MemberDef module={module} member={{name, type: def.type}} />
-                </div> :
-                def.signatures.map(callSig =>
-                  <div className="codeBlock memberSignature">
-                    <CallSigDef module={module} name={name} callSig={callSig} />
-                  </div>
-                )
-              }
-              {member.inherited &&
-                <section>
-                  <h4 className="infoHeader">
-                    Inherited from
-                  </h4>
-                  <Router.Link to={'/' + member.inherited.name}>
-                    {member.inherited.name + '#' + name}
-                  </Router.Link>
-                </section>
-              }
-              {member.overrides &&
-                <section>
-                  <h4 className="infoHeader">
-                    Overrides
-                  </h4>
-                  <Router.Link to={'/' + member.overrides.name}>
-                    {member.overrides.name + '#' + name}
-                  </Router.Link>
-                </section>
-              }
-              {doc.notes && doc.notes.map(note =>
-                <section>
-                  <h4 className="infoHeader">
-                    {note.name}
-                  </h4>
-                  {
-                    note.name === 'alias' ?
-                      <CallSigDef name={note.body} /> :
-                    note.body
-                  }
-                </section>
-              )}
-              {doc.description &&
-                <section>
-                  <h4 className="infoHeader">
-                    Discussion
-                  </h4>
-                  <pre>{doc.description}</pre>
-                </section>
-              }
-            </div>
-          }
-        </TransitionGroup>
-      </div>
-    );
-  }
-});
-
-var ReactTransitionEvents = require('react/lib/ReactTransitionEvents');
-
-function makeSlideDown(child) {
-  return <SlideDown>{child}</SlideDown>
-}
-
-var SlideDown = React.createClass({
-  componentWillEnter: function(done) {
-    this.slide(false, done);
-  },
-
-  componentWillLeave: function(done) {
-    this.slide(true, done);
-  },
-
-  slide: function(slidingUp, done) {
-    var node = this.getDOMNode();
-    node.style.height = 'auto';
-    var height = getComputedStyle(node).height;
-    var start = slidingUp ? height : 0;
-    var end = slidingUp ? 0 : height;
-    node.style.transition = '';
-    node.style.height = start;
-    node.style.transition = 'height 0.5s ease-in-out';
-    var endListener = event => {
-      ReactTransitionEvents.removeEndEventListener(node, endListener);
-      done();
-    };
-    ReactTransitionEvents.addEndEventListener(node, endListener);
-    this.timeout = setTimeout(() => {
-      node.style.height = end;
-    }, 17);
-  },
-
-  render: function() {
-    return this.props.children;
-  }
-});
 
 function collectMembers(interfaceDef) {
   var members = {};
@@ -301,8 +169,8 @@ function collectMembers(interfaceDef) {
       Seq(g.properties).forEach((propDef, propName) => {
         collectMember(g.title || '', propName, propDef);
       });
-      Seq(g.methods).forEach((methodDef, methodName) => {
-        collectMember(g.title || '', methodName, methodDef);
+      Seq(g.methods).forEach((methodDef, memberName) => {
+        collectMember(g.title || '', memberName, methodDef);
       });
     });
 
@@ -326,7 +194,7 @@ function collectMembers(interfaceDef) {
       } else {
         member = {
           group,
-          memberName,
+          memberName: memberName.substr(1),
           memberDef
         };
         if (def !== interfaceDef) {

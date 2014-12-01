@@ -5,7 +5,7 @@ var $__0=      Router,Route=$__0.Route,DefaultRoute=$__0.DefaultRoute,RouteHandl
 var DocHeader = require('./DocHeader');
 var DocOverview = require('./DocOverview');
 var TypeDocumentation = require('./TypeDocumentation');
-
+var defs = require('../../../resources/immutable.d.json');
 
 
 var Documentation = React.createClass({displayName: 'Documentation',
@@ -23,15 +23,41 @@ var Documentation = React.createClass({displayName: 'Documentation',
   }
 });
 
+var DocDeterminer = React.createClass({displayName: 'DocDeterminer',
+  mixins: [ Router.State ],
+
+  render: function () {
+    var typeName = this.getParams().typeName;
+    var memberName = this.getParams().memberName;
+
+    var type = defs.Immutable;
+    var typePath = typeName ? typeName.split('.') : [];
+    type = typePath.reduce(
+      function(type, name)  {return type && type.module && type.module[name];},
+      type
+    );
+    if (typePath.length === 1 && !type.interface && !type.module) {
+      memberName = typeName;
+      typeName = null;
+      type = defs.Immutable;
+    }
+    if (typeName) {
+      return React.createElement(TypeDocumentation, null);
+    } else {
+      return React.createElement(DocOverview, {memberName: memberName});
+    }
+  }
+});
+
 
 module.exports = React.createClass({displayName: 'exports',
   componentWillMount: function() {
     Router.create({
       routes:
         React.createElement(Route, {handler: Documentation, path: "/"}, 
-          React.createElement(DefaultRoute, {handler: DocOverview}), 
-          React.createElement(Route, {name: "type", path: "/:typeName", handler: TypeDocumentation}), 
-          React.createElement(Route, {name: "method", path: "/:typeName/:methodName", handler: TypeDocumentation})
+          React.createElement(DefaultRoute, {handler: DocDeterminer}), 
+          React.createElement(Route, {name: "type", path: "/:typeName", handler: DocDeterminer}), 
+          React.createElement(Route, {name: "method", path: "/:typeName/:memberName", handler: DocDeterminer})
         ),
 
       scrollBehavior: window.document && {
@@ -55,51 +81,12 @@ module.exports = React.createClass({displayName: 'exports',
   }
 });
 
-},{"./DocHeader":2,"./DocOverview":3,"./TypeDocumentation":4,"react":undefined,"react-router":21}],1:[function(require,module,exports){
+},{"../../../resources/immutable.d.json":62,"./DocHeader":2,"./DocOverview":3,"./TypeDocumentation":5,"react":undefined,"react-router":22}],1:[function(require,module,exports){
 var React = require('react');
 var CSSCore = require('react/lib/CSSCore');
 var Router = require('react-router');
 var $__0=    require('immutable'),Seq=$__0.Seq;
 var TypeKind = require('../../../src/TypeKind');
-
-
-var FunctionDef = React.createClass({displayName: 'FunctionDef',
-  getInitialState: function() {
-    return { detail: false };
-  },
-
-  toggleDetail: function() {
-    this.setState({ detail: !this.state.detail });
-  },
-
-  render: function() {
-    var module = this.props.module;
-    var name = this.props.name;
-    var def = this.props.def;
-    var doc = def.doc || {};
-
-    return (
-      React.createElement("div", null, 
-        React.createElement("div", {onClick: this.toggleDetail}, 
-          React.createElement(CallSigDef, {module: module, name: name})
-        ), 
-        this.state.detail &&
-          React.createElement("div", {className: "detail"}, 
-            doc.synopsis && React.createElement("pre", null, doc.synopsis), 
-            def.signatures.map(function(callSig) 
-              {return React.createElement("div", null, 
-                React.createElement(CallSigDef, {module: module, name: name, callSig: callSig})
-              );}
-            ), 
-            doc.description && React.createElement("pre", null, doc.description), 
-            doc.notes && React.createElement("pre", null, doc.notes)
-          )
-      )
-    );
-  }
-});
-
-exports.FunctionDef = FunctionDef;
 
 
 var InterfaceDef = React.createClass({displayName: 'InterfaceDef',
@@ -306,7 +293,7 @@ function typeLength(type) {
   throw new Error('Unknown kind ' + type.k);
 }
 
-},{"../../../src/TypeKind":62,"immutable":undefined,"react":undefined,"react-router":21,"react/lib/CSSCore":53}],2:[function(require,module,exports){
+},{"../../../src/TypeKind":63,"immutable":undefined,"react":undefined,"react-router":22,"react/lib/CSSCore":54}],2:[function(require,module,exports){
 var React = require('react');
 var SVGSet = require('../../src/SVGSet');
 var Logo = require('../../src/Logo');
@@ -337,12 +324,12 @@ var DocHeader = React.createClass({displayName: 'DocHeader',
 
 module.exports = DocHeader;
 
-},{"../../src/Logo":5,"../../src/SVGSet":6,"react":undefined}],3:[function(require,module,exports){
+},{"../../src/Logo":6,"../../src/SVGSet":7,"react":undefined}],3:[function(require,module,exports){
 var React = require('react');
 var Router = require('react-router');
 var $__0=    require('immutable'),Seq=$__0.Seq;
 var defs = require('../../../resources/immutable.d.json');
-var $__1=    require('./Defs'),FunctionDef=$__1.FunctionDef;
+var MemberDoc = require('./MemberDoc');
 
 var DocOverview = React.createClass({displayName: 'DocOverview',
 
@@ -350,28 +337,30 @@ var DocOverview = React.createClass({displayName: 'DocOverview',
 
   render: function() {
     var type = defs.Immutable;
-    var typeName = this.getParams().typeName;
 
     var doc = type.doc;
-    var call = type.call;
     var functions = Seq(type.module).filter(function(t)  {return !t.interface && !t.module;});
     var types = Seq(type.module).filter(function(t)  {return t.interface || t.module;});
+
+    var memberName = this.props.memberName;
 
     return (
       React.createElement("div", null, 
 
         doc && React.createElement("section", null, 
           React.createElement("pre", null, doc.synopsis), 
-          doc.description && React.createElement("pre", null, doc.description), 
-          doc.notes && React.createElement("pre", null, doc.notes)
+          doc.description && React.createElement("pre", null, doc.description)
         ), 
-
-        call && React.createElement(FunctionDef, {name: typeName, def: call}), 
 
         functions.count() > 0 &&
           React.createElement("section", null, 
+            React.createElement("h2", null, "Functions"), 
             functions.map(function(t, name) 
-              {return React.createElement(FunctionDef, {key: name, name: name, def: t.call, module: typeName});}
+              {return React.createElement(MemberDoc, {key: name, showDetail: name === memberName, member: {
+                memberName: name,
+                memberDef: t.call,
+                isStatic: true
+              }});}
             ).toArray()
           ), 
         
@@ -381,8 +370,8 @@ var DocOverview = React.createClass({displayName: 'DocOverview',
             React.createElement("h2", null, "Types"), 
             types.map(function(t, name) 
               {return React.createElement("div", {key: name}, 
-                React.createElement(Router.Link, {to: '/' + (typeName?typeName+'.'+name:name)}, 
-                  (typeName?typeName+'.'+name:name)
+                React.createElement(Router.Link, {to: '/' + name}, 
+                  name
                 ), 
                 t.doc && React.createElement("div", null, 
                   t.doc.synopsis
@@ -399,177 +388,39 @@ var DocOverview = React.createClass({displayName: 'DocOverview',
 
 module.exports = DocOverview;
 
-},{"../../../resources/immutable.d.json":61,"./Defs":1,"immutable":undefined,"react":undefined,"react-router":21}],4:[function(require,module,exports){
+},{"../../../resources/immutable.d.json":62,"./MemberDoc":4,"immutable":undefined,"react":undefined,"react-router":22}],4:[function(require,module,exports){
 var React = require('react');
 var $__0=     React.addons,classSet=$__0.classSet,TransitionGroup=$__0.TransitionGroup;
+var ReactTransitionEvents = require('react/lib/ReactTransitionEvents');
 var Router = require('react-router');
-var $__1=    require('immutable'),Seq=$__1.Seq;
-var defs = require('../../../resources/immutable.d.json');
-var $__2=      require('./Defs'),InterfaceDef=$__2.InterfaceDef,CallSigDef=$__2.CallSigDef,MemberDef=$__2.MemberDef;
+var $__1=     require('./Defs'),CallSigDef=$__1.CallSigDef,MemberDef=$__1.MemberDef;
 
-
-var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
-  mixins: [ Router.State ],
-
-  render: function() {
-    var type = defs.Immutable;
-    var typeName = this.getParams().typeName;
-    var typePath = typeName ? typeName.split('.') : [];
-    type = typePath.reduce(
-      function(type, name)  {return type && type.module && type.module[name];},
-      type
-    );
-    if (!type) {
-      return React.createElement(NotFound, null);
-    }
-
-    var doc = type.doc;
-    var call = type.call;
-    var functions = Seq(type.module).filter(function(t)  {return !t.interface && !t.module;});
-    var types = Seq(type.module).filter(function(t)  {return t.interface || t.module;});
-    var interfaceDef = type.interface;
-
-    return (
-      React.createElement("div", null, 
-
-        React.createElement("h1", null, typeName), 
-
-        doc && React.createElement("section", null, 
-          React.createElement("pre", null, doc.synopsis), 
-          doc.description && React.createElement("pre", null, doc.description), 
-          doc.notes && React.createElement("pre", null, doc.notes)
-        ), 
-
-        call &&
-          React.createElement(MemberDoc, {parentName: typeName, member: {
-            memberName: '.'+typeName,
-            memberDef: call
-          }}), 
-
-        functions.count() > 0 &&
-          React.createElement("section", null, 
-            functions.map(function(t, name) 
-              {return React.createElement(MemberDoc, {key: name, parentName: typeName, member: {
-                memberName: '.'+name,
-                memberDef: t.call,
-                isStatic: true
-              }});}
-            ).toArray()
-          ), 
-        
-
-        types.count() > 0 &&
-          React.createElement("section", null, 
-            React.createElement("h2", null, "Types"), 
-            types.map(function(t, name) 
-              {return React.createElement("div", {key: name}, 
-                React.createElement(Router.Link, {to: '/' + (typeName?typeName+'.'+name:name)}, 
-                  (typeName?typeName+'.'+name:name)
-                )
-              );}
-            ).toArray()
-          ), 
-        
-
-        interfaceDef && React.createElement(InterfaceDoc, {def: interfaceDef, name: typeName})
-
-      )
-    );
-  }
-});
-
-var NotFound = React.createClass({displayName: 'NotFound',
-  render: function() {
-    return React.createElement("div", null, 'Not found');
-  }
-});
-
-var InterfaceDoc = React.createClass({displayName: 'InterfaceDoc',
-  getInitialState: function() {
-    return {
-      showInherited: true,
-      showInGroups: true,
-    };
-  },
-
-  toggleShowInGroups: function() {
-    this.setState({ showInGroups: !this.state.showInGroups });
-  },
-
-  toggleShowInherited: function() {
-    this.setState({ showInherited: !this.state.showInherited });
-  },
-
-  render: function() {
-    var name = this.props.name;
-    var def = this.props.def;
-
-    var members = collectMembers(def);
-
-    var groups = {'':[]};
-    if (this.state.showInGroups) {
-      Seq(members).forEach(function(member)  {
-        (groups[member.group] || (groups[member.group] = [])).push(member);
-      });
-    } else {
-      groups[''] = Seq(members).sortBy(function(member)  {return member.memberName;}).toArray();
-    }
-
-    if (!this.state.showInherited) {
-      groups = Seq(groups).map(
-        function(members)  {return members.filter(function(member)  {return !member.inherited;});}
-      ).toObject();
-    }
-
-    return (
-      React.createElement("section", {key: name}, 
-        React.createElement("h3", null, 
-          React.createElement(InterfaceDef, {name: name, def: def})
-        ), 
-        React.createElement("div", {onClick: this.toggleShowInGroups}, "Toggle Groups"), 
-        React.createElement("div", {onClick: this.toggleShowInherited}, "Toggle Inherited"), 
-        Seq(groups).map(function(members, title) 
-          {return members.length === 0 ? null :
-          React.createElement("section", null, 
-            title && React.createElement("h4", {className: "groupTitle"}, title), 
-            members.map(function(member) 
-              {return React.createElement(MemberDoc, {key: member.memberName, parentName: name, member: member});}
-            )
-          );}
-        ).toArray()
-
-      )
-    );
-  }
-});
 
 var MemberDoc = React.createClass({displayName: 'MemberDoc',
-  mixins: [ Router.State, Router.Navigation ],
+  mixins: [ Router.Navigation ],
 
   getInitialState: function() {
-    var member = this.props.member;
-    var name = member.memberName.substr(1);
-    var pathMethodName = this.getParams().methodName;
-    return { detail: pathMethodName === name };
+    var showDetail = this.props.showDetail;
+    return { detail: showDetail };
   },
 
   toggleDetail: function() {
-    var isOpening = !this.state.detail;
     var member = this.props.member;
-    var name = member.memberName.substr(1);
-    var pathMethodName = this.getParams().methodName;
-    if (isOpening) {
-      this.replaceWith('/' + this.props.parentName + '/' + name );
-    } else if (!isOpening && pathMethodName === name) {
-      this.replaceWith('/' + this.props.parentName );
+    var name = member.memberName;
+    var typeName = this.props.parentName;
+    var showDetail = this.props.showDetail;
+    if (!this.state.detail) {
+      this.replaceWith('/' + (typeName ? typeName + '/' : '') + name );
+    } else if (this.state.detail && showDetail) {
+      this.replaceWith('/' + (typeName || '') );
     }
-    this.setState({ detail: isOpening });
+    this.setState({ detail: !this.state.detail });
   },
 
   render: function() {
     var member = this.props.member;
     var module = member.isStatic ? this.props.parentName : null;
-    var name = member.memberName.substr(1);
+    var name = member.memberName;
     var def = member.memberDef;
     var doc = def.doc || {};
     var isProp = !def.signatures;
@@ -653,7 +504,6 @@ var MemberDoc = React.createClass({displayName: 'MemberDoc',
   }
 });
 
-var ReactTransitionEvents = require('react/lib/ReactTransitionEvents');
 
 function makeSlideDown(child) {
   return React.createElement(SlideDown, null, child)
@@ -692,6 +542,169 @@ var SlideDown = React.createClass({displayName: 'SlideDown',
   }
 });
 
+module.exports = MemberDoc;
+
+},{"./Defs":1,"react":undefined,"react-router":22,"react/lib/ReactTransitionEvents":57}],5:[function(require,module,exports){
+var React = require('react');
+var Router = require('react-router');
+var $__0=    require('immutable'),Seq=$__0.Seq;
+var defs = require('../../../resources/immutable.d.json');
+var $__1=    require('./Defs'),InterfaceDef=$__1.InterfaceDef;
+var MemberDoc = require('./MemberDoc');
+
+
+var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
+  mixins: [ Router.State ],
+
+  render: function() {
+    var type = defs.Immutable;
+    var typeName = this.getParams().typeName;
+    var typePath = typeName ? typeName.split('.') : [];
+    type = typePath.reduce(
+      function(type, name)  {return type && type.module && type.module[name];},
+      type
+    );
+    if (!type) {
+      return React.createElement(NotFound, null);
+    }
+
+    var doc = type.doc;
+    var call = type.call;
+    var functions = Seq(type.module).filter(function(t)  {return !t.interface && !t.module;});
+    var types = Seq(type.module).filter(function(t)  {return t.interface || t.module;});
+    var interfaceDef = type.interface;
+
+    return (
+      React.createElement("div", null, 
+
+        React.createElement("h1", null, typeName), 
+
+        doc && React.createElement("section", null, 
+          React.createElement("pre", null, doc.synopsis), 
+          doc.description && React.createElement("pre", null, doc.description), 
+          doc.notes && React.createElement("pre", null, doc.notes)
+        ), 
+
+        call &&
+          React.createElement(MemberDoc, {
+            showDetail: typeName === this.getParams().memberName, 
+            parentName: typeName, 
+            member: {
+              memberName: typeName,
+              memberDef: call
+            }}
+          ), 
+
+        functions.count() > 0 &&
+          React.createElement("section", null, 
+            functions.map(function(t, name) 
+              {return React.createElement(MemberDoc, {
+                key: name, 
+                showDetail: name === this.getParams().memberName, 
+                parentName: typeName, 
+                member: {
+                  memberName: name,
+                  memberDef: t.call,
+                  isStatic: true
+                }}
+              );}.bind(this)
+            ).toArray()
+          ), 
+        
+
+        types.count() > 0 &&
+          React.createElement("section", null, 
+            React.createElement("h2", null, "Types"), 
+            types.map(function(t, name) 
+              {return React.createElement("div", {key: name}, 
+                React.createElement(Router.Link, {to: '/' + (typeName?typeName+'.'+name:name)}, 
+                  (typeName?typeName+'.'+name:name)
+                )
+              );}
+            ).toArray()
+          ), 
+        
+
+        interfaceDef && React.createElement(InterfaceDoc, {def: interfaceDef, name: typeName})
+
+      )
+    );
+  }
+});
+
+var NotFound = React.createClass({displayName: 'NotFound',
+  render: function() {
+    return React.createElement("div", null, 'Not found');
+  }
+});
+
+var InterfaceDoc = React.createClass({displayName: 'InterfaceDoc',
+  mixins: [ Router.State ],
+
+  getInitialState: function() {
+    return {
+      showInherited: true,
+      showInGroups: true,
+    };
+  },
+
+  toggleShowInGroups: function() {
+    this.setState({ showInGroups: !this.state.showInGroups });
+  },
+
+  toggleShowInherited: function() {
+    this.setState({ showInherited: !this.state.showInherited });
+  },
+
+  render: function() {
+    var name = this.props.name;
+    var def = this.props.def;
+
+    var members = collectMembers(def);
+
+    var groups = {'':[]};
+    if (this.state.showInGroups) {
+      Seq(members).forEach(function(member)  {
+        (groups[member.group] || (groups[member.group] = [])).push(member);
+      });
+    } else {
+      groups[''] = Seq(members).sortBy(function(member)  {return member.memberName;}).toArray();
+    }
+
+    if (!this.state.showInherited) {
+      groups = Seq(groups).map(
+        function(members)  {return members.filter(function(member)  {return !member.inherited;});}
+      ).toObject();
+    }
+
+    return (
+      React.createElement("section", {key: name}, 
+        React.createElement("h3", null, 
+          React.createElement(InterfaceDef, {name: name, def: def})
+        ), 
+        React.createElement("div", {onClick: this.toggleShowInGroups}, "Toggle Groups"), 
+        React.createElement("div", {onClick: this.toggleShowInherited}, "Toggle Inherited"), 
+        Seq(groups).map(function(members, title) 
+          {return members.length === 0 ? null :
+          React.createElement("section", null, 
+            React.createElement("h4", {className: "groupTitle"}, title || 'Methods'), 
+            members.map(function(member) 
+              {return React.createElement(MemberDoc, {
+                key: member.memberName, 
+                showDetail: member.memberName === this.getParams().memberName, 
+                parentName: name, 
+                member: member}
+              );}.bind(this)
+            )
+          );}.bind(this)
+        ).toArray()
+
+      )
+    );
+  }
+});
+
+
 function collectMembers(interfaceDef) {
   var members = {};
   collectFromDef(interfaceDef);
@@ -703,8 +716,8 @@ function collectMembers(interfaceDef) {
       Seq(g.properties).forEach(function(propDef, propName)  {
         collectMember(g.title || '', propName, propDef);
       });
-      Seq(g.methods).forEach(function(methodDef, methodName)  {
-        collectMember(g.title || '', methodName, methodDef);
+      Seq(g.methods).forEach(function(methodDef, memberName)  {
+        collectMember(g.title || '', memberName, methodDef);
       });
     });
 
@@ -728,7 +741,7 @@ function collectMembers(interfaceDef) {
       } else {
         member = {
           group:group,
-          memberName:memberName,
+          memberName: memberName.substr(1),
           memberDef:memberDef
         };
         if (def !== interfaceDef) {
@@ -742,7 +755,7 @@ function collectMembers(interfaceDef) {
 
 module.exports = TypeDocumentation;
 
-},{"../../../resources/immutable.d.json":61,"./Defs":1,"immutable":undefined,"react":undefined,"react-router":21,"react/lib/ReactTransitionEvents":56}],5:[function(require,module,exports){
+},{"../../../resources/immutable.d.json":62,"./Defs":1,"./MemberDoc":4,"immutable":undefined,"react":undefined,"react-router":22}],6:[function(require,module,exports){
 var React = require('react');
 
 
@@ -811,7 +824,7 @@ var Logo = React.createClass({displayName: 'Logo',
 
 module.exports = Logo;
 
-},{"react":undefined}],6:[function(require,module,exports){
+},{"react":undefined}],7:[function(require,module,exports){
 var React = require('react');
 
 
@@ -828,7 +841,7 @@ var SVGSet = React.createClass({displayName: 'SVGSet',
 
 module.exports = SVGSet;
 
-},{"react":undefined}],7:[function(require,module,exports){
+},{"react":undefined}],8:[function(require,module,exports){
 /*!
  * The buffer module from node.js, for the browser.
  *
@@ -1881,7 +1894,7 @@ function decodeUtf8Char (str) {
   }
 }
 
-},{"base64-js":8,"ieee754":9,"is-array":10}],8:[function(require,module,exports){
+},{"base64-js":9,"ieee754":10,"is-array":11}],9:[function(require,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -2003,7 +2016,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 	exports.fromByteArray = uint8ToBase64
 }(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 exports.read = function(buffer, offset, isLE, mLen, nBytes) {
   var e, m,
       eLen = nBytes * 8 - mLen - 1,
@@ -2089,7 +2102,7 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128;
 };
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 
 /**
  * isArray
@@ -2124,7 +2137,7 @@ module.exports = isArray || function (val) {
   return !! val && '[object Array]' == str.call(val);
 };
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -2189,7 +2202,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /**
  * Actions that modify the URL.
  */
@@ -2214,7 +2227,7 @@ var LocationActions = {
 
 module.exports = LocationActions;
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 var LocationActions = require('../actions/LocationActions');
 
 /**
@@ -2243,7 +2256,7 @@ var ImitateBrowserBehavior = {
 
 module.exports = ImitateBrowserBehavior;
 
-},{"../actions/LocationActions":12}],14:[function(require,module,exports){
+},{"../actions/LocationActions":13}],15:[function(require,module,exports){
 /**
  * A scroll behavior that always scrolls to the top of the page
  * after a transition.
@@ -2258,7 +2271,7 @@ var ScrollToTopBehavior = {
 
 module.exports = ScrollToTopBehavior;
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 var React = require('react');
 var FakeNode = require('../mixins/FakeNode');
 var PropTypes = require('../utils/PropTypes');
@@ -2285,7 +2298,7 @@ var DefaultRoute = React.createClass({
 
 module.exports = DefaultRoute;
 
-},{"../mixins/FakeNode":25,"../utils/PropTypes":34,"react":undefined}],16:[function(require,module,exports){
+},{"../mixins/FakeNode":26,"../utils/PropTypes":35,"react":undefined}],17:[function(require,module,exports){
 var React = require('react');
 var classSet = require('react/lib/cx');
 var assign = require('react/lib/Object.assign');
@@ -2394,7 +2407,7 @@ var Link = React.createClass({
 
 module.exports = Link;
 
-},{"../mixins/Navigation":26,"../mixins/State":29,"react":undefined,"react/lib/Object.assign":55,"react/lib/cx":57}],17:[function(require,module,exports){
+},{"../mixins/Navigation":27,"../mixins/State":30,"react":undefined,"react/lib/Object.assign":56,"react/lib/cx":58}],18:[function(require,module,exports){
 var React = require('react');
 var FakeNode = require('../mixins/FakeNode');
 var PropTypes = require('../utils/PropTypes');
@@ -2422,7 +2435,7 @@ var NotFoundRoute = React.createClass({
 
 module.exports = NotFoundRoute;
 
-},{"../mixins/FakeNode":25,"../utils/PropTypes":34,"react":undefined}],18:[function(require,module,exports){
+},{"../mixins/FakeNode":26,"../utils/PropTypes":35,"react":undefined}],19:[function(require,module,exports){
 var React = require('react');
 var FakeNode = require('../mixins/FakeNode');
 var PropTypes = require('../utils/PropTypes');
@@ -2448,7 +2461,7 @@ var Redirect = React.createClass({
 
 module.exports = Redirect;
 
-},{"../mixins/FakeNode":25,"../utils/PropTypes":34,"react":undefined}],19:[function(require,module,exports){
+},{"../mixins/FakeNode":26,"../utils/PropTypes":35,"react":undefined}],20:[function(require,module,exports){
 var React = require('react');
 var FakeNode = require('../mixins/FakeNode');
 
@@ -2507,7 +2520,7 @@ var Route = React.createClass({
 
 module.exports = Route;
 
-},{"../mixins/FakeNode":25,"react":undefined}],20:[function(require,module,exports){
+},{"../mixins/FakeNode":26,"react":undefined}],21:[function(require,module,exports){
 var React = require('react');
 
 /**
@@ -2567,7 +2580,7 @@ var RouteHandler = React.createClass({
 
 module.exports = RouteHandler;
 
-},{"react":undefined}],21:[function(require,module,exports){
+},{"react":undefined}],22:[function(require,module,exports){
 exports.DefaultRoute = require('./components/DefaultRoute');
 exports.Link = require('./components/Link');
 exports.NotFoundRoute = require('./components/NotFoundRoute');
@@ -2588,7 +2601,7 @@ exports.State = require('./mixins/State');
 exports.create = require('./utils/createRouter');
 exports.run = require('./utils/runRouter');
 
-},{"./behaviors/ImitateBrowserBehavior":13,"./behaviors/ScrollToTopBehavior":14,"./components/DefaultRoute":15,"./components/Link":16,"./components/NotFoundRoute":17,"./components/Redirect":18,"./components/Route":19,"./components/RouteHandler":20,"./locations/HashLocation":22,"./locations/HistoryLocation":23,"./locations/RefreshLocation":24,"./mixins/Navigation":26,"./mixins/State":29,"./utils/createRouter":37,"./utils/runRouter":41}],22:[function(require,module,exports){
+},{"./behaviors/ImitateBrowserBehavior":14,"./behaviors/ScrollToTopBehavior":15,"./components/DefaultRoute":16,"./components/Link":17,"./components/NotFoundRoute":18,"./components/Redirect":19,"./components/Route":20,"./components/RouteHandler":21,"./locations/HashLocation":23,"./locations/HistoryLocation":24,"./locations/RefreshLocation":25,"./mixins/Navigation":27,"./mixins/State":30,"./utils/createRouter":38,"./utils/runRouter":42}],23:[function(require,module,exports){
 var invariant = require('react/lib/invariant');
 var canUseDOM = require('react/lib/ExecutionEnvironment').canUseDOM;
 var LocationActions = require('../actions/LocationActions');
@@ -2695,7 +2708,7 @@ var HashLocation = {
 
 module.exports = HashLocation;
 
-},{"../actions/LocationActions":12,"../utils/Path":32,"react/lib/ExecutionEnvironment":54,"react/lib/invariant":59}],23:[function(require,module,exports){
+},{"../actions/LocationActions":13,"../utils/Path":33,"react/lib/ExecutionEnvironment":55,"react/lib/invariant":60}],24:[function(require,module,exports){
 var invariant = require('react/lib/invariant');
 var canUseDOM = require('react/lib/ExecutionEnvironment').canUseDOM;
 var LocationActions = require('../actions/LocationActions');
@@ -2778,7 +2791,7 @@ var HistoryLocation = {
 
 module.exports = HistoryLocation;
 
-},{"../actions/LocationActions":12,"../utils/Path":32,"react/lib/ExecutionEnvironment":54,"react/lib/invariant":59}],24:[function(require,module,exports){
+},{"../actions/LocationActions":13,"../utils/Path":33,"react/lib/ExecutionEnvironment":55,"react/lib/invariant":60}],25:[function(require,module,exports){
 var HistoryLocation = require('./HistoryLocation');
 var Path = require('../utils/Path');
 
@@ -2811,7 +2824,7 @@ var RefreshLocation = {
 
 module.exports = RefreshLocation;
 
-},{"../utils/Path":32,"./HistoryLocation":23}],25:[function(require,module,exports){
+},{"../utils/Path":33,"./HistoryLocation":24}],26:[function(require,module,exports){
 var invariant = require('react/lib/invariant');
 
 var FakeNode = {
@@ -2828,7 +2841,7 @@ var FakeNode = {
 
 module.exports = FakeNode;
 
-},{"react/lib/invariant":59}],26:[function(require,module,exports){
+},{"react/lib/invariant":60}],27:[function(require,module,exports){
 var React = require('react');
 
 /**
@@ -2902,7 +2915,7 @@ var Navigation = {
 
 module.exports = Navigation;
 
-},{"react":undefined}],27:[function(require,module,exports){
+},{"react":undefined}],28:[function(require,module,exports){
 var React = require('react');
 
 /**
@@ -2932,7 +2945,7 @@ var NavigationContext = {
 
 module.exports = NavigationContext;
 
-},{"react":undefined}],28:[function(require,module,exports){
+},{"react":undefined}],29:[function(require,module,exports){
 var invariant = require('react/lib/invariant');
 var canUseDOM = require('react/lib/ExecutionEnvironment').canUseDOM;
 var getWindowScrollPosition = require('../utils/getWindowScrollPosition');
@@ -3017,7 +3030,7 @@ var Scrolling = {
 
 module.exports = Scrolling;
 
-},{"../utils/getWindowScrollPosition":39,"react/lib/ExecutionEnvironment":54,"react/lib/invariant":59}],29:[function(require,module,exports){
+},{"../utils/getWindowScrollPosition":40,"react/lib/ExecutionEnvironment":55,"react/lib/invariant":60}],30:[function(require,module,exports){
 var React = require('react');
 
 /**
@@ -3096,7 +3109,7 @@ var State = {
 
 module.exports = State;
 
-},{"react":undefined}],30:[function(require,module,exports){
+},{"react":undefined}],31:[function(require,module,exports){
 var React = require('react');
 var assign = require('react/lib/Object.assign');
 var Path = require('../utils/Path');
@@ -3199,7 +3212,7 @@ var StateContext = {
 
 module.exports = StateContext;
 
-},{"../utils/Path":32,"react":undefined,"react/lib/Object.assign":55}],31:[function(require,module,exports){
+},{"../utils/Path":33,"react":undefined,"react/lib/Object.assign":56}],32:[function(require,module,exports){
 /**
  * Represents a cancellation caused by navigating away
  * before the previous transition has fully resolved.
@@ -3208,7 +3221,7 @@ function Cancellation() { }
 
 module.exports = Cancellation;
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 var invariant = require('react/lib/invariant');
 var merge = require('qs/lib/utils').merge;
 var qs = require('qs');
@@ -3388,7 +3401,7 @@ var Path = {
 
 module.exports = Path;
 
-},{"qs":43,"qs/lib/utils":47,"react/lib/invariant":59}],33:[function(require,module,exports){
+},{"qs":44,"qs/lib/utils":48,"react/lib/invariant":60}],34:[function(require,module,exports){
 var Promise = require('when/lib/Promise');
 
 // TODO: Use process.env.NODE_ENV check + envify to enable
@@ -3396,7 +3409,7 @@ var Promise = require('when/lib/Promise');
 
 module.exports = Promise;
 
-},{"when/lib/Promise":48}],34:[function(require,module,exports){
+},{"when/lib/Promise":49}],35:[function(require,module,exports){
 var PropTypes = {
 
   /**
@@ -3411,7 +3424,7 @@ var PropTypes = {
 
 module.exports = PropTypes;
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 /**
  * Encapsulates a redirect to the given route.
  */
@@ -3423,7 +3436,7 @@ function Redirect(to, params, query) {
 
 module.exports = Redirect;
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 var assign = require('react/lib/Object.assign');
 var reversedArray = require('./reversedArray');
 var Redirect = require('./Redirect');
@@ -3553,7 +3566,7 @@ assign(Transition.prototype, {
 
 module.exports = Transition;
 
-},{"./Promise":33,"./Redirect":35,"./reversedArray":40,"react/lib/Object.assign":55}],37:[function(require,module,exports){
+},{"./Promise":34,"./Redirect":36,"./reversedArray":41,"react/lib/Object.assign":56}],38:[function(require,module,exports){
 (function (process){
 var React = require('react');
 var warning = require('react/lib/warning');
@@ -4014,7 +4027,7 @@ function createRouter(options) {
 module.exports = createRouter;
 
 }).call(this,require('_process'))
-},{"../actions/LocationActions":12,"../behaviors/ImitateBrowserBehavior":13,"../components/RouteHandler":20,"../locations/HashLocation":22,"../locations/HistoryLocation":23,"../locations/RefreshLocation":24,"../mixins/NavigationContext":27,"../mixins/Scrolling":28,"../mixins/StateContext":30,"./Cancellation":31,"./Path":32,"./PropTypes":34,"./Redirect":35,"./Transition":36,"./createRoutesFromChildren":38,"./supportsHistory":42,"_process":11,"react":undefined,"react/lib/ExecutionEnvironment":54,"react/lib/invariant":59,"react/lib/warning":60}],38:[function(require,module,exports){
+},{"../actions/LocationActions":13,"../behaviors/ImitateBrowserBehavior":14,"../components/RouteHandler":21,"../locations/HashLocation":23,"../locations/HistoryLocation":24,"../locations/RefreshLocation":25,"../mixins/NavigationContext":28,"../mixins/Scrolling":29,"../mixins/StateContext":31,"./Cancellation":32,"./Path":33,"./PropTypes":35,"./Redirect":36,"./Transition":37,"./createRoutesFromChildren":39,"./supportsHistory":43,"_process":12,"react":undefined,"react/lib/ExecutionEnvironment":55,"react/lib/invariant":60,"react/lib/warning":61}],39:[function(require,module,exports){
 var React = require('react');
 var warning = require('react/lib/warning');
 var invariant = require('react/lib/invariant');
@@ -4180,7 +4193,7 @@ function createRoutesFromChildren(children, parentRoute, namedRoutes) {
 
 module.exports = createRoutesFromChildren;
 
-},{"../components/DefaultRoute":15,"../components/NotFoundRoute":17,"../components/Redirect":18,"../components/Route":19,"./Path":32,"react":undefined,"react/lib/invariant":59,"react/lib/warning":60}],39:[function(require,module,exports){
+},{"../components/DefaultRoute":16,"../components/NotFoundRoute":18,"../components/Redirect":19,"../components/Route":20,"./Path":33,"react":undefined,"react/lib/invariant":60,"react/lib/warning":61}],40:[function(require,module,exports){
 var invariant = require('react/lib/invariant');
 var canUseDOM = require('react/lib/ExecutionEnvironment').canUseDOM;
 
@@ -4201,14 +4214,14 @@ function getWindowScrollPosition() {
 
 module.exports = getWindowScrollPosition;
 
-},{"react/lib/ExecutionEnvironment":54,"react/lib/invariant":59}],40:[function(require,module,exports){
+},{"react/lib/ExecutionEnvironment":55,"react/lib/invariant":60}],41:[function(require,module,exports){
 function reversedArray(array) {
   return array.slice(0).reverse();
 }
 
 module.exports = reversedArray;
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 var createRouter = require('./createRouter');
 
 /**
@@ -4258,7 +4271,7 @@ function runRouter(routes, location, callback) {
 
 module.exports = runRouter;
 
-},{"./createRouter":37}],42:[function(require,module,exports){
+},{"./createRouter":38}],43:[function(require,module,exports){
 function supportsHistory() {
   /*! taken from modernizr
    * https://github.com/Modernizr/Modernizr/blob/master/LICENSE
@@ -4276,10 +4289,10 @@ function supportsHistory() {
 
 module.exports = supportsHistory;
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 module.exports = require('./lib');
 
-},{"./lib":44}],44:[function(require,module,exports){
+},{"./lib":45}],45:[function(require,module,exports){
 // Load modules
 
 var Stringify = require('./stringify');
@@ -4296,7 +4309,7 @@ module.exports = {
     parse: Parse
 };
 
-},{"./parse":45,"./stringify":46}],45:[function(require,module,exports){
+},{"./parse":46,"./stringify":47}],46:[function(require,module,exports){
 // Load modules
 
 var Utils = require('./utils');
@@ -4452,7 +4465,7 @@ module.exports = function (str, options) {
     return Utils.compact(obj);
 };
 
-},{"./utils":47}],46:[function(require,module,exports){
+},{"./utils":48}],47:[function(require,module,exports){
 // Load modules
 
 var Utils = require('./utils');
@@ -4512,7 +4525,7 @@ module.exports = function (obj, options) {
     return keys.join(delimiter);
 };
 
-},{"./utils":47}],47:[function(require,module,exports){
+},{"./utils":48}],48:[function(require,module,exports){
 (function (Buffer){
 // Load modules
 
@@ -4655,7 +4668,7 @@ exports.isBuffer = function (obj) {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":7}],48:[function(require,module,exports){
+},{"buffer":8}],49:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2014 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4674,7 +4687,7 @@ define(function (require) {
 });
 })(typeof define === 'function' && define.amd ? define : function (factory) { module.exports = factory(require); });
 
-},{"./Scheduler":50,"./async":51,"./makePromise":52}],49:[function(require,module,exports){
+},{"./Scheduler":51,"./async":52,"./makePromise":53}],50:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2014 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4746,7 +4759,7 @@ define(function() {
 });
 }(typeof define === 'function' && define.amd ? define : function(factory) { module.exports = factory(); }));
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2014 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -4830,7 +4843,7 @@ define(function(require) {
 });
 }(typeof define === 'function' && define.amd ? define : function(factory) { module.exports = factory(require); }));
 
-},{"./Queue":49}],51:[function(require,module,exports){
+},{"./Queue":50}],52:[function(require,module,exports){
 (function (process){
 /** @license MIT License (c) copyright 2010-2014 original author or authors */
 /** @author Brian Cavalier */
@@ -4905,7 +4918,7 @@ define(function(require) {
 }(typeof define === 'function' && define.amd ? define : function(factory) { module.exports = factory(require); }));
 
 }).call(this,require('_process'))
-},{"_process":11}],52:[function(require,module,exports){
+},{"_process":12}],53:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2014 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -5703,7 +5716,7 @@ define(function() {
 });
 }(typeof define === 'function' && define.amd ? define : function(factory) { module.exports = factory(); }));
 
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -5815,7 +5828,7 @@ var CSSCore = {
 module.exports = CSSCore;
 
 }).call(this,require('_process'))
-},{"./invariant":59,"_process":11}],54:[function(require,module,exports){
+},{"./invariant":60,"_process":12}],55:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -5860,7 +5873,7 @@ var ExecutionEnvironment = {
 
 module.exports = ExecutionEnvironment;
 
-},{}],55:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -5907,7 +5920,7 @@ function assign(target, sources) {
 
 module.exports = assign;
 
-},{}],56:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -6018,7 +6031,7 @@ var ReactTransitionEvents = {
 
 module.exports = ReactTransitionEvents;
 
-},{"./ExecutionEnvironment":54}],57:[function(require,module,exports){
+},{"./ExecutionEnvironment":55}],58:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -6057,7 +6070,7 @@ function cx(classNames) {
 
 module.exports = cx;
 
-},{}],58:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -6091,7 +6104,7 @@ emptyFunction.thatReturnsArgument = function(arg) { return arg; };
 
 module.exports = emptyFunction;
 
-},{}],59:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -6148,7 +6161,7 @@ var invariant = function(condition, format, a, b, c, d, e, f) {
 module.exports = invariant;
 
 }).call(this,require('_process'))
-},{"_process":11}],60:[function(require,module,exports){
+},{"_process":12}],61:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -6193,9 +6206,9 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = warning;
 
 }).call(this,require('_process'))
-},{"./emptyFunction":58,"_process":11}],61:[function(require,module,exports){
+},{"./emptyFunction":59,"_process":12}],62:[function(require,module,exports){
 module.exports={"Immutable":{"doc":{"synopsis":"Immutable data encourages pure functions (data-in, data-out) and lends itself\nto much simpler application development and enabling techniques from\nfunctional programming such as lazy evaluation.","description":"While designed to bring these powerful functional concepts to JavaScript, it\npresents an Object-Oriented API familiar to Javascript engineers and closely\nmirroring that of Array, Map, and Set. It is easy and efficient to convert to\nand from plain Javascript types."},"module":{"is":{"call":{"signatures":[{"params":[{"name":"first","type":{"k":0}},{"name":"second","type":{"k":0}}],"type":{"k":1},"line":21}],"doc":{"synopsis":"Vaule equality check with semantics similar to Object.is(), but treats\nImmutable collections and sequences as values, equal if the second\nImmutable iterable contains equivalent values. It's used throughout when\nchecking for equality.","description":"    var map1 = Immutable.Map({a:1, b:1, c:1});\n    var map2 = Immutable.Map({a:1, b:1, c:1});\n    assert(map1 !== map2);\n    assert(Object.is(map1, map2) === false);\n    assert(Immutable.is(map1, map2) === true);\n"}}},"fromJS":{"call":{"signatures":[{"params":[{"name":"json","type":{"k":0}},{"name":"reviver","optional":true,"type":{"k":6,"params":[{"name":"k","type":{"k":0}},{"name":"v","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":0}]}}],"type":{"k":0}}}],"type":{"k":0},"line":36}],"doc":{"synopsis":"Deeply converts plain JS objects and arrays to Immutable Maps and Lists.","description":"If a `reviver` is optionally provided, it will be called with every\ncollection as a Seq (beginning with the most nested collections\nand proceeding to the top-level collection itself), along with the key\nrefering to each collection and the parent JS object provided as `this`.\nFor the top level, object, the key will be \"\". This `reviver` is expected\nto return a new Immutable Iterable, allowing for custom convertions from\ndeep JS objects.\n\nThis example converts JSON to List and OrderedMap:\n\n    Immutable.fromJS({a: {b: [10, 20, 30]}, c: 40}, function (key, value) {\n      var isIndexed = Immutable.Iterable.isIndexed(value);\n      return isIndexed ? value.toList() : value.toOrderedMap();\n    });\n\n    // true, \"b\", {b: [10, 20, 30]}\n    // false, \"a\", {a: {b: [10, 20, 30]}, c: 40}\n    // false, \"\", {\"\": {a: {b: [10, 20, 30]}, c: 40}}\n\nIf `reviver` is not provided, the default behavior will convert Arrays into\nLists and Objects into Maps.\n\n`reviver` acts similarly to [`JSON.parse`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Example.3A_Using_the_reviver_parameter).\n\n`Immutable.fromJS` is conservative in it's conversion. It will only convert\narrays which pass `Array.isArray` to Lists, and only raw objects (no custom\nprototype) to Map."}}},"Iterable":{"doc":{"synopsis":"The `Iterable` is a set of (key, value) entries which can be iterated, and\nis the base class for all collections in `immutable`, allowing them to\nmake use of all the Iterable methods (such as `map` and `filter`).","description":"Note: An iterable is always iterated in the same order, however that order\nmay not always be well defined, as is the case for the `Map` and `Set`."},"module":{"isIterable":{"call":{"signatures":[{"params":[{"name":"maybeIterable","type":{"k":0}}],"type":{"k":1},"line":84}],"doc":{"synopsis":"True if `maybeIterable` is an Iterable, or any of its subclasses."}}},"isKeyed":{"call":{"signatures":[{"params":[{"name":"maybeKeyed","type":{"k":0}}],"type":{"k":1},"line":88}],"doc":{"synopsis":"True if `maybeKeyed` is a KeyedIterable, or any of its subclasses."}}},"isIndexed":{"call":{"signatures":[{"params":[{"name":"maybeIndexed","type":{"k":0}}],"type":{"k":1},"line":93}],"doc":{"synopsis":"True if `maybeIndexed` is a IndexedIterable, or any of its subclasses."}}},"isAssociative":{"call":{"signatures":[{"params":[{"name":"maybeAssociative","type":{"k":0}}],"type":{"k":1},"line":98}],"doc":{"synopsis":"True if `maybeAssociative` is either a keyed or indexed Iterable."}}},"isOrdered":{"call":{"signatures":[{"params":[{"name":"maybeOrdered","type":{"k":0}}],"type":{"k":1},"line":103}],"doc":{"synopsis":"True if `maybeOrdered` is an Iterable where iteration order is well\ndefined. True for IndexedIterable as well as OrderedMap and OrderedSet."}}}},"call":{"signatures":[{"typeParams":["K","V"],"params":[{"name":"iterable","type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":110},{"typeParams":["T"],"params":[{"name":"array","type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]},"line":127},{"typeParams":["V"],"params":[{"name":"obj","type":{"k":4,"members":[{"index":true,"params":[{"name":"key","type":{"k":3}}],"type":{"k":7,"param":"V"}}]}}],"type":{"k":8,"name":"KeyedIterable","args":[{"k":3},{"k":7,"param":"V"}]},"line":128},{"typeParams":["T"],"params":[{"name":"iterator","type":{"k":8,"name":"Iterator","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]},"line":129},{"typeParams":["T"],"params":[{"name":"iterable","type":{"k":8,"name":"Object"}}],"type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]},"line":130},{"typeParams":["V"],"params":[{"name":"value","type":{"k":7,"param":"V"}}],"type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"V"}]},"line":131}],"doc":{"synopsis":"Creates an Iterable.","description":"The type of Iterable created is based on the input.\n\n  * If an `Iterable`, that same `Iterable`.\n  * If an Array-like, an `IndexedIterable`.\n  * If an Object with an Iterator, an `IndexedIterable`.\n  * If an Iterator, an `IndexedIterable`.\n  * If an Object, a `KeyedIterable`.\n\nThis methods forces the conversion of Objects and Strings to Iterables.\nIf you want to ensure that a Iterable of one item is returned, use\n`Seq.of`."}},"interface":{"line":132,"typeParams":["K","V"],"groups":[{"title":"Value equality","methods":{"#equals":{"signatures":[{"params":[{"name":"other","type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":1},"line":135}],"doc":{"synopsis":"True if this and the other Iterable have value equality, as defined\nby `Immutable.is()`.","description":"Note: This is equivalent to `Immutable.is(this, other)`, but provided to\nallow for chained expressions."}}}},{"title":"Reading values","methods":{"#get":{"signatures":[{"params":[{"name":"key","type":{"k":7,"param":"K"}},{"name":"notSetValue","optional":true,"type":{"k":7,"param":"V"}}],"type":{"k":7,"param":"V"},"line":146}],"doc":{"synopsis":"Returns the value associated with the provided key, or notSetValue if\nthe Iterable does not contain this key.","description":"Note: it is possible a key may be associated with an `undefined` value, so\nif `notSetValue` is not provided and this method returns `undefined`,\nthat does not guarantee the key was not found."}},"#has":{"signatures":[{"params":[{"name":"key","type":{"k":7,"param":"K"}}],"type":{"k":1},"line":159}],"doc":{"synopsis":"True if a key exists within this `Iterable`."}},"#contains":{"signatures":[{"params":[{"name":"value","type":{"k":7,"param":"V"}}],"type":{"k":1},"line":164}],"doc":{"synopsis":"True if a value exists within this `Iterable`."}},"#first":{"signatures":[{"type":{"k":7,"param":"V"},"line":169}],"doc":{"synopsis":"The first value in the Iterable."}},"#last":{"signatures":[{"type":{"k":7,"param":"V"},"line":174}],"doc":{"synopsis":"The last value in the Iterable."}}}},{"title":"Reading deep values","methods":{"#getIn":{"signatures":[{"params":[{"name":"searchKeyPath","type":{"k":8,"name":"Array","args":[{"k":0}]}},{"name":"notSetValue","optional":true,"type":{"k":0}}],"type":{"k":0},"line":179},{"params":[{"name":"searchKeyPath","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":0}]}},{"name":"notSetValue","optional":true,"type":{"k":0}}],"type":{"k":0},"line":188}],"doc":{"synopsis":"Returns the value found by following a path of keys or indices through\nnested Iterables."}}}},{"title":"Conversion to JavaScript types","methods":{"#toJS":{"signatures":[{"type":{"k":0},"line":189}],"doc":{"synopsis":"Deeply converts this Iterable to equivalent JS.","description":"`IndexedIterables`, and `SetIterables` become Arrays, while\n`KeyedIterables` become Objects."}},"#toArray":{"signatures":[{"type":{"k":8,"name":"Array","args":[{"k":7,"param":"V"}]},"line":200}],"doc":{"synopsis":"Shallowly converts this iterable to an Array, discarding keys."}},"#toObject":{"signatures":[{"type":{"k":4,"members":[{"index":true,"params":[{"name":"key","type":{"k":3}}],"type":{"k":7,"param":"V"}}]},"line":205}],"doc":{"synopsis":"Shallowly converts this Iterable to an Object.","description":"Throws if keys are not strings."}}}},{"title":"Conversion to Collections","methods":{"#toMap":{"signatures":[{"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":212}],"doc":{"synopsis":"Converts this Iterable to a Map, Throws if keys are not hashable.","description":"Note: This is equivalent to `Map(this.toKeyedSeq())`, but provided\nfor convenience and to allow for chained expressions."}},"#toOrderedMap":{"signatures":[{"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":223}],"doc":{"synopsis":"Converts this Iterable to a Map, maintaining the order of iteration.","description":"Note: This is equivalent to `OrderedMap(this.toKeyedSeq())`, but\nprovided for convenience and to allow for chained expressions."}},"#toSet":{"signatures":[{"type":{"k":8,"name":"Set","args":[{"k":7,"param":"V"}]},"line":231}],"doc":{"synopsis":"Converts this Iterable to a Set, discarding keys. Throws if values\nare not hashable.","description":"Note: This is equivalent to `Set(this)`, but provided to allow for\nchained expressions."}},"#toOrderedSet":{"signatures":[{"type":{"k":8,"name":"Set","args":[{"k":7,"param":"V"}]},"line":240}],"doc":{"synopsis":"Converts this Iterable to a Set, maintaining the order of iteration and\ndiscarding keys.","description":"Note: This is equivalent to `OrderedSet(this.valueSeq())`, but provided\nfor convenience and to allow for chained expressions."}},"#toList":{"signatures":[{"type":{"k":8,"name":"List","args":[{"k":7,"param":"V"}]},"line":249}],"doc":{"synopsis":"Converts this Iterable to a List, discarding keys.","description":"Note: This is equivalent to `List(this)`, but provided to allow\nfor chained expressions."}},"#toStack":{"signatures":[{"type":{"k":8,"name":"Stack","args":[{"k":7,"param":"V"}]},"line":257}],"doc":{"synopsis":"Converts this Iterable to a Stack, discarding keys. Throws if values\nare not hashable.","description":"Note: This is equivalent to `Stack(this)`, but provided to allow for\nchained expressions."}}}},{"title":"Conversion to lazy Seq","methods":{"#toSeq":{"signatures":[{"type":{"k":8,"name":"Seq","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":266}],"doc":{"synopsis":"Converts this Iterable to a Seq of the same kind (indexed,\nkeyed, or set)."}},"#toKeyedSeq":{"signatures":[{"type":{"k":8,"name":"KeyedSeq","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":275}],"doc":{"synopsis":"Returns a KeyedSeq from this Iterable where indices are treated as keys.","description":"This is useful if you want to operate on an\nIndexedIterable and preserve the [index, value] pairs.\n\nThe returned Seq will have identical iteration order as\nthis Iterable.\n\nExample:\n\n    var indexedSeq = Immutable.Seq.of('A', 'B', 'C');\n    indexedSeq.filter(v => v === 'B').toString() // Seq [ 'B' ]\n    var keyedSeq = indexedSeq.toKeyedSeq();\n    keyedSeq.filter(v => v === 'B').toString() // Seq { 1: 'B' }\n"}},"#toIndexedSeq":{"signatures":[{"type":{"k":8,"name":"IndexedSeq","args":[{"k":7,"param":"V"}]},"line":294}],"doc":{"synopsis":"Returns an IndexedSeq of the values of this Iterable, discarding keys."}},"#toSetSeq":{"signatures":[{"type":{"k":8,"name":"SetSeq","args":[{"k":7,"param":"V"}]},"line":299}],"doc":{"synopsis":"Returns a SetSeq of the values of this Iterable, discarding keys."}}}},{"title":"Iterators","methods":{"#keys":{"signatures":[{"type":{"k":8,"name":"Iterator","args":[{"k":7,"param":"K"}]},"line":304}],"doc":{"synopsis":"An iterator of this `Iterable`'s keys."}},"#values":{"signatures":[{"type":{"k":8,"name":"Iterator","args":[{"k":7,"param":"V"}]},"line":312}],"doc":{"synopsis":"An iterator of this `Iterable`'s values."}},"#entries":{"signatures":[{"type":{"k":8,"name":"Iterator","args":[{"k":8,"name":"Array","args":[{"k":0}]}]},"line":317}],"doc":{"synopsis":"An iterator of this `Iterable`'s entries as `[key, value]` tuples."}}}},{"title":"Iterables (lazy Seq)","methods":{"#keySeq":{"signatures":[{"type":{"k":8,"name":"IndexedSeq","args":[{"k":7,"param":"K"}]},"line":322}],"doc":{"synopsis":"Returns a new IndexedSeq of the keys of this Iterable,\ndiscarding values."}},"#valueSeq":{"signatures":[{"type":{"k":8,"name":"IndexedSeq","args":[{"k":7,"param":"V"}]},"line":331}],"doc":{"synopsis":"Returns an IndexedSeq of the values of this Iterable, discarding keys."}},"#entrySeq":{"signatures":[{"type":{"k":8,"name":"IndexedSeq","args":[{"k":8,"name":"Array","args":[{"k":0}]}]},"line":336}],"doc":{"synopsis":"Returns a new IndexedSeq of [key, value] tuples."}}}},{"title":"Higher-order Collection methods (ES6)","methods":{"#concat":{"signatures":[{"params":[{"name":"valuesOrIterables","varArgs":true,"type":{"k":5,"type":{"k":0}}}],"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":341}],"doc":{"synopsis":"Returns a new Iterable of the same type with other values and\niterable-like concatenated to this one.","description":"For Seqs, all entries will be present in\nthe resulting iterable, even if they have the same key."}},"#every":{"signatures":[{"params":[{"name":"predicate","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":1}}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":1},"line":353}],"doc":{"synopsis":"True if `predicate` returns true for all entries in the Iterable."}},"#filter":{"signatures":[{"params":[{"name":"predicate","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":1}}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":361}],"doc":{"synopsis":"Returns a new Iterable of the same type with only the entries for which\nthe `predicate` function returns true.","description":"    Seq({a:1,b:2,c:3,d:4}).filter(x => x % 2 === 0)\n    // Seq { b: 2, d: 4 }\n"}},"#find":{"signatures":[{"params":[{"name":"predicate","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":1}}},{"name":"context","optional":true,"type":{"k":0}},{"name":"notSetValue","optional":true,"type":{"k":7,"param":"V"}}],"type":{"k":7,"param":"V"},"line":374}],"doc":{"synopsis":"Returns the value for which the `predicate` returns true."}},"#forEach":{"signatures":[{"params":[{"name":"sideEffect","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":0}}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":2},"line":383}],"doc":{"synopsis":"The `sideEffect` is executed for every entry in the Iterable.","description":"Unlike `Array.prototype.forEach`, if any call of `sideEffect` returns\n`false`, the iteration will stop. Returns the number of entries iterated\n(including the last iteration which returned false)."}},"#join":{"signatures":[{"params":[{"name":"separator","optional":true,"type":{"k":3}}],"type":{"k":3},"line":395}],"doc":{"synopsis":"Joins values together as a string, inserting a separator between each.\nThe default separator is \",\"."}},"#map":{"signatures":[{"typeParams":["M"],"params":[{"name":"mapper","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":7,"param":"M"}}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"M"}]},"line":401}],"doc":{"synopsis":"Returns a new Iterable of the same type with values passed through a\n`mapper` function.","description":"    Seq({ a: 1, b: 2 }).map(x => 10 * x)\n    // Seq { a: 10, b: 20 }\n"}},"#reduce":{"signatures":[{"typeParams":["R"],"params":[{"name":"reducer","type":{"k":6,"params":[{"name":"reduction","optional":true,"type":{"k":7,"param":"R"}},{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":7,"param":"R"}}},{"name":"initialReduction","optional":true,"type":{"k":7,"param":"R"}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":7,"param":"R"},"line":414}],"doc":{"synopsis":"Reduces the Iterable to a value by calling the `reducer` for every entry\nin the Iterable and passing along the reduced value.","notes":[{"name":"see","body":"`Array.prototype.reduce`."}],"description":"If `initialReduction` is not provided, or is null, the first item in the\nIterable will be used.\n"}},"#reduceRight":{"signatures":[{"typeParams":["R"],"params":[{"name":"reducer","type":{"k":6,"params":[{"name":"reduction","optional":true,"type":{"k":7,"param":"R"}},{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":7,"param":"R"}}},{"name":"initialReduction","optional":true,"type":{"k":7,"param":"R"}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":7,"param":"R"},"line":429}],"doc":{"synopsis":"Reduces the Iterable in reverse (from the right side).","description":"Note: Similar to this.reverse().reduce(), and provided for parity\nwith `Array#reduceRight`."}},"#reverse":{"signatures":[{"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":441}],"doc":{"synopsis":"Returns a new Iterable of the same type in reverse order."}},"#slice":{"signatures":[{"params":[{"name":"begin","optional":true,"type":{"k":2}},{"name":"end","optional":true,"type":{"k":2}}],"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":446}],"doc":{"synopsis":"Returns a new Iterable of the same type representing a portion of this\nIterable from start up to but not including end.","description":"If begin is negative, it is offset from the end of the Iterable. e.g.\n`slice(-2)` returns a Iterable of the last two entries. If it is not\nprovided the new Iterable will begin at the beginning of this Iterable.\n\nIf end is negative, it is offset from the end of the Iterable. e.g.\n`slice(0, -1)` returns an Iterable of everything but the last entry. If\nit is not provided, the new Iterable will continue through the end of\nthis Iterable.\n\nIf the requested slice is equivalent to the current Iterable, then it\nwill return itself."}},"#some":{"signatures":[{"params":[{"name":"predicate","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":1}}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":1},"line":464}],"doc":{"synopsis":"True if `predicate` returns true for any entry in the Iterable."}},"#sort":{"signatures":[{"params":[{"name":"comparator","optional":true,"type":{"k":6,"params":[{"name":"valueA","type":{"k":7,"param":"V"}},{"name":"valueB","type":{"k":7,"param":"V"}}],"type":{"k":2}}}],"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":472}],"doc":{"synopsis":"Returns a new Iterable of the same type which contains the same entries,\nstably sorted by using a `comparator`.","description":"If a `comparator` is not provided, a default comparator uses `<` and `>`.\n\n`comparator(valueA, valueB)`:\n\n  * Returns `0` if the elements should not be swapped.\n  * Returns `-1` (or any negative number) if `valueA` comes before `valueB`\n  * Returns `1` (or any positive number) if `valueA` comes after `valueB`\n  * Is pure, i.e. it must always return the same value for the same pair\n    of values.\n\nWhen sorting collections which have no defined order, their ordered\nequivalents will be returned. e.g. `map.sort()` returns OrderedMap."}}}},{"title":"Higher-order collection methods","methods":{"#butLast":{"signatures":[{"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":491}],"doc":{"synopsis":"Returns a new Iterable of the same type containing all entries except\nthe last."}},"#count":{"signatures":[{"type":{"k":2},"line":500},{"params":[{"name":"predicate","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":1}}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":2},"line":512}],"doc":{"synopsis":"Returns the size of this Iterable.","description":"Regardless of if this Iterable can describe its size lazily (some Seqs\ncannot), this method will always return the correct size. E.g. it\nevaluates a lazy `Seq` if necessary.\n\nIf `predicate` is provided, then this returns the count of entries in the\nIterable for which the `predicate` returns true."}},"#countBy":{"signatures":[{"typeParams":["G"],"params":[{"name":"grouper","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":7,"param":"G"}}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"G"},{"k":2}]},"line":516}],"doc":{"synopsis":"Returns a `KeyedSeq` of counts, grouped by the return value of\nthe `grouper` function.","description":"Note: This is not a lazy operation."}},"#filterNot":{"signatures":[{"params":[{"name":"predicate","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":1}}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":527}],"doc":{"synopsis":"Returns a new Iterable of the same type with only the entries for which\nthe `predicate` function returns false.","description":"    Seq({a:1,b:2,c:3,d:4}).filterNot(x => x % 2 === 0)\n    // Seq { a: 1, c: 3 }\n"}},"#findLast":{"signatures":[{"params":[{"name":"predicate","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":1}}},{"name":"context","optional":true,"type":{"k":0}},{"name":"notSetValue","optional":true,"type":{"k":7,"param":"V"}}],"type":{"k":7,"param":"V"},"line":540}],"doc":{"synopsis":"Returns the last value for which the `predicate` returns true.","description":"Note: `predicate` will be called for each entry in reverse."}},"#flatMap":{"signatures":[{"typeParams":["MK","MV"],"params":[{"name":"mapper","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"MK"},{"k":7,"param":"MV"}]}}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"MK"},{"k":7,"param":"MV"}]},"line":551},{"typeParams":["MK","MV"],"params":[{"name":"mapper","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":0}}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"MK"},{"k":7,"param":"MV"}]},"line":559}],"doc":{"synopsis":"Flat-maps the Iterable, returning an Iterable of the same type."}},"#flatten":{"signatures":[{"params":[{"name":"depth","optional":true,"type":{"k":2}}],"type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":0}]},"line":563},{"params":[{"name":"shallow","optional":true,"type":{"k":1}}],"type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":0}]},"line":578}],"doc":{"synopsis":"Flattens nested Iterables.","description":"Will deeply flatten the Iterable by default, returning an Iterable of the\nsame type, but a `depth` can be provided in the form of a number or\nboolean (where true means to shallowly flatten one level). A depth of 0\n(or shallow: false) will deeply flatten.\n\nFlattens only others Iterable, not Arrays or Objects.\n\nNote: `flatten(true)` operates on Iterable<any, Iterable<K, V>> and\nreturns Iterable<K, V>"}},"#groupBy":{"signatures":[{"typeParams":["G"],"params":[{"name":"grouper","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":7,"param":"G"}}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":8,"name":"KeyedSeq","args":[{"k":7,"param":"G"},{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}]},"line":579}],"doc":{"synopsis":"Returns a `KeyedIterable` of `KeyedIterables`, grouped by the return\nvalue of the `grouper` function.","description":"Note: This is not a lazy operation."}},"#isSubset":{"signatures":[{"params":[{"name":"iter","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":7,"param":"V"}]}}],"type":{"k":1},"line":590},{"params":[{"name":"iter","type":{"k":8,"name":"Array","args":[{"k":7,"param":"V"}]}}],"type":{"k":1},"line":595}],"doc":{"synopsis":"True if `iter` contains every value in this Iterable."}},"#isSuperset":{"signatures":[{"params":[{"name":"iter","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":7,"param":"V"}]}}],"type":{"k":1},"line":596},{"params":[{"name":"iter","type":{"k":8,"name":"Array","args":[{"k":7,"param":"V"}]}}],"type":{"k":1},"line":601}],"doc":{"synopsis":"True if this Iterable contains every value in `iter`."}},"#max":{"signatures":[{"params":[{"name":"comparator","optional":true,"type":{"k":6,"params":[{"name":"valueA","type":{"k":7,"param":"V"}},{"name":"valueB","type":{"k":7,"param":"V"}}],"type":{"k":2}}}],"type":{"k":7,"param":"V"},"line":602}],"doc":{"synopsis":"Returns the maximum value in this collection. If any values are\ncomparatively equivalent, the first one found will be returned.","description":"The `comparator` is used in the same way as `Iterable#sort`. If it is not\nprovided, the default comparator is `a > b`."}},"#maxBy":{"signatures":[{"typeParams":["C"],"params":[{"name":"comparatorValueMapper","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":7,"param":"C"}}},{"name":"comparator","optional":true,"type":{"k":6,"params":[{"name":"valueA","type":{"k":7,"param":"C"}},{"name":"valueB","type":{"k":7,"param":"C"}}],"type":{"k":2}}}],"type":{"k":7,"param":"V"},"line":611}],"doc":{"synopsis":"Like `max`, but also accepts a `comparatorValueMapper` which allows for\ncomparing by more sophisticated means:","description":"    hitters.maxBy(hitter => hitter.avgHits);\n"}},"#min":{"signatures":[{"params":[{"name":"comparator","optional":true,"type":{"k":6,"params":[{"name":"valueA","type":{"k":7,"param":"V"}},{"name":"valueB","type":{"k":7,"param":"V"}}],"type":{"k":2}}}],"type":{"k":7,"param":"V"},"line":623}],"doc":{"synopsis":"Returns the maximum value in this collection. If any values are\ncomparatively equivalent, the first one found will be returned.","description":"The `comparator` is used in the same way as `Iterable#sort`. If it is not\nprovided, the default comparator is `a > b`."}},"#minBy":{"signatures":[{"typeParams":["C"],"params":[{"name":"comparatorValueMapper","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":7,"param":"C"}}},{"name":"comparator","optional":true,"type":{"k":6,"params":[{"name":"valueA","type":{"k":7,"param":"C"}},{"name":"valueB","type":{"k":7,"param":"C"}}],"type":{"k":2}}}],"type":{"k":7,"param":"V"},"line":632}],"doc":{"synopsis":"Like `min`, but also accepts a `comparatorValueMapper` which allows for\ncomparing by more sophisticated means:","description":"    hitters.minBy(hitter => hitter.avgHits);\n"}},"#rest":{"signatures":[{"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":644}],"doc":{"synopsis":"Returns a new Iterable of the same type containing all entries except\nthe first."}},"#skip":{"signatures":[{"params":[{"name":"amount","type":{"k":2}}],"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":650}],"doc":{"synopsis":"Returns a new Iterable of the same type which excludes the first `amount`\nentries from this Iterable."}},"#skipLast":{"signatures":[{"params":[{"name":"amount","type":{"k":2}}],"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":656}],"doc":{"synopsis":"Returns a new Iterable of the same type which excludes the last `amount`\nentries from this Iterable."}},"#skipWhile":{"signatures":[{"params":[{"name":"predicate","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":1}}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":662}],"doc":{"synopsis":"Returns a new Iterable of the same type which contains entries starting\nfrom when `predicate` first returns false.","description":"    Seq.of('dog','frog','cat','hat','god')\n      .skipWhile(x => x.match(/g/))\n    // Seq [ 'cat', 'hat', 'god' ]\n"}},"#skipUntil":{"signatures":[{"params":[{"name":"predicate","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":1}}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":676}],"doc":{"synopsis":"Returns a new Iterable of the same type which contains entries starting\nfrom when `predicate` first returns true.","description":"    Seq.of('dog','frog','cat','hat','god')\n      .skipUntil(x => x.match(/hat/))\n    // Seq [ 'hat', 'god' ]\n"}},"#sortBy":{"signatures":[{"typeParams":["C"],"params":[{"name":"comparatorValueMapper","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":7,"param":"C"}}},{"name":"comparator","optional":true,"type":{"k":6,"params":[{"name":"valueA","type":{"k":7,"param":"C"}},{"name":"valueB","type":{"k":7,"param":"C"}}],"type":{"k":2}}}],"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":690}],"doc":{"synopsis":"Like `sort`, but also accepts a `comparatorValueMapper` which allows for\nsorting by more sophisticated means:","description":"    hitters.sortBy(hitter => hitter.avgHits);\n"}},"#take":{"signatures":[{"params":[{"name":"amount","type":{"k":2}}],"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":702}],"doc":{"synopsis":"Returns a new Iterable of the same type which contains the first `amount`\nentries from this Iterable."}},"#takeLast":{"signatures":[{"params":[{"name":"amount","type":{"k":2}}],"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":708}],"doc":{"synopsis":"Returns a new Iterable of the same type which contains the last `amount`\nentries from this Iterable."}},"#takeWhile":{"signatures":[{"params":[{"name":"predicate","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":1}}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":714}],"doc":{"synopsis":"Returns a new Iterable of the same type which contains entries from this\nIterable as long as the `predicate` returns true.","description":"    Seq.of('dog','frog','cat','hat','god')\n      .takeWhile(x => x.match(/o/))\n    // Seq [ 'dog', 'frog' ]\n"}},"#takeUntil":{"signatures":[{"params":[{"name":"predicate","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":1}}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":728}],"doc":{"synopsis":"Returns a new Iterable of the same type which contains entries from this\nIterable as long as the `predicate` returns false.","description":"    Seq.of('dog','frog','cat','hat','god').takeUntil(x => x.match(/at/))\n    // ['dog', 'frog']\n"}}}}]}},"KeyedIterable":{"doc":{"synopsis":"Keyed Iterables have discrete keys tied to each value.","description":"When iterating `KeyedIterable`, each iteration will yield a `[K, V]` tuple,\nin other words, `Iterable#entries` is the default iterator for Keyed\nIterables."},"module":{},"call":{"signatures":[{"typeParams":["K","V"],"params":[{"name":"iter","type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":762},{"typeParams":["K","V"],"params":[{"name":"iter","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":0}]}}],"type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":770},{"typeParams":["K","V"],"params":[{"name":"array","type":{"k":8,"name":"Array","args":[{"k":0}]}}],"type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":771},{"typeParams":["V"],"params":[{"name":"obj","type":{"k":4,"members":[{"index":true,"params":[{"name":"key","type":{"k":3}}],"type":{"k":7,"param":"V"}}]}}],"type":{"k":8,"name":"KeyedIterable","args":[{"k":3},{"k":7,"param":"V"}]},"line":772},{"typeParams":["K","V"],"params":[{"name":"iterator","type":{"k":8,"name":"Iterator","args":[{"k":0}]}}],"type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":773},{"typeParams":["K","V"],"params":[{"name":"iterable","type":{"k":8,"name":"Object"}}],"type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":774}],"doc":{"synopsis":"Creates a KeyedIterable","description":"Similar to `Iterable()`, however it expects iterable-likes of [K, V]\ntuples if not constructed from a KeyedIterable or JS Object."}},"interface":{"line":775,"typeParams":["K","V"],"extends":[{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}],"groups":[{"methods":{"#toSeq":{"signatures":[{"type":{"k":8,"name":"KeyedSeq","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":778}],"doc":{"synopsis":"Returns KeyedSeq."}}}},{"title":"Higher-order collection methods","methods":{"#flip":{"signatures":[{"type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"V"},{"k":7,"param":"K"}]},"line":784}],"doc":{"synopsis":"Returns a new KeyedIterable of the same type where the keys and values\nhave been flipped.","description":"    Seq({ a: 'z', b: 'y' }).flip() // { z: 'a', y: 'b' }\n"}},"#findKey":{"signatures":[{"params":[{"name":"predicate","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":1}}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":7,"param":"K"},"line":796}],"doc":{"synopsis":"Returns the key for which the `predicate` returns true."}},"#findLastKey":{"signatures":[{"params":[{"name":"predicate","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"iter","optional":true,"type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":1}}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":7,"param":"K"},"line":804}],"doc":{"synopsis":"Returns the last key for which the `predicate` returns true.","description":"Note: `predicate` will be called for each entry in reverse."}},"#keyOf":{"signatures":[{"params":[{"name":"searchValue","type":{"k":7,"param":"V"}}],"type":{"k":7,"param":"K"},"line":814}],"doc":{"synopsis":"Returns the key associated with the search value, or undefined."}},"#lastKeyOf":{"signatures":[{"params":[{"name":"searchValue","type":{"k":7,"param":"V"}}],"type":{"k":7,"param":"K"},"line":819}],"doc":{"synopsis":"Returns the last key associated with the search value, or undefined."}},"#mapEntries":{"signatures":[{"typeParams":["KM","VM"],"params":[{"name":"mapper","type":{"k":6,"params":[{"name":"entry","optional":true,"type":{"k":8,"name":"Array","args":[{"k":0}]}},{"name":"index","optional":true,"type":{"k":2}},{"name":"iter","optional":true,"type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":8,"name":"Array","args":[{"k":0}]}}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"KM"},{"k":7,"param":"VM"}]},"line":824}],"doc":{"synopsis":"Returns a new KeyedIterable of the same type with entries\n([key, value] tuples) passed through a `mapper` function.","description":"    Seq({ a: 1, b: 2 })\n      .mapEntries(([k, v]) => [k.toUpperCase(), v * 2])\n    // Seq { A: 2, B: 4 }\n"}},"#mapKeys":{"signatures":[{"typeParams":["M"],"params":[{"name":"mapper","type":{"k":6,"params":[{"name":"key","optional":true,"type":{"k":7,"param":"K"}},{"name":"value","optional":true,"type":{"k":7,"param":"V"}},{"name":"iter","optional":true,"type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":7,"param":"M"}}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"M"},{"k":7,"param":"V"}]},"line":838}],"doc":{"synopsis":"Returns a new KeyedIterable of the same type with keys passed through a\n`mapper` function.","description":"    Seq({ a: 1, b: 2 })\n      .mapKeys(x => x.toUpperCase())\n    // Seq { A: 1, B: 2 }\n"}}}}]}},"IndexedIterable":{"doc":{"synopsis":"Indexed Iterables have incrementing numeric keys. They exhibit\nslightly different behavior than `KeyedIterable` for some methods in order\nto better mirror the behavior of JavaScript's `Array`, and add methods\nwhich do not make sense on non-indexed Iterables such as `indexOf`.","description":"Unlike JavaScript arrays, `IndexedIterable`s are always dense. \"Unset\"\nindices and `undefined` indices are indistinguishable, and all indices from\n0 to `size` are visited when iterated.\n\nAll IndexedIterable methods return re-indexed Iterables. In other words,\nindices always start at 0 and increment until size. If you wish to\npreserve indices, using them as keys, convert to a KeyedIterable by calling\n`toKeyedSeq`."},"module":{},"call":{"signatures":[{"typeParams":["T"],"params":[{"name":"iter","type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]},"line":871},{"typeParams":["T"],"params":[{"name":"iter","type":{"k":8,"name":"SetIterable","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]},"line":876},{"typeParams":["K","V"],"params":[{"name":"iter","type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":8,"name":"IndexedIterable","args":[{"k":0}]},"line":877},{"typeParams":["T"],"params":[{"name":"array","type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]},"line":878},{"typeParams":["T"],"params":[{"name":"iterator","type":{"k":8,"name":"Iterator","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]},"line":879},{"typeParams":["T"],"params":[{"name":"iterable","type":{"k":8,"name":"Object"}}],"type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]},"line":880}],"doc":{"synopsis":"Creates a new IndexedIterable."}},"interface":{"line":881,"typeParams":["T"],"extends":[{"k":8,"name":"Iterable","args":[{"k":2},{"k":7,"param":"T"}]}],"groups":[{"title":"Reading values","methods":{"#get":{"signatures":[{"params":[{"name":"index","type":{"k":2}},{"name":"notSetValue","optional":true,"type":{"k":7,"param":"T"}}],"type":{"k":7,"param":"T"},"line":884}],"doc":{"synopsis":"Returns the value associated with the provided index, or notSetValue if\nthe index is beyond the bounds of the Iterable.","description":"`index` may be a negative number, which indexes back from the end of the\nIterable. `s.get(-1)` gets the last item in the Iterable."}}}},{"title":"Conversion to lazy Seq","methods":{"#toSeq":{"signatures":[{"type":{"k":8,"name":"IndexedSeq","args":[{"k":7,"param":"T"}]},"line":895}],"doc":{"synopsis":"Returns IndexedSeq."}},"#fromEntrySeq":{"signatures":[{"type":{"k":8,"name":"KeyedSeq","args":[{"k":0},{"k":0}]},"line":904}],"doc":{"synopsis":"If this is an iterable of [key, value] entry tuples, it will return a\nKeyedSeq of those entries."}}}},{"title":"Persistent changes","methods":{"#splice":{"signatures":[{"params":[{"name":"index","type":{"k":2}},{"name":"removeNum","type":{"k":2}},{"name":"values","varArgs":true,"type":{"k":5,"type":{"k":0}}}],"type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]},"line":910}],"doc":{"synopsis":"Splice returns a new indexed Iterable by replacing a region of this\nIterable with new values. If values are not provided, it only skips the\nregion to be removed.","description":"`index` may be a negative number, which indexes back from the end of the\nIterable. `s.splice(-2)` splices after the second to last item.\n\n    Seq(['a','b','c','d']).splice(1, 2, 'q', 'r', 's')\n    // Seq ['a', 'q', 'r', 's', 'd']\n"}}}},{"title":"Higher-order Collection methods (ES6)","methods":{"#findIndex":{"signatures":[{"params":[{"name":"predicate","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"T"}},{"name":"index","optional":true,"type":{"k":2}},{"name":"iter","optional":true,"type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]}}],"type":{"k":1}}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":2},"line":931}],"doc":{"synopsis":"Returns the first index in the Iterable where a value satisfies the\nprovided predicate function. Otherwise -1 is returned."}},"#indexOf":{"signatures":[{"params":[{"name":"searchValue","type":{"k":7,"param":"T"}}],"type":{"k":2},"line":943}],"doc":{"synopsis":"Returns the first index at which a given value can be found in the\nIterable, or -1 if it is not present."}},"#lastIndexOf":{"signatures":[{"params":[{"name":"searchValue","type":{"k":7,"param":"T"}}],"type":{"k":2},"line":949}],"doc":{"synopsis":"Returns the last index at which a given value can be found in the\nIterable, or -1 if it is not present."}}}},{"title":"Higher-order collection methods","methods":{"#findLastIndex":{"signatures":[{"params":[{"name":"predicate","type":{"k":6,"params":[{"name":"value","optional":true,"type":{"k":7,"param":"T"}},{"name":"index","optional":true,"type":{"k":2}},{"name":"iter","optional":true,"type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]}}],"type":{"k":1}}},{"name":"context","optional":true,"type":{"k":0}}],"type":{"k":2},"line":955}],"doc":{"synopsis":"Returns the last index in the Iterable where a value satisfies the\nprovided predicate function. Otherwise -1 is returned."}},"#interpose":{"signatures":[{"params":[{"name":"separator","type":{"k":7,"param":"T"}}],"type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]},"line":967}],"doc":{"synopsis":"Returns an Iterable of the same type with `separator` between each item\nin this Iterable."}}}}]}},"SetIterable":{"doc":{"synopsis":"Set Iterables only represent values. They have no associated keys or\nindices. Duplicate values are possible in SetSeqs, however the\nconcrete `Set` does not allow duplicate values.","description":"Iterable methods on SetIterable such as `map` and `forEach` will provide\nthe value as both the first and second arguments to the provided function.\n\n    var seq = SetSeq.of('A', 'B', 'C');\n    assert.equal(seq.every((v, k) => v === k), true);\n"},"module":{},"call":{"signatures":[{"typeParams":["T"],"params":[{"name":"iter","type":{"k":8,"name":"SetIterable","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"SetIterable","args":[{"k":7,"param":"T"}]},"line":989},{"typeParams":["T"],"params":[{"name":"iter","type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"SetIterable","args":[{"k":7,"param":"T"}]},"line":994},{"typeParams":["K","V"],"params":[{"name":"iter","type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":8,"name":"SetIterable","args":[{"k":0}]},"line":995},{"typeParams":["T"],"params":[{"name":"array","type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"SetIterable","args":[{"k":7,"param":"T"}]},"line":996},{"typeParams":["T"],"params":[{"name":"iterator","type":{"k":8,"name":"Iterator","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"SetIterable","args":[{"k":7,"param":"T"}]},"line":997},{"typeParams":["T"],"params":[{"name":"iterable","type":{"k":8,"name":"Object"}}],"type":{"k":8,"name":"SetIterable","args":[{"k":7,"param":"T"}]},"line":998}],"doc":{"synopsis":"Similar to `Iterable()`, but always returns a SetIterable."}},"interface":{"line":999,"typeParams":["T"],"extends":[{"k":8,"name":"Iterable","args":[{"k":7,"param":"T"},{"k":7,"param":"T"}]}],"groups":[{"methods":{"#toSeq":{"signatures":[{"type":{"k":8,"name":"SetSeq","args":[{"k":7,"param":"T"}]},"line":1002}],"doc":{"synopsis":"Returns SetSeq."}}}}]}},"Seq":{"doc":{"synopsis":"**Sequences are immutable** — Once a sequence is created, it cannot be\nchanged, appended to, rearranged or otherwise modified. Instead, any\nmutative method called on a sequence will return a new immutable sequence.","description":"**Sequences are lazy** — Sequences do as little work as necessary to\nrespond to any method call.\n\nFor example, the following does no work, because the resulting sequence is\nnever used:\n\n    var oddSquares = Immutable.Seq.of(1,2,3,4,5,6,7,8)\n      .filter(x => x % 2).map(x => x * x);\n\nOnce the sequence is used, it performs only the work necessary. In this\nexample, no intermediate arrays are ever created, filter is only called\nthree times, and map is only called twice:\n\n    console.log(evenSquares.get(1)); // 9\n\nLazy Sequences allow for the efficient chaining of sequence operations,\nallowing for the expression of logic that can otherwise be very tedious:\n\n    Immutable.Seq({a:1, b:1, c:1})\n      .flip().map(key => key.toUpperCase()).flip().toObject();\n    // Map { A: 1, B: 1, C: 1 }\n\nAs well as expressing logic that would otherwise seem memory-limited:\n\n    Immutable.Range(1, Infinity)\n      .skip(1000)\n      .map(n => -n)\n      .filter(n => n % 2 === 0)\n      .take(2)\n      .reduce((r, n) => r * n, 1);\n    // 1006008\n"},"module":{"isSeq":{"call":{"signatures":[{"params":[{"name":"maybeSeq","type":{"k":0}}],"type":{"k":1},"line":1051}],"doc":{"synopsis":"True if `maybeSeq` is a Seq, it is not backed by a concrete\nstructure such as Map, List, or Set."}}},"of":{"call":{"signatures":[{"typeParams":["T"],"params":[{"name":"values","varArgs":true,"type":{"k":5,"type":{"k":7,"param":"T"}}}],"type":{"k":8,"name":"IndexedSeq","args":[{"k":7,"param":"T"}]},"line":1056}],"doc":{"synopsis":"Returns a Seq of the values provided. Alias for `IndexedSeq.of()`."}}}},"call":{"signatures":[{"typeParams":["K","V"],"type":{"k":8,"name":"Seq","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1062},{"typeParams":["K","V"],"params":[{"name":"seq","type":{"k":8,"name":"Seq","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":8,"name":"Seq","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1077},{"typeParams":["K","V"],"params":[{"name":"iterable","type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":8,"name":"Seq","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1078},{"typeParams":["T"],"params":[{"name":"array","type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"IndexedSeq","args":[{"k":7,"param":"T"}]},"line":1079},{"typeParams":["V"],"params":[{"name":"obj","type":{"k":4,"members":[{"index":true,"params":[{"name":"key","type":{"k":3}}],"type":{"k":7,"param":"V"}}]}}],"type":{"k":8,"name":"KeyedSeq","args":[{"k":3},{"k":7,"param":"V"}]},"line":1080},{"typeParams":["T"],"params":[{"name":"iterator","type":{"k":8,"name":"Iterator","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"IndexedSeq","args":[{"k":7,"param":"T"}]},"line":1081},{"typeParams":["T"],"params":[{"name":"iterable","type":{"k":8,"name":"Object"}}],"type":{"k":8,"name":"IndexedSeq","args":[{"k":7,"param":"T"}]},"line":1082}],"doc":{"synopsis":"Creates a Seq.","description":"Returns a particular kind of `Seq` based on the input.\n\n  * If a `Seq`, that same `Seq`.\n  * If an `Iterable`, a `Seq` of the same kind (Keyed, Indexed, or Set).\n  * If an Array-like, an `IndexedSeq`.\n  * If an Object with an Iterator, an `IndexedSeq`.\n  * If an Iterator, an `IndexedSeq`.\n  * If an Object, a `KeyedSeq`.\n"}},"interface":{"line":1083,"typeParams":["K","V"],"extends":[{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}],"groups":[{"properties":{"#size":{"line":1085,"doc":{"synopsis":"Some Seqs can describe their size lazily. When this is the case,\nsize will be an integer. Otherwise it will be undefined.","description":"For example, Seqs returned from map() or reverse()\npreserve the size of the original Seq while filter() does not.\n\nNote: Ranges, Repeats and Seqs made from Arrays and Objects will\nalways have a size."},"type":{"k":2}}}},{"title":"Force evaluation","methods":{"#cacheResult":{"signatures":[{"type":{"k":8,"name":"Seq","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1097}],"doc":{"synopsis":"Because Sequences are lazy and designed to be chained together, they do\nnot cache their results. For example, this map function is called 6 times:","description":"    var squares = Seq.of(1,2,3).map(x => x * x);\n    squares.join() + squares.join();\n\nIf you know a derived sequence will be used multiple times, it may be more\nefficient to first cache it. Here, map is called 3 times:\n\n    var squares = Seq.of(1,2,3).map(x => x * x).cacheResult();\n    squares.join() + squares.join();\n\nUse this method judiciously, as it must fully evaluate a Seq.\n\nNote: after calling `cacheResult()`, a Seq will always have a size."}}}}]}},"KeyedSeq":{"module":{},"call":{"signatures":[{"typeParams":["K","V"],"type":{"k":8,"name":"KeyedSeq","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1123},{"typeParams":["K","V"],"params":[{"name":"seq","type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":8,"name":"KeyedSeq","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1129},{"typeParams":["K","V"],"params":[{"name":"seq","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":0}]}}],"type":{"k":8,"name":"KeyedSeq","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1130},{"typeParams":["K","V"],"params":[{"name":"array","type":{"k":8,"name":"Array","args":[{"k":0}]}}],"type":{"k":8,"name":"KeyedSeq","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1131},{"typeParams":["V"],"params":[{"name":"obj","type":{"k":4,"members":[{"index":true,"params":[{"name":"key","type":{"k":3}}],"type":{"k":7,"param":"V"}}]}}],"type":{"k":8,"name":"KeyedSeq","args":[{"k":3},{"k":7,"param":"V"}]},"line":1132},{"typeParams":["K","V"],"params":[{"name":"iterator","type":{"k":8,"name":"Iterator","args":[{"k":0}]}}],"type":{"k":8,"name":"KeyedSeq","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1133},{"typeParams":["K","V"],"params":[{"name":"iterable","type":{"k":8,"name":"Object"}}],"type":{"k":8,"name":"KeyedSeq","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1134}],"doc":{"synopsis":"Always returns a KeyedSeq, if input is not keyed, expects an\niterable of [K, V] tuples."}},"interface":{"line":1135,"typeParams":["K","V"],"extends":[{"k":8,"name":"Seq","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}],"groups":[{"methods":{"#toSeq":{"signatures":[{"type":{"k":8,"name":"KeyedSeq","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1137}],"doc":{"synopsis":"Returns itself"}}}}]}},"IndexedSeq":{"module":{"of":{"call":{"signatures":[{"typeParams":["T"],"params":[{"name":"values","varArgs":true,"type":{"k":5,"type":{"k":7,"param":"T"}}}],"type":{"k":8,"name":"IndexedSeq","args":[{"k":7,"param":"T"}]},"line":1146}],"doc":{"synopsis":"Provides an IndexedSeq of the values provided."}}}},"call":{"signatures":[{"typeParams":["T"],"type":{"k":8,"name":"IndexedSeq","args":[{"k":7,"param":"T"}]},"line":1152},{"typeParams":["T"],"params":[{"name":"seq","type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"IndexedSeq","args":[{"k":7,"param":"T"}]},"line":1158},{"typeParams":["T"],"params":[{"name":"seq","type":{"k":8,"name":"SetIterable","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"IndexedSeq","args":[{"k":7,"param":"T"}]},"line":1159},{"typeParams":["K","V"],"params":[{"name":"seq","type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":8,"name":"IndexedSeq","args":[{"k":0}]},"line":1160},{"typeParams":["T"],"params":[{"name":"array","type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"IndexedSeq","args":[{"k":7,"param":"T"}]},"line":1161},{"typeParams":["T"],"params":[{"name":"iterator","type":{"k":8,"name":"Iterator","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"IndexedSeq","args":[{"k":7,"param":"T"}]},"line":1162},{"typeParams":["T"],"params":[{"name":"iterable","type":{"k":8,"name":"Object"}}],"type":{"k":8,"name":"IndexedSeq","args":[{"k":7,"param":"T"}]},"line":1163}],"doc":{"synopsis":"Always returns IndexedSeq, discarding associated keys and\nsupplying incrementing indices."}},"interface":{"line":1164,"typeParams":["T"],"extends":[{"k":8,"name":"Seq","args":[{"k":2},{"k":7,"param":"T"}]},{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]}],"groups":[{"methods":{"#toSeq":{"signatures":[{"type":{"k":8,"name":"IndexedSeq","args":[{"k":7,"param":"T"}]},"line":1166}],"doc":{"synopsis":"Returns itself"}}}}]}},"SetSeq":{"module":{"of":{"call":{"signatures":[{"typeParams":["T"],"params":[{"name":"values","varArgs":true,"type":{"k":5,"type":{"k":7,"param":"T"}}}],"type":{"k":8,"name":"SetSeq","args":[{"k":7,"param":"T"}]},"line":1174}],"doc":{"synopsis":"Returns a SetSeq of the provided values"}}}},"call":{"signatures":[{"typeParams":["T"],"type":{"k":8,"name":"SetSeq","args":[{"k":7,"param":"T"}]},"line":1180},{"typeParams":["T"],"params":[{"name":"seq","type":{"k":8,"name":"SetIterable","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"SetSeq","args":[{"k":7,"param":"T"}]},"line":1185},{"typeParams":["T"],"params":[{"name":"seq","type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"SetSeq","args":[{"k":7,"param":"T"}]},"line":1186},{"typeParams":["K","V"],"params":[{"name":"seq","type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":8,"name":"SetSeq","args":[{"k":0}]},"line":1187},{"typeParams":["T"],"params":[{"name":"array","type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"SetSeq","args":[{"k":7,"param":"T"}]},"line":1188},{"typeParams":["T"],"params":[{"name":"iterator","type":{"k":8,"name":"Iterator","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"SetSeq","args":[{"k":7,"param":"T"}]},"line":1189},{"typeParams":["T"],"params":[{"name":"iterable","type":{"k":8,"name":"Object"}}],"type":{"k":8,"name":"SetSeq","args":[{"k":7,"param":"T"}]},"line":1190}],"doc":{"synopsis":"Always returns a SetSeq, discarding associated indices or keys."}},"interface":{"line":1191,"typeParams":["T"],"extends":[{"k":8,"name":"Seq","args":[{"k":7,"param":"T"},{"k":7,"param":"T"}]},{"k":8,"name":"SetIterable","args":[{"k":7,"param":"T"}]}],"groups":[{"methods":{"#toSeq":{"signatures":[{"type":{"k":8,"name":"SetSeq","args":[{"k":7,"param":"T"}]},"line":1193}],"doc":{"synopsis":"Returns itself"}}}}]}},"Range":{"call":{"signatures":[{"params":[{"name":"start","optional":true,"type":{"k":2}},{"name":"end","optional":true,"type":{"k":2}},{"name":"step","optional":true,"type":{"k":2}}],"type":{"k":8,"name":"IndexedSeq","args":[{"k":2}]},"line":1199}],"doc":{"synopsis":"Returns a IndexedSeq of numbers from `start` (inclusive) to `end`\n(exclusive), by `step`, where `start` defaults to 0, `step` to 1, and `end` to\ninfinity. When `start` is equal to `end`, returns empty range.","description":"    Range() // [0,1,2,3,...]\n    Range(10) // [10,11,12,13,...]\n    Range(10,15) // [10,11,12,13,14]\n    Range(10,30,5) // [10,15,20,25]\n    Range(30,10,5) // [30,25,20,15]\n    Range(30,30,5) // []\n"}}},"Repeat":{"call":{"signatures":[{"typeParams":["T"],"params":[{"name":"value","type":{"k":7,"param":"T"}},{"name":"times","optional":true,"type":{"k":2}}],"type":{"k":8,"name":"IndexedSeq","args":[{"k":7,"param":"T"}]},"line":1215}],"doc":{"synopsis":"Returns a IndexedSeq of `value` repeated `times` times. When `times` is\nnot defined, returns an infinite sequence of `value`.","description":"    Repeat('foo') // ['foo','foo','foo',...]\n    Repeat('bar',4) // ['bar','bar','bar','bar']\n"}}},"Collection":{"interface":{"line":1226,"doc":{"synopsis":"Collections are concrete data structures."},"typeParams":["K","V"],"extends":[{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}],"groups":[{"properties":{"#size":{"line":1232,"doc":{"synopsis":"All collections maintain their current `size` as an integer."},"type":{"k":2}}}}]}},"KeyedCollection":{"interface":{"line":1238,"doc":{"synopsis":"Collections which represent key value pairs."},"typeParams":["K","V"],"extends":[{"k":8,"name":"Collection","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}],"groups":[{"methods":{"#toSeq":{"signatures":[{"type":{"k":8,"name":"KeyedSeq","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1243}],"doc":{"synopsis":"Returns KeyedSeq."}}}}]}},"IndexedCollection":{"interface":{"line":1250,"doc":{"synopsis":"Collections which represent ordered indexed values."},"typeParams":["T"],"extends":[{"k":8,"name":"Collection","args":[{"k":2},{"k":7,"param":"T"}]},{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]}],"groups":[{"methods":{"#toSeq":{"signatures":[{"type":{"k":8,"name":"IndexedSeq","args":[{"k":7,"param":"T"}]},"line":1255}],"doc":{"synopsis":"Returns IndexedSeq."}}}}]}},"SetCollection":{"interface":{"line":1262,"doc":{"synopsis":"Collections which represent only values, unassociated with keys or indices."},"typeParams":["T"],"extends":[{"k":8,"name":"Collection","args":[{"k":7,"param":"T"},{"k":7,"param":"T"}]},{"k":8,"name":"SetIterable","args":[{"k":7,"param":"T"}]}],"groups":[{"methods":{"#toSeq":{"signatures":[{"type":{"k":8,"name":"SetSeq","args":[{"k":7,"param":"T"}]},"line":1267}],"doc":{"synopsis":"Returns SetSeq."}}}}]}},"Map":{"doc":{"synopsis":"Immutable Map is an unordered KeyedIterable of (key, value) pairs with\n`O(log32 N)` gets and `O(log32 N)` persistent sets.","description":"Iteration order of a Map is undefined, however is stable. Multiple\niterations of the same Map will iterate in the same order.\n\nMap's keys can be of any type, and use `Immutable.is` to determine key\nequality. This allows the use of any value (including NaN) as a key.\n\nBecause `Immutable.is` returns equality based on value semantics, and\nImmutable collections are treated as values, any Immutable collection may\nbe used as a key.\n\n    Map().set(List.of(1), 'listofone').get(List.of(1));\n    // 'listofone'\n\nAny JavaScript object may be used as a key, however strict identity is used\nto evaluate key equality. Two similar looking objects will represent two\ndifferent keys.\n\nImplemented by a hash-array mapped trie."},"module":{"isMap":{"call":{"signatures":[{"params":[{"name":"maybeMap","type":{"k":0}}],"type":{"k":1},"line":1300}],"doc":{"synopsis":"True if the provided value is a Map"}}}},"call":{"signatures":[{"typeParams":["K","V"],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1306},{"typeParams":["K","V"],"params":[{"name":"iter","type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1318},{"typeParams":["K","V"],"params":[{"name":"iter","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":8,"name":"Array","args":[{"k":0}]}]}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1319},{"typeParams":["K","V"],"params":[{"name":"array","type":{"k":8,"name":"Array","args":[{"k":8,"name":"Array","args":[{"k":0}]}]}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1320},{"typeParams":["V"],"params":[{"name":"obj","type":{"k":4,"members":[{"index":true,"params":[{"name":"key","type":{"k":3}}],"type":{"k":7,"param":"V"}}]}}],"type":{"k":8,"name":"Map","args":[{"k":3},{"k":7,"param":"V"}]},"line":1321},{"typeParams":["K","V"],"params":[{"name":"iterator","type":{"k":8,"name":"Iterator","args":[{"k":8,"name":"Array","args":[{"k":0}]}]}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1322},{"typeParams":["K","V"],"params":[{"name":"iterable","type":{"k":8,"name":"Object"}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1323}],"doc":{"synopsis":"Creates a new Immutable Map.","description":"Created with the same key value pairs as the provided KeyedIterable or\nJavaScript Object or expects an Iterable of [K, V] tuple entries.\n\n    var newMap = Map({key: \"value\"});\n    var newMap = Map([[\"key\", \"value\"]]);\n"}},"interface":{"line":1324,"typeParams":["K","V"],"extends":[{"k":8,"name":"KeyedCollection","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}],"groups":[{"title":"Persistent changes","methods":{"#set":{"signatures":[{"params":[{"name":"key","type":{"k":7,"param":"K"}},{"name":"value","type":{"k":7,"param":"V"}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1327}],"doc":{"synopsis":"Returns a new Map also containing the new key, value pair. If an equivalent\nkey already exists in this Map, it will be replaced."}},"#remove":{"signatures":[{"params":[{"name":"key","type":{"k":7,"param":"K"}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1335}],"doc":{"synopsis":"Returns a new Map which excludes this `key`.","notes":[{"name":"alias","body":"delete"}],"description":"Note: `delete` cannot be safely used in IE8, but is provided to mirror\nthe ES6 collection API."}},"#clear":{"signatures":[{"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1345}],"doc":{"synopsis":"Returns a new Map containing no keys or values."}},"#update":{"signatures":[{"params":[{"name":"updater","type":{"k":6,"params":[{"name":"value","type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1350},{"params":[{"name":"key","type":{"k":7,"param":"K"}},{"name":"updater","type":{"k":6,"params":[{"name":"value","type":{"k":7,"param":"V"}}],"type":{"k":7,"param":"V"}}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1360},{"params":[{"name":"key","type":{"k":7,"param":"K"}},{"name":"notSetValue","type":{"k":7,"param":"V"}},{"name":"updater","type":{"k":6,"params":[{"name":"value","type":{"k":7,"param":"V"}}],"type":{"k":7,"param":"V"}}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1361}],"doc":{"synopsis":"Returns a new Map having updated the value at this `key` with the return\nvalue of calling `updater` with the existing value, or `notSetValue` if\nthe key was not set. If called with only a single argument, `updater` is\ncalled with the Map itself.","description":"Equivalent to: `map.set(key, updater(map.get(key, notSetValue)))`."}},"#merge":{"signatures":[{"params":[{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1362},{"params":[{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":4,"members":[{"index":true,"params":[{"name":"key","type":{"k":3}}],"type":{"k":7,"param":"V"}}]}}}],"type":{"k":8,"name":"Map","args":[{"k":3},{"k":7,"param":"V"}]},"line":1381}],"doc":{"synopsis":"Returns a new Map resulting from merging the provided Iterables\n(or JS objects) into this Map. In other words, this takes each entry of\neach iterable and sets it on this Map.","description":"If any of the values provided to `merge` are not Iterable (would return\nfalse for `Immutable.isIterable`) then they are deeply converted via\n`Immutable.fromJS` before being merged. However, if the value is an\nIterable but contains non-iterable JS objects or arrays, those nested\nvalues will be preserved.\n\n    var x = Immutable.Map({a: 10, b: 20, c: 30});\n    var y = Immutable.Map({b: 40, a: 50, d: 60});\n    x.merge(y) // { a: 50, b: 40, c: 30, d: 60 }\n    y.merge(x) // { b: 20, a: 10, d: 60, c: 30 }\n"}},"#mergeWith":{"signatures":[{"params":[{"name":"merger","type":{"k":6,"params":[{"name":"previous","optional":true,"type":{"k":7,"param":"V"}},{"name":"next","optional":true,"type":{"k":7,"param":"V"}}],"type":{"k":7,"param":"V"}}},{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1382},{"params":[{"name":"merger","type":{"k":6,"params":[{"name":"previous","optional":true,"type":{"k":7,"param":"V"}},{"name":"next","optional":true,"type":{"k":7,"param":"V"}}],"type":{"k":7,"param":"V"}}},{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":4,"members":[{"index":true,"params":[{"name":"key","type":{"k":3}}],"type":{"k":7,"param":"V"}}]}}}],"type":{"k":8,"name":"Map","args":[{"k":3},{"k":7,"param":"V"}]},"line":1398}],"doc":{"synopsis":"Like `merge()`, `mergeWith()` returns a new Map resulting from merging\nthe provided Iterables (or JS objects) into this Map, but uses the\n`merger` function for dealing with conflicts.","description":"    var x = Immutable.Map({a: 10, b: 20, c: 30});\n    var y = Immutable.Map({b: 40, a: 50, d: 60});\n    x.mergeWith((prev, next) => prev / next, y) // { a: 0.2, b: 0.5, c: 30, d: 60 }\n    y.mergeWith((prev, next) => prev / next, x) // { b: 2, a: 5, d: 60, c: 30 }\n"}},"#mergeDeep":{"signatures":[{"params":[{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1402},{"params":[{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":4,"members":[{"index":true,"params":[{"name":"key","type":{"k":3}}],"type":{"k":7,"param":"V"}}]}}}],"type":{"k":8,"name":"Map","args":[{"k":3},{"k":7,"param":"V"}]},"line":1413}],"doc":{"synopsis":"Like `merge()`, but when two Iterables conflict, it merges them as well,\nrecursing deeply through the nested data.","description":"    var x = Immutable.fromJS({a: { x: 10, y: 10 }, b: { x: 20, y: 50 } });\n    var y = Immutable.fromJS({a: { x: 2 }, b: { y: 5 }, c: { z: 3 } });\n    x.mergeDeep(y) // {a: { x: 2, y: 10 }, b: { x: 20, y: 5 }, c: { z: 3 } }\n"}},"#mergeDeepWith":{"signatures":[{"params":[{"name":"merger","type":{"k":6,"params":[{"name":"previous","optional":true,"type":{"k":7,"param":"V"}},{"name":"next","optional":true,"type":{"k":7,"param":"V"}}],"type":{"k":7,"param":"V"}}},{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1414},{"params":[{"name":"merger","type":{"k":6,"params":[{"name":"previous","optional":true,"type":{"k":7,"param":"V"}},{"name":"next","optional":true,"type":{"k":7,"param":"V"}}],"type":{"k":7,"param":"V"}}},{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":4,"members":[{"index":true,"params":[{"name":"key","type":{"k":3}}],"type":{"k":7,"param":"V"}}]}}}],"type":{"k":8,"name":"Map","args":[{"k":3},{"k":7,"param":"V"}]},"line":1429}],"doc":{"synopsis":"Like `mergeDeep()`, but when two non-Iterables conflict, it uses the\n`merger` function to determine the resulting value.","description":"    var x = Immutable.fromJS({a: { x: 10, y: 10 }, b: { x: 20, y: 50 } });\n    var y = Immutable.fromJS({a: { x: 2 }, b: { y: 5 }, c: { z: 3 } });\n    x.mergeDeepWith((prev, next) => prev / next, y)\n    // {a: { x: 5, y: 10 }, b: { x: 20, y: 10 }, c: { z: 3 } }\n"}}}},{"title":"Deep persistent changes","methods":{"#setIn":{"signatures":[{"params":[{"name":"keyPath","type":{"k":8,"name":"Array","args":[{"k":0}]}},{"name":"value","type":{"k":7,"param":"V"}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1433},{"params":[{"name":"KeyPath","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":0}]}},{"name":"value","type":{"k":7,"param":"V"}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1442}],"doc":{"synopsis":"Returns a new Map having set `value` at this `keyPath`. If any keys in\n`keyPath` do not exist, a new immutable Map will be created at that key."}},"#removeIn":{"signatures":[{"params":[{"name":"keyPath","type":{"k":8,"name":"Array","args":[{"k":0}]}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1443},{"params":[{"name":"keyPath","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":0}]}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1450}],"doc":{"synopsis":"Returns a new Map having removed the value at this `keyPath`. If any keys\nin `keyPath` do not exist, a new immutable Map will be created at\nthat key."}},"#updateIn":{"signatures":[{"params":[{"name":"keyPath","type":{"k":8,"name":"Array","args":[{"k":0}]}},{"name":"updater","type":{"k":6,"params":[{"name":"value","type":{"k":0}}],"type":{"k":0}}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1451},{"params":[{"name":"keyPath","type":{"k":8,"name":"Array","args":[{"k":0}]}},{"name":"notSetValue","type":{"k":0}},{"name":"updater","type":{"k":6,"params":[{"name":"value","type":{"k":0}}],"type":{"k":0}}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1467},{"params":[{"name":"keyPath","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":0}]}},{"name":"updater","type":{"k":6,"params":[{"name":"value","type":{"k":0}}],"type":{"k":0}}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1472},{"params":[{"name":"keyPath","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":0}]}},{"name":"notSetValue","type":{"k":0}},{"name":"updater","type":{"k":6,"params":[{"name":"value","type":{"k":0}}],"type":{"k":0}}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1476}],"doc":{"synopsis":"Returns a new Map having applied the `updater` to the entry found at the\nkeyPath. If any keys in `keyPath` do not exist, a new immutable Map will\nbe created at that key. If the `keyPath` was not previously set,\n`updater` is called with `notSetValue` (if provided).","description":"    var data = Immutable.fromJS({ a: { b: { c: 10 } } });\n    data.updateIn(['a', 'b'], map => map.set('d', 20));\n    // { a: { b: { c: 10, d: 20 } } }\n"}},"#mergeIn":{"signatures":[{"params":[{"name":"keyPath","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":0}]}},{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1481},{"params":[{"name":"keyPath","type":{"k":8,"name":"Array","args":[{"k":0}]}},{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1495},{"params":[{"name":"keyPath","type":{"k":8,"name":"Array","args":[{"k":0}]}},{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":4,"members":[{"index":true,"params":[{"name":"key","type":{"k":3}}],"type":{"k":7,"param":"V"}}]}}}],"type":{"k":8,"name":"Map","args":[{"k":3},{"k":7,"param":"V"}]},"line":1499}],"doc":{"synopsis":"A combination of `updateIn` and `merge`, returning a new Map, but\nperforming the merge at a point arrived at by following the keyPath.\nIn other words, these two lines are equivalent:","description":"    x.updateIn(['a', 'b', 'c'], abc => abc.merge(y));\n    x.mergeIn(['a', 'b', 'c'], y);\n"}},"#mergeDeepIn":{"signatures":[{"params":[{"name":"keyPath","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":0}]}},{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1503},{"params":[{"name":"keyPath","type":{"k":8,"name":"Array","args":[{"k":0}]}},{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1517},{"params":[{"name":"keyPath","type":{"k":8,"name":"Array","args":[{"k":0}]}},{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":4,"members":[{"index":true,"params":[{"name":"key","type":{"k":3}}],"type":{"k":7,"param":"V"}}]}}}],"type":{"k":8,"name":"Map","args":[{"k":3},{"k":7,"param":"V"}]},"line":1521}],"doc":{"synopsis":"A combination of `updateIn` and `mergeDeep`, returning a new Map, but\nperforming the deep merge at a point arrived at by following the keyPath.\nIn other words, these two lines are equivalent:","description":"    x.updateIn(['a', 'b', 'c'], abc => abc.mergeDeep(y));\n    x.mergeDeepIn(['a', 'b', 'c'], y);\n"}}}},{"title":"Transient updates","methods":{"#withMutations":{"signatures":[{"params":[{"name":"mutator","type":{"k":6,"params":[{"name":"mutable","type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":0}}}],"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1525}],"doc":{"synopsis":"Every time you call one of the above functions, a new immutable Map is\ncreated. If a pure function calls a number of these to produce a final\nreturn value, then a penalty on performance and memory has been paid by\ncreating all of the intermediate immutable Maps.","description":"If you need to apply a series of mutations to produce a new immutable\nMap, `withMutations()` creates a temporary mutable copy of the Map which\ncan apply mutations in a highly performant manner. In fact, this is\nexactly how complex mutations like `merge` are done.\n\nAs an example, this results in the creation of 2, not 4, new Maps:\n\n    var map1 = Immutable.Map();\n    var map2 = map1.withMutations(map => {\n      map.set('a', 1).set('b', 2).set('c', 3);\n    });\n    assert(map1.size === 0);\n    assert(map2.size === 3);\n"}},"#asMutable":{"signatures":[{"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1551}],"doc":{"synopsis":"Another way to avoid creation of intermediate Immutable maps is to create\na mutable copy of this collection. Mutable copies *always* return `this`,\nand thus shouldn't be used for equality. Your function should never return\na mutable copy of a collection, only use it internally to create a new\ncollection. If possible, use `withMutations` as it provides an easier to\nuse API.","description":"Note: if the collection is already mutable, `asMutable` returns itself."}},"#asImmutable":{"signatures":[{"type":{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1563}],"doc":{"synopsis":"The yin to `asMutable`'s yang. Because it applies to mutable collections,\nthis operation is *mutable* and returns itself. Once performed, the mutable\ncopy has become immutable and can be safely returned from a function."}}}}]}},"OrderedMap":{"doc":{"synopsis":"A type of Map that has the additional guarantee that the iteration order of\nentries will be the order in which they were set().","description":"The iteration behavior of OrderedMap is the same as native ES6 Map and\nJavaScript Object.\n\nNote that `OrderedMap` are more expensive than non-ordered `Map` and may\nconsume more memory. `OrderedMap#set` is amoratized O(log32 N), but not\nstable."},"module":{"isOrderedMap":{"call":{"signatures":[{"params":[{"name":"maybeOrderedMap","type":{"k":0}}],"type":{"k":1},"line":1586}],"doc":{"synopsis":"True if the provided value is an OrderedMap."}}}},"call":{"signatures":[{"typeParams":["K","V"],"type":{"k":8,"name":"OrderedMap","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1592},{"typeParams":["K","V"],"params":[{"name":"iter","type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":8,"name":"OrderedMap","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1607},{"typeParams":["K","V"],"params":[{"name":"iter","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":8,"name":"Array","args":[{"k":0}]}]}}],"type":{"k":8,"name":"OrderedMap","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1608},{"typeParams":["K","V"],"params":[{"name":"array","type":{"k":8,"name":"Array","args":[{"k":8,"name":"Array","args":[{"k":0}]}]}}],"type":{"k":8,"name":"OrderedMap","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1609},{"typeParams":["V"],"params":[{"name":"obj","type":{"k":4,"members":[{"index":true,"params":[{"name":"key","type":{"k":3}}],"type":{"k":7,"param":"V"}}]}}],"type":{"k":8,"name":"OrderedMap","args":[{"k":3},{"k":7,"param":"V"}]},"line":1610},{"typeParams":["K","V"],"params":[{"name":"iterator","type":{"k":8,"name":"Iterator","args":[{"k":8,"name":"Array","args":[{"k":0}]}]}}],"type":{"k":8,"name":"OrderedMap","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1611},{"typeParams":["K","V"],"params":[{"name":"iterable","type":{"k":8,"name":"Object"}}],"type":{"k":8,"name":"OrderedMap","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]},"line":1612}],"doc":{"synopsis":"Creates a new Immutable OrderedMap.","description":"Created with the same key value pairs as the provided KeyedIterable or\nJavaScript Object or expects an Iterable of [K, V] tuple entries.\n\nThe iteration order of key-value pairs provided to this constructor will\nbe preserved in the OrderedMap.\n\n    var newOrderedMap = OrderedMap({key: \"value\"});\n    var newOrderedMap = OrderedMap([[\"key\", \"value\"]]);\n"}},"interface":{"line":1613,"typeParams":["K","V"],"extends":[{"k":8,"name":"Map","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}]}},"Record":{"doc":{"synopsis":"Creates a new Class which produces Record instances. A record is similar to\na JS object, but enforce a specific set of allowed string keys, and have\ndefault values.","description":"    var ABRecord = Record({a:1, b:2})\n    var myRecord = new ABRecord({b:3})\n\nRecords always have a value for the keys they define. `remove`ing a key\nfrom a record simply resets it to the default value for that key.\n\n    myRecord.size // 2\n    myRecord.get('a') // 1\n    myRecord.get('b') // 3\n    myRecordWithoutB = myRecord.remove('b')\n    myRecordWithoutB.get('b') // 2\n    myRecordWithoutB.size // 2\n\nValues provided to the constructor not found in the Record type will\nbe ignored:\n\n    var myRecord = new ABRecord({b:3, x:10})\n    myRecord.get('x') // undefined\n\nBecause Records have a known set of string keys, property get access works\nas expected, however property sets will throw an Error.\n\nNote: IE8 does not support property access. Only use `get()` when\nsupporting IE8.\n\n    myRecord.b // 3\n    myRecord.b = 5 // throws Error\n\nRecord Classes can be extended as well, allowing for custom methods on your\nRecord. This is not a common pattern in functional environments, but is in\nmany JS programs.\n\nNote: TypeScript does not support this type of subclassing.\n\n    class ABRecord extends Record({a:1,b:2}) {\n      getAB() {\n        return this.a + this.b;\n      }\n    }\n\n    var myRecord = new ABRecord(b:3)\n    myRecord.getAB() // 4\n"},"module":{"Class":{"interface":{"line":1668}}},"call":{"signatures":[{"params":[{"name":"defaultValues","type":{"k":4,"members":[{"index":true,"params":[{"name":"key","type":{"k":3}}],"type":{"k":0}}]}},{"name":"name","optional":true,"type":{"k":3}}],"type":{"k":8,"name":"Class","qualifier":["Record"]},"line":1674}]}},"Set":{"doc":{"synopsis":"A Collection of unique values with `O(log32 N)` adds and has.","description":"When iterating a Set, the entries will be (value, value) pairs. Iteration\norder of a Set is undefined, however is stable. Multiple iterations of the\nsame Set will iterate in the same order.\n\nSet values, like Map keys, may be of any type. Equality is determined using\n`Immutable.is`, enabling Sets to uniquely include other Immutable\ncollections, custom value types, and NaN."},"module":{"isSet":{"call":{"signatures":[{"params":[{"name":"maybeSet","type":{"k":0}}],"type":{"k":1},"line":1693}],"doc":{"synopsis":"True if the provided value is a Set"}}},"of":{"call":{"signatures":[{"typeParams":["T"],"params":[{"name":"values","varArgs":true,"type":{"k":5,"type":{"k":7,"param":"T"}}}],"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1698}],"doc":{"synopsis":"Creates a new Set containing `values`."}}},"fromKeys":{"call":{"signatures":[{"typeParams":["T"],"params":[{"name":"iter","type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"T"},{"k":0}]}}],"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1703},{"params":[{"name":"obj","type":{"k":4,"members":[{"index":true,"params":[{"name":"key","type":{"k":3}}],"type":{"k":0}}]}}],"type":{"k":8,"name":"Set","args":[{"k":3}]},"line":1709}],"doc":{"synopsis":"`Set.fromKeys()` creates a new immutable Set containing the keys from\nthis Iterable or JavaScript Object."}}}},"call":{"signatures":[{"typeParams":["T"],"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1711},{"typeParams":["T"],"params":[{"name":"iter","type":{"k":8,"name":"SetIterable","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1717},{"typeParams":["T"],"params":[{"name":"iter","type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1718},{"typeParams":["K","V"],"params":[{"name":"iter","type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":8,"name":"Set","args":[{"k":0}]},"line":1719},{"typeParams":["T"],"params":[{"name":"array","type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1720},{"typeParams":["T"],"params":[{"name":"iterator","type":{"k":8,"name":"Iterator","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1721},{"typeParams":["T"],"params":[{"name":"iterable","type":{"k":8,"name":"Object"}}],"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1722}],"doc":{"synopsis":"Create a new immutable Set containing the values of the provided\niterable-like."}},"interface":{"line":1723,"typeParams":["T"],"extends":[{"k":8,"name":"SetCollection","args":[{"k":7,"param":"T"}]}],"groups":[{"title":"Persistent changes","methods":{"#add":{"signatures":[{"params":[{"name":"value","type":{"k":7,"param":"T"}}],"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1726}],"doc":{"synopsis":"Returns a new Set which also includes this value."}},"#remove":{"signatures":[{"params":[{"name":"value","type":{"k":7,"param":"T"}}],"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1733}],"doc":{"synopsis":"Returns a new Set which excludes this value.","notes":[{"name":"alias","body":"delete"}],"description":"Note: `delete` cannot be safely used in IE8"}},"#clear":{"signatures":[{"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1742}],"doc":{"synopsis":"Returns a new Set containing no values."}},"#merge":{"signatures":[{"params":[{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1747},{"params":[{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1753}],"doc":{"synopsis":"Alias for `union`.","notes":[{"name":"see","body":"`Map.prototype.merge`"}]}},"#union":{"signatures":[{"params":[{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1754},{"params":[{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1760}],"doc":{"synopsis":"Returns a Set including any value from `iterables` that does not already\nexist in this Set."}},"#intersect":{"signatures":[{"params":[{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1761},{"params":[{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1767}],"doc":{"synopsis":"Returns a Set which has removed any values not also contained\nwithin `iterables`."}},"#subtract":{"signatures":[{"params":[{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1768},{"params":[{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1773}],"doc":{"synopsis":"Returns a Set excluding any values contained within `iterables`."}}}},{"title":"Transient changes","methods":{"#withMutations":{"signatures":[{"params":[{"name":"mutator","type":{"k":6,"params":[{"name":"mutable","type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]}}],"type":{"k":0}}}],"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1774}],"doc":{"synopsis":"","notes":[{"name":"see","body":"`Map.prototype.withMutations`"}]}},"#asMutable":{"signatures":[{"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1782}],"doc":{"synopsis":"","notes":[{"name":"see","body":"`Map.prototype.asMutable`"}]}},"#asImmutable":{"signatures":[{"type":{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]},"line":1787}],"doc":{"synopsis":"","notes":[{"name":"see","body":"`Map.prototype.asImmutable`"}]}}}}]}},"OrderedSet":{"doc":{"synopsis":"A type of Set that has the additional guarantee that the iteration order of\nvalues will be the order in which they were `add`ed.","description":"The iteration behavior of OrderedSet is the same as native ES6 Set.\n\nNote that `OrderedSet` are more expensive than non-ordered `Set` and may\nconsume more memory. `OrderedSet#add` is amoratized O(log32 N), but not\nstable."},"module":{"isOrderedSet":{"call":{"signatures":[{"params":[{"name":"maybeOrderedSet","type":{"k":0}}],"type":{"k":1},"line":1806}],"doc":{"synopsis":"True if the provided value is an OrderedSet."}}},"of":{"call":{"signatures":[{"typeParams":["T"],"params":[{"name":"values","varArgs":true,"type":{"k":5,"type":{"k":7,"param":"T"}}}],"type":{"k":8,"name":"OrderedSet","args":[{"k":7,"param":"T"}]},"line":1811}],"doc":{"synopsis":"Creates a new OrderedSet containing `values`."}}},"fromKeys":{"call":{"signatures":[{"typeParams":["T"],"params":[{"name":"iter","type":{"k":8,"name":"Iterable","args":[{"k":7,"param":"T"},{"k":0}]}}],"type":{"k":8,"name":"OrderedSet","args":[{"k":7,"param":"T"}]},"line":1816},{"params":[{"name":"obj","type":{"k":4,"members":[{"index":true,"params":[{"name":"key","type":{"k":3}}],"type":{"k":0}}]}}],"type":{"k":8,"name":"OrderedSet","args":[{"k":3}]},"line":1822}],"doc":{"synopsis":"`OrderedSet.fromKeys()` creates a new immutable OrderedSet containing\nthe keys from this Iterable or JavaScript Object."}}}},"call":{"signatures":[{"typeParams":["T"],"type":{"k":8,"name":"OrderedSet","args":[{"k":7,"param":"T"}]},"line":1824},{"typeParams":["T"],"params":[{"name":"iter","type":{"k":8,"name":"SetIterable","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"OrderedSet","args":[{"k":7,"param":"T"}]},"line":1830},{"typeParams":["T"],"params":[{"name":"iter","type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"OrderedSet","args":[{"k":7,"param":"T"}]},"line":1831},{"typeParams":["K","V"],"params":[{"name":"iter","type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":8,"name":"OrderedSet","args":[{"k":0}]},"line":1832},{"typeParams":["T"],"params":[{"name":"array","type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"OrderedSet","args":[{"k":7,"param":"T"}]},"line":1833},{"typeParams":["T"],"params":[{"name":"iterator","type":{"k":8,"name":"Iterator","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"OrderedSet","args":[{"k":7,"param":"T"}]},"line":1834},{"typeParams":["T"],"params":[{"name":"iterable","type":{"k":8,"name":"Object"}}],"type":{"k":8,"name":"OrderedSet","args":[{"k":7,"param":"T"}]},"line":1835}],"doc":{"synopsis":"Create a new immutable OrderedSet containing the values of the provided\niterable-like."}},"interface":{"line":1836,"typeParams":["T"],"extends":[{"k":8,"name":"Set","args":[{"k":7,"param":"T"}]}]}},"List":{"doc":{"synopsis":"Lists are ordered indexed dense collections, much like a JavaScript\nArray.","description":"Lists are immutable and fully persistent with O(log32 N) gets and sets,\nand O(1) push and pop.\n\nLists implement Deque, with efficient addition and removal from both the\nend (`push`, `pop`) and beginning (`unshift`, `shift`).\n\nUnlike a JavaScript Array, there is no distinction between an\n\"unset\" index and an index set to `undefined`. `List#forEach` visits all\nindices from 0 to size, regardless of if they where explicitly defined."},"module":{"isList":{"call":{"signatures":[{"params":[{"name":"maybeList","type":{"k":0}}],"type":{"k":1},"line":1856}],"doc":{"synopsis":"True if the provided value is a List"}}},"of":{"call":{"signatures":[{"typeParams":["T"],"params":[{"name":"values","varArgs":true,"type":{"k":5,"type":{"k":7,"param":"T"}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1861}],"doc":{"synopsis":"Creates a new List containing `values`."}}}},"call":{"signatures":[{"typeParams":["T"],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1867},{"typeParams":["T"],"params":[{"name":"iter","type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1873},{"typeParams":["T"],"params":[{"name":"iter","type":{"k":8,"name":"SetIterable","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1874},{"typeParams":["K","V"],"params":[{"name":"iter","type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":8,"name":"List","args":[{"k":0}]},"line":1875},{"typeParams":["T"],"params":[{"name":"array","type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1876},{"typeParams":["T"],"params":[{"name":"iterator","type":{"k":8,"name":"Iterator","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1877},{"typeParams":["T"],"params":[{"name":"iterable","type":{"k":8,"name":"Object"}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1878}],"doc":{"synopsis":"Create a new immutable List containing the values of the provided\niterable-like."}},"interface":{"line":1879,"typeParams":["T"],"extends":[{"k":8,"name":"IndexedCollection","args":[{"k":7,"param":"T"}]}],"groups":[{"title":"Persistent changes","methods":{"#set":{"signatures":[{"params":[{"name":"index","type":{"k":2}},{"name":"value","type":{"k":7,"param":"T"}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1882}],"doc":{"synopsis":"Returns a new List which includes `value` at `index`. If `index` already\nexists in this List, it will be replaced.","description":"`index` may be a negative number, which indexes back from the end of the\nList. `v.set(-1, \"value\")` sets the last item in the List.\n\nIf `index` larger than `size`, the returned List's `size` will be large\nenough to include the `index`."}},"#remove":{"signatures":[{"params":[{"name":"index","type":{"k":2}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1896}],"doc":{"synopsis":"Returns a new List which excludes this `index` and with a size 1 less\nthan this List. Values at indicies above `index` are shifted down by 1 to\nfill the position.","notes":[{"name":"alias","body":"delete"}],"description":"This is synonymous with `list.splice(index, 1)`.\n\n`index` may be a negative number, which indexes back from the end of the\nList. `v.delete(-1)` deletes the last item in the List.\n\nNote: `delete` cannot be safely used in IE8"}},"#clear":{"signatures":[{"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1912}],"doc":{"synopsis":"Returns a new List with 0 size and no values."}},"#push":{"signatures":[{"params":[{"name":"values","varArgs":true,"type":{"k":5,"type":{"k":7,"param":"T"}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1917}],"doc":{"synopsis":"Returns a new List with the provided `values` appended, starting at this\nList's `size`."}},"#pop":{"signatures":[{"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1923}],"doc":{"synopsis":"Returns a new List with a size ones less than this List, excluding\nthe last index in this List.","description":"Note: this differs from `Array.prototype.pop` because it returns a new\nList rather than the removed value. Use `last()` to get the last value\nin this List."}},"#unshift":{"signatures":[{"params":[{"name":"values","varArgs":true,"type":{"k":5,"type":{"k":7,"param":"T"}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1933}],"doc":{"synopsis":"Returns a new List with the provided `values` prepended, shifting other\nvalues ahead to higher indices."}},"#shift":{"signatures":[{"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1939}],"doc":{"synopsis":"Returns a new List with a size ones less than this List, excluding\nthe first index in this List, shifting all other values to a lower index.","description":"Note: this differs from `Array.prototype.shift` because it returns a new\nList rather than the removed value. Use `first()` to get the first\nvalue in this List."}},"#update":{"signatures":[{"params":[{"name":"updater","type":{"k":6,"params":[{"name":"value","type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1949},{"params":[{"name":"index","type":{"k":2}},{"name":"updater","type":{"k":6,"params":[{"name":"value","type":{"k":7,"param":"T"}}],"type":{"k":7,"param":"T"}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1962},{"params":[{"name":"index","type":{"k":2}},{"name":"notSetValue","type":{"k":7,"param":"T"}},{"name":"updater","type":{"k":6,"params":[{"name":"value","type":{"k":7,"param":"T"}}],"type":{"k":7,"param":"T"}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1963}],"doc":{"synopsis":"Returns a new List with an updated value at `index` with the return\nvalue of calling `updater` with the existing value, or `notSetValue` if\n`index` was not set. If called with a single argument, `updater` is\ncalled with the List itself.","notes":[{"name":"see","body":"Map.update"}],"description":"`index` may be a negative number, which indexes back from the end of the\nList. `v.update(-1)` updates the last item in the List.\n"}},"#merge":{"signatures":[{"params":[{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1964},{"params":[{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1969}],"doc":{"synopsis":"","notes":[{"name":"see","body":"`Map.prototype.merge`"}]}},"#mergeWith":{"signatures":[{"params":[{"name":"merger","type":{"k":6,"params":[{"name":"previous","optional":true,"type":{"k":7,"param":"T"}},{"name":"next","optional":true,"type":{"k":7,"param":"T"}}],"type":{"k":7,"param":"T"}}},{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1970},{"params":[{"name":"merger","type":{"k":6,"params":[{"name":"previous","optional":true,"type":{"k":7,"param":"T"}},{"name":"next","optional":true,"type":{"k":7,"param":"T"}}],"type":{"k":7,"param":"T"}}},{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1978}],"doc":{"synopsis":"","notes":[{"name":"see","body":"`Map.prototype.mergeWith`"}]}},"#mergeDeep":{"signatures":[{"params":[{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1982},{"params":[{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1987}],"doc":{"synopsis":"","notes":[{"name":"see","body":"`Map.prototype.mergeDeep`"}]}},"#mergeDeepWith":{"signatures":[{"params":[{"name":"merger","type":{"k":6,"params":[{"name":"previous","optional":true,"type":{"k":7,"param":"T"}},{"name":"next","optional":true,"type":{"k":7,"param":"T"}}],"type":{"k":7,"param":"T"}}},{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1988},{"params":[{"name":"merger","type":{"k":6,"params":[{"name":"previous","optional":true,"type":{"k":7,"param":"T"}},{"name":"next","optional":true,"type":{"k":7,"param":"T"}}],"type":{"k":7,"param":"T"}}},{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":1996}],"doc":{"synopsis":"","notes":[{"name":"see","body":"`Map.prototype.mergeDeepWith`"}]}},"#setSize":{"signatures":[{"params":[{"name":"size","type":{"k":2}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":2000}],"doc":{"synopsis":"Returns a new List with size `size`. If `size` is less than this\nList's size, the new List will exclude values at the higher indices.\nIf `size` is greater than this List's size, the new List will have\nundefined values for the newly available indices.","description":"When building a new List and the final size is known up front, `setSize`\nused in conjunction with `withMutations` may result in the more\nperformant construction."}}}},{"title":"Deep persistent changes","methods":{"#setIn":{"signatures":[{"params":[{"name":"keyPath","type":{"k":8,"name":"Array","args":[{"k":0}]}},{"name":"value","type":{"k":7,"param":"T"}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":2012},{"params":[{"name":"keyPath","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":0}]}},{"name":"value","type":{"k":7,"param":"T"}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":2024}],"doc":{"synopsis":"Returns a new List having set `value` at this `keyPath`. If any keys in\n`keyPath` do not exist, a new immutable Map will be created at that key.","description":"Index numbers are used as keys to determine the path to follow in\nthe List."}},"#removeIn":{"signatures":[{"params":[{"name":"keyPath","type":{"k":8,"name":"Array","args":[{"k":0}]}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":2025},{"params":[{"name":"keyPath","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":0}]}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":2032}],"doc":{"synopsis":"Returns a new List having removed the value at this `keyPath`. If any\nkeys in `keyPath` do not exist, a new immutable Map will be created at\nthat key."}},"#updateIn":{"signatures":[{"params":[{"name":"keyPath","type":{"k":8,"name":"Array","args":[{"k":0}]}},{"name":"updater","type":{"k":6,"params":[{"name":"value","type":{"k":0}}],"type":{"k":0}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":2033},{"params":[{"name":"keyPath","type":{"k":8,"name":"Array","args":[{"k":0}]}},{"name":"notSetValue","type":{"k":0}},{"name":"updater","type":{"k":6,"params":[{"name":"value","type":{"k":0}}],"type":{"k":0}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":2041},{"params":[{"name":"keyPath","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":0}]}},{"name":"updater","type":{"k":6,"params":[{"name":"value","type":{"k":0}}],"type":{"k":0}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":2046},{"params":[{"name":"keyPath","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":0}]}},{"name":"notSetValue","type":{"k":0}},{"name":"updater","type":{"k":6,"params":[{"name":"value","type":{"k":0}}],"type":{"k":0}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":2050}],"doc":{"synopsis":"","notes":[{"name":"see","body":"`Map.prototype.updateIn`"}]}},"#mergeIn":{"signatures":[{"params":[{"name":"keyPath","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":0}]}},{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":2055},{"params":[{"name":"keyPath","type":{"k":8,"name":"Array","args":[{"k":0}]}},{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":2063},{"params":[{"name":"keyPath","type":{"k":8,"name":"Array","args":[{"k":0}]}},{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":2067}],"doc":{"synopsis":"","notes":[{"name":"see","body":"`Map.prototype.mergeIn`"}]}},"#mergeDeepIn":{"signatures":[{"params":[{"name":"keyPath","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":0}]}},{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":2071},{"params":[{"name":"keyPath","type":{"k":8,"name":"Array","args":[{"k":0}]}},{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":2079},{"params":[{"name":"keyPath","type":{"k":8,"name":"Array","args":[{"k":0}]}},{"name":"iterables","varArgs":true,"type":{"k":5,"type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":2083}],"doc":{"synopsis":"","notes":[{"name":"see","body":"`Map.prototype.mergeDeepIn`"}]}}}},{"title":"Transient changes","methods":{"#withMutations":{"signatures":[{"params":[{"name":"mutator","type":{"k":6,"params":[{"name":"mutable","type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]}}],"type":{"k":0}}}],"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":2087}],"doc":{"synopsis":"","notes":[{"name":"see","body":"`Map.prototype.withMutations`"}]}},"#asMutable":{"signatures":[{"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":2095}],"doc":{"synopsis":"","notes":[{"name":"see","body":"`Map.prototype.asMutable`"}]}},"#asImmutable":{"signatures":[{"type":{"k":8,"name":"List","args":[{"k":7,"param":"T"}]},"line":2100}],"doc":{"synopsis":"","notes":[{"name":"see","body":"`Map.prototype.asImmutable`"}]}}}}]}},"Stack":{"doc":{"synopsis":"Stacks are indexed collections which support very efficient O(1) addition\nand removal from the front using `unshift(v)` and `shift()`.","description":"For familiarity, Stack also provides `push(v)`, `pop()`, and `peek()`, but\nbe aware that they also operate on the front of the list, unlike List or\na JavaScript Array.\n\nNote: `reverse()` or any inherent reverse traversal (`reduceRight`,\n`lastIndexOf`, etc.) is not efficient with a Stack.\n\nStack is implemented with a Single-Linked List."},"module":{"isStack":{"call":{"signatures":[{"params":[{"name":"maybeStack","type":{"k":0}}],"type":{"k":1},"line":2122}],"doc":{"synopsis":"True if the provided value is a Stack"}}},"of":{"call":{"signatures":[{"typeParams":["T"],"params":[{"name":"values","varArgs":true,"type":{"k":5,"type":{"k":7,"param":"T"}}}],"type":{"k":8,"name":"Stack","args":[{"k":7,"param":"T"}]},"line":2127}],"doc":{"synopsis":"Creates a new Stack containing `values`."}}}},"call":{"signatures":[{"typeParams":["T"],"type":{"k":8,"name":"Stack","args":[{"k":7,"param":"T"}]},"line":2133},{"typeParams":["T"],"params":[{"name":"iter","type":{"k":8,"name":"IndexedIterable","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"Stack","args":[{"k":7,"param":"T"}]},"line":2142},{"typeParams":["T"],"params":[{"name":"iter","type":{"k":8,"name":"SetIterable","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"Stack","args":[{"k":7,"param":"T"}]},"line":2143},{"typeParams":["K","V"],"params":[{"name":"iter","type":{"k":8,"name":"KeyedIterable","args":[{"k":7,"param":"K"},{"k":7,"param":"V"}]}}],"type":{"k":8,"name":"Stack","args":[{"k":0}]},"line":2144},{"typeParams":["T"],"params":[{"name":"array","type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"Stack","args":[{"k":7,"param":"T"}]},"line":2145},{"typeParams":["T"],"params":[{"name":"iterator","type":{"k":8,"name":"Iterator","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"Stack","args":[{"k":7,"param":"T"}]},"line":2146},{"typeParams":["T"],"params":[{"name":"iterable","type":{"k":8,"name":"Object"}}],"type":{"k":8,"name":"Stack","args":[{"k":7,"param":"T"}]},"line":2147}],"doc":{"synopsis":"Create a new immutable Stack containing the values of the provided\niterable-like.","description":"The iteration order of the provided iterable is preserved in the\nresulting `Stack`."}},"interface":{"line":2148,"typeParams":["T"],"extends":[{"k":8,"name":"IndexedCollection","args":[{"k":7,"param":"T"}]}],"groups":[{"title":"Reading values","methods":{"#peek":{"signatures":[{"type":{"k":7,"param":"T"},"line":2151}],"doc":{"synopsis":"Alias for `Stack.first()`."}}}},{"title":"Persistent changes","methods":{"#clear":{"signatures":[{"type":{"k":8,"name":"Stack","args":[{"k":7,"param":"T"}]},"line":2158}],"doc":{"synopsis":"Returns a new Stack with 0 size and no values."}},"#unshift":{"signatures":[{"params":[{"name":"values","varArgs":true,"type":{"k":5,"type":{"k":7,"param":"T"}}}],"type":{"k":8,"name":"Stack","args":[{"k":7,"param":"T"}]},"line":2166}],"doc":{"synopsis":"Returns a new Stack with the provided `values` prepended, shifting other\nvalues ahead to higher indices.","description":"This is very efficient for Stack."}},"#unshiftAll":{"signatures":[{"params":[{"name":"iter","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"Stack","args":[{"k":7,"param":"T"}]},"line":2174},{"params":[{"name":"iter","type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"Stack","args":[{"k":7,"param":"T"}]},"line":2179}],"doc":{"synopsis":"Like `Stack#unshift`, but accepts a iterable rather than varargs."}},"#shift":{"signatures":[{"type":{"k":8,"name":"Stack","args":[{"k":7,"param":"T"}]},"line":2180}],"doc":{"synopsis":"Returns a new Stack with a size ones less than this Stack, excluding\nthe first item in this Stack, shifting all other values to a lower index.","description":"Note: this differs from `Array.prototype.shift` because it returns a new\nStack rather than the removed value. Use `first()` or `peek()` to get the\nfirst value in this Stack."}},"#push":{"signatures":[{"params":[{"name":"values","varArgs":true,"type":{"k":5,"type":{"k":7,"param":"T"}}}],"type":{"k":8,"name":"Stack","args":[{"k":7,"param":"T"}]},"line":2190}],"doc":{"synopsis":"Alias for `Stack#unshift` and is not equivalent to `List#push`."}},"#pushAll":{"signatures":[{"params":[{"name":"iter","type":{"k":8,"name":"Iterable","args":[{"k":0},{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"Stack","args":[{"k":7,"param":"T"}]},"line":2195},{"params":[{"name":"iter","type":{"k":8,"name":"Array","args":[{"k":7,"param":"T"}]}}],"type":{"k":8,"name":"Stack","args":[{"k":7,"param":"T"}]},"line":2200}],"doc":{"synopsis":"Alias for `Stack#unshiftAll`."}},"#pop":{"signatures":[{"type":{"k":8,"name":"Stack","args":[{"k":7,"param":"T"}]},"line":2201}],"doc":{"synopsis":"Alias for `Stack#shift` and is not equivalent to `List#pop`."}}}},{"title":"Transient changes","methods":{"#withMutations":{"signatures":[{"params":[{"name":"mutator","type":{"k":6,"params":[{"name":"mutable","type":{"k":8,"name":"Stack","args":[{"k":7,"param":"T"}]}}],"type":{"k":0}}}],"type":{"k":8,"name":"Stack","args":[{"k":7,"param":"T"}]},"line":2206}],"doc":{"synopsis":"","notes":[{"name":"see","body":"`Map.prototype.withMutations`"}]}},"#asMutable":{"signatures":[{"type":{"k":8,"name":"Stack","args":[{"k":7,"param":"T"}]},"line":2214}],"doc":{"synopsis":"","notes":[{"name":"see","body":"`Map.prototype.asMutable`"}]}},"#asImmutable":{"signatures":[{"type":{"k":8,"name":"Stack","args":[{"k":7,"param":"T"}]},"line":2219}],"doc":{"synopsis":"","notes":[{"name":"see","body":"`Map.prototype.asImmutable`"}]}}}}]}}}}}
-},{}],62:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 var TypeKind = {
   Any: 0,
 

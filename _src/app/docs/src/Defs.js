@@ -5,45 +5,6 @@ var { Seq } = require('immutable');
 var TypeKind = require('../../../src/TypeKind');
 
 
-var FunctionDef = React.createClass({
-  getInitialState: function() {
-    return { detail: false };
-  },
-
-  toggleDetail: function() {
-    this.setState({ detail: !this.state.detail });
-  },
-
-  render: function() {
-    var module = this.props.module;
-    var name = this.props.name;
-    var def = this.props.def;
-    var doc = def.doc || {};
-
-    return (
-      <div>
-        <div onClick={this.toggleDetail}>
-          <CallSigDef module={module} name={name} />
-        </div>
-        {this.state.detail &&
-          <div className="detail">
-            {doc.synopsis && <pre>{doc.synopsis}</pre>}
-            {def.signatures.map(callSig =>
-              <div>
-                <CallSigDef module={module} name={name} callSig={callSig} />
-              </div>
-            )}
-            {doc.description && <pre>{doc.description}</pre>}
-            {doc.notes && <pre>{doc.notes}</pre>}
-          </div>}
-      </div>
-    );
-  }
-});
-
-exports.FunctionDef = FunctionDef;
-
-
 var InterfaceDef = React.createClass({
   render: function() {
     var name = this.props.name;
