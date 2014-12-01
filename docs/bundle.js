@@ -95,7 +95,6 @@ var InterfaceDef = React.createClass({displayName: 'InterfaceDef',
     var def = this.props.def;
     return (
       React.createElement("span", {className: "t interfaceDef"}, 
-        React.createElement("span", {className: "t keyword"}, 'type '), 
         React.createElement("span", {className: "t typeName"}, name), 
         def.typeParams &&
           ['<', Seq(def.typeParams).map(function(t, k) 
@@ -599,7 +598,7 @@ var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
 
         React.createElement("div", {onClick: this.toggleShowInGroups}, "Toggle Groups"), 
         React.createElement("div", {onClick: this.toggleShowInherited}, "Toggle Inherited"), 
-        React.createElement("h3", null, 
+        React.createElement("h1", {className: "typeHeader"}, 
           interfaceDef ?
             React.createElement(InterfaceDef, {name: typeName, def: interfaceDef}) :
             typeName

@@ -52,12 +52,12 @@ var TypeDocumentation = React.createClass({
 
         <div onClick={this.toggleShowInGroups}>Toggle Groups</div>
         <div onClick={this.toggleShowInherited}>Toggle Inherited</div>
-        <h3>
+        <h1 className="typeHeader">
           {interfaceDef ?
             <InterfaceDef name={typeName} def={interfaceDef} /> :
             typeName
           }
-        </h3>
+        </h1>
 
         {doc && <section className="doc">
           <pre>{doc.synopsis}</pre>
