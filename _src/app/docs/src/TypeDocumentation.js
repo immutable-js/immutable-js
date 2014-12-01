@@ -3,7 +3,7 @@ var { classSet, TransitionGroup } = React.addons;
 var Router = require('react-router');
 var { Seq } = require('immutable');
 var defs = require('../../../resources/immutable.d.json');
-var { FunctionDef, InterfaceDef, CallSigDef, MemberDef } = require('./Defs');
+var { InterfaceDef, CallSigDef, MemberDef } = require('./Defs');
 
 
 var TypeDocumentation = React.createClass({
@@ -38,12 +38,20 @@ var TypeDocumentation = React.createClass({
           {doc.notes && <pre>{doc.notes}</pre>}
         </section>}
 
-        {call && <FunctionDef name={typeName} def={call} />}
+        {call &&
+          <MemberDoc parentName={typeName} member={{
+            memberName: '.'+typeName,
+            memberDef: call
+          }} />}
 
         {functions.count() > 0 &&
           <section>
             {functions.map((t, name) =>
-              <FunctionDef key={name} name={name} def={t.call} module={typeName} />
+              <MemberDoc key={name} parentName={typeName} member={{
+                memberName: '.'+name,
+                memberDef: t.call,
+                isStatic: true
+              }} />
             ).toArray()}
           </section>
         }
@@ -158,6 +166,7 @@ var MemberDoc = React.createClass({
 
   render: function() {
     var member = this.props.member;
+    var module = member.isStatic ? this.props.parentName : null;
     var name = member.memberName.substr(1);
     var def = member.memberDef;
     var doc = def.doc || {};
@@ -172,8 +181,8 @@ var MemberDoc = React.createClass({
       <div className="interfaceMember">
         <div onClick={this.toggleDetail} className={className}>
           {isProp ?
-            <MemberDef member={{name}} /> :
-            <CallSigDef name={name} />}
+            <MemberDef module={module} member={{name}} /> :
+            <CallSigDef module={module} name={name} />}
           {member.inherited && <span className="inherited">inherited</span>}
           {member.overrides && <span className="override">override</span>}
         </div>
@@ -186,11 +195,11 @@ var MemberDoc = React.createClass({
               </h4>
               {isProp ?
                 <div className="codeBlock memberSignature">
-                  <MemberDef member={{name, type: def.type}} />
+                  <MemberDef module={module} member={{name, type: def.type}} />
                 </div> :
                 def.signatures.map(callSig =>
                   <div className="codeBlock memberSignature">
-                    <CallSigDef name={name} callSig={callSig} />
+                    <CallSigDef module={module} name={name} callSig={callSig} />
                   </div>
                 )
               }

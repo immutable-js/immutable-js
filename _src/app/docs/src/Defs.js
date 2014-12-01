@@ -169,9 +169,11 @@ exports.TypeDef = TypeDef;
 
 var MemberDef = React.createClass({
   render: function() {
+    var module = this.props.module;
     var member = this.props.member;
     return (
       <span className="t member">
+        {module && [<span className="t fnQualifier">{module}</span>, '.']}
         {member.index ?
           ['[', functionParams(member.params), ']'] :
           <span className="t memberName">{member.name}</span>}

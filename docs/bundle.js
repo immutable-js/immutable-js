@@ -227,9 +227,11 @@ exports.TypeDef = TypeDef;
 
 var MemberDef = React.createClass({displayName: 'MemberDef',
   render: function() {
+    var module = this.props.module;
     var member = this.props.member;
     return (
       React.createElement("span", {className: "t member"}, 
+        module && [React.createElement("span", {className: "t fnQualifier"}, module), '.'], 
         member.index ?
           ['[', functionParams(member.params), ']'] :
           React.createElement("span", {className: "t memberName"}, member.name), 
@@ -403,7 +405,7 @@ var $__0=     React.addons,classSet=$__0.classSet,TransitionGroup=$__0.Transitio
 var Router = require('react-router');
 var $__1=    require('immutable'),Seq=$__1.Seq;
 var defs = require('../../../resources/immutable.d.json');
-var $__2=       require('./Defs'),FunctionDef=$__2.FunctionDef,InterfaceDef=$__2.InterfaceDef,CallSigDef=$__2.CallSigDef,MemberDef=$__2.MemberDef;
+var $__2=      require('./Defs'),InterfaceDef=$__2.InterfaceDef,CallSigDef=$__2.CallSigDef,MemberDef=$__2.MemberDef;
 
 
 var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
@@ -438,12 +440,20 @@ var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
           doc.notes && React.createElement("pre", null, doc.notes)
         ), 
 
-        call && React.createElement(FunctionDef, {name: typeName, def: call}), 
+        call &&
+          React.createElement(MemberDoc, {parentName: typeName, member: {
+            memberName: '.'+typeName,
+            memberDef: call
+          }}), 
 
         functions.count() > 0 &&
           React.createElement("section", null, 
             functions.map(function(t, name) 
-              {return React.createElement(FunctionDef, {key: name, name: name, def: t.call, module: typeName});}
+              {return React.createElement(MemberDoc, {key: name, parentName: typeName, member: {
+                memberName: '.'+name,
+                memberDef: t.call,
+                isStatic: true
+              }});}
             ).toArray()
           ), 
         
@@ -558,6 +568,7 @@ var MemberDoc = React.createClass({displayName: 'MemberDoc',
 
   render: function() {
     var member = this.props.member;
+    var module = member.isStatic ? this.props.parentName : null;
     var name = member.memberName.substr(1);
     var def = member.memberDef;
     var doc = def.doc || {};
@@ -572,8 +583,8 @@ var MemberDoc = React.createClass({displayName: 'MemberDoc',
       React.createElement("div", {className: "interfaceMember"}, 
         React.createElement("div", {onClick: this.toggleDetail, className: className}, 
           isProp ?
-            React.createElement(MemberDef, {member: {name:name}}) :
-            React.createElement(CallSigDef, {name: name}), 
+            React.createElement(MemberDef, {module: module, member: {name:name}}) :
+            React.createElement(CallSigDef, {module: module, name: name}), 
           member.inherited && React.createElement("span", {className: "inherited"}, "inherited"), 
           member.overrides && React.createElement("span", {className: "override"}, "override")
         ), 
@@ -586,11 +597,11 @@ var MemberDoc = React.createClass({displayName: 'MemberDoc',
               ), 
               isProp ?
                 React.createElement("div", {className: "codeBlock memberSignature"}, 
-                  React.createElement(MemberDef, {member: {name:name, type: def.type}})
+                  React.createElement(MemberDef, {module: module, member: {name:name, type: def.type}})
                 ) :
                 def.signatures.map(function(callSig) 
                   {return React.createElement("div", {className: "codeBlock memberSignature"}, 
-                    React.createElement(CallSigDef, {name: name, callSig: callSig})
+                    React.createElement(CallSigDef, {module: module, name: name, callSig: callSig})
                   );}
                 ), 
               
