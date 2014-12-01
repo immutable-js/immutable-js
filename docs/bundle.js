@@ -526,7 +526,7 @@ var SlideDown = React.createClass({displayName: 'SlideDown',
     var end = slidingUp ? 0 : height;
     node.style.transition = '';
     node.style.height = start;
-    node.style.transition = 'height 0.5s ease-in-out';
+    node.style.transition = 'height 0.35s ease-in-out';
     var endListener = function(event)  {
       ReactTransitionEvents.removeEndEventListener(node, endListener);
       done();
@@ -556,6 +556,21 @@ var MemberDoc = require('./MemberDoc');
 var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
   mixins: [ Router.State ],
 
+  getInitialState: function() {
+    return {
+      showInherited: true,
+      showInGroups: true,
+    };
+  },
+
+  toggleShowInGroups: function() {
+    this.setState({ showInGroups: !this.state.showInGroups });
+  },
+
+  toggleShowInherited: function() {
+    this.setState({ showInherited: !this.state.showInherited });
+  },
+
   render: function() {
     var type = defs.Immutable;
     var typeName = this.getParams().typeName;
@@ -574,26 +589,28 @@ var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
     var types = Seq(type.module).filter(function(t)  {return t.interface || t.module;});
     var interfaceDef = type.interface;
 
+    var memberGroups = collectMemberGroups(interfaceDef, {
+      showInGroups: this.state.showInGroups,
+      showInherited: this.state.showInherited,
+    });
+
     return (
-      React.createElement("div", null, 
+      React.createElement("div", {key: typeName}, 
 
-        React.createElement("h1", null, typeName), 
+        React.createElement("div", {onClick: this.toggleShowInGroups}, "Toggle Groups"), 
+        React.createElement("div", {onClick: this.toggleShowInherited}, "Toggle Inherited"), 
+        React.createElement("h3", null, 
+          interfaceDef ?
+            React.createElement(InterfaceDef, {name: typeName, def: interfaceDef}) :
+            typeName
+          
+        ), 
 
-        doc && React.createElement("section", null, 
+        doc && React.createElement("section", {className: "doc"}, 
           React.createElement("pre", null, doc.synopsis), 
           doc.description && React.createElement("pre", null, doc.description), 
           doc.notes && React.createElement("pre", null, doc.notes)
         ), 
-
-        call &&
-          React.createElement(MemberDoc, {
-            showDetail: typeName === this.getParams().memberName, 
-            parentName: typeName, 
-            member: {
-              memberName: typeName,
-              memberDef: call
-            }}
-          ), 
 
         functions.count() > 0 &&
           React.createElement("section", null, 
@@ -612,9 +629,23 @@ var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
           ), 
         
 
+        call &&
+          React.createElement("section", null, 
+            React.createElement("h4", {className: "groupTitle"}, "Construction"), 
+            React.createElement(MemberDoc, {
+              showDetail: typeName === this.getParams().memberName, 
+              parentName: typeName, 
+              member: {
+                memberName: typeName,
+                memberDef: call
+              }}
+            )
+          ), 
+        
+
         types.count() > 0 &&
           React.createElement("section", null, 
-            React.createElement("h2", null, "Types"), 
+            React.createElement("h4", {className: "groupTitle"}, "Types"), 
             types.map(function(t, name) 
               {return React.createElement("div", {key: name}, 
                 React.createElement(Router.Link, {to: '/' + (typeName?typeName+'.'+name:name)}, 
@@ -625,7 +656,20 @@ var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
           ), 
         
 
-        interfaceDef && React.createElement(InterfaceDoc, {def: interfaceDef, name: typeName})
+        Seq(memberGroups).map(function(members, title) 
+          {return members.length === 0 ? null :
+          React.createElement("section", null, 
+            React.createElement("h4", {className: "groupTitle"}, title || 'Members'), 
+            members.map(function(member) 
+              {return React.createElement(MemberDoc, {
+                key: member.memberName, 
+                showDetail: member.memberName === this.getParams().memberName, 
+                parentName: typeName, 
+                member: member}
+              );}.bind(this)
+            )
+          );}.bind(this)
+        ).toArray()
 
       )
     );
@@ -638,77 +682,31 @@ var NotFound = React.createClass({displayName: 'NotFound',
   }
 });
 
-var InterfaceDoc = React.createClass({displayName: 'InterfaceDoc',
-  mixins: [ Router.State ],
 
-  getInitialState: function() {
-    return {
-      showInherited: true,
-      showInGroups: true,
-    };
-  },
-
-  toggleShowInGroups: function() {
-    this.setState({ showInGroups: !this.state.showInGroups });
-  },
-
-  toggleShowInherited: function() {
-    this.setState({ showInherited: !this.state.showInherited });
-  },
-
-  render: function() {
-    var name = this.props.name;
-    var def = this.props.def;
-
-    var members = collectMembers(def);
-
-    var groups = {'':[]};
-    if (this.state.showInGroups) {
-      Seq(members).forEach(function(member)  {
-        (groups[member.group] || (groups[member.group] = [])).push(member);
-      });
-    } else {
-      groups[''] = Seq(members).sortBy(function(member)  {return member.memberName;}).toArray();
-    }
-
-    if (!this.state.showInherited) {
-      groups = Seq(groups).map(
-        function(members)  {return members.filter(function(member)  {return !member.inherited;});}
-      ).toObject();
-    }
-
-    return (
-      React.createElement("section", {key: name}, 
-        React.createElement("h3", null, 
-          React.createElement(InterfaceDef, {name: name, def: def})
-        ), 
-        React.createElement("div", {onClick: this.toggleShowInGroups}, "Toggle Groups"), 
-        React.createElement("div", {onClick: this.toggleShowInherited}, "Toggle Inherited"), 
-        Seq(groups).map(function(members, title) 
-          {return members.length === 0 ? null :
-          React.createElement("section", null, 
-            React.createElement("h4", {className: "groupTitle"}, title || 'Methods'), 
-            members.map(function(member) 
-              {return React.createElement(MemberDoc, {
-                key: member.memberName, 
-                showDetail: member.memberName === this.getParams().memberName, 
-                parentName: name, 
-                member: member}
-              );}.bind(this)
-            )
-          );}.bind(this)
-        ).toArray()
-
-      )
-    );
-  }
-});
-
-
-function collectMembers(interfaceDef) {
+function collectMemberGroups(interfaceDef, options) {
   var members = {};
-  collectFromDef(interfaceDef);
-  return members;
+
+  if (interfaceDef) {
+    collectFromDef(interfaceDef);
+  }
+
+  var groups = {'':[]};
+
+  if (options.showInGroups) {
+    Seq(members).forEach(function(member)  {
+      (groups[member.group] || (groups[member.group] = [])).push(member);
+    });
+  } else {
+    groups[''] = Seq(members).sortBy(function(member)  {return member.memberName;}).toArray();
+  }
+
+  if (!options.showInherited) {
+    groups = Seq(groups).map(
+      function(members)  {return members.filter(function(member)  {return !member.inherited;});}
+    ).toObject();
+  }
+
+  return groups;
 
   function collectFromDef(def, name) {
 

@@ -9,6 +9,21 @@ var MemberDoc = require('./MemberDoc');
 var TypeDocumentation = React.createClass({
   mixins: [ Router.State ],
 
+  getInitialState: function() {
+    return {
+      showInherited: true,
+      showInGroups: true,
+    };
+  },
+
+  toggleShowInGroups: function() {
+    this.setState({ showInGroups: !this.state.showInGroups });
+  },
+
+  toggleShowInherited: function() {
+    this.setState({ showInherited: !this.state.showInherited });
+  },
+
   render: function() {
     var type = defs.Immutable;
     var typeName = this.getParams().typeName;
@@ -27,26 +42,28 @@ var TypeDocumentation = React.createClass({
     var types = Seq(type.module).filter(t => t.interface || t.module);
     var interfaceDef = type.interface;
 
+    var memberGroups = collectMemberGroups(interfaceDef, {
+      showInGroups: this.state.showInGroups,
+      showInherited: this.state.showInherited,
+    });
+
     return (
-      <div>
+      <div key={typeName}>
 
-        <h1>{typeName}</h1>
+        <div onClick={this.toggleShowInGroups}>Toggle Groups</div>
+        <div onClick={this.toggleShowInherited}>Toggle Inherited</div>
+        <h3>
+          {interfaceDef ?
+            <InterfaceDef name={typeName} def={interfaceDef} /> :
+            typeName
+          }
+        </h3>
 
-        {doc && <section>
+        {doc && <section className="doc">
           <pre>{doc.synopsis}</pre>
           {doc.description && <pre>{doc.description}</pre>}
           {doc.notes && <pre>{doc.notes}</pre>}
         </section>}
-
-        {call &&
-          <MemberDoc
-            showDetail={typeName === this.getParams().memberName}
-            parentName={typeName}
-            member={{
-              memberName: typeName,
-              memberDef: call
-            }}
-          />}
 
         {functions.count() > 0 &&
           <section>
@@ -65,9 +82,23 @@ var TypeDocumentation = React.createClass({
           </section>
         }
 
+        {call &&
+          <section>
+            <h4 className="groupTitle">Construction</h4>
+            <MemberDoc
+              showDetail={typeName === this.getParams().memberName}
+              parentName={typeName}
+              member={{
+                memberName: typeName,
+                memberDef: call
+              }}
+            />
+          </section>
+        }
+
         {types.count() > 0 &&
           <section>
-            <h2>Types</h2>
+            <h4 className="groupTitle">Types</h4>
             {types.map((t, name) =>
               <div key={name}>
                 <Router.Link to={'/' + (typeName?typeName+'.'+name:name)}>
@@ -78,7 +109,20 @@ var TypeDocumentation = React.createClass({
           </section>
         }
 
-        {interfaceDef && <InterfaceDoc def={interfaceDef} name={typeName} />}
+        {Seq(memberGroups).map((members, title) =>
+          members.length === 0 ? null :
+          <section>
+            <h4 className="groupTitle">{title || 'Members'}</h4>
+            {members.map(member =>
+              <MemberDoc
+                key={member.memberName}
+                showDetail={member.memberName === this.getParams().memberName}
+                parentName={typeName}
+                member={member}
+              />
+            )}
+          </section>
+        ).toArray()}
 
       </div>
     );
@@ -91,77 +135,31 @@ var NotFound = React.createClass({
   }
 });
 
-var InterfaceDoc = React.createClass({
-  mixins: [ Router.State ],
 
-  getInitialState: function() {
-    return {
-      showInherited: true,
-      showInGroups: true,
-    };
-  },
-
-  toggleShowInGroups: function() {
-    this.setState({ showInGroups: !this.state.showInGroups });
-  },
-
-  toggleShowInherited: function() {
-    this.setState({ showInherited: !this.state.showInherited });
-  },
-
-  render: function() {
-    var name = this.props.name;
-    var def = this.props.def;
-
-    var members = collectMembers(def);
-
-    var groups = {'':[]};
-    if (this.state.showInGroups) {
-      Seq(members).forEach(member => {
-        (groups[member.group] || (groups[member.group] = [])).push(member);
-      });
-    } else {
-      groups[''] = Seq(members).sortBy(member => member.memberName).toArray();
-    }
-
-    if (!this.state.showInherited) {
-      groups = Seq(groups).map(
-        members => members.filter(member => !member.inherited)
-      ).toObject();
-    }
-
-    return (
-      <section key={name}>
-        <h3>
-          <InterfaceDef name={name} def={def} />
-        </h3>
-        <div onClick={this.toggleShowInGroups}>Toggle Groups</div>
-        <div onClick={this.toggleShowInherited}>Toggle Inherited</div>
-        {Seq(groups).map((members, title) =>
-          members.length === 0 ? null :
-          <section>
-            <h4 className="groupTitle">{title || 'Methods'}</h4>
-            {members.map(member =>
-              <MemberDoc
-                key={member.memberName}
-                showDetail={member.memberName === this.getParams().memberName}
-                parentName={name}
-                member={member}
-              />
-            )}
-          </section>
-        ).toArray()}
-
-      </section>
-    );
-  }
-});
-
-
-function collectMembers(interfaceDef) {
+function collectMemberGroups(interfaceDef, options) {
   var members = {};
-  collectFromDef(interfaceDef);
-  return members;
+
+  if (interfaceDef) {
+    collectFromDef(interfaceDef);
+  }
+
+  var groups = {'':[]};
+
+  if (options.showInGroups) {
+    Seq(members).forEach(member => {
+      (groups[member.group] || (groups[member.group] = [])).push(member);
+    });
+  } else {
+    groups[''] = Seq(members).sortBy(member => member.memberName).toArray();
+  }
+
+  if (!options.showInherited) {
+    groups = Seq(groups).map(
+      members => members.filter(member => !member.inherited)
+    ).toObject();
+  }
+
+  return groups;
 
   function collectFromDef(def, name) {
 
