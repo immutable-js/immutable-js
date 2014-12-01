@@ -22,7 +22,7 @@ var FunctionDef = React.createClass({
     return (
       <div>
         <div onClick={this.toggleDetail}>
-          {(module ? module + '.' + name : name) + '()'}
+          <CallSigDef module={module} name={name} />
         </div>
         {this.state.detail &&
           <div className="detail">
@@ -49,6 +49,7 @@ var InterfaceDef = React.createClass({
     var def = this.props.def;
     return (
       <span className="t interfaceDef">
+        <span className="t keyword">{'type '}</span>
         <span className="t typeName">{name}</span>
         {def.typeParams &&
           ['<', Seq(def.typeParams).map((t, k) =>
@@ -79,7 +80,7 @@ var CallSigDef = React.createClass({
   render: function() {
     var module = this.props.module;
     var name = this.props.name;
-    var callSig = this.props.callSig;
+    var callSig = this.props.callSig || {};
 
     var shouldWrap = callSigLength(module, name, callSig) > 80;
 
@@ -92,12 +93,86 @@ var CallSigDef = React.createClass({
             <span className="t typeParam">{t}</span>
           ).interpose(', ').toArray(), '>']
         }
-        {['(', functionParams(callSig.params, shouldWrap), ')']}
+        {'('}
+        {callSig && functionParams(callSig.params, shouldWrap)}
+        {')'}
         {callSig.type && [': ', <TypeDef type={callSig.type} />]}
       </span>
     );
   }
 });
+
+exports.CallSigDef = CallSigDef;
+
+
+var TypeDef = React.createClass({
+  render: function() {
+    var type = this.props.type;
+    switch (type.k) {
+      case TypeKind.Any: return <span className="t primitive">any</span>;
+      case TypeKind.Boolean: return <span className="t primitive">boolean</span>;
+      case TypeKind.Number: return <span className="t primitive">number</span>;
+      case TypeKind.String: return <span className="t primitive">string</span>;
+      case TypeKind.Object: return <span>
+        {['{', Seq(type.members).map(t =>
+          <MemberDef member={t} />
+        ).interpose(', ').toArray(), '}']}
+      </span>
+      case TypeKind.Array: return <span>
+        <TypeDef type={type.type} />
+        {'[]'}
+      </span>;
+      case TypeKind.Function: return <span>
+        {['(', functionParams(type.params), ') => ', <TypeDef type={type.type} />]}
+      </span>;
+      case TypeKind.Param: return <span className="t typeParam">{type.param}</span>;
+      case TypeKind.Type: return <span className="t type">
+        <Router.Link to={'/' + (type.qualifier ? type.qualifier.join('.') + '.' : '') + type.name}>
+          {type.qualifier && [Seq(type.qualifier).map(q =>
+            <span className="t typeQualifier">{q}</span>
+          ).interpose('.').toArray(), '.']}
+          <span className="t typeName">{type.name}</span>
+        </Router.Link>
+        {type.args && ['<', Seq(type.args).map(a =>
+          <TypeDef type={a} />
+        ).interpose(', ').toArray(), '>']}
+      </span>;
+    }
+    throw new Error('Unknown kind ' + type.k);
+  }
+});
+
+exports.TypeDef = TypeDef;
+
+
+var MemberDef = React.createClass({
+  render: function() {
+    var member = this.props.member;
+    return (
+      <span className="t member">
+        {member.index ?
+          ['[', functionParams(member.params), ']'] :
+          <span className="t memberName">{member.name}</span>}
+        {member.type && [': ', <TypeDef type={member.type} />]}
+      </span>
+    );
+  }
+});
+
+exports.MemberDef = MemberDef;
+
+
+function functionParams(params, shouldWrap) {
+  var elements = Seq(params).map(t => [
+    t.varArgs ? '...' : null,
+    <span className="t param">{t.name}</span>,
+    t.optional ? '?: ' : ': ',
+    <TypeDef type={t.type} />
+  ]).interpose(shouldWrap ? [',', <br />] : ', ').toArray();
+  return shouldWrap ?
+    <div className="t blockParams">{elements}</div> :
+    elements;
+}
 
 function callSigLength(module, name, sig) {
   return (
@@ -147,66 +222,4 @@ function typeLength(type) {
     );
   }
   throw new Error('Unknown kind ' + type.k);
-}
-
-exports.CallSigDef = CallSigDef;
-
-
-var TypeDef = React.createClass({
-  render: function() {
-    var type = this.props.type;
-    switch (type.k) {
-      case TypeKind.Any: return <span className="t primitive">any</span>;
-      case TypeKind.Boolean: return <span className="t primitive">boolean</span>;
-      case TypeKind.Number: return <span className="t primitive">number</span>;
-      case TypeKind.String: return <span className="t primitive">string</span>;
-      case TypeKind.Object: return <span>
-        {['{', objMembers(type.members) ,'}']}
-      </span>
-      case TypeKind.Array: return <span>
-        <TypeDef type={type.type} />
-        {'[]'}
-      </span>;
-      case TypeKind.Function: return <span>
-        {['(', functionParams(type.params), ') => ', <TypeDef type={type.type} />]}
-      </span>;
-      case TypeKind.Param: return <span className="t typeParam">{type.param}</span>;
-      case TypeKind.Type: return <span className="t type">
-        <Router.Link to={'/' + (type.qualifier ? type.qualifier.join('.') + '.' : '') + type.name}>
-          {type.qualifier && [Seq(type.qualifier).map(q =>
-            <span className="t typeQualifier">{q}</span>
-          ).interpose('.').toArray(), '.']}
-          <span className="t typeName">{type.name}</span>
-        </Router.Link>
-        {type.args && ['<', Seq(type.args).map(a =>
-          <TypeDef type={a} />
-        ).interpose(', ').toArray(), '>']}
-      </span>;
-    }
-    throw new Error('Unknown kind ' + type.k);
-  }
-});
-
-exports.TypeDef = TypeDef;
-
-
-function functionParams(params, shouldWrap) {
-  var elements = Seq(params).map(t => [
-    t.varArgs ? '...' : null,
-    <span className="t param">{t.name}</span>,
-    t.optional ? '?: ' : ': ',
-    <TypeDef type={t.type} />
-  ]).interpose(shouldWrap ? [',', <br />] : ', ').toArray();
-  return shouldWrap ?
-    <div className="t blockParams">{elements}</div> :
-    elements;
-}
-
-function objMembers(members) {
-  return Seq(members).map(t => [
-    t.index ?
-      ['[', functionParams(t.params) , ']: '] :
-      [<span className="t member">{t.name}</span>, ': '],
-    <TypeDef type={t.type} />
-  ]).interpose(', ').toArray();
 }
