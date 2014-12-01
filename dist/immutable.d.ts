@@ -8,9 +8,6 @@
  */
 
 /**
- * Immutable Data
- * ==============
- *
  * Immutable data encourages pure functions (data-in, data-out) and lends itself
  * to much simpler application development and enabling techniques from
  * functional programming such as lazy evaluation.
@@ -24,7 +21,7 @@
 declare module 'immutable' {
 
   /**
-   * `Immutable.is()` has the same semantics as Object.is(), but treats
+   * Vaule equality check with semantics similar to Object.is(), but treats
    * Immutable collections and sequences as values, equal if the second
    * Immutable iterable contains equivalent values. It's used throughout when
    * checking for equality.
@@ -39,8 +36,7 @@ declare module 'immutable' {
   export function is(first: any, second: any): boolean;
 
   /**
-   * `Immutable.fromJS()` deeply converts plain JS objects and arrays to
-   * Immutable Maps and Lists.
+   * Deeply converts plain JS objects and arrays to Immutable Maps and Lists.
    *
    * If a `reviver` is optionally provided, it will be called with every
    * collection as a Seq (beginning with the most nested collections
@@ -78,9 +74,6 @@ declare module 'immutable' {
 
 
   /**
-   * Iterable
-   * --------
-   *
    * The `Iterable` is a set of (key, value) entries which can be iterated, and
    * is the base class for all collections in `immutable`, allowing them to
    * make use of all the Iterable methods (such as `map` and `filter`).
@@ -117,8 +110,9 @@ declare module 'immutable' {
   }
 
   /**
-   * `Immutable.Iterable()` returns a particular kind of Iterable based
-   * on the input.
+   * Creates an Iterable.
+   *
+   * The type of Iterable created is based on the input.
    *
    *   * If an `Iterable`, that same `Iterable`.
    *   * If an Array-like, an `IndexedIterable`.
@@ -140,7 +134,7 @@ declare module 'immutable' {
 
   export interface Iterable<K, V> {
 
-    // ### Conversion to other types
+    // Conversion to other types
 
     /**
      * Converts this iterable to an Array, discarding keys.
@@ -247,15 +241,7 @@ declare module 'immutable' {
     toList(): List<V>;
 
 
-    // ### Common JavaScript methods and properties
-
-    /**
-     * Deeply converts this Iterable to a string.
-     */
-    toString(): string;
-
-
-    // ### ES6 Collection methods (ES6 Array and Map)
+    // ES6 Collection methods
 
     /**
      * Returns a new Iterable of the same type with other values and
@@ -425,7 +411,7 @@ declare module 'immutable' {
     values(): Iterator<V>;
 
 
-    // ### More collection methods
+    // More collection methods
 
     /**
      * Returns a new Iterable of the same type containing all entries except
@@ -734,15 +720,14 @@ declare module 'immutable' {
      * TypeScript https://github.com/Microsoft/TypeScript/issues/285, but
      * Iterable does not define `size`, instead `Seq` defines `size` as
      * nullable number, and `Collection` defines `size` as always a number.
+     *
+     * @ignore
      */
     size: number;
   }
 
 
   /**
-   * Keyed Iterable
-   * --------------
-   *
    * Keyed Iterables have discrete keys tied to each value.
    *
    * When iterating `KeyedIterable`, each iteration will yield a `[K, V]` tuple,
@@ -752,6 +737,8 @@ declare module 'immutable' {
   export module KeyedIterable {}
 
   /**
+   * Creates a KeyedIterable
+   *
    * Similar to `Iterable()`, however it expects iterable-likes of [K, V]
    * tuples if not constructed from a KeyedIterable or JS Object.
    */
@@ -840,13 +827,10 @@ declare module 'immutable' {
 
 
   /**
-   * Indexed Iterable
-   * ----------------
-   *
    * Indexed Iterables have incrementing numeric keys. They exhibit
    * slightly different behavior than `KeyedIterable` for some methods in order
-   * to better mirror the behavior of JavaScript's `Array`, and add others which
-   * do not make sense on non-indexed Iterables such as `indexOf`.
+   * to better mirror the behavior of JavaScript's `Array`, and add methods
+   * which do not make sense on non-indexed Iterables such as `indexOf`.
    *
    * Unlike JavaScript arrays, `IndexedIterable`s are always dense. "Unset"
    * indices and `undefined` indices are indistinguishable, and all indices from
@@ -860,7 +844,7 @@ declare module 'immutable' {
   export module IndexedIterable {}
 
   /**
-   * Similar to `Iterable()`, but always returns an IndexedIterable.
+   * Creates a new IndexedIterable.
    */
   export function IndexedIterable<T>(iter: IndexedIterable<T>): IndexedIterable<T>;
   export function IndexedIterable<T>(iter: SetIterable<T>): IndexedIterable<T>;
@@ -879,7 +863,7 @@ declare module 'immutable' {
     toSeq(): IndexedSeq<T>;
 
 
-    // ### ES6 Collection methods (ES6 Array and Map)
+    // ES6 Collection methods
 
     /**
      * Returns the first index in the Iterable where a value satisfies the
@@ -921,7 +905,7 @@ declare module 'immutable' {
     ): /*this*/IndexedIterable<T>;
 
 
-    // ### More collection methods
+    // More collection methods
 
     /**
      * Returns the last index in the Iterable where a value satisfies the
@@ -956,9 +940,6 @@ declare module 'immutable' {
 
 
   /**
-   * Set Iterable
-   * ------------
-   *
    * Set Iterables only represent values. They have no associated keys or
    * indices. Duplicate values are possible in SetSeqs, however the
    * concrete `Set` does not allow duplicate values.
@@ -994,15 +975,12 @@ declare module 'immutable' {
 
 
   /**
-   * Seq
-   * ---
-   *
    * **Sequences are immutable** — Once a sequence is created, it cannot be
-   * changed, appended to, rearranged or otherwise modified. Instead, any mutative
-   * method called on a sequence will return a new immutable sequence.
+   * changed, appended to, rearranged or otherwise modified. Instead, any
+   * mutative method called on a sequence will return a new immutable sequence.
    *
-   * **Sequences are lazy** — Sequences do as little work as necessary to respond
-   * to any method call.
+   * **Sequences are lazy** — Sequences do as little work as necessary to
+   * respond to any method call.
    *
    * For example, the following does no work, because the resulting sequence is
    * never used:
@@ -1049,8 +1027,9 @@ declare module 'immutable' {
   }
 
   /**
-   * `Immutable.Seq()` returns a particular kind of Sequence based
-   * on the input.
+   * Creates a Seq.
+   *
+   * Returns a particular kind of `Seq` based on the input.
    *
    *   * If a `Seq`, that same `Seq`.
    *   * If an `Iterable`, a `Seq` of the same kind (Keyed, Indexed, or Set).
@@ -1183,9 +1162,6 @@ declare module 'immutable' {
 
 
   /**
-   * Range
-   * -----
-   *
    * Returns a IndexedSeq of numbers from `start` (inclusive) to `end`
    * (exclusive), by `step`, where `start` defaults to 0, `step` to 1, and `end` to
    * infinity. When `start` is equal to `end`, returns empty range.
@@ -1202,9 +1178,6 @@ declare module 'immutable' {
 
 
   /**
-   * Repeat
-   * ------
-   *
    * Returns a IndexedSeq of `value` repeated `times` times. When `times` is
    * not defined, returns an infinite sequence of `value`.
    *
@@ -1216,8 +1189,7 @@ declare module 'immutable' {
 
 
   /**
-   * Collections
-   * -----------
+   * Collections are concrete data structures.
    */
   export interface Collection<K, V> extends Iterable<K, V> {
 
@@ -1227,6 +1199,9 @@ declare module 'immutable' {
     size: number;
   }
 
+  /**
+   * Collections which represent key value pairs.
+   */
   export interface KeyedCollection<K, V> extends Collection<K, V>, KeyedIterable<K, V> {
 
     /**
@@ -1236,6 +1211,9 @@ declare module 'immutable' {
     toSeq(): KeyedSeq<K, V>;
   }
 
+  /**
+   * Collections which represent ordered indexed values.
+   */
   export interface IndexedCollection<T> extends Collection<number, T>, IndexedIterable<T> {
 
     /**
@@ -1245,6 +1223,9 @@ declare module 'immutable' {
     toSeq(): IndexedSeq<T>;
   }
 
+  /**
+   * Collections which represent only values, unassociated with keys or indices.
+   */
   export interface SetCollection<T> extends Collection<T, T>, SetIterable<T> {
 
     /**
@@ -1256,17 +1237,14 @@ declare module 'immutable' {
 
 
   /**
-   * Map
-   * ---
+   * Immutable Map is an unordered KeyedIterable of (key, value) pairs with
+   * `O(log32 N)` gets and `O(log32 N)` persistent sets.
    *
-   * A Map is a Iterable of (key, value) pairs with `O(log32 N)` gets and sets
-   * implemented by an unordered hash map using a hash-array mapped trie.
-   *
-   * Iteration order of a Map is undefined, however is stable. Multiple iterations
-   * of the same Map will iterate in the same order.
+   * Iteration order of a Map is undefined, however is stable. Multiple
+   * iterations of the same Map will iterate in the same order.
    *
    * Map's keys can be of any type, and use `Immutable.is` to determine key
-   * equality. This allows the use of NaN as a key.
+   * equality. This allows the use of any value (including NaN) as a key.
    *
    * Because `Immutable.is` returns equality based on value semantics, and
    * Immutable collections are treated as values, any Immutable collection may
@@ -1279,6 +1257,7 @@ declare module 'immutable' {
    * to evaluate key equality. Two similar looking objects will represent two
    * different keys.
    *
+   * Implemented by a hash-array mapped trie.
    */
 
   export module Map {
@@ -1290,9 +1269,10 @@ declare module 'immutable' {
   }
 
   /**
-   * `Map()` creates a new immutable Map with the same key value pairs as
-   * the provided KeyedIterable or JavaScript Object or expects an Iterable
-   * of [K, V] tuple entries.
+   * Creates a new Immutable Map.
+   *
+   * Created with the same key value pairs as the provided KeyedIterable or
+   * JavaScript Object or expects an Iterable of [K, V] tuple entries.
    *
    *     var newMap = Map({key: "value"});
    *     var newMap = Map([["key", "value"]]);
@@ -1546,13 +1526,15 @@ declare module 'immutable' {
 
 
   /**
-   * Ordered Map
-   * -----------
+   * A type of Map that has the additional guarantee that the iteration order of
+   * entries will be the order in which they were set().
    *
-   * OrderedMap constructors return an OrderedMap which is a Map that has the
-   * additional guarantee of the iteration order of entries to match the order
-   * in which they were set(). This makes OrderedMap behave similarly to native
-   * JS objects and ES6 Map.
+   * The iteration behavior of OrderedMap is the same as native ES6 Map and
+   * JavaScript Object.
+   *
+   * Note that `OrderedMap` are more expensive than non-ordered `Map` and may
+   * consume more memory. `OrderedMap#set` is amoratized O(log32 N), but not
+   * stable.
    */
 
   export module OrderedMap {
@@ -1564,9 +1546,13 @@ declare module 'immutable' {
   }
 
   /**
-   * `OrderedMap()` creates a new immutable OrderedMap with the same key
-   * value pairs as the provided KeyedIterable or JavaScript Object or expects
-   * an Iterable of [K, V] tuple entries.
+   * Creates a new Immutable OrderedMap.
+   *
+   * Created with the same key value pairs as the provided KeyedIterable or
+   * JavaScript Object or expects an Iterable of [K, V] tuple entries.
+   *
+   * The iteration order of key-value pairs provided to this constructor will
+   * be preserved in the OrderedMap.
    *
    *     var newOrderedMap = OrderedMap({key: "value"});
    *     var newOrderedMap = OrderedMap([["key", "value"]]);
@@ -1585,9 +1571,6 @@ declare module 'immutable' {
 
 
   /**
-   * Record
-   * ------
-   *
    * Creates a new Class which produces Record instances. A record is similar to
    * a JS object, but enforce a specific set of allowed string keys, and have
    * default values.
@@ -1614,7 +1597,8 @@ declare module 'immutable' {
    * Because Records have a known set of string keys, property get access works
    * as expected, however property sets will throw an Error.
    *
-   * Note: IE8 does not support property access.
+   * Note: IE8 does not support property access. Only use `get()` when
+   * supporting IE8.
    *
    *     myRecord.b // 3
    *     myRecord.b = 5 // throws Error
@@ -1650,19 +1634,16 @@ declare module 'immutable' {
 
 
   /**
-   * Set
-   * ---
-   *
-   * A Set is a Iterable of unique values with `O(log32 N)` gets and sets.
-   *
-   * Sets, like Maps, require that their values are hashable, either a primitive
-   * (string or number) or an object with a `hashCode(): number` method.
+   * A Collection of unique values with `O(log32 N)` adds and has.
    *
    * When iterating a Set, the entries will be (value, value) pairs. Iteration
    * order of a Set is undefined, however is stable. Multiple iterations of the
    * same Set will iterate in the same order.
+   *
+   * Set values, like Map keys, may be of any type. Equality is determined using
+   * `Immutable.is`, enabling Sets to uniquely include other Immutable
+   * collections, custom value types, and NaN.
    */
-
   export module Set {
 
     /**
@@ -1762,15 +1743,15 @@ declare module 'immutable' {
 
 
   /**
-   * Ordered Set
-   * -----------
+   * A type of Set that has the additional guarantee that the iteration order of
+   * values will be the order in which they were `add`ed.
    *
-   * OrderedSet constructors return a Set which has the additional guarantee of
-   * the iteration order of entries to match the order in which they were added.
-   * This makes OrderedSet behave similarly to native JS objects, arrays and
-   * ES6 Sets.
+   * The iteration behavior of OrderedSet is the same as native ES6 Set.
+   *
+   * Note that `OrderedSet` are more expensive than non-ordered `Set` and may
+   * consume more memory. `OrderedSet#add` is amoratized O(log32 N), but not
+   * stable.
    */
-
   export module OrderedSet {
 
     /**
@@ -1808,15 +1789,19 @@ declare module 'immutable' {
 
 
   /**
-   * List
-   * ------
-   *
    * Lists are ordered indexed dense collections, much like a JavaScript
-   * Array. Unlike a JavaScript Array, there is no distinction between an
+   * Array.
+   *
+   * Lists are immutable and fully persistent with O(log32 N) gets and sets,
+   * and O(1) push and pop.
+   *
+   * Lists implement Deque, with efficient addition and removal from both the
+   * end (`push`, `pop`) and beginning (`unshift`, `shift`).
+   *
+   * Unlike a JavaScript Array, there is no distinction between an
    * "unset" index and an index set to `undefined`. `List#forEach` visits all
-   * indices from 0 to size, regardless of if they are defined.
+   * indices from 0 to size, regardless of if they where explicitly defined.
    */
-
   export module List {
 
     /**
@@ -1851,12 +1836,18 @@ declare module 'immutable' {
      *
      * `index` may be a negative number, which indexes back from the end of the
      * List. `v.set(-1, "value")` sets the last item in the List.
+     *
+     * If `index` larger than `size`, the returned List's `size` will be large
+     * enough to include the `index`.
      */
     set(index: number, value: T): List<T>;
 
     /**
      * Returns a new List having set `value` at this `keyPath`. If any keys in
      * `keyPath` do not exist, a new immutable Map will be created at that key.
+     *
+     * Index numbers are used as keys to determine the path to follow in
+     * the List.
      */
     setIn(keyPath: Array<any>, value: T): List<T>;
     setIn(keyPath: Iterable<any, any>, value: T): List<T>;
@@ -2032,6 +2023,10 @@ declare module 'immutable' {
      * List's size, the new List will exclude values at the higher indices.
      * If `size` is greater than this List's size, the new List will have
      * undefined values for the newly available indices.
+     *
+     * When building a new List and the final size is known up front, `setSize`
+     * used in conjunction with `withMutations` may result in the more
+     * performant construction.
      */
     setSize(size: number): List<T>;
 
@@ -2053,17 +2048,18 @@ declare module 'immutable' {
 
 
   /**
-   * Stack
-   * -----
-   *
-   * Stacks are indexed collections which support very efficient addition and
-   * removal from the front using `unshift(v)` and `shift()`.
+   * Stacks are indexed collections which support very efficient O(1) addition
+   * and removal from the front using `unshift(v)` and `shift()`.
    *
    * For familiarity, Stack also provides `push(v)`, `pop()`, and `peek()`, but
    * be aware that they also operate on the front of the list, unlike List or
    * a JavaScript Array.
+   *
+   * Note: `reverse()` or any inherent reverse traversal (`reduceRight`,
+   * `lastIndexOf`, etc.) is not efficient with a Stack.
+   *
+   * Stack is implemented with a Single-Linked List.
    */
-
   export module Stack {
 
     /**
@@ -2079,7 +2075,10 @@ declare module 'immutable' {
 
   /**
    * Create a new immutable Stack containing the values of the provided
-   * iterable.
+   * iterable-like.
+   *
+   * The iteration order of the provided iterable is preserved in the
+   * resulting `Stack`.
    */
   export function Stack<T>(): Stack<T>;
   export function Stack<T>(iter: IndexedIterable<T>): Stack<T>;
@@ -2159,7 +2158,10 @@ declare module 'immutable' {
   }
 
 
-  // ES6 Iterator
+  /**
+   * ES6 Iterator
+   * @ignore
+   */
   export interface Iterator<T> {
     next(): { value: T; done: boolean; }
   }
