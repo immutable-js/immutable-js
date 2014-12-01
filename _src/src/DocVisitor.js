@@ -10,6 +10,7 @@ class DocVisitor extends TypeScript.SyntaxWalker {
     this.stack = [];
     this.data = {};
     this.typeParams = [];
+    this.aliases = [];
   }
 
   push(newData) {
@@ -41,6 +42,20 @@ class DocVisitor extends TypeScript.SyntaxWalker {
     return this.typeParams.some(set => !!set[name]);
   }
 
+  isAliased(name) {
+    return !!Seq(this.aliases).last()[name];
+  }
+
+  addAliases(comment, name) {
+    Seq(comment && comment.notes).filter(
+      note => note.name === 'alias'
+    ).map(
+      node => node.body
+    ).forEach(alias => {
+      Seq(this.aliases).last()[alias] = name;
+    });
+  }
+
   visitModuleDeclaration(node) {
     var moduleObj = {};
 
@@ -59,16 +74,19 @@ class DocVisitor extends TypeScript.SyntaxWalker {
     }
 
     this.push(moduleObj);
+    this.aliases.push({});
 
     super.visitModuleDeclaration(node);
 
+    this.aliases.pop();
     this.pop();
   }
 
   visitFunctionDeclaration(node) {
     var comment = this.getDoc(node);
-    if (!shouldIgnore(comment)) {
-      var name = node.identifier.text();
+    var name = node.identifier.text();
+    if (!shouldIgnore(comment) && !this.isAliased(name)) {
+      this.addAliases(comment, name);
 
       var callSignature = this.parseCallSignature(node.callSignature);
       callSignature.line = this.getLineNum(node);
@@ -125,6 +143,7 @@ class DocVisitor extends TypeScript.SyntaxWalker {
     }
 
     this.push(interfaceObj);
+    this.aliases.push({});
 
     super.visitInterfaceDeclaration(node);
 
@@ -132,6 +151,7 @@ class DocVisitor extends TypeScript.SyntaxWalker {
       this.typeParams.pop();
     }
 
+    this.aliases.pop();
     this.pop();
   }
 
@@ -158,10 +178,12 @@ class DocVisitor extends TypeScript.SyntaxWalker {
 
   visitPropertySignature(node) {
     var comment = this.getDoc(node);
-    if (!shouldIgnore(comment)) {
+    var name = node.propertyName.text();
+    if (!shouldIgnore(comment) && !this.isAliased(name)) {
+      this.addAliases(comment, name);
+
       this.ensureGroup(node);
 
-      var name = node.propertyName.text();
       var propertyObj = {
         line: this.getLineNum(node),
         // name: name // redundant
@@ -187,10 +209,11 @@ class DocVisitor extends TypeScript.SyntaxWalker {
 
   visitMethodSignature(node) {
     var comment = this.getDoc(node);
-    if (!shouldIgnore(comment)) {
-      this.ensureGroup(node);
+    var name = node.propertyName.text();
+    if (!shouldIgnore(comment) && !this.isAliased(name)) {
+      this.addAliases(comment, name);
 
-      var name = node.propertyName.text();
+      this.ensureGroup(node);
 
       var callSignature = this.parseCallSignature(node.callSignature);
       callSignature.line = this.getLineNum(node);

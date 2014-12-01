@@ -219,7 +219,11 @@ var MemberDoc = React.createClass({
                   <h4 className="infoHeader">
                     {note.name}
                   </h4>
-                  {note.body}
+                  {
+                    note.name === 'alias' ?
+                      <CallSigDef name={note.body} /> :
+                    note.body
+                  }
                 </section>
               )}
               {doc.description &&
