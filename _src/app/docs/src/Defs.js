@@ -1,4 +1,5 @@
 var React = require('react');
+var CSSCore = require('react/lib/CSSCore');
 var Router = require('react-router');
 var { Seq } = require('immutable');
 var TypeKind = require('../../../src/TypeKind');
@@ -109,36 +110,57 @@ var TypeDef = React.createClass({
   render: function() {
     var type = this.props.type;
     switch (type.k) {
-      case TypeKind.Any: return <span className="t primitive">any</span>;
-      case TypeKind.Boolean: return <span className="t primitive">boolean</span>;
-      case TypeKind.Number: return <span className="t primitive">number</span>;
-      case TypeKind.String: return <span className="t primitive">string</span>;
-      case TypeKind.Object: return <span>
-        {['{', Seq(type.members).map(t =>
+      case TypeKind.Any: return this.wrap('primitive', 'any');
+      case TypeKind.Boolean: return this.wrap('primitive', 'boolean');
+      case TypeKind.Number: return this.wrap('primitive', 'number');
+      case TypeKind.String: return this.wrap('primitive', 'string');
+      case TypeKind.Object: return this.wrap('object', [
+        '{',
+        Seq(type.members).map(t =>
           <MemberDef member={t} />
-        ).interpose(', ').toArray(), '}']}
-      </span>
-      case TypeKind.Array: return <span>
-        <TypeDef type={type.type} />
-        {'[]'}
-      </span>;
-      case TypeKind.Function: return <span>
-        {['(', functionParams(type.params), ') => ', <TypeDef type={type.type} />]}
-      </span>;
-      case TypeKind.Param: return <span className="t typeParam">{type.param}</span>;
-      case TypeKind.Type: return <span className="t type">
+        ).interpose(', ').toArray(),
+        '}'
+      ]);
+      case TypeKind.Array: return this.wrap('array', [
+        <TypeDef type={type.type} />, '[]'
+      ]);
+      case TypeKind.Function: return this.wrap('function', [
+        '(', functionParams(type.params), ') => ', <TypeDef type={type.type} />
+      ]);
+      case TypeKind.Param: return this.wrap('typeParam', type.param);
+      case TypeKind.Type: return this.wrap('type', [
         <Router.Link to={'/' + (type.qualifier ? type.qualifier.join('.') + '.' : '') + type.name}>
           {type.qualifier && [Seq(type.qualifier).map(q =>
             <span className="t typeQualifier">{q}</span>
           ).interpose('.').toArray(), '.']}
           <span className="t typeName">{type.name}</span>
-        </Router.Link>
-        {type.args && ['<', Seq(type.args).map(a =>
+        </Router.Link>,
+        type.args && ['<', Seq(type.args).map(a =>
           <TypeDef type={a} />
-        ).interpose(', ').toArray(), '>']}
-      </span>;
+        ).interpose(', ').toArray(), '>']
+      ]);
     }
     throw new Error('Unknown kind ' + type.k);
+  },
+
+  mouseOver: function(event) {
+    CSSCore.addClass(this.getDOMNode(), 'over');
+    event.stopPropagation();
+  },
+
+  mouseOut: function() {
+    CSSCore.removeClass(this.getDOMNode(), 'over');
+  },
+
+  wrap: function(className, child) {
+    return (
+      <span
+        className={'t ' + className}
+        onMouseOver={this.mouseOver}
+        onMouseOut={this.mouseOut}>
+        {child}
+      </span>
+    );
   }
 });
 
