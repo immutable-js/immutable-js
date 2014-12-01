@@ -1,5 +1,6 @@
 var TypeScript = require('./typescript-services');
 var TypeKind = require('./TypeKind');
+var { Seq } = require('immutable');
 
 
 class DocVisitor extends TypeScript.SyntaxWalker {
@@ -36,18 +37,20 @@ class DocVisitor extends TypeScript.SyntaxWalker {
   }
 
   visitModuleDeclaration(node) {
-    var name =
-      node.name ? node.name.text() :
-      node.stringLiteral ? node.stringLiteral.text() :
-      '';
-
     var moduleObj = {};
 
-    setIn(this.data, [name, 'module'], moduleObj);
-
     var comment = this.getDoc(node);
-    if (comment) {
-      setIn(this.data, [name, 'doc'], comment);
+    if (!shouldIgnore(comment)) {
+      var name =
+        node.name ? node.name.text() :
+        node.stringLiteral ? node.stringLiteral.text() :
+        '';
+
+      if (comment) {
+        setIn(this.data, [name, 'doc'], comment);
+      }
+
+      setIn(this.data, [name, 'module'], moduleObj);
     }
 
     this.push(moduleObj);
@@ -58,52 +61,57 @@ class DocVisitor extends TypeScript.SyntaxWalker {
   }
 
   visitFunctionDeclaration(node) {
-    var name = node.identifier.text();
-
-    var callSignature = parseCallSignature(node.callSignature);
-    callSignature.line = this.getLineNum(node);
-    pushIn(this.data, [name, 'call', 'signatures'], callSignature);
-
     var comment = this.getDoc(node);
-    if (comment) {
-      setIn(this.data, [name, 'call', 'doc'], comment);
-    }
+    if (!shouldIgnore(comment)) {
+      var name = node.identifier.text();
 
+      var callSignature = parseCallSignature(node.callSignature);
+      callSignature.line = this.getLineNum(node);
+      pushIn(this.data, [name, 'call', 'signatures'], callSignature);
+
+      var comment = this.getDoc(node);
+      if (comment) {
+        setIn(this.data, [name, 'call', 'doc'], comment);
+      }
+    }
     super.visitFunctionDeclaration(node);
   }
 
   visitInterfaceDeclaration(node) {
-    var name = node.identifier.text();
+    var interfaceObj = {};
 
-    var interfaceObj = {
-      line: this.getLineNum(node)
-    };
     var comment = this.getDoc(node);
-    if (comment) {
-      interfaceObj.doc = comment;
+    if (!shouldIgnore(comment)) {
+      var name = node.identifier.text();
+
+      interfaceObj.line = this.getLineNum(node)
+
+      if (comment) {
+        interfaceObj.doc = comment;
+      }
+      if (node.typeParameterList) {
+        interfaceObj.typeParams = node.typeParameterList.typeParameters.map(tp => {
+          if (tp.constraint) {
+            throw new Error('Not yet implemented: type constraint');
+          }
+          return tp.identifier.text();
+        });
+      }
+      if (node.heritageClauses) {
+        node.heritageClauses.forEach(hc => {
+          var kind;
+          if (hc.extendsOrImplementsKeyword.kind() === TypeScript.SyntaxKind.ExtendsKeyword) {
+            kind = 'extends';
+          } else if (hc.extendsOrImplementsKeyword.kind() === TypeScript.SyntaxKind.ImplementsKeyword) {
+            kind = 'implements';
+          } else {
+            throw new Error('Unknown hertitageClause');
+          }
+          interfaceObj[kind] = hc.typeNames.map(c => parseType(c));
+        });
+      }
+      setIn(this.data, [name, 'interface'], interfaceObj);
     }
-    if (node.typeParameterList) {
-      interfaceObj.typeParams = node.typeParameterList.typeParameters.map(tp => {
-        if (tp.constraint) {
-          throw new Error('Not yet implemented: type constraint');
-        }
-        return tp.identifier.text();
-      });
-    }
-    if (node.heritageClauses) {
-      node.heritageClauses.forEach(hc => {
-        var kind;
-        if (hc.extendsOrImplementsKeyword.kind() === TypeScript.SyntaxKind.ExtendsKeyword) {
-          kind = 'extends';
-        } else if (hc.extendsOrImplementsKeyword.kind() === TypeScript.SyntaxKind.ImplementsKeyword) {
-          kind = 'implements';
-        } else {
-          throw new Error('Unknown hertitageClause');
-        }
-        interfaceObj[kind] = hc.typeNames.map(c => parseType(c));
-      });
-    }
-    setIn(this.data, [name, 'interface'], interfaceObj);
 
     this.push(interfaceObj);
 
@@ -134,50 +142,54 @@ class DocVisitor extends TypeScript.SyntaxWalker {
   }
 
   visitPropertySignature(node) {
-    this.ensureGroup(node);
-
-    var name = node.propertyName.text();
-    var propertyObj = {
-      line: this.getLineNum(node),
-      // name: name // redundant
-    };
-
-    setIn(last(this.data.groups), ['properties', '#'+name], propertyObj);
-
     var comment = this.getDoc(node);
-    if (comment) {
-      setIn(last(this.data.groups), ['properties', '#'+name, 'doc'], comment);
-    }
+    if (!shouldIgnore(comment)) {
+      this.ensureGroup(node);
 
-    if (node.questionToken) {
-      throw new Error('NYI: questionToken');
-    }
+      var name = node.propertyName.text();
+      var propertyObj = {
+        line: this.getLineNum(node),
+        // name: name // redundant
+      };
 
-    if (node.typeAnnotation) {
-      propertyObj.type = parseType(node.typeAnnotation.type);
-    }
+      setIn(last(this.data.groups), ['properties', '#'+name], propertyObj);
 
+      var comment = this.getDoc(node);
+      if (comment) {
+        setIn(last(this.data.groups), ['properties', '#'+name, 'doc'], comment);
+      }
+
+      if (node.questionToken) {
+        throw new Error('NYI: questionToken');
+      }
+
+      if (node.typeAnnotation) {
+        propertyObj.type = parseType(node.typeAnnotation.type);
+      }
+    }
     super.visitPropertySignature(node);
   }
 
   visitMethodSignature(node) {
-    this.ensureGroup(node);
-
-    var name = node.propertyName.text();
-
-    var callSignature = parseCallSignature(node.callSignature);
-    callSignature.line = this.getLineNum(node);
-    pushIn(last(this.data.groups), ['methods', '#'+name, 'signatures'], callSignature);
-
     var comment = this.getDoc(node);
-    if (comment) {
-      setIn(last(this.data.groups), ['methods', '#'+name, 'doc'], comment);
-    }
+    if (!shouldIgnore(comment)) {
+      this.ensureGroup(node);
 
-    if (node.questionToken) {
-      throw new Error('NYI: questionToken');
-    }
+      var name = node.propertyName.text();
 
+      var callSignature = parseCallSignature(node.callSignature);
+      callSignature.line = this.getLineNum(node);
+      pushIn(last(this.data.groups), ['methods', '#'+name, 'signatures'], callSignature);
+
+      var comment = this.getDoc(node);
+      if (comment) {
+        setIn(last(this.data.groups), ['methods', '#'+name, 'doc'], comment);
+      }
+
+      if (node.questionToken) {
+        throw new Error('NYI: questionToken');
+      }
+    }
     super.visitMethodSignature(node);
   }
 }
@@ -200,7 +212,11 @@ function setIn(obj, path, value) {
   obj[path[path.length - 1]] = value;
 }
 
-var COMMENT_NOTE_RX = /@(\w+)\s+(.*)/;
+var COMMENT_NOTE_RX = /@(\w+)(?:\s+(.*))?/;
+
+var NOTE_BLACKLIST = {
+  override: true
+};
 
 function parseComment(node) {
   if (!node) {
@@ -216,7 +232,7 @@ function parseComment(node) {
 
   var notes = lines
     .map(l => l.match(COMMENT_NOTE_RX))
-    .filter(n => n !== null)
+    .filter(n => n !== null && !NOTE_BLACKLIST[n[1]])
     .map(n => ({ name: n[1], body: n[2] }));
   var paragraphs =
     lines.filter(l => !COMMENT_NOTE_RX.test(l)).join('\n').split('\n\n');
@@ -232,6 +248,12 @@ function parseComment(node) {
   }
 
   return comment;
+}
+
+function shouldIgnore(comment) {
+  return !!(comment && Seq(comment.notes).find(
+    note => note.name === 'ignore'
+  ));
 }
 
 function parseCallSignature(node) {

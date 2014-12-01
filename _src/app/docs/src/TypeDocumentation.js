@@ -144,12 +144,16 @@ var MemberDoc = React.createClass({
   },
 
   toggleDetail: function() {
-    if (!this.state.detail) {
-      var member = this.props.member;
-      var name = member.memberName.substr(1);
+    var isOpening = !this.state.detail;
+    var member = this.props.member;
+    var name = member.memberName.substr(1);
+    var pathMethodName = this.getParams().methodName;
+    if (isOpening) {
       this.replaceWith('/' + this.props.parentName + '/' + name );
+    } else if (!isOpening && pathMethodName === name) {
+      this.replaceWith('/' + this.props.parentName );
     }
-    this.setState({ detail: !this.state.detail });
+    this.setState({ detail: isOpening });
   },
 
   render: function() {
