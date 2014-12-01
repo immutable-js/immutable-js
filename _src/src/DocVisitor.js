@@ -9,6 +9,7 @@ class DocVisitor extends TypeScript.SyntaxWalker {
     this.text = text;
     this.stack = [];
     this.data = {};
+    this.typeParams = [];
   }
 
   push(newData) {
@@ -34,6 +35,10 @@ class DocVisitor extends TypeScript.SyntaxWalker {
         TypeScript.ASTHelpers.docComments(node, this.text)
       )
     );
+  }
+
+  isTypeParam(name) {
+    return this.typeParams.some(set => !!set[name]);
   }
 
   visitModuleDeclaration(node) {
@@ -65,7 +70,7 @@ class DocVisitor extends TypeScript.SyntaxWalker {
     if (!shouldIgnore(comment)) {
       var name = node.identifier.text();
 
-      var callSignature = parseCallSignature(node.callSignature);
+      var callSignature = this.parseCallSignature(node.callSignature);
       callSignature.line = this.getLineNum(node);
       pushIn(this.data, [name, 'call', 'signatures'], callSignature);
 
@@ -81,7 +86,8 @@ class DocVisitor extends TypeScript.SyntaxWalker {
     var interfaceObj = {};
 
     var comment = this.getDoc(node);
-    if (!shouldIgnore(comment)) {
+    var ignore = shouldIgnore(comment);
+    if (!ignore) {
       var name = node.identifier.text();
 
       interfaceObj.line = this.getLineNum(node)
@@ -97,6 +103,11 @@ class DocVisitor extends TypeScript.SyntaxWalker {
           return tp.identifier.text();
         });
       }
+
+      this.typeParams.push(
+        Seq(interfaceObj.typeParams).toSetSeq().toObject()
+      );
+
       if (node.heritageClauses) {
         node.heritageClauses.forEach(hc => {
           var kind;
@@ -107,7 +118,7 @@ class DocVisitor extends TypeScript.SyntaxWalker {
           } else {
             throw new Error('Unknown hertitageClause');
           }
-          interfaceObj[kind] = hc.typeNames.map(c => parseType(c));
+          interfaceObj[kind] = hc.typeNames.map(c => this.parseType(c));
         });
       }
       setIn(this.data, [name, 'interface'], interfaceObj);
@@ -116,6 +127,10 @@ class DocVisitor extends TypeScript.SyntaxWalker {
     this.push(interfaceObj);
 
     super.visitInterfaceDeclaration(node);
+
+    if (!ignore) {
+      this.typeParams.pop();
+    }
 
     this.pop();
   }
@@ -164,7 +179,7 @@ class DocVisitor extends TypeScript.SyntaxWalker {
       }
 
       if (node.typeAnnotation) {
-        propertyObj.type = parseType(node.typeAnnotation.type);
+        propertyObj.type = this.parseType(node.typeAnnotation.type);
       }
     }
     super.visitPropertySignature(node);
@@ -177,7 +192,7 @@ class DocVisitor extends TypeScript.SyntaxWalker {
 
       var name = node.propertyName.text();
 
-      var callSignature = parseCallSignature(node.callSignature);
+      var callSignature = this.parseCallSignature(node.callSignature);
       callSignature.line = this.getLineNum(node);
       pushIn(last(this.data.groups), ['methods', '#'+name, 'signatures'], callSignature);
 
@@ -191,6 +206,137 @@ class DocVisitor extends TypeScript.SyntaxWalker {
       }
     }
     super.visitMethodSignature(node);
+  }
+
+  parseCallSignature(node) {
+    var callSignature = {};
+
+    if (node.typeParameterList &&
+        node.typeParameterList.typeParameters.length) {
+      callSignature.typeParams = node.typeParameterList.typeParameters.map(tp => {
+        if (tp.constraint) {
+          throw new Error('Not yet implemented: type constraint');
+        }
+        return tp.identifier.text();
+      });
+    }
+
+    this.typeParams.push(
+      Seq(callSignature.typeParams).toSetSeq().toObject()
+    );
+
+    if (node.parameterList.parameters.length) {
+      callSignature.params =
+        node.parameterList.parameters.map(p => this.parseParam(p));
+    }
+
+    if (node.typeAnnotation) {
+      callSignature.type = this.parseType(node.typeAnnotation.type);
+    }
+
+    this.typeParams.pop();
+
+    return callSignature;
+  }
+
+  parseType(node) {
+    switch (node.kind()) {
+      case TypeScript.SyntaxKind.AnyKeyword:
+        return {
+          k: TypeKind.Any
+        };
+      case TypeScript.SyntaxKind.BooleanKeyword:
+        return {
+          k: TypeKind.Boolean
+        };
+      case TypeScript.SyntaxKind.NumberKeyword:
+        return {
+          k: TypeKind.Number
+        };
+      case TypeScript.SyntaxKind.StringKeyword:
+        return {
+          k: TypeKind.String
+        };
+      case TypeScript.SyntaxKind.ObjectType:
+        return {
+          k: TypeKind.Object,
+          members: node.typeMembers.map(m => {
+            switch (m.kind()) {
+              case TypeScript.SyntaxKind.IndexSignature:
+                return {
+                  index: true,
+                  params: m.parameters.map(p => this.parseParam(p)),
+                  type: this.parseType(m.typeAnnotation.type)
+                }
+              case TypeScript.SyntaxKind.PropertySignature:
+                return {
+                  name: m.propertyName.text(),
+                  type: this.parseType(m.typeAnnotation.type)
+                }
+            }
+            throw new Error('Unknown member kind: ' + m.kind());
+          })
+        };
+      case TypeScript.SyntaxKind.ArrayType:
+        return {
+          k: TypeKind.Array,
+          type: this.parseType(node.type)
+        }
+      case TypeScript.SyntaxKind.FunctionType:
+        return {
+          k: TypeKind.Function,
+          params: node.parameterList.parameters.map(p => this.parseParam(p)),
+          type: this.parseType(node.type)
+        };
+      case TypeScript.SyntaxKind.IdentifierName:
+        var text = node.text();
+        if (this.isTypeParam(text)) {
+          return {
+            k: TypeKind.Param,
+            param: node.text()
+          };
+        } else {
+          return {
+            k: TypeKind.Type,
+            name: node.text()
+          };
+        }
+      case TypeScript.SyntaxKind.GenericType:
+        var t = {
+          k: TypeKind.Type,
+          name: node.name.text()
+        };
+        if (node.typeArgumentList) {
+          t.args = node.typeArgumentList.typeArguments.map(
+            ta => this.parseType(ta)
+          );
+        }
+        return t;
+      case TypeScript.SyntaxKind.QualifiedName:
+        var type = this.parseType(node.right);
+        type.qualifier = [node.left.text()].concat(type.qualifier || []);
+        return type;
+    }
+    throw new Error('Unknown type kind: ' + node.kind());
+  }
+
+  parseParam(node) {
+    var p = {
+      name: node.identifier.text()
+    };
+    if (node.dotDotDotToken) {
+      p.varArgs = true;
+    }
+    if (node.questionToken) {
+      p.optional = true;
+    }
+    if (node.equalsValueClause) {
+      throw new Error('NYI: equalsValueClause');
+    }
+    if (node.typeAnnotation) {
+      p.type = this.parseType(node.typeAnnotation.type);
+    }
+    return p;
   }
 }
 
@@ -254,134 +400,6 @@ function shouldIgnore(comment) {
   return !!(comment && Seq(comment.notes).find(
     note => note.name === 'ignore'
   ));
-}
-
-function parseCallSignature(node) {
-  var callSignature = {};
-
-  if (node.typeParameterList &&
-      node.typeParameterList.typeParameters.length) {
-    callSignature.typeParams = node.typeParameterList.typeParameters.map(tp => {
-      if (tp.constraint) {
-        throw new Error('Not yet implemented: type constraint');
-      }
-      return tp.identifier.text();
-    });
-  }
-
-  if (node.parameterList.parameters.length) {
-    callSignature.params =
-      node.parameterList.parameters.map(p => parseParam(p));
-  }
-
-  if (node.typeAnnotation) {
-    callSignature.type = parseType(node.typeAnnotation.type);
-  }
-
-  return callSignature;
-}
-
-function parseParam(node) {
-  var p = {
-    name: node.identifier.text()
-  };
-  if (node.dotDotDotToken) {
-    p.varArgs = true;
-  }
-  if (node.questionToken) {
-    p.optional = true;
-  }
-  if (node.equalsValueClause) {
-    throw new Error('NYI: equalsValueClause');
-  }
-  if (node.typeAnnotation) {
-    p.type = parseType(node.typeAnnotation.type);
-  }
-  return p;
-}
-
-function parseType(node) {
-  switch (node.kind()) {
-    case TypeScript.SyntaxKind.AnyKeyword:
-      return {
-        k: TypeKind.Any
-      };
-    case TypeScript.SyntaxKind.BooleanKeyword:
-      return {
-        k: TypeKind.Boolean
-      };
-    case TypeScript.SyntaxKind.NumberKeyword:
-      return {
-        k: TypeKind.Number
-      };
-    case TypeScript.SyntaxKind.StringKeyword:
-      return {
-        k: TypeKind.String
-      };
-    case TypeScript.SyntaxKind.ObjectType:
-      return {
-        k: TypeKind.Object,
-        members: node.typeMembers.map(function (m) {
-          switch (m.kind()) {
-            case TypeScript.SyntaxKind.IndexSignature:
-              return {
-                index: true,
-                params: m.parameters.map(function (p) { return parseParam(p); }),
-                type: parseType(m.typeAnnotation.type)
-              }
-            case TypeScript.SyntaxKind.PropertySignature:
-              return {
-                name: m.propertyName.text(),
-                type: parseType(m.typeAnnotation.type)
-              }
-          }
-          throw new Error('Unknown member kind: ' + m.kind());
-        })
-      };
-    case TypeScript.SyntaxKind.ArrayType:
-      return {
-        k: TypeKind.Array,
-        type: parseType(node.type)
-      }
-    case TypeScript.SyntaxKind.FunctionType:
-      return {
-        k: TypeKind.Function,
-        params: node.parameterList.parameters.map(function (p) {
-          return parseParam(p);
-        }),
-        type: parseType(node.type)
-      };
-    case TypeScript.SyntaxKind.IdentifierName:
-      var text = node.text();
-      // TODO: be smarter by keeping scope of visited type params
-      if (text.length === 1) {
-        return {
-          k: TypeKind.Param,
-          param: node.text()
-        };
-      } else {
-        return {
-          k: TypeKind.Type,
-          name: node.text()
-        };
-      }
-    case TypeScript.SyntaxKind.GenericType:
-      var t = {
-        k: TypeKind.Type,
-        name: node.name.text()
-      };
-      if (node.typeArgumentList) {
-        t.args = node.typeArgumentList.typeArguments.map(function (ta) {
-          return parseType(ta);
-        });
-      }
-      return t;
-    case TypeScript.SyntaxKind.QualifiedName:
-      var type = parseType(node.right);
-      type.qualifier = [node.left.text()].concat(type.qualifier || []);
-      return type;
-  }
-  throw new Error('Unknown type kind: ' + node.kind());
 }
 
 module.exports = DocVisitor;
