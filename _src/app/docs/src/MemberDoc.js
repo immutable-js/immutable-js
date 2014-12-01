@@ -3,14 +3,28 @@ var { classSet, TransitionGroup } = React.addons;
 var ReactTransitionEvents = require('react/lib/ReactTransitionEvents');
 var Router = require('react-router');
 var { CallSigDef, MemberDef } = require('./Defs');
+var PageDataMixin = require('./PageDataMixin');
 
 
 var MemberDoc = React.createClass({
-  mixins: [ Router.Navigation ],
+  mixins: [ PageDataMixin, Router.Navigation ],
 
   getInitialState: function() {
     var showDetail = this.props.showDetail;
     return { detail: showDetail };
+  },
+
+  componentDidMount: function() {
+    if (this.props.showDetail) {
+      var node = this.getDOMNode();
+      var navType = this.getPageData().type;
+      if (navType === 'init' || navType === 'push') {
+        window.scrollTo(
+          window.scrollX,
+          offsetTop(node) - FIXED_HEADER_HEIGHT
+        );
+      }
+    }
   },
 
   toggleDetail: function() {
@@ -150,5 +164,15 @@ var SlideDown = React.createClass({
     return this.props.children;
   }
 });
+
+var FIXED_HEADER_HEIGHT = 64;
+
+function offsetTop(node) {
+  var top = 0;
+  do {
+    top += node.offsetTop;
+  } while ((node = node.offsetParent));
+  return top;
+}
 
 module.exports = MemberDoc;

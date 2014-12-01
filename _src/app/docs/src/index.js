@@ -1,4 +1,5 @@
 var React = require('react');
+var assign = require('react/lib/Object.assign');
 var Router = require('react-router');
 var { Route, DefaultRoute, RouteHandler } = Router;
 var DocHeader = require('./DocHeader');
@@ -26,20 +27,7 @@ var DocDeterminer = React.createClass({
   mixins: [ Router.State ],
 
   render: function () {
-    var typeName = this.getParams().typeName;
-    var memberName = this.getParams().memberName;
-
-    var type = defs.Immutable;
-    var typePath = typeName ? typeName.split('.') : [];
-    type = typePath.reduce(
-      (type, name) => type && type.module && type.module[name],
-      type
-    );
-    if (typePath.length === 1 && !type.interface && !type.module) {
-      memberName = typeName;
-      typeName = null;
-      type = defs.Immutable;
-    }
+    var { typeName, memberName } = determineDoc(this.getPath());
     if (typeName) {
       return <TypeDocumentation />;
     } else {
@@ -49,8 +37,71 @@ var DocDeterminer = React.createClass({
 });
 
 
+function determineDoc(path) {
+  var [, typeName, memberName] = path.split('/');
+
+  var def = defs.Immutable;
+  var typePath = typeName ? typeName.split('.') : [];
+  def = typePath.reduce(
+    (def, name) => def && def.module && def.module[name],
+    def
+  );
+  if (typePath.length === 1 && !def.interface && !def.module) {
+    memberName = typeName;
+    typeName = null;
+    def = defs.Immutable;
+  }
+  return { def, typeName, memberName };
+}
+
+
 module.exports = React.createClass({
+
+  childContextTypes: {
+    getPageData: React.PropTypes.func.isRequired,
+  },
+
+  getChildContext: function () {
+    return {
+      getPageData: this.getPageData,
+    };
+  },
+
+  getPageData: function () {
+    return this.pageData;
+  },
+
   componentWillMount: function() {
+    var location, scrollBehavior;
+
+    if (window.document) {
+      location = Router.HashLocation;
+      location.addChangeListener(change => {
+        this.pageData = assign({}, change, determineDoc(change.path));
+      });
+
+      this.pageData = !window.document ? {} : assign({
+        path: location.getCurrentPath(),
+        type: 'init',
+      }, determineDoc(location.getCurrentPath()));
+
+      scrollBehavior = {
+        updateScrollPosition: (position, actionType) => {
+          switch (actionType) {
+            case 'push':
+              return this.getPageData().memberName ?
+                null :
+                window.scrollTo(0, 0);
+            case 'pop':
+              return window.scrollTo(
+                position ? position.x : 0,
+                position ? position.y : 0
+              );
+          }
+        }
+      };
+    }
+
     Router.create({
       routes:
         <Route handler={Documentation} path="/">
@@ -58,22 +109,13 @@ module.exports = React.createClass({
           <Route name="type" path="/:typeName" handler={DocDeterminer} />
           <Route name="method" path="/:typeName/:memberName" handler={DocDeterminer} />
         </Route>,
-
-      scrollBehavior: window.document && {
-        updateScrollPosition: function (position, actionType) {
-          switch (actionType) {
-            case 'push': return window.scrollTo(0, 0);
-            case 'pop': return window.scrollTo(
-              position ? position.x : 0,
-              position ? position.y : 0
-            );
-          }
-        }
-      }
+      location: location,
+      scrollBehavior: scrollBehavior
     }).run(Handler => {
       this.setState({handler: Handler});
     });
   },
+
   render: function () {
     var Handler = this.state.handler;
     return <Handler />;
