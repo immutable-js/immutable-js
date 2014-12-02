@@ -109,20 +109,24 @@ var TypeDocumentation = React.createClass({
           </section>
         }
 
-        {Seq(memberGroups).map((members, title) =>
-          members.length === 0 ? null :
-          <section>
-            <h4 className="groupTitle">{title || 'Members'}</h4>
-            {members.map(member =>
-              <MemberDoc
-                key={member.memberName}
-                showDetail={member.memberName === this.getParams().memberName}
-                parentName={typeName}
-                member={member}
-              />
-            )}
-          </section>
-        ).toArray()}
+        <section>
+          {Seq(memberGroups).map((members, title) =>
+            members.length === 0 ? null :
+            Seq([
+              <h4 key={title || 'Members'} className="groupTitle">
+                {title || 'Members'}
+              </h4>,
+              Seq(members).map(member =>
+                <MemberDoc
+                  key={member.memberName}
+                  showDetail={member.memberName === this.getParams().memberName}
+                  parentName={typeName}
+                  member={member}
+                />
+              )
+            ])
+          ).flatten().toArray()}
+        </section>
 
       </div>
     );

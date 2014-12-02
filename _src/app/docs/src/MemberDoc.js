@@ -73,8 +73,8 @@ var MemberDoc = React.createClass({
                 <div className="codeBlock memberSignature">
                   <MemberDef module={module} member={{name, type: def.type}} />
                 </div> :
-                def.signatures.map(callSig =>
-                  <div className="codeBlock memberSignature">
+                def.signatures.map((callSig, i) =>
+                  <div key={i} className="codeBlock memberSignature">
                     <CallSigDef module={module} name={name} callSig={callSig} />
                   </div>
                 )
@@ -99,8 +99,8 @@ var MemberDoc = React.createClass({
                   </Router.Link>
                 </section>
               }
-              {doc.notes && doc.notes.map(note =>
-                <section>
+              {doc.notes && doc.notes.map((note, i) =>
+                <section key={i}>
                   <h4 className="infoHeader">
                     {note.name}
                   </h4>

@@ -526,8 +526,8 @@ var MemberDoc = React.createClass({displayName: 'MemberDoc',
                 React.createElement("div", {className: "codeBlock memberSignature"}, 
                   React.createElement(MemberDef, {module: module, member: {name:name, type: def.type}})
                 ) :
-                def.signatures.map(function(callSig) 
-                  {return React.createElement("div", {className: "codeBlock memberSignature"}, 
+                def.signatures.map(function(callSig, i) 
+                  {return React.createElement("div", {key: i, className: "codeBlock memberSignature"}, 
                     React.createElement(CallSigDef, {module: module, name: name, callSig: callSig})
                   );}
                 ), 
@@ -552,8 +552,8 @@ var MemberDoc = React.createClass({displayName: 'MemberDoc',
                   )
                 ), 
               
-              doc.notes && doc.notes.map(function(note) 
-                {return React.createElement("section", null, 
+              doc.notes && doc.notes.map(function(note, i) 
+                {return React.createElement("section", {key: i}, 
                   React.createElement("h4", {className: "infoHeader"}, 
                     note.name
                   ), 
@@ -758,20 +758,24 @@ var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
           ), 
         
 
-        Seq(memberGroups).map(function(members, title) 
-          {return members.length === 0 ? null :
-          React.createElement("section", null, 
-            React.createElement("h4", {className: "groupTitle"}, title || 'Members'), 
-            members.map(function(member) 
-              {return React.createElement(MemberDoc, {
-                key: member.memberName, 
-                showDetail: member.memberName === this.getParams().memberName, 
-                parentName: typeName, 
-                member: member}
-              );}.bind(this)
-            )
-          );}.bind(this)
-        ).toArray()
+        React.createElement("section", null, 
+          Seq(memberGroups).map(function(members, title) 
+            {return members.length === 0 ? null :
+            Seq([
+              React.createElement("h4", {key: title || 'Members', className: "groupTitle"}, 
+                title || 'Members'
+              ),
+              Seq(members).map(function(member) 
+                {return React.createElement(MemberDoc, {
+                  key: member.memberName, 
+                  showDetail: member.memberName === this.getParams().memberName, 
+                  parentName: typeName, 
+                  member: member}
+                );}.bind(this)
+              )
+            ]);}.bind(this)
+          ).flatten().toArray()
+        )
 
       )
     );
