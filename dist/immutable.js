@@ -1842,7 +1842,7 @@ function mergeIntoCollectionWith(collection, merger, iters) {
     return collection;
   }
   if (collection.size === 0 && iters.length === 1) {
-    return collection.constructor(iters[0]);
+    return new collection.constructor(iters[0]);
   }
   return collection.withMutations((function(collection) {
     var mergeIntoMap = merger ? (function(value, key) {
@@ -2562,7 +2562,7 @@ function maxFactory(iterable, comparator, mapper) {
   }
 }
 function reify(iter, seq) {
-  return isSeq(iter) ? seq : iter.constructor(seq);
+  return isSeq(iter) ? seq : new iter.constructor(seq);
 }
 function validateEntry(entry) {
   if (entry !== Object(entry)) {
@@ -2599,7 +2599,7 @@ var List = function List(value) {
     return empty;
   }
   if (isList(value)) {
-    return value;
+    return value.constructor === this.constructor ? value : empty.merge(value);
   }
   value = IndexedIterable(value);
   var size = value.size;
@@ -3448,7 +3448,7 @@ var Set = function Set(value) {
       return this;
     }
     if (this.size === 0 && iters.length === 1) {
-      return this.constructor(iters[0]);
+      return new this.constructor(iters[0]);
     }
     return this.withMutations((function(set) {
       for (var ii = 0; ii < iters.length; ii++) {

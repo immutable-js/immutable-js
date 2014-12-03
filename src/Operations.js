@@ -715,7 +715,7 @@ function maxFactory(iterable, comparator, mapper) {
 // #pragma Helper Functions
 
 function reify(iter, seq) {
-  return isSeq(iter) ? seq : iter.constructor(seq);
+  return isSeq(iter) ? seq : new iter.constructor(seq);
 }
 
 function validateEntry(entry) {

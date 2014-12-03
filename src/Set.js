@@ -69,7 +69,7 @@ class Set extends SetCollection {
       return this;
     }
     if (this.size === 0 && iters.length === 1) {
-      return this.constructor(iters[0]);
+      return new this.constructor(iters[0]);
     }
     return this.withMutations(set => {
       for (var ii = 0; ii < iters.length; ii++) {

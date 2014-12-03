@@ -730,7 +730,7 @@ function mergeIntoCollectionWith(collection, merger, iters) {
     return collection;
   }
   if (collection.size === 0 && iters.length === 1) {
-    return collection.constructor(iters[0]);
+    return new collection.constructor(iters[0]);
   }
   return collection.withMutations(collection => {
     var mergeIntoMap = merger ?

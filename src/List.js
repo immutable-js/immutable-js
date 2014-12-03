@@ -34,7 +34,7 @@ class List extends IndexedCollection {
       return empty;
     }
     if (isList(value)) {
-      return value.constructor === this.constructor ? value : this.merge(value);
+      return value.constructor === this.constructor ? value : empty.merge(value);
     }
     value = IndexedIterable(value);
     var size = value.size;
