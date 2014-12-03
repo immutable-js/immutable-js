@@ -30,9 +30,10 @@ class Map extends KeyedCollection {
   // @pragma Construction
 
   constructor(value) {
-    return value === null || value === undefined ? emptyMap() :
+    if (!(this instanceof Map)) return new Map(value);
+    return value === null || value === undefined ? emptyMap(this) :
       isMap(value) ? value :
-      emptyMap().withMutations(map => {
+      emptyMap(this).withMutations(map => {
         KeyedIterable(value).forEach((v, k) => map.set(k, v));
       });
   }
@@ -98,7 +99,7 @@ class Map extends KeyedCollection {
       this.__altered = true;
       return this;
     }
-    return emptyMap();
+    return emptyMap(this);
   }
 
   // @pragma Composition
@@ -112,7 +113,7 @@ class Map extends KeyedCollection {
   }
 
   mergeIn(keyPath, ...iters) {
-    return this.updateIn(keyPath, emptyMap(), m => m.merge.apply(m, iters));
+    return this.updateIn(keyPath, emptyMap(this), m => m.merge.apply(m, iters));
   }
 
   mergeDeep(/*...iters*/) {
@@ -124,7 +125,7 @@ class Map extends KeyedCollection {
   }
 
   mergeDeepIn(keyPath, ...iters) {
-    return this.updateIn(keyPath, emptyMap(), m => m.mergeDeep.apply(m, iters));
+    return this.updateIn(keyPath, emptyMap(this), m => m.mergeDeep.apply(m, iters));
   }
 
   sort(comparator) {
@@ -179,7 +180,7 @@ class Map extends KeyedCollection {
       this.__altered = false;
       return this;
     }
-    return makeMap(this.size, this._root, ownerID, this.__hash);
+    return makeMap(this.constructor, this.size, this._root, ownerID, this.__hash);
   }
 }
 
@@ -589,8 +590,8 @@ function mapIteratorFrame(node, prev) {
   };
 }
 
-function makeMap(size, root, ownerID, hash) {
-  var map = Object.create(MapPrototype);
+function makeMap(Ctor, size, root, ownerID, hash) {
+  var map = Object.create(Ctor.prototype);
   map.size = size;
   map._root = root;
   map.__ownerID = ownerID;
@@ -600,8 +601,11 @@ function makeMap(size, root, ownerID, hash) {
 }
 
 var EMPTY_MAP;
-function emptyMap() {
-  return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
+function emptyMap(from) {
+  var source = from && from.constructor || Map;
+  return source.prototype === MapPrototype ? 
+    (EMPTY_MAP || (EMPTY_MAP = makeMap(Map, 0))) : 
+    makeMap(source, 0)
 }
 
 function updateMap(map, k, v) {
@@ -629,7 +633,7 @@ function updateMap(map, k, v) {
     map.__altered = true;
     return map;
   }
-  return newRoot ? makeMap(newSize, newRoot) : emptyMap();
+  return newRoot ? makeMap(map.constructor, newSize, newRoot) : emptyMap(map);
 }
 
 function updateNode(node, ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {

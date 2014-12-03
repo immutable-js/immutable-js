@@ -31,7 +31,7 @@ class Stack extends IndexedCollection {
   }
 
   static of(/*...values*/) {
-    return this(arguments);
+    return new this(arguments);
   }
 
   toString() {

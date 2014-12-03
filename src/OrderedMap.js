@@ -29,7 +29,7 @@ class OrderedMap extends Map {
   }
 
   static of(/*...values*/) {
-    return this(arguments);
+    return new this(arguments);
   }
 
   toString() {

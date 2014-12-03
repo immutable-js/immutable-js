@@ -28,11 +28,11 @@ class OrderedSet extends Set {
   }
 
   static of(/*...values*/) {
-    return this(arguments);
+    return new this(arguments);
   }
 
   static fromKeys(value) {
-    return this(KeyedIterable(value).keySeq());
+    return new this(KeyedIterable(value).keySeq());
   }
 
   toString() {

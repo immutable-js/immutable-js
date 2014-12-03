@@ -28,7 +28,8 @@ class List extends IndexedCollection {
   // @pragma Construction
 
   constructor(value) {
-    var empty = emptyList();
+    if (!(this instanceof List)) return new List(value);
+    var empty = emptyList(this);
     if (value === null || value === undefined) {
       return empty;
     }
@@ -41,7 +42,7 @@ class List extends IndexedCollection {
       return empty;
     }
     if (size > 0 && size < SIZE) {
-      return makeList(0, size, SHIFT, null, new VNode(value.toArray()));
+      return makeList(this.constructor, 0, size, SHIFT, null, new VNode(value.toArray()));
     }
     return empty.withMutations(list => {
       list.setSize(size);
@@ -50,7 +51,7 @@ class List extends IndexedCollection {
   }
 
   static of(/*...values*/) {
-    return this(arguments);
+    return new this(arguments);
   }
 
   toString() {
@@ -94,7 +95,7 @@ class List extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return emptyList();
+    return emptyList(this);
   }
 
   push(/*...values*/) {
@@ -188,7 +189,7 @@ class List extends IndexedCollection {
       this.__ownerID = ownerID;
       return this;
     }
-    return makeList(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
+    return makeList(this.constructor, this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
   }
 }
 
@@ -393,8 +394,8 @@ function listIteratorFrame(array, level, offset, max, prevFrame) {
   };
 }
 
-function makeList(origin, capacity, level, root, tail, ownerID, hash) {
-  var list = Object.create(ListPrototype);
+function makeList(Ctor, origin, capacity, level, root, tail, ownerID, hash) {
+  var list = Object.create(Ctor.prototype);
   list.size = capacity - origin;
   list._origin = origin;
   list._capacity = capacity;
@@ -408,8 +409,11 @@ function makeList(origin, capacity, level, root, tail, ownerID, hash) {
 }
 
 var EMPTY_LIST;
-function emptyList() {
-  return EMPTY_LIST || (EMPTY_LIST = makeList(0, 0, SHIFT));
+function emptyList(from) {
+  var source = from && from.constructor || List;
+  return source.prototype === ListPrototype ?
+    (EMPTY_LIST || (EMPTY_LIST = makeList(List, 0, 0, SHIFT))) :
+    makeList(source, 0, 0, SHIFT);
 }
 
 function updateList(list, index, value) {
@@ -445,7 +449,7 @@ function updateList(list, index, value) {
     list.__altered = true;
     return list;
   }
-  return makeList(list._origin, list._capacity, list._level, newRoot, newTail);
+  return makeList(list.constructor, list._origin, list._capacity, list._level, newRoot, newTail);
 }
 
 function updateVNode(node, ownerID, level, index, value, didAlter) {
@@ -617,7 +621,7 @@ function setListBounds(list, begin, end) {
     list.__altered = true;
     return list;
   }
-  return makeList(newOrigin, newCapacity, newLevel, newRoot, newTail);
+  return makeList(list.constructor, newOrigin, newCapacity, newLevel, newRoot, newTail);
 }
 
 function mergeIntoListWith(list, merger, iterables) {

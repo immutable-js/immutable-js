@@ -1250,12 +1250,15 @@ Collection.Keyed = KeyedCollection;
 Collection.Indexed = IndexedCollection;
 Collection.Set = SetCollection;
 var Map = function Map(value) {
-  return value === null || value === undefined ? emptyMap() : isMap(value) ? value : emptyMap().withMutations((function(map) {
+  if (!(this instanceof $Map))
+    return new $Map(value);
+  return value === null || value === undefined ? emptyMap(this) : isMap(value) ? value : emptyMap(this).withMutations((function(map) {
     KeyedIterable(value).forEach((function(v, k) {
       return map.set(k, v);
     }));
   }));
 };
+var $Map = Map;
 ($traceurRuntime.createClass)(Map, {
   toString: function() {
     return this.__toString('Map {', '}');
@@ -1301,7 +1304,7 @@ var Map = function Map(value) {
       this.__altered = true;
       return this;
     }
-    return emptyMap();
+    return emptyMap(this);
   },
   merge: function() {
     return mergeIntoMapWith(this, undefined, arguments);
@@ -1316,7 +1319,7 @@ var Map = function Map(value) {
     for (var iters = [],
         $__4 = 1; $__4 < arguments.length; $__4++)
       iters[$__4 - 1] = arguments[$__4];
-    return this.updateIn(keyPath, emptyMap(), (function(m) {
+    return this.updateIn(keyPath, emptyMap(this), (function(m) {
       return m.merge.apply(m, iters);
     }));
   },
@@ -1333,7 +1336,7 @@ var Map = function Map(value) {
     for (var iters = [],
         $__6 = 1; $__6 < arguments.length; $__6++)
       iters[$__6 - 1] = arguments[$__6];
-    return this.updateIn(keyPath, emptyMap(), (function(m) {
+    return this.updateIn(keyPath, emptyMap(this), (function(m) {
       return m.mergeDeep.apply(m, iters);
     }));
   },
@@ -1378,7 +1381,7 @@ var Map = function Map(value) {
       this.__altered = false;
       return this;
     }
-    return makeMap(this.size, this._root, ownerID, this.__hash);
+    return makeMap(this.constructor, this.size, this._root, ownerID, this.__hash);
   }
 }, {}, KeyedCollection);
 function isMap(maybeMap) {
@@ -1712,8 +1715,8 @@ function mapIteratorFrame(node, prev) {
     __prev: prev
   };
 }
-function makeMap(size, root, ownerID, hash) {
-  var map = Object.create(MapPrototype);
+function makeMap(Ctor, size, root, ownerID, hash) {
+  var map = Object.create(Ctor.prototype);
   map.size = size;
   map._root = root;
   map.__ownerID = ownerID;
@@ -1722,8 +1725,9 @@ function makeMap(size, root, ownerID, hash) {
   return map;
 }
 var EMPTY_MAP;
-function emptyMap() {
-  return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
+function emptyMap(from) {
+  var source = from && from.constructor || Map;
+  return source.prototype === MapPrototype ? (EMPTY_MAP || (EMPTY_MAP = makeMap(Map, 0))) : makeMap(source, 0);
 }
 function updateMap(map, k, v) {
   var newRoot;
@@ -1750,7 +1754,7 @@ function updateMap(map, k, v) {
     map.__altered = true;
     return map;
   }
-  return newRoot ? makeMap(newSize, newRoot) : emptyMap();
+  return newRoot ? makeMap(map.constructor, newSize, newRoot) : emptyMap(map);
 }
 function updateNode(node, ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
   if (!node) {
@@ -2588,7 +2592,9 @@ function defaultComparator(a, b) {
   return a > b ? 1 : a < b ? -1 : 0;
 }
 var List = function List(value) {
-  var empty = emptyList();
+  if (!(this instanceof $List))
+    return new $List(value);
+  var empty = emptyList(this);
   if (value === null || value === undefined) {
     return empty;
   }
@@ -2601,7 +2607,7 @@ var List = function List(value) {
     return empty;
   }
   if (size > 0 && size < SIZE) {
-    return makeList(0, size, SHIFT, null, new VNode(value.toArray()));
+    return makeList(this.constructor, 0, size, SHIFT, null, new VNode(value.toArray()));
   }
   return empty.withMutations((function(list) {
     list.setSize(size);
@@ -2610,6 +2616,7 @@ var List = function List(value) {
     }));
   }));
 };
+var $List = List;
 ($traceurRuntime.createClass)(List, {
   toString: function() {
     return this.__toString('List [', ']');
@@ -2641,7 +2648,7 @@ var List = function List(value) {
       this.__altered = true;
       return this;
     }
-    return emptyList();
+    return emptyList(this);
   },
   push: function() {
     var values = arguments;
@@ -2721,10 +2728,10 @@ var List = function List(value) {
       this.__ownerID = ownerID;
       return this;
     }
-    return makeList(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
+    return makeList(this.constructor, this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
   }
 }, {of: function() {
-    return this(arguments);
+    return new this(arguments);
   }}, IndexedCollection);
 function isList(maybeList) {
   return !!(maybeList && maybeList[IS_LIST_SENTINEL]);
@@ -2895,8 +2902,8 @@ function listIteratorFrame(array, level, offset, max, prevFrame) {
     __prev: prevFrame
   };
 }
-function makeList(origin, capacity, level, root, tail, ownerID, hash) {
-  var list = Object.create(ListPrototype);
+function makeList(Ctor, origin, capacity, level, root, tail, ownerID, hash) {
+  var list = Object.create(Ctor.prototype);
   list.size = capacity - origin;
   list._origin = origin;
   list._capacity = capacity;
@@ -2909,8 +2916,9 @@ function makeList(origin, capacity, level, root, tail, ownerID, hash) {
   return list;
 }
 var EMPTY_LIST;
-function emptyList() {
-  return EMPTY_LIST || (EMPTY_LIST = makeList(0, 0, SHIFT));
+function emptyList(from) {
+  var source = from && from.constructor || List;
+  return source.prototype === ListPrototype ? (EMPTY_LIST || (EMPTY_LIST = makeList(List, 0, 0, SHIFT))) : makeList(source, 0, 0, SHIFT);
 }
 function updateList(list, index, value) {
   index = wrapIndex(list, index);
@@ -2938,7 +2946,7 @@ function updateList(list, index, value) {
     list.__altered = true;
     return list;
   }
-  return makeList(list._origin, list._capacity, list._level, newRoot, newTail);
+  return makeList(list.constructor, list._origin, list._capacity, list._level, newRoot, newTail);
 }
 function updateVNode(node, ownerID, level, index, value, didAlter) {
   var idx = (index >>> level) & MASK;
@@ -3076,7 +3084,7 @@ function setListBounds(list, begin, end) {
     list.__altered = true;
     return list;
   }
-  return makeList(newOrigin, newCapacity, newLevel, newRoot, newTail);
+  return makeList(list.constructor, newOrigin, newCapacity, newLevel, newRoot, newTail);
 }
 function mergeIntoListWith(list, merger, iterables) {
   var iters = [];
@@ -3162,7 +3170,7 @@ var OrderedMap = function OrderedMap(value) {
     return makeOrderedMap(newMap, newList, ownerID, this.__hash);
   }
 }, {of: function() {
-    return this(arguments);
+    return new this(arguments);
   }}, Map);
 function isOrderedMap(maybeOrderedMap) {
   return isMap(maybeOrderedMap) && isOrdered(maybeOrderedMap);
@@ -3380,7 +3388,7 @@ var $Stack = Stack;
     }));
   }
 }, {of: function() {
-    return this(arguments);
+    return new this(arguments);
   }}, IndexedCollection);
 function isStack(maybeStack) {
   return !!(maybeStack && maybeStack[IS_STACK_SENTINEL]);
@@ -3535,10 +3543,10 @@ var Set = function Set(value) {
   }
 }, {
   of: function() {
-    return this(arguments);
+    return new this(arguments);
   },
   fromKeys: function(value) {
-    return this(KeyedIterable(value).keySeq());
+    return new this(KeyedIterable(value).keySeq());
   }
 }, SetCollection);
 function isSet(maybeSet) {
@@ -3586,10 +3594,10 @@ var OrderedSet = function OrderedSet(value) {
     return this.__toString('OrderedSet {', '}');
   }}, {
   of: function() {
-    return this(arguments);
+    return new this(arguments);
   },
   fromKeys: function(value) {
-    return this(KeyedIterable(value).keySeq());
+    return new this(KeyedIterable(value).keySeq());
   }
 }, Set);
 function isOrderedSet(maybeOrderedSet) {
