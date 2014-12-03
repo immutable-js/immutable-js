@@ -1252,7 +1252,7 @@ Collection.Set = SetCollection;
 var Map = function Map(value) {
   if (!(this instanceof $Map))
     return new $Map(value);
-  return value === null || value === undefined ? emptyMap(this) : isMap(value) ? value : emptyMap(this).withMutations((function(map) {
+  return value === null || value === undefined ? emptyMap(this) : isMap(value) ? (value.constructor === this.constructor ? value : this.merge(value)) : emptyMap(this).withMutations((function(map) {
     KeyedIterable(value).forEach((function(v, k) {
       return map.set(k, v);
     }));

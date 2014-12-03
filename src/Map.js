@@ -32,7 +32,7 @@ class Map extends KeyedCollection {
   constructor(value) {
     if (!(this instanceof Map)) return new Map(value);
     return value === null || value === undefined ? emptyMap(this) :
-      isMap(value) ? value :
+      isMap(value) ? (value.constructor === this.constructor ? value : this.merge(value)) :
       emptyMap(this).withMutations(map => {
         KeyedIterable(value).forEach((v, k) => map.set(k, v));
       });
