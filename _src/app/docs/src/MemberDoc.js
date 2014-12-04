@@ -50,15 +50,17 @@ var MemberDoc = React.createClass({
   },
 
   toggleDetail: function() {
-    var member = this.props.member;
-    var name = member.memberName;
-    var typeName = this.props.parentName;
-    var showDetail = this.props.showDetail;
-    if (!this.state.detail) {
-      this.replaceWith('/' + (typeName ? typeName + '/' : '') + name );
-    } else if (this.state.detail && showDetail) {
-      this.replaceWith('/' + (typeName || '') );
-    }
+    // Note: removed this because it drops the URL bar on mobile, and that's
+    // the only place it's currently being used.
+    // var member = this.props.member;
+    // var name = member.memberName;
+    // var typeName = this.props.parentName;
+    // var showDetail = this.props.showDetail;
+    // if (!this.state.detail) {
+    //   this.replaceWith('/' + (typeName ? typeName + '/' : '') + name );
+    // } else if (this.state.detail && showDetail) {
+    //   this.replaceWith('/' + (typeName || '') );
+    // }
     this.setState({ detail: !this.state.detail });
   },
 
