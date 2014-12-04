@@ -65,7 +65,7 @@ var MemberDoc = React.createClass({
         <TransitionGroup childFactory={makeSlideDown}>
           {this.state.detail &&
             <div key="detail" className="detail">
-              {doc.synopsis && <pre>{doc.synopsis}</pre>}
+              {doc.synopsis && <div className="synopsis">{doc.synopsis}</div>}
               <h4 className="infoHeader">
                 {'Definition' + (def.signatures && def.signatures.length !== 1 ? 's' : '')}
               </h4>

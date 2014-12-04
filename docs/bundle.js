@@ -518,7 +518,7 @@ var MemberDoc = React.createClass({displayName: 'MemberDoc',
         React.createElement(TransitionGroup, {childFactory: makeSlideDown}, 
           this.state.detail &&
             React.createElement("div", {key: "detail", className: "detail"}, 
-              doc.synopsis && React.createElement("pre", null, doc.synopsis), 
+              doc.synopsis && React.createElement("div", {className: "synopsis"}, doc.synopsis), 
               React.createElement("h4", {className: "infoHeader"}, 
                 'Definition' + (def.signatures && def.signatures.length !== 1 ? 's' : '')
               ), 
