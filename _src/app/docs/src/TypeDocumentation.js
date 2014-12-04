@@ -4,6 +4,9 @@ var { Seq } = require('immutable');
 var defs = require('../../../resources/immutable.d.json');
 var { InterfaceDef } = require('./Defs');
 var MemberDoc = require('./MemberDoc');
+var collectMemberGroups = require('./collectMemberGroups');
+var isMobile = require('./isMobile');
+var SideBar = require('./SideBar');
 
 
 var TypeDocumentation = React.createClass({
@@ -48,7 +51,10 @@ var TypeDocumentation = React.createClass({
     });
 
     return (
-      <div key={typeName}>
+      <div>
+        {isMobile || <SideBar focus={typeName} memberGroups={memberGroups} />}
+        <div key={typeName} className="docContents">
+
 
         <div onClick={this.toggleShowInGroups}>Toggle Groups</div>
         <div onClick={this.toggleShowInherited}>Toggle Inherited</div>
@@ -128,6 +134,9 @@ var TypeDocumentation = React.createClass({
           ).flatten().toArray()}
         </section>
 
+
+        </div>
+
       </div>
     );
   }
@@ -139,73 +148,5 @@ var NotFound = React.createClass({
   }
 });
 
-
-function collectMemberGroups(interfaceDef, options) {
-  var members = {};
-
-  if (interfaceDef) {
-    collectFromDef(interfaceDef);
-  }
-
-  var groups = {'':[]};
-
-  if (options.showInGroups) {
-    Seq(members).forEach(member => {
-      (groups[member.group] || (groups[member.group] = [])).push(member);
-    });
-  } else {
-    groups[''] = Seq(members).sortBy(member => member.memberName).toArray();
-  }
-
-  if (!options.showInherited) {
-    groups = Seq(groups).map(
-      members => members.filter(member => !member.inherited)
-    ).toObject();
-  }
-
-  return groups;
-
-  function collectFromDef(def, name) {
-
-    def.groups && def.groups.forEach(g => {
-      Seq(g.properties).forEach((propDef, propName) => {
-        collectMember(g.title || '', propName, propDef);
-      });
-      Seq(g.methods).forEach((methodDef, memberName) => {
-        collectMember(g.title || '', memberName, methodDef);
-      });
-    });
-
-    def.extends && def.extends.forEach(e => {
-      var superModule = defs.Immutable.module[e.name];
-      var superInterface = superModule && superModule.interface;
-      if (superInterface) {
-        collectFromDef(superInterface, e.name);
-      }
-    });
-
-    function collectMember(group, memberName, memberDef) {
-      var member = members[memberName];
-      if (member) {
-        if (!member.inherited) {
-          member.overrides = { name, def, memberDef };
-        }
-        if (!member.group && group) {
-          member.group = group;
-        }
-      } else {
-        member = {
-          group,
-          memberName: memberName.substr(1),
-          memberDef
-        };
-        if (def !== interfaceDef) {
-          member.inherited = { name, def };
-        }
-        members[memberName] = member;
-      }
-    }
-  }
-}
 
 module.exports = TypeDocumentation;

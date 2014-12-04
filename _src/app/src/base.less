@@ -1,3 +1,7 @@
+@link-color: #4183c4;
+@header-color: #212121;
+@body-color: #424242;
+
 html, body {
   -webkit-text-size-adjust: 100%;
   margin: 0;
@@ -6,17 +10,17 @@ html, body {
 
 body {
   -webkit-font-smoothing: antialiased;
-  color: #424242;
+  color: @body-color;
   font: 14pt/20pt "Helvetica Neue", Helvetica, Arial, sans-serif;
   letter-spacing: -0.1pt;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  color: #212121;
+  color: @header-color;
 }
 
 a {
-  color: #4183c4;
+  color: @link-color;
   text-decoration: none;
 }
 

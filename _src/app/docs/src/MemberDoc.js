@@ -4,6 +4,7 @@ var ReactTransitionEvents = require('react/lib/ReactTransitionEvents');
 var Router = require('react-router');
 var { CallSigDef, MemberDef } = require('./Defs');
 var PageDataMixin = require('./PageDataMixin');
+var isMobile = require('./isMobile');
 
 
 var MemberDoc = React.createClass({
@@ -16,6 +17,27 @@ var MemberDoc = React.createClass({
 
   componentDidMount: function() {
     if (this.props.showDetail) {
+      var node = this.getDOMNode();
+      var navType = this.getPageData().type;
+      if (navType === 'init' || navType === 'push') {
+        window.scrollTo(
+          window.scrollX,
+          offsetTop(node) - FIXED_HEADER_HEIGHT
+        );
+      }
+    }
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    if (nextProps.showDetail && !this.props.showDetail) {
+      this.scrollTo = true;
+      this.setState({ detail: true });
+    }
+  },
+
+  componentDidUpdate: function() {
+    if (this.scrollTo) {
+      this.scrollTo = false;
       var node = this.getDOMNode();
       var navType = this.getPageData().type;
       if (navType === 'init' || navType === 'push') {
@@ -48,14 +70,16 @@ var MemberDoc = React.createClass({
     var doc = def.doc || {};
     var isProp = !def.signatures;
 
+    var showDetail = isMobile ? this.state.detail : true;
+
     var className = classSet({
       memberLabel: true,
-      open: this.state.detail,
+      open: showDetail
     });
 
     return (
       <div className="interfaceMember">
-        <div onClick={this.toggleDetail} className={className}>
+        <div onClick={isMobile ? this.toggleDetail : null} className={className}>
           {isProp ?
             <MemberDef module={module} member={{name}} /> :
             <CallSigDef module={module} name={name} />}
@@ -63,7 +87,7 @@ var MemberDoc = React.createClass({
           {member.overrides && <span className="override">override</span>}
         </div>
         <TransitionGroup childFactory={makeSlideDown}>
-          {this.state.detail &&
+          {showDetail &&
             <div key="detail" className="detail">
               {doc.synopsis && <div className="synopsis">{doc.synopsis}</div>}
               <h4 className="infoHeader">

@@ -118,6 +118,16 @@ module.exports = React.createClass({
     });
   },
 
+  // TODO: replace this. this is hacky and probably wrong
+
+  componentDidMount: function() {
+    setTimeout(() => { this.pageData.type = ''; }, 0);
+  },
+
+  componentDidUpdate: function() {
+    setTimeout(() => { this.pageData.type = ''; }, 0);
+  },
+
   render: function () {
     var Handler = this.state.handler;
     return <Handler />;

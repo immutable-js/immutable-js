@@ -7,7 +7,7 @@
 
 .contents {
   margin: 0 auto;
-  max-width: 740px;
+  max-width: 880px;
   padding: 64px 0;
   font-size: 13px;
   line-height: 18px;
@@ -23,7 +23,7 @@
 .miniHeaderContents {
   text-align: right;
   margin: 0 auto;
-  max-width: 740px;
+  max-width: 880px;
   padding: 12px 36px;
   position: relative;
 }
@@ -49,7 +49,53 @@
   margin-right: 0;
 }
 
-.contents a {
+.sideBar {
+  width: 240px;
+  top: 0;
+  position: fixed;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+  .select-none();
+}
+
+.sideBar .scrollContent {
+  padding: 100px 0 40px;
+  box-sizing: border-box;
+  width: 260px;
+  height: 100%;
+  overflow: auto;
+}
+
+.sideBar h2 {
+  margin: 1em 0;
+  font-size: 15px;
+  position: relative;
+}
+
+.sideBar h2 a {
+  color: @header-color;
+}
+
+.sideBar h2 a:hover {
+  color: @link-color;
+}
+
+.sideBar .members {
+  margin: 0 0 2em 2ch;
+}
+
+.sideBar .groupTitle {
+  margin: 1em 0 0;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.docContents {
+  margin-left: 260px;
+}
+
+.t a {
   padding: 2px 4px;
   margin: -2px -4px;
   border-radius: 4px;
@@ -58,7 +104,7 @@
   .transition(background-color 0.15s);
 }
 
-.contents a:hover {
+.t a:hover {
   background-color: rgba(112, 170, 220, 0.2);
 }
 
@@ -207,7 +253,7 @@
 
 .t.fnQualifier,
 .t.fnName {
-  color: #3b5998;
+  color: #5179CD;
 }
 
 .t.primitive {
@@ -242,6 +288,7 @@
 }
 
 .select-none () {
+  cursor: default;
   -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
