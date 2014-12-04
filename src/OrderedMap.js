@@ -21,6 +21,8 @@ class OrderedMap extends Map {
   // @pragma Construction
 
   constructor(value) {
+    if (!(this instanceof OrderedMap)) return new OrderedMap(value);
+    if (value === NEW_ORDERED_MAP) return this;
     return value === null || value === undefined ? emptyOrderedMap() :
       isOrderedMap(value) ? value :
       emptyOrderedMap().withMutations(map => {
@@ -109,7 +111,7 @@ OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
 
 
 function makeOrderedMap(map, list, ownerID, hash) {
-  var omap = Object.create(OrderedMap.prototype);
+  var omap = new OrderedMap(NEW_ORDERED_MAP);
   omap.size = map ? map.size : 0;
   omap._map = map;
   omap._list = list;
@@ -165,3 +167,5 @@ function updateOrderedMap(omap, k, v) {
   }
   return makeOrderedMap(newMap, newList);
 }
+
+var NEW_ORDERED_MAP = {};
