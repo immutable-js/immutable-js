@@ -1,13 +1,13 @@
 var React = require('react');
 var SVGSet = require('../../src/SVGSet');
 var Logo = require('../../src/Logo');
-
+var isMobile = require('./isMobile');
 
 var DocHeader = React.createClass({
 
   render: function() {
     return (
-      <div className="header">
+      <div className={'header' + (isMobile ? ' mobile' : '')}>
         <div className="miniHeader">
           <div className="miniHeaderContents">
             <a href="../" target="_self" className="logo">
