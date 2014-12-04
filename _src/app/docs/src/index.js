@@ -6,12 +6,13 @@ var DocHeader = require('./DocHeader');
 var DocOverview = require('./DocOverview');
 var TypeDocumentation = require('./TypeDocumentation');
 var defs = require('../../../resources/immutable.d.json');
+var isMobile = require('./isMobile');
 
 
 var Documentation = React.createClass({
   render: function () {
     return (
-      <div>
+      <div className={isMobile ? 'mobile' : null}>
         <DocHeader />
         <div className="pageBody" id="body">
           <div className="contents">

@@ -7,12 +7,13 @@ var DocHeader = require('./DocHeader');
 var DocOverview = require('./DocOverview');
 var TypeDocumentation = require('./TypeDocumentation');
 var defs = require('../../../resources/immutable.d.json');
+var isMobile = require('./isMobile');
 
 
 var Documentation = React.createClass({displayName: 'Documentation',
   render: function () {
     return (
-      React.createElement("div", null, 
+      React.createElement("div", {className: isMobile ? 'mobile' : null}, 
         React.createElement(DocHeader, null), 
         React.createElement("div", {className: "pageBody", id: "body"}, 
           React.createElement("div", {className: "contents"}, 
@@ -135,7 +136,7 @@ module.exports = React.createClass({displayName: 'exports',
   }
 });
 
-},{"../../../resources/immutable.d.json":66,"./DocHeader":2,"./DocOverview":3,"./TypeDocumentation":7,"react":undefined,"react-router":26,"react/lib/Object.assign":60}],1:[function(require,module,exports){
+},{"../../../resources/immutable.d.json":66,"./DocHeader":2,"./DocOverview":3,"./TypeDocumentation":7,"./isMobile":9,"react":undefined,"react-router":26,"react/lib/Object.assign":60}],1:[function(require,module,exports){
 var React = require('react');
 var CSSCore = require('react/lib/CSSCore');
 var Router = require('react-router');
@@ -365,13 +366,12 @@ function typeLength(type) {
 var React = require('react');
 var SVGSet = require('../../src/SVGSet');
 var Logo = require('../../src/Logo');
-var isMobile = require('./isMobile');
 
 var DocHeader = React.createClass({displayName: 'DocHeader',
 
   render: function() {
     return (
-      React.createElement("div", {className: 'header' + (isMobile ? ' mobile' : '')}, 
+      React.createElement("div", {className: "header"}, 
         React.createElement("div", {className: "miniHeader"}, 
           React.createElement("div", {className: "miniHeaderContents"}, 
             React.createElement("a", {href: "../", target: "_self", className: "logo"}, 
@@ -392,7 +392,7 @@ var DocHeader = React.createClass({displayName: 'DocHeader',
 
 module.exports = DocHeader;
 
-},{"../../src/Logo":10,"../../src/SVGSet":11,"./isMobile":9,"react":undefined}],3:[function(require,module,exports){
+},{"../../src/Logo":10,"../../src/SVGSet":11,"react":undefined}],3:[function(require,module,exports){
 var React = require('react');
 var Router = require('react-router');
 var $__0=    require('immutable'),Seq=$__0.Seq;
