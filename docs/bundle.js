@@ -462,7 +462,7 @@ module.exports = DocOverview;
 
 },{"../../../resources/immutable.d.json":66,"./MemberDoc":4,"immutable":undefined,"react":undefined,"react-router":26}],4:[function(require,module,exports){
 var React = require('react');
-var $__0=     React.addons,classSet=$__0.classSet,TransitionGroup=$__0.TransitionGroup;
+var $__0=    React.addons,TransitionGroup=$__0.TransitionGroup;
 var ReactTransitionEvents = require('react/lib/ReactTransitionEvents');
 var Router = require('react-router');
 var $__1=     require('./Defs'),CallSigDef=$__1.CallSigDef,MemberDef=$__1.MemberDef;
@@ -537,19 +537,10 @@ var MemberDoc = React.createClass({displayName: 'MemberDoc',
 
     var showDetail = isMobile ? this.state.detail : true;
 
-    var className = classSet({
-      memberLabel: true,
-      open: showDetail
-    });
-
     return (
       React.createElement("div", {className: "interfaceMember"}, 
-        React.createElement("div", {onClick: isMobile ? this.toggleDetail : null, className: className}, 
-          isProp ?
-            React.createElement(MemberDef, {module: module, member: {name:name}}) :
-            React.createElement(CallSigDef, {module: module, name: name}), 
-          member.inherited && React.createElement("span", {className: "inherited"}, "inherited"), 
-          member.overrides && React.createElement("span", {className: "override"}, "override")
+        React.createElement("h3", {onClick: isMobile ? this.toggleDetail : null, className: "memberLabel"}, 
+          (module ? module + '.' : '') + name + (isProp ? '' : '()')
         ), 
         React.createElement(TransitionGroup, {childFactory: makeSlideDown}, 
           showDetail &&
@@ -562,11 +553,10 @@ var MemberDoc = React.createClass({displayName: 'MemberDoc',
                 React.createElement("code", {className: "codeBlock memberSignature"}, 
                   React.createElement(MemberDef, {module: module, member: {name:name, type: def.type}})
                 ) :
+                React.createElement("code", {className: "codeBlock memberSignature"}, 
                 def.signatures.map(function(callSig, i) 
-                  {return React.createElement("code", {key: i, className: "codeBlock memberSignature"}, 
-                    React.createElement(CallSigDef, {module: module, name: name, callSig: callSig})
-                  );}
-                ), 
+                  {return [React.createElement(CallSigDef, {module: module, name: name, callSig: callSig}), '\n'];}
+                )), 
               
               member.inherited &&
                 React.createElement("section", null, 
@@ -605,7 +595,7 @@ var MemberDoc = React.createClass({displayName: 'MemberDoc',
                   React.createElement("h4", {className: "infoHeader"}, 
                     "Discussion"
                   ), 
-                  React.createElement("pre", null, doc.description)
+                  doc.description
                 )
               
             )
@@ -765,8 +755,8 @@ function sideBarType(typeName, type) {
           React.createElement("section", null, 
             React.createElement("h4", {className: "groupTitle"}, "Types"), 
             types.map(function(t, name) 
-              {return React.createElement("div", null, 
-                React.createElement(Router.Link, {key: name, to: '/' + typeName + '.' + name}, 
+              {return React.createElement("div", {key: name}, 
+                React.createElement(Router.Link, {to: '/' + typeName + '.' + name}, 
                   typeName + '.' + name
                 )
               );}
@@ -782,9 +772,9 @@ function sideBarType(typeName, type) {
                 title || 'Members'
               ),
               Seq(members).map(function(member) 
-                {return React.createElement("div", null, 
+                {return React.createElement("div", {key: member.memberName}, 
                   React.createElement(Router.Link, {to: '/' + typeName + '/' + member.memberName}, 
-                    '.' + member.memberName + (member.memberDef.signatures ? '()' : '')
+                    member.memberName + (member.memberDef.signatures ? '()' : '')
                   )
                 );}
               )
@@ -861,7 +851,8 @@ var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
         React.createElement("div", {onClick: this.toggleShowInherited}, "Toggle Inherited"), 
         React.createElement("h1", {className: "typeHeader"}, 
           interfaceDef ?
-            React.createElement(InterfaceDef, {name: typeName, def: interfaceDef}) :
+            React.createElement("code", null, 
+            React.createElement(InterfaceDef, {name: typeName, def: interfaceDef})) :
             typeName
           
         ), 

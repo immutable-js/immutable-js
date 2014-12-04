@@ -1,17 +1,18 @@
 @link-color: #4183c4;
-@header-color: #212121;
-@body-color: #424242;
+@header-color: #212325;
+@body-color: #626466;
 
 html, body {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
   margin: 0;
   padding: 0;
-}
-
-body {
   -webkit-font-smoothing: antialiased;
   color: @body-color;
-  font: 14pt/20pt "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.625;//42857143;
   letter-spacing: -0.1pt;
 }
 
@@ -27,8 +28,7 @@ a {
 @media only screen and (max-width: 680px) {
 
   body {
-    font-size: 12pt;
-    line-height: 18pt;
+    font-size: 14px;
   }
 
 }

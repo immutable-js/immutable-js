@@ -60,7 +60,8 @@ var TypeDocumentation = React.createClass({
         <div onClick={this.toggleShowInherited}>Toggle Inherited</div>
         <h1 className="typeHeader">
           {interfaceDef ?
-            <InterfaceDef name={typeName} def={interfaceDef} /> :
+            <code>
+            <InterfaceDef name={typeName} def={interfaceDef} /></code> :
             typeName
           }
         </h1>

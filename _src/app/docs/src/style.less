@@ -9,8 +9,6 @@
   margin: 0 auto;
   max-width: 880px;
   padding: 64px 0;
-  font-size: 13px;
-  line-height: 18px;
 }
 
 .miniHeader {
@@ -62,6 +60,7 @@
 }
 
 .sideBar {
+  font-size: 0.825em;
   width: 240px;
   top: 0;
   position: fixed;
@@ -81,7 +80,7 @@
 
 .sideBar h2 {
   margin: 1em 0;
-  font-size: 15px;
+  font-size: 1em;
   position: relative;
 }
 
@@ -94,13 +93,12 @@
 }
 
 .sideBar .members {
-  margin: 0 0 2em 2ch;
+  margin: 0 0 2em 1em;
 }
 
 .sideBar .groupTitle {
   margin: 1em 0 0;
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 1em;
 }
 
 .docContents {
@@ -142,33 +140,37 @@
 }
 
 .typeHeader {
-  margin: 1em 0;
-  font-size: 21px;
-  line-height: 36px;
+  margin: 1rem 0;
+  font-size: 1.5em;
   font-weight: normal;
   color: #555;
 }
 
 .interfaceMember {
-  margin: 1em 0;
+  margin: 1.3rem 0;
 }
 
 .infoHeader {
-  margin: 1.5em 0 0.5em;
+  margin: 1rem 0 0.125rem;
   color: #555;
-  letter-spacing: 0.1ch;
+  letter-spacing: 0.25ch;
   text-transform: uppercase;
   font-size: 10px;
+  line-height: 16px;
+}
+
+code {
+  font-family: Menlo, monospace;
+  font-size: 0.8125em;
 }
 
 .codeBlock {
   background: #FCFBFA;
   border-left: solid 3px #ECEAE9;
   display: block;
-  font-family: Menlo, monospace;
-  margin: 0.5em 0;
+  margin: 0.5rem 0;
   box-sizing: border-box;
-  padding: 0.5em 16px 0.5em 12px;
+  padding: 0.5rem 16px 0.5rem 12px;
   white-space: pre;
   overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
@@ -184,35 +186,13 @@
 }
 
 .memberLabel {
-  .transition(margin-top 0.3s);
+  margin: 0;
+  font-size: 1em;
   .select-none();
+}
+
+.mobile .memberLabel {
   cursor: pointer;
-}
-
-.inherited,
-.override {
-  border-radius: 8px;
-  color: #fff;
-  font-size: 8px;
-  // font-weight: 700;
-  letter-spacing: 0.2ch;
-  line-height: 8px;
-  margin: -1px 2px -1px 2ch;
-  padding: 1px 5px 1px;
-  // position: relative;
-  // text-shadow: 0 1px rgba(0,0,0,0.1);
-  text-transform: uppercase;
-  // top: -1px;
-}
-
-.inherited {
-  // background-color: #D4DAE7;
-  color: #949AA7;
-}
-
-.override {
-  // background-color: #EFD2C3;
-  color: #BF9273;
 }
 
 .detail {
@@ -221,18 +201,13 @@
   box-sizing: border-box;
 }
 
-.detail .synopsis {
-  margin: 1em 0;
-  max-width: 70ch;
-  font-size: 14px;
+.groupTitle {
+  margin: 3rem 0 2rem;
+  font-size: 1.5em;
 }
 
-.groupTitle {
-  margin: 2em 0 10px;
-  font-size: 21px;
-  line-height: 36px;
-  font-weight: normal;
-  color: #555;
+.mobile .groupTitle {
+  margin: 2em 0 1em;
 }
 
 .doc {
@@ -243,17 +218,14 @@
 
 .t.interfaceDef {
   color: #808890;
-  font-family: Menlo, monospace;
 }
 
 .t.member {
   color: #808890;
-  font-family: Menlo, monospace;
 }
 
 .t.callSig {
   color: #808890;
-  font-family: Menlo, monospace;
 }
 
 .t.blockParams {
@@ -266,7 +238,7 @@
 
 .t.fnQualifier,
 .t.fnName {
-  color: #5179CD;
+  color: #32308E;
 }
 
 .t.primitive {

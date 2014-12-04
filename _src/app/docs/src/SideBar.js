@@ -80,8 +80,8 @@ function sideBarType(typeName, type) {
           <section>
             <h4 className="groupTitle">Types</h4>
             {types.map((t, name) =>
-              <div>
-                <Router.Link key={name} to={'/' + typeName + '.' + name}>
+              <div key={name}>
+                <Router.Link to={'/' + typeName + '.' + name}>
                   {typeName + '.' + name}
                 </Router.Link>
               </div>
@@ -97,9 +97,9 @@ function sideBarType(typeName, type) {
                 {title || 'Members'}
               </h4>,
               Seq(members).map(member =>
-                <div>
+                <div key={member.memberName}>
                   <Router.Link to={'/' + typeName + '/' + member.memberName}>
-                    {'.' + member.memberName + (member.memberDef.signatures ? '()' : '')}
+                    {member.memberName + (member.memberDef.signatures ? '()' : '')}
                   </Router.Link>
                 </div>
               )

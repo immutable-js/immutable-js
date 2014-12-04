@@ -1,5 +1,5 @@
 var React = require('react');
-var { classSet, TransitionGroup } = React.addons;
+var { TransitionGroup } = React.addons;
 var ReactTransitionEvents = require('react/lib/ReactTransitionEvents');
 var Router = require('react-router');
 var { CallSigDef, MemberDef } = require('./Defs');
@@ -74,20 +74,11 @@ var MemberDoc = React.createClass({
 
     var showDetail = isMobile ? this.state.detail : true;
 
-    var className = classSet({
-      memberLabel: true,
-      open: showDetail
-    });
-
     return (
       <div className="interfaceMember">
-        <div onClick={isMobile ? this.toggleDetail : null} className={className}>
-          {isProp ?
-            <MemberDef module={module} member={{name}} /> :
-            <CallSigDef module={module} name={name} />}
-          {member.inherited && <span className="inherited">inherited</span>}
-          {member.overrides && <span className="override">override</span>}
-        </div>
+        <h3 onClick={isMobile ? this.toggleDetail : null} className="memberLabel">
+          {(module ? module + '.' : '') + name + (isProp ? '' : '()')}
+        </h3>
         <TransitionGroup childFactory={makeSlideDown}>
           {showDetail &&
             <div key="detail" className="detail">
@@ -99,11 +90,10 @@ var MemberDoc = React.createClass({
                 <code className="codeBlock memberSignature">
                   <MemberDef module={module} member={{name, type: def.type}} />
                 </code> :
-                def.signatures.map((callSig, i) =>
-                  <code key={i} className="codeBlock memberSignature">
-                    <CallSigDef module={module} name={name} callSig={callSig} />
-                  </code>
-                )
+                <code className="codeBlock memberSignature">
+                {def.signatures.map((callSig, i) =>
+                  [<CallSigDef module={module} name={name} callSig={callSig} />, '\n']
+                )}</code>
               }
               {member.inherited &&
                 <section>
@@ -142,7 +132,7 @@ var MemberDoc = React.createClass({
                   <h4 className="infoHeader">
                     Discussion
                   </h4>
-                  <pre>{doc.description}</pre>
+                  {doc.description}
                 </section>
               }
             </div>
