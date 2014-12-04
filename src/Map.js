@@ -19,7 +19,7 @@ import "Iterator"
 import "Operations"
 /* global is, fromJS, isIterable, Iterable, KeyedIterable, KeyedCollection,
           invariant,
-          DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
+          DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, MAKE, OwnerID,
           MakeRef, SetRef, arrCopy, hash, sortFactory, OrderedMap,
           Iterator, getIterator, iteratorValue, iteratorDone */
 /* exported Map, isMap, MapPrototype */
@@ -30,7 +30,7 @@ class Map extends KeyedCollection {
 
   constructor(value) {
     if (!(this instanceof Map)) return new Map(value);
-    if (value === NEW_MAP) return this;
+    if (value === MAKE) return this;
     return value === null || value === undefined ? emptyMap(this) :
       isMap(value) ? (value.constructor === this.constructor ? value : this.merge(value)) :
       emptyMap(this).withMutations(map => {
@@ -591,7 +591,7 @@ function mapIteratorFrame(node, prev) {
 }
 
 function makeMap(Ctor, size, root, ownerID, hash) {
-  var map = new Ctor(NEW_MAP);
+  var map = new Ctor(MAKE);
   map.size = size;
   map._root = root;
   map.__ownerID = ownerID;
@@ -824,7 +824,6 @@ function spliceOut(array, idx, canEdit) {
   return newArray;
 }
 
-var NEW_MAP = {};
 var MAX_ARRAY_MAP_SIZE = SIZE / 4;
 var MAX_BITMAP_INDEXED_SIZE = SIZE / 2;
 var MIN_HASH_ARRAY_MAP_SIZE = SIZE / 4;

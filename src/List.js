@@ -14,7 +14,7 @@ import "Collection"
 import "Map"
 import "Iterator"
 /* global fromJS,
-          DELETE, SHIFT, SIZE, MASK, DID_ALTER, OwnerID, MakeRef,
+          DELETE, SHIFT, SIZE, MASK, DID_ALTER, MAKE, OwnerID, MakeRef,
           SetRef, wrapIndex, wholeSlice, resolveBegin, resolveEnd,
           isIterable, IndexedIterable,
           IndexedCollection,
@@ -29,7 +29,7 @@ class List extends IndexedCollection {
 
   constructor(value) {
     if (!(this instanceof List)) return new List(value);
-    if (value === NEW_LIST) return this;
+    if (value === MAKE) return this;
     var empty = emptyList(this);
     if (value === null || value === undefined) {
       return empty;
@@ -396,7 +396,7 @@ function listIteratorFrame(array, level, offset, max, prevFrame) {
 }
 
 function makeList(Ctor, origin, capacity, level, root, tail, ownerID, hash) {
-  var list = new Ctor(NEW_LIST);
+  var list = new Ctor(MAKE);
   list.size = capacity - origin;
   list._origin = origin;
   list._capacity = capacity;
@@ -648,5 +648,3 @@ function mergeIntoListWith(list, merger, iterables) {
 function getTailOffset(size) {
   return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
 }
-
-var NEW_LIST;

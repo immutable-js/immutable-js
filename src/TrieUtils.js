@@ -9,7 +9,7 @@
 
 import "invariant"
 /* global invariant */
-/* exported DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER,
+/* exported DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, MAKE,
             OwnerID, MakeRef, SetRef, arrCopy, assertNotInfinite,
             ensureSize, wrapIndex, returnTrue,
             wholeSlice, resolveBegin, resolveEnd */
@@ -26,6 +26,9 @@ var MASK = SIZE - 1;
 // A consistent shared value representing "not set" which equals nothing other
 // than itself, and nothing that could be provided externally.
 var NOT_SET = {};
+
+// Indicates a new type is being constructed. 
+var MAKE = {};
 
 // Boolean references, Rough equivalent of `bool &`.
 var CHANGE_LENGTH = { value: false };

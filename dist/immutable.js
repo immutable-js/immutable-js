@@ -63,6 +63,7 @@ var SHIFT = 5;
 var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
 var NOT_SET = {};
+var MAKE = {};
 var CHANGE_LENGTH = {value: false};
 var DID_ALTER = {value: false};
 function MakeRef(ref) {
@@ -1252,7 +1253,7 @@ Collection.Set = SetCollection;
 var Map = function Map(value) {
   if (!(this instanceof $Map))
     return new $Map(value);
-  if (value === NEW_MAP)
+  if (value === MAKE)
     return this;
   return value === null || value === undefined ? emptyMap(this) : isMap(value) ? (value.constructor === this.constructor ? value : this.merge(value)) : emptyMap(this).withMutations((function(map) {
     KeyedIterable(value).forEach((function(v, k) {
@@ -1718,7 +1719,7 @@ function mapIteratorFrame(node, prev) {
   };
 }
 function makeMap(Ctor, size, root, ownerID, hash) {
-  var map = new Ctor(NEW_MAP);
+  var map = new Ctor(MAKE);
   map.size = size;
   map._root = root;
   map.__ownerID = ownerID;
@@ -1920,7 +1921,6 @@ function spliceOut(array, idx, canEdit) {
   }
   return newArray;
 }
-var NEW_MAP = {};
 var MAX_ARRAY_MAP_SIZE = SIZE / 4;
 var MAX_BITMAP_INDEXED_SIZE = SIZE / 2;
 var MIN_HASH_ARRAY_MAP_SIZE = SIZE / 4;
@@ -2597,7 +2597,7 @@ function defaultComparator(a, b) {
 var List = function List(value) {
   if (!(this instanceof $List))
     return new $List(value);
-  if (value === NEW_LIST)
+  if (value === MAKE)
     return this;
   var empty = emptyList(this);
   if (value === null || value === undefined) {
@@ -2908,7 +2908,7 @@ function listIteratorFrame(array, level, offset, max, prevFrame) {
   };
 }
 function makeList(Ctor, origin, capacity, level, root, tail, ownerID, hash) {
-  var list = new Ctor(NEW_LIST);
+  var list = new Ctor(MAKE);
   list.size = capacity - origin;
   list._origin = origin;
   list._capacity = capacity;
@@ -3115,13 +3115,12 @@ function mergeIntoListWith(list, merger, iterables) {
 function getTailOffset(size) {
   return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
 }
-var NEW_LIST;
 var OrderedMap = function OrderedMap(value) {
   if (!(this instanceof $OrderedMap))
     return new $OrderedMap(value);
-  if (value === NEW_ORDERED_MAP)
+  if (value === MAKE)
     return this;
-  return value === null || value === undefined ? emptyOrderedMap() : isOrderedMap(value) ? value : emptyOrderedMap().withMutations((function(map) {
+  return value === null || value === undefined ? emptyOrderedMap(this) : isOrderedMap(value) ? value : emptyOrderedMap(this).withMutations((function(map) {
     KeyedIterable(value).forEach((function(v, k) {
       return map.set(k, v);
     }));
@@ -3146,7 +3145,7 @@ var $OrderedMap = OrderedMap;
       this._list.clear();
       return this;
     }
-    return emptyOrderedMap();
+    return emptyOrderedMap(this);
   },
   set: function(k, v) {
     return updateOrderedMap(this, k, v);
@@ -3178,7 +3177,7 @@ var $OrderedMap = OrderedMap;
       this._list = newList;
       return this;
     }
-    return makeOrderedMap(newMap, newList, ownerID, this.__hash);
+    return makeOrderedMap(this.constructor, newMap, newList, ownerID, this.__hash);
   }
 }, {of: function() {
     return new this(arguments);
@@ -3189,8 +3188,8 @@ function isOrderedMap(maybeOrderedMap) {
 OrderedMap.isOrderedMap = isOrderedMap;
 OrderedMap.prototype[IS_ORDERED_SENTINEL] = true;
 OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
-function makeOrderedMap(map, list, ownerID, hash) {
-  var omap = new OrderedMap(NEW_ORDERED_MAP);
+function makeOrderedMap(Ctor, map, list, ownerID, hash) {
+  var omap = new Ctor(MAKE);
   omap.size = map ? map.size : 0;
   omap._map = map;
   omap._list = list;
@@ -3199,8 +3198,9 @@ function makeOrderedMap(map, list, ownerID, hash) {
   return omap;
 }
 var EMPTY_ORDERED_MAP;
-function emptyOrderedMap() {
-  return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(emptyMap(), emptyList()));
+function emptyOrderedMap(from) {
+  var source = from && from.constructor || OrderedMap;
+  return source.prototype === OrderedMap.prototype ? (EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(source, emptyMap(), emptyList()))) : makeOrderedMap(source, emptyMap(), emptyList());
 }
 function updateOrderedMap(omap, k, v) {
   var map = omap._map;
@@ -3246,11 +3246,14 @@ function updateOrderedMap(omap, k, v) {
     omap.__hash = undefined;
     return omap;
   }
-  return makeOrderedMap(newMap, newList);
+  return makeOrderedMap(omap.constructor, newMap, newList);
 }
-var NEW_ORDERED_MAP = {};
 var Stack = function Stack(value) {
-  return value === null || value === undefined ? emptyStack() : isStack(value) ? value : emptyStack().unshiftAll(value);
+  if (!(this instanceof $Stack))
+    return new $Stack(value);
+  if (value === MAKE)
+    return this;
+  return value === null || value === undefined ? emptyStack(this) : isStack(value) ? (value.constructor === this.constructor ? value : this.merge(value)) : emptyStack(this).unshiftAll(value);
 };
 var $Stack = Stack;
 ($traceurRuntime.createClass)(Stack, {
@@ -3286,7 +3289,7 @@ var $Stack = Stack;
       this.__altered = true;
       return this;
     }
-    return makeStack(newSize, head);
+    return makeStack(this.constructor, newSize, head);
   },
   pushAll: function(iter) {
     iter = IndexedIterable(iter);
@@ -3309,7 +3312,7 @@ var $Stack = Stack;
       this.__altered = true;
       return this;
     }
-    return makeStack(newSize, head);
+    return makeStack(this.constructor, newSize, head);
   },
   pop: function() {
     return this.slice(1);
@@ -3334,7 +3337,7 @@ var $Stack = Stack;
       this.__altered = true;
       return this;
     }
-    return emptyStack();
+    return emptyStack(this);
   },
   slice: function(begin, end) {
     if (wholeSlice(begin, end, this.size)) {
@@ -3357,7 +3360,7 @@ var $Stack = Stack;
       this.__altered = true;
       return this;
     }
-    return makeStack(newSize, head);
+    return makeStack(this.constructor, newSize, head);
   },
   __ensureOwner: function(ownerID) {
     if (ownerID === this.__ownerID) {
@@ -3368,7 +3371,7 @@ var $Stack = Stack;
       this.__altered = false;
       return this;
     }
-    return makeStack(this.size, this._head, ownerID, this.__hash);
+    return makeStack(this.constructor, this.size, this._head, ownerID, this.__hash);
   },
   __iterate: function(fn, reverse) {
     if (reverse) {
@@ -3413,8 +3416,8 @@ StackPrototype.withMutations = MapPrototype.withMutations;
 StackPrototype.asMutable = MapPrototype.asMutable;
 StackPrototype.asImmutable = MapPrototype.asImmutable;
 StackPrototype.wasAltered = MapPrototype.wasAltered;
-function makeStack(size, head, ownerID, hash) {
-  var map = Object.create(StackPrototype);
+function makeStack(Ctor, size, head, ownerID, hash) {
+  var map = new Ctor(MAKE);
   map.size = size;
   map._head = head;
   map.__ownerID = ownerID;
@@ -3423,16 +3426,22 @@ function makeStack(size, head, ownerID, hash) {
   return map;
 }
 var EMPTY_STACK;
-function emptyStack() {
-  return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
+function emptyStack(from) {
+  var source = from && from.constructor || Stack;
+  return source.prototype === StackPrototype ? (EMPTY_STACK || (EMPTY_STACK = makeStack(source, 0))) : makeStack(source, 0);
 }
 var Set = function Set(value) {
-  return value === null || value === undefined ? emptySet() : isSet(value) ? value : emptySet().withMutations((function(set) {
+  if (!(this instanceof $Set))
+    return new $Set(value);
+  if (value === MAKE)
+    return this;
+  return value === null || value === undefined ? emptySet(this) : isSet(value) ? (value.constructor === this.constructor ? value : this.merge(value)) : emptySet(this).withMutations((function(set) {
     SetIterable(value).forEach((function(v) {
       return set.add(v);
     }));
   }));
 };
+var $Set = Set;
 ($traceurRuntime.createClass)(Set, {
   toString: function() {
     return this.__toString('Set {', '}');
@@ -3551,7 +3560,7 @@ var Set = function Set(value) {
       this._map = newMap;
       return this;
     }
-    return this.__make(newMap, ownerID);
+    return this.__make(this.constructor, newMap, ownerID);
   }
 }, {
   of: function() {
@@ -3582,26 +3591,32 @@ function updateSet(set, newMap) {
     set._map = newMap;
     return set;
   }
-  return newMap === set._map ? set : newMap.size === 0 ? set.__empty() : set.__make(newMap);
+  return newMap === set._map ? set : newMap.size === 0 ? set.__empty(set) : set.__make(set.constructor, newMap);
 }
-function makeSet(map, ownerID) {
-  var set = Object.create(SetPrototype);
+function makeSet(Ctor, map, ownerID) {
+  var set = new Ctor(MAKE);
   set.size = map ? map.size : 0;
   set._map = map;
   set.__ownerID = ownerID;
   return set;
 }
 var EMPTY_SET;
-function emptySet() {
-  return EMPTY_SET || (EMPTY_SET = makeSet(emptyMap()));
+function emptySet(from) {
+  var source = from && from.constructor || Set;
+  return source.prototype === SetPrototype ? (EMPTY_SET || (EMPTY_SET = makeSet(source, emptyMap()))) : makeSet(source, emptyMap());
 }
 var OrderedSet = function OrderedSet(value) {
-  return value === null || value === undefined ? emptyOrderedSet() : isOrderedSet(value) ? value : emptyOrderedSet().withMutations((function(set) {
+  if (!(this instanceof $OrderedSet))
+    return new $OrderedSet(value);
+  if (value === MAKE)
+    return this;
+  return value === null || value === undefined ? emptyOrderedSet(this) : isOrderedSet(value) ? (value.constructor === this.constructor ? value : this.merge(value)) : emptyOrderedSet(this).withMutations((function(set) {
     SetIterable(value).forEach((function(v) {
       return set.add(v);
     }));
   }));
 };
+var $OrderedSet = OrderedSet;
 ($traceurRuntime.createClass)(OrderedSet, {toString: function() {
     return this.__toString('OrderedSet {', '}');
   }}, {
@@ -3620,16 +3635,17 @@ var OrderedSetPrototype = OrderedSet.prototype;
 OrderedSetPrototype[IS_ORDERED_SENTINEL] = true;
 OrderedSetPrototype.__empty = emptyOrderedSet;
 OrderedSetPrototype.__make = makeOrderedSet;
-function makeOrderedSet(map, ownerID) {
-  var set = Object.create(OrderedSetPrototype);
+function makeOrderedSet(Ctor, map, ownerID) {
+  var set = new Ctor(MAKE);
   set.size = map ? map.size : 0;
   set._map = map;
   set.__ownerID = ownerID;
   return set;
 }
 var EMPTY_ORDERED_SET;
-function emptyOrderedSet() {
-  return EMPTY_ORDERED_SET || (EMPTY_ORDERED_SET = makeOrderedSet(emptyOrderedMap()));
+function emptyOrderedSet(from) {
+  var source = from && from.constructor || OrderedSet;
+  return source.prototype === OrderedSet.prototype ? (EMPTY_ORDERED_SET || (EMPTY_ORDERED_SET = makeOrderedSet(source, emptyOrderedMap()))) : makeOrderedSet(source, emptyOrderedMap());
 }
 var Record = function Record(defaultValues, name) {
   var RecordType = function Record(values) {

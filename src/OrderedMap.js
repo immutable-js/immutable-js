@@ -12,7 +12,7 @@ import "Map"
 import "List"
 import "TrieUtils"
 /* global KeyedIterable, IS_ORDERED_SENTINEL, isOrdered,
-          Map, isMap, emptyMap, emptyList, DELETE, NOT_SET, SIZE */
+          Map, isMap, emptyMap, emptyList, DELETE, NOT_SET, SIZE, MAKE */
 /* exported OrderedMap */
 
 
@@ -22,10 +22,10 @@ class OrderedMap extends Map {
 
   constructor(value) {
     if (!(this instanceof OrderedMap)) return new OrderedMap(value);
-    if (value === NEW_ORDERED_MAP) return this;
-    return value === null || value === undefined ? emptyOrderedMap() :
+    if (value === MAKE) return this;
+    return value === null || value === undefined ? emptyOrderedMap(this) :
       isOrderedMap(value) ? value :
-      emptyOrderedMap().withMutations(map => {
+      emptyOrderedMap(this).withMutations(map => {
         KeyedIterable(value).forEach((v, k) => map.set(k, v));
       });
   }
@@ -57,7 +57,7 @@ class OrderedMap extends Map {
       this._list.clear();
       return this;
     }
-    return emptyOrderedMap();
+    return emptyOrderedMap(this);
   }
 
   set(k, v) {
@@ -95,7 +95,7 @@ class OrderedMap extends Map {
       this._list = newList;
       return this;
     }
-    return makeOrderedMap(newMap, newList, ownerID, this.__hash);
+    return makeOrderedMap(this.constructor, newMap, newList, ownerID, this.__hash);
   }
 }
 
@@ -108,10 +108,8 @@ OrderedMap.isOrderedMap = isOrderedMap;
 OrderedMap.prototype[IS_ORDERED_SENTINEL] = true;
 OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
 
-
-
-function makeOrderedMap(map, list, ownerID, hash) {
-  var omap = new OrderedMap(NEW_ORDERED_MAP);
+function makeOrderedMap(Ctor, map, list, ownerID, hash) {
+  var omap = new Ctor(MAKE);
   omap.size = map ? map.size : 0;
   omap._map = map;
   omap._list = list;
@@ -121,8 +119,11 @@ function makeOrderedMap(map, list, ownerID, hash) {
 }
 
 var EMPTY_ORDERED_MAP;
-function emptyOrderedMap() {
-  return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(emptyMap(), emptyList()));
+function emptyOrderedMap(from) {
+  var source = from && from.constructor || OrderedMap;
+  return source.prototype === OrderedMap.prototype ?
+    (EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(source, emptyMap(), emptyList()))) :
+    makeOrderedMap(source, emptyMap(), emptyList());
 }
 
 function updateOrderedMap(omap, k, v) {
@@ -165,7 +166,5 @@ function updateOrderedMap(omap, k, v) {
     omap.__hash = undefined;
     return omap;
   }
-  return makeOrderedMap(newMap, newList);
+  return makeOrderedMap(omap.constructor, newMap, newList);
 }
-
-var NEW_ORDERED_MAP = {};

@@ -10,7 +10,7 @@
 import "Iterable"
 import "Set"
 import "OrderedMap"
-/* global SetIterable, KeyedIterable, IS_ORDERED_SENTINEL, isOrdered,
+/* global SetIterable, KeyedIterable, IS_ORDERED_SENTINEL, MAKE, isOrdered,
           Set, isSet, emptyOrderedMap */
 /* exported OrderedSet */
 
@@ -20,9 +20,11 @@ class OrderedSet extends Set {
   // @pragma Construction
 
   constructor(value) {
-    return value === null || value === undefined ? emptyOrderedSet() :
-      isOrderedSet(value) ? value :
-      emptyOrderedSet().withMutations(set => {
+    if (!(this instanceof OrderedSet)) return new OrderedSet(value);
+    if (value === MAKE) return this;
+    return value === null || value === undefined ? emptyOrderedSet(this) :
+      isOrderedSet(value) ? (value.constructor === this.constructor ? value : this.merge(value)) :
+      emptyOrderedSet(this).withMutations(set => {
         SetIterable(value).forEach(v => set.add(v));
       });
   }
@@ -52,8 +54,8 @@ OrderedSetPrototype[IS_ORDERED_SENTINEL] = true;
 OrderedSetPrototype.__empty = emptyOrderedSet;
 OrderedSetPrototype.__make = makeOrderedSet;
 
-function makeOrderedSet(map, ownerID) {
-  var set = Object.create(OrderedSetPrototype);
+function makeOrderedSet(Ctor, map, ownerID) {
+  var set = new Ctor(MAKE);
   set.size = map ? map.size : 0;
   set._map = map;
   set.__ownerID = ownerID;
@@ -61,6 +63,10 @@ function makeOrderedSet(map, ownerID) {
 }
 
 var EMPTY_ORDERED_SET;
-function emptyOrderedSet() {
-  return EMPTY_ORDERED_SET || (EMPTY_ORDERED_SET = makeOrderedSet(emptyOrderedMap()));
+function emptyOrderedSet(from) {
+  var source = from && from.constructor || OrderedSet;
+  return source.prototype === OrderedSet.prototype ?
+    (EMPTY_ORDERED_SET || (EMPTY_ORDERED_SET = makeOrderedSet(source, emptyOrderedMap()))) :
+    makeOrderedSet(source, emptyOrderedMap());
 }
+

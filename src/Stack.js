@@ -12,7 +12,7 @@ import "Iterable"
 import "Collection"
 import "Map"
 import "Iterator"
-/* global wholeSlice, resolveBegin, resolveEnd,
+/* global MAKE, wholeSlice, resolveBegin, resolveEnd,
           IndexedIterable,
           IndexedCollection,
           MapPrototype,
@@ -25,9 +25,11 @@ class Stack extends IndexedCollection {
   // @pragma Construction
 
   constructor(value) {
-    return value === null || value === undefined ? emptyStack() :
-      isStack(value) ? value :
-      emptyStack().unshiftAll(value);
+    if (!(this instanceof Stack)) return new Stack(value);
+    if (value === MAKE) return this;
+    return value === null || value === undefined ? emptyStack(this) :
+      isStack(value) ? (value.constructor === this.constructor ? value : this.merge(value)) :
+      emptyStack(this).unshiftAll(value);
   }
 
   static of(/*...values*/) {
@@ -73,7 +75,7 @@ class Stack extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return makeStack(newSize, head);
+    return makeStack(this.constructor, newSize, head);
   }
 
   pushAll(iter) {
@@ -97,7 +99,7 @@ class Stack extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return makeStack(newSize, head);
+    return makeStack(this.constructor, newSize, head);
   }
 
   pop() {
@@ -127,7 +129,7 @@ class Stack extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return emptyStack();
+    return emptyStack(this);
   }
 
   slice(begin, end) {
@@ -151,7 +153,7 @@ class Stack extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return makeStack(newSize, head);
+    return makeStack(this.constructor, newSize, head);
   }
 
   // @pragma Mutability
@@ -165,7 +167,7 @@ class Stack extends IndexedCollection {
       this.__altered = false;
       return this;
     }
-    return makeStack(this.size, this._head, ownerID, this.__hash);
+    return makeStack(this.constructor, this.size, this._head, ownerID, this.__hash);
   }
 
   // @pragma Iteration
@@ -218,8 +220,8 @@ StackPrototype.asImmutable = MapPrototype.asImmutable;
 StackPrototype.wasAltered = MapPrototype.wasAltered;
 
 
-function makeStack(size, head, ownerID, hash) {
-  var map = Object.create(StackPrototype);
+function makeStack(Ctor, size, head, ownerID, hash) {
+  var map = new Ctor(MAKE);
   map.size = size;
   map._head = head;
   map.__ownerID = ownerID;
@@ -229,6 +231,9 @@ function makeStack(size, head, ownerID, hash) {
 }
 
 var EMPTY_STACK;
-function emptyStack() {
-  return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
+function emptyStack(from) {
+  var source = from && from.constructor || Stack;
+  return source.prototype === StackPrototype ?
+    (EMPTY_STACK || (EMPTY_STACK = makeStack(source, 0))) :
+    makeStack(source, 0);
 }

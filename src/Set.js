@@ -13,7 +13,7 @@ import "Map"
 import "TrieUtils"
 import "Operations"
 /* global SetIterable, KeyedIterable, SetCollection, MapPrototype,
-          emptyMap, DELETE, sortFactory, OrderedSet */
+          emptyMap, DELETE, MAKE, sortFactory, OrderedSet */
 /* exported Set, isSet */
 
 
@@ -22,9 +22,11 @@ class Set extends SetCollection {
   // @pragma Construction
 
   constructor(value) {
-    return value === null || value === undefined ? emptySet() :
-      isSet(value) ? value :
-      emptySet().withMutations(set => {
+    if (!(this instanceof Set)) return new Set(value);
+    if (value === MAKE) return this;
+    return value === null || value === undefined ? emptySet(this) :
+      isSet(value) ? (value.constructor === this.constructor ? value : this.merge(value)) :
+      emptySet(this).withMutations(set => {
         SetIterable(value).forEach(v => set.add(v));
       });
   }
@@ -148,7 +150,7 @@ class Set extends SetCollection {
       this._map = newMap;
       return this;
     }
-    return this.__make(newMap, ownerID);
+    return this.__make(this.constructor, newMap, ownerID);
   }
 }
 
@@ -179,12 +181,12 @@ function updateSet(set, newMap) {
     return set;
   }
   return newMap === set._map ? set :
-    newMap.size === 0 ? set.__empty() :
-    set.__make(newMap);
+    newMap.size === 0 ? set.__empty(set) :
+    set.__make(set.constructor, newMap);
 }
 
-function makeSet(map, ownerID) {
-  var set = Object.create(SetPrototype);
+function makeSet(Ctor, map, ownerID) {
+  var set = new Ctor(MAKE);
   set.size = map ? map.size : 0;
   set._map = map;
   set.__ownerID = ownerID;
@@ -192,6 +194,9 @@ function makeSet(map, ownerID) {
 }
 
 var EMPTY_SET;
-function emptySet() {
-  return EMPTY_SET || (EMPTY_SET = makeSet(emptyMap()));
+function emptySet(from) {
+  var source = from && from.constructor || Set;
+  return source.prototype === SetPrototype ?
+    (EMPTY_SET || (EMPTY_SET = makeSet(source, emptyMap()))) :
+    makeSet(source, emptyMap());
 }
