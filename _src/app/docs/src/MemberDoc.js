@@ -94,13 +94,13 @@ var MemberDoc = React.createClass({
                 {'Definition' + (def.signatures && def.signatures.length !== 1 ? 's' : '')}
               </h4>
               {isProp ?
-                <div className="codeBlock memberSignature">
+                <code className="codeBlock memberSignature">
                   <MemberDef module={module} member={{name, type: def.type}} />
-                </div> :
+                </code> :
                 def.signatures.map((callSig, i) =>
-                  <div key={i} className="codeBlock memberSignature">
+                  <code key={i} className="codeBlock memberSignature">
                     <CallSigDef module={module} name={name} callSig={callSig} />
-                  </div>
+                  </code>
                 )
               }
               {member.inherited &&

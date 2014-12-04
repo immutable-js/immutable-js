@@ -66,9 +66,9 @@ var TypeDocumentation = React.createClass({
         </h1>
 
         {doc && <section className="doc">
-          <pre>{doc.synopsis}</pre>
-          {doc.description && <pre>{doc.description}</pre>}
-          {doc.notes && <pre>{doc.notes}</pre>}
+          <p>{doc.synopsis}</p>
+          {doc.description && <p>{doc.description}</p>}
+          {doc.notes && <p>{doc.notes}</p>}
         </section>}
 
         {functions.count() > 0 &&

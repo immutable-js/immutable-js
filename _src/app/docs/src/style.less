@@ -163,9 +163,13 @@
   display: inline-block;
   font-family: Menlo, monospace;
   margin: 0.5em 0;
-  min-width: 76ch;
+  max-width: 100%;
+  box-sizing: border-box;
   padding: 0.5em 16px 0.5em 12px;
+  min-width: min(100%, 76ch);
   white-space: pre;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
 }
 
 .memberSignature {
@@ -178,14 +182,9 @@
 }
 
 .memberLabel {
-  // margin-left: 0ch;
   .transition(margin-top 0.3s);
+  .select-none();
   cursor: pointer;
-  .select-none()
-}
-
-.memberLabel.open {
-  margin-left: 0;
 }
 
 .inherited,
@@ -292,14 +291,14 @@
 
 // macros
 
-.transition (@transition) {
+.transition(@transition) {
   -webkit-transition: @transition;
   -moz-transition:    @transition;
   -ms-transition:     @transition;
   -o-transition:      @transition;
 }
 
-.select-none () {
+.select-none() {
   cursor: default;
   -khtml-user-select: none;
   -moz-user-select: none;

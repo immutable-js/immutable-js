@@ -557,11 +557,11 @@ var MemberDoc = React.createClass({displayName: 'MemberDoc',
                 'Definition' + (def.signatures && def.signatures.length !== 1 ? 's' : '')
               ), 
               isProp ?
-                React.createElement("div", {className: "codeBlock memberSignature"}, 
+                React.createElement("code", {className: "codeBlock memberSignature"}, 
                   React.createElement(MemberDef, {module: module, member: {name:name, type: def.type}})
                 ) :
                 def.signatures.map(function(callSig, i) 
-                  {return React.createElement("div", {key: i, className: "codeBlock memberSignature"}, 
+                  {return React.createElement("code", {key: i, className: "codeBlock memberSignature"}, 
                     React.createElement(CallSigDef, {module: module, name: name, callSig: callSig})
                   );}
                 ), 
@@ -865,9 +865,9 @@ var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
         ), 
 
         doc && React.createElement("section", {className: "doc"}, 
-          React.createElement("pre", null, doc.synopsis), 
-          doc.description && React.createElement("pre", null, doc.description), 
-          doc.notes && React.createElement("pre", null, doc.notes)
+          React.createElement("p", null, doc.synopsis), 
+          doc.description && React.createElement("p", null, doc.description), 
+          doc.notes && React.createElement("p", null, doc.notes)
         ), 
 
         functions.count() > 0 &&
