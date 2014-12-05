@@ -24,7 +24,7 @@ class OrderedMap extends Map {
     if (!(this instanceof OrderedMap)) return new OrderedMap(value);
     if (value === MAKE) return this;
     return value === null || value === undefined ? emptyOrderedMap(this) :
-      isOrderedMap(value) ? value :
+      isOrderedMap(value) ? (value.constructor === this.constructor ? value : this.__init().merge(value)) :
       emptyOrderedMap(this).withMutations(map => {
         KeyedIterable(value).forEach((v, k) => map.set(k, v));
       });
@@ -96,6 +96,12 @@ class OrderedMap extends Map {
       return this;
     }
     return makeOrderedMap(this.constructor, newMap, newList, ownerID, this.__hash);
+  }
+
+  __init() {
+    this._map = emptyMap();
+    this._list = emptyList();
+    return this;
   }
 }
 

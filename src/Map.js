@@ -130,12 +130,12 @@ class Map extends KeyedCollection {
 
   sort(comparator) {
     // Late binding
-    return OrderedMap(sortFactory(this, comparator));
+    return new OrderedMap(sortFactory(this, comparator));
   }
 
   sortBy(mapper, comparator) {
     // Late binding
-    return OrderedMap(sortFactory(this, comparator, mapper));
+    return new OrderedMap(sortFactory(this, comparator, mapper));
   }
 
   // @pragma Mutability

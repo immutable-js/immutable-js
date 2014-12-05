@@ -3120,7 +3120,7 @@ var OrderedMap = function OrderedMap(value) {
     return new $OrderedMap(value);
   if (value === MAKE)
     return this;
-  return value === null || value === undefined ? emptyOrderedMap(this) : isOrderedMap(value) ? value : emptyOrderedMap(this).withMutations((function(map) {
+  return value === null || value === undefined ? emptyOrderedMap(this) : isOrderedMap(value) ? (value.constructor === this.constructor ? value : this.__init().merge(value)) : emptyOrderedMap(this).withMutations((function(map) {
     KeyedIterable(value).forEach((function(v, k) {
       return map.set(k, v);
     }));
@@ -3178,6 +3178,11 @@ var $OrderedMap = OrderedMap;
       return this;
     }
     return makeOrderedMap(this.constructor, newMap, newList, ownerID, this.__hash);
+  },
+  __init: function() {
+    this._map = emptyMap();
+    this._list = emptyList();
+    return this;
   }
 }, {of: function() {
     return new this(arguments);

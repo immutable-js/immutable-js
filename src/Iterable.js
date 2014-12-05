@@ -80,19 +80,19 @@ class Iterable {
   toOrderedMap() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);
-    return OrderedMap(this.toKeyedSeq());
+    return new OrderedMap(this.toKeyedSeq());
   }
 
   toOrderedSet() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);
-    return OrderedSet(isKeyed(this) ? this.valueSeq() : this);
+    return new OrderedSet(isKeyed(this) ? this.valueSeq() : this);
   }
 
   toSet() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);
-    return Set(isKeyed(this) ? this.valueSeq() : this);
+    return new Set(isKeyed(this) ? this.valueSeq() : this);
   }
 
   toSetSeq() {
@@ -108,13 +108,13 @@ class Iterable {
   toStack() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);
-    return Stack(isKeyed(this) ? this.valueSeq() : this);
+    return new Stack(isKeyed(this) ? this.valueSeq() : this);
   }
 
   toList() {
     // Use Late Binding here to solve the circular dependency.
     assertNotInfinite(this.size);
-    return List(isKeyed(this) ? this.valueSeq() : this);
+    return new List(isKeyed(this) ? this.valueSeq() : this);
   }
 
 
