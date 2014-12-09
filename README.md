@@ -258,8 +258,8 @@ Seq is never used:
       .filter(x => x % 2).map(x => x * x);
 
 Once the Seq is used, it performs only the work necessary. In this
-example, no intermediate arrays are ever created, filter is called three times
-twice, and map is only called two times:
+example, no intermediate arrays are ever created, filter is called three times,
+and map is only called twice:
 
     console.log(oddSquares.get(1)); // 9
 
