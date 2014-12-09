@@ -29,33 +29,28 @@ var DocDeterminer = React.createClass({displayName: 'DocDeterminer',
   mixins: [ Router.State ],
 
   render: function () {
-    var $__0=     determineDoc(this.getPath()),typeName=$__0.typeName,memberName=$__0.memberName;
-    if (typeName) {
-      return React.createElement(TypeDocumentation, null);
-    } else {
-      return React.createElement(DocOverview, {memberName: memberName});
-    }
+    var $__0=      determineDoc(this.getPath()),def=$__0.def,name=$__0.name,memberName=$__0.memberName;
+    return name ?
+      React.createElement(TypeDocumentation, {
+        def: def, 
+        name: name, 
+        memberName: memberName}
+      ) :
+      React.createElement(DocOverview, {def: def})
   }
 });
 
 
 function determineDoc(path) {
-  var $__0=    path.split('/'),typeName=$__0[1],memberName=$__0[2];
+  var $__0=    path.split('/'),name=$__0[1],memberName=$__0[2];
 
-  var def = defs.Immutable;
-  var typePath = typeName ? typeName.split('.') : [];
-  def = typePath.reduce(
-    function(def, name)  {return def && def.module && def.module[name];},
-    def
+  var namePath = name ? name.split('.') : [];
+  var def = namePath.reduce(
+    function(def, subName)  {return def && def.module && def.module[subName];},
+    defs.Immutable
   );
 
-  if (typePath.length === 1 && !def || !(def.interface || def.module)) {
-    memberName = typeName;
-    typeName = null;
-    def = defs.Immutable;
-  }
-
-  return { def:def, typeName:typeName, memberName:memberName };
+  return { def:def, name:name, memberName:memberName };
 }
 
 
@@ -110,8 +105,8 @@ module.exports = React.createClass({displayName: 'exports',
       routes:
         React.createElement(Route, {handler: Documentation, path: "/"}, 
           React.createElement(DefaultRoute, {handler: DocDeterminer}), 
-          React.createElement(Route, {name: "type", path: "/:typeName", handler: DocDeterminer}), 
-          React.createElement(Route, {name: "method", path: "/:typeName/:memberName", handler: DocDeterminer})
+          React.createElement(Route, {name: "type", path: "/:name", handler: DocDeterminer}), 
+          React.createElement(Route, {name: "method", path: "/:name/:memberName", handler: DocDeterminer})
         ),
       location: location,
       scrollBehavior: scrollBehavior
@@ -396,21 +391,15 @@ module.exports = DocHeader;
 var React = require('react');
 var Router = require('react-router');
 var $__0=    require('immutable'),Seq=$__0.Seq;
-var defs = require('../../../resources/immutable.d.json');
-var MemberDoc = require('./MemberDoc');
 
 var DocOverview = React.createClass({displayName: 'DocOverview',
 
-  mixins: [ Router.State ],
-
   render: function() {
-    var type = defs.Immutable;
+    var def = this.props.def;
 
-    var doc = type.doc;
-    var functions = Seq(type.module).filter(function(t)  {return !t.interface && !t.module;});
-    var types = Seq(type.module).filter(function(t)  {return t.interface || t.module;});
-
-    var memberName = this.props.memberName;
+    var doc = def.doc;
+    var functions = Seq(def.module).filter(function(t)  {return !t.interface && !t.module;});
+    var types = Seq(def.module).filter(function(t)  {return t.interface || t.module;});
 
     return (
       React.createElement("div", null, 
@@ -420,23 +409,22 @@ var DocOverview = React.createClass({displayName: 'DocOverview',
           doc.description && React.createElement("pre", null, doc.description)
         ), 
 
-        functions.count() > 0 &&
-          React.createElement("section", null, 
-            React.createElement("h4", {className: "groupTitle"}, "Functions"), 
-            functions.map(function(t, name) 
-              {return React.createElement(MemberDoc, {key: name, showDetail: name === memberName, member: {
-                memberName: name,
-                memberDef: t.call,
-                isStatic: true
-              }});}
-            ).toArray()
-          ), 
-        
+        React.createElement("table", {className: "typeTable"}, 
 
-        types.count() > 0 &&
-          React.createElement("section", null, 
-            React.createElement("h4", {className: "groupTitle"}, "Types"), 
-            React.createElement("table", {className: "typeTable"}, 
+            functions.map(function(t, name) 
+              {return React.createElement("tr", {key: name}, 
+                React.createElement("th", null, 
+                  React.createElement(Router.Link, {to: '/' + name}, 
+                    name + '()'
+                  )
+                ), 
+                React.createElement("td", null, 
+                  t.call.doc && t.call.doc.synopsis
+                )
+              );}
+            ).toArray(), 
+
+
             types.map(function(t, name) 
               {return React.createElement("tr", {key: name}, 
                 React.createElement("th", null, 
@@ -449,9 +437,8 @@ var DocOverview = React.createClass({displayName: 'DocOverview',
                 )
               );}
             ).toArray()
-            )
-          )
-        
+
+        )
 
       )
     );
@@ -460,7 +447,7 @@ var DocOverview = React.createClass({displayName: 'DocOverview',
 
 module.exports = DocOverview;
 
-},{"../../../resources/immutable.d.json":66,"./MemberDoc":4,"immutable":undefined,"react":undefined,"react-router":26}],4:[function(require,module,exports){
+},{"immutable":undefined,"react":undefined,"react-router":26}],4:[function(require,module,exports){
 var React = require('react');
 var $__0=    React.addons,TransitionGroup=$__0.TransitionGroup;
 var ReactTransitionEvents = require('react/lib/ReactTransitionEvents');
@@ -732,14 +719,6 @@ function sideBarType(typeName, type) {
 
       React.createElement("div", {className: "members"}, 
 
-        functions.map(function(t, name) 
-          {return React.createElement("div", {key: name}, 
-            React.createElement(Router.Link, {to: '/' + typeName + '/' + name}, 
-              typeName + '.' + name + '()'
-            )
-          );}
-        ).toArray(), 
-
         call &&
           React.createElement("section", null, 
             React.createElement("h4", {className: "groupTitle"}, "Construction"), 
@@ -748,6 +727,19 @@ function sideBarType(typeName, type) {
                 typeName + '()'
               )
             )
+          ), 
+        
+
+        functions.count() > 0 &&
+          React.createElement("section", null, 
+            React.createElement("h4", {className: "groupTitle"}, "Static Methods"), 
+            functions.map(function(t, name) 
+              {return React.createElement("div", {key: name}, 
+                React.createElement(Router.Link, {to: '/' + typeName + '/' + name}, 
+                  typeName + '.' + name + '()'
+                )
+              );}
+            ).toArray()
           ), 
         
 
@@ -792,8 +784,7 @@ module.exports = SideBar;
 var React = require('react');
 var Router = require('react-router');
 var $__0=    require('immutable'),Seq=$__0.Seq;
-var defs = require('../../../resources/immutable.d.json');
-var $__1=    require('./Defs'),InterfaceDef=$__1.InterfaceDef;
+var $__1=     require('./Defs'),InterfaceDef=$__1.InterfaceDef,CallSigDef=$__1.CallSigDef;
 var MemberDoc = require('./MemberDoc');
 var collectMemberGroups = require('./collectMemberGroups');
 var isMobile = require('./isMobile');
@@ -801,8 +792,6 @@ var SideBar = require('./SideBar');
 
 
 var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
-  mixins: [ Router.State ],
-
   getInitialState: function() {
     return {
       showInherited: true,
@@ -819,41 +808,115 @@ var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
   },
 
   render: function() {
-    var type = defs.Immutable;
-    var typeName = this.getParams().typeName;
-    var typePath = typeName ? typeName.split('.') : [];
-    type = typePath.reduce(
-      function(type, name)  {return type && type.module && type.module[name];},
-      type
-    );
-    if (!type) {
-      return React.createElement(NotFound, null);
-    }
+    var name = this.props.name;
+    var memberName = this.props.memberName;
+    var def = this.props.def;
 
-    var doc = type.doc;
-    var call = type.call;
-    var functions = Seq(type.module).filter(function(t)  {return !t.interface && !t.module;});
-    var types = Seq(type.module).filter(function(t)  {return t.interface || t.module;});
-    var interfaceDef = type.interface;
-
-    var memberGroups = collectMemberGroups(interfaceDef, {
+    var memberGroups = collectMemberGroups(def && def.interface, {
       showInGroups: this.state.showInGroups,
       showInherited: this.state.showInherited,
     });
 
     return (
       React.createElement("div", null, 
-        isMobile || React.createElement(SideBar, {focus: typeName, memberGroups: memberGroups}), 
-        React.createElement("div", {key: typeName, className: "docContents"}, 
+        isMobile || React.createElement(SideBar, {focus: name, memberGroups: memberGroups}), 
+        React.createElement("div", {key: name, className: "docContents"}, 
 
+          React.createElement("div", {onClick: this.toggleShowInGroups}, "Toggle Groups"), 
+          React.createElement("div", {onClick: this.toggleShowInherited}, "Toggle Inherited"), 
 
-        React.createElement("div", {onClick: this.toggleShowInGroups}, "Toggle Groups"), 
-        React.createElement("div", {onClick: this.toggleShowInherited}, "Toggle Inherited"), 
+          !def ?
+            React.createElement(NotFound, null) :
+          !def.interface && !def.module ?
+            React.createElement(FunctionDoc, {
+              name: name, 
+              def: def.call}
+            ) :
+            React.createElement(TypeDoc, {
+              name: name, 
+              def: def, 
+              memberName: memberName, 
+              memberGroups: memberGroups}
+            )
+          
+
+        )
+      )
+    );
+  }
+});
+
+var NotFound = React.createClass({displayName: 'NotFound',
+  render: function() {
+    return React.createElement("div", null, 'Not found');
+  }
+});
+
+var FunctionDoc = React.createClass({displayName: 'FunctionDoc',
+  render: function() {
+    var name = this.props.name;
+    var def = this.props.def;
+    var doc = def.doc || {};
+
+    return (
+      React.createElement("div", null, 
+        React.createElement("h1", {className: "typeHeader"}, 
+          name + '()'
+        ), 
+        doc.synopsis && React.createElement("div", {className: "synopsis"}, doc.synopsis), 
+        React.createElement("h4", {className: "infoHeader"}, 
+          'Definition' + (def.signatures && def.signatures.length !== 1 ? 's' : '')
+        ), 
+        React.createElement("code", {className: "codeBlock memberSignature"}, 
+          def.signatures.map(function(callSig, i) 
+            {return [React.createElement(CallSigDef, {name: name, callSig: callSig}), '\n'];}
+          )
+        ), 
+        doc.notes && doc.notes.map(function(note, i) 
+          {return React.createElement("section", {key: i}, 
+            React.createElement("h4", {className: "infoHeader"}, 
+              note.name
+            ), 
+            
+              note.name === 'alias' ?
+                React.createElement(CallSigDef, {name: note.body}) :
+              note.body
+            
+          );}
+        ), 
+        doc.description &&
+          React.createElement("section", null, 
+            React.createElement("h4", {className: "infoHeader"}, 
+              "Discussion"
+            ), 
+            doc.description
+          )
+        
+      )
+    );
+  }
+});
+
+var TypeDoc = React.createClass({displayName: 'TypeDoc',
+  render: function() {
+    var name = this.props.name;
+    var def = this.props.def;
+    var memberName = this.props.memberName;
+    var memberGroups = this.props.memberGroups;
+
+    var doc = def.doc;
+    var call = def.call;
+    var functions = Seq(def.module).filter(function(t)  {return !t.interface && !t.module;});
+    var types = Seq(def.module).filter(function(t)  {return t.interface || t.module;});
+    var interfaceDef = def.interface;
+
+    return (
+      React.createElement("div", null, 
         React.createElement("h1", {className: "typeHeader"}, 
           interfaceDef ?
             React.createElement("code", null, 
-            React.createElement(InterfaceDef, {name: typeName, def: interfaceDef})) :
-            typeName
+            React.createElement(InterfaceDef, {name: name, def: interfaceDef})) :
+            name
           
         ), 
 
@@ -863,44 +926,45 @@ var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
           doc.notes && React.createElement("p", null, doc.notes)
         ), 
 
-        functions.count() > 0 &&
-          React.createElement("section", null, 
-            functions.map(function(t, name) 
-              {return React.createElement(MemberDoc, {
-                key: name, 
-                showDetail: name === this.getParams().memberName, 
-                parentName: typeName, 
-                member: {
-                  memberName: name,
-                  memberDef: t.call,
-                  isStatic: true
-                }}
-              );}.bind(this)
-            ).toArray()
-          ), 
-        
-
         call &&
           React.createElement("section", null, 
             React.createElement("h4", {className: "groupTitle"}, "Construction"), 
             React.createElement(MemberDoc, {
-              showDetail: typeName === this.getParams().memberName, 
-              parentName: typeName, 
+              showDetail: name === memberName, 
+              parentName: name, 
               member: {
-                memberName: typeName,
+                memberName: name,
                 memberDef: call
               }}
             )
           ), 
         
 
+        functions.count() > 0 &&
+          React.createElement("section", null, 
+            React.createElement("h4", {className: "groupTitle"}, "Static Methods"), 
+            functions.map(function(t, fnName) 
+              {return React.createElement(MemberDoc, {
+                key: fnName, 
+                showDetail: fnName === memberName, 
+                parentName: name, 
+                member: {
+                  memberName: fnName,
+                  memberDef: t.call,
+                  isStatic: true
+                }}
+              );}
+            ).toArray()
+          ), 
+        
+
         types.count() > 0 &&
           React.createElement("section", null, 
             React.createElement("h4", {className: "groupTitle"}, "Types"), 
-            types.map(function(t, name) 
+            types.map(function(t, typeName) 
               {return React.createElement("div", {key: name}, 
-                React.createElement(Router.Link, {to: '/' + (typeName?typeName+'.'+name:name)}, 
-                  (typeName?typeName+'.'+name:name)
+                React.createElement(Router.Link, {to: '/' + (name?name+'.'+typeName:typeName)}, 
+                  (name?name+'.'+typeName:typeName)
                 )
               );}
             ).toArray()
@@ -917,33 +981,23 @@ var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
               Seq(members).map(function(member) 
                 {return React.createElement(MemberDoc, {
                   key: member.memberName, 
-                  showDetail: member.memberName === this.getParams().memberName, 
-                  parentName: typeName, 
+                  showDetail: member.memberName === memberName, 
+                  parentName: name, 
                   member: member}
-                );}.bind(this)
+                );}
               )
-            ]);}.bind(this)
+            ]);}
           ).flatten().toArray()
         )
-
-
-        )
-
       )
     );
   }
-});
-
-var NotFound = React.createClass({displayName: 'NotFound',
-  render: function() {
-    return React.createElement("div", null, 'Not found');
-  }
-});
+})
 
 
 module.exports = TypeDocumentation;
 
-},{"../../../resources/immutable.d.json":66,"./Defs":1,"./MemberDoc":4,"./SideBar":6,"./collectMemberGroups":8,"./isMobile":9,"immutable":undefined,"react":undefined,"react-router":26}],8:[function(require,module,exports){
+},{"./Defs":1,"./MemberDoc":4,"./SideBar":6,"./collectMemberGroups":8,"./isMobile":9,"immutable":undefined,"react":undefined,"react-router":26}],8:[function(require,module,exports){
 var $__0=    require('immutable'),Seq=$__0.Seq;
 var defs = require('../../../resources/immutable.d.json');
 

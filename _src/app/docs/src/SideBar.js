@@ -57,14 +57,6 @@ function sideBarType(typeName, type) {
 
       <div className="members">
 
-        {functions.map((t, name) =>
-          <div key={name}>
-            <Router.Link to={'/' + typeName + '/' + name}>
-              {typeName + '.' + name + '()'}
-            </Router.Link>
-          </div>
-        ).toArray()}
-
         {call &&
           <section>
             <h4 className="groupTitle">Construction</h4>
@@ -73,6 +65,19 @@ function sideBarType(typeName, type) {
                 {typeName + '()'}
               </Router.Link>
             </div>
+          </section>
+        }
+
+        {functions.count() > 0 &&
+          <section>
+            <h4 className="groupTitle">Static Methods</h4>
+            {functions.map((t, name) =>
+              <div key={name}>
+                <Router.Link to={'/' + typeName + '/' + name}>
+                  {typeName + '.' + name + '()'}
+                </Router.Link>
+              </div>
+            ).toArray()}
           </section>
         }
 

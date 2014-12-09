@@ -1,21 +1,15 @@
 var React = require('react');
 var Router = require('react-router');
 var { Seq } = require('immutable');
-var defs = require('../../../resources/immutable.d.json');
-var MemberDoc = require('./MemberDoc');
 
 var DocOverview = React.createClass({
 
-  mixins: [ Router.State ],
-
   render: function() {
-    var type = defs.Immutable;
+    var def = this.props.def;
 
-    var doc = type.doc;
-    var functions = Seq(type.module).filter(t => !t.interface && !t.module);
-    var types = Seq(type.module).filter(t => t.interface || t.module);
-
-    var memberName = this.props.memberName;
+    var doc = def.doc;
+    var functions = Seq(def.module).filter(t => !t.interface && !t.module);
+    var types = Seq(def.module).filter(t => t.interface || t.module);
 
     return (
       <div>
@@ -25,23 +19,22 @@ var DocOverview = React.createClass({
           {doc.description && <pre>{doc.description}</pre>}
         </section>}
 
-        {functions.count() > 0 &&
-          <section>
-            <h4 className="groupTitle">Functions</h4>
-            {functions.map((t, name) =>
-              <MemberDoc key={name} showDetail={name === memberName} member={{
-                memberName: name,
-                memberDef: t.call,
-                isStatic: true
-              }} />
-            ).toArray()}
-          </section>
-        }
+        <table className="typeTable">
 
-        {types.count() > 0 &&
-          <section>
-            <h4 className="groupTitle">Types</h4>
-            <table className="typeTable">
+            {functions.map((t, name) =>
+              <tr key={name}>
+                <th>
+                  <Router.Link to={'/' + name}>
+                    {name + '()'}
+                  </Router.Link>
+                </th>
+                <td>
+                  {t.call.doc && t.call.doc.synopsis}
+                </td>
+              </tr>
+            ).toArray()}
+
+
             {types.map((t, name) =>
               <tr key={name}>
                 <th>
@@ -54,9 +47,8 @@ var DocOverview = React.createClass({
                 </td>
               </tr>
             ).toArray()}
-            </table>
-          </section>
-        }
+
+        </table>
 
       </div>
     );

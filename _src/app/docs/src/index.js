@@ -28,33 +28,28 @@ var DocDeterminer = React.createClass({
   mixins: [ Router.State ],
 
   render: function () {
-    var { typeName, memberName } = determineDoc(this.getPath());
-    if (typeName) {
-      return <TypeDocumentation />;
-    } else {
-      return <DocOverview memberName={memberName} />;
-    }
+    var { def, name, memberName } = determineDoc(this.getPath());
+    return name ?
+      <TypeDocumentation
+        def={def}
+        name={name}
+        memberName={memberName}
+      /> :
+      <DocOverview def={def} />
   }
 });
 
 
 function determineDoc(path) {
-  var [, typeName, memberName] = path.split('/');
+  var [, name, memberName] = path.split('/');
 
-  var def = defs.Immutable;
-  var typePath = typeName ? typeName.split('.') : [];
-  def = typePath.reduce(
-    (def, name) => def && def.module && def.module[name],
-    def
+  var namePath = name ? name.split('.') : [];
+  var def = namePath.reduce(
+    (def, subName) => def && def.module && def.module[subName],
+    defs.Immutable
   );
 
-  if (typePath.length === 1 && !def || !(def.interface || def.module)) {
-    memberName = typeName;
-    typeName = null;
-    def = defs.Immutable;
-  }
-
-  return { def, typeName, memberName };
+  return { def, name, memberName };
 }
 
 
@@ -109,8 +104,8 @@ module.exports = React.createClass({
       routes:
         <Route handler={Documentation} path="/">
           <DefaultRoute handler={DocDeterminer} />
-          <Route name="type" path="/:typeName" handler={DocDeterminer} />
-          <Route name="method" path="/:typeName/:memberName" handler={DocDeterminer} />
+          <Route name="type" path="/:name" handler={DocDeterminer} />
+          <Route name="method" path="/:name/:memberName" handler={DocDeterminer} />
         </Route>,
       location: location,
       scrollBehavior: scrollBehavior

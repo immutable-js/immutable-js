@@ -1,8 +1,7 @@
 var React = require('react');
 var Router = require('react-router');
 var { Seq } = require('immutable');
-var defs = require('../../../resources/immutable.d.json');
-var { InterfaceDef } = require('./Defs');
+var { InterfaceDef, CallSigDef } = require('./Defs');
 var MemberDoc = require('./MemberDoc');
 var collectMemberGroups = require('./collectMemberGroups');
 var isMobile = require('./isMobile');
@@ -10,8 +9,6 @@ var SideBar = require('./SideBar');
 
 
 var TypeDocumentation = React.createClass({
-  mixins: [ Router.State ],
-
   getInitialState: function() {
     return {
       showInherited: true,
@@ -28,41 +25,115 @@ var TypeDocumentation = React.createClass({
   },
 
   render: function() {
-    var type = defs.Immutable;
-    var typeName = this.getParams().typeName;
-    var typePath = typeName ? typeName.split('.') : [];
-    type = typePath.reduce(
-      (type, name) => type && type.module && type.module[name],
-      type
-    );
-    if (!type) {
-      return <NotFound />;
-    }
+    var name = this.props.name;
+    var memberName = this.props.memberName;
+    var def = this.props.def;
 
-    var doc = type.doc;
-    var call = type.call;
-    var functions = Seq(type.module).filter(t => !t.interface && !t.module);
-    var types = Seq(type.module).filter(t => t.interface || t.module);
-    var interfaceDef = type.interface;
-
-    var memberGroups = collectMemberGroups(interfaceDef, {
+    var memberGroups = collectMemberGroups(def && def.interface, {
       showInGroups: this.state.showInGroups,
       showInherited: this.state.showInherited,
     });
 
     return (
       <div>
-        {isMobile || <SideBar focus={typeName} memberGroups={memberGroups} />}
-        <div key={typeName} className="docContents">
+        {isMobile || <SideBar focus={name} memberGroups={memberGroups} />}
+        <div key={name} className="docContents">
 
+          <div onClick={this.toggleShowInGroups}>Toggle Groups</div>
+          <div onClick={this.toggleShowInherited}>Toggle Inherited</div>
 
-        <div onClick={this.toggleShowInGroups}>Toggle Groups</div>
-        <div onClick={this.toggleShowInherited}>Toggle Inherited</div>
+          {!def ?
+            <NotFound /> :
+          !def.interface && !def.module ?
+            <FunctionDoc
+              name={name}
+              def={def.call}
+            /> :
+            <TypeDoc
+              name={name}
+              def={def}
+              memberName={memberName}
+              memberGroups={memberGroups}
+            />
+          }
+
+        </div>
+      </div>
+    );
+  }
+});
+
+var NotFound = React.createClass({
+  render: function() {
+    return <div>{'Not found'}</div>;
+  }
+});
+
+var FunctionDoc = React.createClass({
+  render: function() {
+    var name = this.props.name;
+    var def = this.props.def;
+    var doc = def.doc || {};
+
+    return (
+      <div>
+        <h1 className="typeHeader">
+          {name + '()'}
+        </h1>
+        {doc.synopsis && <div className="synopsis">{doc.synopsis}</div>}
+        <h4 className="infoHeader">
+          {'Definition' + (def.signatures && def.signatures.length !== 1 ? 's' : '')}
+        </h4>
+        <code className="codeBlock memberSignature">
+          {def.signatures.map((callSig, i) =>
+            [<CallSigDef name={name} callSig={callSig} />, '\n']
+          )}
+        </code>
+        {doc.notes && doc.notes.map((note, i) =>
+          <section key={i}>
+            <h4 className="infoHeader">
+              {note.name}
+            </h4>
+            {
+              note.name === 'alias' ?
+                <CallSigDef name={note.body} /> :
+              note.body
+            }
+          </section>
+        )}
+        {doc.description &&
+          <section>
+            <h4 className="infoHeader">
+              Discussion
+            </h4>
+            {doc.description}
+          </section>
+        }
+      </div>
+    );
+  }
+});
+
+var TypeDoc = React.createClass({
+  render: function() {
+    var name = this.props.name;
+    var def = this.props.def;
+    var memberName = this.props.memberName;
+    var memberGroups = this.props.memberGroups;
+
+    var doc = def.doc;
+    var call = def.call;
+    var functions = Seq(def.module).filter(t => !t.interface && !t.module);
+    var types = Seq(def.module).filter(t => t.interface || t.module);
+    var interfaceDef = def.interface;
+
+    return (
+      <div>
         <h1 className="typeHeader">
           {interfaceDef ?
             <code>
-            <InterfaceDef name={typeName} def={interfaceDef} /></code> :
-            typeName
+            <InterfaceDef name={name} def={interfaceDef} /></code> :
+            name
           }
         </h1>
 
@@ -72,15 +143,30 @@ var TypeDocumentation = React.createClass({
           {doc.notes && <p>{doc.notes}</p>}
         </section>}
 
+        {call &&
+          <section>
+            <h4 className="groupTitle">Construction</h4>
+            <MemberDoc
+              showDetail={name === memberName}
+              parentName={name}
+              member={{
+                memberName: name,
+                memberDef: call
+              }}
+            />
+          </section>
+        }
+
         {functions.count() > 0 &&
           <section>
-            {functions.map((t, name) =>
+            <h4 className="groupTitle">Static Methods</h4>
+            {functions.map((t, fnName) =>
               <MemberDoc
-                key={name}
-                showDetail={name === this.getParams().memberName}
-                parentName={typeName}
+                key={fnName}
+                showDetail={fnName === memberName}
+                parentName={name}
                 member={{
-                  memberName: name,
+                  memberName: fnName,
                   memberDef: t.call,
                   isStatic: true
                 }}
@@ -89,27 +175,13 @@ var TypeDocumentation = React.createClass({
           </section>
         }
 
-        {call &&
-          <section>
-            <h4 className="groupTitle">Construction</h4>
-            <MemberDoc
-              showDetail={typeName === this.getParams().memberName}
-              parentName={typeName}
-              member={{
-                memberName: typeName,
-                memberDef: call
-              }}
-            />
-          </section>
-        }
-
         {types.count() > 0 &&
           <section>
             <h4 className="groupTitle">Types</h4>
-            {types.map((t, name) =>
+            {types.map((t, typeName) =>
               <div key={name}>
-                <Router.Link to={'/' + (typeName?typeName+'.'+name:name)}>
-                  {(typeName?typeName+'.'+name:name)}
+                <Router.Link to={'/' + (name?name+'.'+typeName:typeName)}>
+                  {(name?name+'.'+typeName:typeName)}
                 </Router.Link>
               </div>
             ).toArray()}
@@ -126,28 +198,18 @@ var TypeDocumentation = React.createClass({
               Seq(members).map(member =>
                 <MemberDoc
                   key={member.memberName}
-                  showDetail={member.memberName === this.getParams().memberName}
-                  parentName={typeName}
+                  showDetail={member.memberName === memberName}
+                  parentName={name}
                   member={member}
                 />
               )
             ])
           ).flatten().toArray()}
         </section>
-
-
-        </div>
-
       </div>
     );
   }
-});
-
-var NotFound = React.createClass({
-  render: function() {
-    return <div>{'Not found'}</div>;
-  }
-});
+})
 
 
 module.exports = TypeDocumentation;
