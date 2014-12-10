@@ -11,6 +11,7 @@ var SideBar = React.createClass({
     return (
       <div className="sideBar">
         <div className="scrollContent">
+          <h4 className="groupTitle">API</h4>
           {Seq(type.module).map((t, name) =>
             this.renderSideBarType(name, t)
           ).toArray()}

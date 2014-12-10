@@ -7,10 +7,7 @@ var DocOverview = React.createClass({
 
   render() {
     var def = this.props.def;
-
     var doc = def.doc;
-    var functions = Seq(def.module).filter(t => !t.interface && !t.module);
-    var types = Seq(def.module).filter(t => t.interface || t.module);
 
     return (
       <div>
@@ -20,35 +17,26 @@ var DocOverview = React.createClass({
           {doc.description && <Markdown contents={doc.description} />}
         </section>}
 
-        <h4 className="groupTitle">Functions</h4>
+        <h4 className="groupTitle">API</h4>
 
-        {functions.map((t, name) =>
-          <section className="interfaceMember">
-            <h3 className="memberLabel">
-              <Router.Link to={'/' + name}>
-                {name + '()'}
-              </Router.Link>
-            </h3>
-            {t.call.doc &&
-              <Markdown className="detail" contents={t.call.doc.synopsis} />
-            }
-          </section>
-        ).toArray()}
-
-        <h4 className="groupTitle">Types</h4>
-
-        {types.map((t, name) =>
-          <section className="interfaceMember">
-            <h3 className="memberLabel">
-              <Router.Link to={'/' + name}>
-                {name}
-              </Router.Link>
-            </h3>
-            {t.doc &&
-              <Markdown className="detail" contents={t.doc.synopsis} />
-            }
-          </section>
-        ).toArray()}
+        {Seq(def.module).map((t, name) => {
+          var isFunction = !t.interface && !t.module;
+          if (isFunction) {
+            t = t.call;
+          }
+          return (
+            <section key={name} className="interfaceMember">
+              <h3 className="memberLabel">
+                <Router.Link to={'/' + name}>
+                  {name + (isFunction ? '()' : '')}
+                </Router.Link>
+              </h3>
+              {t.doc &&
+                <Markdown className="detail" contents={t.doc.synopsis} />
+              }
+            </section>
+          );
+        }).toArray()}
 
       </div>
     );
