@@ -12,6 +12,7 @@ var InterfaceDef = React.createClass({
     var def = this.props.def;
     return (
       <span className="t interfaceDef">
+        <span className="t keyword">{'class '}</span>
         <span className="t typeName">{name}</span>
         {def.typeParams &&
           ['<', Seq(def.typeParams).map((t, k) =>

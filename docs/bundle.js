@@ -145,6 +145,7 @@ var InterfaceDef = React.createClass({displayName: 'InterfaceDef',
     var def = this.props.def;
     return (
       React.createElement("span", {className: "t interfaceDef"}, 
+        React.createElement("span", {className: "t keyword"}, 'class '), 
         React.createElement("span", {className: "t typeName"}, name), 
         def.typeParams &&
           ['<', Seq(def.typeParams).map(function(t, k) 
@@ -877,8 +878,17 @@ var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
         isMobile || React.createElement(SideBar, {focus: name, memberGroups: memberGroups}), 
         React.createElement("div", {key: name, className: "docContents"}, 
 
-          React.createElement("div", {onClick: this.toggleShowInGroups}, "Toggle Groups"), 
-          React.createElement("div", {onClick: this.toggleShowInherited}, "Toggle Inherited"), 
+          React.createElement("div", {className: "toolBar"}, 
+            React.createElement("input", {className: "searchBar"}), 
+            React.createElement("span", {onClick: this.toggleShowInGroups}, 
+              this.state.showInGroups ? 'Alphabetize' : 'Groups'
+            ), 
+            ' • ', 
+            React.createElement("span", {onClick: this.toggleShowInherited}, 
+              this.state.showInherited ? 'Hide Inherited Members' : 'Show Inherited Members'
+            )
+          ), 
+
 
           !def ?
             React.createElement(NotFound, null) :
