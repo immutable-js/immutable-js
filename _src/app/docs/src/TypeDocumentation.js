@@ -8,6 +8,8 @@ var isMobile = require('./isMobile');
 var SideBar = require('./SideBar');
 var MarkDown = require('./MarkDown');
 var DocOverview = require('./DocOverview');
+var TypeKind = require('../../../src/TypeKind');
+var defs = require('../../../resources/immutable.d.json');
 
 
 var TypeDocumentation = React.createClass({
@@ -129,6 +131,7 @@ var TypeDoc = React.createClass({
     var functions = Seq(def.module).filter(t => !t.interface && !t.module);
     var types = Seq(def.module).filter(t => t.interface || t.module);
     var interfaceDef = def.interface;
+    var typePropMap = getTypePropMap(interfaceDef);
 
     return (
       <div>
@@ -200,6 +203,7 @@ var TypeDoc = React.createClass({
               </h4>,
               Seq(members).map(member =>
                 <MemberDoc
+                  typePropMap={typePropMap}
                   key={member.memberName}
                   showDetail={member.memberName === memberName}
                   parentName={name}
@@ -212,7 +216,54 @@ var TypeDoc = React.createClass({
       </div>
     );
   }
-})
+});
+
+
+/**
+ * Get a map from super type parameter to concrete type definition. This is
+ * used when rendering inherited type definitions to ensure contextually
+ * relevant information.
+ *
+ * Example:
+ *
+ *   type A<T> implements B<number, T>
+ *   type B<K, V> implements C<K, V, V>
+ *   type C<X, Y, Z>
+ *
+ * parse C:
+ *   {}
+ *
+ * parse B:
+ *   { C<X: K
+ *     C<Y: V
+ *     C<Z: V }
+ *
+ * parse A:
+ *   { B<K: number
+ *     B<V: T
+ *     C<X: number
+ *     C<Y: T
+ *     C<Z: T }
+ */
+function getTypePropMap(def) {
+  var map = {};
+  def.extends && def.extends.forEach(e => {
+    var superModule = defs.Immutable.module[e.name];
+    var superInterface = superModule && superModule.interface;
+    if (superInterface) {
+      var interfaceMap = Seq(superInterface.typeParams)
+        .toKeyedSeq().flip().map(i => e.args[i]).toObject();
+      Seq(interfaceMap).forEach((v, k) => {
+        map[e.name + '<' + k] = v;
+      });
+      var superMap = getTypePropMap(superInterface);
+      Seq(superMap).forEach((v, k) => {
+        map[k] = v.k === TypeKind.Param ? interfaceMap[v.param] : v
+      });
+    }
+  });
+  return map;
+}
 
 
 module.exports = TypeDocumentation;

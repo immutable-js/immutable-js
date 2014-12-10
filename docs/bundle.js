@@ -173,11 +173,12 @@ exports.InterfaceDef = InterfaceDef;
 
 var CallSigDef = React.createClass({displayName: 'CallSigDef',
   render: function() {
+    var info = this.props.info;
     var module = this.props.module;
     var name = this.props.name;
     var callSig = this.props.callSig || {};
 
-    var shouldWrap = callSigLength(module, name, callSig) > 80;
+    var shouldWrap = callSigLength(info, module, name, callSig) > 80;
 
     return (
       React.createElement("span", {className: "t callSig"}, 
@@ -189,9 +190,9 @@ var CallSigDef = React.createClass({displayName: 'CallSigDef',
           ).interpose(', ').toArray(), '>'], 
         
         '(', 
-        callSig && functionParams(callSig.params, shouldWrap), 
+        callSig && functionParams(info, callSig.params, shouldWrap), 
         ')', 
-        callSig.type && [': ', React.createElement(TypeDef, {type: callSig.type})]
+        callSig.type && [': ', React.createElement(TypeDef, {info: info, type: callSig.type})]
       )
     );
   }
@@ -202,7 +203,9 @@ exports.CallSigDef = CallSigDef;
 
 var TypeDef = React.createClass({displayName: 'TypeDef',
   render: function() {
+    var info = this.props.info;
     var type = this.props.type;
+    var prefix = this.props.prefix;
     switch (type.k) {
       case TypeKind.Any: return this.wrap('primitive', 'any');
       case TypeKind.Boolean: return this.wrap('primitive', 'boolean');
@@ -216,12 +219,19 @@ var TypeDef = React.createClass({displayName: 'TypeDef',
         '}'
       ]);
       case TypeKind.Array: return this.wrap('array', [
-        React.createElement(TypeDef, {type: type.type}), '[]'
+        React.createElement(TypeDef, {info: info, type: type.type}), '[]'
       ]);
-      case TypeKind.Function: return this.wrap('function', [
-        '(', functionParams(type.params), ') => ', React.createElement(TypeDef, {type: type.type})
-      ]);
-      case TypeKind.Param: return this.wrap('typeParam', type.param);
+      case TypeKind.Function:
+        var shouldWrap = (prefix || 0) + 6 + paramLength(info, type.params) + typeLength(info, type.type) > 78;
+        return this.wrap('function', [
+          '(', functionParams(info, type.params, shouldWrap), ') => ',
+          React.createElement(TypeDef, {info: info, type: type.type})
+        ]);
+      case TypeKind.Param: return (
+        info && info.propMap[info.defining + '<' + type.param] ?
+          React.createElement(TypeDef, {type: info.propMap[info.defining + '<' + type.param]}) :
+          this.wrap('typeParam', type.param)
+      );
       case TypeKind.Type:
         var qualifiedType = (type.qualifier || []).concat([type.name]);
         var qualifiedTypeName = qualifiedType.join('.');
@@ -244,7 +254,7 @@ var TypeDef = React.createClass({displayName: 'TypeDef',
         return this.wrap('type', [
           typeNameElement,
           type.args && ['<', Seq(type.args).map(function(a) 
-            {return React.createElement(TypeDef, {type: a});}
+            {return React.createElement(TypeDef, {info: info, type: a});}
           ).interpose(', ').toArray(), '>']
         ]);
     }
@@ -283,7 +293,7 @@ var MemberDef = React.createClass({displayName: 'MemberDef',
       React.createElement("span", {className: "t member"}, 
         module && [React.createElement("span", {className: "t fnQualifier"}, module), '.'], 
         member.index ?
-          ['[', functionParams(member.params), ']'] :
+          ['[', functionParams(null, member.params), ']'] :
           React.createElement("span", {className: "t memberName"}, member.name), 
         member.type && [': ', React.createElement(TypeDef, {type: member.type})]
       )
@@ -294,63 +304,71 @@ var MemberDef = React.createClass({displayName: 'MemberDef',
 exports.MemberDef = MemberDef;
 
 
-function functionParams(params, shouldWrap) {
+function functionParams(info, params, shouldWrap) {
   var elements = Seq(params).map(function(t)  {return [
     t.varArgs ? '...' : null,
     React.createElement("span", {className: "t param"}, t.name),
     t.optional ? '?: ' : ': ',
-    React.createElement(TypeDef, {type: t.type})
+    React.createElement(TypeDef, {
+      prefix: t.name.length + (t.varArgs ? 3 : 0) + (t.optional ? 3 : 2), 
+      info: info, 
+      type: t.type}
+    )
   ];}).interpose(shouldWrap ? [',', React.createElement("br", null)] : ', ').toArray();
   return shouldWrap ?
     React.createElement("div", {className: "t blockParams"}, elements) :
     elements;
 }
 
-function callSigLength(module, name, sig) {
+function callSigLength(info, module, name, sig) {
   return (
     (module ? module.length + 1 : 0) +
     name.length +
     (sig.typeParams ? 2 + sig.typeParams.join(', ').length : 0) +
-    2 + (sig.params ? paramLength(sig.params) : 0) +
-    (sig.type ? 2 + typeLength(sig.type) : 0)
+    2 + (sig.params ? paramLength(info, sig.params) : 0) +
+    (sig.type ? 2 + typeLength(info, sig.type) : 0)
   );
 }
 
-function paramLength(params) {
+function paramLength(info, params) {
   return params.reduce(function(s, p) 
     {return s +
     (p.varArgs ? 3 : 0) +
     p.name.length +
     (p.optional ? 3 : 2) +
-    typeLength(p.type);},
+    typeLength(info, p.type);},
     (params.length - 1) * 2
   );
 }
 
-function memberLength(members) {
+function memberLength(info, members) {
   return members.reduce(function(s, m) 
-    {return s + (m.index ? paramLength(m.params) + 4 : m.name + 2) +
-    typeLength(m.type);},
+    {return s + (m.index ? paramLength(info, m.params) + 4 : m.name + 2) +
+    typeLength(info, m.type);},
     (members.length - 1) * 2
   );
 }
 
-function typeLength(type) {
+function typeLength(info, type) {
   switch (type.k) {
     case TypeKind.Any: return 3;
     case TypeKind.Boolean: return 7;
     case TypeKind.Number: return 6;
     case TypeKind.String: return 6;
-    case TypeKind.Object: return 2 + memberLength(type.members);
-    case TypeKind.Array: return typeLength(type.type) + 2;
+    case TypeKind.Object: return 2 + memberLength(info, type.members);
+    case TypeKind.Array: return typeLength(info, type.type) + 2;
     case TypeKind.Function:
-      return paramLength(type.params) + 6 + typeLength(type.type);
-    case TypeKind.Param: return type.param.length;
+      return paramLength(info, type.params) + 6 + typeLength(info, type.type);
+    case TypeKind.Param: return (
+      info && info.propMap[info.defining + '<' + type.param] ?
+        typeLength(null, info.propMap[info.defining + '<' + type.param]) :
+        type.param.length
+    );
     case TypeKind.Type: return (
       (type.qualifier ? 1 + type.qualifier.join('.').length : 0) +
       type.name.length +
       (!type.args ? 0 :
-        type.args.reduce(function(s, a)  {return s + typeLength(a);}, type.args.length * 2))
+        type.args.reduce(function(s, a)  {return s + typeLength(info, a);}, type.args.length * 2))
     );
   }
   throw new Error('Unknown kind ' + type.k);
@@ -538,12 +556,18 @@ var MemberDoc = React.createClass({displayName: 'MemberDoc',
   },
 
   render: function() {
+    var typePropMap = this.props.typePropMap;
     var member = this.props.member;
     var module = member.isStatic ? this.props.parentName : null;
     var name = member.memberName;
     var def = member.memberDef;
     var doc = def.doc || {};
     var isProp = !def.signatures;
+
+    var typeInfo = member.inherited && {
+      propMap: typePropMap,
+      defining: member.inherited.name
+    };
 
     var showDetail = isMobile ? this.state.detail : true;
 
@@ -562,7 +586,12 @@ var MemberDoc = React.createClass({displayName: 'MemberDoc',
                 ) :
                 React.createElement("code", {className: "codeBlock memberSignature"}, 
                 def.signatures.map(function(callSig, i) 
-                  {return [React.createElement(CallSigDef, {module: module, name: name, callSig: callSig}), '\n'];}
+                  {return [React.createElement(CallSigDef, {
+                    info: typeInfo, 
+                    module: module, 
+                    name: name, 
+                    callSig: callSig}
+                  ), '\n'];}
                 )), 
               
               member.inherited &&
@@ -813,6 +842,8 @@ var isMobile = require('./isMobile');
 var SideBar = require('./SideBar');
 var MarkDown = require('./MarkDown');
 var DocOverview = require('./DocOverview');
+var TypeKind = require('../../../src/TypeKind');
+var defs = require('../../../resources/immutable.d.json');
 
 
 var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
@@ -934,6 +965,7 @@ var TypeDoc = React.createClass({displayName: 'TypeDoc',
     var functions = Seq(def.module).filter(function(t)  {return !t.interface && !t.module;});
     var types = Seq(def.module).filter(function(t)  {return t.interface || t.module;});
     var interfaceDef = def.interface;
+    var typePropMap = getTypePropMap(interfaceDef);
 
     return (
       React.createElement("div", null, 
@@ -1005,6 +1037,7 @@ var TypeDoc = React.createClass({displayName: 'TypeDoc',
               ),
               Seq(members).map(function(member) 
                 {return React.createElement(MemberDoc, {
+                  typePropMap: typePropMap, 
                   key: member.memberName, 
                   showDetail: member.memberName === memberName, 
                   parentName: name, 
@@ -1017,12 +1050,59 @@ var TypeDoc = React.createClass({displayName: 'TypeDoc',
       )
     );
   }
-})
+});
+
+
+/**
+ * Get a map from super type parameter to concrete type definition. This is
+ * used when rendering inherited type definitions to ensure contextually
+ * relevant information.
+ *
+ * Example:
+ *
+ *   type A<T> implements B<number, T>
+ *   type B<K, V> implements C<K, V, V>
+ *   type C<X, Y, Z>
+ *
+ * parse C:
+ *   {}
+ *
+ * parse B:
+ *   { C<X: K
+ *     C<Y: V
+ *     C<Z: V }
+ *
+ * parse A:
+ *   { B<K: number
+ *     B<V: T
+ *     C<X: number
+ *     C<Y: T
+ *     C<Z: T }
+ */
+function getTypePropMap(def) {
+  var map = {};
+  def.extends && def.extends.forEach(function(e)  {
+    var superModule = defs.Immutable.module[e.name];
+    var superInterface = superModule && superModule.interface;
+    if (superInterface) {
+      var interfaceMap = Seq(superInterface.typeParams)
+        .toKeyedSeq().flip().map(function(i)  {return e.args[i];}).toObject();
+      Seq(interfaceMap).forEach(function(v, k)  {
+        map[e.name + '<' + k] = v;
+      });
+      var superMap = getTypePropMap(superInterface);
+      Seq(superMap).forEach(function(v, k)  {
+        map[k] = v.k === TypeKind.Param ? interfaceMap[v.param] : v
+      });
+    }
+  });
+  return map;
+}
 
 
 module.exports = TypeDocumentation;
 
-},{"./Defs":1,"./DocOverview":3,"./MarkDown":4,"./MemberDoc":6,"./SideBar":8,"./collectMemberGroups":10,"./isMobile":11,"immutable":undefined,"react":undefined,"react-router":174}],10:[function(require,module,exports){
+},{"../../../resources/immutable.d.json":214,"../../../src/TypeKind":215,"./Defs":1,"./DocOverview":3,"./MarkDown":4,"./MemberDoc":6,"./SideBar":8,"./collectMemberGroups":10,"./isMobile":11,"immutable":undefined,"react":undefined,"react-router":174}],10:[function(require,module,exports){
 var $__0=    require('immutable'),Seq=$__0.Seq;
 var defs = require('../../../resources/immutable.d.json');
 

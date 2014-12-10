@@ -66,12 +66,18 @@ var MemberDoc = React.createClass({
   },
 
   render: function() {
+    var typePropMap = this.props.typePropMap;
     var member = this.props.member;
     var module = member.isStatic ? this.props.parentName : null;
     var name = member.memberName;
     var def = member.memberDef;
     var doc = def.doc || {};
     var isProp = !def.signatures;
+
+    var typeInfo = member.inherited && {
+      propMap: typePropMap,
+      defining: member.inherited.name
+    };
 
     var showDetail = isMobile ? this.state.detail : true;
 
@@ -90,7 +96,12 @@ var MemberDoc = React.createClass({
                 </code> :
                 <code className="codeBlock memberSignature">
                 {def.signatures.map((callSig, i) =>
-                  [<CallSigDef module={module} name={name} callSig={callSig} />, '\n']
+                  [<CallSigDef
+                    info={typeInfo}
+                    module={module}
+                    name={name}
+                    callSig={callSig}
+                  />, '\n']
                 )}</code>
               }
               {member.inherited &&
