@@ -3,7 +3,6 @@ var assign = require('react/lib/Object.assign');
 var Router = require('react-router');
 var { Route, DefaultRoute, RouteHandler } = Router;
 var DocHeader = require('./DocHeader');
-var DocOverview = require('./DocOverview');
 var TypeDocumentation = require('./TypeDocumentation');
 var defs = require('../../../resources/immutable.d.json');
 var isMobile = require('./isMobile');
@@ -29,13 +28,13 @@ var DocDeterminer = React.createClass({
 
   render: function () {
     var { def, name, memberName } = determineDoc(this.getPath());
-    return name ?
+    return (
       <TypeDocumentation
         def={def}
         name={name}
         memberName={memberName}
-      /> :
-      <DocOverview def={def} />
+      />
+    );
   }
 });
 

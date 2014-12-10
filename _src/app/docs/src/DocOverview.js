@@ -20,36 +20,35 @@ var DocOverview = React.createClass({
           {doc.description && <Markdown contents={doc.description} />}
         </section>}
 
-        <table className="typeTable">
+        <h4 className="groupTitle">Functions</h4>
 
-            {functions.map((t, name) =>
-              <tr key={name}>
-                <th>
-                  <Router.Link to={'/' + name}>
-                    {name + '()'}
-                  </Router.Link>
-                </th>
-                <td>
-                  {t.call.doc && <Markdown contents={t.call.doc.synopsis} />}
-                </td>
-              </tr>
-            ).toArray()}
+        {functions.map((t, name) =>
+          <section className="interfaceMember">
+            <h3 className="memberLabel">
+              <Router.Link to={'/' + name}>
+                {name + '()'}
+              </Router.Link>
+            </h3>
+            {t.call.doc &&
+              <Markdown className="detail" contents={t.call.doc.synopsis} />
+            }
+          </section>
+        ).toArray()}
 
+        <h4 className="groupTitle">Types</h4>
 
-            {types.map((t, name) =>
-              <tr key={name}>
-                <th>
-                  <Router.Link to={'/' + name}>
-                    {name}
-                  </Router.Link>
-                </th>
-                <td>
-                  {t.doc && <Markdown contents={t.doc.synopsis} />}
-                </td>
-              </tr>
-            ).toArray()}
-
-        </table>
+        {types.map((t, name) =>
+          <section className="interfaceMember">
+            <h3 className="memberLabel">
+              <Router.Link to={'/' + name}>
+                {name}
+              </Router.Link>
+            </h3>
+            {t.doc &&
+              <Markdown className="detail" contents={t.doc.synopsis} />
+            }
+          </section>
+        ).toArray()}
 
       </div>
     );

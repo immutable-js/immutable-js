@@ -7,6 +7,7 @@ var collectMemberGroups = require('./collectMemberGroups');
 var isMobile = require('./isMobile');
 var SideBar = require('./SideBar');
 var MarkDown = require('./MarkDown');
+var DocOverview = require('./DocOverview');
 
 
 var TypeDocumentation = React.createClass({
@@ -45,6 +46,8 @@ var TypeDocumentation = React.createClass({
 
           {!def ?
             <NotFound /> :
+          !name ?
+            <DocOverview def={def} /> :
           !def.interface && !def.module ?
             <FunctionDoc
               name={name}

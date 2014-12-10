@@ -1,5 +1,6 @@
 var TypeScript = require('./typescript-services');
 var TypeKind = require('./TypeKind');
+var prism = require('./prism');
 var { Seq } = require('immutable');
 var marked = require('marked');
 
@@ -427,12 +428,15 @@ function parseComment(node) {
   return comment;
 }
 
-var Prism = require('./prism');
+// functions come before keywords
+prism.languages.insertBefore('javascript', 'keyword', {
+  'block-keyword': /\b(if|else|while|for|function)\b/g,
+  'function': prism.languages.function
+});
 
 marked.setOptions({
   highlight: function (code) {
-    return Prism.highlight(code, Prism.languages.javascript);
-    // return require('prismjs').highlightAuto(code).value;
+    return prism.highlight(code, prism.languages.javascript);
   }
 });
 
