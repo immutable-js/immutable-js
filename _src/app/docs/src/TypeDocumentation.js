@@ -126,7 +126,7 @@ var TypeDoc = React.createClass({
     var memberName = this.props.memberName;
     var memberGroups = this.props.memberGroups;
 
-    var doc = def.doc;
+    var doc = def.doc || {};
     var call = def.call;
     var functions = Seq(def.module).filter(t => !t.interface && !t.module);
     var types = Seq(def.module).filter(t => t.interface || t.module);
@@ -136,18 +136,36 @@ var TypeDoc = React.createClass({
     return (
       <div>
         <h1 className="typeHeader">
-          {interfaceDef ?
-            <code>
-            <InterfaceDef name={name} def={interfaceDef} /></code> :
-            name
-          }
+          {name}
         </h1>
+        {doc.synopsis && <MarkDown className="synopsis" contents={doc.synopsis} />}
+        <code className="codeBlock memberSignature">
+          <InterfaceDef name={name} def={interfaceDef} />
+        </code>
 
-        {doc && <section className="doc">
-          <MarkDown contents={doc.synopsis} />
-          {doc.description && <MarkDown contents={doc.description} />}
-          {doc.notes && <p>{doc.notes}</p>}
-        </section>}
+        {doc.notes && doc.notes.map((note, i) =>
+          <section key={i}>
+            <h4 className="infoHeader">
+              {note.name}
+            </h4>
+            {
+              note.name === 'alias' ?
+                <CallSigDef name={note.body} /> :
+              note.body
+            }
+          </section>
+        )}
+
+        {doc.description &&
+          <section>
+            <h4 className="infoHeader">
+              {doc.description.substr(0, 5) === '<code' ?
+                'Example' :
+                'Discussion'}
+            </h4>
+            <MarkDown className="discussion" contents={doc.description} />
+          </section>
+        }
 
         {call &&
           <section>

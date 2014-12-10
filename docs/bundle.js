@@ -960,7 +960,7 @@ var TypeDoc = React.createClass({displayName: 'TypeDoc',
     var memberName = this.props.memberName;
     var memberGroups = this.props.memberGroups;
 
-    var doc = def.doc;
+    var doc = def.doc || {};
     var call = def.call;
     var functions = Seq(def.module).filter(function(t)  {return !t.interface && !t.module;});
     var types = Seq(def.module).filter(function(t)  {return t.interface || t.module;});
@@ -970,18 +970,36 @@ var TypeDoc = React.createClass({displayName: 'TypeDoc',
     return (
       React.createElement("div", null, 
         React.createElement("h1", {className: "typeHeader"}, 
-          interfaceDef ?
-            React.createElement("code", null, 
-            React.createElement(InterfaceDef, {name: name, def: interfaceDef})) :
-            name
-          
+          name
+        ), 
+        doc.synopsis && React.createElement(MarkDown, {className: "synopsis", contents: doc.synopsis}), 
+        React.createElement("code", {className: "codeBlock memberSignature"}, 
+          React.createElement(InterfaceDef, {name: name, def: interfaceDef})
         ), 
 
-        doc && React.createElement("section", {className: "doc"}, 
-          React.createElement(MarkDown, {contents: doc.synopsis}), 
-          doc.description && React.createElement(MarkDown, {contents: doc.description}), 
-          doc.notes && React.createElement("p", null, doc.notes)
+        doc.notes && doc.notes.map(function(note, i) 
+          {return React.createElement("section", {key: i}, 
+            React.createElement("h4", {className: "infoHeader"}, 
+              note.name
+            ), 
+            
+              note.name === 'alias' ?
+                React.createElement(CallSigDef, {name: note.body}) :
+              note.body
+            
+          );}
         ), 
+
+        doc.description &&
+          React.createElement("section", null, 
+            React.createElement("h4", {className: "infoHeader"}, 
+              doc.description.substr(0, 5) === '<code' ?
+                'Example' :
+                'Discussion'
+            ), 
+            React.createElement(MarkDown, {className: "discussion", contents: doc.description})
+          ), 
+        
 
         call &&
           React.createElement("section", null, 
