@@ -21,21 +21,6 @@
 declare module 'immutable' {
 
   /**
-   * Vaule equality check with semantics similar to Object.is(), but treats
-   * Immutable collections and sequences as values, equal if the second
-   * Immutable iterable contains equivalent values. It's used throughout when
-   * checking for equality.
-   *
-   *     var map1 = Immutable.Map({a:1, b:1, c:1});
-   *     var map2 = Immutable.Map({a:1, b:1, c:1});
-   *     assert(map1 !== map2);
-   *     assert(Object.is(map1, map2) === false);
-   *     assert(Immutable.is(map1, map2) === true);
-   *
-   */
-  export function is(first: any, second: any): boolean;
-
-  /**
    * Deeply converts plain JS objects and arrays to Immutable Maps and Lists.
    *
    * If a `reviver` is optionally provided, it will be called with every
@@ -71,6 +56,1183 @@ declare module 'immutable' {
     reviver?: (k: any, v: Iterable<any, any>) => any
   ): any;
 
+
+  /**
+   * Vaule equality check with semantics similar to Object.is(), but treats
+   * Immutable collections and sequences as values, equal if the second
+   * Immutable iterable contains equivalent values. It's used throughout when
+   * checking for equality.
+   *
+   *     var map1 = Immutable.Map({a:1, b:1, c:1});
+   *     var map2 = Immutable.Map({a:1, b:1, c:1});
+   *     assert(map1 !== map2);
+   *     assert(Object.is(map1, map2) === false);
+   *     assert(Immutable.is(map1, map2) === true);
+   *
+   */
+  export function is(first: any, second: any): boolean;
+
+
+  /**
+   * Lists are ordered indexed dense collections, much like a JavaScript
+   * Array.
+   *
+   * Lists are immutable and fully persistent with O(log32 N) gets and sets,
+   * and O(1) push and pop.
+   *
+   * Lists implement Deque, with efficient addition and removal from both the
+   * end (`push`, `pop`) and beginning (`unshift`, `shift`).
+   *
+   * Unlike a JavaScript Array, there is no distinction between an
+   * "unset" index and an index set to `undefined`. `List#forEach` visits all
+   * indices from 0 to size, regardless of if they where explicitly defined.
+   */
+  export module List {
+
+    /**
+     * True if the provided value is a List
+     */
+    function isList(maybeList: any): boolean;
+
+    /**
+     * Creates a new List containing `values`.
+     */
+    function of<T>(...values: T[]): List<T>;
+  }
+
+  /**
+   * Create a new immutable List containing the values of the provided
+   * iterable-like.
+   */
+  export function List<T>(): List<T>;
+  export function List<T>(iter: IndexedIterable<T>): List<T>;
+  export function List<T>(iter: SetIterable<T>): List<T>;
+  export function List<K, V>(iter: KeyedIterable<K, V>): List</*[K,V]*/any>;
+  export function List<T>(array: Array<T>): List<T>;
+  export function List<T>(iterator: Iterator<T>): List<T>;
+  export function List<T>(iterable: /*Iterable<T>*/Object): List<T>;
+
+
+  export interface List<T> extends IndexedCollection<T> {
+
+    // Persistent changes
+
+    /**
+     * Returns a new List which includes `value` at `index`. If `index` already
+     * exists in this List, it will be replaced.
+     *
+     * `index` may be a negative number, which indexes back from the end of the
+     * List. `v.set(-1, "value")` sets the last item in the List.
+     *
+     * If `index` larger than `size`, the returned List's `size` will be large
+     * enough to include the `index`.
+     */
+    set(index: number, value: T): List<T>;
+
+    /**
+     * Returns a new List which excludes this `index` and with a size 1 less
+     * than this List. Values at indicies above `index` are shifted down by 1 to
+     * fill the position.
+     *
+     * This is synonymous with `list.splice(index, 1)`.
+     *
+     * `index` may be a negative number, which indexes back from the end of the
+     * List. `v.delete(-1)` deletes the last item in the List.
+     *
+     * Note: `delete` cannot be safely used in IE8
+     * @alias delete
+     */
+    remove(index: number): List<T>;
+    delete(index: number): List<T>;
+
+    /**
+     * Returns a new List with 0 size and no values.
+     */
+    clear(): List<T>;
+
+    /**
+     * Returns a new List with the provided `values` appended, starting at this
+     * List's `size`.
+     */
+    push(...values: T[]): List<T>;
+
+    /**
+     * Returns a new List with a size ones less than this List, excluding
+     * the last index in this List.
+     *
+     * Note: this differs from `Array.prototype.pop` because it returns a new
+     * List rather than the removed value. Use `last()` to get the last value
+     * in this List.
+     */
+    pop(): List<T>;
+
+    /**
+     * Returns a new List with the provided `values` prepended, shifting other
+     * values ahead to higher indices.
+     */
+    unshift(...values: T[]): List<T>;
+
+    /**
+     * Returns a new List with a size ones less than this List, excluding
+     * the first index in this List, shifting all other values to a lower index.
+     *
+     * Note: this differs from `Array.prototype.shift` because it returns a new
+     * List rather than the removed value. Use `first()` to get the first
+     * value in this List.
+     */
+    shift(): List<T>;
+
+    /**
+     * Returns a new List with an updated value at `index` with the return
+     * value of calling `updater` with the existing value, or `notSetValue` if
+     * `index` was not set. If called with a single argument, `updater` is
+     * called with the List itself.
+     *
+     * `index` may be a negative number, which indexes back from the end of the
+     * List. `v.update(-1)` updates the last item in the List.
+     *
+     * @see Map.update
+     */
+    update(updater: (value: List<T>) => List<T>): List<T>;
+    update(index: number, updater: (value: T) => T): List<T>;
+    update(index: number, notSetValue: T, updater: (value: T) => T): List<T>;
+
+    /**
+     * @see `Map.prototype.merge`
+     */
+    merge(...iterables: IndexedIterable<T>[]): List<T>;
+    merge(...iterables: Array<T>[]): List<T>;
+
+    /**
+     * @see `Map.prototype.mergeWith`
+     */
+    mergeWith(
+      merger: (previous?: T, next?: T) => T,
+      ...iterables: IndexedIterable<T>[]
+    ): List<T>;
+    mergeWith(
+      merger: (previous?: T, next?: T) => T,
+      ...iterables: Array<T>[]
+    ): List<T>;
+
+    /**
+     * @see `Map.prototype.mergeDeep`
+     */
+    mergeDeep(...iterables: IndexedIterable<T>[]): List<T>;
+    mergeDeep(...iterables: Array<T>[]): List<T>;
+
+    /**
+     * @see `Map.prototype.mergeDeepWith`
+     */
+    mergeDeepWith(
+      merger: (previous?: T, next?: T) => T,
+      ...iterables: IndexedIterable<T>[]
+    ): List<T>;
+    mergeDeepWith(
+      merger: (previous?: T, next?: T) => T,
+      ...iterables: Array<T>[]
+    ): List<T>;
+
+    /**
+     * Returns a new List with size `size`. If `size` is less than this
+     * List's size, the new List will exclude values at the higher indices.
+     * If `size` is greater than this List's size, the new List will have
+     * undefined values for the newly available indices.
+     *
+     * When building a new List and the final size is known up front, `setSize`
+     * used in conjunction with `withMutations` may result in the more
+     * performant construction.
+     */
+    setSize(size: number): List<T>;
+
+
+    // Deep persistent changes
+
+    /**
+     * Returns a new List having set `value` at this `keyPath`. If any keys in
+     * `keyPath` do not exist, a new immutable Map will be created at that key.
+     *
+     * Index numbers are used as keys to determine the path to follow in
+     * the List.
+     */
+    setIn(keyPath: Array<any>, value: T): List<T>;
+    setIn(keyPath: Iterable<any, any>, value: T): List<T>;
+
+    /**
+     * Returns a new List having removed the value at this `keyPath`. If any
+     * keys in `keyPath` do not exist, a new immutable Map will be created at
+     * that key.
+     */
+    removeIn(keyPath: Array<any>): List<T>;
+    removeIn(keyPath: Iterable<any, any>): List<T>;
+
+    /**
+     * @see `Map.prototype.updateIn`
+     */
+    updateIn(
+      keyPath: Array<any>,
+      updater: (value: any) => any
+    ): List<T>;
+    updateIn(
+      keyPath: Array<any>,
+      notSetValue: any,
+      updater: (value: any) => any
+    ): List<T>;
+    updateIn(
+      keyPath: Iterable<any, any>,
+      updater: (value: any) => any
+    ): List<T>;
+    updateIn(
+      keyPath: Iterable<any, any>,
+      notSetValue: any,
+      updater: (value: any) => any
+    ): List<T>;
+
+    /**
+     * @see `Map.prototype.mergeIn`
+     */
+    mergeIn(
+      keyPath: Iterable<any, any>,
+      ...iterables: IndexedIterable<T>[]
+    ): List<T>;
+    mergeIn(
+      keyPath: Array<any>,
+      ...iterables: IndexedIterable<T>[]
+    ): List<T>;
+    mergeIn(
+      keyPath: Array<any>,
+      ...iterables: Array<T>[]
+    ): List<T>;
+
+    /**
+     * @see `Map.prototype.mergeDeepIn`
+     */
+    mergeDeepIn(
+      keyPath: Iterable<any, any>,
+      ...iterables: IndexedIterable<T>[]
+    ): List<T>;
+    mergeDeepIn(
+      keyPath: Array<any>,
+      ...iterables: IndexedIterable<T>[]
+    ): List<T>;
+    mergeDeepIn(
+      keyPath: Array<any>,
+      ...iterables: Array<T>[]
+    ): List<T>;
+
+
+    // Transient changes
+
+    /**
+     * @see `Map.prototype.withMutations`
+     */
+    withMutations(mutator: (mutable: List<T>) => any): List<T>;
+
+    /**
+     * @see `Map.prototype.asMutable`
+     */
+    asMutable(): List<T>;
+
+    /**
+     * @see `Map.prototype.asImmutable`
+     */
+    asImmutable(): List<T>;
+  }
+
+
+  /**
+   * Immutable Map is an unordered KeyedIterable of (key, value) pairs with
+   * `O(log32 N)` gets and `O(log32 N)` persistent sets.
+   *
+   * Iteration order of a Map is undefined, however is stable. Multiple
+   * iterations of the same Map will iterate in the same order.
+   *
+   * Map's keys can be of any type, and use `Immutable.is` to determine key
+   * equality. This allows the use of any value (including NaN) as a key.
+   *
+   * Because `Immutable.is` returns equality based on value semantics, and
+   * Immutable collections are treated as values, any Immutable collection may
+   * be used as a key.
+   *
+   *     Map().set(List.of(1), 'listofone').get(List.of(1));
+   *     // 'listofone'
+   *
+   * Any JavaScript object may be used as a key, however strict identity is used
+   * to evaluate key equality. Two similar looking objects will represent two
+   * different keys.
+   *
+   * Implemented by a hash-array mapped trie.
+   */
+  export module Map {
+
+    /**
+     * True if the provided value is a Map
+     */
+    function isMap(maybeMap: any): boolean;
+  }
+
+  /**
+   * Creates a new Immutable Map.
+   *
+   * Created with the same key value pairs as the provided KeyedIterable or
+   * JavaScript Object or expects an Iterable of [K, V] tuple entries.
+   *
+   *     var newMap = Map({key: "value"});
+   *     var newMap = Map([["key", "value"]]);
+   *
+   */
+  export function Map<K, V>(): Map<K, V>;
+  export function Map<K, V>(iter: KeyedIterable<K, V>): Map<K, V>;
+  export function Map<K, V>(iter: Iterable<any, /*[K,V]*/Array<any>>): Map<K, V>;
+  export function Map<K, V>(array: Array</*[K,V]*/Array<any>>): Map<K, V>;
+  export function Map<V>(obj: {[key: string]: V}): Map<string, V>;
+  export function Map<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): Map<K, V>;
+  export function Map<K, V>(iterable: /*Iterable<[K,V]>*/Object): Map<K, V>;
+
+  export interface Map<K, V> extends KeyedCollection<K, V> {
+
+    // Persistent changes
+
+    /**
+     * Returns a new Map also containing the new key, value pair. If an equivalent
+     * key already exists in this Map, it will be replaced.
+     */
+    set(key: K, value: V): Map<K, V>;
+
+    /**
+     * Returns a new Map which excludes this `key`.
+     *
+     * Note: `delete` cannot be safely used in IE8, but is provided to mirror
+     * the ES6 collection API.
+     * @alias delete
+     */
+    remove(key: K): Map<K, V>;
+    delete(key: K): Map<K, V>;
+
+    /**
+     * Returns a new Map containing no keys or values.
+     */
+    clear(): Map<K, V>;
+
+    /**
+     * Returns a new Map having updated the value at this `key` with the return
+     * value of calling `updater` with the existing value, or `notSetValue` if
+     * the key was not set. If called with only a single argument, `updater` is
+     * called with the Map itself.
+     *
+     * Equivalent to: `map.set(key, updater(map.get(key, notSetValue)))`.
+     */
+    update(updater: (value: Map<K, V>) => Map<K, V>): Map<K, V>;
+    update(key: K, updater: (value: V) => V): Map<K, V>;
+    update(key: K, notSetValue: V, updater: (value: V) => V): Map<K, V>;
+
+    /**
+     * Returns a new Map resulting from merging the provided Iterables
+     * (or JS objects) into this Map. In other words, this takes each entry of
+     * each iterable and sets it on this Map.
+     *
+     * If any of the values provided to `merge` are not Iterable (would return
+     * false for `Immutable.isIterable`) then they are deeply converted via
+     * `Immutable.fromJS` before being merged. However, if the value is an
+     * Iterable but contains non-iterable JS objects or arrays, those nested
+     * values will be preserved.
+     *
+     *     var x = Immutable.Map({a: 10, b: 20, c: 30});
+     *     var y = Immutable.Map({b: 40, a: 50, d: 60});
+     *     x.merge(y) // { a: 50, b: 40, c: 30, d: 60 }
+     *     y.merge(x) // { b: 20, a: 10, d: 60, c: 30 }
+     *
+     */
+    merge(...iterables: Iterable<K, V>[]): Map<K, V>;
+    merge(...iterables: {[key: string]: V}[]): Map<string, V>;
+
+    /**
+     * Like `merge()`, `mergeWith()` returns a new Map resulting from merging
+     * the provided Iterables (or JS objects) into this Map, but uses the
+     * `merger` function for dealing with conflicts.
+     *
+     *     var x = Immutable.Map({a: 10, b: 20, c: 30});
+     *     var y = Immutable.Map({b: 40, a: 50, d: 60});
+     *     x.mergeWith((prev, next) => prev / next, y) // { a: 0.2, b: 0.5, c: 30, d: 60 }
+     *     y.mergeWith((prev, next) => prev / next, x) // { b: 2, a: 5, d: 60, c: 30 }
+     *
+     */
+    mergeWith(
+      merger: (previous?: V, next?: V) => V,
+      ...iterables: Iterable<K, V>[]
+    ): Map<K, V>;
+    mergeWith(
+      merger: (previous?: V, next?: V) => V,
+      ...iterables: {[key: string]: V}[]
+    ): Map<string, V>;
+
+    /**
+     * Like `merge()`, but when two Iterables conflict, it merges them as well,
+     * recursing deeply through the nested data.
+     *
+     *     var x = Immutable.fromJS({a: { x: 10, y: 10 }, b: { x: 20, y: 50 } });
+     *     var y = Immutable.fromJS({a: { x: 2 }, b: { y: 5 }, c: { z: 3 } });
+     *     x.mergeDeep(y) // {a: { x: 2, y: 10 }, b: { x: 20, y: 5 }, c: { z: 3 } }
+     *
+     */
+    mergeDeep(...iterables: Iterable<K, V>[]): Map<K, V>;
+    mergeDeep(...iterables: {[key: string]: V}[]): Map<string, V>;
+
+    /**
+     * Like `mergeDeep()`, but when two non-Iterables conflict, it uses the
+     * `merger` function to determine the resulting value.
+     *
+     *     var x = Immutable.fromJS({a: { x: 10, y: 10 }, b: { x: 20, y: 50 } });
+     *     var y = Immutable.fromJS({a: { x: 2 }, b: { y: 5 }, c: { z: 3 } });
+     *     x.mergeDeepWith((prev, next) => prev / next, y)
+     *     // {a: { x: 5, y: 10 }, b: { x: 20, y: 10 }, c: { z: 3 } }
+     *
+     */
+    mergeDeepWith(
+      merger: (previous?: V, next?: V) => V,
+      ...iterables: Iterable<K, V>[]
+    ): Map<K, V>;
+    mergeDeepWith(
+      merger: (previous?: V, next?: V) => V,
+      ...iterables: {[key: string]: V}[]
+    ): Map<string, V>;
+
+
+    // Deep persistent changes
+
+    /**
+     * Returns a new Map having set `value` at this `keyPath`. If any keys in
+     * `keyPath` do not exist, a new immutable Map will be created at that key.
+     */
+    setIn(keyPath: Array<any>, value: V): Map<K, V>;
+    setIn(KeyPath: Iterable<any, any>, value: V): Map<K, V>;
+
+    /**
+     * Returns a new Map having removed the value at this `keyPath`. If any keys
+     * in `keyPath` do not exist, a new immutable Map will be created at
+     * that key.
+     */
+    removeIn(keyPath: Array<any>): Map<K, V>;
+    removeIn(keyPath: Iterable<any, any>): Map<K, V>;
+
+    /**
+     * Returns a new Map having applied the `updater` to the entry found at the
+     * keyPath. If any keys in `keyPath` do not exist, a new immutable Map will
+     * be created at that key. If the `keyPath` was not previously set,
+     * `updater` is called with `notSetValue` (if provided).
+     *
+     *     var data = Immutable.fromJS({ a: { b: { c: 10 } } });
+     *     data.updateIn(['a', 'b'], map => map.set('d', 20));
+     *     // { a: { b: { c: 10, d: 20 } } }
+     *
+     */
+    updateIn(
+      keyPath: Array<any>,
+      updater: (value: any) => any
+    ): Map<K, V>;
+    updateIn(
+      keyPath: Array<any>,
+      notSetValue: any,
+      updater: (value: any) => any
+    ): Map<K, V>;
+    updateIn(
+      keyPath: Iterable<any, any>,
+      updater: (value: any) => any
+    ): Map<K, V>;
+    updateIn(
+      keyPath: Iterable<any, any>,
+      notSetValue: any,
+      updater: (value: any) => any
+    ): Map<K, V>;
+
+    /**
+     * A combination of `updateIn` and `merge`, returning a new Map, but
+     * performing the merge at a point arrived at by following the keyPath.
+     * In other words, these two lines are equivalent:
+     *
+     *     x.updateIn(['a', 'b', 'c'], abc => abc.merge(y));
+     *     x.mergeIn(['a', 'b', 'c'], y);
+     *
+     */
+    mergeIn(
+      keyPath: Iterable<any, any>,
+      ...iterables: Iterable<K, V>[]
+    ): Map<K, V>;
+    mergeIn(
+      keyPath: Array<any>,
+      ...iterables: Iterable<K, V>[]
+    ): Map<K, V>;
+    mergeIn(
+      keyPath: Array<any>,
+      ...iterables: {[key: string]: V}[]
+    ): Map<string, V>;
+
+    /**
+     * A combination of `updateIn` and `mergeDeep`, returning a new Map, but
+     * performing the deep merge at a point arrived at by following the keyPath.
+     * In other words, these two lines are equivalent:
+     *
+     *     x.updateIn(['a', 'b', 'c'], abc => abc.mergeDeep(y));
+     *     x.mergeDeepIn(['a', 'b', 'c'], y);
+     *
+     */
+    mergeDeepIn(
+      keyPath: Iterable<any, any>,
+      ...iterables: Iterable<K, V>[]
+    ): Map<K, V>;
+    mergeDeepIn(
+      keyPath: Array<any>,
+      ...iterables: Iterable<K, V>[]
+    ): Map<K, V>;
+    mergeDeepIn(
+      keyPath: Array<any>,
+      ...iterables: {[key: string]: V}[]
+    ): Map<string, V>;
+
+
+    // Transient updates
+
+    /**
+     * Every time you call one of the above functions, a new immutable Map is
+     * created. If a pure function calls a number of these to produce a final
+     * return value, then a penalty on performance and memory has been paid by
+     * creating all of the intermediate immutable Maps.
+     *
+     * If you need to apply a series of mutations to produce a new immutable
+     * Map, `withMutations()` creates a temporary mutable copy of the Map which
+     * can apply mutations in a highly performant manner. In fact, this is
+     * exactly how complex mutations like `merge` are done.
+     *
+     * As an example, this results in the creation of 2, not 4, new Maps:
+     *
+     *     var map1 = Immutable.Map();
+     *     var map2 = map1.withMutations(map => {
+     *       map.set('a', 1).set('b', 2).set('c', 3);
+     *     });
+     *     assert(map1.size === 0);
+     *     assert(map2.size === 3);
+     *
+     */
+    withMutations(mutator: (mutable: Map<K, V>) => any): Map<K, V>;
+
+    /**
+     * Another way to avoid creation of intermediate Immutable maps is to create
+     * a mutable copy of this collection. Mutable copies *always* return `this`,
+     * and thus shouldn't be used for equality. Your function should never return
+     * a mutable copy of a collection, only use it internally to create a new
+     * collection. If possible, use `withMutations` as it provides an easier to
+     * use API.
+     *
+     * Note: if the collection is already mutable, `asMutable` returns itself.
+     */
+    asMutable(): Map<K, V>;
+
+    /**
+     * The yin to `asMutable`'s yang. Because it applies to mutable collections,
+     * this operation is *mutable* and returns itself. Once performed, the mutable
+     * copy has become immutable and can be safely returned from a function.
+     */
+    asImmutable(): Map<K, V>;
+  }
+
+
+  /**
+   * A type of Map that has the additional guarantee that the iteration order of
+   * entries will be the order in which they were set().
+   *
+   * The iteration behavior of OrderedMap is the same as native ES6 Map and
+   * JavaScript Object.
+   *
+   * Note that `OrderedMap` are more expensive than non-ordered `Map` and may
+   * consume more memory. `OrderedMap#set` is amoratized O(log32 N), but not
+   * stable.
+   */
+
+  export module OrderedMap {
+
+    /**
+     * True if the provided value is an OrderedMap.
+     */
+    function isOrderedMap(maybeOrderedMap: any): boolean;
+  }
+
+  /**
+   * Creates a new Immutable OrderedMap.
+   *
+   * Created with the same key value pairs as the provided KeyedIterable or
+   * JavaScript Object or expects an Iterable of [K, V] tuple entries.
+   *
+   * The iteration order of key-value pairs provided to this constructor will
+   * be preserved in the OrderedMap.
+   *
+   *     var newOrderedMap = OrderedMap({key: "value"});
+   *     var newOrderedMap = OrderedMap([["key", "value"]]);
+   *
+   */
+  export function OrderedMap<K, V>(): OrderedMap<K, V>;
+  export function OrderedMap<K, V>(iter: KeyedIterable<K, V>): OrderedMap<K, V>;
+  export function OrderedMap<K, V>(iter: Iterable<any, /*[K,V]*/Array<any>>): OrderedMap<K, V>;
+  export function OrderedMap<K, V>(array: Array</*[K,V]*/Array<any>>): OrderedMap<K, V>;
+  export function OrderedMap<V>(obj: {[key: string]: V}): OrderedMap<string, V>;
+  export function OrderedMap<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): OrderedMap<K, V>;
+  export function OrderedMap<K, V>(iterable: /*Iterable<[K,V]>*/Object): OrderedMap<K, V>;
+
+  export interface OrderedMap<K, V> extends Map<K, V> {}
+
+
+  /**
+   * A Collection of unique values with `O(log32 N)` adds and has.
+   *
+   * When iterating a Set, the entries will be (value, value) pairs. Iteration
+   * order of a Set is undefined, however is stable. Multiple iterations of the
+   * same Set will iterate in the same order.
+   *
+   * Set values, like Map keys, may be of any type. Equality is determined using
+   * `Immutable.is`, enabling Sets to uniquely include other Immutable
+   * collections, custom value types, and NaN.
+   */
+  export module Set {
+
+    /**
+     * True if the provided value is a Set
+     */
+    function isSet(maybeSet: any): boolean;
+
+    /**
+     * Creates a new Set containing `values`.
+     */
+    function of<T>(...values: T[]): Set<T>;
+
+    /**
+     * `Set.fromKeys()` creates a new immutable Set containing the keys from
+     * this Iterable or JavaScript Object.
+     */
+    function fromKeys<T>(iter: Iterable<T, any>): Set<T>;
+    function fromKeys(obj: {[key: string]: any}): Set<string>;
+  }
+
+  /**
+   * Create a new immutable Set containing the values of the provided
+   * iterable-like.
+   */
+  export function Set<T>(): Set<T>;
+  export function Set<T>(iter: SetIterable<T>): Set<T>;
+  export function Set<T>(iter: IndexedIterable<T>): Set<T>;
+  export function Set<K, V>(iter: KeyedIterable<K, V>): Set</*[K,V]*/any>;
+  export function Set<T>(array: Array<T>): Set<T>;
+  export function Set<T>(iterator: Iterator<T>): Set<T>;
+  export function Set<T>(iterable: /*Iterable<T>*/Object): Set<T>;
+
+  export interface Set<T> extends SetCollection<T> {
+
+    // Persistent changes
+
+    /**
+     * Returns a new Set which also includes this value.
+     */
+    add(value: T): Set<T>;
+
+    /**
+     * Returns a new Set which excludes this value.
+     *
+     * Note: `delete` cannot be safely used in IE8
+     * @alias delete
+     */
+    remove(value: T): Set<T>;
+    delete(value: T): Set<T>;
+
+    /**
+     * Returns a new Set containing no values.
+     */
+    clear(): Set<T>;
+
+    /**
+     * Alias for `union`.
+     * @see `Map.prototype.merge`
+     */
+    merge(...iterables: Iterable<any, T>[]): Set<T>;
+    merge(...iterables: Array<T>[]): Set<T>;
+
+    /**
+     * Returns a Set including any value from `iterables` that does not already
+     * exist in this Set.
+     */
+    union(...iterables: Iterable<any, T>[]): Set<T>;
+    union(...iterables: Array<T>[]): Set<T>;
+
+    /**
+     * Returns a Set which has removed any values not also contained
+     * within `iterables`.
+     */
+    intersect(...iterables: Iterable<any, T>[]): Set<T>;
+    intersect(...iterables: Array<T>[]): Set<T>;
+
+    /**
+     * Returns a Set excluding any values contained within `iterables`.
+     */
+    subtract(...iterables: Iterable<any, T>[]): Set<T>;
+    subtract(...iterables: Array<T>[]): Set<T>;
+
+
+    // Transient changes
+
+    /**
+     * @see `Map.prototype.withMutations`
+     */
+    withMutations(mutator: (mutable: Set<T>) => any): Set<T>;
+
+    /**
+     * @see `Map.prototype.asMutable`
+     */
+    asMutable(): Set<T>;
+
+    /**
+     * @see `Map.prototype.asImmutable`
+     */
+    asImmutable(): Set<T>;
+  }
+
+
+  /**
+   * A type of Set that has the additional guarantee that the iteration order of
+   * values will be the order in which they were `add`ed.
+   *
+   * The iteration behavior of OrderedSet is the same as native ES6 Set.
+   *
+   * Note that `OrderedSet` are more expensive than non-ordered `Set` and may
+   * consume more memory. `OrderedSet#add` is amoratized O(log32 N), but not
+   * stable.
+   */
+  export module OrderedSet {
+
+    /**
+     * True if the provided value is an OrderedSet.
+     */
+    function isOrderedSet(maybeOrderedSet: any): boolean;
+
+    /**
+     * Creates a new OrderedSet containing `values`.
+     */
+    function of<T>(...values: T[]): OrderedSet<T>;
+
+    /**
+     * `OrderedSet.fromKeys()` creates a new immutable OrderedSet containing
+     * the keys from this Iterable or JavaScript Object.
+     */
+    function fromKeys<T>(iter: Iterable<T, any>): OrderedSet<T>;
+    function fromKeys(obj: {[key: string]: any}): OrderedSet<string>;
+  }
+
+  /**
+   * Create a new immutable OrderedSet containing the values of the provided
+   * iterable-like.
+   */
+  export function OrderedSet<T>(): OrderedSet<T>;
+  export function OrderedSet<T>(iter: SetIterable<T>): OrderedSet<T>;
+  export function OrderedSet<T>(iter: IndexedIterable<T>): OrderedSet<T>;
+  export function OrderedSet<K, V>(iter: KeyedIterable<K, V>): OrderedSet</*[K,V]*/any>;
+  export function OrderedSet<T>(array: Array<T>): OrderedSet<T>;
+  export function OrderedSet<T>(iterator: Iterator<T>): OrderedSet<T>;
+  export function OrderedSet<T>(iterable: /*Iterable<T>*/Object): OrderedSet<T>;
+
+  export interface OrderedSet<T> extends Set<T> {}
+
+
+  /**
+   * Stacks are indexed collections which support very efficient O(1) addition
+   * and removal from the front using `unshift(v)` and `shift()`.
+   *
+   * For familiarity, Stack also provides `push(v)`, `pop()`, and `peek()`, but
+   * be aware that they also operate on the front of the list, unlike List or
+   * a JavaScript Array.
+   *
+   * Note: `reverse()` or any inherent reverse traversal (`reduceRight`,
+   * `lastIndexOf`, etc.) is not efficient with a Stack.
+   *
+   * Stack is implemented with a Single-Linked List.
+   */
+  export module Stack {
+
+    /**
+     * True if the provided value is a Stack
+     */
+    function isStack(maybeStack: any): boolean;
+
+    /**
+     * Creates a new Stack containing `values`.
+     */
+    function of<T>(...values: T[]): Stack<T>;
+  }
+
+  /**
+   * Create a new immutable Stack containing the values of the provided
+   * iterable-like.
+   *
+   * The iteration order of the provided iterable is preserved in the
+   * resulting `Stack`.
+   */
+  export function Stack<T>(): Stack<T>;
+  export function Stack<T>(iter: IndexedIterable<T>): Stack<T>;
+  export function Stack<T>(iter: SetIterable<T>): Stack<T>;
+  export function Stack<K, V>(iter: KeyedIterable<K, V>): Stack</*[K,V]*/any>;
+  export function Stack<T>(array: Array<T>): Stack<T>;
+  export function Stack<T>(iterator: Iterator<T>): Stack<T>;
+  export function Stack<T>(iterable: /*Iterable<T>*/Object): Stack<T>;
+
+  export interface Stack<T> extends IndexedCollection<T> {
+
+    // Reading values
+
+    /**
+     * Alias for `Stack.first()`.
+     */
+    peek(): T;
+
+
+    // Persistent changes
+
+    /**
+     * Returns a new Stack with 0 size and no values.
+     */
+    clear(): Stack<T>;
+
+    /**
+     * Returns a new Stack with the provided `values` prepended, shifting other
+     * values ahead to higher indices.
+     *
+     * This is very efficient for Stack.
+     */
+    unshift(...values: T[]): Stack<T>;
+
+    /**
+     * Like `Stack#unshift`, but accepts a iterable rather than varargs.
+     */
+    unshiftAll(iter: Iterable<any, T>): Stack<T>;
+    unshiftAll(iter: Array<T>): Stack<T>;
+
+    /**
+     * Returns a new Stack with a size ones less than this Stack, excluding
+     * the first item in this Stack, shifting all other values to a lower index.
+     *
+     * Note: this differs from `Array.prototype.shift` because it returns a new
+     * Stack rather than the removed value. Use `first()` or `peek()` to get the
+     * first value in this Stack.
+     */
+    shift(): Stack<T>;
+
+    /**
+     * Alias for `Stack#unshift` and is not equivalent to `List#push`.
+     */
+    push(...values: T[]): Stack<T>;
+
+    /**
+     * Alias for `Stack#unshiftAll`.
+     */
+    pushAll(iter: Iterable<any, T>): Stack<T>;
+    pushAll(iter: Array<T>): Stack<T>;
+
+    /**
+     * Alias for `Stack#shift` and is not equivalent to `List#pop`.
+     */
+    pop(): Stack<T>;
+
+
+    // Transient changes
+
+    /**
+     * @see `Map.prototype.withMutations`
+     */
+    withMutations(mutator: (mutable: Stack<T>) => any): Stack<T>;
+
+    /**
+     * @see `Map.prototype.asMutable`
+     */
+    asMutable(): Stack<T>;
+
+    /**
+     * @see `Map.prototype.asImmutable`
+     */
+    asImmutable(): Stack<T>;
+  }
+
+
+  /**
+   * Returns a IndexedSeq of numbers from `start` (inclusive) to `end`
+   * (exclusive), by `step`, where `start` defaults to 0, `step` to 1, and `end` to
+   * infinity. When `start` is equal to `end`, returns empty range.
+   *
+   *     Range() // [0,1,2,3,...]
+   *     Range(10) // [10,11,12,13,...]
+   *     Range(10,15) // [10,11,12,13,14]
+   *     Range(10,30,5) // [10,15,20,25]
+   *     Range(30,10,5) // [30,25,20,15]
+   *     Range(30,30,5) // []
+   *
+   */
+  export function Range(start?: number, end?: number, step?: number): IndexedSeq<number>;
+
+
+  /**
+   * Returns a IndexedSeq of `value` repeated `times` times. When `times` is
+   * not defined, returns an infinite sequence of `value`.
+   *
+   *     Repeat('foo') // ['foo','foo','foo',...]
+   *     Repeat('bar',4) // ['bar','bar','bar','bar']
+   *
+   */
+  export function Repeat<T>(value: T, times?: number): IndexedSeq<T>;
+
+
+  /**
+   * Creates a new Class which produces Record instances. A record is similar to
+   * a JS object, but enforce a specific set of allowed string keys, and have
+   * default values.
+   *
+   *     var ABRecord = Record({a:1, b:2})
+   *     var myRecord = new ABRecord({b:3})
+   *
+   * Records always have a value for the keys they define. `remove`ing a key
+   * from a record simply resets it to the default value for that key.
+   *
+   *     myRecord.size // 2
+   *     myRecord.get('a') // 1
+   *     myRecord.get('b') // 3
+   *     myRecordWithoutB = myRecord.remove('b')
+   *     myRecordWithoutB.get('b') // 2
+   *     myRecordWithoutB.size // 2
+   *
+   * Values provided to the constructor not found in the Record type will
+   * be ignored:
+   *
+   *     var myRecord = new ABRecord({b:3, x:10})
+   *     myRecord.get('x') // undefined
+   *
+   * Because Records have a known set of string keys, property get access works
+   * as expected, however property sets will throw an Error.
+   *
+   * Note: IE8 does not support property access. Only use `get()` when
+   * supporting IE8.
+   *
+   *     myRecord.b // 3
+   *     myRecord.b = 5 // throws Error
+   *
+   * Record Classes can be extended as well, allowing for custom methods on your
+   * Record. This is not a common pattern in functional environments, but is in
+   * many JS programs.
+   *
+   * Note: TypeScript does not support this type of subclassing.
+   *
+   *     class ABRecord extends Record({a:1,b:2}) {
+   *       getAB() {
+   *         return this.a + this.b;
+   *       }
+   *     }
+   *
+   *     var myRecord = new ABRecord(b:3)
+   *     myRecord.getAB() // 4
+   *
+   */
+  export module Record {
+    interface Class {
+      new (): Map<string, any>;
+      new (values: {[key: string]: any}): Map<string, any>;
+      new (values: Iterable<string, any>): Map<string, any>; // deprecated
+    }
+  }
+
+  export function Record(
+    defaultValues: {[key: string]: any}, name?: string
+  ): Record.Class;
+
+
+  /**
+   * **Sequences are immutable** — Once a sequence is created, it cannot be
+   * changed, appended to, rearranged or otherwise modified. Instead, any
+   * mutative method called on a sequence will return a new immutable sequence.
+   *
+   * **Sequences are lazy** — Sequences do as little work as necessary to
+   * respond to any method call.
+   *
+   * For example, the following does no work, because the resulting sequence is
+   * never used:
+   *
+   *     var oddSquares = Immutable.Seq.of(1,2,3,4,5,6,7,8)
+   *       .filter(x => x % 2).map(x => x * x);
+   *
+   * Once the sequence is used, it performs only the work necessary. In this
+   * example, no intermediate arrays are ever created, filter is only called
+   * three times, and map is only called twice:
+   *
+   *     console.log(evenSquares.get(1)); // 9
+   *
+   * Lazy Sequences allow for the efficient chaining of sequence operations,
+   * allowing for the expression of logic that can otherwise be very tedious:
+   *
+   *     Immutable.Seq({a:1, b:1, c:1})
+   *       .flip().map(key => key.toUpperCase()).flip().toObject();
+   *     // Map { A: 1, B: 1, C: 1 }
+   *
+   * As well as expressing logic that would otherwise seem memory-limited:
+   *
+   *     Immutable.Range(1, Infinity)
+   *       .skip(1000)
+   *       .map(n => -n)
+   *       .filter(n => n % 2 === 0)
+   *       .take(2)
+   *       .reduce((r, n) => r * n, 1);
+   *     // 1006008
+   *
+   */
+
+  export module Seq {
+    /**
+     * True if `maybeSeq` is a Seq, it is not backed by a concrete
+     * structure such as Map, List, or Set.
+     */
+    function isSeq(maybeSeq: any): boolean;
+
+    /**
+     * Returns a Seq of the values provided. Alias for `IndexedSeq.of()`.
+     */
+    function of<T>(...values: T[]): IndexedSeq<T>;
+  }
+
+  /**
+   * Creates a Seq.
+   *
+   * Returns a particular kind of `Seq` based on the input.
+   *
+   *   * If a `Seq`, that same `Seq`.
+   *   * If an `Iterable`, a `Seq` of the same kind (Keyed, Indexed, or Set).
+   *   * If an Array-like, an `IndexedSeq`.
+   *   * If an Object with an Iterator, an `IndexedSeq`.
+   *   * If an Iterator, an `IndexedSeq`.
+   *   * If an Object, a `KeyedSeq`.
+   *
+   */
+  export function Seq<K, V>(): Seq<K, V>;
+  export function Seq<K, V>(seq: Seq<K, V>): Seq<K, V>;
+  export function Seq<K, V>(iterable: Iterable<K, V>): Seq<K, V>;
+  export function Seq<T>(array: Array<T>): IndexedSeq<T>;
+  export function Seq<V>(obj: {[key: string]: V}): KeyedSeq<string, V>;
+  export function Seq<T>(iterator: Iterator<T>): IndexedSeq<T>;
+  export function Seq<T>(iterable: /*ES6Iterable<T>*/Object): IndexedSeq<T>;
+
+  export interface Seq<K, V> extends Iterable<K, V> {
+
+    /**
+     * Some Seqs can describe their size lazily. When this is the case,
+     * size will be an integer. Otherwise it will be undefined.
+     *
+     * For example, Seqs returned from map() or reverse()
+     * preserve the size of the original Seq while filter() does not.
+     *
+     * Note: Ranges, Repeats and Seqs made from Arrays and Objects will
+     * always have a size.
+     */
+    size: number/*?*/;
+
+
+    // Force evaluation
+
+    /**
+     * Because Sequences are lazy and designed to be chained together, they do
+     * not cache their results. For example, this map function is called 6 times:
+     *
+     *     var squares = Seq.of(1,2,3).map(x => x * x);
+     *     squares.join() + squares.join();
+     *
+     * If you know a derived sequence will be used multiple times, it may be more
+     * efficient to first cache it. Here, map is called 3 times:
+     *
+     *     var squares = Seq.of(1,2,3).map(x => x * x).cacheResult();
+     *     squares.join() + squares.join();
+     *
+     * Use this method judiciously, as it must fully evaluate a Seq.
+     *
+     * Note: after calling `cacheResult()`, a Seq will always have a size.
+     */
+    cacheResult(): /*this*/Seq<K, V>;
+  }
+
+
+  export module KeyedSeq {}
+
+  /**
+   * Always returns a KeyedSeq, if input is not keyed, expects an
+   * iterable of [K, V] tuples.
+   */
+  export function KeyedSeq<K, V>(): KeyedSeq<K, V>;
+  export function KeyedSeq<K, V>(seq: KeyedIterable<K, V>): KeyedSeq<K, V>;
+  export function KeyedSeq<K, V>(seq: Iterable<any, /*[K,V]*/any>): KeyedSeq<K, V>;
+  export function KeyedSeq<K, V>(array: Array</*[K,V]*/any>): KeyedSeq<K, V>;
+  export function KeyedSeq<V>(obj: {[key: string]: V}): KeyedSeq<string, V>;
+  export function KeyedSeq<K, V>(iterator: Iterator</*[K,V]*/any>): KeyedSeq<K, V>;
+  export function KeyedSeq<K, V>(iterable: /*Iterable<[K,V]>*/Object): KeyedSeq<K, V>;
+
+  export interface KeyedSeq<K, V> extends Seq<K, V>, KeyedIterable<K, V> {
+
+    /**
+     * Returns itself
+     */
+    toSeq(): /*this*/KeyedSeq<K, V>
+  }
+
+
+  export module IndexedSeq {
+
+    /**
+     * Provides an IndexedSeq of the values provided.
+     */
+    function of<T>(...values: T[]): IndexedSeq<T>;
+  }
+
+  /**
+   * Always returns IndexedSeq, discarding associated keys and
+   * supplying incrementing indices.
+   */
+  export function IndexedSeq<T>(): IndexedSeq<T>;
+  export function IndexedSeq<T>(seq: IndexedIterable<T>): IndexedSeq<T>;
+  export function IndexedSeq<T>(seq: SetIterable<T>): IndexedSeq<T>;
+  export function IndexedSeq<K, V>(seq: KeyedIterable<K, V>): IndexedSeq</*[K,V]*/any>;
+  export function IndexedSeq<T>(array: Array<T>): IndexedSeq<T>;
+  export function IndexedSeq<T>(iterator: Iterator<T>): IndexedSeq<T>;
+  export function IndexedSeq<T>(iterable: /*Iterable<T>*/Object): IndexedSeq<T>;
+
+  export interface IndexedSeq<T> extends Seq<number, T>, IndexedIterable<T> {
+
+    /**
+     * Returns itself
+     */
+    toSeq(): /*this*/IndexedSeq<T>
+  }
+
+  export module SetSeq {
+
+    /**
+     * Returns a SetSeq of the provided values
+     */
+    function of<T>(...values: T[]): SetSeq<T>;
+  }
+
+  /**
+   * Always returns a SetSeq, discarding associated indices or keys.
+   */
+  export function SetSeq<T>(): SetSeq<T>;
+  export function SetSeq<T>(seq: SetIterable<T>): SetSeq<T>;
+  export function SetSeq<T>(seq: IndexedIterable<T>): SetSeq<T>;
+  export function SetSeq<K, V>(seq: KeyedIterable<K, V>): SetSeq</*[K,V]*/any>;
+  export function SetSeq<T>(array: Array<T>): SetSeq<T>;
+  export function SetSeq<T>(iterator: Iterator<T>): SetSeq<T>;
+  export function SetSeq<T>(iterable: /*Iterable<T>*/Object): SetSeq<T>;
+
+  export interface SetSeq<T> extends Seq<T, T>, SetIterable<T> {
+
+    /**
+     * Returns itself
+     */
+    toSeq(): /*this*/SetSeq<T>
+  }
 
 
   /**
@@ -130,7 +1292,6 @@ declare module 'immutable' {
   export function Iterable<T>(iterator: Iterator<T>): IndexedIterable<T>;
   export function Iterable<T>(iterable: /*ES6Iterable<T>*/Object): IndexedIterable<T>;
   export function Iterable<V>(value: V): IndexedIterable<V>;
-
 
   export interface Iterable<K, V> {
 
@@ -774,7 +1935,6 @@ declare module 'immutable' {
   export function KeyedIterable<K, V>(iterator: Iterator</*[K,V]*/any>): KeyedIterable<K, V>;
   export function KeyedIterable<K, V>(iterable: /*Iterable<[K,V]>*/Object): KeyedIterable<K, V>;
 
-
   export interface KeyedIterable<K, V> extends Iterable<K, V> {
 
     /**
@@ -879,7 +2039,6 @@ declare module 'immutable' {
   export function IndexedIterable<T>(array: Array<T>): IndexedIterable<T>;
   export function IndexedIterable<T>(iterator: Iterator<T>): IndexedIterable<T>;
   export function IndexedIterable<T>(iterable: /*Iterable<T>*/Object): IndexedIterable<T>;
-
 
   export interface IndexedIterable<T> extends Iterable<number, T> {
 
@@ -998,7 +2157,6 @@ declare module 'immutable' {
   export function SetIterable<T>(iterator: Iterator<T>): SetIterable<T>;
   export function SetIterable<T>(iterable: /*Iterable<T>*/Object): SetIterable<T>;
 
-
   export interface SetIterable<T> extends Iterable<T, T> {
 
     /**
@@ -1007,223 +2165,6 @@ declare module 'immutable' {
      */
     toSeq(): SetSeq<T>;
   }
-
-
-  /**
-   * **Sequences are immutable** — Once a sequence is created, it cannot be
-   * changed, appended to, rearranged or otherwise modified. Instead, any
-   * mutative method called on a sequence will return a new immutable sequence.
-   *
-   * **Sequences are lazy** — Sequences do as little work as necessary to
-   * respond to any method call.
-   *
-   * For example, the following does no work, because the resulting sequence is
-   * never used:
-   *
-   *     var oddSquares = Immutable.Seq.of(1,2,3,4,5,6,7,8)
-   *       .filter(x => x % 2).map(x => x * x);
-   *
-   * Once the sequence is used, it performs only the work necessary. In this
-   * example, no intermediate arrays are ever created, filter is only called
-   * three times, and map is only called twice:
-   *
-   *     console.log(evenSquares.get(1)); // 9
-   *
-   * Lazy Sequences allow for the efficient chaining of sequence operations,
-   * allowing for the expression of logic that can otherwise be very tedious:
-   *
-   *     Immutable.Seq({a:1, b:1, c:1})
-   *       .flip().map(key => key.toUpperCase()).flip().toObject();
-   *     // Map { A: 1, B: 1, C: 1 }
-   *
-   * As well as expressing logic that would otherwise seem memory-limited:
-   *
-   *     Immutable.Range(1, Infinity)
-   *       .skip(1000)
-   *       .map(n => -n)
-   *       .filter(n => n % 2 === 0)
-   *       .take(2)
-   *       .reduce((r, n) => r * n, 1);
-   *     // 1006008
-   *
-   */
-
-  export module Seq {
-    /**
-     * True if `maybeSeq` is a Seq, it is not backed by a concrete
-     * structure such as Map, List, or Set.
-     */
-    function isSeq(maybeSeq: any): boolean;
-
-    /**
-     * Returns a Seq of the values provided. Alias for `IndexedSeq.of()`.
-     */
-    function of<T>(...values: T[]): IndexedSeq<T>;
-  }
-
-  /**
-   * Creates a Seq.
-   *
-   * Returns a particular kind of `Seq` based on the input.
-   *
-   *   * If a `Seq`, that same `Seq`.
-   *   * If an `Iterable`, a `Seq` of the same kind (Keyed, Indexed, or Set).
-   *   * If an Array-like, an `IndexedSeq`.
-   *   * If an Object with an Iterator, an `IndexedSeq`.
-   *   * If an Iterator, an `IndexedSeq`.
-   *   * If an Object, a `KeyedSeq`.
-   *
-   */
-  export function Seq<K, V>(): Seq<K, V>;
-  export function Seq<K, V>(seq: Seq<K, V>): Seq<K, V>;
-  export function Seq<K, V>(iterable: Iterable<K, V>): Seq<K, V>;
-  export function Seq<T>(array: Array<T>): IndexedSeq<T>;
-  export function Seq<V>(obj: {[key: string]: V}): KeyedSeq<string, V>;
-  export function Seq<T>(iterator: Iterator<T>): IndexedSeq<T>;
-  export function Seq<T>(iterable: /*ES6Iterable<T>*/Object): IndexedSeq<T>;
-
-  export interface Seq<K, V> extends Iterable<K, V> {
-
-    /**
-     * Some Seqs can describe their size lazily. When this is the case,
-     * size will be an integer. Otherwise it will be undefined.
-     *
-     * For example, Seqs returned from map() or reverse()
-     * preserve the size of the original Seq while filter() does not.
-     *
-     * Note: Ranges, Repeats and Seqs made from Arrays and Objects will
-     * always have a size.
-     */
-    size: number/*?*/;
-
-
-    // Force evaluation
-
-    /**
-     * Because Sequences are lazy and designed to be chained together, they do
-     * not cache their results. For example, this map function is called 6 times:
-     *
-     *     var squares = Seq.of(1,2,3).map(x => x * x);
-     *     squares.join() + squares.join();
-     *
-     * If you know a derived sequence will be used multiple times, it may be more
-     * efficient to first cache it. Here, map is called 3 times:
-     *
-     *     var squares = Seq.of(1,2,3).map(x => x * x).cacheResult();
-     *     squares.join() + squares.join();
-     *
-     * Use this method judiciously, as it must fully evaluate a Seq.
-     *
-     * Note: after calling `cacheResult()`, a Seq will always have a size.
-     */
-    cacheResult(): /*this*/Seq<K, V>;
-  }
-
-
-  export module KeyedSeq {}
-
-  /**
-   * Always returns a KeyedSeq, if input is not keyed, expects an
-   * iterable of [K, V] tuples.
-   */
-  export function KeyedSeq<K, V>(): KeyedSeq<K, V>;
-  export function KeyedSeq<K, V>(seq: KeyedIterable<K, V>): KeyedSeq<K, V>;
-  export function KeyedSeq<K, V>(seq: Iterable<any, /*[K,V]*/any>): KeyedSeq<K, V>;
-  export function KeyedSeq<K, V>(array: Array</*[K,V]*/any>): KeyedSeq<K, V>;
-  export function KeyedSeq<V>(obj: {[key: string]: V}): KeyedSeq<string, V>;
-  export function KeyedSeq<K, V>(iterator: Iterator</*[K,V]*/any>): KeyedSeq<K, V>;
-  export function KeyedSeq<K, V>(iterable: /*Iterable<[K,V]>*/Object): KeyedSeq<K, V>;
-
-  export interface KeyedSeq<K, V> extends Seq<K, V>, KeyedIterable<K, V> {
-
-    /**
-     * Returns itself
-     */
-    toSeq(): /*this*/KeyedSeq<K, V>
-  }
-
-
-  export module IndexedSeq {
-
-    /**
-     * Provides an IndexedSeq of the values provided.
-     */
-    function of<T>(...values: T[]): IndexedSeq<T>;
-  }
-
-  /**
-   * Always returns IndexedSeq, discarding associated keys and
-   * supplying incrementing indices.
-   */
-  export function IndexedSeq<T>(): IndexedSeq<T>;
-  export function IndexedSeq<T>(seq: IndexedIterable<T>): IndexedSeq<T>;
-  export function IndexedSeq<T>(seq: SetIterable<T>): IndexedSeq<T>;
-  export function IndexedSeq<K, V>(seq: KeyedIterable<K, V>): IndexedSeq</*[K,V]*/any>;
-  export function IndexedSeq<T>(array: Array<T>): IndexedSeq<T>;
-  export function IndexedSeq<T>(iterator: Iterator<T>): IndexedSeq<T>;
-  export function IndexedSeq<T>(iterable: /*Iterable<T>*/Object): IndexedSeq<T>;
-
-  export interface IndexedSeq<T> extends Seq<number, T>, IndexedIterable<T> {
-
-    /**
-     * Returns itself
-     */
-    toSeq(): /*this*/IndexedSeq<T>
-  }
-
-  export module SetSeq {
-
-    /**
-     * Returns a SetSeq of the provided values
-     */
-    function of<T>(...values: T[]): SetSeq<T>;
-  }
-
-  /**
-   * Always returns a SetSeq, discarding associated indices or keys.
-   */
-  export function SetSeq<T>(): SetSeq<T>;
-  export function SetSeq<T>(seq: SetIterable<T>): SetSeq<T>;
-  export function SetSeq<T>(seq: IndexedIterable<T>): SetSeq<T>;
-  export function SetSeq<K, V>(seq: KeyedIterable<K, V>): SetSeq</*[K,V]*/any>;
-  export function SetSeq<T>(array: Array<T>): SetSeq<T>;
-  export function SetSeq<T>(iterator: Iterator<T>): SetSeq<T>;
-  export function SetSeq<T>(iterable: /*Iterable<T>*/Object): SetSeq<T>;
-
-  export interface SetSeq<T> extends Seq<T, T>, SetIterable<T> {
-
-    /**
-     * Returns itself
-     */
-    toSeq(): /*this*/SetSeq<T>
-  }
-
-
-  /**
-   * Returns a IndexedSeq of numbers from `start` (inclusive) to `end`
-   * (exclusive), by `step`, where `start` defaults to 0, `step` to 1, and `end` to
-   * infinity. When `start` is equal to `end`, returns empty range.
-   *
-   *     Range() // [0,1,2,3,...]
-   *     Range(10) // [10,11,12,13,...]
-   *     Range(10,15) // [10,11,12,13,14]
-   *     Range(10,30,5) // [10,15,20,25]
-   *     Range(30,10,5) // [30,25,20,15]
-   *     Range(30,30,5) // []
-   *
-   */
-  export function Range(start?: number, end?: number, step?: number): IndexedSeq<number>;
-
-
-  /**
-   * Returns a IndexedSeq of `value` repeated `times` times. When `times` is
-   * not defined, returns an infinite sequence of `value`.
-   *
-   *     Repeat('foo') // ['foo','foo','foo',...]
-   *     Repeat('bar',4) // ['bar','bar','bar','bar']
-   *
-   */
-  export function Repeat<T>(value: T, times?: number): IndexedSeq<T>;
 
 
   /**
@@ -1237,6 +2178,7 @@ declare module 'immutable' {
     size: number;
   }
 
+
   /**
    * Collections which represent key value pairs.
    */
@@ -1248,6 +2190,7 @@ declare module 'immutable' {
      */
     toSeq(): KeyedSeq<K, V>;
   }
+
 
   /**
    * Collections which represent ordered indexed values.
@@ -1261,6 +2204,7 @@ declare module 'immutable' {
     toSeq(): IndexedSeq<T>;
   }
 
+
   /**
    * Collections which represent only values, unassociated with keys or indices.
    */
@@ -1271,957 +2215,6 @@ declare module 'immutable' {
      * @override
      */
     toSeq(): SetSeq<T>;
-  }
-
-
-  /**
-   * Immutable Map is an unordered KeyedIterable of (key, value) pairs with
-   * `O(log32 N)` gets and `O(log32 N)` persistent sets.
-   *
-   * Iteration order of a Map is undefined, however is stable. Multiple
-   * iterations of the same Map will iterate in the same order.
-   *
-   * Map's keys can be of any type, and use `Immutable.is` to determine key
-   * equality. This allows the use of any value (including NaN) as a key.
-   *
-   * Because `Immutable.is` returns equality based on value semantics, and
-   * Immutable collections are treated as values, any Immutable collection may
-   * be used as a key.
-   *
-   *     Map().set(List.of(1), 'listofone').get(List.of(1));
-   *     // 'listofone'
-   *
-   * Any JavaScript object may be used as a key, however strict identity is used
-   * to evaluate key equality. Two similar looking objects will represent two
-   * different keys.
-   *
-   * Implemented by a hash-array mapped trie.
-   */
-  export module Map {
-
-    /**
-     * True if the provided value is a Map
-     */
-    function isMap(maybeMap: any): boolean;
-  }
-
-  /**
-   * Creates a new Immutable Map.
-   *
-   * Created with the same key value pairs as the provided KeyedIterable or
-   * JavaScript Object or expects an Iterable of [K, V] tuple entries.
-   *
-   *     var newMap = Map({key: "value"});
-   *     var newMap = Map([["key", "value"]]);
-   *
-   */
-  export function Map<K, V>(): Map<K, V>;
-  export function Map<K, V>(iter: KeyedIterable<K, V>): Map<K, V>;
-  export function Map<K, V>(iter: Iterable<any, /*[K,V]*/Array<any>>): Map<K, V>;
-  export function Map<K, V>(array: Array</*[K,V]*/Array<any>>): Map<K, V>;
-  export function Map<V>(obj: {[key: string]: V}): Map<string, V>;
-  export function Map<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): Map<K, V>;
-  export function Map<K, V>(iterable: /*Iterable<[K,V]>*/Object): Map<K, V>;
-
-
-  export interface Map<K, V> extends KeyedCollection<K, V> {
-
-    // Persistent changes
-
-    /**
-     * Returns a new Map also containing the new key, value pair. If an equivalent
-     * key already exists in this Map, it will be replaced.
-     */
-    set(key: K, value: V): Map<K, V>;
-
-    /**
-     * Returns a new Map which excludes this `key`.
-     *
-     * Note: `delete` cannot be safely used in IE8, but is provided to mirror
-     * the ES6 collection API.
-     * @alias delete
-     */
-    remove(key: K): Map<K, V>;
-    delete(key: K): Map<K, V>;
-
-    /**
-     * Returns a new Map containing no keys or values.
-     */
-    clear(): Map<K, V>;
-
-    /**
-     * Returns a new Map having updated the value at this `key` with the return
-     * value of calling `updater` with the existing value, or `notSetValue` if
-     * the key was not set. If called with only a single argument, `updater` is
-     * called with the Map itself.
-     *
-     * Equivalent to: `map.set(key, updater(map.get(key, notSetValue)))`.
-     */
-    update(updater: (value: Map<K, V>) => Map<K, V>): Map<K, V>;
-    update(key: K, updater: (value: V) => V): Map<K, V>;
-    update(key: K, notSetValue: V, updater: (value: V) => V): Map<K, V>;
-
-    /**
-     * Returns a new Map resulting from merging the provided Iterables
-     * (or JS objects) into this Map. In other words, this takes each entry of
-     * each iterable and sets it on this Map.
-     *
-     * If any of the values provided to `merge` are not Iterable (would return
-     * false for `Immutable.isIterable`) then they are deeply converted via
-     * `Immutable.fromJS` before being merged. However, if the value is an
-     * Iterable but contains non-iterable JS objects or arrays, those nested
-     * values will be preserved.
-     *
-     *     var x = Immutable.Map({a: 10, b: 20, c: 30});
-     *     var y = Immutable.Map({b: 40, a: 50, d: 60});
-     *     x.merge(y) // { a: 50, b: 40, c: 30, d: 60 }
-     *     y.merge(x) // { b: 20, a: 10, d: 60, c: 30 }
-     *
-     */
-    merge(...iterables: Iterable<K, V>[]): Map<K, V>;
-    merge(...iterables: {[key: string]: V}[]): Map<string, V>;
-
-    /**
-     * Like `merge()`, `mergeWith()` returns a new Map resulting from merging
-     * the provided Iterables (or JS objects) into this Map, but uses the
-     * `merger` function for dealing with conflicts.
-     *
-     *     var x = Immutable.Map({a: 10, b: 20, c: 30});
-     *     var y = Immutable.Map({b: 40, a: 50, d: 60});
-     *     x.mergeWith((prev, next) => prev / next, y) // { a: 0.2, b: 0.5, c: 30, d: 60 }
-     *     y.mergeWith((prev, next) => prev / next, x) // { b: 2, a: 5, d: 60, c: 30 }
-     *
-     */
-    mergeWith(
-      merger: (previous?: V, next?: V) => V,
-      ...iterables: Iterable<K, V>[]
-    ): Map<K, V>;
-    mergeWith(
-      merger: (previous?: V, next?: V) => V,
-      ...iterables: {[key: string]: V}[]
-    ): Map<string, V>;
-
-    /**
-     * Like `merge()`, but when two Iterables conflict, it merges them as well,
-     * recursing deeply through the nested data.
-     *
-     *     var x = Immutable.fromJS({a: { x: 10, y: 10 }, b: { x: 20, y: 50 } });
-     *     var y = Immutable.fromJS({a: { x: 2 }, b: { y: 5 }, c: { z: 3 } });
-     *     x.mergeDeep(y) // {a: { x: 2, y: 10 }, b: { x: 20, y: 5 }, c: { z: 3 } }
-     *
-     */
-    mergeDeep(...iterables: Iterable<K, V>[]): Map<K, V>;
-    mergeDeep(...iterables: {[key: string]: V}[]): Map<string, V>;
-
-    /**
-     * Like `mergeDeep()`, but when two non-Iterables conflict, it uses the
-     * `merger` function to determine the resulting value.
-     *
-     *     var x = Immutable.fromJS({a: { x: 10, y: 10 }, b: { x: 20, y: 50 } });
-     *     var y = Immutable.fromJS({a: { x: 2 }, b: { y: 5 }, c: { z: 3 } });
-     *     x.mergeDeepWith((prev, next) => prev / next, y)
-     *     // {a: { x: 5, y: 10 }, b: { x: 20, y: 10 }, c: { z: 3 } }
-     *
-     */
-    mergeDeepWith(
-      merger: (previous?: V, next?: V) => V,
-      ...iterables: Iterable<K, V>[]
-    ): Map<K, V>;
-    mergeDeepWith(
-      merger: (previous?: V, next?: V) => V,
-      ...iterables: {[key: string]: V}[]
-    ): Map<string, V>;
-
-
-    // Deep persistent changes
-
-    /**
-     * Returns a new Map having set `value` at this `keyPath`. If any keys in
-     * `keyPath` do not exist, a new immutable Map will be created at that key.
-     */
-    setIn(keyPath: Array<any>, value: V): Map<K, V>;
-    setIn(KeyPath: Iterable<any, any>, value: V): Map<K, V>;
-
-    /**
-     * Returns a new Map having removed the value at this `keyPath`. If any keys
-     * in `keyPath` do not exist, a new immutable Map will be created at
-     * that key.
-     */
-    removeIn(keyPath: Array<any>): Map<K, V>;
-    removeIn(keyPath: Iterable<any, any>): Map<K, V>;
-
-    /**
-     * Returns a new Map having applied the `updater` to the entry found at the
-     * keyPath. If any keys in `keyPath` do not exist, a new immutable Map will
-     * be created at that key. If the `keyPath` was not previously set,
-     * `updater` is called with `notSetValue` (if provided).
-     *
-     *     var data = Immutable.fromJS({ a: { b: { c: 10 } } });
-     *     data.updateIn(['a', 'b'], map => map.set('d', 20));
-     *     // { a: { b: { c: 10, d: 20 } } }
-     *
-     */
-    updateIn(
-      keyPath: Array<any>,
-      updater: (value: any) => any
-    ): Map<K, V>;
-    updateIn(
-      keyPath: Array<any>,
-      notSetValue: any,
-      updater: (value: any) => any
-    ): Map<K, V>;
-    updateIn(
-      keyPath: Iterable<any, any>,
-      updater: (value: any) => any
-    ): Map<K, V>;
-    updateIn(
-      keyPath: Iterable<any, any>,
-      notSetValue: any,
-      updater: (value: any) => any
-    ): Map<K, V>;
-
-    /**
-     * A combination of `updateIn` and `merge`, returning a new Map, but
-     * performing the merge at a point arrived at by following the keyPath.
-     * In other words, these two lines are equivalent:
-     *
-     *     x.updateIn(['a', 'b', 'c'], abc => abc.merge(y));
-     *     x.mergeIn(['a', 'b', 'c'], y);
-     *
-     */
-    mergeIn(
-      keyPath: Iterable<any, any>,
-      ...iterables: Iterable<K, V>[]
-    ): Map<K, V>;
-    mergeIn(
-      keyPath: Array<any>,
-      ...iterables: Iterable<K, V>[]
-    ): Map<K, V>;
-    mergeIn(
-      keyPath: Array<any>,
-      ...iterables: {[key: string]: V}[]
-    ): Map<string, V>;
-
-    /**
-     * A combination of `updateIn` and `mergeDeep`, returning a new Map, but
-     * performing the deep merge at a point arrived at by following the keyPath.
-     * In other words, these two lines are equivalent:
-     *
-     *     x.updateIn(['a', 'b', 'c'], abc => abc.mergeDeep(y));
-     *     x.mergeDeepIn(['a', 'b', 'c'], y);
-     *
-     */
-    mergeDeepIn(
-      keyPath: Iterable<any, any>,
-      ...iterables: Iterable<K, V>[]
-    ): Map<K, V>;
-    mergeDeepIn(
-      keyPath: Array<any>,
-      ...iterables: Iterable<K, V>[]
-    ): Map<K, V>;
-    mergeDeepIn(
-      keyPath: Array<any>,
-      ...iterables: {[key: string]: V}[]
-    ): Map<string, V>;
-
-
-    // Transient updates
-
-    /**
-     * Every time you call one of the above functions, a new immutable Map is
-     * created. If a pure function calls a number of these to produce a final
-     * return value, then a penalty on performance and memory has been paid by
-     * creating all of the intermediate immutable Maps.
-     *
-     * If you need to apply a series of mutations to produce a new immutable
-     * Map, `withMutations()` creates a temporary mutable copy of the Map which
-     * can apply mutations in a highly performant manner. In fact, this is
-     * exactly how complex mutations like `merge` are done.
-     *
-     * As an example, this results in the creation of 2, not 4, new Maps:
-     *
-     *     var map1 = Immutable.Map();
-     *     var map2 = map1.withMutations(map => {
-     *       map.set('a', 1).set('b', 2).set('c', 3);
-     *     });
-     *     assert(map1.size === 0);
-     *     assert(map2.size === 3);
-     *
-     */
-    withMutations(mutator: (mutable: Map<K, V>) => any): Map<K, V>;
-
-    /**
-     * Another way to avoid creation of intermediate Immutable maps is to create
-     * a mutable copy of this collection. Mutable copies *always* return `this`,
-     * and thus shouldn't be used for equality. Your function should never return
-     * a mutable copy of a collection, only use it internally to create a new
-     * collection. If possible, use `withMutations` as it provides an easier to
-     * use API.
-     *
-     * Note: if the collection is already mutable, `asMutable` returns itself.
-     */
-    asMutable(): Map<K, V>;
-
-    /**
-     * The yin to `asMutable`'s yang. Because it applies to mutable collections,
-     * this operation is *mutable* and returns itself. Once performed, the mutable
-     * copy has become immutable and can be safely returned from a function.
-     */
-    asImmutable(): Map<K, V>;
-  }
-
-
-  /**
-   * A type of Map that has the additional guarantee that the iteration order of
-   * entries will be the order in which they were set().
-   *
-   * The iteration behavior of OrderedMap is the same as native ES6 Map and
-   * JavaScript Object.
-   *
-   * Note that `OrderedMap` are more expensive than non-ordered `Map` and may
-   * consume more memory. `OrderedMap#set` is amoratized O(log32 N), but not
-   * stable.
-   */
-
-  export module OrderedMap {
-
-    /**
-     * True if the provided value is an OrderedMap.
-     */
-    function isOrderedMap(maybeOrderedMap: any): boolean;
-  }
-
-  /**
-   * Creates a new Immutable OrderedMap.
-   *
-   * Created with the same key value pairs as the provided KeyedIterable or
-   * JavaScript Object or expects an Iterable of [K, V] tuple entries.
-   *
-   * The iteration order of key-value pairs provided to this constructor will
-   * be preserved in the OrderedMap.
-   *
-   *     var newOrderedMap = OrderedMap({key: "value"});
-   *     var newOrderedMap = OrderedMap([["key", "value"]]);
-   *
-   */
-  export function OrderedMap<K, V>(): OrderedMap<K, V>;
-  export function OrderedMap<K, V>(iter: KeyedIterable<K, V>): OrderedMap<K, V>;
-  export function OrderedMap<K, V>(iter: Iterable<any, /*[K,V]*/Array<any>>): OrderedMap<K, V>;
-  export function OrderedMap<K, V>(array: Array</*[K,V]*/Array<any>>): OrderedMap<K, V>;
-  export function OrderedMap<V>(obj: {[key: string]: V}): OrderedMap<string, V>;
-  export function OrderedMap<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): OrderedMap<K, V>;
-  export function OrderedMap<K, V>(iterable: /*Iterable<[K,V]>*/Object): OrderedMap<K, V>;
-
-
-  export interface OrderedMap<K, V> extends Map<K, V> {}
-
-
-  /**
-   * Creates a new Class which produces Record instances. A record is similar to
-   * a JS object, but enforce a specific set of allowed string keys, and have
-   * default values.
-   *
-   *     var ABRecord = Record({a:1, b:2})
-   *     var myRecord = new ABRecord({b:3})
-   *
-   * Records always have a value for the keys they define. `remove`ing a key
-   * from a record simply resets it to the default value for that key.
-   *
-   *     myRecord.size // 2
-   *     myRecord.get('a') // 1
-   *     myRecord.get('b') // 3
-   *     myRecordWithoutB = myRecord.remove('b')
-   *     myRecordWithoutB.get('b') // 2
-   *     myRecordWithoutB.size // 2
-   *
-   * Values provided to the constructor not found in the Record type will
-   * be ignored:
-   *
-   *     var myRecord = new ABRecord({b:3, x:10})
-   *     myRecord.get('x') // undefined
-   *
-   * Because Records have a known set of string keys, property get access works
-   * as expected, however property sets will throw an Error.
-   *
-   * Note: IE8 does not support property access. Only use `get()` when
-   * supporting IE8.
-   *
-   *     myRecord.b // 3
-   *     myRecord.b = 5 // throws Error
-   *
-   * Record Classes can be extended as well, allowing for custom methods on your
-   * Record. This is not a common pattern in functional environments, but is in
-   * many JS programs.
-   *
-   * Note: TypeScript does not support this type of subclassing.
-   *
-   *     class ABRecord extends Record({a:1,b:2}) {
-   *       getAB() {
-   *         return this.a + this.b;
-   *       }
-   *     }
-   *
-   *     var myRecord = new ABRecord(b:3)
-   *     myRecord.getAB() // 4
-   *
-   */
-  export module Record {
-    interface Class {
-      new (): Map<string, any>;
-      new (values: {[key: string]: any}): Map<string, any>;
-      new (values: Iterable<string, any>): Map<string, any>; // deprecated
-    }
-  }
-
-  export function Record(
-    defaultValues: {[key: string]: any}, name?: string
-  ): Record.Class;
-
-
-
-  /**
-   * A Collection of unique values with `O(log32 N)` adds and has.
-   *
-   * When iterating a Set, the entries will be (value, value) pairs. Iteration
-   * order of a Set is undefined, however is stable. Multiple iterations of the
-   * same Set will iterate in the same order.
-   *
-   * Set values, like Map keys, may be of any type. Equality is determined using
-   * `Immutable.is`, enabling Sets to uniquely include other Immutable
-   * collections, custom value types, and NaN.
-   */
-  export module Set {
-
-    /**
-     * True if the provided value is a Set
-     */
-    function isSet(maybeSet: any): boolean;
-
-    /**
-     * Creates a new Set containing `values`.
-     */
-    function of<T>(...values: T[]): Set<T>;
-
-    /**
-     * `Set.fromKeys()` creates a new immutable Set containing the keys from
-     * this Iterable or JavaScript Object.
-     */
-    function fromKeys<T>(iter: Iterable<T, any>): Set<T>;
-    function fromKeys(obj: {[key: string]: any}): Set<string>;
-  }
-
-  /**
-   * Create a new immutable Set containing the values of the provided
-   * iterable-like.
-   */
-  export function Set<T>(): Set<T>;
-  export function Set<T>(iter: SetIterable<T>): Set<T>;
-  export function Set<T>(iter: IndexedIterable<T>): Set<T>;
-  export function Set<K, V>(iter: KeyedIterable<K, V>): Set</*[K,V]*/any>;
-  export function Set<T>(array: Array<T>): Set<T>;
-  export function Set<T>(iterator: Iterator<T>): Set<T>;
-  export function Set<T>(iterable: /*Iterable<T>*/Object): Set<T>;
-
-
-  export interface Set<T> extends SetCollection<T> {
-
-    // Persistent changes
-
-    /**
-     * Returns a new Set which also includes this value.
-     */
-    add(value: T): Set<T>;
-
-    /**
-     * Returns a new Set which excludes this value.
-     *
-     * Note: `delete` cannot be safely used in IE8
-     * @alias delete
-     */
-    remove(value: T): Set<T>;
-    delete(value: T): Set<T>;
-
-    /**
-     * Returns a new Set containing no values.
-     */
-    clear(): Set<T>;
-
-    /**
-     * Alias for `union`.
-     * @see `Map.prototype.merge`
-     */
-    merge(...iterables: Iterable<any, T>[]): Set<T>;
-    merge(...iterables: Array<T>[]): Set<T>;
-
-    /**
-     * Returns a Set including any value from `iterables` that does not already
-     * exist in this Set.
-     */
-    union(...iterables: Iterable<any, T>[]): Set<T>;
-    union(...iterables: Array<T>[]): Set<T>;
-
-    /**
-     * Returns a Set which has removed any values not also contained
-     * within `iterables`.
-     */
-    intersect(...iterables: Iterable<any, T>[]): Set<T>;
-    intersect(...iterables: Array<T>[]): Set<T>;
-
-    /**
-     * Returns a Set excluding any values contained within `iterables`.
-     */
-    subtract(...iterables: Iterable<any, T>[]): Set<T>;
-    subtract(...iterables: Array<T>[]): Set<T>;
-
-
-    // Transient changes
-
-    /**
-     * @see `Map.prototype.withMutations`
-     */
-    withMutations(mutator: (mutable: Set<T>) => any): Set<T>;
-
-    /**
-     * @see `Map.prototype.asMutable`
-     */
-    asMutable(): Set<T>;
-
-    /**
-     * @see `Map.prototype.asImmutable`
-     */
-    asImmutable(): Set<T>;
-  }
-
-
-  /**
-   * A type of Set that has the additional guarantee that the iteration order of
-   * values will be the order in which they were `add`ed.
-   *
-   * The iteration behavior of OrderedSet is the same as native ES6 Set.
-   *
-   * Note that `OrderedSet` are more expensive than non-ordered `Set` and may
-   * consume more memory. `OrderedSet#add` is amoratized O(log32 N), but not
-   * stable.
-   */
-  export module OrderedSet {
-
-    /**
-     * True if the provided value is an OrderedSet.
-     */
-    function isOrderedSet(maybeOrderedSet: any): boolean;
-
-    /**
-     * Creates a new OrderedSet containing `values`.
-     */
-    function of<T>(...values: T[]): OrderedSet<T>;
-
-    /**
-     * `OrderedSet.fromKeys()` creates a new immutable OrderedSet containing
-     * the keys from this Iterable or JavaScript Object.
-     */
-    function fromKeys<T>(iter: Iterable<T, any>): OrderedSet<T>;
-    function fromKeys(obj: {[key: string]: any}): OrderedSet<string>;
-  }
-
-  /**
-   * Create a new immutable OrderedSet containing the values of the provided
-   * iterable-like.
-   */
-  export function OrderedSet<T>(): OrderedSet<T>;
-  export function OrderedSet<T>(iter: SetIterable<T>): OrderedSet<T>;
-  export function OrderedSet<T>(iter: IndexedIterable<T>): OrderedSet<T>;
-  export function OrderedSet<K, V>(iter: KeyedIterable<K, V>): OrderedSet</*[K,V]*/any>;
-  export function OrderedSet<T>(array: Array<T>): OrderedSet<T>;
-  export function OrderedSet<T>(iterator: Iterator<T>): OrderedSet<T>;
-  export function OrderedSet<T>(iterable: /*Iterable<T>*/Object): OrderedSet<T>;
-
-
-  export interface OrderedSet<T> extends Set<T> {}
-
-
-  /**
-   * Lists are ordered indexed dense collections, much like a JavaScript
-   * Array.
-   *
-   * Lists are immutable and fully persistent with O(log32 N) gets and sets,
-   * and O(1) push and pop.
-   *
-   * Lists implement Deque, with efficient addition and removal from both the
-   * end (`push`, `pop`) and beginning (`unshift`, `shift`).
-   *
-   * Unlike a JavaScript Array, there is no distinction between an
-   * "unset" index and an index set to `undefined`. `List#forEach` visits all
-   * indices from 0 to size, regardless of if they where explicitly defined.
-   */
-  export module List {
-
-    /**
-     * True if the provided value is a List
-     */
-    function isList(maybeList: any): boolean;
-
-    /**
-     * Creates a new List containing `values`.
-     */
-    function of<T>(...values: T[]): List<T>;
-  }
-
-  /**
-   * Create a new immutable List containing the values of the provided
-   * iterable-like.
-   */
-  export function List<T>(): List<T>;
-  export function List<T>(iter: IndexedIterable<T>): List<T>;
-  export function List<T>(iter: SetIterable<T>): List<T>;
-  export function List<K, V>(iter: KeyedIterable<K, V>): List</*[K,V]*/any>;
-  export function List<T>(array: Array<T>): List<T>;
-  export function List<T>(iterator: Iterator<T>): List<T>;
-  export function List<T>(iterable: /*Iterable<T>*/Object): List<T>;
-
-
-  export interface List<T> extends IndexedCollection<T> {
-
-    // Persistent changes
-
-    /**
-     * Returns a new List which includes `value` at `index`. If `index` already
-     * exists in this List, it will be replaced.
-     *
-     * `index` may be a negative number, which indexes back from the end of the
-     * List. `v.set(-1, "value")` sets the last item in the List.
-     *
-     * If `index` larger than `size`, the returned List's `size` will be large
-     * enough to include the `index`.
-     */
-    set(index: number, value: T): List<T>;
-
-    /**
-     * Returns a new List which excludes this `index` and with a size 1 less
-     * than this List. Values at indicies above `index` are shifted down by 1 to
-     * fill the position.
-     *
-     * This is synonymous with `list.splice(index, 1)`.
-     *
-     * `index` may be a negative number, which indexes back from the end of the
-     * List. `v.delete(-1)` deletes the last item in the List.
-     *
-     * Note: `delete` cannot be safely used in IE8
-     * @alias delete
-     */
-    remove(index: number): List<T>;
-    delete(index: number): List<T>;
-
-    /**
-     * Returns a new List with 0 size and no values.
-     */
-    clear(): List<T>;
-
-    /**
-     * Returns a new List with the provided `values` appended, starting at this
-     * List's `size`.
-     */
-    push(...values: T[]): List<T>;
-
-    /**
-     * Returns a new List with a size ones less than this List, excluding
-     * the last index in this List.
-     *
-     * Note: this differs from `Array.prototype.pop` because it returns a new
-     * List rather than the removed value. Use `last()` to get the last value
-     * in this List.
-     */
-    pop(): List<T>;
-
-    /**
-     * Returns a new List with the provided `values` prepended, shifting other
-     * values ahead to higher indices.
-     */
-    unshift(...values: T[]): List<T>;
-
-    /**
-     * Returns a new List with a size ones less than this List, excluding
-     * the first index in this List, shifting all other values to a lower index.
-     *
-     * Note: this differs from `Array.prototype.shift` because it returns a new
-     * List rather than the removed value. Use `first()` to get the first
-     * value in this List.
-     */
-    shift(): List<T>;
-
-    /**
-     * Returns a new List with an updated value at `index` with the return
-     * value of calling `updater` with the existing value, or `notSetValue` if
-     * `index` was not set. If called with a single argument, `updater` is
-     * called with the List itself.
-     *
-     * `index` may be a negative number, which indexes back from the end of the
-     * List. `v.update(-1)` updates the last item in the List.
-     *
-     * @see Map.update
-     */
-    update(updater: (value: List<T>) => List<T>): List<T>;
-    update(index: number, updater: (value: T) => T): List<T>;
-    update(index: number, notSetValue: T, updater: (value: T) => T): List<T>;
-
-    /**
-     * @see `Map.prototype.merge`
-     */
-    merge(...iterables: IndexedIterable<T>[]): List<T>;
-    merge(...iterables: Array<T>[]): List<T>;
-
-    /**
-     * @see `Map.prototype.mergeWith`
-     */
-    mergeWith(
-      merger: (previous?: T, next?: T) => T,
-      ...iterables: IndexedIterable<T>[]
-    ): List<T>;
-    mergeWith(
-      merger: (previous?: T, next?: T) => T,
-      ...iterables: Array<T>[]
-    ): List<T>;
-
-    /**
-     * @see `Map.prototype.mergeDeep`
-     */
-    mergeDeep(...iterables: IndexedIterable<T>[]): List<T>;
-    mergeDeep(...iterables: Array<T>[]): List<T>;
-
-    /**
-     * @see `Map.prototype.mergeDeepWith`
-     */
-    mergeDeepWith(
-      merger: (previous?: T, next?: T) => T,
-      ...iterables: IndexedIterable<T>[]
-    ): List<T>;
-    mergeDeepWith(
-      merger: (previous?: T, next?: T) => T,
-      ...iterables: Array<T>[]
-    ): List<T>;
-
-    /**
-     * Returns a new List with size `size`. If `size` is less than this
-     * List's size, the new List will exclude values at the higher indices.
-     * If `size` is greater than this List's size, the new List will have
-     * undefined values for the newly available indices.
-     *
-     * When building a new List and the final size is known up front, `setSize`
-     * used in conjunction with `withMutations` may result in the more
-     * performant construction.
-     */
-    setSize(size: number): List<T>;
-
-
-    // Deep persistent changes
-
-    /**
-     * Returns a new List having set `value` at this `keyPath`. If any keys in
-     * `keyPath` do not exist, a new immutable Map will be created at that key.
-     *
-     * Index numbers are used as keys to determine the path to follow in
-     * the List.
-     */
-    setIn(keyPath: Array<any>, value: T): List<T>;
-    setIn(keyPath: Iterable<any, any>, value: T): List<T>;
-
-    /**
-     * Returns a new List having removed the value at this `keyPath`. If any
-     * keys in `keyPath` do not exist, a new immutable Map will be created at
-     * that key.
-     */
-    removeIn(keyPath: Array<any>): List<T>;
-    removeIn(keyPath: Iterable<any, any>): List<T>;
-
-    /**
-     * @see `Map.prototype.updateIn`
-     */
-    updateIn(
-      keyPath: Array<any>,
-      updater: (value: any) => any
-    ): List<T>;
-    updateIn(
-      keyPath: Array<any>,
-      notSetValue: any,
-      updater: (value: any) => any
-    ): List<T>;
-    updateIn(
-      keyPath: Iterable<any, any>,
-      updater: (value: any) => any
-    ): List<T>;
-    updateIn(
-      keyPath: Iterable<any, any>,
-      notSetValue: any,
-      updater: (value: any) => any
-    ): List<T>;
-
-    /**
-     * @see `Map.prototype.mergeIn`
-     */
-    mergeIn(
-      keyPath: Iterable<any, any>,
-      ...iterables: IndexedIterable<T>[]
-    ): List<T>;
-    mergeIn(
-      keyPath: Array<any>,
-      ...iterables: IndexedIterable<T>[]
-    ): List<T>;
-    mergeIn(
-      keyPath: Array<any>,
-      ...iterables: Array<T>[]
-    ): List<T>;
-
-    /**
-     * @see `Map.prototype.mergeDeepIn`
-     */
-    mergeDeepIn(
-      keyPath: Iterable<any, any>,
-      ...iterables: IndexedIterable<T>[]
-    ): List<T>;
-    mergeDeepIn(
-      keyPath: Array<any>,
-      ...iterables: IndexedIterable<T>[]
-    ): List<T>;
-    mergeDeepIn(
-      keyPath: Array<any>,
-      ...iterables: Array<T>[]
-    ): List<T>;
-
-
-    // Transient changes
-
-    /**
-     * @see `Map.prototype.withMutations`
-     */
-    withMutations(mutator: (mutable: List<T>) => any): List<T>;
-
-    /**
-     * @see `Map.prototype.asMutable`
-     */
-    asMutable(): List<T>;
-
-    /**
-     * @see `Map.prototype.asImmutable`
-     */
-    asImmutable(): List<T>;
-  }
-
-
-  /**
-   * Stacks are indexed collections which support very efficient O(1) addition
-   * and removal from the front using `unshift(v)` and `shift()`.
-   *
-   * For familiarity, Stack also provides `push(v)`, `pop()`, and `peek()`, but
-   * be aware that they also operate on the front of the list, unlike List or
-   * a JavaScript Array.
-   *
-   * Note: `reverse()` or any inherent reverse traversal (`reduceRight`,
-   * `lastIndexOf`, etc.) is not efficient with a Stack.
-   *
-   * Stack is implemented with a Single-Linked List.
-   */
-  export module Stack {
-
-    /**
-     * True if the provided value is a Stack
-     */
-    function isStack(maybeStack: any): boolean;
-
-    /**
-     * Creates a new Stack containing `values`.
-     */
-    function of<T>(...values: T[]): Stack<T>;
-  }
-
-  /**
-   * Create a new immutable Stack containing the values of the provided
-   * iterable-like.
-   *
-   * The iteration order of the provided iterable is preserved in the
-   * resulting `Stack`.
-   */
-  export function Stack<T>(): Stack<T>;
-  export function Stack<T>(iter: IndexedIterable<T>): Stack<T>;
-  export function Stack<T>(iter: SetIterable<T>): Stack<T>;
-  export function Stack<K, V>(iter: KeyedIterable<K, V>): Stack</*[K,V]*/any>;
-  export function Stack<T>(array: Array<T>): Stack<T>;
-  export function Stack<T>(iterator: Iterator<T>): Stack<T>;
-  export function Stack<T>(iterable: /*Iterable<T>*/Object): Stack<T>;
-
-
-  export interface Stack<T> extends IndexedCollection<T> {
-
-    // Reading values
-
-    /**
-     * Alias for `Stack.first()`.
-     */
-    peek(): T;
-
-
-    // Persistent changes
-
-    /**
-     * Returns a new Stack with 0 size and no values.
-     */
-    clear(): Stack<T>;
-
-    /**
-     * Returns a new Stack with the provided `values` prepended, shifting other
-     * values ahead to higher indices.
-     *
-     * This is very efficient for Stack.
-     */
-    unshift(...values: T[]): Stack<T>;
-
-    /**
-     * Like `Stack#unshift`, but accepts a iterable rather than varargs.
-     */
-    unshiftAll(iter: Iterable<any, T>): Stack<T>;
-    unshiftAll(iter: Array<T>): Stack<T>;
-
-    /**
-     * Returns a new Stack with a size ones less than this Stack, excluding
-     * the first item in this Stack, shifting all other values to a lower index.
-     *
-     * Note: this differs from `Array.prototype.shift` because it returns a new
-     * Stack rather than the removed value. Use `first()` or `peek()` to get the
-     * first value in this Stack.
-     */
-    shift(): Stack<T>;
-
-    /**
-     * Alias for `Stack#unshift` and is not equivalent to `List#push`.
-     */
-    push(...values: T[]): Stack<T>;
-
-    /**
-     * Alias for `Stack#unshiftAll`.
-     */
-    pushAll(iter: Iterable<any, T>): Stack<T>;
-    pushAll(iter: Array<T>): Stack<T>;
-
-    /**
-     * Alias for `Stack#shift` and is not equivalent to `List#pop`.
-     */
-    pop(): Stack<T>;
-
-
-    // Transient changes
-
-    /**
-     * @see `Map.prototype.withMutations`
-     */
-    withMutations(mutator: (mutable: Stack<T>) => any): Stack<T>;
-
-    /**
-     * @see `Map.prototype.asMutable`
-     */
-    asMutable(): Stack<T>;
-
-    /**
-     * @see `Map.prototype.asImmutable`
-     */
-    asImmutable(): Stack<T>;
   }
 
 
