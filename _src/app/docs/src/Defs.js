@@ -7,7 +7,7 @@ var defs = require('../../../resources/immutable.d.json');
 
 
 var InterfaceDef = React.createClass({
-  render: function() {
+  render() {
     var name = this.props.name;
     var def = this.props.def;
     return (
@@ -40,7 +40,7 @@ exports.InterfaceDef = InterfaceDef;
 
 
 var CallSigDef = React.createClass({
-  render: function() {
+  render() {
     var info = this.props.info;
     var module = this.props.module;
     var name = this.props.name;
@@ -70,7 +70,7 @@ exports.CallSigDef = CallSigDef;
 
 
 var TypeDef = React.createClass({
-  render: function() {
+  render() {
     var info = this.props.info;
     var type = this.props.type;
     var prefix = this.props.prefix;
@@ -129,16 +129,16 @@ var TypeDef = React.createClass({
     throw new Error('Unknown kind ' + type.k);
   },
 
-  mouseOver: function(event) {
+  mouseOver(event) {
     CSSCore.addClass(this.getDOMNode(), 'over');
     event.stopPropagation();
   },
 
-  mouseOut: function() {
+  mouseOut() {
     CSSCore.removeClass(this.getDOMNode(), 'over');
   },
 
-  wrap: function(className, child) {
+  wrap(className, child) {
     return (
       <span
         className={'t ' + className}
@@ -154,7 +154,7 @@ exports.TypeDef = TypeDef;
 
 
 var MemberDef = React.createClass({
-  render: function() {
+  render() {
     var module = this.props.module;
     var member = this.props.member;
     return (

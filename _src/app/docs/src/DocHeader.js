@@ -4,7 +4,7 @@ var Logo = require('../../src/Logo');
 
 var DocHeader = React.createClass({
 
-  render: function() {
+  render() {
     return (
       <div className="header">
         <div className="miniHeader">

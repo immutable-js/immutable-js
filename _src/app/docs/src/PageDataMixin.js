@@ -8,7 +8,7 @@ module.exports = {
   /**
    * Returns the most recent change event.
    */
-  getPageData: function () {
+  getPageData() {
     return this.context.getPageData();
   }
 };

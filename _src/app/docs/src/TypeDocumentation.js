@@ -13,22 +13,22 @@ var defs = require('../../../resources/immutable.d.json');
 
 
 var TypeDocumentation = React.createClass({
-  getInitialState: function() {
+  getInitialState() {
     return {
       showInherited: true,
       showInGroups: true,
     };
   },
 
-  toggleShowInGroups: function() {
+  toggleShowInGroups() {
     this.setState({ showInGroups: !this.state.showInGroups });
   },
 
-  toggleShowInherited: function() {
+  toggleShowInherited() {
     this.setState({ showInherited: !this.state.showInherited });
   },
 
-  render: function() {
+  render() {
     var name = this.props.name;
     var memberName = this.props.memberName;
     var def = this.props.def;
@@ -79,13 +79,13 @@ var TypeDocumentation = React.createClass({
 });
 
 var NotFound = React.createClass({
-  render: function() {
+  render() {
     return <div>{'Not found'}</div>;
   }
 });
 
 var FunctionDoc = React.createClass({
-  render: function() {
+  render() {
     var name = this.props.name;
     var def = this.props.def;
     var doc = def.doc || {};
@@ -129,7 +129,7 @@ var FunctionDoc = React.createClass({
 });
 
 var TypeDoc = React.createClass({
-  render: function() {
+  render() {
     var name = this.props.name;
     var def = this.props.def;
     var memberName = this.props.memberName;

@@ -5,7 +5,7 @@ var Markdown = require('./Markdown');
 
 var DocOverview = React.createClass({
 
-  render: function() {
+  render() {
     var def = this.props.def;
 
     var doc = def.doc;

@@ -11,12 +11,12 @@ var MarkDown = require('./MarkDown');
 var MemberDoc = React.createClass({
   mixins: [ PageDataMixin, Router.Navigation ],
 
-  getInitialState: function() {
+  getInitialState() {
     var showDetail = this.props.showDetail;
     return { detail: showDetail };
   },
 
-  componentDidMount: function() {
+  componentDidMount() {
     if (this.props.showDetail) {
       var node = this.getDOMNode();
       var navType = this.getPageData().type;
@@ -29,14 +29,14 @@ var MemberDoc = React.createClass({
     }
   },
 
-  componentWillReceiveProps: function(nextProps) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.showDetail && !this.props.showDetail) {
       this.scrollTo = true;
       this.setState({ detail: true });
     }
   },
 
-  componentDidUpdate: function() {
+  componentDidUpdate() {
     if (this.scrollTo) {
       this.scrollTo = false;
       var node = this.getDOMNode();
@@ -50,7 +50,7 @@ var MemberDoc = React.createClass({
     }
   },
 
-  toggleDetail: function() {
+  toggleDetail() {
     // Note: removed this because it drops the URL bar on mobile, and that's
     // the only place it's currently being used.
     // var member = this.props.member;
@@ -65,7 +65,7 @@ var MemberDoc = React.createClass({
     this.setState({ detail: !this.state.detail });
   },
 
-  render: function() {
+  render() {
     var typePropMap = this.props.typePropMap;
     var member = this.props.member;
     var module = member.isStatic ? this.props.parentName : null;
@@ -160,15 +160,15 @@ function makeSlideDown(child) {
 }
 
 var SlideDown = React.createClass({
-  componentWillEnter: function(done) {
+  componentWillEnter(done) {
     this.slide(false, done);
   },
 
-  componentWillLeave: function(done) {
+  componentWillLeave(done) {
     this.slide(true, done);
   },
 
-  slide: function(slidingUp, done) {
+  slide(slidingUp, done) {
     var node = this.getDOMNode();
     node.style.height = 'auto';
     var height = getComputedStyle(node).height;
@@ -187,7 +187,7 @@ var SlideDown = React.createClass({
     }, 17);
   },
 
-  render: function() {
+  render() {
     return this.props.children;
   }
 });

@@ -10,7 +10,7 @@ var isMobile = require('./isMobile');
 
 
 var Documentation = React.createClass({displayName: 'Documentation',
-  render: function () {
+  render:function() {
     return (
       React.createElement("div", {className: isMobile ? 'mobile' : null}, 
         React.createElement(DocHeader, null), 
@@ -27,7 +27,7 @@ var Documentation = React.createClass({displayName: 'Documentation',
 var DocDeterminer = React.createClass({displayName: 'DocDeterminer',
   mixins: [ Router.State ],
 
-  render: function () {
+  render:function() {
     var $__0=      determineDoc(this.getPath()),def=$__0.def,name=$__0.name,memberName=$__0.memberName;
     return (
       React.createElement(TypeDocumentation, {
@@ -59,17 +59,17 @@ module.exports = React.createClass({displayName: 'exports',
     getPageData: React.PropTypes.func.isRequired,
   },
 
-  getChildContext: function () {
+  getChildContext:function() {
     return {
       getPageData: this.getPageData,
     };
   },
 
-  getPageData: function () {
+  getPageData:function() {
     return this.pageData;
   },
 
-  componentWillMount: function() {
+  componentWillMount:function() {
     var location, scrollBehavior;
 
     if (window.document) {
@@ -116,15 +116,15 @@ module.exports = React.createClass({displayName: 'exports',
 
   // TODO: replace this. this is hacky and probably wrong
 
-  componentDidMount: function() {
+  componentDidMount:function() {
     setTimeout(function()  { this.pageData.type = ''; }.bind(this), 0);
   },
 
-  componentDidUpdate: function() {
+  componentDidUpdate:function() {
     setTimeout(function()  { this.pageData.type = ''; }.bind(this), 0);
   },
 
-  render: function () {
+  render:function () {
     var Handler = this.state.handler;
     return React.createElement(Handler, null);
   }
@@ -140,7 +140,7 @@ var defs = require('../../../resources/immutable.d.json');
 
 
 var InterfaceDef = React.createClass({displayName: 'InterfaceDef',
-  render: function() {
+  render:function() {
     var name = this.props.name;
     var def = this.props.def;
     return (
@@ -173,7 +173,7 @@ exports.InterfaceDef = InterfaceDef;
 
 
 var CallSigDef = React.createClass({displayName: 'CallSigDef',
-  render: function() {
+  render:function() {
     var info = this.props.info;
     var module = this.props.module;
     var name = this.props.name;
@@ -203,7 +203,7 @@ exports.CallSigDef = CallSigDef;
 
 
 var TypeDef = React.createClass({displayName: 'TypeDef',
-  render: function() {
+  render:function() {
     var info = this.props.info;
     var type = this.props.type;
     var prefix = this.props.prefix;
@@ -262,16 +262,16 @@ var TypeDef = React.createClass({displayName: 'TypeDef',
     throw new Error('Unknown kind ' + type.k);
   },
 
-  mouseOver: function(event) {
+  mouseOver:function(event) {
     CSSCore.addClass(this.getDOMNode(), 'over');
     event.stopPropagation();
   },
 
-  mouseOut: function() {
+  mouseOut:function() {
     CSSCore.removeClass(this.getDOMNode(), 'over');
   },
 
-  wrap: function(className, child) {
+  wrap:function(className, child) {
     return (
       React.createElement("span", {
         className: 't ' + className, 
@@ -287,7 +287,7 @@ exports.TypeDef = TypeDef;
 
 
 var MemberDef = React.createClass({displayName: 'MemberDef',
-  render: function() {
+  render:function() {
     var module = this.props.module;
     var member = this.props.member;
     return (
@@ -382,7 +382,7 @@ var Logo = require('../../src/Logo');
 
 var DocHeader = React.createClass({displayName: 'DocHeader',
 
-  render: function() {
+  render:function() {
     return (
       React.createElement("div", {className: "header"}, 
         React.createElement("div", {className: "miniHeader"}, 
@@ -413,7 +413,7 @@ var Markdown = require('./Markdown');
 
 var DocOverview = React.createClass({displayName: 'DocOverview',
 
-  render: function() {
+  render:function() {
     var def = this.props.def;
 
     var doc = def.doc;
@@ -502,12 +502,12 @@ var MarkDown = require('./MarkDown');
 var MemberDoc = React.createClass({displayName: 'MemberDoc',
   mixins: [ PageDataMixin, Router.Navigation ],
 
-  getInitialState: function() {
+  getInitialState:function() {
     var showDetail = this.props.showDetail;
     return { detail: showDetail };
   },
 
-  componentDidMount: function() {
+  componentDidMount:function() {
     if (this.props.showDetail) {
       var node = this.getDOMNode();
       var navType = this.getPageData().type;
@@ -520,14 +520,14 @@ var MemberDoc = React.createClass({displayName: 'MemberDoc',
     }
   },
 
-  componentWillReceiveProps: function(nextProps) {
+  componentWillReceiveProps:function(nextProps) {
     if (nextProps.showDetail && !this.props.showDetail) {
       this.scrollTo = true;
       this.setState({ detail: true });
     }
   },
 
-  componentDidUpdate: function() {
+  componentDidUpdate:function() {
     if (this.scrollTo) {
       this.scrollTo = false;
       var node = this.getDOMNode();
@@ -541,7 +541,7 @@ var MemberDoc = React.createClass({displayName: 'MemberDoc',
     }
   },
 
-  toggleDetail: function() {
+  toggleDetail:function() {
     // Note: removed this because it drops the URL bar on mobile, and that's
     // the only place it's currently being used.
     // var member = this.props.member;
@@ -556,7 +556,7 @@ var MemberDoc = React.createClass({displayName: 'MemberDoc',
     this.setState({ detail: !this.state.detail });
   },
 
-  render: function() {
+  render:function() {
     var typePropMap = this.props.typePropMap;
     var member = this.props.member;
     var module = member.isStatic ? this.props.parentName : null;
@@ -651,15 +651,15 @@ function makeSlideDown(child) {
 }
 
 var SlideDown = React.createClass({displayName: 'SlideDown',
-  componentWillEnter: function(done) {
+  componentWillEnter:function(done) {
     this.slide(false, done);
   },
 
-  componentWillLeave: function(done) {
+  componentWillLeave:function(done) {
     this.slide(true, done);
   },
 
-  slide: function(slidingUp, done) {
+  slide:function(slidingUp, done) {
     var node = this.getDOMNode();
     node.style.height = 'auto';
     var height = getComputedStyle(node).height;
@@ -678,7 +678,7 @@ var SlideDown = React.createClass({displayName: 'SlideDown',
     }, 17);
   },
 
-  render: function() {
+  render:function() {
     return this.props.children;
   }
 });
@@ -706,7 +706,7 @@ module.exports = {
   /**
    * Returns the most recent change event.
    */
-  getPageData: function () {
+  getPageData:function() {
     return this.context.getPageData();
   }
 };
@@ -835,22 +835,22 @@ var defs = require('../../../resources/immutable.d.json');
 
 
 var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
-  getInitialState: function() {
+  getInitialState:function() {
     return {
       showInherited: true,
       showInGroups: true,
     };
   },
 
-  toggleShowInGroups: function() {
+  toggleShowInGroups:function() {
     this.setState({ showInGroups: !this.state.showInGroups });
   },
 
-  toggleShowInherited: function() {
+  toggleShowInherited:function() {
     this.setState({ showInherited: !this.state.showInherited });
   },
 
-  render: function() {
+  render:function() {
     var name = this.props.name;
     var memberName = this.props.memberName;
     var def = this.props.def;
@@ -901,13 +901,13 @@ var TypeDocumentation = React.createClass({displayName: 'TypeDocumentation',
 });
 
 var NotFound = React.createClass({displayName: 'NotFound',
-  render: function() {
+  render:function() {
     return React.createElement("div", null, 'Not found');
   }
 });
 
 var FunctionDoc = React.createClass({displayName: 'FunctionDoc',
-  render: function() {
+  render:function() {
     var name = this.props.name;
     var def = this.props.def;
     var doc = def.doc || {};
@@ -951,7 +951,7 @@ var FunctionDoc = React.createClass({displayName: 'FunctionDoc',
 });
 
 var TypeDoc = React.createClass({displayName: 'TypeDoc',
-  render: function() {
+  render:function() {
     var name = this.props.name;
     var def = this.props.def;
     var memberName = this.props.memberName;

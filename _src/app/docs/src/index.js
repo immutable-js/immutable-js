@@ -9,7 +9,7 @@ var isMobile = require('./isMobile');
 
 
 var Documentation = React.createClass({
-  render: function () {
+  render() {
     return (
       <div className={isMobile ? 'mobile' : null}>
         <DocHeader />
@@ -26,7 +26,7 @@ var Documentation = React.createClass({
 var DocDeterminer = React.createClass({
   mixins: [ Router.State ],
 
-  render: function () {
+  render() {
     var { def, name, memberName } = determineDoc(this.getPath());
     return (
       <TypeDocumentation
@@ -58,17 +58,17 @@ module.exports = React.createClass({
     getPageData: React.PropTypes.func.isRequired,
   },
 
-  getChildContext: function () {
+  getChildContext() {
     return {
       getPageData: this.getPageData,
     };
   },
 
-  getPageData: function () {
+  getPageData() {
     return this.pageData;
   },
 
-  componentWillMount: function() {
+  componentWillMount() {
     var location, scrollBehavior;
 
     if (window.document) {
@@ -115,15 +115,15 @@ module.exports = React.createClass({
 
   // TODO: replace this. this is hacky and probably wrong
 
-  componentDidMount: function() {
+  componentDidMount() {
     setTimeout(() => { this.pageData.type = ''; }, 0);
   },
 
-  componentDidUpdate: function() {
+  componentDidUpdate() {
     setTimeout(() => { this.pageData.type = ''; }, 0);
   },
 
-  render: function () {
+  render () {
     var Handler = this.state.handler;
     return <Handler />;
   }
