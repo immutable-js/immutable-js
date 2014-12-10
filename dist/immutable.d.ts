@@ -140,10 +140,10 @@ declare module 'immutable' {
      * List. `v.delete(-1)` deletes the last item in the List.
      *
      * Note: `delete` cannot be safely used in IE8
-     * @alias delete
+     * @alias remove
      */
-    remove(index: number): List<T>;
     delete(index: number): List<T>;
+    remove(index: number): List<T>;
 
     /**
      * Returns a new List with 0 size and no values.
@@ -404,10 +404,10 @@ declare module 'immutable' {
      *
      * Note: `delete` cannot be safely used in IE8, but is provided to mirror
      * the ES6 collection API.
-     * @alias delete
+     * @alias remove
      */
-    remove(key: K): Map<K, V>;
     delete(key: K): Map<K, V>;
+    remove(key: K): Map<K, V>;
 
     /**
      * Returns a new Map containing no keys or values.
@@ -736,10 +736,10 @@ declare module 'immutable' {
      * Returns a new Set which excludes this value.
      *
      * Note: `delete` cannot be safely used in IE8
-     * @alias delete
+     * @alias remove
      */
-    remove(value: T): Set<T>;
     delete(value: T): Set<T>;
+    remove(value: T): Set<T>;
 
     /**
      * Returns a new Set containing no values.
@@ -747,18 +747,15 @@ declare module 'immutable' {
     clear(): Set<T>;
 
     /**
-     * Alias for `union`.
-     * @see `Map.prototype.merge`
-     */
-    merge(...iterables: Iterable<any, T>[]): Set<T>;
-    merge(...iterables: Array<T>[]): Set<T>;
-
-    /**
      * Returns a Set including any value from `iterables` that does not already
      * exist in this Set.
+     * @alias merge
      */
     union(...iterables: Iterable<any, T>[]): Set<T>;
     union(...iterables: Array<T>[]): Set<T>;
+    merge(...iterables: Iterable<any, T>[]): Set<T>;
+    merge(...iterables: Array<T>[]): Set<T>;
+
 
     /**
      * Returns a Set which has removed any values not also contained
@@ -1993,7 +1990,11 @@ declare module 'immutable' {
      *
      */
     mapEntries<KM, VM>(
-      mapper: (entry?: /*(K, V)*/Array<any>, index?: number, iter?: /*this*/KeyedIterable<K, V>) => /*[KM, VM]*/Array<any>,
+      mapper: (
+        entry?: /*(K, V)*/Array<any>,
+        index?: number,
+        iter?: /*this*/KeyedIterable<K, V>
+      ) => /*[KM, VM]*/Array<any>,
       context?: any
     ): /*this*/KeyedIterable<KM, VM>;
 
@@ -2219,7 +2220,11 @@ declare module 'immutable' {
 
 
   /**
-   * ES6 Iterator
+   * ES6 Iterator.
+   *
+   * This is not part of the Immutable library, but a common interface used by
+   * many types in ES6 JavaScript
+   *
    * @ignore
    */
   export interface Iterator<T> {
