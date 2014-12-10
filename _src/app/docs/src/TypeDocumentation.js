@@ -102,7 +102,9 @@ var FunctionDoc = React.createClass({
         {doc.description &&
           <section>
             <h4 className="infoHeader">
-              Discussion
+              {doc.description.substr(0, 5) === '<code' ?
+                'Example' :
+                'Discussion'}
             </h4>
             <MarkDown className="discussion" contents={doc.description} />
           </section>

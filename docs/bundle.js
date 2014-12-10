@@ -602,7 +602,9 @@ var MemberDoc = React.createClass({displayName: 'MemberDoc',
               doc.description &&
                 React.createElement("section", null, 
                   React.createElement("h4", {className: "infoHeader"}, 
-                    "Discussion"
+                    doc.description.substr(0, 5) === '<code' ?
+                      'Example' :
+                      'Discussion'
                   ), 
                   React.createElement(MarkDown, {className: "discussion", contents: doc.description})
                 )
@@ -907,7 +909,9 @@ var FunctionDoc = React.createClass({displayName: 'FunctionDoc',
         doc.description &&
           React.createElement("section", null, 
             React.createElement("h4", {className: "infoHeader"}, 
-              "Discussion"
+              doc.description.substr(0, 5) === '<code' ?
+                'Example' :
+                'Discussion'
             ), 
             React.createElement(MarkDown, {className: "discussion", contents: doc.description})
           )
