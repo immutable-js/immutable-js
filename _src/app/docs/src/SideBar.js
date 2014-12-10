@@ -5,56 +5,36 @@ var defs = require('../../../resources/immutable.d.json');
 
 
 var SideBar = React.createClass({
-  render: function () {
-
+  render() {
     var type = defs.Immutable;
-    var functions = Seq(type.module).filter(t => !t.interface && !t.module);
-    var types = Seq(type.module).filter(t => t.interface || t.module);
 
     return (
       <div className="sideBar">
         <div className="scrollContent">
-          {functions.map((t, name) =>
-            <div>
-              <Router.Link key={name} to={'/' + name}>
-                {(name) + '()'}
-              </Router.Link>
-            </div>
-          ).toArray()}
-
-          {types.map((t, name) =>
-            sideBarType.call(this, name, t)
+          {Seq(type.module).map((t, name) =>
+            this.renderSideBarType(name, t)
           ).toArray()}
         </div>
       </div>
     );
+  },
 
-  }
-});
+  renderSideBarType(typeName, type) {
+    var isFocus = this.props.focus === typeName;
+    var isFunction = !type.interface && !type.module;
+    var call = type.call;
+    var functions = Seq(type.module).filter(t => !t.interface && !t.module);
+    var types = Seq(type.module).filter(t => t.interface || t.module);
 
-function sideBarType(typeName, type) {
-  var call = type.call;
-  var functions = Seq(type.module).filter(t => !t.interface && !t.module);
-  var types = Seq(type.module).filter(t => t.interface || t.module);
+    var label = typeName + (isFunction ? '()' : '');
 
-  if (this.props.focus !== typeName) {
-    return <div key={typeName}>
-      <h2>
-        <Router.Link to={'/' + typeName}>
-          {typeName}
-        </Router.Link>
-      </h2>
-    </div>
-  }
+    if (!isFocus) {
+      label = <Router.Link to={'/' + typeName}>{label}</Router.Link>;
+    }
 
-  var memberGroups = this.props.memberGroups;
+    var memberGroups = this.props.memberGroups;
 
-  return (
-    <div key={typeName}>
-      <h2>
-        {typeName}
-      </h2>
-
+    var members = !isFocus || isFunction ? null :
       <div className="members">
 
         {call &&
@@ -111,9 +91,16 @@ function sideBarType(typeName, type) {
             ])
           ).flatten().toArray()}
         </section>
+      </div>;
+
+    return (
+      <div key={typeName}>
+        <h2>{label}</h2>
+        {members}
       </div>
-    </div>
-  );
-}
+    );
+  }
+});
+
 
 module.exports = SideBar;

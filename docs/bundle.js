@@ -719,56 +719,36 @@ var defs = require('../../../resources/immutable.d.json');
 
 
 var SideBar = React.createClass({displayName: 'SideBar',
-  render: function () {
-
+  render:function() {
     var type = defs.Immutable;
-    var functions = Seq(type.module).filter(function(t)  {return !t.interface && !t.module;});
-    var types = Seq(type.module).filter(function(t)  {return t.interface || t.module;});
 
     return (
       React.createElement("div", {className: "sideBar"}, 
         React.createElement("div", {className: "scrollContent"}, 
-          functions.map(function(t, name) 
-            {return React.createElement("div", null, 
-              React.createElement(Router.Link, {key: name, to: '/' + name}, 
-                (name) + '()'
-              )
-            );}
-          ).toArray(), 
-
-          types.map(function(t, name) 
-            {return sideBarType.call(this, name, t);}.bind(this)
+          Seq(type.module).map(function(t, name) 
+            {return this.renderSideBarType(name, t);}.bind(this)
           ).toArray()
         )
       )
     );
+  },
 
-  }
-});
+  renderSideBarType:function(typeName, type) {
+    var isFocus = this.props.focus === typeName;
+    var isFunction = !type.interface && !type.module;
+    var call = type.call;
+    var functions = Seq(type.module).filter(function(t)  {return !t.interface && !t.module;});
+    var types = Seq(type.module).filter(function(t)  {return t.interface || t.module;});
 
-function sideBarType(typeName, type) {
-  var call = type.call;
-  var functions = Seq(type.module).filter(function(t)  {return !t.interface && !t.module;});
-  var types = Seq(type.module).filter(function(t)  {return t.interface || t.module;});
+    var label = typeName + (isFunction ? '()' : '');
 
-  if (this.props.focus !== typeName) {
-    return React.createElement("div", {key: typeName}, 
-      React.createElement("h2", null, 
-        React.createElement(Router.Link, {to: '/' + typeName}, 
-          typeName
-        )
-      )
-    )
-  }
+    if (!isFocus) {
+      label = React.createElement(Router.Link, {to: '/' + typeName}, label);
+    }
 
-  var memberGroups = this.props.memberGroups;
+    var memberGroups = this.props.memberGroups;
 
-  return (
-    React.createElement("div", {key: typeName}, 
-      React.createElement("h2", null, 
-        typeName
-      ), 
-
+    var members = !isFocus || isFunction ? null :
       React.createElement("div", {className: "members"}, 
 
         call &&
@@ -825,10 +805,17 @@ function sideBarType(typeName, type) {
             ]);}
           ).flatten().toArray()
         )
+      );
+
+    return (
+      React.createElement("div", {key: typeName}, 
+        React.createElement("h2", null, label), 
+        members
       )
-    )
-  );
-}
+    );
+  }
+});
+
 
 module.exports = SideBar;
 
