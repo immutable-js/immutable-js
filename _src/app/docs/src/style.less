@@ -163,10 +163,15 @@
 
 code {
   font-family: Menlo, monospace;
-  font-size: 0.8125em;
+  font-size: 0.9em;
+  background: #FCFBFA;
+  padding: 0.1rem 0.25em;
+  margin: -0.1rem -0.25em;
 }
 
 .codeBlock {
+  color: #333;
+  font-size: 0.8125em;
   -webkit-overflow-scrolling: touch;
   background: #FCFBFA;
   border-left: solid 3px #ECEAE9;
@@ -176,6 +181,14 @@ code {
   overflow-y: scroll;
   padding: 0.5rem 16px 0.5rem 12px;
   white-space: pre;
+}
+
+.synopsis {
+  margin: -0.5em 0 1em;
+}
+
+.discussion p:first-child {
+  margin-top: 0.5em;
 }
 
 .memberSignature {
@@ -216,6 +229,10 @@ code {
 
 .doc {
   margin: 2em 0 3em;
+}
+
+p:last-child {
+  margin-bottom: 0;
 }
 
 // TODO: not random colors
@@ -285,3 +302,61 @@ code {
   -webkit-user-select: none;
   user-select: none;
 }
+
+
+
+
+
+
+
+.token.punctuation {
+  color: #808890;
+}
+
+.token.keyword {
+  color: #07a; //#945277;
+}
+
+.token.string {
+  color: #690;//#df5000;
+}
+
+.token.number {
+  color: #905;//#094e99;
+}
+
+
+.token.comment {
+  color:#998;
+  font-style:italic
+  // color: #abcabc;
+}
+
+
+.token.class-name {
+  color: #017936;
+}
+
+
+.token.boolean {
+  color: #905;//#945277;
+}
+
+.token.function {
+  color: #DD4A68;// #017936;
+}
+
+
+.token.operator {
+  color: #a67f59; //#945277;
+}
+
+// .token.ignore {
+//   color: #abcabc;
+// }
+
+
+.token.regex {
+  color: #e90;//#abcabc;
+}
+

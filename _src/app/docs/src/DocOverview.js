@@ -1,6 +1,7 @@
 var React = require('react');
 var Router = require('react-router');
 var { Seq } = require('immutable');
+var Markdown = require('./Markdown');
 
 var DocOverview = React.createClass({
 
@@ -15,8 +16,8 @@ var DocOverview = React.createClass({
       <div>
 
         {doc && <section>
-          <pre>{doc.synopsis}</pre>
-          {doc.description && <pre>{doc.description}</pre>}
+          <Markdown contents={doc.synopsis} />
+          {doc.description && <Markdown contents={doc.description} />}
         </section>}
 
         <table className="typeTable">
@@ -29,7 +30,7 @@ var DocOverview = React.createClass({
                   </Router.Link>
                 </th>
                 <td>
-                  {t.call.doc && t.call.doc.synopsis}
+                  {t.call.doc && <Markdown contents={t.call.doc.synopsis} />}
                 </td>
               </tr>
             ).toArray()}
@@ -43,7 +44,7 @@ var DocOverview = React.createClass({
                   </Router.Link>
                 </th>
                 <td>
-                  {t.doc && t.doc.synopsis}
+                  {t.doc && <Markdown contents={t.doc.synopsis} />}
                 </td>
               </tr>
             ).toArray()}

@@ -5,6 +5,7 @@ var Router = require('react-router');
 var { CallSigDef, MemberDef } = require('./Defs');
 var PageDataMixin = require('./PageDataMixin');
 var isMobile = require('./isMobile');
+var MarkDown = require('./MarkDown');
 
 
 var MemberDoc = React.createClass({
@@ -82,10 +83,7 @@ var MemberDoc = React.createClass({
         <TransitionGroup childFactory={makeSlideDown}>
           {showDetail &&
             <div key="detail" className="detail">
-              {doc.synopsis && <div className="synopsis">{doc.synopsis}</div>}
-              <h4 className="infoHeader">
-                {'Definition' + (def.signatures && def.signatures.length !== 1 ? 's' : '')}
-              </h4>
+              {doc.synopsis && <MarkDown className="synopsis" contents={doc.synopsis} />}
               {isProp ?
                 <code className="codeBlock memberSignature">
                   <MemberDef module={module} member={{name, type: def.type}} />
@@ -122,8 +120,8 @@ var MemberDoc = React.createClass({
                   </h4>
                   {
                     note.name === 'alias' ?
-                      <CallSigDef name={note.body} /> :
-                    note.body
+                      <code><CallSigDef name={note.body} /></code> :
+                      <MarkDown className="discussion" contents={note.body} />
                   }
                 </section>
               )}
@@ -132,7 +130,7 @@ var MemberDoc = React.createClass({
                   <h4 className="infoHeader">
                     Discussion
                   </h4>
-                  {doc.description}
+                  <MarkDown className="discussion" contents={doc.description} />
                 </section>
               }
             </div>

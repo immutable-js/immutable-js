@@ -1,6 +1,7 @@
 var TypeScript = require('./typescript-services');
 var TypeKind = require('./TypeKind');
 var { Seq } = require('immutable');
+var marked = require('marked');
 
 
 class DocVisitor extends TypeScript.SyntaxWalker {
@@ -402,10 +403,17 @@ function parseComment(node) {
   var notes = lines
     .map(l => l.match(COMMENT_NOTE_RX))
     .filter(n => n !== null && !NOTE_BLACKLIST[n[1]])
-    .map(n => ({ name: n[1], body: n[2] }));
+    .map(n => {
+      var name = n[1];
+      var body = n[2];
+      if (name !== 'alias') {
+        body = parseMarkdown(body);
+      }
+      return { name, body };
+    });
   var paragraphs =
     lines.filter(l => !COMMENT_NOTE_RX.test(l)).join('\n').split('\n\n');
-  var synopsis = paragraphs.shift();
+  var synopsis = parseMarkdown(paragraphs.shift());
   var description = paragraphs.join('\n\n');
 
   var comment = { synopsis };
@@ -413,10 +421,47 @@ function parseComment(node) {
     comment.notes = notes;
   }
   if (description) {
-    comment.description = description;
+    comment.description = parseMarkdown(description);
   }
 
   return comment;
+}
+
+var Prism = require('./prism');
+
+marked.setOptions({
+  highlight: function (code) {
+    return Prism.highlight(code, Prism.languages.javascript);
+    // return require('prismjs').highlightAuto(code).value;
+  }
+});
+
+var renderer = new marked.Renderer();
+
+renderer.code = function(code, lang, escaped) {
+  if (this.options.highlight) {
+    var out = this.options.highlight(code, lang);
+    if (out != null && out !== code) {
+      escaped = true;
+      code = out;
+    }
+  }
+  return '<code class="codeBlock">' +
+    (escaped ? code : escapeCode(code, true)) +
+  '</code>';
+};
+
+function escapeCode(code) {
+  return code
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function parseMarkdown(content) {
+  return content ? marked(content, { renderer }) : content;
 }
 
 function shouldIgnore(comment) {

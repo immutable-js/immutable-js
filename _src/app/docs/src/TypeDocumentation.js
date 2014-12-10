@@ -6,6 +6,7 @@ var MemberDoc = require('./MemberDoc');
 var collectMemberGroups = require('./collectMemberGroups');
 var isMobile = require('./isMobile');
 var SideBar = require('./SideBar');
+var MarkDown = require('./MarkDown');
 
 
 var TypeDocumentation = React.createClass({
@@ -80,10 +81,7 @@ var FunctionDoc = React.createClass({
         <h1 className="typeHeader">
           {name + '()'}
         </h1>
-        {doc.synopsis && <div className="synopsis">{doc.synopsis}</div>}
-        <h4 className="infoHeader">
-          {'Definition' + (def.signatures && def.signatures.length !== 1 ? 's' : '')}
-        </h4>
+        {doc.synopsis && <MarkDown className="synopsis" contents={doc.synopsis} />}
         <code className="codeBlock memberSignature">
           {def.signatures.map((callSig, i) =>
             [<CallSigDef name={name} callSig={callSig} />, '\n']
@@ -106,7 +104,7 @@ var FunctionDoc = React.createClass({
             <h4 className="infoHeader">
               Discussion
             </h4>
-            {doc.description}
+            <MarkDown className="discussion" contents={doc.description} />
           </section>
         }
       </div>
@@ -138,8 +136,8 @@ var TypeDoc = React.createClass({
         </h1>
 
         {doc && <section className="doc">
-          <p>{doc.synopsis}</p>
-          {doc.description && <p>{doc.description}</p>}
+          <MarkDown contents={doc.synopsis} />
+          {doc.description && <MarkDown contents={doc.description} />}
           {doc.notes && <p>{doc.notes}</p>}
         </section>}
 
