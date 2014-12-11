@@ -19,8 +19,8 @@ import "Iterator"
 import "Operations"
 /* global is, fromJS, isIterable, Iterable, KeyedIterable, KeyedCollection,
           invariant,
-          DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, MAKE, OwnerID,
-          MakeRef, SetRef, arrCopy, hash, sortFactory, OrderedMap,
+          DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, MAKE, makeEmpty,
+          OwnerID, MakeRef, SetRef, arrCopy, hash, sortFactory, OrderedMap,
           Iterator, getIterator, iteratorValue, iteratorDone */
 /* exported Map, isMap, MapPrototype */
 
@@ -31,9 +31,9 @@ class Map extends KeyedCollection {
   constructor(value) {
     if (!(this instanceof Map)) return new Map(value);
     if (value === MAKE) return this;
-    return value === null || value === undefined ? emptyMap(this) :
+    return value === null || value === undefined ? this.__empty() :
       isMap(value) ? (value.constructor === this.constructor ? value : this.merge(value)) :
-      emptyMap(this).withMutations(map => {
+      this.__empty().withMutations(map => {
         KeyedIterable(value).forEach((v, k) => map.set(k, v));
       });
   }
@@ -99,7 +99,7 @@ class Map extends KeyedCollection {
       this.__altered = true;
       return this;
     }
-    return emptyMap(this);
+    return this.__empty();
   }
 
   // @pragma Composition
@@ -113,7 +113,7 @@ class Map extends KeyedCollection {
   }
 
   mergeIn(keyPath, ...iters) {
-    return this.updateIn(keyPath, emptyMap(this), m => m.merge.apply(m, iters));
+    return this.updateIn(keyPath, this.__empty(), m => m.merge.apply(m, iters));
   }
 
   mergeDeep(/*...iters*/) {
@@ -125,7 +125,7 @@ class Map extends KeyedCollection {
   }
 
   mergeDeepIn(keyPath, ...iters) {
-    return this.updateIn(keyPath, emptyMap(this), m => m.mergeDeep.apply(m, iters));
+    return this.updateIn(keyPath, this.__empty(), m => m.mergeDeep.apply(m, iters));
   }
 
   sort(comparator) {
@@ -180,8 +180,23 @@ class Map extends KeyedCollection {
       this.__altered = false;
       return this;
     }
-    return makeMap(this.constructor, this.size, this._root, ownerID, this.__hash);
+    return this.__make(this.size, this._root, ownerID, this.__hash);
   }
+
+  __empty() {
+    return makeEmpty(this, 0)
+  }
+
+  __make(size, root, ownerID, hash) {
+    var map = new this.constructor(MAKE);
+    map.size = size;
+    map._root = root;
+    map.__ownerID = ownerID;
+    map.__hash = hash;
+    map.__altered = false;
+    return map;
+  }
+
 }
 
 function isMap(maybeMap) {
@@ -590,24 +605,6 @@ function mapIteratorFrame(node, prev) {
   };
 }
 
-function makeMap(Ctor, size, root, ownerID, hash) {
-  var map = new Ctor(MAKE);
-  map.size = size;
-  map._root = root;
-  map.__ownerID = ownerID;
-  map.__hash = hash;
-  map.__altered = false;
-  return map;
-}
-
-var EMPTY_MAP;
-function emptyMap(from) {
-  var source = from && from.constructor || Map;
-  return source.prototype === MapPrototype ? 
-    (EMPTY_MAP || (EMPTY_MAP = makeMap(Map, 0))) : 
-    makeMap(source, 0)
-}
-
 function updateMap(map, k, v) {
   var newRoot;
   var newSize;
@@ -633,7 +630,7 @@ function updateMap(map, k, v) {
     map.__altered = true;
     return map;
   }
-  return newRoot ? makeMap(map.constructor, newSize, newRoot) : emptyMap(map);
+  return newRoot ? map.__make(newSize, newRoot) : map.__empty();
 }
 
 function updateNode(node, ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
@@ -770,7 +767,7 @@ function updateInDeepMap(existing, keyPathIter, notSetValue, updater) {
   );
   return nextUpdated === nextExisting ? existing :
     nextUpdated === NOT_SET ? existing.remove(key) :
-    (isNotSet ? emptyMap() : existing).set(key, nextUpdated);
+    (isNotSet ? new Map() : existing).set(key, nextUpdated);
 }
 
 function popCount(x) {

@@ -13,7 +13,7 @@ import "Map"
 import "TrieUtils"
 import "Operations"
 /* global SetIterable, KeyedIterable, SetCollection, MapPrototype,
-          emptyMap, DELETE, MAKE, sortFactory, OrderedSet */
+          DELETE, MAKE, makeEmpty, sortFactory, OrderedSet */
 /* exported Set, isSet */
 
 
@@ -24,9 +24,9 @@ class Set extends SetCollection {
   constructor(value) {
     if (!(this instanceof Set)) return new Set(value);
     if (value === MAKE) return this;
-    return value === null || value === undefined ? emptySet(this) :
+    return value === null || value === undefined ? this.__empty() :
       isSet(value) ? (value.constructor === this.constructor ? value : this.merge(value)) :
-      emptySet(this).withMutations(set => {
+      this.__empty().withMutations(set => {
         SetIterable(value).forEach(v => set.add(v));
       });
   }
@@ -150,8 +150,25 @@ class Set extends SetCollection {
       this._map = newMap;
       return this;
     }
-    return this.__make(this.constructor, newMap, ownerID);
+    return this.__make(newMap, ownerID);
   }
+
+  __make(map, ownerID) {
+    var set = new this.constructor(MAKE);
+    set.size = map ? map.size : 0;
+    set._map = map;
+    set.__ownerID = ownerID;
+    return set;
+  }
+
+  __empty(from) {
+    return makeEmpty(this, this.__emptyMap());
+  }
+
+  __emptyMap() {
+    return new Map();
+  }
+
 }
 
 function isSet(maybeSet) {
@@ -171,9 +188,6 @@ SetPrototype.withMutations = MapPrototype.withMutations;
 SetPrototype.asMutable = MapPrototype.asMutable;
 SetPrototype.asImmutable = MapPrototype.asImmutable;
 
-SetPrototype.__empty = emptySet;
-SetPrototype.__make = makeSet;
-
 function updateSet(set, newMap) {
   if (set.__ownerID) {
     set.size = newMap.size;
@@ -182,21 +196,5 @@ function updateSet(set, newMap) {
   }
   return newMap === set._map ? set :
     newMap.size === 0 ? set.__empty(set) :
-    set.__make(set.constructor, newMap);
-}
-
-function makeSet(Ctor, map, ownerID) {
-  var set = new Ctor(MAKE);
-  set.size = map ? map.size : 0;
-  set._map = map;
-  set.__ownerID = ownerID;
-  return set;
-}
-
-var EMPTY_SET;
-function emptySet(from) {
-  var source = from && from.constructor || Set;
-  return source.prototype === SetPrototype ?
-    (EMPTY_SET || (EMPTY_SET = makeSet(source, emptyMap()))) :
-    makeSet(source, emptyMap());
+    set.__make(newMap);
 }
