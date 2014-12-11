@@ -49,11 +49,11 @@ class OrderedSet extends Set {
     return set;
   }
 
-  __empty(from) {
-    return makeEmpty(this, this.__emptyOrderedMap());
+  __empty() {
+    return makeEmpty(this, this.__emptyMap());
   }
 
-  __emptyOrderedMap() {
+  __emptyMap() {
     return new OrderedMap();
   }
 

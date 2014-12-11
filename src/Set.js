@@ -161,7 +161,7 @@ class Set extends SetCollection {
     return set;
   }
 
-  __empty(from) {
+  __empty() {
     return makeEmpty(this, this.__emptyMap());
   }
 

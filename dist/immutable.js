@@ -1868,7 +1868,7 @@ function mergeIntoCollectionWith(collection, merger, iters) {
     }
   }));
 }
-function updateInDeepMap(existing, keyPathIter, notSetValue, updater) {
+function updateInDeepMap(existing, keyPathIter, notSetValue, updater, newMap) {
   var isNotSet = existing === NOT_SET;
   var step = keyPathIter.next();
   if (step.done) {
@@ -1879,8 +1879,11 @@ function updateInDeepMap(existing, keyPathIter, notSetValue, updater) {
   invariant(isNotSet || (existing && existing.set), 'invalid keyPath');
   var key = step.value;
   var nextExisting = isNotSet ? NOT_SET : existing.get(key, NOT_SET);
-  var nextUpdated = updateInDeepMap(nextExisting, keyPathIter, notSetValue, updater);
-  return nextUpdated === nextExisting ? existing : nextUpdated === NOT_SET ? existing.remove(key) : (isNotSet ? new Map() : existing).set(key, nextUpdated);
+  if (nextExisting === NOT_SET) {
+    newMap = isNotSet ? newMap.__emptyMap ? newMap.__emptyMap() : new Map() : existing.__emptyMap ? existing.__emptyMap() : new Map();
+  }
+  var nextUpdated = updateInDeepMap(nextExisting, keyPathIter, notSetValue, updater, newMap);
+  return nextUpdated === nextExisting ? existing : nextUpdated === NOT_SET ? existing.remove(key) : (isNotSet ? newMap : existing).set(key, nextUpdated);
 }
 function popCount(x) {
   x = x - ((x >> 1) & 0x55555555);
@@ -3577,7 +3580,7 @@ var $Set = Set;
     set.__ownerID = ownerID;
     return set;
   },
-  __empty: function(from) {
+  __empty: function() {
     return makeEmpty(this, this.__emptyMap());
   },
   __emptyMap: function() {
@@ -3635,10 +3638,10 @@ var $OrderedSet = OrderedSet;
     set.__ownerID = ownerID;
     return set;
   },
-  __empty: function(from) {
-    return makeEmpty(this, this.__emptyOrderedMap());
+  __empty: function() {
+    return makeEmpty(this, this.__emptyMap());
   },
-  __emptyOrderedMap: function() {
+  __emptyMap: function() {
     return new OrderedMap();
   }
 }, {

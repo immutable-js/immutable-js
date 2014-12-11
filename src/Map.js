@@ -745,7 +745,7 @@ function mergeIntoCollectionWith(collection, merger, iters) {
   });
 }
 
-function updateInDeepMap(existing, keyPathIter, notSetValue, updater) {
+function updateInDeepMap(existing, keyPathIter, notSetValue, updater, newMap) {
   var isNotSet = existing === NOT_SET;
   var step = keyPathIter.next();
   if (step.done) {
@@ -759,15 +759,20 @@ function updateInDeepMap(existing, keyPathIter, notSetValue, updater) {
   );
   var key = step.value;
   var nextExisting = isNotSet ? NOT_SET : existing.get(key, NOT_SET);
+  if (nextExisting === NOT_SET) {
+    newMap = isNotSet ? newMap.__emptyMap ? newMap.__emptyMap() : new Map() 
+      : existing.__emptyMap ? existing.__emptyMap() : new Map();
+  }
   var nextUpdated = updateInDeepMap(
     nextExisting,
     keyPathIter,
     notSetValue,
-    updater
+    updater,
+    newMap
   );
   return nextUpdated === nextExisting ? existing :
     nextUpdated === NOT_SET ? existing.remove(key) :
-    (isNotSet ? new Map() : existing).set(key, nextUpdated);
+    (isNotSet ? newMap : existing).set(key, nextUpdated);
 }
 
 function popCount(x) {
