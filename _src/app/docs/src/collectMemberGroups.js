@@ -29,11 +29,8 @@ function collectMemberGroups(interfaceDef, options) {
   function collectFromDef(def, name) {
 
     def.groups && def.groups.forEach(g => {
-      Seq(g.properties).forEach((propDef, propName) => {
-        collectMember(g.title || '', propName, propDef);
-      });
-      Seq(g.methods).forEach((methodDef, memberName) => {
-        collectMember(g.title || '', memberName, methodDef);
+      Seq(g.members).forEach((memberDef, memberName) => {
+        collectMember(g.title || '', memberName, memberDef);
       });
     });
 

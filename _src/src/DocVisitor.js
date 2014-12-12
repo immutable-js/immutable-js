@@ -1,8 +1,6 @@
 var TypeScript = require('./typescript-services');
 var TypeKind = require('./TypeKind');
-var prism = require('./prism');
 var { Seq } = require('immutable');
-var marked = require('marked');
 
 
 class DocVisitor extends TypeScript.SyntaxWalker {
@@ -90,14 +88,14 @@ class DocVisitor extends TypeScript.SyntaxWalker {
     if (!shouldIgnore(comment) && !this.isAliased(name)) {
       this.addAliases(comment, name);
 
-      var callSignature = this.parseCallSignature(node.callSignature);
-      callSignature.line = this.getLineNum(node);
-      pushIn(this.data, [name, 'call', 'signatures'], callSignature);
-
       var comment = this.getDoc(node);
       if (comment) {
         setIn(this.data, [name, 'call', 'doc'], comment);
       }
+
+      var callSignature = this.parseCallSignature(node.callSignature);
+      callSignature.line = this.getLineNum(node);
+      pushIn(this.data, [name, 'call', 'signatures'], callSignature);
     }
     super.visitFunctionDeclaration(node);
   }
@@ -191,12 +189,12 @@ class DocVisitor extends TypeScript.SyntaxWalker {
         // name: name // redundant
       };
 
-      setIn(last(this.data.groups), ['properties', '#'+name], propertyObj);
-
       var comment = this.getDoc(node);
       if (comment) {
-        setIn(last(this.data.groups), ['properties', '#'+name, 'doc'], comment);
+        setIn(last(this.data.groups), ['members', '#'+name, 'doc'], comment);
       }
+
+      setIn(last(this.data.groups), ['members', '#'+name], propertyObj);
 
       if (node.questionToken) {
         throw new Error('NYI: questionToken');
@@ -217,14 +215,14 @@ class DocVisitor extends TypeScript.SyntaxWalker {
 
       this.ensureGroup(node);
 
-      var callSignature = this.parseCallSignature(node.callSignature);
-      callSignature.line = this.getLineNum(node);
-      pushIn(last(this.data.groups), ['methods', '#'+name, 'signatures'], callSignature);
-
       var comment = this.getDoc(node);
       if (comment) {
-        setIn(last(this.data.groups), ['methods', '#'+name, 'doc'], comment);
+        setIn(last(this.data.groups), ['members', '#'+name, 'doc'], comment);
       }
+
+      var callSignature = this.parseCallSignature(node.callSignature);
+      callSignature.line = this.getLineNum(node);
+      pushIn(last(this.data.groups), ['members', '#'+name, 'signatures'], callSignature);
 
       if (node.questionToken) {
         throw new Error('NYI: questionToken');
@@ -404,17 +402,10 @@ function parseComment(node) {
   var notes = lines
     .map(l => l.match(COMMENT_NOTE_RX))
     .filter(n => n !== null && !NOTE_BLACKLIST[n[1]])
-    .map(n => {
-      var name = n[1];
-      var body = n[2];
-      if (name !== 'alias') {
-        body = parseMarkdown(body);
-      }
-      return { name, body };
-    });
+    .map(n => ({ name: n[1], body: n[2] }));
   var paragraphs =
     lines.filter(l => !COMMENT_NOTE_RX.test(l)).join('\n').split('\n\n');
-  var synopsis = parseMarkdown(paragraphs.shift());
+  var synopsis = paragraphs.shift();
   var description = paragraphs.join('\n\n');
 
   var comment = { synopsis };
@@ -422,51 +413,12 @@ function parseComment(node) {
     comment.notes = notes;
   }
   if (description) {
-    comment.description = parseMarkdown(description);
+    comment.description = description;
   }
 
   return comment;
 }
 
-// functions come before keywords
-prism.languages.insertBefore('javascript', 'keyword', {
-  'block-keyword': /\b(if|else|while|for|function)\b/g,
-  'function': prism.languages.function
-});
-
-marked.setOptions({
-  highlight: function (code) {
-    return prism.highlight(code, prism.languages.javascript);
-  }
-});
-
-var renderer = new marked.Renderer();
-
-renderer.code = function(code, lang, escaped) {
-  if (this.options.highlight) {
-    var out = this.options.highlight(code, lang);
-    if (out != null && out !== code) {
-      escaped = true;
-      code = out;
-    }
-  }
-  return '<code class="codeBlock">' +
-    (escaped ? code : escapeCode(code, true)) +
-  '</code>';
-};
-
-function escapeCode(code) {
-  return code
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function parseMarkdown(content) {
-  return content ? marked(content, { renderer }) : content;
-}
 
 function shouldIgnore(comment) {
   return !!(comment && Seq(comment.notes).find(
