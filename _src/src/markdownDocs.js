@@ -2,24 +2,28 @@ var { Seq } = require('immutable');
 var marked = require('marked');
 var prism = require('./prism');
 
+function markdownDocs(defs) {
+  markdownTypes(defs, []);
 
-function markdownDocs(typeDefs, namePath) {
-  namePath = namePath || [];
-  Seq(typeDefs).forEach((typeDef, typeName) => {
-    var typeNamePath = namePath.concat(typeName);
-    console.log(typeNamePath);
-    markdownDoc(typeDef.doc, { typeNamePath });
-    typeDef.call && markdownDoc(typeDef.call.doc);
-    if (typeDef.interface) {
-      markdownDoc(typeDef.interface.doc, { typeNamePath });
-      Seq(typeDef.interface.groups).forEach(group =>
-        Seq(group.members).forEach((member, memberName) =>
-          markdownDoc(member.doc, { typeNamePath })
-        )
-      );
-    }
-    typeDef.module && markdownDocs(typeDef.module, typeNamePath);
-  });
+  function markdownTypes(typeDefs, path) {
+    Seq(typeDefs).forEach((typeDef, typeName) => {
+      var typePath = path.concat(typeName);
+      markdownDoc(typeDef.doc, { defs, typePath });
+      typeDef.call && markdownDoc(typeDef.call.doc, { defs, typePath });
+      if (typeDef.interface) {
+        markdownDoc(typeDef.interface.doc, { defs, typePath });
+        Seq(typeDef.interface.groups).forEach(group =>
+          Seq(group.members).forEach((member, memberName) =>
+            markdownDoc(
+              member.doc,
+              { defs, typePath: typePath.concat(memberName.slice(1)) }
+            )
+          )
+        );
+      }
+      typeDef.module && markdownTypes(typeDef.module, typePath);
+    });
+  }
 }
 
 function markdownDoc(doc, context) {
@@ -62,7 +66,8 @@ renderer.code = function(code, lang, escaped) {
 };
 
 var METHOD_RX = /^(\w+)[#.](\w+)$/;
-var MDN_BASE_URL = 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/';
+var MDN_BASE_URL =
+  'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/';
 
 renderer.codespan = function(text) {
   var method = METHOD_RX.exec(text);
