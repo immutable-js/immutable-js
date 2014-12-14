@@ -108,7 +108,16 @@ describe('updateIn', () => {
     expect(m2).toBe(m);
   })
 
-  it('does not perform edit when notSetValue is what you return from updater', () => {
+  it('does perform edit at non-existent path when new value the same as notSetValue', () => {
+    var m = I.fromJS({});
+    var spiedOnID;
+    var m2 = m.updateIn(['a', 'b', 'c'], true, id => (spiedOnID = id));
+    expect(m2).not.toBe(m);
+    expect(m2.toJS()).toEqual({a: {b: {c: true}}});
+    expect(spiedOnID).toBe(true);
+  })
+
+  it('does not perform edit when notSetValue is what you return from updater and notSetValue is an iterable', () => {
     var m = I.Map();
     var spiedOnID;
     var m2 = m.updateIn(['a', 'b', 'c'], I.Set(), id => (spiedOnID = id));
@@ -120,7 +129,8 @@ describe('updateIn', () => {
     var m = I.Map();
     var spiedOnID;
     var m2 = m.updateIn(['a', 'b', 'c'], id => (spiedOnID = id));
-    expect(m2).toBe(m);
+    expect(m2).not.toBe(m);
+    expect(m2.toJS()).toEqual({a: {b: {c: undefined}}});
     expect(spiedOnID).toBe(undefined);
   })
 
