@@ -365,13 +365,16 @@ class ListIterator extends Iterator {
           }
           return iteratorValue(type, index, value);
         } else {
-          this._stack = stack = listIteratorFrame(
-            value && value.array,
-            stack.level - SHIFT,
-            stack.offset + (rawIndex << stack.level),
-            stack.max,
-            stack
-          );
+          var newOffset = stack.offset + (rawIndex << stack.level);
+          if (newOffset + (1 << stack.level) > 0) {
+            this._stack = stack = listIteratorFrame(
+              value && value.array,
+              stack.level - SHIFT,
+              newOffset,
+              stack.max,
+              stack
+            );
+          }
         }
         continue;
       }
@@ -388,7 +391,7 @@ function listIteratorFrame(array, level, offset, max, prevFrame) {
     offset: offset,
     max: max,
     rawMax: ((max - offset) >> level),
-    index: 0,
+    index: level === 0 && offset < 0 ? -offset : 0,
     __prev: prevFrame
   };
 }

@@ -494,11 +494,18 @@ describe('List', () => {
     expect(v2.butLast().size).toBe(1799);
   });
 
-  check.it('iterates through all values', [gen.posInt], len => {
-    var v = Immutable.Range(0, len).toList();
+  var pInt = gen.posInt;
+
+  check.it('Iterators iterate through List', [pInt, pInt], (start, len) => {
+    var v = Immutable.Range(0, start + len).toList().slice(start, start + len);
+    expect(v.size).toBe(len);
     var valueIter = v.values();
+    var keyIter = v.keys();
+    var entryIter = v.entries();
     for (var ii = 0; ii < len; ii++) {
-      expect(valueIter.next().value).toBe(ii);
+      expect(valueIter.next().value).toBe(start + ii);
+      expect(keyIter.next().value).toBe(ii);
+      expect(entryIter.next().value).toEqual([ii, start + ii]);
     }
   });
 
