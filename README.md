@@ -353,6 +353,12 @@ Use [Github issues](https://github.com/facebook/immutable-js/issues) for request
 We actively welcome pull requests, learn how to [contribute](./CONTRIBUTING.md).
 
 
+Changelog
+---------
+
+Changes are tracked as [Github releases](https://github.com/facebook/immutable-js/releases).
+
+
 Thanks
 ------
 
