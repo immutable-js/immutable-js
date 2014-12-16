@@ -58,7 +58,7 @@ declare module 'immutable' {
 
 
   /**
-   * Vaule equality check with semantics similar to Object.is(), but treats
+   * Value equality check with semantics similar to Object.is(), but treats
    * Immutable collections and sequences as values, equal if the second
    * Immutable iterable contains equivalent values. It's used throughout when
    * checking for equality.
@@ -160,7 +160,7 @@ declare module 'immutable' {
      * Returns a new List with a size ones less than this List, excluding
      * the last index in this List.
      *
-     * Note: this differs from `Array.prototype.pop` because it returns a new
+     * Note: this differs from `Array#pop` because it returns a new
      * List rather than the removed value. Use `last()` to get the last value
      * in this List.
      */
@@ -176,7 +176,7 @@ declare module 'immutable' {
      * Returns a new List with a size ones less than this List, excluding
      * the first index in this List, shifting all other values to a lower index.
      *
-     * Note: this differs from `Array.prototype.shift` because it returns a new
+     * Note: this differs from `Array#shift` because it returns a new
      * List rather than the removed value. Use `first()` to get the first
      * value in this List.
      */
@@ -191,20 +191,20 @@ declare module 'immutable' {
      * `index` may be a negative number, which indexes back from the end of the
      * List. `v.update(-1)` updates the last item in the List.
      *
-     * @see Map.update
+     * @see `Map#update`
      */
     update(updater: (value: List<T>) => List<T>): List<T>;
     update(index: number, updater: (value: T) => T): List<T>;
     update(index: number, notSetValue: T, updater: (value: T) => T): List<T>;
 
     /**
-     * @see `Map.prototype.merge`
+     * @see `Map#merge`
      */
     merge(...iterables: IndexedIterable<T>[]): List<T>;
     merge(...iterables: Array<T>[]): List<T>;
 
     /**
-     * @see `Map.prototype.mergeWith`
+     * @see `Map#mergeWith`
      */
     mergeWith(
       merger: (previous?: T, next?: T) => T,
@@ -216,13 +216,13 @@ declare module 'immutable' {
     ): List<T>;
 
     /**
-     * @see `Map.prototype.mergeDeep`
+     * @see `Map#mergeDeep`
      */
     mergeDeep(...iterables: IndexedIterable<T>[]): List<T>;
     mergeDeep(...iterables: Array<T>[]): List<T>;
 
     /**
-     * @see `Map.prototype.mergeDeepWith`
+     * @see `Map#mergeDeepWith`
      */
     mergeDeepWith(
       merger: (previous?: T, next?: T) => T,
@@ -267,7 +267,7 @@ declare module 'immutable' {
     removeIn(keyPath: Iterable<any, any>): List<T>;
 
     /**
-     * @see `Map.prototype.updateIn`
+     * @see `Map#updateIn`
      */
     updateIn(
       keyPath: Array<any>,
@@ -289,7 +289,7 @@ declare module 'immutable' {
     ): List<T>;
 
     /**
-     * @see `Map.prototype.mergeIn`
+     * @see `Map#mergeIn`
      */
     mergeIn(
       keyPath: Iterable<any, any>,
@@ -305,7 +305,7 @@ declare module 'immutable' {
     ): List<T>;
 
     /**
-     * @see `Map.prototype.mergeDeepIn`
+     * @see `Map#mergeDeepIn`
      */
     mergeDeepIn(
       keyPath: Iterable<any, any>,
@@ -324,17 +324,17 @@ declare module 'immutable' {
     // Transient changes
 
     /**
-     * @see `Map.prototype.withMutations`
+     * @see `Map#withMutations`
      */
     withMutations(mutator: (mutable: List<T>) => any): List<T>;
 
     /**
-     * @see `Map.prototype.asMutable`
+     * @see `Map#asMutable`
      */
     asMutable(): List<T>;
 
     /**
-     * @see `Map.prototype.asImmutable`
+     * @see `Map#asImmutable`
      */
     asImmutable(): List<T>;
   }
@@ -774,17 +774,17 @@ declare module 'immutable' {
     // Transient changes
 
     /**
-     * @see `Map.prototype.withMutations`
+     * @see `Map#withMutations`
      */
     withMutations(mutator: (mutable: Set<T>) => any): Set<T>;
 
     /**
-     * @see `Map.prototype.asMutable`
+     * @see `Map#asMutable`
      */
     asMutable(): Set<T>;
 
     /**
-     * @see `Map.prototype.asImmutable`
+     * @see `Map#asImmutable`
      */
     asImmutable(): Set<T>;
   }
@@ -911,7 +911,7 @@ declare module 'immutable' {
      * Returns a new Stack with a size ones less than this Stack, excluding
      * the first item in this Stack, shifting all other values to a lower index.
      *
-     * Note: this differs from `Array.prototype.shift` because it returns a new
+     * Note: this differs from `Array#shift` because it returns a new
      * Stack rather than the removed value. Use `first()` or `peek()` to get the
      * first value in this Stack.
      */
@@ -937,17 +937,17 @@ declare module 'immutable' {
     // Transient changes
 
     /**
-     * @see `Map.prototype.withMutations`
+     * @see `Map#withMutations`
      */
     withMutations(mutator: (mutable: Stack<T>) => any): Stack<T>;
 
     /**
-     * @see `Map.prototype.asMutable`
+     * @see `Map#asMutable`
      */
     asMutable(): Stack<T>;
 
     /**
-     * @see `Map.prototype.asImmutable`
+     * @see `Map#asImmutable`
      */
     asImmutable(): Stack<T>;
   }
@@ -1543,7 +1543,7 @@ declare module 'immutable' {
     /**
      * The `sideEffect` is executed for every entry in the Iterable.
      *
-     * Unlike `Array.prototype.forEach`, if any call of `sideEffect` returns
+     * Unlike `Array#forEach`, if any call of `sideEffect` returns
      * `false`, the iteration will stop. Returns the number of entries iterated
      * (including the last iteration which returned false).
      */
@@ -1578,7 +1578,7 @@ declare module 'immutable' {
      * If `initialReduction` is not provided, or is null, the first item in the
      * Iterable will be used.
      *
-     * @see `Array.prototype.reduce`.
+     * @see `Array#reduce`.
      */
     reduce<R>(
       reducer: (reduction?: R, value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => R,
