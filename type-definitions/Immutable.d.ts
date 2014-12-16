@@ -517,13 +517,23 @@ declare module 'immutable' {
 
     /**
      * Returns a new Map having applied the `updater` to the entry found at the
-     * keyPath. If any keys in `keyPath` do not exist, a new immutable Map will
-     * be created at that key. If the `keyPath` was not previously set,
-     * `updater` is called with `notSetValue` (if provided).
+     * keyPath.
+     *
+     * If any keys in `keyPath` do not exist, new Immutable `Map`s will
+     * be created at those keys. If the `keyPath` does not already contain a
+     * value, the `updater` function will be called with `notSetValue`, if
+     * provided, otherwise `undefined`.
      *
      *     var data = Immutable.fromJS({ a: { b: { c: 10 } } });
-     *     data.updateIn(['a', 'b'], map => map.set('d', 20));
-     *     // { a: { b: { c: 10, d: 20 } } }
+     *     data = data.updateIn(['a', 'b', 'c'], val => val * 2);
+     *     // { a: { b: { c: 20 } } }
+     *
+     * If the `updater` function returns the same value it was called with, then
+     * no change will occur. This is still true if `notSetValue` is provided.
+     *
+     *     var data1 = Immutable.fromJS({ a: { b: { c: 10 } } });
+     *     data2 = data1.updateIn(['x', 'y', 'z'], 100, val => val);
+     *     assert(data2 === data1);
      *
      */
     updateIn(
