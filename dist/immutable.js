@@ -3691,6 +3691,7 @@ var Record = function Record(defaultValues, name) {
 }, {}, KeyedCollection);
 var RecordPrototype = Record.prototype;
 RecordPrototype[DELETE] = RecordPrototype.remove;
+RecordPrototype.removeIn = MapPrototype.removeIn;
 RecordPrototype.merge = MapPrototype.merge;
 RecordPrototype.mergeWith = MapPrototype.mergeWith;
 RecordPrototype.mergeIn = MapPrototype.mergeIn;
