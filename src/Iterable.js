@@ -66,7 +66,6 @@ class Iterable {
 
   toMap() {
     // Use Late Binding here to solve the circular dependency.
-    assertNotInfinite(this.size);
     return Map(this.toKeyedSeq());
   }
 
@@ -79,19 +78,16 @@ class Iterable {
 
   toOrderedMap() {
     // Use Late Binding here to solve the circular dependency.
-    assertNotInfinite(this.size);
     return OrderedMap(this.toKeyedSeq());
   }
 
   toOrderedSet() {
     // Use Late Binding here to solve the circular dependency.
-    assertNotInfinite(this.size);
     return OrderedSet(isKeyed(this) ? this.valueSeq() : this);
   }
 
   toSet() {
     // Use Late Binding here to solve the circular dependency.
-    assertNotInfinite(this.size);
     return Set(isKeyed(this) ? this.valueSeq() : this);
   }
 
@@ -107,13 +103,11 @@ class Iterable {
 
   toStack() {
     // Use Late Binding here to solve the circular dependency.
-    assertNotInfinite(this.size);
     return Stack(isKeyed(this) ? this.valueSeq() : this);
   }
 
   toList() {
     // Use Late Binding here to solve the circular dependency.
-    assertNotInfinite(this.size);
     return List(isKeyed(this) ? this.valueSeq() : this);
   }
 
@@ -147,6 +141,7 @@ class Iterable {
   }
 
   every(predicate, context) {
+    assertNotInfinite(this.size);
     var returnValue = true;
     this.__iterate((v, k, c) => {
       if (!predicate.call(context, v, k, c)) {
@@ -173,10 +168,12 @@ class Iterable {
   }
 
   forEach(sideEffect, context) {
+    assertNotInfinite(this.size);
     return this.__iterate(context ? sideEffect.bind(context) : sideEffect);
   }
 
   join(separator) {
+    assertNotInfinite(this.size);
     separator = separator !== undefined ? '' + separator : ',';
     var joined = '';
     var isFirst = true;
@@ -196,6 +193,7 @@ class Iterable {
   }
 
   reduce(reducer, initialReduction, context) {
+    assertNotInfinite(this.size);
     var reduction;
     var useFirst;
     if (arguments.length < 2) {

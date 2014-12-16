@@ -13,13 +13,15 @@ import "Iterable"
 import "Collection"
 import "Map"
 import "Iterator"
+import "Operations"
 /* global fromJS,
           DELETE, SHIFT, SIZE, MASK, DID_ALTER, OwnerID, MakeRef,
           SetRef, wrapIndex, wholeSlice, resolveBegin, resolveEnd,
           isIterable, IndexedIterable,
           IndexedCollection,
           MapPrototype, mergeIntoCollectionWith, deepMerger,
-          Iterator, iteratorValue, iteratorDone */
+          Iterator, iteratorValue, iteratorDone,
+          assertNotInfinite */
 /* exported List, ListPrototype */
 
 
@@ -35,17 +37,18 @@ class List extends IndexedCollection {
     if (isList(value)) {
       return value;
     }
-    value = IndexedIterable(value);
-    var size = value.size;
+    var iter = IndexedIterable(value);
+    var size = iter.size;
     if (size === 0) {
       return empty;
     }
+    assertNotInfinite(size);
     if (size > 0 && size < SIZE) {
-      return makeList(0, size, SHIFT, null, new VNode(value.toArray()));
+      return makeList(0, size, SHIFT, null, new VNode(iter.toArray()));
     }
     return empty.withMutations(list => {
       list.setSize(size);
-      value.forEach((v, i) => list.set(i, v));
+      iter.forEach((v, i) => list.set(i, v));
     });
   }
 

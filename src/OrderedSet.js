@@ -10,8 +10,10 @@
 import "Iterable"
 import "Set"
 import "OrderedMap"
+import "Operations"
 /* global SetIterable, KeyedIterable, IS_ORDERED_SENTINEL, isOrdered,
-          Set, isSet, emptyOrderedMap */
+          Set, isSet, emptyOrderedMap,
+          assertNotInfinite */
 /* exported OrderedSet */
 
 
@@ -23,7 +25,9 @@ class OrderedSet extends Set {
     return value === null || value === undefined ? emptyOrderedSet() :
       isOrderedSet(value) ? value :
       emptyOrderedSet().withMutations(set => {
-        SetIterable(value).forEach(v => set.add(v));
+        var iter = SetIterable(value);
+        assertNotInfinite(iter.size);
+        iter.forEach(v => set.add(v));
       });
   }
 

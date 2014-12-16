@@ -21,7 +21,8 @@ import "Operations"
           invariant,
           DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
           MakeRef, SetRef, arrCopy, hash, sortFactory, OrderedMap,
-          Iterator, getIterator, iteratorValue, iteratorDone */
+          Iterator, getIterator, iteratorValue, iteratorDone,
+          assertNotInfinite */
 /* exported Map, isMap, MapPrototype */
 
 
@@ -33,7 +34,9 @@ class Map extends KeyedCollection {
     return value === null || value === undefined ? emptyMap() :
       isMap(value) ? value :
       emptyMap().withMutations(map => {
-        KeyedIterable(value).forEach((v, k) => map.set(k, v));
+        var iter = KeyedIterable(value);
+        assertNotInfinite(iter.size);
+        iter.forEach((v, k) => map.set(k, v));
       });
   }
 

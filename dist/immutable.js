@@ -317,7 +317,6 @@ var $Iterable = Iterable;
     return new ToKeyedSequence(this, true);
   },
   toMap: function() {
-    assertNotInfinite(this.size);
     return Map(this.toKeyedSeq());
   },
   toObject: function() {
@@ -329,15 +328,12 @@ var $Iterable = Iterable;
     return object;
   },
   toOrderedMap: function() {
-    assertNotInfinite(this.size);
     return OrderedMap(this.toKeyedSeq());
   },
   toOrderedSet: function() {
-    assertNotInfinite(this.size);
     return OrderedSet(isKeyed(this) ? this.valueSeq() : this);
   },
   toSet: function() {
-    assertNotInfinite(this.size);
     return Set(isKeyed(this) ? this.valueSeq() : this);
   },
   toSetSeq: function() {
@@ -347,11 +343,9 @@ var $Iterable = Iterable;
     return isIndexed(this) ? this.toIndexedSeq() : isKeyed(this) ? this.toKeyedSeq() : this.toSetSeq();
   },
   toStack: function() {
-    assertNotInfinite(this.size);
     return Stack(isKeyed(this) ? this.valueSeq() : this);
   },
   toList: function() {
-    assertNotInfinite(this.size);
     return List(isKeyed(this) ? this.valueSeq() : this);
   },
   toString: function() {
@@ -378,6 +372,7 @@ var $Iterable = Iterable;
     return this.__iterator(ITERATE_ENTRIES);
   },
   every: function(predicate, context) {
+    assertNotInfinite(this.size);
     var returnValue = true;
     this.__iterate((function(v, k, c) {
       if (!predicate.call(context, v, k, c)) {
@@ -401,9 +396,11 @@ var $Iterable = Iterable;
     return foundValue;
   },
   forEach: function(sideEffect, context) {
+    assertNotInfinite(this.size);
     return this.__iterate(context ? sideEffect.bind(context) : sideEffect);
   },
   join: function(separator) {
+    assertNotInfinite(this.size);
     separator = separator !== undefined ? '' + separator : ',';
     var joined = '';
     var isFirst = true;
@@ -420,6 +417,7 @@ var $Iterable = Iterable;
     return reify(this, mapFactory(this, mapper, context));
   },
   reduce: function(reducer, initialReduction, context) {
+    assertNotInfinite(this.size);
     var reduction;
     var useFirst;
     if (arguments.length < 2) {
@@ -1253,7 +1251,9 @@ Collection.Indexed = IndexedCollection;
 Collection.Set = SetCollection;
 var Map = function Map(value) {
   return value === null || value === undefined ? emptyMap() : isMap(value) ? value : emptyMap().withMutations((function(map) {
-    KeyedIterable(value).forEach((function(v, k) {
+    var iter = KeyedIterable(value);
+    assertNotInfinite(iter.size);
+    iter.forEach((function(v, k) {
       return map.set(k, v);
     }));
   }));
@@ -2597,17 +2597,18 @@ var List = function List(value) {
   if (isList(value)) {
     return value;
   }
-  value = IndexedIterable(value);
-  var size = value.size;
+  var iter = IndexedIterable(value);
+  var size = iter.size;
   if (size === 0) {
     return empty;
   }
+  assertNotInfinite(size);
   if (size > 0 && size < SIZE) {
-    return makeList(0, size, SHIFT, null, new VNode(value.toArray()));
+    return makeList(0, size, SHIFT, null, new VNode(iter.toArray()));
   }
   return empty.withMutations((function(list) {
     list.setSize(size);
-    value.forEach((function(v, i) {
+    iter.forEach((function(v, i) {
       return list.set(i, v);
     }));
   }));
@@ -3075,7 +3076,9 @@ function getTailOffset(size) {
 }
 var OrderedMap = function OrderedMap(value) {
   return value === null || value === undefined ? emptyOrderedMap() : isOrderedMap(value) ? value : emptyOrderedMap().withMutations((function(map) {
-    KeyedIterable(value).forEach((function(v, k) {
+    var iter = KeyedIterable(value);
+    assertNotInfinite(iter.size);
+    iter.forEach((function(v, k) {
       return map.set(k, v);
     }));
   }));
@@ -3244,6 +3247,7 @@ var $Stack = Stack;
     if (iter.size === 0) {
       return this;
     }
+    assertNotInfinite(iter.size);
     var newSize = this.size;
     var head = this._head;
     iter.reverse().forEach((function(value) {
@@ -3379,7 +3383,9 @@ function emptyStack() {
 }
 var Set = function Set(value) {
   return value === null || value === undefined ? emptySet() : isSet(value) ? value : emptySet().withMutations((function(set) {
-    SetIterable(value).forEach((function(v) {
+    var iter = SetIterable(value);
+    assertNotInfinite(iter.size);
+    iter.forEach((function(v) {
       return set.add(v);
     }));
   }));
@@ -3548,7 +3554,9 @@ function emptySet() {
 }
 var OrderedSet = function OrderedSet(value) {
   return value === null || value === undefined ? emptyOrderedSet() : isOrderedSet(value) ? value : emptyOrderedSet().withMutations((function(set) {
-    SetIterable(value).forEach((function(v) {
+    var iter = SetIterable(value);
+    assertNotInfinite(iter.size);
+    iter.forEach((function(v) {
       return set.add(v);
     }));
   }));

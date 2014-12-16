@@ -12,11 +12,13 @@ import "Iterable"
 import "Collection"
 import "Map"
 import "Iterator"
+import "Operations"
 /* global wholeSlice, resolveBegin, resolveEnd,
           IndexedIterable,
           IndexedCollection,
           MapPrototype,
-          Iterator, iteratorValue, iteratorDone */
+          Iterator, iteratorValue, iteratorDone,
+          assertNotInfinite */
 /* exported Stack */
 
 
@@ -81,6 +83,7 @@ class Stack extends IndexedCollection {
     if (iter.size === 0) {
       return this;
     }
+    assertNotInfinite(iter.size);
     var newSize = this.size;
     var head = this._head;
     iter.reverse().forEach(value => {
