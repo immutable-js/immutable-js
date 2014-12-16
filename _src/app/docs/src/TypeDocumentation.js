@@ -196,7 +196,7 @@ var TypeDoc = React.createClass({
 
         {functions.count() > 0 &&
           <section>
-            <h4 className="groupTitle">Static Methods</h4>
+            <h4 className="groupTitle">Static methods</h4>
             {functions.map((t, fnName) =>
               <MemberDoc
                 key={fnName}
