@@ -58,10 +58,12 @@ declare module 'immutable' {
 
 
   /**
-   * Value equality check with semantics similar to Object.is(), but treats
-   * Immutable collections and sequences as values, equal if the second
-   * Immutable iterable contains equivalent values. It's used throughout when
-   * checking for equality.
+   * Value equality check with semantics similar to `Object.is`, but treats
+   * Immutable `Iterable`s as values, equal if the second `Iterable` contains
+   * equivalent values.
+   *
+   * It's used throughout Immutable when checking for equality, including `Map`
+   * key equality and `Set` membership.
    *
    *     var map1 = Immutable.Map({a:1, b:1, c:1});
    *     var map2 = Immutable.Map({a:1, b:1, c:1});
@@ -69,6 +71,8 @@ declare module 'immutable' {
    *     assert(Object.is(map1, map2) === false);
    *     assert(Immutable.is(map1, map2) === true);
    *
+   * Note: Unlike `Object.is`, `Immutable.is` assumes `0` and `-0` are the same
+   * value, matching the behavior of ES6 Map key equality.
    */
   export function is(first: any, second: any): boolean;
 
@@ -989,7 +993,7 @@ declare module 'immutable' {
 
   /**
    * Returns a IndexedSeq of `value` repeated `times` times. When `times` is
-   * not defined, returns an infinite sequence of `value`.
+   * not defined, returns an infinite `Seq` of `value`.
    *
    *     Repeat('foo') // ['foo','foo','foo',...]
    *     Repeat('bar',4) // ['bar','bar','bar','bar']
@@ -1061,33 +1065,38 @@ declare module 'immutable' {
 
 
   /**
-   * **Sequences are immutable** — Once a sequence is created, it cannot be
+   * Represents a sequence of values, but may not be backed by a concrete data
+   * structure.
+   *
+   * **Seq is immutable** — Once a Seq is created, it cannot be
    * changed, appended to, rearranged or otherwise modified. Instead, any
-   * mutative method called on a sequence will return a new immutable sequence.
+   * mutative method called on a `Seq` will return a new `Seq`.
    *
-   * **Sequences are lazy** — Sequences do as little work as necessary to
-   * respond to any method call.
+   * **Seq is lazy** — Seq does as little work as necessary to respond to any
+   * method call. Values are often created during iteration, including implicit
+   * iteration when reducing or converting to a concrete data structure such as
+   * a `List` or JavaScript `Array`.
    *
-   * For example, the following does no work, because the resulting sequence is
-   * never used:
+   * For example, the following performs no work, because the resulting
+   * Seq's values are never iterated:
    *
    *     var oddSquares = Immutable.Seq.of(1,2,3,4,5,6,7,8)
    *       .filter(x => x % 2).map(x => x * x);
    *
-   * Once the sequence is used, it performs only the work necessary. In this
-   * example, no intermediate arrays are ever created, filter is only called
-   * three times, and map is only called twice:
+   * Once the Seq is used, it performs only the work necessary. In this
+   * example, no intermediate data structures are ever created, filter is only
+   * called three times, and map is only called twice:
    *
    *     console.log(evenSquares.get(1)); // 9
    *
-   * Lazy Sequences allow for the efficient chaining of sequence operations,
+   * Seq allows for the efficient chaining of operations,
    * allowing for the expression of logic that can otherwise be very tedious:
    *
    *     Immutable.Seq({a:1, b:1, c:1})
    *       .flip().map(key => key.toUpperCase()).flip().toObject();
    *     // Map { A: 1, B: 1, C: 1 }
    *
-   * As well as expressing logic that would otherwise seem memory-limited:
+   * As well as expressing logic that would otherwise be memory or time limited:
    *
    *     Immutable.Range(1, Infinity)
    *       .skip(1000)
@@ -1097,6 +1106,10 @@ declare module 'immutable' {
    *       .reduce((r, n) => r * n, 1);
    *     // 1006008
    *
+   * Seq is often used to provide a rich collection API to JavaScript Object.
+   *
+   *    Immutable.Seq({ x: 0, y: 1, z: 2 }).map(v => v * 2).toObject();
+   *    // { x: 0, y: 2, z: 4 }
    */
 
   export module Seq {
@@ -1152,25 +1165,31 @@ declare module 'immutable' {
 
     /**
      * Because Sequences are lazy and designed to be chained together, they do
-     * not cache their results. For example, this map function is called 6 times:
+     * not cache their results. For example, this map function is called a total
+     * of 6 times, as each `join` iterates the Seq of three values.
      *
      *     var squares = Seq.of(1,2,3).map(x => x * x);
      *     squares.join() + squares.join();
      *
-     * If you know a derived sequence will be used multiple times, it may be more
-     * efficient to first cache it. Here, map is called 3 times:
+     * If you know a `Seq` will be used multiple times, it may be more
+     * efficient to first cache it in memory. Here, the map function is called
+     * only 3 times.
      *
      *     var squares = Seq.of(1,2,3).map(x => x * x).cacheResult();
      *     squares.join() + squares.join();
      *
-     * Use this method judiciously, as it must fully evaluate a Seq.
+     * Use this method judiciously, as it must fully evaluate a Seq which can be
+     * a burden on memory and possibly performance.
      *
-     * Note: after calling `cacheResult()`, a Seq will always have a size.
+     * Note: after calling `cacheResult`, a Seq will always have a `size`.
      */
     cacheResult(): /*this*/Seq<K, V>;
   }
 
 
+  /**
+   * A `Seq` which represents key-value pairs.
+   */
   export module KeyedSeq {}
 
   /**
@@ -1194,6 +1213,9 @@ declare module 'immutable' {
   }
 
 
+  /**
+   * A `Seq` which represents an ordered indexed list of values.
+   */
   export module IndexedSeq {
 
     /**
@@ -1222,6 +1244,12 @@ declare module 'immutable' {
     toSeq(): /*this*/IndexedSeq<T>
   }
 
+  /**
+   * A `Seq` which represents a set of values.
+   *
+   * Because `Seq` are often lazy, `SetSeq` does not provide the same guarantee
+   * of value uniqueness as the concrete `Set`.
+   */
   export module SetSeq {
 
     /**
@@ -2194,8 +2222,13 @@ declare module 'immutable' {
 
 
   /**
-   * Collections are concrete data structures.
+   * Collection is the base class for concrete data structures.
+   *
+   * Implementations should extend one of the subclasses, `KeyedCollection`,
+   * `IndexedCollection`, or `SetCollection`.
    */
+  export module Collection {}
+
   export interface Collection<K, V> extends Iterable<K, V> {
 
     /**
@@ -2206,8 +2239,10 @@ declare module 'immutable' {
 
 
   /**
-   * Collections which represent key value pairs.
+   * `Collection` which represents key-value pairs.
    */
+  export module KeyedCollection {}
+
   export interface KeyedCollection<K, V> extends Collection<K, V>, KeyedIterable<K, V> {
 
     /**
@@ -2219,8 +2254,10 @@ declare module 'immutable' {
 
 
   /**
-   * Collections which represent ordered indexed values.
+   * `Collection` which represents ordered indexed values.
    */
+  export module IndexedCollection {}
+
   export interface IndexedCollection<T> extends Collection<number, T>, IndexedIterable<T> {
 
     /**
@@ -2232,8 +2269,12 @@ declare module 'immutable' {
 
 
   /**
-   * Collections which represent only values, unassociated with keys or indices.
+   * `Collection` which represents values, unassociated with keys or indices.
+   *
+   * `SetCollection` implementations should guarantee value uniqueness.
    */
+  export module SetCollection {}
+
   export interface SetCollection<T> extends Collection<T, T>, SetIterable<T> {
 
     /**
@@ -2248,7 +2289,7 @@ declare module 'immutable' {
    * ES6 Iterator.
    *
    * This is not part of the Immutable library, but a common interface used by
-   * many types in ES6 JavaScript
+   * many types in ES6 JavaScript.
    *
    * @ignore
    */
