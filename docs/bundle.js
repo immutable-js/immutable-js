@@ -386,7 +386,7 @@ var DocHeader = React.createClass({displayName: 'DocHeader',
       React.createElement("div", {className: "header"}, 
         React.createElement("div", {className: "miniHeader"}, 
           React.createElement("div", {className: "miniHeaderContents"}, 
-            React.createElement("a", {href: "../", target: "_self", className: "logo"}, 
+            React.createElement("a", {href: "../", target: "_self", className: "miniLogo"}, 
               React.createElement(SVGSet, null, 
                 React.createElement(Logo, {color: "#FC4349"}), 
                 React.createElement(Logo, {color: "#2C3E50", inline: true})

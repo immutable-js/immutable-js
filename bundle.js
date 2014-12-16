@@ -420,23 +420,29 @@ var Header = React.createClass({displayName: 'Header',
     var s = neg ? 0 : this.state.scroll;
     var sp = fixed ? 35 : 70;
 
-    var miniHeaderContents =
-      React.createElement("div", {className: "miniHeaderContents"}, 
-        /*<a href="docs/" target="_self">Documentation</a>*/
-        React.createElement("a", {href: "https://github.com/facebook/immutable-js/blob/master/type-definitions/Immutable.d.ts"}, "Documentation"), 
-        React.createElement("a", {href: "https://github.com/facebook/immutable-js/issues/"}, "Support"), 
-        React.createElement("a", {href: "https://github.com/facebook/immutable-js/"}, "Github")
-      );
-
     return (
       React.createElement("div", {className: "header"}, 
         React.createElement("div", {className: "miniHeader"}, 
-          miniHeaderContents
+          React.createElement("div", {className: "miniHeaderContents"}, 
+            React.createElement("a", {href: "./", target: "_self", className: "miniLogo"}, 
+              React.createElement(SVGSet, null, 
+                React.createElement(Logo, {color: "#FC4349"}), 
+                React.createElement(Logo, {color: "#2C3E50", inline: true})
+              )
+            ), 
+            React.createElement("a", {href: "docs/", target: "_self"}, "Documentation"), 
+            React.createElement("a", {href: "https://github.com/facebook/immutable-js/issues/"}, "Support"), 
+            React.createElement("a", {href: "https://github.com/facebook/immutable-js/"}, "Github")
+          )
         ), 
         React.createElement("div", {className: "cover"}, 
         React.createElement("div", {className: "coverFixed" + (fixed ? ' fixed' : ''), style: fixed ? {}: t(s, 1)}, 
           React.createElement("div", {className: "filler"}, 
-            miniHeaderContents
+            React.createElement("div", {className: "miniHeaderContents"}, 
+              React.createElement("a", {href: "docs/", target: "_self"}, "Documentation"), 
+              React.createElement("a", {href: "https://github.com/facebook/immutable-js/issues/"}, "Support"), 
+              React.createElement("a", {href: "https://github.com/facebook/immutable-js/"}, "Github")
+            )
           ), 
           React.createElement("div", {className: "synopsis"}, 
             React.createElement("div", {className: "logo"}, 

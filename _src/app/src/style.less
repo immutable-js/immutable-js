@@ -27,8 +27,31 @@
 
 .miniHeaderContents {
   margin: 0 auto;
-  max-width: 740px;
+  max-width: 880px;
   padding: 12px 36px;
+  text-align: right;
+}
+
+@media only screen and (max-width: 680px) {
+  .miniHeaderContents {
+    text-align: left;
+  }
+}
+
+.miniLogo {
+  float: left;
+  left: -140px;
+  top: 12px;
+}
+
+@media only screen and (max-width: 680px) {
+  .miniLogo {
+    display: none;
+  }
+}
+
+.miniLogo > .svg {
+  height: 24px;
 }
 
 .miniHeaderContents a {
@@ -40,10 +63,6 @@
 
 .miniHeaderContents a:last-child {
   margin-right: 0;
-}
-
-.miniLogo > .svg {
-  height: 32px;
 }
 
 .cover {
