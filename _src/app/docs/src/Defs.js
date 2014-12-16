@@ -218,6 +218,9 @@ function memberLength(info, members) {
 }
 
 function typeLength(info, type) {
+  if (!type) {
+    throw new Error('Expected type');
+  }
   switch (type.k) {
     case TypeKind.Any: return 3;
     case TypeKind.Boolean: return 7;
