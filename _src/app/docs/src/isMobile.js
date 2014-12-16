@@ -1,3 +1,3 @@
 var isMobile =
   window.matchMedia && window.matchMedia('(max-device-width: 680px)');
-module.exports = !!(isMobile && isMobile.matches);
+module.exports = false && !!(isMobile && isMobile.matches);

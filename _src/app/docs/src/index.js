@@ -5,13 +5,12 @@ var { Route, DefaultRoute, RouteHandler } = Router;
 var DocHeader = require('./DocHeader');
 var TypeDocumentation = require('./TypeDocumentation');
 var defs = require('../../../resources/immutable.d.json');
-var isMobile = require('./isMobile');
 
 
 var Documentation = React.createClass({
   render() {
     return (
-      <div className={isMobile ? 'mobile' : null}>
+      <div>
         <DocHeader />
         <div className="pageBody" id="body">
           <div className="contents">

@@ -18,8 +18,10 @@
   z-index: 1;
 }
 
-.mobile .miniHeader {
-  position: relative;
+@media only screen and (max-width: 680px) {
+  .miniHeader {
+    position: relative;
+  }
 }
 
 .miniHeaderContents {
@@ -30,8 +32,10 @@
   text-align: right;
 }
 
-.mobile .miniHeaderContents {
-  text-align: left;
+@media only screen and (max-width: 680px) {
+  .miniHeaderContents {
+    text-align: left;
+  }
 }
 
 .logo {
@@ -40,8 +44,10 @@
   top: 12px;
 }
 
-.mobile .logo {
-  display: none;
+@media only screen and (max-width: 680px) {
+  .logo {
+    display: none;
+  }
 }
 
 .logo > .svg {
@@ -68,6 +74,12 @@
   top: 0;
   width: 220px;
   z-index: 0;
+}
+
+@media only screen and (max-width: 680px) {
+  .sideBar {
+    display: none;
+  }
 }
 
 .sideBar .scrollContent {
@@ -104,8 +116,10 @@
   margin-left: 240px;
 }
 
-.mobile .docContents {
-  margin-left: 0;
+@media only screen and (max-width: 680px) {
+  .docContents {
+    margin-left: 0;
+  }
 }
 
 .t a {
@@ -188,8 +202,10 @@ code {
   margin: 0;
 }
 
-.mobile .memberLabel {
-  cursor: pointer;
+@media only screen and (max-width: 680px) {
+  .memberLabel {
+    cursor: pointer;
+  }
 }
 
 .detail {
@@ -205,8 +221,10 @@ code {
   margin: 3rem 0 2rem;
 }
 
-.mobile .groupTitle {
-  margin: 2em 0 1em;
+@media only screen and (max-width: 680px) {
+  .groupTitle {
+    margin: 2em 0 1em;
+  }
 }
 
 .doc {
