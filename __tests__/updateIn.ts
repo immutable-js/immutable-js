@@ -141,6 +141,11 @@ describe('updateIn', () => {
       expect(m.setIn([], 'X')).toBe('X')
     })
 
+    it('can setIn undefined', () => {
+      var m = I.Map().setIn(['a','b','c'], undefined);
+      expect(m.toJS()).toEqual({a:{b:{c:undefined}}});
+    });
+
   })
 
   describe('removeIn', () => {

@@ -1270,7 +1270,7 @@ var Map = function Map(value) {
     return updateMap(this, k, v);
   },
   setIn: function(keyPath, v) {
-    return this.updateIn(keyPath, (function() {
+    return this.updateIn(keyPath, NOT_SET, (function() {
       return v;
     }));
   },

@@ -56,7 +56,7 @@ class Map extends KeyedCollection {
   }
 
   setIn(keyPath, v) {
-    return this.updateIn(keyPath, () => v);
+    return this.updateIn(keyPath, NOT_SET, () => v);
   }
 
   remove(k) {
