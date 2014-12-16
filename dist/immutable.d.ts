@@ -615,7 +615,7 @@ declare module 'immutable' {
     ): Map<string, V>;
 
 
-    // Transient updates
+    // Transient changes
 
     /**
      * Every time you call one of the above functions, a new immutable Map is
@@ -1555,7 +1555,7 @@ declare module 'immutable' {
     entrySeq(): IndexedSeq</*(K, V)*/Array<any>>;
 
 
-    // Sequence Functions
+    // Sequence algorithms
 
     /**
      * Returns a new Iterable of the same type with values passed through a
@@ -1644,7 +1644,7 @@ declare module 'immutable' {
     ): /*Map*/KeyedSeq<G, /*this*/Iterable<K, V>>;
 
 
-    // Side Effects
+    // Side effects
 
     /**
      * The `sideEffect` is executed for every entry in the Iterable.
@@ -1659,7 +1659,7 @@ declare module 'immutable' {
     ): number;
 
 
-    // Creating Subsets
+    // Creating subsets
 
     /**
      * Returns a new Iterable of the same type representing a portion of this
@@ -1813,7 +1813,7 @@ declare module 'immutable' {
     ): /*this*/Iterable<MK, MV>;
 
 
-    // Reducing a Value
+    // Reducing a value
 
     /**
      * Reduces the Iterable to a value by calling the `reducer` for every entry
@@ -1892,7 +1892,7 @@ declare module 'immutable' {
     ): Map<G, number>;
 
 
-    // Search for Value
+    // Search for value
 
     /**
      * Returns the value for which the `predicate` returns true.
@@ -2015,7 +2015,7 @@ declare module 'immutable' {
     toSeq(): KeyedSeq<K, V>;
 
 
-    // Sequence Functions
+    // Sequence functions
 
     /**
      * Returns a new KeyedIterable of the same type where the keys and values
@@ -2059,7 +2059,7 @@ declare module 'immutable' {
     ): /*this*/KeyedIterable<KM, VM>;
 
 
-    // Search for Value
+    // Search for value
 
     /**
      * Returns the key associated with the search value, or undefined.
@@ -2174,7 +2174,7 @@ declare module 'immutable' {
     ): /*this*/IndexedIterable<T>;
 
 
-    // Search for Value
+    // Search for value
 
     /**
      * Returns the first index at which a given value can be found in the
