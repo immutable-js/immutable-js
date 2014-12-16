@@ -1173,7 +1173,6 @@ function isArrayLike(value) {
   return value && typeof value.length === 'number';
 }
 function seqIterate(seq, fn, reverse, useKeys) {
-  assertNotInfinite(seq.size);
   var cache = seq._cache;
   if (cache) {
     var maxIndex = cache.length - 1;

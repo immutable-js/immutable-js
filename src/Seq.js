@@ -12,7 +12,7 @@ import "TrieUtils"
 import "Iterable"
 import "Iterator"
 /* global mixin,
-          assertNotInfinite, wrapIndex,
+          wrapIndex,
           isIterable, isKeyed, Iterable, KeyedIterable, IndexedIterable, SetIterable, IS_ORDERED_SENTINEL,
           Iterator, iteratorValue, iteratorDone, hasIterator, isIterator, getIterator */
 /* exported isSeq, Seq, KeyedSeq, IndexedSeq, SetSeq, ArraySeq,
@@ -381,7 +381,6 @@ function isArrayLike(value) {
 }
 
 function seqIterate(seq, fn, reverse, useKeys) {
-  assertNotInfinite(seq.size);
   var cache = seq._cache;
   if (cache) {
     var maxIndex = cache.length - 1;
