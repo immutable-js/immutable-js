@@ -163,21 +163,26 @@ class List extends IndexedCollection {
   }
 
   __iterator(type, reverse) {
-    return new ListIterator(this, type, reverse);
+    var index = 0;
+    var values = iterateList(this, reverse);
+    return new Iterator(() => {
+      var value = values();
+      return value === DONE ?
+        iteratorDone() :
+        iteratorValue(type, index++, value);
+    });
   }
 
   __iterate(fn, reverse) {
-    var iterations = 0;
-    var eachFn = v => fn(v, iterations++, this);
-    var tailOffset = getTailOffset(this._capacity);
-    if (reverse) {
-      iterateVNode(this._tail, 0, tailOffset - this._origin, this._capacity - this._origin, eachFn, reverse) &&
-        iterateVNode(this._root, this._level, -this._origin, tailOffset - this._origin, eachFn, reverse);
-    } else {
-      iterateVNode(this._root, this._level, -this._origin, tailOffset - this._origin, eachFn, reverse) &&
-        iterateVNode(this._tail, 0, tailOffset - this._origin, this._capacity - this._origin, eachFn, reverse);
+    var index = 0;
+    var values = iterateList(this, reverse);
+    var value;
+    while ((value = values()) !== DONE) {
+      if (fn(value, index++, this) === false) {
+        break;
+      }
     }
-    return iterations;
+    return index;
   }
 
   __ensureOwner(ownerID) {
@@ -286,114 +291,66 @@ class VNode {
   }
 }
 
-function iterateVNode(node, level, offset, max, fn, reverse) {
-    var ii;
+
+var DONE = {};
+
+function iterateList(list, reverse) {
+  var left = list._origin;
+  var right = list._capacity;
+  var tailPos = getTailOffset(right);
+  var tail = list._tail;
+
+  return iterateNodeOrLeaf(list._root, list._level, 0);
+
+  function iterateNodeOrLeaf(node, level, offset) {
+    return level === 0 ?
+      iterateLeaf(node, offset) :
+      iterateNode(node, level, offset);
+  }
+
+  function iterateLeaf(node, offset) {
+    var array = offset === tailPos ? tail && tail.array : node && node.array;
+    var from = offset > left ? 0 : left - offset;
+    var to = right - offset;
+    if (to > SIZE) {
+      to = SIZE;
+    }
+    return () => {
+      if (from === to) {
+        return DONE;
+      }
+      var idx = reverse ? --to : from++;
+      return array && array[idx];
+    };
+  }
+
+  function iterateNode(node, level, offset) {
+    var values;
     var array = node && node.array;
-    if (level === 0) {
-      var from = offset < 0 ? -offset : 0;
-      var to = max - offset;
-      if (to > SIZE) {
-        to = SIZE;
-      }
-      for (ii = from; ii < to; ii++) {
-        if (fn(array && array[reverse ? from + to - 1 - ii : ii]) === false) {
-          return false;
-        }
-      }
-    } else {
-      var step = 1 << level;
-      var newLevel = level - SHIFT;
-      for (ii = 0; ii <= MASK; ii++) {
-        var levelIndex = reverse ? MASK - ii : ii;
-        var newOffset = offset + (levelIndex << level);
-        if (newOffset < max && newOffset + step > 0) {
-          var nextNode = array && array[levelIndex];
-          if (!iterateVNode(nextNode, newLevel, newOffset, max, fn, reverse)) {
-            return false;
-          }
-        }
-      }
+    var from = offset > left ? 0 : (left - offset) >> level;
+    var to = ((right - offset) >> level) + 1;
+    if (to > SIZE) {
+      to = SIZE;
     }
-  return true;
-}
-
-class ListIterator extends Iterator {
-
-  constructor(list, type, reverse) {
-    this._type = type;
-    this._reverse = !!reverse;
-    this._maxIndex = list.size - 1;
-    var tailOffset = getTailOffset(list._capacity);
-    var rootStack = listIteratorFrame(
-      list._root && list._root.array,
-      list._level,
-      -list._origin,
-      tailOffset - list._origin - 1
-    );
-    var tailStack = listIteratorFrame(
-      list._tail && list._tail.array,
-      0,
-      tailOffset - list._origin,
-      list._capacity - list._origin - 1
-    );
-    this._stack = reverse ? tailStack : rootStack;
-    this._stack.__prev = reverse ? rootStack : tailStack;
-  }
-
-  next() {
-    var stack = this._stack;
-    while (stack) {
-      var array = stack.array;
-      var rawIndex = stack.index++;
-      if (this._reverse) {
-        rawIndex = MASK - rawIndex;
-        if (rawIndex > stack.rawMax) {
-          rawIndex = stack.rawMax;
-          stack.index = SIZE - rawIndex;
-        }
-      }
-      if (rawIndex >= 0 && rawIndex < SIZE && rawIndex <= stack.rawMax) {
-        var value = array && array[rawIndex];
-        if (stack.level === 0) {
-          var type = this._type;
-          var index;
-          if (type !== 1) {
-            index = stack.offset + (rawIndex << stack.level);
-            if (this._reverse) {
-              index = this._maxIndex - index;
-            }
+    return () => {
+      do {
+        if (values) {
+          var value = values();
+          if (value !== DONE) {
+            return value;
           }
-          return iteratorValue(type, index, value);
-        } else {
-          var newOffset = stack.offset + (rawIndex << stack.level);
-          if (newOffset + (1 << stack.level) > 0) {
-            this._stack = stack = listIteratorFrame(
-              value && value.array,
-              stack.level - SHIFT,
-              newOffset,
-              stack.max,
-              stack
-            );
-          }
+          values = null;
         }
-        continue;
-      }
-      stack = this._stack = this._stack.__prev;
-    }
-    return iteratorDone();
+        if (from === to) {
+          return DONE;
+        }
+        var idx = reverse ? --to : from++;
+        values = iterateNodeOrLeaf(
+          array && array[idx], level - SHIFT, offset + (idx << level)
+        );
+      } while (true);
+    };
   }
-}
-
-function listIteratorFrame(array, level, offset, max, prevFrame) {
-  return {
-    array: array,
-    level: level,
-    offset: offset,
-    max: max,
-    rawMax: ((max - offset) >> level),
-    index: level === 0 && offset < 0 ? -offset : 0,
-    __prev: prevFrame
-  };
 }
 
 function makeList(origin, capacity, level, root, tail, ownerID, hash) {
