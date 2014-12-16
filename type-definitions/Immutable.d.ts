@@ -1108,8 +1108,8 @@ declare module 'immutable' {
    *
    * Seq is often used to provide a rich collection API to JavaScript Object.
    *
-   *    Immutable.Seq({ x: 0, y: 1, z: 2 }).map(v => v * 2).toObject();
-   *    // { x: 0, y: 2, z: 4 }
+   *     Immutable.Seq({ x: 0, y: 1, z: 2 }).map(v => v * 2).toObject();
+   *     // { x: 0, y: 2, z: 4 }
    */
 
   export module Seq {
@@ -1188,7 +1188,7 @@ declare module 'immutable' {
 
 
   /**
-   * A `Seq` which represents key-value pairs.
+   * `Seq` which represents key-value pairs.
    */
   export module KeyedSeq {}
 
@@ -1214,7 +1214,7 @@ declare module 'immutable' {
 
 
   /**
-   * A `Seq` which represents an ordered indexed list of values.
+   * `Seq` which represents an ordered indexed list of values.
    */
   export module IndexedSeq {
 
@@ -1245,7 +1245,7 @@ declare module 'immutable' {
   }
 
   /**
-   * A `Seq` which represents a set of values.
+   * `Seq` which represents a set of values.
    *
    * Because `Seq` are often lazy, `SetSeq` does not provide the same guarantee
    * of value uniqueness as the concrete `Set`.
@@ -2222,7 +2222,8 @@ declare module 'immutable' {
 
 
   /**
-   * Collection is the base class for concrete data structures.
+   * Collection is the abstract base class for concrete data structures. It
+   * cannot be constructed directly.
    *
    * Implementations should extend one of the subclasses, `KeyedCollection`,
    * `IndexedCollection`, or `SetCollection`.
