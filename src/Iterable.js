@@ -344,6 +344,10 @@ class Iterable {
     return this.get(searchKey, NOT_SET) !== NOT_SET;
   }
 
+  hasIn(searchKeyPath) {
+    return this.getIn(searchKeyPath, NOT_SET) !== NOT_SET;
+  }
+
   isSubset(iter) {
     iter = typeof iter.contains === 'function' ? iter : Iterable(iter);
     return this.every(value => iter.contains(value));

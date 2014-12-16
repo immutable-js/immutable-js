@@ -532,6 +532,9 @@ var $Iterable = Iterable;
   has: function(searchKey) {
     return this.get(searchKey, NOT_SET) !== NOT_SET;
   },
+  hasIn: function(searchKeyPath) {
+    return this.getIn(searchKeyPath, NOT_SET) !== NOT_SET;
+  },
   isSubset: function(iter) {
     iter = typeof iter.contains === 'function' ? iter : $Iterable(iter);
     return this.every((function(value) {
