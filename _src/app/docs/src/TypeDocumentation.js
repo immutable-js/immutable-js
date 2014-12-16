@@ -3,11 +3,11 @@ var Router = require('react-router');
 var { Seq } = require('immutable');
 var { InterfaceDef, CallSigDef } = require('./Defs');
 var MemberDoc = require('./MemberDoc');
-var collectMemberGroups = require('./collectMemberGroups');
 var isMobile = require('./isMobile');
 var SideBar = require('./SideBar');
 var MarkDown = require('./MarkDown');
 var DocOverview = require('./DocOverview');
+var collectMemberGroups = require('../../../src/collectMemberGroups');
 var TypeKind = require('../../../src/TypeKind');
 var defs = require('../../../resources/immutable.d.json');
 
@@ -43,6 +43,10 @@ var TypeDocumentation = React.createClass({
         {isMobile || <SideBar focus={name} memberGroups={memberGroups} />}
         <div key={name} className="docContents">
 
+        {/*
+
+          Bring this back when there's a nicer design
+
           <div className="toolBar">
             <input className="searchBar" />
             <span onClick={this.toggleShowInGroups}>
@@ -53,7 +57,7 @@ var TypeDocumentation = React.createClass({
               {this.state.showInherited ? 'Hide Inherited Members' : 'Show Inherited Members'}
             </span>
           </div>
-
+        */}
 
           {!def ?
             <NotFound /> :

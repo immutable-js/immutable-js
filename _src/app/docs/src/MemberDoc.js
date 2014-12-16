@@ -192,7 +192,7 @@ var SlideDown = React.createClass({
   }
 });
 
-var FIXED_HEADER_HEIGHT = 64;
+var FIXED_HEADER_HEIGHT = 75;
 
 function offsetTop(node) {
   var top = 0;

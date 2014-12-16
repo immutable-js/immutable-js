@@ -1,5 +1,5 @@
 var { Seq } = require('immutable');
-var defs = require('../../../resources/immutable.d.json');
+var defs = require('../resources/immutable.d.json');
 
 function collectMemberGroups(interfaceDef, options) {
   var members = {};
