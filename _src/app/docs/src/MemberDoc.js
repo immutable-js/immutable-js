@@ -109,9 +109,11 @@ var MemberDoc = React.createClass({
                   <h4 className="infoHeader">
                     Inherited from
                   </h4>
-                  <Router.Link to={'/' + member.inherited.name + '/' + name}>
-                    {member.inherited.name + '#' + name}
-                  </Router.Link>
+                  <code>
+                    <Router.Link to={'/' + member.inherited.name + '/' + name}>
+                      {member.inherited.name + '#' + name}
+                    </Router.Link>
+                  </code>
                 </section>
               }
               {member.overrides &&
@@ -119,9 +121,11 @@ var MemberDoc = React.createClass({
                   <h4 className="infoHeader">
                     Overrides
                   </h4>
-                  <Router.Link to={'/' + member.overrides.name + '/' + name}>
-                    {member.overrides.name + '#' + name}
-                  </Router.Link>
+                  <code>
+                    <Router.Link to={'/' + member.overrides.name + '/' + name}>
+                      {member.overrides.name + '#' + name}
+                    </Router.Link>
+                  </code>
                 </section>
               }
               {doc.notes && doc.notes.map((note, i) =>

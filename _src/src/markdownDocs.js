@@ -67,8 +67,14 @@ function collectAllMembersForAllTypes(defs) {
 
 // functions come before keywords
 prism.languages.insertBefore('javascript', 'keyword', {
+  'var': /\b(this)\b/g,
   'block-keyword': /\b(if|else|while|for|function)\b/g,
-  'function': prism.languages.function
+  'primitive': /\b(true|false|null|undefined)\b/g,
+  'function': prism.languages.function,
+});
+
+prism.languages.insertBefore('javascript', {
+  'qualifier': /\b[A-Z][a-z0-9_]+/g,
 });
 
 marked.setOptions({
@@ -91,8 +97,8 @@ renderer.code = function(code, lang, escaped) {
   '</code>';
 };
 
-var METHOD_RX = /^(\w+)[#.](\w+)$/;
-var PROP_RX = /^\w+$/;
+var METHOD_RX = /^(\w+)(?:[#.](\w+))?(?:\(\))?$/;
+var PARAM_RX = /^\w+$/;
 var MDN_TYPES = {
   'Array': true,
   'Object': true,
@@ -102,43 +108,44 @@ var MDN_BASE_URL =
   'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/';
 
 renderer.codespan = function(text) {
+  return '<code>' + decorateCodeSpan(text, this.options) + '</code>';
+};
+
+function decorateCodeSpan(text, options) {
+  var context = options.context;
+
+  if (context.signatures &&
+      PARAM_RX.test(text) &&
+      context.signatures.some(sig =>
+        sig.params && sig.params.some(param => param.name === text))) {
+    return '<span class="t param">' + text + '</span>';
+  }
+
   var method = METHOD_RX.exec(text);
   if (method) {
-    if (MDN_TYPES[method[1]]) {
-      text = '<a href="'+MDN_BASE_URL+method[1]+'/'+method[2]+'">'+text+'</a>';
-    } else if (!arrEndsWith(this.options.context.typePath, [method[1], method[2]])) {
+    method = method.slice(1).filter(function(x){return !!x});
+    if (MDN_TYPES[method[0]]) {
+      return '<a href="'+MDN_BASE_URL+method.join('/')+'">'+text+'</a>';
+    }
+    if (!arrEndsWith(context.typePath, method) &&
+        !arrEndsWith(context.typePath.slice(0, -1), method)) {
       var path = findPath(
-        this.options.context.defs,
-        this.options.context.typePath,
-        [method[1], method[2]]
+        context.defs,
+        context.typePath,
+        method
       );
       if (path) {
-        text = '<a target="_self" href="#/'+path.slice(1).join('/')+'">'+text+'</a>';
-      }
-    }
-  } else {
-    var prop = PROP_RX.exec(text);
-    if (prop) {
-      if (this.options.context.signatures &&
-          this.options.context.signatures.some(sig =>
-            sig.params && sig.params.some(param => param.name === text))) {
-        return '<code class="t param">' + text + '</code>';
-      }
-      if (!arrEndsWith(this.options.context.typePath, [text])) {
-        var path = findPath(
-          this.options.context.defs,
-          this.options.context.typePath,
-          [text]
-        );
-        if (path) {
-          text = '<a target="_self" href="#/'+path.slice(1).join('/')+'">'+text+'</a>';
-        }
+        return '<a target="_self" href="#/'+path.slice(1).join('/')+'">'+text+'</a>';
       }
     }
   }
 
-  return '<code>' + text + '</code>';
-};
+  if (options.highlight) {
+    return options.highlight(unescapeCode(text), prism.languages.javascript);
+  }
+
+  return text;
+}
 
 function arrEndsWith(arr1, arr2) {
   for (var ii = 1; ii <= arr2.length; ii++) {
@@ -172,6 +179,15 @@ function escapeCode(code) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function unescapeCode(code) {
+  return code
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, '\'')
+    .replace(/&amp;/g, '&');
 }
 
 function markdown(content, context) {
