@@ -262,7 +262,11 @@ declare module 'immutable' {
      * Returns a new List having removed the value at this `keyPath`. If any
      * keys in `keyPath` do not exist, a new immutable Map will be created at
      * that key.
+     *
+     * @alias removeIn
      */
+    deleteIn(keyPath: Array<any>): List<T>;
+    deleteIn(keyPath: Iterable<any, any>): List<T>;
     removeIn(keyPath: Array<any>): List<T>;
     removeIn(keyPath: Iterable<any, any>): List<T>;
 
@@ -511,7 +515,11 @@ declare module 'immutable' {
      * Returns a new Map having removed the value at this `keyPath`. If any keys
      * in `keyPath` do not exist, a new immutable Map will be created at
      * that key.
+     *
+     * @alias removeIn
      */
+    deleteIn(keyPath: Array<any>): Map<K, V>;
+    deleteIn(keyPath: Iterable<any, any>): Map<K, V>;
     removeIn(keyPath: Array<any>): Map<K, V>;
     removeIn(keyPath: Iterable<any, any>): Map<K, V>;
 

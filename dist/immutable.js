@@ -2740,7 +2740,7 @@ var ListPrototype = List.prototype;
 ListPrototype[IS_LIST_SENTINEL] = true;
 ListPrototype[DELETE] = ListPrototype.remove;
 ListPrototype.setIn = MapPrototype.setIn;
-ListPrototype.removeIn = MapPrototype.removeIn;
+ListPrototype.deleteIn = ListPrototype.removeIn = MapPrototype.removeIn;
 ListPrototype.update = MapPrototype.update;
 ListPrototype.updateIn = MapPrototype.updateIn;
 ListPrototype.mergeIn = MapPrototype.mergeIn;
@@ -3691,7 +3691,7 @@ var Record = function Record(defaultValues, name) {
 }, {}, KeyedCollection);
 var RecordPrototype = Record.prototype;
 RecordPrototype[DELETE] = RecordPrototype.remove;
-RecordPrototype.removeIn = MapPrototype.removeIn;
+RecordPrototype.deleteIn = RecordPrototype.removeIn = MapPrototype.removeIn;
 RecordPrototype.merge = MapPrototype.merge;
 RecordPrototype.mergeWith = MapPrototype.mergeWith;
 RecordPrototype.mergeIn = MapPrototype.mergeIn;
