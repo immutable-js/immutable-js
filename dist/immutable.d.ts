@@ -1360,7 +1360,8 @@ declare module 'immutable' {
      * True if the result of following a path of keys or indices through nested
      * Iterables results in a set value.
      */
-    hasIn(searchKeyPath): boolean;
+    hasIn(searchKeyPath: Array<any>, notSetValue?: any): boolean;
+    hasIn(searchKeyPath: Iterable<any, any>, notSetValue?: any): boolean;
 
 
     // Conversion to JavaScript types
