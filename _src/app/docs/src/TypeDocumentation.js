@@ -152,9 +152,9 @@ var TypeDoc = React.createClass({
           {name}
         </h1>
         {doc.synopsis && <MarkDown className="synopsis" contents={doc.synopsis} />}
-        <code className="codeBlock memberSignature">
+        {interfaceDef && <code className="codeBlock memberSignature">
           <InterfaceDef name={name} def={interfaceDef} />
-        </code>
+        </code>}
 
         {doc.notes && doc.notes.map((note, i) =>
           <section key={i}>
@@ -278,7 +278,7 @@ var TypeDoc = React.createClass({
  */
 function getTypePropMap(def) {
   var map = {};
-  def.extends && def.extends.forEach(e => {
+  def && def.extends && def.extends.forEach(e => {
     var superModule = defs.Immutable.module[e.name];
     var superInterface = superModule && superModule.interface;
     if (superInterface) {
