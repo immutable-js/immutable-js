@@ -3,6 +3,8 @@ var marked = require('marked');
 var prism = require('./prism');
 var collectMemberGroups = require('./collectMemberGroups');
 
+var allMembers = new WeakMap();
+
 function markdownDocs(defs) {
   collectAllMembersForAllTypes(defs);
   markdownTypes(defs, []);
@@ -55,9 +57,12 @@ function collectAllMembersForAllTypes(defs) {
   Seq(defs).forEach((def, name) => {
     if (def.interface) {
       var groups = collectMemberGroups(def.interface, { showInherited: true });
-      def.interface.allMembers = Seq.Keyed(groups[''].map(
-        member => [member.memberName, member.memberDef]
-      )).toObject();
+      allMembers.set(
+        def.interface,
+        Seq.Keyed(groups[''].map(
+          member => [member.memberName, member.memberDef]
+        )).toObject()
+      );
     }
     if (def.module) {
       collectAllMembersForAllTypes(def.module);
@@ -162,7 +167,7 @@ function findPath(defs, relative, search) {
     if (path.reduce(
       (def, name) => def && (
         (def.module && def.module[name]) ||
-        (def.interface && def.interface.allMembers[name]) ||
+        (def.interface && allMembers.get(def.interface)[name]) ||
         undefined
       ),
       {module: defs}
