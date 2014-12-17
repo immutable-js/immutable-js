@@ -92,6 +92,7 @@ declare module 'immutable/contrib/cursor' {
      * Sets `value` at `key` in the cursor, returning a new cursor to the same
      * point in the new data.
      */
+    set(value: any): Cursor;
     set(key: any, value: any): Cursor;
 
     /**

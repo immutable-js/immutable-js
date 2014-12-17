@@ -87,7 +87,20 @@ IndexedCursorPrototype.getIn = function(key, notSetValue) {
 
 IndexedCursorPrototype.set =
 KeyedCursorPrototype.set = function(key, value) {
-  return updateCursor(this, function (m) { return m.set(key, value); }, key);
+  var ctx = this;
+  if(arguments.length === 1) {
+    value = key;
+    key = void 0;
+    if(value === void 0) {
+      var _key = this._keyPath.slice();
+      key = _key.pop();
+      ctx = makeCursor(this._rootData, _key, this._onChange);
+    }
+  }
+  var cursor = updateCursor(ctx, function (m) {
+    return key ? m.set(key, value) : value;
+  }, key);
+  return arguments.length === 1 && key ? subCursor(cursor, key) : cursor;
 }
 
 KeyedCursorPrototype.remove =
