@@ -1919,7 +1919,15 @@ declare module 'immutable' {
      * comparatively equivalent, the first one found will be returned.
      *
      * The `comparator` is used in the same way as `Iterable#sort`. If it is not
-     * provided, the default comparator is `a > b`.
+     * provided, the default comparator is `>`.
+     *
+     * When two values are considered equivalent, the first encountered will be
+     * returned. Otherwise, `max` will operate independent of the order of input
+     * as long as the comparator is commutative. The default comparator `>` is
+     * commutative *only* when types do not differ.
+     *
+     * If `comparator` returns 0 and either value is NaN, undefined, or null,
+     * that value will be returned.
      */
     max(comparator?: (valueA: V, valueB: V) => number): V;
 
@@ -1940,7 +1948,15 @@ declare module 'immutable' {
      * comparatively equivalent, the first one found will be returned.
      *
      * The `comparator` is used in the same way as `Iterable#sort`. If it is not
-     * provided, the default comparator is `a > b`.
+     * provided, the default comparator is `<`.
+     *
+     * When two values are considered equivalent, the first encountered will be
+     * returned. Otherwise, `min` will operate independent of the order of input
+     * as long as the comparator is commutative. The default comparator `<` is
+     * commutative *only* when types do not differ.
+     *
+     * If `comparator` returns 0 and either value is NaN, undefined, or null,
+     * that value will be returned.
      */
     min(comparator?: (valueA: V, valueB: V) => number): V;
 

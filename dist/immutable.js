@@ -826,7 +826,7 @@ function quoteString(value) {
   return typeof value === 'string' ? JSON.stringify(value) : value;
 }
 function defaultNegComparator(a, b) {
-  return a > b ? -1 : a < b ? 1 : 0;
+  return a < b ? 1 : a > b ? -1 : 0;
 }
 function deepEqual(a, b) {
   if (a === b) {
@@ -2550,15 +2550,19 @@ function maxFactory(iterable, comparator, mapper) {
   if (mapper) {
     var entry = iterable.toSeq().map((function(v, k) {
       return [v, mapper(v, k, iterable)];
-    })).reduce((function(max, next) {
-      return comparator(next[1], max[1]) > 0 ? next : max;
+    })).reduce((function(a, b) {
+      return _maxCompare(comparator, a[1], b[1]) ? b : a;
     }));
     return entry && entry[0];
   } else {
-    return iterable.reduce((function(max, next) {
-      return comparator(next, max) > 0 ? next : max;
+    return iterable.reduce((function(a, b) {
+      return _maxCompare(comparator, a, b) ? b : a;
     }));
   }
+}
+function _maxCompare(comparator, a, b) {
+  var comp = comparator(b, a);
+  return (comp === 0 && b !== a && (b === undefined || b === null || b !== b)) || comp > 0;
 }
 function reify(iter, seq) {
   return isSeq(iter) ? seq : iter.constructor(seq);
