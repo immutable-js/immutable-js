@@ -66,7 +66,7 @@ class Map extends KeyedCollection {
     return updateMap(this, k, NOT_SET);
   }
 
-  removeIn(keyPath) {
+  deleteIn(keyPath) {
     return this.updateIn(keyPath, () => NOT_SET);
   }
 
@@ -197,6 +197,7 @@ var IS_MAP_SENTINEL = '@@__IMMUTABLE_MAP__@@';
 var MapPrototype = Map.prototype;
 MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
+MapPrototype.removeIn = MapPrototype.deleteIn;
 
 
 // #pragma Trie Nodes

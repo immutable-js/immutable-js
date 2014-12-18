@@ -1276,7 +1276,7 @@ var Map = function Map(value) {
   remove: function(k) {
     return updateMap(this, k, NOT_SET);
   },
-  removeIn: function(keyPath) {
+  deleteIn: function(keyPath) {
     return this.updateIn(keyPath, (function() {
       return NOT_SET;
     }));
@@ -1391,6 +1391,7 @@ var IS_MAP_SENTINEL = '@@__IMMUTABLE_MAP__@@';
 var MapPrototype = Map.prototype;
 MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
+MapPrototype.removeIn = MapPrototype.deleteIn;
 var ArrayMapNode = function ArrayMapNode(ownerID, entries) {
   this.ownerID = ownerID;
   this.entries = entries;
