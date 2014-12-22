@@ -120,6 +120,10 @@ IndexedCursorPrototype.withMutations = function(fn) {
 
 KeyedCursorPrototype.cursor =
 IndexedCursorPrototype.cursor = function(subKey) {
+  // allow cursor() and cursor('foo', 'bar', ...)
+  if (!Array.isArray(subKey)) {
+    subKey = arguments.length > 1 ? [].slice.call(arguments, 0) : [];
+  }
   return Array.isArray(subKey) && subKey.length === 0 ?
     this : subCursor(this, subKey);
 }
