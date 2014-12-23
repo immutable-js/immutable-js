@@ -109,6 +109,9 @@ function resolveEnd(end, size) {
 function resolveIndex(index, size, defaultIndex) {
   return index === undefined ? defaultIndex : index < 0 ? Math.max(0, size + index) : size === undefined ? index : Math.min(size, index);
 }
+function isArrayLike(value) {
+  return value && typeof value.length === 'number';
+}
 var imul = typeof Math.imul === 'function' && Math.imul(0xffffffff, 2) === -2 ? Math.imul : function imul(a, b) {
   a = a | 0;
   b = b | 0;
@@ -511,15 +514,13 @@ var $Iterable = Iterable;
   },
   getIn: function(searchKeyPath, notSetValue) {
     var nested = this;
-    if (searchKeyPath) {
-      var iter = getIterator(searchKeyPath) || getIterator($Iterable(searchKeyPath));
-      var step;
-      while (!(step = iter.next()).done) {
-        var key = step.value;
-        nested = nested && nested.get ? nested.get(key, NOT_SET) : NOT_SET;
-        if (nested === NOT_SET) {
-          return notSetValue;
-        }
+    var iter = forceIterator(searchKeyPath);
+    var step;
+    while (!(step = iter.next()).done) {
+      var key = step.value;
+      nested = nested && nested.get ? nested.get(key, NOT_SET) : NOT_SET;
+      if (nested === NOT_SET) {
+        return notSetValue;
       }
     }
     return nested;
@@ -821,6 +822,16 @@ function neg(predicate) {
   return function() {
     return -predicate.apply(this, arguments);
   };
+}
+function forceIterator(keyPath) {
+  var iter = getIterator(keyPath);
+  if (!iter) {
+    if (!isArrayLike(keyPath)) {
+      throw new TypeError('Expected iterable or array-like: ' + keyPath);
+    }
+    iter = getIterator(Iterable(keyPath));
+  }
+  return iter;
 }
 function quoteString(value) {
   return typeof value === 'string' ? JSON.stringify(value) : value;
@@ -1167,9 +1178,6 @@ function seqFromValue(value) {
 function maybeIndexedSeqFromValue(value) {
   return (isArrayLike(value) ? new ArraySeq(value) : isIterator(value) ? new IteratorSeq(value) : hasIterator(value) ? new IterableSeq(value) : undefined);
 }
-function isArrayLike(value) {
-  return value && typeof value.length === 'number';
-}
 function seqIterate(seq, fn, reverse, useKeys) {
   var cache = seq._cache;
   if (cache) {
@@ -1289,7 +1297,7 @@ var Map = function Map(value) {
       updater = notSetValue;
       notSetValue = undefined;
     }
-    var updatedValue = updateInDeepMap(this, getIterator(keyPath) || getIterator(Iterable(keyPath)), notSetValue, updater);
+    var updatedValue = updateInDeepMap(this, forceIterator(keyPath), notSetValue, updater);
     return updatedValue === NOT_SET ? undefined : updatedValue;
   },
   clear: function() {

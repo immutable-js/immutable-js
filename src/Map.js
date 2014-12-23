@@ -17,11 +17,11 @@ import "TrieUtils"
 import "Hash"
 import "Iterator"
 import "Operations"
-/* global is, fromJS, isIterable, Iterable, KeyedIterable, KeyedCollection,
+/* global is, fromJS, isIterable, forceIterator, KeyedIterable, KeyedCollection,
           invariant,
           DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
           MakeRef, SetRef, arrCopy, hash, sortFactory, OrderedMap,
-          Iterator, getIterator, iteratorValue, iteratorDone,
+          Iterator, iteratorValue, iteratorDone,
           assertNotInfinite */
 /* exported Map, isMap, MapPrototype */
 
@@ -83,7 +83,7 @@ class Map extends KeyedCollection {
     }
     var updatedValue = updateInDeepMap(
       this,
-      getIterator(keyPath) || getIterator(Iterable(keyPath)),
+      forceIterator(keyPath),
       notSetValue,
       updater
     );

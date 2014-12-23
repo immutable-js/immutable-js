@@ -12,7 +12,7 @@ import "TrieUtils"
 import "Iterable"
 import "Iterator"
 /* global mixin,
-          wrapIndex,
+          wrapIndex, isArrayLike,
           isIterable, isKeyed, Iterable, KeyedIterable, IndexedIterable, SetIterable, IS_ORDERED_SENTINEL,
           Iterator, iteratorValue, iteratorDone, hasIterator, isIterator, getIterator */
 /* exported isSeq, Seq, KeyedSeq, IndexedSeq, SetSeq, ArraySeq,
@@ -374,10 +374,6 @@ function maybeIndexedSeqFromValue(value) {
     hasIterator(value) ? new IterableSeq(value) :
     undefined
   );
-}
-
-function isArrayLike(value) {
-  return value && typeof value.length === 'number';
 }
 
 function seqIterate(seq, fn, reverse, useKeys) {

@@ -16,7 +16,7 @@ import "Iterator"
 /* global Map, OrderedMap, List, Set, OrderedSet, Stack,
           is,
           arrCopy, NOT_SET, assertNotInfinite, ensureSize, wrapIndex,
-          returnTrue, wholeSlice, resolveBegin, resolveEnd,
+          returnTrue, wholeSlice, resolveBegin, resolveEnd, isArrayLike,
           hash, imul, smi,
           Iterator, getIterator,
           ITERATOR_SYMBOL, ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES,
@@ -316,19 +316,15 @@ class Iterable {
 
   getIn(searchKeyPath, notSetValue) {
     var nested = this;
-    if (searchKeyPath) {
-      // Array might not be iterable in this environment, so we need a fallback
-      // to our wrapped type.
-      // Note: in an ES6 environment, we would prefer:
-      // for (var key of searchKeyPath) {
-      var iter = getIterator(searchKeyPath) || getIterator(Iterable(searchKeyPath));
-      var step;
-      while (!(step = iter.next()).done) {
-        var key = step.value;
-        nested = nested && nested.get ? nested.get(key, NOT_SET) : NOT_SET;
-        if (nested === NOT_SET) {
-          return notSetValue;
-        }
+    // Note: in an ES6 environment, we would prefer:
+    // for (var key of searchKeyPath) {
+    var iter = forceIterator(searchKeyPath);
+    var step;
+    while (!(step = iter.next()).done) {
+      var key = step.value;
+      nested = nested && nested.get ? nested.get(key, NOT_SET) : NOT_SET;
+      if (nested === NOT_SET) {
+        return notSetValue;
       }
     }
     return nested;
@@ -756,6 +752,19 @@ function neg(predicate) {
   return function() {
     return -predicate.apply(this, arguments);
   }
+}
+
+function forceIterator(keyPath) {
+  var iter = getIterator(keyPath);
+  if (!iter) {
+    // Array might not be iterable in this environment, so we need a fallback
+    // to our wrapped type.
+    if (!isArrayLike(keyPath)) {
+      throw new TypeError('Expected iterable or array-like: ' + keyPath);
+    }
+    iter = getIterator(Iterable(keyPath));
+  }
+  return iter;
 }
 
 function quoteString(value) {
