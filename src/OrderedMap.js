@@ -11,8 +11,10 @@ import "Iterable"
 import "Map"
 import "List"
 import "TrieUtils"
+import "Operations"
 /* global KeyedIterable, IS_ORDERED_SENTINEL, isOrdered,
-          Map, isMap, List, DELETE, NOT_SET, SIZE, MAKE, makeEmpty */
+          Map, isMap, List, DELETE, NOT_SET, SIZE, MAKE, makeEmpty, 
+          assertNotInfinite */
 /* exported OrderedMap */
 
 
@@ -26,7 +28,9 @@ class OrderedMap extends Map {
     return value === null || value === undefined ? this.__empty() :
       isOrderedMap(value) ? value :
       this.__empty().withMutations(map => {
-        KeyedIterable(value).forEach((v, k) => map.set(k, v));
+        var iter = KeyedIterable(value)
+        assertNotInfinite(iter.size);
+        iter.forEach((v, k) => map.set(k, v));
       });
   }
 

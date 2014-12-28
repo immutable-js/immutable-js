@@ -17,11 +17,12 @@ import "TrieUtils"
 import "Hash"
 import "Iterator"
 import "Operations"
-/* global is, fromJS, isIterable, Iterable, KeyedIterable, KeyedCollection,
+/* global is, fromJS, isIterable, forceIterator, KeyedIterable, KeyedCollection,
           invariant,
           DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, MAKE, makeEmpty,
           OwnerID, MakeRef, SetRef, arrCopy, hash, sortFactory, OrderedMap,
-          Iterator, getIterator, iteratorValue, iteratorDone */
+          Iterator, iteratorValue, iteratorDone, 
+          assertNotInfinite */
 /* exported Map, isMap, MapPrototype */
 
 class Map extends KeyedCollection {
@@ -34,7 +35,9 @@ class Map extends KeyedCollection {
     return value === null || value === undefined ? this.__empty() :
       isMap(value) ? (value.constructor === this.constructor ? value : this.merge(value)) :
       this.__empty().withMutations(map => {
-        KeyedIterable(value).forEach((v, k) => map.set(k, v));
+        var iter = KeyedIterable(value);
+        assertNotInfinite(iter.size);
+        iter.forEach((v, k) => map.set(k, v));
       });
   }
 
@@ -57,14 +60,14 @@ class Map extends KeyedCollection {
   }
 
   setIn(keyPath, v) {
-    return this.updateIn(keyPath, () => v);
+    return this.updateIn(keyPath, NOT_SET, () => v);
   }
 
   remove(k) {
     return updateMap(this, k, NOT_SET);
   }
 
-  removeIn(keyPath) {
+  deleteIn(keyPath) {
     return this.updateIn(keyPath, () => NOT_SET);
   }
 
@@ -81,7 +84,7 @@ class Map extends KeyedCollection {
     }
     var updatedValue = updateInDeepMap(
       this,
-      getIterator(keyPath) || getIterator(Iterable(keyPath)),
+      forceIterator(keyPath),
       notSetValue,
       updater
     );
@@ -210,6 +213,7 @@ var IS_MAP_SENTINEL = '@@__IMMUTABLE_MAP__@@';
 var MapPrototype = Map.prototype;
 MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
+MapPrototype.removeIn = MapPrototype.deleteIn;
 
 
 // #pragma Trie Nodes

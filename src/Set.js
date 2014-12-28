@@ -13,7 +13,8 @@ import "Map"
 import "TrieUtils"
 import "Operations"
 /* global SetIterable, KeyedIterable, SetCollection, MapPrototype,
-          DELETE, MAKE, makeEmpty, sortFactory, OrderedSet */
+          DELETE, MAKE, makeEmpty, sortFactory, OrderedSet,
+          assertNotInfinite */
 /* exported Set, isSet */
 
 
@@ -27,7 +28,9 @@ class Set extends SetCollection {
     return value === null || value === undefined ? this.__empty() :
       isSet(value) ? (value.constructor === this.constructor ? value : this.merge(value)) :
       this.__empty().withMutations(set => {
-        SetIterable(value).forEach(v => set.add(v));
+        var iter = SetIterable(value);
+        assertNotInfinite(iter.size);
+        iter.forEach(v => set.add(v));
       });
   }
 

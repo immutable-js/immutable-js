@@ -17,6 +17,16 @@ describe('updateIn', () => {
     expect(m.getIn(I.fromJS(['a', 'b', 'c']))).toEqual(10);
   })
 
+  it('deep get throws without list or array-like', () => {
+    // need to cast these as TypeScript first prevents us from such clownery.
+    expect(() =>
+      I.Map().getIn(<any>undefined)
+    ).toThrow('Expected iterable or array-like: undefined');
+    expect(() =>
+      I.Map().getIn(<any>{ a: 1, b: 2 })
+    ).toThrow('Expected iterable or array-like: [object Object]');
+  })
+
   it('deep get returns not found if path does not match', () => {
     var m = I.fromJS({a: {b: {c: 10}}});
     expect(m.getIn(['a', 'b', 'z'])).toEqual(undefined);
@@ -40,6 +50,17 @@ describe('updateIn', () => {
       {a: {b: {c: 20}}}
     );
   })
+
+  it('deep edit throws without list or array-like', () => {
+    // need to cast these as TypeScript first prevents us from such clownery.
+    expect(() =>
+      I.Map().updateIn(<any>undefined, x => x)
+    ).toThrow('Expected iterable or array-like: undefined');
+    expect(() =>
+      I.Map().updateIn(<any>{ a: 1, b: 2 }, x => x)
+    ).toThrow('Expected iterable or array-like: [object Object]');
+  })
+
 
   it('deep remove', () => {
     var m = I.fromJS({a: {b: {c: 10}}});
@@ -140,6 +161,11 @@ describe('updateIn', () => {
       var m = I.Map();
       expect(m.setIn([], 'X')).toBe('X')
     })
+
+    it('can setIn undefined', () => {
+      var m = I.Map().setIn(['a','b','c'], undefined);
+      expect(m.toJS()).toEqual({a:{b:{c:undefined}}});
+    });
 
   })
 

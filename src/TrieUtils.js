@@ -12,7 +12,8 @@ import "invariant"
 /* exported DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, MAKE,
             OwnerID, MakeRef, SetRef, makeEmpty, arrCopy, assertNotInfinite,
             ensureSize, wrapIndex, returnTrue,
-            wholeSlice, resolveBegin, resolveEnd */
+            wholeSlice, resolveBegin, resolveEnd,
+            isArrayLike */
 
 
 // Used for setting prototype methods that IE8 chokes on.
@@ -110,4 +111,8 @@ function resolveIndex(index, size, defaultIndex) {
       size === undefined ?
         index :
         Math.min(size, index);
+}
+
+function isArrayLike(value) {
+  return value && typeof value.length === 'number';
 }
