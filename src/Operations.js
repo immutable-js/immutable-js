@@ -702,13 +702,18 @@ function maxFactory(iterable, comparator, mapper) {
   if (mapper) {
     var entry = iterable.toSeq()
       .map((v, k) => [v, mapper(v, k, iterable)])
-      .reduce((max, next) => comparator(next[1], max[1]) > 0 ? next : max);
+      .reduce((a, b) => _maxCompare(comparator, a[1], b[1]) ? b : a);
     return entry && entry[0];
   } else {
-    return iterable.reduce(
-      (max, next) => comparator(next, max) > 0 ? next : max
-    );
+    return iterable.reduce((a, b) => _maxCompare(comparator, a, b) ? b : a);
   }
+}
+
+function _maxCompare(comparator, a, b) {
+  var comp = comparator(b, a);
+  // b is considered the new max if the comparator declares them equal, but
+  // they are not equal and b is in fact a nullish value.
+  return (comp === 0 && b !== a && (b === undefined || b === null || b !== b)) || comp > 0;
 }
 
 

@@ -11,8 +11,10 @@ import "Iterable"
 import "Map"
 import "List"
 import "TrieUtils"
+import "Operations"
 /* global KeyedIterable, IS_ORDERED_SENTINEL, isOrdered,
-          Map, isMap, emptyMap, emptyList, DELETE, NOT_SET, SIZE, MAKE */
+          Map, isMap, List, DELETE, NOT_SET, SIZE, MAKE, makeEmpty, 
+          assertNotInfinite */
 /* exported OrderedMap */
 
 
@@ -23,10 +25,12 @@ class OrderedMap extends Map {
   constructor(value) {
     if (!(this instanceof OrderedMap)) return new OrderedMap(value);
     if (value === MAKE) return this;
-    return value === null || value === undefined ? emptyOrderedMap(this) :
+    return value === null || value === undefined ? this.__empty() :
       isOrderedMap(value) ? (value.constructor === this.constructor ? value : this.__init().merge(value)) :
-      emptyOrderedMap(this).withMutations(map => {
-        KeyedIterable(value).forEach((v, k) => map.set(k, v));
+      this.__empty().withMutations(map => {
+        var iter = KeyedIterable(value)
+        assertNotInfinite(iter.size);
+        iter.forEach((v, k) => map.set(k, v));
       });
   }
 
@@ -57,7 +61,7 @@ class OrderedMap extends Map {
       this._list.clear();
       return this;
     }
-    return emptyOrderedMap(this);
+    return this.__empty();
   }
 
   set(k, v) {
@@ -95,14 +99,37 @@ class OrderedMap extends Map {
       this._list = newList;
       return this;
     }
-    return makeOrderedMap(this.constructor, newMap, newList, ownerID, this.__hash);
+    return this.__make(newMap, newList, ownerID, this.__hash);
   }
 
   __init() {
-    this._map = emptyMap();
-    this._list = emptyList();
+    this._map = this.__emptyMap();
+    this._list = this.__emptyList();
     return this;
   }
+
+  __make(map, list, ownerID, hash) {
+    var omap = new this.constructor(MAKE);
+    omap.size = map ? map.size : 0;
+    omap._map = map;
+    omap._list = list;
+    omap.__ownerID = ownerID;
+    omap.__hash = hash;
+    return omap;
+  }
+
+  __empty() {
+    return makeEmpty(this, this.__emptyMap(), this.__emptyList());
+  }
+
+  __emptyMap() {
+    return new Map();
+  }
+
+  __emptyList() {
+    return new List();
+  }
+
 }
 
 function isOrderedMap(maybeOrderedMap) {
@@ -113,24 +140,6 @@ OrderedMap.isOrderedMap = isOrderedMap;
 
 OrderedMap.prototype[IS_ORDERED_SENTINEL] = true;
 OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
-
-function makeOrderedMap(Ctor, map, list, ownerID, hash) {
-  var omap = new Ctor(MAKE);
-  omap.size = map ? map.size : 0;
-  omap._map = map;
-  omap._list = list;
-  omap.__ownerID = ownerID;
-  omap.__hash = hash;
-  return omap;
-}
-
-var EMPTY_ORDERED_MAP;
-function emptyOrderedMap(from) {
-  var source = from && from.constructor || OrderedMap;
-  return source.prototype === OrderedMap.prototype ?
-    (EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(source, emptyMap(), emptyList()))) :
-    makeOrderedMap(source, emptyMap(), emptyList());
-}
 
 function updateOrderedMap(omap, k, v) {
   var map = omap._map;
@@ -172,5 +181,5 @@ function updateOrderedMap(omap, k, v) {
     omap.__hash = undefined;
     return omap;
   }
-  return makeOrderedMap(omap.constructor, newMap, newList);
+  return omap.__make(newMap, newList);
 }

@@ -12,7 +12,7 @@ import "Collection"
 import "Map"
 import "invariant"
 import "TrieUtils"
-/* global KeyedIterable, KeyedCollection, Map, MapPrototype, emptyMap, invariant, DELETE */
+/* global KeyedIterable, KeyedCollection, Map, MapPrototype, invariant, DELETE */
 /* exported Record */
 
 
@@ -80,7 +80,7 @@ class Record extends KeyedCollection {
       return this;
     }
     var SuperRecord = Object.getPrototypeOf(this).constructor;
-    return SuperRecord._empty || (SuperRecord._empty = makeRecord(this, emptyMap()));
+    return SuperRecord._empty || (SuperRecord._empty = this.__make());
   }
 
   set(k, v) {
@@ -129,10 +129,16 @@ class Record extends KeyedCollection {
     }
     return makeRecord(this, newMap, ownerID);
   }
+
+  __make() {
+    return makeRecord(this, new Map());
+  }
 }
 
 var RecordPrototype = Record.prototype;
 RecordPrototype[DELETE] = RecordPrototype.remove;
+RecordPrototype.deleteIn =
+RecordPrototype.removeIn = MapPrototype.removeIn;
 RecordPrototype.merge = MapPrototype.merge;
 RecordPrototype.mergeWith = MapPrototype.mergeWith;
 RecordPrototype.mergeIn = MapPrototype.mergeIn;

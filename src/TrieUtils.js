@@ -10,9 +10,10 @@
 import "invariant"
 /* global invariant */
 /* exported DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, MAKE,
-            OwnerID, MakeRef, SetRef, arrCopy, assertNotInfinite,
+            OwnerID, MakeRef, SetRef, makeEmpty, arrCopy, assertNotInfinite,
             ensureSize, wrapIndex, returnTrue,
-            wholeSlice, resolveBegin, resolveEnd */
+            wholeSlice, resolveBegin, resolveEnd,
+            isArrayLike */
 
 
 // Used for setting prototype methods that IE8 chokes on.
@@ -41,6 +42,14 @@ function MakeRef(ref) {
 
 function SetRef(ref) {
   ref && (ref.value = true);
+}
+
+function makeEmpty(value, ...rest) {
+  var ctor = value.constructor;
+  if (!ctor.__empty) {
+    ctor.__empty = value.__make.apply(value, rest);
+  }
+  return ctor.__empty;
 }
 
 // A function which returns a value representing an "owner" for transient writes
@@ -102,4 +111,8 @@ function resolveIndex(index, size, defaultIndex) {
       size === undefined ?
         index :
         Math.min(size, index);
+}
+
+function isArrayLike(value) {
+  return value && typeof value.length === 'number';
 }

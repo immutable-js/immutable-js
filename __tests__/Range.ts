@@ -164,6 +164,14 @@ describe('Range', () => {
     expect(r.toArray()).toEqual([6, 9]);
   });
 
+  it('can describe lazy operations', () => {
+    expect(
+      Range(1, Infinity).map(n => -n).take(5).toArray()
+    ).toEqual(
+      [ -1, -2, -3, -4, -5 ]
+    );
+  });
+
   it('efficiently chains array methods', () => {
     var v = Range(1, Infinity);
 

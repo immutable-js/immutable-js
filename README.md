@@ -258,8 +258,8 @@ Seq is never used:
       .filter(x => x % 2).map(x => x * x);
 
 Once the Seq is used, it performs only the work necessary. In this
-example, no intermediate arrays are ever created, filter is called three times
-twice, and map is only called two times:
+example, no intermediate arrays are ever created, filter is called three times,
+and map is only called twice:
 
     console.log(oddSquares.get(1)); // 9
 
@@ -339,10 +339,16 @@ encourages their use when `withMutations` will not suffice. Use caution to not
 return a mutable copy, which could result in undesired behavior.
 
 
-API Documentation
------------------
+Documentation
+-------------
 
-All documentation is contained within the type definition file, [Immutable.d.ts](./type-definitions/Immutable.d.ts).
+[Read the docs](http://facebook.github.io/immutable-js/docs/) and eat your vegetables.
+
+Docs are automatically generated from [Immutable.d.ts](./type-definitions/Immutable.d.ts).
+Please contribute!
+
+Also, don't miss the [Wiki](https://github.com/facebook/immutable-js/wiki) which
+contains articles on specific topics. Can't find something? Open an [issue](https://github.com/facebook/immutable-js/issues).
 
 
 Contribution
@@ -351,6 +357,12 @@ Contribution
 Use [Github issues](https://github.com/facebook/immutable-js/issues) for requests.
 
 We actively welcome pull requests, learn how to [contribute](./CONTRIBUTING.md).
+
+
+Changelog
+---------
+
+Changes are tracked as [Github releases](https://github.com/facebook/immutable-js/releases).
 
 
 Thanks

@@ -494,12 +494,39 @@ describe('List', () => {
     expect(v2.butLast().size).toBe(1799);
   });
 
-  check.it('iterates through all values', [gen.posInt], len => {
-    var v = Immutable.Range(0, len).toList();
-    var valueIter = v.values();
-    for (var ii = 0; ii < len; ii++) {
-      expect(valueIter.next().value).toBe(ii);
-    }
+  describe('Iterator', () => {
+
+    var pInt = gen.posInt;
+
+    check.it('iterates through List', [pInt, pInt], (start, len) => {
+      var l = Immutable.Range(0, start + len).toList();
+      l = <List<number>> l.slice(start, start + len);
+      expect(l.size).toBe(len);
+      var valueIter = l.values();
+      var keyIter = l.keys();
+      var entryIter = l.entries();
+      for (var ii = 0; ii < len; ii++) {
+        expect(valueIter.next().value).toBe(start + ii);
+        expect(keyIter.next().value).toBe(ii);
+        expect(entryIter.next().value).toEqual([ii, start + ii]);
+      }
+    });
+
+    check.it('iterates through List in reverse', [pInt, pInt], (start, len) => {
+      var l = Immutable.Range(0, start + len).toList();
+      l = <List<number>> l.slice(start, start + len);
+      var s = l.toSeq().reverse(); // impl calls List.__iterator(REVERSE)
+      expect(s.size).toBe(len);
+      var valueIter = s.values();
+      var keyIter = s.keys();
+      var entryIter = s.entries();
+      for (var ii = 0; ii < len; ii++) {
+        expect(valueIter.next().value).toBe(start + len - 1 - ii);
+        expect(keyIter.next().value).toBe(ii);
+        expect(entryIter.next().value).toEqual([ii, start + len - 1 - ii]);
+      }
+    });
+
   });
 
 });

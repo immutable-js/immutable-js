@@ -165,6 +165,14 @@ describe('Cursor', () => {
     expect(cursor.deref()).toEqual(Immutable.Map({d: 3}));
   });
 
+  it('can set undefined', () => {
+    var data = Immutable.Map();
+    var cursor = Cursor.from(data, ['a', 'b', 'c']);
+    expect(cursor.deref()).toBe(undefined);
+    cursor = cursor.set('d', undefined);
+    expect(cursor.toJS()).toEqual({d: undefined});
+  });
+
   it('has the sequence API', () => {
     var data = Immutable.Map({a: 1, b: 2, c: 3});
     var cursor = Cursor.from(data);

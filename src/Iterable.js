@@ -16,7 +16,7 @@ import "Iterator"
 /* global Map, OrderedMap, List, Set, OrderedSet, Stack,
           is,
           arrCopy, NOT_SET, assertNotInfinite, ensureSize, wrapIndex,
-          returnTrue, wholeSlice, resolveBegin, resolveEnd,
+          returnTrue, wholeSlice, resolveBegin, resolveEnd, isArrayLike,
           hash, imul, smi,
           Iterator, getIterator,
           ITERATOR_SYMBOL, ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES,
@@ -66,7 +66,6 @@ class Iterable {
 
   toMap() {
     // Use Late Binding here to solve the circular dependency.
-    assertNotInfinite(this.size);
     return Map(this.toKeyedSeq());
   }
 
@@ -147,6 +146,7 @@ class Iterable {
   }
 
   every(predicate, context) {
+    assertNotInfinite(this.size);
     var returnValue = true;
     this.__iterate((v, k, c) => {
       if (!predicate.call(context, v, k, c)) {
@@ -173,10 +173,12 @@ class Iterable {
   }
 
   forEach(sideEffect, context) {
+    assertNotInfinite(this.size);
     return this.__iterate(context ? sideEffect.bind(context) : sideEffect);
   }
 
   join(separator) {
+    assertNotInfinite(this.size);
     separator = separator !== undefined ? '' + separator : ',';
     var joined = '';
     var isFirst = true;
@@ -196,6 +198,7 @@ class Iterable {
   }
 
   reduce(reducer, initialReduction, context) {
+    assertNotInfinite(this.size);
     var reduction;
     var useFirst;
     if (arguments.length < 2) {
@@ -318,19 +321,15 @@ class Iterable {
 
   getIn(searchKeyPath, notSetValue) {
     var nested = this;
-    if (searchKeyPath) {
-      // Array might not be iterable in this environment, so we need a fallback
-      // to our wrapped type.
-      // Note: in an ES6 environment, we would prefer:
-      // for (var key of searchKeyPath) {
-      var iter = getIterator(searchKeyPath) || getIterator(Iterable(searchKeyPath));
-      var step;
-      while (!(step = iter.next()).done) {
-        var key = step.value;
-        nested = nested && nested.get ? nested.get(key, NOT_SET) : NOT_SET;
-        if (nested === NOT_SET) {
-          return notSetValue;
-        }
+    // Note: in an ES6 environment, we would prefer:
+    // for (var key of searchKeyPath) {
+    var iter = forceIterator(searchKeyPath);
+    var step;
+    while (!(step = iter.next()).done) {
+      var key = step.value;
+      nested = nested && nested.get ? nested.get(key, NOT_SET) : NOT_SET;
+      if (nested === NOT_SET) {
+        return notSetValue;
       }
     }
     return nested;
@@ -342,6 +341,10 @@ class Iterable {
 
   has(searchKey) {
     return this.get(searchKey, NOT_SET) !== NOT_SET;
+  }
+
+  hasIn(searchKeyPath) {
+    return this.getIn(searchKeyPath, NOT_SET) !== NOT_SET;
   }
 
   isSubset(iter) {
@@ -756,12 +759,25 @@ function neg(predicate) {
   }
 }
 
+function forceIterator(keyPath) {
+  var iter = getIterator(keyPath);
+  if (!iter) {
+    // Array might not be iterable in this environment, so we need a fallback
+    // to our wrapped type.
+    if (!isArrayLike(keyPath)) {
+      throw new TypeError('Expected iterable or array-like: ' + keyPath);
+    }
+    iter = getIterator(Iterable(keyPath));
+  }
+  return iter;
+}
+
 function quoteString(value) {
   return typeof value === 'string' ? JSON.stringify(value) : value;
 }
 
 function defaultNegComparator(a, b) {
-  return a > b ? -1 : a < b ? 1 : 0;
+  return a < b ? 1 : a > b ? -1 : 0;
 }
 
 function deepEqual(a, b) {

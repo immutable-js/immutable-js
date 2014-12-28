@@ -12,11 +12,13 @@ import "Iterable"
 import "Collection"
 import "Map"
 import "Iterator"
-/* global MAKE, wholeSlice, resolveBegin, resolveEnd,
+import "Operations"
+/* global MAKE, makeEmpty, wholeSlice, resolveBegin, resolveEnd,
           IndexedIterable,
           IndexedCollection,
           MapPrototype,
-          Iterator, iteratorValue, iteratorDone */
+          Iterator, iteratorValue, iteratorDone,
+          assertNotInfinite */
 /* exported Stack */
 
 
@@ -27,9 +29,9 @@ class Stack extends IndexedCollection {
   constructor(value) {
     if (!(this instanceof Stack)) return new Stack(value);
     if (value === MAKE) return this;
-    return value === null || value === undefined ? emptyStack(this) :
+    return value === null || value === undefined ? this.__empty() :
       isStack(value) ? (value.constructor === this.constructor ? value : this.merge(value)) :
-      emptyStack(this).unshiftAll(value);
+      this.__empty().unshiftAll(value);
   }
 
   static of(/*...values*/) {
@@ -75,7 +77,7 @@ class Stack extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return makeStack(this.constructor, newSize, head);
+    return this.__make(newSize, head);
   }
 
   pushAll(iter) {
@@ -83,6 +85,7 @@ class Stack extends IndexedCollection {
     if (iter.size === 0) {
       return this;
     }
+    assertNotInfinite(iter.size);
     var newSize = this.size;
     var head = this._head;
     iter.reverse().forEach(value => {
@@ -99,7 +102,7 @@ class Stack extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return makeStack(this.constructor, newSize, head);
+    return this.__make(newSize, head);
   }
 
   pop() {
@@ -129,7 +132,7 @@ class Stack extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return emptyStack(this);
+    return this.__empty();
   }
 
   slice(begin, end) {
@@ -153,7 +156,7 @@ class Stack extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return makeStack(this.constructor, newSize, head);
+    return this.__make(newSize, head);
   }
 
   // @pragma Mutability
@@ -167,7 +170,7 @@ class Stack extends IndexedCollection {
       this.__altered = false;
       return this;
     }
-    return makeStack(this.constructor, this.size, this._head, ownerID, this.__hash);
+    return this.__make(this.size, this._head, ownerID, this.__hash);
   }
 
   // @pragma Iteration
@@ -202,6 +205,21 @@ class Stack extends IndexedCollection {
       return iteratorDone();
     });
   }
+
+  __make(size, head, ownerID, hash) {
+    var map = new this.constructor(MAKE);
+    map.size = size;
+    map._head = head;
+    map.__ownerID = ownerID;
+    map.__hash = hash;
+    map.__altered = false;
+    return map;
+  }
+
+  __empty() {
+    return makeEmpty(this, 0);
+  }
+
 }
 
 function isStack(maybeStack) {
@@ -218,22 +236,3 @@ StackPrototype.withMutations = MapPrototype.withMutations;
 StackPrototype.asMutable = MapPrototype.asMutable;
 StackPrototype.asImmutable = MapPrototype.asImmutable;
 StackPrototype.wasAltered = MapPrototype.wasAltered;
-
-
-function makeStack(Ctor, size, head, ownerID, hash) {
-  var map = new Ctor(MAKE);
-  map.size = size;
-  map._head = head;
-  map.__ownerID = ownerID;
-  map.__hash = hash;
-  map.__altered = false;
-  return map;
-}
-
-var EMPTY_STACK;
-function emptyStack(from) {
-  var source = from && from.constructor || Stack;
-  return source.prototype === StackPrototype ?
-    (EMPTY_STACK || (EMPTY_STACK = makeStack(source, 0))) :
-    makeStack(source, 0);
-}
