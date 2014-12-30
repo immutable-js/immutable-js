@@ -16,6 +16,16 @@
  * presents an Object-Oriented API familiar to Javascript engineers and closely
  * mirroring that of Array, Map, and Set. It is easy and efficient to convert to
  * and from plain Javascript types.
+
+ * Note: all examples are presented in [ES6][]. To run in all browsers, they
+ * need to be translated to ES3. For example:
+ *
+ *     // ES6
+ *     foo.map(x => x * x);
+ *     // ES3
+ *     foo.map(function (x) { return x * x; });
+ *
+ * [ES6]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/ECMAScript_6_support_in_Mozilla
  */
 
 declare module 'immutable' {

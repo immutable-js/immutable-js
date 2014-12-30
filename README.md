@@ -206,6 +206,29 @@ deep.toJS() // { a: 1, b: 2, c: [ 3, 4, 5 ] }
 JSON.stringify(deep) // '{"a":1,"b":2,"c":[3,4,5]}'
 ```
 
+### Embraces ES6
+
+`Immutable` takes advantage of features added to JavaScript in [ES6][],
+the latest standard version of ECMAScript (JavaScript) including [Iterators][],
+[Arrow Functions][], and [Classes][]. It's also inspired by the Map and Set
+collections added to ES6. The library is "transpiled" to ES3 in order to support
+all modern browsers.
+
+All examples are presented in ES6. To run in all browsers, they need to be
+translated to ES3. For example:
+
+```js
+// ES6
+foo.map(x => x * x);
+// ES3
+foo.map(function (x) { return x * x; });
+```
+
+[ES6]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/ECMAScript_6_support_in_Mozilla
+[Iterators]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/The_Iterator_protocol
+[Arrow Functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
+[Classes]: http://wiki.ecmascript.org/doku.php?id=strawman:maximally_minimal_classes
+
 
 Nested Structures
 -----------------
