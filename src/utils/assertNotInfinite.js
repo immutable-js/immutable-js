@@ -7,6 +7,11 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-export function invariant(condition, error) {
-  if (!condition) throw new Error(error);
+import { invariant } from '../invariant'
+
+export default function assertNotInfinite(size) {
+  invariant(
+    size !== Infinity,
+    'Cannot perform this action with an infinite size.'
+  );
 }

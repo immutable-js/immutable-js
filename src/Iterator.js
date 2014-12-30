@@ -8,9 +8,10 @@
  */
 
 /* global Symbol */
-/* exported ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES, ITERATOR_SYMBOL,
-            Iterator, iteratorValue, iteratorDone,
-            hasIterator, isIterator, getIterator */
+
+export { ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES, ITERATOR_SYMBOL,
+          Iterator, iteratorValue, iteratorDone,
+          hasIterator, isIterator, getIterator }
 
 var ITERATE_KEYS = 0;
 var ITERATE_VALUES = 1;

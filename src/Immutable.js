@@ -7,24 +7,20 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "Iterable"
-import "Seq"
-import "Operations" // Break circular dependency
-import "Map"
-import "OrderedMap"
-import "List"
-import "Stack"
-import "Set"
-import "OrderedSet"
-import "Record"
-import "Range"
-import "Repeat"
-import "is"
-import "fromJS"
-/* global Iterable, Seq, Collection,
-          Map, OrderedMap, List, Stack, Set, OrderedSet, Record, Range, Repeat,
-          is, fromJS */
-/* exported Immutable */
+import { Seq } from './Seq'
+import { Collection } from './Collection'
+import { OrderedMap } from './OrderedMap'
+import { List } from './List'
+import { Map } from './Map'
+import { Stack } from './Stack'
+import { OrderedSet } from './OrderedSet'
+import { Set } from './Set'
+import { Record } from './Record'
+import { Range } from './Range'
+import { Repeat } from './Repeat'
+import { is } from './is'
+import { fromJS } from './fromJS'
+import { Iterable } from './IterableImpl'
 
 
 var Immutable = {
@@ -47,3 +43,5 @@ var Immutable = {
   is: is,
   fromJS: fromJS,
 };
+
+export default Immutable;

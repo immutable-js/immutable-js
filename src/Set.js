@@ -7,15 +7,16 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "Iterable"
-import "Collection"
-import "Map"
-import "TrieUtils"
-import "Operations"
-/* global SetIterable, KeyedIterable, SetCollection, MapPrototype,
-          emptyMap, DELETE, sortFactory, OrderedSet,
-          assertNotInfinite */
-/* exported Set, isSet */
+import { SetIterable, KeyedIterable } from './Iterable'
+import { SetCollection } from './Collection'
+import { emptyMap, MapPrototype } from './Map'
+import { DELETE } from './TrieUtils'
+import { sortFactory } from './Operations'
+import assertNotInfinite from './utils/assertNotInfinite'
+
+import { OrderedSet } from './OrderedSet'
+
+export { Set, isSet }
 
 
 class Set extends SetCollection {

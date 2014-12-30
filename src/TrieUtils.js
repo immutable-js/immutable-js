@@ -7,13 +7,10 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "invariant"
-/* global invariant */
-/* exported DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER,
-            OwnerID, MakeRef, SetRef, arrCopy, assertNotInfinite,
-            ensureSize, wrapIndex, returnTrue,
-            wholeSlice, resolveBegin, resolveEnd,
-            isArrayLike */
+export { DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER,
+          OwnerID, MakeRef, SetRef, arrCopy,
+          ensureSize, wrapIndex, returnTrue,
+          wholeSlice, resolveBegin, resolveEnd }
 
 
 // Used for setting prototype methods that IE8 chokes on.
@@ -57,13 +54,6 @@ function arrCopy(arr, offset) {
   return newArr;
 }
 
-function assertNotInfinite(size) {
-  invariant(
-    size !== Infinity,
-    'Cannot perform this action with an infinite size.'
-  );
-}
-
 function ensureSize(iter) {
   if (iter.size === undefined) {
     iter.size = iter.__iterate(returnTrue);
@@ -100,8 +90,4 @@ function resolveIndex(index, size, defaultIndex) {
       size === undefined ?
         index :
         Math.min(size, index);
-}
-
-function isArrayLike(value) {
-  return value && typeof value.length === 'number';
 }

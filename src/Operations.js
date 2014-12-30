@@ -7,26 +7,24 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "TrieUtils"
-import "Iterable"
-import "Iterator"
-import "Seq"
-import "Map"
-/* global NOT_SET, assertNotInfinite, ensureSize, wrapIndex,
-          wholeSlice, resolveBegin, resolveEnd,
-          isIterable, isKeyed, isIndexed,
-          KeyedIterable, SetIterable, IndexedIterable, IS_ORDERED_SENTINEL,
-          Iterator, iteratorValue, iteratorDone,
-          ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES,
-          isSeq, Seq, KeyedSeq, SetSeq, IndexedSeq,
-          keyedSeqFromValue, indexedSeqFromValue, ArraySeq,
-          Map */
-/* exported reify, ToKeyedSequence, ToIndexedSequence, ToSetSequence,
-            FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
-            filterFactory, countByFactory, groupByFactory, sliceFactory,
-            takeWhileFactory, skipWhileFactory, concatFactory,
-            flattenFactory, flatMapFactory, interposeFactory, sortFactory,
-            maxFactory */
+import { NOT_SET, ensureSize, wrapIndex, wholeSlice, resolveBegin, resolveEnd } from './TrieUtils'
+import { isIterable, isKeyed, isIndexed,
+          KeyedIterable, SetIterable, IndexedIterable, IS_ORDERED_SENTINEL } from './Iterable'
+import { Iterator, iteratorValue, iteratorDone,
+          ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES } from './Iterator'
+import { isSeq, Seq, KeyedSeq, SetSeq, IndexedSeq,
+          keyedSeqFromValue, indexedSeqFromValue, ArraySeq } from './Seq'
+
+import assertNotInfinite from './utils/assertNotInfinite'
+
+import { Map } from './Map'
+
+export { reify, ToKeyedSequence, ToIndexedSequence, ToSetSequence,
+          FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
+          filterFactory, countByFactory, groupByFactory, sliceFactory,
+          takeWhileFactory, skipWhileFactory, concatFactory,
+          flattenFactory, flatMapFactory, interposeFactory, sortFactory,
+          maxFactory }
 
 
 class ToKeyedSequence extends KeyedSeq {

@@ -7,9 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-/* exported imul, smi */
-
-var imul =
+export var imul =
   typeof Math.imul === 'function' && Math.imul(0xffffffff, 2) === -2 ?
   Math.imul :
   function imul(a, b) {
@@ -25,6 +23,6 @@ var imul =
 // Values which have either 00 or 11 as the high order bits qualify.
 // This function drops the highest order bit in a signed number, maintaining
 // the sign bit.
-function smi(i32) {
+export function smi(i32) {
   return ((i32 >>> 1) & 0x40000000) | (i32 & 0xBFFFFFFF);
 }

@@ -7,16 +7,14 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "mixin"
-import "TrieUtils"
-import "Iterable"
-import "Iterator"
-/* global mixin,
-          wrapIndex, isArrayLike,
-          isIterable, isKeyed, Iterable, KeyedIterable, IndexedIterable, SetIterable, IS_ORDERED_SENTINEL,
-          Iterator, iteratorValue, iteratorDone, hasIterator, isIterator, getIterator */
-/* exported isSeq, Seq, KeyedSeq, IndexedSeq, SetSeq, ArraySeq,
-            keyedSeqFromValue, indexedSeqFromValue */
+import { wrapIndex } from './TrieUtils'
+import { isIterable, isKeyed, Iterable, IS_ORDERED_SENTINEL } from './Iterable'
+import { Iterator, iteratorValue, iteratorDone, hasIterator, isIterator, getIterator } from './Iterator'
+
+import isArrayLike from './utils/isArrayLike'
+
+export { Seq, isSeq, KeyedSeq, IndexedSeq, SetSeq, ArraySeq,
+          keyedSeqFromValue, indexedSeqFromValue }
 
 
 class Seq extends Iterable {
@@ -79,7 +77,6 @@ class KeyedSeq extends Seq {
     return this;
   }
 }
-mixin(KeyedSeq, KeyedIterable.prototype);
 
 class IndexedSeq extends Seq {
   constructor(value) {
@@ -108,7 +105,6 @@ class IndexedSeq extends Seq {
     return seqIterator(this, type, reverse, false);
   }
 }
-mixin(IndexedSeq, IndexedIterable.prototype);
 
 class SetSeq extends Seq {
   constructor(value) {
@@ -127,7 +123,6 @@ class SetSeq extends Seq {
     return this;
   }
 }
-mixin(SetSeq, SetIterable.prototype);
 
 
 Seq.isSeq = isSeq;

@@ -27,18 +27,18 @@
     "persistModuleRegistryBetweenSpecs": true
   },
   "devDependencies": {
+    "esperanto": "^0.5.3",
     "grunt": "^0.4.5",
+    "grunt-contrib-clean": "^0.5.0",
     "grunt-contrib-copy": "^0.5.0",
     "grunt-contrib-jshint": "^0.10.0",
-    "grunt-contrib-clean": "^0.5.0",
     "grunt-jest": "^0.1.0",
-    "react-tools": "^0.11.1",
-    "ts-compiler": "^2.0.0",
     "grunt-release": "^0.7.0",
+    "jasmine-check": "^0.1.2",
+    "react-tools": "^0.11.1",
     "traceur": "0.0.55",
-    "smash": "0.0.12",
-    "uglify-js": "^2.4.15",
-    "jasmine-check": "^0.1.2"
+    "ts-compiler": "^2.0.0",
+    "uglify-js": "^2.4.15"
   },
   "engines": {
     "node": ">=0.8.0"

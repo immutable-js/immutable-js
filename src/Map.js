@@ -7,23 +7,22 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "is"
-import "fromJS"
-import "Iterable"
-import "Seq"
-import "Collection"
-import "invariant"
-import "TrieUtils"
-import "Hash"
-import "Iterator"
-import "Operations"
-/* global is, fromJS, isIterable, forceIterator, KeyedIterable, KeyedCollection,
-          invariant,
-          DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
-          MakeRef, SetRef, arrCopy, hash, sortFactory, OrderedMap,
-          Iterator, iteratorValue, iteratorDone,
-          assertNotInfinite */
-/* exported Map, isMap, MapPrototype */
+import { is } from './is'
+import { fromJS } from './fromJS'
+import { isIterable, KeyedIterable } from './Iterable'
+import { KeyedCollection } from './Collection'
+import { invariant } from './invariant'
+import { DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
+          MakeRef, SetRef, arrCopy } from './TrieUtils'
+import { hash } from './Hash'
+import { Iterator, iteratorValue, iteratorDone } from './Iterator'
+import { sortFactory } from './Operations'
+import forceIterator from './utils/forceIterator'
+import assertNotInfinite from './utils/assertNotInfinite'
+
+import { OrderedMap } from './OrderedMap'
+
+export { Map, isMap, emptyMap, MapPrototype, mergeIntoCollectionWith, deepMerger }
 
 
 class Map extends KeyedCollection {

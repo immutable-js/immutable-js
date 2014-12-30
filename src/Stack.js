@@ -7,19 +7,14 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "TrieUtils"
-import "Iterable"
-import "Collection"
-import "Map"
-import "Iterator"
-import "Operations"
-/* global wholeSlice, resolveBegin, resolveEnd,
-          IndexedIterable,
-          IndexedCollection,
-          MapPrototype,
-          Iterator, iteratorValue, iteratorDone,
-          assertNotInfinite */
-/* exported Stack */
+import { wholeSlice, resolveBegin, resolveEnd } from './TrieUtils'
+import { IndexedIterable } from './Iterable'
+import { IndexedCollection } from './Collection'
+import { MapPrototype } from './Map'
+import { Iterator, iteratorValue, iteratorDone } from './Iterator'
+import assertNotInfinite from './utils/assertNotInfinite'
+
+export { Stack }
 
 
 class Stack extends IndexedCollection {

@@ -7,11 +7,9 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "Seq"
-/* global KeyedSeq, IndexedSeq */
-/* exported fromJS */
+import { KeyedSeq, IndexedSeq } from './Seq'
 
-function fromJS(json, converter) {
+export function fromJS(json, converter) {
   return converter ?
     _fromJSWith(converter, json, '', {'': json}) :
     _fromJSDefault(json);

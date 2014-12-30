@@ -7,22 +7,17 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "fromJS"
-import "TrieUtils"
-import "Iterable"
-import "Collection"
-import "Map"
-import "Iterator"
-import "Operations"
-/* global fromJS,
-          DELETE, SHIFT, SIZE, MASK, DID_ALTER, OwnerID, MakeRef,
-          SetRef, wrapIndex, wholeSlice, resolveBegin, resolveEnd,
-          isIterable, IndexedIterable,
-          IndexedCollection,
-          MapPrototype, mergeIntoCollectionWith, deepMerger,
-          Iterator, iteratorValue, iteratorDone,
-          assertNotInfinite */
-/* exported List, ListPrototype */
+import { fromJS } from './fromJS'
+import { DELETE, SHIFT, SIZE, MASK, DID_ALTER, OwnerID, MakeRef,
+          SetRef, wrapIndex, wholeSlice, resolveBegin, resolveEnd } from './TrieUtils'
+import { isIterable, IndexedIterable } from './Iterable'
+import { IndexedCollection } from './Collection'
+import { MapPrototype, mergeIntoCollectionWith, deepMerger } from './Map'
+import { Iterator, iteratorValue, iteratorDone } from './Iterator'
+
+import assertNotInfinite from './utils/assertNotInfinite'
+
+export { List, isList, emptyList, ListPrototype }
 
 
 class List extends IndexedCollection {

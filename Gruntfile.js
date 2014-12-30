@@ -34,7 +34,7 @@ module.exports = function(grunt) {
     clean: {
       build: ['dist/*']
     },
-    smash: {
+    bundle: {
       build: {
         files: [{
           src: 'src/Immutable.js',
@@ -59,26 +59,31 @@ module.exports = function(grunt) {
 
 
   var fs = require('fs');
-  var smash = require('smash');
+  var esperanto = require('esperanto');
   var traceur = require('traceur');
   var uglify = require('uglify-js');
 
-  grunt.registerMultiTask('smash', function () {
+  grunt.registerMultiTask('bundle', function () {
     var done = this.async();
+
     this.files.map(function (file) {
-      var unTransformed = '';
-      smash(file.src).on('data', function (data) {
-        unTransformed += data;
-      }).on('end', function () {
-        var transformed = traceur.compile(unTransformed, {
+      esperanto.bundle({ entry: file.src[0] }).then(function (bundle) {
+        var unTransformed = bundle.toCjs({ name: 'Immutable' }).code;
+
+        var transformResult = traceur.compile(unTransformed, {
           filename: file.src[0]
         });
-        if (transformed.error) {
-          throw transformed.error;
+        if (transformResult.error) {
+          throw transformResult.error;
         }
-        var transformed = fs.readFileSync('resources/traceur-runtime.js', {encoding: 'utf8'}) + transformed.js;
+        if (transformResult.errors && transformResult.errors.length > 0) {
+          throw transformResult.errors;
+        }
+
+        var transformed = transformResult.js;
+        var runnable = fs.readFileSync('resources/traceur-runtime.js', {encoding: 'utf8'}) + transformed;
         var wrapped = fs.readFileSync('resources/universal-module.js', {encoding: 'utf8'})
-          .replace('%MODULE%', transformed);
+          .replace('%MODULE%', runnable);
 
         var copyright = fs.readFileSync('resources/COPYRIGHT');
 
@@ -101,7 +106,9 @@ module.exports = function(grunt) {
         });
 
         fs.writeFileSync(file.dest + '.min.js', copyright + result.code);
-        done();
+      }).then(function(){ done(); }, function(error) {
+        grunt.log.error(error);
+        done(false);
       });
     });
   });
@@ -162,7 +169,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-release');
 
   grunt.registerTask('lint', 'Lint all source javascript', ['jshint']);
-  grunt.registerTask('build', 'Build distributed javascript', ['clean', 'smash', 'copy']);
+  grunt.registerTask('build', 'Build distributed javascript', ['clean', 'bundle', 'copy']);
   grunt.registerTask('test', 'Test built javascript', ['init_ts_compiler', 'jest']);
   grunt.registerTask('default', 'Lint, build and test.', ['lint', 'build', 'stats', 'test']);
 }

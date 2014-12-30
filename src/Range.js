@@ -7,17 +7,14 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "TrieUtils"
-import "invariant"
-import "Seq"
-import "Iterable"
-import "Iterator"
-/* global wrapIndex, wholeSlice, resolveBegin, resolveEnd,
-          invariant,
-          IndexedSeq,
-          deepEqual,
-          Iterator, iteratorValue, iteratorDone */
-/* exported Range */
+import { wrapIndex, wholeSlice, resolveBegin, resolveEnd } from './TrieUtils'
+import { invariant } from './invariant'
+import { IndexedSeq } from './Seq'
+import { Iterator, iteratorValue, iteratorDone } from './Iterator'
+
+import deepEqual from './utils/deepEqual'
+
+export { Range }
 
 
 /**
