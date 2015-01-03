@@ -1875,6 +1875,14 @@ declare module 'immutable' {
     join(separator?: string): string;
 
     /**
+     * Returns true if this Iterable contains no values.
+     *
+     * For some lazy `Seq`, `isEmpty` might need to iterate to determine
+     * emptiness. At most one iteration will occur.
+     */
+    isEmpty(): boolean;
+
+    /**
      * Returns the size of this Iterable.
      *
      * Regardless of if this Iterable can describe its size lazily (some Seqs

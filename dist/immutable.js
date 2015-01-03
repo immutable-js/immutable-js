@@ -469,6 +469,11 @@ var $Iterable = Iterable;
   butLast: function() {
     return this.slice(0, -1);
   },
+  isEmpty: function() {
+    return this.size !== undefined ? this.size === 0 : !this.some((function() {
+      return true;
+    }));
+  },
   count: function(predicate, context) {
     return ensureSize(predicate ? this.toSeq().filter(predicate, context) : this);
   },

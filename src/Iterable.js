@@ -261,6 +261,10 @@ class Iterable {
     return this.slice(0, -1);
   }
 
+  isEmpty() {
+    return this.size !== undefined ? this.size === 0 : !this.some(() => true);
+  }
+
   count(predicate, context) {
     return ensureSize(
       predicate ? this.toSeq().filter(predicate, context) : this
