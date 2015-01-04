@@ -8,10 +8,10 @@
  */
 
 import { wrapIndex, wholeSlice, resolveBegin, resolveEnd } from './TrieUtils'
-import { invariant } from './invariant'
 import { IndexedSeq } from './Seq'
 import { Iterator, iteratorValue, iteratorDone } from './Iterator'
 
+import invariant from './utils/invariant'
 import deepEqual from './utils/deepEqual'
 
 export { Range }
@@ -33,9 +33,6 @@ class Range extends IndexedSeq {
     if (end === undefined) {
       end = Infinity;
     }
-    if (start === end && __EMPTY_RANGE) {
-      return __EMPTY_RANGE;
-    }
     step = step === undefined ? 1 : Math.abs(step);
     if (end < start) {
       step = -step;
@@ -44,6 +41,12 @@ class Range extends IndexedSeq {
     this._end = end;
     this._step = step;
     this.size = Math.max(0, Math.ceil((end - start) / step - 1) + 1);
+    if (this.size === 0) {
+      if (EMPTY_RANGE) {
+        return EMPTY_RANGE;
+      }
+      EMPTY_RANGE = this;
+    }
   }
 
   toString() {
@@ -76,7 +79,7 @@ class Range extends IndexedSeq {
     begin = resolveBegin(begin, this.size);
     end = resolveEnd(end, this.size);
     if (end <= begin) {
-      return __EMPTY_RANGE;
+      return new Range(0, 0);
     }
     return new Range(this.get(begin, this._end), this.get(end, this._end), this._step);
   }
@@ -130,4 +133,4 @@ class Range extends IndexedSeq {
   }
 }
 
-var __EMPTY_RANGE = Range(0, 0);
+var EMPTY_RANGE;

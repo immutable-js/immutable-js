@@ -11,8 +11,6 @@ import { Iterable, KeyedIterable, IndexedIterable, SetIterable,
          isIterable, isKeyed, isIndexed, isAssociative, isOrdered,
          IS_ITERABLE_SENTINEL, IS_KEYED_SENTINEL, IS_INDEXED_SENTINEL, IS_ORDERED_SENTINEL } from './Iterable'
 
-import { mixin } from './mixin'
-
 import { is } from './is'
 import { arrCopy, NOT_SET, ensureSize, wrapIndex,
          returnTrue, resolveBegin } from './TrieUtils'
@@ -24,7 +22,7 @@ import { Iterator,
 import assertNotInfinite from './utils/assertNotInfinite'
 import forceIterator from './utils/forceIterator'
 import deepEqual from './utils/deepEqual'
-
+import mixin from './utils/mixin'
 
 import { Map } from './Map'
 import { OrderedMap } from './OrderedMap'

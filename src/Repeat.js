@@ -24,15 +24,15 @@ export { Repeat }
 class Repeat extends IndexedSeq {
 
   constructor(value, times) {
-    if (times <= 0 && EMPTY_REPEAT) {
-      return EMPTY_REPEAT;
-    }
     if (!(this instanceof Repeat)) {
       return new Repeat(value, times);
     }
     this._value = value;
     this.size = times === undefined ? Infinity : Math.max(0, times);
     if (this.size === 0) {
+      if (EMPTY_REPEAT) {
+        return EMPTY_REPEAT;
+      }
       EMPTY_REPEAT = this;
     }
   }

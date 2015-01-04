@@ -57,7 +57,7 @@ function iteratorDone() {
 }
 
 function hasIterator(maybeIterable) {
-  return !!_iteratorFn(maybeIterable);
+  return !!getIteratorFn(maybeIterable);
 }
 
 function isIterator(maybeIterator) {
@@ -65,11 +65,11 @@ function isIterator(maybeIterator) {
 }
 
 function getIterator(iterable) {
-  var iteratorFn = _iteratorFn(iterable);
+  var iteratorFn = getIteratorFn(iterable);
   return iteratorFn && iteratorFn.call(iterable);
 }
 
-function _iteratorFn(iterable) {
+function getIteratorFn(iterable) {
   var iteratorFn = iterable && (
     (REAL_ITERATOR_SYMBOL && iterable[REAL_ITERATOR_SYMBOL]) ||
     iterable[FAUX_ITERATOR_SYMBOL]

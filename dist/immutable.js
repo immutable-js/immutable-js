@@ -172,16 +172,16 @@ $traceurRuntime.defaultSuperCall = defaultSuperCall;
     };
   }
   function hasIterator(maybeIterable) {
-    return !!_iteratorFn(maybeIterable);
+    return !!getIteratorFn(maybeIterable);
   }
   function isIterator(maybeIterator) {
     return maybeIterator && typeof maybeIterator.next === 'function';
   }
   function getIterator(iterable) {
-    var iteratorFn = _iteratorFn(iterable);
+    var iteratorFn = getIteratorFn(iterable);
     return iteratorFn && iteratorFn.call(iterable);
   }
-  function _iteratorFn(iterable) {
+  function getIteratorFn(iterable) {
     var iteratorFn = iterable && ((REAL_ITERATOR_SYMBOL && iterable[REAL_ITERATOR_SYMBOL]) || iterable[FAUX_ITERATOR_SYMBOL]);
     if (typeof iteratorFn === 'function') {
       return iteratorFn;
@@ -510,36 +510,32 @@ $traceurRuntime.defaultSuperCall = defaultSuperCall;
     return typeof valueA.equals === 'function' && typeof valueB.equals === 'function' ? valueA.equals(valueB) : valueA === valueB || (valueA !== valueA && valueB !== valueB);
   }
   function fromJS(json, converter) {
-    return converter ? _fromJSWith(converter, json, '', {'': json}) : _fromJSDefault(json);
+    return converter ? fromJSWith(converter, json, '', {'': json}) : fromJSDefault(json);
   }
-  function _fromJSWith(converter, json, key, parentJSON) {
+  function fromJSWith(converter, json, key, parentJSON) {
     if (Array.isArray(json)) {
       return converter.call(parentJSON, key, IndexedSeq(json).map((function(v, k) {
-        return _fromJSWith(converter, v, k, json);
+        return fromJSWith(converter, v, k, json);
       })));
     }
     if (isPlainObj(json)) {
       return converter.call(parentJSON, key, KeyedSeq(json).map((function(v, k) {
-        return _fromJSWith(converter, v, k, json);
+        return fromJSWith(converter, v, k, json);
       })));
     }
     return json;
   }
-  function _fromJSDefault(json) {
+  function fromJSDefault(json) {
     if (Array.isArray(json)) {
-      return IndexedSeq(json).map(_fromJSDefault).toList();
+      return IndexedSeq(json).map(fromJSDefault).toList();
     }
     if (isPlainObj(json)) {
-      return KeyedSeq(json).map(_fromJSDefault).toMap();
+      return KeyedSeq(json).map(fromJSDefault).toMap();
     }
     return json;
   }
   function isPlainObj(value) {
     return value && value.constructor === Object;
-  }
-  function invariant(condition, error) {
-    if (!condition)
-      throw new Error(error);
   }
   var Math__imul = typeof Math.imul === 'function' && Math.imul(0xffffffff, 2) === -2 ? Math.imul : function Math__imul(a, b) {
     a = a | 0;
@@ -672,6 +668,10 @@ $traceurRuntime.defaultSuperCall = defaultSuperCall;
   var STRING_HASH_CACHE_MAX_SIZE = 255;
   var STRING_HASH_CACHE_SIZE = 0;
   var stringHashCache = {};
+  function invariant(condition, error) {
+    if (!condition)
+      throw new Error(error);
+  }
   function assertNotInfinite(size) {
     invariant(size !== Infinity, 'Cannot perform this action with an infinite size.');
   }
@@ -1289,16 +1289,16 @@ $traceurRuntime.defaultSuperCall = defaultSuperCall;
       var entry = iterable.toSeq().map((function(v, k) {
         return [v, mapper(v, k, iterable)];
       })).reduce((function(a, b) {
-        return _maxCompare(comparator, a[1], b[1]) ? b : a;
+        return maxCompare(comparator, a[1], b[1]) ? b : a;
       }));
       return entry && entry[0];
     } else {
       return iterable.reduce((function(a, b) {
-        return _maxCompare(comparator, a, b) ? b : a;
+        return maxCompare(comparator, a, b) ? b : a;
       }));
     }
   }
-  function _maxCompare(comparator, a, b) {
+  function maxCompare(comparator, a, b) {
     var comp = comparator(b, a);
     return (comp === 0 && b !== a && (b === undefined || b === null || b !== b)) || comp > 0;
   }
@@ -3184,9 +3184,6 @@ $traceurRuntime.defaultSuperCall = defaultSuperCall;
     if (end === undefined) {
       end = Infinity;
     }
-    if (start === end && __EMPTY_RANGE) {
-      return __EMPTY_RANGE;
-    }
     step = step === undefined ? 1 : Math.abs(step);
     if (end < start) {
       step = -step;
@@ -3195,6 +3192,12 @@ $traceurRuntime.defaultSuperCall = defaultSuperCall;
     this._end = end;
     this._step = step;
     this.size = Math.max(0, Math.ceil((end - start) / step - 1) + 1);
+    if (this.size === 0) {
+      if (EMPTY_RANGE) {
+        return EMPTY_RANGE;
+      }
+      EMPTY_RANGE = this;
+    }
   };
   var $Range = Range;
   ($traceurRuntime.createClass)(Range, {
@@ -3218,7 +3221,7 @@ $traceurRuntime.defaultSuperCall = defaultSuperCall;
       begin = resolveBegin(begin, this.size);
       end = resolveEnd(end, this.size);
       if (end <= begin) {
-        return __EMPTY_RANGE;
+        return new $Range(0, 0);
       }
       return new $Range(this.get(begin, this._end), this.get(end, this._end), this._step);
     },
@@ -3262,17 +3265,17 @@ $traceurRuntime.defaultSuperCall = defaultSuperCall;
       return other instanceof $Range ? this._start === other._start && this._end === other._end && this._step === other._step : deepEqual(this, other);
     }
   }, {}, IndexedSeq);
-  var __EMPTY_RANGE = Range(0, 0);
+  var EMPTY_RANGE;
   var Repeat = function Repeat(value, times) {
-    if (times <= 0 && EMPTY_REPEAT) {
-      return EMPTY_REPEAT;
-    }
     if (!(this instanceof $Repeat)) {
       return new $Repeat(value, times);
     }
     this._value = value;
     this.size = times === undefined ? Infinity : Math.max(0, times);
     if (this.size === 0) {
+      if (EMPTY_REPEAT) {
+        return EMPTY_REPEAT;
+      }
       EMPTY_REPEAT = this;
     }
   };
@@ -3330,9 +3333,8 @@ $traceurRuntime.defaultSuperCall = defaultSuperCall;
   }, {}, IndexedSeq);
   var EMPTY_REPEAT;
   function mixin(ctor, methods) {
-    var proto = ctor.prototype;
     var keyCopier = (function(key) {
-      proto[key] = methods[key];
+      ctor.prototype[key] = methods[key];
     });
     Object.keys(methods).forEach(keyCopier);
     Object.getOwnPropertySymbols && Object.getOwnPropertySymbols(methods).forEach(keyCopier);

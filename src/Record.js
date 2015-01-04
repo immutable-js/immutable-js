@@ -10,8 +10,9 @@
 import { KeyedIterable } from './Iterable'
 import { KeyedCollection } from './Collection'
 import { Map, MapPrototype, emptyMap } from './Map'
-import { invariant } from './invariant'
 import { DELETE } from './TrieUtils'
+
+import invariant from './utils/invariant'
 
 export { Record }
 

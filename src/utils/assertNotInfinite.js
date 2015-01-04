@@ -7,7 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { invariant } from '../invariant'
+import invariant from './invariant'
 
 export default function assertNotInfinite(size) {
   invariant(
