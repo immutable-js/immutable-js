@@ -12,10 +12,8 @@ import { Set, isSet } from './Set'
 import { emptyOrderedMap } from './OrderedMap'
 import assertNotInfinite from './utils/assertNotInfinite'
 
-export { OrderedSet }
 
-
-class OrderedSet extends Set {
+export class OrderedSet extends Set {
 
   // @pragma Construction
 

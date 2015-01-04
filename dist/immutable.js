@@ -138,8 +138,8 @@ $traceurRuntime.defaultSuperCall = defaultSuperCall;
   var ITERATE_KEYS = 0;
   var ITERATE_VALUES = 1;
   var ITERATE_ENTRIES = 2;
-  var FAUX_ITERATOR_SYMBOL = '@@iterator';
   var REAL_ITERATOR_SYMBOL = typeof Symbol === 'function' && Symbol.iterator;
+  var FAUX_ITERATOR_SYMBOL = '@@iterator';
   var ITERATOR_SYMBOL = REAL_ITERATOR_SYMBOL || FAUX_ITERATOR_SYMBOL;
   var Iterator = function Iterator(next) {
     this.next = next;
@@ -150,11 +150,10 @@ $traceurRuntime.defaultSuperCall = defaultSuperCall;
   Iterator.KEYS = ITERATE_KEYS;
   Iterator.VALUES = ITERATE_VALUES;
   Iterator.ENTRIES = ITERATE_ENTRIES;
-  var IteratorPrototype = Iterator.prototype;
-  IteratorPrototype.inspect = IteratorPrototype.toSource = function() {
+  Iterator.prototype.inspect = Iterator.prototype.toSource = function() {
     return this.toString();
   };
-  IteratorPrototype[ITERATOR_SYMBOL] = function() {
+  Iterator.prototype[ITERATOR_SYMBOL] = function() {
     return this;
   };
   function iteratorValue(type, k, v, iteratorResult) {

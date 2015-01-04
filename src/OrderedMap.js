@@ -13,10 +13,8 @@ import { emptyList } from './List'
 import { DELETE, NOT_SET, SIZE } from './TrieUtils'
 import assertNotInfinite from './utils/assertNotInfinite'
 
-export { OrderedMap, emptyOrderedMap }
 
-
-class OrderedMap extends Map {
+export class OrderedMap extends Map {
 
   // @pragma Construction
 
@@ -121,7 +119,7 @@ function makeOrderedMap(map, list, ownerID, hash) {
 }
 
 var EMPTY_ORDERED_MAP;
-function emptyOrderedMap() {
+export function emptyOrderedMap() {
   return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(emptyMap(), emptyList()));
 }
 

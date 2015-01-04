@@ -22,10 +22,8 @@ import assertNotInfinite from './utils/assertNotInfinite'
 
 import { OrderedMap } from './OrderedMap'
 
-export { Map, isMap, emptyMap, MapPrototype, mergeIntoCollectionWith, deepMerger }
 
-
-class Map extends KeyedCollection {
+export class Map extends KeyedCollection {
 
   // @pragma Construction
 
@@ -185,7 +183,7 @@ class Map extends KeyedCollection {
   }
 }
 
-function isMap(maybeMap) {
+export function isMap(maybeMap) {
   return !!(maybeMap && maybeMap[IS_MAP_SENTINEL]);
 }
 
@@ -193,7 +191,7 @@ Map.isMap = isMap;
 
 var IS_MAP_SENTINEL = '@@__IMMUTABLE_MAP__@@';
 
-var MapPrototype = Map.prototype;
+export var MapPrototype = Map.prototype;
 MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeIn = MapPrototype.deleteIn;
@@ -603,7 +601,7 @@ function makeMap(size, root, ownerID, hash) {
 }
 
 var EMPTY_MAP;
-function emptyMap() {
+export function emptyMap() {
   return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
 }
 
@@ -716,14 +714,14 @@ function mergeIntoMapWith(map, merger, iterables) {
   return mergeIntoCollectionWith(map, merger, iters);
 }
 
-function deepMerger(merger) {
+export function deepMerger(merger) {
   return (existing, value) =>
     existing && existing.mergeDeepWith && isIterable(value) ?
       existing.mergeDeepWith(merger, value) :
       merger ? merger(existing, value) : value;
 }
 
-function mergeIntoCollectionWith(collection, merger, iters) {
+export function mergeIntoCollectionWith(collection, merger, iters) {
   iters = iters.filter(x => x.size !== 0);
   if (iters.length === 0) {
     return collection;

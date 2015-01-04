@@ -13,11 +13,8 @@ import { Iterator, iteratorValue, iteratorDone, hasIterator, isIterator, getIter
 
 import isArrayLike from './utils/isArrayLike'
 
-export { Seq, isSeq, KeyedSeq, IndexedSeq, SetSeq, ArraySeq,
-          keyedSeqFromValue, indexedSeqFromValue }
 
-
-class Seq extends Iterable {
+export class Seq extends Iterable {
   constructor(value) {
     return value === null || value === undefined ? emptySequence() :
       isIterable(value) ? value.toSeq() : seqFromValue(value);
@@ -56,7 +53,8 @@ class Seq extends Iterable {
   }
 }
 
-class KeyedSeq extends Seq {
+
+export class KeyedSeq extends Seq {
   constructor(value) {
     return value === null || value === undefined ?
       emptySequence().toKeyedSeq() :
@@ -78,7 +76,8 @@ class KeyedSeq extends Seq {
   }
 }
 
-class IndexedSeq extends Seq {
+
+export class IndexedSeq extends Seq {
   constructor(value) {
     return value === null || value === undefined ? emptySequence() :
       !isIterable(value) ? indexedSeqFromValue(value) :
@@ -106,7 +105,8 @@ class IndexedSeq extends Seq {
   }
 }
 
-class SetSeq extends Seq {
+
+export class SetSeq extends Seq {
   constructor(value) {
     return (
       value === null || value === undefined ? emptySequence() :
@@ -138,7 +138,7 @@ Seq.prototype[IS_SEQ_SENTINEL] = true;
 
 // #pragma Root Sequences
 
-class ArraySeq extends IndexedSeq {
+export class ArraySeq extends IndexedSeq {
   constructor(array) {
     this._array = array;
     this.size = array.length;
@@ -315,7 +315,7 @@ class IteratorSeq extends IndexedSeq {
 
 // # pragma Helper functions
 
-function isSeq(maybeSeq) {
+export function isSeq(maybeSeq) {
   return !!(maybeSeq && maybeSeq[IS_SEQ_SENTINEL]);
 }
 
@@ -325,7 +325,7 @@ function emptySequence() {
   return EMPTY_SEQ || (EMPTY_SEQ = new ArraySeq([]));
 }
 
-function keyedSeqFromValue(value) {
+export function keyedSeqFromValue(value) {
   var seq =
     Array.isArray(value) ? new ArraySeq(value).fromEntrySeq() :
     isIterator(value) ? new IteratorSeq(value).fromEntrySeq() :
@@ -341,7 +341,7 @@ function keyedSeqFromValue(value) {
   return seq;
 }
 
-function indexedSeqFromValue(value) {
+export function indexedSeqFromValue(value) {
   var seq = maybeIndexedSeqFromValue(value);
   if (!seq) {
     throw new TypeError(

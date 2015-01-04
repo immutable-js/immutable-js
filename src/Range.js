@@ -14,15 +14,13 @@ import { Iterator, iteratorValue, iteratorDone } from './Iterator'
 import invariant from './utils/invariant'
 import deepEqual from './utils/deepEqual'
 
-export { Range }
-
 
 /**
  * Returns a lazy seq of nums from start (inclusive) to end
  * (exclusive), by step, where start defaults to 0, step to 1, and end to
  * infinity. When start is equal to end, returns empty list.
  */
-class Range extends IndexedSeq {
+export class Range extends IndexedSeq {
 
   constructor(start, end, step) {
     if (!(this instanceof Range)) {

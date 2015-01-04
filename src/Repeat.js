@@ -14,14 +14,12 @@ import { Iterator, iteratorValue, iteratorDone } from './Iterator'
 
 import deepEqual from './utils/deepEqual'
 
-export { Repeat }
-
 
 /**
  * Returns a lazy Seq of `value` repeated `times` times. When `times` is
  * undefined, returns an infinite sequence of `value`.
  */
-class Repeat extends IndexedSeq {
+export class Repeat extends IndexedSeq {
 
   constructor(value, times) {
     if (!(this instanceof Repeat)) {

@@ -19,15 +19,8 @@ import assertNotInfinite from './utils/assertNotInfinite'
 
 import { Map } from './Map'
 
-export { reify, ToKeyedSequence, ToIndexedSequence, ToSetSequence,
-          FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
-          filterFactory, countByFactory, groupByFactory, sliceFactory,
-          takeWhileFactory, skipWhileFactory, concatFactory,
-          flattenFactory, flatMapFactory, interposeFactory, sortFactory,
-          maxFactory }
 
-
-class ToKeyedSequence extends KeyedSeq {
+export class ToKeyedSequence extends KeyedSeq {
   constructor(indexed, useKeys) {
     this._iter = indexed;
     this._useKeys = useKeys;
@@ -89,7 +82,7 @@ class ToKeyedSequence extends KeyedSeq {
 ToKeyedSequence.prototype[IS_ORDERED_SENTINEL] = true;
 
 
-class ToIndexedSequence extends IndexedSeq {
+export class ToIndexedSequence extends IndexedSeq {
   constructor(iter) {
     this._iter = iter;
     this.size = iter.size;
@@ -116,7 +109,7 @@ class ToIndexedSequence extends IndexedSeq {
 }
 
 
-class ToSetSequence extends SetSeq {
+export class ToSetSequence extends SetSeq {
   constructor(iter) {
     this._iter = iter;
     this.size = iter.size;
@@ -141,7 +134,7 @@ class ToSetSequence extends SetSeq {
 }
 
 
-class FromEntriesSequence extends KeyedSeq {
+export class FromEntriesSequence extends KeyedSeq {
   constructor(entries) {
     this._iter = entries;
     this.size = entries.size;
@@ -190,7 +183,7 @@ FromEntriesSequence.prototype.cacheResult =
   cacheResultThrough;
 
 
-function flipFactory(iterable) {
+export function flipFactory(iterable) {
   var flipSequence = makeSequence(iterable);
   flipSequence._iter = iterable;
   flipSequence.size = iterable.size;
@@ -228,7 +221,7 @@ function flipFactory(iterable) {
 }
 
 
-function mapFactory(iterable, mapper, context) {
+export function mapFactory(iterable, mapper, context) {
   var mappedSequence = makeSequence(iterable);
   mappedSequence.size = iterable.size;
   mappedSequence.has = key => iterable.has(key);
@@ -265,7 +258,7 @@ function mapFactory(iterable, mapper, context) {
 }
 
 
-function reverseFactory(iterable, useKeys) {
+export function reverseFactory(iterable, useKeys) {
   var reversedSequence = makeSequence(iterable);
   reversedSequence._iter = iterable;
   reversedSequence.size = iterable.size;
@@ -292,7 +285,7 @@ function reverseFactory(iterable, useKeys) {
 }
 
 
-function filterFactory(iterable, predicate, context, useKeys) {
+export function filterFactory(iterable, predicate, context, useKeys) {
   var filterSequence = makeSequence(iterable);
   if (useKeys) {
     filterSequence.has = key => {
@@ -337,7 +330,7 @@ function filterFactory(iterable, predicate, context, useKeys) {
 }
 
 
-function countByFactory(iterable, grouper, context) {
+export function countByFactory(iterable, grouper, context) {
   var groups = Map().asMutable();
   iterable.__iterate((v, k) => {
     groups.update(
@@ -350,7 +343,7 @@ function countByFactory(iterable, grouper, context) {
 }
 
 
-function groupByFactory(iterable, grouper, context) {
+export function groupByFactory(iterable, grouper, context) {
   var isKeyedIter = isKeyed(iterable);
   var groups = Map().asMutable();
   iterable.__iterate((v, k) => {
@@ -364,7 +357,7 @@ function groupByFactory(iterable, grouper, context) {
 }
 
 
-function sliceFactory(iterable, begin, end, useKeys) {
+export function sliceFactory(iterable, begin, end, useKeys) {
   var originalSize = iterable.size;
 
   if (wholeSlice(begin, end, originalSize)) {
@@ -449,7 +442,7 @@ function sliceFactory(iterable, begin, end, useKeys) {
 }
 
 
-function takeWhileFactory(iterable, predicate, context) {
+export function takeWhileFactory(iterable, predicate, context) {
   var takeSequence = makeSequence(iterable);
   takeSequence.__iterateUncached = function(fn, reverse) {
     if (reverse) {
@@ -490,7 +483,7 @@ function takeWhileFactory(iterable, predicate, context) {
 }
 
 
-function skipWhileFactory(iterable, predicate, context, useKeys) {
+export function skipWhileFactory(iterable, predicate, context, useKeys) {
   var skipSequence = makeSequence(iterable);
   skipSequence.__iterateUncached = function (fn, reverse) {
     if (reverse) {
@@ -539,7 +532,7 @@ function skipWhileFactory(iterable, predicate, context, useKeys) {
 }
 
 
-function concatFactory(iterable, values) {
+export function concatFactory(iterable, values) {
   var isKeyedIterable = isKeyed(iterable);
   var iters = [iterable].concat(values).map(v => {
     if (!isIterable(v)) {
@@ -587,7 +580,7 @@ function concatFactory(iterable, values) {
 }
 
 
-function flattenFactory(iterable, depth, useKeys) {
+export function flattenFactory(iterable, depth, useKeys) {
   var flatSequence = makeSequence(iterable);
   flatSequence.__iterateUncached = function(fn, reverse) {
     var iterations = 0;
@@ -634,7 +627,7 @@ function flattenFactory(iterable, depth, useKeys) {
 }
 
 
-function flatMapFactory(iterable, mapper, context) {
+export function flatMapFactory(iterable, mapper, context) {
   var coerce = iterableClass(iterable);
   return iterable.toSeq().map(
     (v, k) => coerce(mapper.call(context, v, k, iterable))
@@ -642,7 +635,7 @@ function flatMapFactory(iterable, mapper, context) {
 }
 
 
-function interposeFactory(iterable, separator) {
+export function interposeFactory(iterable, separator) {
   var interposedSequence = makeSequence(iterable);
   interposedSequence.size = iterable.size && iterable.size * 2 -1;
   interposedSequence.__iterateUncached = function(fn, reverse) {
@@ -673,7 +666,8 @@ function interposeFactory(iterable, separator) {
   return interposedSequence;
 }
 
-function sortFactory(iterable, comparator, mapper) {
+
+export function sortFactory(iterable, comparator, mapper) {
   if (!comparator) {
     comparator = defaultComparator;
   }
@@ -692,7 +686,8 @@ function sortFactory(iterable, comparator, mapper) {
     SetSeq(entries);
 }
 
-function maxFactory(iterable, comparator, mapper) {
+
+export function maxFactory(iterable, comparator, mapper) {
   if (!comparator) {
     comparator = defaultComparator;
   }
@@ -716,7 +711,7 @@ function maxCompare(comparator, a, b) {
 
 // #pragma Helper Functions
 
-function reify(iter, seq) {
+export function reify(iter, seq) {
   return isSeq(iter) ? seq : iter.constructor(seq);
 }
 

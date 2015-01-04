@@ -23,7 +23,7 @@ import { fromJS } from './fromJS'
 import { Iterable } from './IterableImpl'
 
 
-var Immutable = {
+export default {
 
   Iterable: Iterable,
 
@@ -42,6 +42,5 @@ var Immutable = {
 
   is: is,
   fromJS: fromJS,
-};
 
-export default Immutable;
+};

@@ -8,20 +8,19 @@
  */
 
 import { Iterable } from './Iterable'
-export { Collection, KeyedCollection, IndexedCollection, SetCollection }
 
 
-class Collection extends Iterable {
+export class Collection extends Iterable {
   constructor() {
     throw TypeError('Abstract');
   }
 }
 
-class KeyedCollection extends Collection {}
+export class KeyedCollection extends Collection {}
 
-class IndexedCollection extends Collection {}
+export class IndexedCollection extends Collection {}
 
-class SetCollection extends Collection {}
+export class SetCollection extends Collection {}
 
 
 Collection.Keyed = KeyedCollection;

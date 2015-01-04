@@ -14,10 +14,8 @@ import { MapPrototype } from './Map'
 import { Iterator, iteratorValue, iteratorDone } from './Iterator'
 import assertNotInfinite from './utils/assertNotInfinite'
 
-export { Stack }
 
-
-class Stack extends IndexedCollection {
+export class Stack extends IndexedCollection {
 
   // @pragma Construction
 

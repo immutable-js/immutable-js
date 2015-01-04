@@ -14,10 +14,8 @@ import { DELETE } from './TrieUtils'
 
 import invariant from './utils/invariant'
 
-export { Record }
 
-
-class Record extends KeyedCollection {
+export class Record extends KeyedCollection {
 
   constructor(defaultValues, name) {
     var RecordType = function Record(values) {

@@ -17,10 +17,8 @@ import { Iterator, iteratorValue, iteratorDone } from './Iterator'
 
 import assertNotInfinite from './utils/assertNotInfinite'
 
-export { List, isList, emptyList, ListPrototype }
 
-
-class List extends IndexedCollection {
+export class List extends IndexedCollection {
 
   // @pragma Construction
 
@@ -195,7 +193,7 @@ class List extends IndexedCollection {
   }
 }
 
-function isList(maybeList) {
+export function isList(maybeList) {
   return !!(maybeList && maybeList[IS_LIST_SENTINEL]);
 }
 
@@ -203,7 +201,7 @@ List.isList = isList;
 
 var IS_LIST_SENTINEL = '@@__IMMUTABLE_LIST__@@';
 
-var ListPrototype = List.prototype;
+export var ListPrototype = List.prototype;
 ListPrototype[IS_LIST_SENTINEL] = true;
 ListPrototype[DELETE] = ListPrototype.remove;
 ListPrototype.setIn = MapPrototype.setIn;
@@ -367,7 +365,7 @@ function makeList(origin, capacity, level, root, tail, ownerID, hash) {
 }
 
 var EMPTY_LIST;
-function emptyList() {
+export function emptyList() {
   return EMPTY_LIST || (EMPTY_LIST = makeList(0, 0, SHIFT));
 }
 

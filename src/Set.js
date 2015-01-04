@@ -16,10 +16,8 @@ import assertNotInfinite from './utils/assertNotInfinite'
 
 import { OrderedSet } from './OrderedSet'
 
-export { Set, isSet }
 
-
-class Set extends SetCollection {
+export class Set extends SetCollection {
 
   // @pragma Construction
 
@@ -156,7 +154,7 @@ class Set extends SetCollection {
   }
 }
 
-function isSet(maybeSet) {
+export function isSet(maybeSet) {
   return !!(maybeSet && maybeSet[IS_SET_SENTINEL]);
 }
 
