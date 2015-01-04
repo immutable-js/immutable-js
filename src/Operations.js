@@ -12,7 +12,8 @@ import "Iterable"
 import "Iterator"
 import "Seq"
 import "Map"
-/* global NOT_SET, assertNotInfinite, ensureSize,
+/* global NOT_SET, assertNotInfinite, ensureSize, wrapIndex,
+          wholeSlice, resolveBegin, resolveEnd,
           isIterable, isKeyed, isIndexed,
           KeyedIterable, SetIterable, IndexedIterable, IS_ORDERED_SENTINEL,
           Iterator, iteratorValue, iteratorDone,
@@ -22,8 +23,8 @@ import "Map"
           Map */
 /* exported reify, ToKeyedSequence, ToIndexedSequence, ToSetSequence,
             FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
-            filterFactory, countByFactory, groupByFactory, takeFactory,
-            takeWhileFactory, skipFactory, skipWhileFactory, concatFactory,
+            filterFactory, countByFactory, groupByFactory, sliceFactory,
+            takeWhileFactory, skipWhileFactory, concatFactory,
             flattenFactory, flatMapFactory, interposeFactory, sortFactory,
             maxFactory */
 
@@ -365,43 +366,88 @@ function groupByFactory(iterable, grouper, context) {
 }
 
 
-function takeFactory(iterable, amount) {
-  if (amount > iterable.size) {
+function sliceFactory(iterable, begin, end, useKeys) {
+  var originalSize = iterable.size;
+
+  if (wholeSlice(begin, end, originalSize)) {
     return iterable;
   }
-  if (amount < 0) {
-    amount = 0;
+
+  var resolvedBegin = resolveBegin(begin, originalSize);
+  var resolvedEnd = resolveEnd(end, originalSize);
+
+  // begin or end will be NaN if they were provided as negative numbers and
+  // this iterable's size is unknown. In that case, cache first so there is
+  // a known size.
+  if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd) {
+    return sliceFactory(iterable.toSeq().cacheResult(), begin, end, useKeys);
   }
-  var takeSequence = makeSequence(iterable);
-  takeSequence.size = iterable.size && Math.min(iterable.size, amount);
-  takeSequence.__iterateUncached = function(fn, reverse) {
-    if (amount === 0) {
+
+  var sliceSize = resolvedEnd - resolvedBegin;
+  if (sliceSize < 0) {
+    sliceSize = 0;
+  }
+
+  var sliceSeq = makeSequence(iterable);
+
+  sliceSeq.size = sliceSize === 0 ? sliceSize : iterable.size && sliceSize || undefined;
+
+  if (!useKeys && isSeq(iterable) && sliceSize >= 0) {
+    sliceSeq.get = function (index, notSetValue) {
+      index = wrapIndex(this, index);
+      return index >= 0 && index < sliceSize ?
+        iterable.get(index + resolvedBegin, notSetValue) :
+        notSetValue;
+    }
+  }
+
+  sliceSeq.__iterateUncached = function(fn, reverse) {
+    if (sliceSize === 0) {
       return 0;
     }
     if (reverse) {
       return this.cacheResult().__iterate(fn, reverse);
     }
+    var skipped = 0;
+    var isSkipping = true;
     var iterations = 0;
-    iterable.__iterate((v, k) =>
-      ++iterations && fn(v, k, this) !== false && iterations < amount
-    );
+    iterable.__iterate((v, k) => {
+      if (!(isSkipping && (isSkipping = skipped++ < resolvedBegin))) {
+        iterations++;
+        return fn(v, useKeys ? k : iterations - 1, this) !== false &&
+               iterations !== sliceSize;
+      }
+    });
     return iterations;
   };
-  takeSequence.__iteratorUncached = function(type, reverse) {
-    if (reverse) {
+
+  sliceSeq.__iteratorUncached = function(type, reverse) {
+    if (sliceSize && reverse) {
       return this.cacheResult().__iterator(type, reverse);
     }
     // Don't bother instantiating parent iterator if taking 0.
-    var iterator = amount && iterable.__iterator(type, reverse);
+    var iterator = sliceSize && iterable.__iterator(type, reverse);
+    var skipped = 0;
     var iterations = 0;
     return new Iterator(() => {
-      if (iterations++ > amount) {
+      while (skipped++ !== resolvedBegin) {
+        iterator.next();
+      }
+      if (++iterations > sliceSize) {
         return iteratorDone();
       }
-      return iterator.next();
+      var step = iterator.next();
+      if (useKeys || type === ITERATE_VALUES) {
+        return step;
+      } else if (type === ITERATE_KEYS) {
+        return iteratorValue(type, iterations - 1, undefined, step);
+      } else {
+        return iteratorValue(type, iterations - 1, step.value[1], step);
+      }
     });
-  };
-  return takeSequence;
+  }
+
+  return sliceSeq;
 }
 
 
@@ -443,53 +489,6 @@ function takeWhileFactory(iterable, predicate, context) {
     });
   };
   return takeSequence;
-}
-
-
-function skipFactory(iterable, amount, useKeys) {
-  if (amount <= 0) {
-    return iterable;
-  }
-  var skipSequence = makeSequence(iterable);
-  skipSequence.size = iterable.size && Math.max(0, iterable.size - amount);
-  skipSequence.__iterateUncached = function (fn, reverse) {
-    if (reverse) {
-      return this.cacheResult().__iterate(fn, reverse);
-    }
-    var skipped = 0;
-    var isSkipping = true;
-    var iterations = 0;
-    iterable.__iterate((v, k) => {
-      if (!(isSkipping && (isSkipping = skipped++ < amount))) {
-        iterations++;
-        return fn(v, useKeys ? k : iterations - 1, this);
-      }
-    });
-    return iterations;
-  };
-  skipSequence.__iteratorUncached = function (type, reverse) {
-    if (reverse) {
-      return this.cacheResult().__iterator(type, reverse);
-    }
-    var iterator = amount && iterable.__iterator(type, reverse);
-    var skipped = 0;
-    var iterations = 0;
-    return new Iterator(() => {
-      while (skipped < amount) {
-        skipped++;
-        iterator.next();
-      }
-      var step = iterator.next();
-      if (useKeys || type === ITERATE_VALUES) {
-        return step;
-      } else if (type === ITERATE_KEYS) {
-        return iteratorValue(type, iterations++, undefined, step);
-      } else {
-        return iteratorValue(type, iterations++, step.value[1], step);
-      }
-    });
-  };
-  return skipSequence;
 }
 
 

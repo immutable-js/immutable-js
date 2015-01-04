@@ -16,17 +16,16 @@ import "Iterator"
 /* global Map, OrderedMap, List, Set, OrderedSet, Stack,
           is,
           arrCopy, NOT_SET, assertNotInfinite, ensureSize, wrapIndex,
-          returnTrue, wholeSlice, resolveBegin, resolveEnd, isArrayLike,
+          returnTrue, resolveBegin, isArrayLike,
           hash, imul, smi,
           Iterator, getIterator,
           ITERATOR_SYMBOL, ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES,
-          isSeq,
           Seq, KeyedSeq, IndexedSeq, SetSeq,
           ArraySeq,
           reify, ToKeyedSequence, ToIndexedSequence, ToSetSequence,
           FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
-          filterFactory, countByFactory, groupByFactory, takeFactory,
-          takeWhileFactory, skipFactory, skipWhileFactory, concatFactory,
+          filterFactory, countByFactory, groupByFactory, sliceFactory,
+          takeWhileFactory, skipWhileFactory, concatFactory,
           flattenFactory, flatMapFactory, interposeFactory, sortFactory,
           maxFactory */
 /* exported Iterable,
@@ -222,24 +221,7 @@ class Iterable {
   }
 
   slice(begin, end) {
-    if (wholeSlice(begin, end, this.size)) {
-      return this;
-    }
-    var resolvedBegin = resolveBegin(begin, this.size);
-    var resolvedEnd = resolveEnd(end, this.size);
-    // begin or end will be NaN if they were provided as negative numbers and
-    // this iterable's size is unknown. In that case, cache first so there is
-    // a known size.
-    if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd) {
-      return this.toSeq().cacheResult().slice(begin, end);
-    }
-    var skipped = resolvedBegin === 0 ? this : this.skip(resolvedBegin);
-    return reify(
-      this,
-      resolvedEnd === undefined || resolvedEnd === this.size ?
-        skipped :
-        skipped.take(resolvedEnd - resolvedBegin)
-    );
+    return reify(this, sliceFactory(this, begin, end, true));
   }
 
   some(predicate, context) {
@@ -384,7 +366,7 @@ class Iterable {
   }
 
   skip(amount) {
-    return reify(this, skipFactory(this, amount, true));
+    return this.slice(Math.max(0, amount));
   }
 
   skipLast(amount) {
@@ -404,7 +386,7 @@ class Iterable {
   }
 
   take(amount) {
-    return reify(this, takeFactory(this, amount));
+    return this.slice(0, Math.max(0, amount));
   }
 
   takeLast(amount) {
@@ -583,6 +565,10 @@ class IndexedIterable extends Iterable {
     return reify(this, reverseFactory(this, false));
   }
 
+  slice(begin, end) {
+    return reify(this, sliceFactory(this, begin, end, false));
+  }
+
   splice(index, removeNum /*, ...values*/) {
     var numArgs = arguments.length;
     removeNum = Math.max(removeNum | 0, 0);
@@ -639,32 +625,8 @@ class IndexedIterable extends Iterable {
     return this.get(-1);
   }
 
-  skip(amount) {
-    var iter = this;
-    var skipSeq = skipFactory(iter, amount, false);
-    if (isSeq(iter) && skipSeq !== iter) {
-      skipSeq.get = function (index, notSetValue) {
-        index = wrapIndex(this, index);
-        return index >= 0 ? iter.get(index + amount, notSetValue) : notSetValue;
-      }
-    }
-    return reify(this, skipSeq);
-  }
-
   skipWhile(predicate, context) {
     return reify(this, skipWhileFactory(this, predicate, context, false));
-  }
-
-  take(amount) {
-    var iter = this;
-    var takeSeq = takeFactory(iter, amount);
-    if (isSeq(iter) && takeSeq !== iter) {
-      takeSeq.get = function (index, notSetValue) {
-        index = wrapIndex(this, index);
-        return index >= 0 && index < amount ? iter.get(index, notSetValue) : notSetValue;
-      }
-    }
-    return reify(this, takeSeq);
   }
 }
 

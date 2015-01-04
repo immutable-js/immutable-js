@@ -9,13 +9,11 @@
 
 import "TrieUtils"
 import "Seq"
-import "Range"
 import "is"
 import "Iterable"
 import "Iterator"
 /* global wholeSlice, resolveBegin, resolveEnd,
           IndexedSeq,
-          RangePrototype,
           is,
           deepEqual,
           Iterator, iteratorValue, iteratorDone */
@@ -103,13 +101,5 @@ class Repeat extends IndexedSeq {
       deepEqual(other);
   }
 }
-
-var RepeatPrototype = Repeat.prototype;
-RepeatPrototype.last = RepeatPrototype.first;
-RepeatPrototype.has = RangePrototype.has;
-RepeatPrototype.take = RangePrototype.take;
-RepeatPrototype.skip = RangePrototype.skip;
-RepeatPrototype.__toJS = RangePrototype.__toJS;
-
 
 var EMPTY_REPEAT;

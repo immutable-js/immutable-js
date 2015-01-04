@@ -11,15 +11,13 @@ import "TrieUtils"
 import "invariant"
 import "Seq"
 import "Iterable"
-import "List"
 import "Iterator"
 /* global wrapIndex, wholeSlice, resolveBegin, resolveEnd,
           invariant,
           IndexedSeq,
           deepEqual,
-          ListPrototype,
           Iterator, iteratorValue, iteratorDone */
-/* exported Range, RangePrototype */
+/* exported Range */
 
 
 /**
@@ -101,14 +99,6 @@ class Range extends IndexedSeq {
     return this.indexOf(searchValue);
   }
 
-  take(amount) {
-    return this.slice(0, Math.max(0, amount));
-  }
-
-  skip(amount) {
-    return this.slice(Math.max(0, amount));
-  }
-
   __iterate(fn, reverse) {
     var maxIndex = this.size - 1;
     var step = this._step;
@@ -142,11 +132,5 @@ class Range extends IndexedSeq {
       deepEqual(this, other);
   }
 }
-
-var RangePrototype = Range.prototype;
-
-RangePrototype.__toJS = RangePrototype.toArray;
-RangePrototype.first = ListPrototype.first;
-RangePrototype.last = ListPrototype.last;
 
 var __EMPTY_RANGE = Range(0, 0);

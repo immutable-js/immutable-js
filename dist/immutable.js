@@ -446,16 +446,7 @@ var $Iterable = Iterable;
     return reify(this, reverseFactory(this, true));
   },
   slice: function(begin, end) {
-    if (wholeSlice(begin, end, this.size)) {
-      return this;
-    }
-    var resolvedBegin = resolveBegin(begin, this.size);
-    var resolvedEnd = resolveEnd(end, this.size);
-    if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd) {
-      return this.toSeq().cacheResult().slice(begin, end);
-    }
-    var skipped = resolvedBegin === 0 ? this : this.skip(resolvedBegin);
-    return reify(this, resolvedEnd === undefined || resolvedEnd === this.size ? skipped : skipped.take(resolvedEnd - resolvedBegin));
+    return reify(this, sliceFactory(this, begin, end, true));
   },
   some: function(predicate, context) {
     return !this.every(not(predicate), context);
@@ -570,7 +561,7 @@ var $Iterable = Iterable;
     return this.slice(1);
   },
   skip: function(amount) {
-    return reify(this, skipFactory(this, amount, true));
+    return this.slice(Math.max(0, amount));
   },
   skipLast: function(amount) {
     return reify(this, this.toSeq().reverse().skip(amount).reverse());
@@ -585,7 +576,7 @@ var $Iterable = Iterable;
     return reify(this, sortFactory(this, comparator, mapper));
   },
   take: function(amount) {
-    return reify(this, takeFactory(this, amount));
+    return this.slice(0, Math.max(0, amount));
   },
   takeLast: function(amount) {
     return reify(this, this.toSeq().reverse().take(amount).reverse());
@@ -709,6 +700,9 @@ var IndexedIterable = function IndexedIterable(value) {
   reverse: function() {
     return reify(this, reverseFactory(this, false));
   },
+  slice: function(begin, end) {
+    return reify(this, sliceFactory(this, begin, end, false));
+  },
   splice: function(index, removeNum) {
     var numArgs = arguments.length;
     removeNum = Math.max(removeNum | 0, 0);
@@ -745,30 +739,8 @@ var IndexedIterable = function IndexedIterable(value) {
   last: function() {
     return this.get(-1);
   },
-  skip: function(amount) {
-    var iter = this;
-    var skipSeq = skipFactory(iter, amount, false);
-    if (isSeq(iter) && skipSeq !== iter) {
-      skipSeq.get = function(index, notSetValue) {
-        index = wrapIndex(this, index);
-        return index >= 0 ? iter.get(index + amount, notSetValue) : notSetValue;
-      };
-    }
-    return reify(this, skipSeq);
-  },
   skipWhile: function(predicate, context) {
     return reify(this, skipWhileFactory(this, predicate, context, false));
-  },
-  take: function(amount) {
-    var iter = this;
-    var takeSeq = takeFactory(iter, amount);
-    if (isSeq(iter) && takeSeq !== iter) {
-      takeSeq.get = function(index, notSetValue) {
-        index = wrapIndex(this, index);
-        return index >= 0 && index < amount ? iter.get(index, notSetValue) : notSetValue;
-      };
-    }
-    return reify(this, takeSeq);
   }
 }, {}, Iterable);
 IndexedIterable.prototype[IS_INDEXED_SENTINEL] = true;
@@ -2247,43 +2219,72 @@ function groupByFactory(iterable, grouper, context) {
     return reify(iterable, coerce(arr));
   }));
 }
-function takeFactory(iterable, amount) {
-  if (amount > iterable.size) {
+function sliceFactory(iterable, begin, end, useKeys) {
+  var originalSize = iterable.size;
+  if (wholeSlice(begin, end, originalSize)) {
     return iterable;
   }
-  if (amount < 0) {
-    amount = 0;
+  var resolvedBegin = resolveBegin(begin, originalSize);
+  var resolvedEnd = resolveEnd(end, originalSize);
+  if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd) {
+    return sliceFactory(iterable.toSeq().cacheResult(), begin, end, useKeys);
   }
-  var takeSequence = makeSequence(iterable);
-  takeSequence.size = iterable.size && Math.min(iterable.size, amount);
-  takeSequence.__iterateUncached = function(fn, reverse) {
+  var sliceSize = resolvedEnd - resolvedBegin;
+  if (sliceSize < 0) {
+    sliceSize = 0;
+  }
+  var sliceSeq = makeSequence(iterable);
+  sliceSeq.size = sliceSize === 0 ? sliceSize : iterable.size && sliceSize || undefined;
+  if (!useKeys && isSeq(iterable) && sliceSize >= 0) {
+    sliceSeq.get = function(index, notSetValue) {
+      index = wrapIndex(this, index);
+      return index >= 0 && index < sliceSize ? iterable.get(index + resolvedBegin, notSetValue) : notSetValue;
+    };
+  }
+  sliceSeq.__iterateUncached = function(fn, reverse) {
     var $__0 = this;
-    if (amount === 0) {
+    if (sliceSize === 0) {
       return 0;
     }
     if (reverse) {
       return this.cacheResult().__iterate(fn, reverse);
     }
+    var skipped = 0;
+    var isSkipping = true;
     var iterations = 0;
     iterable.__iterate((function(v, k) {
-      return ++iterations && fn(v, k, $__0) !== false && iterations < amount;
+      if (!(isSkipping && (isSkipping = skipped++ < resolvedBegin))) {
+        iterations++;
+        return fn(v, useKeys ? k : iterations - 1, $__0) !== false && iterations !== sliceSize;
+      }
     }));
     return iterations;
   };
-  takeSequence.__iteratorUncached = function(type, reverse) {
-    if (reverse) {
+  sliceSeq.__iteratorUncached = function(type, reverse) {
+    if (sliceSize && reverse) {
       return this.cacheResult().__iterator(type, reverse);
     }
-    var iterator = amount && iterable.__iterator(type, reverse);
+    var iterator = sliceSize && iterable.__iterator(type, reverse);
+    var skipped = 0;
     var iterations = 0;
     return new Iterator((function() {
-      if (iterations++ > amount) {
+      while (skipped++ !== resolvedBegin) {
+        iterator.next();
+      }
+      if (++iterations > sliceSize) {
         return iteratorDone();
       }
-      return iterator.next();
+      var step = iterator.next();
+      if (useKeys || type === ITERATE_VALUES) {
+        return step;
+      } else if (type === ITERATE_KEYS) {
+        return iteratorValue(type, iterations - 1, undefined, step);
+      } else {
+        return iteratorValue(type, iterations - 1, step.value[1], step);
+      }
     }));
   };
-  return takeSequence;
+  return sliceSeq;
 }
 function takeWhileFactory(iterable, predicate, context) {
   var takeSequence = makeSequence(iterable);
@@ -2324,52 +2325,6 @@ function takeWhileFactory(iterable, predicate, context) {
     }));
   };
   return takeSequence;
-}
-function skipFactory(iterable, amount, useKeys) {
-  if (amount <= 0) {
-    return iterable;
-  }
-  var skipSequence = makeSequence(iterable);
-  skipSequence.size = iterable.size && Math.max(0, iterable.size - amount);
-  skipSequence.__iterateUncached = function(fn, reverse) {
-    var $__0 = this;
-    if (reverse) {
-      return this.cacheResult().__iterate(fn, reverse);
-    }
-    var skipped = 0;
-    var isSkipping = true;
-    var iterations = 0;
-    iterable.__iterate((function(v, k) {
-      if (!(isSkipping && (isSkipping = skipped++ < amount))) {
-        iterations++;
-        return fn(v, useKeys ? k : iterations - 1, $__0);
-      }
-    }));
-    return iterations;
-  };
-  skipSequence.__iteratorUncached = function(type, reverse) {
-    if (reverse) {
-      return this.cacheResult().__iterator(type, reverse);
-    }
-    var iterator = amount && iterable.__iterator(type, reverse);
-    var skipped = 0;
-    var iterations = 0;
-    return new Iterator((function() {
-      while (skipped < amount) {
-        skipped++;
-        iterator.next();
-      }
-      var step = iterator.next();
-      if (useKeys || type === ITERATE_VALUES) {
-        return step;
-      } else if (type === ITERATE_KEYS) {
-        return iteratorValue(type, iterations++, undefined, step);
-      } else {
-        return iteratorValue(type, iterations++, step.value[1], step);
-      }
-    }));
-  };
-  return skipSequence;
 }
 function skipWhileFactory(iterable, predicate, context, useKeys) {
   var skipSequence = makeSequence(iterable);
@@ -3791,12 +3746,6 @@ var $Range = Range;
   lastIndexOf: function(searchValue) {
     return this.indexOf(searchValue);
   },
-  take: function(amount) {
-    return this.slice(0, Math.max(0, amount));
-  },
-  skip: function(amount) {
-    return this.slice(Math.max(0, amount));
-  },
   __iterate: function(fn, reverse) {
     var maxIndex = this.size - 1;
     var step = this._step;
@@ -3824,10 +3773,6 @@ var $Range = Range;
     return other instanceof $Range ? this._start === other._start && this._end === other._end && this._step === other._step : deepEqual(this, other);
   }
 }, {}, IndexedSeq);
-var RangePrototype = Range.prototype;
-RangePrototype.__toJS = RangePrototype.toArray;
-RangePrototype.first = ListPrototype.first;
-RangePrototype.last = ListPrototype.last;
 var __EMPTY_RANGE = Range(0, 0);
 var Repeat = function Repeat(value, times) {
   if (times <= 0 && EMPTY_REPEAT) {
@@ -3894,12 +3839,6 @@ var $Repeat = Repeat;
     return other instanceof $Repeat ? is(this._value, other._value) : deepEqual(other);
   }
 }, {}, IndexedSeq);
-var RepeatPrototype = Repeat.prototype;
-RepeatPrototype.last = RepeatPrototype.first;
-RepeatPrototype.has = RangePrototype.has;
-RepeatPrototype.take = RangePrototype.take;
-RepeatPrototype.skip = RangePrototype.skip;
-RepeatPrototype.__toJS = RangePrototype.__toJS;
 var EMPTY_REPEAT;
 var Immutable = {
   Iterable: Iterable,
