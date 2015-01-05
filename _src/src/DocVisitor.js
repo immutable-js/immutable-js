@@ -134,7 +134,7 @@ class DocVisitor extends TypeScript.SyntaxWalker {
           } else if (hc.extendsOrImplementsKeyword.kind() === TypeScript.SyntaxKind.ImplementsKeyword) {
             kind = 'implements';
           } else {
-            throw new Error('Unknown hertitageClause');
+            throw new Error('Unknown heritageClause');
           }
           interfaceObj[kind] = hc.typeNames.map(c => this.parseType(c));
         });
