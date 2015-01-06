@@ -1,5 +1,6 @@
 function universalModule() {
   var module = {};
+  var global = {};
   %MODULE%
   return module.exports;
 }

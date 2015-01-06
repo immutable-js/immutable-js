@@ -8,6 +8,7 @@
  */
 function universalModule() {
   var module = {};
+  var global = {};
   var $Object = Object;
 
 function createClass(ctor, methods, staticMethods, superClass) {
