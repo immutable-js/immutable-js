@@ -2209,6 +2209,44 @@ declare module 'immutable' {
       ...values: /*Array<IndexedIterable<T> | T>*/any[]
     ): /*this*/IndexedIterable<T>;
 
+    /**
+     * Returns an Iterable of the same type "zipped" with the provided
+     * iterables.
+     *
+     * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+     *
+     *     var a = Seq.of(1, 2, 3);
+     *     var b = Seq.of(4, 5, 6);
+     *     var c = a.zip(b); // Seq [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     *
+     */
+    zip(...iterables: /*Array<IndexedIterable<T>>*/Array<any>): /*this*/IndexedIterable<any>;
+
+    /**
+     * Returns an Iterable of the same type "zipped" with the provided
+     * iterables by using a custom `zipper` function.
+     *
+     * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+     *
+     *     var a = Seq.of(1, 2, 3);
+     *     var b = Seq.of(4, 5, 6);
+     *     var c = a.zip(b); // Seq [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     *
+     */
+    zipWith<U, Z>(
+      zipper: (value: T, otherValue: U) => Z,
+      otherIterable: IndexedIterable<U>
+    ): IndexedIterable<Z>;
+    zipWith<U, V, Z>(
+      zipper: (value: T, otherValue: U, thirdValue: V) => Z,
+      otherIterable: IndexedIterable<U>,
+      thirdIterable: IndexedIterable<V>
+    ): IndexedIterable<Z>;
+    zipWith<Z>(
+      zipper: (...any: Array<any>) => Z,
+      ...iterables: /*Array<IndexedIterable<T>>*/Array<any>
+    ): IndexedIterable<Z>;
+
 
     // Search for value
 

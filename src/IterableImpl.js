@@ -37,7 +37,7 @@ import { reify, ToKeyedSequence, ToIndexedSequence, ToSetSequence,
           filterFactory, countByFactory, groupByFactory, sliceFactory,
           takeWhileFactory, skipWhileFactory, concatFactory,
           flattenFactory, flatMapFactory, interposeFactory, sortFactory,
-          maxFactory } from './Operations'
+          maxFactory, zipWithFactory } from './Operations'
 
 export { Iterable, KeyedIterable, IndexedIterable, SetIterable,
          isIterable, isKeyed, isIndexed, isAssociative, isOrdered, IS_ORDERED_SENTINEL }
@@ -632,6 +632,17 @@ mixin(IndexedIterable, {
     return reify(this, skipWhileFactory(this, predicate, context, false));
   },
 
+  zip(/*, ...iterables */) {
+    var iterables = [this].concat(arrCopy(arguments));
+    return reify(this, zipWithFactory(this, defaultZipper, iterables));
+  },
+
+  zipWith(zipper/*, ...iterables */) {
+    var iterables = arrCopy(arguments);
+    iterables[0] = this;
+    return reify(this, zipWithFactory(this, zipper, iterables));
+  },
+
 });
 
 IndexedIterable.prototype[IS_INDEXED_SENTINEL] = true;
@@ -698,6 +709,10 @@ function neg(predicate) {
 
 function quoteString(value) {
   return typeof value === 'string' ? JSON.stringify(value) : value;
+}
+
+function defaultZipper() {
+  return arrCopy(arguments);
 }
 
 function defaultNegComparator(a, b) {

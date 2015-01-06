@@ -85,6 +85,7 @@ module.exports = function(grunt) {
 
         var transformResult = require("es6-transpiler").run({
           src: bundled,
+          disallowUnknownReferences: false,
           environments: ["node", "browser"],
           globals: {
             define: false,
@@ -92,7 +93,7 @@ module.exports = function(grunt) {
         });
 
         if (transformResult.errors && transformResult.errors.length > 0) {
-          throw transformResult.errors[0];
+          throw new Error(transformResult.errors[0]);
         }
 
         var transformed = transformResult.src;
