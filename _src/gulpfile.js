@@ -28,6 +28,7 @@ var uglify = require('gulp-uglify');
 var vm = require('vm');
 
 var genTypeDefData = require('./src/genTypeDefData');
+var genMarkdownDoc = require('./src/genMarkdownDoc');
 
 var SRC_DIR = './app/';
 var BUILD_DIR = '../';
@@ -43,6 +44,24 @@ gulp.task('clean', function (done) {
     '../docs/bundle.*',
     '../docs/index.*',
   ], {force: true}, done);
+});
+
+gulp.task('readme', function() {
+  var readmePath = path.join(
+    path.dirname(require.resolve('immutable')),
+    '../README.md'
+  );
+  return gulp.src(readmePath)
+    .pipe(through.obj(function(file, enc, cb) {
+      var fileSource = file.contents.toString(enc);
+      file.path = path.join(path.dirname(file.path), 'readme.json');
+      file.contents = new Buffer(JSON.stringify(
+        genMarkdownDoc(fileSource)
+      ));
+      this.push(file);
+      cb();
+    }))
+    .pipe(gulp.dest('./resources/'));
 });
 
 gulp.task('typedefs', function() {
@@ -196,7 +215,7 @@ function gulpStatics(subDir) {
 
 gulp.task('build', function (done) {
   sequence(
-    ['typedefs', 'js', 'js-docs', 'less', 'less-docs', 'statics', 'statics-docs'],
+    ['readme', 'typedefs', 'js', 'js-docs', 'less', 'less-docs', 'statics', 'statics-docs'],
     ['pre-render', 'pre-render-docs'],
     done
   );
