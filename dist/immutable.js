@@ -3357,6 +3357,11 @@ $traceurRuntime.defaultSuperCall = defaultSuperCall;
         return value && typeof value.toJS === 'function' ? value.toJS() : value;
       })).__toJS();
     },
+    toJSON: function() {
+      return this.toSeq().map((function(value) {
+        return value && typeof value.toJSON === 'function' ? value.toJSON() : value;
+      })).__toJS();
+    },
     toKeyedSeq: function() {
       return new ToKeyedSequence(this, true);
     },
@@ -3638,7 +3643,6 @@ $traceurRuntime.defaultSuperCall = defaultSuperCall;
   var IterablePrototype = Iterable.prototype;
   IterablePrototype[IS_ITERABLE_SENTINEL] = true;
   IterablePrototype[ITERATOR_SYMBOL] = IterablePrototype.values;
-  IterablePrototype.toJSON = IterablePrototype.toJS;
   IterablePrototype.__toJS = IterablePrototype.toArray;
   IterablePrototype.__toStringMapper = quoteString;
   IterablePrototype.inspect = IterablePrototype.toSource = function() {

@@ -1420,6 +1420,8 @@ declare module 'immutable' {
      *
      * `IndexedIterables`, and `SetIterables` become Arrays, while
      * `KeyedIterables` become Objects.
+     *
+     * @alias toJSON
      */
     toJS(): any;
 

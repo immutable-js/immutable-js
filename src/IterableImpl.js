@@ -66,6 +66,12 @@ mixin(Iterable, {
     ).__toJS();
   },
 
+  toJSON() {
+    return this.toSeq().map(
+      value => value && typeof value.toJSON === 'function' ? value.toJSON() : value
+    ).__toJS();
+  },
+
   toKeyedSeq() {
     return new ToKeyedSequence(this, true);
   },
@@ -435,7 +441,6 @@ mixin(Iterable, {
 var IterablePrototype = Iterable.prototype;
 IterablePrototype[IS_ITERABLE_SENTINEL] = true;
 IterablePrototype[ITERATOR_SYMBOL] = IterablePrototype.values;
-IterablePrototype.toJSON = IterablePrototype.toJS;
 IterablePrototype.__toJS = IterablePrototype.toArray;
 IterablePrototype.__toStringMapper = quoteString;
 IterablePrototype.inspect =
