@@ -101,29 +101,24 @@
   function Iterable(value) {
       return isIterable(value) ? value : Seq(value);
     }
-  createClass(Iterable);
-    
 
 
-  function KeyedIterable(value) {
+  createClass(KeyedIterable, Iterable);
+    function KeyedIterable(value) {
       return isKeyed(value) ? value : KeyedSeq(value);
     }
-  createClass(KeyedIterable,Iterable);
-    
 
 
-  function IndexedIterable(value) {
+  createClass(IndexedIterable, Iterable);
+    function IndexedIterable(value) {
       return isIndexed(value) ? value : IndexedSeq(value);
     }
-  createClass(IndexedIterable,Iterable);
-    
 
 
-  function SetIterable(value) {
+  createClass(SetIterable, Iterable);
+    function SetIterable(value) {
       return isIterable(value) && !isAssociative(value) ? value : SetSeq(value);
     }
-  createClass(SetIterable,Iterable);
-    
 
 
 
@@ -163,6 +158,8 @@
   var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
   var IS_ORDERED_SENTINEL = '@@__IMMUTABLE_ORDERED__@@';
 
+  /* global Symbol */
+
   var ITERATE_KEYS = 0;
   var ITERATE_VALUES = 1;
   var ITERATE_ENTRIES = 2;
@@ -176,8 +173,6 @@
   function Iterator(next) {
       this.next = next;
     }
-  createClass(Iterator);
-    
 
     Iterator.prototype.toString = function() {
       return '[Iterator]';
@@ -234,12 +229,11 @@
     return value && typeof value.length === 'number';
   }
 
-  function Seq(value) {
+  createClass(Seq, Iterable);
+    function Seq(value) {
       return value === null || value === undefined ? emptySequence() :
         isIterable(value) ? value.toSeq() : seqFromValue(value);
     }
-  createClass(Seq,Iterable);
-    
 
     Seq.of = function(/*...values*/) {
       return Seq(arguments);
@@ -275,15 +269,14 @@
 
 
 
-  function KeyedSeq(value) {
+  createClass(KeyedSeq, Seq);
+    function KeyedSeq(value) {
       return value === null || value === undefined ?
         emptySequence().toKeyedSeq() :
         isIterable(value) ?
           (isKeyed(value) ? value.toSeq() : value.fromEntrySeq()) :
           keyedSeqFromValue(value);
     }
-  createClass(KeyedSeq,Seq);
-    
 
     KeyedSeq.of = function(/*...values*/) {
       return KeyedSeq(arguments);
@@ -299,13 +292,12 @@
 
 
 
-  function IndexedSeq(value) {
+  createClass(IndexedSeq, Seq);
+    function IndexedSeq(value) {
       return value === null || value === undefined ? emptySequence() :
         !isIterable(value) ? indexedSeqFromValue(value) :
         isKeyed(value) ? value.entrySeq() : value.toIndexedSeq();
     }
-  createClass(IndexedSeq,Seq);
-    
 
     IndexedSeq.of = function(/*...values*/) {
       return IndexedSeq(arguments);
@@ -329,15 +321,14 @@
 
 
 
-  function SetSeq(value) {
+  createClass(SetSeq, Seq);
+    function SetSeq(value) {
       return (
         value === null || value === undefined ? emptySequence() :
         !isIterable(value) ? indexedSeqFromValue(value) :
         isKeyed(value) ? value.entrySeq() : value
       ).toSetSeq();
     }
-  createClass(SetSeq,Seq);
-    
 
     SetSeq.of = function(/*...values*/) {
       return SetSeq(arguments);
@@ -362,12 +353,11 @@
 
   // #pragma Root Sequences
 
-  function ArraySeq(array) {
+  createClass(ArraySeq, IndexedSeq);
+    function ArraySeq(array) {
       this._array = array;
       this.size = array.length;
     }
-  createClass(ArraySeq,IndexedSeq);
-    
 
     ArraySeq.prototype.get = function(index, notSetValue) {
       return this.has(index) ? this._array[wrapIndex(this, index)] : notSetValue;
@@ -397,14 +387,13 @@
 
 
 
-  function ObjectSeq(object) {
+  createClass(ObjectSeq, KeyedSeq);
+    function ObjectSeq(object) {
       var keys = Object.keys(object);
       this._object = object;
       this._keys = keys;
       this.size = keys.length;
     }
-  createClass(ObjectSeq,KeyedSeq);
-    
 
     ObjectSeq.prototype.get = function(key, notSetValue) {
       if (notSetValue !== undefined && !this.has(key)) {
@@ -446,12 +435,11 @@
   ObjectSeq.prototype[IS_ORDERED_SENTINEL] = true;
 
 
-  function IterableSeq(iterable) {
+  createClass(IterableSeq, IndexedSeq);
+    function IterableSeq(iterable) {
       this._iterable = iterable;
       this.size = iterable.length || iterable.size;
     }
-  createClass(IterableSeq,IndexedSeq);
-    
 
     IterableSeq.prototype.__iterateUncached = function(fn, reverse) {
       if (reverse) {
@@ -489,12 +477,11 @@
 
 
 
-  function IteratorSeq(iterator) {
+  createClass(IteratorSeq, IndexedSeq);
+    function IteratorSeq(iterator) {
       this._iterator = iterator;
       this._iteratorCache = [];
     }
-  createClass(IteratorSeq,IndexedSeq);
-    
 
     IteratorSeq.prototype.__iterateUncached = function(fn, reverse) {
       if (reverse) {
@@ -629,21 +616,17 @@
     return seq.__iteratorUncached(type, reverse);
   }
 
-  function Collection() {
+  createClass(Collection, Iterable);
+    function Collection() {
       throw TypeError('Abstract');
     }
-  createClass(Collection,Iterable);
-    
 
 
-  function KeyedCollection() {}
-  createClass(KeyedCollection,Collection);
+  createClass(KeyedCollection, Collection);function KeyedCollection() {}
 
-  function IndexedCollection() {}
-  createClass(IndexedCollection,Collection);
+  createClass(IndexedCollection, Collection);function IndexedCollection() {}
 
-  function SetCollection() {}
-  createClass(SetCollection,Collection);
+  createClass(SetCollection, Collection);function SetCollection() {}
 
 
   Collection.Keyed = KeyedCollection;
@@ -937,13 +920,12 @@
     );
   }
 
-  function ToKeyedSequence(indexed, useKeys) {
+  createClass(ToKeyedSequence, KeyedSeq);
+    function ToKeyedSequence(indexed, useKeys) {
       this._iter = indexed;
       this._useKeys = useKeys;
       this.size = indexed.size;
     }
-  createClass(ToKeyedSequence,KeyedSeq);
-    
 
     ToKeyedSequence.prototype.get = function(key, notSetValue) {
       return this._iter.get(key, notSetValue);
@@ -1000,12 +982,11 @@
   ToKeyedSequence.prototype[IS_ORDERED_SENTINEL] = true;
 
 
-  function ToIndexedSequence(iter) {
+  createClass(ToIndexedSequence, IndexedSeq);
+    function ToIndexedSequence(iter) {
       this._iter = iter;
       this.size = iter.size;
     }
-  createClass(ToIndexedSequence,IndexedSeq);
-    
 
     ToIndexedSequence.prototype.contains = function(value) {
       return this._iter.contains(value);
@@ -1028,12 +1009,11 @@
 
 
 
-  function ToSetSequence(iter) {
+  createClass(ToSetSequence, SetSeq);
+    function ToSetSequence(iter) {
       this._iter = iter;
       this.size = iter.size;
     }
-  createClass(ToSetSequence,SetSeq);
-    
 
     ToSetSequence.prototype.has = function(key) {
       return this._iter.contains(key);
@@ -1054,12 +1034,11 @@
 
 
 
-  function FromEntriesSequence(entries) {
+  createClass(FromEntriesSequence, KeyedSeq);
+    function FromEntriesSequence(entries) {
       this._iter = entries;
       this.size = entries.size;
     }
-  createClass(FromEntriesSequence,KeyedSeq);
-    
 
     FromEntriesSequence.prototype.entrySeq = function() {
       return this._iter.toSeq();
@@ -1690,7 +1669,11 @@
     return iter;
   }
 
-  function Map(value) {
+  createClass(Map, KeyedCollection);
+
+    // @pragma Construction
+
+    function Map(value) {
       return value === null || value === undefined ? emptyMap() :
         isMap(value) ? value :
         emptyMap().withMutations(function(map ) {
@@ -1699,11 +1682,6 @@
           iter.forEach(function(v, k)  {return map.set(k, v)});
         });
     }
-  createClass(Map,KeyedCollection);
-
-    // @pragma Construction
-
-    
 
     Map.prototype.toString = function() {
       return this.__toString('Map {', '}');
@@ -1867,13 +1845,12 @@
 
   // #pragma Trie Nodes
 
-  function ArrayMapNode(ownerID, entries) {
+
+
+    function ArrayMapNode(ownerID, entries) {
       this.ownerID = ownerID;
       this.entries = entries;
     }
-  createClass(ArrayMapNode);
-
-    
 
     ArrayMapNode.prototype.get = function(shift, keyHash, key, notSetValue) {
       var entries = this.entries;
@@ -1934,14 +1911,13 @@
     };
 
 
-  function BitmapIndexedNode(ownerID, bitmap, nodes) {
+
+
+    function BitmapIndexedNode(ownerID, bitmap, nodes) {
       this.ownerID = ownerID;
       this.bitmap = bitmap;
       this.nodes = nodes;
     }
-  createClass(BitmapIndexedNode);
-
-    
 
     BitmapIndexedNode.prototype.get = function(shift, keyHash, key, notSetValue) {
       if (keyHash === undefined) {
@@ -2004,14 +1980,13 @@
     };
 
 
-  function HashArrayMapNode(ownerID, count, nodes) {
+
+
+    function HashArrayMapNode(ownerID, count, nodes) {
       this.ownerID = ownerID;
       this.count = count;
       this.nodes = nodes;
     }
-  createClass(HashArrayMapNode);
-
-    
 
     HashArrayMapNode.prototype.get = function(shift, keyHash, key, notSetValue) {
       if (keyHash === undefined) {
@@ -2063,14 +2038,13 @@
     };
 
 
-  function HashCollisionNode(ownerID, keyHash, entries) {
+
+
+    function HashCollisionNode(ownerID, keyHash, entries) {
       this.ownerID = ownerID;
       this.keyHash = keyHash;
       this.entries = entries;
     }
-  createClass(HashCollisionNode);
-
-    
 
     HashCollisionNode.prototype.get = function(shift, keyHash, key, notSetValue) {
       var entries = this.entries;
@@ -2140,14 +2114,13 @@
     };
 
 
-  function ValueNode(ownerID, keyHash, entry) {
+
+
+    function ValueNode(ownerID, keyHash, entry) {
       this.ownerID = ownerID;
       this.keyHash = keyHash;
       this.entry = entry;
     }
-  createClass(ValueNode);
-
-    
 
     ValueNode.prototype.get = function(shift, keyHash, key, notSetValue) {
       return is(key, this.entry[0]) ? this.entry[1] : notSetValue;
@@ -2208,14 +2181,13 @@
     return fn(this.entry);
   }
 
-  function MapIterator(map, type, reverse) {
+  createClass(MapIterator, Iterator);
+
+    function MapIterator(map, type, reverse) {
       this._type = type;
       this._reverse = reverse;
       this._stack = map._root && mapIteratorFrame(map._root);
     }
-  createClass(MapIterator,Iterator);
-
-    
 
     MapIterator.prototype.next = function() {
       var type = this._type;
@@ -2499,7 +2471,11 @@
   var MAX_BITMAP_INDEXED_SIZE = SIZE / 2;
   var MIN_HASH_ARRAY_MAP_SIZE = SIZE / 4;
 
-  function List(value) {
+  createClass(List, IndexedCollection);
+
+    // @pragma Construction
+
+    function List(value) {
       var empty = emptyList();
       if (value === null || value === undefined) {
         return empty;
@@ -2521,11 +2497,6 @@
         iter.forEach(function(v, i)  {return list.set(i, v)});
       });
     }
-  createClass(List,IndexedCollection);
-
-    // @pragma Construction
-
-    
 
     List.of = function(/*...values*/) {
       return this(arguments);
@@ -2699,12 +2670,11 @@
   ListPrototype.wasAltered = MapPrototype.wasAltered;
 
 
-  function VNode(array, ownerID) {
+
+    function VNode(array, ownerID) {
       this.array = array;
       this.ownerID = ownerID;
     }
-  createClass(VNode);
-    
 
     // TODO: seems like these methods are very similar
 
@@ -3084,7 +3054,11 @@
     return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
   }
 
-  function OrderedMap(value) {
+  createClass(OrderedMap, Map);
+
+    // @pragma Construction
+
+    function OrderedMap(value) {
       return value === null || value === undefined ? emptyOrderedMap() :
         isOrderedMap(value) ? value :
         emptyOrderedMap().withMutations(function(map ) {
@@ -3093,11 +3067,6 @@
           iter.forEach(function(v, k)  {return map.set(k, v)});
         });
     }
-  createClass(OrderedMap,Map);
-
-    // @pragma Construction
-
-    
 
     OrderedMap.of = function(/*...values*/) {
       return this(arguments);
@@ -3237,16 +3206,15 @@
     return makeOrderedMap(newMap, newList);
   }
 
-  function Stack(value) {
+  createClass(Stack, IndexedCollection);
+
+    // @pragma Construction
+
+    function Stack(value) {
       return value === null || value === undefined ? emptyStack() :
         isStack(value) ? value :
         emptyStack().unshiftAll(value);
     }
-  createClass(Stack,IndexedCollection);
-
-    // @pragma Construction
-
-    
 
     Stack.of = function(/*...values*/) {
       return this(arguments);
@@ -3453,7 +3421,11 @@
     return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
   }
 
-  function Set(value) {
+  createClass(Set, SetCollection);
+
+    // @pragma Construction
+
+    function Set(value) {
       return value === null || value === undefined ? emptySet() :
         isSet(value) ? value :
         emptySet().withMutations(function(set ) {
@@ -3462,11 +3434,6 @@
           iter.forEach(function(v ) {return set.add(v)});
         });
     }
-  createClass(Set,SetCollection);
-
-    // @pragma Construction
-
-    
 
     Set.of = function(/*...values*/) {
       return this(arguments);
@@ -3635,7 +3602,11 @@
     return EMPTY_SET || (EMPTY_SET = makeSet(emptyMap()));
   }
 
-  function OrderedSet(value) {
+  createClass(OrderedSet, Set);
+
+    // @pragma Construction
+
+    function OrderedSet(value) {
       return value === null || value === undefined ? emptyOrderedSet() :
         isOrderedSet(value) ? value :
         emptyOrderedSet().withMutations(function(set ) {
@@ -3644,11 +3615,6 @@
           iter.forEach(function(v ) {return set.add(v)});
         });
     }
-  createClass(OrderedSet,Set);
-
-    // @pragma Construction
-
-    
 
     OrderedSet.of = function(/*...values*/) {
       return this(arguments);
@@ -3688,7 +3654,9 @@
     return EMPTY_ORDERED_SET || (EMPTY_ORDERED_SET = makeOrderedSet(emptyOrderedMap()));
   }
 
-  function Record(defaultValues, name) {
+  createClass(Record, KeyedCollection);
+
+    function Record(defaultValues, name) {
       var RecordType = function Record(values) {
         if (!(this instanceof RecordType)) {
           return new RecordType(values);
@@ -3723,9 +3691,6 @@
 
       return RecordType;
     }
-  createClass(Record,KeyedCollection);
-
-    
 
     Record.prototype.toString = function() {
       return this.__toString(recordName(this) + ' {', '}');
@@ -3888,7 +3853,9 @@
     return allEqual && a.size === bSize;
   }
 
-  function Range(start, end, step) {
+  createClass(Range, IndexedSeq);
+
+    function Range(start, end, step) {
       if (!(this instanceof Range)) {
         return new Range(start, end, step);
       }
@@ -3912,9 +3879,6 @@
         EMPTY_RANGE = this;
       }
     }
-  createClass(Range,IndexedSeq);
-
-    
 
     Range.prototype.toString = function() {
       if (this.size === 0) {
@@ -4002,7 +3966,9 @@
 
   var EMPTY_RANGE;
 
-  function Repeat(value, times) {
+  createClass(Repeat, IndexedSeq);
+
+    function Repeat(value, times) {
       if (!(this instanceof Repeat)) {
         return new Repeat(value, times);
       }
@@ -4015,9 +3981,6 @@
         EMPTY_REPEAT = this;
       }
     }
-  createClass(Repeat,IndexedSeq);
-
-    
 
     Repeat.prototype.toString = function() {
       if (this.size === 0) {

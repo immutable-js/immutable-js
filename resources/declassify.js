@@ -14,6 +14,14 @@ var MagicString = require('magic-string');
 /**
  * ES6 Class transpiler woefully lacking in features. Overwhelming priority to
  * produce the smallest reasonable source code.
+ *
+ * Clowntown:
+ *
+ *   * Members are assigned directly to prototype instead of defined as
+ *     properties.
+ *
+ *   * Class Expressions only work when prefixed by an export declaration
+ *
  */
 function declassify(source) {
   if (!/\bclass\b/.test(source)) {
@@ -22,18 +30,30 @@ function declassify(source) {
 
   var body = new MagicString(source);
 
-  body.prepend('import createClass from "./utils/createClass"');
-
   var ast = acorn.parse(source, {
     ecmaVersion: 6,
     locations: true
   });
 
+  var needsCreateClass;
   var classInfo;
 
   estraverse.traverse(ast, {
     enter: function (node) {
       switch (node.type) {
+        case 'ExportDeclaration':
+          var declaration = node.declaration;
+          if (declaration.type === 'ClassExpression' ||
+              declaration.type === 'ClassDeclaration') {
+            body.insert(
+              declaration.start,
+              node.default ?
+                declaration.id.name + ';' :
+              '{' + declaration.id.name + '};'
+            );
+          }
+          break;
+
         case 'ClassExpression':
         case 'ClassDeclaration':
           var className = node.id.name;
@@ -43,42 +63,44 @@ function declassify(source) {
             prev: classInfo,
           };
 
-          var constructor = node.body.body.filter(function (method) {
+          var classExpr = '';
+
+          var hasSuper = !!node.superClass;
+          if (hasSuper) {
+            needsCreateClass = true;
+            var superExpr = body.slice(node.superClass.start, node.superClass.end);
+            classExpr += 'createClass(' + className + ', ' + superExpr + ');';
+          }
+
+          var hasConstructor = node.body.body.some(function (method) {
             return method.type === 'MethodDefinition' &&
               method.key.name === 'constructor';
-          })[0];
+          });
+          if (!hasConstructor) {
+            classExpr += 'function ' + className + '() {}';
+          }
 
-          var constructorBody =
-            constructor ?
-              body.slice(constructor.value.start, constructor.value.end) :
-              '() {}';
+          body.replace(node.start, node.body.start, classExpr);
 
-          var constructorSrc = 'function ' + className + constructorBody;
-
-          var superClassExpr = node.superClass &&
-            body.slice(node.superClass.start, node.superClass.end);
-
-          var classSrc = 'createClass('+className+ (
-            superClassExpr ? ', ' + superClassExpr : ''
-          ) + ');';
-
-          body.replace(
-            node.start,
-            node.body.start,
-            constructorSrc + '\n' + classSrc
-          );
+          // remove { } around class body
           body.remove(node.body.start, node.body.start + 1);
           body.remove(node.body.end - 1, node.body.end);
           break;
 
         case 'MethodDefinition':
           if (node.key.name === 'constructor') {
-            body.remove(node.start, node.end);
+            body.replace(
+              node.key.start,
+              node.key.end,
+              'function ' + classInfo.name
+            );
           } else {
             var methodName = node.key.name;
-            body.replace(node.start, node.key.end,
-              classInfo.name +
-                (node.static ? '.' : '.prototype.') + methodName + ' = function'
+            body.replace(
+              node.start,
+              node.key.end,
+              classInfo.name + (node.static ? '.' : '.prototype.') +
+                methodName + ' = function'
             );
             body.insert(node.end, ';');
           }
@@ -103,6 +125,10 @@ function declassify(source) {
       }
     }
   });
+
+  if (needsCreateClass) {
+    body.prepend('import createClass from "./utils/createClass"');
+  }
 
   return body.toString();
 }
