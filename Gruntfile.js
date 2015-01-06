@@ -60,36 +60,46 @@ module.exports = function(grunt) {
 
   var fs = require('fs');
   var esperanto = require('esperanto');
-  var traceur = require('traceur');
+  var declassify = require('./resources/declassify');
+  var stripCopyright = require('./resources/stripCopyright');
   var uglify = require('uglify-js');
 
   grunt.registerMultiTask('bundle', function () {
     var done = this.async();
 
     this.files.map(function (file) {
-      esperanto.bundle({ entry: file.src[0] }).then(function (bundle) {
-        var unTransformed = bundle.toCjs({ name: 'Immutable' }).code;
-
-        var transformResult = traceur.compile(unTransformed, {
-          filename: file.src[0]
-        });
-        if (transformResult.error) {
-          throw transformResult.error;
+      esperanto.bundle({
+        entry: file.src[0],
+        transform: function(source) {
+          return declassify(stripCopyright(source));
         }
-        if (transformResult.errors && transformResult.errors.length > 0) {
-          throw transformResult.errors;
-        }
-
-        var transformed = transformResult.js;
-        var runnable = fs.readFileSync('resources/traceur-runtime.js', {encoding: 'utf8'}) + transformed;
-        var wrapped = fs.readFileSync('resources/universal-module.js', {encoding: 'utf8'})
-          .replace('%MODULE%', runnable);
-
+      }).then(function (bundle) {
         var copyright = fs.readFileSync('resources/COPYRIGHT');
 
-        fs.writeFileSync(file.dest + '.js', copyright + wrapped);
+        var bundled = bundle.toUmd({
+          banner: copyright,
+          name: 'Immutable'
+        }).code;
 
-        var result = uglify.minify(wrapped, {
+        var es6 = require('es6-transpiler');
+
+        var transformResult = require("es6-transpiler").run({
+          src: bundled,
+          environments: ["node", "browser"],
+          globals: {
+            define: false,
+          },
+        });
+
+        if (transformResult.errors && transformResult.errors.length > 0) {
+          throw transformResult.errors[0];
+        }
+
+        var transformed = transformResult.src;
+
+        fs.writeFileSync(file.dest + '.js', transformed);
+
+        var minifyResult = uglify.minify(transformed, {
           fromString: true,
           mangle: {
             toplevel: true
@@ -105,9 +115,11 @@ module.exports = function(grunt) {
           reserved: ['module', 'define', 'Immutable']
         });
 
-        fs.writeFileSync(file.dest + '.min.js', copyright + result.code);
+        var minified = minifyResult.code;
+
+        fs.writeFileSync(file.dest + '.min.js', copyright + minified);
       }).then(function(){ done(); }, function(error) {
-        grunt.log.error(error);
+        grunt.log.error(error.stack);
         done(false);
       });
     });

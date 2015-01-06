@@ -133,7 +133,8 @@ export class Stack extends IndexedCollection {
     var resolvedBegin = resolveBegin(begin, this.size);
     var resolvedEnd = resolveEnd(end, this.size);
     if (resolvedEnd !== this.size) {
-      return super.slice(begin, end);
+      // super.slice(begin, end);
+      return IndexedCollection.prototype.slice.call(this, begin, end);
     }
     var newSize = this.size - resolvedBegin;
     var head = this._head;
