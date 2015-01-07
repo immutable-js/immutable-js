@@ -25,6 +25,9 @@ export function hash(o) {
   var type = typeof o;
   if (type === 'number') {
     var h = o | 0;
+    if (h !== o) {
+      h ^= o * 0xFFFFFFFF;
+    }
     while (o > 0xFFFFFFFF) {
       o /= 0xFFFFFFFF;
       h ^= o;

@@ -1362,6 +1362,27 @@ declare module 'immutable' {
      */
     equals(other: Iterable<K, V>): boolean;
 
+    /**
+     * Computes and returns the hashed identity for this Iterable.
+     *
+     * The `hashCode` of an Iterable is used to determine potential equality,
+     * and is used when adding this to a `Set` or as a key in a `Map`, enabling
+     * lookup via a different instance.
+     *
+     *     var a = List.of(1, 2, 3);
+     *     var b = List.of(1, 2, 3);
+     *     assert(a !== b); // different instances
+     *     var set = Set.of(a);
+     *     assert(set.has(b) === true);
+     *
+     * If two values have the same `hashCode`, they are [not guaranteed
+     * to be equal][Hash Collision]. If two values have different `hashCode`s,
+     * they must not be equal.
+     *
+     * [Hash Collision]: http://en.wikipedia.org/wiki/Collision_(computer_science)
+     */
+    hashCode(): number;
+
 
     // Reading values
 
