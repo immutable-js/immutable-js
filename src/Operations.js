@@ -8,7 +8,7 @@
  */
 
 import { NOT_SET, ensureSize, wrapIndex, wholeSlice, resolveBegin, resolveEnd } from './TrieUtils'
-import { isIterable, isKeyed, isIndexed,
+import { isIterable, isKeyed, isIndexed, isOrdered,
           Iterable, KeyedIterable, SetIterable, IndexedIterable,
           IS_ORDERED_SENTINEL } from './Iterable'
 import { getIterator, Iterator, iteratorValue, iteratorDone,
@@ -19,6 +19,7 @@ import { isSeq, Seq, KeyedSeq, SetSeq, IndexedSeq,
 import assertNotInfinite from './utils/assertNotInfinite'
 
 import { Map } from './Map'
+import { OrderedMap } from './OrderedMap'
 
 
 export class ToKeyedSequence extends KeyedSeq {
@@ -346,7 +347,7 @@ export function countByFactory(iterable, grouper, context) {
 
 export function groupByFactory(iterable, grouper, context) {
   var isKeyedIter = isKeyed(iterable);
-  var groups = Map().asMutable();
+  var groups = (isOrdered(iterable) ? OrderedMap() : Map()).asMutable();
   iterable.__iterate((v, k) => {
     groups.update(
       grouper.call(context, v, k, iterable),

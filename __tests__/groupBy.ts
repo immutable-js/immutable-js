@@ -47,4 +47,16 @@ describe('groupBy', () => {
     );
   })
 
+  it('returns an ordered map from an ordered collection', () => {
+    var seq = I.Seq.of('Z','Y','X','Z','Y','X');
+    expect(I.Iterable.isOrdered(seq)).toBe(true);
+    var seqGroups = seq.groupBy(x => x);
+    expect(I.Iterable.isOrdered(seqGroups)).toBe(true);
+
+    var map = I.Map({ x: 1, y: 2 });
+    expect(I.Iterable.isOrdered(map)).toBe(false);
+    var mapGroups = map.groupBy(x => x);
+    expect(I.Iterable.isOrdered(mapGroups)).toBe(false);
+  })
+
 })
