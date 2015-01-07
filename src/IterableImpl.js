@@ -624,6 +624,16 @@ mixin(IndexedIterable, {
     return reify(this, interposeFactory(this, separator));
   },
 
+  interleave(/*...iterables*/) {
+    var iterables = [this].concat(arrCopy(arguments));
+    var zipped = zipWithFactory(this.toSeq(), IndexedSeq.of, iterables);
+    var interleaved = zipped.flatten(true);
+    if (zipped.size) {
+      interleaved.size = zipped.size * iterables.length;
+    }
+    return reify(this, interleaved);
+  },
+
   last() {
     return this.get(-1);
   },

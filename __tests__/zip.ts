@@ -69,4 +69,39 @@ describe('zip', () => {
 
   });
 
+  describe('interleave', () => {
+
+    it('interleaves multiple collections', () => {
+      expect(
+        I.Seq.of(1,2,3).interleave(
+          I.Seq.of(4,5,6),
+          I.Seq.of(7,8,9)
+        ).toArray()
+      ).toEqual(
+        [1,4,7,2,5,8,3,6,9]
+      );
+    });
+
+    it('stops at the shortest collection', () => {
+      var i = I.Seq.of(1,2,3).interleave(
+        I.Seq.of(4,5),
+        I.Seq.of(7,8,9)
+      );
+      expect(i.size).toBe(6);
+      expect(i.toArray()).toEqual(
+        [1,4,7,2,5,8]
+      );
+    });
+
+    it('with infinite lists', () => {
+      var r: I.IndexedIterable<any> = I.Range();
+      var i = r.interleave(I.Seq.of('A','B','C'));
+      expect(i.size).toBe(6);
+      expect(i.toArray()).toEqual(
+        [0,'A',1,'B',2,'C']
+      );
+    });
+
+  });
+
 });

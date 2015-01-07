@@ -2192,6 +2192,26 @@ declare module 'immutable' {
     interpose(separator: T): /*this*/IndexedIterable<T>;
 
     /**
+     * Returns an Iterable of the same type with the provided `iterables`
+     * interleaved into this iterable.
+     *
+     * The resulting Iterable contains the first item from each, then the
+     * second from each, etc.
+     *
+     *     I.Seq.of(1,2,3).interleave(I.Seq.of('A','B','C'))
+     *     // Seq [ 1, 'A', 2, 'B', 3, 'C' ]
+     *
+     * The shortest Iterable stops interleave.
+     *
+     *     I.Seq.of(1,2,3).interleave(
+     *       I.Seq.of('A','B'),
+     *       I.Seq.of('X','Y','Z')
+     *     )
+     *     // Seq [ 1, 'A', 'X', 2, 'B', 'Y' ]
+     */
+    interleave(...iterables: Array<Iterable<any, T>>): /*this*/IndexedIterable<T>;
+
+    /**
      * Splice returns a new indexed Iterable by replacing a region of this
      * Iterable with new values. If values are not provided, it only skips the
      * region to be removed.
@@ -2220,7 +2240,7 @@ declare module 'immutable' {
      *     var c = a.zip(b); // Seq [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
      *
      */
-    zip(...iterables: /*Array<IndexedIterable<T>>*/Array<any>): /*this*/IndexedIterable<any>;
+    zip(...iterables: Array<Iterable<any, any>>): /*this*/IndexedIterable<any>;
 
     /**
      * Returns an Iterable of the same type "zipped" with the provided
@@ -2235,16 +2255,16 @@ declare module 'immutable' {
      */
     zipWith<U, Z>(
       zipper: (value: T, otherValue: U) => Z,
-      otherIterable: IndexedIterable<U>
+      otherIterable: Iterable<any, U>
     ): IndexedIterable<Z>;
     zipWith<U, V, Z>(
       zipper: (value: T, otherValue: U, thirdValue: V) => Z,
-      otherIterable: IndexedIterable<U>,
-      thirdIterable: IndexedIterable<V>
+      otherIterable: Iterable<any, U>,
+      thirdIterable: Iterable<any, V>
     ): IndexedIterable<Z>;
     zipWith<Z>(
       zipper: (...any: Array<any>) => Z,
-      ...iterables: /*Array<IndexedIterable<T>>*/Array<any>
+      ...iterables: Array<Iterable<any, any>>
     ): IndexedIterable<Z>;
 
 
