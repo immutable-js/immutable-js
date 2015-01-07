@@ -52,9 +52,10 @@ Then, add it as a script tag to your page:
 ```html
 <script src="immutable.min.js"></script>
 <script>
-    var map = Immutable.Map({a:1, b:2, c:3});
-    map = map.set('b', 20);
-    map.get('b'); // 20
+    var map1 = Immutable.Map({a:1, b:2, c:3});
+    var map2 = map1.set('b', 50);
+    map1.get('b'); // 2
+    map2.get('b'); // 50
 </script>
 ```
 
@@ -83,10 +84,11 @@ of your file.
 ```javascript
 ///<reference path='./node_modules/immutable/dist/Immutable.d.ts'/>
 import Immutable = require('immutable');
-var map: Immutable.Map<string, number>;
-map = Immutable.Map({a:1, b:2, c:3});
-map = map.set('b', 20);
-map.get('b'); // 20
+var map1: Immutable.Map<string, number>;
+map1 = Immutable.Map({a:1, b:2, c:3});
+var map2 = map1.set('b', 20);
+map1.get('b'); // 2
+map2.get('b'); // 50
 ```
 
 
@@ -118,6 +120,8 @@ has changed.
 var map1 = Immutable.Map({a:1, b:2, c:3});
 var map2 = map1.set('b', 2);
 assert(map1 === map2);
+var map3 = map1.set('b', 50);
+assert(map1 !== map3);
 ```
 
 If an object is immutable, it can be "copied" simply by making another reference
