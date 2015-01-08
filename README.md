@@ -38,7 +38,10 @@ Then require it into any module.
 
 ```javascript
 var Immutable = require('immutable');
-var map = Immutable.Map({a:1, b:2, c:3});
+var map1 = Immutable.Map({a:1, b:2, c:3});
+var map2 = map1.set('b', 50);
+map1.get('b'); // 2
+map2.get('b'); // 50
 ```
 
 ### Browser
@@ -63,9 +66,10 @@ Or use an AMD loader (such as [RequireJS](http://requirejs.org/)):
 
 ```javascript
 require(['./immutable.min.js'], function (Immutable) {
-    var map = Immutable.Map({a:1, b:2, c:3});
-    map = map.set('b', 20);
-    map.get('b'); // 20
+    var map1 = Immutable.Map({a:1, b:2, c:3});
+    var map2 = map1.set('b', 50);
+    map1.get('b'); // 2
+    map2.get('b'); // 50
 });
 ```
 
