@@ -4241,14 +4241,23 @@
     },
 
     find: function(predicate, context, notSetValue) {
-      var foundValue = notSetValue;
+      var entry = this.findEntry(predicate, context);
+      return entry ? entry[1] : notSetValue;
+    },
+
+    findEntry: function(predicate, context) {
+      var found;
       this.__iterate(function(v, k, c)  {
         if (predicate.call(context, v, k, c)) {
-          foundValue = v;
+          found = [k, v];
           return false;
         }
       });
-      return foundValue;
+      return found;
+    },
+
+    findLastEntry: function(predicate, context) {
+      return this.toSeq().reverse().findEntry(predicate, context);
     },
 
     forEach: function(sideEffect, context) {
@@ -4557,14 +4566,8 @@
     },
 
     findKey: function(predicate, context) {
-      var foundKey;
-      this.__iterate(function(v, k, c)  {
-        if (predicate.call(context, v, k, c)) {
-          foundKey = k;
-          return false;
-        }
-      });
-      return foundKey;
+      var entry = this.findEntry(predicate, context);
+      return entry && entry[0];
     },
 
     findLastKey: function(predicate, context) {
@@ -4576,7 +4579,7 @@
     },
 
     lastKeyOf: function(searchValue) {
-      return this.toSeq().reverse().keyOf(searchValue);
+      return this.findLastKey(function(value ) {return is(value, searchValue)});
     },
 
     mapEntries: function(mapper, context) {var this$0 = this;
@@ -4622,8 +4625,8 @@
     },
 
     findIndex: function(predicate, context) {
-      var key = this.toKeyedSeq().findKey(predicate, context);
-      return key === undefined ? -1 : key;
+      var entry = this.findEntry(predicate, context);
+      return entry ? entry[0] : -1;
     },
 
     indexOf: function(searchValue) {
@@ -4632,8 +4635,7 @@
     },
 
     lastIndexOf: function(searchValue) {
-      var key = this.toKeyedSeq().lastKeyOf(searchValue);
-      return key === undefined ? -1 : key;
+      return this.toSeq().reverse().indexOf(searchValue);
     },
 
     reverse: function() {

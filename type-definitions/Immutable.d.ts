@@ -1956,6 +1956,27 @@ declare module 'immutable' {
     ): V;
 
     /**
+     * Returns the [key, value] entry for which the `predicate` returns true.
+     */
+    findEntry(
+      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      context?: any,
+      notSetValue?: V
+    ): /*[K, V]*/Array<any>;
+
+    /**
+     * Returns the last [key, value] entry for which the `predicate`
+     * returns true.
+     *
+     * Note: `predicate` will be called for each entry in reverse.
+     */
+    findLastEntry(
+      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      context?: any,
+      notSetValue?: V
+    ): /*[K, V]*/Array<any>;
+
+    /**
      * Returns the maximum value in this collection. If any values are
      * comparatively equivalent, the first one found will be returned.
      *
