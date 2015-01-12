@@ -157,6 +157,25 @@ describe('Cursor', () => {
     );
   });
 
+  it('can set value of a cursor', () => {
+    var onChange = jest.genMockFunction();
+
+    var data = Immutable.fromJS(json);
+    var aCursor = Cursor.from(data, onChange);
+
+    expect(aCursor.set(
+        Immutable.fromJS({ a: 1 })
+      ).deref()).toEqual(
+      Immutable.fromJS({ a: 1 })
+    );
+
+    expect(onChange).lastCalledWith(
+      Immutable.fromJS({ a: 1 }),
+      data,
+      []
+    );
+  });
+
   it('creates maps as necessary', () => {
     var data = Immutable.Map();
     var cursor = Cursor.from(data, ['a', 'b', 'c']);
@@ -171,6 +190,25 @@ describe('Cursor', () => {
     expect(cursor.deref()).toBe(undefined);
     cursor = cursor.set('d', undefined);
     expect(cursor.toJS()).toEqual({d: undefined});
+  });
+
+  it('can set value of cursor to be undefined', () => {
+    var onChange = jest.genMockFunction();
+
+    var data = Immutable.fromJS(json);
+    var cursor = Cursor.from(data, ['a', 'b'], onChange);
+    expect(cursor.deref()).toEqual(
+        Immutable.fromJS({ c: 1 })
+      );
+    cursor = cursor.cursor('d').set(undefined);
+    expect(cursor.toJS()).toEqual({});
+    expect(cursor.deref()).toEqual(undefined);
+
+    expect(onChange).lastCalledWith(
+      Immutable.fromJS({ a: { b: { c: 1, d: undefined } } }),
+      data,
+      ['a', 'b', 'd']
+    );
   });
 
   it('has the sequence API', () => {
