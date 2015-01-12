@@ -194,6 +194,16 @@ describe('Cursor', () => {
     );
   });
 
+  it('returns wrapped values for iteration API', () => {
+    var jsData = [{val: 0}, {val: 1}, {val: 2}];
+    var data = Immutable.fromJS(jsData);
+    var cursor = Cursor.from(data);
+    cursor.forEach(function (c, i) {
+      expect(typeof c.deref).toBe('function'); // is a cursor!
+      expect(c.get('val')).toBe(i);
+    });
+  });
+
   it('can map over values to get subcursors', () => {
     var data = Immutable.fromJS({a: {v: 1}, b: {v: 2}, c: {v: 3}});
     var cursor = Cursor.from(data);

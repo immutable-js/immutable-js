@@ -254,7 +254,7 @@ function updateCursor(cursor, changeFn, changeKey) {
     undefined,
     newRootData,
     cursor._rootData,
-    newKeyPath(keyPath, changeKey)
+    arguments.length > 2 ? newKeyPath(keyPath, changeKey) : keyPath
   );
   if (result !== undefined) {
     newRootData = result;
@@ -263,7 +263,7 @@ function updateCursor(cursor, changeFn, changeKey) {
 }
 
 function newKeyPath(head, tail) {
-  return tail ? Seq(head).concat(tail).toArray() : head;
+  return Seq(head).concat(tail).toArray();
 }
 
 exports.from = cursorFrom;
