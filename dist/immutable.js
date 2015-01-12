@@ -7,8 +7,8 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 (function (global, factory) {
-  typeof define === 'function' && define.amd ? define([], factory) :
-  typeof exports === 'object' ? module.exports = factory() :
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+  typeof define === 'function' && define.amd ? define(factory) :
   global.Immutable = factory()
 }(this, function () { 'use strict';var SLICE$0 = Array.prototype.slice;
 
