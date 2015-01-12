@@ -277,8 +277,7 @@ declare module 'immutable' {
 
     /**
      * Returns a new List having removed the value at this `keyPath`. If any
-     * keys in `keyPath` do not exist, a new immutable Map will be created at
-     * that key.
+     * keys in `keyPath` do not exist, no change will occur.
      *
      * @alias removeIn
      */
@@ -530,8 +529,7 @@ declare module 'immutable' {
 
     /**
      * Returns a new Map having removed the value at this `keyPath`. If any keys
-     * in `keyPath` do not exist, a new immutable Map will be created at
-     * that key.
+     * in `keyPath` do not exist, no change will occur.
      *
      * @alias removeIn
      */
@@ -1975,6 +1973,7 @@ declare module 'immutable' {
       context?: any,
       notSetValue?: V
     ): /*[K, V]*/Array<any>;
+
     /**
      * Returns the maximum value in this collection. If any values are
      * comparatively equivalent, the first one found will be returned.

@@ -99,10 +99,10 @@ declare module 'immutable/contrib/cursor' {
      * point in the new data.
      *
      * Note: `delete` cannot be safely used in IE8
-     * @alias delete
+     * @alias remove
      */
-    remove(key: any): Cursor;
     delete(key: any): Cursor;
+    remove(key: any): Cursor;
 
     /**
      * Clears the value at this cursor, returning a new cursor to the same
@@ -118,6 +118,138 @@ declare module 'immutable/contrib/cursor' {
     update(updater: (value: any) => any): Cursor;
     update(key: any, updater: (value: any) => any): Cursor;
     update(key: any, notSetValue: any, updater: (value: any) => any): Cursor;
+
+    /**
+     * @see `Map#merge`
+     */
+    merge(...iterables: Immutable.Iterable<any, any>[]): Cursor;
+    merge(...iterables: {[key: string]: any}[]): Cursor;
+
+    /**
+     * @see `Map#mergeWith`
+     */
+    mergeWith(
+      merger: (previous?: any, next?: any) => any,
+      ...iterables: Immutable.Iterable<any, any>[]
+    ): Cursor;
+    mergeWith(
+      merger: (previous?: any, next?: any) => any,
+      ...iterables: {[key: string]: any}[]
+    ): Cursor;
+
+    /**
+     * @see `Map#mergeDeep`
+     */
+    mergeDeep(...iterables: Immutable.Iterable<any, any>[]): Cursor;
+    mergeDeep(...iterables: {[key: string]: any}[]): Cursor;
+
+    /**
+     * @see `Map#mergeDeepWith`
+     */
+    mergeDeepWith(
+      merger: (previous?: any, next?: any) => any,
+      ...iterables: Immutable.Iterable<any, any>[]
+    ): Cursor;
+    mergeDeepWith(
+      merger: (previous?: any, next?: any) => any,
+      ...iterables: {[key: string]: any}[]
+    ): Cursor;
+
+    // Deep persistent changes
+
+    /**
+     * Returns a new Cursor having set `value` at this `keyPath`. If any keys in
+     * `keyPath` do not exist, a new immutable Map will be created at that key.
+     */
+    setIn(keyPath: Array<any>, value: any): Cursor;
+    setIn(keyPath: Immutable.Iterable<any, any>, value: any): Cursor;
+
+    /**
+     * Returns a new Cursor having removed the value at this `keyPath`.
+     *
+     * @alias removeIn
+     */
+    deleteIn(keyPath: Array<any>): Cursor;
+    deleteIn(keyPath: Immutable.Iterable<any, any>): Cursor;
+    removeIn(keyPath: Array<any>): Cursor;
+    removeIn(keyPath: Immutable.Iterable<any, any>): Cursor;
+
+    /**
+     * Returns a new Cursor having applied the `updater` to the value found at
+     * the keyPath.
+     *
+     * If any keys in `keyPath` do not exist, new Immutable `Map`s will
+     * be created at those keys. If the `keyPath` does not already contain a
+     * value, the `updater` function will be called with `notSetValue`, if
+     * provided, otherwise `undefined`.
+     *
+     * If the `updater` function returns the same value it was called with, then
+     * no change will occur. This is still true if `notSetValue` is provided.
+     */
+    updateIn(
+      keyPath: Array<any>,
+      updater: (value: any) => any
+    ): Cursor;
+    updateIn(
+      keyPath: Array<any>,
+      notSetValue: any,
+      updater: (value: any) => any
+    ): Cursor;
+    updateIn(
+      keyPath: Immutable.Iterable<any, any>,
+      updater: (value: any) => any
+    ): Cursor;
+    updateIn(
+      keyPath: Immutable.Iterable<any, any>,
+      notSetValue: any,
+      updater: (value: any) => any
+    ): Cursor;
+
+    /**
+     * A combination of `updateIn` and `merge`, returning a new Cursor, but
+     * performing the merge at a point arrived at by following the keyPath.
+     * In other words, these two lines are equivalent:
+     *
+     *     x.updateIn(['a', 'b', 'c'], abc => abc.merge(y));
+     *     x.mergeIn(['a', 'b', 'c'], y);
+     *
+     */
+    mergeIn(
+      keyPath: Immutable.Iterable<any, any>,
+      ...iterables: Immutable.Iterable<any, any>[]
+    ): Cursor;
+    mergeIn(
+      keyPath: Array<any>,
+      ...iterables: Immutable.Iterable<any, any>[]
+    ): Cursor;
+    mergeIn(
+      keyPath: Array<any>,
+      ...iterables: {[key: string]: any}[]
+    ): Cursor;
+
+    /**
+     * A combination of `updateIn` and `mergeDeep`, returning a new Cursor, but
+     * performing the deep merge at a point arrived at by following the keyPath.
+     * In other words, these two lines are equivalent:
+     *
+     *     x.updateIn(['a', 'b', 'c'], abc => abc.mergeDeep(y));
+     *     x.mergeDeepIn(['a', 'b', 'c'], y);
+     *
+     */
+    mergeDeepIn(
+      keyPath: Immutable.Iterable<any, any>,
+      ...iterables: Immutable.Iterable<any, any>[]
+    ): Cursor;
+    mergeDeepIn(
+      keyPath: Array<any>,
+      ...iterables: Immutable.Iterable<any, any>[]
+    ): Cursor;
+    mergeDeepIn(
+      keyPath: Array<any>,
+      ...iterables: {[key: string]: any}[]
+    ): Cursor;
+
+    // Transient changes
 
     /**
      * Every time you call one of the above functions, a new immutable value is

@@ -81,7 +81,7 @@ IndexedCursorPrototype.getIn = function(key, notSetValue) {
   if (key.length === 0) {
     return this;
   }
-  var value = this._rootData.getIn(this._keyPath.concat(key), NOT_SET);
+  var value = this._rootData.getIn(newKeyPath(this._keyPath, key), NOT_SET);
   return value === NOT_SET ? notSetValue : wrappedValue(this, key, value);
 }
 
@@ -90,12 +90,20 @@ KeyedCursorPrototype.set = function(key, value) {
   return updateCursor(this, function (m) { return m.set(key, value); }, key);
 }
 
+IndexedCursorPrototype.setIn =
+KeyedCursorPrototype.setIn = Map.prototype.setIn;
+
 KeyedCursorPrototype.remove =
 KeyedCursorPrototype['delete'] =
 IndexedCursorPrototype.remove =
 IndexedCursorPrototype['delete'] = function(key) {
   return updateCursor(this, function (m) { return m.remove(key); }, key);
 }
+
+IndexedCursorPrototype.removeIn =
+IndexedCursorPrototype.deleteIn =
+KeyedCursorPrototype.removeIn =
+KeyedCursorPrototype.deleteIn = Map.prototype.deleteIn;
 
 KeyedCursorPrototype.clear =
 IndexedCursorPrototype.clear = function() {
@@ -106,10 +114,53 @@ IndexedCursorPrototype.update =
 KeyedCursorPrototype.update = function(keyOrFn, notSetValue, updater) {
   return arguments.length === 1 ?
     updateCursor(this, keyOrFn) :
-    updateCursor(this, function (map) {
-      return map.update(keyOrFn, notSetValue, updater);
-    }, keyOrFn);
+    this.updateIn([keyOrFn], notSetValue, updater);
 }
+
+IndexedCursorPrototype.updateIn =
+KeyedCursorPrototype.updateIn = function(keyPath, notSetValue, updater) {
+  return updateCursor(this, function (m) {
+    return m.updateIn(keyPath, notSetValue, updater);
+  }, keyPath);
+}
+
+IndexedCursorPrototype.merge =
+KeyedCursorPrototype.merge = function(/*...iters*/) {
+  var args = arguments;
+  return updateCursor(this, function (m) {
+    return m.merge.apply(m, args);
+  });
+}
+
+IndexedCursorPrototype.mergeWith =
+KeyedCursorPrototype.mergeWith = function(merger/*, ...iters*/) {
+  var args = arguments;
+  return updateCursor(this, function (m) {
+    return m.mergeWith.apply(m, args);
+  });
+}
+
+IndexedCursorPrototype.mergeIn =
+KeyedCursorPrototype.mergeIn = Map.prototype.mergeIn;
+
+IndexedCursorPrototype.mergeDeep =
+KeyedCursorPrototype.mergeDeep = function(/*...iters*/) {
+  var args = arguments;
+  return updateCursor(this, function (m) {
+    return m.mergeDeep.apply(m, args);
+  });
+}
+
+IndexedCursorPrototype.mergeDeepWith =
+KeyedCursorPrototype.mergeDeepWith = function(merger/*, ...iters*/) {
+  var args = arguments;
+  return updateCursor(this, function (m) {
+    return m.mergeDeepWith.apply(m, args);
+  });
+}
+
+IndexedCursorPrototype.mergeDeepIn =
+KeyedCursorPrototype.mergeDeepIn = Map.prototype.mergeDeepIn;
 
 KeyedCursorPrototype.withMutations =
 IndexedCursorPrototype.withMutations = function(fn) {
@@ -186,7 +237,7 @@ function wrappedValue(cursor, key, value) {
 function subCursor(cursor, key, value) {
   return makeCursor(
     cursor._rootData,
-    cursor._keyPath.concat(key),
+    newKeyPath(cursor._keyPath, key),
     cursor._onChange,
     value
   );
@@ -203,7 +254,7 @@ function updateCursor(cursor, changeFn, changeKey) {
     undefined,
     newRootData,
     cursor._rootData,
-    changeKey ? keyPath.concat(changeKey) : keyPath
+    newKeyPath(keyPath, changeKey)
   );
   if (result !== undefined) {
     newRootData = result;
@@ -211,5 +262,8 @@ function updateCursor(cursor, changeFn, changeKey) {
   return makeCursor(newRootData, cursor._keyPath, cursor._onChange);
 }
 
+function newKeyPath(head, tail) {
+  return tail ? Seq(head).concat(tail).toArray() : head;
+}
 
 exports.from = cursorFrom;
