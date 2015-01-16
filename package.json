@@ -28,6 +28,8 @@
   },
   "devDependencies": {
     "acorn": "^0.11.0",
+    "bluebird": "^2.7.1",
+    "es6-transpiler": "^0.7.18",
     "esperanto": "^0.6.0",
     "estraverse": "^1.9.1",
     "grunt": "^0.4.5",
@@ -40,8 +42,7 @@
     "magic-string": "^0.2.6",
     "react-tools": "^0.11.1",
     "ts-compiler": "^2.0.0",
-    "uglify-js": "^2.4.15",
-    "es6-transpiler": "^0.7.18"
+    "uglify-js": "^2.4.15"
   },
   "engines": {
     "node": ">=0.8.0"

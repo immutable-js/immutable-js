@@ -127,41 +127,80 @@ module.exports = function(grunt) {
   });
 
 
+  var Promise = require("bluebird");
   var exec = require('child_process').exec;
 
+  function execp(cmd) {
+    var resolve, reject;
+    var promise = new Promise(function(_resolve, _reject) {
+      resolve = _resolve;
+      reject = _reject;
+    });
+    try {
+      exec(cmd, function (error, out) {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(out);
+        }
+      });
+    } catch (error) {
+      reject(error);
+    }
+    return promise;
+  }
+
   grunt.registerTask('stats', function () {
-    var done = this.async();
-    exec('cat dist/immutable.js | wc -c', function (error, out) {
-      if (error) throw new Error(error);
-      var rawBytes = parseInt(out);
-      console.log('     Concatenated: ' +
-        (rawBytes + ' bytes').cyan);
-      exec('gzip -c dist/immutable.js | wc -c', function (error, out) {
-        if (error) throw new Error(error);
-        var zippedBytes = parseInt(out);
-        var pctOfA = Math.floor(10000 * (1 - (zippedBytes / rawBytes))) / 100;
-        console.log('       Compressed: ' +
-          (zippedBytes + ' bytes').cyan + ' ' +
-          (pctOfA + '%').green);
-        exec('cat dist/immutable.min.js | wc -c', function (error, out) {
-          if (error) throw new Error(error);
-          var minifiedBytes = parseInt(out);
-          var pctOfA = Math.floor(10000 * (1 - (minifiedBytes / rawBytes))) / 100;
-          console.log('         Minified: ' +
-            (minifiedBytes + ' bytes').cyan + ' ' +
-            (pctOfA + '%').green);
-          exec('gzip -c dist/immutable.min.js | wc -c', function (error, out) {
-            if (error) throw new Error(error);
-            var zippedMinBytes = parseInt(out);
-            var pctOfA = Math.floor(10000 * (1 - (zippedMinBytes / rawBytes))) / 100;
-            console.log('  Min\'d & Cmprs\'d: ' +
-              (zippedMinBytes + ' bytes').cyan + ' ' +
-              (pctOfA + '%').green);
-            done();
-          })
-        })
-      })
-    })
+    Promise.all([
+      execp('cat dist/immutable.js | wc -c'),
+      execp('git show master:dist/immutable.js | wc -c'),
+      execp('cat dist/immutable.min.js | wc -c'),
+      execp('git show master:dist/immutable.min.js | wc -c'),
+      execp('cat dist/immutable.min.js | gzip -c | wc -c'),
+      execp('git show master:dist/immutable.min.js | gzip -c | wc -c'),
+    ]).then(function (results) {
+      return results.map(function (result) { return parseInt(result); });
+    }).then(function (results) {
+      var rawNew = results[0];
+      var rawOld = results[1];
+      var minNew = results[2];
+      var minOld = results[3];
+      var zipNew = results[4];
+      var zipOld = results[5];
+
+      function space(n, s) {
+        return Array(Math.max(0, 10 + n - (s||'').length)).join(' ') + (s||'');
+      }
+
+      function bytes(b) {
+        return b.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' bytes';
+      }
+
+      function diff(n, o) {
+        var d = n - o;
+        return d === 0 ? '' : d < 0 ? (' ' + bytes(d)).green : (' +' + bytes(d)).red;
+      }
+
+      function pct(s, b) {
+        var p = Math.floor(10000 * (1 - (s / b))) / 100;
+        return (' ' + p + '%').grey;
+      }
+
+      console.log('  Raw: ' +
+        space(14, bytes(rawNew).cyan) + '       ' + space(15, diff(rawNew, rawOld))
+      );
+      console.log('  Min: ' +
+        space(14, bytes(minNew).cyan) + pct(minNew, rawNew) + space(15, diff(minNew, minOld))
+      );
+      console.log('  Zip: ' +
+        space(14, bytes(zipNew).cyan) + pct(zipNew, rawNew) + space(15, diff(zipNew, zipOld))
+      );
+
+    }).then(this.async()).catch(function (error) {
+      setTimeout(function () {
+        throw error;
+      }, 0);
+    });
   });
 
   grunt.registerTask('init_ts_compiler', function () {
