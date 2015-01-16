@@ -63,10 +63,6 @@ export class KeyedSeq extends Seq {
         keyedSeqFromValue(value);
   }
 
-  static of(/*...values*/) {
-    return KeyedSeq(arguments);
-  }
-
   toKeyedSeq() {
     return this;
   }
