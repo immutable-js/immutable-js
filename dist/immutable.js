@@ -282,10 +282,6 @@
       return this;
     };
 
-    KeyedSeq.prototype.toSeq = function() {
-      return this;
-    };
-
 
 
   createClass(IndexedSeq, Seq);

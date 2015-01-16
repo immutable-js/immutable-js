@@ -66,10 +66,6 @@ export class KeyedSeq extends Seq {
   toKeyedSeq() {
     return this;
   }
-
-  toSeq() {
-    return this;
-  }
 }
 
 
