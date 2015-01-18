@@ -16,7 +16,8 @@
   },
   "main": "dist/immutable.js",
   "scripts": {
-    "test": "./resources/node_test.sh"
+    "test": "./resources/node_test.sh",
+    "perf": "node ./resources/bench.js"
   },
   "jest": {
     "scriptPreprocessor": "resources/jestPreprocessor.js",
@@ -28,7 +29,9 @@
   },
   "devDependencies": {
     "acorn": "^0.11.0",
+    "benchmark": "^1.0.0",
     "bluebird": "^2.7.1",
+    "colors": "^1.0.3",
     "es6-transpiler": "^0.7.18",
     "esperanto": "^0.6.0",
     "estraverse": "^1.9.1",
@@ -40,6 +43,7 @@
     "grunt-release": "^0.7.0",
     "jasmine-check": "^0.1.2",
     "magic-string": "^0.2.6",
+    "microtime": "^1.2.0",
     "react-tools": "^0.11.1",
     "ts-compiler": "^2.0.0",
     "uglify-js": "^2.4.15"
