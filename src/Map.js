@@ -750,8 +750,9 @@ function updateInDeepMap(existing, keyPathIter, notSetValue, updater) {
   var step = keyPathIter.next();
   if (step.done) {
     var existingValue = isNotSet ? notSetValue : existing;
-    var newValue = updater(existingValue);
-    return newValue === existingValue ? existing : newValue;
+    // The function might simply pass back the notSetValue. If so, that value
+    // should be kept.
+    return updater(existingValue);
   }
   invariant(
     isNotSet || (existing && existing.set),
