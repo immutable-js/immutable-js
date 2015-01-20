@@ -7,25 +7,23 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "is"
-import "fromJS"
-import "Iterable"
-import "Seq"
-import "Collection"
-import "invariant"
-import "TrieUtils"
-import "Hash"
-import "Iterator"
-import "Operations"
-/* global is, fromJS, isIterable, forceIterator, KeyedIterable, KeyedCollection,
-          invariant,
-          DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, MAKE, makeEmpty,
-          OwnerID, MakeRef, SetRef, arrCopy, hash, sortFactory, OrderedMap,
-          Iterator, iteratorValue, iteratorDone, 
-          assertNotInfinite */
-/* exported Map, isMap, MapPrototype */
 
-class Map extends KeyedCollection {
+import { is } from './is'
+import { fromJS } from './fromJS'
+import { isIterable, KeyedIterable } from './Iterable'
+import { KeyedCollection } from './Collection'
+import { DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, MAKE, makeEmpty, OwnerID,
+          MakeRef, SetRef, arrCopy } from './TrieUtils'
+import { hash } from './Hash'
+import { Iterator, iteratorValue, iteratorDone } from './Iterator'
+import { sortFactory } from './Operations'
+import forceIterator from './utils/forceIterator'
+import invariant from './utils/invariant'
+import assertNotInfinite from './utils/assertNotInfinite'
+
+import { OrderedMap } from './OrderedMap'
+
+export class Map extends KeyedCollection {
 
   // @pragma Construction
 
@@ -202,7 +200,7 @@ class Map extends KeyedCollection {
 
 }
 
-function isMap(maybeMap) {
+export function isMap(maybeMap) {
   return !!(maybeMap && maybeMap[IS_MAP_SENTINEL]);
 }
 
@@ -210,7 +208,7 @@ Map.isMap = isMap;
 
 var IS_MAP_SENTINEL = '@@__IMMUTABLE_MAP__@@';
 
-var MapPrototype = Map.prototype;
+export var MapPrototype = Map.prototype;
 MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeIn = MapPrototype.deleteIn;
@@ -718,14 +716,14 @@ function mergeIntoMapWith(map, merger, iterables) {
   return mergeIntoCollectionWith(map, merger, iters);
 }
 
-function deepMerger(merger) {
+export function deepMerger(merger) {
   return (existing, value) =>
     existing && existing.mergeDeepWith && isIterable(value) ?
       existing.mergeDeepWith(merger, value) :
       merger ? merger(existing, value) : value;
 }
 
-function mergeIntoCollectionWith(collection, merger, iters) {
+export function mergeIntoCollectionWith(collection, merger, iters) {
   iters = iters.filter(x => x.size !== 0);
   if (iters.length === 0) {
     return collection;

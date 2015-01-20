@@ -16,6 +16,16 @@
  * presents an Object-Oriented API familiar to Javascript engineers and closely
  * mirroring that of Array, Map, and Set. It is easy and efficient to convert to
  * and from plain Javascript types.
+
+ * Note: all examples are presented in [ES6][]. To run in all browsers, they
+ * need to be translated to ES3. For example:
+ *
+ *     // ES6
+ *     foo.map(x => x * x);
+ *     // ES3
+ *     foo.map(function (x) { return x * x; });
+ *
+ * [ES6]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/ECMAScript_6_support_in_Mozilla
  */
 
 declare module 'immutable' {
@@ -267,8 +277,7 @@ declare module 'immutable' {
 
     /**
      * Returns a new List having removed the value at this `keyPath`. If any
-     * keys in `keyPath` do not exist, a new immutable Map will be created at
-     * that key.
+     * keys in `keyPath` do not exist, no change will occur.
      *
      * @alias removeIn
      */
@@ -520,8 +529,7 @@ declare module 'immutable' {
 
     /**
      * Returns a new Map having removed the value at this `keyPath`. If any keys
-     * in `keyPath` do not exist, a new immutable Map will be created at
-     * that key.
+     * in `keyPath` do not exist, no change will occur.
      *
      * @alias removeIn
      */
@@ -1352,6 +1360,27 @@ declare module 'immutable' {
      */
     equals(other: Iterable<K, V>): boolean;
 
+    /**
+     * Computes and returns the hashed identity for this Iterable.
+     *
+     * The `hashCode` of an Iterable is used to determine potential equality,
+     * and is used when adding this to a `Set` or as a key in a `Map`, enabling
+     * lookup via a different instance.
+     *
+     *     var a = List.of(1, 2, 3);
+     *     var b = List.of(1, 2, 3);
+     *     assert(a !== b); // different instances
+     *     var set = Set.of(a);
+     *     assert(set.has(b) === true);
+     *
+     * If two values have the same `hashCode`, they are [not guaranteed
+     * to be equal][Hash Collision]. If two values have different `hashCode`s,
+     * they must not be equal.
+     *
+     * [Hash Collision]: http://en.wikipedia.org/wiki/Collision_(computer_science)
+     */
+    hashCode(): number;
+
 
     // Reading values
 
@@ -1410,6 +1439,8 @@ declare module 'immutable' {
      *
      * `IndexedIterables`, and `SetIterables` become Arrays, while
      * `KeyedIterables` become Objects.
+     *
+     * @alias toJSON
      */
     toJS(): any;
 
@@ -1865,6 +1896,14 @@ declare module 'immutable' {
     join(separator?: string): string;
 
     /**
+     * Returns true if this Iterable contains no values.
+     *
+     * For some lazy `Seq`, `isEmpty` might need to iterate to determine
+     * emptiness. At most one iteration will occur.
+     */
+    isEmpty(): boolean;
+
+    /**
      * Returns the size of this Iterable.
      *
      * Regardless of if this Iterable can describe its size lazily (some Seqs
@@ -1913,6 +1952,27 @@ declare module 'immutable' {
       context?: any,
       notSetValue?: V
     ): V;
+
+    /**
+     * Returns the [key, value] entry for which the `predicate` returns true.
+     */
+    findEntry(
+      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      context?: any,
+      notSetValue?: V
+    ): /*[K, V]*/Array<any>;
+
+    /**
+     * Returns the last [key, value] entry for which the `predicate`
+     * returns true.
+     *
+     * Note: `predicate` will be called for each entry in reverse.
+     */
+    findLastEntry(
+      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      context?: any,
+      notSetValue?: V
+    ): /*[K, V]*/Array<any>;
 
     /**
      * Returns the maximum value in this collection. If any values are
@@ -2172,6 +2232,26 @@ declare module 'immutable' {
     interpose(separator: T): /*this*/IndexedIterable<T>;
 
     /**
+     * Returns an Iterable of the same type with the provided `iterables`
+     * interleaved into this iterable.
+     *
+     * The resulting Iterable contains the first item from each, then the
+     * second from each, etc.
+     *
+     *     I.Seq.of(1,2,3).interleave(I.Seq.of('A','B','C'))
+     *     // Seq [ 1, 'A', 2, 'B', 3, 'C' ]
+     *
+     * The shortest Iterable stops interleave.
+     *
+     *     I.Seq.of(1,2,3).interleave(
+     *       I.Seq.of('A','B'),
+     *       I.Seq.of('X','Y','Z')
+     *     )
+     *     // Seq [ 1, 'A', 'X', 2, 'B', 'Y' ]
+     */
+    interleave(...iterables: Array<Iterable<any, T>>): /*this*/IndexedIterable<T>;
+
+    /**
      * Splice returns a new indexed Iterable by replacing a region of this
      * Iterable with new values. If values are not provided, it only skips the
      * region to be removed.
@@ -2188,6 +2268,44 @@ declare module 'immutable' {
       removeNum: number,
       ...values: /*Array<IndexedIterable<T> | T>*/any[]
     ): /*this*/IndexedIterable<T>;
+
+    /**
+     * Returns an Iterable of the same type "zipped" with the provided
+     * iterables.
+     *
+     * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+     *
+     *     var a = Seq.of(1, 2, 3);
+     *     var b = Seq.of(4, 5, 6);
+     *     var c = a.zip(b); // Seq [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     *
+     */
+    zip(...iterables: Array<Iterable<any, any>>): /*this*/IndexedIterable<any>;
+
+    /**
+     * Returns an Iterable of the same type "zipped" with the provided
+     * iterables by using a custom `zipper` function.
+     *
+     * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+     *
+     *     var a = Seq.of(1, 2, 3);
+     *     var b = Seq.of(4, 5, 6);
+     *     var c = a.zip(b); // Seq [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     *
+     */
+    zipWith<U, Z>(
+      zipper: (value: T, otherValue: U) => Z,
+      otherIterable: Iterable<any, U>
+    ): IndexedIterable<Z>;
+    zipWith<U, V, Z>(
+      zipper: (value: T, otherValue: U, thirdValue: V) => Z,
+      otherIterable: Iterable<any, U>,
+      thirdIterable: Iterable<any, V>
+    ): IndexedIterable<Z>;
+    zipWith<Z>(
+      zipper: (...any: Array<any>) => Z,
+      ...iterables: Array<Iterable<any, any>>
+    ): IndexedIterable<Z>;
 
 
     // Search for value

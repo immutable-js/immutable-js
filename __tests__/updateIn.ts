@@ -27,6 +27,16 @@ describe('updateIn', () => {
     ).toThrow('Expected iterable or array-like: [object Object]');
   })
 
+  it('deep has throws without list or array-like', () => {
+    // need to cast these as TypeScript first prevents us from such clownery.
+    expect(() =>
+      I.Map().hasIn(<any>undefined)
+    ).toThrow('Expected iterable or array-like: undefined');
+    expect(() =>
+      I.Map().hasIn(<any>{ a: 1, b: 2 })
+    ).toThrow('Expected iterable or array-like: [object Object]');
+  })
+
   it('deep get returns not found if path does not match', () => {
     var m = I.fromJS({a: {b: {c: 10}}});
     expect(m.getIn(['a', 'b', 'z'])).toEqual(undefined);

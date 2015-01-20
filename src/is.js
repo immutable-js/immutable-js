@@ -7,8 +7,6 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-/* exported is */
-
 /**
  * An extension of the "same-value" algorithm as [described for use by ES6 Map
  * and Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#Key_equality)
@@ -63,7 +61,7 @@
  * All Immutable collections implement `equals` and `hashCode`.
  *
  */
-function is(valueA, valueB) {
+export function is(valueA, valueB) {
   if (valueA === valueB || (valueA !== valueA && valueB !== valueB)) {
     return true;
   }

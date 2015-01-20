@@ -7,37 +7,30 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "TrieUtils"
-import "Seq"
-import "Range"
-import "is"
-import "Iterable"
-import "Iterator"
-/* global wholeSlice, resolveBegin, resolveEnd,
-          IndexedSeq,
-          RangePrototype,
-          is,
-          deepEqual,
-          Iterator, iteratorValue, iteratorDone */
-/* exported Repeat */
+import { wholeSlice, resolveBegin, resolveEnd } from './TrieUtils'
+import { IndexedSeq } from './Seq'
+import { is } from './is'
+import { Iterator, iteratorValue, iteratorDone } from './Iterator'
+
+import deepEqual from './utils/deepEqual'
 
 
 /**
  * Returns a lazy Seq of `value` repeated `times` times. When `times` is
  * undefined, returns an infinite sequence of `value`.
  */
-class Repeat extends IndexedSeq {
+export class Repeat extends IndexedSeq {
 
   constructor(value, times) {
-    if (times <= 0 && EMPTY_REPEAT) {
-      return EMPTY_REPEAT;
-    }
     if (!(this instanceof Repeat)) {
       return new Repeat(value, times);
     }
     this._value = value;
     this.size = times === undefined ? Infinity : Math.max(0, times);
     if (this.size === 0) {
+      if (EMPTY_REPEAT) {
+        return EMPTY_REPEAT;
+      }
       EMPTY_REPEAT = this;
     }
   }
@@ -103,13 +96,5 @@ class Repeat extends IndexedSeq {
       deepEqual(other);
   }
 }
-
-var RepeatPrototype = Repeat.prototype;
-RepeatPrototype.last = RepeatPrototype.first;
-RepeatPrototype.has = RangePrototype.has;
-RepeatPrototype.take = RangePrototype.take;
-RepeatPrototype.skip = RangePrototype.skip;
-RepeatPrototype.__toJS = RangePrototype.__toJS;
-
 
 var EMPTY_REPEAT;

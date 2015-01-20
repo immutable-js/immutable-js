@@ -7,28 +7,22 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "TrieUtils"
-import "Iterable"
-import "Iterator"
-import "Seq"
-import "Map"
-/* global NOT_SET, assertNotInfinite, ensureSize,
-          isIterable, isKeyed, isIndexed,
-          KeyedIterable, SetIterable, IndexedIterable, IS_ORDERED_SENTINEL,
-          Iterator, iteratorValue, iteratorDone,
-          ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES,
-          isSeq, Seq, KeyedSeq, SetSeq, IndexedSeq,
-          keyedSeqFromValue, indexedSeqFromValue, ArraySeq,
-          Map */
-/* exported reify, ToKeyedSequence, ToIndexedSequence, ToSetSequence,
-            FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
-            filterFactory, countByFactory, groupByFactory, takeFactory,
-            takeWhileFactory, skipFactory, skipWhileFactory, concatFactory,
-            flattenFactory, flatMapFactory, interposeFactory, sortFactory,
-            maxFactory */
+import { NOT_SET, ensureSize, wrapIndex, wholeSlice, resolveBegin, resolveEnd } from './TrieUtils'
+import { isIterable, isKeyed, isIndexed, isOrdered,
+          Iterable, KeyedIterable, SetIterable, IndexedIterable,
+          IS_ORDERED_SENTINEL } from './Iterable'
+import { getIterator, Iterator, iteratorValue, iteratorDone,
+          ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES } from './Iterator'
+import { isSeq, Seq, KeyedSeq, SetSeq, IndexedSeq,
+          keyedSeqFromValue, indexedSeqFromValue, ArraySeq } from './Seq'
+
+import assertNotInfinite from './utils/assertNotInfinite'
+
+import { Map } from './Map'
+import { OrderedMap } from './OrderedMap'
 
 
-class ToKeyedSequence extends KeyedSeq {
+export class ToKeyedSequence extends KeyedSeq {
   constructor(indexed, useKeys) {
     this._iter = indexed;
     this._useKeys = useKeys;
@@ -90,7 +84,7 @@ class ToKeyedSequence extends KeyedSeq {
 ToKeyedSequence.prototype[IS_ORDERED_SENTINEL] = true;
 
 
-class ToIndexedSequence extends IndexedSeq {
+export class ToIndexedSequence extends IndexedSeq {
   constructor(iter) {
     this._iter = iter;
     this.size = iter.size;
@@ -117,7 +111,7 @@ class ToIndexedSequence extends IndexedSeq {
 }
 
 
-class ToSetSequence extends SetSeq {
+export class ToSetSequence extends SetSeq {
   constructor(iter) {
     this._iter = iter;
     this.size = iter.size;
@@ -142,7 +136,7 @@ class ToSetSequence extends SetSeq {
 }
 
 
-class FromEntriesSequence extends KeyedSeq {
+export class FromEntriesSequence extends KeyedSeq {
   constructor(entries) {
     this._iter = entries;
     this.size = entries.size;
@@ -191,7 +185,7 @@ FromEntriesSequence.prototype.cacheResult =
   cacheResultThrough;
 
 
-function flipFactory(iterable) {
+export function flipFactory(iterable) {
   var flipSequence = makeSequence(iterable);
   flipSequence._iter = iterable;
   flipSequence.size = iterable.size;
@@ -229,7 +223,7 @@ function flipFactory(iterable) {
 }
 
 
-function mapFactory(iterable, mapper, context) {
+export function mapFactory(iterable, mapper, context) {
   var mappedSequence = makeSequence(iterable);
   mappedSequence.size = iterable.size;
   mappedSequence.has = key => iterable.has(key);
@@ -266,7 +260,7 @@ function mapFactory(iterable, mapper, context) {
 }
 
 
-function reverseFactory(iterable, useKeys) {
+export function reverseFactory(iterable, useKeys) {
   var reversedSequence = makeSequence(iterable);
   reversedSequence._iter = iterable;
   reversedSequence.size = iterable.size;
@@ -293,7 +287,7 @@ function reverseFactory(iterable, useKeys) {
 }
 
 
-function filterFactory(iterable, predicate, context, useKeys) {
+export function filterFactory(iterable, predicate, context, useKeys) {
   var filterSequence = makeSequence(iterable);
   if (useKeys) {
     filterSequence.has = key => {
@@ -338,7 +332,7 @@ function filterFactory(iterable, predicate, context, useKeys) {
 }
 
 
-function countByFactory(iterable, grouper, context) {
+export function countByFactory(iterable, grouper, context) {
   var groups = Map().asMutable();
   iterable.__iterate((v, k) => {
     groups.update(
@@ -351,9 +345,9 @@ function countByFactory(iterable, grouper, context) {
 }
 
 
-function groupByFactory(iterable, grouper, context) {
+export function groupByFactory(iterable, grouper, context) {
   var isKeyedIter = isKeyed(iterable);
-  var groups = Map().asMutable();
+  var groups = (isOrdered(iterable) ? OrderedMap() : Map()).asMutable();
   iterable.__iterate((v, k) => {
     groups.update(
       grouper.call(context, v, k, iterable),
@@ -365,47 +359,92 @@ function groupByFactory(iterable, grouper, context) {
 }
 
 
-function takeFactory(iterable, amount) {
-  if (amount > iterable.size) {
+export function sliceFactory(iterable, begin, end, useKeys) {
+  var originalSize = iterable.size;
+
+  if (wholeSlice(begin, end, originalSize)) {
     return iterable;
   }
-  if (amount < 0) {
-    amount = 0;
+
+  var resolvedBegin = resolveBegin(begin, originalSize);
+  var resolvedEnd = resolveEnd(end, originalSize);
+
+  // begin or end will be NaN if they were provided as negative numbers and
+  // this iterable's size is unknown. In that case, cache first so there is
+  // a known size.
+  if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd) {
+    return sliceFactory(iterable.toSeq().cacheResult(), begin, end, useKeys);
   }
-  var takeSequence = makeSequence(iterable);
-  takeSequence.size = iterable.size && Math.min(iterable.size, amount);
-  takeSequence.__iterateUncached = function(fn, reverse) {
-    if (amount === 0) {
+
+  var sliceSize = resolvedEnd - resolvedBegin;
+  if (sliceSize < 0) {
+    sliceSize = 0;
+  }
+
+  var sliceSeq = makeSequence(iterable);
+
+  sliceSeq.size = sliceSize === 0 ? sliceSize : iterable.size && sliceSize || undefined;
+
+  if (!useKeys && isSeq(iterable) && sliceSize >= 0) {
+    sliceSeq.get = function (index, notSetValue) {
+      index = wrapIndex(this, index);
+      return index >= 0 && index < sliceSize ?
+        iterable.get(index + resolvedBegin, notSetValue) :
+        notSetValue;
+    }
+  }
+
+  sliceSeq.__iterateUncached = function(fn, reverse) {
+    if (sliceSize === 0) {
       return 0;
     }
     if (reverse) {
       return this.cacheResult().__iterate(fn, reverse);
     }
+    var skipped = 0;
+    var isSkipping = true;
     var iterations = 0;
-    iterable.__iterate((v, k) =>
-      ++iterations && fn(v, k, this) !== false && iterations < amount
-    );
+    iterable.__iterate((v, k) => {
+      if (!(isSkipping && (isSkipping = skipped++ < resolvedBegin))) {
+        iterations++;
+        return fn(v, useKeys ? k : iterations - 1, this) !== false &&
+               iterations !== sliceSize;
+      }
+    });
     return iterations;
   };
-  takeSequence.__iteratorUncached = function(type, reverse) {
-    if (reverse) {
+
+  sliceSeq.__iteratorUncached = function(type, reverse) {
+    if (sliceSize && reverse) {
       return this.cacheResult().__iterator(type, reverse);
     }
     // Don't bother instantiating parent iterator if taking 0.
-    var iterator = amount && iterable.__iterator(type, reverse);
+    var iterator = sliceSize && iterable.__iterator(type, reverse);
+    var skipped = 0;
     var iterations = 0;
     return new Iterator(() => {
-      if (iterations++ > amount) {
+      while (skipped++ !== resolvedBegin) {
+        iterator.next();
+      }
+      if (++iterations > sliceSize) {
         return iteratorDone();
       }
-      return iterator.next();
+      var step = iterator.next();
+      if (useKeys || type === ITERATE_VALUES) {
+        return step;
+      } else if (type === ITERATE_KEYS) {
+        return iteratorValue(type, iterations - 1, undefined, step);
+      } else {
+        return iteratorValue(type, iterations - 1, step.value[1], step);
+      }
     });
-  };
-  return takeSequence;
+  }
+
+  return sliceSeq;
 }
 
 
-function takeWhileFactory(iterable, predicate, context) {
+export function takeWhileFactory(iterable, predicate, context) {
   var takeSequence = makeSequence(iterable);
   takeSequence.__iterateUncached = function(fn, reverse) {
     if (reverse) {
@@ -446,54 +485,7 @@ function takeWhileFactory(iterable, predicate, context) {
 }
 
 
-function skipFactory(iterable, amount, useKeys) {
-  if (amount <= 0) {
-    return iterable;
-  }
-  var skipSequence = makeSequence(iterable);
-  skipSequence.size = iterable.size && Math.max(0, iterable.size - amount);
-  skipSequence.__iterateUncached = function (fn, reverse) {
-    if (reverse) {
-      return this.cacheResult().__iterate(fn, reverse);
-    }
-    var skipped = 0;
-    var isSkipping = true;
-    var iterations = 0;
-    iterable.__iterate((v, k) => {
-      if (!(isSkipping && (isSkipping = skipped++ < amount))) {
-        iterations++;
-        return fn(v, useKeys ? k : iterations - 1, this);
-      }
-    });
-    return iterations;
-  };
-  skipSequence.__iteratorUncached = function (type, reverse) {
-    if (reverse) {
-      return this.cacheResult().__iterator(type, reverse);
-    }
-    var iterator = amount && iterable.__iterator(type, reverse);
-    var skipped = 0;
-    var iterations = 0;
-    return new Iterator(() => {
-      while (skipped < amount) {
-        skipped++;
-        iterator.next();
-      }
-      var step = iterator.next();
-      if (useKeys || type === ITERATE_VALUES) {
-        return step;
-      } else if (type === ITERATE_KEYS) {
-        return iteratorValue(type, iterations++, undefined, step);
-      } else {
-        return iteratorValue(type, iterations++, step.value[1], step);
-      }
-    });
-  };
-  return skipSequence;
-}
-
-
-function skipWhileFactory(iterable, predicate, context, useKeys) {
+export function skipWhileFactory(iterable, predicate, context, useKeys) {
   var skipSequence = makeSequence(iterable);
   skipSequence.__iterateUncached = function (fn, reverse) {
     if (reverse) {
@@ -542,7 +534,7 @@ function skipWhileFactory(iterable, predicate, context, useKeys) {
 }
 
 
-function concatFactory(iterable, values) {
+export function concatFactory(iterable, values) {
   var isKeyedIterable = isKeyed(iterable);
   var iters = [iterable].concat(values).map(v => {
     if (!isIterable(v)) {
@@ -590,7 +582,7 @@ function concatFactory(iterable, values) {
 }
 
 
-function flattenFactory(iterable, depth, useKeys) {
+export function flattenFactory(iterable, depth, useKeys) {
   var flatSequence = makeSequence(iterable);
   flatSequence.__iterateUncached = function(fn, reverse) {
     var iterations = 0;
@@ -637,7 +629,7 @@ function flattenFactory(iterable, depth, useKeys) {
 }
 
 
-function flatMapFactory(iterable, mapper, context) {
+export function flatMapFactory(iterable, mapper, context) {
   var coerce = iterableClass(iterable);
   return iterable.toSeq().map(
     (v, k) => coerce(mapper.call(context, v, k, iterable))
@@ -645,7 +637,7 @@ function flatMapFactory(iterable, mapper, context) {
 }
 
 
-function interposeFactory(iterable, separator) {
+export function interposeFactory(iterable, separator) {
   var interposedSequence = makeSequence(iterable);
   interposedSequence.size = iterable.size && iterable.size * 2 -1;
   interposedSequence.__iterateUncached = function(fn, reverse) {
@@ -676,7 +668,8 @@ function interposeFactory(iterable, separator) {
   return interposedSequence;
 }
 
-function sortFactory(iterable, comparator, mapper) {
+
+export function sortFactory(iterable, comparator, mapper) {
   if (!comparator) {
     comparator = defaultComparator;
   }
@@ -695,21 +688,22 @@ function sortFactory(iterable, comparator, mapper) {
     SetSeq(entries);
 }
 
-function maxFactory(iterable, comparator, mapper) {
+
+export function maxFactory(iterable, comparator, mapper) {
   if (!comparator) {
     comparator = defaultComparator;
   }
   if (mapper) {
     var entry = iterable.toSeq()
       .map((v, k) => [v, mapper(v, k, iterable)])
-      .reduce((a, b) => _maxCompare(comparator, a[1], b[1]) ? b : a);
+      .reduce((a, b) => maxCompare(comparator, a[1], b[1]) ? b : a);
     return entry && entry[0];
   } else {
-    return iterable.reduce((a, b) => _maxCompare(comparator, a, b) ? b : a);
+    return iterable.reduce((a, b) => maxCompare(comparator, a, b) ? b : a);
   }
 }
 
-function _maxCompare(comparator, a, b) {
+function maxCompare(comparator, a, b) {
   var comp = comparator(b, a);
   // b is considered the new max if the comparator declares them equal, but
   // they are not equal and b is in fact a nullish value.
@@ -717,9 +711,64 @@ function _maxCompare(comparator, a, b) {
 }
 
 
+export function zipWithFactory(keyIter, zipper, iters) {
+  var zipSequence = makeSequence(keyIter);
+  zipSequence.size = new ArraySeq(iters).map(i => i.size).min();
+  // Note: this a generic base implementation of __iterate in terms of
+  // __iterator which may be more generically useful in the future.
+  zipSequence.__iterate = function(fn, reverse) {
+    /* generic:
+    var iterator = this.__iterator(ITERATE_ENTRIES, reverse);
+    var step;
+    var iterations = 0;
+    while (!(step = iterator.next()).done) {
+      iterations++;
+      if (fn(step.value[1], step.value[0], this) === false) {
+        break;
+      }
+    }
+    return iterations;
+    */
+    // indexed:
+    var iterator = this.__iterator(ITERATE_VALUES, reverse);
+    var step;
+    var iterations = 0;
+    while (!(step = iterator.next()).done) {
+      if (fn(step.value, iterations++, this) === false) {
+        break;
+      }
+    }
+    return iterations;
+  };
+  zipSequence.__iteratorUncached = function(type, reverse) {
+    var iterators = iters.map(i =>
+      (i = Iterable(i), getIterator(reverse ? i.reverse() : i))
+    );
+    var iterations = 0;
+    var isDone = false;
+    return new Iterator(() => {
+      var steps;
+      if (!isDone) {
+        steps = iterators.map(i => i.next());
+        isDone = steps.some(s => s.done);
+      }
+      if (isDone) {
+        return iteratorDone();
+      }
+      return iteratorValue(
+        type,
+        iterations++,
+        zipper.apply(null, steps.map(s => s.value))
+      );
+    });
+  };
+  return zipSequence
+}
+
+
 // #pragma Helper Functions
 
-function reify(iter, seq) {
+export function reify(iter, seq) {
   return isSeq(iter) ? seq : new iter.constructor(seq);
 }
 

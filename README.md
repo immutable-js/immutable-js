@@ -1,24 +1,28 @@
-Immutable.js [![Build Status](https://travis-ci.org/facebook/immutable-js.svg)](https://travis-ci.org/facebook/immutable-js)
-============
+Immutable collections for JavaScript
+====================================
 
-Persistent immutable data collections for JavaScript.
+[![Build Status](https://travis-ci.org/facebook/immutable-js.svg)](https://travis-ci.org/facebook/immutable-js)
 
-**Converting to v3 from v2? Check out the [upgrade guide](https://github.com/facebook/immutable-js/wiki/Upgrading-to-Immutable-v3).**
-
-Immutable data cannot be changed once created, leading to much simpler
+[Immutable][] data cannot be changed once created, leading to much simpler
 application development, no defensive copying, and enabling advanced memoization
-techniques.
+and change detection techniques with simple logic. [Persistent][] data presents
+a mutative API which does not update the data in-place, but instead always
+yields new updated data.
 
-`Immutable` provides `List`, `Stack`, `Map`, `OrderedMap`, `Record`
-and `Set` by using persistent [hash maps tries](http://en.wikipedia.org/wiki/Hash_array_mapped_trie)
-and [vector tries](http://hypirion.com/musings/understanding-persistent-vector-pt-1)
-as popularized by Clojure and Scala. They achieve efficiency on modern
-JavaScript VMs by using structural sharing and minimizing the need to copy or
-cache data.
+`Immutable` provides Persistent Immutable `List`, `Stack`, `Map`, `OrderedMap`,
+`Set`, `OrderedSet` and `Record`. They are highly efficient on modern JavaScript
+VMs by using structural sharing via [hash maps tries][] and
+[vector tries][] as popularized by Clojure and Scala,
+minimizing the need to copy or cache data.
 
 `Immutable` also provides a lazy `Seq`, allowing efficient
 chaining of collection methods like `map` and `filter` without creating
 intermediate representations. Create some `Seq` with `Range` and `Repeat`.
+
+[Persistent]: http://en.wikipedia.org/wiki/Persistent_data_structure
+[Immutable]: http://en.wikipedia.org/wiki/Immutable_object
+[hash maps tries]: (http://en.wikipedia.org/wiki/Hash_array_mapped_trie)
+[vector tries]: (http://hypirion.com/musings/understanding-persistent-vector-pt-1)
 
 
 Getting started
@@ -34,7 +38,10 @@ Then require it into any module.
 
 ```javascript
 var Immutable = require('immutable');
-var map = Immutable.Map({a:1, b:2, c:3});
+var map1 = Immutable.Map({a:1, b:2, c:3});
+var map2 = map1.set('b', 50);
+map1.get('b'); // 2
+map2.get('b'); // 50
 ```
 
 ### Browser
@@ -48,9 +55,10 @@ Then, add it as a script tag to your page:
 ```html
 <script src="immutable.min.js"></script>
 <script>
-    var map = Immutable.Map({a:1, b:2, c:3});
-    map = map.set('b', 20);
-    map.get('b'); // 20
+    var map1 = Immutable.Map({a:1, b:2, c:3});
+    var map2 = map1.set('b', 50);
+    map1.get('b'); // 2
+    map2.get('b'); // 50
 </script>
 ```
 
@@ -58,9 +66,10 @@ Or use an AMD loader (such as [RequireJS](http://requirejs.org/)):
 
 ```javascript
 require(['./immutable.min.js'], function (Immutable) {
-    var map = Immutable.Map({a:1, b:2, c:3});
-    map = map.set('b', 20);
-    map.get('b'); // 20
+    var map1 = Immutable.Map({a:1, b:2, c:3});
+    var map2 = map1.set('b', 50);
+    map1.get('b'); // 2
+    map2.get('b'); // 50
 });
 ```
 
@@ -79,10 +88,11 @@ of your file.
 ```javascript
 ///<reference path='./node_modules/immutable/dist/Immutable.d.ts'/>
 import Immutable = require('immutable');
-var map: Immutable.Map<string, number>;
-map = Immutable.Map({a:1, b:2, c:3});
-map = map.set('b', 20);
-map.get('b'); // 20
+var map1: Immutable.Map<string, number>;
+map1 = Immutable.Map({a:1, b:2, c:3});
+var map2 = map1.set('b', 20);
+map1.get('b'); // 2
+map2.get('b'); // 50
 ```
 
 
@@ -101,8 +111,8 @@ due to easy to make programmer error. Since immutable data never changes,
 subscribing to changes throughout the model is a dead-end and new data can only
 ever be passed from above.
 
-This model of data flow aligns well with the architecture of [React](http://facebook.github.io/react/)
-and especially well with an application designed using the ideas of [Flux](http://facebook.github.io/flux/docs/overview.html).
+This model of data flow aligns well with the architecture of [React][]
+and especially well with an application designed using the ideas of [Flux][].
 
 When data is passed from above rather than being subscribed to, and you're only
 interested in doing work when something has changed, you can use equality.
@@ -114,6 +124,8 @@ has changed.
 var map1 = Immutable.Map({a:1, b:2, c:3});
 var map2 = map1.set('b', 2);
 assert(map1 === map2);
+var map3 = map1.set('b', 50);
+assert(map1 !== map3);
 ```
 
 If an object is immutable, it can be "copied" simply by making another reference
@@ -126,6 +138,9 @@ var map1 = Immutable.Map({a:1, b:2, c:3});
 var clone = map1;
 ```
 
+[React]: http://facebook.github.io/react/
+[Flux]: http://facebook.github.io/flux/docs/overview.html
+
 
 JavaScript-first API
 --------------------
@@ -133,9 +148,12 @@ JavaScript-first API
 While `immutable` is inspired by Clojure, Scala, Haskell and other functional
 programming environments, it's designed to bring these powerful concepts to
 JavaScript, and therefore has an Object-Oriented API that closely mirrors that
-of ES6 [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array),
-[Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map), and
-[Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set).
+of [ES6][] [Array][], [Map][], and [Set][].
+
+[ES6]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/ECMAScript_6_support_in_Mozilla
+[Array]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array
+[Map]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
+[Set]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set
 
 The difference for the immutable collections is that methods which would mutate
 the collection, like `push`, `set`, `unshift` or `splice` instead return a new
@@ -154,8 +172,8 @@ assert(list4.size === 13);
 assert(list4.get(0) === 1);
 ```
 
-Almost all of the methods on `Array` will be found in similar form on
-`Immutable.List`, those of `Map` found on `Immutable.Map`, and those of `Set`
+Almost all of the methods on [Array][] will be found in similar form on
+`Immutable.List`, those of [Map][] found on `Immutable.Map`, and those of [Set][]
 found on `Immutable.Set`, including collection operations like `forEach()`
 and `map()`.
 
@@ -205,6 +223,29 @@ deep.toArray() // [ 1, 2, List [ 3, 4, 5 ] ]
 deep.toJS() // { a: 1, b: 2, c: [ 3, 4, 5 ] }
 JSON.stringify(deep) // '{"a":1,"b":2,"c":[3,4,5]}'
 ```
+
+### Embraces ES6
+
+`Immutable` takes advantage of features added to JavaScript in [ES6][],
+the latest standard version of ECMAScript (JavaScript), including [Iterators][],
+[Arrow Functions][], [Classes][], and [Modules][]. It's also inspired by the
+[Map][] and [Set][] collections added to ES6. The library is "transpiled" to ES3
+in order to support all modern browsers.
+
+All examples are presented in ES6. To run in all browsers, they need to be
+translated to ES3.
+
+```js
+// ES6
+foo.map(x => x * x);
+// ES3
+foo.map(function (x) { return x * x; });
+```
+
+[Iterators]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/The_Iterator_protocol
+[Arrow Functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
+[Classes]: http://wiki.ecmascript.org/doku.php?id=strawman:maximally_minimal_classes
+[Modules]: http://www.2ality.com/2014/09/es6-modules-final.html
 
 
 Nested Structures
@@ -300,9 +341,11 @@ assert(map1 !== map2);
 assert(Immutable.is(map1, map2) === true);
 ```
 
-`Immutable.is()` uses the same measure of equality as [Object.is](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is)
+`Immutable.is()` uses the same measure of equality as [Object.is][]
 including if both are immutable and all keys and values are equal
 using the same measure of equality.
+
+[Object.is]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is
 
 
 Batching Mutations

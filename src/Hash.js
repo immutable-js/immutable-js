@@ -7,11 +7,9 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "Math"
-/* global Symbol, WeakMap, smi */
-/* exported hash */
+import { smi } from './Math'
 
-function hash(o) {
+export function hash(o) {
   if (o === false || o === null || o === undefined) {
     return 0;
   }
@@ -27,6 +25,9 @@ function hash(o) {
   var type = typeof o;
   if (type === 'number') {
     var h = o | 0;
+    if (h !== o) {
+      h ^= o * 0xFFFFFFFF;
+    }
     while (o > 0xFFFFFFFF) {
       o /= 0xFFFFFFFF;
       h ^= o;

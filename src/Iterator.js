@@ -8,20 +8,18 @@
  */
 
 /* global Symbol */
-/* exported ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES, ITERATOR_SYMBOL,
-            Iterator, iteratorValue, iteratorDone,
-            hasIterator, isIterator, getIterator */
 
-var ITERATE_KEYS = 0;
-var ITERATE_VALUES = 1;
-var ITERATE_ENTRIES = 2;
+export var ITERATE_KEYS = 0;
+export var ITERATE_VALUES = 1;
+export var ITERATE_ENTRIES = 2;
 
-var FAUX_ITERATOR_SYMBOL = '@@iterator';
 var REAL_ITERATOR_SYMBOL = typeof Symbol === 'function' && Symbol.iterator;
-var ITERATOR_SYMBOL = REAL_ITERATOR_SYMBOL || FAUX_ITERATOR_SYMBOL;
+var FAUX_ITERATOR_SYMBOL = '@@iterator';
+
+export var ITERATOR_SYMBOL = REAL_ITERATOR_SYMBOL || FAUX_ITERATOR_SYMBOL;
 
 
-class Iterator {
+export class Iterator {
   constructor(next) {
     this.next = next;
   }
@@ -35,15 +33,14 @@ Iterator.KEYS = ITERATE_KEYS;
 Iterator.VALUES = ITERATE_VALUES;
 Iterator.ENTRIES = ITERATE_ENTRIES;
 
-var IteratorPrototype = Iterator.prototype;
-IteratorPrototype.inspect =
-IteratorPrototype.toSource = function () { return this.toString(); }
-IteratorPrototype[ITERATOR_SYMBOL] = function () {
+Iterator.prototype.inspect =
+Iterator.prototype.toSource = function () { return this.toString(); }
+Iterator.prototype[ITERATOR_SYMBOL] = function () {
   return this;
 };
 
 
-function iteratorValue(type, k, v, iteratorResult) {
+export function iteratorValue(type, k, v, iteratorResult) {
   var value = type === 0 ? k : type === 1 ? v : [k, v];
   iteratorResult ? (iteratorResult.value = value) : (iteratorResult = {
     value: value, done: false
@@ -51,24 +48,24 @@ function iteratorValue(type, k, v, iteratorResult) {
   return iteratorResult;
 }
 
-function iteratorDone() {
+export function iteratorDone() {
   return { value: undefined, done: true };
 }
 
-function hasIterator(maybeIterable) {
-  return !!_iteratorFn(maybeIterable);
+export function hasIterator(maybeIterable) {
+  return !!getIteratorFn(maybeIterable);
 }
 
-function isIterator(maybeIterator) {
+export function isIterator(maybeIterator) {
   return maybeIterator && typeof maybeIterator.next === 'function';
 }
 
-function getIterator(iterable) {
-  var iteratorFn = _iteratorFn(iterable);
+export function getIterator(iterable) {
+  var iteratorFn = getIteratorFn(iterable);
   return iteratorFn && iteratorFn.call(iterable);
 }
 
-function _iteratorFn(iterable) {
+function getIteratorFn(iterable) {
   var iteratorFn = iterable && (
     (REAL_ITERATOR_SYMBOL && iterable[REAL_ITERATOR_SYMBOL]) ||
     iterable[FAUX_ITERATOR_SYMBOL]

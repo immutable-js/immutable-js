@@ -7,19 +7,14 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "mixin"
-import "TrieUtils"
-import "Iterable"
-import "Iterator"
-/* global mixin,
-          wrapIndex, isArrayLike,
-          isIterable, isKeyed, Iterable, KeyedIterable, IndexedIterable, SetIterable, IS_ORDERED_SENTINEL,
-          Iterator, iteratorValue, iteratorDone, hasIterator, isIterator, getIterator */
-/* exported isSeq, Seq, KeyedSeq, IndexedSeq, SetSeq, ArraySeq,
-            keyedSeqFromValue, indexedSeqFromValue */
+import { wrapIndex } from './TrieUtils'
+import { isIterable, isKeyed, Iterable, IS_ORDERED_SENTINEL } from './Iterable'
+import { Iterator, iteratorValue, iteratorDone, hasIterator, isIterator, getIterator } from './Iterator'
+
+import isArrayLike from './utils/isArrayLike'
 
 
-class Seq extends Iterable {
+export class Seq extends Iterable {
   constructor(value) {
     return value === null || value === undefined ? emptySequence() :
       isIterable(value) ? value.toSeq() : seqFromValue(value);
@@ -58,7 +53,8 @@ class Seq extends Iterable {
   }
 }
 
-class KeyedSeq extends Seq {
+
+export class KeyedSeq extends Seq {
   constructor(value) {
     return value === null || value === undefined ?
       emptySequence().toKeyedSeq() :
@@ -67,21 +63,13 @@ class KeyedSeq extends Seq {
         keyedSeqFromValue(value);
   }
 
-  static of(/*...values*/) {
-    return KeyedSeq(arguments);
-  }
-
   toKeyedSeq() {
     return this;
   }
-
-  toSeq() {
-    return this;
-  }
 }
-mixin(KeyedSeq, KeyedIterable.prototype);
 
-class IndexedSeq extends Seq {
+
+export class IndexedSeq extends Seq {
   constructor(value) {
     return value === null || value === undefined ? emptySequence() :
       !isIterable(value) ? indexedSeqFromValue(value) :
@@ -108,9 +96,9 @@ class IndexedSeq extends Seq {
     return seqIterator(this, type, reverse, false);
   }
 }
-mixin(IndexedSeq, IndexedIterable.prototype);
 
-class SetSeq extends Seq {
+
+export class SetSeq extends Seq {
   constructor(value) {
     return (
       value === null || value === undefined ? emptySequence() :
@@ -127,7 +115,6 @@ class SetSeq extends Seq {
     return this;
   }
 }
-mixin(SetSeq, SetIterable.prototype);
 
 
 Seq.isSeq = isSeq;
@@ -143,7 +130,7 @@ Seq.prototype[IS_SEQ_SENTINEL] = true;
 
 // #pragma Root Sequences
 
-class ArraySeq extends IndexedSeq {
+export class ArraySeq extends IndexedSeq {
   constructor(array) {
     this._array = array;
     this.size = array.length;
@@ -320,7 +307,7 @@ class IteratorSeq extends IndexedSeq {
 
 // # pragma Helper functions
 
-function isSeq(maybeSeq) {
+export function isSeq(maybeSeq) {
   return !!(maybeSeq && maybeSeq[IS_SEQ_SENTINEL]);
 }
 
@@ -330,7 +317,7 @@ function emptySequence() {
   return EMPTY_SEQ || (EMPTY_SEQ = new ArraySeq([]));
 }
 
-function keyedSeqFromValue(value) {
+export function keyedSeqFromValue(value) {
   var seq =
     Array.isArray(value) ? new ArraySeq(value).fromEntrySeq() :
     isIterator(value) ? new IteratorSeq(value).fromEntrySeq() :
@@ -346,7 +333,7 @@ function keyedSeqFromValue(value) {
   return seq;
 }
 
-function indexedSeqFromValue(value) {
+export function indexedSeqFromValue(value) {
   var seq = maybeIndexedSeqFromValue(value);
   if (!seq) {
     throw new TypeError(

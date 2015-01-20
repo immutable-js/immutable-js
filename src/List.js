@@ -7,25 +7,18 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "fromJS"
-import "TrieUtils"
-import "Iterable"
-import "Collection"
-import "Map"
-import "Iterator"
-import "Operations"
-/* global fromJS,
-          DELETE, SHIFT, SIZE, MASK, DID_ALTER, MAKE, makeEmpty, OwnerID, MakeRef,
-          SetRef, wrapIndex, wholeSlice, resolveBegin, resolveEnd,
-          isIterable, IndexedIterable,
-          IndexedCollection,
-          MapPrototype, mergeIntoCollectionWith, deepMerger,
-          Iterator, iteratorValue, iteratorDone,
-          assertNotInfinite */
-/* exported List, ListPrototype */
 
+import { fromJS } from './fromJS'
+import { DELETE, SHIFT, SIZE, MASK, DID_ALTER, OwnerID, MakeRef, MAKE, makeEmpty,
+          SetRef, wrapIndex, wholeSlice, resolveBegin, resolveEnd } from './TrieUtils'
+import { isIterable, IndexedIterable } from './Iterable'
+import { IndexedCollection } from './Collection'
+import { MapPrototype, mergeIntoCollectionWith, deepMerger } from './Map'
+import { Iterator, iteratorValue, iteratorDone } from './Iterator'
 
-class List extends IndexedCollection {
+import assertNotInfinite from './utils/assertNotInfinite'
+
+export class List extends IndexedCollection {
 
   // @pragma Construction
 
@@ -221,7 +214,7 @@ class List extends IndexedCollection {
 
 }
 
-function isList(maybeList) {
+export function isList(maybeList) {
   return !!(maybeList && maybeList[IS_LIST_SENTINEL]);
 }
 
@@ -229,7 +222,7 @@ List.isList = isList;
 
 var IS_LIST_SENTINEL = '@@__IMMUTABLE_LIST__@@';
 
-var ListPrototype = List.prototype;
+export var ListPrototype = List.prototype;
 ListPrototype[IS_LIST_SENTINEL] = true;
 ListPrototype[DELETE] = ListPrototype.remove;
 ListPrototype.setIn = MapPrototype.setIn;

@@ -15,7 +15,7 @@
  * If you wish to use it in the browser, please check out Browserify or WebPack!
  */
 
-var Immutable = require('../../');
+var Immutable = require('immutable');
 var Iterable = Immutable.Iterable;
 var Iterator = Iterable.Iterator;
 var Seq = Immutable.Seq;
@@ -28,8 +28,8 @@ function cursorFrom(rootData, keyPath, onChange) {
   } else if (typeof keyPath === 'function') {
     onChange = keyPath;
     keyPath = [];
-  } else if (!Array.isArray(keyPath)) {
-    keyPath = [keyPath];
+  } else {
+    keyPath = valToKeyPath(keyPath);
   }
   return makeCursor(rootData, keyPath, onChange);
 }
@@ -74,28 +74,34 @@ IndexedCursorPrototype.get = function(key, notSetValue) {
 }
 
 KeyedCursorPrototype.getIn =
-IndexedCursorPrototype.getIn = function(key, notSetValue) {
-  if (!Array.isArray(key)) {
-    key = Immutable.Iterable(key).toArray();
-  }
-  if (key.length === 0) {
+IndexedCursorPrototype.getIn = function(keyPath, notSetValue) {
+  keyPath = listToKeyPath(keyPath);
+  if (keyPath.length === 0) {
     return this;
   }
-  var value = this._rootData.getIn(this._keyPath.concat(key), NOT_SET);
-  return value === NOT_SET ? notSetValue : wrappedValue(this, key, value);
+  var value = this._rootData.getIn(newKeyPath(this._keyPath, keyPath), NOT_SET);
+  return value === NOT_SET ? notSetValue : wrappedValue(this, keyPath, value);
 }
 
 IndexedCursorPrototype.set =
 KeyedCursorPrototype.set = function(key, value) {
-  return updateCursor(this, function (m) { return m.set(key, value); }, key);
+  return updateCursor(this, function (m) { return m.set(key, value); }, [key]);
 }
+
+IndexedCursorPrototype.setIn =
+KeyedCursorPrototype.setIn = Map.prototype.setIn;
 
 KeyedCursorPrototype.remove =
 KeyedCursorPrototype['delete'] =
 IndexedCursorPrototype.remove =
 IndexedCursorPrototype['delete'] = function(key) {
-  return updateCursor(this, function (m) { return m.remove(key); }, key);
+  return updateCursor(this, function (m) { return m.remove(key); }, [key]);
 }
+
+IndexedCursorPrototype.removeIn =
+IndexedCursorPrototype.deleteIn =
+KeyedCursorPrototype.removeIn =
+KeyedCursorPrototype.deleteIn = Map.prototype.deleteIn;
 
 KeyedCursorPrototype.clear =
 IndexedCursorPrototype.clear = function() {
@@ -106,10 +112,53 @@ IndexedCursorPrototype.update =
 KeyedCursorPrototype.update = function(keyOrFn, notSetValue, updater) {
   return arguments.length === 1 ?
     updateCursor(this, keyOrFn) :
-    updateCursor(this, function (map) {
-      return map.update(keyOrFn, notSetValue, updater);
-    }, keyOrFn);
+    this.updateIn([keyOrFn], notSetValue, updater);
 }
+
+IndexedCursorPrototype.updateIn =
+KeyedCursorPrototype.updateIn = function(keyPath, notSetValue, updater) {
+  return updateCursor(this, function (m) {
+    return m.updateIn(keyPath, notSetValue, updater);
+  }, keyPath);
+}
+
+IndexedCursorPrototype.merge =
+KeyedCursorPrototype.merge = function(/*...iters*/) {
+  var args = arguments;
+  return updateCursor(this, function (m) {
+    return m.merge.apply(m, args);
+  });
+}
+
+IndexedCursorPrototype.mergeWith =
+KeyedCursorPrototype.mergeWith = function(merger/*, ...iters*/) {
+  var args = arguments;
+  return updateCursor(this, function (m) {
+    return m.mergeWith.apply(m, args);
+  });
+}
+
+IndexedCursorPrototype.mergeIn =
+KeyedCursorPrototype.mergeIn = Map.prototype.mergeIn;
+
+IndexedCursorPrototype.mergeDeep =
+KeyedCursorPrototype.mergeDeep = function(/*...iters*/) {
+  var args = arguments;
+  return updateCursor(this, function (m) {
+    return m.mergeDeep.apply(m, args);
+  });
+}
+
+IndexedCursorPrototype.mergeDeepWith =
+KeyedCursorPrototype.mergeDeepWith = function(merger/*, ...iters*/) {
+  var args = arguments;
+  return updateCursor(this, function (m) {
+    return m.mergeDeepWith.apply(m, args);
+  });
+}
+
+IndexedCursorPrototype.mergeDeepIn =
+KeyedCursorPrototype.mergeDeepIn = Map.prototype.mergeDeepIn;
 
 KeyedCursorPrototype.withMutations =
 IndexedCursorPrototype.withMutations = function(fn) {
@@ -119,9 +168,9 @@ IndexedCursorPrototype.withMutations = function(fn) {
 }
 
 KeyedCursorPrototype.cursor =
-IndexedCursorPrototype.cursor = function(subKey) {
-  return Array.isArray(subKey) && subKey.length === 0 ?
-    this : subCursor(this, subKey);
+IndexedCursorPrototype.cursor = function(subKeyPath) {
+  subKeyPath = valToKeyPath(subKeyPath);
+  return subKeyPath.length === 0 ? this : subCursor(this, subKeyPath);
 }
 
 /**
@@ -132,7 +181,7 @@ IndexedCursorPrototype.__iterate = function(fn, reverse) {
   var cursor = this;
   var deref = cursor.deref();
   return deref && deref.__iterate ? deref.__iterate(
-    function (v, k) { return fn(wrappedValue(cursor, k, v), k, cursor); },
+    function (v, k) { return fn(wrappedValue(cursor, [k], v), k, cursor); },
     reverse
   ) : 0;
 }
@@ -156,7 +205,7 @@ IndexedCursorPrototype.__iterator = function(type, reverse) {
     }
     var entry = step.value;
     var k = entry[0];
-    var v = wrappedValue(cursor, k, entry[1]);
+    var v = wrappedValue(cursor, [k], entry[1]);
     return {
       value: type === Iterator.KEYS ? k : type === Iterator.VALUES ? v : [k, v],
       done: false
@@ -179,23 +228,24 @@ function makeCursor(rootData, keyPath, onChange, value) {
   return new CursorClass(rootData, keyPath, onChange, size);
 }
 
-function wrappedValue(cursor, key, value) {
-  return Iterable.isIterable(value) ? subCursor(cursor, key, value) : value;
+function wrappedValue(cursor, keyPath, value) {
+  return Iterable.isIterable(value) ? subCursor(cursor, keyPath, value) : value;
 }
 
-function subCursor(cursor, key, value) {
+function subCursor(cursor, keyPath, value) {
   return makeCursor(
     cursor._rootData,
-    cursor._keyPath.concat(key),
+    newKeyPath(cursor._keyPath, keyPath),
     cursor._onChange,
     value
   );
 }
 
-function updateCursor(cursor, changeFn, changeKey) {
+function updateCursor(cursor, changeFn, changeKeyPath) {
+  var deepChange = arguments.length > 2;
   var newRootData = cursor._rootData.updateIn(
     cursor._keyPath,
-    changeKey ? Map() : undefined,
+    deepChange ? Map() : undefined,
     changeFn
   );
   var keyPath = cursor._keyPath || [];
@@ -203,7 +253,7 @@ function updateCursor(cursor, changeFn, changeKey) {
     undefined,
     newRootData,
     cursor._rootData,
-    changeKey ? keyPath.concat(changeKey) : keyPath
+    deepChange ? newKeyPath(keyPath, changeKeyPath) : keyPath
   );
   if (result !== undefined) {
     newRootData = result;
@@ -211,5 +261,18 @@ function updateCursor(cursor, changeFn, changeKey) {
   return makeCursor(newRootData, cursor._keyPath, cursor._onChange);
 }
 
+function newKeyPath(head, tail) {
+  return head.concat(listToKeyPath(tail));
+}
+
+function listToKeyPath(list) {
+  return Array.isArray(list) ? list : Immutable.Iterable(list).toArray();
+}
+
+function valToKeyPath(val) {
+  return Array.isArray(val) ? val :
+    Iterable.isIterable(val) ? val.toArray() :
+    [val];
+}
 
 exports.from = cursorFrom;

@@ -194,6 +194,16 @@ describe('Cursor', () => {
     );
   });
 
+  it('returns wrapped values for iteration API', () => {
+    var jsData = [{val: 0}, {val: 1}, {val: 2}];
+    var data = Immutable.fromJS(jsData);
+    var cursor = Cursor.from(data);
+    cursor.forEach(function (c, i) {
+      expect(typeof c.deref).toBe('function'); // is a cursor!
+      expect(c.get('val')).toBe(i);
+    });
+  });
+
   it('can map over values to get subcursors', () => {
     var data = Immutable.fromJS({a: {v: 1}, b: {v: 2}, c: {v: 3}});
     var cursor = Cursor.from(data);
@@ -256,6 +266,32 @@ describe('Cursor', () => {
     var c = Cursor.from(data).values();
     var c1 = c.next().value.get('val');
     expect(c1).toBe(1);
-  })
+  });
+
+  it('can update deeply', () => {
+    var onChange = jest.genMockFunction();
+    var data = Immutable.fromJS({a:{b:{c:1}}});
+    var c = Cursor.from(data, ['a'], onChange);
+    var c1 = c.updateIn(['b', 'c'], x => x * 10);
+    expect(c1.getIn(['b', 'c'])).toBe(10);
+    expect(onChange).lastCalledWith(
+      Immutable.fromJS({a:{b:{c:10}}}),
+      data,
+      ['a', 'b', 'c']
+    );
+  });
+
+  it('can set deeply', () => {
+    var onChange = jest.genMockFunction();
+    var data = Immutable.fromJS({a:{b:{c:1}}});
+    var c = Cursor.from(data, ['a'], onChange);
+    var c1 = c.setIn(['b', 'c'], 10);
+    expect(c1.getIn(['b', 'c'])).toBe(10);
+    expect(onChange).lastCalledWith(
+      Immutable.fromJS({a:{b:{c:10}}}),
+      data,
+      ['a', 'b', 'c']
+    );
+  });
 
 });

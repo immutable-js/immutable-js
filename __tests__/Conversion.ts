@@ -140,6 +140,17 @@ describe('Conversion', () => {
     expect(JSON.stringify(js)).toBe(JSON.stringify(immutableData));
   });
 
+  it('JSON.stringify() respects toJSON methods on values', () => {
+    var Model = Immutable.Record({});
+    Model.prototype.toJSON = function() { return 'model'; }
+    expect(
+      Immutable.Map({ a: new Model() }).toJS()
+    ).toEqual({ "a": {} });
+    expect(
+      JSON.stringify(Immutable.Map({ a: new Model() }))
+    ).toEqual('{"a":"model"}');
+  });
+
   it('is conservative with array-likes, only accepting true Arrays.', () => {
     expect(Immutable.fromJS({1: 2, length: 3})).is(
       Immutable.Map().set('1', 2).set('length', 3)

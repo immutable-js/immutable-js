@@ -7,14 +7,11 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-/* exported mixin */
-
 /**
  * Contributes additional methods to a constructor
  */
-function mixin(ctor, methods) {
-  var proto = ctor.prototype;
-  var keyCopier = key => { proto[key] = methods[key]; };
+export default function mixin(ctor, methods) {
+  var keyCopier = key => { ctor.prototype[key] = methods[key]; };
   Object.keys(methods).forEach(keyCopier);
   Object.getOwnPropertySymbols &&
     Object.getOwnPropertySymbols(methods).forEach(keyCopier);

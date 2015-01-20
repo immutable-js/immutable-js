@@ -7,27 +7,20 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "mixin"
-import "Iterable"
-/* global mixin,
-          Iterable, KeyedIterable, IndexedIterable, SetIterable */
-/* exported Collection, KeyedCollection, IndexedCollection, SetCollection */
+import { Iterable } from './Iterable'
 
 
-class Collection extends Iterable {
+export class Collection extends Iterable {
   constructor() {
     throw TypeError('Abstract');
   }
 }
 
-class KeyedCollection extends Collection {}
-mixin(KeyedCollection, KeyedIterable.prototype);
+export class KeyedCollection extends Collection {}
 
-class IndexedCollection extends Collection {}
-mixin(IndexedCollection, IndexedIterable.prototype);
+export class IndexedCollection extends Collection {}
 
-class SetCollection extends Collection {}
-mixin(SetCollection, SetIterable.prototype);
+export class SetCollection extends Collection {}
 
 
 Collection.Keyed = KeyedCollection;

@@ -7,18 +7,18 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "Iterable"
-import "Collection"
-import "Map"
-import "TrieUtils"
-import "Operations"
-/* global SetIterable, KeyedIterable, SetCollection, MapPrototype,
-          DELETE, MAKE, makeEmpty, sortFactory, OrderedSet,
-          assertNotInfinite */
-/* exported Set, isSet */
+
+import { SetIterable, KeyedIterable } from './Iterable'
+import { SetCollection } from './Collection'
+import { Map, MapPrototype } from './Map'
+import { DELETE, MAKE, makeEmpty } from './TrieUtils'
+import { sortFactory } from './Operations'
+import assertNotInfinite from './utils/assertNotInfinite'
+
+import { OrderedSet } from './OrderedSet'
 
 
-class Set extends SetCollection {
+export class Set extends SetCollection {
 
   // @pragma Construction
 
@@ -174,7 +174,7 @@ class Set extends SetCollection {
 
 }
 
-function isSet(maybeSet) {
+export function isSet(maybeSet) {
   return !!(maybeSet && maybeSet[IS_SET_SENTINEL]);
 }
 

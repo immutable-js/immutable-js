@@ -101,4 +101,16 @@ describe('Equality', () => {
     }
   });
 
+  describe('hash', () => {
+
+    it('differentiates decimals', () => {
+      expect(
+        Immutable.Seq.of(1.5).hashCode()
+      ).not.toBe(
+        Immutable.Seq.of(1.6).hashCode()
+      );
+    });
+
+  });
+
 });

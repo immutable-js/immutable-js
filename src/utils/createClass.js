@@ -7,8 +7,9 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-/* exported invariant */
-
-function invariant(condition, error) {
-  if (!condition) throw new Error(error);
+export default function createClass(ctor, superClass) {
+  if (superClass) {
+    ctor.prototype = Object.create(superClass.prototype);
+  }
+  ctor.prototype.constructor = ctor;
 }

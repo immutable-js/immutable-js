@@ -7,16 +7,15 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import "Iterable"
-import "Collection"
-import "Map"
-import "invariant"
-import "TrieUtils"
-/* global KeyedIterable, KeyedCollection, Map, MapPrototype, invariant, DELETE */
-/* exported Record */
 
+import { KeyedIterable } from './Iterable'
+import { KeyedCollection } from './Collection'
+import { Map, MapPrototype } from './Map'
+import { DELETE } from './TrieUtils'
 
-class Record extends KeyedCollection {
+import invariant from './utils/invariant'
+
+export class Record extends KeyedCollection {
 
   constructor(defaultValues, name) {
     var RecordType = function Record(values) {
