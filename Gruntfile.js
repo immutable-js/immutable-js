@@ -60,6 +60,7 @@ module.exports = function(grunt) {
 
   var fs = require('fs');
   var esperanto = require('esperanto');
+  var to5 = require('6to5');
   var declassify = require('./resources/declassify');
   var stripCopyright = require('./resources/stripCopyright');
   var uglify = require('uglify-js');
@@ -81,22 +82,7 @@ module.exports = function(grunt) {
           name: 'Immutable'
         }).code;
 
-        var es6 = require('es6-transpiler');
-
-        var transformResult = require("es6-transpiler").run({
-          src: bundled,
-          disallowUnknownReferences: false,
-          environments: ["node", "browser"],
-          globals: {
-            define: false,
-          },
-        });
-
-        if (transformResult.errors && transformResult.errors.length > 0) {
-          throw new Error(transformResult.errors[0]);
-        }
-
-        var transformed = transformResult.src;
+        var transformed = to5.transform(bundled).code;
 
         fs.writeFileSync(file.dest + '.js', transformed);
 
@@ -212,7 +198,6 @@ module.exports = function(grunt) {
     // fs.writeFileSync() has an opportunity to succeed.
     var ts = require('ts-compiler');
   });
-
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-copy');

@@ -12,7 +12,7 @@ import { Iterable, KeyedIterable, IndexedIterable, SetIterable,
          IS_ITERABLE_SENTINEL, IS_KEYED_SENTINEL, IS_INDEXED_SENTINEL, IS_ORDERED_SENTINEL } from './Iterable'
 
 import { is } from './is'
-import { arrCopy, NOT_SET, ensureSize, wrapIndex,
+import { NOT_SET, ensureSize, wrapIndex,
          returnTrue, resolveBegin } from './TrieUtils'
 import { hash } from './Hash'
 import { imul, smi } from './Math'
@@ -233,9 +233,9 @@ mixin(Iterable, {
     return reduction;
   },
 
-  reduceRight(reducer, initialReduction, context) {
+  reduceRight(...values) {
     var reversed = this.toKeyedSeq().reverse();
-    return reversed.reduce.apply(reversed, arguments);
+    return reversed.reduce.apply(reversed, values);
   },
 
   reverse() {
@@ -574,7 +574,7 @@ mixin(IndexedIterable, {
     return reify(this, sliceFactory(this, begin, end, false));
   },
 
-  splice(index, removeNum /*, ...values*/) {
+  splice(index, removeNum, ...values) {
     var numArgs = arguments.length;
     removeNum = Math.max(removeNum | 0, 0);
     if (numArgs === 0 || (numArgs === 2 && !removeNum)) {
@@ -586,10 +586,9 @@ mixin(IndexedIterable, {
       this,
       numArgs === 1 ?
         spliced :
-        spliced.concat(arrCopy(arguments, 2), this.slice(index + removeNum))
+        spliced.concat(values, this.slice(index + removeNum))
     );
   },
-
 
   // ### More collection methods
 
@@ -626,8 +625,8 @@ mixin(IndexedIterable, {
     return reify(this, interposeFactory(this, separator));
   },
 
-  interleave(/*...iterables*/) {
-    var iterables = [this].concat(arrCopy(arguments));
+  interleave(...iterables) {
+    iterables = [this].concat(iterables);
     var zipped = zipWithFactory(this.toSeq(), IndexedSeq.of, iterables);
     var interleaved = zipped.flatten(true);
     if (zipped.size) {
@@ -644,14 +643,13 @@ mixin(IndexedIterable, {
     return reify(this, skipWhileFactory(this, predicate, context, false));
   },
 
-  zip(/*, ...iterables */) {
-    var iterables = [this].concat(arrCopy(arguments));
+  zip(...iterables) {
+    iterables = [this].concat(iterables);
     return reify(this, zipWithFactory(this, defaultZipper, iterables));
   },
 
-  zipWith(zipper/*, ...iterables */) {
-    var iterables = arrCopy(arguments);
-    iterables[0] = this;
+  zipWith(zipper, ...iterables) {
+    iterables = [this].concat(iterables);
     return reify(this, zipWithFactory(this, zipper, iterables));
   },
 
@@ -708,14 +706,14 @@ function entryMapper(v, k) {
 }
 
 function not(predicate) {
-  return function() {
-    return !predicate.apply(this, arguments);
+  return function(...values) {
+    return !predicate.apply(this, values);
   }
 }
 
 function neg(predicate) {
-  return function() {
-    return -predicate.apply(this, arguments);
+  return function(...values) {
+    return -predicate.apply(this, values);
   }
 }
 
@@ -723,8 +721,8 @@ function quoteString(value) {
   return typeof value === 'string' ? JSON.stringify(value) : value;
 }
 
-function defaultZipper() {
-  return arrCopy(arguments);
+function defaultZipper(...values) {
+  return values;
 }
 
 function defaultNegComparator(a, b) {

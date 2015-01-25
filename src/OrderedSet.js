@@ -27,8 +27,8 @@ export class OrderedSet extends Set {
       });
   }
 
-  static of(/*...values*/) {
-    return this(arguments);
+  static of(...values) {
+    return this(values);
   }
 
   static fromKeys(value) {

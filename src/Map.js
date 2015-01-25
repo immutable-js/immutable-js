@@ -103,8 +103,8 @@ export class Map extends KeyedCollection {
 
   // @pragma Composition
 
-  merge(/*...iters*/) {
-    return mergeIntoMapWith(this, undefined, arguments);
+  merge(...iters) {
+    return mergeIntoMapWith(this, undefined, iters);
   }
 
   mergeWith(merger, ...iters) {
@@ -115,8 +115,8 @@ export class Map extends KeyedCollection {
     return this.updateIn(keyPath, emptyMap(), m => m.merge.apply(m, iters));
   }
 
-  mergeDeep(/*...iters*/) {
-    return mergeIntoMapWith(this, deepMerger(undefined), arguments);
+  mergeDeep(...iters) {
+    return mergeIntoMapWith(this, deepMerger(undefined), iters);
   }
 
   mergeDeepWith(merger, ...iters) {

@@ -25,8 +25,8 @@ export class Stack extends IndexedCollection {
       emptyStack().unshiftAll(value);
   }
 
-  static of(/*...values*/) {
-    return this(arguments);
+  static of(...values) {
+    return this(values);
   }
 
   toString() {
@@ -100,16 +100,16 @@ export class Stack extends IndexedCollection {
     return this.slice(1);
   }
 
-  unshift(/*...values*/) {
-    return this.push.apply(this, arguments);
+  unshift(...values) {
+    return this.push.apply(this, values);
   }
 
   unshiftAll(iter) {
     return this.pushAll(iter);
   }
 
-  shift() {
-    return this.pop.apply(this, arguments);
+  shift(...values) {
+    return this.pop.apply(this, values);
   }
 
   clear() {
