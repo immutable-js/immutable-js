@@ -31,8 +31,8 @@ export class Set extends SetCollection {
       });
   }
 
-  static of(/*...values*/) {
-    return this(arguments);
+  static of(...values) {
+    return this(values);
   }
 
   static fromKeys(value) {
@@ -110,8 +110,8 @@ export class Set extends SetCollection {
     });
   }
 
-  merge() {
-    return this.union.apply(this, arguments);
+  merge(...values) {
+    return this.union.apply(this, values);
   }
 
   mergeWith(merger, ...iters) {

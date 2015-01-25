@@ -28,6 +28,7 @@
     "persistModuleRegistryBetweenSpecs": true
   },
   "devDependencies": {
+    "6to5": "^2.13.7",
     "acorn": "^0.11.0",
     "benchmark": "^1.0.0",
     "bluebird": "^2.7.1",

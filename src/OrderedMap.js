@@ -28,8 +28,8 @@ export class OrderedMap extends Map {
       });
   }
 
-  static of(/*...values*/) {
-    return this(arguments);
+  static of(...values) {
+    return this(values);
   }
 
   toString() {

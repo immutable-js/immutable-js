@@ -45,8 +45,8 @@ export class List extends IndexedCollection {
     });
   }
 
-  static of(/*...values*/) {
-    return this(arguments);
+  static of(...values) {
+    return this(values);
   }
 
   toString() {
@@ -93,8 +93,7 @@ export class List extends IndexedCollection {
     return emptyList();
   }
 
-  push(/*...values*/) {
-    var values = arguments;
+  push(...values) {
     var oldSize = this.size;
     return this.withMutations(list => {
       setListBounds(list, 0, oldSize + values.length);
@@ -108,8 +107,7 @@ export class List extends IndexedCollection {
     return setListBounds(this, 0, -1);
   }
 
-  unshift(/*...values*/) {
-    var values = arguments;
+  unshift(...values) {
     return this.withMutations(list => {
       setListBounds(list, -values.length);
       for (var ii = 0; ii < values.length; ii++) {
@@ -124,16 +122,16 @@ export class List extends IndexedCollection {
 
   // @pragma Composition
 
-  merge(/*...iters*/) {
-    return mergeIntoListWith(this, undefined, arguments);
+  merge(...iters) {
+    return mergeIntoListWith(this, undefined, iters);
   }
 
   mergeWith(merger, ...iters) {
     return mergeIntoListWith(this, merger, iters);
   }
 
-  mergeDeep(/*...iters*/) {
-    return mergeIntoListWith(this, deepMerger(undefined), arguments);
+  mergeDeep(...iters) {
+    return mergeIntoListWith(this, deepMerger(undefined), iters);
   }
 
   mergeDeepWith(merger, ...iters) {

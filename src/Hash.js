@@ -111,8 +111,8 @@ function hashJSObj(obj) {
     // we'll hijack one of the less-used non-enumerable properties to
     // save our hash on it. Since this is a function it will not show up in
     // `JSON.stringify` which is what we want.
-    obj.propertyIsEnumerable = function() {
-      return this.constructor.prototype.propertyIsEnumerable.apply(this, arguments);
+    obj.propertyIsEnumerable = function(...values) {
+      return this.constructor.prototype.propertyIsEnumerable.apply(this, values);
     };
     obj.propertyIsEnumerable[UID_HASH_KEY] = hash;
   } else if (obj.nodeType) {
