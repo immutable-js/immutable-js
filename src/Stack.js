@@ -7,26 +7,28 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { wholeSlice, resolveBegin, resolveEnd } from './TrieUtils'
+
+import { wholeSlice, resolveBegin, resolveEnd, MAKE, makeEmpty } from './TrieUtils'
 import { IndexedIterable } from './Iterable'
 import { IndexedCollection } from './Collection'
 import { MapPrototype } from './Map'
 import { Iterator, iteratorValue, iteratorDone } from './Iterator'
 import assertNotInfinite from './utils/assertNotInfinite'
 
-
 export class Stack extends IndexedCollection {
 
   // @pragma Construction
 
   constructor(value) {
-    return value === null || value === undefined ? emptyStack() :
-      isStack(value) ? value :
-      emptyStack().unshiftAll(value);
+    if (!(this instanceof Stack)) return new Stack(value);
+    if (value === MAKE) return this;
+    return value === null || value === undefined ? this.__empty() :
+      isStack(value) ? (value.constructor === this.constructor ? value : this.merge(value)) :
+      this.__empty().unshiftAll(value);
   }
 
   static of(/*...values*/) {
-    return this(arguments);
+    return new this(arguments);
   }
 
   toString() {
@@ -68,7 +70,7 @@ export class Stack extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return makeStack(newSize, head);
+    return this.__make(newSize, head);
   }
 
   pushAll(iter) {
@@ -93,7 +95,7 @@ export class Stack extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return makeStack(newSize, head);
+    return this.__make(newSize, head);
   }
 
   pop() {
@@ -123,7 +125,7 @@ export class Stack extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return emptyStack();
+    return this.__empty();
   }
 
   slice(begin, end) {
@@ -148,7 +150,7 @@ export class Stack extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return makeStack(newSize, head);
+    return this.__make(newSize, head);
   }
 
   // @pragma Mutability
@@ -162,7 +164,7 @@ export class Stack extends IndexedCollection {
       this.__altered = false;
       return this;
     }
-    return makeStack(this.size, this._head, ownerID, this.__hash);
+    return this.__make(this.size, this._head, ownerID, this.__hash);
   }
 
   // @pragma Iteration
@@ -197,6 +199,21 @@ export class Stack extends IndexedCollection {
       return iteratorDone();
     });
   }
+
+  __make(size, head, ownerID, hash) {
+    var map = new this.constructor(MAKE);
+    map.size = size;
+    map._head = head;
+    map.__ownerID = ownerID;
+    map.__hash = hash;
+    map.__altered = false;
+    return map;
+  }
+
+  __empty() {
+    return makeEmpty(this, 0);
+  }
+
 }
 
 function isStack(maybeStack) {
@@ -213,19 +230,3 @@ StackPrototype.withMutations = MapPrototype.withMutations;
 StackPrototype.asMutable = MapPrototype.asMutable;
 StackPrototype.asImmutable = MapPrototype.asImmutable;
 StackPrototype.wasAltered = MapPrototype.wasAltered;
-
-
-function makeStack(size, head, ownerID, hash) {
-  var map = Object.create(StackPrototype);
-  map.size = size;
-  map._head = head;
-  map.__ownerID = ownerID;
-  map.__hash = hash;
-  map.__altered = false;
-  return map;
-}
-
-var EMPTY_STACK;
-function emptyStack() {
-  return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
-}

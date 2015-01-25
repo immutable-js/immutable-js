@@ -9,7 +9,6 @@
 
 import { Seq, KeyedSeq, IndexedSeq, SetSeq } from './Seq'
 
-
 export class Iterable {
   constructor(value) {
     return isIterable(value) ? value : Seq(value);

@@ -120,7 +120,7 @@ mixin(Iterable, {
 
   toList() {
     // Use Late Binding here to solve the circular dependency.
-    return List(isKeyed(this) ? this.valueSeq() : this);
+    return new List(isKeyed(this) ? this.valueSeq() : this);
   },
 
 

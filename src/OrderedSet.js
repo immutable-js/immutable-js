@@ -7,20 +7,22 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
+import {MAKE, makeEmpty} from './TrieUtils'
 import { SetIterable, KeyedIterable, IS_ORDERED_SENTINEL, isOrdered } from './Iterable'
 import { Set, isSet } from './Set'
-import { emptyOrderedMap } from './OrderedMap'
+import { OrderedMap } from './OrderedMap'
 import assertNotInfinite from './utils/assertNotInfinite'
-
 
 export class OrderedSet extends Set {
 
   // @pragma Construction
 
   constructor(value) {
-    return value === null || value === undefined ? emptyOrderedSet() :
-      isOrderedSet(value) ? value :
-      emptyOrderedSet().withMutations(set => {
+    if (!(this instanceof OrderedSet)) return new OrderedSet(value);
+    if (value === MAKE) return this;
+    return value === null || value === undefined ? this.__empty() :
+      isOrderedSet(value) ? (value.constructor === this.constructor ? value : this.merge(value)) :
+      this.__empty().withMutations(set => {
         var iter = SetIterable(value);
         assertNotInfinite(iter.size);
         iter.forEach(v => set.add(v));
@@ -28,16 +30,33 @@ export class OrderedSet extends Set {
   }
 
   static of(/*...values*/) {
-    return this(arguments);
+    return new this(arguments);
   }
 
   static fromKeys(value) {
-    return this(KeyedIterable(value).keySeq());
+    return new this(KeyedIterable(value).keySeq());
   }
 
   toString() {
     return this.__toString('OrderedSet {', '}');
   }
+
+  __make(map, ownerID) {
+    var set = new this.constructor(MAKE);
+    set.size = map ? map.size : 0;
+    set._map = map;
+    set.__ownerID = ownerID;
+    return set;
+  }
+
+  __empty() {
+    return makeEmpty(this, this.__emptyMap());
+  }
+
+  __emptyMap() {
+    return new OrderedMap();
+  }
+
 }
 
 function isOrderedSet(maybeOrderedSet) {
@@ -49,18 +68,3 @@ OrderedSet.isOrderedSet = isOrderedSet;
 var OrderedSetPrototype = OrderedSet.prototype;
 OrderedSetPrototype[IS_ORDERED_SENTINEL] = true;
 
-OrderedSetPrototype.__empty = emptyOrderedSet;
-OrderedSetPrototype.__make = makeOrderedSet;
-
-function makeOrderedSet(map, ownerID) {
-  var set = Object.create(OrderedSetPrototype);
-  set.size = map ? map.size : 0;
-  set._map = map;
-  set.__ownerID = ownerID;
-  return set;
-}
-
-var EMPTY_ORDERED_SET;
-function emptyOrderedSet() {
-  return EMPTY_ORDERED_SET || (EMPTY_ORDERED_SET = makeOrderedSet(emptyOrderedMap()));
-}

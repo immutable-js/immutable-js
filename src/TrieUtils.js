@@ -7,7 +7,6 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-
 // Used for setting prototype methods that IE8 chokes on.
 export var DELETE = 'delete';
 
@@ -20,6 +19,9 @@ export var MASK = SIZE - 1;
 // than itself, and nothing that could be provided externally.
 export var NOT_SET = {};
 
+// Indicates a new type is being constructed. 
+export var MAKE = {};
+
 // Boolean references, Rough equivalent of `bool &`.
 export var CHANGE_LENGTH = { value: false };
 export var DID_ALTER = { value: false };
@@ -31,6 +33,14 @@ export function MakeRef(ref) {
 
 export function SetRef(ref) {
   ref && (ref.value = true);
+}
+
+export function makeEmpty(value, ...rest) {
+  var ctor = value.constructor;
+  if (!ctor.__empty) {
+    ctor.__empty = value.__make.apply(value, rest);
+  }
+  return ctor.__empty;
 }
 
 // A function which returns a value representing an "owner" for transient writes

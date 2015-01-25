@@ -7,10 +7,11 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
+
 import { SetIterable, KeyedIterable } from './Iterable'
 import { SetCollection } from './Collection'
-import { emptyMap, MapPrototype } from './Map'
-import { DELETE } from './TrieUtils'
+import { Map, MapPrototype } from './Map'
+import { DELETE, MAKE, makeEmpty } from './TrieUtils'
 import { sortFactory } from './Operations'
 import assertNotInfinite from './utils/assertNotInfinite'
 
@@ -22,9 +23,11 @@ export class Set extends SetCollection {
   // @pragma Construction
 
   constructor(value) {
-    return value === null || value === undefined ? emptySet() :
-      isSet(value) ? value :
-      emptySet().withMutations(set => {
+    if (!(this instanceof Set)) return new Set(value);
+    if (value === MAKE) return this;
+    return value === null || value === undefined ? this.__empty() :
+      isSet(value) ? (value.constructor === this.constructor ? value : this.merge(value)) :
+      this.__empty().withMutations(set => {
         var iter = SetIterable(value);
         assertNotInfinite(iter.size);
         iter.forEach(v => set.add(v));
@@ -32,11 +35,11 @@ export class Set extends SetCollection {
   }
 
   static of(/*...values*/) {
-    return this(arguments);
+    return new this(arguments);
   }
 
   static fromKeys(value) {
-    return this(KeyedIterable(value).keySeq());
+    return new this(KeyedIterable(value).keySeq());
   }
 
   toString() {
@@ -71,7 +74,7 @@ export class Set extends SetCollection {
       return this;
     }
     if (this.size === 0 && iters.length === 1) {
-      return this.constructor(iters[0]);
+      return new this.constructor(iters[0]);
     }
     return this.withMutations(set => {
       for (var ii = 0; ii < iters.length; ii++) {
@@ -152,6 +155,23 @@ export class Set extends SetCollection {
     }
     return this.__make(newMap, ownerID);
   }
+
+  __make(map, ownerID) {
+    var set = new this.constructor(MAKE);
+    set.size = map ? map.size : 0;
+    set._map = map;
+    set.__ownerID = ownerID;
+    return set;
+  }
+
+  __empty() {
+    return makeEmpty(this, this.__emptyMap());
+  }
+
+  __emptyMap() {
+    return new Map();
+  }
+
 }
 
 export function isSet(maybeSet) {
@@ -171,9 +191,6 @@ SetPrototype.withMutations = MapPrototype.withMutations;
 SetPrototype.asMutable = MapPrototype.asMutable;
 SetPrototype.asImmutable = MapPrototype.asImmutable;
 
-SetPrototype.__empty = emptySet;
-SetPrototype.__make = makeSet;
-
 function updateSet(set, newMap) {
   if (set.__ownerID) {
     set.size = newMap.size;
@@ -181,19 +198,6 @@ function updateSet(set, newMap) {
     return set;
   }
   return newMap === set._map ? set :
-    newMap.size === 0 ? set.__empty() :
+    newMap.size === 0 ? set.__empty(set) :
     set.__make(newMap);
-}
-
-function makeSet(map, ownerID) {
-  var set = Object.create(SetPrototype);
-  set.size = map ? map.size : 0;
-  set._map = map;
-  set.__ownerID = ownerID;
-  return set;
-}
-
-var EMPTY_SET;
-function emptySet() {
-  return EMPTY_SET || (EMPTY_SET = makeSet(emptyMap()));
 }

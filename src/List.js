@@ -7,8 +7,9 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
+
 import { fromJS } from './fromJS'
-import { DELETE, SHIFT, SIZE, MASK, DID_ALTER, OwnerID, MakeRef,
+import { DELETE, SHIFT, SIZE, MASK, DID_ALTER, OwnerID, MakeRef, MAKE, makeEmpty,
           SetRef, wrapIndex, wholeSlice, resolveBegin, resolveEnd } from './TrieUtils'
 import { isIterable, IndexedIterable } from './Iterable'
 import { IndexedCollection } from './Collection'
@@ -17,18 +18,19 @@ import { Iterator, iteratorValue, iteratorDone } from './Iterator'
 
 import assertNotInfinite from './utils/assertNotInfinite'
 
-
 export class List extends IndexedCollection {
 
   // @pragma Construction
 
   constructor(value) {
-    var empty = emptyList();
+    if (!(this instanceof List)) return new List(value);
+    if (value === MAKE) return this;
+    var empty = this.__empty();
     if (value === null || value === undefined) {
       return empty;
     }
     if (isList(value)) {
-      return value;
+      return value.constructor === this.constructor ? value : empty.merge(value);
     }
     var iter = IndexedIterable(value);
     var size = iter.size;
@@ -37,7 +39,7 @@ export class List extends IndexedCollection {
     }
     assertNotInfinite(size);
     if (size > 0 && size < SIZE) {
-      return makeList(0, size, SHIFT, null, new VNode(iter.toArray()));
+      return this.__make(0, size, SHIFT, null, new VNode(iter.toArray()));
     }
     return empty.withMutations(list => {
       list.setSize(size);
@@ -46,7 +48,7 @@ export class List extends IndexedCollection {
   }
 
   static of(/*...values*/) {
-    return this(arguments);
+    return new this(arguments);
   }
 
   toString() {
@@ -90,7 +92,7 @@ export class List extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return emptyList();
+    return this.__empty();
   }
 
   push(/*...values*/) {
@@ -189,8 +191,27 @@ export class List extends IndexedCollection {
       this.__ownerID = ownerID;
       return this;
     }
-    return makeList(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
+    return this.__make(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
   }
+
+  __make(origin, capacity, level, root, tail, ownerID, hash) {
+    var list = new this.constructor(MAKE);
+    list.size = capacity - origin;
+    list._origin = origin;
+    list._capacity = capacity;
+    list._level = level;
+    list._root = root;
+    list._tail = tail;
+    list.__ownerID = ownerID;
+    list.__hash = hash;
+    list.__altered = false;
+    return list;
+  }
+
+  __empty() {
+    return makeEmpty(this, 0, 0, SHIFT);
+  }
+
 }
 
 export function isList(maybeList) {
@@ -350,25 +371,6 @@ function iterateList(list, reverse) {
   }
 }
 
-function makeList(origin, capacity, level, root, tail, ownerID, hash) {
-  var list = Object.create(ListPrototype);
-  list.size = capacity - origin;
-  list._origin = origin;
-  list._capacity = capacity;
-  list._level = level;
-  list._root = root;
-  list._tail = tail;
-  list.__ownerID = ownerID;
-  list.__hash = hash;
-  list.__altered = false;
-  return list;
-}
-
-var EMPTY_LIST;
-export function emptyList() {
-  return EMPTY_LIST || (EMPTY_LIST = makeList(0, 0, SHIFT));
-}
-
 function updateList(list, index, value) {
   index = wrapIndex(list, index);
 
@@ -402,7 +404,7 @@ function updateList(list, index, value) {
     list.__altered = true;
     return list;
   }
-  return makeList(list._origin, list._capacity, list._level, newRoot, newTail);
+  return list.__make(list._origin, list._capacity, list._level, newRoot, newTail);
 }
 
 function updateVNode(node, ownerID, level, index, value, didAlter) {
@@ -574,7 +576,7 @@ function setListBounds(list, begin, end) {
     list.__altered = true;
     return list;
   }
-  return makeList(newOrigin, newCapacity, newLevel, newRoot, newTail);
+  return list.__make(newOrigin, newCapacity, newLevel, newRoot, newTail);
 }
 
 function mergeIntoListWith(list, merger, iterables) {
