@@ -131,7 +131,7 @@ function hashJSObj(obj) {
 // True if Object.defineProperty works as expected. IE8 fails this test.
 var canDefineProperty = (function() {
   try {
-    Object.defineProperty({}, 'x', {});
+    Object.defineProperty({}, '___x', {});
     return true;
   } catch (e) {
     return false;
