@@ -220,7 +220,7 @@ IndexedCursor.prototype = IndexedCursorPrototype;
 var NOT_SET = {}; // Sentinel value
 
 function makeCursor(rootData, keyPath, onChange, value) {
-  if (arguments.length < 4) {
+  if (value === void 0) {
     value = rootData.getIn(keyPath);
   }
   var size = value && value.size;

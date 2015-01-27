@@ -49,6 +49,13 @@ describe('Cursor', () => {
     expect(deepCursor.deref()).toBe(data.getIn(Immutable.fromJS(['a', 'b'])));
   });
 
+  it('cursor return new cursors of correct type', () => {
+    var data = Immutable.fromJS({ a: [1, 2, 3] });
+    var cursor = Cursor.from(data);
+    var deepCursor = <any>cursor.cursor('a');
+    expect(deepCursor.findIndex).toBeDefined();
+  });
+
   it('can be treated as a value', () => {
     var data = Immutable.fromJS(json);
     var cursor = Cursor.from(data, ['a', 'b']);
