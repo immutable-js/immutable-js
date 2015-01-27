@@ -21,8 +21,8 @@ intermediate representations. Create some `Seq` with `Range` and `Repeat`.
 
 [Persistent]: http://en.wikipedia.org/wiki/Persistent_data_structure
 [Immutable]: http://en.wikipedia.org/wiki/Immutable_object
-[hash maps tries]: (http://en.wikipedia.org/wiki/Hash_array_mapped_trie)
-[vector tries]: (http://hypirion.com/musings/understanding-persistent-vector-pt-1)
+[hash maps tries]: http://en.wikipedia.org/wiki/Hash_array_mapped_trie
+[vector tries]: http://hypirion.com/musings/understanding-persistent-vector-pt-1
 
 
 Getting started
