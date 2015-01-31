@@ -101,6 +101,14 @@ export class Map extends KeyedCollection {
     return emptyMap();
   }
 
+  map(mapper, context) {
+    return this.withMutations(m => {
+      this.forEach((v, k, iter) => {
+        m.set(k, mapper.call(context, v, k, iter));
+      });
+    });
+  }
+
   // @pragma Composition
 
   merge(/*...iters*/) {

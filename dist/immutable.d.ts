@@ -1714,7 +1714,7 @@ declare module 'immutable' {
      * Returns a new Iterable of the same type containing all entries except
      * the first.
      */
-    rest(): /*this*/Iterable<K, V>
+    rest(): /*this*/Iterable<K, V>;
 
     /**
      * Returns a new Iterable of the same type containing all entries except

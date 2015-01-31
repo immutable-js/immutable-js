@@ -188,6 +188,12 @@ describe('Map', () => {
     expect(r.toObject()).toEqual({a:'A', b:'B', c:'C'});
   });
 
+  it('maps values with referential equality', () => {
+    var m = Map({a:'a', b:'b', c:'c'});
+    var r = m.map(value => value);
+    expect(r).toEqual(m);
+  });
+
   it('maps keys', () => {
     var m = Map({a:'a', b:'b', c:'c'});
     var r = m.mapKeys(key => key.toUpperCase());
