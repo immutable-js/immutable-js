@@ -724,7 +724,7 @@
   }
 
   function isPlainObj(value) {
-    return value && value.constructor === Object;
+    return value && (value.constructor === Object || value.constructor === undefined);
   }
 
   var Math__imul =

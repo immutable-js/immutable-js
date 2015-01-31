@@ -45,6 +45,7 @@ describe('Conversion', () => {
       a: "A",
       b: "B"
     },
+    emptyMap: Object.create(null),
     point: {x: 10, y: 20},
     string: "Hello",
     list: [1, 2, 3]
@@ -68,6 +69,7 @@ describe('Conversion', () => {
       a: "A",
       b: "B"
     }),
+    emptyMap: Map(),
     point: Map({x: 10, y: 20}),
     string: "Hello",
     list: List.of(1, 2, 3)
@@ -89,6 +91,7 @@ describe('Conversion', () => {
       a: "A",
       b: "B"
     }),
+    emptyMap: OrderedMap(),
     point: new Point({x: 10, y: 20}),
     string: "Hello",
     list: List.of(1, 2, 3)
@@ -110,6 +113,7 @@ describe('Conversion', () => {
       'a: "A", '+
       'b: "B"'+
     ' }, '+
+    'emptyMap: OrderedMap {}, ' +
     'point: Point { x: 10, y: 20 }, '+
     'string: "Hello", '+
     'list: List [ 1, 2, 3 ]'+
