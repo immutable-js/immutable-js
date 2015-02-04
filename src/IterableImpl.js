@@ -78,7 +78,7 @@ mixin(Iterable, {
 
   toMap() {
     // Use Late Binding here to solve the circular dependency.
-    return Map(this.toKeyedSeq());
+    return new Map(this.toKeyedSeq());
   },
 
   toObject() {
@@ -90,17 +90,17 @@ mixin(Iterable, {
 
   toOrderedMap() {
     // Use Late Binding here to solve the circular dependency.
-    return OrderedMap(this.toKeyedSeq());
+    return new OrderedMap(this.toKeyedSeq());
   },
 
   toOrderedSet() {
     // Use Late Binding here to solve the circular dependency.
-    return OrderedSet(isKeyed(this) ? this.valueSeq() : this);
+    return new OrderedSet(isKeyed(this) ? this.valueSeq() : this);
   },
 
   toSet() {
     // Use Late Binding here to solve the circular dependency.
-    return Set(isKeyed(this) ? this.valueSeq() : this);
+    return new Set(isKeyed(this) ? this.valueSeq() : this);
   },
 
   toSetSeq() {
@@ -115,12 +115,12 @@ mixin(Iterable, {
 
   toStack() {
     // Use Late Binding here to solve the circular dependency.
-    return Stack(isKeyed(this) ? this.valueSeq() : this);
+    return new Stack(isKeyed(this) ? this.valueSeq() : this);
   },
 
   toList() {
     // Use Late Binding here to solve the circular dependency.
-    return List(isKeyed(this) ? this.valueSeq() : this);
+    return new List(isKeyed(this) ? this.valueSeq() : this);
   },
 
 
@@ -351,7 +351,7 @@ mixin(Iterable, {
   },
 
   isSubset(iter) {
-    iter = typeof iter.contains === 'function' ? iter : Iterable(iter);
+    iter = typeof iter.contains === 'function' ? iter : new Iterable(iter);
     return this.every(value => iter.contains(value));
   },
 

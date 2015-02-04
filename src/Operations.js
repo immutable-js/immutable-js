@@ -333,7 +333,7 @@ export function filterFactory(iterable, predicate, context, useKeys) {
 
 
 export function countByFactory(iterable, grouper, context) {
-  var groups = Map().asMutable();
+  var groups = new Map().asMutable();
   iterable.__iterate((v, k) => {
     groups.update(
       grouper.call(context, v, k, iterable),
@@ -347,7 +347,7 @@ export function countByFactory(iterable, grouper, context) {
 
 export function groupByFactory(iterable, grouper, context) {
   var isKeyedIter = isKeyed(iterable);
-  var groups = (isOrdered(iterable) ? OrderedMap() : Map()).asMutable();
+  var groups = (isOrdered(iterable) ? new OrderedMap() : new Map()).asMutable();
   iterable.__iterate((v, k) => {
     groups.update(
       grouper.call(context, v, k, iterable),
@@ -542,7 +542,7 @@ export function concatFactory(iterable, values) {
         keyedSeqFromValue(v) :
         indexedSeqFromValue(Array.isArray(v) ? v : [v]);
     } else if (isKeyedIterable) {
-      v = KeyedIterable(v);
+      v = new KeyedIterable(v);
     }
     return v;
   }).filter(v => v.size !== 0);
@@ -683,9 +683,9 @@ export function sortFactory(iterable, comparator, mapper) {
     (v, i) => { entries[i].length = 2; } :
     (v, i) => { entries[i] = v[1]; }
   );
-  return isKeyedIterable ? KeyedSeq(entries) :
-    isIndexed(iterable) ? IndexedSeq(entries) :
-    SetSeq(entries);
+  return isKeyedIterable ? new KeyedSeq(entries) :
+    isIndexed(iterable) ? new IndexedSeq(entries) :
+    new SetSeq(entries);
 }
 
 
@@ -742,7 +742,7 @@ export function zipWithFactory(keyIter, zipper, iters) {
   };
   zipSequence.__iteratorUncached = function(type, reverse) {
     var iterators = iters.map(i =>
-      (i = Iterable(i), getIterator(reverse ? i.reverse() : i))
+      (i = new Iterable(i), getIterator(reverse ? i.reverse() : i))
     );
     var iterations = 0;
     var isDone = false;

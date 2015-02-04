@@ -31,7 +31,7 @@ export class Map extends KeyedCollection {
     return value === null || value === undefined ? emptyMap() :
       isMap(value) ? value :
       emptyMap().withMutations(map => {
-        var iter = KeyedIterable(value);
+        var iter = new KeyedIterable(value);
         assertNotInfinite(iter.size);
         iter.forEach((v, k) => map.set(k, v));
       });
@@ -129,12 +129,12 @@ export class Map extends KeyedCollection {
 
   sort(comparator) {
     // Late binding
-    return OrderedMap(sortFactory(this, comparator));
+    return new OrderedMap(sortFactory(this, comparator));
   }
 
   sortBy(mapper, comparator) {
     // Late binding
-    return OrderedMap(sortFactory(this, comparator, mapper));
+    return new OrderedMap(sortFactory(this, comparator, mapper));
   }
 
   // @pragma Mutability
@@ -705,7 +705,7 @@ function mergeIntoMapWith(map, merger, iterables) {
   var iters = [];
   for (var ii = 0; ii < iterables.length; ii++) {
     var value = iterables[ii];
-    var iter = KeyedIterable(value);
+    var iter = new KeyedIterable(value);
     if (!isIterable(value)) {
       iter = iter.map(v => fromJS(v));
     }

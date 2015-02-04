@@ -163,7 +163,7 @@ KeyedCursorPrototype.mergeDeepIn = Map.prototype.mergeDeepIn;
 KeyedCursorPrototype.withMutations =
 IndexedCursorPrototype.withMutations = function(fn) {
   return updateCursor(this, function (m) {
-    return (m || Map()).withMutations(fn);
+    return (m || new Map()).withMutations(fn);
   });
 }
 
@@ -245,7 +245,7 @@ function updateCursor(cursor, changeFn, changeKeyPath) {
   var deepChange = arguments.length > 2;
   var newRootData = cursor._rootData.updateIn(
     cursor._keyPath,
-    deepChange ? Map() : undefined,
+    deepChange ? new Map() : undefined,
     changeFn
   );
   var keyPath = cursor._keyPath || [];

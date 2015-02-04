@@ -17,20 +17,20 @@ export function fromJS(json, converter) {
 
 function fromJSWith(converter, json, key, parentJSON) {
   if (Array.isArray(json)) {
-    return converter.call(parentJSON, key, IndexedSeq(json).map((v, k) => fromJSWith(converter, v, k, json)));
+    return converter.call(parentJSON, key, new IndexedSeq(json).map((v, k) => fromJSWith(converter, v, k, json)));
   }
   if (isPlainObj(json)) {
-    return converter.call(parentJSON, key, KeyedSeq(json).map((v, k) => fromJSWith(converter, v, k, json)));
+    return converter.call(parentJSON, key, new KeyedSeq(json).map((v, k) => fromJSWith(converter, v, k, json)));
   }
   return json;
 }
 
 function fromJSDefault(json) {
   if (Array.isArray(json)) {
-    return IndexedSeq(json).map(fromJSDefault).toList();
+    return new IndexedSeq(json).map(fromJSDefault).toList();
   }
   if (isPlainObj(json)) {
-    return KeyedSeq(json).map(fromJSDefault).toMap();
+    return new KeyedSeq(json).map(fromJSDefault).toMap();
   }
   return json;
 }

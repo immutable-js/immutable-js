@@ -12,25 +12,25 @@ import { Seq, KeyedSeq, IndexedSeq, SetSeq } from './Seq'
 
 export class Iterable {
   constructor(value) {
-    return isIterable(value) ? value : Seq(value);
+    return isIterable(value) ? value : new Seq(value);
   }
 }
 
 export class KeyedIterable extends Iterable {
   constructor(value) {
-    return isKeyed(value) ? value : KeyedSeq(value);
+    return isKeyed(value) ? value : new KeyedSeq(value);
   }
 }
 
 export class IndexedIterable extends Iterable {
   constructor(value) {
-    return isIndexed(value) ? value : IndexedSeq(value);
+    return isIndexed(value) ? value : new IndexedSeq(value);
   }
 }
 
 export class SetIterable extends Iterable {
   constructor(value) {
-    return isIterable(value) && !isAssociative(value) ? value : SetSeq(value);
+    return isIterable(value) && !isAssociative(value) ? value : new SetSeq(value);
   }
 }
 

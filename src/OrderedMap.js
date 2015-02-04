@@ -22,7 +22,7 @@ export class OrderedMap extends Map {
     return value === null || value === undefined ? emptyOrderedMap() :
       isOrderedMap(value) ? value :
       emptyOrderedMap().withMutations(map => {
-        var iter = KeyedIterable(value);
+        var iter = new KeyedIterable(value);
         assertNotInfinite(iter.size);
         iter.forEach((v, k) => map.set(k, v));
       });

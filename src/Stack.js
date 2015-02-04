@@ -72,7 +72,7 @@ export class Stack extends IndexedCollection {
   }
 
   pushAll(iter) {
-    iter = IndexedIterable(iter);
+    iter = new IndexedIterable(iter);
     if (iter.size === 0) {
       return this;
     }

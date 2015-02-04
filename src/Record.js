@@ -22,7 +22,7 @@ export class Record extends KeyedCollection {
       if (!(this instanceof RecordType)) {
         return new RecordType(values);
       }
-      this._map = Map(values);
+      this._map = new Map(values);
     };
 
     var keys = Object.keys(defaultValues);
@@ -109,11 +109,11 @@ export class Record extends KeyedCollection {
   }
 
   __iterator(type, reverse) {
-    return KeyedIterable(this._defaultValues).map((_, k) => this.get(k)).__iterator(type, reverse);
+    return new KeyedIterable(this._defaultValues).map((_, k) => this.get(k)).__iterator(type, reverse);
   }
 
   __iterate(fn, reverse) {
-    return KeyedIterable(this._defaultValues).map((_, k) => this.get(k)).__iterate(fn, reverse);
+    return new KeyedIterable(this._defaultValues).map((_, k) => this.get(k)).__iterate(fn, reverse);
   }
 
   __ensureOwner(ownerID) {

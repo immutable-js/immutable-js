@@ -25,7 +25,7 @@ export class Set extends SetCollection {
     return value === null || value === undefined ? emptySet() :
       isSet(value) ? value :
       emptySet().withMutations(set => {
-        var iter = SetIterable(value);
+        var iter = new SetIterable(value);
         assertNotInfinite(iter.size);
         iter.forEach(v => set.add(v));
       });
@@ -36,7 +36,7 @@ export class Set extends SetCollection {
   }
 
   static fromKeys(value) {
-    return this(KeyedIterable(value).keySeq());
+    return this(new KeyedIterable(value).keySeq());
   }
 
   toString() {
@@ -75,7 +75,7 @@ export class Set extends SetCollection {
     }
     return this.withMutations(set => {
       for (var ii = 0; ii < iters.length; ii++) {
-        SetIterable(iters[ii]).forEach(value => set.add(value));
+        new SetIterable(iters[ii]).forEach(value => set.add(value));
       }
     });
   }
@@ -84,7 +84,7 @@ export class Set extends SetCollection {
     if (iters.length === 0) {
       return this;
     }
-    iters = iters.map(iter => SetIterable(iter));
+    iters = iters.map(iter => new SetIterable(iter));
     var originalSet = this;
     return this.withMutations(set => {
       originalSet.forEach(value => {
@@ -99,7 +99,7 @@ export class Set extends SetCollection {
     if (iters.length === 0) {
       return this;
     }
-    iters = iters.map(iter => SetIterable(iter));
+    iters = iters.map(iter => new SetIterable(iter));
     var originalSet = this;
     return this.withMutations(set => {
       originalSet.forEach(value => {
@@ -120,12 +120,12 @@ export class Set extends SetCollection {
 
   sort(comparator) {
     // Late binding
-    return OrderedSet(sortFactory(this, comparator));
+    return new OrderedSet(sortFactory(this, comparator));
   }
 
   sortBy(mapper, comparator) {
     // Late binding
-    return OrderedSet(sortFactory(this, comparator, mapper));
+    return new OrderedSet(sortFactory(this, comparator, mapper));
   }
 
   wasAltered() {
