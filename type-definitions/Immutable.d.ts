@@ -272,8 +272,8 @@ declare module 'immutable' {
      * Index numbers are used as keys to determine the path to follow in
      * the List.
      */
-    setIn(keyPath: Array<any>, value: T): List<T>;
-    setIn(keyPath: Iterable<any, any>, value: T): List<T>;
+    setIn(keyPath: Array<any>, value: any): List<T>;
+    setIn(keyPath: Iterable<any, any>, value: any): List<T>;
 
     /**
      * Returns a new List having removed the value at this `keyPath`. If any
@@ -524,8 +524,8 @@ declare module 'immutable' {
      * Returns a new Map having set `value` at this `keyPath`. If any keys in
      * `keyPath` do not exist, a new immutable Map will be created at that key.
      */
-    setIn(keyPath: Array<any>, value: V): Map<K, V>;
-    setIn(KeyPath: Iterable<any, any>, value: V): Map<K, V>;
+    setIn(keyPath: Array<any>, value: any): Map<K, V>;
+    setIn(KeyPath: Iterable<any, any>, value: any): Map<K, V>;
 
     /**
      * Returns a new Map having removed the value at this `keyPath`. If any keys
