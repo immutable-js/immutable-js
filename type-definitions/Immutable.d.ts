@@ -2286,8 +2286,6 @@ declare module 'immutable' {
      * Returns an Iterable of the same type "zipped" with the provided
      * iterables by using a custom `zipper` function.
      *
-     * Like `zipWith`, but using the default `zipper`: creating an `Array`.
-     *
      *     var a = Seq.of(1, 2, 3);
      *     var b = Seq.of(4, 5, 6);
      *     var c = a.zip(b); // Seq [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
