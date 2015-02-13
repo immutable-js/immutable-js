@@ -52,7 +52,7 @@ declare module 'immutable' {
    *     // false, "a", {a: {b: [10, 20, 30]}, c: 40}
    *     // false, "", {"": {a: {b: [10, 20, 30]}, c: 40}}
    *
-   * If `reviver` is not provided, the default behavior will convert Arrays intoam
+   * If `reviver` is not provided, the default behavior will convert Arrays into
    * Lists and Objects into Maps.
    *
    * `reviver` acts similarly to the [same parameter in `JSON.parse`][1].
