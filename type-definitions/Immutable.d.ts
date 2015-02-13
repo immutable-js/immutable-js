@@ -677,7 +677,7 @@ declare module 'immutable' {
    * JavaScript Object.
    *
    * Note that `OrderedMap` are more expensive than non-ordered `Map` and may
-   * consume more memory. `OrderedMap#set` is amoratized O(log32 N), but not
+   * consume more memory. `OrderedMap#set` is amortized O(log32 N), but not
    * stable.
    */
 
@@ -830,7 +830,7 @@ declare module 'immutable' {
    * The iteration behavior of OrderedSet is the same as native ES6 Set.
    *
    * Note that `OrderedSet` are more expensive than non-ordered `Set` and may
-   * consume more memory. `OrderedSet#add` is amoratized O(log32 N), but not
+   * consume more memory. `OrderedSet#add` is amortized O(log32 N), but not
    * stable.
    */
   export module OrderedSet {
