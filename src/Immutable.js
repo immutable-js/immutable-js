@@ -22,25 +22,47 @@ import { is } from './is'
 import { fromJS } from './fromJS'
 import { Iterable } from './IterableImpl'
 
+export {
+
+  Iterable,
+
+  Seq,
+  Collection,
+  Map,
+  OrderedMap,
+  List,
+  Stack,
+  Set,
+  OrderedSet,
+
+  Record,
+  Range,
+  Repeat,
+
+  is,
+  fromJS,
+
+};
+
 
 export default {
 
-  Iterable: Iterable,
+  Iterable,
 
-  Seq: Seq,
-  Collection: Collection,
-  Map: Map,
-  OrderedMap: OrderedMap,
-  List: List,
-  Stack: Stack,
-  Set: Set,
-  OrderedSet: OrderedSet,
+  Seq,
+  Collection,
+  Map,
+  OrderedMap,
+  List,
+  Stack,
+  Set,
+  OrderedSet,
 
-  Record: Record,
-  Range: Range,
-  Repeat: Repeat,
+  Record,
+  Range,
+  Repeat,
 
-  is: is,
-  fromJS: fromJS,
+  is,
+  fromJS,
 
 };
