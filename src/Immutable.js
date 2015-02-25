@@ -22,6 +22,12 @@ import { is } from './is';
 import { fromJS } from './fromJS';
 import { Iterable } from './IterableImpl';
 
+// current build pipeline does not support the syntax
+//
+//   export { Seq } from './Seq'
+//
+// so we need to separately import and export each module
+
 export {
 
   Iterable,
