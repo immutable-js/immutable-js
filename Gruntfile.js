@@ -213,12 +213,7 @@ module.exports = function(grunt) {
     var ts = require('ts-compiler');
   });
 
-
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-jest');
-  grunt.loadNpmTasks('grunt-release');
+  require('load-grunt-tasks')(grunt);
 
   grunt.registerTask('lint', 'Lint all source javascript', ['jshint']);
   grunt.registerTask('build', 'Build distributed javascript', ['clean', 'bundle', 'copy']);
