@@ -7,17 +7,39 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-export { Seq } from './Seq'
-export { Collection } from './Collection'
-export { OrderedMap } from './OrderedMap'
-export { List } from './List'
-export { Map } from './Map'
-export { Stack } from './Stack'
-export { OrderedSet } from './OrderedSet'
-export { Set } from './Set'
-export { Record } from './Record'
-export { Range } from './Range'
-export { Repeat } from './Repeat'
-export { is } from './is'
-export { fromJS } from './fromJS'
-export { Iterable } from './IterableImpl'
+import { Seq } from './Seq';
+import { Collection } from './Collection';
+import { OrderedMap } from './OrderedMap';
+import { List } from './List';
+import { Map } from './Map';
+import { Stack } from './Stack';
+import { OrderedSet } from './OrderedSet';
+import { Set } from './Set';
+import { Record } from './Record';
+import { Range } from './Range';
+import { Repeat } from './Repeat';
+import { is } from './is';
+import { fromJS } from './fromJS';
+import { Iterable } from './IterableImpl';
+
+export {
+
+  Iterable,
+
+  Seq,
+  Collection,
+  Map,
+  OrderedMap,
+  List,
+  Stack,
+  Set,
+  OrderedSet,
+
+  Record,
+  Range,
+  Repeat,
+
+  is,
+  fromJS,
+
+};
