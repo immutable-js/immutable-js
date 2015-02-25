@@ -4829,24 +4829,29 @@
     return a ^ b + 0x9E3779B9 + (a << 6) + (a >> 2) | 0; // int
   }
 
-  var Immutable = {
-    get Iterable () { return Iterable; },
-    get Seq () { return Seq; },
-    get Collection () { return Collection; },
-    get Map () { return Map; },
-    get OrderedMap () { return OrderedMap; },
-    get List () { return List; },
-    get Stack () { return Stack; },
-    get Set () { return Set; },
-    get OrderedSet () { return OrderedSet; },
-    get Record () { return Record; },
-    get Range () { return Range; },
-    get Repeat () { return Repeat; },
-    get is () { return is; },
-    get fromJS () { return fromJS; }
-  };
 
-  var interop = Immutable;
+
+  var interop = {
+
+    Iterable: Iterable,
+
+    Seq: Seq,
+    Collection: Collection,
+    Map: src_Map__Map,
+    OrderedMap: OrderedMap,
+    List: List,
+    Stack: Stack,
+    Set: src_Set__Set,
+    OrderedSet: OrderedSet,
+
+    Record: Record,
+    Range: Range,
+    Repeat: Repeat,
+
+    is: is,
+    fromJS: fromJS,
+
+  };
 
   return interop;
 
