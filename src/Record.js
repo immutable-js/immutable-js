@@ -9,7 +9,7 @@
 
 import { KeyedIterable } from './Iterable'
 import { KeyedCollection } from './Collection'
-import { Map, MapPrototype, emptyMap } from './Map'
+import { Map, MapPrototype } from './Map'
 import { DELETE } from './TrieUtils'
 
 import invariant from './utils/invariant'
@@ -79,7 +79,7 @@ export class Record extends KeyedCollection {
       return this;
     }
     var SuperRecord = Object.getPrototypeOf(this).constructor;
-    return SuperRecord._empty || (SuperRecord._empty = makeRecord(this, emptyMap()));
+    return SuperRecord._empty || (SuperRecord._empty = makeRecord(this, Map()));
   }
 
   set(k, v) {

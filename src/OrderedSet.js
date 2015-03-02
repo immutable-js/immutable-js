@@ -8,59 +8,56 @@
  */
 
 import { SetIterable, KeyedIterable, IS_ORDERED_SENTINEL, isOrdered } from './Iterable'
-import { Set, isSet } from './Set'
-import { emptyOrderedMap } from './OrderedMap'
+import { SetClass, isSet } from './Set'
+import { OrderedMap } from './OrderedMap'
 import assertNotInfinite from './utils/assertNotInfinite'
+import { createFactory } from './createFactory'
 
-
-export class OrderedSet extends Set {
+export class OrderedSetClass extends SetClass {
 
   // @pragma Construction
 
-  constructor(value) {
-    return value === null || value === undefined ? emptyOrderedSet() :
-      isOrderedSet(value) ? value :
-      emptyOrderedSet().withMutations(set => {
-        var iter = SetIterable(value);
-        assertNotInfinite(iter.size);
-        iter.forEach(v => set.add(v));
-      });
+  constructor(map, ownerID) {
+    this.size = map ? map.size : 0;
+    this._map = map;
+    this.__ownerID = ownerID;
   }
 
   static of(/*...values*/) {
-    return this(arguments);
+    return this.factory(arguments);
   }
 
   static fromKeys(value) {
-    return this(KeyedIterable(value).keySeq());
+    return this.factory(KeyedIterable(value).keySeq());
   }
 
   toString() {
     return this.__toString('OrderedSet {', '}');
   }
+
+  __empty() {
+    return EMPTY_ORDERED_SET;
+  }
+
+  static __factory(value, emptyOrderedSet) {
+    return emptyOrderedSet.withMutations(set => {
+      var iter = SetIterable(value);
+      assertNotInfinite(iter.size);
+      iter.forEach(v => set.add(v));
+    });
+  }
+
 }
 
 function isOrderedSet(maybeOrderedSet) {
   return isSet(maybeOrderedSet) && isOrdered(maybeOrderedSet);
 }
 
-OrderedSet.isOrderedSet = isOrderedSet;
+OrderedSetClass.__check = OrderedSetClass.isOrderedSet = isOrderedSet;
 
-var OrderedSetPrototype = OrderedSet.prototype;
+var OrderedSetPrototype = OrderedSetClass.prototype;
 OrderedSetPrototype[IS_ORDERED_SENTINEL] = true;
 
-OrderedSetPrototype.__empty = emptyOrderedSet;
-OrderedSetPrototype.__make = makeOrderedSet;
+var EMPTY_ORDERED_SET = new OrderedSetClass(OrderedMap())
 
-function makeOrderedSet(map, ownerID) {
-  var set = Object.create(OrderedSetPrototype);
-  set.size = map ? map.size : 0;
-  set._map = map;
-  set.__ownerID = ownerID;
-  return set;
-}
-
-var EMPTY_ORDERED_SET;
-function emptyOrderedSet() {
-  return EMPTY_ORDERED_SET || (EMPTY_ORDERED_SET = makeOrderedSet(emptyOrderedMap()));
-}
+export var OrderedSet = createFactory(OrderedSetClass)

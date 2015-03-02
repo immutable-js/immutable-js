@@ -19,22 +19,21 @@ import { sortFactory } from './Operations'
 import forceIterator from './utils/forceIterator'
 import invariant from './utils/invariant'
 import assertNotInfinite from './utils/assertNotInfinite'
+import { createFactory } from './createFactory'
 
 import { OrderedMap } from './OrderedMap'
 
 
-export class Map extends KeyedCollection {
+export class MapClass extends KeyedCollection {
 
   // @pragma Construction
 
-  constructor(value) {
-    return value === null || value === undefined ? emptyMap() :
-      isMap(value) ? value :
-      emptyMap().withMutations(map => {
-        var iter = KeyedIterable(value);
-        assertNotInfinite(iter.size);
-        iter.forEach((v, k) => map.set(k, v));
-      });
+  constructor(size, root, ownerID, hash) {
+    this.size = size;
+    this._root = root;
+    this.__ownerID = ownerID;
+    this.__hash = hash;
+    this.__altered = false;
   }
 
   toString() {
@@ -82,7 +81,8 @@ export class Map extends KeyedCollection {
       this,
       forceIterator(keyPath),
       notSetValue,
-      updater
+      updater,
+      this.__empty()
     );
     return updatedValue === NOT_SET ? undefined : updatedValue;
   }
@@ -98,7 +98,7 @@ export class Map extends KeyedCollection {
       this.__altered = true;
       return this;
     }
-    return emptyMap();
+    return this.__empty();
   }
 
   // @pragma Composition
@@ -112,7 +112,7 @@ export class Map extends KeyedCollection {
   }
 
   mergeIn(keyPath, ...iters) {
-    return this.updateIn(keyPath, emptyMap(), m => m.merge.apply(m, iters));
+    return this.updateIn(keyPath, this.__empty(), m => m.merge.apply(m, iters));
   }
 
   mergeDeep(/*...iters*/) {
@@ -124,7 +124,7 @@ export class Map extends KeyedCollection {
   }
 
   mergeDeepIn(keyPath, ...iters) {
-    return this.updateIn(keyPath, emptyMap(), m => m.mergeDeep.apply(m, iters));
+    return this.updateIn(keyPath, this.__empty(), m => m.mergeDeep.apply(m, iters));
   }
 
   sort(comparator) {
@@ -179,23 +179,40 @@ export class Map extends KeyedCollection {
       this.__altered = false;
       return this;
     }
-    return makeMap(this.size, this._root, ownerID, this.__hash);
+    return new this.constructor(this.size, this._root, ownerID, this.__hash);
   }
+
+  __empty() {
+    return EMPTY_MAP;
+  }
+
+  static __factory(value, emptyMap) {
+    return emptyMap.withMutations(map => {
+      var iter = KeyedIterable(value);
+      assertNotInfinite(iter.size);
+      iter.forEach((v, k) => map.set(k, v));
+    })
+  }
+
 }
 
 export function isMap(maybeMap) {
   return !!(maybeMap && maybeMap[IS_MAP_SENTINEL]);
 }
 
-Map.isMap = isMap;
+MapClass.__check = MapClass.isMap = isMap;
 
 var IS_MAP_SENTINEL = '@@__IMMUTABLE_MAP__@@';
 
-export var MapPrototype = Map.prototype;
+export var MapPrototype = MapClass.prototype;
 MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeIn = MapPrototype.deleteIn;
 
+var EMPTY_MAP = new MapClass(0);
+
+/*jshint -W079 */
+export var Map = createFactory(MapClass)
 
 // #pragma Trie Nodes
 
@@ -590,21 +607,6 @@ function mapIteratorFrame(node, prev) {
   };
 }
 
-function makeMap(size, root, ownerID, hash) {
-  var map = Object.create(MapPrototype);
-  map.size = size;
-  map._root = root;
-  map.__ownerID = ownerID;
-  map.__hash = hash;
-  map.__altered = false;
-  return map;
-}
-
-var EMPTY_MAP;
-export function emptyMap() {
-  return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
-}
-
 function updateMap(map, k, v) {
   var newRoot;
   var newSize;
@@ -630,7 +632,7 @@ function updateMap(map, k, v) {
     map.__altered = true;
     return map;
   }
-  return newRoot ? makeMap(newSize, newRoot) : emptyMap();
+  return newRoot ? new map.constructor(newSize, newRoot) : map.__empty();
 }
 
 function updateNode(node, ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
@@ -727,7 +729,7 @@ export function mergeIntoCollectionWith(collection, merger, iters) {
     return collection;
   }
   if (collection.size === 0 && iters.length === 1) {
-    return collection.constructor(iters[0]);
+    return collection.constructor.factory(iters[0]);
   }
   return collection.withMutations(collection => {
     var mergeIntoMap = merger ?
@@ -745,7 +747,7 @@ export function mergeIntoCollectionWith(collection, merger, iters) {
   });
 }
 
-function updateInDeepMap(existing, keyPathIter, notSetValue, updater) {
+function updateInDeepMap(existing, keyPathIter, notSetValue, updater, emptyMap) {
   var isNotSet = existing === NOT_SET;
   var step = keyPathIter.next();
   if (step.done) {
@@ -763,11 +765,12 @@ function updateInDeepMap(existing, keyPathIter, notSetValue, updater) {
     nextExisting,
     keyPathIter,
     notSetValue,
-    updater
+    updater,
+    emptyMap
   );
   return nextUpdated === nextExisting ? existing :
     nextUpdated === NOT_SET ? existing.remove(key) :
-    (isNotSet ? emptyMap() : existing).set(key, nextUpdated);
+    (isNotSet ? emptyMap : existing).set(key, nextUpdated);
 }
 
 function popCount(x) {

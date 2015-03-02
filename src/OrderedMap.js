@@ -8,28 +8,26 @@
  */
 
 import { KeyedIterable, IS_ORDERED_SENTINEL, isOrdered } from './Iterable'
-import { Map, isMap, emptyMap } from './Map'
-import { emptyList } from './List'
+import { Map, isMap } from './Map'
+import { List } from './List'
 import { DELETE, NOT_SET, SIZE } from './TrieUtils'
 import assertNotInfinite from './utils/assertNotInfinite'
+import { createFactory } from './createFactory'
 
-
-export class OrderedMap extends Map {
+export class OrderedMapClass extends Map {
 
   // @pragma Construction
 
-  constructor(value) {
-    return value === null || value === undefined ? emptyOrderedMap() :
-      isOrderedMap(value) ? value :
-      emptyOrderedMap().withMutations(map => {
-        var iter = KeyedIterable(value);
-        assertNotInfinite(iter.size);
-        iter.forEach((v, k) => map.set(k, v));
-      });
+  constructor(map, list, ownerID, hash) {
+    this.size = map ? map.size : 0;
+    this._map = map;
+    this._list = list;
+    this.__ownerID = ownerID;
+    this.__hash = hash;
   }
 
   static of(/*...values*/) {
-    return this(arguments);
+    return this.factory(arguments);
   }
 
   toString() {
@@ -55,7 +53,7 @@ export class OrderedMap extends Map {
       this._list.clear();
       return this;
     }
-    return emptyOrderedMap();
+    return this.__empty();
   }
 
   set(k, v) {
@@ -93,35 +91,35 @@ export class OrderedMap extends Map {
       this._list = newList;
       return this;
     }
-    return makeOrderedMap(newMap, newList, ownerID, this.__hash);
+    return new this.constructor(newMap, newList, ownerID, this.__hash);
   }
+
+  __empty() {
+    return EMPTY_ORDERED_MAP;
+  }
+
+  static __factory(value, emptyOrderedMap) {
+    return emptyOrderedMap.withMutations(map => {
+      var iter = KeyedIterable(value);
+      assertNotInfinite(iter.size);
+      iter.forEach((v, k) => map.set(k, v));
+    });
+  }
+
 }
 
 function isOrderedMap(maybeOrderedMap) {
   return isMap(maybeOrderedMap) && isOrdered(maybeOrderedMap);
 }
 
-OrderedMap.isOrderedMap = isOrderedMap;
+OrderedMapClass.__check = OrderedMapClass.isOrderedMap = isOrderedMap;
 
-OrderedMap.prototype[IS_ORDERED_SENTINEL] = true;
-OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
+OrderedMapClass.prototype[IS_ORDERED_SENTINEL] = true;
+OrderedMapClass.prototype[DELETE] = OrderedMapClass.prototype.remove;
 
+var EMPTY_ORDERED_MAP = new OrderedMapClass(Map(), List())
 
-
-function makeOrderedMap(map, list, ownerID, hash) {
-  var omap = Object.create(OrderedMap.prototype);
-  omap.size = map ? map.size : 0;
-  omap._map = map;
-  omap._list = list;
-  omap.__ownerID = ownerID;
-  omap.__hash = hash;
-  return omap;
-}
-
-var EMPTY_ORDERED_MAP;
-export function emptyOrderedMap() {
-  return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(emptyMap(), emptyList()));
-}
+export var OrderedMap = createFactory(OrderedMapClass)
 
 function updateOrderedMap(omap, k, v) {
   var map = omap._map;
@@ -163,5 +161,5 @@ function updateOrderedMap(omap, k, v) {
     omap.__hash = undefined;
     return omap;
   }
-  return makeOrderedMap(newMap, newList);
+  return new omap.constructor(newMap, newList);
 }

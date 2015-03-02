@@ -10,6 +10,10 @@
 export default function createClass(ctor, superClass) {
   if (superClass) {
     ctor.prototype = Object.create(superClass.prototype);
+    var keyCopier = (key) => { ctor[key] = superClass[key] }
+    Object.keys(superClass).forEach(keyCopier);
+    Object.getOwnPropertySymbols &&
+      Object.getOwnPropertySymbols(superClass).forEach(keyCopier);
   }
   ctor.prototype.constructor = ctor;
 }

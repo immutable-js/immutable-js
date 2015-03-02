@@ -13,20 +13,22 @@ import { IndexedCollection } from './Collection'
 import { MapPrototype } from './Map'
 import { Iterator, iteratorValue, iteratorDone } from './Iterator'
 import assertNotInfinite from './utils/assertNotInfinite'
+import { createFactory } from './createFactory'
 
-
-export class Stack extends IndexedCollection {
+export class StackClass extends IndexedCollection {
 
   // @pragma Construction
 
-  constructor(value) {
-    return value === null || value === undefined ? emptyStack() :
-      isStack(value) ? value :
-      emptyStack().unshiftAll(value);
+  constructor(size, head, ownerID, hash) {
+    this.size = size;
+    this._head = head;
+    this.__ownerID = ownerID;
+    this.__hash = hash;
+    this.__altered = false;
   }
 
   static of(/*...values*/) {
-    return this(arguments);
+    return this.factory(arguments);
   }
 
   toString() {
@@ -68,7 +70,7 @@ export class Stack extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return makeStack(newSize, head);
+    return new this.constructor(newSize, head);
   }
 
   pushAll(iter) {
@@ -93,7 +95,7 @@ export class Stack extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return makeStack(newSize, head);
+    return new this.constructor(newSize, head);
   }
 
   pop() {
@@ -123,7 +125,7 @@ export class Stack extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return emptyStack();
+    return this.__empty();
   }
 
   slice(begin, end) {
@@ -148,7 +150,7 @@ export class Stack extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return makeStack(newSize, head);
+    return new this.constructor(newSize, head);
   }
 
   // @pragma Mutability
@@ -162,7 +164,7 @@ export class Stack extends IndexedCollection {
       this.__altered = false;
       return this;
     }
-    return makeStack(this.size, this._head, ownerID, this.__hash);
+    return new this.constructor(this.size, this._head, ownerID, this.__hash);
   }
 
   // @pragma Iteration
@@ -197,35 +199,32 @@ export class Stack extends IndexedCollection {
       return iteratorDone();
     });
   }
+
+  __empty() {
+    return EMPTY_STACK;
+  }
+
+  static __factory(value, emptyStack) {
+    return emptyStack.unshiftAll(value)
+  }
+
 }
 
 function isStack(maybeStack) {
   return !!(maybeStack && maybeStack[IS_STACK_SENTINEL]);
 }
 
-Stack.isStack = isStack;
+StackClass.__check = StackClass.isStack = isStack;
 
 var IS_STACK_SENTINEL = '@@__IMMUTABLE_STACK__@@';
 
-var StackPrototype = Stack.prototype;
+var StackPrototype = StackClass.prototype;
 StackPrototype[IS_STACK_SENTINEL] = true;
 StackPrototype.withMutations = MapPrototype.withMutations;
 StackPrototype.asMutable = MapPrototype.asMutable;
 StackPrototype.asImmutable = MapPrototype.asImmutable;
 StackPrototype.wasAltered = MapPrototype.wasAltered;
 
+var EMPTY_STACK = new StackClass(0)
 
-function makeStack(size, head, ownerID, hash) {
-  var map = Object.create(StackPrototype);
-  map.size = size;
-  map._head = head;
-  map.__ownerID = ownerID;
-  map.__hash = hash;
-  map.__altered = false;
-  return map;
-}
-
-var EMPTY_STACK;
-function emptyStack() {
-  return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
-}
+export var Stack = createFactory(StackClass)
