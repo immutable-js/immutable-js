@@ -2004,7 +2004,7 @@ declare module 'immutable' {
     ): V;
 
     /**
-     * Returns the maximum value in this collection. If any values are
+     * Returns the minimum value in this collection. If any values are
      * comparatively equivalent, the first one found will be returned.
      *
      * The `comparator` is used in the same way as `Iterable#sort`. If it is not
