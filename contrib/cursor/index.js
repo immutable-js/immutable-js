@@ -88,6 +88,30 @@ KeyedCursorPrototype.set = function(key, value) {
   return updateCursor(this, function (m) { return m.set(key, value); }, [key]);
 }
 
+IndexedCursorPrototype.push = function(...values) {
+  return updateCursor(this, function (m) {
+    return m.push.apply(m, values);
+  });
+}
+
+IndexedCursorPrototype.pop = function() {
+  return updateCursor(this, function (m) {
+    return m.pop();
+  });
+}
+
+IndexedCursorPrototype.unshift = function(...values) {
+  return updateCursor(this, function (m) {
+    return m.unshift.apply(m, values);
+  });
+}
+
+IndexedCursorPrototype.shift = function() {
+  return updateCursor(this, function (m) {
+    return m.shift();
+  });
+}
+
 IndexedCursorPrototype.setIn =
 KeyedCursorPrototype.setIn = Map.prototype.setIn;
 
