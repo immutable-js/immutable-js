@@ -1736,6 +1736,11 @@
   }
 
   function createFactory(namedFn, ImmutableClass) {
+    if (arguments.length === 1) {
+      return createFactory(function ImmutableFactory() {
+        ImmutableClass.apply(this, arguments)
+      }, ImmutableClass)
+    }
     var EMPTY_VALUE;
     function Surrogate(value) {
       if (!EMPTY_VALUE) {
@@ -1751,7 +1756,7 @@
         if (value.constructor === Surrogate || value.constructor === Surrogate.__Class) {
           return value;
         }
-        return EMPTY_VALUE.merge(value);
+        return EMPTY_VALUE.merge(value.toSeq());
       }
       return Surrogate.__Class.__factory(value, EMPTY_VALUE)
     }

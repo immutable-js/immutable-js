@@ -28,7 +28,7 @@ export function createFactory(namedFn, ImmutableClass) {
       if (value.constructor === Surrogate || value.constructor === Surrogate.__Class) {
         return value;
       }
-      return EMPTY_VALUE.merge(value);
+      return EMPTY_VALUE.merge(value.toSeq());
     }
     return Surrogate.__Class.__factory(value, EMPTY_VALUE)
   }
