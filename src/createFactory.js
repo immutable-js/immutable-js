@@ -8,6 +8,11 @@ var _inherits = function(subClass, superClass) {
 }
 
 export function createFactory(namedFn, ImmutableClass) {
+  if (arguments.length === 1) {
+    return createFactory(function ImmutableFactory() {
+      ImmutableClass.apply(this, arguments)
+    }, ImmutableClass)
+  }
   var EMPTY_VALUE;
   function Surrogate(value) {
     if (!EMPTY_VALUE) {
