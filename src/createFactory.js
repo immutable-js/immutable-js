@@ -1,10 +1,10 @@
 import createClass from './utils/createClass'
 
-export function createFactory(namedFn, ImmutableClass) {
+export function createFactory(namedFnOrClass, ImmutableClass) {
   if (arguments.length === 1) {
     return createFactory(function ImmutableFactory() {
-      ImmutableClass.apply(this, arguments)
-    }, ImmutableClass)
+      namedFnOrClass.apply(this, arguments)
+    }, namedFnOrClass)
   }
   var EMPTY_VALUE;
   function Surrogate(value) {
@@ -27,7 +27,7 @@ export function createFactory(namedFn, ImmutableClass) {
   }
   createClass(Surrogate, ImmutableClass)
   Surrogate.__factoryDispatch = Surrogate
-  Surrogate.__Class = namedFn
+  Surrogate.__Class = namedFnOrClass
   createClass(Surrogate.__Class, Surrogate)
   return Surrogate;
 }

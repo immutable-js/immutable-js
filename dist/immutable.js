@@ -1726,11 +1726,11 @@
     return iter;
   }
 
-  function createFactory(namedFn, ImmutableClass) {
+  function createFactory(namedFnOrClass, ImmutableClass) {
     if (arguments.length === 1) {
       return createFactory(function ImmutableFactory() {
-        ImmutableClass.apply(this, arguments)
-      }, ImmutableClass)
+        namedFnOrClass.apply(this, arguments)
+      }, namedFnOrClass)
     }
     var EMPTY_VALUE;
     function Surrogate(value) {
@@ -1753,7 +1753,7 @@
     }
     createClass(Surrogate, ImmutableClass)
     Surrogate.__factoryDispatch = Surrogate
-    Surrogate.__Class = namedFn
+    Surrogate.__Class = namedFnOrClass
     createClass(Surrogate.__Class, Surrogate)
     return Surrogate;
   }
