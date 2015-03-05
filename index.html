@@ -18,8 +18,8 @@ a mutative API which does not update the data in-place, but instead always
 yields new updated data.</p>
 <p><code><span class="token qualifier" >Immutable</span></code> provides Persistent Immutable <code><a target="_self" href="docs/#/List">List</a></code>, <code><a target="_self" href="docs/#/Stack">Stack</a></code>, <code><a target="_self" href="docs/#/Map">Map</a></code>, <code><a target="_self" href="docs/#/OrderedMap">OrderedMap</a></code>,
 <code><a target="_self" href="docs/#/Set">Set</a></code>, <code><a target="_self" href="docs/#/OrderedSet">OrderedSet</a></code> and <code><a target="_self" href="docs/#/Record">Record</a></code>. They are highly efficient on modern JavaScript
-VMs by using structural sharing via <a href="(http://en.wikipedia.org/wiki/Hash_array_mapped_trie)">hash maps tries</a> and
-<a href="(http://hypirion.com/musings/understanding-persistent-vector-pt-1)">vector tries</a> as popularized by Clojure and Scala,
+VMs by using structural sharing via <a href="http://en.wikipedia.org/wiki/Hash_array_mapped_trie">hash maps tries</a> and
+<a href="http://hypirion.com/musings/understanding-persistent-vector-pt-1">vector tries</a> as popularized by Clojure and Scala,
 minimizing the need to copy or cache data.</p>
 <p><code><span class="token qualifier" >Immutable</span></code> also provides a lazy <code><a target="_self" href="docs/#/Seq">Seq</a></code>, allowing efficient
 chaining of collection methods like <code>map</code> and <code>filter</code> without creating
