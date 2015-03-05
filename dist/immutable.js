@@ -1726,15 +1726,6 @@
     return iter;
   }
 
-  var _inherits = function(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-    }
-    subClass.prototype = Object.create(superClass.prototype)
-    subClass.prototype.constructor = subClass
-    if (superClass) subClass.__proto__ = superClass;
-  }
-
   function createFactory(namedFn, ImmutableClass) {
     if (arguments.length === 1) {
       return createFactory(function ImmutableFactory() {
@@ -1753,17 +1744,17 @@
         return EMPTY_VALUE
       }
       if (ImmutableClass.__check(value)) {
-        if (value.constructor === Surrogate || value.constructor === Surrogate.__Class) {
+        if (value.constructor === Surrogate.__Class) {
           return value;
         }
         return EMPTY_VALUE.merge(value.toSeq());
       }
       return Surrogate.__Class.__factory(value, EMPTY_VALUE)
     }
-    _inherits(Surrogate, ImmutableClass)
+    createClass(Surrogate, ImmutableClass)
     Surrogate.factory = Surrogate
     Surrogate.__Class = namedFn
-    _inherits(Surrogate.__Class, Surrogate)
+    createClass(Surrogate.__Class, Surrogate)
     return Surrogate;
   }
 
