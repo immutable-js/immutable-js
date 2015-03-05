@@ -15,10 +15,13 @@
   function createClass(ctor, superClass) {
     if (superClass) {
       ctor.prototype = Object.create(superClass.prototype);
-      var keyCopier = function(key)  { ctor[key] = superClass[key] }
-      Object.keys(superClass).forEach(keyCopier);
-      Object.getOwnPropertySymbols &&
-        Object.getOwnPropertySymbols(superClass).forEach(keyCopier);
+      if (superClass.__proto__) {
+        ctor.__proto__ = superClass
+      } else {
+        /*jshint forin:false */
+        // Used for older IE's to emulate setting the __proto__
+        for (var key in superClass) { ctor[key] = superClass[key]; }
+      }
     }
     ctor.prototype.constructor = ctor;
     return ctor

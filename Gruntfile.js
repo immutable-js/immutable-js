@@ -23,6 +23,7 @@ module.exports = function(grunt) {
         iterator: true,
         noarg: true,
         node: true,
+        proto: true,
         noempty: true,
         nonstandard: true,
         trailing: true,
