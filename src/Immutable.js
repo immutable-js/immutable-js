@@ -9,12 +9,14 @@
 
 import { Seq } from './Seq'
 import { Collection } from './Collection'
+
 import { OrderedMap, OrderedMapClass } from './OrderedMap'
 import { List, ListClass } from './List'
 import { Map, MapClass } from './Map'
 import { Stack, StackClass } from './Stack'
 import { OrderedSet, OrderedSetClass } from './OrderedSet'
 import { Set, SetClass } from './Set'
+
 import { Record } from './Record'
 import { Range } from './Range'
 import { Repeat } from './Repeat'
@@ -31,17 +33,11 @@ export default {
   Collection,
   
   Map,
-  MapClass,
   OrderedMap,
-  OrderedMapClass,
   List,
-  ListClass,
   Stack,
-  StackClass,
   Set,
-  SetClass,
   OrderedSet,
-  OrderedSetClass,
 
   Record,
   Range,
@@ -50,5 +46,14 @@ export default {
   is,
   fromJS,
   createFactory,
+
+  Classes: {
+    Map: MapClass,
+    OrderedMap: OrderedMapClass,
+    List: ListClass,
+    Stack: StackClass,
+    Set: SetClass,
+    OrderedSet: OrderedSetClass,
+  }
 
 };

@@ -70,7 +70,7 @@ export class StackClass extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return new this.constructor.Class(newSize, head);
+    return new this.constructor.__Class(newSize, head);
   }
 
   pushAll(iter) {
@@ -95,7 +95,7 @@ export class StackClass extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return new this.constructor.Class(newSize, head);
+    return new this.constructor.__Class(newSize, head);
   }
 
   pop() {
@@ -150,7 +150,7 @@ export class StackClass extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return new this.constructor.Class(newSize, head);
+    return new this.constructor.__Class(newSize, head);
   }
 
   // @pragma Mutability
@@ -164,7 +164,7 @@ export class StackClass extends IndexedCollection {
       this.__altered = false;
       return this;
     }
-    return new this.constructor.Class(this.size, this._head, ownerID, this.__hash);
+    return new this.constructor.__Class(this.size, this._head, ownerID, this.__hash);
   }
 
   // @pragma Iteration
@@ -201,7 +201,7 @@ export class StackClass extends IndexedCollection {
   }
 
   __empty() {
-    return new this.constructor.Class(0);
+    return new this.constructor.__Class(0);
   }
 
   static __factory(value, emptyStack) {
@@ -225,4 +225,6 @@ StackPrototype.asMutable = MapPrototype.asMutable;
 StackPrototype.asImmutable = MapPrototype.asImmutable;
 StackPrototype.wasAltered = MapPrototype.wasAltered;
 
-export var Stack = createFactory(StackClass)
+export var Stack = createFactory(function Immutable_Stack(size, head, ownerID, hash) {
+  StackClass.call(this, size, head, ownerID, hash)
+}, StackClass)

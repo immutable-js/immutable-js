@@ -178,11 +178,11 @@ export class ListClass extends IndexedCollection {
       this.__ownerID = ownerID;
       return this;
     }
-    return new this.constructor.Class(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
+    return new this.constructor.__Class(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
   }
 
   __empty() {
-    return new this.constructor.Class(0, 0, SHIFT);
+    return new this.constructor.__Class(0, 0, SHIFT);
   }
 
   static __factory(value, emptyList) {
@@ -193,7 +193,7 @@ export class ListClass extends IndexedCollection {
     }
     assertNotInfinite(size);
     if (size > 0 && size < SIZE) {
-      return new emptyList.constructor.Class(0, size, SHIFT, null, new VNode(iter.toArray()));
+      return new emptyList.constructor.__Class(0, size, SHIFT, null, new VNode(iter.toArray()));
     }
     return emptyList.withMutations(list => {
       list.setSize(size);
@@ -226,7 +226,9 @@ ListPrototype.asMutable = MapPrototype.asMutable;
 ListPrototype.asImmutable = MapPrototype.asImmutable;
 ListPrototype.wasAltered = MapPrototype.wasAltered;
 
-export var List = createFactory(ListClass)
+export var List = createFactory(function Immutable_List(origin, capacity, level, root, tail, ownerID, hash) {
+  ListClass.call(this, origin, capacity, level, root, tail, ownerID, hash)
+}, ListClass)
 
 class VNode {
   constructor(array, ownerID) {
@@ -394,7 +396,7 @@ function updateList(list, index, value) {
     list.__altered = true;
     return list;
   }
-  return new list.constructor.Class(list._origin, list._capacity, list._level, newRoot, newTail);
+  return new list.constructor.__Class(list._origin, list._capacity, list._level, newRoot, newTail);
 }
 
 function updateVNode(node, ownerID, level, index, value, didAlter) {
@@ -566,7 +568,7 @@ function setListBounds(list, begin, end) {
     list.__altered = true;
     return list;
   }
-  return new list.constructor.Class(newOrigin, newCapacity, newLevel, newRoot, newTail);
+  return new list.constructor.__Class(newOrigin, newCapacity, newLevel, newRoot, newTail);
 }
 
 function mergeIntoListWith(list, merger, iterables) {

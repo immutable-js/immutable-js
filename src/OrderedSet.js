@@ -36,7 +36,7 @@ export class OrderedSetClass extends SetClass {
   }
 
   __empty() {
-    return new this.constructor.Class(OrderedMap());
+    return new this.constructor.__Class(OrderedMap());
   }
 
   static __factory(value, emptyOrderedSet) {
@@ -58,4 +58,6 @@ OrderedSetClass.__check = OrderedSetClass.isOrderedSet = isOrderedSet;
 var OrderedSetPrototype = OrderedSetClass.prototype;
 OrderedSetPrototype[IS_ORDERED_SENTINEL] = true;
 
-export var OrderedSet = createFactory(OrderedSetClass)
+export var OrderedSet = createFactory(function Immutable_OrderedSet(map, ownerID) {
+  OrderedSetClass.call(this, map, ownerID)
+}, OrderedSetClass)

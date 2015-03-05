@@ -179,11 +179,11 @@ export class MapClass extends KeyedCollection {
       this.__altered = false;
       return this;
     }
-    return new this.constructor.Class(this.size, this._root, ownerID, this.__hash);
+    return new this.constructor.__Class(this.size, this._root, ownerID, this.__hash);
   }
 
   __empty() {
-    return new this.constructor.Class(0);
+    return new this.constructor.__Class(0);
   }
 
   static __factory(value, emptyMap) {
@@ -210,7 +210,9 @@ MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeIn = MapPrototype.deleteIn;
 
 /*jshint -W079 */
-export var Map = createFactory(MapClass)
+export var Map = createFactory(function Immutable_Map(size, root, ownerID, hash) {
+  MapClass.call(this, size, root, ownerID, hash)
+}, MapClass)
 
 // #pragma Trie Nodes
 
@@ -630,7 +632,7 @@ function updateMap(map, k, v) {
     map.__altered = true;
     return map;
   }
-  return newRoot ? new map.constructor.Class(newSize, newRoot) : map.__empty();
+  return newRoot ? new map.constructor.__Class(newSize, newRoot) : map.__empty();
 }
 
 function updateNode(node, ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {

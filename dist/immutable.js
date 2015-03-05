@@ -1726,27 +1726,21 @@
     return iter;
   }
 
-  /**
-   * Contributes additional methods to a constructor
-   */
-  function mixin(ctor, methods, keyCopier) {
-    keyCopier = keyCopier || function(key) { ctor.prototype[key] = methods[key]; }
-    Object.keys(methods).forEach(keyCopier);
-    Object.getOwnPropertySymbols &&
-      Object.getOwnPropertySymbols(methods).forEach(keyCopier);
-    return ctor;
+  var _inherits = function(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+    }
+    subClass.prototype = Object.create(superClass.prototype)
+    subClass.prototype.constructor = subClass
+    if (superClass) subClass.__proto__ = superClass;
   }
 
-  function keyCopier(Target, Source) {
-    return function(key) { Target[key] = Source[key] }
-  }
-
-  function createFactory(ImmutableClass) {
+  function createFactory(namedFn, ImmutableClass) {
     var EMPTY_VALUE;
     function Surrogate(value) {
       if (!EMPTY_VALUE) {
-        EMPTY_VALUE = Surrogate.Class.prototype.__empty();
-        Surrogate.Class.prototype.__empty = function() {
+        EMPTY_VALUE = Surrogate.__Class.prototype.__empty();
+        Surrogate.__Class.prototype.__empty = function() {
           return EMPTY_VALUE;
         }
       }
@@ -1754,23 +1748,17 @@
         return EMPTY_VALUE
       }
       if (ImmutableClass.__check(value)) {
-        if (value.constructor === Surrogate || value.constructor === Surrogate.Class) {
+        if (value.constructor === Surrogate || value.constructor === Surrogate.__Class) {
           return value;
         }
         return EMPTY_VALUE.merge(value);
       }
-      return Surrogate.Class.__factory(value, EMPTY_VALUE)
+      return Surrogate.__Class.__factory(value, EMPTY_VALUE)
     }
-    Surrogate.prototype = Object.create(ImmutableClass.prototype)
-    Surrogate.prototype.constructor = Surrogate
-    mixin(Surrogate, ImmutableClass, keyCopier(Surrogate, ImmutableClass))
-    Surrogate.Class = function() {
-      ImmutableClass.apply(this, arguments)
-    }
+    _inherits(Surrogate, ImmutableClass)
     Surrogate.factory = Surrogate
-    Surrogate.Class.prototype = Object.create(Surrogate.prototype)
-    Surrogate.Class.constructor = Surrogate.Class
-    mixin(Surrogate.Class, ImmutableClass, keyCopier(Surrogate.Class, ImmutableClass))
+    Surrogate.__Class = namedFn
+    _inherits(Surrogate.__Class, Surrogate)
     return Surrogate;
   }
 
@@ -1929,11 +1917,11 @@
         this.__altered = false;
         return this;
       }
-      return new this.constructor.Class(this.size, this._root, ownerID, this.__hash);
+      return new this.constructor.__Class(this.size, this._root, ownerID, this.__hash);
     };
 
     MapClass.prototype.__empty = function() {
-      return new this.constructor.Class(0);
+      return new this.constructor.__Class(0);
     };
 
     MapClass.__factory = function(value, emptyMap) {
@@ -1960,7 +1948,9 @@
   MapPrototype.removeIn = MapPrototype.deleteIn;
 
   /*jshint -W079 */
-  var Map = createFactory(MapClass)
+  var Map = createFactory(function Immutable_Map(size, root, ownerID, hash) {
+    MapClass.call(this, size, root, ownerID, hash)
+  }, MapClass)
 
   // #pragma Trie Nodes
 
@@ -2380,7 +2370,7 @@
       map.__altered = true;
       return map;
     }
-    return newRoot ? new map.constructor.Class(newSize, newRoot) : map.__empty();
+    return newRoot ? new map.constructor.__Class(newSize, newRoot) : map.__empty();
   }
 
   function updateNode(node, ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
@@ -2736,11 +2726,11 @@
         this.__ownerID = ownerID;
         return this;
       }
-      return new this.constructor.Class(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
+      return new this.constructor.__Class(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
     };
 
     ListClass.prototype.__empty = function() {
-      return new this.constructor.Class(0, 0, SHIFT);
+      return new this.constructor.__Class(0, 0, SHIFT);
     };
 
     ListClass.__factory = function(value, emptyList) {
@@ -2751,7 +2741,7 @@
       }
       assertNotInfinite(size);
       if (size > 0 && size < SIZE) {
-        return new emptyList.constructor.Class(0, size, SHIFT, null, new VNode(iter.toArray()));
+        return new emptyList.constructor.__Class(0, size, SHIFT, null, new VNode(iter.toArray()));
       }
       return emptyList.withMutations(function(list ) {
         list.setSize(size);
@@ -2784,7 +2774,9 @@
   ListPrototype.asImmutable = MapPrototype.asImmutable;
   ListPrototype.wasAltered = MapPrototype.wasAltered;
 
-  var List = createFactory(ListClass)
+  var List = createFactory(function Immutable_List(origin, capacity, level, root, tail, ownerID, hash) {
+    ListClass.call(this, origin, capacity, level, root, tail, ownerID, hash)
+  }, ListClass)
 
 
     function VNode(array, ownerID) {
@@ -2952,7 +2944,7 @@
       list.__altered = true;
       return list;
     }
-    return new list.constructor.Class(list._origin, list._capacity, list._level, newRoot, newTail);
+    return new list.constructor.__Class(list._origin, list._capacity, list._level, newRoot, newTail);
   }
 
   function updateVNode(node, ownerID, level, index, value, didAlter) {
@@ -3124,7 +3116,7 @@
       list.__altered = true;
       return list;
     }
-    return new list.constructor.Class(newOrigin, newCapacity, newLevel, newRoot, newTail);
+    return new list.constructor.__Class(newOrigin, newCapacity, newLevel, newRoot, newTail);
   }
 
   function mergeIntoListWith(list, merger, iterables) {
@@ -3228,11 +3220,11 @@
         this._list = newList;
         return this;
       }
-      return new this.constructor.Class(newMap, newList, ownerID, this.__hash);
+      return new this.constructor.__Class(newMap, newList, ownerID, this.__hash);
     };
 
     OrderedMapClass.prototype.__empty = function() {
-      return new this.constructor.Class(Map(), List());
+      return new this.constructor.__Class(Map(), List());
     };
 
     OrderedMapClass.__factory = function(value, emptyOrderedMap) {
@@ -3254,7 +3246,9 @@
   OrderedMapClass.prototype[IS_ORDERED_SENTINEL] = true;
   OrderedMapClass.prototype[DELETE] = OrderedMapClass.prototype.remove;
 
-  var OrderedMap = createFactory(OrderedMapClass)
+  var OrderedMap = createFactory(function Immutable_OrderedMap(map, list, ownerID, hash) {
+    OrderedMapClass.call(this, map, list, ownerID, hash)
+  }, OrderedMapClass)
 
   function updateOrderedMap(omap, k, v) {
     var map = omap._map;
@@ -3296,7 +3290,7 @@
       omap.__hash = undefined;
       return omap;
     }
-    return new omap.constructor.Class(newMap, newList);
+    return new omap.constructor.__Class(newMap, newList);
   }
 
   createClass(StackClass, IndexedCollection);
@@ -3354,7 +3348,7 @@
         this.__altered = true;
         return this;
       }
-      return new this.constructor.Class(newSize, head);
+      return new this.constructor.__Class(newSize, head);
     };
 
     StackClass.prototype.pushAll = function(iter) {
@@ -3379,7 +3373,7 @@
         this.__altered = true;
         return this;
       }
-      return new this.constructor.Class(newSize, head);
+      return new this.constructor.__Class(newSize, head);
     };
 
     StackClass.prototype.pop = function() {
@@ -3434,7 +3428,7 @@
         this.__altered = true;
         return this;
       }
-      return new this.constructor.Class(newSize, head);
+      return new this.constructor.__Class(newSize, head);
     };
 
     // @pragma Mutability
@@ -3448,7 +3442,7 @@
         this.__altered = false;
         return this;
       }
-      return new this.constructor.Class(this.size, this._head, ownerID, this.__hash);
+      return new this.constructor.__Class(this.size, this._head, ownerID, this.__hash);
     };
 
     // @pragma Iteration
@@ -3485,7 +3479,7 @@
     };
 
     StackClass.prototype.__empty = function() {
-      return new this.constructor.Class(0);
+      return new this.constructor.__Class(0);
     };
 
     StackClass.__factory = function(value, emptyStack) {
@@ -3509,7 +3503,9 @@
   StackPrototype.asImmutable = MapPrototype.asImmutable;
   StackPrototype.wasAltered = MapPrototype.wasAltered;
 
-  var Stack = createFactory(StackClass)
+  var Stack = createFactory(function Immutable_Stack(size, head, ownerID, hash) {
+    StackClass.call(this, size, head, ownerID, hash)
+  }, StackClass)
 
   createClass(SetClass, SetCollection);
 
@@ -3640,11 +3636,11 @@
         this._map = newMap;
         return this;
       }
-      return new this.constructor.Class(newMap, ownerID);
+      return new this.constructor.__Class(newMap, ownerID);
     };
 
     SetClass.prototype.__empty = function() {
-      return new this.constructor.Class(Map());
+      return new this.constructor.__Class(Map());
     };
 
     SetClass.__factory = function(value, emptySet) {
@@ -3675,7 +3671,9 @@
   SetPrototype.asImmutable = MapPrototype.asImmutable;
 
   /*jshint -W079 */
-  var Set = createFactory(SetClass)
+  var Set = createFactory(function Immutable_Set(map, ownerID) {
+    SetClass.call(this, map, ownerID)
+  }, SetClass)
 
   function updateSet(set, newMap) {
     if (set.__ownerID) {
@@ -3685,7 +3683,7 @@
     }
     return newMap === set._map ? set :
       newMap.size === 0 ? set.__empty() :
-      new set.constructor.Class(newMap);
+      new set.constructor.__Class(newMap);
   }
 
   createClass(OrderedSetClass, SetClass);
@@ -3711,7 +3709,7 @@
     };
 
     OrderedSetClass.prototype.__empty = function() {
-      return new this.constructor.Class(OrderedMap());
+      return new this.constructor.__Class(OrderedMap());
     };
 
     OrderedSetClass.__factory = function(value, emptyOrderedSet) {
@@ -3733,7 +3731,9 @@
   var OrderedSetPrototype = OrderedSetClass.prototype;
   OrderedSetPrototype[IS_ORDERED_SENTINEL] = true;
 
-  var OrderedSet = createFactory(OrderedSetClass)
+  var OrderedSet = createFactory(function Immutable_OrderedSet(map, ownerID) {
+    OrderedSetClass.call(this, map, ownerID)
+  }, OrderedSetClass)
 
   createClass(Record, KeyedCollection);
 
@@ -4126,6 +4126,17 @@
 
 
   var EMPTY_REPEAT;
+
+  /**
+   * Contributes additional methods to a constructor
+   */
+  function mixin(ctor, methods, keyCopier) {
+    keyCopier = keyCopier || function(key) { ctor.prototype[key] = methods[key]; }
+    Object.keys(methods).forEach(keyCopier);
+    Object.getOwnPropertySymbols &&
+      Object.getOwnPropertySymbols(methods).forEach(keyCopier);
+    return ctor;
+  }
 
   Iterable.Iterator = Iterator;
 
@@ -4857,17 +4868,11 @@
     Collection: Collection,
     
     Map: Map,
-    MapClass: MapClass,
     OrderedMap: OrderedMap,
-    OrderedMapClass: OrderedMapClass,
     List: List,
-    ListClass: ListClass,
     Stack: Stack,
-    StackClass: StackClass,
     Set: Set,
-    SetClass: SetClass,
     OrderedSet: OrderedSet,
-    OrderedSetClass: OrderedSetClass,
 
     Record: Record,
     Range: Range,
@@ -4876,6 +4881,15 @@
     is: is,
     fromJS: fromJS,
     createFactory: createFactory,
+
+    Classes: {
+      Map: MapClass,
+      OrderedMap: OrderedMapClass,
+      List: ListClass,
+      Stack: StackClass,
+      Set: SetClass,
+      OrderedSet: OrderedSetClass,
+    }
 
   };
 

@@ -1,17 +1,18 @@
-
-import mixin from './utils/mixin'
-
-function keyCopier(Target, Source) {
-  return function(key) { Target[key] = Source[key] }
+var _inherits = function(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+  }
+  subClass.prototype = Object.create(superClass.prototype)
+  subClass.prototype.constructor = subClass
+  if (superClass) subClass.__proto__ = superClass;
 }
 
-export function createFactory(ImmutableClass) {
+export function createFactory(namedFn, ImmutableClass) {
   var EMPTY_VALUE;
-  
   function Surrogate(value) {
     if (!EMPTY_VALUE) {
-      EMPTY_VALUE = Surrogate.Class.prototype.__empty();
-      Surrogate.Class.prototype.__empty = function() {
+      EMPTY_VALUE = Surrogate.__Class.prototype.__empty();
+      Surrogate.__Class.prototype.__empty = function() {
         return EMPTY_VALUE;
       }
     }
@@ -19,22 +20,16 @@ export function createFactory(ImmutableClass) {
       return EMPTY_VALUE
     }
     if (ImmutableClass.__check(value)) {
-      if (value.constructor === Surrogate || value.constructor === Surrogate.Class) {
+      if (value.constructor === Surrogate || value.constructor === Surrogate.__Class) {
         return value;
       }
       return EMPTY_VALUE.merge(value);
     }
-    return Surrogate.Class.__factory(value, EMPTY_VALUE)
+    return Surrogate.__Class.__factory(value, EMPTY_VALUE)
   }
-  Surrogate.prototype = Object.create(ImmutableClass.prototype)
-  Surrogate.prototype.constructor = Surrogate
-  mixin(Surrogate, ImmutableClass, keyCopier(Surrogate, ImmutableClass))
-  Surrogate.Class = function() {
-    ImmutableClass.apply(this, arguments)
-  }
+  _inherits(Surrogate, ImmutableClass)
   Surrogate.factory = Surrogate
-  Surrogate.Class.prototype = Object.create(Surrogate.prototype)
-  Surrogate.Class.constructor = Surrogate.Class
-  mixin(Surrogate.Class, ImmutableClass, keyCopier(Surrogate.Class, ImmutableClass))
+  Surrogate.__Class = namedFn
+  _inherits(Surrogate.__Class, Surrogate)
   return Surrogate;
 }

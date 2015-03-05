@@ -27,6 +27,7 @@ module.exports = function(grunt) {
         nonstandard: true,
         trailing: true,
         undef: true,
+        proto: true,
         unused: 'vars',
       },
       all: ['src/**/*.js']

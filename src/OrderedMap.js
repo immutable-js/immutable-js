@@ -91,11 +91,11 @@ export class OrderedMapClass extends Map {
       this._list = newList;
       return this;
     }
-    return new this.constructor.Class(newMap, newList, ownerID, this.__hash);
+    return new this.constructor.__Class(newMap, newList, ownerID, this.__hash);
   }
 
   __empty() {
-    return new this.constructor.Class(Map(), List());
+    return new this.constructor.__Class(Map(), List());
   }
 
   static __factory(value, emptyOrderedMap) {
@@ -117,7 +117,9 @@ OrderedMapClass.__check = OrderedMapClass.isOrderedMap = isOrderedMap;
 OrderedMapClass.prototype[IS_ORDERED_SENTINEL] = true;
 OrderedMapClass.prototype[DELETE] = OrderedMapClass.prototype.remove;
 
-export var OrderedMap = createFactory(OrderedMapClass)
+export var OrderedMap = createFactory(function Immutable_OrderedMap(map, list, ownerID, hash) {
+  OrderedMapClass.call(this, map, list, ownerID, hash)
+}, OrderedMapClass)
 
 function updateOrderedMap(omap, k, v) {
   var map = omap._map;
@@ -159,5 +161,5 @@ function updateOrderedMap(omap, k, v) {
     omap.__hash = undefined;
     return omap;
   }
-  return new omap.constructor.Class(newMap, newList);
+  return new omap.constructor.__Class(newMap, newList);
 }
