@@ -24,11 +24,11 @@ export class OrderedSetClass extends SetClass {
   }
 
   static of(/*...values*/) {
-    return this.factory(arguments);
+    return this.__factoryDispatch(arguments);
   }
 
   static fromKeys(value) {
-    return this.factory(KeyedIterable(value).keySeq());
+    return this.__factoryDispatch(KeyedIterable(value).keySeq());
   }
 
   toString() {

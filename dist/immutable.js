@@ -1669,7 +1669,7 @@
   // #pragma Helper Functions
 
   function reify(iter, seq) {
-    return isSeq(iter) ? seq : iter.constructor.factory(seq);
+    return isSeq(iter) ? seq : iter.constructor.__factoryDispatch(seq);
   }
 
   function validateEntry(entry) {
@@ -1752,7 +1752,7 @@
       return Surrogate.__Class.__factory(value, EMPTY_VALUE)
     }
     createClass(Surrogate, ImmutableClass)
-    Surrogate.factory = Surrogate
+    Surrogate.__factoryDispatch = Surrogate
     Surrogate.__Class = namedFn
     createClass(Surrogate.__Class, Surrogate)
     return Surrogate;
@@ -2463,7 +2463,7 @@
       return collection;
     }
     if (collection.size === 0 && iters.length === 1) {
-      return collection.constructor.factory(iters[0]);
+      return collection.constructor.__factoryDispatch(iters[0]);
     }
     return collection.withMutations(function(collection ) {
       var mergeIntoMap = merger ?
@@ -2579,7 +2579,7 @@
     }
 
     ListClass.of = function(/*...values*/) {
-      return this.factory(arguments);
+      return this.__factoryDispatch(arguments);
     };
 
     ListClass.prototype.toString = function() {
@@ -3152,7 +3152,7 @@
     }
 
     OrderedMapClass.of = function(/*...values*/) {
-      return this.factory(arguments);
+      return this.__factoryDispatch(arguments);
     };
 
     OrderedMapClass.prototype.toString = function() {
@@ -3302,7 +3302,7 @@
     }
 
     StackClass.of = function(/*...values*/) {
-      return this.factory(arguments);
+      return this.__factoryDispatch(arguments);
     };
 
     StackClass.prototype.toString = function() {
@@ -3514,11 +3514,11 @@
     }
 
     SetClass.of = function(/*...values*/) {
-      return this.factory(arguments);
+      return this.__factoryDispatch(arguments);
     };
 
     SetClass.fromKeys = function(value) {
-      return this.factory(KeyedIterable(value).keySeq());
+      return this.__factoryDispatch(KeyedIterable(value).keySeq());
     };
 
     SetClass.prototype.toString = function() {
@@ -3553,7 +3553,7 @@
         return this;
       }
       if (this.size === 0 && iters.length === 1) {
-        return this.constructor.factory(iters[0]);
+        return this.constructor.__factoryDispatch(iters[0]);
       }
       return this.withMutations(function(set ) {
         for (var ii = 0; ii < iters.length; ii++) {
@@ -3693,11 +3693,11 @@
     }
 
     OrderedSetClass.of = function(/*...values*/) {
-      return this.factory(arguments);
+      return this.__factoryDispatch(arguments);
     };
 
     OrderedSetClass.fromKeys = function(value) {
-      return this.factory(KeyedIterable(value).keySeq());
+      return this.__factoryDispatch(KeyedIterable(value).keySeq());
     };
 
     OrderedSetClass.prototype.toString = function() {

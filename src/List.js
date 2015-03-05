@@ -35,7 +35,7 @@ export class ListClass extends IndexedCollection {
   }
 
   static of(/*...values*/) {
-    return this.factory(arguments);
+    return this.__factoryDispatch(arguments);
   }
 
   toString() {

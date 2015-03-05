@@ -28,11 +28,11 @@ export class SetClass extends SetCollection {
   }
 
   static of(/*...values*/) {
-    return this.factory(arguments);
+    return this.__factoryDispatch(arguments);
   }
 
   static fromKeys(value) {
-    return this.factory(KeyedIterable(value).keySeq());
+    return this.__factoryDispatch(KeyedIterable(value).keySeq());
   }
 
   toString() {
@@ -67,7 +67,7 @@ export class SetClass extends SetCollection {
       return this;
     }
     if (this.size === 0 && iters.length === 1) {
-      return this.constructor.factory(iters[0]);
+      return this.constructor.__factoryDispatch(iters[0]);
     }
     return this.withMutations(set => {
       for (var ii = 0; ii < iters.length; ii++) {

@@ -27,7 +27,7 @@ export class OrderedMapClass extends Map {
   }
 
   static of(/*...values*/) {
-    return this.factory(arguments);
+    return this.__factoryDispatch(arguments);
   }
 
   toString() {

@@ -26,7 +26,7 @@ export function createFactory(namedFn, ImmutableClass) {
     return Surrogate.__Class.__factory(value, EMPTY_VALUE)
   }
   createClass(Surrogate, ImmutableClass)
-  Surrogate.factory = Surrogate
+  Surrogate.__factoryDispatch = Surrogate
   Surrogate.__Class = namedFn
   createClass(Surrogate.__Class, Surrogate)
   return Surrogate;
