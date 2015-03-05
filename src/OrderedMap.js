@@ -91,11 +91,15 @@ export class OrderedMapClass extends Map {
       this._list = newList;
       return this;
     }
-    return new this.constructor.__Class(newMap, newList, ownerID, this.__hash);
+    return this.__make(newMap, newList, ownerID, this.__hash);
+  }
+
+  __make(map, list, ownerID, hash) {
+    return new this.constructor.__Class(map, list, ownerID, hash); 
   }
 
   __empty() {
-    return new this.constructor.__Class(Map(), List());
+    return this.__make(Map(), List());
   }
 
   static __factory(value, emptyOrderedMap) {
@@ -161,5 +165,5 @@ function updateOrderedMap(omap, k, v) {
     omap.__hash = undefined;
     return omap;
   }
-  return new omap.constructor.__Class(newMap, newList);
+  return omap.__make(newMap, newList);
 }

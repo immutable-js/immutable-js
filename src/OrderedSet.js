@@ -36,7 +36,11 @@ export class OrderedSetClass extends SetClass {
   }
 
   __empty() {
-    return new this.constructor.__Class(OrderedMap());
+    return this.__make(OrderedMap())
+  }
+
+  __make(map, ownerID) {
+    return new this.constructor.__Class(map, ownerID);
   }
 
   static __factory(value, emptyOrderedSet) {

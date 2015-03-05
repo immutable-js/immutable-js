@@ -178,11 +178,15 @@ export class ListClass extends IndexedCollection {
       this.__ownerID = ownerID;
       return this;
     }
-    return new this.constructor.__Class(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
+    return this.__make(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
+  }
+
+  __make(origin, capacity, level, root, tail, ownerID, hash) {
+    return new this.constructor.__Class(origin, capacity, level, root, tail, ownerID, hash);
   }
 
   __empty() {
-    return new this.constructor.__Class(0, 0, SHIFT);
+    return this.__make(0, 0, SHIFT);
   }
 
   static __factory(value, emptyList) {
@@ -193,7 +197,7 @@ export class ListClass extends IndexedCollection {
     }
     assertNotInfinite(size);
     if (size > 0 && size < SIZE) {
-      return new emptyList.constructor.__Class(0, size, SHIFT, null, new VNode(iter.toArray()));
+      return emptyList.__make(0, size, SHIFT, null, new VNode(iter.toArray()));
     }
     return emptyList.withMutations(list => {
       list.setSize(size);
@@ -396,7 +400,7 @@ function updateList(list, index, value) {
     list.__altered = true;
     return list;
   }
-  return new list.constructor.__Class(list._origin, list._capacity, list._level, newRoot, newTail);
+  return list.__make(list._origin, list._capacity, list._level, newRoot, newTail);
 }
 
 function updateVNode(node, ownerID, level, index, value, didAlter) {
@@ -568,7 +572,7 @@ function setListBounds(list, begin, end) {
     list.__altered = true;
     return list;
   }
-  return new list.constructor.__Class(newOrigin, newCapacity, newLevel, newRoot, newTail);
+  return list.__make(newOrigin, newCapacity, newLevel, newRoot, newTail);
 }
 
 function mergeIntoListWith(list, merger, iterables) {

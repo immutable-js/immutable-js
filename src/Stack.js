@@ -70,7 +70,7 @@ export class StackClass extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return new this.constructor.__Class(newSize, head);
+    return this.__make(newSize, head);
   }
 
   pushAll(iter) {
@@ -95,7 +95,7 @@ export class StackClass extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return new this.constructor.__Class(newSize, head);
+    return this.__make(newSize, head);
   }
 
   pop() {
@@ -150,7 +150,7 @@ export class StackClass extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return new this.constructor.__Class(newSize, head);
+    return this.__make(newSize, head);
   }
 
   // @pragma Mutability
@@ -164,7 +164,7 @@ export class StackClass extends IndexedCollection {
       this.__altered = false;
       return this;
     }
-    return new this.constructor.__Class(this.size, this._head, ownerID, this.__hash);
+    return this.__make(this.size, this._head, ownerID, this.__hash);
   }
 
   // @pragma Iteration
@@ -201,7 +201,11 @@ export class StackClass extends IndexedCollection {
   }
 
   __empty() {
-    return new this.constructor.__Class(0);
+    return this.__make(0);
+  }
+
+  __make(size, head, ownerID, hash) {
+    return new this.constructor.__Class(size, head, ownerID, hash)
   }
 
   static __factory(value, emptyStack) {

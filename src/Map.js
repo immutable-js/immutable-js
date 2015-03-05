@@ -179,11 +179,15 @@ export class MapClass extends KeyedCollection {
       this.__altered = false;
       return this;
     }
-    return new this.constructor.__Class(this.size, this._root, ownerID, this.__hash);
+    return this.__make(this.size, this._root, ownerID, this.__hash);
+  }
+
+  __make(size, root, ownerID, hash) {
+    return new this.constructor.__Class(size, root, ownerID, hash);
   }
 
   __empty() {
-    return new this.constructor.__Class(0);
+    return this.__make(0)
   }
 
   static __factory(value, emptyMap) {
@@ -632,7 +636,7 @@ function updateMap(map, k, v) {
     map.__altered = true;
     return map;
   }
-  return newRoot ? new map.constructor.__Class(newSize, newRoot) : map.__empty();
+  return newRoot ? map.__make(newSize, newRoot) : map.__empty();
 }
 
 function updateNode(node, ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {

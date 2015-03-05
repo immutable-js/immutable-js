@@ -146,11 +146,15 @@ export class SetClass extends SetCollection {
       this._map = newMap;
       return this;
     }
-    return new this.constructor.__Class(newMap, ownerID);
+    return this.__make(newMap, ownerID);
   }
 
   __empty() {
-    return new this.constructor.__Class(Map());
+    return this.__make(Map())
+  }
+
+  __make(map, ownerID) {
+    return new this.constructor.__Class(map, ownerID);
   }
 
   static __factory(value, emptySet) {
@@ -193,5 +197,5 @@ function updateSet(set, newMap) {
   }
   return newMap === set._map ? set :
     newMap.size === 0 ? set.__empty() :
-    new set.constructor.__Class(newMap);
+    set.__make(newMap);
 }
