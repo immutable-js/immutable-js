@@ -1,22 +1,40 @@
 
-function extend(Target, Source) {
-  var keyCopier = (key) => { Target[key] = Source[key] }
-  Object.keys(Source).forEach(keyCopier);
-  Object.getOwnPropertySymbols &&
-    Object.getOwnPropertySymbols(Source).forEach(keyCopier);
-  return Source;
+import mixin from './utils/mixin'
+
+function keyCopier(Target, Source) {
+  return function(key) { Target[key] = Source[key] }
 }
 
 export function createFactory(ImmutableClass) {
-  var emptyValue = ImmutableClass.prototype.__empty()
-  if (!emptyValue || emptyValue.constructor !== ImmutableClass) {
-    throw new Error('A distinct __empty method must be defined for the extended Immutable class.')
+  var EMPTY_VALUE;
+  
+  function Surrogate(value) {
+    if (!EMPTY_VALUE) {
+      EMPTY_VALUE = Surrogate.Class.prototype.__empty();
+      Surrogate.Class.prototype.__empty = function() {
+        return EMPTY_VALUE;
+      }
+    }
+    if (value === null || value === undefined) {
+      return EMPTY_VALUE
+    }
+    if (ImmutableClass.__check(value)) {
+      if (value.constructor === Surrogate || value.constructor === Surrogate.Class) {
+        return value;
+      }
+      return EMPTY_VALUE.merge(value);
+    }
+    return Surrogate.Class.__factory(value, EMPTY_VALUE)
   }
-  function factory(value) {
-    return ImmutableClass.factory(value)
+  Surrogate.prototype = Object.create(ImmutableClass.prototype)
+  Surrogate.prototype.constructor = Surrogate
+  mixin(Surrogate, ImmutableClass, keyCopier(Surrogate, ImmutableClass))
+  Surrogate.Class = function() {
+    ImmutableClass.apply(this, arguments)
   }
-  factory.prototype = Object.create(ImmutableClass.prototype)
-  factory.prototype.constructor = factory;
-  extend(factory, ImmutableClass)
-  return factory;
+  Surrogate.factory = Surrogate
+  Surrogate.Class.prototype = Object.create(Surrogate.prototype)
+  Surrogate.Class.constructor = Surrogate.Class
+  mixin(Surrogate.Class, ImmutableClass, keyCopier(Surrogate.Class, ImmutableClass))
+  return Surrogate;
 }

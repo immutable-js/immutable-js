@@ -179,11 +179,11 @@ export class MapClass extends KeyedCollection {
       this.__altered = false;
       return this;
     }
-    return new this.constructor(this.size, this._root, ownerID, this.__hash);
+    return new this.constructor.Class(this.size, this._root, ownerID, this.__hash);
   }
 
   __empty() {
-    return EMPTY_MAP;
+    return new this.constructor.Class(0);
   }
 
   static __factory(value, emptyMap) {
@@ -208,8 +208,6 @@ export var MapPrototype = MapClass.prototype;
 MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeIn = MapPrototype.deleteIn;
-
-var EMPTY_MAP = new MapClass(0);
 
 /*jshint -W079 */
 export var Map = createFactory(MapClass)
@@ -632,7 +630,7 @@ function updateMap(map, k, v) {
     map.__altered = true;
     return map;
   }
-  return newRoot ? new map.constructor(newSize, newRoot) : map.__empty();
+  return newRoot ? new map.constructor.Class(newSize, newRoot) : map.__empty();
 }
 
 function updateNode(node, ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {

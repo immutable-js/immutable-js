@@ -15,20 +15,6 @@ export class Collection extends Iterable {
   constructor() {
     throw TypeError('Abstract');
   }
-  
-  static factory(value) {
-    var emptyValue = this.prototype.__empty();
-    if (value === null || value === undefined) {
-      return emptyValue
-    }
-    if (this.__check(value)) {
-      if (value.constructor === this) {
-        return value;
-      }
-      return emptyValue.merge(value);
-    }
-    return this.__factory(value, emptyValue)
-  }
 
 }
 

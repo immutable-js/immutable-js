@@ -146,11 +146,11 @@ export class SetClass extends SetCollection {
       this._map = newMap;
       return this;
     }
-    return new this.constructor(newMap, ownerID);
+    return new this.constructor.Class(newMap, ownerID);
   }
 
   __empty() {
-    return EMPTY_SET;
+    return new this.constructor.Class(Map());
   }
 
   static __factory(value, emptySet) {
@@ -180,8 +180,6 @@ SetPrototype.withMutations = MapPrototype.withMutations;
 SetPrototype.asMutable = MapPrototype.asMutable;
 SetPrototype.asImmutable = MapPrototype.asImmutable;
 
-var EMPTY_SET = new SetClass(Map())
-
 /*jshint -W079 */
 export var Set = createFactory(SetClass)
 
@@ -193,5 +191,5 @@ function updateSet(set, newMap) {
   }
   return newMap === set._map ? set :
     newMap.size === 0 ? set.__empty() :
-    new set.constructor(newMap);
+    new set.constructor.Class(newMap);
 }

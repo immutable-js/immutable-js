@@ -16,4 +16,5 @@ export default function createClass(ctor, superClass) {
       Object.getOwnPropertySymbols(superClass).forEach(keyCopier);
   }
   ctor.prototype.constructor = ctor;
+  return ctor
 }

@@ -178,11 +178,11 @@ export class ListClass extends IndexedCollection {
       this.__ownerID = ownerID;
       return this;
     }
-    return new this.constructor(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
+    return new this.constructor.Class(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
   }
 
   __empty() {
-    return EMPTY_LIST;
+    return new this.constructor.Class(0, 0, SHIFT);
   }
 
   static __factory(value, emptyList) {
@@ -193,7 +193,7 @@ export class ListClass extends IndexedCollection {
     }
     assertNotInfinite(size);
     if (size > 0 && size < SIZE) {
-      return new emptyList.constructor(0, size, SHIFT, null, new VNode(iter.toArray()));
+      return new emptyList.constructor.Class(0, size, SHIFT, null, new VNode(iter.toArray()));
     }
     return emptyList.withMutations(list => {
       list.setSize(size);
@@ -225,8 +225,6 @@ ListPrototype.withMutations = MapPrototype.withMutations;
 ListPrototype.asMutable = MapPrototype.asMutable;
 ListPrototype.asImmutable = MapPrototype.asImmutable;
 ListPrototype.wasAltered = MapPrototype.wasAltered;
-
-var EMPTY_LIST = new ListClass(0, 0, SHIFT)
 
 export var List = createFactory(ListClass)
 
@@ -396,7 +394,7 @@ function updateList(list, index, value) {
     list.__altered = true;
     return list;
   }
-  return new list.constructor(list._origin, list._capacity, list._level, newRoot, newTail);
+  return new list.constructor.Class(list._origin, list._capacity, list._level, newRoot, newTail);
 }
 
 function updateVNode(node, ownerID, level, index, value, didAlter) {
@@ -568,7 +566,7 @@ function setListBounds(list, begin, end) {
     list.__altered = true;
     return list;
   }
-  return new list.constructor(newOrigin, newCapacity, newLevel, newRoot, newTail);
+  return new list.constructor.Class(newOrigin, newCapacity, newLevel, newRoot, newTail);
 }
 
 function mergeIntoListWith(list, merger, iterables) {
