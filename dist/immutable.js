@@ -4126,8 +4126,8 @@
   /**
    * Contributes additional methods to a constructor
    */
-  function mixin(ctor, methods, keyCopier) {
-    keyCopier = keyCopier || function(key) { ctor.prototype[key] = methods[key]; }
+  function mixin(ctor, methods) {
+    var keyCopier = function(key ) { ctor.prototype[key] = methods[key]; }
     Object.keys(methods).forEach(keyCopier);
     Object.getOwnPropertySymbols &&
       Object.getOwnPropertySymbols(methods).forEach(keyCopier);

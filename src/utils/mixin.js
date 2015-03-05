@@ -10,8 +10,8 @@
 /**
  * Contributes additional methods to a constructor
  */
-export default function mixin(ctor, methods, keyCopier) {
-  keyCopier = keyCopier || function(key) { ctor.prototype[key] = methods[key]; }
+export default function mixin(ctor, methods) {
+  var keyCopier = key => { ctor.prototype[key] = methods[key]; }
   Object.keys(methods).forEach(keyCopier);
   Object.getOwnPropertySymbols &&
     Object.getOwnPropertySymbols(methods).forEach(keyCopier);
