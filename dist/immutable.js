@@ -3278,6 +3278,7 @@
 
     Stack.prototype.get = function(index, notSetValue) {
       var head = this._head;
+      index = wrapIndex(this, index);
       while (head && index--) {
         head = head.next;
       }
@@ -3410,7 +3411,7 @@
 
     Stack.prototype.__iterate = function(fn, reverse) {
       if (reverse) {
-        return this.toSeq().cacheResult.__iterate(fn, reverse);
+        return this.reverse().__iterate(fn);
       }
       var iterations = 0;
       var node = this._head;
@@ -3425,7 +3426,7 @@
 
     Stack.prototype.__iterator = function(type, reverse) {
       if (reverse) {
-        return this.toSeq().cacheResult().__iterator(type, reverse);
+        return this.reverse().__iterator(type);
       }
       var iterations = 0;
       var node = this._head;
