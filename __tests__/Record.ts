@@ -84,4 +84,8 @@ describe('Record', () => {
     expect(t.get('c')).toBeUndefined();
   })
 
+  it('disallows size as key name', () => {
+    expect(() => Record({size: 1})).toThrow();
+  });
+
 });
