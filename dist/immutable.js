@@ -3717,6 +3717,11 @@
 
       var keys = Object.keys(defaultValues);
 
+      invariant(
+        keys.indexOf('size') === -1,
+        'Record type may not contain a key named "size"'
+      );
+
       var RecordTypePrototype = RecordType.prototype = Object.create(RecordPrototype);
       RecordTypePrototype.constructor = RecordType;
       name && (RecordTypePrototype._name = name);
