@@ -220,7 +220,7 @@ IndexedCursor.prototype = IndexedCursorPrototype;
 var NOT_SET = {}; // Sentinel value
 
 function makeCursor(rootData, keyPath, onChange, value) {
-  if (value === void 0) {
+  if (arguments.length < 4) {
     value = rootData.getIn(keyPath);
   }
   var size = value && value.size;
@@ -233,6 +233,13 @@ function wrappedValue(cursor, keyPath, value) {
 }
 
 function subCursor(cursor, keyPath, value) {
+  if (arguments.length < 3) {
+    return makeCursor( // call without value
+      cursor._rootData,
+      newKeyPath(cursor._keyPath, keyPath),
+      cursor._onChange
+    );
+  }
   return makeCursor(
     cursor._rootData,
     newKeyPath(cursor._keyPath, keyPath),
