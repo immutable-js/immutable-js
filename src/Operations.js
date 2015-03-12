@@ -152,7 +152,8 @@ export class FromEntriesSequence extends KeyedSeq {
       // in the parent iteration.
       if (entry) {
         validateEntry(entry);
-        return fn(entry[1], entry[0], this);
+        var seq = Seq(entry);
+        return fn(seq.get(1), seq.get(0), this);
       }
     }, reverse);
   }
@@ -170,8 +171,9 @@ export class FromEntriesSequence extends KeyedSeq {
         // in the parent iteration.
         if (entry) {
           validateEntry(entry);
+          var seq = Seq(entry);
           return type === ITERATE_ENTRIES ? step :
-            iteratorValue(type, entry[0], entry[1], step);
+            iteratorValue(type, seq.get(0), seq.get(1), step);
         }
       }
     });
