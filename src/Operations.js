@@ -147,13 +147,15 @@ export class FromEntriesSequence extends KeyedSeq {
   }
 
   __iterate(fn, reverse) {
-    return this._iter.__iterate(entry => {
+    return this._iter.__iterate(function(entry ) {
       // Check if entry exists first so array access doesn't throw for holes
       // in the parent iteration.
       if (entry) {
         validateEntry(entry);
-        var seq = Seq(entry);
-        return fn(seq.get(1), seq.get(0), this);
+        var iterable = !Array.isArray(entry) && isIterable(entry);
+        var k = iterable ? entry.get(0) : entry[0];
+        var v = iterable ? entry.get(1) : entry[1];
+        return fn(v, k, this);
       }
     }, reverse);
   }
@@ -171,9 +173,11 @@ export class FromEntriesSequence extends KeyedSeq {
         // in the parent iteration.
         if (entry) {
           validateEntry(entry);
-          var seq = Seq(entry);
+          var iterable = !Array.isArray(entry) && isIterable(entry);
+          var k = iterable ? entry.get(0) : entry[0];
+          var v = iterable ? entry.get(1) : entry[1];
           return type === ITERATE_ENTRIES ? step :
-            iteratorValue(type, seq.get(0), seq.get(1), step);
+            iteratorValue(type, k, v, step);
         }
       }
     });
