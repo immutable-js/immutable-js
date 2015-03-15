@@ -533,7 +533,7 @@ var KeyedIterablePrototype = KeyedIterable.prototype;
 KeyedIterablePrototype[IS_KEYED_SENTINEL] = true;
 KeyedIterablePrototype[ITERATOR_SYMBOL] = IterablePrototype.entries;
 KeyedIterablePrototype.__toJS = IterablePrototype.toObject;
-KeyedIterablePrototype.__toStringMapper = (v, k) => k + ': ' + quoteString(v);
+KeyedIterablePrototype.__toStringMapper = (v, k) => JSON.stringify(k) + ': ' + quoteString(v);
 
 
 
