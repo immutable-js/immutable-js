@@ -98,26 +98,29 @@ describe('Conversion', () => {
   });
 
   var immutableOrderedDataString = 'OrderedMap { ' +
-    'deepList: List [ '+
+    '"deepList": List [ '+
       'OrderedMap { '+
-        'position: "first"'+
+        '"position": "first"'+
       ' }, ' +
       'OrderedMap { '+
-        'position: "second"'+
+        '"position": "second"'+
       ' }, '+
       'OrderedMap { '+
-        'position: "third"'+
+        '"position": "third"'+
       ' }' +
     ' ], '+
-    'deepMap: OrderedMap { '+
-      'a: "A", '+
-      'b: "B"'+
+    '"deepMap": OrderedMap { '+
+      '"a": "A", '+
+      '"b": "B"'+
     ' }, '+
-    'emptyMap: OrderedMap {}, ' +
-    'point: Point { x: 10, y: 20 }, '+
-    'string: "Hello", '+
-    'list: List [ 1, 2, 3 ]'+
+    '"emptyMap": OrderedMap {}, ' +
+    '"point": Point { "x": 10, "y": 20 }, '+
+    '"string": "Hello", '+
+    '"list": List [ 1, 2, 3 ]'+
   ' }';
+
+  var nonStringKeyMap = OrderedMap().set(1, true).set(false, "foo");
+  var nonStringKeyMapString = 'OrderedMap { 1: true, false: "foo" }';
 
   it('Converts deep JS to deep immutable sequences', () => {
     expect(Immutable.fromJS(js)).is(immutableData);
@@ -132,6 +135,10 @@ describe('Conversion', () => {
     });
     expect(seq).is(immutableOrderedData);
     expect(seq.toString()).is(immutableOrderedDataString);
+  });
+
+  it('Prints keys as JSON values', () => {
+    expect(nonStringKeyMap.toString()).is(nonStringKeyMapString);
   });
 
   it('Converts deep sequences to JSON', () => {
