@@ -836,12 +836,6 @@
       }
     }
 
-    if (!usingWeakMap &&
-        typeof Object.isExtensible === 'function' &&
-        Object.isExtensible(obj) === false) {
-      throw new Error('Non-extensible objects are not allowed as keys.');
-    }
-
     hash = ++objHashUID;
     if (objHashUID & 0x40000000) {
       objHashUID = 0;
@@ -849,6 +843,8 @@
 
     if (usingWeakMap) {
       weakMap.set(obj, hash);
+    } else if (isExtensible !== undefined && isExtensible(obj) === false) {
+      throw new Error('Non-extensible objects are not allowed as keys.');
     } else if (canDefineProperty) {
       Object.defineProperty(obj, UID_HASH_KEY, {
         'enumerable': false,
@@ -878,6 +874,9 @@
 
     return hash;
   }
+
+  // Get references to ES5 object methods.
+  var isExtensible = Object.isExtensible;
 
   // True if Object.defineProperty works as expected. IE8 fails this test.
   var canDefineProperty = (function() {
