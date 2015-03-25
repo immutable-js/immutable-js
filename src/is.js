@@ -72,9 +72,17 @@ export function is(valueA, valueB) {
       typeof valueB.valueOf === 'function') {
     valueA = valueA.valueOf();
     valueB = valueB.valueOf();
+    if (valueA === valueB || (valueA !== valueA && valueB !== valueB)) {
+      return true;
+    }
+    if (!valueA || !valueB) {
+      return false;
+    }
   }
-  return typeof valueA.equals === 'function' &&
-    typeof valueB.equals === 'function' ?
-      valueA.equals(valueB) :
-      valueA === valueB || (valueA !== valueA && valueB !== valueB);
+  if (typeof valueA.equals === 'function' &&
+      typeof valueB.equals === 'function' &&
+      valueA.equals(valueB)) {
+    return true;
+  }
+  return false;
 }
