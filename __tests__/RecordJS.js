@@ -65,7 +65,7 @@ describe('Record', () => {
     expect(t2.d).toBe(4);
   });
 
-  it('short-circuits if already a record' () => {
+  it('short-circuits if already a record', () => {
     var Point = Record({x: 0, y: 0});
     var a = new Point({x: 1, y: 2});
 
