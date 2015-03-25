@@ -15,13 +15,12 @@ import { Map } from './Map'
 import { Stack } from './Stack'
 import { OrderedSet } from './OrderedSet'
 import { Set } from './Set'
-import { Record } from './Record'
+import { Record, RecordList } from './Record'
 import { Range } from './Range'
 import { Repeat } from './Repeat'
 import { is } from './is'
 import { fromJS } from './fromJS'
 import { Iterable } from './IterableImpl'
-
 
 export default {
 
@@ -37,6 +36,8 @@ export default {
   OrderedSet: OrderedSet,
 
   Record: Record,
+  RecordList: RecordList,
+
   Range: Range,
   Repeat: Repeat,
 
