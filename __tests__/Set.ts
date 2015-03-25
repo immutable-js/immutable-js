@@ -179,6 +179,15 @@ describe('Set', () => {
     expect(s).is(Set.of('C'));
   });
 
+  it('accepts sets to intersect', () => {
+    var s1 = Set.intersection();
+    var s2 = Set.intersection(Set.of('A', 'B', 'C'));
+    var s3 = Set.intersection(Set.of('A', 'B', 'C'), Set.of('B', 'C', 'D'));
+    expect(s1.size).toBe(0);
+    expect(s2.size).toBe(3);
+    expect(s3.size).toBe(2);
+  });
+
   it('diffs multiple sets', () => {
     var s = Set.of('A', 'B', 'C').subtract(Set.of('C', 'D', 'E'), Set.of('D', 'B', 'F'));
     expect(s).is(Set.of('A'));
