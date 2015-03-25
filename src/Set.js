@@ -46,7 +46,7 @@ export class Set extends SetCollection {
     if (sets.length === 1) {
       return sets[0];
     }
-    return sets[0].intersect(...sets.slice(1));
+    return Set.prototype.intersect.call(...sets);
   }
 
   toString() {
