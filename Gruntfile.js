@@ -37,7 +37,7 @@ module.exports = function(grunt) {
     bundle: {
       build: {
         files: [{
-          src: 'src/Immutable.js',
+          src: 'src/interop.js',
           dest: 'dist/immutable'
         }]
       }

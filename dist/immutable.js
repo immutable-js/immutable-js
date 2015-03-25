@@ -4848,7 +4848,9 @@
     return a ^ b + 0x9E3779B9 + (a << 6) + (a >> 2) | 0; // int
   }
 
-  var Immutable = {
+
+
+  var interop = {
 
     Iterable: Iterable,
 
@@ -4870,6 +4872,6 @@
 
   };
 
-  return Immutable;
+  return interop;
 
 }));

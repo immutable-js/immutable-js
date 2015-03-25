@@ -7,40 +7,45 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { Seq } from './Seq'
-import { Collection } from './Collection'
-import { OrderedMap } from './OrderedMap'
-import { List } from './List'
-import { Map } from './Map'
-import { Stack } from './Stack'
-import { OrderedSet } from './OrderedSet'
-import { Set } from './Set'
-import { Record } from './Record'
-import { Range } from './Range'
-import { Repeat } from './Repeat'
-import { is } from './is'
-import { fromJS } from './fromJS'
-import { Iterable } from './IterableImpl'
+import { Seq } from './Seq';
+import { Collection } from './Collection';
+import { OrderedMap } from './OrderedMap';
+import { List } from './List';
+import { Map } from './Map';
+import { Stack } from './Stack';
+import { OrderedSet } from './OrderedSet';
+import { Set } from './Set';
+import { Record } from './Record';
+import { Range } from './Range';
+import { Repeat } from './Repeat';
+import { is } from './is';
+import { fromJS } from './fromJS';
+import { Iterable } from './IterableImpl';
 
+// current build pipeline does not support the syntax
+//
+//   export { Seq } from './Seq'
+//
+// so we need to separately import and export each module
 
-export default {
+export {
 
-  Iterable: Iterable,
+  Iterable,
 
-  Seq: Seq,
-  Collection: Collection,
-  Map: Map,
-  OrderedMap: OrderedMap,
-  List: List,
-  Stack: Stack,
-  Set: Set,
-  OrderedSet: OrderedSet,
+  Seq,
+  Collection,
+  Map,
+  OrderedMap,
+  List,
+  Stack,
+  Set,
+  OrderedSet,
 
-  Record: Record,
-  Range: Range,
-  Repeat: Repeat,
+  Record,
+  Range,
+  Repeat,
 
-  is: is,
-  fromJS: fromJS,
+  is,
+  fromJS,
 
 };
