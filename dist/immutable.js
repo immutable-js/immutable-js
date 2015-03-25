@@ -3725,10 +3725,14 @@
 
     function Record(defaultValues, name) {
       var RecordType = function Record(values) {
+        if (values instanceof RecordType) {
+          return values;
+        }
+
         if (!(this instanceof RecordType)) {
           return new RecordType(values);
         }
-        this._map = src_Map__Map(values);
+        this._map = src_Map__Map(values).map(this._constructField, this);
       };
 
       var keys = Object.keys(defaultValues);
@@ -3742,7 +3746,7 @@
 
       try {
         keys.forEach(function(key ) {
-          Object.defineProperty(RecordType.prototype, key, {
+          Object.defineProperty(RecordTypePrototype, key, {
             get: function() {
               return this.get(key);
             },
@@ -3758,6 +3762,13 @@
 
       return RecordType;
     }
+
+    Record.prototype._constructField = function(value, key) {
+      var defaultValue = this._defaultValues[key];
+      var RecordType = defaultValue instanceof Record &&
+                       defaultValue.constructor;
+      return RecordType ? new RecordType(value) : value;
+    };
 
     Record.prototype.toString = function() {
       return this.__toString(recordName(this) + ' {', '}');
@@ -3792,7 +3803,8 @@
       if (!this.has(k)) {
         throw new Error('Cannot set unknown key "' + k + '" on ' + recordName(this));
       }
-      var newMap = this._map && this._map.set(k, v);
+
+      var newMap = this._map && this._map.set(k, this._constructField(v, k));
       if (this.__ownerID || newMap === this._map) {
         return this;
       }
@@ -3834,6 +3846,7 @@
       }
       return makeRecord(this, newMap, ownerID);
     };
+
 
 
   var RecordPrototype = Record.prototype;
