@@ -19,10 +19,14 @@ export class Record extends KeyedCollection {
 
   constructor(defaultValues, name) {
     var RecordType = function Record(values) {
+      if (values instanceof RecordType) {
+        return values;
+      }
+
       if (!(this instanceof RecordType)) {
         return new RecordType(values);
       }
-      this._map = Map(values);
+      this._map = Map(values).map(this._constructField, this);
     };
 
     var keys = Object.keys(defaultValues);
@@ -36,7 +40,7 @@ export class Record extends KeyedCollection {
 
     try {
       keys.forEach(key => {
-        Object.defineProperty(RecordType.prototype, key, {
+        Object.defineProperty(RecordTypePrototype, key, {
           get: function() {
             return this.get(key);
           },
@@ -51,6 +55,13 @@ export class Record extends KeyedCollection {
     }
 
     return RecordType;
+  }
+
+  _constructField(value, key) {
+    var defaultValue = this._defaultValues[key];
+    var RecordType = defaultValue instanceof Record &&
+                     defaultValue.constructor;
+    return RecordType ? new RecordType(value) : value;
   }
 
   toString() {
@@ -86,7 +97,8 @@ export class Record extends KeyedCollection {
     if (!this.has(k)) {
       throw new Error('Cannot set unknown key "' + k + '" on ' + recordName(this));
     }
-    var newMap = this._map && this._map.set(k, v);
+
+    var newMap = this._map && this._map.set(k, this._constructField(v, k));
     if (this.__ownerID || newMap === this._map) {
       return this;
     }
@@ -129,6 +141,7 @@ export class Record extends KeyedCollection {
     return makeRecord(this, newMap, ownerID);
   }
 }
+
 
 var RecordPrototype = Record.prototype;
 RecordPrototype[DELETE] = RecordPrototype.remove;
