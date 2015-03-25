@@ -742,6 +742,12 @@ declare module 'immutable' {
      */
     function fromKeys<T>(iter: Iterable<T, any>): Set<T>;
     function fromKeys(obj: {[key: string]: any}): Set<string>;
+
+    /**
+     * `Set.intersection()` creates a new immutable Set containing only the
+     * values present in all `sets`.
+     */
+    function intersection<T>(...sets: Set<T>[]): Set<T>;
   }
 
   /**
