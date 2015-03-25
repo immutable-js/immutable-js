@@ -39,6 +39,13 @@ export class Set extends SetCollection {
     return this(KeyedIterable(value).keySeq());
   }
 
+  static intersection(...sets) {
+    if (sets.length === 0) {
+      return emptySet();
+    }
+    return Set.prototype.intersect.call(...sets);
+  }
+
   toString() {
     return this.__toString('Set {', '}');
   }
