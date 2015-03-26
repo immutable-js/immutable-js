@@ -1067,6 +1067,10 @@ declare module 'immutable' {
       new (): Map<string, any>;
       new (values: {[key: string]: any}): Map<string, any>;
       new (values: Iterable<string, any>): Map<string, any>; // deprecated
+
+      (): Map<string, any>;
+      (values: {[key: string]: any}): Map<string, any>;
+      (values: Iterable<string, any>): Map<string, any>; // deprecated
     }
   }
 
