@@ -8,6 +8,8 @@ import I = require('immutable');
 import jasmineCheck = require('jasmine-check');
 jasmineCheck.install();
 
+type SeqType = number | number[] | I.Iterable<number,number>;
+
 describe('flatten', () => {
 
   it('flattens sequences one level deep', () => {
@@ -29,13 +31,13 @@ describe('flatten', () => {
   })
 
   it('flattens only Sequences (not sequenceables)', () => {
-    var nested = I.Seq.of(I.Range(1,3),[3,4],I.List.of(5,6,7),8);
+    var nested = I.Seq.of<SeqType>(I.Range(1,3),[3,4],I.List.of(5,6,7),8);
     var flat = nested.flatten();
     expect(flat.toJS()).toEqual([1,2,[3,4],5,6,7,8]);
   })
 
   it('can be reversed', () => {
-    var nested = I.Seq.of(I.Range(1,3),[3,4],I.List.of(5,6,7),8);
+    var nested = I.Seq.of<SeqType>(I.Range(1,3),[3,4],I.List.of(5,6,7),8);
     var flat = nested.flatten();
     var reversed = flat.reverse();
     expect(reversed.toJS()).toEqual([8,7,6,5,[3,4],2,1]);
