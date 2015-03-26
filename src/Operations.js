@@ -432,10 +432,10 @@ export function sliceFactory(iterable, begin, end, useKeys) {
     var iterator = sliceSize && iterable.__iterator(type, reverse);
     var skipped = 0;
     var iterations = 0;
+    while (skipped++ !== resolvedBegin) {
+      iterator.next();
+    }
     return new Iterator(() => {
-      while (skipped++ !== resolvedBegin) {
-        iterator.next();
-      }
       if (++iterations > sliceSize) {
         return iteratorDone();
       }

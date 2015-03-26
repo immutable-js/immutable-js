@@ -1349,10 +1349,10 @@
       var iterator = sliceSize && iterable.__iterator(type, reverse);
       var skipped = 0;
       var iterations = 0;
+      while (skipped++ !== resolvedBegin) {
+        iterator.next();
+      }
       return new src_Iterator__Iterator(function()  {
-        while (skipped++ !== resolvedBegin) {
-          iterator.next();
-        }
         if (++iterations > sliceSize) {
           return iteratorDone();
         }
