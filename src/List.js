@@ -30,7 +30,7 @@ export class List extends IndexedCollection {
     if (isList(value)) {
       return value;
     }
-    var iter = IndexedIterable(value);
+    var iter = new IndexedIterable(value);
     var size = iter.size;
     if (size === 0) {
       return empty;
@@ -582,7 +582,7 @@ function mergeIntoListWith(list, merger, iterables) {
   var maxSize = 0;
   for (var ii = 0; ii < iterables.length; ii++) {
     var value = iterables[ii];
-    var iter = IndexedIterable(value);
+    var iter = new IndexedIterable(value);
     if (iter.size > maxSize) {
       maxSize = iter.size;
     }

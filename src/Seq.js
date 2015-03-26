@@ -21,7 +21,7 @@ export class Seq extends Iterable {
   }
 
   static of(/*...values*/) {
-    return Seq(arguments);
+    return new Seq(arguments);
   }
 
   toSeq() {
@@ -77,7 +77,7 @@ export class IndexedSeq extends Seq {
   }
 
   static of(/*...values*/) {
-    return IndexedSeq(arguments);
+    return new IndexedSeq(arguments);
   }
 
   toIndexedSeq() {
@@ -108,7 +108,7 @@ export class SetSeq extends Seq {
   }
 
   static of(/*...values*/) {
-    return SetSeq(arguments);
+    return new SetSeq(arguments);
   }
 
   toSetSeq() {

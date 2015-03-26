@@ -19,7 +19,7 @@ export default function forceIterator(keyPath) {
     if (!isArrayLike(keyPath)) {
       throw new TypeError('Expected iterable or array-like: ' + keyPath);
     }
-    iter = getIterator(Iterable(keyPath));
+    iter = getIterator(new Iterable(keyPath));
   }
   return iter;
 }

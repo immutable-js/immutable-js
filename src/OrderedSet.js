@@ -21,7 +21,7 @@ export class OrderedSet extends Set {
     return value === null || value === undefined ? emptyOrderedSet() :
       isOrderedSet(value) ? value :
       emptyOrderedSet().withMutations(set => {
-        var iter = SetIterable(value);
+        var iter = new SetIterable(value);
         assertNotInfinite(iter.size);
         iter.forEach(v => set.add(v));
       });
@@ -32,7 +32,7 @@ export class OrderedSet extends Set {
   }
 
   static fromKeys(value) {
-    return this(KeyedIterable(value).keySeq());
+    return this(new KeyedIterable(value).keySeq());
   }
 
   toString() {
