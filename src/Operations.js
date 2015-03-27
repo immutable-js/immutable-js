@@ -433,7 +433,7 @@ export function sliceFactory(iterable, begin, end, useKeys) {
     var skipped = 0;
     var iterations = 0;
     return new Iterator(() => {
-      while (skipped++ !== resolvedBegin) {
+      while (skipped++ < resolvedBegin) {
         iterator.next();
       }
       if (++iterations > sliceSize) {
