@@ -18,6 +18,7 @@ import { Set } from './Set'
 import { Record } from './Record'
 import { Range } from './Range'
 import { Repeat } from './Repeat'
+import { Nullable } from './Nullable'
 import { is } from './is'
 import { fromJS } from './fromJS'
 import { Iterable } from './IterableImpl'
@@ -37,6 +38,7 @@ export default {
   OrderedSet: OrderedSet,
 
   Record: Record,
+  Nullable: Nullable,
   Range: Range,
   Repeat: Repeat,
 
