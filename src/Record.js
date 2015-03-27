@@ -10,6 +10,7 @@
 import { KeyedIterable } from './Iterable'
 import { KeyedCollection } from './Collection'
 import { Map, MapPrototype, emptyMap } from './Map'
+import { List } from './List'
 import { DELETE } from './TrieUtils'
 
 import invariant from './utils/invariant'
@@ -24,6 +25,7 @@ export class Record extends KeyedCollection {
       if (values instanceof RecordType) {
         return values;
       }
+
       if (!(this instanceof RecordType)) {
         return new RecordType(values);
       }
@@ -36,13 +38,37 @@ export class Record extends KeyedCollection {
         RecordTypePrototype._keys = keys;
         RecordTypePrototype._defaultValues = defaultValues;
       }
-      this._map = Map(values);
+      this._map = Map(values).map(this._constructField, this);
     };
 
     var RecordTypePrototype = RecordType.prototype = Object.create(RecordPrototype);
     RecordTypePrototype.constructor = RecordType;
 
+    try {
+      Object.defineProperty(RecordType, 'List', {
+        configurable: true,
+        enumerable: true,
+        get: function() {
+          Object.defineProperty(this, 'List', {
+            value: RecordList(this)
+          });
+
+          return this.List;
+        }
+      });
+    } catch (error) {
+      // Object.defineProperty failed. Probably IE8.
+    }
+
     return RecordType;
+  }
+
+  _constructField(value, key) {
+    var defaultValue = this._defaultValues[key];
+    var RecordType = defaultValue &&
+                     defaultValue[IS_RECORD_SENTINEL] &&
+                     defaultValue.constructor;
+    return RecordType ? new RecordType(value) : value;
   }
 
   toString() {
@@ -78,7 +104,8 @@ export class Record extends KeyedCollection {
     if (!this.has(k)) {
       throw new Error('Cannot set unknown key "' + k + '" on ' + recordName(this));
     }
-    var newMap = this._map && this._map.set(k, v);
+
+    var newMap = this._map && this._map.set(k, this._constructField(v, k));
     if (this.__ownerID || newMap === this._map) {
       return this;
     }
@@ -122,7 +149,9 @@ export class Record extends KeyedCollection {
   }
 }
 
+var IS_RECORD_SENTINEL = '@@__IMMUTABLE_RECORD__@@';
 var RecordPrototype = Record.prototype;
+RecordPrototype[IS_RECORD_SENTINEL] = true;
 RecordPrototype[DELETE] = RecordPrototype.remove;
 RecordPrototype.deleteIn =
 RecordPrototype.removeIn = MapPrototype.removeIn;
@@ -138,6 +167,51 @@ RecordPrototype.updateIn = MapPrototype.updateIn;
 RecordPrototype.withMutations = MapPrototype.withMutations;
 RecordPrototype.asMutable = MapPrototype.asMutable;
 RecordPrototype.asImmutable = MapPrototype.asImmutable;
+
+
+
+export class RecordList extends List {
+  constructor(RecordType, name) {
+    name = name || 'List <' + recordName(RecordType.prototype) + '>'
+    var RecordListType = function RecordList(value) {
+      if (value instanceof RecordListType) {
+        return value
+      }
+
+      if (!(this instanceof RecordList)) {
+        return new RecordList(value)
+      }
+
+      var entries = List(value).
+        toArray().
+        map(this._RecordType, this);
+
+      return List.call(this, entries);
+    }
+    RecordListType.of = List.of
+    var RecordListTypePrototype = Object.create(RecordListPrototype);
+    name && (RecordListTypePrototype._name = name);
+    RecordListTypePrototype._RecordType = RecordType;
+    RecordListTypePrototype.constructor = RecordListType;
+
+    RecordListType.prototype = RecordListTypePrototype;
+
+    return RecordListType;
+  }
+
+  toString() {
+    return this.__toString(recordName(this) + ' [', ']');
+  }
+
+  // @pragma Modification
+  set(k, v) {
+    return listPrototypeSet.call(this, k, this._RecordType(v));
+  }
+}
+
+var listPrototypeSet = List.prototype.set;
+var RecordListPrototype = RecordList.prototype;
+RecordListPrototype[IS_RECORD_SENTINEL] = true;
 
 
 function makeRecord(likeRecord, map, ownerID) {

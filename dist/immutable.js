@@ -2560,7 +2560,8 @@
     // @pragma Construction
 
     function List(value) {
-      var empty = emptyList();
+      var empty = this instanceof List ? emptyList(this) :
+                  emptyList(ListPrototype);
       if (value === null || value === undefined) {
         return empty;
       }
@@ -2574,7 +2575,7 @@
       }
       assertNotInfinite(size);
       if (size > 0 && size < SIZE) {
-        return makeList(0, size, SHIFT, null, new VNode(iter.toArray()));
+        return makeList(empty, 0, size, SHIFT, null, new VNode(iter.toArray()));
       }
       return empty.withMutations(function(list ) {
         list.setSize(size);
@@ -2627,7 +2628,7 @@
         this.__altered = true;
         return this;
       }
-      return emptyList();
+      return emptyList(this);
     };
 
     List.prototype.push = function(/*...values*/) {
@@ -2726,7 +2727,7 @@
         this.__ownerID = ownerID;
         return this;
       }
-      return makeList(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
+      return makeList(this, this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
     };
 
 
@@ -2887,8 +2888,8 @@
     }
   }
 
-  function makeList(origin, capacity, level, root, tail, ownerID, hash) {
-    var list = Object.create(ListPrototype);
+  function makeList(source, origin, capacity, level, root, tail, ownerID, hash) {
+    var list = Object.create(source.constructor.prototype);
     list.size = capacity - origin;
     list._origin = origin;
     list._capacity = capacity;
@@ -2901,9 +2902,9 @@
     return list;
   }
 
-  var EMPTY_LIST;
-  function emptyList() {
-    return EMPTY_LIST || (EMPTY_LIST = makeList(0, 0, SHIFT));
+  function emptyList() {var list = arguments[0];if(list === void 0)list = ListPrototype;
+    return list.constructor.EMPTY ||
+          (list.constructor.EMPTY = makeList(list, 0, 0, SHIFT));
   }
 
   function updateList(list, index, value) {
@@ -2939,7 +2940,7 @@
       list.__altered = true;
       return list;
     }
-    return makeList(list._origin, list._capacity, list._level, newRoot, newTail);
+    return makeList(list, list._origin, list._capacity, list._level, newRoot, newTail);
   }
 
   function updateVNode(node, ownerID, level, index, value, didAlter) {
@@ -3111,7 +3112,7 @@
       list.__altered = true;
       return list;
     }
-    return makeList(newOrigin, newCapacity, newLevel, newRoot, newTail);
+    return makeList(list, newOrigin, newCapacity, newLevel, newRoot, newTail);
   }
 
   function mergeIntoListWith(list, merger, iterables) {
@@ -3748,6 +3749,7 @@
         if (values instanceof RecordType) {
           return values;
         }
+
         if (!(this instanceof RecordType)) {
           return new RecordType(values);
         }
@@ -3760,14 +3762,38 @@
           RecordTypePrototype._keys = keys;
           RecordTypePrototype._defaultValues = defaultValues;
         }
-        this._map = src_Map__Map(values);
+        this._map = src_Map__Map(values).map(this._constructField, this);
       };
 
       var RecordTypePrototype = RecordType.prototype = Object.create(RecordPrototype);
       RecordTypePrototype.constructor = RecordType;
 
+      try {
+        Object.defineProperty(RecordType, 'List', {
+          configurable: true,
+          enumerable: true,
+          get: function() {
+            Object.defineProperty(this, 'List', {
+              value: RecordList(this)
+            });
+
+            return this.List;
+          }
+        });
+      } catch (error) {
+        // Object.defineProperty failed. Probably IE8.
+      }
+
       return RecordType;
     }
+
+    Record.prototype._constructField = function(value, key) {
+      var defaultValue = this._defaultValues[key];
+      var RecordType = defaultValue &&
+                       defaultValue[IS_RECORD_SENTINEL] &&
+                       defaultValue.constructor;
+      return RecordType ? new RecordType(value) : value;
+    };
 
     Record.prototype.toString = function() {
       return this.__toString(recordName(this) + ' {', '}');
@@ -3802,7 +3828,8 @@
       if (!this.has(k)) {
         throw new Error('Cannot set unknown key "' + k + '" on ' + recordName(this));
       }
-      var newMap = this._map && this._map.set(k, v);
+
+      var newMap = this._map && this._map.set(k, this._constructField(v, k));
       if (this.__ownerID || newMap === this._map) {
         return this;
       }
@@ -3846,7 +3873,9 @@
     };
 
 
+  var IS_RECORD_SENTINEL = '@@__IMMUTABLE_RECORD__@@';
   var RecordPrototype = Record.prototype;
+  RecordPrototype[IS_RECORD_SENTINEL] = true;
   RecordPrototype[DELETE] = RecordPrototype.remove;
   RecordPrototype.deleteIn =
   RecordPrototype.removeIn = MapPrototype.removeIn;
@@ -3862,6 +3891,51 @@
   RecordPrototype.withMutations = MapPrototype.withMutations;
   RecordPrototype.asMutable = MapPrototype.asMutable;
   RecordPrototype.asImmutable = MapPrototype.asImmutable;
+
+
+
+  createClass(RecordList, List);
+    function RecordList(RecordType, name) {
+      name = name || 'List <' + recordName(RecordType.prototype) + '>'
+      var RecordListType = function RecordList(value) {
+        if (value instanceof RecordListType) {
+          return value
+        }
+
+        if (!(this instanceof RecordList)) {
+          return new RecordList(value)
+        }
+
+        var entries = List(value).
+          toArray().
+          map(this._RecordType, this);
+
+        return List.call(this, entries);
+      }
+      RecordListType.of = List.of
+      var RecordListTypePrototype = Object.create(RecordListPrototype);
+      name && (RecordListTypePrototype._name = name);
+      RecordListTypePrototype._RecordType = RecordType;
+      RecordListTypePrototype.constructor = RecordListType;
+
+      RecordListType.prototype = RecordListTypePrototype;
+
+      return RecordListType;
+    }
+
+    RecordList.prototype.toString = function() {
+      return this.__toString(recordName(this) + ' [', ']');
+    };
+
+    // @pragma Modification
+    RecordList.prototype.set = function(k, v) {
+      return listPrototypeSet.call(this, k, this._RecordType(v));
+    };
+
+
+  var listPrototypeSet = List.prototype.set;
+  var RecordListPrototype = RecordList.prototype;
+  RecordListPrototype[IS_RECORD_SENTINEL] = true;
 
 
   function makeRecord(likeRecord, map, ownerID) {
@@ -4892,6 +4966,8 @@
     OrderedSet: OrderedSet,
 
     Record: Record,
+    RecordList: RecordList,
+
     Range: Range,
     Repeat: Repeat,
 
