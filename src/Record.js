@@ -24,6 +24,7 @@ export class Record extends KeyedCollection {
       if (values instanceof RecordType) {
         return values;
       }
+
       if (!(this instanceof RecordType)) {
         return new RecordType(values);
       }
@@ -36,13 +37,20 @@ export class Record extends KeyedCollection {
         RecordTypePrototype._keys = keys;
         RecordTypePrototype._defaultValues = defaultValues;
       }
-      this._map = Map(values);
+      this._map = Map(values).map(this._constructField, this);
     };
 
     var RecordTypePrototype = RecordType.prototype = Object.create(RecordPrototype);
     RecordTypePrototype.constructor = RecordType;
 
     return RecordType;
+  }
+
+  _constructField(value, key) {
+    var defaultValue = this._defaultValues[key];
+    var RecordType = defaultValue instanceof Record &&
+                     defaultValue.constructor;
+    return RecordType ? new RecordType(value) : value;
   }
 
   toString() {
@@ -78,7 +86,8 @@ export class Record extends KeyedCollection {
     if (!this.has(k)) {
       throw new Error('Cannot set unknown key "' + k + '" on ' + recordName(this));
     }
-    var newMap = this._map && this._map.set(k, v);
+
+    var newMap = this._map && this._map.set(k, this._constructField(v, k));
     if (this.__ownerID || newMap === this._map) {
       return this;
     }

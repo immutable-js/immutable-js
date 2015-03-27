@@ -738,7 +738,7 @@
   var src_Math__imul =
     typeof Math.imul === 'function' && Math.imul(0xffffffff, 2) === -2 ?
     Math.imul :
-    function imul(a, b) {
+    function src_Math__imul(a, b) {
       a = a | 0; // int
       b = b | 0; // int
       var c = a & 0xffff;
@@ -3748,6 +3748,7 @@
         if (values instanceof RecordType) {
           return values;
         }
+
         if (!(this instanceof RecordType)) {
           return new RecordType(values);
         }
@@ -3760,7 +3761,7 @@
           RecordTypePrototype._keys = keys;
           RecordTypePrototype._defaultValues = defaultValues;
         }
-        this._map = src_Map__Map(values);
+        this._map = src_Map__Map(values).map(this._constructField, this);
       };
 
       var RecordTypePrototype = RecordType.prototype = Object.create(RecordPrototype);
@@ -3768,6 +3769,13 @@
 
       return RecordType;
     }
+
+    Record.prototype._constructField = function(value, key) {
+      var defaultValue = this._defaultValues[key];
+      var RecordType = defaultValue instanceof Record &&
+                       defaultValue.constructor;
+      return RecordType ? new RecordType(value) : value;
+    };
 
     Record.prototype.toString = function() {
       return this.__toString(recordName(this) + ' {', '}');
@@ -3802,7 +3810,8 @@
       if (!this.has(k)) {
         throw new Error('Cannot set unknown key "' + k + '" on ' + recordName(this));
       }
-      var newMap = this._map && this._map.set(k, v);
+
+      var newMap = this._map && this._map.set(k, this._constructField(v, k));
       if (this.__ownerID || newMap === this._map) {
         return this;
       }
