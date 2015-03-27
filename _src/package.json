@@ -18,6 +18,7 @@
     "gulp-sourcemaps": "^1.1.5",
     "gulp-uglify": "^1.0.1",
     "gulp-util": "^3.0.1",
+    "harmonize": "*",
     "immutable": "facebook/immutable-js",
     "jshint-stylish": "^0.4.0",
     "marked": "^0.3.2",
@@ -27,7 +28,7 @@
     "react-tools": "^0.12.0",
     "run-sequence": "^0.3.7",
     "through2": "^0.6.1",
-    "typescript": "^1.3.0",
+    "typescript": "~1.3.0",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.0.0"
   }
