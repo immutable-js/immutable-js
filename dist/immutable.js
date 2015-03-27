@@ -2456,7 +2456,7 @@
     if (iters.length === 0) {
       return collection;
     }
-    if (collection.size === 0 && iters.length === 1) {
+    if (collection.size === 0 && !collection.__ownerID && iters.length === 1) {
       return collection.constructor(iters[0]);
     }
     return collection.withMutations(function(collection ) {
@@ -3559,7 +3559,7 @@
       if (iters.length === 0) {
         return this;
       }
-      if (this.size === 0 && iters.length === 1) {
+      if (this.size === 0 && !this.__ownerID && iters.length === 1) {
         return this.constructor(iters[0]);
       }
       return this.withMutations(function(set ) {
