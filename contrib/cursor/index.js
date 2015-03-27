@@ -88,6 +88,32 @@ KeyedCursorPrototype.set = function(key, value) {
   return updateCursor(this, function (m) { return m.set(key, value); }, [key]);
 }
 
+IndexedCursorPrototype.push = function(/* values */) {
+  var args = arguments;
+  return updateCursor(this, function (m) {
+    return m.push.apply(m, args);
+  });
+}
+
+IndexedCursorPrototype.pop = function() {
+  return updateCursor(this, function (m) {
+    return m.pop();
+  });
+}
+
+IndexedCursorPrototype.unshift = function(/* values */) {
+  var args = arguments;
+  return updateCursor(this, function (m) {
+    return m.unshift.apply(m, args);
+  });
+}
+
+IndexedCursorPrototype.shift = function() {
+  return updateCursor(this, function (m) {
+    return m.shift();
+  });
+}
+
 IndexedCursorPrototype.setIn =
 KeyedCursorPrototype.setIn = Map.prototype.setIn;
 
@@ -233,6 +259,13 @@ function wrappedValue(cursor, keyPath, value) {
 }
 
 function subCursor(cursor, keyPath, value) {
+  if (arguments.length < 3) {
+    return makeCursor( // call without value
+      cursor._rootData,
+      newKeyPath(cursor._keyPath, keyPath),
+      cursor._onChange
+    );
+  }
   return makeCursor(
     cursor._rootData,
     newKeyPath(cursor._keyPath, keyPath),

@@ -44,6 +44,19 @@ describe('Map', () => {
     expect(m.get('c')).toBe('C');
   });
 
+  it('constructor provides initial values as list of lists', () => {
+    var l = Immutable.List([
+      Immutable.List(['a', 'A']),
+      Immutable.List(['b', 'B']),
+      Immutable.List(['c', 'C'])
+    ]);
+    var m = Map(l);
+    expect(m.size).toBe(3);
+    expect(m.get('a')).toBe('A');
+    expect(m.get('b')).toBe('B');
+    expect(m.get('c')).toBe('C');
+  });
+
   it('constructor is identity when provided map', () => {
     var m1 = Map({'a': 'A', 'b': 'B', 'c': 'C'});
     var m2 = Map(m1);

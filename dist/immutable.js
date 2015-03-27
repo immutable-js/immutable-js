@@ -690,11 +690,19 @@
         typeof valueB.valueOf === 'function') {
       valueA = valueA.valueOf();
       valueB = valueB.valueOf();
+      if (valueA === valueB || (valueA !== valueA && valueB !== valueB)) {
+        return true;
+      }
+      if (!valueA || !valueB) {
+        return false;
+      }
     }
-    return typeof valueA.equals === 'function' &&
-      typeof valueB.equals === 'function' ?
-        valueA.equals(valueB) :
-        valueA === valueB || (valueA !== valueA && valueB !== valueB);
+    if (typeof valueA.equals === 'function' &&
+        typeof valueB.equals === 'function' &&
+        valueA.equals(valueB)) {
+      return true;
+    }
+    return false;
   }
 
   function fromJS(json, converter) {
@@ -1061,7 +1069,12 @@
         // in the parent iteration.
         if (entry) {
           validateEntry(entry);
-          return fn(entry[1], entry[0], this$0);
+          var indexedIterable = isIterable(entry);
+          return fn(
+            indexedIterable ? entry.get(1) : entry[1],
+            indexedIterable ? entry.get(0) : entry[0],
+            this$0
+          );
         }
       }, reverse);
     };
@@ -1079,8 +1092,13 @@
           // in the parent iteration.
           if (entry) {
             validateEntry(entry);
-            return type === ITERATE_ENTRIES ? step :
-              iteratorValue(type, entry[0], entry[1], step);
+            var indexedIterable = isIterable(entry);
+            return iteratorValue(
+              type,
+              indexedIterable ? entry.get(0) : entry[0],
+              indexedIterable ? entry.get(1) : entry[1],
+              step
+            );
           }
         }
       });
@@ -1332,7 +1350,7 @@
       var skipped = 0;
       var iterations = 0;
       return new src_Iterator__Iterator(function()  {
-        while (skipped++ !== resolvedBegin) {
+        while (skipped++ < resolvedBegin) {
           iterator.next();
         }
         if (++iterations > sliceSize) {
@@ -2427,10 +2445,10 @@
   }
 
   function deepMerger(merger) {
-    return function(existing, value) 
+    return function(existing, value, key) 
       {return existing && existing.mergeDeepWith && isIterable(value) ?
         existing.mergeDeepWith(merger, value) :
-        merger ? merger(existing, value) : value};
+        merger ? merger(existing, value, key) : value};
   }
 
   function mergeIntoCollectionWith(collection, merger, iters) {
@@ -2438,14 +2456,14 @@
     if (iters.length === 0) {
       return collection;
     }
-    if (collection.size === 0 && iters.length === 1) {
+    if (collection.size === 0 && !collection.__ownerID && iters.length === 1) {
       return collection.constructor(iters[0]);
     }
     return collection.withMutations(function(collection ) {
       var mergeIntoMap = merger ?
         function(value, key)  {
           collection.update(key, NOT_SET, function(existing )
-            {return existing === NOT_SET ? value : merger(existing, value)}
+            {return existing === NOT_SET ? value : merger(existing, value, key)}
           );
         } :
         function(value, key)  {
@@ -3541,7 +3559,7 @@
       if (iters.length === 0) {
         return this;
       }
-      if (this.size === 0 && iters.length === 1) {
+      if (this.size === 0 && !this.__ownerID && iters.length === 1) {
         return this.constructor(iters[0]);
       }
       return this.withMutations(function(set ) {
@@ -3724,6 +3742,8 @@
   createClass(Record, KeyedCollection);
 
     function Record(defaultValues, name) {
+      var hasInitialized;
+
       var RecordType = function Record(values) {
         if (values instanceof RecordType) {
           return values;
@@ -3732,33 +3752,20 @@
         if (!(this instanceof RecordType)) {
           return new RecordType(values);
         }
+        if (!hasInitialized) {
+          hasInitialized = true;
+          var keys = Object.keys(defaultValues);
+          setProps(RecordTypePrototype, keys);
+          RecordTypePrototype.size = keys.length;
+          RecordTypePrototype._name = name;
+          RecordTypePrototype._keys = keys;
+          RecordTypePrototype._defaultValues = defaultValues;
+        }
         this._map = src_Map__Map(values).map(this._constructField, this);
       };
 
-      var keys = Object.keys(defaultValues);
-
       var RecordTypePrototype = RecordType.prototype = Object.create(RecordPrototype);
       RecordTypePrototype.constructor = RecordType;
-      name && (RecordTypePrototype._name = name);
-      RecordTypePrototype._defaultValues = defaultValues;
-      RecordTypePrototype._keys = keys;
-      RecordTypePrototype.size = keys.length;
-
-      try {
-        keys.forEach(function(key ) {
-          Object.defineProperty(RecordTypePrototype, key, {
-            get: function() {
-              return this.get(key);
-            },
-            set: function(value) {
-              invariant(this.__ownerID, 'Cannot set on an immutable record.');
-              this.set(key, value);
-            }
-          });
-        });
-      } catch (error) {
-        // Object.defineProperty failed. Probably IE8.
-      }
 
       return RecordType;
     }
@@ -3795,8 +3802,8 @@
         this._map && this._map.clear();
         return this;
       }
-      var SuperRecord = Object.getPrototypeOf(this).constructor;
-      return SuperRecord._empty || (SuperRecord._empty = makeRecord(this, emptyMap()));
+      var RecordType = this.constructor;
+      return RecordType._empty || (RecordType._empty = makeRecord(this, emptyMap()));
     };
 
     Record.prototype.set = function(k, v) {
@@ -3848,7 +3855,6 @@
     };
 
 
-
   var RecordPrototype = Record.prototype;
   RecordPrototype[DELETE] = RecordPrototype.remove;
   RecordPrototype.deleteIn =
@@ -3875,7 +3881,27 @@
   }
 
   function recordName(record) {
-    return record._name || record.constructor.name;
+    return record._name || record.constructor.name || 'Record';
+  }
+
+  function setProps(prototype, names) {
+    try {
+      names.forEach(setProp.bind(undefined, prototype));
+    } catch (error) {
+      // Object.defineProperty failed. Probably IE8.
+    }
+  }
+
+  function setProp(prototype, name) {
+    Object.defineProperty(prototype, name, {
+      get: function() {
+        return this.get(name);
+      },
+      set: function(value) {
+        invariant(this.__ownerID, 'Cannot set on an immutable record.');
+        this.set(name, value);
+      }
+    });
   }
 
   function deepEqual(a, b) {

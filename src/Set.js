@@ -70,7 +70,7 @@ export class Set extends SetCollection {
     if (iters.length === 0) {
       return this;
     }
-    if (this.size === 0 && iters.length === 1) {
+    if (this.size === 0 && !this.__ownerID && iters.length === 1) {
       return this.constructor(iters[0]);
     }
     return this.withMutations(set => {

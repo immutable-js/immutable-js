@@ -152,7 +152,12 @@ export class FromEntriesSequence extends KeyedSeq {
       // in the parent iteration.
       if (entry) {
         validateEntry(entry);
-        return fn(entry[1], entry[0], this);
+        var indexedIterable = isIterable(entry);
+        return fn(
+          indexedIterable ? entry.get(1) : entry[1],
+          indexedIterable ? entry.get(0) : entry[0],
+          this
+        );
       }
     }, reverse);
   }
@@ -170,8 +175,13 @@ export class FromEntriesSequence extends KeyedSeq {
         // in the parent iteration.
         if (entry) {
           validateEntry(entry);
-          return type === ITERATE_ENTRIES ? step :
-            iteratorValue(type, entry[0], entry[1], step);
+          var indexedIterable = isIterable(entry);
+          return iteratorValue(
+            type,
+            indexedIterable ? entry.get(0) : entry[0],
+            indexedIterable ? entry.get(1) : entry[1],
+            step
+          );
         }
       }
     });
@@ -423,7 +433,7 @@ export function sliceFactory(iterable, begin, end, useKeys) {
     var skipped = 0;
     var iterations = 0;
     return new Iterator(() => {
-      while (skipped++ !== resolvedBegin) {
+      while (skipped++ < resolvedBegin) {
         iterator.next();
       }
       if (++iterations > sliceSize) {

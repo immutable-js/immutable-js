@@ -15,17 +15,28 @@ describe('Record', () => {
     var t2 = t1.set('a', 10);
     var t3 = t2.clear();
 
-    expect(t1 instanceof Record);
-    expect(t1 instanceof MyType);
+    expect(t1 instanceof Record).toBe(true);
+    expect(t1 instanceof MyType).toBe(true);
 
-    expect(t3 instanceof Record);
-    expect(t3 instanceof MyType);
+    expect(t3 instanceof Record).toBe(true);
+    expect(t3 instanceof MyType).toBe(true);
 
     expect(t1.get('a')).toBe(1);
     expect(t2.get('a')).toBe(10);
 
     expect(t1.size).toBe(3);
     expect(t2.size).toBe(3);
+  })
+
+  it('passes through records of the same type', () => {
+    var P2 = Record({ x: 0, y: 0 });
+    var P3 = Record({ x: 0, y: 0, z: 0 });
+    var p2 = P2();
+    var p3 = P3();
+    expect(P3(p2) instanceof P3).toBe(true);
+    expect(P2(p3) instanceof P2).toBe(true);
+    expect(P2(p2)).toBe(p2);
+    expect(P3(p3)).toBe(p3);
   })
 
   it('only allows setting what it knows about', () => {

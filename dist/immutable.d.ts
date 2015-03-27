@@ -224,11 +224,11 @@ declare module 'immutable' {
      * @see `Map#mergeWith`
      */
     mergeWith(
-      merger: (previous?: T, next?: T) => T,
+      merger: (previous?: T, next?: T, key?: number) => T,
       ...iterables: IndexedIterable<T>[]
     ): List<T>;
     mergeWith(
-      merger: (previous?: T, next?: T) => T,
+      merger: (previous?: T, next?: T, key?: number) => T,
       ...iterables: Array<T>[]
     ): List<T>;
 
@@ -242,11 +242,11 @@ declare module 'immutable' {
      * @see `Map#mergeDeepWith`
      */
     mergeDeepWith(
-      merger: (previous?: T, next?: T) => T,
+      merger: (previous?: T, next?: T, key?: number) => T,
       ...iterables: IndexedIterable<T>[]
     ): List<T>;
     mergeDeepWith(
-      merger: (previous?: T, next?: T) => T,
+      merger: (previous?: T, next?: T, key?: number) => T,
       ...iterables: Array<T>[]
     ): List<T>;
 
@@ -478,11 +478,11 @@ declare module 'immutable' {
      *
      */
     mergeWith(
-      merger: (previous?: V, next?: V) => V,
+      merger: (previous?: V, next?: V, key?: K) => V,
       ...iterables: Iterable<K, V>[]
     ): Map<K, V>;
     mergeWith(
-      merger: (previous?: V, next?: V) => V,
+      merger: (previous?: V, next?: V, key?: K) => V,
       ...iterables: {[key: string]: V}[]
     ): Map<string, V>;
 
@@ -509,11 +509,11 @@ declare module 'immutable' {
      *
      */
     mergeDeepWith(
-      merger: (previous?: V, next?: V) => V,
+      merger: (previous?: V, next?: V, key?: K) => V,
       ...iterables: Iterable<K, V>[]
     ): Map<K, V>;
     mergeDeepWith(
-      merger: (previous?: V, next?: V) => V,
+      merger: (previous?: V, next?: V, key?: K) => V,
       ...iterables: {[key: string]: V}[]
     ): Map<string, V>;
 
@@ -1067,6 +1067,10 @@ declare module 'immutable' {
       new (): Map<string, any>;
       new (values: {[key: string]: any}): Map<string, any>;
       new (values: Iterable<string, any>): Map<string, any>; // deprecated
+
+      (): Map<string, any>;
+      (values: {[key: string]: any}): Map<string, any>;
+      (values: Iterable<string, any>): Map<string, any>; // deprecated
     }
   }
 

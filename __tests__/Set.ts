@@ -198,6 +198,14 @@ describe('Set', () => {
     expect(Immutable.is(s1, v1)).toBe(false);
   });
 
+  it('can use union in a withMutation', () => {
+    var js = Immutable.Set().withMutations(set => {
+      set.union([ 'a' ]);
+      set.add('b');
+    }).toJS();
+    expect(js).toEqual(['a', 'b']);
+  });
+
   // TODO: more tests
 
 });

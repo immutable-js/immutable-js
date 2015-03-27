@@ -40,6 +40,15 @@ describe('merge', () => {
     expect(m1.mergeWith((a, b) => a + b, m2)).is(I.Map({a:1,b:22,c:3,d:10,e:30}));
   })
 
+  it('provides key as the third argument of merge function', () => {
+    var m1 = I.Map({id:'temp',  b:2,  c:3});
+    var m2 = I.Map({id:10,  b:20, e:30});
+    var add = (a, b) => a + b
+    expect(
+      m1.mergeWith((a, b, key) => key !== 'id' ? add(a, b) : b, m2)
+    ).is(I.Map({id:10,b:22,c:3,e:30}));
+  })
+
   it('deep merges two maps', () => {
     var m1 = I.fromJS({a:{b:{c:1,d:2}}});
     var m2 = I.fromJS({a:{b:{c:10,e:20},f:30},g:40});
