@@ -233,6 +233,13 @@ function wrappedValue(cursor, keyPath, value) {
 }
 
 function subCursor(cursor, keyPath, value) {
+  if (arguments.length < 3) {
+    return makeCursor( // call without value
+      cursor._rootData,
+      newKeyPath(cursor._keyPath, keyPath),
+      cursor._onChange
+    );
+  }
   return makeCursor(
     cursor._rootData,
     newKeyPath(cursor._keyPath, keyPath),
