@@ -715,10 +715,10 @@ function mergeIntoMapWith(map, merger, iterables) {
 }
 
 export function deepMerger(merger) {
-  return (existing, value) =>
+  return (existing, value, key) =>
     existing && existing.mergeDeepWith && isIterable(value) ?
       existing.mergeDeepWith(merger, value) :
-      merger ? merger(existing, value) : value;
+      merger ? merger(existing, value, key) : value;
 }
 
 export function mergeIntoCollectionWith(collection, merger, iters) {
@@ -733,7 +733,7 @@ export function mergeIntoCollectionWith(collection, merger, iters) {
     var mergeIntoMap = merger ?
       (value, key) => {
         collection.update(key, NOT_SET, existing =>
-          existing === NOT_SET ? value : merger(existing, value)
+          existing === NOT_SET ? value : merger(existing, value, key)
         );
       } :
       (value, key) => {
