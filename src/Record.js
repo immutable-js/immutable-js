@@ -70,8 +70,8 @@ export class Record extends KeyedCollection {
       this._map && this._map.clear();
       return this;
     }
-    var SuperRecord = Object.getPrototypeOf(this).constructor;
-    return SuperRecord._empty || (SuperRecord._empty = makeRecord(this, emptyMap()));
+    var RecordType = this.constructor;
+    return RecordType._empty || (RecordType._empty = makeRecord(this, emptyMap()));
   }
 
   set(k, v) {
