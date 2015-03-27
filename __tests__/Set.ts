@@ -206,6 +206,16 @@ describe('Set', () => {
     expect(js).toEqual(['a', 'b']);
   });
 
+  it('can use intersect after add or union in a withMutation', () => {
+    var js = Immutable.Set(['a', 'd']).withMutations(function(set) {
+      set.add('b');
+      set.union(['c']);
+      set.intersect(['b', 'c', 'd']);
+    }).toJS().sort();
+    expect(js).toEqual(['b', 'c', 'd']);
+  });
+
+
   // TODO: more tests
 
 });

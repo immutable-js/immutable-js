@@ -165,7 +165,7 @@ export class Map extends KeyedCollection {
     var iterations = 0;
     this._root && this._root.iterate(entry => {
       iterations++;
-      return fn(entry[1], entry[0], this);
+      return entry && fn(entry[1], entry[0], this);
     }, reverse);
     return iterations;
   }

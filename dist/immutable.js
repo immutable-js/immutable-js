@@ -1895,7 +1895,7 @@
       var iterations = 0;
       this._root && this._root.iterate(function(entry ) {
         iterations++;
-        return fn(entry[1], entry[0], this$0);
+        return entry && fn(entry[1], entry[0], this$0);
       }, reverse);
       return iterations;
     };
