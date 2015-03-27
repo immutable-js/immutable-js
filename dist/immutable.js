@@ -3745,6 +3745,9 @@
       var hasInitialized;
 
       var RecordType = function Record(values) {
+        if (values instanceof RecordType) {
+          return values;
+        }
         if (!(this instanceof RecordType)) {
           return new RecordType(values);
         }
