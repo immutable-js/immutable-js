@@ -411,11 +411,11 @@ Changes are tracked as [Github releases](https://github.com/facebook/immutable-j
 Thanks
 ------
 
-[Hugh Jackson](https://github.com/hughfdjackson/), for providing the npm package
-name. If you're looking for his unsupported package, see [v1.4.1](https://www.npmjs.org/package/immutable/1.4.1).
-
 [Phil Bagwell](https://www.youtube.com/watch?v=K2NYwP90bNs), for his inspiration
 and research in persistent data structures.
+
+[Hugh Jackson](https://github.com/hughfdjackson/), for providing the npm package
+name. If you're looking for his unsupported package, see [v1.4.1](https://www.npmjs.org/package/immutable/1.4.1).
 
 
 License
