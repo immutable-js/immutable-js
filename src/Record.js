@@ -156,5 +156,5 @@ function makeRecord(likeRecord, map, ownerID) {
 }
 
 function recordName(record) {
-  return record._name || record.constructor.name;
+  return record._name || record.constructor.name || 'Record';
 }

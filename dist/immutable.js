@@ -3880,7 +3880,7 @@
   }
 
   function recordName(record) {
-    return record._name || record.constructor.name;
+    return record._name || record.constructor.name || 'Record';
   }
 
   function deepEqual(a, b) {
