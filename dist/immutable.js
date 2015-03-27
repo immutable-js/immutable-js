@@ -3742,37 +3742,26 @@
   createClass(Record, KeyedCollection);
 
     function Record(defaultValues, name) {
+      var hasInitialized;
+
       var RecordType = function Record(values) {
         if (!(this instanceof RecordType)) {
           return new RecordType(values);
         }
+        if (!hasInitialized) {
+          hasInitialized = true;
+          var keys = Object.keys(defaultValues);
+          setProps(RecordTypePrototype, keys);
+          RecordTypePrototype.size = keys.length;
+          RecordTypePrototype._name = name;
+          RecordTypePrototype._keys = keys;
+          RecordTypePrototype._defaultValues = defaultValues;
+        }
         this._map = src_Map__Map(values);
       };
 
-      var keys = Object.keys(defaultValues);
-
       var RecordTypePrototype = RecordType.prototype = Object.create(RecordPrototype);
       RecordTypePrototype.constructor = RecordType;
-      name && (RecordTypePrototype._name = name);
-      RecordTypePrototype._defaultValues = defaultValues;
-      RecordTypePrototype._keys = keys;
-      RecordTypePrototype.size = keys.length;
-
-      try {
-        keys.forEach(function(key ) {
-          Object.defineProperty(RecordType.prototype, key, {
-            get: function() {
-              return this.get(key);
-            },
-            set: function(value) {
-              invariant(this.__ownerID, 'Cannot set on an immutable record.');
-              this.set(key, value);
-            }
-          });
-        });
-      } catch (error) {
-        // Object.defineProperty failed. Probably IE8.
-      }
 
       return RecordType;
     }
@@ -3881,6 +3870,26 @@
 
   function recordName(record) {
     return record._name || record.constructor.name || 'Record';
+  }
+
+  function setProps(prototype, names) {
+    try {
+      names.forEach(setProp.bind(undefined, prototype));
+    } catch (error) {
+      // Object.defineProperty failed. Probably IE8.
+    }
+  }
+
+  function setProp(prototype, name) {
+    Object.defineProperty(prototype, name, {
+      get: function() {
+        return this.get(name);
+      },
+      set: function(value) {
+        invariant(this.__ownerID, 'Cannot set on an immutable record.');
+        this.set(name, value);
+      }
+    });
   }
 
   function deepEqual(a, b) {
