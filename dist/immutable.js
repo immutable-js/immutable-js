@@ -1350,7 +1350,7 @@
       var skipped = 0;
       var iterations = 0;
       return new src_Iterator__Iterator(function()  {
-        while (skipped++ !== resolvedBegin) {
+        while (skipped++ < resolvedBegin) {
           iterator.next();
         }
         if (++iterations > sliceSize) {

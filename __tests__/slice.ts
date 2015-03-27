@@ -97,6 +97,24 @@ describe('slice', () => {
     expect(v.slice(31).toList().toArray()).toEqual(a.slice(31));
   })
 
+  it('can create an iterator', () => {
+    var seq = Seq([0,1,2,3,4,5]);
+    var iterFront = seq.slice(0,2).values();
+    expect(iterFront.next()).toEqual({value: 0, done: false});
+    expect(iterFront.next()).toEqual({value: 1, done: false});
+    expect(iterFront.next()).toEqual({value: undefined, done: true});
+
+    var iterMiddle = seq.slice(2,4).values();
+    expect(iterMiddle.next()).toEqual({value: 2, done: false});
+    expect(iterMiddle.next()).toEqual({value: 3, done: false});
+    expect(iterMiddle.next()).toEqual({value: undefined, done: true});
+
+    var iterTail = seq.slice(4,123456).values();
+    expect(iterTail.next()).toEqual({value: 4, done: false});
+    expect(iterTail.next()).toEqual({value: 5, done: false});
+    expect(iterTail.next()).toEqual({value: undefined, done: true});
+  })
+
   check.it('works like Array.prototype.slice',
            [gen.int, gen.array(gen.oneOf([gen.int, gen.undefined]), 0, 3)],
            (valuesLen, args) => {
