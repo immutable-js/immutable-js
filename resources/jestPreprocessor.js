@@ -25,7 +25,7 @@ function compileTypeScript(filePath) {
   // re-use cached source if possible
   var outputPath = path.join(options.outDir, path.basename(filePath, '.ts')) + '.js';
   if (isFileNewer(outputPath, filePath)) {
-    return fs.readFileSync(outputPath).toString();
+    return fs.readFileSync(outputPath, {encoding: 'utf8'});
   }
 
   if (fs.existsSync(outputPath)) {
@@ -34,21 +34,22 @@ function compileTypeScript(filePath) {
 
   var host = typescript.createCompilerHost(options);
   var program = typescript.createProgram([filePath], options, host);
-  var checker = typescript.createTypeChecker(program, true /* produceDiagnostics */);
+  var checker = typescript.createTypeChecker(program, /*fullTypeCheck*/ true);
   var result = checker.emitFiles();
 
-  var allErrors = program.getDiagnostics().concat(checker.getDiagnostics())
-    .concat(result.diagnostics);
-  allErrors.forEach(function(diagnostic) {
-    var lineChar = diagnostic.file.getLineAndCharacterFromPosition(diagnostic.start);
-    console.error('%s %d:%d %s', diagnostic.file.filename, lineChar.line, lineChar.character, diagnostic.messageText);
-  });
+  program.getDiagnostics()
+    .concat(checker.getDiagnostics())
+    .concat(result.diagnostics)
+    .forEach(function(diagnostic) {
+      var lineChar = diagnostic.file.getLineAndCharacterFromPosition(diagnostic.start);
+      console.error('%s %d:%d %s', diagnostic.file.filename, lineChar.line, lineChar.character, diagnostic.messageText);
+    });
 
   if (result.emitResultStatus !== typescript.EmitReturnStatus.Succeeded) {
     throw new Error('Compiling ' + filePath + ' failed');
   }
 
-  return fs.readFileSync(outputPath).toString();
+  return fs.readFileSync(outputPath, {encoding: 'utf8'});
 }
 
 module.exports = {
