@@ -56,7 +56,7 @@ module.exports = {
   process: function(src, filePath) {
     if (filePath.match(/\.ts$/) && !filePath.match(/\.d\.ts$/)) {
       return compileTypeScript(filePath);
-    } else if (filePath.match(/\.js$/)) {
+    } else if (filePath.match(/\.js$/) && ~filePath.indexOf('/__tests__/')) {
       var result = react.transform(src, {harmony: true}).replace(
           /require\('immutable/g,
           "require('" + path.relative(path.dirname(filePath), process.cwd())
