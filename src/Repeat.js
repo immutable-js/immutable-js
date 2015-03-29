@@ -46,7 +46,7 @@ export class Repeat extends IndexedSeq {
     return this.has(index) ? this._value : notSetValue;
   }
 
-  contains(searchValue) {
+  includes(searchValue) {
     return is(this._value, searchValue);
   }
 

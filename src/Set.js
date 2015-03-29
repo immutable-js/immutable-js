@@ -88,7 +88,7 @@ export class Set extends SetCollection {
     var originalSet = this;
     return this.withMutations(set => {
       originalSet.forEach(value => {
-        if (!iters.every(iter => iter.contains(value))) {
+        if (!iters.every(iter => iter.includes(value))) {
           set.remove(value);
         }
       });
@@ -103,7 +103,7 @@ export class Set extends SetCollection {
     var originalSet = this;
     return this.withMutations(set => {
       originalSet.forEach(value => {
-        if (iters.some(iter => iter.contains(value))) {
+        if (iters.some(iter => iter.includes(value))) {
           set.remove(value);
         }
       });

@@ -63,7 +63,7 @@ export class Range extends IndexedSeq {
       notSetValue;
   }
 
-  contains(searchValue) {
+  includes(searchValue) {
     var possibleIndex = (searchValue - this._start) / this._step;
     return possibleIndex >= 0 &&
       possibleIndex < this.size &&

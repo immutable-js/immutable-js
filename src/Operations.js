@@ -90,8 +90,8 @@ export class ToIndexedSequence extends IndexedSeq {
     this.size = iter.size;
   }
 
-  contains(value) {
-    return this._iter.contains(value);
+  includes(value) {
+    return this._iter.includes(value);
   }
 
   __iterate(fn, reverse) {
@@ -118,7 +118,7 @@ export class ToSetSequence extends SetSeq {
   }
 
   has(key) {
-    return this._iter.contains(key);
+    return this._iter.includes(key);
   }
 
   __iterate(fn, reverse) {
@@ -205,8 +205,8 @@ export function flipFactory(iterable) {
     reversedSequence.flip = () => iterable.reverse();
     return reversedSequence;
   };
-  flipSequence.has = key => iterable.contains(key);
-  flipSequence.contains = key => iterable.has(key);
+  flipSequence.has = key => iterable.includes(key);
+  flipSequence.includes = key => iterable.has(key);
   flipSequence.cacheResult = cacheResultThrough;
   flipSequence.__iterateUncached = function (fn, reverse) {
     return iterable.__iterate((v, k) => fn(k, v, this) !== false, reverse);
@@ -286,7 +286,7 @@ export function reverseFactory(iterable, useKeys) {
     iterable.get(useKeys ? key : -1 - key, notSetValue);
   reversedSequence.has = key =>
     iterable.has(useKeys ? key : -1 - key);
-  reversedSequence.contains = value => iterable.contains(value);
+  reversedSequence.includes = value => iterable.includes(value);
   reversedSequence.cacheResult = cacheResultThrough;
   reversedSequence.__iterate = function (fn, reverse) {
     return iterable.__iterate((v, k) => fn(v, k, this), !reverse);
