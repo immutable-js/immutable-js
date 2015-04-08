@@ -78,6 +78,11 @@ export class Map extends KeyedCollection {
       updater = notSetValue;
       notSetValue = undefined;
     }
+
+    if (typeof keyPath === 'string') {
+      keyPath = keyPath.split('.');
+    }
+
     var updatedValue = updateInDeepMap(
       this,
       forceIterator(keyPath),

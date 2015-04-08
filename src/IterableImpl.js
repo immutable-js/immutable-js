@@ -328,6 +328,9 @@ mixin(Iterable, {
 
   getIn(searchKeyPath, notSetValue) {
     var nested = this;
+    if (typeof searchKeyPath === 'string') {
+      searchKeyPath = searchKeyPath.split('.');
+    }
     // Note: in an ES6 environment, we would prefer:
     // for (var key of searchKeyPath) {
     var iter = forceIterator(searchKeyPath);
