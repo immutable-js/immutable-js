@@ -17,6 +17,11 @@ describe('updateIn', () => {
     expect(m.getIn(I.fromJS(['a', 'b', 'c']))).toEqual(10);
   })
 
+  it('deep get with path string as keyPath', () => {
+    var m = I.fromJS({a: {b: {c: 10}}});
+    expect(m.getIn('a.b.c')).toEqual(10);
+  })
+
   it('deep get throws without list or array-like', () => {
     // need to cast these as TypeScript first prevents us from such clownery.
     expect(() =>
@@ -41,6 +46,7 @@ describe('updateIn', () => {
     var m = I.fromJS({a: {b: {c: 10}}});
     expect(m.getIn(['a', 'b', 'z'])).toEqual(undefined);
     expect(m.getIn(['a', 'b', 'c', 'd'])).toEqual(undefined);
+    expect(m.getIn('a.b.c.d')).toEqual(undefined);
   })
 
   it('deep edit', () => {
@@ -56,6 +62,15 @@ describe('updateIn', () => {
     var m = I.fromJS({a: {b: {c: 10}}});
     expect(
       m.updateIn(I.fromJS(['a', 'b', 'c']), value => value * 2).toJS()
+    ).toEqual(
+      {a: {b: {c: 20}}}
+    );
+  })
+
+  it('deep edit with path string as keyPath', () => {
+    var m = I.fromJS({a: {b: {c: 10}}});
+    expect(
+      m.updateIn('a.b.c', value => value * 2).toJS()
     ).toEqual(
       {a: {b: {c: 20}}}
     );
@@ -81,10 +96,28 @@ describe('updateIn', () => {
     );
   })
 
+  it('deep remove with path string as keyPath', () => {
+    var m = I.fromJS({a: {b: {c: 10}}});
+    expect(
+      m.updateIn('a.b', map => map.remove('c')).toJS()
+    ).toEqual(
+      {a: {b: {}}}
+    );
+  })
+
   it('deep set', () => {
     var m = I.fromJS({a: {b: {c: 10}}});
     expect(
       m.updateIn(['a', 'b'], map => map.set('d', 20)).toJS()
+    ).toEqual(
+      {a: {b: {c: 10, d: 20}}}
+    );
+  })
+
+  it('deep set with path string as keyPath', () => {
+    var m = I.fromJS({a: {b: {c: 10}}});
+    expect(
+      m.updateIn('a.b', map => map.set('d', 20)).toJS()
     ).toEqual(
       {a: {b: {c: 10, d: 20}}}
     );
@@ -99,6 +132,15 @@ describe('updateIn', () => {
     );
   })
 
+  it('deep push with path string as keyPath', () => {
+    var m = I.fromJS({a: {b: [1,2,3]}});
+    expect(
+      m.updateIn('a.b', list => list.push(4)).toJS()
+    ).toEqual(
+      {a: {b: [1,2,3,4]}}
+    );
+  })
+
   it('deep map', () => {
     var m = I.fromJS({a: {b: [1,2,3]}});
     expect(
@@ -108,10 +150,28 @@ describe('updateIn', () => {
     );
   })
 
+  it('deep map with path string as keyPath', () => {
+    var m = I.fromJS({a: {b: [1,2,3]}});
+    expect(
+      m.updateIn('a.b', list => list.map(value => value * 10)).toJS()
+    ).toEqual(
+      {a: {b: [10, 20, 30]}}
+    );
+  })
+
   it('creates new maps if path contains gaps', () => {
     var m = I.fromJS({a: {b: {c: 10}}});
     expect(
       m.updateIn(['a', 'z'], I.Map(), map => map.set('d', 20)).toJS()
+    ).toEqual(
+      {a: {b: {c: 10}, z: {d: 20}}}
+    );
+  })
+
+  it('creates new maps if path contains gaps with path string as keyPath', () => {
+    var m = I.fromJS({a: {b: {c: 10}}});
+    expect(
+      m.updateIn('a.z', I.Map(), map => map.set('d', 20)).toJS()
     ).toEqual(
       {a: {b: {c: 10}, z: {d: 20}}}
     );
@@ -167,6 +227,11 @@ describe('updateIn', () => {
       expect(m.toJS()).toEqual({a:{b:{c:'X'}}});
     })
 
+    it('accepts path string as a keyPath', () => {
+      var m = I.Map().setIn('a.b.c', 'X');
+      expect(m.toJS()).toEqual({a:{b:{c:'X'}}});
+    })
+
     it('returns value when setting empty path', () => {
       var m = I.Map();
       expect(m.setIn([], 'X')).toBe('X')
@@ -189,6 +254,11 @@ describe('updateIn', () => {
     it('accepts a list as a keyPath', () => {
       var m = I.fromJS({a:{b:{c:'X', d:'Y'}}});
       expect(m.removeIn(I.fromJS(['a','b','c'])).toJS()).toEqual({a:{b:{d:'Y'}}});
+    })
+
+    it('accepts a path string as a keyPath', () => {
+      var m = I.fromJS({a:{b:{c:'X', d:'Y'}}});
+      expect(m.removeIn('a.b.c').toJS()).toEqual({a:{b:{d:'Y'}}});
     })
 
     it('does not create empty maps for an unset path', () => {
@@ -217,6 +287,14 @@ describe('updateIn', () => {
       var m1 = I.fromJS({x:{a:1,b:2,c:3}});
       var m2 = I.fromJS({d:10,b:20,e:30});
       expect(m1.mergeIn(I.fromJS(['x']), m2).toJS()).toEqual(
+        {x: {a:1,b:20,c:3,d:10,e:30}}
+      );
+    })
+
+    it('accepts a path string as a keyPath', () => {
+      var m1 = I.fromJS({x:{a:1,b:2,c:3}});
+      var m2 = I.fromJS({d:10,b:20,e:30});
+      expect(m1.mergeIn('x', m2).toJS()).toEqual(
         {x: {a:1,b:20,c:3,d:10,e:30}}
       );
     })
@@ -251,6 +329,14 @@ describe('updateIn', () => {
       var m1 = I.fromJS({x:{a:1,b:2,c:3}});
       var m2 = I.fromJS({d:10,b:20,e:30});
       expect(m1.mergeDeepIn(I.fromJS(['x']), m2).toJS()).toEqual(
+        {x: {a:1,b:20,c:3,d:10,e:30}}
+      );
+    })
+
+    it('accepts a path string as a keyPath', () => {
+      var m1 = I.fromJS({x:{a:1,b:2,c:3}});
+      var m2 = I.fromJS({d:10,b:20,e:30});
+      expect(m1.mergeDeepIn('x', m2).toJS()).toEqual(
         {x: {a:1,b:20,c:3,d:10,e:30}}
       );
     })

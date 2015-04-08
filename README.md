@@ -278,6 +278,16 @@ var nested4 = nested3.updateIn(['a', 'b', 'c'], list => list.push(6));
 // Map { a: Map { b: Map { c: List [ 3, 4, 5, 6 ], d: 7 } } }
 ```
 
+Instead of arrays you may optionally use a dot-separated path string for 
+addressing nested structures.
+
+```javascript
+nested2.getIn('a.b.d'); // 6
+
+var nested3 = nested2.updateIn('a.b.d', value => value + 1);
+// Map { a: Map { b: Map { c: List [ 3, 4, 5 ], d: 7 } } }
+```
+
 
 Lazy Seq
 --------

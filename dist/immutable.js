@@ -1808,6 +1808,11 @@
         updater = notSetValue;
         notSetValue = undefined;
       }
+
+      if (typeof keyPath === 'string') {
+        keyPath = keyPath.split('.');
+      }
+
       var updatedValue = updateInDeepMap(
         this,
         forceIterator(keyPath),
@@ -4441,6 +4446,9 @@
 
     getIn: function(searchKeyPath, notSetValue) {
       var nested = this;
+      if (typeof searchKeyPath === 'string') {
+        searchKeyPath = searchKeyPath.split('.');
+      }
       // Note: in an ES6 environment, we would prefer:
       // for (var key of searchKeyPath) {
       var iter = forceIterator(searchKeyPath);

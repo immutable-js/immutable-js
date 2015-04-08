@@ -274,6 +274,7 @@ declare module 'immutable' {
      */
     setIn(keyPath: Array<any>, value: any): List<T>;
     setIn(keyPath: Iterable<any, any>, value: any): List<T>;
+    setIn(keyPath: String, value: any): List<T>;
 
     /**
      * Returns a new List having removed the value at this `keyPath`. If any
@@ -283,14 +284,20 @@ declare module 'immutable' {
      */
     deleteIn(keyPath: Array<any>): List<T>;
     deleteIn(keyPath: Iterable<any, any>): List<T>;
+    deleteIn(keyPath: String): List<T>;
     removeIn(keyPath: Array<any>): List<T>;
     removeIn(keyPath: Iterable<any, any>): List<T>;
+    removeIn(keyPath: String): List<T>;
 
     /**
      * @see `Map#updateIn`
      */
     updateIn(
       keyPath: Array<any>,
+      updater: (value: any) => any
+    ): List<T>;
+    updateIn(
+      keyPath: String,
       updater: (value: any) => any
     ): List<T>;
     updateIn(
@@ -316,6 +323,10 @@ declare module 'immutable' {
       ...iterables: IndexedIterable<T>[]
     ): List<T>;
     mergeIn(
+      keyPath: String,
+      ...iterables: IndexedIterable<T>[]
+    ): List<T>;
+    mergeIn(
       keyPath: Array<any>,
       ...iterables: IndexedIterable<T>[]
     ): List<T>;
@@ -329,6 +340,10 @@ declare module 'immutable' {
      */
     mergeDeepIn(
       keyPath: Iterable<any, any>,
+      ...iterables: IndexedIterable<T>[]
+    ): List<T>;
+    mergeDeepIn(
+      keyPath: String,
       ...iterables: IndexedIterable<T>[]
     ): List<T>;
     mergeDeepIn(
@@ -526,6 +541,7 @@ declare module 'immutable' {
      */
     setIn(keyPath: Array<any>, value: any): Map<K, V>;
     setIn(KeyPath: Iterable<any, any>, value: any): Map<K, V>;
+    setIn(KeyPath: String, value: any): Map<K, V>;
 
     /**
      * Returns a new Map having removed the value at this `keyPath`. If any keys
@@ -535,8 +551,10 @@ declare module 'immutable' {
      */
     deleteIn(keyPath: Array<any>): Map<K, V>;
     deleteIn(keyPath: Iterable<any, any>): Map<K, V>;
+    deleteIn(keyPath: String): Map<K, V>;
     removeIn(keyPath: Array<any>): Map<K, V>;
     removeIn(keyPath: Iterable<any, any>): Map<K, V>;
+    removeIn(keyPath: String): Map<K, V>;
 
     /**
      * Returns a new Map having applied the `updater` to the entry found at the
@@ -561,6 +579,10 @@ declare module 'immutable' {
      */
     updateIn(
       keyPath: Array<any>,
+      updater: (value: any) => any
+    ): Map<K, V>;
+    updateIn(
+      keyPath: String,
       updater: (value: any) => any
     ): Map<K, V>;
     updateIn(
@@ -596,6 +618,10 @@ declare module 'immutable' {
       ...iterables: Iterable<K, V>[]
     ): Map<K, V>;
     mergeIn(
+      keyPath: String,
+      ...iterables: Iterable<K, V>[]
+    ): Map<K, V>;
+    mergeIn(
       keyPath: Array<any>,
       ...iterables: {[key: string]: V}[]
     ): Map<string, V>;
@@ -615,6 +641,10 @@ declare module 'immutable' {
     ): Map<K, V>;
     mergeDeepIn(
       keyPath: Array<any>,
+      ...iterables: Iterable<K, V>[]
+    ): Map<K, V>;
+    mergeDeepIn(
+      keyPath: String,
       ...iterables: Iterable<K, V>[]
     ): Map<K, V>;
     mergeDeepIn(
@@ -1429,6 +1459,7 @@ declare module 'immutable' {
      */
     getIn(searchKeyPath: Array<any>, notSetValue?: any): any;
     getIn(searchKeyPath: Iterable<any, any>, notSetValue?: any): any;
+    getIn(searchKeyPath: String, notSetValue?: any): any;
 
     /**
      * True if the result of following a path of keys or indices through nested
@@ -1436,6 +1467,7 @@ declare module 'immutable' {
      */
     hasIn(searchKeyPath: Array<any>, notSetValue?: any): boolean;
     hasIn(searchKeyPath: Iterable<any, any>, notSetValue?: any): boolean;
+    hasIn(searchKeyPath: String, notSetValue?: any): boolean;
 
 
     // Conversion to JavaScript types
