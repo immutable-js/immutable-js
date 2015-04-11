@@ -59,7 +59,7 @@ export class Record extends KeyedCollection {
     if (!this.has(k)) {
       return notSetValue;
     }
-    var defaultVal = this._defaultValues[k];
+    var defaultVal = typeof this._defaultValues[k] === 'function' ? this._defaultValues[k].apply() : this._defaultValues[k];
     return this._map ? this._map.get(k, defaultVal) : defaultVal;
   }
 

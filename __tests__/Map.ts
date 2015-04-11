@@ -72,7 +72,7 @@ describe('Map', () => {
   it('does not accept strings (iterable, but scalar)', () => {
     expect(() => {
       Map('abc');
-    }).toThrow('Expected Array or iterable object of [k, v] entries, or keyed object: abc');
+    }).toThrow('Expected [K, V] tuple: a');
   });
 
   it('does not accept non-entries array', () => {
