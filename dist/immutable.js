@@ -1346,7 +1346,7 @@
         return this.cacheResult().__iterator(type, reverse);
       }
       // Don't bother instantiating parent iterator if taking 0.
-      var iterator = sliceSize && iterable.__iterator(type, reverse);
+      var iterator = sliceSize !== 0 && iterable.__iterator(type, reverse);
       var skipped = 0;
       var iterations = 0;
       return new src_Iterator__Iterator(function()  {

@@ -135,6 +135,16 @@ describe('IterableSequence', () => {
       expect(mockFn.mock.calls).toEqual([[0],[1],[2]]);
     })
 
+    it('can iterate an uncached skip', () => {
+      var i = new SimpleIterable(10);
+      var s = Immutable.Seq(i['@@iterator']());
+
+      var skipped = s.skip(2);
+      var iter = skipped['@@iterator']()
+
+      expect(iter.next()).toEqual({value: 2, done: false});
+    })
+
   })
 
 })
