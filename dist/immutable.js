@@ -1298,19 +1298,24 @@
 
     // begin or end will be NaN if they were provided as negative numbers and
     // this iterable's size is unknown. In that case, cache first so there is
-    // a known size.
+    // a known size and these do not resolve to NaN.
     if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd) {
       return sliceFactory(iterable.toSeq().cacheResult(), begin, end, useKeys);
     }
 
-    var sliceSize = resolvedEnd - resolvedBegin;
-    if (sliceSize < 0) {
-      sliceSize = 0;
+    // Note: resolvedEnd is undefined when the original sequence's length is
+    // unknown and this slice did not supply an end and should contain all
+    // elements after resolvedBegin.
+    // In that case, resolvedSize will be NaN and sliceSize will remain undefined.
+    var resolvedSize = resolvedEnd - resolvedBegin;
+    var sliceSize;
+    if (resolvedSize === resolvedSize) {
+      sliceSize = resolvedSize < 0 ? 0 : resolvedSize;
     }
 
     var sliceSeq = makeSequence(iterable);
 
-    sliceSeq.size = sliceSize === 0 ? sliceSize : iterable.size && sliceSize || undefined;
+    sliceSeq.size = sliceSize;
 
     if (!useKeys && isSeq(iterable) && sliceSize >= 0) {
       sliceSeq.get = function (index, notSetValue) {
@@ -1342,11 +1347,11 @@
     };
 
     sliceSeq.__iteratorUncached = function(type, reverse) {
-      if (sliceSize && reverse) {
+      if (sliceSize !== 0 && reverse) {
         return this.cacheResult().__iterator(type, reverse);
       }
       // Don't bother instantiating parent iterator if taking 0.
-      var iterator = sliceSize && iterable.__iterator(type, reverse);
+      var iterator = sliceSize !== 0 && iterable.__iterator(type, reverse);
       var skipped = 0;
       var iterations = 0;
       return new src_Iterator__Iterator(function()  {
