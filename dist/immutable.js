@@ -732,7 +732,11 @@
   }
 
   function isPlainObj(value) {
-    return value && (value.constructor === Object || value.constructor === undefined);
+    return value &&
+      (value.constructor === Object ||
+        value.constructor === undefined ||
+        Object.prototype.toString.call(value) === '[object Object]'
+      );
   }
 
   var src_Math__imul =
