@@ -39,6 +39,9 @@ function isPlainObj(value) {
   return value &&
     (value.constructor === Object ||
       value.constructor === undefined ||
-      Object.prototype.toString.call(value) === '[object Object]'
+      value.constructor.name === 'Object' ||
+      !value.constructor.name && value.constructor.toString && isObjectRegex.test(value.constructor.toString())
     );
 }
+
+var isObjectRegex = /^function Object/;
