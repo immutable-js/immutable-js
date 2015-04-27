@@ -1847,7 +1847,13 @@
     };
 
     src_Map__Map.prototype.mergeIn = function(keyPath) {var iters = SLICE$0.call(arguments, 1);
-      return this.updateIn(keyPath, emptyMap(), function(m ) {return m.merge.apply(m, iters)});
+      return this.updateIn(
+        keyPath,
+        emptyMap(),
+        function(m ) {return typeof m.merge === 'function' ?
+          m.merge.apply(m, iters) :
+          iters[iters.length - 1]}
+      );
     };
 
     src_Map__Map.prototype.mergeDeep = function(/*...iters*/) {
@@ -1859,7 +1865,13 @@
     };
 
     src_Map__Map.prototype.mergeDeepIn = function(keyPath) {var iters = SLICE$0.call(arguments, 1);
-      return this.updateIn(keyPath, emptyMap(), function(m ) {return m.mergeDeep.apply(m, iters)});
+      return this.updateIn(
+        keyPath,
+        emptyMap(),
+        function(m ) {return typeof m.mergeDeep === 'function' ?
+          m.mergeDeep.apply(m, iters) :
+          iters[iters.length - 1]}
+      );
     };
 
     src_Map__Map.prototype.sort = function(comparator) {

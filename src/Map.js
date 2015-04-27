@@ -112,7 +112,13 @@ export class Map extends KeyedCollection {
   }
 
   mergeIn(keyPath, ...iters) {
-    return this.updateIn(keyPath, emptyMap(), m => m.merge.apply(m, iters));
+    return this.updateIn(
+      keyPath,
+      emptyMap(),
+      m => typeof m.merge === 'function' ?
+        m.merge.apply(m, iters) :
+        iters[iters.length - 1]
+    );
   }
 
   mergeDeep(/*...iters*/) {
@@ -124,7 +130,13 @@ export class Map extends KeyedCollection {
   }
 
   mergeDeepIn(keyPath, ...iters) {
-    return this.updateIn(keyPath, emptyMap(), m => m.mergeDeep.apply(m, iters));
+    return this.updateIn(
+      keyPath,
+      emptyMap(),
+      m => typeof m.mergeDeep === 'function' ?
+        m.mergeDeep.apply(m, iters) :
+        iters[iters.length - 1]
+    );
   }
 
   sort(comparator) {
