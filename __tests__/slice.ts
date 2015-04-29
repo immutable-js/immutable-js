@@ -31,7 +31,7 @@ describe('slice', () => {
   it('slices a sparse indexed sequence', () => {
     expect(Seq([1,,2,,3,,4,,5,,6]).slice(1).toArray()).toEqual([,2,,3,,4,,5,,6]);
     expect(Seq([1,,2,,3,,4,,5,,6]).slice(2).toArray()).toEqual([2,,3,,4,,5,,6]);
-    expect(Seq([1,,2,,3,,4,,5,,6]).slice(3, -3).toArray()).toEqual([,3,,4,,,]); // one trailing hole.
+    expect(Seq([1,,2,,3,,4,,5,,6]).slice(3, -3).toArray()).toEqual([,3,,4,,]); // one trailing hole.
   })
 
   it('can maintain indices for an keyed indexed sequence', () => {
@@ -95,6 +95,24 @@ describe('slice', () => {
     var a = I.Range(0, 33).toArray();
     var v = List(a);
     expect(v.slice(31).toList().toArray()).toEqual(a.slice(31));
+  })
+
+  it('can create an iterator', () => {
+    var seq = Seq([0,1,2,3,4,5]);
+    var iterFront = seq.slice(0,2).values();
+    expect(iterFront.next()).toEqual({value: 0, done: false});
+    expect(iterFront.next()).toEqual({value: 1, done: false});
+    expect(iterFront.next()).toEqual({value: undefined, done: true});
+
+    var iterMiddle = seq.slice(2,4).values();
+    expect(iterMiddle.next()).toEqual({value: 2, done: false});
+    expect(iterMiddle.next()).toEqual({value: 3, done: false});
+    expect(iterMiddle.next()).toEqual({value: undefined, done: true});
+
+    var iterTail = seq.slice(4,123456).values();
+    expect(iterTail.next()).toEqual({value: 4, done: false});
+    expect(iterTail.next()).toEqual({value: 5, done: false});
+    expect(iterTail.next()).toEqual({value: undefined, done: true});
   })
 
   check.it('works like Array.prototype.slice',

@@ -145,6 +145,10 @@ mixin(Iterable, {
   },
 
   contains(searchValue) {
+    return this.includes(searchValue);
+  },
+
+  includes(searchValue) {
     return this.some(value => is(value, searchValue));
   },
 
@@ -351,8 +355,8 @@ mixin(Iterable, {
   },
 
   isSubset(iter) {
-    iter = typeof iter.contains === 'function' ? iter : Iterable(iter);
-    return this.every(value => iter.contains(value));
+    iter = typeof iter.includes === 'function' ? iter : Iterable(iter);
+    return this.every(value => iter.includes(value));
   },
 
   isSuperset(iter) {
@@ -533,7 +537,7 @@ var KeyedIterablePrototype = KeyedIterable.prototype;
 KeyedIterablePrototype[IS_KEYED_SENTINEL] = true;
 KeyedIterablePrototype[ITERATOR_SYMBOL] = IterablePrototype.entries;
 KeyedIterablePrototype.__toJS = IterablePrototype.toObject;
-KeyedIterablePrototype.__toStringMapper = (v, k) => k + ': ' + quoteString(v);
+KeyedIterablePrototype.__toStringMapper = (v, k) => JSON.stringify(k) + ': ' + quoteString(v);
 
 
 
@@ -670,7 +674,7 @@ mixin(SetIterable, {
     return this.has(value) ? value : notSetValue;
   },
 
-  contains(value) {
+  includes(value) {
     return this.has(value);
   },
 
@@ -683,7 +687,7 @@ mixin(SetIterable, {
 
 });
 
-SetIterable.prototype.has = IterablePrototype.contains;
+SetIterable.prototype.has = IterablePrototype.includes;
 
 
 // Mixin subclasses

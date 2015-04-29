@@ -112,7 +112,11 @@ export class MapClass extends KeyedCollection {
   }
 
   mergeIn(keyPath, ...iters) {
-    return this.updateIn(keyPath, this.__empty(), m => m.merge.apply(m, iters));
+    return this.updateIn(keyPath, 
+      this.__empty(), m => 
+      m.merge === 'function' ?
+        m.merge.apply(m, iters) :
+        iters[iters.length - 1]);
   }
 
   mergeDeep(/*...iters*/) {
@@ -124,7 +128,13 @@ export class MapClass extends KeyedCollection {
   }
 
   mergeDeepIn(keyPath, ...iters) {
-    return this.updateIn(keyPath, this.__empty(), m => m.mergeDeep.apply(m, iters));
+    return this.updateIn(
+      keyPath,
+      this.__empty(),
+      m => typeof m.mergeDeep === 'function' ?
+        m.mergeDeep.apply(m, iters) :
+        iters[iters.length - 1]
+    );
   }
 
   sort(comparator) {
@@ -721,10 +731,10 @@ function mergeIntoMapWith(map, merger, iterables) {
 }
 
 export function deepMerger(merger) {
-  return (existing, value) =>
+  return (existing, value, key) =>
     existing && existing.mergeDeepWith && isIterable(value) ?
       existing.mergeDeepWith(merger, value) :
-      merger ? merger(existing, value) : value;
+      merger ? merger(existing, value, key) : value;
 }
 
 export function mergeIntoCollectionWith(collection, merger, iters) {
@@ -732,14 +742,14 @@ export function mergeIntoCollectionWith(collection, merger, iters) {
   if (iters.length === 0) {
     return collection;
   }
-  if (collection.size === 0 && iters.length === 1) {
+  if (collection.size === 0 && !collection.__ownerID && iters.length === 1) {
     return collection.constructor.__factoryDispatch(iters[0]);
   }
   return collection.withMutations(collection => {
     var mergeIntoMap = merger ?
       (value, key) => {
         collection.update(key, NOT_SET, existing =>
-          existing === NOT_SET ? value : merger(existing, value)
+          existing === NOT_SET ? value : merger(existing, value, key)
         );
       } :
       (value, key) => {

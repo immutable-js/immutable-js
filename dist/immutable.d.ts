@@ -72,7 +72,7 @@ declare module 'immutable' {
 
   /**
    * Value equality check with semantics similar to `Object.is`, but treats
-   * Immutable `Iterable`s as values, equal if the second `Iterable` contains
+   * Immutable `Iterable`s as values, equal if the second `Iterable` includes
    * equivalent values.
    *
    * It's used throughout Immutable when checking for equality, including `Map`
@@ -224,11 +224,11 @@ declare module 'immutable' {
      * @see `Map#mergeWith`
      */
     mergeWith(
-      merger: (previous?: T, next?: T) => T,
+      merger: (previous?: T, next?: T, key?: number) => T,
       ...iterables: IndexedIterable<T>[]
     ): List<T>;
     mergeWith(
-      merger: (previous?: T, next?: T) => T,
+      merger: (previous?: T, next?: T, key?: number) => T,
       ...iterables: Array<T>[]
     ): List<T>;
 
@@ -242,11 +242,11 @@ declare module 'immutable' {
      * @see `Map#mergeDeepWith`
      */
     mergeDeepWith(
-      merger: (previous?: T, next?: T) => T,
+      merger: (previous?: T, next?: T, key?: number) => T,
       ...iterables: IndexedIterable<T>[]
     ): List<T>;
     mergeDeepWith(
-      merger: (previous?: T, next?: T) => T,
+      merger: (previous?: T, next?: T, key?: number) => T,
       ...iterables: Array<T>[]
     ): List<T>;
 
@@ -454,7 +454,7 @@ declare module 'immutable' {
      * If any of the values provided to `merge` are not Iterable (would return
      * false for `Immutable.isIterable`) then they are deeply converted via
      * `Immutable.fromJS` before being merged. However, if the value is an
-     * Iterable but contains non-iterable JS objects or arrays, those nested
+     * Iterable but includes non-iterable JS objects or arrays, those nested
      * values will be preserved.
      *
      *     var x = Immutable.Map({a: 10, b: 20, c: 30});
@@ -478,11 +478,11 @@ declare module 'immutable' {
      *
      */
     mergeWith(
-      merger: (previous?: V, next?: V) => V,
+      merger: (previous?: V, next?: V, key?: K) => V,
       ...iterables: Iterable<K, V>[]
     ): Map<K, V>;
     mergeWith(
-      merger: (previous?: V, next?: V) => V,
+      merger: (previous?: V, next?: V, key?: K) => V,
       ...iterables: {[key: string]: V}[]
     ): Map<string, V>;
 
@@ -509,11 +509,11 @@ declare module 'immutable' {
      *
      */
     mergeDeepWith(
-      merger: (previous?: V, next?: V) => V,
+      merger: (previous?: V, next?: V, key?: K) => V,
       ...iterables: Iterable<K, V>[]
     ): Map<K, V>;
     mergeDeepWith(
-      merger: (previous?: V, next?: V) => V,
+      merger: (previous?: V, next?: V, key?: K) => V,
       ...iterables: {[key: string]: V}[]
     ): Map<string, V>;
 
@@ -1067,6 +1067,10 @@ declare module 'immutable' {
       new (): Map<string, any>;
       new (values: {[key: string]: any}): Map<string, any>;
       new (values: Iterable<string, any>): Map<string, any>; // deprecated
+
+      (): Map<string, any>;
+      (values: {[key: string]: any}): Map<string, any>;
+      (values: Iterable<string, any>): Map<string, any>; // deprecated
     }
   }
 
@@ -1401,7 +1405,9 @@ declare module 'immutable' {
 
     /**
      * True if a value exists within this `Iterable`.
+     * @alias contains
      */
+    includes(value: V): boolean;
     contains(value: V): boolean;
 
     /**
@@ -1428,8 +1434,8 @@ declare module 'immutable' {
      * True if the result of following a path of keys or indices through nested
      * Iterables results in a set value.
      */
-    hasIn(searchKeyPath: Array<any>, notSetValue?: any): boolean;
-    hasIn(searchKeyPath: Iterable<any, any>, notSetValue?: any): boolean;
+    hasIn(searchKeyPath: Array<any>): boolean;
+    hasIn(searchKeyPath: Iterable<any, any>): boolean;
 
 
     // Conversion to JavaScript types
@@ -1633,7 +1639,7 @@ declare module 'immutable' {
     reverse(): /*this*/Iterable<K, V>;
 
     /**
-     * Returns a new Iterable of the same type which contains the same entries,
+     * Returns a new Iterable of the same type which includes the same entries,
      * stably sorted by using a `comparator`.
      *
      * If a `comparator` is not provided, a default comparator uses `<` and `>`.
@@ -1735,7 +1741,7 @@ declare module 'immutable' {
     skipLast(amount: number): /*this*/Iterable<K, V>;
 
     /**
-     * Returns a new Iterable of the same type which contains entries starting
+     * Returns a new Iterable of the same type which includes entries starting
      * from when `predicate` first returns false.
      *
      *     Seq.of('dog','frog','cat','hat','god')
@@ -1749,7 +1755,7 @@ declare module 'immutable' {
     ): /*this*/Iterable<K, V>;
 
     /**
-     * Returns a new Iterable of the same type which contains entries starting
+     * Returns a new Iterable of the same type which includes entries starting
      * from when `predicate` first returns true.
      *
      *     Seq.of('dog','frog','cat','hat','god')
@@ -1763,19 +1769,19 @@ declare module 'immutable' {
     ): /*this*/Iterable<K, V>;
 
     /**
-     * Returns a new Iterable of the same type which contains the first `amount`
+     * Returns a new Iterable of the same type which includes the first `amount`
      * entries from this Iterable.
      */
     take(amount: number): /*this*/Iterable<K, V>;
 
     /**
-     * Returns a new Iterable of the same type which contains the last `amount`
+     * Returns a new Iterable of the same type which includes the last `amount`
      * entries from this Iterable.
      */
     takeLast(amount: number): /*this*/Iterable<K, V>;
 
     /**
-     * Returns a new Iterable of the same type which contains entries from this
+     * Returns a new Iterable of the same type which includes entries from this
      * Iterable as long as the `predicate` returns true.
      *
      *     Seq.of('dog','frog','cat','hat','god')
@@ -1789,7 +1795,7 @@ declare module 'immutable' {
     ): /*this*/Iterable<K, V>;
 
     /**
-     * Returns a new Iterable of the same type which contains entries from this
+     * Returns a new Iterable of the same type which includes entries from this
      * Iterable as long as the `predicate` returns false.
      *
      *     Seq.of('dog','frog','cat','hat','god').takeUntil(x => x.match(/at/))
@@ -1896,7 +1902,7 @@ declare module 'immutable' {
     join(separator?: string): string;
 
     /**
-     * Returns true if this Iterable contains no values.
+     * Returns true if this Iterable includes no values.
      *
      * For some lazy `Seq`, `isEmpty` might need to iterate to determine
      * emptiness. At most one iteration will occur.
@@ -2004,7 +2010,7 @@ declare module 'immutable' {
     ): V;
 
     /**
-     * Returns the maximum value in this collection. If any values are
+     * Returns the minimum value in this collection. If any values are
      * comparatively equivalent, the first one found will be returned.
      *
      * The `comparator` is used in the same way as `Iterable#sort`. If it is not
@@ -2036,13 +2042,13 @@ declare module 'immutable' {
     // Comparison
 
     /**
-     * True if `iter` contains every value in this Iterable.
+     * True if `iter` includes every value in this Iterable.
      */
     isSubset(iter: Iterable<any, V>): boolean;
     isSubset(iter: Array<V>): boolean;
 
     /**
-     * True if this Iterable contains every value in `iter`.
+     * True if this Iterable includes every value in `iter`.
      */
     isSuperset(iter: Iterable<any, V>): boolean;
     isSuperset(iter: Array<V>): boolean;
@@ -2235,7 +2241,7 @@ declare module 'immutable' {
      * Returns an Iterable of the same type with the provided `iterables`
      * interleaved into this iterable.
      *
-     * The resulting Iterable contains the first item from each, then the
+     * The resulting Iterable includes the first item from each, then the
      * second from each, etc.
      *
      *     I.Seq.of(1,2,3).interleave(I.Seq.of('A','B','C'))

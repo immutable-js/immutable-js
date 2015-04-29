@@ -165,6 +165,29 @@ declare module 'immutable/contrib/cursor' {
     setIn(keyPath: Immutable.Iterable<any, any>, value: any): Cursor;
 
     /**
+     * Returns a new Cursor with provided `values` appended
+     */
+    push(...values: Array<any>): Cursor;
+
+    /**
+     * Returns a new Cursor with a size ones less than this Cursor,
+     * excluding the last index in this Cursor.
+     */
+    pop(): Cursor;
+
+    /**
+     * Returns a new Cursor with the provided `values` prepended,
+     * shifting other values ahead to higher indices.
+     */
+    unshift(...values: Array<any>): Cursor;
+
+    /**
+     * Returns a new Cursor with a size ones less than this Cursor, excluding
+     * the first index in this Cursor, shifting all other values to a lower index.
+     */
+    shift(): Cursor;
+
+    /**
      * Returns a new Cursor having removed the value at this `keyPath`.
      *
      * @alias removeIn

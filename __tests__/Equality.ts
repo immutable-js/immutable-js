@@ -12,14 +12,16 @@ describe('Equality', () => {
 
   function expectIs(left, right) {
     var comparison = Immutable.is(left, right);
+    expect(comparison).toBe(true);
     var commutative = Immutable.is(right, left);
-    return comparison && commutative && comparison === commutative;
+    expect(commutative).toBe(true);
   }
 
   function expectIsNot(left, right) {
     var comparison = Immutable.is(left, right);
+    expect(comparison).toBe(false);
     var commutative = Immutable.is(right, left);
-    return !comparison && !commutative && comparison === commutative;
+    expect(commutative).toBe(false);
   }
 
   it('uses Object.is semantics', () => {
@@ -36,7 +38,9 @@ describe('Equality', () => {
     expectIs(NaN, NaN);
     expectIs(0, 0);
     expectIs(-0, -0);
-    expectIsNot(0, -0);
+    // Note: Unlike Object.is, Immutable.is assumes 0 and -0 are the same value,
+    // matching the behavior of ES6 Map key equality.
+    expectIs(0, -0);
     expectIs(NaN, 0/0);
 
     var string = "hello";
@@ -52,6 +56,35 @@ describe('Equality', () => {
     var object = {key:'value'};
     expectIs(object, object);
     expectIsNot(object, {key:'value'});
+  });
+
+  it('dereferences things', () => {
+    var ptrA = {foo: 1}, ptrB = {foo: 2};
+    expectIsNot(ptrA, ptrB);
+    ptrA.valueOf = ptrB.valueOf = function() {
+      return 5;
+    }
+    expectIs(ptrA, ptrB);
+    var object = {key:'value'};
+    ptrA.valueOf = ptrB.valueOf = function() {
+      return object;
+    }
+    expectIs(ptrA, ptrB);
+    ptrA.valueOf = ptrB.valueOf = function() {
+      return null;
+    }
+    expectIs(ptrA, ptrB);
+    ptrA.valueOf = ptrB.valueOf = function() {
+      return void 0;
+    }
+    expectIs(ptrA, ptrB);
+    ptrA.valueOf = function() {
+      return 4;
+    }
+    ptrB.valueOf = function() {
+      return 5;
+    }
+    expectIsNot(ptrA, ptrB);
   });
 
   it('compares sequences', () => {

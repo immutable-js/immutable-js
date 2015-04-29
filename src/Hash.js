@@ -73,22 +73,29 @@ function hashString(string) {
 }
 
 function hashJSObj(obj) {
-  var hash = weakMap && weakMap.get(obj);
-  if (hash) return hash;
+  var hash;
+  if (usingWeakMap) {
+    hash = weakMap.get(obj);
+    if (hash !== undefined) {
+      return hash;
+    }
+  }
 
   hash = obj[UID_HASH_KEY];
-  if (hash) return hash;
+  if (hash !== undefined) {
+    return hash;
+  }
 
   if (!canDefineProperty) {
     hash = obj.propertyIsEnumerable && obj.propertyIsEnumerable[UID_HASH_KEY];
-    if (hash) return hash;
+    if (hash !== undefined) {
+      return hash;
+    }
 
     hash = getIENodeHash(obj);
-    if (hash) return hash;
-  }
-
-  if (Object.isExtensible && !Object.isExtensible(obj)) {
-    throw new Error('Non-extensible objects are not allowed as keys.');
+    if (hash !== undefined) {
+      return hash;
+    }
   }
 
   hash = ++objHashUID;
@@ -96,8 +103,10 @@ function hashJSObj(obj) {
     objHashUID = 0;
   }
 
-  if (weakMap) {
+  if (usingWeakMap) {
     weakMap.set(obj, hash);
+  } else if (isExtensible !== undefined && isExtensible(obj) === false) {
+    throw new Error('Non-extensible objects are not allowed as keys.');
   } else if (canDefineProperty) {
     Object.defineProperty(obj, UID_HASH_KEY, {
       'enumerable': false,
@@ -105,7 +114,7 @@ function hashJSObj(obj) {
       'writable': false,
       'value': hash
     });
-  } else if (obj.propertyIsEnumerable &&
+  } else if (obj.propertyIsEnumerable !== undefined &&
              obj.propertyIsEnumerable === obj.constructor.prototype.propertyIsEnumerable) {
     // Since we can't define a non-enumerable property on the object
     // we'll hijack one of the less-used non-enumerable properties to
@@ -115,7 +124,7 @@ function hashJSObj(obj) {
       return this.constructor.prototype.propertyIsEnumerable.apply(this, arguments);
     };
     obj.propertyIsEnumerable[UID_HASH_KEY] = hash;
-  } else if (obj.nodeType) {
+  } else if (obj.nodeType !== undefined) {
     // At this point we couldn't get the IE `uniqueID` to use as a hash
     // and we couldn't use a non-enumerable property to exploit the
     // dontEnum bug so we simply add the `UID_HASH_KEY` on the node
@@ -127,6 +136,9 @@ function hashJSObj(obj) {
 
   return hash;
 }
+
+// Get references to ES5 object methods.
+var isExtensible = Object.isExtensible;
 
 // True if Object.defineProperty works as expected. IE8 fails this test.
 var canDefineProperty = (function() {
@@ -152,7 +164,11 @@ function getIENodeHash(node) {
 }
 
 // If possible, use a WeakMap.
-var weakMap = typeof WeakMap === 'function' && new WeakMap();
+var usingWeakMap = typeof WeakMap === 'function';
+var weakMap;
+if (usingWeakMap) {
+  weakMap = new WeakMap();
+}
 
 var objHashUID = 0;
 

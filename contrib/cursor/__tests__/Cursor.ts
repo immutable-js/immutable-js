@@ -49,6 +49,13 @@ describe('Cursor', () => {
     expect(deepCursor.deref()).toBe(data.getIn(Immutable.fromJS(['a', 'b'])));
   });
 
+  it('cursor return new cursors of correct type', () => {
+    var data = Immutable.fromJS({ a: [1, 2, 3] });
+    var cursor = Cursor.from(data);
+    var deepCursor = <any>cursor.cursor('a');
+    expect(deepCursor.findIndex).toBeDefined();
+  });
+
   it('can be treated as a value', () => {
     var data = Immutable.fromJS(json);
     var cursor = Cursor.from(data, ['a', 'b']);
@@ -178,6 +185,59 @@ describe('Cursor', () => {
     var cursor = Cursor.from(data);
     expect(cursor.map((x: number) => x * x)).toEqual(Immutable.Map({a: 1, b: 4, c: 9}));
   });
+
+  it('can push values on a List', () => {
+    var onChange = jest.genMockFunction();
+    var data = Immutable.fromJS({a: {b: [0, 1, 2]}});
+    var cursor = Cursor.from(data, ['a', 'b'], onChange);
+
+    expect(cursor.push(3,4)).toEqual(Immutable.List([0, 1, 2, 3, 4]));
+    expect(onChange).lastCalledWith(
+      Immutable.fromJS({a: {b: [0, 1, 2, 3, 4]}}),
+      data,
+      ['a', 'b']
+    );
+  });
+
+  it('can pop values of a List', () => {
+    var onChange = jest.genMockFunction();
+    var data = Immutable.fromJS({a: {b: [0, 1, 2]}});
+    var cursor = Cursor.from(data, ['a', 'b'], onChange);
+
+    expect(cursor.pop()).toEqual(Immutable.List([0, 1]));
+    expect(onChange).lastCalledWith(
+      Immutable.fromJS({a: {b: [0, 1]}}),
+      data,
+      ['a', 'b']
+    );
+  });
+
+  it('can unshift values on a List', () => {
+    var onChange = jest.genMockFunction();
+    var data = Immutable.fromJS({a: {b: [0, 1, 2]}});
+    var cursor = Cursor.from(data, ['a', 'b'], onChange);
+
+    expect(cursor.unshift(-2, -1)).toEqual(Immutable.List([-2, -1, 0, 1, 2]));
+    expect(onChange).lastCalledWith(
+      Immutable.fromJS({a: {b: [-2, -1, 0, 1, 2]}}),
+      data,
+      ['a', 'b']
+    );
+  });
+
+  it('can shift values of a List', () => {
+    var onChange = jest.genMockFunction();
+    var data = Immutable.fromJS({a: {b: [0, 1, 2]}});
+    var cursor = Cursor.from(data, ['a', 'b'], onChange);
+
+    expect(cursor.shift()).toEqual(Immutable.List([1, 2]));
+    expect(onChange).lastCalledWith(
+      Immutable.fromJS({a: {b: [1, 2]}}),
+      data,
+      ['a', 'b']
+    );
+  });
+
 
   it('returns wrapped values for sequence API', () => {
     var data = Immutable.fromJS({a: {v: 1}, b: {v: 2}, c: {v: 3}});

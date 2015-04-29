@@ -135,6 +135,18 @@ describe('IterableSequence', () => {
       expect(mockFn.mock.calls).toEqual([[0],[1],[2]]);
     })
 
+    it('can iterate an skipped seq based on an iterator', () => {
+      var i = new SimpleIterable(4);
+      var seq = Immutable.Seq(i['@@iterator']());
+      expect(seq.size).toBe(undefined);
+      var skipped = seq.skip(2);
+      expect(skipped.size).toBe(undefined);
+      var iter = skipped['@@iterator']();
+      // The first two were skipped
+      expect(iter.next()).toEqual({ value: 2, done: false });
+      expect(iter.next()).toEqual({ value: 3, done: false });
+      expect(iter.next()).toEqual({ value: undefined, done: true });
+    })
   })
 
 })

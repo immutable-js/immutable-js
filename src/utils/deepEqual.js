@@ -45,7 +45,9 @@ export default function deepEqual(a, b) {
 
   if (a.size === undefined) {
     if (b.size === undefined) {
-      a.cacheResult();
+      if (typeof a.cacheResult === 'function') {
+        a.cacheResult();
+      }
     } else {
       flipped = true;
       var _ = a;

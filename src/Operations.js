@@ -90,8 +90,8 @@ export class ToIndexedSequence extends IndexedSeq {
     this.size = iter.size;
   }
 
-  contains(value) {
-    return this._iter.contains(value);
+  includes(value) {
+    return this._iter.includes(value);
   }
 
   __iterate(fn, reverse) {
@@ -118,7 +118,7 @@ export class ToSetSequence extends SetSeq {
   }
 
   has(key) {
-    return this._iter.contains(key);
+    return this._iter.includes(key);
   }
 
   __iterate(fn, reverse) {
@@ -152,7 +152,12 @@ export class FromEntriesSequence extends KeyedSeq {
       // in the parent iteration.
       if (entry) {
         validateEntry(entry);
-        return fn(entry[1], entry[0], this);
+        var indexedIterable = isIterable(entry);
+        return fn(
+          indexedIterable ? entry.get(1) : entry[1],
+          indexedIterable ? entry.get(0) : entry[0],
+          this
+        );
       }
     }, reverse);
   }
@@ -170,8 +175,13 @@ export class FromEntriesSequence extends KeyedSeq {
         // in the parent iteration.
         if (entry) {
           validateEntry(entry);
-          return type === ITERATE_ENTRIES ? step :
-            iteratorValue(type, entry[0], entry[1], step);
+          var indexedIterable = isIterable(entry);
+          return iteratorValue(
+            type,
+            indexedIterable ? entry.get(0) : entry[0],
+            indexedIterable ? entry.get(1) : entry[1],
+            step
+          );
         }
       }
     });
@@ -195,8 +205,8 @@ export function flipFactory(iterable) {
     reversedSequence.flip = () => iterable.reverse();
     return reversedSequence;
   };
-  flipSequence.has = key => iterable.contains(key);
-  flipSequence.contains = key => iterable.has(key);
+  flipSequence.has = key => iterable.includes(key);
+  flipSequence.includes = key => iterable.has(key);
   flipSequence.cacheResult = cacheResultThrough;
   flipSequence.__iterateUncached = function (fn, reverse) {
     return iterable.__iterate((v, k) => fn(k, v, this) !== false, reverse);
@@ -276,7 +286,7 @@ export function reverseFactory(iterable, useKeys) {
     iterable.get(useKeys ? key : -1 - key, notSetValue);
   reversedSequence.has = key =>
     iterable.has(useKeys ? key : -1 - key);
-  reversedSequence.contains = value => iterable.contains(value);
+  reversedSequence.includes = value => iterable.includes(value);
   reversedSequence.cacheResult = cacheResultThrough;
   reversedSequence.__iterate = function (fn, reverse) {
     return iterable.__iterate((v, k) => fn(v, k, this), !reverse);
@@ -371,19 +381,24 @@ export function sliceFactory(iterable, begin, end, useKeys) {
 
   // begin or end will be NaN if they were provided as negative numbers and
   // this iterable's size is unknown. In that case, cache first so there is
-  // a known size.
+  // a known size and these do not resolve to NaN.
   if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd) {
     return sliceFactory(iterable.toSeq().cacheResult(), begin, end, useKeys);
   }
 
-  var sliceSize = resolvedEnd - resolvedBegin;
-  if (sliceSize < 0) {
-    sliceSize = 0;
+  // Note: resolvedEnd is undefined when the original sequence's length is
+  // unknown and this slice did not supply an end and should contain all
+  // elements after resolvedBegin.
+  // In that case, resolvedSize will be NaN and sliceSize will remain undefined.
+  var resolvedSize = resolvedEnd - resolvedBegin;
+  var sliceSize;
+  if (resolvedSize === resolvedSize) {
+    sliceSize = resolvedSize < 0 ? 0 : resolvedSize;
   }
 
   var sliceSeq = makeSequence(iterable);
 
-  sliceSeq.size = sliceSize === 0 ? sliceSize : iterable.size && sliceSize || undefined;
+  sliceSeq.size = sliceSize;
 
   if (!useKeys && isSeq(iterable) && sliceSize >= 0) {
     sliceSeq.get = function (index, notSetValue) {
@@ -415,15 +430,15 @@ export function sliceFactory(iterable, begin, end, useKeys) {
   };
 
   sliceSeq.__iteratorUncached = function(type, reverse) {
-    if (sliceSize && reverse) {
+    if (sliceSize !== 0 && reverse) {
       return this.cacheResult().__iterator(type, reverse);
     }
     // Don't bother instantiating parent iterator if taking 0.
-    var iterator = sliceSize && iterable.__iterator(type, reverse);
+    var iterator = sliceSize !== 0 && iterable.__iterator(type, reverse);
     var skipped = 0;
     var iterations = 0;
     return new Iterator(() => {
-      while (skipped++ !== resolvedBegin) {
+      while (skipped++ < resolvedBegin) {
         iterator.next();
       }
       if (++iterations > sliceSize) {

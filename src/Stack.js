@@ -7,7 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { wholeSlice, resolveBegin, resolveEnd } from './TrieUtils'
+import { wholeSlice, resolveBegin, resolveEnd, wrapIndex } from './TrieUtils'
 import { IndexedIterable } from './Iterable'
 import { IndexedCollection } from './Collection'
 import { MapPrototype } from './Map'
@@ -39,6 +39,7 @@ export class StackClass extends IndexedCollection {
 
   get(index, notSetValue) {
     var head = this._head;
+    index = wrapIndex(this, index);
     while (head && index--) {
       head = head.next;
     }
@@ -171,7 +172,7 @@ export class StackClass extends IndexedCollection {
 
   __iterate(fn, reverse) {
     if (reverse) {
-      return this.toSeq().cacheResult.__iterate(fn, reverse);
+      return this.reverse().__iterate(fn);
     }
     var iterations = 0;
     var node = this._head;
@@ -186,7 +187,7 @@ export class StackClass extends IndexedCollection {
 
   __iterator(type, reverse) {
     if (reverse) {
-      return this.toSeq().cacheResult().__iterator(type, reverse);
+      return this.reverse().__iterator(type);
     }
     var iterations = 0;
     var node = this._head;

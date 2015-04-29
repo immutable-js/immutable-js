@@ -64,6 +64,7 @@ describe('Stack', () => {
   it('get helpers make for easier to read code', () => {
     var s = Stack.of('a', 'b', 'c');
     expect(s.first()).toBe('a');
+    expect(s.last()).toBe('c');
     expect(s.peek()).toBe('a');
   });
 
@@ -83,7 +84,14 @@ describe('Stack', () => {
       [1,'b'],
       [2,'c'],
     ]);
-
+    
+    // map will cause reverse iterate
+    expect(s.map(val => val + val).toArray()).toEqual([
+      'aa',
+      'bb',
+      'cc',
+    ]);
+    
     var iteratorResults = [];
     var iterator = s.entries();
     var step;
@@ -94,6 +102,17 @@ describe('Stack', () => {
       [0,'a'],
       [1,'b'],
       [2,'c'],
+    ]);
+    
+    iteratorResults = [];
+    iterator = s.toSeq().reverse().entries();
+    while (!(step = iterator.next()).done) {
+      iteratorResults.push(step.value);
+    }
+    expect(iteratorResults).toEqual([
+      [0,'c'],
+      [1,'b'],
+      [2,'a'],
     ]);
   });
 

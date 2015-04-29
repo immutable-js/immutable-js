@@ -1,6 +1,6 @@
 {
   "name": "immutable",
-  "version": "3.6.2",
+  "version": "3.7.2",
   "description": "Immutable Data Collections",
   "homepage": "https://github.com/facebook/immutable-js",
   "author": {
@@ -45,7 +45,7 @@
     "magic-string": "^0.2.6",
     "microtime": "^1.2.0",
     "react-tools": "^0.11.1",
-    "ts-compiler": "^2.0.0",
+    "typescript": "~1.4.1",
     "uglify-js": "^2.4.15"
   },
   "engines": {
