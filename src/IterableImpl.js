@@ -653,6 +653,11 @@ mixin(IndexedIterable, {
     return reify(this, zipWithFactory(this, defaultZipper, iterables));
   },
 
+  zipAll(/*, ...iterables */) {
+    var iterables = [this].concat(arrCopy(arguments));
+    return reify(this, zipWithFactory(this, defaultZipper, iterables, true));
+  },
+
   zipWith(zipper/*, ...iterables */) {
     var iterables = arrCopy(arguments);
     iterables[0] = this;
