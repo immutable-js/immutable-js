@@ -2290,6 +2290,15 @@ declare module 'immutable' {
 
     /**
      * Returns an Iterable of the same type "zipped" with the provided
+     * iterables.
+     *
+     * Like `zip`, but using the the length of the longest iterate for the
+     * zipped sequence's size.
+     */
+    zipAll(...iterables: Array<Iterable<any, any>>): /*this*/IndexedIterable<any>;
+
+    /**
+     * Returns an Iterable of the same type "zipped" with the provided
      * iterables by using a custom `zipper` function.
      *
      *     var a = Seq.of(1, 2, 3);

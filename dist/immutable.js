@@ -1643,9 +1643,15 @@
   }
 
 
-  function zipWithFactory(keyIter, zipper, iters) {
+  function zipWithFactory(keyIter, zipper, iters, zipAll) {
     var zipSequence = makeSequence(keyIter);
-    zipSequence.size = new ArraySeq(iters).map(function(i ) {return i.size}).min();
+    var iterSizes = new ArraySeq(iters).map(function(i ) {return i.size});
+    var zipSeqSize = !!zipAll ? iterSizes.max() : iterSizes.min();
+    if (zipAll) {
+      iters = iters.map(function(i ) {return i.concat(new Array(zipSeqSize - i.size))})
+    }
+    zipSequence.size = zipSeqSize;
+
     // Note: this a generic base implementation of __iterate in terms of
     // __iterator which may be more generically useful in the future.
     zipSequence.__iterate = function(fn, reverse) {
@@ -1665,6 +1671,7 @@
       var iterator = this.__iterator(ITERATE_VALUES, reverse);
       var step;
       var iterations = 0;
+
       while (!(step = iterator.next()).done) {
         if (fn(step.value, iterations++, this) === false) {
           break;
@@ -1684,9 +1691,11 @@
           steps = iterators.map(function(i ) {return i.next()});
           isDone = steps.some(function(s ) {return s.done});
         }
+
         if (isDone) {
           return iteratorDone();
         }
+
         return iteratorValue(
           type,
           iterations++,
@@ -1694,7 +1703,7 @@
         );
       });
     };
-    return zipSequence
+    return zipSequence;
   }
 
 
@@ -4781,6 +4790,11 @@
     zip: function(/*, ...iterables */) {
       var iterables = [this].concat(arrCopy(arguments));
       return reify(this, zipWithFactory(this, defaultZipper, iterables));
+    },
+
+    zipAll: function(/*, ...iterables */) {
+      var iterables = [this].concat(arrCopy(arguments));
+      return reify(this, zipWithFactory(this, defaultZipper, iterables, true));
     },
 
     zipWith: function(zipper/*, ...iterables */) {

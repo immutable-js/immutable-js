@@ -69,6 +69,27 @@ describe('zip', () => {
 
   });
 
+  describe('zipAll', () => {
+
+    it('fills in the empty zipped values with undefined', () => {
+      expect(
+        I.Seq.of(1,2,3).zipAll(I.Seq.of(4)).toArray()
+      ).toEqual(
+        [[1,4],[2,undefined],[3,undefined]]
+      );
+    });
+
+    check.it('is always the size of the longest sequence',
+        [gen.notEmpty(gen.array(gen.posInt))], (lengths) => {
+        var ranges = lengths.map(l => I.Range(0, l));
+        var first = ranges.shift();
+        var zipped = first.zipAll.apply(first, ranges);
+        var longestLength = Math.max.apply(Math, lengths);
+        expect(zipped.size).toBe(longestLength);
+    });
+
+  });
+
   describe('interleave', () => {
 
     it('interleaves multiple collections', () => {
