@@ -2294,7 +2294,7 @@ declare module 'immutable' {
      *
      *     var a = Seq.of(1, 2, 3);
      *     var b = Seq.of(4, 5, 6);
-     *     var c = a.zip(b); // Seq [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     *     var c = a.zipWith((a, b) => a + b, b); // Seq [ 5, 7, 9 ]
      *
      */
     zipWith<U, Z>(
