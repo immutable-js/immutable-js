@@ -112,11 +112,13 @@ export class MapClass extends KeyedCollection {
   }
 
   mergeIn(keyPath, ...iters) {
-    return this.updateIn(keyPath, 
-      this.__empty(), m => 
-      m.merge === 'function' ?
+    return this.updateIn(
+      keyPath, 
+      this.__empty(), 
+      m => typeof m.merge === 'function' ?
         m.merge.apply(m, iters) :
-        iters[iters.length - 1]);
+        iters[iters.length - 1]
+    );
   }
 
   mergeDeep(/*...iters*/) {
