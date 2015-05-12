@@ -115,7 +115,7 @@ export class Set extends SetCollection {
   }
 
   mergeWith(merger, ...iters) {
-    return this.union.apply(this, iters);
+    return this.union(...iters);
   }
 
   sort(comparator) {

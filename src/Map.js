@@ -116,7 +116,7 @@ export class Map extends KeyedCollection {
       keyPath,
       emptyMap(),
       m => typeof m.merge === 'function' ?
-        m.merge.apply(m, iters) :
+        m.merge(...iters) :
         iters[iters.length - 1]
     );
   }
@@ -134,7 +134,7 @@ export class Map extends KeyedCollection {
       keyPath,
       emptyMap(),
       m => typeof m.mergeDeep === 'function' ?
-        m.mergeDeep.apply(m, iters) :
+        m.mergeDeep(...iters) :
         iters[iters.length - 1]
     );
   }

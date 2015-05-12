@@ -773,7 +773,7 @@ export function zipWithFactory(keyIter, zipper, iters) {
       return iteratorValue(
         type,
         iterations++,
-        zipper.apply(null, steps.map(s => s.value))
+        zipper(...steps.map(s => s.value))
       );
     });
   };
