@@ -229,6 +229,11 @@ describe('Map', () => {
     expect(v.flip().toObject()).toEqual({1:'a', 2:'b', 3:'c', 4:'d', 5:'e', 6:'f'});
   });
 
+  it('renames keys', () => {
+    var m = Map({a:1, b:2, left:'alone'});
+    expect(m.renameKeys(Map({a:'y', b:'z'})).toObject()).toEqual({y:1, z:2, left:'alone'});
+  });
+
   it('can convert to a list', () => {
     var m = Map({a:1, b:2, c:3});
     var v = m.toList();

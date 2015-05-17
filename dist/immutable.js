@@ -1874,6 +1874,11 @@
       );
     };
 
+    src_Map__Map.prototype.renameKeys = function(keyMap) {
+      keyMap = Iterable(keyMap);
+      return this.mapKeys(function(k ) {return keyMap.get(k, k)});
+    };
+
     src_Map__Map.prototype.sort = function(comparator) {
       // Late binding
       return OrderedMap(sortFactory(this, comparator));
