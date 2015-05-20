@@ -359,9 +359,9 @@ Batching Mutations
 > — Rich Hickey, Clojure
 
 Applying a mutation to create a new immutable object results in some overhead,
-which can add up to a performance penalty. If you need to apply a series of
-mutations locally before returning, `Immutable` gives you the ability to create
-a temporary mutable (transient) copy of a collection and apply a batch of
+which can add up to a minor performance penalty. If you need to apply a series
+of mutations locally before returning, `Immutable` gives you the ability to
+create a temporary mutable (transient) copy of a collection and apply a batch of
 mutations in a performant manner by using `withMutations`. In fact, this is
 exactly how  `Immutable` applies complex mutations itself.
 
@@ -380,6 +380,12 @@ assert(list2.size === 6);
 Note: `immutable` also provides `asMutable` and `asImmutable`, but only
 encourages their use when `withMutations` will not suffice. Use caution to not
 return a mutable copy, which could result in undesired behavior.
+
+*Important!*: Only a select few methods can be used in `withMutations` including
+`set`, `push` and `pop`. These methods can be applied directly against a
+persistent data-structure where other methods like `map`, `filter`, `sort`,
+and `splice` will always return new immutable data-structures and never mutate
+a mutable collection.
 
 
 Documentation
