@@ -70,5 +70,8 @@
     "sequence",
     "iteration"
   ],
-  "license": "BSD-3-Clause"
+  "license": "BSD-3-Clause",
+  "typescript": {
+    "definition": "./dist/immutable.d.ts"
+  }
 }
