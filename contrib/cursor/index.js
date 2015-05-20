@@ -242,6 +242,43 @@ IndexedCursorPrototype.__iterator = function(type, reverse) {
 KeyedCursor.prototype = KeyedCursorPrototype;
 IndexedCursor.prototype = IndexedCursorPrototype;
 
+KeyedCursorPrototype.parent =
+IndexedCursorPrototype.parent = function(notSetValue) {
+  return cursorFrom(this._rootData, this._keyPath.slice(0, this._keyPath.length - 1));
+}
+
+KeyedCursorPrototype.sibling =
+IndexedCursorPrototype.sibling = function(key, notSetValue) {
+  return this.parent(notSetValue).get(key, notSetValue);
+}
+
+KeyedCursorPrototype.prevSibling =
+IndexedCursorPrototype.prevSibling = function(notSetValue) {
+  var key = this._keyPath[this._keyPath.length - 1];
+  var parent = this.parent(notSetValue);
+  if (parent instanceof IndexedCursor) {
+    key = key === -1 ? parent.size - 1 : key; // Iterable#last sets the key to -1
+
+    if(key > 0) {
+      return parent.get(key - 1, notSetValue);
+    }
+  }
+  return notSetValue;
+}
+
+KeyedCursorPrototype.nextSibling =
+IndexedCursorPrototype.nextSibling = function(notSetValue) {
+  var key = this._keyPath[this._keyPath.length - 1];
+  var parent = this.parent(notSetValue);
+  if (parent instanceof IndexedCursor) {
+    key = key === -1 ? parent.size - 1 : key; // Iterable#last sets the key to -1
+
+    if(key < parent.size) {
+      return parent.get(key + 1, notSetValue);
+    }
+  }
+  return notSetValue;
+}
 
 var NOT_SET = {}; // Sentinel value
 

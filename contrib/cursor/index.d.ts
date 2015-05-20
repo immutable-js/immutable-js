@@ -283,6 +283,38 @@ declare module 'immutable/contrib/cursor' {
      * callback is triggered with the final value.
      */
     withMutations(mutator: (mutable: any) => any): Cursor;
+
+    // Tree-like browsing methods
+
+    /**
+     * Returns the cursor's parent or itself if it's the root node.
+     *
+     * A new Cursor is returned.
+     */
+    parent(): any;
+
+    /**
+     * Returns a cursor's sibling or `notSetValue` if it's the sibling doesn't exist.
+     *
+     * A new Cursor is returned.
+     */
+    sibling(key: any, notSetValue?: any): any;
+
+    /**
+     * Returns a cursor's next sibling or `notSetValue` if its parent isn't an IndexedCursor or
+     * the node is the first node.
+     *
+     * A new Cursor is returned.
+     */
+    nextSibling(notSetValue?: any): any;
+
+    /**
+     * Returns a cursor's previous sibling or `notSetValue` if its parent isn't an IndexedCursor or
+     * the node is the first node.
+     *
+     * A new Cursor is returned.
+     */
+    prevSibling(notSetValue?: any): any;
   }
 
 }

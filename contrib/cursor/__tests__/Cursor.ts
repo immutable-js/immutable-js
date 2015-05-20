@@ -354,4 +354,71 @@ describe('Cursor', () => {
     );
   });
 
+  it ('can get its parent', () => {
+    var data = Immutable.fromJS({a:{b:{c:1}}});
+    var c1 = Cursor.from(data, ['a']);
+    var c2 = Cursor.from(data, ['a', 'b']);
+
+    expect(Immutable.is(c1.parent(), data)).toBeTruthy();
+    expect(Immutable.is(c2.parent(), c1)).toBeTruthy();
+    expect(Immutable.is(c2.parent(), data.get('a'))).toBeTruthy();
+  });
+
+  it ('can get its sibling', () => {
+    var data = Immutable.fromJS({a:{b1:{c:1},b2:{c:2}}});
+    var c = Cursor.from(data, ['a', 'b1']);
+
+    expect(c.sibling('b2').deref()).toEqual(Immutable.fromJS({c:2}));
+  });
+
+  it ('can get any sibling', () => {
+    var data = Immutable.fromJS({a:{b1:{c:1},b2:{c:2},b3:{c:3}}});
+    var c = Cursor.from(data, ['a', 'b3']);
+
+    expect(c.sibling('b1').deref()).toEqual(Immutable.fromJS({c:1}));
+  });
+
+  it ('can get the next sibling', () => {
+    var data = Immutable.fromJS({a:[{c:1},{c:2},{c:3}]});
+    var c = Cursor.from(data, ['a', 0]);
+
+    expect(c.nextSibling().deref()).toEqual(Immutable.fromJS({c:2}));
+  });
+
+  it ('returns undefined if the next sibling is requested and we are the last', () => {
+    var data = Immutable.fromJS({a:[{c:1},{c:2},{c:3}]});
+    var c = Cursor.from(data, ['a', 2]);
+
+    expect(c.nextSibling()).toBeUndefined();
+  });
+
+
+  it ('can get the previous sibling', () => {
+    var data = Immutable.fromJS({a:[{c:1},{c:2},{c:3}]});
+    var c = Cursor.from(data, ['a', 1]);
+
+    expect(c.prevSibling().deref()).toEqual(Immutable.fromJS({c:1}));
+  });
+
+  it ('returns undefined if the previous sibling is requested and we are the first', () => {
+    var data = Immutable.fromJS({a:[{c:1},{c:2},{c:3}]});
+    var c = Cursor.from(data, ['a', 0]);
+
+    expect(c.prevSibling()).toBeUndefined();
+  });
+
+  it ('returns undefined if we are trying to get the next sibling and our parent is not a list', () => {
+    var data = Immutable.fromJS({a:{b1:{c:1},b2:{c:2},b3:{c:3}}});
+    var c = Cursor.from(data, ['a', 'b3']);
+
+    expect(c.nextSibling()).toBeUndefined();
+  });
+
+  it ('returns undefined if we are trying to get the previous sibling and our parent is not a list', () => {
+    var data = Immutable.fromJS({a:{b1:{c:1},b2:{c:2},b3:{c:3}}});
+    var c = Cursor.from(data, ['a', 'b3']);
+
+    expect(c.prevSibling()).toBeUndefined();
+  });
+
 });
