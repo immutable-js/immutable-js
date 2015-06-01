@@ -116,17 +116,30 @@ and especially well with an application designed using the ideas of [Flux][].
 
 When data is passed from above rather than being subscribed to, and you're only
 interested in doing work when something has changed, you can use equality.
-`Immutable` always returns itself when a mutation results in an identical
-collection, allowing for using `===` equality to determine if something
-has changed.
+
+Immutable collections should be treated as *values* rather than *objects*. While
+objects represents some thing which could change over time, a value represents
+the state of that thing at a particular instance of time. This principle is most
+important to understanding the appropriate use of immutable data. In order to
+treat Immutable.js collections as values, it's important to use the
+`Immutable.is()` function or `.equals()` method to determine value equality
+instead of the `===` operator which determines object reference identity.
 
 ```javascript
 var map1 = Immutable.Map({a:1, b:2, c:3});
 var map2 = map1.set('b', 2);
-assert(map1 === map2); // no change
+assert(map1.equals(map2) === true);
 var map3 = map1.set('b', 50);
-assert(map1 !== map3); // change
+assert(map1.equals(map3) === false);
 ```
+
+Note: As a performance optimization `Immutable` attempts to return the existing
+collection when an operation would result in an identical collection, allowing
+for using `===` reference equality to determine if something definitely has not
+changed. This can be extremely useful when used within memoization function
+which would prefer to re-run the function if a deeper equality check could
+potentially be more costly. The `===` equality check is also used internally by
+`Immutable.is` and `.equals()` as a performance optimization.
 
 If an object is immutable, it can be "copied" simply by making another reference
 to it instead of copying the entire object. Because a reference is much smaller
@@ -337,8 +350,9 @@ data, performing a deep equality check if necessary.
 ```javascript
 var map1 = Immutable.Map({a:1, b:1, c:1});
 var map2 = Immutable.Map({a:1, b:1, c:1});
-assert(map1 !== map2);
-assert(Immutable.is(map1, map2) === true);
+assert(map1 !== map2); // two different instances
+assert(Immutable.is(map1, map2)); // have equivalent values
+assert(map1.equals(map2)); // alternatively use the equals method
 ```
 
 `Immutable.is()` uses the same measure of equality as [Object.is][]
@@ -359,9 +373,9 @@ Batching Mutations
 > — Rich Hickey, Clojure
 
 Applying a mutation to create a new immutable object results in some overhead,
-which can add up to a performance penalty. If you need to apply a series of
-mutations locally before returning, `Immutable` gives you the ability to create
-a temporary mutable (transient) copy of a collection and apply a batch of
+which can add up to a minor performance penalty. If you need to apply a series
+of mutations locally before returning, `Immutable` gives you the ability to
+create a temporary mutable (transient) copy of a collection and apply a batch of
 mutations in a performant manner by using `withMutations`. In fact, this is
 exactly how  `Immutable` applies complex mutations itself.
 
@@ -380,6 +394,12 @@ assert(list2.size === 6);
 Note: `immutable` also provides `asMutable` and `asImmutable`, but only
 encourages their use when `withMutations` will not suffice. Use caution to not
 return a mutable copy, which could result in undesired behavior.
+
+*Important!*: Only a select few methods can be used in `withMutations` including
+`set`, `push` and `pop`. These methods can be applied directly against a
+persistent data-structure where other methods like `map`, `filter`, `sort`,
+and `splice` will always return new immutable data-structures and never mutate
+a mutable collection.
 
 
 Documentation

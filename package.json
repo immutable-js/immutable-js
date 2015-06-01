@@ -1,6 +1,6 @@
 {
   "name": "immutable",
-  "version": "3.7.2",
+  "version": "3.7.3",
   "description": "Immutable Data Collections",
   "homepage": "https://github.com/facebook/immutable-js",
   "author": {
@@ -70,5 +70,8 @@
     "sequence",
     "iteration"
   ],
-  "license": "BSD"
+  "license": "BSD-3-Clause",
+  "typescript": {
+    "definition": "./dist/immutable.d.ts"
+  }
 }

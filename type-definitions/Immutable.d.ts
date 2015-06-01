@@ -344,6 +344,10 @@ declare module 'immutable' {
     // Transient changes
 
     /**
+     * Note: Not all methods can be used on a mutable collection or within
+     * `withMutations`! Only `set`, `push`, `pop`, `shift`, `unshift` and
+     * `merge` may be used mutatively.
+     *
      * @see `Map#withMutations`
      */
     withMutations(mutator: (mutable: List<T>) => any): List<T>;
@@ -645,6 +649,9 @@ declare module 'immutable' {
      *     assert(map1.size === 0);
      *     assert(map2.size === 3);
      *
+     * Note: Not all methods can be used on a mutable collection or within
+     * `withMutations`! Only `set` and `merge` may be used mutatively.
+     *
      */
     withMutations(mutator: (mutable: Map<K, V>) => any): Map<K, V>;
 
@@ -657,6 +664,9 @@ declare module 'immutable' {
      * use API.
      *
      * Note: if the collection is already mutable, `asMutable` returns itself.
+     *
+     * Note: Not all methods can be used on a mutable collection or within
+     * `withMutations`! Only `set` and `merge` may be used mutatively.
      */
     asMutable(): Map<K, V>;
 
@@ -807,6 +817,9 @@ declare module 'immutable' {
     // Transient changes
 
     /**
+     * Note: Not all methods can be used on a mutable collection or within
+     * `withMutations`! Only `add` may be used mutatively.
+     *
      * @see `Map#withMutations`
      */
     withMutations(mutator: (mutable: Set<T>) => any): Set<T>;
@@ -970,6 +983,9 @@ declare module 'immutable' {
     // Transient changes
 
     /**
+     * Note: Not all methods can be used on a mutable collection or within
+     * `withMutations`! Only `set`, `push`, and `pop` may be used mutatively.
+     *
      * @see `Map#withMutations`
      */
     withMutations(mutator: (mutable: Stack<T>) => any): Stack<T>;
@@ -2310,7 +2326,7 @@ declare module 'immutable' {
      *
      *     var a = Seq.of(1, 2, 3);
      *     var b = Seq.of(4, 5, 6);
-     *     var c = a.zip(b); // Seq [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     *     var c = a.zipWith((a, b) => a + b, b); // Seq [ 5, 7, 9 ]
      *
      */
     zipWith<U, Z>(
