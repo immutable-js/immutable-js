@@ -10,7 +10,7 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
   global.Immutable = factory()
-}(this, function () { 'use strict';var SLICE$0 = Array.prototype.slice;
+}(this, function () { 'use strict';var SLICE$0 = Array.prototype.slice;var S_ITER$0 = typeof Symbol!=='undefined'&&Symbol&&Symbol.iterator||'@@iterator';var S_MARK$0 = typeof Symbol!=='undefined'&&Symbol&&Symbol["__setObjectSetter__"];function ITER$0(v,f){if(v){if(Array.isArray(v))return f?v.slice():v;var i,r;if(S_MARK$0)S_MARK$0(v);if(typeof v==='object'&&typeof (f=v[S_ITER$0])==='function'){i=f.call(v);r=[];}else if((v+'')==='[object Generator]'){i=v;r=[];};if(S_MARK$0)S_MARK$0(void 0);if(r) {while((f=i['next']()),f['done']!==true)r.push(f['value']);return r;}}throw new Error(v+' is not iterable')};
 
   function createClass(ctor, superClass) {
     if (superClass) {
@@ -1690,7 +1690,7 @@
         return iteratorValue(
           type,
           iterations++,
-          zipper.apply(null, steps.map(function(s ) {return s.value}))
+          zipper.apply(null, ITER$0(steps.map(function(s ) {return s.value})))
         );
       });
     };
@@ -1851,7 +1851,7 @@
         keyPath,
         emptyMap(),
         function(m ) {return typeof m.merge === 'function' ?
-          m.merge.apply(m, iters) :
+          m.merge.apply(m, ITER$0(iters)) :
           iters[iters.length - 1]}
       );
     };
@@ -1869,7 +1869,7 @@
         keyPath,
         emptyMap(),
         function(m ) {return typeof m.mergeDeep === 'function' ?
-          m.mergeDeep.apply(m, iters) :
+          m.mergeDeep.apply(m, ITER$0(iters)) :
           iters[iters.length - 1]}
       );
     };
@@ -3621,7 +3621,7 @@
     };
 
     src_Set__Set.prototype.mergeWith = function(merger) {var iters = SLICE$0.call(arguments, 1);
-      return this.union.apply(this, iters);
+      return this.union.apply(this, ITER$0(iters));
     };
 
     src_Set__Set.prototype.sort = function(comparator) {
