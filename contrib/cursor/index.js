@@ -20,6 +20,7 @@ var Iterable = Immutable.Iterable;
 var Iterator = Iterable.Iterator;
 var Seq = Immutable.Seq;
 var Map = Immutable.Map;
+var Record = Immutable.Record;
 
 
 function cursorFrom(rootData, keyPath, onChange) {
@@ -251,7 +252,34 @@ function makeCursor(rootData, keyPath, onChange, value) {
   }
   var size = value && value.size;
   var CursorClass = Iterable.isIndexed(value) ? IndexedCursor : KeyedCursor;
-  return new CursorClass(rootData, keyPath, onChange, size);
+  var cursor = new CursorClass(rootData, keyPath, onChange, size);
+
+  if (value instanceof Record) {
+    defineRecordProperties(cursor, value);
+  }
+
+  return cursor;
+}
+
+function defineRecordProperties(cursor, value) {
+  try {
+    value._keys.forEach(setProp.bind(undefined, cursor));
+  } catch (error) {
+    // Object.defineProperty failed. Probably IE8.
+  }
+}
+
+function setProp(prototype, name) {
+  Object.defineProperty(prototype, name, {
+    get: function() {
+      return this.get(name);
+    },
+    set: function(value) {
+      if (!this.__ownerID) {
+        throw new Error('Cannot set on an immutable record.');
+      }
+    }
+  });
 }
 
 function wrappedValue(cursor, keyPath, value) {
