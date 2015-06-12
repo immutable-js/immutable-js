@@ -11,6 +11,9 @@
     "url": "git://github.com/facebook/immutable-js.git"
   },
   "main": "dist/immutable.js",
+  "typescript": {
+    "definition": "dist/immutable.d.ts"
+  },
   "ignore": [
     "**/.*",
     "__tests__",

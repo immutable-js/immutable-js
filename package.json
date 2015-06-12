@@ -15,6 +15,9 @@
     "url": "https://github.com/facebook/immutable-js/issues"
   },
   "main": "dist/immutable.js",
+  "typescript": {
+    "definition": "dist/immutable.d.ts"
+  },
   "scripts": {
     "test": "./resources/node_test.sh",
     "perf": "node ./resources/bench.js"
