@@ -206,6 +206,12 @@ describe('Set', () => {
     expect(js).toEqual(['a', 'b']);
   });
 
+  it('can determine if an array is a subset', () => {
+    var s = Set.of('A', 'B', 'C');
+    expect(s.isSuperset(['B', 'C'])).toBe(true);
+    expect(s.isSuperset(['B', 'C', 'D'])).toBe(false);
+  });
+
   // TODO: more tests
 
 });
