@@ -76,10 +76,14 @@
   }
 
   function wholeSlice(begin, end, size) {
-    return (end !== undefined && !Number.isInteger(end)) ||
-      (begin !== undefined && !Number.isInteger(begin)) ||
+    return (end !== undefined && !isInteger(end)) ||
+      (begin !== undefined && !isInteger(begin)) ||
       (begin === 0 || (size !== undefined && begin <= -size)) &&
       (end === undefined || (size !== undefined && end >= size));
+  }
+
+  function isInteger(value){
+      return Math.round(value) === value;
   }
 
   function resolveBegin(begin, size) {
