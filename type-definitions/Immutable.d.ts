@@ -626,6 +626,10 @@ declare module 'immutable' {
       ...iterables: {[key: string]: V}[]
     ): Map<string, V>;
 
+    /**
+     * Returns the Map with the keys in keyMap renamed to the values in keyMap
+     */
+    renameKeys(keyMap: Map<string, string>): Map<string, V>;
 
     // Transient changes
 
