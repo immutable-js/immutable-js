@@ -71,7 +71,7 @@ export function wholeSlice(begin, end, size) {
     (end === undefined || (size !== undefined && end >= size));
 }
 
-function isInteger(value){
+function isInteger(value) {
     return Math.round(value) === value;
 }
 

@@ -82,7 +82,7 @@
       (end === undefined || (size !== undefined && end >= size));
   }
 
-  function isInteger(value){
+  function isInteger(value) {
       return Math.round(value) === value;
   }
 
@@ -4496,6 +4496,7 @@
     },
 
     isSuperset: function(iter) {
+      iter = typeof iter.isSubset === 'function' ? iter : Iterable(iter);
       return iter.isSubset(this);
     },
 
