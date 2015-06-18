@@ -4814,7 +4814,7 @@
 
     keySeq: function() {
       return this.valueSeq();
-    },
+    }
 
   });
 
@@ -4918,7 +4918,7 @@
     Repeat: Repeat,
 
     is: is,
-    fromJS: fromJS,
+    fromJS: fromJS
 
   };
 
