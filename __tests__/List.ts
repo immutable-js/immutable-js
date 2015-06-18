@@ -548,12 +548,42 @@ describe('List', () => {
   it('can be efficiently sliced', () => {
     var v1 = Immutable.Range(0,2000).toList();
     var v2 = v1.slice(100,-100).toList();
+    var v3 = v2.slice(0, Infinity);
     expect(v1.size).toBe(2000)
     expect(v2.size).toBe(1800);
+    expect(v3.size).toBe(1800);
     expect(v2.first()).toBe(100);
     expect(v2.rest().size).toBe(1799);
     expect(v2.last()).toBe(1899);
     expect(v2.butLast().size).toBe(1799);
+  });
+
+  [NaN, Infinity, -Infinity].forEach((zeroishValue) => {
+    it(`treats ${zeroishValue} like zero when setting size`, () => {
+      var v1 = List.of('a', 'b', 'c');
+      var v2 = v1.setSize(zeroishValue);
+      expect(v2.size).toBe(0);
+    });
+  });
+
+  describe('when slicing', () => {
+    [NaN, -Infinity].forEach((zeroishValue) => {
+      it(`considers a ${zeroishValue} begin argument to be zero`, () => {
+        var v1 = List.of('a', 'b', 'c');
+        var v2 = v1.slice(zeroishValue, 3);
+        expect(v2.size).toBe(3);
+      });
+      it(`considers a ${zeroishValue} end argument to be zero`, () => {
+        var v1 = List.of('a', 'b', 'c');
+        var v2 = v1.slice(0, zeroishValue);
+        expect(v2.size).toBe(0);
+      });
+      it(`considers ${zeroishValue} begin and end arguments to be zero`, () => {
+        var v1 = List.of('a', 'b', 'c');
+        var v2 = v1.slice(zeroishValue, zeroishValue);
+        expect(v2.size).toBe(0);
+      });
+    });
   });
 
   describe('Iterator', () => {
