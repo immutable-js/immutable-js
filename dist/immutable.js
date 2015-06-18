@@ -4788,7 +4788,7 @@
       var iterables = arrCopy(arguments);
       iterables[0] = this;
       return reify(this, zipWithFactory(this, zipper, iterables));
-    },
+    }
 
   });
 
