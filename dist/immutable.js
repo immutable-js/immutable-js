@@ -4567,7 +4567,7 @@
 
     hashCode: function() {
       return this.__hash || (this.__hash = hashIterable(this));
-    },
+    }
 
 
     // ### Internal
