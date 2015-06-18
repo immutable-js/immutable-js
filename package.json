@@ -1,6 +1,6 @@
 {
   "name": "immutable",
-  "version": "3.7.3",
+  "version": "3.7.4",
   "description": "Immutable Data Collections",
   "homepage": "https://github.com/facebook/immutable-js",
   "author": {
@@ -15,6 +15,9 @@
     "url": "https://github.com/facebook/immutable-js/issues"
   },
   "main": "dist/immutable.js",
+  "typescript": {
+    "definition": "dist/immutable.d.ts"
+  },
   "scripts": {
     "test": "./resources/node_test.sh",
     "perf": "node ./resources/bench.js"
@@ -70,8 +73,5 @@
     "sequence",
     "iteration"
   ],
-  "license": "BSD-3-Clause",
-  "typescript": {
-    "definition": "./dist/immutable.d.ts"
-  }
+  "license": "BSD-3-Clause"
 }
