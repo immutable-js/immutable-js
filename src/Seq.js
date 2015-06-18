@@ -13,7 +13,6 @@ import { Iterator, iteratorValue, iteratorDone, hasIterator, isIterator, getIter
 
 import isArrayLike from './utils/isArrayLike'
 
-
 export class Seq extends Iterable {
   constructor(value) {
     return value === null || value === undefined ? emptySequence() :

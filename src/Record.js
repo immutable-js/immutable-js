@@ -9,7 +9,8 @@
 
 import { KeyedIterable } from './Iterable'
 import { KeyedCollection } from './Collection'
-import { Map, MapPrototype, emptyMap } from './Map'
+import { Map, MapPrototype } from './Map'
+import { Seq } from './Seq'
 import { DELETE } from './TrieUtils'
 
 import invariant from './utils/invariant'
@@ -17,8 +18,9 @@ import invariant from './utils/invariant'
 
 export class Record extends KeyedCollection {
 
-  constructor(defaultValues, name) {
-    var hasInitialized;
+  constructor(valuesOrTypes, name) {
+    var defaultValues;
+    var factories;
 
     var RecordType = function Record(values) {
       if (values instanceof RecordType) {
@@ -27,16 +29,48 @@ export class Record extends KeyedCollection {
       if (!(this instanceof RecordType)) {
         return new RecordType(values);
       }
-      if (!hasInitialized) {
-        hasInitialized = true;
-        var keys = Object.keys(defaultValues);
+      if (!defaultValues) {
+        defaultValues = {};
+
+        if (typeof valuesOrTypes === 'function') {
+          valuesOrTypes = valuesOrTypes();
+        }
+        var keys = Object.keys(valuesOrTypes);
+        for (var i = 0, l = keys.length; i < l; i++) {
+          var valueOrType = valuesOrTypes[keys[i]];
+          if (typeof valueOrType === 'function') {
+            if (!factories) {
+              factories = {};
+            }
+            factories[keys[i]] = valueOrType;
+          } else {
+            defaultValues[keys[i]] = valueOrType;
+          }
+        }
         setProps(RecordTypePrototype, keys);
         RecordTypePrototype.size = keys.length;
         RecordTypePrototype._name = name;
         RecordTypePrototype._keys = keys;
+        RecordTypePrototype._factories = factories;
+        if (factories) {
+          for (i = 0; i < l; i++) {
+            var factory = factories[keys[i]];
+            defaultValues[keys[i]] = factory();
+          }
+        }
         RecordTypePrototype._defaultValues = defaultValues;
       }
-      this._map = Map(values);
+
+      var map;
+      if (factories) {
+        map = Map(Seq(values).map((v, k) => {
+          var factory = factories[k];
+          return factory ? factory(v) : v;
+        }));
+      } else {
+        map = Map(values);
+      }
+      this._map = map;
     };
 
     var RecordTypePrototype = RecordType.prototype = Object.create(RecordPrototype);
@@ -70,15 +104,16 @@ export class Record extends KeyedCollection {
       this._map && this._map.clear();
       return this;
     }
-    var RecordType = this.constructor;
-    return RecordType._empty || (RecordType._empty = makeRecord(this, emptyMap()));
+    return this.__empty()
   }
 
   set(k, v) {
     if (!this.has(k)) {
       throw new Error('Cannot set unknown key "' + k + '" on ' + recordName(this));
     }
-    var newMap = this._map && this._map.set(k, v);
+    var factories = this._factories;
+    var factory = factories && factories[k];
+    var newMap = this._map && this._map.set(k, factory ? factory(v) : v);
     if (this.__ownerID || newMap === this._map) {
       return this;
     }
@@ -98,6 +133,11 @@ export class Record extends KeyedCollection {
 
   wasAltered() {
     return this._map.wasAltered();
+  }
+
+  __empty() {
+    var RecordType = this.constructor;
+    return RecordType._empty || (RecordType._empty = makeRecord(this, Map()));
   }
 
   __iterator(type, reverse) {

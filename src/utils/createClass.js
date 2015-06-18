@@ -6,10 +6,17 @@
  *  LICENSE file in the root directory of this source tree. An additional grant
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
-
 export default function createClass(ctor, superClass) {
   if (superClass) {
     ctor.prototype = Object.create(superClass.prototype);
+    if (superClass.__proto__) {
+      ctor.__proto__ = superClass
+    } else {
+      /*jshint forin:false */
+      // Used for older IE's to emulate setting the __proto__
+      for (var key in superClass) { ctor[key] = superClass[key]; }
+    }
   }
   ctor.prototype.constructor = ctor;
+  return ctor
 }

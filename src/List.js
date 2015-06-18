@@ -16,37 +16,26 @@ import { MapPrototype, mergeIntoCollectionWith, deepMerger } from './Map'
 import { Iterator, iteratorValue, iteratorDone } from './Iterator'
 
 import assertNotInfinite from './utils/assertNotInfinite'
+import { createFactory } from './createFactory'
 
-
-export class List extends IndexedCollection {
+export class ListClass extends IndexedCollection {
 
   // @pragma Construction
 
-  constructor(value) {
-    var empty = emptyList();
-    if (value === null || value === undefined) {
-      return empty;
-    }
-    if (isList(value)) {
-      return value;
-    }
-    var iter = IndexedIterable(value);
-    var size = iter.size;
-    if (size === 0) {
-      return empty;
-    }
-    assertNotInfinite(size);
-    if (size > 0 && size < SIZE) {
-      return makeList(0, size, SHIFT, null, new VNode(iter.toArray()));
-    }
-    return empty.withMutations(list => {
-      list.setSize(size);
-      iter.forEach((v, i) => list.set(i, v));
-    });
+  constructor(origin, capacity, level, root, tail, ownerID, hash) {
+    this.size = capacity - origin;
+    this._origin = origin;
+    this._capacity = capacity;
+    this._level = level;
+    this._root = root;
+    this._tail = tail;
+    this.__ownerID = ownerID;
+    this.__hash = hash;
+    this.__altered = false;
   }
 
   static of(/*...values*/) {
-    return this(arguments);
+    return this.__factoryDispatch(arguments);
   }
 
   toString() {
@@ -90,7 +79,7 @@ export class List extends IndexedCollection {
       this.__altered = true;
       return this;
     }
-    return emptyList();
+    return this.__empty();
   }
 
   push(/*...values*/) {
@@ -189,19 +178,44 @@ export class List extends IndexedCollection {
       this.__ownerID = ownerID;
       return this;
     }
-    return makeList(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
+    return this.__make(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
   }
+
+  __make(origin, capacity, level, root, tail, ownerID, hash) {
+    return new this.constructor.__Class(origin, capacity, level, root, tail, ownerID, hash);
+  }
+
+  __empty() {
+    return this.__make(0, 0, SHIFT);
+  }
+
+  static __factory(value, emptyList) {
+    var iter = IndexedIterable(value);
+    var size = iter.size;
+    if (size === 0) {
+      return emptyList
+    }
+    assertNotInfinite(size);
+    if (size > 0 && size < SIZE) {
+      return emptyList.__make(0, size, SHIFT, null, new VNode(iter.toArray()));
+    }
+    return emptyList.withMutations(list => {
+      list.setSize(size);
+      iter.forEach((v, i) => list.set(i, v));
+    })
+  }
+
 }
 
 export function isList(maybeList) {
   return !!(maybeList && maybeList[IS_LIST_SENTINEL]);
 }
 
-List.isList = isList;
+ListClass.__check = ListClass.isList = isList;
 
 var IS_LIST_SENTINEL = '@@__IMMUTABLE_LIST__@@';
 
-export var ListPrototype = List.prototype;
+export var ListPrototype = ListClass.prototype;
 ListPrototype[IS_LIST_SENTINEL] = true;
 ListPrototype[DELETE] = ListPrototype.remove;
 ListPrototype.setIn = MapPrototype.setIn;
@@ -216,6 +230,9 @@ ListPrototype.asMutable = MapPrototype.asMutable;
 ListPrototype.asImmutable = MapPrototype.asImmutable;
 ListPrototype.wasAltered = MapPrototype.wasAltered;
 
+export var List = createFactory(function Immutable_List(origin, capacity, level, root, tail, ownerID, hash) {
+  ListClass.call(this, origin, capacity, level, root, tail, ownerID, hash)
+}, ListClass)
 
 class VNode {
   constructor(array, ownerID) {
@@ -350,25 +367,6 @@ function iterateList(list, reverse) {
   }
 }
 
-function makeList(origin, capacity, level, root, tail, ownerID, hash) {
-  var list = Object.create(ListPrototype);
-  list.size = capacity - origin;
-  list._origin = origin;
-  list._capacity = capacity;
-  list._level = level;
-  list._root = root;
-  list._tail = tail;
-  list.__ownerID = ownerID;
-  list.__hash = hash;
-  list.__altered = false;
-  return list;
-}
-
-var EMPTY_LIST;
-export function emptyList() {
-  return EMPTY_LIST || (EMPTY_LIST = makeList(0, 0, SHIFT));
-}
-
 function updateList(list, index, value) {
   index = wrapIndex(list, index);
 
@@ -402,7 +400,7 @@ function updateList(list, index, value) {
     list.__altered = true;
     return list;
   }
-  return makeList(list._origin, list._capacity, list._level, newRoot, newTail);
+  return list.__make(list._origin, list._capacity, list._level, newRoot, newTail);
 }
 
 function updateVNode(node, ownerID, level, index, value, didAlter) {
@@ -574,7 +572,7 @@ function setListBounds(list, begin, end) {
     list.__altered = true;
     return list;
   }
-  return makeList(newOrigin, newCapacity, newLevel, newRoot, newTail);
+  return list.__make(newOrigin, newCapacity, newLevel, newRoot, newTail);
 }
 
 function mergeIntoListWith(list, merger, iterables) {

@@ -9,38 +9,53 @@
 
 import { Seq } from './Seq'
 import { Collection } from './Collection'
-import { OrderedMap } from './OrderedMap'
-import { List } from './List'
-import { Map } from './Map'
-import { Stack } from './Stack'
-import { OrderedSet } from './OrderedSet'
-import { Set } from './Set'
+
+import { OrderedMap, OrderedMapClass } from './OrderedMap'
+import { List, ListClass } from './List'
+import { Map, MapClass } from './Map'
+import { Stack, StackClass } from './Stack'
+import { OrderedSet, OrderedSetClass } from './OrderedSet'
+import { Set, SetClass } from './Set'
+
 import { Record } from './Record'
 import { Range } from './Range'
 import { Repeat } from './Repeat'
+import { Nullable } from './Nullable'
 import { is } from './is'
 import { fromJS } from './fromJS'
 import { Iterable } from './IterableImpl'
-
+import { createFactory } from './createFactory'
 
 export default {
 
-  Iterable: Iterable,
+  Iterable,
 
-  Seq: Seq,
-  Collection: Collection,
-  Map: Map,
-  OrderedMap: OrderedMap,
-  List: List,
-  Stack: Stack,
-  Set: Set,
-  OrderedSet: OrderedSet,
+  Seq,
+  Collection,
+  
+  Map,
+  OrderedMap,
+  List,
+  Stack,
+  Set,
+  OrderedSet,
 
-  Record: Record,
-  Range: Range,
-  Repeat: Repeat,
+  Record,
+  Nullable,
+  Range,
+  Repeat,
 
-  is: is,
-  fromJS: fromJS,
+  is,
+  fromJS,
+  createFactory,
+
+  Classes: {
+    Map: MapClass,
+    OrderedMap: OrderedMapClass,
+    List: ListClass,
+    Stack: StackClass,
+    Set: SetClass,
+    OrderedSet: OrderedSetClass,
+  }
 
 };

@@ -19,22 +19,21 @@ import { sortFactory } from './Operations'
 import forceIterator from './utils/forceIterator'
 import invariant from './utils/invariant'
 import assertNotInfinite from './utils/assertNotInfinite'
+import { createFactory } from './createFactory'
 
 import { OrderedMap } from './OrderedMap'
 
 
-export class Map extends KeyedCollection {
+export class MapClass extends KeyedCollection {
 
   // @pragma Construction
 
-  constructor(value) {
-    return value === null || value === undefined ? emptyMap() :
-      isMap(value) ? value :
-      emptyMap().withMutations(map => {
-        var iter = KeyedIterable(value);
-        assertNotInfinite(iter.size);
-        iter.forEach((v, k) => map.set(k, v));
-      });
+  constructor(size, root, ownerID, hash) {
+    this.size = size;
+    this._root = root;
+    this.__ownerID = ownerID;
+    this.__hash = hash;
+    this.__altered = false;
   }
 
   toString() {
@@ -82,7 +81,8 @@ export class Map extends KeyedCollection {
       this,
       forceIterator(keyPath),
       notSetValue,
-      updater
+      updater,
+      this.__empty()
     );
     return updatedValue === NOT_SET ? undefined : updatedValue;
   }
@@ -98,7 +98,7 @@ export class Map extends KeyedCollection {
       this.__altered = true;
       return this;
     }
-    return emptyMap();
+    return this.__empty();
   }
 
   // @pragma Composition
@@ -113,8 +113,8 @@ export class Map extends KeyedCollection {
 
   mergeIn(keyPath, ...iters) {
     return this.updateIn(
-      keyPath,
-      emptyMap(),
+      keyPath, 
+      this.__empty(), 
       m => typeof m.merge === 'function' ?
         m.merge.apply(m, iters) :
         iters[iters.length - 1]
@@ -132,7 +132,7 @@ export class Map extends KeyedCollection {
   mergeDeepIn(keyPath, ...iters) {
     return this.updateIn(
       keyPath,
-      emptyMap(),
+      this.__empty(),
       m => typeof m.mergeDeep === 'function' ?
         m.mergeDeep.apply(m, iters) :
         iters[iters.length - 1]
@@ -191,23 +191,44 @@ export class Map extends KeyedCollection {
       this.__altered = false;
       return this;
     }
-    return makeMap(this.size, this._root, ownerID, this.__hash);
+    return this.__make(this.size, this._root, ownerID, this.__hash);
   }
+
+  __make(size, root, ownerID, hash) {
+    return new this.constructor.__Class(size, root, ownerID, hash);
+  }
+
+  __empty() {
+    return this.__make(0)
+  }
+
+  static __factory(value, emptyMap) {
+    return emptyMap.withMutations(map => {
+      var iter = KeyedIterable(value);
+      assertNotInfinite(iter.size);
+      iter.forEach((v, k) => map.set(k, v));
+    })
+  }
+
 }
 
 export function isMap(maybeMap) {
   return !!(maybeMap && maybeMap[IS_MAP_SENTINEL]);
 }
 
-Map.isMap = isMap;
+MapClass.__check = MapClass.isMap = isMap;
 
 var IS_MAP_SENTINEL = '@@__IMMUTABLE_MAP__@@';
 
-export var MapPrototype = Map.prototype;
+export var MapPrototype = MapClass.prototype;
 MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeIn = MapPrototype.deleteIn;
 
+/*jshint -W079 */
+export var Map = createFactory(function Immutable_Map(size, root, ownerID, hash) {
+  MapClass.call(this, size, root, ownerID, hash)
+}, MapClass)
 
 // #pragma Trie Nodes
 
@@ -602,21 +623,6 @@ function mapIteratorFrame(node, prev) {
   };
 }
 
-function makeMap(size, root, ownerID, hash) {
-  var map = Object.create(MapPrototype);
-  map.size = size;
-  map._root = root;
-  map.__ownerID = ownerID;
-  map.__hash = hash;
-  map.__altered = false;
-  return map;
-}
-
-var EMPTY_MAP;
-export function emptyMap() {
-  return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
-}
-
 function updateMap(map, k, v) {
   var newRoot;
   var newSize;
@@ -642,7 +648,7 @@ function updateMap(map, k, v) {
     map.__altered = true;
     return map;
   }
-  return newRoot ? makeMap(newSize, newRoot) : emptyMap();
+  return newRoot ? map.__make(newSize, newRoot) : map.__empty();
 }
 
 function updateNode(node, ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
@@ -739,7 +745,7 @@ export function mergeIntoCollectionWith(collection, merger, iters) {
     return collection;
   }
   if (collection.size === 0 && !collection.__ownerID && iters.length === 1) {
-    return collection.constructor(iters[0]);
+    return collection.constructor.__factoryDispatch(iters[0]);
   }
   return collection.withMutations(collection => {
     var mergeIntoMap = merger ?
@@ -757,7 +763,7 @@ export function mergeIntoCollectionWith(collection, merger, iters) {
   });
 }
 
-function updateInDeepMap(existing, keyPathIter, notSetValue, updater) {
+function updateInDeepMap(existing, keyPathIter, notSetValue, updater, emptyMap) {
   var isNotSet = existing === NOT_SET;
   var step = keyPathIter.next();
   if (step.done) {
@@ -775,11 +781,12 @@ function updateInDeepMap(existing, keyPathIter, notSetValue, updater) {
     nextExisting,
     keyPathIter,
     notSetValue,
-    updater
+    updater,
+    emptyMap
   );
   return nextUpdated === nextExisting ? existing :
     nextUpdated === NOT_SET ? existing.remove(key) :
-    (isNotSet ? emptyMap() : existing).set(key, nextUpdated);
+    (isNotSet ? emptyMap : existing).set(key, nextUpdated);
 }
 
 function popCount(x) {

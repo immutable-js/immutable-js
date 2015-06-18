@@ -1096,6 +1096,22 @@ declare module 'immutable' {
 
 
   /**
+   * Provided a factory function, most commonly a Record type, return a new
+   * factory function that will return null if provided null.
+   *
+   *     var Point = Record({ x: 0, y: 0 });
+   *     var NullablePoint = Nullable(Point);
+   *     Point(); // Record { "x": 0, "y": 0 }
+   *     Point({}); // Record { "x": 0, "y": 0 }
+   *     NullablePoint(); // null
+   *     NullablePoint({}); // Record { "x": 0, "y": 0 }
+   */
+  export function Nullable<T, R>(
+    TypeFactory: (T) => R
+  ): (/*?*/T) => /*?*/R;
+
+
+  /**
    * Represents a sequence of values, but may not be backed by a concrete data
    * structure.
    *

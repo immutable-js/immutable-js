@@ -11,9 +11,11 @@ import { Iterable } from './Iterable'
 
 
 export class Collection extends Iterable {
+  
   constructor() {
     throw TypeError('Abstract');
   }
+
 }
 
 export class KeyedCollection extends Collection {}
