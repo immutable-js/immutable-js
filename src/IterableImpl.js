@@ -144,10 +144,6 @@ mixin(Iterable, {
     return reify(this, concatFactory(this, values));
   },
 
-  contains(searchValue) {
-    return this.includes(searchValue);
-  },
-
   includes(searchValue) {
     return this.some(value => is(value, searchValue));
   },
@@ -460,6 +456,7 @@ IterablePrototype.__toStringMapper = quoteString;
 IterablePrototype.inspect =
 IterablePrototype.toSource = function() { return this.toString(); };
 IterablePrototype.chain = IterablePrototype.flatMap;
+IterablePrototype.contains = IterablePrototype.includes;
 
 // Temporary warning about using length
 (function () {

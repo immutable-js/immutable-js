@@ -738,7 +738,7 @@
   var src_Math__imul =
     typeof Math.imul === 'function' && Math.imul(0xffffffff, 2) === -2 ?
     Math.imul :
-    function src_Math__imul(a, b) {
+    function imul(a, b) {
       a = a | 0; // int
       b = b | 0; // int
       var c = a & 0xffff;
@@ -4274,10 +4274,6 @@
       return reify(this, concatFactory(this, values));
     },
 
-    contains: function(searchValue) {
-      return this.includes(searchValue);
-    },
-
     includes: function(searchValue) {
       return this.some(function(value ) {return is(value, searchValue)});
     },
@@ -4590,6 +4586,7 @@
   IterablePrototype.inspect =
   IterablePrototype.toSource = function() { return this.toString(); };
   IterablePrototype.chain = IterablePrototype.flatMap;
+  IterablePrototype.contains = IterablePrototype.includes;
 
   // Temporary warning about using length
   (function () {
