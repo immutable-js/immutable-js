@@ -362,4 +362,30 @@ describe('Cursor', () => {
     expect(cursor.first().name).toBe('John');
   });
 
+  it('can set value of a cursor directly', () => {
+    var onChange = jest.genMockFunction();
+    var data = Immutable.fromJS({a:1});
+    var c = Cursor.from(data, ['a'], onChange);
+    var c1 = c.set(2);
+    expect(c1.deref()).toBe(2);
+    expect(onChange).lastCalledWith(
+      Immutable.fromJS({a:2}),
+      data,
+      ['a']
+    );
+  });
+
+  it('can set value of a cursor to undefined directly', () => {
+    var onChange = jest.genMockFunction();
+    var data = Immutable.fromJS({a:1});
+    var c = Cursor.from(data, ['a'], onChange);
+    var c1 = c.set(undefined);
+    expect(c1.deref()).toBe(undefined);
+    expect(onChange).lastCalledWith(
+      Immutable.fromJS({a:undefined}),
+      data,
+      ['a']
+    );
+  });
+
 });
