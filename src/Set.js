@@ -7,7 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { SetIterable, KeyedIterable } from './Iterable'
+import { SetIterable, KeyedIterable, isOrdered } from './Iterable'
 import { SetCollection } from './Collection'
 import { emptyMap, MapPrototype } from './Map'
 import { DELETE } from './TrieUtils'
@@ -23,7 +23,7 @@ export class Set extends SetCollection {
 
   constructor(value) {
     return value === null || value === undefined ? emptySet() :
-      isSet(value) ? value :
+      isSet(value) && !isOrdered(value) ? value :
       emptySet().withMutations(set => {
         var iter = SetIterable(value);
         assertNotInfinite(iter.size);
