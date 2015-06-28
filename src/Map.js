@@ -9,7 +9,7 @@
 
 import { is } from './is'
 import { fromJS } from './fromJS'
-import { isIterable, KeyedIterable } from './Iterable'
+import { isIterable, KeyedIterable, isOrdered } from './Iterable'
 import { KeyedCollection } from './Collection'
 import { DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
           MakeRef, SetRef, arrCopy } from './TrieUtils'
@@ -29,7 +29,7 @@ export class Map extends KeyedCollection {
 
   constructor(value) {
     return value === null || value === undefined ? emptyMap() :
-      isMap(value) ? value :
+      isMap(value) && !isOrdered(value) ? value :
       emptyMap().withMutations(map => {
         var iter = KeyedIterable(value);
         assertNotInfinite(iter.size);

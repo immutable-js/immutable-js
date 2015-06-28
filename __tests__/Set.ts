@@ -136,6 +136,21 @@ describe('Set', () => {
     expect(s3).toBe(s2);
   });
 
+  it('unions a set and an iterable and returns a set', () => {
+    var s1 = Set([1,2,3]);
+    var emptySet = Set();
+    var l = Immutable.List([1,2,3]);
+    var s2 = s1.union(l);
+    var s3 = emptySet.union(l);
+    var o = Immutable.OrderedSet([1,2,3]);
+    var s4 = s1.union(o);
+    var s5 = emptySet.union(o);
+    expect(Set.isSet(s2)).toBe(true);
+    expect(Set.isSet(s3)).toBe(true);
+    expect(Set.isSet(s4) && !Immutable.OrderedSet.isOrderedSet(s4)).toBe(true);
+    expect(Set.isSet(s5) && !Immutable.OrderedSet.isOrderedSet(s5)).toBe(true);
+  });
+
   it('is persistent to adds', () => {
     var s1 = Set();
     var s2 = s1.add('a');
