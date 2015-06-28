@@ -152,6 +152,18 @@ describe('slice', () => {
       expect(sliced.toArray()).toEqual([1, 2, 3]);
       expect(sliced.toArray()).toEqual([1, 2, 3]);
     })
+    
+    it('converts to array with correct length', () => {
+      var seq = Seq.of(1,2,3,4,5,6);
+      var s1 = seq.take(3);
+      var s2 = seq.take(10);
+      var s3 = seq.filter((v) => v < 4).take(10);
+      var s4 = seq.filter((v) => v < 4).take(2);
+      expect(s1.toArray().length).toEqual(3);
+      expect(s2.toArray().length).toEqual(6);
+      expect(s3.toArray().length).toEqual(3);
+      expect(s4.toArray().length).toEqual(2);
+    })
 
   })
 
