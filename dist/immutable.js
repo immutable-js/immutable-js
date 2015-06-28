@@ -1766,7 +1766,7 @@
 
     function src_Map__Map(value) {
       return value === null || value === undefined ? emptyMap() :
-        isMap(value) ? value :
+        isMap(value) && !isOrdered(value) ? value :
         emptyMap().withMutations(function(map ) {
           var iter = KeyedIterable(value);
           assertNotInfinite(iter.size);
@@ -3531,7 +3531,7 @@
 
     function src_Set__Set(value) {
       return value === null || value === undefined ? emptySet() :
-        isSet(value) ? value :
+        isSet(value) && !isOrdered(value) ? value :
         emptySet().withMutations(function(set ) {
           var iter = SetIterable(value);
           assertNotInfinite(iter.size);
