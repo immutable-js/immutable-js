@@ -36,6 +36,10 @@ export default {
   Set: Set,
   OrderedSet: OrderedSet,
 
+  // Allows ES6 object destructuring w/o overriding ES6 Map/Set
+  ImmMap: Map,
+  ImmSet: Set,
+
   Record: Record,
   Range: Range,
   Repeat: Repeat,
