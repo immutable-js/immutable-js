@@ -4912,6 +4912,10 @@
     Set: src_Set__Set,
     OrderedSet: OrderedSet,
 
+    // Allows ES6 object destructuring w/o overriding ES6 Map/Set
+    ImmMap: src_Map__Map,
+    ImmSet: src_Set__Set,
+
     Record: Record,
     Range: Range,
     Repeat: Repeat,
