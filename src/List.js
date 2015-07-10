@@ -57,12 +57,20 @@ export class List extends IndexedCollection {
 
   get(index, notSetValue) {
     index = wrapIndex(this, index);
-    if (index < 0 || index >= this.size) {
+    if (index < 0 || index >= this.size || index !== index) {
       return notSetValue;
     }
     index += this._origin;
     var node = listNodeFor(this, index);
     return node && node.array[index & MASK];
+  }
+
+  has(index) {
+    index = wrapIndex(this, index);
+    return index >= 0 && (this.size !== undefined ?
+      this.size === Infinity || index < this.size :
+      this.indexOf(index) !== -1
+    );
   }
 
   // @pragma Modification
@@ -371,6 +379,9 @@ export function emptyList() {
 
 function updateList(list, index, value) {
   index = wrapIndex(list, index);
+  if (index !== index) {
+    throw new Error('Cannot set item at unknown index "' + index + '" on ' + listName(list));
+  }
 
   if (index >= list.size || index < 0) {
     return list.withMutations(list => {
@@ -599,4 +610,8 @@ function mergeIntoListWith(list, merger, iterables) {
 
 function getTailOffset(size) {
   return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
+}
+
+function listName(list) {
+  return list._name || list.constructor.name || 'List';
 }

@@ -57,7 +57,12 @@ export function ensureSize(iter) {
 }
 
 export function wrapIndex(iter, index) {
-  return index >= 0 ? (+index) : ensureSize(iter) + (+index);
+  if (index === '' || isNaN(+index)) {
+    return NaN;
+  } else if (index >= 0) {
+    return +index;
+  }
+  return ensureSize(iter) + (+index);
 }
 
 export function returnTrue() {
