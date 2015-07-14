@@ -525,6 +525,26 @@ describe('List', () => {
     expect(v3.get(1800)).toBe(undefined);
   });
 
+  it('discards truncated elements when using slice', () => {
+    var list = [1,2,3,4,5,6];
+    var v1 = Immutable.fromJS(list);
+    var v2 = v1.slice(0,3);
+    var v3 = v2.setSize(6);
+
+    expect(v2.toArray()).toEqual([1,2,3]);
+    expect(v3.toArray()).toEqual([1,2,3,undefined,undefined,undefined]);
+  });
+
+  it('discards truncated elements when using setSize', () => {
+    var list = [1,2,3,4,5,6];
+    var v1 = Immutable.fromJS(list);
+    var v2 = v1.setSize(3);
+    var v3 = v2.setSize(6);
+
+    expect(v2.toArray()).toEqual([1,2,3]);
+    expect(v3.toArray()).toEqual([1,2,3,undefined,undefined,undefined]);
+  });
+
   it('can be efficiently sliced', () => {
     var v1 = Immutable.Range(0,2000).toList();
     var v2 = v1.slice(100,-100).toList();
