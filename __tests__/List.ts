@@ -96,6 +96,41 @@ describe('List', () => {
     expect(i.set('3', 10).get('-3')).toBe(10);
   });
 
+  it('uses not set value for string index', () => {
+    var list: any = Immutable.List();
+    expect(list.get('stringKey', 'NOT-SET')).toBe('NOT-SET');
+  });
+
+  it('uses not set value for index {}', () => {
+    var list: any = Immutable.List.of(1, 2, 3, 4, 5);
+    expect(list.get({}, 'NOT-SET')).toBe('NOT-SET');
+  });
+
+  it('uses not set value for index void 0', () => {
+    var list: any = Immutable.List.of(1, 2, 3, 4, 5);
+    expect(list.get(void 0, 'NOT-SET')).toBe('NOT-SET');
+  });
+
+  it('uses not set value for index undefined', () => {
+    var list: any = Immutable.List.of(1, 2, 3, 4, 5);
+    expect(list.get(undefined, 'NOT-SET')).toBe('NOT-SET');
+  });
+
+  it('doesnt coerce empty strings to index 0', () => {
+    var list: any = Immutable.List.of(1, 2, 3);
+    expect(list.has('')).toBe(false);
+  });
+
+  it('doesnt contain elements at non-empty string keys', () => {
+    var list: any = Immutable.List.of(1, 2, 3, 4, 5);
+    expect(list.has('str')).toBe(false);
+  });
+
+  it('hasIn doesnt contain elements at non-empty string keys', () => {
+    var list: any = Immutable.List.of(1, 2, 3, 4, 5);
+    expect(list.hasIn(('str'))).toBe(false);
+  });
+
   it('setting creates a new instance', () => {
     var v0 = List.of('a');
     var v1 = v0.set(0, 'A');

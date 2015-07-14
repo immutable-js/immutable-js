@@ -57,12 +57,12 @@ export class List extends IndexedCollection {
 
   get(index, notSetValue) {
     index = wrapIndex(this, index);
-    if (index < 0 || index >= this.size) {
-      return notSetValue;
+    if (index >= 0 && index < this.size) {
+      index += this._origin;
+      var node = listNodeFor(this, index);
+      return node && node.array[index & MASK];
     }
-    index += this._origin;
-    var node = listNodeFor(this, index);
-    return node && node.array[index & MASK];
+    return notSetValue;
   }
 
   // @pragma Modification
@@ -371,6 +371,10 @@ export function emptyList() {
 
 function updateList(list, index, value) {
   index = wrapIndex(list, index);
+
+  if (index !== index) {
+    return list;
+  }
 
   if (index >= list.size || index < 0) {
     return list.withMutations(list => {
