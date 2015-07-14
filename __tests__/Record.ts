@@ -95,4 +95,11 @@ describe('Record', () => {
     expect(t.get('c')).toBeUndefined();
   })
 
+  it('map like Map', () => {
+    var MyType = Record({a:1, b:2});
+    var res = (new MyType()).map(function(v, k) { return v * 2 })
+
+    expect(res).not.toBe(undefined);
+  })
+
 });
