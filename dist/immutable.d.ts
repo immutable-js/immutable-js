@@ -38,7 +38,7 @@ declare module 'immutable' {
    * and proceeding to the top-level collection itself), along with the key
    * refering to each collection and the parent JS object provided as `this`.
    * For the top level, object, the key will be `""`. This `reviver` is expected
-   * to return a new Immutable Iterable, allowing for custom convertions from
+   * to return a new Immutable Iterable, allowing for custom conversions from
    * deep JS objects.
    *
    * This example converts JSON to List and OrderedMap:
@@ -148,7 +148,7 @@ declare module 'immutable' {
 
     /**
      * Returns a new List which excludes this `index` and with a size 1 less
-     * than this List. Values at indicies above `index` are shifted down by 1 to
+     * than this List. Values at indices above `index` are shifted down by 1 to
      * fill the position.
      *
      * This is synonymous with `list.splice(index, 1)`.
