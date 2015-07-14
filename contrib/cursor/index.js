@@ -86,7 +86,11 @@ IndexedCursorPrototype.getIn = function(keyPath, notSetValue) {
 
 IndexedCursorPrototype.set =
 KeyedCursorPrototype.set = function(key, value) {
-  return updateCursor(this, function (m) { return m.set(key, value); }, [key]);
+  if(arguments.length === 1) {
+    return updateCursor(this, function() { return key; }, []);
+  } else {
+    return updateCursor(this, function (m) { return m.set(key, value); }, [key]);
+  }
 }
 
 IndexedCursorPrototype.push = function(/* values */) {
