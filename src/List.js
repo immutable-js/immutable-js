@@ -221,7 +221,7 @@ ListPrototype['@@transducer/init'] = function() {
 ListPrototype['@@transducer/step'] = function(result, arr) {
   return result.push(arr);
 };
-List.prototype['@@transducer/result'] = function(obj) {
+ListPrototype['@@transducer/result'] = function(obj) {
   return obj.asImmutable();
 };
 

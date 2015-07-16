@@ -2800,7 +2800,7 @@
   ListPrototype['@@transducer/step'] = function(result, arr) {
     return result.push(arr);
   };
-  List.prototype['@@transducer/result'] = function(obj) {
+  ListPrototype['@@transducer/result'] = function(obj) {
     return obj.asImmutable();
   };
 
@@ -3540,7 +3540,15 @@
   StackPrototype.asMutable = MapPrototype.asMutable;
   StackPrototype.asImmutable = MapPrototype.asImmutable;
   StackPrototype.wasAltered = MapPrototype.wasAltered;
-
+  StackPrototype['@@transducer/init'] = function() {
+    return this.asMutable();
+  };
+  StackPrototype['@@transducer/step'] = function(result, arr) {
+    return result.unshift(arr);
+  };
+  StackPrototype['@@transducer/result'] = function(obj) {
+    return obj.asImmutable();
+  };
 
   function makeStack(size, head, ownerID, hash) {
     var map = Object.create(StackPrototype);
