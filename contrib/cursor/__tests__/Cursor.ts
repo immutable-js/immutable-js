@@ -17,6 +17,43 @@ describe('Cursor', () => {
 
   var json = { a: { b: { c: 1 } } };
 
+  describe('keyPath', () => {
+    var root = Immutable.Map({
+      one: Immutable.Map({
+        two: { // plain object
+          list: [1, 2, 3],
+          map: Immutable.Map({cake: true}),
+          three: Immutable.List.of([
+            {done: 'nope'},
+            {done: 'almost'},
+            {done: 'just one more line'},
+            {done: 'finally'}
+          ])
+        },
+        dos: [1, 2, 3] // plain array
+      }),
+      depth: 4
+    });
+    var node = root.getIn(['one', 'two', 'three', 4]);
+
+    it('returns undefined if node is not in root', () => {
+      var keyPath = Cursor.keyPath(node, root);
+      expect(keyPath).toBe(undefined);
+    });
+
+    it('returns an empty array if root is node', () => {
+      var rootKeyPath = Cursor.keyPath(root, root);
+      expect(rootKeyPath).toBe([]);
+      var nodeKeyPath = Cursor.keyPath(node, node);
+      expect(nodeKeyPath).toBe([]);
+    });
+
+    it('returns the keypath to get from root to node', () => {
+      var keyPath = Cursor.keyPath(root, node);
+      expect(keyPath).toEqual(['one', 'two', 'three', 4]);
+    });
+  })
+
   it('gets from its path', () => {
     var data = Immutable.fromJS(json);
     var cursor = Cursor.from(data);

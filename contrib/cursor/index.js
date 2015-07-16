@@ -340,4 +340,48 @@ function valToKeyPath(val) {
     [val];
 }
 
+function keyPathSearch(root, node) {
+  if(root === node) return [];
+  if(Immutable.List.isList(root)) {
+    var key = parent.indexOf(node);
+    if(key !==- 1) return [key];
+  } else if(Immutable.Map.isMap(root)) {
+    var key = parent.findKey(function(child) {
+      return child === node;
+    });
+    if(key) return [key];
+  } else if(typeof parent === 'object') {
+    if(Array.isArray(parent)) {
+      var key = parent.indexOf(node);
+      if(key !== -1) return [key]; 
+    } else {
+      var keys = Object.keys(parent);
+      var hits = keys.filter(function(key) {
+        return parent[key] === node;
+      });
+      if(hits.length === 1) return hits;
+    }
+  }
+  return undefined;
+}
+
+function keyPath(root, node) {
+  if(!root) return undefined;
+  var path = keyPathSearch(root, node);
+  if(path !== undefined) return path;
+
+  if(Array.isArray(root)) root = Immutable.List(root);
+  if(root.constructor === Object) root = Immutable.Map(root);  
+  if(!root.map) return undefined;
+
+  return root.map(function(child) {
+    return keyPath(child, node);
+  }).filter(function(keys) {
+    return Array.isArray(keys);
+  }).map(function(keys, key) {
+    return [key].concat(keys);
+  }).first();
+}
+
 exports.from = cursorFrom;
+exports.keyPath = keyPath;
