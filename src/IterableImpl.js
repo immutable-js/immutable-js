@@ -437,7 +437,7 @@ mixin(Iterable, {
 
   hashCode() {
     return this.__hash || (this.__hash = hashIterable(this));
-  },
+  }
 
 
   // ### Internal
@@ -530,7 +530,7 @@ mixin(KeyedIterable, {
         (k, v) => mapper.call(context, k, v, this)
       ).flip()
     );
-  },
+  }
 
 });
 
@@ -658,7 +658,7 @@ mixin(IndexedIterable, {
     var iterables = arrCopy(arguments);
     iterables[0] = this;
     return reify(this, zipWithFactory(this, zipper, iterables));
-  },
+  }
 
 });
 
@@ -684,7 +684,7 @@ mixin(SetIterable, {
 
   keySeq() {
     return this.valueSeq();
-  },
+  }
 
 });
 
