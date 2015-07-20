@@ -41,6 +41,6 @@ export default {
   Repeat: Repeat,
 
   is: is,
-  fromJS: fromJS,
+  fromJS: fromJS
 
 };

@@ -4579,7 +4579,7 @@
 
     hashCode: function() {
       return this.__hash || (this.__hash = hashIterable(this));
-    },
+    }
 
 
     // ### Internal
@@ -4673,7 +4673,7 @@
           function(k, v)  {return mapper.call(context, k, v, this$0)}
         ).flip()
       );
-    },
+    }
 
   });
 
@@ -4801,7 +4801,7 @@
       var iterables = arrCopy(arguments);
       iterables[0] = this;
       return reify(this, zipWithFactory(this, zipper, iterables));
-    },
+    }
 
   });
 
@@ -4827,7 +4827,7 @@
 
     keySeq: function() {
       return this.valueSeq();
-    },
+    }
 
   });
 
@@ -4931,7 +4931,7 @@
     Repeat: Repeat,
 
     is: is,
-    fromJS: fromJS,
+    fromJS: fromJS
 
   };
 
