@@ -198,6 +198,16 @@ IndexedCursorPrototype.withMutations = function(fn) {
   });
 }
 
+KeyedCursorPrototype.groupedOperations =
+IndexedCursorPrototype.groupedOperations = function(fn) {
+  var silentCursor = makeCursor(this._rootData, this._keyPath);
+  return updateCursor(this, function (m) {
+    var result = fn(silentCursor);
+    if (result && result.deref) return result.deref();
+    return result;
+  });
+}
+
 KeyedCursorPrototype.cursor =
 IndexedCursorPrototype.cursor = function(subKeyPath) {
   subKeyPath = valToKeyPath(subKeyPath);

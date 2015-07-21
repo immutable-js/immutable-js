@@ -286,6 +286,16 @@ declare module 'immutable/contrib/cursor' {
      * callback is triggered with the final value.
      */
     withMutations(mutator: (mutable: any) => any): Cursor;
+
+    /**
+     * Every time you change a cursors value you trigger the onChange callback
+     * from Cursor creation. In addition you can get scalar values as values
+     * passed to the updater. This can sometimes be unfortunate if you want to
+     * group a set of operations on a cursor. `groupedOperations` will allow
+     * you to group a set of operations on a cursor and only trigger the
+     * change callback after the updater function is invoked.
+     */
+    groupedOperations(updater: (value: Cursor) => Cursor): Cursor;
   }
 
 }
