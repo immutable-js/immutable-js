@@ -456,8 +456,8 @@ declare module 'immutable' {
      * each iterable and sets it on this Map.
      *
      * If any of the values provided to `merge` are not Iterable (would return
-     * false for `Immutable.isIterable`) then they are deeply converted via
-     * `Immutable.fromJS` before being merged. However, if the value is an
+     * false for `Immutable.Iterable.isIterable`) then they are deeply converted
+     * via `Immutable.fromJS` before being merged. However, if the value is an
      * Iterable but includes non-iterable JS objects or arrays, those nested
      * values will be preserved.
      *
