@@ -1074,7 +1074,7 @@ declare module 'immutable' {
    *       }
    *     }
    *
-   *     var myRecord = new ABRecord(b:3)
+   *     var myRecord = new ABRecord({b: 3})
    *     myRecord.getAB() // 4
    *
    */
