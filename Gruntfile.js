@@ -38,7 +38,49 @@ module.exports = function(grunt) {
       build: {
         files: [{
           src: 'src/Immutable.js',
-          dest: 'dist/immutable'
+          dest: 'dist/immutable',
+        }, {
+          src: 'src/Seq.js',
+          dest: 'dist/Seq',
+        }, {
+          src: 'src/Collection.js',
+          dest: 'dist/Collection'
+        }, {
+          src: 'src/OrderedMap.js',
+          dest: 'dist/OrderedMap',
+        }, {
+          src: 'src/List.js',
+          dest: 'dist/List'
+        }, {
+          src: 'src/Map.js',
+          dest: 'dist/Map'
+        }, {
+          src: 'src/Stack.js',
+          dest: 'dist/Stack'
+        }, {
+          src: 'src/OrderedSet.js',
+          dest: 'dist/OrderedSet'
+        }, {
+          src: 'src/Set.js',
+          dest: 'dist/Set'
+        }, {
+          src: 'src/Record.js',
+          dest: 'dist/Record'
+        }, {
+          src: 'src/Range.js',
+          dest: 'dist/Range'
+        }, {
+          src: 'src/Repeat.js',
+          dest: 'dist/Repeat'
+        }, {
+          src: 'src/is.js',
+          dest: 'dist/is'
+        }, {
+          src: 'src/fromJS.js',
+          dest: 'dist/fromJS'
+        }, {
+          src: 'src/IterableImpl.js',
+          dest: 'dist/IterableImpl'
         }]
       }
     },
@@ -63,71 +105,75 @@ module.exports = function(grunt) {
   var declassify = require('./resources/declassify');
   var stripCopyright = require('./resources/stripCopyright');
   var uglify = require('uglify-js');
+  var Promise = require("bluebird");
 
   grunt.registerMultiTask('bundle', function () {
     var done = this.async();
 
-    this.files.map(function (file) {
-      esperanto.bundle({
-        entry: file.src[0],
-        transform: function(source) {
-          return declassify(stripCopyright(source));
-        }
-      }).then(function (bundle) {
-        var copyright = fs.readFileSync('resources/COPYRIGHT');
+    var copyright = fs.readFileSync('resources/COPYRIGHT');
+    var es6 = require('es6-transpiler');
 
-        var bundled = bundle.toUmd({
-          banner: copyright,
-          name: 'Immutable'
-        }).code;
+    Promise.all(
+      this.files.map(function (file) {
+        var moduleName = file.src[0].replace(/src\/(.*)\.js/, '$1');
 
-        var es6 = require('es6-transpiler');
+        return esperanto.bundle({
+          entry: file.src[0],
+          transform: function(source) {
+            return declassify(stripCopyright(source));
+          }
+        }).then(function (bundle) {
+          var bundled = bundle.toUmd({
+            strict: moduleName !== 'Immutable',
+            banner: copyright,
+            name: moduleName
+          }).code;
 
-        var transformResult = require("es6-transpiler").run({
-          src: bundled,
-          disallowUnknownReferences: false,
-          environments: ["node", "browser"],
-          globals: {
-            define: false,
-          },
+          var transformResult = es6.run({
+            src: bundled,
+            disallowUnknownReferences: false,
+            environments: ["node", "browser"],
+            globals: {
+              define: false,
+            },
+          });
+
+          if (transformResult.errors && transformResult.errors.length > 0) {
+            throw new Error(transformResult.errors[0]);
+          }
+
+          var transformed = transformResult.src;
+
+          fs.writeFileSync(file.dest + '.js', transformed);
+
+          var minifyResult = uglify.minify(transformed, {
+            fromString: true,
+            mangle: {
+              toplevel: true
+            },
+            compress: {
+              comparisons: true,
+              pure_getters: true,
+              unsafe: true
+            },
+            output: {
+              max_line_len: 2048,
+            },
+            reserved: ['module', 'define', 'Immutable']
+          });
+
+          var minified = minifyResult.code;
+
+          fs.writeFileSync(file.dest + '.min.js', copyright + minified);
         });
-
-        if (transformResult.errors && transformResult.errors.length > 0) {
-          throw new Error(transformResult.errors[0]);
-        }
-
-        var transformed = transformResult.src;
-
-        fs.writeFileSync(file.dest + '.js', transformed);
-
-        var minifyResult = uglify.minify(transformed, {
-          fromString: true,
-          mangle: {
-            toplevel: true
-          },
-          compress: {
-            comparisons: true,
-            pure_getters: true,
-            unsafe: true
-          },
-          output: {
-            max_line_len: 2048,
-          },
-          reserved: ['module', 'define', 'Immutable']
-        });
-
-        var minified = minifyResult.code;
-
-        fs.writeFileSync(file.dest + '.min.js', copyright + minified);
-      }).then(function(){ done(); }, function(error) {
-        grunt.log.error(error.stack);
-        done(false);
-      });
+      })
+    ).then(function(){ done(); }, function(error) {
+      grunt.log.error(error.stack);
+      done(false);
     });
   });
 
 
-  var Promise = require("bluebird");
   var exec = require('child_process').exec;
 
   function execp(cmd) {

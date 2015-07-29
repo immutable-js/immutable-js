@@ -76,6 +76,8 @@ require(['./immutable.min.js'], function (Immutable) {
 If you're using [browserify](http://browserify.org/), the `immutable` npm module
 also works from the browser.
 
+Individual classes, such as `Map`, can be included via `require('immutable/dist/Map')`.
+
 ### TypeScript
 
 Use these Immutable collections and sequences as you would use native
