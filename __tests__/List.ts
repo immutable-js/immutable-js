@@ -80,6 +80,14 @@ describe('List', () => {
     expect(v.get(0)).toBe('value');
   });
 
+  it('returns undefined when getting a null value', () => {
+    var v = Immutable.List([1, 2, 3]);
+    expect(v.get(null)).toBe(undefined);
+
+    var o = Immutable.List([{ a: 1 },{ b: 2 }, { c: 3 }]);
+    expect(o.get(null)).toBe(undefined);
+  });
+
   it('counts from the end of the list on negative index', () => {
     var i = Immutable.List.of(1, 2, 3, 4, 5, 6, 7);
     expect(i.get(-1)).toBe(7);
