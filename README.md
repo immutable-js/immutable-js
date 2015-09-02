@@ -86,7 +86,7 @@ Just add a reference with a relative path to the type declarations at the top
 of your file.
 
 ```javascript
-///<reference path='./node_modules/immutable/dist/Immutable.d.ts'/>
+///<reference path='./node_modules/immutable/dist/immutable.d.ts'/>
 import Immutable = require('immutable');
 var map1: Immutable.Map<string, number>;
 map1 = Immutable.Map({a:1, b:2, c:3});
