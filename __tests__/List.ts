@@ -531,8 +531,10 @@ describe('List', () => {
     var v2 = v1.slice(0,3);
     var v3 = v2.setSize(6);
 
-    expect(v2.toArray()).toEqual([1,2,3]);
-    expect(v3.toArray()).toEqual([1,2,3,undefined,undefined,undefined]);
+    expect(v2.toArray()).toEqual(list.slice(0,3));
+    expect(v3.toArray()).toEqual(
+      list.slice(0,3).concat([undefined, undefined, undefined])
+    );
   });
 
   it('discards truncated elements when using setSize', () => {
@@ -541,8 +543,10 @@ describe('List', () => {
     var v2 = v1.setSize(3);
     var v3 = v2.setSize(6);
 
-    expect(v2.toArray()).toEqual([1,2,3]);
-    expect(v3.toArray()).toEqual([1,2,3,undefined,undefined,undefined]);
+    expect(v2.toArray()).toEqual(list.slice(0,3));
+    expect(v3.toArray()).toEqual(
+      list.slice(0,3).concat([undefined, undefined, undefined])
+    );
   });
 
   it('can be efficiently sliced', () => {
