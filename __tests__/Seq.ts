@@ -84,4 +84,17 @@ describe('Seq', () => {
     expect(Immutable.Iterable.isIterable(seq)).toBe(true);
   });
 
+  it('Does not infinite loop when sliced with NaN', () => {
+    var list = Immutable.Seq([1, 2, 3, 4, 5]);
+    expect(list.slice(0, NaN).toJS()).toEqual([]);
+    expect(list.slice(NaN).toJS()).toEqual([1, 2, 3, 4, 5]);
+  });
+
+  it('Does not infinite loop when spliced with negative number #559', () => {
+    var dog = Immutable.Seq(['d', 'o', 'g']);
+    var dg = dog.filter(c => c !== 'o');
+    var dig = (<any>dg).splice(-1, 0, 'i');
+    expect(dig.toJS()).toEqual(['d', 'i', 'g']);
+  });
+
 });

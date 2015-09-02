@@ -1303,6 +1303,15 @@
   function sliceFactory(iterable, begin, end, useKeys) {
     var originalSize = iterable.size;
 
+    // Sanitize begin & end using this shorthand for ToInt32(argument)
+    // http://www.ecma-international.org/ecma-262/6.0/#sec-toint32
+    if (begin !== undefined) {
+      begin = begin | 0;
+    }
+    if (end !== undefined) {
+      end = end | 0;
+    }
+
     if (wholeSlice(begin, end, originalSize)) {
       return iterable;
     }
@@ -4736,7 +4745,7 @@
       if (numArgs === 0 || (numArgs === 2 && !removeNum)) {
         return this;
       }
-      index = resolveBegin(index, this.size);
+      index = resolveBegin(index, index < 0 ? this.count() : this.size);
       var spliced = this.slice(0, index);
       return reify(
         this,
