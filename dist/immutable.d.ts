@@ -61,6 +61,22 @@ declare module Immutable {
    * arrays which pass `Array.isArray` to Lists, and only raw objects (no custom
    * prototype) to Map.
    *
+   * Keep in mind, when using JS objects to construct Immutable Maps, that
+   * JS object properties are always converted to strings, while Immutable Maps
+   * accept keys of any type.
+   *
+   *     var obj = { 1: "one" };
+   *     obj[1];   // "one"
+   *     obj["1"]; // "one"
+   *     Object.keys(obj); // [ "1" ]
+   *
+   *     var map = fromJS(obj);
+   *     map.get(1);   // undefined
+   *     map.get("1"); // "one"
+   *
+   * Property access for JS objects converts the key to a string, but Map keys
+   * can be of any type, so the argument to `get()` is not converted.
+   *
    * [1]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Example.3A_Using_the_reviver_parameter
    *      "Using the reviver parameter"
    */
@@ -404,6 +420,21 @@ declare module Immutable {
    *     var newMap = Map({key: "value"});
    *     var newMap = Map([["key", "value"]]);
    *
+   * Keep in mind, when using JS objects to construct Immutable Maps, that
+   * JS object properties are always converted to strings, while Immutable Maps
+   * accept keys of any type.
+   *
+   *     var obj = { 1: "one" };
+   *     obj[1];   // "one"
+   *     obj["1"]; // "one"
+   *     Object.keys(obj); // [ "1" ]
+   *
+   *     var map = Map(obj);
+   *     map.get(1);   // undefined
+   *     map.get("1"); // "one"
+   *
+   * Property access for JS objects converts the key to a string, but Map keys
+   * can be of any type, so the argument to `get()` is not converted.
    */
   export function Map<K, V>(): Map<K, V>;
   export function Map<K, V>(iter: KeyedIterable<K, V>): Map<K, V>;
