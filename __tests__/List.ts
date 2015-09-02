@@ -570,6 +570,12 @@ describe('List', () => {
     });
   });
 
+  it('Does not infinite loop when sliced with NaN #459', () => {
+    var list = List([1, 2, 3, 4, 5]);
+    var newList = list.slice(0, NaN);
+    expect(newList.toJS()).toEqual([]);
+  });
+
   describe('when slicing', () => {
     [NaN, -Infinity].forEach((zeroishValue) => {
       it(`considers a ${zeroishValue} begin argument to be zero`, () => {
