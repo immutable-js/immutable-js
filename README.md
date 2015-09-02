@@ -222,6 +222,26 @@ Immutable.Seq(myObject).map(x => x * x).toObject();
 // { a: 1, b: 4, c: 9 }
 ```
 
+Keep in mind, when using JS objects to construct Immutable Maps, that
+JavaScript Object properties are always strings, even if written in a quote-less
+shorthand, while Immutable Maps accept keys of any type.
+
+```js
+var obj = { 1: "one" };
+Object.keys(obj); // [ "1" ]
+obj["1"]; // "one"
+obj[1];   // "one"
+
+var map = Immutable.fromJS(obj);
+map.get("1"); // "one"
+map.get(1);   // undefined
+```
+
+Property access for JavaScript Objects first converts the key to a string, but
+since Immutable Map keys can be of any type the argument to `get()` is
+not altered.
+
+
 ### Converts back to raw JavaScript objects.
 
 All `immutable` Iterables can be converted to plain JavaScript Arrays and

@@ -62,20 +62,23 @@ declare module Immutable {
    * prototype) to Map.
    *
    * Keep in mind, when using JS objects to construct Immutable Maps, that
-   * JS object properties are always converted to strings, while Immutable Maps
-   * accept keys of any type.
+   * JavaScript Object properties are always strings, even if written in a
+   * quote-less shorthand, while Immutable Maps accept keys of any type.
    *
-   *     var obj = { 1: "one" };
-   *     obj[1];   // "one"
-   *     obj["1"]; // "one"
-   *     Object.keys(obj); // [ "1" ]
+   * ```js
+   * var obj = { 1: "one" };
+   * Object.keys(obj); // [ "1" ]
+   * obj["1"]; // "one"
+   * obj[1];   // "one"
    *
-   *     var map = fromJS(obj);
-   *     map.get(1);   // undefined
-   *     map.get("1"); // "one"
+   * var map = Map(obj);
+   * map.get("1"); // "one"
+   * map.get(1);   // undefined
+   * ```
    *
-   * Property access for JS objects converts the key to a string, but Map keys
-   * can be of any type, so the argument to `get()` is not converted.
+   * Property access for JavaScript Objects first converts the key to a string,
+   * but since Immutable Map keys can be of any type the argument to `get()` is
+   * not altered.
    *
    * [1]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Example.3A_Using_the_reviver_parameter
    *      "Using the reviver parameter"
@@ -421,20 +424,23 @@ declare module Immutable {
    *     var newMap = Map([["key", "value"]]);
    *
    * Keep in mind, when using JS objects to construct Immutable Maps, that
-   * JS object properties are always converted to strings, while Immutable Maps
-   * accept keys of any type.
+   * JavaScript Object properties are always strings, even if written in a
+   * quote-less shorthand, while Immutable Maps accept keys of any type.
    *
-   *     var obj = { 1: "one" };
-   *     obj[1];   // "one"
-   *     obj["1"]; // "one"
-   *     Object.keys(obj); // [ "1" ]
+   * ```js
+   * var obj = { 1: "one" };
+   * Object.keys(obj); // [ "1" ]
+   * obj["1"]; // "one"
+   * obj[1];   // "one"
    *
-   *     var map = Map(obj);
-   *     map.get(1);   // undefined
-   *     map.get("1"); // "one"
+   * var map = Map(obj);
+   * map.get("1"); // "one"
+   * map.get(1);   // undefined
+   * ```
    *
-   * Property access for JS objects converts the key to a string, but Map keys
-   * can be of any type, so the argument to `get()` is not converted.
+   * Property access for JavaScript Objects first converts the key to a string,
+   * but since Immutable Map keys can be of any type the argument to `get()` is
+   * not altered.
    */
   export function Map<K, V>(): Map<K, V>;
   export function Map<K, V>(iter: KeyedIterable<K, V>): Map<K, V>;
