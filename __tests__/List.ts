@@ -584,6 +584,19 @@ describe('List', () => {
     expect(newList.toJS()).toEqual([]);
   });
 
+  it('Accepts NaN for slice and concat #602', () => {
+    var list = List().slice(0, NaN).concat(NaN);
+    // toEqual([ NaN ])
+    expect(list.size).toBe(1);
+    expect(isNaNValue(list.get(0))).toBe(true);
+  });
+
+  // Note: NaN is the only value not equal to itself. The isNaN() built-in
+  // function returns true for any non-numeric value, not just the NaN value.
+  function isNaNValue(value) {
+    return value !== value;
+  }
+
   describe('when slicing', () => {
     [NaN, -Infinity].forEach((zeroishValue) => {
       it(`considers a ${zeroishValue} begin argument to be zero`, () => {
