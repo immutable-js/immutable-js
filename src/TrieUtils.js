@@ -58,18 +58,18 @@ export function ensureSize(iter) {
 
 export function wrapIndex(iter, index) {
   // This implements "is array index" which the ECMAString spec defines as:
+  //
   //     A String property name P is an array index if and only if
   //     ToString(ToUint32(P)) is equal to P and ToUint32(P) is not equal
   //     to 2^32−1.
-  // However note that we're currently calling ToNumber() instead of ToUint32()
-  // which should be improved in the future, as floating point numbers should
-  // not be accepted as an array index.
+  //
+  // http://www.ecma-international.org/ecma-262/6.0/#sec-array-exotic-objects
   if (typeof index !== 'number') {
-    var numIndex = +index;
-    if ('' + numIndex !== index) {
+    var uint32Index = index >>> 0; // N >>> 0 is shorthand for ToUint32
+    if ('' + uint32Index !== index || uint32Index === 4294967295) {
       return NaN;
     }
-    index = numIndex;
+    index = uint32Index;
   }
   return index < 0 ? ensureSize(iter) + index : index;
 }

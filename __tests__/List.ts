@@ -100,8 +100,11 @@ describe('List', () => {
     // Of course, TypeScript protects us from this, so cast to "any" to test.
     var i: any = Immutable.List.of(1, 2, 3, 4, 5, 6);
     expect(i.get('1')).toBe(2);
-    expect(i.get('-1')).toBe(6);
-    expect(i.set('3', 10).get('-3')).toBe(10);
+    expect(i.set('3', 10).get('3')).toBe(10);
+    // Like array, string negative numbers do not qualify
+    expect(i.get('-1')).toBe(undefined);
+    // Like array, string floating point numbers do not qualify
+    expect(i.get('1.0')).toBe(undefined);
   });
 
   it('uses not set value for string index', () => {
