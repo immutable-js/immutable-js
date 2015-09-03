@@ -1,6 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 ///<reference path='../dist/immutable.d.ts'/>
-
+declare var Symbol: any;
 jest.autoMockOff();
 
 import Immutable = require('immutable');
@@ -225,6 +225,43 @@ describe('Set', () => {
     var s = Set.of('A', 'B', 'C');
     expect(s.isSuperset(['B', 'C'])).toBe(true);
     expect(s.isSuperset(['B', 'C', 'D'])).toBe(false);
+  });
+
+  describe('accepts Symbol as entry #579', () => {
+    if (typeof Symbol !== 'function') {
+      Symbol = function(key) {
+        return { key: key, __proto__: Symbol };
+      };
+      Symbol.toString = function() {
+        return 'Symbol(' + (this.key || '') + ')';
+      }
+    }
+
+    it('operates on small number of symbols, preserving set uniqueness', () => {
+      var a = Symbol();
+      var b = Symbol();
+      var c = Symbol();
+
+      var symbolSet = Immutable.Set([ a, b, c, a, b, c, a, b, c, a, b, c ]);
+      expect(symbolSet.size).toBe(3);
+      expect(symbolSet.has(b)).toBe(true);
+      expect(symbolSet.get(c)).toEqual(c);
+    });
+
+    it('operates on a large number of symbols, maintaining obj uniqueness', () => {
+      var manySymbols = [
+        Symbol('a'), Symbol('b'), Symbol('c'),
+        Symbol('a'), Symbol('b'), Symbol('c'),
+        Symbol('a'), Symbol('b'), Symbol('c'),
+        Symbol('a'), Symbol('b'), Symbol('c'),
+      ];
+
+      var symbolSet = Immutable.Set(manySymbols);
+      expect(symbolSet.size).toBe(12);
+      expect(symbolSet.has(manySymbols[10])).toBe(true);
+      expect(symbolSet.get(manySymbols[10])).toEqual(manySymbols[10]);
+    });
+
   });
 
   // TODO: more tests
