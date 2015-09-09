@@ -322,4 +322,21 @@ describe('Map', () => {
     expect(Immutable.is(m1, m2)).toBe(true);
   });
 
+  it('diffs multiple maps by key', () => {
+    var m1 = Map({'a': 1, 'b': 2, 'c': 3});
+    var m2 = Map({'a': 4});
+    var m3 = Map({'b': 5});
+    expect(m1.subtract(m2, m3).toJS()).toEqual({'c': 3});
+  });
+
+  it('diffs non-keyed iterables by value', () => {
+    var map = Map({'a': 1, 'b': 2, 'c': 3});
+    var set = Immutable.Set(['a']);
+    expect(map.subtract(set).toJS()).toEqual({'b': 2, 'c': 3});
+    var list = Immutable.List(['b']);
+    expect(map.subtract(list).toJS()).toEqual({'a': 1, 'c': 3});
+    var array = ['a', 'b'];
+    expect(map.subtract(array).toJS()).toEqual({'c': 3});
+  });
+
 });

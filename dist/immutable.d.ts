@@ -470,6 +470,23 @@ declare module Immutable {
     delete(key: K): Map<K, V>;
     remove(key: K): Map<K, V>;
 
+    /** 
+    * Returns a new Map excluding any keys contained within `iterables`.
+    *
+    * If a given iterable is a `KeyedIterable` (or JS object), comparison
+    * is done on a key-to-key level. Otherwise, it is done on a key-to-value level.
+    * 
+    *     var x = Immutable.Map({a: 1, b: 2, c: 3});
+    *     x.subtract(['a', 'b'])  // { c: 3 }
+    *     x.subtract(Immutable.Set(['a']))  // { b: 2, c: 3 }
+    *     x.subtract({a: 10, b: 20}) // { c: 3 }
+    *     x.subtract(Immutable.Map({a: 10})) // { b: 2, c: 3 }
+    */
+
+    subtract(...iterables: Iterable<any, any>[]): Map<K, V>;
+    subtract(...iterables: Array<K>[]): Map<K, V>;
+    subtract(...iterables: {[key: string]: any}[]): Map<K, V>;
+
     /**
      * Returns a new Map containing no keys or values.
      */
