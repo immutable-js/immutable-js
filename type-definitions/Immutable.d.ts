@@ -1452,12 +1452,12 @@ declare module Immutable {
     get(key: K, notSetValue?: V): V;
 
     /**
-     * True if a key exists within this `Iterable`.
+     * True if a key exists within this `Iterable`, using `Immutable.is` to determine equality
      */
     has(key: K): boolean;
 
     /**
-     * True if a value exists within this `Iterable`.
+     * True if a value exists within this `Iterable`, using `Immutable.is` to determine equality
      * @alias contains
      */
     includes(value: V): boolean;
