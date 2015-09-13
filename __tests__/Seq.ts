@@ -97,4 +97,9 @@ describe('Seq', () => {
     expect(dig.toJS()).toEqual(['d', 'i', 'g']);
   });
 
+  it('Does not infinite loop when an undefined number is passed to take', () => {
+    var list = Immutable.Seq([1, 2, 3, 4, 5]);
+    expect(list.take(NaN).toJS()).toEqual([]);
+  });
+
 });
