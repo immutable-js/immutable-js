@@ -1869,6 +1869,26 @@
 
     // @pragma Composition
 
+    src_Map__Map.prototype.subtract = function() {var iters = SLICE$0.call(arguments, 0);
+      if (iters.length === 0) {
+        return this;
+      }
+      iters = iters.map(function(iter ) {return Iterable(iter)});
+      var originalMap = this;
+      return this.withMutations(function(map ) {
+        var step, key, iterator;
+        iterator = originalMap.keys();
+        while (!(step = iterator.next()).done) {
+          key = step.value;
+          if (iters.some(function(iter ) {return Iterable.isKeyed(iter) ? 
+            iter.has(key) :
+            iter.includes(key)})) {
+            map.delete(key);
+          }
+        }
+      });
+    };
+
     src_Map__Map.prototype.merge = function(/*...iters*/) {
       return mergeIntoMapWith(this, undefined, arguments);
     };
