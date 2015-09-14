@@ -23,7 +23,7 @@ var Map = Immutable.Map;
 var Record = Immutable.Record;
 
 
-function cursorFrom(rootData, keyPath, onChange) {
+function cursorFrom(data, keyPath, onChange) {
   if (arguments.length === 1) {
     keyPath = [];
   } else if (typeof keyPath === 'function') {
@@ -32,24 +32,26 @@ function cursorFrom(rootData, keyPath, onChange) {
   } else {
     keyPath = valToKeyPath(keyPath);
   }
-  return makeCursor(rootData, keyPath, onChange);
+  return makeCursor(null, data, keyPath, onChange);
 }
 
 
 var KeyedCursorPrototype = Object.create(Seq.Keyed.prototype);
 var IndexedCursorPrototype = Object.create(Seq.Indexed.prototype);
 
-function KeyedCursor(rootData, keyPath, onChange, size) {
+function KeyedCursor(root, data, keyPath, onChange, size) {
   this.size = size;
-  this._rootData = rootData;
+  this._root = root || this;
+  this._data = data;
   this._keyPath = keyPath;
   this._onChange = onChange;
 }
 KeyedCursorPrototype.constructor = KeyedCursor;
 
-function IndexedCursor(rootData, keyPath, onChange, size) {
+function IndexedCursor(root, data, keyPath, onChange, size) {
   this.size = size;
-  this._rootData = rootData;
+  this._root = root || this;
+  this._data = data;
   this._keyPath = keyPath;
   this._onChange = onChange;
 }
@@ -66,7 +68,7 @@ KeyedCursorPrototype.deref =
 KeyedCursorPrototype.valueOf =
 IndexedCursorPrototype.deref =
 IndexedCursorPrototype.valueOf = function(notSetValue) {
-  return this._rootData.getIn(this._keyPath, notSetValue);
+  return this._root._data.getIn(this._keyPath, notSetValue);
 }
 
 KeyedCursorPrototype.get =
@@ -80,7 +82,7 @@ IndexedCursorPrototype.getIn = function(keyPath, notSetValue) {
   if (keyPath.length === 0) {
     return this;
   }
-  var value = this._rootData.getIn(newKeyPath(this._keyPath, keyPath), NOT_SET);
+  var value = this._root._data.getIn(newKeyPath(this._keyPath, keyPath), NOT_SET);
   return value === NOT_SET ? notSetValue : wrappedValue(this, keyPath, value);
 }
 
@@ -250,13 +252,13 @@ IndexedCursor.prototype = IndexedCursorPrototype;
 
 var NOT_SET = {}; // Sentinel value
 
-function makeCursor(rootData, keyPath, onChange, value) {
-  if (arguments.length < 4) {
-    value = rootData.getIn(keyPath);
+function makeCursor(root, data, keyPath, onChange, value) {
+  if (arguments.length < 5) {
+    value = (root ? root._data : data).getIn(keyPath);
   }
   var size = value && value.size;
   var CursorClass = Iterable.isIndexed(value) ? IndexedCursor : KeyedCursor;
-  var cursor = new CursorClass(rootData, keyPath, onChange, size);
+  var cursor = new CursorClass(root, data, keyPath, onChange, size);
 
   if (value instanceof Record) {
     defineRecordProperties(cursor, value);
@@ -293,13 +295,15 @@ function wrappedValue(cursor, keyPath, value) {
 function subCursor(cursor, keyPath, value) {
   if (arguments.length < 3) {
     return makeCursor( // call without value
-      cursor._rootData,
+      cursor._root,
+      null,
       newKeyPath(cursor._keyPath, keyPath),
       cursor._onChange
     );
   }
   return makeCursor(
-    cursor._rootData,
+    cursor._root,
+    null,
     newKeyPath(cursor._keyPath, keyPath),
     cursor._onChange,
     value
@@ -308,7 +312,7 @@ function subCursor(cursor, keyPath, value) {
 
 function updateCursor(cursor, changeFn, changeKeyPath) {
   var deepChange = arguments.length > 2;
-  var newRootData = cursor._rootData.updateIn(
+  var newRootData = cursor._root._data.updateIn(
     cursor._keyPath,
     deepChange ? Map() : undefined,
     changeFn
@@ -317,13 +321,17 @@ function updateCursor(cursor, changeFn, changeKeyPath) {
   var result = cursor._onChange && cursor._onChange.call(
     undefined,
     newRootData,
-    cursor._rootData,
+    cursor._root._data,
     deepChange ? newKeyPath(keyPath, changeKeyPath) : keyPath
   );
   if (result !== undefined) {
     newRootData = result;
   }
-  return makeCursor(newRootData, cursor._keyPath, cursor._onChange);
+
+  // Mutate the root data, thus enabling all derived cursors to see the update.
+  cursor._root._data = newRootData;
+
+  return makeCursor(cursor._root, null, cursor._keyPath, cursor._onChange);
 }
 
 function newKeyPath(head, tail) {

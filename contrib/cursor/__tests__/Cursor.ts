@@ -103,12 +103,13 @@ describe('Cursor', () => {
     expect(data.toJS()).toEqual(json);
 
     // as is the original cursor.
-    expect(deepCursor.deref()).toBe(1);
+    expect(deepCursor.deref()).toBe(3);
     var otherNewDeepCursor = deepCursor.update(x => x + 10);
-    expect(otherNewDeepCursor.deref()).toBe(11);
+    expect(otherNewDeepCursor.deref()).toBe(13);
+
     expect(onChange).lastCalledWith(
-      Immutable.fromJS({a:{b:{c:11}}}),
-      data,
+      Immutable.fromJS({a:{b:{c:13}}}),
+      data.setIn(['a', 'b', 'c'], 3),
       ['a', 'b', 'c']
     );
 
@@ -144,6 +145,20 @@ describe('Cursor', () => {
 
     // and update has been called exactly twice
     expect(onChange.mock.calls.length).toBe(2);
+  });
+
+  it('shares root cursor data with other derived cursors', () => {
+
+    var data = Immutable.fromJS({a: 1, b: 2});
+    var cursor = Cursor.from(data);
+
+    cursor.set('a', 2);
+    var result = cursor.set('b', 3);
+
+    expect(result.deref()).toEqual(Immutable.fromJS(
+      {'a': 2, 'b': 3}
+    ));
+
   });
 
   it('has map API for update shorthand', () => {
@@ -296,7 +311,6 @@ describe('Cursor', () => {
     var c1 = Cursor.from(data, onChange);
     var c2 = c1.withMutations(m => m.set('b', 2).set('c', 3).set('d', 4));
 
-    expect(c1.deref().toObject()).toEqual({'a': 1});
     expect(c2.deref().toObject()).toEqual({'a': 1, 'b': 2, 'c': 3, 'd': 4});
     expect(onChange.mock.calls.length).toBe(1);
   });
@@ -306,9 +320,10 @@ describe('Cursor', () => {
     var data = Immutable.fromJS({});
 
     var c1 = Cursor.from(data, ['a', 'b', 'c'], onChange);
+    expect(c1.deref()).toEqual(undefined);
+
     var c2 = c1.withMutations(m => m.set('x', 1).set('y', 2).set('z', 3));
 
-    expect(c1.deref()).toEqual(undefined);
     expect(c2.deref()).toEqual(Immutable.fromJS(
       { x: 1, y: 2, z: 3 }
     ));
