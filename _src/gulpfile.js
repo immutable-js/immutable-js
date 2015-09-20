@@ -213,6 +213,22 @@ function gulpStatics(subDir) {
   }
 }
 
+var dashTarget = BUILD_DIR + 'immutable-js.docset/Contents/Resources/Documents';
+gulp.task('dash-clean', function(done) {
+  del([ dashTarget + '/*' ], { force: true }, done);
+});
+gulp.task('dash-css', function() {
+  return gulp.src(BUILD_DIR + '/docs/bundle.css')
+    .pipe(gulp.dest(dashTarget));
+});
+gulp.task('dash-html', function(done) {
+  require('node-jsx').install({harmony: true});
+  require('./src/dash')(dashTarget, done);
+});
+gulp.task('dash', function(done) {
+  sequence(['dash-clean'], ['dash-css', 'dash-html'], done)
+});
+
 gulp.task('build', function (done) {
   sequence(
     ['readme', 'typedefs', 'js', 'js-docs', 'less', 'less-docs', 'statics', 'statics-docs'],

@@ -1,0 +1,60 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>Immutable.js</title><link rel="icon" type="image/png" href="./static/favicon.png"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><link rel="stylesheet" href="//code.cdn.mozilla.net/fonts/fira.css"><link rel="stylesheet" type="text/css" href="bundle.css"><style>
+      .contents { padding-top: 10px; }
+      .disclaimer { margin-left: 20px; }
+    </style></head><body><div class="pageBody" id="body"><div class="contents"><div><section><div><p>Immutable data encourages pure functions (data-in, data-out) and lends itself
+to much simpler application development and enabling techniques from
+functional programming such as lazy evaluation.</p>
+</div><div><p>While designed to bring these powerful functional concepts to JavaScript, it
+presents an Object-Oriented API familiar to Javascript engineers and closely
+mirroring that of Array, Map, and Set. It is easy and efficient to convert to
+and from plain Javascript types.</p>
+<p>Note: all examples are presented in <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/ECMAScript_6_support_in_Mozilla">ES6</a>. To run in all browsers, they
+need to be translated to ES3. For example:</p>
+<code class="codeBlock"><span class="token comment" spellcheck="true">// ES6
+</span>foo<span class="token punctuation" >.</span><span class="token function" >map<span class="token punctuation" >(</span></span>x <span class="token operator" >=</span><span class="token operator" >></span> x <span class="token operator" >*</span> x<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+<span class="token comment" spellcheck="true">// ES3
+</span>foo<span class="token punctuation" >.</span><span class="token function" >map<span class="token punctuation" >(</span></span><span class="token block-keyword" >function</span> <span class="token punctuation" >(</span>x<span class="token punctuation" >)</span> <span class="token punctuation" >{</span> <span class="token keyword" >return</span> x <span class="token operator" >*</span> x<span class="token punctuation" >;</span> <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span></code></div></section><h4 class="groupTitle">API</h4><section class="interfaceMember" id="fromJS"><h3 class="memberLabel"><a href="./fromJS.html">fromJS()</a></h3><div class="detail"><p>Deeply converts plain JS objects and arrays to Immutable Maps and Lists.</p>
+</div></section><section class="interfaceMember" id="is"><h3 class="memberLabel"><a href="./is.html">is()</a></h3><div class="detail"><p>Value equality check with semantics similar to <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is">Object.is</a></code>, but treats
+Immutable <code><a target="_self" href="./Iterable.html">Iterable</a></code>s as values, equal if the second <code><a target="_self" href="./Iterable.html">Iterable</a></code> includes
+equivalent values.</p>
+</div></section><section class="interfaceMember" id="List"><h3 class="memberLabel"><a href="./List.html">List</a></h3><div class="detail"><p>Lists are ordered indexed dense collections, much like a JavaScript
+Array.</p>
+</div></section><section class="interfaceMember" id="Map"><h3 class="memberLabel"><a href="./Map.html">Map</a></h3><div class="detail"><p>Immutable Map is an unordered KeyedIterable of (key, value) pairs with
+<code><span class="token function" >O<span class="token punctuation" >(</span></span>log32 N<span class="token punctuation" >)</span></code> gets and <code><span class="token function" >O<span class="token punctuation" >(</span></span>log32 N<span class="token punctuation" >)</span></code> persistent sets.</p>
+</div></section><section class="interfaceMember" id="OrderedMap"><h3 class="memberLabel"><a href="./OrderedMap.html">OrderedMap</a></h3><div class="detail"><p>A type of Map that has the additional guarantee that the iteration order of
+entries will be the order in which they were set().</p>
+</div></section><section class="interfaceMember" id="Set"><h3 class="memberLabel"><a href="./Set.html">Set</a></h3><div class="detail"><p>A Collection of unique values with <code><span class="token function" >O<span class="token punctuation" >(</span></span>log32 N<span class="token punctuation" >)</span></code> adds and has.</p>
+</div></section><section class="interfaceMember" id="OrderedSet"><h3 class="memberLabel"><a href="./OrderedSet.html">OrderedSet</a></h3><div class="detail"><p>A type of Set that has the additional guarantee that the iteration order of
+values will be the order in which they were <code><a target="_self" href="./OrderedSet.html#add">add</a></code>ed.</p>
+</div></section><section class="interfaceMember" id="Stack"><h3 class="memberLabel"><a href="./Stack.html">Stack</a></h3><div class="detail"><p>Stacks are indexed collections which support very efficient O(1) addition
+and removal from the front using <code><span class="token function" >unshift<span class="token punctuation" >(</span></span>v<span class="token punctuation" >)</span></code> and <code><a target="_self" href="./Stack.html#shift">shift()</a></code>.</p>
+</div></section><section class="interfaceMember" id="Range"><h3 class="memberLabel"><a href="./Range.html">Range()</a></h3><div class="detail"><p>Returns a IndexedSeq of numbers from <code><span class="t param">start</span></code> (inclusive) to <code><span class="t param">end</span></code>
+(exclusive), by <code><span class="t param">step</span></code>, where <code><span class="t param">start</span></code> defaults to 0, <code><span class="t param">step</span></code> to 1, and <code><span class="t param">end</span></code> to
+infinity. When <code><span class="t param">start</span></code> is equal to <code><span class="t param">end</span></code>, returns empty range.</p>
+</div></section><section class="interfaceMember" id="Repeat"><h3 class="memberLabel"><a href="./Repeat.html">Repeat()</a></h3><div class="detail"><p>Returns a IndexedSeq of <code><span class="t param">value</span></code> repeated <code><span class="t param">times</span></code> times. When <code><span class="t param">times</span></code> is
+not defined, returns an infinite <code><a target="_self" href="./Seq.html">Seq</a></code> of <code><span class="t param">value</span></code>.</p>
+</div></section><section class="interfaceMember" id="Record"><h3 class="memberLabel"><a href="./Record.html">Record</a></h3><div class="detail"><p>Creates a new Class which produces Record instances. A record is similar to
+a JS object, but enforce a specific set of allowed string keys, and have
+default values.</p>
+</div></section><section class="interfaceMember" id="Seq"><h3 class="memberLabel"><a href="./Seq.html">Seq</a></h3><div class="detail"><p>Represents a sequence of values, but may not be backed by a concrete data
+structure.</p>
+</div></section><section class="interfaceMember" id="KeyedSeq"><h3 class="memberLabel"><a href="./KeyedSeq.html">KeyedSeq</a></h3><div class="detail"><p><code><a target="_self" href="./Seq.html">Seq</a></code> which represents key-value pairs.</p>
+</div></section><section class="interfaceMember" id="IndexedSeq"><h3 class="memberLabel"><a href="./IndexedSeq.html">IndexedSeq</a></h3><div class="detail"><p><code><a target="_self" href="./Seq.html">Seq</a></code> which represents an ordered indexed list of values.</p>
+</div></section><section class="interfaceMember" id="SetSeq"><h3 class="memberLabel"><a href="./SetSeq.html">SetSeq</a></h3><div class="detail"><p><code><a target="_self" href="./Seq.html">Seq</a></code> which represents a set of values.</p>
+</div></section><section class="interfaceMember" id="Iterable"><h3 class="memberLabel"><a href="./Iterable.html">Iterable</a></h3><div class="detail"><p>The <code><span class="token qualifier" >Iterable</span></code> is a set of (key, value) entries which can be iterated, and
+is the base class for all collections in <code>immutable</code>, allowing them to
+make use of all the Iterable methods (such as <code><a target="_self" href="./Iterable.html#map">map</a></code> and <code><a target="_self" href="./Iterable.html#filter">filter</a></code>).</p>
+</div></section><section class="interfaceMember" id="KeyedIterable"><h3 class="memberLabel"><a href="./KeyedIterable.html">KeyedIterable</a></h3><div class="detail"><p>Keyed Iterables have discrete keys tied to each value.</p>
+</div></section><section class="interfaceMember" id="IndexedIterable"><h3 class="memberLabel"><a href="./IndexedIterable.html">IndexedIterable</a></h3><div class="detail"><p>Indexed Iterables have incrementing numeric keys. They exhibit
+slightly different behavior than <code><a target="_self" href="./KeyedIterable.html">KeyedIterable</a></code> for some methods in order
+to better mirror the behavior of JavaScript&#39;s <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></code>, and add methods
+which do not make sense on non-indexed Iterables such as <code><a target="_self" href="./IndexedIterable.html#indexOf">indexOf</a></code>.</p>
+</div></section><section class="interfaceMember" id="SetIterable"><h3 class="memberLabel"><a href="./SetIterable.html">SetIterable</a></h3><div class="detail"><p>Set Iterables only represent values. They have no associated keys or
+indices. Duplicate values are possible in SetSeqs, however the
+concrete <code><a target="_self" href="./Set.html">Set</a></code> does not allow duplicate values.</p>
+</div></section><section class="interfaceMember" id="Collection"><h3 class="memberLabel"><a href="./Collection.html">Collection</a></h3><div class="detail"><p>Collection is the abstract base class for concrete data structures. It
+cannot be constructed directly.</p>
+</div></section><section class="interfaceMember" id="KeyedCollection"><h3 class="memberLabel"><a href="./KeyedCollection.html">KeyedCollection</a></h3><div class="detail"><p><code><a target="_self" href="./Collection.html">Collection</a></code> which represents key-value pairs.</p>
+</div></section><section class="interfaceMember" id="IndexedCollection"><h3 class="memberLabel"><a href="./IndexedCollection.html">IndexedCollection</a></h3><div class="detail"><p><code><a target="_self" href="./Collection.html">Collection</a></code> which represents ordered indexed values.</p>
+</div></section><section class="interfaceMember" id="SetCollection"><h3 class="memberLabel"><a href="./SetCollection.html">SetCollection</a></h3><div class="detail"><p><code><a target="_self" href="./Collection.html">Collection</a></code> which represents values, unassociated with keys or indices.</p>
+</div></section></div><section class="disclaimer">This documentation is generated from <a href="https://github.com/facebook/immutable-js/blob/master/type-definitions/Immutable.d.ts">Immutable.d.ts</a>. Pull requests and <a href="https://github.com/facebook/immutable-js/issues">Issues</a> welcome.</section></div></div></body></html>

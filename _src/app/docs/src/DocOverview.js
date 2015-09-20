@@ -25,7 +25,7 @@ var DocOverview = React.createClass({
             t = t.call;
           }
           return (
-            <section key={name} className="interfaceMember">
+            <section key={name} className="interfaceMember" id={name}>
               <h3 className="memberLabel">
                 <Router.Link to={'/' + name}>
                   {name + (isFunction ? '()' : '')}
