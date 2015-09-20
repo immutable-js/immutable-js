@@ -82,7 +82,7 @@ var MemberDoc = React.createClass({
     var showDetail = isMobile ? this.state.detail : true;
 
     return (
-      <div className="interfaceMember">
+      <div className="interfaceMember" id={name}>
         <h3 onClick={isMobile ? this.toggleDetail : null} className="memberLabel">
           {(module ? module + '.' : '') + name + (isProp ? '' : '()')}
         </h3>

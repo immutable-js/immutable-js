@@ -6,7 +6,7 @@ var Router = require('react-router');
 Router.Link = React.createClass({
   displayName: 'Link',
   render() {
-    return <a href={"." + this.props.to + ".html"}>{this.props.children}</a>
+    return <a target="_self" href={"#" + this.props.to}>{this.props.children}</a>
   }
 })
 
@@ -53,6 +53,24 @@ var Documentation = React.createClass({
 });
 
 var FullTypeDoc = React.createClass({
+  childContextTypes: {
+    getPageData: React.PropTypes.func.isRequired,
+    makePath: React.PropTypes.func.isRequired,
+    makeHref: React.PropTypes.func.isRequired,
+    transitionTo: React.PropTypes.func.isRequired,
+    replaceWith: React.PropTypes.func.isRequired,
+    goBack: React.PropTypes.func.isRequired
+  },
+  getChildContext() {
+    return {
+      getPageData() {},
+      makePath() {},
+      makeHref() {},
+      transitionTo() {},
+      replaceWith() {},
+      goBack() {},
+    };
+  },
   render() {
     var def = this.props.def;
     var memberGroups = collectMemberGroups(def && def.interface, {
@@ -66,7 +84,7 @@ var FullTypeDoc = React.createClass({
 
 function render(target, page, component) {
   var html = React.renderToStaticMarkup(
-    <Documentation>{component()}</Documentation>
+    <Documentation>{component}</Documentation>
   );
   html = html.replace(
     /<a target=\"_self\" href=\"#\/([^\"]+)\"/g,
@@ -82,14 +100,73 @@ function render(target, page, component) {
   );
 }
 
-module.exports = function(target, done) {
-  render(target, 'index', () => <DocOverview def={defs.Immutable} />);
+exports.html = function(target, done) {
+  render(target, 'index', <DocOverview def={defs.Immutable} />);
+  Object.keys(defs.Immutable.module).forEach((name) => {
+    console.log("Building %s", name);
+    var def = defs.Immutable.module[name];
+    if (!def.interface && !def.module) {
+      render(target, name, <FunctionDoc name={name} def={def.call} />);
+    } else {
+      render(target, name, <FullTypeDoc name={name} def={def} />);
+    }
+  });
+}
+
+exports.db = function(target, done) {
+  var db = new (require('sqlite3').Database)(path.join(target, '../docSet.dsidx'));
+  var q = [], lock = false;
+  function exec(sql, params) {
+    q.push([sql, params || []]);
+    pop();
+  }
+  function pop() {
+    if (q.length == 0 || lock) return;
+    var [sql, params] = q.shift();
+    lock = true;
+    console.log("running %s %j", sql, params);
+    db.run(sql, params, function(err) {
+      if (err) throw err;
+      lock = false;
+      pop();
+    });
+  }
+  exec("DROP TABLE IF EXISTS searchIndex");
+  exec("CREATE TABLE searchIndex(id INTEGER PRIMARY KEY, name TEXT, type TEXT, path TEXT)");
+  exec("CREATE UNIQUE INDEX anchor ON searchIndex (name, type, path)");
+  var insert = "INSERT INTO searchIndex(name, type, path) VALUES (?, ?, ?);";
   Object.keys(defs.Immutable.module).forEach((name) => {
     var def = defs.Immutable.module[name];
     if (!def.interface && !def.module) {
-      render(target, name, () => <FunctionDoc name={name} def={def.call} />);
+      exec(insert, [name, 'Function', name + '.html']);
     } else {
-      render(target, name, () => <FullTypeDoc name={name} def={def} />);
+      exec(insert, [name, 'Class', name + '.html']);
+      exec(insert, [name + '()', 'Constructor', name + '.html#' + name]);
+      insertStatics(name, def);
+      insertMembers(name, def);
     }
   });
+
+  function insertStatics(type, def) {
+    var functions = Object.keys(def.module)
+      .filter(n => !def.module[n].interface && !def.module[n].module)
+      .forEach(n => {
+        exec(insert, [type + '.' + n + '()', 'Function', type + '.html#' + n]);
+      })
+  }
+
+  function insertMembers(type, def) {
+    var members = collectMemberGroups(def && def.interface, {
+      showInGroups: false,
+      showInherited: true,
+    })[''];
+    members.forEach(member => {
+      var method = !!member.memberDef.signatures;
+      exec(insert, [
+        type + '.' + member.memberName + (method ? '()' : ''),
+        method ? 'Method' : 'Property',
+        type + '.html#' + member.memberName
+      ])
+    });
+  }
 }

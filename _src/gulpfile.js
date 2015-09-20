@@ -215,18 +215,29 @@ function gulpStatics(subDir) {
 
 var dashTarget = BUILD_DIR + 'immutable-js.docset/Contents/Resources/Documents';
 gulp.task('dash-clean', function(done) {
-  del([ dashTarget + '/*' ], { force: true }, done);
+  del([ path.join(dashTarget, '/*') ], { force: true }, done);
 });
 gulp.task('dash-css', function() {
   return gulp.src(BUILD_DIR + '/docs/bundle.css')
     .pipe(gulp.dest(dashTarget));
 });
+gulp.task('dash-icon', function() {
+  return fs.createReadStream(BUILD_DIR + '/static/favicon.png')
+    .pipe(fs.createWriteStream(BUILD_DIR + 'immutable-js.docset/icon.png'));
+});
 gulp.task('dash-html', function(done) {
   require('node-jsx').install({harmony: true});
-  require('./src/dash')(dashTarget, done);
+  require('./src/dash').html(dashTarget, done);
+});
+gulp.task('dash-db', function(done) {
+  require('./src/dash').db(dashTarget, done);
 });
 gulp.task('dash', function(done) {
-  sequence(['dash-clean'], ['dash-css', 'dash-html'], done)
+  sequence(
+    ['dash-clean'],
+    ['dash-css', 'dash-icon', 'dash-html', 'dash-db'],
+    done
+  )
 });
 
 gulp.task('build', function (done) {
