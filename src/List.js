@@ -78,6 +78,10 @@ export class List extends IndexedCollection {
       this.splice(index, 1);
   }
 
+  insert(index, value) {
+    return this.splice(index, 0, value);
+  }
+
   clear() {
     if (this.size === 0) {
       return this;

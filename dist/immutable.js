@@ -2663,6 +2663,10 @@
         this.splice(index, 1);
     };
 
+    List.prototype.insert = function(index, value) {
+      return this.splice(index, 0, value);
+    };
+
     List.prototype.clear = function() {
       if (this.size === 0) {
         return this;

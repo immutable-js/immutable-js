@@ -483,6 +483,24 @@ describe('List', () => {
     expect(v1.equals(v2)).toBe(true);
   });
 
+  it('works with insert', () => {
+    var v = List.of('a', 'b', 'c');
+    var m = v.insert(1, 'd');
+    expect(m.size).toBe(4);
+    expect(m.get(1)).toBe('d');
+
+    //works when index is greater than size of array
+    var n = v.insert(10, 'e');
+    expect(n.size).toBe(4);
+    expect(n.get(3)).toBe('e');
+
+    //works when index is negative
+    var o = v.insert(-4, 'f');
+    expect(o.size).toBe(4);
+    expect(o.get(0)).toBe('f');
+  });
+
+
   // TODO: assert that findIndex only calls the function as much as it needs to.
 
   // TODO: assert that forEach iterates in the correct order and is only called as much as it needs to be.

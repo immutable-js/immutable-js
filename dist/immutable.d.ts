@@ -180,6 +180,7 @@ declare module Immutable {
      */
     delete(index: number): List<T>;
     remove(index: number): List<T>;
+    insert(index: number, value: T): List<T>;
 
     /**
      * Returns a new List with 0 size and no values.
