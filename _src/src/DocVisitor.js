@@ -325,9 +325,16 @@ class DocVisitor extends TypeScript.SyntaxWalker {
           };
         }
       case TypeScript.SyntaxKind.GenericType:
+        function getText(node) {
+          if (node.kind() === TypeScript.SyntaxKind.QualifiedName) {
+            return getText(node.left) + '.' + getText(node.right);
+          }
+          return node.text();
+        }
+
         var t = {
           k: TypeKind.Type,
-          name: node.name.text()
+          name: getText(node.name)
         };
         if (node.typeArgumentList) {
           t.args = node.typeArgumentList.typeArguments.map(
