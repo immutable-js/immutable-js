@@ -450,7 +450,7 @@ declare module Immutable {
   export function Map<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): Map<K, V>;
   export function Map<K, V>(iterable: /*Iterable<[K,V]>*/Object): Map<K, V>;
 
-  export interface Map<K, V> extends KeyedCollection<K, V> {
+  export interface Map<K, V> extends Collection.Keyed<K, V> {
 
     // Persistent changes
 
@@ -2439,10 +2439,26 @@ declare module Immutable {
    * Collection is the abstract base class for concrete data structures. It
    * cannot be constructed directly.
    *
-   * Implementations should extend one of the subclasses, `KeyedCollection`,
+   * Implementations should extend one of the subclasses, `Collection.Keyed`,
    * `IndexedCollection`, or `SetCollection`.
    */
-  export module Collection {}
+  export module Collection {
+
+
+    /**
+     * `Collection` which represents key-value pairs.
+     */
+    export module Keyed {}
+
+    export interface Keyed<K, V> extends Collection<K, V>, Iterable.Keyed<K, V> {
+
+      /**
+       * Returns Seq.Keyed.
+       * @override
+       */
+      toSeq(): Seq.Keyed<K, V>;
+    }
+  }
 
   export interface Collection<K, V> extends Iterable<K, V> {
 
@@ -2450,21 +2466,6 @@ declare module Immutable {
      * All collections maintain their current `size` as an integer.
      */
     size: number;
-  }
-
-
-  /**
-   * `Collection` which represents key-value pairs.
-   */
-  export module KeyedCollection {}
-
-  export interface KeyedCollection<K, V> extends Collection<K, V>, Iterable.Keyed<K, V> {
-
-    /**
-     * Returns Seq.Keyed.
-     * @override
-     */
-    toSeq(): Seq.Keyed<K, V>;
   }
 
 
