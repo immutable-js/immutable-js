@@ -1223,6 +1223,40 @@ declare module Immutable {
       toSeq(): /*this*/Seq.Indexed<T>
     }
 
+
+    /**
+     * `Seq` which represents a set of values.
+     *
+     * Because `Seq` are often lazy, `Seq.Set` does not provide the same guarantee
+     * of value uniqueness as the concrete `Set`.
+     */
+    export module Set {
+
+      /**
+       * Returns a Seq.Set of the provided values
+       */
+      function of<T>(...values: T[]): Seq.Set<T>;
+    }
+
+    /**
+     * Always returns a Seq.Set, discarding associated indices or keys.
+     */
+    export function Set<T>(): Seq.Set<T>;
+    export function Set<T>(seq: SetIterable<T>): Seq.Set<T>;
+    export function Set<T>(seq: IndexedIterable<T>): Seq.Set<T>;
+    export function Set<K, V>(seq: KeyedIterable<K, V>): Seq.Set</*[K,V]*/any>;
+    export function Set<T>(array: Array<T>): Seq.Set<T>;
+    export function Set<T>(iterator: Iterator<T>): Seq.Set<T>;
+    export function Set<T>(iterable: /*Iterable<T>*/Object): Seq.Set<T>;
+
+    export interface Set<T> extends Seq<T, T>, SetIterable<T> {
+
+      /**
+       * Returns itself
+       */
+      toSeq(): /*this*/Seq.Set<T>
+    }
+
   }
 
   /**
@@ -1311,40 +1345,6 @@ declare module Immutable {
      */
     toSeq(): /*this*/KeyedSeq<K, V>
   }
-
-  /**
-   * `Seq` which represents a set of values.
-   *
-   * Because `Seq` are often lazy, `SetSeq` does not provide the same guarantee
-   * of value uniqueness as the concrete `Set`.
-   */
-  export module SetSeq {
-
-    /**
-     * Returns a SetSeq of the provided values
-     */
-    function of<T>(...values: T[]): SetSeq<T>;
-  }
-
-  /**
-   * Always returns a SetSeq, discarding associated indices or keys.
-   */
-  export function SetSeq<T>(): SetSeq<T>;
-  export function SetSeq<T>(seq: SetIterable<T>): SetSeq<T>;
-  export function SetSeq<T>(seq: IndexedIterable<T>): SetSeq<T>;
-  export function SetSeq<K, V>(seq: KeyedIterable<K, V>): SetSeq</*[K,V]*/any>;
-  export function SetSeq<T>(array: Array<T>): SetSeq<T>;
-  export function SetSeq<T>(iterator: Iterator<T>): SetSeq<T>;
-  export function SetSeq<T>(iterable: /*Iterable<T>*/Object): SetSeq<T>;
-
-  export interface SetSeq<T> extends Seq<T, T>, SetIterable<T> {
-
-    /**
-     * Returns itself
-     */
-    toSeq(): /*this*/SetSeq<T>
-  }
-
 
   /**
    * The `Iterable` is a set of (key, value) entries which can be iterated, and
@@ -1603,9 +1603,9 @@ declare module Immutable {
     toIndexedSeq(): Seq.Indexed<V>;
 
     /**
-     * Returns a SetSeq of the values of this Iterable, discarding keys.
+     * Returns a Seq.Set of the values of this Iterable, discarding keys.
      */
-    toSetSeq(): SetSeq<V>;
+    toSetSeq(): Seq.Set<V>;
 
 
     // Iterators
@@ -2401,13 +2401,13 @@ declare module Immutable {
 
   /**
    * Set Iterables only represent values. They have no associated keys or
-   * indices. Duplicate values are possible in SetSeqs, however the
+   * indices. Duplicate values are possible in Seq.Sets, however the
    * concrete `Set` does not allow duplicate values.
    *
    * Iterable methods on SetIterable such as `map` and `forEach` will provide
    * the value as both the first and second arguments to the provided function.
    *
-   *     var seq = SetSeq.of('A', 'B', 'C');
+   *     var seq = Seq.Set.of('A', 'B', 'C');
    *     assert.equal(seq.every((v, k) => v === k), true);
    *
    */
@@ -2426,10 +2426,10 @@ declare module Immutable {
   export interface SetIterable<T> extends Iterable<T, T> {
 
     /**
-     * Returns SetSeq.
+     * Returns Seq.Set.
      * @override
      */
-    toSeq(): SetSeq<T>;
+    toSeq(): Seq.Set<T>;
   }
 
 
@@ -2491,10 +2491,10 @@ declare module Immutable {
   export interface SetCollection<T> extends Collection<T, T>, SetIterable<T> {
 
     /**
-     * Returns SetSeq.
+     * Returns Seq.Set.
      * @override
      */
-    toSeq(): SetSeq<T>;
+    toSeq(): Seq.Set<T>;
   }
 
 
