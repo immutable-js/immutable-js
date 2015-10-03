@@ -149,7 +149,7 @@ declare module Immutable {
   export function List<T>(iterable: /*Iterable<T>*/Object): List<T>;
 
 
-  export interface List<T> extends IndexedCollection<T> {
+  export interface List<T> extends Collection.Indexed<T> {
 
     // Persistent changes
 
@@ -959,7 +959,7 @@ declare module Immutable {
   export function Stack<T>(iterator: Iterator<T>): Stack<T>;
   export function Stack<T>(iterable: /*Iterable<T>*/Object): Stack<T>;
 
-  export interface Stack<T> extends IndexedCollection<T> {
+  export interface Stack<T> extends Collection.Indexed<T> {
 
     // Reading values
 
@@ -2440,7 +2440,7 @@ declare module Immutable {
    * cannot be constructed directly.
    *
    * Implementations should extend one of the subclasses, `Collection.Keyed`,
-   * `IndexedCollection`, or `SetCollection`.
+   * `Collection.Indexed`, or `SetCollection`.
    */
   export module Collection {
 
@@ -2458,6 +2458,22 @@ declare module Immutable {
        */
       toSeq(): Seq.Keyed<K, V>;
     }
+
+
+    /**
+     * `Collection` which represents ordered indexed values.
+     */
+    export module Indexed {}
+
+    export interface Indexed<T> extends Collection<number, T>, Iterable.Indexed<T> {
+
+      /**
+       * Returns Seq.Indexed.
+       * @override
+       */
+      toSeq(): Seq.Indexed<T>;
+    }
+
   }
 
   export interface Collection<K, V> extends Iterable<K, V> {
@@ -2466,21 +2482,6 @@ declare module Immutable {
      * All collections maintain their current `size` as an integer.
      */
     size: number;
-  }
-
-
-  /**
-   * `Collection` which represents ordered indexed values.
-   */
-  export module IndexedCollection {}
-
-  export interface IndexedCollection<T> extends Collection<number, T>, Iterable.Indexed<T> {
-
-    /**
-     * Returns Seq.Indexed.
-     * @override
-     */
-    toSeq(): Seq.Indexed<T>;
   }
 
 
