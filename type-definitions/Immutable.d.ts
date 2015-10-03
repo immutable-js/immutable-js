@@ -1040,7 +1040,7 @@ declare module Immutable {
 
 
   /**
-   * Returns a IndexedSeq of numbers from `start` (inclusive) to `end`
+   * Returns a Seq.Indexed of numbers from `start` (inclusive) to `end`
    * (exclusive), by `step`, where `start` defaults to 0, `step` to 1, and `end` to
    * infinity. When `start` is equal to `end`, returns empty range.
    *
@@ -1052,18 +1052,18 @@ declare module Immutable {
    *     Range(30,30,5) // []
    *
    */
-  export function Range(start?: number, end?: number, step?: number): IndexedSeq<number>;
+  export function Range(start?: number, end?: number, step?: number): Seq.Indexed<number>;
 
 
   /**
-   * Returns a IndexedSeq of `value` repeated `times` times. When `times` is
+   * Returns a Seq.Indexed of `value` repeated `times` times. When `times` is
    * not defined, returns an infinite `Seq` of `value`.
    *
    *     Repeat('foo') // ['foo','foo','foo',...]
    *     Repeat('bar',4) // ['bar','bar','bar','bar']
    *
    */
-  export function Repeat<T>(value: T, times?: number): IndexedSeq<T>;
+  export function Repeat<T>(value: T, times?: number): Seq.Indexed<T>;
 
 
   /**
@@ -1188,9 +1188,41 @@ declare module Immutable {
     function isSeq(maybeSeq: any): boolean;
 
     /**
-     * Returns a Seq of the values provided. Alias for `IndexedSeq.of()`.
+     * Returns a Seq of the values provided. Alias for `Seq.Indexed.of()`.
      */
-    function of<T>(...values: T[]): IndexedSeq<T>;
+    function of<T>(...values: T[]): Seq.Indexed<T>;
+
+    /**
+     * `Seq` which represents an ordered indexed list of values.
+     */
+    module Indexed {
+
+      /**
+       * Provides an Seq.Indexed of the values provided.
+       */
+      function of<T>(...values: T[]): Seq.Indexed<T>;
+    }
+
+    /**
+     * Always returns Seq.Indexed, discarding associated keys and
+     * supplying incrementing indices.
+     */
+    export function Indexed<T>(): Seq.Indexed<T>;
+    export function Indexed<T>(seq: IndexedIterable<T>): Seq.Indexed<T>;
+    export function Indexed<T>(seq: SetIterable<T>): Seq.Indexed<T>;
+    export function Indexed<K, V>(seq: KeyedIterable<K, V>): Seq.Indexed</*[K,V]*/any>;
+    export function Indexed<T>(array: Array<T>): Seq.Indexed<T>;
+    export function Indexed<T>(iterator: Iterator<T>): Seq.Indexed<T>;
+    export function Indexed<T>(iterable: /*Iterable<T>*/Object): Seq.Indexed<T>;
+
+    export interface Indexed<T> extends Seq<number, T>, IndexedIterable<T> {
+
+      /**
+       * Returns itself
+       */
+      toSeq(): /*this*/Seq.Indexed<T>
+    }
+
   }
 
   /**
@@ -1200,19 +1232,19 @@ declare module Immutable {
    *
    *   * If a `Seq`, that same `Seq`.
    *   * If an `Iterable`, a `Seq` of the same kind (Keyed, Indexed, or Set).
-   *   * If an Array-like, an `IndexedSeq`.
-   *   * If an Object with an Iterator, an `IndexedSeq`.
-   *   * If an Iterator, an `IndexedSeq`.
+   *   * If an Array-like, an `Seq.Indexed`.
+   *   * If an Object with an Iterator, an `Seq.Indexed`.
+   *   * If an Iterator, an `Seq.Indexed`.
    *   * If an Object, a `KeyedSeq`.
    *
    */
   export function Seq<K, V>(): Seq<K, V>;
   export function Seq<K, V>(seq: Seq<K, V>): Seq<K, V>;
   export function Seq<K, V>(iterable: Iterable<K, V>): Seq<K, V>;
-  export function Seq<T>(array: Array<T>): IndexedSeq<T>;
+  export function Seq<T>(array: Array<T>): Seq.Indexed<T>;
   export function Seq<V>(obj: {[key: string]: V}): KeyedSeq<string, V>;
-  export function Seq<T>(iterator: Iterator<T>): IndexedSeq<T>;
-  export function Seq<T>(iterable: /*ES6Iterable<T>*/Object): IndexedSeq<T>;
+  export function Seq<T>(iterator: Iterator<T>): Seq.Indexed<T>;
+  export function Seq<T>(iterable: /*ES6Iterable<T>*/Object): Seq.Indexed<T>;
 
   export interface Seq<K, V> extends Iterable<K, V> {
 
@@ -1278,38 +1310,6 @@ declare module Immutable {
      * Returns itself
      */
     toSeq(): /*this*/KeyedSeq<K, V>
-  }
-
-
-  /**
-   * `Seq` which represents an ordered indexed list of values.
-   */
-  export module IndexedSeq {
-
-    /**
-     * Provides an IndexedSeq of the values provided.
-     */
-    function of<T>(...values: T[]): IndexedSeq<T>;
-  }
-
-  /**
-   * Always returns IndexedSeq, discarding associated keys and
-   * supplying incrementing indices.
-   */
-  export function IndexedSeq<T>(): IndexedSeq<T>;
-  export function IndexedSeq<T>(seq: IndexedIterable<T>): IndexedSeq<T>;
-  export function IndexedSeq<T>(seq: SetIterable<T>): IndexedSeq<T>;
-  export function IndexedSeq<K, V>(seq: KeyedIterable<K, V>): IndexedSeq</*[K,V]*/any>;
-  export function IndexedSeq<T>(array: Array<T>): IndexedSeq<T>;
-  export function IndexedSeq<T>(iterator: Iterator<T>): IndexedSeq<T>;
-  export function IndexedSeq<T>(iterable: /*Iterable<T>*/Object): IndexedSeq<T>;
-
-  export interface IndexedSeq<T> extends Seq<number, T>, IndexedIterable<T> {
-
-    /**
-     * Returns itself
-     */
-    toSeq(): /*this*/IndexedSeq<T>
   }
 
   /**
@@ -1598,9 +1598,9 @@ declare module Immutable {
     toKeyedSeq(): KeyedSeq<K, V>;
 
     /**
-     * Returns an IndexedSeq of the values of this Iterable, discarding keys.
+     * Returns an Seq.Indexed of the values of this Iterable, discarding keys.
      */
-    toIndexedSeq(): IndexedSeq<V>;
+    toIndexedSeq(): Seq.Indexed<V>;
 
     /**
      * Returns a SetSeq of the values of this Iterable, discarding keys.
@@ -1629,20 +1629,20 @@ declare module Immutable {
     // Iterables (Seq)
 
     /**
-     * Returns a new IndexedSeq of the keys of this Iterable,
+     * Returns a new Seq.Indexed of the keys of this Iterable,
      * discarding values.
      */
-    keySeq(): IndexedSeq<K>;
+    keySeq(): Seq.Indexed<K>;
 
     /**
-     * Returns an IndexedSeq of the values of this Iterable, discarding keys.
+     * Returns an Seq.Indexed of the values of this Iterable, discarding keys.
      */
-    valueSeq(): IndexedSeq<V>;
+    valueSeq(): Seq.Indexed<V>;
 
     /**
-     * Returns a new IndexedSeq of [key, value] tuples.
+     * Returns a new Seq.Indexed of [key, value] tuples.
      */
-    entrySeq(): IndexedSeq</*(K, V)*/Array<any>>;
+    entrySeq(): Seq.Indexed</*(K, V)*/Array<any>>;
 
 
     // Sequence algorithms
@@ -2270,10 +2270,10 @@ declare module Immutable {
     // Conversion to Seq
 
     /**
-     * Returns IndexedSeq.
+     * Returns Seq.Indexed.
      * @override
      */
-    toSeq(): IndexedSeq<T>;
+    toSeq(): Seq.Indexed<T>;
 
     /**
      * If this is an iterable of [key, value] entry tuples, it will return a
@@ -2474,10 +2474,10 @@ declare module Immutable {
   export interface IndexedCollection<T> extends Collection<number, T>, IndexedIterable<T> {
 
     /**
-     * Returns IndexedSeq.
+     * Returns Seq.Indexed.
      * @override
      */
-    toSeq(): IndexedSeq<T>;
+    toSeq(): Seq.Indexed<T>;
   }
 
 
