@@ -803,7 +803,7 @@ declare module Immutable {
   export function Set<T>(iterator: Iterator<T>): Set<T>;
   export function Set<T>(iterable: /*Iterable<T>*/Object): Set<T>;
 
-  export interface Set<T> extends SetCollection<T> {
+  export interface Set<T> extends Collection.Set<T> {
 
     // Persistent changes
 
@@ -2440,7 +2440,7 @@ declare module Immutable {
    * cannot be constructed directly.
    *
    * Implementations should extend one of the subclasses, `Collection.Keyed`,
-   * `Collection.Indexed`, or `SetCollection`.
+   * `Collection.Indexed`, or `Collection.Set`.
    */
   export module Collection {
 
@@ -2474,6 +2474,23 @@ declare module Immutable {
       toSeq(): Seq.Indexed<T>;
     }
 
+
+    /**
+     * `Collection` which represents values, unassociated with keys or indices.
+     *
+     * `Collection.Set` implementations should guarantee value uniqueness.
+     */
+    export module Set {}
+
+    export interface Set<T> extends Collection<T, T>, Iterable.Set<T> {
+
+      /**
+       * Returns Seq.Set.
+       * @override
+       */
+      toSeq(): Seq.Set<T>;
+    }
+
   }
 
   export interface Collection<K, V> extends Iterable<K, V> {
@@ -2482,23 +2499,6 @@ declare module Immutable {
      * All collections maintain their current `size` as an integer.
      */
     size: number;
-  }
-
-
-  /**
-   * `Collection` which represents values, unassociated with keys or indices.
-   *
-   * `SetCollection` implementations should guarantee value uniqueness.
-   */
-  export module SetCollection {}
-
-  export interface SetCollection<T> extends Collection<T, T>, Iterable.Set<T> {
-
-    /**
-     * Returns Seq.Set.
-     * @override
-     */
-    toSeq(): Seq.Set<T>;
   }
 
 
