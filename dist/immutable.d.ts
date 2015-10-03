@@ -180,6 +180,13 @@ declare module Immutable {
      */
     delete(index: number): List<T>;
     remove(index: number): List<T>;
+
+    /**
+     * Returns a new List with `value` at `index` with a size 1 more than this
+     * List. Values at indices above `index` are shifted over by 1.
+     *
+     * This is synonymous with `list.splice(index, 0, value)
+     */
     insert(index: number, value: T): List<T>;
 
     /**
