@@ -142,7 +142,7 @@ declare module Immutable {
    */
   export function List<T>(): List<T>;
   export function List<T>(iter: Iterable.Indexed<T>): List<T>;
-  export function List<T>(iter: SetIterable<T>): List<T>;
+  export function List<T>(iter: Iterable.Set<T>): List<T>;
   export function List<K, V>(iter: Iterable.Keyed<K, V>): List</*[K,V]*/any>;
   export function List<T>(array: Array<T>): List<T>;
   export function List<T>(iterator: Iterator<T>): List<T>;
@@ -796,7 +796,7 @@ declare module Immutable {
    * iterable-like.
    */
   export function Set<T>(): Set<T>;
-  export function Set<T>(iter: SetIterable<T>): Set<T>;
+  export function Set<T>(iter: Iterable.Set<T>): Set<T>;
   export function Set<T>(iter: Iterable.Indexed<T>): Set<T>;
   export function Set<K, V>(iter: Iterable.Keyed<K, V>): Set</*[K,V]*/any>;
   export function Set<T>(array: Array<T>): Set<T>;
@@ -908,7 +908,7 @@ declare module Immutable {
    * iterable-like.
    */
   export function OrderedSet<T>(): OrderedSet<T>;
-  export function OrderedSet<T>(iter: SetIterable<T>): OrderedSet<T>;
+  export function OrderedSet<T>(iter: Iterable.Set<T>): OrderedSet<T>;
   export function OrderedSet<T>(iter: Iterable.Indexed<T>): OrderedSet<T>;
   export function OrderedSet<K, V>(iter: Iterable.Keyed<K, V>): OrderedSet</*[K,V]*/any>;
   export function OrderedSet<T>(array: Array<T>): OrderedSet<T>;
@@ -953,7 +953,7 @@ declare module Immutable {
    */
   export function Stack<T>(): Stack<T>;
   export function Stack<T>(iter: Iterable.Indexed<T>): Stack<T>;
-  export function Stack<T>(iter: SetIterable<T>): Stack<T>;
+  export function Stack<T>(iter: Iterable.Set<T>): Stack<T>;
   export function Stack<K, V>(iter: Iterable.Keyed<K, V>): Stack</*[K,V]*/any>;
   export function Stack<T>(array: Array<T>): Stack<T>;
   export function Stack<T>(iterator: Iterator<T>): Stack<T>;
@@ -1236,7 +1236,7 @@ declare module Immutable {
      */
     export function Indexed<T>(): Seq.Indexed<T>;
     export function Indexed<T>(seq: Iterable.Indexed<T>): Seq.Indexed<T>;
-    export function Indexed<T>(seq: SetIterable<T>): Seq.Indexed<T>;
+    export function Indexed<T>(seq: Iterable.Set<T>): Seq.Indexed<T>;
     export function Indexed<K, V>(seq: Iterable.Keyed<K, V>): Seq.Indexed</*[K,V]*/any>;
     export function Indexed<T>(array: Array<T>): Seq.Indexed<T>;
     export function Indexed<T>(iterator: Iterator<T>): Seq.Indexed<T>;
@@ -1269,14 +1269,14 @@ declare module Immutable {
      * Always returns a Seq.Set, discarding associated indices or keys.
      */
     export function Set<T>(): Seq.Set<T>;
-    export function Set<T>(seq: SetIterable<T>): Seq.Set<T>;
+    export function Set<T>(seq: Iterable.Set<T>): Seq.Set<T>;
     export function Set<T>(seq: Iterable.Indexed<T>): Seq.Set<T>;
     export function Set<K, V>(seq: Iterable.Keyed<K, V>): Seq.Set</*[K,V]*/any>;
     export function Set<T>(array: Array<T>): Seq.Set<T>;
     export function Set<T>(iterator: Iterator<T>): Seq.Set<T>;
     export function Set<T>(iterable: /*Iterable<T>*/Object): Seq.Set<T>;
 
-    export interface Set<T> extends Seq<T, T>, SetIterable<T> {
+    export interface Set<T> extends Seq<T, T>, Iterable.Set<T> {
 
       /**
        * Returns itself
@@ -1511,7 +1511,7 @@ declare module Immutable {
      * Creates a new Iterable.Indexed.
      */
     export function Indexed<T>(iter: Iterable.Indexed<T>): Iterable.Indexed<T>;
-    export function Indexed<T>(iter: SetIterable<T>): Iterable.Indexed<T>;
+    export function Indexed<T>(iter: Iterable.Set<T>): Iterable.Indexed<T>;
     export function Indexed<K, V>(iter: Iterable.Keyed<K, V>): Iterable.Indexed</*[K,V]*/any>;
     export function Indexed<T>(array: Array<T>): Iterable.Indexed<T>;
     export function Indexed<T>(iterator: Iterator<T>): Iterable.Indexed<T>;
@@ -1662,6 +1662,40 @@ declare module Immutable {
       ): number;
     }
 
+
+    /**
+     * Set Iterables only represent values. They have no associated keys or
+     * indices. Duplicate values are possible in Seq.Sets, however the
+     * concrete `Set` does not allow duplicate values.
+     *
+     * Iterable methods on Iterable.Set such as `map` and `forEach` will provide
+     * the value as both the first and second arguments to the provided function.
+     *
+     *     var seq = Seq.Set.of('A', 'B', 'C');
+     *     assert.equal(seq.every((v, k) => v === k), true);
+     *
+     */
+    export module Set {}
+
+    /**
+     * Similar to `Iterable()`, but always returns a Iterable.Set.
+     */
+    export function Set<T>(iter: Iterable.Set<T>): Iterable.Set<T>;
+    export function Set<T>(iter: Iterable.Indexed<T>): Iterable.Set<T>;
+    export function Set<K, V>(iter: Iterable.Keyed<K, V>): Iterable.Set</*[K,V]*/any>;
+    export function Set<T>(array: Array<T>): Iterable.Set<T>;
+    export function Set<T>(iterator: Iterator<T>): Iterable.Set<T>;
+    export function Set<T>(iterable: /*Iterable<T>*/Object): Iterable.Set<T>;
+
+    export interface Set<T> extends Iterable<T, T> {
+
+      /**
+       * Returns Seq.Set.
+       * @override
+       */
+      toSeq(): Seq.Set<T>;
+    }
+
   }
 
   /**
@@ -1778,7 +1812,7 @@ declare module Immutable {
     /**
      * Deeply converts this Iterable to equivalent JS.
      *
-     * `Iterable.Indexeds`, and `SetIterables` become Arrays, while
+     * `Iterable.Indexeds`, and `Iterable.Sets` become Arrays, while
      * `Iterable.Keyeds` become Objects.
      *
      * @alias toJSON
@@ -2402,40 +2436,6 @@ declare module Immutable {
 
 
   /**
-   * Set Iterables only represent values. They have no associated keys or
-   * indices. Duplicate values are possible in Seq.Sets, however the
-   * concrete `Set` does not allow duplicate values.
-   *
-   * Iterable methods on SetIterable such as `map` and `forEach` will provide
-   * the value as both the first and second arguments to the provided function.
-   *
-   *     var seq = Seq.Set.of('A', 'B', 'C');
-   *     assert.equal(seq.every((v, k) => v === k), true);
-   *
-   */
-  export module SetIterable {}
-
-  /**
-   * Similar to `Iterable()`, but always returns a SetIterable.
-   */
-  export function SetIterable<T>(iter: SetIterable<T>): SetIterable<T>;
-  export function SetIterable<T>(iter: Iterable.Indexed<T>): SetIterable<T>;
-  export function SetIterable<K, V>(iter: Iterable.Keyed<K, V>): SetIterable</*[K,V]*/any>;
-  export function SetIterable<T>(array: Array<T>): SetIterable<T>;
-  export function SetIterable<T>(iterator: Iterator<T>): SetIterable<T>;
-  export function SetIterable<T>(iterable: /*Iterable<T>*/Object): SetIterable<T>;
-
-  export interface SetIterable<T> extends Iterable<T, T> {
-
-    /**
-     * Returns Seq.Set.
-     * @override
-     */
-    toSeq(): Seq.Set<T>;
-  }
-
-
-  /**
    * Collection is the abstract base class for concrete data structures. It
    * cannot be constructed directly.
    *
@@ -2490,7 +2490,7 @@ declare module Immutable {
    */
   export module SetCollection {}
 
-  export interface SetCollection<T> extends Collection<T, T>, SetIterable<T> {
+  export interface SetCollection<T> extends Collection<T, T>, Iterable.Set<T> {
 
     /**
      * Returns Seq.Set.
