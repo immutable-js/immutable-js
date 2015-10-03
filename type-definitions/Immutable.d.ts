@@ -141,7 +141,7 @@ declare module Immutable {
    * iterable-like.
    */
   export function List<T>(): List<T>;
-  export function List<T>(iter: IndexedIterable<T>): List<T>;
+  export function List<T>(iter: Iterable.Indexed<T>): List<T>;
   export function List<T>(iter: SetIterable<T>): List<T>;
   export function List<K, V>(iter: Iterable.Keyed<K, V>): List</*[K,V]*/any>;
   export function List<T>(array: Array<T>): List<T>;
@@ -236,7 +236,7 @@ declare module Immutable {
     /**
      * @see `Map#merge`
      */
-    merge(...iterables: IndexedIterable<T>[]): List<T>;
+    merge(...iterables: Iterable.Indexed<T>[]): List<T>;
     merge(...iterables: Array<T>[]): List<T>;
 
     /**
@@ -244,7 +244,7 @@ declare module Immutable {
      */
     mergeWith(
       merger: (previous?: T, next?: T, key?: number) => T,
-      ...iterables: IndexedIterable<T>[]
+      ...iterables: Iterable.Indexed<T>[]
     ): List<T>;
     mergeWith(
       merger: (previous?: T, next?: T, key?: number) => T,
@@ -254,7 +254,7 @@ declare module Immutable {
     /**
      * @see `Map#mergeDeep`
      */
-    mergeDeep(...iterables: IndexedIterable<T>[]): List<T>;
+    mergeDeep(...iterables: Iterable.Indexed<T>[]): List<T>;
     mergeDeep(...iterables: Array<T>[]): List<T>;
 
     /**
@@ -262,7 +262,7 @@ declare module Immutable {
      */
     mergeDeepWith(
       merger: (previous?: T, next?: T, key?: number) => T,
-      ...iterables: IndexedIterable<T>[]
+      ...iterables: Iterable.Indexed<T>[]
     ): List<T>;
     mergeDeepWith(
       merger: (previous?: T, next?: T, key?: number) => T,
@@ -332,11 +332,11 @@ declare module Immutable {
      */
     mergeIn(
       keyPath: Iterable<any, any>,
-      ...iterables: IndexedIterable<T>[]
+      ...iterables: Iterable.Indexed<T>[]
     ): List<T>;
     mergeIn(
       keyPath: Array<any>,
-      ...iterables: IndexedIterable<T>[]
+      ...iterables: Iterable.Indexed<T>[]
     ): List<T>;
     mergeIn(
       keyPath: Array<any>,
@@ -348,11 +348,11 @@ declare module Immutable {
      */
     mergeDeepIn(
       keyPath: Iterable<any, any>,
-      ...iterables: IndexedIterable<T>[]
+      ...iterables: Iterable.Indexed<T>[]
     ): List<T>;
     mergeDeepIn(
       keyPath: Array<any>,
-      ...iterables: IndexedIterable<T>[]
+      ...iterables: Iterable.Indexed<T>[]
     ): List<T>;
     mergeDeepIn(
       keyPath: Array<any>,
@@ -797,7 +797,7 @@ declare module Immutable {
    */
   export function Set<T>(): Set<T>;
   export function Set<T>(iter: SetIterable<T>): Set<T>;
-  export function Set<T>(iter: IndexedIterable<T>): Set<T>;
+  export function Set<T>(iter: Iterable.Indexed<T>): Set<T>;
   export function Set<K, V>(iter: Iterable.Keyed<K, V>): Set</*[K,V]*/any>;
   export function Set<T>(array: Array<T>): Set<T>;
   export function Set<T>(iterator: Iterator<T>): Set<T>;
@@ -909,7 +909,7 @@ declare module Immutable {
    */
   export function OrderedSet<T>(): OrderedSet<T>;
   export function OrderedSet<T>(iter: SetIterable<T>): OrderedSet<T>;
-  export function OrderedSet<T>(iter: IndexedIterable<T>): OrderedSet<T>;
+  export function OrderedSet<T>(iter: Iterable.Indexed<T>): OrderedSet<T>;
   export function OrderedSet<K, V>(iter: Iterable.Keyed<K, V>): OrderedSet</*[K,V]*/any>;
   export function OrderedSet<T>(array: Array<T>): OrderedSet<T>;
   export function OrderedSet<T>(iterator: Iterator<T>): OrderedSet<T>;
@@ -952,7 +952,7 @@ declare module Immutable {
    * resulting `Stack`.
    */
   export function Stack<T>(): Stack<T>;
-  export function Stack<T>(iter: IndexedIterable<T>): Stack<T>;
+  export function Stack<T>(iter: Iterable.Indexed<T>): Stack<T>;
   export function Stack<T>(iter: SetIterable<T>): Stack<T>;
   export function Stack<K, V>(iter: Iterable.Keyed<K, V>): Stack</*[K,V]*/any>;
   export function Stack<T>(array: Array<T>): Stack<T>;
@@ -1235,14 +1235,14 @@ declare module Immutable {
      * supplying incrementing indices.
      */
     export function Indexed<T>(): Seq.Indexed<T>;
-    export function Indexed<T>(seq: IndexedIterable<T>): Seq.Indexed<T>;
+    export function Indexed<T>(seq: Iterable.Indexed<T>): Seq.Indexed<T>;
     export function Indexed<T>(seq: SetIterable<T>): Seq.Indexed<T>;
     export function Indexed<K, V>(seq: Iterable.Keyed<K, V>): Seq.Indexed</*[K,V]*/any>;
     export function Indexed<T>(array: Array<T>): Seq.Indexed<T>;
     export function Indexed<T>(iterator: Iterator<T>): Seq.Indexed<T>;
     export function Indexed<T>(iterable: /*Iterable<T>*/Object): Seq.Indexed<T>;
 
-    export interface Indexed<T> extends Seq<number, T>, IndexedIterable<T> {
+    export interface Indexed<T> extends Seq<number, T>, Iterable.Indexed<T> {
 
       /**
        * Returns itself
@@ -1270,7 +1270,7 @@ declare module Immutable {
      */
     export function Set<T>(): Seq.Set<T>;
     export function Set<T>(seq: SetIterable<T>): Seq.Set<T>;
-    export function Set<T>(seq: IndexedIterable<T>): Seq.Set<T>;
+    export function Set<T>(seq: Iterable.Indexed<T>): Seq.Set<T>;
     export function Set<K, V>(seq: Iterable.Keyed<K, V>): Seq.Set</*[K,V]*/any>;
     export function Set<T>(array: Array<T>): Seq.Set<T>;
     export function Set<T>(iterator: Iterator<T>): Seq.Set<T>;
@@ -1367,7 +1367,7 @@ declare module Immutable {
     function isKeyed(maybeKeyed: any): boolean;
 
     /**
-     * True if `maybeIndexed` is a IndexedIterable, or any of its subclasses.
+     * True if `maybeIndexed` is a Iterable.Indexed, or any of its subclasses.
      */
     function isIndexed(maybeIndexed: any): boolean;
 
@@ -1378,7 +1378,7 @@ declare module Immutable {
 
     /**
      * True if `maybeOrdered` is an Iterable where iteration order is well
-     * defined. True for IndexedIterable as well as OrderedMap and OrderedSet.
+     * defined. True for Iterable.Indexed as well as OrderedMap and OrderedSet.
      */
     function isOrdered(maybeOrdered: any): boolean;
 
@@ -1490,6 +1490,178 @@ declare module Immutable {
     }
 
 
+    /**
+     * Indexed Iterables have incrementing numeric keys. They exhibit
+     * slightly different behavior than `Iterable.Keyed` for some methods in order
+     * to better mirror the behavior of JavaScript's `Array`, and add methods
+     * which do not make sense on non-indexed Iterables such as `indexOf`.
+     *
+     * Unlike JavaScript arrays, `Iterable.Indexed`s are always dense. "Unset"
+     * indices and `undefined` indices are indistinguishable, and all indices from
+     * 0 to `size` are visited when iterated.
+     *
+     * All Iterable.Indexed methods return re-indexed Iterables. In other words,
+     * indices always start at 0 and increment until size. If you wish to
+     * preserve indices, using them as keys, convert to a Iterable.Keyed by
+     * calling `toKeyedSeq`.
+     */
+    export module Indexed {}
+
+    /**
+     * Creates a new Iterable.Indexed.
+     */
+    export function Indexed<T>(iter: Iterable.Indexed<T>): Iterable.Indexed<T>;
+    export function Indexed<T>(iter: SetIterable<T>): Iterable.Indexed<T>;
+    export function Indexed<K, V>(iter: Iterable.Keyed<K, V>): Iterable.Indexed</*[K,V]*/any>;
+    export function Indexed<T>(array: Array<T>): Iterable.Indexed<T>;
+    export function Indexed<T>(iterator: Iterator<T>): Iterable.Indexed<T>;
+    export function Indexed<T>(iterable: /*Iterable<T>*/Object): Iterable.Indexed<T>;
+
+    export interface Indexed<T> extends Iterable<number, T> {
+
+      // Reading values
+
+      /**
+       * Returns the value associated with the provided index, or notSetValue if
+       * the index is beyond the bounds of the Iterable.
+       *
+       * `index` may be a negative number, which indexes back from the end of the
+       * Iterable. `s.get(-1)` gets the last item in the Iterable.
+       */
+      get(index: number, notSetValue?: T): T;
+
+
+      // Conversion to Seq
+
+      /**
+       * Returns Seq.Indexed.
+       * @override
+       */
+      toSeq(): Seq.Indexed<T>;
+
+      /**
+       * If this is an iterable of [key, value] entry tuples, it will return a
+       * Seq.Keyed of those entries.
+       */
+      fromEntrySeq(): Seq.Keyed<any, any>;
+
+
+      // Combination
+
+      /**
+       * Returns an Iterable of the same type with `separator` between each item
+       * in this Iterable.
+       */
+      interpose(separator: T): /*this*/Iterable.Indexed<T>;
+
+      /**
+       * Returns an Iterable of the same type with the provided `iterables`
+       * interleaved into this iterable.
+       *
+       * The resulting Iterable includes the first item from each, then the
+       * second from each, etc.
+       *
+       *     I.Seq.of(1,2,3).interleave(I.Seq.of('A','B','C'))
+       *     // Seq [ 1, 'A', 2, 'B', 3, 'C' ]
+       *
+       * The shortest Iterable stops interleave.
+       *
+       *     I.Seq.of(1,2,3).interleave(
+       *       I.Seq.of('A','B'),
+       *       I.Seq.of('X','Y','Z')
+       *     )
+       *     // Seq [ 1, 'A', 'X', 2, 'B', 'Y' ]
+       */
+      interleave(...iterables: Array<Iterable<any, T>>): /*this*/Iterable.Indexed<T>;
+
+      /**
+       * Splice returns a new indexed Iterable by replacing a region of this
+       * Iterable with new values. If values are not provided, it only skips the
+       * region to be removed.
+       *
+       * `index` may be a negative number, which indexes back from the end of the
+       * Iterable. `s.splice(-2)` splices after the second to last item.
+       *
+       *     Seq(['a','b','c','d']).splice(1, 2, 'q', 'r', 's')
+       *     // Seq ['a', 'q', 'r', 's', 'd']
+       *
+       */
+      splice(
+        index: number,
+        removeNum: number,
+        ...values: /*Array<Iterable.Indexed<T> | T>*/any[]
+      ): /*this*/Iterable.Indexed<T>;
+
+      /**
+       * Returns an Iterable of the same type "zipped" with the provided
+       * iterables.
+       *
+       * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+       *
+       *     var a = Seq.of(1, 2, 3);
+       *     var b = Seq.of(4, 5, 6);
+       *     var c = a.zip(b); // Seq [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+       *
+       */
+      zip(...iterables: Array<Iterable<any, any>>): /*this*/Iterable.Indexed<any>;
+
+      /**
+       * Returns an Iterable of the same type "zipped" with the provided
+       * iterables by using a custom `zipper` function.
+       *
+       *     var a = Seq.of(1, 2, 3);
+       *     var b = Seq.of(4, 5, 6);
+       *     var c = a.zipWith((a, b) => a + b, b); // Seq [ 5, 7, 9 ]
+       *
+       */
+      zipWith<U, Z>(
+        zipper: (value: T, otherValue: U) => Z,
+        otherIterable: Iterable<any, U>
+      ): Iterable.Indexed<Z>;
+      zipWith<U, V, Z>(
+        zipper: (value: T, otherValue: U, thirdValue: V) => Z,
+        otherIterable: Iterable<any, U>,
+        thirdIterable: Iterable<any, V>
+      ): Iterable.Indexed<Z>;
+      zipWith<Z>(
+        zipper: (...any: Array<any>) => Z,
+        ...iterables: Array<Iterable<any, any>>
+      ): Iterable.Indexed<Z>;
+
+
+      // Search for value
+
+      /**
+       * Returns the first index at which a given value can be found in the
+       * Iterable, or -1 if it is not present.
+       */
+      indexOf(searchValue: T): number;
+
+      /**
+       * Returns the last index at which a given value can be found in the
+       * Iterable, or -1 if it is not present.
+       */
+      lastIndexOf(searchValue: T): number;
+
+      /**
+       * Returns the first index in the Iterable where a value satisfies the
+       * provided predicate function. Otherwise -1 is returned.
+       */
+      findIndex(
+        predicate: (value?: T, index?: number, iter?: /*this*/Iterable.Indexed<T>) => boolean,
+        context?: any
+      ): number;
+
+      /**
+       * Returns the last index in the Iterable where a value satisfies the
+       * provided predicate function. Otherwise -1 is returned.
+       */
+      findLastIndex(
+        predicate: (value?: T, index?: number, iter?: /*this*/Iterable.Indexed<T>) => boolean,
+        context?: any
+      ): number;
+    }
+
   }
 
   /**
@@ -1498,9 +1670,9 @@ declare module Immutable {
    * The type of Iterable created is based on the input.
    *
    *   * If an `Iterable`, that same `Iterable`.
-   *   * If an Array-like, an `IndexedIterable`.
-   *   * If an Object with an Iterator, an `IndexedIterable`.
-   *   * If an Iterator, an `IndexedIterable`.
+   *   * If an Array-like, an `Iterable.Indexed`.
+   *   * If an Object with an Iterator, an `Iterable.Indexed`.
+   *   * If an Iterator, an `Iterable.Indexed`.
    *   * If an Object, an `Iterable.Keyed`.
    *
    * This methods forces the conversion of Objects and Strings to Iterables.
@@ -1508,11 +1680,11 @@ declare module Immutable {
    * `Seq.of`.
    */
   export function Iterable<K, V>(iterable: Iterable<K, V>): Iterable<K, V>;
-  export function Iterable<T>(array: Array<T>): IndexedIterable<T>;
+  export function Iterable<T>(array: Array<T>): Iterable.Indexed<T>;
   export function Iterable<V>(obj: {[key: string]: V}): Iterable.Keyed<string, V>;
-  export function Iterable<T>(iterator: Iterator<T>): IndexedIterable<T>;
-  export function Iterable<T>(iterable: /*ES6Iterable<T>*/Object): IndexedIterable<T>;
-  export function Iterable<V>(value: V): IndexedIterable<V>;
+  export function Iterable<T>(iterator: Iterator<T>): Iterable.Indexed<T>;
+  export function Iterable<T>(iterable: /*ES6Iterable<T>*/Object): Iterable.Indexed<T>;
+  export function Iterable<V>(value: V): Iterable.Indexed<V>;
 
   export interface Iterable<K, V> {
 
@@ -1606,7 +1778,7 @@ declare module Immutable {
     /**
      * Deeply converts this Iterable to equivalent JS.
      *
-     * `IndexedIterables`, and `SetIterables` become Arrays, while
+     * `Iterable.Indexeds`, and `SetIterables` become Arrays, while
      * `Iterable.Keyeds` become Objects.
      *
      * @alias toJSON
@@ -1692,7 +1864,7 @@ declare module Immutable {
      * Returns a Seq.Keyed from this Iterable where indices are treated as keys.
      *
      * This is useful if you want to operate on an
-     * IndexedIterable and preserve the [index, value] pairs.
+     * Iterable.Indexed and preserve the [index, value] pairs.
      *
      * The returned Seq will have identical iteration order as
      * this Iterable.
@@ -2230,179 +2402,6 @@ declare module Immutable {
 
 
   /**
-   * Indexed Iterables have incrementing numeric keys. They exhibit
-   * slightly different behavior than `Iterable.Keyed` for some methods in order
-   * to better mirror the behavior of JavaScript's `Array`, and add methods
-   * which do not make sense on non-indexed Iterables such as `indexOf`.
-   *
-   * Unlike JavaScript arrays, `IndexedIterable`s are always dense. "Unset"
-   * indices and `undefined` indices are indistinguishable, and all indices from
-   * 0 to `size` are visited when iterated.
-   *
-   * All IndexedIterable methods return re-indexed Iterables. In other words,
-   * indices always start at 0 and increment until size. If you wish to
-   * preserve indices, using them as keys, convert to a Iterable.Keyed by
-   * calling `toKeyedSeq`.
-   */
-  export module IndexedIterable {}
-
-  /**
-   * Creates a new IndexedIterable.
-   */
-  export function IndexedIterable<T>(iter: IndexedIterable<T>): IndexedIterable<T>;
-  export function IndexedIterable<T>(iter: SetIterable<T>): IndexedIterable<T>;
-  export function IndexedIterable<K, V>(iter: Iterable.Keyed<K, V>): IndexedIterable</*[K,V]*/any>;
-  export function IndexedIterable<T>(array: Array<T>): IndexedIterable<T>;
-  export function IndexedIterable<T>(iterator: Iterator<T>): IndexedIterable<T>;
-  export function IndexedIterable<T>(iterable: /*Iterable<T>*/Object): IndexedIterable<T>;
-
-  export interface IndexedIterable<T> extends Iterable<number, T> {
-
-    // Reading values
-
-    /**
-     * Returns the value associated with the provided index, or notSetValue if
-     * the index is beyond the bounds of the Iterable.
-     *
-     * `index` may be a negative number, which indexes back from the end of the
-     * Iterable. `s.get(-1)` gets the last item in the Iterable.
-     */
-    get(index: number, notSetValue?: T): T;
-
-
-    // Conversion to Seq
-
-    /**
-     * Returns Seq.Indexed.
-     * @override
-     */
-    toSeq(): Seq.Indexed<T>;
-
-    /**
-     * If this is an iterable of [key, value] entry tuples, it will return a
-     * Seq.Keyed of those entries.
-     */
-    fromEntrySeq(): Seq.Keyed<any, any>;
-
-
-    // Combination
-
-    /**
-     * Returns an Iterable of the same type with `separator` between each item
-     * in this Iterable.
-     */
-    interpose(separator: T): /*this*/IndexedIterable<T>;
-
-    /**
-     * Returns an Iterable of the same type with the provided `iterables`
-     * interleaved into this iterable.
-     *
-     * The resulting Iterable includes the first item from each, then the
-     * second from each, etc.
-     *
-     *     I.Seq.of(1,2,3).interleave(I.Seq.of('A','B','C'))
-     *     // Seq [ 1, 'A', 2, 'B', 3, 'C' ]
-     *
-     * The shortest Iterable stops interleave.
-     *
-     *     I.Seq.of(1,2,3).interleave(
-     *       I.Seq.of('A','B'),
-     *       I.Seq.of('X','Y','Z')
-     *     )
-     *     // Seq [ 1, 'A', 'X', 2, 'B', 'Y' ]
-     */
-    interleave(...iterables: Array<Iterable<any, T>>): /*this*/IndexedIterable<T>;
-
-    /**
-     * Splice returns a new indexed Iterable by replacing a region of this
-     * Iterable with new values. If values are not provided, it only skips the
-     * region to be removed.
-     *
-     * `index` may be a negative number, which indexes back from the end of the
-     * Iterable. `s.splice(-2)` splices after the second to last item.
-     *
-     *     Seq(['a','b','c','d']).splice(1, 2, 'q', 'r', 's')
-     *     // Seq ['a', 'q', 'r', 's', 'd']
-     *
-     */
-    splice(
-      index: number,
-      removeNum: number,
-      ...values: /*Array<IndexedIterable<T> | T>*/any[]
-    ): /*this*/IndexedIterable<T>;
-
-    /**
-     * Returns an Iterable of the same type "zipped" with the provided
-     * iterables.
-     *
-     * Like `zipWith`, but using the default `zipper`: creating an `Array`.
-     *
-     *     var a = Seq.of(1, 2, 3);
-     *     var b = Seq.of(4, 5, 6);
-     *     var c = a.zip(b); // Seq [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
-     *
-     */
-    zip(...iterables: Array<Iterable<any, any>>): /*this*/IndexedIterable<any>;
-
-    /**
-     * Returns an Iterable of the same type "zipped" with the provided
-     * iterables by using a custom `zipper` function.
-     *
-     *     var a = Seq.of(1, 2, 3);
-     *     var b = Seq.of(4, 5, 6);
-     *     var c = a.zipWith((a, b) => a + b, b); // Seq [ 5, 7, 9 ]
-     *
-     */
-    zipWith<U, Z>(
-      zipper: (value: T, otherValue: U) => Z,
-      otherIterable: Iterable<any, U>
-    ): IndexedIterable<Z>;
-    zipWith<U, V, Z>(
-      zipper: (value: T, otherValue: U, thirdValue: V) => Z,
-      otherIterable: Iterable<any, U>,
-      thirdIterable: Iterable<any, V>
-    ): IndexedIterable<Z>;
-    zipWith<Z>(
-      zipper: (...any: Array<any>) => Z,
-      ...iterables: Array<Iterable<any, any>>
-    ): IndexedIterable<Z>;
-
-
-    // Search for value
-
-    /**
-     * Returns the first index at which a given value can be found in the
-     * Iterable, or -1 if it is not present.
-     */
-    indexOf(searchValue: T): number;
-
-    /**
-     * Returns the last index at which a given value can be found in the
-     * Iterable, or -1 if it is not present.
-     */
-    lastIndexOf(searchValue: T): number;
-
-    /**
-     * Returns the first index in the Iterable where a value satisfies the
-     * provided predicate function. Otherwise -1 is returned.
-     */
-    findIndex(
-      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
-      context?: any
-    ): number;
-
-    /**
-     * Returns the last index in the Iterable where a value satisfies the
-     * provided predicate function. Otherwise -1 is returned.
-     */
-    findLastIndex(
-      predicate: (value?: T, index?: number, iter?: /*this*/IndexedIterable<T>) => boolean,
-      context?: any
-    ): number;
-  }
-
-
-  /**
    * Set Iterables only represent values. They have no associated keys or
    * indices. Duplicate values are possible in Seq.Sets, however the
    * concrete `Set` does not allow duplicate values.
@@ -2420,7 +2419,7 @@ declare module Immutable {
    * Similar to `Iterable()`, but always returns a SetIterable.
    */
   export function SetIterable<T>(iter: SetIterable<T>): SetIterable<T>;
-  export function SetIterable<T>(iter: IndexedIterable<T>): SetIterable<T>;
+  export function SetIterable<T>(iter: Iterable.Indexed<T>): SetIterable<T>;
   export function SetIterable<K, V>(iter: Iterable.Keyed<K, V>): SetIterable</*[K,V]*/any>;
   export function SetIterable<T>(array: Array<T>): SetIterable<T>;
   export function SetIterable<T>(iterator: Iterator<T>): SetIterable<T>;
@@ -2474,7 +2473,7 @@ declare module Immutable {
    */
   export module IndexedCollection {}
 
-  export interface IndexedCollection<T> extends Collection<number, T>, IndexedIterable<T> {
+  export interface IndexedCollection<T> extends Collection<number, T>, Iterable.Indexed<T> {
 
     /**
      * Returns Seq.Indexed.
