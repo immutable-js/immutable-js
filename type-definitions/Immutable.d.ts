@@ -143,7 +143,7 @@ declare module Immutable {
   export function List<T>(): List<T>;
   export function List<T>(iter: IndexedIterable<T>): List<T>;
   export function List<T>(iter: SetIterable<T>): List<T>;
-  export function List<K, V>(iter: KeyedIterable<K, V>): List</*[K,V]*/any>;
+  export function List<K, V>(iter: Iterable.Keyed<K, V>): List</*[K,V]*/any>;
   export function List<T>(array: Array<T>): List<T>;
   export function List<T>(iterator: Iterator<T>): List<T>;
   export function List<T>(iterable: /*Iterable<T>*/Object): List<T>;
@@ -384,7 +384,7 @@ declare module Immutable {
 
 
   /**
-   * Immutable Map is an unordered KeyedIterable of (key, value) pairs with
+   * Immutable Map is an unordered Iterable.Keyed of (key, value) pairs with
    * `O(log32 N)` gets and `O(log32 N)` persistent sets.
    *
    * Iteration order of a Map is undefined, however is stable. Multiple
@@ -417,7 +417,7 @@ declare module Immutable {
   /**
    * Creates a new Immutable Map.
    *
-   * Created with the same key value pairs as the provided KeyedIterable or
+   * Created with the same key value pairs as the provided Iterable.Keyed or
    * JavaScript Object or expects an Iterable of [K, V] tuple entries.
    *
    *     var newMap = Map({key: "value"});
@@ -443,7 +443,7 @@ declare module Immutable {
    * not altered.
    */
   export function Map<K, V>(): Map<K, V>;
-  export function Map<K, V>(iter: KeyedIterable<K, V>): Map<K, V>;
+  export function Map<K, V>(iter: Iterable.Keyed<K, V>): Map<K, V>;
   export function Map<K, V>(iter: Iterable<any, /*[K,V]*/Array<any>>): Map<K, V>;
   export function Map<K, V>(array: Array</*[K,V]*/Array<any>>): Map<K, V>;
   export function Map<V>(obj: {[key: string]: V}): Map<string, V>;
@@ -739,7 +739,7 @@ declare module Immutable {
   /**
    * Creates a new Immutable OrderedMap.
    *
-   * Created with the same key value pairs as the provided KeyedIterable or
+   * Created with the same key value pairs as the provided Iterable.Keyed or
    * JavaScript Object or expects an Iterable of [K, V] tuple entries.
    *
    * The iteration order of key-value pairs provided to this constructor will
@@ -750,7 +750,7 @@ declare module Immutable {
    *
    */
   export function OrderedMap<K, V>(): OrderedMap<K, V>;
-  export function OrderedMap<K, V>(iter: KeyedIterable<K, V>): OrderedMap<K, V>;
+  export function OrderedMap<K, V>(iter: Iterable.Keyed<K, V>): OrderedMap<K, V>;
   export function OrderedMap<K, V>(iter: Iterable<any, /*[K,V]*/Array<any>>): OrderedMap<K, V>;
   export function OrderedMap<K, V>(array: Array</*[K,V]*/Array<any>>): OrderedMap<K, V>;
   export function OrderedMap<V>(obj: {[key: string]: V}): OrderedMap<string, V>;
@@ -798,7 +798,7 @@ declare module Immutable {
   export function Set<T>(): Set<T>;
   export function Set<T>(iter: SetIterable<T>): Set<T>;
   export function Set<T>(iter: IndexedIterable<T>): Set<T>;
-  export function Set<K, V>(iter: KeyedIterable<K, V>): Set</*[K,V]*/any>;
+  export function Set<K, V>(iter: Iterable.Keyed<K, V>): Set</*[K,V]*/any>;
   export function Set<T>(array: Array<T>): Set<T>;
   export function Set<T>(iterator: Iterator<T>): Set<T>;
   export function Set<T>(iterable: /*Iterable<T>*/Object): Set<T>;
@@ -910,7 +910,7 @@ declare module Immutable {
   export function OrderedSet<T>(): OrderedSet<T>;
   export function OrderedSet<T>(iter: SetIterable<T>): OrderedSet<T>;
   export function OrderedSet<T>(iter: IndexedIterable<T>): OrderedSet<T>;
-  export function OrderedSet<K, V>(iter: KeyedIterable<K, V>): OrderedSet</*[K,V]*/any>;
+  export function OrderedSet<K, V>(iter: Iterable.Keyed<K, V>): OrderedSet</*[K,V]*/any>;
   export function OrderedSet<T>(array: Array<T>): OrderedSet<T>;
   export function OrderedSet<T>(iterator: Iterator<T>): OrderedSet<T>;
   export function OrderedSet<T>(iterable: /*Iterable<T>*/Object): OrderedSet<T>;
@@ -954,7 +954,7 @@ declare module Immutable {
   export function Stack<T>(): Stack<T>;
   export function Stack<T>(iter: IndexedIterable<T>): Stack<T>;
   export function Stack<T>(iter: SetIterable<T>): Stack<T>;
-  export function Stack<K, V>(iter: KeyedIterable<K, V>): Stack</*[K,V]*/any>;
+  export function Stack<K, V>(iter: Iterable.Keyed<K, V>): Stack</*[K,V]*/any>;
   export function Stack<T>(array: Array<T>): Stack<T>;
   export function Stack<T>(iterator: Iterator<T>): Stack<T>;
   export function Stack<T>(iterable: /*Iterable<T>*/Object): Stack<T>;
@@ -1203,14 +1203,14 @@ declare module Immutable {
      * iterable of [K, V] tuples.
      */
     export function Keyed<K, V>(): Seq.Keyed<K, V>;
-    export function Keyed<K, V>(seq: KeyedIterable<K, V>): Seq.Keyed<K, V>;
+    export function Keyed<K, V>(seq: Iterable.Keyed<K, V>): Seq.Keyed<K, V>;
     export function Keyed<K, V>(seq: Iterable<any, /*[K,V]*/any>): Seq.Keyed<K, V>;
     export function Keyed<K, V>(array: Array</*[K,V]*/any>): Seq.Keyed<K, V>;
     export function Keyed<V>(obj: {[key: string]: V}): Seq.Keyed<string, V>;
     export function Keyed<K, V>(iterator: Iterator</*[K,V]*/any>): Seq.Keyed<K, V>;
     export function Keyed<K, V>(iterable: /*Iterable<[K,V]>*/Object): Seq.Keyed<K, V>;
 
-    export interface Keyed<K, V> extends Seq<K, V>, KeyedIterable<K, V> {
+    export interface Keyed<K, V> extends Seq<K, V>, Iterable.Keyed<K, V> {
 
       /**
        * Returns itself
@@ -1237,7 +1237,7 @@ declare module Immutable {
     export function Indexed<T>(): Seq.Indexed<T>;
     export function Indexed<T>(seq: IndexedIterable<T>): Seq.Indexed<T>;
     export function Indexed<T>(seq: SetIterable<T>): Seq.Indexed<T>;
-    export function Indexed<K, V>(seq: KeyedIterable<K, V>): Seq.Indexed</*[K,V]*/any>;
+    export function Indexed<K, V>(seq: Iterable.Keyed<K, V>): Seq.Indexed</*[K,V]*/any>;
     export function Indexed<T>(array: Array<T>): Seq.Indexed<T>;
     export function Indexed<T>(iterator: Iterator<T>): Seq.Indexed<T>;
     export function Indexed<T>(iterable: /*Iterable<T>*/Object): Seq.Indexed<T>;
@@ -1271,7 +1271,7 @@ declare module Immutable {
     export function Set<T>(): Seq.Set<T>;
     export function Set<T>(seq: SetIterable<T>): Seq.Set<T>;
     export function Set<T>(seq: IndexedIterable<T>): Seq.Set<T>;
-    export function Set<K, V>(seq: KeyedIterable<K, V>): Seq.Set</*[K,V]*/any>;
+    export function Set<K, V>(seq: Iterable.Keyed<K, V>): Seq.Set</*[K,V]*/any>;
     export function Set<T>(array: Array<T>): Seq.Set<T>;
     export function Set<T>(iterator: Iterator<T>): Seq.Set<T>;
     export function Set<T>(iterable: /*Iterable<T>*/Object): Seq.Set<T>;
@@ -1362,7 +1362,7 @@ declare module Immutable {
     function isIterable(maybeIterable: any): boolean;
 
     /**
-     * True if `maybeKeyed` is a KeyedIterable, or any of its subclasses.
+     * True if `maybeKeyed` is an Iterable.Keyed, or any of its subclasses.
      */
     function isKeyed(maybeKeyed: any): boolean;
 
@@ -1381,6 +1381,115 @@ declare module Immutable {
      * defined. True for IndexedIterable as well as OrderedMap and OrderedSet.
      */
     function isOrdered(maybeOrdered: any): boolean;
+
+
+    /**
+     * Keyed Iterables have discrete keys tied to each value.
+     *
+     * When iterating `Iterable.Keyed`, each iteration will yield a `[K, V]`
+     * tuple, in other words, `Iterable#entries` is the default iterator for
+     * Keyed Iterables.
+     */
+    export module Keyed {}
+
+    /**
+     * Creates an Iterable.Keyed
+     *
+     * Similar to `Iterable()`, however it expects iterable-likes of [K, V]
+     * tuples if not constructed from a Iterable.Keyed or JS Object.
+     */
+    export function Keyed<K, V>(iter: Iterable.Keyed<K, V>): Iterable.Keyed<K, V>;
+    export function Keyed<K, V>(iter: Iterable<any, /*[K,V]*/any>): Iterable.Keyed<K, V>;
+    export function Keyed<K, V>(array: Array</*[K,V]*/any>): Iterable.Keyed<K, V>;
+    export function Keyed<V>(obj: {[key: string]: V}): Iterable.Keyed<string, V>;
+    export function Keyed<K, V>(iterator: Iterator</*[K,V]*/any>): Iterable.Keyed<K, V>;
+    export function Keyed<K, V>(iterable: /*Iterable<[K,V]>*/Object): Iterable.Keyed<K, V>;
+
+    export interface Keyed<K, V> extends Iterable<K, V> {
+
+      /**
+       * Returns Seq.Keyed.
+       * @override
+       */
+      toSeq(): Seq.Keyed<K, V>;
+
+
+      // Sequence functions
+
+      /**
+       * Returns a new Iterable.Keyed of the same type where the keys and values
+       * have been flipped.
+       *
+       *     Seq({ a: 'z', b: 'y' }).flip() // { z: 'a', y: 'b' }
+       *
+       */
+      flip(): /*this*/Iterable.Keyed<V, K>;
+
+      /**
+       * Returns a new Iterable.Keyed of the same type with keys passed through
+       * a `mapper` function.
+       *
+       *     Seq({ a: 1, b: 2 })
+       *       .mapKeys(x => x.toUpperCase())
+       *     // Seq { A: 1, B: 2 }
+       *
+       */
+      mapKeys<M>(
+        mapper: (key?: K, value?: V, iter?: /*this*/Iterable.Keyed<K, V>) => M,
+        context?: any
+      ): /*this*/Iterable.Keyed<M, V>;
+
+      /**
+       * Returns a new Iterable.Keyed of the same type with entries
+       * ([key, value] tuples) passed through a `mapper` function.
+       *
+       *     Seq({ a: 1, b: 2 })
+       *       .mapEntries(([k, v]) => [k.toUpperCase(), v * 2])
+       *     // Seq { A: 2, B: 4 }
+       *
+       */
+      mapEntries<KM, VM>(
+        mapper: (
+          entry?: /*(K, V)*/Array<any>,
+          index?: number,
+          iter?: /*this*/Iterable.Keyed<K, V>
+        ) => /*[KM, VM]*/Array<any>,
+        context?: any
+      ): /*this*/Iterable.Keyed<KM, VM>;
+
+
+      // Search for value
+
+      /**
+       * Returns the key associated with the search value, or undefined.
+       */
+      keyOf(searchValue: V): K;
+
+      /**
+       * Returns the last key associated with the search value, or undefined.
+       */
+      lastKeyOf(searchValue: V): K;
+
+      /**
+       * Returns the key for which the `predicate` returns true.
+       */
+      findKey(
+        predicate: (value?: V, key?: K, iter?: /*this*/Iterable.Keyed<K, V>) => boolean,
+        context?: any
+      ): K;
+
+      /**
+       * Returns the last key for which the `predicate` returns true.
+       *
+       * Note: `predicate` will be called for each entry in reverse.
+       */
+      findLastKey(
+        predicate: (value?: V, key?: K, iter?: /*this*/Iterable.Keyed<K, V>) => boolean,
+        context?: any
+      ): K;
+    }
+
+
   }
 
   /**
@@ -1392,7 +1501,7 @@ declare module Immutable {
    *   * If an Array-like, an `IndexedIterable`.
    *   * If an Object with an Iterator, an `IndexedIterable`.
    *   * If an Iterator, an `IndexedIterable`.
-   *   * If an Object, a `KeyedIterable`.
+   *   * If an Object, an `Iterable.Keyed`.
    *
    * This methods forces the conversion of Objects and Strings to Iterables.
    * If you want to ensure that a Iterable of one item is returned, use
@@ -1400,7 +1509,7 @@ declare module Immutable {
    */
   export function Iterable<K, V>(iterable: Iterable<K, V>): Iterable<K, V>;
   export function Iterable<T>(array: Array<T>): IndexedIterable<T>;
-  export function Iterable<V>(obj: {[key: string]: V}): KeyedIterable<string, V>;
+  export function Iterable<V>(obj: {[key: string]: V}): Iterable.Keyed<string, V>;
   export function Iterable<T>(iterator: Iterator<T>): IndexedIterable<T>;
   export function Iterable<T>(iterable: /*ES6Iterable<T>*/Object): IndexedIterable<T>;
   export function Iterable<V>(value: V): IndexedIterable<V>;
@@ -1498,7 +1607,7 @@ declare module Immutable {
      * Deeply converts this Iterable to equivalent JS.
      *
      * `IndexedIterables`, and `SetIterables` become Arrays, while
-     * `KeyedIterables` become Objects.
+     * `Iterable.Keyeds` become Objects.
      *
      * @alias toJSON
      */
@@ -1724,7 +1833,7 @@ declare module Immutable {
     ): /*this*/Iterable<K, V>;
 
     /**
-     * Returns a `KeyedIterable` of `KeyedIterables`, grouped by the return
+     * Returns a `Iterable.Keyed` of `Iterable.Keyeds`, grouped by the return
      * value of the `grouper` function.
      *
      * Note: This is always an eager operation.
@@ -2121,115 +2230,8 @@ declare module Immutable {
 
 
   /**
-   * Keyed Iterables have discrete keys tied to each value.
-   *
-   * When iterating `KeyedIterable`, each iteration will yield a `[K, V]` tuple,
-   * in other words, `Iterable#entries` is the default iterator for Keyed
-   * Iterables.
-   */
-  export module KeyedIterable {}
-
-  /**
-   * Creates a KeyedIterable
-   *
-   * Similar to `Iterable()`, however it expects iterable-likes of [K, V]
-   * tuples if not constructed from a KeyedIterable or JS Object.
-   */
-  export function KeyedIterable<K, V>(iter: KeyedIterable<K, V>): KeyedIterable<K, V>;
-  export function KeyedIterable<K, V>(iter: Iterable<any, /*[K,V]*/any>): KeyedIterable<K, V>;
-  export function KeyedIterable<K, V>(array: Array</*[K,V]*/any>): KeyedIterable<K, V>;
-  export function KeyedIterable<V>(obj: {[key: string]: V}): KeyedIterable<string, V>;
-  export function KeyedIterable<K, V>(iterator: Iterator</*[K,V]*/any>): KeyedIterable<K, V>;
-  export function KeyedIterable<K, V>(iterable: /*Iterable<[K,V]>*/Object): KeyedIterable<K, V>;
-
-  export interface KeyedIterable<K, V> extends Iterable<K, V> {
-
-    /**
-     * Returns Seq.Keyed.
-     * @override
-     */
-    toSeq(): Seq.Keyed<K, V>;
-
-
-    // Sequence functions
-
-    /**
-     * Returns a new KeyedIterable of the same type where the keys and values
-     * have been flipped.
-     *
-     *     Seq({ a: 'z', b: 'y' }).flip() // { z: 'a', y: 'b' }
-     *
-     */
-    flip(): /*this*/KeyedIterable<V, K>;
-
-    /**
-     * Returns a new KeyedIterable of the same type with keys passed through a
-     * `mapper` function.
-     *
-     *     Seq({ a: 1, b: 2 })
-     *       .mapKeys(x => x.toUpperCase())
-     *     // Seq { A: 1, B: 2 }
-     *
-     */
-    mapKeys<M>(
-      mapper: (key?: K, value?: V, iter?: /*this*/KeyedIterable<K, V>) => M,
-      context?: any
-    ): /*this*/KeyedIterable<M, V>;
-
-    /**
-     * Returns a new KeyedIterable of the same type with entries
-     * ([key, value] tuples) passed through a `mapper` function.
-     *
-     *     Seq({ a: 1, b: 2 })
-     *       .mapEntries(([k, v]) => [k.toUpperCase(), v * 2])
-     *     // Seq { A: 2, B: 4 }
-     *
-     */
-    mapEntries<KM, VM>(
-      mapper: (
-        entry?: /*(K, V)*/Array<any>,
-        index?: number,
-        iter?: /*this*/KeyedIterable<K, V>
-      ) => /*[KM, VM]*/Array<any>,
-      context?: any
-    ): /*this*/KeyedIterable<KM, VM>;
-
-
-    // Search for value
-
-    /**
-     * Returns the key associated with the search value, or undefined.
-     */
-    keyOf(searchValue: V): K;
-
-    /**
-     * Returns the last key associated with the search value, or undefined.
-     */
-    lastKeyOf(searchValue: V): K;
-
-    /**
-     * Returns the key for which the `predicate` returns true.
-     */
-    findKey(
-      predicate: (value?: V, key?: K, iter?: /*this*/KeyedIterable<K, V>) => boolean,
-      context?: any
-    ): K;
-
-    /**
-     * Returns the last key for which the `predicate` returns true.
-     *
-     * Note: `predicate` will be called for each entry in reverse.
-     */
-    findLastKey(
-      predicate: (value?: V, key?: K, iter?: /*this*/KeyedIterable<K, V>) => boolean,
-      context?: any
-    ): K;
-  }
-
-
-  /**
    * Indexed Iterables have incrementing numeric keys. They exhibit
-   * slightly different behavior than `KeyedIterable` for some methods in order
+   * slightly different behavior than `Iterable.Keyed` for some methods in order
    * to better mirror the behavior of JavaScript's `Array`, and add methods
    * which do not make sense on non-indexed Iterables such as `indexOf`.
    *
@@ -2239,8 +2241,8 @@ declare module Immutable {
    *
    * All IndexedIterable methods return re-indexed Iterables. In other words,
    * indices always start at 0 and increment until size. If you wish to
-   * preserve indices, using them as keys, convert to a KeyedIterable by calling
-   * `toKeyedSeq`.
+   * preserve indices, using them as keys, convert to a Iterable.Keyed by
+   * calling `toKeyedSeq`.
    */
   export module IndexedIterable {}
 
@@ -2249,7 +2251,7 @@ declare module Immutable {
    */
   export function IndexedIterable<T>(iter: IndexedIterable<T>): IndexedIterable<T>;
   export function IndexedIterable<T>(iter: SetIterable<T>): IndexedIterable<T>;
-  export function IndexedIterable<K, V>(iter: KeyedIterable<K, V>): IndexedIterable</*[K,V]*/any>;
+  export function IndexedIterable<K, V>(iter: Iterable.Keyed<K, V>): IndexedIterable</*[K,V]*/any>;
   export function IndexedIterable<T>(array: Array<T>): IndexedIterable<T>;
   export function IndexedIterable<T>(iterator: Iterator<T>): IndexedIterable<T>;
   export function IndexedIterable<T>(iterable: /*Iterable<T>*/Object): IndexedIterable<T>;
@@ -2419,7 +2421,7 @@ declare module Immutable {
    */
   export function SetIterable<T>(iter: SetIterable<T>): SetIterable<T>;
   export function SetIterable<T>(iter: IndexedIterable<T>): SetIterable<T>;
-  export function SetIterable<K, V>(iter: KeyedIterable<K, V>): SetIterable</*[K,V]*/any>;
+  export function SetIterable<K, V>(iter: Iterable.Keyed<K, V>): SetIterable</*[K,V]*/any>;
   export function SetIterable<T>(array: Array<T>): SetIterable<T>;
   export function SetIterable<T>(iterator: Iterator<T>): SetIterable<T>;
   export function SetIterable<T>(iterable: /*Iterable<T>*/Object): SetIterable<T>;
@@ -2457,7 +2459,7 @@ declare module Immutable {
    */
   export module KeyedCollection {}
 
-  export interface KeyedCollection<K, V> extends Collection<K, V>, KeyedIterable<K, V> {
+  export interface KeyedCollection<K, V> extends Collection<K, V>, Iterable.Keyed<K, V> {
 
     /**
      * Returns Seq.Keyed.
