@@ -1192,6 +1192,33 @@ declare module Immutable {
      */
     function of<T>(...values: T[]): Seq.Indexed<T>;
 
+
+    /**
+     * `Seq` which represents key-value pairs.
+     */
+    export module Keyed {}
+
+    /**
+     * Always returns a Seq.Keyed, if input is not keyed, expects an
+     * iterable of [K, V] tuples.
+     */
+    export function Keyed<K, V>(): Seq.Keyed<K, V>;
+    export function Keyed<K, V>(seq: KeyedIterable<K, V>): Seq.Keyed<K, V>;
+    export function Keyed<K, V>(seq: Iterable<any, /*[K,V]*/any>): Seq.Keyed<K, V>;
+    export function Keyed<K, V>(array: Array</*[K,V]*/any>): Seq.Keyed<K, V>;
+    export function Keyed<V>(obj: {[key: string]: V}): Seq.Keyed<string, V>;
+    export function Keyed<K, V>(iterator: Iterator</*[K,V]*/any>): Seq.Keyed<K, V>;
+    export function Keyed<K, V>(iterable: /*Iterable<[K,V]>*/Object): Seq.Keyed<K, V>;
+
+    export interface Keyed<K, V> extends Seq<K, V>, KeyedIterable<K, V> {
+
+      /**
+       * Returns itself
+       */
+      toSeq(): /*this*/Seq.Keyed<K, V>
+    }
+
+
     /**
      * `Seq` which represents an ordered indexed list of values.
      */
@@ -1269,14 +1296,14 @@ declare module Immutable {
    *   * If an Array-like, an `Seq.Indexed`.
    *   * If an Object with an Iterator, an `Seq.Indexed`.
    *   * If an Iterator, an `Seq.Indexed`.
-   *   * If an Object, a `KeyedSeq`.
+   *   * If an Object, a `Seq.Keyed`.
    *
    */
   export function Seq<K, V>(): Seq<K, V>;
   export function Seq<K, V>(seq: Seq<K, V>): Seq<K, V>;
   export function Seq<K, V>(iterable: Iterable<K, V>): Seq<K, V>;
   export function Seq<T>(array: Array<T>): Seq.Indexed<T>;
-  export function Seq<V>(obj: {[key: string]: V}): KeyedSeq<string, V>;
+  export function Seq<V>(obj: {[key: string]: V}): Seq.Keyed<string, V>;
   export function Seq<T>(iterator: Iterator<T>): Seq.Indexed<T>;
   export function Seq<T>(iterable: /*ES6Iterable<T>*/Object): Seq.Indexed<T>;
 
@@ -1318,32 +1345,6 @@ declare module Immutable {
      * Note: after calling `cacheResult`, a Seq will always have a `size`.
      */
     cacheResult(): /*this*/Seq<K, V>;
-  }
-
-
-  /**
-   * `Seq` which represents key-value pairs.
-   */
-  export module KeyedSeq {}
-
-  /**
-   * Always returns a KeyedSeq, if input is not keyed, expects an
-   * iterable of [K, V] tuples.
-   */
-  export function KeyedSeq<K, V>(): KeyedSeq<K, V>;
-  export function KeyedSeq<K, V>(seq: KeyedIterable<K, V>): KeyedSeq<K, V>;
-  export function KeyedSeq<K, V>(seq: Iterable<any, /*[K,V]*/any>): KeyedSeq<K, V>;
-  export function KeyedSeq<K, V>(array: Array</*[K,V]*/any>): KeyedSeq<K, V>;
-  export function KeyedSeq<V>(obj: {[key: string]: V}): KeyedSeq<string, V>;
-  export function KeyedSeq<K, V>(iterator: Iterator</*[K,V]*/any>): KeyedSeq<K, V>;
-  export function KeyedSeq<K, V>(iterable: /*Iterable<[K,V]>*/Object): KeyedSeq<K, V>;
-
-  export interface KeyedSeq<K, V> extends Seq<K, V>, KeyedIterable<K, V> {
-
-    /**
-     * Returns itself
-     */
-    toSeq(): /*this*/KeyedSeq<K, V>
   }
 
   /**
@@ -1579,7 +1580,7 @@ declare module Immutable {
     toSeq(): Seq<K, V>;
 
     /**
-     * Returns a KeyedSeq from this Iterable where indices are treated as keys.
+     * Returns a Seq.Keyed from this Iterable where indices are treated as keys.
      *
      * This is useful if you want to operate on an
      * IndexedIterable and preserve the [index, value] pairs.
@@ -1595,7 +1596,7 @@ declare module Immutable {
      *     keyedSeq.filter(v => v === 'B').toString() // Seq { 1: 'B' }
      *
      */
-    toKeyedSeq(): KeyedSeq<K, V>;
+    toKeyedSeq(): Seq.Keyed<K, V>;
 
     /**
      * Returns an Seq.Indexed of the values of this Iterable, discarding keys.
@@ -1731,7 +1732,7 @@ declare module Immutable {
     groupBy<G>(
       grouper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => G,
       context?: any
-    ): /*Map*/KeyedSeq<G, /*this*/Iterable<K, V>>;
+    ): /*Map*/Seq.Keyed<G, /*this*/Iterable<K, V>>;
 
 
     // Side effects
@@ -1979,7 +1980,7 @@ declare module Immutable {
     ): number;
 
     /**
-     * Returns a `KeyedSeq` of counts, grouped by the return value of
+     * Returns a `Seq.Keyed` of counts, grouped by the return value of
      * the `grouper` function.
      *
      * Note: This is not a lazy operation.
@@ -2144,10 +2145,10 @@ declare module Immutable {
   export interface KeyedIterable<K, V> extends Iterable<K, V> {
 
     /**
-     * Returns KeyedSeq.
+     * Returns Seq.Keyed.
      * @override
      */
-    toSeq(): KeyedSeq<K, V>;
+    toSeq(): Seq.Keyed<K, V>;
 
 
     // Sequence functions
@@ -2277,9 +2278,9 @@ declare module Immutable {
 
     /**
      * If this is an iterable of [key, value] entry tuples, it will return a
-     * KeyedSeq of those entries.
+     * Seq.Keyed of those entries.
      */
-    fromEntrySeq(): KeyedSeq<any, any>;
+    fromEntrySeq(): Seq.Keyed<any, any>;
 
 
     // Combination
@@ -2459,10 +2460,10 @@ declare module Immutable {
   export interface KeyedCollection<K, V> extends Collection<K, V>, KeyedIterable<K, V> {
 
     /**
-     * Returns KeyedSeq.
+     * Returns Seq.Keyed.
      * @override
      */
-    toSeq(): KeyedSeq<K, V>;
+    toSeq(): Seq.Keyed<K, V>;
   }
 
 
