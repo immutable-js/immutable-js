@@ -4862,6 +4862,7 @@
   });
 
   SetIterable.prototype.has = IterablePrototype.includes;
+  SetIterable.prototype.contains = SetIterable.prototype.includes;
 
 
   // Mixin subclasses
