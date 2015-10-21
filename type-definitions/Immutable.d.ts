@@ -1077,7 +1077,7 @@ declare module Immutable {
   /**
    * Creates a new Class which produces Record instances. A record is similar to
    * a JS object, but enforce a specific set of allowed string keys, and have
-   * default values.
+   * default values. A record is a `Map` and so exposes the same API as `Map`.
    *
    *     var ABRecord = Record({a:1, b:2})
    *     var myRecord = new ABRecord({b:3})
