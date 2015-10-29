@@ -495,6 +495,12 @@ declare module Immutable {
     update(key: K, updater: (value: V) => V): Map<K, V>;
     update(key: K, notSetValue: V, updater: (value: V) => V): Map<K, V>;
 
+     /**
+     * Returns a Map excluding any key value pair with keys contained within `iterables`.
+     */
+    subtract(...iterables: Iterable<any, K>[]): Map<K, V>;
+    subtract(...iterables: Array<K>[]): Map<K, V>;
+
     /**
      * Returns a new Map resulting from merging the provided Iterables
      * (or JS objects) into this Map. In other words, this takes each entry of
