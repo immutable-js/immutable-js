@@ -322,4 +322,12 @@ describe('Map', () => {
     expect(Immutable.is(m1, m2)).toBe(true);
   });
 
+  it('can be subtracted from given a list or set of keys to remove', () => {
+    var m1 = Map({ A: 1, B: 2, C: 3, D: 4 });
+    var m2 = m1.subtract(Immutable.Set(['B', 'C']));
+    var m3 = m1.subtract(Immutable.List(['A', 'B']));
+    expect(m2.toObject()).toEqual({ A: 1, D: 4});
+    expect(m3.toObject()).toEqual({ C: 3, D: 4});
+  });
+
 });
