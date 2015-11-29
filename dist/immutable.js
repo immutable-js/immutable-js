@@ -3799,6 +3799,8 @@
     return EMPTY_ORDERED_SET || (EMPTY_ORDERED_SET = makeOrderedSet(emptyOrderedMap()));
   }
 
+  var UNSUPPORTED_OPS = ['map', 'reduce', 'filter', 'sort', 'groupBy', 'sortBy', 'reduceRight', 'every', 'some'];
+
   createClass(Record, KeyedCollection);
 
     function Record(defaultValues, name) {
@@ -3922,6 +3924,9 @@
   RecordPrototype.withMutations = MapPrototype.withMutations;
   RecordPrototype.asMutable = MapPrototype.asMutable;
   RecordPrototype.asImmutable = MapPrototype.asImmutable;
+  UNSUPPORTED_OPS.forEach(function(op)  {
+    RecordPrototype[op] = undefined;
+  });
 
 
   function makeRecord(likeRecord, map, ownerID) {

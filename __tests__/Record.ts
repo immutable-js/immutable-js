@@ -95,4 +95,10 @@ describe('Record', () => {
     expect(t.get('c')).toBeUndefined();
   })
 
+  it('does not support homogeneous collection ops', () => {
+    var MyType = Record({a:1, b:2, c:3});
+    var t = new MyType();
+    expect(t.map).toBeUndefined();
+  });
+
 });
