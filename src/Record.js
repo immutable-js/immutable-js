@@ -14,6 +14,7 @@ import { DELETE } from './TrieUtils'
 
 import invariant from './utils/invariant'
 
+const UNSUPPORTED_OPS = ['map', 'reduce', 'filter', 'sort', 'groupBy', 'sortBy', 'reduceRight', 'every', 'some'];
 
 export class Record extends KeyedCollection {
 
@@ -138,6 +139,9 @@ RecordPrototype.updateIn = MapPrototype.updateIn;
 RecordPrototype.withMutations = MapPrototype.withMutations;
 RecordPrototype.asMutable = MapPrototype.asMutable;
 RecordPrototype.asImmutable = MapPrototype.asImmutable;
+UNSUPPORTED_OPS.forEach((op) => {
+  RecordPrototype[op] = undefined;
+});
 
 
 function makeRecord(likeRecord, map, ownerID) {
