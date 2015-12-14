@@ -1161,7 +1161,7 @@ declare module Immutable {
    *
    * Once the Seq is used, it performs only the work necessary. In this
    * example, no intermediate data structures are ever created, filter is only
-   * called three times, and map is only called twice:
+   * called three times, and map is only called once:
    *
    *     console.log(evenSquares.get(1)); // 9
    *
