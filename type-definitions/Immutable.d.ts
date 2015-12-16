@@ -1093,7 +1093,9 @@ declare module Immutable {
    *     myRecordWithoutB.size // 2
    *
    * Values provided to the constructor not found in the Record type will
-   * be ignored:
+   * be ignored. For example, in this case, ABRecord is provided a key "x" even
+   * though only "a" and "b" have been defined. The value for "x" will be
+   * ignored for this record.
    *
    *     var myRecord = new ABRecord({b:3, x:10})
    *     myRecord.get('x') // undefined
