@@ -55,6 +55,14 @@ describe('merge', () => {
     expect(m1.mergeDeep(m2)).is(I.fromJS({a:{b:{c:10,d:2,e:20},f:30},g:40}));
   })
 
+  it('deep merge uses is() for return-self optimization', () =>  {
+    var date1 = new Date(1234567890000);
+    var date2 = new Date(1234567890000);
+    var m = I.Map().setIn(['a', 'b', 'c'], date1);
+    var m2 = m.mergeDeep({a:{b:{c: date2 }}});
+    expect(m2 === m).toBe(true);
+  })
+
   it('deep merges raw JS', () => {
     var m1 = I.fromJS({a:{b:{c:1,d:2}}});
     var js = {a:{b:{c:10,e:20},f:30},g:40};

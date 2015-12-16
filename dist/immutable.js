@@ -1307,11 +1307,11 @@
     };
 
     Map.prototype.mergeDeep = function(/*...iters*/) {
-      return mergeIntoMapWith(this, deepMerger(undefined), arguments);
+      return mergeIntoMapWith(this, deepMerger, arguments);
     };
 
     Map.prototype.mergeDeepWith = function(merger) {var iters = SLICE$0.call(arguments, 1);
-      return mergeIntoMapWith(this, deepMerger(merger), iters);
+      return mergeIntoMapWith(this, deepMergerWith(merger), iters);
     };
 
     Map.prototype.mergeDeepIn = function(keyPath) {var iters = SLICE$0.call(arguments, 1);
@@ -1911,11 +1911,20 @@
     return mergeIntoCollectionWith(map, merger, iters);
   }
 
-  function deepMerger(merger) {
-    return function(existing, value, key) 
-      {return existing && existing.mergeDeepWith && isIterable(value) ?
-        existing.mergeDeepWith(merger, value) :
-        merger ? merger(existing, value, key) : value};
+  function deepMerger(existing, value, key) {
+    return existing && existing.mergeDeep && isIterable(value) ?
+      existing.mergeDeep(value) :
+      is(existing, value) ? existing : value;
+  }
+
+  function deepMergerWith(merger) {
+    return function(existing, value, key)  {
+      if (existing && existing.mergeDeepWith && isIterable(value)) {
+        return existing.mergeDeepWith(merger, value);
+      }
+      var nextValue = merger(existing, value, key);
+      return is(existing, nextValue) ? existing : nextValue;
+    };
   }
 
   function mergeIntoCollectionWith(collection, merger, iters) {
@@ -2141,11 +2150,11 @@
     };
 
     List.prototype.mergeDeep = function(/*...iters*/) {
-      return mergeIntoListWith(this, deepMerger(undefined), arguments);
+      return mergeIntoListWith(this, deepMerger, arguments);
     };
 
     List.prototype.mergeDeepWith = function(merger) {var iters = SLICE$0.call(arguments, 1);
-      return mergeIntoListWith(this, deepMerger(merger), iters);
+      return mergeIntoListWith(this, deepMergerWith(merger), iters);
     };
 
     List.prototype.setSize = function(size) {
