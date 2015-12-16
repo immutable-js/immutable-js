@@ -1126,7 +1126,7 @@ declare module Immutable {
    *
    */
   export module Record {
-    interface Class {
+    export interface Class {
       new (): Map<string, any>;
       new (values: {[key: string]: any}): Map<string, any>;
       new (values: Iterable<string, any>): Map<string, any>; // deprecated
