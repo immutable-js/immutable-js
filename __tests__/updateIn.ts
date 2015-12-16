@@ -155,6 +155,14 @@ describe('updateIn', () => {
     expect(spiedOnID).toBe(undefined);
   })
 
+  it('uses is() for final value equality', () =>  {
+    var date1 = new Date(1234567890000)
+    var date2 = new Date(1234567890000)
+    var m = I.Map().setIn(['a', 'b', 'c'], date1);
+    var m2 = m.updateIn(['a', 'b', 'c'], () => date2);
+    expect(m2.getIn(['a', 'b', 'c'])).toBe(date1);
+  })
+
   describe('setIn', () => {
 
     it('provides shorthand for updateIn to set a single value', () => {
