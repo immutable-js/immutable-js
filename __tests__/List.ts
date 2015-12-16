@@ -406,6 +406,13 @@ describe('List', () => {
     expect(v.indexOf('d')).toBe(-1);
   });
 
+  it('finds values using lastIndexOf', () => {
+    var v = List.of('a', 'b', 'c', 'b', 'a');
+    expect(v.lastIndexOf('b')).toBe(3);
+    expect(v.lastIndexOf('c')).toBe(2);
+    expect(v.lastIndexOf('d')).toBe(-1);
+  });
+
   it('finds values using findIndex', () => {
     var v = List.of('a', 'b', 'c', 'B', 'a');
     expect(v.findIndex(value => value.toUpperCase() === value)).toBe(3);
