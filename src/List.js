@@ -37,7 +37,7 @@ export class List extends IndexedCollection {
     }
     assertNotInfinite(size);
     if (size > 0 && size < SIZE) {
-      return makeList(0, size, SHIFT, null, new VNode(iter.toArray()));
+      return makeList(null, 0, size, SHIFT, null, new VNode(iter.toArray()));
     }
     return empty.withMutations(list => {
       list.setSize(size);
@@ -193,7 +193,7 @@ export class List extends IndexedCollection {
       this.__ownerID = ownerID;
       return this;
     }
-    return makeList(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
+    return makeList(this, this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
   }
 }
 
@@ -350,8 +350,9 @@ function iterateList(list, reverse) {
   }
 }
 
-function makeList(origin, capacity, level, root, tail, ownerID, hash) {
-  var list = Object.create(ListPrototype);
+function makeList(prevList, origin, capacity, level, root, tail, ownerID, hash) {
+  var prototype = prevList && (Object.getPrototypeOf ? Object.getPrototypeOf(prevList) : prevList.__proto__);
+  var list = Object.create(prototype || ListPrototype);
   list.size = capacity - origin;
   list._origin = origin;
   list._capacity = capacity;
@@ -366,7 +367,7 @@ function makeList(origin, capacity, level, root, tail, ownerID, hash) {
 
 var EMPTY_LIST;
 export function emptyList() {
-  return EMPTY_LIST || (EMPTY_LIST = makeList(0, 0, SHIFT));
+  return EMPTY_LIST || (EMPTY_LIST = makeList(null, 0, 0, SHIFT));
 }
 
 function updateList(list, index, value) {
@@ -406,7 +407,7 @@ function updateList(list, index, value) {
     list.__altered = true;
     return list;
   }
-  return makeList(list._origin, list._capacity, list._level, newRoot, newTail);
+  return makeList(list, list._origin, list._capacity, list._level, newRoot, newTail);
 }
 
 function updateVNode(node, ownerID, level, index, value, didAlter) {
@@ -586,7 +587,7 @@ function setListBounds(list, begin, end) {
     list.__altered = true;
     return list;
   }
-  return makeList(newOrigin, newCapacity, newLevel, newRoot, newTail);
+  return makeList(list, newOrigin, newCapacity, newLevel, newRoot, newTail);
 }
 
 function mergeIntoListWith(list, merger, iterables) {

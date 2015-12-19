@@ -191,7 +191,7 @@ export class Map extends KeyedCollection {
       this.__altered = false;
       return this;
     }
-    return makeMap(this.size, this._root, ownerID, this.__hash);
+    return makeMap(this, this.size, this._root, ownerID, this.__hash);
   }
 }
 
@@ -602,8 +602,9 @@ function mapIteratorFrame(node, prev) {
   };
 }
 
-function makeMap(size, root, ownerID, hash) {
-  var map = Object.create(MapPrototype);
+function makeMap(prevMap, size, root, ownerID, hash) {
+  var prototype = prevMap && (Object.getPrototypeOf ? Object.getPrototypeOf(prevMap) : prevMap.__proto__);
+  var map = Object.create(prototype || MapPrototype);
   map.size = size;
   map._root = root;
   map.__ownerID = ownerID;
@@ -614,7 +615,7 @@ function makeMap(size, root, ownerID, hash) {
 
 var EMPTY_MAP;
 export function emptyMap() {
-  return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
+  return EMPTY_MAP || (EMPTY_MAP = makeMap(null, 0));
 }
 
 function updateMap(map, k, v) {
@@ -642,7 +643,7 @@ function updateMap(map, k, v) {
     map.__altered = true;
     return map;
   }
-  return newRoot ? makeMap(newSize, newRoot) : emptyMap();
+  return newRoot ? makeMap(map, newSize, newRoot) : emptyMap();
 }
 
 function updateNode(node, ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
