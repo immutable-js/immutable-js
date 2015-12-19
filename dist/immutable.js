@@ -1376,7 +1376,7 @@
         this.__altered = false;
         return this;
       }
-      return makeMap(this.size, this._root, ownerID, this.__hash);
+      return makeMap(this, this.size, this._root, ownerID, this.__hash);
     };
 
 
@@ -1787,8 +1787,9 @@
     };
   }
 
-  function makeMap(size, root, ownerID, hash) {
-    var map = Object.create(MapPrototype);
+  function makeMap(prevMap, size, root, ownerID, hash) {
+    var prototype = prevMap && (Object.getPrototypeOf ? Object.getPrototypeOf(prevMap) : prevMap.__proto__);
+    var map = Object.create(prototype || MapPrototype);
     map.size = size;
     map._root = root;
     map.__ownerID = ownerID;
@@ -1799,7 +1800,7 @@
 
   var EMPTY_MAP;
   function emptyMap() {
-    return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
+    return EMPTY_MAP || (EMPTY_MAP = makeMap(null, 0));
   }
 
   function updateMap(map, k, v) {
@@ -1827,7 +1828,7 @@
       map.__altered = true;
       return map;
     }
-    return newRoot ? makeMap(newSize, newRoot) : emptyMap();
+    return newRoot ? makeMap(map, newSize, newRoot) : emptyMap();
   }
 
   function updateNode(node, ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
@@ -2050,7 +2051,7 @@
       }
       assertNotInfinite(size);
       if (size > 0 && size < SIZE) {
-        return makeList(0, size, SHIFT, null, new VNode(iter.toArray()));
+        return makeList(null, 0, size, SHIFT, null, new VNode(iter.toArray()));
       }
       return empty.withMutations(function(list ) {
         list.setSize(size);
@@ -2206,7 +2207,7 @@
         this.__ownerID = ownerID;
         return this;
       }
-      return makeList(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
+      return makeList(this, this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
     };
 
 
@@ -2363,8 +2364,9 @@
     }
   }
 
-  function makeList(origin, capacity, level, root, tail, ownerID, hash) {
-    var list = Object.create(ListPrototype);
+  function makeList(prevList, origin, capacity, level, root, tail, ownerID, hash) {
+    var prototype = prevList && (Object.getPrototypeOf ? Object.getPrototypeOf(prevList) : prevList.__proto__);
+    var list = Object.create(prototype || ListPrototype);
     list.size = capacity - origin;
     list._origin = origin;
     list._capacity = capacity;
@@ -2379,7 +2381,7 @@
 
   var EMPTY_LIST;
   function emptyList() {
-    return EMPTY_LIST || (EMPTY_LIST = makeList(0, 0, SHIFT));
+    return EMPTY_LIST || (EMPTY_LIST = makeList(null, 0, 0, SHIFT));
   }
 
   function updateList(list, index, value) {
@@ -2419,7 +2421,7 @@
       list.__altered = true;
       return list;
     }
-    return makeList(list._origin, list._capacity, list._level, newRoot, newTail);
+    return makeList(list, list._origin, list._capacity, list._level, newRoot, newTail);
   }
 
   function updateVNode(node, ownerID, level, index, value, didAlter) {
@@ -2599,7 +2601,7 @@
       list.__altered = true;
       return list;
     }
-    return makeList(newOrigin, newCapacity, newLevel, newRoot, newTail);
+    return makeList(list, newOrigin, newCapacity, newLevel, newRoot, newTail);
   }
 
   function mergeIntoListWith(list, merger, iterables) {
@@ -2705,7 +2707,7 @@
         this._list = newList;
         return this;
       }
-      return makeOrderedMap(newMap, newList, ownerID, this.__hash);
+      return makeOrderedMap(this, newMap, newList, ownerID, this.__hash);
     };
 
 
@@ -2720,8 +2722,9 @@
 
 
 
-  function makeOrderedMap(map, list, ownerID, hash) {
-    var omap = Object.create(OrderedMap.prototype);
+  function makeOrderedMap(prevOMap, map, list, ownerID, hash) {
+    var prototype = prevOMap && (Object.getPrototypeOf ? Object.getPrototypeOf(prevOMap) : prevOMap.__proto__);
+    var omap = Object.create(prototype || OrderedMap.prototype);
     omap.size = map ? map.size : 0;
     omap._map = map;
     omap._list = list;
@@ -2732,7 +2735,7 @@
 
   var EMPTY_ORDERED_MAP;
   function emptyOrderedMap() {
-    return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(emptyMap(), emptyList()));
+    return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(null, emptyMap(), emptyList()));
   }
 
   function updateOrderedMap(omap, k, v) {
@@ -2775,7 +2778,7 @@
       omap.__hash = undefined;
       return omap;
     }
-    return makeOrderedMap(newMap, newList);
+    return makeOrderedMap(omap, newMap, newList);
   }
 
   createClass(ToKeyedSequence, KeyedSeq);
@@ -4748,9 +4751,6 @@
     lastIndexOf: function(searchValue) {
       var key = this.toKeyedSeq().reverse().keyOf(searchValue);
       return key === undefined ? -1 : key;
-
-      // var index =
-      // return this.toSeq().reverse().indexOf(searchValue);
     },
 
     reverse: function() {

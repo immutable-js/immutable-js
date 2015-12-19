@@ -93,7 +93,7 @@ export class OrderedMap extends Map {
       this._list = newList;
       return this;
     }
-    return makeOrderedMap(newMap, newList, ownerID, this.__hash);
+    return makeOrderedMap(this, newMap, newList, ownerID, this.__hash);
   }
 }
 
@@ -108,8 +108,9 @@ OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
 
 
 
-function makeOrderedMap(map, list, ownerID, hash) {
-  var omap = Object.create(OrderedMap.prototype);
+function makeOrderedMap(prevOMap, map, list, ownerID, hash) {
+  var prototype = prevOMap && (Object.getPrototypeOf ? Object.getPrototypeOf(prevOMap) : prevOMap.__proto__);
+  var omap = Object.create(prototype || OrderedMap.prototype);
   omap.size = map ? map.size : 0;
   omap._map = map;
   omap._list = list;
@@ -120,7 +121,7 @@ function makeOrderedMap(map, list, ownerID, hash) {
 
 var EMPTY_ORDERED_MAP;
 export function emptyOrderedMap() {
-  return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(emptyMap(), emptyList()));
+  return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(null, emptyMap(), emptyList()));
 }
 
 function updateOrderedMap(omap, k, v) {
@@ -163,5 +164,5 @@ function updateOrderedMap(omap, k, v) {
     omap.__hash = undefined;
     return omap;
   }
-  return makeOrderedMap(newMap, newList);
+  return makeOrderedMap(omap, newMap, newList);
 }
