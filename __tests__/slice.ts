@@ -97,6 +97,13 @@ describe('slice', () => {
     expect(v.slice(31).toList().toArray()).toEqual(a.slice(31));
   })
 
+  it('does not slice by floating-point numbers', () => {
+    var seq = Seq([0,1,2,3,4,5]);
+    var sliced = seq.slice(0, 2.6);
+    expect(sliced.size).toEqual(2);
+    expect(sliced.toArray()).toEqual([0, 1]);
+  })
+
   it('can create an iterator', () => {
     var seq = Seq([0,1,2,3,4,5]);
     var iterFront = seq.slice(0,2).values();
@@ -152,7 +159,7 @@ describe('slice', () => {
       expect(sliced.toArray()).toEqual([1, 2, 3]);
       expect(sliced.toArray()).toEqual([1, 2, 3]);
     })
-    
+
     it('converts to array with correct length', () => {
       var seq = Seq.of(1,2,3,4,5,6);
       var s1 = seq.take(3);

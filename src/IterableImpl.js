@@ -565,7 +565,8 @@ mixin(IndexedIterable, {
   },
 
   lastIndexOf(searchValue) {
-    return this.toSeq().reverse().indexOf(searchValue);
+    var key = this.toKeyedSeq().reverse().keyOf(searchValue);
+    return key === undefined ? -1 : key;
   },
 
   reverse() {

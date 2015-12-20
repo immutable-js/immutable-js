@@ -406,6 +406,13 @@ describe('List', () => {
     expect(v.indexOf('d')).toBe(-1);
   });
 
+  it('finds values using lastIndexOf', () => {
+    var v = List.of('a', 'b', 'c', 'b', 'a');
+    expect(v.lastIndexOf('b')).toBe(3);
+    expect(v.lastIndexOf('c')).toBe(2);
+    expect(v.lastIndexOf('d')).toBe(-1);
+  });
+
   it('finds values using findIndex', () => {
     var v = List.of('a', 'b', 'c', 'B', 'a');
     expect(v.findIndex(value => value.toUpperCase() === value)).toBe(3);
@@ -482,6 +489,24 @@ describe('List', () => {
     expect(v1 === v2).not.toBe(true);
     expect(v1.equals(v2)).toBe(true);
   });
+
+  it('works with insert', () => {
+    var v = List.of('a', 'b', 'c');
+    var m = v.insert(1, 'd');
+    expect(m.size).toBe(4);
+    expect(m.get(1)).toBe('d');
+
+    //works when index is greater than size of array
+    var n = v.insert(10, 'e');
+    expect(n.size).toBe(4);
+    expect(n.get(3)).toBe('e');
+
+    //works when index is negative
+    var o = v.insert(-4, 'f');
+    expect(o.size).toBe(4);
+    expect(o.get(0)).toBe('f');
+  });
+
 
   // TODO: assert that findIndex only calls the function as much as it needs to.
 

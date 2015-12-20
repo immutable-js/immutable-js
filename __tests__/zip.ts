@@ -94,7 +94,7 @@ describe('zip', () => {
     });
 
     it('with infinite lists', () => {
-      var r: I.IndexedIterable<any> = I.Range();
+      var r: I.Iterable.Indexed<any> = I.Range();
       var i = r.interleave(I.Seq.of('A','B','C'));
       expect(i.size).toBe(6);
       expect(i.toArray()).toEqual(
