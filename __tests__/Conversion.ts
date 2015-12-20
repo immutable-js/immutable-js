@@ -11,6 +11,8 @@ import Map = Immutable.Map;
 import OrderedMap = Immutable.OrderedMap;
 import List = Immutable.List;
 
+import core = require('core-js/library');
+
 declare function expect(val: any): ExpectWithIs;
 
 interface ExpectWithIs extends Expect {
@@ -172,6 +174,13 @@ describe('Conversion', () => {
   check.it('toJS isomorphic value', {maxSize: 30}, [gen.JSONValue], (js) => {
     var imm = Immutable.fromJS(js);
     expect(imm && imm.toJS ? imm.toJS() : imm).toEqual(js);
+  });
+
+  it('Explicitly convert values to string using String constructor', () => {
+    expect(() => {
+      Immutable.fromJS({foo: core.Symbol('bar')}) + '';
+      Immutable.Map().set('foo', core.Symbol('bar')) + '';
+    }).not.toThrow();
   });
 
 });
