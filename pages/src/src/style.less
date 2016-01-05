@@ -1,0 +1,179 @@
+.header {
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.pageBody {
+  padding: 0 36px;
+  position: relative;
+}
+
+.contents {
+  margin: 0 auto;
+  max-width: 740px;
+  padding: 64px 0;
+}
+
+.contents h2 {
+  margin: 4rem 0 1rem;
+}
+
+.contents h3 {
+  margin: 2rem 0 1rem;
+}
+
+.miniHeader {
+  background: #6dbcdb;
+  position: fixed;
+  width: 100%;
+  z-index: 1;
+}
+
+.miniHeaderContents {
+  margin: 0 auto;
+  max-width: 880px;
+  padding: 12px 36px;
+  text-align: right;
+}
+
+@media only screen and (max-width: 680px) {
+  .miniHeaderContents {
+    text-align: left;
+  }
+}
+
+.miniLogo {
+  float: left;
+  left: -140px;
+  top: 12px;
+}
+
+@media only screen and (max-width: 680px) {
+  .miniLogo {
+    display: none;
+  }
+}
+
+.miniLogo > .svg {
+  height: 24px;
+}
+
+.miniHeaderContents a {
+  color: #fff;
+  margin-right: 1em;
+  text-decoration: none;
+  text-shadow: 0 1px rgba(0,0,0,0.15);
+}
+
+.miniHeaderContents a:last-child {
+  margin-right: 0;
+}
+
+.cover {
+  background-color: #d7dadb;
+  height: 70vh;
+  max-height: 800px;
+  min-height: 260px;
+  outline: solid 1px rgba(0,0,0,0.2);
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  z-index: 1;
+}
+
+.coverFixed {
+  -webkit-align-items: center;
+  -webkit-flex-direction: column;
+  -webkit-justify-content: center;
+  align-items: center;
+  display: -webkit-flex;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+}
+
+.coverFixed.fixed {
+  height: 260px;
+  position: fixed;
+  top: 0;
+  width: 100%;
+}
+
+.filler {
+  -webkit-flex: 10;
+  flex: 10;
+  width: 100%;
+}
+
+.synopsis {
+  -webkit-flex: 10;
+  box-sizing: border-box;
+  flex: 10;
+  max-width: 700px;
+  padding: 0 30px;
+  position: relative;
+  width: 100%;
+}
+
+.logo {
+  bottom: 0;
+  left: 60px;
+  position: absolute;
+  right: 60px;
+  top: 0;
+}
+
+.logo > .svg {
+  height: 100%;
+  position: absolute;
+  width: 100%;
+}
+
+.buttons {
+  -webkit-align-items: center;
+  -webkit-flex: 10;
+  align-items: center;
+  display: -webkit-flex;
+  display: flex;
+  flex: 10;
+}
+
+
+
+@media only screen and (max-width: 680px) {
+
+  .cover {
+    max-height: 260px;
+  }
+
+  .miniHeader {
+    display: none;
+  }
+
+  .miniHeaderContents {
+    padding: 12px;
+    text-align: center;
+  }
+
+  .synopsis {
+    max-width: 540px;
+  }
+
+  .logo {
+    left: 30px;
+    right: 30px;
+  }
+
+  .contents {
+    padding-top: 24px;
+  }
+
+  .pageBody {
+    padding: 0 12px;
+  }
+}
