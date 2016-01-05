@@ -46,7 +46,7 @@ map2.get('b'); // 50
 
 ### Browser
 
-To use `immutable` from a browser, download [dist/immutable.min.js](./dist/immutable.min.js)
+To use `immutable` from a browser, download [dist/immutable.min.js](https://github.com/facebook/immutable-js/blob/master/dist/immutable.min.js)
 or use a CDN such as [CDNJS](https://cdnjs.com/libraries/immutable)
 or [jsDelivr](http://www.jsdelivr.com/#!immutable.js).
 
