@@ -58,7 +58,7 @@ describe('zip', () => {
     it('can zip to create immutable collections', () => {
       expect(
         I.Seq.of(1,2,3).zipWith(
-          () => I.List(arguments),
+          function () { return I.List(arguments); },
           I.Seq.of(4,5,6),
           I.Seq.of(7,8,9)
         ).toJS()
