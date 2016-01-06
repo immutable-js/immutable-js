@@ -52,7 +52,7 @@ function compileTypeScript(filePath) {
   return fs.readFileSync(outputPath, {encoding: 'utf8'});
 }
 
-function withLocalImmutable(jsSrc) {
+function withLocalImmutable(filePath, jsSrc) {
   return jsSrc.replace(
     /require\('immutable/g,
     "require('" + path.relative(path.dirname(filePath), process.cwd())
@@ -62,11 +62,11 @@ function withLocalImmutable(jsSrc) {
 module.exports = {
   process: function(src, filePath) {
     if (filePath.match(/\.ts$/) && !filePath.match(/\.d\.ts$/)) {
-      return withLocalImmutable(compileTypeScript(filePath));
+      return withLocalImmutable(filePath, compileTypeScript(filePath));
     }
 
     if (filePath.match(/\.js$/) && ~filePath.indexOf('/__tests__/')) {
-      return withLocalImmutable(react.transform(src, {harmony: true}));
+      return withLocalImmutable(filePath, react.transform(src, {harmony: true}));
     }
 
     return src;
