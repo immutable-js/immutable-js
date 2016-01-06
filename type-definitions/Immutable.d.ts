@@ -420,6 +420,11 @@ declare module Immutable {
      * True if the provided value is a Map
      */
     function isMap(maybeMap: any): boolean;
+
+    /**
+     * Creates a new Map from alternating keys and values
+     */
+    function of(...keyValues: any[]): Map<any, any>;
   }
 
   /**
