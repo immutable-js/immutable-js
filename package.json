@@ -63,6 +63,7 @@
     "gulp-util": "^3.0.1",
     "harmonize": "*",
     "jasmine-check": "^0.1.2",
+    "jest-cli": "^0.4.19",
     "jshint-stylish": "^0.4.0",
     "magic-string": "^0.2.6",
     "marked": "^0.3.2",
