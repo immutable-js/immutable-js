@@ -52,17 +52,23 @@ function compileTypeScript(filePath) {
   return fs.readFileSync(outputPath, {encoding: 'utf8'});
 }
 
+function withLocalImmutable(jsSrc) {
+  return jsSrc.replace(
+    /require\('immutable/g,
+    "require('" + path.relative(path.dirname(filePath), process.cwd())
+  );
+}
+
 module.exports = {
   process: function(src, filePath) {
     if (filePath.match(/\.ts$/) && !filePath.match(/\.d\.ts$/)) {
-      return compileTypeScript(filePath);
-    } else if (filePath.match(/\.js$/) && ~filePath.indexOf('/__tests__/')) {
-      var result = react.transform(src, {harmony: true}).replace(
-          /require\('immutable/g,
-          "require('" + path.relative(path.dirname(filePath), process.cwd())
-          );
-      return result;
+      return withLocalImmutable(compileTypeScript(filePath));
     }
+
+    if (filePath.match(/\.js$/) && ~filePath.indexOf('/__tests__/')) {
+      return withLocalImmutable(react.transform(src, {harmony: true}));
+    }
+
     return src;
   }
 };
