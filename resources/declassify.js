@@ -80,7 +80,7 @@ function declassify(source) {
             classExpr += 'function ' + className + '() {}';
           }
 
-          body.replace(node.start, node.body.start, classExpr);
+          body.overwrite(node.start, node.body.start, classExpr);
 
           // remove { } around class body
           body.remove(node.body.start, node.body.start + 1);
@@ -89,14 +89,14 @@ function declassify(source) {
 
         case 'MethodDefinition':
           if (node.key.name === 'constructor') {
-            body.replace(
+            body.overwrite(
               node.key.start,
               node.key.end,
               'function ' + classInfo.name
             );
           } else {
             var methodName = node.key.name;
-            body.replace(
+            body.overwrite(
               node.start,
               node.key.end,
               classInfo.name + (node.static ? '.' : '.prototype.') +

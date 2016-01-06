@@ -34,9 +34,9 @@ var SRC_DIR = './pages/src/';
 var BUILD_DIR = './pages/out/';
 
 gulp.task('clean', function (done) {
-  del([
+  return del([
     BUILD_DIR,
-  ], {force: true}, done);
+  ], {force: true});
 });
 
 gulp.task('readme', function() {
