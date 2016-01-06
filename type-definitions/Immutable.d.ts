@@ -57,7 +57,7 @@ declare module Immutable {
    *
    * `reviver` acts similarly to the [same parameter in `JSON.parse`][1].
    *
-   * `Immutable.fromJS` is conservative in it's conversion. It will only convert
+   * `Immutable.fromJS` is conservative in its conversion. It will only convert
    * arrays which pass `Array.isArray` to Lists, and only raw objects (no custom
    * prototype) to Map.
    *
