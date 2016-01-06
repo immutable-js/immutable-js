@@ -4748,9 +4748,6 @@
     lastIndexOf: function(searchValue) {
       var key = this.toKeyedSeq().reverse().keyOf(searchValue);
       return key === undefined ? -1 : key;
-
-      // var index =
-      // return this.toSeq().reverse().indexOf(searchValue);
     },
 
     reverse: function() {
