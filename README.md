@@ -103,8 +103,7 @@ Much of what makes application development difficult is tracking mutation and
 maintaining state. Developing with immutable data encourages you to think
 differently about how data flows through your application.
 
-Subscribing to data events throughout your application, by using
-`Object.observe`, or any other mechanism, creates a huge overhead of
+Subscribing to data events throughout your application creates a huge overhead of
 book-keeping which can hurt performance, sometimes dramatically, and creates
 opportunities for areas of your application to get out of sync with each other
 due to easy to make programmer error. Since immutable data never changes,
