@@ -15,7 +15,7 @@
  * If you wish to use it in the browser, please check out Browserify or WebPack!
  */
 
-var Immutable = require('immutable');
+var Immutable = require('../../');
 var Iterable = Immutable.Iterable;
 var Iterator = Iterable.Iterator;
 var Seq = Immutable.Seq;
