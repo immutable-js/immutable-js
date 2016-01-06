@@ -70,9 +70,13 @@ module.exports = function(grunt) {
     this.files.map(function (file) {
       rollup.rollup({
         entry: file.src[0],
-        transform: function(source) {
-          return declassify(stripCopyright(source));
-        }
+        plugins: [
+          {
+            transform: function(source) {
+              return declassify(stripCopyright(source));
+            }
+          }
+        ]
       }).then(function (bundle) {
         var copyright = fs.readFileSync('resources/COPYRIGHT');
 
