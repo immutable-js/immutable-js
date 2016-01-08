@@ -2,15 +2,15 @@
 ///<reference path='../dist/immutable.d.ts'/>
 jest.autoMockOff();
 
-import jasmineCheck = require('jasmine-check');
+import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import Immutable = require('immutable');
+import { Seq } from 'immutable';
 
 describe('IndexedSequence', () => {
 
   it('maintains skipped offset', () => {
-    var seq = Immutable.Seq(['A', 'B', 'C', 'D', 'E']);
+    var seq = Seq(['A', 'B', 'C', 'D', 'E']);
 
     // This is what we expect for IndexedSequences
     var operated = seq.skip(1);
@@ -25,7 +25,7 @@ describe('IndexedSequence', () => {
   });
 
   it('reverses correctly', () => {
-    var seq = Immutable.Seq(['A', 'B', 'C', 'D', 'E']);
+    var seq = Seq(['A', 'B', 'C', 'D', 'E']);
 
     // This is what we expect for IndexedSequences
     var operated = seq.reverse();

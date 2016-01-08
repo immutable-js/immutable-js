@@ -3,24 +3,24 @@
 
 jest.autoMockOff();
 
-import jasmineCheck = require('jasmine-check');
+import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import Immutable = require('immutable');
+import { List, Map, Set, Seq, is } from 'immutable';
 
 describe('Equality', () => {
 
   function expectIs(left, right) {
-    var comparison = Immutable.is(left, right);
+    var comparison = is(left, right);
     expect(comparison).toBe(true);
-    var commutative = Immutable.is(right, left);
+    var commutative = is(right, left);
     expect(commutative).toBe(true);
   }
 
   function expectIsNot(left, right) {
-    var comparison = Immutable.is(left, right);
+    var comparison = is(left, right);
     expect(comparison).toBe(false);
-    var commutative = Immutable.is(right, left);
+    var commutative = is(right, left);
     expect(commutative).toBe(false);
   }
 
@@ -38,7 +38,7 @@ describe('Equality', () => {
     expectIs(NaN, NaN);
     expectIs(0, 0);
     expectIs(-0, -0);
-    // Note: Unlike Object.is, Immutable.is assumes 0 and -0 are the same value,
+    // Note: Unlike Object.is, is assumes 0 and -0 are the same value,
     // matching the behavior of ES6 Map key equality.
     expectIs(0, -0);
     expectIs(NaN, 0/0);
@@ -88,12 +88,12 @@ describe('Equality', () => {
   });
 
   it('compares sequences', () => {
-    var arraySeq = Immutable.Seq.of(1,2,3);
-    var arraySeq2 = Immutable.Seq([1,2,3]);
+    var arraySeq = Seq.of(1,2,3);
+    var arraySeq2 = Seq([1,2,3]);
     expectIs(arraySeq, arraySeq);
-    expectIs(arraySeq, Immutable.Seq.of(1,2,3));
+    expectIs(arraySeq, Seq.of(1,2,3));
     expectIs(arraySeq2, arraySeq2);
-    expectIs(arraySeq2, Immutable.Seq([1,2,3]));
+    expectIs(arraySeq2, Seq([1,2,3]));
     expectIsNot(arraySeq, [1,2,3]);
     expectIsNot(arraySeq2, [1,2,3]);
     expectIs(arraySeq, arraySeq2);
@@ -102,12 +102,12 @@ describe('Equality', () => {
   });
 
   it('compares lists', () => {
-    var list = Immutable.List.of(1,2,3);
+    var list = List.of(1,2,3);
     expectIs(list, list);
     expectIsNot(list, [1,2,3]);
 
-    expectIs(list, Immutable.Seq.of(1,2,3));
-    expectIs(list, Immutable.List.of(1,2,3));
+    expectIs(list, Seq.of(1,2,3));
+    expectIs(list, List.of(1,2,3));
 
     var listLonger = list.push(4);
     expectIsNot(list, listLonger);
@@ -119,17 +119,17 @@ describe('Equality', () => {
   var genSimpleVal = gen.returnOneOf(['A', 1]);
 
   var genVal = gen.oneOf([
-    gen.map(Immutable.List, gen.array(genSimpleVal, 0, 4)),
-    gen.map(Immutable.Set, gen.array(genSimpleVal, 0, 4)),
-    gen.map(Immutable.Map, gen.array(gen.array(genSimpleVal, 2), 0, 4))
+    gen.map(List, gen.array(genSimpleVal, 0, 4)),
+    gen.map(Set, gen.array(genSimpleVal, 0, 4)),
+    gen.map(Map, gen.array(gen.array(genSimpleVal, 2), 0, 4))
   ]);
 
   check.it('has symmetric equality', {times: 1000}, [genVal, genVal], (a, b) => {
-    expect(Immutable.is(a, b)).toBe(Immutable.is(b, a));
+    expect(is(a, b)).toBe(is(b, a));
   });
 
   check.it('has hash equality', {times: 1000}, [genVal, genVal], (a, b) => {
-    if (Immutable.is(a, b)) {
+    if (is(a, b)) {
       expect(a.hashCode()).toBe(b.hashCode());
     }
   });
@@ -138,9 +138,9 @@ describe('Equality', () => {
 
     it('differentiates decimals', () => {
       expect(
-        Immutable.Seq.of(1.5).hashCode()
+        Seq.of(1.5).hashCode()
       ).not.toBe(
-        Immutable.Seq.of(1.6).hashCode()
+        Seq.of(1.6).hashCode()
       );
     });
 

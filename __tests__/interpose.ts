@@ -3,12 +3,12 @@
 
 jest.autoMockOff();
 
-import I = require('immutable');
+import { Range } from 'immutable';
 
 describe('interpose', () => {
 
   it('separates with a value', () => {
-    var range = I.Range(10, 15);
+    var range = Range(10, 15);
     var interposed = range.interpose(0);
     expect(interposed.toArray()).toEqual(
       [ 10, 0, 11, 0, 12, 0, 13, 0, 14 ]
@@ -16,7 +16,7 @@ describe('interpose', () => {
   })
 
   it('can be iterated', () => {
-    var range = I.Range(10, 15);
+    var range = Range(10, 15);
     var interposed = range.interpose(0);
     var values = interposed.values();
     expect(values.next()).toEqual({ value: 10, done: false });

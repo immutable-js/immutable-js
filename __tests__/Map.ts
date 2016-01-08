@@ -3,11 +3,10 @@
 
 jest.autoMockOff();
 
-import jasmineCheck = require('jasmine-check');
+import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import Immutable = require('immutable');
-import Map = Immutable.Map;
+import { Map, Seq, List, Range, is } from 'immutable';
 
 describe('Map', () => {
 
@@ -36,7 +35,7 @@ describe('Map', () => {
   });
 
   it('constructor provides initial values as sequence', () => {
-    var s = Immutable.Seq({'a': 'A', 'b': 'B', 'c': 'C'});
+    var s = Seq({'a': 'A', 'b': 'B', 'c': 'C'});
     var m = Map(s);
     expect(m.size).toBe(3);
     expect(m.get('a')).toBe('A');
@@ -45,10 +44,10 @@ describe('Map', () => {
   });
 
   it('constructor provides initial values as list of lists', () => {
-    var l = Immutable.List([
-      Immutable.List(['a', 'A']),
-      Immutable.List(['b', 'B']),
-      Immutable.List(['c', 'C'])
+    var l = List([
+      List(['a', 'A']),
+      List(['b', 'B']),
+      List(['c', 'C'])
     ]);
     var m = Map(l);
     expect(m.size).toBe(3);
@@ -170,7 +169,7 @@ describe('Map', () => {
   });
 
   check.it('deletes down to empty map', [gen.posInt], size => {
-    var m = Immutable.Range(0, size).toMap();
+    var m = Range(0, size).toMap();
     expect(m.size).toBe(size);
     for (var ii = size - 1; ii >= 0; ii--) {
       m = m.remove(ii);
@@ -190,7 +189,7 @@ describe('Map', () => {
 
   it('can map items known to hash collide', () => {
     // make a big map, so it hashmaps
-    var m: Map<any, any> = Immutable.Range(0, 32).toMap();
+    var m: Map<any, any> = Range(0, 32).toMap();
     var m = m.set('AAA', 'letters').set(64545, 'numbers');
     expect(m.size).toBe(34);
     expect(m.get('AAA')).toEqual('letters');
@@ -199,7 +198,7 @@ describe('Map', () => {
 
   it('can progressively add items known to collide', () => {
     // make a big map, so it hashmaps
-    var map: Map<any, any> = Immutable.Range(0, 32).toMap();
+    var map: Map<any, any> = Range(0, 32).toMap();
     map = map.set('@', '@');
     map = map.set(64, 64);
     map = map.set(96, 96);
@@ -256,7 +255,7 @@ describe('Map', () => {
   });
 
   check.it('works like an object', {maxSize: 50}, [gen.object(gen.JSONPrimitive)], obj => {
-    var map = Immutable.Map(obj);
+    var map = Map(obj);
     Object.keys(obj).forEach(key => {
       expect(map.get(key)).toBe(obj[key]);
       expect(map.has(key)).toBe(true);
@@ -271,17 +270,17 @@ describe('Map', () => {
   });
 
   check.it('sets', {maxSize: 5000}, [gen.posInt], len => {
-    var map = Immutable.Map();
+    var map = Map();
     for (var ii = 0; ii < len; ii++) {
       expect(map.size).toBe(ii);
       map = map.set(''+ii, ii);
     }
     expect(map.size).toBe(len);
-    expect(Immutable.is(map.toSet(), Immutable.Range(0, len).toSet())).toBe(true);
+    expect(is(map.toSet(), Range(0, len).toSet())).toBe(true);
   });
 
   check.it('has and get', {maxSize: 5000}, [gen.posInt], len => {
-    var map = Immutable.Range(0, len).toKeyedSeq().mapKeys(x => ''+x).toMap();
+    var map = Range(0, len).toKeyedSeq().mapKeys(x => ''+x).toMap();
     for (var ii = 0; ii < len; ii++) {
       expect(map.get(''+ii)).toBe(ii);
       expect(map.has(''+ii)).toBe(true);
@@ -289,7 +288,7 @@ describe('Map', () => {
   });
 
   check.it('deletes', {maxSize: 5000}, [gen.posInt], len => {
-    var map = Immutable.Range(0, len).toMap();
+    var map = Range(0, len).toMap();
     for (var ii = 0; ii < len; ii++) {
       expect(map.size).toBe(len - ii);
       map = map.remove(ii);
@@ -299,7 +298,7 @@ describe('Map', () => {
   });
 
   check.it('deletes from transient', {maxSize: 5000}, [gen.posInt], len => {
-    var map = Immutable.Range(0, len).toMap().asMutable();
+    var map = Range(0, len).toMap().asMutable();
     for (var ii = 0; ii < len; ii++) {
       expect(map.size).toBe(len - ii);
       map.remove(ii);
@@ -309,7 +308,7 @@ describe('Map', () => {
   });
 
   check.it('iterates through all entries', [gen.posInt], len => {
-    var v = Immutable.Range(0, len).toMap();
+    var v = Range(0, len).toMap();
     var a = v.toArray();
     var iter = v.entries();
     for (var ii = 0; ii < len; ii++) {
@@ -333,7 +332,7 @@ describe('Map', () => {
   it('expresses value equality with unordered sequences', () => {
     var m1 = Map({ A: 1, B: 2, C: 3 });
     var m2 = Map({ C: 3, B: 2, A: 1 });
-    expect(Immutable.is(m1, m2)).toBe(true);
+    expect(is(m1, m2)).toBe(true);
   });
 
 });

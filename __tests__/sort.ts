@@ -3,11 +3,7 @@
 
 jest.autoMockOff();
 
-import I = require('immutable');
-import Seq = I.Seq;
-import List = I.List;
-import OrderedMap = I.OrderedMap;
-import Range = I.Range;
+import { Seq, List, OrderedMap, Range } from 'immutable';
 
 describe('sort', () => {
 

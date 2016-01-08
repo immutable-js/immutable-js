@@ -2,15 +2,15 @@
 ///<reference path='../dist/immutable.d.ts'/>
 jest.autoMockOff();
 
-import jasmineCheck = require('jasmine-check');
+import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import Immutable = require('immutable');
+import { Seq, Range } from 'immutable';
 
 describe('KeyedSeq', () => {
 
   check.it('it iterates equivalently', [gen.array(gen.int)], (ints) => {
-    var seq = Immutable.Seq(ints);
+    var seq = Seq(ints);
     var keyed = seq.toKeyedSeq();
 
     var seqEntries = seq.entries();
@@ -26,7 +26,7 @@ describe('KeyedSeq', () => {
 
   it('maintains keys', () => {
     var isEven = x => x % 2 === 0;
-    var seq = Immutable.Range(0, 100);
+    var seq = Range(0, 100);
 
     // This is what we expect for IndexedSequences
     var operated = seq.filter(isEven).skip(10).take(5);
@@ -51,7 +51,7 @@ describe('KeyedSeq', () => {
   });
 
   it('works with reverse', () => {
-    var seq = Immutable.Range(0, 100);
+    var seq = Range(0, 100);
 
     // This is what we expect for IndexedSequences
     expect(seq.reverse().take(5).entrySeq().toArray()).toEqual([
@@ -73,7 +73,7 @@ describe('KeyedSeq', () => {
   });
 
   it('works with double reverse', () => {
-    var seq = Immutable.Range(0, 100);
+    var seq = Range(0, 100);
 
     // This is what we expect for IndexedSequences
     expect(seq.reverse().skip(10).take(5).reverse().entrySeq().toArray()).toEqual([

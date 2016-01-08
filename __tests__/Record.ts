@@ -3,8 +3,7 @@
 
 jest.autoMockOff();
 
-import Immutable = require('immutable');
-import Record = Immutable.Record;
+import { Record, Seq } from 'immutable';
 
 describe('Record', () => {
 
@@ -73,21 +72,21 @@ describe('Record', () => {
 
   it('converts sequences to records', () => {
     var MyType = Record({a:1, b:2, c:3});
-    var seq = Immutable.Seq({a: 10, b:20});
+    var seq = Seq({a: 10, b:20});
     var t = new MyType(seq);
     expect(t.toObject()).toEqual({a:10, b:20, c:3})
   })
 
   it('allows for functional construction', () => {
     var MyType = Record({a:1, b:2, c:3});
-    var seq = Immutable.Seq({a: 10, b:20});
+    var seq = Seq({a: 10, b:20});
     var t = MyType(seq);
     expect(t.toObject()).toEqual({a:10, b:20, c:3})
   })
 
   it('skips unknown keys', () => {
     var MyType = Record({a:1, b:2});
-    var seq = Immutable.Seq({b:20, c:30});
+    var seq = Seq({b:20, c:30});
     var t = new MyType(seq);
 
     expect(t.get('a')).toEqual(1);

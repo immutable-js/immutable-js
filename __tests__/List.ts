@@ -3,11 +3,10 @@
 
 jest.autoMockOff();
 
-import jasmineCheck = require('jasmine-check');
+import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import Immutable = require('immutable');
-import List = Immutable.List;
+import { List, Range, Seq, Set, fromJS } from 'immutable';
 
 function arrayOfSize(s) {
   var a = new Array(s);
@@ -33,7 +32,7 @@ describe('List', () => {
 
   it('does not accept a scalar', () => {
     expect(() => {
-      Immutable.List(3);
+      List(3);
     }).toThrow('Expected Array or iterable object of values: 3');
   });
 
@@ -56,13 +55,13 @@ describe('List', () => {
   });
 
   it('accepts an indexed Seq', () => {
-    var seq = Immutable.Seq(['a', 'b', 'c']);
+    var seq = Seq(['a', 'b', 'c']);
     var v = List(seq);
     expect(v.toArray()).toEqual(['a', 'b', 'c']);
   });
 
   it('accepts a keyed Seq as a list of entries', () => {
-    var seq = Immutable.Seq({a:null, b:null, c:null}).flip();
+    var seq = Seq({a:null, b:null, c:null}).flip();
     var v = List(seq);
     expect(v.toArray()).toEqual([[null,'a'], [null,'b'], [null,'c']]);
     // Explicitly getting the values sequence
@@ -81,15 +80,15 @@ describe('List', () => {
   });
 
   it('returns undefined when getting a null value', () => {
-    var v = Immutable.List([1, 2, 3]);
+    var v = List([1, 2, 3]);
     expect(v.get(null)).toBe(undefined);
 
-    var o = Immutable.List([{ a: 1 },{ b: 2 }, { c: 3 }]);
+    var o = List([{ a: 1 },{ b: 2 }, { c: 3 }]);
     expect(o.get(null)).toBe(undefined);
   });
 
   it('counts from the end of the list on negative index', () => {
-    var i = Immutable.List.of(1, 2, 3, 4, 5, 6, 7);
+    var i = List.of(1, 2, 3, 4, 5, 6, 7);
     expect(i.get(-1)).toBe(7);
     expect(i.get(-5)).toBe(3);
     expect(i.get(-9)).toBe(undefined);
@@ -98,7 +97,7 @@ describe('List', () => {
 
   it('coerces numeric-string keys', () => {
     // Of course, TypeScript protects us from this, so cast to "any" to test.
-    var i: any = Immutable.List.of(1, 2, 3, 4, 5, 6);
+    var i: any = List.of(1, 2, 3, 4, 5, 6);
     expect(i.get('1')).toBe(2);
     expect(i.set('3', 10).get('3')).toBe(10);
     // Like array, string negative numbers do not qualify
@@ -108,37 +107,37 @@ describe('List', () => {
   });
 
   it('uses not set value for string index', () => {
-    var list: any = Immutable.List();
+    var list: any = List();
     expect(list.get('stringKey', 'NOT-SET')).toBe('NOT-SET');
   });
 
   it('uses not set value for index {}', () => {
-    var list: any = Immutable.List.of(1, 2, 3, 4, 5);
+    var list: any = List.of(1, 2, 3, 4, 5);
     expect(list.get({}, 'NOT-SET')).toBe('NOT-SET');
   });
 
   it('uses not set value for index void 0', () => {
-    var list: any = Immutable.List.of(1, 2, 3, 4, 5);
+    var list: any = List.of(1, 2, 3, 4, 5);
     expect(list.get(void 0, 'NOT-SET')).toBe('NOT-SET');
   });
 
   it('uses not set value for index undefined', () => {
-    var list: any = Immutable.List.of(1, 2, 3, 4, 5);
+    var list: any = List.of(1, 2, 3, 4, 5);
     expect(list.get(undefined, 'NOT-SET')).toBe('NOT-SET');
   });
 
   it('doesnt coerce empty strings to index 0', () => {
-    var list: any = Immutable.List.of(1, 2, 3);
+    var list: any = List.of(1, 2, 3);
     expect(list.has('')).toBe(false);
   });
 
   it('doesnt contain elements at non-empty string keys', () => {
-    var list: any = Immutable.List.of(1, 2, 3, 4, 5);
+    var list: any = List.of(1, 2, 3, 4, 5);
     expect(list.has('str')).toBe(false);
   });
 
   it('hasIn doesnt contain elements at non-empty string keys', () => {
-    var list: any = Immutable.List.of(1, 2, 3, 4, 5);
+    var list: any = List.of(1, 2, 3, 4, 5);
     expect(list.hasIn(('str'))).toBe(false);
   });
 
@@ -205,7 +204,7 @@ describe('List', () => {
   });
 
   it('can contain a large number of indices', () => {
-    var v = Immutable.Range(0,20000).toList();
+    var v = Range(0,20000).toList();
     var iterations = 0;
     v.forEach(v => {
       expect(v).toBe(iterations);
@@ -514,7 +513,7 @@ describe('List', () => {
 
   it('concat works like Array.prototype.concat', () => {
     var v1 = List.of(1, 2, 3);
-    var v2 = v1.concat(4, List.of(5, 6), [7, 8], Immutable.Seq({a:9,b:10}), Immutable.Set.of(11,12), null);
+    var v2 = v1.concat(4, List.of(5, 6), [7, 8], Seq({a:9,b:10}), Set.of(11,12), null);
     expect(v1.toArray()).toEqual([1, 2, 3]);
     expect(v2.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, null]);
   });
@@ -544,7 +543,7 @@ describe('List', () => {
   });
 
   it('allows size to be set', () => {
-    var v1 = Immutable.Range(0,2000).toList();
+    var v1 = Range(0,2000).toList();
     var v2 = v1.setSize(1000);
     var v3 = v2.setSize(1500);
     expect(v1.size).toBe(2000);
@@ -563,7 +562,7 @@ describe('List', () => {
 
   it('discards truncated elements when using slice', () => {
     var list = [1,2,3,4,5,6];
-    var v1 = Immutable.fromJS(list);
+    var v1 = fromJS(list);
     var v2 = v1.slice(0,3);
     var v3 = v2.setSize(6);
 
@@ -575,7 +574,7 @@ describe('List', () => {
 
   it('discards truncated elements when using setSize', () => {
     var list = [1,2,3,4,5,6];
-    var v1 = Immutable.fromJS(list);
+    var v1 = fromJS(list);
     var v2 = v1.setSize(3);
     var v3 = v2.setSize(6);
 
@@ -586,7 +585,7 @@ describe('List', () => {
   });
 
   it('can be efficiently sliced', () => {
-    var v1 = Immutable.Range(0,2000).toList();
+    var v1 = Range(0,2000).toList();
     var v2 = v1.slice(100,-100).toList();
     var v3 = v2.slice(0, Infinity);
     expect(v1.size).toBe(2000)
@@ -650,7 +649,7 @@ describe('List', () => {
     var pInt = gen.posInt;
 
     check.it('iterates through List', [pInt, pInt], (start, len) => {
-      var l = Immutable.Range(0, start + len).toList();
+      var l = Range(0, start + len).toList();
       l = <List<number>> l.slice(start, start + len);
       expect(l.size).toBe(len);
       var valueIter = l.values();
@@ -664,7 +663,7 @@ describe('List', () => {
     });
 
     check.it('iterates through List in reverse', [pInt, pInt], (start, len) => {
-      var l = Immutable.Range(0, start + len).toList();
+      var l = Range(0, start + len).toList();
       l = <List<number>> l.slice(start, start + len);
       var s = l.toSeq().reverse(); // impl calls List.__iterator(REVERSE)
       expect(s.size).toBe(len);

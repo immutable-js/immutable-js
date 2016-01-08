@@ -3,8 +3,7 @@
 
 jest.autoMockOff();
 
-import Immutable = require('immutable');
-import Repeat = Immutable.Repeat;
+import { Repeat } from 'immutable';
 
 describe('Repeat', () => {
 

@@ -3,11 +3,10 @@
 
 jest.autoMockOff();
 
-import jasmineCheck = require('jasmine-check');
+import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import I = require('immutable');
-import Seq = I.Seq;
+import { Seq, is } from 'immutable';
 
 var genHeterogeneousishArray = gen.oneOf([
   gen.array(gen.oneOf([gen.string, gen.undefined])),
@@ -25,7 +24,7 @@ describe('max', () => {
   });
 
   it('by a mapper', () => {
-    var family = I.Seq([
+    var family = Seq([
       { name: 'Oakley', age: 7 },
       { name: 'Dakota', age: 7 },
       { name: 'Casey', age: 34 },
@@ -35,7 +34,7 @@ describe('max', () => {
   });
 
   it('by a mapper and a comparator', () => {
-    var family = I.Seq([
+    var family = Seq([
       { name: 'Oakley', age: 7 },
       { name: 'Dakota', age: 7 },
       { name: 'Casey', age: 34 },
@@ -46,30 +45,30 @@ describe('max', () => {
 
   it('surfaces NaN, null, and undefined', () => {
     expect(
-      I.is(NaN, I.Seq.of(1, 2, 3, 4, 5, NaN).max())
+      is(NaN, Seq.of(1, 2, 3, 4, 5, NaN).max())
     ).toBe(true);
     expect(
-      I.is(NaN, I.Seq.of(NaN, 1, 2, 3, 4, 5).max())
+      is(NaN, Seq.of(NaN, 1, 2, 3, 4, 5).max())
     ).toBe(true);
     expect(
-      I.is(null, I.Seq.of('A', 'B', 'C', 'D', null).max())
+      is(null, Seq.of('A', 'B', 'C', 'D', null).max())
     ).toBe(true);
     expect(
-      I.is(null, I.Seq.of(null, 'A', 'B', 'C', 'D').max())
+      is(null, Seq.of(null, 'A', 'B', 'C', 'D').max())
     ).toBe(true);
   });
 
   it('null treated as 0 in default iterator', () => {
     expect(
-      I.is(2, I.Seq.of(-1, -2, null, 1, 2).max())
+      is(2, Seq.of(-1, -2, null, 1, 2).max())
     ).toBe(true);
   });
 
   check.it('is not dependent on order', [genHeterogeneousishArray], vals => {
     expect(
-      I.is(
-        I.Seq(shuffle(vals.slice())).max(),
-        I.Seq(vals).max()
+      is(
+        Seq(shuffle(vals.slice())).max(),
+        Seq(vals).max()
       )
     ).toEqual(true);
   });
@@ -87,7 +86,7 @@ describe('min', () => {
   });
 
   it('by a mapper', () => {
-    var family = I.Seq([
+    var family = Seq([
       { name: 'Oakley', age: 7 },
       { name: 'Dakota', age: 7 },
       { name: 'Casey', age: 34 },
@@ -97,7 +96,7 @@ describe('min', () => {
   });
 
   it('by a mapper and a comparator', () => {
-    var family = I.Seq([
+    var family = Seq([
       { name: 'Oakley', age: 7 },
       { name: 'Dakota', age: 7 },
       { name: 'Casey', age: 34 },
@@ -108,9 +107,9 @@ describe('min', () => {
 
   check.it('is not dependent on order', [genHeterogeneousishArray], vals => {
     expect(
-      I.is(
-        I.Seq(shuffle(vals.slice())).min(),
-        I.Seq(vals).min()
+      is(
+        Seq(shuffle(vals.slice())).min(),
+        Seq(vals).min()
       )
     ).toEqual(true);
   });
