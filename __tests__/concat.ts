@@ -3,8 +3,7 @@
 
 jest.autoMockOff();
 
-import I = require('immutable');
-import Seq = I.Seq;
+import { Seq, Set, List, is } from 'immutable';
 
 declare function expect(val: any): ExpectWithIs;
 
@@ -18,7 +17,7 @@ describe('concat', () => {
   beforeEach(function () {
     this.addMatchers({
       is: function(expected) {
-        return I.is(this.actual, expected);
+        return is(this.actual, expected);
       }
     })
   })
@@ -106,11 +105,11 @@ describe('concat', () => {
   })
 
   it('always returns the same type', () => {
-    var a = I.Set.of(1,2,3);
-    var b = I.List();
+    var a = Set.of(1,2,3);
+    var b = List();
     expect(b.concat(a)).not.toBe(a);
-    expect(I.List.isList(b.concat(a))).toBe(true);
-    expect(b.concat(a)).is(I.List.of(1,2,3));
+    expect(List.isList(b.concat(a))).toBe(true);
+    expect(b.concat(a)).is(List.of(1,2,3));
   })
 
   it('iterates repeated keys', () => {
@@ -141,7 +140,7 @@ describe('concat', () => {
   })
 
   it('counts from the end of the indexed sequence on negative index', () => {
-    var i = I.List.of(9, 5, 3, 1).map(x => - x);
+    var i = List.of(9, 5, 3, 1).map(x => - x);
     expect(i.get(0)).toBe(-9);
     expect(i.get(-1)).toBe(-1);
     expect(i.get(-4)).toBe(-9);

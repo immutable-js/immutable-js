@@ -3,8 +3,7 @@
 
 jest.autoMockOff();
 
-import Immutable = require('immutable');
-import OrderedSet = Immutable.OrderedSet;
+import { OrderedSet } from 'immutable';
 
 describe('OrderedSet', () => {
 

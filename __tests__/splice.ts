@@ -3,12 +3,10 @@
 
 jest.autoMockOff();
 
-import jasmineCheck = require('jasmine-check');
+import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import I = require('immutable');
-import Seq = I.Seq;
-import List = I.List;
+import { List, Range, Seq } from 'immutable';
 
 describe('splice', () => {
 
@@ -28,7 +26,7 @@ describe('splice', () => {
 
   it('has the same behavior as array splice in known edge cases', () => {
     // arbitary numbers that sum to 31
-    var a = I.Range(0, 49).toArray();
+    var a = Range(0, 49).toArray();
     var v = List(a);
     a.splice(-18, 0, 0);
     expect(v.splice(-18, 0, 0).toList().toArray()).toEqual(a);

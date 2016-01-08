@@ -3,11 +3,10 @@
 
 jest.autoMockOff();
 
-import jasmineCheck = require('jasmine-check');
+import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import Immutable = require('immutable');
-import Range = Immutable.Range;
+import { Range} from 'immutable';
 
 describe('Range', () => {
 

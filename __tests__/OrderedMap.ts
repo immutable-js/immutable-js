@@ -3,8 +3,7 @@
 
 jest.autoMockOff();
 
-import Immutable = require('immutable');
-import OrderedMap = Immutable.OrderedMap;
+import { OrderedMap, Seq } from 'immutable';
 
 describe('OrderedMap', () => {
 
@@ -35,7 +34,7 @@ describe('OrderedMap', () => {
   });
 
   it('constructor accepts sequences', () => {
-    var s = Immutable.Seq({'c': 'C', 'b': 'B', 'a': 'A'});
+    var s = Seq({'c': 'C', 'b': 'B', 'a': 'A'});
     var m = OrderedMap(s);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');

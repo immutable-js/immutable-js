@@ -3,13 +3,10 @@
 
 jest.autoMockOff();
 
-import jasmineCheck = require('jasmine-check');
+import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import Immutable = require('immutable');
-import Map = Immutable.Map;
-import OrderedMap = Immutable.OrderedMap;
-import List = Immutable.List;
+import { Map, OrderedMap, List, Record, is, fromJS } from 'immutable';
 
 declare function expect(val: any): ExpectWithIs;
 
@@ -23,7 +20,7 @@ describe('Conversion', () => {
   beforeEach(function () {
     this.addMatchers({
       is: function(expected) {
-        return Immutable.is(this.actual, expected);
+        return is(this.actual, expected);
       }
     });
   });
@@ -51,7 +48,7 @@ describe('Conversion', () => {
     list: [1, 2, 3]
   };
 
-  var Point = Immutable.Record({x:0, y:0}, 'Point');
+  var Point = Record({x:0, y:0}, 'Point');
 
   var immutableData = Map({
     deepList: List.of(
@@ -123,11 +120,11 @@ describe('Conversion', () => {
   var nonStringKeyMapString = 'OrderedMap { 1: true, false: "foo" }';
 
   it('Converts deep JS to deep immutable sequences', () => {
-    expect(Immutable.fromJS(js)).is(immutableData);
+    expect(fromJS(js)).is(immutableData);
   });
 
   it('Converts deep JSON with custom conversion', () => {
-    var seq = Immutable.fromJS(js, function (key, sequence) {
+    var seq = fromJS(js, function (key, sequence) {
       if (key === 'point') {
         return new Point(sequence);
       }
@@ -152,25 +149,25 @@ describe('Conversion', () => {
   });
 
   it('JSON.stringify() respects toJSON methods on values', () => {
-    var Model = Immutable.Record({});
+    var Model = Record({});
     Model.prototype.toJSON = function() { return 'model'; }
     expect(
-      Immutable.Map({ a: new Model() }).toJS()
+      Map({ a: new Model() }).toJS()
     ).toEqual({ "a": {} });
     expect(
-      JSON.stringify(Immutable.Map({ a: new Model() }))
+      JSON.stringify(Map({ a: new Model() }))
     ).toEqual('{"a":"model"}');
   });
 
   it('is conservative with array-likes, only accepting true Arrays.', () => {
-    expect(Immutable.fromJS({1: 2, length: 3})).is(
-      Immutable.Map().set('1', 2).set('length', 3)
+    expect(fromJS({1: 2, length: 3})).is(
+      Map().set('1', 2).set('length', 3)
     );
-    expect(Immutable.fromJS('string')).toEqual('string');
+    expect(fromJS('string')).toEqual('string');
   });
 
   check.it('toJS isomorphic value', {maxSize: 30}, [gen.JSONValue], (js) => {
-    var imm = Immutable.fromJS(js);
+    var imm = fromJS(js);
     expect(imm && imm.toJS ? imm.toJS() : imm).toEqual(js);
   });
 
