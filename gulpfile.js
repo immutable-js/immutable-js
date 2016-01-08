@@ -106,7 +106,7 @@ gulp.task('lint', function() {
 gulp.task('test', function () {
   return gulp.src('./')
     .pipe(jest({
-      scriptPreprocessor: './resources/jest-preprocessor.js',
+      scriptPreprocessor: './resources/jestPreprocessor.js',
       unmockedModulePathPatterns: ['./node_modules/react'],
     }))
     .on('error', handleError);
