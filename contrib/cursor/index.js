@@ -340,4 +340,9 @@ function valToKeyPath(val) {
     [val];
 }
 
+function isCursor(obj) {
+  return obj.__proto__ == IndexedCursorPrototype || obj.__proto__ == KeyedCursorPrototype;
+}
+
 exports.from = cursorFrom;
+exports.isCursor = isCursor;

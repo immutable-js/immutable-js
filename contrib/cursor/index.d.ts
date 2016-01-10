@@ -55,6 +55,9 @@ declare module 'immutable/contrib/cursor' {
     key: any,
     onChange?: (newValue: any, oldValue?: any, keyPath?: Array<any>) => any
   ): Cursor;
+  export function isCursor(
+    obj: any
+  ): boolean;
 
 
   export interface Cursor extends Immutable.Seq<any, any> {
