@@ -121,7 +121,7 @@ declare module Immutable {
    *
    * Unlike a JavaScript Array, there is no distinction between an
    * "unset" index and an index set to `undefined`. `List#forEach` visits all
-   * indices from 0 to size, regardless of if they were explicitly defined.
+   * indices from 0 to size, regardless of whether they were explicitly defined.
    */
   export module List {
 
