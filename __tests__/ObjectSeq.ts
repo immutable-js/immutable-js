@@ -7,6 +7,21 @@ import { Seq } from 'immutable';
 
 describe('ObjectSequence', () => {
 
+  it('handles __proto__ in .toObject when possible', () => {
+    var iobj = {};
+    try {
+      Object.defineProperty(iobj, '__proto__', {
+        value: 'A',
+        enumerable: true, writable: true, configurable: true
+      });
+    } catch (e) {
+      // skip this test if defineProperty is not in current env
+      return;
+    }
+    var iseq = Seq(iobj);
+    expect(iseq.toObject()).toEqual(iobj);
+  });
+
   it('maps', () => {
     var i = Seq({'a': 'A', 'b': 'B', 'c': 'C'});
     var m = i.map(x => x + x).toObject();

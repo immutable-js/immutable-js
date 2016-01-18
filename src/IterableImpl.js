@@ -23,6 +23,7 @@ import assertNotInfinite from './utils/assertNotInfinite'
 import forceIterator from './utils/forceIterator'
 import deepEqual from './utils/deepEqual'
 import mixin from './utils/mixin'
+import { canDefineProperty } from './utils/canDefineProperty'
 
 import { Map } from './Map'
 import { OrderedMap } from './OrderedMap'
@@ -84,7 +85,16 @@ mixin(Iterable, {
   toObject() {
     assertNotInfinite(this.size);
     var object = {};
-    this.__iterate((v, k) => { object[k] = v; });
+    if (canDefineProperty) {
+      this.__iterate((value, key) => {
+        Object.defineProperty(object, key, {
+          value,
+          enumerable: true, writable: true, configurable: true
+        });
+      });
+    } else {
+      this.__iterate((v, k) => { object[k] = v; });
+    }
     return object;
   },
 

@@ -1022,6 +1022,16 @@
     return ((i32 >>> 1) & 0x40000000) | (i32 & 0xBFFFFFFF);
   }
 
+  // True if Object.defineProperty works as expected. IE8 fails this test.
+  var canDefineProperty = (function() {
+    try {
+      Object.defineProperty({}, '@', {});
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }());
+
   function hash(o) {
     if (o === false || o === null || o === undefined) {
       return 0;
@@ -1158,16 +1168,6 @@
 
   // Get references to ES5 object methods.
   var isExtensible = Object.isExtensible;
-
-  // True if Object.defineProperty works as expected. IE8 fails this test.
-  var canDefineProperty = (function() {
-    try {
-      Object.defineProperty({}, '@', {});
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }());
 
   // IE has a `uniqueID` property on DOM nodes. We can construct the hash from it
   // and avoid memory leaks from the IE cloneNode bug.
@@ -4276,7 +4276,16 @@
     toObject: function() {
       assertNotInfinite(this.size);
       var object = {};
-      this.__iterate(function(v, k)  { object[k] = v; });
+      if (canDefineProperty) {
+        this.__iterate(function(value, key)  {
+          Object.defineProperty(object, key, {
+            value: value,
+            enumerable: true, writable: true, configurable: true
+          });
+        });
+      } else {
+        this.__iterate(function(v, k)  { object[k] = v; });
+      }
       return object;
     },
 
