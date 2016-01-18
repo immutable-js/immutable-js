@@ -4276,7 +4276,16 @@
     toObject: function() {
       assertNotInfinite(this.size);
       var object = {};
-      this.__iterate(function(v, k)  { object[k] = v; });
+      if (canDefineProperty) {
+        this.__iterate(function(value, key)  {
+          Object.defineProperty(object, key, {
+            value: value,
+            enumerable: true, writable: true, configurable: true
+          });
+        });
+      } else {
+        this.__iterate(function(v, k)  { object[k] = v; });
+      }
       return object;
     },
 
