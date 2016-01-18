@@ -35,7 +35,7 @@
  * update the rest of your application.
  */
 
-declare module 'immutable/contrib/cursor' {
+declare module __Cursor {
 
   ///<reference path='../../dist/immutable.d.ts'/>
   import Immutable = require('immutable');
@@ -288,4 +288,8 @@ declare module 'immutable/contrib/cursor' {
     withMutations(mutator: (mutable: any) => any): Cursor;
   }
 
+}
+
+declare module 'immutable/contrib/cursor' {
+  export = __Cursor
 }
