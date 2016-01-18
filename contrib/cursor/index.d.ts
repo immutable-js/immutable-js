@@ -35,11 +35,9 @@
  * update the rest of your application.
  */
 
+/// <reference path='../../dist/immutable.d.ts'/>
+
 declare module __Cursor {
-
-  ///<reference path='../../dist/immutable.d.ts'/>
-  import Immutable = require('immutable');
-
 
   export function from(
     collection: Immutable.Collection<any, any>,
