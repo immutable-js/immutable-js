@@ -18,6 +18,7 @@
   "typescript": {
     "definition": "dist/immutable.d.ts"
   },
+  "typings": "./dist/immutable.d.ts",
   "scripts": {
     "build": "grunt default && gulp default",
     "lint": "grunt lint && gulp lint",
