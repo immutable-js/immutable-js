@@ -12,7 +12,7 @@ import { DELETE, SHIFT, SIZE, MASK, DID_ALTER, OwnerID, MakeRef,
           SetRef, wrapIndex, wholeSlice, resolveBegin, resolveEnd } from './TrieUtils'
 import { isIterable, IndexedIterable } from './Iterable'
 import { IndexedCollection } from './Collection'
-import { MapPrototype, mergeIntoCollectionWith, deepMerger, deepMergerWith } from './Map'
+import { MapPrototype, mergeIntoCollectionWith, deepMerger, mergeDeepWithKeyPath } from './Map'
 import { Iterator, iteratorValue, iteratorDone } from './Iterator'
 
 import assertNotInfinite from './utils/assertNotInfinite'
@@ -141,7 +141,7 @@ export class List extends IndexedCollection {
   }
 
   mergeDeepWith(merger, ...iters) {
-    return mergeIntoListWith(this, deepMergerWith(merger), iters);
+    return mergeDeepWithKeyPath(this, merger, [], ...iters);
   }
 
   setSize(size) {

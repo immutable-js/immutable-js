@@ -137,7 +137,7 @@ export class Map extends KeyedCollection {
   }
 
   mergeDeepWith(merger, ...iters) {
-    return mergeIntoMapWith(this, deepMergerWith(merger), iters);
+    return mergeDeepWithKeyPath(this, merger, [], ...iters);
   }
 
   mergeDeepIn(keyPath, ...iters) {
@@ -743,14 +743,18 @@ export function deepMerger(existing, value, key) {
     is(existing, value) ? existing : value;
 }
 
-export function deepMergerWith(merger) {
+export function deepMergerWith(merger, keyPath) {
   return (existing, value, key) => {
     if (existing && existing.mergeDeepWith && isIterable(value)) {
-      return existing.mergeDeepWith(merger, value);
+      return mergeDeepWithKeyPath(existing, merger, keyPath.concat(key), value);
     }
-    var nextValue = merger(existing, value, key);
+    var nextValue = merger(existing, value, key, keyPath.concat(key));
     return is(existing, nextValue) ? existing : nextValue;
   };
+}
+
+export function mergeDeepWithKeyPath(existing, merger, keyPath, ...iters) {
+  return existing.mergeWith(deepMergerWith(merger, keyPath), ...iters);
 }
 
 export function mergeIntoCollectionWith(collection, merger, iters) {

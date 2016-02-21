@@ -11,7 +11,7 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
   (global.Immutable = factory());
-}(this, function () { 'use strict';var SLICE$0 = Array.prototype.slice;
+}(this, function () { 'use strict';var SLICE$0 = Array.prototype.slice;var S_ITER$0 = typeof Symbol!=='undefined'&&Symbol&&Symbol.iterator||'@@iterator';var S_MARK$0 = typeof Symbol!=='undefined'&&Symbol&&Symbol["__setObjectSetter__"];function ITER$0(v,f){if(v){if(Array.isArray(v))return f?v.slice():v;var i,r;if(S_MARK$0)S_MARK$0(v);if(typeof v==='object'&&typeof (f=v[S_ITER$0])==='function'){i=f.call(v);r=[];}else if((v+'')==='[object Generator]'){i=v;r=[];};if(S_MARK$0)S_MARK$0(void 0);if(r) {while((f=i['next']()),f['done']!==true)r.push(f['value']);return r;}}throw new Error(v+' is not iterable')};
 
   function createClass(ctor, superClass) {
     if (superClass) {
@@ -1325,7 +1325,7 @@
     };
 
     Map.prototype.mergeDeepWith = function(merger) {var iters = SLICE$0.call(arguments, 1);
-      return mergeIntoMapWith(this, deepMergerWith(merger), iters);
+      return mergeDeepWithKeyPath.apply(null, [this, merger, []].concat(ITER$0(iters)));
     };
 
     Map.prototype.mergeDeepIn = function(keyPath) {var iters = SLICE$0.call(arguments, 1);
@@ -1931,14 +1931,18 @@
       is(existing, value) ? existing : value;
   }
 
-  function deepMergerWith(merger) {
+  function deepMergerWith(merger, keyPath) {
     return function(existing, value, key)  {
       if (existing && existing.mergeDeepWith && isIterable(value)) {
-        return existing.mergeDeepWith(merger, value);
+        return mergeDeepWithKeyPath(existing, merger, keyPath.concat(key), value);
       }
-      var nextValue = merger(existing, value, key);
+      var nextValue = merger(existing, value, key, keyPath.concat(key));
       return is(existing, nextValue) ? existing : nextValue;
     };
+  }
+
+  function mergeDeepWithKeyPath(existing, merger, keyPath) {var iters = SLICE$0.call(arguments, 3);
+    return existing.mergeWith.apply(existing, [deepMergerWith(merger, keyPath)].concat(ITER$0(iters)));
   }
 
   function mergeIntoCollectionWith(collection, merger, iters) {
@@ -2168,7 +2172,7 @@
     };
 
     List.prototype.mergeDeepWith = function(merger) {var iters = SLICE$0.call(arguments, 1);
-      return mergeIntoListWith(this, deepMergerWith(merger), iters);
+      return mergeDeepWithKeyPath.apply(null, [this, merger, []].concat(ITER$0(iters)));
     };
 
     List.prototype.setSize = function(size) {

@@ -49,6 +49,37 @@ describe('merge', () => {
     ).is(Map({id:10,b:22,c:3,e:30}));
   })
 
+  it('provides keyPath as the fourth argument of merge function', () => {
+    var m1 = fromJS({a:{b:{c:1,d:2},f:3}});
+    var js = fromJS({a:{b:{c:10,e:20},f:30},g:40});
+    expect(
+      m1.mergeDeepWith((a, b, index, keyPath) => keyPath.join(''), js)
+    ).is(
+      fromJS({a:{b:{c:'abc',d:2,e:20},f:'af'},g:40})
+    );
+  })
+
+  it('deep merges multiple iterables using the keyPath', () => {
+    var m1 = fromJS({a:{b:{c:1,d:2},f:3}});
+    var m2 = fromJS({a:{b:{c:10,e:20},f:30},g:40});
+    var m3 = fromJS({a:{b:{c:100,e:200},f:300},g:400,h:500});
+    expect(
+      m1.mergeDeepWith(
+        (a, b, index, keyPath) => keyPath.indexOf('b') > -1 ? b : a, m2, m3
+      )
+    ).is(fromJS({a:{b:{c:100,d:2,e:200},f:3},g:40,h:500}));
+  })
+
+  it('deep merges lists using the keyPath', () => {
+    var l1 = fromJS([[0,1,2],3,4]);
+    var l2 = fromJS([[10,11,12],13]);
+    expect(
+      l1.mergeDeepWith(
+        (a, b, index, keyPath) => keyPath.indexOf(1) > -1 ? b : a, l2
+      )
+    ).is(fromJS([[0,11,2],13,4]));
+  })
+
   it('deep merges two maps', () => {
     var m1 = fromJS({a:{b:{c:1,d:2}}});
     var m2 = fromJS({a:{b:{c:10,e:20},f:30},g:40});

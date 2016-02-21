@@ -269,11 +269,13 @@
      * @see `Map#mergeDeepWith`
      */
     mergeDeepWith(
-      merger: (previous?: T, next?: T, key?: number) => T,
+      merger: (previous?: T, next?: T, key?: number, keyPath?: Array<number>)
+        => T,
       ...iterables: Iterable.Indexed<T>[]
     ): List<T>;
     mergeDeepWith(
-      merger: (previous?: T, next?: T, key?: number) => T,
+      merger: (previous?: T, next?: T, key?: number, keyPath?: Array<number>)
+        => T,
       ...iterables: Array<T>[]
     ): List<T>;
 
@@ -563,11 +565,11 @@
      *
      */
     mergeDeepWith(
-      merger: (previous?: V, next?: V, key?: K) => V,
+      merger: (previous?: V, next?: V, key?: K, keyPath?: Array<K>) => V,
       ...iterables: Iterable<K, V>[]
     ): Map<K, V>;
     mergeDeepWith(
-      merger: (previous?: V, next?: V, key?: K) => V,
+      merger: (previous?: V, next?: V, key?: K, keyPath?: Array<K>) => V,
       ...iterables: {[key: string]: V}[]
     ): Map<string, V>;
 
