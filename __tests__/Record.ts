@@ -94,4 +94,24 @@ describe('Record', () => {
     expect(t.get('c')).toBeUndefined();
   })
 
+  it('returns itself when setting identical values', () => {
+    var MyType = Record({a:1, b:2});
+    var t1 = new MyType;
+    var t2 = new MyType({a: 1});
+    var t3 = t1.set('a', 1);
+    var t4 = t2.set('a', 1);
+    expect(t3).toBe(t1);
+    expect(t4).toBe(t2);
+  })
+
+  it('returns new record when setting new values', () => {
+    var MyType = Record({a:1, b:2});
+    var t1 = new MyType;
+    var t2 = new MyType({a: 1});
+    var t3 = t1.set('a', 3);
+    var t4 = t2.set('a', 3);
+    expect(t3).not.toBe(t1);
+    expect(t4).not.toBe(t2);
+  })
+
 });
