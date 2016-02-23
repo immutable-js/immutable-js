@@ -3682,6 +3682,12 @@
       if (!this.has(k)) {
         throw new Error('Cannot set unknown key "' + k + '" on ' + recordName(this));
       }
+      if (this._map && !this._map.has(k)) {
+        var defaultVal = this._defaultValues[k];
+        if (v === defaultVal) {
+          return this;
+        }
+      }
       var newMap = this._map && this._map.set(k, v);
       if (this.__ownerID || newMap === this._map) {
         return this;
