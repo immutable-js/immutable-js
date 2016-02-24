@@ -1863,7 +1863,7 @@ declare module Immutable {
      * Note: This is equivalent to `OrderedMap(this.toKeyedSeq())`, but
      * provided for convenience and to allow for chained expressions.
      */
-    toOrderedMap(): Map<K, V>;
+    toOrderedMap(): OrderedMap<K, V>;
 
     /**
      * Converts this Iterable to a Set, discarding keys. Throws if values
@@ -1881,7 +1881,7 @@ declare module Immutable {
      * Note: This is equivalent to `OrderedSet(this.valueSeq())`, but provided
      * for convenience and to allow for chained expressions.
      */
-    toOrderedSet(): Set<V>;
+    toOrderedSet(): OrderedSet<V>;
 
     /**
      * Converts this Iterable to a List, discarding keys.
