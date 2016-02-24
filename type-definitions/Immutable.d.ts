@@ -1170,7 +1170,7 @@ declare module Immutable {
    * example, no intermediate data structures are ever created, filter is only
    * called three times, and map is only called once:
    *
-   *     console.log(evenSquares.get(1)); // 9
+   *     console.log(oddSquares.get(1)); // 9
    *
    * Seq allows for the efficient chaining of operations,
    * allowing for the expression of logic that can otherwise be very tedious:
