@@ -291,6 +291,38 @@ describe('Cursor', () => {
     expect(typeof mapped2.get(0).deref).toBe('function');
   });
 
+  it('can have grouped operations with cursor apply with a single callback', () => {
+    var onChange = jest.genMockFunction();
+    var data = Immutable.fromJS({'a': 1});
+
+    var c1 = Cursor.from(data, onChange);
+    var c2 = c1.groupedOperations(cursor => {
+      // Passed value should be a cursor.
+      expect(typeof cursor.deref).toBe('function');
+
+      return cursor.set('b', 2).set('c', 3).set('d', 4);
+    });
+
+    expect(c1.deref().toObject()).toEqual({'a': 1});
+    expect(c2.deref().toObject()).toEqual({'a': 1, 'b': 2, 'c': 3, 'd': 4});
+    expect(onChange.mock.calls.length).toBe(1);
+  });
+
+  it('passes cursors to grouped operations even if cursors point to scalars', () => {
+    var onChange = jest.genMockFunction();
+    var data = Immutable.fromJS({'a': 1});
+
+    var c1 = Cursor.from(data, ['a'], onChange);
+    var c2 = c1.groupedOperations(cursor => {
+      // Passed value should be a cursor.
+      expect(typeof cursor.deref).toBe('function');
+      return cursor.set(2);
+    });
+    expect(c1.deref()).toEqual(1);
+    expect(c2.deref()).toEqual(2);
+    expect(onChange.mock.calls.length).toBe(1);
+  });
+
   it('can have mutations apply with a single callback', () => {
     var onChange = jest.genMockFunction();
     var data = Immutable.fromJS({'a': 1});
