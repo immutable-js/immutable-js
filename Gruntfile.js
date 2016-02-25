@@ -47,6 +47,9 @@ module.exports = function(grunt) {
         files: [{
           src: 'type-definitions/Immutable.d.ts',
           dest: 'dist/immutable.d.ts'
+        },{
+          src: 'type-definitions/Immutable-global.d.ts',
+          dest: 'dist/immutable-global.d.ts'
         }]
       }
     },
