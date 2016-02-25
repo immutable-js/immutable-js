@@ -9,7 +9,7 @@ var MarkDown = require('./MarkDown');
 var DocOverview = require('./DocOverview');
 var collectMemberGroups = require('../../../lib/collectMemberGroups');
 var TypeKind = require('../../../lib/TypeKind');
-var defs = require('../../../resources/immutable.d.json');
+var defs = require('../../../lib/getTypeDefs');
 
 
 var TypeDocumentation = React.createClass({

@@ -27,8 +27,6 @@ var through = require('through2');
 var uglify = require('gulp-uglify');
 var vm = require('vm');
 
-var genTypeDefData = require('./pages/lib/genTypeDefData');
-var genMarkdownDoc = require('./pages/lib/genMarkdownDoc');
 
 var SRC_DIR = './pages/src/';
 var BUILD_DIR = './pages/out/';
@@ -40,36 +38,34 @@ gulp.task('clean', function (done) {
 });
 
 gulp.task('readme', function() {
-  var readmePath = 'README.md';
-  return gulp.src(readmePath)
-    .pipe(through.obj(function(file, enc, cb) {
-      var fileSource = file.contents.toString(enc);
-      file.path = path.join(path.dirname(file.path), 'readme.json');
-      file.contents = new Buffer(JSON.stringify(
-        genMarkdownDoc(fileSource)
-      ));
-      this.push(file);
-      cb();
-    }))
-    .pipe(gulp.dest('./resources/'));
+  var genMarkdownDoc = require('./pages/lib/genMarkdownDoc');
+
+  var readmePath = path.join(__dirname, './README.md');
+
+  var fileContents = fs.readFileSync(readmePath, 'utf8');
+
+  var writePath = path.join(__dirname, './pages/resources/readme.json');
+  var contents = JSON.stringify(genMarkdownDoc(fileContents));
+
+  fs.writeFileSync(writePath, contents);
 });
 
 gulp.task('typedefs', function() {
-  var typeDefPath = 'type-definitions/immutable.d.ts';
-  return gulp.src(typeDefPath)
-    .pipe(through.obj(function(file, enc, cb) {
-      var fileSource = file.contents.toString(enc).replace(
-        'module \'immutable\'',
-        'module Immutable'
-      );
-      file.path = path.join(path.dirname(file.path), 'immutable.d.json');
-      file.contents = new Buffer(JSON.stringify(
-        genTypeDefData(file.relative, fileSource)
-      ));
-      this.push(file);
-      cb();
-    }))
-    .pipe(gulp.dest('./resources/'));
+  var genTypeDefData = require('./pages/lib/genTypeDefData');
+
+  var typeDefPath = path.join(__dirname, './type-definitions/immutable.d.ts');
+
+  var fileContents = fs.readFileSync(typeDefPath, 'utf8');
+
+  var fileSource = fileContents.replace(
+    'module \'immutable\'',
+    'module Immutable'
+  );
+
+  var writePath = path.join(__dirname, './pages/resources/immutable.d.json');
+  var contents = JSON.stringify(genTypeDefData(typeDefPath, fileSource));
+
+  fs.writeFileSync(writePath, contents);
 });
 
 gulp.task('lint', function() {
@@ -202,7 +198,9 @@ function gulpStatics(subDir) {
 
 gulp.task('build', function (done) {
   sequence(
-    ['readme', 'typedefs', 'js', 'js-docs', 'less', 'less-docs', 'statics', 'statics-docs'],
+    ['typedefs'],
+    ['readme'],
+    ['js', 'js-docs', 'less', 'less-docs', 'statics', 'statics-docs'],
     ['pre-render', 'pre-render-docs'],
     done
   );

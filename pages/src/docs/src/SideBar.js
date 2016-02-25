@@ -1,7 +1,7 @@
 var React = require('react');
 var Router = require('react-router');
 var { Seq } = require('../../../../');
-var defs = require('../../../resources/immutable.d.json');
+var defs = require('../../../lib/getTypeDefs');
 
 
 var SideBar = React.createClass({

@@ -1,4 +1,5 @@
 var { Seq } = require('../../');
+// Note: intentionally using raw defs, not getTypeDefs to avoid circular ref.
 var defs = require('../resources/immutable.d.json');
 
 function collectMemberGroups(interfaceDef, options) {

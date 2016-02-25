@@ -23,6 +23,7 @@
     "lint": "grunt lint && gulp lint",
     "test": "./resources/node_test.sh",
     "perf": "node ./resources/bench.js",
+    "start": "npm run build && node ./pages/resources/start.js",
     "deploy": "(cd ./pages/out && git init && git config user.name \"Travis CI\" && git config user.email \"github@fb.com\" && git add . && git commit -m \"Deploy to GitHub Pages\" && git push --force --quiet \"https://${GH_TOKEN}@github.com/facebook/immutable-js.git\" master:gh-pages > /dev/null 2>1)"
   },
   "jest": {
@@ -43,6 +44,7 @@
     "del": "2.2.0",
     "es6-transpiler": "0.7.18",
     "estraverse": "1.9.3",
+    "express": "^4.13.4",
     "grunt": "0.4.5",
     "grunt-cli": "0.1.13",
     "grunt-contrib-clean": "0.7.0",
