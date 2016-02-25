@@ -15,9 +15,7 @@
     "url": "https://github.com/facebook/immutable-js/issues"
   },
   "main": "dist/immutable.js",
-  "typescript": {
-    "definition": "dist/immutable.d.ts"
-  },
+  "typings": "./dist/immutable.d.ts",
   "scripts": {
     "build": "grunt default && gulp default",
     "lint": "eslint src/ && grunt lint && gulp lint",
