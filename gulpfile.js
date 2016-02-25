@@ -53,7 +53,7 @@ gulp.task('readme', function() {
 gulp.task('typedefs', function() {
   var genTypeDefData = require('./pages/lib/genTypeDefData');
 
-  var typeDefPath = path.join(__dirname, './type-definitions/immutable.d.ts');
+  var typeDefPath = path.join(__dirname, './type-definitions/Immutable.d.ts');
 
   var fileContents = fs.readFileSync(typeDefPath, 'utf8');
 
