@@ -603,8 +603,8 @@ declare function Repeat<T>(value: T, times?: number): IndexedSeq<T>;
 declare class Record<T:Object> {
   static <T:Object>(spec: T, name?: string): (values: $Shape<T>) => (T & Record<T>);
   get<A>(key: $Keys<T>): A;
-  set<A>(key: $Keys<T>, value: A): this;
-  remove(key: $Keys<T>): this;
+  set<A>(key: $Keys<T>, value: A): T & Record<T>;
+  remove(key: $Keys<T>): T & Record<T>;
 }
 
 declare function fromJS(json: Object, reviver?: (k: any, v: Iterable<any,any>) => any): any;
