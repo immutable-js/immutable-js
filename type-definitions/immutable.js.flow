@@ -572,7 +572,7 @@ declare class Stack<T> extends IndexedCollection<T> {
   static of<T>(...values: T[]): Stack<T>;
 
   peek(): T;
-  clear: this;
+  clear(): this;
   unshift<U>(...values: U[]): Stack<T|U>;
   unshiftAll<U>(iter: ESIterable<U>): Stack<T|U>;
   shift(): this;
