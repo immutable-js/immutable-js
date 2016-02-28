@@ -29,6 +29,7 @@
  * Note that Immutable values implement the `ESIterable` interface.
  */
 type ESIterable<T> = $Iterable<T,void,void>;
+type booleany = any;
 
 declare class Iterable<K,V> {
   static Keyed:   Class<Object>;
@@ -48,8 +49,8 @@ declare class Iterable<K,V> {
   has(key: K): boolean;
   includes(value: V): boolean;
   contains(value: V): boolean;
-  first(): ?V;
-  last(): ?V;
+  first(): V;
+  last(): V;
 
   getIn<T>(searchKeyPath: ESIterable<any>, notSetValue: T): T;
   getIn<T>(searchKeyPath: ESIterable<any>): ?T;
@@ -78,12 +79,12 @@ declare class Iterable<K,V> {
   entrySeq(): IndexedSeq<[K,V]>;
 
   filter(
-    predicate: (value: V, key: K, iter: this) => boolean,
+    predicate: (value: V, key: K, iter: this) => booleany,
     context?: any
   ): this;
 
   filterNot(
-    predicate: (value: V, key: K, iter: this) => boolean,
+    predicate: (value: V, key: K, iter: this) => booleany,
     context?: any
   ): this;
 
@@ -110,73 +111,67 @@ declare class Iterable<K,V> {
   butLast(): this;
   skip(amount: number): this;
   skipLast(amount: number): this;
-  skipWhile(predicate: (value: V, key: K, iter: this) => boolean, context?: any): this;
-  skipUntil(predicate: (value: V, key: K, iter: this) => boolean, context?: any): this;
+  skipWhile(predicate: (value: V, key: K, iter: this) => booleany, context?: any): this;
+  skipUntil(predicate: (value: V, key: K, iter: this) => booleany, context?: any): this;
   take(amount: number): this;
   takeLast(amount: number): this;
-  takeWhile(predicate: (value: V, key: K, iter: this) => boolean, context?: any): this;
-  takeUntil(predicate: (value: V, key: K, iter: this) => boolean, context?: any): this;
+  takeWhile(predicate: (value: V, key: K, iter: this) => booleany, context?: any): this;
+  takeUntil(predicate: (value: V, key: K, iter: this) => booleany, context?: any): this;
   flatten(depth?: number): /*this*/Iterable<any,any>;
   flatten(shallow?: boolean): /*this*/Iterable<any,any>;
 
   reduce<R>(
     reducer: (reduction: R, value: V, key: K, iter: this) => R,
-    initialReduction: R,
+    initialReduction?: R,
     context?: any,
   ): R;
-  reduce<R>(
-    reducer: (reduction: R, value: V, key: K, iter: this) => R,
-  ): ?R;
 
   reduceRight<R>(
     reducer: (reduction: R, value: V, key: K, iter: this) => R,
-    initialReduction: R,
+    initialReduction?: R,
     context?: any,
   ): R;
-  reduceRight<R>(
-    reducer: (reduction: R, value: V, key: K, iter: this) => R,
-  ): ?R;
 
-  every(predicate: (value: V, key: K, iter: this) => boolean, context?: any): boolean;
-  some(predicate: (value: V, key: K, iter: this) => boolean, context?: any): boolean;
+  every(predicate: (value: V, key: K, iter: this) => booleany, context?: any): boolean;
+  some(predicate: (value: V, key: K, iter: this) => booleany, context?: any): boolean;
   join(separator?: string): string;
   isEmpty(): boolean;
-  count(predicate?: (value: V, key: K, iter: this) => boolean, context?: any): number;
+  count(predicate?: (value: V, key: K, iter: this) => booleany, context?: any): number;
   countBy<G>(grouper: (value: V, key: K, iter: this) => G, context?: any): Map<G,number>;
 
   find<V_>(
-    predicate: (value: V, key: K, iter: this) => boolean,
+    predicate: (value: V, key: K, iter: this) => booleany,
     context: any,
     notSetValue: V_
   ): V|V_;
   find<V_>(
-    predicate: (value: V, key: K, iter: this) => boolean,
+    predicate: (value: V, key: K, iter: this) => booleany,
     context?: any,
   ): ?V;
 
   findLast<V_>(
-    predicate: (value: V, key: K, iter: this) => boolean,
+    predicate: (value: V, key: K, iter: this) => booleany,
     context: any,
     notSetValue: V_
   ): V|V_;
   findLast<V_>(
-    predicate: (value: V, key: K, iter: this) => boolean,
+    predicate: (value: V, key: K, iter: this) => booleany,
     context?: any,
   ): ?V;
 
-  findEntry(predicate: (value: V, key: K, iter: this) => boolean): ?[K,V];
-  findLastEntry(predicate: (value: V, key: K, iter: this) => boolean): ?[K,V];
+  findEntry(predicate: (value: V, key: K, iter: this) => booleany): ?[K,V];
+  findLastEntry(predicate: (value: V, key: K, iter: this) => booleany): ?[K,V];
 
-  max(comparator?: (valueA: V, valueB: V) => number): ?V;
+  max(comparator?: (valueA: V, valueB: V) => number): V;
   maxBy<C>(
     comparatorValueMapper: (value: V, key: K, iter: this) => C,
     comparator?: (valueA: C, valueB: C) => number
-  ): ?V;
-  min(comparator?: (valueA: V, valueB: V) => number): ?V;
+  ): V;
+  min(comparator?: (valueA: V, valueB: V) => number): V;
   minBy<C>(
     comparatorValueMapper: (value: V, key: K, iter: this) => C,
     comparator?: (valueA: C, valueB: C) => number
-  ): ?V;
+  ): V;
 
   isSubset(iter: Iterable<any, V>): boolean;
   isSubset(iter: ESIterable<V>): boolean;
@@ -204,8 +199,8 @@ declare class KeyedIterable<K,V> extends Iterable<K,V> {
 
   keyOf(searchValue: V): ?K;
   lastKeyOf(searchValue: V): ?K;
-  findKey(predicate: (value: V, key: K, iter: this) => boolean, context?: any): ?K;
-  findLastKey(predicate: (value: V, key: K, iter: this) => boolean, context?: any): ?K;
+  findKey(predicate: (value: V, key: K, iter: this) => booleany, context?: any): ?K;
+  findLastKey(predicate: (value: V, key: K, iter: this) => booleany, context?: any): ?K;
 
   concat(...iters: ESIterable<[K,V]>[]): this;
 
@@ -304,11 +299,11 @@ declare class IndexedIterable<T> extends Iterable<number,T> {
   indexOf(searchValue: T): number;
   lastIndexOf(searchValue: T): number;
   findIndex(
-    predicate: (value: T, index: number, iter: this) => boolean,
+    predicate: (value: T, index: number, iter: this) => booleany,
     context?: any
   ): number;
   findLastIndex(
-    predicate: (value: T, index: number, iter: this) => boolean,
+    predicate: (value: T, index: number, iter: this) => booleany,
     context?: any
   ): number;
 
@@ -577,7 +572,7 @@ declare class Stack<T> extends IndexedCollection<T> {
   static of<T>(...values: T[]): Stack<T>;
 
   peek(): T;
-  clear: this;
+  clear(): this;
   unshift<U>(...values: U[]): Stack<T|U>;
   unshiftAll<U>(iter: ESIterable<U>): Stack<T|U>;
   shift(): this;
@@ -605,11 +600,11 @@ declare class Stack<T> extends IndexedCollection<T> {
 declare function Range(start?: number, end?: number, step?: number): IndexedSeq<number>;
 declare function Repeat<T>(value: T, times?: number): IndexedSeq<T>;
 
-declare class Record<KeysT> extends KeyedCollection<KeysT,any> {
-  static <T:Object>(spec: T, name?: string): (values: $Shape<T>) => (T & Record<$Keys<T>>);
-  get<A>(key: KeysT): A;
-  set<A>(key: KeysT, value: A): this;
-  remove(key: KeysT): this;
+declare class Record<T:Object> {
+  static <T:Object>(spec: T, name?: string): (values: $Shape<T>) => (T & Record<T>);
+  get<A>(key: $Keys<T>): A;
+  set<A>(key: $Keys<T>, value: A): T & Record<T>;
+  remove(key: $Keys<T>): T & Record<T>;
 }
 
 declare function fromJS(json: Object, reviver?: (k: any, v: Iterable<any,any>) => any): any;
