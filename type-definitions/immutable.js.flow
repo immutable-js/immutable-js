@@ -49,8 +49,8 @@ declare class Iterable<K,V> {
   has(key: K): boolean;
   includes(value: V): boolean;
   contains(value: V): boolean;
-  first(): ?V;
-  last(): ?V;
+  first(): V;
+  last(): V;
 
   getIn<T>(searchKeyPath: ESIterable<any>, notSetValue: T): T;
   getIn<T>(searchKeyPath: ESIterable<any>): ?T;
@@ -122,21 +122,15 @@ declare class Iterable<K,V> {
 
   reduce<R>(
     reducer: (reduction: R, value: V, key: K, iter: this) => R,
-    initialReduction: R,
+    initialReduction?: R,
     context?: any,
   ): R;
-  reduce<R>(
-    reducer: (reduction: R, value: V, key: K, iter: this) => R,
-  ): ?R;
 
   reduceRight<R>(
     reducer: (reduction: R, value: V, key: K, iter: this) => R,
-    initialReduction: R,
+    initialReduction?: R,
     context?: any,
   ): R;
-  reduceRight<R>(
-    reducer: (reduction: R, value: V, key: K, iter: this) => R,
-  ): ?R;
 
   every(predicate: (value: V, key: K, iter: this) => booleany, context?: any): boolean;
   some(predicate: (value: V, key: K, iter: this) => booleany, context?: any): boolean;
@@ -168,16 +162,16 @@ declare class Iterable<K,V> {
   findEntry(predicate: (value: V, key: K, iter: this) => booleany): ?[K,V];
   findLastEntry(predicate: (value: V, key: K, iter: this) => booleany): ?[K,V];
 
-  max(comparator?: (valueA: V, valueB: V) => number): ?V;
+  max(comparator?: (valueA: V, valueB: V) => number): V;
   maxBy<C>(
     comparatorValueMapper: (value: V, key: K, iter: this) => C,
     comparator?: (valueA: C, valueB: C) => number
-  ): ?V;
-  min(comparator?: (valueA: V, valueB: V) => number): ?V;
+  ): V;
+  min(comparator?: (valueA: V, valueB: V) => number): V;
   minBy<C>(
     comparatorValueMapper: (value: V, key: K, iter: this) => C,
     comparator?: (valueA: C, valueB: C) => number
-  ): ?V;
+  ): V;
 
   isSubset(iter: Iterable<any, V>): boolean;
   isSubset(iter: ESIterable<V>): boolean;
