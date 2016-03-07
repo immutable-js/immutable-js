@@ -4,7 +4,7 @@ var Router = require('react-router');
 var { Route, DefaultRoute, RouteHandler } = Router;
 var DocHeader = require('./DocHeader');
 var TypeDocumentation = require('./TypeDocumentation');
-var defs = require('../../../resources/immutable.d.json');
+var defs = require('../../../lib/getTypeDefs');
 
 
 var Documentation = React.createClass({

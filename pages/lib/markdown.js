@@ -2,6 +2,7 @@ var { Seq } = require('../../');
 var marked = require('marked');
 var prism = require('./prism');
 var collectMemberGroups = require('./collectMemberGroups');
+// Note: intentionally using raw defs, not getTypeDefs to avoid circular ref.
 var defs = require('../resources/immutable.d.json');
 
 

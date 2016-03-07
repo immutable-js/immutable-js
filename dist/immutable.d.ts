@@ -121,7 +121,7 @@ declare module Immutable {
    *
    * Unlike a JavaScript Array, there is no distinction between an
    * "unset" index and an index set to `undefined`. `List#forEach` visits all
-   * indices from 0 to size, regardless of if they were explicitly defined.
+   * indices from 0 to size, regardless of whether they were explicitly defined.
    */
   export module List {
 
@@ -1170,7 +1170,7 @@ declare module Immutable {
    * example, no intermediate data structures are ever created, filter is only
    * called three times, and map is only called once:
    *
-   *     console.log(evenSquares.get(1)); // 9
+   *     console.log(oddSquares.get(1)); // 9
    *
    * Seq allows for the efficient chaining of operations,
    * allowing for the expression of logic that can otherwise be very tedious:
@@ -1863,7 +1863,7 @@ declare module Immutable {
      * Note: This is equivalent to `OrderedMap(this.toKeyedSeq())`, but
      * provided for convenience and to allow for chained expressions.
      */
-    toOrderedMap(): Map<K, V>;
+    toOrderedMap(): OrderedMap<K, V>;
 
     /**
      * Converts this Iterable to a Set, discarding keys. Throws if values
@@ -1881,7 +1881,7 @@ declare module Immutable {
      * Note: This is equivalent to `OrderedSet(this.valueSeq())`, but provided
      * for convenience and to allow for chained expressions.
      */
-    toOrderedSet(): Set<V>;
+    toOrderedSet(): OrderedSet<V>;
 
     /**
      * Converts this Iterable to a List, discarding keys.
@@ -1943,16 +1943,22 @@ declare module Immutable {
 
     /**
      * An iterator of this `Iterable`'s keys.
+     * 
+     * Note: this will return an ES6 iterator which does not support Immutable JS sequence algorithms. Use `keySeq` instead, if this is what you want.
      */
     keys(): Iterator<K>;
 
     /**
      * An iterator of this `Iterable`'s values.
+     * 
+     * Note: this will return an ES6 iterator which does not support Immutable JS sequence algorithms. Use `valueSeq` instead, if this is what you want.
      */
     values(): Iterator<V>;
 
     /**
      * An iterator of this `Iterable`'s entries as `[key, value]` tuples.
+     * 
+     * Note: this will return an ES6 iterator which does not support Immutable JS sequence algorithms. Use `entrySeq` instead, if this is what you want.
      */
     entries(): Iterator</*[K, V]*/Array<any>>;
 

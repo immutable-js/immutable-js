@@ -905,7 +905,7 @@
       }
       return 'Range [ ' +
         this._start + '...' + this._end +
-        (this._step > 1 ? ' by ' + this._step : '') +
+        (this._step !== 1 ? ' by ' + this._step : '') +
       ' ]';
     };
 
@@ -3681,6 +3681,12 @@
     Record.prototype.set = function(k, v) {
       if (!this.has(k)) {
         throw new Error('Cannot set unknown key "' + k + '" on ' + recordName(this));
+      }
+      if (this._map && !this._map.has(k)) {
+        var defaultVal = this._defaultValues[k];
+        if (v === defaultVal) {
+          return this;
+        }
       }
       var newMap = this._map && this._map.set(k, v);
       if (this.__ownerID || newMap === this._map) {
