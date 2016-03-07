@@ -1,23 +1,22 @@
 /**
  * This file provides type definitions for use with the Flow type checker.
  *
- * Immutable data encourages pure functions (data-in, data-out) and lends itself
- * to much simpler application development and enabling techniques from
- * functional programming such as lazy evaluation.
+ * An important caveat when using these definitions is that the types for
+ * `Iterable.Keyed`, `Iterable.Indexed`, `Seq.Keyed`, and so on are stubs.
+ * When referring to those types, you can get the proper definitions by
+ * importing the types `KeyedIterable`, `IndexedIterable`, `KeyedSeq`, etc.
+ * For example,
  *
- * While designed to bring these powerful functional concepts to JavaScript, it
- * presents an Object-Oriented API familiar to JavaScript engineers and closely
- * mirroring that of Array, Map, and Set. It is easy and efficient to convert to
- * and from plain JavaScript types.
- * Note: all examples are presented in [ES6][]. To run in all browsers, they
- * need to be translated to ES3. For example:
+ *     import { Seq } from 'immutable'
+ *     import type { IndexedIterable, IndexedSeq } from 'immutable'
  *
- *     // ES6
- *     foo.map(x => x * x);
- *     // ES3
- *     foo.map(function (x) { return x * x; });
+ *     const someSeq: IndexedSeq<number> = Seq.Indexed.of(1, 2, 3)
  *
- * [ES6]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/ECMAScript_6_support_in_Mozilla
+ *     function takesASeq<T, TS: IndexedIterable<T>>(iter: TS): TS {
+ *       return iter.butLast()
+ *     }
+ *
+ *     takesASeq(someSeq)
  *
  * @flow
  */
