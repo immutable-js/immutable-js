@@ -4371,8 +4371,8 @@
       return entry ? entry[1] : notSetValue;
     },
 
-    findEntry: function(predicate, context) {
-      var found;
+    findEntry: function(predicate, context, notSetValue) {
+      var found = notSetValue;
       this.__iterate(function(v, k, c)  {
         if (predicate.call(context, v, k, c)) {
           found = [k, v];
@@ -4382,8 +4382,8 @@
       return found;
     },
 
-    findLastEntry: function(predicate, context) {
-      return this.toSeq().reverse().findEntry(predicate, context);
+    findLastEntry: function(predicate, context, notSetValue) {
+      return this.toSeq().reverse().findEntry(predicate, context, notSetValue);
     },
 
     forEach: function(sideEffect, context) {

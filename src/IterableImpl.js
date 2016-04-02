@@ -173,8 +173,8 @@ mixin(Iterable, {
     return entry ? entry[1] : notSetValue;
   },
 
-  findEntry(predicate, context) {
-    var found;
+  findEntry(predicate, context, notSetValue) {
+    var found = notSetValue;
     this.__iterate((v, k, c) => {
       if (predicate.call(context, v, k, c)) {
         found = [k, v];
@@ -184,8 +184,8 @@ mixin(Iterable, {
     return found;
   },
 
-  findLastEntry(predicate, context) {
-    return this.toSeq().reverse().findEntry(predicate, context);
+  findLastEntry(predicate, context, notSetValue) {
+    return this.toSeq().reverse().findEntry(predicate, context, notSetValue);
   },
 
   forEach(sideEffect, context) {
