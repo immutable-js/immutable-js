@@ -434,6 +434,12 @@ Also, don't miss the [Wiki](https://github.com/facebook/immutable-js/wiki) which
 contains articles on specific topics. Can't find something? Open an [issue](https://github.com/facebook/immutable-js/issues).
 
 
+Testing 
+-------
+
+If you are using the [Chai Assertion Library](http://chaijs.com/), [Chai Immutable](https://github.com/astorije/chai-immutable) provides a set of assertions to use against `Immutable` collections.
+
+
 Contribution
 ------------
 
