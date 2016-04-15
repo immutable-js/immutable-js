@@ -1131,7 +1131,7 @@
    *
    */
   export module Record {
-    interface Class {
+    export interface Class {
       new (): Map<string, any>;
       new (values: {[key: string]: any}): Map<string, any>;
       new (values: Iterable<string, any>): Map<string, any>; // deprecated
@@ -1943,21 +1943,21 @@
 
     /**
      * An iterator of this `Iterable`'s keys.
-     * 
+     *
      * Note: this will return an ES6 iterator which does not support Immutable JS sequence algorithms. Use `keySeq` instead, if this is what you want.
      */
     keys(): Iterator<K>;
 
     /**
      * An iterator of this `Iterable`'s values.
-     * 
+     *
      * Note: this will return an ES6 iterator which does not support Immutable JS sequence algorithms. Use `valueSeq` instead, if this is what you want.
      */
     values(): Iterator<V>;
 
     /**
      * An iterator of this `Iterable`'s entries as `[key, value]` tuples.
-     * 
+     *
      * Note: this will return an ES6 iterator which does not support Immutable JS sequence algorithms. Use `entrySeq` instead, if this is what you want.
      */
     entries(): Iterator</*[K, V]*/Array<any>>;
