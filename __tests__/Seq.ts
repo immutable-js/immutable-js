@@ -61,23 +61,6 @@ describe('Seq', () => {
     }).toThrow('Expected Array or iterable object of values, or keyed object: 3');
   });
 
-  it('temporarily warns about iterable length', function () {
-    this.spyOn(console, 'warn');
-
-    var seq = Seq.of(1,2,3);
-
-    // Note: `length` has been removed from the type definitions.
-    var length = (<any>seq).length;
-
-    expect((<any>console).warn.mostRecentCall.args[0]).toContain(
-      'iterable.length has been deprecated, '+
-      'use iterable.size or iterable.count(). '+
-      'This warning will become a silent error in a future version.'
-    );
-
-    expect(length).toBe(3);
-  });
-
   it('detects sequences', () => {
     var seq = Seq.of(1,2,3);
     expect(Seq.isSeq(seq)).toBe(true);
