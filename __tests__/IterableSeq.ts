@@ -18,6 +18,7 @@ describe('IterableSequence', () => {
     var s = Seq(i);
     expect(s.take(5).toArray()).toEqual([ 0,1,2,3,4 ]);
     expect(s.take(5).toArray()).toEqual([ 0,1,2,3,4 ]);
+    expect(s.take(5).take(Infinity).toArray()).toEqual([ 0,1,2,3,4 ]);
     expect(s.take(5).toArray()).toEqual([ 0,1,2,3,4 ]);
   })
 
