@@ -20,6 +20,10 @@ by Clojure and Scala, minimizing the need to copy or cache data.
 chaining of collection methods like `map` and `filter` without creating
 intermediate representations. Create some `Seq` with `Range` and `Repeat`.
 
+Want to hear more? Watch the presentation about Immutable.js:
+
+<a href="https://youtu.be/I7IdS-PbEgI" target="_blank" alt="Immutable Data and React"><img src="https://img.youtube.com/vi/I7IdS-PbEgI/0.jpg" /></a>
+
 [Persistent]: http://en.wikipedia.org/wiki/Persistent_data_structure
 [Immutable]: http://en.wikipedia.org/wiki/Immutable_object
 [hash maps tries]: http://en.wikipedia.org/wiki/Hash_array_mapped_trie
@@ -434,7 +438,7 @@ Also, don't miss the [Wiki](https://github.com/facebook/immutable-js/wiki) which
 contains articles on specific topics. Can't find something? Open an [issue](https://github.com/facebook/immutable-js/issues).
 
 
-Testing 
+Testing
 -------
 
 If you are using the [Chai Assertion Library](http://chaijs.com/), [Chai Immutable](https://github.com/astorije/chai-immutable) provides a set of assertions to use against `Immutable` collections.
