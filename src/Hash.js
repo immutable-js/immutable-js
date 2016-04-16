@@ -24,6 +24,9 @@ export function hash(o) {
   }
   var type = typeof o;
   if (type === 'number') {
+    if (o !== o || o === Infinity) {
+      return 0;
+    }
     var h = o | 0;
     if (h !== o) {
       h ^= o * 0xFFFFFFFF;

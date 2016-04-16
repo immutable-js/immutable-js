@@ -187,6 +187,17 @@ describe('Map', () => {
     expect(m.get('thing:1234')).toBe(1234);
   });
 
+  it('can use weird keys', () => {
+    var m: Map<any, any> = Map()
+      .set(NaN, 1)
+      .set(Infinity, 2)
+      .set(-Infinity, 3);
+
+    expect(m.get(NaN)).toBe(1);
+    expect(m.get(Infinity)).toBe(2);
+    expect(m.get(-Infinity)).toBe(3);
+  });
+
   it('can map items known to hash collide', () => {
     // make a big map, so it hashmaps
     var m: Map<any, any> = Range(0, 32).toMap();
