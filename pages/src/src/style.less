@@ -64,9 +64,10 @@
 
 .miniHeaderContents a {
   color: #fff;
+  font-weight: bold;
   margin-right: 1em;
   text-decoration: none;
-  text-shadow: 0 1px rgba(0,0,0,0.15);
+  text-shadow: 0 1px 1px rgba(0,0,0,0.25);
 }
 
 .miniHeaderContents a:last-child {
@@ -95,13 +96,10 @@
   flex-direction: column;
   height: 100%;
   justify-content: center;
-}
-
-.coverFixed.fixed {
-  height: 260px;
   position: fixed;
-  top: 0;
   width: 100%;
+  top: 0;
+  height: 70vh;
 }
 
 .filler {
@@ -148,6 +146,10 @@
 @media only screen and (max-width: 680px) {
 
   .cover {
+    max-height: 260px;
+  }
+
+  .coverFixed {
     max-height: 260px;
   }
 

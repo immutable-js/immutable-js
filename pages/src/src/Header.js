@@ -4,8 +4,8 @@ var Logo = require('./Logo');
 var StarBtn = require('./StarBtn');
 
 
-var fixed = window.matchMedia && window.matchMedia('(max-device-width: 680px)');
-fixed = fixed && fixed.matches;
+var isMobileMatch = window.matchMedia && window.matchMedia('(max-device-width: 680px)');
+var isMobile = isMobileMatch && isMobileMatch.matches;
 
 var Header = React.createClass({
 
@@ -29,16 +29,21 @@ var Header = React.createClass({
   },
 
   handleScroll: function (event) {
-    var scrollPos = window.scrollY;
-    if (scrollPos < this.offsetHeight) {
-      this.setState({ scroll: scrollPos });
+    if (!this._pending) {
+      if (window.scrollY < document.documentElement.clientHeight) {
+        this._pending = true;
+        window.requestAnimationFrame(() => {
+          this._pending = false;
+          this.setState({ scroll: window.scrollY });
+        });
+      }
     }
   },
 
   render: function() {
     var neg = this.state.scroll < 0;
     var s = neg ? 0 : this.state.scroll;
-    var sp = fixed ? 35 : 70;
+    var sp = isMobile ? 35 : 70;
 
     return (
       <div className="header">
@@ -56,7 +61,7 @@ var Header = React.createClass({
           </div>
         </div>
         <div className="cover">
-        <div className={"coverFixed" + (fixed ? ' fixed' : '')} style={fixed ? {}: t(s, 1)}>
+        <div className="coverFixed">
           <div className="filler">
             <div className="miniHeaderContents">
               <a href="docs/" target="_self">Docs</a>
@@ -66,7 +71,7 @@ var Header = React.createClass({
           </div>
           <div className="synopsis" >
             <div className="logo">
-              {(fixed ? [0,0,0,0,0,0,0] : [0,0,0,0,0,0,0,0,0,0,0,0]).map((_, i) =>
+              {(isMobile ? [0,0,0,0,0,0,0] : [0,0,0,0,0,0,0,0,0,0,0,0]).map((_, i) =>
                 <SVGSet key={i} style={t(y(s, i * sp), z(s, i * sp))}>
                   <Logo color="#d7dadb" />
                   <Logo color="#6dbcdb" opacity={o(s, i * sp)} />
