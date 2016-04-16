@@ -15,8 +15,8 @@ var DocHeader = React.createClass({
                 <Logo color="#2C3E50" inline={true} />
               </SVGSet>
             </a>
-            <a href="./" target="_self">Documentation</a>
-            <a href="https://github.com/facebook/immutable-js/issues/">Support</a>
+            <a href="./" target="_self">Docs</a>
+            <a href="http://stackoverflow.com/questions/tagged/immutable.js?sort=votes">Questions</a>
             <a href="https://github.com/facebook/immutable-js/">Github</a>
           </div>
         </div>
