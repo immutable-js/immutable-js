@@ -103,7 +103,7 @@ var TypeDef = React.createClass({
       case TypeKind.Type:
         var qualifiedType = (type.qualifier || []).concat([type.name]);
         var qualifiedTypeName = qualifiedType.join('.');
-        var def = qualifiedType.reduce(
+        var def = qualifiedTypeName.split('.').reduce(
           (def, name) => def && def.module && def.module[name],
           defs.Immutable
         );

@@ -275,7 +275,11 @@ var TypeDoc = React.createClass({
 function getTypePropMap(def) {
   var map = {};
   def && def.extends && def.extends.forEach(e => {
-    var superModule = defs.Immutable.module[e.name];
+    var superModule = defs.Immutable;
+    e.name.split('.').forEach(part => {
+      superModule =
+        superModule && superModule.module && superModule.module[part];
+    });
     var superInterface = superModule && superModule.interface;
     if (superInterface) {
       var interfaceMap = Seq(superInterface.typeParams)
