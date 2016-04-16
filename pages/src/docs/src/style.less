@@ -9,6 +9,7 @@
   margin: 0 auto;
   max-width: 880px;
   padding: 64px 0;
+  position: relative;
 }
 
 .disclaimer {
@@ -80,13 +81,35 @@
   margin-right: 0;
 }
 
+.toolBar {
+  .select-none();
+  font-size: 0.825em;
+  position: absolute;
+  right: 0;
+  top: 66px;
+  width: 220px;
+  color: #888;
+  cursor: pointer;
+}
+
+.toolBar .selected {
+  color: #141420;
+}
+
+@media only screen and (max-width: 680px) {
+  .toolBar {
+    display: none;
+  }
+}
+
 .sideBar {
   .select-none();
   font-size: 0.825em;
   height: 100%;
   overflow: hidden;
-  position: fixed;
-  top: 0;
+  position: absolute;
+  right: 0;
+  top: 50px;
   width: 220px;
   z-index: 0;
 }
@@ -127,7 +150,7 @@
 }
 
 .docContents {
-  margin-left: 240px;
+  margin-right: 240px;
 }
 
 @media only screen and (max-width: 680px) {

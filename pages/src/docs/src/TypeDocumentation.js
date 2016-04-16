@@ -41,23 +41,19 @@ var TypeDocumentation = React.createClass({
     return (
       <div>
         {isMobile || <SideBar focus={name} memberGroups={memberGroups} />}
-        <div key={name} className="docContents">
-
-        {/*
-
-          Bring this back when there's a nicer design
-
-          <div className="toolBar">
-            <input className="searchBar" />
-            <span onClick={this.toggleShowInGroups}>
-              {this.state.showInGroups ? 'Alphabetize' : 'Groups'}
-            </span>
+        {isMobile || <div className="toolBar">
+          <div onClick={this.toggleShowInGroups}>
+            <span className={this.state.showInGroups && 'selected'}>Grouped</span>
             {' • '}
-            <span onClick={this.toggleShowInherited}>
-              {this.state.showInherited ? 'Hide Inherited Members' : 'Show Inherited Members'}
-            </span>
+            <span className={this.state.showInGroups || 'selected'}>Alphabetized</span>
           </div>
-        */}
+          <div onClick={this.toggleShowInherited}>
+            <span className={this.state.showInherited && 'selected'}>Inherited</span>
+            {' • '}
+            <span className={this.state.showInherited || 'selected'}>Defined</span>
+          </div>
+        </div>}
+        <div key={name} className="docContents">
 
           {!def ?
             <NotFound /> :
