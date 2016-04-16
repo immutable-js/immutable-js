@@ -28,12 +28,11 @@
  * Note that Immutable values implement the `ESIterable` interface.
  */
 type ESIterable<T> = $Iterable<T,void,void>;
-type booleany = any;
 
 declare class Iterable<K,V> {
-  static Keyed:   Class<Object>;
-  static Indexed: Class<Object>;
-  static Set:     Class<Object>;
+  static Keyed:   typeof KeyedIterable;
+  static Indexed: typeof IndexedIterable;
+  static Set:     typeof SetIterable;
 
   static isIterable(maybeIterable: any): boolean;
   static isKeyed(maybeKeyed: any): boolean;
@@ -78,12 +77,12 @@ declare class Iterable<K,V> {
   entrySeq(): IndexedSeq<[K,V]>;
 
   filter(
-    predicate: (value: V, key: K, iter: this) => booleany,
+    predicate: (value: V, key: K, iter: this) => mixed,
     context?: any
   ): this;
 
   filterNot(
-    predicate: (value: V, key: K, iter: this) => booleany,
+    predicate: (value: V, key: K, iter: this) => mixed,
     context?: any
   ): this;
 
@@ -110,12 +109,12 @@ declare class Iterable<K,V> {
   butLast(): this;
   skip(amount: number): this;
   skipLast(amount: number): this;
-  skipWhile(predicate: (value: V, key: K, iter: this) => booleany, context?: any): this;
-  skipUntil(predicate: (value: V, key: K, iter: this) => booleany, context?: any): this;
+  skipWhile(predicate: (value: V, key: K, iter: this) => mixed, context?: any): this;
+  skipUntil(predicate: (value: V, key: K, iter: this) => mixed, context?: any): this;
   take(amount: number): this;
   takeLast(amount: number): this;
-  takeWhile(predicate: (value: V, key: K, iter: this) => booleany, context?: any): this;
-  takeUntil(predicate: (value: V, key: K, iter: this) => booleany, context?: any): this;
+  takeWhile(predicate: (value: V, key: K, iter: this) => mixed, context?: any): this;
+  takeUntil(predicate: (value: V, key: K, iter: this) => mixed, context?: any): this;
   flatten(depth?: number): /*this*/Iterable<any,any>;
   flatten(shallow?: boolean): /*this*/Iterable<any,any>;
 
@@ -131,35 +130,35 @@ declare class Iterable<K,V> {
     context?: any,
   ): R;
 
-  every(predicate: (value: V, key: K, iter: this) => booleany, context?: any): boolean;
-  some(predicate: (value: V, key: K, iter: this) => booleany, context?: any): boolean;
+  every(predicate: (value: V, key: K, iter: this) => mixed, context?: any): boolean;
+  some(predicate: (value: V, key: K, iter: this) => mixed, context?: any): boolean;
   join(separator?: string): string;
   isEmpty(): boolean;
-  count(predicate?: (value: V, key: K, iter: this) => booleany, context?: any): number;
+  count(predicate?: (value: V, key: K, iter: this) => mixed, context?: any): number;
   countBy<G>(grouper: (value: V, key: K, iter: this) => G, context?: any): Map<G,number>;
 
   find<V_>(
-    predicate: (value: V, key: K, iter: this) => booleany,
+    predicate: (value: V, key: K, iter: this) => mixed,
     context: any,
     notSetValue: V_
   ): V|V_;
   find<V_>(
-    predicate: (value: V, key: K, iter: this) => booleany,
+    predicate: (value: V, key: K, iter: this) => mixed,
     context?: any,
   ): ?V;
 
   findLast<V_>(
-    predicate: (value: V, key: K, iter: this) => booleany,
+    predicate: (value: V, key: K, iter: this) => mixed,
     context: any,
     notSetValue: V_
   ): V|V_;
   findLast<V_>(
-    predicate: (value: V, key: K, iter: this) => booleany,
+    predicate: (value: V, key: K, iter: this) => mixed,
     context?: any,
   ): ?V;
 
-  findEntry(predicate: (value: V, key: K, iter: this) => booleany): ?[K,V];
-  findLastEntry(predicate: (value: V, key: K, iter: this) => booleany): ?[K,V];
+  findEntry(predicate: (value: V, key: K, iter: this) => mixed): ?[K,V];
+  findLastEntry(predicate: (value: V, key: K, iter: this) => mixed): ?[K,V];
 
   max(comparator?: (valueA: V, valueB: V) => number): V;
   maxBy<C>(
@@ -198,8 +197,8 @@ declare class KeyedIterable<K,V> extends Iterable<K,V> {
 
   keyOf(searchValue: V): ?K;
   lastKeyOf(searchValue: V): ?K;
-  findKey(predicate: (value: V, key: K, iter: this) => booleany, context?: any): ?K;
-  findLastKey(predicate: (value: V, key: K, iter: this) => booleany, context?: any): ?K;
+  findKey(predicate: (value: V, key: K, iter: this) => mixed, context?: any): ?K;
+  findLastKey(predicate: (value: V, key: K, iter: this) => mixed, context?: any): ?K;
 
   concat(...iters: ESIterable<[K,V]>[]): this;
 
@@ -298,11 +297,11 @@ declare class IndexedIterable<T> extends Iterable<number,T> {
   indexOf(searchValue: T): number;
   lastIndexOf(searchValue: T): number;
   findIndex(
-    predicate: (value: T, index: number, iter: this) => booleany,
+    predicate: (value: T, index: number, iter: this) => mixed,
     context?: any
   ): number;
   findLastIndex(
-    predicate: (value: T, index: number, iter: this) => booleany,
+    predicate: (value: T, index: number, iter: this) => mixed,
     context?: any
   ): number;
 
@@ -343,9 +342,9 @@ declare class SetIterable<T> extends Iterable<T,T> {
 }
 
 declare class Collection<K,V> extends Iterable<K,V> {
-  static Keyed:   Class<Object>;
-  static Indexed: Class<Object>;
-  static Set:     Class<Object>;
+  static Keyed:   typeof KeyedCollection;
+  static Indexed: typeof IndexedCollection;
+  static Set:     typeof SetCollection;
 
   size: number;
 }
@@ -363,9 +362,9 @@ declare class SetCollection<T> extends Collection<T,T> mixins SetIterable<T> {
 }
 
 declare class Seq<K,V> extends Iterable<K,V> {
-  static Keyed:   Class<Object>;
-  static Indexed: Class<Object>;
-  static Set:     Class<Object>;
+  static Keyed:   typeof KeyedSeq;
+  static Indexed: typeof IndexedSeq;
+  static Set:     typeof SetSeq;
 
   static <K,V>(iter: KeyedSeq<K,V>):   KeyedSeq<K,V>;
   static <T>  (iter: SetSeq<T>):       SetSeq<K,V>;
@@ -524,8 +523,9 @@ declare class Map<K,V> extends KeyedCollection<K,V> {
   ): Map<K_,V>;
 }
 
+// OrderedMaps have nothing that Maps do not have. We do not need to override constructor & other statics
 declare class OrderedMap<K,V> extends Map<K,V> {
-  // TODO: can we just use the inherited constructor?
+  static isOrderedMap(maybeOrderedMap: any): bool;
 }
 
 declare class Set<T> extends SetCollection<T> {
@@ -562,7 +562,10 @@ declare class Set<T> extends SetCollection<T> {
   ): Set<M>;
 }
 
-declare class OrderedSet<T> extends Set<T> {}
+// OrderedSets have nothing that Sets do not have. We do not need to override constructor & other statics
+declare class OrderedSet<T> extends Set<T> {
+  static isOrderedSet(maybeOrderedSet: any): bool;
+}
 
 declare class Stack<T> extends IndexedCollection<T> {
   static <T>(iterable?: ESIterable<T>): Stack<T>;
