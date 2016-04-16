@@ -50,8 +50,8 @@ var Header = React.createClass({
                 <Logo color="#2C3E50" inline={true} />
               </SVGSet>
             </a>
-            <a href="docs/" target="_self">Documentation</a>
-            <a href="https://github.com/facebook/immutable-js/issues/">Support</a>
+            <a href="docs/" target="_self">Docs</a>
+            <a href="http://stackoverflow.com/questions/tagged/immutable.js?sort=votes">Questions</a>
             <a href="https://github.com/facebook/immutable-js/">Github</a>
           </div>
         </div>
@@ -59,8 +59,8 @@ var Header = React.createClass({
         <div className={"coverFixed" + (fixed ? ' fixed' : '')} style={fixed ? {}: t(s, 1)}>
           <div className="filler">
             <div className="miniHeaderContents">
-              <a href="docs/" target="_self">Documentation</a>
-              <a href="https://github.com/facebook/immutable-js/issues/">Support</a>
+              <a href="docs/" target="_self">Docs</a>
+              <a href="http://stackoverflow.com/questions/tagged/immutable.js?sort=votes">Questions</a>
               <a href="https://github.com/facebook/immutable-js/">Github</a>
             </div>
           </div>
