@@ -1,8 +1,13 @@
 <!--
-Have a general question? Please ask on Stack Overflow: http://stackoverflow.com/questions/tagged/immutable.js?sort=votes
+Have a general question?
+
+First check out the Docs: http://facebook.github.io/immutable-js/docs/
+Or ask on Stack Overflow: http://stackoverflow.com/questions/tagged/immutable.js?sort=votes
 Stack Overflow gets more attention than this issue list, and is much easier to search.
 
-Found a bug? Please ensure you're using the latest version, and provide some information below.
+Found a bug?
+
+Please ensure you're using the latest version, and provide some information below.
 -->
 
 ### What happened
