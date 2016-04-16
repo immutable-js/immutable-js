@@ -37,6 +37,17 @@ export class Map extends KeyedCollection {
       });
   }
 
+  static of(...keyValues) {
+    return emptyMap().withMutations(map => {
+      for (var i = 0; i < keyValues.length; i += 2) {
+        if (i + 1 >= keyValues.length) {
+          throw new Error('Missing value for key: ' + keyValues[i]);
+        }
+        map.set(keyValues[i], keyValues[i + 1]);
+      }
+    });
+  }
+
   toString() {
     return this.__toString('Map {', '}');
   }
@@ -122,11 +133,11 @@ export class Map extends KeyedCollection {
   }
 
   mergeDeep(/*...iters*/) {
-    return mergeIntoMapWith(this, deepMerger(undefined), arguments);
+    return mergeIntoMapWith(this, deepMerger, arguments);
   }
 
   mergeDeepWith(merger, ...iters) {
-    return mergeIntoMapWith(this, deepMerger(merger), iters);
+    return mergeIntoMapWith(this, deepMergerWith(merger), iters);
   }
 
   mergeDeepIn(keyPath, ...iters) {
@@ -735,11 +746,20 @@ function mergeIntoMapWith(map, merger, iterables) {
   return mergeIntoCollectionWith(map, merger, iters);
 }
 
-export function deepMerger(merger) {
-  return (existing, value, key) =>
-    existing && existing.mergeDeepWith && isIterable(value) ?
-      existing.mergeDeepWith(merger, value) :
-      merger ? merger(existing, value, key) : value;
+export function deepMerger(existing, value, key) {
+  return existing && existing.mergeDeep && isIterable(value) ?
+    existing.mergeDeep(value) :
+    is(existing, value) ? existing : value;
+}
+
+export function deepMergerWith(merger) {
+  return (existing, value, key) => {
+    if (existing && existing.mergeDeepWith && isIterable(value)) {
+      return existing.mergeDeepWith(merger, value);
+    }
+    var nextValue = merger(existing, value, key);
+    return is(existing, nextValue) ? existing : nextValue;
+  };
 }
 
 export function mergeIntoCollectionWith(collection, merger, iters) {

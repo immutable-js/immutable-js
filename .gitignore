@@ -7,3 +7,8 @@ npm-debug.log
 *.swp
 TODO
 build
+immutable.d.json
+readme.json
+/pages/out
+/pages/resources/immutable.d.json
+/pages/resources/readme.json

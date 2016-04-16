@@ -47,6 +47,9 @@ module.exports = function(grunt) {
         files: [{
           src: 'type-definitions/Immutable.d.ts',
           dest: 'dist/immutable.d.ts'
+        },{
+          src: 'type-definitions/immutable.js.flow',
+          dest: 'dist/immutable.js.flow'
         }]
       }
     },
@@ -59,7 +62,7 @@ module.exports = function(grunt) {
 
 
   var fs = require('fs');
-  var esperanto = require('esperanto');
+  var rollup = require('rollup');
   var declassify = require('./resources/declassify');
   var stripCopyright = require('./resources/stripCopyright');
   var uglify = require('uglify-js');
@@ -68,17 +71,22 @@ module.exports = function(grunt) {
     var done = this.async();
 
     this.files.map(function (file) {
-      esperanto.bundle({
+      rollup.rollup({
         entry: file.src[0],
-        transform: function(source) {
-          return declassify(stripCopyright(source));
-        }
+        plugins: [
+          {
+            transform: function(source) {
+              return declassify(stripCopyright(source));
+            }
+          }
+        ]
       }).then(function (bundle) {
         var copyright = fs.readFileSync('resources/COPYRIGHT');
 
-        var bundled = bundle.toUmd({
+        var bundled = bundle.generate({
+          format: 'umd',
           banner: copyright,
-          name: 'Immutable'
+          moduleName: 'Immutable'
         }).code;
 
         var es6 = require('es6-transpiler');

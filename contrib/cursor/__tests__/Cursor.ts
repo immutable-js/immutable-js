@@ -7,13 +7,20 @@ jest.autoMockOff();
 import Immutable = require('immutable');
 import Cursor = require('immutable/contrib/cursor');
 
-jasmine.getEnv().addEqualityTester((a, b) =>
-  a instanceof Immutable.Iterable && b instanceof Immutable.Iterable ?
-    Immutable.is(a, b) :
-    jasmine.undefined
-);
-
 describe('Cursor', () => {
+
+  beforeEach(function () {
+    this.addMatchers({
+      toValueEqual: function (expected) {
+        var actual = this.actual;
+        if (!Immutable.is(expected, this.actual)) {
+          this.message = 'Expected\n' + this.actual + '\nto equal\n' + expected;
+          return false;
+        }
+        return true;
+      }
+    });
+  });
 
   var json = { a: { b: { c: 1 } } };
 
@@ -60,7 +67,7 @@ describe('Cursor', () => {
     var data = Immutable.fromJS(json);
     var cursor = Cursor.from(data, ['a', 'b']);
     expect(cursor.toJS()).toEqual(json.a.b);
-    expect(cursor).toEqual(data.getIn(['a', 'b']));
+    expect(cursor).toValueEqual(data.getIn(['a', 'b']));
     expect(cursor.size).toBe(1);
     expect(cursor.get('c')).toBe(1);
   });
@@ -85,19 +92,17 @@ describe('Cursor', () => {
     // cursor edits return new cursors:
     var newDeepCursor = deepCursor.update(x => x + 1);
     expect(newDeepCursor.deref()).toBe(2);
-    expect(onChange).lastCalledWith(
-      Immutable.fromJS({a:{b:{c:2}}}),
-      data,
-      ['a', 'b', 'c']
-    );
+    var call1 = onChange.mock.calls[0];
+    expect(call1[0]).toValueEqual(Immutable.fromJS({a:{b:{c:2}}}));
+    expect(call1[1]).toBe(data);
+    expect(call1[2]).toEqual(['a', 'b', 'c']);
 
     var newestDeepCursor = newDeepCursor.update(x => x + 1);
     expect(newestDeepCursor.deref()).toBe(3);
-    expect(onChange).lastCalledWith(
-      Immutable.fromJS({a:{b:{c:3}}}),
-      Immutable.fromJS({a:{b:{c:2}}}),
-      ['a', 'b', 'c']
-    );
+    var call2 = onChange.mock.calls[1];
+    expect(call2[0]).toValueEqual(Immutable.fromJS({a:{b:{c:3}}}));
+    expect(call2[1]).toValueEqual(Immutable.fromJS({a:{b:{c:2}}}));
+    expect(call2[2]).toEqual(['a', 'b', 'c']);
 
     // meanwhile, data is still immutable:
     expect(data.toJS()).toEqual(json);
@@ -106,11 +111,10 @@ describe('Cursor', () => {
     expect(deepCursor.deref()).toBe(1);
     var otherNewDeepCursor = deepCursor.update(x => x + 10);
     expect(otherNewDeepCursor.deref()).toBe(11);
-    expect(onChange).lastCalledWith(
-      Immutable.fromJS({a:{b:{c:11}}}),
-      data,
-      ['a', 'b', 'c']
-    );
+    var call3 = onChange.mock.calls[2];
+    expect(call3[0]).toValueEqual(Immutable.fromJS({a:{b:{c:11}}}));
+    expect(call3[1]).toBe(data);
+    expect(call3[2]).toEqual(['a', 'b', 'c']);
 
     // and update has been called exactly thrice.
     expect(onChange.mock.calls.length).toBe(3);
@@ -126,21 +130,19 @@ describe('Cursor', () => {
     // onChange returning undefined has no effect
     var newCursor = deepCursor.update(x => x + 1);
     expect(newCursor.deref()).toBe(2);
-    expect(onChange).lastCalledWith(
-      Immutable.fromJS({a:{b:{c:2}}}),
-      data,
-      ['a', 'b', 'c']
-    );
+    var call1 = onChange.mock.calls[0];
+    expect(call1[0]).toValueEqual(Immutable.fromJS({a:{b:{c:2}}}));
+    expect(call1[1]).toBe(data);
+    expect(call1[2]).toEqual(['a', 'b', 'c']);
 
     onChange.mockReturnValueOnce(Immutable.fromJS({a:{b:{c:11}}}));
     // onChange returning something else has an effect
     newCursor = newCursor.update(x => 999);
     expect(newCursor.deref()).toBe(11);
-    expect(onChange).lastCalledWith(
-      Immutable.fromJS({a:{b:{c:999}}}),
-      Immutable.fromJS({a:{b:{c:2}}}),
-      ['a', 'b', 'c']
-    );
+    var call2 = onChange.mock.calls[1];
+    expect(call2[0]).toValueEqual(Immutable.fromJS({a:{b:{c:999}}}));
+    expect(call2[1]).toValueEqual(Immutable.fromJS({a:{b:{c:2}}}));
+    expect(call2[2]).toEqual(['a', 'b', 'c']);
 
     // and update has been called exactly twice
     expect(onChange.mock.calls.length).toBe(2);
@@ -154,14 +156,14 @@ describe('Cursor', () => {
     var bCursor = aCursor.cursor('b');
     var cCursor = bCursor.cursor('c');
 
-    expect(bCursor.set('c', 10).deref()).toEqual(
+    expect(bCursor.set('c', 10).deref()).toValueEqual(
       Immutable.fromJS({ c: 10 })
     );
-    expect(onChange).lastCalledWith(
-      Immutable.fromJS({ a: { b: { c: 10 } } }),
-      data,
-      ['a', 'b', 'c']
-    );
+
+    var call1 = onChange.mock.calls[0];
+    expect(call1[0]).toValueEqual(Immutable.fromJS({a:{b:{c:10}}}));
+    expect(call1[1]).toBe(data);
+    expect(call1[2]).toEqual(['a', 'b', 'c']);
   });
 
   it('creates maps as necessary', () => {
@@ -169,7 +171,7 @@ describe('Cursor', () => {
     var cursor = Cursor.from(data, ['a', 'b', 'c']);
     expect(cursor.deref()).toBe(undefined);
     cursor = cursor.set('d', 3);
-    expect(cursor.deref()).toEqual(Immutable.Map({d: 3}));
+    expect(cursor.deref()).toValueEqual(Immutable.Map({d: 3}));
   });
 
   it('can set undefined', () => {
@@ -183,7 +185,7 @@ describe('Cursor', () => {
   it('has the sequence API', () => {
     var data = Immutable.Map({a: 1, b: 2, c: 3});
     var cursor = Cursor.from(data);
-    expect(cursor.map((x: number) => x * x)).toEqual(Immutable.Map({a: 1, b: 4, c: 9}));
+    expect(cursor.map((x: number) => x * x)).toValueEqual(Immutable.Map({a: 1, b: 4, c: 9}));
   });
 
   it('can push values on a List', () => {
@@ -191,12 +193,12 @@ describe('Cursor', () => {
     var data = Immutable.fromJS({a: {b: [0, 1, 2]}});
     var cursor = Cursor.from(data, ['a', 'b'], onChange);
 
-    expect(cursor.push(3,4)).toEqual(Immutable.List([0, 1, 2, 3, 4]));
-    expect(onChange).lastCalledWith(
-      Immutable.fromJS({a: {b: [0, 1, 2, 3, 4]}}),
-      data,
-      ['a', 'b']
-    );
+    expect(cursor.push(3,4)).toValueEqual(Immutable.List([0, 1, 2, 3, 4]));
+
+    var call = onChange.mock.calls[0];
+    expect(call[0]).toValueEqual(Immutable.fromJS({a: {b: [0, 1, 2, 3, 4]}}));
+    expect(call[1]).toBe(data);
+    expect(call[2]).toEqual(['a', 'b']);
   });
 
   it('can pop values of a List', () => {
@@ -204,12 +206,12 @@ describe('Cursor', () => {
     var data = Immutable.fromJS({a: {b: [0, 1, 2]}});
     var cursor = Cursor.from(data, ['a', 'b'], onChange);
 
-    expect(cursor.pop()).toEqual(Immutable.List([0, 1]));
-    expect(onChange).lastCalledWith(
-      Immutable.fromJS({a: {b: [0, 1]}}),
-      data,
-      ['a', 'b']
-    );
+    expect(cursor.pop()).toValueEqual(Immutable.List([0, 1]));
+
+    var call = onChange.mock.calls[0];
+    expect(call[0]).toValueEqual(Immutable.fromJS({a: {b: [0, 1]}}));
+    expect(call[1]).toBe(data);
+    expect(call[2]).toEqual(['a', 'b']);
   });
 
   it('can unshift values on a List', () => {
@@ -217,12 +219,12 @@ describe('Cursor', () => {
     var data = Immutable.fromJS({a: {b: [0, 1, 2]}});
     var cursor = Cursor.from(data, ['a', 'b'], onChange);
 
-    expect(cursor.unshift(-2, -1)).toEqual(Immutable.List([-2, -1, 0, 1, 2]));
-    expect(onChange).lastCalledWith(
-      Immutable.fromJS({a: {b: [-2, -1, 0, 1, 2]}}),
-      data,
-      ['a', 'b']
-    );
+    expect(cursor.unshift(-2, -1)).toValueEqual(Immutable.List([-2, -1, 0, 1, 2]));
+
+    var call = onChange.mock.calls[0];
+    expect(call[0]).toValueEqual(Immutable.fromJS({a: {b: [-2, -1, 0, 1, 2]}}));
+    expect(call[1]).toBe(data);
+    expect(call[2]).toEqual(['a', 'b']);
   });
 
   it('can shift values of a List', () => {
@@ -230,12 +232,12 @@ describe('Cursor', () => {
     var data = Immutable.fromJS({a: {b: [0, 1, 2]}});
     var cursor = Cursor.from(data, ['a', 'b'], onChange);
 
-    expect(cursor.shift()).toEqual(Immutable.List([1, 2]));
-    expect(onChange).lastCalledWith(
-      Immutable.fromJS({a: {b: [1, 2]}}),
-      data,
-      ['a', 'b']
-    );
+    expect(cursor.shift()).toValueEqual(Immutable.List([1, 2]));
+
+    var call = onChange.mock.calls[0];
+    expect(call[0]).toValueEqual(Immutable.fromJS({a: {b: [1, 2]}}));
+    expect(call[1]).toBe(data);
+    expect(call[2]).toEqual(['a', 'b']);
   });
 
 
@@ -247,11 +249,11 @@ describe('Cursor', () => {
     var found = cursor.find(map => map.get('v') === 2);
     expect(typeof found.deref).toBe('function'); // is a cursor!
     found = found.set('v', 20);
-    expect(onChange).lastCalledWith(
-      Immutable.fromJS({a: {v: 1}, b: {v: 20}, c: {v: 3}}),
-      data,
-      ['b', 'v']
-    );
+
+    var call = onChange.mock.calls[0];
+    expect(call[0]).toValueEqual(Immutable.fromJS({a: {v: 1}, b: {v: 20}, c: {v: 3}}));
+    expect(call[1]).toBe(data);
+    expect(call[2]).toEqual(['b', 'v']);
   });
 
   it('returns wrapped values for iteration API', () => {
@@ -309,7 +311,7 @@ describe('Cursor', () => {
     var c2 = c1.withMutations(m => m.set('x', 1).set('y', 2).set('z', 3));
 
     expect(c1.deref()).toEqual(undefined);
-    expect(c2.deref()).toEqual(Immutable.fromJS(
+    expect(c2.deref()).toValueEqual(Immutable.fromJS(
       { x: 1, y: 2, z: 3 }
     ));
     expect(onChange.mock.calls.length).toBe(1);
@@ -334,11 +336,11 @@ describe('Cursor', () => {
     var c = Cursor.from(data, ['a'], onChange);
     var c1 = c.updateIn(['b', 'c'], x => x * 10);
     expect(c1.getIn(['b', 'c'])).toBe(10);
-    expect(onChange).lastCalledWith(
-      Immutable.fromJS({a:{b:{c:10}}}),
-      data,
-      ['a', 'b', 'c']
-    );
+
+    var call = onChange.mock.calls[0];
+    expect(call[0]).toValueEqual(Immutable.fromJS({a:{b:{c:10}}}));
+    expect(call[1]).toBe(data);
+    expect(call[2]).toEqual(['a', 'b', 'c']);
   });
 
   it('can set deeply', () => {
@@ -347,11 +349,11 @@ describe('Cursor', () => {
     var c = Cursor.from(data, ['a'], onChange);
     var c1 = c.setIn(['b', 'c'], 10);
     expect(c1.getIn(['b', 'c'])).toBe(10);
-    expect(onChange).lastCalledWith(
-      Immutable.fromJS({a:{b:{c:10}}}),
-      data,
-      ['a', 'b', 'c']
-    );
+
+    var call = onChange.mock.calls[0];
+    expect(call[0]).toValueEqual(Immutable.fromJS({a:{b:{c:10}}}));
+    expect(call[1]).toBe(data);
+    expect(call[2]).toEqual(['a', 'b', 'c']);
   });
 
   it('can get Record value as a property', () => {
@@ -368,11 +370,11 @@ describe('Cursor', () => {
     var c = Cursor.from(data, ['a'], onChange);
     var c1 = c.set(2);
     expect(c1.deref()).toBe(2);
-    expect(onChange).lastCalledWith(
-      Immutable.fromJS({a:2}),
-      data,
-      ['a']
-    );
+
+    var call = onChange.mock.calls[0];
+    expect(call[0]).toValueEqual(Immutable.fromJS({a:2}));
+    expect(call[1]).toBe(data);
+    expect(call[2]).toEqual(['a']);
   });
 
   it('can set value of a cursor to undefined directly', () => {
@@ -381,11 +383,11 @@ describe('Cursor', () => {
     var c = Cursor.from(data, ['a'], onChange);
     var c1 = c.set(undefined);
     expect(c1.deref()).toBe(undefined);
-    expect(onChange).lastCalledWith(
-      Immutable.fromJS({a:undefined}),
-      data,
-      ['a']
-    );
+
+    var call = onChange.mock.calls[0];
+    expect(call[0]).toValueEqual(Immutable.fromJS({a:undefined}));
+    expect(call[1]).toBe(data);
+    expect(call[2]).toEqual(['a']);
   });
 
 });

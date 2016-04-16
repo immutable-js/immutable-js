@@ -12,7 +12,7 @@ import { DELETE, SHIFT, SIZE, MASK, DID_ALTER, OwnerID, MakeRef,
           SetRef, wrapIndex, wholeSlice, resolveBegin, resolveEnd } from './TrieUtils'
 import { isIterable, IndexedIterable } from './Iterable'
 import { IndexedCollection } from './Collection'
-import { MapPrototype, mergeIntoCollectionWith, deepMerger } from './Map'
+import { MapPrototype, mergeIntoCollectionWith, deepMerger, deepMergerWith } from './Map'
 import { Iterator, iteratorValue, iteratorDone } from './Iterator'
 
 import assertNotInfinite from './utils/assertNotInfinite'
@@ -78,6 +78,10 @@ export class List extends IndexedCollection {
       this.splice(index, 1);
   }
 
+  insert(index, value) {
+    return this.splice(index, 0, value);
+  }
+
   clear() {
     if (this.size === 0) {
       return this;
@@ -133,11 +137,11 @@ export class List extends IndexedCollection {
   }
 
   mergeDeep(/*...iters*/) {
-    return mergeIntoListWith(this, deepMerger(undefined), arguments);
+    return mergeIntoListWith(this, deepMerger, arguments);
   }
 
   mergeDeepWith(merger, ...iters) {
-    return mergeIntoListWith(this, deepMerger(merger), iters);
+    return mergeIntoListWith(this, deepMergerWith(merger), iters);
   }
 
   setSize(size) {
@@ -472,6 +476,14 @@ function listNodeFor(list, rawIndex) {
 }
 
 function setListBounds(list, begin, end) {
+  // Sanitize begin & end using this shorthand for ToInt32(argument)
+  // http://www.ecma-international.org/ecma-262/6.0/#sec-toint32
+  if (begin !== undefined) {
+    begin = begin | 0;
+  }
+  if (end !== undefined) {
+    end = end | 0;
+  }
   var owner = list.__ownerID || new OwnerID();
   var oldOrigin = list._origin;
   var oldCapacity = list._capacity;

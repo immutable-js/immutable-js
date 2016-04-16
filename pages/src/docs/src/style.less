@@ -1,0 +1,271 @@
+@import (less) '../../src/base.less';
+
+.pageBody {
+  padding: 0 36px;
+  position: relative;
+}
+
+.contents {
+  margin: 0 auto;
+  max-width: 880px;
+  padding: 64px 0;
+  position: relative;
+}
+
+.disclaimer {
+  margin: 60px 20px 0 260px;
+  border: solid 1px #eecccc;
+  background: #fefafa;
+  padding: 1em;
+  text-align: center;
+  font-size: 0.8em;
+}
+
+@media only screen and (max-width: 680px) {
+  .disclaimer {
+    margin: 60px 0 0;
+  }
+}
+
+.miniHeader {
+  background: #6dbcdb;
+  position: fixed;
+  width: 100%;
+  z-index: 1;
+}
+
+@media only screen and (max-width: 680px) {
+  .miniHeader {
+    position: relative;
+  }
+}
+
+.miniHeaderContents {
+  margin: 0 auto;
+  max-width: 880px;
+  padding: 12px 36px;
+  position: relative;
+  text-align: right;
+}
+
+@media only screen and (max-width: 680px) {
+  .miniHeaderContents {
+    text-align: left;
+  }
+}
+
+.miniLogo {
+  float: left;
+  left: -140px;
+  top: 12px;
+}
+
+@media only screen and (max-width: 680px) {
+  .miniLogo {
+    display: none;
+  }
+}
+
+.miniLogo > .svg {
+  height: 24px;
+}
+
+.miniHeaderContents a {
+  color: #fff;
+  margin-right: 1em;
+  text-decoration: none;
+  text-shadow: 0 1px rgba(0,0,0,0.15);
+}
+
+.miniHeaderContents a:last-child {
+  margin-right: 0;
+}
+
+.toolBar {
+  .select-none();
+  font-size: 0.825em;
+  position: absolute;
+  right: 0;
+  top: 66px;
+  width: 220px;
+  color: #888;
+  cursor: pointer;
+}
+
+.toolBar .selected {
+  color: #141420;
+}
+
+@media only screen and (max-width: 680px) {
+  .toolBar {
+    display: none;
+  }
+}
+
+.sideBar {
+  .select-none();
+  font-size: 0.825em;
+  height: 100%;
+  overflow: hidden;
+  position: absolute;
+  right: 0;
+  top: 50px;
+  width: 220px;
+  z-index: 0;
+}
+
+@media only screen and (max-width: 680px) {
+  .sideBar {
+    display: none;
+  }
+}
+
+.sideBar .scrollContent {
+  box-sizing: border-box;
+  height: 100%;
+  overflow: auto;
+  padding: 66px 0 100px;
+  width: 240px;
+}
+
+.sideBar h2 {
+  font-size: 1em;
+  margin: 1em 0;
+
+  position: relative;
+}
+
+.sideBar h2 a {
+  font-weight: normal;
+}
+
+.sideBar .members {
+  margin: 0 0 2.5em 1em;
+}
+
+.sideBar .groupTitle {
+  color: @body-color;
+  font-size: 1em;
+  margin: 1em 0 0;
+}
+
+.docContents {
+  margin-right: 240px;
+}
+
+@media only screen and (max-width: 680px) {
+  .docContents {
+    margin-left: 0;
+  }
+}
+
+.t a {
+  .transition(background-color 0.15s);
+  background-color: rgba(0,0,0,0.01);
+  border-radius: 4px;
+  box-shadow: inset 0 0 1px rgba(0,0,0,0.08);
+  margin: -2px -4px;
+  padding: 2px 4px;
+}
+
+.t a:hover {
+  background-color: rgba(112, 170, 220, 0.2);
+}
+
+.typeHeader {
+  color: #555;
+  font-size: 1.5em;
+  font-weight: normal;
+  margin: 1rem 0;
+  font-weight: bold;
+}
+
+.interfaceMember {
+  margin: 1.3rem 0;
+}
+
+.infoHeader {
+  color: #555;
+  font-size: 10px;
+  letter-spacing: 0.25ch;
+  line-height: 16px;
+  margin: 1rem 0 0.125rem;
+  text-transform: uppercase;
+}
+
+.synopsis {
+  margin: -0.5em 0 1em;
+}
+
+.discussion p:first-child {
+  margin-top: 0.5em;
+}
+
+.memberSignature {
+  border-left-color: #9CDAE9;
+  background: #F8F9FA;
+}
+
+.t.over {
+  border-bottom: solid 2px rgba(0,0,0,0.05);
+  padding-bottom: 3px;
+}
+
+.memberLabel {
+  .select-none();
+  font-size: 1em;
+  margin: 0;
+}
+
+@media only screen and (max-width: 680px) {
+  .memberLabel {
+    cursor: pointer;
+  }
+}
+
+.detail {
+  box-sizing: border-box;
+  margin-bottom: 2.6rem;
+  overflow: hidden;
+}
+
+.groupTitle {
+  color: #9A9C9E;
+  font-size: 1.5em;
+  font-weight: 300;
+  margin: 3rem 0 2rem;
+}
+
+@media only screen and (max-width: 680px) {
+  .groupTitle {
+    margin: 2em 0 1em;
+  }
+}
+
+.doc {
+  margin: 2em 0 3em;
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+
+// macros
+
+.transition(@transition) {
+  -webkit-transition: @transition;
+  -moz-transition:    @transition;
+  -ms-transition:     @transition;
+  -o-transition:      @transition;
+}
+
+.select-none() {
+  cursor: default;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}

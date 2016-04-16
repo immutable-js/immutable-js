@@ -18,6 +18,7 @@ interface Expect {
   toThrow(message?: string): void
   toBe(value: any): void
   toEqual(value: any): void
+  toValueEqual(value: any): void
   toBeFalsy(): void
   toBeTruthy(): void
   toBeNull(): void

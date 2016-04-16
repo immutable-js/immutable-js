@@ -1,3 +1,9 @@
 language: node_js
 
 sudo: false
+
+after_success: npm run deploy
+
+env:
+  global:
+    secure: "VDsxy30sE9ivdqoXkaKXo0czbS4brNpwKEIblu7f1gVLx7OD9pjTc78cdwrVbZDBYroSiYVYuUrLDjpVjH88lL/LxRrru3V0CIlAqqa+ssXcqycCaT/6ds+ZymuTTGRh+Mf12pIKO+yc8jTov2M7AzPJdpS+ORP5dImYyE3ex9s="

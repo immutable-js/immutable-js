@@ -3,12 +3,10 @@
 
 jest.autoMockOff();
 
-import jasmineCheck = require('jasmine-check');
+import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import I = require('immutable');
-import Seq = I.Seq;
-import List = I.List;
+import { List, Range, Seq } from 'immutable';
 
 describe('slice', () => {
 
@@ -92,9 +90,16 @@ describe('slice', () => {
   })
 
   it('has the same behavior as array slice in known edge cases', () => {
-    var a = I.Range(0, 33).toArray();
+    var a = Range(0, 33).toArray();
     var v = List(a);
     expect(v.slice(31).toList().toArray()).toEqual(a.slice(31));
+  })
+
+  it('does not slice by floating-point numbers', () => {
+    var seq = Seq([0,1,2,3,4,5]);
+    var sliced = seq.slice(0, 2.6);
+    expect(sliced.size).toEqual(2);
+    expect(sliced.toArray()).toEqual([0, 1]);
   })
 
   it('can create an iterator', () => {
@@ -118,7 +123,7 @@ describe('slice', () => {
   check.it('works like Array.prototype.slice',
            [gen.int, gen.array(gen.oneOf([gen.int, gen.undefined]), 0, 3)],
            (valuesLen, args) => {
-    var a = I.Range(0, valuesLen).toArray();
+    var a = Range(0, valuesLen).toArray();
     var v = List(a);
     var slicedV = v.slice.apply(v, args);
     var slicedA = a.slice.apply(a, args);
@@ -140,7 +145,7 @@ describe('slice', () => {
   describe('take', () => {
 
     check.it('takes the first n from a list', [gen.int, gen.posInt], (len, num) => {
-      var a = I.Range(0, len).toArray();
+      var a = Range(0, len).toArray();
       var v = List(a);
       expect(v.take(num).toArray()).toEqual(a.slice(0, num));
     })
@@ -152,15 +157,17 @@ describe('slice', () => {
       expect(sliced.toArray()).toEqual([1, 2, 3]);
       expect(sliced.toArray()).toEqual([1, 2, 3]);
     })
-    
+
     it('converts to array with correct length', () => {
       var seq = Seq.of(1,2,3,4,5,6);
       var s1 = seq.take(3);
       var s2 = seq.take(10);
+      var sn = seq.take(Infinity);
       var s3 = seq.filter((v) => v < 4).take(10);
       var s4 = seq.filter((v) => v < 4).take(2);
       expect(s1.toArray().length).toEqual(3);
       expect(s2.toArray().length).toEqual(6);
+      expect(sn.toArray().length).toEqual(6);
       expect(s3.toArray().length).toEqual(3);
       expect(s4.toArray().length).toEqual(2);
     })

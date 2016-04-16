@@ -3,11 +3,10 @@
 
 jest.autoMockOff();
 
-import jasmineCheck = require('jasmine-check');
+import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import Immutable = require('immutable');
-import Stack = Immutable.Stack;
+import { Seq, Stack } from 'immutable';
 
 function arrayOfSize(s) {
   var a = new Array(s);
@@ -37,13 +36,13 @@ describe('Stack', () => {
   });
 
   it('accepts a Seq', () => {
-    var seq = Immutable.Seq(['a', 'b', 'c']);
+    var seq = Seq(['a', 'b', 'c']);
     var s = Stack(seq);
     expect(s.toArray()).toEqual(['a', 'b', 'c']);
   });
 
   it('accepts a keyed Seq', () => {
-    var seq = Immutable.Seq({a:null, b:null, c:null}).flip();
+    var seq = Seq({a:null, b:null, c:null}).flip();
     var s = Stack(seq);
     expect(s.toArray()).toEqual([[null,'a'], [null,'b'], [null,'c']]);
     // Explicit values
@@ -84,14 +83,14 @@ describe('Stack', () => {
       [1,'b'],
       [2,'c'],
     ]);
-    
+
     // map will cause reverse iterate
     expect(s.map(val => val + val).toArray()).toEqual([
       'aa',
       'bb',
       'cc',
     ]);
-    
+
     var iteratorResults = [];
     var iterator = s.entries();
     var step;
@@ -103,7 +102,7 @@ describe('Stack', () => {
       [1,'b'],
       [2,'c'],
     ]);
-    
+
     iteratorResults = [];
     iterator = s.toSeq().reverse().entries();
     while (!(step = iterator.next()).done) {

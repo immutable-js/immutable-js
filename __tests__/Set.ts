@@ -1,10 +1,9 @@
 ///<reference path='../resources/jest.d.ts'/>
 ///<reference path='../dist/immutable.d.ts'/>
-
+declare var Symbol: any;
 jest.autoMockOff();
 
-import Immutable = require('immutable');
-import Set = Immutable.Set;
+import { List, Map, OrderedSet, Seq, Set, is } from 'immutable';
 
 declare function expect(val: any): ExpectWithIs;
 
@@ -18,7 +17,7 @@ describe('Set', () => {
   beforeEach(function () {
     this.addMatchers({
       is: function(expected) {
-        return Immutable.is(this.actual, expected);
+        return is(this.actual, expected);
       }
     })
   })
@@ -49,7 +48,7 @@ describe('Set', () => {
   });
 
   it('accepts sequence of values', () => {
-    var seq = Immutable.Seq.of(1,2,3);
+    var seq = Seq.of(1,2,3);
     var s = Set(seq);
     expect(s.has(1)).toBe(true);
     expect(s.has(2)).toBe(true);
@@ -58,7 +57,7 @@ describe('Set', () => {
   });
 
   it('accepts a keyed Seq as a set of entries', () => {
-    var seq = Immutable.Seq({a:null, b:null, c:null}).flip();
+    var seq = Seq({a:null, b:null, c:null}).flip();
     var s = Set(seq);
     expect(s.toArray()).toEqual([[null,'a'], [null,'b'], [null,'c']]);
     // Explicitly getting the values sequence
@@ -78,7 +77,7 @@ describe('Set', () => {
   });
 
   it('accepts sequence keys', () => {
-    var seq = Immutable.Seq({a:null, b:null, c:null});
+    var seq = Seq({a:null, b:null, c:null});
     var s = Set.fromKeys(seq);
     expect(s.has('a')).toBe(true);
     expect(s.has('b')).toBe(true);
@@ -139,16 +138,16 @@ describe('Set', () => {
   it('unions a set and an iterable and returns a set', () => {
     var s1 = Set([1,2,3]);
     var emptySet = Set();
-    var l = Immutable.List([1,2,3]);
+    var l = List([1,2,3]);
     var s2 = s1.union(l);
     var s3 = emptySet.union(l);
-    var o = Immutable.OrderedSet([1,2,3]);
+    var o = OrderedSet([1,2,3]);
     var s4 = s1.union(o);
     var s5 = emptySet.union(o);
     expect(Set.isSet(s2)).toBe(true);
     expect(Set.isSet(s3)).toBe(true);
-    expect(Set.isSet(s4) && !Immutable.OrderedSet.isOrderedSet(s4)).toBe(true);
-    expect(Set.isSet(s5) && !Immutable.OrderedSet.isOrderedSet(s5)).toBe(true);
+    expect(Set.isSet(s4) && !OrderedSet.isOrderedSet(s4)).toBe(true);
+    expect(Set.isSet(s5) && !OrderedSet.isOrderedSet(s5)).toBe(true);
   });
 
   it('is persistent to adds', () => {
@@ -205,16 +204,16 @@ describe('Set', () => {
 
     var s2 = Set.of('C', 'B', 'A');
     expect(s1 === s2).toBe(false);
-    expect(Immutable.is(s1, s2)).toBe(true);
+    expect(is(s1, s2)).toBe(true);
     expect(s1.equals(s2)).toBe(true);
 
     // Map and Set are not the same (keyed vs unkeyed)
-    var v1 = Immutable.Map({ A: 'A', C: 'C', B: 'B' });
-    expect(Immutable.is(s1, v1)).toBe(false);
+    var v1 = Map({ A: 'A', C: 'C', B: 'B' });
+    expect(is(s1, v1)).toBe(false);
   });
 
   it('can use union in a withMutation', () => {
-    var js = Immutable.Set().withMutations(set => {
+    var js = Set().withMutations(set => {
       set.union([ 'a' ]);
       set.add('b');
     }).toJS();
@@ -225,6 +224,43 @@ describe('Set', () => {
     var s = Set.of('A', 'B', 'C');
     expect(s.isSuperset(['B', 'C'])).toBe(true);
     expect(s.isSuperset(['B', 'C', 'D'])).toBe(false);
+  });
+
+  describe('accepts Symbol as entry #579', () => {
+    if (typeof Symbol !== 'function') {
+      Symbol = function(key) {
+        return { key: key, __proto__: Symbol };
+      };
+      Symbol.toString = function() {
+        return 'Symbol(' + (this.key || '') + ')';
+      }
+    }
+
+    it('operates on small number of symbols, preserving set uniqueness', () => {
+      var a = Symbol();
+      var b = Symbol();
+      var c = Symbol();
+
+      var symbolSet = Set([ a, b, c, a, b, c, a, b, c, a, b, c ]);
+      expect(symbolSet.size).toBe(3);
+      expect(symbolSet.has(b)).toBe(true);
+      expect(symbolSet.get(c)).toEqual(c);
+    });
+
+    it('operates on a large number of symbols, maintaining obj uniqueness', () => {
+      var manySymbols = [
+        Symbol('a'), Symbol('b'), Symbol('c'),
+        Symbol('a'), Symbol('b'), Symbol('c'),
+        Symbol('a'), Symbol('b'), Symbol('c'),
+        Symbol('a'), Symbol('b'), Symbol('c'),
+      ];
+
+      var symbolSet = Set(manySymbols);
+      expect(symbolSet.size).toBe(12);
+      expect(symbolSet.has(manySymbols[10])).toBe(true);
+      expect(symbolSet.get(manySymbols[10])).toEqual(manySymbols[10]);
+    });
+
   });
 
   // TODO: more tests

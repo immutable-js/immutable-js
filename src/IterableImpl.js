@@ -173,8 +173,8 @@ mixin(Iterable, {
     return entry ? entry[1] : notSetValue;
   },
 
-  findEntry(predicate, context) {
-    var found;
+  findEntry(predicate, context, notSetValue) {
+    var found = notSetValue;
     this.__iterate((v, k, c) => {
       if (predicate.call(context, v, k, c)) {
         found = [k, v];
@@ -184,8 +184,8 @@ mixin(Iterable, {
     return found;
   },
 
-  findLastEntry(predicate, context) {
-    return this.toSeq().reverse().findEntry(predicate, context);
+  findLastEntry(predicate, context, notSetValue) {
+    return this.toSeq().reverse().findEntry(predicate, context, notSetValue);
   },
 
   forEach(sideEffect, context) {
@@ -433,7 +433,7 @@ mixin(Iterable, {
 
   hashCode() {
     return this.__hash || (this.__hash = hashIterable(this));
-  },
+  }
 
 
   // ### Internal
@@ -457,35 +457,6 @@ IterablePrototype.inspect =
 IterablePrototype.toSource = function() { return this.toString(); };
 IterablePrototype.chain = IterablePrototype.flatMap;
 IterablePrototype.contains = IterablePrototype.includes;
-
-// Temporary warning about using length
-(function () {
-  try {
-    Object.defineProperty(IterablePrototype, 'length', {
-      get: function () {
-        if (!Iterable.noLengthWarning) {
-          var stack;
-          try {
-            throw new Error();
-          } catch (error) {
-            stack = error.stack;
-          }
-          if (stack.indexOf('_wrapObject') === -1) {
-            console && console.warn && console.warn(
-              'iterable.length has been deprecated, '+
-              'use iterable.size or iterable.count(). '+
-              'This warning will become a silent error in a future version. ' +
-              stack
-            );
-            return this.size;
-          }
-        }
-      }
-    });
-  } catch (e) {}
-})();
-
-
 
 mixin(KeyedIterable, {
 
@@ -527,7 +498,7 @@ mixin(KeyedIterable, {
         (k, v) => mapper.call(context, k, v, this)
       ).flip()
     );
-  },
+  }
 
 });
 
@@ -565,7 +536,8 @@ mixin(IndexedIterable, {
   },
 
   lastIndexOf(searchValue) {
-    return this.toSeq().reverse().indexOf(searchValue);
+    var key = this.toKeyedSeq().reverse().keyOf(searchValue);
+    return key === undefined ? -1 : key;
   },
 
   reverse() {
@@ -582,7 +554,10 @@ mixin(IndexedIterable, {
     if (numArgs === 0 || (numArgs === 2 && !removeNum)) {
       return this;
     }
-    index = resolveBegin(index, this.size);
+    // If index is negative, it should resolve relative to the size of the
+    // collection. However size may be expensive to compute if not cached, so
+    // only call count() if the number is in fact negative.
+    index = resolveBegin(index, index < 0 ? this.count() : this.size);
     var spliced = this.slice(0, index);
     return reify(
       this,
@@ -655,7 +630,7 @@ mixin(IndexedIterable, {
     var iterables = arrCopy(arguments);
     iterables[0] = this;
     return reify(this, zipWithFactory(this, zipper, iterables));
-  },
+  }
 
 });
 
@@ -681,11 +656,12 @@ mixin(SetIterable, {
 
   keySeq() {
     return this.valueSeq();
-  },
+  }
 
 });
 
 SetIterable.prototype.has = IterablePrototype.includes;
+SetIterable.prototype.contains = SetIterable.prototype.includes;
 
 
 // Mixin subclasses

@@ -9,11 +9,12 @@ and change detection techniques with simple logic. [Persistent][] data presents
 a mutative API which does not update the data in-place, but instead always
 yields new updated data.
 
-`Immutable` provides Persistent Immutable `List`, `Stack`, `Map`, `OrderedMap`,
-`Set`, `OrderedSet` and `Record`. They are highly efficient on modern JavaScript
-VMs by using structural sharing via [hash maps tries][] and
-[vector tries][] as popularized by Clojure and Scala,
-minimizing the need to copy or cache data.
+Immutable.js provides many Persistent Immutable data structures including:
+`List`, `Stack`, `Map`, `OrderedMap`, `Set`, `OrderedSet` and `Record`.
+
+These data structures are highly efficient on modern JavaScript VMs by using
+structural sharing via [hash maps tries][] and [vector tries][] as popularized
+by Clojure and Scala, minimizing the need to copy or cache data.
 
 `Immutable` also provides a lazy `Seq`, allowing efficient
 chaining of collection methods like `map` and `filter` without creating
@@ -46,7 +47,7 @@ map2.get('b'); // 50
 
 ### Browser
 
-To use `immutable` from a browser, download [dist/immutable.min.js](./dist/immutable.min.js)
+To use `immutable` from a browser, download [dist/immutable.min.js](https://github.com/facebook/immutable-js/blob/master/dist/immutable.min.js)
 or use a CDN such as [CDNJS](https://cdnjs.com/libraries/immutable)
 or [jsDelivr](http://www.jsdelivr.com/#!immutable.js).
 
@@ -86,7 +87,7 @@ Just add a reference with a relative path to the type declarations at the top
 of your file.
 
 ```javascript
-///<reference path='./node_modules/immutable/dist/Immutable.d.ts'/>
+///<reference path='./node_modules/immutable/dist/immutable.d.ts'/>
 import Immutable = require('immutable');
 var map1: Immutable.Map<string, number>;
 map1 = Immutable.Map({a:1, b:2, c:3});
@@ -103,8 +104,7 @@ Much of what makes application development difficult is tracking mutation and
 maintaining state. Developing with immutable data encourages you to think
 differently about how data flows through your application.
 
-Subscribing to data events throughout your application, by using
-`Object.observe`, or any other mechanism, creates a huge overhead of
+Subscribing to data events throughout your application creates a huge overhead of
 book-keeping which can hurt performance, sometimes dramatically, and creates
 opportunities for areas of your application to get out of sync with each other
 due to easy to make programmer error. Since immutable data never changes,
@@ -221,6 +221,26 @@ var myObject = {a:1,b:2,c:3};
 Immutable.Seq(myObject).map(x => x * x).toObject();
 // { a: 1, b: 4, c: 9 }
 ```
+
+Keep in mind, when using JS objects to construct Immutable Maps, that
+JavaScript Object properties are always strings, even if written in a quote-less
+shorthand, while Immutable Maps accept keys of any type.
+
+```js
+var obj = { 1: "one" };
+Object.keys(obj); // [ "1" ]
+obj["1"]; // "one"
+obj[1];   // "one"
+
+var map = Immutable.fromJS(obj);
+map.get("1"); // "one"
+map.get(1);   // undefined
+```
+
+Property access for JavaScript Objects first converts the key to a string, but
+since Immutable Map keys can be of any type the argument to `get()` is
+not altered.
+
 
 ### Converts back to raw JavaScript objects.
 
@@ -412,6 +432,12 @@ Please contribute!
 
 Also, don't miss the [Wiki](https://github.com/facebook/immutable-js/wiki) which
 contains articles on specific topics. Can't find something? Open an [issue](https://github.com/facebook/immutable-js/issues).
+
+
+Testing 
+-------
+
+If you are using the [Chai Assertion Library](http://chaijs.com/), [Chai Immutable](https://github.com/astorije/chai-immutable) provides a set of assertions to use against `Immutable` collections.
 
 
 Contribution

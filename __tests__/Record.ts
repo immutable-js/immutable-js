@@ -3,8 +3,7 @@
 
 jest.autoMockOff();
 
-import Immutable = require('immutable');
-import Record = Immutable.Record;
+import { Record, Seq } from 'immutable';
 
 describe('Record', () => {
 
@@ -73,26 +72,46 @@ describe('Record', () => {
 
   it('converts sequences to records', () => {
     var MyType = Record({a:1, b:2, c:3});
-    var seq = Immutable.Seq({a: 10, b:20});
+    var seq = Seq({a: 10, b:20});
     var t = new MyType(seq);
     expect(t.toObject()).toEqual({a:10, b:20, c:3})
   })
 
   it('allows for functional construction', () => {
     var MyType = Record({a:1, b:2, c:3});
-    var seq = Immutable.Seq({a: 10, b:20});
+    var seq = Seq({a: 10, b:20});
     var t = MyType(seq);
     expect(t.toObject()).toEqual({a:10, b:20, c:3})
   })
 
   it('skips unknown keys', () => {
     var MyType = Record({a:1, b:2});
-    var seq = Immutable.Seq({b:20, c:30});
+    var seq = Seq({b:20, c:30});
     var t = new MyType(seq);
 
     expect(t.get('a')).toEqual(1);
     expect(t.get('b')).toEqual(20);
     expect(t.get('c')).toBeUndefined();
+  })
+
+  it('returns itself when setting identical values', () => {
+    var MyType = Record({a:1, b:2});
+    var t1 = new MyType;
+    var t2 = new MyType({a: 1});
+    var t3 = t1.set('a', 1);
+    var t4 = t2.set('a', 1);
+    expect(t3).toBe(t1);
+    expect(t4).toBe(t2);
+  })
+
+  it('returns new record when setting new values', () => {
+    var MyType = Record({a:1, b:2});
+    var t1 = new MyType;
+    var t2 = new MyType({a: 1});
+    var t3 = t1.set('a', 3);
+    var t4 = t2.set('a', 3);
+    expect(t3).not.toBe(t1);
+    expect(t4).not.toBe(t2);
   })
 
 });
