@@ -29,7 +29,9 @@
  */
 type ESIterable<T> = $Iterable<T,void,void>;
 
-declare class Iterable<K,V> {
+declare class Iterable<K, V> extends _Iterable<K, V, KeyedIterable, IndexedIterable, SetIterable> {}
+
+declare class _Iterable<K,V, KI: KeyedIterable, II: IndexedIterable, SI: SetIterable> {
   static Keyed:   typeof KeyedIterable;
   static Indexed: typeof IndexedIterable;
   static Set:     typeof SetIterable;
@@ -341,11 +343,7 @@ declare class SetIterable<T> extends Iterable<T,T> {
   ): /*this*/SetIterable<U>;
 }
 
-declare class Collection<K,V> extends Iterable<K,V> {
-  static Keyed:   typeof KeyedCollection;
-  static Indexed: typeof IndexedCollection;
-  static Set:     typeof SetCollection;
-
+declare class Collection<K,V> extends _Iterable<K,V, KeyedCollection, IndexedCollection, SetCollection> {
   size: number;
 }
 
@@ -361,11 +359,7 @@ declare class SetCollection<T> extends Collection<T,T> mixins SetIterable<T> {
   toSeq(): SetSeq<T>;
 }
 
-declare class Seq<K,V> extends Iterable<K,V> {
-  static Keyed:   typeof KeyedSeq;
-  static Indexed: typeof IndexedSeq;
-  static Set:     typeof SetSeq;
-
+declare class Seq<K,V> extends _Iterable<K,V, KeyedSeq, IndexedSeq, SetSeq> {
   static <K,V>(iter: KeyedSeq<K,V>):   KeyedSeq<K,V>;
   static <T>  (iter: SetSeq<T>):       SetSeq<K,V>;
   static <T>  (iter?: ESIterable<T>):  IndexedSeq<T>;
@@ -602,11 +596,13 @@ declare class Stack<T> extends IndexedCollection<T> {
 declare function Range(start?: number, end?: number, step?: number): IndexedSeq<number>;
 declare function Repeat<T>(value: T, times?: number): IndexedSeq<T>;
 
-declare class Record<T:Object> {
-  static <T:Object>(spec: T, name?: string): (values: $Shape<T>) => (T & Record<T>);
+//TODO: Once flow can extend normal Objects we can change this back to actually reflect Record behavior.
+// For now fallback to any to not break existing Code
+declare class Record<T: Object> {
+  static <T: Object>(spec: T, name?: string): /*T & Record<T>*/any;
   get<A>(key: $Keys<T>): A;
-  set<A>(key: $Keys<T>, value: A): T & Record<T>;
-  remove(key: $Keys<T>): T & Record<T>;
+  set<A>(key: $Keys<T>, value: A): /*T & Record<T>*/this;
+  remove(key: $Keys<T>): /*T & Record<T>*/this;
 }
 
 declare function fromJS(json: Object, reviver?: (k: any, v: Iterable<any,any>) => any): any;
