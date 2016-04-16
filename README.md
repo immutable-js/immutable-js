@@ -465,7 +465,7 @@ Thanks
 and research in persistent data structures.
 
 [Hugh Jackson](https://github.com/hughfdjackson/), for providing the npm package
-name. If you're looking for his unsupported package, see [v1.4.1](https://www.npmjs.org/package/immutable/1.4.1).
+name. If you're looking for his unsupported package, see [this repository](https://github.com/hughfdjackson/immutable).
 
 
 License
