@@ -2330,7 +2330,7 @@ declare module Immutable {
     // Search for value
 
     /**
-     * Returns the value for which the `predicate` returns true.
+     * Returns the first value for which the `predicate` returns true.
      */
     find(
       predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
@@ -2350,7 +2350,7 @@ declare module Immutable {
     ): V;
 
     /**
-     * Returns the [key, value] entry for which the `predicate` returns true.
+     * Returns the first [key, value] entry for which the `predicate` returns true.
      */
     findEntry(
       predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
