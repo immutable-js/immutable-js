@@ -162,6 +162,12 @@ declare class _Iterable<K,V, KI, II, SI> {
   findEntry(predicate: (value: V, key: K, iter: this) => mixed): ?[K,V];
   findLastEntry(predicate: (value: V, key: K, iter: this) => mixed): ?[K,V];
 
+  findKey(predicate: (value: V, key: K, iter: this) => mixed, context?: any): ?K;
+  findLastKey(predicate: (value: V, key: K, iter: this) => mixed, context?: any): ?K;
+
+  keyOf(searchValue: V): ?K;
+  lastKeyOf(searchValue: V): ?K;
+
   max(comparator?: (valueA: V, valueB: V) => number): V;
   maxBy<C>(
     comparatorValueMapper: (value: V, key: K, iter: this) => C,
@@ -196,11 +202,6 @@ declare class KeyedIterable<K,V> extends Iterable<K,V> {
     mapper: (entry: [K,V], index: number, iter: this) => [K_,V_],
     context?: any
   ): /*this*/KeyedIterable<K_,V_>;
-
-  keyOf(searchValue: V): ?K;
-  lastKeyOf(searchValue: V): ?K;
-  findKey(predicate: (value: V, key: K, iter: this) => mixed, context?: any): ?K;
-  findLastKey(predicate: (value: V, key: K, iter: this) => mixed, context?: any): ?K;
 
   concat(...iters: ESIterable<[K,V]>[]): this;
 
