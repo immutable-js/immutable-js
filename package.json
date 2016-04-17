@@ -84,6 +84,7 @@
     "react-tools": "^0.12.0",
     "rollup": "0.24.0",
     "run-sequence": "1.1.5",
+    "sinon": "^1.17.3",
     "through2": "2.0.0",
     "ts-node": "^0.7.2",
     "typescript": "1.7.5",
