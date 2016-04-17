@@ -23,7 +23,7 @@
     "build": "grunt default && gulp default",
     "lint": "eslint src/ && grunt lint && gulp lint",
     "testonly": "./resources/node_test.sh",
-    "testmocha": "mocha --require ts-node/register --recursive '__tests__/*.ts'",
+    "testmocha": "mocha --require ts-node/register --recursive 'test/*.ts'",
     "test": "npm run lint && npm run testonly",
     "perf": "node ./resources/bench.js",
     "start": "npm run build && node ./pages/resources/start.js",
