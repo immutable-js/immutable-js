@@ -1471,37 +1471,6 @@
         ) => /*[KM, VM]*/Array<any>,
         context?: any
       ): /*this*/Iterable.Keyed<KM, VM>;
-
-
-      // Search for value
-
-      /**
-       * Returns the key associated with the search value, or undefined.
-       */
-      keyOf(searchValue: V): K;
-
-      /**
-       * Returns the last key associated with the search value, or undefined.
-       */
-      lastKeyOf(searchValue: V): K;
-
-      /**
-       * Returns the key for which the `predicate` returns true.
-       */
-      findKey(
-        predicate: (value?: V, key?: K, iter?: /*this*/Iterable.Keyed<K, V>) => boolean,
-        context?: any
-      ): K;
-
-      /**
-       * Returns the last key for which the `predicate` returns true.
-       *
-       * Note: `predicate` will be called for each entry in reverse.
-       */
-      findLastKey(
-        predicate: (value?: V, key?: K, iter?: /*this*/Iterable.Keyed<K, V>) => boolean,
-        context?: any
-      ): K;
     }
 
 
@@ -2330,7 +2299,7 @@
     // Search for value
 
     /**
-     * Returns the value for which the `predicate` returns true.
+     * Returns the first value for which the `predicate` returns true.
      */
     find(
       predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
@@ -2350,7 +2319,7 @@
     ): V;
 
     /**
-     * Returns the [key, value] entry for which the `predicate` returns true.
+     * Returns the first [key, value] entry for which the `predicate` returns true.
      */
     findEntry(
       predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
@@ -2369,6 +2338,34 @@
       context?: any,
       notSetValue?: V
     ): /*[K, V]*/Array<any>;
+
+    /**
+     * Returns the key for which the `predicate` returns true.
+     */
+    findKey(
+      predicate: (value?: V, key?: K, iter?: /*this*/Iterable.Keyed<K, V>) => boolean,
+      context?: any
+    ): K;
+
+    /**
+     * Returns the last key for which the `predicate` returns true.
+     *
+     * Note: `predicate` will be called for each entry in reverse.
+     */
+    findLastKey(
+      predicate: (value?: V, key?: K, iter?: /*this*/Iterable.Keyed<K, V>) => boolean,
+      context?: any
+    ): K;
+
+    /**
+     * Returns the key associated with the search value, or undefined.
+     */
+    keyOf(searchValue: V): K;
+
+    /**
+     * Returns the last key associated with the search value, or undefined.
+     */
+    lastKeyOf(searchValue: V): K;
 
     /**
      * Returns the maximum value in this collection. If any values are

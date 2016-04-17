@@ -1037,6 +1037,9 @@
     }
     var type = typeof o;
     if (type === 'number') {
+      if (o !== o || o === Infinity) {
+        return 0;
+      }
       var h = o | 0;
       if (h !== o) {
         h ^= o * 0xFFFFFFFF;
@@ -4375,21 +4378,6 @@
       return entry ? entry[1] : notSetValue;
     },
 
-    findEntry: function(predicate, context, notSetValue) {
-      var found = notSetValue;
-      this.__iterate(function(v, k, c)  {
-        if (predicate.call(context, v, k, c)) {
-          found = [k, v];
-          return false;
-        }
-      });
-      return found;
-    },
-
-    findLastEntry: function(predicate, context, notSetValue) {
-      return this.toSeq().reverse().findEntry(predicate, context, notSetValue);
-    },
-
     forEach: function(sideEffect, context) {
       assertNotInfinite(this.size);
       return this.__iterate(context ? sideEffect.bind(context) : sideEffect);
@@ -4500,8 +4488,32 @@
       return this.filter(not(predicate), context);
     },
 
+    findEntry: function(predicate, context, notSetValue) {
+      var found = notSetValue;
+      this.__iterate(function(v, k, c)  {
+        if (predicate.call(context, v, k, c)) {
+          found = [k, v];
+          return false;
+        }
+      });
+      return found;
+    },
+
+    findKey: function(predicate, context) {
+      var entry = this.findEntry(predicate, context);
+      return entry && entry[0];
+    },
+
     findLast: function(predicate, context, notSetValue) {
       return this.toKeyedSeq().reverse().find(predicate, context, notSetValue);
+    },
+
+    findLastEntry: function(predicate, context, notSetValue) {
+      return this.toKeyedSeq().reverse().findEntry(predicate, context, notSetValue);
+    },
+
+    findLastKey: function(predicate, context) {
+      return this.toKeyedSeq().reverse().findKey(predicate, context);
     },
 
     first: function() {
@@ -4562,12 +4574,20 @@
       return iter.isSubset(this);
     },
 
+    keyOf: function(searchValue) {
+      return this.findKey(function(value ) {return is(value, searchValue)});
+    },
+
     keySeq: function() {
       return this.toSeq().map(keyMapper).toIndexedSeq();
     },
 
     last: function() {
       return this.toSeq().reverse().first();
+    },
+
+    lastKeyOf: function(searchValue) {
+      return this.toKeyedSeq().reverse().keyOf(searchValue);
     },
 
     max: function(comparator) {
@@ -4668,23 +4688,6 @@
       return reify(this, flipFactory(this));
     },
 
-    findKey: function(predicate, context) {
-      var entry = this.findEntry(predicate, context);
-      return entry && entry[0];
-    },
-
-    findLastKey: function(predicate, context) {
-      return this.toSeq().reverse().findKey(predicate, context);
-    },
-
-    keyOf: function(searchValue) {
-      return this.findKey(function(value ) {return is(value, searchValue)});
-    },
-
-    lastKeyOf: function(searchValue) {
-      return this.findLastKey(function(value ) {return is(value, searchValue)});
-    },
-
     mapEntries: function(mapper, context) {var this$0 = this;
       var iterations = 0;
       return reify(this,
@@ -4733,12 +4736,12 @@
     },
 
     indexOf: function(searchValue) {
-      var key = this.toKeyedSeq().keyOf(searchValue);
+      var key = this.keyOf(searchValue);
       return key === undefined ? -1 : key;
     },
 
     lastIndexOf: function(searchValue) {
-      var key = this.toKeyedSeq().reverse().keyOf(searchValue);
+      var key = this.lastKeyOf(searchValue);
       return key === undefined ? -1 : key;
     },
 
@@ -4773,8 +4776,8 @@
     // ### More collection methods
 
     findLastIndex: function(predicate, context) {
-      var key = this.toKeyedSeq().findLastKey(predicate, context);
-      return key === undefined ? -1 : key;
+      var entry = this.findLastEntry(predicate, context);
+      return entry ? entry[0] : -1;
     },
 
     first: function() {
@@ -4813,6 +4816,10 @@
         interleaved.size = zipped.size * iterables.length;
       }
       return reify(this, interleaved);
+    },
+
+    keySeq: function() {
+      return Range(0, this.size);
     },
 
     last: function() {
