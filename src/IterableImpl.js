@@ -30,6 +30,7 @@ import { List } from './List'
 import { Set } from './Set'
 import { OrderedSet } from './OrderedSet'
 import { Stack } from './Stack'
+import { Range } from './Range'
 import { KeyedSeq, IndexedSeq, SetSeq, ArraySeq } from './Seq'
 import { KeyedCollection, IndexedCollection, SetCollection } from './Collection'
 import { reify, ToKeyedSequence, ToIndexedSequence, ToSetSequence,
@@ -611,6 +612,10 @@ mixin(IndexedIterable, {
       interleaved.size = zipped.size * iterables.length;
     }
     return reify(this, interleaved);
+  },
+
+  keySeq() {
+    return Range(0, this.size);
   },
 
   last() {
