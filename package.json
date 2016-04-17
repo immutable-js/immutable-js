@@ -78,6 +78,7 @@
     "marked": "0.3.5",
     "microtime": "^2.0.0",
     "mocha": "^2.4.5",
+    "mocha-testcheck": "^0.1.2",
     "node-jsx": "^0.12.4",
     "react": "^0.12.0",
     "react-router": "^0.11.2",

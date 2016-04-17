@@ -1,8 +1,9 @@
 ///<reference path='../typings/main.d.ts'/>
+///<reference path='../resources/mocha-testcheck.d.ts'/>
 ///<reference path='../dist/immutable.d.ts'/>
 
-// import * as jasmineCheck from 'jasmine-check';
-// jasmineCheck.install();
+import * as MochaTestCheck from 'mocha-testcheck';
+MochaTestCheck.install();
 
 import {Map, Seq, List, Range, is} from 'immutable';
 import {expect} from 'chai';
@@ -167,15 +168,15 @@ describe('Map', () => {
     expect(m5.get('c')).to.equal('Canary');
   });
 
-  // check.it('deletes down to empty map', [gen.posInt], size => {
-  //   var m = Range(0, size).toMap();
-  //   expect(m.size).toBe(size);
-  //   for (var ii = size - 1; ii >= 0; ii--) {
-  //     m = m.remove(ii);
-  //     expect(m.size).toBe(ii);
-  //   }
-  //   expect(m).toBe(Map());
-  // });
+  check.it('deletes down to empty map', [gen.posInt], size => {
+    let m = Range(0, size).toMap();
+    expect(m.size).to.equal(size);
+    for (let i = size - 1; i >= 0; i--) {
+      m = m.remove(i);
+      expect(m.size).to.equal(i);
+    }
+    expect(m).to.equal(Map());
+  });
 
   it('can map many items', () => {
     let m = Map();
@@ -264,68 +265,68 @@ describe('Map', () => {
     expect(k.get(1)).to.equal('b');
   });
 
-  // check.it('works like an object', {maxSize: 50}, [gen.object(gen.JSONPrimitive)], obj => {
-  //   var map = Map(obj);
-  //   Object.keys(obj).forEach(key => {
-  //     expect(map.get(key)).toBe(obj[key]);
-  //     expect(map.has(key)).toBe(true);
-  //   });
-  //   Object.keys(obj).forEach(key => {
-  //     expect(map.get(key)).toBe(obj[key]);
-  //     expect(map.has(key)).toBe(true);
-  //     map = map.remove(key);
-  //     expect(map.get(key)).toBe(undefined);
-  //     expect(map.has(key)).toBe(false);
-  //   });
-  // });
-  //
-  // check.it('sets', {maxSize: 5000}, [gen.posInt], len => {
-  //   var map = Map();
-  //   for (var ii = 0; ii < len; ii++) {
-  //     expect(map.size).toBe(ii);
-  //     map = map.set(''+ii, ii);
-  //   }
-  //   expect(map.size).toBe(len);
-  //   expect(is(map.toSet(), Range(0, len).toSet())).toBe(true);
-  // });
-  //
-  // check.it('has and get', {maxSize: 5000}, [gen.posInt], len => {
-  //   var map = Range(0, len).toKeyedSeq().mapKeys(x => ''+x).toMap();
-  //   for (var ii = 0; ii < len; ii++) {
-  //     expect(map.get(''+ii)).toBe(ii);
-  //     expect(map.has(''+ii)).toBe(true);
-  //   }
-  // });
-  //
-  // check.it('deletes', {maxSize: 5000}, [gen.posInt], len => {
-  //   var map = Range(0, len).toMap();
-  //   for (var ii = 0; ii < len; ii++) {
-  //     expect(map.size).toBe(len - ii);
-  //     map = map.remove(ii);
-  //   }
-  //   expect(map.size).toBe(0);
-  //   expect(map.toObject()).toEqual({});
-  // });
-  //
-  // check.it('deletes from transient', {maxSize: 5000}, [gen.posInt], len => {
-  //   var map = Range(0, len).toMap().asMutable();
-  //   for (var ii = 0; ii < len; ii++) {
-  //     expect(map.size).toBe(len - ii);
-  //     map.remove(ii);
-  //   }
-  //   expect(map.size).toBe(0);
-  //   expect(map.toObject()).toEqual({});
-  // });
-  //
-  // check.it('iterates through all entries', [gen.posInt], len => {
-  //   var v = Range(0, len).toMap();
-  //   var a = v.toArray();
-  //   var iter = v.entries();
-  //   for (var ii = 0; ii < len; ii++) {
-  //     delete a[ iter.next().value[0] ];
-  //   }
-  //   expect(a).toEqual(new Array(len));
-  // });
+  check.it('works like an object', {maxSize: 50}, [gen.object(gen.JSONPrimitive)], obj => {
+    let map = Map(obj);
+    Object.keys(obj).forEach(key => {
+      expect(map.get(key)).to.equal(obj[key]);
+      expect(map.has(key)).to.equal(true);
+    });
+    Object.keys(obj).forEach(key => {
+      expect(map.get(key)).to.equal(obj[key]);
+      expect(map.has(key)).to.equal(true);
+      map = map.remove(key);
+      expect(map.get(key)).to.equal(undefined);
+      expect(map.has(key)).to.equal(false);
+    });
+  });
+
+  check.it('sets', {maxSize: 5000}, [gen.posInt], len => {
+    let map = Map();
+    for (let i = 0; i < len; i++) {
+      expect(map.size).to.equal(i);
+      map = map.set('' + i, i);
+    }
+    expect(map.size).to.equal(len);
+    expect(is(map.toSet(), Range(0, len).toSet())).to.equal(true);
+  });
+
+  check.it('has and get', {maxSize: 5000}, [gen.posInt], len => {
+    const map = Range(0, len).toKeyedSeq().mapKeys(x => '' + x).toMap();
+    for (let i = 0; i < len; i++) {
+      expect(map.get('' + i)).to.equal(i);
+      expect(map.has('' + i)).to.equal(true);
+    }
+  });
+
+  check.it('deletes', {maxSize: 5000}, [gen.posInt], len => {
+    let map = Range(0, len).toMap();
+    for (let i = 0; i < len; i++) {
+      expect(map.size).to.equal(len - i);
+      map = map.remove(i);
+    }
+    expect(map.size).to.equal(0);
+    expect(map.toObject()).to.eql({});
+  });
+
+  check.it('deletes from transient', {maxSize: 5000}, [gen.posInt], len => {
+    let map = Range(0, len).toMap().asMutable();
+    for (let i = 0; i < len; i++) {
+      expect(map.size).to.equal(len - i);
+      map.remove(i);
+    }
+    expect(map.size).to.equal(0);
+    expect(map.toObject()).to.eql({});
+  });
+
+  check.it('iterates through all entries', [gen.posInt], len => {
+    const v = Range(0, len).toMap();
+    const a = v.toArray();
+    const iter = v.entries();
+    for (let i = 0; i < len; i++) {
+      delete a[iter.next().value[0]];
+    }
+    expect(a).to.eql(new Array(len));
+  });
 
   it('allows chained mutations', () => {
     const m1 = Map();
