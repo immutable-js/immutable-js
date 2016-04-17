@@ -211,10 +211,13 @@ module.exports = function(grunt) {
     });
   });
 
+  grunt.registerTask('jest', 'Run tests with Jest.', function () {
+    require('jest-cli').runCLI(this.options(), process.cwd(), this.async());
+  });
+
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-jest');
   grunt.loadNpmTasks('grunt-release');
 
   grunt.registerTask('lint', 'Lint all source javascript', ['jshint']);
