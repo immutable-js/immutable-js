@@ -24,6 +24,7 @@
     "lint": "eslint src/ && grunt lint && gulp lint",
     "testonly": "./resources/node_test.sh",
     "testmocha": "mocha --require ts-node/register --recursive 'test/*.ts'",
+    "testmocha:watch": "watch 'npm run testmocha' test/",
     "test": "npm run lint && npm run testonly",
     "perf": "node ./resources/bench.js",
     "start": "npm run build && node ./pages/resources/start.js",
@@ -75,8 +76,8 @@
     "jshint-stylish": "^0.4.0",
     "magic-string": "0.10.2",
     "marked": "0.3.5",
-    "mocha": "^2.4.5",
     "microtime": "^2.0.0",
+    "mocha": "^2.4.5",
     "node-jsx": "^0.12.4",
     "react": "^0.12.0",
     "react-router": "^0.11.2",
@@ -88,7 +89,8 @@
     "typescript": "1.7.5",
     "uglify-js": "2.6.1",
     "vinyl-buffer": "1.0.0",
-    "vinyl-source-stream": "1.1.0"
+    "vinyl-source-stream": "1.1.0",
+    "watch": "^0.17.1"
   },
   "engines": {
     "node": ">=0.10.0"
