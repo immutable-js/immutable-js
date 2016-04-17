@@ -1403,6 +1403,15 @@
   MapPrototype[IS_MAP_SENTINEL] = true;
   MapPrototype[DELETE] = MapPrototype.remove;
   MapPrototype.removeIn = MapPrototype.deleteIn;
+  MapPrototype['@@transducer/init'] = function() {
+    return this.asMutable();
+  };
+  MapPrototype['@@transducer/step'] = function(result, arr) {
+    return result.set(arr[0], arr[1]);
+  };
+  MapPrototype['@@transducer/result'] = function(obj) {
+    return obj.asImmutable();
+  };
 
 
   // #pragma Trie Nodes
@@ -2243,6 +2252,15 @@
   ListPrototype.asMutable = MapPrototype.asMutable;
   ListPrototype.asImmutable = MapPrototype.asImmutable;
   ListPrototype.wasAltered = MapPrototype.wasAltered;
+  ListPrototype['@@transducer/init'] = function() {
+    return this.asMutable();
+  };
+  ListPrototype['@@transducer/step'] = function(result, arr) {
+    return result.push(arr);
+  };
+  ListPrototype['@@transducer/result'] = function(obj) {
+    return obj.asImmutable();
+  };
 
 
 
@@ -3938,6 +3956,15 @@
   SetPrototype.withMutations = MapPrototype.withMutations;
   SetPrototype.asMutable = MapPrototype.asMutable;
   SetPrototype.asImmutable = MapPrototype.asImmutable;
+  SetPrototype['@@transducer/init'] = function() {
+    return this.asMutable();
+  };
+  SetPrototype['@@transducer/step'] = function(result, arr) {
+    return result.add(arr);
+  };
+  SetPrototype['@@transducer/result'] = function(obj) {
+    return obj.asImmutable();
+  };
 
   SetPrototype.__empty = emptySet;
   SetPrototype.__make = makeSet;
@@ -4217,7 +4244,15 @@
   StackPrototype.asMutable = MapPrototype.asMutable;
   StackPrototype.asImmutable = MapPrototype.asImmutable;
   StackPrototype.wasAltered = MapPrototype.wasAltered;
-
+  StackPrototype['@@transducer/init'] = function() {
+    return this.asMutable();
+  };
+  StackPrototype['@@transducer/step'] = function(result, arr) {
+    return result.unshift(arr);
+  };
+  StackPrototype['@@transducer/result'] = function(obj) {
+    return obj.asImmutable();
+  };
 
   function makeStack(size, head, ownerID, hash) {
     var map = Object.create(StackPrototype);
