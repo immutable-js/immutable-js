@@ -82,21 +82,21 @@ describe('Map', () => {
   });
 
   it('accepts non-iterable array-like objects as keyed collections', () => {
-    var m = Map({'length': 3, '1': 'one'});
+    const m = Map({'length': 3, '1': 'one'});
     expect(m.get('length')).to.equal(3);
     expect(m.get('1')).to.equal('one');
     expect(m.toJS()).to.eql({'length': 3, '1': 'one'});
   });
 
-  it.skip('accepts flattened pairs via of()', () => {
-    var m:Map<any, any> = Map.of(1, 'a', 2, 'b', 3, 'c');
+  it('accepts flattened pairs via of()', () => {
+    const m:Map<any, any> = Map.of(1, 'a', 2, 'b', 3, 'c');
     expect(m.size).to.equal(3);
     expect(m.get(1)).to.equal('a');
     expect(m.get(2)).to.equal('b');
     expect(m.get(3)).to.equal('c');
   });
 
-  it.skip('does not accept mismatched flattened pairs via of()', () => {
+  it('does not accept mismatched flattened pairs via of()', () => {
     expect(() => {
       Map.of(1, 2, 3);
     }).to.throw('Missing value for key: 3');
