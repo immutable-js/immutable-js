@@ -237,6 +237,9 @@ gulp.task('dev', ['default'], function() {
   gulp.watch('./app/docs/src/**/*.js', ['rebuild-js-docs']);
   gulp.watch('./app/**/*.html', ['pre-render', 'pre-render-docs']);
   gulp.watch('./app/static/**/*', ['statics', 'statics-docs']);
+  gulp.watch('./type-definitions/*', ['typedefs', 'rebuild-js-docs'], function () {
+    browserSync.reload();
+  });
 });
 
 gulp.task('rebuild-js', function (done) {
