@@ -3,7 +3,9 @@ language: node_js
 node_js: stable
 
 env:
-  - CXX=g++-4.9
+- CXX=g++-4.9
+- global:
+    secure: "VDsxy30sE9ivdqoXkaKXo0czbS4brNpwKEIblu7f1gVLx7OD9pjTc78cdwrVbZDBYroSiYVYuUrLDjpVjH88lL/LxRrru3V0CIlAqqa+ssXcqycCaT/6ds+ZymuTTGRh+Mf12pIKO+yc8jTov2M7AzPJdpS+ORP5dImYyE3ex9s="
 
 addons:
   apt:
@@ -13,7 +15,3 @@ addons:
       - g++-4.9
 
 after_success: npm run deploy
-
-env:
-  global:
-    secure: "VDsxy30sE9ivdqoXkaKXo0czbS4brNpwKEIblu7f1gVLx7OD9pjTc78cdwrVbZDBYroSiYVYuUrLDjpVjH88lL/LxRrru3V0CIlAqqa+ssXcqycCaT/6ds+ZymuTTGRh+Mf12pIKO+yc8jTov2M7AzPJdpS+ORP5dImYyE3ex9s="
