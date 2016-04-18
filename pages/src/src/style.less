@@ -74,7 +74,7 @@
   margin-right: 0;
 }
 
-.cover {
+.coverContainer {
   background-color: #d7dadb;
   height: 70vh;
   max-height: 800px;
@@ -84,6 +84,15 @@
   position: relative;
   width: 100%;
   z-index: 1;
+}
+
+.cover {
+  height: 70vh;
+  max-height: 800px;
+  min-height: 260px;
+  position: absolute;
+  width: 100%;
+  clip: rect(0, auto, auto, 0);
 }
 
 .coverFixed {
@@ -114,6 +123,7 @@
   flex: 10;
   max-width: 700px;
   padding: 0 30px;
+  pointer-events: none;
   position: relative;
   width: 100%;
 }

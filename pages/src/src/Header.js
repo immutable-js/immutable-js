@@ -30,7 +30,8 @@ var Header = React.createClass({
 
   handleScroll: function (event) {
     if (!this._pending) {
-      if (window.scrollY < document.documentElement.clientHeight) {
+      var headerHeight = Math.min(800, Math.max(260, document.documentElement.clientHeight * 0.7));
+      if (window.scrollY < headerHeight) {
         this._pending = true;
         window.requestAnimationFrame(() => {
           this._pending = false;
@@ -60,6 +61,7 @@ var Header = React.createClass({
             <a href="https://github.com/facebook/immutable-js/">Github</a>
           </div>
         </div>
+        <div className="coverContainer">
         <div className="cover">
         <div className="coverFixed">
           <div className="filler">
@@ -86,6 +88,7 @@ var Header = React.createClass({
           <div className="buttons">
             <StarBtn />
           </div>
+        </div>
         </div>
         </div>
       </div>
