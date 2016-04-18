@@ -175,8 +175,8 @@ describe('Conversion', () => {
 
   it('Explicitly convert values to string using String constructor', () => {
     expect(() => {
-      Immutable.fromJS({foo: core.Symbol('bar')}) + '';
-      Immutable.Map().set('foo', core.Symbol('bar')) + '';
+      fromJS({foo: core.Symbol('bar')}) + '';
+      Map().set('foo', core.Symbol('bar')) + '';
     }).not.toThrow();
   });
 
