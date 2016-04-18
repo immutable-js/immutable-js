@@ -1,7 +1,9 @@
 sudo: false
-env: CXX=g++-4.9
 language: node_js
 node_js: stable
+
+env:
+  - CXX=g++-4.9
 
 addons:
   apt:
