@@ -1,7 +1,6 @@
-language: node_js
-
 sudo: false
-
+env: CXX=g++-4.8
+language: node_js
 node_js: stable
 
 after_success: npm run deploy
