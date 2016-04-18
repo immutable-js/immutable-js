@@ -67,8 +67,5 @@ interface MockFunction {
 declare module 'jasmine-check' {
   export function install(global?: any): void;
 }
-declare module 'core-js/library' {
-  export function Symbol(global?: any): any;
-}
 declare var check: any;
 declare var gen: any;

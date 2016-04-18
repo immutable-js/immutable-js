@@ -8,14 +8,15 @@ jasmineCheck.install();
 
 import { Map, OrderedMap, List, Record, is, fromJS } from 'immutable';
 
-import core = require('core-js/library');
-
 declare function expect(val: any): ExpectWithIs;
 
 interface ExpectWithIs extends Expect {
   is(expected: any): void;
   not: ExpectWithIs;
 }
+
+// Symbols
+declare function Symbol(name: string): Object;
 
 describe('Conversion', () => {
 
@@ -175,8 +176,9 @@ describe('Conversion', () => {
 
   it('Explicitly convert values to string using String constructor', () => {
     expect(() => {
-      fromJS({foo: core.Symbol('bar')}) + '';
-      Map().set('foo', core.Symbol('bar')) + '';
+      fromJS({ foo: Symbol('bar') }) + '';
+      Map().set('foo', Symbol('bar')) + '';
+      Map().set(Symbol('bar'), 'foo') + '';
     }).not.toThrow();
   });
 
