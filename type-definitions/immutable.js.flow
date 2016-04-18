@@ -430,7 +430,7 @@ declare class List<T> extends IndexedCollection<T> {
   remove(index: number): this;
   insert<U>(index: number, value: U): List<T|U>;
   clear(): this;
-  push<U>(...values: U[]): List<U>;
+  push<U>(...values: U[]): List<T|U>;
   pop(): this;
   unshift<U>(...values: U[]): List<T|U>;
   shift(): this;
