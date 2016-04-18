@@ -606,7 +606,7 @@ declare class Record<T: Object> {
   remove(key: $Keys<T>): /*T & Record<T>*/this;
 }
 
-declare function fromJS(json: Object, reviver?: (k: any, v: Iterable<any,any>) => any): any;
+declare function fromJS(json: any, reviver?: (k: any, v: Iterable<any,any>) => any): any;
 declare function is(first: any, second: any): boolean;
 
 export {
