@@ -29,9 +29,9 @@
  */
 type ESIterable<T> = $Iterable<T,void,void>;
 
-declare class Iterable<K, V> extends _Iterable<K, V, typeof KeyedIterable, typeof IndexedIterable,  typeof SetIterable> {}
+declare class Iterable<K, V> extends _Iterable<K, V, typeof KeyedIterable, typeof IndexedIterable, typeof SetIterable> {}
 
-declare class _Iterable<K,V, KI, II, SI> {
+declare class _Iterable<K, V, KI, II, SI> {
   static Keyed:   KI;
   static Indexed: II;
   static Set:     SI;
@@ -44,8 +44,8 @@ declare class _Iterable<K,V, KI, II, SI> {
 
   equals(other: Iterable<K,V>): boolean;
   hashCode(): number;
+  get(key: K): V;
   get<V_>(key: K, notSetValue: V_): V|V_;
-  get(key: K): ?V;
   has(key: K): boolean;
   includes(value: V): boolean;
   contains(value: V): boolean;
@@ -53,7 +53,7 @@ declare class _Iterable<K,V, KI, II, SI> {
   last(): V;
 
   getIn<T>(searchKeyPath: ESIterable<any>, notSetValue: T): T;
-  getIn<T>(searchKeyPath: ESIterable<any>): ?T;
+  getIn<T>(searchKeyPath: ESIterable<any>): T;
   hasIn(searchKeyPath: ESIterable<any>): boolean;
 
   toJS(): any;
@@ -77,16 +77,6 @@ declare class _Iterable<K,V, KI, II, SI> {
   keySeq(): IndexedSeq<K>;
   valueSeq(): IndexedSeq<V>;
   entrySeq(): IndexedSeq<[K,V]>;
-
-  filter(
-    predicate: (value: V, key: K, iter: this) => mixed,
-    context?: any
-  ): this;
-
-  filterNot(
-    predicate: (value: V, key: K, iter: this) => mixed,
-    context?: any
-  ): this;
 
   reverse(): this;
   sort(comparator?: (valueA: V, valueB: V) => number): this;
@@ -120,6 +110,16 @@ declare class _Iterable<K,V, KI, II, SI> {
   flatten(depth?: number): /*this*/Iterable<any,any>;
   flatten(shallow?: boolean): /*this*/Iterable<any,any>;
 
+  filter(
+    predicate: (value: V, key: K, iter: this) => mixed,
+    context?: any
+  ): this;
+
+  filterNot(
+    predicate: (value: V, key: K, iter: this) => mixed,
+    context?: any
+  ): this;
+
   reduce<R>(
     reducer: (reduction: R, value: V, key: K, iter: this) => R,
     initialReduction?: R,
@@ -139,25 +139,26 @@ declare class _Iterable<K,V, KI, II, SI> {
   count(predicate?: (value: V, key: K, iter: this) => mixed, context?: any): number;
   countBy<G>(grouper: (value: V, key: K, iter: this) => G, context?: any): Map<G,number>;
 
+  find(
+    predicate: (value: V, key: K, iter: this) => mixed,
+    context?: any,
+  ): ?V;
   find<V_>(
     predicate: (value: V, key: K, iter: this) => mixed,
     context: any,
     notSetValue: V_
   ): V|V_;
-  find<V_>(
-    predicate: (value: V, key: K, iter: this) => mixed,
-    context?: any,
-  ): ?V;
 
+  findLast(
+    predicate: (value: V, key: K, iter: this) => mixed,
+    context?: any,
+  ): ?V;
   findLast<V_>(
     predicate: (value: V, key: K, iter: this) => mixed,
     context: any,
     notSetValue: V_
   ): V|V_;
-  findLast<V_>(
-    predicate: (value: V, key: K, iter: this) => mixed,
-    context?: any,
-  ): ?V;
+
 
   findEntry(predicate: (value: V, key: K, iter: this) => mixed): ?[K,V];
   findLastEntry(predicate: (value: V, key: K, iter: this) => mixed): ?[K,V];
@@ -214,6 +215,9 @@ declare class KeyedIterable<K,V> extends Iterable<K,V> {
     mapper: (value: V, key: K, iter: this) => ESIterable<[K_,V_]>,
     context?: any
   ): /*this*/KeyedIterable<K_,V_>;
+
+  flatten(depth?: number): /*this*/KeyedIterable<any,any>;
+  flatten(shallow?: boolean): /*this*/KeyedIterable<any,any>;
 }
 
 declare class IndexedIterable<T> extends Iterable<number,T> {
@@ -319,6 +323,9 @@ declare class IndexedIterable<T> extends Iterable<number,T> {
     mapper: (value: T, index: number, iter: this) => ESIterable<U>,
     context?: any
   ): /*this*/IndexedIterable<U>;
+
+  flatten(depth?: number): /*this*/IndexedIterable<any>;
+  flatten(shallow?: boolean): /*this*/IndexedIterable<any>;
 }
 
 declare class SetIterable<T> extends Iterable<T,T> {
@@ -342,9 +349,12 @@ declare class SetIterable<T> extends Iterable<T,T> {
     mapper: (value: T, value: T, iter: this) => ESIterable<U>,
     context?: any
   ): /*this*/SetIterable<U>;
+
+  flatten(depth?: number): /*this*/SetIterable<any>;
+  flatten(shallow?: boolean): /*this*/SetIterable<any>;
 }
 
-declare class Collection<K,V> extends _Iterable<K,V, typeof KeyedCollection, typeof IndexedCollection,  typeof SetCollection> {
+declare class Collection<K,V> extends _Iterable<K,V, typeof KeyedCollection, typeof IndexedCollection, typeof SetCollection> {
   size: number;
 }
 
@@ -390,7 +400,7 @@ declare class SetSeq<T> extends Seq<T,T> mixins SetIterable<T> {
 }
 
 declare class List<T> extends IndexedCollection<T> {
-  static <T>(iterable?: ESIterable<T>): List<T>;
+  static (iterable?: ESIterable<T>): List<T>;
 
   static isList(maybeList: any): boolean;
   static of<T>(...values: T[]): List<T>;
@@ -439,7 +449,6 @@ declare class List<T> extends IndexedCollection<T> {
   asImmutable(): this;
 
   // Overrides that specialize return types
-
   map<M>(
     mapper: (value: T, index: number, iter: this) => M,
     context?: any
@@ -449,15 +458,19 @@ declare class List<T> extends IndexedCollection<T> {
     mapper: (value: T, index: number, iter: this) => ESIterable<M>,
     context?: any
   ): List<M>;
+
+  flatten(depth?: number): /*this*/List<any>;
+  flatten(shallow?: boolean): /*this*/List<any>;
 }
 
 declare class Map<K,V> extends KeyedCollection<K,V> {
+  static <K, V>(): Map<K, V>;
   static <V>(obj?: {[key: string]: V}): Map<string, V>;
   static <K, V>(iterable?: ESIterable<[K,V]>): Map<K, V>;
 
   static isMap(maybeMap: any): boolean;
 
-  set<K_,V_>(key: K_, value: V_): Map<K|K_,V|V_>;
+  set<K_, V_>(key: K_, value: V_): Map<K|K_, V|V_>;
   delete(key: K): this;
   remove(key: K): this;
   clear(): this;
@@ -516,6 +529,9 @@ declare class Map<K,V> extends KeyedCollection<K,V> {
     mapper: (key: K, value: V, iter: this) => K_,
     context?: any
   ): Map<K_,V>;
+
+  flatten(depth?: number): /*this*/Map<any,any>;
+  flatten(shallow?: boolean): /*this*/Map<any,any>;
 }
 
 // OrderedMaps have nothing that Maps do not have. We do not need to override constructor & other statics
@@ -555,6 +571,9 @@ declare class Set<T> extends SetCollection<T> {
     mapper: (value: T, value: T, iter: this) => ESIterable<M>,
     context?: any
   ): Set<M>;
+
+  flatten(depth?: number): /*this*/Set<any>;
+  flatten(shallow?: boolean): /*this*/Set<any>;
 }
 
 // OrderedSets have nothing that Sets do not have. We do not need to override constructor & other statics
@@ -592,6 +611,9 @@ declare class Stack<T> extends IndexedCollection<T> {
     mapper: (value: T, index: number, iter: this) => ESIterable<U>,
     context?: any
   ): Stack<U>;
+
+  flatten(depth?: number): /*this*/Stack<any>;
+  flatten(shallow?: boolean): /*this*/Stack<any>;
 }
 
 declare function Range(start?: number, end?: number, step?: number): IndexedSeq<number>;
@@ -606,7 +628,7 @@ declare class Record<T: Object> {
   remove(key: $Keys<T>): /*T & Record<T>*/this;
 }
 
-declare function fromJS(json: Object, reviver?: (k: any, v: Iterable<any,any>) => any): any;
+declare function fromJS(json: any, reviver?: (k: any, v: Iterable<any,any>) => any): any;
 declare function is(first: any, second: any): boolean;
 
 export {
