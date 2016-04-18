@@ -85,7 +85,7 @@ describe('Map', () => {
     const m = Map({'length': 3, '1': 'one'});
     expect(m.get('length')).to.equal(3);
     expect(m.get('1')).to.equal('one');
-    expect(m.toJS()).to.eql({'length': 3, '1': 'one'});
+    expect(m.toJS()).to.deep.equal({'length': 3, '1': 'one'});
   });
 
   it('accepts flattened pairs via of()', () => {
@@ -104,7 +104,7 @@ describe('Map', () => {
 
   it('converts back to JS object', () => {
     const m = Map({'a': 'A', 'b': 'B', 'c': 'C'});
-    expect(m.toObject()).to.eql({'a': 'A', 'b': 'B', 'c': 'C'});
+    expect(m.toObject()).to.deep.equal({'a': 'A', 'b': 'B', 'c': 'C'});
   });
 
   it('iterates values', () => {
@@ -112,17 +112,17 @@ describe('Map', () => {
     const iteratorSpy = spy();
     m.forEach(iteratorSpy);
     expect(iteratorSpy.calledThrice).to.equal(true);
-    expect(iteratorSpy.firstCall.args).to.eql(['A', 'a', m]);
-    expect(iteratorSpy.secondCall.args).to.eql(['B', 'b', m]);
-    expect(iteratorSpy.thirdCall.args).to.eql(['C', 'c', m]);
+    expect(iteratorSpy.firstCall.args).to.deep.equal(['A', 'a', m]);
+    expect(iteratorSpy.secondCall.args).to.deep.equal(['B', 'b', m]);
+    expect(iteratorSpy.thirdCall.args).to.deep.equal(['C', 'c', m]);
   });
 
   it('merges two maps', () => {
     const m1 = Map({'a': 'A', 'b': 'B', 'c': 'C'});
     const m2 = Map({'wow': 'OO', 'd': 'DD', 'b': 'BB'});
-    expect(m2.toObject()).to.eql({'wow': 'OO', 'd': 'DD', 'b': 'BB'});
+    expect(m2.toObject()).to.deep.equal({'wow': 'OO', 'd': 'DD', 'b': 'BB'});
     const m3 = m1.merge(m2);
-    expect(m3.toObject()).to.eql({'a': 'A', 'b': 'BB', 'c': 'C', 'wow': 'OO', 'd': 'DD'});
+    expect(m3.toObject()).to.deep.equal({'a': 'A', 'b': 'BB', 'c': 'C', 'wow': 'OO', 'd': 'DD'});
   });
 
   it('accepts null as a key', () => {
@@ -203,8 +203,8 @@ describe('Map', () => {
     let m:Map<any, any> = Range(0, 32).toMap();
     m = m.set('AAA', 'letters').set(64545, 'numbers');
     expect(m.size).to.equal(34);
-    expect(m.get('AAA')).to.eql('letters');
-    expect(m.get(64545)).to.eql('numbers');
+    expect(m.get('AAA')).to.deep.equal('letters');
+    expect(m.get(64545)).to.deep.equal('numbers');
   });
 
   it('can progressively add items known to collide', () => {
@@ -222,35 +222,35 @@ describe('Map', () => {
   it('maps values', () => {
     const m = Map({a: 'a', b: 'b', c: 'c'});
     const r = m.map(value => value.toUpperCase());
-    expect(r.toObject()).to.eql({a: 'A', b: 'B', c: 'C'});
+    expect(r.toObject()).to.deep.equal({a: 'A', b: 'B', c: 'C'});
   });
 
   it('maps keys', () => {
     const m = Map({a: 'a', b: 'b', c: 'c'});
     const r = m.mapKeys(key => key.toUpperCase());
-    expect(r.toObject()).to.eql({A: 'a', B: 'b', C: 'c'});
+    expect(r.toObject()).to.deep.equal({A: 'a', B: 'b', C: 'c'});
   });
 
   it('filters values', () => {
     const m = Map({a: 1, b: 2, c: 3, d: 4, e: 5, f: 6});
     const r = m.filter(value => value % 2 === 1);
-    expect(r.toObject()).to.eql({a: 1, c: 3, e: 5});
+    expect(r.toObject()).to.deep.equal({a: 1, c: 3, e: 5});
   });
 
   it('filterNots values', () => {
     const m = Map({a: 1, b: 2, c: 3, d: 4, e: 5, f: 6});
     const r = m.filterNot(value => value % 2 === 1);
-    expect(r.toObject()).to.eql({b: 2, d: 4, f: 6});
+    expect(r.toObject()).to.deep.equal({b: 2, d: 4, f: 6});
   });
 
   it('derives keys', () => {
     const m = Map({a: 1, b: 2, c: 3, d: 4, e: 5, f: 6});
-    expect(m.keySeq().toArray()).to.eql(['a', 'b', 'c', 'd', 'e', 'f']);
+    expect(m.keySeq().toArray()).to.deep.equal(['a', 'b', 'c', 'd', 'e', 'f']);
   });
 
   it('flips keys and values', () => {
     const m = Map({a: 1, b: 2, c: 3, d: 4, e: 5, f: 6});
-    expect(m.flip().toObject()).to.eql({1: 'a', 2: 'b', 3: 'c', 4: 'd', 5: 'e', 6: 'f'});
+    expect(m.flip().toObject()).to.deep.equal({1: 'a', 2: 'b', 3: 'c', 4: 'd', 5: 'e', 6: 'f'});
   });
 
   it('can convert to a list', () => {
@@ -305,7 +305,7 @@ describe('Map', () => {
       map = map.remove(i);
     }
     expect(map.size).to.equal(0);
-    expect(map.toObject()).to.eql({});
+    expect(map.toObject()).to.deep.equal({});
   });
 
   check.it('deletes from transient', {maxSize: 5000}, [gen.posInt], len => {
@@ -315,7 +315,7 @@ describe('Map', () => {
       map.remove(i);
     }
     expect(map.size).to.equal(0);
-    expect(map.toObject()).to.eql({});
+    expect(map.toObject()).to.deep.equal({});
   });
 
   check.it('iterates through all entries', [gen.posInt], len => {
@@ -325,7 +325,7 @@ describe('Map', () => {
     for (let i = 0; i < len; i++) {
       delete a[iter.next().value[0]];
     }
-    expect(a).to.eql(new Array(len));
+    expect(a).to.deep.equal(new Array(len));
   });
 
   it('allows chained mutations', () => {
@@ -334,10 +334,10 @@ describe('Map', () => {
     const m3 = m2.withMutations(m => m.set('b', 2).set('c', 3));
     const m4 = m3.set('d', 4);
 
-    expect(m1.toObject()).to.eql({});
-    expect(m2.toObject()).to.eql({'a': 1});
-    expect(m3.toObject()).to.eql({'a': 1, 'b': 2, 'c': 3});
-    expect(m4.toObject()).to.eql({'a': 1, 'b': 2, 'c': 3, 'd': 4});
+    expect(m1.toObject()).to.deep.equal({});
+    expect(m2.toObject()).to.deep.equal({'a': 1});
+    expect(m3.toObject()).to.deep.equal({'a': 1, 'b': 2, 'c': 3});
+    expect(m4.toObject()).to.deep.equal({'a': 1, 'b': 2, 'c': 3, 'd': 4});
   });
 
   it('expresses value equality with unordered sequences', () => {
