@@ -44,6 +44,7 @@
     "browser-sync": "2.11.0",
     "browserify": "^5.11.2",
     "colors": "1.1.2",
+    "core-js": "^1.2.6",
     "del": "2.2.0",
     "es6-transpiler": "0.7.18",
     "eslint": "^1.10.3",
