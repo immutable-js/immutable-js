@@ -55,6 +55,11 @@ declare module __Cursor {
   ): Cursor;
 
 
+  export function keyPath(
+    root: <any>,
+    node: <any>
+  ): Array<any>;
+
   export interface Cursor extends Immutable.Seq<any, any> {
 
     /**
