@@ -327,12 +327,12 @@ declare class IndexedIterable<T> extends Iterable<number,T> {
   filter(
     predicate: (value: T, index: number, iter: this) => mixed,
     context?: any
-  ): IndexedIterable;
+  ): IndexedIterable<any>;
 
   filterNot(
     predicate: (value: T, index: number, iter: this) => mixed,
     context?: any
-  ): IndexedIterable;
+  ): IndexedIterable<any>;
 
   flatten(depth?: number): /*this*/IndexedIterable<any>;
   flatten(shallow?: boolean): /*this*/IndexedIterable<any>;
@@ -363,12 +363,12 @@ declare class SetIterable<T> extends Iterable<T,T> {
   filter(
     predicate: (value: T, key: T, iter: this) => mixed,
     context?: any
-  ): SetIterable;
+  ): SetIterable<any>;
 
   filterNot(
     predicate: (value: T, key: T, iter: this) => mixed,
     context?: any
-  ): SetIterable;
+  ): SetIterable<any>;
 
   flatten(depth?: number): /*this*/SetIterable<any>;
   flatten(shallow?: boolean): /*this*/SetIterable<any>;
@@ -482,12 +482,12 @@ declare class List<T> extends IndexedCollection<T> {
   filter(
     predicate: (value: T, index: number, iter: this) => mixed,
     context?: any
-  ): List;
+  ): List<any>;
 
   filterNot(
     predicate: (value: T, index: number, iter: this) => mixed,
     context?: any
-  ): List;
+  ): List<any>;
 
   flatten(depth?: number): /*this*/List<any>;
   flatten(shallow?: boolean): /*this*/List<any>;
@@ -615,12 +615,12 @@ declare class Set<T> extends SetCollection<T> {
   filter(
     predicate: (value: T, value: T, iter: this) => mixed,
     context?: any
-  ): Set;
+  ): Set<any>;
 
   filterNot(
     predicate: (value: T, value: T, iter: this) => mixed,
     context?: any
-  ): Set;
+  ): Set<any>;
 
   flatten(depth?: number): /*this*/Set<any>;
   flatten(shallow?: boolean): /*this*/Set<any>;
@@ -665,12 +665,12 @@ declare class Stack<T> extends IndexedCollection<T> {
   filter(
     predicate: (value: T, index: number, iter: this) => mixed,
     context?: any
-  ): Stack;
+  ): Stack<any>;
 
   filterNot(
     predicate: (value: T, index: number, iter: this) => mixed,
     context?: any
-  ): Stack;
+  ): Stack<any>;
 
   flatten(depth?: number): /*this*/Stack<any>;
   flatten(shallow?: boolean): /*this*/Stack<any>;
