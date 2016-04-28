@@ -2033,6 +2033,10 @@
      * value of the `grouper` function.
      *
      * Note: This is always an eager operation.
+     *
+     *     Immutable.fromJS([{v: 0}, {v: 1}, {v: 1}, {v: 0}, {v: 1}])
+     *       .groupBy(x => x.get('v'))
+     *       // Map {0: [{v: 0},{v: 0}], 1: [{v: 1},{v: 1},{v: 1}]}
      */
     groupBy<G>(
       grouper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => G,
