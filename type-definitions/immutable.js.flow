@@ -485,7 +485,7 @@ declare class List<T> extends IndexedCollection<T> {
 }
 
 declare class Map<K,V> extends KeyedCollection<K,V> {
-  static <K, V>(): Map<K, V>;
+  static <K,V>(_: void): Map<K,V>;
   static <V>(obj?: {[key: string]: V}): Map<string, V>;
   static <K, V>(iterable?: ESIterable<[K,V]>): Map<K, V>;
 
