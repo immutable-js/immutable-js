@@ -27,7 +27,28 @@
  *
  * Note that Immutable values implement the `ESIterable` interface.
  */
-type ESIterable<T> = $Iterable<T,void,void>;
+
+type IteratorResult<Yield,Return> = {
+  done: true,
+  value?: Return,
+} | {
+  done: false,
+  value: Yield,
+};
+
+
+interface _Iterator<Yield,Return,Next> {
+    @@iterator(): _Iterator<Yield,Return,Next>;
+    next(value?: Next): IteratorResult<Yield,Return>;
+}
+
+
+interface _ESIterable<Yield,Return,Next> {
+    @@iterator(): _Iterator<Yield,Return,Next>;
+}
+
+type Iterator<T> = _Iterator<T, void, void>
+type ESIterable<T> = _ESIterable<T,void,void>;
 
 declare class Iterable<K, V> extends _Iterable<K, V, typeof KeyedIterable, typeof IndexedIterable, typeof SetIterable> {}
 
