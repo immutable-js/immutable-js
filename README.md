@@ -449,7 +449,7 @@ Contribution
 
 Use [Github issues](https://github.com/facebook/immutable-js/issues) for requests.
 
-We actively welcome pull requests, learn how to [contribute](./CONTRIBUTING.md).
+We actively welcome pull requests, learn how to [contribute](https://github.com/facebook/immutable-js/blob/master/CONTRIBUTING.md).
 
 
 Changelog
@@ -471,4 +471,4 @@ name. If you're looking for his unsupported package, see [this repository](https
 License
 -------
 
-`Immutable` is [BSD-licensed](./LICENSE). We also provide an additional [patent grant](./PATENTS).
+`Immutable` is [BSD-licensed](https://github.com/facebook/immutable-js/blob/master/LICENSE). We also provide an additional [patent grant](https://github.com/facebook/immutable-js/blob/master/PATENTS).
