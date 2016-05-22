@@ -60,9 +60,9 @@ declare class _Iterable<K, V, KI, II, SI> {
   toArray(): V[];
   toObject(): { [key: string]: V };
   toMap(): Map<K,V>;
-  toOrderedMap(): Map<K,V>;
+  toOrderedMap(): OrderedMap<K,V>;
   toSet(): Set<V>;
-  toOrderedSet(): Set<V>;
+  toOrderedSet(): OrderedSet<V>;
   toList(): List<V>;
   toStack(): Stack<V>;
   toSeq(): Seq<K,V>;
