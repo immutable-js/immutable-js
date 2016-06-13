@@ -9,18 +9,12 @@ var defs = require('../../../lib/getTypeDefs');
 
 var Documentation = React.createClass({
   render() {
-    var typeDefURL = "https://github.com/facebook/immutable-js/blob/master/type-definitions/Immutable.d.ts";
-    var issuesURL = "https://github.com/facebook/immutable-js/issues";
     return (
       <div>
         <DocHeader />
         <div className="pageBody" id="body">
           <div className="contents">
             <RouteHandler />
-            <section className="disclaimer">
-            This documentation is generated from <a href={typeDefURL}>Immutable.d.ts</a>.
-            Pull requests and <a href={issuesURL}>Issues</a> welcome.
-            </section>
           </div>
         </div>
       </div>

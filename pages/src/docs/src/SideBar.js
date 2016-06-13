@@ -10,6 +10,18 @@ var SideBar = React.createClass({
 
     return (
       <div className="sideBar">
+        <div className="toolBar">
+          <div onClick={this.props.toggleShowInGroups}>
+            <span className={this.props.showInGroups && 'selected'}>Grouped</span>
+            {' • '}
+            <span className={this.props.showInGroups || 'selected'}>Alphabetized</span>
+          </div>
+          <div onClick={this.props.toggleShowInherited}>
+            <span className={this.props.showInherited && 'selected'}>Inherited</span>
+            {' • '}
+            <span className={this.props.showInherited || 'selected'}>Defined</span>
+          </div>
+        </div>
         <div className="scrollContent">
           <h4 className="groupTitle">API</h4>
           {Seq(type.module).map((t, name) =>
