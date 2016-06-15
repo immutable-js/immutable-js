@@ -344,4 +344,20 @@ describe('Map', () => {
     expect(is(m1, m2)).toBe(true);
   });
 
+  it('deletes all the provided keys', () => {
+    var NOT_SET = undefined;
+    var m1 = Map({ A: 1, B: 2, C: 3 });
+    var m2 = m1.deleteAll(["A", "B"]);
+    expect(m2.get("A")).toBe(NOT_SET);
+    expect(m2.get("B")).toBe(NOT_SET);
+    expect(m2.get("C")).toBe(3);
+    expect(m2.size).toBe(1);
+  });
+
+  it('remains unchanged when no keys are provided', () => {
+    var m1 = Map({ A: 1, B: 2, C: 3 });
+    var m2 = m1.deleteAll([]);
+    expect(m1).toBe(m2);
+  });
+
 });

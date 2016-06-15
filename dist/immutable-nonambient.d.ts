@@ -616,6 +616,16 @@
     remove(key: K): Map<K, V>;
 
     /**
+     * Returns a new Map which excludes the provided `keys`.
+     *
+     *     var names = Immutable.Map({ a: "Aaron", b: "Barry", c: "Connor" });
+     *     names.deleteAll(['a']); // { b: "Barry", c: "Connor" }
+     *
+     */
+    deleteAll(keys: Array<any>): Map<K, V>;
+    deleteAll(keys: Iterable.Indexed<any>): Map<K, V>;
+
+    /**
      * Returns a new Map containing no keys or values.
      *
      * ```js

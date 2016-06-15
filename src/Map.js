@@ -9,7 +9,7 @@
 
 import { is } from './is'
 import { fromJS } from './fromJS'
-import { isIterable, KeyedIterable, isOrdered } from './Iterable'
+import { isIterable, KeyedIterable, isOrdered, IndexedIterable } from './Iterable'
 import { KeyedCollection } from './Collection'
 import { DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
           MakeRef, SetRef, arrCopy } from './TrieUtils'
@@ -76,6 +76,18 @@ export class Map extends KeyedCollection {
 
   deleteIn(keyPath) {
     return this.updateIn(keyPath, () => NOT_SET);
+  }
+
+  deleteAll(keys) {
+    var iterable = IndexedIterable(keys);
+
+    if (iterable.size === 0) {
+      return this;
+    }
+
+    return this.withMutations(map => {
+      iterable.forEach((key) => map.remove(key, NOT_SET));
+    });
   }
 
   update(k, notSetValue, updater) {
