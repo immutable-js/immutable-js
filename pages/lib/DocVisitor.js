@@ -42,7 +42,7 @@ class DocVisitor extends TypeScript.SyntaxWalker {
   }
 
   isAliased(name) {
-    return !!Seq(this.aliases).last()[name];
+    return this.aliases.length && !!Seq(this.aliases).last()[name];
   }
 
   addAliases(comment, name) {
