@@ -620,9 +620,12 @@ declare function Range(start?: number, end?: number, step?: number): IndexedSeq<
 declare function Repeat<T>(value: T, times?: number): IndexedSeq<T>;
 
 declare class Record<T: Object> {
-  static <T: Object>(spec: T, name?: string): T & Record<T>;
+  static <T: Object>(spec: T, name?: string): Class<T & Record<T>>;
+  constructor(initialObject?: $Shape<T>): T & Record<T>;
   get<A>(key: $Keys<T>): A;
+  getIn(key: Array<string | number>): any;
   set<A>(key: $Keys<T>, value: A): T & Record<T>;
+  setIn(key: Array<string | number>, value: any): T & Record<T>;
   remove(key: $Keys<T>): T & Record<T>;
 }
 
