@@ -3610,6 +3610,18 @@
   }
 
   function defaultComparator(a, b) {
+    if (a === undefined && b === undefined) {
+      return 0;
+    }
+
+    if (a === undefined) {
+      return 1;
+    }
+
+    if (b === undefined) {
+      return -1;
+    }
+
     return a > b ? 1 : a < b ? -1 : 0;
   }
 

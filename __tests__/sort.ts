@@ -15,6 +15,10 @@ describe('sort', () => {
     expect(List.of(4,5,6,3,2,1).sort().toArray()).toEqual([1,2,3,4,5,6]);
   })
 
+  it('sorts undefined values last', () => {
+    expect(List.of(4,undefined,5,6,3,undefined,2,1).sort().toArray()).toEqual([1,2,3,4,5,6,undefined,undefined]);
+  })
+
   it('sorts a keyed sequence', () => {
     expect(Seq({z:1,y:2,x:3,c:3,b:2,a:1}).sort().entrySeq().toArray())
       .toEqual([['z', 1],['a', 1],['y', 2],['b', 2],['x', 3],['c', 3]]);
