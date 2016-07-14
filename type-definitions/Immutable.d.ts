@@ -140,6 +140,7 @@ declare module Immutable {
    * Create a new immutable List containing the values of the provided
    * iterable-like.
    */
+  export function List(): List<any>;
   export function List<T>(): List<T>;
   export function List<T>(iter: Iterable.Indexed<T>): List<T>;
   export function List<T>(iter: Iterable.Set<T>): List<T>;
@@ -455,6 +456,7 @@ declare module Immutable {
    * but since Immutable Map keys can be of any type the argument to `get()` is
    * not altered.
    */
+  export function Map(): Map<any, any>;
   export function Map<K, V>(): Map<K, V>;
   export function Map<K, V>(iter: Iterable.Keyed<K, V>): Map<K, V>;
   export function Map<K, V>(iter: Iterable<any, /*[K,V]*/Array<any>>): Map<K, V>;
@@ -762,6 +764,7 @@ declare module Immutable {
    *     var newOrderedMap = OrderedMap([["key", "value"]]);
    *
    */
+  export function OrderedMap(): OrderedMap<any, any>;
   export function OrderedMap<K, V>(): OrderedMap<K, V>;
   export function OrderedMap<K, V>(iter: Iterable.Keyed<K, V>): OrderedMap<K, V>;
   export function OrderedMap<K, V>(iter: Iterable<any, /*[K,V]*/Array<any>>): OrderedMap<K, V>;
@@ -808,6 +811,7 @@ declare module Immutable {
    * Create a new immutable Set containing the values of the provided
    * iterable-like.
    */
+  export function Set(): Set<any>;
   export function Set<T>(): Set<T>;
   export function Set<T>(iter: Iterable.Set<T>): Set<T>;
   export function Set<T>(iter: Iterable.Indexed<T>): Set<T>;
@@ -920,6 +924,7 @@ declare module Immutable {
    * Create a new immutable OrderedSet containing the values of the provided
    * iterable-like.
    */
+  export function OrderedSet(): OrderedSet<any>;
   export function OrderedSet<T>(): OrderedSet<T>;
   export function OrderedSet<T>(iter: Iterable.Set<T>): OrderedSet<T>;
   export function OrderedSet<T>(iter: Iterable.Indexed<T>): OrderedSet<T>;
@@ -964,6 +969,7 @@ declare module Immutable {
    * The iteration order of the provided iterable is preserved in the
    * resulting `Stack`.
    */
+  export function Stack(): Stack<any>;
   export function Stack<T>(): Stack<T>;
   export function Stack<T>(iter: Iterable.Indexed<T>): Stack<T>;
   export function Stack<T>(iter: Iterable.Set<T>): Stack<T>;
@@ -1217,6 +1223,7 @@ declare module Immutable {
      * Always returns a Seq.Keyed, if input is not keyed, expects an
      * iterable of [K, V] tuples.
      */
+    export function Keyed(): Seq.Keyed<any, any>;
     export function Keyed<K, V>(): Seq.Keyed<K, V>;
     export function Keyed<K, V>(seq: Iterable.Keyed<K, V>): Seq.Keyed<K, V>;
     export function Keyed<K, V>(seq: Iterable<any, /*[K,V]*/any>): Seq.Keyed<K, V>;
@@ -1249,6 +1256,7 @@ declare module Immutable {
      * Always returns Seq.Indexed, discarding associated keys and
      * supplying incrementing indices.
      */
+    export function Indexed(): Seq.Indexed<any>;
     export function Indexed<T>(): Seq.Indexed<T>;
     export function Indexed<T>(seq: Iterable.Indexed<T>): Seq.Indexed<T>;
     export function Indexed<T>(seq: Iterable.Set<T>): Seq.Indexed<T>;
@@ -1283,6 +1291,7 @@ declare module Immutable {
     /**
      * Always returns a Seq.Set, discarding associated indices or keys.
      */
+    export function Set(): Seq.Set<any>;
     export function Set<T>(): Seq.Set<T>;
     export function Set<T>(seq: Iterable.Set<T>): Seq.Set<T>;
     export function Set<T>(seq: Iterable.Indexed<T>): Seq.Set<T>;
