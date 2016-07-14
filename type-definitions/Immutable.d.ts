@@ -1323,6 +1323,7 @@ declare module Immutable {
    *   * If an Object, a `Seq.Keyed`.
    *
    */
+  export function Seq(): Seq<any, any>;
   export function Seq<K, V>(): Seq<K, V>;
   export function Seq<K, V>(seq: Seq<K, V>): Seq<K, V>;
   export function Seq<K, V>(iterable: Iterable<K, V>): Seq<K, V>;
