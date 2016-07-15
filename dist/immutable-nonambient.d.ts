@@ -1230,7 +1230,7 @@
       /**
        * Returns itself
        */
-      toSeq(): /*this*/Seq.Keyed<K, V>
+      toSeq(): this;
     }
 
 
@@ -1262,7 +1262,7 @@
       /**
        * Returns itself
        */
-      toSeq(): /*this*/Seq.Indexed<T>
+      toSeq(): this;
     }
 
 
@@ -1296,7 +1296,7 @@
       /**
        * Returns itself
        */
-      toSeq(): /*this*/Seq.Set<T>
+      toSeq(): this;
     }
 
   }
@@ -1359,7 +1359,7 @@
      *
      * Note: after calling `cacheResult`, a Seq will always have a `size`.
      */
-    cacheResult(): /*this*/Seq<K, V>;
+    cacheResult(): this;
   }
 
   /**
@@ -1438,7 +1438,7 @@
        *     Seq({ a: 'z', b: 'y' }).flip() // { z: 'a', y: 'b' }
        *
        */
-      flip(): /*this*/Iterable.Keyed<V, K>;
+      flip(): Iterable.Keyed<V, K>;
 
       /**
        * Returns a new Iterable.Keyed of the same type with keys passed through
@@ -1450,9 +1450,9 @@
        *
        */
       mapKeys<M>(
-        mapper: (key?: K, value?: V, iter?: /*this*/Iterable.Keyed<K, V>) => M,
+        mapper: (key?: K, value?: V, iter?: this) => M,
         context?: any
-      ): /*this*/Iterable.Keyed<M, V>;
+      ): Iterable.Keyed<M, V>;
 
       /**
        * Returns a new Iterable.Keyed of the same type with entries
@@ -1467,10 +1467,10 @@
         mapper: (
           entry?: /*(K, V)*/Array<any>,
           index?: number,
-          iter?: /*this*/Iterable.Keyed<K, V>
+          iter?: this
         ) => /*[KM, VM]*/Array<any>,
         context?: any
-      ): /*this*/Iterable.Keyed<KM, VM>;
+      ): Iterable.Keyed<KM, VM>;
     }
 
 
@@ -1536,7 +1536,7 @@
        * Returns an Iterable of the same type with `separator` between each item
        * in this Iterable.
        */
-      interpose(separator: T): /*this*/Iterable.Indexed<T>;
+      interpose(separator: T): this;
 
       /**
        * Returns an Iterable of the same type with the provided `iterables`
@@ -1556,7 +1556,7 @@
        *     )
        *     // Seq [ 1, 'A', 'X', 2, 'B', 'Y' ]
        */
-      interleave(...iterables: Array<Iterable<any, T>>): /*this*/Iterable.Indexed<T>;
+      interleave(...iterables: Array<Iterable<any, T>>): Iterable.Indexed<T>;
 
       /**
        * Splice returns a new indexed Iterable by replacing a region of this
@@ -1574,7 +1574,7 @@
         index: number,
         removeNum: number,
         ...values: /*Array<Iterable.Indexed<T> | T>*/any[]
-      ): /*this*/Iterable.Indexed<T>;
+      ): this;
 
       /**
        * Returns an Iterable of the same type "zipped" with the provided
@@ -1587,7 +1587,7 @@
        *     var c = a.zip(b); // Seq [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
        *
        */
-      zip(...iterables: Array<Iterable<any, any>>): /*this*/Iterable.Indexed<any>;
+      zip(...iterables: Array<Iterable<any, any>>): Iterable.Indexed<any>;
 
       /**
        * Returns an Iterable of the same type "zipped" with the provided
@@ -1632,7 +1632,7 @@
        * provided predicate function. Otherwise -1 is returned.
        */
       findIndex(
-        predicate: (value?: T, index?: number, iter?: /*this*/Iterable.Indexed<T>) => boolean,
+        predicate: (value?: T, index?: number, iter?: this) => boolean,
         context?: any
       ): number;
 
@@ -1641,7 +1641,7 @@
        * provided predicate function. Otherwise -1 is returned.
        */
       findLastIndex(
-        predicate: (value?: T, index?: number, iter?: /*this*/Iterable.Indexed<T>) => boolean,
+        predicate: (value?: T, index?: number, iter?: this) => boolean,
         context?: any
       ): number;
     }
@@ -1962,9 +1962,9 @@
      *
      */
     map<M>(
-      mapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => M,
+      mapper: (value?: V, key?: K, iter?: this) => M,
       context?: any
-    ): /*this*/Iterable<K, M>;
+    ): Iterable<K, M>;
 
     /**
      * Returns a new Iterable of the same type with only the entries for which
@@ -1975,9 +1975,9 @@
      *
      */
     filter(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: this) => boolean,
       context?: any
-    ): /*this*/Iterable<K, V>;
+    ): this;
 
     /**
      * Returns a new Iterable of the same type with only the entries for which
@@ -1988,14 +1988,14 @@
      *
      */
     filterNot(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: this) => boolean,
       context?: any
-    ): /*this*/Iterable<K, V>;
+    ): this;
 
     /**
      * Returns a new Iterable of the same type in reverse order.
      */
-    reverse(): /*this*/Iterable<K, V>;
+    reverse(): this;
 
     /**
      * Returns a new Iterable of the same type which includes the same entries,
@@ -2014,7 +2014,7 @@
      * When sorting collections which have no defined order, their ordered
      * equivalents will be returned. e.g. `map.sort()` returns OrderedMap.
      */
-    sort(comparator?: (valueA: V, valueB: V) => number): /*this*/Iterable<K, V>;
+    sort(comparator?: (valueA: V, valueB: V) => number): this;
 
     /**
      * Like `sort`, but also accepts a `comparatorValueMapper` which allows for
@@ -2024,9 +2024,9 @@
      *
      */
     sortBy<C>(
-      comparatorValueMapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => C,
+      comparatorValueMapper: (value?: V, key?: K, iter?: this) => C,
       comparator?: (valueA: C, valueB: C) => number
-    ): /*this*/Iterable<K, V>;
+    ): this;
 
     /**
      * Returns a `Iterable.Keyed` of `Iterable.Keyeds`, grouped by the return
@@ -2035,9 +2035,9 @@
      * Note: This is always an eager operation.
      */
     groupBy<G>(
-      grouper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => G,
+      grouper: (value?: V, key?: K, iter?: this) => G,
       context?: any
-    ): /*Map*/Seq.Keyed<G, /*this*/Iterable<K, V>>;
+    ): Seq.Keyed<G, Iterable<K, V>>;
 
 
     // Side effects
@@ -2050,7 +2050,7 @@
      * (including the last iteration which returned false).
      */
     forEach(
-      sideEffect: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => any,
+      sideEffect: (value?: V, key?: K, iter?: this) => any,
       context?: any
     ): number;
 
@@ -2073,31 +2073,31 @@
      * If the requested slice is equivalent to the current Iterable, then it
      * will return itself.
      */
-    slice(begin?: number, end?: number): /*this*/Iterable<K, V>;
+    slice(begin?: number, end?: number): this;
 
     /**
      * Returns a new Iterable of the same type containing all entries except
      * the first.
      */
-    rest(): /*this*/Iterable<K, V>;
+    rest(): this;
 
     /**
      * Returns a new Iterable of the same type containing all entries except
      * the last.
      */
-    butLast(): /*this*/Iterable<K, V>;
+    butLast(): this;
 
     /**
      * Returns a new Iterable of the same type which excludes the first `amount`
      * entries from this Iterable.
      */
-    skip(amount: number): /*this*/Iterable<K, V>;
+    skip(amount: number): this;
 
     /**
      * Returns a new Iterable of the same type which excludes the last `amount`
      * entries from this Iterable.
      */
-    skipLast(amount: number): /*this*/Iterable<K, V>;
+    skipLast(amount: number): this;
 
     /**
      * Returns a new Iterable of the same type which includes entries starting
@@ -2109,9 +2109,9 @@
      *
      */
     skipWhile(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: this) => boolean,
       context?: any
-    ): /*this*/Iterable<K, V>;
+    ): this;
 
     /**
      * Returns a new Iterable of the same type which includes entries starting
@@ -2123,21 +2123,21 @@
      *
      */
     skipUntil(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: this) => boolean,
       context?: any
-    ): /*this*/Iterable<K, V>;
+    ): this;
 
     /**
      * Returns a new Iterable of the same type which includes the first `amount`
      * entries from this Iterable.
      */
-    take(amount: number): /*this*/Iterable<K, V>;
+    take(amount: number): this;
 
     /**
      * Returns a new Iterable of the same type which includes the last `amount`
      * entries from this Iterable.
      */
-    takeLast(amount: number): /*this*/Iterable<K, V>;
+    takeLast(amount: number): this;
 
     /**
      * Returns a new Iterable of the same type which includes entries from this
@@ -2149,9 +2149,9 @@
      *
      */
     takeWhile(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: this) => boolean,
       context?: any
-    ): /*this*/Iterable<K, V>;
+    ): this;
 
     /**
      * Returns a new Iterable of the same type which includes entries from this
@@ -2162,9 +2162,9 @@
      *
      */
     takeUntil(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: this) => boolean,
       context?: any
-    ): /*this*/Iterable<K, V>;
+    ): this;
 
 
     // Combination
@@ -2176,7 +2176,7 @@
      * For Seqs, all entries will be present in
      * the resulting iterable, even if they have the same key.
      */
-    concat(...valuesOrIterables: /*Array<Iterable<K, V>|V*/any[]): /*this*/Iterable<K, V>;
+    concat(...valuesOrIterables: /*Array<Iterable<K, V>|V*/any[]): Iterable<K, V>;
 
     /**
      * Flattens nested Iterables.
@@ -2191,8 +2191,8 @@
      * Note: `flatten(true)` operates on Iterable<any, Iterable<K, V>> and
      * returns Iterable<K, V>
      */
-    flatten(depth?: number): /*this*/Iterable<any, any>;
-    flatten(shallow?: boolean): /*this*/Iterable<any, any>;
+    flatten(depth?: number): Iterable<any, any>;
+    flatten(shallow?: boolean): Iterable<any, any>;
 
     /**
      * Flat-maps the Iterable, returning an Iterable of the same type.
@@ -2200,13 +2200,13 @@
      * Similar to `iter.map(...).flatten(true)`.
      */
     flatMap<MK, MV>(
-      mapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => Iterable<MK, MV>,
+      mapper: (value?: V, key?: K, iter?: this) => Iterable<MK, MV>,
       context?: any
-    ): /*this*/Iterable<MK, MV>;
+    ): Iterable<MK, MV>;
     flatMap<MK, MV>(
-      mapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => /*iterable-like*/any,
+      mapper: (value?: V, key?: K, iter?: this) => /*iterable-like*/any,
       context?: any
-    ): /*this*/Iterable<MK, MV>;
+    ): Iterable<MK, MV>;
 
 
     // Reducing a value
@@ -2221,7 +2221,7 @@
      * @see `Array#reduce`.
      */
     reduce<R>(
-      reducer: (reduction?: R, value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => R,
+      reducer: (reduction?: R, value?: V, key?: K, iter?: this) => R,
       initialReduction?: R,
       context?: any
     ): R;
@@ -2233,7 +2233,7 @@
      * with `Array#reduceRight`.
      */
     reduceRight<R>(
-      reducer: (reduction?: R, value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => R,
+      reducer: (reduction?: R, value?: V, key?: K, iter?: this) => R,
       initialReduction?: R,
       context?: any
     ): R;
@@ -2242,7 +2242,7 @@
      * True if `predicate` returns true for all entries in the Iterable.
      */
     every(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: this) => boolean,
       context?: any
     ): boolean;
 
@@ -2250,7 +2250,7 @@
      * True if `predicate` returns true for any entry in the Iterable.
      */
     some(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: this) => boolean,
       context?: any
     ): boolean;
 
@@ -2280,7 +2280,7 @@
      */
     count(): number;
     count(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: this) => boolean,
       context?: any
     ): number;
 
@@ -2291,7 +2291,7 @@
      * Note: This is not a lazy operation.
      */
     countBy<G>(
-      grouper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => G,
+      grouper: (value?: V, key?: K, iter?: this) => G,
       context?: any
     ): Map<G, number>;
 
@@ -2302,7 +2302,7 @@
      * Returns the first value for which the `predicate` returns true.
      */
     find(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: this) => boolean,
       context?: any,
       notSetValue?: V
     ): V;
@@ -2313,7 +2313,7 @@
      * Note: `predicate` will be called for each entry in reverse.
      */
     findLast(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: this) => boolean,
       context?: any,
       notSetValue?: V
     ): V;
@@ -2322,7 +2322,7 @@
      * Returns the first [key, value] entry for which the `predicate` returns true.
      */
     findEntry(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: this) => boolean,
       context?: any,
       notSetValue?: V
     ): /*[K, V]*/Array<any>;
@@ -2334,7 +2334,7 @@
      * Note: `predicate` will be called for each entry in reverse.
      */
     findLastEntry(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: this) => boolean,
       context?: any,
       notSetValue?: V
     ): /*[K, V]*/Array<any>;
@@ -2343,7 +2343,7 @@
      * Returns the key for which the `predicate` returns true.
      */
     findKey(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable.Keyed<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: this) => boolean,
       context?: any
     ): K;
 
@@ -2353,7 +2353,7 @@
      * Note: `predicate` will be called for each entry in reverse.
      */
     findLastKey(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable.Keyed<K, V>) => boolean,
+      predicate: (value?: V, key?: K, iter?: this) => boolean,
       context?: any
     ): K;
 
@@ -2392,7 +2392,7 @@
      *
      */
     maxBy<C>(
-      comparatorValueMapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => C,
+      comparatorValueMapper: (value?: V, key?: K, iter?: this) => C,
       comparator?: (valueA: C, valueB: C) => number
     ): V;
 
@@ -2421,7 +2421,7 @@
      *
      */
     minBy<C>(
-      comparatorValueMapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => C,
+      comparatorValueMapper: (value?: V, key?: K, iter?: this) => C,
       comparator?: (valueA: C, valueB: C) => number
     ): V;
 

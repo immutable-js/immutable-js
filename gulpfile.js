@@ -57,16 +57,6 @@ gulp.task('typedefs', function() {
 
   var fileContents = fs.readFileSync(typeDefPath, 'utf8');
 
-  var fileSource = fileContents.replace(
-    'module \'immutable\'',
-    'module Immutable'
-  );
-
-  var writePath = path.join(__dirname, './pages/resources/immutable.d.json');
-  var contents = JSON.stringify(genTypeDefData(typeDefPath, fileSource));
-
-  fs.writeFileSync(writePath, contents);
-
   var nonAmbientSource = fileContents
     .replace(
       /declare\s+module\s+Immutable\s*\{/,
@@ -79,6 +69,15 @@ gulp.task('typedefs', function() {
   var nonAmbientPath = path.join(distPath, 'immutable-nonambient.d.ts');
   fs.writeFileSync(nonAmbientPath, nonAmbientSource);
 
+  var fileSource = fileContents.replace(
+    'module \'immutable\'',
+    'module Immutable'
+  );
+
+  var writePath = path.join(__dirname, './pages/resources/immutable.d.json');
+  var contents = JSON.stringify(genTypeDefData(typeDefPath, fileSource));
+
+  fs.writeFileSync(writePath, contents);
 });
 
 gulp.task('lint', function() {
