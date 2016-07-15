@@ -813,7 +813,7 @@
      *
      */
     map<M>(
-      mapper: (value: V, key: K, iter: /*this*/OrderedMap<k, V>) => M,
+      mapper: (value: V, key: K, iter: /*this*/OrderedMap<K, V>) => M,
       context?: any
     ): OrderedMap<K, M>;
 
@@ -1867,7 +1867,7 @@
        *
        */
       map<M>(
-        mapper: (value: T, key: number, iter: /*this*/Iterable.Set<T>) => M,
+        mapper: (value: T, key: T, iter: /*this*/Iterable.Set<T>) => M,
         context?: any
       ): Iterable.Set<T>;
     }
@@ -2741,7 +2741,7 @@
        *
        */
       map<M>(
-        mapper: (value: T, key: number, iter: /*this*/Collection.Set<T>) => M,
+        mapper: (value: T, key: T, iter: /*this*/Collection.Set<T>) => M,
         context?: any
       ): Collection.Set<T>;
     }
