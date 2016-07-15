@@ -58,7 +58,7 @@ var Header = React.createClass({
             </a>
             <a href="docs/" target="_self">Docs</a>
             <a href="http://stackoverflow.com/questions/tagged/immutable.js?sort=votes">Questions</a>
-            <a href="https://github.com/facebook/immutable-js/">Github</a>
+            <a href="https://github.com/facebook/immutable-js/">GitHub</a>
           </div>
         </div>
         <div className="coverContainer">
@@ -68,7 +68,7 @@ var Header = React.createClass({
             <div className="miniHeaderContents">
               <a href="docs/" target="_self">Docs</a>
               <a href="http://stackoverflow.com/questions/tagged/immutable.js?sort=votes">Questions</a>
-              <a href="https://github.com/facebook/immutable-js/">Github</a>
+              <a href="https://github.com/facebook/immutable-js/">GitHub</a>
             </div>
           </div>
           <div className="synopsis" >
