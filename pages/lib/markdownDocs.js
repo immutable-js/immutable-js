@@ -45,6 +45,7 @@ function markdownDoc(doc, context) {
       note.body = markdown(note.body, context);
     }
   });
+  doc.example && (doc.example = markdown(doc.example, context));
 }
 
 module.exports = markdownDocs;

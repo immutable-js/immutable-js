@@ -142,12 +142,14 @@ var MemberDoc = React.createClass({
               )}
               {doc.description &&
                 <section>
-                  <h4 className="infoHeader">
-                    {doc.description.substr(0, 5) === '<code' ?
-                      'Example' :
-                      'Discussion'}
-                  </h4>
+                  <h4 className="infoHeader">Discussion</h4>
                   <MarkDown className="discussion" contents={doc.description} />
+                </section>
+              }
+              {doc.example &&
+                <section>
+                  <h4 className="infoHeader">Example</h4>
+                  <MarkDown className="example" contents={doc.example} />
                 </section>
               }
             </div>
