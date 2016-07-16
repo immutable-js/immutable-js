@@ -1887,8 +1887,6 @@ declare module Immutable {
      * The returned Seq will have identical iteration order as
      * this Iterable.
      *
-     * Example:
-     *
      *     var indexedSeq = Immutable.Seq.of('A', 'B', 'C');
      *     indexedSeq.filter(v => v === 'B').toString() // Seq [ 'B' ]
      *     var keyedSeq = indexedSeq.toKeyedSeq();
