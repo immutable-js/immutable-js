@@ -403,6 +403,20 @@
       mapper: (value: T, key: number, iter: /*this*/List<T>) => M,
       context?: any
     ): List<M>;
+
+    // Combination
+
+    /**
+     * Returns a new Iterable of the same type with other values and
+     * iterable-like concatenated to this one.
+     *
+     * For Seqs, all entries will be present in
+     * the resulting iterable, even if they have the same key.
+     */
+    concat(...valuesOrIterables: Array<Iterable<any, T>>): List<T>;
+    concat<I1>(iterable1: Iterable<any, I1>): List<T | I1>;
+    concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): List<T | I1 | I2>;
+    concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): List<T | I1 | I2 | I3>;
   }
 
 
@@ -756,6 +770,20 @@
       mapper: (value: V, key: K, iter: /*this*/Map<K, V>) => M,
       context?: any
     ): Map<K, M>;
+
+    // Combination
+
+    /**
+     * Returns a new Iterable of the same type with other values and
+     * iterable-like concatenated to this one.
+     *
+     * For Seqs, all entries will be present in
+     * the resulting iterable, even if they have the same key.
+     */
+    concat(...valuesOrIterables: Array<Iterable<any, V>>): Map<K, V>;
+    concat<I1>(iterable1: Iterable<any, I1>): Map<K, V | I1>;
+    concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Map<K, V | I1 | I2>;
+    concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Map<K, V | I1 | I2 | I3>;
   }
 
 
@@ -817,6 +845,19 @@
       context?: any
     ): OrderedMap<K, M>;
 
+    // Combination
+
+    /**
+     * Returns a new Iterable of the same type with other values and
+     * iterable-like concatenated to this one.
+     *
+     * For Seqs, all entries will be present in
+     * the resulting iterable, even if they have the same key.
+     */
+    concat(...valuesOrIterables: Array<Iterable<any, V>>): OrderedMap<K, V>;
+    concat<I1>(iterable1: Iterable<any, I1>): OrderedMap<K, V | I1>;
+    concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): OrderedMap<K, V | I1 | I2>;
+    concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): OrderedMap<K, V | I1 | I2 | I3>;
   }
 
 
@@ -945,6 +986,20 @@
       mapper: (value: T, key: T, iter: /*this*/Set<T>) => M,
       context?: any
     ): Set<M>;
+
+    // Combination
+
+    /**
+     * Returns a new Iterable of the same type with other values and
+     * iterable-like concatenated to this one.
+     *
+     * For Seqs, all entries will be present in
+     * the resulting iterable, even if they have the same key.
+     */
+    concat(...valuesOrIterables: Array<Iterable<any, T>>): Set<T>;
+    concat<I1>(iterable1: Iterable<any, I1>): Set<T | I1>;
+    concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Set<T | I1 | I2>;
+    concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Set<T | I1 | I2 | I3>;
   }
 
 
@@ -1006,6 +1061,20 @@
       mapper: (value: T, key: T, iter: /*this*/OrderedSet<T>) => M,
       context?: any
     ): OrderedSet<M>;
+
+    // Combination
+
+    /**
+     * Returns a new Iterable of the same type with other values and
+     * iterable-like concatenated to this one.
+     *
+     * For Seqs, all entries will be present in
+     * the resulting iterable, even if they have the same key.
+     */
+    concat(...valuesOrIterables: Array<Iterable<any, T>>): OrderedSet<T>;
+    concat<I1>(iterable1: Iterable<any, I1>): OrderedSet<T | I1>;
+    concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): OrderedSet<T | I1 | I2>;
+    concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): OrderedSet<T | I1 | I2 | I3>;
   }
 
 
@@ -1142,6 +1211,20 @@
       mapper: (value: T, key: number, iter: /*this*/Stack<T>) => M,
       context?: any
     ): Stack<M>;
+
+    // Combination
+
+    /**
+     * Returns a new Iterable of the same type with other values and
+     * iterable-like concatenated to this one.
+     *
+     * For Seqs, all entries will be present in
+     * the resulting iterable, even if they have the same key.
+     */
+    concat(...valuesOrIterables: Array<Iterable<any, T>>): Stack<T>;
+    concat<I1>(iterable1: Iterable<any, I1>): Stack<T | I1>;
+    concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Stack<T | I1 | I2>;
+    concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Stack<T | I1 | I2 | I3>;
   }
 
 
@@ -1337,6 +1420,20 @@
         mapper: (value: V, key: K, iter: /*this*/Seq.Keyed<K, V>) => M,
         context?: any
       ): Seq.Keyed<K, M>;
+
+      // Combination
+
+      /**
+       * Returns a new Iterable of the same type with other values and
+       * iterable-like concatenated to this one.
+       *
+       * For Seqs, all entries will be present in
+       * the resulting iterable, even if they have the same key.
+       */
+      concat(...valuesOrIterables: Array<Iterable<any, T>>): Seq.Keyed<T>;
+      concat<I1>(iterable1: Iterable<any, I1>): Seq.Keyed<T | I1>;
+      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Seq.Keyed<T | I1 | I2>;
+      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Seq.Keyed<T | I1 | I2 | I3>;
     }
 
 
@@ -1382,6 +1479,20 @@
         mapper: (value: T, key: number, iter: /*this*/Seq.Indexed<T>) => M,
         context?: any
       ): Seq.Indexed<M>;
+
+      // Combination
+
+      /**
+       * Returns a new Iterable of the same type with other values and
+       * iterable-like concatenated to this one.
+       *
+       * For Seqs, all entries will be present in
+       * the resulting iterable, even if they have the same key.
+       */
+      concat(...valuesOrIterables: Array<Iterable<any, V>>): Seq.Indexed<K, V>;
+      concat<I1>(iterable1: Iterable<any, I1>): Seq.Indexed<K, V | I1>;
+      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Seq.Indexed<K, V | I1 | I2>;
+      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Seq.Indexed<K, V | I1 | I2 | I3>;
     }
 
 
@@ -1429,6 +1540,20 @@
         mapper: (value: T, key: T, iter: /*this*/Seq.Set<T>) => M,
         context?: any
       ): Seq.Set<M>;
+
+      // Combination
+
+      /**
+       * Returns a new Iterable of the same type with other values and
+       * iterable-like concatenated to this one.
+       *
+       * For Seqs, all entries will be present in
+       * the resulting iterable, even if they have the same key.
+       */
+      concat(...valuesOrIterables: Array<Iterable<any, T>>): Seq.Set<T>;
+      concat<I1>(iterable1: Iterable<any, I1>): Seq.Set<T | I1>;
+      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Seq.Set<T | I1 | I2>;
+      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Seq.Set<T | I1 | I2 | I3>;
     }
 
   }
@@ -1507,6 +1632,20 @@
       mapper: (value: V, key: K, iter: /*this*/Seq<K, V>) => M,
       context?: any
     ): Seq<K, M>;
+
+    // Combination
+
+    /**
+     * Returns a new Iterable of the same type with other values and
+     * iterable-like concatenated to this one.
+     *
+     * For Seqs, all entries will be present in
+     * the resulting iterable, even if they have the same key.
+     */
+    concat(...valuesOrIterables: Array<Iterable<any, V>>): Seq<K, V>;
+    concat<I1>(iterable1: Iterable<any, I1>): Seq<K, V | I1>;
+    concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Seq<K, V | I1 | I2>;
+    concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Seq<K, V | I1 | I2 | I3>;
   }
 
   /**
@@ -1633,6 +1772,20 @@
         mapper: (value: V, key: K, iter: /*this*/Iterable.Keyed<K, V>) => M,
         context?: any
       ): Iterable.Keyed<K, M>;
+
+      // Combination
+
+      /**
+       * Returns a new Iterable of the same type with other values and
+       * iterable-like concatenated to this one.
+       *
+       * For Seqs, all entries will be present in
+       * the resulting iterable, even if they have the same key.
+       */
+      concat(...valuesOrIterables: Array<Iterable<any, V>>): Iterable.Keyed<K, V>;
+      concat<I1>(iterable1: Iterable<any, I1>): Iterable.Keyed<K, V | I1>;
+      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Iterable.Keyed<K, V | I1 | I2>;
+      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Iterable.Keyed<K, V | I1 | I2 | I3>;
     }
 
 
@@ -1821,6 +1974,20 @@
         mapper: (value: T, key: number, iter: /*this*/Iterable.Indexed<T>) => M,
         context?: any
       ): Iterable.Indexed<T>;
+
+      // Combination
+
+      /**
+       * Returns a new Iterable of the same type with other values and
+       * iterable-like concatenated to this one.
+       *
+       * For Seqs, all entries will be present in
+       * the resulting iterable, even if they have the same key.
+       */
+      concat(...valuesOrIterables: Array<Iterable<any, T>>): Iterable.Indexed<T>;
+      concat<I1>(iterable1: Iterable<any, I1>): Iterable.Indexed<T | I1>;
+      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Iterable.Indexed<T | I1 | I2>;
+      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Iterable.Indexed<T | I1 | I2 | I3>;
     }
 
 
@@ -1870,6 +2037,20 @@
         mapper: (value: T, key: T, iter: /*this*/Iterable.Set<T>) => M,
         context?: any
       ): Iterable.Set<T>;
+
+      // Combination
+
+      /**
+       * Returns a new Iterable of the same type with other values and
+       * iterable-like concatenated to this one.
+       *
+       * For Seqs, all entries will be present in
+       * the resulting iterable, even if they have the same key.
+       */
+      concat(...valuesOrIterables: Array<Iterable<any, T>>): Iterable.Set<T>;
+      concat<I1>(iterable1: Iterable<any, I1>): Iterable.Set<T | I1>;
+      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Iterable.Set<T | I1 | I2>;
+      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Iterable.Set<T | I1 | I2 | I3>;
     }
 
   }
@@ -2682,6 +2863,20 @@
         mapper: (value: V, key: K, iter: /*this*/Collection.Keyed<K, V>) => M,
         context?: any
       ): Collection.Keyed<K, M>;
+
+      // Combination
+
+      /**
+       * Returns a new Iterable of the same type with other values and
+       * iterable-like concatenated to this one.
+       *
+       * For Seqs, all entries will be present in
+       * the resulting iterable, even if they have the same key.
+       */
+      concat(...valuesOrIterables: Array<Iterable<any, V>>): Collection.Keyed<K, V>;
+      concat<I1>(iterable1: Iterable<any, I1>): Collection.Keyed<K, V | I1>;
+      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Collection.Keyed<K, V | I1 | I2>;
+      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Collection.Keyed<K, V | I1 | I2 | I3>;
     }
 
 
@@ -2712,6 +2907,20 @@
         mapper: (value: T, key: number, iter: /*this*/Collection.Indexed<T>) => M,
         context?: any
       ): Collection.Indexed<T>;
+
+      // Combination
+
+      /**
+       * Returns a new Iterable of the same type with other values and
+       * iterable-like concatenated to this one.
+       *
+       * For Seqs, all entries will be present in
+       * the resulting iterable, even if they have the same key.
+       */
+      concat(...valuesOrIterables: Array<Iterable<any, T>>): Collection.Indexed<T>;
+      concat<I1>(iterable1: Iterable<any, I1>): Collection.Indexed<T | I1>;
+      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Collection.Indexed<T | I1 | I2>;
+      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Collection.Indexed<T | I1 | I2 | I3>;
     }
 
 
@@ -2744,6 +2953,20 @@
         mapper: (value: T, key: T, iter: /*this*/Collection.Set<T>) => M,
         context?: any
       ): Collection.Set<T>;
+
+      // Combination
+
+      /**
+       * Returns a new Iterable of the same type with other values and
+       * iterable-like concatenated to this one.
+       *
+       * For Seqs, all entries will be present in
+       * the resulting iterable, even if they have the same key.
+       */
+      concat(...valuesOrIterables: Array<Iterable<any, T>>): Collection.Set<T>;
+      concat<I1>(iterable1: Iterable<any, I1>): Collection.Set<T | I1>;
+      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Collection.Set<T | I1 | I2>;
+      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Collection.Set<T | I1 | I2 | I3>;
     }
 
   }
