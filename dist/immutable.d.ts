@@ -1430,10 +1430,10 @@ declare module Immutable {
        * For Seqs, all entries will be present in
        * the resulting iterable, even if they have the same key.
        */
-      concat(...valuesOrIterables: Array<Iterable<any, T>>): Seq.Keyed<T>;
-      concat<I1>(iterable1: Iterable<any, I1>): Seq.Keyed<T | I1>;
-      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Seq.Keyed<T | I1 | I2>;
-      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Seq.Keyed<T | I1 | I2 | I3>;
+      concat(...valuesOrIterables: Array<Iterable<any, V>>): Seq.Keyed<K, V>;
+      concat<I1>(iterable1: Iterable<any, I1>): Seq.Keyed<K, V | I1>;
+      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Seq.Keyed<K, V | I1 | I2>;
+      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Seq.Keyed<K, V | I1 | I2 | I3>;
     }
 
 
@@ -1489,10 +1489,10 @@ declare module Immutable {
        * For Seqs, all entries will be present in
        * the resulting iterable, even if they have the same key.
        */
-      concat(...valuesOrIterables: Array<Iterable<any, V>>): Seq.Indexed<K, V>;
-      concat<I1>(iterable1: Iterable<any, I1>): Seq.Indexed<K, V | I1>;
-      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Seq.Indexed<K, V | I1 | I2>;
-      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Seq.Indexed<K, V | I1 | I2 | I3>;
+      concat(...valuesOrIterables: Array<Iterable<any, T>>): Seq.Indexed<T>;
+      concat<I1>(iterable1: Iterable<any, I1>): Seq.Indexed<T | I1>;
+      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Seq.Indexed<T | I1 | I2>;
+      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Seq.Indexed<T | I1 | I2 | I3>;
     }
 
 
