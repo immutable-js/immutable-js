@@ -727,9 +727,14 @@ declare module Immutable {
      */
     asImmutable(): Map<K, V>;
 
-    diffFrom(otherMap : Map<K,V>): { added: Map<K,V>, removed: Map<K,V>, updated: Map<K,{prev: V, next: V}> }; 
+    diffFrom(otherMap : Map<K,V>): DiffResult<K,V>;
   }
 
+  interface DiffResult<K,V> {
+    added: Map<K,V>;
+    removed: Map<K,V>;
+    updated: Map<K, {prev: V, next: V} >;
+  }
 
   /**
    * A type of Map that has the additional guarantee that the iteration order of
