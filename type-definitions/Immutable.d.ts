@@ -726,6 +726,8 @@ declare module Immutable {
      * copy has become immutable and can be safely returned from a function.
      */
     asImmutable(): Map<K, V>;
+
+    diffFrom(otherMap : Map<K,V>): { added: Map<K,V>, removed: Map<K,V>, updated: Map<K,{prev: V, next: V}> }; 
   }
 
 

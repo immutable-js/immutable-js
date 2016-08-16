@@ -346,4 +346,56 @@ describe('Map', () => {
     expect(is(m1, m2)).toBe(true);
   });
 
+  it('diffs against the older version of the map providing a map of added entries', () => {
+    var m1 = Map({'a' : 11})
+    var m2 = m1.set('b', 12)
+
+    expect(m2.diffFrom(m1).added.toObject()).toEqual({'b': 12})
+  })
+
+  it('diffs against the older version of the map providing a map of deleted entries', () => {
+    var m1 = Map({'a': 11, 'b': 12})
+    var m2 = m1.delete('a')
+
+    expect(m2.diffFrom(m1).removed.toObject()).toEqual({'a': 11})
+  })
+
+  it('diffs against the older version of the map providing a map of updated entries', () => {
+    var m1 = Map({'a': 11, 'b': 12})
+    var m2 = m1.set('a', 13)
+
+    expect(m2.diffFrom(m1).updated.toObject()).toEqual({'a': {prev: 11, next: 13}})
+  })
+
+  it('diffs against the older version of the large map', () => {
+    var largeObject = {}
+    for(let i=0; i<10000; ++i) largeObject[i] = i*2+11
+
+    var m1 = Map(largeObject)
+    var m2 = m1
+      .set('b', 12)
+      .delete('11')
+      .set('12', 17)
+
+    var diff = m2.diffFrom(m1)
+    expect(diff.updated.toObject()).toEqual({'12': {prev: 12*2+11, next: 17}})
+    expect(diff.removed.toObject()).toEqual({'11': 11*2+11})
+    expect(diff.added.toObject()).toEqual({'b': 12})
+  })
+
+  it('diffs against the branched out version of the map', () => {
+    var largeObject = {}
+    for(let i=0; i<10000; ++i) largeObject[i] = i*2+11
+
+    var m1 = Map(largeObject)
+      .set('somethingDifferent', 12323948)
+    var m2 = m1
+      .set('somethingDifferent', 23928492)
+
+    var diff = m2.diffFrom(m1)
+    expect(diff.updated.toObject()).toEqual({'somethingDifferent': {prev: 12323948, next: 23928492}})
+    expect(diff.removed.toObject()).toEqual({})
+    expect(diff.added.toObject()).toEqual({})
+  })
+
 });
