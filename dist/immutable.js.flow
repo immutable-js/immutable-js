@@ -661,3 +661,22 @@ export {
   fromJS,
   is,
 }
+
+export default {
+  Iterable,
+  Collection,
+  Seq,
+
+  List,
+  Map,
+  OrderedMap,
+  OrderedSet,
+  Range,
+  Repeat,
+  Record,
+  Set,
+  Stack,
+
+  fromJS,
+  is,
+}
