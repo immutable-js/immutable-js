@@ -1962,7 +1962,7 @@ declare module Immutable {
      *
      */
     map<M>(
-      mapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => M,
+      mapper: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => M,
       context?: any
     ): /*this*/Iterable<K, M>;
 
