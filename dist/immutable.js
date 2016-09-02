@@ -4315,7 +4315,7 @@
     toSeq: function() {
       return isIndexed(this) ? this.toIndexedSeq() :
         isKeyed(this) ? this.toKeyedSeq() :
-        this.toSetSeq();
+          this.toSetSeq();
     },
 
     toStack: function() {
@@ -4676,7 +4676,7 @@
   IterablePrototype.__toJS = IterablePrototype.toArray;
   IterablePrototype.__toStringMapper = quoteString;
   IterablePrototype.inspect =
-  IterablePrototype.toSource = function() { return this.toString(); };
+    IterablePrototype.toSource = function () { return this.toString(); };
   IterablePrototype.chain = IterablePrototype.flatMap;
   IterablePrototype.contains = IterablePrototype.includes;
 
@@ -4755,7 +4755,13 @@
 
     splice: function(index, removeNum /*, ...values*/) {
       var numArgs = arguments.length;
+
+      if (removeNum === Infinity) {
+        removeNum = this.size - index;
+      }
+
       removeNum = Math.max(removeNum | 0, 0);
+
       if (numArgs === 0 || (numArgs === 2 && !removeNum)) {
         return this;
       }
@@ -4791,7 +4797,7 @@
     get: function(index, notSetValue) {
       index = wrapIndex(this, index);
       return (index < 0 || (this.size === Infinity ||
-          (this.size !== undefined && index > this.size))) ?
+        (this.size !== undefined && index > this.size))) ?
         notSetValue :
         this.find(function(_, key)  {return key === index}, undefined, notSetValue);
     },
@@ -4895,13 +4901,13 @@
   }
 
   function not(predicate) {
-    return function() {
+    return function () {
       return !predicate.apply(this, arguments);
     }
   }
 
   function neg(predicate) {
-    return function() {
+    return function () {
       return -predicate.apply(this, arguments);
     }
   }

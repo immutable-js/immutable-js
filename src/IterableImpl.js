@@ -8,16 +8,16 @@
  */
 
 import { Iterable, KeyedIterable, IndexedIterable, SetIterable,
-         isIterable, isKeyed, isIndexed, isAssociative, isOrdered,
-         IS_ITERABLE_SENTINEL, IS_KEYED_SENTINEL, IS_INDEXED_SENTINEL, IS_ORDERED_SENTINEL } from './Iterable'
+  isIterable, isKeyed, isIndexed, isAssociative, isOrdered,
+  IS_ITERABLE_SENTINEL, IS_KEYED_SENTINEL, IS_INDEXED_SENTINEL, IS_ORDERED_SENTINEL } from './Iterable'
 
 import { is } from './is'
 import { arrCopy, NOT_SET, ensureSize, wrapIndex,
-         returnTrue, resolveBegin } from './TrieUtils'
+  returnTrue, resolveBegin } from './TrieUtils'
 import { hash } from './Hash'
 import { imul, smi } from './Math'
 import { Iterator,
-         ITERATOR_SYMBOL, ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES } from './Iterator'
+  ITERATOR_SYMBOL, ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES } from './Iterator'
 
 import assertNotInfinite from './utils/assertNotInfinite'
 import forceIterator from './utils/forceIterator'
@@ -34,14 +34,14 @@ import { Range } from './Range'
 import { KeyedSeq, IndexedSeq, SetSeq, ArraySeq } from './Seq'
 import { KeyedCollection, IndexedCollection, SetCollection } from './Collection'
 import { reify, ToKeyedSequence, ToIndexedSequence, ToSetSequence,
-          FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
-          filterFactory, countByFactory, groupByFactory, sliceFactory,
-          takeWhileFactory, skipWhileFactory, concatFactory,
-          flattenFactory, flatMapFactory, interposeFactory, sortFactory,
-          maxFactory, zipWithFactory } from './Operations'
+  FromEntriesSequence, flipFactory, mapFactory, reverseFactory,
+  filterFactory, countByFactory, groupByFactory, sliceFactory,
+  takeWhileFactory, skipWhileFactory, concatFactory,
+  flattenFactory, flatMapFactory, interposeFactory, sortFactory,
+  maxFactory, zipWithFactory } from './Operations'
 
 export { Iterable, KeyedIterable, IndexedIterable, SetIterable,
-         isIterable, isKeyed, isIndexed, isAssociative, isOrdered, IS_ORDERED_SENTINEL }
+isIterable, isKeyed, isIndexed, isAssociative, isOrdered, IS_ORDERED_SENTINEL }
 
 
 Iterable.Iterator = Iterator;
@@ -111,7 +111,7 @@ mixin(Iterable, {
   toSeq() {
     return isIndexed(this) ? this.toIndexedSeq() :
       isKeyed(this) ? this.toKeyedSeq() :
-      this.toSetSeq();
+        this.toSetSeq();
   },
 
   toStack() {
@@ -472,7 +472,7 @@ IterablePrototype[ITERATOR_SYMBOL] = IterablePrototype.values;
 IterablePrototype.__toJS = IterablePrototype.toArray;
 IterablePrototype.__toStringMapper = quoteString;
 IterablePrototype.inspect =
-IterablePrototype.toSource = function() { return this.toString(); };
+  IterablePrototype.toSource = function () { return this.toString(); };
 IterablePrototype.chain = IterablePrototype.flatMap;
 IterablePrototype.contains = IterablePrototype.includes;
 
@@ -551,7 +551,13 @@ mixin(IndexedIterable, {
 
   splice(index, removeNum /*, ...values*/) {
     var numArgs = arguments.length;
+
+    if (removeNum === Infinity) {
+      removeNum = this.size - index;
+    }
+
     removeNum = Math.max(removeNum | 0, 0);
+
     if (numArgs === 0 || (numArgs === 2 && !removeNum)) {
       return this;
     }
@@ -587,7 +593,7 @@ mixin(IndexedIterable, {
   get(index, notSetValue) {
     index = wrapIndex(this, index);
     return (index < 0 || (this.size === Infinity ||
-        (this.size !== undefined && index > this.size))) ?
+      (this.size !== undefined && index > this.size))) ?
       notSetValue :
       this.find((_, key) => key === index, undefined, notSetValue);
   },
@@ -691,13 +697,13 @@ function entryMapper(v, k) {
 }
 
 function not(predicate) {
-  return function() {
+  return function () {
     return !predicate.apply(this, arguments);
   }
 }
 
 function neg(predicate) {
-  return function() {
+  return function () {
     return -predicate.apply(this, arguments);
   }
 }
