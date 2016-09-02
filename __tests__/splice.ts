@@ -21,9 +21,23 @@ describe('splice', () => {
     expect(List.of(1,2,3).splice(0,1).toArray()).toEqual([2,3]);
     expect(List.of(1,2,3).splice(1,1).toArray()).toEqual([1,3]);
     expect(List.of(1,2,3).splice(2,1).toArray()).toEqual([1,2]);
-    expect(List.of(1,2,3).splice(3,1).toArray()).toEqual([1,2,3]);
+    expect(List.of(1,2,3).splice(3,1).toArray()).toEqual([1,2,3]);    
   })
-
+  
+  it('splices a list only removing with removeNum = Infinity', () => {
+    expect(List.of(1,2,3).splice(0,Infinity).toArray()).toEqual([]);
+    expect(List.of(1,2,3).splice(1,Infinity).toArray()).toEqual([1]);
+    expect(List.of(1,2,3).splice(3,Infinity).toArray()).toEqual([1,2,3]);    
+    expect(List.of(1,2,3).splice(2,Infinity).toArray()).toEqual([1,2]);
+  })
+  
+  it('splices a sequence only removing with removeNum = Infinity', () => {
+    expect(Seq.of(1,2,3).splice(0,Infinity).toArray()).toEqual([]);
+    expect(Seq.of(1,2,3).splice(1,Infinity).toArray()).toEqual([1]);
+    expect(Seq.of(1,2,3).splice(3,Infinity).toArray()).toEqual([1,2,3]);    
+    expect(Seq.of(1,2,3).splice(2,Infinity).toArray()).toEqual([1,2]);
+  })
+  
   it('has the same behavior as array splice in known edge cases', () => {
     // arbitary numbers that sum to 31
     var a = Range(0, 49).toArray();
