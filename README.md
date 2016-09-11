@@ -337,7 +337,7 @@ Seq is never used:
 
 Once the Seq is used, it performs only the work necessary. In this
 example, no intermediate arrays are ever created, filter is called three times,
-and map is only called twice:
+and map is only called once:
 
     console.log(oddSquares.get(1)); // 9
 
@@ -349,7 +349,7 @@ Seq allow for the efficient chaining of sequence operations, especially when
 converting to a different concrete type (such as to a JS object):
 
     seq.flip().map(key => key.toUpperCase()).flip().toObject();
-    // Map { A: 1, B: 1, C: 1 }
+    // { A: 1, B: 1, C: 1 }
 
 As well as expressing logic that would otherwise seem memory-limited:
 
