@@ -727,10 +727,10 @@ declare module Immutable {
      */
     asImmutable(): Map<K, V>;
 
-    diffFrom(otherMap : Map<K,V>): DiffResult<K,V>;
+    diffFrom(otherMap : Map<K,V>): MapDiffResult<K,V>;
   }
 
-  interface DiffResult<K,V> {
+  interface MapDiffResult<K,V> {
     added: Map<K,V>;
     removed: Map<K,V>;
     updated: Map<K, {prev: V, next: V} >;
@@ -890,8 +890,14 @@ declare module Immutable {
      * @see `Map#asImmutable`
      */
     asImmutable(): Set<T>;
+
+    diffFrom(otherSet : Set<T>): SetDiffResult<T>;
   }
 
+  interface SetDiffResult<T> {
+    added: Set<T>;
+    removed: Set<T>;
+  }
 
   /**
    * A type of Set that has the additional guarantee that the iteration order of

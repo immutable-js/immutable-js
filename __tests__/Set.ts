@@ -263,6 +263,20 @@ describe('Set', () => {
 
   });
 
+  it('diffs against the older version of the set providing a set of added entries', () => {
+    var s1 = Set(['a'])
+    var s2 = s1.add('b')
+
+    expect(s2.diffFrom(s1).added.toArray()).toEqual(['b'])
+  })
+
+  it('diffs against the older version of the set providing a set of removed entries', () => {
+    var s1 = Set(['a', 'b'])
+    var s2 = s1.remove('b')
+
+    expect(s2.diffFrom(s1).removed.toArray()).toEqual(['b'])
+  })
+
   // TODO: more tests
 
 });

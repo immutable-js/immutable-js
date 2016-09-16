@@ -353,9 +353,9 @@ describe('Map', () => {
     expect(m2.diffFrom(m1).added.toObject()).toEqual({'b': 12})
   })
 
-  it('diffs against the older version of the map providing a map of deleted entries', () => {
+  it('diffs against the older version of the map providing a map of removed entries', () => {
     var m1 = Map({'a': 11, 'b': 12})
-    var m2 = m1.delete('a')
+    var m2 = m1.remove('a')
 
     expect(m2.diffFrom(m1).removed.toObject()).toEqual({'a': 11})
   })
