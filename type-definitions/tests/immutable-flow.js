@@ -228,6 +228,9 @@ stringToNumber = Map({'a': 1}).removeIn([], 0)
 stringToNumber = Map({'a': 1}).mergeIn([], [])
 stringToNumber = Map({'a': 1}).mergeDeepIn([], [])
 
+anyMap = Map({'a': {}}).mergeIn(['a'], { b: 2 })
+anyMap = Map({'a': {}}).mergeDeepIn(['a'], { b: 2 })
+
 stringToNumber = Map({'a': 1}).withMutations(mutable => mutable)
 
 stringToNumber = Map({'a': 1}).asMutable()
@@ -428,5 +431,3 @@ numberStack = Stack(['a']).flatten()
 
 /* Record */
 // TODO
-
-
