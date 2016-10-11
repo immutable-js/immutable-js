@@ -108,6 +108,15 @@
    */
   export function is(first: any, second: any): boolean;
 
+  /**
+   * Modifies the fallback function for non Immutable collections that `Immutable.is`
+   * uses to compare whether two items are equal. If set to `null` `Immutable.is` will revert to
+   * strict equality only.
+   *
+   * This does not affect comparison of Immutable collections themselves but will affect their
+   * members. E.g. whether two objects can co-exist in a `Set`.
+   */
+  export function compareWith(name: string): any;
 
   /**
    * Lists are ordered indexed dense collections, much like a JavaScript
