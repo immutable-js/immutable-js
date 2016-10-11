@@ -18,7 +18,7 @@ import { Set } from './Set'
 import { Record } from './Record'
 import { Range } from './Range'
 import { Repeat } from './Repeat'
-import { is } from './is'
+import { is, compareWith } from './is'
 import { fromJS } from './fromJS'
 import { Iterable } from './IterableImpl'
 
@@ -41,6 +41,7 @@ export default {
   Repeat: Repeat,
 
   is: is,
+  compareWith: compareWith,
   fromJS: fromJS
 
 };
