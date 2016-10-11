@@ -6,7 +6,7 @@ jest.autoMockOff();
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { List, Map, Set, Seq, is } from 'immutable';
+import { List, Map, Set, Seq, is, compareWith } from 'immutable';
 
 describe('Equality', () => {
 
@@ -114,6 +114,28 @@ describe('Equality', () => {
     var listShorter = listLonger.pop();
     expect(list === listShorter).toBe(false);
     expectIs(list, listShorter);
+  });
+
+  it('compares objects by the comparator function', () => {
+    var equals = function(type, obj) {
+      return obj.type === type;
+    };
+    var objectA1 = { equals: equals.bind(null, 'A'), type: 'A' };
+    var objectA2 = { equals: equals.bind(null, 'A'), type: 'A' };
+    var objectB1 = { equals: equals.bind(null, 'B'), type: 'B' };
+    var objectC1 = { similar: equals.bind(null, 'C'), type: 'C' };
+    var objectC2 = { similar: equals.bind(null, 'C'), type: 'C' };
+    expectIs(objectA1, objectA2);
+    expectIsNot(objectA1, objectB1);
+    expectIsNot(objectC1, objectC2);
+    compareWith(null);
+    expectIs(objectA1, objectA1);
+    expectIsNot(objectA1, objectA2);
+    expectIsNot(objectC1, objectC2);
+    compareWith('similar');
+    expectIsNot(objectA1, objectA2);
+    expectIs(objectC1, objectC2);
+    expectIs(objectA1, objectA1);
   });
 
   var genSimpleVal = gen.returnOneOf(['A', 1]);
