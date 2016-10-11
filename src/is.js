@@ -66,7 +66,7 @@
  *
  */
 
-import { isIterable } from '../Iterable'
+import { isIterable } from './Iterable'
 
 var comparatorName = 'equals';
 
@@ -96,7 +96,7 @@ export function is(valueA, valueB) {
   if (bothIterable) {
     return valueA.equals(valueB);
   }
-  if (comparatorName !== null &&
+  if (typeof comparatorName === 'string' &&
       typeof valueA[comparatorName] === 'function' &&
       typeof valueB[comparatorName] === 'function' &&
       valueA[comparatorName](valueB)) {

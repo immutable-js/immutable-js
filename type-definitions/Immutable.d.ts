@@ -108,6 +108,12 @@ declare module Immutable {
    */
   export function is(first: any, second: any): boolean;
 
+  /**
+   * Modifies the fallback function for non Immutable collections that `Immutable.is`
+   * uses to compare whether two items are equal. If set to `null` `Immutable.is` will revert to
+   * strict equality only.
+   */
+  export function compareWith(name: string): void;
 
   /**
    * Lists are ordered indexed dense collections, much like a JavaScript
