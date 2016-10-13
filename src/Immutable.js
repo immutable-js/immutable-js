@@ -44,3 +44,21 @@ export default {
   fromJS: fromJS
 
 };
+
+export Iterable;
+
+export Seq;
+export Collection;
+export Map;
+export OrderedMap;
+export List;
+export Stack;
+export Set;
+export OrderedSet;
+
+export Record;
+export Range;
+export Repeat;
+
+export is;
+export fromJS;
