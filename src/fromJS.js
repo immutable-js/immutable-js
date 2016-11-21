@@ -36,5 +36,5 @@ function fromJSDefault(json) {
 }
 
 function isPlainObj(value) {
-  return value && (value.constructor === Object || value.constructor === undefined);
+  return value && (Object.prototype.toString.call(value) === "[object Object]" || value.constructor === undefined);
 }
