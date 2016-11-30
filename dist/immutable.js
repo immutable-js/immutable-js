@@ -623,7 +623,9 @@
 
   function fromJS(json, converter) {
     return converter ?
-      fromJSWith(converter, json, '', {'': json}) :
+      fromJSWith(converter, json, '', {
+        '': json
+      }) :
       fromJSDefault(json);
   }
 
@@ -647,9 +649,24 @@
     return json;
   }
 
-  function isPlainObj(value) {
-    return value && (Object.prototype.toString.call(value) === "[object Object]" || value.constructor === undefined);
+  function typeOf(obj) {
+    var objType = Object.prototype.toString.call(obj)
+    if (objType === "[object Object]") {
+      if (obj.constructor && obj.constructor.name) {
+        objType = obj.constructor.name
+      }
+    }
+    return objType
   }
+
+  function isPlainObj(value) {
+    // console.log("FFFF", value.constructor === undefined, typeOf(value))
+    return value && (value.constructor === undefined || typeOf(value) === "Object");
+  }
+
+  // function isPlainObj(value) {
+  //   return value && (Object.prototype.toString.call(value) === "[object Object]" || value.constructor === undefined);
+  // }
 
   /**
    * An extension of the "same-value" algorithm as [described for use by ES6 Map
