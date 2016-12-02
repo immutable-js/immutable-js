@@ -6,7 +6,7 @@ jest.autoMockOff();
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { List, Map, Set, Seq, is } from 'immutable';
+import { List, Map, Set, Seq, is, compareWith } from 'immutable';
 
 describe('Equality', () => {
 
@@ -24,7 +24,47 @@ describe('Equality', () => {
     expect(commutative).toBe(false);
   }
 
-  it('uses Object.is semantics', () => {
+  function withComparators(callback) {
+      ['equals', null, 'similar'].forEach(comparatorName => {
+         compareWith(comparatorName);
+         callback();
+     });
+  }
+
+  afterEach(() => {
+      compareWith('equals');
+  })
+
+  it('dereferences things', () => {
+    var ptrA = {foo: 1}, ptrB = {foo: 2};
+    expectIsNot(ptrA, ptrB);
+    ptrA.valueOf = ptrB.valueOf = function() {
+      return 5;
+    }
+    expectIs(ptrA, ptrB);
+    var object = {key:'value'};
+    ptrA.valueOf = ptrB.valueOf = function() {
+      return object;
+    }
+    expectIs(ptrA, ptrB);
+    ptrA.valueOf = ptrB.valueOf = function() {
+      return null;
+    }
+    expectIs(ptrA, ptrB);
+    ptrA.valueOf = ptrB.valueOf = function() {
+      return void 0;
+    }
+    expectIs(ptrA, ptrB);
+    ptrA.valueOf = function() {
+      return 4;
+    }
+    ptrB.valueOf = function() {
+      return 5;
+    }
+    expectIsNot(ptrA, ptrB);
+  });
+
+  it('uses Object.is semantics', withComparators(() => {
     expectIs(null, null);
     expectIs(undefined, undefined);
     expectIsNot(undefined, null);
@@ -56,38 +96,9 @@ describe('Equality', () => {
     var object = {key:'value'};
     expectIs(object, object);
     expectIsNot(object, {key:'value'});
-  });
+  }));
 
-  it('dereferences things', () => {
-    var ptrA = {foo: 1}, ptrB = {foo: 2};
-    expectIsNot(ptrA, ptrB);
-    ptrA.valueOf = ptrB.valueOf = function() {
-      return 5;
-    }
-    expectIs(ptrA, ptrB);
-    var object = {key:'value'};
-    ptrA.valueOf = ptrB.valueOf = function() {
-      return object;
-    }
-    expectIs(ptrA, ptrB);
-    ptrA.valueOf = ptrB.valueOf = function() {
-      return null;
-    }
-    expectIs(ptrA, ptrB);
-    ptrA.valueOf = ptrB.valueOf = function() {
-      return void 0;
-    }
-    expectIs(ptrA, ptrB);
-    ptrA.valueOf = function() {
-      return 4;
-    }
-    ptrB.valueOf = function() {
-      return 5;
-    }
-    expectIsNot(ptrA, ptrB);
-  });
-
-  it('compares sequences', () => {
+  it('compares sequences', withComparators(() => {
     var arraySeq = Seq.of(1,2,3);
     var arraySeq2 = Seq([1,2,3]);
     expectIs(arraySeq, arraySeq);
@@ -99,9 +110,9 @@ describe('Equality', () => {
     expectIs(arraySeq, arraySeq2);
     expectIs(arraySeq, arraySeq.map(x => x));
     expectIs(arraySeq2, arraySeq2.map(x => x));
-  });
+  }));
 
-  it('compares lists', () => {
+  it('compares lists', withComparators(() => {
     var list = List.of(1,2,3);
     expectIs(list, list);
     expectIsNot(list, [1,2,3]);
@@ -114,6 +125,28 @@ describe('Equality', () => {
     var listShorter = listLonger.pop();
     expect(list === listShorter).toBe(false);
     expectIs(list, listShorter);
+  }));
+
+  it('compares objects by the comparator function', () => {
+    var equals = function(type, obj) {
+      return obj.type === type;
+    };
+    var objectA1 = { equals: equals.bind(null, 'A'), type: 'A' };
+    var objectA2 = { equals: equals.bind(null, 'A'), type: 'A' };
+    var objectB1 = { equals: equals.bind(null, 'B'), type: 'B' };
+    var objectC1 = { similar: equals.bind(null, 'C'), type: 'C' };
+    var objectC2 = { similar: equals.bind(null, 'C'), type: 'C' };
+    expectIs(objectA1, objectA2);
+    expectIsNot(objectA1, objectB1);
+    expectIsNot(objectC1, objectC2);
+    compareWith(null);
+    expectIs(objectA1, objectA1);
+    expectIsNot(objectA1, objectA2);
+    expectIsNot(objectC1, objectC2);
+    compareWith('similar');
+    expectIsNot(objectA1, objectA2);
+    expectIs(objectC1, objectC2);
+    expectIs(objectA1, objectA1);
   });
 
   var genSimpleVal = gen.returnOneOf(['A', 1]);

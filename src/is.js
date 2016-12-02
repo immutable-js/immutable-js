@@ -45,6 +45,10 @@
  *
  *     assert( a.equals(b) === b.equals(a) );
  *
+ * For non Immutable collections the `equals` can be overidden using the compareWith
+ * function. A literal value of `null` will result in no attempt at comparison. Otherwise
+ * as long as both objects implement the function name specified it will be used.
+ *
  * `hashCode` returns a 32bit integer number representing the object which will
  * be used to determine how to store the value object in a Map or Set. You must
  * provide both or neither methods, one must not exist without the other.
@@ -61,6 +65,15 @@
  * All Immutable collections implement `equals` and `hashCode`.
  *
  */
+
+import { isIterable } from './Iterable'
+
+var comparatorName = 'equals';
+
+export function compareWith(name) {
+  comparatorName = name;
+}
+
 export function is(valueA, valueB) {
   if (valueA === valueB || (valueA !== valueA && valueB !== valueB)) {
     return true;
@@ -79,9 +92,14 @@ export function is(valueA, valueB) {
       return false;
     }
   }
-  if (typeof valueA.equals === 'function' &&
-      typeof valueB.equals === 'function' &&
-      valueA.equals(valueB)) {
+  var bothIterable = isIterable(valueA) && isIterable(valueB);
+  if (bothIterable) {
+    return valueA.equals(valueB);
+  }
+  if (typeof comparatorName === 'string' &&
+      typeof valueA[comparatorName] === 'function' &&
+      typeof valueB[comparatorName] === 'function' &&
+      valueA[comparatorName](valueB)) {
     return true;
   }
   return false;
