@@ -122,7 +122,7 @@ When data is passed from above rather than being subscribed to, and you're only
 interested in doing work when something has changed, you can use equality.
 
 Immutable collections should be treated as *values* rather than *objects*. While
-objects represents some thing which could change over time, a value represents
+objects represent some thing which could change over time, a value represents
 the state of that thing at a particular instance of time. This principle is most
 important to understanding the appropriate use of immutable data. In order to
 treat Immutable.js collections as values, it's important to use the
