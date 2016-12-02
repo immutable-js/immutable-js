@@ -145,6 +145,19 @@ RecordPrototype.withMutations = MapPrototype.withMutations;
 RecordPrototype.asMutable = MapPrototype.asMutable;
 RecordPrototype.asImmutable = MapPrototype.asImmutable;
 
+// Some functions from Collection should not be called on a Record, since their behavior is not the one expected
+// https://github.com/facebook/immutable-js/issues/505
+function deprecateFunction(RecordPrototype, functionName) {
+  RecordPrototype[functionName] = function(...params) {
+    console.warn(`Record${functionName} has been deprecated. See https://github.com/facebook/immutable-js/issues/505 for more details`);
+    return KeyedCollection.prototype[functionName].call(this, ...params);
+  }
+}
+
+deprecateFunction(RecordPrototype, 'map');
+deprecateFunction(RecordPrototype, 'filter');
+deprecateFunction(RecordPrototype, 'reduce');
+
 
 function makeRecord(likeRecord, map, ownerID) {
   var record = Object.create(Object.getPrototypeOf(likeRecord));
