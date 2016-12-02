@@ -303,9 +303,7 @@ most useful are `mergeDeep`, `getIn`, `setIn`, and `updateIn`, found on `List`,
 ```javascript
 var nested2 = nested.mergeDeep({a:{b:{d:6}}});
 // Map { a: Map { b: Map { c: List [ 3, 4, 5 ], d: 6 } } }
-```
 
-```javascript
 nested2.getIn(['a', 'b', 'd']); // 6
 
 var nested3 = nested2.updateIn(['a', 'b', 'd'], value => value + 1);
@@ -345,7 +343,7 @@ Any collection can be converted to a lazy Seq with `.toSeq()`.
 
     var seq = Immutable.Map({a:1, b:1, c:1}).toSeq();
 
-Seq allow for the efficient chaining of sequence operations, especially when
+Seq allows for the efficient chaining of sequence operations, especially when
 converting to a different concrete type (such as to a JS object):
 
     seq.flip().map(key => key.toUpperCase()).flip().toObject();
