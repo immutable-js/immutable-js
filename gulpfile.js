@@ -12,7 +12,6 @@ var gulp = require('gulp');
 var gutil = require('gulp-util');
 var header = require('gulp-header');
 var Immutable = require('./');
-var jest = require('gulp-jest');
 var jshint = require('gulp-jshint');
 var less = require('gulp-less');
 var path = require('path');
@@ -109,15 +108,6 @@ gulp.task('lint', function() {
     }))
     .pipe(jshint.reporter(stylish))
     .pipe(jshint.reporter('fail'))
-    .on('error', handleError);
-});
-
-gulp.task('test', function () {
-  return gulp.src('./')
-    .pipe(jest({
-      scriptPreprocessor: './resources/jestPreprocessor.js',
-      unmockedModulePathPatterns: ['./node_modules/react'],
-    }))
     .on('error', handleError);
 });
 
@@ -220,7 +210,7 @@ gulp.task('build', function (done) {
 });
 
 gulp.task('default', function (done) {
-  sequence('clean', 'lint', /*'test',*/ 'build', done);
+  sequence('clean', 'lint', 'build', done);
 });
 
 // watch files for changes and reload
@@ -240,14 +230,14 @@ gulp.task('dev', ['default'], function() {
 });
 
 gulp.task('rebuild-js', function (done) {
-  sequence('lint', 'js', /*'test',*/ ['pre-render'], function () {
+  sequence('lint', 'js', ['pre-render'], function () {
     browserSync.reload();
     done();
   });
 });
 
 gulp.task('rebuild-js-docs', function (done) {
-  sequence('lint', 'js-docs', /*'test',*/ ['pre-render-docs'], function () {
+  sequence('lint', 'js-docs', ['pre-render-docs'], function () {
     browserSync.reload();
     done();
   });

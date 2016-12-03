@@ -1,8 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 ///<reference path='../dist/immutable.d.ts'/>
 
-jest.autoMockOff();
-
 import { Seq, List, OrderedMap, Range } from 'immutable';
 
 describe('sort', () => {

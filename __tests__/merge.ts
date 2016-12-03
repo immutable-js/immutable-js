@@ -1,8 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 ///<reference path='../dist/immutable.d.ts'/>
 
-jest.autoMockOff();
-
 import { List, Map, fromJS, is } from 'immutable';
 
 declare function expect(val: any): ExpectWithIs;
@@ -12,16 +10,21 @@ interface ExpectWithIs extends Expect {
   not: ExpectWithIs;
 }
 
-describe('merge', () => {
-
-  beforeEach(function () {
-    this.addMatchers({
-      is: function(expected) {
-        return is(this.actual, expected);
+jasmine.addMatchers({
+  is: function() {
+    return {
+      compare: function(actual, expected) {
+        var passed = is(actual, expected);
+        return {
+          pass: passed,
+          message: 'Expected ' + actual + (passed ? '' : ' not') + ' to equal ' + expected
+        };
       }
-    })
-  })
+    };
+  }
+});
 
+describe('merge', () => {
   it('merges two maps', () => {
     var m1 = Map({a:1,b:2,c:3});
     var m2 = Map({d:10,b:20,e:30});

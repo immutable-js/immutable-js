@@ -1,8 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 ///<reference path='../dist/immutable.d.ts'/>
 
-jest.autoMockOff();
-
 import { Iterable, Seq, Map } from 'immutable';
 
 describe('groupBy', () => {
@@ -31,11 +29,16 @@ describe('groupBy', () => {
     );
   })
 
-  it('groups indexed sequences, maintaining indicies', () => {
+  it('groups indexed sequences, maintaining indicies when keyed sequences', () => {
+    expect(
+      Seq.of(1,2,3,4,5,6).groupBy(x => x % 2).toJS()
+    ).toEqual(
+      {1:[1,3,5], 0:[2,4,6]}
+    );
     expect(
       Seq.of(1,2,3,4,5,6).toKeyedSeq().groupBy(x => x % 2).toJS()
     ).toEqual(
-      {1:[1,,3,,5,,,], 0:[,2,,4,,6]}
+      {1:{0:1, 2:3, 4:5}, 0:{1:2, 3:4, 5:6}}
     );
   })
 

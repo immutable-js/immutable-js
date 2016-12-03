@@ -1,8 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 ///<reference path='../dist/immutable.d.ts'/>
 declare var Symbol: any;
-jest.autoMockOff();
-
 import { List, Map, OrderedSet, Seq, Set, is } from 'immutable';
 
 declare function expect(val: any): ExpectWithIs;
@@ -12,16 +10,21 @@ interface ExpectWithIs extends Expect {
   not: ExpectWithIs;
 }
 
-describe('Set', () => {
-
-  beforeEach(function () {
-    this.addMatchers({
-      is: function(expected) {
-        return is(this.actual, expected);
+jasmine.addMatchers({
+  is: function() {
+    return {
+      compare: function(actual, expected) {
+        var passed = is(actual, expected);
+        return {
+          pass: passed,
+          message: 'Expected ' + actual + (passed ? '' : ' not') + ' to equal ' + expected
+        };
       }
-    })
-  })
+    };
+  }
+});
 
+describe('Set', () => {
   it('accepts array of values', () => {
     var s = Set([1,2,3]);
     expect(s.has(1)).toBe(true);
