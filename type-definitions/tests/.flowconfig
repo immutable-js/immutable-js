@@ -3,3 +3,6 @@
 [options]
 suppress_comment=^\\( \\|\n\\)*\\$ExpectError\\(([^)]*)\\)?$
 
+[version]
+^0.36.0
+
