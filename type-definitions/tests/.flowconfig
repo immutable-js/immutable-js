@@ -1,5 +1,9 @@
 [libs]
 ../immutable.js.flow
+
+[ignore]
+.*/node_modules/.*
+
 [options]
 suppress_comment=^\\( \\|\n\\)*\\$ExpectError\\(([^)]*)\\)?$
 
