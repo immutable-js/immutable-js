@@ -1,8 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 ///<reference path='../dist/immutable.d.ts'/>
 
-jest.autoMockOff();
-
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
@@ -15,19 +13,24 @@ interface ExpectWithIs extends Expect {
   not: ExpectWithIs;
 }
 
+jasmine.addMatchers({
+  is: function() {
+    return {
+      compare: function(actual, expected) {
+        var passed = is(actual, expected);
+        return {
+          pass: passed,
+          message: 'Expected ' + actual + (passed ? '' : ' not') + ' to equal ' + expected
+        };
+      }
+    };
+  }
+});
+
 // Symbols
 declare function Symbol(name: string): Object;
 
 describe('Conversion', () => {
-
-  beforeEach(function () {
-    this.addMatchers({
-      is: function(expected) {
-        return is(this.actual, expected);
-      }
-    });
-  });
-
   // Note: order of keys based on Map's hashing order
   var js = {
     deepList: [

@@ -1,8 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 ///<reference path='../dist/immutable.d.ts'/>
 
-jest.autoMockOff();
-
 import { Seq, Set, List, is } from 'immutable';
 
 declare function expect(val: any): ExpectWithIs;
@@ -12,15 +10,21 @@ interface ExpectWithIs extends Expect {
   not: ExpectWithIs;
 }
 
-describe('concat', () => {
-
-  beforeEach(function () {
-    this.addMatchers({
-      is: function(expected) {
-        return is(this.actual, expected);
+jasmine.addMatchers({
+  is: function() {
+    return {
+      compare: function(actual, expected) {
+        var passed = is(actual, expected);
+        return {
+          pass: passed,
+          message: 'Expected ' + actual + (passed ? '' : ' not') + ' to equal ' + expected
+        };
       }
-    })
-  })
+    };
+  }
+});
+
+describe('concat', () => {
 
   it('concats two sequences', () => {
     var a = Seq.of(1,2,3);
@@ -56,13 +60,13 @@ describe('concat', () => {
     var a = Seq.of(1,2,3);
     var b = [4,5,6];
     expect(a.concat(b).size).toBe(6);
-    expect(a.concat(b).toObject()).toEqual([1,2,3,4,5,6]);
+    expect(a.concat(b).toArray()).toEqual([1,2,3,4,5,6]);
   })
 
   it('concats values', () => {
     var a = Seq.of(1,2,3);
     expect(a.concat(4,5,6).size).toBe(6);
-    expect(a.concat(4,5,6).toObject()).toEqual([1,2,3,4,5,6]);
+    expect(a.concat(4,5,6).toArray()).toEqual([1,2,3,4,5,6]);
   })
 
   it('doesnt concat objects to indexed seq', () => {
@@ -79,13 +83,13 @@ describe('concat', () => {
     var b = [4,5,6];
     var c = [7,8,9];
     expect(a.concat(b, c).size).toBe(9);
-    expect(a.concat(b, c).toObject()).toEqual([1,2,3,4,5,6,7,8,9]);
+    expect(a.concat(b, c).toArray()).toEqual([1,2,3,4,5,6,7,8,9]);
   })
 
   it('can concat itself!', () => {
     var a = Seq.of(1,2,3);
     expect(a.concat(a, a).size).toBe(9);
-    expect(a.concat(a, a).toObject()).toEqual([1,2,3,1,2,3,1,2,3]);
+    expect(a.concat(a, a).toArray()).toEqual([1,2,3,1,2,3,1,2,3]);
   })
 
   it('returns itself when concat does nothing', () => {

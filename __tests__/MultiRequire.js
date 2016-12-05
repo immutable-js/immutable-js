@@ -1,5 +1,3 @@
-jest.autoMockOff();
-
 var Immutable1 = require('../');
 jest.resetModuleRegistry();
 var Immutable2 = require('../');
