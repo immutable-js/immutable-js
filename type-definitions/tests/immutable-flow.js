@@ -11,15 +11,13 @@ var stringToNumber: Map<string, number> = Map()
 var stringToNumberOrString: Map<string, string | number> = Map()
 var numberToString: Map<number, string> = Map()
 var stringOrNumberToNumberOrString: Map<string | number, string | number> = Map()
-var anyMap: Map = Map()
+var anyMap: Map<any, any> = Map()
 var numberSet: Set<number> = Set()
 var numberOrStringSet: Set<number | string> = Set()
 var stringSet: Set<string> = Set()
 var numberStack: Stack<number> = Stack()
 var numberOrStringStack: Stack<string | number> = Stack()
 var number: number = 0
-var numberSequence: IndexedSeq<number>
-var stringSequence: IndexedSeq<string>
 var stringToNumberIterable: KeyedIterable<string, number> = stringToNumber
 var numberToStringIterable: KeyedIterable<number, string> = numberToString
 
@@ -163,15 +161,21 @@ stringToNumber = Map({'a': 1}).update('a', (value) => 'a')
 stringToNumberOrString = Map({'a': 1}).update('a', 'b', (value) => 'a')
 // $ExpectError
 stringToNumber = Map({'a': 1}).update('a', 'b', (value) => 'a')
+// $ExpectError
+stringToNumberOrString = Map({'a': 1}).merge({'a': {a: '1'}})
+// $ExpectError
+stringToNumberOrString = Map({'a': 1}).update('a', 'b', (value) => {a: '1'})
 
 stringToNumber = Map({'a': 1}).merge(Map({'a': 1}))
 stringToNumberOrString = Map({'a': 1}).merge({'a': 'b'})
 // $ExpectError
-stringToNumber = Map({'a': 1}).merge({'a': 'b'})
+stringToNumber = Map({a: 1}).merge({'a': 'b'})
 // $ExpectError
-stringToNumber = Map({'a': 1}).merge([['a', 'b']])
+stringToNumber = Map({a: 1}).merge([[1, 'a']])
+
+// FIXME: Simple `stringToNumber = ...` assignment shows an error at the declaration of stringToNumber and numberToString
 // $ExpectError
-stringToNumber = Map({'a': 1}).merge(Map({'a': 'b'}))
+const stringToNumber: Map<string, number> = Map({a: 1}).merge(numberToString)
 
 stringToNumber = Map({'a': 1}).mergeWith((previous, next, key) => 1, [1])
 // $ExpectError
@@ -233,7 +237,7 @@ numberSet = Set.of(1, 2)
 numberSet = Set.of('a', 'b')
 
 numberSet = Set.fromKeys(Map().set(1, ''))
-stringSet = Set.fromKeys({'a': ''})
+stringSet = Set.fromKeys({a: ''})
 // $ExpectError
 numberSet = Set.fromKeys(Map({'a': 1}))
 // $ExpectError
@@ -380,13 +384,16 @@ numberStack = Stack(['a']).flatten()
 
 /* Range & Repeat */
 
-numberSequence = Range(0, 0, 0)
-// $ExpectError
-stringSequence = Range(0, 0, 0)
+// `{}` provide namespaces
+{ const numberSequence: IndexedSeq<number> = Range(0, 0, 0) }
+{ const numberSequence: IndexedSeq<number> = Repeat(1, 5) }
 
-numberSequence = Repeat(0, 1)
+{ const stringSequence: IndexedSeq<string> = Repeat('a', 5) }
 // $ExpectError
-numberSequence = Repeat('a', 1)
+{ const stringSequence: IndexedSeq<string> = Repeat(0, 1) }
+// $ExpectError
+{ const stringSequence: IndexedSeq<string> = Range(0, 0, 0) }
+
 
 /* Record */
 // TODO
