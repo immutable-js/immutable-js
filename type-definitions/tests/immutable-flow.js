@@ -4,6 +4,36 @@
 
 // Some tests look like they are repeated but it's not actually the case; It is very likely to have a false positivie because Flow might not complain about an instance of (what it thinks is) T to be assigned to T<K, V>
 
+import Immutable, {
+  List,
+  Map,
+  Stack,
+  Set,
+  KeyedIterable,
+  Range,
+  Repeat,
+  IndexedSeq
+} from 'immutable'
+import * as Immutable2 from 'immutable'
+
+const ImmutableList = Immutable.List
+const ImmutableMap = Immutable.Map
+const ImmutableStack = Immutable.Stack
+const ImmutableSet = Immutable.Set
+const ImmutableKeyedIterable = Immutable.KeyedIterable
+const ImmutableRange = Immutable.Range
+const ImmutableRepeat = Immutable.Repeat
+const ImmutableIndexedSeq = Immutable.IndexedSeq
+
+const Immutable2List = Immutable2.List
+const Immutable2Map = Immutable2.Map
+const Immutable2Stack = Immutable2.Stack
+const Immutable2Set = Immutable2.Set
+const Immutable2KeyedIterable = Immutable2.KeyedIterable
+const Immutable2Range = Immutable2.Range
+const Immutable2Repeat = Immutable2.Repeat
+const Immutable2IndexedSeq = Immutable2.IndexedSeq
+
 var numberList: List<number> = List()
 var numberOrStringList: List<string | number> = List()
 var nullableNumberList: List<?number> = List()
@@ -75,7 +105,7 @@ numberList = List.of('a').update((value) => List.of(1))
 // $ExpectError
 numberList = List.of(1).update((value) => List.of('a'))
 
-numberOrStringList = List.of('a').update(0, (value) => 1) 
+numberOrStringList = List.of('a').update(0, (value) => 1)
 // $ExpectError
 numberList = List.of(1).update(0, (value) => 'a')
 
@@ -154,7 +184,7 @@ stringToNumber = Map({'a': 1}).update((value) => Map({'a': 1}))
 // $ExpectError
 stringToNumber = Map({'a': 1}).update((value) => Map({1: 'a'}))
 
-stringToNumberOrString = Map({'a': 1}).update('a', (value) => 'a') 
+stringToNumberOrString = Map({'a': 1}).update('a', (value) => 'a')
 // $ExpectError
 stringToNumber = Map({'a': 1}).update('a', (value) => 'a')
 
@@ -397,6 +427,5 @@ numberStack = Stack(['a']).flatten()
 
 /* Record */
 // TODO
-
 
 
