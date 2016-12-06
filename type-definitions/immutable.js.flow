@@ -220,8 +220,8 @@ declare class KeyedIterable<K,V> extends Iterable<K,V> {
   flatten(shallow?: boolean): /*this*/KeyedIterable<any,any>;
 }
 
-declare class IndexedIterable<T> extends Iterable<number,T> {
-  static <T>(iter?: ESIterable<T>): IndexedIterable<T>;
+declare class IndexedIterable<A> extends Iterable<number,T> {
+  static (iter?: ESIterable<T>): IndexedIterable<T>;
 
   @@iterator(): Iterator<T>;
   toSeq(): IndexedSeq<T>;
@@ -628,8 +628,9 @@ declare class Record<T: Object> {
   remove(key: $Keys<T>): /*T & Record<T>*/this;
 }
 
-declare function fromJS(json: any, reviver?: (k: any, v: Iterable<any,any>) => any): any;
+declare function fromJS(json: Object, reviver?: (k: any, v: Iterable<any,any>) => any): any;
 declare function is(first: any, second: any): boolean;
+
 
 export {
   Iterable,
@@ -660,4 +661,23 @@ export {
 
   fromJS,
   is,
-}
+};
+
+export default {
+  Iterable,
+  Collection,
+  Seq,
+
+  List,
+  Map,
+  OrderedMap,
+  OrderedSet,
+  Range,
+  Repeat,
+  Record,
+  Set,
+  Stack,
+
+  fromJS,
+  is,
+};
