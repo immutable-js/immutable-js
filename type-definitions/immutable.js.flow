@@ -42,7 +42,7 @@ declare class _Iterable<K, V, KI, II, SI> {
   static isAssociative(maybeAssociative: any): boolean;
   static isOrdered(maybeOrdered: any): boolean;
 
-  equals(other: Iterable<K,V>): boolean;
+  equals(other: _Iterable<K, V, typeof KeyedIterable, typeof IndexedIterable, typeof SetIterable>): boolean;
   hashCode(): number;
   get(key: K): V;
   get<V_>(key: K, notSetValue: V_): V|V_;
@@ -619,13 +619,14 @@ declare class Stack<T> extends IndexedCollection<T> {
 declare function Range(start?: number, end?: number, step?: number): IndexedSeq<number>;
 declare function Repeat<T>(value: T, times?: number): IndexedSeq<T>;
 
-//TODO: Once flow can extend normal Objects we can change this back to actually reflect Record behavior.
-// For now fallback to any to not break existing Code
 declare class Record<T: Object> {
-  static <T: Object>(spec: T, name?: string): /*T & Record<T>*/any;
+  static <T: Object>(spec: T, name?: string): Class<T & Record<T>>;
+  constructor(initialObject?: $Shape<T>): T & Record<T>;
   get<A>(key: $Keys<T>): A;
-  set<A>(key: $Keys<T>, value: A): /*T & Record<T>*/this;
-  remove(key: $Keys<T>): /*T & Record<T>*/this;
+  getIn(key: Array<string | number>): any;
+  set<A>(key: $Keys<T>, value: A): T & Record<T>;
+  setIn(key: Array<string | number>, value: any): T & Record<T>;
+  remove(key: $Keys<T>): T & Record<T>;
 }
 
 declare function fromJS(json: any, reviver?: (k: any, v: Iterable<any,any>) => any): any;
