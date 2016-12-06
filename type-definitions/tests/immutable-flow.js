@@ -2,7 +2,8 @@
  * @flow
  */
 
-// Some tests look like they are repeated but it's not actually the case; It is very likely to have a false positivie because Flow might not complain about an instance of (what it thinks is) T to be assigned to T<K, V>
+// Some tests look like they are repeated in order to avoid false positives.
+// Flow might not complain about an instance of (what it thinks is) T to be assigned to T<K, V>
 
 import Immutable, {
   List,

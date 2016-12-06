@@ -639,8 +639,8 @@ declare module 'immutable' {
   declare function Range(start?: number, end?: number, step?: number): IndexedSeq<number>;
   declare function Repeat<T>(value: T, times?: number): IndexedSeq<T>;
 
-  //TODO: Once flow can extend normal Objects we can change this back to actually reflect Record behavior.
-  // For now fallback to any to not break existing Code
+  // TODO: Once flow can extend normal Objects we can change this back to actually reflect Record behavior.
+  // For now fallback to any to not break existing code
   declare class Record<T: Object> {
     static <T: Object>(spec: T, name?: string): /*T & Record<T>*/any;
     get<A>(key: $Keys<T>): A;
