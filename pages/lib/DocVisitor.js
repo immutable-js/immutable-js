@@ -388,6 +388,7 @@ function setIn(obj, path, value) {
 }
 
 var COMMENT_NOTE_RX = /@(\w+)(?:\s+(.*))?/;
+var COMMENT_EXAMPLE_RX = /^\s{4}\S.+/;
 
 var NOTE_BLACKLIST = {
   override: true
@@ -412,6 +413,13 @@ function parseComment(node) {
   var paragraphs =
     lines.filter(l => !COMMENT_NOTE_RX.test(l)).join('\n').split('\n\n');
   var synopsis = paragraphs.shift();
+  
+  var lastParagraph = paragraphs[paragraphs.length - 1];
+  var example;
+  if (lastParagraph && lastParagraph.match(COMMENT_EXAMPLE_RX)) {
+    example = paragraphs.pop();
+  }
+  
   var description = paragraphs.join('\n\n');
 
   var comment = { synopsis };
@@ -420,6 +428,9 @@ function parseComment(node) {
   }
   if (description) {
     comment.description = description;
+  }
+  if (example) {
+    comment.example = example;
   }
 
   return comment;
