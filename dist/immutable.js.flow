@@ -631,7 +631,7 @@ declare class Record<T: Object> {
 declare function fromJS(json: any, reviver?: (k: any, v: Iterable<any,any>) => any): any;
 declare function is(first: any, second: any): boolean;
 
-export {
+export default {
   Iterable,
   Collection,
   Seq,
