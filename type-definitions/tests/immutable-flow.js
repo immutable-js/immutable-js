@@ -230,6 +230,10 @@ stringToNumber = Map({'a': 1}).mergeDeepIn([], [])
 
 anyMap = Map({'a': {}}).mergeIn(['a'], { b: 2 })
 anyMap = Map({'a': {}}).mergeDeepIn(['a'], { b: 2 })
+// $ExpectError
+anyMap = Map({'a': {}}).mergeIn(['a'], 1)
+// $ExpectError
+anyMap = Map({'a': {}}).mergeDeepIn(['a'], 1)
 
 stringToNumber = Map({'a': 1}).withMutations(mutable => mutable)
 
