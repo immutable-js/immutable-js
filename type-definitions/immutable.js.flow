@@ -526,8 +526,14 @@ declare module 'immutable' {
     updateIn(keyPath: ESIterable<any>, notSetValue: any, value: any): Map<K,V>;
     updateIn(keyPath: ESIterable<any>, value: any): Map<K,V>;
 
-    mergeIn(keyPath: ESIterable<any>, ...iterables: ESIterable<any>[]): Map<K,V>;
-    mergeDeepIn(keyPath: ESIterable<any>, ...iterables: ESIterable<any>[]): Map<K,V>;
+    mergeIn(
+      keyPath: ESIterable<K>,
+      ...iterables: (ESIterable<K> | { [key: string]: any })[]
+    ): Map<K,any>;
+    mergeDeepIn(
+      keyPath: ESIterable<K>,
+      ...iterables: (ESIterable<K> | { [key: string]: any })[]
+    ): Map<K,any>;
 
     withMutations(mutator: (mutable: this) => any): this;
     asMutable(): this;
