@@ -228,12 +228,20 @@ stringToNumber = Map({'a': 1}).removeIn([], 0)
 stringToNumber = Map({'a': 1}).mergeIn([], [])
 stringToNumber = Map({'a': 1}).mergeDeepIn([], [])
 
-anyMap = Map({'a': {}}).mergeIn(['a'], { b: 2 })
-anyMap = Map({'a': {}}).mergeDeepIn(['a'], { b: 2 })
-// $ExpectError
+anyMap = Map({'a': {}}).mergeIn(['a'], Map({ 'b': 2 }))
+anyMap = Map({'a': {}}).mergeDeepIn(['a'], Map({ 'b': 2 }))
+anyMap = Map({'a': {}}).mergeIn(['a'], List([1, 2]))
+anyMap = Map({'a': {}}).mergeDeepIn(['a'], List([1, 2]))
+anyMap = Map({'a': {}}).mergeIn(['a'], { 'b': 2 })
+anyMap = Map({'a': {}}).mergeDeepIn(['a'], { 'b': 2 })
+// $ExpectError: not iterable / object
 anyMap = Map({'a': {}}).mergeIn(['a'], 1)
-// $ExpectError
+// $ExpectError: not iterable / object
 anyMap = Map({'a': {}}).mergeDeepIn(['a'], 1)
+// $ExpectError: bad key type
+stringToNumber = Map({'a': {}}).mergeIn([1], { 'b': 2 })
+// $ExpectError: bad key type
+stringToNumber = Map({'a': {}}).mergeDeepIn([1], { 'b': 2 })
 
 stringToNumber = Map({'a': 1}).withMutations(mutable => mutable)
 
