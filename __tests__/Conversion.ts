@@ -1,8 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 ///<reference path='../dist/immutable.d.ts'/>
 
-jest.autoMockOff();
-
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
@@ -15,16 +13,24 @@ interface ExpectWithIs extends Expect {
   not: ExpectWithIs;
 }
 
-describe('Conversion', () => {
-
-  beforeEach(function () {
-    this.addMatchers({
-      is: function(expected) {
-        return is(this.actual, expected);
+jasmine.addMatchers({
+  is: function() {
+    return {
+      compare: function(actual, expected) {
+        var passed = is(actual, expected);
+        return {
+          pass: passed,
+          message: 'Expected ' + actual + (passed ? '' : ' not') + ' to equal ' + expected
+        };
       }
-    });
-  });
+    };
+  }
+});
 
+// Symbols
+declare function Symbol(name: string): Object;
+
+describe('Conversion', () => {
   // Note: order of keys based on Map's hashing order
   var js = {
     deepList: [
@@ -169,6 +175,14 @@ describe('Conversion', () => {
   check.it('toJS isomorphic value', {maxSize: 30}, [gen.JSONValue], (js) => {
     var imm = fromJS(js);
     expect(imm && imm.toJS ? imm.toJS() : imm).toEqual(js);
+  });
+
+  it('Explicitly convert values to string using String constructor', () => {
+    expect(() => {
+      fromJS({ foo: Symbol('bar') }) + '';
+      Map().set('foo', Symbol('bar')) + '';
+      Map().set(Symbol('bar'), 'foo') + '';
+    }).not.toThrow();
   });
 
   it('deeply converts the results of entrySeq', () => {

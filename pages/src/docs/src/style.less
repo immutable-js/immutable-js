@@ -9,15 +9,18 @@
   margin: 0 auto;
   max-width: 880px;
   padding: 64px 0;
+  position: relative;
 }
 
 .disclaimer {
-  margin: 60px 20px 0 260px;
+  margin: 60px 0 0 0;
   border: solid 1px #eecccc;
   background: #fefafa;
   padding: 1em;
   text-align: center;
   font-size: 0.8em;
+  position: relative;
+  z-index: 1;
 }
 
 @media only screen and (max-width: 680px) {
@@ -71,13 +74,34 @@
 
 .miniHeaderContents a {
   color: #fff;
+  font-weight: bold;
   margin-right: 1em;
   text-decoration: none;
-  text-shadow: 0 1px rgba(0,0,0,0.15);
+  text-shadow: 0 1px 1px rgba(0,0,0,0.25);
 }
 
 .miniHeaderContents a:last-child {
   margin-right: 0;
+}
+
+.toolBar {
+  .select-none();
+  position: absolute;
+  right: 0;
+  top: 66px;
+  width: 220px;
+  color: #888;
+  cursor: pointer;
+}
+
+.toolBar .selected {
+  color: #141420;
+}
+
+@media only screen and (max-width: 680px) {
+  .toolBar {
+    display: none;
+  }
 }
 
 .sideBar {
@@ -85,8 +109,7 @@
   font-size: 0.825em;
   height: 100%;
   overflow: hidden;
-  position: fixed;
-  top: 0;
+  float: right;
   width: 220px;
   z-index: 0;
 }
@@ -101,7 +124,7 @@
   box-sizing: border-box;
   height: 100%;
   overflow: auto;
-  padding: 66px 0 100px;
+  padding: 28px 0 100px;
   width: 240px;
 }
 
@@ -127,12 +150,12 @@
 }
 
 .docContents {
-  margin-left: 240px;
+  margin-right: 240px;
 }
 
 @media only screen and (max-width: 680px) {
   .docContents {
-    margin-left: 0;
+    margin-right: 0;
   }
 }
 
@@ -189,13 +212,13 @@
 }
 
 .memberLabel {
-  .select-none();
   font-size: 1em;
   margin: 0;
 }
 
 @media only screen and (max-width: 680px) {
   .memberLabel {
+    .select-none();
     cursor: pointer;
   }
 }

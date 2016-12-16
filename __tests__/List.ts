@@ -1,8 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 ///<reference path='../dist/immutable.d.ts'/>
 
-jest.autoMockOff();
-
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
@@ -506,10 +504,33 @@ describe('List', () => {
     expect(o.get(0)).toBe('f');
   });
 
-
   // TODO: assert that findIndex only calls the function as much as it needs to.
 
-  // TODO: assert that forEach iterates in the correct order and is only called as much as it needs to be.
+  it('forEach iterates in the correct order', () => {
+    var n = 0;
+    var a = [];
+    var v = List.of(0, 1, 2, 3, 4);
+    v.forEach(x => {
+      a.push(x);
+      n++;
+    });
+    expect(n).toBe(5);
+    expect(a.length).toBe(5);
+    expect(a).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it('forEach iteration terminates when callback returns false', () => {
+    var a = [];
+    function count(x) {
+      if(x > 2) {
+        return false;
+      }
+      a.push(x);
+    };
+    var v = List.of(0, 1, 2, 3, 4);
+    v.forEach(count);
+    expect(a).toEqual([0, 1, 2]);
+  });
 
   it('concat works like Array.prototype.concat', () => {
     var v1 = List.of(1, 2, 3);

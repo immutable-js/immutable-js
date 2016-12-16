@@ -10,7 +10,7 @@ import Cursor = require('immutable/contrib/cursor');
 describe('Cursor', () => {
 
   beforeEach(function () {
-    this.addMatchers({
+    jasmine.addMatchers({
       toValueEqual: function (expected) {
         var actual = this.actual;
         if (!Immutable.is(expected, this.actual)) {

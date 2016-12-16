@@ -28,7 +28,7 @@
  * [ES6]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/ECMAScript_6_support_in_Mozilla
  */
 
-declare module Immutable {
+
 
   /**
    * Deeply converts plain JS objects and arrays to Immutable Maps and Lists.
@@ -2536,8 +2536,4 @@ declare module Immutable {
     next(): { value: T; done: boolean; }
   }
 
-}
 
-declare module "immutable" {
-  export = Immutable
-}

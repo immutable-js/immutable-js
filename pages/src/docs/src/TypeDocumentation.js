@@ -11,6 +11,17 @@ var collectMemberGroups = require('../../../lib/collectMemberGroups');
 var TypeKind = require('../../../lib/TypeKind');
 var defs = require('../../../lib/getTypeDefs');
 
+var typeDefURL = "https://github.com/facebook/immutable-js/blob/master/type-definitions/Immutable.d.ts";
+var issuesURL = "https://github.com/facebook/immutable-js/issues";
+
+var Disclaimer = function() {
+  return (
+    <section className="disclaimer">
+      This documentation is generated from <a href={typeDefURL}>Immutable.d.ts</a>.
+      Pull requests and <a href={issuesURL}>Issues</a> welcome.
+    </section>
+  );
+}
 
 var TypeDocumentation = React.createClass({
   getInitialState() {
@@ -40,24 +51,15 @@ var TypeDocumentation = React.createClass({
 
     return (
       <div>
-        {isMobile || <SideBar focus={name} memberGroups={memberGroups} />}
+        {isMobile || <SideBar
+          focus={name}
+          memberGroups={memberGroups}
+          toggleShowInherited={this.toggleShowInherited}
+          toggleShowInGroups={this.toggleShowInGroups}
+          showInGroups={this.state.showInGroups}
+          showInherited={this.state.showInherited}
+        />}
         <div key={name} className="docContents">
-
-        {/*
-
-          Bring this back when there's a nicer design
-
-          <div className="toolBar">
-            <input className="searchBar" />
-            <span onClick={this.toggleShowInGroups}>
-              {this.state.showInGroups ? 'Alphabetize' : 'Groups'}
-            </span>
-            {' • '}
-            <span onClick={this.toggleShowInherited}>
-              {this.state.showInherited ? 'Hide Inherited Members' : 'Show Inherited Members'}
-            </span>
-          </div>
-        */}
 
           {!def ?
             <NotFound /> :
@@ -127,6 +129,7 @@ var FunctionDoc = React.createClass({
             <MarkDown className="discussion" contents={doc.description} />
           </section>
         }
+        <Disclaimer />
       </div>
     );
   }
@@ -244,6 +247,8 @@ var TypeDoc = React.createClass({
             ])
           ).flatten().toArray()}
         </section>
+
+        <Disclaimer />
       </div>
     );
   }
@@ -279,7 +284,11 @@ var TypeDoc = React.createClass({
 function getTypePropMap(def) {
   var map = {};
   def && def.extends && def.extends.forEach(e => {
-    var superModule = defs.Immutable.module[e.name];
+    var superModule = defs.Immutable;
+    e.name.split('.').forEach(part => {
+      superModule =
+        superModule && superModule.module && superModule.module[part];
+    });
     var superInterface = superModule && superModule.interface;
     if (superInterface) {
       var interfaceMap = Seq(superInterface.typeParams)

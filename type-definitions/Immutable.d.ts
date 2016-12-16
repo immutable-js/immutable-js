@@ -251,11 +251,11 @@ declare module Immutable {
      * @see `Map#mergeWith`
      */
     mergeWith(
-      merger: (previous?: T, next?: T, key?: number) => T,
+      merger: (previous: T, next: T, key: number) => T,
       ...iterables: Iterable.Indexed<T>[]
     ): List<T>;
     mergeWith(
-      merger: (previous?: T, next?: T, key?: number) => T,
+      merger: (previous: T, next: T, key: number) => T,
       ...iterables: Array<T>[]
     ): List<T>;
 
@@ -269,11 +269,11 @@ declare module Immutable {
      * @see `Map#mergeDeepWith`
      */
     mergeDeepWith(
-      merger: (previous?: T, next?: T, key?: number) => T,
+      merger: (previous: T, next: T, key: number) => T,
       ...iterables: Iterable.Indexed<T>[]
     ): List<T>;
     mergeDeepWith(
-      merger: (previous?: T, next?: T, key?: number) => T,
+      merger: (previous: T, next: T, key: number) => T,
       ...iterables: Array<T>[]
     ): List<T>;
 
@@ -532,11 +532,11 @@ declare module Immutable {
      *
      */
     mergeWith(
-      merger: (previous?: V, next?: V, key?: K) => V,
+      merger: (previous: V, next: V, key: K) => V,
       ...iterables: Iterable<K, V>[]
     ): Map<K, V>;
     mergeWith(
-      merger: (previous?: V, next?: V, key?: K) => V,
+      merger: (previous: V, next: V, key: K) => V,
       ...iterables: {[key: string]: V}[]
     ): Map<string, V>;
 
@@ -563,11 +563,11 @@ declare module Immutable {
      *
      */
     mergeDeepWith(
-      merger: (previous?: V, next?: V, key?: K) => V,
+      merger: (previous: V, next: V, key: K) => V,
       ...iterables: Iterable<K, V>[]
     ): Map<K, V>;
     mergeDeepWith(
-      merger: (previous?: V, next?: V, key?: K) => V,
+      merger: (previous: V, next: V, key: K) => V,
       ...iterables: {[key: string]: V}[]
     ): Map<string, V>;
 
@@ -1131,7 +1131,7 @@ declare module Immutable {
    *
    */
   export module Record {
-    interface Class {
+    export interface Class {
       new (): Map<string, any>;
       new (values: {[key: string]: any}): Map<string, any>;
       new (values: Iterable<string, any>): Map<string, any>; // deprecated
@@ -1450,7 +1450,7 @@ declare module Immutable {
        *
        */
       mapKeys<M>(
-        mapper: (key?: K, value?: V, iter?: /*this*/Iterable.Keyed<K, V>) => M,
+        mapper: (key: K, value: V, iter: /*this*/Iterable.Keyed<K, V>) => M,
         context?: any
       ): /*this*/Iterable.Keyed<M, V>;
 
@@ -1465,43 +1465,12 @@ declare module Immutable {
        */
       mapEntries<KM, VM>(
         mapper: (
-          entry?: /*(K, V)*/Array<any>,
-          index?: number,
-          iter?: /*this*/Iterable.Keyed<K, V>
+          entry: /*(K, V)*/Array<any>,
+          index: number,
+          iter: /*this*/Iterable.Keyed<K, V>
         ) => /*[KM, VM]*/Array<any>,
         context?: any
       ): /*this*/Iterable.Keyed<KM, VM>;
-
-
-      // Search for value
-
-      /**
-       * Returns the key associated with the search value, or undefined.
-       */
-      keyOf(searchValue: V): K;
-
-      /**
-       * Returns the last key associated with the search value, or undefined.
-       */
-      lastKeyOf(searchValue: V): K;
-
-      /**
-       * Returns the key for which the `predicate` returns true.
-       */
-      findKey(
-        predicate: (value?: V, key?: K, iter?: /*this*/Iterable.Keyed<K, V>) => boolean,
-        context?: any
-      ): K;
-
-      /**
-       * Returns the last key for which the `predicate` returns true.
-       *
-       * Note: `predicate` will be called for each entry in reverse.
-       */
-      findLastKey(
-        predicate: (value?: V, key?: K, iter?: /*this*/Iterable.Keyed<K, V>) => boolean,
-        context?: any
-      ): K;
     }
 
 
@@ -1663,7 +1632,7 @@ declare module Immutable {
        * provided predicate function. Otherwise -1 is returned.
        */
       findIndex(
-        predicate: (value?: T, index?: number, iter?: /*this*/Iterable.Indexed<T>) => boolean,
+        predicate: (value: T, index: number, iter: /*this*/Iterable.Indexed<T>) => boolean,
         context?: any
       ): number;
 
@@ -1672,7 +1641,7 @@ declare module Immutable {
        * provided predicate function. Otherwise -1 is returned.
        */
       findLastIndex(
-        predicate: (value?: T, index?: number, iter?: /*this*/Iterable.Indexed<T>) => boolean,
+        predicate: (value: T, index: number, iter: /*this*/Iterable.Indexed<T>) => boolean,
         context?: any
       ): number;
     }
@@ -1783,12 +1752,12 @@ declare module Immutable {
     get(key: K, notSetValue?: V): V;
 
     /**
-     * True if a key exists within this `Iterable`.
+     * True if a key exists within this `Iterable`, using `Immutable.is` to determine equality
      */
     has(key: K): boolean;
 
     /**
-     * True if a value exists within this `Iterable`.
+     * True if a value exists within this `Iterable`, using `Immutable.is` to determine equality
      * @alias contains
      */
     includes(value: V): boolean;
@@ -1943,21 +1912,21 @@ declare module Immutable {
 
     /**
      * An iterator of this `Iterable`'s keys.
-     * 
+     *
      * Note: this will return an ES6 iterator which does not support Immutable JS sequence algorithms. Use `keySeq` instead, if this is what you want.
      */
     keys(): Iterator<K>;
 
     /**
      * An iterator of this `Iterable`'s values.
-     * 
+     *
      * Note: this will return an ES6 iterator which does not support Immutable JS sequence algorithms. Use `valueSeq` instead, if this is what you want.
      */
     values(): Iterator<V>;
 
     /**
      * An iterator of this `Iterable`'s entries as `[key, value]` tuples.
-     * 
+     *
      * Note: this will return an ES6 iterator which does not support Immutable JS sequence algorithms. Use `entrySeq` instead, if this is what you want.
      */
     entries(): Iterator</*[K, V]*/Array<any>>;
@@ -1993,7 +1962,7 @@ declare module Immutable {
      *
      */
     map<M>(
-      mapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => M,
+      mapper: (value: V, key: K, iter: /*this*/Iterable<K, V>) => M,
       context?: any
     ): /*this*/Iterable<K, M>;
 
@@ -2006,7 +1975,7 @@ declare module Immutable {
      *
      */
     filter(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): /*this*/Iterable<K, V>;
 
@@ -2019,7 +1988,7 @@ declare module Immutable {
      *
      */
     filterNot(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): /*this*/Iterable<K, V>;
 
@@ -2055,7 +2024,7 @@ declare module Immutable {
      *
      */
     sortBy<C>(
-      comparatorValueMapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => C,
+      comparatorValueMapper: (value: V, key: K, iter: /*this*/Iterable<K, V>) => C,
       comparator?: (valueA: C, valueB: C) => number
     ): /*this*/Iterable<K, V>;
 
@@ -2064,9 +2033,13 @@ declare module Immutable {
      * value of the `grouper` function.
      *
      * Note: This is always an eager operation.
+     *
+     *     Immutable.fromJS([{v: 0}, {v: 1}, {v: 1}, {v: 0}, {v: 1}])
+     *       .groupBy(x => x.get('v'))
+     *       // Map {0: [{v: 0},{v: 0}], 1: [{v: 1},{v: 1},{v: 1}]}
      */
     groupBy<G>(
-      grouper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => G,
+      grouper: (value: V, key: K, iter: /*this*/Iterable<K, V>) => G,
       context?: any
     ): /*Map*/Seq.Keyed<G, /*this*/Iterable<K, V>>;
 
@@ -2081,7 +2054,7 @@ declare module Immutable {
      * (including the last iteration which returned false).
      */
     forEach(
-      sideEffect: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => any,
+      sideEffect: (value: V, key: K, iter: /*this*/Iterable<K, V>) => any,
       context?: any
     ): number;
 
@@ -2140,7 +2113,7 @@ declare module Immutable {
      *
      */
     skipWhile(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): /*this*/Iterable<K, V>;
 
@@ -2154,7 +2127,7 @@ declare module Immutable {
      *
      */
     skipUntil(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): /*this*/Iterable<K, V>;
 
@@ -2180,7 +2153,7 @@ declare module Immutable {
      *
      */
     takeWhile(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): /*this*/Iterable<K, V>;
 
@@ -2193,7 +2166,7 @@ declare module Immutable {
      *
      */
     takeUntil(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): /*this*/Iterable<K, V>;
 
@@ -2231,11 +2204,11 @@ declare module Immutable {
      * Similar to `iter.map(...).flatten(true)`.
      */
     flatMap<MK, MV>(
-      mapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => Iterable<MK, MV>,
+      mapper: (value: V, key: K, iter: /*this*/Iterable<K, V>) => Iterable<MK, MV>,
       context?: any
     ): /*this*/Iterable<MK, MV>;
     flatMap<MK, MV>(
-      mapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => /*iterable-like*/any,
+      mapper: (value: V, key: K, iter: /*this*/Iterable<K, V>) => /*iterable-like*/any,
       context?: any
     ): /*this*/Iterable<MK, MV>;
 
@@ -2252,7 +2225,7 @@ declare module Immutable {
      * @see `Array#reduce`.
      */
     reduce<R>(
-      reducer: (reduction?: R, value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => R,
+      reducer: (reduction: R, value: V, key: K, iter: /*this*/Iterable<K, V>) => R,
       initialReduction?: R,
       context?: any
     ): R;
@@ -2264,7 +2237,7 @@ declare module Immutable {
      * with `Array#reduceRight`.
      */
     reduceRight<R>(
-      reducer: (reduction?: R, value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => R,
+      reducer: (reduction: R, value: V, key: K, iter: /*this*/Iterable<K, V>) => R,
       initialReduction?: R,
       context?: any
     ): R;
@@ -2273,7 +2246,7 @@ declare module Immutable {
      * True if `predicate` returns true for all entries in the Iterable.
      */
     every(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): boolean;
 
@@ -2281,7 +2254,7 @@ declare module Immutable {
      * True if `predicate` returns true for any entry in the Iterable.
      */
     some(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): boolean;
 
@@ -2311,7 +2284,7 @@ declare module Immutable {
      */
     count(): number;
     count(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): number;
 
@@ -2322,7 +2295,7 @@ declare module Immutable {
      * Note: This is not a lazy operation.
      */
     countBy<G>(
-      grouper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => G,
+      grouper: (value: V, key: K, iter: /*this*/Iterable<K, V>) => G,
       context?: any
     ): Map<G, number>;
 
@@ -2330,10 +2303,10 @@ declare module Immutable {
     // Search for value
 
     /**
-     * Returns the value for which the `predicate` returns true.
+     * Returns the first value for which the `predicate` returns true.
      */
     find(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter: /*this*/Iterable<K, V>) => boolean,
       context?: any,
       notSetValue?: V
     ): V;
@@ -2344,16 +2317,16 @@ declare module Immutable {
      * Note: `predicate` will be called for each entry in reverse.
      */
     findLast(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter: /*this*/Iterable<K, V>) => boolean,
       context?: any,
       notSetValue?: V
     ): V;
 
     /**
-     * Returns the [key, value] entry for which the `predicate` returns true.
+     * Returns the first [key, value] entry for which the `predicate` returns true.
      */
     findEntry(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter: /*this*/Iterable<K, V>) => boolean,
       context?: any,
       notSetValue?: V
     ): /*[K, V]*/Array<any>;
@@ -2365,10 +2338,38 @@ declare module Immutable {
      * Note: `predicate` will be called for each entry in reverse.
      */
     findLastEntry(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter: /*this*/Iterable<K, V>) => boolean,
       context?: any,
       notSetValue?: V
     ): /*[K, V]*/Array<any>;
+
+    /**
+     * Returns the key for which the `predicate` returns true.
+     */
+    findKey(
+      predicate: (value: V, key: K, iter: /*this*/Iterable.Keyed<K, V>) => boolean,
+      context?: any
+    ): K;
+
+    /**
+     * Returns the last key for which the `predicate` returns true.
+     *
+     * Note: `predicate` will be called for each entry in reverse.
+     */
+    findLastKey(
+      predicate: (value: V, key: K, iter: /*this*/Iterable.Keyed<K, V>) => boolean,
+      context?: any
+    ): K;
+
+    /**
+     * Returns the key associated with the search value, or undefined.
+     */
+    keyOf(searchValue: V): K;
+
+    /**
+     * Returns the last key associated with the search value, or undefined.
+     */
+    lastKeyOf(searchValue: V): K;
 
     /**
      * Returns the maximum value in this collection. If any values are
@@ -2395,7 +2396,7 @@ declare module Immutable {
      *
      */
     maxBy<C>(
-      comparatorValueMapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => C,
+      comparatorValueMapper: (value: V, key: K, iter: /*this*/Iterable<K, V>) => C,
       comparator?: (valueA: C, valueB: C) => number
     ): V;
 
@@ -2424,7 +2425,7 @@ declare module Immutable {
      *
      */
     minBy<C>(
-      comparatorValueMapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => C,
+      comparatorValueMapper: (value: V, key: K, iter: /*this*/Iterable<K, V>) => C,
       comparator?: (valueA: C, valueB: C) => number
     ): V;
 

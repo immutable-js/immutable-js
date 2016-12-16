@@ -1,7 +1,7 @@
 Immutable collections for JavaScript
 ====================================
 
-[![Build Status](https://travis-ci.org/facebook/immutable-js.svg)](https://travis-ci.org/facebook/immutable-js)
+[![Build Status](https://travis-ci.org/facebook/immutable-js.svg?branch=master)](https://travis-ci.org/facebook/immutable-js)
 
 [Immutable][] data cannot be changed once created, leading to much simpler
 application development, no defensive copying, and enabling advanced memoization
@@ -19,6 +19,10 @@ by Clojure and Scala, minimizing the need to copy or cache data.
 `Immutable` also provides a lazy `Seq`, allowing efficient
 chaining of collection methods like `map` and `filter` without creating
 intermediate representations. Create some `Seq` with `Range` and `Repeat`.
+
+Want to hear more? Watch the presentation about Immutable.js:
+
+<a href="https://youtu.be/I7IdS-PbEgI" target="_blank" alt="Immutable Data and React"><img src="https://img.youtube.com/vi/I7IdS-PbEgI/0.jpg" /></a>
 
 [Persistent]: http://en.wikipedia.org/wiki/Persistent_data_structure
 [Immutable]: http://en.wikipedia.org/wiki/Immutable_object
@@ -118,7 +122,7 @@ When data is passed from above rather than being subscribed to, and you're only
 interested in doing work when something has changed, you can use equality.
 
 Immutable collections should be treated as *values* rather than *objects*. While
-objects represents some thing which could change over time, a value represents
+objects represent some thing which could change over time, a value represents
 the state of that thing at a particular instance of time. This principle is most
 important to understanding the appropriate use of immutable data. In order to
 treat Immutable.js collections as values, it's important to use the
@@ -299,9 +303,7 @@ most useful are `mergeDeep`, `getIn`, `setIn`, and `updateIn`, found on `List`,
 ```javascript
 var nested2 = nested.mergeDeep({a:{b:{d:6}}});
 // Map { a: Map { b: Map { c: List [ 3, 4, 5 ], d: 6 } } }
-```
 
-```javascript
 nested2.getIn(['a', 'b', 'd']); // 6
 
 var nested3 = nested2.updateIn(['a', 'b', 'd'], value => value + 1);
@@ -333,7 +335,7 @@ Seq is never used:
 
 Once the Seq is used, it performs only the work necessary. In this
 example, no intermediate arrays are ever created, filter is called three times,
-and map is only called twice:
+and map is only called once:
 
     console.log(oddSquares.get(1)); // 9
 
@@ -341,11 +343,11 @@ Any collection can be converted to a lazy Seq with `.toSeq()`.
 
     var seq = Immutable.Map({a:1, b:1, c:1}).toSeq();
 
-Seq allow for the efficient chaining of sequence operations, especially when
+Seq allows for the efficient chaining of sequence operations, especially when
 converting to a different concrete type (such as to a JS object):
 
     seq.flip().map(key => key.toUpperCase()).flip().toObject();
-    // Map { A: 1, B: 1, C: 1 }
+    // { A: 1, B: 1, C: 1 }
 
 As well as expressing logic that would otherwise seem memory-limited:
 
@@ -434,6 +436,12 @@ Also, don't miss the [Wiki](https://github.com/facebook/immutable-js/wiki) which
 contains articles on specific topics. Can't find something? Open an [issue](https://github.com/facebook/immutable-js/issues).
 
 
+Testing
+-------
+
+If you are using the [Chai Assertion Library](http://chaijs.com/), [Chai Immutable](https://github.com/astorije/chai-immutable) provides a set of assertions to use against `Immutable` collections.
+
+
 Contribution
 ------------
 
@@ -455,10 +463,10 @@ Thanks
 and research in persistent data structures.
 
 [Hugh Jackson](https://github.com/hughfdjackson/), for providing the npm package
-name. If you're looking for his unsupported package, see [v1.4.1](https://www.npmjs.org/package/immutable/1.4.1).
+name. If you're looking for his unsupported package, see [this repository](https://github.com/hughfdjackson/immutable).
 
 
 License
 -------
 
-`Immutable` is [BSD-licensed](./LICENSE). We also provide an additional [patent grant](./PATENTS).
+`Immutable` is [BSD-licensed](https://github.com/facebook/immutable-js/blob/master/LICENSE). We also provide an additional [patent grant](https://github.com/facebook/immutable-js/blob/master/PATENTS).

@@ -1,0 +1,14 @@
+[libs]
+../immutable.js.flow
+
+[ignore]
+; Unless node_modules are ignored, 'immutable' resolves to the module not the flow definition.
+.*/node_modules/.*
+
+[options]
+; Prevents Flow from reporting an error on a line which follows `// $ExpectError` comment.
+; Used for testing expected errors
+suppress_comment=\\(.\\|\n\\)*\\$ExpectError\\($\\|[^(]\\|(\\(>=0\\.\\(1[0-6]\\|[0-9]\\).[0-9]\\)? *\\(site=[a-z,_]*www[a-z,_]*\\)?)\\)
+
+[version]
+^0.36.0

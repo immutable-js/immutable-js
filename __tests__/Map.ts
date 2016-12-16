@@ -1,8 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 ///<reference path='../dist/immutable.d.ts'/>
 
-jest.autoMockOff();
-
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
@@ -185,6 +183,17 @@ describe('Map', () => {
     }
     expect(m.size).toBe(2000);
     expect(m.get('thing:1234')).toBe(1234);
+  });
+
+  it('can use weird keys', () => {
+    var m: Map<any, any> = Map()
+      .set(NaN, 1)
+      .set(Infinity, 2)
+      .set(-Infinity, 3);
+
+    expect(m.get(NaN)).toBe(1);
+    expect(m.get(Infinity)).toBe(2);
+    expect(m.get(-Infinity)).toBe(3);
   });
 
   it('can map items known to hash collide', () => {

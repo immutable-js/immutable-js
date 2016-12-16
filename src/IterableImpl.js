@@ -30,6 +30,7 @@ import { List } from './List'
 import { Set } from './Set'
 import { OrderedSet } from './OrderedSet'
 import { Stack } from './Stack'
+import { Range } from './Range'
 import { KeyedSeq, IndexedSeq, SetSeq, ArraySeq } from './Seq'
 import { KeyedCollection, IndexedCollection, SetCollection } from './Collection'
 import { reify, ToKeyedSequence, ToIndexedSequence, ToSetSequence,
@@ -173,21 +174,6 @@ mixin(Iterable, {
     return entry ? entry[1] : notSetValue;
   },
 
-  findEntry(predicate, context) {
-    var found;
-    this.__iterate((v, k, c) => {
-      if (predicate.call(context, v, k, c)) {
-        found = [k, v];
-        return false;
-      }
-    });
-    return found;
-  },
-
-  findLastEntry(predicate, context) {
-    return this.toSeq().reverse().findEntry(predicate, context);
-  },
-
   forEach(sideEffect, context) {
     assertNotInfinite(this.size);
     return this.__iterate(context ? sideEffect.bind(context) : sideEffect);
@@ -298,8 +284,32 @@ mixin(Iterable, {
     return this.filter(not(predicate), context);
   },
 
+  findEntry(predicate, context, notSetValue) {
+    var found = notSetValue;
+    this.__iterate((v, k, c) => {
+      if (predicate.call(context, v, k, c)) {
+        found = [k, v];
+        return false;
+      }
+    });
+    return found;
+  },
+
+  findKey(predicate, context) {
+    var entry = this.findEntry(predicate, context);
+    return entry && entry[0];
+  },
+
   findLast(predicate, context, notSetValue) {
     return this.toKeyedSeq().reverse().find(predicate, context, notSetValue);
+  },
+
+  findLastEntry(predicate, context, notSetValue) {
+    return this.toKeyedSeq().reverse().findEntry(predicate, context, notSetValue);
+  },
+
+  findLastKey(predicate, context) {
+    return this.toKeyedSeq().reverse().findKey(predicate, context);
   },
 
   first() {
@@ -360,12 +370,20 @@ mixin(Iterable, {
     return iter.isSubset(this);
   },
 
+  keyOf(searchValue) {
+    return this.findKey(value => is(value, searchValue));
+  },
+
   keySeq() {
     return this.toSeq().map(keyMapper).toIndexedSeq();
   },
 
   last() {
     return this.toSeq().reverse().first();
+  },
+
+  lastKeyOf(searchValue) {
+    return this.toKeyedSeq().reverse().keyOf(searchValue);
   },
 
   max(comparator) {
@@ -458,58 +476,12 @@ IterablePrototype.toSource = function() { return this.toString(); };
 IterablePrototype.chain = IterablePrototype.flatMap;
 IterablePrototype.contains = IterablePrototype.includes;
 
-// Temporary warning about using length
-(function () {
-  try {
-    Object.defineProperty(IterablePrototype, 'length', {
-      get: function () {
-        if (!Iterable.noLengthWarning) {
-          var stack;
-          try {
-            throw new Error();
-          } catch (error) {
-            stack = error.stack;
-          }
-          if (stack.indexOf('_wrapObject') === -1) {
-            console && console.warn && console.warn(
-              'iterable.length has been deprecated, '+
-              'use iterable.size or iterable.count(). '+
-              'This warning will become a silent error in a future version. ' +
-              stack
-            );
-            return this.size;
-          }
-        }
-      }
-    });
-  } catch (e) {}
-})();
-
-
-
 mixin(KeyedIterable, {
 
   // ### More sequential methods
 
   flip() {
     return reify(this, flipFactory(this));
-  },
-
-  findKey(predicate, context) {
-    var entry = this.findEntry(predicate, context);
-    return entry && entry[0];
-  },
-
-  findLastKey(predicate, context) {
-    return this.toSeq().reverse().findKey(predicate, context);
-  },
-
-  keyOf(searchValue) {
-    return this.findKey(value => is(value, searchValue));
-  },
-
-  lastKeyOf(searchValue) {
-    return this.findLastKey(value => is(value, searchValue));
   },
 
   mapEntries(mapper, context) {
@@ -560,12 +532,12 @@ mixin(IndexedIterable, {
   },
 
   indexOf(searchValue) {
-    var key = this.toKeyedSeq().keyOf(searchValue);
+    var key = this.keyOf(searchValue);
     return key === undefined ? -1 : key;
   },
 
   lastIndexOf(searchValue) {
-    var key = this.toKeyedSeq().reverse().keyOf(searchValue);
+    var key = this.lastKeyOf(searchValue);
     return key === undefined ? -1 : key;
   },
 
@@ -600,8 +572,8 @@ mixin(IndexedIterable, {
   // ### More collection methods
 
   findLastIndex(predicate, context) {
-    var key = this.toKeyedSeq().findLastKey(predicate, context);
-    return key === undefined ? -1 : key;
+    var entry = this.findLastEntry(predicate, context);
+    return entry ? entry[0] : -1;
   },
 
   first() {
@@ -640,6 +612,10 @@ mixin(IndexedIterable, {
       interleaved.size = zipped.size * iterables.length;
     }
     return reify(this, interleaved);
+  },
+
+  keySeq() {
+    return Range(0, this.size);
   },
 
   last() {
@@ -727,7 +703,7 @@ function neg(predicate) {
 }
 
 function quoteString(value) {
-  return typeof value === 'string' ? JSON.stringify(value) : value;
+  return typeof value === 'string' ? JSON.stringify(value) : String(value);
 }
 
 function defaultZipper() {
