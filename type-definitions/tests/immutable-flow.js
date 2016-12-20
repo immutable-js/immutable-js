@@ -13,7 +13,9 @@ import Immutable, {
   KeyedIterable,
   Range,
   Repeat,
-  IndexedSeq
+  IndexedSeq,
+  OrderedMap,
+  OrderedSet
 } from 'immutable'
 import * as Immutable2 from 'immutable'
 
@@ -39,11 +41,13 @@ var numberList: List<number> = List()
 var numberOrStringList: List<string | number> = List()
 var nullableNumberList: List<?number> = List()
 var stringToNumber: Map<string, number> = Map()
+var orderedStringToNumber: OrderedMap<string, number>
 var stringToNumberOrString: Map<string, string | number> = Map()
 var numberToString: Map<number, string> = Map()
 var stringOrNumberToNumberOrString: Map<string | number, string | number> = Map()
 var anyMap: Map<any, any> = Map()
 var numberSet: Set<number> = Set()
+var orderedStringSet: OrderedSet<string>
 var numberOrStringSet: Set<number | string> = Set()
 var stringSet: Set<string> = Set()
 var numberStack: Stack<number> = Stack()
@@ -268,6 +272,41 @@ stringToNumber = Map({'a': 1}).mapKeys((key, value, iter) => 1)
 
 anyMap = Map({'a': 1}).flatten()
 
+/* OrderedMap */
+
+orderedStringToNumber = Map({'a': 1}).toOrderedMap()
+orderedStringToNumber = OrderedMap({'a': 1})
+orderedStringToNumber = OrderedMap(Map({'a': 1}))
+orderedStringToNumber = OrderedMap()
+orderedStringToNumber = OrderedMap().set('b', 2)
+orderedStringToNumber = OrderedMap({'a': 1}).delete('a')
+orderedStringToNumber = OrderedMap({'a': 1}).remove('a')
+orderedStringToNumber = OrderedMap({'a': 1}).clear()
+orderedStringToNumber = OrderedMap({'a': 1}).update(() => OrderedMap({'b': 1}))
+orderedStringToNumber = OrderedMap({'a': 1}).update('a', value => value + 1)
+orderedStringToNumber = OrderedMap({'a': 1}).update('a', 0, value => value + 1)
+orderedStringToNumber = OrderedMap({'a': 1}).merge({'b': 2})
+orderedStringToNumber = OrderedMap({'a': 1}).mergeWith((prev, next) => next, [1])
+orderedStringToNumber = OrderedMap({'a': 1}).mergeDeep({'a': 2})
+orderedStringToNumber = OrderedMap({'a': 1}).mergeDeepWith((prev, next) => next, [1])
+orderedStringToNumber = OrderedMap({'a': 1}).setIn([], 3)
+orderedStringToNumber = OrderedMap({'a': 1}).deleteIn([])
+orderedStringToNumber = OrderedMap({'a': 1}).removeIn([])
+orderedStringToNumber = OrderedMap({'a': 1}).updateIn([], val => val + 1)
+orderedStringToNumber = OrderedMap({'a': 1}).updateIn([], 0, val => val + 1)
+orderedStringToNumber = OrderedMap({'a': 1}).mergeIn([], {'b': 2})
+orderedStringToNumber = OrderedMap({'a': 1}).mergeDeepIn([], {'b': 2})
+orderedStringToNumber = OrderedMap({'a': 1}).withMutations(mutable => mutable.set('b', 2))
+orderedStringToNumber = OrderedMap({'a': 1}).asMutable();
+orderedStringToNumber = OrderedMap({'a': 1}).asImmutable();
+orderedStringToNumber = OrderedMap({'a': 1}).map((v) => v + 1)
+orderedStringToNumber = OrderedMap({'a': 1}).flatMap((v, k) => (OrderedMap({ [k]: v + 1 })))
+orderedStringToNumber = OrderedMap({'a': 1}).flip().flip()
+orderedStringToNumber = OrderedMap({'a': 1}).mapKeys(x => x)
+orderedStringToNumber = OrderedMap({'a': 1}).flatten()
+orderedStringToNumber = OrderedMap({'a': 1}).flatten(1)
+orderedStringToNumber = OrderedMap({'a': 1}).flatten(true)
+
 /* Set */
 
 numberSet = Set()
@@ -361,6 +400,30 @@ numberSet = Set([1]).flatMap((value, index, iter) => ['a'])
 
 numberSet = Set([1]).flatten()
 
+/* OrderedSet */
+
+orderedStringSet = Set(['a']).toOrderedSet()
+orderedStringSet = OrderedSet(['a'])
+orderedStringSet = OrderedSet.of('a', 'b', 'c')
+orderedStringSet = OrderedSet.fromKeys(Map({'a': 1}))
+orderedStringSet = OrderedSet.fromKeys({ 'a': 1 })
+orderedStringSet = OrderedSet()
+orderedStringSet = OrderedSet().add('yo')
+orderedStringSet = OrderedSet.of('a').delete('a')
+orderedStringSet = OrderedSet.of('a').remove('a')
+orderedStringSet = OrderedSet.of('a').clear()
+orderedStringSet = OrderedSet.of('a').union(OrderedSet.of('b'))
+orderedStringSet = OrderedSet.of('a').merge(OrderedSet.of('b'))
+orderedStringSet = OrderedSet.of('a', 'b').intersect(OrderedSet.of('a'))
+orderedStringSet = OrderedSet.of('a', 'b').subtract(OrderedSet.of('a'))
+orderedStringSet = OrderedSet().withMutations(mutable => mutable.add('a'))
+orderedStringSet = OrderedSet.of('a').asMutable();
+orderedStringSet = OrderedSet.of('a').asImmutable();
+orderedStringSet = OrderedSet.of('a', 'b').map(m => m);
+orderedStringSet = OrderedSet.of('a', 'b').flatMap(m => [m]);
+orderedStringSet = OrderedSet.of('a', 'b').flatten(1);
+orderedStringSet = OrderedSet.of('a', 'b').flatten(false);
+
 /* Stack */
 
 numberStack = Stack([1, 2])
@@ -439,7 +502,6 @@ numberStack = Stack(['a']).flatten()
 { const stringSequence: IndexedSeq<string> = Repeat(0, 1) }
 // $ExpectError
 { const stringSequence: IndexedSeq<string> = Range(0, 0, 0) }
-
 
 /* Record */
 // TODO
