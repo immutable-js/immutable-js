@@ -141,9 +141,6 @@
      * ```js
      * List.of(1, 2, 3, 4).toJS();
      * // [ 1, 2, 3, 4 ]
-     *
-     * List.of({x:1}, 2, [3], 4).toJS();
-     * // [ { x: 1 }, 2, [ 3 ], 4 ]
      * ```
      */
     function of<T>(...values: T[]): List<T>;
@@ -158,20 +155,12 @@
    *
    * const plainArray = [1, 2, 3, 4];
    * const listFromPlainArray = List(plainArray);
-   *
-   * const plainSet = new Set([1, 2, 3, 4]);
    * const listFromPlainSet = List(plainSet);
-   *
-   * const iterableArray = plainArray[Symbol.iterator]();
-   * const listFromIterableArray = List(iterableArray);
+   * const listFromIterableArray = List(plainArray[Symbol.iterator]());
    *
    * listFromPlainArray.toJS(); // [ 1, 2, 3, 4 ]
    * listFromPlainSet.toJS(); // [ 1, 2, 3, 4 ]
    * listFromIterableArray.toJS(); // [ 1, 2, 3, 4 ]
-   *
-   * Immutable.is(listFromPlainArray, listFromIterableSet); // true
-   * Immutable.is(listFromPlainSet, listFromIterableSet) // true
-   * Immutable.is(listFromPlainSet, listFromPlainArray) // true
    * ```
    */
   export function List<T>(): List<T>;
@@ -202,8 +191,7 @@
      * originalList.set(1, 1).toJS(); // [ 0, 1 ]
      * originalList.set(0, 'overwritten').toJS(); // [ 'overwritten' ]
      *
-     * List().set(50000, 'value').size;
-     * //50001 
+     * List().set(50000, 'value').size; // 50001
      * ```
      */
     set(index: number, value: T): List<T>;
@@ -222,8 +210,8 @@
      * @alias remove
      *
      * ```js
-     * List([0, 1, 2, 3, 4]).delete(0).toJS();
-     * // [ 1, 2, 3, 4 ]
+     * List([10, 11, 12, 13, 14]).delete(0).toJS();
+     * // [ 11, 12, 13, 14 ]
      * ```
      */
     delete(index: number): List<T>;
@@ -236,8 +224,8 @@
      * This is synonymous with `list.splice(index, 0, value)
      *
      * ```js
-     * List([0, 1, 2, 3, 4]).insert(6, 5).toJS();
-     * // [ 0, 1, 2, 3, 4, 5 ]
+     * List([10, 11, 12, 13, 15]).insert(5, 14).toJS();
+     * // [ 10, 11, 12, 13, 14, 15 ]
      * ```
      */
     insert(index: number, value: T): List<T>;
@@ -282,8 +270,8 @@
      * values ahead to higher indices.
      *
      * ```js
-     * List([ 2, 3, 4]).unshift(1).toJS();
-     * // [ 1, 2, 3, 4 ]
+     * List([11, 12, 13]).unshift(10).toJS();
+     * // [ 10, 11, 13, 14 ]
      * ```
      */
     unshift(...values: T[]): List<T>;
@@ -297,8 +285,8 @@
      * value in this List.
      *
      * ```js
-     * List([ 0, 1, 2, 3, 4]).shift(0).toJS(); 
-     * // [ 1, 2, 3, 4 ]
+     * List([10, 11, 12, 13, 14]).shift(0).toJS(); 
+     * // [ 11, 12, 13, 14 ]
      * ```
      */
     shift(): List<T>;
