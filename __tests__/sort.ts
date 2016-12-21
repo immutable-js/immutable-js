@@ -1,8 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 ///<reference path='../dist/immutable.d.ts'/>
 
-jest.autoMockOff();
-
 import { Seq, List, OrderedMap, Range } from 'immutable';
 
 describe('sort', () => {
@@ -13,6 +11,10 @@ describe('sort', () => {
 
   it('sorts a list', () => {
     expect(List.of(4,5,6,3,2,1).sort().toArray()).toEqual([1,2,3,4,5,6]);
+  })
+
+  it('sorts undefined values last', () => {
+    expect(List.of(4,undefined,5,6,3,undefined,2,1).sort().toArray()).toEqual([1,2,3,4,5,6,undefined,undefined]);
   })
 
   it('sorts a keyed sequence', () => {

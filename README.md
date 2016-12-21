@@ -1,7 +1,7 @@
 Immutable collections for JavaScript
 ====================================
 
-[![Build Status](https://travis-ci.org/facebook/immutable-js.svg)](https://travis-ci.org/facebook/immutable-js)
+[![Build Status](https://travis-ci.org/facebook/immutable-js.svg?branch=master)](https://travis-ci.org/facebook/immutable-js)
 
 [Immutable][] data cannot be changed once created, leading to much simpler
 application development, no defensive copying, and enabling advanced memoization
@@ -122,7 +122,7 @@ When data is passed from above rather than being subscribed to, and you're only
 interested in doing work when something has changed, you can use equality.
 
 Immutable collections should be treated as *values* rather than *objects*. While
-objects represents some thing which could change over time, a value represents
+objects represent some thing which could change over time, a value represents
 the state of that thing at a particular instance of time. This principle is most
 important to understanding the appropriate use of immutable data. In order to
 treat Immutable.js collections as values, it's important to use the
@@ -303,9 +303,7 @@ most useful are `mergeDeep`, `getIn`, `setIn`, and `updateIn`, found on `List`,
 ```javascript
 var nested2 = nested.mergeDeep({a:{b:{d:6}}});
 // Map { a: Map { b: Map { c: List [ 3, 4, 5 ], d: 6 } } }
-```
 
-```javascript
 nested2.getIn(['a', 'b', 'd']); // 6
 
 var nested3 = nested2.updateIn(['a', 'b', 'd'], value => value + 1);
@@ -337,7 +335,7 @@ Seq is never used:
 
 Once the Seq is used, it performs only the work necessary. In this
 example, no intermediate arrays are ever created, filter is called three times,
-and map is only called twice:
+and map is only called once:
 
     console.log(oddSquares.get(1)); // 9
 
@@ -345,11 +343,11 @@ Any collection can be converted to a lazy Seq with `.toSeq()`.
 
     var seq = Immutable.Map({a:1, b:1, c:1}).toSeq();
 
-Seq allow for the efficient chaining of sequence operations, especially when
+Seq allows for the efficient chaining of sequence operations, especially when
 converting to a different concrete type (such as to a JS object):
 
     seq.flip().map(key => key.toUpperCase()).flip().toObject();
-    // Map { A: 1, B: 1, C: 1 }
+    // { A: 1, B: 1, C: 1 }
 
 As well as expressing logic that would otherwise seem memory-limited:
 
@@ -471,4 +469,4 @@ name. If you're looking for his unsupported package, see [this repository](https
 License
 -------
 
-`Immutable` is [BSD-licensed](./LICENSE). We also provide an additional [patent grant](./PATENTS).
+`Immutable` is [BSD-licensed](https://github.com/facebook/immutable-js/blob/master/LICENSE). We also provide an additional [patent grant](https://github.com/facebook/immutable-js/blob/master/PATENTS).

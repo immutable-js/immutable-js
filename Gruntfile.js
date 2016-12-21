@@ -3,7 +3,6 @@
  *   grunt lint      Lint all source javascript
  *   grunt clean     Clean dist folder
  *   grunt build     Build dist javascript
- *   grunt test      Test dist javascript
  *   grunt default   Lint, Build then Test
  *
  */
@@ -53,11 +52,6 @@ module.exports = function(grunt) {
         }]
       }
     },
-    jest: {
-      options: {
-        testPathPattern: /.*/
-      }
-    }
   });
 
 
@@ -211,10 +205,6 @@ module.exports = function(grunt) {
     });
   });
 
-  grunt.registerTask('jest', 'Run tests with Jest.', function () {
-    require('jest-cli').runCLI(this.options(), process.cwd(), this.async());
-  });
-
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-clean');
@@ -222,6 +212,5 @@ module.exports = function(grunt) {
 
   grunt.registerTask('lint', 'Lint all source javascript', ['jshint']);
   grunt.registerTask('build', 'Build distributed javascript', ['clean', 'bundle', 'copy']);
-  grunt.registerTask('test', 'Test built javascript', ['jest']);
-  grunt.registerTask('default', 'Lint, build and test.', ['lint', 'build', 'stats', 'test']);
+  grunt.registerTask('default', 'Lint, build.', ['lint', 'build', 'stats']);
 }

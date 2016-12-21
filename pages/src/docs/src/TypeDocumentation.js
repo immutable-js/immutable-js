@@ -11,6 +11,17 @@ var collectMemberGroups = require('../../../lib/collectMemberGroups');
 var TypeKind = require('../../../lib/TypeKind');
 var defs = require('../../../lib/getTypeDefs');
 
+var typeDefURL = "https://github.com/facebook/immutable-js/blob/master/type-definitions/Immutable.d.ts";
+var issuesURL = "https://github.com/facebook/immutable-js/issues";
+
+var Disclaimer = function() {
+  return (
+    <section className="disclaimer">
+      This documentation is generated from <a href={typeDefURL}>Immutable.d.ts</a>.
+      Pull requests and <a href={issuesURL}>Issues</a> welcome.
+    </section>
+  );
+}
 
 var TypeDocumentation = React.createClass({
   getInitialState() {
@@ -40,19 +51,14 @@ var TypeDocumentation = React.createClass({
 
     return (
       <div>
-        {isMobile || <SideBar focus={name} memberGroups={memberGroups} />}
-        {isMobile || <div className="toolBar">
-          <div onClick={this.toggleShowInGroups}>
-            <span className={this.state.showInGroups && 'selected'}>Grouped</span>
-            {' • '}
-            <span className={this.state.showInGroups || 'selected'}>Alphabetized</span>
-          </div>
-          <div onClick={this.toggleShowInherited}>
-            <span className={this.state.showInherited && 'selected'}>Inherited</span>
-            {' • '}
-            <span className={this.state.showInherited || 'selected'}>Defined</span>
-          </div>
-        </div>}
+        {isMobile || <SideBar
+          focus={name}
+          memberGroups={memberGroups}
+          toggleShowInherited={this.toggleShowInherited}
+          toggleShowInGroups={this.toggleShowInGroups}
+          showInGroups={this.state.showInGroups}
+          showInherited={this.state.showInherited}
+        />}
         <div key={name} className="docContents">
 
           {!def ?
@@ -123,6 +129,7 @@ var FunctionDoc = React.createClass({
             <MarkDown className="discussion" contents={doc.description} />
           </section>
         }
+        <Disclaimer />
       </div>
     );
   }
@@ -240,6 +247,8 @@ var TypeDoc = React.createClass({
             ])
           ).flatten().toArray()}
         </section>
+
+        <Disclaimer />
       </div>
     );
   }

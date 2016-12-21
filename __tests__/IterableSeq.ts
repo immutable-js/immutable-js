@@ -1,8 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 ///<reference path='../dist/immutable.d.ts'/>
 declare var Symbol: any;
-jest.autoMockOff();
-
 import { Seq } from 'immutable';
 
 describe('IterableSequence', () => {

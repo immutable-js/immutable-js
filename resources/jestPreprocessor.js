@@ -54,11 +54,11 @@ function compileTypeScript(filePath) {
     return fs.readFileSync(outputPath, {encoding: 'utf8'});
   }
 
-  diagnostics.forEach(function(diagnostic) {
+  var report = diagnostics.map(function(diagnostic) {
     var loc = typescript.getLineAndCharacterOfPosition(diagnostic.file, diagnostic.start);
-    console.error('%s %d:%d %s', diagnostic.file.fileName, loc.line, loc.character, diagnostic.messageText);
-  });
-  throw new Error('Compiling ' + filePath + ' failed');
+    return diagnostic.file.fileName + ' ' + loc.line + ':' + loc.character + ' ' + diagnostic.messageText;
+  }).join('\n');
+  throw new Error('Compiling ' + filePath + ' failed' + '\n' + report);
 }
 
 function withLocalImmutable(filePath, jsSrc) {

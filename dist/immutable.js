@@ -684,7 +684,7 @@
    * not be performant. An alternative is to implement `equals` and `hashCode`.
    *
    * `equals` takes another object, presumably of similar type, and returns true
-   * if the it is equal. Equality is symmetrical, so the same result should be
+   * if it is equal. Equality is symmetrical, so the same result should be
    * returned if this and the argument are flipped.
    *
    *     assert( a.equals(b) === b.equals(a) );
@@ -3610,6 +3610,18 @@
   }
 
   function defaultComparator(a, b) {
+    if (a === undefined && b === undefined) {
+      return 0;
+    }
+
+    if (a === undefined) {
+      return 1;
+    }
+
+    if (b === undefined) {
+      return -1;
+    }
+
     return a > b ? 1 : a < b ? -1 : 0;
   }
 

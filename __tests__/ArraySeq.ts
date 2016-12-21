@@ -1,7 +1,5 @@
 ///<reference path='../resources/jest.d.ts'/>
 ///<reference path='../dist/immutable.d.ts'/>
-jest.autoMockOff();
-
 import { Seq } from 'immutable';
 
 describe('ArraySequence', () => {
@@ -22,7 +20,7 @@ describe('ArraySequence', () => {
 
   it('maps', () => {
     var i = Seq([1,2,3]);
-    var m = i.map(x => x + x).toObject();
+    var m = i.map(x => x + x).toArray();
     expect(m).toEqual([2,4,6]);
   });
 
