@@ -127,11 +127,21 @@
 
     /**
      * True if the provided value is a List
+     *
+     * ```js
+     * List.isList([]); // false
+     * List.isList(List([])); // true
+     * ```
      */
     function isList(maybeList: any): boolean;
 
     /**
      * Creates a new List containing `values`.
+     *
+     * ```js
+     * List.of(1, 2, 3, 4).toJS();
+     * // [ 1, 2, 3, 4 ]
+     * ```
      */
     function of<T>(...values: T[]): List<T>;
   }
@@ -139,6 +149,19 @@
   /**
    * Create a new immutable List containing the values of the provided
    * iterable-like.
+   *
+   * ```js
+   * List().toJS(); // []
+   *
+   * const plainArray = [1, 2, 3, 4];
+   * const listFromPlainArray = List(plainArray);
+   * const listFromPlainSet = List(plainSet);
+   * const listFromIterableArray = List(plainArray[Symbol.iterator]());
+   *
+   * listFromPlainArray.toJS(); // [ 1, 2, 3, 4 ]
+   * listFromPlainSet.toJS(); // [ 1, 2, 3, 4 ]
+   * listFromIterableArray.toJS(); // [ 1, 2, 3, 4 ]
+   * ```
    */
   export function List<T>(): List<T>;
   export function List<T>(iter: Iterable.Indexed<T>): List<T>;
@@ -162,6 +185,14 @@
      *
      * If `index` larger than `size`, the returned List's `size` will be large
      * enough to include the `index`.
+     *
+     * ```js
+     * const originalList = List([0]);
+     * originalList.set(1, 1).toJS(); // [ 0, 1 ]
+     * originalList.set(0, 'overwritten').toJS(); // [ 'overwritten' ]
+     *
+     * List().set(50000, 'value').size; // 50001
+     * ```
      */
     set(index: number, value: T): List<T>;
 
@@ -177,6 +208,11 @@
      *
      * Note: `delete` cannot be safely used in IE8
      * @alias remove
+     *
+     * ```js
+     * List([10, 11, 12, 13, 14]).delete(0).toJS();
+     * // [ 11, 12, 13, 14 ]
+     * ```
      */
     delete(index: number): List<T>;
     remove(index: number): List<T>;
@@ -186,17 +222,32 @@
      * List. Values at indices above `index` are shifted over by 1.
      *
      * This is synonymous with `list.splice(index, 0, value)
+     *
+     * ```js
+     * List([10, 11, 12, 13, 15]).insert(5, 14).toJS();
+     * // [ 10, 11, 12, 13, 14, 15 ]
+     * ```
      */
     insert(index: number, value: T): List<T>;
 
     /**
      * Returns a new List with 0 size and no values.
+     *
+     * ```js
+     * List([1, 2, 3, 4]).clear().toJS();
+     * // []
+     * ```
      */
     clear(): List<T>;
 
     /**
      * Returns a new List with the provided `values` appended, starting at this
      * List's `size`.
+     *
+     * ```js
+     * List([1, 2, 3, 4]).push(5).toJS();
+     * // [ 1, 2, 3, 4, 5 ]
+     * ```
      */
     push(...values: T[]): List<T>;
 
@@ -207,12 +258,21 @@
      * Note: this differs from `Array#pop` because it returns a new
      * List rather than the removed value. Use `last()` to get the last value
      * in this List.
+     * ```js
+     * List([1, 2, 3, 4]).pop().toJS();
+     * // [ 1, 2, 3 ]
+     * ```
      */
     pop(): List<T>;
 
     /**
      * Returns a new List with the provided `values` prepended, shifting other
      * values ahead to higher indices.
+     *
+     * ```js
+     * List([11, 12, 13]).unshift(10).toJS();
+     * // [ 10, 11, 13, 14 ]
+     * ```
      */
     unshift(...values: T[]): List<T>;
 
@@ -223,6 +283,11 @@
      * Note: this differs from `Array#shift` because it returns a new
      * List rather than the removed value. Use `first()` to get the first
      * value in this List.
+     *
+     * ```js
+     * List([10, 11, 12, 13, 14]).shift(0).toJS(); 
+     * // [ 11, 12, 13, 14 ]
+     * ```
      */
     shift(): List<T>;
 
@@ -298,6 +363,11 @@
      *
      * Index numbers are used as keys to determine the path to follow in
      * the List.
+     *
+     * ```js
+     * Immutable.fromJS([0, 1, 2, [3, 4]]).setIn([3, 0], -3).toJS();
+     * // [ 0, 1, 2, [ -3, 4 ] ]
+     * ```
      */
     setIn(keyPath: Array<any>, value: any): List<T>;
     setIn(keyPath: Iterable<any, any>, value: any): List<T>;
@@ -306,6 +376,10 @@
      * Returns a new List having removed the value at this `keyPath`. If any
      * keys in `keyPath` do not exist, no change will occur.
      *
+     * ```js
+     * Immutable.fromJS([0, 1, 2, [3, 4]]).deleteIn([3, 1]).toJS();
+     * // [ 0, 1, 2, [ 3 ] ]
+     * ```
      * @alias removeIn
      */
     deleteIn(keyPath: Array<any>): List<T>;
@@ -418,11 +492,25 @@
 
     /**
      * True if the provided value is a Map
+     *
+     * ```js
+     * Map.isMap({}); // false
+     * Map.isMap(Immutable.Map()); // true
+     * ```
      */
     function isMap(maybeMap: any): boolean;
 
     /**
      * Creates a new Map from alternating keys and values
+     *
+     * ```js
+     * Map.of(
+     *   'key', 'value', 
+     *   'numerical value', 3, 
+     *    0, 'numerical key'
+     * ).toJS(); 
+     * // { '0': 'numerical key', key: 'value', 'numerical value': 3 }
+     * ```
      */
     function of(...keyValues: any[]): Map<any, any>;
   }
@@ -470,6 +558,15 @@
     /**
      * Returns a new Map also containing the new key, value pair. If an equivalent
      * key already exists in this Map, it will be replaced.
+     *
+     * ```js
+     * const originalMap = Immutable.Map();
+     * const newerMap = originalMap.set('key', 'value');
+     * const newestMap = newerMap.set('key', 'newer value');
+     * originalMap.toJS(); // {}
+     * newerMap.toJS(); // { key: 'value' }
+     * newestMap.toJS(); // { key: 'newer value' }
+     * ```
      */
     set(key: K, value: V): Map<K, V>;
 
@@ -479,12 +576,25 @@
      * Note: `delete` cannot be safely used in IE8, but is provided to mirror
      * the ES6 collection API.
      * @alias remove
+     *
+     * ```js
+     * Immutable.Map({
+     *   key: 'value', 
+     *   otherKey: 'other value'
+     * }).delete('otherKey').toJS();
+     * // { key: 'value' }
+     * ```
      */
     delete(key: K): Map<K, V>;
     remove(key: K): Map<K, V>;
 
     /**
      * Returns a new Map containing no keys or values.
+     * 
+     * ```js
+     * Immutable.Map({ key: 'value' }).clear().toJS();
+     * // {}
+     * ```
      */
     clear(): Map<K, V>;
 
@@ -495,6 +605,45 @@
      * called with the Map itself.
      *
      * Equivalent to: `map.set(key, updater(map.get(key, notSetValue)))`.
+     * 
+     * ```js
+     * const originalMap = Immutable.Map({
+     *   key: 'value',
+     *   subObject: { subKey: 'subValue' }
+     * });
+     *
+     * const newMap = originalMap.update(map => {
+     *   return Immutable.Map(map.get('subObject'));
+     * });
+     * newMap.toJS(); // { subKey: 'subValue' }
+     * ```
+     *
+     * ```js
+     * const originalMap = Immutable.Map({
+     *   key: 'value'
+     * });
+
+     * const newMap = originalMap.update('key', value => {
+     *   return value + value;
+     * });
+     * newMap.toJS(); // { key: 'valuevalue' }
+     * ```
+     *
+     * ```js
+     * const originalMap = Immutable.Map({
+     *   key: 'value'
+     * });
+
+     * let newMap = originalMap.update('noKey', 'no value', value => {
+     *   return value + value;
+     * });
+     * newMap.toJS(); // { key: 'value', noKey: 'no valueno value' }
+     *
+     * newMap = originalMap.update('key', 'no value', value => {
+     *   return value + value;
+     * });
+     * newMap.toJS(); // { key: 'valuevalue' }
+     * ```
      */
     update(updater: (value: Map<K, V>) => Map<K, V>): Map<K, V>;
     update(key: K, updater: (value: V) => V): Map<K, V>;
@@ -577,6 +726,28 @@
     /**
      * Returns a new Map having set `value` at this `keyPath`. If any keys in
      * `keyPath` do not exist, a new immutable Map will be created at that key.
+     *
+     * ```js
+     * const originalMap = Immutable.fromJS({
+     *   subObject: {
+     *     subKey: 'subvalue',
+     *     subSubObject: {
+     *       subSubKey: 'subSubValue'
+     *     }
+     *   }
+     * });
+
+     * const newMap = originalMap.setIn(['subObject', 'subKey'], 'ha ha!');
+     * newMap.toJS();
+     * // {subObject:{subKey:'ha ha!', subSubObject:{subSubKey:'subSubValue'}}}
+     * 
+     * const newerMap = originalMap.setIn(
+     *   ['subObject', 'subSubObject', 'subSubKey'],
+     *   'ha ha ha!'
+     * );
+     * newerMap.toJS();
+     * // {subObject:{subKey:'subvalue', subSubObject:{subSubKey:'ha ha ha!'}}}
+     * ```
      */
     setIn(keyPath: Array<any>, value: any): Map<K, V>;
     setIn(KeyPath: Iterable<any, any>, value: any): Map<K, V>;
@@ -1373,6 +1544,14 @@
   export module Iterable {
     /**
      * True if `maybeIterable` is an Iterable, or any of its subclasses.
+     *
+     * ```js
+     * Iterable.isIterable([]); // false
+     * Iterable.isIterable({}); // false
+     * Iterable.isIterable(Immutable.Map()); // true
+     * Iterable.isIterable(Immutable.List()); // true
+     * Iterable.isIterable(Immutable.Stack()); // true
+     * ```
      */
     function isIterable(maybeIterable: any): boolean;
 
@@ -2013,6 +2192,15 @@
      *
      * When sorting collections which have no defined order, their ordered
      * equivalents will be returned. e.g. `map.sort()` returns OrderedMap.
+     *
+     * ```js
+     * Seq({c: 3, a: 1, b: 2}).sort((a, b) => {
+     *   if (a < b) { return -1; }
+     *   if (a > b) { return 1; }
+     *   if (a === b) { return 0; }
+     * }).toJS();
+     * // { a: 1, b: 2, c: 3 }
+     * ```
      */
     sort(comparator?: (valueA: V, valueB: V) => number): /*this*/Iterable<K, V>;
 
