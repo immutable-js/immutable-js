@@ -671,6 +671,7 @@ declare module 'immutable' {
     flatten(shallow?: boolean): /*this*/Set<any>;
   }
 
+  // Overrides except for `isOrderedSet` are for specialized return types
   declare class OrderedSet<T> extends Set<T> {
     static <T>(iterable: ESIterable<T>): OrderedSet<T>;
     static of<T>(...values: T[]): OrderedSet<T>;
@@ -680,19 +681,11 @@ declare module 'immutable' {
     static isOrderedSet(maybeOrderedSet: any): bool;
 
     add<U>(value: U): OrderedSet<T|U>;
-    delete(value: T): this;
-    remove(value: T): this;
-    clear(): this;
     union<U>(...iterables: ESIterable<U>[]): OrderedSet<T|U>;
     merge<U>(...iterables: ESIterable<U>[]): OrderedSet<T|U>;
     intersect<U>(...iterables: ESIterable<U>[]): OrderedSet<T&U>;
     subtract<U>(...iterables: ESIterable<U>[]): OrderedSet<T>;
 
-    withMutations(mutator: (mutable: this) => any): this;
-    asMutable(): this;
-    asImmutable(): this;
-
-    // Overrides that specialize return types
     map<M>(
       mapper: (value: T, value: T, iter: this) => M,
       context?: any
