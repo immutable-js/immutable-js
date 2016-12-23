@@ -5,7 +5,7 @@
 // Some tests look like they are repeated in order to avoid false positives.
 // Flow might not complain about an instance of (what it thinks is) T to be assigned to T<K, V>
 
-import {
+import Immutable, {
   List,
   Map,
   Stack,
@@ -17,6 +17,33 @@ import {
   OrderedMap,
   OrderedSet
 } from 'immutable'
+import * as Immutable2 from 'immutable'
+
+/**
+ * Although this looks like dead code, importing `Immutable` and
+ * `Immutable2` tests:
+ *
+ * 1. that default import works -- `import Immutable, {...} from 'immutable'
+ * 2. that importing everything works -- `import * as X from 'immutable'`
+ * 3. that individual imports are supported
+ */
+const ImmutableList = Immutable.List
+const ImmutableMap = Immutable.Map
+const ImmutableStack = Immutable.Stack
+const ImmutableSet = Immutable.Set
+const ImmutableKeyedIterable = Immutable.KeyedIterable
+const ImmutableRange = Immutable.Range
+const ImmutableRepeat = Immutable.Repeat
+const ImmutableIndexedSeq = Immutable.IndexedSeq
+
+const Immutable2List = Immutable2.List
+const Immutable2Map = Immutable2.Map
+const Immutable2Stack = Immutable2.Stack
+const Immutable2Set = Immutable2.Set
+const Immutable2KeyedIterable = Immutable2.KeyedIterable
+const Immutable2Range = Immutable2.Range
+const Immutable2Repeat = Immutable2.Repeat
+const Immutable2IndexedSeq = Immutable2.IndexedSeq
 
 var numberList: List<number> = List()
 var numberOrStringList: List<string | number> = List()
