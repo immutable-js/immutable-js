@@ -228,25 +228,23 @@ stringToNumber = Map({a: 1}).merge([[1, 'a']])
 // $ExpectError
 const stringToNumber: Map<string, number> = Map({a: 1}).merge(numberToString)
 
-/**
- * FIXME: this should throw an error, the signature should be
- *
- * ```
- * merger: (previous: V, next: V, key: K) => V,
- *    ...iterables: Iterable<K, V>[]
- * ```
- */
+stringToNumber = Map({'a': 1}).mergeWith((previous, next, key) => 1, {'a': 2, 'b': 2})
+// $ExpectError - this is actually a Map<string, number|string>
+stringToNumber = Map({'a': 1}).mergeWith((previous, next, key) => previous + next, {'a': '2', 'b': '2'})
+stringToNumberOrString = Map({'a': 1}).mergeWith((previous, next, key) => previous + next, {'a': '2', 'b': '2'})
+// $ExpectError - the array [1] is not a valid argument
 stringToNumber = Map({'a': 1}).mergeWith((previous, next, key) => 1, [1])
-// $ExpectError
-stringToNumber = Map({'a': 1}).mergeWith((previous, next, key) => previous + next, ['a'])
 
 stringToNumberOrString = Map({'a': 1}).mergeDeep({'a': 'b'})
 // $ExpectError
 stringToNumber = Map({'a': 1}).mergeDeep({'a': 'b'})
 
+stringToNumber = Map({'a': 1}).mergeDeepWith((previous, next, key) => 1, {'a': 2, 'b': 2})
+// $ExpectError - this is actually a Map<string, number|string>
+stringToNumber = Map({'a': 1}).mergeDeepWith((previous, next, key) => 1, {'a': '2', 'b': '2'})
+stringToNumberOrString = Map({'a': 1}).mergeDeepWith((previous, next, key) => 1, {'a': '2', 'b': '2'})
+// $ExpectError - the array [1] is not a valid argument
 stringToNumber = Map({'a': 1}).mergeDeepWith((previous, next, key) => 1, [1])
-// $ExpectError
-stringToNumber = Map({'a': 1}).mergeDeepWith((previous, next, key) => previous + next, ['a'])
 
 stringToNumber = Map({'a': 1}).setIn([], 0)
 
@@ -368,32 +366,23 @@ orderedStringToNumber = OrderedMap({'a': 1}).merge({'b': 2})
 orderedStringToNumber = OrderedMap({'a': 1}).merge({'b': '2'})
 orderedStringToNumberOrString = OrderedMap({'a': 1}).merge({'b': '2'})
 
-/**
- * FIXME: this should throw an error, the merger signature should be
- *
- * ```
- * merger: (previous: V, next: V, key: K) => V,
- *    ...iterables: Iterable<K, V>[]
- * ```
- *
- * We shouldn't be able to pass in an array of numbers to the merger function.
- */
+orderedStringToNumber = OrderedMap({'a': 1}).mergeWith((prev, next) => next, {'a': 2, 'b': 3})
+// $ExpectError - this is actually an OrderedMap<string, number|string>
+orderedStringToNumber = OrderedMap({'a': 1}).mergeWith((prev, next) => next, {'a': '2', 'b': '3'})
+orderedStringToNumberOrString = OrderedMap({'a': 1}).mergeWith((prev, next) => next, {'a': '2', 'b': '3'})
+// $ExpectError - the array [1] is not a valid argument
 orderedStringToNumber = OrderedMap({'a': 1}).mergeWith((prev, next) => next, [1])
+
 orderedStringToNumber = OrderedMap({'a': 1}).mergeDeep({'a': 2})
 // $ExpectError - this is actually an OrderedMap<string, number|string>
 orderedStringToNumber = OrderedMap({'a': 1}).mergeDeep({'a': '2'})
 orderedStringToNumberOrString = OrderedMap({'a': 1}).mergeDeep({'a': '2'})
 
-/**
- * FIXME: this should throw an error, the merger signature should be
- *
- * ```
- * merger: (previous: V, next: V, key: K) => V,
- *    ...iterables: Iterable<K, V>[]
- * ```
- *
- * We shouldn't be able to pass in an array of numbers to the merger function.
- */
+orderedStringToNumber = OrderedMap({'a': 1}).mergeDeepWith((prev, next) => next, {'a': 2, 'b': 3})
+// $ExpectError - this is actually an OrderedMap<string, number|string>
+orderedStringToNumber = OrderedMap({'a': 1}).mergeDeepWith((prev, next) => next, {'a': '2', 'b': '3'})
+orderedStringToNumberOrString = OrderedMap({'a': 1}).mergeDeepWith((prev, next) => next, {'a': '2', 'b': '3'})
+// $ExpectError - the array [1] is an invalid argument
 orderedStringToNumber = OrderedMap({'a': 1}).mergeDeepWith((prev, next) => next, [1])
 
 orderedStringToNumber = OrderedMap({'a': 1}).setIn([], 3)

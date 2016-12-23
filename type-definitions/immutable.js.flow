@@ -506,18 +506,18 @@ declare module 'immutable' {
     ): Map<K|K_,V|V_>;
 
     mergeWith<K_,W,X>(
-      merger: (previous: V, next: W, key: number) => X,
-      ...iterables: ESIterable<W>[]
-    ): Map<K,V|W|X>;
+      merger: (previous: V, next: W, key: K) => X,
+      ...iterables: (ESIterable<[K_,W]> | { [key: K_]: W })[]
+    ): Map<K|K_,V|W|X>;
 
     mergeDeep<K_,V_>(
       ...iterables: (ESIterable<[K_,V_]> | { [key: K_]: V_ })[]
     ): Map<K|K_,V|V_>;
 
     mergeDeepWith<K_,W,X>(
-      merger: (previous: V, next: W, key: number) => X,
-      ...iterables: ESIterable<W>[]
-    ): Map<K,V|W|X>;
+      merger: (previous: V, next: W, key: K) => X,
+      ...iterables: (ESIterable<[K_,W]> | { [key: K_]: W })[]
+    ): Map<K|K_,V|W|X>;
 
     setIn(keyPath: ESIterable<any>, value: any): Map<K,V>;
     deleteIn(keyPath: ESIterable<any>, value: any): this;
@@ -580,18 +580,18 @@ declare module 'immutable' {
     ): OrderedMap<K|K_,V|V_>;
 
     mergeWith<K_,W,X>(
-      merger: (previous: V, next: W, key: number) => X,
-      ...iterables: ESIterable<W>[]
-    ): OrderedMap<K,V|W|X>;
+      merger: (previous: V, next: W, key: K) => X,
+      ...iterables: (ESIterable<[K_,W]> | { [key: K_]: W })[]
+    ): OrderedMap<K|K_,V|W|X>;
 
     mergeDeep<K_,V_>(
       ...iterables: (ESIterable<[K_,V_]> | { [key: K_]: V_ })[]
     ): OrderedMap<K|K_,V|V_>;
 
     mergeDeepWith<K_,W,X>(
-      merger: (previous: V, next: W, key: number) => X,
-      ...iterables: ESIterable<W>[]
-    ): OrderedMap<K,V|W|X>;
+      merger: (previous: V, next: W, key: K) => X,
+      ...iterables: (ESIterable<[K_,W]> | { [key: K_]: W })[]
+    ): OrderedMap<K|K_,V|W|X>;
 
     setIn(keyPath: ESIterable<any>, value: any): OrderedMap<K,V>;
     deleteIn(keyPath: ESIterable<any>, value: any): this;
