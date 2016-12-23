@@ -390,22 +390,11 @@ orderedStringToNumber = OrderedMap({'a': 1}).deleteIn([])
 orderedStringToNumber = OrderedMap({'a': 1}).removeIn([])
 
 orderedStringToNumber = OrderedMap({'a': 1}).updateIn([], val => val + 1)
-/**
- * FIXME: this should throw an error, updater's signature should be
- *
- * ```
- * updater: (value: any) => any
- * ```
- *
- * according to the docs
- */
+// $ExpectError - 'a' in an invalid argument
 orderedStringToNumber = OrderedMap({'a': 1}).updateIn([], 'a')
 
 orderedStringToNumber = OrderedMap({'a': 1}).updateIn([], 0, val => val + 1)
-/**
- * FIXME: this should also throw an error, the updater is currently allowed to
- * be anything, rather than restricted to be a function.
- */
+// $ExpectError - 'a' is an invalid argument
 orderedStringToNumber = OrderedMap({'a': 1}).updateIn([], 0, 'a')
 
 orderedStringToNumber = OrderedMap({'a': 1}).mergeIn([], {'b': 2})

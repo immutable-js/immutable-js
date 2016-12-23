@@ -523,8 +523,15 @@ declare module 'immutable' {
     deleteIn(keyPath: ESIterable<any>, value: any): this;
     removeIn(keyPath: ESIterable<any>, value: any): this;
 
-    updateIn(keyPath: ESIterable<any>, notSetValue: any, value: any): Map<K,V>;
-    updateIn(keyPath: ESIterable<any>, value: any): Map<K,V>;
+    updateIn(
+      keyPath: ESIterable<any>,
+      notSetValue: any,
+      updater: (value: any) => any
+    ): Map<K,V>;
+    updateIn(
+      keyPath: ESIterable<any>,
+      updater: (value: any) => any
+    ): Map<K,V>;
 
     mergeIn(
       keyPath: ESIterable<K>,
@@ -597,8 +604,15 @@ declare module 'immutable' {
     deleteIn(keyPath: ESIterable<any>, value: any): this;
     removeIn(keyPath: ESIterable<any>, value: any): this;
 
-    updateIn(keyPath: ESIterable<any>, notSetValue: any, value: any): OrderedMap<K,V>;
-    updateIn(keyPath: ESIterable<any>, value: any): OrderedMap<K,V>;
+    updateIn(
+      keyPath: ESIterable<any>,
+      notSetValue: any,
+      updater: (value: any) => any
+    ): OrderedMap<K,V>;
+    updateIn(
+      keyPath: ESIterable<any>,
+      updater: (value: any) => any
+    ): OrderedMap<K,V>;
 
     mergeIn(
       keyPath: ESIterable<K>,
