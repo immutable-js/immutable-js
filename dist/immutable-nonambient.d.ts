@@ -141,6 +141,9 @@
      * ```js
      * List.of(1, 2, 3, 4).toJS();
      * // [ 1, 2, 3, 4 ]
+     *
+     * List.of({x:1}, 2, [3], 4).toJS();
+     * // [ { x: 1 }, 2, [ 3 ], 4 ]
      * ```
      */
     function of<T>(...values: T[]): List<T>;
@@ -155,12 +158,20 @@
    *
    * const plainArray = [1, 2, 3, 4];
    * const listFromPlainArray = List(plainArray);
+   *
+   * const plainSet = new Set([1, 2, 3, 4]);
    * const listFromPlainSet = List(plainSet);
-   * const listFromIterableArray = List(plainArray[Symbol.iterator]());
+   *
+   * const iterableArray = plainArray[Symbol.iterator]();
+   * const listFromIterableArray = List(iterableArray);
    *
    * listFromPlainArray.toJS(); // [ 1, 2, 3, 4 ]
    * listFromPlainSet.toJS(); // [ 1, 2, 3, 4 ]
    * listFromIterableArray.toJS(); // [ 1, 2, 3, 4 ]
+   *
+   * Immutable.is(listFromPlainArray, listFromIterableSet); // true
+   * Immutable.is(listFromPlainSet, listFromIterableSet) // true
+   * Immutable.is(listFromPlainSet, listFromPlainArray) // true
    * ```
    */
   export function List<T>(): List<T>;
@@ -191,7 +202,8 @@
      * originalList.set(1, 1).toJS(); // [ 0, 1 ]
      * originalList.set(0, 'overwritten').toJS(); // [ 'overwritten' ]
      *
-     * List().set(50000, 'value').size; // 50001
+     * List().set(50000, 'value').size;
+     * //50001 
      * ```
      */
     set(index: number, value: T): List<T>;
@@ -210,8 +222,8 @@
      * @alias remove
      *
      * ```js
-     * List([10, 11, 12, 13, 14]).delete(0).toJS();
-     * // [ 11, 12, 13, 14 ]
+     * List([0, 1, 2, 3, 4]).delete(0).toJS();
+     * // [ 1, 2, 3, 4 ]
      * ```
      */
     delete(index: number): List<T>;
@@ -224,8 +236,8 @@
      * This is synonymous with `list.splice(index, 0, value)
      *
      * ```js
-     * List([10, 11, 12, 13, 15]).insert(5, 14).toJS();
-     * // [ 10, 11, 12, 13, 14, 15 ]
+     * List([0, 1, 2, 3, 4]).insert(6, 5).toJS();
+     * // [ 0, 1, 2, 3, 4, 5 ]
      * ```
      */
     insert(index: number, value: T): List<T>;
@@ -270,8 +282,8 @@
      * values ahead to higher indices.
      *
      * ```js
-     * List([11, 12, 13]).unshift(10).toJS();
-     * // [ 10, 11, 13, 14 ]
+     * List([ 2, 3, 4]).unshift(1).toJS();
+     * // [ 1, 2, 3, 4 ]
      * ```
      */
     unshift(...values: T[]): List<T>;
@@ -285,8 +297,8 @@
      * value in this List.
      *
      * ```js
-     * List([10, 11, 12, 13, 14]).shift(0).toJS(); 
-     * // [ 11, 12, 13, 14 ]
+     * List([ 0, 1, 2, 3, 4]).shift(0).toJS(); 
+     * // [ 1, 2, 3, 4 ]
      * ```
      */
     shift(): List<T>;
@@ -1150,7 +1162,7 @@
     /**
      * Alias for `Stack.first()`.
      */
-    peek(): T;
+    peek(): T | undefined;
 
 
     // Persistent changes
@@ -1691,7 +1703,7 @@
        * `index` may be a negative number, which indexes back from the end of the
        * Iterable. `s.get(-1)` gets the last item in the Iterable.
        */
-      get(index: number, notSetValue?: T): T;
+      get(index: number, notSetValue?: T): T | undefined;
 
 
       // Conversion to Seq
@@ -1928,7 +1940,7 @@
      * so if `notSetValue` is not provided and this method returns `undefined`,
      * that does not guarantee the key was not found.
      */
-    get(key: K, notSetValue?: V): V;
+    get(key: K, notSetValue?: V): V | undefined;
 
     /**
      * True if a key exists within this `Iterable`, using `Immutable.is` to determine equality
@@ -1945,12 +1957,12 @@
     /**
      * The first value in the Iterable.
      */
-    first(): V;
+    first(): V | undefined;
 
     /**
      * The last value in the Iterable.
      */
-    last(): V;
+    last(): V | undefined;
 
 
     // Reading deep values
@@ -2497,7 +2509,7 @@
       predicate: (value: V, key: K, iter: /*this*/Iterable<K, V>) => boolean,
       context?: any,
       notSetValue?: V
-    ): V;
+    ): V | undefined;
 
     /**
      * Returns the last value for which the `predicate` returns true.
@@ -2508,7 +2520,7 @@
       predicate: (value: V, key: K, iter: /*this*/Iterable<K, V>) => boolean,
       context?: any,
       notSetValue?: V
-    ): V;
+    ): V | undefined;
 
     /**
      * Returns the first [key, value] entry for which the `predicate` returns true.
@@ -2517,7 +2529,7 @@
       predicate: (value: V, key: K, iter: /*this*/Iterable<K, V>) => boolean,
       context?: any,
       notSetValue?: V
-    ): /*[K, V]*/Array<any>;
+    ): /*[K, V]*/Array<any> | undefined;
 
     /**
      * Returns the last [key, value] entry for which the `predicate`
@@ -2529,7 +2541,7 @@
       predicate: (value: V, key: K, iter: /*this*/Iterable<K, V>) => boolean,
       context?: any,
       notSetValue?: V
-    ): /*[K, V]*/Array<any>;
+    ): /*[K, V]*/Array<any> | undefined;
 
     /**
      * Returns the key for which the `predicate` returns true.
@@ -2537,7 +2549,7 @@
     findKey(
       predicate: (value: V, key: K, iter: /*this*/Iterable.Keyed<K, V>) => boolean,
       context?: any
-    ): K;
+    ): K | undefined;
 
     /**
      * Returns the last key for which the `predicate` returns true.
@@ -2547,17 +2559,17 @@
     findLastKey(
       predicate: (value: V, key: K, iter: /*this*/Iterable.Keyed<K, V>) => boolean,
       context?: any
-    ): K;
+    ): K | undefined;
 
     /**
      * Returns the key associated with the search value, or undefined.
      */
-    keyOf(searchValue: V): K;
+    keyOf(searchValue: V): K | undefined;
 
     /**
      * Returns the last key associated with the search value, or undefined.
      */
-    lastKeyOf(searchValue: V): K;
+    lastKeyOf(searchValue: V): K | undefined;
 
     /**
      * Returns the maximum value in this collection. If any values are
@@ -2574,7 +2586,7 @@
      * If `comparator` returns 0 and either value is NaN, undefined, or null,
      * that value will be returned.
      */
-    max(comparator?: (valueA: V, valueB: V) => number): V;
+    max(comparator?: (valueA: V, valueB: V) => number): V | undefined;
 
     /**
      * Like `max`, but also accepts a `comparatorValueMapper` which allows for
@@ -2586,7 +2598,7 @@
     maxBy<C>(
       comparatorValueMapper: (value: V, key: K, iter: /*this*/Iterable<K, V>) => C,
       comparator?: (valueA: C, valueB: C) => number
-    ): V;
+    ): V | undefined;
 
     /**
      * Returns the minimum value in this collection. If any values are
@@ -2603,7 +2615,7 @@
      * If `comparator` returns 0 and either value is NaN, undefined, or null,
      * that value will be returned.
      */
-    min(comparator?: (valueA: V, valueB: V) => number): V;
+    min(comparator?: (valueA: V, valueB: V) => number): V | undefined;
 
     /**
      * Like `min`, but also accepts a `comparatorValueMapper` which allows for
@@ -2615,7 +2627,7 @@
     minBy<C>(
       comparatorValueMapper: (value: V, key: K, iter: /*this*/Iterable<K, V>) => C,
       comparator?: (valueA: C, valueB: C) => number
-    ): V;
+    ): V | undefined;
 
 
     // Comparison
@@ -2721,7 +2733,7 @@
    * @ignore
    */
   export interface Iterator<T> {
-    next(): { value: T; done: boolean; }
+    next(): { value: T; done: boolean; } | undefined
   }
 
 
