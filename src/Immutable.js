@@ -46,21 +46,21 @@ export default {
 };
 
 export {
-	Iterable,
+  Iterable,
 
-	Seq,
-	Collection,
-	Map,
-	OrderedMap,
-	List,
-	Stack,
-	Set,
-	OrderedSet,
+  Seq,
+  Collection,
+  Map,
+  OrderedMap,
+  List,
+  Stack,
+  Set,
+  OrderedSet,
 
-	Record,
-	Range,
-	Repeat,
+  Record,
+  Range,
+  Repeat,
 
-	is,
-	fromJS
+  is,
+  fromJS
 }
