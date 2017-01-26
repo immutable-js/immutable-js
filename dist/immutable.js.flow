@@ -81,9 +81,9 @@ declare module 'immutable' {
     toArray(): V[];
     toObject(): { [key: string]: V };
     toMap(): Map<K,V>;
-    toOrderedMap(): Map<K,V>;
+    toOrderedMap(): OrderedMap<K,V>;
     toSet(): Set<V>;
-    toOrderedSet(): Set<V>;
+    toOrderedSet(): OrderedSet<V>;
     toList(): List<V>;
     toStack(): Stack<V>;
     toSeq(): Seq<K,V>;
@@ -506,25 +506,32 @@ declare module 'immutable' {
     ): Map<K|K_,V|V_>;
 
     mergeWith<K_,W,X>(
-      merger: (previous: V, next: W, key: number) => X,
-      ...iterables: ESIterable<W>[]
-    ): Map<K,V|W|X>;
+      merger: (previous: V, next: W, key: K) => X,
+      ...iterables: (ESIterable<[K_,W]> | { [key: K_]: W })[]
+    ): Map<K|K_,V|W|X>;
 
     mergeDeep<K_,V_>(
       ...iterables: (ESIterable<[K_,V_]> | { [key: K_]: V_ })[]
     ): Map<K|K_,V|V_>;
 
     mergeDeepWith<K_,W,X>(
-      merger: (previous: V, next: W, key: number) => X,
-      ...iterables: ESIterable<W>[]
-    ): Map<K,V|W|X>;
+      merger: (previous: V, next: W, key: K) => X,
+      ...iterables: (ESIterable<[K_,W]> | { [key: K_]: W })[]
+    ): Map<K|K_,V|W|X>;
 
     setIn(keyPath: ESIterable<any>, value: any): Map<K,V>;
     deleteIn(keyPath: ESIterable<any>, value: any): this;
     removeIn(keyPath: ESIterable<any>, value: any): this;
 
-    updateIn(keyPath: ESIterable<any>, notSetValue: any, value: any): Map<K,V>;
-    updateIn(keyPath: ESIterable<any>, value: any): Map<K,V>;
+    updateIn(
+      keyPath: ESIterable<any>,
+      notSetValue: any,
+      updater: (value: any) => any
+    ): Map<K,V>;
+    updateIn(
+      keyPath: ESIterable<any>,
+      updater: (value: any) => any
+    ): Map<K,V>;
 
     mergeIn(
       keyPath: ESIterable<K>,
@@ -561,9 +568,85 @@ declare module 'immutable' {
     flatten(shallow?: boolean): /*this*/Map<any,any>;
   }
 
-  // OrderedMaps have nothing that Maps do not have. We do not need to override constructor & other statics
-  declare class OrderedMap<K,V> extends Map<K,V> {
+  declare class OrderedMap<K,V> extends KeyedCollection<K,V> {
+    static <K, V>(obj?: {[key: K]: V}): OrderedMap<K, V>;
+    static <K, V>(iterable: ESIterable<[K,V]>): OrderedMap<K, V>;
     static isOrderedMap(maybeOrderedMap: any): bool;
+
+    set<K_, V_>(key: K_, value: V_): OrderedMap<K|K_, V|V_>;
+    delete(key: K): this;
+    remove(key: K): this;
+    clear(): this;
+
+    update<K_,V_>(updater: (value: this) => OrderedMap<K_,V_>): OrderedMap<K_,V_>;
+    update<V_>(key: K, updater: (value: V) => V_): OrderedMap<K,V|V_>;
+    update<V_>(key: K, notSetValue: V_, updater: (value: V) => V_): OrderedMap<K,V|V_>;
+
+    merge<K_,V_>(
+      ...iterables: (ESIterable<[K_,V_]> | { [key: K_]: V_ })[]
+    ): OrderedMap<K|K_,V|V_>;
+
+    mergeWith<K_,W,X>(
+      merger: (previous: V, next: W, key: K) => X,
+      ...iterables: (ESIterable<[K_,W]> | { [key: K_]: W })[]
+    ): OrderedMap<K|K_,V|W|X>;
+
+    mergeDeep<K_,V_>(
+      ...iterables: (ESIterable<[K_,V_]> | { [key: K_]: V_ })[]
+    ): OrderedMap<K|K_,V|V_>;
+
+    mergeDeepWith<K_,W,X>(
+      merger: (previous: V, next: W, key: K) => X,
+      ...iterables: (ESIterable<[K_,W]> | { [key: K_]: W })[]
+    ): OrderedMap<K|K_,V|W|X>;
+
+    setIn(keyPath: ESIterable<any>, value: any): OrderedMap<K,V>;
+    deleteIn(keyPath: ESIterable<any>, value: any): this;
+    removeIn(keyPath: ESIterable<any>, value: any): this;
+
+    updateIn(
+      keyPath: ESIterable<any>,
+      notSetValue: any,
+      updater: (value: any) => any
+    ): OrderedMap<K,V>;
+    updateIn(
+      keyPath: ESIterable<any>,
+      updater: (value: any) => any
+    ): OrderedMap<K,V>;
+
+    mergeIn(
+      keyPath: ESIterable<K>,
+      ...iterables: (ESIterable<K> | { [key: string]: any })[]
+    ): OrderedMap<K,any>;
+    mergeDeepIn(
+      keyPath: ESIterable<K>,
+      ...iterables: (ESIterable<K> | { [key: string]: any })[]
+    ): OrderedMap<K,any>;
+
+    withMutations(mutator: (mutable: this) => any): this;
+    asMutable(): this;
+    asImmutable(): this;
+
+    // Overrides that specialize return types
+    map<V_>(
+      mapper: (value: V, key: K, iter: this) => V_,
+      context?: any
+    ): OrderedMap<K,V_>;
+
+    flatMap<K_,V_>(
+      mapper: (value: V, key: K, iter: this) => ESIterable<[K_,V_]>,
+      context?: any
+    ): OrderedMap<K_,V_>;
+
+    flip(): OrderedMap<V,K>;
+
+    mapKeys<K_>(
+      mapper: (key: K, value: V, iter: this) => K_,
+      context?: any
+    ): OrderedMap<K_,V>;
+
+    flatten(depth?: number): /*this*/OrderedMap<any,any>;
+    flatten(shallow?: boolean): /*this*/OrderedMap<any,any>
   }
 
   declare class Set<T> extends SetCollection<T> {
@@ -602,9 +685,33 @@ declare module 'immutable' {
     flatten(shallow?: boolean): /*this*/Set<any>;
   }
 
-  // OrderedSets have nothing that Sets do not have. We do not need to override constructor & other statics
+  // Overrides except for `isOrderedSet` are for specialized return types
   declare class OrderedSet<T> extends Set<T> {
+    static <T>(iterable: ESIterable<T>): OrderedSet<T>;
+    static of<T>(...values: T[]): OrderedSet<T>;
+    static fromKeys<T>(iter: ESIterable<[T,any]>): OrderedSet<T>;
+    static fromKeys<K, V>(object: { [key: K]: V }): OrderedSet<K>;
+    static (_: void): OrderedSet<any>;
     static isOrderedSet(maybeOrderedSet: any): bool;
+
+    add<U>(value: U): OrderedSet<T|U>;
+    union<U>(...iterables: ESIterable<U>[]): OrderedSet<T|U>;
+    merge<U>(...iterables: ESIterable<U>[]): OrderedSet<T|U>;
+    intersect<U>(...iterables: ESIterable<U>[]): OrderedSet<T&U>;
+    subtract<U>(...iterables: ESIterable<U>[]): OrderedSet<T>;
+
+    map<M>(
+      mapper: (value: T, value: T, iter: this) => M,
+      context?: any
+    ): OrderedSet<M>;
+
+    flatMap<M>(
+      mapper: (value: T, value: T, iter: this) => ESIterable<M>,
+      context?: any
+    ): OrderedSet<M>;
+
+    flatten(depth?: number): /*this*/OrderedSet<any>;
+    flatten(shallow?: boolean): /*this*/OrderedSet<any>;
   }
 
   declare class Stack<T> extends IndexedCollection<T> {

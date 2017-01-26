@@ -40,9 +40,9 @@ describe('Record', () => {
     var MyType = Record({a:1, b:2, c:3});
 
     var t1 = new MyType({a: 10, b:20});
-    expect(() => {
-      t1.set('d', 4);
-    }).toThrow('Cannot set unknown key "d" on Record');
+    var t2 = t1.set('d', 4);
+
+    expect(t2.toObject()).toEqual({a: 10, b:20, c:3});
   });
 
   it('has a fixed size and falls back to default values', () => {
