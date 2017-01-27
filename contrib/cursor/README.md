@@ -8,7 +8,7 @@ aware of changes to the entire data structure: an `onChange` function which is
 called whenever a cursor or sub-cursor calls `update`.
 
 This is particularly useful when used in conjuction with component-based UI
-libraries like [React](http://facebook.github.io/react/) or to simulate
+libraries like [React](https://facebook.github.io/react/) or to simulate
 "state" throughout an application while maintaining a single flow of logic.
 
 

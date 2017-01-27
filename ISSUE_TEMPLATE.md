@@ -1,8 +1,8 @@
 <!--
 Have a general question?
 
-First check out the Docs: http://facebook.github.io/immutable-js/docs/
-Or ask on Stack Overflow: http://stackoverflow.com/questions/tagged/immutable.js?sort=votes
+First check out the Docs: https://facebook.github.io/immutable-js/docs/
+Or ask on Stack Overflow: https://stackoverflow.com/questions/tagged/immutable.js?sort=votes
 Stack Overflow gets more attention than this issue list, and is much easier to search.
 
 Found a bug?
