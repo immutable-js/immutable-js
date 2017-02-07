@@ -131,6 +131,11 @@ declare module 'immutable' {
     flatten(depth?: number): /*this*/Iterable<any,any>;
     flatten(shallow?: boolean): /*this*/Iterable<any,any>;
 
+    map<M>(
+      mapper: (value: V, key: K, iter: this) => M,
+      context?: any
+    ): /*this*/Iterable<K,M>;
+
     filter(
       predicate: (value: V, key: K, iter: this) => mixed,
       context?: any
