@@ -233,7 +233,7 @@ declare module Immutable {
      * Returns a new List with `value` at `index` with a size 1 more than this
      * List. Values at indices above `index` are shifted over by 1.
      *
-     * This is synonymous with `list.splice(index, 0, value)
+     * This is synonymous with `list.splice(index, 0, value)`.
      *
      * ```js
      * List([0, 1, 2, 3, 4]).insert(6, 5).toJS();
