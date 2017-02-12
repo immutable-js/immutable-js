@@ -185,4 +185,12 @@ describe('Conversion', () => {
     }).not.toThrow();
   });
 
+  it('Converts an immutable value of an entry correctly', () => {
+    var js = [{"key": "a"}];
+    var result = fromJS(js).entrySeq().toJS();
+
+    expect(result[0][0]).toEqual(0);
+    expect(result[0][1]).toEqual({"key": "a"});
+  });
+
 });
