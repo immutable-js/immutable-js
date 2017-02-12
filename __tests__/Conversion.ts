@@ -44,7 +44,9 @@ describe('Conversion', () => {
         position: "third"
       },
     ],
-    constructor: 'i\'m not a real constructor',
+    constructor: {
+      content: "i\'m not a real constructor"
+    },
     deepMap: {
       a: "A",
       b: "B"
@@ -69,7 +71,9 @@ describe('Conversion', () => {
         position: "third"
       })
     ),
-    constructor: 'i\'m not a real constructor',
+    constructor: Map({
+      content: "i\'m not a real constructor"
+    }),
     deepMap: Map({
       a: "A",
       b: "B"
@@ -92,7 +96,9 @@ describe('Conversion', () => {
         position: "third"
       })
     ),
-    constructor: 'i\'m not a real constructor',
+    constructor: OrderedMap({
+      content: "i\'m not a real constructor"
+    }),
     deepMap: OrderedMap({
       a: "A",
       b: "B"
@@ -115,7 +121,9 @@ describe('Conversion', () => {
         '"position": "third"'+
       ' }' +
     ' ], '+
-    '"constructor": "i\'m not a real constructor", ' +
+    '"constructor": OrderedMap { '+
+      '"content": "i\'m not a real constructor" ' +
+    '}, ' +
     '"deepMap": OrderedMap { '+
       '"a": "A", '+
       '"b": "B"'+
