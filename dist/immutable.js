@@ -648,7 +648,13 @@
 	}
 
 	function isPlainObj(value) {
-	  return value && (value.constructor === Object || value.constructor === undefined);
+	  var prototype;
+
+	  try {
+	    prototype = Object.getPrototypeOf(value);
+	  } catch (err) {}
+
+	  return value && (prototype === Object.prototype || value.constructor === undefined);
 	}
 
 	/**
