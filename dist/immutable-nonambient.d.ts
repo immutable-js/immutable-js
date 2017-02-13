@@ -133,7 +133,7 @@
      * List.isList(List([])); // true
      * ```
      */
-    function isList(maybeList: any): boolean;
+    function isList(maybeList: any): maybeList is List<any>;
 
     /**
      * Creates a new List containing `values`.
@@ -510,7 +510,7 @@
      * Map.isMap(Immutable.Map()); // true
      * ```
      */
-    function isMap(maybeMap: any): boolean;
+    function isMap(maybeMap: any): maybeMap is Map<any, any>;
 
     /**
      * Creates a new Map from alternating keys and values
@@ -929,7 +929,7 @@
     /**
      * True if the provided value is an OrderedMap.
      */
-    function isOrderedMap(maybeOrderedMap: any): boolean;
+    function isOrderedMap(maybeOrderedMap: any): maybeOrderedMap is OrderedMap<any, any>;
   }
 
   /**
@@ -972,7 +972,7 @@
     /**
      * True if the provided value is a Set
      */
-    function isSet(maybeSet: any): boolean;
+    function isSet(maybeSet: any): maybeSet is Set<any>;
 
     /**
      * Creates a new Set containing `values`.
@@ -1132,7 +1132,7 @@
     /**
      * True if the provided value is a Stack
      */
-    function isStack(maybeStack: any): boolean;
+    function isStack(maybeStack: any): maybeStack is Stack<any>;
 
     /**
      * Creates a new Stack containing `values`.
@@ -1383,7 +1383,7 @@
      * True if `maybeSeq` is a Seq, it is not backed by a concrete
      * structure such as Map, List, or Set.
      */
-    function isSeq(maybeSeq: any): boolean;
+    function isSeq(maybeSeq: any): maybeSeq is Seq.Indexed<any> | Seq.Keyed<any, any>;
 
     /**
      * Returns a Seq of the values provided. Alias for `Seq.Indexed.of()`.
@@ -1565,22 +1565,22 @@
      * Iterable.isIterable(Immutable.Stack()); // true
      * ```
      */
-    function isIterable(maybeIterable: any): boolean;
+    function isIterable(maybeIterable: any): maybeIterable is Iterable<any, any>;
 
     /**
      * True if `maybeKeyed` is an Iterable.Keyed, or any of its subclasses.
      */
-    function isKeyed(maybeKeyed: any): boolean;
+    function isKeyed(maybeKeyed: any): maybeKeyed is Iterable.Keyed<any, any>;
 
     /**
      * True if `maybeIndexed` is a Iterable.Indexed, or any of its subclasses.
      */
-    function isIndexed(maybeIndexed: any): boolean;
+    function isIndexed(maybeIndexed: any): maybeIndexed is Iterable.Indexed<any>;
 
     /**
      * True if `maybeAssociative` is either a keyed or indexed Iterable.
      */
-    function isAssociative(maybeAssociative: any): boolean;
+    function isAssociative(maybeAssociative: any): maybeAssociative is Iterable.Keyed<any, any> | Iterable.Indexed<any>;
 
     /**
      * True if `maybeOrdered` is an Iterable where iteration order is well
