@@ -1420,7 +1420,7 @@ declare module Immutable {
     /**
      * `Seq` which represents an ordered indexed list of values.
      */
-    export module Indexed {
+    module Indexed {
 
       /**
        * Provides an Seq.Indexed of the values provided.
