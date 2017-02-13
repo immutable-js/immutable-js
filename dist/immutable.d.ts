@@ -110,6 +110,21 @@ declare module Immutable {
 
 
   /**
+   * The `hash()` function is an important part of how Immutable determines if
+   * two values are equivalent and is used to determine how to store those
+   * values. Provided with any value, `hash()` will return a 31-bit integer.
+   *
+   * When designing Objects which may be equal, it's important than when a
+   * `.equals()` method returns true, that both values `.hashCode()` method
+   * return the same value. `hash()` may be used to produce those values.
+   *
+   * Note that `hash()` attempts to balance between speed and avoiding
+   * collisions, however it makes no attempt to produce secure hashes.
+   */
+  export function hash(value: any): number;
+
+
+  /**
    * Lists are ordered indexed dense collections, much like a JavaScript
    * Array.
    *

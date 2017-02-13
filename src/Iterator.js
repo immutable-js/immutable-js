@@ -7,8 +7,6 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-/* global Symbol */
-
 export var ITERATE_KEYS = 0;
 export var ITERATE_VALUES = 1;
 export var ITERATE_ENTRIES = 2;

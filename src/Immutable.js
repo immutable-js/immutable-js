@@ -20,8 +20,8 @@ import { Range } from './Range'
 import { Repeat } from './Repeat'
 import { is } from './is'
 import { fromJS } from './fromJS'
-import { hash } from './Hash'
 import { Iterable } from './IterableImpl'
+import { hash } from './Hash'
 
 
 export default {

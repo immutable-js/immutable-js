@@ -763,5 +763,6 @@ declare module 'immutable' {
 
   declare function fromJS(json: any, reviver?: (k: any, v: Iterable<any,any>) => any): any;
   declare function is(first: any, second: any): boolean;
+  declare function hash(value: any): number;
 
 }

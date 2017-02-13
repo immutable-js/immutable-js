@@ -91,6 +91,7 @@ module.exports = function(grunt) {
           environments: ["node", "browser"],
           globals: {
             define: false,
+            Symbol: false,
           },
         });
 
