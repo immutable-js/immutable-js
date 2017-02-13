@@ -474,6 +474,35 @@ declare module Immutable {
      * @see `Map#asImmutable`
      */
     asImmutable(): List<T>;
+
+    // Sequence algorithms
+
+    /**
+     * Returns a new List with values passed through a
+     * `mapper` function.
+     *
+     *     List([1,2]).map(x => 10 * x)
+     *     // List [ 10, 20 ]
+     *
+     */
+    map<M>(
+      mapper: (value: T, key: number, iter: /*this*/List<T>) => M,
+      context?: any
+    ): List<M>;
+
+    // Combination
+
+    /**
+     * Returns a new Iterable of the same type with other values and
+     * iterable-like concatenated to this one.
+     *
+     * For Seqs, all entries will be present in
+     * the resulting iterable, even if they have the same key.
+     */
+    concat(...valuesOrIterables: Array<Iterable<any, T>>): List<T>;
+    concat<I1>(iterable1: Iterable<any, I1>): List<T | I1>;
+    concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): List<T | I1 | I2>;
+    concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): List<T | I1 | I2 | I3>;
   }
 
 
@@ -909,6 +938,35 @@ declare module Immutable {
      * copy has become immutable and can be safely returned from a function.
      */
     asImmutable(): Map<K, V>;
+
+    // Sequence algorithms
+
+    /**
+     * Returns a new Map with values passed through a
+     * `mapper` function.
+     *
+     *     Map({ a: 1, b: 2 }).map(x => 10 * x)
+     *     // Map { a: 10, b: 20 }
+     *
+     */
+    map<M>(
+      mapper: (value: V, key: K, iter: /*this*/Map<K, V>) => M,
+      context?: any
+    ): Map<K, M>;
+
+    // Combination
+
+    /**
+     * Returns a new Iterable of the same type with other values and
+     * iterable-like concatenated to this one.
+     *
+     * For Seqs, all entries will be present in
+     * the resulting iterable, even if they have the same key.
+     */
+    concat(...valuesOrIterables: Array<Iterable<any, V>>): Map<K, V>;
+    concat<I1>(iterable1: Iterable<any, I1>): Map<K, V | I1>;
+    concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Map<K, V | I1 | I2>;
+    concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Map<K, V | I1 | I2 | I3>;
   }
 
 
@@ -953,7 +1011,37 @@ declare module Immutable {
   export function OrderedMap<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): OrderedMap<K, V>;
   export function OrderedMap<K, V>(iterable: /*Iterable<[K,V]>*/Object): OrderedMap<K, V>;
 
-  export interface OrderedMap<K, V> extends Map<K, V> {}
+  export interface OrderedMap<K, V> extends Map<K, V> {
+
+    // Sequence algorithms
+
+    /**
+     * Returns a new OrderedMap with values passed through a
+     * `mapper` function.
+     *
+     *     OrderedMap({ a: 1, b: 2 }).map(x => 10 * x)
+     *     // OrderedMap { a: 10, b: 20 }
+     *
+     */
+    map<M>(
+      mapper: (value: V, key: K, iter: /*this*/OrderedMap<K, V>) => M,
+      context?: any
+    ): OrderedMap<K, M>;
+
+    // Combination
+
+    /**
+     * Returns a new Iterable of the same type with other values and
+     * iterable-like concatenated to this one.
+     *
+     * For Seqs, all entries will be present in
+     * the resulting iterable, even if they have the same key.
+     */
+    concat(...valuesOrIterables: Array<Iterable<any, V>>): OrderedMap<K, V>;
+    concat<I1>(iterable1: Iterable<any, I1>): OrderedMap<K, V | I1>;
+    concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): OrderedMap<K, V | I1 | I2>;
+    concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): OrderedMap<K, V | I1 | I2 | I3>;
+  }
 
 
   /**
@@ -1066,6 +1154,35 @@ declare module Immutable {
      * @see `Map#asImmutable`
      */
     asImmutable(): Set<T>;
+
+    // Sequence algorithms
+
+    /**
+     * Returns a new Set with values passed through a
+     * `mapper` function.
+     *
+     *     Set([1,2]).map(x => 10 * x)
+     *     // Set [10,20]
+     *
+     */
+    map<M>(
+      mapper: (value: T, key: T, iter: /*this*/Set<T>) => M,
+      context?: any
+    ): Set<M>;
+
+    // Combination
+
+    /**
+     * Returns a new Iterable of the same type with other values and
+     * iterable-like concatenated to this one.
+     *
+     * For Seqs, all entries will be present in
+     * the resulting iterable, even if they have the same key.
+     */
+    concat(...valuesOrIterables: Array<Iterable<any, T>>): Set<T>;
+    concat<I1>(iterable1: Iterable<any, I1>): Set<T | I1>;
+    concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Set<T | I1 | I2>;
+    concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Set<T | I1 | I2 | I3>;
   }
 
 
@@ -1111,7 +1228,37 @@ declare module Immutable {
   export function OrderedSet<T>(iterator: Iterator<T>): OrderedSet<T>;
   export function OrderedSet<T>(iterable: /*Iterable<T>*/Object): OrderedSet<T>;
 
-  export interface OrderedSet<T> extends Set<T> {}
+  export interface OrderedSet<T> extends Set<T> {
+
+    // Sequence algorithms
+
+    /**
+     * Returns a new Set with values passed through a
+     * `mapper` function.
+     *
+     *     OrderedSet([1,2]).map(x => 10 * x)
+     *     // Set [10,20]
+     *
+     */
+    map<M>(
+      mapper: (value: T, key: T, iter: /*this*/OrderedSet<T>) => M,
+      context?: any
+    ): OrderedSet<M>;
+
+    // Combination
+
+    /**
+     * Returns a new Iterable of the same type with other values and
+     * iterable-like concatenated to this one.
+     *
+     * For Seqs, all entries will be present in
+     * the resulting iterable, even if they have the same key.
+     */
+    concat(...valuesOrIterables: Array<Iterable<any, T>>): OrderedSet<T>;
+    concat<I1>(iterable1: Iterable<any, I1>): OrderedSet<T | I1>;
+    concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): OrderedSet<T | I1 | I2>;
+    concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): OrderedSet<T | I1 | I2 | I3>;
+  }
 
 
   /**
@@ -1232,6 +1379,35 @@ declare module Immutable {
      * @see `Map#asImmutable`
      */
     asImmutable(): Stack<T>;
+
+    // Sequence algorithms
+
+    /**
+     * Returns a new Stack with values passed through a
+     * `mapper` function.
+     *
+     *     Stack([1,2]).map(x => 10 * x)
+     *     // Stack [10,20]
+     *
+     */
+    map<M>(
+      mapper: (value: T, key: number, iter: /*this*/Stack<T>) => M,
+      context?: any
+    ): Stack<M>;
+
+    // Combination
+
+    /**
+     * Returns a new Iterable of the same type with other values and
+     * iterable-like concatenated to this one.
+     *
+     * For Seqs, all entries will be present in
+     * the resulting iterable, even if they have the same key.
+     */
+    concat(...valuesOrIterables: Array<Iterable<any, T>>): Stack<T>;
+    concat<I1>(iterable1: Iterable<any, I1>): Stack<T | I1>;
+    concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Stack<T | I1 | I2>;
+    concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Stack<T | I1 | I2 | I3>;
   }
 
 
@@ -1414,6 +1590,33 @@ declare module Immutable {
        * Returns itself
        */
       toSeq(): /*this*/Seq.Keyed<K, V>
+
+      /**
+       * Returns a new Seq.Keyed with values passed through a
+       * `mapper` function.
+       *
+       *     Indexed([1, 2]).map(x => 10 * x)
+       *     // Indexed [10, 20]
+       *
+       */
+      map<M>(
+        mapper: (value: V, key: K, iter: /*this*/Seq.Keyed<K, V>) => M,
+        context?: any
+      ): Seq.Keyed<K, M>;
+
+      // Combination
+
+      /**
+       * Returns a new Iterable of the same type with other values and
+       * iterable-like concatenated to this one.
+       *
+       * For Seqs, all entries will be present in
+       * the resulting iterable, even if they have the same key.
+       */
+      concat(...valuesOrIterables: Array<Iterable<any, V>>): Seq.Keyed<K, V>;
+      concat<I1>(iterable1: Iterable<any, I1>): Seq.Keyed<K, V | I1>;
+      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Seq.Keyed<K, V | I1 | I2>;
+      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Seq.Keyed<K, V | I1 | I2 | I3>;
     }
 
 
@@ -1446,6 +1649,33 @@ declare module Immutable {
        * Returns itself
        */
       toSeq(): /*this*/Seq.Indexed<T>
+
+      /**
+       * Returns a new Seq.Indexed with values passed through a
+       * `mapper` function.
+       *
+       *     Seq.Indexed({a: 1, b: 2}).map(x => 10 * x)
+       *     // Seq.Indexed {a: 10, b: 20}
+       *
+       */
+      map<M>(
+        mapper: (value: T, key: number, iter: /*this*/Seq.Indexed<T>) => M,
+        context?: any
+      ): Seq.Indexed<M>;
+
+      // Combination
+
+      /**
+       * Returns a new Iterable of the same type with other values and
+       * iterable-like concatenated to this one.
+       *
+       * For Seqs, all entries will be present in
+       * the resulting iterable, even if they have the same key.
+       */
+      concat(...valuesOrIterables: Array<Iterable<any, T>>): Seq.Indexed<T>;
+      concat<I1>(iterable1: Iterable<any, I1>): Seq.Indexed<T | I1>;
+      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Seq.Indexed<T | I1 | I2>;
+      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Seq.Indexed<T | I1 | I2 | I3>;
     }
 
 
@@ -1480,6 +1710,33 @@ declare module Immutable {
        * Returns itself
        */
       toSeq(): /*this*/Seq.Set<T>
+
+      /**
+       * Returns a new Seq.Set with values passed through a
+       * `mapper` function.
+       *
+       *     Seq.Set([1, 2]).map(x => 10 * x)
+       *     // Seq.Set [10, 20]
+       *
+       */
+      map<M>(
+        mapper: (value: T, key: T, iter: /*this*/Seq.Set<T>) => M,
+        context?: any
+      ): Seq.Set<M>;
+
+      // Combination
+
+      /**
+       * Returns a new Iterable of the same type with other values and
+       * iterable-like concatenated to this one.
+       *
+       * For Seqs, all entries will be present in
+       * the resulting iterable, even if they have the same key.
+       */
+      concat(...valuesOrIterables: Array<Iterable<any, T>>): Seq.Set<T>;
+      concat<I1>(iterable1: Iterable<any, I1>): Seq.Set<T | I1>;
+      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Seq.Set<T | I1 | I2>;
+      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Seq.Set<T | I1 | I2 | I3>;
     }
 
   }
@@ -1543,6 +1800,35 @@ declare module Immutable {
      * Note: after calling `cacheResult`, a Seq will always have a `size`.
      */
     cacheResult(): /*this*/Seq<K, V>;
+
+    // Sequence algorithms
+
+    /**
+     * Returns a new Seq with values passed through a
+     * `mapper` function.
+     *
+     *     Seq({a: 1, b: 2}).map(x => 10 * x)
+     *     // Set {a: 10, b: 20}
+     *
+     */
+    map<M>(
+      mapper: (value: V, key: K, iter: /*this*/Seq<K, V>) => M,
+      context?: any
+    ): Seq<K, M>;
+
+    // Combination
+
+    /**
+     * Returns a new Iterable of the same type with other values and
+     * iterable-like concatenated to this one.
+     *
+     * For Seqs, all entries will be present in
+     * the resulting iterable, even if they have the same key.
+     */
+    concat(...valuesOrIterables: Array<Iterable<any, V>>): Seq<K, V>;
+    concat<I1>(iterable1: Iterable<any, I1>): Seq<K, V | I1>;
+    concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Seq<K, V | I1 | I2>;
+    concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Seq<K, V | I1 | I2 | I3>;
   }
 
   /**
@@ -1662,6 +1948,35 @@ declare module Immutable {
         ) => /*[KM, VM]*/Array<any>,
         context?: any
       ): /*this*/Iterable.Keyed<KM, VM>;
+
+      // Sequence algorithms
+
+      /**
+       * Returns a new Iterable.Keyed with values passed through a
+       * `mapper` function.
+       *
+       *     Iterable.Keyed({a: 1, b: 2}).map(x => 10 * x)
+       *     // Iterable.Keyed {a: 10, b: 20}
+       *
+       */
+      map<M>(
+        mapper: (value: V, key: K, iter: /*this*/Iterable.Keyed<K, V>) => M,
+        context?: any
+      ): Iterable.Keyed<K, M>;
+
+      // Combination
+
+      /**
+       * Returns a new Iterable of the same type with other values and
+       * iterable-like concatenated to this one.
+       *
+       * For Seqs, all entries will be present in
+       * the resulting iterable, even if they have the same key.
+       */
+      concat(...valuesOrIterables: Array<Iterable<any, V>>): Iterable.Keyed<K, V>;
+      concat<I1>(iterable1: Iterable<any, I1>): Iterable.Keyed<K, V | I1>;
+      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Iterable.Keyed<K, V | I1 | I2>;
+      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Iterable.Keyed<K, V | I1 | I2 | I3>;
     }
 
 
@@ -1835,6 +2150,35 @@ declare module Immutable {
         predicate: (value: T, index: number, iter: /*this*/Iterable.Indexed<T>) => boolean,
         context?: any
       ): number;
+
+      // Sequence algorithms
+
+      /**
+       * Returns a new Iterable.Indexed with values passed through a
+       * `mapper` function.
+       *
+       *     Iterable.Indexed([1,2]).map(x => 10 * x)
+       *     // Iterable.Indexed [1,2]
+       *
+       */
+      map<M>(
+        mapper: (value: T, key: number, iter: /*this*/Iterable.Indexed<T>) => M,
+        context?: any
+      ): Iterable.Indexed<T>;
+
+      // Combination
+
+      /**
+       * Returns a new Iterable of the same type with other values and
+       * iterable-like concatenated to this one.
+       *
+       * For Seqs, all entries will be present in
+       * the resulting iterable, even if they have the same key.
+       */
+      concat(...valuesOrIterables: Array<Iterable<any, T>>): Iterable.Indexed<T>;
+      concat<I1>(iterable1: Iterable<any, I1>): Iterable.Indexed<T | I1>;
+      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Iterable.Indexed<T | I1 | I2>;
+      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Iterable.Indexed<T | I1 | I2 | I3>;
     }
 
 
@@ -1869,6 +2213,35 @@ declare module Immutable {
        * @override
        */
       toSeq(): Seq.Set<T>;
+
+      // Sequence algorithms
+
+      /**
+       * Returns a new Iterable.Set with values passed through a
+       * `mapper` function.
+       *
+       *     Iterable.Set([1,2]).map(x => 10 * x)
+       *     // Iterable.Set [1,2]
+       *
+       */
+      map<M>(
+        mapper: (value: T, key: T, iter: /*this*/Iterable.Set<T>) => M,
+        context?: any
+      ): Iterable.Set<T>;
+
+      // Combination
+
+      /**
+       * Returns a new Iterable of the same type with other values and
+       * iterable-like concatenated to this one.
+       *
+       * For Seqs, all entries will be present in
+       * the resulting iterable, even if they have the same key.
+       */
+      concat(...valuesOrIterables: Array<Iterable<any, T>>): Iterable.Set<T>;
+      concat<I1>(iterable1: Iterable<any, I1>): Iterable.Set<T | I1>;
+      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Iterable.Set<T | I1 | I2>;
+      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Iterable.Set<T | I1 | I2 | I3>;
     }
 
   }
@@ -2679,6 +3052,35 @@ declare module Immutable {
        * @override
        */
       toSeq(): Seq.Keyed<K, V>;
+
+      // Sequence algorithms
+
+      /**
+       * Returns a new Collection.Keyed with values passed through a
+       * `mapper` function.
+       *
+       *     Collection.Keyed({a: 1, b: 2}).map(x => 10 * x)
+       *     // Collection.Keyed {a: 10, b: 20}
+       *
+       */
+      map<M>(
+        mapper: (value: V, key: K, iter: /*this*/Collection.Keyed<K, V>) => M,
+        context?: any
+      ): Collection.Keyed<K, M>;
+
+      // Combination
+
+      /**
+       * Returns a new Iterable of the same type with other values and
+       * iterable-like concatenated to this one.
+       *
+       * For Seqs, all entries will be present in
+       * the resulting iterable, even if they have the same key.
+       */
+      concat(...valuesOrIterables: Array<Iterable<any, V>>): Collection.Keyed<K, V>;
+      concat<I1>(iterable1: Iterable<any, I1>): Collection.Keyed<K, V | I1>;
+      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Collection.Keyed<K, V | I1 | I2>;
+      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Collection.Keyed<K, V | I1 | I2 | I3>;
     }
 
 
@@ -2694,6 +3096,35 @@ declare module Immutable {
        * @override
        */
       toSeq(): Seq.Indexed<T>;
+
+      // Sequence algorithms
+
+      /**
+       * Returns a new Collection.Indexed with values passed through a
+       * `mapper` function.
+       *
+       *     Collection.Indexed([1,2]).map(x => 10 * x)
+       *     // Collection.Indexed [1,2]
+       *
+       */
+      map<M>(
+        mapper: (value: T, key: number, iter: /*this*/Collection.Indexed<T>) => M,
+        context?: any
+      ): Collection.Indexed<T>;
+
+      // Combination
+
+      /**
+       * Returns a new Iterable of the same type with other values and
+       * iterable-like concatenated to this one.
+       *
+       * For Seqs, all entries will be present in
+       * the resulting iterable, even if they have the same key.
+       */
+      concat(...valuesOrIterables: Array<Iterable<any, T>>): Collection.Indexed<T>;
+      concat<I1>(iterable1: Iterable<any, I1>): Collection.Indexed<T | I1>;
+      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Collection.Indexed<T | I1 | I2>;
+      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Collection.Indexed<T | I1 | I2 | I3>;
     }
 
 
@@ -2711,6 +3142,35 @@ declare module Immutable {
        * @override
        */
       toSeq(): Seq.Set<T>;
+
+      // Sequence algorithms
+
+      /**
+       * Returns a new Collection.Set with values passed through a
+       * `mapper` function.
+       *
+       *     Collection.Set([1,2]).map(x => 10 * x)
+       *     // Collection.Set [1,2]
+       *
+       */
+      map<M>(
+        mapper: (value: T, key: T, iter: /*this*/Collection.Set<T>) => M,
+        context?: any
+      ): Collection.Set<T>;
+
+      // Combination
+
+      /**
+       * Returns a new Iterable of the same type with other values and
+       * iterable-like concatenated to this one.
+       *
+       * For Seqs, all entries will be present in
+       * the resulting iterable, even if they have the same key.
+       */
+      concat(...valuesOrIterables: Array<Iterable<any, T>>): Collection.Set<T>;
+      concat<I1>(iterable1: Iterable<any, I1>): Collection.Set<T | I1>;
+      concat<I1, I2>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>): Collection.Set<T | I1 | I2>;
+      concat<I1, I2, I3>(iterable1: Iterable<any, I1>, iterable2: Iterable<any, I2>, iterable3: Iterable<any, I3>): Collection.Set<T | I1 | I2 | I3>;
     }
 
   }
