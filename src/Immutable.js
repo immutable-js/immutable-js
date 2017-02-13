@@ -20,6 +20,7 @@ import { Range } from './Range'
 import { Repeat } from './Repeat'
 import { is } from './is'
 import { fromJS } from './fromJS'
+import { hash } from './Hash'
 import { Iterable } from './IterableImpl'
 
 
@@ -41,26 +42,28 @@ export default {
   Repeat: Repeat,
 
   is: is,
-  fromJS: fromJS
+  fromJS: fromJS,
+  hash: hash
 
 };
 
 export {
-	Iterable,
+  Iterable,
 
-	Seq,
-	Collection,
-	Map,
-	OrderedMap,
-	List,
-	Stack,
-	Set,
-	OrderedSet,
+  Seq,
+  Collection,
+  Map,
+  OrderedMap,
+  List,
+  Stack,
+  Set,
+  OrderedSet,
 
-	Record,
-	Range,
-	Repeat,
+  Record,
+  Range,
+  Repeat,
 
-	is,
-	fromJS
+  is,
+  fromJS,
+  hash
 }
