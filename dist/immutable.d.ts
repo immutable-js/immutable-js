@@ -1662,6 +1662,8 @@ declare module Immutable {
         ) => /*[KM, VM]*/Array<any>,
         context?: any
       ): /*this*/Iterable.Keyed<KM, VM>;
+
+      [Symbol.iterator](): Iterator<[K, V]>;
     }
 
 
@@ -1835,6 +1837,8 @@ declare module Immutable {
         predicate: (value: T, index: number, iter: /*this*/Iterable.Indexed<T>) => boolean,
         context?: any
       ): number;
+
+      [Symbol.iterator](): Iterator<T>;
     }
 
 
@@ -1869,6 +1873,8 @@ declare module Immutable {
        * @override
        */
       toSeq(): Seq.Set<T>;
+
+      [Symbol.iterator](): Iterator<T>;
     }
 
   }
