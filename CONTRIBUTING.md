@@ -1,6 +1,6 @@
 # Have a question?
 
-Please ask questions on [Stack Overflow](http://stackoverflow.com/questions/tagged/immutable.js) instead of opening a Github Issue. There are more people on Stack Overflow who
+Please ask questions on [Stack Overflow](https://stackoverflow.com/questions/tagged/immutable.js) instead of opening a Github Issue. There are more people on Stack Overflow who
 can answer questions, and good answers can be searchable and canonical.
 
 # Issues
