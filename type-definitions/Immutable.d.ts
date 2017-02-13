@@ -203,7 +203,7 @@ declare module Immutable {
      * originalList.set(0, 'overwritten').toJS(); // [ 'overwritten' ]
      *
      * List().set(50000, 'value').size;
-     * //50001 
+     * //50001
      * ```
      */
     set(index: number, value: T): List<T>;
@@ -297,7 +297,7 @@ declare module Immutable {
      * value in this List.
      *
      * ```js
-     * List([ 0, 1, 2, 3, 4]).shift(0).toJS(); 
+     * List([ 0, 1, 2, 3, 4]).shift(0).toJS();
      * // [ 1, 2, 3, 4 ]
      * ```
      */
@@ -517,10 +517,10 @@ declare module Immutable {
      *
      * ```js
      * Map.of(
-     *   'key', 'value', 
-     *   'numerical value', 3, 
+     *   'key', 'value',
+     *   'numerical value', 3,
      *    0, 'numerical key'
-     * ).toJS(); 
+     * ).toJS();
      * // { '0': 'numerical key', key: 'value', 'numerical value': 3 }
      * ```
      */
@@ -591,7 +591,7 @@ declare module Immutable {
      *
      * ```js
      * Immutable.Map({
-     *   key: 'value', 
+     *   key: 'value',
      *   otherKey: 'other value'
      * }).delete('otherKey').toJS();
      * // { key: 'value' }
@@ -602,7 +602,7 @@ declare module Immutable {
 
     /**
      * Returns a new Map containing no keys or values.
-     * 
+     *
      * ```js
      * Immutable.Map({ key: 'value' }).clear().toJS();
      * // {}
@@ -617,7 +617,7 @@ declare module Immutable {
      * called with the Map itself.
      *
      * Equivalent to: `map.set(key, updater(map.get(key, notSetValue)))`.
-     * 
+     *
      * ```js
      * const originalMap = Immutable.Map({
      *   key: 'value',
@@ -752,7 +752,7 @@ declare module Immutable {
      * const newMap = originalMap.setIn(['subObject', 'subKey'], 'ha ha!');
      * newMap.toJS();
      * // {subObject:{subKey:'ha ha!', subSubObject:{subSubKey:'subSubValue'}}}
-     * 
+     *
      * const newerMap = originalMap.setIn(
      *   ['subObject', 'subSubObject', 'subSubKey'],
      *   'ha ha ha!'
