@@ -2733,7 +2733,7 @@ declare module Immutable {
    * @ignore
    */
   export interface Iterator<T> {
-    next(): { value: T; done: boolean; } | undefined
+    next(): { value: T | undefined; done: boolean; }
   }
 
 }
