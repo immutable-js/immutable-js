@@ -924,8 +924,15 @@ declare module Immutable {
      * copy has become immutable and can be safely returned from a function.
      */
     asImmutable(): Map<K, V>;
+
+    diffFrom(otherMap : Map<K,V>): MapDiffResult<K,V>;
   }
 
+  interface MapDiffResult<K,V> {
+    added: Map<K,V>;
+    removed: Map<K,V>;
+    updated: Map<K, {prev: V, next: V} >;
+  }
 
   /**
    * A type of Map that has the additional guarantee that the iteration order of
@@ -1081,8 +1088,14 @@ declare module Immutable {
      * @see `Map#asImmutable`
      */
     asImmutable(): Set<T>;
+
+    diffFrom(otherSet : Set<T>): SetDiffResult<T>;
   }
 
+  interface SetDiffResult<T> {
+    added: Set<T>;
+    removed: Set<T>;
+  }
 
   /**
    * A type of Set that has the additional guarantee that the iteration order of
