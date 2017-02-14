@@ -622,8 +622,8 @@ declare module Immutable {
      *     names.deleteAll(['a']); // { b: "Barry", c: "Connor" }
      *
      */
-    deleteAll(keys: Array<any>): Map<K, V>;
-    deleteAll(keys: Iterable.Indexed<any>): Map<K, V>;
+    deleteAll(keys: Array<K>): Map<K, V>;
+    deleteAll(keys: Iterable.Indexed<any, K>): Map<K, V>;
 
     /**
      * Returns a new Map containing no keys or values.
