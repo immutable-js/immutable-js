@@ -18,7 +18,7 @@ function compileTypeScript(filePath) {
   var options = {
     outDir: CACHE_DIR,
     noEmitOnError: true,
-    target: typescript.ScriptTarget.ES5,
+    target: typescript.ScriptTarget.ES6,
     module: typescript.ModuleKind.CommonJS
   };
 
