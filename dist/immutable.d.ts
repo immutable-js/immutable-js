@@ -623,7 +623,9 @@ declare module Immutable {
      *
      */
     deleteAll(keys: Array<K>): Map<K, V>;
-    deleteAll(keys: Iterable.Indexed<any, K>): Map<K, V>;
+    deleteAll(keys: Iterable<any, K>): Map<K, V>;
+    removeAll(keys: Array<K>): Map<K, V>;
+    removeAll(keys: Iterable<any, K>): Map<K, V>;
 
     /**
      * Returns a new Map containing no keys or values.
