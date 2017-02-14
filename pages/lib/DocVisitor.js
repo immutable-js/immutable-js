@@ -178,7 +178,7 @@ class DocVisitor extends TypeScript.SyntaxWalker {
   visitPropertySignature(node) {
     var comment = this.getDoc(node);
     var name = node.propertyName.text();
-    if (!shouldIgnore(comment) && !this.isAliased(name)) {
+    if (name !== 'undefined' && !shouldIgnore(comment) && !this.isAliased(name)) {
       this.addAliases(comment, name);
 
       this.ensureGroup(node);
@@ -293,7 +293,7 @@ class DocVisitor extends TypeScript.SyntaxWalker {
               case TypeScript.SyntaxKind.PropertySignature:
                 return {
                   name: m.propertyName.text(),
-                  type: this.parseType(m.typeAnnotation.type)
+                  type: m.typeAnnotation && this.parseType(m.typeAnnotation.type)
                 }
             }
             throw new Error('Unknown member kind: ' + m.kind());
