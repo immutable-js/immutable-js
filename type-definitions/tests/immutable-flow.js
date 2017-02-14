@@ -45,6 +45,9 @@ const Immutable2Range = Immutable2.Range
 const Immutable2Repeat = Immutable2.Repeat
 const Immutable2IndexedSeq = Immutable2.IndexedSeq
 
+var defaultExport: List<*> = Immutable.List();
+var moduleExport: List<*> = Immutable2.List();
+
 var numberList: List<number> = List()
 var numberOrStringList: List<string | number> = List()
 var nullableNumberList: List<?number> = List()
