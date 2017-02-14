@@ -595,7 +595,7 @@ declare module Immutable {
      * newestMap.toJS(); // { key: 'newer value' }
      * ```
      */
-    set(key: K, value: V): Map<K, V>;
+    set(key: K, value: V): this;
 
     /**
      * Returns a new Map which excludes this `key`.
@@ -612,8 +612,8 @@ declare module Immutable {
      * // { key: 'value' }
      * ```
      */
-    delete(key: K): Map<K, V>;
-    remove(key: K): Map<K, V>;
+    delete(key: K): this;
+    remove(key: K): this;
 
     /**
      * Returns a new Map containing no keys or values.
@@ -623,7 +623,7 @@ declare module Immutable {
      * // {}
      * ```
      */
-    clear(): Map<K, V>;
+    clear(): this;
 
     /**
      * Returns a new Map having updated the value at this `key` with the return
@@ -672,9 +672,9 @@ declare module Immutable {
      * newMap.toJS(); // { key: 'valuevalue' }
      * ```
      */
-    update(updater: (value: Map<K, V>) => Map<K, V>): Map<K, V>;
-    update(key: K, updater: (value: V) => V): Map<K, V>;
-    update(key: K, notSetValue: V, updater: (value: V) => V): Map<K, V>;
+    update(updater: (value: this) => this): this;
+    update(key: K, updater: (value: V) => V): this;
+    update(key: K, notSetValue: V, updater: (value: V) => V): this;
 
     /**
      * Returns a new Map resulting from merging the provided Iterables
@@ -693,7 +693,7 @@ declare module Immutable {
      *     y.merge(x) // { b: 20, a: 10, d: 60, c: 30 }
      *
      */
-    merge(...iterables: Iterable<K, V>[]): Map<K, V>;
+    merge(...iterables: Iterable<K, V>[]): this;
     merge(...iterables: {[key: string]: V}[]): Map<string, V>;
 
     /**
@@ -710,7 +710,7 @@ declare module Immutable {
     mergeWith(
       merger: (previous: V, next: V, key: K) => V,
       ...iterables: Iterable<K, V>[]
-    ): Map<K, V>;
+    ): this;
     mergeWith(
       merger: (previous: V, next: V, key: K) => V,
       ...iterables: {[key: string]: V}[]
@@ -725,7 +725,7 @@ declare module Immutable {
      *     x.mergeDeep(y) // {a: { x: 2, y: 10 }, b: { x: 20, y: 5 }, c: { z: 3 } }
      *
      */
-    mergeDeep(...iterables: Iterable<K, V>[]): Map<K, V>;
+    mergeDeep(...iterables: Iterable<K, V>[]): this;
     mergeDeep(...iterables: {[key: string]: V}[]): Map<string, V>;
 
     /**
@@ -741,7 +741,7 @@ declare module Immutable {
     mergeDeepWith(
       merger: (previous: V, next: V, key: K) => V,
       ...iterables: Iterable<K, V>[]
-    ): Map<K, V>;
+    ): this;
     mergeDeepWith(
       merger: (previous: V, next: V, key: K) => V,
       ...iterables: {[key: string]: V}[]
@@ -776,8 +776,8 @@ declare module Immutable {
      * // {subObject:{subKey:'subvalue', subSubObject:{subSubKey:'ha ha ha!'}}}
      * ```
      */
-    setIn(keyPath: Array<any>, value: any): Map<K, V>;
-    setIn(KeyPath: Iterable<any, any>, value: any): Map<K, V>;
+    setIn(keyPath: Array<any>, value: any): this;
+    setIn(KeyPath: Iterable<any, any>, value: any): this;
 
     /**
      * Returns a new Map having removed the value at this `keyPath`. If any keys
@@ -785,10 +785,10 @@ declare module Immutable {
      *
      * @alias removeIn
      */
-    deleteIn(keyPath: Array<any>): Map<K, V>;
-    deleteIn(keyPath: Iterable<any, any>): Map<K, V>;
-    removeIn(keyPath: Array<any>): Map<K, V>;
-    removeIn(keyPath: Iterable<any, any>): Map<K, V>;
+    deleteIn(keyPath: Array<any>): this;
+    deleteIn(keyPath: Iterable<any, any>): this;
+    removeIn(keyPath: Array<any>): this;
+    removeIn(keyPath: Iterable<any, any>): this;
 
     /**
      * Returns a new Map having applied the `updater` to the entry found at the
@@ -814,21 +814,21 @@ declare module Immutable {
     updateIn(
       keyPath: Array<any>,
       updater: (value: any) => any
-    ): Map<K, V>;
+    ): this;
     updateIn(
       keyPath: Array<any>,
       notSetValue: any,
       updater: (value: any) => any
-    ): Map<K, V>;
+    ): this;
     updateIn(
       keyPath: Iterable<any, any>,
       updater: (value: any) => any
-    ): Map<K, V>;
+    ): this;
     updateIn(
       keyPath: Iterable<any, any>,
       notSetValue: any,
       updater: (value: any) => any
-    ): Map<K, V>;
+    ): this;
 
     /**
      * A combination of `updateIn` and `merge`, returning a new Map, but
@@ -842,11 +842,11 @@ declare module Immutable {
     mergeIn(
       keyPath: Iterable<any, any>,
       ...iterables: Iterable<K, V>[]
-    ): Map<K, V>;
+    ): this;
     mergeIn(
       keyPath: Array<any>,
       ...iterables: Iterable<K, V>[]
-    ): Map<K, V>;
+    ): this;
     mergeIn(
       keyPath: Array<any>,
       ...iterables: {[key: string]: V}[]
@@ -864,11 +864,11 @@ declare module Immutable {
     mergeDeepIn(
       keyPath: Iterable<any, any>,
       ...iterables: Iterable<K, V>[]
-    ): Map<K, V>;
+    ): this;
     mergeDeepIn(
       keyPath: Array<any>,
       ...iterables: Iterable<K, V>[]
-    ): Map<K, V>;
+    ): this;
     mergeDeepIn(
       keyPath: Array<any>,
       ...iterables: {[key: string]: V}[]
@@ -901,7 +901,7 @@ declare module Immutable {
      * `withMutations`! Only `set` and `merge` may be used mutatively.
      *
      */
-    withMutations(mutator: (mutable: Map<K, V>) => any): Map<K, V>;
+    withMutations(mutator: (mutable: this) => any): this;
 
     /**
      * Another way to avoid creation of intermediate Immutable maps is to create
@@ -916,14 +916,14 @@ declare module Immutable {
      * Note: Not all methods can be used on a mutable collection or within
      * `withMutations`! Only `set` and `merge` may be used mutatively.
      */
-    asMutable(): Map<K, V>;
+    asMutable(): this;
 
     /**
      * The yin to `asMutable`'s yang. Because it applies to mutable collections,
      * this operation is *mutable* and returns itself. Once performed, the mutable
      * copy has become immutable and can be safely returned from a function.
      */
-    asImmutable(): Map<K, V>;
+    asImmutable(): this;
   }
 
 
