@@ -413,7 +413,7 @@ describe('List', () => {
   it('finds values using findIndex', () => {
     var v = List.of('a', 'b', 'c', 'B', 'a');
     expect(v.findIndex(value => value.toUpperCase() === value)).toBe(3);
-    expect(v.findIndex(value => value.length > 1)).toBe(-1);
+    expect(v.findIndex(value => value.length > 1)).toBe(undefined);
   });
 
   it('finds values using findEntry', () => {

@@ -528,7 +528,7 @@ mixin(IndexedIterable, {
 
   findIndex(predicate, context) {
     var entry = this.findEntry(predicate, context);
-    return entry ? entry[0] : -1;
+    return entry ? entry[0] : undefined;
   },
 
   indexOf(searchValue) {
