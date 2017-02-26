@@ -2401,7 +2401,7 @@ declare module Immutable {
      * For Seqs, all entries will be present in
      * the resulting iterable, even if they have the same key.
      */
-    concat(...valuesOrIterables: /*Array<Iterable<K, V>|V*/any[]): /*this*/Iterable<K, V>;
+    concat(...valuesOrIterables: Array<Iterable<K, V> | V>): /*this*/Iterable<K, V>;
 
     /**
      * Flattens nested Iterables.
