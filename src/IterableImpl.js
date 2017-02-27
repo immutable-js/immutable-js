@@ -63,7 +63,7 @@ mixin(Iterable, {
 
   toJS() {
     return this.toSeq().map(
-      value => value && typeof value.toJS === 'function' ? value.toJS() : value
+      value => Array.isArray(value) ? value.map(toJSIfPossible) : toJSIfPossible(value)
     ).__toJS();
   },
 
@@ -681,6 +681,10 @@ mixin(SetCollection, SetIterable.prototype);
 
 
 // #pragma Helper functions
+
+function toJSIfPossible(value) {
+  return value && typeof value.toJS === 'function' ? value.toJS() : value;
+}
 
 function keyMapper(v, k) {
   return k;

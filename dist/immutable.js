@@ -4277,7 +4277,7 @@
 
     toJS: function() {
       return this.toSeq().map(
-        function(value ) {return value && typeof value.toJS === 'function' ? value.toJS() : value}
+        function(value ) {return Array.isArray(value) ? value.map(toJSIfPossible) : toJSIfPossible(value)}
       ).__toJS();
     },
 
@@ -4895,6 +4895,10 @@
 
 
   // #pragma Helper functions
+
+  function toJSIfPossible(value) {
+    return value && typeof value.toJS === 'function' ? value.toJS() : value;
+  }
 
   function keyMapper(v, k) {
     return k;
