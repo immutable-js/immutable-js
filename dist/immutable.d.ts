@@ -631,50 +631,53 @@ declare module Immutable {
      * the key was not set. If called with only a single argument, `updater` is
      * called with the Map itself.
      *
-     * Equivalent to: `map.set(key, updater(map.get(key, notSetValue)))`.
+     * Equivalent to: `map.set(key, updater(map.get(key)))`.
      *
-     * ```js
-     * const originalMap = Immutable.Map({
-     *   key: 'value',
-     *   subObject: { subKey: 'subValue' }
-     * });
+     *     const originalMap = Immutable.Map({
+     *       key: 'value'
+     *     });
      *
-     * const newMap = originalMap.update(map => {
-     *   return Immutable.Map(map.get('subObject'));
-     * });
-     * newMap.toJS(); // { subKey: 'subValue' }
-     * ```
+     *     const newMap = originalMap.update('key', value => {
+     *       return value + value;
+     *     });
+     *     newMap.toJS(); // { key: 'valuevalue' }
      *
-     * ```js
-     * const originalMap = Immutable.Map({
-     *   key: 'value'
-     * });
-
-     * const newMap = originalMap.update('key', value => {
-     *   return value + value;
-     * });
-     * newMap.toJS(); // { key: 'valuevalue' }
-     * ```
+     * When a `notSetValue` is provided, it is provided to the `updater`
+     * function when the value at the key does not exist in the Map.
      *
-     * ```js
-     * const originalMap = Immutable.Map({
-     *   key: 'value'
-     * });
-
-     * let newMap = originalMap.update('noKey', 'no value', value => {
-     *   return value + value;
-     * });
-     * newMap.toJS(); // { key: 'value', noKey: 'no valueno value' }
+     *     const originalMap = Immutable.Map({
+     *       key: 'value'
+     *     });
      *
-     * newMap = originalMap.update('key', 'no value', value => {
-     *   return value + value;
-     * });
-     * newMap.toJS(); // { key: 'valuevalue' }
-     * ```
+     *     let newMap = originalMap.update('noKey', 'no value', value => {
+     *       return value + value;
+     *     });
+     *     newMap.toJS(); // { key: 'value', noKey: 'no valueno value' }
+     *
+     * However, if the `updater` function returns the same value it was called
+     * with, then no change will occur. This is still true if `notSetValue`
+     * is provided.
+     *
+     *     var data1 = Immutable.fromJS({ a: { b: { c: 10 } } });
+     *     data2 = data1.update('key', 100, val => val);
+     *     assert(data2 === data1);
+     *
+     * If no key is provided, then the `updater` function return value is
+     * returned as well.
+     *
+     *     const originalMap = Immutable.Map({
+     *       key: 'value'
+     *     });
+     *
+     *     const result = originalMap.update(map => {
+     *       return map.get('key');
+     *     });
+     *     result; // 'value'
+     *
      */
-    update(updater: (value: Map<K, V>) => Map<K, V>): Map<K, V>;
     update(key: K, updater: (value: V) => V): Map<K, V>;
     update(key: K, notSetValue: V, updater: (value: V) => V): Map<K, V>;
+    update<R>(updater: (value: Map<K, V>) => R): R;
 
     /**
      * Returns a new Map resulting from merging the provided Iterables
