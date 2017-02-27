@@ -1281,7 +1281,7 @@
         notSetValue,
         updater
       );
-      return updatedValue === NOT_SET ? undefined : updatedValue;
+      return updatedValue === NOT_SET ? notSetValue : updatedValue;
     };
 
     Map.prototype.clear = function() {

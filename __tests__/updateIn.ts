@@ -69,6 +69,23 @@ describe('updateIn', () => {
     ).toThrow('Expected iterable or array-like: [object Object]');
   })
 
+  it('identity with notSetValue is still identity', () => {
+    var m = Map({a: {b: {c: 10}}});
+    expect(
+      m.updateIn(['x'], 100, id => id)
+    ).toEqual(
+      m
+    );
+  })
+
+  it('shallow remove', () => {
+    var m = Map({a: 123});
+    expect(
+      m.updateIn([], map => undefined)
+    ).toEqual(
+      undefined
+    );
+  })
 
   it('deep remove', () => {
     var m = fromJS({a: {b: {c: 10}}});
@@ -120,6 +137,15 @@ describe('updateIn', () => {
     expect(() => {
       m.updateIn(['a', 'b', 'c', 'd'], v => 20).toJS()
     }).toThrow();
+  })
+
+  it('update with notSetValue when non-existing key', () => {
+    var m = Map({a: {b: {c: 10}}});
+    expect(
+      m.updateIn(['x'], 100, map => map + 1).toJS()
+    ).toEqual(
+      {a: {b: {c: 10}}, x: 101}
+    );
   })
 
   it('updates self for empty path', () => {
