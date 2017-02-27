@@ -18,7 +18,7 @@ function compileTypeScript(filePath) {
   var options = {
     outDir: CACHE_DIR,
     noEmitOnError: true,
-    target: typescript.ScriptTarget.ES6,
+    target: typescript.ScriptTarget.ES2015,
     module: typescript.ModuleKind.CommonJS
   };
 
@@ -63,8 +63,8 @@ function compileTypeScript(filePath) {
 
 function withLocalImmutable(filePath, jsSrc) {
   return jsSrc.replace(
-    /require\('immutable/g,
-    "require('" + path.relative(path.dirname(filePath), process.cwd())
+    /(require\(['"])immutable/g,
+    (_, req) => req + path.relative(path.dirname(filePath), process.cwd())
   );
 }
 
