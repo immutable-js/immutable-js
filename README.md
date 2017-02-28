@@ -140,7 +140,7 @@ assert(map1.equals(map3) === false);
 Note: As a performance optimization `Immutable` attempts to return the existing
 collection when an operation would result in an identical collection, allowing
 for using `===` reference equality to determine if something definitely has not
-changed. This can be extremely useful when used within memoization function
+changed. This can be extremely useful when used within a memoization function
 which would prefer to re-run the function if a deeper equality check could
 potentially be more costly. The `===` equality check is also used internally by
 `Immutable.is` and `.equals()` as a performance optimization.
