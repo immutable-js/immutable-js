@@ -1,3 +1,11 @@
+var exec = require('child_process').exec;
+var fs = require('fs');
+var rollup = require('rollup');
+var uglify = require('uglify-js');
+
+var declassify = require('./resources/declassify');
+var stripCopyright = require('./resources/stripCopyright');
+
 /**
  *
  *   grunt lint      Lint all source javascript
@@ -53,13 +61,6 @@ module.exports = function(grunt) {
       }
     },
   });
-
-
-  var fs = require('fs');
-  var rollup = require('rollup');
-  var declassify = require('./resources/declassify');
-  var stripCopyright = require('./resources/stripCopyright');
-  var uglify = require('uglify-js');
 
   grunt.registerMultiTask('bundle', function () {
     var done = this.async();
@@ -141,27 +142,10 @@ module.exports = function(grunt) {
     fs.writeFileSync('dist/immutable-nonambient.d.ts', nonAmbientSource);
   });
 
-  var Promise = require("bluebird");
-  var exec = require('child_process').exec;
-
   function execp(cmd) {
-    var resolve, reject;
-    var promise = new Promise(function(_resolve, _reject) {
-      resolve = _resolve;
-      reject = _reject;
-    });
-    try {
-      exec(cmd, function (error, out) {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(out);
-        }
-      });
-    } catch (error) {
-      reject(error);
-    }
-    return promise;
+    return new Promise((resolve, reject) =>
+      exec(cmd, (error, out) => error ? reject(error) : resolve(out))
+    );
   }
 
   grunt.registerTask('stats', function () {
@@ -172,9 +156,9 @@ module.exports = function(grunt) {
       execp('git show master:dist/immutable.min.js | wc -c'),
       execp('cat dist/immutable.min.js | gzip -c | wc -c'),
       execp('git show master:dist/immutable.min.js | gzip -c | wc -c'),
-    ]).then(function (results) {
-      return results.map(function (result) { return parseInt(result); });
-    }).then(function (results) {
+    ]).then(results => {
+      results = results.map(result => parseInt(result));
+
       var rawNew = results[0];
       var rawOld = results[1];
       var minNew = results[2];
@@ -210,11 +194,9 @@ module.exports = function(grunt) {
         space(14, bytes(zipNew).cyan) + pct(zipNew, rawNew) + space(15, diff(zipNew, zipOld))
       );
 
-    }).then(this.async()).catch(function (error) {
-      setTimeout(function () {
-        throw error;
-      }, 0);
-    });
+    }).then(this.async()).catch(
+      error => setTimeout(() => { throw error; }, 0)
+    );
   });
 
   grunt.loadNpmTasks('grunt-contrib-jshint');

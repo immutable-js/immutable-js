@@ -3,12 +3,23 @@ var child_process = require('child_process');
 var colors = require('colors');
 var fs = require('fs');
 var path = require('path');
-var Promise = require("bluebird");
 var vm = require('vm');
 
-var exec = Promise.promisify(child_process.exec);
-var readdir = Promise.promisify(fs.readdir);
-var readFile = Promise.promisify(fs.readFile);
+function promisify(fn) {
+  return function () {
+    return new Promise((resolve, reject) =>
+      fn.apply(
+        this,
+        Array.prototype.slice.call(arguments)
+          .concat((err, out) => err ? reject(err) : resolve(out))
+      )
+    );
+  }
+}
+
+var exec = promisify(child_process.exec);
+var readdir = promisify(fs.readdir);
+var readFile = promisify(fs.readFile);
 
 var perfDir = path.resolve(__dirname, '../perf/');
 

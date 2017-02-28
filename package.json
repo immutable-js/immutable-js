@@ -41,7 +41,6 @@
     "acorn": "0.11.x",
     "babel-eslint": "^4.1.8",
     "benchmark": "^1.0.0",
-    "bluebird": "3.1.1",
     "browser-sync": "2.11.0",
     "browserify": "^5.11.2",
     "colors": "1.1.2",
