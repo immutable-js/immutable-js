@@ -1,7 +1,5 @@
 var TypeScript = require('./typescript-services');
-require('node-jsx').install({harmony: true});
 var DocVisitor = require('./DocVisitor');
-
 
 function genTypeDefData(typeDefPath, typeDefSource) {
   var typeDefText = TypeScript.SimpleText.fromString(typeDefSource);

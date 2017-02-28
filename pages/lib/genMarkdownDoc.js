@@ -1,4 +1,3 @@
-require('node-jsx').install({harmony: true});
 var markdown = require('./markdown');
 var defs = require('./getTypeDefs');
 

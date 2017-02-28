@@ -5,6 +5,7 @@ var { Seq } = require('../../');
 class DocVisitor extends TypeScript.SyntaxWalker {
 
   constructor(text) {
+    super(text);
     this.text = text;
     this.stack = [];
     this.data = {};
