@@ -1,7 +1,7 @@
 ///<reference path='../resources/jest.d.ts'/>
-///<reference path='../dist/immutable.d.ts'/>
+
 declare var Symbol: any;
-import { List, Map, OrderedSet, Seq, Set, is } from 'immutable';
+import { List, Map, OrderedSet, Seq, Set, is } from '../';
 
 declare function expect(val: any): ExpectWithIs;
 

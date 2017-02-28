@@ -61,21 +61,14 @@ function compileTypeScript(filePath) {
   throw new Error('Compiling ' + filePath + ' failed' + '\n' + report);
 }
 
-function withLocalImmutable(filePath, jsSrc) {
-  return jsSrc.replace(
-    /(require\(['"])immutable/g,
-    (_, req) => req + path.relative(path.dirname(filePath), process.cwd())
-  );
-}
-
 module.exports = {
   process: function(src, filePath) {
     if (filePath.match(/\.ts$/) && !filePath.match(/\.d\.ts$/)) {
-      return withLocalImmutable(filePath, compileTypeScript(filePath));
+      return compileTypeScript(filePath);
     }
 
     if (filePath.match(/\.js$/) && ~filePath.indexOf('/__tests__/')) {
-      return withLocalImmutable(filePath, react.transform(src, {harmony: true}));
+      return react.transform(src, {harmony: true});
     }
 
     return src;

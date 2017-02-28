@@ -1,7 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
-///<reference path='../dist/immutable.d.ts'/>
 
-import { Record, Seq } from 'immutable';
+import { Record, Seq } from '../';
 
 describe('Record', () => {
 

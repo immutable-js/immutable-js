@@ -1,7 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
-///<reference path='../dist/immutable.d.ts'/>
 
-import { List, Map, fromJS, is } from 'immutable';
+import { List, Map, fromJS, is } from '../';
 
 declare function expect(val: any): ExpectWithIs;
 

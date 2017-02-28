@@ -1,7 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
-///<reference path='../dist/immutable.d.ts'/>
 
-import { Range } from 'immutable';
+import { Range } from '../';
 
 describe('get', () => {
 

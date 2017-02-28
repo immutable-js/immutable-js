@@ -1,10 +1,9 @@
 ///<reference path='../resources/jest.d.ts'/>
-///<reference path='../dist/immutable.d.ts'/>
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { Seq, Stack } from 'immutable';
+import { Seq, Stack } from '../';
 
 function arrayOfSize(s) {
   var a = new Array(s);
