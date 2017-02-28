@@ -95,7 +95,7 @@ export class Map extends KeyedCollection {
       notSetValue,
       updater
     );
-    return updatedValue === NOT_SET ? undefined : updatedValue;
+    return updatedValue === NOT_SET ? notSetValue : updatedValue;
   }
 
   clear() {
