@@ -1,7 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
-///<reference path='../dist/immutable.d.ts'/>
 
-import { Map, Set, fromJS } from 'immutable';
+import { Map, Set, fromJS } from '../';
 
 describe('updateIn', () => {
 

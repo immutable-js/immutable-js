@@ -1,10 +1,9 @@
 ///<reference path='../resources/jest.d.ts'/>
-///<reference path='../dist/immutable.d.ts'/>
 
 import jasmineCheck = require('jasmine-check');
 jasmineCheck.install();
 
-import { Seq } from 'immutable';
+import { Seq } from '../';
 
 describe('join', () => {
 

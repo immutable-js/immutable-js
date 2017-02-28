@@ -1,6 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
-///<reference path='../dist/immutable.d.ts'/>
-import { Seq } from 'immutable';
+
+import { Seq } from '../';
 
 describe('ArraySequence', () => {
 

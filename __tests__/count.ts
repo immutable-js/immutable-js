@@ -1,7 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
-///<reference path='../dist/immutable.d.ts'/>
 
-import { Seq, Range } from 'immutable';
+import { Seq, Range } from '../';
 
 describe('count', () => {
 

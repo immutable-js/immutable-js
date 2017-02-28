@@ -1,7 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
-///<reference path='../dist/immutable.d.ts'/>
 
-import { Iterable, Seq } from 'immutable';
+import { Iterable, Seq } from '../';
 
 describe('Seq', () => {
 

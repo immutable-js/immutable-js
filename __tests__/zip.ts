@@ -1,10 +1,9 @@
 ///<reference path='../resources/jest.d.ts'/>
-///<reference path='../dist/immutable.d.ts'/>
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { Iterable, List, Range, Seq } from 'immutable';
+import { Iterable, List, Range, Seq } from '../';
 
 describe('zip', () => {
 

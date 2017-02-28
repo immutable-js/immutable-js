@@ -1,7 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
-///<reference path='../dist/immutable.d.ts'/>
 
-import { OrderedSet } from 'immutable';
+import { OrderedSet } from '../';
 
 describe('OrderedSet', () => {
 

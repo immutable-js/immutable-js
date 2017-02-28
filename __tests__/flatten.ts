@@ -1,10 +1,9 @@
 ///<reference path='../resources/jest.d.ts'/>
-///<reference path='../dist/immutable.d.ts'/>
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { Iterable, Seq, Range, List, fromJS } from 'immutable';
+import { Iterable, Seq, Range, List, fromJS } from '../';
 
 type SeqType = number | number[] | Iterable<number,number>;
 

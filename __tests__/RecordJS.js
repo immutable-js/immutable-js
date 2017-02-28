@@ -1,4 +1,4 @@
-var Immutable = require('immutable');
+var Immutable = require('../');
 var Record = Immutable.Record;
 
 describe('Record', () => {

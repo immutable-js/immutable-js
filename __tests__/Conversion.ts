@@ -1,10 +1,9 @@
 ///<reference path='../resources/jest.d.ts'/>
-///<reference path='../dist/immutable.d.ts'/>
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { Map, OrderedMap, List, Record, is, fromJS } from 'immutable';
+import { Map, OrderedMap, List, Record, is, fromJS } from '../';
 
 declare function expect(val: any): ExpectWithIs;
 

@@ -1,7 +1,7 @@
 ///<reference path='../resources/jest.d.ts'/>
-///<reference path='../dist/immutable.d.ts'/>
+
 declare var Symbol: any;
-import { Seq } from 'immutable';
+import { Seq } from '../';
 
 describe('IterableSequence', () => {
 
