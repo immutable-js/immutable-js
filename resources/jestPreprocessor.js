@@ -1,63 +1,27 @@
-// preprocessor.js
-var fs = require('fs');
-var path = require('path');
 var typescript = require('typescript');
 var react = require('react-tools');
 
-var CACHE_DIR = path.join(path.resolve(__dirname + '/../build'));
-
-function isFileNewer(a, b) {
-  try {
-    return fs.statSync(a).mtime > fs.statSync(b).mtime;
-  } catch (ex) {
-    return false;
-  }
-}
-
 function compileTypeScript(filePath) {
+  var compiled;
+
   var options = {
-    outDir: CACHE_DIR,
     noEmitOnError: true,
     target: typescript.ScriptTarget.ES2015,
     module: typescript.ModuleKind.CommonJS
   };
 
-  // re-use cached source if possible
-  var outputPath = path.join(options.outDir, path.basename(filePath, '.ts')) + '.js';
-  if (isFileNewer(outputPath, filePath)) {
-    return fs.readFileSync(outputPath, {encoding: 'utf8'});
-  }
-
-  if (fs.existsSync(outputPath)) {
-    fs.unlinkSync(outputPath);
-  }
-
   var host = typescript.createCompilerHost(options);
   var program = typescript.createProgram([filePath], options, host);
 
-  var diagnostics = program.getSyntacticDiagnostics();
+  host.writeFile = (name, text) => compiled = text;
+  var emitResult = program.emit();
+  var diagnostics = typescript.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
 
   if (diagnostics.length === 0) {
-    diagnostics = program.getGlobalDiagnostics();
+    return compiled;
   }
 
-  if (diagnostics.length === 0) {
-    diagnostics = program.getSemanticDiagnostics();
-  }
-
-  if (diagnostics.length === 0) {
-    var emitOutput = program.emit();
-    diagnostics = emitOutput.diagnostics;
-  }
-
-  if (diagnostics.length === 0) {
-    return fs.readFileSync(outputPath, {encoding: 'utf8'});
-  }
-
-  var report = diagnostics.map(function(diagnostic) {
-    var loc = typescript.getLineAndCharacterOfPosition(diagnostic.file, diagnostic.start);
-    return diagnostic.file.fileName + ' ' + loc.line + ':' + loc.character + ' ' + diagnostic.messageText;
-  }).join('\n');
+  var report = typescript.formatDiagnostics(diagnostics, host);
   throw new Error('Compiling ' + filePath + ' failed' + '\n' + report);
 }
 
