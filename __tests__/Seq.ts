@@ -46,7 +46,7 @@ describe('Seq', () => {
   });
 
   it('accepts an array-like', () => {
-    var alike = { length: 2, 0: 'a', 1: 'b' };
+    var alike: any = { length: 2, 0: 'a', 1: 'b' };
     var seq = Seq(alike);
     expect(Iterable.isIndexed(seq)).toBe(true);
     expect(seq.size).toBe(2);
