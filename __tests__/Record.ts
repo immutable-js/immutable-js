@@ -40,7 +40,7 @@ describe('Record', () => {
 
     var t1 = new MyType({a: 10, b:20});
     expect(() => {
-      t1.set('d', 4);
+      (t1 as any).set('d', 4);
     }).toThrow('Cannot set unknown key "d" on Record');
   });
 
@@ -88,7 +88,7 @@ describe('Record', () => {
 
     expect(t.get('a')).toEqual(1);
     expect(t.get('b')).toEqual(20);
-    expect(t.get('c')).toBeUndefined();
+    expect((t as any).get('c')).toBeUndefined();
   })
 
   it('returns itself when setting identical values', () => {
@@ -109,6 +109,23 @@ describe('Record', () => {
     var t4 = t2.set('a', 3);
     expect(t3).not.toBe(t1);
     expect(t4).not.toBe(t2);
+  })
+
+  it('allows for class extension', () => {
+    class ABClass extends Record({a:1, b:2}) {
+      setA(a: number) {
+        return this.set('a', a);
+      }
+
+      setB(b: number) {
+        return this.set('b', b);
+      }
+    }
+
+    var t1 = new ABClass({a: 1});
+    var t2 = t1.setA(3);
+    var t3 = t2.setB(10);
+    expect(t3.toObject()).toEqual({a:3, b:10});
   })
 
 });
