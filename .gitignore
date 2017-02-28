@@ -6,7 +6,6 @@ npm-debug.log
 *~
 *.swp
 TODO
-build
 immutable.d.json
 readme.json
 /pages/out
