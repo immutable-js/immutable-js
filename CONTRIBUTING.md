@@ -32,6 +32,12 @@ your [pull requests](https://help.github.com/articles/creating-a-pull-request).
  6. Be sure to commit the generated JS in `/dist`.
  7. If you haven't already, complete the Contributor License Agreement ("CLA").
 
+## Documentation
+
+Documentation for Immutable.js (hosted at http://facebook.github.io/immutable-js)
+is developed in `pages/`. Run `npm start` to get a local copy in your browser
+while making edits.
+
 ## Contributor License Agreement ("CLA")
 
 In order to accept your pull request, we need you to submit a CLA. You only need
