@@ -75,7 +75,7 @@ var Header = React.createClass({
             <div className="logo">
               {(isMobile ? [0,0,0,0,0,0,0] : [0,0,0,0,0,0,0,0,0,0,0,0]).map((_, i) =>
                 <SVGSet key={i} style={t(y(s, i * sp), z(s, i * sp))}>
-                  <Logo color="#d7dadb" />
+                  <Logo color="#c1c6c8" />
                   <Logo color="#6dbcdb" opacity={o(s, i * sp)} />
                 </SVGSet>
               )}
