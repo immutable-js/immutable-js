@@ -65,19 +65,6 @@ gulp.task('typedefs', function() {
   var contents = JSON.stringify(genTypeDefData(typeDefPath, fileSource));
 
   fs.writeFileSync(writePath, contents);
-
-  var nonAmbientSource = fileContents
-    .replace(
-      /declare\s+module\s+Immutable\s*\{/,
-      '')
-    .replace(
-      /\}[\s\n\r]*declare\s+module\s*.immutable.[\s\n\r]*{[\s\n\r]*export\s*=\s*Immutable[\s\n\r]*\}/m,
-    '');
-  var distPath = path.join(__dirname, 'dist');
-  try { fs.mkdirSync(distPath); } catch (x) { }
-  var nonAmbientPath = path.join(distPath, 'immutable-nonambient.d.ts');
-  fs.writeFileSync(nonAmbientPath, nonAmbientSource);
-
 });
 
 gulp.task('lint', function() {

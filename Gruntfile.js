@@ -129,6 +129,17 @@ module.exports = function(grunt) {
     });
   });
 
+  grunt.registerTask('typedefs', function () {
+    var fileContents = fs.readFileSync('type-definitions/Immutable.d.ts', 'utf8');
+    var nonAmbientSource = fileContents
+      .replace(
+        /declare\s+module\s+Immutable\s*\{/,
+        '')
+      .replace(
+        /\}[\s\n\r]*declare\s+module\s*.immutable.[\s\n\r]*{[\s\n\r]*export\s*=\s*Immutable[\s\n\r]*\}/m,
+      '');
+    fs.writeFileSync('dist/immutable-nonambient.d.ts', nonAmbientSource);
+  });
 
   var Promise = require("bluebird");
   var exec = require('child_process').exec;
@@ -212,6 +223,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-release');
 
   grunt.registerTask('lint', 'Lint all source javascript', ['jshint']);
-  grunt.registerTask('build', 'Build distributed javascript', ['clean', 'bundle', 'copy']);
+  grunt.registerTask('build', 'Build distributed javascript', ['clean', 'bundle', 'copy', 'typedefs']);
   grunt.registerTask('default', 'Lint, build.', ['lint', 'build', 'stats']);
 }
