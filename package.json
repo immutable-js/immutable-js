@@ -22,8 +22,8 @@
   "scripts": {
     "build": "grunt default && gulp default",
     "lint": "eslint src/ && grunt lint && gulp lint",
-    "testonly": "./resources/node_test.sh",
-    "test": "npm run lint && npm run testonly && npm run type-check",
+    "testonly": "if [[ $TRAVIS ]]; then jest -i; else jest; fi;",
+    "test": "npm run build && npm run lint && npm run testonly && npm run type-check",
     "type-check": "cd type-definitions/tests && flow check",
     "perf": "node ./resources/bench.js",
     "start": "gulp dev",
