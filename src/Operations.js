@@ -372,19 +372,6 @@ export function groupByFactory(iterable, grouper, context) {
 export function sliceFactory(iterable, begin, end, useKeys) {
   var originalSize = iterable.size;
 
-  // Sanitize begin & end using this shorthand for ToInt32(argument)
-  // http://www.ecma-international.org/ecma-262/6.0/#sec-toint32
-  if (begin !== undefined) {
-    begin = begin | 0;
-  }
-  if (end !== undefined) {
-    if (end === Infinity) {
-      end = originalSize;
-    } else {
-      end = end | 0;
-    }
-  }
-
   if (wholeSlice(begin, end, originalSize)) {
     return iterable;
   }

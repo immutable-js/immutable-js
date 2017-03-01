@@ -366,13 +366,16 @@
   }
 
   function resolveIndex(index, size, defaultIndex) {
+    // Sanitize indices using this shorthand for ToInt32(argument)
+    // http://www.ecma-international.org/ecma-262/6.0/#sec-toint32
     return index === undefined ?
       defaultIndex :
       index < 0 ?
-        Math.max(0, size + index) :
-        size === undefined ?
+        size === Infinity ? size :
+        Math.max(0, size + index) | 0 :
+        size === undefined || size === index ?
           index :
-          Math.min(size, index);
+          Math.min(size, index) | 0;
   }
 
   var ITERATE_KEYS = 0;
@@ -3139,19 +3142,6 @@
 
   function sliceFactory(iterable, begin, end, useKeys) {
     var originalSize = iterable.size;
-
-    // Sanitize begin & end using this shorthand for ToInt32(argument)
-    // http://www.ecma-international.org/ecma-262/6.0/#sec-toint32
-    if (begin !== undefined) {
-      begin = begin | 0;
-    }
-    if (end !== undefined) {
-      if (end === Infinity) {
-        end = originalSize;
-      } else {
-        end = end | 0;
-      }
-    }
 
     if (wholeSlice(begin, end, originalSize)) {
       return iterable;
