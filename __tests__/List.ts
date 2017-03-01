@@ -445,6 +445,12 @@ describe('List', () => {
     expect(r).toEqual('cba');
   });
 
+  it('takes maximum number', () => {
+    var v = List.of('a','b','c');
+    var r = v.take(Number.MAX_SAFE_INTEGER);
+    expect(r).toBe(v);
+  })
+
   it('takes and skips values', () => {
     var v = List.of('a', 'b', 'c', 'd', 'e', 'f');
     var r = v.skip(2).take(2);

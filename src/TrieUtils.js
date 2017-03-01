@@ -92,11 +92,14 @@ export function resolveEnd(end, size) {
 }
 
 function resolveIndex(index, size, defaultIndex) {
+  // Sanitize indices using this shorthand for ToInt32(argument)
+  // http://www.ecma-international.org/ecma-262/6.0/#sec-toint32
   return index === undefined ?
     defaultIndex :
     index < 0 ?
-      Math.max(0, size + index) :
-      size === undefined ?
+      size === Infinity ? size :
+      Math.max(0, size + index) | 0 :
+      size === undefined || size === index ?
         index :
-        Math.min(size, index);
+        Math.min(size, index) | 0;
 }
