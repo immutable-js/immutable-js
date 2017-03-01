@@ -10,14 +10,24 @@ import Immutable, {
   Map,
   Stack,
   Set,
-  KeyedIterable,
   Range,
   Repeat,
-  IndexedSeq,
   OrderedMap,
-  OrderedSet
-} from 'immutable'
-import * as Immutable2 from 'immutable'
+  OrderedSet,
+} from '../../'
+import * as Immutable2 from '../../'
+
+import type {
+  KeyedIterable,
+  IndexedIterable,
+  SetIterable,
+  KeyedCollection,
+  IndexedCollection,
+  SetCollection,
+  KeyedSeq,
+  IndexedSeq,
+  SetSeq,
+} from '../../'
 
 /**
  * Although this looks like dead code, importing `Immutable` and
@@ -31,19 +41,19 @@ const ImmutableList = Immutable.List
 const ImmutableMap = Immutable.Map
 const ImmutableStack = Immutable.Stack
 const ImmutableSet = Immutable.Set
-const ImmutableKeyedIterable = Immutable.KeyedIterable
+const ImmutableKeyedIterable: KeyedIterable<*, *> = Immutable.Iterable.Keyed()
 const ImmutableRange = Immutable.Range
 const ImmutableRepeat = Immutable.Repeat
-const ImmutableIndexedSeq = Immutable.IndexedSeq
+const ImmutableIndexedSeq: IndexedSeq<*> = Immutable.Seq.Indexed()
 
 const Immutable2List = Immutable2.List
 const Immutable2Map = Immutable2.Map
 const Immutable2Stack = Immutable2.Stack
 const Immutable2Set = Immutable2.Set
-const Immutable2KeyedIterable = Immutable2.KeyedIterable
+const Immutable2KeyedIterable: Immutable2.KeyedIterable<*, *> = Immutable2.Iterable.Keyed()
 const Immutable2Range = Immutable2.Range
 const Immutable2Repeat = Immutable2.Repeat
-const Immutable2IndexedSeq = Immutable2.IndexedSeq
+const Immutable2IndexedSeq: Immutable2.IndexedSeq<*> = Immutable2.Seq.Indexed()
 
 var defaultExport: List<*> = Immutable.List();
 var moduleExport: List<*> = Immutable2.List();
@@ -493,9 +503,7 @@ numberSet = Set([1]).merge(Set(['a']))
 
 numberSet = Set([1]).intersect(Set([1]))
 numberSet = Set([1]).intersect([1])
-// $ExpectError
 numberSet = Set([1]).intersect(Set(['a']))
-// $ExpectError
 numberSet = Set([1]).intersect(['a'])
 
 numberSet = Set([1]).subtract(Set([1]))
