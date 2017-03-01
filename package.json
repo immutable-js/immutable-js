@@ -22,7 +22,7 @@
   "scripts": {
     "build": "grunt default && gulp default",
     "lint": "eslint src/ && grunt lint && gulp lint",
-    "testonly": "if [[ $TRAVIS ]]; then jest --no-cache -i; else jest --no-cache; fi;",
+    "testonly": "./resources/jest",
     "test": "npm run build && npm run lint && npm run testonly && npm run type-check",
     "type-check": "cd type-definitions/tests && flow check",
     "perf": "node ./resources/bench.js",
