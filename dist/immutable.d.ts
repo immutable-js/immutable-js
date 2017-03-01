@@ -1386,8 +1386,6 @@ declare module Immutable {
    * Record. This is not a common pattern in functional environments, but is in
    * many JS programs.
    *
-   * Note: TypeScript does not support this type of subclassing.
-   *
    *     class ABRecord extends Record({a:1,b:2}) {
    *       getAB() {
    *         return this.a + this.b;
@@ -1399,20 +1397,97 @@ declare module Immutable {
    *
    */
   export module Record {
-    export interface Class {
-      new (): Map<string, any>;
-      new (values: {[key: string]: any}): Map<string, any>;
-      new (values: Iterable<string, any>): Map<string, any>; // deprecated
+    export interface Class<T extends Object> {
+      new (): Instance<T>;
+      new (values: Partial<T>): Instance<T>;
+      new (values: Iterable<string, any>): Instance<T>; // deprecated
 
-      (): Map<string, any>;
-      (values: {[key: string]: any}): Map<string, any>;
-      (values: Iterable<string, any>): Map<string, any>; // deprecated
+      (): Instance<T>;
+      (values: Partial<T>): Instance<T>;
+      (values: Iterable<string, any>): Instance<T>; // deprecated
+    }
+
+    export interface Instance<T extends Object> {
+      size: number;
+
+      // Reading values
+
+      has(key: string): boolean;
+      get<K extends keyof T>(key: K): T[K];
+
+      // Value equality
+
+      equals(other: any): boolean;
+      hashCode(): number;
+
+      // Persistent changes
+
+      set<K extends keyof T>(key: K, value: T[K]): this;
+      update<K extends keyof T>(key: K, updater: (value: T[K]) => T[K]): this;
+      merge(...iterables: Array<Partial<T> | Iterable<any, any>>): this;
+      mergeDeep(...iterables: Array<Partial<T> | Iterable<any, any>>): this;
+
+      /**
+       * @alias remove
+       */
+      delete<K extends keyof T>(key: K): this;
+      remove<K extends keyof T>(key: K): this;
+      clear(): this;
+
+      // Deep persistent changes
+
+      setIn(keyPath: Array<any> | Iterable<any, any>, value: any): this;
+      updateIn(keyPath: Array<any> | Iterable<any, any>, updater: (value: any) => any): this;
+      mergeIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<Partial<T> | Iterable<any, any>>): this;
+      mergeDeepIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<Partial<T> | Iterable<any, any>>): this;
+
+      /**
+       * @alias removeIn
+       */
+      deleteIn(keyPath: Array<any> | Iterable<any, any>): this;
+      removeIn(keyPath: Array<any> | Iterable<any, any>): this;
+
+      // Conversion to JavaScript types
+
+      /**
+       * Deeply converts this Record to equivalent JS.
+       *
+       * @alias toJSON
+       */
+      toJS(): any;
+
+      /**
+       * Shallowly converts this Record to equivalent JS.
+       */
+      toObject(): T;
+
+      // Transient changes
+
+      /**
+       * Note: Not all methods can be used on a mutable collection or within
+       * `withMutations`! Only `set` may be used mutatively.
+       *
+       * @see `Map#withMutations`
+       */
+      withMutations(mutator: (mutable: this) => any): this;
+
+      /**
+       * @see `Map#asMutable`
+       */
+      asMutable(): this;
+
+      /**
+       * @see `Map#asImmutable`
+       */
+      asImmutable(): this;
+
+      // Sequence algorithms
+
+      [Symbol.iterator](): Iterator<[keyof T, T[keyof T]]>;
     }
   }
 
-  export function Record(
-    defaultValues: {[key: string]: any}, name?: string
-  ): Record.Class;
+  export function Record<T>(defaultValues: T, name?: string): Record.Class<T>;
 
 
   /**
