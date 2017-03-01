@@ -3557,7 +3557,7 @@
   // #pragma Helper Functions
 
   function reify(iter, seq) {
-    return isSeq(iter) ? seq : iter.constructor(seq);
+    return iter === seq ? iter : isSeq(iter) ? seq : iter.constructor(seq);
   }
 
   function validateEntry(entry) {
@@ -4611,11 +4611,11 @@
     },
 
     skip: function(amount) {
-      return this.slice(Math.max(0, amount));
+      return amount === 0 ? this : this.slice(Math.max(0, amount));
     },
 
     skipLast: function(amount) {
-      return reify(this, this.toSeq().reverse().skip(amount).reverse());
+      return amount === 0 ? this : this.slice(0, -Math.max(0, amount));
     },
 
     skipWhile: function(predicate, context) {
@@ -4635,7 +4635,7 @@
     },
 
     takeLast: function(amount) {
-      return reify(this, this.toSeq().reverse().take(amount).reverse());
+      return this.slice(-Math.max(0, amount));
     },
 
     takeWhile: function(predicate, context) {

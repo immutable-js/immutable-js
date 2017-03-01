@@ -407,11 +407,11 @@ mixin(Iterable, {
   },
 
   skip(amount) {
-    return this.slice(Math.max(0, amount));
+    return amount === 0 ? this : this.slice(Math.max(0, amount));
   },
 
   skipLast(amount) {
-    return reify(this, this.toSeq().reverse().skip(amount).reverse());
+    return amount === 0 ? this : this.slice(0, -Math.max(0, amount));
   },
 
   skipWhile(predicate, context) {
@@ -431,7 +431,7 @@ mixin(Iterable, {
   },
 
   takeLast(amount) {
-    return reify(this, this.toSeq().reverse().take(amount).reverse());
+    return this.slice(-Math.max(0, amount));
   },
 
   takeWhile(predicate, context) {

@@ -786,7 +786,7 @@ export function zipWithFactory(keyIter, zipper, iters) {
 // #pragma Helper Functions
 
 export function reify(iter, seq) {
-  return isSeq(iter) ? seq : iter.constructor(seq);
+  return iter === seq ? iter : isSeq(iter) ? seq : iter.constructor(seq);
 }
 
 function validateEntry(entry) {

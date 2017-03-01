@@ -457,6 +457,24 @@ describe('List', () => {
     expect(r.toArray()).toEqual(['c', 'd']);
   });
 
+  it('takes and skips no-ops return same reference', () => {
+    var v = List.of('a', 'b', 'c', 'd', 'e', 'f');
+    var r = v.skip(0).take(6);
+    expect(r).toBe(v);
+  });
+
+  it('takeLast and skipLast values', () => {
+    var v = List.of('a', 'b', 'c', 'd', 'e', 'f');
+    var r = v.skipLast(1).takeLast(2);
+    expect(r.toArray()).toEqual(['d', 'e']);
+  });
+
+  it('takeLast and skipLast no-ops return same reference', () => {
+    var v = List.of('a', 'b', 'c', 'd', 'e', 'f');
+    var r = v.skipLast(0).takeLast(6);
+    expect(r).toBe(v);
+  });
+
   it('efficiently chains array methods', () => {
     var v = List.of(1,2,3,4,5,6,7,8,9,10,11,12,13,14);
 
