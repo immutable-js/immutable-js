@@ -10,6 +10,13 @@ var TypeKind = {
 
   Param: 7,
   Type: 8,
+
+  This: 9,
+  Undefined: 10,
+  Union: 11,
+  Tuple: 12,
+  Indexed: 13,
+  Operator: 14,
 };
 
 module.exports = TypeKind;
