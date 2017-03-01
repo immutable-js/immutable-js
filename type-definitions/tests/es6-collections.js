@@ -5,7 +5,7 @@
 import {
   Map as ImmutableMap,
   Set as ImmutableSet,
-} from 'immutable'
+} from '../../'
 
 // Immutable.js collections
 var mapImmutable: ImmutableMap<string, number> = ImmutableMap()
