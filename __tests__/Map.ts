@@ -61,7 +61,7 @@ describe('Map', () => {
 
   it('does not accept a scalar', () => {
     expect(() => {
-      Map(3);
+      Map(3 as any);
     }).toThrow('Expected Array or iterable object of [k, v] entries, or keyed object: 3');
   });
 
@@ -73,7 +73,7 @@ describe('Map', () => {
 
   it('does not accept non-entries array', () => {
     expect(() => {
-      Map([1,2,3]);
+      Map([1,2,3] as any);
     }).toThrow('Expected [K, V] tuple: 1');
   });
 

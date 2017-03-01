@@ -190,13 +190,7 @@
    * ```
    */
   export function List<T>(): List<T>;
-  export function List<T>(iter: Iterable.Indexed<T>): List<T>;
-  export function List<T>(iter: Iterable.Set<T>): List<T>;
-  export function List<K, V>(iter: Iterable.Keyed<K, V>): List</*[K,V]*/any>;
-  export function List<T>(array: Array<T>): List<T>;
-  export function List<T>(iterator: Iterator<T>): List<T>;
-  export function List<T>(iterable: /*Iterable<T>*/Object): List<T>;
-
+  export function List<T>(iterable: ESIterable<T>): List<T>;
 
   export interface List<T> extends Collection.Indexed<T> {
 
@@ -587,12 +581,9 @@
    * not altered.
    */
   export function Map<K, V>(): Map<K, V>;
-  export function Map<K, V>(iter: Iterable.Keyed<K, V>): Map<K, V>;
-  export function Map<K, V>(iter: Iterable<any, /*[K,V]*/Array<any>>): Map<K, V>;
-  export function Map<K, V>(array: Array</*[K,V]*/Array<any>>): Map<K, V>;
+  export function Map<K, V>(iterable: ESIterable<[K, V]>): Map<K, V>;
+  export function Map<T>(iterable: ESIterable<ESIterable<T>>): Map<T, T>;
   export function Map<V>(obj: {[key: string]: V}): Map<string, V>;
-  export function Map<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): Map<K, V>;
-  export function Map<K, V>(iterable: /*Iterable<[K,V]>*/Object): Map<K, V>;
 
   export interface Map<K, V> extends Collection.Keyed<K, V> {
 
@@ -996,12 +987,9 @@
    *
    */
   export function OrderedMap<K, V>(): OrderedMap<K, V>;
-  export function OrderedMap<K, V>(iter: Iterable.Keyed<K, V>): OrderedMap<K, V>;
-  export function OrderedMap<K, V>(iter: Iterable<any, /*[K,V]*/Array<any>>): OrderedMap<K, V>;
-  export function OrderedMap<K, V>(array: Array</*[K,V]*/Array<any>>): OrderedMap<K, V>;
+  export function OrderedMap<K, V>(iterable: ESIterable<[K, V]>): OrderedMap<K, V>;
+  export function OrderedMap<T>(iterable: ESIterable<ESIterable<T>>): OrderedMap<T, T>;
   export function OrderedMap<V>(obj: {[key: string]: V}): OrderedMap<string, V>;
-  export function OrderedMap<K, V>(iterator: Iterator</*[K,V]*/Array<any>>): OrderedMap<K, V>;
-  export function OrderedMap<K, V>(iterable: /*Iterable<[K,V]>*/Object): OrderedMap<K, V>;
 
   export interface OrderedMap<K, V> extends Map<K, V> {
 
@@ -1058,12 +1046,7 @@
    * iterable-like.
    */
   export function Set<T>(): Set<T>;
-  export function Set<T>(iter: Iterable.Set<T>): Set<T>;
-  export function Set<T>(iter: Iterable.Indexed<T>): Set<T>;
-  export function Set<K, V>(iter: Iterable.Keyed<K, V>): Set</*[K,V]*/any>;
-  export function Set<T>(array: Array<T>): Set<T>;
-  export function Set<T>(iterator: Iterator<T>): Set<T>;
-  export function Set<T>(iterable: /*Iterable<T>*/Object): Set<T>;
+  export function Set<T>(iterable: ESIterable<T>): Set<T>;
 
   export interface Set<T> extends Collection.Set<T> {
 
@@ -1185,12 +1168,7 @@
    * iterable-like.
    */
   export function OrderedSet<T>(): OrderedSet<T>;
-  export function OrderedSet<T>(iter: Iterable.Set<T>): OrderedSet<T>;
-  export function OrderedSet<T>(iter: Iterable.Indexed<T>): OrderedSet<T>;
-  export function OrderedSet<K, V>(iter: Iterable.Keyed<K, V>): OrderedSet</*[K,V]*/any>;
-  export function OrderedSet<T>(array: Array<T>): OrderedSet<T>;
-  export function OrderedSet<T>(iterator: Iterator<T>): OrderedSet<T>;
-  export function OrderedSet<T>(iterable: /*Iterable<T>*/Object): OrderedSet<T>;
+  export function OrderedSet<T>(iterable: ESIterable<T>): OrderedSet<T>;
 
   export interface OrderedSet<T> extends Set<T> {
 
@@ -1245,12 +1223,7 @@
    * resulting `Stack`.
    */
   export function Stack<T>(): Stack<T>;
-  export function Stack<T>(iter: Iterable.Indexed<T>): Stack<T>;
-  export function Stack<T>(iter: Iterable.Set<T>): Stack<T>;
-  export function Stack<K, V>(iter: Iterable.Keyed<K, V>): Stack</*[K,V]*/any>;
-  export function Stack<T>(array: Array<T>): Stack<T>;
-  export function Stack<T>(iterator: Iterator<T>): Stack<T>;
-  export function Stack<T>(iterable: /*Iterable<T>*/Object): Stack<T>;
+  export function Stack<T>(iterable: ESIterable<T>): Stack<T>;
 
   export interface Stack<T> extends Collection.Indexed<T> {
 
@@ -1513,12 +1486,8 @@
      * iterable of [K, V] tuples.
      */
     export function Keyed<K, V>(): Seq.Keyed<K, V>;
-    export function Keyed<K, V>(seq: Iterable.Keyed<K, V>): Seq.Keyed<K, V>;
-    export function Keyed<K, V>(seq: Iterable<any, /*[K,V]*/any>): Seq.Keyed<K, V>;
-    export function Keyed<K, V>(array: Array</*[K,V]*/any>): Seq.Keyed<K, V>;
+    export function Keyed<K, V>(iterable: ESIterable<[K, V]>): Seq.Keyed<K, V>;
     export function Keyed<V>(obj: {[key: string]: V}): Seq.Keyed<string, V>;
-    export function Keyed<K, V>(iterator: Iterator</*[K,V]*/any>): Seq.Keyed<K, V>;
-    export function Keyed<K, V>(iterable: /*Iterable<[K,V]>*/Object): Seq.Keyed<K, V>;
 
     export interface Keyed<K, V> extends Seq<K, V>, Iterable.Keyed<K, V> {
 
@@ -1558,12 +1527,7 @@
      * supplying incrementing indices.
      */
     export function Indexed<T>(): Seq.Indexed<T>;
-    export function Indexed<T>(seq: Iterable.Indexed<T>): Seq.Indexed<T>;
-    export function Indexed<T>(seq: Iterable.Set<T>): Seq.Indexed<T>;
-    export function Indexed<K, V>(seq: Iterable.Keyed<K, V>): Seq.Indexed</*[K,V]*/any>;
-    export function Indexed<T>(array: Array<T>): Seq.Indexed<T>;
-    export function Indexed<T>(iterator: Iterator<T>): Seq.Indexed<T>;
-    export function Indexed<T>(iterable: /*Iterable<T>*/Object): Seq.Indexed<T>;
+    export function Indexed<T>(iterable: ESIterable<T>): Seq.Indexed<T>;
 
     export interface Indexed<T> extends Seq<number, T>, Iterable.Indexed<T> {
 
@@ -1605,12 +1569,7 @@
      * Always returns a Seq.Set, discarding associated indices or keys.
      */
     export function Set<T>(): Seq.Set<T>;
-    export function Set<T>(seq: Iterable.Set<T>): Seq.Set<T>;
-    export function Set<T>(seq: Iterable.Indexed<T>): Seq.Set<T>;
-    export function Set<K, V>(seq: Iterable.Keyed<K, V>): Seq.Set</*[K,V]*/any>;
-    export function Set<T>(array: Array<T>): Seq.Set<T>;
-    export function Set<T>(iterator: Iterator<T>): Seq.Set<T>;
-    export function Set<T>(iterable: /*Iterable<T>*/Object): Seq.Set<T>;
+    export function Set<T>(iterable: ESIterable<T>): Seq.Set<T>;
 
     export interface Set<T> extends Seq<T, T>, Iterable.Set<T> {
 
@@ -1649,12 +1608,12 @@
    *
    */
   export function Seq<K, V>(): Seq<K, V>;
-  export function Seq<K, V>(seq: Seq<K, V>): Seq<K, V>;
-  export function Seq<K, V>(iterable: Iterable<K, V>): Seq<K, V>;
-  export function Seq<T>(array: Array<T>): Seq.Indexed<T>;
+  export function Seq<K, V, S extends Seq<K, V>>(seq: S): S;
+  export function Seq<K, V>(iterable: Iterable.Keyed<K, V>): Seq.Keyed<K, V>;
+  export function Seq<T>(iterable: Iterable.Indexed<T>): Seq.Indexed<T>;
+  export function Seq<T>(iterable: Iterable.Set<T>): Seq.Set<T>;
+  export function Seq<T>(iterable: ESIterable<T>): Seq.Indexed<T>;
   export function Seq<V>(obj: {[key: string]: V}): Seq.Keyed<string, V>;
-  export function Seq<T>(iterator: Iterator<T>): Seq.Indexed<T>;
-  export function Seq<T>(iterable: /*ES6Iterable<T>*/Object): Seq.Indexed<T>;
 
   export interface Seq<K, V> extends Iterable<K, V> {
 
@@ -1770,12 +1729,8 @@
      * Similar to `Iterable()`, however it expects iterable-likes of [K, V]
      * tuples if not constructed from a Iterable.Keyed or JS Object.
      */
-    export function Keyed<K, V>(iter: Iterable.Keyed<K, V>): Iterable.Keyed<K, V>;
-    export function Keyed<K, V>(iter: Iterable<any, /*[K,V]*/any>): Iterable.Keyed<K, V>;
-    export function Keyed<K, V>(array: Array</*[K,V]*/any>): Iterable.Keyed<K, V>;
+    export function Keyed<K, V>(iterable: ESIterable<[K, V]>): Iterable.Keyed<K, V>;
     export function Keyed<V>(obj: {[key: string]: V}): Iterable.Keyed<string, V>;
-    export function Keyed<K, V>(iterator: Iterator</*[K,V]*/any>): Iterable.Keyed<K, V>;
-    export function Keyed<K, V>(iterable: /*Iterable<[K,V]>*/Object): Iterable.Keyed<K, V>;
 
     export interface Keyed<K, V> extends Iterable<K, V> {
 
@@ -1868,12 +1823,7 @@
     /**
      * Creates a new Iterable.Indexed.
      */
-    export function Indexed<T>(iter: Iterable.Indexed<T>): Iterable.Indexed<T>;
-    export function Indexed<T>(iter: Iterable.Set<T>): Iterable.Indexed<T>;
-    export function Indexed<K, V>(iter: Iterable.Keyed<K, V>): Iterable.Indexed</*[K,V]*/any>;
-    export function Indexed<T>(array: Array<T>): Iterable.Indexed<T>;
-    export function Indexed<T>(iterator: Iterator<T>): Iterable.Indexed<T>;
-    export function Indexed<T>(iterable: /*Iterable<T>*/Object): Iterable.Indexed<T>;
+    export function Indexed<T>(iterable: ESIterable<T>): Iterable.Indexed<T>;
 
     export interface Indexed<T> extends Iterable<number, T> {
 
@@ -2055,12 +2005,7 @@
     /**
      * Similar to `Iterable()`, but always returns a Iterable.Set.
      */
-    export function Set<T>(iter: Iterable.Set<T>): Iterable.Set<T>;
-    export function Set<T>(iter: Iterable.Indexed<T>): Iterable.Set<T>;
-    export function Set<K, V>(iter: Iterable.Keyed<K, V>): Iterable.Set</*[K,V]*/any>;
-    export function Set<T>(array: Array<T>): Iterable.Set<T>;
-    export function Set<T>(iterator: Iterator<T>): Iterable.Set<T>;
-    export function Set<T>(iterable: /*Iterable<T>*/Object): Iterable.Set<T>;
+    export function Set<T>(iterable: ESIterable<T>): Iterable.Set<T>;
 
     export interface Set<T> extends Iterable<T, T> {
 
@@ -2105,12 +2050,9 @@
    * If you want to ensure that a Iterable of one item is returned, use
    * `Seq.of`.
    */
-  export function Iterable<K, V>(iterable: Iterable<K, V>): Iterable<K, V>;
-  export function Iterable<T>(array: Array<T>): Iterable.Indexed<T>;
+  export function Iterable<K, V, I extends Iterable<K, V>>(iterable: I): I;
+  export function Iterable<T>(iterable: ESIterable<T>): Iterable.Indexed<T>;
   export function Iterable<V>(obj: {[key: string]: V}): Iterable.Keyed<string, V>;
-  export function Iterable<T>(iterator: Iterator<T>): Iterable.Indexed<T>;
-  export function Iterable<T>(iterable: /*ES6Iterable<T>*/Object): Iterable.Indexed<T>;
-  export function Iterable<V>(value: V): Iterable.Indexed<V>;
 
   export interface Iterable<K, V> {
 
@@ -2994,8 +2936,8 @@
    *
    * @ignore
    */
-  export interface Iterator<T> {
-    next(): { value: T | undefined; done: boolean; }
+  interface ESIterable<T> {
+    [Symbol.iterator](): Iterator<T>;
   }
 
 
