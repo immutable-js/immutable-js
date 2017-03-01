@@ -54,7 +54,7 @@ describe('Seq', () => {
 
   it('does not accept a scalar', () => {
     expect(() => {
-      Seq(3);
+      Seq(3 as any);
     }).toThrow('Expected Array or iterable object of values, or keyed object: 3');
   });
 
