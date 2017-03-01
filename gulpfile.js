@@ -26,6 +26,10 @@ var through = require('through2');
 var uglify = require('gulp-uglify');
 var vm = require('vm');
 
+function requireFresh(path) {
+  delete require.cache[require.resolve(path)];
+  return require(path);
+}
 
 var SRC_DIR = './pages/src/';
 var BUILD_DIR = './pages/out/';
@@ -37,7 +41,7 @@ gulp.task('clean', function (done) {
 });
 
 gulp.task('readme', function() {
-  var genMarkdownDoc = require('./pages/lib/genMarkdownDoc');
+  var genMarkdownDoc = requireFresh('./pages/lib/genMarkdownDoc');
 
   var readmePath = path.join(__dirname, './README.md');
 
@@ -50,7 +54,7 @@ gulp.task('readme', function() {
 });
 
 gulp.task('typedefs', function() {
-  var genTypeDefData = require('./pages/lib/genTypeDefData');
+  var genTypeDefData = requireFresh('./pages/lib/genTypeDefData');
 
   var typeDefPath = path.join(__dirname, './type-definitions/Immutable.d.ts');
 
@@ -209,6 +213,8 @@ gulp.task('dev', ['default'], function() {
     }
   });
 
+  gulp.watch('./README.md', ['build']);
+  gulp.watch('./pages/lib/**/*.js', ['build']);
   gulp.watch('./pages/src/**/*.less', ['less', 'less-docs']);
   gulp.watch('./pages/src/src/**/*.js', ['rebuild-js']);
   gulp.watch('./pages/src/docs/src/**/*.js', ['rebuild-js-docs']);

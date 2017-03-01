@@ -16,7 +16,7 @@
  * presents an Object-Oriented API familiar to Javascript engineers and closely
  * mirroring that of Array, Map, and Set. It is easy and efficient to convert to
  * and from plain Javascript types.
-
+ *
  * Note: all examples are presented in [ES6][]. To run in all browsers, they
  * need to be translated to ES3. For example:
  *
@@ -234,12 +234,13 @@
      * List. `v.delete(-1)` deletes the last item in the List.
      *
      * Note: `delete` cannot be safely used in IE8
-     * @alias remove
      *
      * ```js
      * List([0, 1, 2, 3, 4]).delete(0).toJS();
      * // [ 1, 2, 3, 4 ]
      * ```
+     *
+     * @alias remove
      */
     delete(index: number): List<T>;
     remove(index: number): List<T>;
@@ -617,7 +618,6 @@
      *
      * Note: `delete` cannot be safely used in IE8, but is provided to mirror
      * the ES6 collection API.
-     * @alias remove
      *
      * ```js
      * Immutable.Map({
@@ -626,6 +626,8 @@
      * }).delete('otherKey').toJS();
      * // { key: 'value' }
      * ```
+     *
+     * @alias remove
      */
     delete(key: K): Map<K, V>;
     remove(key: K): Map<K, V>;
