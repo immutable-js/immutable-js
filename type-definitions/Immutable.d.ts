@@ -18,11 +18,11 @@
  * and from plain Javascript types.
  *
  * Note: all examples are presented in [ES6][]. To run in all browsers, they
- * need to be translated to ES3. For example:
+ * need to be translated to ES5. For example:
  *
  *     // ES6
  *     foo.map(x => x * x);
- *     // ES3
+ *     // ES5
  *     foo.map(function (x) { return x * x; });
  *
  * [ES6]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/ECMAScript_6_support_in_Mozilla
