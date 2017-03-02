@@ -85,7 +85,7 @@
     "run-sequence": "1.2.2",
     "through2": "2.0.3",
     "typescript": "2.2.1",
-    "uglify-js": "2.6.1",
+    "uglify-js": "2.8.4",
     "vinyl-buffer": "1.0.0",
     "vinyl-source-stream": "1.1.0"
   },
