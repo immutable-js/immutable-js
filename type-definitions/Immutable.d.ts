@@ -1430,13 +1430,8 @@ declare module Immutable {
    */
   export module Record {
     export interface Class<T extends Object> {
-      new (): Instance<T>;
-      new (values: Partial<T>): Instance<T>;
-      new (values: Iterable<string, any>): Instance<T>; // deprecated
-
-      (): Instance<T>;
-      (values: Partial<T>): Instance<T>;
-      (values: Iterable<string, any>): Instance<T>; // deprecated
+      (values?: Partial<T> | ESIterable<[string, any]>): Instance<T>;
+      new (values?: Partial<T> | ESIterable<[string, any]>): Instance<T>;
     }
 
     export interface Instance<T extends Object> {
@@ -1456,8 +1451,8 @@ declare module Immutable {
 
       set<K extends keyof T>(key: K, value: T[K]): this;
       update<K extends keyof T>(key: K, updater: (value: T[K]) => T[K]): this;
-      merge(...iterables: Array<Partial<T> | Iterable<any, any>>): this;
-      mergeDeep(...iterables: Array<Partial<T> | Iterable<any, any>>): this;
+      merge(...iterables: Array<Partial<T> | ESIterable<[string, any]>>): this;
+      mergeDeep(...iterables: Array<Partial<T> | ESIterable<[string, any]>>): this;
 
       /**
        * @alias remove
@@ -1470,8 +1465,8 @@ declare module Immutable {
 
       setIn(keyPath: Array<any> | Iterable<any, any>, value: any): this;
       updateIn(keyPath: Array<any> | Iterable<any, any>, updater: (value: any) => any): this;
-      mergeIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<Partial<T> | Iterable<any, any>>): this;
-      mergeDeepIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<Partial<T> | Iterable<any, any>>): this;
+      mergeIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<Partial<T> | ESIterable<[string, any]>>): this;
+      mergeDeepIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<Partial<T> | ESIterable<[string, any]>>): this;
 
       /**
        * @alias removeIn

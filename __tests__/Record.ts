@@ -67,6 +67,19 @@ describe('Record', () => {
     expect(t4.equals(new MyType())).toBe(true);
   })
 
+  it('merges in Objects and other Records', () => {
+    var Point2 = Record({x:0, y:0});
+    var Point3 = Record({x:0, y:0, z:0});
+
+    var p2 = Point2({x:20, y:20});
+    var p3 = Point3({x:10, y:10, z:10});
+
+    expect(p3.merge(p2).toObject()).toEqual({x:20, y:20, z:10});
+
+    expect(p2.merge({y: 30}).toObject()).toEqual({x:20, y:30});
+    expect(p3.merge({y: 30, z: 30}).toObject()).toEqual({x:10, y:30, z:30});
+  })
+
   it('converts sequences to records', () => {
     var MyType = Record({a:1, b:2, c:3});
     var seq = Seq({a: 10, b:20});
