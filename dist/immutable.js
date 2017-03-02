@@ -3856,12 +3856,15 @@
         return this;
       }
       iters = iters.map(function(iter ) {return SetIterable(iter)});
-      var originalSet = this;
+      var toRemove = [];
+      this.forEach(function(value ) {
+        if (!iters.every(function(iter ) {return iter.includes(value)})) {
+          toRemove.push(value);
+        }
+      });
       return this.withMutations(function(set ) {
-        originalSet.forEach(function(value ) {
-          if (!iters.every(function(iter ) {return iter.includes(value)})) {
-            set.remove(value);
-          }
+        toRemove.forEach(function(value ) {
+          set.remove(value);
         });
       });
     };
@@ -3870,13 +3873,15 @@
       if (iters.length === 0) {
         return this;
       }
-      iters = iters.map(function(iter ) {return SetIterable(iter)});
-      var originalSet = this;
+      var toRemove = [];
+      this.forEach(function(value ) {
+        if (iters.some(function(iter ) {return iter.includes(value)})) {
+          toRemove.push(value);
+        }
+      });
       return this.withMutations(function(set ) {
-        originalSet.forEach(function(value ) {
-          if (iters.some(function(iter ) {return iter.includes(value)})) {
-            set.remove(value);
-          }
+        toRemove.forEach(function(value ) {
+          set.remove(value);
         });
       });
     };

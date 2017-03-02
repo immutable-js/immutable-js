@@ -266,6 +266,13 @@ describe('Set', () => {
 
   });
 
-  // TODO: more tests
+  it('can use intersect after add or union in a withMutation', () => {
+    var set = Set(['a', 'd']).withMutations(set => {
+      set.add('b');
+      set.union(['c']);
+      set.intersect(['b', 'c', 'd']);
+    });
+    expect(set.toArray()).toEqual(['c', 'd', 'b']);
+  });
 
 });
