@@ -1,5 +1,3 @@
-require("harmonize")();
-
 var browserify = require('browserify');
 var browserSync = require('browser-sync');
 var buffer = require('vinyl-buffer');

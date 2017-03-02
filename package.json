@@ -30,12 +30,17 @@
     "deploy": "(cd ./pages/out && git init && git config user.name \"Travis CI\" && git config user.email \"github@fb.com\" && git add . && git commit -m \"Deploy to GitHub Pages\" && git push --force --quiet \"https://${GH_TOKEN}@github.com/facebook/immutable-js.git\" master:gh-pages > /dev/null 2>1)"
   },
   "jest": {
-    "moduleFileExtensions": ["js", "ts"],
+    "moduleFileExtensions": [
+      "js",
+      "ts"
+    ],
     "transform": {
       "^.+\\.ts$": "<rootDir>/resources/jestPreprocessor.js"
     },
     "testRegex": "/__tests__/.*\\.(ts|js)$",
-    "unmockedModulePathPatterns": ["./node_modules/react"]
+    "unmockedModulePathPatterns": [
+      "./node_modules/react"
+    ]
   },
   "devDependencies": {
     "acorn": "0.11.x",
@@ -50,7 +55,7 @@
     "estraverse": "1.9.3",
     "express": "^4.13.4",
     "fbjs-scripts": "^0.5.0",
-    "flow-bin": "^0.36.0",
+    "flow-bin": "0.40.0",
     "grunt": "0.4.5",
     "grunt-cli": "0.1.13",
     "grunt-contrib-clean": "0.7.0",
@@ -67,7 +72,6 @@
     "gulp-sourcemaps": "1.6.0",
     "gulp-uglify": "1.5.1",
     "gulp-util": "3.0.7",
-    "harmonize": "1.4.4",
     "jasmine-check": "^0.1.2",
     "jest": "^17.0.3",
     "jshint-stylish": "^0.4.0",
@@ -80,13 +84,10 @@
     "rollup": "0.24.0",
     "run-sequence": "1.1.5",
     "through2": "2.0.0",
-    "typescript": "2.1.4",
+    "typescript": "2.2.1",
     "uglify-js": "2.6.1",
     "vinyl-buffer": "1.0.0",
     "vinyl-source-stream": "1.1.0"
-  },
-  "engines": {
-    "node": ">=0.10.0"
   },
   "files": [
     "dist",
