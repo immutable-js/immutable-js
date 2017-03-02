@@ -28,6 +28,7 @@ module.exports = function(grunt) {
         immed: true,
         indent: 2,
         iterator: true,
+        loopfunc: true,
         noarg: true,
         node: true,
         noempty: true,
