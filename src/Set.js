@@ -85,12 +85,15 @@ export class Set extends SetCollection {
       return this;
     }
     iters = iters.map(iter => SetIterable(iter));
-    var originalSet = this;
+    var toRemove = [];
+    this.forEach(value => {
+      if (!iters.every(iter => iter.includes(value))) {
+        toRemove.push(value);
+      }
+    });
     return this.withMutations(set => {
-      originalSet.forEach(value => {
-        if (!iters.every(iter => iter.includes(value))) {
-          set.remove(value);
-        }
+      toRemove.forEach(value => {
+        set.remove(value);
       });
     });
   }
@@ -99,13 +102,15 @@ export class Set extends SetCollection {
     if (iters.length === 0) {
       return this;
     }
-    iters = iters.map(iter => SetIterable(iter));
-    var originalSet = this;
+    var toRemove = [];
+    this.forEach(value => {
+      if (iters.some(iter => iter.includes(value))) {
+        toRemove.push(value);
+      }
+    });
     return this.withMutations(set => {
-      originalSet.forEach(value => {
-        if (iters.some(iter => iter.includes(value))) {
-          set.remove(value);
-        }
+      toRemove.forEach(value => {
+        set.remove(value);
       });
     });
   }
