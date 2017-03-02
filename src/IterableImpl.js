@@ -62,15 +62,11 @@ mixin(Iterable, {
   },
 
   toJS() {
-    return this.toSeq().map(
-      value => value && typeof value.toJS === 'function' ? value.toJS() : value
-    ).__toJS();
+    return this.toSeq().map(toJS).__toJS();
   },
 
   toJSON() {
-    return this.toSeq().map(
-      value => value && typeof value.toJSON === 'function' ? value.toJSON() : value
-    ).__toJS();
+    return this.toSeq().map(toJSON).__toJS();
   },
 
   toKeyedSeq() {
@@ -277,6 +273,16 @@ mixin(Iterable, {
     }
     var entriesSequence = iterable.toSeq().map(entryMapper).toIndexedSeq();
     entriesSequence.fromEntrySeq = () => iterable.toSeq();
+
+    // Entries are plain Array, which do not define toJS/toJSON, so it must
+    // manually converts keys and values before conversion.
+    entriesSequence.toJS = function () {
+      return this.map(entry => [toJS(entry[0]), toJS(entry[1])]).__toJS();
+    };
+    entriesSequence.toJSON = function () {
+      return this.map(entry => [toJSON(entry[0]), toJSON(entry[1])]).__toJS();
+    };
+
     return entriesSequence;
   },
 
@@ -688,6 +694,14 @@ function keyMapper(v, k) {
 
 function entryMapper(v, k) {
   return [k, v];
+}
+
+function toJS(value) {
+  return value && typeof value.toJS === 'function' ? value.toJS() : value;
+}
+
+function toJSON(value) {
+  return value && typeof value.toJSON === 'function' ? value.toJSON() : value;
 }
 
 function not(predicate) {

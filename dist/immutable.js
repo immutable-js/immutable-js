@@ -2913,10 +2913,6 @@
       this.size = entries.size;
     }
 
-    FromEntriesSequence.prototype.entrySeq = function() {
-      return this._iter.toSeq();
-    };
-
     FromEntriesSequence.prototype.__iterate = function(fn, reverse) {var this$0 = this;
       return this._iter.__iterate(function(entry ) {
         // Check if entry exists first so array access doesn't throw for holes
@@ -4271,15 +4267,11 @@
     },
 
     toJS: function() {
-      return this.toSeq().map(
-        function(value ) {return value && typeof value.toJS === 'function' ? value.toJS() : value}
-      ).__toJS();
+      return this.toSeq().map(toJS).__toJS();
     },
 
     toJSON: function() {
-      return this.toSeq().map(
-        function(value ) {return value && typeof value.toJSON === 'function' ? value.toJSON() : value}
-      ).__toJS();
+      return this.toSeq().map(toJSON).__toJS();
     },
 
     toKeyedSeq: function() {
@@ -4486,6 +4478,16 @@
       }
       var entriesSequence = iterable.toSeq().map(entryMapper).toIndexedSeq();
       entriesSequence.fromEntrySeq = function()  {return iterable.toSeq()};
+
+      // Entries are plain Array, which do not define toJS/toJSON, so it must
+      // manually converts keys and values before conversion.
+      entriesSequence.toJS = function () {
+        return this.map(function(entry ) {return [toJS(entry[0]), toJS(entry[1])]}).__toJS();
+      };
+      entriesSequence.toJSON = function () {
+        return this.map(function(entry ) {return [toJSON(entry[0]), toJSON(entry[1])]}).__toJS();
+      };
+
       return entriesSequence;
     },
 
@@ -4897,6 +4899,14 @@
 
   function entryMapper(v, k) {
     return [k, v];
+  }
+
+  function toJS(value) {
+    return value && typeof value.toJS === 'function' ? value.toJS() : value;
+  }
+
+  function toJSON(value) {
+    return value && typeof value.toJSON === 'function' ? value.toJSON() : value;
   }
 
   function not(predicate) {
