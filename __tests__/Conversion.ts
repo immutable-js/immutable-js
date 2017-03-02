@@ -184,4 +184,11 @@ describe('Conversion', () => {
     }).not.toThrow();
   });
 
+  it('deeply converts the results of entrySeq', () => {
+    var arr = [{"key":"a"}];
+    var result = fromJS(arr).entrySeq().toJS();
+
+    expect(result[0][0]).toEqual(0);
+    expect(result[0][1]).toEqual({"key":"a"});
+  });
 });
