@@ -2650,7 +2650,7 @@
      * Reduces the Iterable to a value by calling the `reducer` for every entry
      * in the Iterable and passing along the reduced value.
      *
-     * If `initialReduction` is not provided, or is null, the first item in the
+     * If `initialReduction` is not provided, the first item in the
      * Iterable will be used.
      *
      * @see `Array#reduce`.
