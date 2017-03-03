@@ -29,7 +29,7 @@
  */
 type ESIterable<T> = $Iterable<T,void,void>;
 
-declare class _Iterable<K, V, KI, II, SI> {
+declare class _Iterable<K, +V, KI, II, SI> {
   static Keyed:   KI;
   static Indexed: II;
   static Set:     SI;
@@ -184,9 +184,9 @@ declare class _Iterable<K, V, KI, II, SI> {
   isSuperset(iter: ESIterable<V>): boolean;
 }
 
-declare class Iterable<K, V> extends _Iterable<K, V, typeof KeyedIterable, typeof IndexedIterable, typeof SetIterable> {}
+declare class Iterable<K, +V> extends _Iterable<K, V, typeof KeyedIterable, typeof IndexedIterable, typeof SetIterable> {}
 
-declare class KeyedIterable<K,V> extends Iterable<K,V> {
+declare class KeyedIterable<K, +V> extends Iterable<K,V> {
   static <K,V>(iter?: ESIterable<[K,V]>): KeyedIterable<K,V>;
   static <K,V>(obj?: { [key: K]: V }): KeyedIterable<K,V>;
 
@@ -222,7 +222,7 @@ declare class KeyedIterable<K,V> extends Iterable<K,V> {
 
 Iterable.Keyed = KeyedIterable
 
-declare class IndexedIterable<T> extends Iterable<number,T> {
+declare class IndexedIterable<+T> extends Iterable<number,T> {
   static <T>(iter?: ESIterable<T>): IndexedIterable<T>;
 
   @@iterator(): Iterator<T>;
@@ -330,7 +330,7 @@ declare class IndexedIterable<T> extends Iterable<number,T> {
   flatten(shallow?: boolean): /*this*/IndexedIterable<any>;
 }
 
-declare class SetIterable<T> extends Iterable<T,T> {
+declare class SetIterable<+T> extends Iterable<T,T> {
   static <T>(iter?: ESIterable<T>): SetIterable<T>;
 
   @@iterator(): Iterator<T>;
@@ -356,23 +356,23 @@ declare class SetIterable<T> extends Iterable<T,T> {
   flatten(shallow?: boolean): /*this*/SetIterable<any>;
 }
 
-declare class Collection<K,V> extends _Iterable<K,V, typeof KeyedCollection, typeof IndexedCollection, typeof SetCollection> {
+declare class Collection<K, +V> extends _Iterable<K,V, typeof KeyedCollection, typeof IndexedCollection, typeof SetCollection> {
   size: number;
 }
 
-declare class KeyedCollection<K,V> extends Collection<K,V> mixins KeyedIterable<K,V> {
+declare class KeyedCollection<K, +V> extends Collection<K,V> mixins KeyedIterable<K,V> {
   toSeq(): KeyedSeq<K,V>;
 }
 
-declare class IndexedCollection<T> extends Collection<number,T> mixins IndexedIterable<T> {
+declare class IndexedCollection<+T> extends Collection<number,T> mixins IndexedIterable<T> {
   toSeq(): IndexedSeq<T>;
 }
 
-declare class SetCollection<T> extends Collection<T,T> mixins SetIterable<T> {
+declare class SetCollection<+T> extends Collection<T,T> mixins SetIterable<T> {
   toSeq(): SetSeq<T>;
 }
 
-declare class Seq<K,V> extends _Iterable<K,V, typeof KeyedSeq, typeof IndexedSeq, typeof SetSeq> {
+declare class Seq<K, +V> extends _Iterable<K,V, typeof KeyedSeq, typeof IndexedSeq, typeof SetSeq> {
   static <K,V>(iter: KeyedSeq<K,V>):   KeyedSeq<K,V>;
   static <T>  (iter: SetSeq<T>):       SetSeq<K,V>;
   static <T>  (iter?: ESIterable<T>):  IndexedSeq<T>;
@@ -386,22 +386,22 @@ declare class Seq<K,V> extends _Iterable<K,V, typeof KeyedSeq, typeof IndexedSeq
   toSeq(): this;
 }
 
-declare class KeyedSeq<K,V> extends Seq<K,V> mixins KeyedIterable<K,V> {
+declare class KeyedSeq<K, +V> extends Seq<K,V> mixins KeyedIterable<K,V> {
   static <K,V>(iter?: ESIterable<[K,V]>): KeyedSeq<K,V>;
   static <K,V>(iter?: { [key: K]: V }): KeyedSeq<K,V>;
 }
 
-declare class IndexedSeq<T> extends Seq<number,T> mixins IndexedIterable<T> {
+declare class IndexedSeq<+T> extends Seq<number,T> mixins IndexedIterable<T> {
   static <T>(iter?: ESIterable<T>): IndexedSeq<T>;
   static of<T>(...values: T[]): IndexedSeq<T>;
 }
 
-declare class SetSeq<T> extends Seq<T,T> mixins SetIterable<T> {
+declare class SetSeq<+T> extends Seq<T,T> mixins SetIterable<T> {
   static <T>(iter?: ESIterable<T>): IndexedSeq<T>;
   static of<T>(...values: T[]): SetSeq<T>;
 }
 
-declare class List<T> extends IndexedCollection<T> {
+declare class List<+T> extends IndexedCollection<T> {
   static (iterable?: ESIterable<T>): List<T>;
 
   static isList(maybeList: any): boolean;
@@ -465,7 +465,7 @@ declare class List<T> extends IndexedCollection<T> {
   flatten(shallow?: boolean): /*this*/List<any>;
 }
 
-declare class Map<K,V> extends KeyedCollection<K,V> {
+declare class Map<K, +V> extends KeyedCollection<K,V> {
   static <K, V>(obj?: {[key: K]: V}): Map<K, V>;
   static <K, V>(iterable: ESIterable<[K,V]>): Map<K, V>;
 
@@ -550,7 +550,7 @@ declare class Map<K,V> extends KeyedCollection<K,V> {
   flatten(shallow?: boolean): /*this*/Map<any,any>;
 }
 
-declare class OrderedMap<K,V> extends KeyedCollection<K,V> {
+declare class OrderedMap<K, +V> extends KeyedCollection<K,V> {
   static <K, V>(obj?: {[key: K]: V}): OrderedMap<K, V>;
   static <K, V>(iterable: ESIterable<[K,V]>): OrderedMap<K, V>;
   static isOrderedMap(maybeOrderedMap: any): bool;
@@ -631,7 +631,7 @@ declare class OrderedMap<K,V> extends KeyedCollection<K,V> {
   flatten(shallow?: boolean): /*this*/OrderedMap<any,any>
 }
 
-declare class Set<T> extends SetCollection<T> {
+declare class Set<+T> extends SetCollection<T> {
   static <T>(iterable: ESIterable<T>): Set<T>;
   static isSet(maybeSet: any): boolean;
   static of<T>(...values: T[]): Set<T>;
@@ -668,7 +668,7 @@ declare class Set<T> extends SetCollection<T> {
 }
 
 // Overrides except for `isOrderedSet` are for specialized return types
-declare class OrderedSet<T> extends Set<T> {
+declare class OrderedSet<+T> extends Set<T> {
   static <T>(iterable: ESIterable<T>): OrderedSet<T>;
   static of<T>(...values: T[]): OrderedSet<T>;
   static fromKeys<T>(iter: ESIterable<[T,any]>): OrderedSet<T>;
@@ -696,7 +696,7 @@ declare class OrderedSet<T> extends Set<T> {
   flatten(shallow?: boolean): /*this*/OrderedSet<any>;
 }
 
-declare class Stack<T> extends IndexedCollection<T> {
+declare class Stack<+T> extends IndexedCollection<T> {
   static <T>(iterable?: ESIterable<T>): Stack<T>;
 
   static isStack(maybeStack: any): boolean;
