@@ -476,6 +476,9 @@ declare class Map<K,V> extends KeyedCollection<K,V> {
   remove(key: K): this;
   clear(): this;
 
+  deleteAll(keys: ESIterable<K>): Map<K, V>;
+  removeAll(keys: ESIterable<K>): Map<K, V>;
+
   update<K_,V_>(updater: (value: this) => Map<K_,V_>): Map<K_,V_>;
   update<V_>(key: K, updater: (value: V) => V_): Map<K,V|V_>;
   update<V_>(key: K, notSetValue: V_, updater: (value: V) => V_): Map<K,V|V_>;

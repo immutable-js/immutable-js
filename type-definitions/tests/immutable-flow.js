@@ -211,6 +211,19 @@ stringToNumber = Map().set(1, '')
 
 stringToNumber = Map({'a': 0}).delete('a')
 stringToNumber = Map({'a': 0}).remove('a')
+// $ExpectError
+stringToNumber = Map({'a': 0}).delete(1)
+// $ExpectError
+stringToNumber = Map({'a': 0}).remove(1)
+
+stringToNumber = Map({'a': 0}).deleteAll(['a'])
+stringToNumber = Map({'a': 0}).removeAll(['a'])
+// $ExpectError
+stringToNumber = Map({'a': 0}).deleteAll(1)
+// $ExpectError
+stringToNumber = Map({'a': 0}).deleteAll([1])
+// $ExpectError
+stringToNumber = Map({'a': 0}).removeAll([1])
 
 stringToNumber = Map({'a': 0}).clear()
 
