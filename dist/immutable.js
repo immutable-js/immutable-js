@@ -3683,7 +3683,7 @@
 
     Record.prototype.set = function(k, v) {
       if (!this.has(k)) {
-        throw new Error('Cannot set unknown key "' + k + '" on ' + recordName(this));
+        return this;
       }
       if (this._map && !this._map.has(k)) {
         var defaultVal = this._defaultValues[k];
