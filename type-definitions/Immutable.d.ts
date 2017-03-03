@@ -525,6 +525,8 @@ declare module Immutable {
      * ).toJS();
      * // { '0': 'numerical key', key: 'value', 'numerical value': 3 }
      * ```
+     *
+     * @deprecated Use Map([ [ 'k', 'v' ] ]) or Map({ k: 'v' })
      */
     function of(...keyValues: any[]): Map<any, any>;
   }
