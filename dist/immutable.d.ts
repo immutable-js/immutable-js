@@ -2177,7 +2177,7 @@ declare module Immutable {
      * Note: This is equivalent to `Immutable.is(this, other)`, but provided to
      * allow for chained expressions.
      */
-    equals(other: Iterable<K, V>): boolean;
+    equals(other: any): boolean;
 
     /**
      * Computes and returns the hashed identity for this Iterable.
