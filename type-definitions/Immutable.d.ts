@@ -624,6 +624,17 @@ declare module Immutable {
     remove(key: K): Map<K, V>;
 
     /**
+     * Returns a new Map which excludes the provided `keys`.
+     *
+     *     var names = Immutable.Map({ a: "Aaron", b: "Barry", c: "Connor" });
+     *     names.deleteAll(['a', 'c']); // { b: "Barry" }
+     *
+     * @alias removeAll
+     */
+    deleteAll(keys: Array<K> | ESIterable<K>): Map<K, V>;
+    removeAll(keys: Array<K> | ESIterable<K>): Map<K, V>;
+
+    /**
      * Returns a new Map containing no keys or values.
      *
      * ```js

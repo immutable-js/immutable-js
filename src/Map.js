@@ -9,7 +9,7 @@
 
 import { is } from './is'
 import { fromJS } from './fromJS'
-import { isIterable, KeyedIterable, isOrdered } from './Iterable'
+import { isIterable, KeyedIterable, isOrdered, Iterable } from './Iterable'
 import { KeyedCollection } from './Collection'
 import { DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
           MakeRef, SetRef, arrCopy } from './TrieUtils'
@@ -76,6 +76,18 @@ export class Map extends KeyedCollection {
 
   deleteIn(keyPath) {
     return this.updateIn(keyPath, () => NOT_SET);
+  }
+
+  deleteAll(keys) {
+    var iterable = Iterable(keys);
+
+    if (iterable.size === 0) {
+      return this;
+    }
+
+    return this.withMutations(map => {
+      iterable.forEach(key => map.remove(key));
+    });
   }
 
   update(k, notSetValue, updater) {
@@ -218,6 +230,7 @@ export var MapPrototype = Map.prototype;
 MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeIn = MapPrototype.deleteIn;
+MapPrototype.removeAll = MapPrototype.deleteAll;
 
 
 // #pragma Trie Nodes

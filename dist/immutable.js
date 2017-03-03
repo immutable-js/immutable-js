@@ -1267,6 +1267,18 @@
       return this.updateIn(keyPath, function()  {return NOT_SET});
     };
 
+    Map.prototype.deleteAll = function(keys) {
+      var iterable = Iterable(keys);
+
+      if (iterable.size === 0) {
+        return this;
+      }
+
+      return this.withMutations(function(map ) {
+        iterable.forEach(function(key ) {return map.remove(key)});
+      });
+    };
+
     Map.prototype.update = function(k, notSetValue, updater) {
       return arguments.length === 1 ?
         k(this) :
@@ -1407,6 +1419,7 @@
   MapPrototype[IS_MAP_SENTINEL] = true;
   MapPrototype[DELETE] = MapPrototype.remove;
   MapPrototype.removeIn = MapPrototype.deleteIn;
+  MapPrototype.removeAll = MapPrototype.deleteAll;
 
 
   // #pragma Trie Nodes
