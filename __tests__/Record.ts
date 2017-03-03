@@ -35,13 +35,13 @@ describe('Record', () => {
     expect(P3(p3)).toBe(p3);
   })
 
-  it('only allows setting what it knows about', () => {
+  it('setting an unknown key is a no-op', () => {
     var MyType = Record({a:1, b:2, c:3});
 
     var t1 = new MyType({a: 10, b:20});
-    expect(() => {
-      (t1 as any).set('d', 4);
-    }).toThrow('Cannot set unknown key "d" on Record');
+    var t2 = t1.set('d' as any, 4);
+
+    expect(t2).toBe(t1);
   });
 
   it('has a fixed size and falls back to default values', () => {
