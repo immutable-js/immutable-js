@@ -40,7 +40,7 @@ declare class _Iterable<K, V, KI, II, SI> {
   static isAssociative(maybeAssociative: any): boolean;
   static isOrdered(maybeOrdered: any): boolean;
 
-  equals(other: Iterable<K,V>): boolean;
+  equals(other: any): boolean;
   hashCode(): number;
   get(key: K): V;
   get<V_>(key: K, notSetValue: V_): V|V_;
