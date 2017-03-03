@@ -1033,16 +1033,50 @@ declare class Stack<+T> extends IndexedCollection<T> {
 declare function Range(start?: number, end?: number, step?: number): IndexedSeq<number>;
 declare function Repeat<T>(value: T, times?: number): IndexedSeq<T>;
 
-// TODO: Once flow can extend normal Objects we can change this back to actually reflect Record behavior.
-// For now fallback to any to not break existing code
-declare class Record<T: Object> {
-  static <T: Object>(spec: T, name?: string): /*T & Record<T>*/any;
+declare class Record {
+  static <Values>(spec: Values, name?: string): RecordClass<Values>;
+  constructor<Values>(spec: Values, name?: string): RecordClass<Values>;
 
-  static getDescriptiveName(record: Record<any>): string;
+  static getDescriptiveName(record: RecordInstance<*>): string;
+}
 
-  get<A>(key: $Keys<T>): A;
-  set<A>(key: $Keys<T>, value: A): /*T & Record<T>*/this;
-  remove(key: $Keys<T>): /*T & Record<T>*/this;
+declare interface RecordClass<T> {
+  (values: $Shape<T> | ESIterable<[string, any]>): RecordInstance<T> & T;
+  new (values: $Shape<T> | ESIterable<[string, any]>): RecordInstance<T> & T;
+}
+
+declare class RecordInstance<T: Object> {
+  size: number;
+
+  has(key: string): boolean;
+  get<K: $Keys<T>>(key: K): /*T[K]*/any;
+
+  equals(other: any): boolean;
+  hashCode(): number;
+
+  set<K: $Keys<T>>(key: K, value: /*T[K]*/any): this;
+  update<K: $Keys<T>>(key: K, updater: (value: /*T[K]*/any) => /*T[K]*/any): this;
+  merge(...iterables: Array<$Shape<T> | ESIterable<[string, any]>>): this;
+  mergeDeep(...iterables: Array<$Shape<T> | ESIterable<[string, any]>>): this;
+
+  delete(key: $Keys<T>): this;
+  remove(key: $Keys<T>): this;
+  clear(): this;
+
+  setIn(keyPath: ESIterable<any>, value: any): this;
+  updateIn(keyPath: ESIterable<any>, updater: (value: any) => any): this;
+  mergeIn(keyPath: ESIterable<any>, ...iterables: Array<any>): this;
+  mergeDeepIn(keyPath: ESIterable<any>, ...iterables: Array<any>): this;
+  deleteIn(keyPath: ESIterable<any>): this;
+  removeIn(keyPath: ESIterable<any>): this;
+
+  toJS(): T;
+  toObject(): T;
+  withMutations(mutator: (mutable: this) => this | void): this;
+  asMutable(): this;
+  asImmutable(): this;
+
+  @@iterator(): Iterator<[$Keys<T>, any]>;
 }
 
 declare function fromJS(json: mixed, reviver?: (k: any, v: Iterable<any, any>) => any): any;

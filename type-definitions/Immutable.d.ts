@@ -1537,7 +1537,7 @@ declare module Immutable {
        *
        * @alias toJSON
        */
-      toJS(): any;
+      toJS(): Object;
 
       /**
        * Shallowly converts this Record to equivalent JS.
