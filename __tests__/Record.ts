@@ -124,6 +124,15 @@ describe('Record', () => {
     expect(t4).not.toBe(t2);
   })
 
+  it('allows for property access', () => {
+    var MyType = Record({a:1, b:'foo'});
+    var t1 = new MyType();
+    var a: number = t1.a;
+    var b: string = t1.b;
+    expect(a).toEqual(1);
+    expect(b).toEqual('foo');
+  });
+
   it('allows for class extension', () => {
     class ABClass extends Record({a:1, b:2}) {
       setA(a: number) {
@@ -138,6 +147,9 @@ describe('Record', () => {
     var t1 = new ABClass({a: 1});
     var t2 = t1.setA(3);
     var t3 = t2.setB(10);
+
+    var a: number = t3.a;
+    expect(a).toEqual(3);
     expect(t3.toObject()).toEqual({a:3, b:10});
   })
 

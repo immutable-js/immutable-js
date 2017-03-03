@@ -434,35 +434,12 @@
     /**
      * @see `Map#mergeIn`
      */
-    mergeIn(
-      keyPath: Iterable<any, any>,
-      ...iterables: Iterable.Indexed<T>[]
-    ): List<T>;
-    mergeIn(
-      keyPath: Array<any>,
-      ...iterables: Iterable.Indexed<T>[]
-    ): List<T>;
-    mergeIn(
-      keyPath: Array<any>,
-      ...iterables: Array<T>[]
-    ): List<T>;
+    mergeIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): List<T>;
 
     /**
      * @see `Map#mergeDeepIn`
      */
-    mergeDeepIn(
-      keyPath: Iterable<any, any>,
-      ...iterables: Iterable.Indexed<T>[]
-    ): List<T>;
-    mergeDeepIn(
-      keyPath: Array<any>,
-      ...iterables: Iterable.Indexed<T>[]
-    ): List<T>;
-    mergeDeepIn(
-      keyPath: Array<any>,
-      ...iterables: Array<T>[]
-    ): List<T>;
-
+    mergeDeepIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): List<T>;
 
     // Transient changes
 
@@ -861,18 +838,7 @@
      *     x.mergeIn(['a', 'b', 'c'], y);
      *
      */
-    mergeIn(
-      keyPath: Iterable<any, any>,
-      ...iterables: Iterable<K, V>[]
-    ): Map<K, V>;
-    mergeIn(
-      keyPath: Array<any>,
-      ...iterables: Iterable<K, V>[]
-    ): Map<K, V>;
-    mergeIn(
-      keyPath: Array<any>,
-      ...iterables: {[key: string]: V}[]
-    ): Map<string, V>;
+    mergeIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): Map<K, V>;
 
     /**
      * A combination of `updateIn` and `mergeDeep`, returning a new Map, but
@@ -883,19 +849,7 @@
      *     x.mergeDeepIn(['a', 'b', 'c'], y);
      *
      */
-    mergeDeepIn(
-      keyPath: Iterable<any, any>,
-      ...iterables: Iterable<K, V>[]
-    ): Map<K, V>;
-    mergeDeepIn(
-      keyPath: Array<any>,
-      ...iterables: Iterable<K, V>[]
-    ): Map<K, V>;
-    mergeDeepIn(
-      keyPath: Array<any>,
-      ...iterables: {[key: string]: V}[]
-    ): Map<string, V>;
-
+    mergeDeepIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): Map<K, V>;
 
     // Transient changes
 
@@ -1441,8 +1395,8 @@
    */
   export module Record {
     export interface Class<T extends Object> {
-      (values?: Partial<T> | ESIterable<[string, any]>): Instance<T>;
-      new (values?: Partial<T> | ESIterable<[string, any]>): Instance<T>;
+      (values?: Partial<T> | ESIterable<[string, any]>): Instance<T> & Readonly<T>;
+      new (values?: Partial<T> | ESIterable<[string, any]>): Instance<T> & Readonly<T>;
     }
 
     export interface Instance<T extends Object> {
@@ -1476,8 +1430,8 @@
 
       setIn(keyPath: Array<any> | Iterable<any, any>, value: any): this;
       updateIn(keyPath: Array<any> | Iterable<any, any>, updater: (value: any) => any): this;
-      mergeIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<Partial<T> | ESIterable<[string, any]>>): this;
-      mergeDeepIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<Partial<T> | ESIterable<[string, any]>>): this;
+      mergeIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): this;
+      mergeDeepIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): this;
 
       /**
        * @alias removeIn
