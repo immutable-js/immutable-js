@@ -153,4 +153,28 @@ describe('Record', () => {
     expect(t3.toObject()).toEqual({a:3, b:10});
   })
 
+  it('does not allow overwriting property names', () => {
+    try {
+      var realWarn = console.warn;
+      var warnings = [];
+      console.warn = w => warnings.push(w);
+
+      var MyType1 = Record({size:0});
+      var t1 = MyType1();
+      expect(warnings.length).toBe(1);
+      expect(warnings[0]).toBe(
+        'Cannot define Record with property "size" since that property name is part of the Record API.'
+      );
+
+      var MyType2 = Record({get:0});
+      var t2 = MyType2();
+      expect(warnings.length).toBe(2);
+      expect(warnings[1]).toBe(
+        'Cannot define Record with property "get" since that property name is part of the Record API.'
+      );
+    } finally {
+      console.warn = realWarn;
+    }
+  })
+
 });
