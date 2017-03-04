@@ -3758,6 +3758,7 @@
     };
 
 
+  Record.getDescriptiveName = recordName;
   var RecordPrototype = Record.prototype;
   RecordPrototype[DELETE] = RecordPrototype.remove;
   RecordPrototype.deleteIn =
