@@ -98,27 +98,31 @@ export class Range extends IndexedSeq {
   }
 
   __iterate(fn, reverse) {
-    var maxIndex = this.size - 1;
+    var size = this.size;
     var step = this._step;
-    var value = reverse ? this._start + maxIndex * step : this._start;
-    for (var ii = 0; ii <= maxIndex; ii++) {
-      if (fn(value, ii, this) === false) {
-        return ii + 1;
+    var value = reverse ? this._start + (size - 1) * step : this._start;
+    var i = 0;
+    while (i !== size) {
+      if (fn(value, reverse ? size - ++i : i++, this) === false) {
+        break;
       }
       value += reverse ? -step : step;
     }
-    return ii;
+    return i;
   }
 
   __iterator(type, reverse) {
-    var maxIndex = this.size - 1;
+    var size = this.size;
     var step = this._step;
-    var value = reverse ? this._start + maxIndex * step : this._start;
-    var ii = 0;
+    var value = reverse ? this._start + (size - 1) * step : this._start;
+    var i = 0;
     return new Iterator(() => {
+      if (i === size) {
+        return iteratorDone();
+      }
       var v = value;
       value += reverse ? -step : step;
-      return ii > maxIndex ? iteratorDone() : iteratorValue(type, ii++, v);
+      return iteratorValue(type, reverse ? size - ++i : i++, v);
     });
   }
 

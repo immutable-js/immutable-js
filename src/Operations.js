@@ -16,8 +16,6 @@ import { getIterator, Iterator, iteratorValue, iteratorDone,
 import { isSeq, Seq, KeyedSeq, SetSeq, IndexedSeq,
           keyedSeqFromValue, indexedSeqFromValue, ArraySeq } from './Seq'
 
-import assertNotInfinite from './utils/assertNotInfinite'
-
 import { Map } from './Map'
 import { OrderedMap } from './OrderedMap'
 
@@ -58,27 +56,11 @@ export class ToKeyedSequence extends KeyedSeq {
   }
 
   __iterate(fn, reverse) {
-    var ii;
-    return this._iter.__iterate(
-      this._useKeys ?
-        (v, k) => fn(v, k, this) :
-        ((ii = reverse ? resolveSize(this) : 0),
-          v => fn(v, reverse ? --ii : ii++, this)),
-      reverse
-    );
+    return this._iter.__iterate((v, k) => fn(v, k, this), reverse);
   }
 
   __iterator(type, reverse) {
-    if (this._useKeys) {
-      return this._iter.__iterator(type, reverse);
-    }
-    var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
-    var ii = reverse ? resolveSize(this) : 0;
-    return new Iterator(() => {
-      var step = iterator.next();
-      return step.done ? step :
-        iteratorValue(type, reverse ? --ii : ii++, step.value, step);
-    });
+    return this._iter.__iterator(type, reverse);
   }
 }
 ToKeyedSequence.prototype[IS_ORDERED_SENTINEL] = true;
@@ -95,17 +77,19 @@ export class ToIndexedSequence extends IndexedSeq {
   }
 
   __iterate(fn, reverse) {
-    var iterations = 0;
-    return this._iter.__iterate(v => fn(v, iterations++, this), reverse);
+    var i = 0;
+    reverse && ensureSize(this);
+    return this._iter.__iterate(v => fn(v, reverse ? this.size - ++i : i++, this), reverse);
   }
 
   __iterator(type, reverse) {
     var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
-    var iterations = 0;
+    var i = 0;
+    reverse && ensureSize(this);
     return new Iterator(() => {
       var step = iterator.next();
       return step.done ? step :
-        iteratorValue(type, iterations++, step.value, step)
+        iteratorValue(type, reverse ? this.size - ++i : i++, step.value, step)
     });
   }
 }
@@ -285,10 +269,31 @@ export function reverseFactory(iterable, useKeys) {
   reversedSequence.includes = value => iterable.includes(value);
   reversedSequence.cacheResult = cacheResultThrough;
   reversedSequence.__iterate = function (fn, reverse) {
-    return iterable.__iterate((v, k) => fn(v, k, this), !reverse);
+    var i = 0;
+    reverse && ensureSize(iterable);
+    return iterable.__iterate((v, k) =>
+      fn(v, useKeys ? k : reverse ? this.size - ++i : i++, this),
+      !reverse
+    );
   };
-  reversedSequence.__iterator =
-    (type, reverse) => iterable.__iterator(type, !reverse);
+  reversedSequence.__iterator = (type, reverse) => {
+    var i = 0;
+    reverse && ensureSize(iterable);
+    var iterator = iterable.__iterator(ITERATE_ENTRIES, !reverse);
+    return new Iterator(() => {
+      var step = iterator.next();
+      if (step.done) {
+        return step;
+      }
+      var entry = step.value;
+      return iteratorValue(
+        type,
+        useKeys ? entry[0] : reverse ? this.size - ++i : i++,
+        entry[1],
+        step
+      );
+    });
+  }
   return reversedSequence;
 }
 
@@ -598,13 +603,16 @@ export function concatFactory(iterable, values) {
 export function flattenFactory(iterable, depth, useKeys) {
   var flatSequence = makeSequence(iterable);
   flatSequence.__iterateUncached = function(fn, reverse) {
+    if (reverse) {
+      return this.cacheResult().__iterate(fn, reverse);
+    }
     var iterations = 0;
     var stopped = false;
     function flatDeep(iter, currentDepth) {
       iter.__iterate((v, k) => {
         if ((!depth || currentDepth < depth) && isIterable(v)) {
           flatDeep(v, currentDepth + 1);
-        } else if (fn(v, useKeys ? k : iterations++, this) === false) {
+        } else if (fn(v, useKeys ? k : iterations++, flatSequence) === false) {
           stopped = true;
         }
         return !stopped;
@@ -614,6 +622,9 @@ export function flattenFactory(iterable, depth, useKeys) {
     return iterations;
   }
   flatSequence.__iteratorUncached = function(type, reverse) {
+    if (reverse) {
+      return this.cacheResult().__iterator(type, reverse);
+    }
     var iterator = iterable.__iterator(type, reverse);
     var stack = [];
     var iterations = 0;
@@ -789,11 +800,6 @@ function validateEntry(entry) {
   if (entry !== Object(entry)) {
     throw new TypeError('Expected [K, V] tuple: ' + entry);
   }
-}
-
-function resolveSize(iter) {
-  assertNotInfinite(iter.size);
-  return ensureSize(iter);
 }
 
 function iterableClass(iterable) {

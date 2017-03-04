@@ -163,22 +163,22 @@ export class List extends IndexedCollection {
   }
 
   __iterator(type, reverse) {
-    var index = 0;
+    var index = reverse ? this.size : 0;
     var values = iterateList(this, reverse);
     return new Iterator(() => {
       var value = values();
       return value === DONE ?
         iteratorDone() :
-        iteratorValue(type, index++, value);
+        iteratorValue(type, reverse ? --index : index++, value);
     });
   }
 
   __iterate(fn, reverse) {
-    var index = 0;
+    var index = reverse ? this.size : 0;
     var values = iterateList(this, reverse);
     var value;
     while ((value = values()) !== DONE) {
-      if (fn(value, index++, this) === false) {
+      if (fn(value, reverse ? --index : index++, this) === false) {
         break;
       }
     }
