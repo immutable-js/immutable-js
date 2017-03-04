@@ -3650,11 +3650,21 @@
         if (!hasInitialized) {
           hasInitialized = true;
           var keys = Object.keys(defaultValues);
-          setProps(RecordTypePrototype, keys);
           RecordTypePrototype.size = keys.length;
           RecordTypePrototype._name = name;
           RecordTypePrototype._keys = keys;
           RecordTypePrototype._defaultValues = defaultValues;
+          for (var i = 0; i < keys.length; i++) {
+            var propName = keys[i];
+            if (RecordTypePrototype[propName]) {
+              typeof console === 'object' && console.warn && console.warn(
+                'Cannot define ' + recordName(this) + ' with property "' +
+                propName + '" since that property name is part of the Record API.'
+              );
+            } else {
+              setProp(RecordTypePrototype, propName);
+            }
+          }
         }
         this._map = Map(values);
       };
@@ -3777,24 +3787,20 @@
     return record._name || record.constructor.name || 'Record';
   }
 
-  function setProps(prototype, names) {
+  function setProp(prototype, name) {
     try {
-      names.forEach(setProp.bind(undefined, prototype));
+      Object.defineProperty(prototype, name, {
+        get: function() {
+          return this.get(name);
+        },
+        set: function(value) {
+          invariant(this.__ownerID, 'Cannot set on an immutable record.');
+          this.set(name, value);
+        }
+      });
     } catch (error) {
       // Object.defineProperty failed. Probably IE8.
     }
-  }
-
-  function setProp(prototype, name) {
-    Object.defineProperty(prototype, name, {
-      get: function() {
-        return this.get(name);
-      },
-      set: function(value) {
-        invariant(this.__ownerID, 'Cannot set on an immutable record.');
-        this.set(name, value);
-      }
-    });
   }
 
   createClass(Set, SetCollection);
