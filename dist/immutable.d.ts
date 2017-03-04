@@ -778,6 +778,9 @@ declare module Immutable {
      * newerMap.toJS();
      * // {subObject:{subKey:'subvalue', subSubObject:{subSubKey:'ha ha ha!'}}}
      * ```
+     *
+     * If any key in the path exists but does not have a .set() method (such as
+     * Map and List), an error will be throw.
      */
     setIn(keyPath: Array<any>, value: any): Map<K, V>;
     setIn(KeyPath: Iterable<any, any>, value: any): Map<K, V>;
@@ -813,6 +816,8 @@ declare module Immutable {
      *     data2 = data1.updateIn(['x', 'y', 'z'], 100, val => val);
      *     assert(data2 === data1);
      *
+     * If any key in the path exists but does not have a .set() method (such as
+     * Map and List), an error will be throw.
      */
     updateIn(
       keyPath: Array<any>,
