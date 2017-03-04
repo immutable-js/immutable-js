@@ -24,6 +24,14 @@ describe('Record', () => {
     expect(t2.size).toBe(3);
   })
 
+  it('allows for a descriptive name', () => {
+    var Person = Record({name: null}, 'Person');
+
+    var me = Person({ name: 'My Name' })
+    expect(me.toString()).toEqual('Person { "name": "My Name" }');
+    expect(Record.getDescriptiveName(me)).toEqual('Person');
+  })
+
   it('passes through records of the same type', () => {
     var P2 = Record({ x: 0, y: 0 });
     var P3 = Record({ x: 0, y: 0, z: 0 });

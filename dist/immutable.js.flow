@@ -738,6 +738,9 @@ declare function Repeat<T>(value: T, times?: number): IndexedSeq<T>;
 // For now fallback to any to not break existing code
 declare class Record<T: Object> {
   static <T: Object>(spec: T, name?: string): /*T & Record<T>*/any;
+
+  static getDescriptiveName(record: Record<any>): string;
+
   get<A>(key: $Keys<T>): A;
   set<A>(key: $Keys<T>, value: A): /*T & Record<T>*/this;
   remove(key: $Keys<T>): /*T & Record<T>*/this;

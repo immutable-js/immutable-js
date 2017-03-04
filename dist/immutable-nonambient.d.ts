@@ -525,6 +525,8 @@
      * ).toJS();
      * // { '0': 'numerical key', key: 'value', 'numerical value': 3 }
      * ```
+     *
+     * @deprecated Use Map([ [ 'k', 'v' ] ]) or Map({ k: 'v' })
      */
     function of(...keyValues: any[]): Map<any, any>;
   }
@@ -1394,6 +1396,25 @@
    *
    */
   export module Record {
+
+    /**
+     * Records allow passing a second parameter to supply a descriptive name
+     * that appears when converting a Record to a string or in any error
+     * messages. A descriptive name for any record can be accessed by using this
+     * method. If one was not provided, the string "Record" is returned.
+     *
+     * ```js
+     * var Person = Record({
+     *   name: null
+     * }, 'Person')
+     *
+     * var me = Person({ name: 'My Name' })
+     * me.toString() // "Person { "name": "My Name" }"
+     * Record.getDescriptiveName(me) // "Person"
+     * ```
+     */
+    export function getDescriptiveName(record: Instance<any>): string;
+
     export interface Class<T extends Object> {
       (values?: Partial<T> | ESIterable<[string, any]>): Instance<T> & Readonly<T>;
       new (values?: Partial<T> | ESIterable<[string, any]>): Instance<T> & Readonly<T>;
