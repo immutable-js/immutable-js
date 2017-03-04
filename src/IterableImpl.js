@@ -41,6 +41,7 @@ import { reify, ToKeyedSequence, ToIndexedSequence, ToSetSequence,
           maxFactory, zipWithFactory } from './Operations'
 
 export { Iterable, KeyedIterable, IndexedIterable, SetIterable,
+         IndexedIterablePrototype,
          isIterable, isKeyed, isIndexed, isAssociative, isOrdered, IS_ORDERED_SENTINEL }
 
 
@@ -645,8 +646,9 @@ mixin(IndexedIterable, {
 
 });
 
-IndexedIterable.prototype[IS_INDEXED_SENTINEL] = true;
-IndexedIterable.prototype[IS_ORDERED_SENTINEL] = true;
+var IndexedIterablePrototype = IndexedIterable.prototype;
+IndexedIterablePrototype[IS_INDEXED_SENTINEL] = true;
+IndexedIterablePrototype[IS_ORDERED_SENTINEL] = true;
 
 
 

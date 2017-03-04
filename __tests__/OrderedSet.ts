@@ -53,4 +53,11 @@ describe('OrderedSet', () => {
     expect(s2.union(s1).toArray()).toEqual(['C','B','D','A']);
   });
 
+  it('can be zipped', () => {
+    var s1 = OrderedSet.of('A', 'B', 'C');
+    var s2 = OrderedSet.of('C', 'B', 'D');
+    expect(s1.zip(s2).toArray()).toEqual([['A','C'],['B','B'],['C','D']]);
+    expect(s1.zipWith((c1, c2) => c1 + c2, s2).toArray()).toEqual(['AC','BB','CD']);
+  })
+
 });
