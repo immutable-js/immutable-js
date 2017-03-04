@@ -1185,6 +1185,42 @@
       mapper: (value: T, key: T, iter: this) => M,
       context?: any
     ): OrderedSet<M>;
+
+    /**
+     * Returns an OrderedSet of the same type "zipped" with the provided
+     * iterables.
+     *
+     * @see IndexedIterator.zip
+     *
+     * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+     *
+     *     var a = OrderedSet.of(1, 2, 3);
+     *     var b = OrderedSet.of(4, 5, 6);
+     *     var c = a.zip(b); // OrderedSet [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     *
+     */
+    zip(...iterables: Array<Iterable<any, any>>): OrderedSet<any>;
+
+    /**
+     * Returns an OrderedSet of the same type "zipped" with the provided
+     * iterables by using a custom `zipper` function.
+     *
+     * @see IndexedIterator.zipWith
+     */
+    zipWith<U, Z>(
+      zipper: (value: T, otherValue: U) => Z,
+      otherIterable: Iterable<any, U>
+    ): OrderedSet<Z>;
+    zipWith<U, V, Z>(
+      zipper: (value: T, otherValue: U, thirdValue: V) => Z,
+      otherIterable: Iterable<any, U>,
+      thirdIterable: Iterable<any, V>
+    ): OrderedSet<Z>;
+    zipWith<Z>(
+      zipper: (...any: Array<any>) => Z,
+      ...iterables: Array<Iterable<any, any>>
+    ): OrderedSet<Z>;
+
   }
 
 

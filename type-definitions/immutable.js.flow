@@ -694,6 +694,73 @@ declare class OrderedSet<+T> extends Set<T> {
 
   flatten(depth?: number): /*this*/OrderedSet<any>;
   flatten(shallow?: boolean): /*this*/OrderedSet<any>;
+
+  zip<A>(
+    a: ESIterable<A>,
+    _: empty
+  ): OrderedSet<[T, A]>;
+  zip<A, B>(
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    _: empty
+  ): OrderedSet<[T, A, B]>;
+  zip<A, B, C>(
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    c: ESIterable<C>,
+    _: empty
+  ): OrderedSet<[T, A, B, C]>;
+  zip<A, B, C, D>(
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    c: ESIterable<C>,
+    d: ESIterable<D>,
+    _: empty
+  ): OrderedSet<[T, A, B, C, D]>;
+  zip<A, B, C, D, E>(
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    c: ESIterable<C>,
+    d: ESIterable<D>,
+    e: ESIterable<E>,
+    _: empty
+  ): OrderedSet<[T, A, B, C, D, E]>;
+
+  zipWith<A, R>(
+    zipper: (value: T, a: A) => R,
+    a: ESIterable<A>,
+    _: empty
+  ): OrderedSet<R>;
+  zipWith<A, B, R>(
+    zipper: (value: T, a: A, b: B) => R,
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    _: empty
+  ): OrderedSet<R>;
+  zipWith<A, B, C, R>(
+    zipper: (value: T, a: A, b: B, c: C) => R,
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    c: ESIterable<C>,
+    _: empty
+  ): OrderedSet<R>;
+  zipWith<A, B, C, D, R>(
+    zipper: (value: T, a: A, b: B, c: C, d: D) => R,
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    c: ESIterable<C>,
+    d: ESIterable<D>,
+    _: empty
+  ): OrderedSet<R>;
+  zipWith<A, B, C, D, E, R>(
+    zipper: (value: T, a: A, b: B, c: C, d: D, e: E) => R,
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    c: ESIterable<C>,
+    d: ESIterable<D>,
+    e: ESIterable<E>,
+    _: empty
+  ): OrderedSet<R>;
 }
 
 declare class Stack<+T> extends IndexedCollection<T> {

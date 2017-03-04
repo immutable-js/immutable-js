@@ -8,6 +8,7 @@
  */
 
 import { SetIterable, KeyedIterable, IS_ORDERED_SENTINEL, isOrdered } from './Iterable'
+import { IndexedIterablePrototype } from './IterableImpl'
 import { Set, isSet } from './Set'
 import { emptyOrderedMap } from './OrderedMap'
 import assertNotInfinite from './utils/assertNotInfinite'
@@ -48,6 +49,8 @@ OrderedSet.isOrderedSet = isOrderedSet;
 
 var OrderedSetPrototype = OrderedSet.prototype;
 OrderedSetPrototype[IS_ORDERED_SENTINEL] = true;
+OrderedSetPrototype.zip = IndexedIterablePrototype.zip;
+OrderedSetPrototype.zipWith = IndexedIterablePrototype.zipWith;
 
 OrderedSetPrototype.__empty = emptyOrderedSet;
 OrderedSetPrototype.__make = makeOrderedSet;
