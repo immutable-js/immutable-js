@@ -3,7 +3,7 @@
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { Map, Seq, List, Range, is } from '../';
+import { Map, Seq, List, Range, Record, is } from '../';
 
 describe('Map', () => {
 
@@ -358,5 +358,17 @@ describe('Map', () => {
     var m2 = m1.deleteAll([]);
     expect(m1).toBe(m2);
   });
+
+  it('uses toString on keys and values', () => {
+    class A extends Record({x: null}) {
+      toString() {
+        return this.x;
+      }
+    }
+
+    let r = new A({x: 2});
+    let map = Map([[r, r]]);
+    expect(map.toString()).toEqual('Map { 2: 2 }');
+  })
 
 });
