@@ -2,9 +2,6 @@
  * @flow
  */
 
-// Some tests look like they are repeated in order to avoid false positives.
-// Flow might not complain about an instance of (what it thinks is) T to be assigned to T<K, V>
-
 import {
   List,
   Map,

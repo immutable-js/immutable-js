@@ -98,6 +98,12 @@ numberOrStringList = List.of(0).set(1, 'a')
 // $ExpectError
 numberList = List().set(0, 'a')
 
+numberList = List.of(1, 2, 3)
+// $ExpectError
+var item: number = numberList.get(4)
+var nullableItem: ?number = numberList.get(4)
+var itemOrDefault: number = numberList.get(4, 10)
+
 numberList = List().insert(0, 0)
 numberOrStringList = List.of(0).insert(1, 'a')
 // $ExpectError
@@ -168,6 +174,14 @@ numberList = List.of(1).setIn([], 0)
 
 numberList = List.of(1).deleteIn([], 0)
 numberList = List.of(1).removeIn([], 0)
+
+numberList = List([1]).updateIn([0], val => val + 1)
+// $ExpectError - 'a' in an invalid argument
+numberList = List([1]).updateIn([0], 'a')
+
+numberList = List([1]).updateIn([0], 0, val => val + 1)
+// $ExpectError - 'a' is an invalid argument
+numberList = List([1]).updateIn([0], 0, 'a')
 
 numberList = List.of(1).mergeIn([], [])
 numberList = List.of(1).mergeDeepIn([], [])

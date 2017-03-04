@@ -27,54 +27,43 @@
  *
  * Note that Immutable values implement the `ESIterable` interface.
  */
-type ESIterable<T> = $Iterable<T,void,void>;
+type ESIterable<+T> = $Iterable<T, void, void>;
 
-declare class _Iterable<K, +V, KI, II, SI> {
-  static Keyed:   KI;
-  static Indexed: II;
-  static Set:     SI;
-
-  static isIterable(maybeIterable: any): boolean;
-  static isKeyed(maybeKeyed: any): boolean;
-  static isIndexed(maybeIndexed: any): boolean;
-  static isAssociative(maybeAssociative: any): boolean;
-  static isOrdered(maybeOrdered: any): boolean;
-
-  equals(other: any): boolean;
+declare class _Iterable<K, +V> {
+  equals(other: mixed): boolean;
   hashCode(): number;
-  get(key: K): V;
-  get<V_>(key: K, notSetValue: V_): V|V_;
+  get(key: K, _: empty): V | void;
+  get<NSV>(key: K, notSetValue: NSV): V | NSV;
   has(key: K): boolean;
   includes(value: V): boolean;
   contains(value: V): boolean;
-  first(): V;
-  last(): V;
+  first(): V | void;
+  last(): V | void;
 
-  getIn<T>(searchKeyPath: ESIterable<any>, notSetValue: T): T;
-  getIn<T>(searchKeyPath: ESIterable<any>): T;
-  hasIn(searchKeyPath: ESIterable<any>): boolean;
+  getIn(searchKeyPath: ESIterable<mixed>, notSetValue?: mixed): any;
+  hasIn(searchKeyPath: ESIterable<mixed>): boolean;
 
-  toJS(): any;
-  toArray(): V[];
+  toJS(): mixed;
+  toArray(): Array<V>;
   toObject(): { [key: string]: V };
-  toMap(): Map<K,V>;
-  toOrderedMap(): OrderedMap<K,V>;
+  toMap(): Map<K, V>;
+  toOrderedMap(): OrderedMap<K, V>;
   toSet(): Set<V>;
   toOrderedSet(): OrderedSet<V>;
   toList(): List<V>;
   toStack(): Stack<V>;
-  toSeq(): Seq<K,V>;
-  toKeyedSeq(): KeyedSeq<K,V>;
+  toSeq(): Seq<K, V>;
+  toKeyedSeq(): KeyedSeq<K, V>;
   toIndexedSeq(): IndexedSeq<V>;
   toSetSeq(): SetSeq<V>;
 
   keys(): Iterator<K>;
   values(): Iterator<V>;
-  entries(): Iterator<[K,V]>;
+  entries(): Iterator<[K, V]>;
 
   keySeq(): IndexedSeq<K>;
   valueSeq(): IndexedSeq<V>;
-  entrySeq(): IndexedSeq<[K,V]>;
+  entrySeq(): IndexedSeq<[K, V]>;
 
   reverse(): this;
   sort(comparator?: (valueA: V, valueB: V) => number): this;
@@ -86,12 +75,12 @@ declare class _Iterable<K, +V, KI, II, SI> {
 
   groupBy<G>(
     grouper: (value: V, key: K, iter: this) => G,
-    context?: any
+    context?: mixed
   ): KeyedSeq<G, this>;
 
   forEach(
     sideEffect: (value: V, key: K, iter: this) => any,
-    context?: any
+    context?: mixed
   ): number;
 
   slice(begin?: number, end?: number): this;
@@ -99,73 +88,61 @@ declare class _Iterable<K, +V, KI, II, SI> {
   butLast(): this;
   skip(amount: number): this;
   skipLast(amount: number): this;
-  skipWhile(predicate: (value: V, key: K, iter: this) => mixed, context?: any): this;
-  skipUntil(predicate: (value: V, key: K, iter: this) => mixed, context?: any): this;
+  skipWhile(predicate: (value: V, key: K, iter: this) => mixed, context?: mixed): this;
+  skipUntil(predicate: (value: V, key: K, iter: this) => mixed, context?: mixed): this;
   take(amount: number): this;
   takeLast(amount: number): this;
-  takeWhile(predicate: (value: V, key: K, iter: this) => mixed, context?: any): this;
-  takeUntil(predicate: (value: V, key: K, iter: this) => mixed, context?: any): this;
-  flatten(depth?: number): /*this*/Iterable<any,any>;
-  flatten(shallow?: boolean): /*this*/Iterable<any,any>;
+  takeWhile(predicate: (value: V, key: K, iter: this) => mixed, context?: mixed): this;
+  takeUntil(predicate: (value: V, key: K, iter: this) => mixed, context?: mixed): this;
 
   filter(
     predicate: (value: V, key: K, iter: this) => mixed,
-    context?: any
+    context?: mixed
   ): this;
 
   filterNot(
     predicate: (value: V, key: K, iter: this) => mixed,
-    context?: any
+    context?: mixed
   ): this;
 
   reduce<R>(
     reducer: (reduction: R, value: V, key: K, iter: this) => R,
     initialReduction?: R,
-    context?: any,
+    context?: mixed,
   ): R;
 
   reduceRight<R>(
     reducer: (reduction: R, value: V, key: K, iter: this) => R,
     initialReduction?: R,
-    context?: any,
+    context?: mixed,
   ): R;
 
-  every(predicate: (value: V, key: K, iter: this) => mixed, context?: any): boolean;
-  some(predicate: (value: V, key: K, iter: this) => mixed, context?: any): boolean;
+  every(predicate: (value: V, key: K, iter: this) => mixed, context?: mixed): boolean;
+  some(predicate: (value: V, key: K, iter: this) => mixed, context?: mixed): boolean;
   join(separator?: string): string;
   isEmpty(): boolean;
-  count(predicate?: (value: V, key: K, iter: this) => mixed, context?: any): number;
-  countBy<G>(grouper: (value: V, key: K, iter: this) => G, context?: any): Map<G,number>;
+  count(predicate?: (value: V, key: K, iter: this) => mixed, context?: mixed): number;
+  countBy<G>(grouper: (value: V, key: K, iter: this) => G, context?: mixed): Map<G, number>;
 
-  find(
+  find<NSV>(
     predicate: (value: V, key: K, iter: this) => mixed,
-    context?: any,
-  ): ?V;
-  find<V_>(
+    context?: mixed,
+    notSetValue?: NSV
+  ): V | NSV;
+  findLast<NSV>(
     predicate: (value: V, key: K, iter: this) => mixed,
-    context: any,
-    notSetValue: V_
-  ): V|V_;
+    context?: mixed,
+    notSetValue?: NSV
+  ): V | NSV;
 
-  findLast(
-    predicate: (value: V, key: K, iter: this) => mixed,
-    context?: any,
-  ): ?V;
-  findLast<V_>(
-    predicate: (value: V, key: K, iter: this) => mixed,
-    context: any,
-    notSetValue: V_
-  ): V|V_;
+  findEntry(predicate: (value: V, key: K, iter: this) => mixed): [K, V] | void;
+  findLastEntry(predicate: (value: V, key: K, iter: this) => mixed): [K, V] | void;
 
+  findKey(predicate: (value: V, key: K, iter: this) => mixed, context?: mixed): K | void;
+  findLastKey(predicate: (value: V, key: K, iter: this) => mixed, context?: mixed): K | void;
 
-  findEntry(predicate: (value: V, key: K, iter: this) => mixed): ?[K,V];
-  findLastEntry(predicate: (value: V, key: K, iter: this) => mixed): ?[K,V];
-
-  findKey(predicate: (value: V, key: K, iter: this) => mixed, context?: any): ?K;
-  findLastKey(predicate: (value: V, key: K, iter: this) => mixed, context?: any): ?K;
-
-  keyOf(searchValue: V): ?K;
-  lastKeyOf(searchValue: V): ?K;
+  keyOf(searchValue: V): K | void;
+  lastKeyOf(searchValue: V): K | void;
 
   max(comparator?: (valueA: V, valueB: V) => number): V;
   maxBy<C>(
@@ -178,56 +155,79 @@ declare class _Iterable<K, +V, KI, II, SI> {
     comparator?: (valueA: C, valueB: C) => number
   ): V;
 
-  isSubset(iter: Iterable<any, V>): boolean;
   isSubset(iter: ESIterable<V>): boolean;
-  isSuperset(iter: Iterable<any, V>): boolean;
   isSuperset(iter: ESIterable<V>): boolean;
 }
 
-declare class Iterable<K, +V> extends _Iterable<K, V, typeof KeyedIterable, typeof IndexedIterable, typeof SetIterable> {}
+declare function isIterable(maybeIterable: mixed): boolean %checks(maybeIterable instanceof Iterable);
+declare function isKeyed(maybeKeyed: mixed): boolean %checks(maybeKeyed instanceof KeyedIterable);
+declare function isIndexed(maybeIndexed: mixed): boolean %checks(maybeIndexed instanceof IndexedIterable);
+declare function isAssociative(maybeAssociative: mixed): boolean %checks(
+  maybeAssociative instanceof KeyedIterable ||
+  maybeAssociative instanceof IndexedIterable
+);
+declare function isOrdered(maybeOrdered: mixed): boolean %checks(
+  maybeOrdered instanceof IndexedIterable ||
+  maybeOrdered instanceof OrderedMap ||
+  maybeOrdered instanceof OrderedSet
+);
 
-declare class KeyedIterable<K, +V> extends Iterable<K,V> {
-  static <K,V>(iter?: ESIterable<[K,V]>): KeyedIterable<K,V>;
-  static <K,V>(obj?: { [key: K]: V }): KeyedIterable<K,V>;
+declare class Iterable<K, +V> extends _Iterable<K, V> {
+  static Keyed: typeof KeyedIterable;
+  static Indexed: typeof IndexedIterable;
+  static Set: typeof SetIterable;
 
-  @@iterator(): Iterator<[K,V]>;
-  toSeq(): KeyedSeq<K,V>;
-  flip(): /*this*/KeyedIterable<V,K>;
+  static isIterable: typeof isIterable;
+  static isKeyed: typeof isKeyed;
+  static isIndexed: typeof isIndexed;
+  static isAssociative: typeof isAssociative;
+  static isOrdered: typeof isOrdered;
+}
 
-  mapKeys<K_>(
-    mapper: (key: K, value: V, iter: this) => K_,
-    context?: any
-  ): /*this*/KeyedIterable<K_,V>;
+declare class KeyedIterable<K, +V> extends Iterable<K, V> {
+  static <K, V>(iter?: ESIterable<[K, V]>): KeyedIterable<K, V>;
+  static <K, V>(obj?: { [key: K]: V }): KeyedIterable<K, V>;
 
-  mapEntries<K_,V_>(
-    mapper: (entry: [K,V], index: number, iter: this) => [K_,V_],
-    context?: any
-  ): /*this*/KeyedIterable<K_,V_>;
+  toJS(): { [key: string]: mixed };
+  @@iterator(): Iterator<[K, V]>;
+  toSeq(): KeyedSeq<K, V>;
+  flip(): KeyedIterable<V, K>;
 
-  concat(...iters: ESIterable<[K,V]>[]): this;
+  concat(...iters: ESIterable<[K, V]>[]): this;
 
-  map<V_>(
-    mapper: (value: V, key: K, iter: this) => V_,
-    context?: any
-  ): /*this*/KeyedIterable<K,V_>;
+  map<M>(
+    mapper: (value: V, key: K, iter: this) => M,
+    context?: mixed
+  ): KeyedIterable<K, M>;
 
-  flatMap<K_, V_>(
-    mapper: (value: V, key: K, iter: this) => ESIterable<[K_,V_]>,
-    context?: any
-  ): /*this*/KeyedIterable<K_,V_>;
+  mapKeys<M>(
+    mapper: (key: K, value: V, iter: this) => M,
+    context?: mixed
+  ): KeyedIterable<M, V>;
 
-  flatten(depth?: number): /*this*/KeyedIterable<any,any>;
-  flatten(shallow?: boolean): /*this*/KeyedIterable<any,any>;
+  mapEntries<KM, VM>(
+    mapper: (entry: [K, V], index: number, iter: this) => [KM, VM],
+    context?: mixed
+  ): KeyedIterable<KM, VM>;
+
+  flatMap<KM, VM>(
+    mapper: (value: V, key: K, iter: this) => ESIterable<[KM, VM]>,
+    context?: mixed
+  ): KeyedIterable<KM, VM>;
+
+  flatten(depth?: number): KeyedIterable<any, any>;
+  flatten(shallow?: boolean): KeyedIterable<any, any>;
 }
 
 Iterable.Keyed = KeyedIterable
 
-declare class IndexedIterable<+T> extends Iterable<number,T> {
+declare class IndexedIterable<+T> extends Iterable<number, T> {
   static <T>(iter?: ESIterable<T>): IndexedIterable<T>;
 
+  toJS(): Array<mixed>;
   @@iterator(): Iterator<T>;
   toSeq(): IndexedSeq<T>;
-  fromEntrySeq<K,V>(): KeyedSeq<K,V>;
+  fromEntrySeq<K, V>(): KeyedSeq<K, V>;
   interpose(separator: T): this;
   interleave(...iterables: ESIterable<T>[]): this;
   splice(
@@ -238,101 +238,102 @@ declare class IndexedIterable<+T> extends Iterable<number,T> {
 
   zip<A>(
     a: ESIterable<A>,
-    $?: null
-  ): IndexedIterable<[T,A]>;
-  zip<A,B>(
+    _: empty
+  ): IndexedIterable<[T, A]>;
+  zip<A, B>(
     a: ESIterable<A>,
     b: ESIterable<B>,
-    $?: null
-  ): IndexedIterable<[T,A,B]>;
-  zip<A,B,C>(
+    _: empty
+  ): IndexedIterable<[T, A, B]>;
+  zip<A, B, C>(
     a: ESIterable<A>,
     b: ESIterable<B>,
     c: ESIterable<C>,
-    $?: null
-  ): IndexedIterable<[T,A,B,C]>;
-  zip<A,B,C,D>(
+    _: empty
+  ): IndexedIterable<[T, A, B, C]>;
+  zip<A, B, C, D>(
     a: ESIterable<A>,
     b: ESIterable<B>,
     c: ESIterable<C>,
     d: ESIterable<D>,
-    $?: null
-  ): IndexedIterable<[T,A,B,C,D]>;
-  zip<A,B,C,D,E>(
+    _: empty
+  ): IndexedIterable<[T, A, B, C, D]>;
+  zip<A, B, C, D, E>(
     a: ESIterable<A>,
     b: ESIterable<B>,
     c: ESIterable<C>,
     d: ESIterable<D>,
     e: ESIterable<E>,
-    $?: null
-  ): IndexedIterable<[T,A,B,C,D,E]>;
+    _: empty
+  ): IndexedIterable<[T, A, B, C, D, E]>;
 
-  zipWith<A,R>(
+  zipWith<A, R>(
     zipper: (value: T, a: A) => R,
     a: ESIterable<A>,
-    $?: null
+    _: empty
   ): IndexedIterable<R>;
-  zipWith<A,B,R>(
+  zipWith<A, B, R>(
     zipper: (value: T, a: A, b: B) => R,
     a: ESIterable<A>,
     b: ESIterable<B>,
-    $?: null
+    _: empty
   ): IndexedIterable<R>;
-  zipWith<A,B,C,R>(
+  zipWith<A, B, C, R>(
     zipper: (value: T, a: A, b: B, c: C) => R,
     a: ESIterable<A>,
     b: ESIterable<B>,
     c: ESIterable<C>,
-    $?: null
+    _: empty
   ): IndexedIterable<R>;
-  zipWith<A,B,C,D,R>(
+  zipWith<A, B, C, D, R>(
     zipper: (value: T, a: A, b: B, c: C, d: D) => R,
     a: ESIterable<A>,
     b: ESIterable<B>,
     c: ESIterable<C>,
     d: ESIterable<D>,
-    $?: null
+    _: empty
   ): IndexedIterable<R>;
-  zipWith<A,B,C,D,E,R>(
+  zipWith<A, B, C, D, E, R>(
     zipper: (value: T, a: A, b: B, c: C, d: D, e: E) => R,
     a: ESIterable<A>,
     b: ESIterable<B>,
     c: ESIterable<C>,
     d: ESIterable<D>,
     e: ESIterable<E>,
-    $?: null
+    _: empty
   ): IndexedIterable<R>;
 
   indexOf(searchValue: T): number;
   lastIndexOf(searchValue: T): number;
   findIndex(
     predicate: (value: T, index: number, iter: this) => mixed,
-    context?: any
+    context?: mixed
   ): number;
   findLastIndex(
     predicate: (value: T, index: number, iter: this) => mixed,
-    context?: any
+    context?: mixed
   ): number;
 
   concat(...iters: ESIterable<T>[]): this;
 
-  map<U>(
-    mapper: (value: T, index: number, iter: this) => U,
-    context?: any
-  ): /*this*/IndexedIterable<U>;
+  map<M>(
+    mapper: (value: T, index: number, iter: this) => M,
+    context?: mixed
+  ): IndexedIterable<M>;
 
-  flatMap<U>(
-    mapper: (value: T, index: number, iter: this) => ESIterable<U>,
-    context?: any
-  ): /*this*/IndexedIterable<U>;
+  flatMap<M>(
+    mapper: (value: T, index: number, iter: this) => ESIterable<M>,
+    context?: mixed
+  ): IndexedIterable<M>;
 
-  flatten(depth?: number): /*this*/IndexedIterable<any>;
-  flatten(shallow?: boolean): /*this*/IndexedIterable<any>;
+  flatten(depth?: number): IndexedIterable<any>;
+  flatten(shallow?: boolean): IndexedIterable<any>;
 }
 
-declare class SetIterable<+T> extends Iterable<T,T> {
+declare class SetIterable<+T> extends Iterable<T, T> {
   static <T>(iter?: ESIterable<T>): SetIterable<T>;
 
+  toJS(): Array<mixed>;
   @@iterator(): Iterator<T>;
   toSeq(): SetSeq<T>;
 
@@ -342,136 +343,346 @@ declare class SetIterable<+T> extends Iterable<T,T> {
   // implementation for `KeyedIterable` allows the value type to change without
   // constraining the key type. That does not work for `SetIterable` - the value
   // and key types *must* match.
-  map<U>(
-    mapper: (value: T, value: T, iter: this) => U,
-    context?: any
-  ): /*this*/SetIterable<U>;
+  map<M>(
+    mapper: (value: T, value: T, iter: this) => M,
+    context?: mixed
+  ): SetIterable<M>;
 
-  flatMap<U>(
-    mapper: (value: T, value: T, iter: this) => ESIterable<U>,
-    context?: any
-  ): /*this*/SetIterable<U>;
+  flatMap<M>(
+    mapper: (value: T, value: T, iter: this) => ESIterable<M>,
+    context?: mixed
+  ): SetIterable<M>;
 
-  flatten(depth?: number): /*this*/SetIterable<any>;
-  flatten(shallow?: boolean): /*this*/SetIterable<any>;
+  flatten(depth?: number): SetIterable<any>;
+  flatten(shallow?: boolean): SetIterable<any>;
 }
 
-declare class Collection<K, +V> extends _Iterable<K,V, typeof KeyedCollection, typeof IndexedCollection, typeof SetCollection> {
+declare class Collection<K, +V> extends _Iterable<K, V> {
+  static Keyed: typeof KeyedCollection;
+  static Indexed: typeof IndexedCollection;
+  static Set: typeof SetCollection;
+
   size: number;
 }
 
-declare class KeyedCollection<K, +V> extends Collection<K,V> mixins KeyedIterable<K,V> {
-  toSeq(): KeyedSeq<K,V>;
+declare class KeyedCollection<K, +V> extends Collection<K, V> mixins KeyedIterable<K, V> {
+  toSeq(): KeyedSeq<K, V>;
 }
 
-declare class IndexedCollection<+T> extends Collection<number,T> mixins IndexedIterable<T> {
+declare class IndexedCollection<+T> extends Collection<number, T> mixins IndexedIterable<T> {
   toSeq(): IndexedSeq<T>;
 }
 
-declare class SetCollection<+T> extends Collection<T,T> mixins SetIterable<T> {
+declare class SetCollection<+T> extends Collection<T, T> mixins SetIterable<T> {
   toSeq(): SetSeq<T>;
 }
 
-declare class Seq<K, +V> extends _Iterable<K,V, typeof KeyedSeq, typeof IndexedSeq, typeof SetSeq> {
-  static <K,V>(iter: KeyedSeq<K,V>):   KeyedSeq<K,V>;
-  static <T>  (iter: SetSeq<T>):       SetSeq<K,V>;
-  static <T>  (iter?: ESIterable<T>):  IndexedSeq<T>;
-  static <K,V>(iter: { [key: K]: V }): KeyedSeq<K,V>;
+declare function isSeq(maybeSeq: mixed): boolean %checks(maybeSeq instanceof Seq);
+declare class Seq<K, +V> extends _Iterable<K, V> {
+  static Keyed: typeof KeyedSeq;
+  static Indexed: typeof IndexedSeq;
+  static Set: typeof SetSeq;
 
-  static isSeq(maybeSeq: any): boolean;
+  static <K, V>(iter: KeyedSeq<K, V>): KeyedSeq<K, V>;
+  static <T>(iter: SetSeq<T>): SetSeq<K, V>;
+  static <T>(iter?: ESIterable<T>): IndexedSeq<T>;
+  static <K, V>(iter: { [key: K]: V }): KeyedSeq<K, V>;
+
   static of<T>(...values: T[]): IndexedSeq<T>;
 
-  size: ?number;
+  static isSeq: typeof isSeq;
+
+  size?: number;
   cacheResult(): this;
   toSeq(): this;
 }
 
-declare class KeyedSeq<K, +V> extends Seq<K,V> mixins KeyedIterable<K,V> {
-  static <K,V>(iter?: ESIterable<[K,V]>): KeyedSeq<K,V>;
-  static <K,V>(iter?: { [key: K]: V }): KeyedSeq<K,V>;
+declare class KeyedSeq<K, +V> extends Seq<K, V> mixins KeyedIterable<K, V> {
+  static <K, V>(iter?: ESIterable<[K, V]>): KeyedSeq<K, V>;
+  static <K, V>(iter?: { [key: K]: V }): KeyedSeq<K, V>;
+
+  // Override specialized return types
+  flip(): KeyedSeq<V, K>;
+
+  map<M>(
+    mapper: (value: V, key: K, iter: this) => M,
+    context?: mixed
+  ): KeyedSeq<K, M>;
+
+  mapKeys<M>(
+    mapper: (key: K, value: V, iter: this) => M,
+    context?: mixed
+  ): KeyedSeq<M, V>;
+
+  mapEntries<KM, VM>(
+    mapper: (entry: [K, V], index: number, iter: this) => [KM, VM],
+    context?: mixed
+  ): KeyedSeq<KM, VM>;
+
+  flatMap<KM, VM>(
+    mapper: (value: V, key: K, iter: this) => ESIterable<[KM, VM]>,
+    context?: mixed
+  ): KeyedSeq<KM, VM>;
+
+  flatten(depth?: number): KeyedSeq<any, any>;
+  flatten(shallow?: boolean): KeyedSeq<any, any>;
 }
 
-declare class IndexedSeq<+T> extends Seq<number,T> mixins IndexedIterable<T> {
+declare class IndexedSeq<+T> extends Seq<number, T> mixins IndexedIterable<T> {
   static <T>(iter?: ESIterable<T>): IndexedSeq<T>;
+
   static of<T>(...values: T[]): IndexedSeq<T>;
+
+  // Override specialized return types
+  map<M>(
+    mapper: (value: T, index: number, iter: this) => M,
+    context?: mixed
+  ): IndexedSeq<M>;
+
+  flatMap<M>(
+    mapper: (value: T, index: number, iter: this) => ESIterable<M>,
+    context?: mixed
+  ): IndexedSeq<M>;
+
+  flatten(depth?: number): IndexedSeq<any>;
+  flatten(shallow?: boolean): IndexedSeq<any>;
+
+  zip<A>(
+    a: ESIterable<A>,
+    _: empty
+  ): IndexedSeq<[T, A]>;
+  zip<A, B>(
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    _: empty
+  ): IndexedSeq<[T, A, B]>;
+  zip<A, B, C>(
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    c: ESIterable<C>,
+    _: empty
+  ): IndexedSeq<[T, A, B, C]>;
+  zip<A, B, C, D>(
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    c: ESIterable<C>,
+    d: ESIterable<D>,
+    _: empty
+  ): IndexedSeq<[T, A, B, C, D]>;
+  zip<A, B, C, D, E>(
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    c: ESIterable<C>,
+    d: ESIterable<D>,
+    e: ESIterable<E>,
+    _: empty
+  ): IndexedSeq<[T, A, B, C, D, E]>;
+
+  zipWith<A, R>(
+    zipper: (value: T, a: A) => R,
+    a: ESIterable<A>,
+    _: empty
+  ): IndexedSeq<R>;
+  zipWith<A, B, R>(
+    zipper: (value: T, a: A, b: B) => R,
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    _: empty
+  ): IndexedSeq<R>;
+  zipWith<A, B, C, R>(
+    zipper: (value: T, a: A, b: B, c: C) => R,
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    c: ESIterable<C>,
+    _: empty
+  ): IndexedSeq<R>;
+  zipWith<A, B, C, D, R>(
+    zipper: (value: T, a: A, b: B, c: C, d: D) => R,
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    c: ESIterable<C>,
+    d: ESIterable<D>,
+    _: empty
+  ): IndexedSeq<R>;
+  zipWith<A, B, C, D, E, R>(
+    zipper: (value: T, a: A, b: B, c: C, d: D, e: E) => R,
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    c: ESIterable<C>,
+    d: ESIterable<D>,
+    e: ESIterable<E>,
+    _: empty
+  ): IndexedSeq<R>;
 }
 
-declare class SetSeq<+T> extends Seq<T,T> mixins SetIterable<T> {
+declare class SetSeq<+T> extends Seq<T, T> mixins SetIterable<T> {
   static <T>(iter?: ESIterable<T>): IndexedSeq<T>;
+
   static of<T>(...values: T[]): SetSeq<T>;
+
+  // Override specialized return types
+  map<M>(
+    mapper: (value: T, value: T, iter: this) => M,
+    context?: mixed
+  ): SetSeq<M>;
+
+  flatMap<M>(
+    mapper: (value: T, value: T, iter: this) => ESIterable<M>,
+    context?: mixed
+  ): SetSeq<M>;
+
+  flatten(depth?: number): SetSeq<any>;
+  flatten(shallow?: boolean): SetSeq<any>;
 }
 
+declare function isList(maybeList: mixed): boolean %checks(maybeList instanceof List);
 declare class List<+T> extends IndexedCollection<T> {
   static (iterable?: ESIterable<T>): List<T>;
 
-  static isList(maybeList: any): boolean;
   static of<T>(...values: T[]): List<T>;
 
-  set<U>(index: number, value: U): List<T|U>;
+  static isList: typeof isList;
+
+  set<U>(index: number, value: U): List<T | U>;
   delete(index: number): this;
   remove(index: number): this;
-  insert<U>(index: number, value: U): List<T|U>;
+  insert<U>(index: number, value: U): List<T | U>;
   clear(): this;
-  push<U>(...values: U[]): List<T|U>;
+  push<U>(...values: U[]): List<T | U>;
   pop(): this;
-  unshift<U>(...values: U[]): List<T|U>;
+  unshift<U>(...values: U[]): List<T | U>;
   shift(): this;
 
   update<U>(updater: (value: this) => List<U>): List<U>;
-  update<U>(index: number, updater: (value: T) => U): List<T|U>;
-  update<U>(index: number, notSetValue: U, updater: (value: T) => U): List<T|U>;
+  update<U>(index: number, updater: (value: T) => U): List<T | U>;
+  update<U>(index: number, notSetValue: U, updater: (value: T) => U): List<T | U>;
 
-  merge<U>(...iterables: ESIterable<U>[]): List<T|U>;
+  merge<U>(...iterables: ESIterable<U>[]): List<T | U>;
 
-  mergeWith<U,V>(
+  mergeWith<U, V>(
     merger: (previous: T, next: U, key: number) => V,
     ...iterables: ESIterable<U>[]
-  ): List<T|U|V>;
+  ): List<T | U | V>;
 
-  mergeDeep<U>(...iterables: ESIterable<U>[]): List<T|U>;
+  mergeDeep<U>(...iterables: ESIterable<U>[]): List<T | U>;
 
-  mergeDeepWith<U,V>(
+  mergeDeepWith<U, V>(
     merger: (previous: T, next: U, key: number) => V,
     ...iterables: ESIterable<U>[]
-  ): List<T|U|V>;
+  ): List<T | U | V>;
 
-  setSize(size: number): List<?T>;
-  setIn(keyPath: ESIterable<any>, value: any): List<T>;
-  deleteIn(keyPath: ESIterable<any>, value: any): this;
-  removeIn(keyPath: ESIterable<any>, value: any): this;
+  setSize(size: number): this;
+  setIn(keyPath: ESIterable<mixed>, value: mixed): this;
+  deleteIn(keyPath: ESIterable<mixed>, value: mixed): this;
+  removeIn(keyPath: ESIterable<mixed>, value: mixed): this;
 
-  updateIn(keyPath: ESIterable<any>, notSetValue: any, value: any): List<T>;
-  updateIn(keyPath: ESIterable<any>, value: any): List<T>;
+  updateIn(
+    keyPath: ESIterable<mixed>,
+    notSetValue: mixed,
+    updater: (value: any) => mixed
+  ): this;
+  updateIn(
+    keyPath: ESIterable<mixed>,
+    updater: (value: any) => mixed
+  ): this;
 
-  mergeIn(keyPath: ESIterable<any>, ...iterables: ESIterable<any>[]): List<T>;
-  mergeDeepIn(keyPath: ESIterable<any>, ...iterables: ESIterable<any>[]): List<T>;
+  mergeIn(keyPath: ESIterable<mixed>, ...iterables: ESIterable<mixed>[]): this;
+  mergeDeepIn(keyPath: ESIterable<mixed>, ...iterables: ESIterable<mixed>[]): this;
 
-  withMutations(mutator: (mutable: this) => any): this;
+  withMutations(mutator: (mutable: this) => this | void): this;
   asMutable(): this;
   asImmutable(): this;
 
-  // Overrides that specialize return types
+  // Override specialized return types
   map<M>(
     mapper: (value: T, index: number, iter: this) => M,
-    context?: any
+    context?: mixed
   ): List<M>;
 
   flatMap<M>(
     mapper: (value: T, index: number, iter: this) => ESIterable<M>,
-    context?: any
+    context?: mixed
   ): List<M>;
 
-  flatten(depth?: number): /*this*/List<any>;
-  flatten(shallow?: boolean): /*this*/List<any>;
+  flatten(depth?: number): List<any>;
+  flatten(shallow?: boolean): List<any>;
+
+  zip<A>(
+    a: ESIterable<A>,
+    _: empty
+  ): List<[T, A]>;
+  zip<A, B>(
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    _: empty
+  ): List<[T, A, B]>;
+  zip<A, B, C>(
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    c: ESIterable<C>,
+    _: empty
+  ): List<[T, A, B, C]>;
+  zip<A, B, C, D>(
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    c: ESIterable<C>,
+    d: ESIterable<D>,
+    _: empty
+  ): List<[T, A, B, C, D]>;
+  zip<A, B, C, D, E>(
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    c: ESIterable<C>,
+    d: ESIterable<D>,
+    e: ESIterable<E>,
+    _: empty
+  ): List<[T, A, B, C, D, E]>;
+
+  zipWith<A, R>(
+    zipper: (value: T, a: A) => R,
+    a: ESIterable<A>,
+    _: empty
+  ): List<R>;
+  zipWith<A, B, R>(
+    zipper: (value: T, a: A, b: B) => R,
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    _: empty
+  ): List<R>;
+  zipWith<A, B, C, R>(
+    zipper: (value: T, a: A, b: B, c: C) => R,
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    c: ESIterable<C>,
+    _: empty
+  ): List<R>;
+  zipWith<A, B, C, D, R>(
+    zipper: (value: T, a: A, b: B, c: C, d: D) => R,
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    c: ESIterable<C>,
+    d: ESIterable<D>,
+    _: empty
+  ): List<R>;
+  zipWith<A, B, C, D, E, R>(
+    zipper: (value: T, a: A, b: B, c: C, d: D, e: E) => R,
+    a: ESIterable<A>,
+    b: ESIterable<B>,
+    c: ESIterable<C>,
+    d: ESIterable<D>,
+    e: ESIterable<E>,
+    _: empty
+  ): List<R>;
 }
 
-declare class Map<K, +V> extends KeyedCollection<K,V> {
+declare function isMap(maybeMap: mixed): boolean %checks(maybeMap instanceof Map);
+declare class Map<K, +V> extends KeyedCollection<K, V> {
   static <K, V>(obj?: {[key: K]: V}): Map<K, V>;
-  static <K, V>(iterable: ESIterable<[K,V]>): Map<K, V>;
+  static <K, V>(iterable: ESIterable<[K, V]>): Map<K, V>;
 
-  static isMap(maybeMap: any): boolean;
+  static isMap: typeof isMap;
 
-  set<K_, V_>(key: K_, value: V_): Map<K|K_, V|V_>;
+  set<K_, V_>(key: K_, value: V_): Map<K | K_, V | V_>;
   delete(key: K): this;
   remove(key: K): this;
   clear(): this;
@@ -479,221 +690,237 @@ declare class Map<K, +V> extends KeyedCollection<K,V> {
   deleteAll(keys: ESIterable<K>): Map<K, V>;
   removeAll(keys: ESIterable<K>): Map<K, V>;
 
-  update<K_,V_>(updater: (value: this) => Map<K_,V_>): Map<K_,V_>;
-  update<V_>(key: K, updater: (value: V) => V_): Map<K,V|V_>;
-  update<V_>(key: K, notSetValue: V_, updater: (value: V) => V_): Map<K,V|V_>;
+  update<K_, V_>(updater: (value: this) => Map<K_, V_>): Map<K_, V_>;
+  update<V_>(key: K, updater: (value: V) => V_): Map<K, V | V_>;
+  update<V_>(key: K, notSetValue: V_, updater: (value: V) => V_): Map<K, V | V_>;
 
-  merge<K_,V_>(
-    ...iterables: (ESIterable<[K_,V_]> | { [key: K_]: V_ })[]
-  ): Map<K|K_,V|V_>;
+  merge<K_, V_>(
+    ...iterables: (ESIterable<[K_, V_]> | { [key: K_]: V_ })[]
+  ): Map<K | K_, V | V_>;
 
-  mergeWith<K_,W,X>(
+  mergeWith<K_, W, X>(
     merger: (previous: V, next: W, key: K) => X,
-    ...iterables: (ESIterable<[K_,W]> | { [key: K_]: W })[]
-  ): Map<K|K_,V|W|X>;
+    ...iterables: (ESIterable<[K_, W]> | { [key: K_]: W })[]
+  ): Map<K | K_, V | W | X>;
 
-  mergeDeep<K_,V_>(
-    ...iterables: (ESIterable<[K_,V_]> | { [key: K_]: V_ })[]
-  ): Map<K|K_,V|V_>;
+  mergeDeep<K_, V_>(
+    ...iterables: (ESIterable<[K_, V_]> | { [key: K_]: V_ })[]
+  ): Map<K | K_, V | V_>;
 
-  mergeDeepWith<K_,W,X>(
+  mergeDeepWith<K_, W, X>(
     merger: (previous: V, next: W, key: K) => X,
-    ...iterables: (ESIterable<[K_,W]> | { [key: K_]: W })[]
-  ): Map<K|K_,V|W|X>;
+    ...iterables: (ESIterable<[K_, W]> | { [key: K_]: W })[]
+  ): Map<K | K_, V | W | X>;
 
-  setIn(keyPath: ESIterable<any>, value: any): Map<K,V>;
-  deleteIn(keyPath: ESIterable<any>, value: any): this;
-  removeIn(keyPath: ESIterable<any>, value: any): this;
+  setIn(keyPath: ESIterable<mixed>, value: mixed): this;
+  deleteIn(keyPath: ESIterable<mixed>, value: mixed): this;
+  removeIn(keyPath: ESIterable<mixed>, value: mixed): this;
 
   updateIn(
-    keyPath: ESIterable<any>,
-    notSetValue: any,
-    updater: (value: any) => any
-  ): Map<K,V>;
+    keyPath: ESIterable<mixed>,
+    notSetValue: mixed,
+    updater: (value: any) => mixed
+  ): this;
   updateIn(
-    keyPath: ESIterable<any>,
-    updater: (value: any) => any
-  ): Map<K,V>;
+    keyPath: ESIterable<mixed>,
+    updater: (value: any) => mixed
+  ): this;
 
   mergeIn(
     keyPath: ESIterable<K>,
-    ...iterables: (ESIterable<K> | { [key: string]: any })[]
-  ): Map<K,any>;
+    ...iterables: (ESIterable<K> | { [key: string]: mixed })[]
+  ): this;
   mergeDeepIn(
     keyPath: ESIterable<K>,
-    ...iterables: (ESIterable<K> | { [key: string]: any })[]
-  ): Map<K,any>;
+    ...iterables: (ESIterable<K> | { [key: string]: mixed })[]
+  ): this;
 
-  withMutations(mutator: (mutable: this) => any): this;
+  withMutations(mutator: (mutable: this) => this | void): this;
   asMutable(): this;
   asImmutable(): this;
 
-  // Overrides that specialize return types
-  map<V_>(
-    mapper: (value: V, key: K, iter: this) => V_,
-    context?: any
-  ): Map<K,V_>;
+  // Override specialized return types
+  flip(): Map<V, K>;
 
-  flatMap<K_,V_>(
-    mapper: (value: V, key: K, iter: this) => ESIterable<[K_,V_]>,
-    context?: any
-  ): Map<K_,V_>;
+  map<M>(
+    mapper: (value: V, key: K, iter: this) => M,
+    context?: mixed
+  ): Map<K, M>;
 
-  flip(): Map<V,K>;
+  mapKeys<M>(
+    mapper: (key: K, value: V, iter: this) => M,
+    context?: mixed
+  ): Map<M, V>;
 
-  mapKeys<K_>(
-    mapper: (key: K, value: V, iter: this) => K_,
-    context?: any
-  ): Map<K_,V>;
+  mapEntries<KM, VM>(
+    mapper: (entry: [K, V], index: number, iter: this) => [KM, VM],
+    context?: mixed
+  ): Map<KM, VM>;
 
-  flatten(depth?: number): /*this*/Map<any,any>;
-  flatten(shallow?: boolean): /*this*/Map<any,any>;
+  flatMap<KM, VM>(
+    mapper: (value: V, key: K, iter: this) => ESIterable<[KM, VM]>,
+    context?: mixed
+  ): Map<KM, VM>;
+
+  flatten(depth?: number): Map<any, any>;
+  flatten(shallow?: boolean): Map<any, any>;
 }
 
-declare class OrderedMap<K, +V> extends KeyedCollection<K,V> {
+declare function isOrderedMap(maybeOrderedMap: mixed): boolean %checks(maybeOrderedMap instanceof OrderedMap);
+declare class OrderedMap<K, +V> extends KeyedCollection<K, V> {
   static <K, V>(obj?: {[key: K]: V}): OrderedMap<K, V>;
-  static <K, V>(iterable: ESIterable<[K,V]>): OrderedMap<K, V>;
-  static isOrderedMap(maybeOrderedMap: any): bool;
+  static <K, V>(iterable: ESIterable<[K, V]>): OrderedMap<K, V>;
 
-  set<K_, V_>(key: K_, value: V_): OrderedMap<K|K_, V|V_>;
+  static isOrderedMap: typeof isOrderedMap;
+
+  set<K_, V_>(key: K_, value: V_): OrderedMap<K | K_, V | V_>;
   delete(key: K): this;
   remove(key: K): this;
   clear(): this;
 
-  update<K_,V_>(updater: (value: this) => OrderedMap<K_,V_>): OrderedMap<K_,V_>;
-  update<V_>(key: K, updater: (value: V) => V_): OrderedMap<K,V|V_>;
-  update<V_>(key: K, notSetValue: V_, updater: (value: V) => V_): OrderedMap<K,V|V_>;
+  update<K_, V_>(updater: (value: this) => OrderedMap<K_, V_>): OrderedMap<K_, V_>;
+  update<V_>(key: K, updater: (value: V) => V_): OrderedMap<K, V | V_>;
+  update<V_>(key: K, notSetValue: V_, updater: (value: V) => V_): OrderedMap<K, V | V_>;
 
-  merge<K_,V_>(
-    ...iterables: (ESIterable<[K_,V_]> | { [key: K_]: V_ })[]
-  ): OrderedMap<K|K_,V|V_>;
+  merge<K_, V_>(
+    ...iterables: (ESIterable<[K_, V_]> | { [key: K_]: V_ })[]
+  ): OrderedMap<K | K_, V | V_>;
 
-  mergeWith<K_,W,X>(
+  mergeWith<K_, W, X>(
     merger: (previous: V, next: W, key: K) => X,
-    ...iterables: (ESIterable<[K_,W]> | { [key: K_]: W })[]
-  ): OrderedMap<K|K_,V|W|X>;
+    ...iterables: (ESIterable<[K_, W]> | { [key: K_]: W })[]
+  ): OrderedMap<K | K_, V | W | X>;
 
-  mergeDeep<K_,V_>(
-    ...iterables: (ESIterable<[K_,V_]> | { [key: K_]: V_ })[]
-  ): OrderedMap<K|K_,V|V_>;
+  mergeDeep<K_, V_>(
+    ...iterables: (ESIterable<[K_, V_]> | { [key: K_]: V_ })[]
+  ): OrderedMap<K | K_, V | V_>;
 
-  mergeDeepWith<K_,W,X>(
+  mergeDeepWith<K_, W, X>(
     merger: (previous: V, next: W, key: K) => X,
-    ...iterables: (ESIterable<[K_,W]> | { [key: K_]: W })[]
-  ): OrderedMap<K|K_,V|W|X>;
+    ...iterables: (ESIterable<[K_, W]> | { [key: K_]: W })[]
+  ): OrderedMap<K | K_, V | W | X>;
 
-  setIn(keyPath: ESIterable<any>, value: any): OrderedMap<K,V>;
-  deleteIn(keyPath: ESIterable<any>, value: any): this;
-  removeIn(keyPath: ESIterable<any>, value: any): this;
+  setIn(keyPath: ESIterable<mixed>, value: mixed): OrderedMap<K, V>;
+  deleteIn(keyPath: ESIterable<mixed>, value: mixed): this;
+  removeIn(keyPath: ESIterable<mixed>, value: mixed): this;
 
   updateIn(
-    keyPath: ESIterable<any>,
-    notSetValue: any,
-    updater: (value: any) => any
-  ): OrderedMap<K,V>;
+    keyPath: ESIterable<mixed>,
+    notSetValue: mixed,
+    updater: (value: any) => mixed
+  ): this;
   updateIn(
-    keyPath: ESIterable<any>,
-    updater: (value: any) => any
-  ): OrderedMap<K,V>;
+    keyPath: ESIterable<mixed>,
+    updater: (value: any) => mixed
+  ): this;
 
   mergeIn(
     keyPath: ESIterable<K>,
-    ...iterables: (ESIterable<K> | { [key: string]: any })[]
-  ): OrderedMap<K,any>;
+    ...iterables: (ESIterable<K> | { [key: string]: mixed })[]
+  ): this;
   mergeDeepIn(
     keyPath: ESIterable<K>,
-    ...iterables: (ESIterable<K> | { [key: string]: any })[]
-  ): OrderedMap<K,any>;
+    ...iterables: (ESIterable<K> | { [key: string]: mixed })[]
+  ): this;
 
-  withMutations(mutator: (mutable: this) => any): this;
+  withMutations(mutator: (mutable: this) => this | void): this;
   asMutable(): this;
   asImmutable(): this;
 
-  // Overrides that specialize return types
-  map<V_>(
-    mapper: (value: V, key: K, iter: this) => V_,
-    context?: any
-  ): OrderedMap<K,V_>;
+  // Override specialized return types
+  flip(): OrderedMap<V, K>;
 
-  flatMap<K_,V_>(
-    mapper: (value: V, key: K, iter: this) => ESIterable<[K_,V_]>,
-    context?: any
-  ): OrderedMap<K_,V_>;
+  map<M>(
+    mapper: (value: V, key: K, iter: this) => M,
+    context?: mixed
+  ): OrderedMap<K, M>;
 
-  flip(): OrderedMap<V,K>;
+  mapKeys<M>(
+    mapper: (key: K, value: V, iter: this) => M,
+    context?: mixed
+  ): OrderedMap<M, V>;
 
-  mapKeys<K_>(
-    mapper: (key: K, value: V, iter: this) => K_,
-    context?: any
-  ): OrderedMap<K_,V>;
+  mapEntries<KM, VM>(
+    mapper: (entry: [K, V], index: number, iter: this) => [KM, VM],
+    context?: mixed
+  ): OrderedMap<KM, VM>;
 
-  flatten(depth?: number): /*this*/OrderedMap<any,any>;
-  flatten(shallow?: boolean): /*this*/OrderedMap<any,any>
+  flatMap<KM, VM>(
+    mapper: (value: V, key: K, iter: this) => ESIterable<[KM, VM]>,
+    context?: mixed
+  ): OrderedMap<KM, VM>;
+
+  flatten(depth?: number): OrderedMap<any, any>;
+  flatten(shallow?: boolean): OrderedMap<any, any>;
 }
 
+declare function isSet(maybeSet: mixed): boolean %checks(maybeSet instanceof Set);
 declare class Set<+T> extends SetCollection<T> {
-  static <T>(iterable: ESIterable<T>): Set<T>;
-  static isSet(maybeSet: any): boolean;
-  static of<T>(...values: T[]): Set<T>;
-  static fromKeys<T>(iter: ESIterable<[T,any]>): Set<T>;
-  static fromKeys<K, V>(object: { [key: K]: V }): Set<K>;
-  static (_: void): Set<any>;
+  static <T>(iterable?: ESIterable<T>): Set<T>;
 
-  add<U>(value: U): Set<T|U>;
+  static of<T>(...values: T[]): Set<T>;
+  static fromKeys<T>(iter: ESIterable<[T, mixed]>): Set<T>;
+  static fromKeys<K, V>(object: { [key: K]: V }): Set<K>;
+
+  static isSet: typeof isSet;
+
+  add<U>(value: U): Set<T | U>;
   delete(value: T): this;
   remove(value: T): this;
   clear(): this;
-  union<U>(...iterables: ESIterable<U>[]): Set<T|U>;
-  merge<U>(...iterables: ESIterable<U>[]): Set<T|U>;
-  intersect<U>(...iterables: ESIterable<U>[]): Set<T&U>;
-  subtract<U>(...iterables: ESIterable<U>[]): Set<T>;
+  union<U>(...iterables: ESIterable<U>[]): Set<T | U>;
+  merge<U>(...iterables: ESIterable<U>[]): Set<T | U>;
+  intersect<U>(...iterables: ESIterable<U>[]): Set<T & U>;
+  subtract(...iterables: ESIterable<mixed>[]): this;
 
-  withMutations(mutator: (mutable: this) => any): this;
+  withMutations(mutator: (mutable: this) => this | void): this;
   asMutable(): this;
   asImmutable(): this;
 
-  // Overrides that specialize return types
+  // Override specialized return types
   map<M>(
     mapper: (value: T, value: T, iter: this) => M,
-    context?: any
+    context?: mixed
   ): Set<M>;
 
   flatMap<M>(
     mapper: (value: T, value: T, iter: this) => ESIterable<M>,
-    context?: any
+    context?: mixed
   ): Set<M>;
 
-  flatten(depth?: number): /*this*/Set<any>;
-  flatten(shallow?: boolean): /*this*/Set<any>;
+  flatten(depth?: number): Set<any>;
+  flatten(shallow?: boolean): Set<any>;
 }
 
 // Overrides except for `isOrderedSet` are for specialized return types
+declare function isOrderedSet(maybeOrderedSet: mixed): boolean %checks(maybeOrderedSet instanceof OrderedSet);
 declare class OrderedSet<+T> extends Set<T> {
   static <T>(iterable: ESIterable<T>): OrderedSet<T>;
-  static of<T>(...values: T[]): OrderedSet<T>;
-  static fromKeys<T>(iter: ESIterable<[T,any]>): OrderedSet<T>;
-  static fromKeys<K, V>(object: { [key: K]: V }): OrderedSet<K>;
   static (_: void): OrderedSet<any>;
-  static isOrderedSet(maybeOrderedSet: any): bool;
 
-  add<U>(value: U): OrderedSet<T|U>;
-  union<U>(...iterables: ESIterable<U>[]): OrderedSet<T|U>;
-  merge<U>(...iterables: ESIterable<U>[]): OrderedSet<T|U>;
-  intersect<U>(...iterables: ESIterable<U>[]): OrderedSet<T&U>;
-  subtract<U>(...iterables: ESIterable<U>[]): OrderedSet<T>;
+  static of<T>(...values: T[]): OrderedSet<T>;
+  static fromKeys<T>(iter: ESIterable<[T, mixed]>): OrderedSet<T>;
+  static fromKeys<K, V>(object: { [key: K]: V }): OrderedSet<K>;
+
+  static isOrderedSet: typeof isOrderedSet;
+
+  add<U>(value: U): OrderedSet<T | U>;
+  union<U>(...iterables: ESIterable<U>[]): OrderedSet<T | U>;
+  merge<U>(...iterables: ESIterable<U>[]): OrderedSet<T | U>;
+  intersect<U>(...iterables: ESIterable<U>[]): OrderedSet<T & U>;
 
   map<M>(
     mapper: (value: T, value: T, iter: this) => M,
-    context?: any
+    context?: mixed
   ): OrderedSet<M>;
 
   flatMap<M>(
     mapper: (value: T, value: T, iter: this) => ESIterable<M>,
-    context?: any
+    context?: mixed
   ): OrderedSet<M>;
 
-  flatten(depth?: number): /*this*/OrderedSet<any>;
-  flatten(shallow?: boolean): /*this*/OrderedSet<any>;
+  flatten(depth?: number): OrderedSet<any>;
+  flatten(shallow?: boolean): OrderedSet<any>;
 
   zip<A>(
     a: ESIterable<A>,
@@ -763,39 +990,41 @@ declare class OrderedSet<+T> extends Set<T> {
   ): OrderedSet<R>;
 }
 
+declare function isStack(maybeStack: mixed): boolean %checks(maybeStack instanceof Stack);
 declare class Stack<+T> extends IndexedCollection<T> {
   static <T>(iterable?: ESIterable<T>): Stack<T>;
 
-  static isStack(maybeStack: any): boolean;
+  static isStack(maybeStack: mixed): boolean;
   static of<T>(...values: T[]): Stack<T>;
+
+  static isStack: typeof isStack;
 
   peek(): T;
   clear(): this;
-  unshift<U>(...values: U[]): Stack<T|U>;
-  unshiftAll<U>(iter: ESIterable<U>): Stack<T|U>;
+  unshift<U>(...values: U[]): Stack<T | U>;
+  unshiftAll<U>(iter: ESIterable<U>): Stack<T | U>;
   shift(): this;
-  push<U>(...values: U[]): Stack<T|U>;
-  pushAll<U>(iter: ESIterable<U>): Stack<T|U>;
+  push<U>(...values: U[]): Stack<T | U>;
+  pushAll<U>(iter: ESIterable<U>): Stack<T | U>;
   pop(): this;
 
-  withMutations(mutator: (mutable: this) => any): this;
+  withMutations(mutator: (mutable: this) => this | void): this;
   asMutable(): this;
   asImmutable(): this;
 
-  // Overrides that specialize return types
+  // Override specialized return types
+  map<M>(
+    mapper: (value: T, index: number, iter: this) => M,
+    context?: mixed
+  ): Stack<M>;
 
-  map<U>(
-    mapper: (value: T, index: number, iter: this) => U,
-    context?: any
-  ): Stack<U>;
+  flatMap<M>(
+    mapper: (value: T, index: number, iter: this) => ESIterable<M>,
+    context?: mixed
+  ): Stack<M>;
 
-  flatMap<U>(
-    mapper: (value: T, index: number, iter: this) => ESIterable<U>,
-    context?: any
-  ): Stack<U>;
-
-  flatten(depth?: number): /*this*/Stack<any>;
-  flatten(shallow?: boolean): /*this*/Stack<any>;
+  flatten(depth?: number): Stack<any>;
+  flatten(shallow?: boolean): Stack<any>;
 }
 
 declare function Range(start?: number, end?: number, step?: number): IndexedSeq<number>;
@@ -813,9 +1042,9 @@ declare class Record<T: Object> {
   remove(key: $Keys<T>): /*T & Record<T>*/this;
 }
 
-declare function fromJS(json: any, reviver?: (k: any, v: Iterable<any,any>) => any): any;
-declare function is(first: any, second: any): boolean;
-declare function hash(value: any): number;
+declare function fromJS(json: mixed, reviver?: (k: any, v: Iterable<any, any>) => any): any;
+declare function is(first: mixed, second: mixed): boolean;
+declare function hash(value: mixed): number;
 
 export {
   Iterable,
