@@ -3,7 +3,7 @@
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { List, Range, Seq, Set, fromJS } from '../';
+import { List, Range, Seq, Set, Map, fromJS } from '../';
 
 function arrayOfSize(s) {
   var a = new Array(s);
@@ -74,6 +74,45 @@ describe('List', () => {
     expect(v.get(0)).toBe(undefined);
     v = v.set(0, 'value');
     expect(v.get(0)).toBe('value');
+  });
+
+  it('can setIn and getIn a deep value', () => {
+    var v = List([
+      Map({
+        aKey: List([
+          "bad",
+          "good"
+        ])
+      })
+    ]);
+    expect(v.getIn([0, 'aKey', 1])).toBe("good")
+    v = v.setIn([0, 'aKey', 1], "great")
+    expect(v.getIn([0, 'aKey', 1])).toBe("great")
+  });
+
+  it('can update a value', () => {
+    var v = List.of(5);
+    expect(v.update(0, v => v * v).toArray()).toEqual([25]);
+  });
+
+  it('can updateIn a deep value', () => {
+    var v = List([
+      Map({
+        aKey: List([
+          "bad",
+          "good"
+        ])
+      })
+    ]);
+    v = v.updateIn([0, 'aKey', 1], v => v + v);
+    expect(v.toJS()).toEqual([
+      {
+        aKey: [
+          'bad',
+          'goodgood'
+        ]
+      }
+    ]);
   });
 
   it('returns undefined when getting a null value', () => {
