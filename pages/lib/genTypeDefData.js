@@ -475,6 +475,6 @@ function setIn(obj, path, value) {
 
 function shouldIgnore(comment) {
   return Boolean(comment && comment.notes && comment.notes.find(
-    note => note.name === 'ignore'
+    note => note.name === 'ignore' || note.name === 'deprecated'
   ));
 }
