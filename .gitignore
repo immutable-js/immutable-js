@@ -2,6 +2,7 @@
 node_modules
 old
 npm-debug.log
+yarn-error.log
 .DS_Store
 *~
 *.swp
