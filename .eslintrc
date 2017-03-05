@@ -59,6 +59,7 @@
     "react/self-closing-comp": "warn",
     "react/jsx-boolean-value": "warn",
     "react/jsx-filename-extension": "off",
+    "import/no-unresolved": "warn",
     "import/no-mutable-exports": "warn",
     "import/newline-after-import": "warn",
     "import/prefer-default-export": "off",

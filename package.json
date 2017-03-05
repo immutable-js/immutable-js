@@ -20,13 +20,14 @@
     "definition": "dist/immutable.d.ts"
   },
   "scripts": {
-    "lint": "eslint \"{src,pages/src}/**/*.js\"",
+    "lint": "eslint \"{src,pages/src}/**/*.js\" --quiet",
+    "lint:warn": "eslint \"{src,pages/src}/**/*.js\"",
     "format": "prettier --single-quote --write \"{src,pages/src}/**/*.js\"",
     "build": "run-s lint build:*",
     "build:src": "grunt default",
     "build:docs": "gulp default",
     "testonly": "./resources/jest",
-    "test": "npm run build && npm run lint && npm run testonly && npm run type-check",
+    "test": "run-s build lint testonly type-check",
     "type-check": "cd type-definitions/tests && flow check",
     "perf": "node ./resources/bench.js",
     "start": "gulp dev",
