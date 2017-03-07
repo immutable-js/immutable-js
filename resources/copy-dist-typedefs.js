@@ -5,7 +5,7 @@ const DIST_DIR = path.resolve('dist');
 const TYPE_DEFS_DIR = path.resolve('type-definitions');
 
 const tsTypes = fs.readFileSync(path.join(TYPE_DEFS_DIR, 'Immutable.d.ts'), 'utf8');
-const flowTypes = fs.readFileSync(path.join(TYPE_DEFS_DIR, 'Immutable.js.flow'), 'utf8');
+const flowTypes = fs.readFileSync(path.join(TYPE_DEFS_DIR, 'immutable.js.flow'), 'utf8');
 
 const nonAmbientTsTypes = tsTypes
   .replace(/declare\s+module\s+Immutable\s*\{/, '')
