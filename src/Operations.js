@@ -315,8 +315,7 @@ export function filterFactory(iterable, predicate, context, useKeys) {
     var iterations = 0;
     iterable.__iterate((v, k, c) => {
       if (predicate.call(context, v, k, c)) {
-        iterations++;
-        return fn(v, useKeys ? k : iterations - 1, this);
+        return fn(v, useKeys ? k : iterations++, this);
       }
     }, reverse);
     return iterations;
