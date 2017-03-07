@@ -3102,8 +3102,7 @@
       var iterations = 0;
       iterable.__iterate(function(v, k, c)  {
         if (predicate.call(context, v, k, c)) {
-          iterations++;
-          return fn(v, useKeys ? k : iterations - 1, this$0);
+          return fn(v, useKeys ? k : iterations++, this$0);
         }
       }, reverse);
       return iterations;
