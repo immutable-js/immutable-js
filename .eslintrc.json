@@ -1,0 +1,75 @@
+{
+  "root": true,
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module"
+  },
+  "extends": [
+    "airbnb",
+    "prettier",
+    "prettier/react"
+  ],
+  "plugins": [
+    "react",
+    "prettier"
+  ],
+  "rules": {
+    "no-empty": "warn",
+    "no-shadow": "warn",
+    "no-plusplus": "off",
+    "no-param-reassign": "off",
+    "no-sequences": "warn",
+    "no-useless-concat": "warn",
+    "no-unused-expressions": "warn",
+    "consistent-return": "off",
+    "no-underscore-dangle": "off",
+    "no-nested-ternary": "off",
+    "no-self-compare": "off",
+    "no-use-before-define": "warn",
+    "no-bitwise": "off",
+    "no-lonely-if": "warn",
+    "no-var": "off",
+    "no-else-return": "warn",
+    "operator-assignment": "warn",
+    "no-return-assign": "warn",
+    "no-continue": "off",
+    "class-methods-use-this": "off",
+    "one-var": "warn",
+    "vars-on-top": "off",
+    "default-case": "off",
+    "array-callback-return": "off",
+    "prefer-spread": "off",
+    "prefer-template": "warn",
+    "spaced-comment": "warn",
+    "object-shorthand": "warn",
+    "prefer-rest-params": "off",
+    "no-prototype-builtins": "off",
+    "no-cond-assign": "off",
+    "no-multi-assign": "off",
+    "no-unused-vars": "warn",
+    "constructor-super": "warn",
+    "block-scoped-var": "warn",
+    "no-this-before-super": "warn",
+    "react/sort-comp": "warn",
+    "react/no-multi-comp": "off",
+    "react/prop-types": "warn",
+    "react/prefer-es6-class": "warn",
+    "react/prefer-stateless-function": "warn",
+    "react/no-array-index-key": "off",
+    "react/self-closing-comp": "warn",
+    "react/jsx-boolean-value": "warn",
+    "react/jsx-filename-extension": "off",
+    "import/no-unresolved": "warn",
+    "import/no-mutable-exports": "warn",
+    "import/newline-after-import": "warn",
+    "import/prefer-default-export": "off",
+    "import/no-extraneous-dependencies": "off",
+    "jsx-a11y/no-static-element-interactions": "warn",
+    "prettier/prettier": [
+      "warn",
+      {
+        "singleQuote": true
+      }
+    ]
+  }
+}

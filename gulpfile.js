@@ -10,7 +10,6 @@ var gulp = require('gulp');
 var gutil = require('gulp-util');
 var header = require('gulp-header');
 var Immutable = require('./');
-var jshint = require('gulp-jshint');
 var less = require('gulp-less');
 var path = require('path');
 var React = require('react/addons');
@@ -19,7 +18,6 @@ var sequence = require('run-sequence');
 var size = require('gulp-size');
 var source = require('vinyl-source-stream');
 var sourcemaps = require('gulp-sourcemaps');
-var stylish = require('jshint-stylish');
 var through = require('through2');
 var uglify = require('gulp-uglify');
 var vm = require('vm');
@@ -67,37 +65,6 @@ gulp.task('typedefs', function() {
   var contents = JSON.stringify(genTypeDefData(typeDefPath, fileSource));
 
   fs.writeFileSync(writePath, contents);
-});
-
-gulp.task('lint', function() {
-  return gulp.src('./app/**/*.js')
-    .pipe(reactTransform())
-    .on('error', handleError)
-    .pipe(jshint({
-      asi: true,
-      browser: true,
-      curly: false,
-      eqeqeq: true,
-      eqnull: true,
-      esnext: true,
-      expr: true,
-      forin: true,
-      freeze: true,
-      immed: true,
-      indent: 2,
-      iterator: true,
-      newcap: false,
-      noarg: true,
-      node: true,
-      noempty: true,
-      nonstandard: true,
-      trailing: true,
-      undef: true,
-      unused: 'vars',
-    }))
-    .pipe(jshint.reporter(stylish))
-    .pipe(jshint.reporter('fail'))
-    .on('error', handleError);
 });
 
 gulp.task('js', gulpJS(''));
@@ -199,7 +166,7 @@ gulp.task('build', function (done) {
 });
 
 gulp.task('default', function (done) {
-  sequence('clean', 'lint', 'build', done);
+  sequence('clean', 'build', done);
 });
 
 // watch files for changes and reload
@@ -224,14 +191,14 @@ gulp.task('dev', ['default'], function() {
 });
 
 gulp.task('rebuild-js', function (done) {
-  sequence('lint', 'js', ['pre-render'], function () {
+  sequence('js', ['pre-render'], function () {
     browserSync.reload();
     done();
   });
 });
 
 gulp.task('rebuild-js-docs', function (done) {
-  sequence('lint', 'js-docs', ['pre-render-docs'], function () {
+  sequence('js-docs', ['pre-render-docs'], function () {
     browserSync.reload();
     done();
   });
