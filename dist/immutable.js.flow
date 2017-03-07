@@ -1100,3 +1100,22 @@ export type {
   IndexedSeq,
   SetSeq,
 }
+
+export default {
+  Iterable,
+  Collection,
+  Seq,
+
+  List,
+  Map,
+  OrderedMap,
+  OrderedSet,
+  Range,
+  Repeat,
+  Record,
+  Set,
+  Stack,
+
+  fromJS,
+  is,
+}

@@ -1043,6 +1043,8 @@ declare class Record<T: Object> {
   get<A>(key: $Keys<T>): A;
   set<A>(key: $Keys<T>, value: A): /*T & Record<T>*/this;
   remove(key: $Keys<T>): /*T & Record<T>*/this;
+  update<A>(key: $Keys<T>, fn: (value: A) => A): this;
+  withMutations(mutator: (mutable: this) => any): this;
 }
 
 declare function fromJS(json: mixed, reviver?: (k: any, v: Iterable<any, any>) => any): any;
@@ -1099,4 +1101,23 @@ export type {
   KeyedSeq,
   IndexedSeq,
   SetSeq,
+}
+
+export default {
+  Iterable,
+  Collection,
+  Seq,
+
+  List,
+  Map,
+  OrderedMap,
+  OrderedSet,
+  Range,
+  Repeat,
+  Record,
+  Set,
+  Stack,
+
+  fromJS,
+  is,
 }
