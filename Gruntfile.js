@@ -8,37 +8,13 @@ var stripCopyright = require('./resources/stripCopyright');
 
 /**
  *
- *   grunt lint      Lint all source javascript
  *   grunt clean     Clean dist folder
  *   grunt build     Build dist javascript
- *   grunt default   Lint, Build then Test
+ *   grunt default   Build then Test
  *
  */
 module.exports = function(grunt) {
   grunt.initConfig({
-    jshint: {
-      options: {
-        asi: true,
-        curly: false,
-        eqeqeq: true,
-        esnext: true,
-        expr: true,
-        forin: true,
-        freeze: false,
-        immed: true,
-        indent: 2,
-        iterator: true,
-        loopfunc: true,
-        noarg: true,
-        node: true,
-        noempty: true,
-        nonstandard: true,
-        trailing: true,
-        undef: true,
-        unused: 'vars',
-      },
-      all: ['src/**/*.js']
-    },
     clean: {
       build: ['dist/*']
     },
@@ -200,12 +176,10 @@ module.exports = function(grunt) {
     );
   });
 
-  grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-release');
 
-  grunt.registerTask('lint', 'Lint all source javascript', ['jshint']);
   grunt.registerTask('build', 'Build distributed javascript', ['clean', 'bundle', 'copy', 'typedefs']);
-  grunt.registerTask('default', 'Lint, build.', ['lint', 'build', 'stats']);
+  grunt.registerTask('default', 'Build.', ['build', 'stats']);
 }

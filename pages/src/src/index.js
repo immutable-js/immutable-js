@@ -1,5 +1,6 @@
 var React = require('react');
 var Header = require('./Header');
+// eslint-disable-next-line import/no-unresolved
 var readme = require('../../resources/readme.json');
 
 
