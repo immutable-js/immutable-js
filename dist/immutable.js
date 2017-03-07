@@ -4739,7 +4739,7 @@
 
     splice: function(index, removeNum /*, ...values*/) {
       var numArgs = arguments.length;
-      removeNum = Math.max(removeNum | 0, 0);
+      removeNum = Math.max(removeNum || 0, 0);
       if (numArgs === 0 || (numArgs === 2 && !removeNum)) {
         return this;
       }
