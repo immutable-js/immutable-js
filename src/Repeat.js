@@ -75,18 +75,23 @@ export class Repeat extends IndexedSeq {
   }
 
   __iterate(fn, reverse) {
-    for (var ii = 0; ii < this.size; ii++) {
-      if (fn(this._value, ii, this) === false) {
-        return ii + 1;
+    var size = this.size;
+    var i = 0;
+    while (i !== size) {
+      if (fn(this._value, reverse ? size - ++i : i++, this) === false) {
+        break;
       }
     }
-    return ii;
+    return i;
   }
 
   __iterator(type, reverse) {
-    var ii = 0;
+    var size = this.size;
+    var i = 0;
     return new Iterator(() =>
-      ii < this.size ? iteratorValue(type, ii++, this._value) : iteratorDone()
+      i === size ?
+        iteratorDone() :
+        iteratorValue(type, reverse ? size - ++i : i++, this._value)
     );
   }
 

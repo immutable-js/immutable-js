@@ -69,16 +69,16 @@ describe('Stack', () => {
     expect(s.rest().toArray()).toEqual(['b', 'c']);
   });
 
-  it('iterable', () => {
+  it('iterable in reverse order', () => {
     var s = Stack.of('a', 'b', 'c');
     expect(s.size).toBe(3);
 
     var forEachResults = [];
-    s.forEach((val, i) => forEachResults.push([i, val]));
+    s.forEach((val, i) => forEachResults.push([i, val, s.get(i)]));
     expect(forEachResults).toEqual([
-      [0,'a'],
-      [1,'b'],
-      [2,'c'],
+      [0,'a','a'],
+      [1,'b','b'],
+      [2,'c','c'],
     ]);
 
     // map will cause reverse iterate
@@ -110,6 +110,16 @@ describe('Stack', () => {
       [1,'b'],
       [2,'a'],
     ]);
+  });
+
+  it('map is called in reverse order but with correct indices', () => {
+    var s = Stack(['a', 'b', 'c']);
+    var s2 = s.map((v, i, c) => v + i + c.get(i));
+    expect(s2.toArray()).toEqual(['a0a','b1b','c2c']);
+
+    var mappedSeq = s.toSeq().map((v, i, c) => v + i + c.get(i))
+    var s3 = Stack(mappedSeq);
+    expect(s3.toArray()).toEqual(['a0a','b1b','c2c']);
   });
 
   it('push inserts at lowest index', () => {

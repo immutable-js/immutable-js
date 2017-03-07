@@ -43,13 +43,37 @@ export class Seq extends Iterable {
   // abstract __iterateUncached(fn, reverse)
 
   __iterate(fn, reverse) {
-    return seqIterate(this, fn, reverse, true);
+    var cache = this._cache;
+    if (cache) {
+      var size = cache.length;
+      var i = 0;
+      while (i !== size) {
+        var entry = cache[reverse ? size - ++i : i++];
+        if (fn(entry[1], entry[0], this) === false) {
+          break;
+        }
+      }
+      return i;
+    }
+    return this.__iterateUncached(fn, reverse);
   }
 
   // abstract __iteratorUncached(type, reverse)
 
   __iterator(type, reverse) {
-    return seqIterator(this, type, reverse, true);
+    var cache = this._cache;
+    if (cache) {
+      var size = cache.length;
+      var i = 0;
+      return new Iterator(() => {
+        if (i === size) {
+          return iteratorDone();
+        }
+        var entry = cache[reverse ? size - ++i : i++];
+        return iteratorValue(type, entry[0], entry[1]);
+      });
+    }
+    return this.__iteratorUncached(type, reverse);
   }
 }
 
@@ -86,14 +110,6 @@ export class IndexedSeq extends Seq {
 
   toString() {
     return this.__toString('Seq [', ']');
-  }
-
-  __iterate(fn, reverse) {
-    return seqIterate(this, fn, reverse, false);
-  }
-
-  __iterator(type, reverse) {
-    return seqIterator(this, type, reverse, false);
   }
 }
 
@@ -142,24 +158,28 @@ export class ArraySeq extends IndexedSeq {
 
   __iterate(fn, reverse) {
     var array = this._array;
-    var maxIndex = array.length - 1;
-    for (var ii = 0; ii <= maxIndex; ii++) {
-      if (fn(array[reverse ? maxIndex - ii : ii], ii, this) === false) {
-        return ii + 1;
+    var size = array.length;
+    var i = 0;
+    while (i !== size) {
+      var ii = reverse ? size - ++i : i++;
+      if (fn(array[ii], ii, this) === false) {
+        break;
       }
     }
-    return ii;
+    return i;
   }
 
   __iterator(type, reverse) {
     var array = this._array;
-    var maxIndex = array.length - 1;
-    var ii = 0;
-    return new Iterator(() =>
-      ii > maxIndex ?
-        iteratorDone() :
-        iteratorValue(type, ii, array[reverse ? maxIndex - ii++ : ii++])
-    );
+    var size = array.length;
+    var i = 0;
+    return new Iterator(() => {
+      if (i === size) {
+        return iteratorDone();
+      }
+      var ii = reverse ? size - ++i : i++;
+      return iteratorValue(type, ii, array[ii]);
+    });
   }
 }
 
@@ -186,26 +206,28 @@ class ObjectSeq extends KeyedSeq {
   __iterate(fn, reverse) {
     var object = this._object;
     var keys = this._keys;
-    var maxIndex = keys.length - 1;
-    for (var ii = 0; ii <= maxIndex; ii++) {
-      var key = keys[reverse ? maxIndex - ii : ii];
+    var size = keys.length;
+    var i = 0;
+    while (i !== size) {
+      var key = keys[reverse ? size - ++i : i++];
       if (fn(object[key], key, this) === false) {
-        return ii + 1;
+        break;
       }
     }
-    return ii;
+    return i;
   }
 
   __iterator(type, reverse) {
     var object = this._object;
     var keys = this._keys;
-    var maxIndex = keys.length - 1;
-    var ii = 0;
+    var size = keys.length;
+    var i = 0;
     return new Iterator(() => {
-      var key = keys[reverse ? maxIndex - ii : ii];
-      return ii++ > maxIndex ?
-        iteratorDone() :
-        iteratorValue(type, key, object[key]);
+      if (i === size) {
+        return iteratorDone();
+      }
+      var key = keys[reverse ? size - ++i : i++];
+      return iteratorValue(type, key, object[key]);
     });
   }
 }
@@ -361,34 +383,4 @@ function maybeIndexedSeqFromValue(value) {
     hasIterator(value) ? new IterableSeq(value) :
     undefined
   );
-}
-
-function seqIterate(seq, fn, reverse, useKeys) {
-  var cache = seq._cache;
-  if (cache) {
-    var maxIndex = cache.length - 1;
-    for (var ii = 0; ii <= maxIndex; ii++) {
-      var entry = cache[reverse ? maxIndex - ii : ii];
-      if (fn(entry[1], useKeys ? entry[0] : ii, seq) === false) {
-        return ii + 1;
-      }
-    }
-    return ii;
-  }
-  return seq.__iterateUncached(fn, reverse);
-}
-
-function seqIterator(seq, type, reverse, useKeys) {
-  var cache = seq._cache;
-  if (cache) {
-    var maxIndex = cache.length - 1;
-    var ii = 0;
-    return new Iterator(() => {
-      var entry = cache[reverse ? maxIndex - ii : ii];
-      return ii++ > maxIndex ?
-        iteratorDone() :
-        iteratorValue(type, useKeys ? entry[0] : ii - 1, entry[1]);
-    });
-  }
-  return seq.__iteratorUncached(type, reverse);
 }

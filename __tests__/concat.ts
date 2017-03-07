@@ -136,6 +136,7 @@ describe('concat', () => {
 
   it('lazily reverses indexed sequences with unknown size, maintaining indicies', () => {
     var a = Seq([1,2,3]).filter(x=>true);
+    expect(a.size).toBe(undefined); // Note: lazy filter does not know what size in O(1).
     expect(a.concat(a, a).toKeyedSeq().reverse().size).toBe(undefined);
     expect(a.concat(a, a).toKeyedSeq().reverse().entrySeq().toArray()).toEqual(
       [[8,3],[7,2],[6,1],[5,3],[4,2],[3,1],[2,3],[1,2],[0,1]]
