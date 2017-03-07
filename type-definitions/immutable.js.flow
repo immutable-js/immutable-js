@@ -862,6 +862,9 @@ declare class Set<+T> extends SetCollection<T> {
   static fromKeys<T>(iter: ESIterable<[T, mixed]>): Set<T>;
   static fromKeys<K, V>(object: { [key: K]: V }): Set<K>;
 
+  static intersect(sets: ESIterable<ESIterable<T>>): Set<T>;
+  static union(sets: ESIterable<ESIterable<T>>): Set<T>;
+
   static isSet: typeof isSet;
 
   add<U>(value: U): Set<T | U>;

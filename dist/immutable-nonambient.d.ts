@@ -1041,6 +1041,34 @@
      */
     function fromKeys<T>(iter: Iterable<T, any>): Set<T>;
     function fromKeys(obj: {[key: string]: any}): Set<string>;
+
+    /**
+     * `Set.intersect()` creates a new immutable Set that is the intersection of
+     * a collection of other sets.
+     *
+     * ```js
+     * var intersected = Set.intersect([
+     *   Set(['a', 'b', 'c'])
+     *   Set(['c', 'a', 't'])
+     * ])
+     * // Set [ 'a', 'c' ]
+     * ```
+     */
+    function intersect<T>(sets: ESIterable<ESIterable<T>>): Set<T>;
+
+    /**
+     * `Set.union()` creates a new immutable Set that is the union of a
+     * collection of other sets.
+     *
+     * ```js
+     * var unioned = Set.union([
+     *   Set(['a', 'b', 'c'])
+     *   Set(['c', 'a', 't'])
+     * ])
+     * // Set [ 'a', 'b', 'c', 't' ]
+     * ```
+     */
+    function union<T>(sets: ESIterable<ESIterable<T>>): Set<T>;
   }
 
   /**
