@@ -81,7 +81,6 @@
     "rollup": "0.41.4",
     "rollup-plugin-buble": "0.15.0",
     "rollup-plugin-commonjs": "7.0.0",
-    "rollup-plugin-minify": "1.0.3",
     "rollup-plugin-strip-banner": "0.1.0",
     "run-sequence": "1.2.2",
     "through2": "2.0.3",
