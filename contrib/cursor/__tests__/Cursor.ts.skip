@@ -1,23 +1,18 @@
 ///<reference path='../../../resources/jest.d.ts'/>
-///<reference path='../../../dist/immutable.d.ts'/>
-///<reference path='../index.d.ts'/>
 
-jest.autoMockOff();
-
-import Immutable = require('immutable');
-import Cursor = require('immutable/contrib/cursor');
+import * as Immutable from '../../../';
+import * as Cursor from '../';
 
 describe('Cursor', () => {
 
   beforeEach(function () {
     jasmine.addMatchers({
-      toValueEqual: function (expected) {
-        var actual = this.actual;
-        if (!Immutable.is(expected, this.actual)) {
-          this.message = 'Expected\n' + this.actual + '\nto equal\n' + expected;
-          return false;
-        }
-        return true;
+      toValueEqual: function(actual, expected) {
+        var passed = Immutable.is(actual, expected);
+        return {
+          pass: passed,
+          message: 'Expected ' + actual + (passed ? '' : ' not') + ' to equal ' + expected
+        };
       }
     });
   });
