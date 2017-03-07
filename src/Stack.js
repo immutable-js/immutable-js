@@ -11,6 +11,7 @@ import { wholeSlice, resolveBegin, resolveEnd, wrapIndex } from './TrieUtils'
 import { IndexedIterable } from './Iterable'
 import { IndexedCollection } from './Collection'
 import { MapPrototype } from './Map'
+import { ArraySeq } from './Seq'
 import { Iterator, iteratorValue, iteratorDone } from './Iterator'
 import assertNotInfinite from './utils/assertNotInfinite'
 
@@ -170,7 +171,7 @@ export class Stack extends IndexedCollection {
 
   __iterate(fn, reverse) {
     if (reverse) {
-      return this.reverse().__iterate(fn);
+      return new ArraySeq(this.toArray()).__iterate((v, k) => fn(v, k, this), reverse);
     }
     var iterations = 0;
     var node = this._head;
@@ -185,7 +186,7 @@ export class Stack extends IndexedCollection {
 
   __iterator(type, reverse) {
     if (reverse) {
-      return this.reverse().__iterator(type);
+      return new ArraySeq(this.toArray()).__iterator(type, reverse);
     }
     var iterations = 0;
     var node = this._head;

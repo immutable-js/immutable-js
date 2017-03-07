@@ -106,6 +106,22 @@ describe('Set', () => {
     expect(s.toObject()).toEqual({a:'a',b:'b',c:'c'});
   });
 
+  it('unions an unknown collection of Sets', () => {
+    var abc = Set(['a', 'b', 'c']);
+    var cat = Set(['c', 'a', 't']);
+    expect(Set.union([abc, cat]).toArray()).toEqual(['c', 'a', 't', 'b']);
+    expect(Set.union([abc])).toBe(abc);
+    expect(Set.union([])).toBe(Set());
+  });
+
+  it('intersects an unknown collection of Sets', () => {
+    var abc = Set(['a', 'b', 'c']);
+    var cat = Set(['c', 'a', 't']);
+    expect(Set.intersect([abc, cat]).toArray()).toEqual(['c', 'a']);
+    expect(Set.intersect([abc])).toBe(abc);
+    expect(Set.intersect([])).toBe(Set());
+  });
+
   it('iterates values', () => {
     var s = Set.of(1,2,3);
     var iterator = jest.genMockFunction();

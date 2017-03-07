@@ -7,7 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { SetIterable, KeyedIterable, isOrdered } from './Iterable'
+import { Iterable, SetIterable, KeyedIterable, isOrdered } from './Iterable'
 import { SetCollection } from './Collection'
 import { emptyMap, MapPrototype } from './Map'
 import { DELETE } from './TrieUtils'
@@ -37,6 +37,16 @@ export class Set extends SetCollection {
 
   static fromKeys(value) {
     return this(KeyedIterable(value).keySeq());
+  }
+
+  static intersect(sets) {
+    sets = Iterable(sets).toArray();
+    return sets.length ? SetPrototype.intersect.apply(Set(sets.pop()), sets) : emptySet();
+  }
+
+  static union(sets) {
+    sets = Iterable(sets).toArray();
+    return sets.length ? SetPrototype.union.apply(Set(sets.pop()), sets) : emptySet();
   }
 
   toString() {

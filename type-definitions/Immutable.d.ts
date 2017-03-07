@@ -189,6 +189,7 @@ declare module Immutable {
    * Immutable.is(listFromPlainSet, listFromPlainArray) // true
    * ```
    */
+  export function List(): List<any>;
   export function List<T>(): List<T>;
   export function List<T>(iterable: ESIterable<T>): List<T>;
 
@@ -559,6 +560,7 @@ declare module Immutable {
    * but since Immutable Map keys can be of any type the argument to `get()` is
    * not altered.
    */
+  export function Map(): Map<any, any>;
   export function Map<K, V>(): Map<K, V>;
   export function Map<K, V>(iterable: ESIterable<[K, V]>): Map<K, V>;
   export function Map<T>(iterable: ESIterable<ESIterable<T>>): Map<T, T>;
@@ -969,6 +971,7 @@ declare module Immutable {
    *     var newOrderedMap = OrderedMap([["key", "value"]]);
    *
    */
+  export function OrderedMap(): OrderedMap<any, any>;
   export function OrderedMap<K, V>(): OrderedMap<K, V>;
   export function OrderedMap<K, V>(iterable: ESIterable<[K, V]>): OrderedMap<K, V>;
   export function OrderedMap<T>(iterable: ESIterable<ESIterable<T>>): OrderedMap<T, T>;
@@ -1038,12 +1041,41 @@ declare module Immutable {
      */
     function fromKeys<T>(iter: Iterable<T, any>): Set<T>;
     function fromKeys(obj: {[key: string]: any}): Set<string>;
+
+    /**
+     * `Set.intersect()` creates a new immutable Set that is the intersection of
+     * a collection of other sets.
+     *
+     * ```js
+     * var intersected = Set.intersect([
+     *   Set(['a', 'b', 'c'])
+     *   Set(['c', 'a', 't'])
+     * ])
+     * // Set [ 'a', 'c' ]
+     * ```
+     */
+    function intersect<T>(sets: ESIterable<ESIterable<T>>): Set<T>;
+
+    /**
+     * `Set.union()` creates a new immutable Set that is the union of a
+     * collection of other sets.
+     *
+     * ```js
+     * var unioned = Set.union([
+     *   Set(['a', 'b', 'c'])
+     *   Set(['c', 'a', 't'])
+     * ])
+     * // Set [ 'a', 'b', 'c', 't' ]
+     * ```
+     */
+    function union<T>(sets: ESIterable<ESIterable<T>>): Set<T>;
   }
 
   /**
    * Create a new immutable Set containing the values of the provided
    * iterable-like.
    */
+  export function Set(): Set<any>;
   export function Set<T>(): Set<T>;
   export function Set<T>(iterable: ESIterable<T>): Set<T>;
 
@@ -1166,6 +1198,7 @@ declare module Immutable {
    * Create a new immutable OrderedSet containing the values of the provided
    * iterable-like.
    */
+  export function OrderedSet(): OrderedSet<any>;
   export function OrderedSet<T>(): OrderedSet<T>;
   export function OrderedSet<T>(iterable: ESIterable<T>): OrderedSet<T>;
 
@@ -1257,6 +1290,7 @@ declare module Immutable {
    * The iteration order of the provided iterable is preserved in the
    * resulting `Stack`.
    */
+  export function Stack(): Stack<any>;
   export function Stack<T>(): Stack<T>;
   export function Stack<T>(iterable: ESIterable<T>): Stack<T>;
 
@@ -1609,6 +1643,7 @@ declare module Immutable {
      * Always returns a Seq.Keyed, if input is not keyed, expects an
      * iterable of [K, V] tuples.
      */
+    export function Keyed(): Seq.Keyed<any, any>;
     export function Keyed<K, V>(): Seq.Keyed<K, V>;
     export function Keyed<K, V>(iterable: ESIterable<[K, V]>): Seq.Keyed<K, V>;
     export function Keyed<V>(obj: {[key: string]: V}): Seq.Keyed<string, V>;
@@ -1666,6 +1701,7 @@ declare module Immutable {
      * Always returns Seq.Indexed, discarding associated keys and
      * supplying incrementing indices.
      */
+    export function Indexed(): Seq.Indexed<any>;
     export function Indexed<T>(): Seq.Indexed<T>;
     export function Indexed<T>(iterable: ESIterable<T>): Seq.Indexed<T>;
 
@@ -1708,6 +1744,7 @@ declare module Immutable {
     /**
      * Always returns a Seq.Set, discarding associated indices or keys.
      */
+    export function Set(): Seq.Set<any>;
     export function Set<T>(): Seq.Set<T>;
     export function Set<T>(iterable: ESIterable<T>): Seq.Set<T>;
 
@@ -1747,6 +1784,7 @@ declare module Immutable {
    *   * If an Object, a `Seq.Keyed`.
    *
    */
+  export function Seq(): Seq<any, any>;
   export function Seq<K, V>(): Seq<K, V>;
   export function Seq<K, V, S extends Seq<K, V>>(seq: S): S;
   export function Seq<K, V>(iterable: Iterable.Keyed<K, V>): Seq.Keyed<K, V>;

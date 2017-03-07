@@ -21,6 +21,16 @@ describe('splice', () => {
     expect(List.of(1,2,3).splice(3,1).toArray()).toEqual([1,2,3]);
   })
 
+  it('splicing by infinity', () => {
+    var l = List(['a', 'b', 'c', 'd']);
+    expect(l.splice(2, Infinity, 'x').toArray()).toEqual(['a', 'b', 'x']);
+    expect(l.splice(Infinity, 2, 'x').toArray()).toEqual(['a', 'b', 'c', 'd', 'x']);
+
+    var s = List(['a', 'b', 'c', 'd']);
+    expect(s.splice(2, Infinity, 'x').toArray()).toEqual(['a', 'b', 'x']);
+    expect(s.splice(Infinity, 2, 'x').toArray()).toEqual(['a', 'b', 'c', 'd', 'x']);
+  })
+
   it('has the same behavior as array splice in known edge cases', () => {
     // arbitary numbers that sum to 31
     var a = Range(0, 49).toArray();

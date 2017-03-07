@@ -15,6 +15,18 @@ function arrayOfSize(s) {
 
 describe('List', () => {
 
+  it('determines assignment of unspecified value types', () => {
+    interface Test {
+      list: List<string>
+    };
+
+    var t: Test = {
+      list: List()
+    };
+
+    expect(t.list.size).toBe(0);
+  });
+
   it('of provides initial values', () => {
     var v = List.of('a', 'b', 'c');
     expect(v.get(0)).toBe('a');

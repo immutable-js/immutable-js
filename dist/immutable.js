@@ -476,13 +476,37 @@
     // abstract __iterateUncached(fn, reverse)
 
     Seq.prototype.__iterate = function(fn, reverse) {
-      return seqIterate(this, fn, reverse, true);
+      var cache = this._cache;
+      if (cache) {
+        var size = cache.length;
+        var i = 0;
+        while (i !== size) {
+          var entry = cache[reverse ? size - ++i : i++];
+          if (fn(entry[1], entry[0], this) === false) {
+            break;
+          }
+        }
+        return i;
+      }
+      return this.__iterateUncached(fn, reverse);
     };
 
     // abstract __iteratorUncached(type, reverse)
 
     Seq.prototype.__iterator = function(type, reverse) {
-      return seqIterator(this, type, reverse, true);
+      var cache = this._cache;
+      if (cache) {
+        var size = cache.length;
+        var i = 0;
+        return new Iterator(function()  {
+          if (i === size) {
+            return iteratorDone();
+          }
+          var entry = cache[reverse ? size - ++i : i++];
+          return iteratorValue(type, entry[0], entry[1]);
+        });
+      }
+      return this.__iteratorUncached(type, reverse);
     };
 
 
@@ -519,14 +543,6 @@
 
     IndexedSeq.prototype.toString = function() {
       return this.__toString('Seq [', ']');
-    };
-
-    IndexedSeq.prototype.__iterate = function(fn, reverse) {
-      return seqIterate(this, fn, reverse, false);
-    };
-
-    IndexedSeq.prototype.__iterator = function(type, reverse) {
-      return seqIterator(this, type, reverse, false);
     };
 
 
@@ -573,24 +589,28 @@
 
     ArraySeq.prototype.__iterate = function(fn, reverse) {
       var array = this._array;
-      var maxIndex = array.length - 1;
-      for (var ii = 0; ii <= maxIndex; ii++) {
-        if (fn(array[reverse ? maxIndex - ii : ii], ii, this) === false) {
-          return ii + 1;
+      var size = array.length;
+      var i = 0;
+      while (i !== size) {
+        var ii = reverse ? size - ++i : i++;
+        if (fn(array[ii], ii, this) === false) {
+          break;
         }
       }
-      return ii;
+      return i;
     };
 
     ArraySeq.prototype.__iterator = function(type, reverse) {
       var array = this._array;
-      var maxIndex = array.length - 1;
-      var ii = 0;
-      return new Iterator(function() 
-        {return ii > maxIndex ?
-          iteratorDone() :
-          iteratorValue(type, ii, array[reverse ? maxIndex - ii++ : ii++])}
-      );
+      var size = array.length;
+      var i = 0;
+      return new Iterator(function()  {
+        if (i === size) {
+          return iteratorDone();
+        }
+        var ii = reverse ? size - ++i : i++;
+        return iteratorValue(type, ii, array[ii]);
+      });
     };
 
 
@@ -617,26 +637,28 @@
     ObjectSeq.prototype.__iterate = function(fn, reverse) {
       var object = this._object;
       var keys = this._keys;
-      var maxIndex = keys.length - 1;
-      for (var ii = 0; ii <= maxIndex; ii++) {
-        var key = keys[reverse ? maxIndex - ii : ii];
+      var size = keys.length;
+      var i = 0;
+      while (i !== size) {
+        var key = keys[reverse ? size - ++i : i++];
         if (fn(object[key], key, this) === false) {
-          return ii + 1;
+          break;
         }
       }
-      return ii;
+      return i;
     };
 
     ObjectSeq.prototype.__iterator = function(type, reverse) {
       var object = this._object;
       var keys = this._keys;
-      var maxIndex = keys.length - 1;
-      var ii = 0;
+      var size = keys.length;
+      var i = 0;
       return new Iterator(function()  {
-        var key = keys[reverse ? maxIndex - ii : ii];
-        return ii++ > maxIndex ?
-          iteratorDone() :
-          iteratorValue(type, key, object[key]);
+        if (i === size) {
+          return iteratorDone();
+        }
+        var key = keys[reverse ? size - ++i : i++];
+        return iteratorValue(type, key, object[key]);
       });
     };
 
@@ -792,36 +814,6 @@
       hasIterator(value) ? new IterableSeq(value) :
       undefined
     );
-  }
-
-  function seqIterate(seq, fn, reverse, useKeys) {
-    var cache = seq._cache;
-    if (cache) {
-      var maxIndex = cache.length - 1;
-      for (var ii = 0; ii <= maxIndex; ii++) {
-        var entry = cache[reverse ? maxIndex - ii : ii];
-        if (fn(entry[1], useKeys ? entry[0] : ii, seq) === false) {
-          return ii + 1;
-        }
-      }
-      return ii;
-    }
-    return seq.__iterateUncached(fn, reverse);
-  }
-
-  function seqIterator(seq, type, reverse, useKeys) {
-    var cache = seq._cache;
-    if (cache) {
-      var maxIndex = cache.length - 1;
-      var ii = 0;
-      return new Iterator(function()  {
-        var entry = cache[reverse ? maxIndex - ii : ii];
-        return ii++ > maxIndex ?
-          iteratorDone() :
-          iteratorValue(type, useKeys ? entry[0] : ii - 1, entry[1]);
-      });
-    }
-    return seq.__iteratorUncached(type, reverse);
   }
 
   function fromJS(json, converter) {
@@ -1047,18 +1039,23 @@
     };
 
     Repeat.prototype.__iterate = function(fn, reverse) {
-      for (var ii = 0; ii < this.size; ii++) {
-        if (fn(this._value, ii, this) === false) {
-          return ii + 1;
+      var size = this.size;
+      var i = 0;
+      while (i !== size) {
+        if (fn(this._value, reverse ? size - ++i : i++, this) === false) {
+          break;
         }
       }
-      return ii;
+      return i;
     };
 
     Repeat.prototype.__iterator = function(type, reverse) {var this$0 = this;
-      var ii = 0;
+      var size = this.size;
+      var i = 0;
       return new Iterator(function() 
-        {return ii < this$0.size ? iteratorValue(type, ii++, this$0._value) : iteratorDone()}
+        {return i === size ?
+          iteratorDone() :
+          iteratorValue(type, reverse ? size - ++i : i++, this$0._value)}
       );
     };
 
@@ -1153,27 +1150,31 @@
     };
 
     Range.prototype.__iterate = function(fn, reverse) {
-      var maxIndex = this.size - 1;
+      var size = this.size;
       var step = this._step;
-      var value = reverse ? this._start + maxIndex * step : this._start;
-      for (var ii = 0; ii <= maxIndex; ii++) {
-        if (fn(value, ii, this) === false) {
-          return ii + 1;
+      var value = reverse ? this._start + (size - 1) * step : this._start;
+      var i = 0;
+      while (i !== size) {
+        if (fn(value, reverse ? size - ++i : i++, this) === false) {
+          break;
         }
         value += reverse ? -step : step;
       }
-      return ii;
+      return i;
     };
 
     Range.prototype.__iterator = function(type, reverse) {
-      var maxIndex = this.size - 1;
+      var size = this.size;
       var step = this._step;
-      var value = reverse ? this._start + maxIndex * step : this._start;
-      var ii = 0;
+      var value = reverse ? this._start + (size - 1) * step : this._start;
+      var i = 0;
       return new Iterator(function()  {
+        if (i === size) {
+          return iteratorDone();
+        }
         var v = value;
         value += reverse ? -step : step;
-        return ii > maxIndex ? iteratorDone() : iteratorValue(type, ii++, v);
+        return iteratorValue(type, reverse ? size - ++i : i++, v);
       });
     };
 
@@ -2204,22 +2205,22 @@
     };
 
     List.prototype.__iterator = function(type, reverse) {
-      var index = 0;
+      var index = reverse ? this.size : 0;
       var values = iterateList(this, reverse);
       return new Iterator(function()  {
         var value = values();
         return value === DONE ?
           iteratorDone() :
-          iteratorValue(type, index++, value);
+          iteratorValue(type, reverse ? --index : index++, value);
       });
     };
 
     List.prototype.__iterate = function(fn, reverse) {
-      var index = 0;
+      var index = reverse ? this.size : 0;
       var values = iterateList(this, reverse);
       var value;
       while ((value = values()) !== DONE) {
-        if (fn(value, index++, this) === false) {
+        if (fn(value, reverse ? --index : index++, this) === false) {
           break;
         }
       }
@@ -2842,27 +2843,11 @@
     };
 
     ToKeyedSequence.prototype.__iterate = function(fn, reverse) {var this$0 = this;
-      var ii;
-      return this._iter.__iterate(
-        this._useKeys ?
-          function(v, k)  {return fn(v, k, this$0)} :
-          ((ii = reverse ? resolveSize(this) : 0),
-            function(v ) {return fn(v, reverse ? --ii : ii++, this$0)}),
-        reverse
-      );
+      return this._iter.__iterate(function(v, k)  {return fn(v, k, this$0)}, reverse);
     };
 
     ToKeyedSequence.prototype.__iterator = function(type, reverse) {
-      if (this._useKeys) {
-        return this._iter.__iterator(type, reverse);
-      }
-      var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
-      var ii = reverse ? resolveSize(this) : 0;
-      return new Iterator(function()  {
-        var step = iterator.next();
-        return step.done ? step :
-          iteratorValue(type, reverse ? --ii : ii++, step.value, step);
-      });
+      return this._iter.__iterator(type, reverse);
     };
 
   ToKeyedSequence.prototype[IS_ORDERED_SENTINEL] = true;
@@ -2879,17 +2864,19 @@
     };
 
     ToIndexedSequence.prototype.__iterate = function(fn, reverse) {var this$0 = this;
-      var iterations = 0;
-      return this._iter.__iterate(function(v ) {return fn(v, iterations++, this$0)}, reverse);
+      var i = 0;
+      reverse && ensureSize(this);
+      return this._iter.__iterate(function(v ) {return fn(v, reverse ? this$0.size - ++i : i++, this$0)}, reverse);
     };
 
-    ToIndexedSequence.prototype.__iterator = function(type, reverse) {
+    ToIndexedSequence.prototype.__iterator = function(type, reverse) {var this$0 = this;
       var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
-      var iterations = 0;
+      var i = 0;
+      reverse && ensureSize(this);
       return new Iterator(function()  {
         var step = iterator.next();
         return step.done ? step :
-          iteratorValue(type, iterations++, step.value, step)
+          iteratorValue(type, reverse ? this$0.size - ++i : i++, step.value, step)
       });
     };
 
@@ -3050,7 +3037,7 @@
   }
 
 
-  function reverseFactory(iterable, useKeys) {
+  function reverseFactory(iterable, useKeys) {var this$0 = this;
     var reversedSequence = makeSequence(iterable);
     reversedSequence._iter = iterable;
     reversedSequence.size = iterable.size;
@@ -3069,10 +3056,31 @@
     reversedSequence.includes = function(value ) {return iterable.includes(value)};
     reversedSequence.cacheResult = cacheResultThrough;
     reversedSequence.__iterate = function (fn, reverse) {var this$0 = this;
-      return iterable.__iterate(function(v, k)  {return fn(v, k, this$0)}, !reverse);
+      var i = 0;
+      reverse && ensureSize(iterable);
+      return iterable.__iterate(function(v, k) 
+        {return fn(v, useKeys ? k : reverse ? this$0.size - ++i : i++, this$0)},
+        !reverse
+      );
     };
-    reversedSequence.__iterator =
-      function(type, reverse)  {return iterable.__iterator(type, !reverse)};
+    reversedSequence.__iterator = function(type, reverse)  {
+      var i = 0;
+      reverse && ensureSize(iterable);
+      var iterator = iterable.__iterator(ITERATE_ENTRIES, !reverse);
+      return new Iterator(function()  {
+        var step = iterator.next();
+        if (step.done) {
+          return step;
+        }
+        var entry = step.value;
+        return iteratorValue(
+          type,
+          useKeys ? entry[0] : reverse ? this$0.size - ++i : i++,
+          entry[1],
+          step
+        );
+      });
+    }
     return reversedSequence;
   }
 
@@ -3382,13 +3390,16 @@
   function flattenFactory(iterable, depth, useKeys) {
     var flatSequence = makeSequence(iterable);
     flatSequence.__iterateUncached = function(fn, reverse) {
+      if (reverse) {
+        return this.cacheResult().__iterate(fn, reverse);
+      }
       var iterations = 0;
       var stopped = false;
-      function flatDeep(iter, currentDepth) {var this$0 = this;
+      function flatDeep(iter, currentDepth) {
         iter.__iterate(function(v, k)  {
           if ((!depth || currentDepth < depth) && isIterable(v)) {
             flatDeep(v, currentDepth + 1);
-          } else if (fn(v, useKeys ? k : iterations++, this$0) === false) {
+          } else if (fn(v, useKeys ? k : iterations++, flatSequence) === false) {
             stopped = true;
           }
           return !stopped;
@@ -3398,6 +3409,9 @@
       return iterations;
     }
     flatSequence.__iteratorUncached = function(type, reverse) {
+      if (reverse) {
+        return this.cacheResult().__iterator(type, reverse);
+      }
       var iterator = iterable.__iterator(type, reverse);
       var stack = [];
       var iterations = 0;
@@ -3573,11 +3587,6 @@
     if (entry !== Object(entry)) {
       throw new TypeError('Expected [K, V] tuple: ' + entry);
     }
-  }
-
-  function resolveSize(iter) {
-    assertNotInfinite(iter.size);
-    return ensureSize(iter);
   }
 
   function iterableClass(iterable) {
@@ -3824,6 +3833,16 @@
 
     Set.fromKeys = function(value) {
       return this(KeyedIterable(value).keySeq());
+    };
+
+    Set.intersect = function(sets) {
+      sets = Iterable(sets).toArray();
+      return sets.length ? SetPrototype.intersect.apply(Set(sets.pop()), sets) : emptySet();
+    };
+
+    Set.union = function(sets) {
+      sets = Iterable(sets).toArray();
+      return sets.length ? SetPrototype.union.apply(Set(sets.pop()), sets) : emptySet();
     };
 
     Set.prototype.toString = function() {
@@ -4154,9 +4173,9 @@
 
     // @pragma Iteration
 
-    Stack.prototype.__iterate = function(fn, reverse) {
+    Stack.prototype.__iterate = function(fn, reverse) {var this$0 = this;
       if (reverse) {
-        return this.reverse().__iterate(fn);
+        return new ArraySeq(this.toArray()).__iterate(function(v, k)  {return fn(v, k, this$0)}, reverse);
       }
       var iterations = 0;
       var node = this._head;
@@ -4171,7 +4190,7 @@
 
     Stack.prototype.__iterator = function(type, reverse) {
       if (reverse) {
-        return this.reverse().__iterator(type);
+        return new ArraySeq(this.toArray()).__iterator(type, reverse);
       }
       var iterations = 0;
       var node = this._head;
@@ -4730,7 +4749,7 @@
 
     splice: function(index, removeNum /*, ...values*/) {
       var numArgs = arguments.length;
-      removeNum = Math.max(removeNum | 0, 0);
+      removeNum = Math.max(removeNum || 0, 0);
       if (numArgs === 0 || (numArgs === 2 && !removeNum)) {
         return this;
       }
