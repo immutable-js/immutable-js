@@ -22,7 +22,7 @@
   "scripts": {
     "build": "npm run build:dist && gulp default",
     "build:dist": "npm run clean:dist && npm run bundle:dist && npm run copy:dist && npm run stats:dist",
-    "stats:dist": "node resources/dist-stats.js",
+    "stats:dist": "node ./resources/dist-stats.js",
     "clean:dist": "rimraf dist",
     "bundle:dist": "rollup -c rollup.config.dist.js",
     "copy:dist": "node ./resources/copy-dist-typedefs.js",
