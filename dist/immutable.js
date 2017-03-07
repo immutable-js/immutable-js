@@ -3835,6 +3835,16 @@
       return this(KeyedIterable(value).keySeq());
     };
 
+    Set.intersect = function(sets) {
+      sets = Iterable(sets).toArray();
+      return sets.length ? SetPrototype.intersect.apply(Set(sets.pop()), sets) : emptySet();
+    };
+
+    Set.union = function(sets) {
+      sets = Iterable(sets).toArray();
+      return sets.length ? SetPrototype.union.apply(Set(sets.pop()), sets) : emptySet();
+    };
+
     Set.prototype.toString = function() {
       return this.__toString('Set {', '}');
     };
