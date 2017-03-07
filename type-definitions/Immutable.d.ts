@@ -1440,7 +1440,7 @@ declare module Immutable {
    * ignored for this record.
    *
    *     var myRecord = new ABRecord({b:3, x:10})
-   *     myRecord.get('x') // undefined
+   *     myRecord.get('y') // undefined
    *
    * Because Records have a known set of string keys, property get access works
    * as expected, however property sets will throw an Error.
