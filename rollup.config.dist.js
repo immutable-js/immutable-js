@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import mkdirp from 'mkdirp';
 import { minify } from 'uglify-js';
 import buble from 'rollup-plugin-buble';
 import commonjs from 'rollup-plugin-commonjs';
@@ -14,6 +13,7 @@ const DIST_DIR = path.resolve('dist');
 
 export default {
   format: 'umd',
+  exports: 'named',
   sourceMap: false,
   banner: copyright,
   moduleName: 'Immutable',
@@ -33,7 +33,9 @@ export default {
           compress: { comparisons: true, pure_getters: true, unsafe: true }
         });
 
-        mkdirp.sync(DIST_DIR);
+        if (!fs.existsSync(DIST_DIR)) {
+          fs.mkdirSync(DIST_DIR);
+        }
 
         fs.writeFileSync(
           path.join(DIST_DIR, 'immutable.min.js'),
