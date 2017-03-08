@@ -2645,8 +2645,17 @@
     /**
      * Converts this Iterable to a List, discarding keys.
      *
-     * Note: This is equivalent to `List(this)`, but provided to allow
-     * for chained expressions.
+     * This is similar to `List(collection)`, but provided to allow for chained
+     * expressions. However, when called on `Map` or other keyed collections,
+     * `collection.toList()` discards the keys and creates a list of only the
+     * values, whereas `List(collection)` creates a list of entry tuples.
+     *
+     * ```js
+     * const { Map, List } = require('immutable')
+     * var myMap = Map({ a: 'Apple', b: 'Banana' })
+     * List(myMap) // List [ [ "a", "Apple" ], [ "b", "Banana" ] ]
+     * myMap.toList() // List [ "Apple", "Banana" ]
+     * ```
      */
     toList(): List<V>;
 
