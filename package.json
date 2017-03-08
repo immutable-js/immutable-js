@@ -24,7 +24,7 @@
     "build:dist": "npm run clean:dist && npm run bundle:dist && npm run copy:dist && npm run stats:dist",
     "stats:dist": "node ./resources/dist-stats.js",
     "clean:dist": "rimraf dist",
-    "bundle:dist": "rollup -c rollup.config.dist.js",
+    "bundle:dist": "rollup -c ./resources/rollup-config.js",
     "copy:dist": "node ./resources/copy-dist-typedefs.js",
     "lint": "eslint src/ && gulp lint",
     "testonly": "./resources/jest",
