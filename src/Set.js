@@ -7,32 +7,32 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { Iterable, SetIterable, KeyedIterable } from './Iterable'
-import { isOrdered } from './Predicates'
-import { SetCollection } from './Collection'
-import { emptyMap, MapPrototype } from './Map'
-import { DELETE } from './TrieUtils'
-import { sortFactory } from './Operations'
-import assertNotInfinite from './utils/assertNotInfinite'
+import { Iterable, SetIterable, KeyedIterable } from './Iterable';
+import { isOrdered } from './Predicates';
+import { SetCollection } from './Collection';
+import { emptyMap, MapPrototype } from './Map';
+import { DELETE } from './TrieUtils';
+import { sortFactory } from './Operations';
+import assertNotInfinite from './utils/assertNotInfinite';
 
-import { OrderedSet } from './OrderedSet'
-
+import { OrderedSet } from './OrderedSet';
 
 export class Set extends SetCollection {
-
   // @pragma Construction
 
   constructor(value) {
-    return value === null || value === undefined ? emptySet() :
-      isSet(value) && !isOrdered(value) ? value :
-      emptySet().withMutations(set => {
-        var iter = SetIterable(value);
-        assertNotInfinite(iter.size);
-        iter.forEach(v => set.add(v));
-      });
+    return value === null || value === undefined
+      ? emptySet()
+      : isSet(value) && !isOrdered(value)
+          ? value
+          : emptySet().withMutations(set => {
+              var iter = SetIterable(value);
+              assertNotInfinite(iter.size);
+              iter.forEach(v => set.add(v));
+            });
   }
 
-  static of(/*...values*/) {
+  static of /*...values*/() {
     return this(arguments);
   }
 
@@ -42,12 +42,16 @@ export class Set extends SetCollection {
 
   static intersect(sets) {
     sets = Iterable(sets).toArray();
-    return sets.length ? SetPrototype.intersect.apply(Set(sets.pop()), sets) : emptySet();
+    return sets.length
+      ? SetPrototype.intersect.apply(Set(sets.pop()), sets)
+      : emptySet();
   }
 
   static union(sets) {
     sets = Iterable(sets).toArray();
-    return sets.length ? SetPrototype.union.apply(Set(sets.pop()), sets) : emptySet();
+    return sets.length
+      ? SetPrototype.union.apply(Set(sets.pop()), sets)
+      : emptySet();
   }
 
   toString() {
@@ -199,9 +203,9 @@ function updateSet(set, newMap) {
     set._map = newMap;
     return set;
   }
-  return newMap === set._map ? set :
-    newMap.size === 0 ? set.__empty() :
-    set.__make(newMap);
+  return newMap === set._map
+    ? set
+    : newMap.size === 0 ? set.__empty() : set.__make(newMap);
 }
 
 function makeSet(map, ownerID) {

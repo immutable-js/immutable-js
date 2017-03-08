@@ -16,7 +16,7 @@ var TypeKind = {
   Union: 11,
   Tuple: 12,
   Indexed: 13,
-  Operator: 14,
+  Operator: 14
 };
 
 module.exports = TypeKind;

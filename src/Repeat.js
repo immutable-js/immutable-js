@@ -7,20 +7,18 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { wholeSlice, resolveBegin, resolveEnd } from './TrieUtils'
-import { IndexedSeq } from './Seq'
-import { is } from './is'
-import { Iterator, iteratorValue, iteratorDone } from './Iterator'
+import { wholeSlice, resolveBegin, resolveEnd } from './TrieUtils';
+import { IndexedSeq } from './Seq';
+import { is } from './is';
+import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 
-import deepEqual from './utils/deepEqual'
-
+import deepEqual from './utils/deepEqual';
 
 /**
  * Returns a lazy Seq of `value` repeated `times` times. When `times` is
  * undefined, returns an infinite sequence of `value`.
  */
 export class Repeat extends IndexedSeq {
-
   constructor(value, times) {
     if (!(this instanceof Repeat)) {
       return new Repeat(value, times);
@@ -52,8 +50,12 @@ export class Repeat extends IndexedSeq {
 
   slice(begin, end) {
     var size = this.size;
-    return wholeSlice(begin, end, size) ? this :
-      new Repeat(this._value, resolveEnd(end, size) - resolveBegin(begin, size));
+    return wholeSlice(begin, end, size)
+      ? this
+      : new Repeat(
+          this._value,
+          resolveEnd(end, size) - resolveBegin(begin, size)
+        );
   }
 
   reverse() {
@@ -88,17 +90,18 @@ export class Repeat extends IndexedSeq {
   __iterator(type, reverse) {
     var size = this.size;
     var i = 0;
-    return new Iterator(() =>
-      i === size ?
-        iteratorDone() :
-        iteratorValue(type, reverse ? size - ++i : i++, this._value)
+    return new Iterator(
+      () =>
+        i === size
+          ? iteratorDone()
+          : iteratorValue(type, reverse ? size - ++i : i++, this._value)
     );
   }
 
   equals(other) {
-    return other instanceof Repeat ?
-      is(this._value, other._value) :
-      deepEqual(other);
+    return other instanceof Repeat
+      ? is(this._value, other._value)
+      : deepEqual(other);
   }
 }
 

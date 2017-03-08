@@ -7,16 +7,14 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { KeyedIterable } from './Iterable'
-import { KeyedCollection } from './Collection'
-import { Map, MapPrototype, emptyMap } from './Map'
-import { DELETE } from './TrieUtils'
+import { KeyedIterable } from './Iterable';
+import { KeyedCollection } from './Collection';
+import { Map, MapPrototype, emptyMap } from './Map';
+import { DELETE } from './TrieUtils';
 
-import invariant from './utils/invariant'
-
+import invariant from './utils/invariant';
 
 export class Record extends KeyedCollection {
-
   constructor(defaultValues, name) {
     var hasInitialized;
 
@@ -37,11 +35,17 @@ export class Record extends KeyedCollection {
         for (var i = 0; i < keys.length; i++) {
           var propName = keys[i];
           if (RecordTypePrototype[propName]) {
-            // eslint-disable-next-line no-console
-            typeof console === 'object' && console.warn && console.warn(
-              'Cannot define ' + recordName(this) + ' with property "' +
-              propName + '" since that property name is part of the Record API.'
-            );
+            /* eslint-disable no-console */
+            typeof console === 'object' &&
+              console.warn &&
+              console.warn(
+                'Cannot define ' +
+                  recordName(this) +
+                  ' with property "' +
+                  propName +
+                  '" since that property name is part of the Record API.'
+              );
+            /* eslint-enable no-console */
           } else {
             setProp(RecordTypePrototype, propName);
           }
@@ -50,7 +54,9 @@ export class Record extends KeyedCollection {
       this._map = Map(values);
     };
 
-    var RecordTypePrototype = RecordType.prototype = Object.create(RecordPrototype);
+    var RecordTypePrototype = (RecordType.prototype = Object.create(
+      RecordPrototype
+    ));
     RecordTypePrototype.constructor = RecordType;
 
     return RecordType;
@@ -82,7 +88,8 @@ export class Record extends KeyedCollection {
       return this;
     }
     var RecordType = this.constructor;
-    return RecordType._empty || (RecordType._empty = makeRecord(this, emptyMap()));
+    return RecordType._empty ||
+      (RecordType._empty = makeRecord(this, emptyMap()));
   }
 
   set(k, v) {
@@ -118,11 +125,15 @@ export class Record extends KeyedCollection {
   }
 
   __iterator(type, reverse) {
-    return KeyedIterable(this._defaultValues).map((_, k) => this.get(k)).__iterator(type, reverse);
+    return KeyedIterable(this._defaultValues)
+      .map((_, k) => this.get(k))
+      .__iterator(type, reverse);
   }
 
   __iterate(fn, reverse) {
-    return KeyedIterable(this._defaultValues).map((_, k) => this.get(k)).__iterate(fn, reverse);
+    return KeyedIterable(this._defaultValues)
+      .map((_, k) => this.get(k))
+      .__iterate(fn, reverse);
   }
 
   __ensureOwner(ownerID) {
@@ -142,8 +153,7 @@ export class Record extends KeyedCollection {
 Record.getDescriptiveName = recordName;
 var RecordPrototype = Record.prototype;
 RecordPrototype[DELETE] = RecordPrototype.remove;
-RecordPrototype.deleteIn =
-RecordPrototype.removeIn = MapPrototype.removeIn;
+RecordPrototype.deleteIn = (RecordPrototype.removeIn = MapPrototype.removeIn);
 RecordPrototype.merge = MapPrototype.merge;
 RecordPrototype.mergeWith = MapPrototype.mergeWith;
 RecordPrototype.mergeIn = MapPrototype.mergeIn;
@@ -156,7 +166,6 @@ RecordPrototype.updateIn = MapPrototype.updateIn;
 RecordPrototype.withMutations = MapPrototype.withMutations;
 RecordPrototype.asMutable = MapPrototype.asMutable;
 RecordPrototype.asImmutable = MapPrototype.asImmutable;
-
 
 function makeRecord(likeRecord, map, ownerID) {
   var record = Object.create(Object.getPrototypeOf(likeRecord));

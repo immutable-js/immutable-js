@@ -5,21 +5,21 @@ var collectMemberGroups = require('./collectMemberGroups');
 // Note: intentionally using raw defs, not getTypeDefs to avoid circular ref.
 var defs = require('../generated/immutable.d.json');
 
-
 function collectAllMembersForAllTypes(defs) {
   var allMembers = new WeakMap();
   _collectAllMembersForAllTypes(defs);
   return allMembers;
   function _collectAllMembersForAllTypes(defs) {
-
     Seq(defs).forEach(def => {
       if (def.interface) {
-        var groups = collectMemberGroups(def.interface, { showInherited: true });
+        var groups = collectMemberGroups(def.interface, {
+          showInherited: true
+        });
         allMembers.set(
           def.interface,
-          Seq.Keyed(groups[''].map(
-            member => [member.memberName, member.memberDef]
-          )).toObject()
+          Seq.Keyed(
+            groups[''].map(member => [member.memberName, member.memberDef])
+          ).toObject()
         );
       }
       if (def.module) {
@@ -34,14 +34,14 @@ var allMembers = collectAllMembersForAllTypes(defs);
 
 // functions come before keywords
 prism.languages.insertBefore('javascript', 'keyword', {
-  'var': /\b(this)\b/g,
+  var: /\b(this)\b/g,
   'block-keyword': /\b(if|else|while|for|function)\b/g,
-  'primitive': /\b(true|false|null|undefined)\b/g,
-  'function': prism.languages.function,
+  primitive: /\b(true|false|null|undefined)\b/g,
+  function: prism.languages.function
 });
 
 prism.languages.insertBefore('javascript', {
-  'qualifier': /\b[A-Z][a-z0-9_]+/g,
+  qualifier: /\b[A-Z][a-z0-9_]+/g
 });
 
 marked.setOptions({
@@ -61,18 +61,17 @@ renderer.code = function(code, lang, escaped) {
   }
   return '<code class="codeBlock">' +
     (escaped ? code : escapeCode(code, true)) +
-  '</code>';
+    '</code>';
 };
 
 var METHOD_RX = /^(\w+)(?:[#.](\w+))?(?:\(\))?$/;
 var PARAM_RX = /^\w+$/;
 var MDN_TYPES = {
-  'Array': true,
-  'Object': true,
-  'JSON': true,
+  Array: true,
+  Object: true,
+  JSON: true
 };
-var MDN_BASE_URL =
-  'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/';
+var MDN_BASE_URL = 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/';
 
 renderer.codespan = function(text) {
   return '<code>' + decorateCodeSpan(text, this.options) + '</code>';
@@ -81,10 +80,13 @@ renderer.codespan = function(text) {
 function decorateCodeSpan(text, options) {
   var context = options.context;
 
-  if (context.signatures &&
-      PARAM_RX.test(text) &&
-      context.signatures.some(sig =>
-        sig.params && sig.params.some(param => param.name === text))) {
+  if (
+    context.signatures &&
+    PARAM_RX.test(text) &&
+    context.signatures.some(
+      sig => sig.params && sig.params.some(param => param.name === text)
+    )
+  ) {
     return '<span class="t param">' + text + '</span>';
   }
 
@@ -92,15 +94,28 @@ function decorateCodeSpan(text, options) {
   if (method) {
     method = method.slice(1).filter(Boolean);
     if (MDN_TYPES[method[0]]) {
-      return '<a href="'+MDN_BASE_URL+method.join('/')+'">'+text+'</a>';
+      return '<a href="' +
+        MDN_BASE_URL +
+        method.join('/') +
+        '">' +
+        text +
+        '</a>';
     }
-    if (context.typePath &&
-        !arrEndsWith(context.typePath, method) &&
-        !arrEndsWith(context.typePath.slice(0, -1), method)) {
+    if (
+      context.typePath &&
+      !arrEndsWith(context.typePath, method) &&
+      !arrEndsWith(context.typePath.slice(0, -1), method)
+    ) {
       var path = findPath(context, method);
       if (path) {
         var relPath = context.relPath || '';
-        return '<a target="_self" href="' + relPath + '#/'+path.slice(1).join('/')+'">'+text+'</a>';
+        return '<a target="_self" href="' +
+          relPath +
+          '#/' +
+          path.slice(1).join('/') +
+          '">' +
+          text +
+          '</a>';
       }
     }
   }
@@ -126,14 +141,18 @@ function findPath(context, search) {
 
   for (var ii = 0; ii <= relative.length; ii++) {
     var path = relative.slice(0, relative.length - ii).concat(search);
-    if (path.reduce(
-      (def, name) => def && (
-        (def.module && def.module[name]) ||
-        (def.interface && allMembers && allMembers.get(def.interface)[name]) ||
-        undefined
-      ),
-      {module: defs}
-    )) {
+    if (
+      path.reduce(
+        (def, name) =>
+          def &&
+          ((def.module && def.module[name]) ||
+            (def.interface &&
+              allMembers &&
+              allMembers.get(def.interface)[name]) ||
+            undefined),
+        { module: defs }
+      )
+    ) {
       return path;
     }
   }
@@ -153,7 +172,7 @@ function unescapeCode(code) {
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, '\'')
+    .replace(/&#39;/g, "'")
     .replace(/&amp;/g, '&');
 }
 

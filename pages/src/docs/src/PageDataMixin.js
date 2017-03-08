@@ -2,7 +2,7 @@ var React = require('react');
 
 module.exports = {
   contextTypes: {
-    getPageData: React.PropTypes.func.isRequired,
+    getPageData: React.PropTypes.func.isRequired
   },
 
   /**

@@ -7,7 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { smi } from './Math'
+import { smi } from './Math';
 
 export function hash(o) {
   if (o === false || o === null || o === undefined) {
@@ -29,16 +29,18 @@ export function hash(o) {
     }
     var h = o | 0;
     if (h !== o) {
-      h ^= o * 0xFFFFFFFF;
+      h ^= o * 0xffffffff;
     }
-    while (o > 0xFFFFFFFF) {
-      o /= 0xFFFFFFFF;
+    while (o > 0xffffffff) {
+      o /= 0xffffffff;
       h ^= o;
     }
     return smi(h);
   }
   if (type === 'string') {
-    return o.length > STRING_HASH_CACHE_MIN_STRLEN ? cachedHashString(o) : hashString(o);
+    return o.length > STRING_HASH_CACHE_MIN_STRLEN
+      ? cachedHashString(o)
+      : hashString(o);
   }
   if (typeof o.hashCode === 'function') {
     return o.hashCode();
@@ -118,19 +120,24 @@ function hashJSObj(obj) {
     throw new Error('Non-extensible objects are not allowed as keys.');
   } else if (canDefineProperty) {
     Object.defineProperty(obj, UID_HASH_KEY, {
-      'enumerable': false,
-      'configurable': false,
-      'writable': false,
-      'value': hash
+      enumerable: false,
+      configurable: false,
+      writable: false,
+      value: hash
     });
-  } else if (obj.propertyIsEnumerable !== undefined &&
-             obj.propertyIsEnumerable === obj.constructor.prototype.propertyIsEnumerable) {
+  } else if (
+    obj.propertyIsEnumerable !== undefined &&
+    obj.propertyIsEnumerable === obj.constructor.prototype.propertyIsEnumerable
+  ) {
     // Since we can't define a non-enumerable property on the object
     // we'll hijack one of the less-used non-enumerable properties to
     // save our hash on it. Since this is a function it will not show up in
     // `JSON.stringify` which is what we want.
     obj.propertyIsEnumerable = function() {
-      return this.constructor.prototype.propertyIsEnumerable.apply(this, arguments);
+      return this.constructor.prototype.propertyIsEnumerable.apply(
+        this,
+        arguments
+      );
     };
     obj.propertyIsEnumerable[UID_HASH_KEY] = hash;
   } else if (obj.nodeType !== undefined) {
@@ -157,7 +164,7 @@ var canDefineProperty = (function() {
   } catch (e) {
     return false;
   }
-}());
+})();
 
 // IE has a `uniqueID` property on DOM nodes. We can construct the hash from it
 // and avoid memory leaks from the IE cloneNode bug.

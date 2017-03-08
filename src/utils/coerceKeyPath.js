@@ -7,8 +7,8 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { isOrdered } from '../Predicates'
-import isArrayLike from './isArrayLike'
+import { isOrdered } from '../Predicates';
+import isArrayLike from './isArrayLike';
 
 export default function coerceKeyPath(keyPath) {
   if (isArrayLike(keyPath) && typeof keyPath !== 'string') {
@@ -17,5 +17,7 @@ export default function coerceKeyPath(keyPath) {
   if (isOrdered(keyPath)) {
     return keyPath.toArray();
   }
-  throw new TypeError('Invalid keyPath: expected Ordered Iterable or Array: ' + keyPath);
+  throw new TypeError(
+    'Invalid keyPath: expected Ordered Iterable or Array: ' + keyPath
+  );
 }

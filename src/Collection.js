@@ -7,8 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { Iterable } from './Iterable'
-
+import { Iterable } from './Iterable';
 
 export class Collection extends Iterable {
   constructor() {
@@ -21,7 +20,6 @@ export class KeyedCollection extends Collection {}
 export class IndexedCollection extends Collection {}
 
 export class SetCollection extends Collection {}
-
 
 Collection.Keyed = KeyedCollection;
 Collection.Indexed = IndexedCollection;

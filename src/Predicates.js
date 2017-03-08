@@ -8,7 +8,9 @@
  */
 
 export function isImmutable(maybeImmutable) {
-  return !!(maybeImmutable && maybeImmutable[IS_ITERABLE_SENTINEL] && !maybeImmutable.__ownerID);
+  return !!(maybeImmutable &&
+    maybeImmutable[IS_ITERABLE_SENTINEL] &&
+    !maybeImmutable.__ownerID);
 }
 
 export function isIterable(maybeIterable) {
@@ -32,11 +34,9 @@ export function isOrdered(maybeOrdered) {
 }
 
 export function isValueObject(maybeValue) {
-  return !!(
-    maybeValue &&
+  return !!(maybeValue &&
     typeof maybeValue.equals === 'function' &&
-    typeof maybeValue.hashCode === 'function'
-  );
+    typeof maybeValue.hashCode === 'function');
 }
 
 export var IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';

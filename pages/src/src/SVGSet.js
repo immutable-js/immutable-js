@@ -1,6 +1,5 @@
 var React = require('react');
 
-
 var SVGSet = React.createClass({
   render: function() {
     return (
@@ -10,6 +9,5 @@ var SVGSet = React.createClass({
     );
   }
 });
-
 
 module.exports = SVGSet;

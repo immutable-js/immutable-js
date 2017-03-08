@@ -7,9 +7,15 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { is } from '../is'
-import { NOT_SET } from '../TrieUtils'
-import { isIterable, isKeyed, isIndexed, isAssociative, isOrdered } from '../Predicates'
+import { is } from '../is';
+import { NOT_SET } from '../TrieUtils';
+import {
+  isIterable,
+  isKeyed,
+  isIndexed,
+  isAssociative,
+  isOrdered
+} from '../Predicates';
 
 export default function deepEqual(a, b) {
   if (a === b) {
@@ -18,8 +24,10 @@ export default function deepEqual(a, b) {
 
   if (
     !isIterable(b) ||
-    a.size !== undefined && b.size !== undefined && a.size !== b.size ||
-    a.__hash !== undefined && b.__hash !== undefined && a.__hash !== b.__hash ||
+    (a.size !== undefined && b.size !== undefined && a.size !== b.size) ||
+    (a.__hash !== undefined &&
+      b.__hash !== undefined &&
+      a.__hash !== b.__hash) ||
     isKeyed(a) !== isKeyed(b) ||
     isIndexed(a) !== isIndexed(b) ||
     isOrdered(a) !== isOrdered(b)
@@ -58,8 +66,11 @@ export default function deepEqual(a, b) {
 
   var allEqual = true;
   var bSize = b.__iterate((v, k) => {
-    if (notAssociative ? !a.has(v) :
-        flipped ? !is(v, a.get(k, NOT_SET)) : !is(a.get(k, NOT_SET), v)) {
+    if (
+      notAssociative
+        ? !a.has(v)
+        : flipped ? !is(v, a.get(k, NOT_SET)) : !is(a.get(k, NOT_SET), v)
+    ) {
       allEqual = false;
       return false;
     }
