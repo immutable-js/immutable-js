@@ -3,13 +3,9 @@
     "target": "es5",
     "sourceMap": false,
     "module": "commonjs",
-    "noEmitOnError": true,
-    "lib": [
-      "es2015"
-    ]
+    "noEmitOnError": true
   },
   "exclude": [
-    "node_modules",
-    "type-definitions"
+    "node_modules"
   ]
 }
