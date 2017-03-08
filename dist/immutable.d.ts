@@ -215,6 +215,8 @@ declare module Immutable {
      * List().set(50000, 'value').size;
      * //50001
      * ```
+     *
+     * Note: `set` can be used in `withMutations`.
      */
     set(index: number, value: T): List<T>;
 
@@ -235,6 +237,8 @@ declare module Immutable {
      * // [ 1, 2, 3, 4 ]
      * ```
      *
+     * Note: `delete` *cannot* be used in `withMutations`.
+     *
      * @alias remove
      */
     delete(index: number): List<T>;
@@ -250,6 +254,8 @@ declare module Immutable {
      * List([0, 1, 2, 3, 4]).insert(6, 5).toJS();
      * // [ 0, 1, 2, 3, 4, 5 ]
      * ```
+     *
+     * Note: `insert` *cannot* be used in `withMutations`.
      */
     insert(index: number, value: T): List<T>;
 
@@ -260,6 +266,8 @@ declare module Immutable {
      * List([1, 2, 3, 4]).clear().toJS();
      * // []
      * ```
+     *
+     * Note: `clear` can be used in `withMutations`.
      */
     clear(): List<T>;
 
@@ -271,6 +279,8 @@ declare module Immutable {
      * List([1, 2, 3, 4]).push(5).toJS();
      * // [ 1, 2, 3, 4, 5 ]
      * ```
+     *
+     * Note: `push` can be used in `withMutations`.
      */
     push(...values: T[]): List<T>;
 
@@ -285,6 +295,8 @@ declare module Immutable {
      * List([1, 2, 3, 4]).pop().toJS();
      * // [ 1, 2, 3 ]
      * ```
+     *
+     * Note: `pop` can be used in `withMutations`.
      */
     pop(): List<T>;
 
@@ -296,6 +308,8 @@ declare module Immutable {
      * List([ 2, 3, 4]).unshift(1).toJS();
      * // [ 1, 2, 3, 4 ]
      * ```
+     *
+     * Note: `unshift` can be used in `withMutations`.
      */
     unshift(...values: T[]): List<T>;
 
@@ -311,6 +325,8 @@ declare module Immutable {
      * List([ 0, 1, 2, 3, 4]).shift(0).toJS();
      * // [ 1, 2, 3, 4 ]
      * ```
+     *
+     * Note: `shift` can be used in `withMutations`.
      */
     shift(): List<T>;
 
@@ -349,6 +365,8 @@ declare module Immutable {
      * // 6
      * ```
      *
+     * Note: `update(index)` can be used in `withMutations`.
+     *
      * @see `Map#update`
      */
     update(index: number, updater: (value: T) => T): this;
@@ -356,12 +374,16 @@ declare module Immutable {
     update<R>(updater: (value: this) => R): R;
 
     /**
+     * Note: `merge` can be used in `withMutations`.
+     *
      * @see `Map#merge`
      */
     merge(...iterables: Iterable.Indexed<T>[]): List<T>;
     merge(...iterables: Array<T>[]): List<T>;
 
     /**
+     * Note: `mergeWith` can be used in `withMutations`.
+     *
      * @see `Map#mergeWith`
      */
     mergeWith(
@@ -374,12 +396,15 @@ declare module Immutable {
     ): List<T>;
 
     /**
+     * Note: `mergeDeep` can be used in `withMutations`.
+     *
      * @see `Map#mergeDeep`
      */
     mergeDeep(...iterables: Iterable.Indexed<T>[]): List<T>;
     mergeDeep(...iterables: Array<T>[]): List<T>;
 
     /**
+     * Note: `mergeDeepWith` can be used in `withMutations`.
      * @see `Map#mergeDeepWith`
      */
     mergeDeepWith(
@@ -417,6 +442,8 @@ declare module Immutable {
      * Immutable.fromJS([0, 1, 2, [3, 4]]).setIn([3, 0], -3).toJS();
      * // [ 0, 1, 2, [ -3, 4 ] ]
      * ```
+     *
+     * Note: `setIn` can be used in `withMutations`.
      */
     setIn(keyPath: Array<any>, value: any): List<T>;
     setIn(keyPath: Iterable<any, any>, value: any): List<T>;
@@ -429,6 +456,9 @@ declare module Immutable {
      * Immutable.fromJS([0, 1, 2, [3, 4]]).deleteIn([3, 1]).toJS();
      * // [ 0, 1, 2, [ 3 ] ]
      * ```
+     *
+     * Note: `deleteIn` *cannot* be safely used in `withMutations`.
+     *
      * @alias removeIn
      */
     deleteIn(keyPath: Array<any>): List<T>;
@@ -437,6 +467,8 @@ declare module Immutable {
     removeIn(keyPath: Iterable<any, any>): List<T>;
 
     /**
+     * Note: `updateIn` can be used in `withMutations`.
+     *
      * @see `Map#updateIn`
      */
     updateIn(
@@ -459,11 +491,15 @@ declare module Immutable {
     ): List<T>;
 
     /**
+     * Note: `mergeIn` can be used in `withMutations`.
+     *
      * @see `Map#mergeIn`
      */
     mergeIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): List<T>;
 
     /**
+     * Note: `mergeDeepIn` can be used in `withMutations`.
+     *
      * @see `Map#mergeDeepIn`
      */
     mergeDeepIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): List<T>;
@@ -471,15 +507,21 @@ declare module Immutable {
     // Transient changes
 
     /**
-     * Note: Not all methods can be used on a mutable collection or within
-     * `withMutations`! Only `set`, `push`, `pop`, `shift`, `unshift` and
-     * `merge` may be used mutatively.
+     * Note: Not all methods can be safely used on a mutable collection or within
+     * `withMutations`! Check the documentation for each method to see if it
+     * allows being used in `withMutations`.
      *
      * @see `Map#withMutations`
      */
     withMutations(mutator: (mutable: List<T>) => any): List<T>;
 
     /**
+     * An alternative API for withMutations()
+     *
+     * Note: Not all methods can be safely used on a mutable collection or within
+     * `withMutations`! Check the documentation for each method to see if it
+     * allows being used in `withMutations`.
+     *
      * @see `Map#asMutable`
      */
     asMutable(): List<T>;
@@ -608,6 +650,8 @@ declare module Immutable {
      * newerMap.toJS(); // { key: 'value' }
      * newestMap.toJS(); // { key: 'newer value' }
      * ```
+     *
+     * Note: `set` can be used in `withMutations`.
      */
     set(key: K, value: V): Map<K, V>;
 
@@ -625,6 +669,8 @@ declare module Immutable {
      * // { key: 'value' }
      * ```
      *
+     * Note: `delete` can be used in `withMutations`.
+     *
      * @alias remove
      */
     delete(key: K): Map<K, V>;
@@ -635,6 +681,8 @@ declare module Immutable {
      *
      *     var names = Immutable.Map({ a: "Aaron", b: "Barry", c: "Connor" });
      *     names.deleteAll(['a', 'c']); // { b: "Barry" }
+     *
+     * Note: `deleteAll` can be used in `withMutations`.
      *
      * @alias removeAll
      */
@@ -648,6 +696,8 @@ declare module Immutable {
      * Immutable.Map({ key: 'value' }).clear().toJS();
      * // {}
      * ```
+     *
+     * Note: `clear` can be used in `withMutations`.
      */
     clear(): Map<K, V>;
 
@@ -730,6 +780,8 @@ declare module Immutable {
      *   .update(sum)
      * // 6
      * ```
+     *
+     * Note: `update(key)` can be used in `withMutations`.
      */
     update(key: K, updater: (value: V) => V): this;
     update(key: K, notSetValue: V, updater: (value: V) => V): this;
@@ -751,6 +803,7 @@ declare module Immutable {
      *     x.merge(y) // { a: 50, b: 40, c: 30, d: 60 }
      *     y.merge(x) // { b: 20, a: 10, d: 60, c: 30 }
      *
+     * Note: `merge` can be used in `withMutations`.
      */
     merge(...iterables: Iterable<K, V>[]): Map<K, V>;
     merge(...iterables: {[key: string]: V}[]): Map<string, V>;
@@ -765,6 +818,7 @@ declare module Immutable {
      *     x.mergeWith((prev, next) => prev / next, y) // { a: 0.2, b: 0.5, c: 30, d: 60 }
      *     y.mergeWith((prev, next) => prev / next, x) // { b: 2, a: 5, d: 60, c: 30 }
      *
+     * Note: `mergeWith` can be used in `withMutations`.
      */
     mergeWith(
       merger: (previous: V, next: V, key: K) => V,
@@ -783,6 +837,7 @@ declare module Immutable {
      *     var y = Immutable.fromJS({a: { x: 2 }, b: { y: 5 }, c: { z: 3 } });
      *     x.mergeDeep(y) // {a: { x: 2, y: 10 }, b: { x: 20, y: 5 }, c: { z: 3 } }
      *
+     * Note: `mergeDeep` can be used in `withMutations`.
      */
     mergeDeep(...iterables: Iterable<K, V>[]): Map<K, V>;
     mergeDeep(...iterables: {[key: string]: V}[]): Map<string, V>;
@@ -796,6 +851,7 @@ declare module Immutable {
      *     x.mergeDeepWith((prev, next) => prev / next, y)
      *     // {a: { x: 5, y: 10 }, b: { x: 20, y: 10 }, c: { z: 3 } }
      *
+     * Note: `mergeDeepWith` can be used in `withMutations`.
      */
     mergeDeepWith(
       merger: (previous: V, next: V, key: K) => V,
@@ -837,6 +893,8 @@ declare module Immutable {
      *
      * If any key in the path exists but does not have a .set() method (such as
      * Map and List), an error will be throw.
+     *
+     * Note: `setIn` can be used in `withMutations`.
      */
     setIn(keyPath: Array<any>, value: any): Map<K, V>;
     setIn(KeyPath: Iterable<any, any>, value: any): Map<K, V>;
@@ -844,6 +902,8 @@ declare module Immutable {
     /**
      * Returns a new Map having removed the value at this `keyPath`. If any keys
      * in `keyPath` do not exist, no change will occur.
+     *
+     * Note: `deleteIn` can be used in `withMutations`.
      *
      * @alias removeIn
      */
@@ -929,6 +989,7 @@ declare module Immutable {
      *     x.updateIn(['a', 'b', 'c'], abc => abc.merge(y));
      *     x.mergeIn(['a', 'b', 'c'], y);
      *
+     * Note: `mergeIn` can be used in `withMutations`.
      */
     mergeIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): Map<K, V>;
 
@@ -940,6 +1001,7 @@ declare module Immutable {
      *     x.updateIn(['a', 'b', 'c'], abc => abc.mergeDeep(y));
      *     x.mergeDeepIn(['a', 'b', 'c'], y);
      *
+     * Note: `mergeDeepIn` can be used in `withMutations`.
      */
     mergeDeepIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): Map<K, V>;
 
@@ -966,8 +1028,8 @@ declare module Immutable {
      *     assert(map2.size === 3);
      *
      * Note: Not all methods can be used on a mutable collection or within
-     * `withMutations`! Only `set` and `merge` may be used mutatively.
-     *
+     * `withMutations`! Read the documentation for each method to see if it
+     * is safe to use in `withMutations`.
      */
     withMutations(mutator: (mutable: Map<K, V>) => any): Map<K, V>;
 
@@ -982,7 +1044,8 @@ declare module Immutable {
      * Note: if the collection is already mutable, `asMutable` returns itself.
      *
      * Note: Not all methods can be used on a mutable collection or within
-     * `withMutations`! Only `set` and `merge` may be used mutatively.
+     * `withMutations`! Read the documentation for each method to see if it
+     * is safe to use in `withMutations`.
      */
     asMutable(): Map<K, V>;
 
@@ -1173,13 +1236,18 @@ declare module Immutable {
 
     /**
      * Returns a new Set which also includes this value.
+     *
+     * Note: `add` can be used in `withMutations`.
      */
     add(value: T): Set<T>;
 
     /**
      * Returns a new Set which excludes this value.
      *
-     * Note: `delete` cannot be safely used in IE8
+     * Note: `delete` can be used in `withMutations`.
+     *
+     * Note: `delete` **cannot** be safely used in IE8, use `remove` if supporting old browsers.
+     *
      * @alias remove
      */
     delete(value: T): Set<T>;
@@ -1187,12 +1255,16 @@ declare module Immutable {
 
     /**
      * Returns a new Set containing no values.
+     *
+     * Note: `clear` can be used in `withMutations`.
      */
     clear(): Set<T>;
 
     /**
      * Returns a Set including any value from `iterables` that does not already
      * exist in this Set.
+     *
+     * Note: `union` can be used in `withMutations`.
      * @alias merge
      */
     union(...iterables: Iterable<any, T>[]): Set<T>;
@@ -1204,12 +1276,16 @@ declare module Immutable {
     /**
      * Returns a Set which has removed any values not also contained
      * within `iterables`.
+     *
+     * Note: `intersect` can be used in `withMutations`.
      */
     intersect(...iterables: Iterable<any, T>[]): Set<T>;
     intersect(...iterables: Array<T>[]): Set<T>;
 
     /**
      * Returns a Set excluding any values contained within `iterables`.
+     *
+     * Note: `subtract` can be used in `withMutations`.
      */
     subtract(...iterables: Iterable<any, T>[]): Set<T>;
     subtract(...iterables: Array<T>[]): Set<T>;
@@ -1219,13 +1295,18 @@ declare module Immutable {
 
     /**
      * Note: Not all methods can be used on a mutable collection or within
-     * `withMutations`! Only `add` may be used mutatively.
+     * `withMutations`! Check the documentation for each method to see if it
+     * mentions being safe to use in `withMutations`.
      *
      * @see `Map#withMutations`
      */
     withMutations(mutator: (mutable: Set<T>) => any): Set<T>;
 
     /**
+     * Note: Not all methods can be used on a mutable collection or within
+     * `withMutations`! Check the documentation for each method to see if it
+     * mentions being safe to use in `withMutations`.
+     *
      * @see `Map#asMutable`
      */
     asMutable(): Set<T>;
@@ -1396,6 +1477,8 @@ declare module Immutable {
 
     /**
      * Returns a new Stack with 0 size and no values.
+     *
+     * Note: `clear` can be used in `withMutations`.
      */
     clear(): Stack<T>;
 
@@ -1404,11 +1487,15 @@ declare module Immutable {
      * values ahead to higher indices.
      *
      * This is very efficient for Stack.
+     *
+     * Note: `unshift` can be used in `withMutations`.
      */
     unshift(...values: T[]): Stack<T>;
 
     /**
      * Like `Stack#unshift`, but accepts a iterable rather than varargs.
+     *
+     * Note: `unshiftAll` can be used in `withMutations`.
      */
     unshiftAll(iter: Iterable<any, T>): Stack<T>;
     unshiftAll(iter: Array<T>): Stack<T>;
@@ -1420,6 +1507,8 @@ declare module Immutable {
      * Note: this differs from `Array#shift` because it returns a new
      * Stack rather than the removed value. Use `first()` or `peek()` to get the
      * first value in this Stack.
+     *
+     * Note: `shift` can be used in `withMutations`.
      */
     shift(): Stack<T>;
 
@@ -1444,13 +1533,18 @@ declare module Immutable {
 
     /**
      * Note: Not all methods can be used on a mutable collection or within
-     * `withMutations`! Only `set`, `push`, and `pop` may be used mutatively.
+     * `withMutations`! Check the documentation for each method to see if it
+     * mentions being safe to use in `withMutations`.
      *
      * @see `Map#withMutations`
      */
     withMutations(mutator: (mutable: Stack<T>) => any): Stack<T>;
 
     /**
+     * Note: Not all methods can be used on a mutable collection or within
+     * `withMutations`! Check the documentation for each method to see if it
+     * mentions being safe to use in `withMutations`.
+     *
      * @see `Map#asMutable`
      */
     asMutable(): Stack<T>;
