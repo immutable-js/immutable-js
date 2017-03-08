@@ -488,12 +488,16 @@ describe('List', () => {
     var v = List.of(1,10,100);
     var r = v.reduce<number>((reduction, value) => reduction + value);
     expect(r).toEqual(111);
+    var r2 = v.reduce((reduction, value) => reduction + value, 1000);
+    expect(r2).toEqual(1111);
   });
 
   it('reduces from the right', () => {
     var v = List.of('a','b','c');
     var r = v.reduceRight((reduction, value) => reduction + value);
     expect(r).toEqual('cba');
+    var r2 = v.reduceRight((reduction, value) => reduction + value, 'x');
+    expect(r2).toEqual('xcba');
   });
 
   it('takes maximum number', () => {
