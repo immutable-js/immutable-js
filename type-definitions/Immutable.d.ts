@@ -484,7 +484,7 @@ declare module Immutable {
      * @see `Map#mergeWith`
      */
     mergeWith(
-      merger: (previous: T, next: T, key: number) => T,
+      merger: (oldVal: T, newVal: T, key: number) => T,
       ...iterables: Array<Iterable.Indexed<T> | Array<T>>
     ): this;
 
@@ -500,7 +500,7 @@ declare module Immutable {
      * @see `Map#mergeDeepWith`
      */
     mergeDeepWith(
-      merger: (previous: T, next: T, key: number) => T,
+      merger: (oldVal: T, newVal: T, key: number) => T,
       ...iterables: Array<Iterable.Indexed<T> | Array<T>>
     ): this;
 
@@ -902,13 +902,13 @@ declare module Immutable {
      *
      *     var x = Immutable.Map({a: 10, b: 20, c: 30});
      *     var y = Immutable.Map({b: 40, a: 50, d: 60});
-     *     x.mergeWith((prev, next) => prev / next, y) // { a: 0.2, b: 0.5, c: 30, d: 60 }
-     *     y.mergeWith((prev, next) => prev / next, x) // { b: 2, a: 5, d: 60, c: 30 }
+     *     x.mergeWith((oldVal, newVal) => oldVal / newVal, y) // { a: 0.2, b: 0.5, c: 30, d: 60 }
+     *     y.mergeWith((oldVal, newVal) => oldVal / newVal, x) // { b: 2, a: 5, d: 60, c: 30 }
      *
      * Note: `mergeWith` can be used in `withMutations`.
      */
     mergeWith(
-      merger: (previous: V, next: V, key: K) => V,
+      merger: (oldVal: V, newVal: V, key: K) => V,
       ...iterables: Array<Iterable<K, V> | {[key: string]: V}>
     ): this;
 
@@ -930,13 +930,13 @@ declare module Immutable {
      *
      *     var x = Immutable.fromJS({a: { x: 10, y: 10 }, b: { x: 20, y: 50 } });
      *     var y = Immutable.fromJS({a: { x: 2 }, b: { y: 5 }, c: { z: 3 } });
-     *     x.mergeDeepWith((prev, next) => prev / next, y)
+     *     x.mergeDeepWith((oldVal, newVal) => oldVal / newVal, y)
      *     // {a: { x: 5, y: 10 }, b: { x: 20, y: 10 }, c: { z: 3 } }
      *
      * Note: `mergeDeepWith` can be used in `withMutations`.
      */
     mergeDeepWith(
-      merger: (previous: V, next: V, key: K) => V,
+      merger: (oldVal: V, newVal: V, key: K) => V,
       ...iterables: Array<Iterable<K, V> | {[key: string]: V}>
     ): this;
 

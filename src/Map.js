@@ -755,19 +755,19 @@ function mergeIntoMapWith(map, merger, iterables) {
   return mergeIntoCollectionWith(map, merger, iters);
 }
 
-export function deepMerger(existing, value) {
-  return existing && existing.mergeDeep && isIterable(value) ?
-    existing.mergeDeep(value) :
-    is(existing, value) ? existing : value;
+export function deepMerger(oldVal, newVal) {
+  return oldVal && oldVal.mergeDeep && isIterable(newVal) ?
+    oldVal.mergeDeep(newVal) :
+    is(oldVal, newVal) ? oldVal : newVal;
 }
 
 export function deepMergerWith(merger) {
-  return (existing, value, key) => {
-    if (existing && existing.mergeDeepWith && isIterable(value)) {
-      return existing.mergeDeepWith(merger, value);
+  return (oldVal, newVal, key) => {
+    if (oldVal && oldVal.mergeDeepWith && isIterable(newVal)) {
+      return oldVal.mergeDeepWith(merger, newVal);
     }
-    var nextValue = merger(existing, value, key);
-    return is(existing, nextValue) ? existing : nextValue;
+    var nextValue = merger(oldVal, newVal, key);
+    return is(oldVal, nextValue) ? oldVal : nextValue;
   };
 }
 
@@ -782,8 +782,8 @@ export function mergeIntoCollectionWith(collection, merger, iters) {
   return collection.withMutations(collection => {
     var mergeIntoMap = merger ?
       (value, key) => {
-        collection.update(key, NOT_SET, existing =>
-          existing === NOT_SET ? value : merger(existing, value, key)
+        collection.update(key, NOT_SET, oldVal =>
+          oldVal === NOT_SET ? value : merger(oldVal, value, key)
         );
       } :
       (value, key) => {
