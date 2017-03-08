@@ -1088,7 +1088,15 @@ declare class RecordInstance<T: Object> {
   @@iterator(): Iterator<[$Keys<T>, any]>;
 }
 
-declare function fromJS(json: mixed, reviver?: (k: any, v: Iterable<any, any>) => any): any;
+declare function fromJS(
+  jsValue: mixed,
+  reviver?: (
+    key: string | number,
+    sequence: KeyedIterable<string, mixed> | IndexedIterable<mixed>,
+    path?: Array<string | number>
+  ) => mixed
+): mixed;
+
 declare function is(first: mixed, second: mixed): boolean;
 declare function hash(value: mixed): number;
 
