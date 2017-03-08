@@ -128,6 +128,14 @@ describe('Conversion', () => {
     expect(fromJS(js)).is(immutableData);
   });
 
+  it('Throws when provided circular reference', () => {
+    var o = {a: {b: {c: null}}};
+    o.a.b.c = o;
+    expect(() => fromJS(o)).toThrow(
+      'Cannot convert circular structure to Immutable'
+    )
+  });
+
   it('Converts deep JSON with custom conversion', () => {
     var seq = fromJS(js, function (key, sequence) {
       if (key === 'point') {

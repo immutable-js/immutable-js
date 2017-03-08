@@ -8,31 +8,38 @@
  */
 
 import { KeyedSeq, IndexedSeq } from './Seq'
+import { isKeyed } from './Iterable'
 
 export function fromJS(json, converter) {
-  return converter ?
-    fromJSWith(converter, json, '', {'': json}) :
-    fromJSDefault(json);
+  var stack = [];
+  return fromJSWith(stack, converter || defaultConverter, json, '', {'': json});
 }
 
-function fromJSWith(converter, json, key, parentJSON) {
+function fromJSWith(stack, converter, json, key, parentJSON) {
   if (Array.isArray(json)) {
-    return converter.call(parentJSON, key, IndexedSeq(json).map((v, k) => fromJSWith(converter, v, k, json)));
+    checkCircular(stack, json);
+    const result = converter.call(parentJSON, key, IndexedSeq(json).map((v, k) => fromJSWith(stack, converter, v, k, json)));
+    stack.pop();
+    return result;
   }
   if (isPlainObj(json)) {
-    return converter.call(parentJSON, key, KeyedSeq(json).map((v, k) => fromJSWith(converter, v, k, json)));
+    checkCircular(stack, json);
+    const result = converter.call(parentJSON, key, KeyedSeq(json).map((v, k) => fromJSWith(stack, converter, v, k, json)));
+    stack.pop();
+    return result;
   }
   return json;
 }
 
-function fromJSDefault(json) {
-  if (Array.isArray(json)) {
-    return IndexedSeq(json).map(fromJSDefault).toList();
+function defaultConverter(k, v) {
+  return isKeyed(v) ? v.toMap() : v.toList();
+}
+
+function checkCircular(stack, value) {
+  if (~stack.indexOf(value)) {
+    throw new TypeError('Cannot convert circular structure to Immutable');
   }
-  if (isPlainObj(json)) {
-    return KeyedSeq(json).map(fromJSDefault).toMap();
-  }
-  return json;
+  stack.push(value);
 }
 
 function isPlainObj(value) {
