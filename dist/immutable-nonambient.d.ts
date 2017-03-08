@@ -39,11 +39,12 @@
    * refering to each collection and the parent JS object provided as `this`.
    * For the top level, object, the key will be `""`. This `reviver` is expected
    * to return a new Immutable Iterable, allowing for custom conversions from
-   * deep JS objects.
+   * deep JS objects. Finally, a `path` is provided which is the sequence of
+   * keys to this value from the starting value.
    *
    * This example converts JSON to List and OrderedMap:
    *
-   *     Immutable.fromJS({a: {b: [10, 20, 30]}, c: 40}, function (key, value) {
+   *     Immutable.fromJS({a: {b: [10, 20, 30]}, c: 40}, function (key, value, path) {
    *       var isIndexed = Immutable.Iterable.isIndexed(value);
    *       return isIndexed ? value.toList() : value.toOrderedMap();
    *     });
@@ -84,8 +85,12 @@
    *      "Using the reviver parameter"
    */
   export function fromJS(
-    json: any,
-    reviver?: (k: any, v: Iterable<any, any>) => any
+    jsValue: any,
+    reviver?: (
+      key: string | number,
+      sequence: Iterable.Keyed<string, any> | Iterable.Indexed<any>,
+      path?: Array<string | number>
+    ) => any
   ): any;
 
 

@@ -147,6 +147,30 @@ describe('Conversion', () => {
     expect(seq.toString()).is(immutableOrderedDataString);
   });
 
+  it('Converts deep JSON with custom conversion including keypath if requested', () => {
+    var paths = [];
+    var seq = fromJS(js, function (key, sequence, keypath) {
+      expect(arguments.length).toBe(3);
+      paths.push(keypath);
+      return Array.isArray(this[key]) ? sequence.toList() : sequence.toOrderedMap();
+    });
+    expect(paths).toEqual([
+      [],
+      ['deepList'],
+      ['deepList', 0],
+      ['deepList', 1],
+      ['deepList', 2],
+      ['deepMap'],
+      ['emptyMap'],
+      ['point'],
+      ['list'],
+    ]);
+    var seq = fromJS(js, function (key, sequence) {
+      expect(arguments[2]).toBe(undefined);
+    });
+
+  });
+
   it('Prints keys as JSON values', () => {
     expect(nonStringKeyMap.toString()).is(nonStringKeyMapString);
   });

@@ -815,36 +815,40 @@ function is(valueA, valueB) {
   return !!(isValueObject(valueA) && isValueObject(valueB) && valueA.equals(valueB));
 }
 
-function fromJS(json, converter) {
-  var stack = [];
-  return fromJSWith(stack, converter || defaultConverter, json, '', {'': json});
+function fromJS(value, converter) {
+  return fromJSWith(
+    [],
+    converter || defaultConverter,
+    value,
+    '',
+    converter && converter.length > 2 ? [] : undefined,
+    {'': value}
+  );
 }
 
-function fromJSWith(stack, converter, json, key, parentJSON) {
-  if (Array.isArray(json)) {
-    checkCircular(stack, json);
-    var result = converter.call(parentJSON, key, IndexedSeq(json).map(function (v, k) { return fromJSWith(stack, converter, v, k, json); }));
+function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
+  var toSeq = Array.isArray(value) ? IndexedSeq : isPlainObj(value) ? KeyedSeq : null;
+  if (toSeq) {
+    if (~stack.indexOf(value)) {
+      throw new TypeError('Cannot convert circular structure to Immutable');
+    }
+    stack.push(value);
+    keyPath && key !== '' && keyPath.push(key);
+    var converted = converter.call(
+      parentValue,
+      key,
+      toSeq(value).map(function (v, k) { return fromJSWith(stack, converter, v, k, keyPath, value); }),
+      keyPath && keyPath.slice()
+    );
     stack.pop();
-    return result;
+    keyPath && keyPath.pop();
+    return converted;
   }
-  if (isPlainObj(json)) {
-    checkCircular(stack, json);
-    var result$1 = converter.call(parentJSON, key, KeyedSeq(json).map(function (v, k) { return fromJSWith(stack, converter, v, k, json); }));
-    stack.pop();
-    return result$1;
-  }
-  return json;
+  return value;
 }
 
 function defaultConverter(k, v) {
   return isKeyed(v) ? v.toMap() : v.toList();
-}
-
-function checkCircular(stack, value) {
-  if (~stack.indexOf(value)) {
-    throw new TypeError('Cannot convert circular structure to Immutable');
-  }
-  stack.push(value);
 }
 
 function isPlainObj(value) {
