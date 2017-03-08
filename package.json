@@ -75,6 +75,7 @@
     "jasmine-check": "0.1.5",
     "jest": "19.0.2",
     "marked": "0.3.6",
+    "microtime": "^2.1.2",
     "mkdirp": "0.5.1",
     "npm-run-all": "4.0.2",
     "prettier": "0.21.0",
