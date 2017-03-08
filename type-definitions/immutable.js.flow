@@ -569,14 +569,14 @@ declare class List<+T> extends IndexedCollection<T> {
   merge<U>(...iterables: ESIterable<U>[]): List<T | U>;
 
   mergeWith<U, V>(
-    merger: (previous: T, next: U, key: number) => V,
+    merger: (oldVal: T, newVal: U, key: number) => V,
     ...iterables: ESIterable<U>[]
   ): List<T | U | V>;
 
   mergeDeep<U>(...iterables: ESIterable<U>[]): List<T | U>;
 
   mergeDeepWith<U, V>(
-    merger: (previous: T, next: U, key: number) => V,
+    merger: (oldVal: T, newVal: U, key: number) => V,
     ...iterables: ESIterable<U>[]
   ): List<T | U | V>;
 
@@ -708,7 +708,7 @@ declare class Map<K, +V> extends KeyedCollection<K, V> {
   ): Map<K | K_, V | V_>;
 
   mergeWith<K_, W, X>(
-    merger: (previous: V, next: W, key: K) => X,
+    merger: (oldVal: V, newVal: W, key: K) => X,
     ...iterables: (ESIterable<[K_, W]> | { [key: K_]: W })[]
   ): Map<K | K_, V | W | X>;
 
@@ -717,7 +717,7 @@ declare class Map<K, +V> extends KeyedCollection<K, V> {
   ): Map<K | K_, V | V_>;
 
   mergeDeepWith<K_, W, X>(
-    merger: (previous: V, next: W, key: K) => X,
+    merger: (oldVal: V, newVal: W, key: K) => X,
     ...iterables: (ESIterable<[K_, W]> | { [key: K_]: W })[]
   ): Map<K | K_, V | W | X>;
 
@@ -796,7 +796,7 @@ declare class OrderedMap<K, +V> extends KeyedCollection<K, V> {
   ): OrderedMap<K | K_, V | V_>;
 
   mergeWith<K_, W, X>(
-    merger: (previous: V, next: W, key: K) => X,
+    merger: (oldVal: V, newVal: W, key: K) => X,
     ...iterables: (ESIterable<[K_, W]> | { [key: K_]: W })[]
   ): OrderedMap<K | K_, V | W | X>;
 
@@ -805,7 +805,7 @@ declare class OrderedMap<K, +V> extends KeyedCollection<K, V> {
   ): OrderedMap<K | K_, V | V_>;
 
   mergeDeepWith<K_, W, X>(
-    merger: (previous: V, next: W, key: K) => X,
+    merger: (oldVal: V, newVal: W, key: K) => X,
     ...iterables: (ESIterable<[K_, W]> | { [key: K_]: W })[]
   ): OrderedMap<K | K_, V | W | X>;
 
