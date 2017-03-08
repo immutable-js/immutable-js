@@ -7,6 +7,8 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
+import { isValueObject } from './Predicates'
+
 /**
  * An extension of the "same-value" algorithm as [described for use by ES6 Map
  * and Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#Key_equality)
@@ -58,8 +60,8 @@
  *       assert( a.hashCode() === b.hashCode() );
  *     }
  *
- * All Immutable collections implement `equals` and `hashCode`.
- *
+ * All Immutable collections are Value Objects: they implement `equals()`
+ * and `hashCode()`.
  */
 export function is(valueA, valueB) {
   if (valueA === valueB || (valueA !== valueA && valueB !== valueB)) {
@@ -79,10 +81,5 @@ export function is(valueA, valueB) {
       return false;
     }
   }
-  if (typeof valueA.equals === 'function' &&
-      typeof valueB.equals === 'function' &&
-      valueA.equals(valueB)) {
-    return true;
-  }
-  return false;
+  return !!(isValueObject(valueA) && isValueObject(valueB) && valueA.equals(valueB));
 }

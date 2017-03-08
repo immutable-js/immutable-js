@@ -8,9 +8,8 @@
  */
 
 import { NOT_SET, ensureSize, wrapIndex, wholeSlice, resolveBegin, resolveEnd } from './TrieUtils'
-import { isIterable, isKeyed, isIndexed, isOrdered,
-          Iterable, KeyedIterable, SetIterable, IndexedIterable,
-          IS_ORDERED_SENTINEL } from './Iterable'
+import { Iterable, KeyedIterable, SetIterable, IndexedIterable } from './Iterable'
+import { isIterable, isKeyed, isIndexed, isOrdered, IS_ORDERED_SENTINEL } from './Predicates'
 import { getIterator, Iterator, iteratorValue, iteratorDone,
           ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES } from './Iterator'
 import { isSeq, Seq, KeyedSeq, SetSeq, IndexedSeq,

@@ -8,7 +8,8 @@
  */
 
 import { wrapIndex } from './TrieUtils'
-import { isIterable, isKeyed, Iterable, IS_ORDERED_SENTINEL } from './Iterable'
+import { Iterable } from './Iterable'
+import { isIterable, isKeyed, IS_ORDERED_SENTINEL } from './Predicates'
 import { Iterator, iteratorValue, iteratorDone, hasIterator, isIterator, getIterator } from './Iterator'
 
 import isArrayLike from './utils/isArrayLike'

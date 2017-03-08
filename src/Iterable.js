@@ -8,7 +8,7 @@
  */
 
 import { Seq, KeyedSeq, IndexedSeq, SetSeq } from './Seq'
-
+import { isIterable, isKeyed, isIndexed, isAssociative } from './Predicates'
 
 export class Iterable {
   constructor(value) {
@@ -34,39 +34,6 @@ export class SetIterable extends Iterable {
   }
 }
 
-
-export function isIterable(maybeIterable) {
-  return !!(maybeIterable && maybeIterable[IS_ITERABLE_SENTINEL]);
-}
-
-export function isKeyed(maybeKeyed) {
-  return !!(maybeKeyed && maybeKeyed[IS_KEYED_SENTINEL]);
-}
-
-export function isIndexed(maybeIndexed) {
-  return !!(maybeIndexed && maybeIndexed[IS_INDEXED_SENTINEL]);
-}
-
-export function isAssociative(maybeAssociative) {
-  return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
-}
-
-export function isOrdered(maybeOrdered) {
-  return !!(maybeOrdered && maybeOrdered[IS_ORDERED_SENTINEL]);
-}
-
-Iterable.isIterable = isIterable;
-Iterable.isKeyed = isKeyed;
-Iterable.isIndexed = isIndexed;
-Iterable.isAssociative = isAssociative;
-Iterable.isOrdered = isOrdered;
-
 Iterable.Keyed = KeyedIterable;
 Iterable.Indexed = IndexedIterable;
 Iterable.Set = SetIterable;
-
-
-export var IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
-export var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
-export var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
-export var IS_ORDERED_SENTINEL = '@@__IMMUTABLE_ORDERED__@@';

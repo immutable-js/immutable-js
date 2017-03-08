@@ -8,7 +8,7 @@
  */
 
 import { KeyedSeq, IndexedSeq } from './Seq'
-import { isKeyed } from './Iterable'
+import { isKeyed } from './Predicates'
 
 export function fromJS(json, converter) {
   var stack = [];

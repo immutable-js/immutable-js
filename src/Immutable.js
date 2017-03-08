@@ -20,12 +20,11 @@ import { Range } from './Range'
 import { Repeat } from './Repeat'
 import { is } from './is'
 import { fromJS } from './fromJS'
+import { isImmutable, isIterable, isKeyed, isIndexed, isAssociative, isOrdered, isValueObject } from './Predicates'
 import { Iterable } from './IterableImpl'
 import { hash } from './Hash'
 
-
 export default {
-
   Iterable: Iterable,
 
   Seq: Seq,
@@ -43,8 +42,15 @@ export default {
 
   is: is,
   fromJS: fromJS,
-  hash: hash
+  hash: hash,
 
+  isImmutable: isImmutable,
+  isIterable: isIterable,
+  isKeyed: isKeyed,
+  isIndexed: isIndexed,
+  isAssociative: isAssociative,
+  isOrdered: isOrdered,
+  isValueObject: isValueObject,
 };
 
 export {
@@ -65,5 +71,13 @@ export {
 
   is,
   fromJS,
-  hash
+  hash,
+
+  isImmutable,
+  isIterable,
+  isKeyed,
+  isIndexed,
+  isAssociative,
+  isOrdered,
+  isValueObject,
 }

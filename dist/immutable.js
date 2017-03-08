@@ -109,6 +109,43 @@ function resolveIndex(index, size, defaultIndex) {
         Math.min(size, index) | 0;
 }
 
+function isImmutable(maybeImmutable) {
+  return !!(maybeImmutable && maybeImmutable[IS_ITERABLE_SENTINEL] && !maybeImmutable.__ownerID);
+}
+
+function isIterable(maybeIterable) {
+  return !!(maybeIterable && maybeIterable[IS_ITERABLE_SENTINEL]);
+}
+
+function isKeyed(maybeKeyed) {
+  return !!(maybeKeyed && maybeKeyed[IS_KEYED_SENTINEL]);
+}
+
+function isIndexed(maybeIndexed) {
+  return !!(maybeIndexed && maybeIndexed[IS_INDEXED_SENTINEL]);
+}
+
+function isAssociative(maybeAssociative) {
+  return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
+}
+
+function isOrdered(maybeOrdered) {
+  return !!(maybeOrdered && maybeOrdered[IS_ORDERED_SENTINEL]);
+}
+
+function isValueObject(maybeValue) {
+  return !!(
+    maybeValue &&
+    typeof maybeValue.equals === 'function' &&
+    typeof maybeValue.hashCode === 'function'
+  );
+}
+
+var IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
+var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
+var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
+var IS_ORDERED_SENTINEL = '@@__IMMUTABLE_ORDERED__@@';
+
 var Iterable = function Iterable(value) {
   return isIterable(value) ? value : Seq(value);
 };
@@ -149,42 +186,9 @@ var SetIterable = (function (Iterable) {
   return SetIterable;
 }(Iterable));
 
-
-function isIterable(maybeIterable) {
-  return !!(maybeIterable && maybeIterable[IS_ITERABLE_SENTINEL]);
-}
-
-function isKeyed(maybeKeyed) {
-  return !!(maybeKeyed && maybeKeyed[IS_KEYED_SENTINEL]);
-}
-
-function isIndexed(maybeIndexed) {
-  return !!(maybeIndexed && maybeIndexed[IS_INDEXED_SENTINEL]);
-}
-
-function isAssociative(maybeAssociative) {
-  return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
-}
-
-function isOrdered(maybeOrdered) {
-  return !!(maybeOrdered && maybeOrdered[IS_ORDERED_SENTINEL]);
-}
-
-Iterable.isIterable = isIterable;
-Iterable.isKeyed = isKeyed;
-Iterable.isIndexed = isIndexed;
-Iterable.isAssociative = isAssociative;
-Iterable.isOrdered = isOrdered;
-
 Iterable.Keyed = KeyedIterable;
 Iterable.Indexed = IndexedIterable;
 Iterable.Set = SetIterable;
-
-
-var IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
-var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
-var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
-var IS_ORDERED_SENTINEL = '@@__IMMUTABLE_ORDERED__@@';
 
 var ITERATE_KEYS = 0;
 var ITERATE_VALUES = 1;
@@ -787,8 +791,8 @@ Collection.Set = SetCollection;
  *       assert( a.hashCode() === b.hashCode() );
  *     }
  *
- * All Immutable collections implement `equals` and `hashCode`.
- *
+ * All Immutable collections are Value Objects: they implement `equals()`
+ * and `hashCode()`.
  */
 function is(valueA, valueB) {
   if (valueA === valueB || (valueA !== valueA && valueB !== valueB)) {
@@ -808,12 +812,7 @@ function is(valueA, valueB) {
       return false;
     }
   }
-  if (typeof valueA.equals === 'function' &&
-      typeof valueB.equals === 'function' &&
-      valueA.equals(valueB)) {
-    return true;
-  }
-  return false;
+  return !!(isValueObject(valueA) && isValueObject(valueB) && valueA.equals(valueB));
 }
 
 function fromJS(json, converter) {
@@ -4229,6 +4228,12 @@ var Range = (function (IndexedSeq$$1) {
 
 var EMPTY_RANGE;
 
+Iterable.isIterable = isIterable;
+Iterable.isKeyed = isKeyed;
+Iterable.isIndexed = isIndexed;
+Iterable.isAssociative = isAssociative;
+Iterable.isOrdered = isOrdered;
+
 Iterable.Iterator = Iterator;
 
 mixin(Iterable, {
@@ -4653,11 +4658,6 @@ mixin(Iterable, {
 
   // abstract __iterator(type, reverse)
 });
-
-// var IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
-// var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
-// var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
-// var IS_ORDERED_SENTINEL = '@@__IMMUTABLE_ORDERED__@@';
 
 var IterablePrototype = Iterable.prototype;
 IterablePrototype[IS_ITERABLE_SENTINEL] = true;
@@ -5299,7 +5299,6 @@ var Repeat = (function (IndexedSeq$$1) {
 var EMPTY_REPEAT;
 
 var Immutable = {
-
   Iterable: Iterable,
 
   Seq: Seq,
@@ -5317,8 +5316,15 @@ var Immutable = {
 
   is: is,
   fromJS: fromJS,
-  hash: hash
+  hash: hash,
 
+  isImmutable: isImmutable,
+  isIterable: isIterable,
+  isKeyed: isKeyed,
+  isIndexed: isIndexed,
+  isAssociative: isAssociative,
+  isOrdered: isOrdered,
+  isValueObject: isValueObject,
 };
 
 exports['default'] = Immutable;
@@ -5337,6 +5343,13 @@ exports.Repeat = Repeat;
 exports.is = is;
 exports.fromJS = fromJS;
 exports.hash = hash;
+exports.isImmutable = isImmutable;
+exports.isIterable = isIterable;
+exports.isKeyed = isKeyed;
+exports.isIndexed = isIndexed;
+exports.isAssociative = isAssociative;
+exports.isOrdered = isOrdered;
+exports.isValueObject = isValueObject;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 

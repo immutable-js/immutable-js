@@ -7,9 +7,9 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { Iterable, KeyedIterable, IndexedIterable, SetIterable,
-         isIterable, isKeyed, isIndexed, isAssociative, isOrdered,
-         IS_ITERABLE_SENTINEL, IS_KEYED_SENTINEL, IS_INDEXED_SENTINEL, IS_ORDERED_SENTINEL } from './Iterable'
+import { Iterable, KeyedIterable, IndexedIterable, SetIterable } from './Iterable'
+import { isIterable, isKeyed, isIndexed, isAssociative, isOrdered,
+         IS_ITERABLE_SENTINEL, IS_KEYED_SENTINEL, IS_INDEXED_SENTINEL, IS_ORDERED_SENTINEL } from './Predicates';
 
 import { is } from './is'
 import { arrCopy, NOT_SET, ensureSize, wrapIndex,
@@ -41,10 +41,13 @@ import { reify, ToKeyedSequence, ToIndexedSequence, ToSetSequence,
           flattenFactory, flatMapFactory, interposeFactory, sortFactory,
           maxFactory, zipWithFactory } from './Operations'
 
-export { Iterable, KeyedIterable, IndexedIterable, SetIterable,
-         IndexedIterablePrototype,
-         isIterable, isKeyed, isIndexed, isAssociative, isOrdered, IS_ORDERED_SENTINEL }
+export { Iterable, KeyedIterable, IndexedIterable, SetIterable, IndexedIterablePrototype }
 
+Iterable.isIterable = isIterable;
+Iterable.isKeyed = isKeyed;
+Iterable.isIndexed = isIndexed;
+Iterable.isAssociative = isAssociative;
+Iterable.isOrdered = isOrdered;
 
 Iterable.Iterator = Iterator;
 
@@ -467,11 +470,6 @@ mixin(Iterable, {
 
   // abstract __iterator(type, reverse)
 });
-
-// var IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
-// var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
-// var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
-// var IS_ORDERED_SENTINEL = '@@__IMMUTABLE_ORDERED__@@';
 
 var IterablePrototype = Iterable.prototype;
 IterablePrototype[IS_ITERABLE_SENTINEL] = true;
