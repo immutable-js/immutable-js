@@ -9,7 +9,7 @@ var MarkDown = require('./MarkDown');
 var { TransitionGroup } = React.addons;
 
 var MemberDoc = React.createClass({
-  mixins: [ PageDataMixin, Router.Navigation ],
+  mixins: [PageDataMixin, Router.Navigation],
 
   getInitialState() {
     var showDetail = this.props.showDetail;
@@ -21,10 +21,7 @@ var MemberDoc = React.createClass({
       var node = this.getDOMNode();
       var navType = this.getPageData().type;
       if (navType === 'init' || navType === 'push') {
-        window.scrollTo(
-          window.scrollX,
-          offsetTop(node) - FIXED_HEADER_HEIGHT
-        );
+        window.scrollTo(window.scrollX, offsetTop(node) - FIXED_HEADER_HEIGHT);
       }
     }
   },
@@ -42,10 +39,7 @@ var MemberDoc = React.createClass({
       var node = this.getDOMNode();
       var navType = this.getPageData().type;
       if (navType === 'init' || navType === 'push') {
-        window.scrollTo(
-          window.scrollX,
-          offsetTop(node) - FIXED_HEADER_HEIGHT
-        );
+        window.scrollTo(window.scrollX, offsetTop(node) - FIXED_HEADER_HEIGHT);
       }
     }
   },
@@ -83,28 +77,38 @@ var MemberDoc = React.createClass({
 
     return (
       <div className="interfaceMember">
-        <h3 onClick={isMobile ? this.toggleDetail : null} className="memberLabel">
+        <h3
+          onClick={isMobile ? this.toggleDetail : null}
+          className="memberLabel"
+        >
           {(module ? module + '.' : '') + name + (isProp ? '' : '()')}
         </h3>
         <TransitionGroup childFactory={makeSlideDown}>
           {showDetail &&
             <div key="detail" className="detail">
-              {doc.synopsis && <MarkDown className="synopsis" contents={doc.synopsis} />}
-              {isProp ?
-                <code className="codeBlock memberSignature">
-                  <MemberDef module={module} member={{name, type: def.type}} />
-                </code> :
-                <code className="codeBlock memberSignature">
-                {def.signatures.map((callSig, i) =>
-                  [<CallSigDef
-                    key={i}
-                    info={typeInfo}
-                    module={module}
-                    name={name}
-                    callSig={callSig}
-                  />, '\n']
-                )}</code>
-              }
+              {doc.synopsis &&
+                <MarkDown className="synopsis" contents={doc.synopsis} />}
+              {isProp
+                ? <code className="codeBlock memberSignature">
+                    <MemberDef
+                      module={module}
+                      member={{ name, type: def.type }}
+                    />
+                  </code>
+                : <code className="codeBlock memberSignature">
+                    {def.signatures.map((callSig, i) => [
+                      (
+                        <CallSigDef
+                          key={i}
+                          info={typeInfo}
+                          module={module}
+                          name={name}
+                          callSig={callSig}
+                        />
+                      ),
+                      '\n'
+                    ])}
+                  </code>}
               {member.inherited &&
                 <section>
                   <h4 className="infoHeader">
@@ -115,8 +119,7 @@ var MemberDoc = React.createClass({
                       {member.inherited.name + '#' + name}
                     </Router.Link>
                   </code>
-                </section>
-              }
+                </section>}
               {member.overrides &&
                 <section>
                   <h4 className="infoHeader">
@@ -127,41 +130,39 @@ var MemberDoc = React.createClass({
                       {member.overrides.name + '#' + name}
                     </Router.Link>
                   </code>
-                </section>
-              }
-              {doc.notes && doc.notes.map((note, i) =>
-                <section key={i}>
-                  <h4 className="infoHeader">
-                    {note.name}
-                  </h4>
-                  {
-                    note.name === 'alias' ?
-                      <code><CallSigDef name={note.body} /></code> :
-                      <MarkDown className="discussion" contents={note.body} />
-                  }
-                </section>
-              )}
+                </section>}
+              {doc.notes &&
+                doc.notes.map((note, i) => (
+                  <section key={i}>
+                    <h4 className="infoHeader">
+                      {note.name}
+                    </h4>
+                    {note.name === 'alias'
+                      ? <code><CallSigDef name={note.body} /></code>
+                      : <MarkDown
+                          className="discussion"
+                          contents={note.body}
+                        />}
+                  </section>
+                ))}
               {doc.description &&
                 <section>
                   <h4 className="infoHeader">
-                    {doc.description.substr(0, 5) === '<code' ?
-                      'Example' :
-                      'Discussion'}
+                    {doc.description.substr(0, 5) === '<code'
+                      ? 'Example'
+                      : 'Discussion'}
                   </h4>
                   <MarkDown className="discussion" contents={doc.description} />
-                </section>
-              }
-            </div>
-          }
+                </section>}
+            </div>}
         </TransitionGroup>
       </div>
     );
   }
 });
 
-
 function makeSlideDown(child) {
-  return <SlideDown>{child}</SlideDown>
+  return <SlideDown>{child}</SlideDown>;
 }
 
 var SlideDown = React.createClass({
@@ -187,9 +188,12 @@ var SlideDown = React.createClass({
       done();
     };
     ReactTransitionEvents.addEndEventListener(node, endListener);
-    this.timeout = setTimeout(() => {
-      node.style.height = end;
-    }, 17);
+    this.timeout = setTimeout(
+      () => {
+        node.style.height = end;
+      },
+      17
+    );
   },
 
   render() {

@@ -10,7 +10,7 @@ function loadJSON(url, then) {
       // ignore error
     }
     then(json);
-  }
-  oReq.open("get", url, true);
+  };
+  oReq.open('get', url, true);
   oReq.send();
 }

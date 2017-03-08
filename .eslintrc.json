@@ -69,7 +69,7 @@
     "import/prefer-default-export": "off",
     "jsx-a11y/no-static-element-interactions": "off",
     "prettier/prettier": [
-      "off",
+      "error",
       {
         "singleQuote": true
       }

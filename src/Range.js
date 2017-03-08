@@ -7,13 +7,12 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { wrapIndex, wholeSlice, resolveBegin, resolveEnd } from './TrieUtils'
-import { IndexedSeq } from './Seq'
-import { Iterator, iteratorValue, iteratorDone } from './Iterator'
+import { wrapIndex, wholeSlice, resolveBegin, resolveEnd } from './TrieUtils';
+import { IndexedSeq } from './Seq';
+import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 
-import invariant from './utils/invariant'
-import deepEqual from './utils/deepEqual'
-
+import invariant from './utils/invariant';
+import deepEqual from './utils/deepEqual';
 
 /**
  * Returns a lazy seq of nums from start (inclusive) to end
@@ -21,7 +20,6 @@ import deepEqual from './utils/deepEqual'
  * infinity. When start is equal to end, returns empty list.
  */
 export class Range extends IndexedSeq {
-
   constructor(start, end, step) {
     if (!(this instanceof Range)) {
       return new Range(start, end, step);
@@ -52,15 +50,17 @@ export class Range extends IndexedSeq {
       return 'Range []';
     }
     return 'Range [ ' +
-      this._start + '...' + this._end +
+      this._start +
+      '...' +
+      this._end +
       (this._step !== 1 ? ' by ' + this._step : '') +
-    ' ]';
+      ' ]';
   }
 
   get(index, notSetValue) {
-    return this.has(index) ?
-      this._start + wrapIndex(this, index) * this._step :
-      notSetValue;
+    return this.has(index)
+      ? this._start + wrapIndex(this, index) * this._step
+      : notSetValue;
   }
 
   includes(searchValue) {
@@ -79,7 +79,11 @@ export class Range extends IndexedSeq {
     if (end <= begin) {
       return new Range(0, 0);
     }
-    return new Range(this.get(begin, this._end), this.get(end, this._end), this._step);
+    return new Range(
+      this.get(begin, this._end),
+      this.get(end, this._end),
+      this._step
+    );
   }
 
   indexOf(searchValue) {
@@ -87,7 +91,7 @@ export class Range extends IndexedSeq {
     if (offsetValue % this._step === 0) {
       var index = offsetValue / this._step;
       if (index >= 0 && index < this.size) {
-        return index
+        return index;
       }
     }
     return -1;
@@ -127,11 +131,11 @@ export class Range extends IndexedSeq {
   }
 
   equals(other) {
-    return other instanceof Range ?
-      this._start === other._start &&
-      this._end === other._end &&
-      this._step === other._step :
-      deepEqual(this, other);
+    return other instanceof Range
+      ? this._start === other._start &&
+          this._end === other._end &&
+          this._step === other._step
+      : deepEqual(this, other);
   }
 }
 

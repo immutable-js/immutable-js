@@ -10,7 +10,7 @@ var MarkDown = React.createClass({
     return (
       <div
         className={this.props.className}
-        dangerouslySetInnerHTML={{__html: html}}
+        dangerouslySetInnerHTML={{ __html: html }}
       />
     );
   }

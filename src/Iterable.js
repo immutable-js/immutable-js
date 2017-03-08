@@ -7,8 +7,8 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { Seq, KeyedSeq, IndexedSeq, SetSeq } from './Seq'
-import { isIterable, isKeyed, isIndexed, isAssociative } from './Predicates'
+import { Seq, KeyedSeq, IndexedSeq, SetSeq } from './Seq';
+import { isIterable, isKeyed, isIndexed, isAssociative } from './Predicates';
 
 export class Iterable {
   constructor(value) {

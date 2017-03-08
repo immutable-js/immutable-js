@@ -7,29 +7,29 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { KeyedIterable } from './Iterable'
-import { IS_ORDERED_SENTINEL, isOrdered } from './Predicates'
-import { Map, isMap, emptyMap } from './Map'
-import { emptyList } from './List'
-import { DELETE, NOT_SET, SIZE } from './TrieUtils'
-import assertNotInfinite from './utils/assertNotInfinite'
-
+import { KeyedIterable } from './Iterable';
+import { IS_ORDERED_SENTINEL, isOrdered } from './Predicates';
+import { Map, isMap, emptyMap } from './Map';
+import { emptyList } from './List';
+import { DELETE, NOT_SET, SIZE } from './TrieUtils';
+import assertNotInfinite from './utils/assertNotInfinite';
 
 export class OrderedMap extends Map {
-
   // @pragma Construction
 
   constructor(value) {
-    return value === null || value === undefined ? emptyOrderedMap() :
-      isOrderedMap(value) ? value :
-      emptyOrderedMap().withMutations(map => {
-        var iter = KeyedIterable(value);
-        assertNotInfinite(iter.size);
-        iter.forEach((v, k) => map.set(k, v));
-      });
+    return value === null || value === undefined
+      ? emptyOrderedMap()
+      : isOrderedMap(value)
+          ? value
+          : emptyOrderedMap().withMutations(map => {
+              var iter = KeyedIterable(value);
+              assertNotInfinite(iter.size);
+              iter.forEach((v, k) => map.set(k, v));
+            });
   }
 
-  static of(/*...values*/) {
+  static of /*...values*/() {
     return this(arguments);
   }
 
@@ -110,8 +110,6 @@ OrderedMap.isOrderedMap = isOrderedMap;
 OrderedMap.prototype[IS_ORDERED_SENTINEL] = true;
 OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
 
-
-
 function makeOrderedMap(map, list, ownerID, hash) {
   var omap = Object.create(OrderedMap.prototype);
   omap.size = map ? map.size : 0;
@@ -124,7 +122,8 @@ function makeOrderedMap(map, list, ownerID, hash) {
 
 var EMPTY_ORDERED_MAP;
 export function emptyOrderedMap() {
-  return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(emptyMap(), emptyList()));
+  return EMPTY_ORDERED_MAP ||
+    (EMPTY_ORDERED_MAP = makeOrderedMap(emptyMap(), emptyList()));
 }
 
 function updateOrderedMap(omap, k, v) {
@@ -134,7 +133,8 @@ function updateOrderedMap(omap, k, v) {
   var has = i !== undefined;
   var newMap;
   var newList;
-  if (v === NOT_SET) { // removed
+  if (v === NOT_SET) {
+    // removed
     if (!has) {
       return omap;
     }
@@ -142,7 +142,7 @@ function updateOrderedMap(omap, k, v) {
       newList = list.filter((entry, idx) => entry !== undefined && i !== idx);
       newMap = newList.toKeyedSeq().map(entry => entry[0]).flip().toMap();
       if (omap.__ownerID) {
-        newMap.__ownerID = newList.__ownerID = omap.__ownerID;
+        newMap.__ownerID = (newList.__ownerID = omap.__ownerID);
       }
     } else {
       newMap = map.remove(k);

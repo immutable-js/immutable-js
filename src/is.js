@@ -7,7 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { isValueObject } from './Predicates'
+import { isValueObject } from './Predicates';
 
 /**
  * An extension of the "same-value" algorithm as [described for use by ES6 Map
@@ -70,8 +70,9 @@ export function is(valueA, valueB) {
   if (!valueA || !valueB) {
     return false;
   }
-  if (typeof valueA.valueOf === 'function' &&
-      typeof valueB.valueOf === 'function') {
+  if (
+    typeof valueA.valueOf === 'function' && typeof valueB.valueOf === 'function'
+  ) {
     valueA = valueA.valueOf();
     valueB = valueB.valueOf();
     if (valueA === valueB || (valueA !== valueA && valueB !== valueB)) {
@@ -81,5 +82,7 @@ export function is(valueA, valueB) {
       return false;
     }
   }
-  return !!(isValueObject(valueA) && isValueObject(valueB) && valueA.equals(valueB));
+  return !!(isValueObject(valueA) &&
+    isValueObject(valueB) &&
+    valueA.equals(valueB));
 }

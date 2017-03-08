@@ -23,20 +23,13 @@ var Documentation = React.createClass({
 });
 
 var DocDeterminer = React.createClass({
-  mixins: [ Router.State ],
+  mixins: [Router.State],
 
   render() {
     var { def, name, memberName } = determineDoc(this.getPath());
-    return (
-      <TypeDocumentation
-        def={def}
-        name={name}
-        memberName={memberName}
-      />
-    );
+    return <TypeDocumentation def={def} name={name} memberName={memberName} />;
   }
 });
-
 
 function determineDoc(path) {
   var [, name, memberName] = path.split('/');
@@ -50,16 +43,14 @@ function determineDoc(path) {
   return { def, name, memberName };
 }
 
-
 module.exports = React.createClass({
-
   childContextTypes: {
-    getPageData: React.PropTypes.func.isRequired,
+    getPageData: React.PropTypes.func.isRequired
   },
 
   getChildContext() {
     return {
-      getPageData: this.getPageData,
+      getPageData: this.getPageData
     };
   },
 
@@ -77,18 +68,23 @@ module.exports = React.createClass({
         this.pageData = assign({}, change, determineDoc(change.path));
       });
 
-      this.pageData = !window.document ? {} : assign({
-        path: location.getCurrentPath(),
-        type: 'init',
-      }, determineDoc(location.getCurrentPath()));
+      this.pageData = !window.document
+        ? {}
+        : assign(
+            {
+              path: location.getCurrentPath(),
+              type: 'init'
+            },
+            determineDoc(location.getCurrentPath())
+          );
 
       scrollBehavior = {
         updateScrollPosition: (position, actionType) => {
           switch (actionType) {
             case 'push':
-              return this.getPageData().memberName ?
-                null :
-                window.scrollTo(0, 0);
+              return this.getPageData().memberName
+                ? null
+                : window.scrollTo(0, 0);
             case 'pop':
               return window.scrollTo(
                 position ? position.x : 0,
@@ -100,30 +96,45 @@ module.exports = React.createClass({
     }
 
     Router.create({
-      routes:
+      routes: (
         <Route handler={Documentation} path="/">
           <DefaultRoute handler={DocDeterminer} />
           <Route name="type" path="/:name" handler={DocDeterminer} />
-          <Route name="method" path="/:name/:memberName" handler={DocDeterminer} />
-        </Route>,
+          <Route
+            name="method"
+            path="/:name/:memberName"
+            handler={DocDeterminer}
+          />
+        </Route>
+      ),
       location: location,
       scrollBehavior: scrollBehavior
     }).run(Handler => {
-      this.setState({handler: Handler});
+      this.setState({ handler: Handler });
     });
   },
 
   // TODO: replace this. this is hacky and probably wrong
 
   componentDidMount() {
-    setTimeout(() => { this.pageData.type = ''; }, 0);
+    setTimeout(
+      () => {
+        this.pageData.type = '';
+      },
+      0
+    );
   },
 
   componentDidUpdate() {
-    setTimeout(() => { this.pageData.type = ''; }, 0);
+    setTimeout(
+      () => {
+        this.pageData.type = '';
+      },
+      0
+    );
   },
 
-  render () {
+  render() {
     var Handler = this.state.handler;
     return <Handler />;
   }

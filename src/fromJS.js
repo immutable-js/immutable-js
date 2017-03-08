@@ -7,8 +7,8 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { KeyedSeq, IndexedSeq } from './Seq'
-import { isKeyed } from './Predicates'
+import { KeyedSeq, IndexedSeq } from './Seq';
+import { isKeyed } from './Predicates';
 
 export function fromJS(value, converter) {
   return fromJSWith(
@@ -17,12 +17,14 @@ export function fromJS(value, converter) {
     value,
     '',
     converter && converter.length > 2 ? [] : undefined,
-    {'': value}
+    { '': value }
   );
 }
 
 function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
-  var toSeq = Array.isArray(value) ? IndexedSeq : isPlainObj(value) ? KeyedSeq : null;
+  var toSeq = Array.isArray(value)
+    ? IndexedSeq
+    : isPlainObj(value) ? KeyedSeq : null;
   if (toSeq) {
     if (~stack.indexOf(value)) {
       throw new TypeError('Cannot convert circular structure to Immutable');
@@ -32,7 +34,8 @@ function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
     const converted = converter.call(
       parentValue,
       key,
-      toSeq(value).map((v, k) => fromJSWith(stack, converter, v, k, keyPath, value)),
+      toSeq(value).map((v, k) =>
+        fromJSWith(stack, converter, v, k, keyPath, value)),
       keyPath && keyPath.slice()
     );
     stack.pop();
@@ -47,5 +50,6 @@ function defaultConverter(k, v) {
 }
 
 function isPlainObj(value) {
-  return value && (value.constructor === Object || value.constructor === undefined);
+  return value &&
+    (value.constructor === Object || value.constructor === undefined);
 }

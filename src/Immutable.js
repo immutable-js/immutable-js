@@ -7,22 +7,30 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { Seq } from './Seq'
-import { Collection } from './Collection'
-import { OrderedMap } from './OrderedMap'
-import { List } from './List'
-import { Map } from './Map'
-import { Stack } from './Stack'
-import { OrderedSet } from './OrderedSet'
-import { Set } from './Set'
-import { Record } from './Record'
-import { Range } from './Range'
-import { Repeat } from './Repeat'
-import { is } from './is'
-import { fromJS } from './fromJS'
-import { isImmutable, isIterable, isKeyed, isIndexed, isAssociative, isOrdered, isValueObject } from './Predicates'
-import { Iterable } from './IterableImpl'
-import { hash } from './Hash'
+import { Seq } from './Seq';
+import { Collection } from './Collection';
+import { OrderedMap } from './OrderedMap';
+import { List } from './List';
+import { Map } from './Map';
+import { Stack } from './Stack';
+import { OrderedSet } from './OrderedSet';
+import { Set } from './Set';
+import { Record } from './Record';
+import { Range } from './Range';
+import { Repeat } from './Repeat';
+import { is } from './is';
+import { fromJS } from './fromJS';
+import {
+  isImmutable,
+  isIterable,
+  isKeyed,
+  isIndexed,
+  isAssociative,
+  isOrdered,
+  isValueObject
+} from './Predicates';
+import { Iterable } from './IterableImpl';
+import { hash } from './Hash';
 
 export default {
   Iterable: Iterable,
@@ -50,12 +58,11 @@ export default {
   isIndexed: isIndexed,
   isAssociative: isAssociative,
   isOrdered: isOrdered,
-  isValueObject: isValueObject,
+  isValueObject: isValueObject
 };
 
 export {
   Iterable,
-
   Seq,
   Collection,
   Map,
@@ -64,20 +71,17 @@ export {
   Stack,
   Set,
   OrderedSet,
-
   Record,
   Range,
   Repeat,
-
   is,
   fromJS,
   hash,
-
   isImmutable,
   isIterable,
   isKeyed,
   isIndexed,
   isAssociative,
   isOrdered,
-  isValueObject,
-}
+  isValueObject
+};

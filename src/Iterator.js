@@ -16,7 +16,6 @@ var FAUX_ITERATOR_SYMBOL = '@@iterator';
 
 export var ITERATOR_SYMBOL = REAL_ITERATOR_SYMBOL || FAUX_ITERATOR_SYMBOL;
 
-
 export class Iterator {
   constructor(next) {
     this.next = next;
@@ -31,18 +30,21 @@ Iterator.KEYS = ITERATE_KEYS;
 Iterator.VALUES = ITERATE_VALUES;
 Iterator.ENTRIES = ITERATE_ENTRIES;
 
-Iterator.prototype.inspect =
-Iterator.prototype.toSource = function () { return this.toString(); }
-Iterator.prototype[ITERATOR_SYMBOL] = function () {
+Iterator.prototype.inspect = (Iterator.prototype.toSource = function() {
+  return this.toString();
+});
+Iterator.prototype[ITERATOR_SYMBOL] = function() {
   return this;
 };
 
-
 export function iteratorValue(type, k, v, iteratorResult) {
   var value = type === 0 ? k : type === 1 ? v : [k, v];
-  iteratorResult ? (iteratorResult.value = value) : (iteratorResult = {
-    value: value, done: false
-  });
+  iteratorResult
+    ? (iteratorResult.value = value)
+    : (iteratorResult = {
+        value: value,
+        done: false
+      });
   return iteratorResult;
 }
 
@@ -64,10 +66,9 @@ export function getIterator(iterable) {
 }
 
 function getIteratorFn(iterable) {
-  var iteratorFn = iterable && (
-    (REAL_ITERATOR_SYMBOL && iterable[REAL_ITERATOR_SYMBOL]) ||
-    iterable[FAUX_ITERATOR_SYMBOL]
-  );
+  var iteratorFn = iterable &&
+    ((REAL_ITERATOR_SYMBOL && iterable[REAL_ITERATOR_SYMBOL]) ||
+      iterable[FAUX_ITERATOR_SYMBOL]);
   if (typeof iteratorFn === 'function') {
     return iteratorFn;
   }

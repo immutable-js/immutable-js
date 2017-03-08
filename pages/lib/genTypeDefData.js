@@ -15,7 +15,6 @@ function genTypeDefData(typeDefPath, typeDefSource) {
 module.exports = genTypeDefData;
 
 function DocVisitor(source) {
-
   var stack = [];
   var data = {};
   var typeParams = [];
@@ -63,13 +62,14 @@ function DocVisitor(source) {
   }
 
   function addAliases(comment, name) {
-    comment && comment.notes && comment.notes.filter(
-      note => note.name === 'alias'
-    ).map(
-      node => node.body
-    ).forEach(alias => {
-      last(aliases)[alias] = name;
-    });
+    comment &&
+      comment.notes &&
+      comment.notes
+        .filter(note => note.name === 'alias')
+        .map(node => node.body)
+        .forEach(alias => {
+          last(aliases)[alias] = name;
+        });
   }
 
   function visitModuleDeclaration(node) {
@@ -77,10 +77,9 @@ function DocVisitor(source) {
 
     var comment = getDoc(node);
     if (!shouldIgnore(comment)) {
-      var name =
-        node.name ? node.name.text :
-        node.stringLiteral ? node.stringLiteral.text :
-        '';
+      var name = node.name
+        ? node.name.text
+        : node.stringLiteral ? node.stringLiteral.text : '';
 
       if (comment) {
         setIn(data, [name, 'doc'], comment);
@@ -124,7 +123,7 @@ function DocVisitor(source) {
     if (!ignore) {
       var name = node.name.text;
 
-      interfaceObj.line = getLineNum(node)
+      interfaceObj.line = getLineNum(node);
 
       if (comment) {
         interfaceObj.doc = comment;
@@ -173,7 +172,7 @@ function DocVisitor(source) {
             title: source.text.substring(range.pos + 3, range.end)
           });
         }
-      })
+      });
     }
     if (!data.groups || data.groups.length === 0) {
       pushIn(data, ['groups'], {});
@@ -189,15 +188,15 @@ function DocVisitor(source) {
       ensureGroup(node);
 
       var propertyObj = {
-        line: getLineNum(node),
+        line: getLineNum(node)
         // name: name // redundant
       };
 
       if (comment) {
-        setIn(last(data.groups), ['members', '#'+name, 'doc'], comment);
+        setIn(last(data.groups), ['members', '#' + name, 'doc'], comment);
       }
 
-      setIn(last(data.groups), ['members', '#'+name], propertyObj);
+      setIn(last(data.groups), ['members', '#' + name], propertyObj);
 
       if (node.questionToken) {
         throw new Error('NYI: questionToken');
@@ -220,12 +219,16 @@ function DocVisitor(source) {
       ensureGroup(node);
 
       if (comment) {
-        setIn(last(data.groups), ['members', '#'+name, 'doc'], comment);
+        setIn(last(data.groups), ['members', '#' + name, 'doc'], comment);
       }
 
       var callSignature = parseCallSignature(node);
       callSignature.line = getLineNum(node);
-      pushIn(last(data.groups), ['members', '#'+name, 'signatures'], callSignature);
+      pushIn(
+        last(data.groups),
+        ['members', '#' + name, 'signatures'],
+        callSignature
+      );
 
       if (node.questionToken) {
         throw new Error('NYI: questionToken');
@@ -245,8 +248,7 @@ function DocVisitor(source) {
     typeParams.push(callSignature.typeParams);
 
     if (node.parameters.length) {
-      callSignature.params =
-        node.parameters.map(p => parseParam(p));
+      callSignature.params = node.parameters.map(p => parseParam(p));
     }
 
     if (node.type) {
@@ -267,11 +269,11 @@ function DocVisitor(source) {
       case ts.SyntaxKind.ThisType:
         return {
           k: TypeKind.This
-        }
+        };
       case ts.SyntaxKind.UndefinedKeyword:
         return {
           k: TypeKind.Undefined
-        }
+        };
       case ts.SyntaxKind.BooleanKeyword:
         return {
           k: TypeKind.Boolean
@@ -298,20 +300,23 @@ function DocVisitor(source) {
         return {
           k: TypeKind.Indexed,
           type: parseType(node.objectType),
-          index: parseType(node.indexType),
+          index: parseType(node.indexType)
         };
       case ts.SyntaxKind.TypeOperator:
-        var operator =
-          node.operator === ts.SyntaxKind.KeyOfKeyword ? 'keyof' :
-          node.operator === ts.SyntaxKind.ReadonlyKeyword ? 'readonly' :
-          undefined;
+        var operator = node.operator === ts.SyntaxKind.KeyOfKeyword
+          ? 'keyof'
+          : node.operator === ts.SyntaxKind.ReadonlyKeyword
+              ? 'readonly'
+              : undefined;
         if (!operator) {
-          throw new Error('Unknown operator kind: ' + ts.SyntaxKind[node.operator]);
+          throw new Error(
+            'Unknown operator kind: ' + ts.SyntaxKind[node.operator]
+          );
         }
         return {
           k: TypeKind.Operator,
           operator,
-          type: parseType(node.type),
+          type: parseType(node.type)
         };
       case ts.SyntaxKind.TypeLiteral:
         return {
@@ -323,12 +328,12 @@ function DocVisitor(source) {
                   index: true,
                   params: m.parameters.map(p => parseParam(p)),
                   type: parseType(m.type)
-                }
+                };
               case ts.SyntaxKind.PropertySignature:
                 return {
                   name: m.name.text,
                   type: m.type && parseType(m.type)
-                }
+                };
             }
             throw new Error('Unknown member kind: ' + ts.SyntaxKind[m.kind]);
           })
@@ -337,7 +342,7 @@ function DocVisitor(source) {
         return {
           k: TypeKind.Array,
           type: parseType(node.elementType)
-        }
+        };
       case ts.SyntaxKind.FunctionType:
         return {
           k: TypeKind.Function,
@@ -356,13 +361,13 @@ function DocVisitor(source) {
         return {
           k: TypeKind.Type,
           name: getNameText(node.typeName),
-          args: node.typeArguments && node.typeArguments.map(parseType),
+          args: node.typeArguments && node.typeArguments.map(parseType)
         };
       case ts.SyntaxKind.ExpressionWithTypeArguments:
         return {
           k: TypeKind.Type,
           name: getNameText(node.expression),
-          args: node.typeArguments && node.typeArguments.map(parseType),
+          args: node.typeArguments && node.typeArguments.map(parseType)
         };
       case ts.SyntaxKind.QualifiedName:
         var type = parseType(node.right);
@@ -376,14 +381,16 @@ function DocVisitor(source) {
         // Simplification of MappedType to typical Object type.
         return {
           k: TypeKind.Object,
-          members: [{
-            index: true,
-            params: {
-              name: 'key',
-              type: TypeKind.String
-            },
-            type: parseType(node.type)
-          }]
+          members: [
+            {
+              index: true,
+              params: {
+                name: 'key',
+                type: TypeKind.String
+              },
+              type: parseType(node.type)
+            }
+          ]
         };
     }
     throw new Error('Unknown type kind: ' + ts.SyntaxKind[node.kind]);
@@ -392,7 +399,7 @@ function DocVisitor(source) {
   function parseParam(node) {
     var p = {
       name: node.name.text,
-      type: parseType(node.type),
+      type: parseType(node.type)
     };
     if (node.dotDotDotToken) {
       p.varArgs = true;
@@ -431,10 +438,7 @@ function getDoc(node) {
     .slice(1, -1)
     .map(l => l.trim().substr(2));
 
-  var paragraphs = lines
-    .filter(l => l[0] !== '@')
-    .join('\n')
-    .split('\n\n');
+  var paragraphs = lines.filter(l => l[0] !== '@').join('\n').split('\n\n');
 
   var synopsis = paragraphs && paragraphs.shift();
   var description = paragraphs && paragraphs.join('\n\n');
@@ -461,7 +465,7 @@ function last(list) {
 
 function pushIn(obj, path, value) {
   for (var ii = 0; ii < path.length; ii++) {
-    obj = obj[path[ii]] || (obj[path[ii]] = (ii === path.length - 1 ? [] : {}));
+    obj = obj[path[ii]] || (obj[path[ii]] = ii === path.length - 1 ? [] : {});
   }
   obj.push(value);
 }
@@ -474,7 +478,11 @@ function setIn(obj, path, value) {
 }
 
 function shouldIgnore(comment) {
-  return Boolean(comment && comment.notes && comment.notes.find(
-    note => note.name === 'ignore' || note.name === 'deprecated'
-  ));
+  return Boolean(
+    comment &&
+      comment.notes &&
+      comment.notes.find(
+        note => note.name === 'ignore' || note.name === 'deprecated'
+      )
+  );
 }

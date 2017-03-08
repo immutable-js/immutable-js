@@ -7,26 +7,24 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { wholeSlice, resolveBegin, resolveEnd, wrapIndex } from './TrieUtils'
-import { IndexedIterable } from './Iterable'
-import { IndexedCollection } from './Collection'
-import { MapPrototype } from './Map'
-import { ArraySeq } from './Seq'
-import { Iterator, iteratorValue, iteratorDone } from './Iterator'
-import assertNotInfinite from './utils/assertNotInfinite'
-
+import { wholeSlice, resolveBegin, resolveEnd, wrapIndex } from './TrieUtils';
+import { IndexedIterable } from './Iterable';
+import { IndexedCollection } from './Collection';
+import { MapPrototype } from './Map';
+import { ArraySeq } from './Seq';
+import { Iterator, iteratorValue, iteratorDone } from './Iterator';
+import assertNotInfinite from './utils/assertNotInfinite';
 
 export class Stack extends IndexedCollection {
-
   // @pragma Construction
 
   constructor(value) {
-    return value === null || value === undefined ? emptyStack() :
-      isStack(value) ? value :
-      emptyStack().pushAll(value);
+    return value === null || value === undefined
+      ? emptyStack()
+      : isStack(value) ? value : emptyStack().pushAll(value);
   }
 
-  static of(/*...values*/) {
+  static of /*...values*/() {
     return this(arguments);
   }
 
@@ -51,7 +49,7 @@ export class Stack extends IndexedCollection {
 
   // @pragma Modification
 
-  push(/*...values*/) {
+  push /*...values*/() {
     if (arguments.length === 0) {
       return this;
     }
@@ -84,13 +82,16 @@ export class Stack extends IndexedCollection {
     assertNotInfinite(iter.size);
     var newSize = this.size;
     var head = this._head;
-    iter.__iterate(value => {
-      newSize++;
-      head = {
-        value: value,
-        next: head
-      };
-    }, /* reverse */ true);
+    iter.__iterate(
+      value => {
+        newSize++;
+        head = {
+          value: value,
+          next: head
+        };
+      },
+      /* reverse */ true
+    );
     if (this.__ownerID) {
       this.size = newSize;
       this._head = head;
@@ -165,7 +166,10 @@ export class Stack extends IndexedCollection {
 
   __iterate(fn, reverse) {
     if (reverse) {
-      return new ArraySeq(this.toArray()).__iterate((v, k) => fn(v, k, this), reverse);
+      return new ArraySeq(this.toArray()).__iterate(
+        (v, k) => fn(v, k, this),
+        reverse
+      );
     }
     var iterations = 0;
     var node = this._head;
@@ -212,7 +216,6 @@ StackPrototype.wasAltered = MapPrototype.wasAltered;
 StackPrototype.shift = StackPrototype.pop;
 StackPrototype.unshift = StackPrototype.push;
 StackPrototype.unshiftAll = StackPrototype.pushAll;
-
 
 function makeStack(size, head, ownerID, hash) {
   var map = Object.create(StackPrototype);

@@ -7,29 +7,29 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { SetIterable, KeyedIterable } from './Iterable'
-import { IS_ORDERED_SENTINEL, isOrdered } from './Predicates'
-import { IndexedIterablePrototype } from './IterableImpl'
-import { Set, isSet } from './Set'
-import { emptyOrderedMap } from './OrderedMap'
-import assertNotInfinite from './utils/assertNotInfinite'
-
+import { SetIterable, KeyedIterable } from './Iterable';
+import { IS_ORDERED_SENTINEL, isOrdered } from './Predicates';
+import { IndexedIterablePrototype } from './IterableImpl';
+import { Set, isSet } from './Set';
+import { emptyOrderedMap } from './OrderedMap';
+import assertNotInfinite from './utils/assertNotInfinite';
 
 export class OrderedSet extends Set {
-
   // @pragma Construction
 
   constructor(value) {
-    return value === null || value === undefined ? emptyOrderedSet() :
-      isOrderedSet(value) ? value :
-      emptyOrderedSet().withMutations(set => {
-        var iter = SetIterable(value);
-        assertNotInfinite(iter.size);
-        iter.forEach(v => set.add(v));
-      });
+    return value === null || value === undefined
+      ? emptyOrderedSet()
+      : isOrderedSet(value)
+          ? value
+          : emptyOrderedSet().withMutations(set => {
+              var iter = SetIterable(value);
+              assertNotInfinite(iter.size);
+              iter.forEach(v => set.add(v));
+            });
   }
 
-  static of(/*...values*/) {
+  static of /*...values*/() {
     return this(arguments);
   }
 
@@ -66,5 +66,6 @@ function makeOrderedSet(map, ownerID) {
 
 var EMPTY_ORDERED_SET;
 function emptyOrderedSet() {
-  return EMPTY_ORDERED_SET || (EMPTY_ORDERED_SET = makeOrderedSet(emptyOrderedMap()));
+  return EMPTY_ORDERED_SET ||
+    (EMPTY_ORDERED_SET = makeOrderedSet(emptyOrderedMap()));
 }

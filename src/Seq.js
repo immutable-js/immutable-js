@@ -7,21 +7,28 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { wrapIndex } from './TrieUtils'
-import { Iterable } from './Iterable'
-import { isIterable, isKeyed, IS_ORDERED_SENTINEL } from './Predicates'
-import { Iterator, iteratorValue, iteratorDone, hasIterator, isIterator, getIterator } from './Iterator'
+import { wrapIndex } from './TrieUtils';
+import { Iterable } from './Iterable';
+import { isIterable, isKeyed, IS_ORDERED_SENTINEL } from './Predicates';
+import {
+  Iterator,
+  iteratorValue,
+  iteratorDone,
+  hasIterator,
+  isIterator,
+  getIterator
+} from './Iterator';
 
-import isArrayLike from './utils/isArrayLike'
-
+import isArrayLike from './utils/isArrayLike';
 
 export class Seq extends Iterable {
   constructor(value) {
-    return value === null || value === undefined ? emptySequence() :
-      isIterable(value) ? value.toSeq() : seqFromValue(value);
+    return value === null || value === undefined
+      ? emptySequence()
+      : isIterable(value) ? value.toSeq() : seqFromValue(value);
   }
 
-  static of(/*...values*/) {
+  static of /*...values*/() {
     return Seq(arguments);
   }
 
@@ -78,14 +85,13 @@ export class Seq extends Iterable {
   }
 }
 
-
 export class KeyedSeq extends Seq {
   constructor(value) {
-    return value === null || value === undefined ?
-      emptySequence().toKeyedSeq() :
-      isIterable(value) ?
-        (isKeyed(value) ? value.toSeq() : value.fromEntrySeq()) :
-        keyedSeqFromValue(value);
+    return value === null || value === undefined
+      ? emptySequence().toKeyedSeq()
+      : isIterable(value)
+          ? isKeyed(value) ? value.toSeq() : value.fromEntrySeq()
+          : keyedSeqFromValue(value);
   }
 
   toKeyedSeq() {
@@ -93,15 +99,16 @@ export class KeyedSeq extends Seq {
   }
 }
 
-
 export class IndexedSeq extends Seq {
   constructor(value) {
-    return value === null || value === undefined ? emptySequence() :
-      !isIterable(value) ? indexedSeqFromValue(value) :
-      isKeyed(value) ? value.entrySeq() : value.toIndexedSeq();
+    return value === null || value === undefined
+      ? emptySequence()
+      : !isIterable(value)
+          ? indexedSeqFromValue(value)
+          : isKeyed(value) ? value.entrySeq() : value.toIndexedSeq();
   }
 
-  static of(/*...values*/) {
+  static of /*...values*/() {
     return IndexedSeq(arguments);
   }
 
@@ -114,17 +121,16 @@ export class IndexedSeq extends Seq {
   }
 }
 
-
 export class SetSeq extends Seq {
   constructor(value) {
-    return (
-      value === null || value === undefined ? emptySequence() :
-      !isIterable(value) ? indexedSeqFromValue(value) :
-      isKeyed(value) ? value.entrySeq() : value
-    ).toSetSeq();
+    return (value === null || value === undefined
+      ? emptySequence()
+      : !isIterable(value)
+          ? indexedSeqFromValue(value)
+          : isKeyed(value) ? value.entrySeq() : value).toSetSeq();
   }
 
-  static of(/*...values*/) {
+  static of /*...values*/() {
     return SetSeq(arguments);
   }
 
@@ -132,7 +138,6 @@ export class SetSeq extends Seq {
     return this;
   }
 }
-
 
 Seq.isSeq = isSeq;
 Seq.Keyed = KeyedSeq;
@@ -142,8 +147,6 @@ Seq.Indexed = IndexedSeq;
 var IS_SEQ_SENTINEL = '@@__IMMUTABLE_SEQ__@@';
 
 Seq.prototype[IS_SEQ_SENTINEL] = true;
-
-
 
 // #pragma Root Sequences
 
@@ -183,7 +186,6 @@ export class ArraySeq extends IndexedSeq {
     });
   }
 }
-
 
 class ObjectSeq extends KeyedSeq {
   constructor(object) {
@@ -234,7 +236,6 @@ class ObjectSeq extends KeyedSeq {
 }
 ObjectSeq.prototype[IS_ORDERED_SENTINEL] = true;
 
-
 class IterableSeq extends IndexedSeq {
   constructor(iterable) {
     this._iterable = iterable;
@@ -275,7 +276,6 @@ class IterableSeq extends IndexedSeq {
     });
   }
 }
-
 
 class IteratorSeq extends IndexedSeq {
   constructor(iterator) {
@@ -326,8 +326,6 @@ class IteratorSeq extends IndexedSeq {
   }
 }
 
-
-
 // # pragma Helper functions
 
 export function isSeq(maybeSeq) {
@@ -341,16 +339,18 @@ function emptySequence() {
 }
 
 export function keyedSeqFromValue(value) {
-  var seq =
-    Array.isArray(value) ? new ArraySeq(value).fromEntrySeq() :
-    isIterator(value) ? new IteratorSeq(value).fromEntrySeq() :
-    hasIterator(value) ? new IterableSeq(value).fromEntrySeq() :
-    typeof value === 'object' ? new ObjectSeq(value) :
-    undefined;
+  var seq = Array.isArray(value)
+    ? new ArraySeq(value).fromEntrySeq()
+    : isIterator(value)
+        ? new IteratorSeq(value).fromEntrySeq()
+        : hasIterator(value)
+            ? new IterableSeq(value).fromEntrySeq()
+            : typeof value === 'object' ? new ObjectSeq(value) : undefined;
   if (!seq) {
     throw new TypeError(
-      'Expected Array or iterable object of [k, v] entries, '+
-      'or keyed object: ' + value
+      'Expected Array or iterable object of [k, v] entries, ' +
+        'or keyed object: ' +
+        value
     );
   }
   return seq;
@@ -378,10 +378,9 @@ function seqFromValue(value) {
 }
 
 function maybeIndexedSeqFromValue(value) {
-  return (
-    isArrayLike(value) ? new ArraySeq(value) :
-    isIterator(value) ? new IteratorSeq(value) :
-    hasIterator(value) ? new IterableSeq(value) :
-    undefined
-  );
+  return isArrayLike(value)
+    ? new ArraySeq(value)
+    : isIterator(value)
+        ? new IteratorSeq(value)
+        : hasIterator(value) ? new IterableSeq(value) : undefined;
 }
