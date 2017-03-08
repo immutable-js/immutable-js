@@ -160,6 +160,9 @@ export class Stack extends IndexedCollection {
       return this;
     }
     if (!ownerID) {
+      if (this.size === 0) {
+        return emptyStack();
+      }
       this.__ownerID = ownerID;
       this.__altered = false;
       return this;

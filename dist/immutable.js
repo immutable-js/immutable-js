@@ -2167,6 +2167,9 @@ var Map = (function (KeyedCollection$$1) {
       return this;
     }
     if (!ownerID) {
+      if (this.size === 0) {
+        return emptyMap();
+      }
       this.__ownerID = ownerID;
       this.__altered = false;
       return this;
@@ -3003,6 +3006,9 @@ var List = (function (IndexedCollection$$1) {
       return this;
     }
     if (!ownerID) {
+      if (this.size === 0) {
+        return emptyList();
+      }
       this.__ownerID = ownerID;
       return this;
     }
@@ -3503,6 +3509,9 @@ var OrderedMap = (function (Map$$1) {
     var newMap = this._map.__ensureOwner(ownerID);
     var newList = this._list.__ensureOwner(ownerID);
     if (!ownerID) {
+      if (this.size === 0) {
+        return emptyOrderedMap();
+      }
       this.__ownerID = ownerID;
       this._map = newMap;
       this._list = newList;
@@ -3728,6 +3737,9 @@ var Stack = (function (IndexedCollection$$1) {
       return this;
     }
     if (!ownerID) {
+      if (this.size === 0) {
+        return emptyStack();
+      }
       this.__ownerID = ownerID;
       this.__altered = false;
       return this;
@@ -4031,6 +4043,9 @@ var Set = (function (SetCollection$$1) {
     }
     var newMap = this._map.__ensureOwner(ownerID);
     if (!ownerID) {
+      if (this.size === 0) {
+        return emptySet();
+      }
       this.__ownerID = ownerID;
       this._map = newMap;
       return this;

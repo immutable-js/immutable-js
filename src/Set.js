@@ -161,6 +161,9 @@ export class Set extends SetCollection {
     }
     var newMap = this._map.__ensureOwner(ownerID);
     if (!ownerID) {
+      if (this.size === 0) {
+        return emptySet();
+      }
       this.__ownerID = ownerID;
       this._map = newMap;
       return this;

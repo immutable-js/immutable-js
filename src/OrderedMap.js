@@ -88,6 +88,9 @@ export class OrderedMap extends Map {
     var newMap = this._map.__ensureOwner(ownerID);
     var newList = this._list.__ensureOwner(ownerID);
     if (!ownerID) {
+      if (this.size === 0) {
+        return emptyOrderedMap();
+      }
       this.__ownerID = ownerID;
       this._map = newMap;
       this._list = newList;
