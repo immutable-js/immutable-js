@@ -29,7 +29,7 @@
     "lint": "eslint \"{src,pages/src,pages/lib}/**/*.js\"",
     "format": "prettier --single-quote --write \"{src,pages/src}/**/*.js\"",
     "testonly": "./resources/jest",
-    "test": "npm run lint && npm run build && npm run testonly && npm run type-check",
+    "test": "npm run build && npm run lint && npm run testonly && npm run type-check",
     "type-check": "cd type-definitions/tests && flow check",
     "perf": "node ./resources/bench.js",
     "start": "gulp dev",
