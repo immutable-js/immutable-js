@@ -4368,29 +4368,12 @@ mixin(Iterable, {
     return reify(this, mapFactory(this, mapper, context));
   },
 
-  reduce: function reduce(reducer, initialReduction, context) {
-    assertNotInfinite(this.size);
-    var reduction;
-    var useFirst;
-    if (arguments.length < 2) {
-      useFirst = true;
-    } else {
-      reduction = initialReduction;
-    }
-    this.__iterate(function (v, k, c) {
-      if (useFirst) {
-        useFirst = false;
-        reduction = v;
-      } else {
-        reduction = reducer.call(context, reduction, v, k, c);
-      }
-    });
-    return reduction;
+  reduce: function reduce$1(reducer, initialReduction, context) {
+    return reduce(this, reducer, initialReduction, context, arguments.length < 2, false);
   },
 
-  reduceRight: function reduceRight(/*reducer, initialReduction, context*/) {
-    var reversed = this.toKeyedSeq().reverse();
-    return reversed.reduce.apply(reversed, arguments);
+  reduceRight: function reduceRight(reducer, initialReduction, context) {
+    return reduce(this, reducer, initialReduction, context, arguments.length < 2, true);
   },
 
   reverse: function reverse() {
@@ -4881,6 +4864,19 @@ mixin(SetCollection, SetIterable.prototype);
 
 
 // #pragma Helper functions
+
+function reduce(collection, reducer, reduction, context, useFirst, reverse) {
+  assertNotInfinite(collection.size);
+  collection.__iterate(function (v, k, c) {
+    if (useFirst) {
+      useFirst = false;
+      reduction = v;
+    } else {
+      reduction = reducer.call(context, reduction, v, k, c);
+    }
+  }, reverse);
+  return reduction;
+}
 
 function keyMapper(v, k) {
   return k;
