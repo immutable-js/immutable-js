@@ -4633,6 +4633,10 @@ mixin(Iterable, {
     return this.takeWhile(not(predicate), context);
   },
 
+  update: function update(fn) {
+    return fn(this);
+  },
+
   valueSeq: function valueSeq() {
     return this.toIndexedSeq();
   },

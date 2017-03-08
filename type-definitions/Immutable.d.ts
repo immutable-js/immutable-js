@@ -323,11 +323,37 @@ declare module Immutable {
      * `index` may be a negative number, which indexes back from the end of the
      * List. `v.update(-1)` updates the last item in the List.
      *
+     * If an index is not provided, then the `updater` function return value is
+     * returned as well.
+     *
+     * ```js
+     * const list = List([ 'a', 'b', 'c' ])
+     * const result = list.update(l => l.get(1))
+     * // "b"
+     * ```
+     *
+     * This can be very useful as a way to "chain" a normal function into a
+     * sequence of methods. RxJS calls this "let" and lodash calls it "thru".
+     *
+     * For example, to sum a List after mapping and filtering:
+     *
+     * ```js
+     * function sum(collection) {
+     *   return collection.reduce((sum, x) => sum + x, 0)
+     * }
+     *
+     * List([ 1, 2 ,3 ])
+     *   .map(x => x + 1)
+     *   .filter(x => x % 2 === 0)
+     *   .update(sum)
+     * // 6
+     * ```
+     *
      * @see `Map#update`
      */
-    update(updater: (value: List<T>) => List<T>): List<T>;
-    update(index: number, updater: (value: T) => T): List<T>;
-    update(index: number, notSetValue: T, updater: (value: T) => T): List<T>;
+    update(index: number, updater: (value: T) => T): this;
+    update(index: number, notSetValue: T, updater: (value: T) => T): this;
+    update<R>(updater: (value: this) => R): R;
 
     /**
      * @see `Map#merge`
@@ -627,57 +653,87 @@ declare module Immutable {
 
     /**
      * Returns a new Map having updated the value at this `key` with the return
-     * value of calling `updater` with the existing value, or `notSetValue` if
-     * the key was not set. If called with only a single argument, `updater` is
-     * called with the Map itself.
+     * value of calling `updater` with the existing value.
      *
-     * Equivalent to: `map.set(key, updater(map.get(key)))`.
+     * Similar to: `map.set(key, updater(map.get(key)))`.
      *
-     *     const originalMap = Immutable.Map({
-     *       key: 'value'
-     *     });
+     * ```js
+     * const map = Map({ key: 'value' });
+     * const newMap = map.update('key', value => value + value);
+     * // Map { "key": "valuevalue" }
+     * ```
      *
-     *     const newMap = originalMap.update('key', value => {
-     *       return value + value;
-     *     });
-     *     newMap.toJS(); // { key: 'valuevalue' }
+     * This is most commonly used to call methods on collections within a
+     * structure of data. For example, in order to `.push()` onto a nested `List`,
+     * `update` and `push` can be used together:
+     *
+     * ```js
+     * const map = Map({ nestedList: List([ 1, 2, 3 ]) })
+     * const newMap = map.update('nestedList', list => list.push(4))
+     * // Map { "nestedList": List [ 1, 2, 3, 4 ] }
+     * ```
      *
      * When a `notSetValue` is provided, it is provided to the `updater`
      * function when the value at the key does not exist in the Map.
      *
-     *     const originalMap = Immutable.Map({
-     *       key: 'value'
-     *     });
-     *
-     *     let newMap = originalMap.update('noKey', 'no value', value => {
-     *       return value + value;
-     *     });
-     *     newMap.toJS(); // { key: 'value', noKey: 'no valueno value' }
+     * ```js
+     * const map = Map({ key: 'value' })
+     * const newMap = map.update('noKey', 'no value', value => value + value)
+     * // Map { "key": "value", "noKey": "no valueno value" }
+     * ```
      *
      * However, if the `updater` function returns the same value it was called
      * with, then no change will occur. This is still true if `notSetValue`
      * is provided.
      *
-     *     var data1 = Immutable.fromJS({ a: { b: { c: 10 } } });
-     *     data2 = data1.update('key', 100, val => val);
-     *     assert(data2 === data1);
+     * ```js
+     * const map = Map({ apples: 10 })
+     * const newMap = map.update('oranges', 0, val => val)
+     * // Map { "apples": 10 }
+     * assert(newMap === map);
+     * ```
+     *
+     * For code using ES2015 or later, using `notSetValue` is discourged in
+     * favor of function parameter default values. This helps to avoid any
+     * potential confusion with identify functions as described above.
+     *
+     * The previous example behaves differently when written with default values:
+     *
+     * ```js
+     * const map = Map({ apples: 10 })
+     * const newMap = map.update('oranges', (val = 0) => val)
+     * // Map { "apples": 10, "oranges": 0 }
+     * ```
      *
      * If no key is provided, then the `updater` function return value is
      * returned as well.
      *
-     *     const originalMap = Immutable.Map({
-     *       key: 'value'
-     *     });
+     * ```js
+     * const map = Map({ key: 'value' })
+     * const result = map.update(map => map.get('key'))
+     * // "value"
+     * ```
      *
-     *     const result = originalMap.update(map => {
-     *       return map.get('key');
-     *     });
-     *     result; // 'value'
+     * This can be very useful as a way to "chain" a normal function into a
+     * sequence of methods. RxJS calls this "let" and lodash calls it "thru".
      *
+     * For example, to sum the values in a Map
+     *
+     * ```js
+     * function sum(collection) {
+     *   return collection.reduce((sum, x) => sum + x, 0)
+     * }
+     *
+     * Map({ x: 1, y: 2, z: 3 })
+     *   .map(x => x + 1)
+     *   .filter(x => x % 2 === 0)
+     *   .update(sum)
+     * // 6
+     * ```
      */
-    update(key: K, updater: (value: V) => V): Map<K, V>;
-    update(key: K, notSetValue: V, updater: (value: V) => V): Map<K, V>;
-    update<R>(updater: (value: Map<K, V>) => R): R;
+    update(key: K, updater: (value: V) => V): this;
+    update(key: K, notSetValue: V, updater: (value: V) => V): this;
+    update<R>(updater: (value: this) => R): R;
 
     /**
      * Returns a new Map resulting from merging the provided Iterables
@@ -766,7 +822,7 @@ declare module Immutable {
      *     }
      *   }
      * });
-
+     *
      * const newMap = originalMap.setIn(['subObject', 'subKey'], 'ha ha!');
      * newMap.toJS();
      * // {subObject:{subKey:'ha ha!', subSubObject:{subSubKey:'subSubValue'}}}
@@ -800,24 +856,51 @@ declare module Immutable {
      * Returns a new Map having applied the `updater` to the entry found at the
      * keyPath.
      *
+     * This is most commonly used to call methods on collections nested within a
+     * structure of data. For example, in order to `.push()` onto a nested `List`,
+     * `updateIn` and `push` can be used together:
+     *
+     * ```js
+     * const map = Map({ inMap: Map({ inList: List([ 1, 2, 3 ]) }) })
+     * const newMap = map.updateIn(['inMap', 'inList'], list => list.push(4))
+     * // Map { "inMap": Map { "inList": List [ 1, 2, 3, 4 ] } }
+     * ```
+     *
      * If any keys in `keyPath` do not exist, new Immutable `Map`s will
      * be created at those keys. If the `keyPath` does not already contain a
      * value, the `updater` function will be called with `notSetValue`, if
      * provided, otherwise `undefined`.
      *
-     *     var data = Immutable.fromJS({ a: { b: { c: 10 } } });
-     *     data = data.updateIn(['a', 'b', 'c'], val => val * 2);
-     *     // { a: { b: { c: 20 } } }
+     * ```js
+     * const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
+     * const newMap = map.updateIn(['a', 'b', 'c'], val => val * 2)
+     * // Map { "a": Map { "b": Map { "c": 20 } } }
+     * ```
      *
      * If the `updater` function returns the same value it was called with, then
      * no change will occur. This is still true if `notSetValue` is provided.
      *
-     *     var data1 = Immutable.fromJS({ a: { b: { c: 10 } } });
-     *     data2 = data1.updateIn(['x', 'y', 'z'], 100, val => val);
-     *     assert(data2 === data1);
+     * ```js
+     * const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
+     * const newMap = map.updateIn(['a', 'b', 'x'], 100, val => val)
+     * // Map { "a": Map { "b": Map { "c": 10 } } }
+     * assert(newMap === map)
+     * ```
+     *
+     * For code using ES2015 or later, using `notSetValue` is discourged in
+     * favor of function parameter default values. This helps to avoid any
+     * potential confusion with identify functions as described above.
+     *
+     * The previous example behaves differently when written with default values:
+     *
+     * ```js
+     * const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
+     * const newMap = map.updateIn(['a', 'b', 'x'], (val = 100) => val)
+     * // Map { "a": Map { "b": Map { "c": 10, "x": 100 } } }
+     * ```
      *
      * If any key in the path exists but does not have a .set() method (such as
-     * Map and List), an error will be throw.
+     * Map and List), an error will be thrown.
      */
     updateIn(
       keyPath: Array<any>,
@@ -1658,7 +1741,7 @@ declare module Immutable {
       /**
        * Returns itself
        */
-      toSeq(): this
+      toSeq(): this;
 
       /**
        * Returns a new Seq.Keyed with values passed through a
@@ -2316,6 +2399,28 @@ declare module Immutable {
      */
     hasIn(searchKeyPath: Array<any>): boolean;
     hasIn(searchKeyPath: Iterable<any, any>): boolean;
+
+    // Persistent changes
+
+    /**
+     * This can be very useful as a way to "chain" a normal function into a
+     * sequence of methods. RxJS calls this "let" and lodash calls it "thru".
+     *
+     * For example, to sum a Seq after mapping and filtering:
+     *
+     * ```js
+     * function sum(collection) {
+     *   return collection.reduce((sum, x) => sum + x, 0)
+     * }
+     *
+     * Seq([ 1, 2 ,3 ])
+     *   .map(x => x + 1)
+     *   .filter(x => x % 2 === 0)
+     *   .update(sum)
+     * // 6
+     * ```
+     */
+    update<R>(updater: (value: this) => R): R;
 
 
     // Conversion to JavaScript types

@@ -43,6 +43,8 @@ declare class _Iterable<K, +V> {
   getIn(searchKeyPath: ESIterable<mixed>, notSetValue?: mixed): any;
   hasIn(searchKeyPath: ESIterable<mixed>): boolean;
 
+  update<U>(updater: (value: this) => U): U;
+
   toJS(): mixed;
   toArray(): Array<V>;
   toObject(): { [key: string]: V };
@@ -553,7 +555,7 @@ declare class List<+T> extends IndexedCollection<T> {
   unshift<U>(...values: U[]): List<T | U>;
   shift(): this;
 
-  update<U>(updater: (value: this) => List<U>): List<U>;
+  update<U>(updater: (value: this) => U): U;
   update<U>(index: number, updater: (value: T) => U): List<T | U>;
   update<U>(index: number, notSetValue: U, updater: (value: T) => U): List<T | U>;
 
@@ -690,7 +692,7 @@ declare class Map<K, +V> extends KeyedCollection<K, V> {
   deleteAll(keys: ESIterable<K>): Map<K, V>;
   removeAll(keys: ESIterable<K>): Map<K, V>;
 
-  update<K_, V_>(updater: (value: this) => Map<K_, V_>): Map<K_, V_>;
+  update<U>(updater: (value: this) => U): U;
   update<V_>(key: K, updater: (value: V) => V_): Map<K, V | V_>;
   update<V_>(key: K, notSetValue: V_, updater: (value: V) => V_): Map<K, V | V_>;
 
@@ -778,7 +780,7 @@ declare class OrderedMap<K, +V> extends KeyedCollection<K, V> {
   remove(key: K): this;
   clear(): this;
 
-  update<K_, V_>(updater: (value: this) => OrderedMap<K_, V_>): OrderedMap<K_, V_>;
+  update<U>(updater: (value: this) => U): U;
   update<V_>(key: K, updater: (value: V) => V_): OrderedMap<K, V | V_>;
   update<V_>(key: K, notSetValue: V_, updater: (value: V) => V_): OrderedMap<K, V | V_>;
 
