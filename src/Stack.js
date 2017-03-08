@@ -23,7 +23,7 @@ export class Stack extends IndexedCollection {
   constructor(value) {
     return value === null || value === undefined ? emptyStack() :
       isStack(value) ? value :
-      emptyStack().unshiftAll(value);
+      emptyStack().pushAll(value);
   }
 
   static of(/*...values*/) {
@@ -78,16 +78,19 @@ export class Stack extends IndexedCollection {
     if (iter.size === 0) {
       return this;
     }
+    if (this.size === 0 && isStack(iter)) {
+      return iter;
+    }
     assertNotInfinite(iter.size);
     var newSize = this.size;
     var head = this._head;
-    iter.reverse().forEach(value => {
+    iter.__iterate(value => {
       newSize++;
       head = {
         value: value,
         next: head
       };
-    });
+    }, /* reverse */ true);
     if (this.__ownerID) {
       this.size = newSize;
       this._head = head;
@@ -100,18 +103,6 @@ export class Stack extends IndexedCollection {
 
   pop() {
     return this.slice(1);
-  }
-
-  unshift(/*...values*/) {
-    return this.push.apply(this, arguments);
-  }
-
-  unshiftAll(iter) {
-    return this.pushAll(iter);
-  }
-
-  shift() {
-    return this.pop.apply(this, arguments);
   }
 
   clear() {
@@ -218,6 +209,9 @@ StackPrototype.withMutations = MapPrototype.withMutations;
 StackPrototype.asMutable = MapPrototype.asMutable;
 StackPrototype.asImmutable = MapPrototype.asImmutable;
 StackPrototype.wasAltered = MapPrototype.wasAltered;
+StackPrototype.shift = StackPrototype.pop;
+StackPrototype.unshift = StackPrototype.push;
+StackPrototype.unshiftAll = StackPrototype.pushAll;
 
 
 function makeStack(size, head, ownerID, hash) {

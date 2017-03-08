@@ -191,4 +191,24 @@ describe('Stack', () => {
     expect(s.indexOf('d')).toBe(-1);
   });
 
+  it('pushes on all items in an iter', () => {
+    var abc = Stack([ 'a', 'b', 'c' ]);
+    var xyz = Stack([ 'x', 'y', 'z' ]);
+    var xyzSeq = Seq([ 'x', 'y', 'z' ]);
+
+    // Push all to the front of the Stack so first item ends up first.
+    expect(abc.pushAll(xyz).toArray()).toEqual([ 'x', 'y', 'z', 'a', 'b', 'c' ]);
+    expect(abc.pushAll(xyzSeq).toArray()).toEqual([ 'x', 'y', 'z', 'a', 'b', 'c' ]);
+
+    // Pushes Seq contents into Stack
+    expect(Stack().pushAll(xyzSeq)).not.toBe(xyzSeq);
+    expect(Stack().pushAll(xyzSeq).toArray()).toEqual([ 'x', 'y', 'z' ]);
+
+    // Pushing a Stack onto an empty Stack returns === Stack
+    expect(Stack().pushAll(xyz)).toBe(xyz);
+
+    // Pushing an empty Stack onto a Stack return === Stack
+    expect(abc.pushAll(Stack())).toBe(abc);
+  });
+
 });
