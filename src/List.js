@@ -10,7 +10,8 @@
 import { fromJS } from './fromJS'
 import { DELETE, SHIFT, SIZE, MASK, DID_ALTER, OwnerID, MakeRef,
           SetRef, wrapIndex, wholeSlice, resolveBegin, resolveEnd } from './TrieUtils'
-import { isIterable, IndexedIterable } from './Iterable'
+import { IndexedIterable } from './Iterable'
+import { isIterable } from './Predicates'
 import { IndexedCollection } from './Collection'
 import { MapPrototype, mergeIntoCollectionWith, deepMerger, deepMergerWith } from './Map'
 import { Iterator, iteratorValue, iteratorDone } from './Iterator'

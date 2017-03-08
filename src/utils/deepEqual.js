@@ -9,7 +9,7 @@
 
 import { is } from '../is'
 import { NOT_SET } from '../TrieUtils'
-import { isIterable, isKeyed, isIndexed, isAssociative, isOrdered } from '../Iterable'
+import { isIterable, isKeyed, isIndexed, isAssociative, isOrdered } from '../Predicates'
 
 export default function deepEqual(a, b) {
   if (a === b) {

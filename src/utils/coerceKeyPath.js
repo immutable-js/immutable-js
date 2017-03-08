@@ -7,7 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { isOrdered } from '../Iterable'
+import { isOrdered } from '../Predicates'
 import isArrayLike from './isArrayLike'
 
 export default function coerceKeyPath(keyPath) {

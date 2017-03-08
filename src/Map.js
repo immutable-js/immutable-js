@@ -9,7 +9,8 @@
 
 import { is } from './is'
 import { fromJS } from './fromJS'
-import { isIterable, KeyedIterable, isOrdered, Iterable } from './Iterable'
+import { Iterable, KeyedIterable } from './Iterable'
+import { isIterable, isOrdered } from './Predicates'
 import { KeyedCollection } from './Collection'
 import { DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
           MakeRef, SetRef, arrCopy } from './TrieUtils'

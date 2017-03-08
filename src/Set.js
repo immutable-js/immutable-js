@@ -7,7 +7,8 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { Iterable, SetIterable, KeyedIterable, isOrdered } from './Iterable'
+import { Iterable, SetIterable, KeyedIterable } from './Iterable'
+import { isOrdered } from './Predicates'
 import { SetCollection } from './Collection'
 import { emptyMap, MapPrototype } from './Map'
 import { DELETE } from './TrieUtils'

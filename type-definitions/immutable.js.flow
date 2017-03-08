@@ -29,7 +29,7 @@
  */
 type ESIterable<+T> = $Iterable<T, void, void>;
 
-declare class _Iterable<K, +V> {
+declare class _Iterable<K, +V> /*implements ValueObject*/ {
   equals(other: mixed): boolean;
   hashCode(): number;
   get(key: K, _: empty): V | void;
@@ -161,6 +161,7 @@ declare class _Iterable<K, +V> {
   isSuperset(iter: ESIterable<V>): boolean;
 }
 
+declare function isImmutable(maybeImmutable: mixed): boolean %checks(maybeImmutable instanceof Iterable);
 declare function isIterable(maybeIterable: mixed): boolean %checks(maybeIterable instanceof Iterable);
 declare function isKeyed(maybeKeyed: mixed): boolean %checks(maybeKeyed instanceof KeyedIterable);
 declare function isIndexed(maybeIndexed: mixed): boolean %checks(maybeIndexed instanceof IndexedIterable);
@@ -173,6 +174,12 @@ declare function isOrdered(maybeOrdered: mixed): boolean %checks(
   maybeOrdered instanceof OrderedMap ||
   maybeOrdered instanceof OrderedSet
 );
+declare function isValueObject(maybeValue: mixed): boolean;
+
+declare interface ValueObject {
+  equals(other: mixed): boolean;
+  hashCode(): number;
+}
 
 declare class Iterable<K, +V> extends _Iterable<K, V> {
   static Keyed: typeof KeyedIterable;
@@ -1103,6 +1110,14 @@ export {
   fromJS,
   is,
   hash,
+
+  isImmutable,
+  isIterable,
+  isKeyed,
+  isIndexed,
+  isAssociative,
+  isOrdered,
+  isValueObject,
 }
 
 export default {
@@ -1123,6 +1138,14 @@ export default {
   fromJS,
   is,
   hash,
+
+  isImmutable,
+  isIterable,
+  isKeyed,
+  isIndexed,
+  isAssociative,
+  isOrdered,
+  isValueObject,
 }
 
 export type {
@@ -1135,4 +1158,5 @@ export type {
   KeyedSeq,
   IndexedSeq,
   SetSeq,
+  ValueObject,
 }

@@ -97,11 +97,18 @@ declare module Immutable {
    * It's used throughout Immutable when checking for equality, including `Map`
    * key equality and `Set` membership.
    *
-   *     var map1 = Immutable.Map({a:1, b:1, c:1});
-   *     var map2 = Immutable.Map({a:1, b:1, c:1});
-   *     assert(map1 !== map2);
-   *     assert(Object.is(map1, map2) === false);
-   *     assert(Immutable.is(map1, map2) === true);
+   * ```js
+   * import { Map, is } from 'immutable'
+   * const map1 = Map({ a: 1, b: 1, c: 1 })
+   * const map2 = Map({ a: 1, b: 1, c: 1 })
+   * assert(map1 !== map2)
+   * assert(Object.is(map1, map2) === false)
+   * assert(is(map1, map2) === true)
+   * ```
+   *
+   * `is()` compares primitive types like strings and numbers, Immutable.js
+   * collections like `Map` and `List`, but also any custom object which
+   * implements `ValueObject` by providing `equals()` and `hashCode()` methods.
    *
    * Note: Unlike `Object.is`, `Immutable.is` assumes `0` and `-0` are the same
    * value, matching the behavior of ES6 Map key equality.
@@ -123,6 +130,97 @@ declare module Immutable {
    */
   export function hash(value: any): number;
 
+  /**
+   * True if `maybeImmutable` is an Immutable collection or Record.
+   *
+   * ```js
+   * Iterable.isImmutable([]); // false
+   * Iterable.isImmutable({}); // false
+   * Iterable.isImmutable(Immutable.Map()); // true
+   * Iterable.isImmutable(Immutable.List()); // true
+   * Iterable.isImmutable(Immutable.Stack()); // true
+   * Iterable.isImmutable(Immutable.Map().asMutable()); // false
+   * ```
+   */
+  export function isImmutable(maybeImmutable: any): maybeImmutable is Iterable<any, any>;
+
+  /**
+   * True if `maybeIterable` is an Iterable, or any of its subclasses.
+   *
+   * ```js
+   * Iterable.isIterable([]); // false
+   * Iterable.isIterable({}); // false
+   * Iterable.isIterable(Immutable.Map()); // true
+   * Iterable.isIterable(Immutable.List()); // true
+   * Iterable.isIterable(Immutable.Stack()); // true
+   * ```
+   */
+  export function isIterable(maybeIterable: any): maybeIterable is Iterable<any, any>;
+
+  /**
+   * True if `maybeKeyed` is an Iterable.Keyed, or any of its subclasses.
+   */
+  export function isKeyed(maybeKeyed: any): maybeKeyed is Iterable.Keyed<any, any>;
+
+  /**
+   * True if `maybeIndexed` is a Iterable.Indexed, or any of its subclasses.
+   */
+  export function isIndexed(maybeIndexed: any): maybeIndexed is Iterable.Indexed<any>;
+
+  /**
+   * True if `maybeAssociative` is either a keyed or indexed Iterable.
+   */
+  export function isAssociative(maybeAssociative: any): maybeAssociative is Iterable.Keyed<any, any> | Iterable.Indexed<any>;
+
+  /**
+   * True if `maybeOrdered` is an Iterable where iteration order is well
+   * defined. True for Iterable.Indexed as well as OrderedMap and OrderedSet.
+   */
+  export function isOrdered(maybeOrdered: any): boolean;
+
+  /**
+   * True if `maybeValue` is a JavaScript Object which has *both* `equals()`
+   * and `hashCode()` methods.
+   *
+   * Any two instances of *value objects* can be compared for value equality with
+   * `Immutable.is()` and can be used as keys in a `Map` or members in a `Set`.
+   */
+  export function isValueObject(maybeValue: any): maybeValue is ValueObject;
+
+  /**
+   * The interface to fulfill to qualify as a Value Object.
+   */
+  export interface ValueObject {
+    /**
+     * True if this and the other Iterable have value equality, as defined
+     * by `Immutable.is()`.
+     *
+     * Note: This is equivalent to `Immutable.is(this, other)`, but provided to
+     * allow for chained expressions.
+     */
+    equals(other: any): boolean;
+
+    /**
+     * Computes and returns the hashed identity for this Iterable.
+     *
+     * The `hashCode` of an Iterable is used to determine potential equality,
+     * and is used when adding this to a `Set` or as a key in a `Map`, enabling
+     * lookup via a different instance.
+     *
+     *     var a = List.of(1, 2, 3);
+     *     var b = List.of(1, 2, 3);
+     *     assert(a !== b); // different instances
+     *     var set = Set.of(a);
+     *     assert(set.has(b) === true);
+     *
+     * If two values have the same `hashCode`, they are [not guaranteed
+     * to be equal][Hash Collision]. If two values have different `hashCode`s,
+     * they must not be equal.
+     *
+     * [Hash Collision]: http://en.wikipedia.org/wiki/Collision_(computer_science)
+     */
+    hashCode(): number;
+  }
 
   /**
    * Lists are ordered indexed dense collections, much like a JavaScript
@@ -2015,36 +2113,27 @@ declare module Immutable {
    */
   export module Iterable {
     /**
-     * True if `maybeIterable` is an Iterable, or any of its subclasses.
-     *
-     * ```js
-     * Iterable.isIterable([]); // false
-     * Iterable.isIterable({}); // false
-     * Iterable.isIterable(Immutable.Map()); // true
-     * Iterable.isIterable(Immutable.List()); // true
-     * Iterable.isIterable(Immutable.Stack()); // true
-     * ```
+     * @deprecated use Immutable.isIterable
      */
     function isIterable(maybeIterable: any): maybeIterable is Iterable<any, any>;
 
     /**
-     * True if `maybeKeyed` is an Iterable.Keyed, or any of its subclasses.
+     * @deprecated use Immutable.isKeyed
      */
     function isKeyed(maybeKeyed: any): maybeKeyed is Iterable.Keyed<any, any>;
 
     /**
-     * True if `maybeIndexed` is a Iterable.Indexed, or any of its subclasses.
+     * @deprecated use Immutable.isIndexed
      */
     function isIndexed(maybeIndexed: any): maybeIndexed is Iterable.Indexed<any>;
 
     /**
-     * True if `maybeAssociative` is either a keyed or indexed Iterable.
+     * @deprecated use Immutable.isAssociative
      */
     function isAssociative(maybeAssociative: any): maybeAssociative is Iterable.Keyed<any, any> | Iterable.Indexed<any>;
 
     /**
-     * True if `maybeOrdered` is an Iterable where iteration order is well
-     * defined. True for Iterable.Indexed as well as OrderedMap and OrderedSet.
+     * @deprecated use Immutable.isOrdered
      */
     function isOrdered(maybeOrdered: any): boolean;
 
@@ -2383,7 +2472,7 @@ declare module Immutable {
   export function Iterable<T>(iterable: ESIterable<T>): Iterable.Indexed<T>;
   export function Iterable<V>(obj: {[key: string]: V}): Iterable.Keyed<string, V>;
 
-  export interface Iterable<K, V> {
+  export interface Iterable<K, V> extends ValueObject {
 
     // Value equality
 
