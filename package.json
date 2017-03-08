@@ -69,7 +69,7 @@
     "gulp-header": "1.8.8",
     "gulp-less": "3.3.0",
     "gulp-size": "2.1.0",
-    "gulp-sourcemaps": "1.6.0",
+    "gulp-sourcemaps": "2.4.1",
     "gulp-uglify": "2.0.1",
     "gulp-util": "3.0.8",
     "jasmine-check": "0.1.5",
