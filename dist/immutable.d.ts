@@ -17,7 +17,13 @@
  * mirroring that of Array, Map, and Set. It is easy and efficient to convert to
  * and from plain Javascript types.
  *
- * Note: all examples are presented in [ES6][]. To run in all browsers, they
+ * In order to better explain what kinds of values the Immutable.js API expects
+ * and produces, this documentation is presented in a strong typed dialect of
+ * JavaScript (like [Flow][] or [TypeScript][]). You *don't need* to use these
+ * type checking tools in order to use Immutable.js, however becoming familiar
+ * with their syntax will help you get a deeper understanding of this API.
+ *
+ * Note: All examples are presented in [ES2015][]. To run in all browsers, they
  * need to be translated to ES3. For example:
  *
  *     // ES6
@@ -25,7 +31,9 @@
  *     // ES3
  *     foo.map(function (x) { return x * x; });
  *
- * [ES6]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/ECMAScript_6_support_in_Mozilla
+ * [ES2015]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/ECMAScript_6_support_in_Mozilla
+ * [TypeScript]: http://www.typescriptlang.org/
+ * [Flow]: https://flowtype.org/
  */
 
 declare module Immutable {
