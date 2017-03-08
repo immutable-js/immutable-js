@@ -45,7 +45,8 @@ declare class _Iterable<K, +V> /*implements ValueObject*/ {
 
   update<U>(updater: (value: this) => U): U;
 
-  toJS(): mixed;
+  toJS(): Array<any> | { [key: string]: mixed };
+  toJSON(): Array<V> | { [key: string]: V };
   toArray(): Array<V>;
   toObject(): { [key: string]: V };
   toMap(): Map<K, V>;
@@ -198,6 +199,7 @@ declare class KeyedIterable<K, +V> extends Iterable<K, V> {
   static <K, V>(obj?: { [key: K]: V }): KeyedIterable<K, V>;
 
   toJS(): { [key: string]: mixed };
+  toJSON(): { [key: string]: V };
   @@iterator(): Iterator<[K, V]>;
   toSeq(): KeyedSeq<K, V>;
   flip(): KeyedIterable<V, K>;
@@ -234,6 +236,7 @@ declare class IndexedIterable<+T> extends Iterable<number, T> {
   static <T>(iter?: ESIterable<T>): IndexedIterable<T>;
 
   toJS(): Array<mixed>;
+  toJSON(): Array<T>;
   @@iterator(): Iterator<T>;
   toSeq(): IndexedSeq<T>;
   fromEntrySeq<K, V>(): KeyedSeq<K, V>;
@@ -343,6 +346,7 @@ declare class SetIterable<+T> extends Iterable<T, T> {
   static <T>(iter?: ESIterable<T>): SetIterable<T>;
 
   toJS(): Array<mixed>;
+  toJSON(): Array<T>;
   @@iterator(): Iterator<T>;
   toSeq(): SetSeq<T>;
 
@@ -1079,7 +1083,8 @@ declare class RecordInstance<T: Object> {
   deleteIn(keyPath: ESIterable<any>): this;
   removeIn(keyPath: ESIterable<any>): this;
 
-  toJS(): T;
+  toJS(): { [key: $Keys<T>]: mixed };
+  toJSON(): T;
   toObject(): T;
   withMutations(mutator: (mutable: this) => mixed): this;
   asMutable(): this;
