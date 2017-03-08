@@ -76,7 +76,11 @@ export class Map extends KeyedCollection {
   }
 
   deleteIn(keyPath) {
-    return this.updateIn(keyPath, () => NOT_SET);
+    keyPath = [...coerceKeyPath(keyPath)];
+    if (keyPath.length) {
+      var lastKey = keyPath.pop();
+      return this.updateIn(keyPath, c => c && c.remove(lastKey));
+    }
   }
 
   deleteAll(keys) {

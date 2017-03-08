@@ -2016,7 +2016,11 @@ var Map = (function (KeyedCollection$$1) {
   };
 
   Map.prototype.deleteIn = function deleteIn (keyPath) {
-    return this.updateIn(keyPath, function () { return NOT_SET; });
+    keyPath = [].concat( coerceKeyPath(keyPath) );
+    if (keyPath.length) {
+      var lastKey = keyPath.pop();
+      return this.updateIn(keyPath, function (c) { return c && c.remove(lastKey); });
+    }
   };
 
   Map.prototype.deleteAll = function deleteAll (keys) {

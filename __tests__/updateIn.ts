@@ -256,6 +256,11 @@ describe('updateIn', () => {
       expect(m.removeIn([])).toBe(undefined)
     })
 
+    it('removes values from a Set', () => {
+      var m = Map({ set: Set([ 1, 2, 3 ]) });
+      var m2 = m.removeIn([ 'set', 2 ]);
+      expect(m2.toJS()).toEqual({ set: [ 1, 3 ] });
+    })
   })
 
   describe('mergeIn', () => {
