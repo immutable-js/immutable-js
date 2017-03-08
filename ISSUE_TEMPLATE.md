@@ -7,6 +7,7 @@
                                                   ---  Have a general question?  ---
 
 First check out the Docs: https://facebook.github.io/immutable-js/docs/
+And check out the Wiki: https://github.com/facebook/immutable-js/wiki/
 Search existing issues: https://github.com/facebook/immutable-js/search?type=Issues&q=question
 Ask on Stack Overflow!: https://stackoverflow.com/questions/tagged/immutable.js?sort=votes
 
