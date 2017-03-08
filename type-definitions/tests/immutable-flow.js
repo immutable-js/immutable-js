@@ -765,6 +765,3 @@ numberStack = Stack(['a']).flatten()
 { const stringSequence: IndexedSeq<string> = Repeat(0, 1) }
 // $ExpectError
 { const stringSequence: IndexedSeq<string> = Range(0, 0, 0) }
-
-/* Record */
-// TODO
