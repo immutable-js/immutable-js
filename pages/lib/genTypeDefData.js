@@ -372,6 +372,19 @@ function DocVisitor(source) {
         return {
           k: TypeKind.Boolean
         };
+      case ts.SyntaxKind.MappedType:
+        // Simplification of MappedType to typical Object type.
+        return {
+          k: TypeKind.Object,
+          members: [{
+            index: true,
+            params: {
+              name: 'key',
+              type: TypeKind.String
+            },
+            type: parseType(node.type)
+          }]
+        };
     }
     throw new Error('Unknown type kind: ' + ts.SyntaxKind[node.kind]);
   }

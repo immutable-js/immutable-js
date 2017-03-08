@@ -1813,11 +1813,14 @@
       // Conversion to JavaScript types
 
       /**
-       * Deeply converts this Record to equivalent JS.
-       *
-       * @alias toJSON
+       * Deeply converts this Record to equivalent native JavaScript Object.
        */
-      toJS(): Object;
+      toJS(): { [K in keyof T]: any };
+
+      /**
+       * Shallowly converts this Record to equivalent native JavaScript Object.
+       */
+      toJSON(): T;
 
       /**
        * Shallowly converts this Record to equivalent JS.
@@ -1929,6 +1932,15 @@
     export function Keyed<V>(obj: {[key: string]: V}): Seq.Keyed<string, V>;
 
     export interface Keyed<K, V> extends Seq<K, V>, Iterable.Keyed<K, V> {
+      /**
+       * Deeply converts this Keyed Seq to equivalent native JavaScript Object.
+       */
+      toJS(): Object;
+
+      /**
+       * Shallowly converts this Keyed Seq to equivalent native JavaScript Object.
+       */
+      toJSON(): { [key: string]: V };
 
       /**
        * Returns itself
@@ -1988,6 +2000,15 @@
     export function Indexed<T>(iterable: ESIterable<T>): Seq.Indexed<T>;
 
     export interface Indexed<T> extends Seq<number, T>, Iterable.Indexed<T> {
+      /**
+       * Deeply converts this Indexed Seq to equivalent native JavaScript Array.
+       */
+      toJS(): Array<any>;
+
+      /**
+       * Shallowly converts this Indexed Seq to equivalent native JavaScript Array.
+       */
+      toJSON(): Array<T>;
 
       /**
        * Returns itself
@@ -2033,6 +2054,15 @@
     export function Set<T>(iterable: ESIterable<T>): Seq.Set<T>;
 
     export interface Set<T> extends Seq<T, T>, Iterable.Set<T> {
+      /**
+       * Deeply converts this Set Seq to equivalent native JavaScript Array.
+       */
+      toJS(): Array<any>;
+
+      /**
+       * Shallowly converts this Set Seq to equivalent native JavaScript Array.
+       */
+      toJSON(): Array<T>;
 
       /**
        * Returns itself
@@ -2190,6 +2220,15 @@
     export function Keyed<V>(obj: {[key: string]: V}): Iterable.Keyed<string, V>;
 
     export interface Keyed<K, V> extends Iterable<K, V> {
+      /**
+       * Deeply converts this Keyed collection to equivalent native JavaScript Object.
+       */
+      toJS(): Object;
+
+      /**
+       * Shallowly converts this Keyed collection to equivalent native JavaScript Object.
+       */
+      toJSON(): { [key: string]: V };
 
       /**
        * Returns Seq.Keyed.
@@ -2283,6 +2322,15 @@
     export function Indexed<T>(iterable: ESIterable<T>): Iterable.Indexed<T>;
 
     export interface Indexed<T> extends Iterable<number, T> {
+      /**
+       * Deeply converts this Indexed collection to equivalent native JavaScript Array.
+       */
+      toJS(): Array<any>;
+
+      /**
+       * Shallowly converts this Indexed collection to equivalent native JavaScript Array.
+       */
+      toJSON(): Array<T>;
 
       // Reading values
 
@@ -2467,6 +2515,15 @@
     export function Set<T>(iterable: ESIterable<T>): Iterable.Set<T>;
 
     export interface Set<T> extends Iterable<T, T> {
+      /**
+       * Deeply converts this Set collection to equivalent native JavaScript Array.
+       */
+      toJS(): Array<any>;
+
+      /**
+       * Shallowly converts this Set collection to equivalent native JavaScript Array.
+       */
+      toJSON(): Array<T>;
 
       /**
        * Returns Seq.Set.
@@ -2627,14 +2684,20 @@
     // Conversion to JavaScript types
 
     /**
-     * Deeply converts this Iterable to equivalent JS.
+     * Deeply converts this Iterable to equivalent native JavaScript Array or Object.
      *
-     * `Iterable.Indexeds`, and `Iterable.Sets` become Arrays, while
-     * `Iterable.Keyeds` become Objects.
-     *
-     * @alias toJSON
+     * `Iterable.Indexed`, and `Iterable.Set` become `Array`, while
+     * `Iterable.Keyed` become `Object`.
      */
-    toJS(): any;
+    toJS(): Array<any> | { [key: string]: any };
+
+    /**
+     * Shallowly converts this Iterable to equivalent native JavaScript Array or Object.
+     *
+     * `Iterable.Indexed`, and `Iterable.Set` become `Array`, while
+     * `Iterable.Keyed` become `Object`.
+     */
+    toJSON(): Array<V> | { [key: string]: V };
 
     /**
      * Shallowly converts this iterable to an Array, discarding keys.
@@ -3330,6 +3393,15 @@
     export module Keyed {}
 
     export interface Keyed<K, V> extends Collection<K, V>, Iterable.Keyed<K, V> {
+      /**
+       * Deeply converts this Keyed Collection to equivalent native JavaScript Object.
+       */
+      toJS(): Object;
+
+      /**
+       * Shallowly converts this Keyed Collection to equivalent native JavaScript Object.
+       */
+      toJSON(): { [key: string]: V };
 
       /**
        * Returns Seq.Keyed.
@@ -3362,6 +3434,15 @@
     export module Indexed {}
 
     export interface Indexed<T> extends Collection<number, T>, Iterable.Indexed<T> {
+      /**
+       * Deeply converts this IndexedCollection to equivalent native JavaScript Array.
+       */
+      toJS(): Array<any>;
+
+      /**
+       * Shallowly converts this IndexedCollection to equivalent native JavaScript Array.
+       */
+      toJSON(): Array<T>;
 
       /**
        * Returns Seq.Indexed.
@@ -3394,6 +3475,15 @@
     export module Set {}
 
     export interface Set<T> extends Collection<T, T>, Iterable.Set<T> {
+      /**
+       * Deeply converts this Set Collection to equivalent native JavaScript Array.
+       */
+      toJS(): Array<any>;
+
+      /**
+       * Shallowly converts this Set Collection to equivalent native JavaScript Array.
+       */
+      toJSON(): Array<T>;
 
       /**
        * Returns Seq.Set.

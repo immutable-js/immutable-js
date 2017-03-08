@@ -4260,11 +4260,7 @@ mixin(Iterable, {
   },
 
   toJS: function toJS$1() {
-    return this.toSeq().map(toJS).__toJS();
-  },
-
-  toJSON: function toJSON$1() {
-    return this.toSeq().map(toJSON).__toJS();
+    return this.toSeq().map(toJS).toJSON();
   },
 
   toKeyedSeq: function toKeyedSeq() {
@@ -4458,13 +4454,10 @@ mixin(Iterable, {
     var entriesSequence = iterable.toSeq().map(entryMapper).toIndexedSeq();
     entriesSequence.fromEntrySeq = function () { return iterable.toSeq(); };
 
-    // Entries are plain Array, which do not define toJS/toJSON, so it must
+    // Entries are plain Array, which do not define toJS, so it must
     // manually converts keys and values before conversion.
     entriesSequence.toJS = function () {
-      return this.map(function (entry) { return [toJS(entry[0]), toJS(entry[1])]; }).__toJS();
-    };
-    entriesSequence.toJSON = function () {
-      return this.map(function (entry) { return [toJSON(entry[0]), toJSON(entry[1])]; }).__toJS();
+      return this.map(function (entry) { return [toJS(entry[0]), toJS(entry[1])]; }).toJSON();
     };
 
     return entriesSequence;
@@ -4670,7 +4663,7 @@ mixin(Iterable, {
 var IterablePrototype = Iterable.prototype;
 IterablePrototype[IS_ITERABLE_SENTINEL] = true;
 IterablePrototype[ITERATOR_SYMBOL] = IterablePrototype.values;
-IterablePrototype.__toJS = IterablePrototype.toArray;
+IterablePrototype.toJSON = IterablePrototype.toArray;
 IterablePrototype.__toStringMapper = quoteString;
 IterablePrototype.inspect =
 IterablePrototype.toSource = function() { return this.toString(); };
@@ -4711,7 +4704,7 @@ mixin(KeyedIterable, {
 var KeyedIterablePrototype = KeyedIterable.prototype;
 KeyedIterablePrototype[IS_KEYED_SENTINEL] = true;
 KeyedIterablePrototype[ITERATOR_SYMBOL] = IterablePrototype.entries;
-KeyedIterablePrototype.__toJS = IterablePrototype.toObject;
+KeyedIterablePrototype.toJSON = IterablePrototype.toObject;
 KeyedIterablePrototype.__toStringMapper = function (v, k) { return quoteString(k) + ': ' + quoteString(v); };
 
 
@@ -4911,10 +4904,6 @@ function entryMapper(v, k) {
 
 function toJS(value) {
   return value && typeof value.toJS === 'function' ? value.toJS() : value;
-}
-
-function toJSON(value) {
-  return value && typeof value.toJSON === 'function' ? value.toJSON() : value;
 }
 
 function not(predicate) {

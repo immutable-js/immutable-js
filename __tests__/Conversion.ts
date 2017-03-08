@@ -171,14 +171,20 @@ describe('Conversion', () => {
 
   });
 
-  it('Prints keys as JSON values', () => {
+  it('Prints keys as JS values', () => {
     expect(nonStringKeyMap.toString()).is(nonStringKeyMapString);
   });
 
-  it('Converts deep sequences to JSON', () => {
-    var json = immutableData.toJS();
-    expect(json).not.is(js); // raw JS is not immutable.
-    expect(json).toEqual(js); // but should be deep equal.
+  it('Converts deep sequences to JS', () => {
+    var js2 = immutableData.toJS();
+    expect(js2).not.is(js); // raw JS is not immutable.
+    expect(js2).toEqual(js); // but should be deep equal.
+  });
+
+  it('Converts shallowly to JS', () => {
+    var js2 = immutableData.toJSON();
+    expect(js2).not.toEqual(js);
+    expect(js2.deepList).toBe(immutableData.get('deepList'));
   });
 
   it('JSON.stringify() works equivalently on immutable sequences', () => {
