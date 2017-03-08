@@ -641,6 +641,8 @@
      *     List([1,2]).map(x => 10 * x)
      *     // List [ 10, 20 ]
      *
+     * Note: `map()` always returns a new instance, even if it produced the same
+     * value at every step.
      */
     map<M>(
       mapper: (value: T, key: number, iter: this) => M,
@@ -1156,6 +1158,8 @@
      *     Map({ a: 1, b: 2 }).map(x => 10 * x)
      *     // Map { a: 10, b: 20 }
      *
+     * Note: `map()` always returns a new instance, even if it produced the same
+     * value at every step.
      */
     map<M>(
       mapper: (value: V, key: K, iter: this) => M,
@@ -1230,6 +1234,8 @@
      *     OrderedMap({ a: 1, b: 2 }).map(x => 10 * x)
      *     // OrderedMap { a: 10, b: 20 }
      *
+     * Note: `map()` always returns a new instance, even if it produced the same
+     * value at every step.
      */
     map<M>(
       mapper: (value: V, key: K, iter: this) => M,
@@ -1411,6 +1417,8 @@
      *     Set([1,2]).map(x => 10 * x)
      *     // Set [10,20]
      *
+     * Note: `map()` always returns a new instance, even if it produced the same
+     * value at every step.
      */
     map<M>(
       mapper: (value: T, key: T, iter: this) => M,
@@ -1468,6 +1476,8 @@
      *     OrderedSet([1,2]).map(x => 10 * x)
      *     // Set [10,20]
      *
+     * Note: `map()` always returns a new instance, even if it produced the same
+     * value at every step.
      */
     map<M>(
       mapper: (value: T, key: T, iter: this) => M,
@@ -1649,6 +1659,8 @@
      *     Stack([1,2]).map(x => 10 * x)
      *     // Stack [10,20]
      *
+     * Note: `map()` always returns a new instance, even if it produced the same
+     * value at every step.
      */
     map<M>(
       mapper: (value: T, key: number, iter: this) => M,
@@ -1930,6 +1942,8 @@
        *     Indexed([1, 2]).map(x => 10 * x)
        *     // Indexed [10, 20]
        *
+       * Note: `map()` always returns a new instance, even if it produced the
+       * same value at every step.
        */
       map<M>(
         mapper: (value: V, key: K, iter: this) => M,
@@ -1987,6 +2001,8 @@
        *     Seq.Indexed({a: 1, b: 2}).map(x => 10 * x)
        *     // Seq.Indexed {a: 10, b: 20}
        *
+       * Note: `map()` always returns a new instance, even if it produced the
+       * same value at every step.
        */
       map<M>(
         mapper: (value: T, key: number, iter: this) => M,
@@ -2030,6 +2046,8 @@
        *     Seq.Set([1, 2]).map(x => 10 * x)
        *     // Seq.Set [10, 20]
        *
+       * Note: `map()` always returns a new instance, even if it produced the
+       * same value at every step.
        */
       map<M>(
         mapper: (value: T, key: T, iter: this) => M,
@@ -2109,6 +2127,8 @@
      *     Seq({a: 1, b: 2}).map(x => 10 * x)
      *     // Set {a: 10, b: 20}
      *
+     * Note: `map()` always returns a new instance, even if it produced the same
+     * value at every step.
      */
     map<M>(
       mapper: (value: V, key: K, iter: this) => M,
@@ -2196,6 +2216,8 @@
        *     Iterable.Keyed({a: 1, b: 2}).map(x => 10 * x)
        *     // Iterable.Keyed {a: 10, b: 20}
        *
+       * Note: `map()` always returns a new instance, even if it produced the
+       * same value at every step.
        */
       map<M>(
         mapper: (value: V, key: K, iter: this) => M,
@@ -2210,6 +2232,8 @@
        *       .mapKeys(x => x.toUpperCase())
        *     // Seq { A: 1, B: 2 }
        *
+       * Note: `mapKeys()` always returns a new instance, even if it produced
+       * the same key at every step.
        */
       mapKeys<M>(
         mapper: (key: K, value: V, iter: this) => M,
@@ -2224,6 +2248,8 @@
        *       .mapEntries(([k, v]) => [k.toUpperCase(), v * 2])
        *     // Seq { A: 2, B: 4 }
        *
+       * Note: `mapEntries()` always returns a new instance, even if it produced
+       * the same entry at every step.
        */
       mapEntries<KM, VM>(
         mapper: (entry: [K, V], index: number, iter: this) => [KM, VM],
@@ -2409,6 +2435,8 @@
        *     Iterable.Indexed([1,2]).map(x => 10 * x)
        *     // Iterable.Indexed [1,2]
        *
+       * Note: `map()` always returns a new instance, even if it produced the
+       * same value at every step.
        */
       map<M>(
         mapper: (value: T, key: number, iter: this) => M,
@@ -2455,6 +2483,8 @@
        *     Iterable.Set([1,2]).map(x => 10 * x)
        *     // Iterable.Set [1,2]
        *
+       * Note: `map()` always returns a new instance, even if it produced the
+       * same value at every step.
        */
       map<M>(
         mapper: (value: T, key: T, iter: this) => M,
@@ -2772,6 +2802,8 @@
      *     Seq({ a: 1, b: 2 }).map(x => 10 * x)
      *     // Seq { a: 10, b: 20 }
      *
+     * Note: `map()` always returns a new instance, even if it produced the same
+     * value at every step.
      */
     map<M>(
       mapper: (value: V, key: K, iter: this) => M,
@@ -2785,6 +2817,8 @@
      *     Seq({a:1,b:2,c:3,d:4}).filter(x => x % 2 === 0)
      *     // Seq { b: 2, d: 4 }
      *
+     * Note: `filter()` always returns a new instance, even if it results in
+     * not filtering out any values.
      */
     filter(
       predicate: (value: V, key: K, iter: this) => boolean,
@@ -2798,6 +2832,8 @@
      *     Seq({a:1,b:2,c:3,d:4}).filterNot(x => x % 2 === 0)
      *     // Seq { a: 1, c: 3 }
      *
+     * Note: `filterNot()` always returns a new instance, even if it results in
+     * not filtering out any values.
      */
     filterNot(
       predicate: (value: V, key: K, iter: this) => boolean,
@@ -2834,6 +2870,9 @@
      * }).toJS();
      * // { a: 1, b: 2, c: 3 }
      * ```
+     *
+     * Note: `sort()` Always returns a new instance, even if the original was
+     * already sorted.
      */
     sort(comparator?: (valueA: V, valueB: V) => number): this;
 
@@ -2843,6 +2882,8 @@
      *
      *     hitters.sortBy(hitter => hitter.avgHits);
      *
+     * Note: `sortBy()` Always returns a new instance, even if the original was
+     * already sorted.
      */
     sortBy<C>(
       comparatorValueMapper: (value: V, key: K, iter: this) => C,
@@ -3305,6 +3346,8 @@
        *     Collection.Keyed({a: 1, b: 2}).map(x => 10 * x)
        *     // Collection.Keyed {a: 10, b: 20}
        *
+       * Note: `map()` always returns a new instance, even if it produced the same
+       * value at every step.
        */
       map<M>(
         mapper: (value: V, key: K, iter: this) => M,
@@ -3367,6 +3410,8 @@
        *     Collection.Set([1,2]).map(x => 10 * x)
        *     // Collection.Set [1,2]
        *
+       * Note: `map()` always returns a new instance, even if it produced the same
+       * value at every step.
        */
       map<M>(
         mapper: (value: T, key: T, iter: this) => M,
