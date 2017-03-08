@@ -73,6 +73,17 @@ describe('IterableSequence', () => {
     expect(mockFn.mock.calls).toEqual([[0],[1],[2],[3],[4],[5]]);
   })
 
+  it('can be updated', () => {
+    function sum(collection) {
+      return collection.reduce((s, v) => s + v, 0);
+    }
+    var total = Seq([1, 2, 3])
+      .filter(x => x % 2 === 1)
+      .map(x => x * x)
+      .update(sum);
+    expect(total).toBe(10);
+  })
+
   describe('IteratorSequence', () => {
 
     it('creates a sequence from a raw iterable', () => {
