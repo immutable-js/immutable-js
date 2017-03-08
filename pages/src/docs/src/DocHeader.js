@@ -12,7 +12,7 @@ var DocHeader = React.createClass({
             <a href="../" target="_self" className="miniLogo">
               <SVGSet>
                 <Logo color="#FC4349" />
-                <Logo color="#2C3E50" inline={true} />
+                <Logo color="#2C3E50" inline />
               </SVGSet>
             </a>
             <a href="./" target="_self">Docs</a>

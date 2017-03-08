@@ -37,6 +37,7 @@ export class Record extends KeyedCollection {
         for (var i = 0; i < keys.length; i++) {
           var propName = keys[i];
           if (RecordTypePrototype[propName]) {
+            // eslint-disable-next-line no-console
             typeof console === 'object' && console.warn && console.warn(
               'Cannot define ' + recordName(this) + ' with property "' +
               propName + '" since that property name is part of the Record API.'

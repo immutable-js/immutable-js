@@ -144,17 +144,15 @@ function updateOrderedMap(omap, k, v) {
       newMap = map.remove(k);
       newList = i === list.size - 1 ? list.pop() : list.set(i, undefined);
     }
-  } else {
-    if (has) {
-      if (v === list.get(i)[1]) {
-        return omap;
-      }
-      newMap = map;
-      newList = list.set(i, [k, v]);
-    } else {
-      newMap = map.set(k, list.size);
-      newList = list.set(list.size, [k, v]);
+  } else if (has) {
+    if (v === list.get(i)[1]) {
+      return omap;
     }
+    newMap = map;
+    newList = list.set(i, [k, v]);
+  } else {
+    newMap = map.set(k, list.size);
+    newList = list.set(list.size, [k, v]);
   }
   if (omap.__ownerID) {
     omap.size = newMap.size;

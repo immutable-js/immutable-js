@@ -567,7 +567,7 @@ HashArrayMapNode.prototype.iterate = function (fn, reverse) {
   }
 }
 
-ValueNode.prototype.iterate = function (fn, reverse) {
+ValueNode.prototype.iterate = function (fn, reverse) { // eslint-disable-line no-unused-vars
   return fn(this.entry);
 }
 
@@ -750,7 +750,7 @@ function mergeIntoMapWith(map, merger, iterables) {
   return mergeIntoCollectionWith(map, merger, iters);
 }
 
-export function deepMerger(existing, value, key) {
+export function deepMerger(existing, value) {
   return existing && existing.mergeDeep && isIterable(value) ?
     existing.mergeDeep(value) :
     is(existing, value) ? existing : value;
@@ -816,11 +816,11 @@ function updateInDeepMap(existing, keyPathIter, notSetValue, updater) {
 }
 
 function popCount(x) {
-  x = x - ((x >> 1) & 0x55555555);
+  x -= ((x >> 1) & 0x55555555);
   x = (x & 0x33333333) + ((x >> 2) & 0x33333333);
   x = (x + (x >> 4)) & 0x0f0f0f0f;
-  x = x + (x >> 8);
-  x = x + (x >> 16);
+  x += (x >> 8);
+  x += (x >> 16);
   return x & 0x7f;
 }
 

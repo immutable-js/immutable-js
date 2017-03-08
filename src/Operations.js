@@ -449,11 +449,11 @@ export function sliceFactory(iterable, begin, end, useKeys) {
       var step = iterator.next();
       if (useKeys || type === ITERATE_VALUES) {
         return step;
-      } else if (type === ITERATE_KEYS) {
-        return iteratorValue(type, iterations - 1, undefined, step);
-      } else {
-        return iteratorValue(type, iterations - 1, step.value[1], step);
       }
+      if (type === ITERATE_KEYS) {
+        return iteratorValue(type, iterations - 1, undefined, step);
+      }
+      return iteratorValue(type, iterations - 1, step.value[1], step);
     });
   }
 
@@ -526,17 +526,19 @@ export function skipWhileFactory(iterable, predicate, context, useKeys) {
     var skipping = true;
     var iterations = 0;
     return new Iterator(() => {
-      var step, k, v;
+      var step;
+      var k;
+      var v;
       do {
         step = iterator.next();
         if (step.done) {
           if (useKeys || type === ITERATE_VALUES) {
             return step;
-          } else if (type === ITERATE_KEYS) {
-            return iteratorValue(type, iterations++, undefined, step);
-          } else {
-            return iteratorValue(type, iterations++, step.value[1], step);
           }
+          if (type === ITERATE_KEYS) {
+            return iteratorValue(type, iterations++, undefined, step);
+          }
+          return iteratorValue(type, iterations++, step.value[1], step);
         }
         var entry = step.value;
         k = entry[0];
@@ -665,7 +667,7 @@ export function interposeFactory(iterable, separator) {
   interposedSequence.size = iterable.size && iterable.size * 2 -1;
   interposedSequence.__iterateUncached = function(fn, reverse) {
     var iterations = 0;
-    iterable.__iterate((v, k) =>
+    iterable.__iterate(v =>
       (!iterations || fn(separator, iterations++, this) !== false) &&
       fn(v, iterations++, this) !== false,
       reverse
@@ -721,9 +723,8 @@ export function maxFactory(iterable, comparator, mapper) {
       .map((v, k) => [v, mapper(v, k, iterable)])
       .reduce((a, b) => maxCompare(comparator, a[1], b[1]) ? b : a);
     return entry && entry[0];
-  } else {
-    return iterable.reduce((a, b) => maxCompare(comparator, a, b) ? b : a);
   }
+  return iterable.reduce((a, b) => maxCompare(comparator, a, b) ? b : a);
 }
 
 function maxCompare(comparator, a, b) {
@@ -822,9 +823,8 @@ function cacheResultThrough() {
     this._iter.cacheResult();
     this.size = this._iter.size;
     return this;
-  } else {
-    return Seq.prototype.cacheResult.call(this);
   }
+  return Seq.prototype.cacheResult.call(this);
 }
 
 function defaultComparator(a, b) {

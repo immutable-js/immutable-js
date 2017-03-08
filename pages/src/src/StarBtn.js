@@ -23,7 +23,7 @@ var StarBtn = React.createClass({
     return (
       <span className="github-btn">
         <a className="gh-btn" id="gh-btn" href="https://github.com/facebook/immutable-js/">
-          <span className="gh-ico"></span>
+          <span className="gh-ico" />
           <span className="gh-text">Star</span>
         </a>
         {this.state.stars &&

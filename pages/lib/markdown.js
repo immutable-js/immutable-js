@@ -12,7 +12,7 @@ function collectAllMembersForAllTypes(defs) {
   return allMembers;
   function _collectAllMembersForAllTypes(defs) {
 
-    Seq(defs).forEach((def, name) => {
+    Seq(defs).forEach(def => {
       if (def.interface) {
         var groups = collectMemberGroups(def.interface, { showInherited: true });
         allMembers.set(
@@ -90,7 +90,7 @@ function decorateCodeSpan(text, options) {
 
   var method = METHOD_RX.exec(text);
   if (method) {
-    method = method.slice(1).filter(function(x){return !!x});
+    method = method.slice(1).filter(Boolean);
     if (MDN_TYPES[method[0]]) {
       return '<a href="'+MDN_BASE_URL+method.join('/')+'">'+text+'</a>';
     }

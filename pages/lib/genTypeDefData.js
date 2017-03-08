@@ -104,7 +104,6 @@ function DocVisitor(source) {
     if (!shouldIgnore(comment) && !isAliased(name)) {
       addAliases(comment, name);
 
-      var comment = getDoc(node);
       if (comment) {
         setIn(data, [name, 'call', 'doc'], comment);
       }
@@ -131,9 +130,7 @@ function DocVisitor(source) {
         interfaceObj.doc = comment;
       }
       if (node.typeParameters) {
-        interfaceObj.typeParams = node.typeParameters.map(tp => {
-          return tp.name.text;
-        });
+        interfaceObj.typeParams = node.typeParameters.map(tp => tp.name.text);
       }
 
       typeParams.push(interfaceObj.typeParams);
@@ -196,7 +193,6 @@ function DocVisitor(source) {
         // name: name // redundant
       };
 
-      var comment = getDoc(node);
       if (comment) {
         setIn(last(data.groups), ['members', '#'+name, 'doc'], comment);
       }
@@ -223,7 +219,6 @@ function DocVisitor(source) {
 
       ensureGroup(node);
 
-      var comment = getDoc(node);
       if (comment) {
         setIn(last(data.groups), ['members', '#'+name, 'doc'], comment);
       }
@@ -244,9 +239,7 @@ function DocVisitor(source) {
     var callSignature = {};
 
     if (node.typeParameters) {
-      callSignature.typeParams = node.typeParameters.map(tp => {
-        return tp.name.text;
-      });
+      callSignature.typeParams = node.typeParameters.map(tp => tp.name.text);
     }
 
     typeParams.push(callSignature.typeParams);
@@ -446,13 +439,7 @@ function getDoc(node) {
 }
 
 function getNameText(node) {
-  try {
-    return ts.entityNameToString(node);
-  } catch (e) {
-    console.log('Has no name.');
-    console.log(node);
-    throw e;
-  }
+  return ts.entityNameToString(node);
 }
 
 function last(list) {

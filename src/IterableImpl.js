@@ -216,7 +216,7 @@ mixin(Iterable, {
     return reduction;
   },
 
-  reduceRight(reducer, initialReduction, context) {
+  reduceRight(/*reducer, initialReduction, context*/) {
     var reversed = this.toKeyedSeq().reverse();
     return reversed.reduce.apply(reversed, arguments);
   },

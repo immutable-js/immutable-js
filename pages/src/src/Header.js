@@ -24,11 +24,11 @@ var Header = React.createClass({
     window.removeEventListener('resize', this.handleResize);
   },
 
-  handleResize: function (event) {
+  handleResize: function () {
     this.offsetHeight = this.getDOMNode().offsetHeight;
   },
 
-  handleScroll: function (event) {
+  handleScroll: function () {
     if (!this._pending) {
       var headerHeight = Math.min(800, Math.max(260, document.documentElement.clientHeight * 0.7));
       if (window.scrollY < headerHeight) {
@@ -53,7 +53,7 @@ var Header = React.createClass({
             <a href="./" target="_self" className="miniLogo">
               <SVGSet>
                 <Logo color="#FC4349" />
-                <Logo color="#2C3E50" inline={true} />
+                <Logo color="#2C3E50" inline />
               </SVGSet>
             </a>
             <a href="docs/" target="_self">Docs</a>
@@ -81,7 +81,7 @@ var Header = React.createClass({
               )}
               <SVGSet style={t(s * -0.55, 1)}>
                 <Logo color="#FC4349" />
-                <Logo color="#2C3E50" inline={true} />
+                <Logo color="#2C3E50" inline />
               </SVGSet>
             </div>
           </div>

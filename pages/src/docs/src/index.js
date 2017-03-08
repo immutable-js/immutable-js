@@ -1,11 +1,11 @@
 var React = require('react');
 var assign = require('react/lib/Object.assign');
 var Router = require('react-router');
-var { Route, DefaultRoute, RouteHandler } = Router;
 var DocHeader = require('./DocHeader');
 var TypeDocumentation = require('./TypeDocumentation');
 var defs = require('../../../lib/getTypeDefs');
 
+var { Route, DefaultRoute, RouteHandler } = Router;
 
 var Documentation = React.createClass({
   render() {
@@ -68,7 +68,8 @@ module.exports = React.createClass({
   },
 
   componentWillMount() {
-    var location, scrollBehavior;
+    var location;
+    var scrollBehavior;
 
     if (window.document) {
       location = Router.HashLocation;

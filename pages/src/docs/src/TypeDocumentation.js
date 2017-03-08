@@ -104,7 +104,7 @@ var FunctionDoc = React.createClass({
         {doc.synopsis && <MarkDown className="synopsis" contents={doc.synopsis} />}
         <code className="codeBlock memberSignature">
           {def.signatures.map((callSig, i) =>
-            [<CallSigDef name={name} callSig={callSig} />, '\n']
+            [<CallSigDef key={i} name={name} callSig={callSig} />, '\n']
           )}
         </code>
         {doc.notes && doc.notes.map((note, i) =>

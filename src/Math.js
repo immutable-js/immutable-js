@@ -11,8 +11,8 @@ export var imul =
   typeof Math.imul === 'function' && Math.imul(0xffffffff, 2) === -2 ?
   Math.imul :
   function imul(a, b) {
-    a = a | 0; // int
-    b = b | 0; // int
+    a |= 0; // int
+    b |= 0; // int
     var c = a & 0xffff;
     var d = b & 0xffff;
     // Shift by 0 fixes the sign on the high part.

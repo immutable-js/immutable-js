@@ -1,5 +1,4 @@
 var React = require('react');
-var { TransitionGroup } = React.addons;
 var ReactTransitionEvents = require('react/lib/ReactTransitionEvents');
 var Router = require('react-router');
 var { CallSigDef, MemberDef } = require('./Defs');
@@ -7,6 +6,7 @@ var PageDataMixin = require('./PageDataMixin');
 var isMobile = require('./isMobile');
 var MarkDown = require('./MarkDown');
 
+var { TransitionGroup } = React.addons;
 
 var MemberDoc = React.createClass({
   mixins: [ PageDataMixin, Router.Navigation ],
@@ -97,6 +97,7 @@ var MemberDoc = React.createClass({
                 <code className="codeBlock memberSignature">
                 {def.signatures.map((callSig, i) =>
                   [<CallSigDef
+                    key={i}
                     info={typeInfo}
                     module={module}
                     name={name}
@@ -181,7 +182,7 @@ var SlideDown = React.createClass({
     node.style.transition = '';
     node.style.height = start;
     node.style.transition = 'height 0.35s ease-in-out';
-    var endListener = event => {
+    var endListener = () => {
       ReactTransitionEvents.removeEndEventListener(node, endListener);
       done();
     };

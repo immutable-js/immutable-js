@@ -2,7 +2,6 @@ var React = require('react');
 var Header = require('./Header');
 var readme = require('../../resources/readme.json');
 
-
 var Index = React.createClass({
   render: function () {
     return (

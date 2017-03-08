@@ -850,8 +850,8 @@ var imul =
   typeof Math.imul === 'function' && Math.imul(0xffffffff, 2) === -2 ?
   Math.imul :
   function imul(a, b) {
-    a = a | 0; // int
-    b = b | 0; // int
+    a |= 0; // int
+    b |= 0; // int
     var c = a & 0xffff;
     var d = b & 0xffff;
     // Shift by 0 fixes the sign on the high part.
@@ -1524,11 +1524,11 @@ function sliceFactory(iterable, begin, end, useKeys) {
       var step = iterator.next();
       if (useKeys || type === ITERATE_VALUES) {
         return step;
-      } else if (type === ITERATE_KEYS) {
-        return iteratorValue(type, iterations - 1, undefined, step);
-      } else {
-        return iteratorValue(type, iterations - 1, step.value[1], step);
       }
+      if (type === ITERATE_KEYS) {
+        return iteratorValue(type, iterations - 1, undefined, step);
+      }
+      return iteratorValue(type, iterations - 1, step.value[1], step);
     });
   };
 
@@ -1608,17 +1608,19 @@ function skipWhileFactory(iterable, predicate, context, useKeys) {
     var skipping = true;
     var iterations = 0;
     return new Iterator(function () {
-      var step, k, v;
+      var step;
+      var k;
+      var v;
       do {
         step = iterator.next();
         if (step.done) {
           if (useKeys || type === ITERATE_VALUES) {
             return step;
-          } else if (type === ITERATE_KEYS) {
-            return iteratorValue(type, iterations++, undefined, step);
-          } else {
-            return iteratorValue(type, iterations++, step.value[1], step);
           }
+          if (type === ITERATE_KEYS) {
+            return iteratorValue(type, iterations++, undefined, step);
+          }
+          return iteratorValue(type, iterations++, step.value[1], step);
         }
         var entry = step.value;
         k = entry[0];
@@ -1749,7 +1751,7 @@ function interposeFactory(iterable, separator) {
     var this$1 = this;
 
     var iterations = 0;
-    iterable.__iterate(function (v, k) { return (!iterations || fn(separator, iterations++, this$1) !== false) &&
+    iterable.__iterate(function (v) { return (!iterations || fn(separator, iterations++, this$1) !== false) &&
       fn(v, iterations++, this$1) !== false; },
       reverse
     );
@@ -1804,9 +1806,8 @@ function maxFactory(iterable, comparator, mapper) {
       .map(function (v, k) { return [v, mapper(v, k, iterable)]; })
       .reduce(function (a, b) { return maxCompare(comparator, a[1], b[1]) ? b : a; });
     return entry && entry[0];
-  } else {
-    return iterable.reduce(function (a, b) { return maxCompare(comparator, a, b) ? b : a; });
   }
+  return iterable.reduce(function (a, b) { return maxCompare(comparator, a, b) ? b : a; });
 }
 
 function maxCompare(comparator, a, b) {
@@ -1906,9 +1907,8 @@ function cacheResultThrough() {
     this._iter.cacheResult();
     this.size = this._iter.size;
     return this;
-  } else {
-    return Seq.prototype.cacheResult.call(this);
   }
+  return Seq.prototype.cacheResult.call(this);
 }
 
 function defaultComparator(a, b) {
@@ -2500,7 +2500,7 @@ HashArrayMapNode.prototype.iterate = function (fn, reverse) {
   }
 };
 
-ValueNode.prototype.iterate = function (fn, reverse) {
+ValueNode.prototype.iterate = function (fn, reverse) { // eslint-disable-line no-unused-vars
   return fn(this.entry);
 };
 
@@ -2690,7 +2690,7 @@ function mergeIntoMapWith(map, merger, iterables) {
   return mergeIntoCollectionWith(map, merger, iters);
 }
 
-function deepMerger(existing, value, key) {
+function deepMerger(existing, value) {
   return existing && existing.mergeDeep && isIterable(value) ?
     existing.mergeDeep(value) :
     is(existing, value) ? existing : value;
@@ -2755,11 +2755,11 @@ function updateInDeepMap(existing, keyPathIter, notSetValue, updater) {
 }
 
 function popCount(x) {
-  x = x - ((x >> 1) & 0x55555555);
+  x -= ((x >> 1) & 0x55555555);
   x = (x & 0x33333333) + ((x >> 2) & 0x33333333);
   x = (x + (x >> 4)) & 0x0f0f0f0f;
-  x = x + (x >> 8);
-  x = x + (x >> 16);
+  x += (x >> 8);
+  x += (x >> 16);
   return x & 0x7f;
 }
 
@@ -3130,7 +3130,7 @@ function iterateList(list, reverse) {
       to = SIZE;
     }
     return function () {
-      do {
+      while (true) {
         if (values) {
           var value = values();
           if (value !== DONE) {
@@ -3145,7 +3145,7 @@ function iterateList(list, reverse) {
         values = iterateNodeOrLeaf(
           array && array[idx], level - SHIFT, offset + (idx << level)
         );
-      } while (true);
+      }
     };
   }
 }
@@ -3270,10 +3270,10 @@ function setListBounds(list, begin, end) {
   // Sanitize begin & end using this shorthand for ToInt32(argument)
   // http://www.ecma-international.org/ecma-262/6.0/#sec-toint32
   if (begin !== undefined) {
-    begin = begin | 0;
+    begin |= 0;
   }
   if (end !== undefined) {
-    end = end | 0;
+    end |= 0;
   }
   var owner = list.__ownerID || new OwnerID();
   var oldOrigin = list._origin;
@@ -3548,17 +3548,15 @@ function updateOrderedMap(omap, k, v) {
       newMap = map.remove(k);
       newList = i === list.size - 1 ? list.pop() : list.set(i, undefined);
     }
-  } else {
-    if (has) {
-      if (v === list.get(i)[1]) {
-        return omap;
-      }
-      newMap = map;
-      newList = list.set(i, [k, v]);
-    } else {
-      newMap = map.set(k, list.size);
-      newList = list.set(list.size, [k, v]);
+  } else if (has) {
+    if (v === list.get(i)[1]) {
+      return omap;
     }
+    newMap = map;
+    newList = list.set(i, [k, v]);
+  } else {
+    newMap = map.set(k, list.size);
+    newList = list.set(list.size, [k, v]);
   }
   if (omap.__ownerID) {
     omap.size = newMap.size;
@@ -4377,7 +4375,7 @@ mixin(Iterable, {
     return reduction;
   },
 
-  reduceRight: function reduceRight(reducer, initialReduction, context) {
+  reduceRight: function reduceRight(/*reducer, initialReduction, context*/) {
     var reversed = this.toKeyedSeq().reverse();
     return reversed.reduce.apply(reversed, arguments);
   },
@@ -5009,6 +5007,7 @@ var Record = (function (KeyedCollection$$1) {
         for (var i = 0; i < keys.length; i++) {
           var propName = keys[i];
           if (RecordTypePrototype[propName]) {
+            // eslint-disable-next-line no-console
             typeof console === 'object' && console.warn && console.warn(
               'Cannot define ' + recordName(this$1) + ' with property "' +
               propName + '" since that property name is part of the Record API.'
