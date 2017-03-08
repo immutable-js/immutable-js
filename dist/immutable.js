@@ -1933,17 +1933,14 @@ function defaultComparator(a, b) {
   return a > b ? 1 : a < b ? -1 : 0;
 }
 
-function forceIterator(keyPath) {
-  var iter = getIterator(keyPath);
-  if (!iter) {
-    // Array might not be iterable in this environment, so we need a fallback
-    // to our wrapped type.
-    if (!isArrayLike(keyPath)) {
-      throw new TypeError('Expected iterable or array-like: ' + keyPath);
-    }
-    iter = getIterator(Iterable(keyPath));
+function coerceKeyPath(keyPath) {
+  if (isArrayLike(keyPath) && typeof keyPath !== 'string') {
+    return keyPath;
   }
-  return iter;
+  if (isOrdered(keyPath)) {
+    return keyPath.toArray();
+  }
+  throw new TypeError('Invalid keyPath: expected Ordered Iterable or Array: ' + keyPath);
 }
 
 function invariant(condition, error) {
@@ -1955,6 +1952,13 @@ function assertNotInfinite(size) {
     size !== Infinity,
     'Cannot perform this action with an infinite size.'
   );
+}
+
+/**
+ * Converts a value to a string, adding quotes if a string was provided.
+ */
+function quoteString(value) {
+  return typeof value === 'string' ? JSON.stringify(value) : String(value);
 }
 
 var Map = (function (KeyedCollection$$1) {
@@ -2041,7 +2045,8 @@ var Map = (function (KeyedCollection$$1) {
     }
     var updatedValue = updateInDeepMap(
       this,
-      forceIterator(keyPath),
+      coerceKeyPath(keyPath),
+      0,
       notSetValue,
       updater
     );
@@ -2735,23 +2740,25 @@ function mergeIntoCollectionWith(collection, merger, iters) {
   });
 }
 
-function updateInDeepMap(existing, keyPathIter, notSetValue, updater) {
+function updateInDeepMap(existing, keyPath, i, notSetValue, updater) {
   var isNotSet = existing === NOT_SET;
-  var step = keyPathIter.next();
-  if (step.done) {
+  if (i === keyPath.length) {
     var existingValue = isNotSet ? notSetValue : existing;
     var newValue = updater(existingValue);
     return newValue === existingValue ? existing : newValue;
   }
-  invariant(
-    isNotSet || (existing && existing.set),
-    'invalid keyPath'
-  );
-  var key = step.value;
+  if (!(isNotSet || (existing && existing.set))) {
+    throw new TypeError(
+      'Invalid keyPath: Value at [' + keyPath.slice(0, i).map(quoteString) +
+      '] does not have a .set() method and cannot be updated: ' + existing
+    );
+  }
+  var key = keyPath[i];
   var nextExisting = isNotSet ? NOT_SET : existing.get(key, NOT_SET);
   var nextUpdated = updateInDeepMap(
     nextExisting,
-    keyPathIter,
+    keyPath,
+    i + 1,
     notSetValue,
     updater
   );
@@ -4506,18 +4513,30 @@ mixin(Iterable, {
 
   getIn: function getIn(searchKeyPath, notSetValue) {
     var nested = this;
-    // Note: in an ES6 environment, we would prefer:
-    // for (var key of searchKeyPath) {
-    var iter = forceIterator(searchKeyPath);
-    var step;
-    while (!(step = iter.next()).done) {
-      var key = step.value;
-      nested = nested && nested.get ? nested.get(key, NOT_SET) : NOT_SET;
+    var keyPath = coerceKeyPath(searchKeyPath);
+    var i = 0;
+    while (i !== keyPath.length) {
+      if (!nested || !nested.get) {
+        throw new TypeError(
+          'Invalid keyPath: Value at [' + keyPath.slice(0, i).map(quoteString) +
+          '] does not have a .get() method: ' + nested
+        );
+      }
+      nested = nested.get(keyPath[i++], NOT_SET);
       if (nested === NOT_SET) {
         return notSetValue;
       }
     }
     return nested;
+    // var step;
+    // while (!(step = iter.next()).done) {
+    //   var key = step.value;
+    //   nested = nested && nested.get ? nested.get(key, NOT_SET) : NOT_SET;
+    //   if (nested === NOT_SET) {
+    //     return notSetValue;
+    //   }
+    // }
+    // return nested;
   },
 
   groupBy: function groupBy(grouper, context) {
@@ -4885,10 +4904,6 @@ function neg(predicate) {
   return function() {
     return -predicate.apply(this, arguments);
   }
-}
-
-function quoteString(value) {
-  return typeof value === 'string' ? JSON.stringify(value) : String(value);
 }
 
 function defaultZipper() {

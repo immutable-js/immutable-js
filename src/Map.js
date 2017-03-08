@@ -16,9 +16,9 @@ import { DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
 import { hash } from './Hash'
 import { Iterator, iteratorValue, iteratorDone } from './Iterator'
 import { sortFactory } from './Operations'
-import forceIterator from './utils/forceIterator'
-import invariant from './utils/invariant'
+import coerceKeyPath from './utils/coerceKeyPath'
 import assertNotInfinite from './utils/assertNotInfinite'
+import quoteString from './utils/quoteString'
 
 import { OrderedMap } from './OrderedMap'
 
@@ -103,7 +103,8 @@ export class Map extends KeyedCollection {
     }
     var updatedValue = updateInDeepMap(
       this,
-      forceIterator(keyPath),
+      coerceKeyPath(keyPath),
+      0,
       notSetValue,
       updater
     );
@@ -790,23 +791,25 @@ export function mergeIntoCollectionWith(collection, merger, iters) {
   });
 }
 
-function updateInDeepMap(existing, keyPathIter, notSetValue, updater) {
+function updateInDeepMap(existing, keyPath, i, notSetValue, updater) {
   var isNotSet = existing === NOT_SET;
-  var step = keyPathIter.next();
-  if (step.done) {
+  if (i === keyPath.length) {
     var existingValue = isNotSet ? notSetValue : existing;
     var newValue = updater(existingValue);
     return newValue === existingValue ? existing : newValue;
   }
-  invariant(
-    isNotSet || (existing && existing.set),
-    'invalid keyPath'
-  );
-  var key = step.value;
+  if (!(isNotSet || (existing && existing.set))) {
+    throw new TypeError(
+      'Invalid keyPath: Value at [' + keyPath.slice(0, i).map(quoteString) +
+      '] does not have a .set() method and cannot be updated: ' + existing
+    );
+  }
+  var key = keyPath[i];
   var nextExisting = isNotSet ? NOT_SET : existing.get(key, NOT_SET);
   var nextUpdated = updateInDeepMap(
     nextExisting,
-    keyPathIter,
+    keyPath,
+    i + 1,
     notSetValue,
     updater
   );

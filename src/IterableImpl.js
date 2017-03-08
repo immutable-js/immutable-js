@@ -20,9 +20,10 @@ import { Iterator,
          ITERATOR_SYMBOL, ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES } from './Iterator'
 
 import assertNotInfinite from './utils/assertNotInfinite'
-import forceIterator from './utils/forceIterator'
+import coerceKeyPath from './utils/coerceKeyPath'
 import deepEqual from './utils/deepEqual'
 import mixin from './utils/mixin'
+import quoteString from './utils/quoteString'
 
 import { Map } from './Map'
 import { OrderedMap } from './OrderedMap'
@@ -341,18 +342,30 @@ mixin(Iterable, {
 
   getIn(searchKeyPath, notSetValue) {
     var nested = this;
-    // Note: in an ES6 environment, we would prefer:
-    // for (var key of searchKeyPath) {
-    var iter = forceIterator(searchKeyPath);
-    var step;
-    while (!(step = iter.next()).done) {
-      var key = step.value;
-      nested = nested && nested.get ? nested.get(key, NOT_SET) : NOT_SET;
+    var keyPath = coerceKeyPath(searchKeyPath);
+    var i = 0;
+    while (i !== keyPath.length) {
+      if (!nested || !nested.get) {
+        throw new TypeError(
+          'Invalid keyPath: Value at [' + keyPath.slice(0, i).map(quoteString) +
+          '] does not have a .get() method: ' + nested
+        );
+      }
+      nested = nested.get(keyPath[i++], NOT_SET);
       if (nested === NOT_SET) {
         return notSetValue;
       }
     }
     return nested;
+    // var step;
+    // while (!(step = iter.next()).done) {
+    //   var key = step.value;
+    //   nested = nested && nested.get ? nested.get(key, NOT_SET) : NOT_SET;
+    //   if (nested === NOT_SET) {
+    //     return notSetValue;
+    //   }
+    // }
+    // return nested;
   },
 
   groupBy(grouper, context) {
@@ -716,10 +729,6 @@ function neg(predicate) {
   return function() {
     return -predicate.apply(this, arguments);
   }
-}
-
-function quoteString(value) {
-  return typeof value === 'string' ? JSON.stringify(value) : String(value);
 }
 
 function defaultZipper() {

@@ -186,7 +186,7 @@ describe('List', () => {
 
   it('hasIn doesnt contain elements at non-empty string keys', () => {
     var list: any = List.of(1, 2, 3, 4, 5);
-    expect(list.hasIn(('str'))).toBe(false);
+    expect(list.hasIn(['str'])).toBe(false);
   });
 
   it('setting creates a new instance', () => {

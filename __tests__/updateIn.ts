@@ -1,6 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 
-import { Map, Set, fromJS } from '../';
+import { Map, Set, List, fromJS } from '../';
 
 describe('updateIn', () => {
 
@@ -18,26 +18,45 @@ describe('updateIn', () => {
     // need to cast these as TypeScript first prevents us from such clownery.
     expect(() =>
       Map().getIn(<any>undefined)
-    ).toThrow('Expected iterable or array-like: undefined');
+    ).toThrow('Invalid keyPath: expected Ordered Iterable or Array: undefined');
     expect(() =>
       Map().getIn(<any>{ a: 1, b: 2 })
-    ).toThrow('Expected iterable or array-like: [object Object]');
+    ).toThrow('Invalid keyPath: expected Ordered Iterable or Array: [object Object]');
+    expect(() =>
+      Map().getIn(<any>'abc')
+    ).toThrow('Invalid keyPath: expected Ordered Iterable or Array: abc');
+  })
+
+  it('deep get throws if non-readable path', () => {
+    var deep = Map({ key: { regular: "jsobj" }, list: List([ Map({num: 10}) ]) })
+    expect(() =>
+      deep.getIn(["key", "foo", "item"])
+    ).toThrow(
+      'Invalid keyPath: Value at ["key"] does not have a .get() method: [object Object]'
+    );
+    expect(() =>
+      deep.getIn(["list", 0, "num", "badKey"])
+    ).toThrow(
+      'Invalid keyPath: Value at ["list",0,"num"] does not have a .get() method: 10'
+    );
   })
 
   it('deep has throws without list or array-like', () => {
     // need to cast these as TypeScript first prevents us from such clownery.
     expect(() =>
       Map().hasIn(<any>undefined)
-    ).toThrow('Expected iterable or array-like: undefined');
+    ).toThrow('Invalid keyPath: expected Ordered Iterable or Array: undefined');
     expect(() =>
       Map().hasIn(<any>{ a: 1, b: 2 })
-    ).toThrow('Expected iterable or array-like: [object Object]');
+    ).toThrow('Invalid keyPath: expected Ordered Iterable or Array: [object Object]');
+    expect(() =>
+      Map().hasIn(<any>'abc')
+    ).toThrow('Invalid keyPath: expected Ordered Iterable or Array: abc');
   })
 
   it('deep get returns not found if path does not match', () => {
     var m = fromJS({a: {b: {c: 10}}});
     expect(m.getIn(['a', 'b', 'z'])).toEqual(undefined);
-    expect(m.getIn(['a', 'b', 'c', 'd'])).toEqual(undefined);
   })
 
   it('deep edit', () => {
@@ -62,10 +81,23 @@ describe('updateIn', () => {
     // need to cast these as TypeScript first prevents us from such clownery.
     expect(() =>
       Map().updateIn(<any>undefined, x => x)
-    ).toThrow('Expected iterable or array-like: undefined');
+    ).toThrow('Invalid keyPath: expected Ordered Iterable or Array: undefined');
     expect(() =>
       Map().updateIn(<any>{ a: 1, b: 2 }, x => x)
-    ).toThrow('Expected iterable or array-like: [object Object]');
+    ).toThrow('Invalid keyPath: expected Ordered Iterable or Array: [object Object]');
+    expect(() =>
+      Map().updateIn(<any>'abc', x => x)
+    ).toThrow('Invalid keyPath: expected Ordered Iterable or Array: abc');
+  })
+
+  it('deep edit throws if non-editable path', () => {
+    var deep = Map({ key: Set([ List([ "item" ]) ]) })
+    expect(() =>
+      deep.updateIn(["key", "foo", "item"], x => x)
+    ).toThrow(
+      'Invalid keyPath: Value at ["key"] does not have a .set() method ' +
+      'and cannot be updated: Set { List [ "item" ] }'
+    );
   })
 
   it('identity with notSetValue is still identity', () => {
@@ -125,9 +157,9 @@ describe('updateIn', () => {
   it('creates new maps if path contains gaps', () => {
     var m = fromJS({a: {b: {c: 10}}});
     expect(
-      m.updateIn(['a', 'z'], Map(), map => map.set('d', 20)).toJS()
+      m.updateIn(['a', 'q', 'z'], Map(), map => map.set('d', 20)).toJS()
     ).toEqual(
-      {a: {b: {c: 10}, z: {d: 20}}}
+      {a: {b: {c: 10}, q: {z: {d: 20}}}}
     );
   })
 
