@@ -591,7 +591,7 @@ declare class List<+T> extends IndexedCollection<T> {
   mergeIn(keyPath: ESIterable<mixed>, ...iterables: ESIterable<mixed>[]): this;
   mergeDeepIn(keyPath: ESIterable<mixed>, ...iterables: ESIterable<mixed>[]): this;
 
-  withMutations(mutator: (mutable: this) => this | void): this;
+  withMutations(mutator: (mutable: this) => mixed): this;
   asMutable(): this;
   asImmutable(): this;
 
@@ -737,7 +737,7 @@ declare class Map<K, +V> extends KeyedCollection<K, V> {
     ...iterables: (ESIterable<K> | { [key: string]: mixed })[]
   ): this;
 
-  withMutations(mutator: (mutable: this) => this | void): this;
+  withMutations(mutator: (mutable: this) => mixed): this;
   asMutable(): this;
   asImmutable(): this;
 
@@ -825,7 +825,7 @@ declare class OrderedMap<K, +V> extends KeyedCollection<K, V> {
     ...iterables: (ESIterable<K> | { [key: string]: mixed })[]
   ): this;
 
-  withMutations(mutator: (mutable: this) => this | void): this;
+  withMutations(mutator: (mutable: this) => mixed): this;
   asMutable(): this;
   asImmutable(): this;
 
@@ -878,7 +878,7 @@ declare class Set<+T> extends SetCollection<T> {
   intersect<U>(...iterables: ESIterable<U>[]): Set<T & U>;
   subtract(...iterables: ESIterable<mixed>[]): this;
 
-  withMutations(mutator: (mutable: this) => this | void): this;
+  withMutations(mutator: (mutable: this) => mixed): this;
   asMutable(): this;
   asImmutable(): this;
 
@@ -1013,7 +1013,7 @@ declare class Stack<+T> extends IndexedCollection<T> {
   pushAll<U>(iter: ESIterable<U>): Stack<T | U>;
   pop(): this;
 
-  withMutations(mutator: (mutable: this) => this | void): this;
+  withMutations(mutator: (mutable: this) => mixed): this;
   asMutable(): this;
   asImmutable(): this;
 
@@ -1074,7 +1074,7 @@ declare class RecordInstance<T: Object> {
 
   toJS(): T;
   toObject(): T;
-  withMutations(mutator: (mutable: this) => this | void): this;
+  withMutations(mutator: (mutable: this) => mixed): this;
   asMutable(): this;
   asImmutable(): this;
 

@@ -358,38 +358,28 @@
     /**
      * @see `Map#merge`
      */
-    merge(...iterables: Iterable.Indexed<T>[]): List<T>;
-    merge(...iterables: Array<T>[]): List<T>;
+    merge(...iterables: Array<Iterable.Indexed<T> | Array<T>>): this;
 
     /**
      * @see `Map#mergeWith`
      */
     mergeWith(
       merger: (previous: T, next: T, key: number) => T,
-      ...iterables: Iterable.Indexed<T>[]
-    ): List<T>;
-    mergeWith(
-      merger: (previous: T, next: T, key: number) => T,
-      ...iterables: Array<T>[]
-    ): List<T>;
+      ...iterables: Array<Iterable.Indexed<T> | Array<T>>
+    ): this;
 
     /**
      * @see `Map#mergeDeep`
      */
-    mergeDeep(...iterables: Iterable.Indexed<T>[]): List<T>;
-    mergeDeep(...iterables: Array<T>[]): List<T>;
+    mergeDeep(...iterables: Array<Iterable.Indexed<T> | Array<T>>): this;
 
     /**
      * @see `Map#mergeDeepWith`
      */
     mergeDeepWith(
       merger: (previous: T, next: T, key: number) => T,
-      ...iterables: Iterable.Indexed<T>[]
-    ): List<T>;
-    mergeDeepWith(
-      merger: (previous: T, next: T, key: number) => T,
-      ...iterables: Array<T>[]
-    ): List<T>;
+      ...iterables: Array<Iterable.Indexed<T> | Array<T>>
+    ): this;
 
     /**
      * Returns a new List with size `size`. If `size` is less than this
@@ -418,8 +408,8 @@
      * // [ 0, 1, 2, [ -3, 4 ] ]
      * ```
      */
-    setIn(keyPath: Array<any>, value: any): List<T>;
-    setIn(keyPath: Iterable<any, any>, value: any): List<T>;
+    setIn(keyPath: Array<any>, value: any): this;
+    setIn(keyPath: Iterable<any, any>, value: any): this;
 
     /**
      * Returns a new List having removed the value at this `keyPath`. If any
@@ -431,10 +421,10 @@
      * ```
      * @alias removeIn
      */
-    deleteIn(keyPath: Array<any>): List<T>;
-    deleteIn(keyPath: Iterable<any, any>): List<T>;
-    removeIn(keyPath: Array<any>): List<T>;
-    removeIn(keyPath: Iterable<any, any>): List<T>;
+    deleteIn(keyPath: Array<any>): this;
+    deleteIn(keyPath: Iterable<any, any>): this;
+    removeIn(keyPath: Array<any>): this;
+    removeIn(keyPath: Iterable<any, any>): this;
 
     /**
      * @see `Map#updateIn`
@@ -442,31 +432,31 @@
     updateIn(
       keyPath: Array<any>,
       updater: (value: any) => any
-    ): List<T>;
+    ): this;
     updateIn(
       keyPath: Array<any>,
       notSetValue: any,
       updater: (value: any) => any
-    ): List<T>;
+    ): this;
     updateIn(
       keyPath: Iterable<any, any>,
       updater: (value: any) => any
-    ): List<T>;
+    ): this;
     updateIn(
       keyPath: Iterable<any, any>,
       notSetValue: any,
       updater: (value: any) => any
-    ): List<T>;
+    ): this;
 
     /**
      * @see `Map#mergeIn`
      */
-    mergeIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): List<T>;
+    mergeIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): this;
 
     /**
      * @see `Map#mergeDeepIn`
      */
-    mergeDeepIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): List<T>;
+    mergeDeepIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): this;
 
     // Transient changes
 
@@ -477,17 +467,17 @@
      *
      * @see `Map#withMutations`
      */
-    withMutations(mutator: (mutable: List<T>) => any): List<T>;
+    withMutations(mutator: (mutable: this) => any): this;
 
     /**
      * @see `Map#asMutable`
      */
-    asMutable(): List<T>;
+    asMutable(): this;
 
     /**
      * @see `Map#asImmutable`
      */
-    asImmutable(): List<T>;
+    asImmutable(): this;
 
     // Sequence algorithms
 
@@ -609,7 +599,7 @@
      * newestMap.toJS(); // { key: 'newer value' }
      * ```
      */
-    set(key: K, value: V): Map<K, V>;
+    set(key: K, value: V): this;
 
     /**
      * Returns a new Map which excludes this `key`.
@@ -627,8 +617,8 @@
      *
      * @alias remove
      */
-    delete(key: K): Map<K, V>;
-    remove(key: K): Map<K, V>;
+    delete(key: K): this;
+    remove(key: K): this;
 
     /**
      * Returns a new Map which excludes the provided `keys`.
@@ -638,8 +628,8 @@
      *
      * @alias removeAll
      */
-    deleteAll(keys: Array<K> | ESIterable<K>): Map<K, V>;
-    removeAll(keys: Array<K> | ESIterable<K>): Map<K, V>;
+    deleteAll(keys: Array<K> | ESIterable<K>): this;
+    removeAll(keys: Array<K> | ESIterable<K>): this;
 
     /**
      * Returns a new Map containing no keys or values.
@@ -649,7 +639,7 @@
      * // {}
      * ```
      */
-    clear(): Map<K, V>;
+    clear(): this;
 
     /**
      * Returns a new Map having updated the value at this `key` with the return
@@ -752,8 +742,7 @@
      *     y.merge(x) // { b: 20, a: 10, d: 60, c: 30 }
      *
      */
-    merge(...iterables: Iterable<K, V>[]): Map<K, V>;
-    merge(...iterables: {[key: string]: V}[]): Map<string, V>;
+    merge(...iterables: Array<Iterable<K, V> | {[key: string]: V}>): this;
 
     /**
      * Like `merge()`, `mergeWith()` returns a new Map resulting from merging
@@ -768,12 +757,8 @@
      */
     mergeWith(
       merger: (previous: V, next: V, key: K) => V,
-      ...iterables: Iterable<K, V>[]
-    ): Map<K, V>;
-    mergeWith(
-      merger: (previous: V, next: V, key: K) => V,
-      ...iterables: {[key: string]: V}[]
-    ): Map<string, V>;
+      ...iterables: Array<Iterable<K, V> | {[key: string]: V}>
+    ): this;
 
     /**
      * Like `merge()`, but when two Iterables conflict, it merges them as well,
@@ -784,8 +769,7 @@
      *     x.mergeDeep(y) // {a: { x: 2, y: 10 }, b: { x: 20, y: 5 }, c: { z: 3 } }
      *
      */
-    mergeDeep(...iterables: Iterable<K, V>[]): Map<K, V>;
-    mergeDeep(...iterables: {[key: string]: V}[]): Map<string, V>;
+    mergeDeep(...iterables: Array<Iterable<K, V> | {[key: string]: V}>): this;
 
     /**
      * Like `mergeDeep()`, but when two non-Iterables conflict, it uses the
@@ -799,12 +783,8 @@
      */
     mergeDeepWith(
       merger: (previous: V, next: V, key: K) => V,
-      ...iterables: Iterable<K, V>[]
-    ): Map<K, V>;
-    mergeDeepWith(
-      merger: (previous: V, next: V, key: K) => V,
-      ...iterables: {[key: string]: V}[]
-    ): Map<string, V>;
+      ...iterables: Array<Iterable<K, V> | {[key: string]: V}>
+    ): this;
 
 
     // Deep persistent changes
@@ -838,8 +818,8 @@
      * If any key in the path exists but does not have a .set() method (such as
      * Map and List), an error will be throw.
      */
-    setIn(keyPath: Array<any>, value: any): Map<K, V>;
-    setIn(KeyPath: Iterable<any, any>, value: any): Map<K, V>;
+    setIn(keyPath: Array<any>, value: any): this;
+    setIn(KeyPath: Iterable<any, any>, value: any): this;
 
     /**
      * Returns a new Map having removed the value at this `keyPath`. If any keys
@@ -847,10 +827,10 @@
      *
      * @alias removeIn
      */
-    deleteIn(keyPath: Array<any>): Map<K, V>;
-    deleteIn(keyPath: Iterable<any, any>): Map<K, V>;
-    removeIn(keyPath: Array<any>): Map<K, V>;
-    removeIn(keyPath: Iterable<any, any>): Map<K, V>;
+    deleteIn(keyPath: Array<any>): this;
+    deleteIn(keyPath: Iterable<any, any>): this;
+    removeIn(keyPath: Array<any>): this;
+    removeIn(keyPath: Iterable<any, any>): this;
 
     /**
      * Returns a new Map having applied the `updater` to the entry found at the
@@ -905,21 +885,21 @@
     updateIn(
       keyPath: Array<any>,
       updater: (value: any) => any
-    ): Map<K, V>;
+    ): this;
     updateIn(
       keyPath: Array<any>,
       notSetValue: any,
       updater: (value: any) => any
-    ): Map<K, V>;
+    ): this;
     updateIn(
       keyPath: Iterable<any, any>,
       updater: (value: any) => any
-    ): Map<K, V>;
+    ): this;
     updateIn(
       keyPath: Iterable<any, any>,
       notSetValue: any,
       updater: (value: any) => any
-    ): Map<K, V>;
+    ): this;
 
     /**
      * A combination of `updateIn` and `merge`, returning a new Map, but
@@ -930,7 +910,7 @@
      *     x.mergeIn(['a', 'b', 'c'], y);
      *
      */
-    mergeIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): Map<K, V>;
+    mergeIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): this;
 
     /**
      * A combination of `updateIn` and `mergeDeep`, returning a new Map, but
@@ -941,7 +921,7 @@
      *     x.mergeDeepIn(['a', 'b', 'c'], y);
      *
      */
-    mergeDeepIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): Map<K, V>;
+    mergeDeepIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): this;
 
     // Transient changes
 
@@ -969,7 +949,7 @@
      * `withMutations`! Only `set` and `merge` may be used mutatively.
      *
      */
-    withMutations(mutator: (mutable: Map<K, V>) => any): Map<K, V>;
+    withMutations(mutator: (mutable: this) => any): this;
 
     /**
      * Another way to avoid creation of intermediate Immutable maps is to create
@@ -984,14 +964,14 @@
      * Note: Not all methods can be used on a mutable collection or within
      * `withMutations`! Only `set` and `merge` may be used mutatively.
      */
-    asMutable(): Map<K, V>;
+    asMutable(): this;
 
     /**
      * The yin to `asMutable`'s yang. Because it applies to mutable collections,
      * this operation is *mutable* and returns itself. Once performed, the mutable
      * copy has become immutable and can be safely returned from a function.
      */
-    asImmutable(): Map<K, V>;
+    asImmutable(): this;
 
     // Sequence algorithms
 
@@ -1174,7 +1154,7 @@
     /**
      * Returns a new Set which also includes this value.
      */
-    add(value: T): Set<T>;
+    add(value: T): this;
 
     /**
      * Returns a new Set which excludes this value.
@@ -1182,37 +1162,32 @@
      * Note: `delete` cannot be safely used in IE8
      * @alias remove
      */
-    delete(value: T): Set<T>;
-    remove(value: T): Set<T>;
+    delete(value: T): this;
+    remove(value: T): this;
 
     /**
      * Returns a new Set containing no values.
      */
-    clear(): Set<T>;
+    clear(): this;
 
     /**
      * Returns a Set including any value from `iterables` that does not already
      * exist in this Set.
      * @alias merge
      */
-    union(...iterables: Iterable<any, T>[]): Set<T>;
-    union(...iterables: Array<T>[]): Set<T>;
-    merge(...iterables: Iterable<any, T>[]): Set<T>;
-    merge(...iterables: Array<T>[]): Set<T>;
-
+    union(...iterables: Array<Iterable<any, T> | Array<T>>): this;
+    merge(...iterables: Array<Iterable<any, T> | Array<T>>): this;
 
     /**
      * Returns a Set which has removed any values not also contained
      * within `iterables`.
      */
-    intersect(...iterables: Iterable<any, T>[]): Set<T>;
-    intersect(...iterables: Array<T>[]): Set<T>;
+    intersect(...iterables: Array<Iterable<any, T> | Array<T>>): this;
 
     /**
      * Returns a Set excluding any values contained within `iterables`.
      */
-    subtract(...iterables: Iterable<any, T>[]): Set<T>;
-    subtract(...iterables: Array<T>[]): Set<T>;
+    subtract(...iterables: Array<Iterable<any, T> | Array<T>>): this;
 
 
     // Transient changes
@@ -1223,17 +1198,17 @@
      *
      * @see `Map#withMutations`
      */
-    withMutations(mutator: (mutable: Set<T>) => any): Set<T>;
+    withMutations(mutator: (mutable: this) => any): this;
 
     /**
      * @see `Map#asMutable`
      */
-    asMutable(): Set<T>;
+    asMutable(): this;
 
     /**
      * @see `Map#asImmutable`
      */
-    asImmutable(): Set<T>;
+    asImmutable(): this;
 
     // Sequence algorithms
 
@@ -1448,17 +1423,17 @@
      *
      * @see `Map#withMutations`
      */
-    withMutations(mutator: (mutable: Stack<T>) => any): Stack<T>;
+    withMutations(mutator: (mutable: this) => any): this;
 
     /**
      * @see `Map#asMutable`
      */
-    asMutable(): Stack<T>;
+    asMutable(): this;
 
     /**
      * @see `Map#asImmutable`
      */
-    asImmutable(): Stack<T>;
+    asImmutable(): this;
 
     // Sequence algorithms
 
