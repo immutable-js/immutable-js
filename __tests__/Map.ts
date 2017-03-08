@@ -337,6 +337,12 @@ describe('Map', () => {
     expect(m4.toObject()).toEqual({'a': 1, 'b': 2, 'c': 3, 'd': 4});
   });
 
+  it('chained mutations does not result in new empty map instance', () => {
+    var v1 = Map({x:1});
+    var v2 = v1.withMutations(v => v.set('y',2).delete('x').delete('y'));
+    expect(v2).toBe(Map());
+  });
+
   it('expresses value equality with unordered sequences', () => {
     var m1 = Map({ A: 1, B: 2, C: 3 });
     var m2 = Map({ C: 3, B: 2, A: 1 });

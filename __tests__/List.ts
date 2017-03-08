@@ -641,6 +641,12 @@ describe('List', () => {
     expect(v4.toArray()).toEqual([1,2,3,4,5]);
   });
 
+  it('chained mutations does not result in new empty list instance', () => {
+    var v1 = List(['x']);
+    var v2 = v1.withMutations(v => v.push('y').pop().pop());
+    expect(v2).toBe(List());
+  });
+
   it('allows size to be set', () => {
     var v1 = Range(0,2000).toList();
     var v2 = v1.setSize(1000);

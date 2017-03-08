@@ -190,6 +190,9 @@ export class List extends IndexedCollection {
       return this;
     }
     if (!ownerID) {
+      if (this.size === 0) {
+        return emptyList();
+      }
       this.__ownerID = ownerID;
       return this;
     }

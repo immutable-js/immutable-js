@@ -211,6 +211,9 @@ export class Map extends KeyedCollection {
       return this;
     }
     if (!ownerID) {
+      if (this.size === 0) {
+        return emptyMap();
+      }
       this.__ownerID = ownerID;
       this.__altered = false;
       return this;
