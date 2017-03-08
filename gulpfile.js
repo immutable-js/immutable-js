@@ -11,6 +11,7 @@ var gutil = require('gulp-util');
 var header = require('gulp-header');
 var Immutable = require('./');
 var less = require('gulp-less');
+var mkdirp = require('mkdirp');
 var path = require('path');
 var React = require('react/addons');
 var reactTools = require('react-tools');
@@ -43,9 +44,10 @@ gulp.task('readme', function() {
 
   var fileContents = fs.readFileSync(readmePath, 'utf8');
 
-  var writePath = path.join(__dirname, './pages/resources/readme.json');
+  var writePath = path.join(__dirname, './pages/generated/readme.json');
   var contents = JSON.stringify(genMarkdownDoc(fileContents));
 
+  mkdirp.sync(path.dirname(writePath));
   fs.writeFileSync(writePath, contents);
 });
 
@@ -61,9 +63,10 @@ gulp.task('typedefs', function() {
     'module Immutable'
   );
 
-  var writePath = path.join(__dirname, './pages/resources/immutable.d.json');
+  var writePath = path.join(__dirname, './pages/generated/immutable.d.json');
   var contents = JSON.stringify(genTypeDefData(typeDefPath, fileSource));
 
+  mkdirp.sync(path.dirname(writePath));
   fs.writeFileSync(writePath, contents);
 });
 
