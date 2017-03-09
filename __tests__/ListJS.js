@@ -1,38 +1,40 @@
-var Immutable = require('../');
-var List = Immutable.List;
+const { List } = require('../');
 
 var NON_NUMBERS = {
-  'array': ['not', 'a', 'number'],
-  'NaN': NaN,
-  'object': {not: 'a number'},
-  'string': 'not a number',
+  array: ['not', 'a', 'number'],
+  NaN: NaN,
+  object: { not: 'a number' },
+  string: 'not a number'
 };
 
 describe('List', () => {
   describe('setSize()', () => {
-    Object.keys(NON_NUMBERS).forEach(function(type) {
+    Object.keys(NON_NUMBERS).forEach(type => {
       var nonNumber = NON_NUMBERS[type];
       it(`considers a size argument of type '${type}' to be zero`, () => {
-        var v1 = List.of(1,2,3);
+        var v1 = List.of(1, 2, 3);
         var v2 = v1.setSize(nonNumber);
         expect(v2.size).toBe(0);
       });
-    })
+    });
   });
   describe('slice()', () => {
     // Mimic the behavior of Array::slice()
     // http://www.ecma-international.org/ecma-262/6.0/#sec-array.prototype.slice
-    Object.keys(NON_NUMBERS).forEach(function(type) {
+    Object.keys(NON_NUMBERS).forEach(type => {
       var nonNumber = NON_NUMBERS[type];
+
       it(`considers a begin argument of type '${type}' to be zero`, () => {
         var v1 = List.of('a', 'b', 'c');
         var v2 = v1.slice(nonNumber, 2);
+
         expect(v2.size).toBe(2);
         expect(v2.first()).toBe('a');
         expect(v2.rest().size).toBe(1);
         expect(v2.last()).toBe('b');
         expect(v2.butLast().size).toBe(1);
       });
+
       it(`considers an end argument of type '${type}' to be zero`, () => {
         var v1 = List.of('a', 'b', 'c');
         var v2 = v1.slice(0, nonNumber);

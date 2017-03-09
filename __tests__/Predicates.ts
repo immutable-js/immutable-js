@@ -1,9 +1,6 @@
-///<reference path='../resources/jest.d.ts'/>
-
-import { isImmutable, isValueObject, is, Map, List, Set, Stack } from '../';
+import { is, isImmutable, isValueObject, List, Map, Set, Stack } from '../';
 
 describe('isImmutable', () => {
-
   it('behaves as advertised', () => {
     expect(isImmutable([])).toBe(false);
     expect(isImmutable({})).toBe(false);
@@ -13,15 +10,13 @@ describe('isImmutable', () => {
     expect(isImmutable(Stack())).toBe(true);
     expect(isImmutable(Map().asMutable())).toBe(false);
   });
-
 });
 
 describe('isValueObject', () => {
-
   it('behaves as advertised', () => {
     expect(isValueObject(null)).toBe(false);
     expect(isValueObject(123)).toBe(false);
-    expect(isValueObject("abc")).toBe(false);
+    expect(isValueObject('abc')).toBe(false);
     expect(isValueObject([])).toBe(false);
     expect(isValueObject({})).toBe(false);
     expect(isValueObject(Map())).toBe(true);
@@ -33,24 +28,25 @@ describe('isValueObject', () => {
 
   it('works on custom types', () => {
     class MyValueType {
-      _val: any;
+      private val: any;
 
       constructor(val) {
-        this._val = val;
+        this.val = val;
       }
 
-      equals(other) {
-        return Boolean(other && this._val === other._val);
+      public equals(other) {
+        return Boolean(other && this.val === other.val);
       }
 
-      hashCode() {
-        return this._val;
+      public hashCode() {
+        return this.val;
       }
     }
 
     expect(isValueObject(new MyValueType(123))).toBe(true);
     expect(is(new MyValueType(123), new MyValueType(123))).toBe(true);
-    expect(Set().add(new MyValueType(123)).add(new MyValueType(123)).size).toBe(1);
+    expect(Set().add(new MyValueType(123)).add(new MyValueType(123)).size).toBe(
+      1,
+    );
   });
-
 });

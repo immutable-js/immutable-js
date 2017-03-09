@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "noEmitOnError": true,
+    "target": "es5",
+    "sourceMap": false,
+    "noEmitOnError": true,
+    "module": "commonjs",
+    "lib": [
+      "dom",
+      "es2015"
+    ]
+  },
+  "exclude": [
+    "type-definitions"
+  ]
+}

@@ -1,10 +1,8 @@
-var Immutable = require('../');
-var Record = Immutable.Record;
+var { Record } = require('../');
 
 describe('Record', () => {
-
   it('defines a constructor', () => {
-    var MyType = Record({a:1, b:2, c:3});
+    var MyType = Record({ a: 1, b: 2, c: 3 });
 
     var t = new MyType();
     var t2 = t.set('a', 10);
@@ -14,11 +12,13 @@ describe('Record', () => {
   });
 
   it('can have mutations apply', () => {
-    var MyType = Record({a:1, b:2, c:3});
+    var MyType = Record({ a: 1, b: 2, c: 3 });
 
     var t = new MyType();
 
-    expect(() => { t.a = 10; }).toThrow();
+    expect(() => {
+      t.a = 10;
+    }).toThrow();
 
     var t2 = t.withMutations(mt => {
       mt.a = 10;
@@ -31,8 +31,7 @@ describe('Record', () => {
   });
 
   it('can be subclassed', () => {
-
-    class Alphabet extends Record({a:1, b:2, c:3}) {
+    class Alphabet extends Record({ a: 1, b: 2, c: 3 }) {
       soup() {
         return this.a + this.b + this.c;
       }
@@ -48,15 +47,15 @@ describe('Record', () => {
   });
 
   it('can be cleared', () => {
-    var MyType = Record({a:1, b:2, c:3});
-    var t = new MyType({c:'cats'});
+    var MyType = Record({ a: 1, b: 2, c: 3 });
+    var t = new MyType({ c: 'cats' });
 
     expect(t.c).toBe('cats');
     t = t.clear();
     expect(t.c).toBe(3);
 
-    var MyType2 = Record({d:4, e:5, f:6});
-    var t2 = new MyType2({d:'dogs'});
+    var MyType2 = Record({ d: 4, e: 5, f: 6 });
+    var t2 = new MyType2({ d: 'dogs' });
 
     expect(t2.d).toBe('dogs');
     t2 = t2.clear();

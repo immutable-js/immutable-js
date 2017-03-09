@@ -1,32 +1,28 @@
-///<reference path='../resources/jest.d.ts'/>
-
 import * as jasmineCheck from 'jasmine-check';
+import { Seq } from '../';
 jasmineCheck.install();
 
-import { Seq } from '../';
-
 describe('IndexedSequence', () => {
-
   it('maintains skipped offset', () => {
-    var seq = Seq(['A', 'B', 'C', 'D', 'E']);
+    let seq = Seq(['A', 'B', 'C', 'D', 'E']);
 
     // This is what we expect for IndexedSequences
-    var operated = seq.skip(1);
+    let operated = seq.skip(1);
     expect(operated.entrySeq().toArray()).toEqual([
       [0, 'B'],
       [1, 'C'],
       [2, 'D'],
-      [3, 'E']
+      [3, 'E'],
     ]);
 
     expect(operated.first()).toEqual('B');
   });
 
   it('reverses correctly', () => {
-    var seq = Seq(['A', 'B', 'C', 'D', 'E']);
+    let seq = Seq(['A', 'B', 'C', 'D', 'E']);
 
     // This is what we expect for IndexedSequences
-    var operated = seq.reverse();
+    let operated = seq.reverse();
     expect(operated.get(0)).toEqual('E');
     expect(operated.get(1)).toEqual('D');
     expect(operated.get(4)).toEqual('A');
@@ -36,7 +32,7 @@ describe('IndexedSequence', () => {
   });
 
   it('negative indexes correctly', () => {
-    var seq = Seq(['A', 'B', 'C', 'D', 'E']);
+    let seq = Seq(['A', 'B', 'C', 'D', 'E']);
 
     expect(seq.first()).toEqual('A');
     expect(seq.last()).toEqual('E');
@@ -44,7 +40,7 @@ describe('IndexedSequence', () => {
     expect(seq.get(2)).toEqual('C');
     expect(seq.get(-2)).toEqual('D');
 
-    var indexes = seq.keySeq();
+    let indexes = seq.keySeq();
     expect(indexes.first()).toEqual(0);
     expect(indexes.last()).toEqual(4);
     expect(indexes.get(-0)).toEqual(0);
