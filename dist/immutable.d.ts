@@ -648,6 +648,16 @@ declare module Immutable {
       mapper: (value: T, key: number, iter: this) => M,
       context?: any
     ): List<M>;
+
+    /**
+     * Flat-maps the List, returning a new List.
+     *
+     * Similar to `list.map(...).flatten(true)`.
+     */
+    flatMap<M>(
+      mapper: (value: T, key: number, iter: this) => ESIterable<M>,
+      context?: any
+    ): List<M>;
   }
 
 
@@ -1181,6 +1191,16 @@ declare module Immutable {
       mapper: (entry: [K, V], index: number, iter: this) => [KM, VM],
       context?: any
     ): Map<KM, VM>;
+
+    /**
+     * Flat-maps the Map, returning a new Map.
+     *
+     * Similar to `data.map(...).flatten(true)`.
+     */
+    flatMap<KM, VM>(
+      mapper: (value: V, key: K, iter: this) => ESIterable<[KM, VM]>,
+      context?: any
+    ): Map<KM, VM>;
   }
 
 
@@ -1255,6 +1275,16 @@ declare module Immutable {
      */
     mapEntries<KM, VM>(
       mapper: (entry: [K, V], index: number, iter: this) => [KM, VM],
+      context?: any
+    ): OrderedMap<KM, VM>;
+
+    /**
+     * Flat-maps the OrderedMap, returning a new OrderedMap.
+     *
+     * Similar to `data.map(...).flatten(true)`.
+     */
+    flatMap<KM, VM>(
+      mapper: (value: V, key: K, iter: this) => ESIterable<[KM, VM]>,
       context?: any
     ): OrderedMap<KM, VM>;
   }
@@ -1424,6 +1454,16 @@ declare module Immutable {
       mapper: (value: T, key: T, iter: this) => M,
       context?: any
     ): Set<M>;
+
+    /**
+     * Flat-maps the Set, returning a new Set.
+     *
+     * Similar to `set.map(...).flatten(true)`.
+     */
+    flatMap<M>(
+      mapper: (value: T, key: T, iter: this) => ESIterable<M>,
+      context?: any
+    ): Set<M>;
   }
 
 
@@ -1481,6 +1521,16 @@ declare module Immutable {
      */
     map<M>(
       mapper: (value: T, key: T, iter: this) => M,
+      context?: any
+    ): OrderedSet<M>;
+
+    /**
+     * Flat-maps the OrderedSet, returning a new OrderedSet.
+     *
+     * Similar to `set.map(...).flatten(true)`.
+     */
+    flatMap<M>(
+      mapper: (value: T, key: T, iter: this) => ESIterable<M>,
       context?: any
     ): OrderedSet<M>;
 
@@ -1663,6 +1713,16 @@ declare module Immutable {
      * value at every step.
      */
     map<M>(
+      mapper: (value: T, key: number, iter: this) => M,
+      context?: any
+    ): Stack<M>;
+
+    /**
+     * Flat-maps the Stack, returning a new Stack.
+     *
+     * Similar to `stack.map(...).flatten(true)`.
+     */
+    flatMap<M>(
       mapper: (value: T, key: number, iter: this) => M,
       context?: any
     ): Stack<M>;
@@ -1977,6 +2037,16 @@ declare module Immutable {
         mapper: (entry: [K, V], index: number, iter: this) => [KM, VM],
         context?: any
       ): Seq.Keyed<KM, VM>;
+
+      /**
+       * Flat-maps the Seq, returning a Seq of the same type.
+       *
+       * Similar to `seq.map(...).flatten(true)`.
+       */
+      flatMap<KM, VM>(
+        mapper: (value: V, key: K, iter: this) => ESIterable<[KM, VM]>,
+        context?: any
+      ): Seq.Keyed<KM, VM>;
     }
 
 
@@ -2027,6 +2097,16 @@ declare module Immutable {
        */
       map<M>(
         mapper: (value: T, key: number, iter: this) => M,
+        context?: any
+      ): Seq.Indexed<M>;
+
+      /**
+       * Flat-maps the Seq, returning a a Seq of the same type.
+       *
+       * Similar to `seq.map(...).flatten(true)`.
+       */
+      flatMap<M>(
+        mapper: (value: T, key: number, iter: this) => ESIterable<M>,
         context?: any
       ): Seq.Indexed<M>;
     }
@@ -2081,6 +2161,16 @@ declare module Immutable {
        */
       map<M>(
         mapper: (value: T, key: T, iter: this) => M,
+        context?: any
+      ): Seq.Set<M>;
+
+      /**
+       * Flat-maps the Seq, returning a Seq of the same type.
+       *
+       * Similar to `seq.map(...).flatten(true)`.
+       */
+      flatMap<M>(
+        mapper: (value: T, key: T, iter: this) => ESIterable<M>,
         context?: any
       ): Seq.Set<M>;
     }
@@ -2162,6 +2252,16 @@ declare module Immutable {
      */
     map<M>(
       mapper: (value: V, key: K, iter: this) => M,
+      context?: any
+    ): Seq<K, M>;
+
+    /**
+     * Flat-maps the Seq, returning a Seq of the same type.
+     *
+     * Similar to `seq.map(...).flatten(true)`.
+     */
+    flatMap<M>(
+      mapper: (value: V, key: K, iter: this) => ESIterable<M>,
       context?: any
     ): Seq<K, M>;
   }
@@ -2292,6 +2392,16 @@ declare module Immutable {
        */
       mapEntries<KM, VM>(
         mapper: (entry: [K, V], index: number, iter: this) => [KM, VM],
+        context?: any
+      ): Iterable.Keyed<KM, VM>;
+
+      /**
+       * Flat-maps the Iterable, returning an Iterable of the same type.
+       *
+       * Similar to `iterable.map(...).flatten(true)`.
+       */
+      flatMap<KM, VM>(
+        mapper: (value: V, key: K, iter: this) => ESIterable<[KM, VM]>,
         context?: any
       ): Iterable.Keyed<KM, VM>;
 
@@ -2491,6 +2601,16 @@ declare module Immutable {
         context?: any
       ): Iterable.Indexed<M>;
 
+      /**
+       * Flat-maps the Iterable, returning an Iterable of the same type.
+       *
+       * Similar to `iterable.map(...).flatten(true)`.
+       */
+      flatMap<M>(
+        mapper: (value: T, key: number, iter: this) => ESIterable<M>,
+        context?: any
+      ): Iterable.Indexed<M>;
+
       [Symbol.iterator](): Iterator<T>;
     }
 
@@ -2545,6 +2665,16 @@ declare module Immutable {
        */
       map<M>(
         mapper: (value: T, key: T, iter: this) => M,
+        context?: any
+      ): Iterable.Set<M>;
+
+      /**
+       * Flat-maps the Iterable, returning an Iterable of the same type.
+       *
+       * Similar to `iterable.map(...).flatten(true)`.
+       */
+      flatMap<M>(
+        mapper: (value: T, key: T, iter: this) => ESIterable<M>,
         context?: any
       ): Iterable.Set<M>;
 
@@ -3126,12 +3256,12 @@ declare module Immutable {
     /**
      * Flat-maps the Iterable, returning an Iterable of the same type.
      *
-     * Similar to `iter.map(...).flatten(true)`.
+     * Similar to `iterable.map(...).flatten(true)`.
      */
-    flatMap<R>(
-      mapper: (value: V, key: K, iter: this) => ESIterable<R>,
+    flatMap<M>(
+      mapper: (value: V, key: K, iter: this) => ESIterable<M>,
       context?: any
-    ): Iterable<K, R>;
+    ): Iterable<K, M>;
 
     // Reducing a value
 
@@ -3425,6 +3555,16 @@ declare module Immutable {
         mapper: (value: V, key: K, iter: this) => M,
         context?: any
       ): Collection.Keyed<K, M>;
+
+      /**
+       * Flat-maps the Collection, returning an Collection of the same type.
+       *
+       * Similar to `collection.map(...).flatten(true)`.
+       */
+      flatMap<KM, VM>(
+        mapper: (value: V, key: K, iter: this) => ESIterable<[KM, VM]>,
+        context?: any
+      ): Collection.Keyed<KM, VM>;
     }
 
 
@@ -3462,6 +3602,16 @@ declare module Immutable {
        */
       map<M>(
         mapper: (value: T, key: number, iter: this) => M,
+        context?: any
+      ): Collection.Indexed<M>;
+
+      /**
+       * Flat-maps the Collection, returning an Collection of the same type.
+       *
+       * Similar to `collection.map(...).flatten(true)`.
+       */
+      flatMap<M>(
+        mapper: (value: T, key: number, iter: this) => ESIterable<M>,
         context?: any
       ): Collection.Indexed<M>;
     }
@@ -3507,8 +3657,17 @@ declare module Immutable {
         mapper: (value: T, key: T, iter: this) => M,
         context?: any
       ): Collection.Set<M>;
-    }
 
+      /**
+       * Flat-maps the Collection, returning an Collection of the same type.
+       *
+       * Similar to `collection.map(...).flatten(true)`.
+       */
+      flatMap<M>(
+        mapper: (value: T, key: T, iter: this) => ESIterable<M>,
+        context?: any
+      ): Collection.Set<M>;
+    }
   }
 
   export interface Collection<K, V> extends Iterable<K, V> {
