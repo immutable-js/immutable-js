@@ -9,7 +9,7 @@ describe('ObjectSequence', () => {
 
   it('reduces', () => {
     let i = Seq({ a: 'A', b: 'B', c: 'C' });
-    let r = i.reduce <string>((acc, x) => acc + x, '');
+    let r = i.reduce<string>((acc, x) => acc + x, '');
     expect(r).toEqual('ABC');
   });
 

@@ -23,7 +23,7 @@ describe('ArraySequence', () => {
 
   it('reduces', () => {
     let i = Seq([1, 2, 3]);
-    let r = i.reduce <number>((acc, x) => acc + x);
+    let r = i.reduce<number>((acc, x) => acc + x);
     expect(r).toEqual(6);
   });
 

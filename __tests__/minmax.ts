@@ -33,7 +33,7 @@ describe('max', () => {
       { name: 'Casey', age: 34 },
       { name: 'Avery', age: 34 },
     ]);
-    expect(family.maxBy <number>(p => p.age, (a, b) => b - a).name).toBe(
+    expect(family.maxBy<number>(p => p.age, (a, b) => b - a).name).toBe(
       'Oakley',
     );
   });
@@ -80,7 +80,7 @@ describe('min', () => {
       { name: 'Casey', age: 34 },
       { name: 'Avery', age: 34 },
     ]);
-    expect(family.minBy <number>(p => p.age, (a, b) => b - a).name).toBe(
+    expect(family.minBy<number>(p => p.age, (a, b) => b - a).name).toBe(
       'Casey',
     );
   });

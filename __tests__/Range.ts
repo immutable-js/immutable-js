@@ -154,7 +154,7 @@ describe('Range', () => {
   it('reduces values', () => {
     let v = Range(0, 10, 2);
 
-    let r = v.reduce <number>((a, b) => a + b, 0);
+    let r = v.reduce<number>((a, b) => a + b, 0);
 
     expect(r).toEqual(20);
   });
