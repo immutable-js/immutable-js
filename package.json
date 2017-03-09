@@ -31,6 +31,7 @@
     "format": "prettier --single-quote --write \"{src,pages/src,pages/lib}/**/*.js\"",
     "testonly": "./resources/jest",
     "test": "run-s format build lint testonly type-check",
+    "test:travis": "npm run test && ./resources/check-changes",
     "type-check": "cd type-definitions/tests && flow check",
     "perf": "node ./resources/bench.js",
     "start": "gulp --gulpfile gulpfile.js dev",
