@@ -1,6 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 
-import { Record, Seq } from '../';
+import { Record, Seq, isKeyed } from '../';
 
 describe('Record', () => {
 
@@ -9,26 +9,22 @@ describe('Record', () => {
 
     var t1 = new MyType();
     var t2 = t1.set('a', 10);
-    var t3 = t2.clear();
 
     expect(t1 instanceof Record).toBe(true);
     expect(t1 instanceof MyType).toBe(true);
 
-    expect(t3 instanceof Record).toBe(true);
-    expect(t3 instanceof MyType).toBe(true);
+    expect(t2 instanceof Record).toBe(true);
+    expect(t2 instanceof MyType).toBe(true);
 
     expect(t1.get('a')).toBe(1);
     expect(t2.get('a')).toBe(10);
-
-    expect(t1.size).toBe(3);
-    expect(t2.size).toBe(3);
   })
 
   it('allows for a descriptive name', () => {
     var Person = Record({name: null}, 'Person');
 
     var me = Person({ name: 'My Name' })
-    expect(me.toString()).toEqual('Person { "name": "My Name" }');
+    expect(me.toString()).toEqual('Person { name: "My Name" }');
     expect(Record.getDescriptiveName(me)).toEqual('Person');
   })
 
@@ -52,27 +48,11 @@ describe('Record', () => {
     expect(t2).toBe(t1);
   });
 
-  it('has a fixed size and falls back to default values', () => {
+  it('is a value type and equals other similar Records', () => {
     var MyType = Record({a:1, b:2, c:3});
-
-    var t1 = new MyType({a: 10, b:20});
-    var t2 = new MyType({b: 20});
-    var t3 = t1.remove('a');
-    var t4 = t3.clear();
-
-    expect(t1.size).toBe(3);
-    expect(t2.size).toBe(3);
-    expect(t3.size).toBe(3);
-    expect(t4.size).toBe(3);
-
-    expect(t1.get('a')).toBe(10);
-    expect(t2.get('a')).toBe(1);
-    expect(t3.get('a')).toBe(1);
-    expect(t4.get('b')).toBe(2);
-
-    expect(t2.equals(t3)).toBe(true);
-    expect(t2.equals(t4)).toBe(false);
-    expect(t4.equals(new MyType())).toBe(true);
+    var t1 = MyType({ a: 10 })
+    var t2 = MyType({ a: 10, b: 2 })
+    expect(t1.equals(t2));
   })
 
   it('merges in Objects and other Records', () => {
@@ -167,22 +147,58 @@ describe('Record', () => {
       var warnings = [];
       console.warn = w => warnings.push(w);
 
-      var MyType1 = Record({size:0});
+      // size is a safe key to use
+      var MyType1 = Record({size:123});
       var t1 = MyType1();
-      expect(warnings.length).toBe(1);
-      expect(warnings[0]).toBe(
-        'Cannot define Record with property "size" since that property name is part of the Record API.'
-      );
+      expect(warnings.length).toBe(0);
+      expect(t1.size).toBe(123);
 
+      // get() is not safe to use
       var MyType2 = Record({get:0});
       var t2 = MyType2();
-      expect(warnings.length).toBe(2);
-      expect(warnings[1]).toBe(
+      expect(warnings.length).toBe(1);
+      expect(warnings[0]).toBe(
         'Cannot define Record with property "get" since that property name is part of the Record API.'
       );
     } finally {
       console.warn = realWarn;
     }
+  })
+
+  it('can be converted to a keyed sequence', () => {
+    var MyType = Record({a:0, b:0});
+    var t1 = MyType({a:10, b:20});
+
+    var seq1 = t1.toSeq();
+    expect(isKeyed(seq1)).toBe(true);
+    expect(seq1.toJS()).toEqual({a:10, b:20});
+
+    var seq2 = Seq(t1)
+    expect(isKeyed(seq2)).toBe(true);
+    expect(seq2.toJS()).toEqual({a:10, b:20});
+
+    var seq3 = Seq.Keyed(t1)
+    expect(isKeyed(seq3)).toBe(true);
+    expect(seq3.toJS()).toEqual({a:10, b:20});
+
+    var seq4 = Seq.Indexed(t1)
+    expect(isKeyed(seq4)).toBe(false);
+    expect(seq4.toJS()).toEqual([['a', 10], ['b', 20]]);
+  })
+
+  it('can be iterated over', () => {
+    var MyType = Record({a:0, b:0});
+    var t1 = MyType({a:10, b:20});
+
+    var entries = [];
+    for (let entry of t1) {
+      entries.push(entry);
+    }
+
+    expect(entries).toEqual([
+      [ 'a', 10 ],
+      [ 'b', 20 ],
+    ])
   })
 
 });

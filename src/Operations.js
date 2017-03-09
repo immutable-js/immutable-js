@@ -164,6 +164,10 @@ export class FromEntriesSequence extends KeyedSeq {
     this.size = entries.size;
   }
 
+  entrySeq() {
+    return this._iter.toSeq();
+  }
+
   __iterate(fn, reverse) {
     return this._iter.__iterate(
       entry => {

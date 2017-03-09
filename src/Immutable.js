@@ -27,6 +27,7 @@ import {
   isIndexed,
   isAssociative,
   isOrdered,
+  isRecord,
   isValueObject
 } from './Predicates';
 import { Iterable } from './IterableImpl';
@@ -58,6 +59,7 @@ export default {
   isIndexed: isIndexed,
   isAssociative: isAssociative,
   isOrdered: isOrdered,
+  isRecord: isRecord,
   isValueObject: isValueObject
 };
 
@@ -83,5 +85,6 @@ export {
   isIndexed,
   isAssociative,
   isOrdered,
+  isRecord,
   isValueObject
 };

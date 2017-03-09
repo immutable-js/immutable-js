@@ -116,7 +116,7 @@ describe('Conversion', () => {
       '"b": "B"'+
     ' }, '+
     '"emptyMap": OrderedMap {}, ' +
-    '"point": Point { "x": 10, "y": 20 }, '+
+    '"point": Point { x: 10, y: 20 }, '+
     '"string": "Hello", '+
     '"list": List [ 1, 2, 3 ]'+
   ' }';
@@ -196,7 +196,7 @@ describe('Conversion', () => {
     Model.prototype.toJSON = function() { return 'model'; }
     expect(
       Map({ a: new Model() }).toJS()
-    ).toEqual({ "a": {} });
+    ).toEqual({ a: {} });
     expect(
       JSON.stringify(Map({ a: new Model() }))
     ).toEqual('{"a":"model"}');

@@ -175,6 +175,7 @@ declare function isOrdered(maybeOrdered: mixed): boolean %checks(
   maybeOrdered instanceof OrderedMap ||
   maybeOrdered instanceof OrderedSet
 );
+declare function isRecord(maybeRecord: any): boolean %checks(maybeRecord instanceof RecordInstance);
 declare function isValueObject(maybeValue: mixed): boolean;
 
 declare interface ValueObject {
@@ -1072,9 +1073,14 @@ declare class RecordInstance<T: Object> {
   merge(...iterables: Array<$Shape<T> | ESIterable<[string, any]>>): this;
   mergeDeep(...iterables: Array<$Shape<T> | ESIterable<[string, any]>>): this;
 
-  delete(key: $Keys<T>): this;
-  remove(key: $Keys<T>): this;
-  clear(): this;
+  mergeWith(
+    merger: (oldVal: any, newVal: any, key: $Keys<T>) => any,
+    ...iterables: Array<$Shape<T> | ESIterable<[string, any]>>
+  ): this;
+  mergeDeepWith(
+    merger: (oldVal: any, newVal: any, key: any) => any,
+    ...iterables: Array<$Shape<T> | ESIterable<[string, any]>>
+  ): this;
 
   setIn(keyPath: ESIterable<any>, value: any): this;
   updateIn(keyPath: ESIterable<any>, updater: (value: any) => any): this;
@@ -1083,9 +1089,12 @@ declare class RecordInstance<T: Object> {
   deleteIn(keyPath: ESIterable<any>): this;
   removeIn(keyPath: ESIterable<any>): this;
 
+  toSeq(): KeyedSeq<$Keys<T>, any>;
+
   toJS(): { [key: $Keys<T>]: mixed };
   toJSON(): T;
   toObject(): T;
+
   withMutations(mutator: (mutable: this) => mixed): this;
   asMutable(): this;
   asImmutable(): this;
@@ -1130,6 +1139,7 @@ export {
   isIndexed,
   isAssociative,
   isOrdered,
+  isRecord,
   isValueObject,
 }
 
@@ -1158,6 +1168,7 @@ export default {
   isIndexed,
   isAssociative,
   isOrdered,
+  isRecord,
   isValueObject,
 }
 
