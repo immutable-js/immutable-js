@@ -3,7 +3,7 @@ import { Seq } from '../';
 describe('ObjectSequence', () => {
   it('maps', () => {
     let i = Seq({ a: 'A', b: 'B', c: 'C' });
-    let m = i.map((x) => x + x).toObject();
+    let m = i.map(x => x + x).toObject();
     expect(m).toEqual({ a: 'AA', b: 'BB', c: 'CC' });
   });
 

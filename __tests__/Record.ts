@@ -164,7 +164,7 @@ describe('Record', () => {
 
     try {
       let warnings = [];
-      console.warn = (w) => warnings.push(w);
+      console.warn = w => warnings.push(w);
 
       let MyType1 = Record({ size: 0 });
       let t1 = MyType1();

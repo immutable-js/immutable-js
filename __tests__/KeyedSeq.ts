@@ -3,7 +3,7 @@ import { Range, Seq } from '../';
 jasmineCheck.install();
 
 describe('KeyedSeq', () => {
-  check.it('it iterates equivalently', [gen.array(gen.int)], (ints) => {
+  check.it('it iterates equivalently', [gen.array(gen.int)], ints => {
     let seq = Seq(ints);
     let keyed = seq.toKeyedSeq();
 
@@ -20,7 +20,7 @@ describe('KeyedSeq', () => {
   });
 
   it('maintains keys', () => {
-    let isEven = (x) => x % 2 === 0;
+    let isEven = x => x % 2 === 0;
     let seq = Range(0, 100);
 
     // This is what we expect for IndexedSequences

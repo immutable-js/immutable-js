@@ -60,7 +60,7 @@ describe('updateIn', () => {
   it('deep edit', () => {
     let m = fromJS({ a: { b: { c: 10 } } });
     expect(
-      m.updateIn(['a', 'b', 'c'], (value) => value * 2).toJS(),
+      m.updateIn(['a', 'b', 'c'], value => value * 2).toJS(),
     ).toEqual(
       { a: { b: { c: 20 } } },
     );
@@ -69,7 +69,7 @@ describe('updateIn', () => {
   it('deep edit with list as keyPath', () => {
     let m = fromJS({ a: { b: { c: 10 } } });
     expect(
-      m.updateIn(fromJS(['a', 'b', 'c']), (value) => value * 2).toJS(),
+      m.updateIn(fromJS(['a', 'b', 'c']), value => value * 2).toJS(),
     ).toEqual(
       { a: { b: { c: 20 } } },
     );
@@ -78,20 +78,20 @@ describe('updateIn', () => {
   it('deep edit throws without list or array-like', () => {
     // need to cast these as TypeScript first prevents us from such clownery.
     expect(() =>
-      Map().updateIn(<any> undefined, (x) => x),
+      Map().updateIn(<any> undefined, x => x),
     ).toThrow('Invalid keyPath: expected Ordered Iterable or Array: undefined');
     expect(() =>
-      Map().updateIn(<any> { a: 1, b: 2 }, (x) => x),
+      Map().updateIn(<any> { a: 1, b: 2 }, x => x),
     ).toThrow('Invalid keyPath: expected Ordered Iterable or Array: [object Object]');
     expect(() =>
-      Map().updateIn(<any> 'abc', (x) => x),
+      Map().updateIn(<any> 'abc', x => x),
     ).toThrow('Invalid keyPath: expected Ordered Iterable or Array: abc');
   });
 
   it('deep edit throws if non-editable path', () => {
     let deep = Map({ key: Set([List(['item'])]) });
     expect(() =>
-      deep.updateIn(['key', 'foo', 'item'], (x) => x),
+      deep.updateIn(['key', 'foo', 'item'], x => x),
     ).toThrow(
       'Invalid keyPath: Value at ["key"] does not have a .set() method ' +
       'and cannot be updated: Set { List [ "item" ] }',
@@ -101,7 +101,7 @@ describe('updateIn', () => {
   it('identity with notSetValue is still identity', () => {
     let m = Map({ a: { b: { c: 10 } } });
     expect(
-      m.updateIn(['x'], 100, (id) => id),
+      m.updateIn(['x'], 100, id => id),
     ).toEqual(
       m,
     );
@@ -110,7 +110,7 @@ describe('updateIn', () => {
   it('shallow remove', () => {
     let m = Map({ a: 123 });
     expect(
-      m.updateIn([], (map) => undefined),
+      m.updateIn([], map => undefined),
     ).toEqual(
       undefined,
     );
@@ -119,7 +119,7 @@ describe('updateIn', () => {
   it('deep remove', () => {
     let m = fromJS({ a: { b: { c: 10 } } });
     expect(
-      m.updateIn(['a', 'b'], (map) => map.remove('c')).toJS(),
+      m.updateIn(['a', 'b'], map => map.remove('c')).toJS(),
     ).toEqual(
       { a: { b: {} } },
     );
@@ -128,7 +128,7 @@ describe('updateIn', () => {
   it('deep set', () => {
     let m = fromJS({ a: { b: { c: 10 } } });
     expect(
-      m.updateIn(['a', 'b'], (map) => map.set('d', 20)).toJS(),
+      m.updateIn(['a', 'b'], map => map.set('d', 20)).toJS(),
     ).toEqual(
       { a: { b: { c: 10, d: 20 } } },
     );
@@ -137,7 +137,7 @@ describe('updateIn', () => {
   it('deep push', () => {
     let m = fromJS({ a: { b: [1, 2, 3] } });
     expect(
-      m.updateIn(['a', 'b'], (list) => list.push(4)).toJS(),
+      m.updateIn(['a', 'b'], list => list.push(4)).toJS(),
     ).toEqual(
       { a: { b: [1, 2, 3, 4] } },
     );
@@ -146,7 +146,7 @@ describe('updateIn', () => {
   it('deep map', () => {
     let m = fromJS({ a: { b: [1, 2, 3] } });
     expect(
-      m.updateIn(['a', 'b'], (list) => list.map((value) => value * 10)).toJS(),
+      m.updateIn(['a', 'b'], list => list.map(value => value * 10)).toJS(),
     ).toEqual(
       { a: { b: [10, 20, 30] } },
     );
@@ -155,7 +155,7 @@ describe('updateIn', () => {
   it('creates new maps if path contains gaps', () => {
     let m = fromJS({ a: { b: { c: 10 } } });
     expect(
-      m.updateIn(['a', 'q', 'z'], Map(), (map) => map.set('d', 20)).toJS(),
+      m.updateIn(['a', 'q', 'z'], Map(), map => map.set('d', 20)).toJS(),
     ).toEqual(
       { a: { b: { c: 10 }, q: { z: { d: 20 } } } },
     );
@@ -164,14 +164,14 @@ describe('updateIn', () => {
   it('throws if path cannot be set', () => {
     let m = fromJS({ a: { b: { c: 10 } } });
     expect(() => {
-      m.updateIn(['a', 'b', 'c', 'd'], (v) => 20).toJS();
+      m.updateIn(['a', 'b', 'c', 'd'], v => 20).toJS();
     }).toThrow();
   });
 
   it('update with notSetValue when non-existing key', () => {
     let m = Map({ a: { b: { c: 10 } } });
     expect(
-      m.updateIn(['x'], 100, (map) => map + 1).toJS(),
+      m.updateIn(['x'], 100, map => map + 1).toJS(),
     ).toEqual(
       { a: { b: { c: 10 } }, x: 101 },
     );
@@ -180,7 +180,7 @@ describe('updateIn', () => {
   it('updates self for empty path', () => {
     let m = fromJS({ a: 1, b: 2, c: 3 });
     expect(
-      m.updateIn([], (map) => map.set('b', 20)).toJS(),
+      m.updateIn([], map => map.set('b', 20)).toJS(),
     ).toEqual(
       { a: 1, b: 20, c: 3 },
     );
@@ -188,14 +188,14 @@ describe('updateIn', () => {
 
   it('does not perform edit when new value is the same as old value', () => {
     let m = fromJS({ a: { b: { c: 10 } } });
-    let m2 = m.updateIn(['a', 'b', 'c'], (id) => id);
+    let m2 = m.updateIn(['a', 'b', 'c'], id => id);
     expect(m2).toBe(m);
   });
 
   it('does not perform edit when notSetValue is what you return from updater', () => {
     let m = Map();
     let spiedOnID;
-    let m2 = m.updateIn(['a', 'b', 'c'], Set(), (id) => (spiedOnID = id));
+    let m2 = m.updateIn(['a', 'b', 'c'], Set(), id => (spiedOnID = id));
     expect(m2).toBe(m);
     expect(spiedOnID).toBe(Set());
   });
@@ -203,7 +203,7 @@ describe('updateIn', () => {
   it('provides default notSetValue of undefined', () => {
     let m = Map();
     let spiedOnID;
-    let m2 = m.updateIn(['a', 'b', 'c'], (id) => (spiedOnID = id));
+    let m2 = m.updateIn(['a', 'b', 'c'], id => (spiedOnID = id));
     expect(m2).toBe(m);
     expect(spiedOnID).toBe(undefined);
   });

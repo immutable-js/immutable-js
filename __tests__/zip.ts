@@ -22,14 +22,14 @@ describe('zip', () => {
 
   it('has unknown size when zipped with unknown size', () => {
     let seq = Range(0, 10);
-    let zipped = seq.zip(seq.filter((n) => n % 2 === 0));
+    let zipped = seq.zip(seq.filter(n => n % 2 === 0));
     expect(zipped.size).toBe(undefined);
     expect(zipped.count()).toBe(5);
   });
 
   check.it('is always the size of the smaller sequence',
-    [gen.notEmpty(gen.array(gen.posInt))], (lengths) => {
-      let ranges = lengths.map((l) => Range(0, l));
+    [gen.notEmpty(gen.array(gen.posInt))], lengths => {
+      let ranges = lengths.map(l => Range(0, l));
       let first = ranges.shift();
       let zipped = first.zip.apply(first, ranges);
       let shortestLength = Math.min.apply(Math, lengths);

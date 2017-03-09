@@ -23,7 +23,7 @@ describe('max', () => {
       { name: 'Casey', age: 34 },
       { name: 'Avery', age: 34 },
     ]);
-    expect(family.maxBy((p) => p.age).name).toBe('Casey');
+    expect(family.maxBy(p => p.age).name).toBe('Casey');
   });
 
   it('by a mapper and a comparator', () => {
@@ -33,7 +33,7 @@ describe('max', () => {
       { name: 'Casey', age: 34 },
       { name: 'Avery', age: 34 },
     ]);
-    expect(family.maxBy <number>((p) => p.age, (a, b) => b - a).name).toBe(
+    expect(family.maxBy <number>(p => p.age, (a, b) => b - a).name).toBe(
       'Oakley',
     );
   });
@@ -49,7 +49,7 @@ describe('max', () => {
     expect(is(2, Seq.of(-1, -2, null, 1, 2).max())).toBe(true);
   });
 
-  check.it('is not dependent on order', [genHeterogeneousishArray], (vals) => {
+  check.it('is not dependent on order', [genHeterogeneousishArray], vals => {
     expect(is(Seq(shuffle(vals.slice())).max(), Seq(vals).max())).toEqual(true);
   });
 });
@@ -70,7 +70,7 @@ describe('min', () => {
       { name: 'Casey', age: 34 },
       { name: 'Avery', age: 34 },
     ]);
-    expect(family.minBy((p) => p.age).name).toBe('Oakley');
+    expect(family.minBy(p => p.age).name).toBe('Oakley');
   });
 
   it('by a mapper and a comparator', () => {
@@ -80,12 +80,12 @@ describe('min', () => {
       { name: 'Casey', age: 34 },
       { name: 'Avery', age: 34 },
     ]);
-    expect(family.minBy <number>((p) => p.age, (a, b) => b - a).name).toBe(
+    expect(family.minBy <number>(p => p.age, (a, b) => b - a).name).toBe(
       'Casey',
     );
   });
 
-  check.it('is not dependent on order', [genHeterogeneousishArray], (vals) => {
+  check.it('is not dependent on order', [genHeterogeneousishArray], vals => {
     expect(is(Seq(shuffle(vals.slice())).min(), Seq(vals).min())).toEqual(true);
   });
 });

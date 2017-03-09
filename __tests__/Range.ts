@@ -142,12 +142,12 @@ describe('Range', () => {
   });
 
   it('maps values', () => {
-    let r = Range(0, 4).map((v) => v * v);
+    let r = Range(0, 4).map(v => v * v);
     expect(r.toArray()).toEqual([0, 1, 4, 9]);
   });
 
   it('filters values', () => {
-    let r = Range(0, 10).filter((v) => v % 2 === 0);
+    let r = Range(0, 10).filter(v => v % 2 === 0);
     expect(r.toArray()).toEqual([0, 2, 4, 6, 8]);
   });
 
@@ -168,7 +168,7 @@ describe('Range', () => {
   });
 
   it('can describe lazy operations', () => {
-    expect(Range(1, Infinity).map((n) => -n).take(5).toArray()).toEqual([
+    expect(Range(1, Infinity).map(n => -n).take(5).toArray()).toEqual([
       -1,
       -2,
       -3,
@@ -180,8 +180,8 @@ describe('Range', () => {
   it('efficiently chains array methods', () => {
     let v = Range(1, Infinity);
 
-    let r = v.filter((x) => x % 2 === 0).skip(2).map <number>
-    ((x) => x * x).take(3).reduce <number>
+    let r = v.filter(x => x % 2 === 0).skip(2).map <number>
+    (x => x * x).take(3).reduce <number>
     ((a, b) => a + b, 0);
 
     expect(r).toEqual(200);

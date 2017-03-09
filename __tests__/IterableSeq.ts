@@ -21,9 +21,9 @@ describe('IterableSequence', () => {
   it('counts iterations', () => {
     let i = new SimpleIterable(10);
     let s = Seq(i);
-    expect(s.forEach((x) => x)).toEqual(10);
-    expect(s.take(5).forEach((x) => x)).toEqual(5);
-    expect(s.forEach((x) => x < 3)).toEqual(4);
+    expect(s.forEach(x => x)).toEqual(10);
+    expect(s.take(5).forEach(x => x)).toEqual(5);
+    expect(s.forEach(x => x < 3)).toEqual(4);
   });
 
   it('creates a new iterator on every operations', () => {
@@ -63,8 +63,8 @@ describe('IterableSequence', () => {
     let mockFn = jest.genMockFunction();
     let i = new SimpleIterable(undefined, mockFn); // infinite
     let seq = Seq<number, number>(i)
-      .filter((x) => x % 2 === 1)
-      .map((x) => x * x);
+      .filter(x => x % 2 === 1)
+      .map(x => x * x);
     let entries = seq.entries();
     expect(entries.next()).toEqual({ value: [0, 1], done: false });
     expect(entries.next()).toEqual({ value: [1, 9], done: false });
@@ -78,8 +78,8 @@ describe('IterableSequence', () => {
     }
 
     let total = Seq([1, 2, 3])
-      .filter((x) => x % 2 === 1)
-      .map((x) => x * x)
+      .filter(x => x % 2 === 1)
+      .map(x => x * x)
       .update(sum);
     expect(total).toBe(10);
   });
@@ -103,9 +103,9 @@ describe('IterableSequence', () => {
     it('counts iterations', () => {
       let i = new SimpleIterable(10);
       let s = Seq(i[ITERATOR_SYMBOL]());
-      expect(s.forEach((x) => x)).toEqual(10);
-      expect(s.take(5).forEach((x) => x)).toEqual(5);
-      expect(s.forEach((x) => x < 3)).toEqual(4);
+      expect(s.forEach(x => x)).toEqual(10);
+      expect(s.take(5).forEach(x => x)).toEqual(5);
+      expect(s.forEach(x => x < 3)).toEqual(4);
     });
 
     it('memoizes the iterator', () => {

@@ -210,7 +210,7 @@ describe('Conversion', () => {
     expect(fromJS('string')).toEqual('string');
   });
 
-  check.it('toJS isomorphic value', { maxSize: 30 }, [gen.JSONValue], (mutable) => {
+  check.it('toJS isomorphic value', { maxSize: 30 }, [gen.JSONValue], mutable => {
     let imm = fromJS(mutable);
     expect(imm && imm.toJS ? imm.toJS() : imm).toEqual(mutable);
   });

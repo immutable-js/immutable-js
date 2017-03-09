@@ -71,7 +71,7 @@ describe('Seq', () => {
 
   it('Does not infinite loop when spliced with negative number #559', () => {
     let dog = Seq(['d', 'o', 'g']);
-    let dg = dog.filter((c) => c !== 'o');
+    let dg = dog.filter(c => c !== 'o');
     let dig = (<any> dg).splice(-1, 0, 'i');
     expect(dig.toJS()).toEqual(['d', 'i', 'g']);
   });

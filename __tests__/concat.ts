@@ -146,7 +146,7 @@ describe('concat', () => {
   });
 
   it('lazily reverses indexed sequences with unknown size, maintaining indicies', () => {
-    let a = Seq([1, 2, 3]).filter((x) => true);
+    let a = Seq([1, 2, 3]).filter(x => true);
     expect(a.size).toBe(undefined); // Note: lazy filter does not know what size in O(1).
     expect(a.concat(a, a).toKeyedSeq().reverse().size).toBe(undefined);
     expect(a.concat(a, a).toKeyedSeq().reverse().entrySeq().toArray()).toEqual([
@@ -163,7 +163,7 @@ describe('concat', () => {
   });
 
   it('counts from the end of the indexed sequence on negative index', () => {
-    let i = List.of(9, 5, 3, 1).map((x) => -x);
+    let i = List.of(9, 5, 3, 1).map(x => -x);
     expect(i.get(0)).toBe(-9);
     expect(i.get(-1)).toBe(-1);
     expect(i.get(-4)).toBe(-9);

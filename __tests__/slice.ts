@@ -159,7 +159,7 @@ describe('slice', () => {
     ],
     (entries, args) => {
       let a = [];
-      entries.forEach((entry) => a[entry[0]] = entry[1]);
+      entries.forEach(entry => a[entry[0]] = entry[1]);
       let s = Seq(a);
       let slicedS = s.slice.apply(s, args);
       let slicedA = a.slice.apply(a, args);
@@ -191,8 +191,8 @@ describe('slice', () => {
       let s1 = seq.take(3);
       let s2 = seq.take(10);
       let sn = seq.take(Infinity);
-      let s3 = seq.filter((v) => v < 4).take(10);
-      let s4 = seq.filter((v) => v < 4).take(2);
+      let s3 = seq.filter(v => v < 4).take(10);
+      let s4 = seq.filter(v => v < 4).take(2);
       expect(s1.toArray().length).toEqual(3);
       expect(s2.toArray().length).toEqual(6);
       expect(sn.toArray().length).toEqual(6);

@@ -56,7 +56,7 @@ describe('sort', () => {
   });
 
   it('sorts by using a mapper', () => {
-    expect(Range(1, 10).sortBy((v) => v % 3).toArray()).toEqual([
+    expect(Range(1, 10).sortBy(v => v % 3).toArray()).toEqual([
       3,
       6,
       9,
@@ -71,7 +71,7 @@ describe('sort', () => {
 
   it('sorts by using a mapper and a sort function', () => {
     expect(
-      Range(1, 10).sortBy((v) => v % 3, (a: number, b: number) => b - a).toArray(),
+      Range(1, 10).sortBy(v => v % 3, (a: number, b: number) => b - a).toArray(),
     ).toEqual([2, 5, 8, 1, 4, 7, 3, 6, 9]);
   });
 });

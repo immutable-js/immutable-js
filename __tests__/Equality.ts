@@ -90,8 +90,8 @@ describe('Equality', () => {
     expectIsNot(arraySeq, [1, 2, 3]);
     expectIsNot(arraySeq2, [1, 2, 3]);
     expectIs(arraySeq, arraySeq2);
-    expectIs(arraySeq, arraySeq.map((x) => x));
-    expectIs(arraySeq2, arraySeq2.map((x) => x));
+    expectIs(arraySeq, arraySeq.map(x => x));
+    expectIs(arraySeq2, arraySeq2.map(x => x));
   });
 
   it('compares lists', () => {

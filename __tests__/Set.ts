@@ -230,7 +230,7 @@ describe('Set', () => {
   });
 
   it('can use union in a withMutation', () => {
-    let js = Set().withMutations((set) => {
+    let js = Set().withMutations(set => {
       set.union(['a']);
       set.add('b');
     }).toJS();
@@ -281,7 +281,7 @@ describe('Set', () => {
   });
 
   it('can use intersect after add or union in a withMutation', () => {
-    let set = Set(['a', 'd']).withMutations((s) => {
+    let set = Set(['a', 'd']).withMutations(s => {
       s.add('b');
       s.union(['c']);
       s.intersect(['b', 'c', 'd']);

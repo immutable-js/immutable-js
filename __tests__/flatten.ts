@@ -20,7 +20,7 @@ describe('flatten', () => {
   it('gives the correct iteration count', () => {
     let nested = fromJS([[1, 2, 3], [4, 5, 6]]);
     let flat = nested.flatten();
-    expect(flat.forEach((x) => x < 4)).toEqual(4);
+    expect(flat.forEach(x => x < 4)).toEqual(4);
   });
 
   it('flattens only Sequences (not sequenceables)', () => {
@@ -86,7 +86,7 @@ describe('flatten', () => {
   describe('flatMap', () => {
     it('first maps, then shallow flattens', () => {
       let numbers = Range(97, 100);
-      let letters = numbers.flatMap((v) =>
+      let letters = numbers.flatMap(v =>
         fromJS([String.fromCharCode(v), String.fromCharCode(v).toUpperCase()]));
       expect(letters.toJS()).toEqual(['a', 'A', 'b', 'B', 'c', 'C']);
     });
@@ -95,7 +95,7 @@ describe('flatten', () => {
       let numbers = Range(97, 100);
       // the map function returns an Array, rather than an Iterable.
       // Array is sequenceable, so this works just fine.
-      let letters = numbers.flatMap((v) => [
+      let letters = numbers.flatMap(v => [
         String.fromCharCode(v),
         String.fromCharCode(v).toUpperCase(),
       ]);

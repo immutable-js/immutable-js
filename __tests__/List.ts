@@ -101,7 +101,7 @@ describe('List', () => {
 
   it('can update a value', () => {
     let l = List.of(5);
-    expect(l.update(0, (v) => v * v).toArray()).toEqual([25]);
+    expect(l.update(0, v => v * v).toArray()).toEqual([25]);
   });
 
   it('can updateIn a deep value', () => {
@@ -113,7 +113,7 @@ describe('List', () => {
         ]),
       }),
     ]);
-    l = l.updateIn([0, 'aKey', 1], (v) => v + v);
+    l = l.updateIn([0, 'aKey', 1], v => v + v);
     expect(l.toJS()).toEqual([
       {
         aKey: [
@@ -251,7 +251,7 @@ describe('List', () => {
   it('can contain a large number of indices', () => {
     let r = Range(0, 20000).toList();
     let iterations = 0;
-    r.forEach((v) => {
+    r.forEach(v => {
       expect(v).toBe(iterations);
       iterations++;
     });
@@ -361,7 +361,7 @@ describe('List', () => {
   });
 
   check.it('pop removes the highest index, just like array', { maxSize: 2000 },
-    [gen.posInt], (len) => {
+    [gen.posInt], len => {
       let a = arrayOfSize(len);
       let v = List(a);
 
@@ -377,7 +377,7 @@ describe('List', () => {
   );
 
   check.it('push adds the next highest index, just like array', { maxSize: 2000 },
-    [gen.posInt], (len) => {
+    [gen.posInt], len => {
       let a = [];
       let v = List();
 
@@ -459,19 +459,19 @@ describe('List', () => {
 
   it('finds values using findIndex', () => {
     let v = List.of('a', 'b', 'c', 'B', 'a');
-    expect(v.findIndex((value) => value.toUpperCase() === value)).toBe(3);
-    expect(v.findIndex((value) => value.length > 1)).toBe(-1);
+    expect(v.findIndex(value => value.toUpperCase() === value)).toBe(3);
+    expect(v.findIndex(value => value.length > 1)).toBe(-1);
   });
 
   it('finds values using findEntry', () => {
     let v = List.of('a', 'b', 'c', 'B', 'a');
-    expect(v.findEntry((value) => value.toUpperCase() === value)).toEqual([3, 'B']);
-    expect(v.findEntry((value) => value.length > 1)).toBe(undefined);
+    expect(v.findEntry(value => value.toUpperCase() === value)).toEqual([3, 'B']);
+    expect(v.findEntry(value => value.length > 1)).toBe(undefined);
   });
 
   it('maps values', () => {
     let v = List.of('a', 'b', 'c');
-    let r = v.map((value) => value.toUpperCase());
+    let r = v.map(value => value.toUpperCase());
     expect(r.toArray()).toEqual(['A', 'B', 'C']);
   });
 
@@ -531,9 +531,9 @@ describe('List', () => {
     let v = List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
 
     let r = v
-      .filter((x) => x % 2 === 0)
+      .filter(x => x % 2 === 0)
       .skip(2)
-      .map((x) => x * x)
+      .map(x => x * x)
       .take(3)
       .reduce((a: number, b: number) => a + b, 0);
 
@@ -585,7 +585,7 @@ describe('List', () => {
     let n = 0;
     let a = [];
     let v = List.of(0, 1, 2, 3, 4);
-    v.forEach((x) => {
+    v.forEach(x => {
       a.push(x);
       n++;
     });
@@ -620,7 +620,7 @@ describe('List', () => {
   it('allows chained mutations', () => {
     let v1 = List();
     let v2 = v1.push(1);
-    let v3 = v2.withMutations((v) => v.push(2).push(3).push(4));
+    let v3 = v2.withMutations(v => v.push(2).push(3).push(4));
     let v4 = v3.push(5);
 
     expect(v1.toArray()).toEqual([]);
@@ -643,7 +643,7 @@ describe('List', () => {
 
   it('chained mutations does not result in new empty list instance', () => {
     let v1 = List(['x']);
-    let v2 = v1.withMutations((v) => v.push('y').pop().pop());
+    let v2 = v1.withMutations(v => v.push('y').pop().pop());
     expect(v2).toBe(List());
   });
 
@@ -702,7 +702,7 @@ describe('List', () => {
     expect(v2.butLast().size).toBe(1799);
   });
 
-  [NaN, Infinity, -Infinity].forEach((zeroishValue) => {
+  [NaN, Infinity, -Infinity].forEach(zeroishValue => {
     it(`treats ${zeroishValue} like zero when setting size`, () => {
       let v1 = List.of('a', 'b', 'c');
       let v2 = v1.setSize(zeroishValue);
@@ -730,7 +730,7 @@ describe('List', () => {
   }
 
   describe('when slicing', () => {
-    [NaN, -Infinity].forEach((zeroishValue) => {
+    [NaN, -Infinity].forEach(zeroishValue => {
       it(`considers a ${zeroishValue} begin argument to be zero`, () => {
         let v1 = List.of('a', 'b', 'c');
         let v2 = v1.slice(zeroishValue, 3);
