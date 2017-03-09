@@ -24,7 +24,7 @@ export class Stack extends IndexedCollection {
       : isStack(value) ? value : emptyStack().pushAll(value);
   }
 
-  static of /*...values*/() {
+  static of(/*...values*/) {
     return this(arguments);
   }
 
@@ -49,7 +49,7 @@ export class Stack extends IndexedCollection {
 
   // @pragma Modification
 
-  push /*...values*/() {
+  push(/*...values*/) {
     if (arguments.length === 0) {
       return this;
     }

@@ -28,7 +28,7 @@ export class Seq extends Iterable {
       : isIterable(value) ? value.toSeq() : seqFromValue(value);
   }
 
-  static of /*...values*/() {
+  static of(/*...values*/) {
     return Seq(arguments);
   }
 
@@ -108,7 +108,7 @@ export class IndexedSeq extends Seq {
           : isKeyed(value) ? value.entrySeq() : value.toIndexedSeq();
   }
 
-  static of /*...values*/() {
+  static of(/*...values*/) {
     return IndexedSeq(arguments);
   }
 
@@ -130,7 +130,7 @@ export class SetSeq extends Seq {
           : isKeyed(value) ? value.entrySeq() : value).toSetSeq();
   }
 
-  static of /*...values*/() {
+  static of(/*...values*/) {
     return SetSeq(arguments);
   }
 

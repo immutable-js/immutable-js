@@ -234,24 +234,23 @@ var TypeDoc = React.createClass({
         <section>
           {Seq(memberGroups)
             .map(
-              (members, title) => members.length === 0
-                ? null
-                : Seq([
-                    (
+              (members, title) =>
+                members.length === 0
+                  ? null
+                  : Seq([
                       <h4 key={title || 'Members'} className="groupTitle">
                         {title || 'Members'}
-                      </h4>
-                    ),
-                    Seq(members).map(member => (
-                      <MemberDoc
-                        typePropMap={typePropMap}
-                        key={member.memberName}
-                        showDetail={member.memberName === memberName}
-                        parentName={name}
-                        member={member}
-                      />
-                    ))
-                  ])
+                      </h4>,
+                      Seq(members).map(member => (
+                        <MemberDoc
+                          typePropMap={typePropMap}
+                          key={member.memberName}
+                          showDetail={member.memberName === memberName}
+                          parentName={name}
+                          member={member}
+                        />
+                      ))
+                    ])
             )
             .flatten()
             .toArray()}

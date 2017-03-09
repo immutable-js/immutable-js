@@ -15,12 +15,12 @@ function markdownDocs(defs) {
         });
       if (typeDef.interface) {
         markdownDoc(typeDef.interface.doc, { defs, typePath });
-        Seq(typeDef.interface.groups).forEach(group => Seq(
-          group.members
-        ).forEach((member, memberName) => markdownDoc(member.doc, {
-          typePath: typePath.concat(memberName.slice(1)),
-          signatures: member.signatures
-        })));
+        Seq(typeDef.interface.groups).forEach(group =>
+          Seq(group.members).forEach((member, memberName) =>
+            markdownDoc(member.doc, {
+              typePath: typePath.concat(memberName.slice(1)),
+              signatures: member.signatures
+            })));
       }
       typeDef.module && markdownTypes(typeDef.module, typePath);
     });

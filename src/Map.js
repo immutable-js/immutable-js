@@ -143,7 +143,7 @@ export class Map extends KeyedCollection {
 
   // @pragma Composition
 
-  merge /*...iters*/() {
+  merge(/*...iters*/) {
     return mergeIntoMapWith(this, undefined, arguments);
   }
 
@@ -162,7 +162,7 @@ export class Map extends KeyedCollection {
     );
   }
 
-  mergeDeep /*...iters*/() {
+  mergeDeep(/*...iters*/) {
     return mergeIntoMapWith(this, deepMerger, arguments);
   }
 

@@ -29,7 +29,7 @@ export class OrderedSet extends Set {
             });
   }
 
-  static of /*...values*/() {
+  static of(/*...values*/) {
     return this(arguments);
   }
 

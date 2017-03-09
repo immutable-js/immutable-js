@@ -32,7 +32,7 @@ export class Set extends SetCollection {
             });
   }
 
-  static of /*...values*/() {
+  static of(/*...values*/) {
     return this(arguments);
   }
 

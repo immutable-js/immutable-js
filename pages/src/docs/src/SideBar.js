@@ -99,27 +99,24 @@ var SideBar = React.createClass({
           <section>
             {Seq(memberGroups)
               .map(
-                (members, title) => members.length === 0
-                  ? null
-                  : Seq([
-                      (
+                (members, title) =>
+                  members.length === 0
+                    ? null
+                    : Seq([
                         <h4 key={title || 'Members'} className="groupTitle">
                           {title || 'Members'}
-                        </h4>
-                      ),
-                      Seq(members).map(member => (
-                        <div key={member.memberName}>
-                          <Router.Link
-                            to={'/' + typeName + '/' + member.memberName}
-                          >
-                            {
-                              member.memberName +
-                                (member.memberDef.signatures ? '()' : '')
-                            }
-                          </Router.Link>
-                        </div>
-                      ))
-                    ])
+                        </h4>,
+                        Seq(members).map(member => (
+                          <div key={member.memberName}>
+                            <Router.Link
+                              to={'/' + typeName + '/' + member.memberName}
+                            >
+                              {member.memberName +
+                                (member.memberDef.signatures ? '()' : '')}
+                            </Router.Link>
+                          </div>
+                        ))
+                      ])
               )
               .flatten()
               .toArray()}
