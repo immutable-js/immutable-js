@@ -1883,7 +1883,7 @@ declare module Immutable {
       toJSON(): T;
 
       /**
-       * Shallowly converts this Record to equivalent JS.
+       * Shallowly converts this Record to equivalent JavaScript Object.
        */
       toObject(): T;
 
@@ -1994,11 +1994,15 @@ declare module Immutable {
     export interface Keyed<K, V> extends Seq<K, V>, Iterable.Keyed<K, V> {
       /**
        * Deeply converts this Keyed Seq to equivalent native JavaScript Object.
+       *
+       * Converts keys to Strings.
        */
       toJS(): Object;
 
       /**
        * Shallowly converts this Keyed Seq to equivalent native JavaScript Object.
+       *
+       * Converts keys to Strings.
        */
       toJSON(): { [key: string]: V };
 
@@ -2322,11 +2326,15 @@ declare module Immutable {
     export interface Keyed<K, V> extends Iterable<K, V> {
       /**
        * Deeply converts this Keyed collection to equivalent native JavaScript Object.
+       *
+       * Converts keys to Strings.
        */
       toJS(): Object;
 
       /**
        * Shallowly converts this Keyed collection to equivalent native JavaScript Object.
+       *
+       * Converts keys to Strings.
        */
       toJSON(): { [key: string]: V };
 
@@ -2817,7 +2825,7 @@ declare module Immutable {
      * Deeply converts this Iterable to equivalent native JavaScript Array or Object.
      *
      * `Iterable.Indexed`, and `Iterable.Set` become `Array`, while
-     * `Iterable.Keyed` become `Object`.
+     * `Iterable.Keyed` become `Object`, converting keys to Strings.
      */
     toJS(): Array<any> | { [key: string]: any };
 
@@ -2825,7 +2833,7 @@ declare module Immutable {
      * Shallowly converts this Iterable to equivalent native JavaScript Array or Object.
      *
      * `Iterable.Indexed`, and `Iterable.Set` become `Array`, while
-     * `Iterable.Keyed` become `Object`.
+     * `Iterable.Keyed` become `Object`, converting keys to Strings.
      */
     toJSON(): Array<V> | { [key: string]: V };
 
@@ -2837,7 +2845,7 @@ declare module Immutable {
     /**
      * Shallowly converts this Iterable to an Object.
      *
-     * Throws if keys are not strings.
+     * Converts keys to Strings.
      */
     toObject(): { [key: string]: V };
 
@@ -3525,11 +3533,15 @@ declare module Immutable {
     export interface Keyed<K, V> extends Collection<K, V>, Iterable.Keyed<K, V> {
       /**
        * Deeply converts this Keyed Collection to equivalent native JavaScript Object.
+       *
+       * Converts keys to Strings.
        */
       toJS(): Object;
 
       /**
        * Shallowly converts this Keyed Collection to equivalent native JavaScript Object.
+       *
+       * Converts keys to Strings.
        */
       toJSON(): { [key: string]: V };
 
