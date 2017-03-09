@@ -32,7 +32,7 @@ type ESIterable<+T> = $Iterable<T, void, void>;
 declare class _Iterable<K, +V> /*implements ValueObject*/ {
   equals(other: mixed): boolean;
   hashCode(): number;
-  get(key: K, _: empty): V | void;
+  get(key: K, ..._: []): V | void;
   get<NSV>(key: K, notSetValue: NSV): V | NSV;
   has(key: K): boolean;
   includes(value: V): boolean;
@@ -250,25 +250,25 @@ declare class IndexedIterable<+T> extends Iterable<number, T> {
 
   zip<A>(
     a: ESIterable<A>,
-    _: empty
+    ..._: []
   ): IndexedIterable<[T, A]>;
   zip<A, B>(
     a: ESIterable<A>,
     b: ESIterable<B>,
-    _: empty
+    ..._: []
   ): IndexedIterable<[T, A, B]>;
   zip<A, B, C>(
     a: ESIterable<A>,
     b: ESIterable<B>,
     c: ESIterable<C>,
-    _: empty
+    ..._: []
   ): IndexedIterable<[T, A, B, C]>;
   zip<A, B, C, D>(
     a: ESIterable<A>,
     b: ESIterable<B>,
     c: ESIterable<C>,
     d: ESIterable<D>,
-    _: empty
+    ..._: []
   ): IndexedIterable<[T, A, B, C, D]>;
   zip<A, B, C, D, E>(
     a: ESIterable<A>,
@@ -276,26 +276,26 @@ declare class IndexedIterable<+T> extends Iterable<number, T> {
     c: ESIterable<C>,
     d: ESIterable<D>,
     e: ESIterable<E>,
-    _: empty
+    ..._: []
   ): IndexedIterable<[T, A, B, C, D, E]>;
 
   zipWith<A, R>(
     zipper: (value: T, a: A) => R,
     a: ESIterable<A>,
-    _: empty
+    ..._: []
   ): IndexedIterable<R>;
   zipWith<A, B, R>(
     zipper: (value: T, a: A, b: B) => R,
     a: ESIterable<A>,
     b: ESIterable<B>,
-    _: empty
+    ..._: []
   ): IndexedIterable<R>;
   zipWith<A, B, C, R>(
     zipper: (value: T, a: A, b: B, c: C) => R,
     a: ESIterable<A>,
     b: ESIterable<B>,
     c: ESIterable<C>,
-    _: empty
+    ..._: []
   ): IndexedIterable<R>;
   zipWith<A, B, C, D, R>(
     zipper: (value: T, a: A, b: B, c: C, d: D) => R,
@@ -303,7 +303,7 @@ declare class IndexedIterable<+T> extends Iterable<number, T> {
     b: ESIterable<B>,
     c: ESIterable<C>,
     d: ESIterable<D>,
-    _: empty
+    ..._: []
   ): IndexedIterable<R>;
   zipWith<A, B, C, D, E, R>(
     zipper: (value: T, a: A, b: B, c: C, d: D, e: E) => R,
@@ -312,7 +312,7 @@ declare class IndexedIterable<+T> extends Iterable<number, T> {
     c: ESIterable<C>,
     d: ESIterable<D>,
     e: ESIterable<E>,
-    _: empty
+    ..._: []
   ): IndexedIterable<R>;
 
   indexOf(searchValue: T): number;
@@ -462,25 +462,25 @@ declare class IndexedSeq<+T> extends Seq<number, T> mixins IndexedIterable<T> {
 
   zip<A>(
     a: ESIterable<A>,
-    _: empty
+    ..._: []
   ): IndexedSeq<[T, A]>;
   zip<A, B>(
     a: ESIterable<A>,
     b: ESIterable<B>,
-    _: empty
+    ..._: []
   ): IndexedSeq<[T, A, B]>;
   zip<A, B, C>(
     a: ESIterable<A>,
     b: ESIterable<B>,
     c: ESIterable<C>,
-    _: empty
+    ..._: []
   ): IndexedSeq<[T, A, B, C]>;
   zip<A, B, C, D>(
     a: ESIterable<A>,
     b: ESIterable<B>,
     c: ESIterable<C>,
     d: ESIterable<D>,
-    _: empty
+    ..._: []
   ): IndexedSeq<[T, A, B, C, D]>;
   zip<A, B, C, D, E>(
     a: ESIterable<A>,
@@ -488,26 +488,26 @@ declare class IndexedSeq<+T> extends Seq<number, T> mixins IndexedIterable<T> {
     c: ESIterable<C>,
     d: ESIterable<D>,
     e: ESIterable<E>,
-    _: empty
+    ..._: []
   ): IndexedSeq<[T, A, B, C, D, E]>;
 
   zipWith<A, R>(
     zipper: (value: T, a: A) => R,
     a: ESIterable<A>,
-    _: empty
+    ..._: []
   ): IndexedSeq<R>;
   zipWith<A, B, R>(
     zipper: (value: T, a: A, b: B) => R,
     a: ESIterable<A>,
     b: ESIterable<B>,
-    _: empty
+    ..._: []
   ): IndexedSeq<R>;
   zipWith<A, B, C, R>(
     zipper: (value: T, a: A, b: B, c: C) => R,
     a: ESIterable<A>,
     b: ESIterable<B>,
     c: ESIterable<C>,
-    _: empty
+    ..._: []
   ): IndexedSeq<R>;
   zipWith<A, B, C, D, R>(
     zipper: (value: T, a: A, b: B, c: C, d: D) => R,
@@ -515,7 +515,7 @@ declare class IndexedSeq<+T> extends Seq<number, T> mixins IndexedIterable<T> {
     b: ESIterable<B>,
     c: ESIterable<C>,
     d: ESIterable<D>,
-    _: empty
+    ..._: []
   ): IndexedSeq<R>;
   zipWith<A, B, C, D, E, R>(
     zipper: (value: T, a: A, b: B, c: C, d: D, e: E) => R,
@@ -524,7 +524,7 @@ declare class IndexedSeq<+T> extends Seq<number, T> mixins IndexedIterable<T> {
     c: ESIterable<C>,
     d: ESIterable<D>,
     e: ESIterable<E>,
-    _: empty
+    ..._: []
   ): IndexedSeq<R>;
 }
 
@@ -622,25 +622,25 @@ declare class List<+T> extends IndexedCollection<T> {
 
   zip<A>(
     a: ESIterable<A>,
-    _: empty
+    ..._: []
   ): List<[T, A]>;
   zip<A, B>(
     a: ESIterable<A>,
     b: ESIterable<B>,
-    _: empty
+    ..._: []
   ): List<[T, A, B]>;
   zip<A, B, C>(
     a: ESIterable<A>,
     b: ESIterable<B>,
     c: ESIterable<C>,
-    _: empty
+    ..._: []
   ): List<[T, A, B, C]>;
   zip<A, B, C, D>(
     a: ESIterable<A>,
     b: ESIterable<B>,
     c: ESIterable<C>,
     d: ESIterable<D>,
-    _: empty
+    ..._: []
   ): List<[T, A, B, C, D]>;
   zip<A, B, C, D, E>(
     a: ESIterable<A>,
@@ -648,26 +648,26 @@ declare class List<+T> extends IndexedCollection<T> {
     c: ESIterable<C>,
     d: ESIterable<D>,
     e: ESIterable<E>,
-    _: empty
+    ..._: []
   ): List<[T, A, B, C, D, E]>;
 
   zipWith<A, R>(
     zipper: (value: T, a: A) => R,
     a: ESIterable<A>,
-    _: empty
+    ..._: []
   ): List<R>;
   zipWith<A, B, R>(
     zipper: (value: T, a: A, b: B) => R,
     a: ESIterable<A>,
     b: ESIterable<B>,
-    _: empty
+    ..._: []
   ): List<R>;
   zipWith<A, B, C, R>(
     zipper: (value: T, a: A, b: B, c: C) => R,
     a: ESIterable<A>,
     b: ESIterable<B>,
     c: ESIterable<C>,
-    _: empty
+    ..._: []
   ): List<R>;
   zipWith<A, B, C, D, R>(
     zipper: (value: T, a: A, b: B, c: C, d: D) => R,
@@ -675,7 +675,7 @@ declare class List<+T> extends IndexedCollection<T> {
     b: ESIterable<B>,
     c: ESIterable<C>,
     d: ESIterable<D>,
-    _: empty
+    ..._: []
   ): List<R>;
   zipWith<A, B, C, D, E, R>(
     zipper: (value: T, a: A, b: B, c: C, d: D, e: E) => R,
@@ -684,7 +684,7 @@ declare class List<+T> extends IndexedCollection<T> {
     c: ESIterable<C>,
     d: ESIterable<D>,
     e: ESIterable<E>,
-    _: empty
+    ..._: []
   ): List<R>;
 }
 
@@ -940,25 +940,25 @@ declare class OrderedSet<+T> extends Set<T> {
 
   zip<A>(
     a: ESIterable<A>,
-    _: empty
+    ..._: []
   ): OrderedSet<[T, A]>;
   zip<A, B>(
     a: ESIterable<A>,
     b: ESIterable<B>,
-    _: empty
+    ..._: []
   ): OrderedSet<[T, A, B]>;
   zip<A, B, C>(
     a: ESIterable<A>,
     b: ESIterable<B>,
     c: ESIterable<C>,
-    _: empty
+    ..._: []
   ): OrderedSet<[T, A, B, C]>;
   zip<A, B, C, D>(
     a: ESIterable<A>,
     b: ESIterable<B>,
     c: ESIterable<C>,
     d: ESIterable<D>,
-    _: empty
+    ..._: []
   ): OrderedSet<[T, A, B, C, D]>;
   zip<A, B, C, D, E>(
     a: ESIterable<A>,
@@ -966,26 +966,26 @@ declare class OrderedSet<+T> extends Set<T> {
     c: ESIterable<C>,
     d: ESIterable<D>,
     e: ESIterable<E>,
-    _: empty
+    ..._: []
   ): OrderedSet<[T, A, B, C, D, E]>;
 
   zipWith<A, R>(
     zipper: (value: T, a: A) => R,
     a: ESIterable<A>,
-    _: empty
+    ..._: []
   ): OrderedSet<R>;
   zipWith<A, B, R>(
     zipper: (value: T, a: A, b: B) => R,
     a: ESIterable<A>,
     b: ESIterable<B>,
-    _: empty
+    ..._: []
   ): OrderedSet<R>;
   zipWith<A, B, C, R>(
     zipper: (value: T, a: A, b: B, c: C) => R,
     a: ESIterable<A>,
     b: ESIterable<B>,
     c: ESIterable<C>,
-    _: empty
+    ..._: []
   ): OrderedSet<R>;
   zipWith<A, B, C, D, R>(
     zipper: (value: T, a: A, b: B, c: C, d: D) => R,
@@ -993,7 +993,7 @@ declare class OrderedSet<+T> extends Set<T> {
     b: ESIterable<B>,
     c: ESIterable<C>,
     d: ESIterable<D>,
-    _: empty
+    ..._: []
   ): OrderedSet<R>;
   zipWith<A, B, C, D, E, R>(
     zipper: (value: T, a: A, b: B, c: C, d: D, e: E) => R,
@@ -1002,7 +1002,7 @@ declare class OrderedSet<+T> extends Set<T> {
     c: ESIterable<C>,
     d: ESIterable<D>,
     e: ESIterable<E>,
-    _: empty
+    ..._: []
   ): OrderedSet<R>;
 }
 
