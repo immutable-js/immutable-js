@@ -269,7 +269,7 @@ var Seq = (function (Iterable$$1) {
   Seq.prototype = Object.create( Iterable$$1 && Iterable$$1.prototype );
   Seq.prototype.constructor = Seq;
 
-  Seq.of = function of () {
+  Seq.of = function of (/*...values*/) {
     return Seq(arguments);
   };
 
@@ -363,7 +363,7 @@ var IndexedSeq = (function (Seq) {
   IndexedSeq.prototype = Object.create( Seq && Seq.prototype );
   IndexedSeq.prototype.constructor = IndexedSeq;
 
-  IndexedSeq.of = function of () {
+  IndexedSeq.of = function of (/*...values*/) {
     return IndexedSeq(arguments);
   };
 
@@ -391,7 +391,7 @@ var SetSeq = (function (Seq) {
   SetSeq.prototype = Object.create( Seq && Seq.prototype );
   SetSeq.prototype.constructor = SetSeq;
 
-  SetSeq.of = function of () {
+  SetSeq.of = function of (/*...values*/) {
     return SetSeq(arguments);
   };
 
@@ -2094,7 +2094,7 @@ var Map = (function (KeyedCollection$$1) {
 
   // @pragma Composition
 
-  Map.prototype.merge = function merge () {
+  Map.prototype.merge = function merge (/*...iters*/) {
     return mergeIntoMapWith(this, undefined, arguments);
   };
 
@@ -2118,7 +2118,7 @@ var Map = (function (KeyedCollection$$1) {
     );
   };
 
-  Map.prototype.mergeDeep = function mergeDeep () {
+  Map.prototype.mergeDeep = function mergeDeep (/*...iters*/) {
     return mergeIntoMapWith(this, deepMerger, arguments);
   };
 
@@ -2957,7 +2957,7 @@ var List = (function (IndexedCollection$$1) {
   List.prototype = Object.create( IndexedCollection$$1 && IndexedCollection$$1.prototype );
   List.prototype.constructor = List;
 
-  List.of = function of () {
+  List.of = function of (/*...values*/) {
     return this(arguments);
   };
 
@@ -3010,7 +3010,7 @@ var List = (function (IndexedCollection$$1) {
     return emptyList();
   };
 
-  List.prototype.push = function push () {
+  List.prototype.push = function push (/*...values*/) {
     var values = arguments;
     var oldSize = this.size;
     return this.withMutations(function (list) {
@@ -3025,7 +3025,7 @@ var List = (function (IndexedCollection$$1) {
     return setListBounds(this, 0, -1);
   };
 
-  List.prototype.unshift = function unshift () {
+  List.prototype.unshift = function unshift (/*...values*/) {
     var values = arguments;
     return this.withMutations(function (list) {
       setListBounds(list, -values.length);
@@ -3041,7 +3041,7 @@ var List = (function (IndexedCollection$$1) {
 
   // @pragma Composition
 
-  List.prototype.merge = function merge () {
+  List.prototype.merge = function merge (/*...iters*/) {
     return mergeIntoListWith(this, undefined, arguments);
   };
 
@@ -3052,7 +3052,7 @@ var List = (function (IndexedCollection$$1) {
     return mergeIntoListWith(this, merger, iters);
   };
 
-  List.prototype.mergeDeep = function mergeDeep () {
+  List.prototype.mergeDeep = function mergeDeep (/*...iters*/) {
     return mergeIntoListWith(this, deepMerger, arguments);
   };
 
@@ -3594,7 +3594,7 @@ var OrderedMap = (function (Map$$1) {
   OrderedMap.prototype = Object.create( Map$$1 && Map$$1.prototype );
   OrderedMap.prototype.constructor = OrderedMap;
 
-  OrderedMap.of = function of () {
+  OrderedMap.of = function of (/*...values*/) {
     return this(arguments);
   };
 
@@ -3748,7 +3748,7 @@ var Stack = (function (IndexedCollection$$1) {
   Stack.prototype = Object.create( IndexedCollection$$1 && IndexedCollection$$1.prototype );
   Stack.prototype.constructor = Stack;
 
-  Stack.of = function of () {
+  Stack.of = function of (/*...values*/) {
     return this(arguments);
   };
 
@@ -3773,7 +3773,7 @@ var Stack = (function (IndexedCollection$$1) {
 
   // @pragma Modification
 
-  Stack.prototype.push = function push () {
+  Stack.prototype.push = function push (/*...values*/) {
     var arguments$1 = arguments;
 
     if (arguments.length === 0) {
@@ -4054,7 +4054,7 @@ var Set = (function (SetCollection$$1) {
   Set.prototype = Object.create( SetCollection$$1 && SetCollection$$1.prototype );
   Set.prototype.constructor = Set;
 
-  Set.of = function of () {
+  Set.of = function of (/*...values*/) {
     return this(arguments);
   };
 
@@ -4981,7 +4981,7 @@ mixin(IndexedIterable, {
     return reify(this, interposeFactory(this, separator));
   },
 
-  interleave: function interleave /*...iterables*/() {
+  interleave: function interleave(/*...iterables*/) {
     var iterables = [this].concat(arrCopy(arguments));
     var zipped = zipWithFactory(this.toSeq(), IndexedSeq.of, iterables);
     var interleaved = zipped.flatten(true);
@@ -5003,7 +5003,7 @@ mixin(IndexedIterable, {
     return reify(this, skipWhileFactory(this, predicate, context, false));
   },
 
-  zip: function zip /*, ...iterables */() {
+  zip: function zip(/*, ...iterables */) {
     var iterables = [this].concat(arrCopy(arguments));
     return reify(this, zipWithFactory(this, defaultZipper, iterables));
   },
@@ -5159,7 +5159,7 @@ var OrderedSet = (function (Set$$1) {
   OrderedSet.prototype = Object.create( Set$$1 && Set$$1.prototype );
   OrderedSet.prototype.constructor = OrderedSet;
 
-  OrderedSet.of = function of () {
+  OrderedSet.of = function of (/*...values*/) {
     return this(arguments);
   };
 
