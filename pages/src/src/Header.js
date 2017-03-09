@@ -91,7 +91,7 @@ var Header = React.createClass({
                       <Logo color="#6dbcdb" opacity={o(s, i * sp)} />
                     </SVGSet>
                   ))}
-                  <SVGSet style={t(s * (-0.55), 1)}>
+                  <SVGSet style={t(s * -0.55, 1)}>
                     <Logo color="#FC4349" />
                     <Logo color="#2C3E50" inline />
                   </SVGSet>
@@ -109,7 +109,7 @@ var Header = React.createClass({
 });
 
 function y(s, p) {
-  return (p < s ? p : s) * (-0.55);
+  return (p < s ? p : s) * -0.55;
 }
 
 function o(s, p) {

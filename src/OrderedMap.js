@@ -29,7 +29,7 @@ export class OrderedMap extends Map {
             });
   }
 
-  static of /*...values*/() {
+  static of(/*...values*/) {
     return this(arguments);
   }
 

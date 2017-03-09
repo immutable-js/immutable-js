@@ -97,15 +97,13 @@ var MemberDoc = React.createClass({
                   </code>
                 : <code className="codeBlock memberSignature">
                     {def.signatures.map((callSig, i) => [
-                      (
-                        <CallSigDef
-                          key={i}
-                          info={typeInfo}
-                          module={module}
-                          name={name}
-                          callSig={callSig}
-                        />
-                      ),
+                      <CallSigDef
+                        key={i}
+                        info={typeInfo}
+                        module={module}
+                        name={name}
+                        callSig={callSig}
+                      />,
                       '\n'
                     ])}
                   </code>}

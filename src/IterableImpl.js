@@ -676,7 +676,7 @@ mixin(IndexedIterable, {
     return reify(this, interposeFactory(this, separator));
   },
 
-  interleave /*...iterables*/() {
+  interleave(/*...iterables*/) {
     var iterables = [this].concat(arrCopy(arguments));
     var zipped = zipWithFactory(this.toSeq(), IndexedSeq.of, iterables);
     var interleaved = zipped.flatten(true);
@@ -698,7 +698,7 @@ mixin(IndexedIterable, {
     return reify(this, skipWhileFactory(this, predicate, context, false));
   },
 
-  zip /*, ...iterables */() {
+  zip(/*, ...iterables */) {
     var iterables = [this].concat(arrCopy(arguments));
     return reify(this, zipWithFactory(this, defaultZipper, iterables));
   },

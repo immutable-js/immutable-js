@@ -244,13 +244,11 @@ function functionParams(info, params, shouldWrap) {
       t.varArgs ? '...' : null,
       <span className="t param">{t.name}</span>,
       t.optional ? '?: ' : ': ',
-      (
-        <TypeDef
-          prefix={t.name.length + (t.varArgs ? 3 : 0) + (t.optional ? 3 : 2)}
-          info={info}
-          type={t.type}
-        />
-      )
+      <TypeDef
+        prefix={t.name.length + (t.varArgs ? 3 : 0) + (t.optional ? 3 : 2)}
+        info={info}
+        type={t.type}
+      />
     ])
     .interpose(shouldWrap ? [',', <br />] : ', ')
     .toArray();
