@@ -8,13 +8,13 @@
  */
 
 import {
-  Iterable,
-  KeyedIterable,
-  IndexedIterable,
-  SetIterable
-} from './Iterable';
+  Collection,
+  KeyedCollection,
+  IndexedCollection,
+  SetCollection
+} from './Collection';
 import {
-  isIterable,
+  isCollection,
   isKeyed,
   isIndexed,
   isAssociative,
@@ -83,23 +83,24 @@ import {
 } from './Operations';
 
 export {
-  Iterable,
-  KeyedIterable,
-  IndexedIterable,
-  SetIterable,
-  IterablePrototype,
-  IndexedIterablePrototype
+  Collection,
+  KeyedCollection,
+  IndexedCollection,
+  SetCollection,
+  CollectionPrototype,
+  IndexedCollectionPrototype
 };
 
-Iterable.isIterable = isIterable;
-Iterable.isKeyed = isKeyed;
-Iterable.isIndexed = isIndexed;
-Iterable.isAssociative = isAssociative;
-Iterable.isOrdered = isOrdered;
+// Note: all of these methods are deprecated.
+Collection.isIterable = isCollection;
+Collection.isKeyed = isKeyed;
+Collection.isIndexed = isIndexed;
+Collection.isAssociative = isAssociative;
+Collection.isOrdered = isOrdered;
 
-Iterable.Iterator = Iterator;
+Collection.Iterator = Iterator;
 
-mixin(Iterable, {
+mixin(Collection, {
   // ### Conversion to other types
 
   toArray() {
@@ -175,7 +176,7 @@ mixin(Iterable, {
   // ### Common JavaScript methods and properties
 
   toString() {
-    return '[Iterable]';
+    return '[Collection]';
   },
 
   __toString(head, tail) {
@@ -316,13 +317,13 @@ mixin(Iterable, {
   },
 
   entrySeq() {
-    const iterable = this;
-    if (iterable._cache) {
+    const collection = this;
+    if (collection._cache) {
       // We cache as an entries array, so we can just return the cache!
-      return new ArraySeq(iterable._cache);
+      return new ArraySeq(collection._cache);
     }
-    const entriesSequence = iterable.toSeq().map(entryMapper).toIndexedSeq();
-    entriesSequence.fromEntrySeq = () => iterable.toSeq();
+    const entriesSequence = collection.toSeq().map(entryMapper).toIndexedSeq();
+    entriesSequence.fromEntrySeq = () => collection.toSeq();
 
     // Entries are plain Array, which do not define toJS, so it must
     // manually converts keys and values before conversion.
@@ -430,12 +431,12 @@ mixin(Iterable, {
   },
 
   isSubset(iter) {
-    iter = typeof iter.includes === 'function' ? iter : Iterable(iter);
+    iter = typeof iter.includes === 'function' ? iter : Collection(iter);
     return this.every(value => iter.includes(value));
   },
 
   isSuperset(iter) {
-    iter = typeof iter.isSubset === 'function' ? iter : Iterable(iter);
+    iter = typeof iter.isSubset === 'function' ? iter : Collection(iter);
     return iter.isSubset(this);
   },
 
@@ -529,7 +530,7 @@ mixin(Iterable, {
   // ### Hashable Object
 
   hashCode() {
-    return this.__hash || (this.__hash = hashIterable(this));
+    return this.__hash || (this.__hash = hashCollection(this));
   }
 
   // ### Internal
@@ -539,18 +540,18 @@ mixin(Iterable, {
   // abstract __iterator(type, reverse)
 });
 
-const IterablePrototype = Iterable.prototype;
-IterablePrototype[IS_ITERABLE_SENTINEL] = true;
-IterablePrototype[ITERATOR_SYMBOL] = IterablePrototype.values;
-IterablePrototype.toJSON = IterablePrototype.toArray;
-IterablePrototype.__toStringMapper = quoteString;
-IterablePrototype.inspect = (IterablePrototype.toSource = function() {
+const CollectionPrototype = Collection.prototype;
+CollectionPrototype[IS_ITERABLE_SENTINEL] = true;
+CollectionPrototype[ITERATOR_SYMBOL] = CollectionPrototype.values;
+CollectionPrototype.toJSON = CollectionPrototype.toArray;
+CollectionPrototype.__toStringMapper = quoteString;
+CollectionPrototype.inspect = (CollectionPrototype.toSource = function() {
   return this.toString();
 });
-IterablePrototype.chain = IterablePrototype.flatMap;
-IterablePrototype.contains = IterablePrototype.includes;
+CollectionPrototype.chain = CollectionPrototype.flatMap;
+CollectionPrototype.contains = CollectionPrototype.includes;
 
-mixin(KeyedIterable, {
+mixin(KeyedCollection, {
   // ### More sequential methods
 
   flip() {
@@ -575,14 +576,14 @@ mixin(KeyedIterable, {
   }
 });
 
-const KeyedIterablePrototype = KeyedIterable.prototype;
-KeyedIterablePrototype[IS_KEYED_SENTINEL] = true;
-KeyedIterablePrototype[ITERATOR_SYMBOL] = IterablePrototype.entries;
-KeyedIterablePrototype.toJSON = IterablePrototype.toObject;
-KeyedIterablePrototype.__toStringMapper = (v, k) =>
+const KeyedCollectionPrototype = KeyedCollection.prototype;
+KeyedCollectionPrototype[IS_KEYED_SENTINEL] = true;
+KeyedCollectionPrototype[ITERATOR_SYMBOL] = CollectionPrototype.entries;
+KeyedCollectionPrototype.toJSON = CollectionPrototype.toObject;
+KeyedCollectionPrototype.__toStringMapper = (v, k) =>
   quoteString(k) + ': ' + quoteString(v);
 
-mixin(IndexedIterable, {
+mixin(IndexedCollection, {
   // ### Conversion to other types
 
   toKeyedSeq() {
@@ -672,12 +673,12 @@ mixin(IndexedIterable, {
     return reify(this, interposeFactory(this, separator));
   },
 
-  interleave(/*...iterables*/) {
-    const iterables = [this].concat(arrCopy(arguments));
-    const zipped = zipWithFactory(this.toSeq(), IndexedSeq.of, iterables);
+  interleave(/*...collections*/) {
+    const collections = [this].concat(arrCopy(arguments));
+    const zipped = zipWithFactory(this.toSeq(), IndexedSeq.of, collections);
     const interleaved = zipped.flatten(true);
     if (zipped.size) {
-      interleaved.size = zipped.size * iterables.length;
+      interleaved.size = zipped.size * collections.length;
     }
     return reify(this, interleaved);
   },
@@ -694,23 +695,23 @@ mixin(IndexedIterable, {
     return reify(this, skipWhileFactory(this, predicate, context, false));
   },
 
-  zip(/*, ...iterables */) {
-    const iterables = [this].concat(arrCopy(arguments));
-    return reify(this, zipWithFactory(this, defaultZipper, iterables));
+  zip(/*, ...collections */) {
+    const collections = [this].concat(arrCopy(arguments));
+    return reify(this, zipWithFactory(this, defaultZipper, collections));
   },
 
-  zipWith(zipper /*, ...iterables */) {
-    const iterables = arrCopy(arguments);
-    iterables[0] = this;
-    return reify(this, zipWithFactory(this, zipper, iterables));
+  zipWith(zipper /*, ...collections */) {
+    const collections = arrCopy(arguments);
+    collections[0] = this;
+    return reify(this, zipWithFactory(this, zipper, collections));
   }
 });
 
-const IndexedIterablePrototype = IndexedIterable.prototype;
-IndexedIterablePrototype[IS_INDEXED_SENTINEL] = true;
-IndexedIterablePrototype[IS_ORDERED_SENTINEL] = true;
+const IndexedCollectionPrototype = IndexedCollection.prototype;
+IndexedCollectionPrototype[IS_INDEXED_SENTINEL] = true;
+IndexedCollectionPrototype[IS_ORDERED_SENTINEL] = true;
 
-mixin(SetIterable, {
+mixin(SetCollection, {
   // ### ES6 Collection methods (ES6 Array and Map)
 
   get(value, notSetValue) {
@@ -728,14 +729,14 @@ mixin(SetIterable, {
   }
 });
 
-SetIterable.prototype.has = IterablePrototype.includes;
-SetIterable.prototype.contains = SetIterable.prototype.includes;
+SetCollection.prototype.has = CollectionPrototype.includes;
+SetCollection.prototype.contains = SetCollection.prototype.includes;
 
 // Mixin subclasses
 
-mixin(KeyedSeq, KeyedIterable.prototype);
-mixin(IndexedSeq, IndexedIterable.prototype);
-mixin(SetSeq, SetIterable.prototype);
+mixin(KeyedSeq, KeyedCollection.prototype);
+mixin(IndexedSeq, IndexedCollection.prototype);
+mixin(SetSeq, SetCollection.prototype);
 
 // #pragma Helper functions
 
@@ -787,14 +788,14 @@ function defaultNegComparator(a, b) {
   return a < b ? 1 : a > b ? -1 : 0;
 }
 
-function hashIterable(iterable) {
-  if (iterable.size === Infinity) {
+function hashCollection(collection) {
+  if (collection.size === Infinity) {
     return 0;
   }
-  const ordered = isOrdered(iterable);
-  const keyed = isKeyed(iterable);
+  const ordered = isOrdered(collection);
+  const keyed = isKeyed(collection);
   let h = ordered ? 1 : 0;
-  const size = iterable.__iterate(
+  const size = collection.__iterate(
     keyed
       ? ordered
           ? (v, k) => {

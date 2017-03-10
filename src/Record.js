@@ -7,13 +7,13 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { KeyedIterable } from './Iterable';
+import { KeyedCollection } from './Collection';
 import { keyedSeqFromValue } from './Seq';
 import { MapPrototype } from './Map';
 import { List } from './List';
 import { ITERATOR_SYMBOL } from './Iterator';
 import { isRecord, IS_RECORD_SENTINEL } from './Predicates';
-import { IterablePrototype } from './IterableImpl';
+import { CollectionPrototype } from './CollectionImpl';
 
 import invariant from './utils/invariant';
 import quoteString from './utils/quoteString';
@@ -59,7 +59,7 @@ export class Record {
       this.__ownerID = undefined;
       this._values = List().withMutations(l => {
         l.setSize(this._keys.length);
-        KeyedIterable(values).forEach((v, k) => {
+        KeyedCollection(values).forEach((v, k) => {
           l.set(this._indices[k], v === this._defaultValues[k] ? undefined : v);
         });
       });
@@ -161,8 +161,8 @@ Record.isRecord = isRecord;
 Record.getDescriptiveName = recordName;
 const RecordPrototype = Record.prototype;
 RecordPrototype[IS_RECORD_SENTINEL] = true;
-RecordPrototype.getIn = IterablePrototype.getIn;
-RecordPrototype.hasIn = IterablePrototype.hasIn;
+RecordPrototype.getIn = CollectionPrototype.getIn;
+RecordPrototype.hasIn = CollectionPrototype.hasIn;
 RecordPrototype.merge = MapPrototype.merge;
 RecordPrototype.mergeWith = MapPrototype.mergeWith;
 RecordPrototype.mergeIn = MapPrototype.mergeIn;
@@ -175,9 +175,9 @@ RecordPrototype.updateIn = MapPrototype.updateIn;
 RecordPrototype.withMutations = MapPrototype.withMutations;
 RecordPrototype.asMutable = MapPrototype.asMutable;
 RecordPrototype.asImmutable = MapPrototype.asImmutable;
-RecordPrototype[ITERATOR_SYMBOL] = IterablePrototype.entries;
-RecordPrototype.toJSON = (RecordPrototype.toObject = IterablePrototype.toObject);
-RecordPrototype.inspect = (RecordPrototype.toSource = IterablePrototype.toSource);
+RecordPrototype[ITERATOR_SYMBOL] = CollectionPrototype.entries;
+RecordPrototype.toJSON = (RecordPrototype.toObject = CollectionPrototype.toObject);
+RecordPrototype.inspect = (RecordPrototype.toSource = CollectionPrototype.toSource);
 
 function makeRecord(likeRecord, values, ownerID) {
   const record = Object.create(Object.getPrototypeOf(likeRecord));

@@ -10,7 +10,7 @@
 import { is } from '../is';
 import { NOT_SET } from '../TrieUtils';
 import {
-  isIterable,
+  isCollection,
   isKeyed,
   isIndexed,
   isAssociative,
@@ -23,7 +23,7 @@ export default function deepEqual(a, b) {
   }
 
   if (
-    !isIterable(b) ||
+    !isCollection(b) ||
     (a.size !== undefined && b.size !== undefined && a.size !== b.size) ||
     (a.__hash !== undefined &&
       b.__hash !== undefined &&

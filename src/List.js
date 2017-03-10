@@ -22,8 +22,8 @@ import {
   resolveBegin,
   resolveEnd
 } from './TrieUtils';
-import { IndexedIterable } from './Iterable';
-import { isIterable } from './Predicates';
+import { IndexedCollection } from './Collection';
+import { isCollection } from './Predicates';
 import {
   MapPrototype,
   mergeIntoCollectionWith,
@@ -34,7 +34,7 @@ import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 
 import assertNotInfinite from './utils/assertNotInfinite';
 
-export class List extends IndexedIterable {
+export class List extends IndexedCollection {
   // @pragma Construction
 
   constructor(value) {
@@ -45,7 +45,7 @@ export class List extends IndexedIterable {
     if (isList(value)) {
       return value;
     }
-    const iter = IndexedIterable(value);
+    const iter = IndexedCollection(value);
     const size = iter.size;
     if (size === 0) {
       return empty;
@@ -648,16 +648,16 @@ function setListBounds(list, begin, end) {
   return makeList(newOrigin, newCapacity, newLevel, newRoot, newTail);
 }
 
-function mergeIntoListWith(list, merger, iterables) {
+function mergeIntoListWith(list, merger, collections) {
   const iters = [];
   let maxSize = 0;
-  for (let ii = 0; ii < iterables.length; ii++) {
-    const value = iterables[ii];
-    let iter = IndexedIterable(value);
+  for (let ii = 0; ii < collections.length; ii++) {
+    const value = collections[ii];
+    let iter = IndexedCollection(value);
     if (iter.size > maxSize) {
       maxSize = iter.size;
     }
-    if (!isIterable(value)) {
+    if (!isCollection(value)) {
       iter = iter.map(v => fromJS(v));
     }
     iters.push(iter);

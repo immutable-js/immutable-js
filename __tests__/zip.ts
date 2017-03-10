@@ -3,7 +3,7 @@
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { Iterable, List, Range, Seq } from '../';
+import { Collection, List, Range, Seq } from '../';
 
 describe('zip', () => {
 
@@ -91,7 +91,7 @@ describe('zip', () => {
     });
 
     it('with infinite lists', () => {
-      let r: Iterable.Indexed<any> = Range();
+      let r: Collection.Indexed<any> = Range();
       let i = r.interleave(Seq.of('A', 'B', 'C'));
       expect(i.size).toBe(6);
       expect(i.toArray()).toEqual(

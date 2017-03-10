@@ -14,8 +14,8 @@ describe('MultiRequire', () => {
   it('detects sequences', () => {
     const x = Immutable1.Map({ a: 1 });
     const y = Immutable2.Map({ a: 1 });
-    expect(Immutable1.Iterable.isIterable(y)).toBe(true);
-    expect(Immutable2.Iterable.isIterable(x)).toBe(true);
+    expect(Immutable1.isCollection(y)).toBe(true);
+    expect(Immutable2.isCollection(x)).toBe(true);
   });
 
   it('detects records', () => {

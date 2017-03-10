@@ -9,8 +9,8 @@
 
 import { is } from './is';
 import { fromJS } from './fromJS';
-import { Iterable, KeyedIterable } from './Iterable';
-import { isIterable, isOrdered } from './Predicates';
+import { Collection, KeyedCollection } from './Collection';
+import { isCollection, isOrdered } from './Predicates';
 import {
   DELETE,
   SHIFT,
@@ -33,7 +33,7 @@ import quoteString from './utils/quoteString';
 
 import { OrderedMap } from './OrderedMap';
 
-export class Map extends KeyedIterable {
+export class Map extends KeyedCollection {
   // @pragma Construction
 
   constructor(value) {
@@ -42,7 +42,7 @@ export class Map extends KeyedIterable {
       : isMap(value) && !isOrdered(value)
           ? value
           : emptyMap().withMutations(map => {
-              const iter = KeyedIterable(value);
+              const iter = KeyedCollection(value);
               assertNotInfinite(iter.size);
               iter.forEach((v, k) => map.set(k, v));
             });
@@ -94,14 +94,14 @@ export class Map extends KeyedIterable {
   }
 
   deleteAll(keys) {
-    const iterable = Iterable(keys);
+    const collection = Collection(keys);
 
-    if (iterable.size === 0) {
+    if (collection.size === 0) {
       return this;
     }
 
     return this.withMutations(map => {
-      iterable.forEach(key => map.remove(key));
+      collection.forEach(key => map.remove(key));
     });
   }
 
@@ -826,12 +826,12 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
   return new HashArrayMapNode(ownerID, count + 1, expandedNodes);
 }
 
-function mergeIntoMapWith(map, merger, iterables) {
+function mergeIntoMapWith(map, merger, collections) {
   const iters = [];
-  for (let ii = 0; ii < iterables.length; ii++) {
-    const value = iterables[ii];
-    let iter = KeyedIterable(value);
-    if (!isIterable(value)) {
+  for (let ii = 0; ii < collections.length; ii++) {
+    const value = collections[ii];
+    let iter = KeyedCollection(value);
+    if (!isCollection(value)) {
       iter = iter.map(v => fromJS(v));
     }
     iters.push(iter);
@@ -840,14 +840,14 @@ function mergeIntoMapWith(map, merger, iterables) {
 }
 
 export function deepMerger(oldVal, newVal) {
-  return oldVal && oldVal.mergeDeep && isIterable(newVal)
+  return oldVal && oldVal.mergeDeep && isCollection(newVal)
     ? oldVal.mergeDeep(newVal)
     : is(oldVal, newVal) ? oldVal : newVal;
 }
 
 export function deepMergerWith(merger) {
   return (oldVal, newVal, key) => {
-    if (oldVal && oldVal.mergeDeepWith && isIterable(newVal)) {
+    if (oldVal && oldVal.mergeDeepWith && isCollection(newVal)) {
       return oldVal.mergeDeepWith(merger, newVal);
     }
     const nextValue = merger(oldVal, newVal, key);

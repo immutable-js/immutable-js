@@ -1,6 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 
-import { Iterable, Seq } from '../';
+import { isCollection, isIndexed, Seq } from '../';
 
 describe('Seq', () => {
 
@@ -16,7 +16,7 @@ describe('Seq', () => {
     expect(Seq({a: 1, b: 2, c: 3}).size).toBe(3);
   });
 
-  it('accepts an iterable string', () => {
+  it('accepts an collection string', () => {
     expect(Seq('foo').size).toBe(3);
   });
 
@@ -47,7 +47,7 @@ describe('Seq', () => {
   it('accepts an array-like', () => {
     let alike: any = { length: 2, 0: 'a', 1: 'b' };
     let seq = Seq(alike);
-    expect(Iterable.isIndexed(seq)).toBe(true);
+    expect(isIndexed(seq)).toBe(true);
     expect(seq.size).toBe(2);
     expect(seq.get(1)).toBe('b');
   });
@@ -55,13 +55,13 @@ describe('Seq', () => {
   it('does not accept a scalar', () => {
     expect(() => {
       Seq(3 as any);
-    }).toThrow('Expected Array or iterable object of values, or keyed object: 3');
+    }).toThrow('Expected Array or collection object of values, or keyed object: 3');
   });
 
   it('detects sequences', () => {
     let seq = Seq.of(1, 2, 3);
     expect(Seq.isSeq(seq)).toBe(true);
-    expect(Iterable.isIterable(seq)).toBe(true);
+    expect(isCollection(seq)).toBe(true);
   });
 
   it('Does not infinite loop when sliced with NaN', () => {

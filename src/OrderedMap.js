@@ -7,7 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { KeyedIterable } from './Iterable';
+import { KeyedCollection } from './Collection';
 import { IS_ORDERED_SENTINEL, isOrdered } from './Predicates';
 import { Map, isMap, emptyMap } from './Map';
 import { emptyList } from './List';
@@ -23,7 +23,7 @@ export class OrderedMap extends Map {
       : isOrderedMap(value)
           ? value
           : emptyOrderedMap().withMutations(map => {
-              const iter = KeyedIterable(value);
+              const iter = KeyedCollection(value);
               assertNotInfinite(iter.size);
               iter.forEach((v, k) => map.set(k, v));
             });

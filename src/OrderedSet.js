@@ -7,9 +7,9 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { SetIterable, KeyedIterable } from './Iterable';
+import { SetCollection, KeyedCollection } from './Collection';
 import { IS_ORDERED_SENTINEL, isOrdered } from './Predicates';
-import { IndexedIterablePrototype } from './IterableImpl';
+import { IndexedCollectionPrototype } from './CollectionImpl';
 import { Set, isSet } from './Set';
 import { emptyOrderedMap } from './OrderedMap';
 import assertNotInfinite from './utils/assertNotInfinite';
@@ -23,7 +23,7 @@ export class OrderedSet extends Set {
       : isOrderedSet(value)
           ? value
           : emptyOrderedSet().withMutations(set => {
-              const iter = SetIterable(value);
+              const iter = SetCollection(value);
               assertNotInfinite(iter.size);
               iter.forEach(v => set.add(v));
             });
@@ -34,7 +34,7 @@ export class OrderedSet extends Set {
   }
 
   static fromKeys(value) {
-    return this(KeyedIterable(value).keySeq());
+    return this(KeyedCollection(value).keySeq());
   }
 
   toString() {
@@ -50,8 +50,8 @@ OrderedSet.isOrderedSet = isOrderedSet;
 
 const OrderedSetPrototype = OrderedSet.prototype;
 OrderedSetPrototype[IS_ORDERED_SENTINEL] = true;
-OrderedSetPrototype.zip = IndexedIterablePrototype.zip;
-OrderedSetPrototype.zipWith = IndexedIterablePrototype.zipWith;
+OrderedSetPrototype.zip = IndexedCollectionPrototype.zip;
+OrderedSetPrototype.zipWith = IndexedCollectionPrototype.zipWith;
 
 OrderedSetPrototype.__empty = emptyOrderedSet;
 OrderedSetPrototype.__make = makeOrderedSet;

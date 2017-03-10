@@ -18,13 +18,13 @@ describe('updateIn', () => {
     // need to cast these as TypeScript first prevents us from such clownery.
     expect(() =>
       Map().getIn(<any> undefined),
-    ).toThrow('Invalid keyPath: expected Ordered Iterable or Array: undefined');
+    ).toThrow('Invalid keyPath: expected Ordered Collection or Array: undefined');
     expect(() =>
       Map().getIn(<any> { a: 1, b: 2 }),
-    ).toThrow('Invalid keyPath: expected Ordered Iterable or Array: [object Object]');
+    ).toThrow('Invalid keyPath: expected Ordered Collection or Array: [object Object]');
     expect(() =>
       Map().getIn(<any> 'abc'),
-    ).toThrow('Invalid keyPath: expected Ordered Iterable or Array: abc');
+    ).toThrow('Invalid keyPath: expected Ordered Collection or Array: abc');
   });
 
   it('deep get throws if non-readable path', () => {
@@ -45,13 +45,13 @@ describe('updateIn', () => {
     // need to cast these as TypeScript first prevents us from such clownery.
     expect(() =>
       Map().hasIn(<any> undefined),
-    ).toThrow('Invalid keyPath: expected Ordered Iterable or Array: undefined');
+    ).toThrow('Invalid keyPath: expected Ordered Collection or Array: undefined');
     expect(() =>
       Map().hasIn(<any> { a: 1, b: 2 }),
-    ).toThrow('Invalid keyPath: expected Ordered Iterable or Array: [object Object]');
+    ).toThrow('Invalid keyPath: expected Ordered Collection or Array: [object Object]');
     expect(() =>
       Map().hasIn(<any> 'abc'),
-    ).toThrow('Invalid keyPath: expected Ordered Iterable or Array: abc');
+    ).toThrow('Invalid keyPath: expected Ordered Collection or Array: abc');
   });
 
   it('deep get returns not found if path does not match', () => {
@@ -81,13 +81,13 @@ describe('updateIn', () => {
     // need to cast these as TypeScript first prevents us from such clownery.
     expect(() =>
       Map().updateIn(<any> undefined, x => x),
-    ).toThrow('Invalid keyPath: expected Ordered Iterable or Array: undefined');
+    ).toThrow('Invalid keyPath: expected Ordered Collection or Array: undefined');
     expect(() =>
       Map().updateIn(<any> { a: 1, b: 2 }, x => x),
-    ).toThrow('Invalid keyPath: expected Ordered Iterable or Array: [object Object]');
+    ).toThrow('Invalid keyPath: expected Ordered Collection or Array: [object Object]');
     expect(() =>
       Map().updateIn(<any> 'abc', x => x),
-    ).toThrow('Invalid keyPath: expected Ordered Iterable or Array: abc');
+    ).toThrow('Invalid keyPath: expected Ordered Collection or Array: abc');
   });
 
   it('deep edit throws if non-editable path', () => {

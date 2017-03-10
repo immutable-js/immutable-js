@@ -8,32 +8,32 @@
  */
 
 import { Seq, KeyedSeq, IndexedSeq, SetSeq } from './Seq';
-import { isIterable, isKeyed, isIndexed, isAssociative } from './Predicates';
+import { isCollection, isKeyed, isIndexed, isAssociative } from './Predicates';
 
-export class Iterable {
+export class Collection {
   constructor(value) {
-    return isIterable(value) ? value : Seq(value);
+    return isCollection(value) ? value : Seq(value);
   }
 }
 
-export class KeyedIterable extends Iterable {
+export class KeyedCollection extends Collection {
   constructor(value) {
     return isKeyed(value) ? value : KeyedSeq(value);
   }
 }
 
-export class IndexedIterable extends Iterable {
+export class IndexedCollection extends Collection {
   constructor(value) {
     return isIndexed(value) ? value : IndexedSeq(value);
   }
 }
 
-export class SetIterable extends Iterable {
+export class SetCollection extends Collection {
   constructor(value) {
-    return isIterable(value) && !isAssociative(value) ? value : SetSeq(value);
+    return isCollection(value) && !isAssociative(value) ? value : SetSeq(value);
   }
 }
 
-Iterable.Keyed = KeyedIterable;
-Iterable.Indexed = IndexedIterable;
-Iterable.Set = SetIterable;
+Collection.Keyed = KeyedCollection;
+Collection.Indexed = IndexedCollection;
+Collection.Set = SetCollection;

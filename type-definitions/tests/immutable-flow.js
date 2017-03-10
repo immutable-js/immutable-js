@@ -18,9 +18,9 @@ import Immutable, {
 import * as Immutable2 from '../../'
 
 import type {
-  KeyedIterable,
-  IndexedIterable,
-  SetIterable,
+  KeyedCollection,
+  IndexedCollection,
+  SetCollection,
   KeyedSeq,
   IndexedSeq,
   SetSeq,
@@ -38,7 +38,7 @@ const ImmutableList = Immutable.List
 const ImmutableMap = Immutable.Map
 const ImmutableStack = Immutable.Stack
 const ImmutableSet = Immutable.Set
-const ImmutableKeyedIterable: KeyedIterable<*, *> = Immutable.Iterable.Keyed()
+const ImmutableKeyedCollection: KeyedCollection<*, *> = Immutable.Collection.Keyed()
 const ImmutableRange = Immutable.Range
 const ImmutableRepeat = Immutable.Repeat
 const ImmutableIndexedSeq: IndexedSeq<*> = Immutable.Seq.Indexed()
@@ -47,7 +47,7 @@ const Immutable2List = Immutable2.List
 const Immutable2Map = Immutable2.Map
 const Immutable2Stack = Immutable2.Stack
 const Immutable2Set = Immutable2.Set
-const Immutable2KeyedIterable: Immutable2.KeyedIterable<*, *> = Immutable2.Iterable.Keyed()
+const Immutable2KeyedCollection: Immutable2.KeyedCollection<*, *> = Immutable2.Collection.Keyed()
 const Immutable2Range = Immutable2.Range
 const Immutable2Repeat = Immutable2.Repeat
 const Immutable2IndexedSeq: Immutable2.IndexedSeq<*> = Immutable2.Seq.Indexed()
@@ -77,8 +77,8 @@ var stringSet: Set<string> = Set()
 var numberStack: Stack<number> = Stack()
 var numberOrStringStack: Stack<string | number> = Stack()
 var number: number = 0
-var stringToNumberIterable: KeyedIterable<string, number> = stringToNumber
-var numberToStringIterable: KeyedIterable<number, string> = numberToString
+var stringToNumberCollection: KeyedCollection<string, number> = stringToNumber
+var numberToStringCollection: KeyedCollection<number, string> = numberToString
 
 numberList = List([1, 2])
 numberOrStringList = List(['a', 1])
