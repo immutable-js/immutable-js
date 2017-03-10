@@ -8,6 +8,25 @@
  */
 
 /**
+ * DEPRECATED
+ *
+ * The Cursor API is deprecated and will be removed in a future major release.
+ *
+ * It is strongly suggested that you use the excellent `immutable-cursor` module
+ * which has an extremely similar API but is much higher quality.
+ *
+ * https://github.com/redbadger/immutable-cursor
+ */
+typeof console === 'object' && console.warn && console.warn(
+  'The Cursor API is deprecated and will be removed in a future major release.\n' +
+  '\n' +
+  'It is strongly suggested that you use the excellent `immutable-cursor` module\n' +
+  'which has an extremely similar API but is much higher quality.\n' +
+  '\n' +
+  'https://github.com/redbadger/immutable-cursor\n' +
+);
+
+/**
  * Cursor is expected to be required in a node or other CommonJS context:
  *
  *     var Cursor = require('immutable/contrib/cursor');

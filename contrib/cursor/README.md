@@ -1,3 +1,13 @@
+# DEPRECATED
+
+The Cursor API is deprecated and will be removed in a future major release.
+
+It is strongly suggested that you use the excellent `immutable-cursor` module
+which has an extremely similar API but is much higher quality.
+
+https://github.com/redbadger/immutable-cursor
+
+
 Cursors
 -------
 
