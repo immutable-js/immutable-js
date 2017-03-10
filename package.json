@@ -41,7 +41,7 @@
     "testonly": "./resources/jest",
     "test": "run-s format build lint testonly type-check",
     "test:travis": "npm run test && ./resources/check-changes",
-    "check-diff": "git diff --quiet || (echo 'Run `npm test && git add .` to add latest changes before `git push`.'; exit 1)",
+    "check-diff": "git diff --quiet dist/ || (echo 'Run `npm test && git add dist` to apply latest changes before `git push`.'; exit 1)",
     "type-check": "cd type-definitions/tests && flow check",
     "perf": "node ./resources/bench.js",
     "start": "gulp --gulpfile gulpfile.js dev",
