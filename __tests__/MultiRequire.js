@@ -17,6 +17,13 @@ describe('MultiRequire', () => {
     expect(Immutable2.Iterable.isIterable(x)).toBe(true);
   });
 
+  it('detects records', () => {
+    var R1 = Immutable1.Record({a: 1});
+    var R2 = Immutable2.Record({a: 1});
+    expect(Immutable1.Record.isRecord(R2())).toBe(true);
+    expect(Immutable2.Record.isRecord(R1())).toBe(true);
+  });
+
   it('converts to JS when inter-nested', () => {
     var deep = Immutable1.Map({
       a: 1,

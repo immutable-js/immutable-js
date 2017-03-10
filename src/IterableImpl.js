@@ -92,6 +92,7 @@ export {
   KeyedIterable,
   IndexedIterable,
   SetIterable,
+  IterablePrototype,
   IndexedIterablePrototype
 };
 

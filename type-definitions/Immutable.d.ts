@@ -1808,6 +1808,11 @@ declare module Immutable {
   export module Record {
 
     /**
+     * True if `maybeRecord` is an instance of a Record.
+     */
+    export function isRecord(maybeRecord: any): maybeRecord is Record.Instance<any>;
+
+    /**
      * Records allow passing a second parameter to supply a descriptive name
      * that appears when converting a Record to a string or in any error
      * messages. A descriptive name for any record can be accessed by using this
@@ -1838,6 +1843,11 @@ declare module Immutable {
       has(key: string): boolean;
       get<K extends keyof T>(key: K): T[K];
 
+      // Reading deep values
+
+      hasIn(keyPath: ESIterable<any>): boolean;
+      getIn(keyPath: ESIterable<any>): any;
+
       // Value equality
 
       equals(other: any): boolean;
@@ -1850,25 +1860,27 @@ declare module Immutable {
       merge(...iterables: Array<Partial<T> | ESIterable<[string, any]>>): this;
       mergeDeep(...iterables: Array<Partial<T> | ESIterable<[string, any]>>): this;
 
-      /**
-       * @alias remove
-       */
-      delete<K extends keyof T>(key: K): this;
-      remove<K extends keyof T>(key: K): this;
-      clear(): this;
+      mergeWith(
+        merger: (oldVal: any, newVal: any, key: keyof T) => any,
+        ...iterables: Array<Partial<T> | ESIterable<[string, any]>>
+      ): this;
+      mergeDeepWith(
+        merger: (oldVal: any, newVal: any, key: any) => any,
+        ...iterables: Array<Partial<T> | ESIterable<[string, any]>>
+      ): this;
 
       // Deep persistent changes
 
-      setIn(keyPath: Array<any> | Iterable<any, any>, value: any): this;
-      updateIn(keyPath: Array<any> | Iterable<any, any>, updater: (value: any) => any): this;
-      mergeIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): this;
-      mergeDeepIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): this;
+      setIn(keyPath: ESIterable<any>, value: any): this;
+      updateIn(keyPath: ESIterable<any>, updater: (value: any) => any): this;
+      mergeIn(keyPath: ESIterable<any>, ...iterables: Array<any>): this;
+      mergeDeepIn(keyPath: ESIterable<any>, ...iterables: Array<any>): this;
 
       /**
        * @alias removeIn
        */
-      deleteIn(keyPath: Array<any> | Iterable<any, any>): this;
-      removeIn(keyPath: Array<any> | Iterable<any, any>): this;
+      deleteIn(keyPath: ESIterable<any>): this;
+      removeIn(keyPath: ESIterable<any>): this;
 
       // Conversion to JavaScript types
 
@@ -1908,6 +1920,8 @@ declare module Immutable {
       asImmutable(): this;
 
       // Sequence algorithms
+
+      toSeq(): Seq.Keyed<keyof T, T[keyof T]>;
 
       [Symbol.iterator](): Iterator<[keyof T, T[keyof T]]>;
     }

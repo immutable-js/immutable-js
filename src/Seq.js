@@ -9,7 +9,13 @@
 
 import { wrapIndex } from './TrieUtils';
 import { Iterable } from './Iterable';
-import { isIterable, isKeyed, IS_ORDERED_SENTINEL } from './Predicates';
+import {
+  isIterable,
+  isKeyed,
+  isAssociative,
+  isRecord,
+  IS_ORDERED_SENTINEL
+} from './Predicates';
 import {
   Iterator,
   iteratorValue,
@@ -25,7 +31,9 @@ export class Seq extends Iterable {
   constructor(value) {
     return value === null || value === undefined
       ? emptySequence()
-      : isIterable(value) ? value.toSeq() : seqFromValue(value);
+      : isIterable(value) || isRecord(value)
+          ? value.toSeq()
+          : seqFromValue(value);
   }
 
   static of(/*...values*/) {
@@ -91,7 +99,7 @@ export class KeyedSeq extends Seq {
       ? emptySequence().toKeyedSeq()
       : isIterable(value)
           ? isKeyed(value) ? value.toSeq() : value.fromEntrySeq()
-          : keyedSeqFromValue(value);
+          : isRecord(value) ? value.toSeq() : keyedSeqFromValue(value);
   }
 
   toKeyedSeq() {
@@ -103,9 +111,11 @@ export class IndexedSeq extends Seq {
   constructor(value) {
     return value === null || value === undefined
       ? emptySequence()
-      : !isIterable(value)
-          ? indexedSeqFromValue(value)
-          : isKeyed(value) ? value.entrySeq() : value.toIndexedSeq();
+      : isIterable(value)
+          ? isKeyed(value) ? value.entrySeq() : value.toIndexedSeq()
+          : isRecord(value)
+              ? value.toSeq().entrySeq()
+              : indexedSeqFromValue(value);
   }
 
   static of(/*...values*/) {
@@ -123,11 +133,9 @@ export class IndexedSeq extends Seq {
 
 export class SetSeq extends Seq {
   constructor(value) {
-    return (value === null || value === undefined
-      ? emptySequence()
-      : !isIterable(value)
-          ? indexedSeqFromValue(value)
-          : isKeyed(value) ? value.entrySeq() : value).toSetSeq();
+    return (isIterable(value) && !isAssociative(value)
+      ? value
+      : IndexedSeq(value)).toSetSeq();
   }
 
   static of(/*...values*/) {
@@ -340,41 +348,41 @@ function emptySequence() {
 
 export function keyedSeqFromValue(value) {
   const seq = Array.isArray(value)
-    ? new ArraySeq(value).fromEntrySeq()
+    ? new ArraySeq(value)
     : isIterator(value)
-        ? new IteratorSeq(value).fromEntrySeq()
-        : hasIterator(value)
-            ? new IterableSeq(value).fromEntrySeq()
-            : typeof value === 'object' ? new ObjectSeq(value) : undefined;
-  if (!seq) {
-    throw new TypeError(
-      'Expected Array or iterable object of [k, v] entries, ' +
-        'or keyed object: ' +
-        value
-    );
+        ? new IteratorSeq(value)
+        : hasIterator(value) ? new IterableSeq(value) : undefined;
+  if (seq) {
+    return seq.fromEntrySeq();
   }
-  return seq;
+  if (typeof value === 'object') {
+    return new ObjectSeq(value);
+  }
+  throw new TypeError(
+    'Expected Array or iterable object of [k, v] entries, or keyed object: ' +
+      value
+  );
 }
 
 export function indexedSeqFromValue(value) {
   const seq = maybeIndexedSeqFromValue(value);
-  if (!seq) {
-    throw new TypeError(
-      'Expected Array or iterable object of values: ' + value
-    );
+  if (seq) {
+    return seq;
   }
-  return seq;
+  throw new TypeError('Expected Array or iterable object of values: ' + value);
 }
 
 function seqFromValue(value) {
-  const seq = maybeIndexedSeqFromValue(value) ||
-    (typeof value === 'object' && new ObjectSeq(value));
-  if (!seq) {
-    throw new TypeError(
-      'Expected Array or iterable object of values, or keyed object: ' + value
-    );
+  const seq = maybeIndexedSeqFromValue(value);
+  if (seq) {
+    return seq;
   }
-  return seq;
+  if (typeof value === 'object') {
+    return new ObjectSeq(value);
+  }
+  throw new TypeError(
+    'Expected Array or iterable object of values, or keyed object: ' + value
+  );
 }
 
 function maybeIndexedSeqFromValue(value) {
