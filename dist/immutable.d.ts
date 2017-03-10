@@ -2459,7 +2459,8 @@ declare module Immutable {
        * `index` may be a negative number, which indexes back from the end of the
        * Iterable. `s.get(-1)` gets the last item in the Iterable.
        */
-      get(index: number, notSetValue?: T): T | undefined;
+      get(index: number): T | undefined;
+      get<NSV>(index: number, notSetValue: NSV): T | NSV;
 
 
       // Conversion to Seq
@@ -2755,7 +2756,8 @@ declare module Immutable {
      * so if `notSetValue` is not provided and this method returns `undefined`,
      * that does not guarantee the key was not found.
      */
-    get(key: K, notSetValue?: V): V | undefined;
+    get(key: K): V | undefined;
+    get<NSV>(key: K, notSetValue: NSV): V | NSV;
 
     /**
      * True if a key exists within this `Iterable`, using `Immutable.is` to determine equality
