@@ -14,7 +14,7 @@ jasmine.addMatchers({
         let passed = is(actual, expected);
         return {
           pass: passed,
-          message: 'Expected ' + actual + (passed ? '' : ' not') + ' to equal ' + expected,
+          message: `Expected ${actual}${passed ? '' : ' not'} to equal ${expected}`,
         };
       },
     };

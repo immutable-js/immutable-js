@@ -34,14 +34,7 @@ describe('ArraySequence', () => {
       return index % 2 === 0 ? letter : letter.toUpperCase();
     }
 
-    let result = i
-      .reverse()
-      .take(10)
-      .reverse()
-      .take(5)
-      .map(studly)
-      .toArray()
-      .join('');
+    let result = i.reverse().take(10).reverse().take(5).map(studly).toArray().join('');
     expect(result).toBe('qRsTu');
   });
 
