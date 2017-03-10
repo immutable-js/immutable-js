@@ -304,7 +304,7 @@
   export function List<T>(): List<T>;
   export function List<T>(iterable: ESIterable<T>): List<T>;
 
-  export interface List<T> extends Collection.Indexed<T> {
+  export interface List<T> extends Iterable.Indexed<T> {
 
     // Persistent changes
 
@@ -747,7 +747,7 @@
   export function Map<T>(iterable: ESIterable<ESIterable<T>>): Map<T, T>;
   export function Map<V>(obj: {[key: string]: V}): Map<string, V>;
 
-  export interface Map<K, V> extends Collection.Keyed<K, V> {
+  export interface Map<K, V> extends Iterable.Keyed<K, V> {
 
     // Persistent changes
 
@@ -1357,7 +1357,7 @@
   export function Set<T>(): Set<T>;
   export function Set<T>(iterable: ESIterable<T>): Set<T>;
 
-  export interface Set<T> extends Collection.Set<T> {
+  export interface Set<T> extends Iterable.Set<T> {
 
     // Persistent changes
 
@@ -1609,7 +1609,7 @@
   export function Stack<T>(): Stack<T>;
   export function Stack<T>(iterable: ESIterable<T>): Stack<T>;
 
-  export interface Stack<T> extends Collection.Indexed<T> {
+  export interface Stack<T> extends Iterable.Indexed<T> {
 
     // Reading values
 
@@ -2291,6 +2291,12 @@
    *
    * Note: An iterable is always iterated in the same order, however that order
    * may not always be well defined, as is the case for the `Map` and `Set`.
+   *
+   * Iterable is the abstract base class for concrete data structures. It
+   * cannot be constructed directly.
+   *
+   * Implementations should extend one of the subclasses, `Iterable.Keyed`,
+   * `Iterable.Indexed`, or `Iterable.Set`.
    */
   export module Iterable {
     /**
@@ -3526,182 +3532,6 @@
      * nullable number, and `Collection` defines `size` as always a number.
      *
      * @ignore
-     */
-    size: number;
-  }
-
-
-  /**
-   * Collection is the abstract base class for concrete data structures. It
-   * cannot be constructed directly.
-   *
-   * Implementations should extend one of the subclasses, `Collection.Keyed`,
-   * `Collection.Indexed`, or `Collection.Set`.
-   */
-  export module Collection {
-
-
-    /**
-     * `Collection` which represents key-value pairs.
-     */
-    export module Keyed {}
-
-    export interface Keyed<K, V> extends Collection<K, V>, Iterable.Keyed<K, V> {
-      /**
-       * Deeply converts this Keyed Collection to equivalent native JavaScript Object.
-       *
-       * Converts keys to Strings.
-       */
-      toJS(): Object;
-
-      /**
-       * Shallowly converts this Keyed Collection to equivalent native JavaScript Object.
-       *
-       * Converts keys to Strings.
-       */
-      toJSON(): { [key: string]: V };
-
-      /**
-       * Returns Seq.Keyed.
-       * @override
-       */
-      toSeq(): Seq.Keyed<K, V>;
-
-      // Sequence algorithms
-
-      /**
-       * Returns a new Collection.Keyed with values passed through a
-       * `mapper` function.
-       *
-       *     Collection.Keyed({a: 1, b: 2}).map(x => 10 * x)
-       *     // Collection.Keyed {a: 10, b: 20}
-       *
-       * Note: `map()` always returns a new instance, even if it produced the same
-       * value at every step.
-       */
-      map<M>(
-        mapper: (value: V, key: K, iter: this) => M,
-        context?: any
-      ): Collection.Keyed<K, M>;
-
-      /**
-       * Flat-maps the Collection, returning an Collection of the same type.
-       *
-       * Similar to `collection.map(...).flatten(true)`.
-       */
-      flatMap<KM, VM>(
-        mapper: (value: V, key: K, iter: this) => ESIterable<[KM, VM]>,
-        context?: any
-      ): Collection.Keyed<KM, VM>;
-    }
-
-
-    /**
-     * `Collection` which represents ordered indexed values.
-     */
-    export module Indexed {}
-
-    export interface Indexed<T> extends Collection<number, T>, Iterable.Indexed<T> {
-      /**
-       * Deeply converts this IndexedCollection to equivalent native JavaScript Array.
-       */
-      toJS(): Array<any>;
-
-      /**
-       * Shallowly converts this IndexedCollection to equivalent native JavaScript Array.
-       */
-      toJSON(): Array<T>;
-
-      /**
-       * Returns Seq.Indexed.
-       * @override
-       */
-      toSeq(): Seq.Indexed<T>;
-
-      // Sequence algorithms
-
-      /**
-       * Returns a new Collection.Indexed with values passed through a
-       * `mapper` function.
-       *
-       *     Collection.Indexed([1,2]).map(x => 10 * x)
-       *     // Collection.Indexed [1,2]
-       *
-       */
-      map<M>(
-        mapper: (value: T, key: number, iter: this) => M,
-        context?: any
-      ): Collection.Indexed<M>;
-
-      /**
-       * Flat-maps the Collection, returning an Collection of the same type.
-       *
-       * Similar to `collection.map(...).flatten(true)`.
-       */
-      flatMap<M>(
-        mapper: (value: T, key: number, iter: this) => ESIterable<M>,
-        context?: any
-      ): Collection.Indexed<M>;
-    }
-
-
-    /**
-     * `Collection` which represents values, unassociated with keys or indices.
-     *
-     * `Collection.Set` implementations should guarantee value uniqueness.
-     */
-    export module Set {}
-
-    export interface Set<T> extends Collection<T, T>, Iterable.Set<T> {
-      /**
-       * Deeply converts this Set Collection to equivalent native JavaScript Array.
-       */
-      toJS(): Array<any>;
-
-      /**
-       * Shallowly converts this Set Collection to equivalent native JavaScript Array.
-       */
-      toJSON(): Array<T>;
-
-      /**
-       * Returns Seq.Set.
-       * @override
-       */
-      toSeq(): Seq.Set<T>;
-
-      // Sequence algorithms
-
-      /**
-       * Returns a new Collection.Set with values passed through a
-       * `mapper` function.
-       *
-       *     Collection.Set([1,2]).map(x => 10 * x)
-       *     // Collection.Set [1,2]
-       *
-       * Note: `map()` always returns a new instance, even if it produced the same
-       * value at every step.
-       */
-      map<M>(
-        mapper: (value: T, key: T, iter: this) => M,
-        context?: any
-      ): Collection.Set<M>;
-
-      /**
-       * Flat-maps the Collection, returning an Collection of the same type.
-       *
-       * Similar to `collection.map(...).flatten(true)`.
-       */
-      flatMap<M>(
-        mapper: (value: T, key: T, iter: this) => ESIterable<M>,
-        context?: any
-      ): Collection.Set<M>;
-    }
-  }
-
-  export interface Collection<K, V> extends Iterable<K, V> {
-
-    /**
-     * All collections maintain their current `size` as an integer.
      */
     size: number;
   }

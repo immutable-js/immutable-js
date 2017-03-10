@@ -9,13 +9,12 @@
 
 import { wholeSlice, resolveBegin, resolveEnd, wrapIndex } from './TrieUtils';
 import { IndexedIterable } from './Iterable';
-import { IndexedCollection } from './Collection';
 import { MapPrototype } from './Map';
 import { ArraySeq } from './Seq';
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 import assertNotInfinite from './utils/assertNotInfinite';
 
-export class Stack extends IndexedCollection {
+export class Stack extends IndexedIterable {
   // @pragma Construction
 
   constructor(value) {
@@ -128,7 +127,7 @@ export class Stack extends IndexedCollection {
     const resolvedEnd = resolveEnd(end, this.size);
     if (resolvedEnd !== this.size) {
       // super.slice(begin, end);
-      return IndexedCollection.prototype.slice.call(this, begin, end);
+      return IndexedIterable.prototype.slice.call(this, begin, end);
     }
     const newSize = this.size - resolvedBegin;
     let head = this._head;

@@ -11,7 +11,6 @@ import { is } from './is';
 import { fromJS } from './fromJS';
 import { Iterable, KeyedIterable } from './Iterable';
 import { isIterable, isOrdered } from './Predicates';
-import { KeyedCollection } from './Collection';
 import {
   DELETE,
   SHIFT,
@@ -34,7 +33,7 @@ import quoteString from './utils/quoteString';
 
 import { OrderedMap } from './OrderedMap';
 
-export class Map extends KeyedCollection {
+export class Map extends KeyedIterable {
   // @pragma Construction
 
   constructor(value) {

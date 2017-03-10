@@ -686,58 +686,6 @@ function maybeIndexedSeqFromValue(value) {
         : hasIterator(value) ? new IterableSeq(value) : undefined;
 }
 
-var Collection = (function (Iterable$$1) {
-  function Collection() {
-    throw TypeError('Abstract');
-  }
-
-  if ( Iterable$$1 ) Collection.__proto__ = Iterable$$1;
-  Collection.prototype = Object.create( Iterable$$1 && Iterable$$1.prototype );
-  Collection.prototype.constructor = Collection;
-
-  return Collection;
-}(Iterable));
-
-var KeyedCollection = (function (Collection) {
-  function KeyedCollection () {
-    Collection.apply(this, arguments);
-  }if ( Collection ) KeyedCollection.__proto__ = Collection;
-  KeyedCollection.prototype = Object.create( Collection && Collection.prototype );
-  KeyedCollection.prototype.constructor = KeyedCollection;
-
-  
-
-  return KeyedCollection;
-}(Collection));
-
-var IndexedCollection = (function (Collection) {
-  function IndexedCollection () {
-    Collection.apply(this, arguments);
-  }if ( Collection ) IndexedCollection.__proto__ = Collection;
-  IndexedCollection.prototype = Object.create( Collection && Collection.prototype );
-  IndexedCollection.prototype.constructor = IndexedCollection;
-
-  
-
-  return IndexedCollection;
-}(Collection));
-
-var SetCollection = (function (Collection) {
-  function SetCollection () {
-    Collection.apply(this, arguments);
-  }if ( Collection ) SetCollection.__proto__ = Collection;
-  SetCollection.prototype = Object.create( Collection && Collection.prototype );
-  SetCollection.prototype.constructor = SetCollection;
-
-  
-
-  return SetCollection;
-}(Collection));
-
-Collection.Keyed = KeyedCollection;
-Collection.Indexed = IndexedCollection;
-Collection.Set = SetCollection;
-
 /**
  * An extension of the "same-value" algorithm as [described for use by ES6 Map
  * and Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#Key_equality)
@@ -1990,21 +1938,21 @@ function quoteString(value) {
   return typeof value === 'string' ? JSON.stringify(value) : String(value);
 }
 
-var Map = (function (KeyedCollection$$1) {
+var Map = (function (KeyedIterable$$1) {
   function Map(value) {
     return value === null || value === undefined
       ? emptyMap()
       : isMap(value) && !isOrdered(value)
           ? value
           : emptyMap().withMutations(function (map) {
-              var iter = KeyedIterable(value);
+              var iter = KeyedIterable$$1(value);
               assertNotInfinite(iter.size);
               iter.forEach(function (v, k) { return map.set(k, v); });
             });
   }
 
-  if ( KeyedCollection$$1 ) Map.__proto__ = KeyedCollection$$1;
-  Map.prototype = Object.create( KeyedCollection$$1 && KeyedCollection$$1.prototype );
+  if ( KeyedIterable$$1 ) Map.__proto__ = KeyedIterable$$1;
+  Map.prototype = Object.create( KeyedIterable$$1 && KeyedIterable$$1.prototype );
   Map.prototype.constructor = Map;
 
   Map.of = function of () {
@@ -2217,7 +2165,7 @@ var Map = (function (KeyedCollection$$1) {
   };
 
   return Map;
-}(KeyedCollection));
+}(KeyedIterable));
 
 function isMap(maybeMap) {
   return !!(maybeMap && maybeMap[IS_MAP_SENTINEL]);
@@ -2941,7 +2889,7 @@ var MAX_ARRAY_MAP_SIZE = SIZE / 4;
 var MAX_BITMAP_INDEXED_SIZE = SIZE / 2;
 var MIN_HASH_ARRAY_MAP_SIZE = SIZE / 4;
 
-var List = (function (IndexedCollection$$1) {
+var List = (function (IndexedIterable$$1) {
   function List(value) {
     var empty = emptyList();
     if (value === null || value === undefined) {
@@ -2950,7 +2898,7 @@ var List = (function (IndexedCollection$$1) {
     if (isList(value)) {
       return value;
     }
-    var iter = IndexedIterable(value);
+    var iter = IndexedIterable$$1(value);
     var size = iter.size;
     if (size === 0) {
       return empty;
@@ -2965,8 +2913,8 @@ var List = (function (IndexedCollection$$1) {
     });
   }
 
-  if ( IndexedCollection$$1 ) List.__proto__ = IndexedCollection$$1;
-  List.prototype = Object.create( IndexedCollection$$1 && IndexedCollection$$1.prototype );
+  if ( IndexedIterable$$1 ) List.__proto__ = IndexedIterable$$1;
+  List.prototype = Object.create( IndexedIterable$$1 && IndexedIterable$$1.prototype );
   List.prototype.constructor = List;
 
   List.of = function of (/*...values*/) {
@@ -3141,7 +3089,7 @@ var List = (function (IndexedCollection$$1) {
   };
 
   return List;
-}(IndexedCollection));
+}(IndexedIterable));
 
 function isList(maybeList) {
   return !!(maybeList && maybeList[IS_LIST_SENTINEL]);
@@ -3749,15 +3697,15 @@ function updateOrderedMap(omap, k, v) {
   return makeOrderedMap(newMap, newList);
 }
 
-var Stack = (function (IndexedCollection$$1) {
+var Stack = (function (IndexedIterable$$1) {
   function Stack(value) {
     return value === null || value === undefined
       ? emptyStack()
       : isStack(value) ? value : emptyStack().pushAll(value);
   }
 
-  if ( IndexedCollection$$1 ) Stack.__proto__ = IndexedCollection$$1;
-  Stack.prototype = Object.create( IndexedCollection$$1 && IndexedCollection$$1.prototype );
+  if ( IndexedIterable$$1 ) Stack.__proto__ = IndexedIterable$$1;
+  Stack.prototype = Object.create( IndexedIterable$$1 && IndexedIterable$$1.prototype );
   Stack.prototype.constructor = Stack;
 
   Stack.of = function of (/*...values*/) {
@@ -3810,7 +3758,7 @@ var Stack = (function (IndexedCollection$$1) {
   };
 
   Stack.prototype.pushAll = function pushAll (iter) {
-    iter = IndexedIterable(iter);
+    iter = IndexedIterable$$1(iter);
     if (iter.size === 0) {
       return this;
     }
@@ -3866,7 +3814,7 @@ var Stack = (function (IndexedCollection$$1) {
     var resolvedEnd = resolveEnd(end, this.size);
     if (resolvedEnd !== this.size) {
       // super.slice(begin, end);
-      return IndexedCollection$$1.prototype.slice.call(this, begin, end);
+      return IndexedIterable$$1.prototype.slice.call(this, begin, end);
     }
     var newSize = this.size - resolvedBegin;
     var head = this._head;
@@ -3939,7 +3887,7 @@ var Stack = (function (IndexedCollection$$1) {
   };
 
   return Stack;
-}(IndexedCollection));
+}(IndexedIterable));
 
 function isStack(maybeStack) {
   return !!(maybeStack && maybeStack[IS_STACK_SENTINEL]);
@@ -4049,21 +3997,21 @@ function mixin(ctor, methods) {
   return ctor;
 }
 
-var Set = (function (SetCollection$$1) {
+var Set = (function (SetIterable$$1) {
   function Set(value) {
     return value === null || value === undefined
       ? emptySet()
       : isSet(value) && !isOrdered(value)
           ? value
           : emptySet().withMutations(function (set) {
-              var iter = SetIterable(value);
+              var iter = SetIterable$$1(value);
               assertNotInfinite(iter.size);
               iter.forEach(function (v) { return set.add(v); });
             });
   }
 
-  if ( SetCollection$$1 ) Set.__proto__ = SetCollection$$1;
-  Set.prototype = Object.create( SetCollection$$1 && SetCollection$$1.prototype );
+  if ( SetIterable$$1 ) Set.__proto__ = SetIterable$$1;
+  Set.prototype = Object.create( SetIterable$$1 && SetIterable$$1.prototype );
   Set.prototype.constructor = Set;
 
   Set.of = function of (/*...values*/) {
@@ -4127,7 +4075,7 @@ var Set = (function (SetCollection$$1) {
     }
     return this.withMutations(function (set) {
       for (var ii = 0; ii < iters.length; ii++) {
-        SetIterable(iters[ii]).forEach(function (value) { return set.add(value); });
+        SetIterable$$1(iters[ii]).forEach(function (value) { return set.add(value); });
       }
     });
   };
@@ -4139,7 +4087,7 @@ var Set = (function (SetCollection$$1) {
     if (iters.length === 0) {
       return this;
     }
-    iters = iters.map(function (iter) { return SetIterable(iter); });
+    iters = iters.map(function (iter) { return SetIterable$$1(iter); });
     var toRemove = [];
     this.forEach(function (value) {
       if (!iters.every(function (iter) { return iter.includes(value); })) {
@@ -4225,7 +4173,7 @@ var Set = (function (SetCollection$$1) {
   };
 
   return Set;
-}(SetCollection));
+}(SetIterable));
 
 function isSet(maybeSet) {
   return !!(maybeSet && maybeSet[IS_SET_SENTINEL]);
@@ -5058,10 +5006,6 @@ mixin(KeyedSeq, KeyedIterable.prototype);
 mixin(IndexedSeq, IndexedIterable.prototype);
 mixin(SetSeq, SetIterable.prototype);
 
-mixin(KeyedCollection, KeyedIterable.prototype);
-mixin(IndexedCollection, IndexedIterable.prototype);
-mixin(SetCollection, SetIterable.prototype);
-
 // #pragma Helper functions
 
 function reduce(collection, reducer, reduction, context, useFirst, reverse) {
@@ -5514,7 +5458,6 @@ var Immutable = {
   Iterable: Iterable,
 
   Seq: Seq,
-  Collection: Collection,
   Map: Map,
   OrderedMap: OrderedMap,
   List: List,
@@ -5542,7 +5485,6 @@ var Immutable = {
 exports['default'] = Immutable;
 exports.Iterable = Iterable;
 exports.Seq = Seq;
-exports.Collection = Collection;
 exports.Map = Map;
 exports.OrderedMap = OrderedMap;
 exports.List = List;

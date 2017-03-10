@@ -59,11 +59,6 @@ import { Stack } from './Stack';
 import { Range } from './Range';
 import { KeyedSeq, IndexedSeq, SetSeq, ArraySeq } from './Seq';
 import {
-  KeyedCollection,
-  IndexedCollection,
-  SetCollection
-} from './Collection';
-import {
   reify,
   ToKeyedSequence,
   ToIndexedSequence,
@@ -741,10 +736,6 @@ SetIterable.prototype.contains = SetIterable.prototype.includes;
 mixin(KeyedSeq, KeyedIterable.prototype);
 mixin(IndexedSeq, IndexedIterable.prototype);
 mixin(SetSeq, SetIterable.prototype);
-
-mixin(KeyedCollection, KeyedIterable.prototype);
-mixin(IndexedCollection, IndexedIterable.prototype);
-mixin(SetCollection, SetIterable.prototype);
 
 // #pragma Helper functions
 

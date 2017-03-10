@@ -9,7 +9,6 @@
 
 import { Iterable, SetIterable, KeyedIterable } from './Iterable';
 import { isOrdered } from './Predicates';
-import { SetCollection } from './Collection';
 import { emptyMap, MapPrototype } from './Map';
 import { DELETE } from './TrieUtils';
 import { sortFactory } from './Operations';
@@ -17,7 +16,7 @@ import assertNotInfinite from './utils/assertNotInfinite';
 
 import { OrderedSet } from './OrderedSet';
 
-export class Set extends SetCollection {
+export class Set extends SetIterable {
   // @pragma Construction
 
   constructor(value) {

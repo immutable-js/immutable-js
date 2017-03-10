@@ -24,7 +24,6 @@ import {
 } from './TrieUtils';
 import { IndexedIterable } from './Iterable';
 import { isIterable } from './Predicates';
-import { IndexedCollection } from './Collection';
 import {
   MapPrototype,
   mergeIntoCollectionWith,
@@ -35,7 +34,7 @@ import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 
 import assertNotInfinite from './utils/assertNotInfinite';
 
-export class List extends IndexedCollection {
+export class List extends IndexedIterable {
   // @pragma Construction
 
   constructor(value) {

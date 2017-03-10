@@ -8,7 +8,6 @@
  */
 
 import { Seq } from './Seq';
-import { Collection } from './Collection';
 import { OrderedMap } from './OrderedMap';
 import { List } from './List';
 import { Map } from './Map';
@@ -36,7 +35,6 @@ export default {
   Iterable: Iterable,
 
   Seq: Seq,
-  Collection: Collection,
   Map: Map,
   OrderedMap: OrderedMap,
   List: List,
@@ -64,7 +62,6 @@ export default {
 export {
   Iterable,
   Seq,
-  Collection,
   Map,
   OrderedMap,
   List,
