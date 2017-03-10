@@ -17,4 +17,11 @@ addons:
     packages:
       - g++-4.9
 
-after_success: npm run deploy
+deploy:
+- provider: script
+  skip_cleanup: true
+  script: npm run deploy
+  on:
+    tags: false
+    branch: master
+    repo: facebook/immutable-js
