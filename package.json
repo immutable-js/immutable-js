@@ -28,7 +28,7 @@
   },
   "scripts": {
     "precommit": "lint-staged",
-    "prepush": "run-s format build check-diff lint",
+    "prepush": "run-s lint build:dist check-diff",
     "build": "run-s build:*",
     "build:dist": "run-s clean:dist bundle:dist copy:dist stats:dist",
     "build:pages": "gulp --gulpfile gulpfile.js default",
