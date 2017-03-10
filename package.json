@@ -19,7 +19,16 @@
   "typescript": {
     "definition": "dist/immutable.d.ts"
   },
+  "lint-staged": {
+    "{src,pages/src,pages/lib}/**/*.js": [
+      "prettier --write --single-quote",
+      "eslint",
+      "git add"
+    ]
+  },
   "scripts": {
+    "precommit": "lint-staged",
+    "prepush": "run-s format build check-diff lint",
     "build": "run-s build:*",
     "build:dist": "run-s clean:dist bundle:dist copy:dist stats:dist",
     "build:pages": "gulp --gulpfile gulpfile.js default",
@@ -32,6 +41,7 @@
     "testonly": "./resources/jest",
     "test": "run-s format build lint testonly type-check",
     "test:travis": "npm run test && ./resources/check-changes",
+    "check-diff": "git diff --quiet || (echo 'Run `npm test && git add .` to add latest changes before `git push`.'; exit 1)",
     "type-check": "cd type-definitions/tests && flow check",
     "perf": "node ./resources/bench.js",
     "start": "gulp --gulpfile gulpfile.js dev",
@@ -73,8 +83,10 @@
     "gulp-sourcemaps": "2.4.1",
     "gulp-uglify": "2.1.0",
     "gulp-util": "3.0.8",
+    "husky": "0.13.2",
     "jasmine-check": "0.1.5",
     "jest": "19.0.2",
+    "lint-staged": "3.3.1",
     "marked": "0.3.6",
     "microtime": "^2.1.2",
     "mkdirp": "0.5.1",
