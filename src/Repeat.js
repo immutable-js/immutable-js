@@ -49,7 +49,7 @@ export class Repeat extends IndexedSeq {
   }
 
   slice(begin, end) {
-    var size = this.size;
+    const size = this.size;
     return wholeSlice(begin, end, size)
       ? this
       : new Repeat(
@@ -77,8 +77,8 @@ export class Repeat extends IndexedSeq {
   }
 
   __iterate(fn, reverse) {
-    var size = this.size;
-    var i = 0;
+    const size = this.size;
+    let i = 0;
     while (i !== size) {
       if (fn(this._value, reverse ? size - ++i : i++, this) === false) {
         break;
@@ -88,8 +88,8 @@ export class Repeat extends IndexedSeq {
   }
 
   __iterator(type, reverse) {
-    var size = this.size;
-    var i = 0;
+    const size = this.size;
+    let i = 0;
     return new Iterator(
       () =>
         i === size
@@ -105,4 +105,4 @@ export class Repeat extends IndexedSeq {
   }
 }
 
-var EMPTY_REPEAT;
+let EMPTY_REPEAT;

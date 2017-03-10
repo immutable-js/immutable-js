@@ -5,5 +5,8 @@
   "parserOptions": {
     "ecmaVersion": 6,
     "sourceType": "script"
+  },
+  "rules": {
+    "no-var": "off"
   }
 }

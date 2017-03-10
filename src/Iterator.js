@@ -7,14 +7,14 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-export var ITERATE_KEYS = 0;
-export var ITERATE_VALUES = 1;
-export var ITERATE_ENTRIES = 2;
+export const ITERATE_KEYS = 0;
+export const ITERATE_VALUES = 1;
+export const ITERATE_ENTRIES = 2;
 
-var REAL_ITERATOR_SYMBOL = typeof Symbol === 'function' && Symbol.iterator;
-var FAUX_ITERATOR_SYMBOL = '@@iterator';
+const REAL_ITERATOR_SYMBOL = typeof Symbol === 'function' && Symbol.iterator;
+const FAUX_ITERATOR_SYMBOL = '@@iterator';
 
-export var ITERATOR_SYMBOL = REAL_ITERATOR_SYMBOL || FAUX_ITERATOR_SYMBOL;
+export const ITERATOR_SYMBOL = REAL_ITERATOR_SYMBOL || FAUX_ITERATOR_SYMBOL;
 
 export class Iterator {
   constructor(next) {
@@ -38,7 +38,7 @@ Iterator.prototype[ITERATOR_SYMBOL] = function() {
 };
 
 export function iteratorValue(type, k, v, iteratorResult) {
-  var value = type === 0 ? k : type === 1 ? v : [k, v];
+  const value = type === 0 ? k : type === 1 ? v : [k, v];
   iteratorResult
     ? (iteratorResult.value = value)
     : (iteratorResult = {
@@ -61,12 +61,12 @@ export function isIterator(maybeIterator) {
 }
 
 export function getIterator(iterable) {
-  var iteratorFn = getIteratorFn(iterable);
+  const iteratorFn = getIteratorFn(iterable);
   return iteratorFn && iteratorFn.call(iterable);
 }
 
 function getIteratorFn(iterable) {
-  var iteratorFn = iterable &&
+  const iteratorFn = iterable &&
     ((REAL_ITERATOR_SYMBOL && iterable[REAL_ITERATOR_SYMBOL]) ||
       iterable[FAUX_ITERATOR_SYMBOL]);
   if (typeof iteratorFn === 'function') {

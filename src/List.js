@@ -39,15 +39,15 @@ export class List extends IndexedCollection {
   // @pragma Construction
 
   constructor(value) {
-    var empty = emptyList();
+    const empty = emptyList();
     if (value === null || value === undefined) {
       return empty;
     }
     if (isList(value)) {
       return value;
     }
-    var iter = IndexedIterable(value);
-    var size = iter.size;
+    const iter = IndexedIterable(value);
+    const size = iter.size;
     if (size === 0) {
       return empty;
     }
@@ -75,7 +75,7 @@ export class List extends IndexedCollection {
     index = wrapIndex(this, index);
     if (index >= 0 && index < this.size) {
       index += this._origin;
-      var node = listNodeFor(this, index);
+      const node = listNodeFor(this, index);
       return node && node.array[index & MASK];
     }
     return notSetValue;
@@ -115,11 +115,11 @@ export class List extends IndexedCollection {
   }
 
   push(/*...values*/) {
-    var values = arguments;
-    var oldSize = this.size;
+    const values = arguments;
+    const oldSize = this.size;
     return this.withMutations(list => {
       setListBounds(list, 0, oldSize + values.length);
-      for (var ii = 0; ii < values.length; ii++) {
+      for (let ii = 0; ii < values.length; ii++) {
         list.set(oldSize + ii, values[ii]);
       }
     });
@@ -130,10 +130,10 @@ export class List extends IndexedCollection {
   }
 
   unshift(/*...values*/) {
-    var values = arguments;
+    const values = arguments;
     return this.withMutations(list => {
       setListBounds(list, -values.length);
-      for (var ii = 0; ii < values.length; ii++) {
+      for (let ii = 0; ii < values.length; ii++) {
         list.set(ii, values[ii]);
       }
     });
@@ -168,7 +168,7 @@ export class List extends IndexedCollection {
   // @pragma Iteration
 
   slice(begin, end) {
-    var size = this.size;
+    const size = this.size;
     if (wholeSlice(begin, end, size)) {
       return this;
     }
@@ -180,10 +180,10 @@ export class List extends IndexedCollection {
   }
 
   __iterator(type, reverse) {
-    var index = reverse ? this.size : 0;
-    var values = iterateList(this, reverse);
+    let index = reverse ? this.size : 0;
+    const values = iterateList(this, reverse);
     return new Iterator(() => {
-      var value = values();
+      const value = values();
       return value === DONE
         ? iteratorDone()
         : iteratorValue(type, reverse ? --index : index++, value);
@@ -191,9 +191,9 @@ export class List extends IndexedCollection {
   }
 
   __iterate(fn, reverse) {
-    var index = reverse ? this.size : 0;
-    var values = iterateList(this, reverse);
-    var value;
+    let index = reverse ? this.size : 0;
+    const values = iterateList(this, reverse);
+    let value;
     while ((value = values()) !== DONE) {
       if (fn(value, reverse ? --index : index++, this) === false) {
         break;
@@ -231,9 +231,9 @@ export function isList(maybeList) {
 
 List.isList = isList;
 
-var IS_LIST_SENTINEL = '@@__IMMUTABLE_LIST__@@';
+const IS_LIST_SENTINEL = '@@__IMMUTABLE_LIST__@@';
 
-export var ListPrototype = List.prototype;
+export const ListPrototype = List.prototype;
 ListPrototype[IS_LIST_SENTINEL] = true;
 ListPrototype[DELETE] = ListPrototype.remove;
 ListPrototype.setIn = MapPrototype.setIn;
@@ -259,14 +259,14 @@ class VNode {
     if (index === level ? 1 << level : 0 || this.array.length === 0) {
       return this;
     }
-    var originIndex = index >>> level & MASK;
+    const originIndex = index >>> level & MASK;
     if (originIndex >= this.array.length) {
       return new VNode([], ownerID);
     }
-    var removingFirst = originIndex === 0;
-    var newChild;
+    const removingFirst = originIndex === 0;
+    let newChild;
     if (level > 0) {
-      var oldChild = this.array[originIndex];
+      const oldChild = this.array[originIndex];
       newChild = oldChild &&
         oldChild.removeBefore(ownerID, level - SHIFT, index);
       if (newChild === oldChild && removingFirst) {
@@ -276,9 +276,9 @@ class VNode {
     if (removingFirst && !newChild) {
       return this;
     }
-    var editable = editableVNode(this, ownerID);
+    const editable = editableVNode(this, ownerID);
     if (!removingFirst) {
-      for (var ii = 0; ii < originIndex; ii++) {
+      for (let ii = 0; ii < originIndex; ii++) {
         editable.array[ii] = undefined;
       }
     }
@@ -292,14 +292,14 @@ class VNode {
     if (index === (level ? 1 << level : 0) || this.array.length === 0) {
       return this;
     }
-    var sizeIndex = index - 1 >>> level & MASK;
+    const sizeIndex = index - 1 >>> level & MASK;
     if (sizeIndex >= this.array.length) {
       return this;
     }
 
-    var newChild;
+    let newChild;
     if (level > 0) {
-      var oldChild = this.array[sizeIndex];
+      const oldChild = this.array[sizeIndex];
       newChild = oldChild &&
         oldChild.removeAfter(ownerID, level - SHIFT, index);
       if (newChild === oldChild && sizeIndex === this.array.length - 1) {
@@ -307,7 +307,7 @@ class VNode {
       }
     }
 
-    var editable = editableVNode(this, ownerID);
+    const editable = editableVNode(this, ownerID);
     editable.array.splice(sizeIndex + 1);
     if (newChild) {
       editable.array[sizeIndex] = newChild;
@@ -316,13 +316,13 @@ class VNode {
   }
 }
 
-var DONE = {};
+const DONE = {};
 
 function iterateList(list, reverse) {
-  var left = list._origin;
-  var right = list._capacity;
-  var tailPos = getTailOffset(right);
-  var tail = list._tail;
+  const left = list._origin;
+  const right = list._capacity;
+  const tailPos = getTailOffset(right);
+  const tail = list._tail;
 
   return iterateNodeOrLeaf(list._root, list._level, 0);
 
@@ -333,9 +333,9 @@ function iterateList(list, reverse) {
   }
 
   function iterateLeaf(node, offset) {
-    var array = offset === tailPos ? tail && tail.array : node && node.array;
-    var from = offset > left ? 0 : left - offset;
-    var to = right - offset;
+    const array = offset === tailPos ? tail && tail.array : node && node.array;
+    let from = offset > left ? 0 : left - offset;
+    let to = right - offset;
     if (to > SIZE) {
       to = SIZE;
     }
@@ -343,23 +343,23 @@ function iterateList(list, reverse) {
       if (from === to) {
         return DONE;
       }
-      var idx = reverse ? --to : from++;
+      const idx = reverse ? --to : from++;
       return array && array[idx];
     };
   }
 
   function iterateNode(node, level, offset) {
-    var values;
-    var array = node && node.array;
-    var from = offset > left ? 0 : left - offset >> level;
-    var to = (right - offset >> level) + 1;
+    let values;
+    const array = node && node.array;
+    let from = offset > left ? 0 : left - offset >> level;
+    let to = (right - offset >> level) + 1;
     if (to > SIZE) {
       to = SIZE;
     }
     return () => {
       while (true) {
         if (values) {
-          var value = values();
+          const value = values();
           if (value !== DONE) {
             return value;
           }
@@ -368,7 +368,7 @@ function iterateList(list, reverse) {
         if (from === to) {
           return DONE;
         }
-        var idx = reverse ? --to : from++;
+        const idx = reverse ? --to : from++;
         values = iterateNodeOrLeaf(
           array && array[idx],
           level - SHIFT,
@@ -380,7 +380,7 @@ function iterateList(list, reverse) {
 }
 
 function makeList(origin, capacity, level, root, tail, ownerID, hash) {
-  var list = Object.create(ListPrototype);
+  const list = Object.create(ListPrototype);
   list.size = capacity - origin;
   list._origin = origin;
   list._capacity = capacity;
@@ -393,7 +393,7 @@ function makeList(origin, capacity, level, root, tail, ownerID, hash) {
   return list;
 }
 
-var EMPTY_LIST;
+let EMPTY_LIST;
 export function emptyList() {
   return EMPTY_LIST || (EMPTY_LIST = makeList(0, 0, SHIFT));
 }
@@ -415,9 +415,9 @@ function updateList(list, index, value) {
 
   index += list._origin;
 
-  var newTail = list._tail;
-  var newRoot = list._root;
-  var didAlter = MakeRef(DID_ALTER);
+  let newTail = list._tail;
+  let newRoot = list._root;
+  const didAlter = MakeRef(DID_ALTER);
   if (index >= getTailOffset(list._capacity)) {
     newTail = updateVNode(newTail, list.__ownerID, 0, index, value, didAlter);
   } else {
@@ -446,17 +446,17 @@ function updateList(list, index, value) {
 }
 
 function updateVNode(node, ownerID, level, index, value, didAlter) {
-  var idx = index >>> level & MASK;
-  var nodeHas = node && idx < node.array.length;
+  const idx = index >>> level & MASK;
+  const nodeHas = node && idx < node.array.length;
   if (!nodeHas && value === undefined) {
     return node;
   }
 
-  var newNode;
+  let newNode;
 
   if (level > 0) {
-    var lowerNode = node && node.array[idx];
-    var newLowerNode = updateVNode(
+    const lowerNode = node && node.array[idx];
+    const newLowerNode = updateVNode(
       lowerNode,
       ownerID,
       level - SHIFT,
@@ -499,8 +499,8 @@ function listNodeFor(list, rawIndex) {
     return list._tail;
   }
   if (rawIndex < 1 << list._level + SHIFT) {
-    var node = list._root;
-    var level = list._level;
+    let node = list._root;
+    let level = list._level;
     while (node && level > 0) {
       node = node.array[rawIndex >>> level & MASK];
       level -= SHIFT;
@@ -518,11 +518,11 @@ function setListBounds(list, begin, end) {
   if (end !== undefined) {
     end |= 0;
   }
-  var owner = list.__ownerID || new OwnerID();
-  var oldOrigin = list._origin;
-  var oldCapacity = list._capacity;
-  var newOrigin = oldOrigin + begin;
-  var newCapacity = end === undefined
+  const owner = list.__ownerID || new OwnerID();
+  let oldOrigin = list._origin;
+  let oldCapacity = list._capacity;
+  let newOrigin = oldOrigin + begin;
+  let newCapacity = end === undefined
     ? oldCapacity
     : end < 0 ? oldCapacity + end : oldOrigin + end;
   if (newOrigin === oldOrigin && newCapacity === oldCapacity) {
@@ -534,11 +534,11 @@ function setListBounds(list, begin, end) {
     return list.clear();
   }
 
-  var newLevel = list._level;
-  var newRoot = list._root;
+  let newLevel = list._level;
+  let newRoot = list._root;
 
   // New origin might need creating a higher root.
-  var offsetShift = 0;
+  let offsetShift = 0;
   while (newOrigin + offsetShift < 0) {
     newRoot = new VNode(
       newRoot && newRoot.array.length ? [undefined, newRoot] : [],
@@ -554,8 +554,8 @@ function setListBounds(list, begin, end) {
     oldCapacity += offsetShift;
   }
 
-  var oldTailOffset = getTailOffset(oldCapacity);
-  var newTailOffset = getTailOffset(newCapacity);
+  const oldTailOffset = getTailOffset(oldCapacity);
+  const newTailOffset = getTailOffset(newCapacity);
 
   // New size might need creating a higher root.
   while (newTailOffset >= 1 << newLevel + SHIFT) {
@@ -567,8 +567,8 @@ function setListBounds(list, begin, end) {
   }
 
   // Locate or create the new tail.
-  var oldTail = list._tail;
-  var newTail = newTailOffset < oldTailOffset
+  const oldTail = list._tail;
+  let newTail = newTailOffset < oldTailOffset
     ? listNodeFor(list, newCapacity - 1)
     : newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
 
@@ -580,9 +580,9 @@ function setListBounds(list, begin, end) {
     oldTail.array.length
   ) {
     newRoot = editableVNode(newRoot, owner);
-    var node = newRoot;
-    for (var level = newLevel; level > SHIFT; level -= SHIFT) {
-      var idx = oldTailOffset >>> level & MASK;
+    let node = newRoot;
+    for (let level = newLevel; level > SHIFT; level -= SHIFT) {
+      const idx = oldTailOffset >>> level & MASK;
       node = (node.array[idx] = editableVNode(node.array[idx], owner));
     }
     node.array[oldTailOffset >>> SHIFT & MASK] = oldTail;
@@ -607,7 +607,7 @@ function setListBounds(list, begin, end) {
 
     // Identify the new top root node of the subtree of the old root.
     while (newRoot) {
-      var beginIndex = newOrigin >>> newLevel & MASK;
+      const beginIndex = newOrigin >>> newLevel & MASK;
       if (beginIndex !== newTailOffset >>> newLevel & MASK) {
         break;
       }
@@ -650,11 +650,11 @@ function setListBounds(list, begin, end) {
 }
 
 function mergeIntoListWith(list, merger, iterables) {
-  var iters = [];
-  var maxSize = 0;
-  for (var ii = 0; ii < iterables.length; ii++) {
-    var value = iterables[ii];
-    var iter = IndexedIterable(value);
+  const iters = [];
+  let maxSize = 0;
+  for (let ii = 0; ii < iterables.length; ii++) {
+    const value = iterables[ii];
+    let iter = IndexedIterable(value);
     if (iter.size > maxSize) {
       maxSize = iter.size;
     }

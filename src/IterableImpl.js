@@ -108,7 +108,7 @@ mixin(Iterable, {
 
   toArray() {
     assertNotInfinite(this.size);
-    var array = new Array(this.size || 0);
+    const array = new Array(this.size || 0);
     this.valueSeq().__iterate((v, i) => {
       array[i] = v;
     });
@@ -134,7 +134,7 @@ mixin(Iterable, {
 
   toObject() {
     assertNotInfinite(this.size);
-    var object = {};
+    const object = {};
     this.__iterate((v, k) => {
       object[k] = v;
     });
@@ -209,7 +209,7 @@ mixin(Iterable, {
 
   every(predicate, context) {
     assertNotInfinite(this.size);
-    var returnValue = true;
+    let returnValue = true;
     this.__iterate((v, k, c) => {
       if (!predicate.call(context, v, k, c)) {
         returnValue = false;
@@ -224,7 +224,7 @@ mixin(Iterable, {
   },
 
   find(predicate, context, notSetValue) {
-    var entry = this.findEntry(predicate, context);
+    const entry = this.findEntry(predicate, context);
     return entry ? entry[1] : notSetValue;
   },
 
@@ -236,8 +236,8 @@ mixin(Iterable, {
   join(separator) {
     assertNotInfinite(this.size);
     separator = separator !== undefined ? '' + separator : ',';
-    var joined = '';
-    var isFirst = true;
+    let joined = '';
+    let isFirst = true;
     this.__iterate(v => {
       isFirst ? (isFirst = false) : (joined += separator);
       joined += v !== null && v !== undefined ? v.toString() : '';
@@ -320,12 +320,12 @@ mixin(Iterable, {
   },
 
   entrySeq() {
-    var iterable = this;
+    const iterable = this;
     if (iterable._cache) {
       // We cache as an entries array, so we can just return the cache!
       return new ArraySeq(iterable._cache);
     }
-    var entriesSequence = iterable.toSeq().map(entryMapper).toIndexedSeq();
+    const entriesSequence = iterable.toSeq().map(entryMapper).toIndexedSeq();
     entriesSequence.fromEntrySeq = () => iterable.toSeq();
 
     // Entries are plain Array, which do not define toJS, so it must
@@ -342,7 +342,7 @@ mixin(Iterable, {
   },
 
   findEntry(predicate, context, notSetValue) {
-    var found = notSetValue;
+    let found = notSetValue;
     this.__iterate((v, k, c) => {
       if (predicate.call(context, v, k, c)) {
         found = [k, v];
@@ -353,7 +353,7 @@ mixin(Iterable, {
   },
 
   findKey(predicate, context) {
-    var entry = this.findEntry(predicate, context);
+    const entry = this.findEntry(predicate, context);
     return entry && entry[0];
   },
 
@@ -392,9 +392,9 @@ mixin(Iterable, {
   },
 
   getIn(searchKeyPath, notSetValue) {
-    var nested = this;
-    var keyPath = coerceKeyPath(searchKeyPath);
-    var i = 0;
+    let nested = this;
+    const keyPath = coerceKeyPath(searchKeyPath);
+    let i = 0;
     while (i !== keyPath.length) {
       if (!nested || !nested.get) {
         throw new TypeError(
@@ -543,7 +543,7 @@ mixin(Iterable, {
   // abstract __iterator(type, reverse)
 });
 
-var IterablePrototype = Iterable.prototype;
+const IterablePrototype = Iterable.prototype;
 IterablePrototype[IS_ITERABLE_SENTINEL] = true;
 IterablePrototype[ITERATOR_SYMBOL] = IterablePrototype.values;
 IterablePrototype.toJSON = IterablePrototype.toArray;
@@ -562,7 +562,7 @@ mixin(KeyedIterable, {
   },
 
   mapEntries(mapper, context) {
-    var iterations = 0;
+    let iterations = 0;
     return reify(
       this,
       this.toSeq()
@@ -579,7 +579,7 @@ mixin(KeyedIterable, {
   }
 });
 
-var KeyedIterablePrototype = KeyedIterable.prototype;
+const KeyedIterablePrototype = KeyedIterable.prototype;
 KeyedIterablePrototype[IS_KEYED_SENTINEL] = true;
 KeyedIterablePrototype[ITERATOR_SYMBOL] = IterablePrototype.entries;
 KeyedIterablePrototype.toJSON = IterablePrototype.toObject;
@@ -600,17 +600,17 @@ mixin(IndexedIterable, {
   },
 
   findIndex(predicate, context) {
-    var entry = this.findEntry(predicate, context);
+    const entry = this.findEntry(predicate, context);
     return entry ? entry[0] : -1;
   },
 
   indexOf(searchValue) {
-    var key = this.keyOf(searchValue);
+    const key = this.keyOf(searchValue);
     return key === undefined ? -1 : key;
   },
 
   lastIndexOf(searchValue) {
-    var key = this.lastKeyOf(searchValue);
+    const key = this.lastKeyOf(searchValue);
     return key === undefined ? -1 : key;
   },
 
@@ -623,7 +623,7 @@ mixin(IndexedIterable, {
   },
 
   splice(index, removeNum /*, ...values*/) {
-    var numArgs = arguments.length;
+    const numArgs = arguments.length;
     removeNum = Math.max(removeNum || 0, 0);
     if (numArgs === 0 || (numArgs === 2 && !removeNum)) {
       return this;
@@ -632,7 +632,7 @@ mixin(IndexedIterable, {
     // collection. However size may be expensive to compute if not cached, so
     // only call count() if the number is in fact negative.
     index = resolveBegin(index, index < 0 ? this.count() : this.size);
-    var spliced = this.slice(0, index);
+    const spliced = this.slice(0, index);
     return reify(
       this,
       numArgs === 1
@@ -644,7 +644,7 @@ mixin(IndexedIterable, {
   // ### More collection methods
 
   findLastIndex(predicate, context) {
-    var entry = this.findLastEntry(predicate, context);
+    const entry = this.findLastEntry(predicate, context);
     return entry ? entry[0] : -1;
   },
 
@@ -677,9 +677,9 @@ mixin(IndexedIterable, {
   },
 
   interleave(/*...iterables*/) {
-    var iterables = [this].concat(arrCopy(arguments));
-    var zipped = zipWithFactory(this.toSeq(), IndexedSeq.of, iterables);
-    var interleaved = zipped.flatten(true);
+    const iterables = [this].concat(arrCopy(arguments));
+    const zipped = zipWithFactory(this.toSeq(), IndexedSeq.of, iterables);
+    const interleaved = zipped.flatten(true);
     if (zipped.size) {
       interleaved.size = zipped.size * iterables.length;
     }
@@ -699,18 +699,18 @@ mixin(IndexedIterable, {
   },
 
   zip(/*, ...iterables */) {
-    var iterables = [this].concat(arrCopy(arguments));
+    const iterables = [this].concat(arrCopy(arguments));
     return reify(this, zipWithFactory(this, defaultZipper, iterables));
   },
 
   zipWith(zipper /*, ...iterables */) {
-    var iterables = arrCopy(arguments);
+    const iterables = arrCopy(arguments);
     iterables[0] = this;
     return reify(this, zipWithFactory(this, zipper, iterables));
   }
 });
 
-var IndexedIterablePrototype = IndexedIterable.prototype;
+const IndexedIterablePrototype = IndexedIterable.prototype;
 IndexedIterablePrototype[IS_INDEXED_SENTINEL] = true;
 IndexedIterablePrototype[IS_ORDERED_SENTINEL] = true;
 
@@ -799,10 +799,10 @@ function hashIterable(iterable) {
   if (iterable.size === Infinity) {
     return 0;
   }
-  var ordered = isOrdered(iterable);
-  var keyed = isKeyed(iterable);
-  var h = ordered ? 1 : 0;
-  var size = iterable.__iterate(
+  const ordered = isOrdered(iterable);
+  const keyed = isKeyed(iterable);
+  let h = ordered ? 1 : 0;
+  const size = iterable.__iterate(
     keyed
       ? ordered
           ? (v, k) => {
