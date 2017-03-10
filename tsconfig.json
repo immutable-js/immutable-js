@@ -9,6 +9,10 @@
       "es2015"
     ]
   },
+  "include": [
+    "__tests__/**/*.ts",
+    "resources/jest.d.ts"
+  ],
   "exclude": [
     "node_modules",
     "type-definitions"

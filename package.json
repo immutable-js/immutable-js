@@ -45,7 +45,7 @@
       "ts"
     ],
     "transform": {
-      "^.+\\.ts$": "<rootDir>/resources/jestPreprocessor.js"
+      "^.+\\.ts$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
     "testRegex": "/__tests__/.*\\.(ts|js)$",
     "unmockedModulePathPatterns": [
@@ -92,6 +92,7 @@
     "rollup-plugin-strip-banner": "0.1.0",
     "run-sequence": "1.2.2",
     "through2": "2.0.3",
+    "ts-jest": "19.0.0",
     "tslint": "4.5.1",
     "typescript": "2.2.1",
     "uglify-js": "2.8.9",
