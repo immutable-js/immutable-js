@@ -71,13 +71,21 @@ describe('KeyedSeq', () => {
     let seq = Range(0, 100);
 
     // This is what we expect for IndexedSequences
-    expect(
-      seq.reverse().skip(10).take(5).reverse().entrySeq().toArray(),
-    ).toEqual([[0, 85], [1, 86], [2, 87], [3, 88], [4, 89]]);
+    expect(seq.reverse().skip(10).take(5).reverse().entrySeq().toArray()).toEqual([
+      [0, 85],
+      [1, 86],
+      [2, 87],
+      [3, 88],
+      [4, 89],
+    ]);
 
     // Where Keyed Sequences maintain keys.
-    expect(
-      seq.reverse().toKeyedSeq().skip(10).take(5).reverse().entrySeq().toArray(),
-    ).toEqual([[14, 85], [13, 86], [12, 87], [11, 88], [10, 89]]);
+    expect(seq.reverse().toKeyedSeq().skip(10).take(5).reverse().entrySeq().toArray()).toEqual([
+      [14, 85],
+      [13, 86],
+      [12, 87],
+      [11, 88],
+      [10, 89],
+    ]);
   });
 });

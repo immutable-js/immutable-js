@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "noEmitOnError": true,
     "target": "es5",
     "sourceMap": false,
     "noEmitOnError": true,
@@ -11,6 +10,7 @@
     ]
   },
   "exclude": [
+    "node_modules",
     "type-definitions"
   ]
 }

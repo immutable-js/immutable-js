@@ -35,27 +35,13 @@ describe('concat', () => {
     let b = Seq({ d: 4, e: 5, f: 6 });
     expect(a.size).toBe(3);
     expect(a.concat(b).size).toBe(6);
-    expect(a.concat(b).toObject()).toEqual({
-      a: 1,
-      b: 2,
-      c: 3,
-      d: 4,
-      e: 5,
-      f: 6,
-    });
+    expect(a.concat(b).toObject()).toEqual({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
   });
 
   it('concats objects to keyed seq', () => {
     let a = Seq({ a: 1, b: 2, c: 3 });
     let b = { d: 4, e: 5, f: 6 };
-    expect(a.concat(b).toObject()).toEqual({
-      a: 1,
-      b: 2,
-      c: 3,
-      d: 4,
-      e: 5,
-      f: 6,
-    });
+    expect(a.concat(b).toObject()).toEqual({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
   });
 
   it('doesnt concat raw arrays to keyed seq', () => {
@@ -149,17 +135,9 @@ describe('concat', () => {
     let a = Seq([1, 2, 3]).filter(x => true);
     expect(a.size).toBe(undefined); // Note: lazy filter does not know what size in O(1).
     expect(a.concat(a, a).toKeyedSeq().reverse().size).toBe(undefined);
-    expect(a.concat(a, a).toKeyedSeq().reverse().entrySeq().toArray()).toEqual([
-      [8, 3],
-      [7, 2],
-      [6, 1],
-      [5, 3],
-      [4, 2],
-      [3, 1],
-      [2, 3],
-      [1, 2],
-      [0, 1],
-    ]);
+    expect(a.concat(a, a).toKeyedSeq().reverse().entrySeq().toArray()).toEqual(
+      [[8, 3], [7, 2], [6, 1], [5, 3], [4, 2], [3, 1], [2, 3], [1, 2], [0, 1]],
+    );
   });
 
   it('counts from the end of the indexed sequence on negative index', () => {

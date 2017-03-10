@@ -47,10 +47,6 @@ describe('OrderedSet', () => {
     let s1 = OrderedSet.of('A', 'B', 'C');
     let s2 = OrderedSet.of('C', 'B', 'D');
     expect(s1.zip(s2).toArray()).toEqual([['A', 'C'], ['B', 'B'], ['C', 'D']]);
-    expect(s1.zipWith((c1, c2) => c1 + c2, s2).toArray()).toEqual([
-      'AC',
-      'BB',
-      'CD',
-    ]);
+    expect(s1.zipWith((c1, c2) => c1 + c2, s2).toArray()).toEqual(['AC', 'BB', 'CD']);
   });
 });

@@ -51,13 +51,12 @@ describe('zip', () => {
 
     it('can zip to create immutable collections', () => {
       expect(
-        Seq.of(1, 2, 3).zipWith(
-          function () {
-            return List(arguments);
-          },
-          Seq.of(4, 5, 6),
-          Seq.of(7, 8, 9),
-        ).toJS(),
+        Seq.of(1, 2, 3)
+          .zipWith(
+            (...args) => List(args),
+            Seq.of(4, 5, 6),
+            Seq.of(7, 8, 9),
+          ).toJS(),
       ).toEqual(
         [[1, 4, 7], [2, 5, 8], [3, 6, 9]],
       );

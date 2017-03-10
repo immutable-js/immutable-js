@@ -20,23 +20,11 @@ describe('splice', () => {
   it('splicing by infinity', () => {
     let l = List(['a', 'b', 'c', 'd']);
     expect(l.splice(2, Infinity, 'x').toArray()).toEqual(['a', 'b', 'x']);
-    expect(l.splice(Infinity, 2, 'x').toArray()).toEqual([
-      'a',
-      'b',
-      'c',
-      'd',
-      'x',
-    ]);
+    expect(l.splice(Infinity, 2, 'x').toArray()).toEqual(['a', 'b', 'c', 'd', 'x']);
 
     let s = List(['a', 'b', 'c', 'd']);
     expect(s.splice(2, Infinity, 'x').toArray()).toEqual(['a', 'b', 'x']);
-    expect(s.splice(Infinity, 2, 'x').toArray()).toEqual([
-      'a',
-      'b',
-      'c',
-      'd',
-      'x',
-    ]);
+    expect(s.splice(Infinity, 2, 'x').toArray()).toEqual([ 'a', 'b', 'c', 'd', 'x']);
   });
 
   it('has the same behavior as array splice in known edge cases', () => {

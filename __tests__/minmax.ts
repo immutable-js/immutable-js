@@ -33,24 +33,37 @@ describe('max', () => {
       { name: 'Casey', age: 34 },
       { name: 'Avery', age: 34 },
     ]);
-    expect(family.maxBy<number>(p => p.age, (a, b) => b - a).name).toBe(
-      'Oakley',
-    );
+    expect(family.maxBy<number>(p => p.age, (a, b) => b - a).name).toBe('Oakley');
   });
 
   it('surfaces NaN, null, and undefined', () => {
-    expect(is(NaN, Seq.of(1, 2, 3, 4, 5, NaN).max())).toBe(true);
-    expect(is(NaN, Seq.of(NaN, 1, 2, 3, 4, 5).max())).toBe(true);
-    expect(is(null, Seq.of('A', 'B', 'C', 'D', null).max())).toBe(true);
-    expect(is(null, Seq.of(null, 'A', 'B', 'C', 'D').max())).toBe(true);
+    expect(
+      is(NaN, Seq.of(1, 2, 3, 4, 5, NaN).max()),
+    ).toBe(true);
+    expect(
+      is(NaN, Seq.of(NaN, 1, 2, 3, 4, 5).max()),
+    ).toBe(true);
+    expect(
+      is(null, Seq.of('A', 'B', 'C', 'D', null).max()),
+    ).toBe(true);
+    expect(
+      is(null, Seq.of(null, 'A', 'B', 'C', 'D').max()),
+    ).toBe(true);
   });
 
   it('null treated as 0 in default iterator', () => {
-    expect(is(2, Seq.of(-1, -2, null, 1, 2).max())).toBe(true);
+    expect(
+      is(2, Seq.of(-1, -2, null, 1, 2).max()),
+    ).toBe(true);
   });
 
   check.it('is not dependent on order', [genHeterogeneousishArray], vals => {
-    expect(is(Seq(shuffle(vals.slice())).max(), Seq(vals).max())).toEqual(true);
+    expect(
+      is(
+        Seq(shuffle(vals.slice())).max(),
+        Seq(vals).max(),
+      ),
+    ).toEqual(true);
   });
 });
 
@@ -80,13 +93,16 @@ describe('min', () => {
       { name: 'Casey', age: 34 },
       { name: 'Avery', age: 34 },
     ]);
-    expect(family.minBy<number>(p => p.age, (a, b) => b - a).name).toBe(
-      'Casey',
-    );
+    expect(family.minBy<number>(p => p.age, (a, b) => b - a).name).toBe('Casey');
   });
 
   check.it('is not dependent on order', [genHeterogeneousishArray], vals => {
-    expect(is(Seq(shuffle(vals.slice())).min(), Seq(vals).min())).toEqual(true);
+    expect(
+      is(
+        Seq(shuffle(vals.slice())).min(),
+        Seq(vals).min(),
+      ),
+    ).toEqual(true);
   });
 });
 

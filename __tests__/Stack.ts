@@ -86,14 +86,22 @@ describe('Stack', () => {
     while (!(step = iterator.next()).done) {
       iteratorResults.push(step.value);
     }
-    expect(iteratorResults).toEqual([[0, 'a'], [1, 'b'], [2, 'c']]);
+    expect(iteratorResults).toEqual([
+      [0, 'a'],
+      [1, 'b'],
+      [2, 'c'],
+    ]);
 
     iteratorResults = [];
     iterator = s.toSeq().reverse().entries();
     while (!(step = iterator.next()).done) {
       iteratorResults.push(step.value);
     }
-    expect(iteratorResults).toEqual([[0, 'c'], [1, 'b'], [2, 'a']]);
+    expect(iteratorResults).toEqual([
+      [0, 'c'],
+      [1, 'b'],
+      [2, 'a'],
+    ]);
   });
 
   it('map is called in reverse order but with correct indices', () => {
@@ -120,43 +128,33 @@ describe('Stack', () => {
     expect(s.toArray()).toEqual(['b', 'c']);
   });
 
-  check.it(
-    'shift removes the lowest index, just like array',
-    { maxSize: 2000 },
-    [gen.posInt],
-    len => {
-      let a = arrayOfSize(len);
-      let s = Stack(a);
+  check.it('shift removes the lowest index, just like array', { maxSize: 2000 }, [gen.posInt], len => {
+    let a = arrayOfSize(len);
+    let s = Stack(a);
 
-      while (a.length) {
-        expect(s.size).toBe(a.length);
-        expect(s.toArray()).toEqual(a);
-        s = s.shift();
-        a.shift();
-      }
+    while (a.length) {
       expect(s.size).toBe(a.length);
       expect(s.toArray()).toEqual(a);
-    },
-  );
+      s = s.shift();
+      a.shift();
+    }
+    expect(s.size).toBe(a.length);
+    expect(s.toArray()).toEqual(a);
+  });
 
-  check.it(
-    'unshift adds the next lowest index, just like array',
-    { maxSize: 2000 },
-    [gen.posInt],
-    len => {
-      let a = [];
-      let s = Stack();
+  check.it('unshift adds the next lowest index, just like array', { maxSize: 2000 }, [gen.posInt], len => {
+    let a = [];
+    let s = Stack();
 
-      for (let ii = 0; ii < len; ii++) {
-        expect(s.size).toBe(a.length);
-        expect(s.toArray()).toEqual(a);
-        s = s.unshift(ii);
-        a.unshift(ii);
-      }
+    for (let ii = 0; ii < len; ii++) {
       expect(s.size).toBe(a.length);
       expect(s.toArray()).toEqual(a);
-    },
-  );
+      s = s.unshift(ii);
+      a.unshift(ii);
+    }
+    expect(s.size).toBe(a.length);
+    expect(s.toArray()).toEqual(a);
+  });
 
   check.it(
     'unshifts multiple values to the front',
@@ -191,14 +189,7 @@ describe('Stack', () => {
 
     // Push all to the front of the Stack so first item ends up first.
     expect(abc.pushAll(xyz).toArray()).toEqual(['x', 'y', 'z', 'a', 'b', 'c']);
-    expect(abc.pushAll(xyzSeq).toArray()).toEqual([
-      'x',
-      'y',
-      'z',
-      'a',
-      'b',
-      'c',
-    ]);
+    expect(abc.pushAll(xyzSeq).toArray()).toEqual([ 'x', 'y', 'z', 'a', 'b', 'c']);
 
     // Pushes Seq contents into Stack
     expect(Stack().pushAll(xyzSeq)).not.toBe(xyzSeq);

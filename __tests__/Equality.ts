@@ -54,29 +54,17 @@ describe('Equality', () => {
   it('dereferences things', () => {
     let ptrA = { foo: 1 }, ptrB = { foo: 2 };
     expectIsNot(ptrA, ptrB);
-    ptrA.valueOf = (ptrB.valueOf = function () {
-      return 5;
-    });
+    ptrA.valueOf = ptrB.valueOf = () => 5;
     expectIs(ptrA, ptrB);
     let object = { key: 'value' };
-    ptrA.valueOf = (ptrB.valueOf = function () {
-      return object;
-    });
+    ptrA.valueOf = ptrB.valueOf = () => object;
     expectIs(ptrA, ptrB);
-    ptrA.valueOf = (ptrB.valueOf = function () {
-      return null;
-    });
+    ptrA.valueOf = ptrB.valueOf = () => null;
     expectIs(ptrA, ptrB);
-    ptrA.valueOf = (ptrB.valueOf = function () {
-      return void 0;
-    });
+    ptrA.valueOf = ptrB.valueOf = () => void 0;
     expectIs(ptrA, ptrB);
-    ptrA.valueOf = function () {
-      return 4;
-    };
-    ptrB.valueOf = function () {
-      return 5;
-    };
+    ptrA.valueOf = () => 4;
+    ptrB.valueOf = () => 5;
     expectIsNot(ptrA, ptrB);
   });
 

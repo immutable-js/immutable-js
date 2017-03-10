@@ -76,17 +76,12 @@ describe('OrderedMap', () => {
   it('respects order when merging', () => {
     let m1 = OrderedMap({ A: 'apple', B: 'banana', C: 'coconut' });
     let m2 = OrderedMap({ C: 'chocolate', B: 'butter', D: 'donut' });
-    expect(m1.merge(m2).entrySeq().toArray()).toEqual([
-      ['A', 'apple'],
-      ['B', 'butter'],
-      ['C', 'chocolate'],
-      ['D', 'donut'],
-    ]);
-    expect(m2.merge(m1).entrySeq().toArray()).toEqual([
-      ['C', 'coconut'],
-      ['B', 'banana'],
-      ['D', 'donut'],
-      ['A', 'apple'],
-    ]);
+
+    expect(m1.merge(m2).entrySeq().toArray()).toEqual(
+      [['A', 'apple'], ['B', 'butter'], ['C', 'chocolate'], ['D', 'donut']],
+    );
+    expect(m2.merge(m1).entrySeq().toArray()).toEqual(
+      [['C', 'coconut'], ['B', 'banana'], ['D', 'donut'], ['A', 'apple']],
+    );
   });
 });

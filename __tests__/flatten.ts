@@ -43,24 +43,9 @@ describe('flatten', () => {
     ]);
 
     // deeply flatten
-    expect(deeplyNested.flatten().toJS()).toEqual([
-      'A',
-      'B',
-      'A',
-      'B',
-      'A',
-      'B',
-      'A',
-      'B',
-      'A',
-      'B',
-      'A',
-      'B',
-      'A',
-      'B',
-      'A',
-      'B',
-    ]);
+    expect(deeplyNested.flatten().toJS()).toEqual(
+      ['A', 'B', 'A', 'B', 'A', 'B', 'A', 'B', 'A', 'B', 'A', 'B', 'A', 'B', 'A', 'B'],
+    );
 
     // shallow flatten
     expect(deeplyNested.flatten(true).toJS()).toEqual([
@@ -86,9 +71,13 @@ describe('flatten', () => {
   describe('flatMap', () => {
     it('first maps, then shallow flattens', () => {
       let numbers = Range(97, 100);
-      let letters = numbers.flatMap(v =>
-        fromJS([String.fromCharCode(v), String.fromCharCode(v).toUpperCase()]));
-      expect(letters.toJS()).toEqual(['a', 'A', 'b', 'B', 'c', 'C']);
+      let letters = numbers.flatMap(v => fromJS([
+        String.fromCharCode(v),
+        String.fromCharCode(v).toUpperCase(),
+      ]));
+      expect(letters.toJS()).toEqual(
+        ['a', 'A', 'b', 'B', 'c', 'C'],
+      );
     });
 
     it('maps to sequenceables, not only Sequences.', () => {

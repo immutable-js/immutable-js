@@ -13,7 +13,7 @@ interface ExpectWithIs extends Expect {
 jasmine.addMatchers({
   is() {
     return {
-      compare (actual, expected) {
+      compare(actual, expected) {
         let passed = is(actual, expected);
         return {
           pass: passed,

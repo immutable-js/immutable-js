@@ -31,15 +31,9 @@ describe('Range', () => {
     expect(v.last()).toBe(Infinity);
     expect(v.butLast().first()).toBe(10);
     expect(v.butLast().last()).toBe(Infinity);
-    expect(() => v.rest().toArray()).toThrow(
-      'Cannot perform this action with an infinite size.',
-    );
-    expect(() => v.butLast().toArray()).toThrow(
-      'Cannot perform this action with an infinite size.',
-    );
-    expect(() => v.toArray()).toThrow(
-      'Cannot perform this action with an infinite size.',
-    );
+    expect(() => v.rest().toArray()).toThrow('Cannot perform this action with an infinite size.');
+    expect(() => v.butLast().toArray()).toThrow('Cannot perform this action with an infinite size.');
+    expect(() => v.toArray()).toThrow('Cannot perform this action with an infinite size.');
   });
 
   it('backwards range', () => {
@@ -60,37 +54,29 @@ describe('Range', () => {
     expect(v.toArray()).toEqual([]);
   });
 
-  check.it(
-    'includes first, excludes last',
-    [gen.int, gen.int],
-    function (from, to) {
-      let isIncreasing = to >= from;
-      let size = isIncreasing ? to - from : from - to;
-      let r = Range(from, to);
-      let a = r.toArray();
-      expect(r.size).toBe(size);
-      expect(a.length).toBe(size);
-      expect(r.get(0)).toBe(size ? from : undefined);
-      expect(a[0]).toBe(size ? from : undefined);
-      let last = to + (isIncreasing ? -1 : 1);
-      expect(r.last()).toBe(size ? last : undefined);
-      if (size) {
-        expect(a[a.length - 1]).toBe(last);
-      }
-    },
-  );
+  check.it('includes first, excludes last', [gen.int, gen.int], (from, to) => {
+    let isIncreasing = to >= from;
+    let size = isIncreasing ? to - from : from - to;
+    let r = Range(from, to);
+    let a = r.toArray();
+    expect(r.size).toBe(size);
+    expect(a.length).toBe(size);
+    expect(r.get(0)).toBe(size ? from : undefined);
+    expect(a[0]).toBe(size ? from : undefined);
+    let last = to + (isIncreasing ? -1 : 1);
+    expect(r.last()).toBe(size ? last : undefined);
+    if (size) {
+      expect(a[a.length - 1]).toBe(last);
+    }
+  });
 
   let shrinkInt = gen.shrink(gen.int);
 
-  check.it(
-    'slices the same as array slices',
-    [shrinkInt, shrinkInt, shrinkInt, shrinkInt],
-    function (from, to, begin, end) {
-      let r = Range(from, to);
-      let a = r.toArray();
-      expect(r.slice(begin, end).toArray()).toEqual(a.slice(begin, end));
-    },
-  );
+  check.it('slices the same as array slices', [shrinkInt, shrinkInt, shrinkInt, shrinkInt], (from, to, begin, end) => {
+    let r = Range(from, to);
+    let a = r.toArray();
+    expect(r.slice(begin, end).toArray()).toEqual(a.slice(begin, end));
+  });
 
   it('slices range', () => {
     let v = Range(1, 11, 2);
@@ -168,21 +154,22 @@ describe('Range', () => {
   });
 
   it('can describe lazy operations', () => {
-    expect(Range(1, Infinity).map(n => -n).take(5).toArray()).toEqual([
-      -1,
-      -2,
-      -3,
-      -4,
-      -5,
-    ]);
+    expect(
+      Range(1, Infinity).map(n => -n).take(5).toArray(),
+    ).toEqual(
+      [-1, -2, -3, -4, -5],
+    );
   });
 
   it('efficiently chains array methods', () => {
     let v = Range(1, Infinity);
 
-    let r = v.filter(x => x % 2 === 0).skip(2).map <number>
-    (x => x * x).take(3).reduce <number>
-    ((a, b) => a + b, 0);
+    let r = v
+      .filter(x => x % 2 === 0)
+      .skip(2)
+      .map<number>(x => x * x)
+      .take(3)
+      .reduce<number>((a, b) => a + b, 0);
 
     expect(r).toEqual(200);
   });

@@ -27,16 +27,19 @@ describe('count', () => {
     });
 
     it('counts by indexed sequence', () => {
-      expect(Seq.of(1, 2, 3, 4, 5, 6).countBy(x => x % 2).toJS()).toEqual({
-        1: 3,
-        0: 3,
-      });
+      expect(
+        Seq.of(1, 2, 3, 4, 5, 6).countBy(x => x % 2).toJS(),
+      ).toEqual(
+        { 1: 3, 0: 3 },
+      );
     });
 
     it('counts by specific keys', () => {
       expect(
         Seq.of(1, 2, 3, 4, 5, 6).countBy(x => x % 2 ? 'odd' : 'even').toJS(),
-      ).toEqual({ odd: 3, even: 3 });
+      ).toEqual(
+        { odd: 3, even: 3 },
+      );
     });
   });
 
