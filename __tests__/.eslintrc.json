@@ -1,0 +1,9 @@
+{
+  "env": {
+    "jest": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "script"
+  }
+}

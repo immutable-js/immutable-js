@@ -3,18 +3,18 @@
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { Seq, Range } from '../';
+import { Range, Seq } from '../';
 
 describe('KeyedSeq', () => {
 
-  check.it('it iterates equivalently', [gen.array(gen.int)], (ints) => {
-    var seq = Seq(ints);
-    var keyed = seq.toKeyedSeq();
+  check.it('it iterates equivalently', [gen.array(gen.int)], ints => {
+    let seq = Seq(ints);
+    let keyed = seq.toKeyedSeq();
 
-    var seqEntries = seq.entries();
-    var keyedEntries = keyed.entries();
+    let seqEntries = seq.entries();
+    let keyedEntries = keyed.entries();
 
-    var seqStep, keyedStep;
+    let seqStep, keyedStep;
     do {
       seqStep = seqEntries.next();
       keyedStep = keyedEntries.next();
@@ -23,11 +23,11 @@ describe('KeyedSeq', () => {
   });
 
   it('maintains keys', () => {
-    var isEven = x => x % 2 === 0;
-    var seq = Range(0, 100);
+    let isEven = x => x % 2 === 0;
+    let seq = Range(0, 100);
 
     // This is what we expect for IndexedSequences
-    var operated = seq.filter(isEven).skip(10).take(5);
+    let operated = seq.filter(isEven).skip(10).take(5);
     expect(operated.entrySeq().toArray()).toEqual([
       [0, 20],
       [1, 22],
@@ -37,8 +37,8 @@ describe('KeyedSeq', () => {
     ]);
 
     // Where Keyed Sequences maintain keys.
-    var keyed = seq.toKeyedSeq();
-    var keyedOperated = keyed.filter(isEven).skip(10).take(5);
+    let keyed = seq.toKeyedSeq();
+    let keyedOperated = keyed.filter(isEven).skip(10).take(5);
     expect(keyedOperated.entrySeq().toArray()).toEqual([
       [20, 20],
       [22, 22],
@@ -49,7 +49,7 @@ describe('KeyedSeq', () => {
   });
 
   it('works with reverse', () => {
-    var seq = Range(0, 100);
+    let seq = Range(0, 100);
 
     // This is what we expect for IndexedSequences
     expect(seq.reverse().take(5).entrySeq().toArray()).toEqual([
@@ -71,7 +71,7 @@ describe('KeyedSeq', () => {
   });
 
   it('works with double reverse', () => {
-    var seq = Range(0, 100);
+    let seq = Range(0, 100);
 
     // This is what we expect for IndexedSequences
     expect(seq.reverse().skip(10).take(5).reverse().entrySeq().toArray()).toEqual([
