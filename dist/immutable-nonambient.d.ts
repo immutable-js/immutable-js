@@ -302,7 +302,7 @@
    */
   export function List(): List<any>;
   export function List<T>(): List<T>;
-  export function List<T>(collection: ESIterable<T>): List<T>;
+  export function List<T>(collection: Iterable<T>): List<T>;
 
   export interface List<T> extends Collection.Indexed<T> {
 
@@ -655,7 +655,7 @@
      * Similar to `list.map(...).flatten(true)`.
      */
     flatMap<M>(
-      mapper: (value: T, key: number, iter: this) => ESIterable<M>,
+      mapper: (value: T, key: number, iter: this) => Iterable<M>,
       context?: any
     ): List<M>;
   }
@@ -743,8 +743,8 @@
    */
   export function Map(): Map<any, any>;
   export function Map<K, V>(): Map<K, V>;
-  export function Map<K, V>(collection: ESIterable<[K, V]>): Map<K, V>;
-  export function Map<T>(collection: ESIterable<ESIterable<T>>): Map<T, T>;
+  export function Map<K, V>(collection: Iterable<[K, V]>): Map<K, V>;
+  export function Map<T>(collection: Iterable<Iterable<T>>): Map<T, T>;
   export function Map<V>(obj: {[key: string]: V}): Map<string, V>;
 
   export interface Map<K, V> extends Collection.Keyed<K, V> {
@@ -799,8 +799,8 @@
      *
      * @alias removeAll
      */
-    deleteAll(keys: Array<K> | ESIterable<K>): this;
-    removeAll(keys: Array<K> | ESIterable<K>): this;
+    deleteAll(keys: Array<K> | Iterable<K>): this;
+    removeAll(keys: Array<K> | Iterable<K>): this;
 
     /**
      * Returns a new Map containing no keys or values.
@@ -1198,7 +1198,7 @@
      * Similar to `data.map(...).flatten(true)`.
      */
     flatMap<KM, VM>(
-      mapper: (value: V, key: K, iter: this) => ESIterable<[KM, VM]>,
+      mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
       context?: any
     ): Map<KM, VM>;
   }
@@ -1239,8 +1239,8 @@
    */
   export function OrderedMap(): OrderedMap<any, any>;
   export function OrderedMap<K, V>(): OrderedMap<K, V>;
-  export function OrderedMap<K, V>(collection: ESIterable<[K, V]>): OrderedMap<K, V>;
-  export function OrderedMap<T>(collection: ESIterable<ESIterable<T>>): OrderedMap<T, T>;
+  export function OrderedMap<K, V>(collection: Iterable<[K, V]>): OrderedMap<K, V>;
+  export function OrderedMap<T>(collection: Iterable<Iterable<T>>): OrderedMap<T, T>;
   export function OrderedMap<V>(obj: {[key: string]: V}): OrderedMap<string, V>;
 
   export interface OrderedMap<K, V> extends Map<K, V> {
@@ -1284,7 +1284,7 @@
      * Similar to `data.map(...).flatten(true)`.
      */
     flatMap<KM, VM>(
-      mapper: (value: V, key: K, iter: this) => ESIterable<[KM, VM]>,
+      mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
       context?: any
     ): OrderedMap<KM, VM>;
   }
@@ -1332,7 +1332,7 @@
      * // Set [ 'a', 'c' ]
      * ```
      */
-    function intersect<T>(sets: ESIterable<ESIterable<T>>): Set<T>;
+    function intersect<T>(sets: Iterable<Iterable<T>>): Set<T>;
 
     /**
      * `Set.union()` creates a new immutable Set that is the union of a
@@ -1346,7 +1346,7 @@
      * // Set [ 'a', 'b', 'c', 't' ]
      * ```
      */
-    function union<T>(sets: ESIterable<ESIterable<T>>): Set<T>;
+    function union<T>(sets: Iterable<Iterable<T>>): Set<T>;
   }
 
   /**
@@ -1355,7 +1355,7 @@
    */
   export function Set(): Set<any>;
   export function Set<T>(): Set<T>;
-  export function Set<T>(collection: ESIterable<T>): Set<T>;
+  export function Set<T>(collection: Iterable<T>): Set<T>;
 
   export interface Set<T> extends Collection.Set<T> {
 
@@ -1461,7 +1461,7 @@
      * Similar to `set.map(...).flatten(true)`.
      */
     flatMap<M>(
-      mapper: (value: T, key: T, iter: this) => ESIterable<M>,
+      mapper: (value: T, key: T, iter: this) => Iterable<M>,
       context?: any
     ): Set<M>;
   }
@@ -1503,7 +1503,7 @@
    */
   export function OrderedSet(): OrderedSet<any>;
   export function OrderedSet<T>(): OrderedSet<T>;
-  export function OrderedSet<T>(collection: ESIterable<T>): OrderedSet<T>;
+  export function OrderedSet<T>(collection: Iterable<T>): OrderedSet<T>;
 
   export interface OrderedSet<T> extends Set<T> {
 
@@ -1530,7 +1530,7 @@
      * Similar to `set.map(...).flatten(true)`.
      */
     flatMap<M>(
-      mapper: (value: T, key: T, iter: this) => ESIterable<M>,
+      mapper: (value: T, key: T, iter: this) => Iterable<M>,
       context?: any
     ): OrderedSet<M>;
 
@@ -1607,7 +1607,7 @@
    */
   export function Stack(): Stack<any>;
   export function Stack<T>(): Stack<T>;
-  export function Stack<T>(collection: ESIterable<T>): Stack<T>;
+  export function Stack<T>(collection: Iterable<T>): Stack<T>;
 
   export interface Stack<T> extends Collection.Indexed<T> {
 
@@ -1831,8 +1831,8 @@
     export function getDescriptiveName(record: Instance<any>): string;
 
     export interface Class<T extends Object> {
-      (values?: Partial<T> | ESIterable<[string, any]>): Instance<T> & Readonly<T>;
-      new (values?: Partial<T> | ESIterable<[string, any]>): Instance<T> & Readonly<T>;
+      (values?: Partial<T> | Iterable<[string, any]>): Instance<T> & Readonly<T>;
+      new (values?: Partial<T> | Iterable<[string, any]>): Instance<T> & Readonly<T>;
     }
 
     export interface Instance<T extends Object> {
@@ -1845,8 +1845,8 @@
 
       // Reading deep values
 
-      hasIn(keyPath: ESIterable<any>): boolean;
-      getIn(keyPath: ESIterable<any>): any;
+      hasIn(keyPath: Iterable<any>): boolean;
+      getIn(keyPath: Iterable<any>): any;
 
       // Value equality
 
@@ -1857,30 +1857,30 @@
 
       set<K extends keyof T>(key: K, value: T[K]): this;
       update<K extends keyof T>(key: K, updater: (value: T[K]) => T[K]): this;
-      merge(...collections: Array<Partial<T> | ESIterable<[string, any]>>): this;
-      mergeDeep(...collections: Array<Partial<T> | ESIterable<[string, any]>>): this;
+      merge(...collections: Array<Partial<T> | Iterable<[string, any]>>): this;
+      mergeDeep(...collections: Array<Partial<T> | Iterable<[string, any]>>): this;
 
       mergeWith(
         merger: (oldVal: any, newVal: any, key: keyof T) => any,
-        ...collections: Array<Partial<T> | ESIterable<[string, any]>>
+        ...collections: Array<Partial<T> | Iterable<[string, any]>>
       ): this;
       mergeDeepWith(
         merger: (oldVal: any, newVal: any, key: any) => any,
-        ...collections: Array<Partial<T> | ESIterable<[string, any]>>
+        ...collections: Array<Partial<T> | Iterable<[string, any]>>
       ): this;
 
       // Deep persistent changes
 
-      setIn(keyPath: ESIterable<any>, value: any): this;
-      updateIn(keyPath: ESIterable<any>, updater: (value: any) => any): this;
-      mergeIn(keyPath: ESIterable<any>, ...collections: Array<any>): this;
-      mergeDeepIn(keyPath: ESIterable<any>, ...collections: Array<any>): this;
+      setIn(keyPath: Iterable<any>, value: any): this;
+      updateIn(keyPath: Iterable<any>, updater: (value: any) => any): this;
+      mergeIn(keyPath: Iterable<any>, ...collections: Array<any>): this;
+      mergeDeepIn(keyPath: Iterable<any>, ...collections: Array<any>): this;
 
       /**
        * @alias removeIn
        */
-      deleteIn(keyPath: ESIterable<any>): this;
-      removeIn(keyPath: ESIterable<any>): this;
+      deleteIn(keyPath: Iterable<any>): this;
+      removeIn(keyPath: Iterable<any>): this;
 
       // Conversion to JavaScript types
 
@@ -2002,7 +2002,7 @@
      */
     export function Keyed(): Seq.Keyed<any, any>;
     export function Keyed<K, V>(): Seq.Keyed<K, V>;
-    export function Keyed<K, V>(collection: ESIterable<[K, V]>): Seq.Keyed<K, V>;
+    export function Keyed<K, V>(collection: Iterable<[K, V]>): Seq.Keyed<K, V>;
     export function Keyed<V>(obj: {[key: string]: V}): Seq.Keyed<string, V>;
 
     export interface Keyed<K, V> extends Seq<K, V>, Collection.Keyed<K, V> {
@@ -2062,7 +2062,7 @@
        * Similar to `seq.map(...).flatten(true)`.
        */
       flatMap<KM, VM>(
-        mapper: (value: V, key: K, iter: this) => ESIterable<[KM, VM]>,
+        mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
         context?: any
       ): Seq.Keyed<KM, VM>;
     }
@@ -2085,7 +2085,7 @@
      */
     export function Indexed(): Seq.Indexed<any>;
     export function Indexed<T>(): Seq.Indexed<T>;
-    export function Indexed<T>(collection: ESIterable<T>): Seq.Indexed<T>;
+    export function Indexed<T>(collection: Iterable<T>): Seq.Indexed<T>;
 
     export interface Indexed<T> extends Seq<number, T>, Collection.Indexed<T> {
       /**
@@ -2124,7 +2124,7 @@
        * Similar to `seq.map(...).flatten(true)`.
        */
       flatMap<M>(
-        mapper: (value: T, key: number, iter: this) => ESIterable<M>,
+        mapper: (value: T, key: number, iter: this) => Iterable<M>,
         context?: any
       ): Seq.Indexed<M>;
     }
@@ -2149,7 +2149,7 @@
      */
     export function Set(): Seq.Set<any>;
     export function Set<T>(): Seq.Set<T>;
-    export function Set<T>(collection: ESIterable<T>): Seq.Set<T>;
+    export function Set<T>(collection: Iterable<T>): Seq.Set<T>;
 
     export interface Set<T> extends Seq<T, T>, Collection.Set<T> {
       /**
@@ -2188,7 +2188,7 @@
        * Similar to `seq.map(...).flatten(true)`.
        */
       flatMap<M>(
-        mapper: (value: T, key: T, iter: this) => ESIterable<M>,
+        mapper: (value: T, key: T, iter: this) => Iterable<M>,
         context?: any
       ): Seq.Set<M>;
     }
@@ -2214,7 +2214,7 @@
   export function Seq<K, V>(collection: Collection.Keyed<K, V>): Seq.Keyed<K, V>;
   export function Seq<T>(collection: Collection.Indexed<T>): Seq.Indexed<T>;
   export function Seq<T>(collection: Collection.Set<T>): Seq.Set<T>;
-  export function Seq<T>(collection: ESIterable<T>): Seq.Indexed<T>;
+  export function Seq<T>(collection: Iterable<T>): Seq.Indexed<T>;
   export function Seq<V>(obj: {[key: string]: V}): Seq.Keyed<string, V>;
 
   export interface Seq<K, V> extends Collection<K, V> {
@@ -2279,7 +2279,7 @@
      * Similar to `seq.map(...).flatten(true)`.
      */
     flatMap<M>(
-      mapper: (value: V, key: K, iter: this) => ESIterable<M>,
+      mapper: (value: V, key: K, iter: this) => Iterable<M>,
       context?: any
     ): Seq<K, M>;
   }
@@ -2340,7 +2340,7 @@
      * Similar to `Collection()`, however it expects collection-likes of [K, V]
      * tuples if not constructed from a Collection.Keyed or JS Object.
      */
-    export function Keyed<K, V>(collection: ESIterable<[K, V]>): Collection.Keyed<K, V>;
+    export function Keyed<K, V>(collection: Iterable<[K, V]>): Collection.Keyed<K, V>;
     export function Keyed<V>(obj: {[key: string]: V}): Collection.Keyed<string, V>;
 
     export interface Keyed<K, V> extends Collection<K, V> {
@@ -2429,7 +2429,7 @@
        * Similar to `collection.map(...).flatten(true)`.
        */
       flatMap<KM, VM>(
-        mapper: (value: V, key: K, iter: this) => ESIterable<[KM, VM]>,
+        mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
         context?: any
       ): Collection.Keyed<KM, VM>;
 
@@ -2457,7 +2457,7 @@
     /**
      * Creates a new Collection.Indexed.
      */
-    export function Indexed<T>(collection: ESIterable<T>): Collection.Indexed<T>;
+    export function Indexed<T>(collection: Iterable<T>): Collection.Indexed<T>;
 
     export interface Indexed<T> extends Collection<number, T> {
       /**
@@ -2636,7 +2636,7 @@
        * Similar to `collection.map(...).flatten(true)`.
        */
       flatMap<M>(
-        mapper: (value: T, key: number, iter: this) => ESIterable<M>,
+        mapper: (value: T, key: number, iter: this) => Iterable<M>,
         context?: any
       ): Collection.Indexed<M>;
 
@@ -2661,7 +2661,7 @@
     /**
      * Similar to `Collection()`, but always returns a Collection.Set.
      */
-    export function Set<T>(collection: ESIterable<T>): Collection.Set<T>;
+    export function Set<T>(collection: Iterable<T>): Collection.Set<T>;
 
     export interface Set<T> extends Collection<T, T> {
       /**
@@ -2703,7 +2703,7 @@
        * Similar to `collection.map(...).flatten(true)`.
        */
       flatMap<M>(
-        mapper: (value: T, key: T, iter: this) => ESIterable<M>,
+        mapper: (value: T, key: T, iter: this) => Iterable<M>,
         context?: any
       ): Collection.Set<M>;
 
@@ -2728,7 +2728,7 @@
    * `Seq.of`.
    */
   export function Collection<K, V, I extends Collection<K, V>>(collection: I): I;
-  export function Collection<T>(collection: ESIterable<T>): Collection.Indexed<T>;
+  export function Collection<T>(collection: Iterable<T>): Collection.Indexed<T>;
   export function Collection<V>(obj: {[key: string]: V}): Collection.Keyed<string, V>;
 
   export interface Collection<K, V> extends ValueObject {
@@ -3289,7 +3289,7 @@
      * Similar to `collection.map(...).flatten(true)`.
      */
     flatMap<M>(
-      mapper: (value: V, key: K, iter: this) => ESIterable<M>,
+      mapper: (value: V, key: K, iter: this) => Iterable<M>,
       context?: any
     ): Collection<K, M>;
 
@@ -3545,8 +3545,8 @@
    *
    * @ignore
    */
-  interface ESIterable<T> {
-    [Symbol.iterator](): Iterator<T>;
-  }
+  // interface Iterable<T> {
+  //   [Symbol.iterator](): Iterator<T>;
+  // }
 
 
