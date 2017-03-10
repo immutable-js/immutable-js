@@ -1,6 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 
-import { isImmutable, isValueObject, is, Map, List, Set, Stack } from '../';
+import { is, isImmutable, isValueObject, List, Map, Set, Stack } from '../';
 
 describe('isImmutable', () => {
 
@@ -33,18 +33,18 @@ describe('isValueObject', () => {
 
   it('works on custom types', () => {
     class MyValueType {
-      _val: any;
+      v: any;
 
       constructor(val) {
-        this._val = val;
+        this.v = val;
       }
 
       equals(other) {
-        return Boolean(other && this._val === other._val);
+        return Boolean(other && this.v === other.v);
       }
 
       hashCode() {
-        return this._val;
+        return this.v;
       }
     }
 

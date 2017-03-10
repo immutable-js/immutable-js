@@ -1,0 +1,19 @@
+{
+  "extends": "tslint:recommended",
+  "rules": {
+    "quotemark": false,
+    "no-reference": false,
+    "no-namespace": false,
+    "member-access": false,
+    "interface-name": false,
+    "member-ordering": false,
+    "only-arrow-functions": false,
+    "object-literal-sort-keys": false,
+    "no-conditional-assignment": false,
+    "one-variable-per-declaration": false,
+    "arrow-parens": [
+      true,
+      "ban-single-arg-parens"
+    ]
+  }
+}
