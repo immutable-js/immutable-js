@@ -26,7 +26,7 @@ export class Set extends SetCollection {
       : isSet(value) && !isOrdered(value)
           ? value
           : emptySet().withMutations(set => {
-              var iter = SetIterable(value);
+              const iter = SetIterable(value);
               assertNotInfinite(iter.size);
               iter.forEach(v => set.add(v));
             });
@@ -89,7 +89,7 @@ export class Set extends SetCollection {
       return this.constructor(iters[0]);
     }
     return this.withMutations(set => {
-      for (var ii = 0; ii < iters.length; ii++) {
+      for (let ii = 0; ii < iters.length; ii++) {
         SetIterable(iters[ii]).forEach(value => set.add(value));
       }
     });
@@ -100,7 +100,7 @@ export class Set extends SetCollection {
       return this;
     }
     iters = iters.map(iter => SetIterable(iter));
-    var toRemove = [];
+    const toRemove = [];
     this.forEach(value => {
       if (!iters.every(iter => iter.includes(value))) {
         toRemove.push(value);
@@ -117,7 +117,7 @@ export class Set extends SetCollection {
     if (iters.length === 0) {
       return this;
     }
-    var toRemove = [];
+    const toRemove = [];
     this.forEach(value => {
       if (iters.some(iter => iter.includes(value))) {
         toRemove.push(value);
@@ -164,7 +164,7 @@ export class Set extends SetCollection {
     if (ownerID === this.__ownerID) {
       return this;
     }
-    var newMap = this._map.__ensureOwner(ownerID);
+    const newMap = this._map.__ensureOwner(ownerID);
     if (!ownerID) {
       if (this.size === 0) {
         return emptySet();
@@ -183,9 +183,9 @@ export function isSet(maybeSet) {
 
 Set.isSet = isSet;
 
-var IS_SET_SENTINEL = '@@__IMMUTABLE_SET__@@';
+const IS_SET_SENTINEL = '@@__IMMUTABLE_SET__@@';
 
-var SetPrototype = Set.prototype;
+const SetPrototype = Set.prototype;
 SetPrototype[IS_SET_SENTINEL] = true;
 SetPrototype[DELETE] = SetPrototype.remove;
 SetPrototype.mergeDeep = SetPrototype.merge;
@@ -209,14 +209,14 @@ function updateSet(set, newMap) {
 }
 
 function makeSet(map, ownerID) {
-  var set = Object.create(SetPrototype);
+  const set = Object.create(SetPrototype);
   set.size = map ? map.size : 0;
   set._map = map;
   set.__ownerID = ownerID;
   return set;
 }
 
-var EMPTY_SET;
+let EMPTY_SET;
 function emptySet() {
   return EMPTY_SET || (EMPTY_SET = makeSet(emptyMap()));
 }

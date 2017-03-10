@@ -22,7 +22,7 @@ export function fromJS(value, converter) {
 }
 
 function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
-  var toSeq = Array.isArray(value)
+  const toSeq = Array.isArray(value)
     ? IndexedSeq
     : isPlainObj(value) ? KeyedSeq : null;
   if (toSeq) {

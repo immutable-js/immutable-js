@@ -39,7 +39,7 @@ export function isValueObject(maybeValue) {
     typeof maybeValue.hashCode === 'function');
 }
 
-export var IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
-export var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
-export var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
-export var IS_ORDERED_SENTINEL = '@@__IMMUTABLE_ORDERED__@@';
+export const IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
+export const IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
+export const IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
+export const IS_ORDERED_SENTINEL = '@@__IMMUTABLE_ORDERED__@@';

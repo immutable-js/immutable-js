@@ -22,12 +22,12 @@ export function hash(o) {
   if (o === true) {
     return 1;
   }
-  var type = typeof o;
+  const type = typeof o;
   if (type === 'number') {
     if (o !== o || o === Infinity) {
       return 0;
     }
-    var h = o | 0;
+    let h = o | 0;
     if (h !== o) {
       h ^= o * 0xffffffff;
     }
@@ -55,7 +55,7 @@ export function hash(o) {
 }
 
 function cachedHashString(string) {
-  var hash = stringHashCache[string];
+  let hash = stringHashCache[string];
   if (hash === undefined) {
     hash = hashString(string);
     if (STRING_HASH_CACHE_SIZE === STRING_HASH_CACHE_MAX_SIZE) {
@@ -76,15 +76,15 @@ function hashString(string) {
   // where s[i] is the ith character of the string and n is the length of
   // the string. We "mod" the result to make it between 0 (inclusive) and 2^31
   // (exclusive) by dropping high bits.
-  var hash = 0;
-  for (var ii = 0; ii < string.length; ii++) {
+  let hash = 0;
+  for (let ii = 0; ii < string.length; ii++) {
     hash = 31 * hash + string.charCodeAt(ii) | 0;
   }
   return smi(hash);
 }
 
 function hashJSObj(obj) {
-  var hash;
+  let hash;
   if (usingWeakMap) {
     hash = weakMap.get(obj);
     if (hash !== undefined) {
@@ -154,10 +154,10 @@ function hashJSObj(obj) {
 }
 
 // Get references to ES5 object methods.
-var isExtensible = Object.isExtensible;
+const isExtensible = Object.isExtensible;
 
 // True if Object.defineProperty works as expected. IE8 fails this test.
-var canDefineProperty = (function() {
+const canDefineProperty = (function() {
   try {
     Object.defineProperty({}, '@', {});
     return true;
@@ -180,20 +180,20 @@ function getIENodeHash(node) {
 }
 
 // If possible, use a WeakMap.
-var usingWeakMap = typeof WeakMap === 'function';
-var weakMap;
+const usingWeakMap = typeof WeakMap === 'function';
+let weakMap;
 if (usingWeakMap) {
   weakMap = new WeakMap();
 }
 
-var objHashUID = 0;
+let objHashUID = 0;
 
-var UID_HASH_KEY = '__immutablehash__';
+let UID_HASH_KEY = '__immutablehash__';
 if (typeof Symbol === 'function') {
   UID_HASH_KEY = Symbol(UID_HASH_KEY);
 }
 
-var STRING_HASH_CACHE_MIN_STRLEN = 16;
-var STRING_HASH_CACHE_MAX_SIZE = 255;
-var STRING_HASH_CACHE_SIZE = 0;
-var stringHashCache = {};
+const STRING_HASH_CACHE_MIN_STRLEN = 16;
+const STRING_HASH_CACHE_MAX_SIZE = 255;
+let STRING_HASH_CACHE_SIZE = 0;
+let stringHashCache = {};

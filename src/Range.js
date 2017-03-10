@@ -64,7 +64,7 @@ export class Range extends IndexedSeq {
   }
 
   includes(searchValue) {
-    var possibleIndex = (searchValue - this._start) / this._step;
+    const possibleIndex = (searchValue - this._start) / this._step;
     return possibleIndex >= 0 &&
       possibleIndex < this.size &&
       possibleIndex === Math.floor(possibleIndex);
@@ -87,9 +87,9 @@ export class Range extends IndexedSeq {
   }
 
   indexOf(searchValue) {
-    var offsetValue = searchValue - this._start;
+    const offsetValue = searchValue - this._start;
     if (offsetValue % this._step === 0) {
-      var index = offsetValue / this._step;
+      const index = offsetValue / this._step;
       if (index >= 0 && index < this.size) {
         return index;
       }
@@ -102,10 +102,10 @@ export class Range extends IndexedSeq {
   }
 
   __iterate(fn, reverse) {
-    var size = this.size;
-    var step = this._step;
-    var value = reverse ? this._start + (size - 1) * step : this._start;
-    var i = 0;
+    const size = this.size;
+    const step = this._step;
+    let value = reverse ? this._start + (size - 1) * step : this._start;
+    let i = 0;
     while (i !== size) {
       if (fn(value, reverse ? size - ++i : i++, this) === false) {
         break;
@@ -116,15 +116,15 @@ export class Range extends IndexedSeq {
   }
 
   __iterator(type, reverse) {
-    var size = this.size;
-    var step = this._step;
-    var value = reverse ? this._start + (size - 1) * step : this._start;
-    var i = 0;
+    const size = this.size;
+    const step = this._step;
+    let value = reverse ? this._start + (size - 1) * step : this._start;
+    let i = 0;
     return new Iterator(() => {
       if (i === size) {
         return iteratorDone();
       }
-      var v = value;
+      const v = value;
       value += reverse ? -step : step;
       return iteratorValue(type, reverse ? size - ++i : i++, v);
     });
@@ -139,4 +139,4 @@ export class Range extends IndexedSeq {
   }
 }
 
-var EMPTY_RANGE;
+let EMPTY_RANGE;

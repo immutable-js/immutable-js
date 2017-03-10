@@ -23,7 +23,7 @@ export class OrderedMap extends Map {
       : isOrderedMap(value)
           ? value
           : emptyOrderedMap().withMutations(map => {
-              var iter = KeyedIterable(value);
+              const iter = KeyedIterable(value);
               assertNotInfinite(iter.size);
               iter.forEach((v, k) => map.set(k, v));
             });
@@ -40,7 +40,7 @@ export class OrderedMap extends Map {
   // @pragma Access
 
   get(k, notSetValue) {
-    var index = this._map.get(k);
+    const index = this._map.get(k);
     return index !== undefined ? this._list.get(index)[1] : notSetValue;
   }
 
@@ -86,8 +86,8 @@ export class OrderedMap extends Map {
     if (ownerID === this.__ownerID) {
       return this;
     }
-    var newMap = this._map.__ensureOwner(ownerID);
-    var newList = this._list.__ensureOwner(ownerID);
+    const newMap = this._map.__ensureOwner(ownerID);
+    const newList = this._list.__ensureOwner(ownerID);
     if (!ownerID) {
       if (this.size === 0) {
         return emptyOrderedMap();
@@ -111,7 +111,7 @@ OrderedMap.prototype[IS_ORDERED_SENTINEL] = true;
 OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
 
 function makeOrderedMap(map, list, ownerID, hash) {
-  var omap = Object.create(OrderedMap.prototype);
+  const omap = Object.create(OrderedMap.prototype);
   omap.size = map ? map.size : 0;
   omap._map = map;
   omap._list = list;
@@ -120,19 +120,19 @@ function makeOrderedMap(map, list, ownerID, hash) {
   return omap;
 }
 
-var EMPTY_ORDERED_MAP;
+let EMPTY_ORDERED_MAP;
 export function emptyOrderedMap() {
   return EMPTY_ORDERED_MAP ||
     (EMPTY_ORDERED_MAP = makeOrderedMap(emptyMap(), emptyList()));
 }
 
 function updateOrderedMap(omap, k, v) {
-  var map = omap._map;
-  var list = omap._list;
-  var i = map.get(k);
-  var has = i !== undefined;
-  var newMap;
-  var newList;
+  const map = omap._map;
+  const list = omap._list;
+  const i = map.get(k);
+  const has = i !== undefined;
+  let newMap;
+  let newList;
   if (v === NOT_SET) {
     // removed
     if (!has) {

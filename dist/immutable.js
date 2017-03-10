@@ -2245,7 +2245,8 @@ ArrayMapNode.prototype.update = function update (ownerID, shift, keyHash, key, v
 
   var entries = this.entries;
   var idx = 0;
-  for (var len = entries.length; idx < len; idx++) {
+  var len = entries.length;
+  for (; idx < len; idx++) {
     if (is(key, entries[idx][0])) {
       break;
     }
@@ -2474,7 +2475,8 @@ HashCollisionNode.prototype.update = function update (ownerID, shift, keyHash, k
 
   var entries = this.entries;
   var idx = 0;
-  for (var len = entries.length; idx < len; idx++) {
+  var len = entries.length;
+  for (; idx < len; idx++) {
     if (is(key, entries[idx][0])) {
       break;
     }
@@ -2602,7 +2604,7 @@ var MapIterator = (function (Iterator$$1) {
     while (stack) {
       var node = stack.node;
       var index = stack.index++;
-      var maxIndex;
+      var maxIndex = (void 0);
       if (node.entry) {
         if (index === 0) {
           return mapIteratorValue(type, node.entry);

@@ -43,7 +43,7 @@ export class Map extends KeyedCollection {
       : isMap(value) && !isOrdered(value)
           ? value
           : emptyMap().withMutations(map => {
-              var iter = KeyedIterable(value);
+              const iter = KeyedIterable(value);
               assertNotInfinite(iter.size);
               iter.forEach((v, k) => map.set(k, v));
             });
@@ -51,7 +51,7 @@ export class Map extends KeyedCollection {
 
   static of(...keyValues) {
     return emptyMap().withMutations(map => {
-      for (var i = 0; i < keyValues.length; i += 2) {
+      for (let i = 0; i < keyValues.length; i += 2) {
         if (i + 1 >= keyValues.length) {
           throw new Error('Missing value for key: ' + keyValues[i]);
         }
@@ -89,13 +89,13 @@ export class Map extends KeyedCollection {
   deleteIn(keyPath) {
     keyPath = [...coerceKeyPath(keyPath)];
     if (keyPath.length) {
-      var lastKey = keyPath.pop();
+      const lastKey = keyPath.pop();
       return this.updateIn(keyPath, c => c && c.remove(lastKey));
     }
   }
 
   deleteAll(keys) {
-    var iterable = Iterable(keys);
+    const iterable = Iterable(keys);
 
     if (iterable.size === 0) {
       return this;
@@ -117,7 +117,7 @@ export class Map extends KeyedCollection {
       updater = notSetValue;
       notSetValue = undefined;
     }
-    var updatedValue = updateInDeepMap(
+    const updatedValue = updateInDeepMap(
       this,
       coerceKeyPath(keyPath),
       0,
@@ -194,7 +194,7 @@ export class Map extends KeyedCollection {
   // @pragma Mutability
 
   withMutations(fn) {
-    var mutable = this.asMutable();
+    const mutable = this.asMutable();
     fn(mutable);
     return mutable.wasAltered() ? mutable.__ensureOwner(this.__ownerID) : this;
   }
@@ -216,7 +216,7 @@ export class Map extends KeyedCollection {
   }
 
   __iterate(fn, reverse) {
-    var iterations = 0;
+    let iterations = 0;
     this._root &&
       this._root.iterate(
         entry => {
@@ -250,9 +250,9 @@ export function isMap(maybeMap) {
 
 Map.isMap = isMap;
 
-var IS_MAP_SENTINEL = '@@__IMMUTABLE_MAP__@@';
+const IS_MAP_SENTINEL = '@@__IMMUTABLE_MAP__@@';
 
-export var MapPrototype = Map.prototype;
+export const MapPrototype = Map.prototype;
 MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeIn = MapPrototype.deleteIn;
@@ -267,8 +267,8 @@ class ArrayMapNode {
   }
 
   get(shift, keyHash, key, notSetValue) {
-    var entries = this.entries;
-    for (var ii = 0, len = entries.length; ii < len; ii++) {
+    const entries = this.entries;
+    for (let ii = 0, len = entries.length; ii < len; ii++) {
       if (is(key, entries[ii][0])) {
         return entries[ii][1];
       }
@@ -277,16 +277,17 @@ class ArrayMapNode {
   }
 
   update(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
-    var removed = value === NOT_SET;
+    const removed = value === NOT_SET;
 
-    var entries = this.entries;
-    var idx = 0;
-    for (var len = entries.length; idx < len; idx++) {
+    const entries = this.entries;
+    let idx = 0;
+    const len = entries.length;
+    for (; idx < len; idx++) {
       if (is(key, entries[idx][0])) {
         break;
       }
     }
-    var exists = idx < len;
+    const exists = idx < len;
 
     if (exists ? entries[idx][1] === value : removed) {
       return this;
@@ -303,8 +304,8 @@ class ArrayMapNode {
       return createNodes(ownerID, entries, key, value);
     }
 
-    var isEditable = ownerID && ownerID === this.ownerID;
-    var newEntries = isEditable ? entries : arrCopy(entries);
+    const isEditable = ownerID && ownerID === this.ownerID;
+    const newEntries = isEditable ? entries : arrCopy(entries);
 
     if (exists) {
       if (removed) {
@@ -338,8 +339,8 @@ class BitmapIndexedNode {
     if (keyHash === undefined) {
       keyHash = hash(key);
     }
-    var bit = 1 << ((shift === 0 ? keyHash : keyHash >>> shift) & MASK);
-    var bitmap = this.bitmap;
+    const bit = 1 << ((shift === 0 ? keyHash : keyHash >>> shift) & MASK);
+    const bitmap = this.bitmap;
     return (bitmap & bit) === 0
       ? notSetValue
       : this.nodes[popCount(bitmap & bit - 1)].get(
@@ -354,19 +355,19 @@ class BitmapIndexedNode {
     if (keyHash === undefined) {
       keyHash = hash(key);
     }
-    var keyHashFrag = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
-    var bit = 1 << keyHashFrag;
-    var bitmap = this.bitmap;
-    var exists = (bitmap & bit) !== 0;
+    const keyHashFrag = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
+    const bit = 1 << keyHashFrag;
+    const bitmap = this.bitmap;
+    const exists = (bitmap & bit) !== 0;
 
     if (!exists && value === NOT_SET) {
       return this;
     }
 
-    var idx = popCount(bitmap & bit - 1);
-    var nodes = this.nodes;
-    var node = exists ? nodes[idx] : undefined;
-    var newNode = updateNode(
+    const idx = popCount(bitmap & bit - 1);
+    const nodes = this.nodes;
+    const node = exists ? nodes[idx] : undefined;
+    const newNode = updateNode(
       node,
       ownerID,
       shift + SHIFT,
@@ -395,9 +396,9 @@ class BitmapIndexedNode {
       return newNode;
     }
 
-    var isEditable = ownerID && ownerID === this.ownerID;
-    var newBitmap = exists ? newNode ? bitmap : bitmap ^ bit : bitmap | bit;
-    var newNodes = exists
+    const isEditable = ownerID && ownerID === this.ownerID;
+    const newBitmap = exists ? newNode ? bitmap : bitmap ^ bit : bitmap | bit;
+    const newNodes = exists
       ? newNode
           ? setIn(nodes, idx, newNode, isEditable)
           : spliceOut(nodes, idx, isEditable)
@@ -424,8 +425,8 @@ class HashArrayMapNode {
     if (keyHash === undefined) {
       keyHash = hash(key);
     }
-    var idx = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
-    var node = this.nodes[idx];
+    const idx = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
+    const node = this.nodes[idx];
     return node
       ? node.get(shift + SHIFT, keyHash, key, notSetValue)
       : notSetValue;
@@ -435,16 +436,16 @@ class HashArrayMapNode {
     if (keyHash === undefined) {
       keyHash = hash(key);
     }
-    var idx = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
-    var removed = value === NOT_SET;
-    var nodes = this.nodes;
-    var node = nodes[idx];
+    const idx = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
+    const removed = value === NOT_SET;
+    const nodes = this.nodes;
+    const node = nodes[idx];
 
     if (removed && !node) {
       return this;
     }
 
-    var newNode = updateNode(
+    const newNode = updateNode(
       node,
       ownerID,
       shift + SHIFT,
@@ -458,7 +459,7 @@ class HashArrayMapNode {
       return this;
     }
 
-    var newCount = this.count;
+    let newCount = this.count;
     if (!node) {
       newCount++;
     } else if (!newNode) {
@@ -468,8 +469,8 @@ class HashArrayMapNode {
       }
     }
 
-    var isEditable = ownerID && ownerID === this.ownerID;
-    var newNodes = setIn(nodes, idx, newNode, isEditable);
+    const isEditable = ownerID && ownerID === this.ownerID;
+    const newNodes = setIn(nodes, idx, newNode, isEditable);
 
     if (isEditable) {
       this.count = newCount;
@@ -489,8 +490,8 @@ class HashCollisionNode {
   }
 
   get(shift, keyHash, key, notSetValue) {
-    var entries = this.entries;
-    for (var ii = 0, len = entries.length; ii < len; ii++) {
+    const entries = this.entries;
+    for (let ii = 0, len = entries.length; ii < len; ii++) {
       if (is(key, entries[ii][0])) {
         return entries[ii][1];
       }
@@ -503,7 +504,7 @@ class HashCollisionNode {
       keyHash = hash(key);
     }
 
-    var removed = value === NOT_SET;
+    const removed = value === NOT_SET;
 
     if (keyHash !== this.keyHash) {
       if (removed) {
@@ -514,14 +515,15 @@ class HashCollisionNode {
       return mergeIntoNode(this, ownerID, shift, keyHash, [key, value]);
     }
 
-    var entries = this.entries;
-    var idx = 0;
-    for (var len = entries.length; idx < len; idx++) {
+    const entries = this.entries;
+    let idx = 0;
+    const len = entries.length;
+    for (; idx < len; idx++) {
       if (is(key, entries[idx][0])) {
         break;
       }
     }
-    var exists = idx < len;
+    const exists = idx < len;
 
     if (exists ? entries[idx][1] === value : removed) {
       return this;
@@ -534,8 +536,8 @@ class HashCollisionNode {
       return new ValueNode(ownerID, this.keyHash, entries[idx ^ 1]);
     }
 
-    var isEditable = ownerID && ownerID === this.ownerID;
-    var newEntries = isEditable ? entries : arrCopy(entries);
+    const isEditable = ownerID && ownerID === this.ownerID;
+    const newEntries = isEditable ? entries : arrCopy(entries);
 
     if (exists) {
       if (removed) {
@@ -570,8 +572,8 @@ class ValueNode {
   }
 
   update(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
-    var removed = value === NOT_SET;
-    var keyMatch = is(key, this.entry[0]);
+    const removed = value === NOT_SET;
+    const keyMatch = is(key, this.entry[0]);
     if (keyMatch ? value === this.entry[1] : removed) {
       return this;
     }
@@ -602,8 +604,8 @@ ArrayMapNode.prototype.iterate = (HashCollisionNode.prototype.iterate = function
   fn,
   reverse
 ) {
-  var entries = this.entries;
-  for (var ii = 0, maxIndex = entries.length - 1; ii <= maxIndex; ii++) {
+  const entries = this.entries;
+  for (let ii = 0, maxIndex = entries.length - 1; ii <= maxIndex; ii++) {
     if (fn(entries[reverse ? maxIndex - ii : ii]) === false) {
       return false;
     }
@@ -614,9 +616,9 @@ BitmapIndexedNode.prototype.iterate = (HashArrayMapNode.prototype.iterate = func
   fn,
   reverse
 ) {
-  var nodes = this.nodes;
-  for (var ii = 0, maxIndex = nodes.length - 1; ii <= maxIndex; ii++) {
-    var node = nodes[reverse ? maxIndex - ii : ii];
+  const nodes = this.nodes;
+  for (let ii = 0, maxIndex = nodes.length - 1; ii <= maxIndex; ii++) {
+    const node = nodes[reverse ? maxIndex - ii : ii];
     if (node && node.iterate(fn, reverse) === false) {
       return false;
     }
@@ -636,12 +638,12 @@ class MapIterator extends Iterator {
   }
 
   next() {
-    var type = this._type;
-    var stack = this._stack;
+    const type = this._type;
+    let stack = this._stack;
     while (stack) {
-      var node = stack.node;
-      var index = stack.index++;
-      var maxIndex;
+      const node = stack.node;
+      const index = stack.index++;
+      let maxIndex;
       if (node.entry) {
         if (index === 0) {
           return mapIteratorValue(type, node.entry);
@@ -657,7 +659,7 @@ class MapIterator extends Iterator {
       } else {
         maxIndex = node.nodes.length - 1;
         if (index <= maxIndex) {
-          var subNode = node.nodes[this._reverse ? maxIndex - index : index];
+          const subNode = node.nodes[this._reverse ? maxIndex - index : index];
           if (subNode) {
             if (subNode.entry) {
               return mapIteratorValue(type, subNode.entry);
@@ -686,7 +688,7 @@ function mapIteratorFrame(node, prev) {
 }
 
 function makeMap(size, root, ownerID, hash) {
-  var map = Object.create(MapPrototype);
+  const map = Object.create(MapPrototype);
   map.size = size;
   map._root = root;
   map.__ownerID = ownerID;
@@ -695,14 +697,14 @@ function makeMap(size, root, ownerID, hash) {
   return map;
 }
 
-var EMPTY_MAP;
+let EMPTY_MAP;
 export function emptyMap() {
   return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
 }
 
 function updateMap(map, k, v) {
-  var newRoot;
-  var newSize;
+  let newRoot;
+  let newSize;
   if (!map._root) {
     if (v === NOT_SET) {
       return map;
@@ -710,8 +712,8 @@ function updateMap(map, k, v) {
     newSize = 1;
     newRoot = new ArrayMapNode(map.__ownerID, [[k, v]]);
   } else {
-    var didChangeSize = MakeRef(CHANGE_LENGTH);
-    var didAlter = MakeRef(DID_ALTER);
+    const didChangeSize = MakeRef(CHANGE_LENGTH);
+    const didAlter = MakeRef(DID_ALTER);
     newRoot = updateNode(
       map._root,
       map.__ownerID,
@@ -776,11 +778,11 @@ function mergeIntoNode(node, ownerID, shift, keyHash, entry) {
     return new HashCollisionNode(ownerID, keyHash, [node.entry, entry]);
   }
 
-  var idx1 = (shift === 0 ? node.keyHash : node.keyHash >>> shift) & MASK;
-  var idx2 = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
+  const idx1 = (shift === 0 ? node.keyHash : node.keyHash >>> shift) & MASK;
+  const idx2 = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
 
-  var newNode;
-  var nodes = idx1 === idx2
+  let newNode;
+  const nodes = idx1 === idx2
     ? [mergeIntoNode(node, ownerID, shift + SHIFT, keyHash, entry)]
     : ((newNode = new ValueNode(ownerID, keyHash, entry)), idx1 < idx2
         ? [node, newNode]
@@ -793,20 +795,20 @@ function createNodes(ownerID, entries, key, value) {
   if (!ownerID) {
     ownerID = new OwnerID();
   }
-  var node = new ValueNode(ownerID, hash(key), [key, value]);
-  for (var ii = 0; ii < entries.length; ii++) {
-    var entry = entries[ii];
+  let node = new ValueNode(ownerID, hash(key), [key, value]);
+  for (let ii = 0; ii < entries.length; ii++) {
+    const entry = entries[ii];
     node = node.update(ownerID, 0, undefined, entry[0], entry[1]);
   }
   return node;
 }
 
 function packNodes(ownerID, nodes, count, excluding) {
-  var bitmap = 0;
-  var packedII = 0;
-  var packedNodes = new Array(count);
-  for (var ii = 0, bit = 1, len = nodes.length; ii < len; ii++, (bit <<= 1)) {
-    var node = nodes[ii];
+  let bitmap = 0;
+  let packedII = 0;
+  const packedNodes = new Array(count);
+  for (let ii = 0, bit = 1, len = nodes.length; ii < len; ii++, (bit <<= 1)) {
+    const node = nodes[ii];
     if (node !== undefined && ii !== excluding) {
       bitmap |= bit;
       packedNodes[packedII++] = node;
@@ -816,9 +818,9 @@ function packNodes(ownerID, nodes, count, excluding) {
 }
 
 function expandNodes(ownerID, nodes, bitmap, including, node) {
-  var count = 0;
-  var expandedNodes = new Array(SIZE);
-  for (var ii = 0; bitmap !== 0; ii++, (bitmap >>>= 1)) {
+  let count = 0;
+  const expandedNodes = new Array(SIZE);
+  for (let ii = 0; bitmap !== 0; ii++, (bitmap >>>= 1)) {
     expandedNodes[ii] = bitmap & 1 ? nodes[count++] : undefined;
   }
   expandedNodes[including] = node;
@@ -826,10 +828,10 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
 }
 
 function mergeIntoMapWith(map, merger, iterables) {
-  var iters = [];
-  for (var ii = 0; ii < iterables.length; ii++) {
-    var value = iterables[ii];
-    var iter = KeyedIterable(value);
+  const iters = [];
+  for (let ii = 0; ii < iterables.length; ii++) {
+    const value = iterables[ii];
+    let iter = KeyedIterable(value);
     if (!isIterable(value)) {
       iter = iter.map(v => fromJS(v));
     }
@@ -849,7 +851,7 @@ export function deepMergerWith(merger) {
     if (oldVal && oldVal.mergeDeepWith && isIterable(newVal)) {
       return oldVal.mergeDeepWith(merger, newVal);
     }
-    var nextValue = merger(oldVal, newVal, key);
+    const nextValue = merger(oldVal, newVal, key);
     return is(oldVal, nextValue) ? oldVal : nextValue;
   };
 }
@@ -863,7 +865,7 @@ export function mergeIntoCollectionWith(collection, merger, iters) {
     return collection.constructor(iters[0]);
   }
   return collection.withMutations(collection => {
-    var mergeIntoMap = merger
+    const mergeIntoMap = merger
       ? (value, key) => {
           collection.update(
             key,
@@ -874,17 +876,17 @@ export function mergeIntoCollectionWith(collection, merger, iters) {
       : (value, key) => {
           collection.set(key, value);
         };
-    for (var ii = 0; ii < iters.length; ii++) {
+    for (let ii = 0; ii < iters.length; ii++) {
       iters[ii].forEach(mergeIntoMap);
     }
   });
 }
 
 function updateInDeepMap(existing, keyPath, i, notSetValue, updater) {
-  var isNotSet = existing === NOT_SET;
+  const isNotSet = existing === NOT_SET;
   if (i === keyPath.length) {
-    var existingValue = isNotSet ? notSetValue : existing;
-    var newValue = updater(existingValue);
+    const existingValue = isNotSet ? notSetValue : existing;
+    const newValue = updater(existingValue);
     return newValue === existingValue ? existing : newValue;
   }
   if (!(isNotSet || (existing && existing.set))) {
@@ -895,9 +897,9 @@ function updateInDeepMap(existing, keyPath, i, notSetValue, updater) {
         existing
     );
   }
-  var key = keyPath[i];
-  var nextExisting = isNotSet ? NOT_SET : existing.get(key, NOT_SET);
-  var nextUpdated = updateInDeepMap(
+  const key = keyPath[i];
+  const nextExisting = isNotSet ? NOT_SET : existing.get(key, NOT_SET);
+  const nextUpdated = updateInDeepMap(
     nextExisting,
     keyPath,
     i + 1,
@@ -921,20 +923,20 @@ function popCount(x) {
 }
 
 function setIn(array, idx, val, canEdit) {
-  var newArray = canEdit ? array : arrCopy(array);
+  const newArray = canEdit ? array : arrCopy(array);
   newArray[idx] = val;
   return newArray;
 }
 
 function spliceIn(array, idx, val, canEdit) {
-  var newLen = array.length + 1;
+  const newLen = array.length + 1;
   if (canEdit && idx + 1 === newLen) {
     array[idx] = val;
     return array;
   }
-  var newArray = new Array(newLen);
-  var after = 0;
-  for (var ii = 0; ii < newLen; ii++) {
+  const newArray = new Array(newLen);
+  let after = 0;
+  for (let ii = 0; ii < newLen; ii++) {
     if (ii === idx) {
       newArray[ii] = val;
       after = -1;
@@ -946,14 +948,14 @@ function spliceIn(array, idx, val, canEdit) {
 }
 
 function spliceOut(array, idx, canEdit) {
-  var newLen = array.length - 1;
+  const newLen = array.length - 1;
   if (canEdit && idx === newLen) {
     array.pop();
     return array;
   }
-  var newArray = new Array(newLen);
-  var after = 0;
-  for (var ii = 0; ii < newLen; ii++) {
+  const newArray = new Array(newLen);
+  let after = 0;
+  for (let ii = 0; ii < newLen; ii++) {
     if (ii === idx) {
       after = 1;
     }
@@ -962,6 +964,6 @@ function spliceOut(array, idx, canEdit) {
   return newArray;
 }
 
-var MAX_ARRAY_MAP_SIZE = SIZE / 4;
-var MAX_BITMAP_INDEXED_SIZE = SIZE / 2;
-var MIN_HASH_ARRAY_MAP_SIZE = SIZE / 4;
+const MAX_ARRAY_MAP_SIZE = SIZE / 4;
+const MAX_BITMAP_INDEXED_SIZE = SIZE / 2;
+const MIN_HASH_ARRAY_MAP_SIZE = SIZE / 4;

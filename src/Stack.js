@@ -35,7 +35,7 @@ export class Stack extends IndexedCollection {
   // @pragma Access
 
   get(index, notSetValue) {
-    var head = this._head;
+    let head = this._head;
     index = wrapIndex(this, index);
     while (head && index--) {
       head = head.next;
@@ -53,9 +53,9 @@ export class Stack extends IndexedCollection {
     if (arguments.length === 0) {
       return this;
     }
-    var newSize = this.size + arguments.length;
-    var head = this._head;
-    for (var ii = arguments.length - 1; ii >= 0; ii--) {
+    const newSize = this.size + arguments.length;
+    let head = this._head;
+    for (let ii = arguments.length - 1; ii >= 0; ii--) {
       head = {
         value: arguments[ii],
         next: head
@@ -80,8 +80,8 @@ export class Stack extends IndexedCollection {
       return iter;
     }
     assertNotInfinite(iter.size);
-    var newSize = this.size;
-    var head = this._head;
+    let newSize = this.size;
+    let head = this._head;
     iter.__iterate(
       value => {
         newSize++;
@@ -124,14 +124,14 @@ export class Stack extends IndexedCollection {
     if (wholeSlice(begin, end, this.size)) {
       return this;
     }
-    var resolvedBegin = resolveBegin(begin, this.size);
-    var resolvedEnd = resolveEnd(end, this.size);
+    let resolvedBegin = resolveBegin(begin, this.size);
+    const resolvedEnd = resolveEnd(end, this.size);
     if (resolvedEnd !== this.size) {
       // super.slice(begin, end);
       return IndexedCollection.prototype.slice.call(this, begin, end);
     }
-    var newSize = this.size - resolvedBegin;
-    var head = this._head;
+    const newSize = this.size - resolvedBegin;
+    let head = this._head;
     while (resolvedBegin--) {
       head = head.next;
     }
@@ -171,8 +171,8 @@ export class Stack extends IndexedCollection {
         reverse
       );
     }
-    var iterations = 0;
-    var node = this._head;
+    let iterations = 0;
+    let node = this._head;
     while (node) {
       if (fn(node.value, iterations++, this) === false) {
         break;
@@ -186,11 +186,11 @@ export class Stack extends IndexedCollection {
     if (reverse) {
       return new ArraySeq(this.toArray()).__iterator(type, reverse);
     }
-    var iterations = 0;
-    var node = this._head;
+    let iterations = 0;
+    let node = this._head;
     return new Iterator(() => {
       if (node) {
-        var value = node.value;
+        const value = node.value;
         node = node.next;
         return iteratorValue(type, iterations++, value);
       }
@@ -205,9 +205,9 @@ function isStack(maybeStack) {
 
 Stack.isStack = isStack;
 
-var IS_STACK_SENTINEL = '@@__IMMUTABLE_STACK__@@';
+const IS_STACK_SENTINEL = '@@__IMMUTABLE_STACK__@@';
 
-var StackPrototype = Stack.prototype;
+const StackPrototype = Stack.prototype;
 StackPrototype[IS_STACK_SENTINEL] = true;
 StackPrototype.withMutations = MapPrototype.withMutations;
 StackPrototype.asMutable = MapPrototype.asMutable;
@@ -218,7 +218,7 @@ StackPrototype.unshift = StackPrototype.push;
 StackPrototype.unshiftAll = StackPrototype.pushAll;
 
 function makeStack(size, head, ownerID, hash) {
-  var map = Object.create(StackPrototype);
+  const map = Object.create(StackPrototype);
   map.size = size;
   map._head = head;
   map.__ownerID = ownerID;
@@ -227,7 +227,7 @@ function makeStack(size, head, ownerID, hash) {
   return map;
 }
 
-var EMPTY_STACK;
+let EMPTY_STACK;
 function emptyStack() {
   return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
 }

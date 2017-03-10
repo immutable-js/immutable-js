@@ -16,9 +16,9 @@ import invariant from './utils/invariant';
 
 export class Record extends KeyedCollection {
   constructor(defaultValues, name) {
-    var hasInitialized;
+    let hasInitialized;
 
-    var RecordType = function Record(values) {
+    const RecordType = function Record(values) {
       if (values instanceof RecordType) {
         return values;
       }
@@ -27,13 +27,13 @@ export class Record extends KeyedCollection {
       }
       if (!hasInitialized) {
         hasInitialized = true;
-        var keys = Object.keys(defaultValues);
+        const keys = Object.keys(defaultValues);
         RecordTypePrototype.size = keys.length;
         RecordTypePrototype._name = name;
         RecordTypePrototype._keys = keys;
         RecordTypePrototype._defaultValues = defaultValues;
-        for (var i = 0; i < keys.length; i++) {
-          var propName = keys[i];
+        for (let i = 0; i < keys.length; i++) {
+          const propName = keys[i];
           if (RecordTypePrototype[propName]) {
             /* eslint-disable no-console */
             typeof console === 'object' &&
@@ -54,7 +54,7 @@ export class Record extends KeyedCollection {
       this._map = Map(values);
     };
 
-    var RecordTypePrototype = (RecordType.prototype = Object.create(
+    const RecordTypePrototype = (RecordType.prototype = Object.create(
       RecordPrototype
     ));
     RecordTypePrototype.constructor = RecordType;
@@ -76,7 +76,7 @@ export class Record extends KeyedCollection {
     if (!this.has(k)) {
       return notSetValue;
     }
-    var defaultVal = this._defaultValues[k];
+    const defaultVal = this._defaultValues[k];
     return this._map ? this._map.get(k, defaultVal) : defaultVal;
   }
 
@@ -87,7 +87,7 @@ export class Record extends KeyedCollection {
       this._map && this._map.clear();
       return this;
     }
-    var RecordType = this.constructor;
+    const RecordType = this.constructor;
     return RecordType._empty ||
       (RecordType._empty = makeRecord(this, emptyMap()));
   }
@@ -97,12 +97,12 @@ export class Record extends KeyedCollection {
       return this;
     }
     if (this._map && !this._map.has(k)) {
-      var defaultVal = this._defaultValues[k];
+      const defaultVal = this._defaultValues[k];
       if (v === defaultVal) {
         return this;
       }
     }
-    var newMap = this._map && this._map.set(k, v);
+    const newMap = this._map && this._map.set(k, v);
     if (this.__ownerID || newMap === this._map) {
       return this;
     }
@@ -113,7 +113,7 @@ export class Record extends KeyedCollection {
     if (!this.has(k)) {
       return this;
     }
-    var newMap = this._map && this._map.remove(k);
+    const newMap = this._map && this._map.remove(k);
     if (this.__ownerID || newMap === this._map) {
       return this;
     }
@@ -140,7 +140,7 @@ export class Record extends KeyedCollection {
     if (ownerID === this.__ownerID) {
       return this;
     }
-    var newMap = this._map && this._map.__ensureOwner(ownerID);
+    const newMap = this._map && this._map.__ensureOwner(ownerID);
     if (!ownerID) {
       this.__ownerID = ownerID;
       this._map = newMap;
@@ -151,7 +151,7 @@ export class Record extends KeyedCollection {
 }
 
 Record.getDescriptiveName = recordName;
-var RecordPrototype = Record.prototype;
+const RecordPrototype = Record.prototype;
 RecordPrototype[DELETE] = RecordPrototype.remove;
 RecordPrototype.deleteIn = (RecordPrototype.removeIn = MapPrototype.removeIn);
 RecordPrototype.merge = MapPrototype.merge;
@@ -168,7 +168,7 @@ RecordPrototype.asMutable = MapPrototype.asMutable;
 RecordPrototype.asImmutable = MapPrototype.asImmutable;
 
 function makeRecord(likeRecord, map, ownerID) {
-  var record = Object.create(Object.getPrototypeOf(likeRecord));
+  const record = Object.create(Object.getPrototypeOf(likeRecord));
   record._map = map;
   record.__ownerID = ownerID;
   return record;

@@ -51,12 +51,12 @@ export class Seq extends Iterable {
   // abstract __iterateUncached(fn, reverse)
 
   __iterate(fn, reverse) {
-    var cache = this._cache;
+    const cache = this._cache;
     if (cache) {
-      var size = cache.length;
-      var i = 0;
+      const size = cache.length;
+      let i = 0;
       while (i !== size) {
-        var entry = cache[reverse ? size - ++i : i++];
+        const entry = cache[reverse ? size - ++i : i++];
         if (fn(entry[1], entry[0], this) === false) {
           break;
         }
@@ -69,15 +69,15 @@ export class Seq extends Iterable {
   // abstract __iteratorUncached(type, reverse)
 
   __iterator(type, reverse) {
-    var cache = this._cache;
+    const cache = this._cache;
     if (cache) {
-      var size = cache.length;
-      var i = 0;
+      const size = cache.length;
+      let i = 0;
       return new Iterator(() => {
         if (i === size) {
           return iteratorDone();
         }
-        var entry = cache[reverse ? size - ++i : i++];
+        const entry = cache[reverse ? size - ++i : i++];
         return iteratorValue(type, entry[0], entry[1]);
       });
     }
@@ -144,7 +144,7 @@ Seq.Keyed = KeyedSeq;
 Seq.Set = SetSeq;
 Seq.Indexed = IndexedSeq;
 
-var IS_SEQ_SENTINEL = '@@__IMMUTABLE_SEQ__@@';
+const IS_SEQ_SENTINEL = '@@__IMMUTABLE_SEQ__@@';
 
 Seq.prototype[IS_SEQ_SENTINEL] = true;
 
@@ -161,11 +161,11 @@ export class ArraySeq extends IndexedSeq {
   }
 
   __iterate(fn, reverse) {
-    var array = this._array;
-    var size = array.length;
-    var i = 0;
+    const array = this._array;
+    const size = array.length;
+    let i = 0;
     while (i !== size) {
-      var ii = reverse ? size - ++i : i++;
+      const ii = reverse ? size - ++i : i++;
       if (fn(array[ii], ii, this) === false) {
         break;
       }
@@ -174,14 +174,14 @@ export class ArraySeq extends IndexedSeq {
   }
 
   __iterator(type, reverse) {
-    var array = this._array;
-    var size = array.length;
-    var i = 0;
+    const array = this._array;
+    const size = array.length;
+    let i = 0;
     return new Iterator(() => {
       if (i === size) {
         return iteratorDone();
       }
-      var ii = reverse ? size - ++i : i++;
+      const ii = reverse ? size - ++i : i++;
       return iteratorValue(type, ii, array[ii]);
     });
   }
@@ -189,7 +189,7 @@ export class ArraySeq extends IndexedSeq {
 
 class ObjectSeq extends KeyedSeq {
   constructor(object) {
-    var keys = Object.keys(object);
+    const keys = Object.keys(object);
     this._object = object;
     this._keys = keys;
     this.size = keys.length;
@@ -207,12 +207,12 @@ class ObjectSeq extends KeyedSeq {
   }
 
   __iterate(fn, reverse) {
-    var object = this._object;
-    var keys = this._keys;
-    var size = keys.length;
-    var i = 0;
+    const object = this._object;
+    const keys = this._keys;
+    const size = keys.length;
+    let i = 0;
     while (i !== size) {
-      var key = keys[reverse ? size - ++i : i++];
+      const key = keys[reverse ? size - ++i : i++];
       if (fn(object[key], key, this) === false) {
         break;
       }
@@ -221,15 +221,15 @@ class ObjectSeq extends KeyedSeq {
   }
 
   __iterator(type, reverse) {
-    var object = this._object;
-    var keys = this._keys;
-    var size = keys.length;
-    var i = 0;
+    const object = this._object;
+    const keys = this._keys;
+    const size = keys.length;
+    let i = 0;
     return new Iterator(() => {
       if (i === size) {
         return iteratorDone();
       }
-      var key = keys[reverse ? size - ++i : i++];
+      const key = keys[reverse ? size - ++i : i++];
       return iteratorValue(type, key, object[key]);
     });
   }
@@ -246,11 +246,11 @@ class IterableSeq extends IndexedSeq {
     if (reverse) {
       return this.cacheResult().__iterate(fn, reverse);
     }
-    var iterable = this._iterable;
-    var iterator = getIterator(iterable);
-    var iterations = 0;
+    const iterable = this._iterable;
+    const iterator = getIterator(iterable);
+    let iterations = 0;
     if (isIterator(iterator)) {
-      var step;
+      let step;
       while (!(step = iterator.next()).done) {
         if (fn(step.value, iterations++, this) === false) {
           break;
@@ -264,14 +264,14 @@ class IterableSeq extends IndexedSeq {
     if (reverse) {
       return this.cacheResult().__iterator(type, reverse);
     }
-    var iterable = this._iterable;
-    var iterator = getIterator(iterable);
+    const iterable = this._iterable;
+    const iterator = getIterator(iterable);
     if (!isIterator(iterator)) {
       return new Iterator(iteratorDone);
     }
-    var iterations = 0;
+    let iterations = 0;
     return new Iterator(() => {
-      var step = iterator.next();
+      const step = iterator.next();
       return step.done ? step : iteratorValue(type, iterations++, step.value);
     });
   }
@@ -287,17 +287,17 @@ class IteratorSeq extends IndexedSeq {
     if (reverse) {
       return this.cacheResult().__iterate(fn, reverse);
     }
-    var iterator = this._iterator;
-    var cache = this._iteratorCache;
-    var iterations = 0;
+    const iterator = this._iterator;
+    const cache = this._iteratorCache;
+    let iterations = 0;
     while (iterations < cache.length) {
       if (fn(cache[iterations], iterations++, this) === false) {
         return iterations;
       }
     }
-    var step;
+    let step;
     while (!(step = iterator.next()).done) {
-      var val = step.value;
+      const val = step.value;
       cache[iterations] = val;
       if (fn(val, iterations++, this) === false) {
         break;
@@ -310,12 +310,12 @@ class IteratorSeq extends IndexedSeq {
     if (reverse) {
       return this.cacheResult().__iterator(type, reverse);
     }
-    var iterator = this._iterator;
-    var cache = this._iteratorCache;
-    var iterations = 0;
+    const iterator = this._iterator;
+    const cache = this._iteratorCache;
+    let iterations = 0;
     return new Iterator(() => {
       if (iterations >= cache.length) {
-        var step = iterator.next();
+        const step = iterator.next();
         if (step.done) {
           return step;
         }
@@ -332,14 +332,14 @@ export function isSeq(maybeSeq) {
   return !!(maybeSeq && maybeSeq[IS_SEQ_SENTINEL]);
 }
 
-var EMPTY_SEQ;
+let EMPTY_SEQ;
 
 function emptySequence() {
   return EMPTY_SEQ || (EMPTY_SEQ = new ArraySeq([]));
 }
 
 export function keyedSeqFromValue(value) {
-  var seq = Array.isArray(value)
+  const seq = Array.isArray(value)
     ? new ArraySeq(value).fromEntrySeq()
     : isIterator(value)
         ? new IteratorSeq(value).fromEntrySeq()
@@ -357,7 +357,7 @@ export function keyedSeqFromValue(value) {
 }
 
 export function indexedSeqFromValue(value) {
-  var seq = maybeIndexedSeqFromValue(value);
+  const seq = maybeIndexedSeqFromValue(value);
   if (!seq) {
     throw new TypeError(
       'Expected Array or iterable object of values: ' + value
@@ -367,7 +367,7 @@ export function indexedSeqFromValue(value) {
 }
 
 function seqFromValue(value) {
-  var seq = maybeIndexedSeqFromValue(value) ||
+  const seq = maybeIndexedSeqFromValue(value) ||
     (typeof value === 'object' && new ObjectSeq(value));
   if (!seq) {
     throw new TypeError(

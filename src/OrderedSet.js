@@ -23,7 +23,7 @@ export class OrderedSet extends Set {
       : isOrderedSet(value)
           ? value
           : emptyOrderedSet().withMutations(set => {
-              var iter = SetIterable(value);
+              const iter = SetIterable(value);
               assertNotInfinite(iter.size);
               iter.forEach(v => set.add(v));
             });
@@ -48,7 +48,7 @@ function isOrderedSet(maybeOrderedSet) {
 
 OrderedSet.isOrderedSet = isOrderedSet;
 
-var OrderedSetPrototype = OrderedSet.prototype;
+const OrderedSetPrototype = OrderedSet.prototype;
 OrderedSetPrototype[IS_ORDERED_SENTINEL] = true;
 OrderedSetPrototype.zip = IndexedIterablePrototype.zip;
 OrderedSetPrototype.zipWith = IndexedIterablePrototype.zipWith;
@@ -57,14 +57,14 @@ OrderedSetPrototype.__empty = emptyOrderedSet;
 OrderedSetPrototype.__make = makeOrderedSet;
 
 function makeOrderedSet(map, ownerID) {
-  var set = Object.create(OrderedSetPrototype);
+  const set = Object.create(OrderedSetPrototype);
   set.size = map ? map.size : 0;
   set._map = map;
   set.__ownerID = ownerID;
   return set;
 }
 
-var EMPTY_ORDERED_SET;
+let EMPTY_ORDERED_SET;
 function emptyOrderedSet() {
   return EMPTY_ORDERED_SET ||
     (EMPTY_ORDERED_SET = makeOrderedSet(emptyOrderedMap()));

@@ -39,17 +39,17 @@ export default function deepEqual(a, b) {
     return true;
   }
 
-  var notAssociative = !isAssociative(a);
+  const notAssociative = !isAssociative(a);
 
   if (isOrdered(a)) {
-    var entries = a.entries();
+    const entries = a.entries();
     return b.every((v, k) => {
-      var entry = entries.next().value;
+      const entry = entries.next().value;
       return entry && is(entry[1], v) && (notAssociative || is(entry[0], k));
     }) && entries.next().done;
   }
 
-  var flipped = false;
+  let flipped = false;
 
   if (a.size === undefined) {
     if (b.size === undefined) {
@@ -58,14 +58,14 @@ export default function deepEqual(a, b) {
       }
     } else {
       flipped = true;
-      var _ = a;
+      const _ = a;
       a = b;
       b = _;
     }
   }
 
-  var allEqual = true;
-  var bSize = b.__iterate((v, k) => {
+  let allEqual = true;
+  const bSize = b.__iterate((v, k) => {
     if (
       notAssociative
         ? !a.has(v)
