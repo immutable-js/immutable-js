@@ -12,7 +12,7 @@ import { keyedSeqFromValue } from './Seq';
 import { MapPrototype } from './Map';
 import { List } from './List';
 import { ITERATOR_SYMBOL } from './Iterator';
-import { IS_RECORD_SENTINEL } from './Predicates';
+import { isRecord, IS_RECORD_SENTINEL } from './Predicates';
 import { IterablePrototype } from './IterableImpl';
 
 import invariant from './utils/invariant';
@@ -157,6 +157,7 @@ export class Record {
   }
 }
 
+Record.isRecord = isRecord;
 Record.getDescriptiveName = recordName;
 const RecordPrototype = Record.prototype;
 RecordPrototype[IS_RECORD_SENTINEL] = true;

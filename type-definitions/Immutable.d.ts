@@ -192,11 +192,6 @@ declare module Immutable {
   export function isOrdered(maybeOrdered: any): boolean;
 
   /**
-   * True if `maybeRecord` is an instance of a Record.
-   */
-  export function isRecord(maybeRecord: any): maybeRecord is Record.Instance<any>;
-
-  /**
    * True if `maybeValue` is a JavaScript Object which has *both* `equals()`
    * and `hashCode()` methods.
    *
@@ -1811,6 +1806,11 @@ declare module Immutable {
    *
    */
   export module Record {
+
+    /**
+     * True if `maybeRecord` is an instance of a Record.
+     */
+    export function isRecord(maybeRecord: any): maybeRecord is Record.Instance<any>;
 
     /**
      * Records allow passing a second parameter to supply a descriptive name

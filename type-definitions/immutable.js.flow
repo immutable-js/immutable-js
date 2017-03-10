@@ -175,7 +175,6 @@ declare function isOrdered(maybeOrdered: mixed): boolean %checks(
   maybeOrdered instanceof OrderedMap ||
   maybeOrdered instanceof OrderedSet
 );
-declare function isRecord(maybeRecord: any): boolean %checks(maybeRecord instanceof RecordInstance);
 declare function isValueObject(maybeValue: mixed): boolean;
 
 declare interface ValueObject {
@@ -1047,9 +1046,12 @@ declare class Stack<+T> extends IndexedCollection<T> {
 declare function Range(start?: number, end?: number, step?: number): IndexedSeq<number>;
 declare function Repeat<T>(value: T, times?: number): IndexedSeq<T>;
 
+declare function isRecord(maybeRecord: any): boolean %checks(maybeRecord instanceof RecordInstance);
 declare class Record {
   static <Values>(spec: Values, name?: string): RecordClass<Values>;
   constructor<Values>(spec: Values, name?: string): RecordClass<Values>;
+
+  static isRecord: typeof isRecord;
 
   static getDescriptiveName(record: RecordInstance<*>): string;
 }

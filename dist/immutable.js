@@ -5355,6 +5355,7 @@ Record.prototype.__ensureOwner = function __ensureOwner (ownerID) {
   return makeRecord(this, newValues, ownerID);
 };
 
+Record.isRecord = isRecord;
 Record.getDescriptiveName = recordName;
 var RecordPrototype = Record.prototype;
 RecordPrototype[IS_RECORD_SENTINEL] = true;
