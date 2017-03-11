@@ -41,7 +41,7 @@ describe('Set', () => {
     expect(s.has(1)).toBe(false);
   });
 
-  it('accepts string, an array-like iterable', () => {
+  it('accepts string, an array-like collection', () => {
     let s = Set('abc');
     expect(s.size).toBe(3);
     expect(s.has('a')).toBe(true);
@@ -154,7 +154,7 @@ describe('Set', () => {
     expect(s3).toBe(s2);
   });
 
-  it('unions a set and an iterable and returns a set', () => {
+  it('unions a set and another collection and returns a set', () => {
     let s1 = Set([1, 2, 3]);
     let emptySet = Set();
     let l = List([1, 2, 3]);

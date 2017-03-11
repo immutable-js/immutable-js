@@ -8,7 +8,6 @@
  */
 
 import { wholeSlice, resolveBegin, resolveEnd, wrapIndex } from './TrieUtils';
-import { IndexedIterable } from './Iterable';
 import { IndexedCollection } from './Collection';
 import { MapPrototype } from './Map';
 import { ArraySeq } from './Seq';
@@ -72,7 +71,7 @@ export class Stack extends IndexedCollection {
   }
 
   pushAll(iter) {
-    iter = IndexedIterable(iter);
+    iter = IndexedCollection(iter);
     if (iter.size === 0) {
       return this;
     }

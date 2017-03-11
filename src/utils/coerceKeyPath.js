@@ -18,6 +18,6 @@ export default function coerceKeyPath(keyPath) {
     return keyPath.toArray();
   }
   throw new TypeError(
-    'Invalid keyPath: expected Ordered Iterable or Array: ' + keyPath
+    'Invalid keyPath: expected Ordered Collection or Array: ' + keyPath
   );
 }

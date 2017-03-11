@@ -8,7 +8,6 @@
  */
 
 import { Seq } from './Seq';
-import { Collection } from './Collection';
 import { OrderedMap } from './OrderedMap';
 import { List } from './List';
 import { Map } from './Map';
@@ -22,21 +21,22 @@ import { is } from './is';
 import { fromJS } from './fromJS';
 import {
   isImmutable,
-  isIterable,
+  isCollection,
   isKeyed,
   isIndexed,
   isAssociative,
   isOrdered,
   isValueObject
 } from './Predicates';
-import { Iterable } from './IterableImpl';
+import { Collection } from './CollectionImpl';
 import { hash } from './Hash';
 
 export default {
-  Iterable: Iterable,
+  Collection: Collection,
+  // Note: Iterable is deprecated
+  Iterable: Collection,
 
   Seq: Seq,
-  Collection: Collection,
   Map: Map,
   OrderedMap: OrderedMap,
   List: List,
@@ -53,7 +53,7 @@ export default {
   hash: hash,
 
   isImmutable: isImmutable,
-  isIterable: isIterable,
+  isCollection: isCollection,
   isKeyed: isKeyed,
   isIndexed: isIndexed,
   isAssociative: isAssociative,
@@ -61,10 +61,13 @@ export default {
   isValueObject: isValueObject
 };
 
+// Note: Iterable is deprecated
+const Iterable = Collection;
+
 export {
+  Collection,
   Iterable,
   Seq,
-  Collection,
   Map,
   OrderedMap,
   List,
@@ -78,7 +81,7 @@ export {
   fromJS,
   hash,
   isImmutable,
-  isIterable,
+  isCollection,
   isKeyed,
   isIndexed,
   isAssociative,

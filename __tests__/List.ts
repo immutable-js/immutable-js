@@ -42,7 +42,7 @@ describe('List', () => {
   it('does not accept a scalar', () => {
     expect(() => {
       List(3 as any);
-    }).toThrow('Expected Array or iterable object of values: 3');
+    }).toThrow('Expected Array or collection object of values: 3');
   });
 
   it('accepts an array', () => {
@@ -57,7 +57,7 @@ describe('List', () => {
     expect(v.toArray()).toEqual([undefined, 'b', undefined]);
   });
 
-  it('accepts any array-like iterable, including strings', () => {
+  it('accepts any array-like collection, including strings', () => {
     let v = List('abc');
     expect(v.get(1)).toBe('b');
     expect(v.toArray()).toEqual(['a', 'b', 'c']);

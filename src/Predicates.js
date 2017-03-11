@@ -8,12 +8,12 @@
  */
 
 export function isImmutable(maybeImmutable) {
-  return (isIterable(maybeImmutable) || isRecord(maybeImmutable)) &&
+  return (isCollection(maybeImmutable) || isRecord(maybeImmutable)) &&
     !maybeImmutable.__ownerID;
 }
 
-export function isIterable(maybeIterable) {
-  return !!(maybeIterable && maybeIterable[IS_ITERABLE_SENTINEL]);
+export function isCollection(maybeCollection) {
+  return !!(maybeCollection && maybeCollection[IS_ITERABLE_SENTINEL]);
 }
 
 export function isKeyed(maybeKeyed) {

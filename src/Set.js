@@ -7,9 +7,8 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { Iterable, SetIterable, KeyedIterable } from './Iterable';
+import { Collection, SetCollection, KeyedCollection } from './Collection';
 import { isOrdered } from './Predicates';
-import { SetCollection } from './Collection';
 import { emptyMap, MapPrototype } from './Map';
 import { DELETE } from './TrieUtils';
 import { sortFactory } from './Operations';
@@ -26,7 +25,7 @@ export class Set extends SetCollection {
       : isSet(value) && !isOrdered(value)
           ? value
           : emptySet().withMutations(set => {
-              const iter = SetIterable(value);
+              const iter = SetCollection(value);
               assertNotInfinite(iter.size);
               iter.forEach(v => set.add(v));
             });
@@ -37,18 +36,18 @@ export class Set extends SetCollection {
   }
 
   static fromKeys(value) {
-    return this(KeyedIterable(value).keySeq());
+    return this(KeyedCollection(value).keySeq());
   }
 
   static intersect(sets) {
-    sets = Iterable(sets).toArray();
+    sets = Collection(sets).toArray();
     return sets.length
       ? SetPrototype.intersect.apply(Set(sets.pop()), sets)
       : emptySet();
   }
 
   static union(sets) {
-    sets = Iterable(sets).toArray();
+    sets = Collection(sets).toArray();
     return sets.length
       ? SetPrototype.union.apply(Set(sets.pop()), sets)
       : emptySet();
@@ -90,7 +89,7 @@ export class Set extends SetCollection {
     }
     return this.withMutations(set => {
       for (let ii = 0; ii < iters.length; ii++) {
-        SetIterable(iters[ii]).forEach(value => set.add(value));
+        SetCollection(iters[ii]).forEach(value => set.add(value));
       }
     });
   }
@@ -99,7 +98,7 @@ export class Set extends SetCollection {
     if (iters.length === 0) {
       return this;
     }
-    iters = iters.map(iter => SetIterable(iter));
+    iters = iters.map(iter => SetCollection(iter));
     const toRemove = [];
     this.forEach(value => {
       if (!iters.every(iter => iter.includes(value))) {

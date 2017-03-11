@@ -1,6 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 
-import { Iterable, Map, Seq } from '../';
+import { Collection, Map, Seq } from '../';
 
 describe('groupBy', () => {
 
@@ -51,14 +51,14 @@ describe('groupBy', () => {
 
   it('returns an ordered map from an ordered collection', () => {
     let seq = Seq.of('Z', 'Y', 'X', 'Z', 'Y', 'X');
-    expect(Iterable.isOrdered(seq)).toBe(true);
+    expect(Collection.isOrdered(seq)).toBe(true);
     let seqGroups = seq.groupBy(x => x);
-    expect(Iterable.isOrdered(seqGroups)).toBe(true);
+    expect(Collection.isOrdered(seqGroups)).toBe(true);
 
     let map = Map({ x: 1, y: 2 });
-    expect(Iterable.isOrdered(map)).toBe(false);
+    expect(Collection.isOrdered(map)).toBe(false);
     let mapGroups = map.groupBy(x => x);
-    expect(Iterable.isOrdered(mapGroups)).toBe(false);
+    expect(Collection.isOrdered(mapGroups)).toBe(false);
   });
 
 });

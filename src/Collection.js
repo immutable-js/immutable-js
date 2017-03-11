@@ -7,19 +7,32 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import { Iterable } from './Iterable';
+import { Seq, KeyedSeq, IndexedSeq, SetSeq } from './Seq';
+import { isCollection, isKeyed, isIndexed, isAssociative } from './Predicates';
 
-export class Collection extends Iterable {
-  constructor() {
-    throw TypeError('Abstract');
+export class Collection {
+  constructor(value) {
+    return isCollection(value) ? value : Seq(value);
   }
 }
 
-export class KeyedCollection extends Collection {}
+export class KeyedCollection extends Collection {
+  constructor(value) {
+    return isKeyed(value) ? value : KeyedSeq(value);
+  }
+}
 
-export class IndexedCollection extends Collection {}
+export class IndexedCollection extends Collection {
+  constructor(value) {
+    return isIndexed(value) ? value : IndexedSeq(value);
+  }
+}
 
-export class SetCollection extends Collection {}
+export class SetCollection extends Collection {
+  constructor(value) {
+    return isCollection(value) && !isAssociative(value) ? value : SetSeq(value);
+  }
+}
 
 Collection.Keyed = KeyedCollection;
 Collection.Indexed = IndexedCollection;

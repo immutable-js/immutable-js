@@ -3,7 +3,7 @@
 declare var Symbol: any;
 import { Seq } from '../';
 
-describe('IterableSequence', () => {
+describe('Sequence', () => {
 
   it('creates a sequence from an iterable', () => {
     let i = new SimpleIterable();
@@ -74,8 +74,8 @@ describe('IterableSequence', () => {
   });
 
   it('can be updated', () => {
-    function sum(collection) {
-      return collection.reduce((s, v) => s + v, 0);
+    function sum(seq) {
+      return seq.reduce((s, v) => s + v, 0);
     }
     let total = Seq([1, 2, 3])
       .filter(x => x % 2 === 1)

@@ -62,10 +62,10 @@ describe('Map', () => {
   it('does not accept a scalar', () => {
     expect(() => {
       Map(3 as any);
-    }).toThrow('Expected Array or iterable object of [k, v] entries, or keyed object: 3');
+    }).toThrow('Expected Array or collection object of [k, v] entries, or keyed object: 3');
   });
 
-  it('does not accept strings (iterable, but scalar)', () => {
+  it('does not accept strings (collection, but scalar)', () => {
     expect(() => {
       Map('abc');
     }).toThrow();
@@ -77,7 +77,7 @@ describe('Map', () => {
     }).toThrow('Expected [K, V] tuple: 1');
   });
 
-  it('accepts non-iterable array-like objects as keyed collections', () => {
+  it('accepts non-collection array-like objects as keyed collections', () => {
     let m = Map({ length: 3, 1: 'one' });
     expect(m.get('length')).toBe(3);
     expect(m.get('1')).toBe('one');

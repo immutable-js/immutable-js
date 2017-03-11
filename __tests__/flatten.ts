@@ -3,9 +3,9 @@
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { fromJS, Iterable, List, Range, Seq } from '../';
+import { Collection, fromJS, List, Range, Seq } from '../';
 
-type SeqType = number | number[] | Iterable<number, number>;
+type SeqType = number | number[] | Collection<number, number>;
 
 describe('flatten', () => {
 
@@ -123,8 +123,8 @@ describe('flatten', () => {
 
     it('maps to sequenceables, not only Sequences.', () => {
       let numbers = Range(97, 100);
-      // the map function returns an Array, rather than an Iterable.
-      // Array is sequenceable, so this works just fine.
+      // the map function returns an Array, rather than an Collection.
+      // Array is iterable, so this works just fine.
       let letters = numbers.flatMap(v => [
         String.fromCharCode(v),
         String.fromCharCode(v).toUpperCase(),
