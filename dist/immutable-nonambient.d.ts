@@ -17,11 +17,69 @@
  * mirroring that of Array, Map, and Set. It is easy and efficient to convert to
  * and from plain Javascript types.
  *
+ * ## How to read these docs
+ *
  * In order to better explain what kinds of values the Immutable.js API expects
  * and produces, this documentation is presented in a strong typed dialect of
  * JavaScript (like [Flow][] or [TypeScript][]). You *don't need* to use these
  * type checking tools in order to use Immutable.js, however becoming familiar
  * with their syntax will help you get a deeper understanding of this API.
+ *
+ * **A few examples and how to read them.**
+ *
+ * All methods describe the kinds of data they accept and the kinds of data
+ * they return. For example a function which accepts two numbers and returns
+ * a number would look like this:
+ *
+ * ```js
+ * sum(first: number, second: number): number
+ * ```
+ *
+ * Sometimes, methods can accept different kinds of data or return different
+ * kinds of data, and this is described with a *type variable*, which are
+ * typically in all-caps. For example, a function which always returns the same
+ * kind of data it was provided would look like this:
+ *
+ * ```js
+ * identity<T>(value: T): T
+ * ```
+ *
+ * Type variables are defined with classes and referred to in methods. For
+ * example, a class that holds onto a value for you might look like this:
+ *
+ * ```js
+ * class Box<T> {
+ *   constructor(value: T)
+ *   getValue(): T
+ * }
+ * ```
+ *
+ * In order to manipulate Immutable data, methods that we're used to affecting
+ * a Collection instead return a new Collection of the same type. The type
+ * `this` refers to the same kind of class. For example, a List which returns
+ * new Lists when you `push` a value onto it might look like:
+ *
+ * ```js
+ * class List<T> {
+ *   push(value: T): this
+ * }
+ * ```
+ *
+ * Many methods in Immutable.js accept values which implement the JavaScript
+ * [Iterable][] protocol, and might appear like `Iterable<string>` for something
+ * which represents sequence of strings. Typically in JavaScript we use plain
+ * Arrays (`[]`) when an Iterable is expected, but also all of the Immutable.js
+ * collections are iterable themselves!
+ *
+ * For example, to get a value deep within a structure of data, we might use
+ * `getIn` which expects an `Iterable` path:
+ *
+ * ```
+ * getIn(path: Iterable<string | number>): any
+ * ```
+ *
+ * To use this method, we could pass an array: `data.getIn([ "key", 2 ])`.
+ *
  *
  * Note: All examples are presented in [ES2015][]. To run in all browsers, they
  * need to be translated to ES3. For example:
@@ -34,6 +92,7 @@
  * [ES2015]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/ECMAScript_6_support_in_Mozilla
  * [TypeScript]: http://www.typescriptlang.org/
  * [Flow]: https://flowtype.org/
+ * [Iterable]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols
  */
 
 
@@ -50,23 +109,26 @@
    * deep JS objects. Finally, a `path` is provided which is the sequence of
    * keys to this value from the starting value.
    *
-   * This example converts JSON to List and OrderedMap:
+   * This example converts native JS data to List and OrderedMap:
    *
-   *     Immutable.fromJS({a: {b: [10, 20, 30]}, c: 40}, function (key, value, path) {
-   *       var isIndexed = Immutable.Collection.isIndexed(value);
-   *       return isIndexed ? value.toList() : value.toOrderedMap();
-   *     });
+   * ```js
+   * const { fromJS, isIndexed } = require('immutable')
+   * fromJS({ a: {b: [10, 20, 30]}, c: 40}, function (key, value, path) {
+   *   console.log(key, value, path)
+   *   return isIndexed(value) ? value.toList() : value.toOrderedMap()
+   * })
    *
-   *     // true, "b", {b: [10, 20, 30]}
-   *     // false, "a", {a: {b: [10, 20, 30]}, c: 40}
-   *     // false, "", {"": {a: {b: [10, 20, 30]}, c: 40}}
+   * > "b", [ 10, 20, 30 ], [ "a", "b" ]
+   * > "a", { b: [10, 20, 30] }, c: 40 }, [ "a" ]
+   * > "", {a: {b: [10, 20, 30]}, c: 40}, []
+   * ```
    *
    * If `reviver` is not provided, the default behavior will convert Arrays into
    * Lists and Objects into Maps.
    *
    * `reviver` acts similarly to the [same parameter in `JSON.parse`][1].
    *
-   * `Immutable.fromJS` is conservative in its conversion. It will only convert
+   * `fromJS` is conservative in its conversion. It will only convert
    * arrays which pass `Array.isArray` to Lists, and only raw objects (no custom
    * prototype) to Map.
    *
@@ -75,12 +137,12 @@
    * quote-less shorthand, while Immutable Maps accept keys of any type.
    *
    * ```js
-   * var obj = { 1: "one" };
+   * let obj = { 1: "one" };
    * Object.keys(obj); // [ "1" ]
    * obj["1"]; // "one"
    * obj[1];   // "one"
    *
-   * var map = Map(obj);
+   * let map = Map(obj);
    * map.get("1"); // "one"
    * map.get(1);   // undefined
    * ```
@@ -144,15 +206,16 @@
   export function hash(value: any): number;
 
   /**
-   * True if `maybeImmutable` is an Immutable collection or Record.
+   * True if `maybeImmutable` is an Immutable Collection or Record.
    *
    * ```js
-   * Collection.isImmutable([]); // false
-   * Collection.isImmutable({}); // false
-   * Collection.isImmutable(Immutable.Map()); // true
-   * Collection.isImmutable(Immutable.List()); // true
-   * Collection.isImmutable(Immutable.Stack()); // true
-   * Collection.isImmutable(Immutable.Map().asMutable()); // false
+   * const { isImmutable, Map, List, Stack } = require('immutable');
+   * isImmutable([]); // false
+   * isImmutable({}); // false
+   * isImmutable(Map()); // true
+   * isImmutable(List()); // true
+   * isImmutable(Stack()); // true
+   * isImmutable(Map().asMutable()); // false
    * ```
    */
   export function isImmutable(maybeImmutable: any): maybeImmutable is Collection<any, any>;
@@ -161,33 +224,72 @@
    * True if `maybeCollection` is an Collection, or any of its subclasses.
    *
    * ```js
-   * Collection.isCollection([]); // false
-   * Collection.isCollection({}); // false
-   * Collection.isCollection(Immutable.Map()); // true
-   * Collection.isCollection(Immutable.List()); // true
-   * Collection.isCollection(Immutable.Stack()); // true
+   * const { isCollection, Map, List, Stack } = require('immutable');
+   * isCollection([]); // false
+   * isCollection({}); // false
+   * isCollection(Map()); // true
+   * isCollection(List()); // true
+   * isCollection(Stack()); // true
    * ```
    */
   export function isCollection(maybeCollection: any): maybeCollection is Collection<any, any>;
 
   /**
    * True if `maybeKeyed` is an Collection.Keyed, or any of its subclasses.
+   *
+   * ```js
+   * const { isKeyed, Map, List, Stack } = require('immutable');
+   * isKeyed([]); // false
+   * isKeyed({}); // false
+   * isKeyed(Map()); // true
+   * isKeyed(List()); // false
+   * isKeyed(Stack()); // false
+   * ```
    */
   export function isKeyed(maybeKeyed: any): maybeKeyed is Collection.Keyed<any, any>;
 
   /**
    * True if `maybeIndexed` is a Collection.Indexed, or any of its subclasses.
+   *
+   * ```js
+   * const { isIndexed, Map, List, Stack, Set } = require('immutable');
+   * isIndexed([]); // false
+   * isIndexed({}); // false
+   * isIndexed(Map()); // false
+   * isIndexed(List()); // true
+   * isIndexed(Stack()); // true
+   * isIndexed(Set()); // false
+   * ```
    */
   export function isIndexed(maybeIndexed: any): maybeIndexed is Collection.Indexed<any>;
 
   /**
-   * True if `maybeAssociative` is either a keyed or indexed Collection.
+   * True if `maybeAssociative` is either a Keyed or Indexed Collection.
+   *
+   * ```js
+   * const { isAssociative, Map, List, Stack, Set } = require('immutable');
+   * isAssociative([]); // false
+   * isAssociative({}); // false
+   * isAssociative(Map()); // true
+   * isAssociative(List()); // true
+   * isAssociative(Stack()); // true
+   * isAssociative(Set()); // false
+   * ```
    */
   export function isAssociative(maybeAssociative: any): maybeAssociative is Collection.Keyed<any, any> | Collection.Indexed<any>;
 
   /**
    * True if `maybeOrdered` is an Collection where iteration order is well
    * defined. True for Collection.Indexed as well as OrderedMap and OrderedSet.
+   *
+   * ```js
+   * const { isOrdered, Map, OrderedMap, List, Set } = require('immutable');
+   * isOrdered([]); // false
+   * isOrdered({}); // false
+   * isOrdered(Map()); // false
+   * isOrdered(OrderedMap()); // true
+   * isOrdered(List()); // true
+   * isOrdered(Set()); // false
    */
   export function isOrdered(maybeOrdered: any): boolean;
 
@@ -220,11 +322,13 @@
      * and is used when adding this to a `Set` or as a key in a `Map`, enabling
      * lookup via a different instance.
      *
-     *     var a = List.of(1, 2, 3);
-     *     var b = List.of(1, 2, 3);
-     *     assert(a !== b); // different instances
-     *     var set = Set.of(a);
-     *     assert(set.has(b) === true);
+     * ```js
+     * const a = List([ 1, 2, 3 ]);
+     * const b = List([ 1, 2, 3 ]);
+     * assert(a !== b); // different instances
+     * const set = Set([ a ]);
+     * assert(set.has(b) === true);
+     * ```
      *
      * If two values have the same `hashCode`, they are [not guaranteed
      * to be equal][Hash Collision]. If two values have different `hashCode`s,
@@ -256,7 +360,7 @@
      *
      * ```js
      * List.isList([]); // false
-     * List.isList(List([])); // true
+     * List.isList(List()); // true
      * ```
      */
     function isList(maybeList: any): maybeList is List<any>;
@@ -265,11 +369,15 @@
      * Creates a new List containing `values`.
      *
      * ```js
-     * List.of(1, 2, 3, 4).toJS();
-     * // [ 1, 2, 3, 4 ]
+     * List.of(1, 2, 3, 4)
+     * // List [ 1, 2, 3, 4 ]
+     * ```
      *
-     * List.of({x:1}, 2, [3], 4).toJS();
-     * // [ { x: 1 }, 2, [ 3 ], 4 ]
+     * Note: Values are not altered or converted in any way.
+     *
+     * ```js
+     * List.of({x:1}, 2, [3], 4)
+     * // List [ { x: 1 }, 2, [ 3 ], 4 ]
      * ```
      */
     function of<T>(...values: T[]): List<T>;
@@ -280,24 +388,26 @@
    * collection-like.
    *
    * ```js
-   * List().toJS(); // []
+   * const { List, Set } = require('immutable')
    *
-   * const plainArray = [1, 2, 3, 4];
-   * const listFromPlainArray = List(plainArray);
+   * const emptyList = List()
+   * // List []
    *
-   * const plainSet = new Set([1, 2, 3, 4]);
-   * const listFromPlainSet = List(plainSet);
+   * const plainArray = [ 1, 2, 3, 4 ]
+   * const listFromPlainArray = List(plainArray)
+   * // List [ 1, 2, 3, 4 ]
    *
-   * const arrayIterator = plainArray[Symbol.iterator]();
-   * const listFromCollectionArray = List(arrayIterator);
+   * const plainSet = Set([ 1, 2, 3, 4 ])
+   * const listFromPlainSet = List(plainSet)
+   * // List [ 1, 2, 3, 4 ]
    *
-   * listFromPlainArray.toJS(); // [ 1, 2, 3, 4 ]
-   * listFromPlainSet.toJS(); // [ 1, 2, 3, 4 ]
-   * listFromCollectionArray.toJS(); // [ 1, 2, 3, 4 ]
+   * const arrayIterator = plainArray[Symbol.iterator]()
+   * const listFromCollectionArray = List(arrayIterator)
+   * // List [ 1, 2, 3, 4 ]
    *
-   * Immutable.is(listFromPlainArray, listFromCollectionSet); // true
-   * Immutable.is(listFromPlainSet, listFromCollectionSet) // true
-   * Immutable.is(listFromPlainSet, listFromPlainArray) // true
+   * listFromPlainArray.equals(listFromCollectionSet) // true
+   * listFromPlainSet.equals(listFromCollectionSet) // true
+   * listFromPlainSet.equals(listFromPlainArray) // true
    * ```
    */
   export function List(): List<any>;
@@ -319,12 +429,17 @@
      * enough to include the `index`.
      *
      * ```js
-     * const originalList = List([0]);
-     * originalList.set(1, 1).toJS(); // [ 0, 1 ]
-     * originalList.set(0, 'overwritten').toJS(); // [ 'overwritten' ]
+     * const originalList = List([ 0 ]);
+     * // List [ 0 ]
+     * originalList.set(1, 1);
+     * // List [ 0, 1 ]
+     * originalList.set(0, 'overwritten');
+     * // List [ "overwritten" ]
+     * originalList.set(2, 2);
+     * // List [ 0, undefined, 2 ]
      *
      * List().set(50000, 'value').size;
-     * //50001
+     * // 50001
      * ```
      *
      * Note: `set` can be used in `withMutations`.
@@ -344,8 +459,8 @@
      * Note: `delete` cannot be safely used in IE8
      *
      * ```js
-     * List([0, 1, 2, 3, 4]).delete(0).toJS();
-     * // [ 1, 2, 3, 4 ]
+     * List([ 0, 1, 2, 3, 4 ]).delete(0);
+     * // List [ 1, 2, 3, 4 ]
      * ```
      *
      * Note: `delete` *cannot* be used in `withMutations`.
@@ -362,8 +477,8 @@
      * This is synonymous with `list.splice(index, 0, value)`.
      *
      * ```js
-     * List([0, 1, 2, 3, 4]).insert(6, 5).toJS();
-     * // [ 0, 1, 2, 3, 4, 5 ]
+     * List([ 0, 1, 2, 3, 4 ]).insert(6, 5)
+     * // List [ 0, 1, 2, 3, 4, 5 ]
      * ```
      *
      * Note: `insert` *cannot* be used in `withMutations`.
@@ -374,8 +489,8 @@
      * Returns a new List with 0 size and no values.
      *
      * ```js
-     * List([1, 2, 3, 4]).clear().toJS();
-     * // []
+     * List([ 1, 2, 3, 4 ]).clear()
+     * // List []
      * ```
      *
      * Note: `clear` can be used in `withMutations`.
@@ -387,8 +502,8 @@
      * List's `size`.
      *
      * ```js
-     * List([1, 2, 3, 4]).push(5).toJS();
-     * // [ 1, 2, 3, 4, 5 ]
+     * List([ 1, 2, 3, 4 ]).push(5)
+     * // List [ 1, 2, 3, 4, 5 ]
      * ```
      *
      * Note: `push` can be used in `withMutations`.
@@ -402,9 +517,10 @@
      * Note: this differs from `Array#pop` because it returns a new
      * List rather than the removed value. Use `last()` to get the last value
      * in this List.
+     *
      * ```js
-     * List([1, 2, 3, 4]).pop().toJS();
-     * // [ 1, 2, 3 ]
+     * List([ 1, 2, 3, 4 ]).pop()
+     * // List[ 1, 2, 3 ]
      * ```
      *
      * Note: `pop` can be used in `withMutations`.
@@ -416,8 +532,8 @@
      * values ahead to higher indices.
      *
      * ```js
-     * List([ 2, 3, 4]).unshift(1).toJS();
-     * // [ 1, 2, 3, 4 ]
+     * List([ 2, 3, 4]).unshift(1);
+     * // List [ 1, 2, 3, 4 ]
      * ```
      *
      * Note: `unshift` can be used in `withMutations`.
@@ -433,8 +549,8 @@
      * value in this List.
      *
      * ```js
-     * List([ 0, 1, 2, 3, 4]).shift(0).toJS();
-     * // [ 1, 2, 3, 4 ]
+     * List([ 0, 1, 2, 3, 4 ]).shift();
+     * // List [ 1, 2, 3, 4 ]
      * ```
      *
      * Note: `shift` can be used in `withMutations`.
@@ -450,13 +566,10 @@
      * `index` may be a negative number, which indexes back from the end of the
      * List. `v.update(-1)` updates the last item in the List.
      *
-     * If an index is not provided, then the `updater` function return value is
-     * returned as well.
-     *
      * ```js
      * const list = List([ 'a', 'b', 'c' ])
-     * const result = list.update(l => l.get(1))
-     * // "b"
+     * const result = list.update(2, val => val.toUpperCase())
+     * // List [ "a", "b", "C" ]
      * ```
      *
      * This can be very useful as a way to "chain" a normal function into a
@@ -469,7 +582,7 @@
      *   return collection.reduce((sum, x) => sum + x, 0)
      * }
      *
-     * List([ 1, 2 ,3 ])
+     * List([ 1, 2, 3 ])
      *   .map(x => x + 1)
      *   .filter(x => x % 2 === 0)
      *   .update(sum)
@@ -540,8 +653,10 @@
      * the List.
      *
      * ```js
-     * Immutable.fromJS([0, 1, 2, [3, 4]]).setIn([3, 0], -3).toJS();
-     * // [ 0, 1, 2, [ -3, 4 ] ]
+     * const { List } = require('immutable');
+     * const list = List([ 0, 1, 2, List([ 3, 4 ])])
+     * list.setIn([3, 0], 999);
+     * // List [ 0, 1, 2, List [ 999, 4 ] ]
      * ```
      *
      * Note: `setIn` can be used in `withMutations`.
@@ -554,8 +669,10 @@
      * keys in `keyPath` do not exist, no change will occur.
      *
      * ```js
-     * Immutable.fromJS([0, 1, 2, [3, 4]]).deleteIn([3, 1]).toJS();
-     * // [ 0, 1, 2, [ 3 ] ]
+     * const { List } = require('immutable');
+     * const list = List([ 0, 1, 2, List([ 3, 4 ])])
+     * list.deleteIn([3, 0]);
+     * // List [ 0, 1, 2, List [ 4 ] ]
      * ```
      *
      * Note: `deleteIn` *cannot* be safely used in `withMutations`.
@@ -638,8 +755,10 @@
      * Returns a new List with values passed through a
      * `mapper` function.
      *
-     *     List([1,2]).map(x => 10 * x)
-     *     // List [ 10, 20 ]
+     * ```js
+     * List([ 1, 2 ]).map(x => 10 * x)
+     * // List [ 10, 20 ]
+     * ```
      *
      * Note: `map()` always returns a new instance, even if it produced the same
      * value at every step.
@@ -675,8 +794,11 @@
    * Immutable collections are treated as values, any Immutable collection may
    * be used as a key.
    *
-   *     Map().set(List.of(1), 'listofone').get(List.of(1));
-   *     // 'listofone'
+   * ```js
+   * const { Map, List } = require('immutable');
+   * Map().set(List([ 1 ]), 'listofone').get(List([ 1 ]));
+   * // 'listofone'
+   * ```
    *
    * Any JavaScript object may be used as a key, however strict identity is used
    * to evaluate key equality. Two similar looking objects will represent two
@@ -690,8 +812,9 @@
      * True if the provided value is a Map
      *
      * ```js
-     * Map.isMap({}); // false
-     * Map.isMap(Immutable.Map()); // true
+     * const { Map } = require('immutable')
+     * Map.isMap({}) // false
+     * Map.isMap(Map()) // true
      * ```
      */
     function isMap(maybeMap: any): maybeMap is Map<any, any>;
@@ -700,12 +823,13 @@
      * Creates a new Map from alternating keys and values
      *
      * ```js
+     * const { Map } = require('immutable')
      * Map.of(
      *   'key', 'value',
      *   'numerical value', 3,
      *    0, 'numerical key'
-     * ).toJS();
-     * // { '0': 'numerical key', key: 'value', 'numerical value': 3 }
+     * )
+     * // Map { 0: "numerical key", "key": "value", "numerical value": 3 }
      * ```
      *
      * @deprecated Use Map([ [ 'k', 'v' ] ]) or Map({ k: 'v' })
@@ -719,22 +843,25 @@
    * Created with the same key value pairs as the provided Collection.Keyed or
    * JavaScript Object or expects an Collection of [K, V] tuple entries.
    *
-   *     var newMap = Map({key: "value"});
-   *     var newMap = Map([["key", "value"]]);
+   * ```js
+   * const { Map } = require('immutable')
+   * Map({ key: "value" })
+   * Map([ [ "key", "value" ] ])
+   * ```
    *
    * Keep in mind, when using JS objects to construct Immutable Maps, that
    * JavaScript Object properties are always strings, even if written in a
    * quote-less shorthand, while Immutable Maps accept keys of any type.
    *
    * ```js
-   * var obj = { 1: "one" };
-   * Object.keys(obj); // [ "1" ]
-   * obj["1"]; // "one"
-   * obj[1];   // "one"
+   * let obj = { 1: "one" }
+   * Object.keys(obj) // [ "1" ]
+   * obj["1"] // "one"
+   * obj[1]   // "one"
    *
-   * var map = Map(obj);
-   * map.get("1"); // "one"
-   * map.get(1);   // undefined
+   * let map = Map(obj)
+   * map.get("1") // "one"
+   * map.get(1)   // undefined
    * ```
    *
    * Property access for JavaScript Objects first converts the key to a string,
@@ -756,12 +883,17 @@
      * key already exists in this Map, it will be replaced.
      *
      * ```js
-     * const originalMap = Immutable.Map();
-     * const newerMap = originalMap.set('key', 'value');
-     * const newestMap = newerMap.set('key', 'newer value');
-     * originalMap.toJS(); // {}
-     * newerMap.toJS(); // { key: 'value' }
-     * newestMap.toJS(); // { key: 'newer value' }
+     * const { Map } = require('immutable')
+     * const originalMap = Map()
+     * const newerMap = originalMap.set('key', 'value')
+     * const newestMap = newerMap.set('key', 'newer value')
+     *
+     * originalMap
+     * // Map {}
+     * newerMap
+     * // Map { "key": "value" }
+     * newestMap
+     * // Map { "key": "newer value" }
      * ```
      *
      * Note: `set` can be used in `withMutations`.
@@ -775,11 +907,14 @@
      * the ES6 collection API.
      *
      * ```js
-     * Immutable.Map({
+     * const { Map } = require('immutable')
+     * const originalMap = Map({
      *   key: 'value',
      *   otherKey: 'other value'
-     * }).delete('otherKey').toJS();
-     * // { key: 'value' }
+     * })
+     * // Map { "key": "value", "otherKey": "other value" }
+     * originalMap.delete('otherKey')
+     * // Map { "key": "value" }
      * ```
      *
      * Note: `delete` can be used in `withMutations`.
@@ -792,8 +927,12 @@
     /**
      * Returns a new Map which excludes the provided `keys`.
      *
-     *     var names = Immutable.Map({ a: "Aaron", b: "Barry", c: "Connor" });
-     *     names.deleteAll(['a', 'c']); // { b: "Barry" }
+     * ```js
+     * const { Map } = require('immutable')
+     * const names = Map({ a: "Aaron", b: "Barry", c: "Connor" })
+     * names.deleteAll([ 'a', 'c' ])
+     * // Map { "b": "Barry" }
+     * ```
      *
      * Note: `deleteAll` can be used in `withMutations`.
      *
@@ -806,8 +945,9 @@
      * Returns a new Map containing no keys or values.
      *
      * ```js
-     * Immutable.Map({ key: 'value' }).clear().toJS();
-     * // {}
+     * const { Map } = require('immutable')
+     * Map({ key: 'value' }).clear()
+     * // Map {}
      * ```
      *
      * Note: `clear` can be used in `withMutations`.
@@ -821,8 +961,9 @@
      * Similar to: `map.set(key, updater(map.get(key)))`.
      *
      * ```js
-     * const map = Map({ key: 'value' });
-     * const newMap = map.update('key', value => value + value);
+     * const { Map } = require('immutable')
+     * const aMap = Map({ key: 'value' })
+     * const newMap = aMap.update('key', value => value + value)
      * // Map { "key": "valuevalue" }
      * ```
      *
@@ -831,8 +972,8 @@
      * `update` and `push` can be used together:
      *
      * ```js
-     * const map = Map({ nestedList: List([ 1, 2, 3 ]) })
-     * const newMap = map.update('nestedList', list => list.push(4))
+     * const aMap = Map({ nestedList: List([ 1, 2, 3 ]) })
+     * const newMap = aMap.update('nestedList', list => list.push(4))
      * // Map { "nestedList": List [ 1, 2, 3, 4 ] }
      * ```
      *
@@ -840,8 +981,8 @@
      * function when the value at the key does not exist in the Map.
      *
      * ```js
-     * const map = Map({ key: 'value' })
-     * const newMap = map.update('noKey', 'no value', value => value + value)
+     * const aMap = Map({ key: 'value' })
+     * const newMap = aMap.update('noKey', 'no value', value => value + value)
      * // Map { "key": "value", "noKey": "no valueno value" }
      * ```
      *
@@ -850,8 +991,8 @@
      * is provided.
      *
      * ```js
-     * const map = Map({ apples: 10 })
-     * const newMap = map.update('oranges', 0, val => val)
+     * const aMap = Map({ apples: 10 })
+     * const newMap = aMap.update('oranges', 0, val => val)
      * // Map { "apples": 10 }
      * assert(newMap === map);
      * ```
@@ -863,8 +1004,8 @@
      * The previous example behaves differently when written with default values:
      *
      * ```js
-     * const map = Map({ apples: 10 })
-     * const newMap = map.update('oranges', (val = 0) => val)
+     * const aMap = Map({ apples: 10 })
+     * const newMap = aMap.update('oranges', (val = 0) => val)
      * // Map { "apples": 10, "oranges": 0 }
      * ```
      *
@@ -872,8 +1013,8 @@
      * returned as well.
      *
      * ```js
-     * const map = Map({ key: 'value' })
-     * const result = map.update(map => map.get('key'))
+     * const aMap = Map({ key: 'value' })
+     * const result = aMap.update(aMap => aMap.get('key'))
      * // "value"
      * ```
      *
@@ -906,15 +1047,18 @@
      * each collection and sets it on this Map.
      *
      * If any of the values provided to `merge` are not Collection (would return
-     * false for `Immutable.Collection.isCollection`) then they are deeply converted
-     * via `Immutable.fromJS` before being merged. However, if the value is an
+     * false for `isCollection`) then they are deeply converted
+     * via `fromJS` before being merged. However, if the value is an
      * Collection but includes non-collection JS objects or arrays, those nested
      * values will be preserved.
      *
-     *     var x = Immutable.Map({a: 10, b: 20, c: 30});
-     *     var y = Immutable.Map({b: 40, a: 50, d: 60});
-     *     x.merge(y) // { a: 50, b: 40, c: 30, d: 60 }
-     *     y.merge(x) // { b: 20, a: 10, d: 60, c: 30 }
+     * ```js
+     * const { Map } = require('immutable')
+     * const one = Map({ a: 10, b: 20, c: 30 })
+     * const two = Map({ b: 40, a: 50, d: 60 })
+     * one.merge(two) // Map { "a": 50, "b": 40, "c": 30, "d": 60 }
+     * two.merge(one) // Map { "b": 20, "a": 10, "d": 60, "c": 30 }
+     * ```
      *
      * Note: `merge` can be used in `withMutations`.
      */
@@ -925,10 +1069,15 @@
      * the provided Collections (or JS objects) into this Map, but uses the
      * `merger` function for dealing with conflicts.
      *
-     *     var x = Immutable.Map({a: 10, b: 20, c: 30});
-     *     var y = Immutable.Map({b: 40, a: 50, d: 60});
-     *     x.mergeWith((oldVal, newVal) => oldVal / newVal, y) // { a: 0.2, b: 0.5, c: 30, d: 60 }
-     *     y.mergeWith((oldVal, newVal) => oldVal / newVal, x) // { b: 2, a: 5, d: 60, c: 30 }
+     * ```js
+     * const { Map } = require('immutable')
+     * const one = Map({ a: 10, b: 20, c: 30 })
+     * const two = Map({ b: 40, a: 50, d: 60 })
+     * one.mergeWith((oldVal, newVal) => oldVal / newVal, two)
+     * // { "a": 0.2, "b": 0.5, "c": 30, "d": 60 }
+     * two.mergeWith((oldVal, newVal) => oldVal / newVal, one)
+     * // { "b": 2, "a": 5, "d": 60, "c": 30 }
+     * ```
      *
      * Note: `mergeWith` can be used in `withMutations`.
      */
@@ -941,9 +1090,17 @@
      * Like `merge()`, but when two Collections conflict, it merges them as well,
      * recursing deeply through the nested data.
      *
-     *     var x = Immutable.fromJS({a: { x: 10, y: 10 }, b: { x: 20, y: 50 } });
-     *     var y = Immutable.fromJS({a: { x: 2 }, b: { y: 5 }, c: { z: 3 } });
-     *     x.mergeDeep(y) // {a: { x: 2, y: 10 }, b: { x: 20, y: 5 }, c: { z: 3 } }
+     * ```js
+     * const { Map } = require('immutable')
+     * const one = Map({ a: Map({ x: 10, y: 10 }), b: Map({ x: 20, y: 50 }) })
+     * const two = Map({ a: Map({ x: 2 }), b: Map({ y: 5 }), c: Map({ z: 3 }) })
+     * one.mergeDeep(two)
+     * // Map {
+     * //   "a": Map { "x": 2, "y": 10 },
+     * //   "b": Map { "x": 20, "y": 5 },
+     * //   "c": Map { "z": 3 }
+     * // }
+     * ```
      *
      * Note: `mergeDeep` can be used in `withMutations`.
      */
@@ -953,11 +1110,18 @@
      * Like `mergeDeep()`, but when two non-Collections conflict, it uses the
      * `merger` function to determine the resulting value.
      *
-     *     var x = Immutable.fromJS({a: { x: 10, y: 10 }, b: { x: 20, y: 50 } });
-     *     var y = Immutable.fromJS({a: { x: 2 }, b: { y: 5 }, c: { z: 3 } });
-     *     x.mergeDeepWith((oldVal, newVal) => oldVal / newVal, y)
-     *     // {a: { x: 5, y: 10 }, b: { x: 20, y: 10 }, c: { z: 3 } }
-     *
+     * ```js
+     * const { Map } = require('immutable')
+     * const one = Map({ a: Map({ x: 10, y: 10 }), b: Map({ x: 20, y: 50 }) })
+     * const two = Map({ a: Map({ x: 2 }), b: Map({ y: 5 }), c: Map({ z: 3 }) })
+     * one.mergeDeepWith((oldVal, newVal) => oldVal / newVal, two)
+     * // Map {
+     * //   "a": Map { "x": 5, "y": 10 },
+     * //   "b": Map { "x": 20, "y": 10 },
+     * //   "c": Map { "z": 3 }
+     * // }
+     * ```
+
      * Note: `mergeDeepWith` can be used in `withMutations`.
      */
     mergeDeepWith(
@@ -973,29 +1137,38 @@
      * `keyPath` do not exist, a new immutable Map will be created at that key.
      *
      * ```js
-     * const originalMap = Immutable.fromJS({
-     *   subObject: {
+     * const { Map } = require('immutable')
+     * const originalMap = Map({
+     *   subObject: Map({
      *     subKey: 'subvalue',
-     *     subSubObject: {
+     *     subSubObject: Map({
      *       subSubKey: 'subSubValue'
-     *     }
-     *   }
-     * });
+     *     })
+     *   })
+     * })
      *
-     * const newMap = originalMap.setIn(['subObject', 'subKey'], 'ha ha!');
-     * newMap.toJS();
-     * // {subObject:{subKey:'ha ha!', subSubObject:{subSubKey:'subSubValue'}}}
+     * const newMap = originalMap.setIn(['subObject', 'subKey'], 'ha ha!')
+     * // Map {
+     * //   "subObject": Map {
+     * //     "subKey": "ha ha!",
+     * //     "subSubObject": Map { "subSubKey": "subSubValue" }
+     * //   }
+     * // }
      *
      * const newerMap = originalMap.setIn(
      *   ['subObject', 'subSubObject', 'subSubKey'],
      *   'ha ha ha!'
-     * );
-     * newerMap.toJS();
-     * // {subObject:{subKey:'subvalue', subSubObject:{subSubKey:'ha ha ha!'}}}
+     * )
+     * // Map {
+     * //   "subObject": Map {
+     * //     "subKey": "ha ha!",
+     * //     "subSubObject": Map { "subSubKey": "ha ha ha!" }
+     * //   }
+     * // }
      * ```
      *
-     * If any key in the path exists but does not have a .set() method (such as
-     * Map and List), an error will be throw.
+     * If any key in the path exists but does not have a `.set()` method
+     * (such as Map and List), an error will be throw.
      *
      * Note: `setIn` can be used in `withMutations`.
      */
@@ -1024,6 +1197,7 @@
      * `updateIn` and `push` can be used together:
      *
      * ```js
+     * const { Map, List } = require('immutable')
      * const map = Map({ inMap: Map({ inList: List([ 1, 2, 3 ]) }) })
      * const newMap = map.updateIn(['inMap', 'inList'], list => list.push(4))
      * // Map { "inMap": Map { "inList": List [ 1, 2, 3, 4 ] } }
@@ -1089,8 +1263,10 @@
      * performing the merge at a point arrived at by following the keyPath.
      * In other words, these two lines are equivalent:
      *
-     *     x.updateIn(['a', 'b', 'c'], abc => abc.merge(y));
-     *     x.mergeIn(['a', 'b', 'c'], y);
+     * ```js
+     * map.updateIn(['a', 'b', 'c'], abc => abc.merge(y))
+     * map.mergeIn(['a', 'b', 'c'], y)
+     * ```
      *
      * Note: `mergeIn` can be used in `withMutations`.
      */
@@ -1101,8 +1277,10 @@
      * performing the deep merge at a point arrived at by following the keyPath.
      * In other words, these two lines are equivalent:
      *
-     *     x.updateIn(['a', 'b', 'c'], abc => abc.mergeDeep(y));
-     *     x.mergeDeepIn(['a', 'b', 'c'], y);
+     * ```js
+     * map.updateIn(['a', 'b', 'c'], abc => abc.mergeDeep(y))
+     * map.mergeDeepIn(['a', 'b', 'c'], y)
+     * ```
      *
      * Note: `mergeDeepIn` can be used in `withMutations`.
      */
@@ -1123,12 +1301,15 @@
      *
      * As an example, this results in the creation of 2, not 4, new Maps:
      *
-     *     var map1 = Immutable.Map();
-     *     var map2 = map1.withMutations(map => {
-     *       map.set('a', 1).set('b', 2).set('c', 3);
-     *     });
-     *     assert(map1.size === 0);
-     *     assert(map2.size === 3);
+     * ```js
+     * const { Map } = require('immutable')
+     * const map1 = Map()
+     * const map2 = map1.withMutations(map => {
+     *   map.set('a', 1).set('b', 2).set('c', 3)
+     * })
+     * assert(map1.size === 0)
+     * assert(map2.size === 3)
+     * ```
      *
      * Note: Not all methods can be used on a mutable collection or within
      * `withMutations`! Read the documentation for each method to see if it
@@ -1233,8 +1414,8 @@
    * The iteration order of key-value pairs provided to this constructor will
    * be preserved in the OrderedMap.
    *
-   *     var newOrderedMap = OrderedMap({key: "value"});
-   *     var newOrderedMap = OrderedMap([["key", "value"]]);
+   *     let newOrderedMap = OrderedMap({key: "value"})
+   *     let newOrderedMap = OrderedMap([["key", "value"]])
    *
    */
   export function OrderedMap(): OrderedMap<any, any>;
@@ -1252,7 +1433,7 @@
      * `mapper` function.
      *
      *     OrderedMap({ a: 1, b: 2 }).map(x => 10 * x)
-     *     // OrderedMap { a: 10, b: 20 }
+     *     // OrderedMap { "a": 10, "b": 20 }
      *
      * Note: `map()` always returns a new instance, even if it produced the same
      * value at every step.
@@ -1325,11 +1506,12 @@
      * a collection of other sets.
      *
      * ```js
-     * var intersected = Set.intersect([
-     *   Set(['a', 'b', 'c'])
-     *   Set(['c', 'a', 't'])
+     * const { Set } = require('immutable')
+     * const intersected = Set.intersect([
+     *   Set([ 'a', 'b', 'c' ])
+     *   Set([ 'c', 'a', 't' ])
      * ])
-     * // Set [ 'a', 'c' ]
+     * // Set [ "a", "c"" ]
      * ```
      */
     function intersect<T>(sets: Iterable<Iterable<T>>): Set<T>;
@@ -1339,11 +1521,12 @@
      * collection of other sets.
      *
      * ```js
-     * var unioned = Set.union([
-     *   Set(['a', 'b', 'c'])
-     *   Set(['c', 'a', 't'])
+     * * const { Set } = require('immutable')
+     * const unioned = Set.union([
+     *   Set([ 'a', 'b', 'c' ])
+     *   Set([ 'c', 'a', 't' ])
      * ])
-     * // Set [ 'a', 'b', 'c', 't' ]
+     * // Set [ "a", "b", "c", "t"" ]
      * ```
      */
     function union<T>(sets: Iterable<Iterable<T>>): Set<T>;
@@ -1373,7 +1556,8 @@
      *
      * Note: `delete` can be used in `withMutations`.
      *
-     * Note: `delete` **cannot** be safely used in IE8, use `remove` if supporting old browsers.
+     * Note: `delete` **cannot** be safely used in IE8, use `remove` if
+     * supporting old browsers.
      *
      * @alias remove
      */
@@ -1513,8 +1697,8 @@
      * Returns a new Set with values passed through a
      * `mapper` function.
      *
-     *     OrderedSet([1,2]).map(x => 10 * x)
-     *     // Set [10,20]
+     *     OrderedSet([ 1, 2 ]).map(x => 10 * x)
+     *     // OrderedSet [10, 20]
      *
      * Note: `map()` always returns a new instance, even if it produced the same
      * value at every step.
@@ -1542,10 +1726,12 @@
      *
      * Like `zipWith`, but using the default `zipper`: creating an `Array`.
      *
-     *     var a = OrderedSet.of(1, 2, 3);
-     *     var b = OrderedSet.of(4, 5, 6);
-     *     var c = a.zip(b); // OrderedSet [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
-     *
+     * ```js
+     * const a = OrderedSet([ 1, 2, 3 ])
+     * const b = OrderedSet([ 4, 5, 6 ])
+     * const c = a.zip(b)
+     * // OrderedSet [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     * ```
      */
     zip(...collections: Array<Collection<any, any>>): OrderedSet<any>;
 
@@ -1706,8 +1892,8 @@
      * Returns a new Stack with values passed through a
      * `mapper` function.
      *
-     *     Stack([1,2]).map(x => 10 * x)
-     *     // Stack [10,20]
+     *     Stack([ 1, 2 ]).map(x => 10 * x)
+     *     // Stack [ 10, 20 ]
      *
      * Note: `map()` always returns a new instance, even if it produced the same
      * value at every step.
@@ -1734,13 +1920,15 @@
    * (exclusive), by `step`, where `start` defaults to 0, `step` to 1, and `end` to
    * infinity. When `start` is equal to `end`, returns empty range.
    *
-   *     Range() // [0,1,2,3,...]
-   *     Range(10) // [10,11,12,13,...]
-   *     Range(10,15) // [10,11,12,13,14]
-   *     Range(10,30,5) // [10,15,20,25]
-   *     Range(30,10,5) // [30,25,20,15]
-   *     Range(30,30,5) // []
-   *
+   * ```js
+   * const { Range } = require('immutable')
+   * Range() // [ 0, 1, 2, 3, ... ]
+   * Range(10) // [ 10, 11, 12, 13, ... ]
+   * Range(10, 15) // [ 10, 11, 12, 13, 14 ]
+   * Range(10, 30, 5) // [ 10, 15, 20, 25 ]
+   * Range(30, 10, 5) // [ 30, 25, 20, 15 ]
+   * Range(30, 30, 5) // []
+   * ```
    */
   export function Range(start?: number, end?: number, step?: number): Seq.Indexed<number>;
 
@@ -1749,9 +1937,11 @@
    * Returns a Seq.Indexed of `value` repeated `times` times. When `times` is
    * not defined, returns an infinite `Seq` of `value`.
    *
-   *     Repeat('foo') // ['foo','foo','foo',...]
-   *     Repeat('bar',4) // ['bar','bar','bar','bar']
-   *
+   * ```js
+   * const { Repeat } = require('immutable')
+   * Repeat('foo') // [ 'foo', 'foo', 'foo', ... ]
+   * Repeat('bar', 4) // [ 'bar', 'bar', 'bar', 'bar' ]
+   * ```
    */
   export function Repeat<T>(value: T, times?: number): Seq.Indexed<T>;
 
@@ -1761,26 +1951,33 @@
    * a JS object, but enforce a specific set of allowed string keys, and have
    * default values.
    *
-   *     var ABRecord = Record({a:1, b:2})
-   *     var myRecord = new ABRecord({b:3})
+   * ```js
+   * const { Record } = require('immutable')
+   * const ABRecord = Record({ a: 1, b: 2 })
+   * const myRecord = new ABRecord({ b: 3 })
+   * ```
    *
    * Records always have a value for the keys they define. `remove`ing a key
    * from a record simply resets it to the default value for that key.
    *
-   *     myRecord.size // 2
-   *     myRecord.get('a') // 1
-   *     myRecord.get('b') // 3
-   *     myRecordWithoutB = myRecord.remove('b')
-   *     myRecordWithoutB.get('b') // 2
-   *     myRecordWithoutB.size // 2
+   * ```js
+   * myRecord.size // 2
+   * myRecord.get('a') // 1
+   * myRecord.get('b') // 3
+   * const myRecordWithoutB = myRecord.remove('b')
+   * myRecordWithoutB.get('b') // 2
+   * myRecordWithoutB.size // 2
+   * ```
    *
    * Values provided to the constructor not found in the Record type will
    * be ignored. For example, in this case, ABRecord is provided a key "x" even
    * though only "a" and "b" have been defined. The value for "x" will be
    * ignored for this record.
    *
-   *     var myRecord = new ABRecord({b:3, x:10})
-   *     myRecord.get('x') // undefined
+   * ```js
+   * const myRecord = new ABRecord({ b: 3, x: 10 })
+   * myRecord.get('x') // undefined
+   * ```
    *
    * Because Records have a known set of string keys, property get access works
    * as expected, however property sets will throw an Error.
@@ -1788,22 +1985,25 @@
    * Note: IE8 does not support property access. Only use `get()` when
    * supporting IE8.
    *
-   *     myRecord.b // 3
-   *     myRecord.b = 5 // throws Error
+   * ```js
+   * myRecord.b // 3
+   * myRecord.b = 5 // throws Error
+   * ```
    *
    * Record Classes can be extended as well, allowing for custom methods on your
    * Record. This is not a common pattern in functional environments, but is in
    * many JS programs.
    *
-   *     class ABRecord extends Record({a:1,b:2}) {
-   *       getAB() {
-   *         return this.a + this.b;
-   *       }
-   *     }
+   * ```
+   * class ABRecord extends Record({ a: 1, b: 2 }) {
+   *   getAB() {
+   *     return this.a + this.b;
+   *   }
+   * }
    *
-   *     var myRecord = new ABRecord({b: 3})
-   *     myRecord.getAB() // 4
-   *
+   * var myRecord = new ABRecord({b: 3})
+   * myRecord.getAB() // 4
+   * ```
    */
   export module Record {
 
@@ -1819,7 +2019,8 @@
      * method. If one was not provided, the string "Record" is returned.
      *
      * ```js
-     * var Person = Record({
+     * const { Record } = require('immutable')
+     * const Person = Record({
      *   name: null
      * }, 'Person')
      *
@@ -1946,36 +2147,51 @@
    * For example, the following performs no work, because the resulting
    * Seq's values are never iterated:
    *
-   *     var oddSquares = Immutable.Seq.of(1,2,3,4,5,6,7,8)
-   *       .filter(x => x % 2).map(x => x * x);
+   * ```js
+   * const { Seq } = require('immutable')
+   * const oddSquares = Seq([ 1, 2, 3, 4, 5, 6, 7, 8 ])
+   *   .filter(x => x % 2 !== 0)
+   *   .map(x => x * x)
+   * ```
    *
    * Once the Seq is used, it performs only the work necessary. In this
    * example, no intermediate data structures are ever created, filter is only
    * called three times, and map is only called once:
    *
-   *     console.log(oddSquares.get(1)); // 9
+   * ```
+   * oddSquares.get(1)); // 9
+   * ```
    *
    * Seq allows for the efficient chaining of operations,
    * allowing for the expression of logic that can otherwise be very tedious:
    *
-   *     Immutable.Seq({a:1, b:1, c:1})
-   *       .flip().map(key => key.toUpperCase()).flip().toObject();
-   *     // Map { A: 1, B: 1, C: 1 }
+   * ```
+   * Seq({ a: 1, b: 1, c: 1})
+   *   .flip()
+   *   .map(key => key.toUpperCase())
+   *   .flip()
+   * // Seq { A: 1, B: 1, C: 1 }
+   * ```
    *
    * As well as expressing logic that would otherwise be memory or time limited:
    *
-   *     Immutable.Range(1, Infinity)
-   *       .skip(1000)
-   *       .map(n => -n)
-   *       .filter(n => n % 2 === 0)
-   *       .take(2)
-   *       .reduce((r, n) => r * n, 1);
-   *     // 1006008
+   * ```js
+   * const { Range } = require('immutable')
+   * Range(1, Infinity)
+   *   .skip(1000)
+   *   .map(n => -n)
+   *   .filter(n => n % 2 === 0)
+   *   .take(2)
+   *   .reduce((r, n) => r * n, 1)
+   * // 1006008
+   * ```
    *
    * Seq is often used to provide a rich collection API to JavaScript Object.
    *
-   *     Immutable.Seq({ x: 0, y: 1, z: 2 }).map(v => v * 2).toObject();
-   *     // { x: 0, y: 2, z: 4 }
+   * ```js
+   * Seq({ x: 0, y: 1, z: 2 }).map(v => v * 2).toObject();
+   * // { x: 0, y: 2, z: 4 }
+   * ```
    */
 
   export module Seq {
@@ -2029,8 +2245,11 @@
        * Returns a new Seq.Keyed with values passed through a
        * `mapper` function.
        *
-       *     Indexed([1, 2]).map(x => 10 * x)
-       *     // Indexed [10, 20]
+       * ```js
+       * const { Seq } = require('immutable')
+       * Seq.Keyed({ a: 1, b: 2 }).map(x => 10 * x)
+       * // Seq { "a": 10, "b": 20 }
+       * ```
        *
        * Note: `map()` always returns a new instance, even if it produced the
        * same value at every step.
@@ -2107,8 +2326,11 @@
        * Returns a new Seq.Indexed with values passed through a
        * `mapper` function.
        *
-       *     Seq.Indexed({a: 1, b: 2}).map(x => 10 * x)
-       *     // Seq.Indexed {a: 10, b: 20}
+       * ```js
+       * const { Seq } = require('immutable')
+       * Seq.Indexed([ 1, 2 ]).map(x => 10 * x)
+       * // Seq [ 10, 20 ]
+       * ```
        *
        * Note: `map()` always returns a new instance, even if it produced the
        * same value at every step.
@@ -2171,8 +2393,10 @@
        * Returns a new Seq.Set with values passed through a
        * `mapper` function.
        *
-       *     Seq.Set([1, 2]).map(x => 10 * x)
-       *     // Seq.Set [10, 20]
+       * ```js
+       * Seq.Set([ 1, 2 ]).map(x => 10 * x)
+       * // Seq { 10, 20 }
+       * ```
        *
        * Note: `map()` always returns a new instance, even if it produced the
        * same value at every step.
@@ -2239,15 +2463,15 @@
      * not cache their results. For example, this map function is called a total
      * of 6 times, as each `join` iterates the Seq of three values.
      *
-     *     var squares = Seq.of(1,2,3).map(x => x * x);
-     *     squares.join() + squares.join();
+     *     var squares = Seq([ 1, 2, 3 ]).map(x => x * x)
+     *     squares.join() + squares.join()
      *
      * If you know a `Seq` will be used multiple times, it may be more
      * efficient to first cache it in memory. Here, the map function is called
      * only 3 times.
      *
-     *     var squares = Seq.of(1,2,3).map(x => x * x).cacheResult();
-     *     squares.join() + squares.join();
+     *     var squares = Seq([ 1, 2, 3 ]).map(x => x * x).cacheResult()
+     *     squares.join() + squares.join()
      *
      * Use this method judiciously, as it must fully evaluate a Seq which can be
      * a burden on memory and possibly performance.
@@ -2262,8 +2486,11 @@
      * Returns a new Seq with values passed through a
      * `mapper` function.
      *
-     *     Seq({a: 1, b: 2}).map(x => 10 * x)
-     *     // Set {a: 10, b: 20}
+     * ```js
+     * const { Seq } = require('immutable')
+     * Seq([ 1, 2 ]).map(x => 10 * x)
+     * // Seq [ 10, 20 ]
+     * ```
      *
      * Note: `map()` always returns a new instance, even if it produced the same
      * value at every step.
@@ -2299,28 +2526,24 @@
    * `Collection.Indexed`, or `Collection.Set`.
    */
   export module Collection {
-    /**
-     * @deprecated use Immutable.isCollection
-     */
-    function isCollection(maybeCollection: any): maybeCollection is Collection<any, any>;
 
     /**
-     * @deprecated use Immutable.isKeyed
+     * @deprecated use `const { isKeyed } = require('immutable')`
      */
     function isKeyed(maybeKeyed: any): maybeKeyed is Collection.Keyed<any, any>;
 
     /**
-     * @deprecated use Immutable.isIndexed
+     * @deprecated use `const { isIndexed } = require('immutable')`
      */
     function isIndexed(maybeIndexed: any): maybeIndexed is Collection.Indexed<any>;
 
     /**
-     * @deprecated use Immutable.isAssociative
+     * @deprecated use `const { isAssociative } = require('immutable')`
      */
     function isAssociative(maybeAssociative: any): maybeAssociative is Collection.Keyed<any, any> | Collection.Indexed<any>;
 
     /**
-     * @deprecated use Immutable.isOrdered
+     * @deprecated use `const { isOrdered } = require('immutable')`
      */
     function isOrdered(maybeOrdered: any): boolean;
 
@@ -2371,8 +2594,11 @@
        * Returns a new Collection.Keyed of the same type where the keys and values
        * have been flipped.
        *
-       *     Seq({ a: 'z', b: 'y' }).flip() // { z: 'a', y: 'b' }
-       *
+       * ```js
+       * const { Map } = require('immutable')
+       * Map({ a: 'z', b: 'y' }).flip()
+       * // Map { "z": "a", "y": "b" }
+       * ```
        */
       flip(): this;
 
@@ -2380,8 +2606,11 @@
        * Returns a new Collection.Keyed with values passed through a
        * `mapper` function.
        *
-       *     Collection.Keyed({a: 1, b: 2}).map(x => 10 * x)
-       *     // Collection.Keyed {a: 10, b: 20}
+       * ```js
+       * const { Collection } = require('immutable')
+       * Collection.Keyed({ a: 1, b: 2 }).map(x => 10 * x)
+       * // Seq { "a": 10, "b": 20 }
+       * ```
        *
        * Note: `map()` always returns a new instance, even if it produced the
        * same value at every step.
@@ -2395,9 +2624,11 @@
        * Returns a new Collection.Keyed of the same type with keys passed through
        * a `mapper` function.
        *
-       *     Seq({ a: 1, b: 2 })
-       *       .mapKeys(x => x.toUpperCase())
-       *     // Seq { A: 1, B: 2 }
+       * ```js
+       * const { Map } = require('immutable')
+       * Map({ a: 1, b: 2 }).mapKeys(x => x.toUpperCase())
+       * // Map { "A": 1, "B": 2 }
+       * ```
        *
        * Note: `mapKeys()` always returns a new instance, even if it produced
        * the same key at every step.
@@ -2411,9 +2642,12 @@
        * Returns a new Collection.Keyed of the same type with entries
        * ([key, value] tuples) passed through a `mapper` function.
        *
-       *     Seq({ a: 1, b: 2 })
-       *       .mapEntries(([k, v]) => [k.toUpperCase(), v * 2])
-       *     // Seq { A: 2, B: 4 }
+       * ```js
+       * const { Map } = require('immutable')
+       * Map({ a: 1, b: 2 })
+       *   .mapEntries(([ k, v ]) => [ k.toUpperCase(), v * 2 ])
+       * // Map { "A": 2, "B": 4 }
+       * ```
        *
        * Note: `mapEntries()` always returns a new instance, even if it produced
        * the same entry at every step.
@@ -2513,16 +2747,21 @@
        * The resulting Collection includes the first item from each, then the
        * second from each, etc.
        *
-       *     I.Seq.of(1,2,3).interleave(I.Seq.of('A','B','C'))
-       *     // Seq [ 1, 'A', 2, 'B', 3, 'C' ]
+       * ```js
+       * const { List } = require('immutable')
+       * List([ 1, 2, 3 ]).interleave(List([ 'A', 'B', 'C' ]))
+       * // List [ 1, "A", 2, "B", 3, "C"" ]
+       * ```
        *
        * The shortest Collection stops interleave.
        *
-       *     I.Seq.of(1,2,3).interleave(
-       *       I.Seq.of('A','B'),
-       *       I.Seq.of('X','Y','Z')
-       *     )
-       *     // Seq [ 1, 'A', 'X', 2, 'B', 'Y' ]
+       * ```js
+       * List([ 1, 2, 3 ]).interleave(
+       *   List([ 'A', 'B' ]),
+       *   List([ 'X', 'Y', 'Z' ])
+       * )
+       * // List [ 1, "A", "X", 2, "B", "Y"" ]
+       * ```
        */
       interleave(...collections: Array<Collection<any, T>>): this;
 
@@ -2534,9 +2773,11 @@
        * `index` may be a negative number, which indexes back from the end of the
        * Collection. `s.splice(-2)` splices after the second to last item.
        *
-       *     Seq(['a','b','c','d']).splice(1, 2, 'q', 'r', 's')
-       *     // Seq ['a', 'q', 'r', 's', 'd']
-       *
+       * ```js
+       * const { List } = require('immutable')
+       * List([ 'a', 'b', 'c', 'd' ]).splice(1, 2, 'q', 'r', 's')
+       * // List [ "a", "q", "r", "s", "d" ]
+       * ```
        */
       splice(
         index: number,
@@ -2550,10 +2791,11 @@
        *
        * Like `zipWith`, but using the default `zipper`: creating an `Array`.
        *
-       *     var a = Seq.of(1, 2, 3);
-       *     var b = Seq.of(4, 5, 6);
-       *     var c = a.zip(b); // Seq [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
-       *
+       * ```js
+       * const a = List([ 1, 2, 3 ]);
+       * const b = List([ 4, 5, 6 ]);
+       * const c = a.zip(b); // List [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+       * ```
        */
       zip(...collections: Array<Collection<any, any>>): Collection.Indexed<any>;
 
@@ -2561,10 +2803,12 @@
        * Returns an Collection of the same type "zipped" with the provided
        * collections by using a custom `zipper` function.
        *
-       *     var a = Seq.of(1, 2, 3);
-       *     var b = Seq.of(4, 5, 6);
-       *     var c = a.zipWith((a, b) => a + b, b); // Seq [ 5, 7, 9 ]
-       *
+       * ```js
+       * const a = List([ 1, 2, 3 ]);
+       * const b = List([ 4, 5, 6 ]);
+       * const c = a.zipWith((a, b) => a + b, b);
+       * // List [ 5, 7, 9 ]
+       * ```
        */
       zipWith<U, Z>(
         zipper: (value: T, otherValue: U) => Z,
@@ -2619,8 +2863,11 @@
        * Returns a new Collection.Indexed with values passed through a
        * `mapper` function.
        *
-       *     Collection.Indexed([1,2]).map(x => 10 * x)
-       *     // Collection.Indexed [1,2]
+       * ```js
+       * const { Collection } = require('immutable')
+       * Collection.Indexed([1,2]).map(x => 10 * x)
+       * // Seq [ 1, 2 ]
+       * ```
        *
        * Note: `map()` always returns a new instance, even if it produced the
        * same value at every step.
@@ -2646,15 +2893,20 @@
 
     /**
      * Set Collections only represent values. They have no associated keys or
-     * indices. Duplicate values are possible in Seq.Sets, however the
-     * concrete `Set` does not allow duplicate values.
+     * indices. Duplicate values are possible in the lazy `Seq.Set`s, however
+     * the concrete `Set` Collection does not allow duplicate values.
      *
      * Collection methods on Collection.Set such as `map` and `forEach` will provide
      * the value as both the first and second arguments to the provided function.
      *
-     *     var seq = Seq.Set.of('A', 'B', 'C');
-     *     assert.equal(seq.every((v, k) => v === k), true);
-     *
+     * ```js
+     * const { Collection } = require('immutable')
+     * const seq = Collection.Set([ 'A', 'B', 'C' ])
+     * // Seq { "A", "B", "C" }
+     * seq.forEach((v, k) =>
+     *  assert.equal(v, k)
+     * )
+     * ```
      */
     export module Set {}
 
@@ -2686,8 +2938,10 @@
        * Returns a new Collection.Set with values passed through a
        * `mapper` function.
        *
-       *     Collection.Set([1,2]).map(x => 10 * x)
-       *     // Collection.Set [1,2]
+       * ```
+       * Collection.Set([ 1, 2 ]).map(x => 10 * x)
+       * // Seq { 1, 2 }
+       * ```
        *
        * Note: `map()` always returns a new instance, even if it produced the
        * same value at every step.
@@ -2751,11 +3005,13 @@
      * and is used when adding this to a `Set` or as a key in a `Map`, enabling
      * lookup via a different instance.
      *
-     *     var a = List.of(1, 2, 3);
-     *     var b = List.of(1, 2, 3);
-     *     assert(a !== b); // different instances
-     *     var set = Set.of(a);
-     *     assert(set.has(b) === true);
+     * ```js
+     * const a = List([ 1, 2, 3 ]);
+     * const b = List([ 1, 2, 3 ]);
+     * assert(a !== b); // different instances
+     * const set = Set([ a ]);
+     * assert(set.has(b) === true);
+     * ```
      *
      * If two values have the same `hashCode`, they are [not guaranteed
      * to be equal][Hash Collision]. If two values have different `hashCode`s,
@@ -2780,12 +3036,14 @@
     get<NSV>(key: K, notSetValue: NSV): V | NSV;
 
     /**
-     * True if a key exists within this `Collection`, using `Immutable.is` to determine equality
+     * True if a key exists within this `Collection`, using `Immutable.is`
+     * to determine equality
      */
     has(key: K): boolean;
 
     /**
-     * True if a value exists within this `Collection`, using `Immutable.is` to determine equality
+     * True if a value exists within this `Collection`, using `Immutable.is`
+     * to determine equality
      * @alias contains
      */
     includes(value: V): boolean;
@@ -2827,6 +3085,8 @@
      * For example, to sum a Seq after mapping and filtering:
      *
      * ```js
+     * const { Seq } = require('immutable')
+     *
      * function sum(collection) {
      *   return collection.reduce((sum, x) => sum + x, 0)
      * }
@@ -2952,13 +3212,16 @@
      * The returned Seq will have identical iteration order as
      * this Collection.
      *
-     * Example:
-     *
-     *     var indexedSeq = Immutable.Seq.of('A', 'B', 'C');
-     *     indexedSeq.filter(v => v === 'B').toString() // Seq [ 'B' ]
-     *     var keyedSeq = indexedSeq.toKeyedSeq();
-     *     keyedSeq.filter(v => v === 'B').toString() // Seq { 1: 'B' }
-     *
+     * ```js
+     * const { Seq } = require('immutable')
+     * const indexedSeq = Seq([ 'A', 'B', 'C' ])
+     * // Seq [ "A", "B", "C" ]
+     * indexedSeq.filter(v => v === 'B')
+     * // Seq [ "B" ]
+     * const keyedSeq = indexedSeq.toKeyedSeq()
+     * // Seq { 0: "A", 1: "B", 2: "C" }
+     * keyedSeq.filter(v => v === 'B')
+     * // Seq { 1: "B" }
      */
     toKeyedSeq(): Seq.Keyed<K, V>;
 
@@ -2978,21 +3241,27 @@
     /**
      * An iterator of this `Collection`'s keys.
      *
-     * Note: this will return an ES6 iterator which does not support Immutable JS sequence algorithms. Use `keySeq` instead, if this is what you want.
+     * Note: this will return an ES6 iterator which does not support
+     * Immutable.js sequence algorithms. Use `keySeq` instead, if this is
+     * what you want.
      */
     keys(): Iterator<K>;
 
     /**
      * An iterator of this `Collection`'s values.
      *
-     * Note: this will return an ES6 iterator which does not support Immutable JS sequence algorithms. Use `valueSeq` instead, if this is what you want.
+     * Note: this will return an ES6 iterator which does not support
+     * Immutable.js sequence algorithms. Use `valueSeq` instead, if this is
+     * what you want.
      */
     values(): Iterator<V>;
 
     /**
-     * An iterator of this `Collection`'s entries as `[key, value]` tuples.
+     * An iterator of this `Collection`'s entries as `[ key, value ]` tuples.
      *
-     * Note: this will return an ES6 iterator which does not support Immutable JS sequence algorithms. Use `entrySeq` instead, if this is what you want.
+     * Note: this will return an ES6 iterator which does not support
+     * Immutable.js sequence algorithms. Use `entrySeq` instead, if this is
+     * what you want.
      */
     entries(): Iterator<[K, V]>;
 
@@ -3022,8 +3291,11 @@
      * Returns a new Collection of the same type with values passed through a
      * `mapper` function.
      *
-     *     Seq({ a: 1, b: 2 }).map(x => 10 * x)
-     *     // Seq { a: 10, b: 20 }
+     * ```js
+     * const { Collection } = require('immutable')
+     * Collection({ a: 1, b: 2 }).map(x => 10 * x)
+     * // Seq { "a": 10, "b": 20 }
+     * ```
      *
      * Note: `map()` always returns a new instance, even if it produced the same
      * value at every step.
@@ -3037,8 +3309,11 @@
      * Returns a new Collection of the same type with only the entries for which
      * the `predicate` function returns true.
      *
-     *     Seq({a:1,b:2,c:3,d:4}).filter(x => x % 2 === 0)
-     *     // Seq { b: 2, d: 4 }
+     * ```js
+     * const { Map } = require('immutable')
+     * Map({ a: 1, b: 2, c: 3, d: 4}).filter(x => x % 2 === 0)
+     * // Map { "b": 2, "d": 4 }
+     * ```
      *
      * Note: `filter()` always returns a new instance, even if it results in
      * not filtering out any values.
@@ -3052,8 +3327,11 @@
      * Returns a new Collection of the same type with only the entries for which
      * the `predicate` function returns false.
      *
-     *     Seq({a:1,b:2,c:3,d:4}).filterNot(x => x % 2 === 0)
-     *     // Seq { a: 1, c: 3 }
+     * ```js
+     * const { Map } = require('immutable')
+     * Map({ a: 1, b: 2, c: 3, d: 4}).filterNot(x => x % 2 === 0)
+     * // Map { "a": 1, "c": 3 }
+     * ```
      *
      * Note: `filterNot()` always returns a new instance, even if it results in
      * not filtering out any values.
@@ -3086,12 +3364,13 @@
      * equivalents will be returned. e.g. `map.sort()` returns OrderedMap.
      *
      * ```js
-     * Seq({c: 3, a: 1, b: 2}).sort((a, b) => {
+     * const { Map } = require('immutable')
+     * Map({ "c": 3, "a": 1, "b": 2 }).sort((a, b) => {
      *   if (a < b) { return -1; }
      *   if (a > b) { return 1; }
      *   if (a === b) { return 0; }
-     * }).toJS();
-     * // { a: 1, b: 2, c: 3 }
+     * });
+     * // OrderedMap { "a": 1, "b": 2, "c": 3 }
      * ```
      *
      * Note: `sort()` Always returns a new instance, even if the original was
@@ -3103,7 +3382,7 @@
      * Like `sort`, but also accepts a `comparatorValueMapper` which allows for
      * sorting by more sophisticated means:
      *
-     *     hitters.sortBy(hitter => hitter.avgHits);
+     *     hitters.sortBy(hitter => hitter.avgHits)
      *
      * Note: `sortBy()` Always returns a new instance, even if the original was
      * already sorted.
@@ -3119,9 +3398,21 @@
      *
      * Note: This is always an eager operation.
      *
-     *     Immutable.fromJS([{v: 0}, {v: 1}, {v: 1}, {v: 0}, {v: 1}])
-     *       .groupBy(x => x.get('v'))
-     *       // Map {0: [{v: 0},{v: 0}], 1: [{v: 1},{v: 1},{v: 1}]}
+     * ```js
+     * const { List, Map } = require('immutable')
+     * const listOfMaps = List([
+     *   Map({ v: 0 }),
+     *   Map({ v: 1 }),
+     *   Map({ v: 1 }),
+     *   Map({ v: 0 }),
+     *   Map({ v: 2 })
+     * ])
+     * const groupsOfMaps = listOfMaps.groupBy(x => x.get('v'))
+     * // Map {
+     * //   0: List [ Map{ "v": 0 }, Map { "v": 0 } ],
+     * //   1: List [ Map{ "v": 1 }, Map { "v": 1 } ],
+     * //   2: List [ Map{ "v": 2 } ],
+     * // }
      */
     groupBy<G>(
       grouper: (value: V, key: K, iter: this) => G,
@@ -3192,10 +3483,12 @@
      * Returns a new Collection of the same type which includes entries starting
      * from when `predicate` first returns false.
      *
-     *     Seq.of('dog','frog','cat','hat','god')
-     *       .skipWhile(x => x.match(/g/))
-     *     // Seq [ 'cat', 'hat', 'god' ]
-     *
+     * ```js
+     * const { List } = require('immutable')
+     * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
+     *   .skipWhile(x => x.match(/g/))
+     * // List [ "cat", "hat", "god"" ]
+     * ```
      */
     skipWhile(
       predicate: (value: V, key: K, iter: this) => boolean,
@@ -3206,10 +3499,12 @@
      * Returns a new Collection of the same type which includes entries starting
      * from when `predicate` first returns true.
      *
-     *     Seq.of('dog','frog','cat','hat','god')
-     *       .skipUntil(x => x.match(/hat/))
-     *     // Seq [ 'hat', 'god' ]
-     *
+     * ```js
+     * const { List } = require('immutable')
+     * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
+     *   .skipUntil(x => x.match(/hat/))
+     * // List [ "hat", "god"" ]
+     * ```
      */
     skipUntil(
       predicate: (value: V, key: K, iter: this) => boolean,
@@ -3232,10 +3527,12 @@
      * Returns a new Collection of the same type which includes entries from this
      * Collection as long as the `predicate` returns true.
      *
-     *     Seq.of('dog','frog','cat','hat','god')
-     *       .takeWhile(x => x.match(/o/))
-     *     // Seq [ 'dog', 'frog' ]
-     *
+     * ```js
+     * const { List } = require('immutable')
+     * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
+     *   .takeWhile(x => x.match(/o/))
+     * // List [ "dog", "frog" ]
+     * ```
      */
     takeWhile(
       predicate: (value: V, key: K, iter: this) => boolean,
@@ -3246,9 +3543,12 @@
      * Returns a new Collection of the same type which includes entries from this
      * Collection as long as the `predicate` returns false.
      *
-     *     Seq.of('dog','frog','cat','hat','god').takeUntil(x => x.match(/at/))
-     *     // ['dog', 'frog']
-     *
+     * ```js
+     * const { List } = require('immutable')
+     * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
+     *   .takeUntil(x => x.match(/at/))
+     * // List [ "dog", "frog" ]
+     * ```
      */
     takeUntil(
       predicate: (value: V, key: K, iter: this) => boolean,
@@ -3535,18 +3835,4 @@
      */
     size: number;
   }
-
-
-  /**
-   * ES6 Iterator.
-   *
-   * This is not part of the Immutable library, but a common interface used by
-   * many types in ES6 JavaScript.
-   *
-   * @ignore
-   */
-  // interface Iterable<T> {
-  //   [Symbol.iterator](): Iterator<T>;
-  // }
-
 
