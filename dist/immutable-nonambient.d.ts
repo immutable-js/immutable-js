@@ -20,7 +20,7 @@
  * ## How to read these docs
  *
  * In order to better explain what kinds of values the Immutable.js API expects
- * and produces, this documentation is presented in a staticly typed dialect of
+ * and produces, this documentation is presented in a statically typed dialect of
  * JavaScript (like [Flow][] or [TypeScript][]). You *don't need* to use these
  * type checking tools in order to use Immutable.js, however becoming familiar
  * with their syntax will help you get a deeper understanding of this API.
