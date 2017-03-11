@@ -3095,7 +3095,7 @@ declare module Immutable {
      *   return collection.reduce((sum, x) => sum + x, 0)
      * }
      *
-     * Seq([ 1, 2 ,3 ])
+     * Seq([ 1, 2, 3 ])
      *   .map(x => x + 1)
      *   .filter(x => x % 2 === 0)
      *   .update(sum)
