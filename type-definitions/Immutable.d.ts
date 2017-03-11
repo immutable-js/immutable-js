@@ -81,13 +81,17 @@
  * To use this method, we could pass an array: `data.getIn([ "key", 2 ])`.
  *
  *
- * Note: All examples are presented in [ES2015][]. To run in all browsers, they
- * need to be translated to ES3. For example:
+ * Note: All examples are presented in the modern [ES2015][] version of
+ * JavaScript. To run in older browsers, they need to be translated to ES3.
  *
- *     // ES6
- *     foo.map(x => x * x);
- *     // ES3
- *     foo.map(function (x) { return x * x; });
+ * For example:
+ *
+ * ```js
+ * // ES2015
+ * const mappedFoo = foo.map(x => x * x);
+ * // ES3
+ * var mappedFoo = foo.map(function (x) { return x * x; });
+ * ```
  *
  * [ES2015]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/ECMAScript_6_support_in_Mozilla
  * [TypeScript]: http://www.typescriptlang.org/
