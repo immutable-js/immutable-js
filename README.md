@@ -93,11 +93,21 @@ TypeScript, so you shouldn't need to do anything at all!
 
 #### Using TypeScript with Immutable.js v4
 
+TypeScript version need to be higher than 2.1.0.
 Immutable.js type definitions embrace ES2015. While Immutable.js itself supports
 legacy browsers and environments, its type definitions require TypeScript's 2015
 lib. Include either `"target": "es2015"` or `"lib": "es2015"` in your
 `tsconfig.json`, or provide `--target es2015` or `--lib es2015` to the
 `tsc` command.
+
+```js
+import * as Immutable from "immutable";
+var map1: Immutable.Map<string, number>;
+map1 = Immutable.Map({a:1, b:2, c:3});
+var map2 = map1.set('b', 50);
+map1.get('b'); // 2
+map2.get('b'); // 50
+```
 
 #### Using TypeScript with Immutable.js v3 and earlier:
 
