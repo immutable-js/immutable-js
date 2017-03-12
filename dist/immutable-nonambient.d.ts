@@ -3283,6 +3283,10 @@
       predicate: (value: V, key: K, iter: this) => boolean,
       context?: any
     ): this;
+    filter<M>(
+      predicate: (value: V, key: K, iter: this) => boolean,
+      context?: any
+    ): Collection<K, M>;
 
     /**
      * Returns a new Collection of the same type with only the entries for which
