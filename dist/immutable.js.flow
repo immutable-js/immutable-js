@@ -196,7 +196,8 @@ declare class KeyedCollection<K, +V> extends Collection<K, V> {
   toSeq(): KeyedSeq<K, V>;
   flip(): KeyedCollection<V, K>;
 
-  concat(...iters: Iterable<[K, V]>[]): this;
+  concat<KC, VC>(...iters: Array<Iterable<[KC, VC]>>): KeyedCollection<K | KC, V | VC>;
+  concat<C>(...iters: Array<{[key: string]: C}>): KeyedCollection<K | string, V | C>;
 
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
@@ -318,7 +319,7 @@ declare class IndexedCollection<+T> extends Collection<number, T> {
     context?: mixed
   ): number;
 
-  concat(...iters: Iterable<T>[]): this;
+  concat<C>(...iters: Array<Iterable<C> | C>): IndexedCollection<T | C>;
 
   map<M>(
     mapper: (value: T, index: number, iter: this) => M,
@@ -342,7 +343,7 @@ declare class SetCollection<+T> extends Collection<T, T> {
   @@iterator(): Iterator<T>;
   toSeq(): SetSeq<T>;
 
-  concat(...iters: Iterable<T>[]): this;
+  concat<C>(...iters: Array<Iterable<C> | C>): SetCollection<T | C>;
 
   // `map` and `flatMap` cannot be defined further up the hiearchy, because the
   // implementation for `KeyedCollection` allows the value type to change without
@@ -389,6 +390,9 @@ declare class KeyedSeq<K, +V> extends Seq<K, V> mixins KeyedCollection<K, V> {
   // Override specialized return types
   flip(): KeyedSeq<V, K>;
 
+  concat<KC, VC>(...iters: Array<Iterable<[KC, VC]>>): KeyedSeq<K | KC, V | VC>;
+  concat<C>(...iters: Array<{[key: string]: C}>): KeyedSeq<K | string, V | C>;
+
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
     context?: mixed
@@ -419,6 +423,9 @@ declare class IndexedSeq<+T> extends Seq<number, T> mixins IndexedCollection<T> 
   static of<T>(...values: T[]): IndexedSeq<T>;
 
   // Override specialized return types
+
+  concat<C>(...iters: Array<Iterable<C> | C>): IndexedSeq<T | C>;
+
   map<M>(
     mapper: (value: T, index: number, iter: this) => M,
     context?: mixed
@@ -506,6 +513,9 @@ declare class SetSeq<+T> extends Seq<T, T> mixins SetCollection<T> {
   static of<T>(...values: T[]): SetSeq<T>;
 
   // Override specialized return types
+
+  concat<C>(...iters: Array<Iterable<C> | C>): SetSeq<T | C>;
+
   map<M>(
     mapper: (value: T, value: T, iter: this) => M,
     context?: mixed
@@ -579,6 +589,9 @@ declare class List<+T> extends IndexedCollection<T> {
   asImmutable(): this;
 
   // Override specialized return types
+
+  concat<C>(...iters: Array<Iterable<C> | C>): List<T | C>;
+
   map<M>(
     mapper: (value: T, index: number, iter: this) => M,
     context?: mixed
@@ -725,7 +738,11 @@ declare class Map<K, +V> extends KeyedCollection<K, V> {
   asImmutable(): this;
 
   // Override specialized return types
+
   flip(): Map<V, K>;
+
+  concat<KC, VC>(...iters: Array<Iterable<[KC, VC]>>): Map<K | KC, V | VC>;
+  concat<C>(...iters: Array<{[key: string]: C}>): Map<K | string, V | C>;
 
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
@@ -813,7 +830,11 @@ declare class OrderedMap<K, +V> extends KeyedCollection<K, V> {
   asImmutable(): this;
 
   // Override specialized return types
+
   flip(): OrderedMap<V, K>;
+
+  concat<KC, VC>(...iters: Array<Iterable<[KC, VC]>>): OrderedMap<K | KC, V | VC>;
+  concat<C>(...iters: Array<{[key: string]: C}>): OrderedMap<K | string, V | C>;
 
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
@@ -866,6 +887,9 @@ declare class Set<+T> extends SetCollection<T> {
   asImmutable(): this;
 
   // Override specialized return types
+
+  concat<C>(...iters: Array<Iterable<C> | C>): Set<T | C>;
+
   map<M>(
     mapper: (value: T, value: T, iter: this) => M,
     context?: mixed
@@ -896,6 +920,8 @@ declare class OrderedSet<+T> extends Set<T> {
   union<U>(...collections: Iterable<U>[]): OrderedSet<T | U>;
   merge<U>(...collections: Iterable<U>[]): OrderedSet<T | U>;
   intersect<U>(...collections: Iterable<U>[]): OrderedSet<T & U>;
+
+  concat<C>(...iters: Array<Iterable<C> | C>): OrderedSet<T | C>;
 
   map<M>(
     mapper: (value: T, value: T, iter: this) => M,
@@ -1001,6 +1027,9 @@ declare class Stack<+T> extends IndexedCollection<T> {
   asImmutable(): this;
 
   // Override specialized return types
+
+  concat<C>(...iters: Array<Iterable<C> | C>): Stack<T | C>;
+
   map<M>(
     mapper: (value: T, index: number, iter: this) => M,
     context?: mixed

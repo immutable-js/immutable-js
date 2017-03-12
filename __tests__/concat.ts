@@ -51,7 +51,7 @@ describe('concat', () => {
     let a = Seq({a: 1, b: 2, c: 3});
     let b = [4, 5, 6];
     expect(() => {
-      a.concat(b).toJS();
+      a.concat(b as any).toJS();
     }).toThrow('Expected [K, V] tuple: 4');
   });
 
