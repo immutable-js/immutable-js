@@ -78,8 +78,9 @@ require(['./immutable.min.js'], function (Immutable) {
 });
 ```
 
-If you're using [browserify](http://browserify.org/), the `immutable` npm module
-also works from the browser.
+If you're using [webpack](https://webpack.github.io/) or
+[browserify](http://browserify.org/), the `immutable` npm module also works
+from the browser.
 
 ### Flow & TypeScript
 
