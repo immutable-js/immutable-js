@@ -93,7 +93,7 @@ TypeScript, so you shouldn't need to do anything at all!
 
 #### Using TypeScript with Immutable.js v4
 
-TypeScript version need to be higher than 2.1.0.
+TypeScript version need to be higher than 2.1.0, 
 Immutable.js type definitions embrace ES2015. While Immutable.js itself supports
 legacy browsers and environments, its type definitions require TypeScript's 2015
 lib. Include either `"target": "es2015"` or `"lib": "es2015"` in your
