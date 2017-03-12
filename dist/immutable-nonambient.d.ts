@@ -737,6 +737,11 @@
     // Sequence algorithms
 
     /**
+     * Returns a new List with other values or collections concatenated to this one.
+     */
+    concat<C>(...valuesOrCollections: Array<Iterable<C> | C>): List<T | C>;
+
+    /**
      * Returns a new List with values passed through a
      * `mapper` function.
      *
@@ -1309,6 +1314,12 @@
     // Sequence algorithms
 
     /**
+     * Returns a new Map with other collections concatenated to this one.
+     */
+    concat<KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Map<K | KC, V | VC>;
+    concat<C>(...collections: Array<{[key: string]: C}>): Map<K | string, V | C>;
+
+    /**
      * Returns a new Map with values passed through a
      * `mapper` function.
      *
@@ -1393,6 +1404,12 @@
   export interface OrderedMap<K, V> extends Map<K, V> {
 
     // Sequence algorithms
+
+    /**
+     * Returns a new OrderedMap with other collections concatenated to this one.
+     */
+    concat<KC, VC>(...collections: Array<Iterable<[KC, VC]>>): OrderedMap<K | KC, V | VC>;
+    concat<C>(...collections: Array<{[key: string]: C}>): OrderedMap<K | string, V | C>;
 
     /**
      * Returns a new OrderedMap with values passed through a
@@ -1591,6 +1608,11 @@
     // Sequence algorithms
 
     /**
+     * Returns a new Set with other collections concatenated to this one.
+     */
+    concat<C>(...valuesOrCollections: Array<Iterable<C> | C>): Set<T | C>;
+
+    /**
      * Returns a new Set with values passed through a
      * `mapper` function.
      *
@@ -1658,6 +1680,11 @@
   export interface OrderedSet<T> extends Set<T> {
 
     // Sequence algorithms
+
+    /**
+     * Returns a new OrderedSet with other collections concatenated to this one.
+     */
+    concat<C>(...valuesOrCollections: Array<Iterable<C> | C>): OrderedSet<T | C>;
 
     /**
      * Returns a new Set with values passed through a
@@ -1851,6 +1878,11 @@
     asImmutable(): this;
 
     // Sequence algorithms
+
+    /**
+     * Returns a new Stack with other collections concatenated to this one.
+     */
+    concat<C>(...valuesOrCollections: Array<Iterable<C> | C>): Stack<T | C>;
 
     /**
      * Returns a new Stack with values passed through a
@@ -2206,6 +2238,15 @@
       toSeq(): this;
 
       /**
+       * Returns a new Seq with other collections concatenated to this one.
+       *
+       * All entries will be present in the resulting Seq, even if they
+       * have the same key.
+       */
+      concat<KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Seq.Keyed<K | KC, V | VC>;
+      concat<C>(...collections: Array<{[key: string]: C}>): Seq.Keyed<K | string, V | C>;
+
+      /**
        * Returns a new Seq.Keyed with values passed through a
        * `mapper` function.
        *
@@ -2287,6 +2328,11 @@
       toSeq(): this
 
       /**
+       * Returns a new Seq with other collections concatenated to this one.
+       */
+      concat<C>(...valuesOrCollections: Array<Iterable<C> | C>): Seq.Indexed<T | C>;
+
+      /**
        * Returns a new Seq.Indexed with values passed through a
        * `mapper` function.
        *
@@ -2352,6 +2398,14 @@
        * Returns itself
        */
       toSeq(): this
+
+      /**
+       * Returns a new Seq with other collections concatenated to this one.
+       *
+       * All entries will be present in the resulting Seq, even if they
+       * are duplicates.
+       */
+      concat<C>(...valuesOrCollections: Array<Iterable<C> | C>): Seq.Set<T | C>;
 
       /**
        * Returns a new Seq.Set with values passed through a
@@ -2564,6 +2618,12 @@
        * ```
        */
       flip(): this;
+
+      /**
+       * Returns a new Collection with other collections concatenated to this one.
+       */
+      concat<KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Collection.Keyed<K | KC, V | VC>;
+      concat<C>(...collections: Array<{[key: string]: C}>): Collection.Keyed<K | string, V | C>;
 
       /**
        * Returns a new Collection.Keyed with values passed through a
@@ -2823,6 +2883,11 @@
       // Sequence algorithms
 
       /**
+       * Returns a new Collection with other collections concatenated to this one.
+       */
+      concat<C>(...valuesOrCollections: Array<Iterable<C> | C>): Collection.Indexed<T | C>;
+
+      /**
        * Returns a new Collection.Indexed with values passed through a
        * `mapper` function.
        *
@@ -2896,6 +2961,11 @@
       toSeq(): Seq.Set<T>;
 
       // Sequence algorithms
+
+      /**
+       * Returns a new Collection with other collections concatenated to this one.
+       */
+      concat<C>(...valuesOrCollections: Array<Iterable<C> | C>): Collection.Set<T | C>;
 
       /**
        * Returns a new Collection.Set with values passed through a
@@ -3523,8 +3593,8 @@
      * Returns a new Collection of the same type with other values and
      * collection-like concatenated to this one.
      *
-     * For Seqs, all entries will be present in
-     * the resulting collection, even if they have the same key.
+     * For Seqs, all entries will be present in the resulting Seq, even if they
+     * have the same key.
      */
     concat(...valuesOrCollections: Array<any>): Collection<any, any>;
 

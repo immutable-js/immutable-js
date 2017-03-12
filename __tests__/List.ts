@@ -613,7 +613,7 @@ describe('List', () => {
 
   it('concat works like Array.prototype.concat', () => {
     let v1 = List.of(1, 2, 3);
-    let v2 = v1.concat(4, List.of(5, 6), [7, 8], Seq({a: 9, b: 10}), Set.of(11, 12), null);
+    let v2 = v1.concat(4, List([ 5, 6 ]), [7, 8], Seq([ 9, 10 ]), Set.of(11, 12), null);
     expect(v1.toArray()).toEqual([1, 2, 3]);
     expect(v2.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, null]);
   });
