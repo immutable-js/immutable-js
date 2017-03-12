@@ -384,7 +384,7 @@
      * // List [ { x: 1 }, 2, [ 3 ], 4 ]
      * ```
      */
-    function of<T>(...values: T[]): List<T>;
+    function of<T>(...values: Array<T>): List<T>;
   }
 
   /**
@@ -512,7 +512,7 @@
      *
      * Note: `push` can be used in `withMutations`.
      */
-    push(...values: T[]): List<T>;
+    push(...values: Array<T>): List<T>;
 
     /**
      * Returns a new List with a size ones less than this List, excluding
@@ -542,7 +542,7 @@
      *
      * Note: `unshift` can be used in `withMutations`.
      */
-    unshift(...values: T[]): List<T>;
+    unshift(...values: Array<T>): List<T>;
 
     /**
      * Returns a new List with a size ones less than this List, excluding
@@ -597,8 +597,8 @@
      *
      * @see `Map#update`
      */
-    update(index: number, updater: (value: T) => T): this;
     update(index: number, notSetValue: T, updater: (value: T) => T): this;
+    update(index: number, updater: (value: T) => T): this;
     update<R>(updater: (value: this) => R): R;
 
     /**
@@ -665,8 +665,7 @@
      *
      * Note: `setIn` can be used in `withMutations`.
      */
-    setIn(keyPath: Array<any>, value: any): this;
-    setIn(keyPath: Collection<any, any>, value: any): this;
+    setIn(keyPath: Iterable<any>, value: any): this;
 
     /**
      * Returns a new List having removed the value at this `keyPath`. If any
@@ -683,48 +682,30 @@
      *
      * @alias removeIn
      */
-    deleteIn(keyPath: Array<any>): this;
-    deleteIn(keyPath: Collection<any, any>): this;
-    removeIn(keyPath: Array<any>): this;
-    removeIn(keyPath: Collection<any, any>): this;
+    deleteIn(keyPath: Iterable<any>): this;
+    removeIn(keyPath: Iterable<any>): this;
 
     /**
      * Note: `updateIn` can be used in `withMutations`.
      *
      * @see `Map#updateIn`
      */
-    updateIn(
-      keyPath: Array<any>,
-      updater: (value: any) => any
-    ): this;
-    updateIn(
-      keyPath: Array<any>,
-      notSetValue: any,
-      updater: (value: any) => any
-    ): this;
-    updateIn(
-      keyPath: Collection<any, any>,
-      updater: (value: any) => any
-    ): this;
-    updateIn(
-      keyPath: Collection<any, any>,
-      notSetValue: any,
-      updater: (value: any) => any
-    ): this;
+    updateIn(keyPath: Iterable<any>, notSetValue: any, updater: (value: any) => any): this;
+    updateIn(keyPath: Iterable<any>, updater: (value: any) => any): this;
 
     /**
      * Note: `mergeIn` can be used in `withMutations`.
      *
      * @see `Map#mergeIn`
      */
-    mergeIn(keyPath: Array<any> | Collection<any, any>, ...collections: Array<any>): this;
+    mergeIn(keyPath: Iterable<any>, ...collections: Array<any>): this;
 
     /**
      * Note: `mergeDeepIn` can be used in `withMutations`.
      *
      * @see `Map#mergeDeepIn`
      */
-    mergeDeepIn(keyPath: Array<any> | Collection<any, any>, ...collections: Array<any>): this;
+    mergeDeepIn(keyPath: Iterable<any>, ...collections: Array<any>): this;
 
     // Transient changes
 
@@ -838,7 +819,7 @@
      *
      * @deprecated Use Map([ [ 'k', 'v' ] ]) or Map({ k: 'v' })
      */
-    function of(...keyValues: any[]): Map<any, any>;
+    function of(...keyValues: Array<any>): Map<any, any>;
   }
 
   /**
@@ -872,11 +853,11 @@
    * but since Immutable Map keys can be of any type the argument to `get()` is
    * not altered.
    */
-  export function Map(): Map<any, any>;
-  export function Map<K, V>(): Map<K, V>;
   export function Map<K, V>(collection: Iterable<[K, V]>): Map<K, V>;
   export function Map<T>(collection: Iterable<Iterable<T>>): Map<T, T>;
   export function Map<V>(obj: {[key: string]: V}): Map<string, V>;
+  export function Map<K, V>(): Map<K, V>;
+  export function Map(): Map<any, any>;
 
   export interface Map<K, V> extends Collection.Keyed<K, V> {
 
@@ -942,8 +923,8 @@
      *
      * @alias removeAll
      */
-    deleteAll(keys: Array<K> | Iterable<K>): this;
-    removeAll(keys: Array<K> | Iterable<K>): this;
+    deleteAll(keys: Iterable<K>): this;
+    removeAll(keys: Iterable<K>): this;
 
     /**
      * Returns a new Map containing no keys or values.
@@ -1041,8 +1022,8 @@
      *
      * Note: `update(key)` can be used in `withMutations`.
      */
-    update(key: K, updater: (value: V) => V): this;
     update(key: K, notSetValue: V, updater: (value: V) => V): this;
+    update(key: K, updater: (value: V) => V): this;
     update<R>(updater: (value: this) => R): R;
 
     /**
@@ -1176,8 +1157,7 @@
      *
      * Note: `setIn` can be used in `withMutations`.
      */
-    setIn(keyPath: Array<any>, value: any): this;
-    setIn(KeyPath: Collection<any, any>, value: any): this;
+    setIn(keyPath: Iterable<any>, value: any): this;
 
     /**
      * Returns a new Map having removed the value at this `keyPath`. If any keys
@@ -1187,10 +1167,8 @@
      *
      * @alias removeIn
      */
-    deleteIn(keyPath: Array<any>): this;
-    deleteIn(keyPath: Collection<any, any>): this;
-    removeIn(keyPath: Array<any>): this;
-    removeIn(keyPath: Collection<any, any>): this;
+    deleteIn(keyPath: Iterable<any>): this;
+    removeIn(keyPath: Iterable<any>): this;
 
     /**
      * Returns a new Map having applied the `updater` to the entry found at the
@@ -1243,24 +1221,8 @@
      * If any key in the path exists but does not have a .set() method (such as
      * Map and List), an error will be thrown.
      */
-    updateIn(
-      keyPath: Array<any>,
-      updater: (value: any) => any
-    ): this;
-    updateIn(
-      keyPath: Array<any>,
-      notSetValue: any,
-      updater: (value: any) => any
-    ): this;
-    updateIn(
-      keyPath: Collection<any, any>,
-      updater: (value: any) => any
-    ): this;
-    updateIn(
-      keyPath: Collection<any, any>,
-      notSetValue: any,
-      updater: (value: any) => any
-    ): this;
+    updateIn(keyPath: Iterable<any>, notSetValue: any, updater: (value: any) => any): this;
+    updateIn(keyPath: Iterable<any>, updater: (value: any) => any): this;
 
     /**
      * A combination of `updateIn` and `merge`, returning a new Map, but
@@ -1274,7 +1236,7 @@
      *
      * Note: `mergeIn` can be used in `withMutations`.
      */
-    mergeIn(keyPath: Array<any> | Collection<any, any>, ...collections: Array<any>): this;
+    mergeIn(keyPath: Iterable<any>, ...collections: Array<any>): this;
 
     /**
      * A combination of `updateIn` and `mergeDeep`, returning a new Map, but
@@ -1288,7 +1250,7 @@
      *
      * Note: `mergeDeepIn` can be used in `withMutations`.
      */
-    mergeDeepIn(keyPath: Array<any> | Collection<any, any>, ...collections: Array<any>): this;
+    mergeDeepIn(keyPath: Iterable<any>, ...collections: Array<any>): this;
 
     // Transient changes
 
@@ -1422,11 +1384,11 @@
    *     let newOrderedMap = OrderedMap([["key", "value"]])
    *
    */
-  export function OrderedMap(): OrderedMap<any, any>;
-  export function OrderedMap<K, V>(): OrderedMap<K, V>;
   export function OrderedMap<K, V>(collection: Iterable<[K, V]>): OrderedMap<K, V>;
   export function OrderedMap<T>(collection: Iterable<Iterable<T>>): OrderedMap<T, T>;
   export function OrderedMap<V>(obj: {[key: string]: V}): OrderedMap<string, V>;
+  export function OrderedMap<K, V>(): OrderedMap<K, V>;
+  export function OrderedMap(): OrderedMap<any, any>;
 
   export interface OrderedMap<K, V> extends Map<K, V> {
 
@@ -1496,7 +1458,7 @@
     /**
      * Creates a new Set containing `values`.
      */
-    function of<T>(...values: T[]): Set<T>;
+    function of<T>(...values: Array<T>): Set<T>;
 
     /**
      * `Set.fromKeys()` creates a new immutable Set containing the keys from
@@ -1675,7 +1637,7 @@
     /**
      * Creates a new OrderedSet containing `values`.
      */
-    function of<T>(...values: T[]): OrderedSet<T>;
+    function of<T>(...values: Array<T>): OrderedSet<T>;
 
     /**
      * `OrderedSet.fromKeys()` creates a new immutable OrderedSet containing
@@ -1785,7 +1747,7 @@
     /**
      * Creates a new Stack containing `values`.
      */
-    function of<T>(...values: T[]): Stack<T>;
+    function of<T>(...values: Array<T>): Stack<T>;
   }
 
   /**
@@ -1826,15 +1788,14 @@
      *
      * Note: `unshift` can be used in `withMutations`.
      */
-    unshift(...values: T[]): Stack<T>;
+    unshift(...values: Array<T>): Stack<T>;
 
     /**
      * Like `Stack#unshift`, but accepts a collection rather than varargs.
      *
      * Note: `unshiftAll` can be used in `withMutations`.
      */
-    unshiftAll(iter: Collection<any, T>): Stack<T>;
-    unshiftAll(iter: Array<T>): Stack<T>;
+    unshiftAll(iter: Iterable<T>): Stack<T>;
 
     /**
      * Returns a new Stack with a size ones less than this Stack, excluding
@@ -1851,13 +1812,12 @@
     /**
      * Alias for `Stack#unshift` and is not equivalent to `List#push`.
      */
-    push(...values: T[]): Stack<T>;
+    push(...values: Array<T>): Stack<T>;
 
     /**
      * Alias for `Stack#unshiftAll`.
      */
-    pushAll(iter: Collection<any, T>): Stack<T>;
-    pushAll(iter: Array<T>): Stack<T>;
+    pushAll(iter: Iterable<T>): Stack<T>;
 
     /**
      * Alias for `Stack#shift` and is not equivalent to `List#pop`.
@@ -2041,7 +2001,7 @@
     }
 
     export interface Instance<T extends Object> {
-      size: number;
+      readonly size: number;
 
       // Reading values
 
@@ -2128,7 +2088,7 @@
 
       toSeq(): Seq.Keyed<keyof T, T[keyof T]>;
 
-      [Symbol.iterator](): Iterator<[keyof T, T[keyof T]]>;
+      [Symbol.iterator](): IterableIterator<[keyof T, T[keyof T]]>;
     }
   }
 
@@ -2208,7 +2168,7 @@
     /**
      * Returns a Seq of the values provided. Alias for `Seq.Indexed.of()`.
      */
-    function of<T>(...values: T[]): Seq.Indexed<T>;
+    function of<T>(...values: Array<T>): Seq.Indexed<T>;
 
 
     /**
@@ -2220,10 +2180,10 @@
      * Always returns a Seq.Keyed, if input is not keyed, expects an
      * collection of [K, V] tuples.
      */
-    export function Keyed(): Seq.Keyed<any, any>;
-    export function Keyed<K, V>(): Seq.Keyed<K, V>;
     export function Keyed<K, V>(collection: Iterable<[K, V]>): Seq.Keyed<K, V>;
     export function Keyed<V>(obj: {[key: string]: V}): Seq.Keyed<string, V>;
+    export function Keyed<K, V>(): Seq.Keyed<K, V>;
+    export function Keyed(): Seq.Keyed<any, any>;
 
     export interface Keyed<K, V> extends Seq<K, V>, Collection.Keyed<K, V> {
       /**
@@ -2299,7 +2259,7 @@
       /**
        * Provides an Seq.Indexed of the values provided.
        */
-      function of<T>(...values: T[]): Seq.Indexed<T>;
+      function of<T>(...values: Array<T>): Seq.Indexed<T>;
     }
 
     /**
@@ -2367,7 +2327,7 @@
       /**
        * Returns a Seq.Set of the provided values
        */
-      function of<T>(...values: T[]): Seq.Set<T>;
+      function of<T>(...values: Array<T>): Seq.Set<T>;
     }
 
     /**
@@ -2436,14 +2396,13 @@
    *   * If an Object, a `Seq.Keyed`.
    *
    */
-  export function Seq(): Seq<any, any>;
-  export function Seq<K, V>(): Seq<K, V>;
-  export function Seq<K, V, S extends Seq<K, V>>(seq: S): S;
+  export function Seq<S extends Seq<any, any>>(seq: S): S;
   export function Seq<K, V>(collection: Collection.Keyed<K, V>): Seq.Keyed<K, V>;
   export function Seq<T>(collection: Collection.Indexed<T>): Seq.Indexed<T>;
   export function Seq<T>(collection: Collection.Set<T>): Seq.Set<T>;
   export function Seq<T>(collection: Iterable<T>): Seq.Indexed<T>;
   export function Seq<V>(obj: {[key: string]: V}): Seq.Keyed<string, V>;
+  export function Seq(): Seq<any, any>;
 
   export interface Seq<K, V> extends Collection<K, V> {
 
@@ -2457,7 +2416,7 @@
      * Note: `Range`, `Repeat` and `Seq`s made from `Array`s and `Object`s will
      * always have a size.
      */
-    size: number/*?*/;
+    readonly size: number | undefined;
 
 
     // Force evaluation
@@ -2671,7 +2630,7 @@
         context?: any
       ): Collection.Keyed<KM, VM>;
 
-      [Symbol.iterator](): Iterator<[K, V]>;
+      [Symbol.iterator](): IterableIterator<[K, V]>;
     }
 
 
@@ -2717,8 +2676,8 @@
        * `index` may be a negative number, which indexes back from the end of the
        * Collection. `s.get(-1)` gets the last item in the Collection.
        */
-      get(index: number): T | undefined;
       get<NSV>(index: number, notSetValue: NSV): T | NSV;
+      get(index: number): T | undefined;
 
 
       // Conversion to Seq
@@ -2786,7 +2745,7 @@
       splice(
         index: number,
         removeNum: number,
-        ...values: T[]
+        ...values: Array<T>
       ): this;
 
       /**
@@ -2891,7 +2850,7 @@
         context?: any
       ): Collection.Indexed<M>;
 
-      [Symbol.iterator](): Iterator<T>;
+      [Symbol.iterator](): IterableIterator<T>;
     }
 
 
@@ -2965,7 +2924,7 @@
         context?: any
       ): Collection.Set<M>;
 
-      [Symbol.iterator](): Iterator<T>;
+      [Symbol.iterator](): IterableIterator<T>;
     }
 
   }
@@ -2985,7 +2944,7 @@
    * If you want to ensure that a Collection of one item is returned, use
    * `Seq.of`.
    */
-  export function Collection<K, V, I extends Collection<K, V>>(collection: I): I;
+  export function Collection<I extends Collection<any, any>>(collection: I): I;
   export function Collection<T>(collection: Iterable<T>): Collection.Indexed<T>;
   export function Collection<V>(obj: {[key: string]: V}): Collection.Keyed<string, V>;
 
@@ -3036,8 +2995,8 @@
      * so if `notSetValue` is not provided and this method returns `undefined`,
      * that does not guarantee the key was not found.
      */
-    get(key: K): V | undefined;
     get<NSV>(key: K, notSetValue: NSV): V | NSV;
+    get(key: K): V | undefined;
 
     /**
      * True if a key exists within this `Collection`, using `Immutable.is`
@@ -3070,15 +3029,13 @@
      * Returns the value found by following a path of keys or indices through
      * nested Collections.
      */
-    getIn(searchKeyPath: Array<any>, notSetValue?: any): any;
-    getIn(searchKeyPath: Collection<any, any>, notSetValue?: any): any;
+    getIn(searchKeyPath: Iterable<any>, notSetValue?: any): any;
 
     /**
      * True if the result of following a path of keys or indices through nested
      * Collections results in a set value.
      */
-    hasIn(searchKeyPath: Array<any>): boolean;
-    hasIn(searchKeyPath: Collection<any, any>): boolean;
+    hasIn(searchKeyPath: Iterable<any>): boolean;
 
     // Persistent changes
 
@@ -3249,7 +3206,7 @@
      * Immutable.js sequence algorithms. Use `keySeq` instead, if this is
      * what you want.
      */
-    keys(): Iterator<K>;
+    keys(): IterableIterator<K>;
 
     /**
      * An iterator of this `Collection`'s values.
@@ -3258,7 +3215,7 @@
      * Immutable.js sequence algorithms. Use `valueSeq` instead, if this is
      * what you want.
      */
-    values(): Iterator<V>;
+    values(): IterableIterator<V>;
 
     /**
      * An iterator of this `Collection`'s entries as `[ key, value ]` tuples.
@@ -3267,7 +3224,7 @@
      * Immutable.js sequence algorithms. Use `entrySeq` instead, if this is
      * what you want.
      */
-    entries(): Iterator<[K, V]>;
+    entries(): IterableIterator<[K, V]>;
 
 
     // Collections (Seq)
@@ -3569,7 +3526,7 @@
      * For Seqs, all entries will be present in
      * the resulting collection, even if they have the same key.
      */
-    concat(...valuesOrCollections: any[]): Collection<any, any>;
+    concat(...valuesOrCollections: Array<any>): Collection<any, any>;
 
     /**
      * Flattens nested Collections.
@@ -3819,14 +3776,12 @@
     /**
      * True if `iter` includes every value in this Collection.
      */
-    isSubset(iter: Collection<any, V>): boolean;
-    isSubset(iter: Array<V>): boolean;
+    isSubset(iter: Iterable<V>): boolean;
 
     /**
      * True if this Collection includes every value in `iter`.
      */
-    isSuperset(iter: Collection<any, V>): boolean;
-    isSuperset(iter: Array<V>): boolean;
+    isSuperset(iter: Iterable<V>): boolean;
 
 
     /**
@@ -3837,6 +3792,6 @@
      *
      * @ignore
      */
-    size: number;
+    readonly size: number;
   }
 
