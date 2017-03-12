@@ -16,7 +16,7 @@ These data structures are highly efficient on modern JavaScript VMs by using
 structural sharing via [hash maps tries][] and [vector tries][] as popularized
 by Clojure and Scala, minimizing the need to copy or cache data.
 
-`Immutable` also provides a lazy `Seq`, allowing efficient
+Immutable.js also provides a lazy `Seq`, allowing efficient
 chaining of collection methods like `map` and `filter` without creating
 intermediate representations. Create some `Seq` with `Range` and `Repeat`.
 
@@ -41,17 +41,17 @@ npm install immutable
 
 Then require it into any module.
 
-```javascript
-var Immutable = require('immutable');
-var map1 = Immutable.Map({a:1, b:2, c:3});
-var map2 = map1.set('b', 50);
-map1.get('b'); // 2
-map2.get('b'); // 50
+```js
+const { Map } = require('immutable')
+const map1 = Map({ a: 1, b: 2, c: 3 })
+const map2 = map1.set('b', 50)
+map1.get('b') // 2
+map2.get('b') // 50
 ```
 
 ### Browser
 
-To use `immutable` from a browser, download [dist/immutable.min.js](https://github.com/facebook/immutable-js/blob/master/dist/immutable.min.js)
+To use Immutable.js from a browser, download [dist/immutable.min.js](https://github.com/facebook/immutable-js/blob/master/dist/immutable.min.js)
 or use a CDN such as [CDNJS](https://cdnjs.com/libraries/immutable)
 or [jsDelivr](http://www.jsdelivr.com/#!immutable.js).
 
@@ -69,7 +69,7 @@ Then, add it as a script tag to your page:
 
 Or use an AMD loader (such as [RequireJS](http://requirejs.org/)):
 
-```javascript
+```js
 require(['./immutable.min.js'], function (Immutable) {
     var map1 = Immutable.Map({a:1, b:2, c:3});
     var map2 = map1.set('b', 50);
@@ -81,16 +81,29 @@ require(['./immutable.min.js'], function (Immutable) {
 If you're using [browserify](http://browserify.org/), the `immutable` npm module
 also works from the browser.
 
-### TypeScript
+### Flow & TypeScript
 
 Use these Immutable collections and sequences as you would use native
-collections in your [TypeScript](http://typescriptlang.org) programs while still taking
+collections in your [Flowtype](https://flowtype.org/) or [TypeScript](http://typescriptlang.org) programs while still taking
 advantage of type generics, error detection, and auto-complete in your IDE.
 
-Just add a reference with a relative path to the type declarations at the top
-of your file.
+Installing `immutable` via npm brings with it type definitions for Flow and
+TypeScript, so you shouldn't need to do anything at all!
 
-```javascript
+#### Using TypeScript with Immutable.js v4
+
+Immutable.js type definitions embrace ES2015. While Immutable.js itself supports
+legacy browsers and environments, its type definitions require TypeScript's 2015
+lib. Include either `"target": "es2015"` or `"lib": "es2015"` in your
+`tsconfig.json`, or provide `--target es2015` or `--lib es2015` to the
+`tsc` command.
+
+#### Using TypeScript with Immutable.js v3 and earlier:
+
+Previous versions of Immutable.js include a reference file which you can include
+via relative path to the type definitions at the top of your file.
+
+```js
 ///<reference path='./node_modules/immutable/dist/immutable.d.ts'/>
 import Immutable = require('immutable');
 var map1: Immutable.Map<string, number>;
@@ -129,15 +142,16 @@ treat Immutable.js collections as values, it's important to use the
 `Immutable.is()` function or `.equals()` method to determine value equality
 instead of the `===` operator which determines object reference identity.
 
-```javascript
-var map1 = Immutable.Map({a:1, b:2, c:3});
-var map2 = map1.set('b', 2);
-assert(map1.equals(map2) === true);
-var map3 = map1.set('b', 50);
-assert(map1.equals(map3) === false);
+```js
+const { Map } = require('immutable')
+const map1 = Map( {a: 1, b: 2, c: 3 })
+const map2 = map1.set('b', 2)
+assert(map1.equals(map2) === true)
+const map3 = map1.set('b', 50)
+assert(map1.equals(map3) === false)
 ```
 
-Note: As a performance optimization `Immutable` attempts to return the existing
+Note: As a performance optimization Immutable.js attempts to return the existing
 collection when an operation would result in an identical collection, allowing
 for using `===` reference equality to determine if something definitely has not
 changed. This can be extremely useful when used within a memoization function
@@ -150,9 +164,10 @@ to it instead of copying the entire object. Because a reference is much smaller
 than the object itself, this results in memory savings and a potential boost in
 execution speed for programs which rely on copies (such as an undo-stack).
 
-```javascript
-var map1 = Immutable.Map({a:1, b:2, c:3});
-var clone = map1;
+```js
+const { Map } = require('immutable')
+const map1 = Map({ a: 1, b: 2, c: 3 })
+const clone = map1;
 ```
 
 [React]: http://facebook.github.io/react/
@@ -162,12 +177,12 @@ var clone = map1;
 JavaScript-first API
 --------------------
 
-While `immutable` is inspired by Clojure, Scala, Haskell and other functional
+While Immutable.js is inspired by Clojure, Scala, Haskell and other functional
 programming environments, it's designed to bring these powerful concepts to
 JavaScript, and therefore has an Object-Oriented API that closely mirrors that
-of [ES6][] [Array][], [Map][], and [Set][].
+of [ES2015][] [Array][], [Map][], and [Set][].
 
-[ES6]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/ECMAScript_6_support_in_Mozilla
+[ES2015]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/ECMAScript_6_support_in_Mozilla
 [Array]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array
 [Map]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
 [Set]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set
@@ -177,11 +192,12 @@ the collection, like `push`, `set`, `unshift` or `splice` instead return a new
 immutable collection. Methods which return new arrays like `slice` or `concat`
 instead return new immutable collections.
 
-```javascript
-var list1 = Immutable.List.of(1, 2);
-var list2 = list1.push(3, 4, 5);
-var list3 = list2.unshift(0);
-var list4 = list1.concat(list2, list3);
+```js
+const { List } = require('immutable')
+const list1 = List([ 1, 2 ]);
+const list2 = list1.push(3, 4, 5);
+const list3 = list2.unshift(0);
+const list4 = list1.concat(list2, list3);
 assert(list1.size === 2);
 assert(list2.size === 5);
 assert(list3.size === 6);
@@ -194,35 +210,38 @@ Almost all of the methods on [Array][] will be found in similar form on
 found on `Immutable.Set`, including collection operations like `forEach()`
 and `map()`.
 
-```javascript
-var alpha = Immutable.Map({a:1, b:2, c:3, d:4});
+```js
+const { Map } = require('immutable')
+const alpha = Map({ a: 1, b: 2, c: 3, d: 4 });
 alpha.map((v, k) => k.toUpperCase()).join();
 // 'A,B,C,D'
 ```
 
 ### Accepts raw JavaScript objects.
 
-Designed to inter-operate with your existing JavaScript, `immutable`
+Designed to inter-operate with your existing JavaScript, Immutable.js
 accepts plain JavaScript Arrays and Objects anywhere a method expects an
-`Iterable` with no performance penalty.
+`Collection`.
 
-```javascript
-var map1 = Immutable.Map({a:1, b:2, c:3, d:4});
-var map2 = Immutable.Map({c:10, a:20, t:30});
-var obj = {d:100, o:200, g:300};
-var map3 = map1.merge(map2, obj);
+```js
+const { Map } = require('immutable')
+const map1 = Map({ a: 1, b: 2, c: 3, d: 4 })
+const map2 = Map({ c: 10, a: 20, t: 30 })
+const obj = { d: 100, o: 200, g: 300 }
+const map3 = map1.merge(map2, obj);
 // Map { a: 20, b: 2, c: 10, d: 100, t: 30, o: 200, g: 300 }
 ```
 
-This is possible because `immutable` can treat any JavaScript Array or Object
-as an Iterable. You can take advantage of this in order to get sophisticated
+This is possible because Immutable.js can treat any JavaScript Array or Object
+as a Collection. You can take advantage of this in order to get sophisticated
 collection methods on JavaScript Objects, which otherwise have a very sparse
 native API. Because Seq evaluates lazily and does not cache intermediate
 results, these operations can be extremely efficient.
 
-```javascript
-var myObject = {a:1,b:2,c:3};
-Immutable.Seq(myObject).map(x => x * x).toObject();
+```js
+const { Seq } = require('immutable')
+const myObject = { a: 1, b: 2, c: 3 }
+Seq(myObject).map(x => x * x).toObject();
 // { a: 1, b: 4, c: 9 }
 ```
 
@@ -231,14 +250,16 @@ JavaScript Object properties are always strings, even if written in a quote-less
 shorthand, while Immutable Maps accept keys of any type.
 
 ```js
-var obj = { 1: "one" };
-Object.keys(obj); // [ "1" ]
-obj["1"]; // "one"
-obj[1];   // "one"
+const { fromJS } = require('immutable')
 
-var map = Immutable.fromJS(obj);
-map.get("1"); // "one"
-map.get(1);   // undefined
+const obj = { 1: "one" }
+Object.keys(obj) // [ "1" ]
+obj["1"] // "one"
+obj[1]   // "one"
+
+const map = fromJS(obj)
+map.get("1") // "one"
+map.get(1)   // undefined
 ```
 
 Property access for JavaScript Objects first converts the key to a string, but
@@ -248,35 +269,36 @@ not altered.
 
 ### Converts back to raw JavaScript objects.
 
-All `immutable` Iterables can be converted to plain JavaScript Arrays and
+All Immutable.js Collections can be converted to plain JavaScript Arrays and
 Objects shallowly with `toArray()` and `toObject()` or deeply with `toJS()`.
-All Immutable Iterables also implement `toJSON()` allowing them to be passed to
-`JSON.stringify` directly.
+All Immutable Collections also implement `toJSON()` allowing them to be passed
+to `JSON.stringify` directly.
 
-```javascript
-var deep = Immutable.Map({ a: 1, b: 2, c: Immutable.List.of(3, 4, 5) });
+```js
+const { Map, List } = require('immutable')
+const deep = Map({ a: 1, b: 2, c: List([ 3, 4, 5 ]) })
 deep.toObject() // { a: 1, b: 2, c: List [ 3, 4, 5 ] }
 deep.toArray() // [ 1, 2, List [ 3, 4, 5 ] ]
 deep.toJS() // { a: 1, b: 2, c: [ 3, 4, 5 ] }
 JSON.stringify(deep) // '{"a":1,"b":2,"c":[3,4,5]}'
 ```
 
-### Embraces ES6
+### Embraces ES2015
 
-`Immutable` takes advantage of features added to JavaScript in [ES6][],
-the latest standard version of ECMAScript (JavaScript), including [Iterators][],
-[Arrow Functions][], [Classes][], and [Modules][]. It's also inspired by the
-[Map][] and [Set][] collections added to ES6. The library is "transpiled" to ES3
-in order to support all modern browsers.
+Immutable.js supports all JavaScript environments, including legacy
+browsers (even IE8). However it also takes advantage of features added to
+JavaScript in [ES2015][], the latest standard version of JavaScript, including
+[Iterators][], [Arrow Functions][], [Classes][], and [Modules][]. It's inspired
+by the native [Map][] and [Set][] collections added to ES2015.
 
-All examples are presented in ES6. To run in all browsers, they need to be
-translated to ES3.
+All examples in the Documentation are presented in ES2015. To run in all
+browsers, they need to be translated to ES3.
 
 ```js
-// ES6
-foo.map(x => x * x);
+// ES2015
+const mapped = foo.map(x => x * x);
 // ES3
-foo.map(function (x) { return x * x; });
+var mapped = foo.map(function (x) { return x * x; });
 ```
 
 [Iterators]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/The_Iterator_protocol
@@ -288,11 +310,12 @@ foo.map(function (x) { return x * x; });
 Nested Structures
 -----------------
 
-The collections in `immutable` are intended to be nested, allowing for deep
+The collections in Immutable.js are intended to be nested, allowing for deep
 trees of data, similar to JSON.
 
-```javascript
-var nested = Immutable.fromJS({a:{b:{c:[3,4,5]}}});
+```js
+const { fromJS } = require('immutable')
+const nested = fromJS({ a: { b: { c: [ 3, 4, 5 ] } } })
 // Map { a: Map { b: Map { c: List [ 3, 4, 5 ] } } }
 ```
 
@@ -300,16 +323,16 @@ A few power-tools allow for reading and operating on nested data. The
 most useful are `mergeDeep`, `getIn`, `setIn`, and `updateIn`, found on `List`,
 `Map` and `OrderedMap`.
 
-```javascript
-var nested2 = nested.mergeDeep({a:{b:{d:6}}});
+```js
+const nested2 = nested.mergeDeep({ a: { b: { d: 6 } } })
 // Map { a: Map { b: Map { c: List [ 3, 4, 5 ], d: 6 } } }
 
-nested2.getIn(['a', 'b', 'd']); // 6
+nested2.getIn([ 'a', 'b', 'd' ]) // 6
 
-var nested3 = nested2.updateIn(['a', 'b', 'd'], value => value + 1);
+const nested3 = nested2.updateIn([ 'a', 'b', 'd' ], value => value + 1)
 // Map { a: Map { b: Map { c: List [ 3, 4, 5 ], d: 7 } } }
 
-var nested4 = nested3.updateIn(['a', 'b', 'c'], list => list.push(6));
+const nested4 = nested3.updateIn([ 'a', 'b', 'c' ], list => list.push(6))
 // Map { a: Map { b: Map { c: List [ 3, 4, 5, 6 ], d: 7 } } }
 ```
 
@@ -318,7 +341,7 @@ Lazy Seq
 --------
 
 `Seq` describes a lazy operation, allowing them to efficiently chain
-use of all the Iterable methods (such as `map` and `filter`).
+use of all the sequence methods (such as `map` and `filter`).
 
 **Seq is immutable** — Once a Seq is created, it cannot be
 changed, appended to, rearranged or otherwise modified. Instead, any mutative
@@ -330,51 +353,66 @@ method call.
 For example, the following does not perform any work, because the resulting
 Seq is never used:
 
-    var oddSquares = Immutable.Seq.of(1,2,3,4,5,6,7,8)
-      .filter(x => x % 2).map(x => x * x);
+```js
+const { Seq } = require('immutable')
+const oddSquares = Seq([ 1, 2, 3, 4, 5, 6, 7, 8 ])
+  .filter(x => x % 2)
+  .map(x => x * x)
+```
 
 Once the Seq is used, it performs only the work necessary. In this
 example, no intermediate arrays are ever created, filter is called three times,
 and map is only called once:
 
-    console.log(oddSquares.get(1)); // 9
+```js
+console.log(oddSquares.get(1)); // 9
+```
 
 Any collection can be converted to a lazy Seq with `.toSeq()`.
 
-    var seq = Immutable.Map({a:1, b:1, c:1}).toSeq();
+```js
+const { Map } = require('immutable')
+const seq = Map({ a: 1, b: 2, c: 3 }).toSeq()
+```
 
 Seq allows for the efficient chaining of sequence operations, especially when
 converting to a different concrete type (such as to a JS object):
 
-    seq.flip().map(key => key.toUpperCase()).flip().toObject();
-    // { A: 1, B: 1, C: 1 }
+```js
+seq.flip().map(key => key.toUpperCase()).flip().toObject();
+// { A: 1, B: 1, C: 1 }
+```
 
 As well as expressing logic that would otherwise seem memory-limited:
 
-    Immutable.Range(1, Infinity)
-      .skip(1000)
-      .map(n => -n)
-      .filter(n => n % 2 === 0)
-      .take(2)
-      .reduce((r, n) => r * n, 1);
-    // 1006008
+```js
+const { Range } = require('immutable')
+Range(1, Infinity)
+  .skip(1000)
+  .map(n => -n)
+  .filter(n => n % 2 === 0)
+  .take(2)
+  .reduce((r, n) => r * n, 1);
+// 1006008
+```
 
-Note: An iterable is always iterated in the same order, however that order may
+Note: A Collection is always iterated in the same order, however that order may
 not always be well defined, as is the case for the `Map`.
 
 
 Equality treats Collections as Data
 -----------------------------------
 
-`Immutable` provides equality which treats immutable data structures as pure
+Immutable.js provides equality which treats immutable data structures as pure
 data, performing a deep equality check if necessary.
 
-```javascript
-var map1 = Immutable.Map({a:1, b:1, c:1});
-var map2 = Immutable.Map({a:1, b:1, c:1});
-assert(map1 !== map2); // two different instances
-assert(Immutable.is(map1, map2)); // have equivalent values
-assert(map1.equals(map2)); // alternatively use the equals method
+```js
+const { Map, is } = require('immutable')
+const map1 = Map({ a: 1, b: 2, c: 3 })
+const map2 = Map({ a: 1, b: 2, c: 3 })
+assert(map1 !== map2) // two different instances
+assert(is(map1, map2)) // have equivalent values
+assert(map1.equals(map2)) // alternatively use the equals method
 ```
 
 `Immutable.is()` uses the same measure of equality as [Object.is][]
@@ -396,24 +434,25 @@ Batching Mutations
 
 Applying a mutation to create a new immutable object results in some overhead,
 which can add up to a minor performance penalty. If you need to apply a series
-of mutations locally before returning, `Immutable` gives you the ability to
+of mutations locally before returning, Immutable.js gives you the ability to
 create a temporary mutable (transient) copy of a collection and apply a batch of
 mutations in a performant manner by using `withMutations`. In fact, this is
-exactly how  `Immutable` applies complex mutations itself.
+exactly how  Immutable.js applies complex mutations itself.
 
 As an example, building `list2` results in the creation of 1, not 3, new
 immutable Lists.
 
-```javascript
-var list1 = Immutable.List.of(1,2,3);
-var list2 = list1.withMutations(function (list) {
+```js
+const { List } = require('immutable')
+const list1 = List([ 1, 2, 3 ]);
+const list2 = list1.withMutations(function (list) {
   list.push(4).push(5).push(6);
 });
 assert(list1.size === 3);
 assert(list2.size === 6);
 ```
 
-Note: `immutable` also provides `asMutable` and `asImmutable`, but only
+Note: Immutable.js also provides `asMutable` and `asImmutable`, but only
 encourages their use when `withMutations` will not suffice. Use caution to not
 return a mutable copy, which could result in undesired behavior.
 
@@ -439,7 +478,7 @@ contains articles on specific topics. Can't find something? Open an [issue](http
 Testing
 -------
 
-If you are using the [Chai Assertion Library](http://chaijs.com/), [Chai Immutable](https://github.com/astorije/chai-immutable) provides a set of assertions to use against `Immutable` collections.
+If you are using the [Chai Assertion Library](http://chaijs.com/), [Chai Immutable](https://github.com/astorije/chai-immutable) provides a set of assertions to use against Immutable.js collections.
 
 
 Contribution
@@ -469,4 +508,4 @@ name. If you're looking for his unsupported package, see [this repository](https
 License
 -------
 
-`Immutable` is [BSD-licensed](https://github.com/facebook/immutable-js/blob/master/LICENSE). We also provide an additional [patent grant](https://github.com/facebook/immutable-js/blob/master/PATENTS).
+Immutable.js is [BSD-licensed](https://github.com/facebook/immutable-js/blob/master/LICENSE). We also provide an additional [patent grant](https://github.com/facebook/immutable-js/blob/master/PATENTS).
