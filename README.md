@@ -88,8 +88,8 @@ Use these Immutable collections and sequences as you would use native
 collections in your [Flowtype](https://flowtype.org/) or [TypeScript](http://typescriptlang.org) programs while still taking
 advantage of type generics, error detection, and auto-complete in your IDE.
 
-Installing `immutable` via npm brings with it type definitions for Flow and
-TypeScript, so you shouldn't need to do anything at all!
+Installing `immutable` via npm brings with it type definitions for Flow (v0.39.0 or higher)
+and TypeScript (v2.1.0 or higher), so you shouldn't need to do anything at all!
 
 #### Using TypeScript with Immutable.js v4
 
@@ -98,6 +98,14 @@ legacy browsers and environments, its type definitions require TypeScript's 2015
 lib. Include either `"target": "es2015"` or `"lib": "es2015"` in your
 `tsconfig.json`, or provide `--target es2015` or `--lib es2015` to the
 `tsc` command.
+
+```js
+import { Map } from "immutable";
+const map1 = Map({ a: 1, b: 2, c: 3 });
+const map2 = map1.set('b', 50);
+map1.get('b'); // 2
+map2.get('b'); // 50
+```
 
 #### Using TypeScript with Immutable.js v3 and earlier:
 
