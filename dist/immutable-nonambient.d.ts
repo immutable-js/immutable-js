@@ -3526,6 +3526,9 @@
      * For Seqs, all entries will be present in
      * the resulting collection, even if they have the same key.
      */
+    concat(...collections: Collection<K,V>[]): Collection<K, V>; // collection(s)...
+    concat(...values: V[]): Collection<K, V>;                    // single value(s)
+    concat(...values: V[][]): Collection<K, V>;                  // array(s)
     concat(...valuesOrCollections: Array<any>): Collection<any, any>;
 
     /**
