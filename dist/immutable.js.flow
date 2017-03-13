@@ -102,14 +102,20 @@ declare class _Collection<K, +V> /*implements ValueObject*/ {
 
   reduce<R>(
     reducer: (reduction: R, value: V, key: K, iter: this) => R,
-    initialReduction?: R,
+    initialReduction: R,
     context?: mixed,
+  ): R;
+  reduce<R>(
+    reducer: (reduction: V | R, value: V, key: K, iter: this) => R
   ): R;
 
   reduceRight<R>(
     reducer: (reduction: R, value: V, key: K, iter: this) => R,
-    initialReduction?: R,
+    initialReduction: R,
     context?: mixed,
+  ): R;
+  reduceRight<R>(
+    reducer: (reduction: V | R, value: V, key: K, iter: this) => R
   ): R;
 
   every(predicate: (value: V, key: K, iter: this) => mixed, context?: mixed): boolean;
