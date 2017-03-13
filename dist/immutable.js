@@ -5234,11 +5234,11 @@ Record.prototype.toString = function toString () {
 
 Record.prototype.equals = function equals (other) {
   return this === other ||
-    (this._keys === other._keys && this._values.equals(other._values));
+    (this._keys === other._keys && recordSeq(this).equals(recordSeq(other)));
 };
 
 Record.prototype.hashCode = function hashCode () {
-  return this._values.hashCode();
+  return recordSeq(this).hashCode();
 };
 
 // @pragma Access
@@ -5269,6 +5269,15 @@ Record.prototype.set = function set (k, v) {
     }
   }
   return this;
+};
+
+Record.prototype.remove = function remove (k) {
+  return this.set(k);
+};
+
+Record.prototype.clear = function clear () {
+  var newValues = this._values.clear().setSize(this._keys.length);
+  return this.__ownerID ? this : makeRecord(this, newValues);
 };
 
 Record.prototype.wasAltered = function wasAltered () {
@@ -5308,6 +5317,7 @@ Record.isRecord = isRecord;
 Record.getDescriptiveName = recordName;
 var RecordPrototype = Record.prototype;
 RecordPrototype[IS_RECORD_SENTINEL] = true;
+RecordPrototype[DELETE] = RecordPrototype.remove;
 RecordPrototype.getIn = CollectionPrototype.getIn;
 RecordPrototype.hasIn = CollectionPrototype.hasIn;
 RecordPrototype.merge = MapPrototype.merge;

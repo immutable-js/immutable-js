@@ -2162,6 +2162,21 @@
         ...collections: Array<Partial<T> | Iterable<[string, any]>>
       ): this;
 
+      /**
+       * Returns a new instance of this Record type with the value for the
+       * specific key set to its default value.
+       *
+       * @alias remove
+       */
+      delete<K extends keyof T>(key: K): this;
+      remove<K extends keyof T>(key: K): this;
+
+      /**
+       * Returns a new instance of this Record type with all values set
+       * to their default values.
+       */
+      clear(): this;
+
       // Deep persistent changes
 
       setIn(keyPath: Iterable<any>, value: any): this;
