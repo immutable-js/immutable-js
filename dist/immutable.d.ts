@@ -3637,8 +3637,11 @@ declare module Immutable {
      */
     reduce<R>(
       reducer: (reduction: R, value: V, key: K, iter: this) => R,
-      initialReduction?: R,
+      initialReduction: R,
       context?: any
+    ): R;
+    reduce<R>(
+      reducer: (reduction: V | R, value: V, key: K, iter: this) => R
     ): R;
 
     /**
@@ -3649,8 +3652,11 @@ declare module Immutable {
      */
     reduceRight<R>(
       reducer: (reduction: R, value: V, key: K, iter: this) => R,
-      initialReduction?: R,
+      initialReduction: R,
       context?: any
+    ): R;
+    reduceRight<R>(
+      reducer: (reduction: V | R, value: V, key: K, iter: this) => R
     ): R;
 
     /**
