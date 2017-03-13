@@ -1091,6 +1091,10 @@ declare class RecordInstance<T: Object> {
     ...collections: Array<$Shape<T> | Iterable<[string, any]>>
   ): this;
 
+  delete<K: $Keys<T>>(key: K): this;
+  remove<K: $Keys<T>>(key: K): this;
+  clear(): this;
+
   setIn(keyPath: Iterable<any>, value: any): this;
   updateIn(keyPath: Iterable<any>, updater: (value: any) => any): this;
   mergeIn(keyPath: Iterable<any>, ...collections: Array<any>): this;

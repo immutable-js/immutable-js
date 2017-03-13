@@ -14,6 +14,7 @@ import { List } from './List';
 import { ITERATOR_SYMBOL } from './Iterator';
 import { isRecord, IS_RECORD_SENTINEL } from './Predicates';
 import { CollectionPrototype } from './CollectionImpl';
+import { DELETE } from './TrieUtils';
 
 import invariant from './utils/invariant';
 import quoteString from './utils/quoteString';
@@ -86,11 +87,11 @@ export class Record {
 
   equals(other) {
     return this === other ||
-      (this._keys === other._keys && this._values.equals(other._values));
+      (this._keys === other._keys && recordSeq(this).equals(recordSeq(other)));
   }
 
   hashCode() {
-    return this._values.hashCode();
+    return recordSeq(this).hashCode();
   }
 
   // @pragma Access
@@ -121,6 +122,15 @@ export class Record {
       }
     }
     return this;
+  }
+
+  remove(k) {
+    return this.set(k);
+  }
+
+  clear() {
+    const newValues = this._values.clear().setSize(this._keys.length);
+    return this.__ownerID ? this : makeRecord(this, newValues);
   }
 
   wasAltered() {
@@ -161,6 +171,7 @@ Record.isRecord = isRecord;
 Record.getDescriptiveName = recordName;
 const RecordPrototype = Record.prototype;
 RecordPrototype[IS_RECORD_SENTINEL] = true;
+RecordPrototype[DELETE] = RecordPrototype.remove;
 RecordPrototype.getIn = CollectionPrototype.getIn;
 RecordPrototype.hasIn = CollectionPrototype.hasIn;
 RecordPrototype.merge = MapPrototype.merge;

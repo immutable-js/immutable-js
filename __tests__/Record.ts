@@ -48,6 +48,23 @@ describe('Record', () => {
     expect(t2).toBe(t1);
   });
 
+  it('falls back to default values when deleted or cleared', () => {
+    const MyType = Record({ a: 1, b: 2, c: 3 });
+    const t1 = new MyType({ a: 10, b: 20 });
+    const t2 = new MyType({ b: 20 });
+    const t3 = t1.delete('a');
+    const t4 = t3.clear();
+
+    expect(t1.get('a')).toBe(10);
+    expect(t2.get('a')).toBe(1);
+    expect(t3.get('a')).toBe(1);
+    expect(t4.get('b')).toBe(2);
+
+    expect(t2.equals(t3)).toBe(true);
+    expect(t2.equals(t4)).toBe(false);
+    expect(t4.equals(new MyType())).toBe(true);
+  });
+
   it('is a value type and equals other similar Records', () => {
     let MyType = Record({a: 1, b: 2, c: 3});
     let t1 = MyType({ a: 10 });
