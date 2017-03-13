@@ -484,6 +484,21 @@ describe('List', () => {
     expect(r.toArray()).toEqual(['b', 'd', 'f']);
   });
 
+  it('filters values based on type', () => {
+    class A {}
+    class B extends A {
+      b(): void { return; }
+    }
+    class C extends A {
+      c(): void { return; }
+    }
+    let l1 = List<A>([ new B(), new C(), new B(), new C() ]);
+    // tslint:disable-next-line:arrow-parens
+    let l2: List<C> = l1.filter((v): v is C => v instanceof C);
+    expect(l2.size).toEqual(2);
+    expect(l2.every(v => v instanceof C)).toBe(true);
+  });
+
   it('reduces values', () => {
     let v = List.of(1, 10, 100);
     let r = v.reduce<number>((reduction, value) => reduction + value);

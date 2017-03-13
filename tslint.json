@@ -11,6 +11,7 @@
     "object-literal-sort-keys": false,
     "no-conditional-assignment": false,
     "one-variable-per-declaration": false,
+    "max-classes-per-file": false,
     "arrow-parens": [
       true,
       "ban-single-arg-parens"
