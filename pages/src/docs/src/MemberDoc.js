@@ -75,7 +75,7 @@ var MemberDoc = React.createClass({
 
     var showDetail = isMobile ? this.state.detail : true;
 
-    var subTypeName = this.props.parentName + '/' + name;
+    var memberAnchorLink = this.props.parentName + '/' + name;
 
     return (
       <div className="interfaceMember">
@@ -83,7 +83,7 @@ var MemberDoc = React.createClass({
           onClick={isMobile ? this.toggleDetail : null}
           className="memberLabel"
         >
-          <Router.Link to={'/' + subTypeName}>
+          <Router.Link to={'/' + memberAnchorLink}>
             {(module ? module + '.' : '') + name + (isProp ? '' : '()')}
           </Router.Link>
         </h3>
