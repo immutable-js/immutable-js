@@ -294,6 +294,7 @@ declare module Immutable {
    * isOrdered(OrderedMap()); // true
    * isOrdered(List()); // true
    * isOrdered(Set()); // false
+   * ```
    */
   export function isOrdered(maybeOrdered: any): boolean;
 
@@ -409,8 +410,8 @@ declare module Immutable {
    * const listFromCollectionArray = List(arrayIterator)
    * // List [ 1, 2, 3, 4 ]
    *
-   * listFromPlainArray.equals(listFromCollectionSet) // true
-   * listFromPlainSet.equals(listFromCollectionSet) // true
+   * listFromPlainArray.equals(listFromCollectionArray) // true
+   * listFromPlainSet.equals(listFromCollectionArray) // true
    * listFromPlainSet.equals(listFromPlainArray) // true
    * ```
    */
@@ -3671,6 +3672,7 @@ declare module Immutable {
      * //   1: List [ Map{ "v": 1 }, Map { "v": 1 } ],
      * //   2: List [ Map{ "v": 2 } ],
      * // }
+     * ```
      */
     groupBy<G>(
       grouper: (value: V, key: K, iter: this) => G,
