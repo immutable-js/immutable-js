@@ -123,7 +123,7 @@ describe('flatten', () => {
 
     it('maps to sequenceables, not only Sequences.', () => {
       let numbers = Range(97, 100);
-      // the map function returns an Array, rather than an Collection.
+      // the map function returns an Array, rather than a Collection.
       // Array is iterable, so this works just fine.
       let letters = numbers.flatMap(v => [
         String.fromCharCode(v),

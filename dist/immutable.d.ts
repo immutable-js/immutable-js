@@ -225,7 +225,7 @@ declare module Immutable {
   export function isImmutable(maybeImmutable: any): maybeImmutable is Collection<any, any>;
 
   /**
-   * True if `maybeCollection` is an Collection, or any of its subclasses.
+   * True if `maybeCollection` is a Collection, or any of its subclasses.
    *
    * ```js
    * const { isCollection, Map, List, Stack } = require('immutable');
@@ -239,7 +239,7 @@ declare module Immutable {
   export function isCollection(maybeCollection: any): maybeCollection is Collection<any, any>;
 
   /**
-   * True if `maybeKeyed` is an Collection.Keyed, or any of its subclasses.
+   * True if `maybeKeyed` is a Collection.Keyed, or any of its subclasses.
    *
    * ```js
    * const { isKeyed, Map, List, Stack } = require('immutable');
@@ -283,7 +283,7 @@ declare module Immutable {
   export function isAssociative(maybeAssociative: any): maybeAssociative is Collection.Keyed<any, any> | Collection.Indexed<any>;
 
   /**
-   * True if `maybeOrdered` is an Collection where iteration order is well
+   * True if `maybeOrdered` is a Collection where iteration order is well
    * defined. True for Collection.Indexed as well as OrderedMap and OrderedSet.
    *
    * ```js
@@ -322,7 +322,7 @@ declare module Immutable {
     /**
      * Computes and returns the hashed identity for this Collection.
      *
-     * The `hashCode` of an Collection is used to determine potential equality,
+     * The `hashCode` of a Collection is used to determine potential equality,
      * and is used when adding this to a `Set` or as a key in a `Map`, enabling
      * lookup via a different instance.
      *
@@ -847,7 +847,7 @@ declare module Immutable {
    * Creates a new Immutable Map.
    *
    * Created with the same key value pairs as the provided Collection.Keyed or
-   * JavaScript Object or expects an Collection of [K, V] tuple entries.
+   * JavaScript Object or expects a Collection of [K, V] tuple entries.
    *
    * ```js
    * const { Map } = require('immutable')
@@ -1418,7 +1418,7 @@ declare module Immutable {
    * Creates a new Immutable OrderedMap.
    *
    * Created with the same key value pairs as the provided Collection.Keyed or
-   * JavaScript Object or expects an Collection of [K, V] tuple entries.
+   * JavaScript Object or expects a Collection of [K, V] tuple entries.
    *
    * The iteration order of key-value pairs provided to this constructor will
    * be preserved in the OrderedMap.
@@ -2708,7 +2708,7 @@ declare module Immutable {
    * is the base class for all collections in `immutable`, allowing them to
    * make use of all the Collection methods (such as `map` and `filter`).
    *
-   * Note: An collection is always iterated in the same order, however that order
+   * Note: A collection is always iterated in the same order, however that order
    * may not always be well defined, as is the case for the `Map` and `Set`.
    *
    * Collection is the abstract base class for concrete data structures. It
@@ -2750,7 +2750,7 @@ declare module Immutable {
     export module Keyed {}
 
     /**
-     * Creates an Collection.Keyed
+     * Creates a Collection.Keyed
      *
      * Similar to `Collection()`, however it expects collection-likes of [K, V]
      * tuples if not constructed from a Collection.Keyed or JS Object.
@@ -2856,7 +2856,7 @@ declare module Immutable {
       ): Collection.Keyed<KM, VM>;
 
       /**
-       * Flat-maps the Collection, returning an Collection of the same type.
+       * Flat-maps the Collection, returning a Collection of the same type.
        *
        * Similar to `collection.map(...).flatten(true)`.
        */
@@ -2940,7 +2940,7 @@ declare module Immutable {
       toSeq(): Seq.Indexed<T>;
 
       /**
-       * If this is an collection of [key, value] entry tuples, it will return a
+       * If this is a collection of [key, value] entry tuples, it will return a
        * Seq.Keyed of those entries.
        */
       fromEntrySeq(): Seq.Keyed<any, any>;
@@ -2949,13 +2949,13 @@ declare module Immutable {
       // Combination
 
       /**
-       * Returns an Collection of the same type with `separator` between each item
+       * Returns a Collection of the same type with `separator` between each item
        * in this Collection.
        */
       interpose(separator: T): this;
 
       /**
-       * Returns an Collection of the same type with the provided `collections`
+       * Returns a Collection of the same type with the provided `collections`
        * interleaved into this collection.
        *
        * The resulting Collection includes the first item from each, then the
@@ -3000,7 +3000,7 @@ declare module Immutable {
       ): this;
 
       /**
-       * Returns an Collection of the same type "zipped" with the provided
+       * Returns a Collection of the same type "zipped" with the provided
        * collections.
        *
        * Like `zipWith`, but using the default `zipper`: creating an `Array`.
@@ -3014,7 +3014,7 @@ declare module Immutable {
       zip(...collections: Array<Collection<any, any>>): Collection.Indexed<any>;
 
       /**
-       * Returns an Collection of the same type "zipped" with the provided
+       * Returns a Collection of the same type "zipped" with the provided
        * collections by using a custom `zipper` function.
        *
        * ```js
@@ -3097,7 +3097,7 @@ declare module Immutable {
       ): Collection.Indexed<M>;
 
       /**
-       * Flat-maps the Collection, returning an Collection of the same type.
+       * Flat-maps the Collection, returning a Collection of the same type.
        *
        * Similar to `collection.map(...).flatten(true)`.
        */
@@ -3192,7 +3192,7 @@ declare module Immutable {
       ): Collection.Set<M>;
 
       /**
-       * Flat-maps the Collection, returning an Collection of the same type.
+       * Flat-maps the Collection, returning a Collection of the same type.
        *
        * Similar to `collection.map(...).flatten(true)`.
        */
@@ -3223,7 +3223,7 @@ declare module Immutable {
   }
 
   /**
-   * Creates an Collection.
+   * Creates a Collection.
    *
    * The type of Collection created is based on the input.
    *
@@ -3257,7 +3257,7 @@ declare module Immutable {
     /**
      * Computes and returns the hashed identity for this Collection.
      *
-     * The `hashCode` of an Collection is used to determine potential equality,
+     * The `hashCode` of a Collection is used to determine potential equality,
      * and is used when adding this to a `Set` or as a key in a `Map`, enabling
      * lookup via a different instance.
      *
@@ -3704,7 +3704,7 @@ declare module Immutable {
      * provided the new Collection will begin at the beginning of this Collection.
      *
      * If end is negative, it is offset from the end of the Collection. e.g.
-     * `slice(0, -1)` returns an Collection of everything but the last entry. If
+     * `slice(0, -1)` returns a Collection of everything but the last entry. If
      * it is not provided, the new Collection will continue through the end of
      * this Collection.
      *
@@ -3828,7 +3828,7 @@ declare module Immutable {
     /**
      * Flattens nested Collections.
      *
-     * Will deeply flatten the Collection by default, returning an Collection of the
+     * Will deeply flatten the Collection by default, returning a Collection of the
      * same type, but a `depth` can be provided in the form of a number or
      * boolean (where true means to shallowly flatten one level). A depth of 0
      * (or shallow: false) will deeply flatten.
@@ -3842,7 +3842,7 @@ declare module Immutable {
     flatten(shallow?: boolean): Collection<any, any>;
 
     /**
-     * Flat-maps the Collection, returning an Collection of the same type.
+     * Flat-maps the Collection, returning a Collection of the same type.
      *
      * Similar to `collection.map(...).flatten(true)`.
      */

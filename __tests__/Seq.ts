@@ -16,7 +16,7 @@ describe('Seq', () => {
     expect(Seq({a: 1, b: 2, c: 3}).size).toBe(3);
   });
 
-  it('accepts an collection string', () => {
+  it('accepts a collection string', () => {
     expect(Seq('foo').size).toBe(3);
   });
 
