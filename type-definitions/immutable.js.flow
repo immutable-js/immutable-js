@@ -384,7 +384,7 @@ declare class Seq<K, +V> extends _Collection<K, V> {
 
   static isSeq: typeof isSeq;
 
-  size?: number;
+  size: number | void;
   cacheResult(): this;
   toSeq(): this;
 }
@@ -544,6 +544,8 @@ declare class List<+T> extends IndexedCollection<T> {
 
   static isList: typeof isList;
 
+  size: number;
+
   set<U>(index: number, value: U): List<T | U>;
   delete(index: number): this;
   remove(index: number): this;
@@ -686,6 +688,8 @@ declare class Map<K, +V> extends KeyedCollection<K, V> {
 
   static isMap: typeof isMap;
 
+  size: number;
+
   set<K_, V_>(key: K_, value: V_): Map<K | K_, V | V_>;
   delete(key: K): this;
   remove(key: K): this;
@@ -775,11 +779,13 @@ declare class Map<K, +V> extends KeyedCollection<K, V> {
 }
 
 declare function isOrderedMap(maybeOrderedMap: mixed): boolean %checks(maybeOrderedMap instanceof OrderedMap);
-declare class OrderedMap<K, +V> extends KeyedCollection<K, V> {
+declare class OrderedMap<K, +V> extends Map<K, V> {
   static <K, V>(obj?: {[key: K]: V}): OrderedMap<K, V>;
   static <K, V>(collection: Iterable<[K, V]>): OrderedMap<K, V>;
 
   static isOrderedMap: typeof isOrderedMap;
+
+  size: number;
 
   set<K_, V_>(key: K_, value: V_): OrderedMap<K | K_, V | V_>;
   delete(key: K): this;
@@ -808,7 +814,7 @@ declare class OrderedMap<K, +V> extends KeyedCollection<K, V> {
     ...collections: (Iterable<[K_, W]> | { [key: K_]: W })[]
   ): OrderedMap<K | K_, V | W | X>;
 
-  setIn(keyPath: Iterable<mixed>, value: mixed): OrderedMap<K, V>;
+  setIn(keyPath: Iterable<mixed>, value: mixed): this;
   deleteIn(keyPath: Iterable<mixed>, value: mixed): this;
   removeIn(keyPath: Iterable<mixed>, value: mixed): this;
 
@@ -879,6 +885,8 @@ declare class Set<+T> extends SetCollection<T> {
 
   static isSet: typeof isSet;
 
+  size: number;
+
   add<U>(value: U): Set<T | U>;
   delete(value: T): this;
   remove(value: T): this;
@@ -921,6 +929,8 @@ declare class OrderedSet<+T> extends Set<T> {
   static fromKeys<K, V>(object: { [key: K]: V }): OrderedSet<K>;
 
   static isOrderedSet: typeof isOrderedSet;
+
+  size: number;
 
   add<U>(value: U): OrderedSet<T | U>;
   union<U>(...collections: Iterable<U>[]): OrderedSet<T | U>;
@@ -1018,6 +1028,8 @@ declare class Stack<+T> extends IndexedCollection<T> {
   static of<T>(...values: T[]): Stack<T>;
 
   static isStack: typeof isStack;
+
+  size: number;
 
   peek(): T;
   clear(): this;
