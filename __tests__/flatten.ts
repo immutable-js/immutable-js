@@ -5,8 +5,6 @@ jasmineCheck.install();
 
 import { Collection, fromJS, List, Range, Seq } from '../';
 
-type SeqType = number | number[] | Collection<number, number>;
-
 describe('flatten', () => {
 
   it('flattens sequences one level deep', () => {
@@ -26,6 +24,8 @@ describe('flatten', () => {
     let flat = nested.flatten();
     expect(flat.forEach(x => x < 4)).toEqual(4);
   });
+
+  type SeqType = number | Array<number> | Collection<number, number>;
 
   it('flattens only Sequences (not sequenceables)', () => {
     let nested = Seq.of<SeqType>(Range(1, 3), [3, 4], List.of(5, 6, 7), 8);

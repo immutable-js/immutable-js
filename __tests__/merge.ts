@@ -32,7 +32,7 @@ describe('merge', () => {
 
   it('can merge in an explicitly undefined value', () => {
     let m1 = Map({a: 1, b: 2});
-    let m2 = Map({a: undefined});
+    let m2 = Map({a: undefined as any});
     expect(m1.merge(m2)).is(Map({a: undefined, b: 2}));
   });
 

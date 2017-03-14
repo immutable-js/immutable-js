@@ -128,7 +128,7 @@ describe('Conversion', () => {
   });
 
   it('Throws when provided circular reference', () => {
-    let o = {a: {b: {c: null}}};
+    let o = {a: {b: {c: null as any}}};
     o.a.b.c = o;
     expect(() => fromJS(o)).toThrow(
       'Cannot convert circular structure to Immutable',
@@ -147,7 +147,7 @@ describe('Conversion', () => {
   });
 
   it('Converts deep JSON with custom conversion including keypath if requested', () => {
-    let paths = [];
+    let paths: Array<any> = [];
     let seq1 = fromJS(js, function (key, sequence, keypath) {
       expect(arguments.length).toBe(3);
       paths.push(keypath);

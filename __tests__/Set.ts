@@ -34,7 +34,7 @@ describe('Set', () => {
   });
 
   it('accepts array-like of values', () => {
-    let s = Set({ length: 3, 1: 2 } as any);
+    let s = Set<any>({ length: 3, 1: 2 } as any);
     expect(s.size).toBe(2);
     expect(s.has(undefined)).toBe(true);
     expect(s.has(2)).toBe(true);

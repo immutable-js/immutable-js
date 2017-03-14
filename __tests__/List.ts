@@ -129,10 +129,10 @@ describe('List', () => {
 
   it('returns undefined when getting a null value', () => {
     let v = List([1, 2, 3]);
-    expect(v.get(null)).toBe(undefined);
+    expect(v.get(null as any)).toBe(undefined);
 
     let o = List([{ a: 1 }, { b: 2 }, { c: 3 }]);
-    expect(o.get(null)).toBe(undefined);
+    expect(o.get(null as any)).toBe(undefined);
   });
 
   it('counts from the end of the list on negative index', () => {
@@ -261,7 +261,7 @@ describe('List', () => {
   });
 
   it('describes a dense list', () => {
-    let v = List.of('a', 'b', 'c').push('d').set(14, 'o').set(6, undefined).remove(1);
+    let v = List.of<string | undefined>('a', 'b', 'c').push('d').set(14, 'o').set(6, undefined).remove(1);
     expect(v.size).toBe(14);
     expect(v.toJS()).toEqual(
       ['a', 'c', 'd', , , , , , , , , , , 'o'],
@@ -272,7 +272,7 @@ describe('List', () => {
     let v = List().setSize(11).set(1, 1).set(3, 3).set(5, 5).set(7, 7).set(9, 9);
     expect(v.size).toBe(11);
 
-    let forEachResults = [];
+    let forEachResults: Array<any> = [];
     v.forEach((val, i) => forEachResults.push([i, val]));
     expect(forEachResults).toEqual([
       [0, undefined],
@@ -303,7 +303,7 @@ describe('List', () => {
       undefined,
     ]);
 
-    let iteratorResults = [];
+    let iteratorResults: Array<any> = [];
     let iterator = v.entries();
     let step;
     while (!(step = iterator.next()).done) {
@@ -381,7 +381,7 @@ describe('List', () => {
 
   check.it('push adds the next highest index, just like array', {maxSize: 2000},
     [gen.posInt], len => {
-      let a = [];
+      let a: Array<any> = [];
       let v = List();
 
       for (let ii = 0; ii < len; ii++) {
@@ -602,7 +602,7 @@ describe('List', () => {
 
   it('forEach iterates in the correct order', () => {
     let n = 0;
-    let a = [];
+    let a: Array<any> = [];
     let v = List.of(0, 1, 2, 3, 4);
     v.forEach(x => {
       a.push(x);
@@ -614,7 +614,7 @@ describe('List', () => {
   });
 
   it('forEach iteration terminates when callback returns false', () => {
-    let a = [];
+    let a: Array<any> = [];
     function count(x) {
       if (x > 2) {
         return false;
@@ -628,7 +628,7 @@ describe('List', () => {
 
   it('concat works like Array.prototype.concat', () => {
     let v1 = List.of(1, 2, 3);
-    let v2 = v1.concat(4, List([ 5, 6 ]), [7, 8], Seq([ 9, 10 ]), Set.of(11, 12), null);
+    let v2 = v1.concat(4, List([ 5, 6 ]), [7, 8], Seq([ 9, 10 ]), Set.of(11, 12), null as any);
     expect(v1.toArray()).toEqual([1, 2, 3]);
     expect(v2.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, null]);
   });
@@ -689,7 +689,7 @@ describe('List', () => {
 
     expect(v2.toArray()).toEqual(list.slice(0, 3));
     expect(v3.toArray()).toEqual(
-      list.slice(0, 3).concat([undefined, undefined, undefined]),
+      list.slice(0, 3).concat([undefined, undefined, undefined] as any),
     );
   });
 
@@ -701,7 +701,7 @@ describe('List', () => {
 
     expect(v2.toArray()).toEqual(list.slice(0, 3));
     expect(v3.toArray()).toEqual(
-      list.slice(0, 3).concat([undefined, undefined, undefined]),
+      list.slice(0, 3).concat([undefined, undefined, undefined] as any),
     );
   });
 

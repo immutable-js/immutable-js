@@ -7,7 +7,8 @@ module.exports = {
     var options = {
       noEmitOnError: true,
       target: typescript.ScriptTarget.ES2015,
-      module: typescript.ModuleKind.CommonJS
+      module: typescript.ModuleKind.CommonJS,
+      strictNullChecks: true,
     };
 
     var host = typescript.createCompilerHost(options);

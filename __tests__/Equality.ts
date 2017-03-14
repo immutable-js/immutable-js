@@ -68,11 +68,11 @@ describe('Equality', () => {
     };
     expectIs(ptrA, ptrB);
     ptrA.valueOf = ptrB.valueOf = function() {
-      return null;
+      return null as any;
     };
     expectIs(ptrA, ptrB);
     ptrA.valueOf = ptrB.valueOf = function() {
-      return void 0;
+      return void 0 as any;
     };
     expectIs(ptrA, ptrB);
     ptrA.valueOf = function() {
