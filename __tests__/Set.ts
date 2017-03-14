@@ -291,4 +291,12 @@ describe('Set', () => {
     expect(set.toArray()).toEqual(['c', 'd', 'b']);
   });
 
+  it('can count entries that satisfy a predicate', () => {
+    let set = Set( [1, 2, 3, 4, 5 ]);
+    expect(set.size).toEqual(5);
+    expect(set.count()).toEqual(5);
+    expect(set.count(x => x % 2 === 0)).toEqual(2);
+    expect(set.count(x => true)).toEqual(5);
+  });
+
 });

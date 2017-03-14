@@ -1367,7 +1367,8 @@ function filterFactory(collection, predicate, context, useKeys) {
     collection.__iterate(
       function (v, k, c) {
         if (predicate.call(context, v, k, c)) {
-          return fn(v, useKeys ? k : iterations++, this$1);
+          iterations++;
+          return fn(v, useKeys ? k : iterations - 1, this$1);
         }
       },
       reverse
@@ -1672,10 +1673,11 @@ function flattenFactory(collection, depth, useKeys) {
         function (v, k) {
           if ((!depth || currentDepth < depth) && isCollection(v)) {
             flatDeep(v, currentDepth + 1);
-          } else if (
-            fn(v, useKeys ? k : iterations++, flatSequence) === false
-          ) {
-            stopped = true;
+          } else {
+            iterations++;
+            if (fn(v, useKeys ? k : iterations - 1, flatSequence) === false) {
+              stopped = true;
+            }
           }
           return !stopped;
         },
