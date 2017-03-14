@@ -353,7 +353,8 @@ export function filterFactory(collection, predicate, context, useKeys) {
     collection.__iterate(
       (v, k, c) => {
         if (predicate.call(context, v, k, c)) {
-          return fn(v, useKeys ? k : iterations++, this);
+          iterations++;
+          return fn(v, useKeys ? k : iterations - 1, this);
         }
       },
       reverse
@@ -649,10 +650,11 @@ export function flattenFactory(collection, depth, useKeys) {
         (v, k) => {
           if ((!depth || currentDepth < depth) && isCollection(v)) {
             flatDeep(v, currentDepth + 1);
-          } else if (
-            fn(v, useKeys ? k : iterations++, flatSequence) === false
-          ) {
-            stopped = true;
+          } else {
+            iterations++;
+            if (fn(v, useKeys ? k : iterations - 1, flatSequence) === false) {
+              stopped = true;
+            }
           }
           return !stopped;
         },
