@@ -75,13 +75,17 @@ var MemberDoc = React.createClass({
 
     var showDetail = isMobile ? this.state.detail : true;
 
+    var memberAnchorLink = this.props.parentName + '/' + name;
+
     return (
       <div className="interfaceMember">
         <h3
           onClick={isMobile ? this.toggleDetail : null}
           className="memberLabel"
         >
-          {(module ? module + '.' : '') + name + (isProp ? '' : '()')}
+          <Router.Link to={'/' + memberAnchorLink}>
+            {(module ? module + '.' : '') + name + (isProp ? '' : '()')}
+          </Router.Link>
         </h3>
         <TransitionGroup childFactory={makeSlideDown}>
           {showDetail &&
