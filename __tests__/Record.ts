@@ -21,7 +21,7 @@ describe('Record', () => {
   });
 
   it('allows for a descriptive name', () => {
-    let Person = Record({name: null}, 'Person');
+    let Person = Record({name: null as string | null}, 'Person');
 
     let me = Person({ name: 'My Name' });
     expect(me.toString()).toEqual('Person { name: "My Name" }');
@@ -162,7 +162,7 @@ describe('Record', () => {
     let realWarn = console.warn;
 
     try {
-      let warnings = [];
+      let warnings: Array<any> = [];
       console.warn = w => warnings.push(w);
 
       // size is a safe key to use
@@ -208,7 +208,7 @@ describe('Record', () => {
     let MyType = Record({a: 0, b: 0});
     let t1 = MyType({a: 10, b: 20});
 
-    let entries = [];
+    let entries: Array<any> = [];
     for (let entry of t1) {
       entries.push(entry);
     }

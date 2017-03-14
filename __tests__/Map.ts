@@ -123,7 +123,7 @@ describe('Map', () => {
   });
 
   it('accepts null as a key', () => {
-    let m1 = Map();
+    let m1 = Map<any, any>();
     let m2 = m1.set(null, 'null');
     let m3 = m2.remove(null);
     expect(m1.size).toBe(0);
@@ -366,7 +366,7 @@ describe('Map', () => {
   });
 
   it('uses toString on keys and values', () => {
-    class A extends Record({x: null}) {
+    class A extends Record({x: null as number | null}) {
       toString() {
         return this.x;
       }

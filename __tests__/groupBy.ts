@@ -9,7 +9,8 @@ describe('groupBy', () => {
     expect(grouped.toJS()).toEqual({1: {a: 1, c: 3}, 0: {b: 2, d: 4}});
 
     // Each group should be a keyed sequence, not an indexed sequence
-    expect(grouped.get(1).toArray()).toEqual([1, 3]);
+    const firstGroup = grouped.get(1);
+    expect(firstGroup && firstGroup.toArray()).toEqual([1, 3]);
   });
 
   it('groups indexed sequence', () => {

@@ -421,6 +421,11 @@
 
   export interface List<T> extends Collection.Indexed<T> {
 
+    /**
+     * The number of items in this List.
+     */
+    readonly size: number;
+
     // Persistent changes
 
     /**
@@ -784,6 +789,44 @@
       predicate: (value: T, index: number, iter: this) => any,
       context?: any
     ): this;
+
+    /**
+     * Returns a List "zipped" with the provided collections.
+     *
+     * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+     *
+     * ```js
+     * const a = List([ 1, 2, 3 ]);
+     * const b = List([ 4, 5, 6 ]);
+     * const c = a.zip(b); // List [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     * ```
+     */
+    zip(...collections: Array<Collection<any, any>>): List<any>;
+
+    /**
+     * Returns a List "zipped" with the provided collections by using a
+     * custom `zipper` function.
+     *
+     * ```js
+     * const a = List([ 1, 2, 3 ]);
+     * const b = List([ 4, 5, 6 ]);
+     * const c = a.zipWith((a, b) => a + b, b);
+     * // List [ 5, 7, 9 ]
+     * ```
+     */
+    zipWith<U, Z>(
+      zipper: (value: T, otherValue: U) => Z,
+      otherCollection: Collection<any, U>
+    ): List<Z>;
+    zipWith<U, V, Z>(
+      zipper: (value: T, otherValue: U, thirdValue: V) => Z,
+      otherCollection: Collection<any, U>,
+      thirdCollection: Collection<any, V>
+    ): List<Z>;
+    zipWith<Z>(
+      zipper: (...any: Array<any>) => Z,
+      ...collections: Array<Collection<any, any>>
+    ): List<Z>;
   }
 
 
@@ -882,6 +925,11 @@
   export function Map(): Map<any, any>;
 
   export interface Map<K, V> extends Collection.Keyed<K, V> {
+
+    /**
+     * The number of entries in this Map.
+     */
+    readonly size: number;
 
     // Persistent changes
 
@@ -1436,6 +1484,11 @@
 
   export interface OrderedMap<K, V> extends Map<K, V> {
 
+    /**
+     * The number of entries in this OrderedMap.
+     */
+    readonly size: number;
+
     // Sequence algorithms
 
     /**
@@ -1573,6 +1626,11 @@
   export function Set<T>(collection: Iterable<T>): Set<T>;
 
   export interface Set<T> extends Collection.Set<T> {
+
+    /**
+     * The number of items in this Set.
+     */
+    readonly size: number;
 
     // Persistent changes
 
@@ -1744,6 +1802,11 @@
 
   export interface OrderedSet<T> extends Set<T> {
 
+    /**
+     * The number of items in this OrderedSet.
+     */
+    readonly size: number;
+
     // Sequence algorithms
 
     /**
@@ -1870,6 +1933,11 @@
   export function Stack<T>(collection: Iterable<T>): Stack<T>;
 
   export interface Stack<T> extends Collection.Indexed<T> {
+
+    /**
+     * The number of items in this Stack.
+     */
+    readonly size: number;
 
     // Reading values
 
@@ -2005,6 +2073,44 @@
       predicate: (value: T, index: number, iter: this) => any,
       context?: any
     ): this;
+
+    /**
+     * Returns a Stack "zipped" with the provided collections.
+     *
+     * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+     *
+     * ```js
+     * const a = Stack([ 1, 2, 3 ]);
+     * const b = Stack([ 4, 5, 6 ]);
+     * const c = a.zip(b); // Stack [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     * ```
+     */
+    zip(...collections: Array<Collection<any, any>>): Stack<any>;
+
+    /**
+     * Returns a Stack "zipped" with the provided collections by using a
+     * custom `zipper` function.
+     *
+     * ```js
+     * const a = Stack([ 1, 2, 3 ]);
+     * const b = Stack([ 4, 5, 6 ]);
+     * const c = a.zipWith((a, b) => a + b, b);
+     * // Stack [ 5, 7, 9 ]
+     * ```
+     */
+    zipWith<U, Z>(
+      zipper: (value: T, otherValue: U) => Z,
+      otherCollection: Collection<any, U>
+    ): Stack<Z>;
+    zipWith<U, V, Z>(
+      zipper: (value: T, otherValue: U, thirdValue: V) => Z,
+      otherCollection: Collection<any, U>,
+      thirdCollection: Collection<any, V>
+    ): Stack<Z>;
+    zipWith<Z>(
+      zipper: (...any: Array<any>) => Z,
+      ...collections: Array<Collection<any, any>>
+    ): Stack<Z>;
   }
 
 
@@ -2130,7 +2236,6 @@
     }
 
     export interface Instance<T extends Object> {
-      readonly size: number;
 
       // Reading values
 
@@ -2503,6 +2608,44 @@
         predicate: (value: T, index: number, iter: this) => any,
         context?: any
       ): this;
+
+      /**
+       * Returns a Seq "zipped" with the provided collections.
+       *
+       * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+       *
+       * ```js
+       * const a = Seq([ 1, 2, 3 ]);
+       * const b = Seq([ 4, 5, 6 ]);
+       * const c = a.zip(b); // Seq [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+       * ```
+       */
+      zip(...collections: Array<Collection<any, any>>): Seq.Indexed<any>;
+
+      /**
+       * Returns a Seq "zipped" with the provided collections by using a
+       * custom `zipper` function.
+       *
+       * ```js
+       * const a = Seq([ 1, 2, 3 ]);
+       * const b = Seq([ 4, 5, 6 ]);
+       * const c = a.zipWith((a, b) => a + b, b);
+       * // Seq [ 5, 7, 9 ]
+       * ```
+       */
+      zipWith<U, Z>(
+        zipper: (value: T, otherValue: U) => Z,
+        otherCollection: Collection<any, U>
+      ): Seq.Indexed<Z>;
+      zipWith<U, V, Z>(
+        zipper: (value: T, otherValue: U, thirdValue: V) => Z,
+        otherCollection: Collection<any, U>,
+        thirdCollection: Collection<any, V>
+      ): Seq.Indexed<Z>;
+      zipWith<Z>(
+        zipper: (...any: Array<any>) => Z,
+        ...collections: Array<Collection<any, any>>
+      ): Seq.Indexed<Z>;
     }
 
 
@@ -4087,16 +4230,5 @@
      * True if this Collection includes every value in `iter`.
      */
     isSuperset(iter: Iterable<V>): boolean;
-
-
-    /**
-     * Note: this is here as a convenience to work around an issue with
-     * TypeScript https://github.com/Microsoft/TypeScript/issues/285, but
-     * Collection does not define `size`, instead `Seq` defines `size` as
-     * nullable number, and `Collection` defines `size` as always a number.
-     *
-     * @ignore
-     */
-    readonly size: number;
   }
 

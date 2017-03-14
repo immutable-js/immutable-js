@@ -73,7 +73,7 @@ describe('Stack', () => {
     let s = Stack.of('a', 'b', 'c');
     expect(s.size).toBe(3);
 
-    let forEachResults = [];
+    let forEachResults: Array<any> = [];
     s.forEach((val, i) => forEachResults.push([i, val, s.get(i)]));
     expect(forEachResults).toEqual([
       [0, 'a', 'a'],
@@ -88,7 +88,7 @@ describe('Stack', () => {
       'cc',
     ]);
 
-    let iteratorResults = [];
+    let iteratorResults: Array<any> = [];
     let iterator = s.entries();
     let step;
     while (!(step = iterator.next()).done) {
@@ -154,7 +154,7 @@ describe('Stack', () => {
 
   check.it('unshift adds the next lowest index, just like array', {maxSize: 2000},
     [gen.posInt], len => {
-      let a = [];
+      let a: Array<any> = [];
       let s = Stack();
 
       for (let ii = 0; ii < len; ii++) {

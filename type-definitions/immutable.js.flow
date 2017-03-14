@@ -1048,6 +1048,73 @@ declare class Stack<+T> extends IndexedCollection<T> {
 
   flatten(depth?: number): Stack<any>;
   flatten(shallow?: boolean): Stack<any>;
+
+  zip<A>(
+    a: Iterable<A>,
+    ..._: []
+  ): Stack<[T, A]>;
+  zip<A, B>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    ..._: []
+  ): Stack<[T, A, B]>;
+  zip<A, B, C>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    ..._: []
+  ): Stack<[T, A, B, C]>;
+  zip<A, B, C, D>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    d: Iterable<D>,
+    ..._: []
+  ): Stack<[T, A, B, C, D]>;
+  zip<A, B, C, D, E>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    d: Iterable<D>,
+    e: Iterable<E>,
+    ..._: []
+  ): Stack<[T, A, B, C, D, E]>;
+
+  zipWith<A, R>(
+    zipper: (value: T, a: A) => R,
+    a: Iterable<A>,
+    ..._: []
+  ): Stack<R>;
+  zipWith<A, B, R>(
+    zipper: (value: T, a: A, b: B) => R,
+    a: Iterable<A>,
+    b: Iterable<B>,
+    ..._: []
+  ): Stack<R>;
+  zipWith<A, B, C, R>(
+    zipper: (value: T, a: A, b: B, c: C) => R,
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    ..._: []
+  ): Stack<R>;
+  zipWith<A, B, C, D, R>(
+    zipper: (value: T, a: A, b: B, c: C, d: D) => R,
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    d: Iterable<D>,
+    ..._: []
+  ): Stack<R>;
+  zipWith<A, B, C, D, E, R>(
+    zipper: (value: T, a: A, b: B, c: C, d: D, e: E) => R,
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    d: Iterable<D>,
+    e: Iterable<E>,
+    ..._: []
+  ): Stack<R>;
 }
 
 declare function Range(start?: number, end?: number, step?: number): IndexedSeq<number>;

@@ -1,6 +1,7 @@
 {
   "extends": "tslint:recommended",
   "rules": {
+    "array-type": [true, "generic"],
     "quotemark": false,
     "no-reference": false,
     "no-namespace": false,

@@ -91,7 +91,7 @@ describe('zip', () => {
     });
 
     it('with infinite lists', () => {
-      let r: Collection.Indexed<any> = Range();
+      let r: Seq.Indexed<any> = Range();
       let i = r.interleave(Seq.of('A', 'B', 'C'));
       expect(i.size).toBe(6);
       expect(i.toArray()).toEqual(

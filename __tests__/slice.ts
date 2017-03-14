@@ -133,7 +133,7 @@ describe('slice', () => {
     [gen.array(gen.array([gen.posInt, gen.int])),
       gen.array(gen.oneOf([gen.int, gen.undefined]), 0, 3)],
     (entries, args) => {
-      let a = [];
+      let a: Array<any> = [];
       entries.forEach(entry => a[entry[0]] = entry[1]);
       let s = Seq(a);
       let slicedS = s.slice.apply(s, args);
