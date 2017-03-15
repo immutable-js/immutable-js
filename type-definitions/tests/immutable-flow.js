@@ -10,6 +10,7 @@ import Immutable, {
   Map,
   Stack,
   Set,
+  Seq,
   Range,
   Repeat,
   OrderedMap,
@@ -81,6 +82,7 @@ var stringToNumberCollection: KeyedCollection<string, number> = stringToNumber
 var numberToStringCollection: KeyedCollection<number, string> = numberToString
 
 numberList = List([1, 2])
+var numberListSize: number = numberList.size;
 numberOrStringList = List(['a', 1])
 // $ExpectError
 numberList = List(['a', 'b'])
@@ -201,6 +203,7 @@ numberList = List.of(1).flatten()
 /* Map */
 
 stringToNumber = Map()
+let stringToNumberSize: number = stringToNumber.size
 stringToNumberOrString = Map()
 numberToString = Map()
 
@@ -687,6 +690,7 @@ orderedStringSet = OrderedSet.of('a', 'b').flatten('a')
 /* Stack */
 
 numberStack = Stack([1, 2])
+let numberStackSize: number = numberStack.size;
 numberOrStringStack = Stack(['a', 1])
 // $ExpectError
 numberStack = Stack(['a', 'b'])
@@ -762,3 +766,10 @@ numberStack = Stack(['a']).flatten()
 { const stringSequence: IndexedSeq<string> = Repeat(0, 1) }
 // $ExpectError
 { const stringSequence: IndexedSeq<string> = Range(0, 0, 0) }
+
+/* Seq */
+
+let numberSeq = Seq([ 1, 2, 3 ])
+// $ExpectError
+let numberSeqSize: number = numberSeq.size
+let maybeNumberSeqSize: ?number = numberSeq.size
