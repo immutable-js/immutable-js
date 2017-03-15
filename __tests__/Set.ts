@@ -299,7 +299,7 @@ describe('Set', () => {
     expect(set.count(x => true)).toEqual(5);
   });
 
-  it('does not stack overflow on certain hash collisions', () => {
+  it('does not infinitely recurse for large power-of-2 hashes', () => {
     class A {
       equals() {
         return false;
