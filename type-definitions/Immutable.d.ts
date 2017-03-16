@@ -3620,6 +3620,7 @@ declare module Immutable {
      * // Seq { 0: "A", 1: "B", 2: "C" }
      * keyedSeq.filter(v => v === 'B')
      * // Seq { 1: "B" }
+     * ```
      */
     toKeyedSeq(): Seq.Keyed<K, V>;
 
