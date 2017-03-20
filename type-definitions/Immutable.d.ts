@@ -368,7 +368,7 @@ declare module Immutable {
      * List.isList(List()); // true
      * ```
      */
-    function isList(maybeList: any): maybeList is List<any>;
+    function isList(maybeList: any): boolean;
 
     /**
      * Creates a new List containing `values`.
