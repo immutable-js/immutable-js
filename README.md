@@ -4,7 +4,7 @@ Immutable collections for JavaScript
 [![Build Status](https://travis-ci.org/facebook/immutable-js.svg?branch=master)](https://travis-ci.org/facebook/immutable-js)
 
 [Immutable][] data cannot be changed once created, leading to much simpler
-application development, no defensive copying, and enabling advanced memoization
+application development, no defensive copying, and enabling advanced memorization
 and change detection techniques with simple logic. [Persistent][] data presents
 a mutative API which does not update the data in-place, but instead always
 yields new updated data.
