@@ -700,6 +700,11 @@ mixin(IndexedCollection, {
     return reify(this, zipWithFactory(this, defaultZipper, collections));
   },
 
+  zipAll(/*, ...collections */) {
+     const collections = [this].concat(arrCopy(arguments));
+     return reify(this, zipWithFactory(this, defaultZipper, collections, true));
+  },
+    
   zipWith(zipper /*, ...collections */) {
     const collections = arrCopy(arguments);
     collections[0] = this;
