@@ -814,13 +814,13 @@ export function zipWithFactory(keyIter, zipper, iters, zipAll) {
   };
 
   zipSequence.__iteratorUncached = function(type, reverse) {
-    var iterators = iters.map(i =>
+    const iterators = iters.map(i =>
       (i = Iterable(i), getIterator(reverse ? i.reverse() : i))
     );
-    var iterations = 0;
-    var isDone = false;
+    let iterations = 0;
+    let isDone = false;
     return new Iterator(() => {
-      var steps;
+      let steps;
       if (!isDone) {
         steps = iterators.map(i => i.next());
         if (zipAll) isDone = steps.every(s => s.done);
