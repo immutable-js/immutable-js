@@ -823,15 +823,18 @@ export function zipWithFactory(keyIter, zipper, iters, zipAll) {
       var steps;
       if (!isDone) {
         steps = iterators.map(i => i.next());
-        isDone = steps.some(s => s.done);
+        if (zipAll) isDone = steps.every(s => s.done);
+        else isDone = steps.some(s => s.done);
       }
+
       if (isDone) {
         return iteratorDone();
       }
+
       return iteratorValue(
         type,
         iterations++,
-        zipper.apply(null, steps.map(s => s.value))
+        zipper.apply(null, steps.map(s => s.done ? undefined : s.value))
       );
     });
   };
