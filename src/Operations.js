@@ -783,7 +783,7 @@ function maxCompare(comparator, a, b) {
     comp > 0;
 }
 
-export function zipWithFactory(keyIter, zipper, iters) {
+export function zipWithFactory(keyIter, zipper, iters, zipAll) {
   const zipSequence = makeSequence(keyIter);
   zipSequence.size = new ArraySeq(iters).map(i => i.size).min();
   // Note: this a generic base implementation of __iterate in terms of
@@ -812,14 +812,15 @@ export function zipWithFactory(keyIter, zipper, iters) {
     }
     return iterations;
   };
+
   zipSequence.__iteratorUncached = function(type, reverse) {
-    const iterators = iters.map(
-      i => ((i = Collection(i)), getIterator(reverse ? i.reverse() : i))
+    var iterators = iters.map(i =>
+      (i = Iterable(i), getIterator(reverse ? i.reverse() : i))
     );
-    let iterations = 0;
-    let isDone = false;
+    var iterations = 0;
+    var isDone = false;
     return new Iterator(() => {
-      let steps;
+      var steps;
       if (!isDone) {
         steps = iterators.map(i => i.next());
         isDone = steps.some(s => s.done);
@@ -834,6 +835,7 @@ export function zipWithFactory(keyIter, zipper, iters) {
       );
     });
   };
+
   return zipSequence;
 }
 
