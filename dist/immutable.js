@@ -1807,9 +1807,13 @@ function maxCompare(comparator, a, b) {
     comp > 0;
 }
 
-function zipWithFactory(keyIter, zipper, iters) {
+function zipWithFactory(keyIter, zipper, iters, zipAll) {
   var zipSequence = makeSequence(keyIter);
   zipSequence.size = new ArraySeq(iters).map(function (i) { return i.size; }).min();
+  var sizes = new ArraySeq(iters).map(function (i) { return i.size; });
+  var zipSize = !!zipAll ? sizes.max() : sizes.min();
+  zipSequence.size = zipSize;
+ 
   // Note: this a generic base implementation of __iterate in terms of
   // __iterator which may be more generically useful in the future.
   zipSequence.__iterate = function(fn, reverse) {
@@ -1838,9 +1842,9 @@ function zipWithFactory(keyIter, zipper, iters) {
     }
     return iterations;
   };
+
   zipSequence.__iteratorUncached = function(type, reverse) {
-    var iterators = iters.map(
-      function (i) { return ((i = Collection(i)), getIterator(reverse ? i.reverse() : i)); }
+    var iterators = iters.map(function (i) { return (i = Collection(i), getIterator(reverse ? i.reverse() : i)); }
     );
     var iterations = 0;
     var isDone = false;
@@ -1848,18 +1852,22 @@ function zipWithFactory(keyIter, zipper, iters) {
       var steps;
       if (!isDone) {
         steps = iterators.map(function (i) { return i.next(); });
-        isDone = steps.some(function (s) { return s.done; });
+        if (zipAll) { isDone = steps.every(function (s) { return s.done; }); }
+        else { isDone = steps.some(function (s) { return s.done; }); }
       }
+
       if (isDone) {
         return iteratorDone();
       }
+
       return iteratorValue(
         type,
         iterations++,
-        zipper.apply(null, steps.map(function (s) { return s.value; }))
+        zipper.apply(null, steps.map(function (s) { return s.done ? undefined : s.value; }))
       );
     });
   };
+
   return zipSequence;
 }
 
@@ -4973,6 +4981,11 @@ mixin(IndexedCollection, {
   zip: function zip(/*, ...collections */) {
     var collections = [this].concat(arrCopy(arguments));
     return reify(this, zipWithFactory(this, defaultZipper, collections));
+  },
+
+  zipAll: function zipAll(/*, ...collections */) {
+     var collections = [this].concat(arrCopy(arguments));
+     return reify(this, zipWithFactory(this, defaultZipper, collections, true));
   },
 
   zipWith: function zipWith(zipper /*, ...collections */) {
