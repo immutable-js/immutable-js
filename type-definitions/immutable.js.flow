@@ -277,6 +277,37 @@ declare class IndexedCollection<+T> extends Collection<number, T> {
     e: Iterable<E>,
     ..._: []
   ): IndexedCollection<[T, A, B, C, D, E]>;
+  
+  zipAll<A>(
+    a: Iterable<A>,
+    ..._: []
+  ): IndexedCollection<[T, A]>;
+  zipAll<A, B>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    ..._: []
+  ): IndexedCollection<[T, A, B]>;
+  zipAll<A, B, C>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    ..._: []
+  ): IndexedCollection<[T, A, B, C]>;
+  zipAll<A, B, C, D>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    d: Iterable<D>,
+    ..._: []
+  ): IndexedCollection<[T, A, B, C, D]>;
+  zipAll<A, B, C, D, E>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    d: Iterable<D>,
+    e: Iterable<E>,
+    ..._: []
+  ): IndexedCollection<[T, A, B, C, D, E]>;
 
   zipWith<A, R>(
     zipper: (value: T, a: A) => R,
@@ -476,6 +507,37 @@ declare class IndexedSeq<+T> extends Seq<number, T> mixins IndexedCollection<T> 
     ..._: []
   ): IndexedSeq<[T, A, B, C, D, E]>;
 
+  zipAll<A>(
+    a: Iterable<A>,
+    ..._: []
+  ): IndexedSeq<[T, A]>;
+  zipAll<A, B>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    ..._: []
+  ): IndexedSeq<[T, A, B]>;
+  zipAll<A, B, C>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    ..._: []
+  ): IndexedSeq<[T, A, B, C]>;
+  zipAll<A, B, C, D>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    d: Iterable<D>,
+    ..._: []
+  ): IndexedSeq<[T, A, B, C, D]>;
+  zipAll<A, B, C, D, E>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    d: Iterable<D>,
+    e: Iterable<E>,
+    ..._: []
+  ): IndexedSeq<[T, A, B, C, D, E]>;
+
   zipWith<A, R>(
     zipper: (value: T, a: A) => R,
     a: Iterable<A>,
@@ -636,6 +698,37 @@ declare class List<+T> extends IndexedCollection<T> {
     ..._: []
   ): List<[T, A, B, C, D]>;
   zip<A, B, C, D, E>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    d: Iterable<D>,
+    e: Iterable<E>,
+    ..._: []
+  ): List<[T, A, B, C, D, E]>;
+
+  zipAll<A>(
+    a: Iterable<A>,
+    ..._: []
+  ): List<[T, A]>;
+  zipAll<A, B>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    ..._: []
+  ): List<[T, A, B]>;
+  zipAll<A, B, C>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    ..._: []
+  ): List<[T, A, B, C]>;
+  zipAll<A, B, C, D>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    d: Iterable<D>,
+    ..._: []
+  ): List<[T, A, B, C, D]>;
+  zipAll<A, B, C, D, E>(
     a: Iterable<A>,
     b: Iterable<B>,
     c: Iterable<C>,
@@ -983,6 +1076,37 @@ declare class OrderedSet<+T> extends Set<T> {
     ..._: []
   ): OrderedSet<[T, A, B, C, D, E]>;
 
+  zipAll<A>(
+    a: Iterable<A>,
+    ..._: []
+  ): OrderedSet<[T, A]>;
+  zipAll<A, B>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    ..._: []
+  ): OrderedSet<[T, A, B]>;
+  zipAll<A, B, C>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    ..._: []
+  ): OrderedSet<[T, A, B, C]>;
+  zipAll<A, B, C, D>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    d: Iterable<D>,
+    ..._: []
+  ): OrderedSet<[T, A, B, C, D]>;
+  zipAll<A, B, C, D, E>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    d: Iterable<D>,
+    e: Iterable<E>,
+    ..._: []
+  ): OrderedSet<[T, A, B, C, D, E]>;
+
   zipWith<A, R>(
     zipper: (value: T, a: A) => R,
     a: Iterable<A>,
@@ -1092,6 +1216,37 @@ declare class Stack<+T> extends IndexedCollection<T> {
     ..._: []
   ): Stack<[T, A, B, C, D, E]>;
 
+  zipAll<A>(
+    a: Iterable<A>,
+    ..._: []
+  ): Stack<[T, A]>;
+  zipAll<A, B>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    ..._: []
+  ): Stack<[T, A, B]>;
+  zipAll<A, B, C>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    ..._: []
+  ): Stack<[T, A, B, C]>;
+  zipAll<A, B, C, D>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    d: Iterable<D>,
+    ..._: []
+  ): Stack<[T, A, B, C, D]>;
+  zipAll<A, B, C, D, E>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    d: Iterable<D>,
+    e: Iterable<E>,
+    ..._: []
+  ): Stack<[T, A, B, C, D, E]>;
+  
   zipWith<A, R>(
     zipper: (value: T, a: A) => R,
     a: Iterable<A>,
