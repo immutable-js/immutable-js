@@ -9,10 +9,12 @@ import { Record } from '../../';
 
 const Point2 = Record({x:0, y:0});
 const Point3 = Record({x:0, y:0, z:0});
+const PointNew = new Record({x:0, y:0});
 const GeoPoint = Record({lat:(null: ?number), lon:(null: ?number)});
 
 let origin2 = Point2({});
 let origin3 = Point3({});
+let originNew = new PointNew();
 let geo = GeoPoint({lat:34});
 // $ExpectError
 const mistake = Point2({x:'string'});
