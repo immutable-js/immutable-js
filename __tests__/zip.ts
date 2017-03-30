@@ -72,12 +72,12 @@ describe('zip', () => {
       expect(
         Seq.of(1, 2, 3).zipAll(Seq.of(4)).toArray(),
       ).toEqual(
-        [[1, 4],[2, undefined],[3, undefined]],
+        [[1, 4], [2, undefined], [3, undefined]],
       );
     });
 
     check.it('is always the size of the longest sequence',
-        [gen.notEmpty(gen.array(gen.posInt))], (lengths) => {
+        [gen.notEmpty(gen.array(gen.posInt))], lengths => {
         const ranges = lengths.map(l => Range(0, l));
         const first = ranges.shift();
         const zipped = first.zipAll.apply(first, ranges);
