@@ -802,6 +802,19 @@
      * ```
      */
      zip(...collections: Array<Collection<any, any>>): List<any>;
+     
+    /**
+     * Returns a List "zipped" with the provided collections.
+     * 
+     * Unlike `zip`, `zipAll` continues zipping until the longest collection is 
+     * exhausted. Missing values from shorter collections are filled with `undefined`.
+     *
+     * ```js
+     * const a = List([ 1, 2 ]);
+     * const b = List([ 3, 4, 5 ]);
+     * const c = a.zipAll(b); // List [ [ 1, 3 ], [ 2, 4 ], [ undefined, 5 ] ]
+     * ```
+     */
      zipAll(...collections: Array<Collection<any, any>>): List<any>;
 
     /**
@@ -1872,6 +1885,22 @@
      * ```
      */
     zip(...collections: Array<Collection<any, any>>): OrderedSet<any>;
+    
+    /**
+     * Returns a OrderedSet of the same type "zipped" with the provided 
+     * collections.
+     *
+     * @see IndexedIterator.zipAll
+     *
+     * Unlike `zip`, `zipAll` continues zipping until the longest collection is 
+     * exhausted. Missing values from shorter collections are filled with `undefined`.
+     *
+     * ```js
+     * const a = OrderedSet([ 1, 2 ]);
+     * const b = OrderedSet([ 3, 4, 5 ]);
+     * const c = a.zipAll(b); // OrderedSet [ [ 1, 3 ], [ 2, 4 ], [ undefined, 5 ] ]
+     * ```
+     */
     zipAll(...collections: Array<Collection<any, any>>): OrderedSet<any>;
 
     /**
@@ -2088,6 +2117,19 @@
      * ```
      */
     zip(...collections: Array<Collection<any, any>>): Stack<any>;
+    
+    /**
+     * Returns a Stack "zipped" with the provided collections.
+     * 
+     * Unlike `zip`, `zipAll` continues zipping until the longest collection is 
+     * exhausted. Missing values from shorter collections are filled with `undefined`.
+     *
+     * ```js
+     * const a = Stack([ 1, 2 ]);
+     * const b = Stack([ 3, 4, 5 ]);
+     * const c = a.zipAll(b); // Stack [ [ 1, 3 ], [ 2, 4 ], [ undefined, 5 ] ]
+     * ```
+     */
     zipAll(...collections: Array<Collection<any, any>>): Stack<any>;
 
     /**
@@ -2624,6 +2666,19 @@
        * ```
        */
       zip(...collections: Array<Collection<any, any>>): Seq.Indexed<any>;
+      
+      /**
+       * Returns a Seq "zipped" with the provided collections.
+       * 
+       * Unlike `zip`, `zipAll` continues zipping until the longest collection is 
+       * exhausted. Missing values from shorter collections are filled with `undefined`.
+       *
+       * ```js
+       * const a = Seq([ 1, 2 ]);
+       * const b = Seq([ 3, 4, 5 ]);
+       * const c = a.zipAll(b); // Seq [ [ 1, 3 ], [ 2, 4 ], [ undefined, 5 ] ]
+       * ```
+       */
       zipAll(...collections: Array<Collection<any, any>>): Seq.Indexed<any>;
 
       /**
@@ -3160,6 +3215,18 @@
        * ```
        */
       zip(...collections: Array<Collection<any, any>>): Collection.Indexed<any>;
+      /**
+       * Returns a Collection "zipped" with the provided collections.
+       * 
+       * Unlike `zip`, `zipAll` continues zipping until the longest collection is 
+       * exhausted. Missing values from shorter collections are filled with `undefined`.
+       *
+       * ```js
+       * const a = List([ 1, 2 ]);
+       * const b = List([ 3, 4, 5 ]);
+       * const c = a.zipAll(b); // List [ [ 1, 3 ], [ 2, 4 ], [ undefined, 5 ] ]
+       * ```
+       */
       zipAll(...collections: Array<Collection<any, any>>): Collection.Indexed<any>;
 
       /**
