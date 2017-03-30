@@ -1144,7 +1144,7 @@ declare class Record {
 
 declare interface RecordClass<T> {
   (values: $Shape<T> | Iterable<[string, any]>): RecordInstance<T> & T;
-  new (values: $Shape<T> | Iterable<[string, any]>): RecordInstance<T> & T;
+  constructor(values: $Shape<T> | Iterable<[string, any]>): RecordInstance<T> & T;
 }
 
 declare class RecordInstance<T: Object> {
