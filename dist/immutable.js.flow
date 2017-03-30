@@ -1132,22 +1132,20 @@ declare class Stack<+T> extends IndexedCollection<T> {
 declare function Range(start?: number, end?: number, step?: number): IndexedSeq<number>;
 declare function Repeat<T>(value: T, times?: number): IndexedSeq<T>;
 
-declare function isRecord(maybeRecord: any): boolean %checks(maybeRecord instanceof RecordInstance);
+declare function isRecord(maybeRecord: any): boolean %checks(maybeRecord instanceof RecordClass);
 declare class Record {
   static <Values>(spec: Values, name?: string): Class<RecordClass<Values>>;
   constructor<Values>(spec: Values, name?: string): Class<RecordClass<Values>>;
 
   static isRecord: typeof isRecord;
 
-  static getDescriptiveName(record: RecordInstance<*>): string;
+  static getDescriptiveName(record: RecordClass<*>): string;
 }
 
-declare class RecordClass<T> {
-  static <T>(values: $Shape<T> | Iterable<[string, any]>): RecordInstance<T> & T;
-  constructor<T>(values: $Shape<T> | Iterable<[string, any]>): RecordInstance<T> & T;
-}
+declare class RecordClass<T: Object> {
+  static <T>(values?: $Shape<T> | Iterable<[string, any]>): RecordClass<T> & T;
+  constructor<T>(values?: $Shape<T> | Iterable<[string, any]>): RecordClass<T> & T;
 
-declare class RecordInstance<T: Object> {
   size: number;
 
   has(key: string): boolean;
