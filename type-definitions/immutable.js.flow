@@ -1143,8 +1143,8 @@ declare class Record {
 }
 
 declare class RecordClass<T: Object> {
-  static <T>(values?: $Shape<T> | Iterable<[string, any]>): RecordClass<T> & T;
-  constructor<T>(values?: $Shape<T> | Iterable<[string, any]>): RecordClass<T> & T;
+  static (values?: $Shape<T> | Iterable<[string, any]>): RecordClass<T> & T;
+  constructor(values?: $Shape<T> | Iterable<[string, any]>): RecordClass<T> & T;
 
   size: number;
 
