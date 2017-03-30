@@ -18,6 +18,10 @@ let originNew = new PointNew();
 let geo = GeoPoint({lat:34});
 // $ExpectError
 const mistake = Point2({x:'string'});
+// $ExpectError - 'new Record' instantiated with invalid type
+const mistakeNewRecord = PointNew({x:'string'});
+// $ExpectError - 'Record' instantiated with invalid type using 'new'
+const mistakeNewInstance = new Point2({x:'string'});
 origin3 = GeoPoint({lat:34})
 geo = Point3({});
 
