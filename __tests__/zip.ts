@@ -70,18 +70,18 @@ describe('zip', () => {
 
     it('fills in the empty zipped values with undefined', () => {
       expect(
-        Seq.of(1,2,3).zipAll(Seq.of(4)).toArray()
+        Seq.of(1, 2, 3).zipAll(Seq.of(4)).toArray(),
       ).toEqual(
-        [[1,4],[2,undefined],[3,undefined]]
+        [[1, 4],[2, undefined],[3, undefined]],
       );
     });
 
     check.it('is always the size of the longest sequence',
         [gen.notEmpty(gen.array(gen.posInt))], (lengths) => {
-        var ranges = lengths.map(l => Range(0, l));
-        var first = ranges.shift();
-        var zipped = first.zipAll.apply(first, ranges);
-        var longestLength = Math.max.apply(Math, lengths);
+        const ranges = lengths.map(l => Range(0, l));
+        const first = ranges.shift();
+        const zipped = first.zipAll.apply(first, ranges);
+        const longestLength = Math.max.apply(Math, lengths);
         expect(zipped.size).toBe(longestLength);
     });
 
