@@ -1813,7 +1813,7 @@ function zipWithFactory(keyIter, zipper, iters, zipAll) {
   var sizes = new ArraySeq(iters).map(function (i) { return i.size; });
   var zipSize = !!zipAll ? sizes.max() : sizes.min();
   zipSequence.size = zipSize;
- 
+
   // Note: this a generic base implementation of __iterate in terms of
   // __iterator which may be more generically useful in the future.
   zipSequence.__iterate = function(fn, reverse) {
@@ -1844,7 +1844,8 @@ function zipWithFactory(keyIter, zipper, iters, zipAll) {
   };
 
   zipSequence.__iteratorUncached = function(type, reverse) {
-    var iterators = iters.map(function (i) { return (i = Collection(i), getIterator(reverse ? i.reverse() : i)); }
+    var iterators = iters.map(
+      function (i) { return ((i = Collection(i)), getIterator(reverse ? i.reverse() : i)); }
     );
     var iterations = 0;
     var isDone = false;
@@ -4984,8 +4985,8 @@ mixin(IndexedCollection, {
   },
 
   zipAll: function zipAll(/*, ...collections */) {
-     var collections = [this].concat(arrCopy(arguments));
-     return reify(this, zipWithFactory(this, defaultZipper, collections, true));
+    var collections = [this].concat(arrCopy(arguments));
+    return reify(this, zipWithFactory(this, defaultZipper, collections, true));
   },
 
   zipWith: function zipWith(zipper /*, ...collections */) {

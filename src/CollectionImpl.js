@@ -701,8 +701,8 @@ mixin(IndexedCollection, {
   },
 
   zipAll(/*, ...collections */) {
-     const collections = [this].concat(arrCopy(arguments));
-     return reify(this, zipWithFactory(this, defaultZipper, collections, true));
+    const collections = [this].concat(arrCopy(arguments));
+    return reify(this, zipWithFactory(this, defaultZipper, collections, true));
   },
 
   zipWith(zipper /*, ...collections */) {

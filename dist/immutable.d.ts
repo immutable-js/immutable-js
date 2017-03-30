@@ -801,7 +801,8 @@ declare module Immutable {
      * const c = a.zip(b); // List [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
      * ```
      */
-    zip(...collections: Array<Collection<any, any>>): List<any>;
+     zip(...collections: Array<Collection<any, any>>): List<any>;
+     zipAll(...collections: Array<Collection<any, any>>): List<any>;
 
     /**
      * Returns a List "zipped" with the provided collections by using a
@@ -1871,6 +1872,7 @@ declare module Immutable {
      * ```
      */
     zip(...collections: Array<Collection<any, any>>): OrderedSet<any>;
+    zipAll(...collections: Array<Collection<any, any>>): OrderedSet<any>;
 
     /**
      * Returns an OrderedSet of the same type "zipped" with the provided
@@ -2086,6 +2088,7 @@ declare module Immutable {
      * ```
      */
     zip(...collections: Array<Collection<any, any>>): Stack<any>;
+    zipAll(...collections: Array<Collection<any, any>>): Stack<any>;
 
     /**
      * Returns a Stack "zipped" with the provided collections by using a
@@ -2621,6 +2624,7 @@ declare module Immutable {
        * ```
        */
       zip(...collections: Array<Collection<any, any>>): Seq.Indexed<any>;
+      zipAll(...collections: Array<Collection<any, any>>): Seq.Indexed<any>;
 
       /**
        * Returns a Seq "zipped" with the provided collections by using a
@@ -3156,6 +3160,7 @@ declare module Immutable {
        * ```
        */
       zip(...collections: Array<Collection<any, any>>): Collection.Indexed<any>;
+      zipAll(...collections: Array<Collection<any, any>>): Collection.Indexed<any>;
 
       /**
        * Returns a Collection of the same type "zipped" with the provided
