@@ -1134,17 +1134,17 @@ declare function Repeat<T>(value: T, times?: number): IndexedSeq<T>;
 
 declare function isRecord(maybeRecord: any): boolean %checks(maybeRecord instanceof RecordInstance);
 declare class Record {
-  static <Values>(spec: Values, name?: string): RecordClass<Values>;
-  constructor<Values>(spec: Values, name?: string): RecordClass<Values>;
+  static <Values>(spec: Values, name?: string): Class<RecordClass<Values>>;
+  constructor<Values>(spec: Values, name?: string): Class<RecordClass<Values>>;
 
   static isRecord: typeof isRecord;
 
   static getDescriptiveName(record: RecordInstance<*>): string;
 }
 
-declare interface RecordClass<T> {
-  (values: $Shape<T> | Iterable<[string, any]>): RecordInstance<T> & T;
-  constructor(values: $Shape<T> | Iterable<[string, any]>): RecordInstance<T> & T;
+declare class RecordClass<T> {
+  static <T>(values: $Shape<T> | Iterable<[string, any]>): RecordInstance<T> & T;
+  constructor<T>(values: $Shape<T> | Iterable<[string, any]>): RecordInstance<T> & T;
 }
 
 declare class RecordInstance<T: Object> {
