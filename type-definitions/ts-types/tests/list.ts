@@ -32,7 +32,7 @@ import { List } from '../../../';
   List<number>().setSize('foo');
 }
 
-{ // #of
+{ // .of
 
   // $ExpectType List<number>
   List.of(1, 2, 3);
