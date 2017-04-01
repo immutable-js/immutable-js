@@ -5,7 +5,7 @@
 // Some tests look like they are repeated in order to avoid false positives.
 // Flow might not complain about an instance of (what it thinks is) T to be assigned to T<K, V>
 
-import { Record } from '../../';
+import { Record } from '../../../';
 
 const Point2 = Record({x:0, y:0});
 const Point3 = Record({x:0, y:0, z:0});
