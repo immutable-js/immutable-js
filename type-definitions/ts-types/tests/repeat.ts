@@ -1,0 +1,15 @@
+// TypeScript Version: 2.2.1
+
+import { Repeat } from '../../../';
+
+{  // #constructor
+
+  // $ExpectType Indexed<number>
+  Repeat(0, 0);
+
+  // $ExpectType Indexed<string>
+  Repeat('a', 0);
+
+  // $ExpectError
+  Repeat('a', 'b');
+}
