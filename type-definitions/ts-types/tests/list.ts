@@ -2,8 +2,7 @@
 
 import { List } from '../../../';
 
-{
-  // Constructor
+{ // #constructor
 
   // $ExpectType List<any>
   List();
@@ -303,13 +302,25 @@ import { List } from '../../../';
 { // #mergeWith
 
   // $ExpectType List<number>
-  List<number>().mergeWith((prev, next, key) => 1, List<number>());
+  List<number>().mergeWith((prev: number, next: number, key: number) => 1, List<number>());
 
   // $ExpectError
-  List<number>().mergeWith((prev, next, key) => 'a', List<number>());
+  List<number>().mergeWith((prev: string, next: number, key: number) => 1, List<number>());
 
   // $ExpectError
-  List<number>().mergeWith((prev, next, key) => 1, List<string>());
+  List<number>().mergeWith((prev: number, next: string, key: number) => 1, List<number>());
+
+  // $ExpectError
+  List<number>().mergeWith((prev: number, next: number, key: string) => 1, List<number>());
+
+  // $ExpectError
+  List<number>().mergeWith((prev: number, next: number, key: number) => 'a', List<number>());
+
+  // $ExpectError
+  List<number>().mergeWith((prev: number, next: number, key: number) => 1, List<string>());
+
+  // $ExpectType List<string | number>
+  List<number | string>().mergeWith((prev: number, next: string, key: number) => 1, List<string>());
 }
 
 { // #mergeDeep
@@ -327,10 +338,10 @@ import { List } from '../../../';
   List<number | string>().mergeDeep(List<number>());
 }
 
-{ // #mergeInDeep
+{ // #mergeDeepIn
 
   // $ExpectType List<number>
-  List<number>().mergeIn([], []);
+  List<number>().mergeDeepIn([], []);
 }
 
 { // #mergeDeepWith
