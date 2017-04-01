@@ -1,3 +1,5 @@
+// TypeScript Version: 2.2.1
+
 import {
   Map as ImmutableMap,
   Set as ImmutableSet,
