@@ -2186,6 +2186,13 @@ MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeIn = MapPrototype.deleteIn;
 MapPrototype.removeAll = MapPrototype.deleteAll;
+MapPrototype['@@transducer/init'] = MapPrototype.asMutable;
+MapPrototype['@@transducer/step'] = function(result, arr) {
+  return result.set(arr[0], arr[1]);
+};
+MapPrototype['@@transducer/result'] = function(obj) {
+  return obj.asImmutable();
+};
 
 // #pragma Trie Nodes
 
@@ -3118,6 +3125,11 @@ ListPrototype.withMutations = MapPrototype.withMutations;
 ListPrototype.asMutable = MapPrototype.asMutable;
 ListPrototype.asImmutable = MapPrototype.asImmutable;
 ListPrototype.wasAltered = MapPrototype.wasAltered;
+ListPrototype['@@transducer/init'] = ListPrototype.asMutable;
+ListPrototype['@@transducer/step'] = function(result, arr) {
+  return result.push(arr);
+};
+ListPrototype['@@transducer/result'] = MapPrototype['@@transducer/result'];
 
 var VNode = function VNode(array, ownerID) {
   this.array = array;
@@ -3912,6 +3924,11 @@ StackPrototype.wasAltered = MapPrototype.wasAltered;
 StackPrototype.shift = StackPrototype.pop;
 StackPrototype.unshift = StackPrototype.push;
 StackPrototype.unshiftAll = StackPrototype.pushAll;
+StackPrototype['@@transducer/init'] = StackPrototype.asMutable;
+StackPrototype['@@transducer/step'] = function(result, arr) {
+  return result.unshift(arr);
+};
+StackPrototype['@@transducer/result'] = MapPrototype['@@transducer/result'];
 
 function makeStack(size, head, ownerID, hash) {
   var map = Object.create(StackPrototype);
@@ -4197,6 +4214,11 @@ SetPrototype.mergeDeepWith = SetPrototype.mergeWith;
 SetPrototype.withMutations = MapPrototype.withMutations;
 SetPrototype.asMutable = MapPrototype.asMutable;
 SetPrototype.asImmutable = MapPrototype.asImmutable;
+SetPrototype['@@transducer/init'] = SetPrototype.asMutable;
+SetPrototype['@@transducer/step'] = function(result, arr) {
+  return result.add(arr);
+};
+SetPrototype['@@transducer/result'] = MapPrototype['@@transducer/result'];
 
 SetPrototype.__empty = emptySet;
 SetPrototype.__make = makeSet;
