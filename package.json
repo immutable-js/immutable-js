@@ -15,17 +15,20 @@
     "url": "https://github.com/facebook/immutable-js/issues"
   },
   "main": "dist/immutable.js",
+  "jsnext:main": "dist/immutable.es.js",
+  "module": "dist/immutable.es.js",
   "typings": "dist/immutable-nonambient.d.ts",
   "typescript": {
     "definition": "dist/immutable.d.ts"
   },
   "scripts": {
     "build": "run-s build:*",
-    "build:dist": "run-s clean:dist bundle:dist copy:dist stats:dist",
+    "build:dist": "run-s clean:dist bundle:dist bundle:es copy:dist stats:dist",
     "build:pages": "gulp --gulpfile gulpfile.js default",
     "stats:dist": "node ./resources/dist-stats.js",
     "clean:dist": "rimraf dist",
     "bundle:dist": "rollup -c ./resources/rollup-config.js",
+    "bundle:es": "rollup -c ./resources/rollup-config-es.js",
     "copy:dist": "node ./resources/copy-dist-typedefs.js",
     "lint": "run-s lint:*",
     "lint:ts": "tslint \"__tests__/**/*.ts\"",
