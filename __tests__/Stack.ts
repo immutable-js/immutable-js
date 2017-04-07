@@ -81,6 +81,14 @@ describe('Stack', () => {
       [2, 'c', 'c'],
     ]);
 
+    expect(s.map((val, idx, iterator) =>
+      iterator.get(idx) + (iterator.get(idx + 1) || '')
+    ).toArray()).toEqual([
+      'ab',
+      'bc',
+      'c',
+    ]);
+
     // map will cause reverse iterate
     expect(s.map(val => val + val).toArray()).toEqual([
       'aa',
