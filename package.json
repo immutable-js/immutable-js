@@ -1,6 +1,6 @@
 {
   "name": "immutable",
-  "version": "4.0.0-rc.2",
+  "version": "4.0.0-rc.2+olivr70",
   "description": "Immutable Data Collections",
   "homepage": "https://facebook.github.com/immutable-js",
   "author": {
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/facebook/immutable-js.git"
+    "url": "git://github.com/olivr70/immutable-js.git"
   },
   "bugs": {
     "url": "https://github.com/facebook/immutable-js/issues"
