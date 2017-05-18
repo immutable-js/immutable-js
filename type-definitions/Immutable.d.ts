@@ -2301,7 +2301,7 @@ declare module Immutable {
       /**
        * Deeply converts this Record to equivalent native JavaScript Object.
        */
-      toJS(): { [K in keyof T]: any };
+      toJS(): Object;
 
       /**
        * Shallowly converts this Record to equivalent native JavaScript Object.
