@@ -4666,12 +4666,18 @@ mixin(Collection, {
     var i = 0;
     while (i !== keyPath.length) {
       if (!nested || !nested.get) {
-        throw new TypeError(
-          'Invalid keyPath: Value at [' +
-            keyPath.slice(0, i).map(quoteString) +
-            '] does not have a .get() method: ' +
-            nested
-        );
+        /* eslint-disable no-console */
+        typeof console === 'object' &&
+          console.warn &&
+          console.warn(
+            'Warning Invalid keyPath: Value at [' +
+              keyPath.slice(0, i).map(quoteString) +
+              '] does not have a .get() method: ' +
+              nested +
+              '\nThis functionality is deprecated and will throw in Immutable v5'
+          );
+        /* eslint-enable no-console */
+        return null;
       }
       nested = nested.get(keyPath[i++], NOT_SET);
       if (nested === NOT_SET) {
