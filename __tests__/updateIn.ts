@@ -28,17 +28,29 @@ describe('updateIn', () => {
   });
 
   it('deep get throws if non-readable path', () => {
-    let deep = Map({ key: { regular: "jsobj" }, list: List([ Map({num: 10}) ]) });
-    expect(() =>
-      deep.getIn(["key", "foo", "item"]),
-    ).toThrow(
-      'Invalid keyPath: Value at ["key"] does not have a .get() method: [object Object]',
-    );
-    expect(() =>
-      deep.getIn(["list", 0, "num", "badKey"]),
-    ).toThrow(
-      'Invalid keyPath: Value at ["list",0,"num"] does not have a .get() method: 10',
-    );
+    let realWarn = console.warn;
+    let warnings: Array<any> = [];
+    console.warn = w => warnings.push(w);
+
+    try {
+      let deep = Map({ key: { regular: "jsobj" }, list: List([ Map({num: 10}) ]) });
+      deep.getIn(["key", "foo", "item"]);
+      expect(warnings.length).toBe(1);
+      expect(warnings[0]).toBe(
+        'Warning Invalid keyPath: Value at ["key"] does not have a .get() method: [object Object]' +
+        '\nThis functionality is deprecated and will throw in Immutable v5',
+      );
+
+      warnings.length = 0;
+      deep.getIn(["list", 0, "num", "badKey"]);
+      expect(warnings.length).toBe(1);
+      expect(warnings[0]).toBe(
+        'Warning Invalid keyPath: Value at ["list",0,"num"] does not have a .get() method: 10' +
+        '\nThis functionality is deprecated and will throw in Immutable v5',
+      );
+    } finally {
+      console.warn = realWarn;
+    }
   });
 
   it('deep has throws without list or array-like', () => {
