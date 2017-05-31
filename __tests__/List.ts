@@ -478,6 +478,12 @@ describe('List', () => {
     expect(r.toArray()).toEqual(['A', 'B', 'C']);
   });
 
+  it('map no-ops return the same reference', () => {
+    let v = List.of('a', 'b', 'c');
+    let r = v.map(value => value);
+    expect(r).toBe(v);
+  });
+
   it('filters values', () => {
     let v = List.of('a', 'b', 'c', 'd', 'e', 'f');
     let r = v.filter((value, index) => index % 2 === 1);

@@ -228,6 +228,12 @@ describe('Map', () => {
     expect(r.toObject()).toEqual({A: 'a', B: 'b', C: 'c'});
   });
 
+  it('maps no-ops return the same reference', () => {
+    let m = Map({a: 'a', b: 'b', c: 'c'});
+    let r = m.map(value => value);
+    expect(r).toBe(m);
+  });
+
   it('filters values', () => {
     let m = Map({a: 1, b: 2, c: 3, d: 4, e: 5, f: 6});
     let r = m.filter(value => value % 2 === 1);

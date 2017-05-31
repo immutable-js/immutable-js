@@ -190,6 +190,14 @@ export class Map extends KeyedCollection {
     return OrderedMap(sortFactory(this, comparator, mapper));
   }
 
+  map(mapper, context) {
+    return this.reduce(
+      (mapped, v, k, c) => mapped.set(k, mapper.call(context, v, k, c)),
+      this,
+      context
+    );
+  }
+
   // @pragma Mutability
 
   withMutations(fn) {

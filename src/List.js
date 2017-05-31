@@ -166,6 +166,14 @@ export class List extends IndexedCollection {
 
   // @pragma Iteration
 
+  map(mapper, context) {
+    return this.reduce(
+      (mapped, v, k, c) => mapped.set(k, mapper.call(context, v, k, c)),
+      this,
+      context
+    );
+  }
+
   slice(begin, end) {
     const size = this.size;
     if (wholeSlice(begin, end, size)) {
