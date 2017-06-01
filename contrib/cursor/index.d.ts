@@ -226,6 +226,9 @@ export interface Cursor extends Immutable.Iterable<any, any>, Immutable.Seq<any,
     notSetValue: any,
     updater: (value: any) => any
   ): Cursor;
+  export function isCursor(
+    obj: any
+  ): boolean;
 
   /**
    * A combination of `updateIn` and `merge`, returning a new Cursor, but
