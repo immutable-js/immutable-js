@@ -139,13 +139,14 @@ describe('Record', () => {
     expect(t4).not.toBe(t2);
   });
 
-  it('allows for property access', () => {
+  it('allows for readonly property access', () => {
     let MyType = Record({a: 1, b: 'foo'});
     let t1 = new MyType();
     let a: number = t1.a;
     let b: string = t1.b;
     expect(a).toEqual(1);
     expect(b).toEqual('foo');
+    expect(() => (t1 as any).a = 2).toThrow("Cannot set on an immutable record.");
   });
 
   it('allows for class extension', () => {
