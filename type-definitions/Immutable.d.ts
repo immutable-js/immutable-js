@@ -2148,7 +2148,7 @@ declare module Immutable {
   /**
    * Creates a new Class which produces Record instances. A record is similar to
    * a JS object, but enforce a specific set of allowed string keys, and have
-   * default values.
+   * default values. A record is a `Map` and so exposes the same API as `Map`.
    *
    * ```js
    * const { Record } = require('immutable')
