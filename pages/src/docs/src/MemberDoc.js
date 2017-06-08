@@ -81,7 +81,7 @@ var MemberDoc = React.createClass({
           onClick={isMobile ? this.toggleDetail : null}
           className="memberLabel"
         >
-        {(module ? module + '.' : '') + name + (isProp ? '' : '()')}
+          {(module ? module + '.' : '') + name + (isProp ? '' : '()')}
         </h3>
         <TransitionGroup childFactory={makeSlideDown}>
           {showDetail &&
