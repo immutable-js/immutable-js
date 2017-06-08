@@ -111,6 +111,9 @@ module.exports = React.createClass({
       scrollBehavior: scrollBehavior
     }).run(Handler => {
       this.setState({ handler: Handler });
+      if (window.document) {
+        window.document.title = `${this.pageData.name} Immutable.js`;
+      }
     });
   },
 
