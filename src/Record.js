@@ -87,7 +87,9 @@ export class Record {
 
   equals(other) {
     return this === other ||
-      (this._keys === other._keys && recordSeq(this).equals(recordSeq(other)));
+      (other &&
+        this._keys === other._keys &&
+        recordSeq(this).equals(recordSeq(other)));
   }
 
   hashCode() {
