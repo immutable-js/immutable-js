@@ -791,6 +791,32 @@
     ): this;
 
     /**
+     * Returns a List "zipped" with the provided collection.
+     *
+     * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+     *
+     * ```js
+     * const a = List([ 1, 2, 3 ]);
+     * const b = List([ 4, 5, 6 ]);
+     * const c = a.zip(b); // List [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     * ```
+     */
+    zip<U>(other: Collection<any, U>): List<[T,U]>;
+
+    /**
+     * Returns a List "zipped" with the provided collection.
+     *
+     * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+     *
+     * ```js
+     * const a = List([ 1, 2, 3 ]);
+     * const b = List([ 4, 5, 6 ]);
+     * const c = a.zip(b); // List [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     * ```
+     */
+    zip<U,V>(other: Collection<any, U>, other2: Collection<any,V>): List<[T,U,V]>;
+
+    /**
      * Returns a List "zipped" with the provided collections.
      *
      * Like `zipWith`, but using the default `zipper`: creating an `Array`.
@@ -1870,6 +1896,40 @@
      * // OrderedSet [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
      * ```
      */
+    zip<U>(other: Collection<any, U>): OrderedSet<[T,U]>;
+
+    /**
+     * Returns an OrderedSet of the same type "zipped" with the provided
+     * collections.
+     *
+     * @see IndexedIterator.zip
+     *
+     * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+     *
+     * ```js
+     * const a = OrderedSet([ 1, 2, 3 ])
+     * const b = OrderedSet([ 4, 5, 6 ])
+     * const c = a.zip(b)
+     * // OrderedSet [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     * ```
+     */
+    zip<U,V>(other1: Collection<any, U>, other2: Collection<any, V>): OrderedSet<[T,U,V]>;
+
+    /**
+     * Returns an OrderedSet of the same type "zipped" with the provided
+     * collections.
+     *
+     * @see IndexedIterator.zip
+     *
+     * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+     *
+     * ```js
+     * const a = OrderedSet([ 1, 2, 3 ])
+     * const b = OrderedSet([ 4, 5, 6 ])
+     * const c = a.zip(b)
+     * // OrderedSet [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     * ```
+     */
     zip(...collections: Array<Collection<any, any>>): OrderedSet<any>;
 
     /**
@@ -2073,6 +2133,32 @@
       predicate: (value: T, index: number, iter: this) => any,
       context?: any
     ): this;
+
+    /**
+     * Returns a Stack "zipped" with the provided collections.
+     *
+     * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+     *
+     * ```js
+     * const a = Stack([ 1, 2, 3 ]);
+     * const b = Stack([ 4, 5, 6 ]);
+     * const c = a.zip(b); // Stack [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     * ```
+     */
+    zip<U>(other: Collection<any, U>): Stack<[T,U]>;
+
+    /**
+     * Returns a Stack "zipped" with the provided collections.
+     *
+     * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+     *
+     * ```js
+     * const a = Stack([ 1, 2, 3 ]);
+     * const b = Stack([ 4, 5, 6 ]);
+     * const c = a.zip(b); // Stack [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     * ```
+     */
+    zip<U,V>(other: Collection<any, U>, other2: Collection<any,V>): Stack<[T,U,V]>;
 
     /**
      * Returns a Stack "zipped" with the provided collections.
@@ -2620,6 +2706,32 @@
        * const c = a.zip(b); // Seq [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
        * ```
        */
+      zip<U>(other: Collection<any, U>): Seq.Indexed<[T,U]>;
+
+      /**
+       * Returns a Seq "zipped" with the provided collections.
+       *
+       * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+       *
+       * ```js
+       * const a = Seq([ 1, 2, 3 ]);
+       * const b = Seq([ 4, 5, 6 ]);
+       * const c = a.zip(b); // Seq [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+       * ```
+       */
+      zip<U,V>(other: Collection<any, U>, other2: Collection<any, V>): Seq.Indexed<[T,U,V]>;
+
+      /**
+       * Returns a Seq "zipped" with the provided collections.
+       *
+       * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+       *
+       * ```js
+       * const a = Seq([ 1, 2, 3 ]);
+       * const b = Seq([ 4, 5, 6 ]);
+       * const c = a.zip(b); // Seq [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+       * ```
+       */
       zip(...collections: Array<Collection<any, any>>): Seq.Indexed<any>;
 
       /**
@@ -3142,6 +3254,34 @@
         removeNum: number,
         ...values: Array<T>
       ): this;
+
+      /**
+       * Returns a Collection of the same type "zipped" with the provided
+       * collections.
+       *
+       * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+       *
+       * ```js
+       * const a = List([ 1, 2, 3 ]);
+       * const b = List([ 4, 5, 6 ]);
+       * const c = a.zip(b); // List [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+       * ```
+       */
+      zip<U>(other: Collection<any, U>): Collection.Indexed<[T,U]>;
+
+      /**
+       * Returns a Collection of the same type "zipped" with the provided
+       * collections.
+       *
+       * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+       *
+       * ```js
+       * const a = List([ 1, 2, 3 ]);
+       * const b = List([ 4, 5, 6 ]);
+       * const c = a.zip(b); // List [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+       * ```
+       */
+      zip<U,V>(other: Collection<any, U>, other2: Collection<any, V>): Collection.Indexed<[T,U,V]>;
 
       /**
        * Returns a Collection of the same type "zipped" with the provided
