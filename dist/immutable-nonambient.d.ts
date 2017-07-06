@@ -116,10 +116,10 @@
    * This example converts native JS data to List and OrderedMap:
    *
    * ```js
-   * const { fromJS, Iterable } = require('immutable')
+   * const { fromJS, isIndexed } = require('immutable')
    * fromJS({ a: {b: [10, 20, 30]}, c: 40}, function (key, value, path) {
    *   console.log(key, value, path)
-   *   return Iterable.isIndexed(value) ? value.toList() : value.toOrderedMap()
+   *   return isIndexed(value) ? value.toList() : value.toOrderedMap()
    * })
    *
    * > "b", [ 10, 20, 30 ], [ "a", "b" ]
@@ -1407,7 +1407,7 @@
      * performing the deep merge at a point arrived at by following the keyPath.
      * In other words, these two lines are equivalent:
      *
-     * ```javascript
+     * ```js
      * map.updateIn(['a', 'b', 'c'], abc => abc.mergeDeep(y))
      * map.mergeDeepIn(['a', 'b', 'c'], y)
      * ```
