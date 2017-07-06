@@ -3932,7 +3932,6 @@ declare module Immutable {
      * //   1: List [ Map{ "v": 1 }, Map { "v": 1 } ],
      * //   2: List [ Map{ "v": 2 } ],
      * // }
-     * groupsOfMaps
      * ```
      */
     groupBy<G>(
