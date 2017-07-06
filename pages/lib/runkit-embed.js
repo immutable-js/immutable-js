@@ -23,7 +23,7 @@ global.runIt = function runIt(button) {
 
 function makeAssert()
 {
-    eval("global").assert = (function ()
+    global.assert = (function ()
     {
         var html = `
         <style>

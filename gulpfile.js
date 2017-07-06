@@ -102,6 +102,8 @@ function gulpJS(subDir) {
       .pipe(sourcemaps.init({
         loadMaps: true,
       }))
+      // We need "global" to remain in makeAssert() function that gets stringified
+      // in runkit-embed.js
       .pipe(uglify({ mangle: { except: ['global'] } }))
       .pipe(sourcemaps.write('./maps'))
       .pipe(gulp.dest(BUILD_DIR+subDir))
