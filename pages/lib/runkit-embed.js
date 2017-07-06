@@ -89,7 +89,7 @@ function makeAssert(I)
     function message(lhs, rhs, same, identical)
     {
         var result = compare(lhs, rhs, same, identical);
-        var comparison = result ? (identical ? "identical to" : "does equal") : (identical ? "not identical to" : "does not equal");
+        var comparison = result ? (identical ? "strict equal to" : "does equal") : (identical ? "not strict equal to" : "does not equal");
         var className = result === same ? "success" : "failure";
         var lhsString = isIterable(lhs) ? lhs + "" : JSON.stringify(lhs);
         var rhsString = isIterable(rhs) ? rhs + "" : JSON.stringify(rhs);
