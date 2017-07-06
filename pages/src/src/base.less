@@ -72,6 +72,7 @@ blockquote > :last-child {
   overflow-y: scroll;
   padding: 0.5rem 8px 0.5rem 12px;
   white-space: pre;
+  position:relative;
 }
 
 .t.blockParams {
@@ -137,4 +138,15 @@ blockquote > :last-child {
 .token.comment {
   color: #998;
   font-style: italic;
+}
+
+a.try-it
+{
+    position: absolute;
+    cursor: pointer;
+    right: 1em;
+    border: 0;
+    background: transparent;
+    border-bottom: 2px solid rgba(49, 50, 137, 0.2);
+    color: rgba(49, 50, 137, 1.0);
 }

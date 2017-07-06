@@ -41,12 +41,12 @@ npm install immutable
 
 Then require it into any module.
 
+<!-- runkit:activate -->
 ```js
 const { Map } = require('immutable')
 const map1 = Map({ a: 1, b: 2, c: 3 })
 const map2 = map1.set('b', 50)
-map1.get('b') // 2
-map2.get('b') // 50
+map1.get('b') + " vs. " + map2.get('b') // 2 vs. 50
 ```
 
 ### Browser
@@ -99,12 +99,12 @@ lib. Include either `"target": "es2015"` or `"lib": "es2015"` in your
 `tsconfig.json`, or provide `--target es2015` or `--lib es2015` to the
 `tsc` command.
 
+<!-- runkit:activate -->
 ```js
-import { Map } from "immutable";
+const { Map } = require("immutable");
 const map1 = Map({ a: 1, b: 2, c: 3 });
 const map2 = map1.set('b', 50);
-map1.get('b'); // 2
-map2.get('b'); // 50
+map1.get('b') + " vs. " + map2.get('b') // 2 vs. 50
 ```
 
 #### Using TypeScript with Immutable.js v3 and earlier:
@@ -114,7 +114,7 @@ via relative path to the type definitions at the top of your file.
 
 ```js
 ///<reference path='./node_modules/immutable/dist/immutable.d.ts'/>
-import Immutable = require('immutable');
+import Immutable from require('immutable');
 var map1: Immutable.Map<string, number>;
 map1 = Immutable.Map({a:1, b:2, c:3});
 var map2 = map1.set('b', 50);
@@ -151,13 +151,15 @@ treat Immutable.js collections as values, it's important to use the
 `Immutable.is()` function or `.equals()` method to determine value equality
 instead of the `===` operator which determines object reference identity.
 
+<!-- runkit:activate -->
 ```js
 const { Map } = require('immutable')
 const map1 = Map( {a: 1, b: 2, c: 3 })
 const map2 = map1.set('b', 2)
-assert(map1.equals(map2) === true)
+assert.equal(map1, map2) // uses map1.equals
+assert.identical(map1, map2) // uses ===
 const map3 = map1.set('b', 50)
-assert(map1.equals(map3) === false)
+assert.not_equal(map1, map3) // uses map1.equals
 ```
 
 Note: As a performance optimization Immutable.js attempts to return the existing
@@ -173,6 +175,7 @@ to it instead of copying the entire object. Because a reference is much smaller
 than the object itself, this results in memory savings and a potential boost in
 execution speed for programs which rely on copies (such as an undo-stack).
 
+<!-- runkit:activate -->
 ```js
 const { Map } = require('immutable')
 const map1 = Map({ a: 1, b: 2, c: 3 })
@@ -201,17 +204,18 @@ the collection, like `push`, `set`, `unshift` or `splice` instead return a new
 immutable collection. Methods which return new arrays like `slice` or `concat`
 instead return new immutable collections.
 
+<!-- runkit:activate -->
 ```js
 const { List } = require('immutable')
 const list1 = List([ 1, 2 ]);
 const list2 = list1.push(3, 4, 5);
 const list3 = list2.unshift(0);
 const list4 = list1.concat(list2, list3);
-assert(list1.size === 2);
-assert(list2.size === 5);
-assert(list3.size === 6);
-assert(list4.size === 13);
-assert(list4.get(0) === 1);
+assert.equal(list1.size, 2);
+assert.equal(list2.size, 5);
+assert.equal(list3.size, 6);
+assert.equal(list4.size, 13);
+assert.equal(list4.get(0), 1);
 ```
 
 Almost all of the methods on [Array][] will be found in similar form on
@@ -219,6 +223,7 @@ Almost all of the methods on [Array][] will be found in similar form on
 found on `Immutable.Set`, including collection operations like `forEach()`
 and `map()`.
 
+<!-- runkit:activate -->
 ```js
 const { Map } = require('immutable')
 const alpha = Map({ a: 1, b: 2, c: 3, d: 4 });
@@ -232,6 +237,7 @@ Designed to inter-operate with your existing JavaScript, Immutable.js
 accepts plain JavaScript Arrays and Objects anywhere a method expects an
 `Collection`.
 
+<!-- runkit:activate -->
 ```js
 const { Map } = require('immutable')
 const map1 = Map({ a: 1, b: 2, c: 3, d: 4 })
@@ -247,6 +253,7 @@ collection methods on JavaScript Objects, which otherwise have a very sparse
 native API. Because Seq evaluates lazily and does not cache intermediate
 results, these operations can be extremely efficient.
 
+<!-- runkit:activate -->
 ```js
 const { Seq } = require('immutable')
 const myObject = { a: 1, b: 2, c: 3 }
@@ -258,17 +265,16 @@ Keep in mind, when using JS objects to construct Immutable Maps, that
 JavaScript Object properties are always strings, even if written in a quote-less
 shorthand, while Immutable Maps accept keys of any type.
 
+<!-- runkit:activate -->
 ```js
 const { fromJS } = require('immutable')
 
 const obj = { 1: "one" }
 Object.keys(obj) // [ "1" ]
-obj["1"] // "one"
-obj[1]   // "one"
+assert.equal(obj["1"], obj[1])   // "one" === "one"
 
 const map = fromJS(obj)
-map.get("1") // "one"
-map.get(1)   // undefined
+assert.not_equal(map.get("1"), map.get(1)) // "one" !== undefined
 ```
 
 Property access for JavaScript Objects first converts the key to a string, but
@@ -283,12 +289,13 @@ Objects shallowly with `toArray()` and `toObject()` or deeply with `toJS()`.
 All Immutable Collections also implement `toJSON()` allowing them to be passed
 to `JSON.stringify` directly.
 
+<!-- runkit:activate -->
 ```js
 const { Map, List } = require('immutable')
 const deep = Map({ a: 1, b: 2, c: List([ 3, 4, 5 ]) })
-deep.toObject() // { a: 1, b: 2, c: List [ 3, 4, 5 ] }
-deep.toArray() // [ 1, 2, List [ 3, 4, 5 ] ]
-deep.toJS() // { a: 1, b: 2, c: [ 3, 4, 5 ] }
+console.log(deep.toObject()) // { a: 1, b: 2, c: List [ 3, 4, 5 ] }
+console.log(deep.toArray()) // [ 1, 2, List [ 3, 4, 5 ] ]
+console.log(deep.toJS()) // { a: 1, b: 2, c: [ 3, 4, 5 ] }
 JSON.stringify(deep) // '{"a":1,"b":2,"c":[3,4,5]}'
 ```
 
@@ -322,6 +329,7 @@ Nested Structures
 The collections in Immutable.js are intended to be nested, allowing for deep
 trees of data, similar to JSON.
 
+<!-- runkit:activate -->
 ```js
 const { fromJS } = require('immutable')
 const nested = fromJS({ a: { b: { c: [ 3, 4, 5 ] } } })
@@ -332,13 +340,18 @@ A few power-tools allow for reading and operating on nested data. The
 most useful are `mergeDeep`, `getIn`, `setIn`, and `updateIn`, found on `List`,
 `Map` and `OrderedMap`.
 
+<!-- runkit:activate -->
 ```js
+const { fromJS } = require('immutable')
+const nested = fromJS({ a: { b: { c: [ 3, 4, 5 ] } } })
+
 const nested2 = nested.mergeDeep({ a: { b: { d: 6 } } })
 // Map { a: Map { b: Map { c: List [ 3, 4, 5 ], d: 6 } } }
 
-nested2.getIn([ 'a', 'b', 'd' ]) // 6
+console.log(nested2.getIn([ 'a', 'b', 'd' ])) // 6
 
 const nested3 = nested2.updateIn([ 'a', 'b', 'd' ], value => value + 1)
+console.log(nested3);
 // Map { a: Map { b: Map { c: List [ 3, 4, 5 ], d: 7 } } }
 
 const nested4 = nested3.updateIn([ 'a', 'b', 'c' ], list => list.push(6))
@@ -379,6 +392,7 @@ console.log(oddSquares.get(1)); // 9
 
 Any collection can be converted to a lazy Seq with `.toSeq()`.
 
+<!-- runkit:activate -->
 ```js
 const { Map } = require('immutable')
 const seq = Map({ a: 1, b: 2, c: 3 }).toSeq()
@@ -394,6 +408,7 @@ seq.flip().map(key => key.toUpperCase()).flip().toObject();
 
 As well as expressing logic that would otherwise seem memory-limited:
 
+<!-- runkit:activate -->
 ```js
 const { Range } = require('immutable')
 Range(1, Infinity)
@@ -415,13 +430,14 @@ Equality treats Collections as Data
 Immutable.js provides equality which treats immutable data structures as pure
 data, performing a deep equality check if necessary.
 
+<!-- runkit:activate -->
 ```js
 const { Map, is } = require('immutable')
 const map1 = Map({ a: 1, b: 2, c: 3 })
 const map2 = Map({ a: 1, b: 2, c: 3 })
-assert(map1 !== map2) // two different instances
-assert(is(map1, map2)) // have equivalent values
-assert(map1.equals(map2)) // alternatively use the equals method
+assert.equal(map1 !== map2, true) // two different instances
+assert.equal(is(map1, map2), true) // have equivalent values
+assert.equal(map1.equals(map2), true) // alternatively use the equals method
 ```
 
 `Immutable.is()` uses the same measure of equality as [Object.is][]
@@ -451,14 +467,15 @@ exactly how  Immutable.js applies complex mutations itself.
 As an example, building `list2` results in the creation of 1, not 3, new
 immutable Lists.
 
+<!-- runkit:activate -->
 ```js
 const { List } = require('immutable')
 const list1 = List([ 1, 2, 3 ]);
 const list2 = list1.withMutations(function (list) {
   list.push(4).push(5).push(6);
 });
-assert(list1.size === 3);
-assert(list2.size === 6);
+assert.equal(list1.size, 3);
+assert.equal(list2.size, 6);
 ```
 
 Note: Immutable.js also provides `asMutable` and `asImmutable`, but only

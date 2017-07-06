@@ -102,7 +102,7 @@ function gulpJS(subDir) {
       .pipe(sourcemaps.init({
         loadMaps: true,
       }))
-      .pipe(uglify())
+      .pipe(uglify({ mangle: { except: ['global'] } }))
       .pipe(sourcemaps.write('./maps'))
       .pipe(gulp.dest(BUILD_DIR+subDir))
       .pipe(filter('**/*.js'))
