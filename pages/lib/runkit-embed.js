@@ -12,7 +12,7 @@ global.runIt = function runIt(button) {
     RunKit.createNotebook({
          element: container,
          nodeVersion: options.nodeVersion || '*',
-         preamble: "(" + makeAssert + ")();" + (options.preamble || ""),
+         preamble: "const assert = (" + makeAssert + ")(require(\"immutable\"));" + (options.preamble || ""),
          source: codeElement.textContent.replace(/\n(>[^\n]*\n?)+$/g, ""),
          minHeight: "52px",
          onLoad: function(notebook) {
@@ -21,11 +21,10 @@ global.runIt = function runIt(button) {
      });
 }
 
-function makeAssert()
+function makeAssert(I)
 {
-    global.assert = (function ()
-    {
-        var html = `
+    var isIterable = I.isIterable || I.Iterable.isIterable;
+    var html = `
         <style>
             *
             {
@@ -79,7 +78,6 @@ function makeAssert()
     
     function compare(lhs, rhs, same, identical)
     {
-        var { Iterable: { isIterable } } = require("immutable");
         var both = !identical && isIterable(lhs) && isIterable(rhs);
     
         if (both)
@@ -91,9 +89,8 @@ function makeAssert()
     function message(lhs, rhs, same, identical)
     {
         var result = compare(lhs, rhs, same, identical);
-        var comparison = result ? (identical ? "identical to" : "does equal") : (identical ? "identical" : "does not equal");
+        var comparison = result ? (identical ? "identical to" : "does equal") : (identical ? "not identical to" : "does not equal");
         var className = result === same ? "success" : "failure";
-        var { Iterable: { isIterable } } = require("immutable");
         var lhsString = isIterable(lhs) ? lhs + "" : JSON.stringify(lhs);
         var rhsString = isIterable(rhs) ? rhs + "" : JSON.stringify(rhs);
     
@@ -126,5 +123,4 @@ function makeAssert()
     }
     
     return { equal, not_equal, identical, not_identical };
-    })();
 }
