@@ -149,7 +149,7 @@ declare module Immutable {
    * assert.equal(obj["1"], obj[1]); // "one" === "one"
    *
    * let map = Map(obj);
-   * assert.not_equal(map.get("1"), map.get(1)); // "one" !== undefined
+   * assert.notEqual(map.get("1"), map.get(1)); // "one" !== undefined
    * ```
    *
    * Property access for JavaScript Objects first converts the key to a string,
@@ -335,7 +335,7 @@ declare module Immutable {
      * ```js
      * const a = List([ 1, 2, 3 ]);
      * const b = List([ 1, 2, 3 ]);
-     * assert.not_identical(a, b); // different instances
+     * assert.notStrictEqual(a, b); // different instances
      * const set = Set([ a ]);
      * assert.equal(set.has(b), true);
      * ```
@@ -704,10 +704,9 @@ declare module Immutable {
      * Index numbers are used as keys to determine the path to follow in
      * the List.
      *
-     * <!-- runkit:activate
-     *      { "preamble": "const { List } = require(\"immutable\");" }
-     * -->
+     * <!-- runkit:activate -->
      * ```js
+     * const { List } = require("immutable")
      * const list = List([ 0, 1, 2, List([ 3, 4 ])])
      * list.setIn([3, 0], 999);
      * // List [ 0, 1, 2, List [ 999, 4 ] ]
@@ -721,10 +720,9 @@ declare module Immutable {
      * Returns a new List having removed the value at this `keyPath`. If any
      * keys in `keyPath` do not exist, no change will occur.
      *
-     * <!-- runkit:activate
-     *      { "preamble": "const { List } = require(\"immutable\");" }
-     * -->
+     * <!-- runkit:activate -->
      * ```js
+     * const { List } = require("immutable")
      * const list = List([ 0, 1, 2, List([ 3, 4 ])])
      * list.deleteIn([3, 0]);
      * // List [ 0, 1, 2, List [ 4 ] ]
@@ -970,7 +968,7 @@ declare module Immutable {
    * assert.equal(obj["1"], obj[1]) // "one" === "one"
    *
    * let map = Map(obj)
-   * assert.not_equal(map.get("1"), map.get(1)) // "one" !== undefined
+   * assert.notEqual(map.get("1"), map.get(1)) // "one" !== undefined
    * ```
    *
    * Property access for JavaScript Objects first converts the key to a string,
@@ -1121,7 +1119,7 @@ declare module Immutable {
      * const aMap = Map({ apples: 10 })
      * const newMap = aMap.update('oranges', 0, val => val)
      * // Map { "apples": 10 }
-     * assert.identical(newMap, map);
+     * assert.strictEqual(newMap, map);
      * ```
      *
      * For code using ES2015 or later, using `notSetValue` is discourged in
@@ -1366,7 +1364,7 @@ declare module Immutable {
      * const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
      * const newMap = map.updateIn(['a', 'b', 'x'], 100, val => val)
      * // Map { "a": Map { "b": Map { "c": 10 } } }
-     * assert.identical(newMap, aMap)
+     * assert.strictEqual(newMap, aMap)
      * ```
      *
      * For code using ES2015 or later, using `notSetValue` is discourged in
@@ -3395,7 +3393,7 @@ declare module Immutable {
      * const seq = Collection.Set([ 'A', 'B', 'C' ])
      * // Seq { "A", "B", "C" }
      * seq.forEach((v, k) =>
-     *  assert(v, k)
+     *  assert.equal(v, k)
      * )
      * ```
      */
@@ -3523,7 +3521,7 @@ declare module Immutable {
      * ```js
      * const a = List([ 1, 2, 3 ]);
      * const b = List([ 1, 2, 3 ]);
-     * assert.not_identical(a, b); // different instances
+     * assert.notStrictEqual(a, b); // different instances
      * const set = Set([ a ]);
      * assert.equal(set.has(b), true);
      * ```

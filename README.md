@@ -157,9 +157,9 @@ const { Map } = require('immutable')
 const map1 = Map( {a: 1, b: 2, c: 3 })
 const map2 = map1.set('b', 2)
 assert.equal(map1, map2) // uses map1.equals
-assert.identical(map1, map2) // uses ===
+assert.strictEqual(map1, map2) // uses ===
 const map3 = map1.set('b', 50)
-assert.not_equal(map1, map3) // uses map1.equals
+assert.notEqual(map1, map3) // uses map1.equals
 ```
 
 Note: As a performance optimization Immutable.js attempts to return the existing
@@ -274,7 +274,7 @@ Object.keys(obj) // [ "1" ]
 assert.equal(obj["1"], obj[1])   // "one" === "one"
 
 const map = fromJS(obj)
-assert.not_equal(map.get("1"), map.get(1)) // "one" !== undefined
+assert.notEqual(map.get("1"), map.get(1)) // "one" !== undefined
 ```
 
 Property access for JavaScript Objects first converts the key to a string, but

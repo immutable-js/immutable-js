@@ -107,17 +107,17 @@ function makeAssert(I)
         return message(lhs, rhs, true);
     }
     
-    function not_equal(lhs, rhs)
+    function notEqual(lhs, rhs)
     {
         return message(lhs, rhs, false);
     }
     
-    function identical(lhs, rhs)
+    function strictEqual(lhs, rhs)
     {
         return message(lhs, rhs, true, true);
     }
     
-    function not_identical(lhs, rhs)
+    function notStrictEqual(lhs, rhs)
     {
         return message(lhs, rhs, false, true);
     }
