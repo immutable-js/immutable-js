@@ -1,33 +1,34 @@
 global.runIt = function runIt(button) {
-    if (!global.RunKit)
-        return;
+  if (!global.RunKit) return;
 
-    var container = document.createElement("div");
-    var codeElement = button.parentNode;
-    var parent = codeElement.parentNode;
-    
-    parent.insertBefore(container, codeElement);
-    parent.removeChild(codeElement);
-    codeElement.removeChild(button);
-    
-    const options = JSON.parse(unescape(button.dataset.options));
+  var container = document.createElement('div');
+  var codeElement = button.parentNode;
+  var parent = codeElement.parentNode;
 
-    global.RunKit.createNotebook({
-         element: container,
-         nodeVersion: options.nodeVersion || '*',
-         preamble: "const assert = (" + makeAssert + ")(require(\"immutable\"));" + (options.preamble || ""),
-         source: codeElement.textContent.replace(/\n(>[^\n]*\n?)+$/g, ""),
-         minHeight: "52px",
-         onLoad: function(notebook) {
-           notebook.evaluate()
-         }
-     });
-}
+  parent.insertBefore(container, codeElement);
+  parent.removeChild(codeElement);
+  codeElement.removeChild(button);
 
-function makeAssert(I)
-{
-    var isIterable = I.isIterable || I.Iterable.isIterable;
-    var html = `
+  const options = JSON.parse(unescape(button.dataset.options));
+
+  global.RunKit.createNotebook({
+    element: container,
+    nodeVersion: options.nodeVersion || '*',
+    preamble: 'const assert = (' +
+      makeAssert +
+      ')(require("immutable"));' +
+      (options.preamble || ''),
+    source: codeElement.textContent.replace(/\n(>[^\n]*\n?)+$/g, ''),
+    minHeight: '52px',
+    onLoad: function(notebook) {
+      notebook.evaluate();
+    }
+  });
+};
+
+function makeAssert(I) {
+  var isIterable = I.isIterable || I.Iterable.isIterable;
+  var html = `
         <style>
             *
             {
@@ -77,53 +78,48 @@ function makeAssert(I)
             }
             
             
-        </style>`
-    
-    function compare(lhs, rhs, same, identical)
-    {
-        var both = !identical && isIterable(lhs) && isIterable(rhs);
-    
-        if (both)
-            return lhs.equals(rhs);
-    
-        return lhs === rhs;
-    }
-    
-    function message(lhs, rhs, same, identical)
-    {
-        var result = compare(lhs, rhs, same, identical);
-        var comparison = result ? (identical ? "strict equal to" : "does equal") : (identical ? "not strict equal to" : "does not equal");
-        var className = result === same ? "success" : "failure";
-        var lhsString = isIterable(lhs) ? lhs + "" : JSON.stringify(lhs);
-        var rhsString = isIterable(rhs) ? rhs + "" : JSON.stringify(rhs);
-    
-        return html += `
+        </style>`;
+
+  function compare(lhs, rhs, same, identical) {
+    var both = !identical && isIterable(lhs) && isIterable(rhs);
+
+    if (both) return lhs.equals(rhs);
+
+    return lhs === rhs;
+  }
+
+  function message(lhs, rhs, same, identical) {
+    var result = compare(lhs, rhs, same, identical);
+    var comparison = result
+      ? identical ? 'strict equal to' : 'does equal'
+      : identical ? 'not strict equal to' : 'does not equal';
+    var className = result === same ? 'success' : 'failure';
+    var lhsString = isIterable(lhs) ? lhs + '' : JSON.stringify(lhs);
+    var rhsString = isIterable(rhs) ? rhs + '' : JSON.stringify(rhs);
+
+    return (html += `
             <span class = "${className}">
                 <code>${lhsString}</code>
                 ${comparison}
                 <code>${rhsString}</code>    
-            </span><br/>`;
-    }
-    
-    function equal(lhs, rhs)
-    {
-        return message(lhs, rhs, true);
-    }
-    
-    function notEqual(lhs, rhs)
-    {
-        return message(lhs, rhs, false);
-    }
-    
-    function strictEqual(lhs, rhs)
-    {
-        return message(lhs, rhs, true, true);
-    }
-    
-    function notStrictEqual(lhs, rhs)
-    {
-        return message(lhs, rhs, false, true);
-    }
-    
-    return { equal, notEqual, strictEqual, notStrictEqual };
+            </span><br/>`);
+  }
+
+  function equal(lhs, rhs) {
+    return message(lhs, rhs, true);
+  }
+
+  function notEqual(lhs, rhs) {
+    return message(lhs, rhs, false);
+  }
+
+  function strictEqual(lhs, rhs) {
+    return message(lhs, rhs, true, true);
+  }
+
+  function notStrictEqual(lhs, rhs) {
+    return message(lhs, rhs, false, true);
+  }
+
+  return { equal, notEqual, strictEqual, notStrictEqual };
 }

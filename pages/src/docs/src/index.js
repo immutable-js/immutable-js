@@ -7,7 +7,7 @@ var defs = require('../../../lib/getTypeDefs');
 
 var { Route, DefaultRoute, RouteHandler } = Router;
 
-require("../../../lib/runkit-embed");
+require('../../../lib/runkit-embed');
 
 var Documentation = React.createClass({
   render() {

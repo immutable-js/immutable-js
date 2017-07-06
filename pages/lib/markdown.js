@@ -52,25 +52,21 @@ marked.setOptions({
 var renderer = new marked.Renderer();
 
 const runkitRegExp = /^<!--\s*runkit:activate((.|\n)*)-->(.|\n)*$/;
-const runkitContext = { options: "{}", activated: false };
+const runkitContext = { options: '{}', activated: false };
 
-renderer.html = function (text) {
+renderer.html = function(text) {
   const result = runkitRegExp.exec(text);
 
-  if (!result)
-    return text;
+  if (!result) return text;
 
   runkitContext.activated = true;
-  try
-  {
-    runkitContext.options = result[1] ? JSON.parse(result[1]) : { };
-  }
-  catch (e)
-  {
+  try {
+    runkitContext.options = result[1] ? JSON.parse(result[1]) : {};
+  } catch (e) {
     runkitContext.options = {};
   }
   return text;
-}
+};
 
 renderer.code = function(code, lang, escaped) {
   if (this.options.highlight) {
@@ -81,16 +77,18 @@ renderer.code = function(code, lang, escaped) {
     }
   }
 
-  const runItButton = runkitContext.activated ?
-    '<a class = "try-it" data-options="' +
+  const runItButton = runkitContext.activated
+    ? '<a class = "try-it" data-options="' +
         escape(JSON.stringify(runkitContext.options)) +
-        '" onClick = "runIt(this)">run it</a>' : '';
+        '" onClick = "runIt(this)">run it</a>'
+    : '';
 
   runkitContext.activated = false;
-  runkitContext.options = "{}";
+  runkitContext.options = '{}';
 
   return '<code class="codeBlock">' +
-    (escaped ? code : escapeCode(code, true)) + runItButton +
+    (escaped ? code : escapeCode(code, true)) +
+    runItButton +
     '</code>';
 };
 
