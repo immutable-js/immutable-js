@@ -1,4 +1,7 @@
 global.runIt = function runIt(button) {
+    if (!global.RunKit)
+        return;
+
     var container = document.createElement("div");
     var codeElement = button.parentNode;
     var parent = codeElement.parentNode;
@@ -7,9 +10,9 @@ global.runIt = function runIt(button) {
     parent.removeChild(codeElement);
     codeElement.removeChild(button);
     
-    const options = JSON.parse(unescape(button.dataset["options"]));
+    const options = JSON.parse(unescape(button.dataset.options));
 
-    RunKit.createNotebook({
+    global.RunKit.createNotebook({
          element: container,
          nodeVersion: options.nodeVersion || '*',
          preamble: "const assert = (" + makeAssert + ")(require(\"immutable\"));" + (options.preamble || ""),

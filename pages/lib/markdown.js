@@ -51,7 +51,7 @@ marked.setOptions({
 
 var renderer = new marked.Renderer();
 
-const runkitRegExp = /^<!--\s*runkit\:activate((.|\n)*)-->(.|\n)*$/;
+const runkitRegExp = /^<!--\s*runkit:activate((.|\n)*)-->(.|\n)*$/;
 const runkitContext = { options: "{}", activated: false };
 
 renderer.html = function (text) {
