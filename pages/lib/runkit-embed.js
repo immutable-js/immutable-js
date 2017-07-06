@@ -122,5 +122,5 @@ function makeAssert(I)
         return message(lhs, rhs, false, true);
     }
     
-    return { equal, not_equal, identical, not_identical };
+    return { equal, notEqual, strictEqual, notStrictEqual };
 }
