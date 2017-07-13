@@ -389,7 +389,7 @@ converting to a different concrete type (such as to a JS object):
 
 ```js
 seq.flip().map(key => key.toUpperCase()).flip().toObject();
-// { A: 1, B: 1, C: 1 }
+// { A: 1, B: 2, C: 3 }
 ```
 
 As well as expressing logic that would otherwise seem memory-limited:
