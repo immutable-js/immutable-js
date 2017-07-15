@@ -51,5 +51,10 @@ function defaultConverter(k, v) {
 
 function isPlainObj(value) {
   return value &&
-    (value.constructor === Object || value.constructor === undefined);
+    (checkDeepPrototype(value, Object) || value.constructor === undefined);
+}
+
+function checkDeepPrototype(objectToTest, typeToCheck) {
+  const name = Object.prototype.toString.call(typeToCheck.prototype);
+  return Object.prototype.toString.call(objectToTest).indexOf(name) > -1;
 }

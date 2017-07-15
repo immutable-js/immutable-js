@@ -806,7 +806,12 @@ function defaultConverter(k, v) {
 
 function isPlainObj(value) {
   return value &&
-    (value.constructor === Object || value.constructor === undefined);
+    (checkDeepPrototype(value, Object) || value.constructor === undefined);
+}
+
+function checkDeepPrototype(objectToTest, typeToCheck) {
+  var name = Object.prototype.toString.call(typeToCheck.prototype);
+  return Object.prototype.toString.call(objectToTest).indexOf(name) > -1;
 }
 
 var imul = typeof Math.imul === 'function' &&
