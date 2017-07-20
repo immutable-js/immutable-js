@@ -65,6 +65,16 @@ describe('Record', () => {
     expect(t4.equals(new MyType())).toBe(true);
   });
 
+  it('allows deletion of values deep within a tree', () => {
+    const AType = Record({ a: 1 });
+    const BType = Record({ b: new AType({ a: 2 }) });
+    const t1 = new BType();
+    const t2 = t1.deleteIn(['b', 'a']);
+
+    expect(t1.get('b').get('a')).toBe(2);
+    expect(t2.get('b').get('a')).toBe(1);
+  });
+
   it('is a value type and equals other similar Records', () => {
     let MyType = Record({a: 1, b: 2, c: 3});
     let t1 = MyType({ a: 10 });
@@ -129,13 +139,14 @@ describe('Record', () => {
     expect(t4).not.toBe(t2);
   });
 
-  it('allows for property access', () => {
+  it('allows for readonly property access', () => {
     let MyType = Record({a: 1, b: 'foo'});
     let t1 = new MyType();
     let a: number = t1.a;
     let b: string = t1.b;
     expect(a).toEqual(1);
     expect(b).toEqual('foo');
+    expect(() => (t1 as any).a = 2).toThrow("Cannot set on an immutable record.");
   });
 
   it('allows for class extension', () => {

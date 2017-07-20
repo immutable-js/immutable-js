@@ -2239,7 +2239,7 @@ declare module Immutable {
 
       // Reading values
 
-      has(key: string): boolean;
+      has(key: string): key is keyof T;
       get<K extends keyof T>(key: K): T[K];
 
       // Reading deep values

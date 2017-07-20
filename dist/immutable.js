@@ -5323,6 +5323,7 @@ Record.getDescriptiveName = recordName;
 var RecordPrototype = Record.prototype;
 RecordPrototype[IS_RECORD_SENTINEL] = true;
 RecordPrototype[DELETE] = RecordPrototype.remove;
+RecordPrototype.deleteIn = (RecordPrototype.removeIn = MapPrototype.removeIn);
 RecordPrototype.getIn = CollectionPrototype.getIn;
 RecordPrototype.hasIn = CollectionPrototype.hasIn;
 RecordPrototype.merge = MapPrototype.merge;
