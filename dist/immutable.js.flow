@@ -1151,35 +1151,35 @@ declare class RecordInstance<T: Object> {
   size: number;
 
   has(key: string): boolean;
-  get<K: $Keys<T>>(key: K): /*T[K]*/any;
+  get<K: $Keys<T>>(key: K): $ElementType<T, K>;
 
   equals(other: any): boolean;
   hashCode(): number;
 
-  set<K: $Keys<T>>(key: K, value: /*T[K]*/any): this;
-  update<K: $Keys<T>>(key: K, updater: (value: /*T[K]*/any) => /*T[K]*/any): this;
-  merge(...collections: Array<$Shape<T> | Iterable<[string, any]>>): this;
-  mergeDeep(...collections: Array<$Shape<T> | Iterable<[string, any]>>): this;
+  set<K: $Keys<T>>(key: K, value: $ElementType<T, K>): this & T;
+  update<K: $Keys<T>>(key: K, updater: (value: $ElementType<T, K>) => $ElementType<T, K>): this & T;
+  merge(...collections: Array<$Shape<T> | Iterable<[string, any]>>): this & T;
+  mergeDeep(...collections: Array<$Shape<T> | Iterable<[string, any]>>): this & T;
 
   mergeWith(
     merger: (oldVal: any, newVal: any, key: $Keys<T>) => any,
     ...collections: Array<$Shape<T> | Iterable<[string, any]>>
-  ): this;
+  ): this & T;
   mergeDeepWith(
     merger: (oldVal: any, newVal: any, key: any) => any,
     ...collections: Array<$Shape<T> | Iterable<[string, any]>>
-  ): this;
+  ): this & T;
 
-  delete<K: $Keys<T>>(key: K): this;
-  remove<K: $Keys<T>>(key: K): this;
-  clear(): this;
+  delete<K: $Keys<T>>(key: K): this & T;
+  remove<K: $Keys<T>>(key: K): this & T;
+  clear(): this & T;
 
-  setIn(keyPath: Iterable<any>, value: any): this;
-  updateIn(keyPath: Iterable<any>, updater: (value: any) => any): this;
-  mergeIn(keyPath: Iterable<any>, ...collections: Array<any>): this;
-  mergeDeepIn(keyPath: Iterable<any>, ...collections: Array<any>): this;
-  deleteIn(keyPath: Iterable<any>): this;
-  removeIn(keyPath: Iterable<any>): this;
+  setIn(keyPath: Iterable<any>, value: any): this & T;
+  updateIn(keyPath: Iterable<any>, updater: (value: any) => any): this & T;
+  mergeIn(keyPath: Iterable<any>, ...collections: Array<any>): this & T;
+  mergeDeepIn(keyPath: Iterable<any>, ...collections: Array<any>): this & T;
+  deleteIn(keyPath: Iterable<any>): this & T;
+  removeIn(keyPath: Iterable<any>): this & T;
 
   toSeq(): KeyedSeq<$Keys<T>, any>;
 
@@ -1187,9 +1187,9 @@ declare class RecordInstance<T: Object> {
   toJSON(): T;
   toObject(): T;
 
-  withMutations(mutator: (mutable: this) => mixed): this;
-  asMutable(): this;
-  asImmutable(): this;
+  withMutations(mutator: (mutable: this) => mixed): this & T;
+  asMutable(): this & T;
+  asImmutable(): this & T;
 
   @@iterator(): Iterator<[$Keys<T>, any]>;
 }
@@ -1268,6 +1268,7 @@ export type {
   SetCollection,
   KeyedSeq,
   IndexedSeq,
+  RecordInstance,
   SetSeq,
   ValueObject,
 }
