@@ -15,7 +15,6 @@
     "url": "https://github.com/facebook/immutable-js/issues"
   },
   "main": "dist/immutable.js",
-  "jsnext:main": "dist/immutable.es.js",
   "module": "dist/immutable.es.js",
   "typings": "dist/immutable-nonambient.d.ts",
   "typescript": {
