@@ -1420,10 +1420,10 @@ declare module Immutable {
      *
      * Similar to `data.map(...).flatten(true)`.
      */
-    flatMap<KM, VM>(
-      mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
+    flatMap<M>(
+      mapper: (value: V, key: K, iter: this) => Iterable<M>,
       context?: any
-    ): Map<KM, VM>;
+    ): Map<any, any>;
 
     /**
      * Returns a new Map with only the entries for which the `predicate`
@@ -1533,10 +1533,10 @@ declare module Immutable {
      *
      * Similar to `data.map(...).flatten(true)`.
      */
-    flatMap<KM, VM>(
-      mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
+    flatMap<M>(
+      mapper: (value: V, key: K, iter: this) => Iterable<M>,
       context?: any
-    ): OrderedMap<KM, VM>;
+    ): OrderedMap<any, any>;
 
     /**
      * Returns a new OrderedMap with only the entries for which the `predicate`
@@ -2502,10 +2502,10 @@ declare module Immutable {
        *
        * Similar to `seq.map(...).flatten(true)`.
        */
-      flatMap<KM, VM>(
-        mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
+      flatMap<M>(
+        mapper: (value: V, key: K, iter: this) => Iterable<M>,
         context?: any
-      ): Seq.Keyed<KM, VM>;
+      ): Seq.Keyed<any, any>;
 
       /**
        * Returns a new Seq with only the entries for which the `predicate`
@@ -3004,10 +3004,10 @@ declare module Immutable {
        *
        * Similar to `collection.map(...).flatten(true)`.
        */
-      flatMap<KM, VM>(
-        mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
+      flatMap<M>(
+        mapper: (value: V, key: K, iter: this) => Iterable<M>,
         context?: any
-      ): Collection.Keyed<KM, VM>;
+      ): Collection.Keyed<any, any>;
 
       /**
        * Returns a new Collection with only the values for which the `predicate`
