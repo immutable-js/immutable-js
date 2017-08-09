@@ -1825,7 +1825,7 @@ declare module Immutable {
      * value at every step.
      */
     map<M>(
-      mapper: (value: T, key: T, iter: this) => M,
+      mapper: (value: T, key: never, iter: this) => M,
       context?: any
     ): OrderedSet<M>;
 
@@ -1835,7 +1835,7 @@ declare module Immutable {
      * Similar to `set.map(...).flatten(true)`.
      */
     flatMap<M>(
-      mapper: (value: T, key: T, iter: this) => Iterable<M>,
+      mapper: (value: T, key: never, iter: this) => Iterable<M>,
       context?: any
     ): OrderedSet<M>;
 
@@ -1847,11 +1847,11 @@ declare module Immutable {
      * not filtering out any values.
      */
     filter<F extends T>(
-      predicate: (value: T, key: T, iter: this) => value is F,
+      predicate: (value: T, key: never, iter: this) => value is F,
       context?: any
     ): OrderedSet<F>;
     filter(
-      predicate: (value: T, key: T, iter: this) => any,
+      predicate: (value: T, key: never, iter: this) => any,
       context?: any
     ): this;
 
