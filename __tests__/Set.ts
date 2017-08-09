@@ -263,7 +263,6 @@ describe('Set', () => {
       let symbolSet = Set([ a, b, c, a, b, c, a, b, c, a, b, c ]);
       expect(symbolSet.size).toBe(3);
       expect(symbolSet.contains(b)).toBe(true);
-      expect(symbolSet.get(c)).toEqual(c);
     });
 
     it('operates on a large number of symbols, maintaining obj uniqueness', () => {
@@ -277,7 +276,6 @@ describe('Set', () => {
       let symbolSet = Set(manySymbols);
       expect(symbolSet.size).toBe(12);
       expect(symbolSet.contains(manySymbols[10])).toBe(true);
-      expect(symbolSet.get(manySymbols[10])).toEqual(manySymbols[10]);
     });
 
   });

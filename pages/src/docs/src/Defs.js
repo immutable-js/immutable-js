@@ -80,6 +80,8 @@ var TypeDef = React.createClass({
     var type = this.props.type;
     var prefix = this.props.prefix;
     switch (type.k) {
+      case TypeKind.Never:
+        return this.wrap('primitive', 'never');
       case TypeKind.Any:
         return this.wrap('primitive', 'any');
       case TypeKind.This:
@@ -295,6 +297,8 @@ function typeLength(info, type) {
     throw new Error('Expected type');
   }
   switch (type.k) {
+    case TypeKind.Never:
+      return 5;
     case TypeKind.Any:
       return 3;
     case TypeKind.This:

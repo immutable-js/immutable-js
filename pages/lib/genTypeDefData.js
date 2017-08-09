@@ -262,6 +262,10 @@ function DocVisitor(source) {
 
   function parseType(node) {
     switch (node.kind) {
+      case ts.SyntaxKind.NeverKeyword:
+        return {
+          k: TypeKind.NeverKeyword
+        };
       case ts.SyntaxKind.AnyKeyword:
         return {
           k: TypeKind.Any
