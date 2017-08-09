@@ -3599,7 +3599,7 @@ declare module Immutable {
      * Converts this Collection to a Seq of the same kind (indexed,
      * keyed, or set).
      */
-    toSeq(): Seq<K, V>;
+    toSeq(): any;
 
     /**
      * Returns a Seq.Keyed from this Collection where indices are treated as keys.
