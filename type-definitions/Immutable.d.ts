@@ -2054,7 +2054,7 @@ declare module Immutable {
      * Similar to `stack.map(...).flatten(true)`.
      */
     flatMap<M>(
-      mapper: (value: T, key: number, iter: this) => M,
+      mapper: (value: T, key: number, iter: this) => Iterable<M>,
       context?: any
     ): Stack<M>;
 
