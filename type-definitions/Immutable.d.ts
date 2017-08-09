@@ -1730,7 +1730,7 @@ declare module Immutable {
      * value at every step.
      */
     map<M>(
-      mapper: (value: T, key: T, iter: this) => M,
+      mapper: (value: T, key: never, iter: this) => M,
       context?: any
     ): Set<M>;
 
@@ -1740,7 +1740,7 @@ declare module Immutable {
      * Similar to `set.map(...).flatten(true)`.
      */
     flatMap<M>(
-      mapper: (value: T, key: T, iter: this) => Iterable<M>,
+      mapper: (value: T, key: never, iter: this) => Iterable<M>,
       context?: any
     ): Set<M>;
 
@@ -1752,11 +1752,11 @@ declare module Immutable {
      * not filtering out any values.
      */
     filter<F extends T>(
-      predicate: (value: T, key: T, iter: this) => value is F,
+      predicate: (value: T, key: never, iter: this) => value is F,
       context?: any
     ): Set<F>;
     filter(
-      predicate: (value: T, key: T, iter: this) => any,
+      predicate: (value: T, key: never, iter: this) => any,
       context?: any
     ): this;
   }
@@ -2670,7 +2670,7 @@ declare module Immutable {
     export function Set<T>(): Seq.Set<T>;
     export function Set<T>(collection: Iterable<T>): Seq.Set<T>;
 
-    export interface Set<T> extends Seq<T, T>, Collection.Set<T> {
+    export interface Set<T> extends Seq<never, T>, Collection.Set<T> {
       /**
        * Deeply converts this Set Seq to equivalent native JavaScript Array.
        */
@@ -2707,7 +2707,7 @@ declare module Immutable {
        * same value at every step.
        */
       map<M>(
-        mapper: (value: T, key: T, iter: this) => M,
+        mapper: (value: T, key: never, iter: this) => M,
         context?: any
       ): Seq.Set<M>;
 
@@ -2717,7 +2717,7 @@ declare module Immutable {
        * Similar to `seq.map(...).flatten(true)`.
        */
       flatMap<M>(
-        mapper: (value: T, key: T, iter: this) => Iterable<M>,
+        mapper: (value: T, key: never, iter: this) => Iterable<M>,
         context?: any
       ): Seq.Set<M>;
 
@@ -2729,11 +2729,11 @@ declare module Immutable {
        * not filtering out any values.
        */
       filter<F extends T>(
-        predicate: (value: T, key: T, iter: this) => value is F,
+        predicate: (value: T, key: never, iter: this) => value is F,
         context?: any
       ): Seq.Set<F>;
       filter(
-        predicate: (value: T, key: T, iter: this) => any,
+        predicate: (value: T, key: never, iter: this) => any,
         context?: any
       ): this;
     }
@@ -3294,7 +3294,7 @@ declare module Immutable {
      */
     export function Set<T>(collection: Iterable<T>): Collection.Set<T>;
 
-    export interface Set<T> extends Collection<T, T> {
+    export interface Set<T> extends Collection<never, T> {
       /**
        * Deeply converts this Set collection to equivalent native JavaScript Array.
        */
@@ -3331,7 +3331,7 @@ declare module Immutable {
        * same value at every step.
        */
       map<M>(
-        mapper: (value: T, key: T, iter: this) => M,
+        mapper: (value: T, key: never, iter: this) => M,
         context?: any
       ): Collection.Set<M>;
 
@@ -3341,7 +3341,7 @@ declare module Immutable {
        * Similar to `collection.map(...).flatten(true)`.
        */
       flatMap<M>(
-        mapper: (value: T, key: T, iter: this) => Iterable<M>,
+        mapper: (value: T, key: never, iter: this) => Iterable<M>,
         context?: any
       ): Collection.Set<M>;
 
@@ -3353,11 +3353,11 @@ declare module Immutable {
        * not filtering out any values.
        */
       filter<F extends T>(
-        predicate: (value: T, key: T, iter: this) => value is F,
+        predicate: (value: T, key: never, iter: this) => value is F,
         context?: any
       ): Collection.Set<F>;
       filter(
-        predicate: (value: T, key: T, iter: this) => any,
+        predicate: (value: T, key: never, iter: this) => any,
         context?: any
       ): this;
 
