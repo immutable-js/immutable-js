@@ -6,9 +6,9 @@ describe('OrderedSet', () => {
 
   it('provides initial values in a mixed order', () => {
     let s = OrderedSet.of('C', 'B', 'A');
-    expect(s.has('A')).toBe(true);
-    expect(s.has('B')).toBe(true);
-    expect(s.has('C')).toBe(true);
+    expect(s.contains('A')).toBe(true);
+    expect(s.contains('B')).toBe(true);
+    expect(s.contains('C')).toBe(true);
     expect(s.size).toBe(3);
     expect(s.toArray()).toEqual(['C', 'B', 'A']);
   });
@@ -35,8 +35,8 @@ describe('OrderedSet', () => {
   it('removes correctly', () => {
     let s = OrderedSet([ 'A', 'Z' ]).remove('A');
     expect(s.size).toBe(1);
-    expect(s.has('A')).toBe(false);
-    expect(s.has('Z')).toBe(true);
+    expect(s.contains('A')).toBe(false);
+    expect(s.contains('Z')).toBe(true);
   });
 
   it('respects order for equality', () => {
