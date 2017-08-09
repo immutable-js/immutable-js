@@ -1420,10 +1420,10 @@
      *
      * Similar to `data.map(...).flatten(true)`.
      */
-    flatMap<KM, VM>(
-      mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
+    flatMap<M>(
+      mapper: (value: V, key: K, iter: this) => Iterable<M>,
       context?: any
-    ): Map<KM, VM>;
+    ): Map<any, any>;
 
     /**
      * Returns a new Map with only the entries for which the `predicate`
@@ -1533,10 +1533,10 @@
      *
      * Similar to `data.map(...).flatten(true)`.
      */
-    flatMap<KM, VM>(
-      mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
+    flatMap<M>(
+      mapper: (value: V, key: K, iter: this) => Iterable<M>,
       context?: any
-    ): OrderedMap<KM, VM>;
+    ): OrderedMap<any, any>;
 
     /**
      * Returns a new OrderedMap with only the entries for which the `predicate`
@@ -1730,7 +1730,7 @@
      * value at every step.
      */
     map<M>(
-      mapper: (value: T, key: T, iter: this) => M,
+      mapper: (value: T, key: number, iter: this) => M,
       context?: any
     ): Set<M>;
 
@@ -1740,7 +1740,7 @@
      * Similar to `set.map(...).flatten(true)`.
      */
     flatMap<M>(
-      mapper: (value: T, key: T, iter: this) => Iterable<M>,
+      mapper: (value: T, key: number, iter: this) => Iterable<M>,
       context?: any
     ): Set<M>;
 
@@ -1752,11 +1752,11 @@
      * not filtering out any values.
      */
     filter<F extends T>(
-      predicate: (value: T, key: T, iter: this) => value is F,
+      predicate: (value: T, key: number, iter: this) => value is F,
       context?: any
     ): Set<F>;
     filter(
-      predicate: (value: T, key: T, iter: this) => any,
+      predicate: (value: T, key: number, iter: this) => any,
       context?: any
     ): this;
   }
@@ -1825,7 +1825,7 @@
      * value at every step.
      */
     map<M>(
-      mapper: (value: T, key: T, iter: this) => M,
+      mapper: (value: T, key: number, iter: this) => M,
       context?: any
     ): OrderedSet<M>;
 
@@ -1835,7 +1835,7 @@
      * Similar to `set.map(...).flatten(true)`.
      */
     flatMap<M>(
-      mapper: (value: T, key: T, iter: this) => Iterable<M>,
+      mapper: (value: T, key: number, iter: this) => Iterable<M>,
       context?: any
     ): OrderedSet<M>;
 
@@ -1847,11 +1847,11 @@
      * not filtering out any values.
      */
     filter<F extends T>(
-      predicate: (value: T, key: T, iter: this) => value is F,
+      predicate: (value: T, key: number, iter: this) => value is F,
       context?: any
     ): OrderedSet<F>;
     filter(
-      predicate: (value: T, key: T, iter: this) => any,
+      predicate: (value: T, key: number, iter: this) => any,
       context?: any
     ): this;
 
@@ -2054,7 +2054,7 @@
      * Similar to `stack.map(...).flatten(true)`.
      */
     flatMap<M>(
-      mapper: (value: T, key: number, iter: this) => M,
+      mapper: (value: T, key: number, iter: this) => Iterable<M>,
       context?: any
     ): Stack<M>;
 
@@ -2502,10 +2502,10 @@
        *
        * Similar to `seq.map(...).flatten(true)`.
        */
-      flatMap<KM, VM>(
-        mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
+      flatMap<M>(
+        mapper: (value: V, key: K, iter: this) => Iterable<M>,
         context?: any
-      ): Seq.Keyed<KM, VM>;
+      ): Seq.Keyed<any, any>;
 
       /**
        * Returns a new Seq with only the entries for which the `predicate`
@@ -2670,7 +2670,7 @@
     export function Set<T>(): Seq.Set<T>;
     export function Set<T>(collection: Iterable<T>): Seq.Set<T>;
 
-    export interface Set<T> extends Seq<T, T>, Collection.Set<T> {
+    export interface Set<T> extends Seq<number, T>, Collection.Set<T> {
       /**
        * Deeply converts this Set Seq to equivalent native JavaScript Array.
        */
@@ -2707,7 +2707,7 @@
        * same value at every step.
        */
       map<M>(
-        mapper: (value: T, key: T, iter: this) => M,
+        mapper: (value: T, key: number, iter: this) => M,
         context?: any
       ): Seq.Set<M>;
 
@@ -2717,7 +2717,7 @@
        * Similar to `seq.map(...).flatten(true)`.
        */
       flatMap<M>(
-        mapper: (value: T, key: T, iter: this) => Iterable<M>,
+        mapper: (value: T, key: number, iter: this) => Iterable<M>,
         context?: any
       ): Seq.Set<M>;
 
@@ -2729,11 +2729,11 @@
        * not filtering out any values.
        */
       filter<F extends T>(
-        predicate: (value: T, key: T, iter: this) => value is F,
+        predicate: (value: T, key: number, iter: this) => value is F,
         context?: any
       ): Seq.Set<F>;
       filter(
-        predicate: (value: T, key: T, iter: this) => any,
+        predicate: (value: T, key: number, iter: this) => any,
         context?: any
       ): this;
     }
@@ -3004,10 +3004,10 @@
        *
        * Similar to `collection.map(...).flatten(true)`.
        */
-      flatMap<KM, VM>(
-        mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
+      flatMap<M>(
+        mapper: (value: V, key: K, iter: this) => Iterable<M>,
         context?: any
-      ): Collection.Keyed<KM, VM>;
+      ): Collection.Keyed<any, any>;
 
       /**
        * Returns a new Collection with only the values for which the `predicate`
@@ -3294,7 +3294,7 @@
      */
     export function Set<T>(collection: Iterable<T>): Collection.Set<T>;
 
-    export interface Set<T> extends Collection<T, T> {
+    export interface Set<T> extends Collection<number, T> {
       /**
        * Deeply converts this Set collection to equivalent native JavaScript Array.
        */
@@ -3331,7 +3331,7 @@
        * same value at every step.
        */
       map<M>(
-        mapper: (value: T, key: T, iter: this) => M,
+        mapper: (value: T, key: number, iter: this) => M,
         context?: any
       ): Collection.Set<M>;
 
@@ -3341,7 +3341,7 @@
        * Similar to `collection.map(...).flatten(true)`.
        */
       flatMap<M>(
-        mapper: (value: T, key: T, iter: this) => Iterable<M>,
+        mapper: (value: T, key: number, iter: this) => Iterable<M>,
         context?: any
       ): Collection.Set<M>;
 
@@ -3353,11 +3353,11 @@
        * not filtering out any values.
        */
       filter<F extends T>(
-        predicate: (value: T, key: T, iter: this) => value is F,
+        predicate: (value: T, key: number, iter: this) => value is F,
         context?: any
       ): Collection.Set<F>;
       filter(
-        predicate: (value: T, key: T, iter: this) => any,
+        predicate: (value: T, key: number, iter: this) => any,
         context?: any
       ): this;
 
@@ -3599,7 +3599,7 @@
      * Converts this Collection to a Seq of the same kind (indexed,
      * keyed, or set).
      */
-    toSeq(): Seq<K, V>;
+    toSeq(): any;
 
     /**
      * Returns a Seq.Keyed from this Collection where indices are treated as keys.
