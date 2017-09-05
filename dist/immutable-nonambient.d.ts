@@ -3599,7 +3599,7 @@
      * Converts this Collection to a Seq of the same kind (indexed,
      * keyed, or set).
      */
-    toSeq(): any;
+    toSeq(): Seq<K, V>;
 
     /**
      * Returns a Seq.Keyed from this Collection where indices are treated as keys.
