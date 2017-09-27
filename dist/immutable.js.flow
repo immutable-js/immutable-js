@@ -380,8 +380,6 @@ declare class Seq<K, +V> extends _Collection<K, V> {
   static <T>(iter?: Iterable<T>): IndexedSeq<T>;
   static <K, V>(iter: { [key: K]: V }): KeyedSeq<K, V>;
 
-  static of<T>(...values: T[]): IndexedSeq<T>;
-
   static isSeq: typeof isSeq;
 
   size: number | void;
