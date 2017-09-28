@@ -1149,13 +1149,13 @@ declare class RecordInstance<T: Object> {
   size: number;
 
   has(key: string): boolean;
-  get<K: $Keys<T>>(key: K): /*T[K]*/any;
+  get<K: $Keys<T>>(key: K): $ElementType<T, K>;
 
   equals(other: any): boolean;
   hashCode(): number;
 
-  set<K: $Keys<T>>(key: K, value: /*T[K]*/any): this;
-  update<K: $Keys<T>>(key: K, updater: (value: /*T[K]*/any) => /*T[K]*/any): this;
+  set<K: $Keys<T>>(key: K, value: $ElementType<T, K>): this;
+  update<K: $Keys<T>>(key: K, updater: (value: $ElementType<T, K>) => $ElementType<T, K>): this;
   merge(...collections: Array<$Shape<T> | Iterable<[string, any]>>): this;
   mergeDeep(...collections: Array<$Shape<T> | Iterable<[string, any]>>): this;
 
