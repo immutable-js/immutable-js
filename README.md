@@ -301,12 +301,12 @@ JavaScript in [ES2015][], the latest standard version of JavaScript, including
 by the native [Map][] and [Set][] collections added to ES2015.
 
 All examples in the Documentation are presented in ES2015. To run in all
-browsers, they need to be translated to ES3.
+browsers, they need to be translated to ES5.
 
 ```js
 // ES2015
 const mapped = foo.map(x => x * x);
-// ES3
+// ES5
 var mapped = foo.map(function (x) { return x * x; });
 ```
 
