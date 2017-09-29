@@ -256,6 +256,13 @@ MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeIn = MapPrototype.deleteIn;
 MapPrototype.removeAll = MapPrototype.deleteAll;
+MapPrototype['@@transducer/init'] = MapPrototype.asMutable;
+MapPrototype['@@transducer/step'] = function(result, arr) {
+  return result.set(arr[0], arr[1]);
+};
+MapPrototype['@@transducer/result'] = function(obj) {
+  return obj.asImmutable();
+};
 
 // #pragma Trie Nodes
 
