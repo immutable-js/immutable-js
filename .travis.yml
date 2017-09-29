@@ -18,10 +18,15 @@ addons:
       - g++-4.9
 
 deploy:
-- provider: script
-  skip_cleanup: true
-  script: npm run deploy
-  on:
-    tags: false
-    branch: master
-    repo: facebook/immutable-js
+  - provider: script
+    script: npm run gitpublish
+    skip_cleanup: true
+    on:
+      branch: master
+      repo: facebook/immutable-js
+  - provider: script
+    skip_cleanup: true
+    script: npm run deploy
+    on:
+      branch: master
+      repo: facebook/immutable-js

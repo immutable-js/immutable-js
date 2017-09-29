@@ -192,6 +192,11 @@ SetPrototype.mergeDeepWith = SetPrototype.mergeWith;
 SetPrototype.withMutations = MapPrototype.withMutations;
 SetPrototype.asMutable = MapPrototype.asMutable;
 SetPrototype.asImmutable = MapPrototype.asImmutable;
+SetPrototype['@@transducer/init'] = SetPrototype.asMutable;
+SetPrototype['@@transducer/step'] = function(result, arr) {
+  return result.add(arr);
+};
+SetPrototype['@@transducer/result'] = MapPrototype['@@transducer/result'];
 
 SetPrototype.__empty = emptySet;
 SetPrototype.__make = makeSet;

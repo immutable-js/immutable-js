@@ -388,10 +388,12 @@ function DocVisitor(source) {
           members: [
             {
               index: true,
-              params: {
-                name: 'key',
-                type: TypeKind.String
-              },
+              params: [
+                {
+                  name: 'key',
+                  type: { k: TypeKind.String }
+                }
+              ],
               type: parseType(node.type)
             }
           ]

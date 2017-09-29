@@ -13,6 +13,7 @@ import Immutable, {
   Seq,
   Range,
   Repeat,
+  Record,
   OrderedMap,
   OrderedSet,
 } from '../../'
@@ -21,6 +22,7 @@ import * as Immutable2 from '../../'
 import type {
   KeyedCollection,
   IndexedCollection,
+  RecordInstance,
   SetCollection,
   KeyedSeq,
   IndexedSeq,
@@ -773,3 +775,26 @@ let numberSeq = Seq([ 1, 2, 3 ])
 // $ExpectError
 let numberSeqSize: number = numberSeq.size
 let maybeNumberSeqSize: ?number = numberSeq.size
+
+/* Record */
+
+type PersonRecordMembers = { age: number, name: string }
+const PersonRecordClass = Record(({
+  age: 12,
+  name: 'Facebook',
+}: PersonRecordMembers))
+type PersonRecordInstance = RecordInstance<PersonRecordMembers> & PersonRecordMembers;
+
+const personRecordInstance: PersonRecordInstance = PersonRecordClass({ age: 25 })
+
+// $ExpectError
+{ const age: string = personRecordInstance.get('age') }
+// $ExpectError
+{ const age: string = personRecordInstance.age }
+{ const age: number = personRecordInstance.get('age') }
+{ const age: number = personRecordInstance.age }
+
+// $ExpectError
+personRecordInstance.set('invalid', 25)
+personRecordInstance.set('name', '25')
+personRecordInstance.set('age', 33)

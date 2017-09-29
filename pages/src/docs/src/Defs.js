@@ -312,11 +312,11 @@ function typeLength(info, type) {
     case TypeKind.String:
       return 6;
     case TypeKind.Union:
-      return type.types.reduce(t => typeLength(info, t)) +
+      return type.types.reduce((s, t) => s + typeLength(info, t), 0) +
         (type.types.length - 1) * 3;
     case TypeKind.Tuple:
       return 2 +
-        type.types.reduce(t => typeLength(info, t)) +
+        type.types.reduce((s, t) => s + typeLength(info, t), 0) +
         (type.types.length - 1) * 2;
     case TypeKind.Object:
       return 2 + memberLength(info, type.members);

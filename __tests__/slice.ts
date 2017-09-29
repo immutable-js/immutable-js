@@ -7,15 +7,15 @@ jasmineCheck.install();
 describe('slice', () => {
 
   it('slices a sequence', () => {
-    expect(Seq.of(1, 2, 3, 4, 5, 6).slice(2).toArray()).toEqual([3, 4, 5, 6]);
-    expect(Seq.of(1, 2, 3, 4, 5, 6).slice(2, 4).toArray()).toEqual([3, 4]);
-    expect(Seq.of(1, 2, 3, 4, 5, 6).slice(-3, -1).toArray()).toEqual([4, 5]);
-    expect(Seq.of(1, 2, 3, 4, 5, 6).slice(-1).toArray()).toEqual([6]);
-    expect(Seq.of(1, 2, 3, 4, 5, 6).slice(0, -1).toArray()).toEqual([1, 2, 3, 4, 5]);
+    expect(Seq([1, 2, 3, 4, 5, 6]).slice(2).toArray()).toEqual([3, 4, 5, 6]);
+    expect(Seq([1, 2, 3, 4, 5, 6]).slice(2, 4).toArray()).toEqual([3, 4]);
+    expect(Seq([1, 2, 3, 4, 5, 6]).slice(-3, -1).toArray()).toEqual([4, 5]);
+    expect(Seq([1, 2, 3, 4, 5, 6]).slice(-1).toArray()).toEqual([6]);
+    expect(Seq([1, 2, 3, 4, 5, 6]).slice(0, -1).toArray()).toEqual([1, 2, 3, 4, 5]);
   });
 
   it('creates an immutable stable sequence', () => {
-    let seq = Seq.of(1, 2, 3, 4, 5, 6);
+    let seq = Seq([1, 2, 3, 4, 5, 6]);
     let sliced = seq.slice(2, -2);
     expect(sliced.toArray()).toEqual([3, 4]);
     expect(sliced.toArray()).toEqual([3, 4]);
@@ -32,13 +32,13 @@ describe('slice', () => {
   });
 
   it('can maintain indices for an keyed indexed sequence', () => {
-    expect(Seq.of(1, 2, 3, 4, 5, 6).toKeyedSeq().slice(2).entrySeq().toArray()).toEqual([
+    expect(Seq([1, 2, 3, 4, 5, 6]).toKeyedSeq().slice(2).entrySeq().toArray()).toEqual([
       [2, 3],
       [3, 4],
       [4, 5],
       [5, 6],
     ]);
-    expect(Seq.of(1, 2, 3, 4, 5, 6).toKeyedSeq().slice(2, 4).entrySeq().toArray()).toEqual([
+    expect(Seq([1, 2, 3, 4, 5, 6]).toKeyedSeq().slice(2, 4).entrySeq().toArray()).toEqual([
       [2, 3],
       [3, 4],
     ]);
@@ -53,39 +53,39 @@ describe('slice', () => {
   });
 
   it('is reversable', () => {
-    expect(Seq.of(1, 2, 3, 4, 5, 6).slice(2).reverse().toArray()).toEqual([6, 5, 4, 3]);
-    expect(Seq.of(1, 2, 3, 4, 5, 6).slice(2, 4).reverse().toArray()).toEqual([4, 3]);
-    expect(Seq.of(1, 2, 3, 4, 5, 6).toKeyedSeq().slice(2).reverse().entrySeq().toArray()).toEqual([
+    expect(Seq([1, 2, 3, 4, 5, 6]).slice(2).reverse().toArray()).toEqual([6, 5, 4, 3]);
+    expect(Seq([1, 2, 3, 4, 5, 6]).slice(2, 4).reverse().toArray()).toEqual([4, 3]);
+    expect(Seq([1, 2, 3, 4, 5, 6]).toKeyedSeq().slice(2).reverse().entrySeq().toArray()).toEqual([
       [5, 6],
       [4, 5],
       [3, 4],
       [2, 3],
     ]);
-    expect(Seq.of(1, 2, 3, 4, 5, 6).toKeyedSeq().slice(2, 4).reverse().entrySeq().toArray()).toEqual([
+    expect(Seq([1, 2, 3, 4, 5, 6]).toKeyedSeq().slice(2, 4).reverse().entrySeq().toArray()).toEqual([
       [3, 4],
       [2, 3],
     ]);
   });
 
   it('slices a list', () => {
-    expect(List.of(1, 2, 3, 4, 5, 6).slice(2).toArray()).toEqual([3, 4, 5, 6]);
-    expect(List.of(1, 2, 3, 4, 5, 6).slice(2, 4).toArray()).toEqual([3, 4]);
+    expect(List([1, 2, 3, 4, 5, 6]).slice(2).toArray()).toEqual([3, 4, 5, 6]);
+    expect(List([1, 2, 3, 4, 5, 6]).slice(2, 4).toArray()).toEqual([3, 4]);
   });
 
   it('returns self for whole slices', () => {
-    let s = Seq.of(1, 2, 3);
+    let s = Seq([1, 2, 3]);
     expect(s.slice(0)).toBe(s);
     expect(s.slice(0, 3)).toBe(s);
     expect(s.slice(-4, 4)).toBe(s);
 
-    let v = List.of(1, 2, 3);
+    let v = List([1, 2, 3]);
     expect(v.slice(-4, 4)).toBe(v);
     expect(v.slice(-3)).toBe(v);
     expect(v.slice(-4, 4).toList()).toBe(v);
   });
 
   it('creates a sliced list in O(log32(n))', () => {
-    expect(List.of(1, 2, 3, 4, 5).slice(-3, -1).toList().toArray()).toEqual([3, 4]);
+    expect(List([1, 2, 3, 4, 5]).slice(-3, -1).toList().toArray()).toEqual([3, 4]);
   });
 
   it('has the same behavior as array slice in known edge cases', () => {
@@ -150,7 +150,7 @@ describe('slice', () => {
     });
 
     it('creates an immutable stable sequence', () => {
-      let seq = Seq.of(1, 2, 3, 4, 5, 6);
+      let seq = Seq([1, 2, 3, 4, 5, 6]);
       let sliced = seq.take(3);
       expect(sliced.toArray()).toEqual([1, 2, 3]);
       expect(sliced.toArray()).toEqual([1, 2, 3]);
@@ -158,7 +158,7 @@ describe('slice', () => {
     });
 
     it('converts to array with correct length', () => {
-      let seq = Seq.of(1, 2, 3, 4, 5, 6);
+      let seq = Seq([1, 2, 3, 4, 5, 6]);
       let s1 = seq.take(3);
       let s2 = seq.take(10);
       let sn = seq.take(Infinity);
