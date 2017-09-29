@@ -78,7 +78,8 @@ export function returnTrue() {
 }
 
 export function wholeSlice(begin, end, size) {
-  return (begin === 0 || (size !== undefined && begin <= -size)) &&
+  return ((begin === 0 && !isNeg(begin)) ||
+    (size !== undefined && begin <= -size)) &&
     (end === undefined || (size !== undefined && end >= size));
 }
 
@@ -95,9 +96,14 @@ function resolveIndex(index, size, defaultIndex) {
   // http://www.ecma-international.org/ecma-262/6.0/#sec-toint32
   return index === undefined
     ? defaultIndex
-    : index < 0
+    : isNeg(index)
         ? size === Infinity ? size : Math.max(0, size + index) | 0
         : size === undefined || size === index
             ? index
             : Math.min(size, index) | 0;
+}
+
+function isNeg(value) {
+  // Account for -0 which is negative, but not less than 0.
+  return value < 0 || (value === 0 && 1 / value === -Infinity);
 }

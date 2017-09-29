@@ -2,7 +2,7 @@
 ///<reference path='../resources/jest.d.ts'/>
 
 declare var Symbol: any;
-import { OrderedMap, Seq } from '../';
+import { List, OrderedMap, Seq } from '../';
 
 describe('Issue #1220 : Seq.rest() throws an exception when invoked on a single item sequence ', () => {
   it('should be iterable', () => {
@@ -13,6 +13,13 @@ describe('Issue #1220 : Seq.rest() throws an exception when invoked on a single 
     const r = Seq([1]).rest();
     const i = r[ITERATOR_SYMBOL]();
     expect(i.next()).toEqual({ value: undefined, done: true });
+  });
+});
+
+describe('Issue #1245', () => {
+  it('should return empty collection after takeLast(0)', () => {
+    const size = List(['a', 'b', 'c']).takeLast(0).size;
+    expect(size).toEqual(0);
   });
 });
 
