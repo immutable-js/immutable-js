@@ -357,7 +357,7 @@ import { OrderedMap, List } from '../../';
 { // #flip
 
   // $ExpectType OrderedMap<number, string>
-  OrderedMap<number, string>().flip(); // FIXME
+  OrderedMap<number, string>().flip();
 }
 
 { // #withMutations

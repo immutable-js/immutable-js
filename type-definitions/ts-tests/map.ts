@@ -357,7 +357,7 @@ import { Map, List } from '../../';
 { // #flip
 
   // $ExpectType Map<number, string>
-  Map<number, string>().flip(); // FIXME
+  Map<number, string>().flip();
 }
 
 { // #withMutations
