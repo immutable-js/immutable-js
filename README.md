@@ -200,8 +200,8 @@ of [ES2015][] [Array][], [Map][], and [Set][].
 [Set]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set
 
 The difference for the immutable collections is that methods which would mutate
-the collection, like `push`, `set`, `unshift` or `splice` instead return a new
-immutable collection. Methods which return new arrays like `slice` or `concat`
+the collection, like `push`, `set`, `unshift` or `splice`, instead return a new
+immutable collection. Methods which return new arrays, like `slice` or `concat`,
 instead return new immutable collections.
 
 <!-- runkit:activate -->
