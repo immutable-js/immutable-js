@@ -1,9 +1,9 @@
 .github-btn {
   margin-top: -10%;
+  display: flex;
+  flex-direction: row;
 }
 
-.gh-btn,
-.gh-count,
 .gh-ico {
   float: left;
 }
@@ -69,8 +69,6 @@
   background-color: #fafafa;
   display: block !important;
   display: none;
-  margin-left: 10px;
-  position: relative;
 }
 
 .gh-count:hover,
@@ -78,15 +76,21 @@
   color: #4183C4;
 }
 
-.gh-count:before,
-.gh-count:after {
+.gh-triangle {
+    position: relative;
+    margin-left: 11px;
+    margin-right: -1px;
+}
+
+.gh-triangle:before,
+.gh-triangle:after {
   border-color: transparent;
   border-style: solid;
   content: '';
   position: absolute;
 }
 
-.gh-count:before{
+.gh-triangle:before{
   border-right-color: #fafafa;
   border-width: 8px 8px 8px 0;
   left: -7px;
@@ -94,7 +98,7 @@
   top: 50%;
 }
 
-.gh-count:after{
+.gh-triangle:after{
   border-right-color: #bababa;
   border-width: 9px 9px 9px 0;
   left: -8px;
