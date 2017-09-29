@@ -1,7 +1,7 @@
 // TypeScript Version: 2.2.1
 // Some tests look like they are repeated in order to avoid false positives.
 
-import * as Immutable from '../../../';
+import * as Immutable from '../../';
 import {
     List,
     Map,
@@ -13,7 +13,7 @@ import {
     Set,
     Stack,
     Collection
-} from '../../../';
+} from '../../';
 
 List; // $ExpectType typeof List
 Map; // $ExpectType typeof Map

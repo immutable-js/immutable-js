@@ -1,6 +1,4 @@
-// TypeScript Version: 2.2.1
-
-import { Map, List } from '../../../';
+import { Map, List } from '../../';
 
 { // #constructor
 
@@ -40,7 +38,7 @@ import { Map, List } from '../../../';
   // $ExpectType number | undefined
   Map<number, number>().get(4);
 
-  // $ExpectType string | number
+  // $ExpectType number | "a"
   Map<number, number>().get(4, 'a');
 
   // $ExpectError

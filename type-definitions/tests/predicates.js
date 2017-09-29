@@ -2,7 +2,7 @@
  * @flow
  */
 
-import { List } from '../../../';
+import { List } from '../../';
 
 declare var mystery: mixed;
 

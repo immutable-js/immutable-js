@@ -1,9 +1,7 @@
-// TypeScript Version: 2.2.1
-
 import {
   Map as ImmutableMap,
   Set as ImmutableSet,
-} from '../../../';
+} from '../../';
 
 // Immutable.js collections
 var mapImmutable: ImmutableMap<string, number> = ImmutableMap<string, number>();

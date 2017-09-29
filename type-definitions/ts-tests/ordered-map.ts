@@ -1,6 +1,4 @@
-// TypeScript Version: 2.2.1
-
-import { OrderedMap, List } from '../../../';
+import { OrderedMap, List } from '../../';
 
 { // #constructor
 
@@ -40,7 +38,7 @@ import { OrderedMap, List } from '../../../';
   // $ExpectType number | undefined
   OrderedMap<number, number>().get(4);
 
-  // $ExpectType string | number
+  // $ExpectType number | "a"
   OrderedMap<number, number>().get(4, 'a');
 
   // $ExpectError

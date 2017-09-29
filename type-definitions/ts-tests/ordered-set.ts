@@ -1,6 +1,4 @@
-// TypeScript Version: 2.2.1
-
-import { OrderedSet, Map } from '../../../';
+import { OrderedSet, Map } from '../../';
 
 { // #constructor
 
@@ -58,7 +56,7 @@ import { OrderedSet, Map } from '../../../';
   // $ExpectType number | undefined
   OrderedSet<number>().get(4);
 
-  // $ExpectType string | number
+  // $ExpectType number | "a"
   OrderedSet<number>().get(4, 'a');
 
   // $ExpectError

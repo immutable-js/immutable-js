@@ -1,6 +1,4 @@
-// TypeScript Version: 2.2.1
-
-import { Set, Map } from '../../../';
+import { Set, Map } from '../../';
 
 { // #constructor
 
@@ -58,7 +56,7 @@ import { Set, Map } from '../../../';
   // $ExpectType number | undefined
   Set<number>().get(4);
 
-  // $ExpectType string | number
+  // $ExpectType number | "a"
   Set<number>().get(4, 'a');
 
   // $ExpectError

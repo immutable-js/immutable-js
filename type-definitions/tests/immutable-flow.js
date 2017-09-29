@@ -16,8 +16,8 @@ import Immutable, {
   Record,
   OrderedMap,
   OrderedSet,
-} from '../../../'
-import * as Immutable2 from '../../../'
+} from '../../'
+import * as Immutable2 from '../../'
 
 import type {
   KeyedCollection,
@@ -27,7 +27,7 @@ import type {
   KeyedSeq,
   IndexedSeq,
   SetSeq,
-} from '../../../'
+} from '../../'
 
 /**
  * Although this looks like dead code, importing `Immutable` and

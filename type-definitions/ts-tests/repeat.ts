@@ -1,6 +1,4 @@
-// TypeScript Version: 2.2.1
-
-import { Repeat } from '../../../';
+import { Repeat } from '../../';
 
 {  // #constructor
 

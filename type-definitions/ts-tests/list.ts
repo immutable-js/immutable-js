@@ -1,6 +1,4 @@
-// TypeScript Version: 2.2.1
-
-import { List } from '../../../';
+import { List } from '../../';
 
 { // #constructor
 
@@ -49,7 +47,7 @@ import { List } from '../../../';
   // $ExpectType number | undefined
   List<number>().get(4);
 
-  // $ExpectType string | number
+  // $ExpectType number | "a"
   List<number>().get(4, 'a');
 
   // $ExpectError

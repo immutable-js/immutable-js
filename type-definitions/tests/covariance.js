@@ -9,7 +9,7 @@ import {
   Stack,
   OrderedMap,
   OrderedSet,
-} from '../../../';
+} from '../../';
 
 class A { x: number; }
 class B extends A { y: string; }

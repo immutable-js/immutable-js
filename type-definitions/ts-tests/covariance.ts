@@ -1,5 +1,3 @@
-// TypeScript Version: 2.2.1
-
 import {
   List,
   Map,
@@ -7,7 +5,7 @@ import {
   OrderedSet,
   Set,
   Stack,
-} from '../../../';
+} from '../../';
 
 class A { x: number; }
 class B extends A { y: string; }
