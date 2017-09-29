@@ -869,17 +869,17 @@ function hash(o) {
 }
 
 function cachedHashString(string) {
-  var hash = stringHashCache[string];
-  if (hash === undefined) {
-    hash = hashString(string);
+  var hashed = stringHashCache[string];
+  if (hashed === undefined) {
+    hashed = hashString(string);
     if (STRING_HASH_CACHE_SIZE === STRING_HASH_CACHE_MAX_SIZE) {
       STRING_HASH_CACHE_SIZE = 0;
       stringHashCache = {};
     }
     STRING_HASH_CACHE_SIZE++;
-    stringHashCache[string] = hash;
+    stringHashCache[string] = hashed;
   }
-  return hash;
+  return hashed;
 }
 
 // http://jsperf.com/hashing-strings
@@ -890,46 +890,46 @@ function hashString(string) {
   // where s[i] is the ith character of the string and n is the length of
   // the string. We "mod" the result to make it between 0 (inclusive) and 2^31
   // (exclusive) by dropping high bits.
-  var hash = 0;
+  var hashed = 0;
   for (var ii = 0; ii < string.length; ii++) {
-    hash = 31 * hash + string.charCodeAt(ii) | 0;
+    hashed = 31 * hash + string.charCodeAt(ii) | 0;
   }
-  return smi(hash);
+  return smi(hashed);
 }
 
 function hashJSObj(obj) {
-  var hash;
+  var hashed;
   if (usingWeakMap) {
-    hash = weakMap.get(obj);
-    if (hash !== undefined) {
-      return hash;
+    hashed = weakMap.get(obj);
+    if (hashed !== undefined) {
+      return hashed;
     }
   }
 
-  hash = obj[UID_HASH_KEY];
+  hashed = obj[UID_HASH_KEY];
   if (hash !== undefined) {
-    return hash;
+    return hashed;
   }
 
   if (!canDefineProperty) {
-    hash = obj.propertyIsEnumerable && obj.propertyIsEnumerable[UID_HASH_KEY];
-    if (hash !== undefined) {
-      return hash;
+    hashed = obj.propertyIsEnumerable && obj.propertyIsEnumerable[UID_HASH_KEY];
+    if (hashed !== undefined) {
+      return hashed;
     }
 
-    hash = getIENodeHash(obj);
-    if (hash !== undefined) {
-      return hash;
+    hashed = getIENodeHash(obj);
+    if (hashed !== undefined) {
+      return hashed;
     }
   }
 
-  hash = ++objHashUID;
+  hashed = ++objHashUID;
   if (objHashUID & 0x40000000) {
     objHashUID = 0;
   }
 
   if (usingWeakMap) {
-    weakMap.set(obj, hash);
+    weakMap.set(obj, hashed);
   } else if (isExtensible !== undefined && isExtensible(obj) === false) {
     throw new Error('Non-extensible objects are not allowed as keys.');
   } else if (canDefineProperty) {
@@ -937,7 +937,7 @@ function hashJSObj(obj) {
       enumerable: false,
       configurable: false,
       writable: false,
-      value: hash
+      value: hashed
     });
   } else if (
     obj.propertyIsEnumerable !== undefined &&
@@ -953,18 +953,18 @@ function hashJSObj(obj) {
         arguments
       );
     };
-    obj.propertyIsEnumerable[UID_HASH_KEY] = hash;
+    obj.propertyIsEnumerable[UID_HASH_KEY] = hashed;
   } else if (obj.nodeType !== undefined) {
     // At this point we couldn't get the IE `uniqueID` to use as a hash
     // and we couldn't use a non-enumerable property to exploit the
     // dontEnum bug so we simply add the `UID_HASH_KEY` on the node
     // itself.
-    obj[UID_HASH_KEY] = hash;
+    obj[UID_HASH_KEY] = hashed;
   } else {
     throw new Error('Unable to set a non-enumerable property on object.');
   }
 
-  return hash;
+  return hashed;
 }
 
 // Get references to ES5 object methods.
@@ -1482,7 +1482,10 @@ function sliceFactory(collection, begin, end, useKeys) {
       return this.cacheResult().__iterator(type, reverse);
     }
     // Don't bother instantiating parent iterator if taking 0.
-    var iterator = sliceSize !== 0 && collection.__iterator(type, reverse);
+    if (sliceSize === 0) {
+      return new Iterator(iteratorDone);
+    }
+    var iterator = collection.__iterator(type, reverse);
     var skipped = 0;
     var iterations = 0;
     return new Iterator(function () {
@@ -2180,6 +2183,13 @@ MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeIn = MapPrototype.deleteIn;
 MapPrototype.removeAll = MapPrototype.deleteAll;
+MapPrototype['@@transducer/init'] = MapPrototype.asMutable;
+MapPrototype['@@transducer/step'] = function(result, arr) {
+  return result.set(arr[0], arr[1]);
+};
+MapPrototype['@@transducer/result'] = function(obj) {
+  return obj.asImmutable();
+};
 
 // #pragma Trie Nodes
 
@@ -3112,6 +3122,11 @@ ListPrototype.withMutations = MapPrototype.withMutations;
 ListPrototype.asMutable = MapPrototype.asMutable;
 ListPrototype.asImmutable = MapPrototype.asImmutable;
 ListPrototype.wasAltered = MapPrototype.wasAltered;
+ListPrototype['@@transducer/init'] = ListPrototype.asMutable;
+ListPrototype['@@transducer/step'] = function(result, arr) {
+  return result.push(arr);
+};
+ListPrototype['@@transducer/result'] = MapPrototype['@@transducer/result'];
 
 var VNode = function VNode(array, ownerID) {
   this.array = array;
@@ -3906,6 +3921,11 @@ StackPrototype.wasAltered = MapPrototype.wasAltered;
 StackPrototype.shift = StackPrototype.pop;
 StackPrototype.unshift = StackPrototype.push;
 StackPrototype.unshiftAll = StackPrototype.pushAll;
+StackPrototype['@@transducer/init'] = StackPrototype.asMutable;
+StackPrototype['@@transducer/step'] = function(result, arr) {
+  return result.unshift(arr);
+};
+StackPrototype['@@transducer/result'] = MapPrototype['@@transducer/result'];
 
 function makeStack(size, head, ownerID, hash) {
   var map = Object.create(StackPrototype);
@@ -4191,6 +4211,11 @@ SetPrototype.mergeDeepWith = SetPrototype.mergeWith;
 SetPrototype.withMutations = MapPrototype.withMutations;
 SetPrototype.asMutable = MapPrototype.asMutable;
 SetPrototype.asImmutable = MapPrototype.asImmutable;
+SetPrototype['@@transducer/init'] = SetPrototype.asMutable;
+SetPrototype['@@transducer/step'] = function(result, arr) {
+  return result.add(arr);
+};
+SetPrototype['@@transducer/result'] = MapPrototype['@@transducer/result'];
 
 SetPrototype.__empty = emptySet;
 SetPrototype.__make = makeSet;
@@ -4660,12 +4685,14 @@ mixin(Collection, {
     var i = 0;
     while (i !== keyPath.length) {
       if (!nested || !nested.get) {
-        throw new TypeError(
+        warn(
           'Invalid keyPath: Value at [' +
             keyPath.slice(0, i).map(quoteString) +
             '] does not have a .get() method: ' +
-            nested
+            nested +
+            '\nThis warning will throw in a future version'
         );
+        return notSetValue;
       }
       nested = nested.get(keyPath[i++], NOT_SET);
       if (nested === NOT_SET) {
@@ -4673,15 +4700,6 @@ mixin(Collection, {
       }
     }
     return nested;
-    // var step;
-    // while (!(step = iter.next()).done) {
-    //   var key = step.value;
-    //   nested = nested && nested.get ? nested.get(key, NOT_SET) : NOT_SET;
-    //   if (nested === NOT_SET) {
-    //     return notSetValue;
-    //   }
-    // }
-    // return nested;
   },
 
   groupBy: function groupBy(grouper, context) {
@@ -5099,6 +5117,16 @@ function hashMerge(a, b) {
   return a ^ b + 0x9e3779b9 + (a << 6) + (a >> 2) | 0; // int
 }
 
+function warn(message) {
+  /* eslint-disable no-console */
+  if (typeof console === 'object' && console.warn) {
+    console.warn(message);
+  } else {
+    throw new Error(message);
+  }
+  /* eslint-enable no-console */
+}
+
 var OrderedSet = (function (Set$$1) {
   function OrderedSet(value) {
     return value === null || value === undefined
@@ -5230,7 +5258,9 @@ Record.prototype.toString = function toString () {
 
 Record.prototype.equals = function equals (other) {
   return this === other ||
-    (this._keys === other._keys && recordSeq(this).equals(recordSeq(other)));
+    (other &&
+      this._keys === other._keys &&
+      recordSeq(this).equals(recordSeq(other)));
 };
 
 Record.prototype.hashCode = function hashCode () {
@@ -5314,6 +5344,7 @@ Record.getDescriptiveName = recordName;
 var RecordPrototype = Record.prototype;
 RecordPrototype[IS_RECORD_SENTINEL] = true;
 RecordPrototype[DELETE] = RecordPrototype.remove;
+RecordPrototype.deleteIn = (RecordPrototype.removeIn = MapPrototype.removeIn);
 RecordPrototype.getIn = CollectionPrototype.getIn;
 RecordPrototype.hasIn = CollectionPrototype.hasIn;
 RecordPrototype.merge = MapPrototype.merge;
