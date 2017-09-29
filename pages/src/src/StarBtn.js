@@ -29,6 +29,7 @@ var StarBtn = React.createClass({
           <span className="gh-ico" />
           <span className="gh-text">Star</span>
         </a>
+        {this.state.stars && <span className="gh-triangle" />}
         {this.state.stars &&
           <a
             className="gh-count"
