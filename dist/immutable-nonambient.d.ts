@@ -206,6 +206,8 @@
    *
    * Note that `hash()` attempts to balance between speed and avoiding
    * collisions, however it makes no attempt to produce secure hashes.
+   *
+   * *New in Version 4.0*
    */
   export function hash(value: any): number;
 
