@@ -5,5 +5,5 @@
 suppress_comment=\\(.\\|\n\\)*\\$ExpectError
 
 [ignore]
-💩 Protect against transitively installed immutable-js from dev tools
-.*/node_modules/immutable/.*
+💩 Only interested in testing these files directly in this repo.
+.*/node_modules/.*
