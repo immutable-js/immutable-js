@@ -1,0 +1,127 @@
+{
+  "name": "immutable",
+  "version": "4.0.0-rc.2",
+  "description": "Immutable Data Collections",
+  "homepage": "https://facebook.github.com/immutable-js",
+  "author": {
+    "name": "Lee Byron",
+    "url": "https://github.com/leebyron"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/facebook/immutable-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/facebook/immutable-js/issues"
+  },
+  "main": "dist/immutable.js",
+  "module": "dist/immutable.es.js",
+  "typings": "dist/immutable-nonambient.d.ts",
+  "typescript": {
+    "definition": "dist/immutable.d.ts"
+  },
+  "scripts": {
+    "build": "run-s build:*",
+    "build:dist": "run-s clean:dist bundle:dist bundle:es copy:dist stats:dist",
+    "build:pages": "gulp --gulpfile gulpfile.js default",
+    "stats:dist": "node ./resources/dist-stats.js",
+    "clean:dist": "rimraf dist",
+    "bundle:dist": "rollup -c ./resources/rollup-config.js",
+    "bundle:es": "rollup -c ./resources/rollup-config-es.js",
+    "copy:dist": "node ./resources/copy-dist-typedefs.js",
+    "lint": "run-s lint:*",
+    "lint:ts": "tslint \"__tests__/**/*.ts\"",
+    "lint:js": "eslint \"{__tests__,src,pages/src,pages/lib}/**/*.js\"",
+    "format": "prettier --single-quote --write \"{__tests__,src,pages/src,pages/lib}/**/*.js\"",
+    "testonly": "./resources/jest",
+    "test": "run-s format build lint testonly test:types:*",
+    "test:travis": "npm run test && ./resources/check-changes",
+    "test:types:ts": "dtslint type-definitions/ts-tests",
+    "test:types:flow": "flow check type-definitions/tests",
+    "perf": "node ./resources/bench.js",
+    "start": "gulp --gulpfile gulpfile.js dev",
+    "deploy": "(cd ./pages/out && git init && git config user.name \"Travis CI\" && git config user.email \"github@fb.com\" && git add . && git commit -m \"Deploy to GitHub Pages\" && git push --force --quiet \"https://${GH_TOKEN}@github.com/facebook/immutable-js.git\" master:gh-pages > /dev/null 2>1)"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "ts"
+    ],
+    "transform": {
+      "^.+\\.ts$": "<rootDir>/resources/jestPreprocessor.js"
+    },
+    "testRegex": "/__tests__/.*\\.(ts|js)$",
+    "unmockedModulePathPatterns": [
+      "./node_modules/react"
+    ]
+  },
+  "devDependencies": {
+    "benchmark": "2.1.3",
+    "browser-sync": "2.18.8",
+    "browserify": "^5.11.2",
+    "colors": "1.1.2",
+    "del": "2.2.2",
+    "dtslint": "0.1.2",
+    "eslint": "3.17.1",
+    "eslint-config-airbnb": "14.1.0",
+    "eslint-config-prettier": "1.5.0",
+    "eslint-plugin-import": "2.2.0",
+    "eslint-plugin-jsx-a11y": "4.0.0",
+    "eslint-plugin-prettier": "2.0.1",
+    "eslint-plugin-react": "6.10.0",
+    "flow-bin": "0.56.0",
+    "gulp": "3.9.1",
+    "gulp-concat": "2.6.1",
+    "gulp-filter": "5.0.0",
+    "gulp-header": "1.8.8",
+    "gulp-less": "3.3.0",
+    "gulp-size": "2.1.0",
+    "gulp-sourcemaps": "2.4.1",
+    "gulp-uglify": "2.1.0",
+    "gulp-util": "3.0.8",
+    "jasmine-check": "0.1.5",
+    "jest": "19.0.2",
+    "marked": "0.3.6",
+    "microtime": "2.1.6",
+    "mkdirp": "0.5.1",
+    "npm-run-all": "4.0.2",
+    "prettier": "0.22.0",
+    "react": "^0.12.0",
+    "react-router": "^0.11.2",
+    "react-tools": "^0.12.0",
+    "rimraf": "2.6.1",
+    "rollup": "0.41.5",
+    "rollup-plugin-buble": "0.15.0",
+    "rollup-plugin-commonjs": "7.1.0",
+    "rollup-plugin-strip-banner": "0.1.0",
+    "run-sequence": "1.2.2",
+    "through2": "2.0.3",
+    "transducers-js": "^0.4.174",
+    "tslint": "4.5.1",
+    "typescript": "2.2.1",
+    "uglify-js": "2.8.11",
+    "uglify-save-license": "0.4.1",
+    "vinyl-buffer": "1.0.0",
+    "vinyl-source-stream": "1.1.0"
+  },
+  "files": [
+    "dist",
+    "contrib",
+    "README.md",
+    "LICENSE",
+    "PATENTS"
+  ],
+  "keywords": [
+    "immutable",
+    "persistent",
+    "lazy",
+    "data",
+    "datastructure",
+    "functional",
+    "collection",
+    "stateless",
+    "sequence",
+    "iteration"
+  ],
+  "license": "BSD-3-Clause"
+}
