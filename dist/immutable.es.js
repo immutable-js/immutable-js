@@ -1807,9 +1807,10 @@ function maxCompare(comparator, a, b) {
     comp > 0;
 }
 
-function zipWithFactory(keyIter, zipper, iters) {
+function zipWithFactory(keyIter, zipper, iters, zipAll) {
   var zipSequence = makeSequence(keyIter);
-  zipSequence.size = new ArraySeq(iters).map(function (i) { return i.size; }).min();
+  var sizes = new ArraySeq(iters).map(function (i) { return i.size; });
+  zipSequence.size = zipAll ? sizes.max() : sizes.min();
   // Note: this a generic base implementation of __iterate in terms of
   // __iterator which may be more generically useful in the future.
   zipSequence.__iterate = function(fn, reverse) {
@@ -1848,7 +1849,7 @@ function zipWithFactory(keyIter, zipper, iters) {
       var steps;
       if (!isDone) {
         steps = iterators.map(function (i) { return i.next(); });
-        isDone = steps.some(function (s) { return s.done; });
+        isDone = zipAll ? steps.every(function (s) { return s.done; }) : steps.some(function (s) { return s.done; });
       }
       if (isDone) {
         return iteratorDone();
@@ -4988,6 +4989,11 @@ mixin(IndexedCollection, {
   zip: function zip(/*, ...collections */) {
     var collections = [this].concat(arrCopy(arguments));
     return reify(this, zipWithFactory(this, defaultZipper, collections));
+  },
+
+  zipAll: function zipAll(/*, ...collections */) {
+    var collections = [this].concat(arrCopy(arguments));
+    return reify(this, zipWithFactory(this, defaultZipper, collections, true));
   },
 
   zipWith: function zipWith(zipper /*, ...collections */) {
