@@ -349,6 +349,9 @@ declare module Immutable {
      * assert.equal(set.has(b), true);
      * ```
      *
+     * Note: hashCode() MUST return a Uint32 number. The easiest way to
+     * guarantee this is to return `myHash | 0` from a custom implementation.
+     *
      * If two values have the same `hashCode`, they are [not guaranteed
      * to be equal][Hash Collision]. If two values have different `hashCode`s,
      * they must not be equal.

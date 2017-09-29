@@ -2,7 +2,23 @@
 ///<reference path='../resources/jest.d.ts'/>
 
 declare var Symbol: any;
-import { List, OrderedMap, Seq } from '../';
+import { List, OrderedMap, Seq, Set } from '../';
+
+describe('Issue #1175', () => {
+  it('invalid hashCode() response should not infinitly recurse', () => {
+    class BadHash {
+      equals() {
+        return false;
+      }
+      hashCode() {
+        return 2 ** 32;
+      }
+    }
+
+    const set = Set([new BadHash()]);
+    expect(set.size).toEqual(1);
+  });
+});
 
 describe('Issue #1220 : Seq.rest() throws an exception when invoked on a single item sequence ', () => {
   it('should be iterable', () => {

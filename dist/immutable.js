@@ -865,7 +865,8 @@ function hash(o) {
       : hashString(o);
   }
   if (typeof o.hashCode === 'function') {
-    return o.hashCode();
+    // Drop any high bits from accidentally long hash codes.
+    return smi(o.hashCode());
   }
   if (type === 'object') {
     return hashJSObj(o);
