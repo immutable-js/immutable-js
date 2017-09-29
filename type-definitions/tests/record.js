@@ -20,7 +20,7 @@ origin3 = GeoPoint({lat:34})
 geo = Point3({});
 
 const px = origin2.get('x');
-const px2 = origin2.x;
+const px2: number = origin2.x;
 // $ExpectError
 const pz = origin2.get('z');
 // $ExpectError
@@ -28,7 +28,7 @@ const pz2 = origin2.z;
 
 origin2.set('x', 4);
 // Note: this should be an error, but Flow does not yet support index types.
-origin2.set('x', 'string');
+origin2.set('x', 'not-a-number');
 // $ExpectError
 origin2.set('z', 3);
 
@@ -53,7 +53,6 @@ var t3 = t2.setB(10);
 // Note: flow does not check extended Record classes yet
 var t4 = t2.setC(10);
 
-var t1a = t1.a;
 // Note: flow does not check extended Record classes yet
 var t1a: string = t1.a;
 // Note: flow does not check extended Record classes yet
