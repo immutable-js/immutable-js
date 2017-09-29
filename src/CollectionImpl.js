@@ -394,12 +394,14 @@ mixin(Collection, {
     let i = 0;
     while (i !== keyPath.length) {
       if (!nested || !nested.get) {
-        throw new TypeError(
+        warn(
           'Invalid keyPath: Value at [' +
             keyPath.slice(0, i).map(quoteString) +
             '] does not have a .get() method: ' +
-            nested
+            nested +
+            '\nThis warning will throw in a future version'
         );
+        return notSetValue;
       }
       nested = nested.get(keyPath[i++], NOT_SET);
       if (nested === NOT_SET) {
@@ -407,15 +409,6 @@ mixin(Collection, {
       }
     }
     return nested;
-    // var step;
-    // while (!(step = iter.next()).done) {
-    //   var key = step.value;
-    //   nested = nested && nested.get ? nested.get(key, NOT_SET) : NOT_SET;
-    //   if (nested === NOT_SET) {
-    //     return notSetValue;
-    //   }
-    // }
-    // return nested;
   },
 
   groupBy(grouper, context) {
@@ -828,4 +821,14 @@ function murmurHashOfSize(size, h) {
 
 function hashMerge(a, b) {
   return a ^ b + 0x9e3779b9 + (a << 6) + (a >> 2) | 0; // int
+}
+
+function warn(message) {
+  /* eslint-disable no-console */
+  if (typeof console === 'object' && console.warn) {
+    console.warn(message);
+  } else {
+    throw new Error(message);
+  }
+  /* eslint-enable no-console */
 }
