@@ -36,7 +36,7 @@
  * ```
  *
  * Sometimes, methods can accept different kinds of data or return different
- * kinds of data, and this is described with a *type variable*, which are
+ * kinds of data, and this is described with a *type variable*, which is
  * typically in all-caps. For example, a function which always returns the same
  * kind of data it was provided would look like this:
  *
@@ -113,28 +113,35 @@
    * deep JS objects. Finally, a `path` is provided which is the sequence of
    * keys to this value from the starting value.
    *
-   * This example converts native JS data to List and OrderedMap:
+   * `reviver` acts similarly to the [same parameter in `JSON.parse`][1].
+   *
+   * If `reviver` is not provided, the default behavior will convert Objects 
+   * into Maps and Arrays into Lists like so: 
    *
    * ```js
-   * const { fromJS, isIndexed } = require('immutable')
+   * const { fromJS, isKeyed } = require('immutable')
+   * function (key, value) {
+   *   return isKeyed(value) ? value.Map() : value.toList()
+   * }
+   * ```
+   *
+   * `fromJS` is conservative in its conversion. It will only convert
+   * arrays which pass `Array.isArray` to Lists, and only raw objects (no custom
+   * prototype) to Map.
+   *
+   * Accordingly, this example converts native JS data to OrderedMap and List:
+   *
+   * ```js
+   * const { fromJS, isKeyed } = require('immutable')
    * fromJS({ a: {b: [10, 20, 30]}, c: 40}, function (key, value, path) {
    *   console.log(key, value, path)
-   *   return isIndexed(value) ? value.toList() : value.toOrderedMap()
+   *   return isKeyed(value) ? value.toOrderedMap() : value.toList()
    * })
    *
    * > "b", [ 10, 20, 30 ], [ "a", "b" ]
    * > "a", { b: [10, 20, 30] }, c: 40 }, [ "a" ]
    * > "", {a: {b: [10, 20, 30]}, c: 40}, []
    * ```
-   *
-   * If `reviver` is not provided, the default behavior will convert Arrays into
-   * Lists and Objects into Maps.
-   *
-   * `reviver` acts similarly to the [same parameter in `JSON.parse`][1].
-   *
-   * `fromJS` is conservative in its conversion. It will only convert
-   * arrays which pass `Array.isArray` to Lists, and only raw objects (no custom
-   * prototype) to Map.
    *
    * Keep in mind, when using JS objects to construct Immutable Maps, that
    * JavaScript Object properties are always strings, even if written in a
