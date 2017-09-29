@@ -8,7 +8,7 @@
 
 # Create empty npm directory
 rm -rf npm
-git clone -b npm "https://${GH_TOKEN}@github.com/facebook/graphql.git" npm
+git clone -b npm "https://${GH_TOKEN}@github.com/facebook/immutable-js.git" npm
 
 # Remove existing files first
 rm -rf npm/**/*
