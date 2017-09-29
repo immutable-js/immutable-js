@@ -115,8 +115,8 @@
    *
    * `reviver` acts similarly to the [same parameter in `JSON.parse`][1].
    *
-   * If `reviver` is not provided, the default behavior will convert Objects 
-   * into Maps and Arrays into Lists like so: 
+   * If `reviver` is not provided, the default behavior will convert Objects
+   * into Maps and Arrays into Lists like so:
    *
    * ```js
    * const { fromJS, isKeyed } = require('immutable')
@@ -1381,7 +1381,7 @@
      * provided, otherwise `undefined`.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require(\"immutable\")" }     
+     *      { "preamble": "const { Map } = require(\"immutable\")" }
      * -->
      * ```js
      * const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
@@ -1393,7 +1393,7 @@
      * no change will occur. This is still true if `notSetValue` is provided.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require(\"immutable\")" }     
+     *      { "preamble": "const { Map } = require(\"immutable\")" }
      * -->
      * ```js
      * const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
@@ -1409,7 +1409,7 @@
      * The previous example behaves differently when written with default values:
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require(\"immutable\")" }     
+     *      { "preamble": "const { Map } = require(\"immutable\")" }
      * -->
      * ```js
      * const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
@@ -2603,11 +2603,6 @@
      * structure such as Map, List, or Set.
      */
     function isSeq(maybeSeq: any): maybeSeq is Seq.Indexed<any> | Seq.Keyed<any, any>;
-
-    /**
-     * Returns a Seq of the values provided. Alias for `Seq.Indexed.of()`.
-     */
-    function of<T>(...values: Array<T>): Seq.Indexed<T>;
 
 
     /**
