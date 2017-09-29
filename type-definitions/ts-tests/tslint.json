@@ -1,0 +1,10 @@
+{
+  "extends": "dtslint/dtslint.json",
+  "rules": {
+    "no-var": false,
+    "prefer-const": false,
+    "no-useless-files": false,
+    "no-duplicate-imports": false,
+    "no-relative-import-in-test": false
+  }
+}
