@@ -8,7 +8,10 @@
 
 # Create empty npm directory
 rm -rf npm
-mkdir npm
+git clone -b npm "https://${GH_TOKEN}@github.com/facebook/graphql.git" npm
+
+# Remove existing files first
+rm -rf npm/**/*
 
 # Copy over necessary files
 cp -r dist npm/
@@ -16,6 +19,7 @@ cp -r contrib npm/
 cp README.md npm/
 cp LICENSE npm/
 cp PATENTS npm/
+cp bower.json npm/
 
 # Ensure a vanilla package.json before deploying so other tools do not interpret
 # The built output as requiring any further transformation.
@@ -27,9 +31,13 @@ node -e "var package = require('./package.json'); \
   require('fs').writeFileSync('./npm/package.json', JSON.stringify(package, null, 2));"
 
 cd npm
-git init
 git config user.name "Travis CI"
 git config user.email "github@fb.com"
-git add .
-git commit -m "Deploy master to NPM branch"
-git push --force --quiet "https://${GH_TOKEN}@github.com/facebook/immutable-js.git" master:npm
+git add -A .
+if git diff --staged --quiet; then
+  echo "Nothing to publish"
+else
+  git commit -a -m "Deploy master to NPM branch"
+  git push > /dev/null 2>&1
+  echo "Pushed"
+fi
