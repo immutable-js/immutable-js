@@ -786,9 +786,10 @@ function maxCompare(comparator, a, b) {
     comp > 0;
 }
 
-export function zipWithFactory(keyIter, zipper, iters) {
+export function zipWithFactory(keyIter, zipper, iters, zipAll) {
   const zipSequence = makeSequence(keyIter);
-  zipSequence.size = new ArraySeq(iters).map(i => i.size).min();
+  const sizes = new ArraySeq(iters).map(i => i.size);
+  zipSequence.size = zipAll ? sizes.max() : sizes.min();
   // Note: this a generic base implementation of __iterate in terms of
   // __iterator which may be more generically useful in the future.
   zipSequence.__iterate = function(fn, reverse) {
@@ -825,7 +826,7 @@ export function zipWithFactory(keyIter, zipper, iters) {
       let steps;
       if (!isDone) {
         steps = iterators.map(i => i.next());
-        isDone = steps.some(s => s.done);
+        isDone = zipAll ? steps.every(s => s.done) : steps.some(s => s.done);
       }
       if (isDone) {
         return iteratorDone();
