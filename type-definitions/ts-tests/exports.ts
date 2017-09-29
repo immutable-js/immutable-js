@@ -1,4 +1,3 @@
-// TypeScript Version: 2.2.1
 // Some tests look like they are repeated in order to avoid false positives.
 
 import * as Immutable from '../../';
