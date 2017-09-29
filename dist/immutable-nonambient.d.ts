@@ -4007,7 +4007,8 @@
      *
      * Note: `map()` always returns a new instance, even if it produced the same
      * value at every step.
-     * Note: used only for sets.
+     * Note: used only for sets, which return Collection<M, M> but are otherwise
+     * identical to normal `map()`.
      */
     map<M>(
         ...args: never[]
