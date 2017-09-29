@@ -2337,7 +2337,7 @@ declare module Immutable {
 
   /**
    * Creates a new Class which produces Record instances. A record is similar to
-   * a JS object, but enforce a specific set of allowed string keys, and have
+   * a JS object, but enforces a specific set of allowed string keys, and has
    * default values.
    *
    * ```js
