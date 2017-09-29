@@ -86,10 +86,12 @@ export class Record {
   }
 
   equals(other) {
-    return this === other ||
+    return (
+      this === other ||
       (other &&
         this._keys === other._keys &&
-        recordSeq(this).equals(recordSeq(other)));
+        recordSeq(this).equals(recordSeq(other)))
+    );
   }
 
   hashCode() {
@@ -174,7 +176,7 @@ Record.getDescriptiveName = recordName;
 const RecordPrototype = Record.prototype;
 RecordPrototype[IS_RECORD_SENTINEL] = true;
 RecordPrototype[DELETE] = RecordPrototype.remove;
-RecordPrototype.deleteIn = (RecordPrototype.removeIn = MapPrototype.removeIn);
+RecordPrototype.deleteIn = RecordPrototype.removeIn = MapPrototype.removeIn;
 RecordPrototype.getIn = CollectionPrototype.getIn;
 RecordPrototype.hasIn = CollectionPrototype.hasIn;
 RecordPrototype.merge = MapPrototype.merge;
@@ -190,8 +192,10 @@ RecordPrototype.withMutations = MapPrototype.withMutations;
 RecordPrototype.asMutable = MapPrototype.asMutable;
 RecordPrototype.asImmutable = MapPrototype.asImmutable;
 RecordPrototype[ITERATOR_SYMBOL] = CollectionPrototype.entries;
-RecordPrototype.toJSON = (RecordPrototype.toObject = CollectionPrototype.toObject);
-RecordPrototype.inspect = (RecordPrototype.toSource = CollectionPrototype.toSource);
+RecordPrototype.toJSON = RecordPrototype.toObject =
+  CollectionPrototype.toObject;
+RecordPrototype.inspect = RecordPrototype.toSource =
+  CollectionPrototype.toSource;
 
 function makeRecord(likeRecord, values, ownerID) {
   const record = Object.create(Object.getPrototypeOf(likeRecord));

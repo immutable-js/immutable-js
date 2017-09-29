@@ -10,12 +10,12 @@ var DocOverview = React.createClass({
 
     return (
       <div>
-
-        {doc &&
+        {doc && (
           <section>
             <Markdown contents={doc.synopsis} />
             {doc.description && <Markdown contents={doc.description} />}
-          </section>}
+          </section>
+        )}
 
         <h4 className="groupTitle">API</h4>
 
@@ -32,13 +32,13 @@ var DocOverview = React.createClass({
                     {name + (isFunction ? '()' : '')}
                   </Router.Link>
                 </h3>
-                {t.doc &&
-                  <Markdown className="detail" contents={t.doc.synopsis} />}
+                {t.doc && (
+                  <Markdown className="detail" contents={t.doc.synopsis} />
+                )}
               </section>
             );
           })
           .toArray()}
-
       </div>
     );
   }

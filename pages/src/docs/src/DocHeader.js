@@ -14,10 +14,10 @@ var DocHeader = React.createClass({
                 <Logo color="#2C3E50" inline />
               </SVGSet>
             </a>
-            <a href="./" target="_self">Docs</a>
-            <a
-              href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes"
-            >
+            <a href="./" target="_self">
+              Docs
+            </a>
+            <a href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes">
               Questions
             </a>
             <a href="https://github.com/facebook/immutable-js/">Github</a>

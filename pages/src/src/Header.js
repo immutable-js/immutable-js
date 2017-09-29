@@ -3,8 +3,8 @@ var SVGSet = require('./SVGSet');
 var Logo = require('./Logo');
 var StarBtn = require('./StarBtn');
 
-var isMobileMatch = window.matchMedia &&
-  window.matchMedia('(max-device-width: 680px)');
+var isMobileMatch =
+  window.matchMedia && window.matchMedia('(max-device-width: 680px)');
 var isMobile = isMobileMatch && isMobileMatch.matches;
 
 var Header = React.createClass({
@@ -58,10 +58,10 @@ var Header = React.createClass({
                 <Logo color="#2C3E50" inline />
               </SVGSet>
             </a>
-            <a href="docs/" target="_self">Docs</a>
-            <a
-              href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes"
-            >
+            <a href="docs/" target="_self">
+              Docs
+            </a>
+            <a href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes">
               Questions
             </a>
             <a href="https://github.com/facebook/immutable-js/">GitHub</a>
@@ -72,10 +72,10 @@ var Header = React.createClass({
             <div className="coverFixed">
               <div className="filler">
                 <div className="miniHeaderContents">
-                  <a href="docs/" target="_self">Docs</a>
-                  <a
-                    href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes"
-                  >
+                  <a href="docs/" target="_self">
+                    Docs
+                  </a>
+                  <a href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes">
                     Questions
                   </a>
                   <a href="https://github.com/facebook/immutable-js/">GitHub</a>
@@ -85,7 +85,8 @@ var Header = React.createClass({
                 <div className="logo">
                   {(isMobile
                     ? [0, 0, 0, 0, 0, 0, 0]
-                    : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).map((_, i) => (
+                    : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                  ).map((_, i) => (
                     <SVGSet key={i} style={t(y(s, i * sp), z(s, i * sp))}>
                       <Logo color="#c1c6c8" />
                       <Logo color="#6dbcdb" opacity={o(s, i * sp)} />

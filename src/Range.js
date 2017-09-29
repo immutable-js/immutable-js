@@ -49,12 +49,14 @@ export class Range extends IndexedSeq {
     if (this.size === 0) {
       return 'Range []';
     }
-    return 'Range [ ' +
+    return (
+      'Range [ ' +
       this._start +
       '...' +
       this._end +
       (this._step !== 1 ? ' by ' + this._step : '') +
-      ' ]';
+      ' ]'
+    );
   }
 
   get(index, notSetValue) {
@@ -65,9 +67,11 @@ export class Range extends IndexedSeq {
 
   includes(searchValue) {
     const possibleIndex = (searchValue - this._start) / this._step;
-    return possibleIndex >= 0 &&
+    return (
+      possibleIndex >= 0 &&
       possibleIndex < this.size &&
-      possibleIndex === Math.floor(possibleIndex);
+      possibleIndex === Math.floor(possibleIndex)
+    );
   }
 
   slice(begin, end) {

@@ -4,9 +4,10 @@
      Begin prism-core.js
 ********************************************** */
 
-self = typeof window !== 'undefined'
-  ? window // if in browser
-  : typeof WorkerGlobalScope !== 'undefined' &&
+self =
+  typeof window !== 'undefined'
+    ? window // if in browser
+    : typeof WorkerGlobalScope !== 'undefined' &&
       self instanceof WorkerGlobalScope
       ? self // if in worker
       : {}; // if in node js
@@ -158,7 +159,9 @@ var Prism = (function() {
 
     highlightElement: function(element, async, callback) {
       // Find language
-      var language, grammar, parent = element;
+      var language,
+        grammar,
+        parent = element;
 
       while (parent && !lang.test(parent.className)) {
         parent = parent.parentNode;
@@ -174,9 +177,8 @@ var Prism = (function() {
       }
 
       // Set language on the element, if not present
-      element.className = element.className
-        .replace(lang, '')
-        .replace(/\s+/g, ' ') +
+      element.className =
+        element.className.replace(lang, '').replace(/\s+/g, ' ') +
         ' language-' +
         language;
 
@@ -184,9 +186,8 @@ var Prism = (function() {
       parent = element.parentNode;
 
       if (/pre/i.test(parent.nodeName)) {
-        parent.className = parent.className
-          .replace(lang, '')
-          .replace(/\s+/g, ' ') +
+        parent.className =
+          parent.className.replace(lang, '').replace(/\s+/g, ' ') +
           ' language-' +
           language;
       }
@@ -404,7 +405,8 @@ var Prism = (function() {
       attributes += name + '="' + (env.attributes[name] || '') + '"';
     }
 
-    return '<' +
+    return (
+      '<' +
       env.tag +
       ' class="' +
       env.classes.join(' ') +
@@ -414,7 +416,8 @@ var Prism = (function() {
       env.content +
       '</' +
       env.tag +
-      '>';
+      '>'
+    );
   };
 
   if (!self.document) {
@@ -519,20 +522,20 @@ Prism.languages.css = {
   },
   url: /url\((["']?).*?\1\)/gi,
   selector: /[^\{\}\s][^\{\};]*(?=\s*\{)/g,
-  property: /(\b|\B)[\w-]+(?=\s*:)/ig,
+  property: /(\b|\B)[\w-]+(?=\s*:)/gi,
   string: /("|')(\\?.)*?\1/g,
   important: /\B!important\b/gi,
   punctuation: /[\{\};:]/g,
-  function: /[-a-z0-9]+(?=\()/ig
+  function: /[-a-z0-9]+(?=\()/gi
 };
 
 if (Prism.languages.markup) {
   Prism.languages.insertBefore('markup', 'tag', {
     style: {
-      pattern: /<style[\w\W]*?>[\w\W]*?<\/style>/ig,
+      pattern: /<style[\w\W]*?>[\w\W]*?<\/style>/gi,
       inside: {
         tag: {
-          pattern: /<style[\w\W]*?>|<\/style>/ig,
+          pattern: /<style[\w\W]*?>|<\/style>/gi,
           inside: Prism.languages.markup.tag.inside
         },
         rest: Prism.languages.css
@@ -546,10 +549,10 @@ if (Prism.languages.markup) {
     'attr-value',
     {
       'style-attr': {
-        pattern: /\s*style=("|').+?\1/ig,
+        pattern: /\s*style=("|').+?\1/gi,
         inside: {
           'attr-name': {
-            pattern: /^\s*style/ig,
+            pattern: /^\s*style/gi,
             inside: Prism.languages.markup.tag.inside
           },
           punctuation: /^\s*=\s*['"]|['"]\s*$/,
@@ -582,7 +585,7 @@ Prism.languages.clike = {
   ],
   string: /("|')(\\?.)*?\1/g,
   'class-name': {
-    pattern: /((?:(?:class|interface|extends|implements|trait|instanceof|new)\s+)|(?:catch\s+\())[a-z0-9_\.\\]+/ig,
+    pattern: /((?:(?:class|interface|extends|implements|trait|instanceof|new)\s+)|(?:catch\s+\())[a-z0-9_\.\\]+/gi,
     lookbehind: true,
     inside: {
       punctuation: /(\.|\\)/
@@ -591,7 +594,7 @@ Prism.languages.clike = {
   keyword: /\b(if|else|while|do|for|return|in|instanceof|function|new|try|throw|catch|finally|null|break|continue)\b/g,
   boolean: /\b(true|false)\b/g,
   function: {
-    pattern: /[a-z0-9_]+\(/ig,
+    pattern: /[a-z0-9_]+\(/gi,
     inside: {
       punctuation: /\(/
     }
@@ -621,10 +624,10 @@ Prism.languages.insertBefore('javascript', 'keyword', {
 if (Prism.languages.markup) {
   Prism.languages.insertBefore('markup', 'tag', {
     script: {
-      pattern: /<script[\w\W]*?>[\w\W]*?<\/script>/ig,
+      pattern: /<script[\w\W]*?>[\w\W]*?<\/script>/gi,
       inside: {
         tag: {
-          pattern: /<script[\w\W]*?>|<\/script>/ig,
+          pattern: /<script[\w\W]*?>|<\/script>/gi,
           inside: Prism.languages.markup.tag.inside
         },
         rest: Prism.languages.javascript
@@ -679,7 +682,8 @@ if (Prism.languages.markup) {
 
             Prism.highlightElement(code);
           } else if (xhr.status >= 400) {
-            code.textContent = '✖ Error ' +
+            code.textContent =
+              '✖ Error ' +
               xhr.status +
               ' while fetching file: ' +
               xhr.statusText;

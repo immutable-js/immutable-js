@@ -117,7 +117,9 @@ mixin(Collection, {
   },
 
   toJS() {
-    return this.toSeq().map(toJS).toJSON();
+    return this.toSeq()
+      .map(toJS)
+      .toJSON();
   },
 
   toKeyedSeq() {
@@ -183,11 +185,15 @@ mixin(Collection, {
     if (this.size === 0) {
       return head + tail;
     }
-    return head +
+    return (
+      head +
       ' ' +
-      this.toSeq().map(this.__toStringMapper).join(', ') +
+      this.toSeq()
+        .map(this.__toStringMapper)
+        .join(', ') +
       ' ' +
-      tail;
+      tail
+    );
   },
 
   // ### ES6 Collection methods (ES6 Array and Map)
@@ -322,7 +328,10 @@ mixin(Collection, {
       // We cache as an entries array, so we can just return the cache!
       return new ArraySeq(collection._cache);
     }
-    const entriesSequence = collection.toSeq().map(entryMapper).toIndexedSeq();
+    const entriesSequence = collection
+      .toSeq()
+      .map(entryMapper)
+      .toIndexedSeq();
     entriesSequence.fromEntrySeq = () => collection.toSeq();
 
     // Entries are plain Array, which do not define toJS, so it must
@@ -355,7 +364,9 @@ mixin(Collection, {
   },
 
   findLast(predicate, context, notSetValue) {
-    return this.toKeyedSeq().reverse().find(predicate, context, notSetValue);
+    return this.toKeyedSeq()
+      .reverse()
+      .find(predicate, context, notSetValue);
   },
 
   findLastEntry(predicate, context, notSetValue) {
@@ -365,7 +376,9 @@ mixin(Collection, {
   },
 
   findLastKey(predicate, context) {
-    return this.toKeyedSeq().reverse().findKey(predicate, context);
+    return this.toKeyedSeq()
+      .reverse()
+      .findKey(predicate, context);
   },
 
   first() {
@@ -438,15 +451,21 @@ mixin(Collection, {
   },
 
   keySeq() {
-    return this.toSeq().map(keyMapper).toIndexedSeq();
+    return this.toSeq()
+      .map(keyMapper)
+      .toIndexedSeq();
   },
 
   last() {
-    return this.toSeq().reverse().first();
+    return this.toSeq()
+      .reverse()
+      .first();
   },
 
   lastKeyOf(searchValue) {
-    return this.toKeyedSeq().reverse().keyOf(searchValue);
+    return this.toKeyedSeq()
+      .reverse()
+      .keyOf(searchValue);
   },
 
   max(comparator) {
@@ -538,9 +557,9 @@ CollectionPrototype[IS_ITERABLE_SENTINEL] = true;
 CollectionPrototype[ITERATOR_SYMBOL] = CollectionPrototype.values;
 CollectionPrototype.toJSON = CollectionPrototype.toArray;
 CollectionPrototype.__toStringMapper = quoteString;
-CollectionPrototype.inspect = (CollectionPrototype.toSource = function() {
+CollectionPrototype.inspect = CollectionPrototype.toSource = function() {
   return this.toString();
-});
+};
 CollectionPrototype.chain = CollectionPrototype.flatMap;
 CollectionPrototype.contains = CollectionPrototype.includes;
 
@@ -564,7 +583,10 @@ mixin(KeyedCollection, {
   mapKeys(mapper, context) {
     return reify(
       this,
-      this.toSeq().flip().map((k, v) => mapper.call(context, k, v, this)).flip()
+      this.toSeq()
+        .flip()
+        .map((k, v) => mapper.call(context, k, v, this))
+        .flip()
     );
   }
 });
@@ -656,10 +678,12 @@ mixin(IndexedCollection, {
 
   has(index) {
     index = wrapIndex(this, index);
-    return index >= 0 &&
+    return (
+      index >= 0 &&
       (this.size !== undefined
         ? this.size === Infinity || index < this.size
-        : this.indexOf(index) !== -1);
+        : this.indexOf(index) !== -1)
+    );
   },
 
   interpose(separator) {
@@ -740,17 +764,14 @@ mixin(SetSeq, SetCollection.prototype);
 
 function reduce(collection, reducer, reduction, context, useFirst, reverse) {
   assertNotInfinite(collection.size);
-  collection.__iterate(
-    (v, k, c) => {
-      if (useFirst) {
-        useFirst = false;
-        reduction = v;
-      } else {
-        reduction = reducer.call(context, reduction, v, k, c);
-      }
-    },
-    reverse
-  );
+  collection.__iterate((v, k, c) => {
+    if (useFirst) {
+      useFirst = false;
+      reduction = v;
+    } else {
+      reduction = reducer.call(context, reduction, v, k, c);
+    }
+  }, reverse);
   return reduction;
 }
 
@@ -796,36 +817,36 @@ function hashCollection(collection) {
   const size = collection.__iterate(
     keyed
       ? ordered
-          ? (v, k) => {
-              h = 31 * h + hashMerge(hash(v), hash(k)) | 0;
-            }
-          : (v, k) => {
-              h = h + hashMerge(hash(v), hash(k)) | 0;
-            }
+        ? (v, k) => {
+            h = (31 * h + hashMerge(hash(v), hash(k))) | 0;
+          }
+        : (v, k) => {
+            h = (h + hashMerge(hash(v), hash(k))) | 0;
+          }
       : ordered
-          ? v => {
-              h = 31 * h + hash(v) | 0;
-            }
-          : v => {
-              h = h + hash(v) | 0;
-            }
+        ? v => {
+            h = (31 * h + hash(v)) | 0;
+          }
+        : v => {
+            h = (h + hash(v)) | 0;
+          }
   );
   return murmurHashOfSize(size, h);
 }
 
 function murmurHashOfSize(size, h) {
   h = imul(h, 0xcc9e2d51);
-  h = imul(h << 15 | h >>> -15, 0x1b873593);
-  h = imul(h << 13 | h >>> -13, 5);
-  h = (h + 0xe6546b64 | 0) ^ size;
-  h = imul(h ^ h >>> 16, 0x85ebca6b);
-  h = imul(h ^ h >>> 13, 0xc2b2ae35);
-  h = smi(h ^ h >>> 16);
+  h = imul((h << 15) | (h >>> -15), 0x1b873593);
+  h = imul((h << 13) | (h >>> -13), 5);
+  h = ((h + 0xe6546b64) | 0) ^ size;
+  h = imul(h ^ (h >>> 16), 0x85ebca6b);
+  h = imul(h ^ (h >>> 13), 0xc2b2ae35);
+  h = smi(h ^ (h >>> 16));
   return h;
 }
 
 function hashMerge(a, b) {
-  return a ^ b + 0x9e3779b9 + (a << 6) + (a >> 2) | 0; // int
+  return (a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2))) | 0; // int
 }
 
 function warn(message) {

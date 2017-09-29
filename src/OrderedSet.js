@@ -21,12 +21,12 @@ export class OrderedSet extends Set {
     return value === null || value === undefined
       ? emptyOrderedSet()
       : isOrderedSet(value)
-          ? value
-          : emptyOrderedSet().withMutations(set => {
-              const iter = SetCollection(value);
-              assertNotInfinite(iter.size);
-              iter.forEach(v => set.add(v));
-            });
+        ? value
+        : emptyOrderedSet().withMutations(set => {
+            const iter = SetCollection(value);
+            assertNotInfinite(iter.size);
+            iter.forEach(v => set.add(v));
+          });
   }
 
   static of(/*...values*/) {
@@ -66,6 +66,7 @@ function makeOrderedSet(map, ownerID) {
 
 let EMPTY_ORDERED_SET;
 function emptyOrderedSet() {
-  return EMPTY_ORDERED_SET ||
-    (EMPTY_ORDERED_SET = makeOrderedSet(emptyOrderedMap()));
+  return (
+    EMPTY_ORDERED_SET || (EMPTY_ORDERED_SET = makeOrderedSet(emptyOrderedMap()))
+  );
 }

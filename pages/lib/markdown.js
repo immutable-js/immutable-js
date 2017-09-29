@@ -79,17 +79,19 @@ renderer.code = function(code, lang, escaped) {
 
   const runItButton = runkitContext.activated
     ? '<a class = "try-it" data-options="' +
-        escape(JSON.stringify(runkitContext.options)) +
-        '" onClick = "runIt(this)">run it</a>'
+      escape(JSON.stringify(runkitContext.options)) +
+      '" onClick = "runIt(this)">run it</a>'
     : '';
 
   runkitContext.activated = false;
   runkitContext.options = '{}';
 
-  return '<code class="codeBlock">' +
+  return (
+    '<code class="codeBlock">' +
     (escaped ? code : escapeCode(code, true)) +
     runItButton +
-    '</code>';
+    '</code>'
+  );
 };
 
 var METHOD_RX = /^(\w+)(?:[#.](\w+))?(?:\(\))?$/;
@@ -99,7 +101,8 @@ var MDN_TYPES = {
   Object: true,
   JSON: true
 };
-var MDN_BASE_URL = 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/';
+var MDN_BASE_URL =
+  'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/';
 
 renderer.codespan = function(text) {
   return '<code>' + decorateCodeSpan(text, this.options) + '</code>';
@@ -122,12 +125,9 @@ function decorateCodeSpan(text, options) {
   if (method) {
     method = method.slice(1).filter(Boolean);
     if (MDN_TYPES[method[0]]) {
-      return '<a href="' +
-        MDN_BASE_URL +
-        method.join('/') +
-        '">' +
-        text +
-        '</a>';
+      return (
+        '<a href="' + MDN_BASE_URL + method.join('/') + '">' + text + '</a>'
+      );
     }
     if (
       context.typePath &&
@@ -137,13 +137,15 @@ function decorateCodeSpan(text, options) {
       var path = findPath(context, method);
       if (path) {
         var relPath = context.relPath || '';
-        return '<a target="_self" href="' +
+        return (
+          '<a target="_self" href="' +
           relPath +
           '#/' +
           path.slice(1).join('/') +
           '">' +
           text +
-          '</a>';
+          '</a>'
+        );
       }
     }
   }

@@ -20,7 +20,9 @@ function markdownDocs(defs) {
             markdownDoc(member.doc, {
               typePath: typePath.concat(memberName.slice(1)),
               signatures: member.signatures
-            })));
+            })
+          )
+        );
       }
       typeDef.module && markdownTypes(typeDef.module, typePath);
     });

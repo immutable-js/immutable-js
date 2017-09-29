@@ -303,9 +303,10 @@ function DocVisitor(source) {
           index: parseType(node.indexType)
         };
       case ts.SyntaxKind.TypeOperator:
-        var operator = node.operator === ts.SyntaxKind.KeyOfKeyword
-          ? 'keyof'
-          : node.operator === ts.SyntaxKind.ReadonlyKeyword
+        var operator =
+          node.operator === ts.SyntaxKind.KeyOfKeyword
+            ? 'keyof'
+            : node.operator === ts.SyntaxKind.ReadonlyKeyword
               ? 'readonly'
               : undefined;
         if (!operator) {
@@ -440,7 +441,10 @@ function getDoc(node) {
     .slice(1, -1)
     .map(l => l.trim().substr(2));
 
-  var paragraphs = lines.filter(l => l[0] !== '@').join('\n').split('\n\n');
+  var paragraphs = lines
+    .filter(l => l[0] !== '@')
+    .join('\n')
+    .split('\n\n');
 
   var synopsis = paragraphs && paragraphs.shift();
   var description = paragraphs && paragraphs.join('\n\n');

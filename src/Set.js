@@ -23,12 +23,12 @@ export class Set extends SetCollection {
     return value === null || value === undefined
       ? emptySet()
       : isSet(value) && !isOrdered(value)
-          ? value
-          : emptySet().withMutations(set => {
-              const iter = SetCollection(value);
-              assertNotInfinite(iter.size);
-              iter.forEach(v => set.add(v));
-            });
+        ? value
+        : emptySet().withMutations(set => {
+            const iter = SetCollection(value);
+            assertNotInfinite(iter.size);
+            iter.forEach(v => set.add(v));
+          });
   }
 
   static of(/*...values*/) {

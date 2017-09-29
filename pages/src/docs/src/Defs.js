@@ -16,7 +16,11 @@ var InterfaceDef = React.createClass({
         {def.typeParams && [
           '<',
           Seq(def.typeParams)
-            .map((t, k) => <span className="t typeParam" key={k}>{t}</span>)
+            .map((t, k) => (
+              <span className="t typeParam" key={k}>
+                {t}
+              </span>
+            ))
             .interpose(', ')
             .toArray(),
           '>'
@@ -141,7 +145,11 @@ var TypeDef = React.createClass({
           type.typeParams && [
             '<',
             Seq(type.typeParams)
-              .map((t, k) => <span className="t typeParam" key={k}>{t}</span>)
+              .map((t, k) => (
+                <span className="t typeParam" key={k}>
+                  {t}
+                </span>
+              ))
               .interpose(', ')
               .toArray(),
             '>'
@@ -152,9 +160,11 @@ var TypeDef = React.createClass({
           <TypeDef info={info} type={type.type} />
         ]);
       case TypeKind.Param:
-        return info && info.propMap[info.defining + '<' + type.param]
-          ? <TypeDef type={info.propMap[info.defining + '<' + type.param]} />
-          : this.wrap('typeParam', type.param);
+        return info && info.propMap[info.defining + '<' + type.param] ? (
+          <TypeDef type={info.propMap[info.defining + '<' + type.param]} />
+        ) : (
+          this.wrap('typeParam', type.param)
+        );
       case TypeKind.Type:
         var qualifiedType = (type.qualifier || []).concat([type.name]);
         var qualifiedTypeName = qualifiedType.join('.');
@@ -227,9 +237,11 @@ var MemberDef = React.createClass({
     return (
       <span className="t member">
         {module && [<span className="t fnQualifier">{module}</span>, '.']}
-        {member.index
-          ? ['[', functionParams(null, member.params), ']']
-          : <span className="t memberName">{member.name}</span>}
+        {member.index ? (
+          ['[', functionParams(null, member.params), ']']
+        ) : (
+          <span className="t memberName">{member.name}</span>
+        )}
         {member.type && [': ', <TypeDef type={member.type} />]}
       </span>
     );
@@ -252,9 +264,11 @@ function functionParams(info, params, shouldWrap) {
     ])
     .interpose(shouldWrap ? [',', <br />] : ', ')
     .toArray();
-  return shouldWrap
-    ? <div className="t blockParams">{elements}</div>
-    : elements;
+  return shouldWrap ? (
+    <div className="t blockParams">{elements}</div>
+  ) : (
+    elements
+  );
 }
 
 function callSigLength(info, module, name, sig) {
@@ -262,10 +276,12 @@ function callSigLength(info, module, name, sig) {
 }
 
 function funcLength(info, sig) {
-  return (sig.typeParams ? 2 + sig.typeParams.join(', ').length : 0) +
+  return (
+    (sig.typeParams ? 2 + sig.typeParams.join(', ').length : 0) +
     2 +
     (sig.params ? paramLength(info, sig.params) : 0) +
-    (sig.type ? 2 + typeLength(info, sig.type) : 0);
+    (sig.type ? 2 + typeLength(info, sig.type) : 0)
+  );
 }
 
 function paramLength(info, params) {
@@ -308,12 +324,16 @@ function typeLength(info, type) {
     case TypeKind.String:
       return 6;
     case TypeKind.Union:
-      return type.types.reduce((s, t) => s + typeLength(info, t), 0) +
-        (type.types.length - 1) * 3;
-    case TypeKind.Tuple:
-      return 2 +
+      return (
         type.types.reduce((s, t) => s + typeLength(info, t), 0) +
-        (type.types.length - 1) * 2;
+        (type.types.length - 1) * 3
+      );
+    case TypeKind.Tuple:
+      return (
+        2 +
+        type.types.reduce((s, t) => s + typeLength(info, t), 0) +
+        (type.types.length - 1) * 2
+      );
     case TypeKind.Object:
       return 2 + memberLength(info, type.members);
     case TypeKind.Indexed:
@@ -329,14 +349,16 @@ function typeLength(info, type) {
         ? typeLength(null, info.propMap[info.defining + '<' + type.param])
         : type.param.length;
     case TypeKind.Type:
-      return (type.qualifier ? 1 + type.qualifier.join('.').length : 0) +
+      return (
+        (type.qualifier ? 1 + type.qualifier.join('.').length : 0) +
         type.name.length +
         (!type.args
           ? 0
           : type.args.reduce(
               (s, a) => s + typeLength(info, a),
               type.args.length * 2
-            ));
+            ))
+      );
   }
   throw new Error('Unknown kind ' + type.k);
 }
