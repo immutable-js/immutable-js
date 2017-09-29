@@ -1488,7 +1488,10 @@ function sliceFactory(collection, begin, end, useKeys) {
       return this.cacheResult().__iterator(type, reverse);
     }
     // Don't bother instantiating parent iterator if taking 0.
-    var iterator = sliceSize !== 0 && collection.__iterator(type, reverse);
+    if (sliceSize === 0) {
+      return new Iterator(iteratorDone);
+    }
+    var iterator = collection.__iterator(type, reverse);
     var skipped = 0;
     var iterations = 0;
     return new Iterator(function () {

@@ -472,7 +472,10 @@ export function sliceFactory(collection, begin, end, useKeys) {
       return this.cacheResult().__iterator(type, reverse);
     }
     // Don't bother instantiating parent iterator if taking 0.
-    const iterator = sliceSize !== 0 && collection.__iterator(type, reverse);
+    if (sliceSize === 0) {
+      return new Iterator(iteratorDone);
+    }
+    const iterator = collection.__iterator(type, reverse);
     let skipped = 0;
     let iterations = 0;
     return new Iterator(() => {
