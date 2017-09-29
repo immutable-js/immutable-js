@@ -82,6 +82,13 @@ describe('Record', () => {
     expect(t1.equals(t2));
   });
 
+  it('if compared against undefined or null should return false', () => {
+    const MyType = Record({ a: 1, b: 2 });
+    const t1 = new MyType();
+    expect(t1.equals(undefined)).toBeFalsy();
+    expect(t1.equals(null)).toBeFalsy();
+  });
+
   it('merges in Objects and other Records', () => {
     let Point2 = Record({x: 0, y: 0});
     let Point3 = Record({x: 0, y: 0, z: 0});

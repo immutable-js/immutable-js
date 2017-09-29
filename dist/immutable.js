@@ -5236,7 +5236,9 @@ Record.prototype.toString = function toString () {
 
 Record.prototype.equals = function equals (other) {
   return this === other ||
-    (this._keys === other._keys && recordSeq(this).equals(recordSeq(other)));
+    (other &&
+      this._keys === other._keys &&
+      recordSeq(this).equals(recordSeq(other)));
 };
 
 Record.prototype.hashCode = function hashCode () {
