@@ -28,12 +28,8 @@ describe('Seq', () => {
     expect(Seq(new Foo()).size).toBe(2);
   });
 
-  it('of accepts varargs', () => {
-    expect(Seq.of(1, 2, 3).size).toBe(3);
-  });
-
   it('accepts another sequence', () => {
-    let seq = Seq.of(1, 2, 3);
+    let seq = Seq([1, 2, 3]);
     expect(Seq(seq).size).toBe(3);
   });
 
@@ -59,7 +55,7 @@ describe('Seq', () => {
   });
 
   it('detects sequences', () => {
-    let seq = Seq.of(1, 2, 3);
+    let seq = Seq([1, 2, 3]);
     expect(Seq.isSeq(seq)).toBe(true);
     expect(isCollection(seq)).toBe(true);
   });

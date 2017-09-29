@@ -26,9 +26,9 @@ jasmine.addMatchers({
 describe('concat', () => {
 
   it('concats two sequences', () => {
-    let a = Seq.of(1, 2, 3);
-    let b = Seq.of(4, 5, 6);
-    expect(a.concat(b)).is(Seq.of(1, 2, 3, 4, 5, 6));
+    let a = Seq([1, 2, 3]);
+    let b = Seq([4, 5, 6]);
+    expect(a.concat(b)).is(Seq([1, 2, 3, 4, 5, 6]));
     expect(a.concat(b).size).toBe(6);
     expect(a.concat(b).toArray()).toEqual([1, 2, 3, 4, 5, 6]);
   });
@@ -56,20 +56,20 @@ describe('concat', () => {
   });
 
   it('concats arrays to indexed seq', () => {
-    let a = Seq.of(1, 2, 3);
+    let a = Seq([1, 2, 3]);
     let b = [4, 5, 6];
     expect(a.concat(b).size).toBe(6);
     expect(a.concat(b).toArray()).toEqual([1, 2, 3, 4, 5, 6]);
   });
 
   it('concats values', () => {
-    let a = Seq.of(1, 2, 3);
+    let a = Seq([1, 2, 3]);
     expect(a.concat(4, 5, 6).size).toBe(6);
     expect(a.concat(4, 5, 6).toArray()).toEqual([1, 2, 3, 4, 5, 6]);
   });
 
   it('doesnt concat objects to indexed seq', () => {
-    let a = Seq.of(0, 1, 2, 3);
+    let a = Seq([0, 1, 2, 3]);
     let b = {4: 4};
     let i = a.concat(b);
     expect(i.size).toBe(5);
@@ -78,7 +78,7 @@ describe('concat', () => {
   });
 
   it('concats multiple arguments', () => {
-    let a = Seq.of(1, 2, 3);
+    let a = Seq([1, 2, 3]);
     let b = [4, 5, 6];
     let c = [7, 8, 9];
     expect(a.concat(b, c).size).toBe(9);
@@ -86,13 +86,13 @@ describe('concat', () => {
   });
 
   it('can concat itself!', () => {
-    let a = Seq.of(1, 2, 3);
+    let a = Seq([1, 2, 3]);
     expect(a.concat(a, a).size).toBe(9);
     expect(a.concat(a, a).toArray()).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3]);
   });
 
   it('returns itself when concat does nothing', () => {
-    let a = Seq.of(1, 2, 3);
+    let a = Seq([1, 2, 3]);
     let b = Seq();
     expect(a.concat()).toBe(a);
     expect(a.concat(b)).toBe(a);
@@ -100,7 +100,7 @@ describe('concat', () => {
   });
 
   it('returns non-empty item when concat does nothing', () => {
-    let a = Seq.of(1, 2, 3);
+    let a = Seq([1, 2, 3]);
     let b = Seq();
     expect(a.concat(b)).toBe(a);
     expect(b.concat(a)).toBe(a);
@@ -108,11 +108,11 @@ describe('concat', () => {
   });
 
   it('always returns the same type', () => {
-    let a = Set.of(1, 2, 3);
+    let a = Set([1, 2, 3]);
     let b = List();
     expect(b.concat(a)).not.toBe(a);
     expect(List.isList(b.concat(a))).toBe(true);
-    expect(b.concat(a)).is(List.of(1, 2, 3));
+    expect(b.concat(a)).is(List([1, 2, 3]));
   });
 
   it('iterates repeated keys', () => {

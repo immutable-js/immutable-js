@@ -5,15 +5,15 @@ import { List, OrderedMap, Range, Seq } from '../';
 describe('sort', () => {
 
   it('sorts a sequence', () => {
-    expect(Seq.of(4, 5, 6, 3, 2, 1).sort().toArray()).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(Seq([4, 5, 6, 3, 2, 1]).sort().toArray()).toEqual([1, 2, 3, 4, 5, 6]);
   });
 
   it('sorts a list', () => {
-    expect(List.of(4, 5, 6, 3, 2, 1).sort().toArray()).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(List([4, 5, 6, 3, 2, 1]).sort().toArray()).toEqual([1, 2, 3, 4, 5, 6]);
   });
 
   it('sorts undefined values last', () => {
-    expect(List.of(4, undefined, 5, 6, 3, undefined, 2, 1).sort().toArray())
+    expect(List([4, undefined, 5, 6, 3, undefined, 2, 1]).sort().toArray())
       .toEqual([1, 2, 3, 4, 5, 6, undefined, undefined]);
   });
 
@@ -28,7 +28,7 @@ describe('sort', () => {
   });
 
   it('accepts a sort function', () => {
-    expect(Seq.of(4, 5, 6, 3, 2, 1).sort((a, b) => b - a).toArray()).toEqual([6, 5, 4, 3, 2, 1]);
+    expect(Seq([4, 5, 6, 3, 2, 1]).sort((a, b) => b - a).toArray()).toEqual([6, 5, 4, 3, 2, 1]);
   });
 
   it('sorts by using a mapper', () => {

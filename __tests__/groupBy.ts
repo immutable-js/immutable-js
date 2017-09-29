@@ -15,7 +15,7 @@ describe('groupBy', () => {
 
   it('groups indexed sequence', () => {
     expect(
-      Seq.of(1, 2, 3, 4, 5, 6).groupBy(x => x % 2).toJS(),
+      Seq([1, 2, 3, 4, 5, 6]).groupBy(x => x % 2).toJS(),
     ).toEqual(
       {1: [1, 3, 5], 0: [2, 4, 6]},
     );
@@ -23,7 +23,7 @@ describe('groupBy', () => {
 
   it('groups to keys', () => {
     expect(
-      Seq.of(1, 2, 3, 4, 5, 6).groupBy(x => x % 2 ? 'odd' : 'even').toJS(),
+      Seq([1, 2, 3, 4, 5, 6]).groupBy(x => x % 2 ? 'odd' : 'even').toJS(),
     ).toEqual(
       {odd: [1, 3, 5], even: [2, 4, 6]},
     );
@@ -31,12 +31,12 @@ describe('groupBy', () => {
 
   it('groups indexed sequences, maintaining indicies when keyed sequences', () => {
     expect(
-      Seq.of(1, 2, 3, 4, 5, 6).groupBy(x => x % 2).toJS(),
+      Seq([1, 2, 3, 4, 5, 6]).groupBy(x => x % 2).toJS(),
     ).toEqual(
       {1: [1, 3, 5], 0: [2, 4, 6]},
     );
     expect(
-      Seq.of(1, 2, 3, 4, 5, 6).toKeyedSeq().groupBy(x => x % 2).toJS(),
+      Seq([1, 2, 3, 4, 5, 6]).toKeyedSeq().groupBy(x => x % 2).toJS(),
     ).toEqual(
       {1: {0: 1, 2: 3, 4: 5}, 0: {1: 2, 3: 4, 5: 6}},
     );
@@ -44,14 +44,14 @@ describe('groupBy', () => {
 
   it('has groups that can be mapped', () => {
     expect(
-      Seq.of(1, 2, 3, 4, 5, 6).groupBy(x => x % 2).map(group => group.map(value => value * 10)).toJS(),
+      Seq([1, 2, 3, 4, 5, 6]).groupBy(x => x % 2).map(group => group.map(value => value * 10)).toJS(),
     ).toEqual(
       {1: [10, 30, 50], 0: [20, 40, 60]},
     );
   });
 
   it('returns an ordered map from an ordered collection', () => {
-    let seq = Seq.of('Z', 'Y', 'X', 'Z', 'Y', 'X');
+    let seq = Seq(['Z', 'Y', 'X', 'Z', 'Y', 'X']);
     expect(Collection.isOrdered(seq)).toBe(true);
     let seqGroups = seq.groupBy(x => x);
     expect(Collection.isOrdered(seqGroups)).toBe(true);

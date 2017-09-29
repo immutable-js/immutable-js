@@ -51,7 +51,7 @@ describe('Set', () => {
   });
 
   it('accepts sequence of values', () => {
-    let seq = Seq.of(1, 2, 3);
+    let seq = Seq([1, 2, 3]);
     let s = Set(seq);
     expect(s.has(1)).toBe(true);
     expect(s.has(2)).toBe(true);
@@ -89,7 +89,7 @@ describe('Set', () => {
   });
 
   it('accepts explicit values', () => {
-    let s = Set.of(1, 2, 3);
+    let s = Set([1, 2, 3]);
     expect(s.has(1)).toBe(true);
     expect(s.has(2)).toBe(true);
     expect(s.has(3)).toBe(true);
@@ -97,7 +97,7 @@ describe('Set', () => {
   });
 
   it('converts back to JS array', () => {
-    let s = Set.of(1, 2, 3);
+    let s = Set([1, 2, 3]);
     expect(s.toArray()).toEqual([1, 2, 3]);
   });
 
@@ -123,7 +123,7 @@ describe('Set', () => {
   });
 
   it('iterates values', () => {
-    let s = Set.of(1, 2, 3);
+    let s = Set([1, 2, 3]);
     let iterator = jest.genMockFunction();
     s.forEach(iterator);
     expect(iterator.mock.calls).toEqual([

@@ -269,10 +269,6 @@ var Seq = (function (Collection$$1) {
   Seq.prototype = Object.create( Collection$$1 && Collection$$1.prototype );
   Seq.prototype.constructor = Seq;
 
-  Seq.of = function of (/*...values*/) {
-    return Seq(arguments);
-  };
-
   Seq.prototype.toSeq = function toSeq () {
     return this;
   };
