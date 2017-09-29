@@ -215,6 +215,11 @@ StackPrototype.wasAltered = MapPrototype.wasAltered;
 StackPrototype.shift = StackPrototype.pop;
 StackPrototype.unshift = StackPrototype.push;
 StackPrototype.unshiftAll = StackPrototype.pushAll;
+StackPrototype['@@transducer/init'] = StackPrototype.asMutable;
+StackPrototype['@@transducer/step'] = function(result, arr) {
+  return result.unshift(arr);
+};
+StackPrototype['@@transducer/result'] = MapPrototype['@@transducer/result'];
 
 function makeStack(size, head, ownerID, hash) {
   const map = Object.create(StackPrototype);

@@ -36,7 +36,7 @@
  * ```
  *
  * Sometimes, methods can accept different kinds of data or return different
- * kinds of data, and this is described with a *type variable*, which are
+ * kinds of data, and this is described with a *type variable*, which is
  * typically in all-caps. For example, a function which always returns the same
  * kind of data it was provided would look like this:
  *
@@ -113,42 +113,50 @@
    * deep JS objects. Finally, a `path` is provided which is the sequence of
    * keys to this value from the starting value.
    *
-   * This example converts native JS data to List and OrderedMap:
+   * `reviver` acts similarly to the [same parameter in `JSON.parse`][1].
+   *
+   * If `reviver` is not provided, the default behavior will convert Objects
+   * into Maps and Arrays into Lists like so:
    *
    * ```js
-   * const { fromJS, isIndexed } = require('immutable')
-   * fromJS({ a: {b: [10, 20, 30]}, c: 40}, function (key, value, path) {
-   *   console.log(key, value, path)
-   *   return isIndexed(value) ? value.toList() : value.toOrderedMap()
-   * })
-   *
-   * > "b", [ 10, 20, 30 ], [ "a", "b" ]
-   * > "a", { b: [10, 20, 30] }, c: 40 }, [ "a" ]
-   * > "", {a: {b: [10, 20, 30]}, c: 40}, []
+   * const { fromJS, isKeyed } = require('immutable')
+   * function (key, value) {
+   *   return isKeyed(value) ? value.Map() : value.toList()
+   * }
    * ```
-   *
-   * If `reviver` is not provided, the default behavior will convert Arrays into
-   * Lists and Objects into Maps.
-   *
-   * `reviver` acts similarly to the [same parameter in `JSON.parse`][1].
    *
    * `fromJS` is conservative in its conversion. It will only convert
    * arrays which pass `Array.isArray` to Lists, and only raw objects (no custom
    * prototype) to Map.
    *
+   * Accordingly, this example converts native JS data to OrderedMap and List:
+   *
+   * ```js
+   * const { fromJS, isKeyed } = require('immutable')
+   * fromJS({ a: {b: [10, 20, 30]}, c: 40}, function (key, value, path) {
+   *   console.log(key, value, path)
+   *   return isKeyed(value) ? value.toOrderedMap() : value.toList()
+   * })
+   *
+   * > "b", [ 10, 20, 30 ], [ "a", "b" ]
+   * > "a", {b: [10, 20, 30]}, [ "a" ]
+   * > "", {a: {b: [10, 20, 30]}, c: 40}, []
+   * ```
+   *
    * Keep in mind, when using JS objects to construct Immutable Maps, that
    * JavaScript Object properties are always strings, even if written in a
    * quote-less shorthand, while Immutable Maps accept keys of any type.
    *
+   * <!-- runkit:activate
+   *      { "preamble": "const { Map } = require(\"immutable\");" }
+   * -->
    * ```js
    * let obj = { 1: "one" };
    * Object.keys(obj); // [ "1" ]
-   * obj["1"]; // "one"
-   * obj[1];   // "one"
+   * assert.equal(obj["1"], obj[1]); // "one" === "one"
    *
    * let map = Map(obj);
-   * map.get("1"); // "one"
-   * map.get(1);   // undefined
+   * assert.notEqual(map.get("1"), map.get(1)); // "one" !== undefined
    * ```
    *
    * Property access for JavaScript Objects first converts the key to a string,
@@ -176,13 +184,14 @@
    * It's used throughout Immutable when checking for equality, including `Map`
    * key equality and `Set` membership.
    *
+   * <!-- runkit:activate -->
    * ```js
-   * import { Map, is } from 'immutable'
+   * const { Map, is } = require('immutable')
    * const map1 = Map({ a: 1, b: 1, c: 1 })
    * const map2 = Map({ a: 1, b: 1, c: 1 })
-   * assert(map1 !== map2)
-   * assert(Object.is(map1, map2) === false)
-   * assert(is(map1, map2) === true)
+   * assert.equal(map1 !== map2, true)
+   * assert.equal(Object.is(map1, map2), false)
+   * assert.equal(is(map1, map2), true)
    * ```
    *
    * `is()` compares primitive types like strings and numbers, Immutable.js
@@ -206,6 +215,8 @@
    *
    * Note that `hash()` attempts to balance between speed and avoiding
    * collisions, however it makes no attempt to produce secure hashes.
+   *
+   * *New in Version 4.0*
    */
   export function hash(value: any): number;
 
@@ -327,13 +338,19 @@
      * and is used when adding this to a `Set` or as a key in a `Map`, enabling
      * lookup via a different instance.
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { List, Set } = require(\"immutable\")" }
+     * -->
      * ```js
      * const a = List([ 1, 2, 3 ]);
      * const b = List([ 1, 2, 3 ]);
-     * assert(a !== b); // different instances
+     * assert.notStrictEqual(a, b); // different instances
      * const set = Set([ a ]);
-     * assert(set.has(b) === true);
+     * assert.equal(set.has(b), true);
      * ```
+     *
+     * Note: hashCode() MUST return a Uint32 number. The easiest way to
+     * guarantee this is to return `myHash | 0` from a custom implementation.
      *
      * If two values have the same `hashCode`, they are [not guaranteed
      * to be equal][Hash Collision]. If two values have different `hashCode`s,
@@ -363,6 +380,9 @@
     /**
      * True if the provided value is a List
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { List } = require(\"immutable\");" }
+     * -->
      * ```js
      * List.isList([]); // false
      * List.isList(List()); // true
@@ -373,6 +393,9 @@
     /**
      * Creates a new List containing `values`.
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { List } = require(\"immutable\");" }
+     * -->
      * ```js
      * List.of(1, 2, 3, 4)
      * // List [ 1, 2, 3, 4 ]
@@ -380,6 +403,9 @@
      *
      * Note: Values are not altered or converted in any way.
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { List } = require(\"immutable\");" }
+     * -->
      * ```js
      * List.of({x:1}, 2, [3], 4)
      * // List [ { x: 1 }, 2, [ 3 ], 4 ]
@@ -392,6 +418,7 @@
    * Create a new immutable List containing the values of the provided
    * collection-like.
    *
+   * <!-- runkit:activate -->
    * ```js
    * const { List, Set } = require('immutable')
    *
@@ -438,6 +465,9 @@
      * If `index` larger than `size`, the returned List's `size` will be large
      * enough to include the `index`.
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { List } = require(\"immutable\");" }
+     * -->
      * ```js
      * const originalList = List([ 0 ]);
      * // List [ 0 ]
@@ -468,6 +498,9 @@
      *
      * Note: `delete` cannot be safely used in IE8
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { List } = require(\"immutable\");" }
+     * -->
      * ```js
      * List([ 0, 1, 2, 3, 4 ]).delete(0);
      * // List [ 1, 2, 3, 4 ]
@@ -486,6 +519,9 @@
      *
      * This is synonymous with `list.splice(index, 0, value)`.
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { List } = require(\"immutable\");" }
+     * -->
      * ```js
      * List([ 0, 1, 2, 3, 4 ]).insert(6, 5)
      * // List [ 0, 1, 2, 3, 4, 5 ]
@@ -498,6 +534,9 @@
     /**
      * Returns a new List with 0 size and no values.
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { List } = require(\"immutable\");" }
+     * -->
      * ```js
      * List([ 1, 2, 3, 4 ]).clear()
      * // List []
@@ -511,6 +550,9 @@
      * Returns a new List with the provided `values` appended, starting at this
      * List's `size`.
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { List } = require(\"immutable\");" }
+     * -->
      * ```js
      * List([ 1, 2, 3, 4 ]).push(5)
      * // List [ 1, 2, 3, 4, 5 ]
@@ -541,6 +583,9 @@
      * Returns a new List with the provided `values` prepended, shifting other
      * values ahead to higher indices.
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { List } = require(\"immutable\");" }
+     * -->
      * ```js
      * List([ 2, 3, 4]).unshift(1);
      * // List [ 1, 2, 3, 4 ]
@@ -558,6 +603,9 @@
      * List rather than the removed value. Use `first()` to get the first
      * value in this List.
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { List } = require(\"immutable\");" }
+     * -->
      * ```js
      * List([ 0, 1, 2, 3, 4 ]).shift();
      * // List [ 1, 2, 3, 4 ]
@@ -576,6 +624,9 @@
      * `index` may be a negative number, which indexes back from the end of the
      * List. `v.update(-1)` updates the last item in the List.
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { List } = require(\"immutable\");" }
+     * -->
      * ```js
      * const list = List([ 'a', 'b', 'c' ])
      * const result = list.update(2, val => val.toUpperCase())
@@ -587,6 +638,9 @@
      *
      * For example, to sum a List after mapping and filtering:
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { List } = require(\"immutable\");" }
+     * -->
      * ```js
      * function sum(collection) {
      *   return collection.reduce((sum, x) => sum + x, 0)
@@ -662,8 +716,9 @@
      * Index numbers are used as keys to determine the path to follow in
      * the List.
      *
+     * <!-- runkit:activate -->
      * ```js
-     * const { List } = require('immutable');
+     * const { List } = require("immutable")
      * const list = List([ 0, 1, 2, List([ 3, 4 ])])
      * list.setIn([3, 0], 999);
      * // List [ 0, 1, 2, List [ 999, 4 ] ]
@@ -677,8 +732,9 @@
      * Returns a new List having removed the value at this `keyPath`. If any
      * keys in `keyPath` do not exist, no change will occur.
      *
+     * <!-- runkit:activate -->
      * ```js
-     * const { List } = require('immutable');
+     * const { List } = require("immutable")
      * const list = List([ 0, 1, 2, List([ 3, 4 ])])
      * list.deleteIn([3, 0]);
      * // List [ 0, 1, 2, List [ 4 ] ]
@@ -751,6 +807,9 @@
      * Returns a new List with values passed through a
      * `mapper` function.
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { List } = require(\"immutable\");" }
+     * -->
      * ```js
      * List([ 1, 2 ]).map(x => 10 * x)
      * // List [ 10, 20 ]
@@ -791,10 +850,39 @@
     ): this;
 
     /**
+     * Returns a List "zipped" with the provided collection.
+     *
+     * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+     *
+     * ```js
+     * const a = List([ 1, 2, 3 ]);
+     * const b = List([ 4, 5, 6 ]);
+     * const c = a.zip(b); // List [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     * ```
+     */
+    zip<U>(other: Collection<any, U>): List<[T,U]>;
+
+    /**
+     * Returns a List "zipped" with the provided collection.
+     *
+     * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+     *
+     * ```js
+     * const a = List([ 1, 2, 3 ]);
+     * const b = List([ 4, 5, 6 ]);
+     * const c = a.zip(b); // List [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     * ```
+     */
+    zip<U,V>(other: Collection<any, U>, other2: Collection<any,V>): List<[T,U,V]>;
+
+    /**
      * Returns a List "zipped" with the provided collections.
      *
      * Like `zipWith`, but using the default `zipper`: creating an `Array`.
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { List } = require(\"immutable\");" }
+     * -->
      * ```js
      * const a = List([ 1, 2, 3 ]);
      * const b = List([ 4, 5, 6 ]);
@@ -807,6 +895,9 @@
      * Returns a List "zipped" with the provided collections by using a
      * custom `zipper` function.
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { List } = require(\"immutable\");" }
+     * -->
      * ```js
      * const a = List([ 1, 2, 3 ]);
      * const b = List([ 4, 5, 6 ]);
@@ -844,6 +935,7 @@
    * Immutable collections are treated as values, any Immutable collection may
    * be used as a key.
    *
+   * <!-- runkit:activate -->
    * ```js
    * const { Map, List } = require('immutable');
    * Map().set(List([ 1 ]), 'listofone').get(List([ 1 ]));
@@ -872,6 +964,7 @@
     /**
      * Creates a new Map from alternating keys and values
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Map } = require('immutable')
      * Map.of(
@@ -893,6 +986,7 @@
    * Created with the same key value pairs as the provided Collection.Keyed or
    * JavaScript Object or expects a Collection of [K, V] tuple entries.
    *
+   * <!-- runkit:activate -->
    * ```js
    * const { Map } = require('immutable')
    * Map({ key: "value" })
@@ -903,15 +997,16 @@
    * JavaScript Object properties are always strings, even if written in a
    * quote-less shorthand, while Immutable Maps accept keys of any type.
    *
+   * <!-- runkit:activate
+   *      { "preamble": "const { Map } = require(\"immutable\");" }
+   * -->
    * ```js
    * let obj = { 1: "one" }
    * Object.keys(obj) // [ "1" ]
-   * obj["1"] // "one"
-   * obj[1]   // "one"
+   * assert.equal(obj["1"], obj[1]) // "one" === "one"
    *
    * let map = Map(obj)
-   * map.get("1") // "one"
-   * map.get(1)   // undefined
+   * assert.notEqual(map.get("1"), map.get(1)) // "one" !== undefined
    * ```
    *
    * Property access for JavaScript Objects first converts the key to a string,
@@ -937,6 +1032,7 @@
      * Returns a new Map also containing the new key, value pair. If an equivalent
      * key already exists in this Map, it will be replaced.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Map } = require('immutable')
      * const originalMap = Map()
@@ -961,6 +1057,7 @@
      * Note: `delete` cannot be safely used in IE8, but is provided to mirror
      * the ES6 collection API.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Map } = require('immutable')
      * const originalMap = Map({
@@ -999,6 +1096,7 @@
     /**
      * Returns a new Map containing no keys or values.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Map } = require('immutable')
      * Map({ key: 'value' }).clear()
@@ -1015,6 +1113,7 @@
      *
      * Similar to: `map.set(key, updater(map.get(key)))`.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Map } = require('immutable')
      * const aMap = Map({ key: 'value' })
@@ -1026,6 +1125,9 @@
      * structure of data. For example, in order to `.push()` onto a nested `List`,
      * `update` and `push` can be used together:
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { Map, List } = require(\"immutable\");" }
+     * -->
      * ```js
      * const aMap = Map({ nestedList: List([ 1, 2, 3 ]) })
      * const newMap = aMap.update('nestedList', list => list.push(4))
@@ -1035,6 +1137,9 @@
      * When a `notSetValue` is provided, it is provided to the `updater`
      * function when the value at the key does not exist in the Map.
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { Map } = require(\"immutable\");" }
+     * -->
      * ```js
      * const aMap = Map({ key: 'value' })
      * const newMap = aMap.update('noKey', 'no value', value => value + value)
@@ -1045,11 +1150,14 @@
      * with, then no change will occur. This is still true if `notSetValue`
      * is provided.
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { Map } = require(\"immutable\");" }
+     * -->
      * ```js
      * const aMap = Map({ apples: 10 })
      * const newMap = aMap.update('oranges', 0, val => val)
      * // Map { "apples": 10 }
-     * assert(newMap === map);
+     * assert.strictEqual(newMap, map);
      * ```
      *
      * For code using ES2015 or later, using `notSetValue` is discourged in
@@ -1058,6 +1166,9 @@
      *
      * The previous example behaves differently when written with default values:
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { Map } = require(\"immutable\");" }
+     * -->
      * ```js
      * const aMap = Map({ apples: 10 })
      * const newMap = aMap.update('oranges', (val = 0) => val)
@@ -1067,6 +1178,9 @@
      * If no key is provided, then the `updater` function return value is
      * returned as well.
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { Map } = require(\"immutable\");" }
+     * -->
      * ```js
      * const aMap = Map({ key: 'value' })
      * const result = aMap.update(aMap => aMap.get('key'))
@@ -1078,6 +1192,9 @@
      *
      * For example, to sum the values in a Map
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { Map } = require(\"immutable\");" }
+     * -->
      * ```js
      * function sum(collection) {
      *   return collection.reduce((sum, x) => sum + x, 0)
@@ -1107,6 +1224,7 @@
      * Collection but includes non-collection JS objects or arrays, those nested
      * values will be preserved.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Map } = require('immutable')
      * const one = Map({ a: 10, b: 20, c: 30 })
@@ -1124,6 +1242,7 @@
      * the provided Collections (or JS objects) into this Map, but uses the
      * `merger` function for dealing with conflicts.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Map } = require('immutable')
      * const one = Map({ a: 10, b: 20, c: 30 })
@@ -1145,6 +1264,7 @@
      * Like `merge()`, but when two Collections conflict, it merges them as well,
      * recursing deeply through the nested data.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Map } = require('immutable')
      * const one = Map({ a: Map({ x: 10, y: 10 }), b: Map({ x: 20, y: 50 }) })
@@ -1165,6 +1285,7 @@
      * Like `mergeDeep()`, but when two non-Collections conflict, it uses the
      * `merger` function to determine the resulting value.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Map } = require('immutable')
      * const one = Map({ a: Map({ x: 10, y: 10 }), b: Map({ x: 20, y: 50 }) })
@@ -1191,6 +1312,7 @@
      * Returns a new Map having set `value` at this `keyPath`. If any keys in
      * `keyPath` do not exist, a new immutable Map will be created at that key.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Map } = require('immutable')
      * const originalMap = Map({
@@ -1248,6 +1370,7 @@
      * structure of data. For example, in order to `.push()` onto a nested `List`,
      * `updateIn` and `push` can be used together:
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Map, List } = require('immutable')
      * const map = Map({ inMap: Map({ inList: List([ 1, 2, 3 ]) }) })
@@ -1260,6 +1383,9 @@
      * value, the `updater` function will be called with `notSetValue`, if
      * provided, otherwise `undefined`.
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { Map } = require(\"immutable\")" }
+     * -->
      * ```js
      * const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
      * const newMap = map.updateIn(['a', 'b', 'c'], val => val * 2)
@@ -1269,11 +1395,14 @@
      * If the `updater` function returns the same value it was called with, then
      * no change will occur. This is still true if `notSetValue` is provided.
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { Map } = require(\"immutable\")" }
+     * -->
      * ```js
      * const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
      * const newMap = map.updateIn(['a', 'b', 'x'], 100, val => val)
      * // Map { "a": Map { "b": Map { "c": 10 } } }
-     * assert(newMap === map)
+     * assert.strictEqual(newMap, aMap)
      * ```
      *
      * For code using ES2015 or later, using `notSetValue` is discourged in
@@ -1282,6 +1411,9 @@
      *
      * The previous example behaves differently when written with default values:
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { Map } = require(\"immutable\")" }
+     * -->
      * ```js
      * const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
      * const newMap = map.updateIn(['a', 'b', 'x'], (val = 100) => val)
@@ -1337,14 +1469,15 @@
      *
      * As an example, this results in the creation of 2, not 4, new Maps:
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Map } = require('immutable')
      * const map1 = Map()
      * const map2 = map1.withMutations(map => {
      *   map.set('a', 1).set('b', 2).set('c', 3)
      * })
-     * assert(map1.size === 0)
-     * assert(map2.size === 3)
+     * assert.equal(map1.size, 0)
+     * assert.equal(map2.size, 3)
      * ```
      *
      * Note: Not all methods can be used on a mutable collection or within
@@ -1606,7 +1739,7 @@
      * collection of other sets.
      *
      * ```js
-     * * const { Set } = require('immutable')
+     * const { Set } = require('immutable')
      * const unioned = Set.union([
      *   Set([ 'a', 'b', 'c' ])
      *   Set([ 'c', 'a', 't' ])
@@ -1870,6 +2003,40 @@
      * // OrderedSet [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
      * ```
      */
+    zip<U>(other: Collection<any, U>): OrderedSet<[T,U]>;
+
+    /**
+     * Returns an OrderedSet of the same type "zipped" with the provided
+     * collections.
+     *
+     * @see IndexedIterator.zip
+     *
+     * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+     *
+     * ```js
+     * const a = OrderedSet([ 1, 2, 3 ])
+     * const b = OrderedSet([ 4, 5, 6 ])
+     * const c = a.zip(b)
+     * // OrderedSet [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     * ```
+     */
+    zip<U,V>(other1: Collection<any, U>, other2: Collection<any, V>): OrderedSet<[T,U,V]>;
+
+    /**
+     * Returns an OrderedSet of the same type "zipped" with the provided
+     * collections.
+     *
+     * @see IndexedIterator.zip
+     *
+     * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+     *
+     * ```js
+     * const a = OrderedSet([ 1, 2, 3 ])
+     * const b = OrderedSet([ 4, 5, 6 ])
+     * const c = a.zip(b)
+     * // OrderedSet [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     * ```
+     */
     zip(...collections: Array<Collection<any, any>>): OrderedSet<any>;
 
     /**
@@ -2085,6 +2252,32 @@
      * const c = a.zip(b); // Stack [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
      * ```
      */
+    zip<U>(other: Collection<any, U>): Stack<[T,U]>;
+
+    /**
+     * Returns a Stack "zipped" with the provided collections.
+     *
+     * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+     *
+     * ```js
+     * const a = Stack([ 1, 2, 3 ]);
+     * const b = Stack([ 4, 5, 6 ]);
+     * const c = a.zip(b); // Stack [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     * ```
+     */
+    zip<U,V>(other: Collection<any, U>, other2: Collection<any,V>): Stack<[T,U,V]>;
+
+    /**
+     * Returns a Stack "zipped" with the provided collections.
+     *
+     * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+     *
+     * ```js
+     * const a = Stack([ 1, 2, 3 ]);
+     * const b = Stack([ 4, 5, 6 ]);
+     * const c = a.zip(b); // Stack [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+     * ```
+     */
     zip(...collections: Array<Collection<any, any>>): Stack<any>;
 
     /**
@@ -2147,7 +2340,7 @@
 
   /**
    * Creates a new Class which produces Record instances. A record is similar to
-   * a JS object, but enforce a specific set of allowed string keys, and have
+   * a JS object, but enforces a specific set of allowed string keys, and has
    * default values.
    *
    * ```js
@@ -2239,7 +2432,7 @@
 
       // Reading values
 
-      has(key: string): boolean;
+      has(key: string): key is keyof T;
       get<K extends keyof T>(key: K): T[K];
 
       // Reading deep values
@@ -2413,11 +2606,6 @@
      * structure such as Map, List, or Set.
      */
     function isSeq(maybeSeq: any): maybeSeq is Seq.Indexed<any> | Seq.Keyed<any, any>;
-
-    /**
-     * Returns a Seq of the values provided. Alias for `Seq.Indexed.of()`.
-     */
-    function of<T>(...values: Array<T>): Seq.Indexed<T>;
 
 
     /**
@@ -2608,6 +2796,32 @@
         predicate: (value: T, index: number, iter: this) => any,
         context?: any
       ): this;
+
+      /**
+       * Returns a Seq "zipped" with the provided collections.
+       *
+       * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+       *
+       * ```js
+       * const a = Seq([ 1, 2, 3 ]);
+       * const b = Seq([ 4, 5, 6 ]);
+       * const c = a.zip(b); // Seq [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+       * ```
+       */
+      zip<U>(other: Collection<any, U>): Seq.Indexed<[T,U]>;
+
+      /**
+       * Returns a Seq "zipped" with the provided collections.
+       *
+       * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+       *
+       * ```js
+       * const a = Seq([ 1, 2, 3 ]);
+       * const b = Seq([ 4, 5, 6 ]);
+       * const c = a.zip(b); // Seq [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+       * ```
+       */
+      zip<U,V>(other: Collection<any, U>, other2: Collection<any, V>): Seq.Indexed<[T,U,V]>;
 
       /**
        * Returns a Seq "zipped" with the provided collections.
@@ -2930,6 +3144,7 @@
        * Returns a new Collection.Keyed of the same type where the keys and values
        * have been flipped.
        *
+       * <!-- runkit:activate -->
        * ```js
        * const { Map } = require('immutable')
        * Map({ a: 'z', b: 'y' }).flip()
@@ -2966,6 +3181,7 @@
        * Returns a new Collection.Keyed of the same type with keys passed through
        * a `mapper` function.
        *
+       * <!-- runkit:activate -->
        * ```js
        * const { Map } = require('immutable')
        * Map({ a: 1, b: 2 }).mapKeys(x => x.toUpperCase())
@@ -2984,6 +3200,7 @@
        * Returns a new Collection.Keyed of the same type with entries
        * ([key, value] tuples) passed through a `mapper` function.
        *
+       * <!-- runkit:activate -->
        * ```js
        * const { Map } = require('immutable')
        * Map({ a: 1, b: 2 })
@@ -3105,6 +3322,7 @@
        * The resulting Collection includes the first item from each, then the
        * second from each, etc.
        *
+       * <!-- runkit:activate -->
        * ```js
        * const { List } = require('immutable')
        * List([ 1, 2, 3 ]).interleave(List([ 'A', 'B', 'C' ]))
@@ -3113,6 +3331,9 @@
        *
        * The shortest Collection stops interleave.
        *
+       * <!-- runkit:activate
+       *      { "preamble": "const { List } = require(\"immutable\")" }
+       * -->
        * ```js
        * List([ 1, 2, 3 ]).interleave(
        *   List([ 'A', 'B' ]),
@@ -3131,6 +3352,7 @@
        * `index` may be a negative number, which indexes back from the end of the
        * Collection. `s.splice(-2)` splices after the second to last item.
        *
+       * <!-- runkit:activate -->
        * ```js
        * const { List } = require('immutable')
        * List([ 'a', 'b', 'c', 'd' ]).splice(1, 2, 'q', 'r', 's')
@@ -3142,6 +3364,38 @@
         removeNum: number,
         ...values: Array<T>
       ): this;
+
+      /**
+       * Returns a Collection of the same type "zipped" with the provided
+       * collections.
+       *
+       * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+       *
+       *
+       * <!-- runkit:activate
+       *      { "preamble": "const { List } = require(\"immutable\")" }
+       * -->
+       * ```js
+       * const a = List([ 1, 2, 3 ]);
+       * const b = List([ 4, 5, 6 ]);
+       * const c = a.zip(b); // List [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+       * ```
+       */
+      zip<U>(other: Collection<any, U>): Collection.Indexed<[T,U]>;
+
+      /**
+       * Returns a Collection of the same type "zipped" with the provided
+       * collections.
+       *
+       * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+       *
+       * ```js
+       * const a = List([ 1, 2, 3 ]);
+       * const b = List([ 4, 5, 6 ]);
+       * const c = a.zip(b); // List [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+       * ```
+       */
+      zip<U,V>(other: Collection<any, U>, other2: Collection<any, V>): Collection.Indexed<[T,U,V]>;
 
       /**
        * Returns a Collection of the same type "zipped" with the provided
@@ -3161,6 +3415,9 @@
        * Returns a Collection of the same type "zipped" with the provided
        * collections by using a custom `zipper` function.
        *
+       * <!-- runkit:activate
+       *      { "preamble": "const { List } = require(\"immutable\")" }
+       * -->
        * ```js
        * const a = List([ 1, 2, 3 ]);
        * const b = List([ 4, 5, 6 ]);
@@ -3405,12 +3662,15 @@
      * and is used when adding this to a `Set` or as a key in a `Map`, enabling
      * lookup via a different instance.
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { Set,  List } = require(\"immutable\")" }
+     * -->
      * ```js
      * const a = List([ 1, 2, 3 ]);
      * const b = List([ 1, 2, 3 ]);
-     * assert(a !== b); // different instances
+     * assert.notStrictEqual(a, b); // different instances
      * const set = Set([ a ]);
-     * assert(set.has(b) === true);
+     * assert.equal(set.has(b), true);
      * ```
      *
      * If two values have the same `hashCode`, they are [not guaranteed
@@ -3574,6 +3834,7 @@
      * `collection.toList()` discards the keys and creates a list of only the
      * values, whereas `List(collection)` creates a list of entry tuples.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Map, List } = require('immutable')
      * var myMap = Map({ a: 'Apple', b: 'Banana' })
@@ -3708,6 +3969,7 @@
      * Returns a new Collection of the same type with only the entries for which
      * the `predicate` function returns true.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Map } = require('immutable')
      * Map({ a: 1, b: 2, c: 3, d: 4}).filter(x => x % 2 === 0)
@@ -3730,6 +3992,7 @@
      * Returns a new Collection of the same type with only the entries for which
      * the `predicate` function returns false.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Map } = require('immutable')
      * Map({ a: 1, b: 2, c: 3, d: 4}).filterNot(x => x % 2 === 0)
@@ -3887,6 +4150,7 @@
      * Returns a new Collection of the same type which includes entries starting
      * from when `predicate` first returns false.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { List } = require('immutable')
      * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
@@ -3903,6 +4167,7 @@
      * Returns a new Collection of the same type which includes entries starting
      * from when `predicate` first returns true.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { List } = require('immutable')
      * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
@@ -3931,6 +4196,7 @@
      * Returns a new Collection of the same type which includes entries from this
      * Collection as long as the `predicate` returns true.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { List } = require('immutable')
      * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
@@ -3947,6 +4213,7 @@
      * Returns a new Collection of the same type which includes entries from this
      * Collection as long as the `predicate` returns false.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { List } = require('immutable')
      * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])

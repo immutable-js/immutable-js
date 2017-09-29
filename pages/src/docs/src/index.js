@@ -7,6 +7,8 @@ var defs = require('../../../lib/getTypeDefs');
 
 var { Route, DefaultRoute, RouteHandler } = Router;
 
+require('../../../lib/runkit-embed');
+
 var Documentation = React.createClass({
   render() {
     return (
@@ -111,6 +113,9 @@ module.exports = React.createClass({
       scrollBehavior: scrollBehavior
     }).run(Handler => {
       this.setState({ handler: Handler });
+      if (window.document) {
+        window.document.title = `${this.pageData.name} Immutable.js`;
+      }
     });
   },
 

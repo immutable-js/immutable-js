@@ -7,12 +7,6 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 
-(function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-	typeof define === 'function' && define.amd ? define(['exports'], factory) :
-	(factory((global.Immutable = global.Immutable || {})));
-}(this, (function (exports) { 'use strict';
-
 // Used for setting prototype methods that IE8 chokes on.
 var DELETE = 'delete';
 
@@ -5538,30 +5532,4 @@ var Immutable = {
 // Note: Iterable is deprecated
 var Iterable = Collection;
 
-exports['default'] = Immutable;
-exports.Collection = Collection;
-exports.Iterable = Iterable;
-exports.Seq = Seq;
-exports.Map = Map;
-exports.OrderedMap = OrderedMap;
-exports.List = List;
-exports.Stack = Stack;
-exports.Set = Set;
-exports.OrderedSet = OrderedSet;
-exports.Record = Record;
-exports.Range = Range;
-exports.Repeat = Repeat;
-exports.is = is;
-exports.fromJS = fromJS;
-exports.hash = hash;
-exports.isImmutable = isImmutable;
-exports.isCollection = isCollection;
-exports.isKeyed = isKeyed;
-exports.isIndexed = isIndexed;
-exports.isAssociative = isAssociative;
-exports.isOrdered = isOrdered;
-exports.isValueObject = isValueObject;
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
-})));
+export { Collection, Iterable, Seq, Map, OrderedMap, List, Stack, Set, OrderedSet, Record, Range, Repeat, is, fromJS, hash, isImmutable, isCollection, isKeyed, isIndexed, isAssociative, isOrdered, isValueObject };export default Immutable;

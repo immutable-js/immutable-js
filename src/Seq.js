@@ -36,10 +36,6 @@ export class Seq extends Collection {
           : seqFromValue(value);
   }
 
-  static of(/*...values*/) {
-    return Seq(arguments);
-  }
-
   toSeq() {
     return this;
   }

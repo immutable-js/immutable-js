@@ -245,6 +245,11 @@ ListPrototype.withMutations = MapPrototype.withMutations;
 ListPrototype.asMutable = MapPrototype.asMutable;
 ListPrototype.asImmutable = MapPrototype.asImmutable;
 ListPrototype.wasAltered = MapPrototype.wasAltered;
+ListPrototype['@@transducer/init'] = ListPrototype.asMutable;
+ListPrototype['@@transducer/step'] = function(result, arr) {
+  return result.push(arr);
+};
+ListPrototype['@@transducer/result'] = MapPrototype['@@transducer/result'];
 
 class VNode {
   constructor(array, ownerID) {

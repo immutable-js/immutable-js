@@ -15,6 +15,7 @@
     "url": "https://github.com/facebook/immutable-js/issues"
   },
   "main": "dist/immutable.js",
+  "module": "dist/immutable.es.js",
   "typings": "dist/immutable-nonambient.d.ts",
   "types": "type-definitions/ts-types",
   "typescript": {
@@ -22,11 +23,12 @@
   },
   "scripts": {
     "build": "run-s build:*",
-    "build:dist": "run-s clean:dist bundle:dist copy:dist stats:dist",
+    "build:dist": "run-s clean:dist bundle:dist bundle:es copy:dist stats:dist",
     "build:pages": "gulp --gulpfile gulpfile.js default",
     "stats:dist": "node ./resources/dist-stats.js",
     "clean:dist": "rimraf dist",
     "bundle:dist": "rollup -c ./resources/rollup-config.js",
+    "bundle:es": "rollup -c ./resources/rollup-config-es.js",
     "copy:dist": "node ./resources/copy-dist-typedefs.js",
     "lint": "run-s lint:*",
     "lint:ts": "tslint \"__tests__/**/*.ts\"",
@@ -68,7 +70,7 @@
     "eslint-plugin-jsx-a11y": "4.0.0",
     "eslint-plugin-prettier": "2.0.1",
     "eslint-plugin-react": "6.10.0",
-    "flow-bin": "0.41.0",
+    "flow-bin": "0.50.0",
     "gulp": "3.9.1",
     "gulp-concat": "2.6.1",
     "gulp-filter": "5.0.0",
@@ -95,6 +97,7 @@
     "rollup-plugin-strip-banner": "0.1.0",
     "run-sequence": "1.2.2",
     "through2": "2.0.3",
+    "transducers-js": "^0.4.174",
     "tslint": "4.5.1",
     "typescript": "2.2.1",
     "uglify-js": "2.8.11",
