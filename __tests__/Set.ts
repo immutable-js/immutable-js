@@ -299,4 +299,27 @@ describe('Set', () => {
     expect(set.count(x => true)).toEqual(5);
   });
 
+  it('does not infinitely recurse for large power-of-2 hashes', () => {
+    class A {
+      equals() {
+        return false;
+      }
+      hashCode() {
+        return 0;
+      }
+    }
+
+    class B {
+      equals() {
+        return false;
+      }
+      hashCode() {
+        return 2 ** 32;
+      }
+    }
+
+    let set = Set([1, 2, 3, 4, 5, 6, 7, 8, new A(), new B()]);
+    expect(set.size).toEqual(10);
+  });
+
 });
