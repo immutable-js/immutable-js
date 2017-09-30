@@ -1511,7 +1511,7 @@ function sliceFactory(collection, begin, end, useKeys) {
         return iteratorDone();
       }
       var step = iterator.next();
-      if (useKeys || type === ITERATE_VALUES) {
+      if (useKeys || type === ITERATE_VALUES || step.done) {
         return step;
       }
       if (type === ITERATE_KEYS) {
