@@ -156,13 +156,13 @@ import { Stack } from '../../';
 { // #flatMap
 
   // $ExpectType Stack<number>
-  Stack<number>().flatMap((value: number, key: number, iter: Stack<number>) => 1);
+  Stack<number>().flatMap((value: number, key: number, iter: Stack<number>) => [1]);
 
   // $ExpectType Stack<string>
   Stack<number>().flatMap((value: number, key: number, iter: Stack<number>) => 'a');
 
   // $ExpectType Stack<number>
-  Stack<number>().flatMap<number>((value: number, key: number, iter: Stack<number>) => 1);
+  Stack<number>().flatMap<number>((value: number, key: number, iter: Stack<number>) => [1]);
 
   // $ExpectError
   Stack<number>().flatMap<string>((value: number, key: number, iter: Stack<number>) => 1);

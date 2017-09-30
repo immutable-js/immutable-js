@@ -6,17 +6,18 @@ var TypeKind = {
   String: 3,
   Object: 4,
   Array: 5,
-  Function: 6,
+  Never: 6,
+  Function: 7,
 
-  Param: 7,
-  Type: 8,
+  Param: 8,
+  Type: 9,
 
-  This: 9,
-  Undefined: 10,
-  Union: 11,
-  Tuple: 12,
-  Indexed: 13,
-  Operator: 14
+  This: 10,
+  Undefined: 11,
+  Union: 12,
+  Tuple: 13,
+  Indexed: 14,
+  Operator: 15
 };
 
 module.exports = TypeKind;
