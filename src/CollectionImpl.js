@@ -402,26 +402,7 @@ mixin(Collection, {
   },
 
   getIn(searchKeyPath, notSetValue) {
-    let nested = this;
-    const keyPath = coerceKeyPath(searchKeyPath);
-    let i = 0;
-    while (i !== keyPath.length) {
-      if (!nested || !nested.get) {
-        warn(
-          'Invalid keyPath: Value at [' +
-            keyPath.slice(0, i).map(quoteString) +
-            '] does not have a .get() method: ' +
-            nested +
-            '\nThis warning will throw in a future version'
-        );
-        return notSetValue;
-      }
-      nested = nested.get(keyPath[i++], NOT_SET);
-      if (nested === NOT_SET) {
-        return notSetValue;
-      }
-    }
-    return nested;
+    return getIn(this, notSetValue, searchKeyPath, true /* report bad path */);
   },
 
   groupBy(grouper, context) {
@@ -433,7 +414,10 @@ mixin(Collection, {
   },
 
   hasIn(searchKeyPath) {
-    return this.getIn(searchKeyPath, NOT_SET) !== NOT_SET;
+    return (
+      getIn(this, NOT_SET, searchKeyPath, false /* report bad path */) !==
+      NOT_SET
+    );
   },
 
   isSubset(iter) {
@@ -857,4 +841,28 @@ function warn(message) {
     throw new Error(message);
   }
   /* eslint-enable no-console */
+}
+
+function getIn(value, notSetValue, searchKeyPath, reportBadKeyPath) {
+  const keyPath = coerceKeyPath(searchKeyPath);
+  let i = 0;
+  while (i !== keyPath.length) {
+    if (!value || !value.get) {
+      if (reportBadKeyPath) {
+        warn(
+          'Invalid keyPath: Value at [' +
+            keyPath.slice(0, i).map(quoteString) +
+            '] does not have a .get() method: ' +
+            value +
+            '\nThis warning will throw in a future version'
+        );
+      }
+      return notSetValue;
+    }
+    value = value.get(keyPath[i++], NOT_SET);
+    if (value === NOT_SET) {
+      return notSetValue;
+    }
+  }
+  return value;
 }

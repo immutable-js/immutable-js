@@ -4717,27 +4717,8 @@ mixin(Collection, {
     return this.find(function (_, key) { return is(key, searchKey); }, undefined, notSetValue);
   },
 
-  getIn: function getIn(searchKeyPath, notSetValue) {
-    var nested = this;
-    var keyPath = coerceKeyPath(searchKeyPath);
-    var i = 0;
-    while (i !== keyPath.length) {
-      if (!nested || !nested.get) {
-        warn(
-          'Invalid keyPath: Value at [' +
-            keyPath.slice(0, i).map(quoteString) +
-            '] does not have a .get() method: ' +
-            nested +
-            '\nThis warning will throw in a future version'
-        );
-        return notSetValue;
-      }
-      nested = nested.get(keyPath[i++], NOT_SET);
-      if (nested === NOT_SET) {
-        return notSetValue;
-      }
-    }
-    return nested;
+  getIn: function getIn$1(searchKeyPath, notSetValue) {
+    return getIn(this, notSetValue, searchKeyPath, true /* report bad path */);
   },
 
   groupBy: function groupBy(grouper, context) {
@@ -4749,7 +4730,10 @@ mixin(Collection, {
   },
 
   hasIn: function hasIn(searchKeyPath) {
-    return this.getIn(searchKeyPath, NOT_SET) !== NOT_SET;
+    return (
+      getIn(this, NOT_SET, searchKeyPath, false /* report bad path */) !==
+      NOT_SET
+    );
   },
 
   isSubset: function isSubset(iter) {
@@ -5176,6 +5160,30 @@ function warn(message) {
     throw new Error(message);
   }
   /* eslint-enable no-console */
+}
+
+function getIn(value, notSetValue, searchKeyPath, reportBadKeyPath) {
+  var keyPath = coerceKeyPath(searchKeyPath);
+  var i = 0;
+  while (i !== keyPath.length) {
+    if (!value || !value.get) {
+      if (reportBadKeyPath) {
+        warn(
+          'Invalid keyPath: Value at [' +
+            keyPath.slice(0, i).map(quoteString) +
+            '] does not have a .get() method: ' +
+            value +
+            '\nThis warning will throw in a future version'
+        );
+      }
+      return notSetValue;
+    }
+    value = value.get(keyPath[i++], NOT_SET);
+    if (value === NOT_SET) {
+      return notSetValue;
+    }
+  }
+  return value;
 }
 
 var OrderedSet = (function (Set$$1) {
