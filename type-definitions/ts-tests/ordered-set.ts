@@ -35,7 +35,7 @@ import { OrderedSet, Map } from '../../';
 
 { // .fromKeys
 
-  // $ExpectType OrderedSet<any>
+  // $ExpectType OrderedSet<string>
   OrderedSet.fromKeys(Map<number, string>());
 
   // $ExpectType OrderedSet<number>

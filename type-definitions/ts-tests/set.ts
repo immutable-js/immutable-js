@@ -35,7 +35,7 @@ import { Set, Map } from '../../';
 
 { // .fromKeys
 
-  // $ExpectType Set<any>
+  // $ExpectType Set<string>
   Set.fromKeys(Map<number, string>());
 
   // $ExpectType Set<number>

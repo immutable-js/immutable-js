@@ -27,36 +27,36 @@ jasmine.addMatchers({
 describe('Set', () => {
   it('accepts array of values', () => {
     let s = Set([1, 2, 3]);
-    expect(s.has(1)).toBe(true);
-    expect(s.has(2)).toBe(true);
-    expect(s.has(3)).toBe(true);
-    expect(s.has(4)).toBe(false);
+    expect(s.contains(1)).toBe(true);
+    expect(s.contains(2)).toBe(true);
+    expect(s.contains(3)).toBe(true);
+    expect(s.contains(4)).toBe(false);
   });
 
   it('accepts array-like of values', () => {
     let s = Set<any>({ length: 3, 1: 2 } as any);
     expect(s.size).toBe(2);
-    expect(s.has(undefined)).toBe(true);
-    expect(s.has(2)).toBe(true);
-    expect(s.has(1)).toBe(false);
+    expect(s.contains(undefined)).toBe(true);
+    expect(s.contains(2)).toBe(true);
+    expect(s.contains(1)).toBe(false);
   });
 
   it('accepts string, an array-like collection', () => {
     let s = Set('abc');
     expect(s.size).toBe(3);
-    expect(s.has('a')).toBe(true);
-    expect(s.has('b')).toBe(true);
-    expect(s.has('c')).toBe(true);
-    expect(s.has('abc')).toBe(false);
+    expect(s.contains('a')).toBe(true);
+    expect(s.contains('b')).toBe(true);
+    expect(s.contains('c')).toBe(true);
+    expect(s.contains('abc')).toBe(false);
   });
 
   it('accepts sequence of values', () => {
     let seq = Seq([1, 2, 3]);
     let s = Set(seq);
-    expect(s.has(1)).toBe(true);
-    expect(s.has(2)).toBe(true);
-    expect(s.has(3)).toBe(true);
-    expect(s.has(4)).toBe(false);
+    expect(s.contains(1)).toBe(true);
+    expect(s.contains(2)).toBe(true);
+    expect(s.contains(3)).toBe(true);
+    expect(s.contains(4)).toBe(false);
   });
 
   it('accepts a keyed Seq as a set of entries', () => {
@@ -73,19 +73,19 @@ describe('Set', () => {
 
   it('accepts object keys', () => {
     let s = Set.fromKeys({a: null, b: null, c: null});
-    expect(s.has('a')).toBe(true);
-    expect(s.has('b')).toBe(true);
-    expect(s.has('c')).toBe(true);
-    expect(s.has('d')).toBe(false);
+    expect(s.contains('a')).toBe(true);
+    expect(s.contains('b')).toBe(true);
+    expect(s.contains('c')).toBe(true);
+    expect(s.contains('d')).toBe(false);
   });
 
   it('accepts sequence keys', () => {
     let seq = Seq({a: null, b: null, c: null});
     let s = Set.fromKeys(seq);
-    expect(s.has('a')).toBe(true);
-    expect(s.has('b')).toBe(true);
-    expect(s.has('c')).toBe(true);
-    expect(s.has('d')).toBe(false);
+    expect(s.contains('a')).toBe(true);
+    expect(s.contains('b')).toBe(true);
+    expect(s.contains('c')).toBe(true);
+    expect(s.contains('d')).toBe(false);
   });
 
   it('accepts explicit values', () => {
@@ -193,8 +193,8 @@ describe('Set', () => {
     expect(s3.size).toBe(2);
     expect(s4.size).toBe(3);
     expect(s5.size).toBe(2);
-    expect(s3.has('b')).toBe(true);
-    expect(s5.has('b')).toBe(false);
+    expect(s3.contains('b')).toBe(true);
+    expect(s5.contains('b')).toBe(false);
   });
 
   it('deletes down to empty set', () => {
@@ -262,8 +262,7 @@ describe('Set', () => {
 
       let symbolSet = Set([ a, b, c, a, b, c, a, b, c, a, b, c ]);
       expect(symbolSet.size).toBe(3);
-      expect(symbolSet.has(b)).toBe(true);
-      expect(symbolSet.get(c)).toEqual(c);
+      expect(symbolSet.contains(b)).toBe(true);
     });
 
     it('operates on a large number of symbols, maintaining obj uniqueness', () => {
@@ -276,8 +275,7 @@ describe('Set', () => {
 
       let symbolSet = Set(manySymbols);
       expect(symbolSet.size).toBe(12);
-      expect(symbolSet.has(manySymbols[10])).toBe(true);
-      expect(symbolSet.get(manySymbols[10])).toEqual(manySymbols[10]);
+      expect(symbolSet.contains(manySymbols[10])).toBe(true);
     });
 
   });
