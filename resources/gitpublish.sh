@@ -1,5 +1,10 @@
 #!/bin/sh -e
 
+# Copyright (c) 2014-present, Facebook, Inc.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
 # This script maintains a git branch which mirrors master but in a form that
 # what will eventually be deployed to npm, allowing npm dependencies to use:
 #
@@ -18,7 +23,6 @@ cp -r dist npm/
 cp -r contrib npm/
 cp README.md npm/
 cp LICENSE npm/
-cp PATENTS npm/
 cp bower.json npm/
 
 # Ensure a vanilla package.json before deploying so other tools do not interpret
