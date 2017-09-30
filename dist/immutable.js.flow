@@ -1287,20 +1287,22 @@ declare function Repeat<T>(value: T, times?: number): IndexedSeq<T>;
 
 declare function isRecord(maybeRecord: any): boolean %checks(maybeRecord instanceof RecordInstance);
 declare class Record {
-  static <Values>(spec: Values, name?: string): RecordClass<Values>;
-  constructor<Values>(spec: Values, name?: string): RecordClass<Values>;
+  static <Values: Object>(spec: Values, name?: string): Class<RecordInstance<Values>>;
+  constructor<Values: Object>(spec: Values, name?: string): Class<RecordInstance<Values>>;
 
   static isRecord: typeof isRecord;
 
-  static getDescriptiveName(record: RecordInstance<*>): string;
+  static getDescriptiveName(record: RecordInstance<any>): string;
 }
 
-declare interface RecordClass<T> {
-  (values: $Shape<T> | Iterable<[string, any]>): RecordInstance<T> & T;
-  new (values: $Shape<T> | Iterable<[string, any]>): RecordInstance<T> & T;
-}
+type RecordOf<Values: Object> = RecordInstance<Values> & Values;
 
 declare class RecordInstance<T: Object> {
+  static (values?: $Shape<T> | Iterable<[string, any]>): RecordOf<T>;
+  // Note: a constructor can only create an instance of RecordInstance<T>,
+  // it's encouraged to not use `new` when creating Records.
+  constructor (values?: $Shape<T> | Iterable<[string, any]>): void;
+
   size: number;
 
   has(key: string): boolean;
@@ -1421,7 +1423,8 @@ export type {
   SetCollection,
   KeyedSeq,
   IndexedSeq,
-  RecordInstance,
   SetSeq,
+  RecordOf,
+  RecordInstance,
   ValueObject,
 }
