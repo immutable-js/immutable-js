@@ -52,4 +52,4 @@ Complete your CLA here: <https://code.facebook.com/cla>
 ## License
 
 By contributing to Immutable.js, you agree that your contributions will be
-licensed under its BSD license.
+licensed under its MIT license.

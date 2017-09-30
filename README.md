@@ -471,4 +471,4 @@ name. If you're looking for his unsupported package, see [this repository](https
 License
 -------
 
-`Immutable` is [BSD-licensed](./LICENSE). We also provide an additional [patent grant](./PATENTS).
+Immutable.js is [MIT-licensed](https://github.com/facebook/immutable-js/blob/master/LICENSE).
