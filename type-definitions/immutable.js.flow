@@ -292,25 +292,25 @@ declare class IndexedCollection<+T> extends Collection<number, T> {
   zipAll<A>(
     a: Iterable<A>,
     ..._: []
-  ): IndexedCollection<[T, A]>;
+  ): IndexedCollection<[T|void, A|void]>;
   zipAll<A, B>(
     a: Iterable<A>,
     b: Iterable<B>,
     ..._: []
-  ): IndexedCollection<[T, A, B]>;
+  ): IndexedCollection<[T|void, A|void, B|void]>;
   zipAll<A, B, C>(
     a: Iterable<A>,
     b: Iterable<B>,
     c: Iterable<C>,
     ..._: []
-  ): IndexedCollection<[T, A, B, C]>;
+  ): IndexedCollection<[T|void, A|void, B|void, C|void]>;
   zipAll<A, B, C, D>(
     a: Iterable<A>,
     b: Iterable<B>,
     c: Iterable<C>,
     d: Iterable<D>,
     ..._: []
-  ): IndexedCollection<[T, A, B, C, D]>;
+  ): IndexedCollection<[T|void, A|void, B|void, C|void, D|void]>;
   zipAll<A, B, C, D, E>(
     a: Iterable<A>,
     b: Iterable<B>,
@@ -318,7 +318,7 @@ declare class IndexedCollection<+T> extends Collection<number, T> {
     d: Iterable<D>,
     e: Iterable<E>,
     ..._: []
-  ): IndexedCollection<[T, A, B, C, D, E]>;
+  ): IndexedCollection<[T|void, A|void, B|void, C|void, D|void, E|void]>;
 
   zipWith<A, R>(
     zipper: (value: T, a: A) => R,
@@ -519,25 +519,25 @@ declare class IndexedSeq<+T> extends Seq<number, T> mixins IndexedCollection<T> 
   zipAll<A>(
     a: Iterable<A>,
     ..._: []
-  ): IndexedSeq<[T, A]>;
+  ): IndexedSeq<[T|void, A|void]>;
   zipAll<A, B>(
     a: Iterable<A>,
     b: Iterable<B>,
     ..._: []
-  ): IndexedSeq<[T, A, B]>;
+  ): IndexedSeq<[T|void, A|void, B|void]>;
   zipAll<A, B, C>(
     a: Iterable<A>,
     b: Iterable<B>,
     c: Iterable<C>,
     ..._: []
-  ): IndexedSeq<[T, A, B, C]>;
+  ): IndexedSeq<[T|void, A|void, B|void, C|void]>;
   zipAll<A, B, C, D>(
     a: Iterable<A>,
     b: Iterable<B>,
     c: Iterable<C>,
     d: Iterable<D>,
     ..._: []
-  ): IndexedSeq<[T, A, B, C, D]>;
+  ): IndexedSeq<[T|void, A|void, B|void, C|void, D|void]>;
   zipAll<A, B, C, D, E>(
     a: Iterable<A>,
     b: Iterable<B>,
@@ -545,7 +545,7 @@ declare class IndexedSeq<+T> extends Seq<number, T> mixins IndexedCollection<T> 
     d: Iterable<D>,
     e: Iterable<E>,
     ..._: []
-  ): IndexedSeq<[T, A, B, C, D, E]>;
+  ): IndexedSeq<[T|void, A|void, B|void, C|void, D|void, E|void]>;
 
   zipWith<A, R>(
     zipper: (value: T, a: A) => R,
@@ -719,25 +719,25 @@ declare class List<+T> extends IndexedCollection<T> {
   zipAll<A>(
     a: Iterable<A>,
     ..._: []
-  ): List<[T, A]>;
+  ): List<[T|void, A|void]>;
   zipAll<A, B>(
     a: Iterable<A>,
     b: Iterable<B>,
     ..._: []
-  ): List<[T, A, B]>;
+  ): List<[T|void, A|void, B|void]>;
   zipAll<A, B, C>(
     a: Iterable<A>,
     b: Iterable<B>,
     c: Iterable<C>,
     ..._: []
-  ): List<[T, A, B, C]>;
+  ): List<[T|void, A|void, B|void, C|void]>;
   zipAll<A, B, C, D>(
     a: Iterable<A>,
     b: Iterable<B>,
     c: Iterable<C>,
     d: Iterable<D>,
     ..._: []
-  ): List<[T, A, B, C, D]>;
+  ): List<[T|void, A|void, B|void, C|void, D|void]>;
   zipAll<A, B, C, D, E>(
     a: Iterable<A>,
     b: Iterable<B>,
@@ -745,7 +745,7 @@ declare class List<+T> extends IndexedCollection<T> {
     d: Iterable<D>,
     e: Iterable<E>,
     ..._: []
-  ): List<[T, A, B, C, D, E]>;
+  ): List<[T|void, A|void, B|void, C|void, D|void, E|void]>;
 
   zipWith<A, R>(
     zipper: (value: T, a: A) => R,
@@ -1092,25 +1092,25 @@ declare class OrderedSet<+T> extends Set<T> {
   zipAll<A>(
     a: Iterable<A>,
     ..._: []
-  ): OrderedSet<[T, A]>;
+  ): OrderedSet<[T|void, A|void]>;
   zipAll<A, B>(
     a: Iterable<A>,
     b: Iterable<B>,
     ..._: []
-  ): OrderedSet<[T, A, B]>;
+  ): OrderedSet<[T|void, A|void, B|void]>;
   zipAll<A, B, C>(
     a: Iterable<A>,
     b: Iterable<B>,
     c: Iterable<C>,
     ..._: []
-  ): OrderedSet<[T, A, B, C]>;
+  ): OrderedSet<[T|void, A|void, B|void, C|void]>;
   zipAll<A, B, C, D>(
     a: Iterable<A>,
     b: Iterable<B>,
     c: Iterable<C>,
     d: Iterable<D>,
     ..._: []
-  ): OrderedSet<[T, A, B, C, D]>;
+  ): OrderedSet<[T|void, A|void, B|void, C|void, D|void]>;
   zipAll<A, B, C, D, E>(
     a: Iterable<A>,
     b: Iterable<B>,
@@ -1118,7 +1118,7 @@ declare class OrderedSet<+T> extends Set<T> {
     d: Iterable<D>,
     e: Iterable<E>,
     ..._: []
-  ): OrderedSet<[T, A, B, C, D, E]>;
+  ): OrderedSet<[T|void, A|void, B|void, C|void, D|void, E|void]>;
 
   zipWith<A, R>(
     zipper: (value: T, a: A) => R,
@@ -1233,25 +1233,25 @@ declare class Stack<+T> extends IndexedCollection<T> {
   zipAll<A>(
     a: Iterable<A>,
     ..._: []
-  ): Stack<[T, A]>;
+  ): Stack<[T|void, A|void]>;
   zipAll<A, B>(
     a: Iterable<A>,
     b: Iterable<B>,
     ..._: []
-  ): Stack<[T, A, B]>;
+  ): Stack<[T|void, A|void, B|void]>;
   zipAll<A, B, C>(
     a: Iterable<A>,
     b: Iterable<B>,
     c: Iterable<C>,
     ..._: []
-  ): Stack<[T, A, B, C]>;
+  ): Stack<[T|void, A|void, B|void, C|void]>;
   zipAll<A, B, C, D>(
     a: Iterable<A>,
     b: Iterable<B>,
     c: Iterable<C>,
     d: Iterable<D>,
     ..._: []
-  ): Stack<[T, A, B, C, D]>;
+  ): Stack<[T|void, A|void, B|void, C|void, D|void]>;
   zipAll<A, B, C, D, E>(
     a: Iterable<A>,
     b: Iterable<B>,
@@ -1259,7 +1259,7 @@ declare class Stack<+T> extends IndexedCollection<T> {
     d: Iterable<D>,
     e: Iterable<E>,
     ..._: []
-  ): Stack<[T, A, B, C, D, E]>;
+  ): Stack<[T|void, A|void, B|void, C|void, D|void, E|void]>;
 
   zipWith<A, R>(
     zipper: (value: T, a: A) => R,
