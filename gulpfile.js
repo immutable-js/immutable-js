@@ -158,11 +158,19 @@ function gulpStatics(subDir) {
   }
 }
 
+gulp.task('immutable-copy', function () {
+  return gulp.src(SRC_DIR+'../../dist/immutable.js')
+    .pipe(gulp.dest(BUILD_DIR))
+    .on('error', handleError)
+    .pipe(browserSync.reload({ stream:true }))
+    .on('error', handleError);
+});
+
 gulp.task('build', function (done) {
   sequence(
     ['typedefs'],
     ['readme'],
-    ['js', 'js-docs', 'less', 'less-docs', 'statics', 'statics-docs'],
+    ['js', 'js-docs', 'less', 'less-docs', 'immutable-copy', 'statics', 'statics-docs'],
     ['pre-render', 'pre-render-docs'],
     done
   );
