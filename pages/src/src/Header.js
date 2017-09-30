@@ -9,6 +9,7 @@ var React = require('react');
 var SVGSet = require('./SVGSet');
 var Logo = require('./Logo');
 var StarBtn = require('./StarBtn');
+var packageJson = require('../../../package.json');
 
 var isMobileMatch =
   window.matchMedia && window.matchMedia('(max-device-width: 680px)');
@@ -66,7 +67,7 @@ var Header = React.createClass({
               </SVGSet>
             </a>
             <a href="docs/" target="_self">
-              Docs
+              Docs (v{packageJson.version})
             </a>
             <a href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes">
               Questions
@@ -80,7 +81,7 @@ var Header = React.createClass({
               <div className="filler">
                 <div className="miniHeaderContents">
                   <a href="docs/" target="_self">
-                    Docs
+                    Docs (v{packageJson.version})
                   </a>
                   <a href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes">
                     Questions
