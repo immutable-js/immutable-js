@@ -1,6 +1,7 @@
 var React = require('react');
 var SVGSet = require('../../src/SVGSet');
 var Logo = require('../../src/Logo');
+var packageJson = require('../../../../package.json');
 
 var DocHeader = React.createClass({
   render() {
@@ -15,7 +16,7 @@ var DocHeader = React.createClass({
               </SVGSet>
             </a>
             <a href="./" target="_self">
-              Docs
+              Docs (v{packageJson.version})
             </a>
             <a href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes">
               Questions

@@ -30,3 +30,4 @@ deploy:
     on:
       branch: master
       repo: facebook/immutable-js
+      tags: true
