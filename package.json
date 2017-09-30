@@ -2,7 +2,6 @@
   "name": "immutable",
   "version": "4.0.0-rc.2",
   "description": "Immutable Data Collections",
-  "license": "MIT",
   "homepage": "https://facebook.github.com/immutable-js",
   "author": {
     "name": "Lee Byron",
@@ -25,7 +24,8 @@
     "dist",
     "contrib",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "PATENTS"
   ],
   "keywords": [
     "immutable",
@@ -38,5 +38,6 @@
     "stateless",
     "sequence",
     "iteration"
-  ]
+  ],
+  "license": "BSD-3-Clause"
 }

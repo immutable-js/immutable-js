@@ -1,7 +1,6 @@
 {
   "name": "immutable",
   "description": "Immutable Data Collections",
-  "license": "MIT",
   "homepage": "https://github.com/facebook/immutable-js",
   "author": {
     "name": "Lee Byron",
@@ -35,5 +34,6 @@
     "stateless",
     "sequence",
     "iteration"
-  ]
+  ],
+  "license": "BSD"
 }

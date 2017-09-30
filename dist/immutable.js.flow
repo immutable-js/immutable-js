@@ -1,11 +1,4 @@
 /**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-/**
  * This file provides type definitions for use with the Flow type checker.
  *
  * An important caveat when using these definitions is that the types for
