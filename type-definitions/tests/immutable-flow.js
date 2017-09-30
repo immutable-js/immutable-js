@@ -22,11 +22,11 @@ import * as Immutable2 from '../../'
 import type {
   KeyedCollection,
   IndexedCollection,
-  RecordInstance,
   SetCollection,
   KeyedSeq,
   IndexedSeq,
   SetSeq,
+  RecordOf,
 } from '../../'
 
 /**
@@ -783,7 +783,7 @@ const PersonRecordClass = Record(({
   age: 12,
   name: 'Facebook',
 }: PersonRecordMembers))
-type PersonRecordInstance = RecordInstance<PersonRecordMembers> & PersonRecordMembers;
+type PersonRecordInstance = RecordOf<PersonRecordMembers>
 
 const personRecordInstance: PersonRecordInstance = PersonRecordClass({ age: 25 })
 

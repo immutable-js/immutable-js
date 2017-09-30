@@ -5,11 +5,12 @@
 // Some tests look like they are repeated in order to avoid false positives.
 // Flow might not complain about an instance of (what it thinks is) T to be assigned to T<K, V>
 
-import { Record } from '../../';
+import { Record, type RecordOf } from '../../';
 
 const Point2 = Record({x:0, y:0});
 const Point3 = Record({x:0, y:0, z:0});
-const GeoPoint = Record({lat:(null: ?number), lon:(null: ?number)});
+type TGeoPoint = {lat: ?number, lon: ?number}
+const GeoPoint = Record(({lat: null, lon: null}: TGeoPoint));
 
 let origin2 = Point2({});
 let origin3 = Point3({});
@@ -18,6 +19,10 @@ let geo = GeoPoint({lat:34});
 const mistake = Point2({x:'string'});
 origin3 = GeoPoint({lat:34})
 geo = Point3({});
+
+// Use RecordOf to type the return value of a Record factory function.
+// This should expect an error, is flow confused?
+let geoPointExpected: RecordOf<TGeoPoint> = GeoPoint({});
 
 const px = origin2.get('x');
 const px2: number = origin2.x;
@@ -57,3 +62,27 @@ var t4 = t2.setC(10);
 var t1a: string = t1.a;
 // Note: flow does not check extended Record classes yet
 var t1c = t1.c;
+
+// Use of new to create record factories (supported, but discouraged)
+const PointNew = new Record({x:0, y:0});
+// Not using new allows returning a record.
+const origin: RecordOf<{x:number, y:number}> = PointNew();
+// Both get and prop access are supported with RecordOf
+{ const x: number = origin.get('x') }
+{ const x: number = origin.x }
+// $ExpectError number is not a string
+{ const x: string = origin.x }
+
+// $ExpectError Use of new may only return a class instance, not a record
+const mistakeOriginNew: RecordOf<{x:number, y:number}> = new PointNew();
+// An alternative type strategy is instance based
+const originNew: PointNew = new PointNew();
+// Only get, but not prop access are supported with class instances
+{ const x: number = originNew.get('x') }
+// $ExpectError property `x`. Property not found in RecordInstance
+{ const x: number = originNew.x }
+
+// $ExpectError instantiated with invalid type
+const mistakeNewRecord = PointNew({x: 'string'});
+// $ExpectError instantiated with invalid type
+const mistakeNewInstance = new PointNew({x: 'string'});
