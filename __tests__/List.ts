@@ -189,6 +189,14 @@ describe('List', () => {
     expect(list.hasIn(['str'])).toBe(false);
   });
 
+  it('hasIn doesnt throw for bad key-path', () => {
+    let list = List.of(1, 2, 3, 4, 5);
+    expect(list.hasIn([1, 2, 3])).toBe(false);
+
+    let list2 = List([{}]);
+    expect(list2.hasIn([0, 'bad'])).toBe(false);
+  });
+
   it('setting creates a new instance', () => {
     let v0 = List.of('a');
     let v1 = v0.set(0, 'A');
