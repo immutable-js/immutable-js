@@ -23,7 +23,6 @@ cp -r dist npm/
 cp -r contrib npm/
 cp README.md npm/
 cp LICENSE npm/
-cp bower.json npm/
 
 # Ensure a vanilla package.json before deploying so other tools do not interpret
 # The built output as requiring any further transformation.
@@ -33,6 +32,9 @@ node -e "var package = require('./package.json'); \
   delete package.jest; \
   delete package.devDependencies; \
   require('fs').writeFileSync('./npm/package.json', JSON.stringify(package, null, 2));"
+
+# Retain marginal support for bower on this branch
+cp npm/package.json npm/bower.json
 
 cd npm
 git config user.name "Travis CI"
