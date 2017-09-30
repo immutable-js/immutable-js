@@ -40,12 +40,12 @@ export class Map extends KeyedCollection {
     return value === null || value === undefined
       ? emptyMap()
       : isMap(value) && !isOrdered(value)
-          ? value
-          : emptyMap().withMutations(map => {
-              const iter = KeyedCollection(value);
-              assertNotInfinite(iter.size);
-              iter.forEach((v, k) => map.set(k, v));
-            });
+        ? value
+        : emptyMap().withMutations(map => {
+            const iter = KeyedCollection(value);
+            assertNotInfinite(iter.size);
+            iter.forEach((v, k) => map.set(k, v));
+          });
   }
 
   static of(...keyValues) {
@@ -217,13 +217,10 @@ export class Map extends KeyedCollection {
   __iterate(fn, reverse) {
     let iterations = 0;
     this._root &&
-      this._root.iterate(
-        entry => {
-          iterations++;
-          return fn(entry[1], entry[0], this);
-        },
-        reverse
-      );
+      this._root.iterate(entry => {
+        iterations++;
+        return fn(entry[1], entry[0], this);
+      }, reverse);
     return iterations;
   }
 
@@ -349,7 +346,7 @@ class BitmapIndexedNode {
     const bitmap = this.bitmap;
     return (bitmap & bit) === 0
       ? notSetValue
-      : this.nodes[popCount(bitmap & bit - 1)].get(
+      : this.nodes[popCount(bitmap & (bit - 1))].get(
           shift + SHIFT,
           keyHash,
           key,
@@ -370,7 +367,7 @@ class BitmapIndexedNode {
       return this;
     }
 
-    const idx = popCount(bitmap & bit - 1);
+    const idx = popCount(bitmap & (bit - 1));
     const nodes = this.nodes;
     const node = exists ? nodes[idx] : undefined;
     const newNode = updateNode(
@@ -393,7 +390,10 @@ class BitmapIndexedNode {
     }
 
     if (
-      exists && !newNode && nodes.length === 2 && isLeafNode(nodes[idx ^ 1])
+      exists &&
+      !newNode &&
+      nodes.length === 2 &&
+      isLeafNode(nodes[idx ^ 1])
     ) {
       return nodes[idx ^ 1];
     }
@@ -403,11 +403,11 @@ class BitmapIndexedNode {
     }
 
     const isEditable = ownerID && ownerID === this.ownerID;
-    const newBitmap = exists ? newNode ? bitmap : bitmap ^ bit : bitmap | bit;
+    const newBitmap = exists ? (newNode ? bitmap : bitmap ^ bit) : bitmap | bit;
     const newNodes = exists
       ? newNode
-          ? setIn(nodes, idx, newNode, isEditable)
-          : spliceOut(nodes, idx, isEditable)
+        ? setIn(nodes, idx, newNode, isEditable)
+        : spliceOut(nodes, idx, isEditable)
       : spliceIn(nodes, idx, newNode, isEditable);
 
     if (isEditable) {
@@ -606,7 +606,7 @@ class ValueNode {
 
 // #pragma Iterators
 
-ArrayMapNode.prototype.iterate = (HashCollisionNode.prototype.iterate = function(
+ArrayMapNode.prototype.iterate = HashCollisionNode.prototype.iterate = function(
   fn,
   reverse
 ) {
@@ -616,9 +616,9 @@ ArrayMapNode.prototype.iterate = (HashCollisionNode.prototype.iterate = function
       return false;
     }
   }
-});
+};
 
-BitmapIndexedNode.prototype.iterate = (HashArrayMapNode.prototype.iterate = function(
+BitmapIndexedNode.prototype.iterate = HashArrayMapNode.prototype.iterate = function(
   fn,
   reverse
 ) {
@@ -629,7 +629,7 @@ BitmapIndexedNode.prototype.iterate = (HashArrayMapNode.prototype.iterate = func
       return false;
     }
   }
-});
+};
 
 // eslint-disable-next-line no-unused-vars
 ValueNode.prototype.iterate = function(fn, reverse) {
@@ -670,12 +670,12 @@ class MapIterator extends Iterator {
             if (subNode.entry) {
               return mapIteratorValue(type, subNode.entry);
             }
-            stack = (this._stack = mapIteratorFrame(subNode, stack));
+            stack = this._stack = mapIteratorFrame(subNode, stack);
           }
           continue;
         }
       }
-      stack = (this._stack = this._stack.__prev);
+      stack = this._stack = this._stack.__prev;
     }
     return iteratorDone();
   }
@@ -733,7 +733,7 @@ function updateMap(map, k, v) {
     if (!didAlter.value) {
       return map;
     }
-    newSize = map.size + (didChangeSize.value ? v === NOT_SET ? -1 : 1 : 0);
+    newSize = map.size + (didChangeSize.value ? (v === NOT_SET ? -1 : 1) : 0);
   }
   if (map.__ownerID) {
     map.size = newSize;
@@ -775,8 +775,9 @@ function updateNode(
 }
 
 function isLeafNode(node) {
-  return node.constructor === ValueNode ||
-    node.constructor === HashCollisionNode;
+  return (
+    node.constructor === ValueNode || node.constructor === HashCollisionNode
+  );
 }
 
 function mergeIntoNode(node, ownerID, shift, keyHash, entry) {
@@ -788,13 +789,13 @@ function mergeIntoNode(node, ownerID, shift, keyHash, entry) {
   const idx2 = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
 
   let newNode;
-  const nodes = idx1 === idx2
-    ? [mergeIntoNode(node, ownerID, shift + SHIFT, keyHash, entry)]
-    : ((newNode = new ValueNode(ownerID, keyHash, entry)), idx1 < idx2
-        ? [node, newNode]
-        : [newNode, node]);
+  const nodes =
+    idx1 === idx2
+      ? [mergeIntoNode(node, ownerID, shift + SHIFT, keyHash, entry)]
+      : ((newNode = new ValueNode(ownerID, keyHash, entry)),
+        idx1 < idx2 ? [node, newNode] : [newNode, node]);
 
-  return new BitmapIndexedNode(ownerID, 1 << idx1 | 1 << idx2, nodes);
+  return new BitmapIndexedNode(ownerID, (1 << idx1) | (1 << idx2), nodes);
 }
 
 function createNodes(ownerID, entries, key, value) {
@@ -813,7 +814,7 @@ function packNodes(ownerID, nodes, count, excluding) {
   let bitmap = 0;
   let packedII = 0;
   const packedNodes = new Array(count);
-  for (let ii = 0, bit = 1, len = nodes.length; ii < len; ii++, (bit <<= 1)) {
+  for (let ii = 0, bit = 1, len = nodes.length; ii < len; ii++, bit <<= 1) {
     const node = nodes[ii];
     if (node !== undefined && ii !== excluding) {
       bitmap |= bit;
@@ -826,7 +827,7 @@ function packNodes(ownerID, nodes, count, excluding) {
 function expandNodes(ownerID, nodes, bitmap, including, node) {
   let count = 0;
   const expandedNodes = new Array(SIZE);
-  for (let ii = 0; bitmap !== 0; ii++, (bitmap >>>= 1)) {
+  for (let ii = 0; bitmap !== 0; ii++, bitmap >>>= 1) {
     expandedNodes[ii] = bitmap & 1 ? nodes[count++] : undefined;
   }
   expandedNodes[including] = node;
@@ -876,7 +877,7 @@ export function mergeIntoCollectionWith(collection, merger, iters) {
           collection.update(
             key,
             NOT_SET,
-            oldVal => oldVal === NOT_SET ? value : merger(oldVal, value, key)
+            oldVal => (oldVal === NOT_SET ? value : merger(oldVal, value, key))
           );
         }
       : (value, key) => {
@@ -915,14 +916,14 @@ function updateInDeepMap(existing, keyPath, i, notSetValue, updater) {
   return nextUpdated === nextExisting
     ? existing
     : nextUpdated === NOT_SET
-        ? existing.remove(key)
-        : (isNotSet ? emptyMap() : existing).set(key, nextUpdated);
+      ? existing.remove(key)
+      : (isNotSet ? emptyMap() : existing).set(key, nextUpdated);
 }
 
 function popCount(x) {
-  x -= x >> 1 & 0x55555555;
-  x = (x & 0x33333333) + (x >> 2 & 0x33333333);
-  x = x + (x >> 4) & 0x0f0f0f0f;
+  x -= (x >> 1) & 0x55555555;
+  x = (x & 0x33333333) + ((x >> 2) & 0x33333333);
+  x = (x + (x >> 4)) & 0x0f0f0f0f;
   x += x >> 8;
   x += x >> 16;
   return x & 0x7f;

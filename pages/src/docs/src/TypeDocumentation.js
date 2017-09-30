@@ -11,17 +11,16 @@ var collectMemberGroups = require('../../../lib/collectMemberGroups');
 var TypeKind = require('../../../lib/TypeKind');
 var defs = require('../../../lib/getTypeDefs');
 
-var typeDefURL = 'https://github.com/facebook/immutable-js/blob/master/type-definitions/Immutable.d.ts';
+var typeDefURL =
+  'https://github.com/facebook/immutable-js/blob/master/type-definitions/Immutable.d.ts';
 var issuesURL = 'https://github.com/facebook/immutable-js/issues';
 
 var Disclaimer = function() {
   return (
     <section className="disclaimer">
-      This documentation is generated from
-      {' '}
+      This documentation is generated from{' '}
       <a href={typeDefURL}>Immutable.d.ts</a>
-      .
-      Pull requests and <a href={issuesURL}>Issues</a> welcome.
+      . Pull requests and <a href={issuesURL}>Issues</a> welcome.
     </section>
   );
 };
@@ -54,7 +53,7 @@ var TypeDocumentation = React.createClass({
 
     return (
       <div>
-        {isMobile ||
+        {isMobile || (
           <SideBar
             focus={name}
             memberGroups={memberGroups}
@@ -62,22 +61,23 @@ var TypeDocumentation = React.createClass({
             toggleShowInGroups={this.toggleShowInGroups}
             showInGroups={this.state.showInGroups}
             showInherited={this.state.showInherited}
-          />}
+          />
+        )}
         <div key={name} className="docContents">
-
-          {!def
-            ? <NotFound />
-            : !name
-                ? <DocOverview def={def} />
-                : !def.interface && !def.module
-                    ? <FunctionDoc name={name} def={def.call} />
-                    : <TypeDoc
-                        name={name}
-                        def={def}
-                        memberName={memberName}
-                        memberGroups={memberGroups}
-                      />}
-
+          {!def ? (
+            <NotFound />
+          ) : !name ? (
+            <DocOverview def={def} />
+          ) : !def.interface && !def.module ? (
+            <FunctionDoc name={name} def={def.call} />
+          ) : (
+            <TypeDoc
+              name={name}
+              def={def}
+              memberName={memberName}
+              memberGroups={memberGroups}
+            />
+          )}
         </div>
       </div>
     );
@@ -98,11 +98,10 @@ var FunctionDoc = React.createClass({
 
     return (
       <div>
-        <h1 className="typeHeader">
-          {name + '()'}
-        </h1>
-        {doc.synopsis &&
-          <MarkDown className="synopsis" contents={doc.synopsis} />}
+        <h1 className="typeHeader">{name + '()'}</h1>
+        {doc.synopsis && (
+          <MarkDown className="synopsis" contents={doc.synopsis} />
+        )}
         <code className="codeBlock memberSignature">
           {def.signatures.map((callSig, i) => [
             <CallSigDef key={i} name={name} callSig={callSig} />,
@@ -112,15 +111,15 @@ var FunctionDoc = React.createClass({
         {doc.notes &&
           doc.notes.map((note, i) => (
             <section key={i}>
-              <h4 className="infoHeader">
-                {note.name}
-              </h4>
-              {note.name === 'alias'
-                ? <CallSigDef name={note.body} />
-                : note.body}
+              <h4 className="infoHeader">{note.name}</h4>
+              {note.name === 'alias' ? (
+                <CallSigDef name={note.body} />
+              ) : (
+                note.body
+              )}
             </section>
           ))}
-        {doc.description &&
+        {doc.description && (
           <section>
             <h4 className="infoHeader">
               {doc.description.substr(0, 5) === '<code'
@@ -128,7 +127,8 @@ var FunctionDoc = React.createClass({
                 : 'Discussion'}
             </h4>
             <MarkDown className="discussion" contents={doc.description} />
-          </section>}
+          </section>
+        )}
         <Disclaimer />
       </div>
     );
@@ -151,29 +151,29 @@ var TypeDoc = React.createClass({
 
     return (
       <div>
-        <h1 className="typeHeader">
-          {name}
-        </h1>
-        {doc.synopsis &&
-          <MarkDown className="synopsis" contents={doc.synopsis} />}
-        {interfaceDef &&
+        <h1 className="typeHeader">{name}</h1>
+        {doc.synopsis && (
+          <MarkDown className="synopsis" contents={doc.synopsis} />
+        )}
+        {interfaceDef && (
           <code className="codeBlock memberSignature">
             <InterfaceDef name={name} def={interfaceDef} />
-          </code>}
+          </code>
+        )}
 
         {doc.notes &&
           doc.notes.map((note, i) => (
             <section key={i}>
-              <h4 className="infoHeader">
-                {note.name}
-              </h4>
-              {note.name === 'alias'
-                ? <CallSigDef name={note.body} />
-                : note.body}
+              <h4 className="infoHeader">{note.name}</h4>
+              {note.name === 'alias' ? (
+                <CallSigDef name={note.body} />
+              ) : (
+                note.body
+              )}
             </section>
           ))}
 
-        {doc.description &&
+        {doc.description && (
           <section>
             <h4 className="infoHeader">
               {doc.description.substr(0, 5) === '<code'
@@ -181,9 +181,10 @@ var TypeDoc = React.createClass({
                 : 'Discussion'}
             </h4>
             <MarkDown className="discussion" contents={doc.description} />
-          </section>}
+          </section>
+        )}
 
-        {call &&
+        {call && (
           <section>
             <h4 className="groupTitle">Construction</h4>
             <MemberDoc
@@ -194,9 +195,10 @@ var TypeDoc = React.createClass({
                 memberDef: call
               }}
             />
-          </section>}
+          </section>
+        )}
 
-        {functions.count() > 0 &&
+        {functions.count() > 0 && (
           <section>
             <h4 className="groupTitle">Static methods</h4>
             {functions
@@ -213,9 +215,10 @@ var TypeDoc = React.createClass({
                 />
               ))
               .toArray()}
-          </section>}
+          </section>
+        )}
 
-        {types.count() > 0 &&
+        {types.count() > 0 && (
           <section>
             <h4 className="groupTitle">Types</h4>
             {types
@@ -229,7 +232,8 @@ var TypeDoc = React.createClass({
                 </div>
               ))
               .toArray()}
-          </section>}
+          </section>
+        )}
 
         <section>
           {Seq(memberGroups)
@@ -295,9 +299,8 @@ function getTypePropMap(def) {
     def.extends.forEach(e => {
       var superModule = defs.Immutable;
       e.name.split('.').forEach(part => {
-        superModule = superModule &&
-          superModule.module &&
-          superModule.module[part];
+        superModule =
+          superModule && superModule.module && superModule.module[part];
       });
       var superInterface = superModule && superModule.interface;
       if (superInterface) {

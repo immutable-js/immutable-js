@@ -90,8 +90,8 @@ export class List extends IndexedCollection {
     return !this.has(index)
       ? this
       : index === 0
-          ? this.shift()
-          : index === this.size - 1 ? this.pop() : this.splice(index, 1);
+        ? this.shift()
+        : index === this.size - 1 ? this.pop() : this.splice(index, 1);
   }
 
   insert(index, value) {
@@ -103,9 +103,9 @@ export class List extends IndexedCollection {
       return this;
     }
     if (this.__ownerID) {
-      this.size = (this._origin = (this._capacity = 0));
+      this.size = this._origin = this._capacity = 0;
       this._level = SHIFT;
-      this._root = (this._tail = null);
+      this._root = this._tail = null;
       this.__hash = undefined;
       this.__altered = true;
       return this;
@@ -236,7 +236,7 @@ export const ListPrototype = List.prototype;
 ListPrototype[IS_LIST_SENTINEL] = true;
 ListPrototype[DELETE] = ListPrototype.remove;
 ListPrototype.setIn = MapPrototype.setIn;
-ListPrototype.deleteIn = (ListPrototype.removeIn = MapPrototype.removeIn);
+ListPrototype.deleteIn = ListPrototype.removeIn = MapPrototype.removeIn;
 ListPrototype.update = MapPrototype.update;
 ListPrototype.updateIn = MapPrototype.updateIn;
 ListPrototype.mergeIn = MapPrototype.mergeIn;
@@ -263,7 +263,7 @@ class VNode {
     if (index === level ? 1 << level : 0 || this.array.length === 0) {
       return this;
     }
-    const originIndex = index >>> level & MASK;
+    const originIndex = (index >>> level) & MASK;
     if (originIndex >= this.array.length) {
       return new VNode([], ownerID);
     }
@@ -271,8 +271,8 @@ class VNode {
     let newChild;
     if (level > 0) {
       const oldChild = this.array[originIndex];
-      newChild = oldChild &&
-        oldChild.removeBefore(ownerID, level - SHIFT, index);
+      newChild =
+        oldChild && oldChild.removeBefore(ownerID, level - SHIFT, index);
       if (newChild === oldChild && removingFirst) {
         return this;
       }
@@ -296,7 +296,7 @@ class VNode {
     if (index === (level ? 1 << level : 0) || this.array.length === 0) {
       return this;
     }
-    const sizeIndex = index - 1 >>> level & MASK;
+    const sizeIndex = ((index - 1) >>> level) & MASK;
     if (sizeIndex >= this.array.length) {
       return this;
     }
@@ -304,8 +304,8 @@ class VNode {
     let newChild;
     if (level > 0) {
       const oldChild = this.array[sizeIndex];
-      newChild = oldChild &&
-        oldChild.removeAfter(ownerID, level - SHIFT, index);
+      newChild =
+        oldChild && oldChild.removeAfter(ownerID, level - SHIFT, index);
       if (newChild === oldChild && sizeIndex === this.array.length - 1) {
         return this;
       }
@@ -355,8 +355,8 @@ function iterateList(list, reverse) {
   function iterateNode(node, level, offset) {
     let values;
     const array = node && node.array;
-    let from = offset > left ? 0 : left - offset >> level;
-    let to = (right - offset >> level) + 1;
+    let from = offset > left ? 0 : (left - offset) >> level;
+    let to = ((right - offset) >> level) + 1;
     if (to > SIZE) {
       to = SIZE;
     }
@@ -450,7 +450,7 @@ function updateList(list, index, value) {
 }
 
 function updateVNode(node, ownerID, level, index, value, didAlter) {
-  const idx = index >>> level & MASK;
+  const idx = (index >>> level) & MASK;
   const nodeHas = node && idx < node.array.length;
   if (!nodeHas && value === undefined) {
     return node;
@@ -502,11 +502,11 @@ function listNodeFor(list, rawIndex) {
   if (rawIndex >= getTailOffset(list._capacity)) {
     return list._tail;
   }
-  if (rawIndex < 1 << list._level + SHIFT) {
+  if (rawIndex < 1 << (list._level + SHIFT)) {
     let node = list._root;
     let level = list._level;
     while (node && level > 0) {
-      node = node.array[rawIndex >>> level & MASK];
+      node = node.array[(rawIndex >>> level) & MASK];
       level -= SHIFT;
     }
     return node;
@@ -526,9 +526,10 @@ function setListBounds(list, begin, end) {
   let oldOrigin = list._origin;
   let oldCapacity = list._capacity;
   let newOrigin = oldOrigin + begin;
-  let newCapacity = end === undefined
-    ? oldCapacity
-    : end < 0 ? oldCapacity + end : oldOrigin + end;
+  let newCapacity =
+    end === undefined
+      ? oldCapacity
+      : end < 0 ? oldCapacity + end : oldOrigin + end;
   if (newOrigin === oldOrigin && newCapacity === oldCapacity) {
     return list;
   }
@@ -562,7 +563,7 @@ function setListBounds(list, begin, end) {
   const newTailOffset = getTailOffset(newCapacity);
 
   // New size might need creating a higher root.
-  while (newTailOffset >= 1 << newLevel + SHIFT) {
+  while (newTailOffset >= 1 << (newLevel + SHIFT)) {
     newRoot = new VNode(
       newRoot && newRoot.array.length ? [newRoot] : [],
       owner
@@ -572,9 +573,10 @@ function setListBounds(list, begin, end) {
 
   // Locate or create the new tail.
   const oldTail = list._tail;
-  let newTail = newTailOffset < oldTailOffset
-    ? listNodeFor(list, newCapacity - 1)
-    : newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
+  let newTail =
+    newTailOffset < oldTailOffset
+      ? listNodeFor(list, newCapacity - 1)
+      : newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
 
   // Merge Tail into tree.
   if (
@@ -586,10 +588,10 @@ function setListBounds(list, begin, end) {
     newRoot = editableVNode(newRoot, owner);
     let node = newRoot;
     for (let level = newLevel; level > SHIFT; level -= SHIFT) {
-      const idx = oldTailOffset >>> level & MASK;
-      node = (node.array[idx] = editableVNode(node.array[idx], owner));
+      const idx = (oldTailOffset >>> level) & MASK;
+      node = node.array[idx] = editableVNode(node.array[idx], owner);
     }
-    node.array[oldTailOffset >>> SHIFT & MASK] = oldTail;
+    node.array[(oldTailOffset >>> SHIFT) & MASK] = oldTail;
   }
 
   // If the size has been reduced, there's a chance the tail needs to be trimmed.
@@ -611,8 +613,8 @@ function setListBounds(list, begin, end) {
 
     // Identify the new top root node of the subtree of the old root.
     while (newRoot) {
-      const beginIndex = newOrigin >>> newLevel & MASK;
-      if (beginIndex !== newTailOffset >>> newLevel & MASK) {
+      const beginIndex = (newOrigin >>> newLevel) & MASK;
+      if ((beginIndex !== newTailOffset >>> newLevel) & MASK) {
         break;
       }
       if (beginIndex) {
@@ -674,5 +676,5 @@ function mergeIntoListWith(list, merger, collections) {
 }
 
 function getTailOffset(size) {
-  return size < SIZE ? 0 : size - 1 >>> SHIFT << SHIFT;
+  return size < SIZE ? 0 : ((size - 1) >>> SHIFT) << SHIFT;
 }

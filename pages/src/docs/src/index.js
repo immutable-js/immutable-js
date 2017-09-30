@@ -122,21 +122,15 @@ module.exports = React.createClass({
   // TODO: replace this. this is hacky and probably wrong
 
   componentDidMount() {
-    setTimeout(
-      () => {
-        this.pageData.type = '';
-      },
-      0
-    );
+    setTimeout(() => {
+      this.pageData.type = '';
+    }, 0);
   },
 
   componentDidUpdate() {
-    setTimeout(
-      () => {
-        this.pageData.type = '';
-      },
-      0
-    );
+    setTimeout(() => {
+      this.pageData.type = '';
+    }, 0);
   },
 
   render() {

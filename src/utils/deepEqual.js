@@ -43,10 +43,12 @@ export default function deepEqual(a, b) {
 
   if (isOrdered(a)) {
     const entries = a.entries();
-    return b.every((v, k) => {
-      const entry = entries.next().value;
-      return entry && is(entry[1], v) && (notAssociative || is(entry[0], k));
-    }) && entries.next().done;
+    return (
+      b.every((v, k) => {
+        const entry = entries.next().value;
+        return entry && is(entry[1], v) && (notAssociative || is(entry[0], k));
+      }) && entries.next().done
+    );
   }
 
   let flipped = false;

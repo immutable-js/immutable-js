@@ -30,13 +30,14 @@ var StarBtn = React.createClass({
           <span className="gh-text">Star</span>
         </a>
         {this.state.stars && <span className="gh-triangle" />}
-        {this.state.stars &&
+        {this.state.stars && (
           <a
             className="gh-count"
             href="https://github.com/facebook/immutable-js/stargazers"
           >
             {this.state.stars}
-          </a>}
+          </a>
+        )}
       </span>
     );
   }

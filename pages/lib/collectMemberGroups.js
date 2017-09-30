@@ -16,7 +16,9 @@ function collectMemberGroups(interfaceDef, options) {
       (groups[member.group] || (groups[member.group] = [])).push(member);
     });
   } else {
-    groups[''] = Seq(members).sortBy(member => member.memberName).toArray();
+    groups[''] = Seq(members)
+      .sortBy(member => member.memberName)
+      .toArray();
   }
 
   if (!options.showInherited) {
@@ -39,9 +41,8 @@ function collectMemberGroups(interfaceDef, options) {
       def.extends.forEach(e => {
         var superModule = defs.Immutable;
         e.name.split('.').forEach(part => {
-          superModule = superModule &&
-            superModule.module &&
-            superModule.module[part];
+          superModule =
+            superModule && superModule.module && superModule.module[part];
         });
         var superInterface = superModule && superModule.interface;
         if (superInterface) {

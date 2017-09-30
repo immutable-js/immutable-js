@@ -71,7 +71,8 @@ export function is(valueA, valueB) {
     return false;
   }
   if (
-    typeof valueA.valueOf === 'function' && typeof valueB.valueOf === 'function'
+    typeof valueA.valueOf === 'function' &&
+    typeof valueB.valueOf === 'function'
   ) {
     valueA = valueA.valueOf();
     valueB = valueB.valueOf();
@@ -82,7 +83,9 @@ export function is(valueA, valueB) {
       return false;
     }
   }
-  return !!(isValueObject(valueA) &&
+  return !!(
+    isValueObject(valueA) &&
     isValueObject(valueB) &&
-    valueA.equals(valueB));
+    valueA.equals(valueB)
+  );
 }

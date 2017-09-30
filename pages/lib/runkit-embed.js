@@ -14,7 +14,8 @@ global.runIt = function runIt(button) {
   global.RunKit.createNotebook({
     element: container,
     nodeVersion: options.nodeVersion || '*',
-    preamble: 'const assert = (' +
+    preamble:
+      'const assert = (' +
       makeAssert +
       ')(require("immutable"));' +
       (options.preamble || ''),

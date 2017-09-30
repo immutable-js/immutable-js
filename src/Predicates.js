@@ -8,8 +8,10 @@
  */
 
 export function isImmutable(maybeImmutable) {
-  return (isCollection(maybeImmutable) || isRecord(maybeImmutable)) &&
-    !maybeImmutable.__ownerID;
+  return (
+    (isCollection(maybeImmutable) || isRecord(maybeImmutable)) &&
+    !maybeImmutable.__ownerID
+  );
 }
 
 export function isCollection(maybeCollection) {
@@ -37,9 +39,11 @@ export function isRecord(maybeRecord) {
 }
 
 export function isValueObject(maybeValue) {
-  return !!(maybeValue &&
+  return !!(
+    maybeValue &&
     typeof maybeValue.equals === 'function' &&
-    typeof maybeValue.hashCode === 'function');
+    typeof maybeValue.hashCode === 'function'
+  );
 }
 
 export const IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';

@@ -30,9 +30,9 @@ Iterator.KEYS = ITERATE_KEYS;
 Iterator.VALUES = ITERATE_VALUES;
 Iterator.ENTRIES = ITERATE_ENTRIES;
 
-Iterator.prototype.inspect = (Iterator.prototype.toSource = function() {
+Iterator.prototype.inspect = Iterator.prototype.toSource = function() {
   return this.toString();
-});
+};
 Iterator.prototype[ITERATOR_SYMBOL] = function() {
   return this;
 };
@@ -66,7 +66,8 @@ export function getIterator(iterable) {
 }
 
 function getIteratorFn(iterable) {
-  const iteratorFn = iterable &&
+  const iteratorFn =
+    iterable &&
     ((REAL_ITERATOR_SYMBOL && iterable[REAL_ITERATOR_SYMBOL]) ||
       iterable[FAUX_ITERATOR_SYMBOL]);
   if (typeof iteratorFn === 'function') {

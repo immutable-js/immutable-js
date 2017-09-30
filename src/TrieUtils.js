@@ -78,9 +78,11 @@ export function returnTrue() {
 }
 
 export function wholeSlice(begin, end, size) {
-  return ((begin === 0 && !isNeg(begin)) ||
-    (size !== undefined && begin <= -size)) &&
-    (end === undefined || (size !== undefined && end >= size));
+  return (
+    ((begin === 0 && !isNeg(begin)) ||
+      (size !== undefined && begin <= -size)) &&
+    (end === undefined || (size !== undefined && end >= size))
+  );
 }
 
 export function resolveBegin(begin, size) {
@@ -97,10 +99,10 @@ function resolveIndex(index, size, defaultIndex) {
   return index === undefined
     ? defaultIndex
     : isNeg(index)
-        ? size === Infinity ? size : Math.max(0, size + index) | 0
-        : size === undefined || size === index
-            ? index
-            : Math.min(size, index) | 0;
+      ? size === Infinity ? size : Math.max(0, size + index) | 0
+      : size === undefined || size === index
+        ? index
+        : Math.min(size, index) | 0;
 }
 
 function isNeg(value) {

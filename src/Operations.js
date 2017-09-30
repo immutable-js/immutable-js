@@ -169,22 +169,19 @@ export class FromEntriesSequence extends KeyedSeq {
   }
 
   __iterate(fn, reverse) {
-    return this._iter.__iterate(
-      entry => {
-        // Check if entry exists first so array access doesn't throw for holes
-        // in the parent iteration.
-        if (entry) {
-          validateEntry(entry);
-          const indexedCollection = isCollection(entry);
-          return fn(
-            indexedCollection ? entry.get(1) : entry[1],
-            indexedCollection ? entry.get(0) : entry[0],
-            this
-          );
-        }
-      },
-      reverse
-    );
+    return this._iter.__iterate(entry => {
+      // Check if entry exists first so array access doesn't throw for holes
+      // in the parent iteration.
+      if (entry) {
+        validateEntry(entry);
+        const indexedCollection = isCollection(entry);
+        return fn(
+          indexedCollection ? entry.get(1) : entry[1],
+          indexedCollection ? entry.get(0) : entry[0],
+          this
+        );
+      }
+    }, reverse);
   }
 
   __iterator(type, reverse) {
@@ -213,7 +210,7 @@ export class FromEntriesSequence extends KeyedSeq {
   }
 }
 
-ToIndexedSequence.prototype.cacheResult = (ToKeyedSequence.prototype.cacheResult = (ToSetSequence.prototype.cacheResult = (FromEntriesSequence.prototype.cacheResult = cacheResultThrough)));
+ToIndexedSequence.prototype.cacheResult = ToKeyedSequence.prototype.cacheResult = ToSetSequence.prototype.cacheResult = FromEntriesSequence.prototype.cacheResult = cacheResultThrough;
 
 export function flipFactory(collection) {
   const flipSequence = makeSequence(collection);
@@ -350,15 +347,12 @@ export function filterFactory(collection, predicate, context, useKeys) {
   }
   filterSequence.__iterateUncached = function(fn, reverse) {
     let iterations = 0;
-    collection.__iterate(
-      (v, k, c) => {
-        if (predicate.call(context, v, k, c)) {
-          iterations++;
-          return fn(v, useKeys ? k : iterations - 1, this);
-        }
-      },
-      reverse
-    );
+    collection.__iterate((v, k, c) => {
+      if (predicate.call(context, v, k, c)) {
+        iterations++;
+        return fn(v, useKeys ? k : iterations - 1, this);
+      }
+    }, reverse);
     return iterations;
   };
   filterSequence.__iteratorUncached = function(type, reverse) {
@@ -434,9 +428,8 @@ export function sliceFactory(collection, begin, end, useKeys) {
 
   // If collection.size is undefined, the size of the realized sliceSeq is
   // unknown at this point unless the number of items to slice is 0
-  sliceSeq.size = sliceSize === 0
-    ? sliceSize
-    : (collection.size && sliceSize) || undefined;
+  sliceSeq.size =
+    sliceSize === 0 ? sliceSize : (collection.size && sliceSize) || undefined;
 
   if (!useKeys && isSeq(collection) && sliceSize >= 0) {
     sliceSeq.get = function(index, notSetValue) {
@@ -460,8 +453,10 @@ export function sliceFactory(collection, begin, end, useKeys) {
     collection.__iterate((v, k) => {
       if (!(isSkipping && (isSkipping = skipped++ < resolvedBegin))) {
         iterations++;
-        return fn(v, useKeys ? k : iterations - 1, this) !== false &&
-          iterations !== sliceSize;
+        return (
+          fn(v, useKeys ? k : iterations - 1, this) !== false &&
+          iterations !== sliceSize
+        );
       }
     });
     return iterations;
@@ -626,17 +621,14 @@ export function concatFactory(collection, values) {
     concatSeq = concatSeq.toSetSeq();
   }
   concatSeq = concatSeq.flatten(true);
-  concatSeq.size = iters.reduce(
-    (sum, seq) => {
-      if (sum !== undefined) {
-        const size = seq.size;
-        if (size !== undefined) {
-          return sum + size;
-        }
+  concatSeq.size = iters.reduce((sum, seq) => {
+    if (sum !== undefined) {
+      const size = seq.size;
+      if (size !== undefined) {
+        return sum + size;
       }
-    },
-    0
-  );
+    }
+  }, 0);
   return concatSeq;
 }
 
@@ -649,20 +641,17 @@ export function flattenFactory(collection, depth, useKeys) {
     let iterations = 0;
     let stopped = false;
     function flatDeep(iter, currentDepth) {
-      iter.__iterate(
-        (v, k) => {
-          if ((!depth || currentDepth < depth) && isCollection(v)) {
-            flatDeep(v, currentDepth + 1);
-          } else {
-            iterations++;
-            if (fn(v, useKeys ? k : iterations - 1, flatSequence) === false) {
-              stopped = true;
-            }
+      iter.__iterate((v, k) => {
+        if ((!depth || currentDepth < depth) && isCollection(v)) {
+          flatDeep(v, currentDepth + 1);
+        } else {
+          iterations++;
+          if (fn(v, useKeys ? k : iterations - 1, flatSequence) === false) {
+            stopped = true;
           }
-          return !stopped;
-        },
-        reverse
-      );
+        }
+        return !stopped;
+      }, reverse);
     }
     flatDeep(collection, 0);
     return iterations;
@@ -770,20 +759,20 @@ export function maxFactory(collection, comparator, mapper) {
     const entry = collection
       .toSeq()
       .map((v, k) => [v, mapper(v, k, collection)])
-      .reduce((a, b) => maxCompare(comparator, a[1], b[1]) ? b : a);
+      .reduce((a, b) => (maxCompare(comparator, a[1], b[1]) ? b : a));
     return entry && entry[0];
   }
-  return collection.reduce((a, b) => maxCompare(comparator, a, b) ? b : a);
+  return collection.reduce((a, b) => (maxCompare(comparator, a, b) ? b : a));
 }
 
 function maxCompare(comparator, a, b) {
   const comp = comparator(b, a);
   // b is considered the new max if the comparator declares them equal, but
   // they are not equal and b is in fact a nullish value.
-  return (comp === 0 &&
-    b !== a &&
-    (b === undefined || b === null || b !== b)) ||
-    comp > 0;
+  return (
+    (comp === 0 && b !== a && (b === undefined || b === null || b !== b)) ||
+    comp > 0
+  );
 }
 
 export function zipWithFactory(keyIter, zipper, iters, zipAll) {
@@ -863,7 +852,8 @@ function makeSequence(collection) {
   return Object.create(
     (isKeyed(collection)
       ? KeyedSeq
-      : isIndexed(collection) ? IndexedSeq : SetSeq).prototype
+      : isIndexed(collection) ? IndexedSeq : SetSeq
+    ).prototype
   );
 }
 

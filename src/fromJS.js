@@ -35,7 +35,8 @@ function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
       parentValue,
       key,
       toSeq(value).map((v, k) =>
-        fromJSWith(stack, converter, v, k, keyPath, value)),
+        fromJSWith(stack, converter, v, k, keyPath, value)
+      ),
       keyPath && keyPath.slice()
     );
     stack.pop();
@@ -50,6 +51,7 @@ function defaultConverter(k, v) {
 }
 
 function isPlainObj(value) {
-  return value &&
-    (value.constructor === Object || value.constructor === undefined);
+  return (
+    value && (value.constructor === Object || value.constructor === undefined)
+  );
 }

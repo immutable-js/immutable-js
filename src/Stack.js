@@ -81,16 +81,13 @@ export class Stack extends IndexedCollection {
     assertNotInfinite(iter.size);
     let newSize = this.size;
     let head = this._head;
-    iter.__iterate(
-      value => {
-        newSize++;
-        head = {
-          value: value,
-          next: head
-        };
-      },
-      /* reverse */ true
-    );
+    iter.__iterate(value => {
+      newSize++;
+      head = {
+        value: value,
+        next: head
+      };
+    }, /* reverse */ true);
     if (this.__ownerID) {
       this.size = newSize;
       this._head = head;
