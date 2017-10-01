@@ -92,7 +92,7 @@ function hashJSObj(obj) {
   }
 
   hashed = obj[UID_HASH_KEY];
-  if (hash !== undefined) {
+  if (hashed !== undefined) {
     return hashed;
   }
 
