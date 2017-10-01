@@ -77,7 +77,7 @@ function hashString(string) {
   // (exclusive) by dropping high bits.
   let hashed = 0;
   for (let ii = 0; ii < string.length; ii++) {
-    hashed = (31 * hash + string.charCodeAt(ii)) | 0;
+    hashed = (31 * hashed + string.charCodeAt(ii)) | 0;
   }
   return smi(hashed);
 }
