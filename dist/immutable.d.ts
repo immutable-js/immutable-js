@@ -1247,7 +1247,7 @@ declare module Immutable {
      *
      * Note: `merge` can be used in `withMutations`.
      */
-    merge(...collections: Array<Collection<K, V> | {[key: string]: V}>): this;
+    merge(...collections: Array<Collection.Keyed<K, V> | {[key: string]: V}>): this;
 
     /**
      * Like `merge()`, `mergeWith()` returns a new Map resulting from merging
@@ -1269,7 +1269,7 @@ declare module Immutable {
      */
     mergeWith(
       merger: (oldVal: V, newVal: V, key: K) => V,
-      ...collections: Array<Collection<K, V> | {[key: string]: V}>
+      ...collections: Array<Collection.Keyed<K, V> | {[key: string]: V}>
     ): this;
 
     /**
@@ -1291,7 +1291,7 @@ declare module Immutable {
      *
      * Note: `mergeDeep` can be used in `withMutations`.
      */
-    mergeDeep(...collections: Array<Collection<K, V> | {[key: string]: V}>): this;
+    mergeDeep(...collections: Array<Collection.Keyed<K, V> | {[key: string]: V}>): this;
 
     /**
      * Like `mergeDeep()`, but when two non-Collections conflict, it uses the
@@ -1314,7 +1314,7 @@ declare module Immutable {
      */
     mergeDeepWith(
       merger: (oldVal: V, newVal: V, key: K) => V,
-      ...collections: Array<Collection<K, V> | {[key: string]: V}>
+      ...collections: Array<Collection.Keyed<K, V> | {[key: string]: V}>
     ): this;
 
 
