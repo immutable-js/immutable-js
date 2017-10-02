@@ -28,6 +28,10 @@
  * @flow
  */
 
+// Helper type that represents plain objects allowed as arguments to
+// some constructors and functions.
+type PlainObjInput<K, V> = {[key: K]: V, __proto__: null};
+
 declare class _Collection<K, +V> /*implements ValueObject*/ {
   equals(other: mixed): boolean;
   hashCode(): number;
@@ -201,7 +205,7 @@ declare class Collection<K, +V> extends _Collection<K, V> {
 
 declare class KeyedCollection<K, +V> extends Collection<K, V> {
   static <K, V>(iter?: Iterable<[K, V]>): KeyedCollection<K, V>;
-  static <K, V>(obj?: { [key: K]: V }): KeyedCollection<K, V>;
+  static <K, V>(obj?: PlainObjInput<K, V>): KeyedCollection<K, V>;
 
   toJS(): { [key: string]: mixed };
   toJSON(): { [key: string]: V };
@@ -210,7 +214,7 @@ declare class KeyedCollection<K, +V> extends Collection<K, V> {
   flip(): KeyedCollection<V, K>;
 
   concat<KC, VC>(...iters: Array<Iterable<[KC, VC]>>): KeyedCollection<K | KC, V | VC>;
-  concat<C>(...iters: Array<{[key: string]: C}>): KeyedCollection<K | string, V | C>;
+  concat<KC, VC>(...iters: Array<PlainObjInput<KC, VC>>): KeyedCollection<K | KC, V | VC>;
 
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
@@ -416,7 +420,7 @@ declare class Seq<K, +V> extends _Collection<K, V> {
   static <K, V>(iter: KeyedSeq<K, V>): KeyedSeq<K, V>;
   static <T>(iter: SetSeq<T>): SetSeq<K, V>;
   static <T>(iter?: Iterable<T>): IndexedSeq<T>;
-  static <K, V>(iter: { [key: K]: V }): KeyedSeq<K, V>;
+  static <K, V>(iter: PlainObjInput<K, V>): KeyedSeq<K, V>;
 
   static isSeq: typeof isSeq;
 
@@ -427,13 +431,13 @@ declare class Seq<K, +V> extends _Collection<K, V> {
 
 declare class KeyedSeq<K, +V> extends Seq<K, V> mixins KeyedCollection<K, V> {
   static <K, V>(iter?: Iterable<[K, V]>): KeyedSeq<K, V>;
-  static <K, V>(iter?: { [key: K]: V }): KeyedSeq<K, V>;
+  static <K, V>(iter?: PlainObjInput<K, V>): KeyedSeq<K, V>;
 
   // Override specialized return types
   flip(): KeyedSeq<V, K>;
 
   concat<KC, VC>(...iters: Array<Iterable<[KC, VC]>>): KeyedSeq<K | KC, V | VC>;
-  concat<C>(...iters: Array<{[key: string]: C}>): KeyedSeq<K | string, V | C>;
+  concat<KC, VC>(...iters: Array<PlainObjInput<KC, VC>>): KeyedSeq<K | KC, V | VC>;
 
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
@@ -781,8 +785,8 @@ declare class List<+T> extends IndexedCollection<T> {
 
 declare function isMap(maybeMap: mixed): boolean %checks(maybeMap instanceof Map);
 declare class Map<K, +V> extends KeyedCollection<K, V> {
-  static <K, V>(obj?: {[key: K]: V}): Map<K, V>;
   static <K, V>(collection: Iterable<[K, V]>): Map<K, V>;
+  static <K, V>(obj?: PlainObjInput<K, V>): Map<K, V>;
 
   static isMap: typeof isMap;
 
@@ -801,21 +805,21 @@ declare class Map<K, +V> extends KeyedCollection<K, V> {
   update<V_>(key: K, notSetValue: V_, updater: (value: V) => V_): Map<K, V | V_>;
 
   merge<K_, V_>(
-    ...collections: (Iterable<[K_, V_]> | { [key: K_]: V_ })[]
+    ...collections: (Iterable<[K_, V_]> | PlainObjInput<K_, V_>)[]
   ): Map<K | K_, V | V_>;
 
   mergeWith<K_, W, X>(
     merger: (oldVal: V, newVal: W, key: K) => X,
-    ...collections: (Iterable<[K_, W]> | { [key: K_]: W })[]
+    ...collections: (Iterable<[K_, W]> | PlainObjInput<K_, W>)[]
   ): Map<K | K_, V | W | X>;
 
   mergeDeep<K_, V_>(
-    ...collections: (Iterable<[K_, V_]> | { [key: K_]: V_ })[]
+    ...collections: (Iterable<[K_, V_]> | PlainObjInput<K_, V_>)[]
   ): Map<K | K_, V | V_>;
 
   mergeDeepWith<K_, W, X>(
     merger: (oldVal: V, newVal: W, key: K) => X,
-    ...collections: (Iterable<[K_, W]> | { [key: K_]: W })[]
+    ...collections: (Iterable<[K_, W]> | PlainObjInput<K_, W>)[]
   ): Map<K | K_, V | W | X>;
 
   setIn(keyPath: Iterable<mixed>, value: mixed): this;
@@ -834,11 +838,11 @@ declare class Map<K, +V> extends KeyedCollection<K, V> {
 
   mergeIn(
     keyPath: Iterable<K>,
-    ...collections: (Iterable<K> | { [key: string]: mixed })[]
+    ...collections: (Iterable<K> | PlainObjInput<mixed, mixed>)[]
   ): this;
   mergeDeepIn(
     keyPath: Iterable<K>,
-    ...collections: (Iterable<K> | { [key: string]: mixed })[]
+    ...collections: (Iterable<K> | PlainObjInput<mixed, mixed>)[]
   ): this;
 
   withMutations(mutator: (mutable: this) => mixed): this;
@@ -850,7 +854,7 @@ declare class Map<K, +V> extends KeyedCollection<K, V> {
   flip(): Map<V, K>;
 
   concat<KC, VC>(...iters: Array<Iterable<[KC, VC]>>): Map<K | KC, V | VC>;
-  concat<C>(...iters: Array<{[key: string]: C}>): Map<K | string, V | C>;
+  concat<KC, VC>(...iters: Array<PlainObjInput<KC, VC>>): Map<K | KC, V | VC>;
 
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
@@ -878,8 +882,8 @@ declare class Map<K, +V> extends KeyedCollection<K, V> {
 
 declare function isOrderedMap(maybeOrderedMap: mixed): boolean %checks(maybeOrderedMap instanceof OrderedMap);
 declare class OrderedMap<K, +V> extends Map<K, V> {
-  static <K, V>(obj?: {[key: K]: V}): OrderedMap<K, V>;
   static <K, V>(collection: Iterable<[K, V]>): OrderedMap<K, V>;
+  static <K, V>(obj?: PlainObjInput<K, V>): OrderedMap<K, V>;
 
   static isOrderedMap: typeof isOrderedMap;
 
@@ -895,21 +899,21 @@ declare class OrderedMap<K, +V> extends Map<K, V> {
   update<V_>(key: K, notSetValue: V_, updater: (value: V) => V_): OrderedMap<K, V | V_>;
 
   merge<K_, V_>(
-    ...collections: (Iterable<[K_, V_]> | { [key: K_]: V_ })[]
+    ...collections: (Iterable<[K_, V_]> | PlainObjInput<K_, V_>)[]
   ): OrderedMap<K | K_, V | V_>;
 
   mergeWith<K_, W, X>(
     merger: (oldVal: V, newVal: W, key: K) => X,
-    ...collections: (Iterable<[K_, W]> | { [key: K_]: W })[]
+    ...collections: (Iterable<[K_, W]> | PlainObjInput<K_, W>)[]
   ): OrderedMap<K | K_, V | W | X>;
 
   mergeDeep<K_, V_>(
-    ...collections: (Iterable<[K_, V_]> | { [key: K_]: V_ })[]
+    ...collections: (Iterable<[K_, V_]> | PlainObjInput<K_, V_>)[]
   ): OrderedMap<K | K_, V | V_>;
 
   mergeDeepWith<K_, W, X>(
     merger: (oldVal: V, newVal: W, key: K) => X,
-    ...collections: (Iterable<[K_, W]> | { [key: K_]: W })[]
+    ...collections: (Iterable<[K_, W]> | PlainObjInput<K_, W>)[]
   ): OrderedMap<K | K_, V | W | X>;
 
   setIn(keyPath: Iterable<mixed>, value: mixed): this;
@@ -928,11 +932,11 @@ declare class OrderedMap<K, +V> extends Map<K, V> {
 
   mergeIn(
     keyPath: Iterable<K>,
-    ...collections: (Iterable<K> | { [key: string]: mixed })[]
+    ...collections: (Iterable<K> | PlainObjInput<mixed, mixed>)[]
   ): this;
   mergeDeepIn(
     keyPath: Iterable<K>,
-    ...collections: (Iterable<K> | { [key: string]: mixed })[]
+    ...collections: (Iterable<K> | PlainObjInput<mixed, mixed>)[]
   ): this;
 
   withMutations(mutator: (mutable: this) => mixed): this;
@@ -944,7 +948,7 @@ declare class OrderedMap<K, +V> extends Map<K, V> {
   flip(): OrderedMap<V, K>;
 
   concat<KC, VC>(...iters: Array<Iterable<[KC, VC]>>): OrderedMap<K | KC, V | VC>;
-  concat<C>(...iters: Array<{[key: string]: C}>): OrderedMap<K | string, V | C>;
+  concat<KC, VC>(...iters: Array<PlainObjInput<KC, VC>>): OrderedMap<K | KC, V | VC>;
 
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
@@ -976,7 +980,7 @@ declare class Set<+T> extends SetCollection<T> {
 
   static of<T>(...values: T[]): Set<T>;
   static fromKeys<T>(iter: Iterable<[T, mixed]>): Set<T>;
-  static fromKeys<K, V>(object: { [key: K]: V }): Set<K>;
+  static fromKeys<K>(object: PlainObjInput<K, mixed>): Set<K>;
 
   static intersect(sets: Iterable<Iterable<T>>): Set<T>;
   static union(sets: Iterable<Iterable<T>>): Set<T>;
@@ -1024,7 +1028,7 @@ declare class OrderedSet<+T> extends Set<T> {
 
   static of<T>(...values: T[]): OrderedSet<T>;
   static fromKeys<T>(iter: Iterable<[T, mixed]>): OrderedSet<T>;
-  static fromKeys<K, V>(object: { [key: K]: V }): OrderedSet<K>;
+  static fromKeys<K>(object: PlainObjInput<K, mixed>): OrderedSet<K>;
 
   static isOrderedSet: typeof isOrderedSet;
 
