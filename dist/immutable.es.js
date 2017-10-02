@@ -906,7 +906,7 @@ function hashString(string) {
   // (exclusive) by dropping high bits.
   var hashed = 0;
   for (var ii = 0; ii < string.length; ii++) {
-    hashed = (31 * hash + string.charCodeAt(ii)) | 0;
+    hashed = (31 * hashed + string.charCodeAt(ii)) | 0;
   }
   return smi(hashed);
 }
@@ -921,7 +921,7 @@ function hashJSObj(obj) {
   }
 
   hashed = obj[UID_HASH_KEY];
-  if (hash !== undefined) {
+  if (hashed !== undefined) {
     return hashed;
   }
 
@@ -1505,7 +1505,7 @@ function sliceFactory(collection, begin, end, useKeys) {
         return iteratorDone();
       }
       var step = iterator.next();
-      if (useKeys || type === ITERATE_VALUES) {
+      if (useKeys || type === ITERATE_VALUES || step.done) {
         return step;
       }
       if (type === ITERATE_KEYS) {
