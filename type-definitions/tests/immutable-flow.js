@@ -219,10 +219,13 @@ stringToNumber = Map({'a': 1})
 stringToNumber = Map({'a': 'a'})
 
 stringToNumber = Map([['a', 1]])
+stringToNumber = Map(List([['a', 1]]))
 // $ExpectError
 stringToNumber = Map([['a', 'b']])
-// FIXME: this should trigger an error -- this is actually a Map<string, string>
-stringToNumber = Map(List.of(List(['a', 'b'])))
+// $ExpectError -- this is actually a Map<string, string>
+stringToNumber = Map(List([['a', 'a']]))
+// $FlowFixMe - This is Iterable<Iterable<string>>, ideally it could be interpretted as Iterable<[string, string]>
+stringToNumber = Map(List([List(['a', 'a'])]))
 
 stringOrNumberToNumberOrString = Map({'a': 'a'}).set('b', 1).set(2, 'c')
 // $ExpectError
@@ -354,7 +357,7 @@ orderedStringToNumber = OrderedMap({'a': '1'})
 orderedStringToString = OrderedMap({'a': '1'})
 
 orderedStringToNumber = OrderedMap(Map({'a': 1}))
-// FIXME: this should trigger an error -- it's actually an OrderedMap<string, string>
+// $ExpectError - it's actually an OrderedMap<string, string>
 orderedStringToNumber = OrderedMap(Map({'a': '1'}))
 
 orderedStringToNumber = OrderedMap()
@@ -803,3 +806,11 @@ const personRecordInstance: PersonRecordInstance = PersonRecordClass({ age: 25 }
 personRecordInstance.set('invalid', 25)
 personRecordInstance.set('name', '25')
 personRecordInstance.set('age', 33)
+
+// Create a Map from a non-prototype "plain" Object
+let someObj = Object.create(null);
+someObj.x = 1;
+someObj.y = 2;
+let mapOfSomeObj: Map<string, number> = Map(someObj);
+// $ExpectError - someObj is string -> number
+let mapOfSomeObjMistake: Map<string, string> = Map(someObj);
