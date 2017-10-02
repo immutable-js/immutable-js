@@ -479,7 +479,7 @@ export function sliceFactory(collection, begin, end, useKeys) {
         return iteratorDone();
       }
       const step = iterator.next();
-      if (useKeys || type === ITERATE_VALUES) {
+      if (useKeys || type === ITERATE_VALUES || step.done) {
         return step;
       }
       if (type === ITERATE_KEYS) {

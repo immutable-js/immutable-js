@@ -126,6 +126,28 @@ describe('slice', () => {
     expect(iterTail.next()).toEqual({value: undefined, done: true});
   });
 
+  it('stops the entries iterator when the sequence has an undefined end', () => {
+    let seq = Seq([0, 1, 2, 3, 4, 5]);
+    // flatMap is lazy and thus the resulting sequence has no size.
+    seq = seq.flatMap(a => [a]);
+    expect(seq.size).toEqual(undefined);
+
+    let iterFront = seq.slice(0, 2).entries();
+    expect(iterFront.next()).toEqual({value: [0, 0], done: false});
+    expect(iterFront.next()).toEqual({value: [1, 1], done: false});
+    expect(iterFront.next()).toEqual({value: undefined, done: true});
+
+    let iterMiddle = seq.slice(2, 4).entries();
+    expect(iterMiddle.next()).toEqual({value: [0, 2], done: false});
+    expect(iterMiddle.next()).toEqual({value: [1, 3], done: false});
+    expect(iterMiddle.next()).toEqual({value: undefined, done: true});
+
+    let iterTail = seq.slice(4, 123456).entries();
+    expect(iterTail.next()).toEqual({value: [0, 4], done: false});
+    expect(iterTail.next()).toEqual({value: [1, 5], done: false});
+    expect(iterTail.next()).toEqual({value: undefined, done: true});
+  });
+
   check.it('works like Array.prototype.slice',
     [gen.int, gen.array(gen.oneOf([gen.int, gen.undefined]), 0, 3)],
     (valuesLen, args) => {
