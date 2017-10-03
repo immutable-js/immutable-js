@@ -10,12 +10,17 @@
 // Some tests look like they are repeated in order to avoid false positives.
 // Flow might not complain about an instance of (what it thinks is) T to be assigned to T<K, V>
 
-import { Record, type RecordOf } from '../../';
+import { Record, type RecordFactory, type RecordOf } from '../../';
 
-const Point2 = Record({x:0, y:0});
-const Point3 = Record({x:0, y:0, z:0});
+// Use the RecordFactory type to annotate
+const Point2: RecordFactory<{x: number, y: number}> = Record({x:0, y:0});
+const Point3: RecordFactory<{x: number, y: number, z: number}> =
+  Record({x:0, y:0, z:0});
 type TGeoPoint = {lat: ?number, lon: ?number}
-const GeoPoint = Record(({lat: null, lon: null}: TGeoPoint));
+const GeoPoint: RecordFactory<TGeoPoint> = Record({lat: null, lon: null});
+
+// $ExpectError - 'abc' is not a number
+const PointWhoops: RecordFactory<{x: number, y: number}> = Record({x:0, y:'abc'});
 
 let origin2 = Point2({});
 let origin3 = Point3({});
@@ -26,8 +31,10 @@ origin3 = GeoPoint({lat:34})
 geo = Point3({});
 
 // Use RecordOf to type the return value of a Record factory function.
-// This should expect an error, is flow confused?
-let geoPointExpected: RecordOf<TGeoPoint> = GeoPoint({});
+let geoPointExpected1: RecordOf<TGeoPoint> = GeoPoint({});
+
+// $ExpectError - Point2 does not return GeoPoint.
+let geoPointExpected2: RecordOf<TGeoPoint> = Point2({});
 
 const px = origin2.get('x');
 const px2: number = origin2.x;
@@ -37,7 +44,7 @@ const pz = origin2.get('z');
 const pz2 = origin2.z;
 
 origin2.set('x', 4);
-// Note: this should be an error, but Flow does not yet support index types.
+// $ExpectError
 origin2.set('x', 'not-a-number');
 // $ExpectError
 origin2.set('z', 3);

@@ -1296,17 +1296,21 @@ declare class Stack<+T> extends IndexedCollection<T> {
 declare function Range(start?: number, end?: number, step?: number): IndexedSeq<number>;
 declare function Repeat<T>(value: T, times?: number): IndexedSeq<T>;
 
+// The type of a Record factory function.
+type RecordFactory<Values: Object> = Class<RecordInstance<Values>>;
+
+// The type of runtime Record instances.
+type RecordOf<Values: Object> = RecordInstance<Values> & Values;
+
 declare function isRecord(maybeRecord: any): boolean %checks(maybeRecord instanceof RecordInstance);
 declare class Record {
-  static <Values: Object>(spec: Values, name?: string): Class<RecordInstance<Values>>;
-  constructor<Values: Object>(spec: Values, name?: string): Class<RecordInstance<Values>>;
+  static <Values: Object>(spec: Values, name?: string): RecordFactory<Values>;
+  constructor<Values: Object>(spec: Values, name?: string): RecordFactory<Values>;
 
   static isRecord: typeof isRecord;
 
   static getDescriptiveName(record: RecordInstance<any>): string;
 }
-
-type RecordOf<Values: Object> = RecordInstance<Values> & Values;
 
 declare class RecordInstance<T: Object> {
   static (values?: $Shape<T> | Iterable<[string, any]>): RecordOf<T>;
@@ -1435,7 +1439,7 @@ export type {
   KeyedSeq,
   IndexedSeq,
   SetSeq,
+  RecordFactory,
   RecordOf,
-  RecordInstance,
   ValueObject,
 }
