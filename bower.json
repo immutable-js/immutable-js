@@ -1,28 +1,31 @@
 {
   "name": "immutable",
+  "version": "4.0.0-rc.4",
   "description": "Immutable Data Collections",
   "license": "MIT",
-  "homepage": "https://github.com/facebook/immutable-js",
+  "homepage": "https://facebook.github.com/immutable-js",
   "author": {
     "name": "Lee Byron",
-    "homepage": "https://github.com/leebyron"
+    "url": "https://github.com/leebyron"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/facebook/immutable-js.git"
   },
+  "bugs": {
+    "url": "https://github.com/facebook/immutable-js/issues"
+  },
   "main": "dist/immutable.js",
+  "module": "dist/immutable.es.js",
+  "typings": "dist/immutable-nonambient.d.ts",
   "typescript": {
     "definition": "dist/immutable.d.ts"
   },
-  "ignore": [
-    "**/.*",
-    "__tests__",
-    "resources",
-    "src",
-    "type-definitions",
-    "package.json",
-    "Gruntfile.js"
+  "files": [
+    "dist",
+    "contrib",
+    "README.md",
+    "LICENSE"
   ],
   "keywords": [
     "immutable",
