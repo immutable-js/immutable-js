@@ -28,9 +28,8 @@ your [pull requests](https://help.github.com/articles/creating-a-pull-request).
  2. Install all dependencies. (`npm install`)
  3. If you've added code, add tests.
  4. If you've changed APIs, update the documentation.
- 5. Build generated JS, run tests and ensure your code passes lint. (`npm run build && npm run test`)
- 6. Be sure to commit the generated JS in `/dist`.
- 7. If you haven't already, complete the Contributor License Agreement ("CLA").
+ 5. Build generated JS, run tests and ensure your code passes lint. (`npm run test`)
+ 6. If you haven't already, complete the Contributor License Agreement ("CLA").
 
 ## Documentation
 
