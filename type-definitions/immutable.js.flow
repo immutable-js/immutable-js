@@ -50,7 +50,7 @@ declare class _Collection<K, +V> /*implements ValueObject*/ {
 
   toJS(): Array<any> | { [key: string]: mixed };
   toJSON(): Array<V> | { [key: string]: V };
-  toArray(): Array<V>;
+  toArray(): Array<V> | Array<[K,V]>;
   toObject(): { [key: string]: V };
   toMap(): Map<K, V>;
   toOrderedMap(): OrderedMap<K, V>;
@@ -209,6 +209,7 @@ declare class KeyedCollection<K, +V> extends Collection<K, V> {
 
   toJS(): { [key: string]: mixed };
   toJSON(): { [key: string]: V };
+  toArray(): Array<[K, V]>;
   @@iterator(): Iterator<[K, V]>;
   toSeq(): KeyedSeq<K, V>;
   flip(): KeyedCollection<V, K>;
@@ -247,6 +248,7 @@ declare class IndexedCollection<+T> extends Collection<number, T> {
 
   toJS(): Array<mixed>;
   toJSON(): Array<T>;
+  toArray(): Array<T>;
   @@iterator(): Iterator<T>;
   toSeq(): IndexedSeq<T>;
   fromEntrySeq<K, V>(): KeyedSeq<K, V>;
@@ -388,6 +390,7 @@ declare class SetCollection<+T> extends Collection<T, T> {
 
   toJS(): Array<mixed>;
   toJSON(): Array<T>;
+  toArray(): Array<T>;
   @@iterator(): Iterator<T>;
   toSeq(): SetSeq<T>;
 

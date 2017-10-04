@@ -32,13 +32,13 @@ describe('ObjectSequence', () => {
   it('is reversable', () => {
     let i = Seq({a: 'A', b: 'B', c: 'C'});
     let k = i.reverse().toArray();
-    expect(k).toEqual(['C', 'B', 'A']);
+    expect(k).toEqual([['c', 'C'], ['b', 'B'], ['a', 'A']]);
   });
 
-  it('can double reversable', () => {
+  it('is double reversable', () => {
     let i = Seq({a: 'A', b: 'B', c: 'C'});
     let k = i.reverse().reverse().toArray();
-    expect(k).toEqual(['A', 'B', 'C']);
+    expect(k).toEqual([['a', 'A'], ['b', 'B'], ['c', 'C']]);
   });
 
   it('can be iterated', () => {

@@ -104,8 +104,11 @@ mixin(Collection, {
   toArray() {
     assertNotInfinite(this.size);
     const array = new Array(this.size || 0);
-    this.valueSeq().__iterate((v, i) => {
-      array[i] = v;
+    const useTuples = isKeyed(this);
+    let i = 0;
+    this.__iterate((v, k) => {
+      // Keyed collections produce an array of tuples.
+      array[i++] = useTuples ? [k, v] : v;
     });
     return array;
   },

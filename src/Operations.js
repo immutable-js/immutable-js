@@ -734,6 +734,7 @@ export function sortFactory(collection, comparator, mapper) {
   const entries = collection
     .toSeq()
     .map((v, k) => [k, v, index++, mapper ? mapper(v, k, collection) : v])
+    .valueSeq()
     .toArray();
   entries.sort((a, b) => comparator(a[3], b[3]) || a[2] - b[2]).forEach(
     isKeyedCollection
