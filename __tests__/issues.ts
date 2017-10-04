@@ -8,7 +8,7 @@
 ///<reference path='../resources/jest.d.ts'/>
 
 declare var Symbol: any;
-import { List, OrderedMap, Seq, Set } from '../';
+import { List, OrderedMap, Record, Seq, Set } from '../';
 
 describe('Issue #1175', () => {
   it('invalid hashCode() response should not infinitly recurse', () => {
@@ -49,5 +49,13 @@ describe('Issue #1287', () => {
   it('should skip all items in OrderedMap when skipping Infinity', () => {
     const size = OrderedMap([['a', 1]]).skip(Infinity).size;
     expect(size).toEqual(0);
+  });
+});
+
+describe('Issue #1247', () => {
+  it('Records should not be considered altered after creation', () => {
+    const R = Record({ a: 1 });
+    const r = new R();
+    expect(r.wasAltered()).toBe(false);
   });
 });
