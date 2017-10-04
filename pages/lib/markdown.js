@@ -85,9 +85,9 @@ renderer.code = function(code, lang, escaped) {
   }
 
   const runItButton = runkitContext.activated
-    ? '<a class = "try-it" data-options="' +
+    ? '<a class="try-it" data-options="' +
       escape(JSON.stringify(runkitContext.options)) +
-      '" onClick = "runIt(this)">run it</a>'
+      '" onClick="runIt(this)">run it</a>'
     : '';
 
   runkitContext.activated = false;
