@@ -408,3 +408,10 @@ import { List } from '../../';
   // $ExpectType List<number>
   List<number>().asImmutable();
 }
+
+{ // # for of loops
+  const list = List([ 1, 2, 3, 4 ]);
+  for (const val of list) {
+    const v: number = val;
+  }
+}
