@@ -362,6 +362,11 @@
      * to be equal][Hash Collision]. If two values have different `hashCode`s,
      * they must not be equal.
      *
+     * Note: `hashCode()` is not guaranteed to always be called before
+     * `equals()`. Most but not all Immutable.js collections use hash codes to
+     * organize their internal data structures, while all Immutable.js
+     * collections use equality during lookups.
+     *
      * [Hash Collision]: http://en.wikipedia.org/wiki/Collision_(computer_science)
      */
     hashCode(): number;
@@ -796,6 +801,11 @@
      * @see `Map#asMutable`
      */
     asMutable(): this;
+
+    /**
+     * @see `Map#wasAltered`
+     */
+    wasAltered(): boolean;
 
     /**
      * @see `Map#asImmutable`
@@ -1523,6 +1533,14 @@
     asMutable(): this;
 
     /**
+     * Returns true if this is a mutable copy (see `asMutable()`) and mutative
+     * alterations have been applied.
+     *
+     * @see `Map#asMutable`
+     */
+    wasAltered(): boolean;
+
+    /**
      * The yin to `asMutable`'s yang. Because it applies to mutable collections,
      * this operation is *mutable* and returns itself. Once performed, the mutable
      * copy has become immutable and can be safely returned from a function.
@@ -1859,6 +1877,11 @@
      * @see `Map#asMutable`
      */
     asMutable(): this;
+
+    /**
+     * @see `Map#wasAltered`
+     */
+    wasAltered(): boolean;
 
     /**
      * @see `Map#asImmutable`
@@ -2226,6 +2249,11 @@
     asMutable(): this;
 
     /**
+     * @see `Map#wasAltered`
+     */
+    wasAltered(): boolean;
+
+    /**
      * @see `Map#asImmutable`
      */
     asImmutable(): this;
@@ -2571,6 +2599,11 @@
        * @see `Map#asMutable`
        */
       asMutable(): this;
+
+      /**
+       * @see `Map#wasAltered`
+       */
+      wasAltered(): boolean;
 
       /**
        * @see `Map#asImmutable`
