@@ -4197,7 +4197,7 @@ var Set = (function (SetCollection$$1) {
     var newMap = this._map.__ensureOwner(ownerID);
     if (!ownerID) {
       if (this.size === 0) {
-        return emptySet();
+        return this.__empty();
       }
       this.__ownerID = ownerID;
       this._map = newMap;

@@ -680,7 +680,7 @@
      *
      * @see `Map#merge`
      */
-    merge(...collections: Array<Collection.Indexed<T> | Array<T>>): this;
+    merge(...collections: Array<Iterable<T>>): this;
 
     /**
      * Note: `mergeWith` can be used in `withMutations`.
@@ -689,7 +689,7 @@
      */
     mergeWith(
       merger: (oldVal: T, newVal: T, key: number) => T,
-      ...collections: Array<Collection.Indexed<T> | Array<T>>
+      ...collections: Array<Iterable<T>>
     ): this;
 
     /**
@@ -697,7 +697,7 @@
      *
      * @see `Map#mergeDeep`
      */
-    mergeDeep(...collections: Array<Collection.Indexed<T> | Array<T>>): this;
+    mergeDeep(...collections: Array<Iterable<T>>): this;
 
     /**
      * Note: `mergeDeepWith` can be used in `withMutations`.
@@ -705,7 +705,7 @@
      */
     mergeDeepWith(
       merger: (oldVal: T, newVal: T, key: number) => T,
-      ...collections: Array<Collection.Indexed<T> | Array<T>>
+      ...collections: Array<Iterable<T>>
     ): this;
 
     /**
@@ -1251,7 +1251,7 @@
      *
      * Note: `merge` can be used in `withMutations`.
      */
-    merge(...collections: Array<Collection<K, V> | {[key: string]: V}>): this;
+    merge(...collections: Array<Iterable<[K, V]> | {[key: string]: V}>): this;
 
     /**
      * Like `merge()`, `mergeWith()` returns a new Map resulting from merging
@@ -1273,7 +1273,7 @@
      */
     mergeWith(
       merger: (oldVal: V, newVal: V, key: K) => V,
-      ...collections: Array<Collection<K, V> | {[key: string]: V}>
+      ...collections: Array<Iterable<[K, V]> | {[key: string]: V}>
     ): this;
 
     /**
@@ -1295,7 +1295,7 @@
      *
      * Note: `mergeDeep` can be used in `withMutations`.
      */
-    mergeDeep(...collections: Array<Collection<K, V> | {[key: string]: V}>): this;
+    mergeDeep(...collections: Array<Iterable<[K, V]> | {[key: string]: V}>): this;
 
     /**
      * Like `mergeDeep()`, but when two non-Collections conflict, it uses the
@@ -1318,7 +1318,7 @@
      */
     mergeDeepWith(
       merger: (oldVal: V, newVal: V, key: K) => V,
-      ...collections: Array<Collection<K, V> | {[key: string]: V}>
+      ...collections: Array<Iterable<[K, V]> | {[key: string]: V}>
     ): this;
 
 
@@ -1835,8 +1835,8 @@
      * Note: `union` can be used in `withMutations`.
      * @alias merge
      */
-    union(...collections: Array<Collection<any, T> | Array<T>>): this;
-    merge(...collections: Array<Collection<any, T> | Array<T>>): this;
+    union(...collections: Array<Iterable<T>>): this;
+    merge(...collections: Array<Iterable<T>>): this;
 
     /**
      * Returns a Set which has removed any values not also contained
