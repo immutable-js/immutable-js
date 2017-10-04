@@ -87,7 +87,7 @@
  * ```js
  * // ES2015
  * const mappedFoo = foo.map(x => x * x);
- * // ES3
+ * // ES5
  * var mappedFoo = foo.map(function (x) { return x * x; });
  * ```
  *
@@ -116,6 +116,7 @@ declare module Immutable {
    * If `reviver` is not provided, the default behavior will convert Objects
    * into Maps and Arrays into Lists like so:
    *
+   * <!-- runkit:activate -->
    * ```js
    * const { fromJS, isKeyed } = require('immutable')
    * function (key, value) {
@@ -129,6 +130,7 @@ declare module Immutable {
    *
    * Accordingly, this example converts native JS data to OrderedMap and List:
    *
+   * <!-- runkit:activate -->
    * ```js
    * const { fromJS, isKeyed } = require('immutable')
    * fromJS({ a: {b: [10, 20, 30]}, c: 40}, function (key, value, path) {
@@ -145,10 +147,9 @@ declare module Immutable {
    * JavaScript Object properties are always strings, even if written in a
    * quote-less shorthand, while Immutable Maps accept keys of any type.
    *
-   * <!-- runkit:activate
-   *      { "preamble": "const { Map } = require(\"immutable\");" }
-   * -->
+   * <!-- runkit:activate -->
    * ```js
+   * const { Map } = require('immutable')
    * let obj = { 1: "one" };
    * Object.keys(obj); // [ "1" ]
    * assert.equal(obj["1"], obj[1]); // "one" === "one"
@@ -229,6 +230,7 @@ declare module Immutable {
   /**
    * True if `maybeImmutable` is an Immutable Collection or Record.
    *
+   * <!-- runkit:activate -->
    * ```js
    * const { isImmutable, Map, List, Stack } = require('immutable');
    * isImmutable([]); // false
@@ -244,6 +246,7 @@ declare module Immutable {
   /**
    * True if `maybeCollection` is a Collection, or any of its subclasses.
    *
+   * <!-- runkit:activate -->
    * ```js
    * const { isCollection, Map, List, Stack } = require('immutable');
    * isCollection([]); // false
@@ -258,6 +261,7 @@ declare module Immutable {
   /**
    * True if `maybeKeyed` is a Collection.Keyed, or any of its subclasses.
    *
+   * <!-- runkit:activate -->
    * ```js
    * const { isKeyed, Map, List, Stack } = require('immutable');
    * isKeyed([]); // false
@@ -272,6 +276,7 @@ declare module Immutable {
   /**
    * True if `maybeIndexed` is a Collection.Indexed, or any of its subclasses.
    *
+   * <!-- runkit:activate -->
    * ```js
    * const { isIndexed, Map, List, Stack, Set } = require('immutable');
    * isIndexed([]); // false
@@ -287,6 +292,7 @@ declare module Immutable {
   /**
    * True if `maybeAssociative` is either a Keyed or Indexed Collection.
    *
+   * <!-- runkit:activate -->
    * ```js
    * const { isAssociative, Map, List, Stack, Set } = require('immutable');
    * isAssociative([]); // false
@@ -303,6 +309,7 @@ declare module Immutable {
    * True if `maybeOrdered` is a Collection where iteration order is well
    * defined. True for Collection.Indexed as well as OrderedMap and OrderedSet.
    *
+   * <!-- runkit:activate -->
    * ```js
    * const { isOrdered, Map, OrderedMap, List, Set } = require('immutable');
    * isOrdered([]); // false
@@ -344,10 +351,9 @@ declare module Immutable {
      * and is used when adding this to a `Set` or as a key in a `Map`, enabling
      * lookup via a different instance.
      *
-     * <!-- runkit:activate
-     *      { "preamble": "const { List, Set } = require(\"immutable\")" }
-     * -->
+     * <!-- runkit:activate -->
      * ```js
+     * const { List, Set } = require('immutable');
      * const a = List([ 1, 2, 3 ]);
      * const b = List([ 1, 2, 3 ]);
      * assert.notStrictEqual(a, b); // different instances
@@ -391,10 +397,9 @@ declare module Immutable {
     /**
      * True if the provided value is a List
      *
-     * <!-- runkit:activate
-     *      { "preamble": "const { List } = require(\"immutable\");" }
-     * -->
+     * <!-- runkit:activate -->
      * ```js
+     * const { List } = require('immutable');
      * List.isList([]); // false
      * List.isList(List()); // true
      * ```
@@ -404,20 +409,18 @@ declare module Immutable {
     /**
      * Creates a new List containing `values`.
      *
-     * <!-- runkit:activate
-     *      { "preamble": "const { List } = require(\"immutable\");" }
-     * -->
+     * <!-- runkit:activate -->
      * ```js
+     * const { List } = require('immutable');
      * List.of(1, 2, 3, 4)
      * // List [ 1, 2, 3, 4 ]
      * ```
      *
      * Note: Values are not altered or converted in any way.
      *
-     * <!-- runkit:activate
-     *      { "preamble": "const { List } = require(\"immutable\");" }
-     * -->
+     * <!-- runkit:activate -->
      * ```js
+     * const { List } = require('immutable');
      * List.of({x:1}, 2, [3], 4)
      * // List [ { x: 1 }, 2, [ 3 ], 4 ]
      * ```
@@ -870,6 +873,9 @@ declare module Immutable {
      *
      * Like `zipWith`, but using the default `zipper`: creating an `Array`.
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { List } = require(\"immutable\");" }
+     * -->
      * ```js
      * const a = List([ 1, 2, 3 ]);
      * const b = List([ 4, 5, 6 ]);
@@ -882,7 +888,9 @@ declare module Immutable {
      * Returns a List "zipped" with the provided collection.
      *
      * Like `zipWith`, but using the default `zipper`: creating an `Array`.
-     *
+     * <!-- runkit:activate
+     *      { "preamble": "const { List } = require(\"immutable\");" }
+     * -->
      * ```js
      * const a = List([ 1, 2, 3 ]);
      * const b = List([ 4, 5, 6 ]);
@@ -913,6 +921,9 @@ declare module Immutable {
      * Unlike `zip`, `zipAll` continues zipping until the longest collection is
      * exhausted. Missing values from shorter collections are filled with `undefined`.
      *
+     * <!-- runkit:activate
+     *      { "preamble": "const { List } = require(\"immutable\");" }
+     * -->
      * ```js
      * const a = List([ 1, 2 ]);
      * const b = List([ 3, 4, 5 ]);
@@ -983,6 +994,7 @@ declare module Immutable {
     /**
      * True if the provided value is a Map
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Map } = require('immutable')
      * Map.isMap({}) // false
@@ -1109,6 +1121,7 @@ declare module Immutable {
     /**
      * Returns a new Map which excludes the provided `keys`.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Map } = require('immutable')
      * const names = Map({ a: "Aaron", b: "Barry", c: "Connor" })
@@ -3884,6 +3897,7 @@ declare module Immutable {
      *
      * For example, to sum a Seq after mapping and filtering:
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Seq } = require('immutable')
      *
@@ -4013,6 +4027,7 @@ declare module Immutable {
      * The returned Seq will have identical iteration order as
      * this Collection.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Seq } = require('immutable')
      * const indexedSeq = Seq([ 'A', 'B', 'C' ])
@@ -4093,6 +4108,7 @@ declare module Immutable {
      * Returns a new Collection of the same type with values passed through a
      * `mapper` function.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Collection } = require('immutable')
      * Collection({ a: 1, b: 2 }).map(x => 10 * x)
@@ -4111,6 +4127,7 @@ declare module Immutable {
      * Returns a new Collection of the same type with values passed through a
      * `mapper` function.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Collection } = require('immutable')
      * Collection({ a: 1, b: 2 }).map(x => 10 * x)
@@ -4188,6 +4205,7 @@ declare module Immutable {
      * When sorting collections which have no defined order, their ordered
      * equivalents will be returned. e.g. `map.sort()` returns OrderedMap.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { Map } = require('immutable')
      * Map({ "c": 3, "a": 1, "b": 2 }).sort((a, b) => {
@@ -4227,6 +4245,7 @@ declare module Immutable {
      *
      * Note: This is always an eager operation.
      *
+     * <!-- runkit:activate -->
      * ```js
      * const { List, Map } = require('immutable')
      * const listOfMaps = List([
