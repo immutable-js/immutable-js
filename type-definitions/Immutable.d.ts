@@ -4200,6 +4200,8 @@ declare module Immutable {
      *
      * Note: `sort()` Always returns a new instance, even if the original was
      * already sorted.
+     *
+     * Note: This is always an eager operation.
      */
     sort(comparator?: (valueA: V, valueB: V) => number): this;
 
@@ -4211,6 +4213,8 @@ declare module Immutable {
      *
      * Note: `sortBy()` Always returns a new instance, even if the original was
      * already sorted.
+     *
+     * Note: This is always an eager operation.
      */
     sortBy<C>(
       comparatorValueMapper: (value: V, key: K, iter: this) => C,
