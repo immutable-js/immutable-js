@@ -8,7 +8,7 @@
 ///<reference path='../resources/jest.d.ts'/>
 
 declare var Symbol: any;
-import { List, OrderedMap, Record, Seq, Set } from '../';
+import { List, OrderedMap, OrderedSet, Record, Seq, Set } from '../';
 
 describe('Issue #1175', () => {
   it('invalid hashCode() response should not infinitly recurse', () => {
@@ -23,6 +23,14 @@ describe('Issue #1175', () => {
 
     const set = Set([new BadHash()]);
     expect(set.size).toEqual(1);
+  });
+});
+
+describe('Issue #1188', () => {
+  it('Removing items from OrderedSet should return OrderedSet', () => {
+    const orderedSet = OrderedSet(['one', 'two', 'three']);
+    const emptyOrderedSet = orderedSet.subtract(['two', 'three', 'one']);
+    expect(OrderedSet.isOrderedSet(emptyOrderedSet)).toBe(true);
   });
 });
 
