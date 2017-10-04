@@ -11,27 +11,6 @@ import * as jasmineCheck from "jasmine-check";
 import {fromJS, is, List, Map, OrderedMap, Record} from "../";
 jasmineCheck.install();
 
-declare function expect(val: any): ExpectWithIs;
-
-interface ExpectWithIs extends Expect {
-  is(expected: any): void;
-  not: ExpectWithIs;
-}
-
-jasmine.addMatchers({
-  is() {
-    return {
-      compare(actual, expected) {
-        let passed = is(actual, expected);
-        return {
-          pass: passed,
-          message: 'Expected ' + actual + (passed ? '' : ' not') + ' to equal ' + expected,
-        };
-      },
-    };
-  },
-});
-
 // Symbols
 declare function Symbol(name: string): Object;
 
@@ -131,7 +110,7 @@ describe('Conversion', () => {
   let nonStringKeyMapString = 'OrderedMap { 1: true, false: "foo" }';
 
   it('Converts deep JS to deep immutable sequences', () => {
-    expect(fromJS(js)).is(immutableData);
+    expect(fromJS(js)).toEqual(immutableData);
   });
 
   it('Throws when provided circular reference', () => {
@@ -149,8 +128,8 @@ describe('Conversion', () => {
       }
       return Array.isArray(this[key]) ? sequence.toList() : sequence.toOrderedMap();
     });
-    expect(seq).is(immutableOrderedData);
-    expect(seq.toString()).is(immutableOrderedDataString);
+    expect(seq).toEqual(immutableOrderedData);
+    expect(seq.toString()).toEqual(immutableOrderedDataString);
   });
 
   it('Converts deep JSON with custom conversion including keypath if requested', () => {
@@ -178,12 +157,12 @@ describe('Conversion', () => {
   });
 
   it('Prints keys as JS values', () => {
-    expect(nonStringKeyMap.toString()).is(nonStringKeyMapString);
+    expect(nonStringKeyMap.toString()).toEqual(nonStringKeyMapString);
   });
 
   it('Converts deep sequences to JS', () => {
     let js2 = immutableData.toJS();
-    expect(js2).not.is(js); // raw JS is not immutable.
+    expect(is(js2, js)).toBe(false); // raw JS is not immutable.
     expect(js2).toEqual(js); // but should be deep equal.
   });
 
@@ -211,7 +190,7 @@ describe('Conversion', () => {
   });
 
   it('is conservative with array-likes, only accepting true Arrays.', () => {
-    expect(fromJS({1: 2, length: 3})).is(
+    expect(fromJS({1: 2, length: 3})).toEqual(
       Map().set('1', 2).set('length', 3),
     );
     expect(fromJS('string')).toEqual('string');

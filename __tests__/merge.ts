@@ -9,44 +9,23 @@
 
 import { fromJS, is, List, Map } from '../';
 
-declare function expect(val: any): ExpectWithIs;
-
-interface ExpectWithIs extends Expect {
-  is(expected: any): void;
-  not: ExpectWithIs;
-}
-
-jasmine.addMatchers({
-  is() {
-    return {
-      compare(actual, expected) {
-        let passed = is(actual, expected);
-        return {
-          pass: passed,
-          message: 'Expected ' + actual + (passed ? '' : ' not') + ' to equal ' + expected,
-        };
-      },
-    };
-  },
-});
-
 describe('merge', () => {
   it('merges two maps', () => {
     let m1 = Map({a: 1, b: 2, c: 3});
     let m2 = Map({d: 10, b: 20, e: 30});
-    expect(m1.merge(m2)).is(Map({a: 1, b: 20, c: 3, d: 10, e: 30}));
+    expect(m1.merge(m2)).toEqual(Map({a: 1, b: 20, c: 3, d: 10, e: 30}));
   });
 
   it('can merge in an explicitly undefined value', () => {
     let m1 = Map({a: 1, b: 2});
     let m2 = Map({a: undefined as any});
-    expect(m1.merge(m2)).is(Map({a: undefined, b: 2}));
+    expect(m1.merge(m2)).toEqual(Map({a: undefined, b: 2}));
   });
 
   it('merges two maps with a merge function', () => {
     let m1 = Map({a: 1, b: 2, c: 3});
     let m2 = Map({d: 10, b: 20, e: 30});
-    expect(m1.mergeWith((a, b) => a + b, m2)).is(Map({a: 1, b: 22, c: 3, d: 10, e: 30}));
+    expect(m1.mergeWith((a, b) => a + b, m2)).toEqual(Map({a: 1, b: 22, c: 3, d: 10, e: 30}));
   });
 
   it('provides key as the third argument of merge function', () => {
@@ -55,13 +34,13 @@ describe('merge', () => {
     let add = (a, b) => a + b;
     expect(
       m1.mergeWith((a, b, key) => key !== 'id' ? add(a, b) : b, m2),
-    ).is(Map({id: 10, b: 22, c: 3, e: 30}));
+    ).toEqual(Map({id: 10, b: 22, c: 3, e: 30}));
   });
 
   it('deep merges two maps', () => {
     let m1 = fromJS({a: {b: {c: 1, d: 2}}});
     let m2 = fromJS({a: {b: {c: 10, e: 20}, f: 30}, g: 40});
-    expect(m1.mergeDeep(m2)).is(fromJS({a: {b: {c: 10, d: 2, e: 20}, f: 30}, g: 40}));
+    expect(m1.mergeDeep(m2)).toEqual(fromJS({a: {b: {c: 10, d: 2, e: 20}, f: 30}, g: 40}));
   });
 
   it('deep merge uses is() for return-self optimization', () =>  {
@@ -75,7 +54,7 @@ describe('merge', () => {
   it('deep merges raw JS', () => {
     let m1 = fromJS({a: {b: {c: 1, d: 2}}});
     let js = {a: {b: {c: 10, e: 20}, f: 30}, g: 40};
-    expect(m1.mergeDeep(js)).is(fromJS({a: {b: {c: 10, d: 2, e: 20}, f: 30}, g: 40}));
+    expect(m1.mergeDeep(js)).toEqual(fromJS({a: {b: {c: 10, d: 2, e: 20}, f: 30}, g: 40}));
   });
 
   it('deep merges raw JS with a merge function', () => {
@@ -83,7 +62,7 @@ describe('merge', () => {
     let js = {a: {b: {c: 10, e: 20}, f: 30}, g: 40};
     expect(
       m1.mergeDeepWith((a, b) => a + b, js),
-    ).is(fromJS(
+    ).toEqual(fromJS(
       {a: {b: {c: 11, d: 2, e: 20}, f: 30}, g: 40},
     ));
   });
@@ -152,7 +131,7 @@ describe('merge', () => {
       Map({a: Map({b: List.of( {plain: 'obj'} )})}),
     );
 
-    expect(m1.getIn(['a', 'b', 0])).is(Map([['imm', 'map']]));
+    expect(m1.getIn(['a', 'b', 0])).toEqual(Map([['imm', 'map']]));
     // However mergeDeep will merge that value into the inner Map
     expect(m2.getIn(['a', 'b', 0])).toEqual(Map({imm: 'map', plain: 'obj'}));
   });

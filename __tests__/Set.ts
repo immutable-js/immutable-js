@@ -10,27 +10,6 @@
 declare var Symbol: any;
 import { is, List, Map, OrderedSet, Seq, Set } from '../';
 
-declare function expect(val: any): ExpectWithIs;
-
-interface ExpectWithIs extends Expect {
-  is(expected: any): void;
-  not: ExpectWithIs;
-}
-
-jasmine.addMatchers({
-  is() {
-    return {
-      compare(actual, expected) {
-        let passed = is(actual, expected);
-        return {
-          pass: passed,
-          message: 'Expected ' + actual + (passed ? '' : ' not') + ' to equal ' + expected,
-        };
-      },
-    };
-  },
-});
-
 describe('Set', () => {
   it('accepts array of values', () => {
     let s = Set([1, 2, 3]);
@@ -211,17 +190,17 @@ describe('Set', () => {
 
   it('unions multiple sets', () => {
     let s = Set.of('A', 'B', 'C').union(Set.of('C', 'D', 'E'), Set.of('D', 'B', 'F'));
-    expect(s).is(Set.of('A', 'B', 'C', 'D', 'E', 'F'));
+    expect(s).toEqual(Set.of('A', 'B', 'C', 'D', 'E', 'F'));
   });
 
   it('intersects multiple sets', () => {
     let s = Set.of('A', 'B', 'C').intersect(Set.of('B', 'C', 'D'), Set.of('A', 'C', 'E'));
-    expect(s).is(Set.of('C'));
+    expect(s).toEqual(Set.of('C'));
   });
 
   it('diffs multiple sets', () => {
     let s = Set.of('A', 'B', 'C').subtract(Set.of('C', 'D', 'E'), Set.of('D', 'B', 'F'));
-    expect(s).is(Set.of('A'));
+    expect(s).toEqual(Set.of('A'));
   });
 
   it('expresses value equality with set sequences', () => {
