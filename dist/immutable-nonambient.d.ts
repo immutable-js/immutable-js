@@ -1368,7 +1368,7 @@
      * )
      * // Map {
      * //   "subObject": Map {
-     * //     "subKey": "ha ha!",
+     * //     "subKey": "subvalue",
      * //     "subSubObject": Map { "subSubKey": "ha ha ha!" }
      * //   }
      * // }
