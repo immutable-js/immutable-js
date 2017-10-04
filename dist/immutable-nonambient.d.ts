@@ -211,6 +211,14 @@
    * `.equals()` method returns true, that both values `.hashCode()` method
    * return the same value. `hash()` may be used to produce those values.
    *
+   * For non-Immutable Objects that do not provide a `.hashCode()` functions
+   * (including plain Objects, plain Arrays, Date objects, etc), a unique hash
+   * value will be created for each *instance*. That is, the create hash
+   * represents referential equality, and not value equality for Objects. This
+   * ensures that if that Object is mutated over time that its hash code will
+   * remain consistent, allowing Objects to be used as keys and values in
+   * Immutable.js collections.
+   *
    * Note that `hash()` attempts to balance between speed and avoiding
    * collisions, however it makes no attempt to produce secure hashes.
    *
