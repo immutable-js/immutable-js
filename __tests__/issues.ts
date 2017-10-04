@@ -67,3 +67,9 @@ describe('Issue #1247', () => {
     expect(r.wasAltered()).toBe(false);
   });
 });
+
+describe('Issue #1252', () => {
+  const prototypelessObj = Object.create(null);
+  const list = List([prototypelessObj]);
+  expect(list.toString()).toBe('List [ {} ]');
+});
