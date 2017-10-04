@@ -1624,6 +1624,11 @@ declare module Immutable {
       predicate: (value: V, key: K, iter: this) => any,
       context?: any
     ): this;
+
+    /**
+     * @see Collection.Keyed.flip
+     */
+    flip(): Map<V, K>;
   }
 
 
@@ -1737,6 +1742,11 @@ declare module Immutable {
       predicate: (value: V, key: K, iter: this) => any,
       context?: any
     ): this;
+
+    /**
+     * @see Collection.Keyed.flip
+     */
+    flip(): OrderedMap<V, K>;
   }
 
 
@@ -2807,6 +2817,11 @@ declare module Immutable {
         predicate: (value: V, key: K, iter: this) => any,
         context?: any
       ): this;
+
+      /**
+       * @see Collection.Keyed.flip
+       */
+      flip(): Seq.Keyed<V, K>;
     }
 
 
@@ -3292,7 +3307,7 @@ declare module Immutable {
        * // Map { "z": "a", "y": "b" }
        * ```
        */
-      flip(): this;
+      flip(): Collection.Keyed<V, K>;
 
       /**
        * Returns a new Collection with other collections concatenated to this one.

@@ -363,7 +363,7 @@ import { Map, List } from '../../';
 
 { // #flip
 
-  // $ExpectType Map<number, string>
+  // $ExpectType Map<string, number>
   Map<number, string>().flip();
 }
 
