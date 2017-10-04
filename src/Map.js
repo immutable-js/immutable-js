@@ -6,9 +6,8 @@
  */
 
 import { is } from './is';
-import { fromJS } from './fromJS';
 import { Collection, KeyedCollection } from './Collection';
-import { isCollection, isOrdered } from './Predicates';
+import { isOrdered } from './Predicates';
 import {
   DELETE,
   SHIFT,
@@ -835,25 +834,25 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
 function mergeIntoMapWith(map, merger, collections) {
   const iters = [];
   for (let ii = 0; ii < collections.length; ii++) {
-    const value = collections[ii];
-    let iter = KeyedCollection(value);
-    if (!isCollection(value)) {
-      iter = iter.map(v => fromJS(v));
-    }
-    iters.push(iter);
+    iters.push(KeyedCollection(collections[ii]));
   }
   return mergeIntoCollectionWith(map, merger, iters);
 }
 
 export function deepMerger(oldVal, newVal) {
-  return oldVal && oldVal.mergeDeep && isCollection(newVal)
+  return newVal && typeof newVal === 'object' && oldVal && oldVal.mergeDeep
     ? oldVal.mergeDeep(newVal)
     : is(oldVal, newVal) ? oldVal : newVal;
 }
 
 export function deepMergerWith(merger) {
   return (oldVal, newVal, key) => {
-    if (oldVal && oldVal.mergeDeepWith && isCollection(newVal)) {
+    if (
+      newVal &&
+      typeof newVal === 'object' &&
+      oldVal &&
+      oldVal.mergeDeepWith
+    ) {
       return oldVal.mergeDeepWith(merger, newVal);
     }
     const nextValue = merger(oldVal, newVal, key);
@@ -870,7 +869,7 @@ export function mergeIntoCollectionWith(collection, merger, iters) {
     return collection.constructor(iters[0]);
   }
   return collection.withMutations(collection => {
-    const mergeIntoMap = merger
+    const mergeIntoCollection = merger
       ? (value, key) => {
           collection.update(
             key,
@@ -882,7 +881,7 @@ export function mergeIntoCollectionWith(collection, merger, iters) {
           collection.set(key, value);
         };
     for (let ii = 0; ii < iters.length; ii++) {
-      iters[ii].forEach(mergeIntoMap);
+      iters[ii].forEach(mergeIntoCollection);
     }
   });
 }

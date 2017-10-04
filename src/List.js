@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { fromJS } from './fromJS';
 import {
   DELETE,
   SHIFT,
@@ -21,7 +20,6 @@ import {
   resolveEnd
 } from './TrieUtils';
 import { IndexedCollection } from './Collection';
-import { isCollection } from './Predicates';
 import {
   MapPrototype,
   mergeIntoCollectionWith,
@@ -658,13 +656,9 @@ function mergeIntoListWith(list, merger, collections) {
   const iters = [];
   let maxSize = 0;
   for (let ii = 0; ii < collections.length; ii++) {
-    const value = collections[ii];
-    let iter = IndexedCollection(value);
+    const iter = IndexedCollection(collections[ii]);
     if (iter.size > maxSize) {
       maxSize = iter.size;
-    }
-    if (!isCollection(value)) {
-      iter = iter.map(v => fromJS(v));
     }
     iters.push(iter);
   }

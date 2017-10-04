@@ -105,7 +105,7 @@ describe('merge', () => {
   it('can overwrite existing maps', () => {
     expect(
       fromJS({ a: { x: 1, y: 1 }, b: { x: 2, y: 2 } })
-        .merge({ a: null, b: { x: 10 } })
+        .merge({ a: null, b: Map({ x: 10 }) })
         .toJS(),
     ).toEqual(
       { a: null, b: { x: 10 } },
@@ -123,21 +123,26 @@ describe('merge', () => {
     let m1 = fromJS({ a: { x: 1, y: 1 } }); // deep conversion.
     let m2 = Map({ a: { z: 10 } }); // shallow conversion to Map.
 
-    // raw object simply replaces map.
+    // Raw object simply replaces map.
     expect(m1.merge(m2).get('a')).toEqual({z: 10}); // raw object.
-    expect(m1.mergeDeep(m2).get('a')).toEqual({z: 10}); // raw object.
+    // However, mergeDeep will merge that value into the inner Map.
+    expect(m1.mergeDeep(m2).get('a')).toEqual(Map({x: 1, y: 1, z: 10}));
   });
 
   it('merges map entries with Vector values', () => {
+    const initial = Map({a: List([1])});
+
+    // Note: merge and mergeDeep do not deeply coerce values, they only merge
+    // with what's there prior.
     expect(
-      fromJS({a: [1]}).merge({b: [2]}),
-    ).is(fromJS(
-      {a: [1], b: [2]},
-    ));
+      initial.merge({b: [2]} as any),
+    ).toEqual(
+      Map({a: List([1]), b: [2]}),
+    );
     expect(
-      fromJS({a: [1]}).mergeDeep({b: [2]}),
-    ).is(fromJS(
-      {a: [1], b: [2]},
+      initial.mergeDeep({b: [2]} as any),
+    ).toEqual(fromJS(
+      Map({a: List([1]), b: [2]}),
     ));
   });
 
@@ -148,7 +153,8 @@ describe('merge', () => {
     );
 
     expect(m1.getIn(['a', 'b', 0])).is(Map([['imm', 'map']]));
-    expect(m2.getIn(['a', 'b', 0])).toEqual({plain: 'obj'});
+    // However mergeDeep will merge that value into the inner Map
+    expect(m2.getIn(['a', 'b', 0])).toEqual(Map({imm: 'map', plain: 'obj'}));
   });
 
 });
