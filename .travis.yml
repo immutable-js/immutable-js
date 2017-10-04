@@ -7,15 +7,7 @@ script: npm run test:travis
 
 env:
   global:
-    - CXX=g++-4.9
     - secure: "VDsxy30sE9ivdqoXkaKXo0czbS4brNpwKEIblu7f1gVLx7OD9pjTc78cdwrVbZDBYroSiYVYuUrLDjpVjH88lL/LxRrru3V0CIlAqqa+ssXcqycCaT/6ds+ZymuTTGRh+Mf12pIKO+yc8jTov2M7AzPJdpS+ORP5dImYyE3ex9s="
-
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-4.9
 
 deploy:
   - provider: script
