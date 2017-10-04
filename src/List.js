@@ -208,6 +208,7 @@ export class List extends IndexedCollection {
         return emptyList();
       }
       this.__ownerID = ownerID;
+      this.__altered = false;
       return this;
     }
     return makeList(
