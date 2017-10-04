@@ -4148,6 +4148,7 @@ var Set = (function (SetCollection$$1) {
     if (iters.length === 0) {
       return this;
     }
+    iters = iters.map(function (iter) { return SetCollection$$1(iter); });
     var toRemove = [];
     this.forEach(function (value) {
       if (iters.some(function (iter) { return iter.includes(value); })) {
