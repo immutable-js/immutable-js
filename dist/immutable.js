@@ -4089,7 +4089,7 @@ var Set = (function (SetCollection$$1) {
   // @pragma Modification
 
   Set.prototype.add = function add (value) {
-    return updateSet(this, this._map.set(value, true));
+    return updateSet(this, this._map.set(value, value));
   };
 
   Set.prototype.remove = function remove (value) {
@@ -4189,11 +4189,11 @@ var Set = (function (SetCollection$$1) {
   Set.prototype.__iterate = function __iterate (fn, reverse) {
     var this$1 = this;
 
-    return this._map.__iterate(function (_, k) { return fn(k, k, this$1); }, reverse);
+    return this._map.__iterate(function (k) { return fn(k, k, this$1); }, reverse);
   };
 
   Set.prototype.__iterator = function __iterator (type, reverse) {
-    return this._map.map(function (_, k) { return k; }).__iterator(type, reverse);
+    return this._map.__iterator(type, reverse);
   };
 
   Set.prototype.__ensureOwner = function __ensureOwner (ownerID) {
@@ -4203,7 +4203,7 @@ var Set = (function (SetCollection$$1) {
     var newMap = this._map.__ensureOwner(ownerID);
     if (!ownerID) {
       if (this.size === 0) {
-        return emptySet();
+        return this.__empty();
       }
       this.__ownerID = ownerID;
       this._map = newMap;
