@@ -45,6 +45,16 @@ describe('Issue #1245', () => {
   });
 });
 
+describe('Issue #1262', () => {
+  it('Set.subtract should accept an array', () => {
+    const MyType = Record({ val: 1 });
+    const set1 = Set([MyType({ val: 1 }), MyType({ val: 2 }), MyType({ val: 3 })]);
+    const set2 = set1.subtract([MyType({ val: 2 })]);
+    const set3 = set1.subtract(List([MyType({ val: 2 })]));
+    expect(set2).toEqual(set3);
+  });
+});
+
 describe('Issue #1287', () => {
   it('should skip all items in OrderedMap when skipping Infinity', () => {
     const size = OrderedMap([['a', 1]]).skip(Infinity).size;

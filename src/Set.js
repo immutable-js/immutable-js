@@ -114,6 +114,7 @@ export class Set extends SetCollection {
     if (iters.length === 0) {
       return this;
     }
+    iters = iters.map(iter => SetCollection(iter));
     const toRemove = [];
     this.forEach(value => {
       if (iters.some(iter => iter.includes(value))) {
