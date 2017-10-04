@@ -362,6 +362,11 @@ declare module Immutable {
      * to be equal][Hash Collision]. If two values have different `hashCode`s,
      * they must not be equal.
      *
+     * Note: `hashCode()` is not guaranteed to always be called before
+     * `equals()`. Most but not all Immutable.js collections use hash codes to
+     * organize their internal data structures, while all Immutable.js
+     * collections use equality during lookups.
+     *
      * [Hash Collision]: http://en.wikipedia.org/wiki/Collision_(computer_science)
      */
     hashCode(): number;
