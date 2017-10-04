@@ -665,7 +665,6 @@ declare class List<+T> extends IndexedCollection<T> {
 
   withMutations(mutator: (mutable: this) => mixed): this;
   asMutable(): this;
-  wasAltered(): boolean;
   asImmutable(): this;
 
   // Override specialized return types
@@ -848,7 +847,6 @@ declare class Map<K, +V> extends KeyedCollection<K, V> {
 
   withMutations(mutator: (mutable: this) => mixed): this;
   asMutable(): this;
-  wasAltered(): boolean;
   asImmutable(): this;
 
   // Override specialized return types
@@ -943,7 +941,6 @@ declare class OrderedMap<K, +V> extends Map<K, V> {
 
   withMutations(mutator: (mutable: this) => mixed): this;
   asMutable(): this;
-  wasAltered(): boolean;
   asImmutable(): this;
 
   // Override specialized return types
@@ -1003,7 +1000,6 @@ declare class Set<+T> extends SetCollection<T> {
 
   withMutations(mutator: (mutable: this) => mixed): this;
   asMutable(): this;
-  wasAltered(): boolean;
   asImmutable(): this;
 
   // Override specialized return types
@@ -1179,7 +1175,6 @@ declare class Stack<+T> extends IndexedCollection<T> {
 
   withMutations(mutator: (mutable: this) => mixed): this;
   asMutable(): this;
-  wasAltered(): boolean;
   asImmutable(): this;
 
   // Override specialized return types
@@ -1364,7 +1359,6 @@ declare class RecordInstance<T: Object> {
 
   withMutations(mutator: (mutable: this) => mixed): this & T;
   asMutable(): this & T;
-  wasAltered(): boolean;
   asImmutable(): this & T;
 
   @@iterator(): Iterator<[$Keys<T>, any]>;

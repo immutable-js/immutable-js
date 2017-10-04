@@ -803,11 +803,6 @@
     asMutable(): this;
 
     /**
-     * @see `Map#wasAltered`
-     */
-    wasAltered(): boolean;
-
-    /**
      * @see `Map#asImmutable`
      */
     asImmutable(): this;
@@ -1533,14 +1528,6 @@
     asMutable(): this;
 
     /**
-     * Returns true if this is a mutable copy (see `asMutable()`) and mutative
-     * alterations have been applied.
-     *
-     * @see `Map#asMutable`
-     */
-    wasAltered(): boolean;
-
-    /**
      * The yin to `asMutable`'s yang. Because it applies to mutable collections,
      * this operation is *mutable* and returns itself. Once performed, the mutable
      * copy has become immutable and can be safely returned from a function.
@@ -1877,11 +1864,6 @@
      * @see `Map#asMutable`
      */
     asMutable(): this;
-
-    /**
-     * @see `Map#wasAltered`
-     */
-    wasAltered(): boolean;
 
     /**
      * @see `Map#asImmutable`
@@ -2249,11 +2231,6 @@
     asMutable(): this;
 
     /**
-     * @see `Map#wasAltered`
-     */
-    wasAltered(): boolean;
-
-    /**
      * @see `Map#asImmutable`
      */
     asImmutable(): this;
@@ -2599,11 +2576,6 @@
        * @see `Map#asMutable`
        */
       asMutable(): this;
-
-      /**
-       * @see `Map#wasAltered`
-       */
-      wasAltered(): boolean;
 
       /**
        * @see `Map#asImmutable`

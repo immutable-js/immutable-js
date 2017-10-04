@@ -3097,7 +3097,6 @@ var List = (function (IndexedCollection$$1) {
         return emptyList();
       }
       this.__ownerID = ownerID;
-      this.__altered = false;
       return this;
     }
     return makeList(
