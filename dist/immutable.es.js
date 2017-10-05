@@ -771,51 +771,6 @@ function is(valueA, valueB) {
   );
 }
 
-function fromJS(value, converter) {
-  return fromJSWith(
-    [],
-    converter || defaultConverter,
-    value,
-    '',
-    converter && converter.length > 2 ? [] : undefined,
-    { '': value }
-  );
-}
-
-function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
-  var toSeq = Array.isArray(value)
-    ? IndexedSeq
-    : isPlainObj(value) ? KeyedSeq : null;
-  if (toSeq) {
-    if (~stack.indexOf(value)) {
-      throw new TypeError('Cannot convert circular structure to Immutable');
-    }
-    stack.push(value);
-    keyPath && key !== '' && keyPath.push(key);
-    var converted = converter.call(
-      parentValue,
-      key,
-      toSeq(value).map(function (v, k) { return fromJSWith(stack, converter, v, k, keyPath, value); }
-      ),
-      keyPath && keyPath.slice()
-    );
-    stack.pop();
-    keyPath && keyPath.pop();
-    return converted;
-  }
-  return value;
-}
-
-function defaultConverter(k, v) {
-  return isKeyed(v) ? v.toMap() : v.toList();
-}
-
-function isPlainObj(value) {
-  return (
-    value && (value.constructor === Object || value.constructor === undefined)
-  );
-}
-
 var imul =
   typeof Math.imul === 'function' && Math.imul(0xffffffff, 2) === -2
     ? Math.imul
@@ -2771,25 +2726,25 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
 function mergeIntoMapWith(map, merger, collections) {
   var iters = [];
   for (var ii = 0; ii < collections.length; ii++) {
-    var value = collections[ii];
-    var iter = KeyedCollection(value);
-    if (!isCollection(value)) {
-      iter = iter.map(function (v) { return fromJS(v); });
-    }
-    iters.push(iter);
+    iters.push(KeyedCollection(collections[ii]));
   }
   return mergeIntoCollectionWith(map, merger, iters);
 }
 
 function deepMerger(oldVal, newVal) {
-  return oldVal && oldVal.mergeDeep && isCollection(newVal)
+  return newVal && typeof newVal === 'object' && oldVal && oldVal.mergeDeep
     ? oldVal.mergeDeep(newVal)
     : is(oldVal, newVal) ? oldVal : newVal;
 }
 
 function deepMergerWith(merger) {
   return function (oldVal, newVal, key) {
-    if (oldVal && oldVal.mergeDeepWith && isCollection(newVal)) {
+    if (
+      newVal &&
+      typeof newVal === 'object' &&
+      oldVal &&
+      oldVal.mergeDeepWith
+    ) {
       return oldVal.mergeDeepWith(merger, newVal);
     }
     var nextValue = merger(oldVal, newVal, key);
@@ -2806,7 +2761,7 @@ function mergeIntoCollectionWith(collection, merger, iters) {
     return collection.constructor(iters[0]);
   }
   return collection.withMutations(function (collection) {
-    var mergeIntoMap = merger
+    var mergeIntoCollection = merger
       ? function (value, key) {
           collection.update(
             key,
@@ -2818,7 +2773,7 @@ function mergeIntoCollectionWith(collection, merger, iters) {
           collection.set(key, value);
         };
     for (var ii = 0; ii < iters.length; ii++) {
-      iters[ii].forEach(mergeIntoMap);
+      iters[ii].forEach(mergeIntoCollection);
     }
   });
 }
@@ -3545,13 +3500,9 @@ function mergeIntoListWith(list, merger, collections) {
   var iters = [];
   var maxSize = 0;
   for (var ii = 0; ii < collections.length; ii++) {
-    var value = collections[ii];
-    var iter = IndexedCollection(value);
+    var iter = IndexedCollection(collections[ii]);
     if (iter.size > maxSize) {
       maxSize = iter.size;
-    }
-    if (!isCollection(value)) {
-      iter = iter.map(function (v) { return fromJS(v); });
     }
     iters.push(iter);
   }
@@ -5557,6 +5508,51 @@ var Repeat = (function (IndexedSeq$$1) {
 }(IndexedSeq));
 
 var EMPTY_REPEAT;
+
+function fromJS(value, converter) {
+  return fromJSWith(
+    [],
+    converter || defaultConverter,
+    value,
+    '',
+    converter && converter.length > 2 ? [] : undefined,
+    { '': value }
+  );
+}
+
+function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
+  var toSeq = Array.isArray(value)
+    ? IndexedSeq
+    : isPlainObj(value) ? KeyedSeq : null;
+  if (toSeq) {
+    if (~stack.indexOf(value)) {
+      throw new TypeError('Cannot convert circular structure to Immutable');
+    }
+    stack.push(value);
+    keyPath && key !== '' && keyPath.push(key);
+    var converted = converter.call(
+      parentValue,
+      key,
+      toSeq(value).map(function (v, k) { return fromJSWith(stack, converter, v, k, keyPath, value); }
+      ),
+      keyPath && keyPath.slice()
+    );
+    stack.pop();
+    keyPath && keyPath.pop();
+    return converted;
+  }
+  return value;
+}
+
+function defaultConverter(k, v) {
+  return isKeyed(v) ? v.toMap() : v.toList();
+}
+
+function isPlainObj(value) {
+  return (
+    value && (value.constructor === Object || value.constructor === undefined)
+  );
+}
 
 var Immutable = {
   Collection: Collection,

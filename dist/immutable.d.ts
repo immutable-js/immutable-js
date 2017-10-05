@@ -1238,11 +1238,8 @@ declare module Immutable {
      * (or JS objects) into this Map. In other words, this takes each entry of
      * each collection and sets it on this Map.
      *
-     * If any of the values provided to `merge` are not Collection (would return
-     * false for `isCollection`) then they are deeply converted
-     * via `fromJS` before being merged. However, if the value is an
-     * Collection but includes non-collection JS objects or arrays, those nested
-     * values will be preserved.
+     * Note: Values provided to `merge` are shallowly converted before being
+     * merged. No nested values are altered.
      *
      * <!-- runkit:activate -->
      * ```js
@@ -1283,6 +1280,10 @@ declare module Immutable {
     /**
      * Like `merge()`, but when two Collections conflict, it merges them as well,
      * recursing deeply through the nested data.
+     *
+     * Note: Values provided to `merge` are shallowly converted before being
+     * merged. No nested values are altered unless they will also be merged at
+     * a deeper level.
      *
      * <!-- runkit:activate -->
      * ```js
