@@ -5558,7 +5558,11 @@ function isPlainObj(value) {
   );
 }
 
+var version = "4.0.0-rc.4";
+
 var Immutable = {
+  version: version,
+
   Collection: Collection,
   // Note: Iterable is deprecated
   Iterable: Collection,
@@ -5591,4 +5595,4 @@ var Immutable = {
 // Note: Iterable is deprecated
 var Iterable = Collection;
 
-export { Collection, Iterable, Seq, Map, OrderedMap, List, Stack, Set, OrderedSet, Record, Range, Repeat, is, fromJS, hash, isImmutable, isCollection, isKeyed, isIndexed, isAssociative, isOrdered, isValueObject };export default Immutable;
+export { version, Collection, Iterable, Seq, Map, OrderedMap, List, Stack, Set, OrderedSet, Record, Range, Repeat, is, fromJS, hash, isImmutable, isCollection, isKeyed, isIndexed, isAssociative, isOrdered, isValueObject };export default Immutable;

@@ -38,5 +38,6 @@
     "stateless",
     "sequence",
     "iteration"
-  ]
+  ],
+  "dependencies": {}
 }

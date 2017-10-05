@@ -5564,7 +5564,11 @@ function isPlainObj(value) {
   );
 }
 
+var version = "4.0.0-rc.4";
+
 var Immutable = {
+  version: version,
+
   Collection: Collection,
   // Note: Iterable is deprecated
   Iterable: Collection,
@@ -5598,6 +5602,7 @@ var Immutable = {
 var Iterable = Collection;
 
 exports['default'] = Immutable;
+exports.version = version;
 exports.Collection = Collection;
 exports.Iterable = Iterable;
 exports.Seq = Seq;
