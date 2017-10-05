@@ -9,33 +9,12 @@
 
 import { is, List, Seq, Set } from '../';
 
-declare function expect(val: any): ExpectWithIs;
-
-interface ExpectWithIs extends Expect {
-  is(expected: any): void;
-  not: ExpectWithIs;
-}
-
-jasmine.addMatchers({
-  is() {
-    return {
-      compare(actual, expected) {
-        let passed = is(actual, expected);
-        return {
-          pass: passed,
-          message: 'Expected ' + actual + (passed ? '' : ' not') + ' to equal ' + expected,
-        };
-      },
-    };
-  },
-});
-
 describe('concat', () => {
 
   it('concats two sequences', () => {
     let a = Seq([1, 2, 3]);
     let b = Seq([4, 5, 6]);
-    expect(a.concat(b)).is(Seq([1, 2, 3, 4, 5, 6]));
+    expect(is(a.concat(b), Seq([1, 2, 3, 4, 5, 6]))).toBe(true);
     expect(a.concat(b).size).toBe(6);
     expect(a.concat(b).toArray()).toEqual([1, 2, 3, 4, 5, 6]);
   });
@@ -119,7 +98,7 @@ describe('concat', () => {
     let b = List();
     expect(b.concat(a)).not.toBe(a);
     expect(List.isList(b.concat(a))).toBe(true);
-    expect(b.concat(a)).is(List([1, 2, 3]));
+    expect(b.concat(a)).toEqual(List([1, 2, 3]));
   });
 
   it('iterates repeated keys', () => {
