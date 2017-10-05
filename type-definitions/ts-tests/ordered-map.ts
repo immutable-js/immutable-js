@@ -363,7 +363,7 @@ import { OrderedMap, List } from '../../';
 
 { // #flip
 
-  // $ExpectType OrderedMap<number, string>
+  // $ExpectType OrderedMap<string, number>
   OrderedMap<number, string>().flip();
 }
 

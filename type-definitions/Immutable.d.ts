@@ -680,7 +680,7 @@ declare module Immutable {
      *
      * @see `Map#merge`
      */
-    merge(...collections: Array<Collection.Indexed<T> | Array<T>>): this;
+    merge(...collections: Array<Iterable<T>>): this;
 
     /**
      * Note: `mergeWith` can be used in `withMutations`.
@@ -689,7 +689,7 @@ declare module Immutable {
      */
     mergeWith(
       merger: (oldVal: T, newVal: T, key: number) => T,
-      ...collections: Array<Collection.Indexed<T> | Array<T>>
+      ...collections: Array<Iterable<T>>
     ): this;
 
     /**
@@ -697,7 +697,7 @@ declare module Immutable {
      *
      * @see `Map#mergeDeep`
      */
-    mergeDeep(...collections: Array<Collection.Indexed<T> | Array<T>>): this;
+    mergeDeep(...collections: Array<Iterable<T>>): this;
 
     /**
      * Note: `mergeDeepWith` can be used in `withMutations`.
@@ -705,7 +705,7 @@ declare module Immutable {
      */
     mergeDeepWith(
       merger: (oldVal: T, newVal: T, key: number) => T,
-      ...collections: Array<Collection.Indexed<T> | Array<T>>
+      ...collections: Array<Iterable<T>>
     ): this;
 
     /**
@@ -900,6 +900,10 @@ declare module Immutable {
      * const b = List([ 3, 4, 5 ]);
      * const c = a.zipAll(b); // List [ [ 1, 3 ], [ 2, 4 ], [ undefined, 5 ] ]
      * ```
+     *
+     * Note: Since zipAll will return a collection as large as the largest
+     * input, some results may contain undefined values. TypeScript cannot
+     * account for these without cases (as of v2.5).
      */
     zipAll<U>(other: Collection<any, U>): List<[T,U]>;
     zipAll<U,V>(other: Collection<any, U>, other2: Collection<any,V>): List<[T,U,V]>;
@@ -1248,7 +1252,7 @@ declare module Immutable {
      *
      * Note: `merge` can be used in `withMutations`.
      */
-    merge(...collections: Array<Collection<K, V> | {[key: string]: V}>): this;
+    merge(...collections: Array<Iterable<[K, V]> | {[key: string]: V}>): this;
 
     /**
      * Like `merge()`, `mergeWith()` returns a new Map resulting from merging
@@ -1270,7 +1274,7 @@ declare module Immutable {
      */
     mergeWith(
       merger: (oldVal: V, newVal: V, key: K) => V,
-      ...collections: Array<Collection<K, V> | {[key: string]: V}>
+      ...collections: Array<Iterable<[K, V]> | {[key: string]: V}>
     ): this;
 
     /**
@@ -1296,7 +1300,7 @@ declare module Immutable {
      *
      * Note: `mergeDeep` can be used in `withMutations`.
      */
-    mergeDeep(...collections: Array<Collection<K, V> | {[key: string]: V}>): this;
+    mergeDeep(...collections: Array<Iterable<[K, V]> | {[key: string]: V}>): this;
 
     /**
      * Like `mergeDeep()`, but when two non-Collections conflict, it uses the
@@ -1319,7 +1323,7 @@ declare module Immutable {
      */
     mergeDeepWith(
       merger: (oldVal: V, newVal: V, key: K) => V,
-      ...collections: Array<Collection<K, V> | {[key: string]: V}>
+      ...collections: Array<Iterable<[K, V]> | {[key: string]: V}>
     ): this;
 
 
@@ -1598,6 +1602,11 @@ declare module Immutable {
       predicate: (value: V, key: K, iter: this) => any,
       context?: any
     ): this;
+
+    /**
+     * @see Collection.Keyed.flip
+     */
+    flip(): Map<V, K>;
   }
 
 
@@ -1711,6 +1720,11 @@ declare module Immutable {
       predicate: (value: V, key: K, iter: this) => any,
       context?: any
     ): this;
+
+    /**
+     * @see Collection.Keyed.flip
+     */
+    flip(): OrderedMap<V, K>;
   }
 
 
@@ -1826,8 +1840,8 @@ declare module Immutable {
      * Note: `union` can be used in `withMutations`.
      * @alias merge
      */
-    union(...collections: Array<Collection<any, T> | Array<T>>): this;
-    merge(...collections: Array<Collection<any, T> | Array<T>>): this;
+    union(...collections: Array<Iterable<T>>): this;
+    merge(...collections: Array<Iterable<T>>): this;
 
     /**
      * Returns a Set which has removed any values not also contained
@@ -2047,6 +2061,10 @@ declare module Immutable {
      * const b = OrderedSet([ 3, 4, 5 ]);
      * const c = a.zipAll(b); // OrderedSet [ [ 1, 3 ], [ 2, 4 ], [ undefined, 5 ] ]
      * ```
+     *
+     * Note: Since zipAll will return a collection as large as the largest
+     * input, some results may contain undefined values. TypeScript cannot
+     * account for these without cases (as of v2.5).
      */
     zipAll<U>(other: Collection<any, U>): OrderedSet<[T,U]>;
     zipAll<U,V>(other1: Collection<any, U>, other2: Collection<any, V>): OrderedSet<[T,U,V]>;
@@ -2285,6 +2303,10 @@ declare module Immutable {
      * const b = Stack([ 3, 4, 5 ]);
      * const c = a.zipAll(b); // Stack [ [ 1, 3 ], [ 2, 4 ], [ undefined, 5 ] ]
      * ```
+     *
+     * Note: Since zipAll will return a collection as large as the largest
+     * input, some results may contain undefined values. TypeScript cannot
+     * account for these without cases (as of v2.5).
      */
     zipAll<U>(other: Collection<any, U>): Stack<[T,U]>;
     zipAll<U,V>(other: Collection<any, U>, other2: Collection<any,V>): Stack<[T,U,V]>;
@@ -2725,6 +2747,11 @@ declare module Immutable {
         predicate: (value: V, key: K, iter: this) => any,
         context?: any
       ): this;
+
+      /**
+       * @see Collection.Keyed.flip
+       */
+      flip(): Seq.Keyed<V, K>;
     }
 
 
@@ -3188,7 +3215,7 @@ declare module Immutable {
        * // Map { "z": "a", "y": "b" }
        * ```
        */
-      flip(): this;
+      flip(): Collection.Keyed<V, K>;
 
       /**
        * Returns a new Collection with other collections concatenated to this one.

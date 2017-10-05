@@ -8,7 +8,7 @@
 ///<reference path='../resources/jest.d.ts'/>
 
 declare var Symbol: any;
-import { List, OrderedMap, Record, Seq, Set } from '../';
+import { List, OrderedMap, OrderedSet, Record, Seq, Set } from '../';
 
 describe('Issue #1175', () => {
   it('invalid hashCode() response should not infinitly recurse', () => {
@@ -23,6 +23,14 @@ describe('Issue #1175', () => {
 
     const set = Set([new BadHash()]);
     expect(set.size).toEqual(1);
+  });
+});
+
+describe('Issue #1188', () => {
+  it('Removing items from OrderedSet should return OrderedSet', () => {
+    const orderedSet = OrderedSet(['one', 'two', 'three']);
+    const emptyOrderedSet = orderedSet.subtract(['two', 'three', 'one']);
+    expect(OrderedSet.isOrderedSet(emptyOrderedSet)).toBe(true);
   });
 });
 
@@ -45,6 +53,16 @@ describe('Issue #1245', () => {
   });
 });
 
+describe('Issue #1262', () => {
+  it('Set.subtract should accept an array', () => {
+    const MyType = Record({ val: 1 });
+    const set1 = Set([MyType({ val: 1 }), MyType({ val: 2 }), MyType({ val: 3 })]);
+    const set2 = set1.subtract([MyType({ val: 2 })]);
+    const set3 = set1.subtract(List([MyType({ val: 2 })]));
+    expect(set2).toEqual(set3);
+  });
+});
+
 describe('Issue #1287', () => {
   it('should skip all items in OrderedMap when skipping Infinity', () => {
     const size = OrderedMap([['a', 1]]).skip(Infinity).size;
@@ -58,6 +76,12 @@ describe('Issue #1247', () => {
     const r = new R();
     expect(r.wasAltered()).toBe(false);
   });
+});
+
+describe('Issue #1252', () => {
+  const prototypelessObj = Object.create(null);
+  const list = List([prototypelessObj]);
+  expect(list.toString()).toBe('List [ {} ]');
 });
 
 describe('Issue #1293', () => {

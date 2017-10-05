@@ -64,7 +64,7 @@ export class Set extends SetCollection {
   // @pragma Modification
 
   add(value) {
-    return updateSet(this, this._map.set(value, true));
+    return updateSet(this, this._map.set(value, value));
   }
 
   remove(value) {
@@ -114,6 +114,7 @@ export class Set extends SetCollection {
     if (iters.length === 0) {
       return this;
     }
+    iters = iters.map(iter => SetCollection(iter));
     const toRemove = [];
     this.forEach(value => {
       if (iters.some(iter => iter.includes(value))) {
@@ -150,11 +151,11 @@ export class Set extends SetCollection {
   }
 
   __iterate(fn, reverse) {
-    return this._map.__iterate((_, k) => fn(k, k, this), reverse);
+    return this._map.__iterate(k => fn(k, k, this), reverse);
   }
 
   __iterator(type, reverse) {
-    return this._map.map((_, k) => k).__iterator(type, reverse);
+    return this._map.__iterator(type, reverse);
   }
 
   __ensureOwner(ownerID) {
@@ -164,7 +165,7 @@ export class Set extends SetCollection {
     const newMap = this._map.__ensureOwner(ownerID);
     if (!ownerID) {
       if (this.size === 0) {
-        return emptySet();
+        return this.__empty();
       }
       this.__ownerID = ownerID;
       this._map = newMap;
