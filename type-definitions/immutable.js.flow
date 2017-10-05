@@ -636,18 +636,6 @@ declare class List<+T> extends IndexedCollection<T> {
 
   merge<U>(...collections: Iterable<U>[]): List<T | U>;
 
-  mergeWith<U, V>(
-    merger: (oldVal: T, newVal: U, key: number) => V,
-    ...collections: Iterable<U>[]
-  ): List<T | U | V>;
-
-  mergeDeep<U>(...collections: Iterable<U>[]): List<T | U>;
-
-  mergeDeepWith<U, V>(
-    merger: (oldVal: T, newVal: U, key: number) => V,
-    ...collections: Iterable<U>[]
-  ): List<T | U | V>;
-
   setSize(size: number): this;
   setIn(keyPath: Iterable<mixed>, value: mixed): this;
   deleteIn(keyPath: Iterable<mixed>, value: mixed): this;

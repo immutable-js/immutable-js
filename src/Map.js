@@ -159,7 +159,7 @@ export class Map extends KeyedCollection {
   }
 
   mergeDeep(/*...iters*/) {
-    return mergeIntoMapWith(this, deepMerger, arguments);
+    return mergeIntoMapWith(this, deepMergerWith(alwaysNewVal), arguments);
   }
 
   mergeDeepWith(merger, ...iters) {
@@ -839,21 +839,19 @@ function mergeIntoMapWith(map, merger, collections) {
   return mergeIntoCollectionWith(map, merger, iters);
 }
 
-export function deepMerger(oldVal, newVal) {
-  return newVal && typeof newVal === 'object' && oldVal && oldVal.mergeDeep
-    ? oldVal.mergeDeep(newVal)
-    : is(oldVal, newVal) ? oldVal : newVal;
+function alwaysNewVal(oldVal, newVal) {
+  return newVal;
 }
 
 export function deepMergerWith(merger) {
-  return (oldVal, newVal, key) => {
-    if (
-      newVal &&
-      typeof newVal === 'object' &&
-      oldVal &&
-      oldVal.mergeDeepWith
-    ) {
-      return oldVal.mergeDeepWith(merger, newVal);
+  return function(oldVal, newVal, key) {
+    if (oldVal && newVal && typeof newVal === 'object') {
+      if (oldVal.mergeDeepWith) {
+        return oldVal.mergeDeepWith(merger, newVal);
+      }
+      if (oldVal.merge) {
+        return oldVal.merge(newVal);
+      }
     }
     const nextValue = merger(oldVal, newVal, key);
     return is(oldVal, nextValue) ? oldVal : nextValue;

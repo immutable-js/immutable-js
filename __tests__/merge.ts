@@ -7,7 +7,7 @@
 
 ///<reference path='../resources/jest.d.ts'/>
 
-import { fromJS, is, List, Map } from '../';
+import { fromJS, is, List, Map, Set } from '../';
 
 describe('merge', () => {
   it('merges two maps', () => {
@@ -108,7 +108,15 @@ describe('merge', () => {
     expect(m1.mergeDeep(m2).get('a')).toEqual(Map({x: 1, y: 1, z: 10}));
   });
 
-  it('merges map entries with Vector values', () => {
+  it('merges map enties with List and Set values', () => {
+    const initial = Map({a: Map({x: 10, y: 20}), b: List([1, 2, 3]), c: Set([1, 2, 3])});
+    const additions = Map({a: Map({y: 50, z: 100}), b: List([4, 5, 6]), c: Set([4, 5, 6])});
+    expect(initial.mergeDeep(additions)).toEqual(
+      Map({a: Map({x: 10, y: 50, z: 100}), b: List([1, 2, 3, 4, 5, 6]), c: Set([1, 2, 3, 4, 5, 6])}),
+    );
+  });
+
+  it('merges map entries with new values', () => {
     const initial = Map({a: List([1])});
 
     // Note: merge and mergeDeep do not deeply coerce values, they only merge
@@ -126,14 +134,14 @@ describe('merge', () => {
   });
 
   it('maintains JS values inside immutable collections', () => {
-    let m1 = fromJS({a: {b: [{imm: 'map'}]}});
+    let m1 = fromJS({a: {b: {imm: 'map'}}});
     let m2 = m1.mergeDeep(
-      Map({a: Map({b: List.of( {plain: 'obj'} )})}),
+      Map({a: Map({b: {plain: 'obj'} })}),
     );
 
-    expect(m1.getIn(['a', 'b', 0])).toEqual(Map([['imm', 'map']]));
+    expect(m1.getIn(['a', 'b'])).toEqual(Map([['imm', 'map']]));
     // However mergeDeep will merge that value into the inner Map
-    expect(m2.getIn(['a', 'b', 0])).toEqual(Map({imm: 'map', plain: 'obj'}));
+    expect(m2.getIn(['a', 'b'])).toEqual(Map({imm: 'map', plain: 'obj'}));
   });
 
 });

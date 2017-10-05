@@ -163,18 +163,6 @@ numberOrStringList = List.of('a').merge(List.of(1))
 // $ExpectError
 numberList = List.of('a').merge(List.of(1))
 
-numberList = List.of(1).mergeWith((previous, next, key) => 1, [1])
-// $ExpectError
-numberList = List.of(1).mergeWith((previous, next, key) => previous + next, ['a'])
-
-numberOrStringList = List.of(1).mergeDeep(['a'])
-// $ExpectError
-numberList = List.of(1).mergeDeep(['a'])
-
-numberList = List.of(1).mergeDeepWith((previous, next, key) => 1, [1])
-// $ExpectError
-numberList = List.of(1).mergeDeepWith((previous, next, key) => previous + next, ['a'])
-
 nullableNumberList = List.of(1).setSize(2)
 
 numberList = List.of(1).setIn([], 0)
