@@ -221,6 +221,7 @@ var TypeDoc = React.createClass({
                   }}
                 />
               ))
+              .valueSeq()
               .toArray()}
           </section>
         )}
@@ -238,6 +239,7 @@ var TypeDoc = React.createClass({
                   </Router.Link>
                 </div>
               ))
+              .valueSeq()
               .toArray()}
           </section>
         )}
@@ -264,6 +266,7 @@ var TypeDoc = React.createClass({
                     ])
             )
             .flatten()
+            .valueSeq()
             .toArray()}
         </section>
 

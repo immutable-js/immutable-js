@@ -45,6 +45,7 @@ var DocOverview = React.createClass({
               </section>
             );
           })
+          .valueSeq()
           .toArray()}
       </div>
     );

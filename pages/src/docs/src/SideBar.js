@@ -40,6 +40,7 @@ var SideBar = React.createClass({
           <h4 className="groupTitle">API</h4>
           {Seq(type.module)
             .map((t, name) => this.renderSideBarType(name, t))
+            .valueSeq()
             .toArray()}
         </div>
       </div>
@@ -86,6 +87,7 @@ var SideBar = React.createClass({
                     </Router.Link>
                   </div>
                 ))
+                .valueSeq()
                 .toArray()}
             </section>
           )}
@@ -101,6 +103,7 @@ var SideBar = React.createClass({
                     </Router.Link>
                   </div>
                 ))
+                .valueSeq()
                 .toArray()}
             </section>
           )}
@@ -128,6 +131,7 @@ var SideBar = React.createClass({
                       ])
               )
               .flatten()
+              .valueSeq()
               .toArray()}
           </section>
         </div>
