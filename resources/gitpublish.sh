@@ -37,6 +37,9 @@ node -e "var package = require('./package.json'); \
 # Retain marginal support for bower on this branch
 cp npm/package.json npm/bower.json
 
+HEADREV=`git rev-parse HEAD`
+echo $HEADREV
+
 cd npm
 git config user.name "Travis CI"
 git config user.email "github@fb.com"
@@ -44,7 +47,7 @@ git add -A .
 if git diff --staged --quiet; then
   echo "Nothing to publish"
 else
-  git commit -a -m "Deploy master to NPM branch"
+  git commit -a -m "Deploy $HEADREV to NPM branch"
   git push > /dev/null 2>&1
   echo "Pushed"
 fi
