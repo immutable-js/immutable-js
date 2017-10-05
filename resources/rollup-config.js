@@ -10,6 +10,7 @@ import path from 'path';
 import { minify } from 'uglify-js';
 import buble from 'rollup-plugin-buble';
 import commonjs from 'rollup-plugin-commonjs';
+import json from 'rollup-plugin-json';
 import saveLicense from 'uglify-save-license';
 import stripBanner from 'rollup-plugin-strip-banner';
 
@@ -28,6 +29,7 @@ export default {
   dest: path.join(DIST_DIR, 'immutable.js'),
   plugins: [
     commonjs(),
+    json(),
     stripBanner(),
     buble(),
     {
