@@ -112,6 +112,13 @@ var TypeDef = React.createClass({
             .interpose(' | ')
             .toArray()
         ]);
+      case TypeKind.Intersection:
+        return this.wrap('intersection', [
+          Seq(type.types)
+            .map(t => <TypeDef info={info} type={t} />)
+            .interpose(' & ')
+            .toArray()
+        ]);
       case TypeKind.Tuple:
         return this.wrap('tuple', [
           '[',
@@ -335,6 +342,7 @@ function typeLength(info, type) {
     case TypeKind.String:
       return 6;
     case TypeKind.Union:
+    case TypeKind.Intersection:
       return (
         type.types.reduce((s, t) => s + typeLength(info, t), 0) +
         (type.types.length - 1) * 3

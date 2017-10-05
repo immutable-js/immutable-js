@@ -302,6 +302,11 @@ function DocVisitor(source) {
           k: TypeKind.Union,
           types: node.types.map(parseType)
         };
+      case ts.SyntaxKind.IntersectionType:
+        return {
+          k: TypeKind.Intersection,
+          types: node.types.map(parseType)
+        };
       case ts.SyntaxKind.TupleType:
         return {
           k: TypeKind.Tuple,

@@ -22,9 +22,10 @@ var TypeKind = {
   This: 10,
   Undefined: 11,
   Union: 12,
-  Tuple: 13,
-  Indexed: 14,
-  Operator: 15
+  Intersection: 13,
+  Tuple: 14,
+  Indexed: 15,
+  Operator: 16
 };
 
 module.exports = TypeKind;

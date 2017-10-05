@@ -10,7 +10,7 @@ import { Record } from '../../';
 { // Factory
   const PointXY = Record({ x: 0, y: 0 });
 
-  // $ExpectType Class<{ x: number; y: number; }>
+  // $ExpectType Factory<{ x: number; y: number; }>
   PointXY;
 
   // $ExpectError
@@ -18,7 +18,7 @@ import { Record } from '../../';
 
   const pointXY = PointXY();
 
-  // $ExpectType Instance<{ x: number; y: number; }> & Readonly<{ x: number; y: number; }>
+  // $ExpectType Record<{ x: number; y: number; }> & Readonly<{ x: number; y: number; }>
   pointXY;
 
   // $ExpectType number
