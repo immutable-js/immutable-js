@@ -9,5 +9,6 @@ yarn-error.log
 TODO
 /pages/out
 /pages/generated
+/gh-pages
 /npm
 /dist
