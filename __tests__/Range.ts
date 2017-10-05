@@ -15,7 +15,7 @@ import { Range } from '../';
 describe('Range', () => {
 
   it('fixed range', () => {
-    let v = Range(0, 3);
+    const v = Range(0, 3);
     expect(v.size).toBe(3);
     expect(v.first()).toBe(0);
     expect(v.rest().toArray()).toEqual([1, 2]);
@@ -25,7 +25,7 @@ describe('Range', () => {
   });
 
   it('stepped range', () => {
-    let v = Range(1, 10, 3);
+    const v = Range(1, 10, 3);
     expect(v.size).toBe(3);
     expect(v.first()).toBe(1);
     expect(v.rest().toArray()).toEqual([4, 7]);
@@ -35,7 +35,7 @@ describe('Range', () => {
   });
 
   it('open range', () => {
-    let v = Range(10);
+    const v = Range(10);
     expect(v.size).toBe(Infinity);
     expect(v.first()).toBe(10);
     expect(v.rest().first()).toBe(11);
@@ -48,7 +48,7 @@ describe('Range', () => {
   });
 
   it('backwards range', () => {
-    let v = Range(10, 1, 3);
+    const v = Range(10, 1, 3);
     expect(v.size).toBe(3);
     expect(v.first()).toBe(10);
     expect(v.last()).toBe(4);
@@ -56,7 +56,7 @@ describe('Range', () => {
   });
 
   it('empty range', () => {
-    let v = Range(10, 10);
+    const v = Range(10, 10);
     expect(v.size).toBe(0);
     expect(v.first()).toBe(undefined);
     expect(v.rest().toArray()).toEqual([]);
@@ -65,105 +65,101 @@ describe('Range', () => {
     expect(v.toArray()).toEqual([]);
   });
 
-  check.it('includes first, excludes last', [gen.int, gen.int], function (from, to) {
-    let isIncreasing = to >= from;
-    let size = isIncreasing ? to - from : from - to;
-    let r = Range(from, to);
-    let a = r.toArray();
+  check.it('includes first, excludes last', [gen.int, gen.int], (from, to) => {
+    const isIncreasing = to >= from;
+    const size = isIncreasing ? to - from : from - to;
+    const r = Range(from, to);
+    const a = r.toArray();
     expect(r.size).toBe(size);
     expect(a.length).toBe(size);
     expect(r.get(0)).toBe(size ? from : undefined);
     expect(a[0]).toBe(size ? from : undefined);
-    let last = to + (isIncreasing ? -1 : 1);
+    const last = to + (isIncreasing ? -1 : 1);
     expect(r.last()).toBe(size ? last : undefined);
     if (size) {
       expect(a[a.length - 1]).toBe(last);
     }
   });
 
-  let shrinkInt = gen.shrink(gen.int);
+  const shrinkInt = gen.shrink(gen.int);
 
   check.it('slices the same as array slices',
     [shrinkInt, shrinkInt, shrinkInt, shrinkInt],
-    function (from, to, begin, end) {
-      let r = Range(from, to);
-      let a = r.toArray();
+    (from, to, begin, end) => {
+      const r = Range(from, to);
+      const a = r.toArray();
       expect(r.slice(begin, end).toArray()).toEqual(a.slice(begin, end));
     },
   );
 
   it('slices range', () => {
-    let v = Range(1, 11, 2);
-    let s = v.slice(1, -2);
+    const v = Range(1, 11, 2);
+    const s = v.slice(1, -2);
     expect(s.size).toBe(2);
     expect(s.toArray()).toEqual([3, 5]);
   });
 
   it('empty slice of range', () => {
-    let v = Range(1, 11, 2);
-    let s = v.slice(100, 200);
+    const v = Range(1, 11, 2);
+    const s = v.slice(100, 200);
     expect(s.size).toBe(0);
     expect(s.toArray()).toEqual([]);
   });
 
   it('slices empty range', () => {
-    let v = Range(10, 10);
-    let s = v.slice(1, -2);
+    const v = Range(10, 10);
+    const s = v.slice(1, -2);
     expect(s.size).toBe(0);
     expect(s.toArray()).toEqual([]);
   });
 
   it('stepped range does not land on end', () => {
-    let v = Range(0, 7, 2);
+    const v = Range(0, 7, 2);
     expect(v.size).toBe(4);
     expect(v.toArray()).toEqual([0, 2, 4, 6]);
   });
 
   it('can be float', () => {
-    let v = Range(0.5, 2.5, 0.5);
+    const v = Range(0.5, 2.5, 0.5);
     expect(v.size).toBe(4);
     expect(v.toArray()).toEqual([0.5, 1, 1.5, 2]);
   });
 
   it('can be negative', () => {
-    let v = Range(10, -10, 5);
+    const v = Range(10, -10, 5);
     expect(v.size).toBe(4);
     expect(v.toArray()).toEqual([10, 5, 0, -5]);
   });
 
   it('can get from any index in O(1)', () => {
-    let v = Range(0, Infinity, 8);
+    const v = Range(0, Infinity, 8);
     expect(v.get(111)).toBe(888);
   });
 
   it('can find an index in O(1)', () => {
-    let v = Range(0, Infinity, 8);
+    const v = Range(0, Infinity, 8);
     expect(v.indexOf(888)).toBe(111);
   });
 
   it('maps values', () => {
-    let r = Range(0, 4).map(v => v * v);
+    const r = Range(0, 4).map(v => v * v);
     expect(r.toArray()).toEqual([0, 1, 4, 9]);
   });
 
   it('filters values', () => {
-    let r = Range(0, 10).filter(v => v % 2 === 0);
+    const r = Range(0, 10).filter(v => v % 2 === 0);
     expect(r.toArray()).toEqual([0, 2, 4, 6, 8]);
   });
 
   it('reduces values', () => {
-    let v = Range(0, 10, 2);
-
-    let r = v.reduce<number>((a, b) => a + b, 0);
-
+    const v = Range(0, 10, 2);
+    const r = v.reduce<number>((a, b) => a + b, 0);
     expect(r).toEqual(20);
   });
 
   it('takes and skips values', () => {
-    let v = Range(0, 100, 3);
-
-    let r = v.skip(2).take(2);
-
+    const v = Range(0, 100, 3);
+    const r = v.skip(2).take(2);
     expect(r.toArray()).toEqual([6, 9]);
   });
 
@@ -176,9 +172,8 @@ describe('Range', () => {
   });
 
   it('efficiently chains array methods', () => {
-    let v = Range(1, Infinity);
-
-    let r = v
+    const v = Range(1, Infinity);
+    const r = v
       .filter(x => x % 2 === 0)
       .skip(2)
       .map<number>(x => x * x)

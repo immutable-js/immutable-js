@@ -12,7 +12,7 @@ import { Collection, Map, Seq } from '../';
 describe('groupBy', () => {
 
   it('groups keyed sequence', () => {
-    let grouped = Seq({a: 1, b: 2, c: 3, d: 4}).groupBy(x => x % 2);
+    const grouped = Seq({a: 1, b: 2, c: 3, d: 4}).groupBy(x => x % 2);
     expect(grouped.toJS()).toEqual({1: {a: 1, c: 3}, 0: {b: 2, d: 4}});
 
     // Each group should be a keyed sequence, not an indexed sequence
@@ -58,14 +58,14 @@ describe('groupBy', () => {
   });
 
   it('returns an ordered map from an ordered collection', () => {
-    let seq = Seq(['Z', 'Y', 'X', 'Z', 'Y', 'X']);
+    const seq = Seq(['Z', 'Y', 'X', 'Z', 'Y', 'X']);
     expect(Collection.isOrdered(seq)).toBe(true);
-    let seqGroups = seq.groupBy(x => x);
+    const seqGroups = seq.groupBy(x => x);
     expect(Collection.isOrdered(seqGroups)).toBe(true);
 
-    let map = Map({ x: 1, y: 2 });
+    const map = Map({ x: 1, y: 2 });
     expect(Collection.isOrdered(map)).toBe(false);
-    let mapGroups = map.groupBy(x => x);
+    const mapGroups = map.groupBy(x => x);
     expect(Collection.isOrdered(mapGroups)).toBe(false);
   });
 

@@ -17,14 +17,14 @@ describe('count', () => {
   });
 
   it('counts sequences with unknown lengths, resulting in a cached size', () => {
-    let seq = Seq([1, 2, 3, 4, 5, 6]).filter(x => x % 2 === 0);
+    const seq = Seq([1, 2, 3, 4, 5, 6]).filter(x => x % 2 === 0);
     expect(seq.size).toBe(undefined);
     expect(seq.count()).toBe(3);
     expect(seq.size).toBe(3);
   });
 
   it('counts sequences with a specific predicate', () => {
-    let seq = Seq([1, 2, 3, 4, 5, 6]);
+    const seq = Seq([1, 2, 3, 4, 5, 6]);
     expect(seq.size).toBe(6);
     expect(seq.count(x => x > 3)).toBe(3);
   });
@@ -32,7 +32,7 @@ describe('count', () => {
   describe('countBy', () => {
 
     it('counts by keyed sequence', () => {
-      let grouped = Seq({a: 1, b: 2, c: 3, d: 4}).countBy(x => x % 2);
+      const grouped = Seq({a: 1, b: 2, c: 3, d: 4}).countBy(x => x % 2);
       expect(grouped.toJS()).toEqual({1: 2, 0: 2});
       expect(grouped.get(1)).toEqual(2);
     });
@@ -77,13 +77,13 @@ describe('count', () => {
     });
 
     it('with infinitely long sequences of known length', () => {
-      let seq = Range();
+      const seq = Range();
       expect(seq.size).toBe(Infinity);
       expect(seq.isEmpty()).toBe(false);
     });
 
     it('with infinitely long sequences of unknown length', () => {
-      let seq = Range().filter(x => x % 2 === 0);
+      const seq = Range().filter(x => x % 2 === 0);
       expect(seq.size).toBe(undefined);
       expect(seq.isEmpty()).toBe(false);
       expect(seq.size).toBe(undefined);

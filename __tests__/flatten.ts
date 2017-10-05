@@ -15,40 +15,40 @@ import { Collection, fromJS, List, Range, Seq } from '../';
 describe('flatten', () => {
 
   it('flattens sequences one level deep', () => {
-    let nested = fromJS([[1, 2], [3, 4], [5, 6]]);
-    let flat = nested.flatten();
+    const nested = fromJS([[1, 2], [3, 4], [5, 6]]);
+    const flat = nested.flatten();
     expect(flat.toJS()).toEqual([1, 2, 3, 4, 5, 6]);
   });
 
   it('flattening a List returns a List', () => {
-    let nested = fromJS([[1], 2, 3, [4, 5, 6]]);
-    let flat = nested.flatten();
+    const nested = fromJS([[1], 2, 3, [4, 5, 6]]);
+    const flat = nested.flatten();
     expect(flat.toString()).toEqual("List [ 1, 2, 3, 4, 5, 6 ]");
   });
 
   it('gives the correct iteration count', () => {
-    let nested = fromJS([[1, 2, 3], [4, 5, 6]]);
-    let flat = nested.flatten();
+    const nested = fromJS([[1, 2, 3], [4, 5, 6]]);
+    const flat = nested.flatten();
     expect(flat.forEach(x => x < 4)).toEqual(4);
   });
 
   type SeqType = number | Array<number> | Collection<number, number>;
 
   it('flattens only Sequences (not sequenceables)', () => {
-    let nested = Seq<SeqType>([Range(1, 3), [3, 4], List([5, 6, 7]), 8]);
-    let flat = nested.flatten();
+    const nested = Seq<SeqType>([Range(1, 3), [3, 4], List([5, 6, 7]), 8]);
+    const flat = nested.flatten();
     expect(flat.toJS()).toEqual([1, 2, [3, 4], 5, 6, 7, 8]);
   });
 
   it('can be reversed', () => {
-    let nested = Seq<SeqType>([Range(1, 3), [3, 4], List([5, 6, 7]), 8]);
-    let flat = nested.flatten();
-    let reversed = flat.reverse();
+    const nested = Seq<SeqType>([Range(1, 3), [3, 4], List([5, 6, 7]), 8]);
+    const flat = nested.flatten();
+    const reversed = flat.reverse();
     expect(reversed.toJS()).toEqual([8, 7, 6, 5, [3, 4], 2, 1]);
   });
 
   it('can flatten at various levels of depth', () => {
-    let deeplyNested = fromJS(
+    const deeplyNested = fromJS(
       [
         [
           [
@@ -118,8 +118,8 @@ describe('flatten', () => {
   describe('flatMap', () => {
 
     it('first maps, then shallow flattens', () => {
-      let numbers = Range(97, 100);
-      let letters = numbers.flatMap(v => fromJS([
+      const numbers = Range(97, 100);
+      const letters = numbers.flatMap(v => fromJS([
         String.fromCharCode(v),
         String.fromCharCode(v).toUpperCase(),
       ]));
@@ -129,10 +129,10 @@ describe('flatten', () => {
     });
 
     it('maps to sequenceables, not only Sequences.', () => {
-      let numbers = Range(97, 100);
+      const numbers = Range(97, 100);
       // the map function returns an Array, rather than a Collection.
       // Array is iterable, so this works just fine.
-      let letters = numbers.flatMap(v => [
+      const letters = numbers.flatMap(v => [
         String.fromCharCode(v),
         String.fromCharCode(v).toUpperCase(),
       ]);

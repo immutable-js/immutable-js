@@ -15,11 +15,11 @@ import { Range, Seq } from '../';
 describe('KeyedSeq', () => {
 
   check.it('it iterates equivalently', [gen.array(gen.int)], ints => {
-    let seq = Seq(ints);
-    let keyed = seq.toKeyedSeq();
+    const seq = Seq(ints);
+    const keyed = seq.toKeyedSeq();
 
-    let seqEntries = seq.entries();
-    let keyedEntries = keyed.entries();
+    const seqEntries = seq.entries();
+    const keyedEntries = keyed.entries();
 
     let seqStep, keyedStep;
     do {
@@ -30,11 +30,11 @@ describe('KeyedSeq', () => {
   });
 
   it('maintains keys', () => {
-    let isEven = x => x % 2 === 0;
-    let seq = Range(0, 100);
+    const isEven = x => x % 2 === 0;
+    const seq = Range(0, 100);
 
     // This is what we expect for IndexedSequences
-    let operated = seq.filter(isEven).skip(10).take(5);
+    const operated = seq.filter(isEven).skip(10).take(5);
     expect(operated.entrySeq().toArray()).toEqual([
       [0, 20],
       [1, 22],
@@ -44,8 +44,8 @@ describe('KeyedSeq', () => {
     ]);
 
     // Where Keyed Sequences maintain keys.
-    let keyed = seq.toKeyedSeq();
-    let keyedOperated = keyed.filter(isEven).skip(10).take(5);
+    const keyed = seq.toKeyedSeq();
+    const keyedOperated = keyed.filter(isEven).skip(10).take(5);
     expect(keyedOperated.entrySeq().toArray()).toEqual([
       [20, 20],
       [22, 22],
@@ -56,7 +56,7 @@ describe('KeyedSeq', () => {
   });
 
   it('works with reverse', () => {
-    let seq = Range(0, 100);
+    const seq = Range(0, 100);
 
     // This is what we expect for IndexedSequences
     expect(seq.reverse().take(5).entrySeq().toArray()).toEqual([
@@ -78,7 +78,7 @@ describe('KeyedSeq', () => {
   });
 
   it('works with double reverse', () => {
-    let seq = Range(0, 100);
+    const seq = Range(0, 100);
 
     // This is what we expect for IndexedSequences
     expect(seq.reverse().skip(10).take(5).reverse().entrySeq().toArray()).toEqual([

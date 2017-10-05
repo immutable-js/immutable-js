@@ -31,18 +31,18 @@ describe('zip', () => {
   });
 
   it('has unknown size when zipped with unknown size', () => {
-    let seq = Range(0, 10);
-    let zipped = seq.zip(seq.filter(n => n % 2 === 0));
+    const seq = Range(0, 10);
+    const zipped = seq.zip(seq.filter(n => n % 2 === 0));
     expect(zipped.size).toBe(undefined);
     expect(zipped.count()).toBe(5);
   });
 
   check.it('is always the size of the smaller sequence',
     [gen.notEmpty(gen.array(gen.posInt))], lengths => {
-      let ranges = lengths.map(l => Range(0, l));
-      let first = ranges.shift();
-      let zipped = first.zip.apply(first, ranges);
-      let shortestLength = Math.min.apply(Math, lengths);
+      const ranges = lengths.map(l => Range(0, l));
+      const first = ranges.shift();
+      const zipped = first.zip.apply(first, ranges);
+      const shortestLength = Math.min.apply(Math, lengths);
       expect(zipped.size).toBe(shortestLength);
   });
 
@@ -62,7 +62,7 @@ describe('zip', () => {
     it('can zip to create immutable collections', () => {
       expect(
         Seq([1, 2, 3]).zipWith(
-          function () { return List(arguments); },
+          function() { return List(arguments); },
           Seq([4, 5, 6]),
           Seq([7, 8, 9]),
         ).toJS(),
@@ -107,7 +107,7 @@ describe('zip', () => {
     });
 
     it('stops at the shortest collection', () => {
-      let i = Seq([1, 2, 3]).interleave(
+      const i = Seq([1, 2, 3]).interleave(
         Seq([4, 5]),
         Seq([7, 8, 9]),
       );
@@ -118,8 +118,8 @@ describe('zip', () => {
     });
 
     it('with infinite lists', () => {
-      let r: Seq.Indexed<any> = Range();
-      let i = r.interleave(Seq(['A', 'B', 'C']));
+      const r: Seq.Indexed<any> = Range();
+      const i = r.interleave(Seq(['A', 'B', 'C']));
       expect(i.size).toBe(6);
       expect(i.toArray()).toEqual(
         [0, 'A', 1, 'B', 2, 'C'],

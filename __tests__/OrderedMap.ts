@@ -12,7 +12,7 @@ import { OrderedMap, Seq } from '../';
 describe('OrderedMap', () => {
 
   it('converts from object', () => {
-    let m = OrderedMap({c: 'C', b: 'B', a: 'A'});
+    const m = OrderedMap({c: 'C', b: 'B', a: 'A'});
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
@@ -20,7 +20,7 @@ describe('OrderedMap', () => {
   });
 
   it('constructor provides initial values', () => {
-    let m = OrderedMap({a: 'A', b: 'B', c: 'C'});
+    const m = OrderedMap({a: 'A', b: 'B', c: 'C'});
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
@@ -29,7 +29,7 @@ describe('OrderedMap', () => {
   });
 
   it('provides initial values in a mixed order', () => {
-    let m = OrderedMap({c: 'C', b: 'B', a: 'A'});
+    const m = OrderedMap({c: 'C', b: 'B', a: 'A'});
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
@@ -38,8 +38,8 @@ describe('OrderedMap', () => {
   });
 
   it('constructor accepts sequences', () => {
-    let s = Seq({c: 'C', b: 'B', a: 'A'});
-    let m = OrderedMap(s);
+    const s = Seq({c: 'C', b: 'B', a: 'A'});
+    const m = OrderedMap(s);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
@@ -48,7 +48,7 @@ describe('OrderedMap', () => {
   });
 
   it('maintains order when new keys are set', () => {
-    let m = OrderedMap()
+    const m = OrderedMap()
       .set('A', 'aardvark')
       .set('Z', 'zebra')
       .set('A', 'antelope');
@@ -57,7 +57,7 @@ describe('OrderedMap', () => {
   });
 
   it('resets order when a keys is deleted', () => {
-    let m = OrderedMap()
+    const m = OrderedMap()
       .set('A', 'aardvark')
       .set('Z', 'zebra')
       .remove('A')
@@ -67,7 +67,7 @@ describe('OrderedMap', () => {
   });
 
   it('removes correctly', () => {
-    let m = OrderedMap({
+    const m = OrderedMap({
       A: 'aardvark',
       Z: 'zebra',
     }).remove('A');
@@ -77,15 +77,15 @@ describe('OrderedMap', () => {
   });
 
   it('respects order for equality', () => {
-    let m1 = OrderedMap().set('A', 'aardvark').set('Z', 'zebra');
-    let m2 = OrderedMap().set('Z', 'zebra').set('A', 'aardvark');
+    const m1 = OrderedMap().set('A', 'aardvark').set('Z', 'zebra');
+    const m2 = OrderedMap().set('Z', 'zebra').set('A', 'aardvark');
     expect(m1.equals(m2)).toBe(false);
     expect(m1.equals(m2.reverse())).toBe(true);
   });
 
   it('respects order when merging', () => {
-    let m1 = OrderedMap({A: 'apple', B: 'banana', C: 'coconut'});
-    let m2 = OrderedMap({C: 'chocolate', B: 'butter', D: 'donut'});
+    const m1 = OrderedMap({A: 'apple', B: 'banana', C: 'coconut'});
+    const m2 = OrderedMap({C: 'chocolate', B: 'butter', D: 'donut'});
     expect(m1.merge(m2).entrySeq().toArray()).toEqual(
       [['A', 'apple'], ['B', 'butter'], ['C', 'chocolate'], ['D', 'donut']],
     );

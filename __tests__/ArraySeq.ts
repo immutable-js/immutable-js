@@ -26,28 +26,28 @@ describe('ArraySequence', () => {
   });
 
   it('maps', () => {
-    let i = Seq([1, 2, 3]);
-    let m = i.map(x => x + x).toArray();
+    const i = Seq([1, 2, 3]);
+    const m = i.map(x => x + x).toArray();
     expect(m).toEqual([2, 4, 6]);
   });
 
   it('reduces', () => {
-    let i = Seq([1, 2, 3]);
-    let r = i.reduce<number>((acc, x) => acc + x);
+    const i = Seq([1, 2, 3]);
+    const r = i.reduce<number>((acc, x) => acc + x);
     expect(r).toEqual(6);
   });
 
   it('efficiently chains iteration methods', () => {
-    let i = Seq('abcdefghijklmnopqrstuvwxyz'.split(''));
+    const i = Seq('abcdefghijklmnopqrstuvwxyz'.split(''));
     function studly(letter, index) {
       return index % 2 === 0 ? letter : letter.toUpperCase();
     }
-    let result = i.reverse().take(10).reverse().take(5).map(studly).toArray().join('');
+    const result = i.reverse().take(10).reverse().take(5).map(studly).toArray().join('');
     expect(result).toBe('qRsTu');
   });
 
   it('counts from the end of the sequence on negative index', () => {
-    let i = Seq([1, 2, 3, 4, 5, 6, 7]);
+    const i = Seq([1, 2, 3, 4, 5, 6, 7]);
     expect(i.get(-1)).toBe(7);
     expect(i.get(-5)).toBe(3);
     expect(i.get(-9)).toBe(undefined);
@@ -55,9 +55,9 @@ describe('ArraySequence', () => {
   });
 
   it('handles trailing holes', () => {
-    let a = [1, 2, 3];
+    const a = [1, 2, 3];
     a.length = 10;
-    let seq = Seq(a);
+    const seq = Seq(a);
     expect(seq.size).toBe(10);
     expect(seq.toArray().length).toBe(10);
     expect(seq.map(x => x * x).size).toBe(10);
@@ -72,9 +72,9 @@ describe('ArraySequence', () => {
   });
 
   it('can be iterated', () => {
-    let a = [1, 2, 3];
-    let seq = Seq(a);
-    let entries = seq.entries();
+    const a = [1, 2, 3];
+    const seq = Seq(a);
+    const entries = seq.entries();
     expect(entries.next()).toEqual({ value: [0, 1], done: false });
     expect(entries.next()).toEqual({ value: [1, 2], done: false });
     expect(entries.next()).toEqual({ value: [2, 3], done: false });
@@ -82,10 +82,10 @@ describe('ArraySequence', () => {
   });
 
   it('cannot be mutated after calling toArray', () => {
-    let seq = Seq(['A', 'B', 'C']);
+    const seq = Seq(['A', 'B', 'C']);
 
-    let firstReverse = Seq(seq.toArray().reverse());
-    let secondReverse = Seq(seq.toArray().reverse());
+    const firstReverse = Seq(seq.toArray().reverse());
+    const secondReverse = Seq(seq.toArray().reverse());
 
     expect(firstReverse.get(0)).toEqual('C');
     expect(secondReverse.get(0)).toEqual('C');

@@ -12,7 +12,7 @@ jasmineCheck.install();
 
 import { is, Seq } from '../';
 
-let genHeterogeneousishArray = gen.oneOf([
+const genHeterogeneousishArray = gen.oneOf([
   gen.array(gen.oneOf([gen.string, gen.undefined])),
   gen.array(gen.oneOf([gen.int, gen.NaN])),
 ]);
@@ -28,7 +28,7 @@ describe('max', () => {
   });
 
   it('by a mapper', () => {
-    let family = Seq([
+    const family = Seq([
       { name: 'Oakley', age: 7 },
       { name: 'Dakota', age: 7 },
       { name: 'Casey', age: 34 },
@@ -38,7 +38,7 @@ describe('max', () => {
   });
 
   it('by a mapper and a comparator', () => {
-    let family = Seq([
+    const family = Seq([
       { name: 'Oakley', age: 7 },
       { name: 'Dakota', age: 7 },
       { name: 'Casey', age: 34 },
@@ -90,7 +90,7 @@ describe('min', () => {
   });
 
   it('by a mapper', () => {
-    let family = Seq([
+    const family = Seq([
       { name: 'Oakley', age: 7 },
       { name: 'Dakota', age: 7 },
       { name: 'Casey', age: 34 },
@@ -100,7 +100,7 @@ describe('min', () => {
   });
 
   it('by a mapper and a comparator', () => {
-    let family = Seq([
+    const family = Seq([
       { name: 'Oakley', age: 7 },
       { name: 'Dakota', age: 7 },
       { name: 'Casey', age: 34 },
@@ -121,11 +121,12 @@ describe('min', () => {
 });
 
 function shuffle(array) {
-  let m = array.length, t, i;
+  let m = array.length;
+  let t;
+  let i;
 
   // While there remain elements to shuffle…
   while (m) {
-
     // Pick a remaining element…
     i = Math.floor(Math.random() * m--);
 

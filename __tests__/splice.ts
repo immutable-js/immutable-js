@@ -29,19 +29,19 @@ describe('splice', () => {
   });
 
   it('splicing by infinity', () => {
-    let l = List(['a', 'b', 'c', 'd']);
+    const l = List(['a', 'b', 'c', 'd']);
     expect(l.splice(2, Infinity, 'x').toArray()).toEqual(['a', 'b', 'x']);
     expect(l.splice(Infinity, 2, 'x').toArray()).toEqual(['a', 'b', 'c', 'd', 'x']);
 
-    let s = List(['a', 'b', 'c', 'd']);
+    const s = List(['a', 'b', 'c', 'd']);
     expect(s.splice(2, Infinity, 'x').toArray()).toEqual(['a', 'b', 'x']);
     expect(s.splice(Infinity, 2, 'x').toArray()).toEqual(['a', 'b', 'c', 'd', 'x']);
   });
 
   it('has the same behavior as array splice in known edge cases', () => {
     // arbitary numbers that sum to 31
-    let a = Range(0, 49).toArray();
-    let v = List(a);
+    const a = Range(0, 49).toArray();
+    const v = List(a);
     a.splice(-18, 0, 0);
     expect(v.splice(-18, 0, 0).toList().toArray()).toEqual(a);
   });
@@ -49,9 +49,9 @@ describe('splice', () => {
   check.it('has the same behavior as array splice',
            [gen.array(gen.int), gen.array(gen.oneOf([gen.int, gen.undefined]))],
            (values, args) => {
-    let v = List(values);
-    let a = values.slice(); // clone
-    let splicedV = v.splice.apply(v, args); // persistent
+    const v = List(values);
+    const a = values.slice(); // clone
+    const splicedV = v.splice.apply(v, args); // persistent
     a.splice.apply(a, args); // mutative
     expect(splicedV.toArray()).toEqual(a);
   });

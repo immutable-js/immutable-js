@@ -21,7 +21,7 @@ describe('Record', () => {
   it('can have mutations apply', () => {
     const MyType = Record({ a: 1, b: 2, c: 3 });
 
-    const t = new MyType();
+    const t = MyType();
 
     expect(() => {
       t.a = 10;
@@ -55,14 +55,14 @@ describe('Record', () => {
 
   it('can be cleared', () => {
     const MyType = Record({ a: 1, b: 2, c: 3 });
-    let t = new MyType({ c: 'cats' });
+    let t = MyType({ c: 'cats' });
 
     expect(t.c).toBe('cats');
     t = t.clear();
     expect(t.c).toBe(3);
 
     const MyType2 = Record({ d: 4, e: 5, f: 6 });
-    let t2 = new MyType2({ d: 'dogs' });
+    let t2 = MyType2({ d: 'dogs' });
 
     expect(t2.d).toBe('dogs');
     t2 = t2.clear();
