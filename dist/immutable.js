@@ -1729,6 +1729,7 @@ function sortFactory(collection, comparator, mapper) {
   var entries = collection
     .toSeq()
     .map(function (v, k) { return [k, v, index++, mapper ? mapper(v, k, collection) : v]; })
+    .valueSeq()
     .toArray();
   entries.sort(function (a, b) { return comparator(a[3], b[3]) || a[2] - b[2]; }).forEach(
     isKeyedCollection
@@ -4374,8 +4375,11 @@ mixin(Collection, {
   toArray: function toArray() {
     assertNotInfinite(this.size);
     var array = new Array(this.size || 0);
-    this.valueSeq().__iterate(function (v, i) {
-      array[i] = v;
+    var useTuples = isKeyed(this);
+    var i = 0;
+    this.__iterate(function (v, k) {
+      // Keyed collections produce an array of tuples.
+      array[i++] = useTuples ? [k, v] : v;
     });
     return array;
   },

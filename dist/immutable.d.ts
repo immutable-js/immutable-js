@@ -2675,6 +2675,11 @@ declare module Immutable {
       toJSON(): { [key: string]: V };
 
       /**
+       * Shallowly converts this collection to an Array.
+       */
+      toArray(): Array<[K, V]>;
+
+      /**
        * Returns itself
        */
       toSeq(): this;
@@ -2784,6 +2789,11 @@ declare module Immutable {
        * Shallowly converts this Indexed Seq to equivalent native JavaScript Array.
        */
       toJSON(): Array<T>;
+
+      /**
+       * Shallowly converts this collection to an Array.
+       */
+      toArray(): Array<T>;
 
       /**
        * Returns itself
@@ -2928,6 +2938,11 @@ declare module Immutable {
        * Shallowly converts this Set Seq to equivalent native JavaScript Array.
        */
       toJSON(): Array<T>;
+
+      /**
+       * Shallowly converts this collection to an Array.
+       */
+      toArray(): Array<T>;
 
       /**
        * Returns itself
@@ -3196,6 +3211,11 @@ declare module Immutable {
       toJSON(): { [key: string]: V };
 
       /**
+       * Shallowly converts this collection to an Array.
+       */
+      toArray(): Array<[K, V]>;
+
+      /**
        * Returns Seq.Keyed.
        * @override
        */
@@ -3342,6 +3362,11 @@ declare module Immutable {
        * Shallowly converts this Indexed collection to equivalent native JavaScript Array.
        */
       toJSON(): Array<T>;
+
+      /**
+       * Shallowly converts this collection to an Array.
+       */
+      toArray(): Array<T>;
 
       // Reading values
 
@@ -3619,6 +3644,11 @@ declare module Immutable {
       toJSON(): Array<T>;
 
       /**
+       * Shallowly converts this collection to an Array.
+       */
+      toArray(): Array<T>;
+
+      /**
        * Returns Seq.Set.
        * @override
        */
@@ -3835,9 +3865,12 @@ declare module Immutable {
     toJSON(): Array<V> | { [key: string]: V };
 
     /**
-     * Shallowly converts this collection to an Array, discarding keys.
+     * Shallowly converts this collection to an Array.
+     *
+     * `Collection.Indexed`, and `Collection.Set` produce an Array of values.
+     * `Collection.Keyed` produce an Array of [key, value] tuples.
      */
-    toArray(): Array<V>;
+    toArray(): Array<V> | Array<[K, V]>;
 
     /**
      * Shallowly converts this Collection to an Object.
