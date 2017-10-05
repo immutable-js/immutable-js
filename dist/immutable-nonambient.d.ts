@@ -118,7 +118,7 @@
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { fromJS, isKeyed } = require('immutable@4.0.0-rc.4')
+   * const { fromJS, isKeyed } = require('immutable@4.0.0-rc.5')
    * function (key, value) {
    *   return isKeyed(value) ? value.Map() : value.toList()
    * }
@@ -132,7 +132,7 @@
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { fromJS, isKeyed } = require('immutable@4.0.0-rc.4')
+   * const { fromJS, isKeyed } = require('immutable@4.0.0-rc.5')
    * fromJS({ a: {b: [10, 20, 30]}, c: 40}, function (key, value, path) {
    *   console.log(key, value, path)
    *   return isKeyed(value) ? value.toOrderedMap() : value.toList()
@@ -149,7 +149,7 @@
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { Map } = require('immutable@4.0.0-rc.4')
+   * const { Map } = require('immutable@4.0.0-rc.5')
    * let obj = { 1: "one" };
    * Object.keys(obj); // [ "1" ]
    * assert.equal(obj["1"], obj[1]); // "one" === "one"
@@ -185,7 +185,7 @@
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { Map, is } = require('immutable@4.0.0-rc.4')
+   * const { Map, is } = require('immutable@4.0.0-rc.5')
    * const map1 = Map({ a: 1, b: 1, c: 1 })
    * const map2 = Map({ a: 1, b: 1, c: 1 })
    * assert.equal(map1 !== map2, true)
@@ -232,7 +232,7 @@
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { isImmutable, Map, List, Stack } = require('immutable@4.0.0-rc.4');
+   * const { isImmutable, Map, List, Stack } = require('immutable@4.0.0-rc.5');
    * isImmutable([]); // false
    * isImmutable({}); // false
    * isImmutable(Map()); // true
@@ -248,7 +248,7 @@
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { isCollection, Map, List, Stack } = require('immutable@4.0.0-rc.4');
+   * const { isCollection, Map, List, Stack } = require('immutable@4.0.0-rc.5');
    * isCollection([]); // false
    * isCollection({}); // false
    * isCollection(Map()); // true
@@ -263,7 +263,7 @@
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { isKeyed, Map, List, Stack } = require('immutable@4.0.0-rc.4');
+   * const { isKeyed, Map, List, Stack } = require('immutable@4.0.0-rc.5');
    * isKeyed([]); // false
    * isKeyed({}); // false
    * isKeyed(Map()); // true
@@ -278,7 +278,7 @@
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { isIndexed, Map, List, Stack, Set } = require('immutable@4.0.0-rc.4');
+   * const { isIndexed, Map, List, Stack, Set } = require('immutable@4.0.0-rc.5');
    * isIndexed([]); // false
    * isIndexed({}); // false
    * isIndexed(Map()); // false
@@ -294,7 +294,7 @@
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { isAssociative, Map, List, Stack, Set } = require('immutable@4.0.0-rc.4');
+   * const { isAssociative, Map, List, Stack, Set } = require('immutable@4.0.0-rc.5');
    * isAssociative([]); // false
    * isAssociative({}); // false
    * isAssociative(Map()); // true
@@ -311,7 +311,7 @@
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { isOrdered, Map, OrderedMap, List, Set } = require('immutable@4.0.0-rc.4');
+   * const { isOrdered, Map, OrderedMap, List, Set } = require('immutable@4.0.0-rc.5');
    * isOrdered([]); // false
    * isOrdered({}); // false
    * isOrdered(Map()); // false
@@ -353,7 +353,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List, Set } = require('immutable@4.0.0-rc.4');
+     * const { List, Set } = require('immutable@4.0.0-rc.5');
      * const a = List([ 1, 2, 3 ]);
      * const b = List([ 1, 2, 3 ]);
      * assert.notStrictEqual(a, b); // different instances
@@ -399,7 +399,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List } = require('immutable@4.0.0-rc.4');
+     * const { List } = require('immutable@4.0.0-rc.5');
      * List.isList([]); // false
      * List.isList(List()); // true
      * ```
@@ -411,7 +411,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List } = require('immutable@4.0.0-rc.4');
+     * const { List } = require('immutable@4.0.0-rc.5');
      * List.of(1, 2, 3, 4)
      * // List [ 1, 2, 3, 4 ]
      * ```
@@ -420,7 +420,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List } = require('immutable@4.0.0-rc.4');
+     * const { List } = require('immutable@4.0.0-rc.5');
      * List.of({x:1}, 2, [3], 4)
      * // List [ { x: 1 }, 2, [ 3 ], 4 ]
      * ```
@@ -434,7 +434,7 @@
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { List, Set } = require('immutable@4.0.0-rc.4')
+   * const { List, Set } = require('immutable@4.0.0-rc.5')
    *
    * const emptyList = List()
    * // List []
@@ -927,7 +927,7 @@
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { Map, List } = require('immutable@4.0.0-rc.4');
+   * const { Map, List } = require('immutable@4.0.0-rc.5');
    * Map().set(List([ 1 ]), 'listofone').get(List([ 1 ]));
    * // 'listofone'
    * ```
@@ -945,7 +945,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.4')
+     * const { Map } = require('immutable@4.0.0-rc.5')
      * Map.isMap({}) // false
      * Map.isMap(Map()) // true
      * ```
@@ -957,7 +957,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.4')
+     * const { Map } = require('immutable@4.0.0-rc.5')
      * Map.of(
      *   'key', 'value',
      *   'numerical value', 3,
@@ -979,7 +979,7 @@
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { Map } = require('immutable@4.0.0-rc.4')
+   * const { Map } = require('immutable@4.0.0-rc.5')
    * Map({ key: "value" })
    * Map([ [ "key", "value" ] ])
    * ```
@@ -1025,7 +1025,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.4')
+     * const { Map } = require('immutable@4.0.0-rc.5')
      * const originalMap = Map()
      * const newerMap = originalMap.set('key', 'value')
      * const newestMap = newerMap.set('key', 'newer value')
@@ -1050,7 +1050,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.4')
+     * const { Map } = require('immutable@4.0.0-rc.5')
      * const originalMap = Map({
      *   key: 'value',
      *   otherKey: 'other value'
@@ -1072,7 +1072,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.4')
+     * const { Map } = require('immutable@4.0.0-rc.5')
      * const names = Map({ a: "Aaron", b: "Barry", c: "Connor" })
      * names.deleteAll([ 'a', 'c' ])
      * // Map { "b": "Barry" }
@@ -1090,7 +1090,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.4')
+     * const { Map } = require('immutable@4.0.0-rc.5')
      * Map({ key: 'value' }).clear()
      * // Map {}
      * ```
@@ -1107,7 +1107,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.4')
+     * const { Map } = require('immutable@4.0.0-rc.5')
      * const aMap = Map({ key: 'value' })
      * const newMap = aMap.update('key', value => value + value)
      * // Map { "key": "valuevalue" }
@@ -1215,7 +1215,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.4')
+     * const { Map } = require('immutable@4.0.0-rc.5')
      * const one = Map({ a: 10, b: 20, c: 30 })
      * const two = Map({ b: 40, a: 50, d: 60 })
      * one.merge(two) // Map { "a": 50, "b": 40, "c": 30, "d": 60 }
@@ -1233,7 +1233,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.4')
+     * const { Map } = require('immutable@4.0.0-rc.5')
      * const one = Map({ a: 10, b: 20, c: 30 })
      * const two = Map({ b: 40, a: 50, d: 60 })
      * one.mergeWith((oldVal, newVal) => oldVal / newVal, two)
@@ -1259,7 +1259,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.4')
+     * const { Map } = require('immutable@4.0.0-rc.5')
      * const one = Map({ a: Map({ x: 10, y: 10 }), b: Map({ x: 20, y: 50 }) })
      * const two = Map({ a: Map({ x: 2 }), b: Map({ y: 5 }), c: Map({ z: 3 }) })
      * one.mergeDeep(two)
@@ -1280,7 +1280,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.4')
+     * const { Map } = require('immutable@4.0.0-rc.5')
      * const one = Map({ a: Map({ x: 10, y: 10 }), b: Map({ x: 20, y: 50 }) })
      * const two = Map({ a: Map({ x: 2 }), b: Map({ y: 5 }), c: Map({ z: 3 }) })
      * one.mergeDeepWith((oldVal, newVal) => oldVal / newVal, two)
@@ -1307,7 +1307,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.4')
+     * const { Map } = require('immutable@4.0.0-rc.5')
      * const originalMap = Map({
      *   subObject: Map({
      *     subKey: 'subvalue',
@@ -1365,7 +1365,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map, List } = require('immutable@4.0.0-rc.4')
+     * const { Map, List } = require('immutable@4.0.0-rc.5')
      * const map = Map({ inMap: Map({ inList: List([ 1, 2, 3 ]) }) })
      * const newMap = map.updateIn(['inMap', 'inList'], list => list.push(4))
      * // Map { "inMap": Map { "inList": List [ 1, 2, 3, 4 ] } }
@@ -1377,7 +1377,7 @@
      * provided, otherwise `undefined`.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.4')" }
+     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.5')" }
      * -->
      * ```js
      * const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
@@ -1389,7 +1389,7 @@
      * no change will occur. This is still true if `notSetValue` is provided.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.4')" }
+     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.5')" }
      * -->
      * ```js
      * const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
@@ -1405,7 +1405,7 @@
      * The previous example behaves differently when written with default values:
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.4')" }
+     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.5')" }
      * -->
      * ```js
      * const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
@@ -1464,7 +1464,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.4')
+     * const { Map } = require('immutable@4.0.0-rc.5')
      * const map1 = Map()
      * const map2 = map1.withMutations(map => {
      *   map.set('a', 1).set('b', 2).set('c', 3)
@@ -1735,7 +1735,7 @@
      * a collection of other sets.
      *
      * ```js
-     * const { Set } = require('immutable@4.0.0-rc.4')
+     * const { Set } = require('immutable@4.0.0-rc.5')
      * const intersected = Set.intersect([
      *   Set([ 'a', 'b', 'c' ])
      *   Set([ 'c', 'a', 't' ])
@@ -1750,7 +1750,7 @@
      * collection of other sets.
      *
      * ```js
-     * const { Set } = require('immutable@4.0.0-rc.4')
+     * const { Set } = require('immutable@4.0.0-rc.5')
      * const unioned = Set.union([
      *   Set([ 'a', 'b', 'c' ])
      *   Set([ 'c', 'a', 't' ])
@@ -2317,7 +2317,7 @@
    * infinity. When `start` is equal to `end`, returns empty range.
    *
    * ```js
-   * const { Range } = require('immutable@4.0.0-rc.4')
+   * const { Range } = require('immutable@4.0.0-rc.5')
    * Range() // [ 0, 1, 2, 3, ... ]
    * Range(10) // [ 10, 11, 12, 13, ... ]
    * Range(10, 15) // [ 10, 11, 12, 13, 14 ]
@@ -2334,7 +2334,7 @@
    * not defined, returns an infinite `Seq` of `value`.
    *
    * ```js
-   * const { Repeat } = require('immutable@4.0.0-rc.4')
+   * const { Repeat } = require('immutable@4.0.0-rc.5')
    * Repeat('foo') // [ 'foo', 'foo', 'foo', ... ]
    * Repeat('bar', 4) // [ 'bar', 'bar', 'bar', 'bar' ]
    * ```
@@ -2350,7 +2350,7 @@
    * create Record instances.
    *
    * ```js
-   * const { Record } = require('immutable@4.0.0-rc.4')
+   * const { Record } = require('immutable@4.0.0-rc.5')
    * const ABRecord = Record({ a: 1, b: 2 })
    * const myRecord = new ABRecord({ b: 3 })
    * ```
@@ -2444,7 +2444,7 @@
      * method. If one was not provided, the string "Record" is returned.
      *
      * ```js
-     * const { Record } = require('immutable@4.0.0-rc.4')
+     * const { Record } = require('immutable@4.0.0-rc.5')
      * const Person = Record({
      *   name: null
      * }, 'Person')
@@ -2462,7 +2462,7 @@
      * type:
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Record } = require('immutable@4.0.0-rc.4')" }
+     *      { "preamble": "const { Record } = require('immutable@4.0.0-rc.5')" }
      * -->
      * ```js
      * // makePerson is a Record Factory function
@@ -2477,7 +2477,7 @@
      * access on the resulting instances:
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Record } = require('immutable@4.0.0-rc.4');const makePerson = Record({ name: null, favoriteColor: 'unknown' });const alan = makePerson({ name: 'Alan' });" }
+     *      { "preamble": "const { Record } = require('immutable@4.0.0-rc.5');const makePerson = Record({ name: null, favoriteColor: 'unknown' });const alan = makePerson({ name: 'Alan' });" }
      * -->
      * ```js
      * // Use the Record API
@@ -2649,7 +2649,7 @@
    * Seq's values are never iterated:
    *
    * ```js
-   * const { Seq } = require('immutable@4.0.0-rc.4')
+   * const { Seq } = require('immutable@4.0.0-rc.5')
    * const oddSquares = Seq([ 1, 2, 3, 4, 5, 6, 7, 8 ])
    *   .filter(x => x % 2 !== 0)
    *   .map(x => x * x)
@@ -2677,7 +2677,7 @@
    * As well as expressing logic that would otherwise be memory or time limited:
    *
    * ```js
-   * const { Range } = require('immutable@4.0.0-rc.4')
+   * const { Range } = require('immutable@4.0.0-rc.5')
    * Range(1, Infinity)
    *   .skip(1000)
    *   .map(n => -n)
@@ -2756,7 +2756,7 @@
        * `mapper` function.
        *
        * ```js
-       * const { Seq } = require('immutable@4.0.0-rc.4')
+       * const { Seq } = require('immutable@4.0.0-rc.5')
        * Seq.Keyed({ a: 1, b: 2 }).map(x => 10 * x)
        * // Seq { "a": 10, "b": 20 }
        * ```
@@ -2868,7 +2868,7 @@
        * `mapper` function.
        *
        * ```js
-       * const { Seq } = require('immutable@4.0.0-rc.4')
+       * const { Seq } = require('immutable@4.0.0-rc.5')
        * Seq.Indexed([ 1, 2 ]).map(x => 10 * x)
        * // Seq [ 10, 20 ]
        * ```
@@ -3128,7 +3128,7 @@
      * `mapper` function.
      *
      * ```js
-     * const { Seq } = require('immutable@4.0.0-rc.4')
+     * const { Seq } = require('immutable@4.0.0-rc.5')
      * Seq([ 1, 2 ]).map(x => 10 * x)
      * // Seq [ 10, 20 ]
      * ```
@@ -3146,7 +3146,7 @@
      * `mapper` function.
      *
      * ```js
-     * const { Seq } = require('immutable@4.0.0-rc.4')
+     * const { Seq } = require('immutable@4.0.0-rc.5')
      * Seq([ 1, 2 ]).map(x => 10 * x)
      * // Seq [ 10, 20 ]
      * ```
@@ -3215,22 +3215,22 @@
   export module Collection {
 
     /**
-     * @deprecated use `const { isKeyed } = require('immutable@4.0.0-rc.4')`
+     * @deprecated use `const { isKeyed } = require('immutable@4.0.0-rc.5')`
      */
     function isKeyed(maybeKeyed: any): maybeKeyed is Collection.Keyed<any, any>;
 
     /**
-     * @deprecated use `const { isIndexed } = require('immutable@4.0.0-rc.4')`
+     * @deprecated use `const { isIndexed } = require('immutable@4.0.0-rc.5')`
      */
     function isIndexed(maybeIndexed: any): maybeIndexed is Collection.Indexed<any>;
 
     /**
-     * @deprecated use `const { isAssociative } = require('immutable@4.0.0-rc.4')`
+     * @deprecated use `const { isAssociative } = require('immutable@4.0.0-rc.5')`
      */
     function isAssociative(maybeAssociative: any): maybeAssociative is Collection.Keyed<any, any> | Collection.Indexed<any>;
 
     /**
-     * @deprecated use `const { isOrdered } = require('immutable@4.0.0-rc.4')`
+     * @deprecated use `const { isOrdered } = require('immutable@4.0.0-rc.5')`
      */
     function isOrdered(maybeOrdered: any): boolean;
 
@@ -3288,7 +3288,7 @@
        *
        * <!-- runkit:activate -->
        * ```js
-       * const { Map } = require('immutable@4.0.0-rc.4')
+       * const { Map } = require('immutable@4.0.0-rc.5')
        * Map({ a: 'z', b: 'y' }).flip()
        * // Map { "z": "a", "y": "b" }
        * ```
@@ -3306,7 +3306,7 @@
        * `mapper` function.
        *
        * ```js
-       * const { Collection } = require('immutable@4.0.0-rc.4')
+       * const { Collection } = require('immutable@4.0.0-rc.5')
        * Collection.Keyed({ a: 1, b: 2 }).map(x => 10 * x)
        * // Seq { "a": 10, "b": 20 }
        * ```
@@ -3325,7 +3325,7 @@
        *
        * <!-- runkit:activate -->
        * ```js
-       * const { Map } = require('immutable@4.0.0-rc.4')
+       * const { Map } = require('immutable@4.0.0-rc.5')
        * Map({ a: 1, b: 2 }).mapKeys(x => x.toUpperCase())
        * // Map { "A": 1, "B": 2 }
        * ```
@@ -3344,7 +3344,7 @@
        *
        * <!-- runkit:activate -->
        * ```js
-       * const { Map } = require('immutable@4.0.0-rc.4')
+       * const { Map } = require('immutable@4.0.0-rc.5')
        * Map({ a: 1, b: 2 })
        *   .mapEntries(([ k, v ]) => [ k.toUpperCase(), v * 2 ])
        * // Map { "A": 2, "B": 4 }
@@ -3470,10 +3470,10 @@
        * second from each, etc.
        *
        * <!-- runkit:activate
-       *      { "preamble": "require('immutable@4.0.0-rc.4')"}
+       *      { "preamble": "require('immutable@4.0.0-rc.5')"}
        * -->
        * ```js
-       * const { List } = require('immutable@4.0.0-rc.4')
+       * const { List } = require('immutable@4.0.0-rc.5')
        * List([ 1, 2, 3 ]).interleave(List([ 'A', 'B', 'C' ]))
        * // List [ 1, "A", 2, "B", 3, "C"" ]
        * ```
@@ -3481,7 +3481,7 @@
        * The shortest Collection stops interleave.
        *
        * <!-- runkit:activate
-       *      { "preamble": "const { List } = require('immutable@4.0.0-rc.4')" }
+       *      { "preamble": "const { List } = require('immutable@4.0.0-rc.5')" }
        * -->
        * ```js
        * List([ 1, 2, 3 ]).interleave(
@@ -3503,7 +3503,7 @@
        *
        * <!-- runkit:activate -->
        * ```js
-       * const { List } = require('immutable@4.0.0-rc.4')
+       * const { List } = require('immutable@4.0.0-rc.5')
        * List([ 'a', 'b', 'c', 'd' ]).splice(1, 2, 'q', 'r', 's')
        * // List [ "a", "q", "r", "s", "d" ]
        * ```
@@ -3522,7 +3522,7 @@
        *
        *
        * <!-- runkit:activate
-       *      { "preamble": "const { List } = require('immutable@4.0.0-rc.4')" }
+       *      { "preamble": "const { List } = require('immutable@4.0.0-rc.5')" }
        * -->
        * ```js
        * const a = List([ 1, 2, 3 ]);
@@ -3555,7 +3555,7 @@
        * collections by using a custom `zipper` function.
        *
        * <!-- runkit:activate
-       *      { "preamble": "const { List } = require('immutable@4.0.0-rc.4')" }
+       *      { "preamble": "const { List } = require('immutable@4.0.0-rc.5')" }
        * -->
        * ```js
        * const a = List([ 1, 2, 3 ]);
@@ -3623,7 +3623,7 @@
        * `mapper` function.
        *
        * ```js
-       * const { Collection } = require('immutable@4.0.0-rc.4')
+       * const { Collection } = require('immutable@4.0.0-rc.5')
        * Collection.Indexed([1,2]).map(x => 10 * x)
        * // Seq [ 1, 2 ]
        * ```
@@ -3675,7 +3675,7 @@
      * the value as both the first and second arguments to the provided function.
      *
      * ```js
-     * const { Collection } = require('immutable@4.0.0-rc.4')
+     * const { Collection } = require('immutable@4.0.0-rc.5')
      * const seq = Collection.Set([ 'A', 'B', 'C' ])
      * // Seq { "A", "B", "C" }
      * seq.forEach((v, k) =>
@@ -3807,7 +3807,7 @@
      * lookup via a different instance.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Set,  List } = require('immutable@4.0.0-rc.4')" }
+     *      { "preamble": "const { Set,  List } = require('immutable@4.0.0-rc.5')" }
      * -->
      * ```js
      * const a = List([ 1, 2, 3 ]);
@@ -3888,7 +3888,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Seq } = require('immutable@4.0.0-rc.4')
+     * const { Seq } = require('immutable@4.0.0-rc.5')
      *
      * function sum(collection) {
      *   return collection.reduce((sum, x) => sum + x, 0)
@@ -3984,7 +3984,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map, List } = require('immutable@4.0.0-rc.4')
+     * const { Map, List } = require('immutable@4.0.0-rc.5')
      * var myMap = Map({ a: 'Apple', b: 'Banana' })
      * List(myMap) // List [ [ "a", "Apple" ], [ "b", "Banana" ] ]
      * myMap.toList() // List [ "Apple", "Banana" ]
@@ -4021,7 +4021,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Seq } = require('immutable@4.0.0-rc.4')
+     * const { Seq } = require('immutable@4.0.0-rc.5')
      * const indexedSeq = Seq([ 'A', 'B', 'C' ])
      * // Seq [ "A", "B", "C" ]
      * indexedSeq.filter(v => v === 'B')
@@ -4102,7 +4102,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Collection } = require('immutable@4.0.0-rc.4')
+     * const { Collection } = require('immutable@4.0.0-rc.5')
      * Collection({ a: 1, b: 2 }).map(x => 10 * x)
      * // Seq { "a": 10, "b": 20 }
      * ```
@@ -4129,7 +4129,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.4')
+     * const { Map } = require('immutable@4.0.0-rc.5')
      * Map({ a: 1, b: 2, c: 3, d: 4}).filter(x => x % 2 === 0)
      * // Map { "b": 2, "d": 4 }
      * ```
@@ -4152,7 +4152,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.4')
+     * const { Map } = require('immutable@4.0.0-rc.5')
      * Map({ a: 1, b: 2, c: 3, d: 4}).filterNot(x => x % 2 === 0)
      * // Map { "a": 1, "c": 3 }
      * ```
@@ -4189,7 +4189,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.4')
+     * const { Map } = require('immutable@4.0.0-rc.5')
      * Map({ "c": 3, "a": 1, "b": 2 }).sort((a, b) => {
      *   if (a < b) { return -1; }
      *   if (a > b) { return 1; }
@@ -4229,7 +4229,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List, Map } = require('immutable@4.0.0-rc.4')
+     * const { List, Map } = require('immutable@4.0.0-rc.5')
      * const listOfMaps = List([
      *   Map({ v: 0 }),
      *   Map({ v: 1 }),
@@ -4316,7 +4316,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List } = require('immutable@4.0.0-rc.4')
+     * const { List } = require('immutable@4.0.0-rc.5')
      * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
      *   .skipWhile(x => x.match(/g/))
      * // List [ "cat", "hat", "god"" ]
@@ -4333,7 +4333,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List } = require('immutable@4.0.0-rc.4')
+     * const { List } = require('immutable@4.0.0-rc.5')
      * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
      *   .skipUntil(x => x.match(/hat/))
      * // List [ "hat", "god"" ]
@@ -4362,7 +4362,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List } = require('immutable@4.0.0-rc.4')
+     * const { List } = require('immutable@4.0.0-rc.5')
      * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
      *   .takeWhile(x => x.match(/o/))
      * // List [ "dog", "frog" ]
@@ -4379,7 +4379,7 @@
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List } = require('immutable@4.0.0-rc.4')
+     * const { List } = require('immutable@4.0.0-rc.5')
      * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
      *   .takeUntil(x => x.match(/at/))
      * // List [ "dog", "frog" ]
