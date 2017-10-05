@@ -196,6 +196,9 @@ numberList = List.of(1).flatMap((value, index, iter) => ['a'])
 
 numberList = List.of(1).flatten()
 
+// Specific type for filter(Boolean) which removes nullability.
+numberList = nullableNumberList.filter(Boolean)
+
 /* Map */
 
 stringToNumber = Map()
@@ -332,6 +335,12 @@ numberToString = Map({'a': 'a'}).mapKeys((key, value, iter) => 1)
 stringToNumber = Map({'a': 1}).mapKeys((key, value, iter) => 1)
 
 anyMap = Map({'a': 1}).flatten()
+
+var stringToNullableNumber = Map({'a': 1, 'b': null});
+// $ExpectError
+stringToNumber = stringToNullableNumber;
+// Specific type for filter(Boolean) which removes nullability.
+stringToNumber = stringToNullableNumber.filter(Boolean)
 
 /* OrderedMap */
 
