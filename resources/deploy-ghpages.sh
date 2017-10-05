@@ -16,7 +16,7 @@ rm -rf gh-pages/**/*
 rm -rf gh-pages/*
 
 # Copy over necessary files
-cp -r pages/out/ gh-pages/
+cp -r pages/out/* gh-pages/
 
 HEADREV=`git rev-parse HEAD`
 echo $HEADREV
