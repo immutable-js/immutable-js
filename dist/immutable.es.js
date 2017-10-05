@@ -1943,7 +1943,11 @@ function assertNotInfinite(size) {
  * Converts a value to a string, adding quotes if a string was provided.
  */
 function quoteString(value) {
-  return typeof value === 'string' ? JSON.stringify(value) : String(value);
+  try {
+    return typeof value === 'string' ? JSON.stringify(value) : String(value);
+  } catch (_ignoreError) {
+    return JSON.stringify(value);
+  }
 }
 
 var Map = (function (KeyedCollection$$1) {
@@ -4142,6 +4146,7 @@ var Set = (function (SetCollection$$1) {
     if (iters.length === 0) {
       return this;
     }
+    iters = iters.map(function (iter) { return SetCollection$$1(iter); });
     var toRemove = [];
     this.forEach(function (value) {
       if (iters.some(function (iter) { return iter.includes(value); })) {
