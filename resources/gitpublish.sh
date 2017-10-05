@@ -17,6 +17,7 @@ git clone -b npm "https://${GH_TOKEN}@github.com/facebook/immutable-js.git" npm
 
 # Remove existing files first
 rm -rf npm/**/*
+rm -rf npm/*
 
 # Copy over necessary files
 cp -r dist npm/
