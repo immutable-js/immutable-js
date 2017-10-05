@@ -17,7 +17,7 @@ global.runIt = function runIt(button) {
     preamble:
       'const assert = (' +
       makeAssert +
-      ')(require("immutable@4.0.0-rc.4"));' +
+      ')(require("immutable@4.0.0-rc.5"));' +
       (options.preamble || ''),
     source: codeElement.textContent.replace(/\n(>[^\n]*\n?)+$/g, ''),
     minHeight: '52px',
