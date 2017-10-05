@@ -2343,9 +2343,11 @@
 
 
   /**
-   * Creates a new Class which produces Record instances. A record is similar to
-   * a JS object, but enforces a specific set of allowed string keys, and has
-   * default values.
+   * A record is similar to a JS object, but enforces a specific set of allowed
+   * string keys, and has default values.
+   *
+   * The `Record()` function produces new Record Factories, which when called
+   * create Record instances.
    *
    * ```js
    * const { Record } = require('immutable@4.0.0-rc.4')
@@ -2405,10 +2407,10 @@
    * **Flow Typing Records:**
    *
    * Immutable.js exports two Flow types designed to make it easier to use
-   * Records with flow typed code, `RecordOf<T>` and `RecordFactory<T>`.
+   * Records with flow typed code, `RecordOf<T>` and `RecordFactory<TProps>`.
    *
    * When defining a new kind of Record factory function, use a flow type that
-   * describes the values the record contains along with `RecordFactory<T>`.
+   * describes the values the record contains along with `RecordFactory<TProps>`.
    * To type instances of the Record (which the factory function returns),
    * use `RecordOf<T>`.
    *
@@ -2418,13 +2420,13 @@
    * ```js
    * import type { RecordFactory, RecordOf } from 'immutable';
    *
-   * // Use RecordFactory<T> for defining new Record factory functions.
-   * type Point3DFields = { x: number, y: number, z: number };
-   * const makePoint3D: RecordFactory<Point3DFields> = Record({ x: 0, y: 0, z: 0 });
+   * // Use RecordFactory<TProps> for defining new Record factory functions.
+   * type Point3DProps = { x: number, y: number, z: number };
+   * const makePoint3D: RecordFactory<Point3DProps> = Record({ x: 0, y: 0, z: 0 });
    * export makePoint3D;
    *
    * // Use RecordOf<T> for defining new instances of that Record.
-   * export type Point3D = RecordOf<Point3DFields>;
+   * export type Point3D = RecordOf<Point3DProps>;
    * const some3DPoint: Point3D = makePoint3D({ x: 10, y: 20, z: 30 });
    * ```
    */
@@ -2433,7 +2435,7 @@
     /**
      * True if `maybeRecord` is an instance of a Record.
      */
-    export function isRecord(maybeRecord: any): maybeRecord is Record.Instance<any>;
+    export function isRecord(maybeRecord: any): maybeRecord is Record<any>;
 
     /**
      * Records allow passing a second parameter to supply a descriptive name
@@ -2452,126 +2454,183 @@
      * Record.getDescriptiveName(me) // "Person"
      * ```
      */
-    export function getDescriptiveName(record: Instance<any>): string;
+    export function getDescriptiveName(record: Record<any>): string;
 
-    export interface Class<T extends Object> {
-      (values?: Partial<T> | Iterable<[string, any]>): Instance<T> & Readonly<T>;
-      new (values?: Partial<T> | Iterable<[string, any]>): Instance<T> & Readonly<T>;
+    /**
+     * A Record.Factory is created by the `Record()` function. Record instances
+     * are created by passing it some of the accepted values for that Record
+     * type:
+     *
+     * <!-- runkit:activate
+     *      { "preamble": "const { Record } = require('immutable@4.0.0-rc.4')" }
+     * -->
+     * ```js
+     * // makePerson is a Record Factory function
+     * const makePerson = Record({ name: null, favoriteColor: 'unknown' });
+     *
+     * // alan is a Record instance
+     * const alan = makePerson({ name: 'Alan' });
+     * ```
+     *
+     * Note that Record Factories return `Record<TProps> & Readonly<TProps>`,
+     * this allows use of both the Record instance API, and direct property
+     * access on the resulting instances:
+     *
+     * <!-- runkit:activate
+     *      { "preamble": "const { Record } = require('immutable@4.0.0-rc.4');const makePerson = Record({ name: null, favoriteColor: 'unknown' });const alan = makePerson({ name: 'Alan' });" }
+     * -->
+     * ```js
+     * // Use the Record API
+     * console.log('Record API: ' + alan.get('name'))
+     *
+     * // Or direct property access (Readonly)
+     * console.log('property access: ' + alan.name)
+     * ```
+     *
+     * **Flow Typing Records:**
+     *
+     * Use the `RecordFactory<TProps>` Flow type to get high quality type checking of
+     * Records:
+     *
+     * ```js
+     * import type { RecordFactory, RecordOf } from 'immutable';
+     *
+     * // Use RecordFactory<TProps> for defining new Record factory functions.
+     * type PersonProps = { name: ?string, favoriteColor: string };
+     * const makePerson: RecordFactory<PersonProps> = Record({ name: null, favoriteColor: 'unknown' });
+     *
+     * // Use RecordOf<T> for defining new instances of that Record.
+     * type Person = RecordOf<PersonProps>;
+     * const alan: Person = makePerson({ name: 'Alan' });
+     * ```
+     */
+    export module Factory {}
+
+    export interface Factory<TProps extends Object> {
+      (values?: Partial<TProps> | Iterable<[string, any]>): Record<TProps> & Readonly<TProps>;
+      new (values?: Partial<TProps> | Iterable<[string, any]>): Record<TProps> & Readonly<TProps>;
     }
 
-    export interface Instance<T extends Object> {
-
-      // Reading values
-
-      has(key: string): key is keyof T;
-      get<K extends keyof T>(key: K): T[K];
-
-      // Reading deep values
-
-      hasIn(keyPath: Iterable<any>): boolean;
-      getIn(keyPath: Iterable<any>): any;
-
-      // Value equality
-
-      equals(other: any): boolean;
-      hashCode(): number;
-
-      // Persistent changes
-
-      set<K extends keyof T>(key: K, value: T[K]): this;
-      update<K extends keyof T>(key: K, updater: (value: T[K]) => T[K]): this;
-      merge(...collections: Array<Partial<T> | Iterable<[string, any]>>): this;
-      mergeDeep(...collections: Array<Partial<T> | Iterable<[string, any]>>): this;
-
-      mergeWith(
-        merger: (oldVal: any, newVal: any, key: keyof T) => any,
-        ...collections: Array<Partial<T> | Iterable<[string, any]>>
-      ): this;
-      mergeDeepWith(
-        merger: (oldVal: any, newVal: any, key: any) => any,
-        ...collections: Array<Partial<T> | Iterable<[string, any]>>
-      ): this;
-
-      /**
-       * Returns a new instance of this Record type with the value for the
-       * specific key set to its default value.
-       *
-       * @alias remove
-       */
-      delete<K extends keyof T>(key: K): this;
-      remove<K extends keyof T>(key: K): this;
-
-      /**
-       * Returns a new instance of this Record type with all values set
-       * to their default values.
-       */
-      clear(): this;
-
-      // Deep persistent changes
-
-      setIn(keyPath: Iterable<any>, value: any): this;
-      updateIn(keyPath: Iterable<any>, updater: (value: any) => any): this;
-      mergeIn(keyPath: Iterable<any>, ...collections: Array<any>): this;
-      mergeDeepIn(keyPath: Iterable<any>, ...collections: Array<any>): this;
-
-      /**
-       * @alias removeIn
-       */
-      deleteIn(keyPath: Iterable<any>): this;
-      removeIn(keyPath: Iterable<any>): this;
-
-      // Conversion to JavaScript types
-
-      /**
-       * Deeply converts this Record to equivalent native JavaScript Object.
-       */
-      toJS(): { [K in keyof T]: any };
-
-      /**
-       * Shallowly converts this Record to equivalent native JavaScript Object.
-       */
-      toJSON(): T;
-
-      /**
-       * Shallowly converts this Record to equivalent JavaScript Object.
-       */
-      toObject(): T;
-
-      // Transient changes
-
-      /**
-       * Note: Not all methods can be used on a mutable collection or within
-       * `withMutations`! Only `set` may be used mutatively.
-       *
-       * @see `Map#withMutations`
-       */
-      withMutations(mutator: (mutable: this) => any): this;
-
-      /**
-       * @see `Map#asMutable`
-       */
-      asMutable(): this;
-
-      /**
-       * @see `Map#wasAltered`
-       */
-      wasAltered(): boolean;
-
-      /**
-       * @see `Map#asImmutable`
-       */
-      asImmutable(): this;
-
-      // Sequence algorithms
-
-      toSeq(): Seq.Keyed<keyof T, T[keyof T]>;
-
-      [Symbol.iterator](): IterableIterator<[keyof T, T[keyof T]]>;
-    }
+    export function Factory(values?: Partial<TProps> | Iterable<[string, any]>): Record<TProps> & Readonly<TProps>;
   }
 
-  export function Record<T>(defaultValues: T, name?: string): Record.Class<T>;
+  /**
+   * Unlike other types in Immutable.js, the `Record()` function creates a new
+   * Record Factory, which is a function that creates Record instances.
+   *
+   * See above for examples of using `Record()`.
+   */
+  export function Record<TProps>(defaultValues: TProps, name?: string): Record.Factory<TProps>;
 
+  export interface Record<TProps extends Object> {
+
+    // Reading values
+
+    has(key: string): key is keyof TProps;
+    get<K extends keyof TProps>(key: K): TProps[K];
+
+    // Reading deep values
+
+    hasIn(keyPath: Iterable<any>): boolean;
+    getIn(keyPath: Iterable<any>): any;
+
+    // Value equality
+
+    equals(other: any): boolean;
+    hashCode(): number;
+
+    // Persistent changes
+
+    set<K extends keyof TProps>(key: K, value: TProps[K]): this;
+    update<K extends keyof TProps>(key: K, updater: (value: TProps[K]) => TProps[K]): this;
+    merge(...collections: Array<Partial<TProps> | Iterable<[string, any]>>): this;
+    mergeDeep(...collections: Array<Partial<TProps> | Iterable<[string, any]>>): this;
+
+    mergeWith(
+      merger: (oldVal: any, newVal: any, key: keyof TProps) => any,
+      ...collections: Array<Partial<TProps> | Iterable<[string, any]>>
+    ): this;
+    mergeDeepWith(
+      merger: (oldVal: any, newVal: any, key: any) => any,
+      ...collections: Array<Partial<TProps> | Iterable<[string, any]>>
+    ): this;
+
+    /**
+     * Returns a new instance of this Record type with the value for the
+     * specific key set to its default value.
+     *
+     * @alias remove
+     */
+    delete<K extends keyof TProps>(key: K): this;
+    remove<K extends keyof TProps>(key: K): this;
+
+    /**
+     * Returns a new instance of this Record type with all values set
+     * to their default values.
+     */
+    clear(): this;
+
+    // Deep persistent changes
+
+    setIn(keyPath: Iterable<any>, value: any): this;
+    updateIn(keyPath: Iterable<any>, updater: (value: any) => any): this;
+    mergeIn(keyPath: Iterable<any>, ...collections: Array<any>): this;
+    mergeDeepIn(keyPath: Iterable<any>, ...collections: Array<any>): this;
+
+    /**
+     * @alias removeIn
+     */
+    deleteIn(keyPath: Iterable<any>): this;
+    removeIn(keyPath: Iterable<any>): this;
+
+    // Conversion to JavaScript types
+
+    /**
+     * Deeply converts this Record to equivalent native JavaScript Object.
+     */
+    toJS(): { [K in keyof TProps]: any };
+
+    /**
+     * Shallowly converts this Record to equivalent native JavaScript Object.
+     */
+    toJSON(): TProps;
+
+    /**
+     * Shallowly converts this Record to equivalent JavaScript Object.
+     */
+    toObject(): TProps;
+
+    // Transient changes
+
+    /**
+     * Note: Not all methods can be used on a mutable collection or within
+     * `withMutations`! Only `set` may be used mutatively.
+     *
+     * @see `Map#withMutations`
+     */
+    withMutations(mutator: (mutable: this) => any): this;
+
+    /**
+     * @see `Map#asMutable`
+     */
+    asMutable(): this;
+
+    /**
+     * @see `Map#wasAltered`
+     */
+    wasAltered(): boolean;
+
+    /**
+     * @see `Map#asImmutable`
+     */
+    asImmutable(): this;
+
+    // Sequence algorithms
+
+    toSeq(): Seq.Keyed<keyof TProps, TProps[keyof TProps]>;
+
+    [Symbol.iterator](): IterableIterator<[keyof TProps, TProps[keyof TProps]]>;
+  }
 
   /**
    * Represents a sequence of values, but may not be backed by a concrete data
