@@ -4057,20 +4057,10 @@ declare module Immutable {
     ): Collection<K, M>;
 
     /**
-     * Returns a new Collection of the same type with values passed through a
-     * `mapper` function.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Collection } = require('immutable@4.0.0-rc.4')
-     * Collection({ a: 1, b: 2 }).map(x => 10 * x)
-     * // Seq { "a": 10, "b": 20 }
-     * ```
-     *
-     * Note: `map()` always returns a new instance, even if it produced the same
-     * value at every step.
      * Note: used only for sets, which return Collection<M, M> but are otherwise
      * identical to normal `map()`.
+     *
+     * @ignore
      */
     map<M>(...args: never[]): any;
 

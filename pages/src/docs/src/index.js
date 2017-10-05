@@ -121,7 +121,7 @@ module.exports = React.createClass({
     }).run(Handler => {
       this.setState({ handler: Handler });
       if (window.document) {
-        window.document.title = `${this.pageData.name} Immutable.js`;
+        window.document.title = `${this.pageData.name} — Immutable.js`;
       }
     });
   },
