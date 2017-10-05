@@ -16,7 +16,7 @@ describe('OrderedMap', () => {
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
-    expect(m.toArray()).toEqual(['C', 'B', 'A']);
+    expect(m.toArray()).toEqual([['c', 'C'], ['b', 'B'], ['a', 'A']]);
   });
 
   it('constructor provides initial values', () => {
@@ -25,7 +25,7 @@ describe('OrderedMap', () => {
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
     expect(m.size).toBe(3);
-    expect(m.toArray()).toEqual(['A', 'B', 'C']);
+    expect(m.toArray()).toEqual([['a', 'A'], ['b', 'B'], ['c', 'C']]);
   });
 
   it('provides initial values in a mixed order', () => {
@@ -34,7 +34,7 @@ describe('OrderedMap', () => {
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
     expect(m.size).toBe(3);
-    expect(m.toArray()).toEqual(['C', 'B', 'A']);
+    expect(m.toArray()).toEqual([['c', 'C'], ['b', 'B'], ['a', 'A']]);
   });
 
   it('constructor accepts sequences', () => {
@@ -44,7 +44,7 @@ describe('OrderedMap', () => {
     expect(m.get('b')).toBe('B');
     expect(m.get('c')).toBe('C');
     expect(m.size).toBe(3);
-    expect(m.toArray()).toEqual(['C', 'B', 'A']);
+    expect(m.toArray()).toEqual([['c', 'C'], ['b', 'B'], ['a', 'A']]);
   });
 
   it('maintains order when new keys are set', () => {
@@ -53,7 +53,7 @@ describe('OrderedMap', () => {
       .set('Z', 'zebra')
       .set('A', 'antelope');
     expect(m.size).toBe(2);
-    expect(m.toArray()).toEqual(['antelope', 'zebra']);
+    expect(m.toArray()).toEqual([['A', 'antelope'], ['Z', 'zebra']]);
   });
 
   it('resets order when a keys is deleted', () => {
@@ -63,7 +63,7 @@ describe('OrderedMap', () => {
       .remove('A')
       .set('A', 'antelope');
     expect(m.size).toBe(2);
-    expect(m.toArray()).toEqual(['zebra', 'antelope']);
+    expect(m.toArray()).toEqual([['Z', 'zebra'], ['A', 'antelope']]);
   });
 
   it('removes correctly', () => {
