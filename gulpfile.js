@@ -225,8 +225,9 @@ function preRender(subDir) {
     var components = [];
     src = src.replace(
       /<!--\s*React\(\s*(.*)\s*\)\s*-->/g,
-      function (_, component) {
+      function (_, relComponent) {
         var id = 'r' + components.length;
+        var component = path.resolve(SRC_DIR+subDir, relComponent);
         components.push(component);
         try {
           return (

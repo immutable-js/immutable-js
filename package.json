@@ -60,7 +60,7 @@
   "devDependencies": {
     "benchmark": "2.1.4",
     "browser-sync": "2.18.13",
-    "browserify": "^5.11.2",
+    "browserify": "14.4.0",
     "colors": "1.1.2",
     "del": "3.0.0",
     "dtslint": "0.1.2",
