@@ -7,7 +7,7 @@
 
 var React = require('react');
 var Router = require('react-router');
-var { Seq } = require('../../../../');
+var { Map, Seq } = require('../../../../');
 var defs = require('../../../lib/getTypeDefs');
 
 var SideBar = React.createClass({
@@ -39,6 +39,7 @@ var SideBar = React.createClass({
         <div className="scrollContent">
           <h4 className="groupTitle">API</h4>
           {Seq(type.module)
+            .flatMap((t, name) => flattenSubmodules(Map(), t, name))
             .map((t, name) => this.renderSideBarType(name, t))
             .valueSeq()
             .toArray()}
@@ -52,7 +53,6 @@ var SideBar = React.createClass({
     var isFunction = !type.interface && !type.module;
     var call = type.call;
     var functions = Seq(type.module).filter(t => !t.interface && !t.module);
-    var types = Seq(type.module).filter(t => t.interface || t.module);
 
     var label = typeName + (isFunction ? '()' : '');
 
@@ -84,22 +84,6 @@ var SideBar = React.createClass({
                   <div key={name}>
                     <Router.Link to={'/' + typeName + '/' + name}>
                       {typeName + '.' + name + '()'}
-                    </Router.Link>
-                  </div>
-                ))
-                .valueSeq()
-                .toArray()}
-            </section>
-          )}
-
-          {types.count() > 0 && (
-            <section>
-              <h4 className="groupTitle">Types</h4>
-              {types
-                .map((t, name) => (
-                  <div key={name}>
-                    <Router.Link to={'/' + typeName + '.' + name}>
-                      {typeName + '.' + name}
                     </Router.Link>
                   </div>
                 ))
@@ -145,5 +129,18 @@ var SideBar = React.createClass({
     );
   }
 });
+
+function flattenSubmodules(modules, type, name) {
+  modules = modules.set(name, type);
+  return type.module
+    ? Seq(type.module)
+        .filter(t => t.interface || t.module)
+        .reduce(
+          (modules, subT, subName) =>
+            flattenSubmodules(modules, subT, name + '.' + subName),
+          modules
+        )
+    : modules;
+}
 
 module.exports = SideBar;

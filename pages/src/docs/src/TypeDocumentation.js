@@ -191,6 +191,24 @@ var TypeDoc = React.createClass({
           </section>
         )}
 
+        {types.count() > 0 && (
+          <section>
+            <h4 className="groupTitle">Sub-types</h4>
+            {types
+              .map((t, typeName) => (
+                <div key={name}>
+                  <Router.Link
+                    to={'/' + (name ? name + '.' + typeName : typeName)}
+                  >
+                    {name ? name + '.' + typeName : typeName}
+                  </Router.Link>
+                </div>
+              ))
+              .valueSeq()
+              .toArray()}
+          </section>
+        )}
+
         {call && (
           <section>
             <h4 className="groupTitle">Construction</h4>
@@ -220,24 +238,6 @@ var TypeDoc = React.createClass({
                     isStatic: true
                   }}
                 />
-              ))
-              .valueSeq()
-              .toArray()}
-          </section>
-        )}
-
-        {types.count() > 0 && (
-          <section>
-            <h4 className="groupTitle">Types</h4>
-            {types
-              .map((t, typeName) => (
-                <div key={name}>
-                  <Router.Link
-                    to={'/' + (name ? name + '.' + typeName : typeName)}
-                  >
-                    {name ? name + '.' + typeName : typeName}
-                  </Router.Link>
-                </div>
               ))
               .valueSeq()
               .toArray()}

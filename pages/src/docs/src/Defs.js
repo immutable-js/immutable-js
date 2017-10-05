@@ -371,5 +371,5 @@ function typeLength(info, type) {
             ))
       );
   }
-  throw new Error('Unknown kind ' + type.k);
+  throw new Error('Type with unknown kind ' + JSON.stringify(type));
 }
