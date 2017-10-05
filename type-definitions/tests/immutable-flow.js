@@ -31,6 +31,7 @@ import type {
   KeyedSeq,
   IndexedSeq,
   SetSeq,
+  RecordFactory,
   RecordOf,
 } from '../../'
 
@@ -786,14 +787,14 @@ let maybeNumberSeqSize: ?number = numberSeq.size
 
 /* Record */
 
-type PersonRecordMembers = { age: number, name: string }
-const PersonRecordClass = Record(({
+type PersonRecordFields = { age: number, name: string }
+type PersonRecord = RecordOf<PersonRecordFields>;
+const makePersonRecord: RecordFactory<PersonRecordFields> = Record({
   age: 12,
   name: 'Facebook',
-}: PersonRecordMembers))
-type PersonRecordInstance = RecordOf<PersonRecordMembers>
+});
 
-const personRecordInstance: PersonRecordInstance = PersonRecordClass({ age: 25 })
+const personRecordInstance: PersonRecord = makePersonRecord({ age: 25 })
 
 // $ExpectError
 { const age: string = personRecordInstance.get('age') }

@@ -76,32 +76,41 @@ var t1a: string = t1.a;
 var t1c = t1.c;
 
 // Use of new to create record factories (supported, but discouraged)
-const PointNew = new Record({x:0, y:0});
+type TPointNew = {x: number, y: number};
+type PointNew = RecordOf<TPointNew>;
+const MakePointNew: RecordFactory<TPointNew> = new Record({x:0, y:0});
 // Not using new allows returning a record.
-const origin: RecordOf<{x:number, y:number}> = PointNew();
-// Can use the Record constructor type as an alternative,
-// it just doesn't support property access.
-const originAlt1: PointNew = PointNew();
-// Can also sort of use the inner Record values type as an alternative,
-// however it does not have the immutable record API, though useful for flowing
-// immutable Records where plain objects are expected.
-const originAlt2: {x: number, y: number} = PointNew();
+const origin: PointNew = MakePointNew();
 // Both get and prop access are supported with RecordOf
 { const x: number = origin.get('x') }
 { const x: number = origin.x }
 // $ExpectError number is not a string
 { const x: string = origin.x }
+// Can use the Record constructor type as an alternative,
+// it just doesn't support property access.
+const originAlt1: MakePointNew = MakePointNew();
+// Both get and prop access are supported with RecordOf
+{ const x: number = originAlt1.get('x') }
+// $ExpectError cannot use property access for this alternative annotation
+{ const x: number = originAlt1.x }
+// Can also sort of use the inner Record values type as an alternative,
+// however it does not have the immutable record API, though useful for flowing
+// immutable Records where plain objects are expected.
+const originAlt2: TPointNew = MakePointNew();
+// $ExpectError cannot use Record API for this alternative annotation
+{ const x: number = originAlt2.get('x') }
+{ const x: number = originAlt2.x }
 
 // $ExpectError Use of new may only return a class instance, not a record
-const mistakeOriginNew: RecordOf<{x: number, y: number}> = new PointNew();
+const mistakeOriginNew: PointNew = new MakePointNew();
 // An alternative type strategy is instance based
-const originNew: PointNew = new PointNew();
+const originNew: MakePointNew = new MakePointNew();
 // Only get, but not prop access are supported with class instances
 { const x: number = originNew.get('x') }
 // $ExpectError property `x`. Property not found in RecordInstance
 { const x: number = originNew.x }
 
 // $ExpectError instantiated with invalid type
-const mistakeNewRecord = PointNew({x: 'string'});
+const mistakeNewRecord = MakePointNew({x: 'string'});
 // $ExpectError instantiated with invalid type
-const mistakeNewInstance = new PointNew({x: 'string'});
+const mistakeNewInstance = new MakePointNew({x: 'string'});

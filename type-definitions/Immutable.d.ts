@@ -2415,6 +2415,33 @@ declare module Immutable {
    * var myRecord = new ABRecord({b: 3})
    * myRecord.getAB() // 4
    * ```
+   *
+   *
+   * **Flow Typing Records:**
+   *
+   * Immutable.js exports two Flow types designed to make it easier to use
+   * Records with flow typed code, `RecordOf<T>` and `RecordFactory<T>`.
+   *
+   * When defining a new kind of Record factory function, use a flow type that
+   * describes the values the record contains along with `RecordFactory<T>`.
+   * To type instances of the Record (which the factory function returns),
+   * use `RecordOf<T>`.
+   *
+   * Typically, new Record definitions will export both the Record factory
+   * function as well as the Record instance type for use in other code.
+   *
+   * ```js
+   * import type { RecordFactory, RecordOf } from 'immutable';
+   *
+   * // Use RecordFactory<T> for defining new Record factory functions.
+   * type Point3DFields = { x: number, y: number, z: number };
+   * const makePoint3D: RecordFactory<Point3DFields> = Record({ x: 0, y: 0, z: 0 });
+   * export makePoint3D;
+   *
+   * // Use RecordOf<T> for defining new instances of that Record.
+   * export type Point3D = RecordOf<Point3DFields>;
+   * const some3DPoint: Point3D = makePoint3D({ x: 10, y: 20, z: 30 });
+   * ```
    */
   export module Record {
 
