@@ -128,14 +128,6 @@ export class Set extends SetCollection {
     });
   }
 
-  merge() {
-    return this.union.apply(this, arguments);
-  }
-
-  mergeWith(merger, ...iters) {
-    return this.union.apply(this, iters);
-  }
-
   sort(comparator) {
     // Late binding
     return OrderedSet(sortFactory(this, comparator));
@@ -186,8 +178,7 @@ const IS_SET_SENTINEL = '@@__IMMUTABLE_SET__@@';
 const SetPrototype = Set.prototype;
 SetPrototype[IS_SET_SENTINEL] = true;
 SetPrototype[DELETE] = SetPrototype.remove;
-SetPrototype.mergeDeep = SetPrototype.merge;
-SetPrototype.mergeDeepWith = SetPrototype.mergeWith;
+SetPrototype.merge = SetPrototype.union;
 SetPrototype.withMutations = MapPrototype.withMutations;
 SetPrototype.asMutable = MapPrototype.asMutable;
 SetPrototype.asImmutable = MapPrototype.asImmutable;

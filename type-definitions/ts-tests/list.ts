@@ -288,7 +288,7 @@ import { List } from '../../';
   // $ExpectType List<number>
   List<number>().merge(List<number>());
 
-  // $ExpectError
+  // $ExpectType List<string | number>
   List<number>().merge(List<string>());
 
   // $ExpectType List<string | number>
@@ -304,73 +304,10 @@ import { List } from '../../';
   List<number>().mergeIn([], []);
 }
 
-{ // #mergeWith
-
-  // $ExpectType List<number>
-  List<number>().mergeWith((prev: number, next: number, key: number) => 1, List<number>());
-
-  // $ExpectError
-  List<number>().mergeWith((prev: string, next: number, key: number) => 1, List<number>());
-
-  // $ExpectError
-  List<number>().mergeWith((prev: number, next: string, key: number) => 1, List<number>());
-
-  // $ExpectError
-  List<number>().mergeWith((prev: number, next: number, key: string) => 1, List<number>());
-
-  // $ExpectError
-  List<number>().mergeWith((prev: number, next: number, key: number) => 'a', List<number>());
-
-  // $ExpectError
-  List<number>().mergeWith((prev: number, next: number, key: number) => 1, List<string>());
-
-  // $ExpectType List<string | number>
-  List<number | string>().mergeWith((prev: number, next: string, key: number) => 1, List<string>());
-}
-
-{ // #mergeDeep
-
-  // $ExpectType List<number>
-  List<number>().mergeDeep(List<number>());
-
-  // $ExpectError
-  List<number>().mergeDeep(List<string>());
-
-  // $ExpectType List<string | number>
-  List<number | string>().mergeDeep(List<string>());
-
-  // $ExpectType List<string | number>
-  List<number | string>().mergeDeep(List<number>());
-}
-
 { // #mergeDeepIn
 
   // $ExpectType List<number>
   List<number>().mergeDeepIn([], []);
-}
-
-{ // #mergeDeepWith
-
-  // $ExpectType List<number>
-  List<number>().mergeDeepWith((prev: number, next: number, key: number) => 1, List<number>());
-
-  // $ExpectError
-  List<number>().mergeDeepWith((prev: string, next: number, key: number) => 1, List<number>());
-
-  // $ExpectError
-  List<number>().mergeDeepWith((prev: number, next: string, key: number) => 1, List<number>());
-
-  // $ExpectError
-  List<number>().mergeDeepWith((prev: number, next: number, key: string) => 1, List<number>());
-
-  // $ExpectError
-  List<number>().mergeDeepWith((prev: number, next: number, key: number) => 'a', List<number>());
-
-  // $ExpectError
-  List<number>().mergeDeepWith((prev: number, next: number, key: number) => 1, List<string>());
-
-  // $ExpectType List<string | number>
-  List<number | string>().mergeDeepWith((prev: number, next: string, key: number) => 1, List<string>());
 }
 
 { // #flatten

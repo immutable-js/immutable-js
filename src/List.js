@@ -20,12 +20,7 @@ import {
   resolveEnd
 } from './TrieUtils';
 import { IndexedCollection } from './Collection';
-import {
-  MapPrototype,
-  mergeIntoCollectionWith,
-  deepMerger,
-  deepMergerWith
-} from './Map';
+import { MapPrototype } from './Map';
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 
 import assertNotInfinite from './utils/assertNotInfinite';
@@ -140,20 +135,8 @@ export class List extends IndexedCollection {
 
   // @pragma Composition
 
-  merge(/*...iters*/) {
-    return mergeIntoListWith(this, undefined, arguments);
-  }
-
-  mergeWith(merger, ...iters) {
-    return mergeIntoListWith(this, merger, iters);
-  }
-
-  mergeDeep(/*...iters*/) {
-    return mergeIntoListWith(this, deepMerger, arguments);
-  }
-
-  mergeDeepWith(merger, ...iters) {
-    return mergeIntoListWith(this, deepMergerWith(merger), iters);
+  merge(/*...collections*/) {
+    return this.concat.apply(this, arguments);
   }
 
   setSize(size) {
@@ -650,22 +633,6 @@ function setListBounds(list, begin, end) {
     return list;
   }
   return makeList(newOrigin, newCapacity, newLevel, newRoot, newTail);
-}
-
-function mergeIntoListWith(list, merger, collections) {
-  const iters = [];
-  let maxSize = 0;
-  for (let ii = 0; ii < collections.length; ii++) {
-    const iter = IndexedCollection(collections[ii]);
-    if (iter.size > maxSize) {
-      maxSize = iter.size;
-    }
-    iters.push(iter);
-  }
-  if (maxSize > list.size) {
-    list = list.setSize(maxSize);
-  }
-  return mergeIntoCollectionWith(list, merger, iters);
 }
 
 function getTailOffset(size) {
