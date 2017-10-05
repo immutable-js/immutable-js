@@ -20,13 +20,15 @@ const SRC_DIR = path.resolve('src');
 const DIST_DIR = path.resolve('dist');
 
 export default {
-  format: 'umd',
-  exports: 'named',
   sourceMap: false,
   banner: copyright,
-  moduleName: 'Immutable',
-  entry: path.join(SRC_DIR, 'Immutable.js'),
-  dest: path.join(DIST_DIR, 'immutable.js'),
+  name: 'Immutable',
+  input: path.join(SRC_DIR, 'Immutable.js'),
+  output: {
+    exports: 'named',
+    file: path.join(DIST_DIR, 'immutable.js'),
+    format: 'umd',
+  },
   plugins: [
     commonjs(),
     json(),

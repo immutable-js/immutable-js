@@ -22,8 +22,8 @@ describe('slice', () => {
   });
 
   it('creates an immutable stable sequence', () => {
-    let seq = Seq([1, 2, 3, 4, 5, 6]);
-    let sliced = seq.slice(2, -2);
+    const seq = Seq([1, 2, 3, 4, 5, 6]);
+    const sliced = seq.slice(2, -2);
     expect(sliced.toArray()).toEqual([3, 4]);
     expect(sliced.toArray()).toEqual([3, 4]);
     expect(sliced.toArray()).toEqual([3, 4]);
@@ -80,12 +80,12 @@ describe('slice', () => {
   });
 
   it('returns self for whole slices', () => {
-    let s = Seq([1, 2, 3]);
+    const s = Seq([1, 2, 3]);
     expect(s.slice(0)).toBe(s);
     expect(s.slice(0, 3)).toBe(s);
     expect(s.slice(-4, 4)).toBe(s);
 
-    let v = List([1, 2, 3]);
+    const v = List([1, 2, 3]);
     expect(v.slice(-4, 4)).toBe(v);
     expect(v.slice(-3)).toBe(v);
     expect(v.slice(-4, 4).toList()).toBe(v);
@@ -96,31 +96,31 @@ describe('slice', () => {
   });
 
   it('has the same behavior as array slice in known edge cases', () => {
-    let a = Range(0, 33).toArray();
-    let v = List(a);
+    const a = Range(0, 33).toArray();
+    const v = List(a);
     expect(v.slice(31).toList().toArray()).toEqual(a.slice(31));
   });
 
   it('does not slice by floating-point numbers', () => {
-    let seq = Seq([0, 1, 2, 3, 4, 5]);
-    let sliced = seq.slice(0, 2.6);
+    const seq = Seq([0, 1, 2, 3, 4, 5]);
+    const sliced = seq.slice(0, 2.6);
     expect(sliced.size).toEqual(2);
     expect(sliced.toArray()).toEqual([0, 1]);
   });
 
   it('can create an iterator', () => {
-    let seq = Seq([0, 1, 2, 3, 4, 5]);
-    let iterFront = seq.slice(0, 2).values();
+    const seq = Seq([0, 1, 2, 3, 4, 5]);
+    const iterFront = seq.slice(0, 2).values();
     expect(iterFront.next()).toEqual({value: 0, done: false});
     expect(iterFront.next()).toEqual({value: 1, done: false});
     expect(iterFront.next()).toEqual({value: undefined, done: true});
 
-    let iterMiddle = seq.slice(2, 4).values();
+    const iterMiddle = seq.slice(2, 4).values();
     expect(iterMiddle.next()).toEqual({value: 2, done: false});
     expect(iterMiddle.next()).toEqual({value: 3, done: false});
     expect(iterMiddle.next()).toEqual({value: undefined, done: true});
 
-    let iterTail = seq.slice(4, 123456).values();
+    const iterTail = seq.slice(4, 123456).values();
     expect(iterTail.next()).toEqual({value: 4, done: false});
     expect(iterTail.next()).toEqual({value: 5, done: false});
     expect(iterTail.next()).toEqual({value: undefined, done: true});
@@ -132,17 +132,17 @@ describe('slice', () => {
     seq = seq.flatMap(a => [a]);
     expect(seq.size).toEqual(undefined);
 
-    let iterFront = seq.slice(0, 2).entries();
+    const iterFront = seq.slice(0, 2).entries();
     expect(iterFront.next()).toEqual({value: [0, 0], done: false});
     expect(iterFront.next()).toEqual({value: [1, 1], done: false});
     expect(iterFront.next()).toEqual({value: undefined, done: true});
 
-    let iterMiddle = seq.slice(2, 4).entries();
+    const iterMiddle = seq.slice(2, 4).entries();
     expect(iterMiddle.next()).toEqual({value: [0, 2], done: false});
     expect(iterMiddle.next()).toEqual({value: [1, 3], done: false});
     expect(iterMiddle.next()).toEqual({value: undefined, done: true});
 
-    let iterTail = seq.slice(4, 123456).entries();
+    const iterTail = seq.slice(4, 123456).entries();
     expect(iterTail.next()).toEqual({value: [0, 4], done: false});
     expect(iterTail.next()).toEqual({value: [1, 5], done: false});
     expect(iterTail.next()).toEqual({value: undefined, done: true});
@@ -151,10 +151,10 @@ describe('slice', () => {
   check.it('works like Array.prototype.slice',
     [gen.int, gen.array(gen.oneOf([gen.int, gen.undefined]), 0, 3)],
     (valuesLen, args) => {
-      let a = Range(0, valuesLen).toArray();
-      let v = List(a);
-      let slicedV = v.slice.apply(v, args);
-      let slicedA = a.slice.apply(a, args);
+      const a = Range(0, valuesLen).toArray();
+      const v = List(a);
+      const slicedV = v.slice.apply(v, args);
+      const slicedA = a.slice.apply(a, args);
       expect(slicedV.toArray()).toEqual(slicedA);
     });
 
@@ -162,37 +162,37 @@ describe('slice', () => {
     [gen.array(gen.array([gen.posInt, gen.int])),
       gen.array(gen.oneOf([gen.int, gen.undefined]), 0, 3)],
     (entries, args) => {
-      let a: Array<any> = [];
+      const a: Array<any> = [];
       entries.forEach(entry => a[entry[0]] = entry[1]);
-      let s = Seq(a);
-      let slicedS = s.slice.apply(s, args);
-      let slicedA = a.slice.apply(a, args);
+      const s = Seq(a);
+      const slicedS = s.slice.apply(s, args);
+      const slicedA = a.slice.apply(a, args);
       expect(slicedS.toArray()).toEqual(slicedA);
     });
 
   describe('take', () => {
 
     check.it('takes the first n from a list', [gen.int, gen.posInt], (len, num) => {
-      let a = Range(0, len).toArray();
-      let v = List(a);
+      const a = Range(0, len).toArray();
+      const v = List(a);
       expect(v.take(num).toArray()).toEqual(a.slice(0, num));
     });
 
     it('creates an immutable stable sequence', () => {
-      let seq = Seq([1, 2, 3, 4, 5, 6]);
-      let sliced = seq.take(3);
+      const seq = Seq([1, 2, 3, 4, 5, 6]);
+      const sliced = seq.take(3);
       expect(sliced.toArray()).toEqual([1, 2, 3]);
       expect(sliced.toArray()).toEqual([1, 2, 3]);
       expect(sliced.toArray()).toEqual([1, 2, 3]);
     });
 
     it('converts to array with correct length', () => {
-      let seq = Seq([1, 2, 3, 4, 5, 6]);
-      let s1 = seq.take(3);
-      let s2 = seq.take(10);
-      let sn = seq.take(Infinity);
-      let s3 = seq.filter(v => v < 4).take(10);
-      let s4 = seq.filter(v => v < 4).take(2);
+      const seq = Seq([1, 2, 3, 4, 5, 6]);
+      const s1 = seq.take(3);
+      const s2 = seq.take(10);
+      const sn = seq.take(Infinity);
+      const s3 = seq.filter(v => v < 4).take(10);
+      const s4 = seq.filter(v => v < 4).take(2);
       expect(s1.toArray().length).toEqual(3);
       expect(s2.toArray().length).toEqual(6);
       expect(sn.toArray().length).toEqual(6);

@@ -27,7 +27,7 @@ describe('join', () => {
   });
 
   it('joins sparse-sequences like Array.join', () => {
-    let a = [1, undefined, 2, undefined, 3, undefined, 4, undefined, 5, undefined, undefined];
+    const a = [1, undefined, 2, undefined, 3, undefined, 4, undefined, 5, undefined, undefined];
     expect(Seq(a).join()).toBe(a.join());
   });
 

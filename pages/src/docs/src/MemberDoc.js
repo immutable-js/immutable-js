@@ -86,11 +86,11 @@ var MemberDoc = React.createClass({
 
     return (
       <div className="interfaceMember">
-        <h3
-          onClick={isMobile ? this.toggleDetail : null}
-          className="memberLabel"
-        >
-          <Router.Link to={'/' + memberAnchorLink}>
+        <h3 className="memberLabel">
+          <Router.Link
+            to={'/' + memberAnchorLink}
+            onClick={isMobile ? this.toggleDetail : null}
+          >
             {(module ? module + '.' : '') + name + (isProp ? '' : '()')}
           </Router.Link>
         </h3>

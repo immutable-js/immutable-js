@@ -36,20 +36,20 @@ describe('Seq', () => {
   });
 
   it('accepts another sequence', () => {
-    let seq = Seq([1, 2, 3]);
+    const seq = Seq([1, 2, 3]);
     expect(Seq(seq).size).toBe(3);
   });
 
   it('accepts a string', () => {
-    let seq = Seq('abc');
+    const seq = Seq('abc');
     expect(seq.size).toBe(3);
     expect(seq.get(1)).toBe('b');
     expect(seq.join('')).toBe('abc');
   });
 
   it('accepts an array-like', () => {
-    let alike: any = { length: 2, 0: 'a', 1: 'b' };
-    let seq = Seq(alike);
+    const alike: any = { length: 2, 0: 'a', 1: 'b' };
+    const seq = Seq(alike);
     expect(isIndexed(seq)).toBe(true);
     expect(seq.size).toBe(2);
     expect(seq.get(1)).toBe('b');
@@ -62,26 +62,26 @@ describe('Seq', () => {
   });
 
   it('detects sequences', () => {
-    let seq = Seq([1, 2, 3]);
+    const seq = Seq([1, 2, 3]);
     expect(Seq.isSeq(seq)).toBe(true);
     expect(isCollection(seq)).toBe(true);
   });
 
   it('Does not infinite loop when sliced with NaN', () => {
-    let list = Seq([1, 2, 3, 4, 5]);
+    const list = Seq([1, 2, 3, 4, 5]);
     expect(list.slice(0, NaN).toJS()).toEqual([]);
     expect(list.slice(NaN).toJS()).toEqual([1, 2, 3, 4, 5]);
   });
 
   it('Does not infinite loop when spliced with negative number #559', () => {
-    let dog = Seq(['d', 'o', 'g']);
-    let dg = dog.filter(c => c !== 'o');
-    let dig = (<any> dg).splice(-1, 0, 'i');
+    const dog = Seq(['d', 'o', 'g']);
+    const dg = dog.filter(c => c !== 'o');
+    const dig = (dg as any).splice(-1, 0, 'i');
     expect(dig.toJS()).toEqual(['d', 'i', 'g']);
   });
 
   it('Does not infinite loop when an undefined number is passed to take', () => {
-    let list = Seq([1, 2, 3, 4, 5]);
+    const list = Seq([1, 2, 3, 4, 5]);
     expect(list.take(NaN).toJS()).toEqual([]);
   });
 
