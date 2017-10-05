@@ -83,3 +83,15 @@ describe('Issue #1252', () => {
   const list = List([prototypelessObj]);
   expect(list.toString()).toBe('List [ {} ]');
 });
+
+describe('Issue #1293', () => {
+  it('merge() should not deeply coerce values', () => {
+    const State = Record({ foo: 'bar' as any, biz: 'baz' });
+    const deepObject = { qux: 'quux' };
+
+    const firstState = State({ foo: deepObject });
+    const secondState = State().merge({ foo: deepObject });
+
+    expect(secondState).toEqual(firstState);
+  });
+});
