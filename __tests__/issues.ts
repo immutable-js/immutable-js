@@ -79,9 +79,11 @@ describe('Issue #1247', () => {
 });
 
 describe('Issue #1252', () => {
-  const prototypelessObj = Object.create(null);
-  const list = List([prototypelessObj]);
-  expect(list.toString()).toBe('List [ {} ]');
+  it('should be toString-able even if it contains a value which is not', () => {
+    const prototypelessObj = Object.create(null);
+    const list = List([prototypelessObj]);
+    expect(list.toString()).toBe('List [ {} ]');
+  });
 });
 
 describe('Issue #1293', () => {
