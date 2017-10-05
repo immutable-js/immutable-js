@@ -792,7 +792,7 @@ declare module Immutable {
      * @alias merge
      */
     concat<C>(...valuesOrCollections: Array<Iterable<C> | C>): List<T | C>;
-    merge<C>(...collections: Array<Iterable<C>): List<T | C>;
+    merge<C>(...collections: Array<Iterable<C>>): List<T | C>;
 
     /**
      * Returns a new List with values passed through a
@@ -2511,7 +2511,7 @@ declare module Immutable {
       new (values?: Partial<TProps> | Iterable<[string, any]>): Record<TProps> & Readonly<TProps>;
     }
 
-    export function Factory(values?: Partial<TProps> | Iterable<[string, any]>): Record<TProps> & Readonly<TProps>;
+    export function Factory<TProps extends Object>(values?: Partial<TProps> | Iterable<[string, any]>): Record<TProps> & Readonly<TProps>;
   }
 
   /**
