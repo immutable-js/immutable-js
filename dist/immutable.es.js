@@ -5510,7 +5510,7 @@ function isPlainObj(value) {
   );
 }
 
-var version = "4.0.0-rc.5";
+var version = "4.0.0-rc.6";
 
 var Immutable = {
   version: version,
