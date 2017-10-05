@@ -8,7 +8,7 @@
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
-	(factory((global.Immutable = global.Immutable || {})));
+	(factory((global.Immutable = {})));
 }(this, (function (exports) { 'use strict';
 
 // Used for setting prototype methods that IE8 chokes on.
