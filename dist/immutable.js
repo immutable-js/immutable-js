@@ -2051,7 +2051,7 @@ var Map = (function (KeyedCollection$$1) {
   };
 
   Map.prototype.mergeDeep = function mergeDeep (/*...iters*/) {
-    return mergeIntoMapWith(this, deepMerger, arguments);
+    return mergeIntoMapWith(this, deepMergerWith(alwaysNewVal), arguments);
   };
 
   Map.prototype.mergeDeepWith = function mergeDeepWith (merger) {
@@ -2738,21 +2738,19 @@ function mergeIntoMapWith(map, merger, collections) {
   return mergeIntoCollectionWith(map, merger, iters);
 }
 
-function deepMerger(oldVal, newVal) {
-  return newVal && typeof newVal === 'object' && oldVal && oldVal.mergeDeep
-    ? oldVal.mergeDeep(newVal)
-    : is(oldVal, newVal) ? oldVal : newVal;
+function alwaysNewVal(oldVal, newVal) {
+  return newVal;
 }
 
 function deepMergerWith(merger) {
-  return function (oldVal, newVal, key) {
-    if (
-      newVal &&
-      typeof newVal === 'object' &&
-      oldVal &&
-      oldVal.mergeDeepWith
-    ) {
-      return oldVal.mergeDeepWith(merger, newVal);
+  return function(oldVal, newVal, key) {
+    if (oldVal && newVal && typeof newVal === 'object') {
+      if (oldVal.mergeDeepWith) {
+        return oldVal.mergeDeepWith(merger, newVal);
+      }
+      if (oldVal.merge) {
+        return oldVal.merge(newVal);
+      }
     }
     var nextValue = merger(oldVal, newVal, key);
     return is(oldVal, nextValue) ? oldVal : nextValue;
@@ -2983,26 +2981,8 @@ var List = (function (IndexedCollection$$1) {
 
   // @pragma Composition
 
-  List.prototype.merge = function merge (/*...iters*/) {
-    return mergeIntoListWith(this, undefined, arguments);
-  };
-
-  List.prototype.mergeWith = function mergeWith (merger) {
-    var iters = [], len = arguments.length - 1;
-    while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
-
-    return mergeIntoListWith(this, merger, iters);
-  };
-
-  List.prototype.mergeDeep = function mergeDeep (/*...iters*/) {
-    return mergeIntoListWith(this, deepMerger, arguments);
-  };
-
-  List.prototype.mergeDeepWith = function mergeDeepWith (merger) {
-    var iters = [], len = arguments.length - 1;
-    while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
-
-    return mergeIntoListWith(this, deepMergerWith(merger), iters);
+  List.prototype.merge = function merge (/*...collections*/) {
+    return this.concat.apply(this, arguments);
   };
 
   List.prototype.setSize = function setSize (size) {
@@ -3501,22 +3481,6 @@ function setListBounds(list, begin, end) {
     return list;
   }
   return makeList(newOrigin, newCapacity, newLevel, newRoot, newTail);
-}
-
-function mergeIntoListWith(list, merger, collections) {
-  var iters = [];
-  var maxSize = 0;
-  for (var ii = 0; ii < collections.length; ii++) {
-    var iter = IndexedCollection(collections[ii]);
-    if (iter.size > maxSize) {
-      maxSize = iter.size;
-    }
-    iters.push(iter);
-  }
-  if (maxSize > list.size) {
-    list = list.setSize(maxSize);
-  }
-  return mergeIntoCollectionWith(list, merger, iters);
 }
 
 function getTailOffset(size) {
@@ -4118,17 +4082,6 @@ var Set = (function (SetCollection$$1) {
     });
   };
 
-  Set.prototype.merge = function merge () {
-    return this.union.apply(this, arguments);
-  };
-
-  Set.prototype.mergeWith = function mergeWith (merger) {
-    var iters = [], len = arguments.length - 1;
-    while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
-
-    return this.union.apply(this, iters);
-  };
-
   Set.prototype.sort = function sort (comparator) {
     // Late binding
     return OrderedSet(sortFactory(this, comparator));
@@ -4183,8 +4136,7 @@ var IS_SET_SENTINEL = '@@__IMMUTABLE_SET__@@';
 var SetPrototype = Set.prototype;
 SetPrototype[IS_SET_SENTINEL] = true;
 SetPrototype[DELETE] = SetPrototype.remove;
-SetPrototype.mergeDeep = SetPrototype.merge;
-SetPrototype.mergeDeepWith = SetPrototype.mergeWith;
+SetPrototype.merge = SetPrototype.union;
 SetPrototype.withMutations = MapPrototype.withMutations;
 SetPrototype.asMutable = MapPrototype.asMutable;
 SetPrototype.asImmutable = MapPrototype.asImmutable;

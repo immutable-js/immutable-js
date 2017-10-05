@@ -676,39 +676,6 @@
     update<R>(updater: (value: this) => R): R;
 
     /**
-     * Note: `merge` can be used in `withMutations`.
-     *
-     * @see `Map#merge`
-     */
-    merge(...collections: Array<Iterable<T>>): this;
-
-    /**
-     * Note: `mergeWith` can be used in `withMutations`.
-     *
-     * @see `Map#mergeWith`
-     */
-    mergeWith(
-      merger: (oldVal: T, newVal: T, key: number) => T,
-      ...collections: Array<Iterable<T>>
-    ): this;
-
-    /**
-     * Note: `mergeDeep` can be used in `withMutations`.
-     *
-     * @see `Map#mergeDeep`
-     */
-    mergeDeep(...collections: Array<Iterable<T>>): this;
-
-    /**
-     * Note: `mergeDeepWith` can be used in `withMutations`.
-     * @see `Map#mergeDeepWith`
-     */
-    mergeDeepWith(
-      merger: (oldVal: T, newVal: T, key: number) => T,
-      ...collections: Array<Iterable<T>>
-    ): this;
-
-    /**
      * Returns a new List with size `size`. If `size` is less than this
      * List's size, the new List will exclude values at the higher indices.
      * If `size` is greater than this List's size, the new List will have
@@ -819,8 +786,13 @@
 
     /**
      * Returns a new List with other values or collections concatenated to this one.
+     *
+     * Note: `concat` *cannot* be safely used in `withMutations`.
+     *
+     * @alias merge
      */
     concat<C>(...valuesOrCollections: Array<Iterable<C> | C>): List<T | C>;
+    merge<C>(...collections: Array<Iterable<C>): List<T | C>;
 
     /**
      * Returns a new List with values passed through a
