@@ -900,6 +900,10 @@ declare module Immutable {
      * const b = List([ 3, 4, 5 ]);
      * const c = a.zipAll(b); // List [ [ 1, 3 ], [ 2, 4 ], [ undefined, 5 ] ]
      * ```
+     *
+     * Note: Since zipAll will return a collection as large as the largest
+     * input, some results may contain undefined values. TypeScript cannot
+     * account for these without cases (as of v2.5).
      */
     zipAll<U>(other: Collection<any, U>): List<[T,U]>;
     zipAll<U,V>(other: Collection<any, U>, other2: Collection<any,V>): List<[T,U,V]>;
@@ -2056,6 +2060,10 @@ declare module Immutable {
      * const b = OrderedSet([ 3, 4, 5 ]);
      * const c = a.zipAll(b); // OrderedSet [ [ 1, 3 ], [ 2, 4 ], [ undefined, 5 ] ]
      * ```
+     *
+     * Note: Since zipAll will return a collection as large as the largest
+     * input, some results may contain undefined values. TypeScript cannot
+     * account for these without cases (as of v2.5).
      */
     zipAll<U>(other: Collection<any, U>): OrderedSet<[T,U]>;
     zipAll<U,V>(other1: Collection<any, U>, other2: Collection<any, V>): OrderedSet<[T,U,V]>;
@@ -2294,6 +2302,10 @@ declare module Immutable {
      * const b = Stack([ 3, 4, 5 ]);
      * const c = a.zipAll(b); // Stack [ [ 1, 3 ], [ 2, 4 ], [ undefined, 5 ] ]
      * ```
+     *
+     * Note: Since zipAll will return a collection as large as the largest
+     * input, some results may contain undefined values. TypeScript cannot
+     * account for these without cases (as of v2.5).
      */
     zipAll<U>(other: Collection<any, U>): Stack<[T,U]>;
     zipAll<U,V>(other: Collection<any, U>, other2: Collection<any,V>): Stack<[T,U,V]>;
