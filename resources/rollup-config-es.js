@@ -9,6 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import buble from 'rollup-plugin-buble';
 import commonjs from 'rollup-plugin-commonjs';
+import json from 'rollup-plugin-json';
 import stripBanner from 'rollup-plugin-strip-banner';
 
 const copyright = fs.readFileSync(path.join('resources', 'COPYRIGHT'), 'utf-8');
@@ -24,5 +25,5 @@ export default {
   moduleName: 'Immutable',
   entry: path.join(SRC_DIR, 'Immutable.js'),
   dest: path.join(DIST_DIR, 'immutable.es.js'),
-  plugins: [commonjs(), stripBanner(), buble()]
+  plugins: [commonjs(), json(), stripBanner(), buble()]
 };

@@ -29,7 +29,11 @@ import {
 import { Collection } from './CollectionImpl';
 import { hash } from './Hash';
 
+import { version } from '../package.json';
+
 export default {
+  version: version,
+
   Collection: Collection,
   // Note: Iterable is deprecated
   Iterable: Collection,
@@ -63,6 +67,7 @@ export default {
 const Iterable = Collection;
 
 export {
+  version,
   Collection,
   Iterable,
   Seq,
