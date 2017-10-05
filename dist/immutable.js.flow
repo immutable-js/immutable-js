@@ -101,11 +101,6 @@ declare class _Collection<K, +V> /*implements ValueObject*/ {
   takeWhile(predicate: (value: V, key: K, iter: this) => mixed, context?: mixed): this;
   takeUntil(predicate: (value: V, key: K, iter: this) => mixed, context?: mixed): this;
 
-  filter(
-    predicate: (value: V, key: K, iter: this) => mixed,
-    context?: mixed
-  ): this;
-
   filterNot(
     predicate: (value: V, key: K, iter: this) => mixed,
     context?: mixed
@@ -216,6 +211,12 @@ declare class KeyedCollection<K, +V> extends Collection<K, V> {
 
   concat<KC, VC>(...iters: Array<Iterable<[KC, VC]>>): KeyedCollection<K | KC, V | VC>;
   concat<KC, VC>(...iters: Array<PlainObjInput<KC, VC>>): KeyedCollection<K | KC, V | VC>;
+
+  filter(predicate: typeof Boolean): KeyedCollection<K, $NonMaybeType<V>>;
+  filter(
+    predicate: (value: V, key: K, iter: this) => mixed,
+    context?: mixed
+  ): KeyedCollection<K, V>;
 
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
@@ -371,6 +372,12 @@ declare class IndexedCollection<+T> extends Collection<number, T> {
 
   concat<C>(...iters: Array<Iterable<C> | C>): IndexedCollection<T | C>;
 
+  filter(predicate: typeof Boolean): IndexedCollection<$NonMaybeType<T>>;
+  filter(
+    predicate: (value: T, index: number, iter: this) => mixed,
+    context?: mixed
+  ): IndexedCollection<T>;
+
   map<M>(
     mapper: (value: T, index: number, iter: this) => M,
     context?: mixed
@@ -396,10 +403,16 @@ declare class SetCollection<+T> extends Collection<T, T> {
 
   concat<C>(...iters: Array<Iterable<C> | C>): SetCollection<T | C>;
 
-  // `map` and `flatMap` cannot be defined further up the hierarchy, because the
-  // implementation for `KeyedCollection` allows the value type to change without
-  // constraining the key type. That does not work for `SetCollection` - the value
-  // and key types *must* match.
+  // `filter`, `map` and `flatMap` cannot be defined further up the hierarchy,
+  // because the implementation for `KeyedCollection` allows the value type to
+  // change without constraining the key type. That does not work for
+  // `SetCollection` - the value and key types *must* match.
+  filter(predicate: typeof Boolean): SetCollection<$NonMaybeType<T>>;
+  filter(
+    predicate: (value: T, value: T, iter: this) => mixed,
+    context?: mixed
+  ): SetCollection<T>;
+
   map<M>(
     mapper: (value: T, value: T, iter: this) => M,
     context?: mixed
@@ -442,6 +455,12 @@ declare class KeyedSeq<K, +V> extends Seq<K, V> mixins KeyedCollection<K, V> {
   concat<KC, VC>(...iters: Array<Iterable<[KC, VC]>>): KeyedSeq<K | KC, V | VC>;
   concat<KC, VC>(...iters: Array<PlainObjInput<KC, VC>>): KeyedSeq<K | KC, V | VC>;
 
+  filter(predicate: typeof Boolean): KeyedSeq<K, $NonMaybeType<V>>;
+  filter(
+    predicate: (value: V, key: K, iter: this) => mixed,
+    context?: mixed
+  ): KeyedSeq<K, V>;
+
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
     context?: mixed
@@ -474,6 +493,12 @@ declare class IndexedSeq<+T> extends Seq<number, T> mixins IndexedCollection<T> 
   // Override specialized return types
 
   concat<C>(...iters: Array<Iterable<C> | C>): IndexedSeq<T | C>;
+
+  filter(predicate: typeof Boolean): IndexedSeq<$NonMaybeType<T>>;
+  filter(
+    predicate: (value: T, index: number, iter: this) => mixed,
+    context?: mixed
+  ): IndexedSeq<T>;
 
   map<M>(
     mapper: (value: T, index: number, iter: this) => M,
@@ -596,6 +621,12 @@ declare class SetSeq<+T> extends Seq<T, T> mixins SetCollection<T> {
 
   concat<C>(...iters: Array<Iterable<C> | C>): SetSeq<T | C>;
 
+  filter(predicate: typeof Boolean): SetSeq<$NonMaybeType<T>>;
+  filter(
+    predicate: (value: T, value: T, iter: this) => mixed,
+    context?: mixed
+  ): SetSeq<T>;
+
   map<M>(
     mapper: (value: T, value: T, iter: this) => M,
     context?: mixed
@@ -662,6 +693,12 @@ declare class List<+T> extends IndexedCollection<T> {
   // Override specialized return types
 
   concat<C>(...iters: Array<Iterable<C> | C>): List<T | C>;
+
+  filter(predicate: typeof Boolean): List<$NonMaybeType<T>>;
+  filter(
+    predicate: (value: T, index: number, iter: this) => mixed,
+    context?: mixed
+  ): List<T>;
 
   map<M>(
     mapper: (value: T, index: number, iter: this) => M,
@@ -849,6 +886,12 @@ declare class Map<K, +V> extends KeyedCollection<K, V> {
   concat<KC, VC>(...iters: Array<Iterable<[KC, VC]>>): Map<K | KC, V | VC>;
   concat<KC, VC>(...iters: Array<PlainObjInput<KC, VC>>): Map<K | KC, V | VC>;
 
+  filter(predicate: typeof Boolean): Map<K, $NonMaybeType<V>>;
+  filter(
+    predicate: (value: V, key: K, iter: this) => mixed,
+    context?: mixed
+  ): Map<K, V>;
+
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
     context?: mixed
@@ -944,6 +987,12 @@ declare class OrderedMap<K, +V> extends Map<K, V> {
   concat<KC, VC>(...iters: Array<Iterable<[KC, VC]>>): OrderedMap<K | KC, V | VC>;
   concat<KC, VC>(...iters: Array<PlainObjInput<KC, VC>>): OrderedMap<K | KC, V | VC>;
 
+  filter(predicate: typeof Boolean): OrderedMap<K, $NonMaybeType<V>>;
+  filter(
+    predicate: (value: V, key: K, iter: this) => mixed,
+    context?: mixed
+  ): OrderedMap<K, V>;
+
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
     context?: mixed
@@ -1001,6 +1050,12 @@ declare class Set<+T> extends SetCollection<T> {
 
   concat<C>(...iters: Array<Iterable<C> | C>): Set<T | C>;
 
+  filter(predicate: typeof Boolean): Set<$NonMaybeType<T>>;
+  filter(
+    predicate: (value: T, value: T, iter: this) => mixed,
+    context?: mixed
+  ): Set<T>;
+
   map<M>(
     mapper: (value: T, value: T, iter: this) => M,
     context?: mixed
@@ -1035,6 +1090,12 @@ declare class OrderedSet<+T> extends Set<T> {
   intersect<U>(...collections: Iterable<U>[]): OrderedSet<T & U>;
 
   concat<C>(...iters: Array<Iterable<C> | C>): OrderedSet<T | C>;
+
+  filter(predicate: typeof Boolean): OrderedSet<$NonMaybeType<T>>;
+  filter(
+    predicate: (value: T, value: T, iter: this) => mixed,
+    context?: mixed
+  ): OrderedSet<T>;
 
   map<M>(
     mapper: (value: T, value: T, iter: this) => M,
@@ -1176,6 +1237,12 @@ declare class Stack<+T> extends IndexedCollection<T> {
   // Override specialized return types
 
   concat<C>(...iters: Array<Iterable<C> | C>): Stack<T | C>;
+
+  filter(predicate: typeof Boolean): Stack<$NonMaybeType<T>>;
+  filter(
+    predicate: (value: T, index: number, iter: this) => mixed,
+    context?: mixed
+  ): Stack<T>;
 
   map<M>(
     mapper: (value: T, index: number, iter: this) => M,
