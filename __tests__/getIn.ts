@@ -10,24 +10,35 @@
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { fromJS, Map } from '../';
+import { fromJS } from '../';
 
-describe('CollectionImpl', () => {
+describe('getIn', () => {
   it('should allow getIn past null values', () => {
     console.warn = jest.genMockFunction();
 
-    const m = Map({a: { b: null }});
+    const m = fromJS({ a: { b: { c: null }}});
 
     expect(m.getIn(['a', 'b', 'c', 'd'], 'notSetValue')).toBe('notSetValue');
     expect(console.warn.mock.calls.length).toBe(0);
   });
 
+  it('shouldn\'t allow getIn past defined values without .get', () => {
+    console.warn = jest.genMockFunction();
+
+    const m = fromJS({ a: { b: { c: 'fail point' }}});
+
+    m.getIn(['a', 'b', 'c', 'd'], 'notSetValue');
+    expect(console.warn.mock.calls.length).toBe(1);
+  });
+
+  // hasIn calls getIn
   it('should allow hasIn past null values', () => {
     console.warn = jest.genMockFunction();
 
-    const m = Map({a: { b: null }});
+    const m = fromJS({ a: { b: { c: null }}});
 
     expect(m.hasIn(['a', 'b', 'c', 'd'])).toBeFalsy();
     expect(console.warn.mock.calls.length).toBe(0);
   });
+
 });
