@@ -38,7 +38,7 @@
     "test": "run-s format build lint testonly test:types:*",
     "test:travis": "npm run test && ./resources/check-changes",
     "test:types:ts": "dtslint type-definitions/ts-tests",
-    "test:types:flow": "flow check type-definitions/tests",
+    "test:types:flow": "flow check type-definitions/tests --include-warnings",
     "perf": "node ./resources/bench.js",
     "start": "gulp --gulpfile gulpfile.js dev",
     "deploy": "./resources/deploy-ghpages.sh",
