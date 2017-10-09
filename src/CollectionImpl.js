@@ -861,7 +861,7 @@ function getIn(value, notSetValue, searchKeyPath, reportBadKeyPath) {
       return notSetValue;
     }
     value = value.get(keyPath[i++], NOT_SET);
-    if (value === NOT_SET) {
+    if (value === NOT_SET || value === null || value === undefined) {
       return notSetValue;
     }
   }
