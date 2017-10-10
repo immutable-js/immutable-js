@@ -1409,7 +1409,7 @@ declare class RecordInstance<T: Object> {
 
   hasIn(keyPath: Iterable<mixed>): boolean;
 
-  getIn(keyPath: [], notSetValue?: mixed): this;
+  getIn(keyPath: [], notSetValue?: mixed): this & T;
   getIn<K: $Keys<T>>(keyPath: [K], notSetValue?: mixed): $ElementType<T, K>;
   getIn<NSV, K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>>(keyPath: [K, K2], notSetValue: NSV): $ValOf<$ElementType<T, K>, K2> | NSV;
   getIn<NSV, K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>>(keyPath: [K, K2, K3], notSetValue: NSV): $ValOf<$ValOf<$ElementType<T, K>, K2>, K3> | NSV;
