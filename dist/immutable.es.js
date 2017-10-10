@@ -5071,6 +5071,10 @@ function getIn(value, notSetValue, searchKeyPath, reportBadKeyPath) {
   var keyPath = coerceKeyPath(searchKeyPath);
   var i = 0;
   while (i !== keyPath.length) {
+    // Intermediate null/undefined value along path
+    if (value == null) {
+      return notSetValue;
+    }
     if (!value || !value.get) {
       if (reportBadKeyPath) {
         warn(
