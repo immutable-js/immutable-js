@@ -35,13 +35,13 @@ type PlainObjInput<K, V> = {[key: K]: V, __proto__: null};
 // Helper types to extract the "keys" and "values" use by the *In() methods.
 // Exported for experimental use only, may change.
 export type $KeyOf<C> = $Call<
-  & (<K>(?_Collection<K, *>) => K)
+  & (<K>(?_Collection<K, mixed>) => K)
   & (<T>(?RecordInstance<T>) => $Keys<T>),
   C
 >;
 
-export type $ValOf<C, K = *> = $Call<
-  & (<V>(?_Collection<*, V>) => V)
+export type $ValOf<C, K = $KeyOf<C>> = $Call<
+  & (<V>(?_Collection<any, V>) => V)
   & (<T, K: $Keys<T>>(?RecordInstance<T>, K) => $ElementType<T, K>),
   C,
   K
