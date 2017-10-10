@@ -155,7 +155,7 @@ import { OrderedSet, Map } from '../../';
   // $ExpectType OrderedSet<number>
   OrderedSet<number>().union(OrderedSet<number>());
 
-  // $ExpectError
+  // $ExpectType OrderedSet<string | number>
   OrderedSet<number>().union(OrderedSet<string>());
 
   // $ExpectType OrderedSet<string | number>
@@ -170,7 +170,7 @@ import { OrderedSet, Map } from '../../';
   // $ExpectType OrderedSet<number>
   OrderedSet<number>().merge(OrderedSet<number>());
 
-  // $ExpectError
+  // $ExpectType OrderedSet<string | number>
   OrderedSet<number>().merge(OrderedSet<string>());
 
   // $ExpectType OrderedSet<string | number>

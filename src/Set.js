@@ -178,7 +178,7 @@ const IS_SET_SENTINEL = '@@__IMMUTABLE_SET__@@';
 const SetPrototype = Set.prototype;
 SetPrototype[IS_SET_SENTINEL] = true;
 SetPrototype[DELETE] = SetPrototype.remove;
-SetPrototype.merge = SetPrototype.union;
+SetPrototype.merge = SetPrototype.concat = SetPrototype.union;
 SetPrototype.withMutations = MapPrototype.withMutations;
 SetPrototype.asMutable = MapPrototype.asMutable;
 SetPrototype.asImmutable = MapPrototype.asImmutable;

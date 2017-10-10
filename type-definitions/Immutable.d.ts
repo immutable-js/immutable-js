@@ -1223,8 +1223,13 @@ declare module Immutable {
      * ```
      *
      * Note: `merge` can be used in `withMutations`.
+     *
+     * @alias concat
      */
-    merge(...collections: Array<Iterable<[K, V]> | {[key: string]: V}>): this;
+    merge<KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Map<K | KC, V | VC>;
+    merge<C>(...collections: Array<{[key: string]: C}>): Map<K | string, V | C>;
+    concat<KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Map<K | KC, V | VC>;
+    concat<C>(...collections: Array<{[key: string]: C}>): Map<K | string, V | C>;
 
     /**
      * Like `merge()`, `mergeWith()` returns a new Map resulting from merging
@@ -1513,12 +1518,6 @@ declare module Immutable {
     // Sequence algorithms
 
     /**
-     * Returns a new Map with other collections concatenated to this one.
-     */
-    concat<KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Map<K | KC, V | VC>;
-    concat<C>(...collections: Array<{[key: string]: C}>): Map<K | string, V | C>;
-
-    /**
      * Returns a new Map with values passed through a
      * `mapper` function.
      *
@@ -1628,13 +1627,33 @@ declare module Immutable {
      */
     readonly size: number;
 
-    // Sequence algorithms
-
     /**
-     * Returns a new OrderedMap with other collections concatenated to this one.
+     * Returns a new OrderedMap resulting from merging the provided Collections
+     * (or JS objects) into this OrderedMap. In other words, this takes each
+     * entry of each collection and sets it on this OrderedMap.
+     *
+     * Note: Values provided to `merge` are shallowly converted before being
+     * merged. No nested values are altered.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { OrderedMap } = require('immutable@4.0.0-rc.7')
+     * const one = OrderedMap({ a: 10, b: 20, c: 30 })
+     * const two = OrderedMap({ b: 40, a: 50, d: 60 })
+     * one.merge(two) // OrderedMap { "a": 50, "b": 40, "c": 30, "d": 60 }
+     * two.merge(one) // OrderedMap { "b": 20, "a": 10, "d": 60, "c": 30 }
+     * ```
+     *
+     * Note: `merge` can be used in `withMutations`.
+     *
+     * @alias concat
      */
+    merge<KC, VC>(...collections: Array<Iterable<[KC, VC]>>): OrderedMap<K | KC, V | VC>;
+    merge<C>(...collections: Array<{[key: string]: C}>): OrderedMap<K | string, V | C>;
     concat<KC, VC>(...collections: Array<Iterable<[KC, VC]>>): OrderedMap<K | KC, V | VC>;
     concat<C>(...collections: Array<{[key: string]: C}>): OrderedMap<K | string, V | C>;
+
+    // Sequence algorithms
 
     /**
      * Returns a new OrderedMap with values passed through a
@@ -1811,9 +1830,11 @@ declare module Immutable {
      *
      * Note: `union` can be used in `withMutations`.
      * @alias merge
+     * @alias concat
      */
-    union(...collections: Array<Iterable<T>>): this;
-    merge(...collections: Array<Iterable<T>>): this;
+    union<C>(...collections: Array<Iterable<C>>): Set<T | C>;
+    merge<C>(...collections: Array<Iterable<C>>): Set<T | C>;
+    concat<C>(...collections: Array<Iterable<C>>): Set<T | C>;
 
     /**
      * Returns a Set which has removed any values not also contained
@@ -1821,14 +1842,14 @@ declare module Immutable {
      *
      * Note: `intersect` can be used in `withMutations`.
      */
-    intersect(...collections: Array<Collection<any, T> | Array<T>>): this;
+    intersect(...collections: Array<Iterable<T>>): this;
 
     /**
      * Returns a Set excluding any values contained within `collections`.
      *
      * Note: `subtract` can be used in `withMutations`.
      */
-    subtract(...collections: Array<Collection<any, T> | Array<T>>): this;
+    subtract(...collections: Array<Iterable<T>>): this;
 
 
     // Transient changes
@@ -1862,11 +1883,6 @@ declare module Immutable {
     asImmutable(): this;
 
     // Sequence algorithms
-
-    /**
-     * Returns a new Set with other collections concatenated to this one.
-     */
-    concat<C>(...valuesOrCollections: Array<Iterable<C> | C>): Set<T | C>;
 
     /**
      * Returns a new Set with values passed through a
@@ -1956,12 +1972,19 @@ declare module Immutable {
      */
     readonly size: number;
 
-    // Sequence algorithms
-
     /**
-     * Returns a new OrderedSet with other collections concatenated to this one.
+     * Returns an OrderedSet including any value from `collections` that does
+     * not already exist in this OrderedSet.
+     *
+     * Note: `union` can be used in `withMutations`.
+     * @alias merge
+     * @alias concat
      */
-    concat<C>(...valuesOrCollections: Array<Iterable<C> | C>): OrderedSet<T | C>;
+    union<C>(...collections: Array<Iterable<C>>): OrderedSet<T | C>;
+    merge<C>(...collections: Array<Iterable<C>>): OrderedSet<T | C>;
+    concat<C>(...collections: Array<Iterable<C>>): OrderedSet<T | C>;
+
+    // Sequence algorithms
 
     /**
      * Returns a new Set with values passed through a
@@ -3013,7 +3036,7 @@ declare module Immutable {
        * All entries will be present in the resulting Seq, even if they
        * are duplicates.
        */
-      concat<C>(...valuesOrCollections: Array<Iterable<C> | C>): Seq.Set<T | C>;
+      concat<U>(...collections: Array<Iterable<U>>): Seq.Set<T | U>;
 
       /**
        * Returns a new Seq.Set with values passed through a
@@ -3717,7 +3740,7 @@ declare module Immutable {
       /**
        * Returns a new Collection with other collections concatenated to this one.
        */
-      concat<C>(...valuesOrCollections: Array<Iterable<C> | C>): Collection.Set<T | C>;
+      concat<U>(...collections: Array<Iterable<U>>): Collection.Set<T | U>;
 
       /**
        * Returns a new Collection.Set with values passed through a
