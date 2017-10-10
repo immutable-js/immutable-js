@@ -35,17 +35,6 @@ export function SetRef(ref) {
 // the return of any subsequent call of this function.
 export function OwnerID() {}
 
-// http://jsperf.com/copy-array-inline
-export function arrCopy(arr, offset) {
-  offset = offset || 0;
-  const len = Math.max(0, arr.length - offset);
-  const newArr = new Array(len);
-  for (let ii = 0; ii < len; ii++) {
-    newArr[ii] = arr[ii + offset];
-  }
-  return newArr;
-}
-
 export function ensureSize(iter) {
   if (iter.size === undefined) {
     iter.size = iter.__iterate(returnTrue);

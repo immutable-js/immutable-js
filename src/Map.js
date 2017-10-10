@@ -6,6 +6,11 @@
  */
 
 import { is } from './is';
+import { setIn } from './functional/setIn';
+import { update } from './functional/update';
+import { updateIn } from './functional/updateIn';
+import { removeIn } from './functional/removeIn';
+import { mergeDeep, mergeDeepWith } from './functional/merge';
 import { Collection, KeyedCollection } from './Collection';
 import { isOrdered } from './Predicates';
 import {
@@ -18,15 +23,13 @@ import {
   DID_ALTER,
   OwnerID,
   MakeRef,
-  SetRef,
-  arrCopy
+  SetRef
 } from './TrieUtils';
 import { hash } from './Hash';
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 import { sortFactory } from './Operations';
-import coerceKeyPath from './utils/coerceKeyPath';
+import arrCopy from './utils/arrCopy';
 import assertNotInfinite from './utils/assertNotInfinite';
-import quoteString from './utils/quoteString';
 
 import { OrderedMap } from './OrderedMap';
 
@@ -75,7 +78,7 @@ export class Map extends KeyedCollection {
   }
 
   setIn(keyPath, v) {
-    return this.updateIn(keyPath, NOT_SET, () => v);
+    return setIn(this, keyPath, v);
   }
 
   remove(k) {
@@ -83,11 +86,7 @@ export class Map extends KeyedCollection {
   }
 
   deleteIn(keyPath) {
-    keyPath = [...coerceKeyPath(keyPath)];
-    if (keyPath.length) {
-      const lastKey = keyPath.pop();
-      return this.updateIn(keyPath, c => c && c.remove(lastKey));
-    }
+    return removeIn(this, keyPath);
   }
 
   deleteAll(keys) {
@@ -102,25 +101,14 @@ export class Map extends KeyedCollection {
     });
   }
 
-  update(k, notSetValue, updater) {
+  update(key, notSetValue, updater) {
     return arguments.length === 1
-      ? k(this)
-      : this.updateIn([k], notSetValue, updater);
+      ? key(this)
+      : update(this, key, notSetValue, updater);
   }
 
   updateIn(keyPath, notSetValue, updater) {
-    if (!updater) {
-      updater = notSetValue;
-      notSetValue = undefined;
-    }
-    const updatedValue = updateInDeepMap(
-      this,
-      coerceKeyPath(keyPath),
-      0,
-      notSetValue,
-      updater
-    );
-    return updatedValue === NOT_SET ? notSetValue : updatedValue;
+    return updateIn(this, keyPath, notSetValue, updater);
   }
 
   clear() {
@@ -158,12 +146,12 @@ export class Map extends KeyedCollection {
     );
   }
 
-  mergeDeep(/*...iters*/) {
-    return mergeIntoMapWith(this, deepMergerWith(alwaysNewVal), arguments);
+  mergeDeep(...iters) {
+    return mergeDeep(this, ...iters);
   }
 
   mergeDeepWith(merger, ...iters) {
-    return mergeIntoMapWith(this, deepMergerWith(merger), iters);
+    return mergeDeepWith(merger, this, ...iters);
   }
 
   mergeDeepIn(keyPath, ...iters) {
@@ -404,7 +392,7 @@ class BitmapIndexedNode {
     const newBitmap = exists ? (newNode ? bitmap : bitmap ^ bit) : bitmap | bit;
     const newNodes = exists
       ? newNode
-        ? setIn(nodes, idx, newNode, isEditable)
+        ? setAt(nodes, idx, newNode, isEditable)
         : spliceOut(nodes, idx, isEditable)
       : spliceIn(nodes, idx, newNode, isEditable);
 
@@ -474,7 +462,7 @@ class HashArrayMapNode {
     }
 
     const isEditable = ownerID && ownerID === this.ownerID;
-    const newNodes = setIn(nodes, idx, newNode, isEditable);
+    const newNodes = setAt(nodes, idx, newNode, isEditable);
 
     if (isEditable) {
       this.count = newCount;
@@ -832,35 +820,14 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
   return new HashArrayMapNode(ownerID, count + 1, expandedNodes);
 }
 
-function mergeIntoMapWith(map, merger, collections) {
+function mergeIntoMapWith(collection, merger, collections) {
   const iters = [];
   for (let ii = 0; ii < collections.length; ii++) {
-    iters.push(KeyedCollection(collections[ii]));
-  }
-  return mergeIntoCollectionWith(map, merger, iters);
-}
-
-function alwaysNewVal(oldVal, newVal) {
-  return newVal;
-}
-
-export function deepMergerWith(merger) {
-  return function(oldVal, newVal, key) {
-    if (oldVal && newVal && typeof newVal === 'object') {
-      if (oldVal.mergeDeepWith) {
-        return oldVal.mergeDeepWith(merger, newVal);
-      }
-      if (oldVal.merge) {
-        return oldVal.merge(newVal);
-      }
+    const collection = KeyedCollection(collections[ii]);
+    if (collection.size !== 0) {
+      iters.push(collection);
     }
-    const nextValue = merger(oldVal, newVal, key);
-    return is(oldVal, nextValue) ? oldVal : nextValue;
-  };
-}
-
-export function mergeIntoCollectionWith(collection, merger, iters) {
-  iters = iters.filter(x => x.size !== 0);
+  }
   if (iters.length === 0) {
     return collection;
   }
@@ -870,7 +837,8 @@ export function mergeIntoCollectionWith(collection, merger, iters) {
   return collection.withMutations(collection => {
     const mergeIntoCollection = merger
       ? (value, key) => {
-          collection.update(
+          update(
+            collection,
             key,
             NOT_SET,
             oldVal => (oldVal === NOT_SET ? value : merger(oldVal, value, key))
@@ -885,37 +853,6 @@ export function mergeIntoCollectionWith(collection, merger, iters) {
   });
 }
 
-function updateInDeepMap(existing, keyPath, i, notSetValue, updater) {
-  const isNotSet = existing === NOT_SET;
-  if (i === keyPath.length) {
-    const existingValue = isNotSet ? notSetValue : existing;
-    const newValue = updater(existingValue);
-    return newValue === existingValue ? existing : newValue;
-  }
-  if (!(isNotSet || (existing && existing.set))) {
-    throw new TypeError(
-      'Invalid keyPath: Value at [' +
-        keyPath.slice(0, i).map(quoteString) +
-        '] does not have a .set() method and cannot be updated: ' +
-        existing
-    );
-  }
-  const key = keyPath[i];
-  const nextExisting = isNotSet ? NOT_SET : existing.get(key, NOT_SET);
-  const nextUpdated = updateInDeepMap(
-    nextExisting,
-    keyPath,
-    i + 1,
-    notSetValue,
-    updater
-  );
-  return nextUpdated === nextExisting
-    ? existing
-    : nextUpdated === NOT_SET
-      ? existing.remove(key)
-      : (isNotSet ? emptyMap() : existing).set(key, nextUpdated);
-}
-
 function popCount(x) {
   x -= (x >> 1) & 0x55555555;
   x = (x & 0x33333333) + ((x >> 2) & 0x33333333);
@@ -925,7 +862,7 @@ function popCount(x) {
   return x & 0x7f;
 }
 
-function setIn(array, idx, val, canEdit) {
+function setAt(array, idx, val, canEdit) {
   const newArray = canEdit ? array : arrCopy(array);
   newArray[idx] = val;
   return newArray;
