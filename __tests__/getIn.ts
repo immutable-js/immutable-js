@@ -34,31 +34,34 @@ describe('getIn', () => {
     ).toThrow('Invalid keyPath: expected Ordered Collection or Array: abc');
   });
 
-  it('deep get throws if non-readable path', () => {
+  function withWarnings(fn) {
     const realWarn = console.warn;
     const warnings: Array<any> = [];
     console.warn = w => warnings.push(w);
-
     try {
-      const deep = Map({ key: { regular: "jsobj" }, list: List([ Map({num: 10}) ]) });
-      deep.getIn(["key", "foo", "item"]);
-      expect(warnings.length).toBe(1);
-      expect(warnings[0]).toBe(
-        'Invalid keyPath: Value at ["key"] does not have a .get() method: [object Object]' +
-        '\nThis warning will throw in a future version',
-      );
-
-      warnings.length = 0;
-      deep.getIn(["list", 0, "num", "badKey"]);
-      expect(warnings.length).toBe(1);
-      expect(warnings[0]).toBe(
-        'Invalid keyPath: Value at ["list",0,"num"] does not have a .get() method: 10' +
-        '\nThis warning will throw in a future version',
-      );
+      fn(warnings);
     } finally {
       console.warn = realWarn;
     }
-  });
+  }
+
+  it('deep get throws if non-readable path', withWarnings(warnings => {
+    const deep = Map({ key: { regular: "jsobj" }, list: List([ Map({num: 10}) ]) });
+    deep.getIn(["key", "foo", "item"]);
+    expect(warnings.length).toBe(1);
+    expect(warnings[0]).toBe(
+      'Invalid keyPath: Value at ["key"] does not have a .get() method: [object Object]' +
+      '\nThis warning will throw in a future version',
+    );
+
+    warnings.length = 0;
+    deep.getIn(["list", 0, "num", "badKey"]);
+    expect(warnings.length).toBe(1);
+    expect(warnings[0]).toBe(
+      'Invalid keyPath: Value at ["list",0,"num"] does not have a .get() method: 10' +
+      '\nThis warning will throw in a future version',
+    );
+  }));
 
   it('deep get returns not found if path does not match', () => {
     const m = fromJS({a: {b: {c: 10}}});
@@ -76,4 +79,12 @@ describe('getIn', () => {
     expect(m.getIn(['a', 'b', 'd'], 123)).toEqual(undefined);
   });
 
+  it('deep get returns not found if path encounters null or undefined', withWarnings(warnings => {
+    const m = fromJS({a: {b: {c: null, d: undefined}}});
+    expect(m.getIn(['a', 'b', 'c', 'x'])).toEqual(undefined);
+    expect(m.getIn(['a', 'b', 'd', 'x'])).toEqual(undefined);
+    expect(m.getIn(['a', 'b', 'c', 'x'], 123)).toEqual(123);
+    expect(m.getIn(['a', 'b', 'd', 'x'], 123)).toEqual(123);
+    expect(warnings.length).toBe(0);
+  }));
 });
