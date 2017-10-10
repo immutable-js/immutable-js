@@ -642,10 +642,34 @@ describe('List', () => {
   });
 
   it('concat works like Array.prototype.concat', () => {
-    const v1 = List.of(1, 2, 3);
+    const v1 = List([1, 2, 3]);
     const v2 = v1.concat(4, List([ 5, 6 ]), [7, 8], Seq([ 9, 10 ]), Set.of(11, 12), null as any);
     expect(v1.toArray()).toEqual([1, 2, 3]);
     expect(v2.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, null]);
+  });
+
+  it('concat returns self when no changes', () => {
+    const v1 = List([1, 2, 3]);
+    expect(v1.concat([])).toBe(v1);
+  });
+
+  it('concat returns arg when concat to empty', () => {
+    const v1 = List([1, 2, 3]);
+    expect(List().concat(v1)).toBe(v1);
+  });
+
+  it('concats a single value', () => {
+    const v1 = List([1, 2, 3]);
+    expect(v1.concat(4)).toEqual(List([1, 2, 3, 4]));
+  });
+
+  it('concat returns List-coerced arg when concat to empty', () => {
+    expect(List().concat([1, 2, 3])).toEqual(List([1, 2, 3]));
+  });
+
+  it('concat does not spread in string characters', () => {
+    const v1 = List([1, 2, 3]);
+    expect(v1.concat('abcdef')).toEqual(List([1, 2, 3, 'abcdef']));
   });
 
   it('allows chained mutations', () => {

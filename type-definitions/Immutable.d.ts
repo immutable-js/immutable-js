@@ -787,7 +787,7 @@ declare module Immutable {
     /**
      * Returns a new List with other values or collections concatenated to this one.
      *
-     * Note: `concat` *cannot* be safely used in `withMutations`.
+     * Note: `concat` can be used in `withMutations`.
      *
      * @alias merge
      */

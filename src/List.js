@@ -21,7 +21,7 @@ import {
 } from './TrieUtils';
 import { IndexedCollection } from './Collection';
 import { MapPrototype } from './Map';
-import { Iterator, iteratorValue, iteratorDone } from './Iterator';
+import { hasIterator, Iterator, iteratorValue, iteratorDone } from './Iterator';
 
 import assertNotInfinite from './utils/assertNotInfinite';
 
@@ -135,8 +135,28 @@ export class List extends IndexedCollection {
 
   // @pragma Composition
 
-  merge(/*...collections*/) {
-    return this.concat.apply(this, arguments);
+  concat(/*...collections*/) {
+    const seqs = [];
+    for (let i = 0; i < arguments.length; i++) {
+      const argument = arguments[i];
+      const seq = IndexedCollection(
+        typeof argument !== 'string' && hasIterator(argument)
+          ? argument
+          : [argument]
+      );
+      if (seq.size !== 0) {
+        seqs.push(seq);
+      }
+    }
+    if (seqs.length === 0) {
+      return this;
+    }
+    if (this.size === 0 && !this.__ownerID && seqs.length === 1) {
+      return this.constructor(seqs[0]);
+    }
+    return this.withMutations(list => {
+      seqs.forEach(seq => seq.forEach(value => list.push(value)));
+    });
   }
 
   setSize(size) {
@@ -215,6 +235,7 @@ const IS_LIST_SENTINEL = '@@__IMMUTABLE_LIST__@@';
 export const ListPrototype = List.prototype;
 ListPrototype[IS_LIST_SENTINEL] = true;
 ListPrototype[DELETE] = ListPrototype.remove;
+ListPrototype.merge = ListPrototype.concat;
 ListPrototype.setIn = MapPrototype.setIn;
 ListPrototype.deleteIn = ListPrototype.removeIn = MapPrototype.removeIn;
 ListPrototype.update = MapPrototype.update;

@@ -401,7 +401,7 @@ declare class SetCollection<+T> extends Collection<T, T> {
   @@iterator(): Iterator<T>;
   toSeq(): SetSeq<T>;
 
-  concat<U>(...collections: Iterable<U>[]): Set<T | U>;
+  concat<U>(...collections: Iterable<U>[]): SetCollection<T | U>;
 
   // `filter`, `map` and `flatMap` cannot be defined further up the hierarchy,
   // because the implementation for `KeyedCollection` allows the value type to
@@ -619,7 +619,7 @@ declare class SetSeq<+T> extends Seq<T, T> mixins SetCollection<T> {
 
   // Override specialized return types
 
-  concat<C>(...iters: Array<Iterable<C> | C>): SetSeq<T | C>;
+  concat<U>(...collections: Iterable<U>[]): SetSeq<T | U>;
 
   filter(predicate: typeof Boolean): SetSeq<$NonMaybeType<T>>;
   filter(
