@@ -6,6 +6,9 @@
  */
 
 import coerceKeyPath from '../utils/coerceKeyPath';
+import isPlainUpdatable from '../utils/isPlainUpdatable';
+import quoteString from '../utils/quoteString';
+import { isCollection, isRecord } from '../Predicates';
 import { NOT_SET } from '../TrieUtils';
 import { emptyMap } from '../Map';
 import { get } from './get';
@@ -34,14 +37,19 @@ function updateInDeeply(existing, keyPath, i, notSetValue, updater) {
     const newValue = updater(existingValue);
     return newValue === existingValue ? existing : newValue;
   }
-  // if (!(wasNotSet || (existing && existing.set))) {
-  //   throw new TypeError(
-  //     'Invalid keyPath: Value at [' +
-  //       keyPath.slice(0, i).map(quoteString) +
-  //       '] does not have a .set() method and cannot be updated: ' +
-  //       existing
-  //   );
-  // }
+  if (
+    !wasNotSet &&
+    !isCollection(existing) &&
+    !isRecord(existing) &&
+    !isPlainUpdatable(existing)
+  ) {
+    throw new TypeError(
+      'Cannot update within non-updatable value in path [' +
+        keyPath.slice(0, i).map(quoteString) +
+        ']: ' +
+        existing
+    );
+  }
   const key = keyPath[i];
   const nextExisting = wasNotSet ? NOT_SET : get(existing, key, NOT_SET);
   const nextUpdated = updateInDeeply(

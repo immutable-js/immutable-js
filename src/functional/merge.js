@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import shallowCopy from '../utils/shallowCopy';
 import hasOwnProperty from '../utils/hasOwnProperty';
+import isPlainUpdatable from '../utils/isPlainUpdatable';
+import shallowCopy from '../utils/shallowCopy';
 import { is } from '../is';
 
 export function merge(collection, ...sources) {
@@ -29,32 +30,47 @@ function mergeWithSources(merger, collection, sources) {
   if (typeof collection.mergeWith === 'function') {
     return collection.mergeWith.apply(collection, [merger, ...sources]);
   }
-  // TODO: Set needs concat!
   if (typeof collection.concat === 'function') {
     return collection.concat.apply(collection, sources);
   }
-  const collectionCopy = shallowCopy(collection);
-  // TODO: can clean up with KeyedSeq?
+  if (!isPlainUpdatable(collection)) {
+    throw new TypeError('Cannot merge non-updatable value: ' + collection);
+  }
+  let merged = collection;
   for (let i = 0; i < sources.length; i++) {
-    const nextSource = sources[i];
-    if (nextSource != null) {
-      for (const key in nextSource) {
-        if (hasOwnProperty.call(nextSource, key)) {
-          collectionCopy[key] =
-            merger && hasOwnProperty.call(collectionCopy, key)
-              ? merger(collectionCopy[key], nextSource[key], key)
-              : nextSource[key];
+    const source = sources[i];
+    for (const key in source) {
+      if (hasOwnProperty.call(source, key)) {
+        const nextVal =
+          merger && hasOwnProperty.call(merged, key)
+            ? merger(merged[key], source[key], key)
+            : source[key];
+        if (!hasOwnProperty.call(merged, key) || nextVal !== merged[key]) {
+          // Copy on write
+          if (merged === collection) {
+            merged = shallowCopy(merged);
+          }
+          merged[key] = nextVal;
         }
       }
     }
   }
-  return collectionCopy;
+  return merged;
+}
+
+function isMergeable(value) {
+  return (
+    value &&
+    (typeof value.mergeWith === 'function' ||
+      typeof value.concat === 'function' ||
+      isPlainUpdatable(value))
+  );
 }
 
 function deepMergerWith(merger) {
   function deepMerger(oldVal, newVal, key) {
-    if (oldVal && newVal && typeof newVal === 'object') {
-      return mergeWithSources(deepMerger, oldVal, newVal);
+    if (isMergeable(oldVal) && isMergeable(newVal)) {
+      return mergeWithSources(deepMerger, oldVal, [newVal]);
     }
     const nextValue = merger(oldVal, newVal, key);
     return is(oldVal, nextValue) ? oldVal : nextValue;

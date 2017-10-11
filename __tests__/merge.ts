@@ -108,7 +108,7 @@ describe('merge', () => {
     expect(m1.mergeDeep(m2).get('a')).toEqual(Map({x: 1, y: 1, z: 10}));
   });
 
-  it('merges map enties with List and Set values', () => {
+  it('merges map entries with List and Set values', () => {
     const initial = Map({a: Map({x: 10, y: 20}), b: List([1, 2, 3]), c: Set([1, 2, 3])});
     const additions = Map({a: Map({y: 50, z: 100}), b: List([4, 5, 6]), c: Set([4, 5, 6])});
     expect(initial.mergeDeep(additions)).toEqual(

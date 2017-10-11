@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { updateIn } from './updateIn';
-import { NOT_SET } from '../TrieUtils';
-
-export function removeIn(collection, keyPath) {
-  return updateIn(collection, keyPath, () => NOT_SET);
+export default function isPlainObj(value) {
+  return (
+    value && (value.constructor === Object || value.constructor === undefined)
+  );
 }

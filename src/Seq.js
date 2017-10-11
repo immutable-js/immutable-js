@@ -24,6 +24,7 @@ import {
   getIterator
 } from './Iterator';
 
+import hasOwnProperty from './utils/hasOwnProperty';
 import isArrayLike from './utils/isArrayLike';
 
 export class Seq extends Collection {
@@ -205,7 +206,7 @@ class ObjectSeq extends KeyedSeq {
   }
 
   has(key) {
-    return this._object.hasOwnProperty(key);
+    return hasOwnProperty.call(this._object, key);
   }
 
   __iterate(fn, reverse) {

@@ -43,12 +43,18 @@ describe('updateIn', () => {
   });
 
   it('deep edit throws if non-editable path', () => {
-    const deep = Map({ key: Set([ List([ "item" ]) ]) });
+    const deep = Map({ key: Set([ List([ 'item' ]) ]) });
     expect(() =>
-      deep.updateIn(["key", "foo", "item"], x => x),
+      deep.updateIn(['key', 'foo', 'item'], () => 'newval'),
     ).toThrow(
-      'Invalid keyPath: Value at ["key"] does not have a .set() method ' +
-      'and cannot be updated: Set { List [ "item" ] }',
+      'Cannot update value without .set() method: Set { List [ "item" ] }',
+    );
+
+    const nonObj = Map({ key: 123 });
+    expect(() =>
+      nonObj.updateIn(['key', 'foo'], () => 'newval'),
+    ).toThrow(
+      'Cannot update within non-updatable value in path ["key"]: 123',
     );
   });
 
@@ -181,7 +187,7 @@ describe('updateIn', () => {
 
     it('can setIn undefined', () => {
       const m = Map().setIn(['a', 'b', 'c'], undefined);
-      expect(m.toJS()).toEqual({a: {b: {c: undefined}}});
+      expect(m).toEqual(Map({a: Map({b: Map({c: undefined})})}));
     });
 
   });
