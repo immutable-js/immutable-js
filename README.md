@@ -88,7 +88,7 @@ Use these Immutable collections and sequences as you would use native
 collections in your [Flowtype](https://flowtype.org/) or [TypeScript](http://typescriptlang.org) programs while still taking
 advantage of type generics, error detection, and auto-complete in your IDE.
 
-Installing `immutable` via npm brings with it type definitions for Flow (v0.39.0 or higher)
+Installing `immutable` via npm brings with it type definitions for Flow (v0.55.0 or higher)
 and TypeScript (v2.1.0 or higher), so you shouldn't need to do anything at all!
 
 #### Using TypeScript with Immutable.js v4
