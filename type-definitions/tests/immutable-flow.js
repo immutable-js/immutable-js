@@ -165,18 +165,46 @@ numberList = List.of('a').merge(List.of(1))
 
 nullableNumberList = List.of(1).setSize(2)
 
-numberList = List.of(1).setIn([], 0)
+// $ExpectError setIn [] replaces the top-most value. number ~> List<number>
+numberList = List([1]).setIn([], 0)
+{ const x: number = List([1]).setIn([], 0) }
+// $ExpectError "a" is not a valid key for List.
+numberList = List([1]).setIn(['a'], 0)
+// $ExpectError "a" is not a valid value for List of number.
+numberList = List([1]).setIn([0], 'a')
+numberList = List([1]).setIn([0], 0)
 
-numberList = List.of(1).deleteIn([], 0)
-numberList = List.of(1).removeIn([], 0)
+// $ExpectError "a" is not a valid key for List.
+List([List([List([1])])]).setIn([0,0,'a'], 'a');
+// $ExpectError "a" is not a valid value for List of number.
+List([List([List([1])])]).setIn([0,0,0], 'a');
+List([List([List([1])])]).setIn([0,0,0], 123);
 
-numberList = List([1]).updateIn([0], val => val + 1)
+// $ExpectError deleteIn [] replaces the top-most value. void ~> List<number>
+numberList = List([1]).deleteIn([])
+{ const x: void = List([1]).deleteIn([]) }
+// $ExpectError
+numberList = List([1]).removeIn([])
+// $ExpectError "a" is not a valid key for List.
+numberList = List([1]).deleteIn(['a'])
+// $ExpectError
+numberList = List([1]).removeIn(['a'])
+numberList = List([1]).deleteIn([0])
+numberList = List([1]).removeIn([0])
+
+// $ExpectError updateIn [] replaces the top-most value. number ~> List<number>
+numberList = List([1]).updateIn([], () => 123)
+{ const x: number = List([1]).updateIn([], () => 123) }
+// $ExpectError - 'a' is not a number
+numberList = List([1]).updateIn([0], val => 'a')
+// $ExpectError
+numberList = List([1]).updateIn([0], 0, val => 'a')
 // $ExpectError - 'a' in an invalid argument
 numberList = List([1]).updateIn([0], 'a')
-
-numberList = List([1]).updateIn([0], 0, val => val + 1)
-// $ExpectError - 'a' is an invalid argument
+// $ExpectError
 numberList = List([1]).updateIn([0], 0, 'a')
+numberList = List([1]).updateIn([0], val => val + 1)
+numberList = List([1]).updateIn([0], 0, val => val + 1)
 
 numberList = List.of(1).mergeIn([], [])
 numberList = List.of(1).mergeDeepIn([], [])
@@ -288,10 +316,32 @@ stringToNumberOrString = Map({'a': 1}).mergeDeepWith((previous, next, key) => 1,
 // $ExpectError - the array [1] is not a valid argument
 stringToNumber = Map({'a': 1}).mergeDeepWith((previous, next, key) => 1, [1])
 
+// $ExpectError
 stringToNumber = Map({'a': 1}).setIn([], 0)
+// $ExpectError
+stringToNumber = Map({'a': 1}).setIn(['a'], 'a')
+stringToNumber = Map({'a': 1}).setIn(['a'], 0)
 
-stringToNumber = Map({'a': 1}).deleteIn([], 0)
-stringToNumber = Map({'a': 1}).removeIn([], 0)
+// $ExpectError
+stringToNumber = Map({'a': 1}).deleteIn([])
+// $ExpectError
+stringToNumber = Map({'a': 1}).removeIn([])
+stringToNumber = Map({'a': 1}).deleteIn(['a'])
+stringToNumber = Map({'a': 1}).removeIn(['a'])
+
+// $ExpectError
+stringToNumber = Map({'a': 1}).updateIn([], v => v + 1)
+// $ExpectError
+stringToNumber = Map({'a': 1}).updateIn(['a'], v => 'a')
+stringToNumber = Map({'a': 1}).updateIn(['a'], v => v + 1)
+stringToNumber = Map({'a': 1}).updateIn(['a'], 0, v => v + 1)
+
+// $ExpectError
+Map({x: Map({y: Map({z: 1})})}).updateIn(['x', 'y', 1], v => v + 1)
+// $ExpectError
+Map({x: Map({y: Map({z: 1})})}).updateIn(['x', 'y', 'z'], v => 'a')
+Map({x: Map({y: Map({z: 1})})}).updateIn(['x', 'y', 'z'], v => v + 1)
+Map({x: Map({y: Map({z: 1})})}).updateIn(['x', 'y', 'z'], 0, v => v + 1)
 
 stringToNumber = Map({'a': 1}).mergeIn([], [])
 stringToNumber = Map({'a': 1}).mergeDeepIn([], [])
@@ -433,17 +483,37 @@ orderedStringToNumberOrString = OrderedMap({'a': 1}).mergeDeepWith((prev, next) 
 // $ExpectError - the array [1] is an invalid argument
 orderedStringToNumber = OrderedMap({'a': 1}).mergeDeepWith((prev, next) => next, [1])
 
+// $ExpectError
 orderedStringToNumber = OrderedMap({'a': 1}).setIn([], 3)
+// $ExpectError
+orderedStringToNumber = OrderedMap({'a': 1}).setIn([1], 3)
+orderedStringToNumber = OrderedMap({'a': 1}).setIn(['a'], 3)
+// $ExpectError
 orderedStringToNumber = OrderedMap({'a': 1}).deleteIn([])
+// $ExpectError
 orderedStringToNumber = OrderedMap({'a': 1}).removeIn([])
+// $ExpectError
+orderedStringToNumber = OrderedMap({'a': 1}).deleteIn([1])
+// $ExpectError
+orderedStringToNumber = OrderedMap({'a': 1}).removeIn([1])
+orderedStringToNumber = OrderedMap({'a': 1}).deleteIn(['b'])
+orderedStringToNumber = OrderedMap({'a': 1}).removeIn(['b'])
 
-orderedStringToNumber = OrderedMap({'a': 1}).updateIn([], val => val + 1)
-// $ExpectError - 'a' in an invalid argument
-orderedStringToNumber = OrderedMap({'a': 1}).updateIn([], 'a')
+// $ExpectError
+orderedStringToNumber = OrderedMap({'a': 1}).updateIn([], v => v + 1)
+// $ExpectError
+orderedStringToNumber = OrderedMap({'a': 1}).updateIn([1], v => v + 1)
+// $ExpectError
+orderedStringToNumber = OrderedMap({'a': 1}).updateIn(['a'], v => 'a')
+orderedStringToNumber = OrderedMap({'a': 1}).updateIn(['a'], v => v + 1)
+orderedStringToNumber = OrderedMap({'a': 1}).updateIn(['a'], 0, v => v + 1)
 
-orderedStringToNumber = OrderedMap({'a': 1}).updateIn([], 0, val => val + 1)
-// $ExpectError - 'a' is an invalid argument
-orderedStringToNumber = OrderedMap({'a': 1}).updateIn([], 0, 'a')
+// $ExpectError
+OrderedMap({x: OrderedMap({y: 1})}).updateIn(['x', 1], v => v + 1)
+// $ExpectError
+OrderedMap({x: OrderedMap({y: 1})}).updateIn(['x', 'y'], v => 'a')
+OrderedMap({x: OrderedMap({y: 1})}).updateIn(['x', 'y'], v => v + 1)
+OrderedMap({x: OrderedMap({y: 1})}).updateIn(['x', 'y'], 0, v => v + 1)
 
 orderedStringToNumber = OrderedMap({'a': 1}).mergeIn([], {'b': 2})
 orderedStringToNumber = OrderedMap({'a': 1}).mergeDeepIn([], {'b': 2})
@@ -866,6 +936,13 @@ listOfPersonRecord.getIn(['wrong', 'age']);
 listOfPersonRecord.getIn([0, 'mispeld']);
 // $ExpectError - the second key is not an record key
 listOfPersonRecord.getIn([0, 0]);
+// $ExpectError
+listOfPersonRecord.setIn([0, 'age'], 'Thirteen');
+listOfPersonRecord.setIn([0, 'age'], 13);
+// $ExpectError
+listOfPersonRecord.updateIn([0, 'age'], value => value.unknownFunction());
+listOfPersonRecord.updateIn([0, 'age'], value => value + 1);
+listOfPersonRecord.updateIn([0, 'age'], 0, value => value + 1);
 
 // Recursive Records
 type PersonRecord2Fields = { name: string, friends: List<PersonRecord2> };
@@ -888,3 +965,10 @@ const friendlies: List<PersonRecord2> = List([makePersonRecord2()]);
 // notSetValue provided
 { const success: string = friendlies.getIn([0, 'friends', 0, 'name'], 'Abbie'); }
 { const success: ?string = friendlies.getIn([0, 'friends', 0, 'name']); }
+// $ExpectError
+friendlies.setIn([0, 'friends', 0, 'name'], 123);
+friendlies.setIn([0, 'friends', 0, 'name'], 'Sally');
+// $ExpectError
+friendlies.updateIn([0, 'friends', 0, 'name'], value => value.unknownFunction());
+friendlies.updateIn([0, 'friends', 0, 'name'], value => value.toUpperCase());
+friendlies.updateIn([0, 'friends', 0, 'name'], 'Unknown Name', value => value.toUpperCase());
