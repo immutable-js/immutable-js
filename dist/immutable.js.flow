@@ -32,6 +32,21 @@
 // some constructors and functions.
 type PlainObjInput<K, V> = {[key: K]: V, __proto__: null};
 
+// Helper types to extract the "keys" and "values" use by the *In() methods.
+// Exported for experimental use only, may change.
+export type $KeyOf<C> = $Call<
+  & (<K>(?_Collection<K, mixed>) => K)
+  & (<T>(?RecordInstance<T>) => $Keys<T>),
+  C
+>;
+
+export type $ValOf<C, K = $KeyOf<C>> = $Call<
+  & (<V>(?_Collection<any, V>) => V)
+  & (<T, K: $Keys<T>>(?RecordInstance<T>, K) => $ElementType<T, K>),
+  C,
+  K
+>;
+
 declare class _Collection<K, +V> /*implements ValueObject*/ {
   equals(other: mixed): boolean;
   hashCode(): number;
@@ -43,8 +58,14 @@ declare class _Collection<K, +V> /*implements ValueObject*/ {
   first(): V | void;
   last(): V | void;
 
-  getIn(keyPath: Iterable<mixed>, notSetValue?: mixed): any;
   hasIn(keyPath: Iterable<mixed>): boolean;
+
+  getIn(keyPath: [], notSetValue?: mixed): this;
+  getIn<NSV>(keyPath: [K], notSetValue: NSV): V | NSV;
+  getIn<NSV, K2: $KeyOf<V>>(keyPath: [K, K2], notSetValue: NSV): $ValOf<V, K2> | NSV;
+  getIn<NSV, K2: $KeyOf<V>, K3: $KeyOf<$ValOf<V, K2>>>(keyPath: [K, K2, K3], notSetValue: NSV): $ValOf<$ValOf<V, K2>, K3> | NSV;
+  getIn<NSV, K2: $KeyOf<V>, K3: $KeyOf<$ValOf<V, K2>>, K4: $KeyOf<$ValOf<$ValOf<V, K2>, K3>>>(keyPath: [K, K2, K3, K4], notSetValue: NSV): $ValOf<$ValOf<$ValOf<V, K2>, K3>, K4> | NSV;
+  getIn<NSV, K2: $KeyOf<V>, K3: $KeyOf<$ValOf<V, K2>>, K4: $KeyOf<$ValOf<$ValOf<V, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>>>(keyPath: [K, K2, K3, K4, K5], notSetValue: NSV): $ValOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>, K5> | NSV;
 
   update<U>(updater: (value: this) => U): U;
 
@@ -1385,7 +1406,13 @@ declare class RecordInstance<T: Object> {
   get<K: $Keys<T>>(key: K): $ElementType<T, K>;
 
   hasIn(keyPath: Iterable<mixed>): boolean;
-  getIn(keyPath: Iterable<mixed>, notSetValue?: mixed): any;
+
+  getIn(keyPath: [], notSetValue?: mixed): this & T;
+  getIn<K: $Keys<T>>(keyPath: [K], notSetValue?: mixed): $ElementType<T, K>;
+  getIn<NSV, K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>>(keyPath: [K, K2], notSetValue: NSV): $ValOf<$ElementType<T, K>, K2> | NSV;
+  getIn<NSV, K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>>(keyPath: [K, K2, K3], notSetValue: NSV): $ValOf<$ValOf<$ElementType<T, K>, K2>, K3> | NSV;
+  getIn<NSV, K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>>>(keyPath: [K, K2, K3, K4], notSetValue: NSV): $ValOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>, K4> | NSV;
+  getIn<NSV, K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>, K4>>>(keyPath: [K, K2, K3, K4, K5], notSetValue: NSV): $ValOf<$ValOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>, K4>, K5> | NSV;
 
   equals(other: any): boolean;
   hashCode(): number;
