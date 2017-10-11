@@ -2151,6 +2151,7 @@ MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeIn = MapPrototype.deleteIn;
 MapPrototype.removeAll = MapPrototype.deleteAll;
+MapPrototype.concat = MapPrototype.merge;
 MapPrototype['@@transducer/init'] = MapPrototype.asMutable;
 MapPrototype['@@transducer/step'] = function(result, arr) {
   return result.set(arr[0], arr[1]);
@@ -2981,8 +2982,30 @@ var List = (function (IndexedCollection$$1) {
 
   // @pragma Composition
 
-  List.prototype.merge = function merge (/*...collections*/) {
-    return this.concat.apply(this, arguments);
+  List.prototype.concat = function concat (/*...collections*/) {
+    var arguments$1 = arguments;
+
+    var seqs = [];
+    for (var i = 0; i < arguments.length; i++) {
+      var argument = arguments$1[i];
+      var seq = IndexedCollection$$1(
+        typeof argument !== 'string' && hasIterator(argument)
+          ? argument
+          : [argument]
+      );
+      if (seq.size !== 0) {
+        seqs.push(seq);
+      }
+    }
+    if (seqs.length === 0) {
+      return this;
+    }
+    if (this.size === 0 && !this.__ownerID && seqs.length === 1) {
+      return this.constructor(seqs[0]);
+    }
+    return this.withMutations(function (list) {
+      seqs.forEach(function (seq) { return seq.forEach(function (value) { return list.push(value); }); });
+    });
   };
 
   List.prototype.setSize = function setSize (size) {
@@ -3065,6 +3088,7 @@ var IS_LIST_SENTINEL = '@@__IMMUTABLE_LIST__@@';
 var ListPrototype = List.prototype;
 ListPrototype[IS_LIST_SENTINEL] = true;
 ListPrototype[DELETE] = ListPrototype.remove;
+ListPrototype.merge = ListPrototype.concat;
 ListPrototype.setIn = MapPrototype.setIn;
 ListPrototype.deleteIn = ListPrototype.removeIn = MapPrototype.removeIn;
 ListPrototype.update = MapPrototype.update;
@@ -4136,7 +4160,7 @@ var IS_SET_SENTINEL = '@@__IMMUTABLE_SET__@@';
 var SetPrototype = Set.prototype;
 SetPrototype[IS_SET_SENTINEL] = true;
 SetPrototype[DELETE] = SetPrototype.remove;
-SetPrototype.merge = SetPrototype.union;
+SetPrototype.merge = SetPrototype.concat = SetPrototype.union;
 SetPrototype.withMutations = MapPrototype.withMutations;
 SetPrototype.asMutable = MapPrototype.asMutable;
 SetPrototype.asImmutable = MapPrototype.asImmutable;
