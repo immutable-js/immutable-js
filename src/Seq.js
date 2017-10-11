@@ -8,6 +8,7 @@
 import { wrapIndex } from './TrieUtils';
 import { Collection } from './Collection';
 import {
+  isImmutable,
   isCollection,
   isKeyed,
   isAssociative,
@@ -29,9 +30,7 @@ export class Seq extends Collection {
   constructor(value) {
     return value === null || value === undefined
       ? emptySequence()
-      : isCollection(value) || isRecord(value)
-        ? value.toSeq()
-        : seqFromValue(value);
+      : isImmutable(value) ? value.toSeq() : seqFromValue(value);
   }
 
   toSeq() {

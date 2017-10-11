@@ -6,10 +6,7 @@
  */
 
 export function isImmutable(maybeImmutable) {
-  return (
-    (isCollection(maybeImmutable) || isRecord(maybeImmutable)) &&
-    !maybeImmutable.__ownerID
-  );
+  return isCollection(maybeImmutable) || isRecord(maybeImmutable);
 }
 
 export function isCollection(maybeCollection) {

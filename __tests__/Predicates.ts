@@ -18,7 +18,7 @@ describe('isImmutable', () => {
     expect(isImmutable(List())).toBe(true);
     expect(isImmutable(Set())).toBe(true);
     expect(isImmutable(Stack())).toBe(true);
-    expect(isImmutable(Map().asMutable())).toBe(false);
+    expect(isImmutable(Map().asMutable())).toBe(true);
   });
 
 });
