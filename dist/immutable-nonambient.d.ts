@@ -230,6 +230,8 @@
   /**
    * True if `maybeImmutable` is an Immutable Collection or Record.
    *
+   * Note: Still returns true even if the collections is within a `withMutations()`.
+   *
    * <!-- runkit:activate -->
    * ```js
    * const { isImmutable, Map, List, Stack } = require('immutable@4.0.0-rc.7');
@@ -238,7 +240,7 @@
    * isImmutable(Map()); // true
    * isImmutable(List()); // true
    * isImmutable(Stack()); // true
-   * isImmutable(Map().asMutable()); // false
+   * isImmutable(Map().asMutable()); // true
    * ```
    */
   export function isImmutable(maybeImmutable: any): maybeImmutable is Collection<any, any>;

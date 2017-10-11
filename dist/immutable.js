@@ -115,10 +115,7 @@ function isNeg(value) {
 }
 
 function isImmutable(maybeImmutable) {
-  return (
-    (isCollection(maybeImmutable) || isRecord(maybeImmutable)) &&
-    !maybeImmutable.__ownerID
-  );
+  return isCollection(maybeImmutable) || isRecord(maybeImmutable);
 }
 
 function isCollection(maybeCollection) {
@@ -277,9 +274,7 @@ var Seq = (function (Collection$$1) {
   function Seq(value) {
     return value === null || value === undefined
       ? emptySequence()
-      : isCollection(value) || isRecord(value)
-        ? value.toSeq()
-        : seqFromValue(value);
+      : isImmutable(value) ? value.toSeq() : seqFromValue(value);
   }
 
   if ( Collection$$1 ) Seq.__proto__ = Collection$$1;
