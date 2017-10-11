@@ -812,3 +812,79 @@ someObj.y = 2;
 let mapOfSomeObj: Map<string, number> = Map(someObj);
 // $ExpectError - someObj is string -> number
 let mapOfSomeObjMistake: Map<string, string> = Map(someObj);
+
+
+// getIn() type
+
+// Deep nested
+const deepData1: List<Map<string, string>> = List([Map([['apple', 'sauce']])]);
+const deepNestedString1 = deepData1.getIn([0, 'apple']);
+// $ExpectError string is not a number
+{ const fail: ?number = deepNestedString1; }
+// $ExpectError getIn can return undefined
+{ const fail: string = deepNestedString1; }
+{ const success: ?string = deepNestedString1; }
+
+const listOfListOfNumber: List<?List<?number>> = List([List([1, 2, 3])]);
+const nestedNum = listOfListOfNumber.getIn([0, 1]);
+// $ExpectError number is not string
+{ const fail: ?string = nestedNum; }
+// $ExpectError getIn can return undefined
+{ const fail: number = nestedNum; }
+{ const success: ?number = nestedNum; }
+// $ExpectError expected a number 1st key
+listOfListOfNumber.getIn(['whoops', 1]);
+// $ExpectError expected a number 2nd key
+listOfListOfNumber.getIn([0, 'whoops']);
+// $ExpectError too many keys!
+listOfListOfNumber.getIn([0, 0, 'whoops']);
+
+// Deep nested
+const deepData: List<Map<string, List<string>>> = List([Map([['apple', List(['sauce'])]])]);
+const deepNestedString = deepData.getIn([0, 'apple', 0]);
+// $ExpectError string is not a number
+{ const fail: ?number = deepNestedString; }
+// $ExpectError getIn can return undefined
+{ const fail: string = deepNestedString; }
+{ const success: ?string = deepNestedString; }
+// $ExpectError expected a string 2nd key
+deepData.getIn([0, 0, 0]);
+// $ExpectError expected a number 3rd key
+deepData.getIn([0, 'apple', 'whoops']);
+
+// Containing Records
+const listOfPersonRecord: List<PersonRecord> = List([personRecordInstance]);
+const firstAge = listOfPersonRecord.getIn([0, 'age']);
+// $ExpectError expected a string key
+{ const age: string = firstAge }
+// $ExpectError getIn can return undefined
+{ const age: number = firstAge }
+{ const age: ?number = firstAge }
+// $ExpectError - the first key is not an index
+listOfPersonRecord.getIn(['wrong', 'age']);
+// $ExpectError - the second key is not an record key
+listOfPersonRecord.getIn([0, 'mispeld']);
+// $ExpectError - the second key is not an record key
+listOfPersonRecord.getIn([0, 0]);
+
+// Recursive Records
+type PersonRecord2Fields = { name: string, friends: List<PersonRecord2> };
+type PersonRecord2 = RecordOf<PersonRecord2Fields>;
+const makePersonRecord2: RecordFactory<PersonRecord2Fields> = Record({
+  name: 'Adam',
+  friends: List(),
+});
+const friendly: PersonRecord2 = makePersonRecord2();
+// $ExpectError string is not a number
+{ const fail: ?number = friendly.getIn(['friends', 0, 'name']); }
+// notSetValue provided
+{ const success: string = friendly.getIn(['friends', 0, 'name'], 'Abbie'); }
+{ const success: ?string = friendly.getIn(['friends', 0, 'name']); }
+
+// Deep nested containing recursive Records
+const friendlies: List<PersonRecord2> = List([makePersonRecord2()]);
+// $ExpectError string is not a number
+{ const fail: ?number = friendlies.getIn([0, 'friends', 0, 'name']); }
+// notSetValue provided
+{ const success: string = friendlies.getIn([0, 'friends', 0, 'name'], 'Abbie'); }
+{ const success: ?string = friendlies.getIn([0, 'friends', 0, 'name']); }
