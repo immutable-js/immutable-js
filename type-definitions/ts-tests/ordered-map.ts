@@ -252,13 +252,13 @@ import { OrderedMap, List } from '../../';
   // $ExpectType OrderedMap<string, number>
   OrderedMap<string, number>().merge({ a: 1 });
 
-  // $ExpectError
+  // $ExpectType OrderedMap<string, number | { b: number; }>
   OrderedMap<string, number>().merge({ a: { b: 1 } });
 
   // $ExpectType OrderedMap<number, number>
   OrderedMap<number, number>().merge(OrderedMap<number, number>());
 
-  // $ExpectError
+  // $ExpectType OrderedMap<number, string | number>
   OrderedMap<number, number>().merge(OrderedMap<number, string>());
 
   // $ExpectType OrderedMap<number, string | number>

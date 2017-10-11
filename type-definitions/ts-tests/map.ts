@@ -252,13 +252,13 @@ import { Map, List } from '../../';
   // $ExpectType Map<string, number>
   Map<string, number>().merge({ a: 1 });
 
-  // $ExpectError
+  // $ExpectType Map<string, number | { b: number; }>
   Map<string, number>().merge({ a: { b: 1 } });
 
   // $ExpectType Map<number, number>
   Map<number, number>().merge(Map<number, number>());
 
-  // $ExpectError
+  // $ExpectType Map<number, string | number>
   Map<number, number>().merge(Map<number, string>());
 
   // $ExpectType Map<number, string | number>

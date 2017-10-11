@@ -401,7 +401,7 @@ declare class SetCollection<+T> extends Collection<T, T> {
   @@iterator(): Iterator<T>;
   toSeq(): SetSeq<T>;
 
-  concat<C>(...iters: Array<Iterable<C> | C>): SetCollection<T | C>;
+  concat<U>(...collections: Iterable<U>[]): SetCollection<T | U>;
 
   // `filter`, `map` and `flatMap` cannot be defined further up the hierarchy,
   // because the implementation for `KeyedCollection` allows the value type to
@@ -619,7 +619,7 @@ declare class SetSeq<+T> extends Seq<T, T> mixins SetCollection<T> {
 
   // Override specialized return types
 
-  concat<C>(...iters: Array<Iterable<C> | C>): SetSeq<T | C>;
+  concat<U>(...collections: Iterable<U>[]): SetSeq<T | U>;
 
   filter(predicate: typeof Boolean): SetSeq<$NonMaybeType<T>>;
   filter(
@@ -836,6 +836,9 @@ declare class Map<K, +V> extends KeyedCollection<K, V> {
   merge<K_, V_>(
     ...collections: (Iterable<[K_, V_]> | PlainObjInput<K_, V_>)[]
   ): Map<K | K_, V | V_>;
+  concat<K_, V_>(
+    ...collections: (Iterable<[K_, V_]> | PlainObjInput<K_, V_>)[]
+  ): Map<K | K_, V | V_>;
 
   mergeWith<K_, W, X>(
     merger: (oldVal: V, newVal: W, key: K) => X,
@@ -882,9 +885,6 @@ declare class Map<K, +V> extends KeyedCollection<K, V> {
   // Override specialized return types
 
   flip(): Map<V, K>;
-
-  concat<KC, VC>(...iters: Array<Iterable<[KC, VC]>>): Map<K | KC, V | VC>;
-  concat<KC, VC>(...iters: Array<PlainObjInput<KC, VC>>): Map<K | KC, V | VC>;
 
   filter(predicate: typeof Boolean): Map<K, $NonMaybeType<V>>;
   filter(
@@ -937,6 +937,9 @@ declare class OrderedMap<K, +V> extends Map<K, V> {
   merge<K_, V_>(
     ...collections: (Iterable<[K_, V_]> | PlainObjInput<K_, V_>)[]
   ): OrderedMap<K | K_, V | V_>;
+  concat<K_, V_>(
+    ...collections: (Iterable<[K_, V_]> | PlainObjInput<K_, V_>)[]
+  ): OrderedMap<K | K_, V | V_>;
 
   mergeWith<K_, W, X>(
     merger: (oldVal: V, newVal: W, key: K) => X,
@@ -983,9 +986,6 @@ declare class OrderedMap<K, +V> extends Map<K, V> {
   // Override specialized return types
 
   flip(): OrderedMap<V, K>;
-
-  concat<KC, VC>(...iters: Array<Iterable<[KC, VC]>>): OrderedMap<K | KC, V | VC>;
-  concat<KC, VC>(...iters: Array<PlainObjInput<KC, VC>>): OrderedMap<K | KC, V | VC>;
 
   filter(predicate: typeof Boolean): OrderedMap<K, $NonMaybeType<V>>;
   filter(
@@ -1038,6 +1038,7 @@ declare class Set<+T> extends SetCollection<T> {
   clear(): this;
   union<U>(...collections: Iterable<U>[]): Set<T | U>;
   merge<U>(...collections: Iterable<U>[]): Set<T | U>;
+  concat<U>(...collections: Iterable<U>[]): Set<T | U>;
   intersect<U>(...collections: Iterable<U>[]): Set<T & U>;
   subtract(...collections: Iterable<mixed>[]): this;
 
@@ -1047,8 +1048,6 @@ declare class Set<+T> extends SetCollection<T> {
   asImmutable(): this;
 
   // Override specialized return types
-
-  concat<C>(...iters: Array<Iterable<C> | C>): Set<T | C>;
 
   filter(predicate: typeof Boolean): Set<$NonMaybeType<T>>;
   filter(
@@ -1087,9 +1086,8 @@ declare class OrderedSet<+T> extends Set<T> {
   add<U>(value: U): OrderedSet<T | U>;
   union<U>(...collections: Iterable<U>[]): OrderedSet<T | U>;
   merge<U>(...collections: Iterable<U>[]): OrderedSet<T | U>;
+  concat<U>(...collections: Iterable<U>[]): OrderedSet<T | U>;
   intersect<U>(...collections: Iterable<U>[]): OrderedSet<T & U>;
-
-  concat<C>(...iters: Array<Iterable<C> | C>): OrderedSet<T | C>;
 
   filter(predicate: typeof Boolean): OrderedSet<$NonMaybeType<T>>;
   filter(

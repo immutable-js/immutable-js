@@ -155,7 +155,7 @@ import { Set, Map } from '../../';
   // $ExpectType Set<number>
   Set<number>().union(Set<number>());
 
-  // $ExpectError
+  // $ExpectType Set<string | number>
   Set<number>().union(Set<string>());
 
   // $ExpectType Set<string | number>
@@ -170,7 +170,7 @@ import { Set, Map } from '../../';
   // $ExpectType Set<number>
   Set<number>().merge(Set<number>());
 
-  // $ExpectError
+  // $ExpectType Set<string | number>
   Set<number>().merge(Set<string>());
 
   // $ExpectType Set<string | number>
