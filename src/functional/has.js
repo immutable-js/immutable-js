@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { isCollection, isRecord } from '../Predicates';
+import { isImmutable } from '../Predicates';
 import hasOwnProperty from '../utils/hasOwnProperty';
 
 export function has(collection, key) {
-  return isCollection(collection) || isRecord(collection)
+  return isImmutable(collection)
     ? collection.has(key)
     : hasOwnProperty.call(collection, key);
 }

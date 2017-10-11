@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { isCollection, isRecord } from '../Predicates';
+import { isImmutable } from '../Predicates';
 import { has } from './has';
 
 export function get(collection, key, notSetValue) {
-  return isCollection(collection) || isRecord(collection)
+  return isImmutable(collection)
     ? collection.get(key, notSetValue)
     : !has(collection, key)
       ? notSetValue

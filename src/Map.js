@@ -10,7 +10,7 @@ import { setIn } from './functional/setIn';
 import { update } from './functional/update';
 import { updateIn } from './functional/updateIn';
 import { removeIn } from './functional/removeIn';
-import { mergeDeep, mergeDeepWith } from './functional/merge';
+import { merge, mergeDeep, mergeDeepWith } from './functional/merge';
 import { Collection, KeyedCollection } from './Collection';
 import { isOrdered } from './Predicates';
 import {
@@ -136,14 +136,7 @@ export class Map extends KeyedCollection {
   }
 
   mergeIn(keyPath, ...iters) {
-    return this.updateIn(
-      keyPath,
-      emptyMap(),
-      m =>
-        typeof m.merge === 'function'
-          ? m.merge.apply(m, iters)
-          : iters[iters.length - 1]
-    );
+    return updateIn(this, keyPath, emptyMap(), m => merge(m, ...iters));
   }
 
   mergeDeep(...iters) {
@@ -155,14 +148,7 @@ export class Map extends KeyedCollection {
   }
 
   mergeDeepIn(keyPath, ...iters) {
-    return this.updateIn(
-      keyPath,
-      emptyMap(),
-      m =>
-        typeof m.mergeDeep === 'function'
-          ? m.mergeDeep.apply(m, iters)
-          : iters[iters.length - 1]
-    );
+    return updateIn(this, keyPath, emptyMap(), m => mergeDeep(m, ...iters));
   }
 
   sort(comparator) {

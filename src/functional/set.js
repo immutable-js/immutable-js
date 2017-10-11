@@ -5,22 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { isCollection, isRecord } from '../Predicates';
+import { isImmutable } from '../Predicates';
 import hasOwnProperty from '../utils/hasOwnProperty';
-import isPlainUpdatable from '../utils/isPlainUpdatable';
+import isUpdatable from '../utils/isUpdatable';
 import shallowCopy from '../utils/shallowCopy';
 
 export function set(collection, key, value) {
-  if (isCollection(collection) || isRecord(collection)) {
+  if (!isUpdatable(collection)) {
+    throw new TypeError('Cannot update non-updatable value: ' + collection);
+  }
+  if (isImmutable(collection)) {
     if (!collection.set) {
       throw new TypeError(
         'Cannot update value without .set() method: ' + collection
       );
     }
     return collection.set(key, value);
-  }
-  if (!isPlainUpdatable(collection)) {
-    throw new TypeError('Cannot update non-updatable value: ' + collection);
   }
   if (hasOwnProperty.call(collection, key) && value === collection[key]) {
     return collection;

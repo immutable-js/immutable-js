@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import { isImmutable } from '../Predicates';
 import coerceKeyPath from '../utils/coerceKeyPath';
-import isPlainUpdatable from '../utils/isPlainUpdatable';
+import isUpdatable from '../utils/isUpdatable';
 import quoteString from '../utils/quoteString';
-import { isCollection, isRecord } from '../Predicates';
 import { NOT_SET } from '../TrieUtils';
 import { emptyMap } from '../Map';
 import { get } from './get';
@@ -21,6 +21,7 @@ export function updateIn(collection, keyPath, notSetValue, updater) {
     notSetValue = undefined;
   }
   const updatedValue = updateInDeeply(
+    isImmutable(collection),
     collection,
     coerceKeyPath(keyPath),
     0,
@@ -30,19 +31,21 @@ export function updateIn(collection, keyPath, notSetValue, updater) {
   return updatedValue === NOT_SET ? notSetValue : updatedValue;
 }
 
-function updateInDeeply(existing, keyPath, i, notSetValue, updater) {
+function updateInDeeply(
+  inImmutable,
+  existing,
+  keyPath,
+  i,
+  notSetValue,
+  updater
+) {
   const wasNotSet = existing === NOT_SET;
   if (i === keyPath.length) {
     const existingValue = wasNotSet ? notSetValue : existing;
     const newValue = updater(existingValue);
     return newValue === existingValue ? existing : newValue;
   }
-  if (
-    !wasNotSet &&
-    !isCollection(existing) &&
-    !isRecord(existing) &&
-    !isPlainUpdatable(existing)
-  ) {
+  if (!wasNotSet && !isUpdatable(existing)) {
     throw new TypeError(
       'Cannot update within non-updatable value in path [' +
         keyPath.slice(0, i).map(quoteString) +
@@ -53,6 +56,7 @@ function updateInDeeply(existing, keyPath, i, notSetValue, updater) {
   const key = keyPath[i];
   const nextExisting = wasNotSet ? NOT_SET : get(existing, key, NOT_SET);
   const nextUpdated = updateInDeeply(
+    nextExisting === NOT_SET ? inImmutable : isImmutable(nextExisting),
     nextExisting,
     keyPath,
     i + 1,
@@ -63,5 +67,12 @@ function updateInDeeply(existing, keyPath, i, notSetValue, updater) {
     ? existing
     : nextUpdated === NOT_SET
       ? remove(existing, key)
-      : set(wasNotSet ? emptyMap() : existing, key, nextUpdated);
+      : set(wasNotSet ? empty(key, inImmutable) : existing, key, nextUpdated);
+}
+
+function empty(key, inImmutable) {
+  // TODO: use emptyList(), but fix dependency cycle
+  return typeof key === 'number'
+    ? inImmutable ? emptyMap() : []
+    : inImmutable ? emptyMap() : {};
 }

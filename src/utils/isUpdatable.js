@@ -5,8 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import { isImmutable } from '../Predicates';
 import isPlainObj from './isPlainObj';
 
-export default function isPlainUpdatable(collection) {
-  return collection && (Array.isArray(collection) || isPlainObj(collection));
+export default function isUpdatable(collection) {
+  return (
+    isImmutable(collection) ||
+    Array.isArray(collection) ||
+    isPlainObj(collection)
+  );
 }

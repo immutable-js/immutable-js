@@ -7,7 +7,7 @@
 
 ///<reference path='../resources/jest.d.ts'/>
 
-import { fromJS, is, List, Map, Set } from '../';
+import { fromJS, is, List, Map, merge, mergeDeep, mergeDeepWith, Set } from '../';
 
 describe('merge', () => {
   it('merges two maps', () => {
@@ -62,9 +62,29 @@ describe('merge', () => {
     const js = {a: {b: {c: 10, e: 20}, f: 30}, g: 40};
     expect(
       m1.mergeDeepWith((a, b) => a + b, js),
-    ).toEqual(fromJS(
+    ).toEqual(
+      fromJS({a: {b: {c: 11, d: 2, e: 20}, f: 30}, g: 40}),
+    );
+  });
+
+  it('deep merges raw JS into raw JS with a merge function', () => {
+    const js1 = {a: {b: {c: 1, d: 2}}};
+    const js2 = {a: {b: {c: 10, e: 20}, f: 30}, g: 40};
+    expect(
+      mergeDeepWith((a, b) => a + b, js1, js2),
+    ).toEqual(
       {a: {b: {c: 11, d: 2, e: 20}, f: 30}, g: 40},
-    ));
+    );
+  });
+
+  it('deep merges collections into raw JS with a merge function', () => {
+    const js = {a: {b: {c: 1, d: 2}}};
+    const m = fromJS({a: {b: {c: 10, e: 20}, f: 30}, g: 40});
+    expect(
+      mergeDeepWith((a, b) => a + b, js, m),
+    ).toEqual(
+      {a: {b: {c: 11, d: 2, e: 20}, f: 30}, g: 40},
+    );
   });
 
   it('returns self when a deep merges is a no-op', () => {
@@ -81,20 +101,25 @@ describe('merge', () => {
     ).toBe(m1);
   });
 
+  it('returns self when a deep merges is a no-op on raw JS', () => {
+    const m1 = {a: {b: {c: 1, d: 2}}};
+    expect(
+      mergeDeep(m1, {a: {b: {c: 1}}}),
+    ).toBe(m1);
+  });
+
   it('can overwrite existing maps', () => {
     expect(
       fromJS({ a: { x: 1, y: 1 }, b: { x: 2, y: 2 } })
-        .merge({ a: null, b: Map({ x: 10 }) })
-        .toJS(),
+        .merge({ a: null, b: Map({ x: 10 }) }),
     ).toEqual(
-      { a: null, b: { x: 10 } },
+      fromJS({ a: null, b: { x: 10 } }),
     );
     expect(
       fromJS({ a: { x: 1, y: 1 }, b: { x: 2, y: 2 } })
-        .mergeDeep({ a: null, b: { x: 10 } })
-        .toJS(),
+        .mergeDeep({ a: null, b: { x: 10 } }),
     ).toEqual(
-      { a: null, b: { x: 10, y: 2 } },
+      fromJS({ a: null, b: { x: 10, y: 2 } }),
     );
   });
 
@@ -142,6 +167,27 @@ describe('merge', () => {
     expect(m1.getIn(['a', 'b'])).toEqual(Map([['imm', 'map']]));
     // However mergeDeep will merge that value into the inner Map
     expect(m2.getIn(['a', 'b'])).toEqual(Map({imm: 'map', plain: 'obj'}));
+  });
+
+  it('merges plain Objects', () => {
+    expect(
+      merge({ x: 1, y: 1 }, { y: 2, z: 2 }, Map({ z: 3, q: 3 })),
+    ).toEqual(
+      { x: 1, y: 2, z: 3, q: 3 },
+    );
+  });
+
+  it('merges plain Arrays', () => {
+    expect(
+      merge([1, 2], [3, 4], List([5, 6])),
+    ).toEqual(
+      [1, 2, 3, 4, 5, 6],
+    );
+  });
+
+  it('merging plain Array returns self after no-op', () => {
+    const a = [1, 2, 3];
+    expect(merge(a, [], [])).toBe(a);
   });
 
 });

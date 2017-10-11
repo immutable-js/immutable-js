@@ -5,17 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { isCollection, isRecord } from '../Predicates';
+import { isImmutable } from '../Predicates';
 import hasOwnProperty from '../utils/hasOwnProperty';
-import isPlainUpdatable from '../utils/isPlainUpdatable';
+import isUpdatable from '../utils/isUpdatable';
 import shallowCopy from '../utils/shallowCopy';
 
 export function remove(collection, key) {
-  if (isCollection(collection) || isRecord(collection)) {
-    return collection.delete(key);
-  }
-  if (!isPlainUpdatable(collection)) {
+  if (!isUpdatable(collection)) {
     throw new TypeError('Cannot update non-updatable value: ' + collection);
+  }
+  if (isImmutable(collection)) {
+    return collection.delete(key);
   }
   if (!hasOwnProperty.call(collection, key)) {
     return collection;
