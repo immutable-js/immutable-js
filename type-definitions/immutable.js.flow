@@ -1403,7 +1403,7 @@ declare class RecordInstance<T: Object> {
   size: number;
 
   has(key: string): boolean;
-  get<K: $Keys<T>>(key: K): $ElementType<T, K>;
+  get<K: $Keys<T>>(key: K, notSetValue: mixed): $ElementType<T, K>;
 
   hasIn(keyPath: Iterable<mixed>): boolean;
 
