@@ -2552,7 +2552,16 @@
     // Reading values
 
     has(key: string): key is keyof TProps;
-    get<K extends keyof TProps>(key: K): TProps[K];
+
+    /**
+     * Returns the value associated with the provided key, which may be the
+     * default value defined when creating the Record factory function.
+     *
+     * If the requested key is not defined by this Record type, then
+     * notSetValue will be returned if provided. Note that this scenario would
+     * produce an error when using Flow or TypeScript.
+     */
+    get<K extends keyof TProps>(key: K, notSetValue: any): TProps[K];
 
     // Reading deep values
 
