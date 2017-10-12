@@ -220,8 +220,7 @@ declare class Collection<K, +V> extends _Collection<K, V> {
 }
 
 declare class KeyedCollection<K, +V> extends Collection<K, V> {
-  static <K, V>(iter?: Iterable<[K, V]>): KeyedCollection<K, V>;
-  static <K, V>(obj?: PlainObjInput<K, V>): KeyedCollection<K, V>;
+  static <K, V>(values?: Iterable<[K, V]> | PlainObjInput<K, V>): KeyedCollection<K, V>;
 
   toJS(): { [key: string]: mixed };
   toJSON(): { [key: string]: V };
@@ -230,8 +229,7 @@ declare class KeyedCollection<K, +V> extends Collection<K, V> {
   toSeq(): KeyedSeq<K, V>;
   flip(): KeyedCollection<V, K>;
 
-  concat<KC, VC>(...iters: Array<Iterable<[KC, VC]>>): KeyedCollection<K | KC, V | VC>;
-  concat<KC, VC>(...iters: Array<PlainObjInput<KC, VC>>): KeyedCollection<K | KC, V | VC>;
+  concat<KC, VC>(...iters: Array<Iterable<[KC, VC]> | PlainObjInput<KC, VC>>): KeyedCollection<K | KC, V | VC>;
 
   filter(predicate: typeof Boolean): KeyedCollection<K, $NonMaybeType<V>>;
   filter(
@@ -454,10 +452,10 @@ declare class Seq<K, +V> extends _Collection<K, V> {
   static Indexed: typeof IndexedSeq;
   static Set: typeof SetSeq;
 
-  static <K, V>(iter: KeyedSeq<K, V>): KeyedSeq<K, V>;
-  static <T>(iter: SetSeq<T>): SetSeq<K, V>;
-  static <T>(iter?: Iterable<T>): IndexedSeq<T>;
-  static <K, V>(iter: PlainObjInput<K, V>): KeyedSeq<K, V>;
+  static <K, V>(values: KeyedSeq<K, V>): KeyedSeq<K, V>;
+  static <T>(values: SetSeq<T>): SetSeq<K, V>;
+  static <T>(values: Iterable<T>): IndexedSeq<T>;
+  static <K, V>(values?: PlainObjInput<K, V>): KeyedSeq<K, V>;
 
   static isSeq: typeof isSeq;
 
@@ -467,14 +465,12 @@ declare class Seq<K, +V> extends _Collection<K, V> {
 }
 
 declare class KeyedSeq<K, +V> extends Seq<K, V> mixins KeyedCollection<K, V> {
-  static <K, V>(iter?: Iterable<[K, V]>): KeyedSeq<K, V>;
-  static <K, V>(iter?: PlainObjInput<K, V>): KeyedSeq<K, V>;
+  static <K, V>(values?: Iterable<[K, V]> | PlainObjInput<K, V>): KeyedSeq<K, V>;
 
   // Override specialized return types
   flip(): KeyedSeq<V, K>;
 
-  concat<KC, VC>(...iters: Array<Iterable<[KC, VC]>>): KeyedSeq<K | KC, V | VC>;
-  concat<KC, VC>(...iters: Array<PlainObjInput<KC, VC>>): KeyedSeq<K | KC, V | VC>;
+  concat<KC, VC>(...iters: Array<Iterable<[KC, VC]> | PlainObjInput<KC, VC>>): KeyedSeq<K | KC, V | VC>;
 
   filter(predicate: typeof Boolean): KeyedSeq<K, $NonMaybeType<V>>;
   filter(
@@ -858,8 +854,7 @@ declare class List<+T> extends IndexedCollection<T> mixins UpdatableInCollection
 
 declare function isMap(maybeMap: mixed): boolean %checks(maybeMap instanceof Map);
 declare class Map<K, +V> extends KeyedCollection<K, V> mixins UpdatableInCollection<K, V> {
-  static <K, V>(collection: Iterable<[K, V]>): Map<K, V>;
-  static <K, V>(obj?: PlainObjInput<K, V>): Map<K, V>;
+  static <K, V>(values?: Iterable<[K, V]> | PlainObjInput<K, V>): Map<K, V>;
 
   static isMap: typeof isMap;
 
@@ -948,8 +943,7 @@ declare class Map<K, +V> extends KeyedCollection<K, V> mixins UpdatableInCollect
 
 declare function isOrderedMap(maybeOrderedMap: mixed): boolean %checks(maybeOrderedMap instanceof OrderedMap);
 declare class OrderedMap<K, +V> extends Map<K, V> mixins UpdatableInCollection<K, V> {
-  static <K, V>(collection: Iterable<[K, V]>): OrderedMap<K, V>;
-  static <K, V>(obj?: PlainObjInput<K, V>): OrderedMap<K, V>;
+  static <K, V>(values?: Iterable<[K, V]> | PlainObjInput<K, V>): OrderedMap<K, V>;
 
   static isOrderedMap: typeof isOrderedMap;
 
@@ -1035,11 +1029,10 @@ declare class OrderedMap<K, +V> extends Map<K, V> mixins UpdatableInCollection<K
 
 declare function isSet(maybeSet: mixed): boolean %checks(maybeSet instanceof Set);
 declare class Set<+T> extends SetCollection<T> {
-  static <T>(collection?: Iterable<T>): Set<T>;
+  static <T>(values?: Iterable<T>): Set<T>;
 
   static of<T>(...values: T[]): Set<T>;
-  static fromKeys<T>(iter: Iterable<[T, mixed]>): Set<T>;
-  static fromKeys<K>(object: PlainObjInput<K, mixed>): Set<K>;
+  static fromKeys<T>(values: Iterable<[T, mixed]> | PlainObjInput<T, mixed>): Set<T>;
 
   static intersect(sets: Iterable<Iterable<T>>): Set<T>;
   static union(sets: Iterable<Iterable<T>>): Set<T>;
@@ -1088,12 +1081,10 @@ declare class Set<+T> extends SetCollection<T> {
 // Overrides except for `isOrderedSet` are for specialized return types
 declare function isOrderedSet(maybeOrderedSet: mixed): boolean %checks(maybeOrderedSet instanceof OrderedSet);
 declare class OrderedSet<+T> extends Set<T> {
-  static <T>(collection: Iterable<T>): OrderedSet<T>;
-  static (_: void): OrderedSet<any>;
+  static <T>(values?: Iterable<T>): OrderedSet<T>;
 
   static of<T>(...values: T[]): OrderedSet<T>;
-  static fromKeys<T>(iter: Iterable<[T, mixed]>): OrderedSet<T>;
-  static fromKeys<K>(object: PlainObjInput<K, mixed>): OrderedSet<K>;
+  static fromKeys<T>(values: Iterable<[T, mixed]> | PlainObjInput<T, mixed>): OrderedSet<T>;
 
   static isOrderedSet: typeof isOrderedSet;
 
@@ -1390,10 +1381,10 @@ declare class Record {
 }
 
 declare class RecordInstance<T: Object> {
-  static (values?: $Shape<T> | Iterable<[string, any]>): RecordOf<T>;
+  static (values?: $Shape<T> | Iterable<[$Keys<T>, any]>): RecordOf<T>;
   // Note: a constructor can only create an instance of RecordInstance<T>,
   // it's encouraged to not use `new` when creating Records.
-  constructor (values?: $Shape<T> | Iterable<[string, any]>): void;
+  constructor (values?: $Shape<T> | Iterable<[$Keys<T>, any]>): void;
 
   size: number;
 
@@ -1414,16 +1405,16 @@ declare class RecordInstance<T: Object> {
 
   set<K: $Keys<T>>(key: K, value: $ElementType<T, K>): this & T;
   update<K: $Keys<T>>(key: K, updater: (value: $ElementType<T, K>) => $ElementType<T, K>): this & T;
-  merge(...collections: Array<$Shape<T> | Iterable<[string, any]>>): this & T;
-  mergeDeep(...collections: Array<$Shape<T> | Iterable<[string, any]>>): this & T;
+  merge(...collections: Array<$Shape<T> | Iterable<[$Keys<T>, any]>>): this & T;
+  mergeDeep(...collections: Array<$Shape<T> | Iterable<[$Keys<T>, any]>>): this & T;
 
   mergeWith(
     merger: (oldVal: any, newVal: any, key: $Keys<T>) => any,
-    ...collections: Array<$Shape<T> | Iterable<[string, any]>>
+    ...collections: Array<$Shape<T> | Iterable<[$Keys<T>, any]>>
   ): this & T;
   mergeDeepWith(
     merger: (oldVal: any, newVal: any, key: any) => any,
-    ...collections: Array<$Shape<T> | Iterable<[string, any]>>
+    ...collections: Array<$Shape<T> | Iterable<[$Keys<T>, any]>>
   ): this & T;
 
   delete<K: $Keys<T>>(key: K): this & T;
