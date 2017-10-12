@@ -503,7 +503,7 @@ declare class KeyedSeq<K, +V> extends Seq<K, V> mixins KeyedCollection<K, V> {
 }
 
 declare class IndexedSeq<+T> extends Seq<number, T> mixins IndexedCollection<T> {
-  static <T>(iter?: Iterable<T>): IndexedSeq<T>;
+  static <T>(values?: Iterable<T>): IndexedSeq<T>;
 
   static of<T>(...values: T[]): IndexedSeq<T>;
 
@@ -630,7 +630,7 @@ declare class IndexedSeq<+T> extends Seq<number, T> mixins IndexedCollection<T> 
 }
 
 declare class SetSeq<+T> extends Seq<T, T> mixins SetCollection<T> {
-  static <T>(iter?: Iterable<T>): IndexedSeq<T>;
+  static <T>(values?: Iterable<T>): SetSeq<T>;
 
   static of<T>(...values: T[]): SetSeq<T>;
 
