@@ -264,6 +264,9 @@ import { List } from '../../';
   // $ExpectType List<string>
   List<number>().flatMap((value: number, key: number, iter: List<number>) => ['a']);
 
+  // $ExpectType List<string>
+  List<List<string>>().flatMap(list => list);
+
   // $ExpectType List<number>
   List<number>().flatMap<number>((value: number, key: number, iter: List<number>) => [1]);
 
