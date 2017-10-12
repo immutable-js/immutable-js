@@ -21,6 +21,20 @@ import Immutable, {
   Record,
   OrderedMap,
   OrderedSet,
+  get,
+  getIn,
+  has,
+  hasIn,
+  merge,
+  mergeDeep,
+  mergeWith,
+  mergeDeepWith,
+  remove,
+  removeIn,
+  set,
+  setIn,
+  update,
+  updateIn,
 } from '../../'
 import * as Immutable2 from '../../'
 
@@ -163,6 +177,14 @@ numberOrStringList = List.of('a').merge(List.of(1))
 // $ExpectError
 numberList = List.of('a').merge(List.of(1))
 
+// Functional API
+
+numberList = merge(List([1]), List([2]))
+// $ExpectError - Functional API currently requires arguments to have the same value types.
+numberOrStringList = merge(List(['a']), List([1]))
+// $ExpectError
+numberList = merge(List(['a']), List([1]))
+
 nullableNumberList = List.of(1).setSize(2)
 
 // $ExpectError setIn [] replaces the top-most value. number ~> List<number>
@@ -191,6 +213,15 @@ numberList = List([1]).deleteIn(['a'])
 numberList = List([1]).removeIn(['a'])
 numberList = List([1]).deleteIn([0])
 numberList = List([1]).removeIn([0])
+
+// Functional API
+
+// $ExpectError deleteIn [] replaces the top-most value. void ~> List<number>
+numberList = removeIn(List([1]), [])
+{ const x: void = removeIn(List([1]), []) }
+// $ExpectError "a" is not a valid key for List.
+numberList = removeIn(List([1]), ['a'])
+numberList = removeIn(List([1]), [0])
 
 // $ExpectError updateIn [] replaces the top-most value. number ~> List<number>
 numberList = List([1]).updateIn([], () => 123)
@@ -253,6 +284,16 @@ stringToNumber = Map({'a': 0}).set('b', '')
 // $ExpectError
 stringToNumber = Map().set(1, '')
 
+// Functional API
+
+stringToNumber = set(set(Map({'a': 0}), 'b', 1), 'c', 2)
+// $ExpectError - Functional API currently requires arguments to have the same value types.
+stringOrNumberToNumberOrString = set(set(Map({'a': 'a'}), 'b', 1), 2, 'c')
+// $ExpectError
+stringToNumber = set(Map({'a': 0}), 'b', '')
+// TODO: This should be ExpectError, but Map() is Map<any, any>
+stringToNumber = set(Map(), 1, '')
+
 stringToNumber = Map({'a': 0}).delete('a')
 stringToNumber = Map({'a': 0}).remove('a')
 // $ExpectError
@@ -296,7 +337,19 @@ stringToNumber = Map({a: 1}).merge([[1, 'a']])
 
 // FIXME: Simple `stringToNumber = ...` assignment shows an error at the declaration of stringToNumber and numberToString
 // $ExpectError
-const stringToNumber: Map<string, number> = Map({a: 1}).merge(numberToString)
+{ const stringToNumber: Map<string, number> = Map({a: 1}).merge(numberToString) }
+
+// Functional API
+stringToNumber = merge(Map({'a': 1}), Map({'a': 1}))
+// $ExpectError - Functional API currently requires arguments to have the same value types.
+stringToNumberOrString = merge(Map({'a': 1}), {'a': 'b'})
+// $ExpectError
+stringToNumber = merge(Map({a: 1}), {'a': 'b'})
+// $ExpectError
+stringToNumber = merge(Map({a: 1}), [[1, 'a']])
+// FIXME: Simple `stringToNumber = ...` assignment shows an error at the declaration of stringToNumber and numberToString
+// $ExpectError
+{ const stringToNumber: Map<string, number> = merge(Map({a: 1}), numberToString) }
 
 stringToNumber = Map({'a': 1}).mergeWith((previous, next, key) => 1, {'a': 2, 'b': 2})
 // $ExpectError - this is actually a Map<string, number|string>
@@ -875,6 +928,11 @@ personRecordInstance.set('invalid', 25)
 personRecordInstance.set('name', '25')
 personRecordInstance.set('age', 33)
 
+// $ExpectError
+set(personRecordInstance, 'invalid', 25)
+set(personRecordInstance, 'name', '25')
+set(personRecordInstance, 'age', 33)
+
 // Create a Map from a non-prototype "plain" Object
 let someObj = Object.create(null);
 someObj.x = 1;
@@ -882,7 +940,6 @@ someObj.y = 2;
 let mapOfSomeObj: Map<string, number> = Map(someObj);
 // $ExpectError - someObj is string -> number
 let mapOfSomeObjMistake: Map<string, string> = Map(someObj);
-
 
 // getIn() type
 
@@ -958,6 +1015,14 @@ const friendly: PersonRecord2 = makePersonRecord2();
 { const success: string = friendly.getIn(['friends', 0, 'name'], 'Abbie'); }
 { const success: ?string = friendly.getIn(['friends', 0, 'name']); }
 
+// Functional API
+
+// $ExpectError string is not a number
+{ const fail: ?number = getIn(friendly, ['friends', 0, 'name']); }
+// notSetValue provided
+{ const success: string = getIn(friendly, ['friends', 0, 'name'], 'Abbie'); }
+{ const success: ?string = getIn(friendly, ['friends', 0, 'name']); }
+
 // Deep nested containing recursive Records
 const friendlies: List<PersonRecord2> = List([makePersonRecord2()]);
 // $ExpectError string is not a number
@@ -972,3 +1037,54 @@ friendlies.setIn([0, 'friends', 0, 'name'], 'Sally');
 friendlies.updateIn([0, 'friends', 0, 'name'], value => value.unknownFunction());
 friendlies.updateIn([0, 'friends', 0, 'name'], value => value.toUpperCase());
 friendlies.updateIn([0, 'friends', 0, 'name'], 'Unknown Name', value => value.toUpperCase());
+
+// Nested plain JS values
+type PlainPerson = { name: string, friends: Array<PlainPerson> };
+const plainFriendly: PlainPerson = {name: 'Bobbie', friends: []};
+const plainFriendlies: List<PlainPerson> = List([plainFriendly]);
+
+// $ExpectError 'fraaands' is an unknown key in PlainPerson
+{ const fail: ?number = plainFriendlies.getIn([0, 'fraaands', 0, 'name']); }
+// $ExpectError 0 is an unknown key in PlainPerson
+{ const fail: ?number = plainFriendlies.getIn([0, 'fraaands', 0, 0]); }
+// $ExpectError string is not a number
+{ const fail: ?number = plainFriendlies.getIn([0, 'friends', 0, 'name']); }
+// $ExpectError can return undefined
+{ const fail: string = plainFriendlies.getIn([0, 'friends', 0, 'name']); }
+{ const success: ?string = plainFriendlies.getIn([0, 'friends', 0, 'name']); }
+
+// $ExpectError number is not a string
+plainFriendlies.setIn([0, 'friends', 0, 'name'], 123);
+plainFriendlies.setIn([0, 'friends', 0, 'name'], 'Morgan');
+
+// $ExpectError value is a string, this is an unknown function
+plainFriendlies.updateIn([0, 'friends', 0, 'name'], value => value.unknownFunction());
+plainFriendlies.updateIn([0, 'friends', 0, 'name'], value => value.toUpperCase());
+
+// $ExpectError number is not a string
+plainFriendlies.updateIn([0, 'friends', 0, 'name'], () => 123);
+plainFriendlies.updateIn([0, 'friends', 0, 'name'], () => 'Whitney');
+
+// Functional API
+
+// $ExpectError 'fraaands' is an unknown key in PlainPerson
+{ const fail: ?number = getIn(plainFriendlies, [0, 'fraaands', 0, 'name']); }
+// $ExpectError 0 is an unknown key in PlainPerson
+{ const fail: ?number = getIn(plainFriendlies, [0, 'fraaands', 0, 0]); }
+// $ExpectError string is not a number
+{ const fail: ?number = getIn(plainFriendlies, [0, 'friends', 0, 'name']); }
+// $ExpectError can return undefined
+{ const fail: string = getIn(plainFriendlies, [0, 'friends', 0, 'name']); }
+{ const success: ?string = getIn(plainFriendlies, [0, 'friends', 0, 'name']); }
+
+// $ExpectError number is not a string
+setIn(plainFriendlies, [0, 'friends', 0, 'name'], 123);
+setIn(plainFriendlies, [0, 'friends', 0, 'name'], 'Morgan');
+
+// $ExpectError value is a string, this is an unknown function
+updateIn(plainFriendlies, [0, 'friends', 0, 'name'], value => value.unknownFunction());
+updateIn(plainFriendlies, [0, 'friends', 0, 'name'], value => value.toUpperCase());
+
+// $ExpectError number is not a string
+updateIn(plainFriendlies, [0, 'friends', 0, 'name'], () => 123);
+updateIn(plainFriendlies, [0, 'friends', 0, 'name'], () => 'Whitney');

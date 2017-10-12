@@ -33,15 +33,14 @@
 type PlainObjInput<K, V> = {[key: K]: V, __proto__: null};
 
 // Helper types to extract the "keys" and "values" use by the *In() methods.
-// Exported for experimental use only, may change.
-export type $KeyOf<C> = $Call<
+type $KeyOf<C> = $Call<
   & (<K>(?_Collection<K, mixed>) => K)
   & (<T>(?$ReadOnlyArray<T>) => number)
   & (<T>(?RecordInstance<T> | T) => $Keys<T>),
   C
 >;
 
-export type $ValOf<C, K = $KeyOf<C>> = $Call<
+type $ValOf<C, K = $KeyOf<C>> = $Call<
   & (<V>(?_Collection<any, V>) => V)
   & (<T>(?$ReadOnlyArray<T>) => T)
   & (<T, K: $Keys<T>>(?RecordInstance<T> | T, K) => $ElementType<T, K>),
@@ -1529,17 +1528,23 @@ declare function updateIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<
 declare function updateIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>>, S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>, K5>, NSV>(collection: C, keyPath: [K, K2, K3, K4, K5], notSetValue: NSV, updater: (value: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>, K5> | NSV) => S): C;
 declare function updateIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>>, S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>, K5>>(collection: C, keyPath: [K, K2, K3, K4, K5], updater: (value: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>, K5>) => S): C;
 
-declare function merge<C>(collection: C, ...collections: Array<Iterable<$ValOf<C>> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>): C;
+declare function merge<C>(
+  collection: C,
+  ...collections: Array<Iterable<$ValOf<C>> | Iterable<[$KeyOf<C>, $ValOf<C>]> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
+): C;
 declare function mergeWith<C>(
   merger: (oldVal: $ValOf<C>, newVal: $ValOf<C>, key: $KeyOf<C>) => $ValOf<C>,
   collection: C,
-  ...collections: Array<Iterable<$ValOf<C>> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
+  ...collections: Array<Iterable<$ValOf<C>> | Iterable<[$KeyOf<C>, $ValOf<C>]> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
 ): C;
-declare function mergeDeep<C>(collection: C, ...collections: Array<Iterable<$ValOf<C>> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>): C;
+declare function mergeDeep<C>(
+  collection: C,
+  ...collections: Array<Iterable<$ValOf<C>> | Iterable<[$KeyOf<C>, $ValOf<C>]> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
+): C;
 declare function mergeDeepWith<C>(
   merger: (oldVal: any, newVal: any, key: any) => mixed,
   collection: C,
-  ...collections: Array<Iterable<$ValOf<C>> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
+  ...collections: Array<Iterable<$ValOf<C>> | Iterable<[$KeyOf<C>, $ValOf<C>]> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
 ): C;
 
 export {
@@ -1638,4 +1643,7 @@ export type {
   RecordFactory,
   RecordOf,
   ValueObject,
+
+  $KeyOf,
+  $ValOf,
 }
