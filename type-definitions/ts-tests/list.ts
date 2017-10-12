@@ -5,7 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { List } from '../../';
+import {
+  List,
+  get,
+  has,
+  set,
+  remove,
+  update,
+  setIn,
+  removeIn,
+  updateIn,
+  merge,
+} from '../../';
 
 { // #constructor
 
@@ -59,6 +70,12 @@ import { List } from '../../';
 
   // $ExpectError
   List<number>().get<number>(4, 'a');
+
+  // $ExpectType number | undefined
+  get(List<number>(), 4);
+
+  // $ExpectType number | "a"
+  get(List<number>(), 4, 'a');
 }
 
 { // #set
@@ -77,12 +94,24 @@ import { List } from '../../';
 
   // $ExpectType List<string | number>
   List<number | string>().set(0, 'a');
+
+  // $ExpectType List<number>
+  set(List<number>(), 0, 0);
+
+  // $ExpectError
+  set(List<number>(), 1, 'a');
+
+  // $ExpectError
+  set(List<number>(), 'a', 1);
 }
 
 { // #setIn
 
   // $ExpectType List<number>
   List<number>().setIn([], 0);
+
+  // $ExpectType List<number>
+  setIn(List<number>(), [], 0);
 }
 
 { // #insert
@@ -161,12 +190,18 @@ import { List } from '../../';
 
   // $ExpectError
   List().remove('a');
+
+  // $ExpectType List<number>
+  remove(List<number>(), 0);
 }
 
 { // #removeIn
 
   // $ExpectType List<number>
   List<number>().removeIn([]);
+
+  // $ExpectType List<number>
+  removeIn(List<number>(), []);
 }
 
 { // #clear
@@ -218,6 +253,12 @@ import { List } from '../../';
 
   // $ExpectError
   List<number>().update(1, 10, (v: number) => v + 'a');
+
+  // $ExpectType List<number>
+  update(List<number>(), 0, (v: number) => 0);
+
+  // $ExpectError
+  update(List<number>(), 1, 10, (v: number) => v + 'a');
 }
 
 { // #updateIn
@@ -227,6 +268,9 @@ import { List } from '../../';
 
   // $ExpectError
   List<number>().updateIn([], 10);
+
+  // $ExpectType List<number>
+  updateIn(List<number>(), [], v => v);
 }
 
 { // #map
@@ -299,6 +343,9 @@ import { List } from '../../';
 
   // $ExpectType List<string | number>
   List<number | string>().merge(List<number>());
+
+  // $ExpectType List<number>
+  merge(List<number>(), List<number>());
 }
 
 { // #mergeIn

@@ -43,7 +43,8 @@ type $KeyOf<C> = $Call<
 type $ValOf<C, K = $KeyOf<C>> = $Call<
   & (<V>(?_Collection<any, V>) => V)
   & (<T>(?$ReadOnlyArray<T>) => T)
-  & (<T, K: $Keys<T>>(?RecordInstance<T> | T, K) => $ElementType<T, K>),
+  & (<T, K: $Keys<T>>(?RecordInstance<T> | T, K) => $ElementType<T, K>)
+  & (<V>(?{[any]: V}) => V),
   C,
   K
 >;
@@ -1485,7 +1486,9 @@ declare function fromJS(
 declare function is(first: mixed, second: mixed): boolean;
 declare function hash(value: mixed): number;
 
+declare function get<C: Object, K: $Keys<C>>(collection: C, key: K, notSetValue: mixed): $ValOf<C, K>;
 declare function get<C, K: $KeyOf<C>, NSV>(collection: C, key: K, notSetValue: NSV): $ValOf<C, K> | NSV;
+
 declare function has(collection: Object, key: mixed): boolean;
 declare function remove<C>(collection: C, key: $KeyOf<C>): C;
 declare function set<C, K: $KeyOf<C>, V: $ValOf<C, K>>(collection: C, key: K, value: V): C;

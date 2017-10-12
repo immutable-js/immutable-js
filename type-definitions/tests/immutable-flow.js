@@ -1088,3 +1088,23 @@ updateIn(plainFriendlies, [0, 'friends', 0, 'name'], value => value.toUpperCase(
 // $ExpectError number is not a string
 updateIn(plainFriendlies, [0, 'friends', 0, 'name'], () => 123);
 updateIn(plainFriendlies, [0, 'friends', 0, 'name'], () => 'Whitney');
+
+// Plain JS values
+
+{ const success: number|void = get([1, 2, 3], 0); }
+{ const success: number|string = get([1, 2, 3], 0, 'missing'); }
+// $ExpectError - string is not an array index
+{ const success: number = get([1, 2, 3], 'z'); }
+// Note: does not return null since x is known to exist in {x,y}
+{ const success: number = get({x: 10, y: 10}, 'x'); }
+// $ExpectError - z is not in {x,y}
+{ const success: number|void = get({x: 10, y: 10}, 'z'); }
+{
+  const objMap: {[string]: number} = {x: 10, y: 10};
+  const success: number|void = get(objMap, 'z');
+}
+{ const success: number = get({x: 10, y: 10}, 'x', 'missing'); }
+{
+  const objMap: {[string]: number} = {x: 10, y: 10};
+  const success: number|string = get(objMap, 'z', 'missing');
+}
