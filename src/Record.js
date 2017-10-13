@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import { toJS } from './toJS';
 import { KeyedCollection } from './Collection';
 import { keyedSeqFromValue } from './Seq';
 import { MapPrototype } from './Map';
@@ -144,7 +145,7 @@ export class Record {
   }
 
   toJS() {
-    return recordSeq(this).toJS();
+    return toJS(this);
   }
 
   __iterator(type, reverse) {
