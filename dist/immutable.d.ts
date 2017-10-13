@@ -482,7 +482,7 @@ declare module Immutable {
      * enough to include the `index`.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require(\"immutable\");" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
      * -->
      * ```js
      * const originalList = List([ 0 ]);
@@ -515,7 +515,7 @@ declare module Immutable {
      * Note: `delete` cannot be safely used in IE8
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require(\"immutable\");" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
      * -->
      * ```js
      * List([ 0, 1, 2, 3, 4 ]).delete(0);
@@ -536,7 +536,7 @@ declare module Immutable {
      * This is synonymous with `list.splice(index, 0, value)`.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require(\"immutable\");" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
      * -->
      * ```js
      * List([ 0, 1, 2, 3, 4 ]).insert(6, 5)
@@ -551,7 +551,7 @@ declare module Immutable {
      * Returns a new List with 0 size and no values.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require(\"immutable\");" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
      * -->
      * ```js
      * List([ 1, 2, 3, 4 ]).clear()
@@ -567,7 +567,7 @@ declare module Immutable {
      * List's `size`.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require(\"immutable\");" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
      * -->
      * ```js
      * List([ 1, 2, 3, 4 ]).push(5)
@@ -600,7 +600,7 @@ declare module Immutable {
      * values ahead to higher indices.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require(\"immutable\");" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
      * -->
      * ```js
      * List([ 2, 3, 4]).unshift(1);
@@ -620,7 +620,7 @@ declare module Immutable {
      * value in this List.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require(\"immutable\");" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
      * -->
      * ```js
      * List([ 0, 1, 2, 3, 4 ]).shift();
@@ -641,7 +641,7 @@ declare module Immutable {
      * List. `v.update(-1)` updates the last item in the List.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require(\"immutable\");" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
      * -->
      * ```js
      * const list = List([ 'a', 'b', 'c' ])
@@ -655,7 +655,7 @@ declare module Immutable {
      * For example, to sum a List after mapping and filtering:
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require(\"immutable\");" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
      * -->
      * ```js
      * function sum(collection) {
@@ -701,7 +701,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List } = require("immutable")
+     * const { List } = require('immutable@4.0.0-rc.7')
      * const list = List([ 0, 1, 2, List([ 3, 4 ])])
      * list.setIn([3, 0], 999);
      * // List [ 0, 1, 2, List [ 999, 4 ] ]
@@ -717,7 +717,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List } = require("immutable")
+     * const { List } = require('immutable@4.0.0-rc.7')
      * const list = List([ 0, 1, 2, List([ 3, 4 ])])
      * list.deleteIn([3, 0]);
      * // List [ 0, 1, 2, List [ 4 ] ]
@@ -801,7 +801,7 @@ declare module Immutable {
      * `mapper` function.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require(\"immutable\");" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
      * -->
      * ```js
      * List([ 1, 2 ]).map(x => 10 * x)
@@ -848,7 +848,7 @@ declare module Immutable {
      * Like `zipWith`, but using the default `zipper`: creating an `Array`.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require(\"immutable\");" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
      * -->
      * ```js
      * const a = List([ 1, 2, 3 ]);
@@ -867,7 +867,7 @@ declare module Immutable {
      * exhausted. Missing values from shorter collections are filled with `undefined`.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require(\"immutable\");" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
      * -->
      * ```js
      * const a = List([ 1, 2 ]);
@@ -888,7 +888,7 @@ declare module Immutable {
      * custom `zipper` function.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require(\"immutable\");" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
      * -->
      * ```js
      * const a = List([ 1, 2, 3 ]);
@@ -991,7 +991,7 @@ declare module Immutable {
    * quote-less shorthand, while Immutable Maps accept keys of any type.
    *
    * <!-- runkit:activate
-   *      { "preamble": "const { Map } = require(\"immutable\");" }
+   *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.7');" }
    * -->
    * ```js
    * let obj = { 1: "one" }
@@ -1120,7 +1120,7 @@ declare module Immutable {
      * `update` and `push` can be used together:
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map, List } = require(\"immutable\");" }
+     *      { "preamble": "const { Map, List } = require('immutable@4.0.0-rc.7');" }
      * -->
      * ```js
      * const aMap = Map({ nestedList: List([ 1, 2, 3 ]) })
@@ -1132,7 +1132,7 @@ declare module Immutable {
      * function when the value at the key does not exist in the Map.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require(\"immutable\");" }
+     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.7');" }
      * -->
      * ```js
      * const aMap = Map({ key: 'value' })
@@ -1145,7 +1145,7 @@ declare module Immutable {
      * is provided.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require(\"immutable\");" }
+     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.7');" }
      * -->
      * ```js
      * const aMap = Map({ apples: 10 })
@@ -1161,7 +1161,7 @@ declare module Immutable {
      * The previous example behaves differently when written with default values:
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require(\"immutable\");" }
+     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.7');" }
      * -->
      * ```js
      * const aMap = Map({ apples: 10 })
@@ -1173,7 +1173,7 @@ declare module Immutable {
      * returned as well.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require(\"immutable\");" }
+     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.7');" }
      * -->
      * ```js
      * const aMap = Map({ key: 'value' })
@@ -1187,7 +1187,7 @@ declare module Immutable {
      * For example, to sum the values in a Map
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require(\"immutable\");" }
+     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.7');" }
      * -->
      * ```js
      * function sum(collection) {
