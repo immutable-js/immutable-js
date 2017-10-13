@@ -7,15 +7,22 @@
 
 import { isImmutable } from '../Predicates';
 import hasOwnProperty from '../utils/hasOwnProperty';
-import isUpdatable from '../utils/isUpdatable';
+import isDataStructure from '../utils/isDataStructure';
 import shallowCopy from '../utils/shallowCopy';
 
 export function remove(collection, key) {
-  if (!isUpdatable(collection)) {
-    throw new TypeError('Cannot update non-updatable value: ' + collection);
+  if (!isDataStructure(collection)) {
+    throw new TypeError(
+      'Cannot update non-data-structure value: ' + collection
+    );
   }
   if (isImmutable(collection)) {
-    return collection.delete(key);
+    if (!collection.remove) {
+      throw new TypeError(
+        'Cannot update immutable value without .remove() method: ' + collection
+      );
+    }
+    return collection.remove(key);
   }
   if (!hasOwnProperty.call(collection, key)) {
     return collection;

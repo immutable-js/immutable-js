@@ -5,11 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { isMap } from '../Map';
-import { isCollection, isRecord } from '../Predicates';
+import { isImmutable } from '../Predicates';
 import { IndexedCollection, KeyedCollection } from '../Collection';
 import hasOwnProperty from '../utils/hasOwnProperty';
-import isUpdatable from '../utils/isUpdatable';
+import isDataStructure from '../utils/isDataStructure';
 import shallowCopy from '../utils/shallowCopy';
 import { is } from '../is';
 
@@ -22,7 +21,7 @@ export function mergeWith(merger, collection, ...sources) {
 }
 
 export function mergeDeep(collection, ...sources) {
-  return mergeWithSources(deepMergerWith(alwaysNewVal), collection, sources);
+  return mergeWithSources(deepMergerWith(alwaysNewValue), collection, sources);
 }
 
 export function mergeDeepWith(merger, collection, ...sources) {
@@ -30,14 +29,15 @@ export function mergeDeepWith(merger, collection, ...sources) {
 }
 
 function mergeWithSources(merger, collection, sources) {
-  if (!isUpdatable(collection)) {
-    throw new TypeError('Cannot merge non-updatable value: ' + collection);
+  if (!isDataStructure(collection)) {
+    throw new TypeError(
+      'Cannot merge into non-data-structure value: ' + collection
+    );
   }
-  if (isMap(collection) || isRecord(collection)) {
-    return collection.mergeWith(merger, ...sources);
-  }
-  if (isCollection(collection)) {
-    return collection.concat(...sources);
+  if (isImmutable(collection)) {
+    return collection.mergeWith
+      ? collection.mergeWith(merger, ...sources)
+      : collection.concat(...sources);
   }
   const isArray = Array.isArray(collection);
   let merged = collection;
@@ -70,16 +70,16 @@ function mergeWithSources(merger, collection, sources) {
 }
 
 function deepMergerWith(merger) {
-  function deepMerger(oldVal, newVal, key) {
-    if (isUpdatable(oldVal) && isUpdatable(newVal)) {
-      return mergeWithSources(deepMerger, oldVal, [newVal]);
+  function deepMerger(oldValue, newValue, key) {
+    if (isDataStructure(oldValue) && isDataStructure(newValue)) {
+      return mergeWithSources(deepMerger, oldValue, [newValue]);
     }
-    const nextValue = merger(oldVal, newVal, key);
-    return is(oldVal, nextValue) ? oldVal : nextValue;
+    const nextValue = merger(oldValue, newValue, key);
+    return is(oldValue, nextValue) ? oldValue : nextValue;
   }
   return deepMerger;
 }
 
-function alwaysNewVal(oldVal, newVal) {
-  return newVal;
+function alwaysNewValue(oldValue, newValue) {
+  return newValue;
 }

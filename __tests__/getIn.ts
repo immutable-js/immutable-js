@@ -59,7 +59,7 @@ describe('getIn', () => {
     expect(getIn(m, ['a', 'b', 'd'], 123)).toEqual(undefined);
   });
 
-  it('deep get returns not found if path encounters null or undefined', () => {
+  it('deep get returns not found if path encounters non-data-structure', () => {
     const m = fromJS({a: {b: {c: null, d: undefined}}});
     expect(m.getIn(['a', 'b', 'c', 'x'])).toEqual(undefined);
     expect(m.getIn(['a', 'b', 'c', 'x'], 123)).toEqual(123);
@@ -67,6 +67,9 @@ describe('getIn', () => {
     expect(m.getIn(['a', 'b', 'd', 'x'], 123)).toEqual(123);
     expect(getIn(m, ['a', 'b', 'd', 'x'])).toEqual(undefined);
     expect(getIn(m, ['a', 'b', 'd', 'x'], 123)).toEqual(123);
+
+    expect(getIn('a', ['length'])).toEqual(undefined);
+    expect(getIn(new Date(), ['getDate'])).toEqual(undefined);
   });
 
   it('gets in nested plain Objects and Arrays', () => {

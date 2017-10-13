@@ -8,10 +8,10 @@
 import { isImmutable } from '../Predicates';
 import isPlainObj from './isPlainObj';
 
-export default function isUpdatable(collection) {
-  return (
-    isImmutable(collection) ||
-    Array.isArray(collection) ||
-    isPlainObj(collection)
-  );
+/**
+ * Returns true if the value is a potentially-persistent data structure, either
+ * provided by Immutable.js or a plain Array or Object.
+ */
+export default function isDataStructure(value) {
+  return isImmutable(value) || Array.isArray(value) || isPlainObj(value);
 }

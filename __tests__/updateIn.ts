@@ -7,7 +7,7 @@
 
 ///<reference path='../resources/jest.d.ts'/>
 
-import { fromJS, List, Map, removeIn, Set, setIn, updateIn } from '../';
+import { fromJS, List, Map, removeIn, Seq, Set, setIn, updateIn } from '../';
 
 describe('updateIn', () => {
 
@@ -56,14 +56,21 @@ describe('updateIn', () => {
     expect(() =>
       deep.updateIn(['key', 'foo', 'item'], () => 'newval'),
     ).toThrow(
-      'Cannot update value without .set() method: Set { List [ "item" ] }',
+      'Cannot update immutable value without .set() method: Set { List [ "item" ] }',
+    );
+
+    const deepSeq = Map({ key: Seq([ List([ 'item' ]) ]) });
+    expect(() =>
+      deepSeq.updateIn(['key', 'foo', 'item'], () => 'newval'),
+    ).toThrow(
+      'Cannot update immutable value without .set() method: Seq [ List [ "item" ] ]',
     );
 
     const nonObj = Map({ key: 123 });
     expect(() =>
       nonObj.updateIn(['key', 'foo'], () => 'newval'),
     ).toThrow(
-      'Cannot update within non-updatable value in path ["key"]: 123',
+      'Cannot update within non-data-structure value in path ["key"]: 123',
     );
   });
 

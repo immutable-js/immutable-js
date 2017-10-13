@@ -7,9 +7,10 @@
 
 import { isImmutable } from '../Predicates';
 import hasOwnProperty from '../utils/hasOwnProperty';
+import isDataStructure from '../utils/isDataStructure';
 
 export function has(collection, key) {
   return isImmutable(collection)
     ? collection.has(key)
-    : hasOwnProperty.call(collection, key);
+    : isDataStructure(collection) && hasOwnProperty.call(collection, key);
 }

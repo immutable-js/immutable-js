@@ -7,17 +7,19 @@
 
 import { isImmutable } from '../Predicates';
 import hasOwnProperty from '../utils/hasOwnProperty';
-import isUpdatable from '../utils/isUpdatable';
+import isDataStructure from '../utils/isDataStructure';
 import shallowCopy from '../utils/shallowCopy';
 
 export function set(collection, key, value) {
-  if (!isUpdatable(collection)) {
-    throw new TypeError('Cannot update non-updatable value: ' + collection);
+  if (!isDataStructure(collection)) {
+    throw new TypeError(
+      'Cannot update non-data-structure value: ' + collection
+    );
   }
   if (isImmutable(collection)) {
     if (!collection.set) {
       throw new TypeError(
-        'Cannot update value without .set() method: ' + collection
+        'Cannot update immutable value without .set() method: ' + collection
       );
     }
     return collection.set(key, value);

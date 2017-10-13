@@ -7,7 +7,7 @@
 
 import { isImmutable } from '../Predicates';
 import coerceKeyPath from '../utils/coerceKeyPath';
-import isUpdatable from '../utils/isUpdatable';
+import isDataStructure from '../utils/isDataStructure';
 import quoteString from '../utils/quoteString';
 import { NOT_SET } from '../TrieUtils';
 import { emptyMap } from '../Map';
@@ -45,9 +45,9 @@ function updateInDeeply(
     const newValue = updater(existingValue);
     return newValue === existingValue ? existing : newValue;
   }
-  if (!wasNotSet && !isUpdatable(existing)) {
+  if (!wasNotSet && !isDataStructure(existing)) {
     throw new TypeError(
-      'Cannot update within non-updatable value in path [' +
+      'Cannot update within non-data-structure value in path [' +
         keyPath.slice(0, i).map(quoteString) +
         ']: ' +
         existing
