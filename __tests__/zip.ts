@@ -22,6 +22,26 @@ describe('zip', () => {
     );
   });
 
+  it('zip results can be converted to JS', () => {
+    const l1 = List([List([1]), List([2]), List([3])]);
+    const l2 = List([List([4]), List([5]), List([6])]);
+    const zipped = l1.zip(l2);
+    expect(zipped).toEqual(
+      List([
+        [List([1]), List([4])],
+        [List([2]), List([5])],
+        [List([3]), List([6])],
+      ]),
+    );
+    expect(zipped.toJS()).toEqual(
+      [
+        [[1], [4]],
+        [[2], [5]],
+        [[3], [6]],
+      ],
+    );
+  });
+
   it('zips with infinite lists', () => {
     expect(
       Range().zip(Seq(['A', 'B', 'C'])).toArray(),

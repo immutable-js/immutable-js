@@ -335,13 +335,6 @@ mixin(Collection, {
       .map(entryMapper)
       .toIndexedSeq();
     entriesSequence.fromEntrySeq = () => collection.toSeq();
-
-    // Entries are plain Array, which do not define toJS, so it must
-    // manually converts keys and values before conversion.
-    entriesSequence.toJS = function() {
-      return this.map(entry => [toJS(entry[0]), toJS(entry[1])]).toJSON();
-    };
-
     return entriesSequence;
   },
 
