@@ -2518,6 +2518,44 @@ declare module Immutable {
    * export type Point3D = RecordOf<Point3DProps>;
    * const some3DPoint: Point3D = makePoint3D({ x: 10, y: 20, z: 30 });
    * ```
+   *
+   *
+   * **Choosing Records vs plain JavaScript objects**
+   *
+   * Records ofters a persistently immutable alternative to plain JavaScript
+   * objects, however they're not required to be used within Immutable.js
+   * collections. In fact, the deep-access and deep-updating functions
+   * like `getIn()` and `setIn()` work with plain JavaScript Objects as well.
+   *
+   * Deciding to use Records or Objects in your application should be informed
+   * by the tradeoffs and relative benefits of each:
+   *
+   * - *Runtime immutability*: plain JS objects may be carefully treated as
+   *   immutable, however Record instances will *throw* if attempted to be
+   *   mutated directly. Records provide this additional guarantee, however at
+   *   some marginal runtime cost. While JS objects are mutable by nature, the
+   *   use of type-checking tools like [Flow](https://medium.com/@gcanti/immutability-with-flow-faa050a1aef4)
+   *   can help gain confidence in code written to favor immutability.
+   *
+   * - *Value equality*: Records use value equality when compared with `is()`
+   *   or `record.equals()`. That is, two Records with the same keys and values
+   *   are equal. Plain objects use *reference equality*. Two objects with the
+   *   same keys and values are not equal since they are different objects.
+   *   This is important to consider when using objects as keys in a `Map` or
+   *   values in a `Set`, which use equality when retrieving values.
+   *
+   * - *API methods*: Records have a full featured API, with methods like
+   *   `.getIn()`, and `.equals()`. These can make working with these values
+   *   easier, but comes at the cost of not allowing keys with those names.
+   *
+   * - *Default values*: Records provide default values for every key, which
+   *   can be useful when constructing Records with often unchanging values.
+   *   However default values can make using Flow and TypeScript more laborious.
+   *
+   * - *Serialization*: Records use a custom internal representation to
+   *   efficiently store and update their values. Converting to and from this
+   *   form isn't free. If converting Records to plain objects is common,
+   *   consider sticking with plain objects to begin with.
    */
   export module Record {
 

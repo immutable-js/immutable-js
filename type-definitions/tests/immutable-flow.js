@@ -334,10 +334,8 @@ stringToNumberOrString = Map({'a': 1}).merge({'a': 'b'})
 stringToNumber = Map({a: 1}).merge({'a': 'b'})
 // $ExpectError
 stringToNumber = Map({a: 1}).merge([[1, 'a']])
-
-// FIXME: Simple `stringToNumber = ...` assignment shows an error at the declaration of stringToNumber and numberToString
 // $ExpectError
-{ const stringToNumber: Map<string, number> = Map({a: 1}).merge(numberToString) }
+stringToNumber = Map({a: 1}).merge(numberToString)
 
 // Functional API
 stringToNumber = merge(Map({'a': 1}), Map({'a': 1}))
@@ -347,9 +345,8 @@ stringToNumberOrString = merge(Map({'a': 1}), {'a': 'b'})
 stringToNumber = merge(Map({a: 1}), {'a': 'b'})
 // $ExpectError
 stringToNumber = merge(Map({a: 1}), [[1, 'a']])
-// FIXME: Simple `stringToNumber = ...` assignment shows an error at the declaration of stringToNumber and numberToString
 // $ExpectError
-{ const stringToNumber: Map<string, number> = merge(Map({a: 1}), numberToString) }
+stringToNumber = merge(Map({a: 1}), numberToString)
 
 stringToNumber = Map({'a': 1}).mergeWith((previous, next, key) => 1, {'a': 2, 'b': 2})
 // $ExpectError - this is actually a Map<string, number|string>

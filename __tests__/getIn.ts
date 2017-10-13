@@ -36,7 +36,7 @@ describe('getIn', () => {
     ).toThrow('Invalid keyPath: expected Ordered Collection or Array: abc');
     expect(() =>
       getIn(Map(), 'abc' as any),
-  ).toThrow('Invalid keyPath: expected Ordered Collection or Array: abc');
+    ).toThrow('Invalid keyPath: expected Ordered Collection or Array: abc');
   });
 
   it('deep get returns not found if path does not match', () => {
