@@ -48,6 +48,7 @@ import deepEqual from './utils/deepEqual';
 import mixin from './utils/mixin';
 import quoteString from './utils/quoteString';
 
+import { toJS } from './toJS';
 import { Map } from './Map';
 import { OrderedMap } from './OrderedMap';
 import { List } from './List';
@@ -118,9 +119,7 @@ mixin(Collection, {
   },
 
   toJS() {
-    return this.toSeq()
-      .map(toJS)
-      .toJSON();
+    return toJS(this);
   },
 
   toKeyedSeq() {
@@ -766,10 +765,6 @@ function keyMapper(v, k) {
 
 function entryMapper(v, k) {
   return [k, v];
-}
-
-function toJS(value) {
-  return value && typeof value.toJS === 'function' ? value.toJS() : value;
 }
 
 function not(predicate) {
