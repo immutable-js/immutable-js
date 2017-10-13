@@ -4715,6 +4715,14 @@ declare module Immutable {
    *
    * A functional alternative to `collection.get(key)` which will also work on
    * plain Objects and Arrays as an alternative for `collection[key]`.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { get } = require('immutable@4.0.0-rc.7')
+   * get([ 'dog', 'frog', 'cat' ], 2) // 'frog'
+   * get({ x: 123, y: 456 }, 'x') // 123
+   * get({ x: 123, y: 456 }, 'z', 'ifNotSet') // 'ifNotSet'
+   * ```
    */
   export function get<K, V>(collection: Collection<K, V>, key: K): V | undefined;
   export function get<K, V, NSV>(collection: Collection<K, V>, key: K, notSetValue: NSV): V | NSV;
@@ -4731,6 +4739,15 @@ declare module Immutable {
    * A functional alternative to `collection.has(key)` which will also work with
    * plain Objects and Arrays as an alternative for
    * `collection.hasOwnProperty(key)`.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { has } = require('immutable@4.0.0-rc.7')
+   * has([ 'dog', 'frog', 'cat' ], 2) // true
+   * has([ 'dog', 'frog', 'cat' ], 5) // false
+   * has({ x: 123, y: 456 }, 'x') // true
+   * has({ x: 123, y: 456 }, 'z') // false
+   * ```
    */
   export function has(collection: Object, key: mixed): boolean;
 
@@ -4740,6 +4757,17 @@ declare module Immutable {
    * A functional alternative to `collection.remove(key)` which will also work
    * with plain Objects and Arrays as an alternative for
    * `delete collectionCopy[key]`.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { remove } = require('immutable@4.0.0-rc.7')
+   * const originalArray = [ 'dog', 'frog', 'cat' ]
+   * remove(originalArray, 1) // [ 'dog', 'cat' ]
+   * console.log(originalArray) // [ 'dog', 'frog', 'cat' ]
+   * const originalObject = { x: 123, y: 456 }
+   * remove(originalObject, 'x') // { y: 456 }
+   * console.log(originalObject) // { x: 123, y: 456 }
+   * ```
    */
   export function remove<K, C extends Collection<K, any>>(collection: C, key: K): C;
   export function remove<TProps, R extends Record<TProps>, K extends keyof TProps>(collection: C, key: K): C;
@@ -4754,6 +4782,17 @@ declare module Immutable {
    * A functional alternative to `collection.set(key, value)` which will also
    * work with plain Objects and Arrays as an alternative for
    * `collectionCopy[key] = value`.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { set } = require('immutable@4.0.0-rc.7')
+   * const originalArray = [ 'dog', 'frog', 'cat' ]
+   * set(originalArray, 1, 'cow') // [ 'dog', 'cow', 'cat' ]
+   * console.log(originalArray) // [ 'dog', 'frog', 'cat' ]
+   * const originalObject = { x: 123, y: 456 }
+   * set(originalObject, 'x', 789) // { x: 789, y: 456 }
+   * console.log(originalObject) // { x: 123, y: 456 }
+   * ```
    */
   export function set<K, V, C extends Collection<K, V>>(collection: C, key: K, value: V): C;
   export function set<TProps, C extends Record<TProps>, K extends keyof TProps>(record: C, key: K, value: TProps[K]): C;
@@ -4768,6 +4807,17 @@ declare module Immutable {
    * A functional alternative to `collection.update(key, fn)` which will also
    * work with plain Objects and Arrays as an alternative for
    * `collectionCopy[key] = fn(collection[key])`.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { update } = require('immutable@4.0.0-rc.7')
+   * const originalArray = [ 'dog', 'frog', 'cat' ]
+   * update(originalArray, 1, val => val.toUpperCase()) // [ 'dog', 'FROG', 'cat' ]
+   * console.log(originalArray) // [ 'dog', 'frog', 'cat' ]
+   * const originalObject = { x: 123, y: 456 }
+   * set(originalObject, 'x', val => val * 6) // { x: 738, y: 456 }
+   * console.log(originalObject) // { x: 123, y: 456 }
+   * ```
    */
   export function update<K, V, C extends Collection<K, V>>(collection: C, key: K, updater: (value: V) => V): C;
   export function update<K, V, C extends Collection<K, V>, NSV>(collection: C, key: K, notSetValue: NSV, updater: (value: V | NSV) => V): C;
@@ -4786,6 +4836,13 @@ declare module Immutable {
    *
    * A functional alternative to `collection.getIn(keypath)` which will also
    * work with plain Objects and Arrays.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { getIn } = require('immutable@4.0.0-rc.7')
+   * getIn({ x: { y: { z: 123 }}}, ['x', 'y', 'z']) // 123
+   * getIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p'], 'ifNotSet') // 'ifNotSet'
+   * ```
    */
   export function getIn(collection: any, keyPath: Iterable<any>, notSetValue: any): any;
 
@@ -4794,6 +4851,13 @@ declare module Immutable {
    *
    * A functional alternative to `collection.hasIn(keypath)` which will also
    * work with plain Objects and Arrays.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { hasIn } = require('immutable@4.0.0-rc.7')
+   * hasIn({ x: { y: { z: 123 }}}, ['x', 'y', 'z']) // true
+   * hasIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p']) // false
+   * ```
    */
   export function hasIn(collection: any, keyPath: Iterable<any>): boolean;
 
@@ -4802,6 +4866,14 @@ declare module Immutable {
    *
    * A functional alternative to `collection.removeIn(keypath)` which will also
    * work with plain Objects and Arrays.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { removeIn } = require('immutable@4.0.0-rc.7')
+   * const original = { x: { y: { z: 123 }}}
+   * removeIn(original, ['x', 'y', 'z']) // { x: { y: {}}}
+   * console.log(original) // { x: { y: { z: 123 }}}
+   * ```
    */
   export function removeIn<C>(collection: C, keyPath: Iterable<any>): C;
 
@@ -4811,6 +4883,14 @@ declare module Immutable {
    *
    * A functional alternative to `collection.setIn(keypath)` which will also
    * work with plain Objects and Arrays.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { setIn } = require('immutable@4.0.0-rc.7')
+   * const original = { x: { y: { z: 123 }}}
+   * setIn(original, ['x', 'y', 'z'], 456) // { x: { y: { z: 456 }}}
+   * console.log(original) // { x: { y: { z: 123 }}}
+   * ```
    */
   export function setIn<C>(collection: C, keyPath: Iterable<any>, value: any): C;
 
@@ -4820,6 +4900,14 @@ declare module Immutable {
    *
    * A functional alternative to `collection.updateIn(keypath)` which will also
    * work with plain Objects and Arrays.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { setIn } = require('immutable@4.0.0-rc.7')
+   * const original = { x: { y: { z: 123 }}}
+   * setIn(original, ['x', 'y', 'z'], val => val * 6) // { x: { y: { z: 738 }}}
+   * console.log(original) // { x: { y: { z: 123 }}}
+   * ```
    */
   export function updateIn<C>(collection: C, keyPath: Iterable<any>, updater: (value: any) => any): C;
 
@@ -4829,6 +4917,14 @@ declare module Immutable {
    *
    * A functional alternative to `collection.merge()` which will also work with
    * plain Objects and Arrays.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { merge } = require('immutable@4.0.0-rc.7')
+   * const original = { x: 123, y: 456 }
+   * merge(original, { y: 789, z: 'abc' }) // { x: 123, y: 789, z: 'abc' }
+   * console.log(original) // { x: { y: { z: 123 }}}
+   * ```
    */
   export function merge<C>(
     collection: C,
@@ -4841,6 +4937,18 @@ declare module Immutable {
    *
    * A functional alternative to `collection.mergeWith()` which will also work
    * with plain Objects and Arrays.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { mergeWith } = require('immutable@4.0.0-rc.7')
+   * const original = { x: 123, y: 456 }
+   * mergeWith(
+   *   (oldVal, newVal) => oldVal + newVal,
+   *   original,
+   *   { y: 789, z: 'abc' }
+   * ) // { x: 123, y: 1245, z: 'abc' }
+   * console.log(original) // { x: { y: { z: 123 }}}
+   * ```
    */
   export function mergeWith<C>(
     merger: (oldVal: any, newVal: any, key: any) => any,
@@ -4854,6 +4962,14 @@ declare module Immutable {
    *
    * A functional alternative to `collection.mergeDeep()` which will also work
    * with plain Objects and Arrays.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { merge } = require('immutable@4.0.0-rc.7')
+   * const original = { x: { y: 123 }}
+   * merge(original, { x: { z: 456 }}) // { x: { y: 123, z: 456 }}
+   * console.log(original) // { x: { y: 123 }}
+   * ```
    */
   export function mergeDeep<C>(
     collection: C,
@@ -4867,6 +4983,18 @@ declare module Immutable {
    *
    * A functional alternative to `collection.mergeDeepWith()` which will also
    * work with plain Objects and Arrays.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { merge } = require('immutable@4.0.0-rc.7')
+   * const original = { x: { y: 123 }}
+   * mergeDeepWith(
+   *   (oldVal, newVal) => oldVal + newVal,
+   *   original,
+   *   { x: { y: 456 }}
+   * ) // { x: { y: 579 }}
+   * console.log(original) // { x: { y: 123 }}
+   * ```
    */
   export function mergeDeepWith<C>(
     merger: (oldVal: any, newVal: any, key: any) => mixed,
