@@ -707,6 +707,18 @@ declare module Immutable {
      * // List [ 0, 1, 2, List [ 999, 4 ] ]
      * ```
      *
+     * Plain JavaScript Object or Arrays may be nested within an Immutable.js
+     * Collection, and setIn() can update those values as well, treating them
+     * immutably by creating new copies of those values with the changes applied.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { List } = require('immutable@4.0.0-rc.7')
+     * const list = List([ 0, 1, 2, { plain: 'object' }])
+     * list.setIn([3, 'plain'], 'value');
+     * // List([ 0, 1, 2, { plain: 'value' }])
+     * ```
+     *
      * Note: `setIn` can be used in `withMutations`.
      */
     setIn(keyPath: Iterable<any>, value: any): this;
@@ -721,6 +733,18 @@ declare module Immutable {
      * const list = List([ 0, 1, 2, List([ 3, 4 ])])
      * list.deleteIn([3, 0]);
      * // List [ 0, 1, 2, List [ 4 ] ]
+     * ```
+     *
+     * Plain JavaScript Object or Arrays may be nested within an Immutable.js
+     * Collection, and removeIn() can update those values as well, treating them
+     * immutably by creating new copies of those values with the changes applied.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { List } = require('immutable@4.0.0-rc.7')
+     * const list = List([ 0, 1, 2, { plain: 'object' }])
+     * list.removeIn([3, 'plain']);
+     * // List([ 0, 1, 2, {}])
      * ```
      *
      * Note: `deleteIn` *cannot* be safely used in `withMutations`.
@@ -1344,8 +1368,33 @@ declare module Immutable {
      * // }
      * ```
      *
-     * If any key in the path exists but does not have a `.set()` method
-     * (such as Map and List), an error will be throw.
+     * Plain JavaScript Object or Arrays may be nested within an Immutable.js
+     * Collection, and setIn() can update those values as well, treating them
+     * immutably by creating new copies of those values with the changes applied.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { Map } = require('immutable@4.0.0-rc.7')
+     * const originalMap = Map({
+     *   subObject: {
+     *     subKey: 'subvalue',
+     *     subSubObject: {
+     *       subSubKey: 'subSubValue'
+     *     }
+     *   }
+     * })
+     *
+     * originalMap.setIn(['subObject', 'subKey'], 'ha ha!')
+     * // Map {
+     * //   "subObject": {
+     * //     subKey: "ha ha!",
+     * //     subSubObject: { subSubKey: "subSubValue" }
+     * //   }
+     * // }
+     * ```
+     *
+     * If any key in the path exists but cannot be updated (such as a primitive
+     * like number or a custom Object like Date), an error will be thrown.
      *
      * Note: `setIn` can be used in `withMutations`.
      */
@@ -1420,8 +1469,23 @@ declare module Immutable {
      * // Map { "a": Map { "b": Map { "c": 10, "x": 100 } } }
      * ```
      *
-     * If any key in the path exists but does not have a .set() method (such as
-     * Map and List), an error will be thrown.
+     * Plain JavaScript Object or Arrays may be nested within an Immutable.js
+     * Collection, and updateIn() can update those values as well, treating them
+     * immutably by creating new copies of those values with the changes applied.
+     *
+     * <!-- runkit:activate
+     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.7')" }
+     * -->
+     * ```js
+     * const map = Map({ a: { b: { c: 10 } } })
+     * const newMap = map.updateIn(['a', 'b', 'c'], val => val * 2)
+     * // Map { "a": { b: { c: 20 } } }
+     * ```
+     *
+     * If any key in the path exists but cannot be updated (such as a primitive
+     * like number or a custom Object like Date), an error will be thrown.
+     *
+     * Note: `updateIn` can be used in `withMutations`.
      */
     updateIn(keyPath: Iterable<any>, notSetValue: any, updater: (value: any) => any): this;
     updateIn(keyPath: Iterable<any>, updater: (value: any) => any): this;
@@ -3903,6 +3967,23 @@ declare module Immutable {
     /**
      * Returns the value found by following a path of keys or indices through
      * nested Collections.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { Map, List } = require('immutable@4.0.0-rc.7')
+     * const deepData = Map({ x: List([ Map({ y: 123 }) ]) });
+     * getIn(deepData, ['x', 0, 'y']) // 123
+     * ```
+     *
+     * Plain JavaScript Object or Arrays may be nested within an Immutable.js
+     * Collection, and getIn() can access those values as well:
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { Map, List } = require('immutable@4.0.0-rc.7')
+     * const deepData = Map({ x: [ { y: 123 } ] });
+     * getIn(deepData, ['x', 0, 'y']) // 123
+     * ```
      */
     getIn(searchKeyPath: Iterable<any>, notSetValue?: any): any;
 
