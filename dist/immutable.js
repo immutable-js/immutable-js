@@ -3976,6 +3976,14 @@ function mixin(ctor, methods) {
   return ctor;
 }
 
+function toJS(value) {
+  return isImmutable(value)
+    ? Collection(value)
+        .map(toJS)
+        .toJSON()
+    : value;
+}
+
 var Set = (function (SetCollection$$1) {
   function Set(value) {
     return value === null || value === undefined
@@ -4360,9 +4368,7 @@ mixin(Collection, {
   },
 
   toJS: function toJS$1() {
-    return this.toSeq()
-      .map(toJS)
-      .toJSON();
+    return toJS(this);
   },
 
   toKeyedSeq: function toKeyedSeq() {
@@ -5016,10 +5022,6 @@ function entryMapper(v, k) {
   return [k, v];
 }
 
-function toJS(value) {
-  return value && typeof value.toJS === 'function' ? value.toJS() : value;
-}
-
 function not(predicate) {
   return function() {
     return !predicate.apply(this, arguments);
@@ -5310,8 +5312,8 @@ Record.prototype.toSeq = function toSeq () {
   return recordSeq(this);
 };
 
-Record.prototype.toJS = function toJS () {
-  return recordSeq(this).toJS();
+Record.prototype.toJS = function toJS$1 () {
+  return toJS(this);
 };
 
 Record.prototype.__iterator = function __iterator (type, reverse) {
