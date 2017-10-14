@@ -1415,9 +1415,17 @@ declare module Immutable {
      * Returns a new Map having applied the `updater` to the entry found at the
      * keyPath.
      *
-     * This is most commonly used to call methods on collections nested within a
-     * structure of data. For example, in order to `.push()` onto a nested `List`,
-     * `updateIn` and `push` can be used together:
+     * <!-- runkit:activate -->
+     * ```js
+     * const { Map } = require('immutable@4.0.0-rc.7')
+     * const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
+     * const newMap = map.updateIn(['a', 'b', 'c'], val => val * 2)
+     * // Map { "a": Map { "b": Map { "c": 20 } } }
+     * ```
+     *
+     * This is often used to call methods on collections nested within a
+     *  structure of data. For example, in order to `.push()` onto a nested
+     * `List`, `updateIn` and `push` can be used together:
      *
      * <!-- runkit:activate -->
      * ```js
@@ -1427,18 +1435,16 @@ declare module Immutable {
      * // Map { "inMap": Map { "inList": List [ 1, 2, 3, 4 ] } }
      * ```
      *
-     * If any keys in `keyPath` do not exist, new Immutable `Map`s will
-     * be created at those keys. If the `keyPath` does not already contain a
-     * value, the `updater` function will be called with `notSetValue`, if
-     * provided, otherwise `undefined`.
+     * If any keys in `keyPath` do not exist, new Immutable `Map`s or `List`s
+     * will be created at those keys.
      *
      * <!-- runkit:activate
      *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.7')" }
      * -->
      * ```js
-     * const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
-     * const newMap = map.updateIn(['a', 'b', 'c'], val => val * 2)
-     * // Map { "a": Map { "b": Map { "c": 20 } } }
+     * const emptyMap = Map()
+     * const newMap = map.updateIn(['a', 0, 'c'], () => 'whoa')
+     * // Map { "a": List [ Map { "c": "whoa" } ] }
      * ```
      *
      * If the `updater` function returns the same value it was called with, then
@@ -1454,8 +1460,10 @@ declare module Immutable {
      * assert.strictEqual(newMap, aMap)
      * ```
      *
-     * For code using ES2015 or later, using `notSetValue` is discourged in
-     * favor of function parameter default values. This helps to avoid any
+     * If the `keyPath` does not already contain a value, the `updater` function
+     * will be called with `notSetValue`, if provided, otherwise `undefined`.
+     * For code written in ES2015 or later, using `notSetValue` is discouraged
+     * in favor of function parameter default values. This helps to avoid any
      * potential confusion with identify functions as described above.
      *
      * The previous example behaves differently when written with default values:
