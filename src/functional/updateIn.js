@@ -67,12 +67,9 @@ function updateInDeeply(
     ? existing
     : nextUpdated === NOT_SET
       ? remove(existing, key)
-      : set(wasNotSet ? empty(key, inImmutable) : existing, key, nextUpdated);
-}
-
-function empty(key, inImmutable) {
-  // TODO: use emptyList(), but fix dependency cycle
-  return typeof key === 'number'
-    ? inImmutable ? emptyMap() : []
-    : inImmutable ? emptyMap() : {};
+      : set(
+          wasNotSet ? (inImmutable ? emptyMap() : {}) : existing,
+          key,
+          nextUpdated
+        );
 }
