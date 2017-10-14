@@ -7,10 +7,13 @@
 
 import { Collection, SetCollection, KeyedCollection } from './Collection';
 import { isOrdered } from './Predicates';
-import { emptyMap, MapPrototype } from './Map';
+import { emptyMap } from './Map';
 import { DELETE } from './TrieUtils';
 import { sortFactory } from './Operations';
 import assertNotInfinite from './utils/assertNotInfinite';
+import { asImmutable } from './methods/asImmutable';
+import { asMutable } from './methods/asMutable';
+import { withMutations } from './methods/withMutations';
 
 import { OrderedSet } from './OrderedSet';
 
@@ -179,14 +182,15 @@ const SetPrototype = Set.prototype;
 SetPrototype[IS_SET_SENTINEL] = true;
 SetPrototype[DELETE] = SetPrototype.remove;
 SetPrototype.merge = SetPrototype.concat = SetPrototype.union;
-SetPrototype.withMutations = MapPrototype.withMutations;
-SetPrototype.asMutable = MapPrototype.asMutable;
-SetPrototype.asImmutable = MapPrototype.asImmutable;
-SetPrototype['@@transducer/init'] = SetPrototype.asMutable;
+SetPrototype.withMutations = withMutations;
+SetPrototype.asImmutable = asImmutable;
+SetPrototype['@@transducer/init'] = SetPrototype.asMutable = asMutable;
 SetPrototype['@@transducer/step'] = function(result, arr) {
   return result.add(arr);
 };
-SetPrototype['@@transducer/result'] = MapPrototype['@@transducer/result'];
+SetPrototype['@@transducer/result'] = function(obj) {
+  return obj.asImmutable();
+};
 
 SetPrototype.__empty = emptySet;
 SetPrototype.__make = makeSet;

@@ -20,9 +20,17 @@ import {
   resolveEnd
 } from './TrieUtils';
 import { IndexedCollection } from './Collection';
-import { MapPrototype } from './Map';
 import { hasIterator, Iterator, iteratorValue, iteratorDone } from './Iterator';
-
+import { setIn } from './methods/setIn';
+import { deleteIn } from './methods/deleteIn';
+import { update } from './methods/update';
+import { updateIn } from './methods/updateIn';
+import { mergeIn } from './methods/mergeIn';
+import { mergeDeepIn } from './methods/mergeDeepIn';
+import { withMutations } from './methods/withMutations';
+import { asMutable } from './methods/asMutable';
+import { asImmutable } from './methods/asImmutable';
+import { wasAltered } from './methods/wasAltered';
 import assertNotInfinite from './utils/assertNotInfinite';
 
 export class List extends IndexedCollection {
@@ -236,21 +244,22 @@ export const ListPrototype = List.prototype;
 ListPrototype[IS_LIST_SENTINEL] = true;
 ListPrototype[DELETE] = ListPrototype.remove;
 ListPrototype.merge = ListPrototype.concat;
-ListPrototype.setIn = MapPrototype.setIn;
-ListPrototype.deleteIn = ListPrototype.removeIn = MapPrototype.removeIn;
-ListPrototype.update = MapPrototype.update;
-ListPrototype.updateIn = MapPrototype.updateIn;
-ListPrototype.mergeIn = MapPrototype.mergeIn;
-ListPrototype.mergeDeepIn = MapPrototype.mergeDeepIn;
-ListPrototype.withMutations = MapPrototype.withMutations;
-ListPrototype.asMutable = MapPrototype.asMutable;
-ListPrototype.asImmutable = MapPrototype.asImmutable;
-ListPrototype.wasAltered = MapPrototype.wasAltered;
-ListPrototype['@@transducer/init'] = ListPrototype.asMutable;
+ListPrototype.setIn = setIn;
+ListPrototype.deleteIn = ListPrototype.removeIn = deleteIn;
+ListPrototype.update = update;
+ListPrototype.updateIn = updateIn;
+ListPrototype.mergeIn = mergeIn;
+ListPrototype.mergeDeepIn = mergeDeepIn;
+ListPrototype.withMutations = withMutations;
+ListPrototype.wasAltered = wasAltered;
+ListPrototype.asImmutable = asImmutable;
+ListPrototype['@@transducer/init'] = ListPrototype.asMutable = asMutable;
 ListPrototype['@@transducer/step'] = function(result, arr) {
   return result.push(arr);
 };
-ListPrototype['@@transducer/result'] = MapPrototype['@@transducer/result'];
+ListPrototype['@@transducer/result'] = function(obj) {
+  return obj.asImmutable();
+};
 
 class VNode {
   constructor(array, ownerID) {

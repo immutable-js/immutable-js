@@ -24,9 +24,6 @@ import {
 } from './Predicates';
 
 import { is } from './is';
-import { getIn } from './functional/getIn';
-import { hasIn } from './functional/hasIn';
-
 import {
   NOT_SET,
   ensureSize,
@@ -82,6 +79,9 @@ import {
   maxFactory,
   zipWithFactory
 } from './Operations';
+import { getIn } from './methods/getIn';
+import { hasIn } from './methods/hasIn';
+import { toObject } from './methods/toObject';
 
 export {
   Collection,
@@ -133,14 +133,7 @@ mixin(Collection, {
     return Map(this.toKeyedSeq());
   },
 
-  toObject() {
-    assertNotInfinite(this.size);
-    const object = {};
-    this.__iterate((v, k) => {
-      object[k] = v;
-    });
-    return object;
-  },
+  toObject: toObject,
 
   toOrderedMap() {
     // Use Late Binding here to solve the circular dependency.
@@ -396,9 +389,7 @@ mixin(Collection, {
     return this.find((_, key) => is(key, searchKey), undefined, notSetValue);
   },
 
-  getIn(searchKeyPath, notSetValue) {
-    return getIn(this, searchKeyPath, notSetValue);
-  },
+  getIn: getIn,
 
   groupBy(grouper, context) {
     return groupByFactory(this, grouper, context);
@@ -408,9 +399,7 @@ mixin(Collection, {
     return this.get(searchKey, NOT_SET) !== NOT_SET;
   },
 
-  hasIn(searchKeyPath) {
-    return hasIn(this, searchKeyPath);
-  },
+  hasIn: hasIn,
 
   isSubset(iter) {
     iter = typeof iter.includes === 'function' ? iter : Collection(iter);
@@ -570,7 +559,7 @@ mixin(KeyedCollection, {
 const KeyedCollectionPrototype = KeyedCollection.prototype;
 KeyedCollectionPrototype[IS_KEYED_SENTINEL] = true;
 KeyedCollectionPrototype[ITERATOR_SYMBOL] = CollectionPrototype.entries;
-KeyedCollectionPrototype.toJSON = CollectionPrototype.toObject;
+KeyedCollectionPrototype.toJSON = toObject;
 KeyedCollectionPrototype.__toStringMapper = (v, k) =>
   quoteString(k) + ': ' + quoteString(v);
 

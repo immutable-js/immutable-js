@@ -6,11 +6,6 @@
  */
 
 import { is } from './is';
-import { setIn } from './functional/setIn';
-import { update } from './functional/update';
-import { updateIn } from './functional/updateIn';
-import { removeIn } from './functional/removeIn';
-import { merge, mergeDeep, mergeDeepWith } from './functional/merge';
 import { Collection, KeyedCollection } from './Collection';
 import { isOrdered } from './Predicates';
 import {
@@ -30,6 +25,18 @@ import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 import { sortFactory } from './Operations';
 import arrCopy from './utils/arrCopy';
 import assertNotInfinite from './utils/assertNotInfinite';
+import { setIn } from './methods/setIn';
+import { deleteIn } from './methods/deleteIn';
+import { update } from './methods/update';
+import { updateIn } from './methods/updateIn';
+import { merge, mergeWith } from './methods/merge';
+import { mergeDeep, mergeDeepWith } from './methods/mergeDeep';
+import { mergeIn } from './methods/mergeIn';
+import { mergeDeepIn } from './methods/mergeDeepIn';
+import { withMutations } from './methods/withMutations';
+import { asMutable } from './methods/asMutable';
+import { asImmutable } from './methods/asImmutable';
+import { wasAltered } from './methods/wasAltered';
 
 import { OrderedMap } from './OrderedMap';
 
@@ -77,16 +84,8 @@ export class Map extends KeyedCollection {
     return updateMap(this, k, v);
   }
 
-  setIn(keyPath, v) {
-    return setIn(this, keyPath, v);
-  }
-
   remove(k) {
     return updateMap(this, k, NOT_SET);
-  }
-
-  deleteIn(keyPath) {
-    return removeIn(this, keyPath);
   }
 
   deleteAll(keys) {
@@ -99,16 +98,6 @@ export class Map extends KeyedCollection {
     return this.withMutations(map => {
       collection.forEach(key => map.remove(key));
     });
-  }
-
-  update(key, notSetValue, updater) {
-    return arguments.length === 1
-      ? key(this)
-      : update(this, key, notSetValue, updater);
-  }
-
-  updateIn(keyPath, notSetValue, updater) {
-    return updateIn(this, keyPath, notSetValue, updater);
   }
 
   clear() {
@@ -127,30 +116,6 @@ export class Map extends KeyedCollection {
 
   // @pragma Composition
 
-  merge(/*...iters*/) {
-    return mergeIntoMapWith(this, undefined, arguments);
-  }
-
-  mergeWith(merger, ...iters) {
-    return mergeIntoMapWith(this, merger, iters);
-  }
-
-  mergeIn(keyPath, ...iters) {
-    return updateIn(this, keyPath, emptyMap(), m => merge(m, ...iters));
-  }
-
-  mergeDeep(...iters) {
-    return mergeDeep(this, ...iters);
-  }
-
-  mergeDeepWith(merger, ...iters) {
-    return mergeDeepWith(merger, this, ...iters);
-  }
-
-  mergeDeepIn(keyPath, ...iters) {
-    return updateIn(this, keyPath, emptyMap(), m => mergeDeep(m, ...iters));
-  }
-
   sort(comparator) {
     // Late binding
     return OrderedMap(sortFactory(this, comparator));
@@ -162,24 +127,6 @@ export class Map extends KeyedCollection {
   }
 
   // @pragma Mutability
-
-  withMutations(fn) {
-    const mutable = this.asMutable();
-    fn(mutable);
-    return mutable.wasAltered() ? mutable.__ensureOwner(this.__ownerID) : this;
-  }
-
-  asMutable() {
-    return this.__ownerID ? this : this.__ensureOwner(new OwnerID());
-  }
-
-  asImmutable() {
-    return this.__ensureOwner();
-  }
-
-  wasAltered() {
-    return this.__altered;
-  }
 
   __iterator(type, reverse) {
     return new MapIterator(this, type, reverse);
@@ -222,10 +169,22 @@ const IS_MAP_SENTINEL = '@@__IMMUTABLE_MAP__@@';
 export const MapPrototype = Map.prototype;
 MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
-MapPrototype.removeIn = MapPrototype.deleteIn;
 MapPrototype.removeAll = MapPrototype.deleteAll;
 MapPrototype.concat = MapPrototype.merge;
-MapPrototype['@@transducer/init'] = MapPrototype.asMutable;
+MapPrototype.setIn = setIn;
+MapPrototype.removeIn = MapPrototype.deleteIn = deleteIn;
+MapPrototype.update = update;
+MapPrototype.updateIn = updateIn;
+MapPrototype.merge = merge;
+MapPrototype.mergeWith = mergeWith;
+MapPrototype.mergeDeep = mergeDeep;
+MapPrototype.mergeDeepWith = mergeDeepWith;
+MapPrototype.mergeIn = mergeIn;
+MapPrototype.mergeDeepIn = mergeDeepIn;
+MapPrototype.withMutations = withMutations;
+MapPrototype.wasAltered = wasAltered;
+MapPrototype.asImmutable = asImmutable;
+MapPrototype['@@transducer/init'] = MapPrototype.asMutable = asMutable;
 MapPrototype['@@transducer/step'] = function(result, arr) {
   return result.set(arr[0], arr[1]);
 };
@@ -804,39 +763,6 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
   }
   expandedNodes[including] = node;
   return new HashArrayMapNode(ownerID, count + 1, expandedNodes);
-}
-
-function mergeIntoMapWith(collection, merger, collections) {
-  const iters = [];
-  for (let ii = 0; ii < collections.length; ii++) {
-    const collection = KeyedCollection(collections[ii]);
-    if (collection.size !== 0) {
-      iters.push(collection);
-    }
-  }
-  if (iters.length === 0) {
-    return collection;
-  }
-  if (collection.size === 0 && !collection.__ownerID && iters.length === 1) {
-    return collection.constructor(iters[0]);
-  }
-  return collection.withMutations(collection => {
-    const mergeIntoCollection = merger
-      ? (value, key) => {
-          update(
-            collection,
-            key,
-            NOT_SET,
-            oldVal => (oldVal === NOT_SET ? value : merger(oldVal, value, key))
-          );
-        }
-      : (value, key) => {
-          collection.set(key, value);
-        };
-    for (let ii = 0; ii < iters.length; ii++) {
-      iters[ii].forEach(mergeIntoCollection);
-    }
-  });
 }
 
 function popCount(x) {
