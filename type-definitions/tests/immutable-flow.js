@@ -366,6 +366,10 @@ stringToNumberOrString = Map({'a': 1}).mergeDeepWith((previous, next, key) => 1,
 // $ExpectError - the array [1] is not a valid argument
 stringToNumber = Map({'a': 1}).mergeDeepWith((previous, next, key) => 1, [1])
 
+// KeyedSeq can merge into Map
+var stringToStringSeq: KeyedSeq<string, string> = Seq({'b': 'B'});
+stringToNumberOrString = Map({'a': 1}).merge(stringToStringSeq);
+
 // $ExpectError
 stringToNumber = Map({'a': 1}).setIn([], 0)
 // $ExpectError
