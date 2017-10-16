@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { merge } from '../functional/merge';
+import { mergeWithSources } from '../functional/merge';
 import { updateIn } from '../functional/updateIn';
 import { emptyMap } from '../Map';
 
 export function mergeIn(keyPath, ...iters) {
-  return updateIn(this, keyPath, emptyMap(), m => merge(m, ...iters));
+  return updateIn(this, keyPath, emptyMap(), m => mergeWithSources(m, iters));
 }
