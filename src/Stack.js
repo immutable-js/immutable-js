@@ -7,10 +7,13 @@
 
 import { wholeSlice, resolveBegin, resolveEnd, wrapIndex } from './TrieUtils';
 import { IndexedCollection } from './Collection';
-import { MapPrototype } from './Map';
 import { ArraySeq } from './Seq';
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 import assertNotInfinite from './utils/assertNotInfinite';
+import { asImmutable } from './methods/asImmutable';
+import { asMutable } from './methods/asMutable';
+import { wasAltered } from './methods/wasAltered';
+import { withMutations } from './methods/withMutations';
 
 export class Stack extends IndexedCollection {
   // @pragma Construction
@@ -203,18 +206,19 @@ const IS_STACK_SENTINEL = '@@__IMMUTABLE_STACK__@@';
 
 const StackPrototype = Stack.prototype;
 StackPrototype[IS_STACK_SENTINEL] = true;
-StackPrototype.withMutations = MapPrototype.withMutations;
-StackPrototype.asMutable = MapPrototype.asMutable;
-StackPrototype.asImmutable = MapPrototype.asImmutable;
-StackPrototype.wasAltered = MapPrototype.wasAltered;
 StackPrototype.shift = StackPrototype.pop;
 StackPrototype.unshift = StackPrototype.push;
 StackPrototype.unshiftAll = StackPrototype.pushAll;
-StackPrototype['@@transducer/init'] = StackPrototype.asMutable;
+StackPrototype.withMutations = withMutations;
+StackPrototype.wasAltered = wasAltered;
+StackPrototype.asImmutable = asImmutable;
+StackPrototype['@@transducer/init'] = StackPrototype.asMutable = asMutable;
 StackPrototype['@@transducer/step'] = function(result, arr) {
   return result.unshift(arr);
 };
-StackPrototype['@@transducer/result'] = MapPrototype['@@transducer/result'];
+StackPrototype['@@transducer/result'] = function(obj) {
+  return obj.asImmutable();
+};
 
 function makeStack(size, head, ownerID, hash) {
   const map = Object.create(StackPrototype);
