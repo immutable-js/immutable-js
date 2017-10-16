@@ -192,11 +192,14 @@ describe('Map', () => {
   });
 
   it('can use weird keys', () => {
+    const symbol = Symbol('A');
     const m: Map<any, any> = Map()
       .set(NaN, 1)
       .set(Infinity, 2)
+      .set(symbol, 'A')
       .set(-Infinity, 3);
 
+    expect(m.get(symbol)).toBe('A');
     expect(m.get(NaN)).toBe(1);
     expect(m.get(Infinity)).toBe(2);
     expect(m.get(-Infinity)).toBe(3);
@@ -382,6 +385,26 @@ describe('Map', () => {
     const r = new A({x: 2});
     const map = Map([[r, r]]);
     expect(map.toString()).toEqual('Map { 2: 2 }');
+  });
+
+  it('supports symbols as keys', () => {
+    const symbolA = Symbol('A');
+    const symbolB = Symbol('B');
+    const symbolC = Symbol('C');
+    const m = Map({[symbolA]: 'A', [symbolB]: 'B', [symbolC]: 'C'});
+    expect(m.size).toBe(3);
+    expect(m.get(symbolA)).toBe('A');
+    expect(m.get(symbolB)).toBe('B');
+    expect(m.get(symbolC)).toBe('C');
+  });
+
+  it('symbol keys are unique', () => {
+    const symbolA = Symbol('FooBar');
+    const symbolB = Symbol('FooBar');
+    const m = Map({[symbolA]: 'FizBuz', [symbolB]: 'FooBar'});
+    expect(m.size).toBe(2);
+    expect(m.get(symbolA)).toBe('FizBuz');
+    expect(m.get(symbolB)).toBe('FooBar');
   });
 
 });
