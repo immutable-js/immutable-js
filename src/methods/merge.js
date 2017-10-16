@@ -10,14 +10,14 @@ import { NOT_SET } from '../TrieUtils';
 import { update } from '../functional/update';
 
 export function merge(...iters) {
-  return mergeIntoKeyedWith(this, undefined, iters);
+  return mergeIntoKeyedWith(this, iters);
 }
 
 export function mergeWith(merger, ...iters) {
-  return mergeIntoKeyedWith(this, merger, iters);
+  return mergeIntoKeyedWith(this, iters, merger);
 }
 
-function mergeIntoKeyedWith(collection, merger, collections) {
+function mergeIntoKeyedWith(collection, collections, merger) {
   const iters = [];
   for (let ii = 0; ii < collections.length; ii++) {
     const collection = KeyedCollection(collections[ii]);

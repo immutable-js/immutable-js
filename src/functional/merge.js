@@ -10,25 +10,28 @@ import { IndexedCollection, KeyedCollection } from '../Collection';
 import hasOwnProperty from '../utils/hasOwnProperty';
 import isDataStructure from '../utils/isDataStructure';
 import shallowCopy from '../utils/shallowCopy';
-import { is } from '../is';
 
 export function merge(collection, ...sources) {
-  return mergeWithSources(undefined, collection, sources);
+  return mergeWithSources(collection, sources);
 }
 
 export function mergeWith(merger, collection, ...sources) {
-  return mergeWithSources(merger, collection, sources);
+  return mergeWithSources(collection, sources, merger);
 }
 
 export function mergeDeep(collection, ...sources) {
-  return mergeWithSources(deepMergerWith(alwaysNewValue), collection, sources);
+  return mergeDeepWithSources(collection, sources);
 }
 
 export function mergeDeepWith(merger, collection, ...sources) {
-  return mergeWithSources(deepMergerWith(merger), collection, sources);
+  return mergeDeepWithSources(collection, sources, merger);
 }
 
-function mergeWithSources(merger, collection, sources) {
+export function mergeDeepWithSources(collection, sources, merger) {
+  return mergeWithSources(collection, sources, deepMergerWith(merger));
+}
+
+export function mergeWithSources(collection, sources, merger) {
   if (!isDataStructure(collection)) {
     throw new TypeError(
       'Cannot merge into non-data-structure value: ' + collection
@@ -51,11 +54,10 @@ function mergeWithSources(merger, collection, sources) {
         merged.push(value);
       }
     : (value, key) => {
+        const hasVal = hasOwnProperty.call(merged, key);
         const nextVal =
-          merger && hasOwnProperty.call(merged, key)
-            ? merger(merged[key], value, key)
-            : value;
-        if (!hasOwnProperty.call(merged, key) || nextVal !== merged[key]) {
+          hasVal && merger ? merger(merged[key], value, key) : value;
+        if (!hasVal || nextVal !== merged[key]) {
           // Copy on write
           if (merged === collection) {
             merged = shallowCopy(merged);
@@ -71,15 +73,9 @@ function mergeWithSources(merger, collection, sources) {
 
 function deepMergerWith(merger) {
   function deepMerger(oldValue, newValue, key) {
-    if (isDataStructure(oldValue) && isDataStructure(newValue)) {
-      return mergeWithSources(deepMerger, oldValue, [newValue]);
-    }
-    const nextValue = merger(oldValue, newValue, key);
-    return is(oldValue, nextValue) ? oldValue : nextValue;
+    return isDataStructure(oldValue) && isDataStructure(newValue)
+      ? mergeWithSources(oldValue, [newValue], deepMerger)
+      : merger ? merger(oldValue, newValue, key) : newValue;
   }
   return deepMerger;
-}
-
-function alwaysNewValue(oldValue, newValue) {
-  return newValue;
 }

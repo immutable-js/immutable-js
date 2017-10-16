@@ -5,15 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {
-  mergeDeep as _mergeDeep,
-  mergeDeepWith as _mergeDeepWith
-} from '../functional/merge';
+import { mergeDeepWithSources } from '../functional/merge';
 
 export function mergeDeep(...iters) {
-  return _mergeDeep(this, ...iters);
+  return mergeDeepWithSources(this, iters);
 }
 
 export function mergeDeepWith(merger, ...iters) {
-  return _mergeDeepWith(merger, this, ...iters);
+  return mergeDeepWithSources(this, iters, merger);
 }

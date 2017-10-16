@@ -43,12 +43,22 @@ describe('merge', () => {
     expect(m1.mergeDeep(m2)).toEqual(fromJS({a: {b: {c: 10, d: 2, e: 20}, f: 30}, g: 40}));
   });
 
-  it('deep merge uses is() for return-self optimization', () =>  {
+  it('merge uses === for return-self optimization', () =>  {
     const date1 = new Date(1234567890000);
+    // Value equal, but different reference.
+    const date2 = new Date(1234567890000);
+    const m = Map().set('a', date1);
+    expect(m.merge({a: date2})).not.toBe(m);
+    expect(m.merge({a: date1})).toBe(m);
+  });
+
+  it('deep merge uses === for return-self optimization', () =>  {
+    const date1 = new Date(1234567890000);
+    // Value equal, but different reference.
     const date2 = new Date(1234567890000);
     const m = Map().setIn(['a', 'b', 'c'], date1);
-    const m2 = m.mergeDeep({a: {b: {c: date2 }}});
-    expect(m2 === m).toBe(true);
+    expect(m.mergeDeep({a: {b: {c: date2}}})).not.toBe(m);
+    expect(m.mergeDeep({a: {b: {c: date1}}})).toBe(m);
   });
 
   it('deep merges raw JS', () => {
