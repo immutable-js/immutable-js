@@ -5,12 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Collection } from './Collection';
-import { isImmutable } from './Predicates';
+import { Seq } from './Seq';
+import isDataStructure from './utils/isDataStructure';
 
 export function toJS(value) {
-  return isImmutable(value)
-    ? Collection(value)
+  return isDataStructure(value)
+    ? Seq(value)
         .map(toJS)
         .toJSON()
     : value;

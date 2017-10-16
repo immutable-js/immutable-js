@@ -7,6 +7,7 @@
 
 import { KeyedSeq, IndexedSeq } from './Seq';
 import { isKeyed } from './Predicates';
+import isPlainObj from './utils/isPlainObj';
 
 export function fromJS(value, converter) {
   return fromJSWith(
@@ -46,10 +47,4 @@ function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
 
 function defaultConverter(k, v) {
   return isKeyed(v) ? v.toMap() : v.toList();
-}
-
-function isPlainObj(value) {
-  return (
-    value && (value.constructor === Object || value.constructor === undefined)
-  );
 }

@@ -24,8 +24,10 @@ import {
 } from './Predicates';
 
 import { is } from './is';
+import { getIn } from './functional/getIn';
+import { hasIn } from './functional/hasIn';
+
 import {
-  arrCopy,
   NOT_SET,
   ensureSize,
   wrapIndex,
@@ -42,8 +44,8 @@ import {
   ITERATE_ENTRIES
 } from './Iterator';
 
+import arrCopy from './utils/arrCopy';
 import assertNotInfinite from './utils/assertNotInfinite';
-import coerceKeyPath from './utils/coerceKeyPath';
 import deepEqual from './utils/deepEqual';
 import mixin from './utils/mixin';
 import quoteString from './utils/quoteString';
@@ -333,13 +335,6 @@ mixin(Collection, {
       .map(entryMapper)
       .toIndexedSeq();
     entriesSequence.fromEntrySeq = () => collection.toSeq();
-
-    // Entries are plain Array, which do not define toJS, so it must
-    // manually converts keys and values before conversion.
-    entriesSequence.toJS = function() {
-      return this.map(entry => [toJS(entry[0]), toJS(entry[1])]).toJSON();
-    };
-
     return entriesSequence;
   },
 
@@ -402,7 +397,7 @@ mixin(Collection, {
   },
 
   getIn(searchKeyPath, notSetValue) {
-    return getIn(this, notSetValue, searchKeyPath, true /* report bad path */);
+    return getIn(this, searchKeyPath, notSetValue);
   },
 
   groupBy(grouper, context) {
@@ -414,10 +409,7 @@ mixin(Collection, {
   },
 
   hasIn(searchKeyPath) {
-    return (
-      getIn(this, NOT_SET, searchKeyPath, false /* report bad path */) !==
-      NOT_SET
-    );
+    return hasIn(this, searchKeyPath);
   },
 
   isSubset(iter) {
@@ -827,42 +819,4 @@ function murmurHashOfSize(size, h) {
 
 function hashMerge(a, b) {
   return (a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2))) | 0; // int
-}
-
-function warn(message) {
-  /* eslint-disable no-console */
-  if (typeof console === 'object' && console.warn) {
-    console.warn(message);
-  } else {
-    throw new Error(message);
-  }
-  /* eslint-enable no-console */
-}
-
-function getIn(value, notSetValue, searchKeyPath, reportBadKeyPath) {
-  const keyPath = coerceKeyPath(searchKeyPath);
-  let i = 0;
-  while (i !== keyPath.length) {
-    // Intermediate null/undefined value along path
-    if (value == null) {
-      return notSetValue;
-    }
-    if (!value || !value.get) {
-      if (reportBadKeyPath) {
-        warn(
-          'Invalid keyPath: Value at [' +
-            keyPath.slice(0, i).map(quoteString) +
-            '] does not have a .get() method: ' +
-            value +
-            '\nThis warning will throw in a future version'
-        );
-      }
-      return notSetValue;
-    }
-    value = value.get(keyPath[i++], NOT_SET);
-    if (value === NOT_SET) {
-      return notSetValue;
-    }
-  }
-  return value;
 }
