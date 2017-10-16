@@ -51,36 +51,40 @@ map1.get('b') + " vs. " + map2.get('b') // 2 vs. 50
 
 ### Browser
 
-To use Immutable.js from a browser, download [dist/immutable.min.js](https://github.com/facebook/immutable-js/blob/master/dist/immutable.min.js)
-or use a CDN such as [CDNJS](https://cdnjs.com/libraries/immutable)
-or [jsDelivr](http://www.jsdelivr.com/#!immutable.js).
+Immutable.js has no depenencnies, which makes it predictable to include in a Browser.
 
-Then, add it as a script tag to your page:
+It's highly recommended to use a module bundler like [webpack](https://webpack.github.io/),
+[rollup](https://rollupjs.org/), or
+[browserify](http://browserify.org/). The `immutable` npm module works
+without any additional consideration. All examples throughout the documentation
+will assume use of this kind of tool.
+
+Alternatively, Immutable.js may be directly included as a script tag. Download
+or link to a CDN such as [CDNJS](https://cdnjs.com/libraries/immutable)
+or [jsDelivr](https://www.jsdelivr.com/package/npm/immutable).
+
+Use a script tag to directly add `Immutable` to the global scope:
 
 ```html
 <script src="immutable.min.js"></script>
 <script>
-    var map1 = Immutable.Map({a:1, b:2, c:3});
-    var map2 = map1.set('b', 50);
-    map1.get('b'); // 2
-    map2.get('b'); // 50
+  var map1 = Immutable.Map({a:1, b:2, c:3});
+  var map2 = map1.set('b', 50);
+  map1.get('b'); // 2
+  map2.get('b'); // 50
 </script>
 ```
 
-Or use an AMD loader (such as [RequireJS](http://requirejs.org/)):
+Or use an AMD-style loader (such as [RequireJS](http://requirejs.org/)):
 
 ```js
 require(['./immutable.min.js'], function (Immutable) {
-    var map1 = Immutable.Map({a:1, b:2, c:3});
-    var map2 = map1.set('b', 50);
-    map1.get('b'); // 2
-    map2.get('b'); // 50
+  var map1 = Immutable.Map({a:1, b:2, c:3});
+  var map2 = map1.set('b', 50);
+  map1.get('b'); // 2
+  map2.get('b'); // 50
 });
 ```
-
-If you're using [webpack](https://webpack.github.io/) or
-[browserify](http://browserify.org/), the `immutable` npm module also works
-from the browser.
 
 ### Flow & TypeScript
 
