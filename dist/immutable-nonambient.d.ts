@@ -707,6 +707,18 @@
      * // List [ 0, 1, 2, List [ 999, 4 ] ]
      * ```
      *
+     * Plain JavaScript Object or Arrays may be nested within an Immutable.js
+     * Collection, and setIn() can update those values as well, treating them
+     * immutably by creating new copies of those values with the changes applied.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { List } = require('immutable@4.0.0-rc.7')
+     * const list = List([ 0, 1, 2, { plain: 'object' }])
+     * list.setIn([3, 'plain'], 'value');
+     * // List([ 0, 1, 2, { plain: 'value' }])
+     * ```
+     *
      * Note: `setIn` can be used in `withMutations`.
      */
     setIn(keyPath: Iterable<any>, value: any): this;
@@ -721,6 +733,18 @@
      * const list = List([ 0, 1, 2, List([ 3, 4 ])])
      * list.deleteIn([3, 0]);
      * // List [ 0, 1, 2, List [ 4 ] ]
+     * ```
+     *
+     * Plain JavaScript Object or Arrays may be nested within an Immutable.js
+     * Collection, and removeIn() can update those values as well, treating them
+     * immutably by creating new copies of those values with the changes applied.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { List } = require('immutable@4.0.0-rc.7')
+     * const list = List([ 0, 1, 2, { plain: 'object' }])
+     * list.removeIn([3, 'plain']);
+     * // List([ 0, 1, 2, {}])
      * ```
      *
      * Note: `deleteIn` *cannot* be safely used in `withMutations`.
@@ -1344,8 +1368,33 @@
      * // }
      * ```
      *
-     * If any key in the path exists but does not have a `.set()` method
-     * (such as Map and List), an error will be throw.
+     * Plain JavaScript Object or Arrays may be nested within an Immutable.js
+     * Collection, and setIn() can update those values as well, treating them
+     * immutably by creating new copies of those values with the changes applied.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { Map } = require('immutable@4.0.0-rc.7')
+     * const originalMap = Map({
+     *   subObject: {
+     *     subKey: 'subvalue',
+     *     subSubObject: {
+     *       subSubKey: 'subSubValue'
+     *     }
+     *   }
+     * })
+     *
+     * originalMap.setIn(['subObject', 'subKey'], 'ha ha!')
+     * // Map {
+     * //   "subObject": {
+     * //     subKey: "ha ha!",
+     * //     subSubObject: { subSubKey: "subSubValue" }
+     * //   }
+     * // }
+     * ```
+     *
+     * If any key in the path exists but cannot be updated (such as a primitive
+     * like number or a custom Object like Date), an error will be thrown.
      *
      * Note: `setIn` can be used in `withMutations`.
      */
@@ -1420,8 +1469,23 @@
      * // Map { "a": Map { "b": Map { "c": 10, "x": 100 } } }
      * ```
      *
-     * If any key in the path exists but does not have a .set() method (such as
-     * Map and List), an error will be thrown.
+     * Plain JavaScript Object or Arrays may be nested within an Immutable.js
+     * Collection, and updateIn() can update those values as well, treating them
+     * immutably by creating new copies of those values with the changes applied.
+     *
+     * <!-- runkit:activate
+     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.7')" }
+     * -->
+     * ```js
+     * const map = Map({ a: { b: { c: 10 } } })
+     * const newMap = map.updateIn(['a', 'b', 'c'], val => val * 2)
+     * // Map { "a": { b: { c: 20 } } }
+     * ```
+     *
+     * If any key in the path exists but cannot be updated (such as a primitive
+     * like number or a custom Object like Date), an error will be thrown.
+     *
+     * Note: `updateIn` can be used in `withMutations`.
      */
     updateIn(keyPath: Iterable<any>, notSetValue: any, updater: (value: any) => any): this;
     updateIn(keyPath: Iterable<any>, updater: (value: any) => any): this;
@@ -2454,6 +2518,44 @@
    * export type Point3D = RecordOf<Point3DProps>;
    * const some3DPoint: Point3D = makePoint3D({ x: 10, y: 20, z: 30 });
    * ```
+   *
+   *
+   * **Choosing Records vs plain JavaScript objects**
+   *
+   * Records ofters a persistently immutable alternative to plain JavaScript
+   * objects, however they're not required to be used within Immutable.js
+   * collections. In fact, the deep-access and deep-updating functions
+   * like `getIn()` and `setIn()` work with plain JavaScript Objects as well.
+   *
+   * Deciding to use Records or Objects in your application should be informed
+   * by the tradeoffs and relative benefits of each:
+   *
+   * - *Runtime immutability*: plain JS objects may be carefully treated as
+   *   immutable, however Record instances will *throw* if attempted to be
+   *   mutated directly. Records provide this additional guarantee, however at
+   *   some marginal runtime cost. While JS objects are mutable by nature, the
+   *   use of type-checking tools like [Flow](https://medium.com/@gcanti/immutability-with-flow-faa050a1aef4)
+   *   can help gain confidence in code written to favor immutability.
+   *
+   * - *Value equality*: Records use value equality when compared with `is()`
+   *   or `record.equals()`. That is, two Records with the same keys and values
+   *   are equal. Plain objects use *reference equality*. Two objects with the
+   *   same keys and values are not equal since they are different objects.
+   *   This is important to consider when using objects as keys in a `Map` or
+   *   values in a `Set`, which use equality when retrieving values.
+   *
+   * - *API methods*: Records have a full featured API, with methods like
+   *   `.getIn()`, and `.equals()`. These can make working with these values
+   *   easier, but comes at the cost of not allowing keys with those names.
+   *
+   * - *Default values*: Records provide default values for every key, which
+   *   can be useful when constructing Records with often unchanging values.
+   *   However default values can make using Flow and TypeScript more laborious.
+   *
+   * - *Serialization*: Records use a custom internal representation to
+   *   efficiently store and update their values. Converting to and from this
+   *   form isn't free. If converting Records to plain objects is common,
+   *   consider sticking with plain objects to begin with.
    */
   export module Record {
 
@@ -3903,6 +4005,23 @@
     /**
      * Returns the value found by following a path of keys or indices through
      * nested Collections.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { Map, List } = require('immutable@4.0.0-rc.7')
+     * const deepData = Map({ x: List([ Map({ y: 123 }) ]) });
+     * getIn(deepData, ['x', 0, 'y']) // 123
+     * ```
+     *
+     * Plain JavaScript Object or Arrays may be nested within an Immutable.js
+     * Collection, and getIn() can access those values as well:
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { Map, List } = require('immutable@4.0.0-rc.7')
+     * const deepData = Map({ x: [ { y: 123 } ] });
+     * getIn(deepData, ['x', 0, 'y']) // 123
+     * ```
      */
     getIn(searchKeyPath: Iterable<any>, notSetValue?: any): any;
 
@@ -4708,4 +4827,297 @@
      */
     isSuperset(iter: Iterable<V>): boolean;
   }
+
+  /**
+   * Returns the value within the provided collection associated with the
+   * provided key, or notSetValue if the key is not defined in the collection.
+   *
+   * A functional alternative to `collection.get(key)` which will also work on
+   * plain Objects and Arrays as an alternative for `collection[key]`.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { get } = require('immutable@4.0.0-rc.7')
+   * get([ 'dog', 'frog', 'cat' ], 2) // 'frog'
+   * get({ x: 123, y: 456 }, 'x') // 123
+   * get({ x: 123, y: 456 }, 'z', 'ifNotSet') // 'ifNotSet'
+   * ```
+   */
+  export function get<K, V>(collection: Collection<K, V>, key: K): V | undefined;
+  export function get<K, V, NSV>(collection: Collection<K, V>, key: K, notSetValue: NSV): V | NSV;
+  export function get<TProps, K extends keyof TProps>(record: Record<TProps>, key: K, notSetValue: any): TProps[K];
+  export function get<V>(collection: Array<V>, key: number): V | undefined;
+  export function get<V, NSV>(collection: Array<V>, key: number, notSetValue: NSV): V | NSV;
+  export function get<C extends Object, K extends keyof C>(object: C, key: K, notSetValue: any): C[K];
+  export function get<V>(collection: {[key: string]: V}, key: string): V | undefined;
+  export function get<V, NSV>(collection: {[key: string]: V}, key: string, notSetValue: NSV): V | NSV;
+
+  /**
+   * Returns true if the key is defined in the provided collection.
+   *
+   * A functional alternative to `collection.has(key)` which will also work with
+   * plain Objects and Arrays as an alternative for
+   * `collection.hasOwnProperty(key)`.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { has } = require('immutable@4.0.0-rc.7')
+   * has([ 'dog', 'frog', 'cat' ], 2) // true
+   * has([ 'dog', 'frog', 'cat' ], 5) // false
+   * has({ x: 123, y: 456 }, 'x') // true
+   * has({ x: 123, y: 456 }, 'z') // false
+   * ```
+   */
+  export function has(collection: Object, key: mixed): boolean;
+
+  /**
+   * Returns a copy of the collection with the value at key removed.
+   *
+   * A functional alternative to `collection.remove(key)` which will also work
+   * with plain Objects and Arrays as an alternative for
+   * `delete collectionCopy[key]`.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { remove } = require('immutable@4.0.0-rc.7')
+   * const originalArray = [ 'dog', 'frog', 'cat' ]
+   * remove(originalArray, 1) // [ 'dog', 'cat' ]
+   * console.log(originalArray) // [ 'dog', 'frog', 'cat' ]
+   * const originalObject = { x: 123, y: 456 }
+   * remove(originalObject, 'x') // { y: 456 }
+   * console.log(originalObject) // { x: 123, y: 456 }
+   * ```
+   */
+  export function remove<K, C extends Collection<K, any>>(collection: C, key: K): C;
+  export function remove<TProps, R extends Record<TProps>, K extends keyof TProps>(collection: C, key: K): C;
+  export function remove<C extends Array<any>>(collection: C, key: number): C;
+  export function remove<C, K extends keyof Obj>(collection: C, key: K): C;
+  export function remove<K, C extends {[key: string]: any}>(collection: C, key: K): C;
+
+  /**
+   * Returns a copy of the collection with the value at key set to the provided
+   * value.
+   *
+   * A functional alternative to `collection.set(key, value)` which will also
+   * work with plain Objects and Arrays as an alternative for
+   * `collectionCopy[key] = value`.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { set } = require('immutable@4.0.0-rc.7')
+   * const originalArray = [ 'dog', 'frog', 'cat' ]
+   * set(originalArray, 1, 'cow') // [ 'dog', 'cow', 'cat' ]
+   * console.log(originalArray) // [ 'dog', 'frog', 'cat' ]
+   * const originalObject = { x: 123, y: 456 }
+   * set(originalObject, 'x', 789) // { x: 789, y: 456 }
+   * console.log(originalObject) // { x: 123, y: 456 }
+   * ```
+   */
+  export function set<K, V, C extends Collection<K, V>>(collection: C, key: K, value: V): C;
+  export function set<TProps, C extends Record<TProps>, K extends keyof TProps>(record: C, key: K, value: TProps[K]): C;
+  export function set<V, C extends Array<V>>(collection: C, key: number, value: V): C;
+  export function set<C, K extends keyof C>(object: C, key: K, value: C[K]): C;
+  export function set<V, C extends {[key: string]: V}>(collection: C, key: string, value: V): C;
+
+  /**
+   * Returns a copy of the collection with the value at key set to the result of
+   * providing the existing value to the updating function.
+   *
+   * A functional alternative to `collection.update(key, fn)` which will also
+   * work with plain Objects and Arrays as an alternative for
+   * `collectionCopy[key] = fn(collection[key])`.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { update } = require('immutable@4.0.0-rc.7')
+   * const originalArray = [ 'dog', 'frog', 'cat' ]
+   * update(originalArray, 1, val => val.toUpperCase()) // [ 'dog', 'FROG', 'cat' ]
+   * console.log(originalArray) // [ 'dog', 'frog', 'cat' ]
+   * const originalObject = { x: 123, y: 456 }
+   * set(originalObject, 'x', val => val * 6) // { x: 738, y: 456 }
+   * console.log(originalObject) // { x: 123, y: 456 }
+   * ```
+   */
+  export function update<K, V, C extends Collection<K, V>>(collection: C, key: K, updater: (value: V) => V): C;
+  export function update<K, V, C extends Collection<K, V>, NSV>(collection: C, key: K, notSetValue: NSV, updater: (value: V | NSV) => V): C;
+  export function update<TProps, C extends Record<TProps>, K extends keyof TProps>(record: C, key: K, updater: (value: TProps[K]) => TProps[K]): C;
+  export function update<TProps, C extends Record<TProps>, K extends keyof TProps, NSV>(record: C, key: K, notSetValue: NSV, updater: (value: TProps[K] | NSV) => TProps[K]): C;
+  export function update<V>(collection: Array<V>, key: number, updater: (value: V) => V): Array<V>;
+  export function update<V, NSV>(collection: Array<V>, key: number, notSetValue: NSV, updater: (value: V | NSV) => V): C;
+  export function update<C, K extends keyof C>(object: C, key: K, updater: (value: C[K]) => C[K]): C;
+  export function update<C, K extends keyof C, NSV>(object: C, key: K, notSetValue: NSV, updater: (value: C[K] | NSV) => C[K]): C;
+  export function update<V, C extends {[key: string]: V}>(collection: C, key: K, updater: (value: V) => V): {[key: string]: V};
+  export function update<V, C extends {[key: string]: V}, NSV>(collection: C, key: K, notSetValue: NSV, updater: (value: V | NSV) => V): {[key: string]: V};
+
+  /**
+   * Returns the value at the provided key path starting at the provided
+   * collection, or notSetValue if the key path is not defined.
+   *
+   * A functional alternative to `collection.getIn(keypath)` which will also
+   * work with plain Objects and Arrays.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { getIn } = require('immutable@4.0.0-rc.7')
+   * getIn({ x: { y: { z: 123 }}}, ['x', 'y', 'z']) // 123
+   * getIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p'], 'ifNotSet') // 'ifNotSet'
+   * ```
+   */
+  export function getIn(collection: any, keyPath: Iterable<any>, notSetValue: any): any;
+
+  /**
+   * Returns true if the key path is defined in the provided collection.
+   *
+   * A functional alternative to `collection.hasIn(keypath)` which will also
+   * work with plain Objects and Arrays.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { hasIn } = require('immutable@4.0.0-rc.7')
+   * hasIn({ x: { y: { z: 123 }}}, ['x', 'y', 'z']) // true
+   * hasIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p']) // false
+   * ```
+   */
+  export function hasIn(collection: any, keyPath: Iterable<any>): boolean;
+
+  /**
+   * Returns a copy of the collection with the value at the key path removed.
+   *
+   * A functional alternative to `collection.removeIn(keypath)` which will also
+   * work with plain Objects and Arrays.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { removeIn } = require('immutable@4.0.0-rc.7')
+   * const original = { x: { y: { z: 123 }}}
+   * removeIn(original, ['x', 'y', 'z']) // { x: { y: {}}}
+   * console.log(original) // { x: { y: { z: 123 }}}
+   * ```
+   */
+  export function removeIn<C>(collection: C, keyPath: Iterable<any>): C;
+
+  /**
+   * Returns a copy of the collection with the value at the key path set to the
+   * provided value.
+   *
+   * A functional alternative to `collection.setIn(keypath)` which will also
+   * work with plain Objects and Arrays.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { setIn } = require('immutable@4.0.0-rc.7')
+   * const original = { x: { y: { z: 123 }}}
+   * setIn(original, ['x', 'y', 'z'], 456) // { x: { y: { z: 456 }}}
+   * console.log(original) // { x: { y: { z: 123 }}}
+   * ```
+   */
+  export function setIn<C>(collection: C, keyPath: Iterable<any>, value: any): C;
+
+  /**
+   * Returns a copy of the collection with the value at key path set to the
+   * result of providing the existing value to the updating function.
+   *
+   * A functional alternative to `collection.updateIn(keypath)` which will also
+   * work with plain Objects and Arrays.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { setIn } = require('immutable@4.0.0-rc.7')
+   * const original = { x: { y: { z: 123 }}}
+   * setIn(original, ['x', 'y', 'z'], val => val * 6) // { x: { y: { z: 738 }}}
+   * console.log(original) // { x: { y: { z: 123 }}}
+   * ```
+   */
+  export function updateIn<C>(collection: C, keyPath: Iterable<any>, updater: (value: any) => any): C;
+
+
+  /**
+   * Returns a copy of the collection with the remaining collections merged in.
+   *
+   * A functional alternative to `collection.merge()` which will also work with
+   * plain Objects and Arrays.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { merge } = require('immutable@4.0.0-rc.7')
+   * const original = { x: 123, y: 456 }
+   * merge(original, { y: 789, z: 'abc' }) // { x: 123, y: 789, z: 'abc' }
+   * console.log(original) // { x: { y: { z: 123 }}}
+   * ```
+   */
+  export function merge<C>(
+    collection: C,
+    ...collections: Array<Iterable<any> | Iterable<[any, any]> | {[key: string]: any}>
+  ): C;
+
+  /**
+   * Returns a copy of the collection with the remaining collections merged in,
+   * calling the `merger` function whenever an existing value is encountered.
+   *
+   * A functional alternative to `collection.mergeWith()` which will also work
+   * with plain Objects and Arrays.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { mergeWith } = require('immutable@4.0.0-rc.7')
+   * const original = { x: 123, y: 456 }
+   * mergeWith(
+   *   (oldVal, newVal) => oldVal + newVal,
+   *   original,
+   *   { y: 789, z: 'abc' }
+   * ) // { x: 123, y: 1245, z: 'abc' }
+   * console.log(original) // { x: { y: { z: 123 }}}
+   * ```
+   */
+  export function mergeWith<C>(
+    merger: (oldVal: any, newVal: any, key: any) => any,
+    collection: C,
+    ...collections: Array<Iterable<any> | Iterable<[any, any]> | {[key: string]: any}>
+  ): C;
+
+  /**
+   * Returns a copy of the collection with the remaining collections merged in
+   * deeply (recursively).
+   *
+   * A functional alternative to `collection.mergeDeep()` which will also work
+   * with plain Objects and Arrays.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { merge } = require('immutable@4.0.0-rc.7')
+   * const original = { x: { y: 123 }}
+   * merge(original, { x: { z: 456 }}) // { x: { y: 123, z: 456 }}
+   * console.log(original) // { x: { y: 123 }}
+   * ```
+   */
+  export function mergeDeep<C>(
+    collection: C,
+    ...collections: Array<Iterable<any> | Iterable<[any, any]> | {[key: string]: any}>
+  ): C;
+
+  /**
+   * Returns a copy of the collection with the remaining collections merged in
+   * deeply (recursively), calling the `merger` function whenever an existing
+   * value is encountered.
+   *
+   * A functional alternative to `collection.mergeDeepWith()` which will also
+   * work with plain Objects and Arrays.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { merge } = require('immutable@4.0.0-rc.7')
+   * const original = { x: { y: 123 }}
+   * mergeDeepWith(
+   *   (oldVal, newVal) => oldVal + newVal,
+   *   original,
+   *   { x: { y: 456 }}
+   * ) // { x: { y: 579 }}
+   * console.log(original) // { x: { y: 123 }}
+   * ```
+   */
+  export function mergeDeepWith<C>(
+    merger: (oldVal: any, newVal: any, key: any) => mixed,
+    collection: C,
+    ...collections: Array<Iterable<any> | Iterable<[any, any]> | {[key: string]: any}>
+  ): C;
 

@@ -33,16 +33,18 @@
 type PlainObjInput<K, V> = {[key: K]: V, __proto__: null};
 
 // Helper types to extract the "keys" and "values" use by the *In() methods.
-// Exported for experimental use only, may change.
-export type $KeyOf<C> = $Call<
+type $KeyOf<C> = $Call<
   & (<K>(?_Collection<K, mixed>) => K)
-  & (<T>(?RecordInstance<T>) => $Keys<T>),
+  & (<T>(?$ReadOnlyArray<T>) => number)
+  & (<T>(?RecordInstance<T> | T) => $Keys<T>),
   C
 >;
 
-export type $ValOf<C, K = $KeyOf<C>> = $Call<
+type $ValOf<C, K = $KeyOf<C>> = $Call<
   & (<V>(?_Collection<any, V>) => V)
-  & (<T, K: $Keys<T>>(?RecordInstance<T>, K) => $ElementType<T, K>),
+  & (<T>(?$ReadOnlyArray<T>) => T)
+  & (<T, K: $Keys<T>>(?RecordInstance<T> | T, K) => $ElementType<T, K>)
+  & (<V>(?{[any]: V}) => V),
   C,
   K
 >;
@@ -1484,6 +1486,70 @@ declare function fromJS(
 declare function is(first: mixed, second: mixed): boolean;
 declare function hash(value: mixed): number;
 
+declare function get<C: Object, K: $Keys<C>>(collection: C, key: K, notSetValue: mixed): $ValOf<C, K>;
+declare function get<C, K: $KeyOf<C>, NSV>(collection: C, key: K, notSetValue: NSV): $ValOf<C, K> | NSV;
+
+declare function has(collection: Object, key: mixed): boolean;
+declare function remove<C>(collection: C, key: $KeyOf<C>): C;
+declare function set<C, K: $KeyOf<C>, V: $ValOf<C, K>>(collection: C, key: K, value: V): C;
+declare function update<C, K: $KeyOf<C>, V: $ValOf<C, K>, NSV>(collection: C, key: K, notSetValue: NSV, updater: ($ValOf<C, K> | NSV) => V): C;
+declare function update<C, K: $KeyOf<C>, V: $ValOf<C, K>>(collection: C, key: K, updater: ($ValOf<C, K>) => V): C;
+
+declare function getIn<C>(collection: C, keyPath: [], notSetValue?: mixed): C;
+declare function getIn<C, K: $KeyOf<C>, NSV>(collection: C, keyPath: [K], notSetValue: NSV): $ValOf<C, K> | NSV;
+declare function getIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, NSV>(collection: C, keyPath: [K, K2], notSetValue: NSV): $ValOf<$ValOf<C, K>, K2> | NSV;
+declare function getIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>, NSV>(collection: C, keyPath: [K, K2, K3], notSetValue: NSV): $ValOf<$ValOf<$ValOf<C, K>, K2>, K3> | NSV;
+declare function getIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>, NSV>(collection: C, keyPath: [K, K2, K3, K4], notSetValue: NSV): $ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4> | NSV;
+declare function getIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>>, NSV>(collection: C, keyPath: [K, K2, K3, K4, K5], notSetValue: NSV): $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>, K5> | NSV;
+
+declare function hasIn(collection: Object, keyPath: Iterable<mixed>): boolean;
+
+declare function removeIn<C>(collection: C, keyPath: []): void;
+declare function removeIn<C, K: $KeyOf<C>>(collection: C, keyPath: [K]): C;
+declare function removeIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C>>>(collection: C, keyPath: [K, K2]): C;
+declare function removeIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C>>, K3: $KeyOf<$ValOf<$ValOf<C>, K2>>>(collection: C, keyPath: [K, K2, K3]): C;
+declare function removeIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C>>, K3: $KeyOf<$ValOf<$ValOf<C>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<C>, K2>, K3>>>(collection: C, keyPath: [K, K2, K3, K4]): C;
+declare function removeIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C>>, K3: $KeyOf<$ValOf<$ValOf<C>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<C>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<C>, K2>, K3>, K4>>>(collection: C, keyPath: [K, K2, K3, K4, K5]): C;
+
+declare function setIn<S>(collection: Object, keyPath: [], value: S): S;
+declare function setIn<C, K: $KeyOf<C>, S: $ValOf<C, K>>(collection: C, keyPath: [K], value: S): C;
+declare function setIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, S: $ValOf<$ValOf<C, K>, K2>>(collection: C, keyPath: [K, K2], value: S): C;
+declare function setIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>, S: $ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>(collection: C, keyPath: [K, K2, K3], value: S): C;
+declare function setIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>, S: $ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>>(collection: C, keyPath: [K, K2, K3, K4], value: S): C;
+declare function setIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>>, S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>, K5>>(collection: C, keyPath: [K, K2, K3, K4, K5], value: S): C;
+
+declare function updateIn<C, S>(collection: C, keyPath: [], notSetValue: mixed, updater: (value: C) => S): S;
+declare function updateIn<C, S>(collection: C, keyPath: [], updater: (value: C) => S): S;
+declare function updateIn<C, K: $KeyOf<C>, S: $ValOf<C, K>, NSV>(collection: C, keyPath: [K], notSetValue: NSV, updater: (value: $ValOf<C, K> | NSV) => S): C;
+declare function updateIn<C, K: $KeyOf<C>, S: $ValOf<C, K>>(collection: C, keyPath: [K], updater: (value: $ValOf<C, K>) => S): C;
+declare function updateIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, S: $ValOf<$ValOf<C, K>, K2>, NSV>(collection: C, keyPath: [K, K2], notSetValue: NSV, updater: (value: $ValOf<$ValOf<C, K>, K2> | NSV) => S): C;
+declare function updateIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, S: $ValOf<$ValOf<C, K>, K2>>(collection: C, keyPath: [K, K2], updater: (value: $ValOf<$ValOf<C, K>, K2>) => S): C;
+declare function updateIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>, S: $ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, NSV>(collection: C, keyPath: [K, K2, K3], notSetValue: NSV, updater: (value: $ValOf<$ValOf<$ValOf<C, K>, K2>, K3> | NSV) => S): C;
+declare function updateIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>, S: $ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>(collection: C, keyPath: [K, K2, K3], updater: (value: $ValOf<$ValOf<$ValOf<C, K>, K2>, K3>) => S): C;
+declare function updateIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>, S: $ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>, NSV>(collection: C, keyPath: [K, K2, K3, K4], notSetValue: NSV, updater: (value: $ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4> | NSV) => S): C;
+declare function updateIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>, S: $ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>>(collection: C, keyPath: [K, K2, K3, K4], updater: (value: $ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>) => S): C;
+declare function updateIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>>, S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>, K5>, NSV>(collection: C, keyPath: [K, K2, K3, K4, K5], notSetValue: NSV, updater: (value: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>, K5> | NSV) => S): C;
+declare function updateIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>>, S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>, K5>>(collection: C, keyPath: [K, K2, K3, K4, K5], updater: (value: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>, K5>) => S): C;
+
+declare function merge<C>(
+  collection: C,
+  ...collections: Array<Iterable<$ValOf<C>> | Iterable<[$KeyOf<C>, $ValOf<C>]> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
+): C;
+declare function mergeWith<C>(
+  merger: (oldVal: $ValOf<C>, newVal: $ValOf<C>, key: $KeyOf<C>) => $ValOf<C>,
+  collection: C,
+  ...collections: Array<Iterable<$ValOf<C>> | Iterable<[$KeyOf<C>, $ValOf<C>]> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
+): C;
+declare function mergeDeep<C>(
+  collection: C,
+  ...collections: Array<Iterable<$ValOf<C>> | Iterable<[$KeyOf<C>, $ValOf<C>]> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
+): C;
+declare function mergeDeepWith<C>(
+  merger: (oldVal: any, newVal: any, key: any) => mixed,
+  collection: C,
+  ...collections: Array<Iterable<$ValOf<C>> | Iterable<[$KeyOf<C>, $ValOf<C>]> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
+): C;
+
 export {
   Collection,
   Seq,
@@ -1510,6 +1576,21 @@ export {
   isOrdered,
   isRecord,
   isValueObject,
+
+  get,
+  has,
+  remove,
+  set,
+  update,
+  getIn,
+  hasIn,
+  removeIn,
+  setIn,
+  updateIn,
+  merge,
+  mergeWith,
+  mergeDeep,
+  mergeDeepWith,
 }
 
 export default {
@@ -1538,6 +1619,21 @@ export default {
   isOrdered,
   isRecord,
   isValueObject,
+
+  get,
+  has,
+  remove,
+  set,
+  update,
+  getIn,
+  hasIn,
+  removeIn,
+  setIn,
+  updateIn,
+  merge,
+  mergeWith,
+  mergeDeep,
+  mergeDeepWith,
 }
 
 export type {
@@ -1550,4 +1646,7 @@ export type {
   RecordFactory,
   RecordOf,
   ValueObject,
+
+  $KeyOf,
+  $ValOf,
 }
