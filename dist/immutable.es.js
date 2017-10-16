@@ -757,286 +757,6 @@ function is(valueA, valueB) {
   );
 }
 
-function coerceKeyPath(keyPath) {
-  if (isArrayLike(keyPath) && typeof keyPath !== 'string') {
-    return keyPath;
-  }
-  if (isOrdered(keyPath)) {
-    return keyPath.toArray();
-  }
-  throw new TypeError(
-    'Invalid keyPath: expected Ordered Collection or Array: ' + keyPath
-  );
-}
-
-function isPlainObj(value) {
-  return (
-    value && (value.constructor === Object || value.constructor === undefined)
-  );
-}
-
-/**
- * Returns true if the value is a potentially-persistent data structure, either
- * provided by Immutable.js or a plain Array or Object.
- */
-function isDataStructure(value) {
-  return isImmutable(value) || Array.isArray(value) || isPlainObj(value);
-}
-
-/**
- * Converts a value to a string, adding quotes if a string was provided.
- */
-function quoteString(value) {
-  try {
-    return typeof value === 'string' ? JSON.stringify(value) : String(value);
-  } catch (_ignoreError) {
-    return JSON.stringify(value);
-  }
-}
-
-function has(collection, key) {
-  return isImmutable(collection)
-    ? collection.has(key)
-    : isDataStructure(collection) && hasOwnProperty.call(collection, key);
-}
-
-function get(collection, key, notSetValue) {
-  return isImmutable(collection)
-    ? collection.get(key, notSetValue)
-    : !has(collection, key)
-      ? notSetValue
-      : typeof collection.get === 'function'
-        ? collection.get(key)
-        : collection[key];
-}
-
-// http://jsperf.com/copy-array-inline
-function arrCopy(arr, offset) {
-  offset = offset || 0;
-  var len = Math.max(0, arr.length - offset);
-  var newArr = new Array(len);
-  for (var ii = 0; ii < len; ii++) {
-    newArr[ii] = arr[ii + offset];
-  }
-  return newArr;
-}
-
-function shallowCopy(from) {
-  if (Array.isArray(from)) {
-    return arrCopy(from);
-  }
-  var to = {};
-  for (var key in from) {
-    if (hasOwnProperty.call(from, key)) {
-      to[key] = from[key];
-    }
-  }
-  return to;
-}
-
-function remove(collection, key) {
-  if (!isDataStructure(collection)) {
-    throw new TypeError(
-      'Cannot update non-data-structure value: ' + collection
-    );
-  }
-  if (isImmutable(collection)) {
-    if (!collection.remove) {
-      throw new TypeError(
-        'Cannot update immutable value without .remove() method: ' + collection
-      );
-    }
-    return collection.remove(key);
-  }
-  if (!hasOwnProperty.call(collection, key)) {
-    return collection;
-  }
-  var collectionCopy = shallowCopy(collection);
-  if (Array.isArray(collectionCopy)) {
-    collectionCopy.splice(key, 1);
-  } else {
-    delete collectionCopy[key];
-  }
-  return collectionCopy;
-}
-
-function set(collection, key, value) {
-  if (!isDataStructure(collection)) {
-    throw new TypeError(
-      'Cannot update non-data-structure value: ' + collection
-    );
-  }
-  if (isImmutable(collection)) {
-    if (!collection.set) {
-      throw new TypeError(
-        'Cannot update immutable value without .set() method: ' + collection
-      );
-    }
-    return collection.set(key, value);
-  }
-  if (hasOwnProperty.call(collection, key) && value === collection[key]) {
-    return collection;
-  }
-  var collectionCopy = shallowCopy(collection);
-  collectionCopy[key] = value;
-  return collectionCopy;
-}
-
-function updateIn(collection, keyPath, notSetValue, updater) {
-  if (!updater) {
-    updater = notSetValue;
-    notSetValue = undefined;
-  }
-  var updatedValue = updateInDeeply(
-    isImmutable(collection),
-    collection,
-    coerceKeyPath(keyPath),
-    0,
-    notSetValue,
-    updater
-  );
-  return updatedValue === NOT_SET ? notSetValue : updatedValue;
-}
-
-function updateInDeeply(
-  inImmutable,
-  existing,
-  keyPath,
-  i,
-  notSetValue,
-  updater
-) {
-  var wasNotSet = existing === NOT_SET;
-  if (i === keyPath.length) {
-    var existingValue = wasNotSet ? notSetValue : existing;
-    var newValue = updater(existingValue);
-    return newValue === existingValue ? existing : newValue;
-  }
-  if (!wasNotSet && !isDataStructure(existing)) {
-    throw new TypeError(
-      'Cannot update within non-data-structure value in path [' +
-        keyPath.slice(0, i).map(quoteString) +
-        ']: ' +
-        existing
-    );
-  }
-  var key = keyPath[i];
-  var nextExisting = wasNotSet ? NOT_SET : get(existing, key, NOT_SET);
-  var nextUpdated = updateInDeeply(
-    nextExisting === NOT_SET ? inImmutable : isImmutable(nextExisting),
-    nextExisting,
-    keyPath,
-    i + 1,
-    notSetValue,
-    updater
-  );
-  return nextUpdated === nextExisting
-    ? existing
-    : nextUpdated === NOT_SET
-      ? remove(existing, key)
-      : set(
-          wasNotSet ? (inImmutable ? emptyMap() : {}) : existing,
-          key,
-          nextUpdated
-        );
-}
-
-function setIn(collection, keyPath, value) {
-  return updateIn(collection, keyPath, NOT_SET, function () { return value; });
-}
-
-function update(collection, key, notSetValue, updater) {
-  return updateIn(collection, [key], notSetValue, updater);
-}
-
-function removeIn(collection, keyPath) {
-  return updateIn(collection, keyPath, function () { return NOT_SET; });
-}
-
-function merge(collection) {
-  var sources = [], len = arguments.length - 1;
-  while ( len-- > 0 ) sources[ len ] = arguments[ len + 1 ];
-
-  return mergeWithSources(undefined, collection, sources);
-}
-
-function mergeWith(merger, collection) {
-  var sources = [], len = arguments.length - 2;
-  while ( len-- > 0 ) sources[ len ] = arguments[ len + 2 ];
-
-  return mergeWithSources(merger, collection, sources);
-}
-
-function mergeDeep(collection) {
-  var sources = [], len = arguments.length - 1;
-  while ( len-- > 0 ) sources[ len ] = arguments[ len + 1 ];
-
-  return mergeWithSources(deepMergerWith(alwaysNewValue), collection, sources);
-}
-
-function mergeDeepWith(merger, collection) {
-  var sources = [], len = arguments.length - 2;
-  while ( len-- > 0 ) sources[ len ] = arguments[ len + 2 ];
-
-  return mergeWithSources(deepMergerWith(merger), collection, sources);
-}
-
-function mergeWithSources(merger, collection, sources) {
-  if (!isDataStructure(collection)) {
-    throw new TypeError(
-      'Cannot merge into non-data-structure value: ' + collection
-    );
-  }
-  if (isImmutable(collection)) {
-    return collection.mergeWith
-      ? collection.mergeWith.apply(collection, [ merger ].concat( sources ))
-      : collection.concat.apply(collection, sources);
-  }
-  var isArray = Array.isArray(collection);
-  var merged = collection;
-  var Collection$$1 = isArray ? IndexedCollection : KeyedCollection;
-  var mergeItem = isArray
-    ? function (value) {
-        // Copy on write
-        if (merged === collection) {
-          merged = shallowCopy(merged);
-        }
-        merged.push(value);
-      }
-    : function (value, key) {
-        var nextVal =
-          merger && hasOwnProperty.call(merged, key)
-            ? merger(merged[key], value, key)
-            : value;
-        if (!hasOwnProperty.call(merged, key) || nextVal !== merged[key]) {
-          // Copy on write
-          if (merged === collection) {
-            merged = shallowCopy(merged);
-          }
-          merged[key] = nextVal;
-        }
-      };
-  for (var i = 0; i < sources.length; i++) {
-    Collection$$1(sources[i]).forEach(mergeItem);
-  }
-  return merged;
-}
-
-function deepMergerWith(merger) {
-  function deepMerger(oldValue, newValue, key) {
-    if (isDataStructure(oldValue) && isDataStructure(newValue)) {
-      return mergeWithSources(deepMerger, oldValue, [newValue]);
-    }
-    var nextValue = merger(oldValue, newValue, key);
-    return is(oldValue, nextValue) ? oldValue : nextValue;
-  }
-  return deepMerger;
-}
-
-function alwaysNewValue(oldValue, newValue) {
-  return newValue;
-}
-
 var imul =
   typeof Math.imul === 'function' && Math.imul(0xffffffff, 2) === -2
     ? Math.imul
@@ -2138,6 +1858,17 @@ function defaultComparator(a, b) {
   return a > b ? 1 : a < b ? -1 : 0;
 }
 
+// http://jsperf.com/copy-array-inline
+function arrCopy(arr, offset) {
+  offset = offset || 0;
+  var len = Math.max(0, arr.length - offset);
+  var newArr = new Array(len);
+  for (var ii = 0; ii < len; ii++) {
+    newArr[ii] = arr[ii + offset];
+  }
+  return newArr;
+}
+
 function invariant(condition, error) {
   if (!condition) { throw new Error(error); }
 }
@@ -2147,6 +1878,386 @@ function assertNotInfinite(size) {
     size !== Infinity,
     'Cannot perform this action with an infinite size.'
   );
+}
+
+function coerceKeyPath(keyPath) {
+  if (isArrayLike(keyPath) && typeof keyPath !== 'string') {
+    return keyPath;
+  }
+  if (isOrdered(keyPath)) {
+    return keyPath.toArray();
+  }
+  throw new TypeError(
+    'Invalid keyPath: expected Ordered Collection or Array: ' + keyPath
+  );
+}
+
+function isPlainObj(value) {
+  return (
+    value && (value.constructor === Object || value.constructor === undefined)
+  );
+}
+
+/**
+ * Returns true if the value is a potentially-persistent data structure, either
+ * provided by Immutable.js or a plain Array or Object.
+ */
+function isDataStructure(value) {
+  return isImmutable(value) || Array.isArray(value) || isPlainObj(value);
+}
+
+/**
+ * Converts a value to a string, adding quotes if a string was provided.
+ */
+function quoteString(value) {
+  try {
+    return typeof value === 'string' ? JSON.stringify(value) : String(value);
+  } catch (_ignoreError) {
+    return JSON.stringify(value);
+  }
+}
+
+function has(collection, key) {
+  return isImmutable(collection)
+    ? collection.has(key)
+    : isDataStructure(collection) && hasOwnProperty.call(collection, key);
+}
+
+function get(collection, key, notSetValue) {
+  return isImmutable(collection)
+    ? collection.get(key, notSetValue)
+    : !has(collection, key)
+      ? notSetValue
+      : typeof collection.get === 'function'
+        ? collection.get(key)
+        : collection[key];
+}
+
+function shallowCopy(from) {
+  if (Array.isArray(from)) {
+    return arrCopy(from);
+  }
+  var to = {};
+  for (var key in from) {
+    if (hasOwnProperty.call(from, key)) {
+      to[key] = from[key];
+    }
+  }
+  return to;
+}
+
+function remove(collection, key) {
+  if (!isDataStructure(collection)) {
+    throw new TypeError(
+      'Cannot update non-data-structure value: ' + collection
+    );
+  }
+  if (isImmutable(collection)) {
+    if (!collection.remove) {
+      throw new TypeError(
+        'Cannot update immutable value without .remove() method: ' + collection
+      );
+    }
+    return collection.remove(key);
+  }
+  if (!hasOwnProperty.call(collection, key)) {
+    return collection;
+  }
+  var collectionCopy = shallowCopy(collection);
+  if (Array.isArray(collectionCopy)) {
+    collectionCopy.splice(key, 1);
+  } else {
+    delete collectionCopy[key];
+  }
+  return collectionCopy;
+}
+
+function set(collection, key, value) {
+  if (!isDataStructure(collection)) {
+    throw new TypeError(
+      'Cannot update non-data-structure value: ' + collection
+    );
+  }
+  if (isImmutable(collection)) {
+    if (!collection.set) {
+      throw new TypeError(
+        'Cannot update immutable value without .set() method: ' + collection
+      );
+    }
+    return collection.set(key, value);
+  }
+  if (hasOwnProperty.call(collection, key) && value === collection[key]) {
+    return collection;
+  }
+  var collectionCopy = shallowCopy(collection);
+  collectionCopy[key] = value;
+  return collectionCopy;
+}
+
+function updateIn(collection, keyPath, notSetValue, updater) {
+  if (!updater) {
+    updater = notSetValue;
+    notSetValue = undefined;
+  }
+  var updatedValue = updateInDeeply(
+    isImmutable(collection),
+    collection,
+    coerceKeyPath(keyPath),
+    0,
+    notSetValue,
+    updater
+  );
+  return updatedValue === NOT_SET ? notSetValue : updatedValue;
+}
+
+function updateInDeeply(
+  inImmutable,
+  existing,
+  keyPath,
+  i,
+  notSetValue,
+  updater
+) {
+  var wasNotSet = existing === NOT_SET;
+  if (i === keyPath.length) {
+    var existingValue = wasNotSet ? notSetValue : existing;
+    var newValue = updater(existingValue);
+    return newValue === existingValue ? existing : newValue;
+  }
+  if (!wasNotSet && !isDataStructure(existing)) {
+    throw new TypeError(
+      'Cannot update within non-data-structure value in path [' +
+        keyPath.slice(0, i).map(quoteString) +
+        ']: ' +
+        existing
+    );
+  }
+  var key = keyPath[i];
+  var nextExisting = wasNotSet ? NOT_SET : get(existing, key, NOT_SET);
+  var nextUpdated = updateInDeeply(
+    nextExisting === NOT_SET ? inImmutable : isImmutable(nextExisting),
+    nextExisting,
+    keyPath,
+    i + 1,
+    notSetValue,
+    updater
+  );
+  return nextUpdated === nextExisting
+    ? existing
+    : nextUpdated === NOT_SET
+      ? remove(existing, key)
+      : set(
+          wasNotSet ? (inImmutable ? emptyMap() : {}) : existing,
+          key,
+          nextUpdated
+        );
+}
+
+function setIn$1(collection, keyPath, value) {
+  return updateIn(collection, keyPath, NOT_SET, function () { return value; });
+}
+
+function setIn$$1(keyPath, v) {
+  return setIn$1(this, keyPath, v);
+}
+
+function removeIn(collection, keyPath) {
+  return updateIn(collection, keyPath, function () { return NOT_SET; });
+}
+
+function deleteIn(keyPath) {
+  return removeIn(this, keyPath);
+}
+
+function update$1(collection, key, notSetValue, updater) {
+  return updateIn(collection, [key], notSetValue, updater);
+}
+
+function update$$1(key, notSetValue, updater) {
+  return arguments.length === 1
+    ? key(this)
+    : update$1(this, key, notSetValue, updater);
+}
+
+function updateIn$1(keyPath, notSetValue, updater) {
+  return updateIn(this, keyPath, notSetValue, updater);
+}
+
+function merge() {
+  var iters = [], len = arguments.length;
+  while ( len-- ) iters[ len ] = arguments[ len ];
+
+  return mergeIntoKeyedWith(this, undefined, iters);
+}
+
+function mergeWith(merger) {
+  var iters = [], len = arguments.length - 1;
+  while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
+
+  return mergeIntoKeyedWith(this, merger, iters);
+}
+
+function mergeIntoKeyedWith(collection, merger, collections) {
+  var iters = [];
+  for (var ii = 0; ii < collections.length; ii++) {
+    var collection$1 = KeyedCollection(collections[ii]);
+    if (collection$1.size !== 0) {
+      iters.push(collection$1);
+    }
+  }
+  if (iters.length === 0) {
+    return collection;
+  }
+  if (collection.size === 0 && !collection.__ownerID && iters.length === 1) {
+    return collection.constructor(iters[0]);
+  }
+  return collection.withMutations(function (collection) {
+    var mergeIntoCollection = merger
+      ? function (value, key) {
+          update$1(
+            collection,
+            key,
+            NOT_SET,
+            function (oldVal) { return (oldVal === NOT_SET ? value : merger(oldVal, value, key)); }
+          );
+        }
+      : function (value, key) {
+          collection.set(key, value);
+        };
+    for (var ii = 0; ii < iters.length; ii++) {
+      iters[ii].forEach(mergeIntoCollection);
+    }
+  });
+}
+
+function merge$1(collection) {
+  var sources = [], len = arguments.length - 1;
+  while ( len-- > 0 ) sources[ len ] = arguments[ len + 1 ];
+
+  return mergeWithSources(undefined, collection, sources);
+}
+
+function mergeWith$1(merger, collection) {
+  var sources = [], len = arguments.length - 2;
+  while ( len-- > 0 ) sources[ len ] = arguments[ len + 2 ];
+
+  return mergeWithSources(merger, collection, sources);
+}
+
+function mergeDeep$1(collection) {
+  var sources = [], len = arguments.length - 1;
+  while ( len-- > 0 ) sources[ len ] = arguments[ len + 1 ];
+
+  return mergeWithSources(deepMergerWith(alwaysNewValue), collection, sources);
+}
+
+function mergeDeepWith$1(merger, collection) {
+  var sources = [], len = arguments.length - 2;
+  while ( len-- > 0 ) sources[ len ] = arguments[ len + 2 ];
+
+  return mergeWithSources(deepMergerWith(merger), collection, sources);
+}
+
+function mergeWithSources(merger, collection, sources) {
+  if (!isDataStructure(collection)) {
+    throw new TypeError(
+      'Cannot merge into non-data-structure value: ' + collection
+    );
+  }
+  if (isImmutable(collection)) {
+    return collection.mergeWith
+      ? collection.mergeWith.apply(collection, [ merger ].concat( sources ))
+      : collection.concat.apply(collection, sources);
+  }
+  var isArray = Array.isArray(collection);
+  var merged = collection;
+  var Collection$$1 = isArray ? IndexedCollection : KeyedCollection;
+  var mergeItem = isArray
+    ? function (value) {
+        // Copy on write
+        if (merged === collection) {
+          merged = shallowCopy(merged);
+        }
+        merged.push(value);
+      }
+    : function (value, key) {
+        var nextVal =
+          merger && hasOwnProperty.call(merged, key)
+            ? merger(merged[key], value, key)
+            : value;
+        if (!hasOwnProperty.call(merged, key) || nextVal !== merged[key]) {
+          // Copy on write
+          if (merged === collection) {
+            merged = shallowCopy(merged);
+          }
+          merged[key] = nextVal;
+        }
+      };
+  for (var i = 0; i < sources.length; i++) {
+    Collection$$1(sources[i]).forEach(mergeItem);
+  }
+  return merged;
+}
+
+function deepMergerWith(merger) {
+  function deepMerger(oldValue, newValue, key) {
+    if (isDataStructure(oldValue) && isDataStructure(newValue)) {
+      return mergeWithSources(deepMerger, oldValue, [newValue]);
+    }
+    var nextValue = merger(oldValue, newValue, key);
+    return is(oldValue, nextValue) ? oldValue : nextValue;
+  }
+  return deepMerger;
+}
+
+function alwaysNewValue(oldValue, newValue) {
+  return newValue;
+}
+
+function mergeDeep$$1() {
+  var iters = [], len = arguments.length;
+  while ( len-- ) iters[ len ] = arguments[ len ];
+
+  return mergeDeep$1.apply(void 0, [ this ].concat( iters ));
+}
+
+function mergeDeepWith$$1(merger) {
+  var iters = [], len = arguments.length - 1;
+  while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
+
+  return mergeDeepWith$1.apply(void 0, [ merger, this ].concat( iters ));
+}
+
+function mergeIn(keyPath) {
+  var iters = [], len = arguments.length - 1;
+  while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
+
+  return updateIn(this, keyPath, emptyMap(), function (m) { return merge$1.apply(void 0, [ m ].concat( iters )); });
+}
+
+function mergeDeepIn(keyPath) {
+  var iters = [], len = arguments.length - 1;
+  while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
+
+  return updateIn(this, keyPath, emptyMap(), function (m) { return mergeDeep$1.apply(void 0, [ m ].concat( iters )); });
+}
+
+function withMutations(fn) {
+  var mutable = this.asMutable();
+  fn(mutable);
+  return mutable.wasAltered() ? mutable.__ensureOwner(this.__ownerID) : this;
+}
+
+function asMutable() {
+  return this.__ownerID ? this : this.__ensureOwner(new OwnerID());
+}
+
+function asImmutable() {
+  return this.__ensureOwner();
+}
+
+function wasAltered() {
+  return this.__altered;
 }
 
 var Map = (function (KeyedCollection$$1) {
@@ -2198,16 +2309,8 @@ var Map = (function (KeyedCollection$$1) {
     return updateMap(this, k, v);
   };
 
-  Map.prototype.setIn = function setIn$1 (keyPath, v) {
-    return setIn(this, keyPath, v);
-  };
-
   Map.prototype.remove = function remove (k) {
     return updateMap(this, k, NOT_SET);
-  };
-
-  Map.prototype.deleteIn = function deleteIn (keyPath) {
-    return removeIn(this, keyPath);
   };
 
   Map.prototype.deleteAll = function deleteAll (keys) {
@@ -2220,16 +2323,6 @@ var Map = (function (KeyedCollection$$1) {
     return this.withMutations(function (map) {
       collection.forEach(function (key) { return map.remove(key); });
     });
-  };
-
-  Map.prototype.update = function update$1 (key, notSetValue, updater) {
-    return arguments.length === 1
-      ? key(this)
-      : update(this, key, notSetValue, updater);
-  };
-
-  Map.prototype.updateIn = function updateIn$1 (keyPath, notSetValue, updater) {
-    return updateIn(this, keyPath, notSetValue, updater);
   };
 
   Map.prototype.clear = function clear () {
@@ -2248,45 +2341,6 @@ var Map = (function (KeyedCollection$$1) {
 
   // @pragma Composition
 
-  Map.prototype.merge = function merge$$1 (/*...iters*/) {
-    return mergeIntoMapWith(this, undefined, arguments);
-  };
-
-  Map.prototype.mergeWith = function mergeWith$$1 (merger) {
-    var iters = [], len = arguments.length - 1;
-    while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
-
-    return mergeIntoMapWith(this, merger, iters);
-  };
-
-  Map.prototype.mergeIn = function mergeIn (keyPath) {
-    var iters = [], len = arguments.length - 1;
-    while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
-
-    return updateIn(this, keyPath, emptyMap(), function (m) { return merge.apply(void 0, [ m ].concat( iters )); });
-  };
-
-  Map.prototype.mergeDeep = function mergeDeep$1 () {
-    var iters = [], len = arguments.length;
-    while ( len-- ) iters[ len ] = arguments[ len ];
-
-    return mergeDeep.apply(void 0, [ this ].concat( iters ));
-  };
-
-  Map.prototype.mergeDeepWith = function mergeDeepWith$1 (merger) {
-    var iters = [], len = arguments.length - 1;
-    while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
-
-    return mergeDeepWith.apply(void 0, [ merger, this ].concat( iters ));
-  };
-
-  Map.prototype.mergeDeepIn = function mergeDeepIn (keyPath) {
-    var iters = [], len = arguments.length - 1;
-    while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
-
-    return updateIn(this, keyPath, emptyMap(), function (m) { return mergeDeep.apply(void 0, [ m ].concat( iters )); });
-  };
-
   Map.prototype.sort = function sort (comparator) {
     // Late binding
     return OrderedMap(sortFactory(this, comparator));
@@ -2298,24 +2352,6 @@ var Map = (function (KeyedCollection$$1) {
   };
 
   // @pragma Mutability
-
-  Map.prototype.withMutations = function withMutations (fn) {
-    var mutable = this.asMutable();
-    fn(mutable);
-    return mutable.wasAltered() ? mutable.__ensureOwner(this.__ownerID) : this;
-  };
-
-  Map.prototype.asMutable = function asMutable () {
-    return this.__ownerID ? this : this.__ensureOwner(new OwnerID());
-  };
-
-  Map.prototype.asImmutable = function asImmutable () {
-    return this.__ensureOwner();
-  };
-
-  Map.prototype.wasAltered = function wasAltered () {
-    return this.__altered;
-  };
 
   Map.prototype.__iterator = function __iterator (type, reverse) {
     return new MapIterator(this, type, reverse);
@@ -2362,10 +2398,22 @@ var IS_MAP_SENTINEL = '@@__IMMUTABLE_MAP__@@';
 var MapPrototype = Map.prototype;
 MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
-MapPrototype.removeIn = MapPrototype.deleteIn;
 MapPrototype.removeAll = MapPrototype.deleteAll;
 MapPrototype.concat = MapPrototype.merge;
-MapPrototype['@@transducer/init'] = MapPrototype.asMutable;
+MapPrototype.setIn = setIn$$1;
+MapPrototype.removeIn = MapPrototype.deleteIn = deleteIn;
+MapPrototype.update = update$$1;
+MapPrototype.updateIn = updateIn$1;
+MapPrototype.merge = merge;
+MapPrototype.mergeWith = mergeWith;
+MapPrototype.mergeDeep = mergeDeep$$1;
+MapPrototype.mergeDeepWith = mergeDeepWith$$1;
+MapPrototype.mergeIn = mergeIn;
+MapPrototype.mergeDeepIn = mergeDeepIn;
+MapPrototype.withMutations = withMutations;
+MapPrototype.wasAltered = wasAltered;
+MapPrototype.asImmutable = asImmutable;
+MapPrototype['@@transducer/init'] = MapPrototype.asMutable = asMutable;
 MapPrototype['@@transducer/step'] = function(result, arr) {
   return result.set(arr[0], arr[1]);
 };
@@ -2944,39 +2992,6 @@ function expandNodes(ownerID, nodes, bitmap, including, node) {
   return new HashArrayMapNode(ownerID, count + 1, expandedNodes);
 }
 
-function mergeIntoMapWith(collection, merger, collections) {
-  var iters = [];
-  for (var ii = 0; ii < collections.length; ii++) {
-    var collection$1 = KeyedCollection(collections[ii]);
-    if (collection$1.size !== 0) {
-      iters.push(collection$1);
-    }
-  }
-  if (iters.length === 0) {
-    return collection;
-  }
-  if (collection.size === 0 && !collection.__ownerID && iters.length === 1) {
-    return collection.constructor(iters[0]);
-  }
-  return collection.withMutations(function (collection) {
-    var mergeIntoCollection = merger
-      ? function (value, key) {
-          update(
-            collection,
-            key,
-            NOT_SET,
-            function (oldVal) { return (oldVal === NOT_SET ? value : merger(oldVal, value, key)); }
-          );
-        }
-      : function (value, key) {
-          collection.set(key, value);
-        };
-    for (var ii = 0; ii < iters.length; ii++) {
-      iters[ii].forEach(mergeIntoCollection);
-    }
-  });
-}
-
 function popCount(x) {
   x -= (x >> 1) & 0x55555555;
   x = (x & 0x33333333) + ((x >> 2) & 0x33333333);
@@ -3251,21 +3266,22 @@ var ListPrototype = List.prototype;
 ListPrototype[IS_LIST_SENTINEL] = true;
 ListPrototype[DELETE] = ListPrototype.remove;
 ListPrototype.merge = ListPrototype.concat;
-ListPrototype.setIn = MapPrototype.setIn;
-ListPrototype.deleteIn = ListPrototype.removeIn = MapPrototype.removeIn;
-ListPrototype.update = MapPrototype.update;
-ListPrototype.updateIn = MapPrototype.updateIn;
-ListPrototype.mergeIn = MapPrototype.mergeIn;
-ListPrototype.mergeDeepIn = MapPrototype.mergeDeepIn;
-ListPrototype.withMutations = MapPrototype.withMutations;
-ListPrototype.asMutable = MapPrototype.asMutable;
-ListPrototype.asImmutable = MapPrototype.asImmutable;
-ListPrototype.wasAltered = MapPrototype.wasAltered;
-ListPrototype['@@transducer/init'] = ListPrototype.asMutable;
+ListPrototype.setIn = setIn$$1;
+ListPrototype.deleteIn = ListPrototype.removeIn = deleteIn;
+ListPrototype.update = update$$1;
+ListPrototype.updateIn = updateIn$1;
+ListPrototype.mergeIn = mergeIn;
+ListPrototype.mergeDeepIn = mergeDeepIn;
+ListPrototype.withMutations = withMutations;
+ListPrototype.wasAltered = wasAltered;
+ListPrototype.asImmutable = asImmutable;
+ListPrototype['@@transducer/init'] = ListPrototype.asMutable = asMutable;
 ListPrototype['@@transducer/step'] = function(result, arr) {
   return result.push(arr);
 };
-ListPrototype['@@transducer/result'] = MapPrototype['@@transducer/result'];
+ListPrototype['@@transducer/result'] = function(obj) {
+  return obj.asImmutable();
+};
 
 var VNode = function VNode(array, ownerID) {
   this.array = array;
@@ -4038,18 +4054,19 @@ var IS_STACK_SENTINEL = '@@__IMMUTABLE_STACK__@@';
 
 var StackPrototype = Stack.prototype;
 StackPrototype[IS_STACK_SENTINEL] = true;
-StackPrototype.withMutations = MapPrototype.withMutations;
-StackPrototype.asMutable = MapPrototype.asMutable;
-StackPrototype.asImmutable = MapPrototype.asImmutable;
-StackPrototype.wasAltered = MapPrototype.wasAltered;
 StackPrototype.shift = StackPrototype.pop;
 StackPrototype.unshift = StackPrototype.push;
 StackPrototype.unshiftAll = StackPrototype.pushAll;
-StackPrototype['@@transducer/init'] = StackPrototype.asMutable;
+StackPrototype.withMutations = withMutations;
+StackPrototype.wasAltered = wasAltered;
+StackPrototype.asImmutable = asImmutable;
+StackPrototype['@@transducer/init'] = StackPrototype.asMutable = asMutable;
 StackPrototype['@@transducer/step'] = function(result, arr) {
   return result.unshift(arr);
 };
-StackPrototype['@@transducer/result'] = MapPrototype['@@transducer/result'];
+StackPrototype['@@transducer/result'] = function(obj) {
+  return obj.asImmutable();
+};
 
 function makeStack(size, head, ownerID, hash) {
   var map = Object.create(StackPrototype);
@@ -4064,22 +4081,6 @@ function makeStack(size, head, ownerID, hash) {
 var EMPTY_STACK;
 function emptyStack() {
   return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
-}
-
-function getIn(collection, searchKeyPath, notSetValue) {
-  var keyPath = coerceKeyPath(searchKeyPath);
-  var i = 0;
-  while (i !== keyPath.length) {
-    collection = get(collection, keyPath[i++], NOT_SET);
-    if (collection === NOT_SET) {
-      return notSetValue;
-    }
-  }
-  return collection;
-}
-
-function hasIn(collection, keyPath) {
-  return getIn(collection, keyPath, NOT_SET) !== NOT_SET;
 }
 
 function deepEqual(a, b) {
@@ -4347,14 +4348,15 @@ var SetPrototype = Set.prototype;
 SetPrototype[IS_SET_SENTINEL] = true;
 SetPrototype[DELETE] = SetPrototype.remove;
 SetPrototype.merge = SetPrototype.concat = SetPrototype.union;
-SetPrototype.withMutations = MapPrototype.withMutations;
-SetPrototype.asMutable = MapPrototype.asMutable;
-SetPrototype.asImmutable = MapPrototype.asImmutable;
-SetPrototype['@@transducer/init'] = SetPrototype.asMutable;
+SetPrototype.withMutations = withMutations;
+SetPrototype.asImmutable = asImmutable;
+SetPrototype['@@transducer/init'] = SetPrototype.asMutable = asMutable;
 SetPrototype['@@transducer/step'] = function(result, arr) {
   return result.add(arr);
 };
-SetPrototype['@@transducer/result'] = MapPrototype['@@transducer/result'];
+SetPrototype['@@transducer/result'] = function(obj) {
+  return obj.asImmutable();
+};
 
 SetPrototype.__empty = emptySet;
 SetPrototype.__make = makeSet;
@@ -4522,6 +4524,39 @@ var Range = (function (IndexedSeq$$1) {
 
 var EMPTY_RANGE;
 
+function getIn$1(collection, searchKeyPath, notSetValue) {
+  var keyPath = coerceKeyPath(searchKeyPath);
+  var i = 0;
+  while (i !== keyPath.length) {
+    collection = get(collection, keyPath[i++], NOT_SET);
+    if (collection === NOT_SET) {
+      return notSetValue;
+    }
+  }
+  return collection;
+}
+
+function getIn$$1(searchKeyPath, notSetValue) {
+  return getIn$1(this, searchKeyPath, notSetValue);
+}
+
+function hasIn$1(collection, keyPath) {
+  return getIn$1(collection, keyPath, NOT_SET) !== NOT_SET;
+}
+
+function hasIn$$1(searchKeyPath) {
+  return hasIn$1(this, searchKeyPath);
+}
+
+function toObject() {
+  assertNotInfinite(this.size);
+  var object = {};
+  this.__iterate(function (v, k) {
+    object[k] = v;
+  });
+  return object;
+}
+
 // Note: all of these methods are deprecated.
 Collection.isIterable = isCollection;
 Collection.isKeyed = isKeyed;
@@ -4563,14 +4598,7 @@ mixin(Collection, {
     return Map(this.toKeyedSeq());
   },
 
-  toObject: function toObject() {
-    assertNotInfinite(this.size);
-    var object = {};
-    this.__iterate(function (v, k) {
-      object[k] = v;
-    });
-    return object;
-  },
+  toObject: toObject,
 
   toOrderedMap: function toOrderedMap() {
     // Use Late Binding here to solve the circular dependency.
@@ -4829,9 +4857,7 @@ mixin(Collection, {
     return this.find(function (_, key) { return is(key, searchKey); }, undefined, notSetValue);
   },
 
-  getIn: function getIn$1(searchKeyPath, notSetValue) {
-    return getIn(this, searchKeyPath, notSetValue);
-  },
+  getIn: getIn$$1,
 
   groupBy: function groupBy(grouper, context) {
     return groupByFactory(this, grouper, context);
@@ -4841,9 +4867,7 @@ mixin(Collection, {
     return this.get(searchKey, NOT_SET) !== NOT_SET;
   },
 
-  hasIn: function hasIn$1(searchKeyPath) {
-    return hasIn(this, searchKeyPath);
-  },
+  hasIn: hasIn$$1,
 
   isSubset: function isSubset(iter) {
     iter = typeof iter.includes === 'function' ? iter : Collection(iter);
@@ -5007,7 +5031,7 @@ mixin(KeyedCollection, {
 var KeyedCollectionPrototype = KeyedCollection.prototype;
 KeyedCollectionPrototype[IS_KEYED_SENTINEL] = true;
 KeyedCollectionPrototype[ITERATOR_SYMBOL] = CollectionPrototype.entries;
-KeyedCollectionPrototype.toJSON = CollectionPrototype.toObject;
+KeyedCollectionPrototype.toJSON = toObject;
 KeyedCollectionPrototype.__toStringMapper = function (v, k) { return quoteString(k) + ': ' + quoteString(v); };
 
 mixin(IndexedCollection, {
@@ -5451,6 +5475,10 @@ Record.prototype.toJS = function toJS$1 () {
   return toJS(this);
 };
 
+Record.prototype.entries = function entries () {
+  return this.__iterator(ITERATE_ENTRIES);
+};
+
 Record.prototype.__iterator = function __iterator (type, reverse) {
   return recordSeq(this).__iterator(type, reverse);
 };
@@ -5477,26 +5505,27 @@ Record.getDescriptiveName = recordName;
 var RecordPrototype = Record.prototype;
 RecordPrototype[IS_RECORD_SENTINEL] = true;
 RecordPrototype[DELETE] = RecordPrototype.remove;
-RecordPrototype.deleteIn = RecordPrototype.removeIn = MapPrototype.removeIn;
-RecordPrototype.getIn = CollectionPrototype.getIn;
+RecordPrototype.deleteIn = RecordPrototype.removeIn = deleteIn;
+RecordPrototype.getIn = getIn$$1;
 RecordPrototype.hasIn = CollectionPrototype.hasIn;
-RecordPrototype.merge = MapPrototype.merge;
-RecordPrototype.mergeWith = MapPrototype.mergeWith;
-RecordPrototype.mergeIn = MapPrototype.mergeIn;
-RecordPrototype.mergeDeep = MapPrototype.mergeDeep;
-RecordPrototype.mergeDeepWith = MapPrototype.mergeDeepWith;
-RecordPrototype.mergeDeepIn = MapPrototype.mergeDeepIn;
-RecordPrototype.setIn = MapPrototype.setIn;
-RecordPrototype.update = MapPrototype.update;
-RecordPrototype.updateIn = MapPrototype.updateIn;
-RecordPrototype.withMutations = MapPrototype.withMutations;
-RecordPrototype.asMutable = MapPrototype.asMutable;
-RecordPrototype.asImmutable = MapPrototype.asImmutable;
-RecordPrototype[ITERATOR_SYMBOL] = CollectionPrototype.entries;
+RecordPrototype.merge = merge;
+RecordPrototype.mergeWith = mergeWith;
+RecordPrototype.mergeIn = mergeIn;
+RecordPrototype.mergeDeep = mergeDeep$$1;
+RecordPrototype.mergeDeepWith = mergeDeepWith$$1;
+RecordPrototype.mergeDeepIn = mergeDeepIn;
+RecordPrototype.setIn = setIn$$1;
+RecordPrototype.update = update$$1;
+RecordPrototype.updateIn = updateIn$1;
+RecordPrototype.withMutations = withMutations;
+RecordPrototype.asMutable = asMutable;
+RecordPrototype.asImmutable = asImmutable;
+RecordPrototype[ITERATOR_SYMBOL] = RecordPrototype.entries;
 RecordPrototype.toJSON = RecordPrototype.toObject =
   CollectionPrototype.toObject;
-RecordPrototype.inspect = RecordPrototype.toSource =
-  CollectionPrototype.toSource;
+RecordPrototype.inspect = RecordPrototype.toSource = function() {
+  return this.toString();
+};
 
 function makeRecord(likeRecord, values, ownerID) {
   var record = Object.create(Object.getPrototypeOf(likeRecord));
@@ -5705,23 +5734,23 @@ var Immutable = {
   isValueObject: isValueObject,
 
   get: get,
-  getIn: getIn,
+  getIn: getIn$1,
   has: has,
-  hasIn: hasIn,
-  merge: merge,
-  mergeDeep: mergeDeep,
-  mergeWith: mergeWith,
-  mergeDeepWith: mergeDeepWith,
+  hasIn: hasIn$1,
+  merge: merge$1,
+  mergeDeep: mergeDeep$1,
+  mergeWith: mergeWith$1,
+  mergeDeepWith: mergeDeepWith$1,
   remove: remove,
   removeIn: removeIn,
   set: set,
-  setIn: setIn,
-  update: update,
+  setIn: setIn$1,
+  update: update$1,
   updateIn: updateIn
 };
 
 // Note: Iterable is deprecated
 var Iterable = Collection;
 
-export { version, Collection, Iterable, Seq, Map, OrderedMap, List, Stack, Set, OrderedSet, Record, Range, Repeat, is, fromJS, hash, isImmutable, isCollection, isKeyed, isIndexed, isAssociative, isOrdered, isValueObject, get, getIn, has, hasIn, merge, mergeDeep, mergeWith, mergeDeepWith, remove, removeIn, set, setIn, update, updateIn };
+export { version, Collection, Iterable, Seq, Map, OrderedMap, List, Stack, Set, OrderedSet, Record, Range, Repeat, is, fromJS, hash, isImmutable, isCollection, isKeyed, isIndexed, isAssociative, isOrdered, isValueObject, get, getIn$1 as getIn, has, hasIn$1 as hasIn, merge$1 as merge, mergeDeep$1 as mergeDeep, mergeWith$1 as mergeWith, mergeDeepWith$1 as mergeDeepWith, remove, removeIn, set, setIn$1 as setIn, update$1 as update, updateIn };
 export default Immutable;
