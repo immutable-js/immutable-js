@@ -2769,20 +2769,21 @@
   }
 
   /**
-   * Represents a sequence of values, but may not be backed by a concrete data
-   * structure.
+   * `Seq` describes a lazy operation, allowing them to efficiently chain
+   * use of all the higher-order collection methods (such as `map` and `filter`)
+   * by not creating intermediate collections.
    *
    * **Seq is immutable** — Once a Seq is created, it cannot be
    * changed, appended to, rearranged or otherwise modified. Instead, any
    * mutative method called on a `Seq` will return a new `Seq`.
    *
-   * **Seq is lazy** — Seq does as little work as necessary to respond to any
+   * **Seq is lazy** — `Seq` does as little work as necessary to respond to any
    * method call. Values are often created during iteration, including implicit
    * iteration when reducing or converting to a concrete data structure such as
    * a `List` or JavaScript `Array`.
    *
    * For example, the following performs no work, because the resulting
-   * Seq's values are never iterated:
+   * `Seq`'s values are never iterated:
    *
    * ```js
    * const { Seq } = require('immutable@4.0.0-rc.7')
@@ -2791,27 +2792,38 @@
    *   .map(x => x * x)
    * ```
    *
-   * Once the Seq is used, it performs only the work necessary. In this
-   * example, no intermediate data structures are ever created, filter is only
-   * called three times, and map is only called once:
+   * Once the `Seq` is used, it performs only the work necessary. In this
+   * example, no intermediate arrays are ever created, filter is called three
+   * times, and map is only called once:
    *
-   * ```
-   * oddSquares.get(1)); // 9
+   * ```js
+   * oddSquares.get(1); // 9
    * ```
    *
-   * Seq allows for the efficient chaining of operations,
-   * allowing for the expression of logic that can otherwise be very tedious:
+   * Any collection can be converted to a lazy Seq with `Seq()`.
    *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { Map } = require('immutable')
+   * const map = Map({ a: 1, b: 2, c: 3 }
+   * const lazySeq = Seq(map)
    * ```
-   * Seq({ a: 1, b: 1, c: 1})
+   *
+   * `Seq` allows for the efficient chaining of operations, allowing for the
+   * expression of logic that can otherwise be very tedious:
+   *
+   * ```js
+   * lazySeq
    *   .flip()
    *   .map(key => key.toUpperCase())
    *   .flip()
    * // Seq { A: 1, B: 1, C: 1 }
    * ```
    *
-   * As well as expressing logic that would otherwise be memory or time limited:
+   * As well as expressing logic that would otherwise seem memory or time
+   * limited, for example `Range` is a special kind of Lazy sequence.
    *
+   * <!-- runkit:activate -->
    * ```js
    * const { Range } = require('immutable@4.0.0-rc.7')
    * Range(1, Infinity)
