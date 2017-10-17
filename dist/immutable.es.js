@@ -2087,17 +2087,17 @@ function merge() {
   var iters = [], len = arguments.length;
   while ( len-- ) iters[ len ] = arguments[ len ];
 
-  return mergeIntoKeyedWith(this, undefined, iters);
+  return mergeIntoKeyedWith(this, iters);
 }
 
 function mergeWith(merger) {
   var iters = [], len = arguments.length - 1;
   while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
 
-  return mergeIntoKeyedWith(this, merger, iters);
+  return mergeIntoKeyedWith(this, iters, merger);
 }
 
-function mergeIntoKeyedWith(collection, merger, collections) {
+function mergeIntoKeyedWith(collection, collections, merger) {
   var iters = [];
   for (var ii = 0; ii < collections.length; ii++) {
     var collection$1 = KeyedCollection(collections[ii]);
@@ -2134,31 +2134,35 @@ function merge$1(collection) {
   var sources = [], len = arguments.length - 1;
   while ( len-- > 0 ) sources[ len ] = arguments[ len + 1 ];
 
-  return mergeWithSources(undefined, collection, sources);
+  return mergeWithSources(collection, sources);
 }
 
 function mergeWith$1(merger, collection) {
   var sources = [], len = arguments.length - 2;
   while ( len-- > 0 ) sources[ len ] = arguments[ len + 2 ];
 
-  return mergeWithSources(merger, collection, sources);
+  return mergeWithSources(collection, sources, merger);
 }
 
 function mergeDeep$1(collection) {
   var sources = [], len = arguments.length - 1;
   while ( len-- > 0 ) sources[ len ] = arguments[ len + 1 ];
 
-  return mergeWithSources(deepMergerWith(alwaysNewValue), collection, sources);
+  return mergeDeepWithSources(collection, sources);
 }
 
 function mergeDeepWith$1(merger, collection) {
   var sources = [], len = arguments.length - 2;
   while ( len-- > 0 ) sources[ len ] = arguments[ len + 2 ];
 
-  return mergeWithSources(deepMergerWith(merger), collection, sources);
+  return mergeDeepWithSources(collection, sources, merger);
 }
 
-function mergeWithSources(merger, collection, sources) {
+function mergeDeepWithSources(collection, sources, merger) {
+  return mergeWithSources(collection, sources, deepMergerWith(merger));
+}
+
+function mergeWithSources(collection, sources, merger) {
   if (!isDataStructure(collection)) {
     throw new TypeError(
       'Cannot merge into non-data-structure value: ' + collection
@@ -2181,11 +2185,10 @@ function mergeWithSources(merger, collection, sources) {
         merged.push(value);
       }
     : function (value, key) {
+        var hasVal = hasOwnProperty.call(merged, key);
         var nextVal =
-          merger && hasOwnProperty.call(merged, key)
-            ? merger(merged[key], value, key)
-            : value;
-        if (!hasOwnProperty.call(merged, key) || nextVal !== merged[key]) {
+          hasVal && merger ? merger(merged[key], value, key) : value;
+        if (!hasVal || nextVal !== merged[key]) {
           // Copy on write
           if (merged === collection) {
             merged = shallowCopy(merged);
@@ -2201,45 +2204,40 @@ function mergeWithSources(merger, collection, sources) {
 
 function deepMergerWith(merger) {
   function deepMerger(oldValue, newValue, key) {
-    if (isDataStructure(oldValue) && isDataStructure(newValue)) {
-      return mergeWithSources(deepMerger, oldValue, [newValue]);
-    }
-    var nextValue = merger(oldValue, newValue, key);
-    return is(oldValue, nextValue) ? oldValue : nextValue;
+    return isDataStructure(oldValue) && isDataStructure(newValue)
+      ? mergeWithSources(oldValue, [newValue], deepMerger)
+      : merger ? merger(oldValue, newValue, key) : newValue;
   }
   return deepMerger;
 }
 
-function alwaysNewValue(oldValue, newValue) {
-  return newValue;
-}
-
-function mergeDeep$$1() {
+function mergeDeep() {
   var iters = [], len = arguments.length;
   while ( len-- ) iters[ len ] = arguments[ len ];
 
-  return mergeDeep$1.apply(void 0, [ this ].concat( iters ));
+  return mergeDeepWithSources(this, iters);
 }
 
-function mergeDeepWith$$1(merger) {
+function mergeDeepWith(merger) {
   var iters = [], len = arguments.length - 1;
   while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
 
-  return mergeDeepWith$1.apply(void 0, [ merger, this ].concat( iters ));
+  return mergeDeepWithSources(this, iters, merger);
 }
 
 function mergeIn(keyPath) {
   var iters = [], len = arguments.length - 1;
   while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
 
-  return updateIn(this, keyPath, emptyMap(), function (m) { return merge$1.apply(void 0, [ m ].concat( iters )); });
+  return updateIn(this, keyPath, emptyMap(), function (m) { return mergeWithSources(m, iters); });
 }
 
 function mergeDeepIn(keyPath) {
   var iters = [], len = arguments.length - 1;
   while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
 
-  return updateIn(this, keyPath, emptyMap(), function (m) { return mergeDeep$1.apply(void 0, [ m ].concat( iters )); });
+  return updateIn(this, keyPath, emptyMap(), function (m) { return mergeDeepWithSources(m, iters); }
+  );
 }
 
 function withMutations(fn) {
@@ -2406,8 +2404,8 @@ MapPrototype.update = update$$1;
 MapPrototype.updateIn = updateIn$1;
 MapPrototype.merge = merge;
 MapPrototype.mergeWith = mergeWith;
-MapPrototype.mergeDeep = mergeDeep$$1;
-MapPrototype.mergeDeepWith = mergeDeepWith$$1;
+MapPrototype.mergeDeep = mergeDeep;
+MapPrototype.mergeDeepWith = mergeDeepWith;
 MapPrototype.mergeIn = mergeIn;
 MapPrototype.mergeDeepIn = mergeDeepIn;
 MapPrototype.withMutations = withMutations;
@@ -5511,8 +5509,8 @@ RecordPrototype.hasIn = CollectionPrototype.hasIn;
 RecordPrototype.merge = merge;
 RecordPrototype.mergeWith = mergeWith;
 RecordPrototype.mergeIn = mergeIn;
-RecordPrototype.mergeDeep = mergeDeep$$1;
-RecordPrototype.mergeDeepWith = mergeDeepWith$$1;
+RecordPrototype.mergeDeep = mergeDeep;
+RecordPrototype.mergeDeepWith = mergeDeepWith;
 RecordPrototype.mergeDeepIn = mergeDeepIn;
 RecordPrototype.setIn = setIn$$1;
 RecordPrototype.update = update$$1;
