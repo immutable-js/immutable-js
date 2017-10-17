@@ -321,6 +321,19 @@ const mapped = foo.map(x => x * x);
 var mapped = foo.map(function (x) { return x * x; });
 ```
 
+All Immutable.js collections are [Iterable][Iterators], which allows them to be
+used anywhere an Iterable is expected, such as when spreading into an Array.
+
+<!-- runkit:activate -->
+```js
+const { List } = require('immutable')
+const aList = List([ 1, 2, 3 ])
+const anArray = [ 0, ...aList, 4, 5 ] // [ 0, 1, 2, 3, 4, 5 ]
+```
+
+Note: A Collection is always iterated in the same order, however that order may
+not always be well defined, as is the case for the `Map` and `Set`.
+
 [Iterators]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/The_Iterator_protocol
 [Arrow Functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
 [Classes]: http://wiki.ecmascript.org/doku.php?id=strawman:maximally_minimal_classes
@@ -504,50 +517,58 @@ Lazy Seq
 --------
 
 `Seq` describes a lazy operation, allowing them to efficiently chain
-use of all the sequence methods (such as `map` and `filter`).
+use of all the higher-order collection methods (such as `map` and `filter`)
+by not creating intermediate collections.
 
 **Seq is immutable** — Once a Seq is created, it cannot be
 changed, appended to, rearranged or otherwise modified. Instead, any mutative
-method called on a Seq will return a new Seq.
+method called on a `Seq` will return a new `Seq`.
 
-**Seq is lazy** — Seq does as little work as necessary to respond to any
-method call.
+**Seq is lazy** — `Seq` does as little work as necessary to respond to any
+method call. Values are often created during iteration, including implicit
+iteration when reducing or converting to a concrete data structure such as
+a `List` or JavaScript `Array`.
 
-For example, the following does not perform any work, because the resulting
-Seq is never used:
+For example, the following performs no work, because the resulting
+`Seq`'s values are never iterated:
 
 ```js
 const { Seq } = require('immutable')
 const oddSquares = Seq([ 1, 2, 3, 4, 5, 6, 7, 8 ])
-  .filter(x => x % 2)
+  .filter(x => x % 2 !== 0)
   .map(x => x * x)
 ```
 
-Once the Seq is used, it performs only the work necessary. In this
-example, no intermediate arrays are ever created, filter is called three times,
-and map is only called once:
+Once the `Seq` is used, it performs only the work necessary. In this
+example, no intermediate arrays are ever created, filter is called three
+times, and map is only called once:
 
 ```js
-console.log(oddSquares.get(1)); // 9
+oddSquares.get(1); // 9
 ```
 
-Any collection can be converted to a lazy Seq with `.toSeq()`.
+Any collection can be converted to a lazy Seq with `Seq()`.
 
 <!-- runkit:activate -->
 ```js
 const { Map } = require('immutable')
-const seq = Map({ a: 1, b: 2, c: 3 }).toSeq()
+const map = Map({ a: 1, b: 2, c: 3 }
+const lazySeq = Seq(map)
 ```
 
-Seq allows for the efficient chaining of sequence operations, especially when
-converting to a different concrete type (such as to a JS object):
+`Seq` allows for the efficient chaining of operations, allowing for the
+expression of logic that can otherwise be very tedious:
 
 ```js
-seq.flip().map(key => key.toUpperCase()).flip().toObject();
-// { A: 1, B: 2, C: 3 }
+lazySeq
+  .flip()
+  .map(key => key.toUpperCase())
+  .flip()
+// Seq { A: 1, B: 1, C: 1 }
 ```
 
-As well as expressing logic that would otherwise seem memory-limited:
+As well as expressing logic that would otherwise seem memory or time
+limited, for example `Range` is a special kind of Lazy sequence.
 
 <!-- runkit:activate -->
 ```js
@@ -557,12 +578,9 @@ Range(1, Infinity)
   .map(n => -n)
   .filter(n => n % 2 === 0)
   .take(2)
-  .reduce((r, n) => r * n, 1);
+  .reduce((r, n) => r * n, 1)
 // 1006008
 ```
-
-Note: A Collection is always iterated in the same order, however that order may
-not always be well defined, as is the case for the `Map`.
 
 
 Documentation
