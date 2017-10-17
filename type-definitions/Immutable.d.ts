@@ -4894,7 +4894,7 @@ declare module Immutable {
    * has({ x: 123, y: 456 }, 'z') // false
    * ```
    */
-  export function has(collection: Object, key: mixed): boolean;
+  export function has(collection: Object, key: any): boolean;
 
   /**
    * Returns a copy of the collection with the value at key removed.
@@ -4915,9 +4915,9 @@ declare module Immutable {
    * ```
    */
   export function remove<K, C extends Collection<K, any>>(collection: C, key: K): C;
-  export function remove<TProps, R extends Record<TProps>, K extends keyof TProps>(collection: C, key: K): C;
+  export function remove<TProps, R extends Record<TProps>, K extends keyof TProps>(collection: R, key: K): R;
   export function remove<C extends Array<any>>(collection: C, key: number): C;
-  export function remove<C, K extends keyof Obj>(collection: C, key: K): C;
+  export function remove<C, K extends keyof C>(collection: C, key: K): C;
   export function remove<K, C extends {[key: string]: any}>(collection: C, key: K): C;
 
   /**
@@ -4969,11 +4969,11 @@ declare module Immutable {
   export function update<TProps, C extends Record<TProps>, K extends keyof TProps>(record: C, key: K, updater: (value: TProps[K]) => TProps[K]): C;
   export function update<TProps, C extends Record<TProps>, K extends keyof TProps, NSV>(record: C, key: K, notSetValue: NSV, updater: (value: TProps[K] | NSV) => TProps[K]): C;
   export function update<V>(collection: Array<V>, key: number, updater: (value: V) => V): Array<V>;
-  export function update<V, NSV>(collection: Array<V>, key: number, notSetValue: NSV, updater: (value: V | NSV) => V): C;
+  export function update<V, NSV>(collection: Array<V>, key: number, notSetValue: NSV, updater: (value: V | NSV) => V): Array<V>;
   export function update<C, K extends keyof C>(object: C, key: K, updater: (value: C[K]) => C[K]): C;
   export function update<C, K extends keyof C, NSV>(object: C, key: K, notSetValue: NSV, updater: (value: C[K] | NSV) => C[K]): C;
-  export function update<V, C extends {[key: string]: V}>(collection: C, key: K, updater: (value: V) => V): {[key: string]: V};
-  export function update<V, C extends {[key: string]: V}, NSV>(collection: C, key: K, notSetValue: NSV, updater: (value: V | NSV) => V): {[key: string]: V};
+  export function update<V, C extends {[key: string]: V}, K extends keyof C>(collection: C, key: K, updater: (value: V) => V): {[key: string]: V};
+  export function update<V, C extends {[key: string]: V}, K extends keyof C, NSV>(collection: C, key: K, notSetValue: NSV, updater: (value: V | NSV) => V): {[key: string]: V};
 
   /**
    * Returns the value at the provided key path starting at the provided
@@ -5142,7 +5142,7 @@ declare module Immutable {
    * ```
    */
   export function mergeDeepWith<C>(
-    merger: (oldVal: any, newVal: any, key: any) => mixed,
+    merger: (oldVal: any, newVal: any, key: any) => any,
     collection: C,
     ...collections: Array<Iterable<any> | Iterable<[any, any]> | {[key: string]: any}>
   ): C;
