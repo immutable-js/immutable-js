@@ -192,11 +192,14 @@ describe('Map', () => {
   });
 
   it('can use weird keys', () => {
+    const symbol = Symbol('A');
     const m: Map<any, any> = Map()
       .set(NaN, 1)
       .set(Infinity, 2)
+      .set(symbol, 'A')
       .set(-Infinity, 3);
 
+    expect(m.get(symbol)).toBe('A');
     expect(m.get(NaN)).toBe(1);
     expect(m.get(Infinity)).toBe(2);
     expect(m.get(-Infinity)).toBe(3);
