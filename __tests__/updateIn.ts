@@ -7,7 +7,7 @@
 
 ///<reference path='../resources/jest.d.ts'/>
 
-import { fromJS, List, Map, removeIn, Seq, Set, setIn, updateIn } from '../';
+import { fromJS, List, Map, removeIn, Seq, Set, set, setIn, updateIn } from '../';
 
 describe('updateIn', () => {
 
@@ -128,22 +128,34 @@ describe('updateIn', () => {
     );
   });
 
-  it('creates new maps if path contains gaps', () => {
+  it('creates new maps and lists if path contains gaps', () => {
     const m = fromJS({a: {b: {c: 10}}});
     expect(
-      m.updateIn(['a', 'q', 'z'], Map(), map => map.set('d', 20)).toJS(),
+      m.updateIn(['a', 'q', 0, 'z'], Map(), map => map.set('d', 20)),
     ).toEqual(
-      {a: {b: {c: 10}, q: {z: {d: 20}}}},
+      Map({
+        a: Map({
+          b: Map({c: 10}),
+          q: List([
+            Map({z: Map({d: 20})}),
+          ]),
+        }),
+      }),
     );
   });
 
-  it('creates new objects if path contains gaps within raw JS', () => {
+  it('creates new objects and lists if path contains gaps within raw JS', () => {
     const m = {a: {b: {c: 10}}};
     expect(
-      updateIn(m, ['a', 'b', 'z'], Map(), map => map.set('d', 20)),
-    ).toEqual(
-      {a: {b: {c: 10, z: Map({d: 20})}}},
-    );
+      updateIn(m, ['a', 'q', 0, 'z'], {}, obj => set(obj, 'd', 20)),
+    ).toEqual({
+      a: {
+        b: {c: 10},
+        q: [
+          {z: {d: 20}},
+        ],
+      },
+    });
   });
 
   it('throws if path cannot be set', () => {

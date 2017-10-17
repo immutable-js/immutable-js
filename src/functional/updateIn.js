@@ -10,6 +10,7 @@ import coerceKeyPath from '../utils/coerceKeyPath';
 import isDataStructure from '../utils/isDataStructure';
 import quoteString from '../utils/quoteString';
 import { NOT_SET } from '../TrieUtils';
+import { emptyList } from '../List';
 import { emptyMap } from '../Map';
 import { get } from './get';
 import { remove } from './remove';
@@ -68,7 +69,11 @@ function updateInDeeply(
     : nextUpdated === NOT_SET
       ? remove(existing, key)
       : set(
-          wasNotSet ? (inImmutable ? emptyMap() : {}) : existing,
+          wasNotSet
+            ? typeof key === 'number'
+              ? inImmutable ? emptyList() : []
+              : inImmutable ? emptyMap() : {}
+            : existing,
           key,
           nextUpdated
         );
