@@ -192,9 +192,11 @@ export class ArraySeq extends IndexedSeq {
 
 class ObjectSeq extends KeyedSeq {
   constructor(object) {
-    const keys = Object.keys(object).concat(
-      Object.getOwnPropertySymbols(object)
-    );
+    let symbols = [];
+    if (typeof Object.getOwnPropertySymbols === 'function') {
+      symbols = Object.getOwnPropertySymbols(object);
+    }
+    const keys = Object.keys(object).concat(symbols);
     this._object = object;
     this._keys = keys;
     this.size = keys.length;
