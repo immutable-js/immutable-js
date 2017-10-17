@@ -363,6 +363,143 @@ const nested4 = nested3.updateIn([ 'a', 'b', 'c' ], list => list.push(6))
 ```
 
 
+Equality treats Collections as Values
+-------------------------------------
+
+Immutable.js collections are treated as pure data *values*. Two immutable
+collections are considered *value equal* (via `.equals()` or `is()`) if they
+represent the same collection of values. This differs from JavaScript's typical
+*reference equal* (via `===` or `==`) for Objects and Arrays which only
+determines if two variables represent references to the same object instance.
+
+Consider the example below where two identical `Map` instances are not
+*reference equal* but are *value equal*.
+
+<!-- runkit:activate -->
+```js
+// First consider:
+const obj1 = { a: 1, b: 2, c: 3 }
+const obj2 = { a: 1, b: 2, c: 3 }
+obj1 !== obj2 // two different instances are always not equal with ===
+
+const { Map, is } = require('immutable')
+const map1 = Map({ a: 1, b: 2, c: 3 })
+const map2 = Map({ a: 1, b: 2, c: 3 })
+map1 !== map2 // two different instances are not reference-equal
+map1.equals(map2) // but are value-equal if they have the same values
+is(map1, map2) // alternatively can use the is() function
+```
+
+Value equality allows Immutable.js collections to be used as keys in Maps or
+values in Sets, and retrieved with different but equivalent collections:
+
+<!-- runkit:activate -->
+```js
+const { Map, Set } = require('immutable')
+const map1 = Map({ a: 1, b: 2, c: 3 })
+const map2 = Map({ a: 1, b: 2, c: 3 })
+const set = Set().add(map1)
+set.has(map2) // true because these are value-equal
+```
+
+Note: `is()` uses the same measure of equality as [Object.is][] for scalar
+strings and numbers, but uses value equality for Immutable collections,
+determining if both are immutable and all keys and values are equal
+using the same measure of equality.
+
+[Object.is]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is
+
+#### Performance tradeoffs
+
+While value equality is useful in many circumstances, it has different
+performance characteristics than reference equality. Understanding these
+tradeoffs may help you decide which to use in each case, especially when used
+to memoize some operation.
+
+When comparing two collections, value equality may require considering every
+item in each collection, on an `O(N)` time complexity. For large collections of
+values, this could become a costly operation. Though if the two are not equal
+and hardly similar, the inequality is determined very quickly. In contrast, when
+comparing two collections with reference equality, only the initial references
+to memory need to be compared which is not based on the size of the collections,
+which has an `O(1)` time complexity. Checking reference equality is always very
+fast, however just because two collections are not reference-equal does not rule
+out the possibility that they may be value-equal.
+
+#### Return self on no-op optimization
+
+When possible, Immutable.js avoids creating new objects for updates where no
+change in *value* occurred, to allow for efficient *reference equality* checking
+to quickly determine if no change occurred.
+
+<!-- runkit:activate -->
+```js
+const { Map } = require('immutable')
+const originalMap = Map({ a: 1, b: 2, c: 3 })
+const updatedMap = originalMap.set('b', 2)
+updatedMap === originalMap // No-op .set() returned the original reference.
+```
+
+However updates which do result in a change will return a new reference. Each
+of these operations occur independently, so two similar updates will not return
+the same reference:
+
+<!-- runkit:activate -->
+```js
+const { Map } = require('immutable')
+const originalMap = Map({ a: 1, b: 2, c: 3 })
+const updatedMap = originalMap.set('b', 1000)
+// New instance, leaving the original immutable.
+updatedMap !== originalMap
+const anotherUpdatedMap = originalMap.set('b', 1000)
+// Despite both the results of the same operation, each created a new reference.
+anotherUpdatedMap !== updatedMap
+// However the two are value equal.
+anotherUpdatedMap.equals(updatedMap)
+```
+
+Batching Mutations
+------------------
+
+> If a tree falls in the woods, does it make a sound?
+>
+> If a pure function mutates some local data in order to produce an immutable
+> return value, is that ok?
+>
+> — Rich Hickey, Clojure
+
+Applying a mutation to create a new immutable object results in some overhead,
+which can add up to a minor performance penalty. If you need to apply a series
+of mutations locally before returning, Immutable.js gives you the ability to
+create a temporary mutable (transient) copy of a collection and apply a batch of
+mutations in a performant manner by using `withMutations`. In fact, this is
+exactly how  Immutable.js applies complex mutations itself.
+
+As an example, building `list2` results in the creation of 1, not 3, new
+immutable Lists.
+
+<!-- runkit:activate -->
+```js
+const { List } = require('immutable')
+const list1 = List([ 1, 2, 3 ]);
+const list2 = list1.withMutations(function (list) {
+  list.push(4).push(5).push(6);
+});
+assert.equal(list1.size, 3);
+assert.equal(list2.size, 6);
+```
+
+Note: Immutable.js also provides `asMutable` and `asImmutable`, but only
+encourages their use when `withMutations` will not suffice. Use caution to not
+return a mutable copy, which could result in undesired behavior.
+
+*Important!*: Only a select few methods can be used in `withMutations` including
+`set`, `push` and `pop`. These methods can be applied directly against a
+persistent data-structure where other methods like `map`, `filter`, `sort`,
+and `splice` will always return new immutable data-structures and never mutate
+a mutable collection.
+
+
 Lazy Seq
 --------
 
@@ -426,71 +563,6 @@ Range(1, Infinity)
 
 Note: A Collection is always iterated in the same order, however that order may
 not always be well defined, as is the case for the `Map`.
-
-
-Equality treats Collections as Data
------------------------------------
-
-Immutable.js provides equality which treats immutable data structures as pure
-data, performing a deep equality check if necessary.
-
-<!-- runkit:activate -->
-```js
-const { Map, is } = require('immutable')
-const map1 = Map({ a: 1, b: 2, c: 3 })
-const map2 = Map({ a: 1, b: 2, c: 3 })
-assert.equal(map1 !== map2, true) // two different instances
-assert.equal(is(map1, map2), true) // have equivalent values
-assert.equal(map1.equals(map2), true) // alternatively use the equals method
-```
-
-`Immutable.is()` uses the same measure of equality as [Object.is][]
-including if both are immutable and all keys and values are equal
-using the same measure of equality.
-
-[Object.is]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is
-
-
-Batching Mutations
-------------------
-
-> If a tree falls in the woods, does it make a sound?
->
-> If a pure function mutates some local data in order to produce an immutable
-> return value, is that ok?
->
-> — Rich Hickey, Clojure
-
-Applying a mutation to create a new immutable object results in some overhead,
-which can add up to a minor performance penalty. If you need to apply a series
-of mutations locally before returning, Immutable.js gives you the ability to
-create a temporary mutable (transient) copy of a collection and apply a batch of
-mutations in a performant manner by using `withMutations`. In fact, this is
-exactly how  Immutable.js applies complex mutations itself.
-
-As an example, building `list2` results in the creation of 1, not 3, new
-immutable Lists.
-
-<!-- runkit:activate -->
-```js
-const { List } = require('immutable')
-const list1 = List([ 1, 2, 3 ]);
-const list2 = list1.withMutations(function (list) {
-  list.push(4).push(5).push(6);
-});
-assert.equal(list1.size, 3);
-assert.equal(list2.size, 6);
-```
-
-Note: Immutable.js also provides `asMutable` and `asImmutable`, but only
-encourages their use when `withMutations` will not suffice. Use caution to not
-return a mutable copy, which could result in undesired behavior.
-
-*Important!*: Only a select few methods can be used in `withMutations` including
-`set`, `push` and `pop`. These methods can be applied directly against a
-persistent data-structure where other methods like `map`, `filter`, `sort`,
-and `splice` will always return new immutable data-structures and never mutate
-a mutable collection.
 
 
 Documentation
