@@ -5029,7 +5029,7 @@ declare module Immutable {
    * ```
    */
   export function updateIn<C>(collection: C, keyPath: Iterable<any>, updater: (value: any) => any): C;
-
+  export function updateIn<C>(collection: C, keyPath: Iterable<any>, notSetValue: any, updater: (value: any) => any): C;
 
   /**
    * Returns a copy of the collection with the remaining collections merged in.
