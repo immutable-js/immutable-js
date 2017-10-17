@@ -118,7 +118,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { fromJS, isKeyed } = require('immutable@4.0.0-rc.7')
+   * const { fromJS, isKeyed } = require('immutable@4.0.0-rc.8')
    * function (key, value) {
    *   return isKeyed(value) ? value.Map() : value.toList()
    * }
@@ -132,7 +132,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { fromJS, isKeyed } = require('immutable@4.0.0-rc.7')
+   * const { fromJS, isKeyed } = require('immutable@4.0.0-rc.8')
    * fromJS({ a: {b: [10, 20, 30]}, c: 40}, function (key, value, path) {
    *   console.log(key, value, path)
    *   return isKeyed(value) ? value.toOrderedMap() : value.toList()
@@ -149,7 +149,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { Map } = require('immutable@4.0.0-rc.7')
+   * const { Map } = require('immutable@4.0.0-rc.8')
    * let obj = { 1: "one" };
    * Object.keys(obj); // [ "1" ]
    * assert.equal(obj["1"], obj[1]); // "one" === "one"
@@ -185,7 +185,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { Map, is } = require('immutable@4.0.0-rc.7')
+   * const { Map, is } = require('immutable@4.0.0-rc.8')
    * const map1 = Map({ a: 1, b: 1, c: 1 })
    * const map2 = Map({ a: 1, b: 1, c: 1 })
    * assert.equal(map1 !== map2, true)
@@ -234,7 +234,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { isImmutable, Map, List, Stack } = require('immutable@4.0.0-rc.7');
+   * const { isImmutable, Map, List, Stack } = require('immutable@4.0.0-rc.8');
    * isImmutable([]); // false
    * isImmutable({}); // false
    * isImmutable(Map()); // true
@@ -250,7 +250,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { isCollection, Map, List, Stack } = require('immutable@4.0.0-rc.7');
+   * const { isCollection, Map, List, Stack } = require('immutable@4.0.0-rc.8');
    * isCollection([]); // false
    * isCollection({}); // false
    * isCollection(Map()); // true
@@ -265,7 +265,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { isKeyed, Map, List, Stack } = require('immutable@4.0.0-rc.7');
+   * const { isKeyed, Map, List, Stack } = require('immutable@4.0.0-rc.8');
    * isKeyed([]); // false
    * isKeyed({}); // false
    * isKeyed(Map()); // true
@@ -280,7 +280,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { isIndexed, Map, List, Stack, Set } = require('immutable@4.0.0-rc.7');
+   * const { isIndexed, Map, List, Stack, Set } = require('immutable@4.0.0-rc.8');
    * isIndexed([]); // false
    * isIndexed({}); // false
    * isIndexed(Map()); // false
@@ -296,7 +296,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { isAssociative, Map, List, Stack, Set } = require('immutable@4.0.0-rc.7');
+   * const { isAssociative, Map, List, Stack, Set } = require('immutable@4.0.0-rc.8');
    * isAssociative([]); // false
    * isAssociative({}); // false
    * isAssociative(Map()); // true
@@ -313,7 +313,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { isOrdered, Map, OrderedMap, List, Set } = require('immutable@4.0.0-rc.7');
+   * const { isOrdered, Map, OrderedMap, List, Set } = require('immutable@4.0.0-rc.8');
    * isOrdered([]); // false
    * isOrdered({}); // false
    * isOrdered(Map()); // false
@@ -355,7 +355,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List, Set } = require('immutable@4.0.0-rc.7');
+     * const { List, Set } = require('immutable@4.0.0-rc.8');
      * const a = List([ 1, 2, 3 ]);
      * const b = List([ 1, 2, 3 ]);
      * assert.notStrictEqual(a, b); // different instances
@@ -401,7 +401,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List } = require('immutable@4.0.0-rc.7');
+     * const { List } = require('immutable@4.0.0-rc.8');
      * List.isList([]); // false
      * List.isList(List()); // true
      * ```
@@ -413,7 +413,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List } = require('immutable@4.0.0-rc.7');
+     * const { List } = require('immutable@4.0.0-rc.8');
      * List.of(1, 2, 3, 4)
      * // List [ 1, 2, 3, 4 ]
      * ```
@@ -422,7 +422,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List } = require('immutable@4.0.0-rc.7');
+     * const { List } = require('immutable@4.0.0-rc.8');
      * List.of({x:1}, 2, [3], 4)
      * // List [ { x: 1 }, 2, [ 3 ], 4 ]
      * ```
@@ -436,7 +436,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { List, Set } = require('immutable@4.0.0-rc.7')
+   * const { List, Set } = require('immutable@4.0.0-rc.8')
    *
    * const emptyList = List()
    * // List []
@@ -482,7 +482,7 @@ declare module Immutable {
      * enough to include the `index`.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.8');" }
      * -->
      * ```js
      * const originalList = List([ 0 ]);
@@ -515,7 +515,7 @@ declare module Immutable {
      * Note: `delete` cannot be safely used in IE8
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.8');" }
      * -->
      * ```js
      * List([ 0, 1, 2, 3, 4 ]).delete(0);
@@ -539,7 +539,7 @@ declare module Immutable {
      * This is synonymous with `list.splice(index, 0, value)`.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.8');" }
      * -->
      * ```js
      * List([ 0, 1, 2, 3, 4 ]).insert(6, 5)
@@ -557,7 +557,7 @@ declare module Immutable {
      * Returns a new List with 0 size and no values in constant time.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.8');" }
      * -->
      * ```js
      * List([ 1, 2, 3, 4 ]).clear()
@@ -573,7 +573,7 @@ declare module Immutable {
      * List's `size`.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.8');" }
      * -->
      * ```js
      * List([ 1, 2, 3, 4 ]).push(5)
@@ -606,7 +606,7 @@ declare module Immutable {
      * values ahead to higher indices.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.8');" }
      * -->
      * ```js
      * List([ 2, 3, 4]).unshift(1);
@@ -626,7 +626,7 @@ declare module Immutable {
      * value in this List.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.8');" }
      * -->
      * ```js
      * List([ 0, 1, 2, 3, 4 ]).shift();
@@ -647,7 +647,7 @@ declare module Immutable {
      * List. `v.update(-1)` updates the last item in the List.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.8');" }
      * -->
      * ```js
      * const list = List([ 'a', 'b', 'c' ])
@@ -661,7 +661,7 @@ declare module Immutable {
      * For example, to sum a List after mapping and filtering:
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.8');" }
      * -->
      * ```js
      * function sum(collection) {
@@ -707,7 +707,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List } = require('immutable@4.0.0-rc.7')
+     * const { List } = require('immutable@4.0.0-rc.8')
      * const list = List([ 0, 1, 2, List([ 3, 4 ])])
      * list.setIn([3, 0], 999);
      * // List [ 0, 1, 2, List [ 999, 4 ] ]
@@ -719,7 +719,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List } = require('immutable@4.0.0-rc.7')
+     * const { List } = require('immutable@4.0.0-rc.8')
      * const list = List([ 0, 1, 2, { plain: 'object' }])
      * list.setIn([3, 'plain'], 'value');
      * // List([ 0, 1, 2, { plain: 'value' }])
@@ -735,7 +735,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List } = require('immutable@4.0.0-rc.7')
+     * const { List } = require('immutable@4.0.0-rc.8')
      * const list = List([ 0, 1, 2, List([ 3, 4 ])])
      * list.deleteIn([3, 0]);
      * // List [ 0, 1, 2, List [ 4 ] ]
@@ -747,7 +747,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List } = require('immutable@4.0.0-rc.7')
+     * const { List } = require('immutable@4.0.0-rc.8')
      * const list = List([ 0, 1, 2, { plain: 'object' }])
      * list.removeIn([3, 'plain']);
      * // List([ 0, 1, 2, {}])
@@ -831,7 +831,7 @@ declare module Immutable {
      * `mapper` function.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.8');" }
      * -->
      * ```js
      * List([ 1, 2 ]).map(x => 10 * x)
@@ -878,7 +878,7 @@ declare module Immutable {
      * Like `zipWith`, but using the default `zipper`: creating an `Array`.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.8');" }
      * -->
      * ```js
      * const a = List([ 1, 2, 3 ]);
@@ -897,7 +897,7 @@ declare module Immutable {
      * exhausted. Missing values from shorter collections are filled with `undefined`.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.8');" }
      * -->
      * ```js
      * const a = List([ 1, 2 ]);
@@ -918,7 +918,7 @@ declare module Immutable {
      * custom `zipper` function.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
+     *      { "preamble": "const { List } = require('immutable@4.0.0-rc.8');" }
      * -->
      * ```js
      * const a = List([ 1, 2, 3 ]);
@@ -959,7 +959,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { Map, List } = require('immutable@4.0.0-rc.7');
+   * const { Map, List } = require('immutable@4.0.0-rc.8');
    * Map().set(List([ 1 ]), 'listofone').get(List([ 1 ]));
    * // 'listofone'
    * ```
@@ -977,7 +977,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.7')
+     * const { Map } = require('immutable@4.0.0-rc.8')
      * Map.isMap({}) // false
      * Map.isMap(Map()) // true
      * ```
@@ -989,7 +989,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.7')
+     * const { Map } = require('immutable@4.0.0-rc.8')
      * Map.of(
      *   'key', 'value',
      *   'numerical value', 3,
@@ -1011,7 +1011,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { Map } = require('immutable@4.0.0-rc.7')
+   * const { Map } = require('immutable@4.0.0-rc.8')
    * Map({ key: "value" })
    * Map([ [ "key", "value" ] ])
    * ```
@@ -1021,7 +1021,7 @@ declare module Immutable {
    * quote-less shorthand, while Immutable Maps accept keys of any type.
    *
    * <!-- runkit:activate
-   *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.7');" }
+   *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.8');" }
    * -->
    * ```js
    * let obj = { 1: "one" }
@@ -1057,7 +1057,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.7')
+     * const { Map } = require('immutable@4.0.0-rc.8')
      * const originalMap = Map()
      * const newerMap = originalMap.set('key', 'value')
      * const newestMap = newerMap.set('key', 'newer value')
@@ -1082,7 +1082,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.7')
+     * const { Map } = require('immutable@4.0.0-rc.8')
      * const originalMap = Map({
      *   key: 'value',
      *   otherKey: 'other value'
@@ -1104,7 +1104,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.7')
+     * const { Map } = require('immutable@4.0.0-rc.8')
      * const names = Map({ a: "Aaron", b: "Barry", c: "Connor" })
      * names.deleteAll([ 'a', 'c' ])
      * // Map { "b": "Barry" }
@@ -1122,7 +1122,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.7')
+     * const { Map } = require('immutable@4.0.0-rc.8')
      * Map({ key: 'value' }).clear()
      * // Map {}
      * ```
@@ -1139,7 +1139,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.7')
+     * const { Map } = require('immutable@4.0.0-rc.8')
      * const aMap = Map({ key: 'value' })
      * const newMap = aMap.update('key', value => value + value)
      * // Map { "key": "valuevalue" }
@@ -1150,7 +1150,7 @@ declare module Immutable {
      * `update` and `push` can be used together:
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map, List } = require('immutable@4.0.0-rc.7');" }
+     *      { "preamble": "const { Map, List } = require('immutable@4.0.0-rc.8');" }
      * -->
      * ```js
      * const aMap = Map({ nestedList: List([ 1, 2, 3 ]) })
@@ -1162,7 +1162,7 @@ declare module Immutable {
      * function when the value at the key does not exist in the Map.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.7');" }
+     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.8');" }
      * -->
      * ```js
      * const aMap = Map({ key: 'value' })
@@ -1175,7 +1175,7 @@ declare module Immutable {
      * is provided.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.7');" }
+     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.8');" }
      * -->
      * ```js
      * const aMap = Map({ apples: 10 })
@@ -1191,7 +1191,7 @@ declare module Immutable {
      * The previous example behaves differently when written with default values:
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.7');" }
+     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.8');" }
      * -->
      * ```js
      * const aMap = Map({ apples: 10 })
@@ -1203,7 +1203,7 @@ declare module Immutable {
      * returned as well.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.7');" }
+     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.8');" }
      * -->
      * ```js
      * const aMap = Map({ key: 'value' })
@@ -1217,7 +1217,7 @@ declare module Immutable {
      * For example, to sum the values in a Map
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.7');" }
+     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.8');" }
      * -->
      * ```js
      * function sum(collection) {
@@ -1247,7 +1247,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.7')
+     * const { Map } = require('immutable@4.0.0-rc.8')
      * const one = Map({ a: 10, b: 20, c: 30 })
      * const two = Map({ b: 40, a: 50, d: 60 })
      * one.merge(two) // Map { "a": 50, "b": 40, "c": 30, "d": 60 }
@@ -1270,7 +1270,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.7')
+     * const { Map } = require('immutable@4.0.0-rc.8')
      * const one = Map({ a: 10, b: 20, c: 30 })
      * const two = Map({ b: 40, a: 50, d: 60 })
      * one.mergeWith((oldVal, newVal) => oldVal / newVal, two)
@@ -1296,7 +1296,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.7')
+     * const { Map } = require('immutable@4.0.0-rc.8')
      * const one = Map({ a: Map({ x: 10, y: 10 }), b: Map({ x: 20, y: 50 }) })
      * const two = Map({ a: Map({ x: 2 }), b: Map({ y: 5 }), c: Map({ z: 3 }) })
      * one.mergeDeep(two)
@@ -1317,7 +1317,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.7')
+     * const { Map } = require('immutable@4.0.0-rc.8')
      * const one = Map({ a: Map({ x: 10, y: 10 }), b: Map({ x: 20, y: 50 }) })
      * const two = Map({ a: Map({ x: 2 }), b: Map({ y: 5 }), c: Map({ z: 3 }) })
      * one.mergeDeepWith((oldVal, newVal) => oldVal / newVal, two)
@@ -1344,7 +1344,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.7')
+     * const { Map } = require('immutable@4.0.0-rc.8')
      * const originalMap = Map({
      *   subObject: Map({
      *     subKey: 'subvalue',
@@ -1380,7 +1380,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.7')
+     * const { Map } = require('immutable@4.0.0-rc.8')
      * const originalMap = Map({
      *   subObject: {
      *     subKey: 'subvalue',
@@ -1427,7 +1427,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map, List } = require('immutable@4.0.0-rc.7')
+     * const { Map, List } = require('immutable@4.0.0-rc.8')
      * const map = Map({ inMap: Map({ inList: List([ 1, 2, 3 ]) }) })
      * const newMap = map.updateIn(['inMap', 'inList'], list => list.push(4))
      * // Map { "inMap": Map { "inList": List [ 1, 2, 3, 4 ] } }
@@ -1439,7 +1439,7 @@ declare module Immutable {
      * provided, otherwise `undefined`.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.7')" }
+     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.8')" }
      * -->
      * ```js
      * const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
@@ -1451,7 +1451,7 @@ declare module Immutable {
      * no change will occur. This is still true if `notSetValue` is provided.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.7')" }
+     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.8')" }
      * -->
      * ```js
      * const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
@@ -1467,7 +1467,7 @@ declare module Immutable {
      * The previous example behaves differently when written with default values:
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.7')" }
+     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.8')" }
      * -->
      * ```js
      * const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
@@ -1480,7 +1480,7 @@ declare module Immutable {
      * immutably by creating new copies of those values with the changes applied.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.7')" }
+     *      { "preamble": "const { Map } = require('immutable@4.0.0-rc.8')" }
      * -->
      * ```js
      * const map = Map({ a: { b: { c: 10 } } })
@@ -1541,7 +1541,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.7')
+     * const { Map } = require('immutable@4.0.0-rc.8')
      * const map1 = Map()
      * const map2 = map1.withMutations(map => {
      *   map.set('a', 1).set('b', 2).set('c', 3)
@@ -1709,7 +1709,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { OrderedMap } = require('immutable@4.0.0-rc.7')
+     * const { OrderedMap } = require('immutable@4.0.0-rc.8')
      * const one = OrderedMap({ a: 10, b: 20, c: 30 })
      * const two = OrderedMap({ b: 40, a: 50, d: 60 })
      * one.merge(two) // OrderedMap { "a": 50, "b": 40, "c": 30, "d": 60 }
@@ -1826,7 +1826,7 @@ declare module Immutable {
      * a collection of other sets.
      *
      * ```js
-     * const { Set } = require('immutable@4.0.0-rc.7')
+     * const { Set } = require('immutable@4.0.0-rc.8')
      * const intersected = Set.intersect([
      *   Set([ 'a', 'b', 'c' ])
      *   Set([ 'c', 'a', 't' ])
@@ -1841,7 +1841,7 @@ declare module Immutable {
      * collection of other sets.
      *
      * ```js
-     * const { Set } = require('immutable@4.0.0-rc.7')
+     * const { Set } = require('immutable@4.0.0-rc.8')
      * const unioned = Set.union([
      *   Set([ 'a', 'b', 'c' ])
      *   Set([ 'c', 'a', 't' ])
@@ -2412,7 +2412,7 @@ declare module Immutable {
    * infinity. When `start` is equal to `end`, returns empty range.
    *
    * ```js
-   * const { Range } = require('immutable@4.0.0-rc.7')
+   * const { Range } = require('immutable@4.0.0-rc.8')
    * Range() // [ 0, 1, 2, 3, ... ]
    * Range(10) // [ 10, 11, 12, 13, ... ]
    * Range(10, 15) // [ 10, 11, 12, 13, 14 ]
@@ -2429,7 +2429,7 @@ declare module Immutable {
    * not defined, returns an infinite `Seq` of `value`.
    *
    * ```js
-   * const { Repeat } = require('immutable@4.0.0-rc.7')
+   * const { Repeat } = require('immutable@4.0.0-rc.8')
    * Repeat('foo') // [ 'foo', 'foo', 'foo', ... ]
    * Repeat('bar', 4) // [ 'bar', 'bar', 'bar', 'bar' ]
    * ```
@@ -2445,7 +2445,7 @@ declare module Immutable {
    * create Record instances.
    *
    * ```js
-   * const { Record } = require('immutable@4.0.0-rc.7')
+   * const { Record } = require('immutable@4.0.0-rc.8')
    * const ABRecord = Record({ a: 1, b: 2 })
    * const myRecord = new ABRecord({ b: 3 })
    * ```
@@ -2577,7 +2577,7 @@ declare module Immutable {
      * method. If one was not provided, the string "Record" is returned.
      *
      * ```js
-     * const { Record } = require('immutable@4.0.0-rc.7')
+     * const { Record } = require('immutable@4.0.0-rc.8')
      * const Person = Record({
      *   name: null
      * }, 'Person')
@@ -2595,7 +2595,7 @@ declare module Immutable {
      * type:
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Record } = require('immutable@4.0.0-rc.7')" }
+     *      { "preamble": "const { Record } = require('immutable@4.0.0-rc.8')" }
      * -->
      * ```js
      * // makePerson is a Record Factory function
@@ -2610,7 +2610,7 @@ declare module Immutable {
      * access on the resulting instances:
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Record } = require('immutable@4.0.0-rc.7');const makePerson = Record({ name: null, favoriteColor: 'unknown' });const alan = makePerson({ name: 'Alan' });" }
+     *      { "preamble": "const { Record } = require('immutable@4.0.0-rc.8');const makePerson = Record({ name: null, favoriteColor: 'unknown' });const alan = makePerson({ name: 'Alan' });" }
      * -->
      * ```js
      * // Use the Record API
@@ -2792,7 +2792,7 @@ declare module Immutable {
    * `Seq`'s values are never iterated:
    *
    * ```js
-   * const { Seq } = require('immutable@4.0.0-rc.7')
+   * const { Seq } = require('immutable@4.0.0-rc.8')
    * const oddSquares = Seq([ 1, 2, 3, 4, 5, 6, 7, 8 ])
    *   .filter(x => x % 2 !== 0)
    *   .map(x => x * x)
@@ -2831,7 +2831,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { Range } = require('immutable@4.0.0-rc.7')
+   * const { Range } = require('immutable@4.0.0-rc.8')
    * Range(1, Infinity)
    *   .skip(1000)
    *   .map(n => -n)
@@ -2910,7 +2910,7 @@ declare module Immutable {
        * `mapper` function.
        *
        * ```js
-       * const { Seq } = require('immutable@4.0.0-rc.7')
+       * const { Seq } = require('immutable@4.0.0-rc.8')
        * Seq.Keyed({ a: 1, b: 2 }).map(x => 10 * x)
        * // Seq { "a": 10, "b": 20 }
        * ```
@@ -3022,7 +3022,7 @@ declare module Immutable {
        * `mapper` function.
        *
        * ```js
-       * const { Seq } = require('immutable@4.0.0-rc.7')
+       * const { Seq } = require('immutable@4.0.0-rc.8')
        * Seq.Indexed([ 1, 2 ]).map(x => 10 * x)
        * // Seq [ 10, 20 ]
        * ```
@@ -3282,7 +3282,7 @@ declare module Immutable {
      * `mapper` function.
      *
      * ```js
-     * const { Seq } = require('immutable@4.0.0-rc.7')
+     * const { Seq } = require('immutable@4.0.0-rc.8')
      * Seq([ 1, 2 ]).map(x => 10 * x)
      * // Seq [ 10, 20 ]
      * ```
@@ -3300,7 +3300,7 @@ declare module Immutable {
      * `mapper` function.
      *
      * ```js
-     * const { Seq } = require('immutable@4.0.0-rc.7')
+     * const { Seq } = require('immutable@4.0.0-rc.8')
      * Seq([ 1, 2 ]).map(x => 10 * x)
      * // Seq [ 10, 20 ]
      * ```
@@ -3369,22 +3369,22 @@ declare module Immutable {
   export module Collection {
 
     /**
-     * @deprecated use `const { isKeyed } = require('immutable@4.0.0-rc.7')`
+     * @deprecated use `const { isKeyed } = require('immutable@4.0.0-rc.8')`
      */
     function isKeyed(maybeKeyed: any): maybeKeyed is Collection.Keyed<any, any>;
 
     /**
-     * @deprecated use `const { isIndexed } = require('immutable@4.0.0-rc.7')`
+     * @deprecated use `const { isIndexed } = require('immutable@4.0.0-rc.8')`
      */
     function isIndexed(maybeIndexed: any): maybeIndexed is Collection.Indexed<any>;
 
     /**
-     * @deprecated use `const { isAssociative } = require('immutable@4.0.0-rc.7')`
+     * @deprecated use `const { isAssociative } = require('immutable@4.0.0-rc.8')`
      */
     function isAssociative(maybeAssociative: any): maybeAssociative is Collection.Keyed<any, any> | Collection.Indexed<any>;
 
     /**
-     * @deprecated use `const { isOrdered } = require('immutable@4.0.0-rc.7')`
+     * @deprecated use `const { isOrdered } = require('immutable@4.0.0-rc.8')`
      */
     function isOrdered(maybeOrdered: any): boolean;
 
@@ -3442,7 +3442,7 @@ declare module Immutable {
        *
        * <!-- runkit:activate -->
        * ```js
-       * const { Map } = require('immutable@4.0.0-rc.7')
+       * const { Map } = require('immutable@4.0.0-rc.8')
        * Map({ a: 'z', b: 'y' }).flip()
        * // Map { "z": "a", "y": "b" }
        * ```
@@ -3460,7 +3460,7 @@ declare module Immutable {
        * `mapper` function.
        *
        * ```js
-       * const { Collection } = require('immutable@4.0.0-rc.7')
+       * const { Collection } = require('immutable@4.0.0-rc.8')
        * Collection.Keyed({ a: 1, b: 2 }).map(x => 10 * x)
        * // Seq { "a": 10, "b": 20 }
        * ```
@@ -3479,7 +3479,7 @@ declare module Immutable {
        *
        * <!-- runkit:activate -->
        * ```js
-       * const { Map } = require('immutable@4.0.0-rc.7')
+       * const { Map } = require('immutable@4.0.0-rc.8')
        * Map({ a: 1, b: 2 }).mapKeys(x => x.toUpperCase())
        * // Map { "A": 1, "B": 2 }
        * ```
@@ -3498,7 +3498,7 @@ declare module Immutable {
        *
        * <!-- runkit:activate -->
        * ```js
-       * const { Map } = require('immutable@4.0.0-rc.7')
+       * const { Map } = require('immutable@4.0.0-rc.8')
        * Map({ a: 1, b: 2 })
        *   .mapEntries(([ k, v ]) => [ k.toUpperCase(), v * 2 ])
        * // Map { "A": 2, "B": 4 }
@@ -3624,10 +3624,10 @@ declare module Immutable {
        * second from each, etc.
        *
        * <!-- runkit:activate
-       *      { "preamble": "require('immutable@4.0.0-rc.7')"}
+       *      { "preamble": "require('immutable@4.0.0-rc.8')"}
        * -->
        * ```js
-       * const { List } = require('immutable@4.0.0-rc.7')
+       * const { List } = require('immutable@4.0.0-rc.8')
        * List([ 1, 2, 3 ]).interleave(List([ 'A', 'B', 'C' ]))
        * // List [ 1, "A", 2, "B", 3, "C"" ]
        * ```
@@ -3635,7 +3635,7 @@ declare module Immutable {
        * The shortest Collection stops interleave.
        *
        * <!-- runkit:activate
-       *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7')" }
+       *      { "preamble": "const { List } = require('immutable@4.0.0-rc.8')" }
        * -->
        * ```js
        * List([ 1, 2, 3 ]).interleave(
@@ -3662,7 +3662,7 @@ declare module Immutable {
        *
        * <!-- runkit:activate -->
        * ```js
-       * const { List } = require('immutable@4.0.0-rc.7')
+       * const { List } = require('immutable@4.0.0-rc.8')
        * List([ 'a', 'b', 'c', 'd' ]).splice(1, 2, 'q', 'r', 's')
        * // List [ "a", "q", "r", "s", "d" ]
        * ```
@@ -3686,7 +3686,7 @@ declare module Immutable {
        *
        *
        * <!-- runkit:activate
-       *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7')" }
+       *      { "preamble": "const { List } = require('immutable@4.0.0-rc.8')" }
        * -->
        * ```js
        * const a = List([ 1, 2, 3 ]);
@@ -3719,7 +3719,7 @@ declare module Immutable {
        * collections by using a custom `zipper` function.
        *
        * <!-- runkit:activate
-       *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7')" }
+       *      { "preamble": "const { List } = require('immutable@4.0.0-rc.8')" }
        * -->
        * ```js
        * const a = List([ 1, 2, 3 ]);
@@ -3787,7 +3787,7 @@ declare module Immutable {
        * `mapper` function.
        *
        * ```js
-       * const { Collection } = require('immutable@4.0.0-rc.7')
+       * const { Collection } = require('immutable@4.0.0-rc.8')
        * Collection.Indexed([1,2]).map(x => 10 * x)
        * // Seq [ 1, 2 ]
        * ```
@@ -3839,7 +3839,7 @@ declare module Immutable {
      * the value as both the first and second arguments to the provided function.
      *
      * ```js
-     * const { Collection } = require('immutable@4.0.0-rc.7')
+     * const { Collection } = require('immutable@4.0.0-rc.8')
      * const seq = Collection.Set([ 'A', 'B', 'C' ])
      * // Seq { "A", "B", "C" }
      * seq.forEach((v, k) =>
@@ -3971,7 +3971,7 @@ declare module Immutable {
      * lookup via a different instance.
      *
      * <!-- runkit:activate
-     *      { "preamble": "const { Set,  List } = require('immutable@4.0.0-rc.7')" }
+     *      { "preamble": "const { Set,  List } = require('immutable@4.0.0-rc.8')" }
      * -->
      * ```js
      * const a = List([ 1, 2, 3 ]);
@@ -4036,7 +4036,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map, List } = require('immutable@4.0.0-rc.7')
+     * const { Map, List } = require('immutable@4.0.0-rc.8')
      * const deepData = Map({ x: List([ Map({ y: 123 }) ]) });
      * getIn(deepData, ['x', 0, 'y']) // 123
      * ```
@@ -4046,7 +4046,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map, List } = require('immutable@4.0.0-rc.7')
+     * const { Map, List } = require('immutable@4.0.0-rc.8')
      * const deepData = Map({ x: [ { y: 123 } ] });
      * getIn(deepData, ['x', 0, 'y']) // 123
      * ```
@@ -4069,7 +4069,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Seq } = require('immutable@4.0.0-rc.7')
+     * const { Seq } = require('immutable@4.0.0-rc.8')
      *
      * function sum(collection) {
      *   return collection.reduce((sum, x) => sum + x, 0)
@@ -4165,7 +4165,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map, List } = require('immutable@4.0.0-rc.7')
+     * const { Map, List } = require('immutable@4.0.0-rc.8')
      * var myMap = Map({ a: 'Apple', b: 'Banana' })
      * List(myMap) // List [ [ "a", "Apple" ], [ "b", "Banana" ] ]
      * myMap.toList() // List [ "Apple", "Banana" ]
@@ -4202,7 +4202,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Seq } = require('immutable@4.0.0-rc.7')
+     * const { Seq } = require('immutable@4.0.0-rc.8')
      * const indexedSeq = Seq([ 'A', 'B', 'C' ])
      * // Seq [ "A", "B", "C" ]
      * indexedSeq.filter(v => v === 'B')
@@ -4283,7 +4283,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Collection } = require('immutable@4.0.0-rc.7')
+     * const { Collection } = require('immutable@4.0.0-rc.8')
      * Collection({ a: 1, b: 2 }).map(x => 10 * x)
      * // Seq { "a": 10, "b": 20 }
      * ```
@@ -4310,7 +4310,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.7')
+     * const { Map } = require('immutable@4.0.0-rc.8')
      * Map({ a: 1, b: 2, c: 3, d: 4}).filter(x => x % 2 === 0)
      * // Map { "b": 2, "d": 4 }
      * ```
@@ -4333,7 +4333,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.7')
+     * const { Map } = require('immutable@4.0.0-rc.8')
      * Map({ a: 1, b: 2, c: 3, d: 4}).filterNot(x => x % 2 === 0)
      * // Map { "a": 1, "c": 3 }
      * ```
@@ -4370,7 +4370,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { Map } = require('immutable@4.0.0-rc.7')
+     * const { Map } = require('immutable@4.0.0-rc.8')
      * Map({ "c": 3, "a": 1, "b": 2 }).sort((a, b) => {
      *   if (a < b) { return -1; }
      *   if (a > b) { return 1; }
@@ -4410,7 +4410,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List, Map } = require('immutable@4.0.0-rc.7')
+     * const { List, Map } = require('immutable@4.0.0-rc.8')
      * const listOfMaps = List([
      *   Map({ v: 0 }),
      *   Map({ v: 1 }),
@@ -4497,7 +4497,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List } = require('immutable@4.0.0-rc.7')
+     * const { List } = require('immutable@4.0.0-rc.8')
      * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
      *   .skipWhile(x => x.match(/g/))
      * // List [ "cat", "hat", "god"" ]
@@ -4514,7 +4514,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List } = require('immutable@4.0.0-rc.7')
+     * const { List } = require('immutable@4.0.0-rc.8')
      * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
      *   .skipUntil(x => x.match(/hat/))
      * // List [ "hat", "god"" ]
@@ -4543,7 +4543,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List } = require('immutable@4.0.0-rc.7')
+     * const { List } = require('immutable@4.0.0-rc.8')
      * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
      *   .takeWhile(x => x.match(/o/))
      * // List [ "dog", "frog" ]
@@ -4560,7 +4560,7 @@ declare module Immutable {
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { List } = require('immutable@4.0.0-rc.7')
+     * const { List } = require('immutable@4.0.0-rc.8')
      * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
      *   .takeUntil(x => x.match(/at/))
      * // List [ "dog", "frog" ]
@@ -4865,7 +4865,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { get } = require('immutable@4.0.0-rc.7')
+   * const { get } = require('immutable@4.0.0-rc.8')
    * get([ 'dog', 'frog', 'cat' ], 2) // 'frog'
    * get({ x: 123, y: 456 }, 'x') // 123
    * get({ x: 123, y: 456 }, 'z', 'ifNotSet') // 'ifNotSet'
@@ -4889,7 +4889,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { has } = require('immutable@4.0.0-rc.7')
+   * const { has } = require('immutable@4.0.0-rc.8')
    * has([ 'dog', 'frog', 'cat' ], 2) // true
    * has([ 'dog', 'frog', 'cat' ], 5) // false
    * has({ x: 123, y: 456 }, 'x') // true
@@ -4907,7 +4907,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { remove } = require('immutable@4.0.0-rc.7')
+   * const { remove } = require('immutable@4.0.0-rc.8')
    * const originalArray = [ 'dog', 'frog', 'cat' ]
    * remove(originalArray, 1) // [ 'dog', 'cat' ]
    * console.log(originalArray) // [ 'dog', 'frog', 'cat' ]
@@ -4932,7 +4932,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { set } = require('immutable@4.0.0-rc.7')
+   * const { set } = require('immutable@4.0.0-rc.8')
    * const originalArray = [ 'dog', 'frog', 'cat' ]
    * set(originalArray, 1, 'cow') // [ 'dog', 'cow', 'cat' ]
    * console.log(originalArray) // [ 'dog', 'frog', 'cat' ]
@@ -4957,7 +4957,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { update } = require('immutable@4.0.0-rc.7')
+   * const { update } = require('immutable@4.0.0-rc.8')
    * const originalArray = [ 'dog', 'frog', 'cat' ]
    * update(originalArray, 1, val => val.toUpperCase()) // [ 'dog', 'FROG', 'cat' ]
    * console.log(originalArray) // [ 'dog', 'frog', 'cat' ]
@@ -4986,7 +4986,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { getIn } = require('immutable@4.0.0-rc.7')
+   * const { getIn } = require('immutable@4.0.0-rc.8')
    * getIn({ x: { y: { z: 123 }}}, ['x', 'y', 'z']) // 123
    * getIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p'], 'ifNotSet') // 'ifNotSet'
    * ```
@@ -5001,7 +5001,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { hasIn } = require('immutable@4.0.0-rc.7')
+   * const { hasIn } = require('immutable@4.0.0-rc.8')
    * hasIn({ x: { y: { z: 123 }}}, ['x', 'y', 'z']) // true
    * hasIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p']) // false
    * ```
@@ -5016,7 +5016,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { removeIn } = require('immutable@4.0.0-rc.7')
+   * const { removeIn } = require('immutable@4.0.0-rc.8')
    * const original = { x: { y: { z: 123 }}}
    * removeIn(original, ['x', 'y', 'z']) // { x: { y: {}}}
    * console.log(original) // { x: { y: { z: 123 }}}
@@ -5033,7 +5033,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { setIn } = require('immutable@4.0.0-rc.7')
+   * const { setIn } = require('immutable@4.0.0-rc.8')
    * const original = { x: { y: { z: 123 }}}
    * setIn(original, ['x', 'y', 'z'], 456) // { x: { y: { z: 456 }}}
    * console.log(original) // { x: { y: { z: 123 }}}
@@ -5050,7 +5050,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { setIn } = require('immutable@4.0.0-rc.7')
+   * const { setIn } = require('immutable@4.0.0-rc.8')
    * const original = { x: { y: { z: 123 }}}
    * setIn(original, ['x', 'y', 'z'], val => val * 6) // { x: { y: { z: 738 }}}
    * console.log(original) // { x: { y: { z: 123 }}}
@@ -5067,7 +5067,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { merge } = require('immutable@4.0.0-rc.7')
+   * const { merge } = require('immutable@4.0.0-rc.8')
    * const original = { x: 123, y: 456 }
    * merge(original, { y: 789, z: 'abc' }) // { x: 123, y: 789, z: 'abc' }
    * console.log(original) // { x: { y: { z: 123 }}}
@@ -5087,7 +5087,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { mergeWith } = require('immutable@4.0.0-rc.7')
+   * const { mergeWith } = require('immutable@4.0.0-rc.8')
    * const original = { x: 123, y: 456 }
    * mergeWith(
    *   (oldVal, newVal) => oldVal + newVal,
@@ -5112,7 +5112,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { merge } = require('immutable@4.0.0-rc.7')
+   * const { merge } = require('immutable@4.0.0-rc.8')
    * const original = { x: { y: 123 }}
    * merge(original, { x: { z: 456 }}) // { x: { y: 123, z: 456 }}
    * console.log(original) // { x: { y: 123 }}
@@ -5133,7 +5133,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { merge } = require('immutable@4.0.0-rc.7')
+   * const { merge } = require('immutable@4.0.0-rc.8')
    * const original = { x: { y: 123 }}
    * mergeDeepWith(
    *   (oldVal, newVal) => oldVal + newVal,

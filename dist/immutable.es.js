@@ -5697,7 +5697,7 @@ function defaultConverter(k, v) {
   return isKeyed(v) ? v.toMap() : v.toList();
 }
 
-var version = "4.0.0-rc.7";
+var version = "4.0.0-rc.8";
 
 // Functional read/write API
 var Immutable = {
