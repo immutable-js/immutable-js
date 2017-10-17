@@ -522,6 +522,9 @@
      * // List [ 1, 2, 3, 4 ]
      * ```
      *
+     * Since `delete()` re-indexes values, it produces a complete copy, which
+     * has `O(N)` complexity.
+     *
      * Note: `delete` *cannot* be used in `withMutations`.
      *
      * @alias remove
@@ -543,12 +546,15 @@
      * // List [ 0, 1, 2, 3, 4, 5 ]
      * ```
      *
+     * Since `insert()` re-indexes values, it produces a complete copy, which
+     * has `O(N)` complexity.
+     *
      * Note: `insert` *cannot* be used in `withMutations`.
      */
     insert(index: number, value: T): List<T>;
 
     /**
-     * Returns a new List with 0 size and no values.
+     * Returns a new List with 0 size and no values in constant time.
      *
      * <!-- runkit:activate
      *      { "preamble": "const { List } = require('immutable@4.0.0-rc.7');" }
@@ -3638,6 +3644,11 @@
        * )
        * // List [ 1, "A", "X", 2, "B", "Y"" ]
        * ```
+       *
+       * Since `interleave()` re-indexes values, it produces a complete copy,
+       * which has `O(N)` complexity.
+       *
+       * Note: `interleave` *cannot* be used in `withMutations`.
        */
       interleave(...collections: Array<Collection<any, T>>): this;
 
@@ -3655,6 +3666,11 @@
        * List([ 'a', 'b', 'c', 'd' ]).splice(1, 2, 'q', 'r', 's')
        * // List [ "a", "q", "r", "s", "d" ]
        * ```
+       *
+       * Since `splice()` re-indexes values, it produces a complete copy, which
+       * has `O(N)` complexity.
+       *
+       * Note: `splice` *cannot* be used in `withMutations`.
        */
       splice(
         index: number,
