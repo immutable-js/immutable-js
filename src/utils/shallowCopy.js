@@ -18,5 +18,10 @@ export default function shallowCopy(from) {
       to[key] = from[key];
     }
   }
+  if (typeof Object.getOwnPropertySymbols === 'function') {
+    Object.getOwnPropertySymbols(from).forEach(key => {
+      to[key] = from[key];
+    });
+  }
   return to;
 }
