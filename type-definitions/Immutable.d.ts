@@ -4915,7 +4915,7 @@ declare module Immutable {
    * ```
    */
   export function remove<K, C extends Collection<K, any>>(collection: C, key: K): C;
-  export function remove<TProps, R extends Record<TProps>, K extends keyof TProps>(collection: R, key: K): R;
+  export function remove<TProps, C extends Record<TProps>, K extends keyof TProps>(collection: C, key: K): C;
   export function remove<C extends Array<any>>(collection: C, key: number): C;
   export function remove<C, K extends keyof C>(collection: C, key: K): C;
   export function remove<K, C extends {[key: string]: any}>(collection: C, key: K): C;
