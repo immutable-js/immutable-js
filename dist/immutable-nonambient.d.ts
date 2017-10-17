@@ -100,287 +100,6 @@
 
 
   /**
-   * Deeply converts plain JS objects and arrays to Immutable Maps and Lists.
-   *
-   * If a `reviver` is optionally provided, it will be called with every
-   * collection as a Seq (beginning with the most nested collections
-   * and proceeding to the top-level collection itself), along with the key
-   * refering to each collection and the parent JS object provided as `this`.
-   * For the top level, object, the key will be `""`. This `reviver` is expected
-   * to return a new Immutable Collection, allowing for custom conversions from
-   * deep JS objects. Finally, a `path` is provided which is the sequence of
-   * keys to this value from the starting value.
-   *
-   * `reviver` acts similarly to the [same parameter in `JSON.parse`][1].
-   *
-   * If `reviver` is not provided, the default behavior will convert Objects
-   * into Maps and Arrays into Lists like so:
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { fromJS, isKeyed } = require('immutable@4.0.0-rc.8')
-   * function (key, value) {
-   *   return isKeyed(value) ? value.Map() : value.toList()
-   * }
-   * ```
-   *
-   * `fromJS` is conservative in its conversion. It will only convert
-   * arrays which pass `Array.isArray` to Lists, and only raw objects (no custom
-   * prototype) to Map.
-   *
-   * Accordingly, this example converts native JS data to OrderedMap and List:
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { fromJS, isKeyed } = require('immutable@4.0.0-rc.8')
-   * fromJS({ a: {b: [10, 20, 30]}, c: 40}, function (key, value, path) {
-   *   console.log(key, value, path)
-   *   return isKeyed(value) ? value.toOrderedMap() : value.toList()
-   * })
-   *
-   * > "b", [ 10, 20, 30 ], [ "a", "b" ]
-   * > "a", {b: [10, 20, 30]}, [ "a" ]
-   * > "", {a: {b: [10, 20, 30]}, c: 40}, []
-   * ```
-   *
-   * Keep in mind, when using JS objects to construct Immutable Maps, that
-   * JavaScript Object properties are always strings, even if written in a
-   * quote-less shorthand, while Immutable Maps accept keys of any type.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { Map } = require('immutable@4.0.0-rc.8')
-   * let obj = { 1: "one" };
-   * Object.keys(obj); // [ "1" ]
-   * assert.equal(obj["1"], obj[1]); // "one" === "one"
-   *
-   * let map = Map(obj);
-   * assert.notEqual(map.get("1"), map.get(1)); // "one" !== undefined
-   * ```
-   *
-   * Property access for JavaScript Objects first converts the key to a string,
-   * but since Immutable Map keys can be of any type the argument to `get()` is
-   * not altered.
-   *
-   * [1]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Example.3A_Using_the_reviver_parameter
-   *      "Using the reviver parameter"
-   */
-  export function fromJS(
-    jsValue: any,
-    reviver?: (
-      key: string | number,
-      sequence: Collection.Keyed<string, any> | Collection.Indexed<any>,
-      path?: Array<string | number>
-    ) => any
-  ): any;
-
-
-  /**
-   * Value equality check with semantics similar to `Object.is`, but treats
-   * Immutable `Collection`s as values, equal if the second `Collection` includes
-   * equivalent values.
-   *
-   * It's used throughout Immutable when checking for equality, including `Map`
-   * key equality and `Set` membership.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { Map, is } = require('immutable@4.0.0-rc.8')
-   * const map1 = Map({ a: 1, b: 1, c: 1 })
-   * const map2 = Map({ a: 1, b: 1, c: 1 })
-   * assert.equal(map1 !== map2, true)
-   * assert.equal(Object.is(map1, map2), false)
-   * assert.equal(is(map1, map2), true)
-   * ```
-   *
-   * `is()` compares primitive types like strings and numbers, Immutable.js
-   * collections like `Map` and `List`, but also any custom object which
-   * implements `ValueObject` by providing `equals()` and `hashCode()` methods.
-   *
-   * Note: Unlike `Object.is`, `Immutable.is` assumes `0` and `-0` are the same
-   * value, matching the behavior of ES6 Map key equality.
-   */
-  export function is(first: any, second: any): boolean;
-
-
-  /**
-   * The `hash()` function is an important part of how Immutable determines if
-   * two values are equivalent and is used to determine how to store those
-   * values. Provided with any value, `hash()` will return a 31-bit integer.
-   *
-   * When designing Objects which may be equal, it's important than when a
-   * `.equals()` method returns true, that both values `.hashCode()` method
-   * return the same value. `hash()` may be used to produce those values.
-   *
-   * For non-Immutable Objects that do not provide a `.hashCode()` functions
-   * (including plain Objects, plain Arrays, Date objects, etc), a unique hash
-   * value will be created for each *instance*. That is, the create hash
-   * represents referential equality, and not value equality for Objects. This
-   * ensures that if that Object is mutated over time that its hash code will
-   * remain consistent, allowing Objects to be used as keys and values in
-   * Immutable.js collections.
-   *
-   * Note that `hash()` attempts to balance between speed and avoiding
-   * collisions, however it makes no attempt to produce secure hashes.
-   *
-   * *New in Version 4.0*
-   */
-  export function hash(value: any): number;
-
-  /**
-   * True if `maybeImmutable` is an Immutable Collection or Record.
-   *
-   * Note: Still returns true even if the collections is within a `withMutations()`.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { isImmutable, Map, List, Stack } = require('immutable@4.0.0-rc.8');
-   * isImmutable([]); // false
-   * isImmutable({}); // false
-   * isImmutable(Map()); // true
-   * isImmutable(List()); // true
-   * isImmutable(Stack()); // true
-   * isImmutable(Map().asMutable()); // true
-   * ```
-   */
-  export function isImmutable(maybeImmutable: any): maybeImmutable is Collection<any, any>;
-
-  /**
-   * True if `maybeCollection` is a Collection, or any of its subclasses.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { isCollection, Map, List, Stack } = require('immutable@4.0.0-rc.8');
-   * isCollection([]); // false
-   * isCollection({}); // false
-   * isCollection(Map()); // true
-   * isCollection(List()); // true
-   * isCollection(Stack()); // true
-   * ```
-   */
-  export function isCollection(maybeCollection: any): maybeCollection is Collection<any, any>;
-
-  /**
-   * True if `maybeKeyed` is a Collection.Keyed, or any of its subclasses.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { isKeyed, Map, List, Stack } = require('immutable@4.0.0-rc.8');
-   * isKeyed([]); // false
-   * isKeyed({}); // false
-   * isKeyed(Map()); // true
-   * isKeyed(List()); // false
-   * isKeyed(Stack()); // false
-   * ```
-   */
-  export function isKeyed(maybeKeyed: any): maybeKeyed is Collection.Keyed<any, any>;
-
-  /**
-   * True if `maybeIndexed` is a Collection.Indexed, or any of its subclasses.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { isIndexed, Map, List, Stack, Set } = require('immutable@4.0.0-rc.8');
-   * isIndexed([]); // false
-   * isIndexed({}); // false
-   * isIndexed(Map()); // false
-   * isIndexed(List()); // true
-   * isIndexed(Stack()); // true
-   * isIndexed(Set()); // false
-   * ```
-   */
-  export function isIndexed(maybeIndexed: any): maybeIndexed is Collection.Indexed<any>;
-
-  /**
-   * True if `maybeAssociative` is either a Keyed or Indexed Collection.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { isAssociative, Map, List, Stack, Set } = require('immutable@4.0.0-rc.8');
-   * isAssociative([]); // false
-   * isAssociative({}); // false
-   * isAssociative(Map()); // true
-   * isAssociative(List()); // true
-   * isAssociative(Stack()); // true
-   * isAssociative(Set()); // false
-   * ```
-   */
-  export function isAssociative(maybeAssociative: any): maybeAssociative is Collection.Keyed<any, any> | Collection.Indexed<any>;
-
-  /**
-   * True if `maybeOrdered` is a Collection where iteration order is well
-   * defined. True for Collection.Indexed as well as OrderedMap and OrderedSet.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { isOrdered, Map, OrderedMap, List, Set } = require('immutable@4.0.0-rc.8');
-   * isOrdered([]); // false
-   * isOrdered({}); // false
-   * isOrdered(Map()); // false
-   * isOrdered(OrderedMap()); // true
-   * isOrdered(List()); // true
-   * isOrdered(Set()); // false
-   * ```
-   */
-  export function isOrdered(maybeOrdered: any): boolean;
-
-  /**
-   * True if `maybeValue` is a JavaScript Object which has *both* `equals()`
-   * and `hashCode()` methods.
-   *
-   * Any two instances of *value objects* can be compared for value equality with
-   * `Immutable.is()` and can be used as keys in a `Map` or members in a `Set`.
-   */
-  export function isValueObject(maybeValue: any): maybeValue is ValueObject;
-
-  /**
-   * The interface to fulfill to qualify as a Value Object.
-   */
-  export interface ValueObject {
-    /**
-     * True if this and the other Collection have value equality, as defined
-     * by `Immutable.is()`.
-     *
-     * Note: This is equivalent to `Immutable.is(this, other)`, but provided to
-     * allow for chained expressions.
-     */
-    equals(other: any): boolean;
-
-    /**
-     * Computes and returns the hashed identity for this Collection.
-     *
-     * The `hashCode` of a Collection is used to determine potential equality,
-     * and is used when adding this to a `Set` or as a key in a `Map`, enabling
-     * lookup via a different instance.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { List, Set } = require('immutable@4.0.0-rc.8');
-     * const a = List([ 1, 2, 3 ]);
-     * const b = List([ 1, 2, 3 ]);
-     * assert.notStrictEqual(a, b); // different instances
-     * const set = Set([ a ]);
-     * assert.equal(set.has(b), true);
-     * ```
-     *
-     * Note: hashCode() MUST return a Uint32 number. The easiest way to
-     * guarantee this is to return `myHash | 0` from a custom implementation.
-     *
-     * If two values have the same `hashCode`, they are [not guaranteed
-     * to be equal][Hash Collision]. If two values have different `hashCode`s,
-     * they must not be equal.
-     *
-     * Note: `hashCode()` is not guaranteed to always be called before
-     * `equals()`. Most but not all Immutable.js collections use hash codes to
-     * organize their internal data structures, while all Immutable.js
-     * collections use equality during lookups.
-     *
-     * [Hash Collision]: http://en.wikipedia.org/wiki/Collision_(computer_science)
-     */
-    hashCode(): number;
-  }
-
-  /**
    * Lists are ordered indexed dense collections, much like a JavaScript
    * Array.
    *
@@ -4855,6 +4574,285 @@
      */
     isSuperset(iter: Iterable<V>): boolean;
   }
+
+  /**
+   * The interface to fulfill to qualify as a Value Object.
+   */
+  export interface ValueObject {
+    /**
+     * True if this and the other Collection have value equality, as defined
+     * by `Immutable.is()`.
+     *
+     * Note: This is equivalent to `Immutable.is(this, other)`, but provided to
+     * allow for chained expressions.
+     */
+    equals(other: any): boolean;
+
+    /**
+     * Computes and returns the hashed identity for this Collection.
+     *
+     * The `hashCode` of a Collection is used to determine potential equality,
+     * and is used when adding this to a `Set` or as a key in a `Map`, enabling
+     * lookup via a different instance.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { List, Set } = require('immutable@4.0.0-rc.8');
+     * const a = List([ 1, 2, 3 ]);
+     * const b = List([ 1, 2, 3 ]);
+     * assert.notStrictEqual(a, b); // different instances
+     * const set = Set([ a ]);
+     * assert.equal(set.has(b), true);
+     * ```
+     *
+     * Note: hashCode() MUST return a Uint32 number. The easiest way to
+     * guarantee this is to return `myHash | 0` from a custom implementation.
+     *
+     * If two values have the same `hashCode`, they are [not guaranteed
+     * to be equal][Hash Collision]. If two values have different `hashCode`s,
+     * they must not be equal.
+     *
+     * Note: `hashCode()` is not guaranteed to always be called before
+     * `equals()`. Most but not all Immutable.js collections use hash codes to
+     * organize their internal data structures, while all Immutable.js
+     * collections use equality during lookups.
+     *
+     * [Hash Collision]: http://en.wikipedia.org/wiki/Collision_(computer_science)
+     */
+    hashCode(): number;
+  }
+
+  /**
+   * Deeply converts plain JS objects and arrays to Immutable Maps and Lists.
+   *
+   * If a `reviver` is optionally provided, it will be called with every
+   * collection as a Seq (beginning with the most nested collections
+   * and proceeding to the top-level collection itself), along with the key
+   * refering to each collection and the parent JS object provided as `this`.
+   * For the top level, object, the key will be `""`. This `reviver` is expected
+   * to return a new Immutable Collection, allowing for custom conversions from
+   * deep JS objects. Finally, a `path` is provided which is the sequence of
+   * keys to this value from the starting value.
+   *
+   * `reviver` acts similarly to the [same parameter in `JSON.parse`][1].
+   *
+   * If `reviver` is not provided, the default behavior will convert Objects
+   * into Maps and Arrays into Lists like so:
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { fromJS, isKeyed } = require('immutable@4.0.0-rc.8')
+   * function (key, value) {
+   *   return isKeyed(value) ? value.Map() : value.toList()
+   * }
+   * ```
+   *
+   * `fromJS` is conservative in its conversion. It will only convert
+   * arrays which pass `Array.isArray` to Lists, and only raw objects (no custom
+   * prototype) to Map.
+   *
+   * Accordingly, this example converts native JS data to OrderedMap and List:
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { fromJS, isKeyed } = require('immutable@4.0.0-rc.8')
+   * fromJS({ a: {b: [10, 20, 30]}, c: 40}, function (key, value, path) {
+   *   console.log(key, value, path)
+   *   return isKeyed(value) ? value.toOrderedMap() : value.toList()
+   * })
+   *
+   * > "b", [ 10, 20, 30 ], [ "a", "b" ]
+   * > "a", {b: [10, 20, 30]}, [ "a" ]
+   * > "", {a: {b: [10, 20, 30]}, c: 40}, []
+   * ```
+   *
+   * Keep in mind, when using JS objects to construct Immutable Maps, that
+   * JavaScript Object properties are always strings, even if written in a
+   * quote-less shorthand, while Immutable Maps accept keys of any type.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { Map } = require('immutable@4.0.0-rc.8')
+   * let obj = { 1: "one" };
+   * Object.keys(obj); // [ "1" ]
+   * assert.equal(obj["1"], obj[1]); // "one" === "one"
+   *
+   * let map = Map(obj);
+   * assert.notEqual(map.get("1"), map.get(1)); // "one" !== undefined
+   * ```
+   *
+   * Property access for JavaScript Objects first converts the key to a string,
+   * but since Immutable Map keys can be of any type the argument to `get()` is
+   * not altered.
+   *
+   * [1]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Example.3A_Using_the_reviver_parameter
+   *      "Using the reviver parameter"
+   */
+  export function fromJS(
+    jsValue: any,
+    reviver?: (
+      key: string | number,
+      sequence: Collection.Keyed<string, any> | Collection.Indexed<any>,
+      path?: Array<string | number>
+    ) => any
+  ): any;
+
+  /**
+   * Value equality check with semantics similar to `Object.is`, but treats
+   * Immutable `Collection`s as values, equal if the second `Collection` includes
+   * equivalent values.
+   *
+   * It's used throughout Immutable when checking for equality, including `Map`
+   * key equality and `Set` membership.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { Map, is } = require('immutable@4.0.0-rc.8')
+   * const map1 = Map({ a: 1, b: 1, c: 1 })
+   * const map2 = Map({ a: 1, b: 1, c: 1 })
+   * assert.equal(map1 !== map2, true)
+   * assert.equal(Object.is(map1, map2), false)
+   * assert.equal(is(map1, map2), true)
+   * ```
+   *
+   * `is()` compares primitive types like strings and numbers, Immutable.js
+   * collections like `Map` and `List`, but also any custom object which
+   * implements `ValueObject` by providing `equals()` and `hashCode()` methods.
+   *
+   * Note: Unlike `Object.is`, `Immutable.is` assumes `0` and `-0` are the same
+   * value, matching the behavior of ES6 Map key equality.
+   */
+  export function is(first: any, second: any): boolean;
+
+  /**
+   * The `hash()` function is an important part of how Immutable determines if
+   * two values are equivalent and is used to determine how to store those
+   * values. Provided with any value, `hash()` will return a 31-bit integer.
+   *
+   * When designing Objects which may be equal, it's important than when a
+   * `.equals()` method returns true, that both values `.hashCode()` method
+   * return the same value. `hash()` may be used to produce those values.
+   *
+   * For non-Immutable Objects that do not provide a `.hashCode()` functions
+   * (including plain Objects, plain Arrays, Date objects, etc), a unique hash
+   * value will be created for each *instance*. That is, the create hash
+   * represents referential equality, and not value equality for Objects. This
+   * ensures that if that Object is mutated over time that its hash code will
+   * remain consistent, allowing Objects to be used as keys and values in
+   * Immutable.js collections.
+   *
+   * Note that `hash()` attempts to balance between speed and avoiding
+   * collisions, however it makes no attempt to produce secure hashes.
+   *
+   * *New in Version 4.0*
+   */
+  export function hash(value: any): number;
+
+  /**
+   * True if `maybeImmutable` is an Immutable Collection or Record.
+   *
+   * Note: Still returns true even if the collections is within a `withMutations()`.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { isImmutable, Map, List, Stack } = require('immutable@4.0.0-rc.8');
+   * isImmutable([]); // false
+   * isImmutable({}); // false
+   * isImmutable(Map()); // true
+   * isImmutable(List()); // true
+   * isImmutable(Stack()); // true
+   * isImmutable(Map().asMutable()); // true
+   * ```
+   */
+  export function isImmutable(maybeImmutable: any): maybeImmutable is Collection<any, any>;
+
+  /**
+   * True if `maybeCollection` is a Collection, or any of its subclasses.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { isCollection, Map, List, Stack } = require('immutable@4.0.0-rc.8');
+   * isCollection([]); // false
+   * isCollection({}); // false
+   * isCollection(Map()); // true
+   * isCollection(List()); // true
+   * isCollection(Stack()); // true
+   * ```
+   */
+  export function isCollection(maybeCollection: any): maybeCollection is Collection<any, any>;
+
+  /**
+   * True if `maybeKeyed` is a Collection.Keyed, or any of its subclasses.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { isKeyed, Map, List, Stack } = require('immutable@4.0.0-rc.8');
+   * isKeyed([]); // false
+   * isKeyed({}); // false
+   * isKeyed(Map()); // true
+   * isKeyed(List()); // false
+   * isKeyed(Stack()); // false
+   * ```
+   */
+  export function isKeyed(maybeKeyed: any): maybeKeyed is Collection.Keyed<any, any>;
+
+  /**
+   * True if `maybeIndexed` is a Collection.Indexed, or any of its subclasses.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { isIndexed, Map, List, Stack, Set } = require('immutable@4.0.0-rc.8');
+   * isIndexed([]); // false
+   * isIndexed({}); // false
+   * isIndexed(Map()); // false
+   * isIndexed(List()); // true
+   * isIndexed(Stack()); // true
+   * isIndexed(Set()); // false
+   * ```
+   */
+  export function isIndexed(maybeIndexed: any): maybeIndexed is Collection.Indexed<any>;
+
+  /**
+   * True if `maybeAssociative` is either a Keyed or Indexed Collection.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { isAssociative, Map, List, Stack, Set } = require('immutable@4.0.0-rc.8');
+   * isAssociative([]); // false
+   * isAssociative({}); // false
+   * isAssociative(Map()); // true
+   * isAssociative(List()); // true
+   * isAssociative(Stack()); // true
+   * isAssociative(Set()); // false
+   * ```
+   */
+  export function isAssociative(maybeAssociative: any): maybeAssociative is Collection.Keyed<any, any> | Collection.Indexed<any>;
+
+  /**
+   * True if `maybeOrdered` is a Collection where iteration order is well
+   * defined. True for Collection.Indexed as well as OrderedMap and OrderedSet.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { isOrdered, Map, OrderedMap, List, Set } = require('immutable@4.0.0-rc.8');
+   * isOrdered([]); // false
+   * isOrdered({}); // false
+   * isOrdered(Map()); // false
+   * isOrdered(OrderedMap()); // true
+   * isOrdered(List()); // true
+   * isOrdered(Set()); // false
+   * ```
+   */
+  export function isOrdered(maybeOrdered: any): boolean;
+
+  /**
+   * True if `maybeValue` is a JavaScript Object which has *both* `equals()`
+   * and `hashCode()` methods.
+   *
+   * Any two instances of *value objects* can be compared for value equality with
+   * `Immutable.is()` and can be used as keys in a `Map` or members in a `Set`.
+   */
+  export function isValueObject(maybeValue: any): maybeValue is ValueObject;
 
   /**
    * Returns the value within the provided collection associated with the
