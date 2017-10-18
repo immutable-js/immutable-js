@@ -139,4 +139,39 @@ describe('Map', function () {
 
   });
 
+  describe('merge an object', function () {
+
+    [2, 8, 32, 1024].forEach(size => {
+      const obj = {};
+      for (let ii = 0; ii < size; ii++) {
+        obj['x' + ii] = ii;
+      }
+
+      const m1 = Immutable.Map(obj);
+      const m2 = Immutable.Map(obj);
+
+      it('of ' + size, () => {
+        m1.merge(m2);
+      });
+    });
+  });
+
+  describe('mergeDeep an object', function () {
+
+    [2, 8, 32, 1024].forEach(size => {
+      const obj = {};
+      for (let ii = 0; ii < size; ii++) {
+        obj['x' + ii] = {};
+        obj['x' + ii]['y' + ii] = ii;
+      }
+
+      const m1 = Immutable.Map(obj);
+      const m2 = Immutable.Map(obj);
+
+      it('of ' + size, () => {
+        m1.mergeDeep(m2);
+      });
+    });
+  });
+
 });
