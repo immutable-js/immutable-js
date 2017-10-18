@@ -10,7 +10,6 @@
 import { Range, Seq } from '../';
 
 describe('count', () => {
-
   it('counts sequences with known lengths', () => {
     expect(Seq([1, 2, 3, 4, 5]).size).toBe(5);
     expect(Seq([1, 2, 3, 4, 5]).count()).toBe(5);
@@ -30,33 +29,30 @@ describe('count', () => {
   });
 
   describe('countBy', () => {
-
     it('counts by keyed sequence', () => {
-      const grouped = Seq({a: 1, b: 2, c: 3, d: 4}).countBy(x => x % 2);
-      expect(grouped.toJS()).toEqual({1: 2, 0: 2});
+      const grouped = Seq({ a: 1, b: 2, c: 3, d: 4 }).countBy(x => x % 2);
+      expect(grouped.toJS()).toEqual({ 1: 2, 0: 2 });
       expect(grouped.get(1)).toEqual(2);
     });
 
     it('counts by indexed sequence', () => {
       expect(
-        Seq([1, 2, 3, 4, 5, 6]).countBy(x => x % 2).toJS(),
-      ).toEqual(
-        {1: 3, 0: 3},
-      );
+        Seq([1, 2, 3, 4, 5, 6])
+          .countBy(x => x % 2)
+          .toJS()
+      ).toEqual({ 1: 3, 0: 3 });
     });
 
     it('counts by specific keys', () => {
       expect(
-        Seq([1, 2, 3, 4, 5, 6]).countBy(x => x % 2 ? 'odd' : 'even').toJS(),
-      ).toEqual(
-        {odd: 3, even: 3},
-      );
+        Seq([1, 2, 3, 4, 5, 6])
+          .countBy(x => (x % 2 ? 'odd' : 'even'))
+          .toJS()
+      ).toEqual({ odd: 3, even: 3 });
     });
-
   });
 
   describe('isEmpty', () => {
-
     it('is O(1) on sequences with known lengths', () => {
       expect(Seq([1, 2, 3, 4, 5]).size).toBe(5);
       expect(Seq([1, 2, 3, 4, 5]).isEmpty()).toBe(false);
@@ -88,7 +84,5 @@ describe('count', () => {
       expect(seq.isEmpty()).toBe(false);
       expect(seq.size).toBe(undefined);
     });
-
   });
-
 });

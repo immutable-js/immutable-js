@@ -13,7 +13,6 @@ jasmineCheck.install();
 import { Range } from '../';
 
 describe('Range', () => {
-
   it('fixed range', () => {
     const v = Range(0, 3);
     expect(v.size).toBe(3);
@@ -42,9 +41,15 @@ describe('Range', () => {
     expect(v.last()).toBe(Infinity);
     expect(v.butLast().first()).toBe(10);
     expect(v.butLast().last()).toBe(Infinity);
-    expect(() => v.rest().toArray()).toThrow('Cannot perform this action with an infinite size.');
-    expect(() => v.butLast().toArray()).toThrow('Cannot perform this action with an infinite size.');
-    expect(() => v.toArray()).toThrow('Cannot perform this action with an infinite size.');
+    expect(() => v.rest().toArray()).toThrow(
+      'Cannot perform this action with an infinite size.'
+    );
+    expect(() => v.butLast().toArray()).toThrow(
+      'Cannot perform this action with an infinite size.'
+    );
+    expect(() => v.toArray()).toThrow(
+      'Cannot perform this action with an infinite size.'
+    );
   });
 
   it('backwards range', () => {
@@ -83,13 +88,14 @@ describe('Range', () => {
 
   const shrinkInt = gen.shrink(gen.int);
 
-  check.it('slices the same as array slices',
+  check.it(
+    'slices the same as array slices',
     [shrinkInt, shrinkInt, shrinkInt, shrinkInt],
     (from, to, begin, end) => {
       const r = Range(from, to);
       const a = r.toArray();
       expect(r.slice(begin, end).toArray()).toEqual(a.slice(begin, end));
-    },
+    }
   );
 
   it('slices range', () => {
@@ -165,10 +171,11 @@ describe('Range', () => {
 
   it('can describe lazy operations', () => {
     expect(
-      Range(1, Infinity).map(n => -n).take(5).toArray(),
-    ).toEqual(
-      [ -1, -2, -3, -4, -5 ],
-    );
+      Range(1, Infinity)
+        .map(n => -n)
+        .take(5)
+        .toArray()
+    ).toEqual([-1, -2, -3, -4, -5]);
   });
 
   it('efficiently chains array methods', () => {
@@ -182,5 +189,4 @@ describe('Range', () => {
 
     expect(r).toEqual(200);
   });
-
 });

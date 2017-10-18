@@ -21,14 +21,13 @@ function arrayOfSize(s) {
 }
 
 describe('List', () => {
-
   it('determines assignment of unspecified value types', () => {
     interface Test {
       list: List<string>;
     }
 
     const t: Test = {
-      list: List(),
+      list: List()
     };
 
     expect(t.list.size).toBe(0);
@@ -77,7 +76,7 @@ describe('List', () => {
   });
 
   it('accepts a keyed Seq as a list of entries', () => {
-    const seq = Seq({a: null, b: null, c: null}).flip();
+    const seq = Seq({ a: null, b: null, c: null }).flip();
     const v = List(seq);
     expect(v.toArray()).toEqual([[null, 'a'], [null, 'b'], [null, 'c']]);
     // Explicitly getting the values sequence
@@ -98,15 +97,12 @@ describe('List', () => {
   it('can setIn and getIn a deep value', () => {
     let v = List([
       Map({
-        aKey: List([
-          "bad",
-          "good",
-        ]),
-      }),
+        aKey: List(['bad', 'good'])
+      })
     ]);
-    expect(v.getIn([0, 'aKey', 1])).toBe("good");
-    v = v.setIn([0, 'aKey', 1], "great");
-    expect(v.getIn([0, 'aKey', 1])).toBe("great");
+    expect(v.getIn([0, 'aKey', 1])).toBe('good');
+    v = v.setIn([0, 'aKey', 1], 'great');
+    expect(v.getIn([0, 'aKey', 1])).toBe('great');
   });
 
   it('can update a value', () => {
@@ -117,20 +113,14 @@ describe('List', () => {
   it('can updateIn a deep value', () => {
     let l = List([
       Map({
-        aKey: List([
-          "bad",
-          "good",
-        ]),
-      }),
+        aKey: List(['bad', 'good'])
+      })
     ]);
     l = l.updateIn([0, 'aKey', 1], v => v + v);
     expect(l.toJS()).toEqual([
       {
-        aKey: [
-          'bad',
-          'goodgood',
-        ],
-      },
+        aKey: ['bad', 'goodgood']
+      }
     ]);
   });
 
@@ -276,15 +266,23 @@ describe('List', () => {
   });
 
   it('describes a dense list', () => {
-    const v = List.of<string | undefined>('a', 'b', 'c').push('d').set(14, 'o').set(6, undefined).remove(1);
+    const v = List.of<string | undefined>('a', 'b', 'c')
+      .push('d')
+      .set(14, 'o')
+      .set(6, undefined)
+      .remove(1);
     expect(v.size).toBe(14);
-    expect(v.toJS()).toEqual(
-      ['a', 'c', 'd', , , , , , , , , , , 'o'],
-    );
+    expect(v.toJS()).toEqual(['a', 'c', 'd', , , , , , , , , , , 'o']);
   });
 
   it('iterates a dense list', () => {
-    const v = List().setSize(11).set(1, 1).set(3, 3).set(5, 5).set(7, 7).set(9, 9);
+    const v = List()
+      .setSize(11)
+      .set(1, 1)
+      .set(3, 3)
+      .set(5, 5)
+      .set(7, 7)
+      .set(9, 9);
     expect(v.size).toBe(11);
 
     const forEachResults: Array<any> = [];
@@ -300,7 +298,7 @@ describe('List', () => {
       [7, 7],
       [8, undefined],
       [9, 9],
-      [10, undefined],
+      [10, undefined]
     ]);
 
     const arrayResults = v.toArray();
@@ -315,7 +313,7 @@ describe('List', () => {
       7,
       undefined,
       9,
-      undefined,
+      undefined
     ]);
 
     const iteratorResults: Array<any> = [];
@@ -335,7 +333,7 @@ describe('List', () => {
       [7, 7],
       [8, undefined],
       [9, 9],
-      [10, undefined],
+      [10, undefined]
     ]);
   });
 
@@ -347,8 +345,11 @@ describe('List', () => {
     expect(v1.toArray()).toEqual(['a', 'b', 'c', 'd', 'e', 'f']);
   });
 
-  check.it('pushes multiple values to the end', {maxSize: 2000},
-    [gen.posInt, gen.posInt], (s1, s2) => {
+  check.it(
+    'pushes multiple values to the end',
+    { maxSize: 2000 },
+    [gen.posInt, gen.posInt],
+    (s1, s2) => {
       const a1 = arrayOfSize(s1);
       const a2 = arrayOfSize(s2);
 
@@ -360,7 +361,7 @@ describe('List', () => {
 
       expect(v3.size).toEqual(a3.length);
       expect(v3.toArray()).toEqual(a3);
-    },
+    }
   );
 
   it('pop removes the highest index, decrementing size', () => {
@@ -378,8 +379,11 @@ describe('List', () => {
     expect(v.last()).toBe('X');
   });
 
-  check.it('pop removes the highest index, just like array', {maxSize: 2000},
-    [gen.posInt], len => {
+  check.it(
+    'pop removes the highest index, just like array',
+    { maxSize: 2000 },
+    [gen.posInt],
+    len => {
       const a = arrayOfSize(len);
       let v = List(a);
 
@@ -391,11 +395,14 @@ describe('List', () => {
       }
       expect(v.size).toBe(a.length);
       expect(v.toArray()).toEqual(a);
-    },
+    }
   );
 
-  check.it('push adds the next highest index, just like array', {maxSize: 2000},
-    [gen.posInt], len => {
+  check.it(
+    'push adds the next highest index, just like array',
+    { maxSize: 2000 },
+    [gen.posInt],
+    len => {
       const a: Array<any> = [];
       let v = List();
 
@@ -407,20 +414,27 @@ describe('List', () => {
       }
       expect(v.size).toBe(a.length);
       expect(v.toArray()).toEqual(a);
-    },
+    }
   );
 
   it('allows popping an empty list', () => {
     let v = List.of('a').pop();
     expect(v.size).toBe(0);
     expect(v.toArray()).toEqual([]);
-    v = v.pop().pop().pop().pop().pop();
+    v = v
+      .pop()
+      .pop()
+      .pop()
+      .pop()
+      .pop();
     expect(v.size).toBe(0);
     expect(v.toArray()).toEqual([]);
   });
 
   it('remove removes any index', () => {
-    let v = List.of('a', 'b', 'c').remove(2).remove(0);
+    let v = List.of('a', 'b', 'c')
+      .remove(2)
+      .remove(0);
     expect(v.size).toBe(1);
     expect(v.get(0)).toBe('b');
     expect(v.get(1)).toBe(undefined);
@@ -445,8 +459,11 @@ describe('List', () => {
     expect(v.toArray()).toEqual(['x', 'y', 'z', 'a', 'b', 'c']);
   });
 
-  check.it('unshifts multiple values to the front', {maxSize: 2000},
-    [gen.posInt, gen.posInt], (s1, s2) => {
+  check.it(
+    'unshifts multiple values to the front',
+    { maxSize: 2000 },
+    [gen.posInt, gen.posInt],
+    (s1, s2) => {
       const a1 = arrayOfSize(s1);
       const a2 = arrayOfSize(s2);
 
@@ -458,7 +475,7 @@ describe('List', () => {
 
       expect(v3.size).toEqual(a3.length);
       expect(v3.toArray()).toEqual(a3);
-    },
+    }
   );
 
   it('finds values using indexOf', () => {
@@ -483,7 +500,10 @@ describe('List', () => {
 
   it('finds values using findEntry', () => {
     const v = List.of('a', 'b', 'c', 'B', 'a');
-    expect(v.findEntry(value => value.toUpperCase() === value)).toEqual([3, 'B']);
+    expect(v.findEntry(value => value.toUpperCase() === value)).toEqual([
+      3,
+      'B'
+    ]);
     expect(v.findEntry(value => value.length > 1)).toBe(undefined);
   });
 
@@ -502,12 +522,16 @@ describe('List', () => {
   it('filters values based on type', () => {
     class A {}
     class B extends A {
-      b(): void { return; }
+      b(): void {
+        return;
+      }
     }
     class C extends A {
-      c(): void { return; }
+      c(): void {
+        return;
+      }
     }
-    const l1 = List<A>([ new B(), new C(), new B(), new C() ]);
+    const l1 = List<A>([new B(), new C(), new B(), new C()]);
     // tslint:disable-next-line:arrow-parens
     const l2: List<C> = l1.filter((v): v is C => v instanceof C);
     expect(l2.size).toEqual(2);
@@ -587,7 +611,9 @@ describe('List', () => {
 
   it('ensures equality', () => {
     // Make a sufficiently long list.
-    const a = Array(100).join('abcdefghijklmnopqrstuvwxyz').split('');
+    const a = Array(100)
+      .join('abcdefghijklmnopqrstuvwxyz')
+      .split('');
     const v1 = List(a);
     const v2 = List(a);
     // tslint:disable-next-line: triple-equals
@@ -643,7 +669,14 @@ describe('List', () => {
 
   it('concat works like Array.prototype.concat', () => {
     const v1 = List([1, 2, 3]);
-    const v2 = v1.concat(4, List([ 5, 6 ]), [7, 8], Seq([ 9, 10 ]), Set.of(11, 12), null as any);
+    const v2 = v1.concat(
+      4,
+      List([5, 6]),
+      [7, 8],
+      Seq([9, 10]),
+      Set.of(11, 12),
+      null as any
+    );
     expect(v1.toArray()).toEqual([1, 2, 3]);
     expect(v2.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, null]);
   });
@@ -675,7 +708,12 @@ describe('List', () => {
   it('allows chained mutations', () => {
     const v1 = List();
     const v2 = v1.push(1);
-    const v3 = v2.withMutations(v => v.push(2).push(3).push(4));
+    const v3 = v2.withMutations(v =>
+      v
+        .push(2)
+        .push(3)
+        .push(4)
+    );
     const v4 = v3.push(5);
 
     expect(v1.toArray()).toEqual([]);
@@ -687,7 +725,12 @@ describe('List', () => {
   it('allows chained mutations using alternative API', () => {
     const v1 = List();
     const v2 = v1.push(1);
-    const v3 = v2.asMutable().push(2).push(3).push(4).asImmutable();
+    const v3 = v2
+      .asMutable()
+      .push(2)
+      .push(3)
+      .push(4)
+      .asImmutable();
     const v4 = v3.push(5);
 
     expect(v1.toArray()).toEqual([]);
@@ -698,7 +741,12 @@ describe('List', () => {
 
   it('chained mutations does not result in new empty list instance', () => {
     const v1 = List(['x']);
-    const v2 = v1.withMutations(v => v.push('y').pop().pop());
+    const v2 = v1.withMutations(v =>
+      v
+        .push('y')
+        .pop()
+        .pop()
+    );
     expect(v2).toBe(List());
   });
 
@@ -728,7 +776,7 @@ describe('List', () => {
 
     expect(v2.toArray()).toEqual(list.slice(0, 3));
     expect(v3.toArray()).toEqual(
-      list.slice(0, 3).concat([undefined, undefined, undefined] as any),
+      list.slice(0, 3).concat([undefined, undefined, undefined] as any)
     );
   });
 
@@ -740,7 +788,7 @@ describe('List', () => {
 
     expect(v2.toArray()).toEqual(list.slice(0, 3));
     expect(v3.toArray()).toEqual(
-      list.slice(0, 3).concat([undefined, undefined, undefined] as any),
+      list.slice(0, 3).concat([undefined, undefined, undefined] as any)
     );
   });
 
@@ -772,7 +820,9 @@ describe('List', () => {
   });
 
   it('Accepts NaN for slice and concat #602', () => {
-    const list = List().slice(0, NaN).concat(NaN);
+    const list = List()
+      .slice(0, NaN)
+      .concat(NaN);
     // toEqual([ NaN ])
     expect(list.size).toBe(1);
     expect(isNaNValue(list.get(0))).toBe(true);
@@ -805,7 +855,6 @@ describe('List', () => {
   });
 
   describe('Iterator', () => {
-
     const pInt = gen.posInt;
 
     check.it('iterates through List', [pInt, pInt], (start, len) => {
@@ -836,7 +885,5 @@ describe('List', () => {
         expect(entryIter.next().value).toEqual([ii, start + len - 1 - ii]);
       }
     });
-
   });
-
 });

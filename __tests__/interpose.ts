@@ -10,13 +10,10 @@
 import { Range } from '../';
 
 describe('interpose', () => {
-
   it('separates with a value', () => {
     const range = Range(10, 15);
     const interposed = range.interpose(0);
-    expect(interposed.toArray()).toEqual(
-      [ 10, 0, 11, 0, 12, 0, 13, 0, 14 ],
-    );
+    expect(interposed.toArray()).toEqual([10, 0, 11, 0, 12, 0, 13, 0, 14]);
   });
 
   it('can be iterated', () => {
@@ -34,5 +31,4 @@ describe('interpose', () => {
     expect(values.next()).toEqual({ value: 14, done: false });
     expect(values.next()).toEqual({ value: undefined, done: true });
   });
-
 });
