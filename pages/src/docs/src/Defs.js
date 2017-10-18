@@ -30,25 +30,25 @@ var InterfaceDef = React.createClass({
             ))
             .interpose(', ')
             .toArray(),
-          '>'
+          '>',
         ]}
         {def.extends && [
           <span className="t keyword">{' extends '}</span>,
           Seq(def.extends)
             .map((e, i) => <TypeDef key={i} type={e} />)
             .interpose(', ')
-            .toArray()
+            .toArray(),
         ]}
         {def.implements && [
           <span className="t keyword">{' implements '}</span>,
           Seq(def.implements)
             .map((e, i) => <TypeDef key={i} type={e} />)
             .interpose(', ')
-            .toArray()
+            .toArray(),
         ]}
       </span>
     );
-  }
+  },
 });
 
 exports.InterfaceDef = InterfaceDef;
@@ -72,7 +72,7 @@ var CallSigDef = React.createClass({
             .map(t => <span className="t typeParam">{t}</span>)
             .interpose(', ')
             .toArray(),
-          '>'
+          '>',
         ]}
         {'('}
         {callSig && functionParams(info, callSig.params, shouldWrap)}
@@ -80,7 +80,7 @@ var CallSigDef = React.createClass({
         {callSig.type && [': ', <TypeDef info={info} type={callSig.type} />]}
       </span>
     );
-  }
+  },
 });
 
 exports.CallSigDef = CallSigDef;
@@ -110,14 +110,14 @@ var TypeDef = React.createClass({
           Seq(type.types)
             .map(t => <TypeDef info={info} type={t} />)
             .interpose(' | ')
-            .toArray()
+            .toArray(),
         ]);
       case TypeKind.Intersection:
         return this.wrap('intersection', [
           Seq(type.types)
             .map(t => <TypeDef info={info} type={t} />)
             .interpose(' & ')
-            .toArray()
+            .toArray(),
         ]);
       case TypeKind.Tuple:
         return this.wrap('tuple', [
@@ -126,7 +126,7 @@ var TypeDef = React.createClass({
             .map(t => <TypeDef info={info} type={t} />)
             .interpose(', ')
             .toArray(),
-          ']'
+          ']',
         ]);
       case TypeKind.Object:
         return this.wrap('object', [
@@ -135,25 +135,25 @@ var TypeDef = React.createClass({
             .map(t => <MemberDef member={t} />)
             .interpose(', ')
             .toArray(),
-          '}'
+          '}',
         ]);
       case TypeKind.Indexed:
         return this.wrap('indexed', [
           <TypeDef info={info} type={type.type} />,
           '[',
           <TypeDef info={info} type={type.index} />,
-          ']'
+          ']',
         ]);
       case TypeKind.Operator:
         return this.wrap('operator', [
           this.wrap('primitive', type.operator),
           ' ',
-          <TypeDef info={info} type={type.type} />
+          <TypeDef info={info} type={type.type} />,
         ]);
       case TypeKind.Array:
         return this.wrap('array', [
           <TypeDef info={info} type={type.type} />,
-          '[]'
+          '[]',
         ]);
       case TypeKind.Function:
         var shouldWrap = (prefix || 0) + funcLength(info, type) > 78;
@@ -168,12 +168,12 @@ var TypeDef = React.createClass({
               ))
               .interpose(', ')
               .toArray(),
-            '>'
+            '>',
           ],
           '(',
           functionParams(info, type.params, shouldWrap),
           ') => ',
-          <TypeDef info={info} type={type.type} />
+          <TypeDef info={info} type={type.type} />,
         ]);
       case TypeKind.Param:
         return info && info.propMap[info.defining + '<' + type.param] ? (
@@ -196,9 +196,9 @@ var TypeDef = React.createClass({
               .map(q => <span className="t typeQualifier">{q}</span>)
               .interpose('.')
               .toArray(),
-            '.'
+            '.',
           ],
-          <span className="t typeName">{type.name}</span>
+          <span className="t typeName">{type.name}</span>,
         ];
         if (def) {
           typeNameElement = (
@@ -215,8 +215,8 @@ var TypeDef = React.createClass({
               .map(a => <TypeDef info={info} type={a} />)
               .interpose(', ')
               .toArray(),
-            '>'
-          ]
+            '>',
+          ],
         ]);
     }
     throw new Error('Unknown kind ' + type.k);
@@ -241,7 +241,7 @@ var TypeDef = React.createClass({
         {child}
       </span>
     );
-  }
+  },
 });
 
 exports.TypeDef = TypeDef;
@@ -261,7 +261,7 @@ var MemberDef = React.createClass({
         {member.type && [': ', <TypeDef type={member.type} />]}
       </span>
     );
-  }
+  },
 });
 
 exports.MemberDef = MemberDef;
@@ -276,7 +276,7 @@ function functionParams(info, params, shouldWrap) {
         prefix={t.name.length + (t.varArgs ? 3 : 0) + (t.optional ? 3 : 2)}
         info={info}
         type={t.type}
-      />
+      />,
     ])
     .interpose(shouldWrap ? [',', <br />] : ', ')
     .toArray();

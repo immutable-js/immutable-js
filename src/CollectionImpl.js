@@ -9,7 +9,7 @@ import {
   Collection,
   KeyedCollection,
   IndexedCollection,
-  SetCollection
+  SetCollection,
 } from './Collection';
 import {
   isCollection,
@@ -20,7 +20,7 @@ import {
   IS_ITERABLE_SENTINEL,
   IS_KEYED_SENTINEL,
   IS_INDEXED_SENTINEL,
-  IS_ORDERED_SENTINEL
+  IS_ORDERED_SENTINEL,
 } from './Predicates';
 
 import { is } from './is';
@@ -29,7 +29,7 @@ import {
   ensureSize,
   wrapIndex,
   returnTrue,
-  resolveBegin
+  resolveBegin,
 } from './TrieUtils';
 import { hash } from './Hash';
 import { imul, smi } from './Math';
@@ -38,7 +38,7 @@ import {
   ITERATOR_SYMBOL,
   ITERATE_KEYS,
   ITERATE_VALUES,
-  ITERATE_ENTRIES
+  ITERATE_ENTRIES,
 } from './Iterator';
 
 import arrCopy from './utils/arrCopy';
@@ -77,7 +77,7 @@ import {
   interposeFactory,
   sortFactory,
   maxFactory,
-  zipWithFactory
+  zipWithFactory,
 } from './Operations';
 import { getIn } from './methods/getIn';
 import { hasIn } from './methods/hasIn';
@@ -89,7 +89,7 @@ export {
   IndexedCollection,
   SetCollection,
   CollectionPrototype,
-  IndexedCollectionPrototype
+  IndexedCollectionPrototype,
 };
 
 // Note: all of these methods are deprecated.
@@ -508,7 +508,7 @@ mixin(Collection, {
 
   hashCode() {
     return this.__hash || (this.__hash = hashCollection(this));
-  }
+  },
 
   // ### Internal
 
@@ -553,7 +553,7 @@ mixin(KeyedCollection, {
         .map((k, v) => mapper.call(context, k, v, this))
         .flip()
     );
-  }
+  },
 });
 
 const KeyedCollectionPrototype = KeyedCollection.prototype;
@@ -691,7 +691,7 @@ mixin(IndexedCollection, {
     const collections = arrCopy(arguments);
     collections[0] = this;
     return reify(this, zipWithFactory(this, zipper, collections));
-  }
+  },
 });
 
 const IndexedCollectionPrototype = IndexedCollection.prototype;
@@ -713,7 +713,7 @@ mixin(SetCollection, {
 
   keySeq() {
     return this.valueSeq();
-  }
+  },
 });
 
 SetCollection.prototype.has = CollectionPrototype.includes;

@@ -14,7 +14,7 @@ function genMarkdownDoc(typeDefSource) {
     {
       defs,
       typePath: ['Immutable'],
-      relPath: 'docs/'
+      relPath: 'docs/',
     }
   );
 }

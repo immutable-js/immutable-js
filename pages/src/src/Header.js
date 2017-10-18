@@ -114,7 +114,7 @@ var Header = React.createClass({
         </div>
       </div>
     );
-  }
+  },
 });
 
 function y(s, p) {
@@ -136,7 +136,7 @@ function t(y, z) {
     WebkitTransform: transform,
     MozTransform: transform,
     msTransform: transform,
-    OTransform: transform
+    OTransform: transform,
   };
 }
 

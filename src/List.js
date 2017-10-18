@@ -17,7 +17,7 @@ import {
   wrapIndex,
   wholeSlice,
   resolveBegin,
-  resolveEnd
+  resolveEnd,
 } from './TrieUtils';
 import { IndexedCollection } from './Collection';
 import { hasIterator, Iterator, iteratorValue, iteratorDone } from './Iterator';

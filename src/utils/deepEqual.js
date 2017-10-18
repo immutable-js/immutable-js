@@ -12,7 +12,7 @@ import {
   isKeyed,
   isIndexed,
   isAssociative,
-  isOrdered
+  isOrdered,
 } from '../Predicates';
 
 export default function deepEqual(a, b) {

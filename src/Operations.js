@@ -11,20 +11,20 @@ import {
   wrapIndex,
   wholeSlice,
   resolveBegin,
-  resolveEnd
+  resolveEnd,
 } from './TrieUtils';
 import {
   Collection,
   KeyedCollection,
   SetCollection,
-  IndexedCollection
+  IndexedCollection,
 } from './Collection';
 import {
   isCollection,
   isKeyed,
   isIndexed,
   isOrdered,
-  IS_ORDERED_SENTINEL
+  IS_ORDERED_SENTINEL,
 } from './Predicates';
 import {
   getIterator,
@@ -33,7 +33,7 @@ import {
   iteratorDone,
   ITERATE_KEYS,
   ITERATE_VALUES,
-  ITERATE_ENTRIES
+  ITERATE_ENTRIES,
 } from './Iterator';
 import {
   isSeq,
@@ -43,7 +43,7 @@ import {
   IndexedSeq,
   keyedSeqFromValue,
   indexedSeqFromValue,
-  ArraySeq
+  ArraySeq,
 } from './Seq';
 
 import { Map } from './Map';

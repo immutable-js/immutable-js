@@ -10,7 +10,6 @@
 import { Range } from '../';
 
 describe('get', () => {
-
   it('gets any index', () => {
     const seq = Range(0, 100);
     expect(seq.get(20)).toBe(20);
@@ -55,5 +54,4 @@ describe('get', () => {
     const seq = Range(0, 100).filter(x => x % 2 === 1);
     expect(seq.last()).toBe(99); // Note: this is O(N)
   });
-
 });

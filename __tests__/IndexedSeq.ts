@@ -13,7 +13,6 @@ jasmineCheck.install();
 import { Seq } from '../';
 
 describe('IndexedSequence', () => {
-
   it('maintains skipped offset', () => {
     const seq = Seq(['A', 'B', 'C', 'D', 'E']);
 

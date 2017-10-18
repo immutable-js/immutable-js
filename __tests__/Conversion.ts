@@ -7,8 +7,8 @@
 
 ///<reference path='../resources/jest.d.ts'/>
 
-import * as jasmineCheck from "jasmine-check";
-import {fromJS, is, List, Map, OrderedMap, Record} from "../";
+import * as jasmineCheck from 'jasmine-check';
+import { fromJS, is, List, Map, OrderedMap, Record } from '../';
 jasmineCheck.install();
 
 // Symbols
@@ -19,72 +19,73 @@ describe('Conversion', () => {
   const js = {
     deepList: [
       {
-        position: "first",
+        position: 'first',
       },
       {
-        position: "second",
+        position: 'second',
       },
       {
-        position: "third",
+        position: 'third',
       },
     ],
     deepMap: {
-      a: "A",
-      b: "B",
+      a: 'A',
+      b: 'B',
     },
     emptyMap: Object.create(null),
-    point: {x: 10, y: 20},
-    string: "Hello",
+    point: { x: 10, y: 20 },
+    string: 'Hello',
     list: [1, 2, 3],
   };
 
-  const Point = Record({x: 0, y: 0}, 'Point');
+  const Point = Record({ x: 0, y: 0 }, 'Point');
 
   const immutableData = Map({
     deepList: List.of(
       Map({
-        position: "first",
+        position: 'first',
       }),
       Map({
-        position: "second",
+        position: 'second',
       }),
       Map({
-        position: "third",
-      }),
+        position: 'third',
+      })
     ),
     deepMap: Map({
-      a: "A",
-      b: "B",
+      a: 'A',
+      b: 'B',
     }),
     emptyMap: Map(),
-    point: Map({x: 10, y: 20}),
-    string: "Hello",
+    point: Map({ x: 10, y: 20 }),
+    string: 'Hello',
     list: List.of(1, 2, 3),
   });
 
   const immutableOrderedData = OrderedMap({
     deepList: List.of(
       OrderedMap({
-        position: "first",
+        position: 'first',
       }),
       OrderedMap({
-        position: "second",
+        position: 'second',
       }),
       OrderedMap({
-        position: "third",
-      }),
+        position: 'third',
+      })
     ),
     deepMap: OrderedMap({
-      a: "A",
-      b: "B",
+      a: 'A',
+      b: 'B',
     }),
     emptyMap: OrderedMap(),
-    point: new Point({x: 10, y: 20}),
-    string: "Hello",
+    point: new Point({ x: 10, y: 20 }),
+    string: 'Hello',
     list: List.of(1, 2, 3),
   });
 
-  const immutableOrderedDataString = 'OrderedMap { ' +
+  const immutableOrderedDataString =
+    'OrderedMap { ' +
     '"deepList": List [ ' +
     'OrderedMap { ' +
     '"position": "first"' +
@@ -106,7 +107,9 @@ describe('Conversion', () => {
     '"list": List [ 1, 2, 3 ]' +
     ' }';
 
-  const nonStringKeyMap = OrderedMap().set(1, true).set(false, "foo");
+  const nonStringKeyMap = OrderedMap()
+    .set(1, true)
+    .set(false, 'foo');
   const nonStringKeyMapString = 'OrderedMap { 1: true, false: "foo" }';
 
   it('Converts deep JS to deep immutable sequences', () => {
@@ -114,10 +117,10 @@ describe('Conversion', () => {
   });
 
   it('Throws when provided circular reference', () => {
-    const o = {a: {b: {c: null as any}}};
+    const o = { a: { b: { c: null as any } } };
     o.a.b.c = o;
     expect(() => fromJS(o)).toThrow(
-      'Cannot convert circular structure to Immutable',
+      'Cannot convert circular structure to Immutable'
     );
   });
 
@@ -126,7 +129,9 @@ describe('Conversion', () => {
       if (key === 'point') {
         return new Point(sequence);
       }
-      return Array.isArray(this[key]) ? sequence.toList() : sequence.toOrderedMap();
+      return Array.isArray(this[key])
+        ? sequence.toList()
+        : sequence.toOrderedMap();
     });
     expect(seq).toEqual(immutableOrderedData);
     expect(seq.toString()).toEqual(immutableOrderedDataString);
@@ -137,7 +142,9 @@ describe('Conversion', () => {
     const seq1 = fromJS(js, function(key, sequence, keypath) {
       expect(arguments.length).toBe(3);
       paths.push(keypath);
-      return Array.isArray(this[key]) ? sequence.toList() : sequence.toOrderedMap();
+      return Array.isArray(this[key])
+        ? sequence.toList()
+        : sequence.toOrderedMap();
     });
     expect(paths).toEqual([
       [],
@@ -153,7 +160,6 @@ describe('Conversion', () => {
     const seq2 = fromJS(js, function(key, sequence) {
       expect(arguments[2]).toBe(undefined);
     });
-
   });
 
   it('Prints keys as JS values', () => {
@@ -181,36 +187,35 @@ describe('Conversion', () => {
     Model.prototype.toJSON = function() {
       return 'model';
     };
-    expect(
-      Map({a: new Model()}).toJS(),
-    ).toEqual({a: {}});
-    expect(
-      JSON.stringify(Map({a: new Model()})),
-    ).toEqual('{"a":"model"}');
+    expect(Map({ a: new Model() }).toJS()).toEqual({ a: {} });
+    expect(JSON.stringify(Map({ a: new Model() }))).toEqual('{"a":"model"}');
   });
 
   it('is conservative with array-likes, only accepting true Arrays.', () => {
-    expect(fromJS({1: 2, length: 3})).toEqual(
-      Map().set('1', 2).set('length', 3),
+    expect(fromJS({ 1: 2, length: 3 })).toEqual(
+      Map()
+        .set('1', 2)
+        .set('length', 3)
     );
     expect(fromJS('string')).toEqual('string');
   });
 
-  check.it('toJS isomorphic value', {maxSize: 30}, [gen.JSONValue], v => {
+  check.it('toJS isomorphic value', { maxSize: 30 }, [gen.JSONValue], v => {
     const imm = fromJS(v);
     expect(imm && imm.toJS ? imm.toJS() : imm).toEqual(v);
   });
 
   it('Explicitly convert values to string using String constructor', () => {
-    expect(() => fromJS({foo: Symbol('bar')}) + '').not.toThrow();
+    expect(() => fromJS({ foo: Symbol('bar') }) + '').not.toThrow();
     expect(() => Map().set('foo', Symbol('bar')) + '').not.toThrow();
     expect(() => Map().set(Symbol('bar'), 'foo') + '').not.toThrow();
   });
 
   it('Converts an immutable value of an entry correctly', () => {
-    const arr = [{key: "a"}];
-    const result = fromJS(arr).entrySeq().toJS();
-    expect(result).toEqual([[0, {key: "a"}]]);
+    const arr = [{ key: 'a' }];
+    const result = fromJS(arr)
+      .entrySeq()
+      .toJS();
+    expect(result).toEqual([[0, { key: 'a' }]]);
   });
-
 });

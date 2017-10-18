@@ -18,7 +18,7 @@ function markdownDocs(defs) {
       typeDef.call &&
         markdownDoc(typeDef.call.doc, {
           typePath,
-          signatures: typeDef.call.signatures
+          signatures: typeDef.call.signatures,
         });
       if (typeDef.interface) {
         markdownDoc(typeDef.interface.doc, { defs, typePath });
@@ -26,7 +26,7 @@ function markdownDocs(defs) {
           Seq(group.members).forEach((member, memberName) =>
             markdownDoc(member.doc, {
               typePath: typePath.concat(memberName.slice(1)),
-              signatures: member.signatures
+              signatures: member.signatures,
             })
           )
         );

@@ -14,7 +14,7 @@ var SVGSet = React.createClass({
         {this.props.children}
       </svg>
     );
-  }
+  },
 });
 
 module.exports = SVGSet;
