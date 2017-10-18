@@ -5,10 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-describe('Map', function () {
-
-  describe('builds from an object', function () {
-
+describe('Map', function() {
+  describe('builds from an object', function() {
     var obj2 = {};
     for (var ii = 0; ii < 2; ii++) {
       obj2['x' + ii] = ii;
@@ -44,11 +42,9 @@ describe('Map', function () {
     it('of 1024', function() {
       Immutable.Map(obj1024);
     });
-
   });
 
-  describe('builds from an array', function () {
-
+  describe('builds from an array', function() {
     var array2 = [];
     for (var ii = 0; ii < 2; ii++) {
       array2[ii] = ['x' + ii, ii];
@@ -84,16 +80,12 @@ describe('Map', function () {
     it('of 1024', function() {
       Immutable.Map(array1024);
     });
-
   });
 
-  describe('builds from a List', function () {
-
+  describe('builds from a List', function() {
     var list2 = Immutable.List().asMutable();
     for (var ii = 0; ii < 2; ii++) {
-      list2 = list2.push(
-        Immutable.List(['x' + ii, ii])
-      );
+      list2 = list2.push(Immutable.List(['x' + ii, ii]));
     }
     list2 = list2.asImmutable();
 
@@ -103,9 +95,7 @@ describe('Map', function () {
 
     var list8 = Immutable.List().asMutable();
     for (var ii = 0; ii < 8; ii++) {
-      list8 = list8.push(
-        Immutable.List(['x' + ii, ii])
-      );
+      list8 = list8.push(Immutable.List(['x' + ii, ii]));
     }
     list8 = list8.asImmutable();
 
@@ -115,9 +105,7 @@ describe('Map', function () {
 
     var list32 = Immutable.List().asMutable();
     for (var ii = 0; ii < 32; ii++) {
-      list32 = list32.push(
-        Immutable.List(['x' + ii, ii])
-      );
+      list32 = list32.push(Immutable.List(['x' + ii, ii]));
     }
     list32 = list32.asImmutable();
 
@@ -127,16 +115,12 @@ describe('Map', function () {
 
     var list1024 = Immutable.List().asMutable();
     for (var ii = 0; ii < 1024; ii++) {
-      list1024 = list1024.push(
-        Immutable.List(['x' + ii, ii])
-      );
+      list1024 = list1024.push(Immutable.List(['x' + ii, ii]));
     }
     list1024 = list1024.asImmutable();
 
     it('of 1024', function() {
       Immutable.Map(list1024);
     });
-
   });
-
 });
