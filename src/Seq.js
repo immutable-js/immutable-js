@@ -194,7 +194,10 @@ class ObjectSeq extends KeyedSeq {
   constructor(object) {
     let keys = Object.keys(object);
     if (typeof Object.getOwnPropertySymbols === 'function') {
-      keys = keys.concat(Object.getOwnPropertySymbols(object));
+      const symbols = Object.getOwnPropertySymbols(object);
+      if (symbols.length > 0) {
+        keys = keys.concat(symbols);
+      }
     }
     this._object = object;
     this._keys = keys;
