@@ -170,7 +170,7 @@ export const MapPrototype = Map.prototype;
 MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeAll = MapPrototype.deleteAll;
-MapPrototype.concat = MapPrototype.merge;
+MapPrototype.concat = merge;
 MapPrototype.setIn = setIn;
 MapPrototype.removeIn = MapPrototype.deleteIn = deleteIn;
 MapPrototype.update = update;
