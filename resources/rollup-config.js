@@ -41,7 +41,7 @@ export default {
           fromString: true,
           mangle: { toplevel: true },
           output: { max_line_len: 2048, comments: saveLicense },
-          compress: { comparisons: true, pure_getters: true, unsafe: true }
+          compress: { comparisons: true, pure_getters: true, unsafe: true },
         });
 
         if (!fs.existsSync(DIST_DIR)) {
@@ -53,7 +53,7 @@ export default {
           result.code,
           'utf8'
         );
-      }
-    }
-  ]
+      },
+    },
+  ],
 };
