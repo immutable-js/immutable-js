@@ -21,7 +21,6 @@ function arrayOfSize(s) {
 }
 
 describe('Stack', () => {
-
   it('constructor provides initial values', () => {
     const s = Stack.of('a', 'b', 'c');
     expect(s.get(0)).toBe('a');
@@ -46,7 +45,7 @@ describe('Stack', () => {
   });
 
   it('accepts a keyed Seq', () => {
-    const seq = Seq({a: null, b: null, c: null}).flip();
+    const seq = Seq({ a: null, b: null, c: null }).flip();
     const s = Stack(seq);
     expect(s.toArray()).toEqual([[null, 'a'], [null, 'b'], [null, 'c']]);
     // Explicit values
@@ -85,15 +84,11 @@ describe('Stack', () => {
     expect(forEachResults).toEqual([
       [0, 'a', 'a'],
       [1, 'b', 'b'],
-      [2, 'c', 'c'],
+      [2, 'c', 'c']
     ]);
 
     // map will cause reverse iterate
-    expect(s.map(val => val + val).toArray()).toEqual([
-      'aa',
-      'bb',
-      'cc',
-    ]);
+    expect(s.map(val => val + val).toArray()).toEqual(['aa', 'bb', 'cc']);
 
     let iteratorResults: Array<any> = [];
     let iterator = s.entries();
@@ -101,22 +96,17 @@ describe('Stack', () => {
     while (!(step = iterator.next()).done) {
       iteratorResults.push(step.value);
     }
-    expect(iteratorResults).toEqual([
-      [0, 'a'],
-      [1, 'b'],
-      [2, 'c'],
-    ]);
+    expect(iteratorResults).toEqual([[0, 'a'], [1, 'b'], [2, 'c']]);
 
     iteratorResults = [];
-    iterator = s.toSeq().reverse().entries();
+    iterator = s
+      .toSeq()
+      .reverse()
+      .entries();
     while (!(step = iterator.next()).done) {
       iteratorResults.push(step.value);
     }
-    expect(iteratorResults).toEqual([
-      [0, 'c'],
-      [1, 'b'],
-      [2, 'a'],
-    ]);
+    expect(iteratorResults).toEqual([[0, 'c'], [1, 'b'], [2, 'a']]);
   });
 
   it('map is called in reverse order but with correct indices', () => {
@@ -140,11 +130,14 @@ describe('Stack', () => {
   it('pop removes the lowest index, decrementing size', () => {
     const s = Stack.of('a', 'b', 'c').pop();
     expect(s.peek()).toBe('b');
-    expect(s.toArray()).toEqual([ 'b', 'c' ]);
+    expect(s.toArray()).toEqual(['b', 'c']);
   });
 
-  check.it('shift removes the lowest index, just like array', {maxSize: 2000},
-    [gen.posInt], len => {
+  check.it(
+    'shift removes the lowest index, just like array',
+    { maxSize: 2000 },
+    [gen.posInt],
+    len => {
       const a = arrayOfSize(len);
       let s = Stack(a);
 
@@ -156,11 +149,14 @@ describe('Stack', () => {
       }
       expect(s.size).toBe(a.length);
       expect(s.toArray()).toEqual(a);
-    },
+    }
   );
 
-  check.it('unshift adds the next lowest index, just like array', {maxSize: 2000},
-    [gen.posInt], len => {
+  check.it(
+    'unshift adds the next lowest index, just like array',
+    { maxSize: 2000 },
+    [gen.posInt],
+    len => {
       const a: Array<any> = [];
       let s = Stack();
 
@@ -172,11 +168,14 @@ describe('Stack', () => {
       }
       expect(s.size).toBe(a.length);
       expect(s.toArray()).toEqual(a);
-    },
+    }
   );
 
-  check.it('unshifts multiple values to the front', {maxSize: 2000},
-    [gen.posInt, gen.posInt], (size1: number, size2: number) => {
+  check.it(
+    'unshifts multiple values to the front',
+    { maxSize: 2000 },
+    [gen.posInt, gen.posInt],
+    (size1: number, size2: number) => {
       const a1 = arrayOfSize(size1);
       const a2 = arrayOfSize(size2);
 
@@ -188,7 +187,7 @@ describe('Stack', () => {
 
       expect(s3.size).toEqual(a3.length);
       expect(s3.toArray()).toEqual(a3);
-    },
+    }
   );
 
   it('finds values using indexOf', () => {
@@ -199,17 +198,28 @@ describe('Stack', () => {
   });
 
   it('pushes on all items in an iter', () => {
-    const abc = Stack([ 'a', 'b', 'c' ]);
-    const xyz = Stack([ 'x', 'y', 'z' ]);
-    const xyzSeq = Seq([ 'x', 'y', 'z' ]);
+    const abc = Stack(['a', 'b', 'c']);
+    const xyz = Stack(['x', 'y', 'z']);
+    const xyzSeq = Seq(['x', 'y', 'z']);
 
     // Push all to the front of the Stack so first item ends up first.
-    expect(abc.pushAll(xyz).toArray()).toEqual([ 'x', 'y', 'z', 'a', 'b', 'c' ]);
-    expect(abc.pushAll(xyzSeq).toArray()).toEqual([ 'x', 'y', 'z', 'a', 'b', 'c' ]);
+    expect(abc.pushAll(xyz).toArray()).toEqual(['x', 'y', 'z', 'a', 'b', 'c']);
+    expect(abc.pushAll(xyzSeq).toArray()).toEqual([
+      'x',
+      'y',
+      'z',
+      'a',
+      'b',
+      'c'
+    ]);
 
     // Pushes Seq contents into Stack
     expect(Stack().pushAll(xyzSeq)).not.toBe(xyzSeq);
-    expect(Stack().pushAll(xyzSeq).toArray()).toEqual([ 'x', 'y', 'z' ]);
+    expect(
+      Stack()
+        .pushAll(xyzSeq)
+        .toArray()
+    ).toEqual(['x', 'y', 'z']);
 
     // Pushing a Stack onto an empty Stack returns === Stack
     expect(Stack().pushAll(xyz)).toBe(xyz);
@@ -217,5 +227,4 @@ describe('Stack', () => {
     // Pushing an empty Stack onto a Stack return === Stack
     expect(abc.pushAll(Stack())).toBe(abc);
   });
-
 });

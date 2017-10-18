@@ -10,34 +10,36 @@
 import { Seq } from '../';
 
 describe('ObjectSequence', () => {
-
   it('maps', () => {
-    const i = Seq({a: 'A', b: 'B', c: 'C'});
+    const i = Seq({ a: 'A', b: 'B', c: 'C' });
     const m = i.map(x => x + x).toObject();
-    expect(m).toEqual({a: 'AA', b: 'BB', c: 'CC'});
+    expect(m).toEqual({ a: 'AA', b: 'BB', c: 'CC' });
   });
 
   it('reduces', () => {
-    const i = Seq({a: 'A', b: 'B', c: 'C'});
+    const i = Seq({ a: 'A', b: 'B', c: 'C' });
     const r = i.reduce<string>((acc, x) => acc + x, '');
     expect(r).toEqual('ABC');
   });
 
   it('extracts keys', () => {
-    const i = Seq({a: 'A', b: 'B', c: 'C'});
+    const i = Seq({ a: 'A', b: 'B', c: 'C' });
     const k = i.keySeq().toArray();
     expect(k).toEqual(['a', 'b', 'c']);
   });
 
   it('is reversable', () => {
-    const i = Seq({a: 'A', b: 'B', c: 'C'});
+    const i = Seq({ a: 'A', b: 'B', c: 'C' });
     const k = i.reverse().toArray();
     expect(k).toEqual([['c', 'C'], ['b', 'B'], ['a', 'A']]);
   });
 
   it('is double reversable', () => {
-    const i = Seq({a: 'A', b: 'B', c: 'C'});
-    const k = i.reverse().reverse().toArray();
+    const i = Seq({ a: 'A', b: 'B', c: 'C' });
+    const k = i
+      .reverse()
+      .reverse()
+      .toArray();
     expect(k).toEqual([['a', 'A'], ['b', 'B'], ['c', 'C']]);
   });
 

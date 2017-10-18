@@ -10,7 +10,6 @@
 import { Seq } from '../';
 
 describe('ArraySequence', () => {
-
   it('every is true when predicate is true for all entries', () => {
     expect(Seq([]).every(() => false)).toBe(true);
     expect(Seq([1, 2, 3]).every(v => v > 0)).toBe(true);
@@ -42,7 +41,14 @@ describe('ArraySequence', () => {
     function studly(letter, index) {
       return index % 2 === 0 ? letter : letter.toUpperCase();
     }
-    const result = i.reverse().take(10).reverse().take(5).map(studly).toArray().join('');
+    const result = i
+      .reverse()
+      .take(10)
+      .reverse()
+      .take(5)
+      .map(studly)
+      .toArray()
+      .join('');
     expect(result).toBe('qRsTu');
   });
 
@@ -67,8 +73,19 @@ describe('ArraySequence', () => {
     expect(seq.take(5).toArray().length).toBe(5);
     expect(seq.filter(x => x % 2 === 1).toArray().length).toBe(2);
     expect(seq.toKeyedSeq().flip().size).toBe(10);
-    expect(seq.toKeyedSeq().flip().flip().size).toBe(10);
-    expect(seq.toKeyedSeq().flip().flip().toArray().length).toBe(10);
+    expect(
+      seq
+        .toKeyedSeq()
+        .flip()
+        .flip().size
+    ).toBe(10);
+    expect(
+      seq
+        .toKeyedSeq()
+        .flip()
+        .flip()
+        .toArray().length
+    ).toBe(10);
   });
 
   it('can be iterated', () => {
