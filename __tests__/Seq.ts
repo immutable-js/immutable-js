@@ -10,7 +10,6 @@
 import { isCollection, isIndexed, Seq } from '../';
 
 describe('Seq', () => {
-
   it('can be empty', () => {
     expect(Seq().size).toBe(0);
   });
@@ -20,7 +19,7 @@ describe('Seq', () => {
   });
 
   it('accepts an object', () => {
-    expect(Seq({a: 1, b: 2, c: 3}).size).toBe(3);
+    expect(Seq({ a: 1, b: 2, c: 3 }).size).toBe(3);
   });
 
   it('accepts a collection string', () => {
@@ -58,7 +57,9 @@ describe('Seq', () => {
   it('does not accept a scalar', () => {
     expect(() => {
       Seq(3 as any);
-    }).toThrow('Expected Array or collection object of values, or keyed object: 3');
+    }).toThrow(
+      'Expected Array or collection object of values, or keyed object: 3'
+    );
   });
 
   it('detects sequences', () => {
@@ -86,15 +87,10 @@ describe('Seq', () => {
   });
 
   it('Converts deeply toJS after converting to entries', () => {
-    const list = Seq([Seq([1, 2]), Seq({a: 'z'})]);
-    expect(list.entrySeq().toJS()).toEqual(
-      [[0, [1, 2]], [1, {a: 'z'}]],
-    );
+    const list = Seq([Seq([1, 2]), Seq({ a: 'z' })]);
+    expect(list.entrySeq().toJS()).toEqual([[0, [1, 2]], [1, { a: 'z' }]]);
 
-    const map = Seq({x: Seq([1, 2]), y: Seq({a: 'z'})});
-    expect(map.entrySeq().toJS()).toEqual(
-      [['x', [1, 2]], ['y', {a: 'z'}]],
-    );
+    const map = Seq({ x: Seq([1, 2]), y: Seq({ a: 'z' }) });
+    expect(map.entrySeq().toJS()).toEqual([['x', [1, 2]], ['y', { a: 'z' }]]);
   });
-
 });

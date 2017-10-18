@@ -13,6 +13,7 @@
     "no-conditional-assignment": false,
     "one-variable-per-declaration": false,
     "max-classes-per-file": false,
+    "trailing-comma": false,
     "arrow-parens": [
       true,
       "ban-single-arg-parens"

@@ -13,7 +13,6 @@ jasmineCheck.install();
 import { is, List, Map, Seq, Set } from '../';
 
 describe('Equality', () => {
-
   function expectIs(left, right) {
     const comparison = is(left, right);
     expect(comparison).toBe(true);
@@ -47,29 +46,30 @@ describe('Equality', () => {
     expectIs(0, -0);
     expectIs(NaN, 0 / 0);
 
-    const str = "hello";
+    const str = 'hello';
     expectIs(str, str);
-    expectIs(str, "hello");
-    expectIsNot("hello", "HELLO");
-    expectIsNot("hello", "goodbye");
+    expectIs(str, 'hello');
+    expectIsNot('hello', 'HELLO');
+    expectIsNot('hello', 'goodbye');
 
     const array = [1, 2, 3];
     expectIs(array, array);
     expectIsNot(array, [1, 2, 3]);
 
-    const object = {key: 'value'};
+    const object = { key: 'value' };
     expectIs(object, object);
-    expectIsNot(object, {key: 'value'});
+    expectIsNot(object, { key: 'value' });
   });
 
   it('dereferences things', () => {
-    const ptrA = {foo: 1}, ptrB = {foo: 2};
+    const ptrA = { foo: 1 },
+      ptrB = { foo: 2 };
     expectIsNot(ptrA, ptrB);
     ptrA.valueOf = ptrB.valueOf = function() {
       return 5;
     };
     expectIs(ptrA, ptrB);
-    const object = {key: 'value'};
+    const object = { key: 'value' };
     ptrA.valueOf = ptrB.valueOf = function() {
       return object;
     };
@@ -125,29 +125,27 @@ describe('Equality', () => {
   const genVal = gen.oneOf([
     gen.map(List, gen.array(genSimpleVal, 0, 4)),
     gen.map(Set, gen.array(genSimpleVal, 0, 4)),
-    gen.map(Map, gen.array(gen.array(genSimpleVal, 2), 0, 4)),
+    gen.map(Map, gen.array(gen.array(genSimpleVal, 2), 0, 4))
   ]);
 
-  check.it('has symmetric equality', {times: 1000}, [genVal, genVal], (a, b) => {
-    expect(is(a, b)).toBe(is(b, a));
-  });
+  check.it(
+    'has symmetric equality',
+    { times: 1000 },
+    [genVal, genVal],
+    (a, b) => {
+      expect(is(a, b)).toBe(is(b, a));
+    }
+  );
 
-  check.it('has hash equality', {times: 1000}, [genVal, genVal], (a, b) => {
+  check.it('has hash equality', { times: 1000 }, [genVal, genVal], (a, b) => {
     if (is(a, b)) {
       expect(a.hashCode()).toBe(b.hashCode());
     }
   });
 
   describe('hash', () => {
-
     it('differentiates decimals', () => {
-      expect(
-        Seq([1.5]).hashCode(),
-      ).not.toBe(
-        Seq([1.6]).hashCode(),
-      );
+      expect(Seq([1.5]).hashCode()).not.toBe(Seq([1.6]).hashCode());
     });
-
   });
-
 });

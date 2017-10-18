@@ -13,7 +13,6 @@ jasmineCheck.install();
 import { hash } from '../';
 
 describe('hash', () => {
-
   it('stable hash of well known values', () => {
     expect(hash(true)).toBe(1);
     expect(hash(false)).toBe(0);
@@ -37,5 +36,4 @@ describe('hash', () => {
     expect(hashVal % 1).toBe(0);
     expect(hashVal).toBeLessThan(Math.pow(2, 31));
   });
-
 });
