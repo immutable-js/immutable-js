@@ -49,6 +49,12 @@ type $ValOf<C, K = $KeyOf<C>> = $Call<
   K
 >;
 
+type $IterableOf<C> = $Call<
+  & (<V: Array<any> | IndexedCollection<any> | SetCollection<any>>(V) => Iterable<$ValOf<V>>)
+  & (<V: KeyedCollection<any, any> | RecordInstance<any> | PlainObjInput<any, any>>(V) => Iterable<[$KeyOf<V>, $ValOf<V>]>),
+  C
+>;
+
 declare class _Collection<K, +V> /*implements ValueObject*/ {
   equals(other: mixed): boolean;
   hashCode(): number;
@@ -1372,6 +1378,10 @@ type RecordFactory<Values: Object> = Class<RecordInstance<Values>>;
 // The type of runtime Record instances.
 type RecordOf<Values: Object> = RecordInstance<Values> & Values;
 
+// The values of a Record instance.
+type _RecordValues<T, R: RecordInstance<T> | T> = R;
+type RecordValues<R> = _RecordValues<*, R>;
+
 declare function isRecord(maybeRecord: any): boolean %checks(maybeRecord instanceof RecordInstance);
 declare class Record {
   static <Values: Object>(spec: Values, name?: string): RecordFactory<Values>;
@@ -1383,10 +1393,10 @@ declare class Record {
 }
 
 declare class RecordInstance<T: Object> {
-  static (values?: $Shape<T> | Iterable<[$Keys<T>, any]>): RecordOf<T>;
+  static (values?: Iterable<[$Keys<T>, $ValOf<T>]> | $Shape<T>): RecordOf<T>;
   // Note: a constructor can only create an instance of RecordInstance<T>,
   // it's encouraged to not use `new` when creating Records.
-  constructor (values?: $Shape<T> | Iterable<[$Keys<T>, any]>): void;
+  constructor (values?: Iterable<[$Keys<T>, $ValOf<T>]> | $Shape<T>): void;
 
   size: number;
 
@@ -1407,16 +1417,16 @@ declare class RecordInstance<T: Object> {
 
   set<K: $Keys<T>>(key: K, value: $ElementType<T, K>): this & T;
   update<K: $Keys<T>>(key: K, updater: (value: $ElementType<T, K>) => $ElementType<T, K>): this & T;
-  merge(...collections: Array<$Shape<T> | Iterable<[$Keys<T>, any]>>): this & T;
-  mergeDeep(...collections: Array<$Shape<T> | Iterable<[$Keys<T>, any]>>): this & T;
+  merge(...collections: Array<Iterable<[$Keys<T>, $ValOf<T>]> | $Shape<T>>): this & T;
+  mergeDeep(...collections: Array<Iterable<[$Keys<T>, $ValOf<T>]> | $Shape<T>>): this & T;
 
   mergeWith(
-    merger: (oldVal: any, newVal: any, key: $Keys<T>) => any,
-    ...collections: Array<$Shape<T> | Iterable<[$Keys<T>, any]>>
+    merger: (oldVal: $ValOf<T>, newVal: $ValOf<T>, key: $Keys<T>) => $ValOf<T>,
+    ...collections: Array<Iterable<[$Keys<T>, $ValOf<T>]> | $Shape<T>>
   ): this & T;
   mergeDeepWith(
     merger: (oldVal: any, newVal: any, key: any) => any,
-    ...collections: Array<$Shape<T> | Iterable<[$Keys<T>, any]>>
+    ...collections: Array<Iterable<[$Keys<T>, $ValOf<T>]> | $Shape<T>>
   ): this & T;
 
   delete<K: $Keys<T>>(key: K): this & T;
@@ -1471,7 +1481,7 @@ declare class RecordInstance<T: Object> {
   wasAltered(): boolean;
   asImmutable(): this & T;
 
-  @@iterator(): Iterator<[$Keys<T>, any]>;
+  @@iterator(): Iterator<[$Keys<T>, $ValOf<T>]>;
 }
 
 declare function fromJS(
@@ -1533,21 +1543,21 @@ declare function updateIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<
 
 declare function merge<C>(
   collection: C,
-  ...collections: Array<Iterable<$ValOf<C>> | Iterable<[$KeyOf<C>, $ValOf<C>]> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
+  ...collections: Array<$IterableOf<C> | $Shape<RecordValues<C>> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
 ): C;
 declare function mergeWith<C>(
   merger: (oldVal: $ValOf<C>, newVal: $ValOf<C>, key: $KeyOf<C>) => $ValOf<C>,
   collection: C,
-  ...collections: Array<Iterable<$ValOf<C>> | Iterable<[$KeyOf<C>, $ValOf<C>]> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
+  ...collections: Array<$IterableOf<C> | $Shape<RecordValues<C>> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
 ): C;
 declare function mergeDeep<C>(
   collection: C,
-  ...collections: Array<Iterable<$ValOf<C>> | Iterable<[$KeyOf<C>, $ValOf<C>]> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
+  ...collections: Array<$IterableOf<C> | $Shape<RecordValues<C>> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
 ): C;
 declare function mergeDeepWith<C>(
   merger: (oldVal: any, newVal: any, key: any) => mixed,
   collection: C,
-  ...collections: Array<Iterable<$ValOf<C>> | Iterable<[$KeyOf<C>, $ValOf<C>]> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
+  ...collections: Array<$IterableOf<C> | $Shape<RecordValues<C>> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
 ): C;
 
 export {
