@@ -25,7 +25,7 @@ var TypeKind = {
   Intersection: 13,
   Tuple: 14,
   Indexed: 15,
-  Operator: 16
+  Operator: 16,
 };
 
 module.exports = TypeKind;

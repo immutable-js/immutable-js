@@ -59,7 +59,7 @@ describe('Issue #1262', () => {
     const set1 = Set([
       MyType({ val: 1 }),
       MyType({ val: 2 }),
-      MyType({ val: 3 })
+      MyType({ val: 3 }),
     ]);
     const set2 = set1.subtract([MyType({ val: 2 })]);
     const set3 = set1.subtract(List([MyType({ val: 2 })]));

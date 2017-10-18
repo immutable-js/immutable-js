@@ -79,7 +79,7 @@ describe('getIn', () => {
   it('deep get returns not found if non-existing path in nested plain Object', () => {
     const deep = Map({
       key: { regular: 'jsobj' },
-      list: List([Map({ num: 10 })])
+      list: List([Map({ num: 10 })]),
     });
     expect(deep.getIn(['key', 'foo', 'item'])).toBe(undefined);
     expect(deep.getIn(['key', 'foo', 'item'], 'notSet')).toBe('notSet');

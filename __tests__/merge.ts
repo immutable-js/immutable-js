@@ -15,7 +15,7 @@ import {
   merge,
   mergeDeep,
   mergeDeepWith,
-  Set
+  Set,
 } from '../';
 
 describe('merge', () => {
@@ -95,7 +95,7 @@ describe('merge', () => {
     const js2 = { a: { b: { c: 10, e: 20 }, f: 30 }, g: 40 };
     expect(mergeDeepWith((a, b) => a + b, js1, js2)).toEqual({
       a: { b: { c: 11, d: 2, e: 20 }, f: 30 },
-      g: 40
+      g: 40,
     });
   });
 
@@ -104,7 +104,7 @@ describe('merge', () => {
     const m = fromJS({ a: { b: { c: 10, e: 20 }, f: 30 }, g: 40 });
     expect(mergeDeepWith((a, b) => a + b, js, m)).toEqual({
       a: { b: { c: 11, d: 2, e: 20 }, f: 30 },
-      g: 40
+      g: 40,
     });
   });
 
@@ -127,13 +127,13 @@ describe('merge', () => {
     expect(
       fromJS({ a: { x: 1, y: 1 }, b: { x: 2, y: 2 } }).merge({
         a: null,
-        b: Map({ x: 10 })
+        b: Map({ x: 10 }),
       })
     ).toEqual(fromJS({ a: null, b: { x: 10 } }));
     expect(
       fromJS({ a: { x: 1, y: 1 }, b: { x: 2, y: 2 } }).mergeDeep({
         a: null,
-        b: { x: 10 }
+        b: { x: 10 },
       })
     ).toEqual(fromJS({ a: null, b: { x: 10, y: 2 } }));
   });
@@ -152,18 +152,18 @@ describe('merge', () => {
     const initial = Map({
       a: Map({ x: 10, y: 20 }),
       b: List([1, 2, 3]),
-      c: Set([1, 2, 3])
+      c: Set([1, 2, 3]),
     });
     const additions = Map({
       a: Map({ y: 50, z: 100 }),
       b: List([4, 5, 6]),
-      c: Set([4, 5, 6])
+      c: Set([4, 5, 6]),
     });
     expect(initial.mergeDeep(additions)).toEqual(
       Map({
         a: Map({ x: 10, y: 50, z: 100 }),
         b: List([1, 2, 3, 4, 5, 6]),
-        c: Set([1, 2, 3, 4, 5, 6])
+        c: Set([1, 2, 3, 4, 5, 6]),
       })
     );
   });
@@ -195,7 +195,7 @@ describe('merge', () => {
       x: 1,
       y: 2,
       z: 3,
-      q: 3
+      q: 3,
     });
   });
 
@@ -222,7 +222,7 @@ describe('merge', () => {
 
     // mergeDeep can be directly given a nested set of `Iterable<[K, V]>`
     const merged = m1.mergeDeep([
-      [a, [[b, [[c, 10], [e, 20], [f, 30], [g, 40]]]]]
+      [a, [[b, [[c, 10], [e, 20], [f, 30], [g, 40]]]]],
     ]);
 
     expect(merged).toEqual(

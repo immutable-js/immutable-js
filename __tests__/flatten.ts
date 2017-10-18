@@ -49,7 +49,7 @@ describe('flatten', () => {
   it('can flatten at various levels of depth', () => {
     const deeplyNested = fromJS([
       [[['A', 'B'], ['A', 'B']], [['A', 'B'], ['A', 'B']]],
-      [[['A', 'B'], ['A', 'B']], [['A', 'B'], ['A', 'B']]]
+      [[['A', 'B'], ['A', 'B']], [['A', 'B'], ['A', 'B']]],
     ]);
 
     // deeply flatten
@@ -69,7 +69,7 @@ describe('flatten', () => {
       'A',
       'B',
       'A',
-      'B'
+      'B',
     ]);
 
     // shallow flatten
@@ -77,7 +77,7 @@ describe('flatten', () => {
       [['A', 'B'], ['A', 'B']],
       [['A', 'B'], ['A', 'B']],
       [['A', 'B'], ['A', 'B']],
-      [['A', 'B'], ['A', 'B']]
+      [['A', 'B'], ['A', 'B']],
     ]);
 
     // flatten two levels
@@ -89,7 +89,7 @@ describe('flatten', () => {
       ['A', 'B'],
       ['A', 'B'],
       ['A', 'B'],
-      ['A', 'B']
+      ['A', 'B'],
     ]);
   });
 
@@ -108,7 +108,7 @@ describe('flatten', () => {
       // Array is iterable, so this works just fine.
       const letters = numbers.flatMap(v => [
         String.fromCharCode(v),
-        String.fromCharCode(v).toUpperCase()
+        String.fromCharCode(v).toUpperCase(),
       ]);
       expect(letters.toJS()).toEqual(['a', 'A', 'b', 'B', 'c', 'C']);
     });

@@ -27,7 +27,7 @@ describe('List', () => {
     }
 
     const t: Test = {
-      list: List()
+      list: List(),
     };
 
     expect(t.list.size).toBe(0);
@@ -97,8 +97,8 @@ describe('List', () => {
   it('can setIn and getIn a deep value', () => {
     let v = List([
       Map({
-        aKey: List(['bad', 'good'])
-      })
+        aKey: List(['bad', 'good']),
+      }),
     ]);
     expect(v.getIn([0, 'aKey', 1])).toBe('good');
     v = v.setIn([0, 'aKey', 1], 'great');
@@ -113,14 +113,14 @@ describe('List', () => {
   it('can updateIn a deep value', () => {
     let l = List([
       Map({
-        aKey: List(['bad', 'good'])
-      })
+        aKey: List(['bad', 'good']),
+      }),
     ]);
     l = l.updateIn([0, 'aKey', 1], v => v + v);
     expect(l.toJS()).toEqual([
       {
-        aKey: ['bad', 'goodgood']
-      }
+        aKey: ['bad', 'goodgood'],
+      },
     ]);
   });
 
@@ -298,7 +298,7 @@ describe('List', () => {
       [7, 7],
       [8, undefined],
       [9, 9],
-      [10, undefined]
+      [10, undefined],
     ]);
 
     const arrayResults = v.toArray();
@@ -313,7 +313,7 @@ describe('List', () => {
       7,
       undefined,
       9,
-      undefined
+      undefined,
     ]);
 
     const iteratorResults: Array<any> = [];
@@ -333,7 +333,7 @@ describe('List', () => {
       [7, 7],
       [8, undefined],
       [9, 9],
-      [10, undefined]
+      [10, undefined],
     ]);
   });
 
@@ -502,7 +502,7 @@ describe('List', () => {
     const v = List.of('a', 'b', 'c', 'B', 'a');
     expect(v.findEntry(value => value.toUpperCase() === value)).toEqual([
       3,
-      'B'
+      'B',
     ]);
     expect(v.findEntry(value => value.length > 1)).toBe(undefined);
   });

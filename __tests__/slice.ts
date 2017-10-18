@@ -61,7 +61,7 @@ describe('slice', () => {
         undefined,
         5,
         undefined,
-        6
+        6,
       ])
         .slice(1)
         .toArray()
@@ -75,7 +75,7 @@ describe('slice', () => {
       undefined,
       5,
       undefined,
-      6
+      6,
     ]);
     expect(
       Seq([
@@ -89,7 +89,7 @@ describe('slice', () => {
         undefined,
         5,
         undefined,
-        6
+        6,
       ])
         .slice(2)
         .toArray()
@@ -106,7 +106,7 @@ describe('slice', () => {
         undefined,
         5,
         undefined,
-        6
+        6,
       ])
         .slice(3, -3)
         .toArray()
@@ -297,7 +297,7 @@ describe('slice', () => {
     'works like Array.prototype.slice on sparse array input',
     [
       gen.array(gen.array([gen.posInt, gen.int])),
-      gen.array(gen.oneOf([gen.int, gen.undefined]), 0, 3)
+      gen.array(gen.oneOf([gen.int, gen.undefined]), 0, 3),
     ],
     (entries, args) => {
       const a: Array<any> = [];

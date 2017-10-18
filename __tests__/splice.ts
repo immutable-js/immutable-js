@@ -67,7 +67,7 @@ describe('splice', () => {
       'b',
       'c',
       'd',
-      'x'
+      'x',
     ]);
 
     const s = List(['a', 'b', 'c', 'd']);
@@ -77,7 +77,7 @@ describe('splice', () => {
       'b',
       'c',
       'd',
-      'x'
+      'x',
     ]);
   });
 

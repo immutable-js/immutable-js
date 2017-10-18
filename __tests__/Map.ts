@@ -114,7 +114,7 @@ describe('Map', () => {
     expect(iterator.mock.calls).toEqual([
       ['A', 'a', m],
       ['B', 'b', m],
-      ['C', 'c', m]
+      ['C', 'c', m],
     ]);
   });
 
@@ -128,7 +128,7 @@ describe('Map', () => {
       b: 'BB',
       c: 'C',
       wow: 'OO',
-      d: 'DD'
+      d: 'DD',
     });
   });
 
@@ -142,7 +142,7 @@ describe('Map', () => {
       b: 'BB',
       c: 'C',
       wow: 'OO',
-      d: 'DD'
+      d: 'DD',
     });
   });
 
@@ -280,7 +280,7 @@ describe('Map', () => {
       3: 'c',
       4: 'd',
       5: 'e',
-      6: 'f'
+      6: 'f',
     });
   });
 
@@ -459,7 +459,7 @@ describe('Map', () => {
     // deep conversion!
     const m1 = Map([[a, Map([[b, Map([[c, 1], [d, 2]])]])]]);
     const m2 = Map([
-      [a, Map([[b, Map([[c, 10], [e, 20], [f, 30], [g, 40]])]])]
+      [a, Map([[b, Map([[c, 10], [e, 20], [f, 30], [g, 40]])]])],
     ]);
     const merged = m1.mergeDeep(m2);
 

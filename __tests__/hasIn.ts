@@ -48,7 +48,7 @@ describe('hasIn', () => {
   it('deep has does not throw if non-readable path', () => {
     const deep = Map({
       key: { regular: 'jsobj' },
-      list: List([Map({ num: 10 })])
+      list: List([Map({ num: 10 })]),
     });
     expect(deep.hasIn(['key', 'foo', 'item'])).toBe(false);
     expect(deep.hasIn(['list', 0, 'num', 'badKey'])).toBe(false);

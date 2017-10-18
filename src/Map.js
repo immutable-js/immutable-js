@@ -18,7 +18,7 @@ import {
   DID_ALTER,
   OwnerID,
   MakeRef,
-  SetRef
+  SetRef,
 } from './TrieUtils';
 import { hash } from './Hash';
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
@@ -619,7 +619,7 @@ function mapIteratorFrame(node, prev) {
   return {
     node: node,
     index: 0,
-    __prev: prev
+    __prev: prev,
   };
 }
 

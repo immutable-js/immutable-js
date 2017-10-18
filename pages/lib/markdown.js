@@ -20,7 +20,7 @@ function collectAllMembersForAllTypes(defs) {
     Seq(defs).forEach(def => {
       if (def.interface) {
         var groups = collectMemberGroups(def.interface, {
-          showInherited: true
+          showInherited: true,
         });
         allMembers.set(
           def.interface,
@@ -44,16 +44,16 @@ prism.languages.insertBefore('javascript', 'keyword', {
   var: /\b(this)\b/g,
   'block-keyword': /\b(if|else|while|for|function)\b/g,
   primitive: /\b(true|false|null|undefined)\b/g,
-  function: prism.languages.function
+  function: prism.languages.function,
 });
 
 prism.languages.insertBefore('javascript', {
-  qualifier: /\b[A-Z][a-z0-9_]+/g
+  qualifier: /\b[A-Z][a-z0-9_]+/g,
 });
 
 marked.setOptions({
   xhtml: true,
-  highlight: code => prism.highlight(code, prism.languages.javascript)
+  highlight: code => prism.highlight(code, prism.languages.javascript),
 });
 
 var renderer = new marked.Renderer();
@@ -106,7 +106,7 @@ var PARAM_RX = /^\w+$/;
 var MDN_TYPES = {
   Array: true,
   Object: true,
-  JSON: true
+  JSON: true,
 };
 var MDN_BASE_URL =
   'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/';

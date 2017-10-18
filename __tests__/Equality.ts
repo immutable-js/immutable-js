@@ -125,7 +125,7 @@ describe('Equality', () => {
   const genVal = gen.oneOf([
     gen.map(List, gen.array(genSimpleVal, 0, 4)),
     gen.map(Set, gen.array(genSimpleVal, 0, 4)),
-    gen.map(Map, gen.array(gen.array(genSimpleVal, 2), 0, 4))
+    gen.map(Map, gen.array(gen.array(genSimpleVal, 2), 0, 4)),
   ]);
 
   check.it(

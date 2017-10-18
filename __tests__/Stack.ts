@@ -84,7 +84,7 @@ describe('Stack', () => {
     expect(forEachResults).toEqual([
       [0, 'a', 'a'],
       [1, 'b', 'b'],
-      [2, 'c', 'c']
+      [2, 'c', 'c'],
     ]);
 
     // map will cause reverse iterate
@@ -210,7 +210,7 @@ describe('Stack', () => {
       'z',
       'a',
       'b',
-      'c'
+      'c',
     ]);
 
     // Pushes Seq contents into Stack

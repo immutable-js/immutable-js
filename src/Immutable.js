@@ -24,7 +24,7 @@ import {
   isIndexed,
   isAssociative,
   isOrdered,
-  isValueObject
+  isValueObject,
 } from './Predicates';
 import { Collection } from './CollectionImpl';
 import { hash } from './Hash';
@@ -88,7 +88,7 @@ export default {
   set: set,
   setIn: setIn,
   update: update,
-  updateIn: updateIn
+  updateIn: updateIn,
 };
 
 // Note: Iterable is deprecated
@@ -131,5 +131,5 @@ export {
   set,
   setIn,
   update,
-  updateIn
+  updateIn,
 };

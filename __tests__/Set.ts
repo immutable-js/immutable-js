@@ -272,7 +272,7 @@ describe('Set', () => {
         Symbol('c'),
         Symbol('a'),
         Symbol('b'),
-        Symbol('c')
+        Symbol('c'),
       ];
 
       const symbolSet = Set(manySymbols);

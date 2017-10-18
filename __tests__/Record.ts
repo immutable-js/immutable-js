@@ -108,7 +108,7 @@ describe('Record', () => {
     expect(p3.merge({ y: 30, z: 30 }).toObject()).toEqual({
       x: 10,
       y: 30,
-      z: 30
+      z: 30,
     });
   });
 

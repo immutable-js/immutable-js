@@ -37,7 +37,7 @@ describe('join', () => {
       undefined,
       5,
       undefined,
-      undefined
+      undefined,
     ];
     expect(Seq(a).join()).toBe(a.join());
   });

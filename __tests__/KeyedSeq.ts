@@ -42,7 +42,7 @@ describe('KeyedSeq', () => {
       [1, 22],
       [2, 24],
       [3, 26],
-      [4, 28]
+      [4, 28],
     ]);
 
     // Where Keyed Sequences maintain keys.
@@ -56,7 +56,7 @@ describe('KeyedSeq', () => {
       [22, 22],
       [24, 24],
       [26, 26],
-      [28, 28]
+      [28, 28],
     ]);
   });
 

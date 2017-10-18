@@ -23,7 +23,7 @@ global.runIt = function runIt(button) {
     minHeight: '52px',
     onLoad: function(notebook) {
       notebook.evaluate();
-    }
+    },
   });
 };
 

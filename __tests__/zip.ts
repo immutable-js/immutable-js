@@ -29,7 +29,7 @@ describe('zip', () => {
       List([
         [List([1]), List([4])],
         [List([2]), List([5])],
-        [List([3]), List([6])]
+        [List([3]), List([6])],
       ])
     );
     expect(zipped.toJS()).toEqual([[[1], [4]], [[2], [5]], [[3], [6]]]);

@@ -19,23 +19,23 @@ describe('Conversion', () => {
   const js = {
     deepList: [
       {
-        position: 'first'
+        position: 'first',
       },
       {
-        position: 'second'
+        position: 'second',
       },
       {
-        position: 'third'
-      }
+        position: 'third',
+      },
     ],
     deepMap: {
       a: 'A',
-      b: 'B'
+      b: 'B',
     },
     emptyMap: Object.create(null),
     point: { x: 10, y: 20 },
     string: 'Hello',
-    list: [1, 2, 3]
+    list: [1, 2, 3],
   };
 
   const Point = Record({ x: 0, y: 0 }, 'Point');
@@ -43,45 +43,45 @@ describe('Conversion', () => {
   const immutableData = Map({
     deepList: List.of(
       Map({
-        position: 'first'
+        position: 'first',
       }),
       Map({
-        position: 'second'
+        position: 'second',
       }),
       Map({
-        position: 'third'
+        position: 'third',
       })
     ),
     deepMap: Map({
       a: 'A',
-      b: 'B'
+      b: 'B',
     }),
     emptyMap: Map(),
     point: Map({ x: 10, y: 20 }),
     string: 'Hello',
-    list: List.of(1, 2, 3)
+    list: List.of(1, 2, 3),
   });
 
   const immutableOrderedData = OrderedMap({
     deepList: List.of(
       OrderedMap({
-        position: 'first'
+        position: 'first',
       }),
       OrderedMap({
-        position: 'second'
+        position: 'second',
       }),
       OrderedMap({
-        position: 'third'
+        position: 'third',
       })
     ),
     deepMap: OrderedMap({
       a: 'A',
-      b: 'B'
+      b: 'B',
     }),
     emptyMap: OrderedMap(),
     point: new Point({ x: 10, y: 20 }),
     string: 'Hello',
-    list: List.of(1, 2, 3)
+    list: List.of(1, 2, 3),
   });
 
   const immutableOrderedDataString =
@@ -155,7 +155,7 @@ describe('Conversion', () => {
       ['deepMap'],
       ['emptyMap'],
       ['point'],
-      ['list']
+      ['list'],
     ]);
     const seq2 = fromJS(js, function(key, sequence) {
       expect(arguments[2]).toBe(undefined);

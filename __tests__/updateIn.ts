@@ -13,7 +13,7 @@ describe('updateIn', () => {
   it('deep edit', () => {
     const m = fromJS({ a: { b: { c: 10 } } });
     expect(m.updateIn(['a', 'b', 'c'], value => value * 2).toJS()).toEqual({
-      a: { b: { c: 20 } }
+      a: { b: { c: 20 } },
     });
   });
 
@@ -27,7 +27,7 @@ describe('updateIn', () => {
   it('deep edit in raw JS', () => {
     const m = { a: { b: { c: [10] } } };
     expect(updateIn(m, ['a', 'b', 'c', 0], value => value * 2)).toEqual({
-      a: { b: { c: [20] } }
+      a: { b: { c: [20] } },
     });
   });
 
@@ -76,21 +76,21 @@ describe('updateIn', () => {
   it('deep remove', () => {
     const m = fromJS({ a: { b: { c: 10 } } });
     expect(m.updateIn(['a', 'b'], map => map.remove('c')).toJS()).toEqual({
-      a: { b: {} }
+      a: { b: {} },
     });
   });
 
   it('deep set', () => {
     const m = fromJS({ a: { b: { c: 10 } } });
     expect(m.updateIn(['a', 'b'], map => map.set('d', 20)).toJS()).toEqual({
-      a: { b: { c: 10, d: 20 } }
+      a: { b: { c: 10, d: 20 } },
     });
   });
 
   it('deep push', () => {
     const m = fromJS({ a: { b: [1, 2, 3] } });
     expect(m.updateIn(['a', 'b'], list => list.push(4)).toJS()).toEqual({
-      a: { b: [1, 2, 3, 4] }
+      a: { b: [1, 2, 3, 4] },
     });
   });
 
@@ -126,7 +126,7 @@ describe('updateIn', () => {
     const m = Map({ a: { b: { c: 10 } } });
     expect(m.updateIn(['x'], 100, map => map + 1).toJS()).toEqual({
       a: { b: { c: 10 } },
-      x: 101
+      x: 101,
     });
   });
 
@@ -134,7 +134,7 @@ describe('updateIn', () => {
     const m = { a: { b: { c: 10 } } };
     expect(updateIn(m, ['x'], 100, map => map + 1)).toEqual({
       a: { b: { c: 10 } },
-      x: 101
+      x: 101,
     });
   });
 
@@ -143,7 +143,7 @@ describe('updateIn', () => {
     expect(m.updateIn([], map => map.set('b', 20)).toJS()).toEqual({
       a: 1,
       b: 20,
-      c: 3
+      c: 3,
     });
   });
 
@@ -230,14 +230,14 @@ describe('updateIn', () => {
     it('provides shorthand for updateIn to remove a single value', () => {
       const m = fromJS({ a: { b: { c: 'X', d: 'Y' } } });
       expect(m.removeIn(['a', 'b', 'c']).toJS()).toEqual({
-        a: { b: { d: 'Y' } }
+        a: { b: { d: 'Y' } },
       });
     });
 
     it('accepts a list as a keyPath', () => {
       const m = fromJS({ a: { b: { c: 'X', d: 'Y' } } });
       expect(m.removeIn(fromJS(['a', 'b', 'c'])).toJS()).toEqual({
-        a: { b: { d: 'Y' } }
+        a: { b: { d: 'Y' } },
       });
     });
 
@@ -277,7 +277,7 @@ describe('updateIn', () => {
       const m1 = fromJS({ x: { a: 1, b: 2, c: 3 } });
       const m2 = fromJS({ d: 10, b: 20, e: 30 });
       expect(m1.mergeIn(['x'], m2).toJS()).toEqual({
-        x: { a: 1, b: 20, c: 3, d: 10, e: 30 }
+        x: { a: 1, b: 20, c: 3, d: 10, e: 30 },
       });
     });
 
@@ -285,7 +285,7 @@ describe('updateIn', () => {
       const m1 = fromJS({ x: { a: 1, b: 2, c: 3 } });
       const m2 = fromJS({ d: 10, b: 20, e: 30 });
       expect(m1.mergeIn(fromJS(['x']), m2).toJS()).toEqual({
-        x: { a: 1, b: 20, c: 3, d: 10, e: 30 }
+        x: { a: 1, b: 20, c: 3, d: 10, e: 30 },
       });
     });
 
@@ -301,7 +301,7 @@ describe('updateIn', () => {
         b: 20,
         c: 3,
         d: 10,
-        e: 30
+        e: 30,
       });
     });
 
@@ -318,7 +318,7 @@ describe('updateIn', () => {
       const m1 = fromJS({ x: { a: 1, b: 2, c: 3 } });
       const m2 = fromJS({ d: 10, b: 20, e: 30 });
       expect(m1.mergeDeepIn(['x'], m2).toJS()).toEqual({
-        x: { a: 1, b: 20, c: 3, d: 10, e: 30 }
+        x: { a: 1, b: 20, c: 3, d: 10, e: 30 },
       });
     });
 
@@ -326,7 +326,7 @@ describe('updateIn', () => {
       const m1 = fromJS({ x: { a: 1, b: 2, c: 3 } });
       const m2 = fromJS({ d: 10, b: 20, e: 30 });
       expect(m1.mergeDeepIn(fromJS(['x']), m2).toJS()).toEqual({
-        x: { a: 1, b: 20, c: 3, d: 10, e: 30 }
+        x: { a: 1, b: 20, c: 3, d: 10, e: 30 },
       });
     });
 
@@ -342,7 +342,7 @@ describe('updateIn', () => {
         b: 20,
         c: 3,
         d: 10,
-        e: 30
+        e: 30,
       });
     });
 

@@ -68,7 +68,7 @@ describe('OrderedMap', () => {
   it('removes correctly', () => {
     const m = OrderedMap({
       A: 'aardvark',
-      Z: 'zebra'
+      Z: 'zebra',
     }).remove('A');
     expect(m.size).toBe(1);
     expect(m.get('A')).toBe(undefined);
@@ -98,7 +98,7 @@ describe('OrderedMap', () => {
       ['A', 'apple'],
       ['B', 'butter'],
       ['C', 'chocolate'],
-      ['D', 'donut']
+      ['D', 'donut'],
     ]);
     expect(
       m2
@@ -109,7 +109,7 @@ describe('OrderedMap', () => {
       ['C', 'coconut'],
       ['B', 'banana'],
       ['D', 'donut'],
-      ['A', 'apple']
+      ['A', 'apple'],
     ]);
   });
 });

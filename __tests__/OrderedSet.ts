@@ -66,7 +66,7 @@ describe('OrderedSet', () => {
     expect(s1.zipWith((c1, c2) => c1 + c2, s2).toArray()).toEqual([
       'AC',
       'BB',
-      'CD'
+      'CD',
     ]);
   });
 });

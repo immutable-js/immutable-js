@@ -14,7 +14,7 @@ import { is, Seq } from '../';
 
 const genHeterogeneousishArray = gen.oneOf([
   gen.array(gen.oneOf([gen.string, gen.undefined])),
-  gen.array(gen.oneOf([gen.int, gen.NaN]))
+  gen.array(gen.oneOf([gen.int, gen.NaN])),
 ]);
 
 describe('max', () => {
@@ -31,7 +31,7 @@ describe('max', () => {
       { name: 'Oakley', age: 7 },
       { name: 'Dakota', age: 7 },
       { name: 'Casey', age: 34 },
-      { name: 'Avery', age: 34 }
+      { name: 'Avery', age: 34 },
     ]);
     expect(family.maxBy(p => p.age)).toBe(family.get(2));
   });
@@ -41,7 +41,7 @@ describe('max', () => {
       { name: 'Oakley', age: 7 },
       { name: 'Dakota', age: 7 },
       { name: 'Casey', age: 34 },
-      { name: 'Avery', age: 34 }
+      { name: 'Avery', age: 34 },
     ]);
     expect(family.maxBy<number>(p => p.age, (a, b) => b - a)).toBe(
       family.get(0)
@@ -78,7 +78,7 @@ describe('min', () => {
       { name: 'Oakley', age: 7 },
       { name: 'Dakota', age: 7 },
       { name: 'Casey', age: 34 },
-      { name: 'Avery', age: 34 }
+      { name: 'Avery', age: 34 },
     ]);
     expect(family.minBy(p => p.age)).toBe(family.get(0));
   });
@@ -88,7 +88,7 @@ describe('min', () => {
       { name: 'Oakley', age: 7 },
       { name: 'Dakota', age: 7 },
       { name: 'Casey', age: 34 },
-      { name: 'Avery', age: 34 }
+      { name: 'Avery', age: 34 },
     ]);
     expect(family.minBy<number>(p => p.age, (a, b) => b - a)).toBe(
       family.get(2)
