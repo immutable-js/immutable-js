@@ -5048,7 +5048,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { setIn } = require('immutable@4.0.0-rc.8')
+   * const { updateIn } = require('immutable@4.0.0-rc.8')
    * const original = { x: { y: { z: 123 }}}
    * updateIn(original, ['x', 'y', 'z'], val => val * 6) // { x: { y: { z: 738 }}}
    * console.log(original) // { x: { y: { z: 123 }}}
@@ -5110,7 +5110,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { merge } = require('immutable@4.0.0-rc.8')
+   * const { mergeDeep } = require('immutable@4.0.0-rc.8')
    * const original = { x: { y: 123 }}
    * mergeDeep(original, { x: { z: 456 }}) // { x: { y: 123, z: 456 }}
    * console.log(original) // { x: { y: 123 }}
@@ -5131,7 +5131,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { merge } = require('immutable@4.0.0-rc.8')
+   * const { mergeDeepWith } = require('immutable@4.0.0-rc.8')
    * const original = { x: { y: 123 }}
    * mergeDeepWith(
    *   (oldVal, newVal) => oldVal + newVal,
