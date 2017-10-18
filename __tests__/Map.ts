@@ -395,4 +395,40 @@ describe('Map', () => {
     expect(map.toString()).toEqual('Map { 2: 2 }');
   });
 
+  it('supports Symbols as tuple keys', () => {
+    const a = Symbol('a');
+    const b = Symbol('b');
+    const c = Symbol('c');
+    const m = Map([[a, 'a'], [b, 'b'], [c, 'c']]);
+    expect(m.size).toBe(3);
+    expect(m.get(a)).toBe('a');
+    expect(m.get(b)).toBe('b');
+    expect(m.get(c)).toBe('c');
+  });
+
+  it('Symbol keys are unique', () => {
+    const a = Symbol('FooBar');
+    const b = Symbol('FooBar');
+    const m = Map([[a, 'FizBuz'], [b, 'FooBar']);
+    expect(m.size).toBe(2);
+    expect(m.get(a)).toBe('FizBuz');
+    expect(m.get(b)).toBe('FooBar');
+  });
+
+  it('mergeDeep with tuple Symbol keys', () => {
+    const a = Symbol('a');
+    const b = Symbol('b');
+    const c = Symbol('c');
+    const d = Symbol('d');
+    const e = Symbol('e');
+    const f = Symbol('f');
+    const g = Symbol('g');
+
+    // Note the use of nested Map constructors, Map() does not do a deep conversion!
+    const m1 = Map([[a, Map([[b, Map([[c, 1], [d, 2]])]])]]);
+    const m2 = Map([[a, Map([[b, Map([[c, 10], [e, 20], [f, 30], [g, 40]])]])]]);
+    const merged = m1.mergeDeep(m2);
+
+    expect(merged).toEqual(Map([[a, Map([[b, Map([[c, 10], [d, 2], [e, 20], [f, 30], [g, 40]])]])]]));
+  });
 });
