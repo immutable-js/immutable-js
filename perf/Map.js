@@ -126,38 +126,38 @@ describe('Map', function() {
 
   describe('merge a map', () => {
     [2, 8, 32, 1024].forEach(size => {
-      const objX = {};
-      const objY = {};
+      const obj1 = {};
+      const obj2 = {};
       for (let ii = 0; ii < size; ii++) {
-        objX['x' + ii] = ii;
-        objY['y' + ii] = ii;
+        obj1['k' + ii] = '1_' + ii;
+        obj2['k' + ii] = '2_' + ii;
       }
 
-      const mapX = Immutable.Map(objX);
-      const mapY = Immutable.Map(objY);
+      const map1 = Immutable.Map(obj1);
+      const map2 = Immutable.Map(obj2);
 
       it('of ' + size, () => {
-        mapX.merge(mapY);
+        map1.merge(map2);
       });
     });
   });
 
   describe('mergeDeep a map', () => {
     [2, 8, 32, 1024].forEach(size => {
-      const objX = {};
-      const objY = {};
+      const obj1 = {};
+      const obj2 = {};
       for (let ii = 0; ii < size; ii++) {
-        objX['x' + ii] = {};
-        objX['x' + ii]['z' + ii] = ii;
-        objY['y' + ii] = {};
-        objY['y' + ii]['z' + ii] = ii;
+        obj1['k' + ii] = {};
+        obj1['k' + ii]['k' + ii] = '1_' + ii;
+        obj2['k' + ii] = {};
+        obj2['k' + ii]['k' + ii] = '2_' + ii;
       }
 
-      const mapX = Immutable.Map(objX);
-      const mapY = Immutable.Map(objY);
+      const map1 = Immutable.Map(obj1);
+      const map2 = Immutable.Map(obj2);
 
       it('of ' + size, () => {
-        mapX.merge(mapY);
+        map1.merge(map2);
       });
     });
   });
