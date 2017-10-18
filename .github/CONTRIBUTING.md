@@ -54,19 +54,14 @@ Complete your CLA here: <https://code.facebook.com/cla>
 * Trailing commas,
 * Avd abbr wrds.
 
-## License
+# Functionality Testing
 
-By contributing to Immutable.js, you agree that your contributions will be
-licensed under its MIT license.
-
-# Testing
-
-Run the following command to build and test:
+Run the following command to build the library and test functionality:
 ```bash
 npm run test
 ```
 
-## Regression Testing
+## Performance Regression Testing
 
 Performance tests run against master and your feature branch.
 Make sure to commit your changes in your local feature branch before proceeding.
@@ -102,3 +97,8 @@ List > builds from array of 2
   diff: -1.4%
   rme: 0.64%
 ```
+
+## License
+
+By contributing to Immutable.js, you agree that your contributions will be
+licensed under its MIT license.
