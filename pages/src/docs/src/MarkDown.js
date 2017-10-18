@@ -20,7 +20,7 @@ var MarkDown = React.createClass({
         dangerouslySetInnerHTML={{ __html: html }}
       />
     );
-  }
+  },
 });
 
 module.exports = MarkDown;

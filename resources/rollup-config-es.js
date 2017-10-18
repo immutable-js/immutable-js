@@ -26,5 +26,5 @@ export default {
     file: path.join(DIST_DIR, 'immutable.es.js'),
     format: 'es',
   },
-  plugins: [commonjs(), json(), stripBanner(), buble()]
+  plugins: [commonjs(), json(), stripBanner(), buble()],
 };

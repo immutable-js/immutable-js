@@ -33,7 +33,7 @@ var DocHeader = React.createClass({
         </div>
       </div>
     );
-  }
+  },
 });
 
 module.exports = DocHeader;

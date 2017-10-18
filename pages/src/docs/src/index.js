@@ -28,7 +28,7 @@ var Documentation = React.createClass({
         </div>
       </div>
     );
-  }
+  },
 });
 
 var DocDeterminer = React.createClass({
@@ -37,7 +37,7 @@ var DocDeterminer = React.createClass({
   render() {
     var { def, name, memberName } = determineDoc(this.getPath());
     return <TypeDocumentation def={def} name={name} memberName={memberName} />;
-  }
+  },
 });
 
 function determineDoc(path) {
@@ -54,12 +54,12 @@ function determineDoc(path) {
 
 module.exports = React.createClass({
   childContextTypes: {
-    getPageData: React.PropTypes.func.isRequired
+    getPageData: React.PropTypes.func.isRequired,
   },
 
   getChildContext() {
     return {
-      getPageData: this.getPageData
+      getPageData: this.getPageData,
     };
   },
 
@@ -82,7 +82,7 @@ module.exports = React.createClass({
         : assign(
             {
               path: location.getCurrentPath(),
-              type: 'init'
+              type: 'init',
             },
             determineDoc(location.getCurrentPath())
           );
@@ -100,7 +100,7 @@ module.exports = React.createClass({
                 position ? position.y : 0
               );
           }
-        }
+        },
       };
     }
 
@@ -117,7 +117,7 @@ module.exports = React.createClass({
         </Route>
       ),
       location: location,
-      scrollBehavior: scrollBehavior
+      scrollBehavior: scrollBehavior,
     }).run(Handler => {
       this.setState({ handler: Handler });
       if (window.document) {
@@ -143,5 +143,5 @@ module.exports = React.createClass({
   render() {
     var Handler = this.state.handler;
     return <Handler />;
-  }
+  },
 });

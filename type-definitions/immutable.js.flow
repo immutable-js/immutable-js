@@ -49,6 +49,12 @@ type $ValOf<C, K = $KeyOf<C>> = $Call<
   K
 >;
 
+type $IterableOf<C> = $Call<
+  & (<V: Array<any> | IndexedCollection<any> | SetCollection<any>>(V) => Iterable<$ValOf<V>>)
+  & (<V: KeyedCollection<any, any> | RecordInstance<any> | PlainObjInput<any, any>>(V) => Iterable<[$KeyOf<V>, $ValOf<V>]>),
+  C
+>;
+
 declare class _Collection<K, +V> /*implements ValueObject*/ {
   equals(other: mixed): boolean;
   hashCode(): number;
@@ -1372,6 +1378,10 @@ type RecordFactory<Values: Object> = Class<RecordInstance<Values>>;
 // The type of runtime Record instances.
 type RecordOf<Values: Object> = RecordInstance<Values> & Values;
 
+// The values of a Record instance.
+type _RecordValues<T, R: RecordInstance<T> | T> = R;
+type RecordValues<R> = _RecordValues<*, R>;
+
 declare function isRecord(maybeRecord: any): boolean %checks(maybeRecord instanceof RecordInstance);
 declare class Record {
   static <Values: Object>(spec: Values, name?: string): RecordFactory<Values>;
@@ -1383,10 +1393,10 @@ declare class Record {
 }
 
 declare class RecordInstance<T: Object> {
-  static (values?: $Shape<T> | Iterable<[$Keys<T>, any]>): RecordOf<T>;
+  static (values?: Iterable<[$Keys<T>, $ValOf<T>]> | $Shape<T>): RecordOf<T>;
   // Note: a constructor can only create an instance of RecordInstance<T>,
   // it's encouraged to not use `new` when creating Records.
-  constructor (values?: $Shape<T> | Iterable<[$Keys<T>, any]>): void;
+  constructor (values?: Iterable<[$Keys<T>, $ValOf<T>]> | $Shape<T>): void;
 
   size: number;
 
@@ -1397,26 +1407,26 @@ declare class RecordInstance<T: Object> {
 
   getIn(keyPath: [], notSetValue?: mixed): this & T;
   getIn<K: $Keys<T>>(keyPath: [K], notSetValue?: mixed): $ElementType<T, K>;
-  getIn<NSV, K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>>(keyPath: [K, K2], notSetValue: NSV): $ValOf<$ElementType<T, K>, K2> | NSV;
-  getIn<NSV, K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>>(keyPath: [K, K2, K3], notSetValue: NSV): $ValOf<$ValOf<$ElementType<T, K>, K2>, K3> | NSV;
-  getIn<NSV, K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>>>(keyPath: [K, K2, K3, K4], notSetValue: NSV): $ValOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>, K4> | NSV;
-  getIn<NSV, K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>, K4>>>(keyPath: [K, K2, K3, K4, K5], notSetValue: NSV): $ValOf<$ValOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>, K4>, K5> | NSV;
+  getIn<NSV, K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>>(keyPath: [K, K2], notSetValue: NSV): $ValOf<$ValOf<T, K>, K2> | NSV;
+  getIn<NSV, K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>>(keyPath: [K, K2, K3], notSetValue: NSV): $ValOf<$ValOf<$ValOf<T, K>, K2>, K3> | NSV;
+  getIn<NSV, K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>>(keyPath: [K, K2, K3, K4], notSetValue: NSV): $ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4> | NSV;
+  getIn<NSV, K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>>(keyPath: [K, K2, K3, K4, K5], notSetValue: NSV): $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>, K5> | NSV;
 
   equals(other: any): boolean;
   hashCode(): number;
 
   set<K: $Keys<T>>(key: K, value: $ElementType<T, K>): this & T;
   update<K: $Keys<T>>(key: K, updater: (value: $ElementType<T, K>) => $ElementType<T, K>): this & T;
-  merge(...collections: Array<$Shape<T> | Iterable<[$Keys<T>, any]>>): this & T;
-  mergeDeep(...collections: Array<$Shape<T> | Iterable<[$Keys<T>, any]>>): this & T;
+  merge(...collections: Array<Iterable<[$Keys<T>, $ValOf<T>]> | $Shape<T>>): this & T;
+  mergeDeep(...collections: Array<Iterable<[$Keys<T>, $ValOf<T>]> | $Shape<T>>): this & T;
 
   mergeWith(
-    merger: (oldVal: any, newVal: any, key: $Keys<T>) => any,
-    ...collections: Array<$Shape<T> | Iterable<[$Keys<T>, any]>>
+    merger: (oldVal: $ValOf<T>, newVal: $ValOf<T>, key: $Keys<T>) => $ValOf<T>,
+    ...collections: Array<Iterable<[$Keys<T>, $ValOf<T>]> | $Shape<T>>
   ): this & T;
   mergeDeepWith(
     merger: (oldVal: any, newVal: any, key: any) => any,
-    ...collections: Array<$Shape<T> | Iterable<[$Keys<T>, any]>>
+    ...collections: Array<Iterable<[$Keys<T>, $ValOf<T>]> | $Shape<T>>
   ): this & T;
 
   delete<K: $Keys<T>>(key: K): this & T;
@@ -1424,38 +1434,38 @@ declare class RecordInstance<T: Object> {
   clear(): this & T;
 
   setIn<S>(keyPath: [], value: S): S;
-  setIn<K: $Keys<T>, S: $ElementType<T, K>>(keyPath: [K], value: S): this & T;
-  setIn<K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, S: $ValOf<$ElementType<T, K>, K2>>(keyPath: [K, K2], value: S): this & T;
-  setIn<K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>, S: $ValOf<$ValOf<$ElementType<T, K>, K2>, K3>>(keyPath: [K, K2, K3], value: S): this & T;
-  setIn<K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>>, S: $ValOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>, K4>>(keyPath: [K, K2, K3, K4], value: S): this & T;
-  setIn<K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>, K4>>, S: $ValOf<$ValOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>, K4>, K5>>(keyPath: [K, K2, K3, K4, K5], value: S): this & T;
+  setIn<K: $Keys<T>, S: $ValOf<T, K>>(keyPath: [K], value: S): this & T;
+  setIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, S: $ValOf<$ValOf<T, K>, K2>>(keyPath: [K, K2], value: S): this & T;
+  setIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, S: $ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>(keyPath: [K, K2, K3], value: S): this & T;
+  setIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>, S: $ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>(keyPath: [K, K2, K3, K4], value: S): this & T;
+  setIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>, S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>, K5>>(keyPath: [K, K2, K3, K4, K5], value: S): this & T;
 
   deleteIn(keyPath: []): void;
   deleteIn<K: $Keys<T>>(keyPath: [K]): this & T;
-  deleteIn<K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>>(keyPath: [K, K2]): this & T;
-  deleteIn<K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>>(keyPath: [K, K2, K3]): this & T;
-  deleteIn<K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>>>(keyPath: [K, K2, K3, K4]): this & T;
-  deleteIn<K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>, K4>>>(keyPath: [K, K2, K3, K4, K5]): this & T;
+  deleteIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>>(keyPath: [K, K2]): this & T;
+  deleteIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>>(keyPath: [K, K2, K3]): this & T;
+  deleteIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>>(keyPath: [K, K2, K3, K4]): this & T;
+  deleteIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>>(keyPath: [K, K2, K3, K4, K5]): this & T;
 
   removeIn(keyPath: []): void;
   removeIn<K: $Keys<T>>(keyPath: [K]): this & T;
-  removeIn<K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>>(keyPath: [K, K2]): this & T;
-  removeIn<K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>>(keyPath: [K, K2, K3]): this & T;
-  removeIn<K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>>>(keyPath: [K, K2, K3, K4]): this & T;
-  removeIn<K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>, K4>>>(keyPath: [K, K2, K3, K4, K5]): this & T;
+  removeIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>>(keyPath: [K, K2]): this & T;
+  removeIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>>(keyPath: [K, K2, K3]): this & T;
+  removeIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>>(keyPath: [K, K2, K3, K4]): this & T;
+  removeIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>>(keyPath: [K, K2, K3, K4, K5]): this & T;
 
   updateIn<U>(keyPath: [], notSetValue: mixed, updater: (value: this) => U): U;
   updateIn<U>(keyPath: [], updater: (value: this) => U): U;
-  updateIn<NSV, K: $Keys<T>, S: $ElementType<T, K>>(keyPath: [K], notSetValue: NSV, updater: (value: $ElementType<T, K>) => S): this & T;
-  updateIn<K: $Keys<T>, S: $ElementType<T, K>>(keyPath: [K], updater: (value: $ElementType<T, K>) => S): this & T;
-  updateIn<NSV, K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, S: $ValOf<$ElementType<T, K>, K2>>(keyPath: [K, K2], notSetValue: NSV, updater: (value: $ValOf<$ElementType<T, K>, K2> | NSV) => S): this & T;
-  updateIn<K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, S: $ValOf<$ElementType<T, K>, K2>>(keyPath: [K, K2], updater: (value: $ValOf<$ElementType<T, K>, K2>) => S): this & T;
-  updateIn<NSV, K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>, S: $ValOf<$ValOf<$ElementType<T, K>, K2>, K3>>(keyPath: [K, K2, K3], notSetValue: NSV, updater: (value: $ValOf<$ValOf<$ElementType<T, K>, K2>, K3> | NSV) => S): this & T;
-  updateIn<K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>, S: $ValOf<$ValOf<$ElementType<T, K>, K2>, K3>>(keyPath: [K, K2, K3], updater: (value: $ValOf<$ValOf<$ElementType<T, K>, K2>, K3>) => S): this & T;
-  updateIn<NSV, K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>>, S: $ValOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>, K4>>(keyPath: [K, K2, K3, K4], notSetValue: NSV, updater: (value: $ValOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>, K4> | NSV) => S): this & T;
-  updateIn<K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>>, S: $ValOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>, K4>>(keyPath: [K, K2, K3, K4], updater: (value: $ValOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>, K4>) => S): this & T;
-  updateIn<NSV, K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>, K4>>, S: $ValOf<$ValOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>, K4>, K5>>(keyPath: [K, K2, K3, K4, K5], notSetValue: NSV, updater: (value: $ValOf<$ValOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>, K4>, K5> | NSV) => S): this & T;
-  updateIn<K: $Keys<T>, K2: $KeyOf<$ElementType<T, K>>, K3: $KeyOf<$ValOf<$ElementType<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>, K4>>, S: $ValOf<$ValOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>, K4>, K5>>(keyPath: [K, K2, K3, K4, K5], updater: (value: $ValOf<$ValOf<$ValOf<$ValOf<$ElementType<T, K>, K2>, K3>, K4>, K5>) => S): this & T;
+  updateIn<NSV, K: $Keys<T>, S: $ValOf<T, K>>(keyPath: [K], notSetValue: NSV, updater: (value: $ValOf<T, K>) => S): this & T;
+  updateIn<K: $Keys<T>, S: $ValOf<T, K>>(keyPath: [K], updater: (value: $ValOf<T, K>) => S): this & T;
+  updateIn<NSV, K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, S: $ValOf<$ValOf<T, K>, K2>>(keyPath: [K, K2], notSetValue: NSV, updater: (value: $ValOf<$ValOf<T, K>, K2> | NSV) => S): this & T;
+  updateIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, S: $ValOf<$ValOf<T, K>, K2>>(keyPath: [K, K2], updater: (value: $ValOf<$ValOf<T, K>, K2>) => S): this & T;
+  updateIn<NSV, K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, S: $ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>(keyPath: [K, K2, K3], notSetValue: NSV, updater: (value: $ValOf<$ValOf<$ValOf<T, K>, K2>, K3> | NSV) => S): this & T;
+  updateIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, S: $ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>(keyPath: [K, K2, K3], updater: (value: $ValOf<$ValOf<$ValOf<T, K>, K2>, K3>) => S): this & T;
+  updateIn<NSV, K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>, S: $ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>(keyPath: [K, K2, K3, K4], notSetValue: NSV, updater: (value: $ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4> | NSV) => S): this & T;
+  updateIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>, S: $ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>(keyPath: [K, K2, K3, K4], updater: (value: $ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>) => S): this & T;
+  updateIn<NSV, K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>, S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>, K5>>(keyPath: [K, K2, K3, K4, K5], notSetValue: NSV, updater: (value: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>, K5> | NSV) => S): this & T;
+  updateIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>, S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>, K5>>(keyPath: [K, K2, K3, K4, K5], updater: (value: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>, K5>) => S): this & T;
 
   mergeIn(keyPath: Iterable<mixed>, ...collections: Array<any>): this & T;
   mergeDeepIn(keyPath: Iterable<mixed>, ...collections: Array<any>): this & T;
@@ -1471,7 +1481,7 @@ declare class RecordInstance<T: Object> {
   wasAltered(): boolean;
   asImmutable(): this & T;
 
-  @@iterator(): Iterator<[$Keys<T>, any]>;
+  @@iterator(): Iterator<[$Keys<T>, $ValOf<T>]>;
 }
 
 declare function fromJS(
@@ -1533,21 +1543,21 @@ declare function updateIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<
 
 declare function merge<C>(
   collection: C,
-  ...collections: Array<Iterable<$ValOf<C>> | Iterable<[$KeyOf<C>, $ValOf<C>]> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
+  ...collections: Array<$IterableOf<C> | $Shape<RecordValues<C>> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
 ): C;
 declare function mergeWith<C>(
   merger: (oldVal: $ValOf<C>, newVal: $ValOf<C>, key: $KeyOf<C>) => $ValOf<C>,
   collection: C,
-  ...collections: Array<Iterable<$ValOf<C>> | Iterable<[$KeyOf<C>, $ValOf<C>]> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
+  ...collections: Array<$IterableOf<C> | $Shape<RecordValues<C>> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
 ): C;
 declare function mergeDeep<C>(
   collection: C,
-  ...collections: Array<Iterable<$ValOf<C>> | Iterable<[$KeyOf<C>, $ValOf<C>]> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
+  ...collections: Array<$IterableOf<C> | $Shape<RecordValues<C>> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
 ): C;
 declare function mergeDeepWith<C>(
   merger: (oldVal: any, newVal: any, key: any) => mixed,
   collection: C,
-  ...collections: Array<Iterable<$ValOf<C>> | Iterable<[$KeyOf<C>, $ValOf<C>]> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
+  ...collections: Array<$IterableOf<C> | $Shape<RecordValues<C>> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
 ): C;
 
 export {

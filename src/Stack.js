@@ -58,7 +58,7 @@ export class Stack extends IndexedCollection {
     for (let ii = arguments.length - 1; ii >= 0; ii--) {
       head = {
         value: arguments[ii],
-        next: head
+        next: head,
       };
     }
     if (this.__ownerID) {
@@ -86,7 +86,7 @@ export class Stack extends IndexedCollection {
       newSize++;
       head = {
         value: value,
-        next: head
+        next: head,
       };
     }, /* reverse */ true);
     if (this.__ownerID) {

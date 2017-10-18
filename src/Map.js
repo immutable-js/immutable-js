@@ -18,7 +18,7 @@ import {
   DID_ALTER,
   OwnerID,
   MakeRef,
-  SetRef
+  SetRef,
 } from './TrieUtils';
 import { hash } from './Hash';
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
@@ -170,12 +170,11 @@ export const MapPrototype = Map.prototype;
 MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeAll = MapPrototype.deleteAll;
-MapPrototype.concat = MapPrototype.merge;
 MapPrototype.setIn = setIn;
 MapPrototype.removeIn = MapPrototype.deleteIn = deleteIn;
 MapPrototype.update = update;
 MapPrototype.updateIn = updateIn;
-MapPrototype.merge = merge;
+MapPrototype.merge = MapPrototype.concat = merge;
 MapPrototype.mergeWith = mergeWith;
 MapPrototype.mergeDeep = mergeDeep;
 MapPrototype.mergeDeepWith = mergeDeepWith;
@@ -620,7 +619,7 @@ function mapIteratorFrame(node, prev) {
   return {
     node: node,
     index: 0,
-    __prev: prev
+    __prev: prev,
   };
 }
 

@@ -39,8 +39,8 @@ describe('MultiRequire', () => {
       c: Immutable2.Map({
         x: 3,
         y: 4,
-        z: Immutable1.Map()
-      })
+        z: Immutable1.Map(),
+      }),
     });
 
     expect(deep.toJS()).toEqual({
@@ -49,8 +49,8 @@ describe('MultiRequire', () => {
       c: {
         x: 3,
         y: 4,
-        z: {}
-      }
+        z: {},
+      },
     });
   });
 

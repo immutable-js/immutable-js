@@ -17,13 +17,13 @@ global.runIt = function runIt(button) {
     preamble:
       'const assert = (' +
       makeAssert +
-      ')(require("immutable@4.0.0-rc.8"));' +
+      ')(require("immutable@4.0.0-rc.9"));' +
       (options.preamble || ''),
     source: codeElement.textContent.replace(/\n(>[^\n]*\n?)+$/g, ''),
     minHeight: '52px',
     onLoad: function(notebook) {
       notebook.evaluate();
-    }
+    },
   });
 };
 

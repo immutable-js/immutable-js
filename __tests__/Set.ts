@@ -46,7 +46,7 @@ describe('Set', () => {
   });
 
   it('accepts a keyed Seq as a set of entries', () => {
-    const seq = Seq({a: null, b: null, c: null}).flip();
+    const seq = Seq({ a: null, b: null, c: null }).flip();
     const s = Set(seq);
     expect(s.toArray()).toEqual([[null, 'a'], [null, 'b'], [null, 'c']]);
     // Explicitly getting the values sequence
@@ -58,7 +58,7 @@ describe('Set', () => {
   });
 
   it('accepts object keys', () => {
-    const s = Set.fromKeys({a: null, b: null, c: null});
+    const s = Set.fromKeys({ a: null, b: null, c: null });
     expect(s.has('a')).toBe(true);
     expect(s.has('b')).toBe(true);
     expect(s.has('c')).toBe(true);
@@ -66,7 +66,7 @@ describe('Set', () => {
   });
 
   it('accepts sequence keys', () => {
-    const seq = Seq({a: null, b: null, c: null});
+    const seq = Seq({ a: null, b: null, c: null });
     const s = Set.fromKeys(seq);
     expect(s.has('a')).toBe(true);
     expect(s.has('b')).toBe(true);
@@ -89,7 +89,7 @@ describe('Set', () => {
 
   it('converts back to JS object', () => {
     const s = Set.of('a', 'b', 'c');
-    expect(s.toObject()).toEqual({a: 'a', b: 'b', c: 'c'});
+    expect(s.toObject()).toEqual({ a: 'a', b: 'b', c: 'c' });
   });
 
   it('unions an unknown collection of Sets', () => {
@@ -112,11 +112,7 @@ describe('Set', () => {
     const s = Set([1, 2, 3]);
     const iterator = jest.genMockFunction();
     s.forEach(iterator);
-    expect(iterator.mock.calls).toEqual([
-      [1, 1, s],
-      [2, 2, s],
-      [3, 3, s],
-    ]);
+    expect(iterator.mock.calls).toEqual([[1, 1, s], [2, 2, s], [3, 3, s]]);
   });
 
   it('unions two sets', () => {
@@ -189,17 +185,26 @@ describe('Set', () => {
   });
 
   it('unions multiple sets', () => {
-    const s = Set.of('A', 'B', 'C').union(Set.of('C', 'D', 'E'), Set.of('D', 'B', 'F'));
+    const s = Set.of('A', 'B', 'C').union(
+      Set.of('C', 'D', 'E'),
+      Set.of('D', 'B', 'F')
+    );
     expect(s).toEqual(Set.of('A', 'B', 'C', 'D', 'E', 'F'));
   });
 
   it('intersects multiple sets', () => {
-    const s = Set.of('A', 'B', 'C').intersect(Set.of('B', 'C', 'D'), Set.of('A', 'C', 'E'));
+    const s = Set.of('A', 'B', 'C').intersect(
+      Set.of('B', 'C', 'D'),
+      Set.of('A', 'C', 'E')
+    );
     expect(s).toEqual(Set.of('C'));
   });
 
   it('diffs multiple sets', () => {
-    const s = Set.of('A', 'B', 'C').subtract(Set.of('C', 'D', 'E'), Set.of('D', 'B', 'F'));
+    const s = Set.of('A', 'B', 'C').subtract(
+      Set.of('C', 'D', 'E'),
+      Set.of('D', 'B', 'F')
+    );
     expect(s).toEqual(Set.of('A'));
   });
 
@@ -218,10 +223,12 @@ describe('Set', () => {
   });
 
   it('can use union in a withMutation', () => {
-    const js = Set().withMutations(set => {
-      set.union([ 'a' ]);
-      set.add('b');
-    }).toJS();
+    const js = Set()
+      .withMutations(set => {
+        set.union(['a']);
+        set.add('b');
+      })
+      .toJS();
     expect(js).toEqual(['a', 'b']);
   });
 
@@ -246,7 +253,7 @@ describe('Set', () => {
       const b = Symbol();
       const c = Symbol();
 
-      const symbolSet = Set([ a, b, c, a, b, c, a, b, c, a, b, c ]);
+      const symbolSet = Set([a, b, c, a, b, c, a, b, c, a, b, c]);
       expect(symbolSet.size).toBe(3);
       expect(symbolSet.has(b)).toBe(true);
       expect(symbolSet.get(c)).toEqual(c);
@@ -254,10 +261,18 @@ describe('Set', () => {
 
     it('operates on a large number of symbols, maintaining obj uniqueness', () => {
       const manySymbols = [
-        Symbol('a'), Symbol('b'), Symbol('c'),
-        Symbol('a'), Symbol('b'), Symbol('c'),
-        Symbol('a'), Symbol('b'), Symbol('c'),
-        Symbol('a'), Symbol('b'), Symbol('c'),
+        Symbol('a'),
+        Symbol('b'),
+        Symbol('c'),
+        Symbol('a'),
+        Symbol('b'),
+        Symbol('c'),
+        Symbol('a'),
+        Symbol('b'),
+        Symbol('c'),
+        Symbol('a'),
+        Symbol('b'),
+        Symbol('c'),
       ];
 
       const symbolSet = Set(manySymbols);
@@ -265,7 +280,6 @@ describe('Set', () => {
       expect(symbolSet.has(manySymbols[10])).toBe(true);
       expect(symbolSet.get(manySymbols[10])).toEqual(manySymbols[10]);
     });
-
   });
 
   it('can use intersect after add or union in a withMutation', () => {
@@ -278,11 +292,10 @@ describe('Set', () => {
   });
 
   it('can count entries that satisfy a predicate', () => {
-    const set = Set( [1, 2, 3, 4, 5 ]);
+    const set = Set([1, 2, 3, 4, 5]);
     expect(set.size).toEqual(5);
     expect(set.count()).toEqual(5);
     expect(set.count(x => x % 2 === 0)).toEqual(2);
     expect(set.count(x => true)).toEqual(5);
   });
-
 });

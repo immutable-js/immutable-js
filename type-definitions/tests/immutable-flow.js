@@ -1109,3 +1109,36 @@ updateIn(plainFriendlies, [0, 'friends', 0, 'name'], () => 'Whitney');
   const objMap: {[string]: number} = {x: 10, y: 10};
   const success: number|string = get(objMap, 'z', 'missing');
 }
+
+// Deeply nested records
+
+type DeepNestFields = {
+  foo: number,
+};
+type DeepNest = RecordOf<DeepNestFields>;
+const deepNest: RecordFactory<DeepNestFields> = Record({
+  foo: 0,
+});
+
+type NestFields = {
+  deepNest: DeepNest,
+};
+type Nest = RecordOf<NestFields>;
+const nest: RecordFactory<NestFields> = Record({
+  deepNest: deepNest(),
+});
+
+type StateFields = {
+  nest: Nest,
+};
+type State = RecordOf<StateFields>;
+const initialState: RecordFactory<StateFields> = Record({
+  nest: nest(),
+});
+
+const state = initialState();
+(state.setIn(['nest', 'deepNest', 'foo'], 5): State);
+// $ExpectError
+(state.setIn(['nest', 'deepNest', 'foo'], 'string'): State);
+// $ExpectError
+(state.setIn(['nest', 'deepNest', 'unknownField'], 5): State);

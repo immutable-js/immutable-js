@@ -65,7 +65,7 @@ var Logo = React.createClass({
           v-1.5h-11.7V6.4h12.3V4.9h-13.9v31.3H295.4z" />
       </g>
     );
-  }
+  },
 });
 
 module.exports = Logo;

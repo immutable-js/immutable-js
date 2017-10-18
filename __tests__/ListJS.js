@@ -11,7 +11,7 @@ const NON_NUMBERS = {
   array: ['not', 'a', 'number'],
   NaN: NaN,
   object: { not: 'a number' },
-  string: 'not a number'
+  string: 'not a number',
 };
 
 describe('List', () => {

@@ -10,7 +10,6 @@
 import { Repeat } from '../';
 
 describe('Repeat', () => {
-
   it('fixed repeat', () => {
     const v = Repeat('wtf', 3);
     expect(v.size).toBe(3);
@@ -21,5 +20,4 @@ describe('Repeat', () => {
     expect(v.toArray()).toEqual(['wtf', 'wtf', 'wtf']);
     expect(v.join()).toEqual('wtf,wtf,wtf');
   });
-
 });

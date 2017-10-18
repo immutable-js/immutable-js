@@ -13,7 +13,6 @@ jasmineCheck.install();
 import { Seq } from '../';
 
 describe('join', () => {
-
   it('string-joins sequences with commas by default', () => {
     expect(Seq([1, 2, 3, 4, 5]).join()).toBe('1,2,3,4,5');
   });
@@ -27,13 +26,27 @@ describe('join', () => {
   });
 
   it('joins sparse-sequences like Array.join', () => {
-    const a = [1, undefined, 2, undefined, 3, undefined, 4, undefined, 5, undefined, undefined];
+    const a = [
+      1,
+      undefined,
+      2,
+      undefined,
+      3,
+      undefined,
+      4,
+      undefined,
+      5,
+      undefined,
+      undefined,
+    ];
     expect(Seq(a).join()).toBe(a.join());
   });
 
-  check.it('behaves the same as Array.join',
-    [gen.array(gen.primitive), gen.primitive], (array, joiner) => {
+  check.it(
+    'behaves the same as Array.join',
+    [gen.array(gen.primitive), gen.primitive],
+    (array, joiner) => {
       expect(Seq(array).join(joiner)).toBe(array.join(joiner));
-  });
-
+    }
+  );
 });

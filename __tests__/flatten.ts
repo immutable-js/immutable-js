@@ -13,7 +13,6 @@ jasmineCheck.install();
 import { Collection, fromJS, List, Range, Seq } from '../';
 
 describe('flatten', () => {
-
   it('flattens sequences one level deep', () => {
     const nested = fromJS([[1, 2], [3, 4], [5, 6]]);
     const flat = nested.flatten();
@@ -23,7 +22,7 @@ describe('flatten', () => {
   it('flattening a List returns a List', () => {
     const nested = fromJS([[1], 2, 3, [4, 5, 6]]);
     const flat = nested.flatten();
-    expect(flat.toString()).toEqual("List [ 1, 2, 3, 4, 5, 6 ]");
+    expect(flat.toString()).toEqual('List [ 1, 2, 3, 4, 5, 6 ]');
   });
 
   it('gives the correct iteration count', () => {
@@ -48,84 +47,59 @@ describe('flatten', () => {
   });
 
   it('can flatten at various levels of depth', () => {
-    const deeplyNested = fromJS(
-      [
-        [
-          [
-            [ 'A', 'B' ],
-            [ 'A', 'B' ],
-          ],
-          [
-            [ 'A', 'B' ],
-            [ 'A', 'B' ],
-          ],
-        ],
-        [
-          [
-            [ 'A', 'B' ],
-            [ 'A', 'B' ],
-          ],
-          [
-            [ 'A', 'B' ],
-            [ 'A', 'B' ],
-          ],
-        ],
-      ],
-    );
+    const deeplyNested = fromJS([
+      [[['A', 'B'], ['A', 'B']], [['A', 'B'], ['A', 'B']]],
+      [[['A', 'B'], ['A', 'B']], [['A', 'B'], ['A', 'B']]],
+    ]);
 
     // deeply flatten
-    expect(deeplyNested.flatten().toJS()).toEqual(
-      ['A', 'B', 'A', 'B', 'A', 'B', 'A', 'B', 'A', 'B', 'A', 'B', 'A', 'B', 'A', 'B'],
-    );
+    expect(deeplyNested.flatten().toJS()).toEqual([
+      'A',
+      'B',
+      'A',
+      'B',
+      'A',
+      'B',
+      'A',
+      'B',
+      'A',
+      'B',
+      'A',
+      'B',
+      'A',
+      'B',
+      'A',
+      'B',
+    ]);
 
     // shallow flatten
-    expect(deeplyNested.flatten(true).toJS()).toEqual(
-      [
-        [
-          [ 'A', 'B' ],
-          [ 'A', 'B' ],
-        ],
-        [
-          [ 'A', 'B' ],
-          [ 'A', 'B' ],
-        ],
-        [
-          [ 'A', 'B' ],
-          [ 'A', 'B' ],
-        ],
-        [
-          [ 'A', 'B' ],
-          [ 'A', 'B' ],
-        ],
-      ],
-    );
+    expect(deeplyNested.flatten(true).toJS()).toEqual([
+      [['A', 'B'], ['A', 'B']],
+      [['A', 'B'], ['A', 'B']],
+      [['A', 'B'], ['A', 'B']],
+      [['A', 'B'], ['A', 'B']],
+    ]);
 
     // flatten two levels
-    expect(deeplyNested.flatten(2).toJS()).toEqual(
-      [
-        [ 'A', 'B' ],
-        [ 'A', 'B' ],
-        [ 'A', 'B' ],
-        [ 'A', 'B' ],
-        [ 'A', 'B' ],
-        [ 'A', 'B' ],
-        [ 'A', 'B' ],
-        [ 'A', 'B' ],
-      ],
-    );
+    expect(deeplyNested.flatten(2).toJS()).toEqual([
+      ['A', 'B'],
+      ['A', 'B'],
+      ['A', 'B'],
+      ['A', 'B'],
+      ['A', 'B'],
+      ['A', 'B'],
+      ['A', 'B'],
+      ['A', 'B'],
+    ]);
   });
 
   describe('flatMap', () => {
-
     it('first maps, then shallow flattens', () => {
       const numbers = Range(97, 100);
-      const letters = numbers.flatMap(v => fromJS([
-        String.fromCharCode(v),
-        String.fromCharCode(v).toUpperCase(),
-      ]));
-      expect(letters.toJS()).toEqual(
-        ['a', 'A', 'b', 'B', 'c', 'C'],
+      const letters = numbers.flatMap(v =>
+        fromJS([String.fromCharCode(v), String.fromCharCode(v).toUpperCase()])
       );
+      expect(letters.toJS()).toEqual(['a', 'A', 'b', 'B', 'c', 'C']);
     });
 
     it('maps to sequenceables, not only Sequences.', () => {
@@ -136,11 +110,7 @@ describe('flatten', () => {
         String.fromCharCode(v),
         String.fromCharCode(v).toUpperCase(),
       ]);
-      expect(letters.toJS()).toEqual(
-        ['a', 'A', 'b', 'B', 'c', 'C'],
-      );
+      expect(letters.toJS()).toEqual(['a', 'A', 'b', 'B', 'c', 'C']);
     });
-
   });
-
 });
