@@ -4960,7 +4960,7 @@
    * update(originalArray, 1, val => val.toUpperCase()) // [ 'dog', 'FROG', 'cat' ]
    * console.log(originalArray) // [ 'dog', 'frog', 'cat' ]
    * const originalObject = { x: 123, y: 456 }
-   * set(originalObject, 'x', val => val * 6) // { x: 738, y: 456 }
+   * update(originalObject, 'x', val => val * 6) // { x: 738, y: 456 }
    * console.log(originalObject) // { x: 123, y: 456 }
    * ```
    */
@@ -5048,9 +5048,9 @@
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { setIn } = require('immutable@4.0.0-rc.9')
+   * const { updateIn } = require('immutable@4.0.0-rc.9')
    * const original = { x: { y: { z: 123 }}}
-   * setIn(original, ['x', 'y', 'z'], val => val * 6) // { x: { y: { z: 738 }}}
+   * updateIn(original, ['x', 'y', 'z'], val => val * 6) // { x: { y: { z: 738 }}}
    * console.log(original) // { x: { y: { z: 123 }}}
    * ```
    */
@@ -5110,9 +5110,9 @@
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { merge } = require('immutable@4.0.0-rc.9')
+   * const { mergeDeep } = require('immutable@4.0.0-rc.9')
    * const original = { x: { y: 123 }}
-   * merge(original, { x: { z: 456 }}) // { x: { y: 123, z: 456 }}
+   * mergeDeep(original, { x: { z: 456 }}) // { x: { y: 123, z: 456 }}
    * console.log(original) // { x: { y: 123 }}
    * ```
    */
@@ -5131,7 +5131,7 @@
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { merge } = require('immutable@4.0.0-rc.9')
+   * const { mergeDeepWith } = require('immutable@4.0.0-rc.9')
    * const original = { x: { y: 123 }}
    * mergeDeepWith(
    *   (oldVal, newVal) => oldVal + newVal,
