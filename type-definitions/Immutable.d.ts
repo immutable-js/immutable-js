@@ -1639,6 +1639,9 @@ declare module Immutable {
      * Returns a Set excluding any values contained within `collections`.
      *
      * Note: `subtract` can be used in `withMutations`.
+     *
+     *     OrderedSet([ 1, 2, 3 ]).subtract([1, 3])
+     *     // OrderedSet [2]
      */
     subtract(...collections: Array<Iterable<T>>): this;
 
