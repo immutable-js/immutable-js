@@ -123,4 +123,22 @@ describe('Map', function() {
       Immutable.Map(list1024);
     });
   });
+
+  describe('merge a map', () => {
+    [2, 8, 32, 1024].forEach(size => {
+      const obj1 = {};
+      const obj2 = {};
+      for (let ii = 0; ii < size; ii++) {
+        obj1['k' + ii] = '1_' + ii;
+        obj2['k' + ii] = '2_' + ii;
+      }
+
+      const map1 = Immutable.Map(obj1);
+      const map2 = Immutable.Map(obj2);
+
+      it('of ' + size, () => {
+        map1.merge(map2);
+      });
+    });
+  });
 });
