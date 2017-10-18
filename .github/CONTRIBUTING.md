@@ -58,3 +58,47 @@ Complete your CLA here: <https://code.facebook.com/cla>
 
 By contributing to Immutable.js, you agree that your contributions will be
 licensed under its MIT license.
+
+# Testing
+
+Run the following command to build and test:
+```bash
+npm run test
+```
+
+## Regression Testing
+
+Performance tests run against master and your feature branch.
+Make sure to commit your changes in your local feature branch before proceeding.
+
+These commands assume you have a remote named `upstream` amd that you do not already have a local `master` branch:
+```bash
+git fetch upstream
+git checkout -b master upstream/master
+```
+
+These commands build `dist` and commit `dist/immutable.js` to `master` so that the regression tests can run. 
+```bash
+npm run test
+git add dist/immutable.js -f
+git commit -m 'perf test prerequisite.'
+```
+
+Switch back to your feature branch, and run the following command to run regression tests:
+```bash
+npm run test
+npm run perf
+```
+
+Sample output:
+```bash
+> immutable@4.0.0-rc.9 perf ~/github.com/facebook/immutable-js
+> node ./resources/bench.js
+
+List > builds from array of 2
+  Old:   678,974   683,071   687,218 ops/sec
+  New:   669,012   673,553   678,157 ops/sec
+  compare: 1 -1
+  diff: -1.4%
+  rme: 0.64%
+```
