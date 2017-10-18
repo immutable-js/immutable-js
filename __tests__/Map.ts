@@ -129,6 +129,14 @@ describe('Map', () => {
     expect(m3.toObject()).toEqual({a: 'A', b: 'BB', c: 'C', wow: 'OO', d: 'DD'});
   });
 
+  it('concatenates two maps (alias for merge)', () => {
+    const m1 = Map({ a: 'A', b: 'B', c: 'C' });
+    const m2 = Map({ wow: 'OO', d: 'DD', b: 'BB' });
+    expect(m2.toObject()).toEqual({ wow: 'OO', d: 'DD', b: 'BB' });
+    const m3 = m1.concat(m2);
+    expect(m3.toObject()).toEqual({a: 'A', b: 'BB', c: 'C', wow: 'OO', d: 'DD'});
+  });
+
   it('accepts null as a key', () => {
     const m1 = Map<any, any>();
     const m2 = m1.set(null, 'null');
