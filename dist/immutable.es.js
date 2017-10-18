@@ -217,7 +217,7 @@ function iteratorValue(type, k, v, iteratorResult) {
     ? (iteratorResult.value = value)
     : (iteratorResult = {
         value: value,
-        done: false
+        done: false,
       });
   return iteratorResult;
 }
@@ -892,7 +892,7 @@ function hashJSObj(obj) {
       enumerable: false,
       configurable: false,
       writable: false,
-      value: hashed
+      value: hashed,
     });
   } else if (
     obj.propertyIsEnumerable !== undefined &&
@@ -2844,7 +2844,7 @@ function mapIteratorFrame(node, prev) {
   return {
     node: node,
     index: 0,
-    __prev: prev
+    __prev: prev,
   };
 }
 
@@ -3899,7 +3899,7 @@ var Stack = (function (IndexedCollection$$1) {
     for (var ii = arguments.length - 1; ii >= 0; ii--) {
       head = {
         value: arguments$1[ii],
-        next: head
+        next: head,
       };
     }
     if (this.__ownerID) {
@@ -3927,7 +3927,7 @@ var Stack = (function (IndexedCollection$$1) {
       newSize++;
       head = {
         value: value,
-        next: head
+        next: head,
       };
     }, /* reverse */ true);
     if (this.__ownerID) {
@@ -4973,7 +4973,7 @@ mixin(Collection, {
 
   hashCode: function hashCode() {
     return this.__hash || (this.__hash = hashCollection(this));
-  }
+  },
 
   // ### Internal
 
@@ -5022,7 +5022,7 @@ mixin(KeyedCollection, {
         .map(function (k, v) { return mapper.call(context, k, v, this$1); })
         .flip()
     );
-  }
+  },
 });
 
 var KeyedCollectionPrototype = KeyedCollection.prototype;
@@ -5159,7 +5159,7 @@ mixin(IndexedCollection, {
     var collections = arrCopy(arguments);
     collections[0] = this;
     return reify(this, zipWithFactory(this, zipper, collections));
-  }
+  },
 });
 
 var IndexedCollectionPrototype = IndexedCollection.prototype;
@@ -5181,7 +5181,7 @@ mixin(SetCollection, {
 
   keySeq: function keySeq() {
     return this.valueSeq();
-  }
+  },
 });
 
 SetCollection.prototype.has = CollectionPrototype.includes;
@@ -5548,7 +5548,7 @@ function setProp(prototype, name) {
       set: function(value) {
         invariant(this.__ownerID, 'Cannot set on an immutable record.');
         this.set(name, value);
-      }
+      },
     });
   } catch (error) {
     // Object.defineProperty failed. Probably IE8.
@@ -5743,7 +5743,7 @@ var Immutable = {
   set: set,
   setIn: setIn$1,
   update: update$1,
-  updateIn: updateIn
+  updateIn: updateIn,
 };
 
 // Note: Iterable is deprecated
