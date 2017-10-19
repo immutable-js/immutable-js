@@ -2228,12 +2228,12 @@ declare module Immutable {
    * **Flow Typing Records:**
    *
    * Immutable.js exports two Flow types designed to make it easier to use
-   * Records with flow typed code, `RecordOf<T>` and `RecordFactory<TProps>`.
+   * Records with flow typed code, `RecordOf<TProps>` and `RecordFactory<TProps>`.
    *
    * When defining a new kind of Record factory function, use a flow type that
    * describes the values the record contains along with `RecordFactory<TProps>`.
    * To type instances of the Record (which the factory function returns),
-   * use `RecordOf<T>`.
+   * use `RecordOf<TProps>`.
    *
    * Typically, new Record definitions will export both the Record factory
    * function as well as the Record instance type for use in other code.
@@ -2243,7 +2243,8 @@ declare module Immutable {
    *
    * // Use RecordFactory<TProps> for defining new Record factory functions.
    * type Point3DProps = { x: number, y: number, z: number };
-   * const makePoint3D: RecordFactory<Point3DProps> = Record({ x: 0, y: 0, z: 0 });
+   * const defaultValues: Point3DProps = { x: 0, y: 0, z: 0 };
+   * const makePoint3D: RecordFactory<Point3DProps> = Record(defaultValues);
    * export makePoint3D;
    *
    * // Use RecordOf<T> for defining new instances of that Record.
@@ -2251,6 +2252,30 @@ declare module Immutable {
    * const some3DPoint: Point3D = makePoint3D({ x: 10, y: 20, z: 30 });
    * ```
    *
+   * **Flow Typing Record Subclasses:**
+   *
+   * Records can be subclassed as a means to add additional methods to Record
+   * instances. This is generally discouraged in favor of a more functional API,
+   * since Subclasses have some minor overhead. However the ability to create
+   * a rich API on Record types can be quite valuable.
+   *
+   * When using Flow to type Subclasses, do not use `RecordFactory<TProps>`,
+   * instead apply the props type when subclassing:
+   *
+   * ```js
+   * type PersonProps = {name: string, age: number};
+   * const defaultValues: PersonProps = {name: 'Aristotle', age: 2400};
+   * const PersonRecord = Record(defaultValues);
+   * class Person extends PersonRecord<PersonProps> {
+   *   getName(): string {
+   *     return this.get('name')
+   *   }
+   *
+   *   setName(name: string): this {
+   *     return this.set('name', name);
+   *   }
+   * }
+   * ```
    *
    * **Choosing Records vs plain JavaScript objects**
    *
