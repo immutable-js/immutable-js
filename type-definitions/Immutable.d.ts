@@ -1638,6 +1638,13 @@ declare module Immutable {
     /**
      * Returns a Set excluding any values contained within `collections`.
      *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { OrderedSet } = require('immutable@4.0.0-rc.9')
+     * OrderedSet([ 1, 2, 3 ]).subtract([1, 3])
+     * // OrderedSet [2]
+     * ```
+     *
      * Note: `subtract` can be used in `withMutations`.
      */
     subtract(...collections: Array<Iterable<T>>): this;
