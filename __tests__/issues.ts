@@ -38,7 +38,7 @@ describe('Issue #1220 : Seq.rest() throws an exception when invoked on a single 
   it('should be iterable', () => {
     // Helper for this test
     const ITERATOR_SYMBOL =
-      typeof Symbol === 'function' && Symbol.iterator || '@@iterator';
+      (typeof Symbol === 'function' && Symbol.iterator) || '@@iterator';
 
     const r = Seq([1]).rest();
     const i = r[ITERATOR_SYMBOL]();
@@ -56,7 +56,11 @@ describe('Issue #1245', () => {
 describe('Issue #1262', () => {
   it('Set.subtract should accept an array', () => {
     const MyType = Record({ val: 1 });
-    const set1 = Set([MyType({ val: 1 }), MyType({ val: 2 }), MyType({ val: 3 })]);
+    const set1 = Set([
+      MyType({ val: 1 }),
+      MyType({ val: 2 }),
+      MyType({ val: 3 }),
+    ]);
     const set2 = set1.subtract([MyType({ val: 2 })]);
     const set3 = set1.subtract(List([MyType({ val: 2 })]));
     expect(set2).toEqual(set3);

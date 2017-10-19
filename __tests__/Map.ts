@@ -13,9 +13,8 @@ jasmineCheck.install();
 import { is, List, Map, Range, Record, Seq } from '../';
 
 describe('Map', () => {
-
   it('converts from object', () => {
-    const m = Map({a: 'A', b: 'B', c: 'C'});
+    const m = Map({ a: 'A', b: 'B', c: 'C' });
     expect(m.size).toBe(3);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
@@ -23,7 +22,7 @@ describe('Map', () => {
   });
 
   it('constructor provides initial values', () => {
-    const m = Map({a: 'A', b: 'B', c: 'C'});
+    const m = Map({ a: 'A', b: 'B', c: 'C' });
     expect(m.size).toBe(3);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
@@ -39,7 +38,7 @@ describe('Map', () => {
   });
 
   it('constructor provides initial values as sequence', () => {
-    const s = Seq({a: 'A', b: 'B', c: 'C'});
+    const s = Seq({ a: 'A', b: 'B', c: 'C' });
     const m = Map(s);
     expect(m.size).toBe(3);
     expect(m.get('a')).toBe('A');
@@ -48,11 +47,7 @@ describe('Map', () => {
   });
 
   it('constructor provides initial values as list of lists', () => {
-    const l = List([
-      List(['a', 'A']),
-      List(['b', 'B']),
-      List(['c', 'C']),
-    ]);
+    const l = List([List(['a', 'A']), List(['b', 'B']), List(['c', 'C'])]);
     const m = Map(l);
     expect(m.size).toBe(3);
     expect(m.get('a')).toBe('A');
@@ -61,7 +56,7 @@ describe('Map', () => {
   });
 
   it('constructor is identity when provided map', () => {
-    const m1 = Map({a: 'A', b: 'B', c: 'C'});
+    const m1 = Map({ a: 'A', b: 'B', c: 'C' });
     const m2 = Map(m1);
     expect(m2).toBe(m1);
   });
@@ -69,7 +64,9 @@ describe('Map', () => {
   it('does not accept a scalar', () => {
     expect(() => {
       Map(3 as any);
-    }).toThrow('Expected Array or collection object of [k, v] entries, or keyed object: 3');
+    }).toThrow(
+      'Expected Array or collection object of [k, v] entries, or keyed object: 3'
+    );
   });
 
   it('does not accept strings (collection, but scalar)', () => {
@@ -106,12 +103,12 @@ describe('Map', () => {
   });
 
   it('converts back to JS object', () => {
-    const m = Map({a: 'A', b: 'B', c: 'C'});
-    expect(m.toObject()).toEqual({a: 'A', b: 'B', c: 'C'});
+    const m = Map({ a: 'A', b: 'B', c: 'C' });
+    expect(m.toObject()).toEqual({ a: 'A', b: 'B', c: 'C' });
   });
 
   it('iterates values', () => {
-    const m = Map({a: 'A', b: 'B', c: 'C'});
+    const m = Map({ a: 'A', b: 'B', c: 'C' });
     const iterator = jest.genMockFunction();
     m.forEach(iterator);
     expect(iterator.mock.calls).toEqual([
@@ -122,11 +119,31 @@ describe('Map', () => {
   });
 
   it('merges two maps', () => {
-    const m1 = Map({a: 'A', b: 'B', c: 'C'});
-    const m2 = Map({wow: 'OO', d: 'DD', b: 'BB'});
-    expect(m2.toObject()).toEqual({wow: 'OO', d: 'DD', b: 'BB'});
+    const m1 = Map({ a: 'A', b: 'B', c: 'C' });
+    const m2 = Map({ wow: 'OO', d: 'DD', b: 'BB' });
+    expect(m2.toObject()).toEqual({ wow: 'OO', d: 'DD', b: 'BB' });
     const m3 = m1.merge(m2);
-    expect(m3.toObject()).toEqual({a: 'A', b: 'BB', c: 'C', wow: 'OO', d: 'DD'});
+    expect(m3.toObject()).toEqual({
+      a: 'A',
+      b: 'BB',
+      c: 'C',
+      wow: 'OO',
+      d: 'DD',
+    });
+  });
+
+  it('concatenates two maps (alias for merge)', () => {
+    const m1 = Map({ a: 'A', b: 'B', c: 'C' });
+    const m2 = Map({ wow: 'OO', d: 'DD', b: 'BB' });
+    expect(m2.toObject()).toEqual({ wow: 'OO', d: 'DD', b: 'BB' });
+    const m3 = m1.concat(m2);
+    expect(m3.toObject()).toEqual({
+      a: 'A',
+      b: 'BB',
+      c: 'C',
+      wow: 'OO',
+      d: 'DD',
+    });
   });
 
   it('accepts null as a key', () => {
@@ -185,7 +202,7 @@ describe('Map', () => {
   it('can map many items', () => {
     let m = Map();
     for (let ii = 0; ii < 2000; ii++) {
-       m = m.set('thing:' + ii, ii);
+      m = m.set('thing:' + ii, ii);
     }
     expect(m.size).toBe(2000);
     expect(m.get('thing:1234')).toBe(1234);
@@ -227,41 +244,48 @@ describe('Map', () => {
   });
 
   it('maps values', () => {
-    const m = Map({a: 'a', b: 'b', c: 'c'});
+    const m = Map({ a: 'a', b: 'b', c: 'c' });
     const r = m.map(value => value.toUpperCase());
-    expect(r.toObject()).toEqual({a: 'A', b: 'B', c: 'C'});
+    expect(r.toObject()).toEqual({ a: 'A', b: 'B', c: 'C' });
   });
 
   it('maps keys', () => {
-    const m = Map({a: 'a', b: 'b', c: 'c'});
+    const m = Map({ a: 'a', b: 'b', c: 'c' });
     const r = m.mapKeys(key => key.toUpperCase());
-    expect(r.toObject()).toEqual({A: 'a', B: 'b', C: 'c'});
+    expect(r.toObject()).toEqual({ A: 'a', B: 'b', C: 'c' });
   });
 
   it('filters values', () => {
-    const m = Map({a: 1, b: 2, c: 3, d: 4, e: 5, f: 6});
+    const m = Map({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
     const r = m.filter(value => value % 2 === 1);
-    expect(r.toObject()).toEqual({a: 1, c: 3, e: 5});
+    expect(r.toObject()).toEqual({ a: 1, c: 3, e: 5 });
   });
 
   it('filterNots values', () => {
-    const m = Map({a: 1, b: 2, c: 3, d: 4, e: 5, f: 6});
+    const m = Map({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
     const r = m.filterNot(value => value % 2 === 1);
-    expect(r.toObject()).toEqual({b: 2, d: 4, f: 6});
+    expect(r.toObject()).toEqual({ b: 2, d: 4, f: 6 });
   });
 
   it('derives keys', () => {
-    const v = Map({a: 1, b: 2, c: 3, d: 4, e: 5, f: 6});
+    const v = Map({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
     expect(v.keySeq().toArray()).toEqual(['a', 'b', 'c', 'd', 'e', 'f']);
   });
 
   it('flips keys and values', () => {
-    const v = Map({a: 1, b: 2, c: 3, d: 4, e: 5, f: 6});
-    expect(v.flip().toObject()).toEqual({1: 'a', 2: 'b', 3: 'c', 4: 'd', 5: 'e', 6: 'f'});
+    const v = Map({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
+    expect(v.flip().toObject()).toEqual({
+      1: 'a',
+      2: 'b',
+      3: 'c',
+      4: 'd',
+      5: 'e',
+      6: 'f',
+    });
   });
 
   it('can convert to a list', () => {
-    const m = Map({a: 1, b: 2, c: 3});
+    const m = Map({ a: 1, b: 2, c: 3 });
     const v = m.toList();
     const k = m.keySeq().toList();
     expect(v.size).toBe(3);
@@ -272,22 +296,27 @@ describe('Map', () => {
     expect(k.get(1)).toBe('b');
   });
 
-  check.it('works like an object', {maxSize: 50}, [gen.object(gen.JSONPrimitive)], obj => {
-    let map = Map(obj);
-    Object.keys(obj).forEach(key => {
-      expect(map.get(key)).toBe(obj[key]);
-      expect(map.has(key)).toBe(true);
-    });
-    Object.keys(obj).forEach(key => {
-      expect(map.get(key)).toBe(obj[key]);
-      expect(map.has(key)).toBe(true);
-      map = map.remove(key);
-      expect(map.get(key)).toBe(undefined);
-      expect(map.has(key)).toBe(false);
-    });
-  });
+  check.it(
+    'works like an object',
+    { maxSize: 50 },
+    [gen.object(gen.JSONPrimitive)],
+    obj => {
+      let map = Map(obj);
+      Object.keys(obj).forEach(key => {
+        expect(map.get(key)).toBe(obj[key]);
+        expect(map.has(key)).toBe(true);
+      });
+      Object.keys(obj).forEach(key => {
+        expect(map.get(key)).toBe(obj[key]);
+        expect(map.has(key)).toBe(true);
+        map = map.remove(key);
+        expect(map.get(key)).toBe(undefined);
+        expect(map.has(key)).toBe(false);
+      });
+    }
+  );
 
-  check.it('sets', {maxSize: 5000}, [gen.posInt], len => {
+  check.it('sets', { maxSize: 5000 }, [gen.posInt], len => {
     let map = Map();
     for (let ii = 0; ii < len; ii++) {
       expect(map.size).toBe(ii);
@@ -297,15 +326,18 @@ describe('Map', () => {
     expect(is(map.toSet(), Range(0, len).toSet())).toBe(true);
   });
 
-  check.it('has and get', {maxSize: 5000}, [gen.posInt], len => {
-    const map = Range(0, len).toKeyedSeq().mapKeys(x => '' + x).toMap();
+  check.it('has and get', { maxSize: 5000 }, [gen.posInt], len => {
+    const map = Range(0, len)
+      .toKeyedSeq()
+      .mapKeys(x => '' + x)
+      .toMap();
     for (let ii = 0; ii < len; ii++) {
       expect(map.get('' + ii)).toBe(ii);
       expect(map.has('' + ii)).toBe(true);
     }
   });
 
-  check.it('deletes', {maxSize: 5000}, [gen.posInt], len => {
+  check.it('deletes', { maxSize: 5000 }, [gen.posInt], len => {
     let map = Range(0, len).toMap();
     for (let ii = 0; ii < len; ii++) {
       expect(map.size).toBe(len - ii);
@@ -315,8 +347,10 @@ describe('Map', () => {
     expect(map.toObject()).toEqual({});
   });
 
-  check.it('deletes from transient', {maxSize: 5000}, [gen.posInt], len => {
-    const map = Range(0, len).toMap().asMutable();
+  check.it('deletes from transient', { maxSize: 5000 }, [gen.posInt], len => {
+    const map = Range(0, len)
+      .toMap()
+      .asMutable();
     for (let ii = 0; ii < len; ii++) {
       expect(map.size).toBe(len - ii);
       map.remove(ii);
@@ -330,7 +364,7 @@ describe('Map', () => {
     const a = v.toArray();
     const iter = v.entries();
     for (let ii = 0; ii < len; ii++) {
-      delete a[ iter.next().value[0] ];
+      delete a[iter.next().value[0]];
     }
     expect(a).toEqual(new Array(len));
   });
@@ -342,14 +376,19 @@ describe('Map', () => {
     const m4 = m3.set('d', 4);
 
     expect(m1.toObject()).toEqual({});
-    expect(m2.toObject()).toEqual({a: 1});
-    expect(m3.toObject()).toEqual({a: 1, b: 2, c: 3});
-    expect(m4.toObject()).toEqual({a: 1, b: 2, c: 3, d: 4});
+    expect(m2.toObject()).toEqual({ a: 1 });
+    expect(m3.toObject()).toEqual({ a: 1, b: 2, c: 3 });
+    expect(m4.toObject()).toEqual({ a: 1, b: 2, c: 3, d: 4 });
   });
 
   it('chained mutations does not result in new empty map instance', () => {
-    const v1 = Map({x: 1});
-    const v2 = v1.withMutations(v => v.set('y', 2).delete('x').delete('y'));
+    const v1 = Map({ x: 1 });
+    const v2 = v1.withMutations(v =>
+      v
+        .set('y', 2)
+        .delete('x')
+        .delete('y')
+    );
     expect(v2).toBe(Map());
   });
 
@@ -362,10 +401,10 @@ describe('Map', () => {
   it('deletes all the provided keys', () => {
     const NOT_SET = undefined;
     const m1 = Map({ A: 1, B: 2, C: 3 });
-    const m2 = m1.deleteAll(["A", "B"]);
-    expect(m2.get("A")).toBe(NOT_SET);
-    expect(m2.get("B")).toBe(NOT_SET);
-    expect(m2.get("C")).toBe(3);
+    const m2 = m1.deleteAll(['A', 'B']);
+    expect(m2.get('A')).toBe(NOT_SET);
+    expect(m2.get('B')).toBe(NOT_SET);
+    expect(m2.get('C')).toBe(3);
     expect(m2.size).toBe(1);
   });
 
@@ -376,22 +415,64 @@ describe('Map', () => {
   });
 
   it('uses toString on keys and values', () => {
-    class A extends Record({x: null as number | null}) {
+    class A extends Record({ x: null as number | null }) {
       toString() {
         return this.x;
       }
     }
 
-    const r = new A({x: 2});
+    const r = new A({ x: 2 });
     const map = Map([[r, r]]);
     expect(map.toString()).toEqual('Map { 2: 2 }');
+  });
+
+  it('supports Symbols as tuple keys', () => {
+    const a = Symbol('a');
+    const b = Symbol('b');
+    const c = Symbol('c');
+    const m = Map([[a, 'a'], [b, 'b'], [c, 'c']]);
+    expect(m.size).toBe(3);
+    expect(m.get(a)).toBe('a');
+    expect(m.get(b)).toBe('b');
+    expect(m.get(c)).toBe('c');
+  });
+
+  it('Symbol keys are unique', () => {
+    const a = Symbol('FooBar');
+    const b = Symbol('FooBar');
+    const m = Map([[a, 'FizBuz'], [b, 'FooBar']]);
+    expect(m.size).toBe(2);
+    expect(m.get(a)).toBe('FizBuz');
+    expect(m.get(b)).toBe('FooBar');
+  });
+
+  it('mergeDeep with tuple Symbol keys', () => {
+    const a = Symbol('a');
+    const b = Symbol('b');
+    const c = Symbol('c');
+    const d = Symbol('d');
+    const e = Symbol('e');
+    const f = Symbol('f');
+    const g = Symbol('g');
+
+    // Note the use of nested Map constructors, Map() does not do a
+    // deep conversion!
+    const m1 = Map([[a, Map([[b, Map([[c, 1], [d, 2]])]])]]);
+    const m2 = Map([
+      [a, Map([[b, Map([[c, 10], [e, 20], [f, 30], [g, 40]])]])],
+    ]);
+    const merged = m1.mergeDeep(m2);
+
+    expect(merged).toEqual(
+      Map([[a, Map([[b, Map([[c, 10], [d, 2], [e, 20], [f, 30], [g, 40]])]])]])
+    );
   });
 
   it('supports symbols as keys', () => {
     const symbolA = Symbol('A');
     const symbolB = Symbol('B');
     const symbolC = Symbol('C');
-    const m = Map({[symbolA]: 'A', [symbolB]: 'B', [symbolC]: 'C'});
+    const m = Map({ [symbolA]: 'A', [symbolB]: 'B', [symbolC]: 'C' });
     expect(m.size).toBe(3);
     expect(m.get(symbolA)).toBe('A');
     expect(m.get(symbolB)).toBe('B');
@@ -401,10 +482,9 @@ describe('Map', () => {
   it('symbol keys are unique', () => {
     const symbolA = Symbol('FooBar');
     const symbolB = Symbol('FooBar');
-    const m = Map({[symbolA]: 'FizBuz', [symbolB]: 'FooBar'});
+    const m = Map({ [symbolA]: 'FizBuz', [symbolB]: 'FooBar' });
     expect(m.size).toBe(2);
     expect(m.get(symbolA)).toBe('FizBuz');
     expect(m.get(symbolB)).toBe('FooBar');
   });
-
 });

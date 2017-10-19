@@ -77,7 +77,7 @@ var MemberDoc = React.createClass({
 
     var typeInfo = member.inherited && {
       propMap: typePropMap,
-      defining: member.inherited.name
+      defining: member.inherited.name,
     };
 
     var showDetail = isMobile ? this.state.detail : true;
@@ -117,7 +117,7 @@ var MemberDoc = React.createClass({
                       name={name}
                       callSig={callSig}
                     />,
-                    '\n'
+                    '\n',
                   ])}
                 </code>
               )}
@@ -169,7 +169,7 @@ var MemberDoc = React.createClass({
         </TransitionGroup>
       </div>
     );
-  }
+  },
 });
 
 function makeSlideDown(child) {
@@ -206,7 +206,7 @@ var SlideDown = React.createClass({
 
   render() {
     return this.props.children;
-  }
+  },
 });
 
 var FIXED_HEADER_HEIGHT = 75;

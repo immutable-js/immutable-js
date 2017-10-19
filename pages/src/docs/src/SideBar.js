@@ -111,7 +111,7 @@ var SideBar = React.createClass({
                                 (member.memberDef.signatures ? '()' : '')}
                             </Router.Link>
                           </div>
-                        ))
+                        )),
                       ])
               )
               .flatten()
@@ -127,7 +127,7 @@ var SideBar = React.createClass({
         {members}
       </div>
     );
-  }
+  },
 });
 
 function flattenSubmodules(modules, type, name) {

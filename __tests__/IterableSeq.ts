@@ -11,20 +11,24 @@ declare var Symbol: any;
 import { Seq } from '../';
 
 describe('Sequence', () => {
-
   it('creates a sequence from an iterable', () => {
     const i = new SimpleIterable();
     const s = Seq(i);
-    expect(s.take(5).toArray()).toEqual([ 0, 1, 2, 3, 4 ]);
+    expect(s.take(5).toArray()).toEqual([0, 1, 2, 3, 4]);
   });
 
   it('is stable', () => {
     const i = new SimpleIterable();
     const s = Seq(i);
-    expect(s.take(5).toArray()).toEqual([ 0, 1, 2, 3, 4 ]);
-    expect(s.take(5).toArray()).toEqual([ 0, 1, 2, 3, 4 ]);
-    expect(s.take(5).take(Infinity).toArray()).toEqual([ 0, 1, 2, 3, 4 ]);
-    expect(s.take(5).toArray()).toEqual([ 0, 1, 2, 3, 4 ]);
+    expect(s.take(5).toArray()).toEqual([0, 1, 2, 3, 4]);
+    expect(s.take(5).toArray()).toEqual([0, 1, 2, 3, 4]);
+    expect(
+      s
+        .take(5)
+        .take(Infinity)
+        .toArray()
+    ).toEqual([0, 1, 2, 3, 4]);
+    expect(s.take(5).toArray()).toEqual([0, 1, 2, 3, 4]);
   });
 
   it('counts iterations', () => {
@@ -39,10 +43,10 @@ describe('Sequence', () => {
     const mockFn = jest.genMockFunction();
     const i = new SimpleIterable(3, mockFn);
     const s = Seq(i);
-    expect(s.toArray()).toEqual([ 0, 1, 2 ]);
+    expect(s.toArray()).toEqual([0, 1, 2]);
     expect(mockFn.mock.calls).toEqual([[0], [1], [2]]);
     // The iterator is recreated for the second time.
-    expect(s.toArray()).toEqual([ 0, 1, 2 ]);
+    expect(s.toArray()).toEqual([0, 1, 2]);
     expect(mockFn.mock.calls).toEqual([[0], [1], [2], [0], [1], [2]]);
   });
 
@@ -92,19 +96,18 @@ describe('Sequence', () => {
   });
 
   describe('IteratorSequence', () => {
-
     it('creates a sequence from a raw iterable', () => {
       const i = new SimpleIterable(10);
       const s = Seq(i[ITERATOR_SYMBOL]());
-      expect(s.take(5).toArray()).toEqual([ 0, 1, 2, 3, 4 ]);
+      expect(s.take(5).toArray()).toEqual([0, 1, 2, 3, 4]);
     });
 
     it('is stable', () => {
       const i = new SimpleIterable(10);
       const s = Seq(i[ITERATOR_SYMBOL]());
-      expect(s.take(5).toArray()).toEqual([ 0, 1, 2, 3, 4 ]);
-      expect(s.take(5).toArray()).toEqual([ 0, 1, 2, 3, 4 ]);
-      expect(s.take(5).toArray()).toEqual([ 0, 1, 2, 3, 4 ]);
+      expect(s.take(5).toArray()).toEqual([0, 1, 2, 3, 4]);
+      expect(s.take(5).toArray()).toEqual([0, 1, 2, 3, 4]);
+      expect(s.take(5).toArray()).toEqual([0, 1, 2, 3, 4]);
     });
 
     it('counts iterations', () => {
@@ -119,15 +122,15 @@ describe('Sequence', () => {
       const mockFn = jest.genMockFunction();
       const i = new SimpleIterable(10, mockFn);
       const s = Seq(i[ITERATOR_SYMBOL]());
-      expect(s.take(3).toArray()).toEqual([ 0, 1, 2 ]);
+      expect(s.take(3).toArray()).toEqual([0, 1, 2]);
       expect(mockFn.mock.calls).toEqual([[0], [1], [2]]);
 
       // Second call uses memoized values
-      expect(s.take(3).toArray()).toEqual([ 0, 1, 2 ]);
+      expect(s.take(3).toArray()).toEqual([0, 1, 2]);
       expect(mockFn.mock.calls).toEqual([[0], [1], [2]]);
 
       // Further ahead in the iterator yields more results.
-      expect(s.take(5).toArray()).toEqual([ 0, 1, 2, 3, 4 ]);
+      expect(s.take(5).toArray()).toEqual([0, 1, 2, 3, 4]);
       expect(mockFn.mock.calls).toEqual([[0], [1], [2], [3], [4]]);
     });
 
@@ -165,12 +168,11 @@ describe('Sequence', () => {
       expect(iter.next()).toEqual({ value: undefined, done: true });
     });
   });
-
 });
 
 // Helper for this test
 const ITERATOR_SYMBOL =
-  typeof Symbol === 'function' && Symbol.iterator || '@@iterator';
+  (typeof Symbol === 'function' && Symbol.iterator) || '@@iterator';
 
 function SimpleIterable(max?: number, watcher?: any) {
   this.max = max;

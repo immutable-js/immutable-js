@@ -23,7 +23,7 @@ var Index = React.createClass({
         </div>
       </div>
     );
-  }
+  },
 });
 
 module.exports = Index;

@@ -36,7 +36,7 @@ var TypeDocumentation = React.createClass({
   getInitialState() {
     return {
       showInherited: true,
-      showInGroups: true
+      showInGroups: true,
     };
   },
 
@@ -55,7 +55,7 @@ var TypeDocumentation = React.createClass({
 
     var memberGroups = collectMemberGroups(def && def.interface, {
       showInGroups: this.state.showInGroups,
-      showInherited: this.state.showInherited
+      showInherited: this.state.showInherited,
     });
 
     return (
@@ -88,13 +88,13 @@ var TypeDocumentation = React.createClass({
         </div>
       </div>
     );
-  }
+  },
 });
 
 var NotFound = React.createClass({
   render() {
     return <div>{'Not found'}</div>;
-  }
+  },
 });
 
 var FunctionDoc = React.createClass({
@@ -112,7 +112,7 @@ var FunctionDoc = React.createClass({
         <code className="codeBlock memberSignature">
           {def.signatures.map((callSig, i) => [
             <CallSigDef key={i} name={name} callSig={callSig} />,
-            '\n'
+            '\n',
           ])}
         </code>
         {doc.notes &&
@@ -139,7 +139,7 @@ var FunctionDoc = React.createClass({
         <Disclaimer />
       </div>
     );
-  }
+  },
 });
 
 var TypeDoc = React.createClass({
@@ -217,7 +217,7 @@ var TypeDoc = React.createClass({
               parentName={name}
               member={{
                 memberName: name,
-                memberDef: call
+                memberDef: call,
               }}
             />
           </section>
@@ -235,7 +235,7 @@ var TypeDoc = React.createClass({
                   member={{
                     memberName: fnName,
                     memberDef: t.call,
-                    isStatic: true
+                    isStatic: true,
                   }}
                 />
               ))
@@ -262,7 +262,7 @@ var TypeDoc = React.createClass({
                           parentName={name}
                           member={member}
                         />
-                      ))
+                      )),
                     ])
             )
             .flatten()
@@ -273,7 +273,7 @@ var TypeDoc = React.createClass({
         <Disclaimer />
       </div>
     );
-  }
+  },
 });
 
 /**

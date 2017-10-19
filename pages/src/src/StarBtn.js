@@ -47,7 +47,7 @@ var StarBtn = React.createClass({
         )}
       </span>
     );
-  }
+  },
 });
 
 module.exports = StarBtn;

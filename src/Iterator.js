@@ -41,7 +41,7 @@ export function iteratorValue(type, k, v, iteratorResult) {
     ? (iteratorResult.value = value)
     : (iteratorResult = {
         value: value,
-        done: false
+        done: false,
       });
   return iteratorResult;
 }

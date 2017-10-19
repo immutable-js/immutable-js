@@ -236,7 +236,7 @@ function setProp(prototype, name) {
       set: function(value) {
         invariant(this.__ownerID, 'Cannot set on an immutable record.');
         this.set(name, value);
-      }
+      },
     });
   } catch (error) {
     // Object.defineProperty failed. Probably IE8.

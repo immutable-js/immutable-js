@@ -49,7 +49,7 @@ var DocOverview = React.createClass({
           .toArray()}
       </div>
     );
-  }
+  },
 });
 
 module.exports = DocOverview;

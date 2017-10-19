@@ -70,7 +70,7 @@ function collectMemberGroups(interfaceDef, options) {
         member = {
           group,
           memberName: memberName.substr(1),
-          memberDef
+          memberDef,
         };
         if (def !== interfaceDef) {
           member.inherited = { name, def };

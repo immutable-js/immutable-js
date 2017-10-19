@@ -51,7 +51,7 @@ map1.get('b') + " vs. " + map2.get('b') // 2 vs. 50
 
 ### Browser
 
-Immutable.js has no depenencnies, which makes it predictable to include in a Browser.
+Immutable.js has no dependencies, which makes it predictable to include in a Browser.
 
 It's highly recommended to use a module bundler like [webpack](https://webpack.github.io/),
 [rollup](https://rollupjs.org/), or

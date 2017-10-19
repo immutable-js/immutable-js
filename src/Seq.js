@@ -13,7 +13,7 @@ import {
   isKeyed,
   isAssociative,
   isRecord,
-  IS_ORDERED_SENTINEL
+  IS_ORDERED_SENTINEL,
 } from './Predicates';
 import {
   Iterator,
@@ -21,7 +21,7 @@ import {
   iteratorDone,
   hasIterator,
   isIterator,
-  getIterator
+  getIterator,
 } from './Iterator';
 
 import hasOwnProperty from './utils/hasOwnProperty';

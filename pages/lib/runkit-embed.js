@@ -11,19 +11,29 @@ global.runIt = function runIt(button) {
 
   const options = JSON.parse(unescape(button.dataset.options));
 
+  function withCorrectVersion(code) {
+    return code.replace(
+      /require\('immutable'\)/g,
+      "require('immutable@4.0.0-rc.9')"
+    );
+  }
+
   global.RunKit.createNotebook({
     element: container,
     nodeVersion: options.nodeVersion || '*',
-    preamble:
+    preamble: withCorrectVersion(
       'const assert = (' +
-      makeAssert +
-      ')(require("immutable@4.0.0-rc.8"));' +
-      (options.preamble || ''),
-    source: codeElement.textContent.replace(/\n(>[^\n]*\n?)+$/g, ''),
+        makeAssert +
+        ")(require('immutable'));" +
+        (options.preamble || '')
+    ),
+    source: withCorrectVersion(
+      codeElement.textContent.replace(/\n(>[^\n]*\n?)+$/g, '')
+    ),
     minHeight: '52px',
     onLoad: function(notebook) {
       notebook.evaluate();
-    }
+    },
   });
 };
 
