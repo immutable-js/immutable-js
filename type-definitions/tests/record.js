@@ -125,7 +125,7 @@ const PersonRecord = Record(defaultValues);
 
 class Person extends PersonRecord<TPerson> {
   getName(): string {
-    return this.get('name')
+    return this.get('name');
   }
 
   setName(name: string): this & TPerson {
