@@ -229,4 +229,62 @@ describe('merge', () => {
       Map([[a, Map([[b, Map([[c, 10], [d, 2], [e, 20], [f, 30], [g, 40]])]])]])
     );
   });
+
+  it('merges Maps with Symbol keys via global merge', () => {
+    const c = Symbol('c');
+    const d = Symbol('d');
+    const e = Symbol('e');
+    const m1 = Map({ [c]: 1, [d]: 2 });
+    const m2 = Map({ [c]: 10, [e]: 20 });
+    const actual = merge(m1, m2);
+    const expected = Map({ [c]: 10, [d]: 2, [e]: 20 });
+    expect(actual).toEqual(expected);
+  });
+
+  it('merges Maps with Symbol keys via global mergeDeep', () => {
+    const a = Symbol('a');
+    const b = Symbol('b');
+    const c = Symbol('c');
+    const d = Symbol('d');
+    const e = Symbol('e');
+    const f = Symbol('f');
+    const g = Symbol('g');
+    const m1 = Map({ [a]: { [b]: { [c]: 1, [d]: 2 } } });
+    const m2 = Map({ [a]: { [b]: { [c]: 10, [e]: 20 }, [f]: 30 }, [g]: 40 });
+    const actual = mergeDeep(m1, m2);
+    const expected = Map({
+      [a]: { [b]: { [c]: 10, [d]: 2, [e]: 20 }, [f]: 30 },
+      [g]: 40,
+    });
+    expect(actual).toEqual(expected);
+  });
+
+  it('merges Maps with Symbol keys via Map.merge', () => {
+    const c = Symbol('c');
+    const d = Symbol('d');
+    const e = Symbol('e');
+    const m1 = Map({ [c]: 1, [d]: 2 });
+    const m2 = Map({ [c]: 10, [e]: 20 });
+    const actual = m1.merge(m2);
+    const expected = Map({ [c]: 10, [d]: 2, [e]: 20 });
+    expect(actual).toEqual(expected);
+  });
+
+  it('merges Maps with Symbol keys via Map.mergeDeep', () => {
+    const a = Symbol('a');
+    const b = Symbol('b');
+    const c = Symbol('c');
+    const d = Symbol('d');
+    const e = Symbol('e');
+    const f = Symbol('f');
+    const g = Symbol('g');
+    const m1 = Map({ [a]: { [b]: { [c]: 1, [d]: 2 } } });
+    const m2 = Map({ [a]: { [b]: { [c]: 10, [e]: 20 }, [f]: 30 }, [g]: 40 });
+    const actual = m1.mergeDeep(m2);
+    const expected = Map({
+      [a]: { [b]: { [c]: 10, [d]: 2, [e]: 20 }, [f]: 30 },
+      [g]: 40,
+    });
+    expect(actual).toEqual(expected);
+  });
 });
