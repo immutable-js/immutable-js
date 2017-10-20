@@ -1280,14 +1280,18 @@ declare module Immutable {
      * a mutable copy of this collection. Mutable copies *always* return `this`,
      * and thus shouldn't be used for equality. Your function should never return
      * a mutable copy of a collection, only use it internally to create a new
-     * collection. If possible, use `withMutations` as it provides an easier to
-     * use API.
+     * collection.
+     *
+     * If possible, use `withMutations` to work with temporary mutable copies as
+     * it provides an easier to use API and considers many common optimizations.
      *
      * Note: if the collection is already mutable, `asMutable` returns itself.
      *
      * Note: Not all methods can be used on a mutable collection or within
      * `withMutations`! Read the documentation for each method to see if it
      * is safe to use in `withMutations`.
+     *
+     * @see `Map#asImmutable`
      */
     asMutable(): this;
 
@@ -1301,8 +1305,15 @@ declare module Immutable {
 
     /**
      * The yin to `asMutable`'s yang. Because it applies to mutable collections,
-     * this operation is *mutable* and returns itself. Once performed, the mutable
-     * copy has become immutable and can be safely returned from a function.
+     * this operation is *mutable* and may return itself (though may not
+     * return itself, i.e. if the result is an empty collection). Once
+     * performed, the original mutable copy must no longer be mutated since it
+     * may be the immutable result.
+     *
+     * If possible, use `withMutations` to work with temporary mutable copies as
+     * it provides an easier to use API and considers many common optimizations.
+     *
+     * @see `Map#asMutable`
      */
     asImmutable(): this;
 
