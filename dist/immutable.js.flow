@@ -1384,8 +1384,8 @@ type RecordValues<R> = _RecordValues<*, R>;
 
 declare function isRecord(maybeRecord: any): boolean %checks(maybeRecord instanceof RecordInstance);
 declare class Record {
-  static <Values: Object>(spec: Values, name?: string): RecordFactory<Values>;
-  constructor<Values: Object>(spec: Values, name?: string): RecordFactory<Values>;
+  static <Values: Object>(spec: Values, name?: string): typeof RecordInstance;
+  constructor<Values: Object>(spec: Values, name?: string): typeof RecordInstance;
 
   static isRecord: typeof isRecord;
 
