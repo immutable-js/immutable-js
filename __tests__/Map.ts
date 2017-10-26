@@ -468,23 +468,51 @@ describe('Map', () => {
     );
   });
 
-  it('supports symbols as keys', () => {
-    const symbolA = Symbol('A');
-    const symbolB = Symbol('B');
-    const symbolC = Symbol('C');
-    const m = Map({ [symbolA]: 'A', [symbolB]: 'B', [symbolC]: 'C' });
+  it('supports Symbol keys from object literal', () => {
+    const a = Symbol('A');
+    const b = Symbol('B');
+    const c = Symbol('C');
+    const m = Map.ownEntries({ [a]: 'A', [b]: 'B', [c]: 'C' });
     expect(m.size).toBe(3);
-    expect(m.get(symbolA)).toBe('A');
-    expect(m.get(symbolB)).toBe('B');
-    expect(m.get(symbolC)).toBe('C');
+    expect(m.get(a)).toBe('A');
+    expect(m.get(b)).toBe('B');
+    expect(m.get(c)).toBe('C');
   });
 
-  it('symbol keys are unique', () => {
-    const symbolA = Symbol('FooBar');
-    const symbolB = Symbol('FooBar');
-    const m = Map({ [symbolA]: 'FizBuz', [symbolB]: 'FooBar' });
+  it('Symbol keys from object literal are unique', () => {
+    const a = Symbol('FooBar');
+    const b = Symbol('FooBar');
+    const m = Map.ownEntries({ [a]: 'FizBuz', [b]: 'FooBar' });
     expect(m.size).toBe(2);
-    expect(m.get(symbolA)).toBe('FizBuz');
-    expect(m.get(symbolB)).toBe('FooBar');
+    expect(m.get(a)).toBe('FizBuz');
+    expect(m.get(b)).toBe('FooBar');
+  });
+
+  it('mergeDeep Map from object literal', () => {
+    const a = Symbol('a');
+    const b = Symbol('b');
+    const c = Symbol('c');
+    const d = Symbol('d');
+    const e = Symbol('e');
+    const f = Symbol('f');
+    const g = Symbol('g');
+    const m1 = Map.ownEntries({ [a]: { [b]: { [c]: 1, [d]: 2 } } });
+    const m2 = Map.ownEntries({
+      [a]: { [b]: { [c]: 10, [e]: 20 }, [f]: 30 },
+      [g]: 40,
+    });
+    const expected = Map.ownEntries({
+      [a]: { [b]: { [c]: 10, [d]: 2, [e]: 20 }, [f]: 30 },
+      [g]: 40,
+    });
+    const actual = m1.mergeDeep(m2);
+    expect(actual).toEqual(expected);
+
+    const actualJs = actual.toJS();
+    expect(actualJs[a][b][c]).toEqual(10);
+    expect(actualJs[a][b][d]).toEqual(2);
+    expect(actualJs[a][b][e]).toEqual(20);
+    expect(actualJs[a][f]).toEqual(30);
+    expect(actualJs[g]).toEqual(40);
   });
 });
