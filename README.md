@@ -238,7 +238,7 @@ alpha.map((v, k) => k.toUpperCase()).join();
 ### Convert from raw JavaScript objects and arrays.
 
 Designed to inter-operate with your existing JavaScript, Immutable.js
-accepts plain JavaScript Arrays and Objects anywhere a method expects an
+accepts plain JavaScript Arrays and Objects anywhere a method expects a
 `Collection`.
 
 <!-- runkit:activate -->
