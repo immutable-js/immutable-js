@@ -1372,11 +1372,11 @@ declare class Stack<+T> extends IndexedCollection<T> {
 declare function Range(start?: number, end?: number, step?: number): IndexedSeq<number>;
 declare function Repeat<T>(value: T, times?: number): IndexedSeq<T>;
 
-// The type of a Record factory function.
-type RecordFactory<Values: Object> = Class<RecordInstance<Values>>;
-
 // The type of runtime Record instances.
 type RecordOf<Values: Object> = RecordInstance<Values> & Values;
+
+// The type of a Record factory function.
+type RecordFactory<Values: Object> = Class<RecordOf<Values>>;
 
 // The values of a Record instance.
 type _RecordValues<T, R: RecordInstance<T> | T> = R;
