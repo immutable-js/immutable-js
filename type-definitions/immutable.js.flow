@@ -1655,6 +1655,7 @@ export type {
   SetSeq,
   RecordFactory,
   RecordOf,
+  RecordInstance,
   ValueObject,
 
   $KeyOf,
