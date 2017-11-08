@@ -82,7 +82,7 @@ describe('splice', () => {
   });
 
   it('has the same behavior as array splice in known edge cases', () => {
-    // arbitary numbers that sum to 31
+    // arbitrary numbers that sum to 31
     const a = Range(0, 49).toArray();
     const v = List(a);
     a.splice(-18, 0, 0);
