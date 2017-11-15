@@ -2431,7 +2431,7 @@ declare module Immutable {
      * notSetValue will be returned if provided. Note that this scenario would
      * produce an error when using Flow or TypeScript.
      */
-    get<K extends keyof TProps>(key: K, notSetValue: any): TProps[K];
+    get<K extends keyof TProps>(key: K, notSetValue?: TProps[K]): TProps[K];
 
     // Reading deep values
 
