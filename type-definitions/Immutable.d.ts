@@ -2290,7 +2290,7 @@ declare module Immutable {
    *
    * **Choosing Records vs plain JavaScript objects**
    *
-   * Records ofters a persistently immutable alternative to plain JavaScript
+   * Records offers a persistently immutable alternative to plain JavaScript
    * objects, however they're not required to be used within Immutable.js
    * collections. In fact, the deep-access and deep-updating functions
    * like `getIn()` and `setIn()` work with plain JavaScript Objects as well.
