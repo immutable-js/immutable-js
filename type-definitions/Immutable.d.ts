@@ -2432,6 +2432,7 @@ declare module Immutable {
      * produce an error when using Flow or TypeScript.
      */
     get<K extends keyof TProps>(key: K, notSetValue?: any): TProps[K];
+    get<T>(key: string, notSetValue: T): T;
 
     // Reading deep values
 
