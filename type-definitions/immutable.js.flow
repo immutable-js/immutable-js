@@ -1454,8 +1454,8 @@ declare class RecordInstance<T: Object> {
   removeIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>>(keyPath: [K, K2, K3, K4]): this & T;
   removeIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>>(keyPath: [K, K2, K3, K4, K5]): this & T;
 
-  updateIn<U>(keyPath: [], notSetValue: mixed, updater: (value: this) => U): U;
-  updateIn<U>(keyPath: [], updater: (value: this) => U): U;
+  updateIn<U>(keyPath: [], notSetValue: mixed, updater: (value: this & T) => U): U;
+  updateIn<U>(keyPath: [], updater: (value: this & T) => U): U;
   updateIn<NSV, K: $Keys<T>, S: $ValOf<T, K>>(keyPath: [K], notSetValue: NSV, updater: (value: $ValOf<T, K>) => S): this & T;
   updateIn<K: $Keys<T>, S: $ValOf<T, K>>(keyPath: [K], updater: (value: $ValOf<T, K>) => S): this & T;
   updateIn<NSV, K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, S: $ValOf<$ValOf<T, K>, K2>>(keyPath: [K, K2], notSetValue: NSV, updater: (value: $ValOf<$ValOf<T, K>, K2> | NSV) => S): this & T;
@@ -1476,7 +1476,7 @@ declare class RecordInstance<T: Object> {
   toJSON(): T;
   toObject(): T;
 
-  withMutations(mutator: (mutable: this) => mixed): this & T;
+  withMutations(mutator: (mutable: this & T) => mixed): this & T;
   asMutable(): this & T;
   wasAltered(): boolean;
   asImmutable(): this & T;
