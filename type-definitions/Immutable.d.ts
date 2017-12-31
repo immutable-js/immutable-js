@@ -2429,8 +2429,9 @@ declare module Immutable {
      *
      * If the requested key is not defined by this Record type, then
      * notSetValue will be returned if provided. Note that this scenario would
-     * produce an error when using Flow or TypeScript.
+     * produce an error when using Flow.
      */
+    get<K extends keyof TProps>(key: K): TProps[K] | undefined;
     get<K extends keyof TProps>(key: K, notSetValue: any): TProps[K];
 
     // Reading deep values
