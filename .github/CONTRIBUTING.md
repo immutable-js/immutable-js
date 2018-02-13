@@ -70,7 +70,7 @@ npm run test
 Performance tests run against master and your feature branch.
 Make sure to commit your changes in your local feature branch before proceeding.
 
-These commands assume you have a remote named `upstream` amd that you do not already have a local `master` branch:
+These commands assume you have a remote named `upstream` and that you do not already have a local `master` branch:
 ```bash
 git fetch upstream
 git checkout -b master upstream/master
