@@ -80,7 +80,7 @@
  *
  *
  * Note: All examples are presented in the modern [ES2015][] version of
- * JavaScript. To run in older browsers, they need to be translated to ES3.
+ * JavaScript. To run in older browsers, they need to be translated to ES5.
  *
  * For example:
  *
