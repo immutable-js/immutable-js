@@ -58,9 +58,9 @@ describe('List', () => {
   });
 
   it('accepts an array-like', () => {
-    const v = List({ length: 3, 1: 'b' } as any);
-    expect(v.get(1)).toBe('b');
-    expect(v.toArray()).toEqual([undefined, 'b', undefined]);
+    const v = List({ length: 3, 2: 'c' } as any);
+    expect(v.get(2)).toBe('c');
+    expect(v.toArray()).toEqual([undefined, undefined, 'c']);
   });
 
   it('accepts any array-like collection, including strings', () => {

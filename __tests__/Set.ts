@@ -20,11 +20,11 @@ describe('Set', () => {
   });
 
   it('accepts array-like of values', () => {
-    const s = Set<any>({ length: 3, 1: 2 } as any);
+    const s = Set<any>({ length: 3, 2: 3 } as any);
     expect(s.size).toBe(2);
     expect(s.has(undefined)).toBe(true);
-    expect(s.has(2)).toBe(true);
-    expect(s.has(1)).toBe(false);
+    expect(s.has(3)).toBe(true);
+    expect(s.has(2)).toBe(false);
   });
 
   it('accepts string, an array-like collection', () => {

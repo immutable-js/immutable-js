@@ -6,5 +6,15 @@
  */
 
 export default function isArrayLike(value) {
-  return value && typeof value.length === 'number';
+  if (Array.isArray(value) || typeof value === 'string') {
+    return true;
+  }
+
+  return (
+    value &&
+    typeof value === 'object' &&
+    typeof value.length === 'number' &&
+    ((value.length && value.length - 1 in value) ||
+      (!value.length && Object.keys(value).length <= 1))
+  );
 }
