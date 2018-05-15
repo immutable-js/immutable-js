@@ -51,13 +51,16 @@ var SideBar = React.createClass({
   renderSideBarType(typeName, type) {
     var isFocus = this.props.focus === typeName;
     var isFunction = !type.interface && !type.module;
+    var isLocationPathLoaded =
+      (window.location && window.location.pathname === '/docs/') || false;
     var call = type.call;
     var functions = Seq(type.module).filter(t => !t.interface && !t.module);
 
+    var pathPrefix = isLocationPathLoaded ? '/' : '/docs/#/';
     var label = typeName + (isFunction ? '()' : '');
 
     if (!isFocus) {
-      label = <Router.Link to={'/' + typeName}>{label}</Router.Link>;
+      label = <Router.Link to={pathPrefix + typeName}>{label}</Router.Link>;
     }
 
     var memberGroups = this.props.memberGroups;
@@ -69,7 +72,7 @@ var SideBar = React.createClass({
             <section>
               <h4 className="groupTitle">Construction</h4>
               <div>
-                <Router.Link to={'/' + typeName + '/' + typeName}>
+                <Router.Link to={pathPrefix + typeName + '/' + typeName}>
                   {typeName + '()'}
                 </Router.Link>
               </div>
@@ -82,7 +85,7 @@ var SideBar = React.createClass({
               {functions
                 .map((t, name) => (
                   <div key={name}>
-                    <Router.Link to={'/' + typeName + '/' + name}>
+                    <Router.Link to={pathPrefix + typeName + '/' + name}>
                       {typeName + '.' + name + '()'}
                     </Router.Link>
                   </div>
@@ -105,7 +108,9 @@ var SideBar = React.createClass({
                         Seq(members).map(member => (
                           <div key={member.memberName}>
                             <Router.Link
-                              to={'/' + typeName + '/' + member.memberName}
+                              to={
+                                pathPrefix + typeName + '/' + member.memberName
+                              }
                             >
                               {member.memberName +
                                 (member.memberDef.signatures ? '()' : '')}
