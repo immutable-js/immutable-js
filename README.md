@@ -556,8 +556,8 @@ Any collection can be converted to a lazy Seq with `Seq()`.
 
 <!-- runkit:activate -->
 ```js
-const { Map, Seq } = require('immutable')
-const map = Map({ a: 1, b: 2, c: 3 })
+const { Map } = require('immutable')
+const map = Map({ a: 1, b: 2, c: 3 }
 const lazySeq = Seq(map)
 ```
 
