@@ -3821,7 +3821,7 @@ declare module Immutable {
      * ```js
      * const { Map, List } = require('immutable')
      * const deepData = Map({ x: List([ Map({ y: 123 }) ]) });
-     * getIn(deepData, ['x', 0, 'y']) // 123
+     * deepData.getIn(['x', 0, 'y']) // 123
      * ```
      *
      * Plain JavaScript Object or Arrays may be nested within an Immutable.js
@@ -3831,7 +3831,7 @@ declare module Immutable {
      * ```js
      * const { Map, List } = require('immutable')
      * const deepData = Map({ x: [ { y: 123 } ] });
-     * getIn(deepData, ['x', 0, 'y']) // 123
+     * deepData.getIn(['x', 0, 'y']) // 123
      * ```
      */
     getIn(searchKeyPath: Iterable<any>, notSetValue?: any): any;
