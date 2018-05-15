@@ -4707,7 +4707,7 @@ declare module Immutable {
    * ```js
    * const { fromJS, isKeyed } = require('immutable')
    * function (key, value) {
-   *   return isKeyed(value) ? value.Map() : value.toList()
+   *   return isKeyed(value) ? value.toMap() : value.toList()
    * }
    * ```
    *
