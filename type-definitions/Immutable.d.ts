@@ -1430,6 +1430,27 @@ declare module Immutable {
     readonly size: number;
 
     /**
+     * Returns a new OrderedMap also containing the new key, value pair. If an equivalent
+     * key already exists in this OrderedMap, it will be replaced while maintaining the
+     * existing order.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { OrderedMapMap } = require('immutable')
+     * const originalMap = Immutable.OrderedMap({a:1, b:1, c:1})
+     * const updatedMap = originalMap.set('b', 2)
+     *
+     * originalMap
+     * // OrderedMap {a: 1, b: 1, c: 1}
+     * updatedMap
+     * // OrderedMap {a: 1, b: 2, c: 1}
+     * ```
+     *
+     * Note: `set` can be used in `withMutations`.
+     */
+    set(key: K, value: V): this;
+
+    /**
      * Returns a new OrderedMap resulting from merging the provided Collections
      * (or JS objects) into this OrderedMap. In other words, this takes each
      * entry of each collection and sets it on this OrderedMap.
