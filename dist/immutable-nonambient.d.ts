@@ -4692,7 +4692,7 @@
    * If a `reviver` is optionally provided, it will be called with every
    * collection as a Seq (beginning with the most nested collections
    * and proceeding to the top-level collection itself), along with the key
-   * refering to each collection and the parent JS object provided as `this`.
+   * referring to each collection and the parent JS object provided as `this`.
    * For the top level, object, the key will be `""`. This `reviver` is expected
    * to return a new Immutable Collection, allowing for custom conversions from
    * deep JS objects. Finally, a `path` is provided which is the sequence of
