@@ -5132,7 +5132,7 @@
    * const { merge } = require('immutable')
    * const original = { x: 123, y: 456 }
    * merge(original, { y: 789, z: 'abc' }) // { x: 123, y: 789, z: 'abc' }
-   * console.log(original) // { x: { y: { z: 123 }}}
+   * console.log(original) // { x: 123, y: 456 }
    * ```
    */
   export function merge<C>(
@@ -5156,7 +5156,7 @@
    *   original,
    *   { y: 789, z: 'abc' }
    * ) // { x: 123, y: 1245, z: 'abc' }
-   * console.log(original) // { x: { y: { z: 123 }}}
+   * console.log(original) // { x: 123, y: 456 }
    * ```
    */
   export function mergeWith<C>(
