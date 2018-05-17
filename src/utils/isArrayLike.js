@@ -14,7 +14,7 @@ export default function isArrayLike(value) {
     value &&
     typeof value === 'object' &&
     typeof value.length === 'number' &&
-    ((value.length && value.length - 1 in value) ||
-      (!value.length && Object.keys(value).length <= 1))
+    value.length >= 0 &&
+    (value.length === 0 || value.length - 1 in value)
   );
 }
