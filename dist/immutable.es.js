@@ -86,7 +86,9 @@ function resolveIndex(index, size, defaultIndex) {
   return index === undefined
     ? defaultIndex
     : isNeg(index)
-      ? size === Infinity ? size : Math.max(0, size + index) | 0
+      ? size === Infinity
+        ? size
+        : Math.max(0, size + index) | 0
       : size === undefined || size === index
         ? index
         : Math.min(size, index) | 0;
@@ -259,7 +261,9 @@ var Seq = (function (Collection$$1) {
   function Seq(value) {
     return value === null || value === undefined
       ? emptySequence()
-      : isImmutable(value) ? value.toSeq() : seqFromValue(value);
+      : isImmutable(value)
+        ? value.toSeq()
+        : seqFromValue(value);
   }
 
   if ( Collection$$1 ) Seq.__proto__ = Collection$$1;
@@ -328,8 +332,12 @@ var KeyedSeq = (function (Seq) {
     return value === null || value === undefined
       ? emptySequence().toKeyedSeq()
       : isCollection(value)
-        ? isKeyed(value) ? value.toSeq() : value.fromEntrySeq()
-        : isRecord(value) ? value.toSeq() : keyedSeqFromValue(value);
+        ? isKeyed(value)
+          ? value.toSeq()
+          : value.fromEntrySeq()
+        : isRecord(value)
+          ? value.toSeq()
+          : keyedSeqFromValue(value);
   }
 
   if ( Seq ) KeyedSeq.__proto__ = Seq;
@@ -348,7 +356,9 @@ var IndexedSeq = (function (Seq) {
     return value === null || value === undefined
       ? emptySequence()
       : isCollection(value)
-        ? isKeyed(value) ? value.entrySeq() : value.toIndexedSeq()
+        ? isKeyed(value)
+          ? value.entrySeq()
+          : value.toIndexedSeq()
         : isRecord(value)
           ? value.toSeq().entrySeq()
           : indexedSeqFromValue(value);
@@ -632,7 +642,9 @@ function keyedSeqFromValue(value) {
     ? new ArraySeq(value)
     : isIterator(value)
       ? new IteratorSeq(value)
-      : hasIterator(value) ? new CollectionSeq(value) : undefined;
+      : hasIterator(value)
+        ? new CollectionSeq(value)
+        : undefined;
   if (seq) {
     return seq.fromEntrySeq();
   }
@@ -673,7 +685,9 @@ function maybeIndexedSeqFromValue(value) {
     ? new ArraySeq(value)
     : isIterator(value)
       ? new IteratorSeq(value)
-      : hasIterator(value) ? new CollectionSeq(value) : undefined;
+      : hasIterator(value)
+        ? new CollectionSeq(value)
+        : undefined;
 }
 
 /**
@@ -1722,7 +1736,9 @@ function sortFactory(collection, comparator, mapper) {
   );
   return isKeyedCollection
     ? KeyedSeq(entries)
-    : isIndexed(collection) ? IndexedSeq(entries) : SetSeq(entries);
+    : isIndexed(collection)
+      ? IndexedSeq(entries)
+      : SetSeq(entries);
 }
 
 function maxFactory(collection, comparator, mapper) {
@@ -1821,14 +1837,18 @@ function validateEntry(entry) {
 function collectionClass(collection) {
   return isKeyed(collection)
     ? KeyedCollection
-    : isIndexed(collection) ? IndexedCollection : SetCollection;
+    : isIndexed(collection)
+      ? IndexedCollection
+      : SetCollection;
 }
 
 function makeSequence(collection) {
   return Object.create(
     (isKeyed(collection)
       ? KeyedSeq
-      : isIndexed(collection) ? IndexedSeq : SetSeq
+      : isIndexed(collection)
+        ? IndexedSeq
+        : SetSeq
     ).prototype
   );
 }
@@ -2210,7 +2230,9 @@ function deepMergerWith(merger) {
   function deepMerger(oldValue, newValue, key) {
     return isDataStructure(oldValue) && isDataStructure(newValue)
       ? mergeWithSources(oldValue, [newValue], deepMerger)
-      : merger ? merger(oldValue, newValue, key) : newValue;
+      : merger
+        ? merger(oldValue, newValue, key)
+        : newValue;
   }
   return deepMerger;
 }
@@ -3107,7 +3129,9 @@ var List = (function (IndexedCollection$$1) {
       ? this
       : index === 0
         ? this.shift()
-        : index === this.size - 1 ? this.pop() : this.splice(index, 1);
+        : index === this.size - 1
+          ? this.pop()
+          : this.splice(index, 1);
   };
 
   List.prototype.insert = function insert (index, value) {
@@ -3560,7 +3584,9 @@ function setListBounds(list, begin, end) {
   var newCapacity =
     end === undefined
       ? oldCapacity
-      : end < 0 ? oldCapacity + end : oldOrigin + end;
+      : end < 0
+        ? oldCapacity + end
+        : oldOrigin + end;
   if (newOrigin === oldOrigin && newCapacity === oldCapacity) {
     return list;
   }
@@ -3607,7 +3633,9 @@ function setListBounds(list, begin, end) {
   var newTail =
     newTailOffset < oldTailOffset
       ? listNodeFor(list, newCapacity - 1)
-      : newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
+      : newTailOffset > oldTailOffset
+        ? new VNode([], owner)
+        : oldTail;
 
   // Merge Tail into tree.
   if (
@@ -3860,7 +3888,9 @@ var Stack = (function (IndexedCollection$$1) {
   function Stack(value) {
     return value === null || value === undefined
       ? emptyStack()
-      : isStack(value) ? value : emptyStack().pushAll(value);
+      : isStack(value)
+        ? value
+        : emptyStack().pushAll(value);
   }
 
   if ( IndexedCollection$$1 ) Stack.__proto__ = IndexedCollection$$1;
@@ -4138,7 +4168,9 @@ function deepEqual(a, b) {
     if (
       notAssociative
         ? !a.has(v)
-        : flipped ? !is(v, a.get(k, NOT_SET)) : !is(a.get(k, NOT_SET), v)
+        : flipped
+          ? !is(v, a.get(k, NOT_SET))
+          : !is(a.get(k, NOT_SET), v)
     ) {
       allEqual = false;
       return false;
@@ -4370,7 +4402,9 @@ function updateSet(set, newMap) {
   }
   return newMap === set._map
     ? set
-    : newMap.size === 0 ? set.__empty() : set.__make(newMap);
+    : newMap.size === 0
+      ? set.__empty()
+      : set.__make(newMap);
 }
 
 function makeSet(map, ownerID) {
@@ -4623,7 +4657,9 @@ mixin(Collection, {
   toSeq: function toSeq() {
     return isIndexed(this)
       ? this.toIndexedSeq()
-      : isKeyed(this) ? this.toKeyedSeq() : this.toSetSeq();
+      : isKeyed(this)
+        ? this.toKeyedSeq()
+        : this.toSetSeq();
   },
 
   toStack: function toStack() {
@@ -5675,7 +5711,9 @@ function fromJS(value, converter) {
 function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
   var toSeq = Array.isArray(value)
     ? IndexedSeq
-    : isPlainObj(value) ? KeyedSeq : null;
+    : isPlainObj(value)
+      ? KeyedSeq
+      : null;
   if (toSeq) {
     if (~stack.indexOf(value)) {
       throw new TypeError('Cannot convert circular structure to Immutable');
