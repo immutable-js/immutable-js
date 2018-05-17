@@ -2375,6 +2375,14 @@ var Map = (function (KeyedCollection$$1) {
     return OrderedMap(sortFactory(this, comparator, mapper));
   };
 
+  Map.prototype.map = function map (mapper, context) {
+    return this.withMutations(function (map) {
+      map.forEach(function (value, key) {
+        map.set(key, mapper.call(context, value, key, map));
+      });
+    });
+  };
+
   // @pragma Mutability
 
   Map.prototype.__iterator = function __iterator (type, reverse) {
@@ -3212,6 +3220,16 @@ var List = (function (IndexedCollection$$1) {
 
   List.prototype.setSize = function setSize (size) {
     return setListBounds(this, 0, size);
+  };
+
+  List.prototype.map = function map (mapper, context) {
+    var this$1 = this;
+
+    return this.withMutations(function (list) {
+      for (var i = 0; i < this$1.size; i++) {
+        list.set(i, mapper.call(context, list.get(i), i, list));
+      }
+    });
   };
 
   // @pragma Iteration
