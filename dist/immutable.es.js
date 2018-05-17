@@ -2088,12 +2088,12 @@ function updateInDeeply(
         );
 }
 
-function setIn$1(collection, keyPath, value) {
+function setIn(collection, keyPath, value) {
   return updateIn(collection, keyPath, NOT_SET, function () { return value; });
 }
 
-function setIn$$1(keyPath, v) {
-  return setIn$1(this, keyPath, v);
+function setIn$1(keyPath, v) {
+  return setIn(this, keyPath, v);
 }
 
 function removeIn(collection, keyPath) {
@@ -2104,14 +2104,14 @@ function deleteIn(keyPath) {
   return removeIn(this, keyPath);
 }
 
-function update$1(collection, key, notSetValue, updater) {
+function update(collection, key, notSetValue, updater) {
   return updateIn(collection, [key], notSetValue, updater);
 }
 
-function update$$1(key, notSetValue, updater) {
+function update$1(key, notSetValue, updater) {
   return arguments.length === 1
     ? key(this)
-    : update$1(this, key, notSetValue, updater);
+    : update(this, key, notSetValue, updater);
 }
 
 function updateIn$1(keyPath, notSetValue, updater) {
@@ -2153,7 +2153,7 @@ function mergeIntoKeyedWith(collection, collections, merger) {
   return collection.withMutations(function (collection) {
     var mergeIntoCollection = merger
       ? function (value, key) {
-          update$1(
+          update(
             collection,
             key,
             NOT_SET,
@@ -2183,14 +2183,14 @@ function mergeWith$1(merger, collection) {
   return mergeWithSources(collection, sources, merger);
 }
 
-function mergeDeep$1(collection) {
+function mergeDeep(collection) {
   var sources = [], len = arguments.length - 1;
   while ( len-- > 0 ) sources[ len ] = arguments[ len + 1 ];
 
   return mergeDeepWithSources(collection, sources);
 }
 
-function mergeDeepWith$1(merger, collection) {
+function mergeDeepWith(merger, collection) {
   var sources = [], len = arguments.length - 2;
   while ( len-- > 0 ) sources[ len ] = arguments[ len + 2 ];
 
@@ -2252,14 +2252,14 @@ function deepMergerWith(merger) {
   return deepMerger;
 }
 
-function mergeDeep() {
+function mergeDeep$1() {
   var iters = [], len = arguments.length;
   while ( len-- ) iters[ len ] = arguments[ len ];
 
   return mergeDeepWithSources(this, iters);
 }
 
-function mergeDeepWith(merger) {
+function mergeDeepWith$1(merger) {
   var iters = [], len = arguments.length - 1;
   while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
 
@@ -2446,14 +2446,14 @@ var MapPrototype = Map.prototype;
 MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeAll = MapPrototype.deleteAll;
-MapPrototype.setIn = setIn$$1;
+MapPrototype.setIn = setIn$1;
 MapPrototype.removeIn = MapPrototype.deleteIn = deleteIn;
-MapPrototype.update = update$$1;
+MapPrototype.update = update$1;
 MapPrototype.updateIn = updateIn$1;
 MapPrototype.merge = MapPrototype.concat = merge;
 MapPrototype.mergeWith = mergeWith;
-MapPrototype.mergeDeep = mergeDeep;
-MapPrototype.mergeDeepWith = mergeDeepWith;
+MapPrototype.mergeDeep = mergeDeep$1;
+MapPrototype.mergeDeepWith = mergeDeepWith$1;
 MapPrototype.mergeIn = mergeIn;
 MapPrototype.mergeDeepIn = mergeDeepIn;
 MapPrototype.withMutations = withMutations;
@@ -2484,7 +2484,7 @@ ArrayMapNode.prototype.get = function get (shift, keyHash, key, notSetValue) {
   return notSetValue;
 };
 
-ArrayMapNode.prototype.update = function update$$1 (ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
+ArrayMapNode.prototype.update = function update (ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
   var removed = value === NOT_SET;
 
   var entries = this.entries;
@@ -2557,7 +2557,7 @@ BitmapIndexedNode.prototype.get = function get (shift, keyHash, key, notSetValue
       );
 };
 
-BitmapIndexedNode.prototype.update = function update$$1 (ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
+BitmapIndexedNode.prototype.update = function update (ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
   if (keyHash === undefined) {
     keyHash = hash(key);
   }
@@ -2639,7 +2639,7 @@ HashArrayMapNode.prototype.get = function get (shift, keyHash, key, notSetValue)
     : notSetValue;
 };
 
-HashArrayMapNode.prototype.update = function update$$1 (ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
+HashArrayMapNode.prototype.update = function update (ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
   if (keyHash === undefined) {
     keyHash = hash(key);
   }
@@ -2704,7 +2704,7 @@ HashCollisionNode.prototype.get = function get (shift, keyHash, key, notSetValue
   return notSetValue;
 };
 
-HashCollisionNode.prototype.update = function update$$1 (ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
+HashCollisionNode.prototype.update = function update (ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
   if (keyHash === undefined) {
     keyHash = hash(key);
   }
@@ -2774,7 +2774,7 @@ ValueNode.prototype.get = function get (shift, keyHash, key, notSetValue) {
   return is(key, this.entry[0]) ? this.entry[1] : notSetValue;
 };
 
-ValueNode.prototype.update = function update$$1 (ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
+ValueNode.prototype.update = function update (ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
   var removed = value === NOT_SET;
   var keyMatch = is(key, this.entry[0]);
   if (keyMatch ? value === this.entry[1] : removed) {
@@ -3324,9 +3324,9 @@ var ListPrototype = List.prototype;
 ListPrototype[IS_LIST_SENTINEL] = true;
 ListPrototype[DELETE] = ListPrototype.remove;
 ListPrototype.merge = ListPrototype.concat;
-ListPrototype.setIn = setIn$$1;
+ListPrototype.setIn = setIn$1;
 ListPrototype.deleteIn = ListPrototype.removeIn = deleteIn;
-ListPrototype.update = update$$1;
+ListPrototype.update = update$1;
 ListPrototype.updateIn = updateIn$1;
 ListPrototype.mergeIn = mergeIn;
 ListPrototype.mergeDeepIn = mergeDeepIn;
@@ -3349,7 +3349,7 @@ var VNode = function VNode(array, ownerID) {
 // TODO: seems like these methods are very similar
 
 VNode.prototype.removeBefore = function removeBefore (ownerID, level, index) {
-  if (index === level ? 1 << level : 0 || this.array.length === 0) {
+  if (index === level ? 1 << level : this.array.length === 0) {
     return this;
   }
   var originIndex = (index >>> level) & MASK;
@@ -4598,7 +4598,7 @@ var Range = (function (IndexedSeq$$1) {
 
 var EMPTY_RANGE;
 
-function getIn$1(collection, searchKeyPath, notSetValue) {
+function getIn(collection, searchKeyPath, notSetValue) {
   var keyPath = coerceKeyPath(searchKeyPath);
   var i = 0;
   while (i !== keyPath.length) {
@@ -4610,16 +4610,16 @@ function getIn$1(collection, searchKeyPath, notSetValue) {
   return collection;
 }
 
-function getIn$$1(searchKeyPath, notSetValue) {
-  return getIn$1(this, searchKeyPath, notSetValue);
+function getIn$1(searchKeyPath, notSetValue) {
+  return getIn(this, searchKeyPath, notSetValue);
 }
 
-function hasIn$1(collection, keyPath) {
-  return getIn$1(collection, keyPath, NOT_SET) !== NOT_SET;
+function hasIn(collection, keyPath) {
+  return getIn(collection, keyPath, NOT_SET) !== NOT_SET;
 }
 
-function hasIn$$1(searchKeyPath) {
-  return hasIn$1(this, searchKeyPath);
+function hasIn$1(searchKeyPath) {
+  return hasIn(this, searchKeyPath);
 }
 
 function toObject() {
@@ -4933,7 +4933,7 @@ mixin(Collection, {
     return this.find(function (_, key) { return is(key, searchKey); }, undefined, notSetValue);
   },
 
-  getIn: getIn$$1,
+  getIn: getIn$1,
 
   groupBy: function groupBy(grouper, context) {
     return groupByFactory(this, grouper, context);
@@ -4943,7 +4943,7 @@ mixin(Collection, {
     return this.get(searchKey, NOT_SET) !== NOT_SET;
   },
 
-  hasIn: hasIn$$1,
+  hasIn: hasIn$1,
 
   isSubset: function isSubset(iter) {
     iter = typeof iter.includes === 'function' ? iter : Collection(iter);
@@ -5582,16 +5582,16 @@ var RecordPrototype = Record.prototype;
 RecordPrototype[IS_RECORD_SENTINEL] = true;
 RecordPrototype[DELETE] = RecordPrototype.remove;
 RecordPrototype.deleteIn = RecordPrototype.removeIn = deleteIn;
-RecordPrototype.getIn = getIn$$1;
+RecordPrototype.getIn = getIn$1;
 RecordPrototype.hasIn = CollectionPrototype.hasIn;
 RecordPrototype.merge = merge;
 RecordPrototype.mergeWith = mergeWith;
 RecordPrototype.mergeIn = mergeIn;
-RecordPrototype.mergeDeep = mergeDeep;
-RecordPrototype.mergeDeepWith = mergeDeepWith;
+RecordPrototype.mergeDeep = mergeDeep$1;
+RecordPrototype.mergeDeepWith = mergeDeepWith$1;
 RecordPrototype.mergeDeepIn = mergeDeepIn;
-RecordPrototype.setIn = setIn$$1;
-RecordPrototype.update = update$$1;
+RecordPrototype.setIn = setIn$1;
+RecordPrototype.update = update$1;
 RecordPrototype.updateIn = updateIn$1;
 RecordPrototype.withMutations = withMutations;
 RecordPrototype.asMutable = asMutable;
@@ -5779,7 +5779,6 @@ function defaultConverter(k, v) {
 
 var version = "4.0.0-rc.9";
 
-// Functional read/write API
 var Immutable = {
   version: version,
 
@@ -5812,23 +5811,23 @@ var Immutable = {
   isValueObject: isValueObject,
 
   get: get,
-  getIn: getIn$1,
+  getIn: getIn,
   has: has,
-  hasIn: hasIn$1,
+  hasIn: hasIn,
   merge: merge$1,
-  mergeDeep: mergeDeep$1,
+  mergeDeep: mergeDeep,
   mergeWith: mergeWith$1,
-  mergeDeepWith: mergeDeepWith$1,
+  mergeDeepWith: mergeDeepWith,
   remove: remove,
   removeIn: removeIn,
   set: set,
-  setIn: setIn$1,
-  update: update$1,
+  setIn: setIn,
+  update: update,
   updateIn: updateIn,
 };
 
 // Note: Iterable is deprecated
 var Iterable = Collection;
 
-export { version, Collection, Iterable, Seq, Map, OrderedMap, List, Stack, Set, OrderedSet, Record, Range, Repeat, is, fromJS, hash, isImmutable, isCollection, isKeyed, isIndexed, isAssociative, isOrdered, isValueObject, get, getIn$1 as getIn, has, hasIn$1 as hasIn, merge$1 as merge, mergeDeep$1 as mergeDeep, mergeWith$1 as mergeWith, mergeDeepWith$1 as mergeDeepWith, remove, removeIn, set, setIn$1 as setIn, update$1 as update, updateIn };
 export default Immutable;
+export { version, Collection, Iterable, Seq, Map, OrderedMap, List, Stack, Set, OrderedSet, Record, Range, Repeat, is, fromJS, hash, isImmutable, isCollection, isKeyed, isIndexed, isAssociative, isOrdered, isValueObject, get, getIn, has, hasIn, merge$1 as merge, mergeDeep, mergeWith$1 as mergeWith, mergeDeepWith, remove, removeIn, set, setIn, update, updateIn };
