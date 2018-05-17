@@ -20,14 +20,14 @@ const SRC_DIR = path.resolve('src');
 const DIST_DIR = path.resolve('dist');
 
 export default {
-  sourceMap: false,
-  banner: copyright,
-  name: 'Immutable',
   input: path.join(SRC_DIR, 'Immutable.js'),
   output: {
+    banner: copyright,
+    name: 'Immutable',
     exports: 'named',
     file: path.join(DIST_DIR, 'immutable.js'),
     format: 'umd',
+    sourcemap: false,
   },
   plugins: [
     commonjs(),
