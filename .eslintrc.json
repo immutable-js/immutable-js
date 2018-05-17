@@ -48,6 +48,7 @@
     "object-shorthand": "off",
     "one-var": "error",
     "operator-assignment": "error",
+    "prefer-destructuring": "off",
     "prefer-rest-params": "off",
     "prefer-spread": "off",
     "prefer-template": "off",

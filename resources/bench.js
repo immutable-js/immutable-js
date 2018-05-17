@@ -107,7 +107,8 @@ Promise.all([
 
             function it(name, test) {
               var fullName = description.join(' > ') + ' ' + name;
-              (tests[fullName] ||
+              (
+                tests[fullName] ||
                 (tests[fullName] = {
                   description: fullName,
                   tests: [],

@@ -17,7 +17,10 @@ var SideBar = React.createClass({
     return (
       <div className="sideBar">
         <div className="toolBar">
-          <div onClick={this.props.toggleShowInGroups}>
+          <div
+            onClick={this.props.toggleShowInGroups}
+            onKeyPress={this.props.toggleShowInGroups}
+          >
             <span className={this.props.showInGroups && 'selected'}>
               Grouped
             </span>
@@ -26,7 +29,10 @@ var SideBar = React.createClass({
               Alphabetized
             </span>
           </div>
-          <div onClick={this.props.toggleShowInherited}>
+          <div
+            onClick={this.props.toggleShowInherited}
+            onKeyPress={this.props.toggleShowInherited}
+          >
             <span className={this.props.showInherited && 'selected'}>
               Inherited
             </span>

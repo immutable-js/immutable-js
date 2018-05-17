@@ -203,7 +203,9 @@ function updateSet(set, newMap) {
   }
   return newMap === set._map
     ? set
-    : newMap.size === 0 ? set.__empty() : set.__make(newMap);
+    : newMap.size === 0
+      ? set.__empty()
+      : set.__make(newMap);
 }
 
 function makeSet(map, ownerID) {
