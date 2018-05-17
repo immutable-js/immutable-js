@@ -41,6 +41,9 @@ let geoPointExpected2: RecordOf<TGeoPoint> = Point2({});
 const px = origin2.get('x');
 const px2: number = origin2.x;
 // $ExpectError
+const px3: number = origin2.get('x', 'not set value');
+const px4: number | string = origin2.get('x', 'not set value');
+// $ExpectError
 const pz = origin2.get('z');
 // $ExpectError
 const pz2 = origin2.z;
