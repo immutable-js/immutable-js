@@ -47,11 +47,19 @@ describe('Seq', () => {
   });
 
   it('accepts an array-like', () => {
-    const alike: any = { length: 2, 0: 'a', 1: 'b' };
-    const seq = Seq(alike);
+    const seq = Seq({ length: 2, 0: 'a', 1: 'b' });
     expect(isIndexed(seq)).toBe(true);
     expect(seq.size).toBe(2);
     expect(seq.get(1)).toBe('b');
+
+    const map = Seq({ length: 1, foo: 'bar' });
+    expect(isIndexed(map)).toBe(false);
+    expect(map.size).toBe(2);
+    expect(map.get('foo')).toBe('bar');
+
+    const empty = Seq({ length: 0 });
+    expect(isIndexed(empty)).toBe(true);
+    expect(empty.size).toEqual(0);
   });
 
   it('does not accept a scalar', () => {
