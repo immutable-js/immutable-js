@@ -13,7 +13,7 @@ export default function isArrayLike(value) {
   return (
     value &&
     typeof value === 'object' &&
-    typeof value.length === 'number' &&
+    Number.isInteger(value.length) &&
     value.length >= 0 &&
     (value.length === 0 
        // Only {length: 0} is considered Array-like.
