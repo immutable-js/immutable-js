@@ -59,8 +59,8 @@
   },
   "devDependencies": {
     "benchmark": "2.1.4",
-    "browser-sync": "2.18.13",
-    "browserify": "14.4.0",
+    "browser-sync": "2.24.4",
+    "browserify": "16.2.2",
     "colors": "1.2.5",
     "del": "3.0.0",
     "dtslint": "0.1.2",
