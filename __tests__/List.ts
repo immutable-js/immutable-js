@@ -513,6 +513,12 @@ describe('List', () => {
     expect(r.toArray()).toEqual(['A', 'B', 'C']);
   });
 
+  it('map no-ops return the same reference', () => {
+    const v = List.of('a', 'b', 'c');
+    const r = v.map(value => value);
+    expect(r).toBe(v);
+  });
+
   it('filters values', () => {
     const v = List.of('a', 'b', 'c', 'd', 'e', 'f');
     const r = v.filter((value, index) => index % 2 === 1);

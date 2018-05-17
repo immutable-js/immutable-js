@@ -126,6 +126,14 @@ export class Map extends KeyedCollection {
     return OrderedMap(sortFactory(this, comparator, mapper));
   }
 
+  map(mapper, context) {
+    return this.withMutations(map => {
+      map.forEach((value, key) => {
+        map.set(key, mapper.call(context, value, key, map));
+      });
+    });
+  }
+
   // @pragma Mutability
 
   __iterator(type, reverse) {

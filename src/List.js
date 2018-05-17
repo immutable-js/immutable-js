@@ -173,6 +173,14 @@ export class List extends IndexedCollection {
     return setListBounds(this, 0, size);
   }
 
+  map(mapper, context) {
+    return this.withMutations(list => {
+      for (let i = 0; i < this.size; i++) {
+        list.set(i, mapper.call(context, list.get(i), i, list));
+      }
+    });
+  }
+
   // @pragma Iteration
 
   slice(begin, end) {
