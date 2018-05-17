@@ -92,6 +92,12 @@ describe('Set', () => {
     expect(s.toObject()).toEqual({ a: 'a', b: 'b', c: 'c' });
   });
 
+  it('maps no-ops return the same reference', () => {
+    const s = Set([1, 2, 3]);
+    const r = s.map(value => value);
+    expect(r).toBe(s);
+  });
+
   it('unions an unknown collection of Sets', () => {
     const abc = Set(['a', 'b', 'c']);
     const cat = Set(['c', 'a', 't']);

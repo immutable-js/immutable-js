@@ -80,6 +80,10 @@ export class Set extends SetCollection {
 
   // @pragma Composition
 
+  map(mapper, context) {
+    return updateSet(this, this._map.map(v => mapper(v, v, this), context));
+  }
+
   union(...iters) {
     iters = iters.filter(x => x.size !== 0);
     if (iters.length === 0) {
