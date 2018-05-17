@@ -4284,6 +4284,12 @@ var Set = (function (SetCollection$$1) {
 
   // @pragma Composition
 
+  Set.prototype.map = function map (mapper, context) {
+    var this$1 = this;
+
+    return updateSet(this, this._map.map(function (v) { return mapper(v, v, this$1); }, context));
+  };
+
   Set.prototype.union = function union () {
     var iters = [], len = arguments.length;
     while ( len-- ) iters[ len ] = arguments[ len ];
