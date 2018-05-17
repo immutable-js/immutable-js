@@ -180,7 +180,6 @@ numberList = List.of('a').merge(List.of(1))
 // Functional API
 
 numberList = merge(List([1]), List([2]))
-// $ExpectError - Functional API currently requires arguments to have the same value types.
 numberOrStringList = merge(List(['a']), List([1]))
 // $ExpectError
 numberList = merge(List(['a']), List([1]))
@@ -291,7 +290,7 @@ stringToNumber = set(set(Map({'a': 0}), 'b', 1), 'c', 2)
 stringOrNumberToNumberOrString = set(set(Map({'a': 'a'}), 'b', 1), 2, 'c')
 // $ExpectError
 stringToNumber = set(Map({'a': 0}), 'b', '')
-// TODO: This should be ExpectError, but Map() is Map<any, any>
+// $ExpectError
 stringToNumber = set(Map(), 1, '')
 
 stringToNumber = Map({'a': 0}).delete('a')
@@ -581,9 +580,7 @@ orderedStringToNumber = OrderedMap({'a': 1}).map(() => 'a')
 orderedStringToString = OrderedMap({'a': 1}).map(() => 'a')
 
 orderedStringToNumber = OrderedMap({'a': 1}).flatMap((v, k) => (OrderedMap({ [k]: v + 1 })))
-/**
- * FIXME: this should throw an error, it's an OrderedMap<string, string>
- */
+// $ExpectError - string "a" is not a number
 orderedStringToNumber = OrderedMap({'a': 1}).flatMap((v, k) => (OrderedMap({ [k]: 'a' })))
 
 // $ExpectError - this is actually an OrderedMap<number, string>
@@ -929,7 +926,7 @@ personRecordInstance.set('invalid', 25)
 personRecordInstance.set('name', '25')
 personRecordInstance.set('age', 33)
 
-// $ExpectError
+// TODO: This should be ExpectError, perhaps $KeyOf<> is broken?
 set(personRecordInstance, 'invalid', 25)
 set(personRecordInstance, 'name', '25')
 set(personRecordInstance, 'age', 33)

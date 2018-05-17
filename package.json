@@ -71,7 +71,7 @@
     "eslint-plugin-jsx-a11y": "6.0.3",
     "eslint-plugin-prettier": "2.6.0",
     "eslint-plugin-react": "7.8.2",
-    "flow-bin": "0.56.0",
+    "flow-bin": "0.72.0",
     "gulp": "3.9.1",
     "gulp-concat": "2.6.1",
     "gulp-filter": "5.1.0",
