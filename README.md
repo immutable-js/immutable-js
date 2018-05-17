@@ -158,7 +158,7 @@ instead of the `===` operator which determines object reference identity.
 <!-- runkit:activate -->
 ```js
 const { Map } = require('immutable')
-const map1 = Map({ a: 1, b: 2, c: 3 })
+const map1 = Map( {a: 1, b: 2, c: 3 })
 const map2 = map1.set('b', 2)
 assert.equal(map1, map2) // uses map1.equals
 assert.strictEqual(map1, map2) // uses ===
