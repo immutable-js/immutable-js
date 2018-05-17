@@ -1401,7 +1401,9 @@ declare class RecordInstance<T: Object> {
   size: number;
 
   has(key: string): boolean;
-  get<K: $Keys<T>>(key: K, notSetValue: mixed): $ElementType<T, K>;
+
+  get<K: $Keys<T>>(key: K, ..._: []): $ElementType<T, K>;
+  get<K: $Keys<T>, NSV>(key: K, notSetValue: NSV): $ElementType<T, K> | NSV;
 
   hasIn(keyPath: Iterable<mixed>): boolean;
 
