@@ -1430,14 +1430,14 @@
     readonly size: number;
 
     /**
-     * Returns a new OrderedMap also containing the new key, value pair. If an equivalent
-     * key already exists in this OrderedMap, it will be replaced while maintaining the
-     * existing order.
+     * Returns a new OrderedMap also containing the new key, value pair. If an
+     * equivalent key already exists in this OrderedMap, it will be replaced
+     * while maintaining the existing order.
      *
      * <!-- runkit:activate -->
      * ```js
-     * const { OrderedMapMap } = require('immutable')
-     * const originalMap = Immutable.OrderedMap({a:1, b:1, c:1})
+     * const { OrderedMap } = require('immutable')
+     * const originalMap = OrderedMap({a:1, b:1, c:1})
      * const updatedMap = originalMap.set('b', 2)
      *
      * originalMap
