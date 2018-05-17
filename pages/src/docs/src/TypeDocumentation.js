@@ -91,11 +91,9 @@ var TypeDocumentation = React.createClass({
   },
 });
 
-var NotFound = React.createClass({
-  render() {
-    return <div>{'Not found'}</div>;
-  },
-});
+function NotFound() {
+  return <div>Not found</div>;
+}
 
 var FunctionDoc = React.createClass({
   render() {

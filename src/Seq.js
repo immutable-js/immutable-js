@@ -31,7 +31,9 @@ export class Seq extends Collection {
   constructor(value) {
     return value === null || value === undefined
       ? emptySequence()
-      : isImmutable(value) ? value.toSeq() : seqFromValue(value);
+      : isImmutable(value)
+        ? value.toSeq()
+        : seqFromValue(value);
   }
 
   toSeq() {
@@ -92,8 +94,12 @@ export class KeyedSeq extends Seq {
     return value === null || value === undefined
       ? emptySequence().toKeyedSeq()
       : isCollection(value)
-        ? isKeyed(value) ? value.toSeq() : value.fromEntrySeq()
-        : isRecord(value) ? value.toSeq() : keyedSeqFromValue(value);
+        ? isKeyed(value)
+          ? value.toSeq()
+          : value.fromEntrySeq()
+        : isRecord(value)
+          ? value.toSeq()
+          : keyedSeqFromValue(value);
   }
 
   toKeyedSeq() {
@@ -106,7 +112,9 @@ export class IndexedSeq extends Seq {
     return value === null || value === undefined
       ? emptySequence()
       : isCollection(value)
-        ? isKeyed(value) ? value.entrySeq() : value.toIndexedSeq()
+        ? isKeyed(value)
+          ? value.entrySeq()
+          : value.toIndexedSeq()
         : isRecord(value)
           ? value.toSeq().entrySeq()
           : indexedSeqFromValue(value);
@@ -346,7 +354,9 @@ export function keyedSeqFromValue(value) {
     ? new ArraySeq(value)
     : isIterator(value)
       ? new IteratorSeq(value)
-      : hasIterator(value) ? new CollectionSeq(value) : undefined;
+      : hasIterator(value)
+        ? new CollectionSeq(value)
+        : undefined;
   if (seq) {
     return seq.fromEntrySeq();
   }
@@ -387,5 +397,7 @@ function maybeIndexedSeqFromValue(value) {
     ? new ArraySeq(value)
     : isIterator(value)
       ? new IteratorSeq(value)
-      : hasIterator(value) ? new CollectionSeq(value) : undefined;
+      : hasIterator(value)
+        ? new CollectionSeq(value)
+        : undefined;
 }

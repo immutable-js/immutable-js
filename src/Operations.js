@@ -747,7 +747,9 @@ export function sortFactory(collection, comparator, mapper) {
   );
   return isKeyedCollection
     ? KeyedSeq(entries)
-    : isIndexed(collection) ? IndexedSeq(entries) : SetSeq(entries);
+    : isIndexed(collection)
+      ? IndexedSeq(entries)
+      : SetSeq(entries);
 }
 
 export function maxFactory(collection, comparator, mapper) {
@@ -844,14 +846,18 @@ function validateEntry(entry) {
 function collectionClass(collection) {
   return isKeyed(collection)
     ? KeyedCollection
-    : isIndexed(collection) ? IndexedCollection : SetCollection;
+    : isIndexed(collection)
+      ? IndexedCollection
+      : SetCollection;
 }
 
 function makeSequence(collection) {
   return Object.create(
     (isKeyed(collection)
       ? KeyedSeq
-      : isIndexed(collection) ? IndexedSeq : SetSeq
+      : isIndexed(collection)
+        ? IndexedSeq
+        : SetSeq
     ).prototype
   );
 }
