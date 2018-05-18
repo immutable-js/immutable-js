@@ -106,7 +106,9 @@ const originAlt2: TPointNew = MakePointNew();
 { const x: number = originAlt2.get('x') }
 { const x: number = originAlt2.x }
 
-// $ExpectError Use of new may only return a class instance, not a record
+// Use of new may only return a class instance, not a record
+// (supported but discouraged)
+// $ExpectError
 const mistakeOriginNew: PointNew = new MakePointNew();
 // An alternative type strategy is instance based
 const originNew: MakePointNew = new MakePointNew();

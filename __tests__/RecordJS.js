@@ -8,10 +8,10 @@
 const { Record } = require('../');
 
 describe('Record', () => {
-  it('defines a constructor', () => {
+  it('defines a record factory', () => {
     const MyType = Record({ a: 1, b: 2, c: 3 });
 
-    const t = new MyType();
+    const t = MyType();
     const t2 = t.set('a', 10);
 
     expect(t.a).toBe(1);
@@ -44,6 +44,7 @@ describe('Record', () => {
       }
     }
 
+    // Note: `new` is only used because of `class`
     const t = new Alphabet();
     const t2 = t.set('b', 200);
 

@@ -2229,17 +2229,19 @@ declare module Immutable {
    * myRecord.b = 5 // throws Error
    * ```
    *
-   * Record Classes can be extended as well, allowing for custom methods on your
+   * Record Types can be extended as well, allowing for custom methods on your
    * Record. This is not a common pattern in functional environments, but is in
    * many JS programs.
    *
-   * However Record Classes are more restricted than typical JavaScript classes.
+   * However Record Types are more restricted than typical JavaScript classes.
    * They do not use a class constructor, which also means they cannot use
    * class properties (since those are technically part of a constructor).
    *
-   * It's useful to think of Record Classes more like a Record Factory where
-   * record instances returned from the factory have additional API methods. It
-   * is best practice to not use `new` when creating new Records.
+   * While Record Types can be syntactically created with the JavaScript `class`
+   * form, the resulting Record function is actually a factory function, not a
+   * class constructor. Even though Record Types are not classes, JavaScript
+   * currently requires the use of `new` when creating new Record instances if
+   * they are defined as a `class`.
    *
    * ```
    * class ABRecord extends Record({ a: 1, b: 2 }) {
@@ -2248,7 +2250,7 @@ declare module Immutable {
    *   }
    * }
    *
-   * var myRecord = ABRecord({b: 3})
+   * var myRecord = new ABRecord({b: 3})
    * myRecord.getAB() // 4
    * ```
    *
