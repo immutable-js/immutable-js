@@ -19,7 +19,9 @@ const Point3: RecordFactory<{x: number, y: number, z: number}> =
 type TGeoPoint = {lat: ?number, lon: ?number}
 const GeoPoint: RecordFactory<TGeoPoint> = Record({lat: null, lon: null});
 
-// $ExpectError - 'abc' is not a number
+// TODO: this should be ExpectError - 'abc' is not a number
+// However, due to support for the brittle support for subclassing, Flow
+// cannot also type check default values in this position.
 const PointWhoops: RecordFactory<{x: number, y: number}> = Record({x:0, y:'abc'});
 
 let origin2 = Point2({});
@@ -38,6 +40,9 @@ let geoPointExpected2: RecordOf<TGeoPoint> = Point2({});
 
 const px = origin2.get('x');
 const px2: number = origin2.x;
+// $ExpectError
+const px3: number = origin2.get('x', 'not set value');
+const px4: number | string = origin2.get('x', 'not set value');
 // $ExpectError
 const pz = origin2.get('z');
 // $ExpectError
@@ -114,3 +119,31 @@ const originNew: MakePointNew = new MakePointNew();
 const mistakeNewRecord = MakePointNew({x: 'string'});
 // $ExpectError instantiated with invalid type
 const mistakeNewInstance = new MakePointNew({x: 'string'});
+
+// Subclassing
+
+type TPerson = {name: string, age: number};
+const defaultValues: TPerson = {name: 'Aristotle', age: 2400};
+const PersonRecord = Record(defaultValues);
+
+class Person extends PersonRecord<TPerson> {
+  getName(): string {
+    return this.get('name');
+  }
+
+  setName(name: string): this & TPerson {
+    return this.set('name', name);
+  }
+}
+
+const person = new Person();
+(person.setName('Thales'): Person);
+(person.getName(): string);
+(person.setName('Thales').getName(): string);
+(person.setName('Thales').name: string);
+person.get('name');
+person.set('name', 'Thales');
+// $ExpectError
+person.get('unknown');
+// $ExpectError
+person.set('unknown', 'Thales');

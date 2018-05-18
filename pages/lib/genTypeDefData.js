@@ -86,7 +86,9 @@ function DocVisitor(source) {
     if (!shouldIgnore(comment)) {
       var name = node.name
         ? node.name.text
-        : node.stringLiteral ? node.stringLiteral.text : '';
+        : node.stringLiteral
+          ? node.stringLiteral.text
+          : '';
 
       if (comment) {
         setIn(data, [name, 'doc'], comment);

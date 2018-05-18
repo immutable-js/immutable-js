@@ -19,6 +19,10 @@ Facebook has a [bounty program](https://www.facebook.com/whitehat/) for the safe
 disclosure of security bugs. In those cases, please go through the process
 outlined on that page and do not file a public issue.
 
+# Code of Conduct
+
+The code of conduct is described in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
+
 # Pull Requests
 
 All active development of Immutable JS happens on GitHub. We actively welcome

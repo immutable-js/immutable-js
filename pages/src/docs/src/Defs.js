@@ -18,7 +18,7 @@ var InterfaceDef = React.createClass({
     var def = this.props.def;
     return (
       <span className="t interfaceDef">
-        <span className="t keyword">{'class '}</span>
+        <span className="t keyword">class </span>
         <span className="t typeName">{name}</span>
         {def.typeParams && [
           '<',
@@ -33,14 +33,14 @@ var InterfaceDef = React.createClass({
           '>',
         ]}
         {def.extends && [
-          <span className="t keyword">{' extends '}</span>,
+          <span className="t keyword"> extends </span>,
           Seq(def.extends)
             .map((e, i) => <TypeDef key={i} type={e} />)
             .interpose(', ')
             .toArray(),
         ]}
         {def.implements && [
-          <span className="t keyword">{' implements '}</span>,
+          <span className="t keyword"> implements </span>,
           Seq(def.implements)
             .map((e, i) => <TypeDef key={i} type={e} />)
             .interpose(', ')
@@ -236,7 +236,9 @@ var TypeDef = React.createClass({
       <span
         className={'t ' + className}
         onMouseOver={this.mouseOver}
+        onFocus={this.mouseOver}
         onMouseOut={this.mouseOut}
+        onBlur={this.mouseOut}
       >
         {child}
       </span>

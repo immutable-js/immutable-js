@@ -1384,8 +1384,8 @@ type RecordValues<R> = _RecordValues<*, R>;
 
 declare function isRecord(maybeRecord: any): boolean %checks(maybeRecord instanceof RecordInstance);
 declare class Record {
-  static <Values: Object>(spec: Values, name?: string): RecordFactory<Values>;
-  constructor<Values: Object>(spec: Values, name?: string): RecordFactory<Values>;
+  static <Values: Object>(spec: Values, name?: string): typeof RecordInstance;
+  constructor<Values: Object>(spec: Values, name?: string): typeof RecordInstance;
 
   static isRecord: typeof isRecord;
 
@@ -1401,7 +1401,9 @@ declare class RecordInstance<T: Object> {
   size: number;
 
   has(key: string): boolean;
-  get<K: $Keys<T>>(key: K, notSetValue: mixed): $ElementType<T, K>;
+
+  get<K: $Keys<T>>(key: K, ..._: []): $ElementType<T, K>;
+  get<K: $Keys<T>, NSV>(key: K, notSetValue: NSV): $ElementType<T, K> | NSV;
 
   hasIn(keyPath: Iterable<mixed>): boolean;
 
@@ -1454,8 +1456,8 @@ declare class RecordInstance<T: Object> {
   removeIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>>(keyPath: [K, K2, K3, K4]): this & T;
   removeIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>>(keyPath: [K, K2, K3, K4, K5]): this & T;
 
-  updateIn<U>(keyPath: [], notSetValue: mixed, updater: (value: this) => U): U;
-  updateIn<U>(keyPath: [], updater: (value: this) => U): U;
+  updateIn<U>(keyPath: [], notSetValue: mixed, updater: (value: this & T) => U): U;
+  updateIn<U>(keyPath: [], updater: (value: this & T) => U): U;
   updateIn<NSV, K: $Keys<T>, S: $ValOf<T, K>>(keyPath: [K], notSetValue: NSV, updater: (value: $ValOf<T, K>) => S): this & T;
   updateIn<K: $Keys<T>, S: $ValOf<T, K>>(keyPath: [K], updater: (value: $ValOf<T, K>) => S): this & T;
   updateIn<NSV, K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, S: $ValOf<$ValOf<T, K>, K2>>(keyPath: [K, K2], notSetValue: NSV, updater: (value: $ValOf<$ValOf<T, K>, K2> | NSV) => S): this & T;
@@ -1476,7 +1478,7 @@ declare class RecordInstance<T: Object> {
   toJSON(): T;
   toObject(): T;
 
-  withMutations(mutator: (mutable: this) => mixed): this & T;
+  withMutations(mutator: (mutable: this & T) => mixed): this & T;
   asMutable(): this & T;
   wasAltered(): boolean;
   asImmutable(): this & T;
@@ -1655,6 +1657,7 @@ export type {
   SetSeq,
   RecordFactory,
   RecordOf,
+  RecordInstance,
   ValueObject,
 
   $KeyOf,

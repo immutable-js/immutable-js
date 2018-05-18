@@ -81,14 +81,14 @@ var Prism = (function() {
       },
 
       /**
-     * Insert a token before another token in a language literal
-     * As this needs to recreate the object (we cannot actually insert before keys in object literals),
-     * we cannot just provide an object, we need anobject and a key.
-     * @param inside The key (or language id) of the parent
-     * @param before The key to insert before. If not provided, the function appends instead.
-     * @param insert Object with the key/value pairs to insert
-     * @param root The object that contains `inside`. If equal to Prism.languages, it can be omitted.
-     */
+       * Insert a token before another token in a language literal
+       * As this needs to recreate the object (we cannot actually insert before keys in object literals),
+       * we cannot just provide an object, we need anobject and a key.
+       * @param inside The key (or language id) of the parent
+       * @param before The key to insert before. If not provided, the function appends instead.
+       * @param insert Object with the key/value pairs to insert
+       * @param root The object that contains `inside`. If equal to Prism.languages, it can be omitted.
+       */
       insertBefore: function(inside, before, insert, root) {
         root = root || _.languages;
         var grammar = root[inside];

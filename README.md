@@ -152,18 +152,16 @@ objects represent some thing which could change over time, a value represents
 the state of that thing at a particular instance of time. This principle is most
 important to understanding the appropriate use of immutable data. In order to
 treat Immutable.js collections as values, it's important to use the
-`Immutable.is()` function or `.equals()` method to determine value equality
-instead of the `===` operator which determines object reference identity.
+`Immutable.is()` function or `.equals()` method to determine *value equality*
+instead of the `===` operator which determines object *reference identity*.
 
 <!-- runkit:activate -->
 ```js
 const { Map } = require('immutable')
-const map1 = Map( {a: 1, b: 2, c: 3 })
-const map2 = map1.set('b', 2)
-assert.equal(map1, map2) // uses map1.equals
-assert.strictEqual(map1, map2) // uses ===
-const map3 = map1.set('b', 50)
-assert.notEqual(map1, map3) // uses map1.equals
+const map1 = Map({ a: 1, b: 2, c: 3 })
+const map2 = Map({ a: 1, b: 2, c: 3 })
+map1.equals(map2) // true
+map1 === map2 // false
 ```
 
 Note: As a performance optimization Immutable.js attempts to return the existing
@@ -174,6 +172,14 @@ which would prefer to re-run the function if a deeper equality check could
 potentially be more costly. The `===` equality check is also used internally by
 `Immutable.is` and `.equals()` as a performance optimization.
 
+<!-- runkit:activate -->
+```js
+const { Map } = require('immutable')
+const map1 = Map({ a: 1, b: 2, c: 3 })
+const map2 = map1.set('b', 2) // Set to same value
+map1 === map2 // true
+```
+
 If an object is immutable, it can be "copied" simply by making another reference
 to it instead of copying the entire object. Because a reference is much smaller
 than the object itself, this results in memory savings and a potential boost in
@@ -182,8 +188,8 @@ execution speed for programs which rely on copies (such as an undo-stack).
 <!-- runkit:activate -->
 ```js
 const { Map } = require('immutable')
-const map1 = Map({ a: 1, b: 2, c: 3 })
-const clone = map1;
+const map = Map({ a: 1, b: 2, c: 3 })
+const mapCopy = map; // Look, "copies" are free!
 ```
 
 [React]: http://facebook.github.io/react/
@@ -238,7 +244,7 @@ alpha.map((v, k) => k.toUpperCase()).join();
 ### Convert from raw JavaScript objects and arrays.
 
 Designed to inter-operate with your existing JavaScript, Immutable.js
-accepts plain JavaScript Arrays and Objects anywhere a method expects an
+accepts plain JavaScript Arrays and Objects anywhere a method expects a
 `Collection`.
 
 <!-- runkit:activate -->
@@ -279,11 +285,11 @@ shorthand, while Immutable Maps accept keys of any type.
 const { fromJS } = require('immutable')
 
 const obj = { 1: "one" }
-Object.keys(obj) // [ "1" ]
-assert.equal(obj["1"], obj[1])   // "one" === "one"
+console.log(Object.keys(obj)) // [ "1" ]
+console.log(obj["1"], obj[1]) // "one", "one"
 
 const map = fromJS(obj)
-assert.notEqual(map.get("1"), map.get(1)) // "one" !== undefined
+console.log(map.get("1"), map.get(1)) // "one", undefined
 ```
 
 Property access for JavaScript Objects first converts the key to a string, but
@@ -556,8 +562,8 @@ Any collection can be converted to a lazy Seq with `Seq()`.
 
 <!-- runkit:activate -->
 ```js
-const { Map } = require('immutable')
-const map = Map({ a: 1, b: 2, c: 3 }
+const { Map, Seq } = require('immutable')
+const map = Map({ a: 1, b: 2, c: 3 })
 const lazySeq = Seq(map)
 ```
 

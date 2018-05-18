@@ -80,7 +80,7 @@
  *
  *
  * Note: All examples are presented in the modern [ES2015][] version of
- * JavaScript. To run in older browsers, they need to be translated to ES3.
+ * JavaScript. Use tools like Babel to support older browsers.
  *
  * For example:
  *
@@ -556,9 +556,6 @@ declare module Immutable {
      * List([ 1, 2 ]).map(x => 10 * x)
      * // List [ 10, 20 ]
      * ```
-     *
-     * Note: `map()` always returns a new instance, even if it produced the same
-     * value at every step.
      */
     map<M>(
       mapper: (value: T, key: number, iter: this) => M,
@@ -1280,14 +1277,18 @@ declare module Immutable {
      * a mutable copy of this collection. Mutable copies *always* return `this`,
      * and thus shouldn't be used for equality. Your function should never return
      * a mutable copy of a collection, only use it internally to create a new
-     * collection. If possible, use `withMutations` as it provides an easier to
-     * use API.
+     * collection.
+     *
+     * If possible, use `withMutations` to work with temporary mutable copies as
+     * it provides an easier to use API and considers many common optimizations.
      *
      * Note: if the collection is already mutable, `asMutable` returns itself.
      *
      * Note: Not all methods can be used on a mutable collection or within
      * `withMutations`! Read the documentation for each method to see if it
      * is safe to use in `withMutations`.
+     *
+     * @see `Map#asImmutable`
      */
     asMutable(): this;
 
@@ -1301,8 +1302,15 @@ declare module Immutable {
 
     /**
      * The yin to `asMutable`'s yang. Because it applies to mutable collections,
-     * this operation is *mutable* and returns itself. Once performed, the mutable
-     * copy has become immutable and can be safely returned from a function.
+     * this operation is *mutable* and may return itself (though may not
+     * return itself, i.e. if the result is an empty collection). Once
+     * performed, the original mutable copy must no longer be mutated since it
+     * may be the immutable result.
+     *
+     * If possible, use `withMutations` to work with temporary mutable copies as
+     * it provides an easier to use API and considers many common optimizations.
+     *
+     * @see `Map#asMutable`
      */
     asImmutable(): this;
 
@@ -1314,9 +1322,6 @@ declare module Immutable {
      *
      *     Map({ a: 1, b: 2 }).map(x => 10 * x)
      *     // Map { a: 10, b: 20 }
-     *
-     * Note: `map()` always returns a new instance, even if it produced the same
-     * value at every step.
      */
     map<M>(
       mapper: (value: V, key: K, iter: this) => M,
@@ -1417,6 +1422,27 @@ declare module Immutable {
      * The number of entries in this OrderedMap.
      */
     readonly size: number;
+
+    /**
+     * Returns a new OrderedMap also containing the new key, value pair. If an
+     * equivalent key already exists in this OrderedMap, it will be replaced
+     * while maintaining the existing order.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { OrderedMap } = require('immutable')
+     * const originalMap = OrderedMap({a:1, b:1, c:1})
+     * const updatedMap = originalMap.set('b', 2)
+     *
+     * originalMap
+     * // OrderedMap {a: 1, b: 1, c: 1}
+     * updatedMap
+     * // OrderedMap {a: 1, b: 2, c: 1}
+     * ```
+     *
+     * Note: `set` can be used in `withMutations`.
+     */
+    set(key: K, value: V): this;
 
     /**
      * Returns a new OrderedMap resulting from merging the provided Collections
@@ -1688,9 +1714,6 @@ declare module Immutable {
      *
      *     Set([1,2]).map(x => 10 * x)
      *     // Set [10,20]
-     *
-     * Note: `map()` always returns a new instance, even if it produced the same
-     * value at every step.
      */
     map<M>(
       mapper: (value: T, key: T, iter: this) => M,
@@ -1790,9 +1813,6 @@ declare module Immutable {
      *
      *     OrderedSet([ 1, 2 ]).map(x => 10 * x)
      *     // OrderedSet [10, 20]
-     *
-     * Note: `map()` always returns a new instance, even if it produced the same
-     * value at every step.
      */
     map<M>(
       mapper: (value: T, key: T, iter: this) => M,
@@ -2228,12 +2248,12 @@ declare module Immutable {
    * **Flow Typing Records:**
    *
    * Immutable.js exports two Flow types designed to make it easier to use
-   * Records with flow typed code, `RecordOf<T>` and `RecordFactory<TProps>`.
+   * Records with flow typed code, `RecordOf<TProps>` and `RecordFactory<TProps>`.
    *
    * When defining a new kind of Record factory function, use a flow type that
    * describes the values the record contains along with `RecordFactory<TProps>`.
    * To type instances of the Record (which the factory function returns),
-   * use `RecordOf<T>`.
+   * use `RecordOf<TProps>`.
    *
    * Typically, new Record definitions will export both the Record factory
    * function as well as the Record instance type for use in other code.
@@ -2243,7 +2263,8 @@ declare module Immutable {
    *
    * // Use RecordFactory<TProps> for defining new Record factory functions.
    * type Point3DProps = { x: number, y: number, z: number };
-   * const makePoint3D: RecordFactory<Point3DProps> = Record({ x: 0, y: 0, z: 0 });
+   * const defaultValues: Point3DProps = { x: 0, y: 0, z: 0 };
+   * const makePoint3D: RecordFactory<Point3DProps> = Record(defaultValues);
    * export makePoint3D;
    *
    * // Use RecordOf<T> for defining new instances of that Record.
@@ -2251,10 +2272,34 @@ declare module Immutable {
    * const some3DPoint: Point3D = makePoint3D({ x: 10, y: 20, z: 30 });
    * ```
    *
+   * **Flow Typing Record Subclasses:**
+   *
+   * Records can be subclassed as a means to add additional methods to Record
+   * instances. This is generally discouraged in favor of a more functional API,
+   * since Subclasses have some minor overhead. However the ability to create
+   * a rich API on Record types can be quite valuable.
+   *
+   * When using Flow to type Subclasses, do not use `RecordFactory<TProps>`,
+   * instead apply the props type when subclassing:
+   *
+   * ```js
+   * type PersonProps = {name: string, age: number};
+   * const defaultValues: PersonProps = {name: 'Aristotle', age: 2400};
+   * const PersonRecord = Record(defaultValues);
+   * class Person extends PersonRecord<PersonProps> {
+   *   getName(): string {
+   *     return this.get('name')
+   *   }
+   *
+   *   setName(name: string): this {
+   *     return this.set('name', name);
+   *   }
+   * }
+   * ```
    *
    * **Choosing Records vs plain JavaScript objects**
    *
-   * Records ofters a persistently immutable alternative to plain JavaScript
+   * Records offer a persistently immutable alternative to plain JavaScript
    * objects, however they're not required to be used within Immutable.js
    * collections. In fact, the deep-access and deep-updating functions
    * like `getIn()` and `setIn()` work with plain JavaScript Objects as well.
@@ -2395,7 +2440,8 @@ declare module Immutable {
      * notSetValue will be returned if provided. Note that this scenario would
      * produce an error when using Flow or TypeScript.
      */
-    get<K extends keyof TProps>(key: K, notSetValue: any): TProps[K];
+    get<K extends keyof TProps>(key: K, notSetValue?: any): TProps[K];
+    get<T>(key: string, notSetValue: T): T;
 
     // Reading deep values
 
@@ -3764,7 +3810,7 @@ declare module Immutable {
      * ```js
      * const { Map, List } = require('immutable')
      * const deepData = Map({ x: List([ Map({ y: 123 }) ]) });
-     * getIn(deepData, ['x', 0, 'y']) // 123
+     * deepData.getIn(['x', 0, 'y']) // 123
      * ```
      *
      * Plain JavaScript Object or Arrays may be nested within an Immutable.js
@@ -3774,7 +3820,7 @@ declare module Immutable {
      * ```js
      * const { Map, List } = require('immutable')
      * const deepData = Map({ x: [ { y: 123 } ] });
-     * getIn(deepData, ['x', 0, 'y']) // 123
+     * deepData.getIn(['x', 0, 'y']) // 123
      * ```
      */
     getIn(searchKeyPath: Iterable<any>, notSetValue?: any): any;
@@ -4635,7 +4681,7 @@ declare module Immutable {
    * If a `reviver` is optionally provided, it will be called with every
    * collection as a Seq (beginning with the most nested collections
    * and proceeding to the top-level collection itself), along with the key
-   * refering to each collection and the parent JS object provided as `this`.
+   * referring to each collection and the parent JS object provided as `this`.
    * For the top level, object, the key will be `""`. This `reviver` is expected
    * to return a new Immutable Collection, allowing for custom conversions from
    * deep JS objects. Finally, a `path` is provided which is the sequence of
@@ -4650,7 +4696,7 @@ declare module Immutable {
    * ```js
    * const { fromJS, isKeyed } = require('immutable')
    * function (key, value) {
-   *   return isKeyed(value) ? value.Map() : value.toList()
+   *   return isKeyed(value) ? value.toMap() : value.toList()
    * }
    * ```
    *
@@ -5075,7 +5121,7 @@ declare module Immutable {
    * const { merge } = require('immutable')
    * const original = { x: 123, y: 456 }
    * merge(original, { y: 789, z: 'abc' }) // { x: 123, y: 789, z: 'abc' }
-   * console.log(original) // { x: { y: { z: 123 }}}
+   * console.log(original) // { x: 123, y: 456 }
    * ```
    */
   export function merge<C>(
@@ -5099,7 +5145,7 @@ declare module Immutable {
    *   original,
    *   { y: 789, z: 'abc' }
    * ) // { x: 123, y: 1245, z: 'abc' }
-   * console.log(original) // { x: { y: { z: 123 }}}
+   * console.log(original) // { x: 123, y: 456 }
    * ```
    */
   export function mergeWith<C>(

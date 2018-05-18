@@ -90,7 +90,9 @@ export class List extends IndexedCollection {
       ? this
       : index === 0
         ? this.shift()
-        : index === this.size - 1 ? this.pop() : this.splice(index, 1);
+        : index === this.size - 1
+          ? this.pop()
+          : this.splice(index, 1);
   }
 
   insert(index, value) {
@@ -169,6 +171,14 @@ export class List extends IndexedCollection {
 
   setSize(size) {
     return setListBounds(this, 0, size);
+  }
+
+  map(mapper, context) {
+    return this.withMutations(list => {
+      for (let i = 0; i < this.size; i++) {
+        list.set(i, mapper.call(context, list.get(i), i, list));
+      }
+    });
   }
 
   // @pragma Iteration
@@ -539,7 +549,9 @@ function setListBounds(list, begin, end) {
   let newCapacity =
     end === undefined
       ? oldCapacity
-      : end < 0 ? oldCapacity + end : oldOrigin + end;
+      : end < 0
+        ? oldCapacity + end
+        : oldOrigin + end;
   if (newOrigin === oldOrigin && newCapacity === oldCapacity) {
     return list;
   }
@@ -586,7 +598,9 @@ function setListBounds(list, begin, end) {
   let newTail =
     newTailOffset < oldTailOffset
       ? listNodeFor(list, newCapacity - 1)
-      : newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
+      : newTailOffset > oldTailOffset
+        ? new VNode([], owner)
+        : oldTail;
 
   // Merge Tail into tree.
   if (

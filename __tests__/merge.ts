@@ -15,6 +15,7 @@ import {
   merge,
   mergeDeep,
   mergeDeepWith,
+  Record,
   Set,
 } from '../';
 
@@ -228,5 +229,10 @@ describe('merge', () => {
     expect(merged).toEqual(
       Map([[a, Map([[b, Map([[c, 10], [d, 2], [e, 20], [f, 30], [g, 40]])]])]])
     );
+  });
+
+  it('merges records with a size property set to 0', () => {
+    const Sizable = Record({ size: 0 });
+    expect(Sizable().merge({ size: 123 }).size).toBe(123);
   });
 });
