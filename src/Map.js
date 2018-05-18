@@ -66,6 +66,17 @@ export class Map extends KeyedCollection {
     });
   }
 
+  static fromOwnEntries(source) {
+    return Map(
+      Reflect.ownKeys(source).map(key => [
+        key,
+        typeof source[key] === 'object'
+          ? Map.fromOwnEntries(source[key])
+          : source[key],
+      ])
+    );
+  }
+
   toString() {
     return this.__toString('Map {', '}');
   }

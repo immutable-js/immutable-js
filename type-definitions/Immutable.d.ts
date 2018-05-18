@@ -717,6 +717,48 @@ declare module Immutable {
      * @deprecated Use Map([ [ 'k', 'v' ] ]) or Map({ k: 'v' })
      */
     function of(...keyValues: Array<any>): Map<any, any>;
+
+    /**
+     * Creates a new Map from an object.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { Map } = require('immutable')
+     * Map.fromOwnEntries({
+     *   foo: 'bar',
+     *   fiz: 'buz'
+     * })
+     * // Map { "foo": "bar", "fiz": "buz" }
+     * ```
+     *
+     * Nested objects are recursively converted into instances of Map.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { Map } = require('immutable')
+     * Map.fromOwnEntries({
+     *   foo: 'bar',
+     *   fiz: {
+     *     buz: 'qux'
+     *   }
+     * })
+     * // Map { "foo": "bar", "fiz": Map { "buz": "qux" } }
+     * ```
+     *
+     * Symbol keys are supported.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { Map } = require('immutable')
+     * const fiz = Symbol('fiz');
+     * Map.fromOwnEntries({
+     *   foo: 'bar',
+     *   [fiz]: 'buz'
+     * })
+     * // Map { "foo": "bar", "Symbol(fiz)": "buz" }
+     * ```
+     */
+    function fromOwnEntries(obj: any): Map<any, any>;
   }
 
   /**
