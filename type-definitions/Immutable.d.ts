@@ -1047,7 +1047,7 @@ declare module Immutable {
      * Note: `mergeDeepWith` can be used in `withMutations`.
      */
     mergeDeepWith(
-      merger: (oldVal: V, newVal: V, key: K) => V,
+      merger: (oldVal: any, newVal: any, key: any) => any,
       ...collections: Array<Iterable<[K, V]> | {[key: string]: V}>
     ): this;
 
