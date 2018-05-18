@@ -66,12 +66,15 @@ export class Map extends KeyedCollection {
     });
   }
 
-  static ownEntries(obj) {
-    if (typeof obj !== 'object') {
-      return obj;
-    }
-
-    return Map(Reflect.ownKeys(obj).map(k => [k, Map.ownEntries(obj[k])]));
+  static fromOwnEntries(source) {
+    return Map(
+      Reflect.ownKeys(source).map(key => [
+        key,
+        typeof source[key] === 'object'
+          ? Map.fromOwnEntries(source[key])
+          : source[key],
+      ])
+    );
   }
 
   toString() {

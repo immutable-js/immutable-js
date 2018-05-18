@@ -868,6 +868,7 @@ declare class Map<K, +V> extends KeyedCollection<K, V> mixins UpdatableInCollect
 
   size: number;
 
+  fromOwnEntries(obj: mixed): Map<K, V>;
   set<K_, V_>(key: K_, value: V_): Map<K | K_, V | V_>;
   delete(key: K): this;
   remove(key: K): this;

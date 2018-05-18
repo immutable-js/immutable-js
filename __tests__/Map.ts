@@ -478,7 +478,7 @@ describe('Map', () => {
     const a = Symbol('A');
     const b = Symbol('B');
     const c = Symbol('C');
-    const m = Map.ownEntries({ [a]: 'A', [b]: 'B', [c]: 'C' });
+    const m = Map.fromOwnEntries({ [a]: 'A', [b]: 'B', [c]: 'C' });
     expect(m.size).toBe(3);
     expect(m.get(a)).toBe('A');
     expect(m.get(b)).toBe('B');
@@ -488,10 +488,38 @@ describe('Map', () => {
   it('Symbol keys from object literal are unique', () => {
     const a = Symbol('FooBar');
     const b = Symbol('FooBar');
-    const m = Map.ownEntries({ [a]: 'FizBuz', [b]: 'FooBar' });
+    const m = Map.fromOwnEntries({ [a]: 'FizBuz', [b]: 'FooBar' });
     expect(m.size).toBe(2);
     expect(m.get(a)).toBe('FizBuz');
     expect(m.get(b)).toBe('FooBar');
+  });
+
+  it('creates nested Map from object with nested Symbol keys', () => {
+    const a = Symbol('a');
+    const b = Symbol('b');
+    const c = Symbol('c');
+    const e = Symbol('e');
+    const f = Symbol('f');
+    const g = Symbol('g');
+    const map = Map.fromOwnEntries({
+      [a]: { [b]: { [c]: 10, [e]: 20 }, [f]: 30 },
+      [g]: 40,
+    });
+
+    expect(
+      map
+        .get(a)
+        .get(b)
+        .get(c)
+    ).toEqual(10);
+    expect(
+      map
+        .get(a)
+        .get(b)
+        .get(e)
+    ).toEqual(20);
+    expect(map.get(a).get(f)).toEqual(30);
+    expect(map.get(g)).toEqual(40);
   });
 
   it('mergeDeep Map from object literal', () => {
@@ -502,12 +530,12 @@ describe('Map', () => {
     const e = Symbol('e');
     const f = Symbol('f');
     const g = Symbol('g');
-    const m1 = Map.ownEntries({ [a]: { [b]: { [c]: 1, [d]: 2 } } });
-    const m2 = Map.ownEntries({
+    const m1 = Map.fromOwnEntries({ [a]: { [b]: { [c]: 1, [d]: 2 } } });
+    const m2 = Map.fromOwnEntries({
       [a]: { [b]: { [c]: 10, [e]: 20 }, [f]: 30 },
       [g]: 40,
     });
-    const expected = Map.ownEntries({
+    const expected = Map.fromOwnEntries({
       [a]: { [b]: { [c]: 10, [d]: 2, [e]: 20 }, [f]: 30 },
       [g]: 40,
     });
