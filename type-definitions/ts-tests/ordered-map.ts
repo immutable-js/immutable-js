@@ -337,18 +337,6 @@ import { OrderedMap, List } from '../../';
   OrderedMap<number, number>().mergeDeepWith((prev: number, next: number, key: number) => 1, OrderedMap<number, number>());
 
   // $ExpectError
-  OrderedMap<number, number>().mergeDeepWith((prev: string, next: number, key: number) => 1, OrderedMap<number, number>());
-
-  // $ExpectError
-  OrderedMap<number, number>().mergeDeepWith((prev: number, next: string, key: number) => 1, OrderedMap<number, number>());
-
-  // $ExpectError
-  OrderedMap<number, number>().mergeDeepWith((prev: number, next: number, key: string) => 1, OrderedMap<number, number>());
-
-  // $ExpectError
-  OrderedMap<number, number>().mergeDeepWith((prev: number, next: number, key: number) => 'a', OrderedMap<number, number>());
-
-  // $ExpectError
   OrderedMap<number, number>().mergeDeepWith((prev: number, next: number, key: number) => 1, OrderedMap<number, string>());
 
   // $ExpectType OrderedMap<string, number>

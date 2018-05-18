@@ -337,18 +337,6 @@ import { Map, List } from '../../';
   Map<number, number>().mergeDeepWith((prev: number, next: number, key: number) => 1, Map<number, number>());
 
   // $ExpectError
-  Map<number, number>().mergeDeepWith((prev: string, next: number, key: number) => 1, Map<number, number>());
-
-  // $ExpectError
-  Map<number, number>().mergeDeepWith((prev: number, next: string, key: number) => 1, Map<number, number>());
-
-  // $ExpectError
-  Map<number, number>().mergeDeepWith((prev: number, next: number, key: string) => 1, Map<number, number>());
-
-  // $ExpectError
-  Map<number, number>().mergeDeepWith((prev: number, next: number, key: number) => 'a', Map<number, number>());
-
-  // $ExpectError
   Map<number, number>().mergeDeepWith((prev: number, next: number, key: number) => 1, Map<number, string>());
 
   // $ExpectType Map<string, number>
