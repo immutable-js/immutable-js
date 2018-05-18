@@ -896,10 +896,10 @@ declare class Map<K, +V> extends KeyedCollection<K, V> mixins UpdatableInCollect
     ...collections: (Iterable<[K_, V_]> | PlainObjInput<K_, V_>)[]
   ): Map<K | K_, V | V_>;
 
-  mergeDeepWith<K_, W, X>(
-    merger: (oldVal: V, newVal: W, key: K) => X,
-    ...collections: (Iterable<[K_, W]> | PlainObjInput<K_, W>)[]
-  ): Map<K | K_, V | W | X>;
+  mergeDeepWith<K_, V_>(
+    merger: (oldVal: any, newVal: any, key: any) => mixed,
+    ...collections: (Iterable<[K_, V_]> | PlainObjInput<K_, V_>)[]
+  ): Map<K | K_, V | V_>;
 
   mergeIn(
     keyPath: Iterable<mixed>,
@@ -982,10 +982,10 @@ declare class OrderedMap<K, +V> extends Map<K, V> mixins UpdatableInCollection<K
     ...collections: (Iterable<[K_, V_]> | PlainObjInput<K_, V_>)[]
   ): OrderedMap<K | K_, V | V_>;
 
-  mergeDeepWith<K_, W, X>(
-    merger: (oldVal: V, newVal: W, key: K) => X,
-    ...collections: (Iterable<[K_, W]> | PlainObjInput<K_, W>)[]
-  ): OrderedMap<K | K_, V | W | X>;
+  mergeDeepWith<K_, V_>(
+    merger: (oldVal: any, newVal: any, key: any) => mixed,
+    ...collections: (Iterable<[K_, V_]> | PlainObjInput<K_, V_>)[]
+  ): OrderedMap<K | K_, V | V_>;
 
   mergeIn(
     keyPath: Iterable<mixed>,
