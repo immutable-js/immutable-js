@@ -302,7 +302,8 @@ not altered.
 All Immutable.js Collections can be converted to plain JavaScript Arrays and
 Objects shallowly with `toArray()` and `toObject()` or deeply with `toJS()`.
 All Immutable Collections also implement `toJSON()` allowing them to be passed
-to `JSON.stringify` directly.
+to `JSON.stringify` directly. They also respect the custom `toJSON()` methods of
+nested objects.
 
 <!-- runkit:activate -->
 ```js
