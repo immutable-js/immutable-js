@@ -2193,7 +2193,7 @@ declare module Immutable {
    * ```js
    * const { Record } = require('immutable')
    * const ABRecord = Record({ a: 1, b: 2 })
-   * const myRecord = new ABRecord({ b: 3 })
+   * const myRecord = ABRecord({ b: 3 })
    * ```
    *
    * Records always have a value for the keys they define. `remove`ing a key
@@ -2214,7 +2214,7 @@ declare module Immutable {
    * ignored for this record.
    *
    * ```js
-   * const myRecord = new ABRecord({ b: 3, x: 10 })
+   * const myRecord = ABRecord({ b: 3, x: 10 })
    * myRecord.get('x') // undefined
    * ```
    *
@@ -2233,6 +2233,14 @@ declare module Immutable {
    * Record. This is not a common pattern in functional environments, but is in
    * many JS programs.
    *
+   * However Record Classes are more restricted than typical JavaScript classes.
+   * They do not use a class constructor, which also means they cannot use
+   * class properties (since those are technically part of a constructor).
+   *
+   * It's useful to think of Record Classes more like a Record Factory where
+   * record instances returned from the factory have additional API methods. It
+   * is best practice to not use `new` when creating new Records.
+   *
    * ```
    * class ABRecord extends Record({ a: 1, b: 2 }) {
    *   getAB() {
@@ -2240,7 +2248,7 @@ declare module Immutable {
    *   }
    * }
    *
-   * var myRecord = new ABRecord({b: 3})
+   * var myRecord = ABRecord({b: 3})
    * myRecord.getAB() // 4
    * ```
    *
