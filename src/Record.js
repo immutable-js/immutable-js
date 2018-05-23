@@ -71,7 +71,15 @@ export class Record {
       this._values = List().withMutations(l => {
         l.setSize(this._keys.length);
         KeyedCollection(values).forEach((v, k) => {
-          l.set(this._indices[k], v === this._defaultValues[k] ? undefined : v);
+          const listIndex = this._indices[k];
+          const defaultValue = this._defaultValues[k];
+          if (v === defaultValue) {
+            v = undefined;
+          }
+          if (typeof v === 'object' && isRecord(defaultValue)) {
+            v = defaultValue.mergeDeep(v);
+          }
+          l.set(listIndex, v);
         });
       });
     };

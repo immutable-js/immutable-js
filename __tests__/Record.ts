@@ -146,6 +146,52 @@ describe('Record', () => {
     expect(t4).toBe(t2);
   });
 
+  it('creates nested records when when default value is a record', () => {
+    const MyDeepInnerType = Record({
+      oneFish: 'twoFish',
+      redFish: 'blueFish',
+      blackFish: 'blueFish',
+      oldFish: 'newFish',
+    });
+    const MyInnerType = Record({
+      a: 1,
+      b: 2,
+      c: 3,
+      deep: MyDeepInnerType({ redFish: 'snapper' }),
+    });
+    const MyOuterType = Record({
+      one: 1,
+      two: 2,
+      inner: MyInnerType({
+        a: 99,
+        deep: {
+          blackFish: 'Brynden Tully',
+        } as any,
+      }),
+    });
+    const t = MyOuterType({
+      two: 4,
+      inner: { b: 3, deep: { oldFish: 'stinky' } } as any,
+    });
+    expect(t.inner instanceof MyInnerType).toBe(true);
+    expect(t.inner.deep instanceof MyDeepInnerType).toBe(true);
+    expect(t.toJS()).toEqual({
+      one: 1,
+      two: 4,
+      inner: {
+        a: 99,
+        b: 3,
+        c: 3,
+        deep: {
+          oneFish: 'twoFish',
+          redFish: 'snapper',
+          blackFish: 'Brynden Tully',
+          oldFish: 'stinky',
+        },
+      },
+    });
+  });
+
   it('returns record when setting values', () => {
     const MyType = Record({ a: 1, b: 2 });
     const t1 = MyType();
