@@ -14,7 +14,10 @@ export function merge(...iters) {
 }
 
 export function mergeWith(merger, ...iters) {
-  return mergeIntoKeyedWith(this, iters, merger);
+  if (merger instanceof Function) {
+    return mergeIntoKeyedWith(this, iters, merger);
+  }
+  throw new TypeError('Invalid merger: Expected Function');
 }
 
 function mergeIntoKeyedWith(collection, collections, merger) {

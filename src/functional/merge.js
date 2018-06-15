@@ -38,7 +38,8 @@ export function mergeWithSources(collection, sources, merger) {
     );
   }
   if (isImmutable(collection)) {
-    return collection.mergeWith
+    const shouldMergeWith = collection.mergeWith && merger instanceof Function;
+    return shouldMergeWith
       ? collection.mergeWith(merger, ...sources)
       : collection.concat(...sources);
   }
