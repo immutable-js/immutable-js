@@ -9,7 +9,7 @@ import { smi } from './Math';
 
 export function hash(o) {
   if (o === false || o === null || o === undefined) {
-    return 0;
+    return cachedHashString(typeof o);
   }
   if (typeof o.valueOf === 'function') {
     o = o.valueOf();

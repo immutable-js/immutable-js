@@ -15,10 +15,10 @@ import { hash } from '../';
 describe('hash', () => {
   it('stable hash of well known values', () => {
     expect(hash(true)).toBe(1);
-    expect(hash(false)).toBe(0);
+    expect(hash(false)).toBe(64711720);
     expect(hash(0)).toBe(0);
-    expect(hash(null)).toBe(0);
-    expect(hash(undefined)).toBe(0);
+    expect(hash(null)).toBe(-1023368385);
+    expect(hash(undefined)).toBe(-1038130864);
     expect(hash('a')).toBe(97);
     expect(hash('immutable-js')).toBe(510203252);
     expect(hash(123)).toBe(123);

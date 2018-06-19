@@ -147,5 +147,8 @@ describe('Equality', () => {
     it('differentiates decimals', () => {
       expect(Seq([1.5]).hashCode()).not.toBe(Seq([1.6]).hashCode());
     });
+    it('differentiates falsy values', () => {
+      expect(Seq([undefined]).hashCode()).not.toBe(Seq([false]).hashCode());
+    });
   });
 });
