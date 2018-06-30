@@ -900,7 +900,7 @@ declare module Immutable {
      * assert.strictEqual(newMap, map);
      * ```
      *
-     * For code using ES2015 or later, using `notSetValue` is discourged in
+     * For code using ES2015 or later, using `notSetValue` is discouraged in
      * favor of function parameter default values. This helps to avoid any
      * potential confusion with identify functions as described above.
      *
@@ -1176,7 +1176,7 @@ declare module Immutable {
      * assert.strictEqual(newMap, aMap)
      * ```
      *
-     * For code using ES2015 or later, using `notSetValue` is discourged in
+     * For code using ES2015 or later, using `notSetValue` is discouraged in
      * favor of function parameter default values. This helps to avoid any
      * potential confusion with identify functions as described above.
      *
