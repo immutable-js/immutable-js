@@ -10,6 +10,14 @@
 import { isCollection, isIndexed, Seq } from '../';
 
 describe('Seq', () => {
+  it('has a default first value', () => {
+    expect(Seq().first({})).toEqual({});
+  });
+
+  it('has a default first value', () => {
+    expect(Seq().last({})).toEqual({});
+  });
+
   it('can be empty', () => {
     expect(Seq().size).toBe(0);
   });
