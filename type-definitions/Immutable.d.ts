@@ -2440,7 +2440,7 @@ declare module Immutable {
 
     // Reading values
 
-    has(key: string): key is Extract<keyof TProps, string>;
+    has(key: string | number | symbol): key is keyof TProps;
 
     /**
      * Returns the value associated with the provided key, which may be the
@@ -2450,8 +2450,8 @@ declare module Immutable {
      * notSetValue will be returned if provided. Note that this scenario would
      * produce an error when using Flow or TypeScript.
      */
-    get<K extends Extract<keyof TProps, string>>(key: K, notSetValue?: any): TProps[K];
-    get<T>(key: string, notSetValue: T): T;
+    get<K extends keyof TProps>(key: K, notSetValue?: any): TProps[K];
+    get<T>(key: string | number | symbol, notSetValue: T): T;
 
     // Reading deep values
 
@@ -2465,18 +2465,18 @@ declare module Immutable {
 
     // Persistent changes
 
-    set<K extends Extract<keyof TProps, string>>(key: K, value: TProps[K]): this;
-    update<K extends Extract<keyof TProps, string>>(key: K, updater: (value: TProps[K]) => TProps[K]): this;
-    merge(...collections: Array<Partial<TProps> | Iterable<[string, any]>>): this;
-    mergeDeep(...collections: Array<Partial<TProps> | Iterable<[string, any]>>): this;
+    set<K extends keyof TProps>(key: K, value: TProps[K]): this;
+    update<K extends keyof TProps>(key: K, updater: (value: TProps[K]) => TProps[K]): this;
+    merge(...collections: Array<Partial<TProps> | Iterable<[string | number | symbol, any]>>): this;
+    mergeDeep(...collections: Array<Partial<TProps> | Iterable<[string | number | symbol, any]>>): this;
 
     mergeWith(
-      merger: (oldVal: any, newVal: any, key: Extract<keyof TProps, string>) => any,
-      ...collections: Array<Partial<TProps> | Iterable<[string, any]>>
+      merger: (oldVal: any, newVal: any, key: keyof TProps) => any,
+      ...collections: Array<Partial<TProps> | Iterable<[string | number | symbol, any]>>
     ): this;
     mergeDeepWith(
       merger: (oldVal: any, newVal: any, key: any) => any,
-      ...collections: Array<Partial<TProps> | Iterable<[string, any]>>
+      ...collections: Array<Partial<TProps> | Iterable<[string | number | symbol, any]>>
     ): this;
 
     /**
@@ -2485,8 +2485,8 @@ declare module Immutable {
      *
      * @alias remove
      */
-    delete<K extends Extract<keyof TProps, string>>(key: K): this;
-    remove<K extends Extract<keyof TProps, string>>(key: K): this;
+    delete<K extends keyof TProps>(key: K): this;
+    remove<K extends keyof TProps>(key: K): this;
 
     /**
      * Returns a new instance of this Record type with all values set
@@ -2515,7 +2515,7 @@ declare module Immutable {
      * Note: This method may not be overridden. Objects with custom
      * serialization to plain JS may override toJSON() instead.
      */
-    toJS(): { [K in Extract<keyof TProps, string>]: any };
+    toJS(): { [K in keyof TProps]: any };
 
     /**
      * Shallowly converts this Record to equivalent native JavaScript Object.
@@ -2554,9 +2554,9 @@ declare module Immutable {
 
     // Sequence algorithms
 
-    toSeq(): Seq.Keyed<Extract<keyof TProps, string>, TProps[Extract<keyof TProps, string>]>;
+    toSeq(): Seq.Keyed<keyof TProps, TProps[keyof TProps]>;
 
-    [Symbol.iterator](): IterableIterator<[Extract<keyof TProps, string>, TProps[Extract<keyof TProps, string>]]>;
+    [Symbol.iterator](): IterableIterator<[keyof TProps, TProps[keyof TProps]]>;
   }
 
   /**
@@ -4937,12 +4937,12 @@ declare module Immutable {
    */
   export function get<K, V>(collection: Collection<K, V>, key: K): V | undefined;
   export function get<K, V, NSV>(collection: Collection<K, V>, key: K, notSetValue: NSV): V | NSV;
-  export function get<TProps, K extends Extract<keyof TProps, string>>(record: Record<TProps>, key: K, notSetValue: any): TProps[K];
+  export function get<TProps, K extends keyof TProps>(record: Record<TProps>, key: K, notSetValue: any): TProps[K];
   export function get<V>(collection: Array<V>, key: number): V | undefined;
   export function get<V, NSV>(collection: Array<V>, key: number, notSetValue: NSV): V | NSV;
-  export function get<C extends Object, K extends Extract<keyof C, string>>(object: C, key: K, notSetValue: any): C[K];
-  export function get<V>(collection: {[key: string]: V}, key: string): V | undefined;
-  export function get<V, NSV>(collection: {[key: string]: V}, key: string, notSetValue: NSV): V | NSV;
+  export function get<C extends Object, K extends keyof C>(object: C, key: K, notSetValue: any): C[K];
+  export function get<V>(collection: {[key: string | number | symbol]: V}, key: string | number | symbol): V | undefined;
+  export function get<V, NSV>(collection: {[key: string | number | symbol]: V}, key: string | number | symbol, notSetValue: NSV): V | NSV;
 
   /**
    * Returns true if the key is defined in the provided collection.
@@ -4981,10 +4981,10 @@ declare module Immutable {
    * ```
    */
   export function remove<K, C extends Collection<K, any>>(collection: C, key: K): C;
-  export function remove<TProps, C extends Record<TProps>, K extends Extract<keyof TProps, string>>(collection: C, key: K): C;
+  export function remove<TProps, C extends Record<TProps>, K extends keyof TProps>(collection: C, key: K): C;
   export function remove<C extends Array<any>>(collection: C, key: number): C;
-  export function remove<C, K extends Extract<keyof C, string>>(collection: C, key: K): C;
-  export function remove<C extends {[key: string]: any}, K extends Extract<keyof C, string>>(collection: C, key: K): C;
+  export function remove<C, K extends keyof C>(collection: C, key: K): C;
+  export function remove<C extends {[key: string | number | symbol]: any}, K extends keyof C>(collection: C, key: K): C;
 
   /**
    * Returns a copy of the collection with the value at key set to the provided
@@ -5006,10 +5006,10 @@ declare module Immutable {
    * ```
    */
   export function set<K, V, C extends Collection<K, V>>(collection: C, key: K, value: V): C;
-  export function set<TProps, C extends Record<TProps>, K extends Extract<keyof TProps, string>>(record: C, key: K, value: TProps[K]): C;
+  export function set<TProps, C extends Record<TProps>, K extends keyof TProps>(record: C, key: K, value: TProps[K]): C;
   export function set<V, C extends Array<V>>(collection: C, key: number, value: V): C;
-  export function set<C, K extends Extract<keyof C, string>>(object: C, key: K, value: C[K]): C;
-  export function set<V, C extends {[key: string]: V}>(collection: C, key: string, value: V): C;
+  export function set<C, K extends keyof C>(object: C, key: K, value: C[K]): C;
+  export function set<V, C extends {[key: string | number | symbol]: V}>(collection: C, key: string | number | symbol, value: V): C;
 
   /**
    * Returns a copy of the collection with the value at key set to the result of
@@ -5032,14 +5032,14 @@ declare module Immutable {
    */
   export function update<K, V, C extends Collection<K, V>>(collection: C, key: K, updater: (value: V) => V): C;
   export function update<K, V, C extends Collection<K, V>, NSV>(collection: C, key: K, notSetValue: NSV, updater: (value: V | NSV) => V): C;
-  export function update<TProps, C extends Record<TProps>, K extends Extract<keyof TProps, string>>(record: C, key: K, updater: (value: TProps[K]) => TProps[K]): C;
-  export function update<TProps, C extends Record<TProps>, K extends Extract<keyof TProps, string>, NSV>(record: C, key: K, notSetValue: NSV, updater: (value: TProps[K] | NSV) => TProps[K]): C;
+  export function update<TProps, C extends Record<TProps>, K extends keyof TProps>(record: C, key: K, updater: (value: TProps[K]) => TProps[K]): C;
+  export function update<TProps, C extends Record<TProps>, K extends keyof TProps, NSV>(record: C, key: K, notSetValue: NSV, updater: (value: TProps[K] | NSV) => TProps[K]): C;
   export function update<V>(collection: Array<V>, key: number, updater: (value: V) => V): Array<V>;
   export function update<V, NSV>(collection: Array<V>, key: number, notSetValue: NSV, updater: (value: V | NSV) => V): Array<V>;
-  export function update<C, K extends Extract<keyof C, string>>(object: C, key: K, updater: (value: C[K]) => C[K]): C;
-  export function update<C, K extends Extract<keyof C, string>, NSV>(object: C, key: K, notSetValue: NSV, updater: (value: C[K] | NSV) => C[K]): C;
-  export function update<V, C extends {[key: string]: V}, K extends Extract<keyof C, string>>(collection: C, key: K, updater: (value: V) => V): {[key: string]: V};
-  export function update<V, C extends {[key: string]: V}, K extends Extract<keyof C, string>, NSV>(collection: C, key: K, notSetValue: NSV, updater: (value: V | NSV) => V): {[key: string]: V};
+  export function update<C, K extends keyof C>(object: C, key: K, updater: (value: C[K]) => C[K]): C;
+  export function update<C, K extends keyof C, NSV>(object: C, key: K, notSetValue: NSV, updater: (value: C[K] | NSV) => C[K]): C;
+  export function update<V, C extends {[key: string | number | symbol]: V}, K extends keyof C>(collection: C, key: K, updater: (value: V) => V): {[key: string | number | symbol]: V};
+  export function update<V, C extends {[key: string | number | symbol]: V}, K extends keyof C, NSV>(collection: C, key: K, notSetValue: NSV, updater: (value: V | NSV) => V): {[key: string | number | symbol]: V};
 
   /**
    * Returns the value at the provided key path starting at the provided
