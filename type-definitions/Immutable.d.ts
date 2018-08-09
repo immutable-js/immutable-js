@@ -5036,8 +5036,8 @@ declare module Immutable {
   export function update<TProps, C extends Record<TProps>, K extends Extract<keyof TProps, string>, NSV>(record: C, key: K, notSetValue: NSV, updater: (value: TProps[K] | NSV) => TProps[K]): C;
   export function update<V>(collection: Array<V>, key: number, updater: (value: V) => V): Array<V>;
   export function update<V, NSV>(collection: Array<V>, key: number, notSetValue: NSV, updater: (value: V | NSV) => V): Array<V>;
-  export function update<C, K extends Extract<keyof TProps, string>>(object: C, key: K, updater: (value: C[K]) => C[K]): C;
-  export function update<C, K extends Extract<keyof TProps, string>, NSV>(object: C, key: K, notSetValue: NSV, updater: (value: C[K] | NSV) => C[K]): C;
+  export function update<C, K extends Extract<keyof C, string>>(object: C, key: K, updater: (value: C[K]) => C[K]): C;
+  export function update<C, K extends Extract<keyof C, string>, NSV>(object: C, key: K, notSetValue: NSV, updater: (value: C[K] | NSV) => C[K]): C;
   export function update<V, C extends {[key: string]: V}, K extends Extract<keyof C, string>>(collection: C, key: K, updater: (value: V) => V): {[key: string]: V};
   export function update<V, C extends {[key: string]: V}, K extends Extract<keyof C, string>, NSV>(collection: C, key: K, notSetValue: NSV, updater: (value: V | NSV) => V): {[key: string]: V};
 
