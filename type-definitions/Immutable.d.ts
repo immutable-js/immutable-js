@@ -2440,7 +2440,7 @@ declare module Immutable {
 
     // Reading values
 
-    has(key: string): key is keyof TProps;
+    has<K extends keyof TProps>(key: K): boolean;
 
     /**
      * Returns the value associated with the provided key, which may be the
