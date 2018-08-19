@@ -2559,6 +2559,14 @@ declare module Immutable {
     [Symbol.iterator](): IterableIterator<[keyof TProps, TProps[keyof TProps]]>;
   }
 
+  /** 
+   * RecordOf<T> is used in TypeScript to define interfaces expecting an
+   * instance of record with type T.
+   * 
+   * This is equivalent to an instance of a record created by a Record Factory.
+   */
+  export type RecordOf<TProps extends Object> = Record<TProps> & TProps;
+
   /**
    * `Seq` describes a lazy operation, allowing them to efficiently chain
    * use of all the higher-order collection methods (such as `map` and `filter`)
