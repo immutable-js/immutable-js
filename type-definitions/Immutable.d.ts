@@ -2565,7 +2565,7 @@ declare module Immutable {
    * 
    * This is equivalent to an instance of a record created by a Record Factory.
    */
-  export type RecordOf<TProps extends Object> = Record<TProps> & TProps;
+  export type RecordOf<TProps extends Object> = Record<TProps> & ReadOnly<TProps>;
 
   /**
    * `Seq` describes a lazy operation, allowing them to efficiently chain
