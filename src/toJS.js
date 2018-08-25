@@ -6,13 +6,13 @@
  */
 
 import { Seq } from './Seq';
-import { isIndexed } from './Predicates';
+import { isKeyed } from './Predicates';
 import isDataStructure from './utils/isDataStructure';
 
 export function toJS(value) {
   if (isDataStructure(value)) {
     value = Seq(value);
-    const result = isIndexed(value) ? [] : {};
+    const result = isKeyed(value) ? {} : [];
     value.forEach((v, k) => {
       result[k] = toJS(v);
     });
