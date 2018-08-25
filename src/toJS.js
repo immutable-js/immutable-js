@@ -10,7 +10,7 @@ import { isIndexed } from './Predicates';
 import isDataStructure from './utils/isDataStructure';
 
 export function toJS(value) {
-  if (isDataStructure(value)) {
+  if (typeof value === 'object' && isDataStructure(value)) {
     value = Seq(value);
     const result = isIndexed(value) ? [] : {};
     value.forEach((v, k) => {
