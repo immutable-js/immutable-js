@@ -12,6 +12,7 @@ import isDataStructure from './utils/isDataStructure';
 export function toJS(value) {
   if (isDataStructure(value)) {
     value = Seq(value);
+    value = value instanceof Seq.Set ? value.toIndexedSeq() : value;
     const result = isKeyed(value) ? {} : [];
     value.forEach((v, k) => {
       result[k] = toJS(v);
