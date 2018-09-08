@@ -3008,10 +3008,13 @@ declare module Immutable {
    *   * If a `Seq`, that same `Seq`.
    *   * If an `Collection`, a `Seq` of the same kind (Keyed, Indexed, or Set).
    *   * If an Array-like, an `Seq.Indexed`.
-   *   * If an Object with an Iterator, an `Seq.Indexed`.
-   *   * If an Iterator, an `Seq.Indexed`.
+   *   * If an Iterable Object, an `Seq.Indexed`.
    *   * If an Object, a `Seq.Keyed`.
    *
+   * Note: An Iterator itself will be treated as an object, becoming a `Seq.Keyed`,
+   * which is usually not what you want. You should turn your Iterator Object into
+   * an iterable object by defining a Symbol.iterator (or @@iterator) method which
+   * returns `this`.
    */
   export function Seq<S extends Seq<any, any>>(seq: S): S;
   export function Seq<K, V>(collection: Collection.Keyed<K, V>): Seq.Keyed<K, V>;
@@ -3723,13 +3726,17 @@ declare module Immutable {
    *
    *   * If an `Collection`, that same `Collection`.
    *   * If an Array-like, an `Collection.Indexed`.
-   *   * If an Object with an Iterator, an `Collection.Indexed`.
-   *   * If an Iterator, an `Collection.Indexed`.
+   *   * If an Object with an Iterator defined, an `Collection.Indexed`.
    *   * If an Object, an `Collection.Keyed`.
    *
    * This methods forces the conversion of Objects and Strings to Collections.
    * If you want to ensure that a Collection of one item is returned, use
    * `Seq.of`.
+   *
+   * Note: An Iterator itself will be treated as an object, becoming a `Seq.Keyed`,
+   * which is usually not what you want. You should turn your Iterator Object into
+   * an iterable object by defining a Symbol.iterator (or @@iterator) method which
+   * returns `this`.
    */
   export function Collection<I extends Collection<any, any>>(collection: I): I;
   export function Collection<T>(collection: Iterable<T>): Collection.Indexed<T>;
