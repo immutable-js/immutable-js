@@ -10,6 +10,22 @@
 import { isCollection, isIndexed, Seq } from '../';
 
 describe('Seq', () => {
+  it('returns undefined if empty and first is called without default argument', () => {
+    expect(Seq().first()).toBeUndefined();
+  });
+
+  it('returns undefined if empty and last is called without default argument', () => {
+    expect(Seq().last()).toBeUndefined();
+  });
+
+  it('returns default value if empty and first is called with default argument', () => {
+    expect(Seq().first({})).toEqual({});
+  });
+
+  it('returns default value if empty and last is called with default argument', () => {
+    expect(Seq().last({})).toEqual({});
+  });
+
   it('can be empty', () => {
     expect(Seq().size).toBe(0);
   });
