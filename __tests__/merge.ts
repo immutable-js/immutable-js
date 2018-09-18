@@ -40,6 +40,12 @@ describe('merge', () => {
     );
   });
 
+  it('throws typeError without merge function', () => {
+    const m1 = Map({ a: 1, b: 2, c: 3 });
+    const m2 = Map({ d: 10, b: 20, e: 30 });
+    expect(() => m1.mergeWith(1, m2)).toThrowError(TypeError);
+  });
+
   it('provides key as the third argument of merge function', () => {
     const m1 = Map({ id: 'temp', b: 2, c: 3 });
     const m2 = Map({ id: 10, b: 20, e: 30 });

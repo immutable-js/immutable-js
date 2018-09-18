@@ -38,9 +38,11 @@ export function mergeWithSources(collection, sources, merger) {
     );
   }
   if (isImmutable(collection)) {
-    return collection.mergeWith
+    return typeof merger === 'function' && collection.mergeWith
       ? collection.mergeWith(merger, ...sources)
-      : collection.concat(...sources);
+      : collection.merge
+        ? collection.merge(...sources)
+        : collection.concat(...sources);
   }
   const isArray = Array.isArray(collection);
   let merged = collection;
