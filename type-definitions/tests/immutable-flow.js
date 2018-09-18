@@ -926,10 +926,12 @@ personRecordInstance.set('invalid', 25)
 personRecordInstance.set('name', '25')
 personRecordInstance.set('age', 33)
 
-// TODO: This should be ExpectError, perhaps $KeyOf<> is broken?
-set(personRecordInstance, 'invalid', 25)
-set(personRecordInstance, 'name', '25')
-set(personRecordInstance, 'age', 33)
+// FixMe: The first should be ExpectError, and the second two should be correct,
+// however all three produce a hard to understand error because there is a bug
+// with Flow's $Call utility type.
+// set(personRecordInstance, 'invalid', 25)
+// set(personRecordInstance, 'name', '25')
+// set(personRecordInstance, 'age', 33)
 
 // Create a Map from a non-prototype "plain" Object
 let someObj = Object.create(null);

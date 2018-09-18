@@ -30,7 +30,7 @@
 
 // Helper type that represents plain objects allowed as arguments to
 // some constructors and functions.
-type PlainObjInput<K, V> = {[key: K]: V, __proto__: null};
+type PlainObjInput<K, V> = {+[key: K]: V, __proto__: null};
 
 // Helper types to extract the "keys" and "values" use by the *In() methods.
 type $KeyOf<C> = $Call<
@@ -55,7 +55,7 @@ type $IterableOf<C> = $Call<
   C
 >;
 
-declare class _Collection<K, +V> /*implements ValueObject*/ {
+declare class _Collection<K, +V> implements ValueObject {
   equals(other: mixed): boolean;
   hashCode(): number;
   get(key: K, ..._: []): V | void;
