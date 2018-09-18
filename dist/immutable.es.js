@@ -1879,7 +1879,10 @@ function isPlainObj(value) {
  * provided by Immutable.js or a plain Array or Object.
  */
 function isDataStructure(value) {
-  return isImmutable(value) || Array.isArray(value) || isPlainObj(value);
+  return (
+    typeof value === 'object' &&
+    (isImmutable(value) || Array.isArray(value) || isPlainObj(value))
+  );
 }
 
 /**
@@ -4173,11 +4176,27 @@ function mixin(ctor, methods) {
 }
 
 function toJS(value) {
-  return isDataStructure(value)
-    ? Seq(value)
-        .map(toJS)
-        .toJSON()
-    : value;
+  if (!value || typeof value !== 'object') {
+    return value;
+  }
+  if (!isCollection(value)) {
+    if (!isDataStructure(value)) {
+      return value;
+    }
+    value = Seq(value);
+  }
+  if (isKeyed(value)) {
+    var result$1 = {};
+    value.__iterate(function (v, k) {
+      result$1[k] = toJS(v);
+    });
+    return result$1;
+  }
+  var result = [];
+  value.__iterate(function (v) {
+    result.push(toJS(v));
+  });
+  return result;
 }
 
 var Set = (function (SetCollection$$1) {
