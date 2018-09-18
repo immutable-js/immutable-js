@@ -583,63 +583,6 @@ var CollectionSeq = (function (IndexedSeq) {
   return CollectionSeq;
 }(IndexedSeq));
 
-var IteratorSeq = (function (IndexedSeq) {
-  function IteratorSeq(iterator) {
-    this._iterator = iterator;
-    this._iteratorCache = [];
-  }
-
-  if ( IndexedSeq ) IteratorSeq.__proto__ = IndexedSeq;
-  IteratorSeq.prototype = Object.create( IndexedSeq && IndexedSeq.prototype );
-  IteratorSeq.prototype.constructor = IteratorSeq;
-
-  IteratorSeq.prototype.__iterateUncached = function __iterateUncached (fn, reverse) {
-    var this$1 = this;
-
-    if (reverse) {
-      return this.cacheResult().__iterate(fn, reverse);
-    }
-    var iterator = this._iterator;
-    var cache = this._iteratorCache;
-    var iterations = 0;
-    while (iterations < cache.length) {
-      if (fn(cache[iterations], iterations++, this$1) === false) {
-        return iterations;
-      }
-    }
-    var step;
-    while (!(step = iterator.next()).done) {
-      var val = step.value;
-      cache[iterations] = val;
-      if (fn(val, iterations++, this$1) === false) {
-        break;
-      }
-    }
-    return iterations;
-  };
-
-  IteratorSeq.prototype.__iteratorUncached = function __iteratorUncached (type, reverse) {
-    if (reverse) {
-      return this.cacheResult().__iterator(type, reverse);
-    }
-    var iterator = this._iterator;
-    var cache = this._iteratorCache;
-    var iterations = 0;
-    return new Iterator(function () {
-      if (iterations >= cache.length) {
-        var step = iterator.next();
-        if (step.done) {
-          return step;
-        }
-        cache[iterations] = step.value;
-      }
-      return iteratorValue(type, iterations, cache[iterations++]);
-    });
-  };
-
-  return IteratorSeq;
-}(IndexedSeq));
-
 // # pragma Helper functions
 
 function isSeq(maybeSeq) {
@@ -655,11 +598,9 @@ function emptySequence() {
 function keyedSeqFromValue(value) {
   var seq = Array.isArray(value)
     ? new ArraySeq(value)
-    : isIterator(value)
-      ? new IteratorSeq(value)
-      : hasIterator(value)
-        ? new CollectionSeq(value)
-        : undefined;
+    : hasIterator(value)
+      ? new CollectionSeq(value)
+      : undefined;
   if (seq) {
     return seq.fromEntrySeq();
   }
@@ -698,11 +639,9 @@ function seqFromValue(value) {
 function maybeIndexedSeqFromValue(value) {
   return isArrayLike(value)
     ? new ArraySeq(value)
-    : isIterator(value)
-      ? new IteratorSeq(value)
-      : hasIterator(value)
-        ? new CollectionSeq(value)
-        : undefined;
+    : hasIterator(value)
+      ? new CollectionSeq(value)
+      : undefined;
 }
 
 /**
