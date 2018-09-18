@@ -1874,7 +1874,9 @@
 
   function isPlainObj(value) {
     return (
-      value && (value.constructor === Object || value.constructor === undefined)
+      value &&
+      ((value.constructor && value.constructor.name === 'Object') ||
+        value.constructor === undefined)
     );
   }
 
