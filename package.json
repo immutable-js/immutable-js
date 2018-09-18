@@ -101,7 +101,7 @@
     "through2": "2.0.3",
     "transducers-js": "^0.4.174",
     "tslint": "5.7.0",
-    "typescript": "2.5.3",
+    "typescript": "3.0.3",
     "uglify-js": "2.8.11",
     "uglify-save-license": "0.4.1",
     "vinyl-buffer": "1.0.1",
