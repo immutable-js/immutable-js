@@ -17,6 +17,9 @@ import { Range } from './Range';
 import { Repeat } from './Repeat';
 import { is } from './is';
 import { fromJS } from './fromJS';
+import { fromCompressedJSON } from './fromCompressedJSON';
+import { toCompressedJSON } from './toCompressedJSON';
+
 import {
   isImmutable,
   isCollection,
@@ -65,6 +68,8 @@ export default {
 
   is: is,
   fromJS: fromJS,
+  fromCompressedJSON: fromCompressedJSON,
+  toCompressedJSON: toCompressedJSON,
   hash: hash,
 
   isImmutable: isImmutable,
