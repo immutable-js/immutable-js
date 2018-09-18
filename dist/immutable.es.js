@@ -2070,6 +2070,9 @@ function mergeWith(merger) {
   var iters = [], len = arguments.length - 1;
   while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
 
+  if (typeof merger !== 'function') {
+    throw new TypeError('Invalid merger function: ' + merger);
+  }
   return mergeIntoKeyedWith(this, iters, merger);
 }
 
@@ -2149,9 +2152,11 @@ function mergeWithSources(collection, sources, merger) {
     );
   }
   if (isImmutable(collection)) {
-    return collection.mergeWith
+    return typeof merger === 'function' && collection.mergeWith
       ? collection.mergeWith.apply(collection, [ merger ].concat( sources ))
-      : collection.concat.apply(collection, sources);
+      : collection.merge
+        ? collection.merge.apply(collection, sources)
+        : collection.concat.apply(collection, sources);
   }
   var isArray = Array.isArray(collection);
   var merged = collection;
