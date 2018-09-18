@@ -3810,15 +3810,20 @@
     contains(value: V): boolean;
 
     /**
-     * The first value in the Collection.
+     * In case the `Collection` is not empty returns the first element of the
+     * `Collection`.
+     * In case the `Collection` is empty returns the optional default
+     * value if provided, if no default value is provided returns undefined.
      */
-    first(): V | undefined;
+    first<NSV>(notSetValue?: NSV): V | NSV;
 
     /**
-     * The last value in the Collection.
+     * In case the `Collection` is not empty returns the last element of the
+     * `Collection`.
+     * In case the `Collection` is empty returns the optional default
+     * value if provided, if no default value is provided returns undefined.
      */
-    last(): V | undefined;
-
+    last<NSV>(notSetValue?: NSV): V | NSV;
 
     // Reading deep values
 

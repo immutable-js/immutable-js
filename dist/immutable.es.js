@@ -4852,8 +4852,8 @@ mixin(Collection, {
       .findKey(predicate, context);
   },
 
-  first: function first() {
-    return this.find(returnTrue);
+  first: function first(notSetValue) {
+    return this.find(returnTrue, null, notSetValue);
   },
 
   flatMap: function flatMap(mapper, context) {
@@ -4904,10 +4904,10 @@ mixin(Collection, {
       .toIndexedSeq();
   },
 
-  last: function last() {
+  last: function last(notSetValue) {
     return this.toSeq()
       .reverse()
-      .first();
+      .first(notSetValue);
   },
 
   lastKeyOf: function lastKeyOf(searchValue) {
@@ -5111,8 +5111,8 @@ mixin(IndexedCollection, {
     return entry ? entry[0] : -1;
   },
 
-  first: function first() {
-    return this.get(0);
+  first: function first(notSetValue) {
+    return this.get(0, notSetValue);
   },
 
   flatten: function flatten(depth) {
@@ -5155,8 +5155,8 @@ mixin(IndexedCollection, {
     return Range(0, this.size);
   },
 
-  last: function last() {
-    return this.get(-1);
+  last: function last(notSetValue) {
+    return this.get(-1, notSetValue);
   },
 
   skipWhile: function skipWhile(predicate, context) {
