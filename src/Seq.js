@@ -288,55 +288,6 @@ class CollectionSeq extends IndexedSeq {
   }
 }
 
-class IteratorSeq extends IndexedSeq {
-  constructor(iterator) {
-    this._iterator = iterator;
-    this._iteratorCache = [];
-  }
-
-  __iterateUncached(fn, reverse) {
-    if (reverse) {
-      return this.cacheResult().__iterate(fn, reverse);
-    }
-    const iterator = this._iterator;
-    const cache = this._iteratorCache;
-    let iterations = 0;
-    while (iterations < cache.length) {
-      if (fn(cache[iterations], iterations++, this) === false) {
-        return iterations;
-      }
-    }
-    let step;
-    while (!(step = iterator.next()).done) {
-      const val = step.value;
-      cache[iterations] = val;
-      if (fn(val, iterations++, this) === false) {
-        break;
-      }
-    }
-    return iterations;
-  }
-
-  __iteratorUncached(type, reverse) {
-    if (reverse) {
-      return this.cacheResult().__iterator(type, reverse);
-    }
-    const iterator = this._iterator;
-    const cache = this._iteratorCache;
-    let iterations = 0;
-    return new Iterator(() => {
-      if (iterations >= cache.length) {
-        const step = iterator.next();
-        if (step.done) {
-          return step;
-        }
-        cache[iterations] = step.value;
-      }
-      return iteratorValue(type, iterations, cache[iterations++]);
-    });
-  }
-}
-
 // # pragma Helper functions
 
 export function isSeq(maybeSeq) {
@@ -352,11 +303,9 @@ function emptySequence() {
 export function keyedSeqFromValue(value) {
   const seq = Array.isArray(value)
     ? new ArraySeq(value)
-    : isIterator(value)
-      ? new IteratorSeq(value)
-      : hasIterator(value)
-        ? new CollectionSeq(value)
-        : undefined;
+    : hasIterator(value)
+      ? new CollectionSeq(value)
+      : undefined;
   if (seq) {
     return seq.fromEntrySeq();
   }
@@ -395,9 +344,7 @@ function seqFromValue(value) {
 function maybeIndexedSeqFromValue(value) {
   return isArrayLike(value)
     ? new ArraySeq(value)
-    : isIterator(value)
-      ? new IteratorSeq(value)
-      : hasIterator(value)
-        ? new CollectionSeq(value)
-        : undefined;
+    : hasIterator(value)
+      ? new CollectionSeq(value)
+      : undefined;
 }
