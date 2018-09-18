@@ -618,7 +618,7 @@ Contribution
 
 Use [Github issues](https://github.com/facebook/immutable-js/issues) for requests.
 
-We actively welcome pull requests, learn how to [contribute](https://github.com/facebook/immutable-js/blob/master/.github/CONTRIBUTING.md).
+We actively welcome pull requests, learn how to [contribute](./.github/CONTRIBUTING.md).
 
 
 Changelog
