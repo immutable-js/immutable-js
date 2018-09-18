@@ -25,7 +25,7 @@
  *
  *     takesASeq(someSeq)
  *
- * @flow
+ * @flow strict
  */
 
 // Helper type that represents plain objects allowed as arguments to
