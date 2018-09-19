@@ -192,6 +192,21 @@ export class Stack extends IndexedCollection {
   }
 }
 
+function makeStack(size, head, ownerID, hash) {
+  const map = Object.create(StackPrototype);
+  map.size = size;
+  map._head = head;
+  map.__ownerID = ownerID;
+  map.__hash = hash;
+  map.__altered = false;
+  return map;
+}
+
+let EMPTY_STACK;
+function emptyStack() {
+  return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
+}
+
 Stack.isStack = isStack;
 
 const StackPrototype = Stack.prototype;
@@ -210,17 +225,4 @@ StackPrototype['@@transducer/result'] = function (obj) {
   return obj.asImmutable();
 };
 
-function makeStack(size, head, ownerID, hash) {
-  const map = Object.create(StackPrototype);
-  map.size = size;
-  map._head = head;
-  map.__ownerID = ownerID;
-  map.__hash = hash;
-  map.__altered = false;
-  return map;
-}
-
-let EMPTY_STACK;
-function emptyStack() {
-  return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
-}
+StackPrototype.__empty = emptyStack;

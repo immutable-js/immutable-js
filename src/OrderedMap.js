@@ -93,8 +93,11 @@ export class OrderedMap extends Map {
 
 OrderedMap.isOrderedMap = isOrderedMap;
 
-OrderedMap.prototype[IS_ORDERED_SYMBOL] = true;
-OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
+const OrderedMapPrototype = OrderedMap.prototype;
+OrderedMapPrototype[IS_ORDERED_SYMBOL] = true;
+OrderedMapPrototype[DELETE] = OrderedMapPrototype.remove;
+
+OrderedMapPrototype.__empty = emptyOrderedMap;
 
 function makeOrderedMap(map, list, ownerID, hash) {
   const omap = Object.create(OrderedMap.prototype);

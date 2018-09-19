@@ -185,6 +185,8 @@ MapPrototype['@@transducer/result'] = function (obj) {
   return obj.asImmutable();
 };
 
+MapPrototype.__empty = emptyMap;
+
 // #pragma Trie Nodes
 
 class ArrayMapNode {
