@@ -23,7 +23,8 @@ var DocHeader = React.createClass({
               </SVGSet>
             </a>
             <a href="./" target="_self">
-              Docs (v{packageJson.version})
+              Docs (v
+              {packageJson.version})
             </a>
             <a href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes">
               Questions
