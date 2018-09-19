@@ -21,7 +21,6 @@ import {
 } from './TrieUtils';
 import { hash } from './Hash';
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
-import { sortFactory } from './Operations';
 import arrCopy from './utils/arrCopy';
 import assertNotInfinite from './utils/assertNotInfinite';
 import { setIn } from './methods/setIn';
@@ -36,8 +35,6 @@ import { withMutations } from './methods/withMutations';
 import { asMutable } from './methods/asMutable';
 import { asImmutable } from './methods/asImmutable';
 import { wasAltered } from './methods/wasAltered';
-
-import { OrderedMap } from './OrderedMap';
 
 export class Map extends KeyedCollection {
   // @pragma Construction
@@ -114,16 +111,6 @@ export class Map extends KeyedCollection {
   }
 
   // @pragma Composition
-
-  sort(comparator) {
-    // Late binding
-    return OrderedMap(sortFactory(this, comparator));
-  }
-
-  sortBy(mapper, comparator) {
-    // Late binding
-    return OrderedMap(sortFactory(this, comparator, mapper));
-  }
 
   map(mapper, context) {
     return this.withMutations(map => {

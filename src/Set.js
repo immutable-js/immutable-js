@@ -10,13 +10,10 @@ import { isOrdered } from './predicates/isOrdered';
 import { IS_SET_SYMBOL, isSet } from './predicates/isSet';
 import { emptyMap } from './Map';
 import { DELETE } from './TrieUtils';
-import { sortFactory } from './Operations';
 import assertNotInfinite from './utils/assertNotInfinite';
 import { asImmutable } from './methods/asImmutable';
 import { asMutable } from './methods/asMutable';
 import { withMutations } from './methods/withMutations';
-
-import { OrderedSet } from './OrderedSet';
 
 export class Set extends SetCollection {
   // @pragma Construction
@@ -134,16 +131,6 @@ export class Set extends SetCollection {
         set.remove(value);
       });
     });
-  }
-
-  sort(comparator) {
-    // Late binding
-    return OrderedSet(sortFactory(this, comparator));
-  }
-
-  sortBy(mapper, comparator) {
-    // Late binding
-    return OrderedSet(sortFactory(this, comparator, mapper));
   }
 
   wasAltered() {

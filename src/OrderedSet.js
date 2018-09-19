@@ -10,6 +10,7 @@ import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
 import { isOrderedSet } from './predicates/isOrderedSet';
 import { IndexedCollectionPrototype } from './CollectionImpl';
 import { Set } from './Set';
+import { reify, sortFactory } from './Operations';
 import { emptyOrderedMap } from './OrderedMap';
 import assertNotInfinite from './utils/assertNotInfinite';
 
@@ -34,6 +35,16 @@ export class OrderedSet extends Set {
 
   static fromKeys(value) {
     return this(KeyedCollection(value).keySeq());
+  }
+
+  // Composition
+
+  sort(comparator) {
+    return reify(this, sortFactory(this, comparator));
+  }
+
+  sortBy(mapper, comparator) {
+    return reify(this, sortFactory(this, comparator, mapper));
   }
 
   toString() {
