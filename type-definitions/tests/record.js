@@ -101,7 +101,9 @@ const originAlt1: MakePointNew = MakePointNew();
 // Can also sort of use the inner Record values type as an alternative,
 // however it does not have the immutable record API, though useful for flowing
 // immutable Records where plain objects are expected.
-const originAlt2: TPointNew = MakePointNew();
+// Remember that Records are *read only*, and using the $ReadOnly helper type
+// can ensure correct types.
+const originAlt2: $ReadOnly<TPointNew> = MakePointNew();
 // $ExpectError cannot use Record API for this alternative annotation
 { const x: number = originAlt2.get('x') }
 { const x: number = originAlt2.x }
@@ -124,7 +126,8 @@ const mistakeNewInstance = new MakePointNew({x: 'string'});
 
 // Subclassing
 
-type TPerson = {name: string, age: number};
+// Note use of + for Read Only.
+type TPerson = {+name: string, +age: number};
 const defaultValues: TPerson = {name: 'Aristotle', age: 2400};
 const PersonRecord = Record(defaultValues);
 

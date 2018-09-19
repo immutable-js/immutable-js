@@ -29,6 +29,27 @@ import {
   updateIn,
 } from '../../';
 
+// merge: Objects as Maps
+
+type ObjMap<T> = { [key: string]: T };
+const objMap: ObjMap<number> = { x: 12, y: 34 };
+(merge(objMap, { x: 321 }): ObjMap<number>);
+(merge(objMap, { z: 321 }): ObjMap<number>);
+// $ExpectError
+(merge(objMap, { x: 'abc' }): ObjMap<number>);
+(merge(objMap, [['x', 321]]): ObjMap<number>);
+(merge(objMap, [['z', 321]]): ObjMap<number>);
+// $ExpectError
+(merge(objMap, [['x', 'abc']]): ObjMap<number>);
+// $ExpectError
+(merge(objMap, [321]): ObjMap<number>);
+(merge(objMap, Map({ x: 123 })): ObjMap<number>);
+(merge(objMap, Map({ z: 123 })): ObjMap<number>);
+(merge(objMap, Map([['x', 123]])): ObjMap<number>);
+(merge(objMap, Map([['z', 123]])): ObjMap<number>);
+// $ExpectError
+(merge(objMap, List([123])): ObjMap<number>);
+
 // merge: Records
 
 type XYPoint = { x: number, y: number };
@@ -118,27 +139,6 @@ const objRecord: XYPoint = { x: 12, y: 34 };
 (merge(objRecord, Map([['z', 123]])): XYPoint);
 // $ExpectError
 (merge(objRecord, List([123])): XYPoint);
-
-// merge: Objects as Maps
-
-type ObjMap<T> = { [key: string]: T };
-const objMap: ObjMap<number> = { x: 12, y: 34 };
-(merge(objMap, { x: 321 }): ObjMap<number>);
-(merge(objMap, { z: 321 }): ObjMap<number>);
-// $ExpectError
-(merge(objMap, { x: 'abc' }): ObjMap<number>);
-(merge(objMap, [['x', 321]]): ObjMap<number>);
-(merge(objMap, [['z', 321]]): ObjMap<number>);
-// $ExpectError
-(merge(objMap, [['x', 'abc']]): ObjMap<number>);
-// $ExpectError
-(merge(objMap, [321]): ObjMap<number>);
-(merge(objMap, Map({x: 123})): ObjMap<number>);
-(merge(objMap, Map({z: 123})): ObjMap<number>);
-(merge(objMap, Map([['x', 123]])): ObjMap<number>);
-(merge(objMap, Map([['z', 123]])): ObjMap<number>);
-// $ExpectError
-(merge(objMap, List([123])): ObjMap<number>);
 
 // merge: Arrays
 
