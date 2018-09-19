@@ -2674,7 +2674,7 @@
      * True if `maybeSeq` is a Seq, it is not backed by a concrete
      * structure such as Map, List, or Set.
      */
-    function isSeq(maybeSeq: any): maybeSeq is Seq.Indexed<any> | Seq.Keyed<any, any>;
+    function isSeq(maybeSeq: any): maybeSeq is Seq.Indexed<any> | Seq.Keyed<any, any> | Seq.Set<any>;
 
 
     /**
@@ -4990,6 +4990,53 @@
    * `Immutable.is()` and can be used as keys in a `Map` or members in a `Set`.
    */
   export function isValueObject(maybeValue: any): maybeValue is ValueObject;
+
+
+  /**
+   * True if `maybeSeq` is a Seq.
+   */
+  export function isSeq(maybeSeq: any): maybeSeq is Seq.Indexed<any> | Seq.Keyed<any, any> | Seq.Set<any>;
+
+  /**
+   * True if `maybeList` is a List.
+   */
+  export function isList(maybeList: any): maybeList is List<any>;
+
+  /**
+   * True if `maybeMap` is a Map.
+   *
+   * Also true for OrderedMaps.
+   */
+  export function isMap(maybeMap: any): maybeMap is Map<any, any>;
+
+  /**
+   * True if `maybeOrderedMap` is an OrderedMap.
+   */
+  export function isOrderedMap(maybeOrderedMap: any): maybeOrderedMap is OrderedMap<any, any>;
+
+  /**
+   * True if `maybeStack` is a Stack.
+   */
+  export function isStack(maybeStack: any): maybeStack is Stack<any>;
+
+  /**
+   * True if `maybeSet` is a Set.
+   *
+   * Also true for OrderedSets.
+   */
+  export function isSet(maybeSet: any): maybeSet is Set<any>;
+
+  /**
+   * True if `maybeOrderedSet` is an OrderedSet.
+   */
+  export function isOrderedSet(maybeOrderedSet: any): maybeOrderedSet is OrderedSet<any>;
+
+  /**
+   * True if `maybeRecord` is a Record.
+   */
+  export function isRecord(maybeRecord: any): maybeRecord is Record<any>;
+
+
 
   /**
    * Returns the value within the provided collection associated with the

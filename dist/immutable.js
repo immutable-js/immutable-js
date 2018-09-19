@@ -103,48 +103,28 @@
     return value < 0 || (value === 0 && 1 / value === -Infinity);
   }
 
-  function isImmutable(maybeImmutable) {
-    return isCollection(maybeImmutable) || isRecord(maybeImmutable);
-  }
+  // Note: value is unchanged to not break immutable-devtools.
+  var IS_COLLECTION_SYMBOL = '@@__IMMUTABLE_ITERABLE__@@';
 
   function isCollection(maybeCollection) {
-    return !!(maybeCollection && maybeCollection[IS_COLLECTION_SYMBOL]);
+    return Boolean(maybeCollection && maybeCollection[IS_COLLECTION_SYMBOL]);
   }
+
+  var IS_KEYED_SYMBOL = '@@__IMMUTABLE_KEYED__@@';
 
   function isKeyed(maybeKeyed) {
-    return !!(maybeKeyed && maybeKeyed[IS_KEYED_SYMBOL]);
+    return Boolean(maybeKeyed && maybeKeyed[IS_KEYED_SYMBOL]);
   }
 
+  var IS_INDEXED_SYMBOL = '@@__IMMUTABLE_INDEXED__@@';
+
   function isIndexed(maybeIndexed) {
-    return !!(maybeIndexed && maybeIndexed[IS_INDEXED_SYMBOL]);
+    return Boolean(maybeIndexed && maybeIndexed[IS_INDEXED_SYMBOL]);
   }
 
   function isAssociative(maybeAssociative) {
     return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
   }
-
-  function isOrdered(maybeOrdered) {
-    return !!(maybeOrdered && maybeOrdered[IS_ORDERED_SYMBOL]);
-  }
-
-  function isRecord(maybeRecord) {
-    return !!(maybeRecord && maybeRecord[IS_RECORD_SYMBOL]);
-  }
-
-  function isValueObject(maybeValue) {
-    return !!(
-      maybeValue &&
-      typeof maybeValue.equals === 'function' &&
-      typeof maybeValue.hashCode === 'function'
-    );
-  }
-
-  // Note: values unchanged to preserve immutable-devtools.
-  var IS_COLLECTION_SYMBOL = '@@__IMMUTABLE_ITERABLE__@@';
-  var IS_KEYED_SYMBOL = '@@__IMMUTABLE_KEYED__@@';
-  var IS_INDEXED_SYMBOL = '@@__IMMUTABLE_INDEXED__@@';
-  var IS_ORDERED_SYMBOL = '@@__IMMUTABLE_ORDERED__@@';
-  var IS_RECORD_SYMBOL = '@@__IMMUTABLE_RECORD__@@';
 
   var Collection = function Collection(value) {
     return isCollection(value) ? value : Seq(value);
@@ -189,6 +169,28 @@
   Collection.Keyed = KeyedCollection;
   Collection.Indexed = IndexedCollection;
   Collection.Set = SetCollection;
+
+  var IS_SEQ_SYMBOL = '@@__IMMUTABLE_SEQ__@@';
+
+  function isSeq(maybeSeq) {
+    return Boolean(maybeSeq && maybeSeq[IS_SEQ_SYMBOL]);
+  }
+
+  var IS_RECORD_SYMBOL = '@@__IMMUTABLE_RECORD__@@';
+
+  function isRecord(maybeRecord) {
+    return Boolean(maybeRecord && maybeRecord[IS_RECORD_SYMBOL]);
+  }
+
+  function isImmutable(maybeImmutable) {
+    return isCollection(maybeImmutable) || isRecord(maybeImmutable);
+  }
+
+  var IS_ORDERED_SYMBOL = '@@__IMMUTABLE_ORDERED__@@';
+
+  function isOrdered(maybeOrdered) {
+    return Boolean(maybeOrdered && maybeOrdered[IS_ORDERED_SYMBOL]);
+  }
 
   var ITERATE_KEYS = 0;
   var ITERATE_VALUES = 1;
@@ -431,8 +433,6 @@
   Seq.Set = SetSeq;
   Seq.Indexed = IndexedSeq;
 
-  var IS_SEQ_SYMBOL = '@@__IMMUTABLE_SEQ__@@';
-
   Seq.prototype[IS_SEQ_SYMBOL] = true;
 
   // #pragma Root Sequences
@@ -590,10 +590,6 @@
 
   // # pragma Helper functions
 
-  function isSeq(maybeSeq) {
-    return !!(maybeSeq && maybeSeq[IS_SEQ_SYMBOL]);
-  }
-
   var EMPTY_SEQ;
 
   function emptySequence() {
@@ -647,6 +643,24 @@
       : hasIterator(value)
         ? new CollectionSeq(value)
         : undefined;
+  }
+
+  var IS_MAP_SYMBOL = '@@__IMMUTABLE_MAP__@@';
+
+  function isMap(maybeMap) {
+    return Boolean(maybeMap && maybeMap[IS_MAP_SYMBOL]);
+  }
+
+  function isOrderedMap(maybeOrderedMap) {
+    return isMap(maybeOrderedMap) && isOrdered(maybeOrderedMap);
+  }
+
+  function isValueObject(maybeValue) {
+    return Boolean(
+      maybeValue &&
+        typeof maybeValue.equals === 'function' &&
+        typeof maybeValue.hashCode === 'function'
+    );
   }
 
   /**
@@ -2388,13 +2402,7 @@
     return Map;
   }(KeyedCollection));
 
-  function isMap(maybeMap) {
-    return !!(maybeMap && maybeMap[IS_MAP_SYMBOL]);
-  }
-
   Map.isMap = isMap;
-
-  var IS_MAP_SYMBOL = '@@__IMMUTABLE_MAP__@@';
 
   var MapPrototype = Map.prototype;
   MapPrototype[IS_MAP_SYMBOL] = true;
@@ -3047,6 +3055,12 @@
   var MAX_BITMAP_INDEXED_SIZE = SIZE / 2;
   var MIN_HASH_ARRAY_MAP_SIZE = SIZE / 4;
 
+  var IS_LIST_SYMBOL = '@@__IMMUTABLE_LIST__@@';
+
+  function isList(maybeList) {
+    return Boolean(maybeList && maybeList[IS_LIST_SYMBOL]);
+  }
+
   var List = (function (IndexedCollection$$1) {
     function List(value) {
       var empty = emptyList();
@@ -3266,13 +3280,7 @@
     return List;
   }(IndexedCollection));
 
-  function isList(maybeList) {
-    return !!(maybeList && maybeList[IS_LIST_SYMBOL]);
-  }
-
   List.isList = isList;
-
-  var IS_LIST_SYMBOL = '@@__IMMUTABLE_LIST__@@';
 
   var ListPrototype = List.prototype;
   ListPrototype[IS_LIST_SYMBOL] = true;
@@ -3800,10 +3808,6 @@
     return OrderedMap;
   }(Map));
 
-  function isOrderedMap(maybeOrderedMap) {
-    return isMap(maybeOrderedMap) && isOrdered(maybeOrderedMap);
-  }
-
   OrderedMap.isOrderedMap = isOrderedMap;
 
   OrderedMap.prototype[IS_ORDERED_SYMBOL] = true;
@@ -3871,6 +3875,12 @@
       return omap;
     }
     return makeOrderedMap(newMap, newList);
+  }
+
+  var IS_STACK_SYMBOL = '@@__IMMUTABLE_STACK__@@';
+
+  function isStack(maybeStack) {
+    return Boolean(maybeStack && maybeStack[IS_STACK_SYMBOL]);
   }
 
   var Stack = (function (IndexedCollection$$1) {
@@ -4064,13 +4074,7 @@
     return Stack;
   }(IndexedCollection));
 
-  function isStack(maybeStack) {
-    return !!(maybeStack && maybeStack[IS_STACK_SYMBOL]);
-  }
-
   Stack.isStack = isStack;
-
-  var IS_STACK_SYMBOL = '@@__IMMUTABLE_STACK__@@';
 
   var StackPrototype = Stack.prototype;
   StackPrototype[IS_STACK_SYMBOL] = true;
@@ -4101,6 +4105,16 @@
   var EMPTY_STACK;
   function emptyStack() {
     return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
+  }
+
+  var IS_SET_SYMBOL = '@@__IMMUTABLE_SET__@@';
+
+  function isSet(maybeSet) {
+    return Boolean(maybeSet && maybeSet[IS_SET_SYMBOL]);
+  }
+
+  function isOrderedSet(maybeOrderedSet) {
+    return isSet(maybeOrderedSet) && isOrdered(maybeOrderedSet);
   }
 
   function deepEqual(a, b) {
@@ -4380,13 +4394,7 @@
     return Set;
   }(SetCollection));
 
-  function isSet(maybeSet) {
-    return !!(maybeSet && maybeSet[IS_SET_SYMBOL]);
-  }
-
   Set.isSet = isSet;
-
-  var IS_SET_SYMBOL = '@@__IMMUTABLE_SET__@@';
 
   var SetPrototype = Set.prototype;
   SetPrototype[IS_SET_SYMBOL] = true;
@@ -5361,10 +5369,6 @@
     return OrderedSet;
   }(Set));
 
-  function isOrderedSet(maybeOrderedSet) {
-    return isSet(maybeOrderedSet) && isOrdered(maybeOrderedSet);
-  }
-
   OrderedSet.isOrderedSet = isOrderedSet;
 
   var OrderedSetPrototype = OrderedSet.prototype;
@@ -5781,6 +5785,14 @@
     isAssociative: isAssociative,
     isOrdered: isOrdered,
     isValueObject: isValueObject,
+    isSeq: isSeq,
+    isList: isList,
+    isMap: isMap,
+    isOrderedMap: isOrderedMap,
+    isStack: isStack,
+    isSet: isSet,
+    isOrderedSet: isOrderedSet,
+    isRecord: isRecord,
 
     get: get,
     getIn: getIn,
