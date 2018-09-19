@@ -14,8 +14,6 @@ import {
   SIZE,
   MASK,
   NOT_SET,
-  CHANGE_LENGTH,
-  DID_ALTER,
   OwnerID,
   MakeRef,
   SetRef,
@@ -656,8 +654,8 @@ function updateMap(map, k, v) {
     newSize = 1;
     newRoot = new ArrayMapNode(map.__ownerID, [[k, v]]);
   } else {
-    const didChangeSize = MakeRef(CHANGE_LENGTH);
-    const didAlter = MakeRef(DID_ALTER);
+    const didChangeSize = MakeRef();
+    const didAlter = MakeRef();
     newRoot = updateNode(
       map._root,
       map.__ownerID,

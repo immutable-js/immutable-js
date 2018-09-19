@@ -8,7 +8,7 @@
 ///<reference path='../resources/jest.d.ts'/>
 
 declare var Symbol: any;
-import { is, List, Map, OrderedSet, Seq, Set } from '../';
+import { fromJS, is, List, Map, OrderedSet, Seq, Set } from '../';
 
 describe('Set', () => {
   it('accepts array of values', () => {
@@ -303,5 +303,43 @@ describe('Set', () => {
     expect(set.count()).toEqual(5);
     expect(set.count(x => x % 2 === 0)).toEqual(2);
     expect(set.count(x => true)).toEqual(5);
+  });
+
+  describe('"size" should correctly reflect the number of elements in a Set', () => {
+    describe('deduplicating custom classes that invoke fromJS() as part of equality check', () => {
+      class Entity {
+        constructor(entityId, entityKey) {
+          this.entityId = entityId;
+          this.entityKey = entityKey;
+        }
+        asImmutable() {
+          return fromJS({
+            entityId: this.entityId,
+            entityKey: this.entityKey,
+          });
+        }
+        valueOf() {
+          return this.asImmutable().toString();
+        }
+      }
+      it('with mutations', () => {
+        const testSet = Set().withMutations(mutableSet => {
+          mutableSet.add(new Entity('hello', 'world'));
+          mutableSet.add(new Entity('testing', 'immutable'));
+          mutableSet.add(new Entity('hello', 'world'));
+        });
+        expect(testSet.size).toEqual(2);
+      });
+      it('without mutations', () => {
+        const testSet0 = Set();
+        const testSet1 = testSet0.add(new Entity('hello', 'world'));
+        const testSet2 = testSet1.add(new Entity('testing', 'immutable'));
+        const testSet3 = testSet2.add(new Entity('hello', 'world'));
+        expect(testSet0.size).toEqual(0);
+        expect(testSet1.size).toEqual(1);
+        expect(testSet2.size).toEqual(2);
+        expect(testSet3.size).toEqual(2);
+      });
+    });
   });
 });
