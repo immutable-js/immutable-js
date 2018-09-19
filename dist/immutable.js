@@ -24,16 +24,14 @@
   var NOT_SET = {};
 
   // Boolean references, Rough equivalent of `bool &`.
-  var CHANGE_LENGTH = { value: false };
-  var DID_ALTER = { value: false };
-
-  function MakeRef(ref) {
-    ref.value = false;
-    return ref;
+  function MakeRef() {
+    return { value: false };
   }
 
   function SetRef(ref) {
-    ref && (ref.value = true);
+    if (ref) {
+      ref.value = true;
+    }
   }
 
   // A function which returns a value representing an "owner" for transient writes
@@ -2878,8 +2876,8 @@
       newSize = 1;
       newRoot = new ArrayMapNode(map.__ownerID, [[k, v]]);
     } else {
-      var didChangeSize = MakeRef(CHANGE_LENGTH);
-      var didAlter = MakeRef(DID_ALTER);
+      var didChangeSize = MakeRef();
+      var didAlter = MakeRef();
       newRoot = updateNode(
         map._root,
         map.__ownerID,
@@ -3465,7 +3463,7 @@
 
     var newTail = list._tail;
     var newRoot = list._root;
-    var didAlter = MakeRef(DID_ALTER);
+    var didAlter = MakeRef();
     if (index >= getTailOffset(list._capacity)) {
       newTail = updateVNode(newTail, list.__ownerID, 0, index, value, didAlter);
     } else {
@@ -3524,7 +3522,9 @@
       return node;
     }
 
-    SetRef(didAlter);
+    if (didAlter) {
+      SetRef(didAlter);
+    }
 
     newNode = editableVNode(node, ownerID);
     if (value === undefined && idx === newNode.array.length - 1) {
