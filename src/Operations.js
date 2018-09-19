@@ -389,7 +389,7 @@ export function groupByFactory(collection, grouper, context) {
     );
   });
   const coerce = collectionClass(collection);
-  return groups.map(arr => reify(collection, coerce(arr)));
+  return groups.map(arr => reify(collection, coerce(arr))).asImmutable();
 }
 
 export function sliceFactory(collection, begin, end, useKeys) {
