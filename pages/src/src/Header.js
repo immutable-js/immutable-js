@@ -67,7 +67,8 @@ var Header = React.createClass({
               </SVGSet>
             </a>
             <a href="docs/" target="_self">
-              Docs (v{packageJson.version})
+              Docs (v
+              {packageJson.version})
             </a>
             <a href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes">
               Questions
@@ -81,7 +82,8 @@ var Header = React.createClass({
               <div className="filler">
                 <div className="miniHeaderContents">
                   <a href="docs/" target="_self">
-                    Docs (v{packageJson.version})
+                    Docs (v
+                    {packageJson.version})
                   </a>
                   <a href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes">
                     Questions

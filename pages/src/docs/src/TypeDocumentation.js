@@ -26,8 +26,8 @@ var Disclaimer = function() {
   return (
     <section className="disclaimer">
       This documentation is generated from{' '}
-      <a href={typeDefURL}>Immutable.d.ts</a>
-      . Pull requests and <a href={issuesURL}>Issues</a> welcome.
+      <a href={typeDefURL}>Immutable.d.ts</a>. Pull requests and{' '}
+      <a href={issuesURL}>Issues</a> welcome.
     </section>
   );
 };
