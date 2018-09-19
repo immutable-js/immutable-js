@@ -153,6 +153,9 @@
    * Create a new immutable List containing the values of the provided
    * collection-like.
    *
+   * Note: `List` is a factory function and not a class, and does not use the
+   * `new` keyword during construction.
+   *
    * <!-- runkit:activate -->
    * ```js
    * const { List, Set } = require('immutable')
@@ -724,6 +727,9 @@
    *
    * Created with the same key value pairs as the provided Collection.Keyed or
    * JavaScript Object or expects a Collection of [K, V] tuple entries.
+   *
+   * Note: `Map` is a factory function and not a class, and does not use the
+   * `new` keyword during construction.
    *
    * <!-- runkit:activate -->
    * ```js
@@ -1409,6 +1415,8 @@
    *     let newOrderedMap = OrderedMap({key: "value"})
    *     let newOrderedMap = OrderedMap([["key", "value"]])
    *
+   * Note: `OrderedMap` is a factory function and not a class, and does not use
+   * the `new` keyword during construction.
    */
   export function OrderedMap<K, V>(collection: Iterable<[K, V]>): OrderedMap<K, V>;
   export function OrderedMap<T>(collection: Iterable<Iterable<T>>): OrderedMap<T, T>;
@@ -1600,6 +1608,9 @@
   /**
    * Create a new immutable Set containing the values of the provided
    * collection-like.
+   *
+   * Note: `Set` is a factory function and not a class, and does not use the
+   * `new` keyword during construction.
    */
   export function Set(): Set<any>;
   export function Set<T>(): Set<T>;
@@ -1781,6 +1792,9 @@
   /**
    * Create a new immutable OrderedSet containing the values of the provided
    * collection-like.
+   *
+   * Note: `OrderedSet` is a factory function and not a class, and does not use
+   * the `new` keyword during construction.
    */
   export function OrderedSet(): OrderedSet<any>;
   export function OrderedSet<T>(): OrderedSet<T>;
@@ -1938,6 +1952,9 @@
    *
    * The iteration order of the provided collection is preserved in the
    * resulting `Stack`.
+   *
+   * Note: `Stack` is a factory function and not a class, and does not use the
+   * `new` keyword during construction.
    */
   export function Stack(): Stack<any>;
   export function Stack<T>(): Stack<T>;
@@ -2157,6 +2174,9 @@
    * (exclusive), by `step`, where `start` defaults to 0, `step` to 1, and `end` to
    * infinity. When `start` is equal to `end`, returns empty range.
    *
+   * Note: `Range` is a factory function and not a class, and does not use the
+   * `new` keyword during construction.
+   *
    * ```js
    * const { Range } = require('immutable')
    * Range() // [ 0, 1, 2, 3, ... ]
@@ -2173,6 +2193,9 @@
   /**
    * Returns a Seq.Indexed of `value` repeated `times` times. When `times` is
    * not defined, returns an infinite `Seq` of `value`.
+   *
+   * Note: `Repeat` is a factory function and not a class, and does not use the
+   * `new` keyword during construction.
    *
    * ```js
    * const { Repeat } = require('immutable')
@@ -2433,6 +2456,9 @@
    * Record Factory, which is a function that creates Record instances.
    *
    * See above for examples of using `Record()`.
+   *
+   * Note: `Record` is a factory function and not a class, and does not use the
+   * `new` keyword during construction.
    */
   export function Record<TProps>(defaultValues: TProps, name?: string): Record.Factory<TProps>;
 
@@ -2659,6 +2685,9 @@
     /**
      * Always returns a Seq.Keyed, if input is not keyed, expects an
      * collection of [K, V] tuples.
+     *
+     * Note: `Seq.Keyed` is a conversion function and not a class, and does not
+     * use the `new` keyword during construction.
      */
     export function Keyed<K, V>(collection: Iterable<[K, V]>): Seq.Keyed<K, V>;
     export function Keyed<V>(obj: {[key: string]: V}): Seq.Keyed<string, V>;
@@ -2780,6 +2809,9 @@
     /**
      * Always returns Seq.Indexed, discarding associated keys and
      * supplying incrementing indices.
+     *
+     * Note: `Seq.Indexed` is a conversion function and not a class, and does
+     * not use the `new` keyword during construction.
      */
     export function Indexed(): Seq.Indexed<any>;
     export function Indexed<T>(): Seq.Indexed<T>;
@@ -2929,6 +2961,9 @@
 
     /**
      * Always returns a Seq.Set, discarding associated indices or keys.
+     *
+     * Note: `Seq.Set` is a conversion function and not a class, and does not
+     * use the `new` keyword during construction.
      */
     export function Set(): Seq.Set<any>;
     export function Set<T>(): Seq.Set<T>;
@@ -3024,6 +3059,9 @@
    * which is usually not what you want. You should turn your Iterator Object into
    * an iterable object by defining a Symbol.iterator (or @@iterator) method which
    * returns `this`.
+   *
+   * Note: `Seq` is a conversion function and not a class, and does not use the
+   * `new` keyword during construction.
    */
   export function Seq<S extends Seq<any, any>>(seq: S): S;
   export function Seq<K, V>(collection: Collection.Keyed<K, V>): Seq.Keyed<K, V>;
@@ -3200,6 +3238,9 @@
      *
      * Similar to `Collection()`, however it expects collection-likes of [K, V]
      * tuples if not constructed from a Collection.Keyed or JS Object.
+     *
+     * Note: `Collection.Keyed` is a conversion function and not a class, and
+     * does not use the `new` keyword during construction.
      */
     export function Keyed<K, V>(collection: Iterable<[K, V]>): Collection.Keyed<K, V>;
     export function Keyed<V>(obj: {[key: string]: V}): Collection.Keyed<string, V>;
@@ -3358,6 +3399,9 @@
 
     /**
      * Creates a new Collection.Indexed.
+     *
+     * Note: `Collection.Indexed` is a conversion function and not a class, and
+     * does not use the `new` keyword during construction.
      */
     export function Indexed<T>(collection: Iterable<T>): Collection.Indexed<T>;
 
@@ -3648,6 +3692,9 @@
 
     /**
      * Similar to `Collection()`, but always returns a Collection.Set.
+     *
+     * Note: `Collection.Set` is a factory function and not a class, and does
+     * not use the `new` keyword during construction.
      */
     export function Set<T>(collection: Iterable<T>): Collection.Set<T>;
 
@@ -3746,6 +3793,9 @@
    * which is usually not what you want. You should turn your Iterator Object into
    * an iterable object by defining a Symbol.iterator (or @@iterator) method which
    * returns `this`.
+   *
+   * Note: `Collection` is a conversion function and not a class, and does not
+   * use the `new` keyword during construction.
    */
   export function Collection<I extends Collection<any, any>>(collection: I): I;
   export function Collection<T>(collection: Iterable<T>): Collection.Indexed<T>;
