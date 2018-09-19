@@ -1344,7 +1344,7 @@
       );
     });
     var coerce = collectionClass(collection);
-    return groups.map(function (arr) { return reify(collection, coerce(arr)); });
+    return groups.map(function (arr) { return reify(collection, coerce(arr)); }).asImmutable();
   }
 
   function sliceFactory(collection, begin, end, useKeys) {
