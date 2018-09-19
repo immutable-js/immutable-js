@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { isImmutable } from '../Predicates';
+import { isImmutable } from '../predicates/isImmutable';
 import coerceKeyPath from '../utils/coerceKeyPath';
 import isDataStructure from '../utils/isDataStructure';
 import quoteString from '../utils/quoteString';

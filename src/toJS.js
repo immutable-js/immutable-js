@@ -6,7 +6,8 @@
  */
 
 import { Seq } from './Seq';
-import { isCollection, isKeyed } from './Predicates';
+import { isCollection } from './predicates/isCollection';
+import { isKeyed } from './predicates/isKeyed';
 import isDataStructure from './utils/isDataStructure';
 
 export function toJS(value) {

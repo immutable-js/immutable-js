@@ -7,7 +7,8 @@
 
 import { is } from './is';
 import { Collection, KeyedCollection } from './Collection';
-import { isOrdered } from './Predicates';
+import { IS_MAP_SYMBOL, isMap } from './predicates/isMap';
+import { isOrdered } from './predicates/isOrdered';
 import {
   DELETE,
   SHIFT,
@@ -166,13 +167,7 @@ export class Map extends KeyedCollection {
   }
 }
 
-export function isMap(maybeMap) {
-  return !!(maybeMap && maybeMap[IS_MAP_SYMBOL]);
-}
-
 Map.isMap = isMap;
-
-const IS_MAP_SYMBOL = '@@__IMMUTABLE_MAP__@@';
 
 export const MapPrototype = Map.prototype;
 MapPrototype[IS_MAP_SYMBOL] = true;

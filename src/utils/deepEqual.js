@@ -7,13 +7,11 @@
 
 import { is } from '../is';
 import { NOT_SET } from '../TrieUtils';
-import {
-  isCollection,
-  isKeyed,
-  isIndexed,
-  isAssociative,
-  isOrdered,
-} from '../Predicates';
+import { isCollection } from '../predicates/isCollection';
+import { isKeyed } from '../predicates/isKeyed';
+import { isIndexed } from '../predicates/isIndexed';
+import { isAssociative } from '../predicates/isAssociative';
+import { isOrdered } from '../predicates/isOrdered';
 
 export default function deepEqual(a, b) {
   if (a === b) {

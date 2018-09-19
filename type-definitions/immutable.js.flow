@@ -210,6 +210,15 @@ declare function isOrdered(maybeOrdered: mixed): boolean %checks(
 );
 declare function isValueObject(maybeValue: mixed): boolean;
 
+declare function isSeq(maybeSeq: any): boolean %checks(maybeSeq instanceof Seq);
+declare function isList(maybeList: any): boolean %checks(maybeList instanceof List);
+declare function isMap(maybeMap: any): boolean %checks(maybeMap instanceof Map);
+declare function isOrderedMap(maybeOrderedMap: any): boolean %checks(maybeOrderedMap instanceof OrderedMap);
+declare function isStack(maybeStack: any): boolean %checks(maybeStack instanceof Stack);
+declare function isSet(maybeSet: any): boolean %checks(maybeSet instanceof Set);
+declare function isOrderedSet(maybeOrderedSet: any): boolean %checks(maybeOrderedSet instanceof OrderedSet);
+declare function isRecord(maybeRecord: any): boolean %checks(maybeRecord instanceof Record);
+
 declare interface ValueObject {
   equals(other: mixed): boolean;
   hashCode(): number;

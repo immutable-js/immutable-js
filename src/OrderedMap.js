@@ -6,8 +6,9 @@
  */
 
 import { KeyedCollection } from './Collection';
-import { IS_ORDERED_SYMBOL, isOrdered } from './Predicates';
-import { Map, isMap, emptyMap } from './Map';
+import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
+import { isOrderedMap } from './predicates/isOrderedMap';
+import { Map, emptyMap } from './Map';
 import { emptyList } from './List';
 import { DELETE, NOT_SET, SIZE } from './TrieUtils';
 import assertNotInfinite from './utils/assertNotInfinite';
@@ -97,10 +98,6 @@ export class OrderedMap extends Map {
     }
     return makeOrderedMap(newMap, newList, ownerID, this.__hash);
   }
-}
-
-function isOrderedMap(maybeOrderedMap) {
-  return isMap(maybeOrderedMap) && isOrdered(maybeOrderedMap);
 }
 
 OrderedMap.isOrderedMap = isOrderedMap;

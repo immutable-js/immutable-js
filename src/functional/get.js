@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { isImmutable } from '../Predicates';
+import { isImmutable } from '../predicates/isImmutable';
 import { has } from './has';
 
 export function get(collection, key, notSetValue) {

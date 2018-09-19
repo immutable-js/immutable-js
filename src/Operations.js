@@ -19,13 +19,11 @@ import {
   SetCollection,
   IndexedCollection,
 } from './Collection';
-import {
-  isCollection,
-  isKeyed,
-  isIndexed,
-  isOrdered,
-  IS_ORDERED_SYMBOL,
-} from './Predicates';
+import { isCollection } from './predicates/isCollection';
+import { isKeyed } from './predicates/isKeyed';
+import { isIndexed } from './predicates/isIndexed';
+import { isOrdered, IS_ORDERED_SYMBOL } from './predicates/isOrdered';
+import { isSeq } from './predicates/isSeq';
 import {
   getIterator,
   Iterator,
@@ -36,7 +34,6 @@ import {
   ITERATE_ENTRIES,
 } from './Iterator';
 import {
-  isSeq,
   Seq,
   KeyedSeq,
   SetSeq,

@@ -6,7 +6,8 @@
  */
 
 import { Collection, SetCollection, KeyedCollection } from './Collection';
-import { isOrdered } from './Predicates';
+import { isOrdered } from './predicates/isOrdered';
+import { IS_SET_SYMBOL, isSet } from './predicates/isSet';
 import { emptyMap } from './Map';
 import { DELETE } from './TrieUtils';
 import { sortFactory } from './Operations';
@@ -174,13 +175,7 @@ export class Set extends SetCollection {
   }
 }
 
-export function isSet(maybeSet) {
-  return !!(maybeSet && maybeSet[IS_SET_SYMBOL]);
-}
-
 Set.isSet = isSet;
-
-const IS_SET_SYMBOL = '@@__IMMUTABLE_SET__@@';
 
 const SetPrototype = Set.prototype;
 SetPrototype[IS_SET_SYMBOL] = true;

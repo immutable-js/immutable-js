@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { isImmutable } from '../Predicates';
+import { isImmutable } from '../predicates/isImmutable';
 import { IndexedCollection, KeyedCollection } from '../Collection';
 import hasOwnProperty from '../utils/hasOwnProperty';
 import isDataStructure from '../utils/isDataStructure';

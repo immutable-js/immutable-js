@@ -11,18 +11,11 @@ import {
   IndexedCollection,
   SetCollection,
 } from './Collection';
-import {
-  isCollection,
-  isKeyed,
-  isIndexed,
-  isAssociative,
-  isOrdered,
-  IS_COLLECTION_SYMBOL,
-  IS_KEYED_SYMBOL,
-  IS_INDEXED_SYMBOL,
-  IS_ORDERED_SYMBOL,
-} from './Predicates';
-
+import { isCollection, IS_COLLECTION_SYMBOL } from './predicates/isCollection';
+import { isAssociative } from './predicates/isAssociative';
+import { isKeyed, IS_KEYED_SYMBOL } from './predicates/isKeyed';
+import { isIndexed, IS_INDEXED_SYMBOL } from './predicates/isIndexed';
+import { isOrdered, IS_ORDERED_SYMBOL } from './predicates/isOrdered';
 import { is } from './is';
 import {
   NOT_SET,

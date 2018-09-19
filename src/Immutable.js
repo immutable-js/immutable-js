@@ -17,15 +17,24 @@ import { Range } from './Range';
 import { Repeat } from './Repeat';
 import { is } from './is';
 import { fromJS } from './fromJS';
-import {
-  isImmutable,
-  isCollection,
-  isKeyed,
-  isIndexed,
-  isAssociative,
-  isOrdered,
-  isValueObject,
-} from './Predicates';
+
+// Functional predicates
+import { isImmutable } from './predicates/isImmutable';
+import { isCollection } from './predicates/isCollection';
+import { isKeyed } from './predicates/isKeyed';
+import { isIndexed } from './predicates/isIndexed';
+import { isAssociative } from './predicates/isAssociative';
+import { isOrdered } from './predicates/isOrdered';
+import { isValueObject } from './predicates/isValueObject';
+import { isSeq } from './predicates/isSeq';
+import { isList } from './predicates/isList';
+import { isMap } from './predicates/isMap';
+import { isOrderedMap } from './predicates/isOrderedMap';
+import { isStack } from './predicates/isStack';
+import { isSet } from './predicates/isSet';
+import { isOrderedSet } from './predicates/isOrderedSet';
+import { isRecord } from './predicates/isRecord';
+
 import { Collection } from './CollectionImpl';
 import { hash } from './Hash';
 
@@ -74,6 +83,14 @@ export default {
   isAssociative: isAssociative,
   isOrdered: isOrdered,
   isValueObject: isValueObject,
+  isSeq: isSeq,
+  isList: isList,
+  isMap: isMap,
+  isOrderedMap: isOrderedMap,
+  isStack: isStack,
+  isSet: isSet,
+  isOrderedSet: isOrderedSet,
+  isRecord: isRecord,
 
   get: get,
   getIn: getIn,

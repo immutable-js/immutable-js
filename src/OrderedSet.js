@@ -6,9 +6,10 @@
  */
 
 import { SetCollection, KeyedCollection } from './Collection';
-import { IS_ORDERED_SYMBOL, isOrdered } from './Predicates';
+import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
+import { isOrderedSet } from './predicates/isOrderedSet';
 import { IndexedCollectionPrototype } from './CollectionImpl';
-import { Set, isSet } from './Set';
+import { Set } from './Set';
 import { emptyOrderedMap } from './OrderedMap';
 import assertNotInfinite from './utils/assertNotInfinite';
 
@@ -38,10 +39,6 @@ export class OrderedSet extends Set {
   toString() {
     return this.__toString('OrderedSet {', '}');
   }
-}
-
-function isOrderedSet(maybeOrderedSet) {
-  return isSet(maybeOrderedSet) && isOrdered(maybeOrderedSet);
 }
 
 OrderedSet.isOrderedSet = isOrderedSet;
