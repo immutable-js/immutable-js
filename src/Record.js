@@ -10,7 +10,7 @@ import { KeyedCollection } from './Collection';
 import { keyedSeqFromValue } from './Seq';
 import { List } from './List';
 import { ITERATE_ENTRIES, ITERATOR_SYMBOL } from './Iterator';
-import { isRecord, IS_RECORD_SYMBOL } from './Predicates';
+import { isRecord, IS_RECORD_SYMBOL } from './predicates/isRecord';
 import { CollectionPrototype } from './CollectionImpl';
 import { DELETE } from './TrieUtils';
 import { getIn } from './methods/getIn';

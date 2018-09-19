@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { isValueObject } from './Predicates';
+import { isValueObject } from './predicates/isValueObject';
 
 /**
  * An extension of the "same-value" algorithm as [described for use by ES6 Map

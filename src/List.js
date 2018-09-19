@@ -18,6 +18,7 @@ import {
   resolveBegin,
   resolveEnd,
 } from './TrieUtils';
+import { IS_LIST_SYMBOL, isList } from './predicates/isList';
 import { IndexedCollection } from './Collection';
 import { hasIterator, Iterator, iteratorValue, iteratorDone } from './Iterator';
 import { setIn } from './methods/setIn';
@@ -241,13 +242,7 @@ export class List extends IndexedCollection {
   }
 }
 
-export function isList(maybeList) {
-  return !!(maybeList && maybeList[IS_LIST_SYMBOL]);
-}
-
 List.isList = isList;
-
-const IS_LIST_SYMBOL = '@@__IMMUTABLE_LIST__@@';
 
 export const ListPrototype = List.prototype;
 ListPrototype[IS_LIST_SYMBOL] = true;

@@ -9,6 +9,7 @@ import { wholeSlice, resolveBegin, resolveEnd, wrapIndex } from './TrieUtils';
 import { IndexedCollection } from './Collection';
 import { ArraySeq } from './Seq';
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
+import { IS_STACK_SYMBOL, isStack } from './predicates/isStack';
 import assertNotInfinite from './utils/assertNotInfinite';
 import { asImmutable } from './methods/asImmutable';
 import { asMutable } from './methods/asMutable';
@@ -198,13 +199,7 @@ export class Stack extends IndexedCollection {
   }
 }
 
-function isStack(maybeStack) {
-  return !!(maybeStack && maybeStack[IS_STACK_SYMBOL]);
-}
-
 Stack.isStack = isStack;
-
-const IS_STACK_SYMBOL = '@@__IMMUTABLE_STACK__@@';
 
 const StackPrototype = Stack.prototype;
 StackPrototype[IS_STACK_SYMBOL] = true;

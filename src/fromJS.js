@@ -6,7 +6,7 @@
  */
 
 import { KeyedSeq, IndexedSeq } from './Seq';
-import { isKeyed } from './Predicates';
+import { isKeyed } from './predicates/isKeyed';
 import isPlainObj from './utils/isPlainObj';
 
 export function fromJS(value, converter) {

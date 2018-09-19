@@ -7,14 +7,13 @@
 
 import { wrapIndex } from './TrieUtils';
 import { Collection } from './Collection';
-import {
-  isImmutable,
-  isCollection,
-  isKeyed,
-  isAssociative,
-  isRecord,
-  IS_ORDERED_SYMBOL,
-} from './Predicates';
+import { IS_SEQ_SYMBOL, isSeq } from './predicates/isSeq';
+import { isImmutable } from './predicates/isImmutable';
+import { isCollection } from './predicates/isCollection';
+import { isKeyed } from './predicates/isKeyed';
+import { isAssociative } from './predicates/isAssociative';
+import { isRecord } from './predicates/isRecord';
+import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
 import {
   Iterator,
   iteratorValue,
@@ -155,8 +154,6 @@ Seq.Keyed = KeyedSeq;
 Seq.Set = SetSeq;
 Seq.Indexed = IndexedSeq;
 
-const IS_SEQ_SYMBOL = '@@__IMMUTABLE_SEQ__@@';
-
 Seq.prototype[IS_SEQ_SYMBOL] = true;
 
 // #pragma Root Sequences
@@ -289,10 +286,6 @@ class CollectionSeq extends IndexedSeq {
 }
 
 // # pragma Helper functions
-
-export function isSeq(maybeSeq) {
-  return !!(maybeSeq && maybeSeq[IS_SEQ_SYMBOL]);
-}
 
 let EMPTY_SEQ;
 
