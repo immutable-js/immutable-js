@@ -10,7 +10,6 @@ import {
   SHIFT,
   SIZE,
   MASK,
-  DID_ALTER,
   OwnerID,
   MakeRef,
   SetRef,
@@ -441,7 +440,7 @@ function updateList(list, index, value) {
 
   let newTail = list._tail;
   let newRoot = list._root;
-  const didAlter = MakeRef(DID_ALTER);
+  const didAlter = MakeRef();
   if (index >= getTailOffset(list._capacity)) {
     newTail = updateVNode(newTail, list.__ownerID, 0, index, value, didAlter);
   } else {
@@ -500,7 +499,9 @@ function updateVNode(node, ownerID, level, index, value, didAlter) {
     return node;
   }
 
-  SetRef(didAlter);
+  if (didAlter) {
+    SetRef(didAlter);
+  }
 
   newNode = editableVNode(node, ownerID);
   if (value === undefined && idx === newNode.array.length - 1) {
