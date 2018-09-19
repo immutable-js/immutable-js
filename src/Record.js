@@ -10,7 +10,7 @@ import { KeyedCollection } from './Collection';
 import { keyedSeqFromValue } from './Seq';
 import { List } from './List';
 import { ITERATE_ENTRIES, ITERATOR_SYMBOL } from './Iterator';
-import { isRecord, IS_RECORD_SENTINEL } from './Predicates';
+import { isRecord, IS_RECORD_SYMBOL } from './Predicates';
 import { CollectionPrototype } from './CollectionImpl';
 import { DELETE } from './TrieUtils';
 import { getIn } from './methods/getIn';
@@ -188,7 +188,7 @@ export class Record {
 Record.isRecord = isRecord;
 Record.getDescriptiveName = recordName;
 const RecordPrototype = Record.prototype;
-RecordPrototype[IS_RECORD_SENTINEL] = true;
+RecordPrototype[IS_RECORD_SYMBOL] = true;
 RecordPrototype[DELETE] = RecordPrototype.remove;
 RecordPrototype.deleteIn = RecordPrototype.removeIn = deleteIn;
 RecordPrototype.getIn = getIn;

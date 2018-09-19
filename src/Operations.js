@@ -24,7 +24,7 @@ import {
   isKeyed,
   isIndexed,
   isOrdered,
-  IS_ORDERED_SENTINEL,
+  IS_ORDERED_SYMBOL,
 } from './Predicates';
 import {
   getIterator,
@@ -92,7 +92,7 @@ export class ToKeyedSequence extends KeyedSeq {
     return this._iter.__iterator(type, reverse);
   }
 }
-ToKeyedSequence.prototype[IS_ORDERED_SENTINEL] = true;
+ToKeyedSequence.prototype[IS_ORDERED_SYMBOL] = true;
 
 export class ToIndexedSequence extends IndexedSeq {
   constructor(iter) {

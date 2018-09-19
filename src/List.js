@@ -243,15 +243,15 @@ export class List extends IndexedCollection {
 }
 
 export function isList(maybeList) {
-  return !!(maybeList && maybeList[IS_LIST_SENTINEL]);
+  return !!(maybeList && maybeList[IS_LIST_SYMBOL]);
 }
 
 List.isList = isList;
 
-const IS_LIST_SENTINEL = '@@__IMMUTABLE_LIST__@@';
+const IS_LIST_SYMBOL = '@@__IMMUTABLE_LIST__@@';
 
 export const ListPrototype = List.prototype;
-ListPrototype[IS_LIST_SENTINEL] = true;
+ListPrototype[IS_LIST_SYMBOL] = true;
 ListPrototype[DELETE] = ListPrototype.remove;
 ListPrototype.merge = ListPrototype.concat;
 ListPrototype.setIn = setIn;

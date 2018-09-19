@@ -6,7 +6,7 @@
  */
 
 import { SetCollection, KeyedCollection } from './Collection';
-import { IS_ORDERED_SENTINEL, isOrdered } from './Predicates';
+import { IS_ORDERED_SYMBOL, isOrdered } from './Predicates';
 import { IndexedCollectionPrototype } from './CollectionImpl';
 import { Set, isSet } from './Set';
 import { emptyOrderedMap } from './OrderedMap';
@@ -47,7 +47,7 @@ function isOrderedSet(maybeOrderedSet) {
 OrderedSet.isOrderedSet = isOrderedSet;
 
 const OrderedSetPrototype = OrderedSet.prototype;
-OrderedSetPrototype[IS_ORDERED_SENTINEL] = true;
+OrderedSetPrototype[IS_ORDERED_SYMBOL] = true;
 OrderedSetPrototype.zip = IndexedCollectionPrototype.zip;
 OrderedSetPrototype.zipWith = IndexedCollectionPrototype.zipWith;
 

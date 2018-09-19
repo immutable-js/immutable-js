@@ -199,15 +199,15 @@ export class Stack extends IndexedCollection {
 }
 
 function isStack(maybeStack) {
-  return !!(maybeStack && maybeStack[IS_STACK_SENTINEL]);
+  return !!(maybeStack && maybeStack[IS_STACK_SYMBOL]);
 }
 
 Stack.isStack = isStack;
 
-const IS_STACK_SENTINEL = '@@__IMMUTABLE_STACK__@@';
+const IS_STACK_SYMBOL = '@@__IMMUTABLE_STACK__@@';
 
 const StackPrototype = Stack.prototype;
-StackPrototype[IS_STACK_SENTINEL] = true;
+StackPrototype[IS_STACK_SYMBOL] = true;
 StackPrototype.shift = StackPrototype.pop;
 StackPrototype.unshift = StackPrototype.push;
 StackPrototype.unshiftAll = StackPrototype.pushAll;

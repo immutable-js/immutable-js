@@ -17,10 +17,10 @@ import {
   isIndexed,
   isAssociative,
   isOrdered,
-  IS_ITERABLE_SENTINEL,
-  IS_KEYED_SENTINEL,
-  IS_INDEXED_SENTINEL,
-  IS_ORDERED_SENTINEL,
+  IS_COLLECTION_SYMBOL,
+  IS_KEYED_SYMBOL,
+  IS_INDEXED_SYMBOL,
+  IS_ORDERED_SYMBOL,
 } from './Predicates';
 
 import { is } from './is';
@@ -520,7 +520,7 @@ mixin(Collection, {
 });
 
 const CollectionPrototype = Collection.prototype;
-CollectionPrototype[IS_ITERABLE_SENTINEL] = true;
+CollectionPrototype[IS_COLLECTION_SYMBOL] = true;
 CollectionPrototype[ITERATOR_SYMBOL] = CollectionPrototype.values;
 CollectionPrototype.toJSON = CollectionPrototype.toArray;
 CollectionPrototype.__toStringMapper = quoteString;
@@ -559,7 +559,7 @@ mixin(KeyedCollection, {
 });
 
 const KeyedCollectionPrototype = KeyedCollection.prototype;
-KeyedCollectionPrototype[IS_KEYED_SENTINEL] = true;
+KeyedCollectionPrototype[IS_KEYED_SYMBOL] = true;
 KeyedCollectionPrototype[ITERATOR_SYMBOL] = CollectionPrototype.entries;
 KeyedCollectionPrototype.toJSON = toObject;
 KeyedCollectionPrototype.__toStringMapper = (v, k) =>
@@ -697,8 +697,8 @@ mixin(IndexedCollection, {
 });
 
 const IndexedCollectionPrototype = IndexedCollection.prototype;
-IndexedCollectionPrototype[IS_INDEXED_SENTINEL] = true;
-IndexedCollectionPrototype[IS_ORDERED_SENTINEL] = true;
+IndexedCollectionPrototype[IS_INDEXED_SYMBOL] = true;
+IndexedCollectionPrototype[IS_ORDERED_SYMBOL] = true;
 
 mixin(SetCollection, {
   // ### ES6 Collection methods (ES6 Array and Map)

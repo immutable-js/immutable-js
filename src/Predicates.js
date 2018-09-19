@@ -10,15 +10,15 @@ export function isImmutable(maybeImmutable) {
 }
 
 export function isCollection(maybeCollection) {
-  return !!(maybeCollection && maybeCollection[IS_ITERABLE_SENTINEL]);
+  return !!(maybeCollection && maybeCollection[IS_COLLECTION_SYMBOL]);
 }
 
 export function isKeyed(maybeKeyed) {
-  return !!(maybeKeyed && maybeKeyed[IS_KEYED_SENTINEL]);
+  return !!(maybeKeyed && maybeKeyed[IS_KEYED_SYMBOL]);
 }
 
 export function isIndexed(maybeIndexed) {
-  return !!(maybeIndexed && maybeIndexed[IS_INDEXED_SENTINEL]);
+  return !!(maybeIndexed && maybeIndexed[IS_INDEXED_SYMBOL]);
 }
 
 export function isAssociative(maybeAssociative) {
@@ -26,11 +26,11 @@ export function isAssociative(maybeAssociative) {
 }
 
 export function isOrdered(maybeOrdered) {
-  return !!(maybeOrdered && maybeOrdered[IS_ORDERED_SENTINEL]);
+  return !!(maybeOrdered && maybeOrdered[IS_ORDERED_SYMBOL]);
 }
 
 export function isRecord(maybeRecord) {
-  return !!(maybeRecord && maybeRecord[IS_RECORD_SENTINEL]);
+  return !!(maybeRecord && maybeRecord[IS_RECORD_SYMBOL]);
 }
 
 export function isValueObject(maybeValue) {
@@ -41,8 +41,9 @@ export function isValueObject(maybeValue) {
   );
 }
 
-export const IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
-export const IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
-export const IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
-export const IS_ORDERED_SENTINEL = '@@__IMMUTABLE_ORDERED__@@';
-export const IS_RECORD_SENTINEL = '@@__IMMUTABLE_RECORD__@@';
+// Note: values unchanged to preserve immutable-devtools.
+export const IS_COLLECTION_SYMBOL = '@@__IMMUTABLE_ITERABLE__@@';
+export const IS_KEYED_SYMBOL = '@@__IMMUTABLE_KEYED__@@';
+export const IS_INDEXED_SYMBOL = '@@__IMMUTABLE_INDEXED__@@';
+export const IS_ORDERED_SYMBOL = '@@__IMMUTABLE_ORDERED__@@';
+export const IS_RECORD_SYMBOL = '@@__IMMUTABLE_RECORD__@@';
