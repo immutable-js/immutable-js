@@ -23,7 +23,7 @@ export const DID_ALTER = { value: false };
 
 export function MakeRef(ref) {
   ref.value = false;
-  return ref;
+  return Object.assign({}, ref);
 }
 
 export function SetRef(ref) {
