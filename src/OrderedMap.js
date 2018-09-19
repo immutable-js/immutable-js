@@ -6,7 +6,7 @@
  */
 
 import { KeyedCollection } from './Collection';
-import { IS_ORDERED_SENTINEL, isOrdered } from './Predicates';
+import { IS_ORDERED_SYMBOL, isOrdered } from './Predicates';
 import { Map, isMap, emptyMap } from './Map';
 import { emptyList } from './List';
 import { DELETE, NOT_SET, SIZE } from './TrieUtils';
@@ -105,7 +105,7 @@ function isOrderedMap(maybeOrderedMap) {
 
 OrderedMap.isOrderedMap = isOrderedMap;
 
-OrderedMap.prototype[IS_ORDERED_SENTINEL] = true;
+OrderedMap.prototype[IS_ORDERED_SYMBOL] = true;
 OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
 
 function makeOrderedMap(map, list, ownerID, hash) {

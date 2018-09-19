@@ -167,15 +167,15 @@ export class Map extends KeyedCollection {
 }
 
 export function isMap(maybeMap) {
-  return !!(maybeMap && maybeMap[IS_MAP_SENTINEL]);
+  return !!(maybeMap && maybeMap[IS_MAP_SYMBOL]);
 }
 
 Map.isMap = isMap;
 
-const IS_MAP_SENTINEL = '@@__IMMUTABLE_MAP__@@';
+const IS_MAP_SYMBOL = '@@__IMMUTABLE_MAP__@@';
 
 export const MapPrototype = Map.prototype;
-MapPrototype[IS_MAP_SENTINEL] = true;
+MapPrototype[IS_MAP_SYMBOL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeAll = MapPrototype.deleteAll;
 MapPrototype.setIn = setIn;

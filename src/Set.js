@@ -175,15 +175,15 @@ export class Set extends SetCollection {
 }
 
 export function isSet(maybeSet) {
-  return !!(maybeSet && maybeSet[IS_SET_SENTINEL]);
+  return !!(maybeSet && maybeSet[IS_SET_SYMBOL]);
 }
 
 Set.isSet = isSet;
 
-const IS_SET_SENTINEL = '@@__IMMUTABLE_SET__@@';
+const IS_SET_SYMBOL = '@@__IMMUTABLE_SET__@@';
 
 const SetPrototype = Set.prototype;
-SetPrototype[IS_SET_SENTINEL] = true;
+SetPrototype[IS_SET_SYMBOL] = true;
 SetPrototype[DELETE] = SetPrototype.remove;
 SetPrototype.merge = SetPrototype.concat = SetPrototype.union;
 SetPrototype.withMutations = withMutations;

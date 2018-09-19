@@ -13,7 +13,7 @@ import {
   isKeyed,
   isAssociative,
   isRecord,
-  IS_ORDERED_SENTINEL,
+  IS_ORDERED_SYMBOL,
 } from './Predicates';
 import {
   Iterator,
@@ -155,9 +155,9 @@ Seq.Keyed = KeyedSeq;
 Seq.Set = SetSeq;
 Seq.Indexed = IndexedSeq;
 
-const IS_SEQ_SENTINEL = '@@__IMMUTABLE_SEQ__@@';
+const IS_SEQ_SYMBOL = '@@__IMMUTABLE_SEQ__@@';
 
-Seq.prototype[IS_SEQ_SENTINEL] = true;
+Seq.prototype[IS_SEQ_SYMBOL] = true;
 
 // #pragma Root Sequences
 
@@ -245,7 +245,7 @@ class ObjectSeq extends KeyedSeq {
     });
   }
 }
-ObjectSeq.prototype[IS_ORDERED_SENTINEL] = true;
+ObjectSeq.prototype[IS_ORDERED_SYMBOL] = true;
 
 class CollectionSeq extends IndexedSeq {
   constructor(collection) {
@@ -291,7 +291,7 @@ class CollectionSeq extends IndexedSeq {
 // # pragma Helper functions
 
 export function isSeq(maybeSeq) {
-  return !!(maybeSeq && maybeSeq[IS_SEQ_SENTINEL]);
+  return !!(maybeSeq && maybeSeq[IS_SEQ_SYMBOL]);
 }
 
 let EMPTY_SEQ;
