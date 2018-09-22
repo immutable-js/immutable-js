@@ -100,6 +100,28 @@
 declare module Immutable {
 
   /**
+   * Options are Object wrappers which indicate the presence or absence of a value.
+   * Typically returned from get() methods, these monads offer all the collection methods
+   * of collections and allow to postpone the evaluation of whether a value was returned
+   * or not until the end od the calculation.
+   *
+   * Option is the generic type, with subclasses Some (for an existing value) and None
+   * (indicating the absence of a value)
+   */
+  export module Option {
+
+    function getOrElse<T>(defaultValue: T): T;
+  }
+
+  export function Option(value: any): Option<any>;
+
+  export module None {}
+  export function None(): None;
+
+  export module Some{}
+  export function Some<T>(val: T): Some<T>;
+
+  /**
    * Lists are ordered indexed dense collections, much like a JavaScript
    * Array.
    *
