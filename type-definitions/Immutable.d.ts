@@ -115,11 +115,44 @@ declare module Immutable {
 
   export function Option(value: any): Option<any>;
 
+  export interface Option<T> {
+
+    map<M>(mapper: (value: T, key?: number, iter?: this) => M): Option<M>;
+
+    flatMap<M>(mapper: (value: T, key?: number) => Option<M>): Option<M>;
+
+    filter(predicate: (value: T) => boolean): Option<T>;
+
+    getOrElse(elseValue: T): T;
+  }
+
   export module None {}
   export function None(): None;
 
-  export module Some{}
+  export interface None {
+
+    map<T, M>(mapper: (value: T, key?: number, iter?: this) => M): None;
+
+    flatMap<T, M>(mapper: (value: T, key?: number) => Option<M>): None;
+
+    filter<T>(predicate: (value: T) => boolean): None;
+
+    getOrElse<T>(elseValue: T): T;
+  }
+
+  export module Some {}
   export function Some<T>(val: T): Some<T>;
+
+  export interface Some<T> extends Option<T> {
+
+    map<M>(mapper: (value: T, key?: number, iter?: this) => M): Option<M>;
+
+    flatMap<M>(mapper: (value: T, key?: number) => Option<M>): Option<M>;
+
+    filter(predicate: (value: T) => boolean): Option<T>;
+
+    getOrElse(elseValue: T): T;
+  }
 
   /**
    * Lists are ordered indexed dense collections, much like a JavaScript
