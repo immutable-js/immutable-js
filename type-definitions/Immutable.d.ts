@@ -100,6 +100,61 @@
 declare module Immutable {
 
   /**
+   * Options are Object wrappers which indicate the presence or absence of a value.
+   * Typically returned from get() methods, these monads offer all the collection methods
+   * of collections and allow to postpone the evaluation of whether a value was returned
+   * or not until the end od the calculation.
+   *
+   * Option is the generic type, with subclasses Some (for an existing value) and None
+   * (indicating the absence of a value)
+   */
+  export module Option {
+
+    function getOrElse<T>(defaultValue: T): T;
+  }
+
+  export function Option(value: any): Option<any>;
+
+  export interface Option<T> {
+
+    map<M>(mapper: (value: T, key?: number, iter?: this) => M): Option<M>;
+
+    flatMap<M>(mapper: (value: T, key?: number) => Option<M>): Option<M>;
+
+    filter(predicate: (value: T) => boolean): Option<T>;
+
+    getOrElse(elseValue: T): T;
+  }
+
+  export module None {}
+  export function None(): None;
+
+  export interface None {
+
+    map<T, M>(mapper: (value: T, key?: number, iter?: this) => M): None;
+
+    flatMap<T, M>(mapper: (value: T, key?: number) => Option<M>): None;
+
+    filter<T>(predicate: (value: T) => boolean): None;
+
+    getOrElse<T>(elseValue: T): T;
+  }
+
+  export module Some {}
+  export function Some<T>(val: T): Some<T>;
+
+  export interface Some<T> extends Option<T> {
+
+    map<M>(mapper: (value: T, key?: number, iter?: this) => M): Option<M>;
+
+    flatMap<M>(mapper: (value: T, key?: number) => Option<M>): Option<M>;
+
+    filter(predicate: (value: T) => boolean): Option<T>;
+
+    getOrElse(elseValue: T): T;
+  }
+
+  /**
    * Lists are ordered indexed dense collections, much like a JavaScript
    * Array.
    *

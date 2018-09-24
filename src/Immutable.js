@@ -7,6 +7,7 @@
 
 import { Seq } from './Seq';
 import { OrderedMap } from './OrderedMap';
+import { Option, None, Some } from './Option';
 import { List } from './List';
 import { Map } from './Map';
 import { Stack } from './Stack';
@@ -63,6 +64,9 @@ export default {
   Seq: Seq,
   Map: Map,
   OrderedMap: OrderedMap,
+  Option: Option,
+  None: None,
+  Some: Some,
   List: List,
   Stack: Stack,
   Set: Set,
@@ -118,6 +122,9 @@ export {
   Seq,
   Map,
   OrderedMap,
+  Option,
+  None,
+  Some,
   List,
   Stack,
   Set,
