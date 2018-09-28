@@ -43,8 +43,8 @@ var SideBar = React.createClass({
             </span>
           </div>
         </div>
-        <DocSearch />
         <div className="scrollContent">
+          <DocSearch />
           <h4 className="groupTitle">API</h4>
           {Seq(type.module)
             .flatMap((t, name) => flattenSubmodules(Map(), t, name))

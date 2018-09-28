@@ -36,13 +36,7 @@ var DocSearch = React.createClass({
     firstLink.parentNode.insertBefore(link, firstLink);
   },
   render() {
-    return this.state.enabled ? (
-      <div>
-        <br />
-        <br />
-        <input id="algolia-docsearch" />
-      </div>
-    ) : null;
+    return this.state.enabled ? <input id="algolia-docsearch" /> : null;
   },
 });
 
