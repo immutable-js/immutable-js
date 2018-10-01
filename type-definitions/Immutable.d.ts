@@ -759,7 +759,6 @@ declare module Immutable {
    * not altered.
    */
   export function Map<K, V>(collection: Iterable<[K, V]>): Map<K, V>;
-  export function Map<T>(collection: Iterable<Iterable<T>>): Map<T, T>;
   export function Map<V>(obj: {[key: string]: V}): Map<string, V>;
   export function Map<K, V>(): Map<K, V>;
   export function Map(): Map<any, any>;
