@@ -4827,12 +4827,43 @@ declare module Immutable {
    */
   export function fromJS(
     jsValue: any,
-    reviver?: (
+    reviver: (
       key: string | number,
       sequence: Collection.Keyed<string, any> | Collection.Indexed<any>,
       path?: Array<string | number>
     ) => any
   ): any;
+
+  export function fromJS<JSValue>(jsValue: JSValue, reviver?: undefined): FromJS<JSValue>;
+
+  export type FromJS<JSValue> = {
+    noTransform: JSValue
+    array: FromJSArray<JSValue>
+    object: FromJSObject<JSValue>
+    any: any
+  }[
+    JSValue extends FromJS.NoTransform ? 'noTransform' :
+    JSValue extends any[] ? 'array' :
+    JSValue extends {} ? 'object' :
+    'any'
+  ];
+
+  export module FromJS {
+    export type NoTransform =
+      Collection<any, any> |
+      number |
+      string |
+      null |
+      undefined;
+  }
+
+  export type FromJSArray<JSValue> = JSValue extends Array<infer T>
+    ? List<FromJS<T>>
+    : never;
+
+  export type FromJSObject<JSValue> = JSValue extends {}
+    ? Map<keyof JSValue, FromJS<JSValue[keyof JSValue]>>
+    : never;
 
   /**
    * Value equality check with semantics similar to `Object.is`, but treats
