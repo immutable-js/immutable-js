@@ -194,7 +194,7 @@ var TypeDoc = React.createClass({
             <h4 className="groupTitle">Sub-types</h4>
             {types
               .map((t, typeName) => (
-                <div key={name}>
+                <div key={typeName}>
                   <Router.Link
                     to={'/' + (name ? name + '.' + typeName : typeName)}
                   >
