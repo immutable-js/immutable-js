@@ -101,9 +101,14 @@ describe('Set', () => {
   it('maps should produce new set if values changed', () => {
     const s = Set([1, 2, 3]);
     expect(s.has(4)).toBe(false);
+    expect(s.size).toBe(3);
 
     const m = s.map(v => v + 1);
+    expect(m.has(1)).toBe(false);
+    expect(m.has(2)).toBe(true);
+    expect(m.has(3)).toBe(true);
     expect(m.has(4)).toBe(true);
+    expect(m.size).toBe(3);
   });
 
   it('unions an unknown collection of Sets', () => {

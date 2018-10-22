@@ -83,13 +83,17 @@ export class Set extends SetCollection {
 
   map(mapper, context) {
     return this.withMutations(set => {
+      const removes = [];
+      const adds = [];
       this.forEach(value => {
         const mapped = mapper.call(context, value, value, set);
         if (mapped !== value) {
-          set.remove(value);
-          set.add(mapped);
+          removes.push(value);
+          adds.push(mapped);
         }
       });
+      removes.forEach(value => set.remove(value));
+      adds.forEach(value => set.add(value));
     });
   }
 
