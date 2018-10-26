@@ -8,7 +8,8 @@
 export default function isPlainObj(value) {
   return (
     value &&
-    ((value.constructor && value.constructor.name === 'Object') ||
+    ((value.constructor && (value.constructor.name === 'Object' ||
+        typeof value.constructor != 'function')) ||
       value.constructor === undefined)
   );
 }
