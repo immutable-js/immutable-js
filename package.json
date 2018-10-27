@@ -82,7 +82,7 @@
     "gulp-uglify": "2.1.0",
     "gulp-util": "3.0.8",
     "jasmine-check": "0.1.5",
-    "jest": "22.4.3",
+    "jest": "23.6.0",
     "marked": "0.3.19",
     "microtime": "2.1.8",
     "mkdirp": "0.5.1",
