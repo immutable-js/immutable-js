@@ -5774,7 +5774,7 @@ function defaultConverter(k, v) {
   return isKeyed(v) ? v.toMap() : v.toList();
 }
 
-var version = "4.0.0-rc.10";
+var version = "4.0.0-rc.11";
 
 var Immutable = {
   version: version,

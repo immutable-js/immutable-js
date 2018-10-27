@@ -1,6 +1,6 @@
 {
   "name": "immutable",
-  "version": "4.0.0-rc.10",
+  "version": "4.0.0-rc.11",
   "description": "Immutable Data Collections",
   "license": "MIT",
   "homepage": "https://facebook.github.com/immutable-js",
