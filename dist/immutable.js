@@ -4288,19 +4288,7 @@
     Set.prototype.map = function map (mapper, context) {
       var this$1 = this;
 
-      var removes = [];
-      var adds = [];
-      this.forEach(function (value) {
-        var mapped = mapper.call(context, value, value, this$1);
-        if (mapped !== value) {
-          removes.push(value);
-          adds.push(mapped);
-        }
-      });
-      return this.withMutations(function (set) {
-        removes.forEach(function (value) { return set.remove(value); });
-        adds.forEach(function (value) { return set.add(value); });
-      });
+      return updateSet(this, this._map.map(function (v) { return mapper(v, v, this$1); }, context));
     };
 
     Set.prototype.union = function union () {
