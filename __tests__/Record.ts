@@ -32,6 +32,7 @@ describe('Record', () => {
     const me = Person({ name: 'My Name' });
     expect(me.toString()).toEqual('Person { name: "My Name" }');
     expect(Record.getDescriptiveName(me)).toEqual('Person');
+    expect(Person.displayName).toBe('Person');
   });
 
   it('passes through records of the same type', () => {

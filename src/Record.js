@@ -44,6 +44,9 @@ export class Record {
         hasInitialized = true;
         const keys = Object.keys(defaultValues);
         const indices = (RecordTypePrototype._indices = {});
+        // Deprecated: left to attempt not to break any external code which
+        // relies on a ._name property existing on record instances.
+        // Use Record.getDescriptiveName() instead
         RecordTypePrototype._name = name;
         RecordTypePrototype._keys = keys;
         RecordTypePrototype._defaultValues = defaultValues;
@@ -80,6 +83,10 @@ export class Record {
       RecordPrototype
     ));
     RecordTypePrototype.constructor = RecordType;
+
+    if (name) {
+      RecordType.displayName = name;
+    }
 
     return RecordType;
   }
@@ -220,7 +227,7 @@ function makeRecord(likeRecord, values, ownerID) {
 }
 
 function recordName(record) {
-  return record._name || record.constructor.name || 'Record';
+  return record.constructor.displayName || record.constructor.name || 'Record';
 }
 
 function recordSeq(record) {
