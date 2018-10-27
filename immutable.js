@@ -764,50 +764,58 @@
     return ((i32 >>> 1) & 0x40000000) | (i32 & 0xbfffffff);
   }
 
+  var defaultValueOf = Object.prototype.valueOf;
+
   function hash(o) {
-    if (o === false || o === null || o === undefined) {
+    switch (typeof o) {
+      case 'boolean':
+        // The hash values for built-in constants are a 1 value for each 5-byte
+        // shift region expect for the first, which encodes the value. This
+        // reduces the odds of a hash collision for these common values.
+        return o ? 0x42108421 : 0x42108420;
+      case 'number':
+        return hashNumber(o);
+      case 'string':
+        return o.length > STRING_HASH_CACHE_MIN_STRLEN
+          ? cachedHashString(o)
+          : hashString(o);
+      case 'object':
+      case 'function':
+        if (o === null) {
+          return 0x42108422;
+        }
+        if (typeof o.hashCode === 'function') {
+          // Drop any high bits from accidentally long hash codes.
+          return smi(o.hashCode(o));
+        }
+        if (o.valueOf !== defaultValueOf && typeof o.valueOf === 'function') {
+          o = o.valueOf(o);
+        }
+        return hashJSObj(o);
+      case 'undefined':
+        return 0x42108423;
+      default:
+        if (typeof o.toString === 'function') {
+          return hashString(o.toString());
+        }
+        throw new Error('Value type ' + typeof o + ' cannot be hashed.');
+    }
+  }
+
+  // Compress arbitrarily large numbers into smi hashes.
+  function hashNumber(n) {
+    if (n !== n || n === Infinity) {
       return 0;
     }
-    if (typeof o.valueOf === 'function') {
-      o = o.valueOf();
-      if (o === false || o === null || o === undefined) {
-        return 0;
-      }
+    var hash = n | 0;
+    if (hash !== n) {
+      hash ^= n * 0xffffffff;
     }
-    if (o === true) {
-      return 1;
+    while (n > 0xffffffff) {
+      n /= 0xffffffff;
+      hash ^= n;
     }
-    var type = typeof o;
-    if (type === 'number') {
-      if (o !== o || o === Infinity) {
-        return 0;
-      }
-      var h = o | 0;
-      if (h !== o) {
-        h ^= o * 0xffffffff;
-      }
-      while (o > 0xffffffff) {
-        o /= 0xffffffff;
-        h ^= o;
-      }
-      return smi(h);
-    }
-    if (type === 'string') {
-      return o.length > STRING_HASH_CACHE_MIN_STRLEN
-        ? cachedHashString(o)
-        : hashString(o);
-    }
-    if (typeof o.hashCode === 'function') {
-      // Drop any high bits from accidentally long hash codes.
-      return smi(o.hashCode());
-    }
-    if (type === 'object' || type === 'function') {
-      return hashJSObj(o);
-    }
-    if (typeof o.toString === 'function') {
-      return hashString(o.toString());
-    }
-    throw new Error('Value type ' + type + ' cannot be hashed.');
+    return smi(hash);
   }
 
   function cachedHashString(string) {
@@ -1888,8 +1896,8 @@
   function isPlainObj(value) {
     return (
       value &&
-      ((value.constructor && value.constructor.name === 'Object') ||
-        value.constructor === undefined)
+      (typeof value.constructor !== 'function' ||
+        value.constructor.name === 'Object')
     );
   }
 
@@ -4288,7 +4296,19 @@
     Set.prototype.map = function map (mapper, context) {
       var this$1 = this;
 
-      return updateSet(this, this._map.map(function (v) { return mapper(v, v, this$1); }, context));
+      var removes = [];
+      var adds = [];
+      this.forEach(function (value) {
+        var mapped = mapper.call(context, value, value, this$1);
+        if (mapped !== value) {
+          removes.push(value);
+          adds.push(mapped);
+        }
+      });
+      return this.withMutations(function (set) {
+        removes.forEach(function (value) { return set.remove(value); });
+        adds.forEach(function (value) { return set.add(value); });
+      });
     };
 
     Set.prototype.union = function union () {
@@ -5410,6 +5430,9 @@
         hasInitialized = true;
         var keys = Object.keys(defaultValues);
         var indices = (RecordTypePrototype._indices = {});
+        // Deprecated: left to attempt not to break any external code which
+        // relies on a ._name property existing on record instances.
+        // Use Record.getDescriptiveName() instead
         RecordTypePrototype._name = name;
         RecordTypePrototype._keys = keys;
         RecordTypePrototype._defaultValues = defaultValues;
@@ -5446,6 +5469,10 @@
       RecordPrototype
     ));
     RecordTypePrototype.constructor = RecordType;
+
+    if (name) {
+      RecordType.displayName = name;
+    }
 
     return RecordType;
   };
@@ -5587,7 +5614,7 @@
   }
 
   function recordName(record) {
-    return record._name || record.constructor.name || 'Record';
+    return record.constructor.displayName || record.constructor.name || 'Record';
   }
 
   function recordSeq(record) {
@@ -5753,7 +5780,7 @@
     return isKeyed(v) ? v.toMap() : v.toList();
   }
 
-  var version = "4.0.0-rc.10";
+  var version = "4.0.0-rc.11";
 
   var Immutable = {
     version: version,
