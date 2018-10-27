@@ -20,7 +20,6 @@ var DocSearch = React.createClass({
             inputSelector: '#algolia-docsearch',
           });
         } else {
-          console.warn('Search has failed to load and now is being disabled');
           this.setState({ enabled: false });
         }
       },
@@ -36,7 +35,14 @@ var DocSearch = React.createClass({
     firstLink.parentNode.insertBefore(link, firstLink);
   },
   render() {
-    return this.state.enabled ? <input id="algolia-docsearch" /> : null;
+    return this.state.enabled ? (
+      <input
+        id="algolia-docsearch"
+        className="docSearch"
+        type="search"
+        placeholder="Search Immutable.js Documentation"
+      />
+    ) : null;
   },
 });
 
