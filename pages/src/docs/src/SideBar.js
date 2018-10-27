@@ -9,6 +9,7 @@ var React = require('react');
 var Router = require('react-router');
 var { Map, Seq } = require('../../../../');
 var defs = require('../../../lib/getTypeDefs');
+var DocSearch = require('./DocSearch.js');
 
 var SideBar = React.createClass({
   render() {
@@ -43,6 +44,7 @@ var SideBar = React.createClass({
           </div>
         </div>
         <div className="scrollContent">
+          <DocSearch />
           <h4 className="groupTitle">API</h4>
           {Seq(type.module)
             .flatMap((t, name) => flattenSubmodules(Map(), t, name))
