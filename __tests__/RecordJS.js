@@ -52,6 +52,14 @@ describe('Record', () => {
     expect(t instanceof Alphabet);
     expect(t.soup()).toBe(6);
     expect(t2.soup()).toBe(204);
+
+    // Uses class name as descriptive name
+    expect(Record.getDescriptiveName(t)).toBe('Alphabet');
+
+    // Uses display name over class name
+    class NotADisplayName extends Record({ x: 1 }, 'DisplayName') {}
+    const t3 = new NotADisplayName();
+    expect(Record.getDescriptiveName(t3)).toBe('DisplayName');
   });
 
   it('can be cleared', () => {

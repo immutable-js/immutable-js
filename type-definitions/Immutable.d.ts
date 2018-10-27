@@ -2446,6 +2446,12 @@ declare module Immutable {
     export interface Factory<TProps extends Object> {
       (values?: Partial<TProps> | Iterable<[string, any]>): Record<TProps> & Readonly<TProps>;
       new (values?: Partial<TProps> | Iterable<[string, any]>): Record<TProps> & Readonly<TProps>;
+
+      /**
+       * The name provided to `Record(values, name)` can be accessed with
+       * `displayName`.
+       */
+      displayName: string;
     }
 
     export function Factory<TProps extends Object>(values?: Partial<TProps> | Iterable<[string, any]>): Record<TProps> & Readonly<TProps>;
