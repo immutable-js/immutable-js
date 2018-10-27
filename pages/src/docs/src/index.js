@@ -9,6 +9,7 @@ var React = require('react');
 var assign = require('react/lib/Object.assign');
 var Router = require('react-router');
 var DocHeader = require('./DocHeader');
+var DocSearch = require('./DocSearch.js');
 var TypeDocumentation = require('./TypeDocumentation');
 var defs = require('../../../lib/getTypeDefs');
 
@@ -23,6 +24,7 @@ var Documentation = React.createClass({
         <DocHeader />
         <div className="pageBody" id="body">
           <div className="contents">
+            <DocSearch />
             <RouteHandler />
           </div>
         </div>
