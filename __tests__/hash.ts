@@ -14,11 +14,11 @@ import { hash } from '../';
 
 describe('hash', () => {
   it('stable hash of well known values', () => {
-    expect(hash(true)).toBe(1);
-    expect(hash(false)).toBe(0);
+    expect(hash(true)).toBe(0x42108421);
+    expect(hash(false)).toBe(0x42108420);
     expect(hash(0)).toBe(0);
-    expect(hash(null)).toBe(0);
-    expect(hash(undefined)).toBe(0);
+    expect(hash(null)).toBe(0x42108422);
+    expect(hash(undefined)).toBe(0x42108423);
     expect(hash('a')).toBe(97);
     expect(hash('immutable-js')).toBe(510203252);
     expect(hash(123)).toBe(123);
