@@ -59,7 +59,7 @@
   },
   "devDependencies": {
     "benchmark": "2.1.4",
-    "browser-sync": "2.24.4",
+    "browser-sync": "^2.26.3",
     "browserify": "16.2.2",
     "colors": "1.2.5",
     "del": "3.0.0",
