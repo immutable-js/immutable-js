@@ -12,20 +12,17 @@ import { Map, List } from '../../';
   // $ExpectType Map<{}, {}>
   Map();
 
-  // $ExpectType Map<number, number>
-  Map([[1, 1]]);
+  // $ExpectType Map<number, string>
+  Map([[1, 'a']]);
+
+  // $ExpectType Map<number, string>
+  Map(List<[number, string]>([[1, 'a']]));
 
   // $ExpectType Map<string, number>
   Map({ a: 1 });
 
-  // $ExpectType Map<string, string>
-  Map(List.of(List(['a', 'b'])));
-
-  // $ExpectType Map<number, number>
-  Map(List.of(List([1, 2])));
-
-  // $ExpectType Map<string | number, string | number>
-  Map(List.of(List(['a', 1])));
+  // $ExpectError - TypeScript does not support Lists as tuples
+  Map(List([List(['a', 'b'])]));
 
   // $ExpectError
   const invalidNumberMap: Map<number, number> = Map();

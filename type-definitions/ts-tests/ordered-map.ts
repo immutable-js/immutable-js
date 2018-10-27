@@ -12,20 +12,17 @@ import { OrderedMap, List } from '../../';
   // $ExpectType OrderedMap<{}, {}>
   OrderedMap();
 
-  // $ExpectType OrderedMap<number, number>
-  OrderedMap([[1, 1]]);
+  // $ExpectType OrderedMap<number, string>
+  OrderedMap([[1, 'a']]);
+
+  // $ExpectType OrderedMap<number, string>
+  OrderedMap(List<[number, string]>([[1, 'a']]));
 
   // $ExpectType OrderedMap<string, number>
   OrderedMap({ a: 1 });
 
-  // $ExpectType OrderedMap<string, string>
-  OrderedMap(List.of(List(['a', 'b'])));
-
-  // $ExpectType OrderedMap<number, number>
-  OrderedMap(List.of(List([1, 2])));
-
-  // $ExpectType OrderedMap<string | number, string | number>
-  OrderedMap(List.of(List(['a', 1])));
+// $ExpectError - TypeScript does not support Lists as tuples
+  OrderedMap(List([List(['a', 'b'])]));
 
   // $ExpectError
   const invalidNumberOrderedMap: OrderedMap<number, number> = OrderedMap();

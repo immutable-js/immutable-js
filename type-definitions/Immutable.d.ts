@@ -759,7 +759,6 @@ declare module Immutable {
    * not altered.
    */
   export function Map<K, V>(collection: Iterable<[K, V]>): Map<K, V>;
-  export function Map<T>(collection: Iterable<Iterable<T>>): Map<T, T>;
   export function Map<V>(obj: {[key: string]: V}): Map<string, V>;
   export function Map<K, V>(): Map<K, V>;
   export function Map(): Map<any, any>;
@@ -1419,7 +1418,6 @@ declare module Immutable {
    * the `new` keyword during construction.
    */
   export function OrderedMap<K, V>(collection: Iterable<[K, V]>): OrderedMap<K, V>;
-  export function OrderedMap<T>(collection: Iterable<Iterable<T>>): OrderedMap<T, T>;
   export function OrderedMap<V>(obj: {[key: string]: V}): OrderedMap<string, V>;
   export function OrderedMap<K, V>(): OrderedMap<K, V>;
   export function OrderedMap(): OrderedMap<any, any>;
