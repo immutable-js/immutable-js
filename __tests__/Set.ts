@@ -129,7 +129,7 @@ describe('Set', () => {
 
   it('iterates values', () => {
     const s = Set([1, 2, 3]);
-    const iterator = jest.fn();
+    const iterator = jest.genMockFunction();
     s.forEach(iterator);
     expect(iterator.mock.calls).toEqual([[1, 1, s], [2, 2, s], [3, 3, s]]);
   });

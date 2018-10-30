@@ -109,7 +109,7 @@ describe('Map', () => {
 
   it('iterates values', () => {
     const m = Map({ a: 'A', b: 'B', c: 'C' });
-    const iterator = jest.fn();
+    const iterator = jest.genMockFunction();
     m.forEach(iterator);
     expect(iterator.mock.calls).toEqual([
       ['A', 'a', m],
