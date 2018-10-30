@@ -1401,7 +1401,7 @@ declare class Record {
   static getDescriptiveName(record: RecordInstance<any>): string;
 }
 
-declare class RecordInstance<T: Object> {
+declare class RecordInstance<T: Object = Object> {
   static (values?: Iterable<[$Keys<T>, $ValOf<T>]> | $Shape<T>): RecordOf<T>;
   // Note: a constructor can only create an instance of RecordInstance<T>,
   // it's encouraged to not use `new` when creating Records.
