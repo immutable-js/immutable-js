@@ -152,3 +152,20 @@ person.set('name', 'Thales');
 person.get('unknown');
 // $ExpectError
 person.set('unknown', 'Thales');
+
+// Note: not <TPerson>
+class PersonWithoutTypes extends PersonRecord {
+  getName(): string {
+    return this.get('name');
+  }
+
+  setName(name: string): this & TPerson {
+    return this.set('name', name);
+  }
+}
+
+const person2 = new PersonWithoutTypes()
+
+person2.get('name');
+// Note: no error
+person2.get('unknown');
