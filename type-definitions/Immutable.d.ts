@@ -4296,12 +4296,20 @@ declare module Immutable {
 
     /**
      * The `sideEffect` is executed for every entry in the Collection.
+     */
+    forEach(
+      sideEffect: (value: V, key: K, iter: this) => any,
+      context?: any
+    ): this;
+
+    /**
+     * The `sideEffect` is executed for every entry in the Collection.
      *
-     * Unlike `Array#forEach`, if any call of `sideEffect` returns
+     * Unlike `#forEach`, if any call of `sideEffect` returns
      * `false`, the iteration will stop. Returns the number of entries iterated
      * (including the last iteration which returned false).
      */
-    forEach(
+    forSome(
       sideEffect: (value: V, key: K, iter: this) => any,
       context?: any
     ): number;

@@ -660,17 +660,30 @@ describe('List', () => {
     expect(a).toEqual([0, 1, 2, 3, 4]);
   });
 
-  it('forEach iteration terminates when callback returns false', () => {
+  it('forSome iteration terminates when callback returns false', () => {
     const a: Array<any> = [];
     function count(x) {
+      a.push(x);
+      if (x >= 2) {
+        return false;
+      }
+    }
+    const v = List.of(0, 1, 2, 3, 4);
+    v.forSome(count);
+    expect(a).toEqual([0, 1, 2]);
+  });
+
+  it('forEach iteration does not terminate when callback returns false', () => {
+    const a: Array<any> = [];
+    function count(x) {
+      a.push(x);
       if (x > 2) {
         return false;
       }
-      a.push(x);
     }
     const v = List.of(0, 1, 2, 3, 4);
     v.forEach(count);
-    expect(a).toEqual([0, 1, 2]);
+    expect(a).toEqual([0, 1, 2, 3, 4]);
   });
 
   it('concat works like Array.prototype.concat', () => {
