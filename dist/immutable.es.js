@@ -124,7 +124,7 @@ var Collection = function Collection(value) {
   return isCollection(value) ? value : Seq(value);
 };
 
-var KeyedCollection = (function (Collection) {
+var KeyedCollection = /*@__PURE__*/(function (Collection) {
   function KeyedCollection(value) {
     return isKeyed(value) ? value : KeyedSeq(value);
   }
@@ -136,7 +136,7 @@ var KeyedCollection = (function (Collection) {
   return KeyedCollection;
 }(Collection));
 
-var IndexedCollection = (function (Collection) {
+var IndexedCollection = /*@__PURE__*/(function (Collection) {
   function IndexedCollection(value) {
     return isIndexed(value) ? value : IndexedSeq(value);
   }
@@ -148,7 +148,7 @@ var IndexedCollection = (function (Collection) {
   return IndexedCollection;
 }(Collection));
 
-var SetCollection = (function (Collection) {
+var SetCollection = /*@__PURE__*/(function (Collection) {
   function SetCollection(value) {
     return isCollection(value) && !isAssociative(value) ? value : SetSeq(value);
   }
@@ -273,7 +273,7 @@ function isArrayLike(value) {
   );
 }
 
-var Seq = (function (Collection$$1) {
+var Seq = /*@__PURE__*/(function (Collection$$1) {
   function Seq(value) {
     return value === null || value === undefined
       ? emptySequence()
@@ -305,15 +305,13 @@ var Seq = (function (Collection$$1) {
   // abstract __iterateUncached(fn, reverse)
 
   Seq.prototype.__iterate = function __iterate (fn, reverse) {
-    var this$1 = this;
-
     var cache = this._cache;
     if (cache) {
       var size = cache.length;
       var i = 0;
       while (i !== size) {
         var entry = cache[reverse ? size - ++i : i++];
-        if (fn(entry[1], entry[0], this$1) === false) {
+        if (fn(entry[1], entry[0], this) === false) {
           break;
         }
       }
@@ -343,7 +341,7 @@ var Seq = (function (Collection$$1) {
   return Seq;
 }(Collection));
 
-var KeyedSeq = (function (Seq) {
+var KeyedSeq = /*@__PURE__*/(function (Seq) {
   function KeyedSeq(value) {
     return value === null || value === undefined
       ? emptySequence().toKeyedSeq()
@@ -367,7 +365,7 @@ var KeyedSeq = (function (Seq) {
   return KeyedSeq;
 }(Seq));
 
-var IndexedSeq = (function (Seq) {
+var IndexedSeq = /*@__PURE__*/(function (Seq) {
   function IndexedSeq(value) {
     return value === null || value === undefined
       ? emptySequence()
@@ -399,7 +397,7 @@ var IndexedSeq = (function (Seq) {
   return IndexedSeq;
 }(Seq));
 
-var SetSeq = (function (Seq) {
+var SetSeq = /*@__PURE__*/(function (Seq) {
   function SetSeq(value) {
     return (isCollection(value) && !isAssociative(value)
       ? value
@@ -431,7 +429,7 @@ Seq.prototype[IS_SEQ_SYMBOL] = true;
 
 // #pragma Root Sequences
 
-var ArraySeq = (function (IndexedSeq) {
+var ArraySeq = /*@__PURE__*/(function (IndexedSeq) {
   function ArraySeq(array) {
     this._array = array;
     this.size = array.length;
@@ -446,14 +444,12 @@ var ArraySeq = (function (IndexedSeq) {
   };
 
   ArraySeq.prototype.__iterate = function __iterate (fn, reverse) {
-    var this$1 = this;
-
     var array = this._array;
     var size = array.length;
     var i = 0;
     while (i !== size) {
       var ii = reverse ? size - ++i : i++;
-      if (fn(array[ii], ii, this$1) === false) {
+      if (fn(array[ii], ii, this) === false) {
         break;
       }
     }
@@ -476,7 +472,7 @@ var ArraySeq = (function (IndexedSeq) {
   return ArraySeq;
 }(IndexedSeq));
 
-var ObjectSeq = (function (KeyedSeq) {
+var ObjectSeq = /*@__PURE__*/(function (KeyedSeq) {
   function ObjectSeq(object) {
     var keys = Object.keys(object);
     this._object = object;
@@ -500,15 +496,13 @@ var ObjectSeq = (function (KeyedSeq) {
   };
 
   ObjectSeq.prototype.__iterate = function __iterate (fn, reverse) {
-    var this$1 = this;
-
     var object = this._object;
     var keys = this._keys;
     var size = keys.length;
     var i = 0;
     while (i !== size) {
       var key = keys[reverse ? size - ++i : i++];
-      if (fn(object[key], key, this$1) === false) {
+      if (fn(object[key], key, this) === false) {
         break;
       }
     }
@@ -533,7 +527,7 @@ var ObjectSeq = (function (KeyedSeq) {
 }(KeyedSeq));
 ObjectSeq.prototype[IS_ORDERED_SYMBOL] = true;
 
-var CollectionSeq = (function (IndexedSeq) {
+var CollectionSeq = /*@__PURE__*/(function (IndexedSeq) {
   function CollectionSeq(collection) {
     this._collection = collection;
     this.size = collection.length || collection.size;
@@ -544,8 +538,6 @@ var CollectionSeq = (function (IndexedSeq) {
   CollectionSeq.prototype.constructor = CollectionSeq;
 
   CollectionSeq.prototype.__iterateUncached = function __iterateUncached (fn, reverse) {
-    var this$1 = this;
-
     if (reverse) {
       return this.cacheResult().__iterate(fn, reverse);
     }
@@ -555,7 +547,7 @@ var CollectionSeq = (function (IndexedSeq) {
     if (isIterator(iterator)) {
       var step;
       while (!(step = iterator.next()).done) {
-        if (fn(step.value, iterations++, this$1) === false) {
+        if (fn(step.value, iterations++, this) === false) {
           break;
         }
       }
@@ -956,7 +948,7 @@ var STRING_HASH_CACHE_MAX_SIZE = 255;
 var STRING_HASH_CACHE_SIZE = 0;
 var stringHashCache = {};
 
-var ToKeyedSequence = (function (KeyedSeq$$1) {
+var ToKeyedSequence = /*@__PURE__*/(function (KeyedSeq$$1) {
   function ToKeyedSequence(indexed, useKeys) {
     this._iter = indexed;
     this._useKeys = useKeys;
@@ -1013,7 +1005,7 @@ var ToKeyedSequence = (function (KeyedSeq$$1) {
 }(KeyedSeq));
 ToKeyedSequence.prototype[IS_ORDERED_SYMBOL] = true;
 
-var ToIndexedSequence = (function (IndexedSeq$$1) {
+var ToIndexedSequence = /*@__PURE__*/(function (IndexedSeq$$1) {
   function ToIndexedSequence(iter) {
     this._iter = iter;
     this.size = iter.size;
@@ -1060,7 +1052,7 @@ var ToIndexedSequence = (function (IndexedSeq$$1) {
   return ToIndexedSequence;
 }(IndexedSeq));
 
-var ToSetSequence = (function (SetSeq$$1) {
+var ToSetSequence = /*@__PURE__*/(function (SetSeq$$1) {
   function ToSetSequence(iter) {
     this._iter = iter;
     this.size = iter.size;
@@ -1093,7 +1085,7 @@ var ToSetSequence = (function (SetSeq$$1) {
   return ToSetSequence;
 }(SetSeq));
 
-var FromEntriesSequence = (function (KeyedSeq$$1) {
+var FromEntriesSequence = /*@__PURE__*/(function (KeyedSeq$$1) {
   function FromEntriesSequence(entries) {
     this._iter = entries;
     this.size = entries.size;
@@ -1747,8 +1739,6 @@ function zipWithFactory(keyIter, zipper, iters, zipAll) {
   // Note: this a generic base implementation of __iterate in terms of
   // __iterator which may be more generically useful in the future.
   zipSequence.__iterate = function(fn, reverse) {
-    var this$1 = this;
-
     /* generic:
     var iterator = this.__iterator(ITERATE_ENTRIES, reverse);
     var step;
@@ -1766,7 +1756,7 @@ function zipWithFactory(keyIter, zipper, iters, zipAll) {
     var step;
     var iterations = 0;
     while (!(step = iterator.next()).done) {
-      if (fn(step.value, iterations++, this$1) === false) {
+      if (fn(step.value, iterations++, this) === false) {
         break;
       }
     }
@@ -2269,7 +2259,7 @@ function wasAltered() {
   return this.__altered;
 }
 
-var Map = (function (KeyedCollection$$1) {
+var Map = /*@__PURE__*/(function (KeyedCollection$$1) {
   function Map(value) {
     return value === null || value === undefined
       ? emptyMap()
@@ -2796,7 +2786,7 @@ ValueNode.prototype.iterate = function(fn, reverse) {
   return fn(this.entry);
 };
 
-var MapIterator = (function (Iterator$$1) {
+var MapIterator = /*@__PURE__*/(function (Iterator$$1) {
   function MapIterator(map, type, reverse) {
     this._type = type;
     this._reverse = reverse;
@@ -2808,8 +2798,6 @@ var MapIterator = (function (Iterator$$1) {
   MapIterator.prototype.constructor = MapIterator;
 
   MapIterator.prototype.next = function next () {
-    var this$1 = this;
-
     var type = this._type;
     var stack = this._stack;
     while (stack) {
@@ -2825,23 +2813,23 @@ var MapIterator = (function (Iterator$$1) {
         if (index <= maxIndex) {
           return mapIteratorValue(
             type,
-            node.entries[this$1._reverse ? maxIndex - index : index]
+            node.entries[this._reverse ? maxIndex - index : index]
           );
         }
       } else {
         maxIndex = node.nodes.length - 1;
         if (index <= maxIndex) {
-          var subNode = node.nodes[this$1._reverse ? maxIndex - index : index];
+          var subNode = node.nodes[this._reverse ? maxIndex - index : index];
           if (subNode) {
             if (subNode.entry) {
               return mapIteratorValue(type, subNode.entry);
             }
-            stack = this$1._stack = mapIteratorFrame(subNode, stack);
+            stack = this._stack = mapIteratorFrame(subNode, stack);
           }
           continue;
         }
       }
-      stack = this$1._stack = this$1._stack.__prev;
+      stack = this._stack = this._stack.__prev;
     }
     return iteratorDone();
   };
@@ -3063,7 +3051,7 @@ function isList(maybeList) {
   return Boolean(maybeList && maybeList[IS_LIST_SYMBOL]);
 }
 
-var List = (function (IndexedCollection$$1) {
+var List = /*@__PURE__*/(function (IndexedCollection$$1) {
   function List(value) {
     var empty = emptyList();
     if (value === null || value === undefined) {
@@ -3243,13 +3231,11 @@ var List = (function (IndexedCollection$$1) {
   };
 
   List.prototype.__iterate = function __iterate (fn, reverse) {
-    var this$1 = this;
-
     var index = reverse ? this.size : 0;
     var values = iterateList(this, reverse);
     var value;
     while ((value = values()) !== DONE) {
-      if (fn(value, reverse ? --index : index++, this$1) === false) {
+      if (fn(value, reverse ? --index : index++, this) === false) {
         break;
       }
     }
@@ -3717,7 +3703,7 @@ function getTailOffset(size) {
   return size < SIZE ? 0 : ((size - 1) >>> SHIFT) << SHIFT;
 }
 
-var OrderedMap = (function (Map$$1) {
+var OrderedMap = /*@__PURE__*/(function (Map$$1) {
   function OrderedMap(value) {
     return value === null || value === undefined
       ? emptyOrderedMap()
@@ -3885,7 +3871,7 @@ function isStack(maybeStack) {
   return Boolean(maybeStack && maybeStack[IS_STACK_SYMBOL]);
 }
 
-var Stack = (function (IndexedCollection$$1) {
+var Stack = /*@__PURE__*/(function (IndexedCollection$$1) {
   function Stack(value) {
     return value === null || value === undefined
       ? emptyStack()
@@ -4049,7 +4035,7 @@ var Stack = (function (IndexedCollection$$1) {
     var iterations = 0;
     var node = this._head;
     while (node) {
-      if (fn(node.value, iterations++, this$1) === false) {
+      if (fn(node.value, iterations++, this) === false) {
         break;
       }
       node = node.next;
@@ -4222,7 +4208,7 @@ function toJS(value) {
   return result;
 }
 
-var Set = (function (SetCollection$$1) {
+var Set = /*@__PURE__*/(function (SetCollection$$1) {
   function Set(value) {
     return value === null || value === undefined
       ? emptySet()
@@ -4458,7 +4444,7 @@ function emptySet() {
  * (exclusive), by step, where start defaults to 0, step to 1, and end to
  * infinity. When start is equal to end, returns empty list.
  */
-var Range = (function (IndexedSeq$$1) {
+var Range = /*@__PURE__*/(function (IndexedSeq$$1) {
   function Range(start, end, step) {
     if (!(this instanceof Range)) {
       return new Range(start, end, step);
@@ -4549,14 +4535,12 @@ var Range = (function (IndexedSeq$$1) {
   };
 
   Range.prototype.__iterate = function __iterate (fn, reverse) {
-    var this$1 = this;
-
     var size = this.size;
     var step = this._step;
     var value = reverse ? this._start + (size - 1) * step : this._start;
     var i = 0;
     while (i !== size) {
-      if (fn(value, reverse ? size - ++i : i++, this$1) === false) {
+      if (fn(value, reverse ? size - ++i : i++, this) === false) {
         break;
       }
       value += reverse ? -step : step;
@@ -5351,7 +5335,7 @@ function hashMerge(a, b) {
   return (a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2))) | 0; // int
 }
 
-var OrderedSet = (function (Set$$1) {
+var OrderedSet = /*@__PURE__*/(function (Set$$1) {
   function OrderedSet(value) {
     return value === null || value === undefined
       ? emptyOrderedSet()
@@ -5439,7 +5423,7 @@ var Record = function Record(defaultValues, name) {
             console.warn &&
             console.warn(
               'Cannot define ' +
-                recordName(this$1) +
+                recordName(this) +
                 ' with property "' +
                 propName +
                 '" since that property name is part of the Record API.'
@@ -5472,14 +5456,12 @@ var Record = function Record(defaultValues, name) {
 };
 
 Record.prototype.toString = function toString () {
-    var this$1 = this;
-
   var str = recordName(this) + ' { ';
   var keys = this._keys;
   var k;
   for (var i = 0, l = keys.length; i !== l; i++) {
     k = keys[i];
-    str += (i ? ', ' : '') + k + ': ' + quoteString(this$1.get(k));
+    str += (i ? ', ' : '') + k + ': ' + quoteString(this.get(k));
   }
   return str + ' }';
 };
@@ -5635,7 +5617,7 @@ function setProp(prototype, name) {
  * Returns a lazy Seq of `value` repeated `times` times. When `times` is
  * undefined, returns an infinite sequence of `value`.
  */
-var Repeat = (function (IndexedSeq$$1) {
+var Repeat = /*@__PURE__*/(function (IndexedSeq$$1) {
   function Repeat(value, times) {
     if (!(this instanceof Repeat)) {
       return new Repeat(value, times);
@@ -5698,12 +5680,10 @@ var Repeat = (function (IndexedSeq$$1) {
   };
 
   Repeat.prototype.__iterate = function __iterate (fn, reverse) {
-    var this$1 = this;
-
     var size = this.size;
     var i = 0;
     while (i !== size) {
-      if (fn(this$1._value, reverse ? size - ++i : i++, this$1) === false) {
+      if (fn(this._value, reverse ? size - ++i : i++, this) === false) {
         break;
       }
     }
