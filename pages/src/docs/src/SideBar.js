@@ -8,7 +8,7 @@
 var React = require('react');
 var Router = require('react-router');
 var { Map, Seq } = require('../../../../');
-var defs = require('../../../lib/getTypeDefs');
+var defs = global.data;
 
 var SideBar = React.createClass({
   render() {

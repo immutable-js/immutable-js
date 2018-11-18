@@ -18,7 +18,6 @@ var gutil = require('gulp-util');
 var header = require('gulp-header');
 var Immutable = require('../');
 var less = require('gulp-less');
-var git = require('gulp-git')
 var mkdirp = require('mkdirp');
 var path = require('path');
 var React = require('react/addons');
@@ -30,6 +29,7 @@ var sourcemaps = require('gulp-sourcemaps');
 var through = require('through2');
 var uglify = require('gulp-uglify');
 var vm = require('vm');
+var rename = require('gulp-rename');
 var semver = require('semver');
 var childProcess = require('child-process-promise');
 
@@ -64,12 +64,14 @@ gulp.task('typedefs', function() {
 
   var result = ''
 
+  var latestTag;
+
   return childProcess.exec("git tag").then(function(result) {
     var tags = result.stdout.split("\n")
       .filter(function(tag) { return semver.valid(tag) })
       .sort(function(tagA, tagB) { return semver.compare(tagA, tagB) });
 
-    var latestTag = tags[tags.length - 1];
+    latestTag = tags[tags.length - 1];
   
     var tagsObj = {};
   
@@ -80,37 +82,53 @@ gulp.task('typedefs', function() {
     });
   
     tagsObj[latestTag] = latestTag;
-
-    console.log(tagsObj);
   
-    Object.entries(tagsObj).forEach(function (tagEntry) {
+    return Promise.all(Object.entries(tagsObj).map(function (tagEntry) {
       var docName = tagEntry[0];
       var tag = tagEntry[1];
-      git.checkout()
-    });
 
+      return childProcess
+        .exec("git show " + tag + ":" + "type-definitions/Immutable.d.ts")
+        .then(function (result) {
+          const defPath = '../pages/generated/type-definitions/Immutable' +
+           (docName !== latestTag ? '-' + docName : '') +
+           '.d.ts';
+          fs.writeFileSync(defPath, result.stdout, 'utf8');
+          return [docName, defPath];
+        });
+    }));
+  }).then(function(tagEntries) {
     var genTypeDefData = requireFresh('../pages/lib/genTypeDefData');
 
-    var typeDefPath = path.join(__dirname, '../type-definitions/Immutable.d.ts');
+    tagEntries.forEach(function (tagEntry) {
+      var docName = tagEntry[0];
+      var typeDefPath = tagEntry[1];
+      var fileContents = fs.readFileSync(typeDefPath, 'utf8');
 
-    var fileContents = fs.readFileSync(typeDefPath, 'utf8');
+      var fileSource = fileContents.replace(
+        "module 'immutable'",
+        'module Immutable'
+      );
 
-    var fileSource = fileContents.replace(
-      "module 'immutable'",
-      'module Immutable'
-    );
+      var writePath = path.join(
+          __dirname,
+          '../pages/generated/immutable' +
+          (docName !== latestTag ? '-' + docName : '') +
+          '.d.json'
+      );
 
-    var writePath = path.join(__dirname, '../pages/generated/immutable.d.json');
-    var contents = JSON.stringify(genTypeDefData(typeDefPath, fileSource));
+      try {
+        var contents = JSON.stringify(genTypeDefData(typeDefPath, fileSource));
 
-    mkdirp.sync(path.dirname(writePath));
-    fs.writeFileSync(writePath, contents);
+
+        mkdirp.sync(path.dirname(writePath));
+        fs.writeFileSync(writePath, contents);
+      } catch(e) {
+        console.error('Unable to build verion ' + docName + ':');
+        console.error(e.message);
+      }
+    });
   });
-
-
-
-
-
 });
 
 gulp.task('js', gulpJS(''));
@@ -158,16 +176,39 @@ function gulpJS(subDir) {
   };
 }
 
-gulp.task('pre-render', gulpPreRender(''));
-gulp.task('pre-render-docs', gulpPreRender('docs/'));
+gulp.task('pre-render', gulpPreRender({
+  html: 'index.html',
+  src: 'readme.json',
+}));
+gulp.task('pre-render-docs', gulpPreRender({
+  html: 'docs/index.html',
+  src: 'immutable.d.json',
+}));
+gulp.task('pre-render-versioned', gulpPreRender({
+  html: 'index.html',
+  src: 'readme-*.json',
+}));
+gulp.task('pre-render-versioned-docs', gulpPreRender({
+  html: 'docs/index.html',
+  src: 'immutable-*.d.json',
+}));
 
-function gulpPreRender(subDir) {
+function gulpPreRender(options) {
   return function() {
     return gulp
-      .src(SRC_DIR + subDir + 'index.html')
-      .pipe(preRender(subDir))
+      .src(path.join('../pages/generated', options.src))
+      .pipe(preRender(options.html))
       .pipe(size({ showFiles: true }))
-      .pipe(gulp.dest(BUILD_DIR + subDir))
+      .pipe(rename(function (path) {
+        var suffix = "";
+        var match;
+        if (match = /-(\d+\.\d+)\.d$/.exec(path.basename)) {
+          suffix = match[1];
+        }
+        path.basename = suffix || 'index';
+        path.extname = '.html';
+      }))
+      .pipe(gulp.dest(path.join(BUILD_DIR, path.dirname(options.html))))
       .on('error', handleError);
   };
 }
@@ -232,7 +273,12 @@ gulp.task('build', function(done) {
       'statics',
       'statics-docs',
     ],
-    ['pre-render', 'pre-render-docs'],
+    [
+      'pre-render',
+      'pre-render-docs',
+      'pre-render-versioned',
+      'pre-render-versioned-docs'
+    ],
     done
   );
 });
@@ -280,16 +326,19 @@ function handleError(error) {
   gutil.log(error.message);
 }
 
-function preRender(subDir) {
+function preRender(htmlPath) {
+  var html = fs.readFileSync(path.join('../pages/src', htmlPath), 'utf8');
+  var subDir = path.dirname(htmlPath);
+
   return through.obj(function(file, enc, cb) {
-    var src = file.contents.toString(enc);
+    var data = JSON.parse(file.contents.toString(enc));
     var components = [];
-    src = src.replace(/<!--\s*React\(\s*(.*)\s*\)\s*-->/g, function(
+    html = html.replace(/<!--\s*React\(\s*(.*)\s*\)\s*-->/g, function(
       _,
       relComponent
     ) {
       var id = 'r' + components.length;
-      var component = path.resolve(SRC_DIR + subDir, relComponent);
+      var component = path.resolve(SRC_DIR, subDir, relComponent);
       components.push(component);
       try {
         return (
@@ -297,13 +346,14 @@ function preRender(subDir) {
           id +
           '">' +
           vm.runInNewContext(
-            fs.readFileSync(BUILD_DIR + subDir + 'bundle.js') + // ugly
+            fs.readFileSync(path.join(BUILD_DIR, subDir, 'bundle.js')) + // ugly
               '\nrequire("react").renderToString(' +
               'require("react").createElement(require(component)))',
             {
               global: {
                 React: React,
                 Immutable: Immutable,
+                data: data,
               },
               window: {},
               component: component,
@@ -317,7 +367,7 @@ function preRender(subDir) {
       }
     });
     if (components.length) {
-      src = src.replace(
+      html = html.replace(
         /<!--\s*ReactRender\(\)\s*-->/g,
         '<script>' +
           components.map(function(component, index) {
@@ -336,7 +386,7 @@ function preRender(subDir) {
           '</script>'
       );
     }
-    file.contents = new Buffer(src, enc);
+    file.contents = new Buffer(html, enc);
     this.push(file);
     cb();
   });

@@ -10,7 +10,7 @@ var CSSCore = require('react/lib/CSSCore');
 var Router = require('react-router');
 var { Seq } = require('../../../../');
 var TypeKind = require('../../../lib/TypeKind');
-var defs = require('../../../lib/getTypeDefs');
+var defs = global.data;
 
 var InterfaceDef = React.createClass({
   render() {

@@ -11,7 +11,7 @@ var Router = require('react-router');
 var DocHeader = require('./DocHeader');
 var DocSearch = require('./DocSearch.js');
 var TypeDocumentation = require('./TypeDocumentation');
-var defs = require('../../../lib/getTypeDefs');
+var defs = global.data; // injected by gulp
 
 var { Route, DefaultRoute, RouteHandler } = Router;
 
