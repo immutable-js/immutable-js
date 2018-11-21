@@ -32,6 +32,7 @@ describe('Record', () => {
     const me = Person({ name: 'My Name' });
     expect(me.toString()).toEqual('Person { name: "My Name" }');
     expect(Record.getDescriptiveName(me)).toEqual('Person');
+    expect(Person.displayName).toBe('Person');
   });
 
   it('passes through records of the same type', () => {
@@ -48,7 +49,7 @@ describe('Record', () => {
   it('setting an unknown key is a no-op', () => {
     const MyType = Record({ a: 1, b: 2, c: 3 });
 
-    const t1 = new MyType({ a: 10, b: 20 });
+    const t1 = MyType({ a: 10, b: 20 });
     const t2 = t1.set('d' as any, 4);
 
     expect(t2).toBe(t1);
@@ -56,8 +57,8 @@ describe('Record', () => {
 
   it('falls back to default values when deleted or cleared', () => {
     const MyType = Record({ a: 1, b: 2, c: 3 });
-    const t1 = new MyType({ a: 10, b: 20 });
-    const t2 = new MyType({ b: 20 });
+    const t1 = MyType({ a: 10, b: 20 });
+    const t2 = MyType({ b: 20 });
     const t3 = t1.delete('a');
     const t4 = t3.clear();
 
@@ -68,13 +69,13 @@ describe('Record', () => {
 
     expect(t2.equals(t3)).toBe(true);
     expect(t2.equals(t4)).toBe(false);
-    expect(t4.equals(new MyType())).toBe(true);
+    expect(t4.equals(MyType())).toBe(true);
   });
 
   it('allows deletion of values deep within a tree', () => {
     const AType = Record({ a: 1 });
-    const BType = Record({ b: new AType({ a: 2 }) });
-    const t1 = new BType();
+    const BType = Record({ b: AType({ a: 2 }) });
+    const t1 = BType();
     const t2 = t1.deleteIn(['b', 'a']);
 
     expect(t1.get('b').get('a')).toBe(2);
@@ -90,7 +91,7 @@ describe('Record', () => {
 
   it('if compared against undefined or null should return false', () => {
     const MyType = Record({ a: 1, b: 2 });
-    const t1 = new MyType();
+    const t1 = MyType();
     expect(t1.equals(undefined)).toBeFalsy();
     expect(t1.equals(null)).toBeFalsy();
   });
@@ -115,7 +116,7 @@ describe('Record', () => {
   it('converts sequences to records', () => {
     const MyType = Record({ a: 1, b: 2, c: 3 });
     const seq = Seq({ a: 10, b: 20 });
-    const t = new MyType(seq);
+    const t = MyType(seq);
     expect(t.toObject()).toEqual({ a: 10, b: 20, c: 3 });
   });
 
@@ -129,7 +130,7 @@ describe('Record', () => {
   it('skips unknown keys', () => {
     const MyType = Record({ a: 1, b: 2 });
     const seq = Seq({ b: 20, c: 30 });
-    const t = new MyType(seq);
+    const t = MyType(seq);
 
     expect(t.get('a')).toEqual(1);
     expect(t.get('b')).toEqual(20);
@@ -138,18 +139,18 @@ describe('Record', () => {
 
   it('returns itself when setting identical values', () => {
     const MyType = Record({ a: 1, b: 2 });
-    const t1 = new MyType();
-    const t2 = new MyType({ a: 1 });
+    const t1 = MyType();
+    const t2 = MyType({ a: 1 });
     const t3 = t1.set('a', 1);
     const t4 = t2.set('a', 1);
     expect(t3).toBe(t1);
     expect(t4).toBe(t2);
   });
 
-  it('returns new record when setting new values', () => {
+  it('returns record when setting values', () => {
     const MyType = Record({ a: 1, b: 2 });
-    const t1 = new MyType();
-    const t2 = new MyType({ a: 1 });
+    const t1 = MyType();
+    const t2 = MyType({ a: 1 });
     const t3 = t1.set('a', 3);
     const t4 = t2.set('a', 3);
     expect(t3).not.toBe(t1);
@@ -158,7 +159,7 @@ describe('Record', () => {
 
   it('allows for readonly property access', () => {
     const MyType = Record({ a: 1, b: 'foo' });
-    const t1 = new MyType();
+    const t1 = MyType();
     const a: number = t1.a;
     const b: string = t1.b;
     expect(a).toEqual(1);
@@ -179,6 +180,7 @@ describe('Record', () => {
       }
     }
 
+    // Note: `new` is only used because of `class`
     const t1 = new ABClass({ a: 1 });
     const t2 = t1.setA(3);
     const t3 = t2.setB(10);

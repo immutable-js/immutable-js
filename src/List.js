@@ -10,7 +10,6 @@ import {
   SHIFT,
   SIZE,
   MASK,
-  DID_ALTER,
   OwnerID,
   MakeRef,
   SetRef,
@@ -19,6 +18,7 @@ import {
   resolveBegin,
   resolveEnd,
 } from './TrieUtils';
+import { IS_LIST_SYMBOL, isList } from './predicates/isList';
 import { IndexedCollection } from './Collection';
 import { hasIterator, Iterator, iteratorValue, iteratorDone } from './Iterator';
 import { setIn } from './methods/setIn';
@@ -90,7 +90,9 @@ export class List extends IndexedCollection {
       ? this
       : index === 0
         ? this.shift()
-        : index === this.size - 1 ? this.pop() : this.splice(index, 1);
+        : index === this.size - 1
+          ? this.pop()
+          : this.splice(index, 1);
   }
 
   insert(index, value) {
@@ -171,6 +173,14 @@ export class List extends IndexedCollection {
     return setListBounds(this, 0, size);
   }
 
+  map(mapper, context) {
+    return this.withMutations(list => {
+      for (let i = 0; i < this.size; i++) {
+        list.set(i, mapper.call(context, list.get(i), i, list));
+      }
+    });
+  }
+
   // @pragma Iteration
 
   slice(begin, end) {
@@ -232,16 +242,10 @@ export class List extends IndexedCollection {
   }
 }
 
-export function isList(maybeList) {
-  return !!(maybeList && maybeList[IS_LIST_SENTINEL]);
-}
-
 List.isList = isList;
 
-const IS_LIST_SENTINEL = '@@__IMMUTABLE_LIST__@@';
-
 export const ListPrototype = List.prototype;
-ListPrototype[IS_LIST_SENTINEL] = true;
+ListPrototype[IS_LIST_SYMBOL] = true;
 ListPrototype[DELETE] = ListPrototype.remove;
 ListPrototype.merge = ListPrototype.concat;
 ListPrototype.setIn = setIn;
@@ -431,7 +435,7 @@ function updateList(list, index, value) {
 
   let newTail = list._tail;
   let newRoot = list._root;
-  const didAlter = MakeRef(DID_ALTER);
+  const didAlter = MakeRef();
   if (index >= getTailOffset(list._capacity)) {
     newTail = updateVNode(newTail, list.__ownerID, 0, index, value, didAlter);
   } else {
@@ -490,7 +494,9 @@ function updateVNode(node, ownerID, level, index, value, didAlter) {
     return node;
   }
 
-  SetRef(didAlter);
+  if (didAlter) {
+    SetRef(didAlter);
+  }
 
   newNode = editableVNode(node, ownerID);
   if (value === undefined && idx === newNode.array.length - 1) {
@@ -539,7 +545,9 @@ function setListBounds(list, begin, end) {
   let newCapacity =
     end === undefined
       ? oldCapacity
-      : end < 0 ? oldCapacity + end : oldOrigin + end;
+      : end < 0
+        ? oldCapacity + end
+        : oldOrigin + end;
   if (newOrigin === oldOrigin && newCapacity === oldCapacity) {
     return list;
   }
@@ -586,7 +594,9 @@ function setListBounds(list, begin, end) {
   let newTail =
     newTailOffset < oldTailOffset
       ? listNodeFor(list, newCapacity - 1)
-      : newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
+      : newTailOffset > oldTailOffset
+        ? new VNode([], owner)
+        : oldTail;
 
   // Merge Tail into tree.
   if (

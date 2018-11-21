@@ -6,7 +6,7 @@
  */
 
 import { KeyedSeq, IndexedSeq } from './Seq';
-import { isKeyed } from './Predicates';
+import { isKeyed } from './predicates/isKeyed';
 import isPlainObj from './utils/isPlainObj';
 
 export function fromJS(value, converter) {
@@ -23,7 +23,9 @@ export function fromJS(value, converter) {
 function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
   const toSeq = Array.isArray(value)
     ? IndexedSeq
-    : isPlainObj(value) ? KeyedSeq : null;
+    : isPlainObj(value)
+      ? KeyedSeq
+      : null;
   if (toSeq) {
     if (~stack.indexOf(value)) {
       throw new TypeError('Cannot convert circular structure to Immutable');

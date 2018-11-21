@@ -6,9 +6,10 @@
  */
 
 import { SetCollection, KeyedCollection } from './Collection';
-import { IS_ORDERED_SENTINEL, isOrdered } from './Predicates';
+import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
+import { isOrderedSet } from './predicates/isOrderedSet';
 import { IndexedCollectionPrototype } from './CollectionImpl';
-import { Set, isSet } from './Set';
+import { Set } from './Set';
 import { emptyOrderedMap } from './OrderedMap';
 import assertNotInfinite from './utils/assertNotInfinite';
 
@@ -40,14 +41,10 @@ export class OrderedSet extends Set {
   }
 }
 
-function isOrderedSet(maybeOrderedSet) {
-  return isSet(maybeOrderedSet) && isOrdered(maybeOrderedSet);
-}
-
 OrderedSet.isOrderedSet = isOrderedSet;
 
 const OrderedSetPrototype = OrderedSet.prototype;
-OrderedSetPrototype[IS_ORDERED_SENTINEL] = true;
+OrderedSetPrototype[IS_ORDERED_SYMBOL] = true;
 OrderedSetPrototype.zip = IndexedCollectionPrototype.zip;
 OrderedSetPrototype.zipWith = IndexedCollectionPrototype.zipWith;
 

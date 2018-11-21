@@ -26,8 +26,8 @@ var Disclaimer = function() {
   return (
     <section className="disclaimer">
       This documentation is generated from{' '}
-      <a href={typeDefURL}>Immutable.d.ts</a>
-      . Pull requests and <a href={issuesURL}>Issues</a> welcome.
+      <a href={typeDefURL}>Immutable.d.ts</a>. Pull requests and{' '}
+      <a href={issuesURL}>Issues</a> welcome.
     </section>
   );
 };
@@ -91,11 +91,9 @@ var TypeDocumentation = React.createClass({
   },
 });
 
-var NotFound = React.createClass({
-  render() {
-    return <div>{'Not found'}</div>;
-  },
-});
+function NotFound() {
+  return <div>Not found</div>;
+}
 
 var FunctionDoc = React.createClass({
   render() {
@@ -196,7 +194,7 @@ var TypeDoc = React.createClass({
             <h4 className="groupTitle">Sub-types</h4>
             {types
               .map((t, typeName) => (
-                <div key={name}>
+                <div key={typeName}>
                   <Router.Link
                     to={'/' + (name ? name + '.' + typeName : typeName)}
                   >

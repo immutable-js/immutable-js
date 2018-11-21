@@ -80,7 +80,7 @@
  *
  *
  * Note: All examples are presented in the modern [ES2015][] version of
- * JavaScript. To run in older browsers, they need to be translated to ES3.
+ * JavaScript. Use tools like Babel to support older browsers.
  *
  * For example:
  *
@@ -152,6 +152,9 @@ declare module Immutable {
   /**
    * Create a new immutable List containing the values of the provided
    * collection-like.
+   *
+   * Note: `List` is a factory function and not a class, and does not use the
+   * `new` keyword during construction.
    *
    * <!-- runkit:activate -->
    * ```js
@@ -556,9 +559,6 @@ declare module Immutable {
      * List([ 1, 2 ]).map(x => 10 * x)
      * // List [ 10, 20 ]
      * ```
-     *
-     * Note: `map()` always returns a new instance, even if it produced the same
-     * value at every step.
      */
     map<M>(
       mapper: (value: T, key: number, iter: this) => M,
@@ -728,6 +728,9 @@ declare module Immutable {
    * Created with the same key value pairs as the provided Collection.Keyed or
    * JavaScript Object or expects a Collection of [K, V] tuple entries.
    *
+   * Note: `Map` is a factory function and not a class, and does not use the
+   * `new` keyword during construction.
+   *
    * <!-- runkit:activate -->
    * ```js
    * const { Map } = require('immutable')
@@ -756,7 +759,6 @@ declare module Immutable {
    * not altered.
    */
   export function Map<K, V>(collection: Iterable<[K, V]>): Map<K, V>;
-  export function Map<T>(collection: Iterable<Iterable<T>>): Map<T, T>;
   export function Map<V>(obj: {[key: string]: V}): Map<string, V>;
   export function Map<K, V>(): Map<K, V>;
   export function Map(): Map<any, any>;
@@ -1050,7 +1052,7 @@ declare module Immutable {
      * Note: `mergeDeepWith` can be used in `withMutations`.
      */
     mergeDeepWith(
-      merger: (oldVal: V, newVal: V, key: K) => V,
+      merger: (oldVal: any, newVal: any, key: any) => any,
       ...collections: Array<Iterable<[K, V]> | {[key: string]: V}>
     ): this;
 
@@ -1325,9 +1327,6 @@ declare module Immutable {
      *
      *     Map({ a: 1, b: 2 }).map(x => 10 * x)
      *     // Map { a: 10, b: 20 }
-     *
-     * Note: `map()` always returns a new instance, even if it produced the same
-     * value at every step.
      */
     map<M>(
       mapper: (value: V, key: K, iter: this) => M,
@@ -1415,9 +1414,10 @@ declare module Immutable {
    *     let newOrderedMap = OrderedMap({key: "value"})
    *     let newOrderedMap = OrderedMap([["key", "value"]])
    *
+   * Note: `OrderedMap` is a factory function and not a class, and does not use
+   * the `new` keyword during construction.
    */
   export function OrderedMap<K, V>(collection: Iterable<[K, V]>): OrderedMap<K, V>;
-  export function OrderedMap<T>(collection: Iterable<Iterable<T>>): OrderedMap<T, T>;
   export function OrderedMap<V>(obj: {[key: string]: V}): OrderedMap<string, V>;
   export function OrderedMap<K, V>(): OrderedMap<K, V>;
   export function OrderedMap(): OrderedMap<any, any>;
@@ -1428,6 +1428,27 @@ declare module Immutable {
      * The number of entries in this OrderedMap.
      */
     readonly size: number;
+
+    /**
+     * Returns a new OrderedMap also containing the new key, value pair. If an
+     * equivalent key already exists in this OrderedMap, it will be replaced
+     * while maintaining the existing order.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { OrderedMap } = require('immutable')
+     * const originalMap = OrderedMap({a:1, b:1, c:1})
+     * const updatedMap = originalMap.set('b', 2)
+     *
+     * originalMap
+     * // OrderedMap {a: 1, b: 1, c: 1}
+     * updatedMap
+     * // OrderedMap {a: 1, b: 2, c: 1}
+     * ```
+     *
+     * Note: `set` can be used in `withMutations`.
+     */
+    set(key: K, value: V): this;
 
     /**
      * Returns a new OrderedMap resulting from merging the provided Collections
@@ -1585,6 +1606,9 @@ declare module Immutable {
   /**
    * Create a new immutable Set containing the values of the provided
    * collection-like.
+   *
+   * Note: `Set` is a factory function and not a class, and does not use the
+   * `new` keyword during construction.
    */
   export function Set(): Set<any>;
   export function Set<T>(): Set<T>;
@@ -1699,9 +1723,6 @@ declare module Immutable {
      *
      *     Set([1,2]).map(x => 10 * x)
      *     // Set [10,20]
-     *
-     * Note: `map()` always returns a new instance, even if it produced the same
-     * value at every step.
      */
     map<M>(
       mapper: (value: T, key: T, iter: this) => M,
@@ -1769,6 +1790,9 @@ declare module Immutable {
   /**
    * Create a new immutable OrderedSet containing the values of the provided
    * collection-like.
+   *
+   * Note: `OrderedSet` is a factory function and not a class, and does not use
+   * the `new` keyword during construction.
    */
   export function OrderedSet(): OrderedSet<any>;
   export function OrderedSet<T>(): OrderedSet<T>;
@@ -1801,9 +1825,6 @@ declare module Immutable {
      *
      *     OrderedSet([ 1, 2 ]).map(x => 10 * x)
      *     // OrderedSet [10, 20]
-     *
-     * Note: `map()` always returns a new instance, even if it produced the same
-     * value at every step.
      */
     map<M>(
       mapper: (value: T, key: T, iter: this) => M,
@@ -1929,6 +1950,9 @@ declare module Immutable {
    *
    * The iteration order of the provided collection is preserved in the
    * resulting `Stack`.
+   *
+   * Note: `Stack` is a factory function and not a class, and does not use the
+   * `new` keyword during construction.
    */
   export function Stack(): Stack<any>;
   export function Stack<T>(): Stack<T>;
@@ -2148,6 +2172,9 @@ declare module Immutable {
    * (exclusive), by `step`, where `start` defaults to 0, `step` to 1, and `end` to
    * infinity. When `start` is equal to `end`, returns empty range.
    *
+   * Note: `Range` is a factory function and not a class, and does not use the
+   * `new` keyword during construction.
+   *
    * ```js
    * const { Range } = require('immutable')
    * Range() // [ 0, 1, 2, 3, ... ]
@@ -2164,6 +2191,9 @@ declare module Immutable {
   /**
    * Returns a Seq.Indexed of `value` repeated `times` times. When `times` is
    * not defined, returns an infinite `Seq` of `value`.
+   *
+   * Note: `Repeat` is a factory function and not a class, and does not use the
+   * `new` keyword during construction.
    *
    * ```js
    * const { Repeat } = require('immutable')
@@ -2184,7 +2214,7 @@ declare module Immutable {
    * ```js
    * const { Record } = require('immutable')
    * const ABRecord = Record({ a: 1, b: 2 })
-   * const myRecord = new ABRecord({ b: 3 })
+   * const myRecord = ABRecord({ b: 3 })
    * ```
    *
    * Records always have a value for the keys they define. `remove`ing a key
@@ -2205,7 +2235,7 @@ declare module Immutable {
    * ignored for this record.
    *
    * ```js
-   * const myRecord = new ABRecord({ b: 3, x: 10 })
+   * const myRecord = ABRecord({ b: 3, x: 10 })
    * myRecord.get('x') // undefined
    * ```
    *
@@ -2220,9 +2250,19 @@ declare module Immutable {
    * myRecord.b = 5 // throws Error
    * ```
    *
-   * Record Classes can be extended as well, allowing for custom methods on your
+   * Record Types can be extended as well, allowing for custom methods on your
    * Record. This is not a common pattern in functional environments, but is in
    * many JS programs.
+   *
+   * However Record Types are more restricted than typical JavaScript classes.
+   * They do not use a class constructor, which also means they cannot use
+   * class properties (since those are technically part of a constructor).
+   *
+   * While Record Types can be syntactically created with the JavaScript `class`
+   * form, the resulting Record function is actually a factory function, not a
+   * class constructor. Even though Record Types are not classes, JavaScript
+   * currently requires the use of `new` when creating new Record instances if
+   * they are defined as a `class`.
    *
    * ```
    * class ABRecord extends Record({ a: 1, b: 2 }) {
@@ -2290,7 +2330,7 @@ declare module Immutable {
    *
    * **Choosing Records vs plain JavaScript objects**
    *
-   * Records ofters a persistently immutable alternative to plain JavaScript
+   * Records offer a persistently immutable alternative to plain JavaScript
    * objects, however they're not required to be used within Immutable.js
    * collections. In fact, the deep-access and deep-updating functions
    * like `getIn()` and `setIn()` work with plain JavaScript Objects as well.
@@ -2404,6 +2444,12 @@ declare module Immutable {
     export interface Factory<TProps extends Object> {
       (values?: Partial<TProps> | Iterable<[string, any]>): Record<TProps> & Readonly<TProps>;
       new (values?: Partial<TProps> | Iterable<[string, any]>): Record<TProps> & Readonly<TProps>;
+
+      /**
+       * The name provided to `Record(values, name)` can be accessed with
+       * `displayName`.
+       */
+      displayName: string;
     }
 
     export function Factory<TProps extends Object>(values?: Partial<TProps> | Iterable<[string, any]>): Record<TProps> & Readonly<TProps>;
@@ -2414,6 +2460,9 @@ declare module Immutable {
    * Record Factory, which is a function that creates Record instances.
    *
    * See above for examples of using `Record()`.
+   *
+   * Note: `Record` is a factory function and not a class, and does not use the
+   * `new` keyword during construction.
    */
   export function Record<TProps>(defaultValues: TProps, name?: string): Record.Factory<TProps>;
 
@@ -2421,7 +2470,7 @@ declare module Immutable {
 
     // Reading values
 
-    has(key: string): key is keyof TProps;
+    has(key: string): key is keyof TProps & string;
 
     /**
      * Returns the value associated with the provided key, which may be the
@@ -2431,7 +2480,8 @@ declare module Immutable {
      * notSetValue will be returned if provided. Note that this scenario would
      * produce an error when using Flow or TypeScript.
      */
-    get<K extends keyof TProps>(key: K, notSetValue: any): TProps[K];
+    get<K extends keyof TProps>(key: K, notSetValue?: any): TProps[K];
+    get<T>(key: string, notSetValue: T): T;
 
     // Reading deep values
 
@@ -2491,6 +2541,9 @@ declare module Immutable {
 
     /**
      * Deeply converts this Record to equivalent native JavaScript Object.
+     *
+     * Note: This method may not be overridden. Objects with custom
+     * serialization to plain JS may override toJSON() instead.
      */
     toJS(): { [K in keyof TProps]: any };
 
@@ -2535,6 +2588,15 @@ declare module Immutable {
 
     [Symbol.iterator](): IterableIterator<[keyof TProps, TProps[keyof TProps]]>;
   }
+
+  /**
+   * RecordOf<T> is used in TypeScript to define interfaces expecting an
+   * instance of record with type T.
+   *
+   * This is equivalent to an instance of a record created by a Record Factory.
+   */
+  export type RecordOf<TProps extends Object> = Record<TProps> &
+    Readonly<TProps>;
 
   /**
    * `Seq` describes a lazy operation, allowing them to efficiently chain
@@ -2616,7 +2678,7 @@ declare module Immutable {
      * True if `maybeSeq` is a Seq, it is not backed by a concrete
      * structure such as Map, List, or Set.
      */
-    function isSeq(maybeSeq: any): maybeSeq is Seq.Indexed<any> | Seq.Keyed<any, any>;
+    function isSeq(maybeSeq: any): maybeSeq is Seq.Indexed<any> | Seq.Keyed<any, any> | Seq.Set<any>;
 
 
     /**
@@ -2627,6 +2689,9 @@ declare module Immutable {
     /**
      * Always returns a Seq.Keyed, if input is not keyed, expects an
      * collection of [K, V] tuples.
+     *
+     * Note: `Seq.Keyed` is a conversion function and not a class, and does not
+     * use the `new` keyword during construction.
      */
     export function Keyed<K, V>(collection: Iterable<[K, V]>): Seq.Keyed<K, V>;
     export function Keyed<V>(obj: {[key: string]: V}): Seq.Keyed<string, V>;
@@ -2748,6 +2813,9 @@ declare module Immutable {
     /**
      * Always returns Seq.Indexed, discarding associated keys and
      * supplying incrementing indices.
+     *
+     * Note: `Seq.Indexed` is a conversion function and not a class, and does
+     * not use the `new` keyword during construction.
      */
     export function Indexed(): Seq.Indexed<any>;
     export function Indexed<T>(): Seq.Indexed<T>;
@@ -2897,6 +2965,9 @@ declare module Immutable {
 
     /**
      * Always returns a Seq.Set, discarding associated indices or keys.
+     *
+     * Note: `Seq.Set` is a conversion function and not a class, and does not
+     * use the `new` keyword during construction.
      */
     export function Set(): Seq.Set<any>;
     export function Set<T>(): Seq.Set<T>;
@@ -2985,10 +3056,16 @@ declare module Immutable {
    *   * If a `Seq`, that same `Seq`.
    *   * If an `Collection`, a `Seq` of the same kind (Keyed, Indexed, or Set).
    *   * If an Array-like, an `Seq.Indexed`.
-   *   * If an Object with an Iterator, an `Seq.Indexed`.
-   *   * If an Iterator, an `Seq.Indexed`.
+   *   * If an Iterable Object, an `Seq.Indexed`.
    *   * If an Object, a `Seq.Keyed`.
    *
+   * Note: An Iterator itself will be treated as an object, becoming a `Seq.Keyed`,
+   * which is usually not what you want. You should turn your Iterator Object into
+   * an iterable object by defining a Symbol.iterator (or @@iterator) method which
+   * returns `this`.
+   *
+   * Note: `Seq` is a conversion function and not a class, and does not use the
+   * `new` keyword during construction.
    */
   export function Seq<S extends Seq<any, any>>(seq: S): S;
   export function Seq<K, V>(collection: Collection.Keyed<K, V>): Seq.Keyed<K, V>;
@@ -3165,6 +3242,9 @@ declare module Immutable {
      *
      * Similar to `Collection()`, however it expects collection-likes of [K, V]
      * tuples if not constructed from a Collection.Keyed or JS Object.
+     *
+     * Note: `Collection.Keyed` is a conversion function and not a class, and
+     * does not use the `new` keyword during construction.
      */
     export function Keyed<K, V>(collection: Iterable<[K, V]>): Collection.Keyed<K, V>;
     export function Keyed<V>(obj: {[key: string]: V}): Collection.Keyed<string, V>;
@@ -3323,6 +3403,9 @@ declare module Immutable {
 
     /**
      * Creates a new Collection.Indexed.
+     *
+     * Note: `Collection.Indexed` is a conversion function and not a class, and
+     * does not use the `new` keyword during construction.
      */
     export function Indexed<T>(collection: Iterable<T>): Collection.Indexed<T>;
 
@@ -3613,6 +3696,9 @@ declare module Immutable {
 
     /**
      * Similar to `Collection()`, but always returns a Collection.Set.
+     *
+     * Note: `Collection.Set` is a factory function and not a class, and does
+     * not use the `new` keyword during construction.
      */
     export function Set<T>(collection: Iterable<T>): Collection.Set<T>;
 
@@ -3700,13 +3786,20 @@ declare module Immutable {
    *
    *   * If an `Collection`, that same `Collection`.
    *   * If an Array-like, an `Collection.Indexed`.
-   *   * If an Object with an Iterator, an `Collection.Indexed`.
-   *   * If an Iterator, an `Collection.Indexed`.
+   *   * If an Object with an Iterator defined, an `Collection.Indexed`.
    *   * If an Object, an `Collection.Keyed`.
    *
    * This methods forces the conversion of Objects and Strings to Collections.
    * If you want to ensure that a Collection of one item is returned, use
    * `Seq.of`.
+   *
+   * Note: An Iterator itself will be treated as an object, becoming a `Seq.Keyed`,
+   * which is usually not what you want. You should turn your Iterator Object into
+   * an iterable object by defining a Symbol.iterator (or @@iterator) method which
+   * returns `this`.
+   *
+   * Note: `Collection` is a conversion function and not a class, and does not
+   * use the `new` keyword during construction.
    */
   export function Collection<I extends Collection<any, any>>(collection: I): I;
   export function Collection<T>(collection: Iterable<T>): Collection.Indexed<T>;
@@ -3780,15 +3873,20 @@ declare module Immutable {
     contains(value: V): boolean;
 
     /**
-     * The first value in the Collection.
+     * In case the `Collection` is not empty returns the first element of the
+     * `Collection`.
+     * In case the `Collection` is empty returns the optional default
+     * value if provided, if no default value is provided returns undefined.
      */
-    first(): V | undefined;
+    first<NSV>(notSetValue?: NSV): V | NSV;
 
     /**
-     * The last value in the Collection.
+     * In case the `Collection` is not empty returns the last element of the
+     * `Collection`.
+     * In case the `Collection` is empty returns the optional default
+     * value if provided, if no default value is provided returns undefined.
      */
-    last(): V | undefined;
-
+    last<NSV>(notSetValue?: NSV): V | NSV;
 
     // Reading deep values
 
@@ -3800,7 +3898,7 @@ declare module Immutable {
      * ```js
      * const { Map, List } = require('immutable')
      * const deepData = Map({ x: List([ Map({ y: 123 }) ]) });
-     * getIn(deepData, ['x', 0, 'y']) // 123
+     * deepData.getIn(['x', 0, 'y']) // 123
      * ```
      *
      * Plain JavaScript Object or Arrays may be nested within an Immutable.js
@@ -3810,7 +3908,7 @@ declare module Immutable {
      * ```js
      * const { Map, List } = require('immutable')
      * const deepData = Map({ x: [ { y: 123 } ] });
-     * getIn(deepData, ['x', 0, 'y']) // 123
+     * deepData.getIn(['x', 0, 'y']) // 123
      * ```
      */
     getIn(searchKeyPath: Iterable<any>, notSetValue?: any): any;
@@ -4671,7 +4769,7 @@ declare module Immutable {
    * If a `reviver` is optionally provided, it will be called with every
    * collection as a Seq (beginning with the most nested collections
    * and proceeding to the top-level collection itself), along with the key
-   * refering to each collection and the parent JS object provided as `this`.
+   * referring to each collection and the parent JS object provided as `this`.
    * For the top level, object, the key will be `""`. This `reviver` is expected
    * to return a new Immutable Collection, allowing for custom conversions from
    * deep JS objects. Finally, a `path` is provided which is the sequence of
@@ -4686,7 +4784,7 @@ declare module Immutable {
    * ```js
    * const { fromJS, isKeyed } = require('immutable')
    * function (key, value) {
-   *   return isKeyed(value) ? value.Map() : value.toList()
+   *   return isKeyed(value) ? value.toMap() : value.toList()
    * }
    * ```
    *
@@ -4772,7 +4870,7 @@ declare module Immutable {
    * two values are equivalent and is used to determine how to store those
    * values. Provided with any value, `hash()` will return a 31-bit integer.
    *
-   * When designing Objects which may be equal, it's important than when a
+   * When designing Objects which may be equal, it's important that when a
    * `.equals()` method returns true, that both values `.hashCode()` method
    * return the same value. `hash()` may be used to produce those values.
    *
@@ -4896,6 +4994,53 @@ declare module Immutable {
    * `Immutable.is()` and can be used as keys in a `Map` or members in a `Set`.
    */
   export function isValueObject(maybeValue: any): maybeValue is ValueObject;
+
+
+  /**
+   * True if `maybeSeq` is a Seq.
+   */
+  export function isSeq(maybeSeq: any): maybeSeq is Seq.Indexed<any> | Seq.Keyed<any, any> | Seq.Set<any>;
+
+  /**
+   * True if `maybeList` is a List.
+   */
+  export function isList(maybeList: any): maybeList is List<any>;
+
+  /**
+   * True if `maybeMap` is a Map.
+   *
+   * Also true for OrderedMaps.
+   */
+  export function isMap(maybeMap: any): maybeMap is Map<any, any>;
+
+  /**
+   * True if `maybeOrderedMap` is an OrderedMap.
+   */
+  export function isOrderedMap(maybeOrderedMap: any): maybeOrderedMap is OrderedMap<any, any>;
+
+  /**
+   * True if `maybeStack` is a Stack.
+   */
+  export function isStack(maybeStack: any): maybeStack is Stack<any>;
+
+  /**
+   * True if `maybeSet` is a Set.
+   *
+   * Also true for OrderedSets.
+   */
+  export function isSet(maybeSet: any): maybeSet is Set<any>;
+
+  /**
+   * True if `maybeOrderedSet` is an OrderedSet.
+   */
+  export function isOrderedSet(maybeOrderedSet: any): maybeOrderedSet is OrderedSet<any>;
+
+  /**
+   * True if `maybeRecord` is a Record.
+   */
+  export function isRecord(maybeRecord: any): maybeRecord is Record<any>;
+
+
 
   /**
    * Returns the value within the provided collection associated with the
@@ -5111,7 +5256,7 @@ declare module Immutable {
    * const { merge } = require('immutable')
    * const original = { x: 123, y: 456 }
    * merge(original, { y: 789, z: 'abc' }) // { x: 123, y: 789, z: 'abc' }
-   * console.log(original) // { x: { y: { z: 123 }}}
+   * console.log(original) // { x: 123, y: 456 }
    * ```
    */
   export function merge<C>(
@@ -5135,7 +5280,7 @@ declare module Immutable {
    *   original,
    *   { y: 789, z: 'abc' }
    * ) // { x: 123, y: 1245, z: 'abc' }
-   * console.log(original) // { x: { y: { z: 123 }}}
+   * console.log(original) // { x: 123, y: 456 }
    * ```
    */
   export function mergeWith<C>(

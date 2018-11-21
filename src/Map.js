@@ -7,15 +7,14 @@
 
 import { is } from './is';
 import { Collection, KeyedCollection } from './Collection';
-import { isOrdered } from './Predicates';
+import { IS_MAP_SYMBOL, isMap } from './predicates/isMap';
+import { isOrdered } from './predicates/isOrdered';
 import {
   DELETE,
   SHIFT,
   SIZE,
   MASK,
   NOT_SET,
-  CHANGE_LENGTH,
-  DID_ALTER,
   OwnerID,
   MakeRef,
   SetRef,
@@ -126,6 +125,14 @@ export class Map extends KeyedCollection {
     return OrderedMap(sortFactory(this, comparator, mapper));
   }
 
+  map(mapper, context) {
+    return this.withMutations(map => {
+      map.forEach((value, key) => {
+        map.set(key, mapper.call(context, value, key, map));
+      });
+    });
+  }
+
   // @pragma Mutability
 
   __iterator(type, reverse) {
@@ -158,16 +165,10 @@ export class Map extends KeyedCollection {
   }
 }
 
-export function isMap(maybeMap) {
-  return !!(maybeMap && maybeMap[IS_MAP_SENTINEL]);
-}
-
 Map.isMap = isMap;
 
-const IS_MAP_SENTINEL = '@@__IMMUTABLE_MAP__@@';
-
 export const MapPrototype = Map.prototype;
-MapPrototype[IS_MAP_SENTINEL] = true;
+MapPrototype[IS_MAP_SYMBOL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeAll = MapPrototype.deleteAll;
 MapPrototype.setIn = setIn;
@@ -648,8 +649,8 @@ function updateMap(map, k, v) {
     newSize = 1;
     newRoot = new ArrayMapNode(map.__ownerID, [[k, v]]);
   } else {
-    const didChangeSize = MakeRef(CHANGE_LENGTH);
-    const didAlter = MakeRef(DID_ALTER);
+    const didChangeSize = MakeRef();
+    const didAlter = MakeRef();
     newRoot = updateNode(
       map._root,
       map.__ownerID,

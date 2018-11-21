@@ -14,6 +14,9 @@ export function merge(...iters) {
 }
 
 export function mergeWith(merger, ...iters) {
+  if (typeof merger !== 'function') {
+    throw new TypeError('Invalid merger function: ' + merger);
+  }
   return mergeIntoKeyedWith(this, iters, merger);
 }
 
@@ -28,7 +31,11 @@ function mergeIntoKeyedWith(collection, collections, merger) {
   if (iters.length === 0) {
     return collection;
   }
-  if (collection.size === 0 && !collection.__ownerID && iters.length === 1) {
+  if (
+    collection.toSeq().size === 0 &&
+    !collection.__ownerID &&
+    iters.length === 1
+  ) {
     return collection.constructor(iters[0]);
   }
   return collection.withMutations(collection => {

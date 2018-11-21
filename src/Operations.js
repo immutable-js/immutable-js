@@ -19,13 +19,11 @@ import {
   SetCollection,
   IndexedCollection,
 } from './Collection';
-import {
-  isCollection,
-  isKeyed,
-  isIndexed,
-  isOrdered,
-  IS_ORDERED_SENTINEL,
-} from './Predicates';
+import { isCollection } from './predicates/isCollection';
+import { isKeyed } from './predicates/isKeyed';
+import { isIndexed } from './predicates/isIndexed';
+import { isOrdered, IS_ORDERED_SYMBOL } from './predicates/isOrdered';
+import { isSeq } from './predicates/isSeq';
 import {
   getIterator,
   Iterator,
@@ -36,7 +34,6 @@ import {
   ITERATE_ENTRIES,
 } from './Iterator';
 import {
-  isSeq,
   Seq,
   KeyedSeq,
   SetSeq,
@@ -92,7 +89,7 @@ export class ToKeyedSequence extends KeyedSeq {
     return this._iter.__iterator(type, reverse);
   }
 }
-ToKeyedSequence.prototype[IS_ORDERED_SENTINEL] = true;
+ToKeyedSequence.prototype[IS_ORDERED_SYMBOL] = true;
 
 export class ToIndexedSequence extends IndexedSeq {
   constructor(iter) {
@@ -392,7 +389,7 @@ export function groupByFactory(collection, grouper, context) {
     );
   });
   const coerce = collectionClass(collection);
-  return groups.map(arr => reify(collection, coerce(arr)));
+  return groups.map(arr => reify(collection, coerce(arr))).asImmutable();
 }
 
 export function sliceFactory(collection, begin, end, useKeys) {
@@ -747,7 +744,9 @@ export function sortFactory(collection, comparator, mapper) {
   );
   return isKeyedCollection
     ? KeyedSeq(entries)
-    : isIndexed(collection) ? IndexedSeq(entries) : SetSeq(entries);
+    : isIndexed(collection)
+      ? IndexedSeq(entries)
+      : SetSeq(entries);
 }
 
 export function maxFactory(collection, comparator, mapper) {
@@ -844,14 +843,18 @@ function validateEntry(entry) {
 function collectionClass(collection) {
   return isKeyed(collection)
     ? KeyedCollection
-    : isIndexed(collection) ? IndexedCollection : SetCollection;
+    : isIndexed(collection)
+      ? IndexedCollection
+      : SetCollection;
 }
 
 function makeSequence(collection) {
   return Object.create(
     (isKeyed(collection)
       ? KeyedSeq
-      : isIndexed(collection) ? IndexedSeq : SetSeq
+      : isIndexed(collection)
+        ? IndexedSeq
+        : SetSeq
     ).prototype
   );
 }

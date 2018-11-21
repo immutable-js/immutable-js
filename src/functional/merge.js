@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { isImmutable } from '../Predicates';
+import { isImmutable } from '../predicates/isImmutable';
 import { IndexedCollection, KeyedCollection } from '../Collection';
 import hasOwnProperty from '../utils/hasOwnProperty';
 import isDataStructure from '../utils/isDataStructure';
@@ -38,9 +38,11 @@ export function mergeWithSources(collection, sources, merger) {
     );
   }
   if (isImmutable(collection)) {
-    return collection.mergeWith
+    return typeof merger === 'function' && collection.mergeWith
       ? collection.mergeWith(merger, ...sources)
-      : collection.concat(...sources);
+      : collection.merge
+        ? collection.merge(...sources)
+        : collection.concat(...sources);
   }
   const isArray = Array.isArray(collection);
   let merged = collection;
@@ -75,7 +77,9 @@ function deepMergerWith(merger) {
   function deepMerger(oldValue, newValue, key) {
     return isDataStructure(oldValue) && isDataStructure(newValue)
       ? mergeWithSources(oldValue, [newValue], deepMerger)
-      : merger ? merger(oldValue, newValue, key) : newValue;
+      : merger
+        ? merger(oldValue, newValue, key)
+        : newValue;
   }
   return deepMerger;
 }

@@ -7,13 +7,11 @@
 
 import { is } from '../is';
 import { NOT_SET } from '../TrieUtils';
-import {
-  isCollection,
-  isKeyed,
-  isIndexed,
-  isAssociative,
-  isOrdered,
-} from '../Predicates';
+import { isCollection } from '../predicates/isCollection';
+import { isKeyed } from '../predicates/isKeyed';
+import { isIndexed } from '../predicates/isIndexed';
+import { isAssociative } from '../predicates/isAssociative';
+import { isOrdered } from '../predicates/isOrdered';
 
 export default function deepEqual(a, b) {
   if (a === b) {
@@ -69,7 +67,9 @@ export default function deepEqual(a, b) {
     if (
       notAssociative
         ? !a.has(v)
-        : flipped ? !is(v, a.get(k, NOT_SET)) : !is(a.get(k, NOT_SET), v)
+        : flipped
+          ? !is(v, a.get(k, NOT_SET))
+          : !is(a.get(k, NOT_SET), v)
     ) {
       allEqual = false;
       return false;

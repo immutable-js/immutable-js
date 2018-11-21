@@ -6,7 +6,10 @@
  */
 
 import { Seq, KeyedSeq, IndexedSeq, SetSeq } from './Seq';
-import { isCollection, isKeyed, isIndexed, isAssociative } from './Predicates';
+import { isCollection } from './predicates/isCollection';
+import { isKeyed } from './predicates/isKeyed';
+import { isIndexed } from './predicates/isIndexed';
+import { isAssociative } from './predicates/isAssociative';
 
 export class Collection {
   constructor(value) {

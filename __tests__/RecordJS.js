@@ -8,10 +8,10 @@
 const { Record } = require('../');
 
 describe('Record', () => {
-  it('defines a constructor', () => {
+  it('defines a record factory', () => {
     const MyType = Record({ a: 1, b: 2, c: 3 });
 
-    const t = new MyType();
+    const t = MyType();
     const t2 = t.set('a', 10);
 
     expect(t.a).toBe(1);
@@ -44,6 +44,7 @@ describe('Record', () => {
       }
     }
 
+    // Note: `new` is only used because of `class`
     const t = new Alphabet();
     const t2 = t.set('b', 200);
 
@@ -51,6 +52,14 @@ describe('Record', () => {
     expect(t instanceof Alphabet);
     expect(t.soup()).toBe(6);
     expect(t2.soup()).toBe(204);
+
+    // Uses class name as descriptive name
+    expect(Record.getDescriptiveName(t)).toBe('Alphabet');
+
+    // Uses display name over class name
+    class NotADisplayName extends Record({ x: 1 }, 'DisplayName') {}
+    const t3 = new NotADisplayName();
+    expect(Record.getDescriptiveName(t3)).toBe('DisplayName');
   });
 
   it('can be cleared', () => {

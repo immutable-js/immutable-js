@@ -9,6 +9,7 @@ import { wholeSlice, resolveBegin, resolveEnd, wrapIndex } from './TrieUtils';
 import { IndexedCollection } from './Collection';
 import { ArraySeq } from './Seq';
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
+import { IS_STACK_SYMBOL, isStack } from './predicates/isStack';
 import assertNotInfinite from './utils/assertNotInfinite';
 import { asImmutable } from './methods/asImmutable';
 import { asMutable } from './methods/asMutable';
@@ -21,7 +22,9 @@ export class Stack extends IndexedCollection {
   constructor(value) {
     return value === null || value === undefined
       ? emptyStack()
-      : isStack(value) ? value : emptyStack().pushAll(value);
+      : isStack(value)
+        ? value
+        : emptyStack().pushAll(value);
   }
 
   static of(/*...values*/) {
@@ -196,16 +199,10 @@ export class Stack extends IndexedCollection {
   }
 }
 
-function isStack(maybeStack) {
-  return !!(maybeStack && maybeStack[IS_STACK_SENTINEL]);
-}
-
 Stack.isStack = isStack;
 
-const IS_STACK_SENTINEL = '@@__IMMUTABLE_STACK__@@';
-
 const StackPrototype = Stack.prototype;
-StackPrototype[IS_STACK_SENTINEL] = true;
+StackPrototype[IS_STACK_SYMBOL] = true;
 StackPrototype.shift = StackPrototype.pop;
 StackPrototype.unshift = StackPrototype.push;
 StackPrototype.unshiftAll = StackPrototype.pushAll;

@@ -18,16 +18,14 @@ export const MASK = SIZE - 1;
 export const NOT_SET = {};
 
 // Boolean references, Rough equivalent of `bool &`.
-export const CHANGE_LENGTH = { value: false };
-export const DID_ALTER = { value: false };
-
-export function MakeRef(ref) {
-  ref.value = false;
-  return ref;
+export function MakeRef() {
+  return { value: false };
 }
 
 export function SetRef(ref) {
-  ref && (ref.value = true);
+  if (ref) {
+    ref.value = true;
+  }
 }
 
 // A function which returns a value representing an "owner" for transient writes
@@ -86,7 +84,9 @@ function resolveIndex(index, size, defaultIndex) {
   return index === undefined
     ? defaultIndex
     : isNeg(index)
-      ? size === Infinity ? size : Math.max(0, size + index) | 0
+      ? size === Infinity
+        ? size
+        : Math.max(0, size + index) | 0
       : size === undefined || size === index
         ? index
         : Math.min(size, index) | 0;

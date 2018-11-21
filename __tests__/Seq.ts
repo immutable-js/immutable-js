@@ -10,6 +10,22 @@
 import { isCollection, isIndexed, Seq } from '../';
 
 describe('Seq', () => {
+  it('returns undefined if empty and first is called without default argument', () => {
+    expect(Seq().first()).toBeUndefined();
+  });
+
+  it('returns undefined if empty and last is called without default argument', () => {
+    expect(Seq().last()).toBeUndefined();
+  });
+
+  it('returns default value if empty and first is called with default argument', () => {
+    expect(Seq().first({})).toEqual({});
+  });
+
+  it('returns default value if empty and last is called with default argument', () => {
+    expect(Seq().last({})).toEqual({});
+  });
+
   it('can be empty', () => {
     expect(Seq().size).toBe(0);
   });
@@ -20,6 +36,10 @@ describe('Seq', () => {
 
   it('accepts an object', () => {
     expect(Seq({ a: 1, b: 2, c: 3 }).size).toBe(3);
+  });
+
+  it('accepts an object with a next property', () => {
+    expect(Seq({ a: 1, b: 2, next: _ => _ }).size).toBe(3);
   });
 
   it('accepts a collection string', () => {
@@ -47,11 +67,19 @@ describe('Seq', () => {
   });
 
   it('accepts an array-like', () => {
-    const alike: any = { length: 2, 0: 'a', 1: 'b' };
-    const seq = Seq(alike);
+    const seq = Seq({ length: 2, 0: 'a', 1: 'b' });
     expect(isIndexed(seq)).toBe(true);
     expect(seq.size).toBe(2);
     expect(seq.get(1)).toBe('b');
+
+    const map = Seq({ length: 1, foo: 'bar' });
+    expect(isIndexed(map)).toBe(false);
+    expect(map.size).toBe(2);
+    expect(map.get('foo')).toBe('bar');
+
+    const empty = Seq({ length: 0 });
+    expect(isIndexed(empty)).toBe(true);
+    expect(empty.size).toEqual(0);
   });
 
   it('does not accept a scalar', () => {

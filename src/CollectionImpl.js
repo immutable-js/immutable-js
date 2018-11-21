@@ -11,18 +11,11 @@ import {
   IndexedCollection,
   SetCollection,
 } from './Collection';
-import {
-  isCollection,
-  isKeyed,
-  isIndexed,
-  isAssociative,
-  isOrdered,
-  IS_ITERABLE_SENTINEL,
-  IS_KEYED_SENTINEL,
-  IS_INDEXED_SENTINEL,
-  IS_ORDERED_SENTINEL,
-} from './Predicates';
-
+import { isCollection, IS_COLLECTION_SYMBOL } from './predicates/isCollection';
+import { isAssociative } from './predicates/isAssociative';
+import { isKeyed, IS_KEYED_SYMBOL } from './predicates/isKeyed';
+import { isIndexed, IS_INDEXED_SYMBOL } from './predicates/isIndexed';
+import { isOrdered, IS_ORDERED_SYMBOL } from './predicates/isOrdered';
 import { is } from './is';
 import {
   NOT_SET,
@@ -157,7 +150,9 @@ mixin(Collection, {
   toSeq() {
     return isIndexed(this)
       ? this.toIndexedSeq()
-      : isKeyed(this) ? this.toKeyedSeq() : this.toSetSeq();
+      : isKeyed(this)
+        ? this.toKeyedSeq()
+        : this.toSetSeq();
   },
 
   toStack() {
@@ -369,8 +364,8 @@ mixin(Collection, {
       .findKey(predicate, context);
   },
 
-  first() {
-    return this.find(returnTrue);
+  first(notSetValue) {
+    return this.find(returnTrue, null, notSetValue);
   },
 
   flatMap(mapper, context) {
@@ -421,10 +416,10 @@ mixin(Collection, {
       .toIndexedSeq();
   },
 
-  last() {
+  last(notSetValue) {
     return this.toSeq()
       .reverse()
-      .first();
+      .first(notSetValue);
   },
 
   lastKeyOf(searchValue) {
@@ -518,7 +513,7 @@ mixin(Collection, {
 });
 
 const CollectionPrototype = Collection.prototype;
-CollectionPrototype[IS_ITERABLE_SENTINEL] = true;
+CollectionPrototype[IS_COLLECTION_SYMBOL] = true;
 CollectionPrototype[ITERATOR_SYMBOL] = CollectionPrototype.values;
 CollectionPrototype.toJSON = CollectionPrototype.toArray;
 CollectionPrototype.__toStringMapper = quoteString;
@@ -557,7 +552,7 @@ mixin(KeyedCollection, {
 });
 
 const KeyedCollectionPrototype = KeyedCollection.prototype;
-KeyedCollectionPrototype[IS_KEYED_SENTINEL] = true;
+KeyedCollectionPrototype[IS_KEYED_SYMBOL] = true;
 KeyedCollectionPrototype[ITERATOR_SYMBOL] = CollectionPrototype.entries;
 KeyedCollectionPrototype.toJSON = toObject;
 KeyedCollectionPrototype.__toStringMapper = (v, k) =>
@@ -625,8 +620,8 @@ mixin(IndexedCollection, {
     return entry ? entry[0] : -1;
   },
 
-  first() {
-    return this.get(0);
+  first(notSetValue) {
+    return this.get(0, notSetValue);
   },
 
   flatten(depth) {
@@ -669,8 +664,8 @@ mixin(IndexedCollection, {
     return Range(0, this.size);
   },
 
-  last() {
-    return this.get(-1);
+  last(notSetValue) {
+    return this.get(-1, notSetValue);
   },
 
   skipWhile(predicate, context) {
@@ -695,8 +690,8 @@ mixin(IndexedCollection, {
 });
 
 const IndexedCollectionPrototype = IndexedCollection.prototype;
-IndexedCollectionPrototype[IS_INDEXED_SENTINEL] = true;
-IndexedCollectionPrototype[IS_ORDERED_SENTINEL] = true;
+IndexedCollectionPrototype[IS_INDEXED_SYMBOL] = true;
+IndexedCollectionPrototype[IS_ORDERED_SYMBOL] = true;
 
 mixin(SetCollection, {
   // ### ES6 Collection methods (ES6 Array and Map)

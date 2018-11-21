@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { isOrdered } from '../Predicates';
+import { isOrdered } from '../predicates/isOrdered';
 import isArrayLike from './isArrayLike';
 
 export default function coerceKeyPath(keyPath) {

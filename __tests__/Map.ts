@@ -109,7 +109,7 @@ describe('Map', () => {
 
   it('iterates values', () => {
     const m = Map({ a: 'A', b: 'B', c: 'C' });
-    const iterator = jest.genMockFunction();
+    const iterator = jest.fn();
     m.forEach(iterator);
     expect(iterator.mock.calls).toEqual([
       ['A', 'a', m],
@@ -253,6 +253,12 @@ describe('Map', () => {
     const m = Map({ a: 'a', b: 'b', c: 'c' });
     const r = m.mapKeys(key => key.toUpperCase());
     expect(r.toObject()).toEqual({ A: 'a', B: 'b', C: 'c' });
+  });
+
+  it('maps no-ops return the same reference', () => {
+    const m = Map({ a: 'a', b: 'b', c: 'c' });
+    const r = m.map(value => value);
+    expect(r).toBe(m);
   });
 
   it('filters values', () => {

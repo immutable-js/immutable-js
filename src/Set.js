@@ -6,7 +6,8 @@
  */
 
 import { Collection, SetCollection, KeyedCollection } from './Collection';
-import { isOrdered } from './Predicates';
+import { isOrdered } from './predicates/isOrdered';
+import { IS_SET_SYMBOL, isSet } from './predicates/isSet';
 import { emptyMap } from './Map';
 import { DELETE } from './TrieUtils';
 import { sortFactory } from './Operations';
@@ -79,6 +80,22 @@ export class Set extends SetCollection {
   }
 
   // @pragma Composition
+
+  map(mapper, context) {
+    const removes = [];
+    const adds = [];
+    this.forEach(value => {
+      const mapped = mapper.call(context, value, value, this);
+      if (mapped !== value) {
+        removes.push(value);
+        adds.push(mapped);
+      }
+    });
+    return this.withMutations(set => {
+      removes.forEach(value => set.remove(value));
+      adds.forEach(value => set.add(value));
+    });
+  }
 
   union(...iters) {
     iters = iters.filter(x => x.size !== 0);
@@ -170,16 +187,10 @@ export class Set extends SetCollection {
   }
 }
 
-export function isSet(maybeSet) {
-  return !!(maybeSet && maybeSet[IS_SET_SENTINEL]);
-}
-
 Set.isSet = isSet;
 
-const IS_SET_SENTINEL = '@@__IMMUTABLE_SET__@@';
-
 const SetPrototype = Set.prototype;
-SetPrototype[IS_SET_SENTINEL] = true;
+SetPrototype[IS_SET_SYMBOL] = true;
 SetPrototype[DELETE] = SetPrototype.remove;
 SetPrototype.merge = SetPrototype.concat = SetPrototype.union;
 SetPrototype.withMutations = withMutations;
@@ -203,7 +214,9 @@ function updateSet(set, newMap) {
   }
   return newMap === set._map
     ? set
-    : newMap.size === 0 ? set.__empty() : set.__make(newMap);
+    : newMap.size === 0
+      ? set.__empty()
+      : set.__make(newMap);
 }
 
 function makeSet(map, ownerID) {

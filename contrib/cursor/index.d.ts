@@ -14,7 +14,7 @@
  * collection to portions of your application while maintaining a central point
  * aware of changes to the entire data structure.
  *
- * This is particularly useful when used in conjuction with component-based UI
+ * This is particularly useful when used in conjunction with component-based UI
  * libraries like [React](http://facebook.github.io/react/) or to simulate
  * "state" throughout an application while maintaining a single flow of logic.
  *

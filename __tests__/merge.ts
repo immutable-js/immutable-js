@@ -15,6 +15,7 @@ import {
   merge,
   mergeDeep,
   mergeDeepWith,
+  Record,
   Set,
 } from '../';
 
@@ -37,6 +38,12 @@ describe('merge', () => {
     expect(m1.mergeWith((a, b) => a + b, m2)).toEqual(
       Map({ a: 1, b: 22, c: 3, d: 10, e: 30 })
     );
+  });
+
+  it('throws typeError without merge function', () => {
+    const m1 = Map({ a: 1, b: 2, c: 3 });
+    const m2 = Map({ d: 10, b: 20, e: 30 });
+    expect(() => m1.mergeWith(1, m2)).toThrowError(TypeError);
   });
 
   it('provides key as the third argument of merge function', () => {
@@ -228,5 +235,10 @@ describe('merge', () => {
     expect(merged).toEqual(
       Map([[a, Map([[b, Map([[c, 10], [d, 2], [e, 20], [f, 30], [g, 40]])]])]])
     );
+  });
+
+  it('merges records with a size property set to 0', () => {
+    const Sizable = Record({ size: 0 });
+    expect(Sizable().merge({ size: 123 }).size).toBe(123);
   });
 });
