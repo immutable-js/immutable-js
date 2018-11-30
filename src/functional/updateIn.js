@@ -9,7 +9,6 @@ import { isImmutable } from '../predicates/isImmutable';
 import coerceKeyPath from '../utils/coerceKeyPath';
 import isDataStructure from '../utils/isDataStructure';
 import quoteString from '../utils/quoteString';
-import { NOT_SET } from '../TrieUtils';
 import { emptyMap } from '../Map';
 import { get } from './get';
 import { remove } from './remove';
@@ -39,7 +38,7 @@ function updateInDeeply(
   notSetValue,
   updater
 ) {
-  const wasNotSet = existing === NOT_SET;
+  const wasNotSet = existing === notSetValue;
   if (i === keyPath.length) return updater(wasNotSet ? notSetValue : existing);
   if (!wasNotSet && !isDataStructure(existing)) {
     throw new TypeError(
@@ -50,9 +49,11 @@ function updateInDeeply(
     );
   }
   const key = keyPath[i];
-  const nextExisting = wasNotSet ? NOT_SET : get(existing, key, NOT_SET);
+  const nextExisting = wasNotSet
+    ? notSetValue
+    : get(existing, key, notSetValue);
   const nextUpdated = updateInDeeply(
-    nextExisting === NOT_SET ? inImmutable : isImmutable(nextExisting),
+    nextExisting === notSetValue ? inImmutable : isImmutable(nextExisting),
     nextExisting,
     keyPath,
     i + 1,
