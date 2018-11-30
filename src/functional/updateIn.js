@@ -28,7 +28,7 @@ export function updateIn(collection, keyPath, notSetValue, updater) {
     notSetValue,
     updater
   );
-  return updatedValue === NOT_SET ? notSetValue : updatedValue;
+  return updatedValue;
 }
 
 function updateInDeeply(
@@ -40,11 +40,7 @@ function updateInDeeply(
   updater
 ) {
   const wasNotSet = existing === NOT_SET;
-  if (i === keyPath.length) {
-    const existingValue = wasNotSet ? notSetValue : existing;
-    const newValue = updater(existingValue);
-    return newValue === existingValue ? existing : newValue;
-  }
+  if (i === keyPath.length) return updater(wasNotSet ? notSetValue : existing);
   if (!wasNotSet && !isDataStructure(existing)) {
     throw new TypeError(
       'Cannot update within non-data-structure value in path [' +
@@ -65,7 +61,7 @@ function updateInDeeply(
   );
   return nextUpdated === nextExisting
     ? existing
-    : nextUpdated === NOT_SET
+    : nextUpdated === notSetValue
       ? remove(existing, key)
       : set(
           wasNotSet ? (inImmutable ? emptyMap() : {}) : existing,

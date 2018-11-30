@@ -31,6 +31,14 @@ describe('updateIn', () => {
     });
   });
 
+  it('remove in raw JS', () => {
+    const m = { a: { b: { c: 10 } } };
+    const NOT_SET = { NOT_SET: true };
+    expect(updateIn(m, ['a', 'b', 'c'], NOT_SET, () => NOT_SET)).toEqual({
+      a: { b: {} },
+    });
+  });
+
   it('deep edit throws without list or array-like', () => {
     // need to cast these as TypeScript first prevents us from such clownery.
     expect(() => Map().updateIn(undefined as any, x => x)).toThrow(
