@@ -21,6 +21,7 @@
   "typescript": {
     "definition": "dist/immutable.d.ts"
   },
+  "sideEffects": false,
   "scripts": {
     "build": "run-s build:*",
     "build:dist": "run-s clean:dist bundle:dist bundle:es copy:dist stats:dist",
