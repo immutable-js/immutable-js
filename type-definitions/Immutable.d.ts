@@ -2634,7 +2634,7 @@ declare module Immutable {
    *
    * <!-- runkit:activate -->
    * ```js
-   * const { Map } = require('immutable')
+   * const { Map, Seq } = require('immutable')
    * const map = Map({ a: 1, b: 2, c: 3 })
    * const lazySeq = Seq(map)
    * ```
