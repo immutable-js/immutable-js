@@ -821,6 +821,22 @@ declare module Immutable {
     remove(key: K): this;
 
     /**
+     * Returns a new Map which includes only the provided `keys`. 
+     * Keys that do not exist are ignored.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { Map } = require('immutable')
+     * const names = Map({ a: "Aaron", b: "Barry", c: "Connor" })
+     * names.pick([ 'a', 'c' ])
+     * // Map { "a": "Aaron", "c": "Connor" }
+     * ```
+     *
+     * Note: `pick` can be used in `withMutations`.
+     */
+    pick(keys: Iterable<K>): this;
+
+    /**
      * Returns a new Map which excludes the provided `keys`.
      *
      * <!-- runkit:activate -->

@@ -87,6 +87,18 @@ export class Map extends KeyedCollection {
     return updateMap(this, k, NOT_SET);
   }
 
+  pick(keys) {
+    const collection = Collection(keys);
+
+    if (collection.size === 0) {
+      return this;
+    }
+
+    const keysToRemove = this.keySeq().filter(k => !collection.includes(k));
+
+    return this.deleteAll(keysToRemove);
+  }
+
   deleteAll(keys) {
     const collection = Collection(keys);
 

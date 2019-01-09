@@ -473,4 +473,27 @@ describe('Map', () => {
       Map([[a, Map([[b, Map([[c, 10], [d, 2], [e, 20], [f, 30], [g, 40]])]])]])
     );
   });
+
+  it('discards everything but the provided keys', () => {
+    const NOT_SET = undefined;
+    const m1 = Map({ a: 1, b: 2, c: 3, d: [4, 5] });
+    const m2 = m1.pick(['a', 'c']);
+    expect(m2.size).toBe(2);
+    expect(m2.get('b')).toBe(NOT_SET);
+    expect(m2.get('d')).toBe(NOT_SET);
+    expect(m2.get('a')).toBe(1);
+    expect(m2.get('c')).toBe(3);
+  });
+
+  it('does not alter the map if no keys are provided', () => {
+    const m1 = Map({ A: 1, B: 2, C: 3 });
+    const m2 = m1.deleteAll([]);
+    expect(m1).toBe(m2);
+  });
+
+  it('returns an empty map if picking only non-existent keys', () => {
+    const m1 = Map({ A: 1, B: 2 });
+    const m2 = m1.pick(['x', 'y', 'z']);
+    expect(m2.size).toBe(0);
+  });
 });
