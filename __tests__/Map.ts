@@ -487,7 +487,7 @@ describe('Map', () => {
 
   it('does not alter the map if no keys are provided', () => {
     const m1 = Map({ A: 1, B: 2, C: 3 });
-    const m2 = m1.deleteAll([]);
+    const m2 = m1.pick([]);
     expect(m1).toBe(m2);
   });
 
