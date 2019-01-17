@@ -2545,7 +2545,7 @@ declare module Immutable {
      * Note: This method may not be overridden. Objects with custom
      * serialization to plain JS may override toJSON() instead.
      */
-    toJS(): { [K in keyof TProps]: any };
+    toJS(): { [K in keyof TProps]: TProps[K] };
 
     /**
      * Shallowly converts this Record to equivalent native JavaScript Object.
