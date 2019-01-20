@@ -10,6 +10,7 @@ var SVGSet = require('./SVGSet');
 var Logo = require('./Logo');
 var StarBtn = require('./StarBtn');
 var packageJson = require('../../../package.json');
+var defs = global.data;
 
 var isMobileMatch =
   window.matchMedia && window.matchMedia('(max-device-width: 680px)');
@@ -68,7 +69,7 @@ var Header = React.createClass({
             </a>
             <a href="docs/" target="_self">
               Docs (v
-              {packageJson.version})
+              {defs.Immutable.version})
             </a>
             <a href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes">
               Questions

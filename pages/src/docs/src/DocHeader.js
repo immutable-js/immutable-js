@@ -8,7 +8,7 @@
 var React = require('react');
 var SVGSet = require('../../src/SVGSet');
 var Logo = require('../../src/Logo');
-var packageJson = require('../../../../package.json');
+var defs = global.data; // injected by gulp
 
 var DocHeader = React.createClass({
   render() {
@@ -24,7 +24,7 @@ var DocHeader = React.createClass({
             </a>
             <a href="./" target="_self">
               Docs (v
-              {packageJson.version})
+              {defs.Immutable.version})
             </a>
             <a href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes">
               Questions

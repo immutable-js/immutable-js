@@ -32,6 +32,7 @@ var vm = require('vm');
 var rename = require('gulp-rename');
 var semver = require('semver');
 var childProcess = require('child-process-promise');
+var markdownDocs = require('../pages/lib/markdownDocs');
 
 function requireFresh(path) {
   delete require.cache[require.resolve(path)];
@@ -94,7 +95,10 @@ gulp.task('typedefs', function() {
            (docName !== latestTag ? '-' + docName : '') +
            '.d.ts';
           fs.writeFileSync(defPath, result.stdout, 'utf8');
-          return [docName, defPath];
+          return [docName, {
+            path: defPath,
+            tag: tag,
+          }];
         });
     }));
   }).then(function(tagEntries) {
@@ -102,7 +106,8 @@ gulp.task('typedefs', function() {
 
     tagEntries.forEach(function (tagEntry) {
       var docName = tagEntry[0];
-      var typeDefPath = tagEntry[1];
+      var typeDefPath = tagEntry[1].path;
+      var tag = tagEntry[1].tag;
       var fileContents = fs.readFileSync(typeDefPath, 'utf8');
 
       var fileSource = fileContents.replace(
@@ -118,7 +123,10 @@ gulp.task('typedefs', function() {
       );
 
       try {
-        var contents = JSON.stringify(genTypeDefData(typeDefPath, fileSource));
+        var defs = genTypeDefData(typeDefPath, fileSource);
+        markdownDocs(defs);
+        defs.Immutable.version = /^v?(.*)/.exec(tag)[1];
+        var contents = JSON.stringify(defs);
 
 
         mkdirp.sync(path.dirname(writePath));
@@ -166,7 +174,7 @@ function gulpJS(subDir) {
             loadMaps: true,
           })
         )
-        .pipe(uglify())
+        //.pipe(uglify())
         .pipe(sourcemaps.write('./maps'))
         .pipe(gulp.dest(BUILD_DIR + subDir))
         .pipe(filter('**/*.js'))
@@ -253,8 +261,30 @@ function gulpStatics(subDir) {
 
 gulp.task('immutable-copy', function() {
   return gulp
-    .src(SRC_DIR + '../../dist/immutable.js')
+    .src('../dist/immutable.js')
     .pipe(gulp.dest(BUILD_DIR))
+    .on('error', handleError)
+    .pipe(browserSync.reload({ stream: true }))
+    .on('error', handleError);
+});
+
+function gulpJsonp() {
+  return through.obj(function(file, enc, cb) {
+    var jsonp = 'window.data = JSON.parse(' + JSON.stringify(file.contents.toString()) + ');';
+    file.contents = new Buffer(jsonp, enc);
+    this.push(file);
+    cb();
+  });
+}
+
+gulp.task('jsonp-defs', function() {
+  return gulp
+    .src(['../pages/generated/immutable-*.d.json', '../pages/generated/immutable.d.json'])
+    .pipe(gulpJsonp())
+    .pipe(rename(function(path) {
+      path.extname = ".jsonp";
+    }))
+    .pipe(gulp.dest(path.join(BUILD_DIR, "docs/defs")))
     .on('error', handleError)
     .pipe(browserSync.reload({ stream: true }))
     .on('error', handleError);
@@ -267,6 +297,7 @@ gulp.task('build', function(done) {
     [
       'js',
       'js-docs',
+      'jsonp-defs',
       'less',
       'less-docs',
       'immutable-copy',
@@ -327,13 +358,18 @@ function handleError(error) {
 }
 
 function preRender(htmlPath) {
-  var html = fs.readFileSync(path.join('../pages/src', htmlPath), 'utf8');
+  var srcHtml = fs.readFileSync(path.join('../pages/src', htmlPath), 'utf8');
   var subDir = path.dirname(htmlPath);
 
   return through.obj(function(file, enc, cb) {
     var data = JSON.parse(file.contents.toString(enc));
+    markdownDocs(data);
     var components = [];
-    html = html.replace(/<!--\s*React\(\s*(.*)\s*\)\s*-->/g, function(
+
+    var suffixMatch = /-\d+\.\d+(?=\.d\.json)/.exec(file.path);
+    var suffix = suffixMatch ? suffixMatch[0] : '';
+
+    var html = srcHtml.replace(/<!--\s*React\(\s*(.*?)\s*\)\s*-->/g, function(
       _,
       relComponent
     ) {
@@ -365,7 +401,11 @@ function preRender(htmlPath) {
       } catch (error) {
         return '<div id="' + id + '">' + error.message + '</div>';
       }
-    });
+    }).replace(
+      "<!-- JSONP(defs/immutable.d.jsonp) -->",
+      '<script src="defs/immutable' + suffix + '.d.jsonp"></script>'
+    );
+
     if (components.length) {
       html = html.replace(
         /<!--\s*ReactRender\(\)\s*-->/g,
