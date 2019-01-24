@@ -29,6 +29,9 @@ var DocHeader = React.createClass({
             <a href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes">
               Questions
             </a>
+            <a href="../comp/" target="_self">
+              Complementary tools
+            </a>
             <a href="https://github.com/facebook/immutable-js/">Github</a>
           </div>
         </div>
