@@ -77,6 +77,7 @@ gulp.task('typedefs', function() {
 
 gulp.task('js', gulpJS(''));
 gulp.task('js-docs', gulpJS('docs/'));
+gulp.task('js-tools', gulpJS('tools/'));
 
 function gulpJS(subDir) {
   var reactGlobalModulePath = path.relative(
@@ -122,6 +123,7 @@ function gulpJS(subDir) {
 
 gulp.task('pre-render', gulpPreRender(''));
 gulp.task('pre-render-docs', gulpPreRender('docs/'));
+gulp.task('pre-render-tools', gulpPreRender('tools/'));
 
 function gulpPreRender(subDir) {
   return function() {
@@ -136,6 +138,7 @@ function gulpPreRender(subDir) {
 
 gulp.task('less', gulpLess(''));
 gulp.task('less-docs', gulpLess('docs/'));
+gulp.task('less-tools', gulpLess('tools/'));
 
 function gulpLess(subDir) {
   return function() {
@@ -160,6 +163,7 @@ function gulpLess(subDir) {
 
 gulp.task('statics', gulpStatics(''));
 gulp.task('statics-docs', gulpStatics('docs/'));
+gulp.task('statics-tools', gulpStatics('tools/'));
 
 function gulpStatics(subDir) {
   return function() {
@@ -188,13 +192,16 @@ gulp.task('build', function(done) {
     [
       'js',
       'js-docs',
+      'js-tools',
       'less',
       'less-docs',
+      'less-tools',
       'immutable-copy',
       'statics',
       'statics-docs',
+      'statics-tools',
     ],
-    ['pre-render', 'pre-render-docs'],
+    ['pre-render', 'pre-render-docs', 'pre-render-tools'],
     done
   );
 });
@@ -214,13 +221,22 @@ gulp.task('dev', ['default'], function() {
 
   gulp.watch('../README.md', ['build']);
   gulp.watch('../pages/lib/**/*.js', ['build']);
-  gulp.watch('../pages/src/**/*.less', ['less', 'less-docs']);
+  gulp.watch('../pages/src/**/*.less', ['less', 'less-docs', 'less-tools']);
   gulp.watch('../pages/src/src/**/*.js', ['rebuild-js']);
   gulp.watch('../pages/src/docs/src/**/*.js', ['rebuild-js-docs']);
-  gulp.watch('../pages/src/**/*.html', ['pre-render', 'pre-render-docs']);
-  gulp.watch('../pages/src/static/**/*', ['statics', 'statics-docs']);
+  gulp.watch('../pages/src/tools/src/**/*.js', ['rebuild-js-tools']);
+  gulp.watch('../pages/src/**/*.html', [
+    'pre-render',
+    'pre-render-docs',
+    'pre-render-tools',
+  ]);
+  gulp.watch('../pages/src/static/**/*', [
+    'statics',
+    'statics-docs',
+    'statics-tools',
+  ]);
   gulp.watch('../type-definitions/*', function() {
-    sequence('typedefs', 'rebuild-js-docs');
+    sequence('typedefs', 'rebuild-js-docs', 'rebuild-js-tools');
   });
 });
 
@@ -233,6 +249,13 @@ gulp.task('rebuild-js', function(done) {
 
 gulp.task('rebuild-js-docs', function(done) {
   sequence('js-docs', ['pre-render-docs'], function() {
+    browserSync.reload();
+    done();
+  });
+});
+
+gulp.task('rebuild-js-tools', function(done) {
+  sequence('js-tools', ['pre-render-tools'], function() {
     browserSync.reload();
     done();
   });
