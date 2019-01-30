@@ -26,6 +26,8 @@ var TypeKind = {
   Tuple: 14,
   Indexed: 15,
   Operator: 16,
+
+  Unknown: 17
 };
 
 module.exports = TypeKind;
