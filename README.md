@@ -576,7 +576,7 @@ lazySeq
   .flip()
   .map(key => key.toUpperCase())
   .flip();
-// Seq { A: 1, B: 1, C: 1 }
+// Seq { A: 1, B: 2, C: 3 }
 ```
 
 As well as expressing logic that would otherwise seem memory or time
