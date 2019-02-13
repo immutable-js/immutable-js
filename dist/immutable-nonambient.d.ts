@@ -1582,7 +1582,7 @@
      *   Set([ 'a', 'b', 'c' ])
      *   Set([ 'c', 'a', 't' ])
      * ])
-     * // Set [ "a", "c"" ]
+     * // Set [ "a", "c" ]
      * ```
      */
     function intersect<T>(sets: Iterable<Iterable<T>>): Set<T>;
@@ -1597,7 +1597,7 @@
      *   Set([ 'a', 'b', 'c' ])
      *   Set([ 'c', 'a', 't' ])
      * ])
-     * // Set [ "a", "b", "c", "t"" ]
+     * // Set [ "a", "b", "c", "t" ]
      * ```
      */
     function union<T>(sets: Iterable<Iterable<T>>): Set<T>;
@@ -3474,7 +3474,7 @@
        * ```js
        * const { List } = require('immutable')
        * List([ 1, 2, 3 ]).interleave(List([ 'A', 'B', 'C' ]))
-       * // List [ 1, "A", 2, "B", 3, "C"" ]
+       * // List [ 1, "A", 2, "B", 3, "C" ]
        * ```
        *
        * The shortest Collection stops interleave.
@@ -3487,7 +3487,7 @@
        *   List([ 'A', 'B' ]),
        *   List([ 'X', 'Y', 'Z' ])
        * )
-       * // List [ 1, "A", "X", 2, "B", "Y"" ]
+       * // List [ 1, "A", "X", 2, "B", "Y" ]
        * ```
        *
        * Since `interleave()` re-indexes values, it produces a complete copy,
@@ -4360,7 +4360,7 @@
      * const { List } = require('immutable')
      * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
      *   .skipWhile(x => x.match(/g/))
-     * // List [ "cat", "hat", "god"" ]
+     * // List [ "cat", "hat", "god" ]
      * ```
      */
     skipWhile(
@@ -4377,7 +4377,7 @@
      * const { List } = require('immutable')
      * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
      *   .skipUntil(x => x.match(/hat/))
-     * // List [ "hat", "god"" ]
+     * // List [ "hat", "god" ]
      * ```
      */
     skipUntil(
