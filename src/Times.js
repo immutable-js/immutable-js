@@ -12,7 +12,8 @@ import { ArraySeq } from './Seq';
 import deepEqual from './utils/deepEqual';
 
 /**
- * Calls func with seed as the argument and returns an Seq.Indexed of the results,
+ * Calls func with seed as the argument and passes the result to func and
+ * repeats it times number of times and returns a Seq.Indexed of each result 
  * times and func are required and seed defaults to 1
  */
 export class Times extends ArraySeq {

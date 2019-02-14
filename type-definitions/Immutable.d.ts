@@ -2220,7 +2220,8 @@ declare module Immutable {
   export function Repeat<T>(value: T, times?: number): Seq.Indexed<T>;
 
   /**
-   * Calls func with seed as the argument and returns an Seq.Indexed of the results,
+   * Calls func with seed as the argument and passes the result to func and
+   * repeats it times number of times and returns a Seq.Indexed of each result
    * times and func are required and seed defaults to 1
    *
    * Note: `Times` is a factory function and not a class, and does not use the
