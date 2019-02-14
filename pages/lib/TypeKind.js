@@ -27,7 +27,7 @@ var TypeKind = {
   Indexed: 15,
   Operator: 16,
 
-  Unknown: 17
+  Unknown: 17,
 };
 
 module.exports = TypeKind;
