@@ -2187,6 +2187,22 @@ declare module Immutable {
    */
   export function Range(start?: number, end?: number, step?: number): Seq.Indexed<number>;
 
+  /**
+     * Returns a Seq.Indexed with `base` - `ends`, `base`, and `base` + `front`, if
+     * front is not provided it returns `base` + `ends`, `base` is required and `ends`
+     * defaults to 1
+     *
+     * Note: `Stretch` is a factory function and not a class, and does not use the
+     * `new` keyword during construction.
+     *
+     * ```js
+     * const { Stretch } = require('immutable')
+     * Stretch(10, 5) // [5, 10, 15]
+     * Stretch(10, 5, 3) // [5, 10, 13]
+     * Stretch(5) // [4, 5, 6]
+     * ```
+     */
+    export function Stretch(base: number, ends?: number, front?: number): Seq.Indexed<number>;
 
   /**
    * Returns a Seq.Indexed of `value` repeated `times` times. When `times` is
@@ -2202,6 +2218,43 @@ declare module Immutable {
    * ```
    */
   export function Repeat<T>(value: T, times?: number): Seq.Indexed<T>;
+
+  /**
+   * Calls func with seed as the argument and returns an Seq.Indexed of the results,
+   * times and func are required and seed defaults to 1
+   *
+   * Note: `Times` is a factory function and not a class, and does not use the
+   * `new` keyword during construction.
+   *
+   * ```js
+   * const { Times } = require('immutable')
+   * Times(5, n => n + 1) // [2, 3, 4, 5, 6]
+   * Times(5, n => n + 1, 3) // [4, 5, 6, 7, 8]
+   * ```
+   */
+   /*i used any because seed could be anything and we might have a case where we return the
+   Seq.Indexed has a different type than seed*/
+  export function Times<T>(times: number, func: Function, seed?: any): Seq.Indexed<any>;
+
+  /**
+   * Takes a function that's used as a result generator and a function used as
+   * a condition to check the result and returns an array of each generated
+   * result seed is passed as the initial value to func and then the result is
+   * passed to func until the condition returns false
+   * func and condition are required and seed defaults to 1
+   *
+   * Note: `IterateUntil` is a factory function and not a class, and does not use the
+   * `new` keyword during construction.
+   *
+   * ```js
+   * const { IterateUntil } = require('immutable')
+   * IterateUntil(n => n + 1, a => a < 5) // [2, 3, 4]
+   * IterateUntil(n => n + 1, a => a < 10, 3) // [4, 5, 6, 7, 8, 9]
+   * ```
+   */
+   /*i used any because seed could be anything and we might have a case where we return the
+   Seq.Indexed has a different type than seed*/
+  export function IterateUntil<T>(func: Function, condition: Function, seed?: any): Seq.Indexed<any>;
 
 
   /**
@@ -2635,7 +2688,7 @@ declare module Immutable {
    * <!-- runkit:activate -->
    * ```js
    * const { Map } = require('immutable')
-   * const map = Map({ a: 1, b: 2, c: 3 })
+   * const map = Map({ a: 1, b: 2, c: 3 }
    * const lazySeq = Seq(map)
    * ```
    *

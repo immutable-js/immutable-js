@@ -14,7 +14,10 @@ import { OrderedSet } from './OrderedSet';
 import { Set } from './Set';
 import { Record } from './Record';
 import { Range } from './Range';
+import { Stretch } from './Stretch';
 import { Repeat } from './Repeat';
+import { Times } from './Times';
+import { IterateUntil } from './IterateUntil';
 import { is } from './is';
 import { fromJS } from './fromJS';
 
@@ -70,7 +73,10 @@ export default {
 
   Record: Record,
   Range: Range,
+  Stretch: Stretch,
   Repeat: Repeat,
+  Times: Times,
+  IterateUntil: IterateUntil,
 
   is: is,
   fromJS: fromJS,
@@ -124,7 +130,10 @@ export {
   OrderedSet,
   Record,
   Range,
+  Stretch,
   Repeat,
+  Times,
+  IterateUntil,
   is,
   fromJS,
   hash,

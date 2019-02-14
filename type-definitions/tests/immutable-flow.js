@@ -17,7 +17,10 @@ import Immutable, {
   Set,
   Seq,
   Range,
+  Stretch,
   Repeat,
+  Times,
+  IterateUntil,
   Record,
   OrderedMap,
   OrderedSet,
@@ -63,7 +66,10 @@ const ImmutableStack = Immutable.Stack
 const ImmutableSet = Immutable.Set
 const ImmutableKeyedCollection: KeyedCollection<*, *> = Immutable.Collection.Keyed()
 const ImmutableRange = Immutable.Range
+const ImmutableStretch = Immutable.Stretch
 const ImmutableRepeat = Immutable.Repeat
+const ImmutableTimes = Immutable.Times
+const ImmutableIterateUntil = Immutable.IterateUntil
 const ImmutableIndexedSeq: IndexedSeq<*> = Immutable.Seq.Indexed()
 
 const Immutable2List = Immutable2.List
@@ -72,7 +78,10 @@ const Immutable2Stack = Immutable2.Stack
 const Immutable2Set = Immutable2.Set
 const Immutable2KeyedCollection: Immutable2.KeyedCollection<*, *> = Immutable2.Collection.Keyed()
 const Immutable2Range = Immutable2.Range
+const Immutable2Stretch = Immutable2.Stretch
 const Immutable2Repeat = Immutable2.Repeat
+const Immutable2Times = Immutable2.Times
+const Immutable2IterateUntil = Immutable2.IterateUntil
 const Immutable2IndexedSeq: Immutable2.IndexedSeq<*> = Immutable2.Seq.Indexed()
 
 var defaultExport: List<*> = Immutable.List();
@@ -889,12 +898,15 @@ numberStack = Stack(['a']).flatten()
 // `{}` provide namespaces
 { const numberSequence: IndexedSeq<number> = Range(0, 0, 0) }
 { const numberSequence: IndexedSeq<number> = Repeat(1, 5) }
+{ const numberSequence: IndexedSeq<number> = Stretch(10, 5) }
 
 { const stringSequence: IndexedSeq<string> = Repeat('a', 5) }
 // $ExpectError
 { const stringSequence: IndexedSeq<string> = Repeat(0, 1) }
 // $ExpectError
 { const stringSequence: IndexedSeq<string> = Range(0, 0, 0) }
+// $ExpectError
+{ const stringSequence: IndexedSeq<string> = Stretch(Infinity) }
 
 /* Seq */
 

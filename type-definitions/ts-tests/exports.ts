@@ -14,7 +14,10 @@ import {
     OrderedMap,
     OrderedSet,
     Range,
+    Stretch,
     Repeat,
+    Times,
+    IterateUntil,
     Seq,
     Set,
     Stack,
@@ -27,7 +30,10 @@ OrderedMap; // $ExpectType typeof OrderedMap
 OrderedSet; // $ExpectType typeof OrderedSet
 // TODO: Turn on once https://github.com/Microsoft/dtslint/issues/19 is resolved.
 Range; // $ ExpectType (start?: number | undefined, end?: number | undefined, step?: number | undefined) => Indexed<number>
+Stretch; // $ ExpectType (base: number, ends?: number | undefined, front?: number | undefined) => Indexed<number>
 Repeat; // $ExpectType <T>(value: T, times?: number | undefined) => Indexed<T>
+Times; // $ExpectType <T>(times: number, func: Function, seed?: any) => Indexed<any>
+IterateUntil; // $ExpectType <T>(func: Function, condition: Function, seed?: any) => Indexed<any>
 Seq; // $ExpectType typeof Seq
 Set; // $ExpectType typeof Set
 Stack; // $ExpectType typeof Stack
@@ -42,7 +48,12 @@ Immutable.OrderedMap; // $ExpectType typeof OrderedMap
 Immutable.OrderedSet; // $ExpectType typeof OrderedSet
 // TODO: Turn on once https://github.com/Microsoft/dtslint/issues/19 is resolved.
 Immutable.Range; // $ ExpectType (start?: number | undefined, end?: number | undefined, step?: number | undefined) => Indexed<number>
+Immutable.Stretch; // $ ExpectType (base: number, ends?: number | undefined, front?: number | undefined) => Indexed<number>
 Immutable.Repeat; // $ExpectType <T>(value: T, times?: number | undefined) => Indexed<T>
+Immutable.Times; // $ExpectType <T>(times: number, func: Function, seed?: any) => Indexed<any>
+Immutable.IterateUntil; // $ExpectType <T>(func: Function, condition: Function, seed?: any) => Indexed<any>
+/*i used any because seed could be anything and we might have a case where we return the
+Seq.Indexed has a different type than seed*/
 Immutable.Seq; // $ExpectType typeof Seq
 Immutable.Set; // $ExpectType typeof Set
 Immutable.Stack; // $ExpectType typeof Stack
