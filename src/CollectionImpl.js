@@ -223,6 +223,13 @@ mixin(Collection, {
 
   forEach(sideEffect, context) {
     assertNotInfinite(this.size);
+    this.__iterate((...args) => {
+      sideEffect.apply(context, args);
+    });
+  },
+
+  forSome(sideEffect, context) {
+    assertNotInfinite(this.size);
     return this.__iterate(context ? sideEffect.bind(context) : sideEffect);
   },
 

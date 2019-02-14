@@ -116,6 +116,11 @@ declare class _Collection<K, +V> implements ValueObject {
   forEach(
     sideEffect: (value: V, key: K, iter: this) => any,
     context?: mixed
+  ): this;
+
+  forSome(
+    sideEffect: (value: V, key: K, iter: this) => any,
+    context?: mixed
   ): number;
 
   slice(begin?: number, end?: number): this;

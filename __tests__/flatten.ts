@@ -28,7 +28,7 @@ describe('flatten', () => {
   it('gives the correct iteration count', () => {
     const nested = fromJS([[1, 2, 3], [4, 5, 6]]);
     const flat = nested.flatten();
-    expect(flat.forEach(x => x < 4)).toEqual(4);
+    expect(flat.forSome(x => x < 4)).toEqual(4);
   });
 
   type SeqType = number | Array<number> | Collection<number, number>;
