@@ -41,16 +41,28 @@
 }
 
 .miniHeaderContents {
-  padding: 5px;
-  margin-bottom: 5%;
-  text-align: center;
-  display:grid;
-  text-align: center;
-  grid-template-columns: repeat(auto-fill, minmax(200px, auto));
-  grid-auto-flow: rows;
-  grid-auto-rows: 1fr;
-  grid-gap: 10%;
-  justify-content: center;
+  margin: 0 auto;
+  max-width: 880px;
+  padding: 12px 36px;
+  text-align: right;
+}
+
+@media only screen and (max-width: 680px) {
+  .miniHeaderContents {
+    text-align: left;
+  }
+}
+
+.miniLogo {
+  float: left;
+  left: -140px;
+  top: 12px;
+}
+
+@media only screen and (max-width: 680px) {
+  .miniLogo {
+    display: none;
+  }
 }
 
 .miniLogo > .svg {
@@ -60,8 +72,13 @@
 .miniHeaderContents a {
   color: #fff;
   font-weight: bold;
+  margin-right: 1em;
   text-decoration: none;
   text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+}
+
+.miniHeaderContents a:last-child {
+  margin-right: 0;
 }
 
 .coverContainer {

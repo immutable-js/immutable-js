@@ -35,7 +35,7 @@ var LibraryList = React.createClass({
                 Questions
               </a>
               <a href="./" target="_self">
-                Complementary Tools
+                Tools
               </a>
               <a href="https://github.com/facebook/immutable-js/">Github</a>
             </div>

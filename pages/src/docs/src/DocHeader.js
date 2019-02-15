@@ -30,7 +30,7 @@ var DocHeader = React.createClass({
               Questions
             </a>
             <a href="../tools/" target="_self">
-              Complmentary Tools
+              Tools
             </a>
             <a href="https://github.com/facebook/immutable-js/">Github</a>
           </div>

@@ -74,7 +74,7 @@ var Header = React.createClass({
               Questions
             </a>
             <a href="tools/" target="_self">
-              Complmentary Tools
+              Tools
             </a>
             <a href="https://github.com/facebook/immutable-js/">GitHub</a>
           </div>
@@ -92,7 +92,7 @@ var Header = React.createClass({
                     Questions
                   </a>
                   <a href="tools/" target="_self">
-                    Complmentary Tools
+                    Tools
                   </a>
                   <a href="https://github.com/facebook/immutable-js/">GitHub</a>
                 </div>
