@@ -2203,6 +2203,23 @@ declare module Immutable {
    */
   export function Repeat<T>(value: T, times?: number): Seq.Indexed<T>;
 
+   /**
+    * Returns a Seq.Indexed with `base` - `ends`, `base`, and `base` + `front`, if
+    * front is not provided it returns `base` + `ends`, `base` is required and `ends`
+    * defaults to 1
+    *
+    * Note: `Stretch` is a factory function and not a class, and does not use the
+    * `new` keyword during construction.
+    *
+    * ```js
+    * const { Stretch } = require('immutable')
+    * Stretch(10, 5) // [5, 10, 15]
+    * Stretch(10, 5, 3) // [5, 10, 13]
+    * Stretch(5) // [4, 5, 6]
+    * ```
+    */
+   export function Stretch(base: number, ends?: number, front?: number): Seq.Indexed<number>;
+
 
   /**
    * A record is similar to a JS object, but enforces a specific set of allowed
