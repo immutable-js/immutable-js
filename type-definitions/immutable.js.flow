@@ -1380,6 +1380,7 @@ declare class Stack<+T> extends IndexedCollection<T> {
 
 declare function Range(start?: number, end?: number, step?: number): IndexedSeq<number>;
 declare function Repeat<T>(value: T, times?: number): IndexedSeq<T>;
+declare function Times<T>(times: number, callback: (value: any) => any, seed?: any): IndexedSeq<any>;
 
 // The type of a Record factory function.
 type RecordFactory<Values: Object> = Class<RecordInstance<Values>>;
@@ -1581,6 +1582,7 @@ export {
   OrderedSet,
   Range,
   Repeat,
+  Times,
   Record,
   Set,
   Stack,
@@ -1624,6 +1626,7 @@ export default {
   OrderedSet,
   Range,
   Repeat,
+  Times,
   Record,
   Set,
   Stack,

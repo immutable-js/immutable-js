@@ -15,6 +15,7 @@ import { Set } from './Set';
 import { Record } from './Record';
 import { Range } from './Range';
 import { Repeat } from './Repeat';
+import { Times } from './Times';
 import { is } from './is';
 import { fromJS } from './fromJS';
 
@@ -71,6 +72,7 @@ export default {
   Record: Record,
   Range: Range,
   Repeat: Repeat,
+  Times: Times,
 
   is: is,
   fromJS: fromJS,
@@ -125,6 +127,7 @@ export {
   Record,
   Range,
   Repeat,
+  Times,
   is,
   fromJS,
   hash,
