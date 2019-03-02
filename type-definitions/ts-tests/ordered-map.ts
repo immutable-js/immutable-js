@@ -9,7 +9,7 @@ import { OrderedMap, List } from '../../';
 
 { // #constructor
 
-  // $ExpectType OrderedMap<{}, {}>
+  // $ExpectType OrderedMap<unknown, unknown>
   OrderedMap();
 
   // $ExpectType OrderedMap<number, string>
@@ -21,11 +21,11 @@ import { OrderedMap, List } from '../../';
   // $ExpectType OrderedMap<string, number>
   OrderedMap({ a: 1 });
 
-// $ExpectError - TypeScript does not support Lists as tuples
+  // TypeScript does not support Lists as tuples
+  // $ExpectError
   OrderedMap(List([List(['a', 'b'])]));
 
-  // $ExpectError
-  const invalidNumberOrderedMap: OrderedMap<number, number> = OrderedMap();
+  const numberOrderedMap: OrderedMap<number, number> = OrderedMap();
 }
 
 { // #size

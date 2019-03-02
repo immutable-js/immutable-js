@@ -180,8 +180,7 @@ declare module Immutable {
    * listFromPlainSet.equals(listFromPlainArray) // true
    * ```
    */
-  export function List(): List<unknown>;
-  export function List<T>(): List<T>;
+  export function List<T = unknown>(): List<T>;
   export function List<T>(collection: Iterable<T>): List<T>;
 
   export interface List<T> extends Collection.Indexed<T> {
@@ -760,8 +759,7 @@ declare module Immutable {
    */
   export function Map<K, V>(collection: Iterable<[K, V]>): Map<K, V>;
   export function Map<V>(obj: {[key: string]: V}): Map<string, V>;
-  export function Map<K, V>(): Map<K, V>;
-  export function Map(): Map<unknown, unknown>;
+  export function Map<K = unknown, V = unknown>(): Map<K, V>;
 
   export interface Map<K, V> extends Collection.Keyed<K, V> {
 
@@ -1419,9 +1417,8 @@ declare module Immutable {
    */
   export function OrderedMap<K, V>(collection: Iterable<[K, V]>): OrderedMap<K, V>;
   export function OrderedMap<V>(obj: {[key: string]: V}): OrderedMap<string, V>;
-  export function OrderedMap<K, V>(): OrderedMap<K, V>;
-  export function OrderedMap(): OrderedMap<unknown, unknown>;
-
+  export function OrderedMap<K = unknown, V = unknown>(): OrderedMap<K, V>;
+  
   export interface OrderedMap<K, V> extends Map<K, V> {
 
     /**
@@ -1610,8 +1607,7 @@ declare module Immutable {
    * Note: `Set` is a factory function and not a class, and does not use the
    * `new` keyword during construction.
    */
-  export function Set(): Set<unknown>;
-  export function Set<T>(): Set<T>;
+  export function Set<T = unknown>(): Set<T>;
   export function Set<T>(collection: Iterable<T>): Set<T>;
 
   export interface Set<T> extends Collection.Set<T> {
@@ -1794,8 +1790,7 @@ declare module Immutable {
    * Note: `OrderedSet` is a factory function and not a class, and does not use
    * the `new` keyword during construction.
    */
-  export function OrderedSet(): OrderedSet<unknown>;
-  export function OrderedSet<T>(): OrderedSet<T>;
+  export function OrderedSet<T = unknown>(): OrderedSet<T>;
   export function OrderedSet<T>(collection: Iterable<T>): OrderedSet<T>;
 
   export interface OrderedSet<T> extends Set<T> {
@@ -1954,8 +1949,7 @@ declare module Immutable {
    * Note: `Stack` is a factory function and not a class, and does not use the
    * `new` keyword during construction.
    */
-  export function Stack(): Stack<unknown>;
-  export function Stack<T>(): Stack<T>;
+  export function Stack<T = unknown>(): Stack<T>;
   export function Stack<T>(collection: Iterable<T>): Stack<T>;
 
   export interface Stack<T> extends Collection.Indexed<T> {
@@ -2389,7 +2383,7 @@ declare module Immutable {
      * Record.getDescriptiveName(me) // "Person"
      * ```
      */
-    export function getDescriptiveName(record: Record<{}>): string;
+    export function getDescriptiveName<T>(record: Record<T>): string;
 
     /**
      * A Record.Factory is created by the `Record()` function. Record instances
@@ -2695,8 +2689,7 @@ declare module Immutable {
      */
     export function Keyed<K, V>(collection: Iterable<[K, V]>): Seq.Keyed<K, V>;
     export function Keyed<V>(obj: {[key: string]: V}): Seq.Keyed<string, V>;
-    export function Keyed<K, V>(): Seq.Keyed<K, V>;
-    export function Keyed(): Seq.Keyed<unknown, unknown>;
+    export function Keyed<K = unknown, V = unknown>(): Seq.Keyed<K, V>;
 
     export interface Keyed<K, V> extends Seq<K, V>, Collection.Keyed<K, V> {
       /**
@@ -2817,8 +2810,7 @@ declare module Immutable {
      * Note: `Seq.Indexed` is a conversion function and not a class, and does
      * not use the `new` keyword during construction.
      */
-    export function Indexed(): Seq.Indexed<unknown>;
-    export function Indexed<T>(): Seq.Indexed<T>;
+    export function Indexed<T = unknown>(): Seq.Indexed<T>;
     export function Indexed<T>(collection: Iterable<T>): Seq.Indexed<T>;
 
     export interface Indexed<T> extends Seq<number, T>, Collection.Indexed<T> {
@@ -2969,8 +2961,7 @@ declare module Immutable {
      * Note: `Seq.Set` is a conversion function and not a class, and does not
      * use the `new` keyword during construction.
      */
-    export function Set(): Seq.Set<unknown>;
-    export function Set<T>(): Seq.Set<T>;
+    export function Set<T = unknown>(): Seq.Set<T>;
     export function Set<T>(collection: Iterable<T>): Seq.Set<T>;
 
     export interface Set<T> extends Seq<T, T>, Collection.Set<T> {

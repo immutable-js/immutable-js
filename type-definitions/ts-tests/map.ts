@@ -9,7 +9,7 @@ import { Map, List } from '../../';
 
 { // #constructor
 
-  // $ExpectType Map<{}, {}>
+  // $ExpectType Map<unknown, unknown>
   Map();
 
   // $ExpectType Map<number, string>
@@ -21,11 +21,11 @@ import { Map, List } from '../../';
   // $ExpectType Map<string, number>
   Map({ a: 1 });
 
-  // $ExpectError - TypeScript does not support Lists as tuples
+  // TypeScript does not support Lists as tuples
+  // $ExpectError
   Map(List([List(['a', 'b'])]));
 
-  // $ExpectError
-  const invalidNumberMap: Map<number, number> = Map();
+  const numberMap: Map<number, number> = Map();
 }
 
 { // #size

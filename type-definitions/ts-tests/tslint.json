@@ -5,6 +5,7 @@
     "prefer-const": false,
     "no-useless-files": false,
     "no-duplicate-imports": false,
-    "no-relative-import-in-test": false
+    "no-relative-import-in-test": false,
+    "use-default-type-parameter": false
   }
 }
