@@ -171,7 +171,11 @@ declare class _Collection<K, +V> implements ValueObject {
     notSetValue?: NSV
   ): V | NSV;
 
-  findEntry(predicate: (value: V, key: K, iter: this) => mixed): [K, V] | void;
+  findEntry<NSV>(
+    predicate: (value: V, key: K, iter: this) => mixed, 
+    context?: mixed, 
+    notSetValue?: NSV
+   ): [K, V] | NSV | void;
   findLastEntry(predicate: (value: V, key: K, iter: this) => mixed): [K, V] | void;
 
   findKey(predicate: (value: V, key: K, iter: this) => mixed, context?: mixed): K | void;
