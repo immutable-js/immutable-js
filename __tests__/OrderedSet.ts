@@ -7,7 +7,7 @@
 
 ///<reference path='../resources/jest.d.ts'/>
 
-import { OrderedSet } from '../';
+import { OrderedSet, Range } from '../';
 
 describe('OrderedSet', () => {
   it('provides initial values in a mixed order', () => {
@@ -68,5 +68,11 @@ describe('OrderedSet', () => {
       'BB',
       'CD',
     ]);
+  });
+
+  it('intersects correctly', () => {
+    const s1 = OrderedSet(Range(1, 33));
+    const s2 = OrderedSet(Range(1, 16));
+    expect(s1.intersect(s2).size).toBe(15);
   });
 });

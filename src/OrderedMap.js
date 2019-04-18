@@ -144,6 +144,7 @@ function updateOrderedMap(omap, k, v) {
         .toMap();
       if (omap.__ownerID) {
         newMap.__ownerID = newList.__ownerID = omap.__ownerID;
+        newMap.__altered = newList.__altered = true;
       }
     } else {
       newMap = map.remove(k);
