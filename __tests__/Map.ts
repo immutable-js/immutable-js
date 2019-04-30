@@ -261,6 +261,12 @@ describe('Map', () => {
     expect(r).toBe(m);
   });
 
+  it('ensures iter is unmodified', () => {
+    const m = Map({ a: 1, b: 1 });
+    const r = m.map((value, key, iter) => 2 * iter.get(key));
+    expect(r.toObject()).toEqual({ a: 2, b: 2 });
+  });
+
   it('filters values', () => {
     const m = Map({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
     const r = m.filter(value => value % 2 === 1);
