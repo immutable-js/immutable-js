@@ -598,13 +598,13 @@ Range(1, Infinity)
 Documentation
 -------------
 
-[Read the docs](http://facebook.github.io/immutable-js/docs/) and eat your vegetables.
+[Read the docs](https://immutable-js.github.io/immutable-js/docs/) and eat your vegetables.
 
-Docs are automatically generated from [Immutable.d.ts](https://github.com/facebook/immutable-js/blob/master/type-definitions/Immutable.d.ts).
+Docs are automatically generated from [Immutable.d.ts](https://github.com/immutable-js/immutable-js/blob/master/type-definitions/Immutable.d.ts).
 Please contribute!
 
-Also, don't miss the [Wiki](https://github.com/facebook/immutable-js/wiki) which
-contains articles on specific topics. Can't find something? Open an [issue](https://github.com/facebook/immutable-js/issues).
+Also, don't miss the [Wiki](https://github.com/immutable-js/immutable-js/wiki) which
+contains articles on specific topics. Can't find something? Open an [issue](https://github.com/immutable-js/immutable-js/issues).
 
 
 Testing
@@ -616,15 +616,15 @@ If you are using the [Chai Assertion Library](http://chaijs.com/), [Chai Immutab
 Contribution
 ------------
 
-Use [Github issues](https://github.com/facebook/immutable-js/issues) for requests.
+Use [Github issues](https://github.com/immutable-js/immutable-js/issues) for requests.
 
-We actively welcome pull requests, learn how to [contribute](https://github.com/facebook/immutable-js/blob/master/.github/CONTRIBUTING.md).
+We actively welcome pull requests, learn how to [contribute](https://github.com/immutable-js/immutable-js/blob/master/.github/CONTRIBUTING.md).
 
 
 Changelog
 ---------
 
-Changes are tracked as [Github releases](https://github.com/facebook/immutable-js/releases).
+Changes are tracked as [Github releases](https://github.com/immutable-js/immutable-js/releases).
 
 
 Thanks
@@ -640,4 +640,4 @@ name. If you're looking for his unsupported package, see [this repository](https
 License
 -------
 
-Immutable.js is [MIT-licensed](https://github.com/facebook/immutable-js/blob/master/LICENSE).
+Immutable.js is [MIT-licensed](https://github.com/immutable-js/immutable-js/blob/master/LICENSE).
