@@ -8,12 +8,12 @@
 # This script maintains a git branch which mirrors master but in a form that
 # what will eventually be deployed to npm, allowing npm dependencies to use:
 #
-#     "immutable": "git://github.com/facebook/immutable-js.git#npm"
+#     "immutable": "git://github.com/immutable-js/immutable-js.git#npm"
 #
 
 # Create empty npm directory
 rm -rf npm
-git clone -b npm "https://${GH_TOKEN}@github.com/facebook/immutable-js.git" npm
+git clone -b npm "https://${GH_TOKEN}@github.com/immutable-js/immutable-js.git" npm
 
 # Remove existing files first
 rm -rf npm/**/*

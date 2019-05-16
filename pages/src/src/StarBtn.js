@@ -31,7 +31,7 @@ var StarBtn = React.createClass({
         <a
           className="gh-btn"
           id="gh-btn"
-          href="https://github.com/facebook/immutable-js/"
+          href="https://github.com/immutable-js/immutable-js/"
         >
           <span className="gh-ico" />
           <span className="gh-text">Star</span>
@@ -40,7 +40,7 @@ var StarBtn = React.createClass({
         {this.state.stars && (
           <a
             className="gh-count"
-            href="https://github.com/facebook/immutable-js/stargazers"
+            href="https://github.com/immutable-js/immutable-js/stargazers"
           >
             {this.state.stars}
           </a>

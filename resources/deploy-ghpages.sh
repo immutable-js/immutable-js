@@ -9,7 +9,7 @@
 
 # Create empty gh-pages directory
 rm -rf gh-pages
-git clone -b gh-pages "https://${GH_TOKEN}@github.com/facebook/immutable-js.git" gh-pages
+git clone -b gh-pages "https://${GH_TOKEN}@github.com/immutable-js/immutable-js.git" gh-pages
 
 # Remove existing files first
 rm -rf gh-pages/**/*

@@ -73,7 +73,7 @@ var Header = React.createClass({
             <a href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes">
               Questions
             </a>
-            <a href="https://github.com/facebook/immutable-js/">GitHub</a>
+            <a href="https://github.com/immutable-js/immutable-js/">GitHub</a>
           </div>
         </div>
         <div className="coverContainer">
@@ -88,7 +88,7 @@ var Header = React.createClass({
                   <a href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes">
                     Questions
                   </a>
-                  <a href="https://github.com/facebook/immutable-js/">GitHub</a>
+                  <a href="https://github.com/immutable-js/immutable-js/">GitHub</a>
                 </div>
               </div>
               <div className="synopsis">

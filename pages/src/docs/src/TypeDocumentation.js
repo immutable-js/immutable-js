@@ -19,8 +19,8 @@ var TypeKind = require('../../../lib/TypeKind');
 var defs = require('../../../lib/getTypeDefs');
 
 var typeDefURL =
-  'https://github.com/facebook/immutable-js/blob/master/type-definitions/Immutable.d.ts';
-var issuesURL = 'https://github.com/facebook/immutable-js/issues';
+  'https://github.com/immutable-js/immutable-js/blob/master/type-definitions/Immutable.d.ts';
+var issuesURL = 'https://github.com/immutable-js/immutable-js/issues';
 
 var Disclaimer = function() {
   return (

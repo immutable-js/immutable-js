@@ -37,7 +37,7 @@ your [pull requests](https://help.github.com/articles/creating-a-pull-request).
 
 ## Documentation
 
-Documentation for Immutable.js (hosted at http://facebook.github.io/immutable-js)
+Documentation for Immutable.js (hosted at https://immutable-js.github.io/immutable-js)
 is developed in `pages/`. Run `npm start` to get a local copy in your browser
 while making edits.
 
@@ -91,7 +91,7 @@ npm run perf
 
 Sample output:
 ```bash
-> immutable@4.0.0-rc.9 perf ~/github.com/facebook/immutable-js
+> immutable@4.0.0-rc.9 perf ~/github.com/immutable-js/immutable-js
 > node ./resources/bench.js
 
 List > builds from array of 2
