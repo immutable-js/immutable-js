@@ -1499,7 +1499,7 @@ declare function fromJS(
   jsValue: any,
   reviver?: (
     key: string | number,
-    sequence: KeyedCollection<string, any> | IndexedCollection<any>,
+    sequence: Collection.Keyed<string, any> | Collection.Indexed<any>,
     path?: Array<string | number>
   ) => any
 ): any;
