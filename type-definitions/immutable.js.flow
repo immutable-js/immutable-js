@@ -34,7 +34,7 @@ type PlainObjInput<K, V> = {+[key: K]: V, __proto__: null};
 
 // Helper types to extract the "keys" and "values" use by the *In() methods.
 type $KeyOf<C> = $Call<
-  & (<K>(?_Collection<K, mixed>) => K)
+  & (<K>(?_Collection<K, any>) => K)
   & (<T>(?$ReadOnlyArray<T>) => number)
   & (<T>(?RecordInstance<T> | T) => $Keys<T>),
   C
@@ -56,7 +56,7 @@ type $IterableOf<C> = $Call<
 >;
 
 declare class _Collection<K, +V> implements ValueObject {
-  equals(other: mixed): boolean;
+  equals(other: any): boolean;
   hashCode(): number;
   get(key: K, ..._: []): V | void;
   get<NSV>(key: K, notSetValue: NSV): V | NSV;
@@ -66,9 +66,9 @@ declare class _Collection<K, +V> implements ValueObject {
   first<NSV>(notSetValue?: NSV): V | NSV;
   last<NSV>(notSetValue?: NSV): V | NSV;
 
-  hasIn(keyPath: Iterable<mixed>): boolean;
+  hasIn(keyPath: Iterable<any>): boolean;
 
-  getIn(keyPath: [], notSetValue?: mixed): this;
+  getIn(keyPath: [], notSetValue?: any): this;
   getIn<NSV>(keyPath: [K], notSetValue: NSV): V | NSV;
   getIn<NSV, K2: $KeyOf<V>>(keyPath: [K, K2], notSetValue: NSV): $ValOf<V, K2> | NSV;
   getIn<NSV, K2: $KeyOf<V>, K3: $KeyOf<$ValOf<V, K2>>>(keyPath: [K, K2, K3], notSetValue: NSV): $ValOf<$ValOf<V, K2>, K3> | NSV;
@@ -77,7 +77,7 @@ declare class _Collection<K, +V> implements ValueObject {
 
   update<U>(updater: (value: this) => U): U;
 
-  toJS(): Array<any> | { [key: string]: mixed };
+  toJS(): Array<any> | { [key: string]: any };
   toJSON(): Array<V> | { [key: string]: V };
   toArray(): Array<V> | Array<[K,V]>;
   toObject(): { [key: string]: V };
@@ -110,12 +110,12 @@ declare class _Collection<K, +V> implements ValueObject {
 
   groupBy<G>(
     grouper: (value: V, key: K, iter: this) => G,
-    context?: mixed
+    context?: any
   ): KeyedSeq<G, this>;
 
   forEach(
     sideEffect: (value: V, key: K, iter: this) => any,
-    context?: mixed
+    context?: any
   ): number;
 
   slice(begin?: number, end?: number): this;
@@ -123,22 +123,22 @@ declare class _Collection<K, +V> implements ValueObject {
   butLast(): this;
   skip(amount: number): this;
   skipLast(amount: number): this;
-  skipWhile(predicate: (value: V, key: K, iter: this) => mixed, context?: mixed): this;
-  skipUntil(predicate: (value: V, key: K, iter: this) => mixed, context?: mixed): this;
+  skipWhile(predicate: (value: V, key: K, iter: this) => boolean, context?: any): this;
+  skipUntil(predicate: (value: V, key: K, iter: this) => boolean, context?: any): this;
   take(amount: number): this;
   takeLast(amount: number): this;
-  takeWhile(predicate: (value: V, key: K, iter: this) => mixed, context?: mixed): this;
-  takeUntil(predicate: (value: V, key: K, iter: this) => mixed, context?: mixed): this;
+  takeWhile(predicate: (value: V, key: K, iter: this) => boolean, context?: any): this;
+  takeUntil(predicate: (value: V, key: K, iter: this) => boolean, context?: any): this;
 
   filterNot(
-    predicate: (value: V, key: K, iter: this) => mixed,
-    context?: mixed
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: any
   ): this;
 
   reduce<R>(
     reducer: (reduction: R, value: V, key: K, iter: this) => R,
     initialReduction: R,
-    context?: mixed,
+    context?: any,
   ): R;
   reduce<R>(
     reducer: (reduction: V | R, value: V, key: K, iter: this) => R
@@ -147,35 +147,35 @@ declare class _Collection<K, +V> implements ValueObject {
   reduceRight<R>(
     reducer: (reduction: R, value: V, key: K, iter: this) => R,
     initialReduction: R,
-    context?: mixed,
+    context?: any,
   ): R;
   reduceRight<R>(
     reducer: (reduction: V | R, value: V, key: K, iter: this) => R
   ): R;
 
-  every(predicate: (value: V, key: K, iter: this) => mixed, context?: mixed): boolean;
-  some(predicate: (value: V, key: K, iter: this) => mixed, context?: mixed): boolean;
+  every(predicate: (value: V, key: K, iter: this) => boolean, context?: any): boolean;
+  some(predicate: (value: V, key: K, iter: this) => boolean, context?: any): boolean;
   join(separator?: string): string;
   isEmpty(): boolean;
-  count(predicate?: (value: V, key: K, iter: this) => mixed, context?: mixed): number;
-  countBy<G>(grouper: (value: V, key: K, iter: this) => G, context?: mixed): Map<G, number>;
+  count(predicate?: (value: V, key: K, iter: this) => boolean, context?: any): number;
+  countBy<G>(grouper: (value: V, key: K, iter: this) => G, context?: any): Map<G, number>;
 
   find<NSV>(
-    predicate: (value: V, key: K, iter: this) => mixed,
-    context?: mixed,
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: any,
     notSetValue?: NSV
   ): V | NSV;
   findLast<NSV>(
-    predicate: (value: V, key: K, iter: this) => mixed,
-    context?: mixed,
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: any,
     notSetValue?: NSV
   ): V | NSV;
 
-  findEntry(predicate: (value: V, key: K, iter: this) => mixed): [K, V] | void;
-  findLastEntry(predicate: (value: V, key: K, iter: this) => mixed): [K, V] | void;
+  findEntry(predicate: (value: V, key: K, iter: this) => boolean): [K, V] | void;
+  findLastEntry(predicate: (value: V, key: K, iter: this) => boolean): [K, V] | void;
 
-  findKey(predicate: (value: V, key: K, iter: this) => mixed, context?: mixed): K | void;
-  findLastKey(predicate: (value: V, key: K, iter: this) => mixed, context?: mixed): K | void;
+  findKey(predicate: (value: V, key: K, iter: this) => boolean, context?: any): K | void;
+  findLastKey(predicate: (value: V, key: K, iter: this) => boolean, context?: any): K | void;
 
   keyOf(searchValue: V): K | void;
   lastKeyOf(searchValue: V): K | void;
@@ -195,20 +195,20 @@ declare class _Collection<K, +V> implements ValueObject {
   isSuperset(iter: Iterable<V>): boolean;
 }
 
-declare function isImmutable(maybeImmutable: mixed): boolean %checks(maybeImmutable instanceof Collection);
-declare function isCollection(maybeCollection: mixed): boolean %checks(maybeCollection instanceof Collection);
-declare function isKeyed(maybeKeyed: mixed): boolean %checks(maybeKeyed instanceof KeyedCollection);
-declare function isIndexed(maybeIndexed: mixed): boolean %checks(maybeIndexed instanceof IndexedCollection);
-declare function isAssociative(maybeAssociative: mixed): boolean %checks(
+declare function isImmutable(maybeImmutable: any): boolean %checks(maybeImmutable instanceof Collection);
+declare function isCollection(maybeCollection: any): boolean %checks(maybeCollection instanceof Collection);
+declare function isKeyed(maybeKeyed: any): boolean %checks(maybeKeyed instanceof KeyedCollection);
+declare function isIndexed(maybeIndexed: any): boolean %checks(maybeIndexed instanceof IndexedCollection);
+declare function isAssociative(maybeAssociative: any): boolean %checks(
   maybeAssociative instanceof KeyedCollection ||
   maybeAssociative instanceof IndexedCollection
 );
-declare function isOrdered(maybeOrdered: mixed): boolean %checks(
+declare function isOrdered(maybeOrdered: any): boolean %checks(
   maybeOrdered instanceof IndexedCollection ||
   maybeOrdered instanceof OrderedMap ||
   maybeOrdered instanceof OrderedSet
 );
-declare function isValueObject(maybeValue: mixed): boolean;
+declare function isValueObject(maybeValue: any): boolean;
 
 declare function isSeq(maybeSeq: any): boolean %checks(maybeSeq instanceof Seq);
 declare function isList(maybeList: any): boolean %checks(maybeList instanceof List);
@@ -220,7 +220,7 @@ declare function isOrderedSet(maybeOrderedSet: any): boolean %checks(maybeOrdere
 declare function isRecord(maybeRecord: any): boolean %checks(maybeRecord instanceof Record);
 
 declare interface ValueObject {
-  equals(other: mixed): boolean;
+  equals(other: any): boolean;
   hashCode(): number;
 }
 
@@ -239,7 +239,7 @@ declare class Collection<K, +V> extends _Collection<K, V> {
 declare class KeyedCollection<K, +V> extends Collection<K, V> {
   static <K, V>(values?: Iterable<[K, V]> | PlainObjInput<K, V>): KeyedCollection<K, V>;
 
-  toJS(): { [key: string]: mixed };
+  toJS(): { [key: string]: any };
   toJSON(): { [key: string]: V };
   toArray(): Array<[K, V]>;
   @@iterator(): Iterator<[K, V]>;
@@ -250,28 +250,28 @@ declare class KeyedCollection<K, +V> extends Collection<K, V> {
 
   filter(predicate: typeof Boolean): KeyedCollection<K, $NonMaybeType<V>>;
   filter(
-    predicate: (value: V, key: K, iter: this) => mixed,
-    context?: mixed
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: any
   ): KeyedCollection<K, V>;
 
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
-    context?: mixed
+    context?: any
   ): KeyedCollection<K, M>;
 
   mapKeys<M>(
     mapper: (key: K, value: V, iter: this) => M,
-    context?: mixed
+    context?: any
   ): KeyedCollection<M, V>;
 
   mapEntries<KM, VM>(
     mapper: (entry: [K, V], index: number, iter: this) => [KM, VM],
-    context?: mixed
+    context?: any
   ): KeyedCollection<KM, VM>;
 
   flatMap<KM, VM>(
     mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
-    context?: mixed
+    context?: any
   ): KeyedCollection<KM, VM>;
 
   flatten(depth?: number): KeyedCollection<any, any>;
@@ -283,7 +283,7 @@ Collection.Keyed = KeyedCollection
 declare class IndexedCollection<+T> extends Collection<number, T> {
   static <T>(iter?: Iterable<T>): IndexedCollection<T>;
 
-  toJS(): Array<mixed>;
+  toJS(): Array<any>;
   toJSON(): Array<T>;
   toArray(): Array<T>;
   @@iterator(): Iterator<T>;
@@ -398,30 +398,30 @@ declare class IndexedCollection<+T> extends Collection<number, T> {
   indexOf(searchValue: T): number;
   lastIndexOf(searchValue: T): number;
   findIndex(
-    predicate: (value: T, index: number, iter: this) => mixed,
-    context?: mixed
+    predicate: (value: T, index: number, iter: this) => boolean,
+    context?: any
   ): number;
   findLastIndex(
-    predicate: (value: T, index: number, iter: this) => mixed,
-    context?: mixed
+    predicate: (value: T, index: number, iter: this) => boolean,
+    context?: any
   ): number;
 
   concat<C>(...iters: Array<Iterable<C> | C>): IndexedCollection<T | C>;
 
   filter(predicate: typeof Boolean): IndexedCollection<$NonMaybeType<T>>;
   filter(
-    predicate: (value: T, index: number, iter: this) => mixed,
-    context?: mixed
+    predicate: (value: T, index: number, iter: this) => boolean,
+    context?: any
   ): IndexedCollection<T>;
 
   map<M>(
     mapper: (value: T, index: number, iter: this) => M,
-    context?: mixed
+    context?: any
   ): IndexedCollection<M>;
 
   flatMap<M>(
     mapper: (value: T, index: number, iter: this) => Iterable<M>,
-    context?: mixed
+    context?: any
   ): IndexedCollection<M>;
 
   flatten(depth?: number): IndexedCollection<any>;
@@ -431,7 +431,7 @@ declare class IndexedCollection<+T> extends Collection<number, T> {
 declare class SetCollection<+T> extends Collection<T, T> {
   static <T>(iter?: Iterable<T>): SetCollection<T>;
 
-  toJS(): Array<mixed>;
+  toJS(): Array<any>;
   toJSON(): Array<T>;
   toArray(): Array<T>;
   @@iterator(): Iterator<T>;
@@ -445,25 +445,25 @@ declare class SetCollection<+T> extends Collection<T, T> {
   // `SetCollection` - the value and key types *must* match.
   filter(predicate: typeof Boolean): SetCollection<$NonMaybeType<T>>;
   filter(
-    predicate: (value: T, value: T, iter: this) => mixed,
-    context?: mixed
+    predicate: (value: T, value: T, iter: this) => boolean,
+    context?: any
   ): SetCollection<T>;
 
   map<M>(
     mapper: (value: T, value: T, iter: this) => M,
-    context?: mixed
+    context?: any
   ): SetCollection<M>;
 
   flatMap<M>(
     mapper: (value: T, value: T, iter: this) => Iterable<M>,
-    context?: mixed
+    context?: any
   ): SetCollection<M>;
 
   flatten(depth?: number): SetCollection<any>;
   flatten(shallow?: boolean): SetCollection<any>;
 }
 
-declare function isSeq(maybeSeq: mixed): boolean %checks(maybeSeq instanceof Seq);
+declare function isSeq(maybeSeq: any): boolean %checks(maybeSeq instanceof Seq);
 declare class Seq<K, +V> extends _Collection<K, V> {
   static Keyed: typeof KeyedSeq;
   static Indexed: typeof IndexedSeq;
@@ -491,28 +491,28 @@ declare class KeyedSeq<K, +V> extends Seq<K, V> mixins KeyedCollection<K, V> {
 
   filter(predicate: typeof Boolean): KeyedSeq<K, $NonMaybeType<V>>;
   filter(
-    predicate: (value: V, key: K, iter: this) => mixed,
-    context?: mixed
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: any
   ): KeyedSeq<K, V>;
 
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
-    context?: mixed
+    context?: any
   ): KeyedSeq<K, M>;
 
   mapKeys<M>(
     mapper: (key: K, value: V, iter: this) => M,
-    context?: mixed
+    context?: any
   ): KeyedSeq<M, V>;
 
   mapEntries<KM, VM>(
     mapper: (entry: [K, V], index: number, iter: this) => [KM, VM],
-    context?: mixed
+    context?: any
   ): KeyedSeq<KM, VM>;
 
   flatMap<KM, VM>(
     mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
-    context?: mixed
+    context?: any
   ): KeyedSeq<KM, VM>;
 
   flatten(depth?: number): KeyedSeq<any, any>;
@@ -530,18 +530,18 @@ declare class IndexedSeq<+T> extends Seq<number, T> mixins IndexedCollection<T> 
 
   filter(predicate: typeof Boolean): IndexedSeq<$NonMaybeType<T>>;
   filter(
-    predicate: (value: T, index: number, iter: this) => mixed,
-    context?: mixed
+    predicate: (value: T, index: number, iter: this) => boolean,
+    context?: any
   ): IndexedSeq<T>;
 
   map<M>(
     mapper: (value: T, index: number, iter: this) => M,
-    context?: mixed
+    context?: any
   ): IndexedSeq<M>;
 
   flatMap<M>(
     mapper: (value: T, index: number, iter: this) => Iterable<M>,
-    context?: mixed
+    context?: any
   ): IndexedSeq<M>;
 
   flatten(depth?: number): IndexedSeq<any>;
@@ -657,18 +657,18 @@ declare class SetSeq<+T> extends Seq<T, T> mixins SetCollection<T> {
 
   filter(predicate: typeof Boolean): SetSeq<$NonMaybeType<T>>;
   filter(
-    predicate: (value: T, value: T, iter: this) => mixed,
-    context?: mixed
+    predicate: (value: T, value: T, iter: this) => boolean,
+    context?: any
   ): SetSeq<T>;
 
   map<M>(
     mapper: (value: T, value: T, iter: this) => M,
-    context?: mixed
+    context?: any
   ): SetSeq<M>;
 
   flatMap<M>(
     mapper: (value: T, value: T, iter: this) => Iterable<M>,
-    context?: mixed
+    context?: any
   ): SetSeq<M>;
 
   flatten(depth?: number): SetSeq<any>;
@@ -697,7 +697,7 @@ declare class UpdatableInCollection<K, +V> {
   removeIn<K2: $KeyOf<V>, K3: $KeyOf<$ValOf<V, K2>>, K4: $KeyOf<$ValOf<$ValOf<V, K2>, K3>>>(keyPath: [K, K2, K3, K4]): this;
   removeIn<K2: $KeyOf<V>, K3: $KeyOf<$ValOf<V, K2>>, K4: $KeyOf<$ValOf<$ValOf<V, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>>>(keyPath: [K, K2, K3, K4, K5]): this;
 
-  updateIn<U>(keyPath: [], notSetValue: mixed, updater: (value: this) => U): U;
+  updateIn<U>(keyPath: [], notSetValue: any, updater: (value: this) => U): U;
   updateIn<U>(keyPath: [], updater: (value: this) => U): U;
   updateIn<NSV>(keyPath: [K], notSetValue: NSV, updater: (value: V) => V): this;
   updateIn(keyPath: [K], updater: (value: V) => V): this;
@@ -711,7 +711,7 @@ declare class UpdatableInCollection<K, +V> {
   updateIn<K2: $KeyOf<V>, K3: $KeyOf<$ValOf<V, K2>>, K4: $KeyOf<$ValOf<$ValOf<V, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>>, S: $ValOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>, K5>>(keyPath: [K, K2, K3, K4, K5], updater: (value: $ValOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>, K5>) => S): this;
 }
 
-declare function isList(maybeList: mixed): boolean %checks(maybeList instanceof List);
+declare function isList(maybeList: any): boolean %checks(maybeList instanceof List);
 declare class List<+T> extends IndexedCollection<T> mixins UpdatableInCollection<number, T> {
   static (collection?: Iterable<T>): List<T>;
 
@@ -739,10 +739,10 @@ declare class List<+T> extends IndexedCollection<T> mixins UpdatableInCollection
 
   setSize(size: number): this;
 
-  mergeIn(keyPath: Iterable<mixed>, ...collections: Iterable<mixed>[]): this;
-  mergeDeepIn(keyPath: Iterable<mixed>, ...collections: Iterable<mixed>[]): this;
+  mergeIn(keyPath: Iterable<any>, ...collections: Iterable<any>[]): this;
+  mergeDeepIn(keyPath: Iterable<any>, ...collections: Iterable<any>[]): this;
 
-  withMutations(mutator: (mutable: this) => mixed): this;
+  withMutations(mutator: (mutable: this) => any): this;
   asMutable(): this;
   wasAltered(): boolean;
   asImmutable(): this;
@@ -753,18 +753,18 @@ declare class List<+T> extends IndexedCollection<T> mixins UpdatableInCollection
 
   filter(predicate: typeof Boolean): List<$NonMaybeType<T>>;
   filter(
-    predicate: (value: T, index: number, iter: this) => mixed,
-    context?: mixed
+    predicate: (value: T, index: number, iter: this) => boolean,
+    context?: any
   ): List<T>;
 
   map<M>(
     mapper: (value: T, index: number, iter: this) => M,
-    context?: mixed
+    context?: any
   ): List<M>;
 
   flatMap<M>(
     mapper: (value: T, index: number, iter: this) => Iterable<M>,
-    context?: mixed
+    context?: any
   ): List<M>;
 
   flatten(depth?: number): List<any>;
@@ -869,7 +869,7 @@ declare class List<+T> extends IndexedCollection<T> mixins UpdatableInCollection
   ): List<R>;
 }
 
-declare function isMap(maybeMap: mixed): boolean %checks(maybeMap instanceof Map);
+declare function isMap(maybeMap: any): boolean %checks(maybeMap instanceof Map);
 declare class Map<K, +V> extends KeyedCollection<K, V> mixins UpdatableInCollection<K, V> {
   static <K, V>(values?: Iterable<[K, V]> | PlainObjInput<K, V>): Map<K, V>;
 
@@ -906,20 +906,20 @@ declare class Map<K, +V> extends KeyedCollection<K, V> mixins UpdatableInCollect
   ): Map<K | K_, V | V_>;
 
   mergeDeepWith<K_, V_>(
-    merger: (oldVal: any, newVal: any, key: any) => mixed,
+    merger: (oldVal: any, newVal: any, key: any) => any,
     ...collections: (Iterable<[K_, V_]> | PlainObjInput<K_, V_>)[]
   ): Map<K | K_, V | V_>;
 
   mergeIn(
-    keyPath: Iterable<mixed>,
-    ...collections: (Iterable<mixed> | PlainObjInput<mixed, mixed>)[]
+    keyPath: Iterable<any>,
+    ...collections: (Iterable<any> | PlainObjInput<any, any>)[]
   ): this;
   mergeDeepIn(
-    keyPath: Iterable<mixed>,
-    ...collections: (Iterable<mixed> | PlainObjInput<mixed, mixed>)[]
+    keyPath: Iterable<any>,
+    ...collections: (Iterable<any> | PlainObjInput<any, any>)[]
   ): this;
 
-  withMutations(mutator: (mutable: this) => mixed): this;
+  withMutations(mutator: (mutable: this) => any): this;
   asMutable(): this;
   wasAltered(): boolean;
   asImmutable(): this;
@@ -930,35 +930,35 @@ declare class Map<K, +V> extends KeyedCollection<K, V> mixins UpdatableInCollect
 
   filter(predicate: typeof Boolean): Map<K, $NonMaybeType<V>>;
   filter(
-    predicate: (value: V, key: K, iter: this) => mixed,
-    context?: mixed
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: any
   ): Map<K, V>;
 
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
-    context?: mixed
+    context?: any
   ): Map<K, M>;
 
   mapKeys<M>(
     mapper: (key: K, value: V, iter: this) => M,
-    context?: mixed
+    context?: any
   ): Map<M, V>;
 
   mapEntries<KM, VM>(
     mapper: (entry: [K, V], index: number, iter: this) => [KM, VM],
-    context?: mixed
+    context?: any
   ): Map<KM, VM>;
 
   flatMap<KM, VM>(
     mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
-    context?: mixed
+    context?: any
   ): Map<KM, VM>;
 
   flatten(depth?: number): Map<any, any>;
   flatten(shallow?: boolean): Map<any, any>;
 }
 
-declare function isOrderedMap(maybeOrderedMap: mixed): boolean %checks(maybeOrderedMap instanceof OrderedMap);
+declare function isOrderedMap(maybeOrderedMap: any): boolean %checks(maybeOrderedMap instanceof OrderedMap);
 declare class OrderedMap<K, +V> extends Map<K, V> mixins UpdatableInCollection<K, V> {
   static <K, V>(values?: Iterable<[K, V]> | PlainObjInput<K, V>): OrderedMap<K, V>;
 
@@ -992,20 +992,20 @@ declare class OrderedMap<K, +V> extends Map<K, V> mixins UpdatableInCollection<K
   ): OrderedMap<K | K_, V | V_>;
 
   mergeDeepWith<K_, V_>(
-    merger: (oldVal: any, newVal: any, key: any) => mixed,
+    merger: (oldVal: any, newVal: any, key: any) => any,
     ...collections: (Iterable<[K_, V_]> | PlainObjInput<K_, V_>)[]
   ): OrderedMap<K | K_, V | V_>;
 
   mergeIn(
-    keyPath: Iterable<mixed>,
-    ...collections: (Iterable<mixed> | PlainObjInput<mixed, mixed>)[]
+    keyPath: Iterable<any>,
+    ...collections: (Iterable<any> | PlainObjInput<any, any>)[]
   ): this;
   mergeDeepIn(
-    keyPath: Iterable<mixed>,
-    ...collections: (Iterable<mixed> | PlainObjInput<mixed, mixed>)[]
+    keyPath: Iterable<any>,
+    ...collections: (Iterable<any> | PlainObjInput<any, any>)[]
   ): this;
 
-  withMutations(mutator: (mutable: this) => mixed): this;
+  withMutations(mutator: (mutable: this) => any): this;
   asMutable(): this;
   wasAltered(): boolean;
   asImmutable(): this;
@@ -1016,40 +1016,40 @@ declare class OrderedMap<K, +V> extends Map<K, V> mixins UpdatableInCollection<K
 
   filter(predicate: typeof Boolean): OrderedMap<K, $NonMaybeType<V>>;
   filter(
-    predicate: (value: V, key: K, iter: this) => mixed,
-    context?: mixed
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: any
   ): OrderedMap<K, V>;
 
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
-    context?: mixed
+    context?: any
   ): OrderedMap<K, M>;
 
   mapKeys<M>(
     mapper: (key: K, value: V, iter: this) => M,
-    context?: mixed
+    context?: any
   ): OrderedMap<M, V>;
 
   mapEntries<KM, VM>(
     mapper: (entry: [K, V], index: number, iter: this) => [KM, VM],
-    context?: mixed
+    context?: any
   ): OrderedMap<KM, VM>;
 
   flatMap<KM, VM>(
     mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
-    context?: mixed
+    context?: any
   ): OrderedMap<KM, VM>;
 
   flatten(depth?: number): OrderedMap<any, any>;
   flatten(shallow?: boolean): OrderedMap<any, any>;
 }
 
-declare function isSet(maybeSet: mixed): boolean %checks(maybeSet instanceof Set);
+declare function isSet(maybeSet: any): boolean %checks(maybeSet instanceof Set);
 declare class Set<+T> extends SetCollection<T> {
   static <T>(values?: Iterable<T>): Set<T>;
 
   static of<T>(...values: T[]): Set<T>;
-  static fromKeys<T>(values: Iterable<[T, mixed]> | PlainObjInput<T, mixed>): Set<T>;
+  static fromKeys<T>(values: Iterable<[T, any]> | PlainObjInput<T, any>): Set<T>;
 
   static intersect(sets: Iterable<Iterable<T>>): Set<T>;
   static union(sets: Iterable<Iterable<T>>): Set<T>;
@@ -1066,9 +1066,9 @@ declare class Set<+T> extends SetCollection<T> {
   merge<U>(...collections: Iterable<U>[]): Set<T | U>;
   concat<U>(...collections: Iterable<U>[]): Set<T | U>;
   intersect<U>(...collections: Iterable<U>[]): Set<T & U>;
-  subtract(...collections: Iterable<mixed>[]): this;
+  subtract(...collections: Iterable<any>[]): this;
 
-  withMutations(mutator: (mutable: this) => mixed): this;
+  withMutations(mutator: (mutable: this) => any): this;
   asMutable(): this;
   wasAltered(): boolean;
   asImmutable(): this;
@@ -1077,18 +1077,18 @@ declare class Set<+T> extends SetCollection<T> {
 
   filter(predicate: typeof Boolean): Set<$NonMaybeType<T>>;
   filter(
-    predicate: (value: T, value: T, iter: this) => mixed,
-    context?: mixed
+    predicate: (value: T, value: T, iter: this) => boolean,
+    context?: any
   ): Set<T>;
 
   map<M>(
     mapper: (value: T, value: T, iter: this) => M,
-    context?: mixed
+    context?: any
   ): Set<M>;
 
   flatMap<M>(
     mapper: (value: T, value: T, iter: this) => Iterable<M>,
-    context?: mixed
+    context?: any
   ): Set<M>;
 
   flatten(depth?: number): Set<any>;
@@ -1096,12 +1096,12 @@ declare class Set<+T> extends SetCollection<T> {
 }
 
 // Overrides except for `isOrderedSet` are for specialized return types
-declare function isOrderedSet(maybeOrderedSet: mixed): boolean %checks(maybeOrderedSet instanceof OrderedSet);
+declare function isOrderedSet(maybeOrderedSet: any): boolean %checks(maybeOrderedSet instanceof OrderedSet);
 declare class OrderedSet<+T> extends Set<T> {
   static <T>(values?: Iterable<T>): OrderedSet<T>;
 
   static of<T>(...values: T[]): OrderedSet<T>;
-  static fromKeys<T>(values: Iterable<[T, mixed]> | PlainObjInput<T, mixed>): OrderedSet<T>;
+  static fromKeys<T>(values: Iterable<[T, any]> | PlainObjInput<T, any>): OrderedSet<T>;
 
   static isOrderedSet: typeof isOrderedSet;
 
@@ -1115,18 +1115,18 @@ declare class OrderedSet<+T> extends Set<T> {
 
   filter(predicate: typeof Boolean): OrderedSet<$NonMaybeType<T>>;
   filter(
-    predicate: (value: T, value: T, iter: this) => mixed,
-    context?: mixed
+    predicate: (value: T, value: T, iter: this) => boolean,
+    context?: any
   ): OrderedSet<T>;
 
   map<M>(
     mapper: (value: T, value: T, iter: this) => M,
-    context?: mixed
+    context?: any
   ): OrderedSet<M>;
 
   flatMap<M>(
     mapper: (value: T, value: T, iter: this) => Iterable<M>,
-    context?: mixed
+    context?: any
   ): OrderedSet<M>;
 
   flatten(depth?: number): OrderedSet<any>;
@@ -1231,11 +1231,11 @@ declare class OrderedSet<+T> extends Set<T> {
   ): OrderedSet<R>;
 }
 
-declare function isStack(maybeStack: mixed): boolean %checks(maybeStack instanceof Stack);
+declare function isStack(maybeStack: any): boolean %checks(maybeStack instanceof Stack);
 declare class Stack<+T> extends IndexedCollection<T> {
   static <T>(collection?: Iterable<T>): Stack<T>;
 
-  static isStack(maybeStack: mixed): boolean;
+  static isStack(maybeStack: any): boolean;
   static of<T>(...values: T[]): Stack<T>;
 
   static isStack: typeof isStack;
@@ -1251,7 +1251,7 @@ declare class Stack<+T> extends IndexedCollection<T> {
   pushAll<U>(iter: Iterable<U>): Stack<T | U>;
   pop(): this;
 
-  withMutations(mutator: (mutable: this) => mixed): this;
+  withMutations(mutator: (mutable: this) => any): this;
   asMutable(): this;
   wasAltered(): boolean;
   asImmutable(): this;
@@ -1262,18 +1262,18 @@ declare class Stack<+T> extends IndexedCollection<T> {
 
   filter(predicate: typeof Boolean): Stack<$NonMaybeType<T>>;
   filter(
-    predicate: (value: T, index: number, iter: this) => mixed,
-    context?: mixed
+    predicate: (value: T, index: number, iter: this) => boolean,
+    context?: any
   ): Stack<T>;
 
   map<M>(
     mapper: (value: T, index: number, iter: this) => M,
-    context?: mixed
+    context?: any
   ): Stack<M>;
 
   flatMap<M>(
     mapper: (value: T, index: number, iter: this) => Iterable<M>,
-    context?: mixed
+    context?: any
   ): Stack<M>;
 
   flatten(depth?: number): Stack<any>;
@@ -1414,10 +1414,10 @@ declare class RecordInstance<T: Object = Object> {
   get<K: $Keys<T>>(key: K, ..._: []): $ElementType<T, K>;
   get<K: $Keys<T>, NSV>(key: K, notSetValue: NSV): $ElementType<T, K> | NSV;
 
-  hasIn(keyPath: Iterable<mixed>): boolean;
+  hasIn(keyPath: Iterable<any>): boolean;
 
-  getIn(keyPath: [], notSetValue?: mixed): this & $ReadOnly<T>;
-  getIn<K: $Keys<T>>(keyPath: [K], notSetValue?: mixed): $ElementType<T, K>;
+  getIn(keyPath: [], notSetValue?: any): this & $ReadOnly<T>;
+  getIn<K: $Keys<T>>(keyPath: [K], notSetValue?: any): $ElementType<T, K>;
   getIn<NSV, K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>>(keyPath: [K, K2], notSetValue: NSV): $ValOf<$ValOf<T, K>, K2> | NSV;
   getIn<NSV, K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>>(keyPath: [K, K2, K3], notSetValue: NSV): $ValOf<$ValOf<$ValOf<T, K>, K2>, K3> | NSV;
   getIn<NSV, K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>>(keyPath: [K, K2, K3, K4], notSetValue: NSV): $ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4> | NSV;
@@ -1465,7 +1465,7 @@ declare class RecordInstance<T: Object = Object> {
   removeIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>>(keyPath: [K, K2, K3, K4]): this & $ReadOnly<T>;
   removeIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>>(keyPath: [K, K2, K3, K4, K5]): this & $ReadOnly<T>;
 
-  updateIn<U>(keyPath: [], notSetValue: mixed, updater: (value: this & T) => U): U;
+  updateIn<U>(keyPath: [], notSetValue: any, updater: (value: this & T) => U): U;
   updateIn<U>(keyPath: [], updater: (value: this & T) => U): U;
   updateIn<NSV, K: $Keys<T>, S: $ValOf<T, K>>(keyPath: [K], notSetValue: NSV, updater: (value: $ValOf<T, K>) => S): this & $ReadOnly<T>;
   updateIn<K: $Keys<T>, S: $ValOf<T, K>>(keyPath: [K], updater: (value: $ValOf<T, K>) => S): this & $ReadOnly<T>;
@@ -1478,16 +1478,16 @@ declare class RecordInstance<T: Object = Object> {
   updateIn<NSV, K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>, S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>, K5>>(keyPath: [K, K2, K3, K4, K5], notSetValue: NSV, updater: (value: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>, K5> | NSV) => S): this & $ReadOnly<T>;
   updateIn<K: $Keys<T>, K2: $KeyOf<$ValOf<T, K>>, K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>, S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>, K5>>(keyPath: [K, K2, K3, K4, K5], updater: (value: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>, K5>) => S): this & $ReadOnly<T>;
 
-  mergeIn(keyPath: Iterable<mixed>, ...collections: Array<any>): this & $ReadOnly<T>;
-  mergeDeepIn(keyPath: Iterable<mixed>, ...collections: Array<any>): this & $ReadOnly<T>;
+  mergeIn(keyPath: Iterable<any>, ...collections: Array<any>): this & $ReadOnly<T>;
+  mergeDeepIn(keyPath: Iterable<any>, ...collections: Array<any>): this & $ReadOnly<T>;
 
   toSeq(): KeyedSeq<$Keys<T>, any>;
 
-  toJS(): { [key: $Keys<T>]: mixed };
+  toJS(): { [key: $Keys<T>]: any };
   toJSON(): T;
   toObject(): T;
 
-  withMutations(mutator: (mutable: this & T) => mixed): this & $ReadOnly<T>;
+  withMutations(mutator: (mutable: this & T) => any): this & $ReadOnly<T>;
   asMutable(): this & $ReadOnly<T>;
   wasAltered(): boolean;
   asImmutable(): this & $ReadOnly<T>;
@@ -1496,34 +1496,34 @@ declare class RecordInstance<T: Object = Object> {
 }
 
 declare function fromJS(
-  jsValue: mixed,
+  jsValue: any,
   reviver?: (
     key: string | number,
-    sequence: KeyedCollection<string, mixed> | IndexedCollection<mixed>,
+    sequence: Collection.Keyed<string, any> | Collection.Indexed<any>,
     path?: Array<string | number>
-  ) => mixed
-): mixed;
+  ) => any
+): any;
 
-declare function is(first: mixed, second: mixed): boolean;
-declare function hash(value: mixed): number;
+declare function is(first: any, second: any): boolean;
+declare function hash(value: any): number;
 
-declare function get<C: Object, K: $Keys<C>>(collection: C, key: K, notSetValue: mixed): $ValOf<C, K>;
+declare function get<C: Object, K: $Keys<C>>(collection: C, key: K, notSetValue: any): $ValOf<C, K>;
 declare function get<C, K: $KeyOf<C>, NSV>(collection: C, key: K, notSetValue: NSV): $ValOf<C, K> | NSV;
 
-declare function has(collection: Object, key: mixed): boolean;
+declare function has(collection: Object, key: any): boolean;
 declare function remove<C>(collection: C, key: $KeyOf<C>): C;
 declare function set<C, K: $KeyOf<C>, V: $ValOf<C, K>>(collection: C, key: K, value: V): C;
 declare function update<C, K: $KeyOf<C>, V: $ValOf<C, K>, NSV>(collection: C, key: K, notSetValue: NSV, updater: ($ValOf<C, K> | NSV) => V): C;
 declare function update<C, K: $KeyOf<C>, V: $ValOf<C, K>>(collection: C, key: K, updater: ($ValOf<C, K>) => V): C;
 
-declare function getIn<C>(collection: C, keyPath: [], notSetValue?: mixed): C;
+declare function getIn<C>(collection: C, keyPath: [], notSetValue?: any): C;
 declare function getIn<C, K: $KeyOf<C>, NSV>(collection: C, keyPath: [K], notSetValue: NSV): $ValOf<C, K> | NSV;
 declare function getIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, NSV>(collection: C, keyPath: [K, K2], notSetValue: NSV): $ValOf<$ValOf<C, K>, K2> | NSV;
 declare function getIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>, NSV>(collection: C, keyPath: [K, K2, K3], notSetValue: NSV): $ValOf<$ValOf<$ValOf<C, K>, K2>, K3> | NSV;
 declare function getIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>, NSV>(collection: C, keyPath: [K, K2, K3, K4], notSetValue: NSV): $ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4> | NSV;
 declare function getIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>>, NSV>(collection: C, keyPath: [K, K2, K3, K4, K5], notSetValue: NSV): $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>, K5> | NSV;
 
-declare function hasIn(collection: Object, keyPath: Iterable<mixed>): boolean;
+declare function hasIn(collection: Object, keyPath: Iterable<any>): boolean;
 
 declare function removeIn<C>(collection: C, keyPath: []): void;
 declare function removeIn<C, K: $KeyOf<C>>(collection: C, keyPath: [K]): C;
@@ -1539,7 +1539,7 @@ declare function setIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<$Va
 declare function setIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>, S: $ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>>(collection: C, keyPath: [K, K2, K3, K4], value: S): C;
 declare function setIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>, K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>, K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>, K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>>, S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>, K5>>(collection: C, keyPath: [K, K2, K3, K4, K5], value: S): C;
 
-declare function updateIn<C, S>(collection: C, keyPath: [], notSetValue: mixed, updater: (value: C) => S): S;
+declare function updateIn<C, S>(collection: C, keyPath: [], notSetValue: any, updater: (value: C) => S): S;
 declare function updateIn<C, S>(collection: C, keyPath: [], updater: (value: C) => S): S;
 declare function updateIn<C, K: $KeyOf<C>, S: $ValOf<C, K>, NSV>(collection: C, keyPath: [K], notSetValue: NSV, updater: (value: $ValOf<C, K> | NSV) => S): C;
 declare function updateIn<C, K: $KeyOf<C>, S: $ValOf<C, K>>(collection: C, keyPath: [K], updater: (value: $ValOf<C, K>) => S): C;
@@ -1566,7 +1566,7 @@ declare function mergeDeep<C>(
   ...collections: Array<$IterableOf<C> | $Shape<RecordValues<C>> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
 ): C;
 declare function mergeDeepWith<C>(
-  merger: (oldVal: any, newVal: any, key: any) => mixed,
+  merger: (oldVal: any, newVal: any, key: any) => any,
   collection: C,
   ...collections: Array<$IterableOf<C> | $Shape<RecordValues<C>> | PlainObjInput<$KeyOf<C>, $ValOf<C>>>
 ): C;
