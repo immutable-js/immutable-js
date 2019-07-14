@@ -1,7 +1,18 @@
-Immutable collections for JavaScript
-====================================
+Immutable collections for JavaScript: Community Maintained Edition
+==================================================================
 
-[![Build Status](https://travis-ci.org/facebook/immutable-js.svg?branch=master)](https://travis-ci.org/facebook/immutable-js) [![Join the chat at https://gitter.im/immutable-js/Lobby](https://badges.gitter.im/immutable-js/Lobby.svg)](https://gitter.im/immutable-js/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+This is a fork of Immutable-JS intended to serve has home to active development
+during the period (February 2019 - ???) when Immutable.js has no active
+maintainers. If all goes well this repository will be deprecated and merged
+back into the main immutable repository as soon as that repository has active
+maintainers.
+
+The present scope of this fork is limited to the bug fixes and polish necessary to
+make the long-awaited `immutable@4.0` release.
+
+This repo will be released under the npm package name `immutable-oss`.
+
+[![Build Status](https://travis-ci.org/immutable-js-oss/immutable-js.svg?branch=master)](https://travis-ci.org/immutable-js-oss/immutable-js) [![Join the chat at https://gitter.im/immutable-js/Lobby](https://badges.gitter.im/immutable-js/Lobby.svg)](https://gitter.im/immutable-js/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [Immutable][] data cannot be changed once created, leading to much simpler
 application development, no defensive copying, and enabling advanced memoization
