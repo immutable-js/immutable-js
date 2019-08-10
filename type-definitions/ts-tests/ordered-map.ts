@@ -21,7 +21,7 @@ import { OrderedMap, List } from '../../';
   // $ExpectType OrderedMap<string, number>
   OrderedMap({ a: 1 });
 
-// $ExpectError - TypeScript does not support Lists as tuples
+  // $ExpectError - TypeScript does not support Lists as tuples
   OrderedMap(List([List(['a', 'b'])]));
 
   // $ExpectError
@@ -263,6 +263,15 @@ import { OrderedMap, List } from '../../';
 
   // $ExpectType OrderedMap<number, string | number>
   OrderedMap<number, number | string>().merge(OrderedMap<number, number>());
+
+  // $ExpectType OrderedMap<string, number>
+  OrderedMap<string, number>().merge([['a', 1]]);
+
+  // $ExpectType OrderedMap<string, string | number>
+  OrderedMap<string, number>().merge([['a', 'b']]);
+
+  // $ExpectType OrderedMap<string, number>
+  OrderedMap<string, number>().merge([['a', 1]], List<[string, number]>());
 }
 
 { // #mergeIn
@@ -297,6 +306,18 @@ import { OrderedMap, List } from '../../';
   // $ExpectError
   OrderedMap<string, number>().mergeWith((prev: number, next: number, key: string) => 1, { a: 'a' });
 
+  // $ExpectType OrderedMap<number, number>
+  OrderedMap<number, number>().mergeWith((prev: number, next: number, key: number) => 1, [[1, 2]]);
+
+  // $ExpectType OrderedMap<string, number>
+  OrderedMap<string, number>().mergeWith((prev: number, next: number, key: string) => 1, [['a', 1]]);
+
+  // $ExpectError
+  OrderedMap<string, number>().mergeWith((prev: number, next: number, key: string) => 1, [['a', 'b']]);
+
+  // $ExpectType OrderedMap<string, number>
+  OrderedMap<string, number>().mergeWith((prev: number, next: number, key: string) => 1, [['a', 1]], OrderedMap<string, number>(), {a: 1});
+
   // $ExpectType OrderedMap<number, string | number>
   OrderedMap<number, number | string>().mergeWith((prev: number, next: string, key: number) => 1, OrderedMap<number, string>());
 }
@@ -320,6 +341,15 @@ import { OrderedMap, List } from '../../';
 
   // $ExpectType OrderedMap<number, string | number>
   OrderedMap<number, number | string>().mergeDeep(OrderedMap<number, number>());
+
+  // $ExpectType OrderedMap<string, number>
+  OrderedMap<string, number>().mergeDeep([['a', 1]]);
+
+  // $ExpectError
+  OrderedMap<string, number>().mergeDeep([['a', { b: 1 }]]);
+
+  // $ExpectType OrderedMap<string, number>
+  OrderedMap<string, number>().mergeDeep([['a', 1]], { a: 1 }, OrderedMap<string, number>());
 }
 
 { // #mergeDeepIn
@@ -341,6 +371,18 @@ import { OrderedMap, List } from '../../';
 
   // $ExpectError
   OrderedMap<string, number>().mergeDeepWith((prev: number, next: number, key: string) => 1, { a: 'a' });
+
+  // $ExpectType OrderedMap<number, number>
+  OrderedMap<number, number>().mergeDeepWith((prev: number, next: number, key: number) => 1, [[1, 2]]);
+
+  // $ExpectType OrderedMap<string, number>
+  OrderedMap<string, number>().mergeDeepWith((prev: number, next: number, key: string) => 1, [['a', 1]]);
+
+  // $ExpectError
+  OrderedMap<string, number>().mergeDeepWith((prev: number, next: number, key: string) => 1, [['a', 'b']]);
+
+  // $ExpectType OrderedMap<string, number>
+  OrderedMap<string, number>().mergeDeepWith((prev: number, next: number, key: string) => 1, [['a', 1]], OrderedMap<string, number>(), {a: 1});
 
   // $ExpectType OrderedMap<number, string | number>
   OrderedMap<number, number | string>().mergeDeepWith((prev: number, next: string, key: number) => 1, OrderedMap<number, string>());

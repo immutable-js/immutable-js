@@ -182,7 +182,7 @@ declare module Immutable {
    */
   export function List(): List<unknown>;
   export function List<T>(): List<T>;
-  export function List<T>(collection: Iterable<T>): List<T>;
+  export function List<T>(collection: Array<T> | Iterable<T>): List<T>;
 
   export interface List<T> extends Collection.Indexed<T> {
 
@@ -546,7 +546,7 @@ declare module Immutable {
      * @alias merge
      */
     concat<C>(...valuesOrCollections: Array<Iterable<C> | C>): List<T | C>;
-    merge<C>(...collections: Array<Iterable<C>>): List<T | C>;
+    merge<C>(...valuesOrCollections: Array<Iterable<C> | C>): List<T | C>;
 
     /**
      * Returns a new List with values passed through a
@@ -758,7 +758,7 @@ declare module Immutable {
    * but since Immutable Map keys can be of any type the argument to `get()` is
    * not altered.
    */
-  export function Map<K, V>(collection: Iterable<[K, V]>): Map<K, V>;
+  export function Map<K, V>(collection: Array<[K, V]> | Iterable<[K, V]>): Map<K, V>;
   export function Map<V>(obj: {[key: string]: V}): Map<string, V>;
   export function Map<K, V>(): Map<K, V>;
   export function Map(): Map<unknown, unknown>;
@@ -979,9 +979,13 @@ declare module Immutable {
      *
      * @alias concat
      */
+    merge<KC, VC>(...collections: Array<Array<[KC, VC]>>): Map<K | KC, V | VC>;
     merge<KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Map<K | KC, V | VC>;
+    merge<KC, VC>(...collections: Array<Array<[KC, VC]> | Iterable<[KC, VC]>>): Map<K | KC, V | VC>;
     merge<C>(...collections: Array<{[key: string]: C}>): Map<K | string, V | C>;
+    concat<KC, VC>(...collections: Array<Array<[KC, VC]>>): Map<K | KC, V | VC>;
     concat<KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Map<K | KC, V | VC>;
+    concat<KC, VC>(...collections: Array<Array<[KC, VC]> | Iterable<[KC, VC]>>): Map<K | KC, V | VC>;
     concat<C>(...collections: Array<{[key: string]: C}>): Map<K | string, V | C>;
 
     /**
@@ -1004,7 +1008,7 @@ declare module Immutable {
      */
     mergeWith(
       merger: (oldVal: V, newVal: V, key: K) => V,
-      ...collections: Array<Iterable<[K, V]> | {[key: string]: V}>
+      ...collections: Array<Array<[K, V]> | Iterable<[K, V]> | {[key: string]: V}>
     ): this;
 
     /**
@@ -1030,7 +1034,7 @@ declare module Immutable {
      *
      * Note: `mergeDeep` can be used in `withMutations`.
      */
-    mergeDeep(...collections: Array<Iterable<[K, V]> | {[key: string]: V}>): this;
+    mergeDeep(...collections: Array<Array<[K, V]> | Iterable<[K, V]> | {[key: string]: V}>): this;
 
     /**
      * Like `mergeDeep()`, but when two non-Collections conflict, it uses the
@@ -1053,7 +1057,7 @@ declare module Immutable {
      */
     mergeDeepWith(
       merger: (oldVal: unknown, newVal: unknown, key: unknown) => unknown,
-      ...collections: Array<Iterable<[K, V]> | {[key: string]: V}>
+      ...collections: Array<Array<[K, V]> | Iterable<[K, V]> | {[key: string]: V}>
     ): this;
 
 
@@ -1355,7 +1359,7 @@ declare module Immutable {
      * Similar to `data.map(...).flatten(true)`.
      */
     flatMap<KM, VM>(
-      mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
+      mapper: (value: V, key: K, iter: this) => Array<[KM, VM]> | Iterable<[KM, VM]>,
       context?: unknown
     ): Map<KM, VM>;
 
@@ -1417,7 +1421,7 @@ declare module Immutable {
    * Note: `OrderedMap` is a factory function and not a class, and does not use
    * the `new` keyword during construction.
    */
-  export function OrderedMap<K, V>(collection: Iterable<[K, V]>): OrderedMap<K, V>;
+  export function OrderedMap<K, V>(collection: Array<[K, V]> | Iterable<[K, V]>): OrderedMap<K, V>;
   export function OrderedMap<V>(obj: {[key: string]: V}): OrderedMap<string, V>;
   export function OrderedMap<K, V>(): OrderedMap<K, V>;
   export function OrderedMap(): OrderedMap<unknown, unknown>;
@@ -1471,9 +1475,13 @@ declare module Immutable {
      *
      * @alias concat
      */
+    merge<KC, VC>(...collections: Array<Array<[KC, VC]>>): OrderedMap<K | KC, V | VC>;
     merge<KC, VC>(...collections: Array<Iterable<[KC, VC]>>): OrderedMap<K | KC, V | VC>;
+    merge<KC, VC>(...collections: Array<Array<[KC, VC]> | Iterable<[KC, VC]>>): OrderedMap<K | KC, V | VC>;
     merge<C>(...collections: Array<{[key: string]: C}>): OrderedMap<K | string, V | C>;
+    concat<KC, VC>(...collections: Array<Array<[KC, VC]>>): OrderedMap<K | KC, V | VC>;
     concat<KC, VC>(...collections: Array<Iterable<[KC, VC]>>): OrderedMap<K | KC, V | VC>;
+    concat<KC, VC>(...collections: Array<Array<[KC, VC]> | Iterable<[KC, VC]>>): OrderedMap<K | KC, V | VC>;
     concat<C>(...collections: Array<{[key: string]: C}>): OrderedMap<K | string, V | C>;
 
     // Sequence algorithms
@@ -1515,7 +1523,7 @@ declare module Immutable {
      * Similar to `data.map(...).flatten(true)`.
      */
     flatMap<KM, VM>(
-      mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
+      mapper: (value: V, key: K, iter: this) => Array<[KM, VM]> | Iterable<[KM, VM]>,
       context?: unknown
     ): OrderedMap<KM, VM>;
 
@@ -1612,7 +1620,7 @@ declare module Immutable {
    */
   export function Set(): Set<unknown>;
   export function Set<T>(): Set<T>;
-  export function Set<T>(collection: Iterable<T>): Set<T>;
+  export function Set<T>(collection: Array<T> | Iterable<T>): Set<T>;
 
   export interface Set<T> extends Collection.Set<T> {
 
@@ -1796,7 +1804,7 @@ declare module Immutable {
    */
   export function OrderedSet(): OrderedSet<unknown>;
   export function OrderedSet<T>(): OrderedSet<T>;
-  export function OrderedSet<T>(collection: Iterable<T>): OrderedSet<T>;
+  export function OrderedSet<T>(collection: Array<T> | Iterable<T>): OrderedSet<T>;
 
   export interface OrderedSet<T> extends Set<T> {
 
@@ -1956,7 +1964,7 @@ declare module Immutable {
    */
   export function Stack(): Stack<unknown>;
   export function Stack<T>(): Stack<T>;
-  export function Stack<T>(collection: Iterable<T>): Stack<T>;
+  export function Stack<T>(collection: Array<T> | Iterable<T>): Stack<T>;
 
   export interface Stack<T> extends Collection.Indexed<T> {
 
@@ -2693,7 +2701,7 @@ declare module Immutable {
      * Note: `Seq.Keyed` is a conversion function and not a class, and does not
      * use the `new` keyword during construction.
      */
-    export function Keyed<K, V>(collection: Iterable<[K, V]>): Seq.Keyed<K, V>;
+    export function Keyed<K, V>(collection: Array<[K, V]> | Iterable<[K, V]>): Seq.Keyed<K, V>;
     export function Keyed<V>(obj: {[key: string]: V}): Seq.Keyed<string, V>;
     export function Keyed<K, V>(): Seq.Keyed<K, V>;
     export function Keyed(): Seq.Keyed<unknown, unknown>;
@@ -2729,7 +2737,9 @@ declare module Immutable {
        * All entries will be present in the resulting Seq, even if they
        * have the same key.
        */
+      concat<KC, VC>(...collections: Array<Array<[KC, VC]>>): Seq.Keyed<K | KC, V | VC>;
       concat<KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Seq.Keyed<K | KC, V | VC>;
+      concat<KC, VC>(...collections: Array<Array<[KC, VC]> | Iterable<[KC, VC]>>): Seq.Keyed<K | KC, V | VC>;
       concat<C>(...collections: Array<{[key: string]: C}>): Seq.Keyed<K | string, V | C>;
 
       /**
@@ -2772,7 +2782,7 @@ declare module Immutable {
        * Similar to `seq.map(...).flatten(true)`.
        */
       flatMap<KM, VM>(
-        mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
+        mapper: (value: V, key: K, iter: this) => Array<[KM, VM]> | Iterable<[KM, VM]>,
         context?: unknown
       ): Seq.Keyed<KM, VM>;
 
@@ -2819,7 +2829,7 @@ declare module Immutable {
      */
     export function Indexed(): Seq.Indexed<unknown>;
     export function Indexed<T>(): Seq.Indexed<T>;
-    export function Indexed<T>(collection: Iterable<T>): Seq.Indexed<T>;
+    export function Indexed<T>(collection: Array<T> | Iterable<T>): Seq.Indexed<T>;
 
     export interface Indexed<T> extends Seq<number, T>, Collection.Indexed<T> {
       /**
@@ -2971,7 +2981,7 @@ declare module Immutable {
      */
     export function Set(): Seq.Set<unknown>;
     export function Set<T>(): Seq.Set<T>;
-    export function Set<T>(collection: Iterable<T>): Seq.Set<T>;
+    export function Set<T>(collection: Array<T> | Iterable<T>): Seq.Set<T>;
 
     export interface Set<T> extends Seq<T, T>, Collection.Set<T> {
       /**
@@ -3071,7 +3081,7 @@ declare module Immutable {
   export function Seq<K, V>(collection: Collection.Keyed<K, V>): Seq.Keyed<K, V>;
   export function Seq<T>(collection: Collection.Indexed<T>): Seq.Indexed<T>;
   export function Seq<T>(collection: Collection.Set<T>): Seq.Set<T>;
-  export function Seq<T>(collection: Iterable<T>): Seq.Indexed<T>;
+  export function Seq<T>(collection: Array<T> | Iterable<T>): Seq.Indexed<T>;
   export function Seq<V>(obj: {[key: string]: V}): Seq.Keyed<string, V>;
   export function Seq(): Seq<unknown, unknown>;
 
@@ -3246,7 +3256,7 @@ declare module Immutable {
      * Note: `Collection.Keyed` is a conversion function and not a class, and
      * does not use the `new` keyword during construction.
      */
-    export function Keyed<K, V>(collection: Iterable<[K, V]>): Collection.Keyed<K, V>;
+    export function Keyed<K, V>(collection: Array<[K, V]> | Iterable<[K, V]>): Collection.Keyed<K, V>;
     export function Keyed<V>(obj: {[key: string]: V}): Collection.Keyed<string, V>;
 
     export interface Keyed<K, V> extends Collection<K, V> {
@@ -3294,7 +3304,9 @@ declare module Immutable {
       /**
        * Returns a new Collection with other collections concatenated to this one.
        */
+      concat<KC, VC>(...collections: Array<Array<[KC, VC]>>): Collection.Keyed<K | KC, V | VC>;
       concat<KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Collection.Keyed<K | KC, V | VC>;
+      concat<KC, VC>(...collections: Array<Array<[KC, VC]> | Iterable<[KC, VC]>>): Collection.Keyed<K | KC, V | VC>;
       concat<C>(...collections: Array<{[key: string]: C}>): Collection.Keyed<K | string, V | C>;
 
       /**
@@ -3360,7 +3372,7 @@ declare module Immutable {
        * Similar to `collection.map(...).flatten(true)`.
        */
       flatMap<KM, VM>(
-        mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
+        mapper: (value: V, key: K, iter: this) => Array<[KM, VM]> | Iterable<[KM, VM]>,
         context?: unknown
       ): Collection.Keyed<KM, VM>;
 
@@ -3407,7 +3419,7 @@ declare module Immutable {
      * Note: `Collection.Indexed` is a conversion function and not a class, and
      * does not use the `new` keyword during construction.
      */
-    export function Indexed<T>(collection: Iterable<T>): Collection.Indexed<T>;
+    export function Indexed<T>(collection: Array<T> | Iterable<T>): Collection.Indexed<T>;
 
     export interface Indexed<T> extends Collection<number, T> {
       /**
@@ -3700,7 +3712,7 @@ declare module Immutable {
      * Note: `Collection.Set` is a factory function and not a class, and does
      * not use the `new` keyword during construction.
      */
-    export function Set<T>(collection: Iterable<T>): Collection.Set<T>;
+    export function Set<T>(collection: Array<T> | Iterable<T>): Collection.Set<T>;
 
     export interface Set<T> extends Collection<T, T> {
       /**
@@ -3802,7 +3814,7 @@ declare module Immutable {
    * use the `new` keyword during construction.
    */
   export function Collection<I extends Collection<unknown, unknown>>(collection: I): I;
-  export function Collection<T>(collection: Iterable<T>): Collection.Indexed<T>;
+  export function Collection<T>(collection: Array<T> | Iterable<T>): Collection.Indexed<T>;
   export function Collection<V>(obj: {[key: string]: V}): Collection.Keyed<string, V>;
 
   export interface Collection<K, V> extends ValueObject {
@@ -4476,7 +4488,7 @@ declare module Immutable {
      * Used for Dictionaries only.
      */
     flatMap<KM, VM>(
-      mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
+      mapper: (value: V, key: K, iter: this) => Array<[KM, VM]> | Iterable<[KM, VM]>,
       context?: unknown
     ): Collection<KM, VM>;
 

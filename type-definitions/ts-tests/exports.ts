@@ -32,9 +32,9 @@ Seq; // $ExpectType typeof Seq
 Set; // $ExpectType typeof Set
 Stack; // $ExpectType typeof Stack
 Collection; // $ExpectType typeof Collection
-Collection.Set; // $ExpectType <T>(collection: Iterable<T>) => Set<T>
-Collection.Keyed; // $ ExpectType { <K, V>(collection: Iterable<[K, V]>): Keyed<K, V>; <V>(obj: { [key: string]: V; }): Keyed<string, V> }
-Collection.Indexed; // $ExpectType <T>(collection: Iterable<T>) => Indexed<T>
+Collection.Set; // $ExpectType <T>(collection: T[] | Iterable<T>) => Set<T>
+Collection.Keyed; // $ ExpectType { <K, V>(collection: Array<[K, V]> | Iterable<[K, V]>): Keyed<K, V>; <V>(obj: { [key: string]: V; }): Keyed<string, V> }
+Collection.Indexed; // $ExpectType <T>(collection: T[] | Iterable<T>) => Indexed<T>
 
 Immutable.List; // $ExpectType typeof List
 Immutable.Map; // $ExpectType typeof Map
@@ -47,6 +47,6 @@ Immutable.Seq; // $ExpectType typeof Seq
 Immutable.Set; // $ExpectType typeof Set
 Immutable.Stack; // $ExpectType typeof Stack
 Immutable.Collection; // $ExpectType typeof Collection
-Immutable.Collection.Set; // $ExpectType <T>(collection: Iterable<T>) => Set<T>
-Immutable.Collection.Keyed; // $ ExpectType { <K, V>(collection: Iterable<[K, V]>): Keyed<K, V>; <V>(obj: { [key: string]: V; }): Keyed<string, V> }
-Immutable.Collection.Indexed; // $ExpectType <T>(collection: Iterable<T>) => Indexed<T>
+Immutable.Collection.Set; // $ExpectType <T>(collection: T[] | Iterable<T>) => Set<T>
+Immutable.Collection.Keyed; // $ ExpectType { <K, V>(collection: Array<[K, V]> | Iterable<[K, V]>): Keyed<K, V>; <V>(obj: { [key: string]: V; }): Keyed<string, V> }
+Immutable.Collection.Indexed; // $ExpectType <T>(collection: T[] | Iterable<T>) => Indexed<T>

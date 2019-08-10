@@ -5,22 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Seq } from '../../';
+import { Collection } from '../../';
 
 { // #constructor
 
   // $ExpectType Indexed<number>
-  Seq([ 1, 2, 3 ]);
+  Collection([ 1, 2, 3 ]);
 
   // $ExpectType Indexed<[number, string]>
-  Seq<[number, string]>([[1, 'number']]);
-}
-
-{ // #size
-
-  // $ExpectType number | undefined
-  Seq().size;
-
-  // $ExpectError
-  Seq().size = 10;
+  Collection<[number, string]>([[1, 'number']]);
 }

@@ -16,6 +16,12 @@ import { Record } from '../../';
   // $ExpectError
   PointXY({ x: 'a' });
 
+  // $ExpectType Record<{ x: number; y: number; }> & Readonly<{ x: number; y: number; }>
+  PointXY([['x', 'a'], ['y', 'b']]);
+
+  // $ExpectType Record<{ x: number; y: number; }> & Readonly<{ x: number; y: number; }>
+  new PointXY([['x', 'a'], ['y', 'b']]);
+
   const pointXY = PointXY();
 
   // $ExpectType Record<{ x: number; y: number; }> & Readonly<{ x: number; y: number; }>

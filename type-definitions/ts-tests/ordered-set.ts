@@ -15,6 +15,9 @@ import { OrderedSet, Map } from '../../';
   const numberOrderedSet: OrderedSet<number> = OrderedSet();
   const numberOrStringOrderedSet: OrderedSet<number | string> = OrderedSet([1, 'a']);
 
+  // $ExpectType OrderedSet<[number, string]>
+  OrderedSet<[number, string]>([[1, 'a']]);
+
   // $ExpectError
   const invalidNumberOrderedSet: OrderedSet<number> = OrderedSet([1, 'a']);
 }
@@ -163,6 +166,18 @@ import { OrderedSet, Map } from '../../';
 
   // $ExpectType OrderedSet<string | number>
   OrderedSet<number | string>().union(OrderedSet<number>());
+
+  // $ExpectType OrderedSet<number>
+  OrderedSet<number>().union([1]);
+
+  // $ExpectType OrderedSet<number>
+  OrderedSet<number>().union([1], OrderedSet<number>());
+
+  // $ExpectType OrderedSet<string | number>
+  OrderedSet<number>().union<string>(['a']);
+
+  // $ExpectType OrderedSet<string | number>
+  OrderedSet<number>().union(['a'], OrderedSet<string>());
 }
 
 { // #merge
@@ -193,6 +208,12 @@ import { OrderedSet, Map } from '../../';
 
   // $ExpectType OrderedSet<string | number>
   OrderedSet<number | string>().intersect(OrderedSet<number>());
+
+  // $ExpectType OrderedSet<number>
+  OrderedSet<number>().intersect([1]);
+
+  // $ExpectType OrderedSet<number>
+  OrderedSet<number>().intersect([1], OrderedSet<number>());
 }
 
 { // #subtract
@@ -208,6 +229,12 @@ import { OrderedSet, Map } from '../../';
 
   // $ExpectType OrderedSet<string | number>
   OrderedSet<number | string>().subtract(OrderedSet<number>());
+
+  // $ExpectType OrderedSet<number>
+  OrderedSet<number>().subtract([1]);
+
+  // $ExpectType OrderedSet<number>
+  OrderedSet<number>().subtract([1], OrderedSet<number>());
 }
 
 { // #flatten
