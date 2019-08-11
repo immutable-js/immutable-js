@@ -11,6 +11,7 @@ import isDataStructure from '../utils/isDataStructure';
 import quoteString from '../utils/quoteString';
 import { NOT_SET } from '../TrieUtils';
 import { emptyMap } from '../Map';
+import { emptyList } from '../List';
 import { get } from './get';
 import { remove } from './remove';
 import { set } from './set';
@@ -66,10 +67,18 @@ function updateInDeeply(
   return nextUpdated === nextExisting
     ? existing
     : nextUpdated === NOT_SET
-      ? remove(existing, key)
-      : set(
-          wasNotSet ? (inImmutable ? emptyMap() : {}) : existing,
-          key,
-          nextUpdated
-        );
+    ? remove(existing, key)
+    : set(
+        wasNotSet
+          ? inImmutable
+            ? typeof key === 'number'
+              ? emptyList()
+              : emptyMap()
+            : typeof key === 'number'
+            ? []
+            : {}
+          : existing,
+        key,
+        nextUpdated
+      );
 }
