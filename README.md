@@ -193,7 +193,7 @@ const mapCopy = map; // Look, "copies" are free!
 ```
 
 [React]: http://facebook.github.io/react/
-[Flux]: http://facebook.github.io/flux/docs/overview.html
+[Flux]: http://facebook.github.io/flux/docs/in-depth-overview
 
 
 JavaScript-first API
