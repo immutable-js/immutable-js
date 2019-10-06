@@ -4250,7 +4250,7 @@ declare module Immutable {
      * Like `sort`, but also accepts a `comparatorValueMapper` which allows for
      * sorting by more sophisticated means:
      *
-     *     hitters.sortBy(hitter => hitter.avgHits)
+     *     hitters.sortBy(hitter => hitter.get("avgHits"))
      *
      * Note: `sortBy()` Always returns a new instance, even if the original was
      * already sorted.
