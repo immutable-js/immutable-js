@@ -247,4 +247,28 @@ describe('Record', () => {
 
     expect(entries).toEqual([['a', 10], ['b', 20]]);
   });
+
+  it('can be extended', () => {
+    class Point2 extends Record({ x: 0, y: 0 }) {
+      sum() {
+        return this.x + this.y;
+      }
+    }
+    class Point3 extends Record.extend(Point2, { z: 0 }) {
+      sum() {
+        return super.sum() + this.z;
+      }
+    }
+    const p = new Point3({ x: 1, y: 2, z: 3 });
+    expect(p.sum()).toEqual(6);
+    expect(p.set('y', 4).sum()).toEqual(8);
+    expect(p instanceof Point3).toBe(true);
+    expect(p instanceof Point2).toBe(true);
+    // assert superclass is not polluted
+    const q = new Point2({ x: 1, y: 2 });
+    expect(q.sum()).toEqual(3);
+    expect(q.set('x', 3).sum()).toEqual(5);
+    expect(q instanceof Point3).toBe(false);
+    expect(q instanceof Point2).toBe(true);
+  });
 });

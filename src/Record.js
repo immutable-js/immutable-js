@@ -31,64 +31,7 @@ import quoteString from './utils/quoteString';
 
 export class Record {
   constructor(defaultValues, name) {
-    let hasInitialized;
-
-    const RecordType = function Record(values) {
-      if (values instanceof RecordType) {
-        return values;
-      }
-      if (!(this instanceof RecordType)) {
-        return new RecordType(values);
-      }
-      if (!hasInitialized) {
-        hasInitialized = true;
-        const keys = Object.keys(defaultValues);
-        const indices = (RecordTypePrototype._indices = {});
-        // Deprecated: left to attempt not to break any external code which
-        // relies on a ._name property existing on record instances.
-        // Use Record.getDescriptiveName() instead
-        RecordTypePrototype._name = name;
-        RecordTypePrototype._keys = keys;
-        RecordTypePrototype._defaultValues = defaultValues;
-        for (let i = 0; i < keys.length; i++) {
-          const propName = keys[i];
-          indices[propName] = i;
-          if (RecordTypePrototype[propName]) {
-            /* eslint-disable no-console */
-            typeof console === 'object' &&
-              console.warn &&
-              console.warn(
-                'Cannot define ' +
-                  recordName(this) +
-                  ' with property "' +
-                  propName +
-                  '" since that property name is part of the Record API.'
-              );
-            /* eslint-enable no-console */
-          } else {
-            setProp(RecordTypePrototype, propName);
-          }
-        }
-      }
-      this.__ownerID = undefined;
-      this._values = List().withMutations(l => {
-        l.setSize(this._keys.length);
-        KeyedCollection(values).forEach((v, k) => {
-          l.set(this._indices[k], v === this._defaultValues[k] ? undefined : v);
-        });
-      });
-    };
-
-    const RecordTypePrototype = (RecordType.prototype = Object.create(
-      RecordPrototype
-    ));
-    RecordTypePrototype.constructor = RecordType;
-
-    if (name) {
-      RecordType.displayName = name;
-    }
-
-    return RecordType;
+    return makeRecordType(RecordPrototype, defaultValues, name);
   }
 
   toString() {
@@ -194,6 +137,7 @@ export class Record {
 
 Record.isRecord = isRecord;
 Record.getDescriptiveName = recordName;
+Record.extend = extend;
 const RecordPrototype = Record.prototype;
 RecordPrototype[IS_RECORD_SYMBOL] = true;
 RecordPrototype[DELETE] = RecordPrototype.remove;
@@ -248,4 +192,76 @@ function setProp(prototype, name) {
   } catch (error) {
     // Object.defineProperty failed. Probably IE8.
   }
+}
+
+function makeRecordType(proto, defaultValues, name) {
+  let hasInitialized;
+  const RecordType = function Record(values) {
+    if (values instanceof RecordType) {
+      return values;
+    }
+    if (!(this instanceof RecordType)) {
+      return new RecordType(values);
+    }
+    if (!hasInitialized) {
+      hasInitialized = true;
+      initializeRecordType(this, RecordTypePrototype, defaultValues, name);
+    }
+    this.__ownerID = undefined;
+    this._values = List().withMutations(l => {
+      l.setSize(this._keys.length);
+      KeyedCollection(values).forEach((v, k) => {
+        l.set(this._indices[k], v === this._defaultValues[k] ? undefined : v);
+      });
+    });
+  };
+  const RecordTypePrototype = (RecordType.prototype = Object.create(proto));
+  RecordTypePrototype.constructor = RecordType;
+  if (name) {
+    RecordType.displayName = name;
+  }
+  return RecordType;
+}
+
+function initializeRecordType(self, proto, defaultValues, name) {
+  const keys = Object.keys(defaultValues);
+  const indices = (proto._indices = {});
+  // Deprecated: left to attempt not to break any external code which
+  // relies on a ._name property existing on record instances.
+  // Use Record.getDescriptiveName() instead
+  proto._name = name;
+  proto._keys = keys;
+  proto._defaultValues = defaultValues;
+  for (let i = 0; i < keys.length; i++) {
+    const propName = keys[i];
+    indices[propName] = i;
+    if (RecordPrototype[propName]) {
+      /* eslint-disable no-console */
+      typeof console === 'object' &&
+        console.warn &&
+        console.warn(
+          'Cannot define ' +
+            recordName(self) +
+            ' with property "' +
+            propName +
+            '" since that property name is part of the Record API.'
+        );
+      /* eslint-enable no-console */
+    } else {
+      setProp(proto, propName);
+    }
+  }
+}
+
+function extend(Origin, additionalDefaultValues, name) {
+  // eslint-disable-next-line no-new
+  new Origin(); // ensure initialized, so that we can get access to super _defaultValues
+  const defaultValues = {};
+  Object.entries(Origin.prototype._defaultValues).forEach(([k, v]) => {
+    defaultValues[k] = v;
+  });
+  Object.entries(additionalDefaultValues).forEach(([k, v]) => {
+    defaultValues[k] = v;
+  });
+  return makeRecordType(Origin.prototype, defaultValues, name);
 }
