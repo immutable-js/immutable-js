@@ -263,5 +263,7 @@ function extend(Origin, additionalDefaultValues, name) {
   Object.entries(additionalDefaultValues).forEach(([k, v]) => {
     defaultValues[k] = v;
   });
-  return makeRecordType(Origin.prototype, defaultValues, name);
+  const RecordType = makeRecordType(Origin.prototype, defaultValues, name);
+  Object.setPrototypeOf(RecordType, Origin);
+  return RecordType;
 }

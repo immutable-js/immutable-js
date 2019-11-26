@@ -253,10 +253,18 @@ describe('Record', () => {
       sum() {
         return this.x + this.y;
       }
+
+      static dims() {
+        return 'xy';
+      }
     }
     class Point3 extends Record.extend(Point2, { z: 0 }) {
       sum() {
         return super.sum() + this.z;
+      }
+
+      static dims() {
+        return super.dims() + 'z';
       }
     }
     const p = new Point3({ x: 1, y: 2, z: 3 });
@@ -264,11 +272,13 @@ describe('Record', () => {
     expect(p.set('y', 4).sum()).toEqual(8);
     expect(p instanceof Point3).toBe(true);
     expect(p instanceof Point2).toBe(true);
+    expect(Point3.dims()).toBe('xyz');
     // assert superclass is not polluted
     const q = new Point2({ x: 1, y: 2 });
     expect(q.sum()).toEqual(3);
     expect(q.set('x', 3).sum()).toEqual(5);
     expect(q instanceof Point3).toBe(false);
     expect(q instanceof Point2).toBe(true);
+    expect(Point2.dims()).toBe('xy');
   });
 });
