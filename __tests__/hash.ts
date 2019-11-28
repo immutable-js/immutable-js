@@ -22,6 +22,8 @@ describe('hash', () => {
     expect(hash('a')).toBe(97);
     expect(hash('immutable-js')).toBe(510203252);
     expect(hash(123)).toBe(123);
+    expect(hash(Symbol('a-js'))).toBe(97);
+    expect(hash(Symbol('immutable-js'))).toBe(510203252);
   });
 
   it('generates different hashes for decimal values', () => {

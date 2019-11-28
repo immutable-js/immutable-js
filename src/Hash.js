@@ -22,6 +22,13 @@ export function hash(o) {
       return o.length > STRING_HASH_CACHE_MIN_STRLEN
         ? cachedHashString(o)
         : hashString(o);
+    case 'symbol': {
+      const desc = o.description;
+      return typeof desc === 'string' &&
+        desc.length > STRING_HASH_CACHE_MIN_STRLEN
+        ? cachedHashString(desc)
+        : hashString(desc);
+    }
     case 'object':
     case 'function':
       if (o === null) {
