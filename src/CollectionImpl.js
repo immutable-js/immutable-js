@@ -37,7 +37,7 @@ import {
 import arrCopy from './utils/arrCopy';
 import assertNotInfinite from './utils/assertNotInfinite';
 import deepEqual from './utils/deepEqual';
-import mixin from './utils/mixin';
+//import mixin from './utils/mixin';
 import quoteString from './utils/quoteString';
 
 import { toJS } from './toJS';
@@ -94,7 +94,7 @@ Collection.isOrdered = isOrdered;
 
 Collection.Iterator = Iterator;
 
-mixin(Collection, {
+Object.assign(Collection.prototype, {
   // ### Conversion to other types
 
   toArray() {
@@ -523,7 +523,7 @@ CollectionPrototype.inspect = CollectionPrototype.toSource = function() {
 CollectionPrototype.chain = CollectionPrototype.flatMap;
 CollectionPrototype.contains = CollectionPrototype.includes;
 
-mixin(KeyedCollection, {
+Object.assign(KeyedCollection.prototype, {
   // ### More sequential methods
 
   flip() {
@@ -558,7 +558,7 @@ KeyedCollectionPrototype.toJSON = toObject;
 KeyedCollectionPrototype.__toStringMapper = (v, k) =>
   quoteString(k) + ': ' + quoteString(v);
 
-mixin(IndexedCollection, {
+Object.assign(IndexedCollection.prototype, {
   // ### Conversion to other types
 
   toKeyedSeq() {
@@ -693,7 +693,7 @@ const IndexedCollectionPrototype = IndexedCollection.prototype;
 IndexedCollectionPrototype[IS_INDEXED_SYMBOL] = true;
 IndexedCollectionPrototype[IS_ORDERED_SYMBOL] = true;
 
-mixin(SetCollection, {
+Object.assign(SetCollection.prototype, {
   // ### ES6 Collection methods (ES6 Array and Map)
 
   get(value, notSetValue) {
@@ -716,9 +716,9 @@ SetCollection.prototype.contains = SetCollection.prototype.includes;
 
 // Mixin subclasses
 
-mixin(KeyedSeq, KeyedCollection.prototype);
-mixin(IndexedSeq, IndexedCollection.prototype);
-mixin(SetSeq, SetCollection.prototype);
+Object.assign(KeyedSeq.prototype, KeyedCollection.prototype);
+Object.assign(IndexedSeq.prototype, IndexedCollection.prototype);
+Object.assign(SetSeq.prototype, SetCollection.prototype);
 
 // #pragma Helper functions
 
