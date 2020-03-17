@@ -10,6 +10,10 @@ import { smi } from './Math';
 const defaultValueOf = Object.prototype.valueOf;
 
 export function hash(o) {
+  if (o && o.valueOf !== defaultValueOf && typeof o.valueOf === 'function') {
+    o = o.valueOf();
+  }
+
   switch (typeof o) {
     case 'boolean':
       // The hash values for built-in constants are a 1 value for each 5-byte
@@ -30,9 +34,6 @@ export function hash(o) {
       if (typeof o.hashCode === 'function') {
         // Drop any high bits from accidentally long hash codes.
         return smi(o.hashCode(o));
-      }
-      if (o.valueOf !== defaultValueOf && typeof o.valueOf === 'function') {
-        o = o.valueOf(o);
       }
       return hashJSObj(o);
     case 'undefined':

@@ -101,3 +101,27 @@ describe('Issue #1293', () => {
     expect(secondState).toEqual(firstState);
   });
 });
+
+describe('Issue #1643', () => {
+  [
+    ['a string', 'test'],
+    ['a number', 5],
+    ['null', null],
+    ['undefined', undefined],
+    ['a boolean', true],
+    ['an object', {}],
+    ['an array', []],
+    ['a function', () => null],
+  ].forEach(([label, value]) => {
+    class MyClass {
+      valueOf() {
+        return value;
+      }
+    }
+
+    it(`Collection#hashCode() should handle objects that return ${label} for valueOf`, () => {
+      const set = Set().add(new MyClass());
+      set.hashCode();
+    });
+  });
+});
