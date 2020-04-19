@@ -274,7 +274,7 @@ stringToNumber = Map(List([['a', 1]]))
 stringToNumber = Map([['a', 'b']])
 // $ExpectError -- this is actually a Map<string, string>
 stringToNumber = Map(List([['a', 'a']]))
-// $FlowFixMe - This is Iterable<Iterable<string>>, ideally it could be interpretted as Iterable<[string, string]>
+// $FlowFixMe - This is Iterable<Iterable<string>>, ideally it could be interpreted as Iterable<[string, string]>
 stringToNumber = Map(List([List(['a', 'a'])]))
 
 stringOrNumberToNumberOrString = Map({'a': 'a'}).set('b', 1).set(2, 'c')
