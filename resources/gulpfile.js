@@ -5,206 +5,206 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var browserify = require('browserify');
-var browserSync = require('browser-sync');
-var buffer = require('vinyl-buffer');
-var child_process = require('child_process');
-var concat = require('gulp-concat');
-var del = require('del');
-var filter = require('gulp-filter');
-var fs = require('fs');
-var gulp = require('gulp');
-var gutil = require('gulp-util');
-var header = require('gulp-header');
-var Immutable = require('../');
-var less = require('gulp-less');
-var mkdirp = require('mkdirp');
-var path = require('path');
-var React = require('react/addons');
-var reactTools = require('react-tools');
-var sequence = require('run-sequence');
-var size = require('gulp-size');
-var source = require('vinyl-source-stream');
-var sourcemaps = require('gulp-sourcemaps');
-var through = require('through2');
-var uglify = require('gulp-uglify');
-var vm = require('vm');
+const browserify = require('browserify');
+const browserSync = require('browser-sync');
+const buffer = require('vinyl-buffer');
+const concat = require('gulp-concat');
+const del = require('del');
+const filter = require('gulp-filter');
+const fs = require('fs');
+const { parallel, series, src, dest, watch } = require('gulp');
+const gutil = require('gulp-util');
+const Immutable = require('../');
+const gulpLess = require('gulp-less');
+const mkdirp = require('mkdirp');
+const path = require('path');
+const React = require('react/addons');
+const reactTools = require('react-tools');
+const size = require('gulp-size');
+const source = require('vinyl-source-stream');
+const sourcemaps = require('gulp-sourcemaps');
+const through = require('through2');
+const uglify = require('gulp-uglify');
+const vm = require('vm');
 
 function requireFresh(path) {
   delete require.cache[require.resolve(path)];
   return require(path);
 }
 
-var SRC_DIR = '../pages/src/';
-var BUILD_DIR = '../pages/out/';
+const SRC_DIR = '../pages/src/';
+const BUILD_DIR = '../pages/out/';
 
-gulp.task('clean', function(done) {
+function clean() {
   return del([BUILD_DIR], { force: true });
-});
+}
 
-gulp.task('readme', function() {
-  var genMarkdownDoc = requireFresh('../pages/lib/genMarkdownDoc');
+function readme(done) {
+  const genMarkdownDoc = requireFresh('../pages/lib/genMarkdownDoc');
 
-  var readmePath = path.join(__dirname, '../README.md');
+  const readmePath = path.join(__dirname, '../README.md');
 
-  var fileContents = fs.readFileSync(readmePath, 'utf8');
+  const fileContents = fs.readFileSync(readmePath, 'utf8');
 
-  var writePath = path.join(__dirname, '../pages/generated/readme.json');
-  var contents = JSON.stringify(genMarkdownDoc(fileContents));
+  const writePath = path.join(__dirname, '../pages/generated/readme.json');
+  const contents = JSON.stringify(genMarkdownDoc(fileContents));
 
   mkdirp.sync(path.dirname(writePath));
   fs.writeFileSync(writePath, contents);
-});
+  done();
+}
 
-gulp.task('typedefs', function() {
-  var genTypeDefData = requireFresh('../pages/lib/genTypeDefData');
+function typedefs(done) {
+  const genTypeDefData = requireFresh('../pages/lib/genTypeDefData');
 
-  var typeDefPath = path.join(__dirname, '../type-definitions/Immutable.d.ts');
+  const typeDefPath = path.join(
+    __dirname,
+    '../type-definitions/Immutable.d.ts'
+  );
 
-  var fileContents = fs.readFileSync(typeDefPath, 'utf8');
+  const fileContents = fs.readFileSync(typeDefPath, 'utf8');
 
-  var fileSource = fileContents.replace(
+  const fileSource = fileContents.replace(
     "module 'immutable'",
     'module Immutable'
   );
 
-  var writePath = path.join(__dirname, '../pages/generated/immutable.d.json');
-  var contents = JSON.stringify(genTypeDefData(typeDefPath, fileSource));
+  const writePath = path.join(__dirname, '../pages/generated/immutable.d.json');
+  const contents = JSON.stringify(genTypeDefData(typeDefPath, fileSource));
 
   mkdirp.sync(path.dirname(writePath));
   fs.writeFileSync(writePath, contents);
-});
+  done();
+}
 
-gulp.task('js', gulpJS(''));
-gulp.task('js-docs', gulpJS('docs/'));
+function js() {
+  return gulpJS('');
+}
+
+function jsDocs() {
+  return gulpJS('docs/');
+}
 
 function gulpJS(subDir) {
-  var reactGlobalModulePath = path.relative(
+  const reactGlobalModulePath = path.relative(
     path.resolve(SRC_DIR + subDir),
     path.resolve('./react-global.js')
   );
-  var immutableGlobalModulePath = path.relative(
+  const immutableGlobalModulePath = path.relative(
     path.resolve(SRC_DIR + subDir),
     path.resolve('./immutable-global.js')
   );
-  return function() {
-    return (
-      browserify({
-        debug: true,
-        basedir: SRC_DIR + subDir,
-      })
-        .add('./src/index.js')
-        .require('./src/index.js')
-        .require(reactGlobalModulePath, { expose: 'react' })
-        .require(immutableGlobalModulePath, { expose: 'immutable' })
-        // Helpful when developing with no wifi
-        // .require('react', { expose: 'react' })
-        // .require('immutable', { expose: 'immutable' })
-        .transform(reactTransformify)
-        .bundle()
-        .on('error', handleError)
-        .pipe(source('bundle.js'))
-        .pipe(buffer())
-        .pipe(
-          sourcemaps.init({
-            loadMaps: true,
-          })
-        )
-        .pipe(uglify())
-        .pipe(sourcemaps.write('./maps'))
-        .pipe(gulp.dest(BUILD_DIR + subDir))
-        .pipe(filter('**/*.js'))
-        .pipe(size({ showFiles: true }))
-        .on('error', handleError)
-    );
-  };
-}
-
-gulp.task('pre-render', gulpPreRender(''));
-gulp.task('pre-render-docs', gulpPreRender('docs/'));
-
-function gulpPreRender(subDir) {
-  return function() {
-    return gulp
-      .src(SRC_DIR + subDir + 'index.html')
-      .pipe(preRender(subDir))
-      .pipe(size({ showFiles: true }))
-      .pipe(gulp.dest(BUILD_DIR + subDir))
-      .on('error', handleError);
-  };
-}
-
-gulp.task('less', gulpLess(''));
-gulp.task('less-docs', gulpLess('docs/'));
-
-function gulpLess(subDir) {
-  return function() {
-    return gulp
-      .src(SRC_DIR + subDir + 'src/*.less')
-      .pipe(sourcemaps.init())
+  return (
+    browserify({
+      debug: true,
+      basedir: SRC_DIR + subDir,
+    })
+      .add('./src/index.js')
+      .require('./src/index.js')
+      .require(reactGlobalModulePath, { expose: 'react' })
+      .require(immutableGlobalModulePath, { expose: 'immutable' })
+      // Helpful when developing with no wifi
+      // .require('react', { expose: 'react' })
+      // .require('immutable', { expose: 'immutable' })
+      .transform(reactTransformify)
+      .bundle()
+      .on('error', handleError)
+      .pipe(source('bundle.js'))
+      .pipe(buffer())
       .pipe(
-        less({
-          compress: true,
+        sourcemaps.init({
+          loadMaps: true,
         })
       )
-      .on('error', handleError)
-      .pipe(concat('bundle.css'))
+      .pipe(uglify())
       .pipe(sourcemaps.write('./maps'))
-      .pipe(gulp.dest(BUILD_DIR + subDir))
-      .pipe(filter('**/*.css'))
+      .pipe(dest(BUILD_DIR + subDir))
+      .pipe(filter('**/*.js'))
       .pipe(size({ showFiles: true }))
-      .pipe(browserSync.reload({ stream: true }))
-      .on('error', handleError);
-  };
+      .on('error', handleError)
+  );
 }
 
-gulp.task('statics', gulpStatics(''));
-gulp.task('statics-docs', gulpStatics('docs/'));
+function preRender() {
+  return gulpPreRender('');
+}
+
+function preRenderDocs() {
+  return gulpPreRender('docs/');
+}
+
+function gulpPreRender(subDir) {
+  return src(SRC_DIR + subDir + 'index.html')
+    .pipe(reactPreRender(subDir))
+    .pipe(size({ showFiles: true }))
+    .pipe(dest(BUILD_DIR + subDir))
+    .on('error', handleError);
+}
+
+function less() {
+  return gulpLessTask('');
+}
+
+function lessDocs() {
+  return gulpLessTask('docs/');
+}
+
+function gulpLessTask(subDir) {
+  return src(SRC_DIR + subDir + 'src/*.less')
+    .pipe(sourcemaps.init())
+    .pipe(
+      gulpLess({
+        compress: true,
+      })
+    )
+    .on('error', handleError)
+    .pipe(concat('bundle.css'))
+    .pipe(sourcemaps.write('./maps'))
+    .pipe(dest(BUILD_DIR + subDir))
+    .pipe(filter('**/*.css'))
+    .pipe(size({ showFiles: true }))
+    .pipe(browserSync.reload({ stream: true }))
+    .on('error', handleError);
+}
+
+function statics() {
+  return gulpStatics('');
+}
+
+function staticsDocs() {
+  return gulpStatics('docs/');
+}
 
 function gulpStatics(subDir) {
-  return function() {
-    return gulp
-      .src(SRC_DIR + subDir + 'static/**/*')
-      .pipe(gulp.dest(BUILD_DIR + subDir + 'static'))
-      .on('error', handleError)
-      .pipe(browserSync.reload({ stream: true }))
-      .on('error', handleError);
-  };
-}
-
-gulp.task('immutable-copy', function() {
-  return gulp
-    .src(SRC_DIR + '../../dist/immutable.js')
-    .pipe(gulp.dest(BUILD_DIR))
+  return src(SRC_DIR + subDir + 'static/**/*')
+    .pipe(dest(BUILD_DIR + subDir + 'static'))
     .on('error', handleError)
     .pipe(browserSync.reload({ stream: true }))
     .on('error', handleError);
-});
+}
 
-gulp.task('build', function(done) {
-  sequence(
-    ['typedefs'],
-    ['readme'],
-    [
-      'js',
-      'js-docs',
-      'less',
-      'less-docs',
-      'immutable-copy',
-      'statics',
-      'statics-docs',
-    ],
-    ['pre-render', 'pre-render-docs'],
-    done
-  );
-});
+function immutableCopy() {
+  return src(SRC_DIR + '../../dist/immutable.js')
+    .pipe(dest(BUILD_DIR))
+    .on('error', handleError)
+    .pipe(browserSync.reload({ stream: true }))
+    .on('error', handleError);
+}
 
-gulp.task('default', function(done) {
-  sequence('clean', 'build', done);
-});
+const build = parallel(
+  typedefs,
+  readme,
+  series(js, jsDocs, less, lessDocs, immutableCopy, statics, staticsDocs),
+  series(preRender, preRenderDocs)
+);
+
+function defaultTask(done) {
+  series(clean, build);
+  done();
+}
 
 // watch files for changes and reload
-gulp.task('dev', ['default'], function() {
+function watchFiles() {
   browserSync({
     port: 8040,
     server: {
@@ -212,77 +212,77 @@ gulp.task('dev', ['default'], function() {
     },
   });
 
-  gulp.watch('../README.md', ['build']);
-  gulp.watch('../pages/lib/**/*.js', ['build']);
-  gulp.watch('../pages/src/**/*.less', ['less', 'less-docs']);
-  gulp.watch('../pages/src/src/**/*.js', ['rebuild-js']);
-  gulp.watch('../pages/src/docs/src/**/*.js', ['rebuild-js-docs']);
-  gulp.watch('../pages/src/**/*.html', ['pre-render', 'pre-render-docs']);
-  gulp.watch('../pages/src/static/**/*', ['statics', 'statics-docs']);
-  gulp.watch('../type-definitions/*', function() {
-    sequence('typedefs', 'rebuild-js-docs');
-  });
-});
+  watch('../README.md', build);
+  watch('../pages/lib/**/*.js', build);
+  watch('../pages/src/**/*.less', series(less, lessDocs));
+  watch('../pages/src/src/**/*.js', rebuildJS);
+  watch('../pages/src/docs/src/**/*.js', rebuildJSDocs);
+  watch('../pages/src/**/*.html', series(preRender, preRenderDocs));
+  watch('../pages/src/static/**/*', series(statics, staticsDocs));
+  watch('../type-definitions/*', parallel(typedefs, rebuildJSDocs));
+}
 
-gulp.task('rebuild-js', function(done) {
-  sequence('js', ['pre-render'], function() {
+const dev = series(defaultTask, watchFiles);
+
+function rebuildJS(done) {
+  parallel(js, preRender, () => {
     browserSync.reload();
     done();
   });
-});
+}
 
-gulp.task('rebuild-js-docs', function(done) {
-  sequence('js-docs', ['pre-render-docs'], function() {
+function rebuildJSDocs(done) {
+  parallel(jsDocs, preRenderDocs, () => {
     browserSync.reload();
     done();
   });
-});
+}
 
 function handleError(error) {
   gutil.log(error.message);
 }
 
-function preRender(subDir) {
+function reactPreRender(subDir) {
   return through.obj(function(file, enc, cb) {
-    var src = file.contents.toString(enc);
-    var components = [];
-    src = src.replace(/<!--\s*React\(\s*(.*)\s*\)\s*-->/g, function(
-      _,
-      relComponent
-    ) {
-      var id = 'r' + components.length;
-      var component = path.resolve(SRC_DIR + subDir, relComponent);
-      components.push(component);
-      try {
-        return (
-          '<div id="' +
-          id +
-          '">' +
-          vm.runInNewContext(
-            fs.readFileSync(BUILD_DIR + subDir + 'bundle.js') + // ugly
-              '\nrequire("react").renderToString(' +
-              'require("react").createElement(require(component)))',
-            {
-              global: {
-                React: React,
-                Immutable: Immutable,
-              },
-              window: {},
-              component: component,
-              console: console,
-            }
-          ) +
-          '</div>'
-        );
-      } catch (error) {
-        return '<div id="' + id + '">' + error.message + '</div>';
+    let src = file.contents.toString(enc);
+    const components = [];
+    src = src.replace(
+      /<!--\s*React\(\s*(.*)\s*\)\s*-->/g,
+      (_, relComponent) => {
+        const id = 'r' + components.length;
+        const component = path.resolve(SRC_DIR + subDir, relComponent);
+        components.push(component);
+        try {
+          return (
+            '<div id="' +
+            id +
+            '">' +
+            vm.runInNewContext(
+              fs.readFileSync(BUILD_DIR + subDir + 'bundle.js') + // ugly
+                '\nrequire("react").renderToString(' +
+                'require("react").createElement(require(component)))',
+              {
+                global: {
+                  React: React,
+                  Immutable: Immutable,
+                },
+                window: {},
+                component: component,
+                console: console,
+              }
+            ) +
+            '</div>'
+          );
+        } catch (error) {
+          return '<div id="' + id + '">' + error.message + '</div>';
+        }
       }
-    });
+    );
     if (components.length) {
       src = src.replace(
         /<!--\s*ReactRender\(\)\s*-->/g,
         '<script>' +
-          components.map(function(component, index) {
+          components.map((component, index) => {
             return (
               'var React = require("react");' +
               'React.render(' +
@@ -304,44 +304,14 @@ function preRender(subDir) {
   });
 }
 
-function reactTransform() {
-  var parseError;
-  return through.obj(
-    function(file, enc, cb) {
-      if (path.extname(file.path) !== '.js') {
-        this.push(file);
-        return cb();
-      }
-      try {
-        file.contents = new Buffer(
-          reactTools.transform(file.contents.toString(enc), { harmony: true }),
-          enc
-        );
-        this.push(file);
-        cb();
-      } catch (error) {
-        parseError = new gutil.PluginError('transform', {
-          message: file.relative + ' : ' + error.message,
-          showStack: false,
-        });
-        cb();
-      }
-    },
-    function(done) {
-      parseError && this.emit('error', parseError);
-      done();
-    }
-  );
-}
-
 function reactTransformify(filePath) {
   if (path.extname(filePath) !== '.js') {
     return through();
   }
-  var code = '';
-  var parseError;
+  let code = '';
+  let parseError;
   return through.obj(
-    function(file, enc, cb) {
+    (file, enc, cb) => {
       code += file;
       cb();
     },
@@ -359,3 +329,6 @@ function reactTransformify(filePath) {
     }
   );
 }
+
+exports.dev = dev;
+exports.default = defaultTask;
