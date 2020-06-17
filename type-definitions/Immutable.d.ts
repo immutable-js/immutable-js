@@ -401,8 +401,8 @@ declare module Immutable {
      *
      * @see `Map#update`
      */
-    update(index: number, notSetValue: T, updater: (value: T) => T): this;
-    update(index: number, updater: (value: T) => T): this;
+    update(index: number, notSetValue: T, updater: (value: T | undefined) => T): this;
+    update(index: number, updater: (value: T | undefined) => T): this;
     update<R>(updater: (value: this) => R): R;
 
     /**
@@ -1345,7 +1345,7 @@ declare module Immutable {
      * @see Collection.Keyed.mapEntries
      */
     mapEntries<KM, VM>(
-      mapper: (entry: [K, V], index: number, iter: this) => [KM, VM],
+      mapper: (entry: [K, V], index: number, iter: this) => [KM, VM] | undefined,
       context?: unknown
     ): Map<KM, VM>;
 
