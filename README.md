@@ -598,7 +598,7 @@ Range(1, Infinity)
 Documentation
 -------------
 
-[Read the docs](http://facebook.github.io/immutable-js/docs/) and eat your vegetables.
+[Read the docs](https://immutable-js.github.io/immutable-js/docs/) and eat your vegetables.
 
 Docs are automatically generated from [Immutable.d.ts](https://github.com/facebook/immutable-js/blob/master/type-definitions/Immutable.d.ts).
 Please contribute!
