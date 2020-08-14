@@ -121,10 +121,13 @@ describe('OrderedMap', () => {
     const SIZE = 32;
     let map = OrderedMap(Range(0, SIZE).map(key => [key, 0]));
 
-    // Delete half of the keys
+    // Delete half of the keys so that internal list is twice the size of internal map
     const keysToDelete = Range(0, SIZE / 2);
     map = map.deleteAll(keysToDelete);
 
-    expect(map.size).toBe(SIZE / 2);
+    // Delete one more key to trigger resizing
+    map = map.deleteAll([SIZE / 2]);
+
+    expect(map.size).toBe(SIZE / 2 - 1);
   });
 });
