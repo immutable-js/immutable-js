@@ -198,10 +198,7 @@ const build = parallel(
   series(preRender, preRenderDocs)
 );
 
-function defaultTask(done) {
-  series(clean, build);
-  done();
-}
+const defaultTask = series(clean, build);
 
 // watch files for changes and reload
 function watchFiles() {
