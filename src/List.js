@@ -176,7 +176,7 @@ export class List extends IndexedCollection {
   map(mapper, context) {
     return this.withMutations(list => {
       for (let i = 0; i < this.size; i++) {
-        list.set(i, mapper.call(context, list.get(i), i, list));
+        list.set(i, mapper.call(context, list.get(i), i, this));
       }
     });
   }

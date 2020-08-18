@@ -519,6 +519,14 @@ describe('List', () => {
     expect(r).toBe(v);
   });
 
+  it('ensures iter is unmodified', () => {
+    const v = List.of(1, 2, 3);
+    const r = v.map((value, index, iter) => {
+      return iter.get(index - 1);
+    });
+    expect(r.toArray()).toEqual([3, 1, 2]);
+  });
+
   it('filters values', () => {
     const v = List.of('a', 'b', 'c', 'd', 'e', 'f');
     const r = v.filter((value, index) => index % 2 === 1);
