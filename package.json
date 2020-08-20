@@ -1,19 +1,19 @@
 {
-  "name": "immutable",
+  "name": "immutable-oss",
   "version": "4.0.0-rc.12",
   "description": "Immutable Data Collections",
   "license": "MIT",
-  "homepage": "https://facebook.github.com/immutable-js",
+  "homepage": "https://immutable-js-oss.github.io/immutable-js",
   "author": {
     "name": "Lee Byron",
     "url": "https://github.com/leebyron"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/facebook/immutable-js.git"
+    "url": "git@github.com:immutable-js-oss/immutable-js.git"
   },
   "bugs": {
-    "url": "https://github.com/facebook/immutable-js/issues"
+    "url": "https://github.com/immutable-js-oss/immutable-js/issues"
   },
   "main": "dist/immutable.js",
   "module": "dist/immutable.es.js",
