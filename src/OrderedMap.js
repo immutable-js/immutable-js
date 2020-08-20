@@ -53,6 +53,7 @@ export class OrderedMap extends Map {
       this.size = 0;
       this._map.clear();
       this._list.clear();
+      this.__altered = true;
       return this;
     }
     return emptyOrderedMap();
@@ -64,10 +65,6 @@ export class OrderedMap extends Map {
 
   remove(k) {
     return updateOrderedMap(this, k, NOT_SET);
-  }
-
-  wasAltered() {
-    return this._map.wasAltered() || this._list.wasAltered();
   }
 
   __iterate(fn, reverse) {
@@ -92,6 +89,7 @@ export class OrderedMap extends Map {
         return emptyOrderedMap();
       }
       this.__ownerID = ownerID;
+      this.__altered = false;
       this._map = newMap;
       this._list = newList;
       return this;
@@ -112,6 +110,7 @@ function makeOrderedMap(map, list, ownerID, hash) {
   omap._list = list;
   omap.__ownerID = ownerID;
   omap.__hash = hash;
+  omap.__altered = false;
   return omap;
 }
 
@@ -164,6 +163,7 @@ function updateOrderedMap(omap, k, v) {
     omap._map = newMap;
     omap._list = newList;
     omap.__hash = undefined;
+    omap.__altered = true;
     return omap;
   }
   return makeOrderedMap(newMap, newList);
