@@ -7,7 +7,7 @@ script: npm run test:travis
 
 env:
   global:
-    - secure: "VDsxy30sE9ivdqoXkaKXo0czbS4brNpwKEIblu7f1gVLx7OD9pjTc78cdwrVbZDBYroSiYVYuUrLDjpVjH88lL/LxRrru3V0CIlAqqa+ssXcqycCaT/6ds+ZymuTTGRh+Mf12pIKO+yc8jTov2M7AzPJdpS+ORP5dImYyE3ex9s="
+    - secure: "L8yOQOAjsuos8H+XhnnQ6UVUraGREwkwP84C7D5mxSRm+MhoJHhBxO0PpQhkbRfCQ4lYJfeimBouhFQ/Y07yMbU57gY5r7dI44bfWlhx6lutOH7NmPuh02EYeL2hkyyEpWFFMc+Is7bS8lvBf7r/pp5tG74xhqpv/UH8TQTWR0p57YYh3ddIuMAmSqKlrUaCYs94se3YtIIy/M7DMjQFwrxL3Kn30nLcja5Z8LEov+j4+tcoJZ3jSDTeIhLhaX8aLuAW0QM6Wg6HdPzBYvYFCrV37F7hcmFkpKU4IpweHTAn9T9/R4Z/y8yYEKe4vxpRd+v2ElGl/7xw/+3yrDS/1n40g4e8tJMiCB5wR5hZnyay8C/JKHtYyXzzpfat2R2ZOcGEBCGm04acgJjPaNAhq+lVi5mvImUYfDQ5wdaZ4FRk/tBd1zxwc/Hrl2l3hZFs9go2djjbik9hdwW4lW1TN2WUehlr2mVOo/+UKhAUzXKvPbuaJESyYmGvZswkG8K7WuhmOXGXKl42Ra878mdZ4Ldo7o/ChRxpACpIAjsKqhUmz1/n10XSq8hllOQXlC9QgHStLXWZcVxjtS3sVq1qSYhAJghhzSlUWH3q/qk5v7zMBPYVNH8GdKg2MuXqwBkBgVAwVCwzSNlMN3Goik/i1Z9n3WKNGs5SIj0rLSnul0c="
 
 deploy:
   - provider: script
@@ -15,11 +15,11 @@ deploy:
     skip_cleanup: true
     on:
       branch: master
-      repo: facebook/immutable-js
+      repo: immutable-js-oss/immutable-js
   - provider: script
     skip_cleanup: true
     script: npm run deploy
     on:
       branch: master
-      repo: facebook/immutable-js
+      repo: immutable-js-oss/immutable-js
       tags: true

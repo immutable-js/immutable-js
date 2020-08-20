@@ -13,7 +13,7 @@
 
 # Create empty npm directory
 rm -rf npm
-git clone -b npm "https://${GH_TOKEN}@github.com/facebook/immutable-js.git" npm
+git clone -b npm "https://${GH_TOKEN}@github.com/immutable-js-oss/immutable-js.git" npm
 
 # Remove existing files first
 rm -rf npm/**/*
@@ -42,7 +42,7 @@ echo $HEADREV
 
 cd npm
 git config user.name "Travis CI"
-git config user.email "github@fb.com"
+git config user.email "travis@travis-ci.com"
 git add -A .
 if git diff --staged --quiet; then
   echo "Nothing to publish"

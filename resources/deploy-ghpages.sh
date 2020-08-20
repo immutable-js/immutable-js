@@ -9,7 +9,7 @@
 
 # Create empty gh-pages directory
 rm -rf gh-pages
-git clone -b gh-pages "https://${GH_TOKEN}@github.com/facebook/immutable-js.git" gh-pages
+git clone -b gh-pages "https://${GH_TOKEN}@github.com/immutable-js-oss/immutable-js.git" gh-pages
 
 # Remove existing files first
 rm -rf gh-pages/**/*
@@ -23,7 +23,7 @@ echo $HEADREV
 
 cd gh-pages
 git config user.name "Travis CI"
-git config user.email "github@fb.com"
+git config user.email "travis@travis-ci.com"
 git add -A .
 if git diff --staged --quiet; then
   echo "Nothing to publish"
