@@ -36,6 +36,13 @@ describe('hash', () => {
     expect(hash(objA)).not.toBe(hash(objB));
   });
 
+  it('generates different hashes for different symbols', () => {
+    const symA = Symbol();
+    const symB = Symbol();
+    expect(hash(symA)).toBe(hash(symA));
+    expect(hash(symA)).not.toBe(hash(symB));
+  });
+
   it('generates different hashes for different functions', () => {
     const funA = () => {
       return;
