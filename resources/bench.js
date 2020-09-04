@@ -35,7 +35,7 @@ Promise.all([
   readFile(path.resolve(__dirname, '../dist/immutable.js'), {
     encoding: 'utf8',
   }),
-  exec('git show master:dist/immutable.js'),
+  exec('git show origin/npm:dist/immutable.js'),
 ])
   .then(function(args) {
     var newSrc = args[0];
