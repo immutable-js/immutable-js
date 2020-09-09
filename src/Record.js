@@ -77,6 +77,7 @@ export class Record {
           l.set(this._indices[k], v === this._defaultValues[k] ? undefined : v);
         });
       });
+      return this;
     };
 
     const RecordTypePrototype = (RecordType.prototype = Object.create(
