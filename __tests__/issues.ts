@@ -101,3 +101,9 @@ describe('Issue #1293', () => {
     expect(secondState).toEqual(firstState);
   });
 });
+
+describe('Issue #1785', () => {
+  const emptyRecord = Record({})();
+
+  expect(emptyRecord.merge({ id: 1 })).toBe(emptyRecord);
+});
