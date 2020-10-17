@@ -307,7 +307,7 @@ declare module Immutable {
     push(...values: Array<T>): List<T>;
 
     /**
-     * Returns a new List with a size ones less than this List, excluding
+     * Returns a new List with a size one less than this List, excluding
      * the last index in this List.
      *
      * Note: this differs from `Array#pop` because it returns a new
@@ -340,7 +340,7 @@ declare module Immutable {
     unshift(...values: Array<T>): List<T>;
 
     /**
-     * Returns a new List with a size ones less than this List, excluding
+     * Returns a new List with a size one less than this List, excluding
      * the first index in this List, shifting all other values to a lower index.
      *
      * Note: this differs from `Array#shift` because it returns a new
@@ -661,6 +661,272 @@ declare module Immutable {
     ): List<Z>;
   }
 
+  /**
+   * SortedLists are ordered dense collections that are kept in a sort order.
+   * Random access is not available, only insert in sort order, iteration,
+   * and access or removal at either end. SortedLists can thus be used as a
+   * priority queue.
+   *
+   * SortedLists are immutable and fully persistent with O(1) reads from
+   * either end, O(n) iteration, and insert and removal (from either end)
+   * between O(log16 N) and O(log32 N).
+   *
+   * Sorting is managed by two optional callbacks provided at list creation,
+   * a "key function" and a "less-than function". When comparing two values,
+   * the key function is called on both values and the result is passed to
+   * the less-than function. By default the key function returns the value,
+   * and less-than uses normal JS <. This means you have two ways to customize
+   * sort order. You can use the key function to reduce your values to a
+   * sortable value (for example, if your values are objects, your key function
+   * could return an "id" member), or you can implement less-than.
+   */
+  export module SortedList {
+
+    /**
+     * True if the provided value is a SortedList
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { SortedList } = require('immutable');
+     * SortedList.isList([]); // false
+     * SortedList.isList(List()); // true
+     * ```
+     */
+    function isSortedList(maybeList: unknown): maybeList is SortedList<unknown>;
+
+    /**
+     * Creates a new SortedList containing `values`.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { SortedList } = require('immutable');
+     * SortedList.of(1, 2, 3, 4)
+     * // SortedList [ 1, 2, 3, 4 ]
+     * ```
+     *
+     * Note: Values are not altered or converted in any way.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { SortedList } = require('immutable');
+     * SortedList.of({x:1}, 2, [3], 4)
+     * // SortedList [ { x: 1 }, 2, [ 3 ], 4 ]
+     * ```
+     */
+    function of<T>(...values: Array<T>): SortedList<T>;
+  }
+
+  /**
+   * Create a new immutable SortedList containing the values of the provided
+   * collection-like.
+   *
+   * Note: `SortedList` is a factory function and not a class, and does not use the
+   * `new` keyword during construction.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { List, Set } = require('immutable')
+   *
+   * const emptyList = List()
+   * // List []
+   *
+   * const plainArray = [ 1, 2, 3, 4 ]
+   * const listFromPlainArray = List(plainArray)
+   * // List [ 1, 2, 3, 4 ]
+   *
+   * const plainSet = Set([ 1, 2, 3, 4 ])
+   * const listFromPlainSet = List(plainSet)
+   * // List [ 1, 2, 3, 4 ]
+   *
+   * const arrayIterator = plainArray[Symbol.iterator]()
+   * const listFromCollectionArray = List(arrayIterator)
+   * // List [ 1, 2, 3, 4 ]
+   *
+   * listFromPlainArray.equals(listFromCollectionArray) // true
+   * listFromPlainSet.equals(listFromCollectionArray) // true
+   * listFromPlainSet.equals(listFromPlainArray) // true
+   * ```
+   */
+  export function SortedList(): SortedList<unknown,unknown>;
+  export function SortedList<T>(): SortedList<T,T>;
+  export function SortedList<T,K=T>(emptyList:null, keyFn:(T)=>K, ltFn?:(K,K)=>boolean): SortedList<T,T>;
+  export function SortedList<T,K=T>(sortedList: SortedList<T,K>): SortedList<T,K>;
+  export function SortedList<T>(collection: Iterable<T>): SortedList<T,T>;
+  export function SortedList<T,K=T>(collection: Iterable<T>, keyFn:(T)=>K, ltFn?:(K,K)=>boolean): SortedList<T,T>;
+
+  export interface SortedList<T,K=T> extends Collection.Set<T> {
+
+    /**
+     * The number of items in this List.
+     */
+    readonly size: number;
+
+    // Persistent changes
+
+    /**
+     * Returns a new SortedList which includes `value` in the position dictated
+     * by the sort order.
+     *
+     * TODO-ANDI
+     *
+     * Note: `add` can be used in `withMutations`.
+     */
+    add(value: T): SortedList<T,K>;
+
+    // TODO-ANDI: delete/remove with specific value
+    // TODO-ANDI: mass-add
+
+    /**
+     * Returns a new List with 0 size and no values in constant time.
+     *
+     * <!-- runkit:activate
+     *      { "preamble": "const { SortedList } = require('immutable');" }
+     * -->
+     * ```js
+     * SortedList([ 1, 2, 3, 4 ]).clear()
+     * // SortedList []
+     * ```
+     *
+     * Note: `clear` can be used in `withMutations`.
+     */
+    clear(): SortedList<T,K>;
+
+    /**
+     * Returns a new SortedList with a size one less than this SortedList,
+     * excluding the last (highest magnitude) value in this SortedList.
+     *
+     * Note: this differs from `Array#pop` because it returns a new
+     * SortedList rather than the removed value. Use `last()` to get the
+     * last value in this SortedList.
+     *
+     * ```js
+     * SortedList([ 4, 3, 2, 1 ]).pop()
+     * // List[ 1, 2, 3 ]
+     * ```
+     *
+     * Note: `pop` can be used in `withMutations`.
+     */
+    pop(): SortedList<T,K>;
+
+    /**
+     * Returns a new SortedList with a size one less than this SortedList,
+     * excluding the first (lowest magnitude) value in this SortedList.
+     *
+     * Note: this differs from `Array#pop` because it returns a new
+     * SortedList rather than the removed value. Use `first()` to get the
+     * first value in this SortedList.
+     *
+     * <!-- runkit:activate
+     *      { "preamble": "const { List } = require('immutable');" }
+     * -->
+     * ```js
+     * SortedList([ 4, 3, 2, 1, 0 ]).shift();
+     * // List [ 1, 2, 3, 4 ]
+     * ```
+     *
+     * Note: `shift` can be used in `withMutations`.
+     */
+    shift(): SortedList<T,K>;
+
+    // TODO-ANDI: update
+
+    // TODO-ANDI: I do not understand what the "In" variants do
+
+    // Transient changes
+
+    /**
+     * Note: Not all methods can be safely used on a mutable collection or within
+     * `withMutations`! Check the documentation for each method to see if it
+     * allows being used in `withMutations`.
+     *
+     * @see `Map#withMutations`
+     */
+    withMutations(mutator: (mutable: this) => unknown): this;
+
+    /**
+     * An alternative API for withMutations()
+     *
+     * Note: Not all methods can be safely used on a mutable collection or within
+     * `withMutations`! Check the documentation for each method to see if it
+     * allows being used in `withMutations`.
+     *
+     * @see `Map#asMutable`
+     */
+    asMutable(): this;
+
+    /**
+     * @see `Map#wasAltered`
+     */
+    wasAltered(): boolean;
+
+    /**
+     * @see `Map#asImmutable`
+     */
+    asImmutable(): this;
+
+    // Sequence algorithms
+
+    /**
+     * Returns a copy of the SortedList with the remaining collections merged in.
+     *
+     * Note: `merge` can be used in `withMutations`.
+     *
+     * @alias merge
+     */
+    merge(...collections: Array<Iterable<T>>): SortedList<T,K>;
+
+    /**
+     * Returns a new SortedList with values passed through a
+     * `mapper` function.
+     *
+     * <!-- runkit:activate
+     *      { "preamble": "const { SortedList } = require('immutable');" }
+     * -->
+     * ```js
+     * SortedList([ 2, 1 ]).map(x => 10 * x)
+     * // List [ 10, 20 ]
+     * ```
+     */
+    /**
+     * Returns a new Set with values passed through a
+     * `mapper` function.
+     *
+     *     Set([1,2]).map(x => 10 * x)
+     *     // Set [10,20]
+     */
+    map(
+      mapper: (value: T, key: T, iter: this) => T,
+      context?: unknown
+    ): SortedList<T,K>;
+
+    /**
+     * Flat-maps the SortedList, returning a new SortedList.
+     *
+     * Similar to `list.map(...).flatten(true)`.
+     */
+    flatMap<T>(
+      mapper: (value: T, key: T, iter: this) => Iterable<T>,
+      context?: unknown
+    ): SortedList<T,K>;
+
+    /**
+     * Returns a new SortedList with only the values for which the `predicate`
+     * function returns true.
+     *
+     * Note: `filter()` always returns a new instance, even if it results in
+     * not filtering out any values.
+     */
+    filter<F extends T>(
+      predicate: (value: T, key: T, iter: this) => value is F,
+      context?: unknown
+    ): Seq.Set<F>;
+    filter(
+      predicate: (value: T, key: T, iter: this) => unknown,
+      context?: unknown
+    ): this;
+
+    // TODO-ANDI: Is zip() worth including? is NaiveMap worth including?
+  }
 
   /**
    * Immutable Map is an unordered Collection.Keyed of (key, value) pairs with
@@ -2000,7 +2266,7 @@ declare module Immutable {
     unshiftAll(iter: Iterable<T>): Stack<T>;
 
     /**
-     * Returns a new Stack with a size ones less than this Stack, excluding
+     * Returns a new Stack with a size one less than this Stack, excluding
      * the first item in this Stack, shifting all other values to a lower index.
      *
      * Note: this differs from `Array#shift` because it returns a new
