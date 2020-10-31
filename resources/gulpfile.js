@@ -295,7 +295,8 @@ function reactPreRender(subDir) {
           '</script>'
       );
     }
-    file.contents = new Buffer(src, enc);
+
+    file.contents = Buffer.from(src, enc);
     this.push(file);
     cb();
   });
