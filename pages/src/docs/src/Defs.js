@@ -97,6 +97,8 @@ var TypeDef = React.createClass({
         return this.wrap('primitive', 'any');
       case TypeKind.This:
         return this.wrap('primitive', 'this');
+      case TypeKind.Null:
+        return this.wrap('primitive', 'null');
       case TypeKind.Undefined:
         return this.wrap('primitive', 'undefined');
       case TypeKind.Boolean:

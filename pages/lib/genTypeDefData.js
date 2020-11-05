@@ -273,7 +273,7 @@ function DocVisitor(source) {
     switch (node.kind) {
       case ts.SyntaxKind.NeverKeyword:
         return {
-          k: TypeKind.NeverKeyword,
+          k: TypeKind.Never,
         };
       case ts.SyntaxKind.AnyKeyword:
         return {
@@ -282,6 +282,10 @@ function DocVisitor(source) {
       case ts.SyntaxKind.UnknownKeyword:
         return {
           k: TypeKind.Unknown,
+        };
+      case ts.SyntaxKind.NullKeyword:
+        return {
+          k: TypeKind.Null,
         };
       case ts.SyntaxKind.ThisType:
         return {

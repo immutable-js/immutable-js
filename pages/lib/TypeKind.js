@@ -21,13 +21,14 @@ var TypeKind = {
 
   This: 10,
   Undefined: 11,
-  Union: 12,
-  Intersection: 13,
-  Tuple: 14,
-  Indexed: 15,
-  Operator: 16,
+  Null: 12,
+  Union: 13,
+  Intersection: 14,
+  Tuple: 15,
+  Indexed: 16,
+  Operator: 17,
 
-  Unknown: 17,
+  Unknown: 18,
 };
 
 module.exports = TypeKind;
