@@ -64,7 +64,7 @@
     "browserify": "16.2.2",
     "colors": "1.2.5",
     "del": "3.0.0",
-    "dtslint": "0.1.2",
+    "dtslint": "^4.0.5",
     "eslint": "4.19.1",
     "eslint-config-airbnb": "16.1.0",
     "eslint-config-prettier": "2.9.0",

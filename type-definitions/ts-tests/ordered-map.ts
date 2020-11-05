@@ -9,7 +9,7 @@ import { OrderedMap, List } from '../../';
 
 { // #constructor
 
-  // $ExpectType OrderedMap<{}, {}>
+  // $ExpectType OrderedMap<unknown, unknown>
   OrderedMap();
 
   // $ExpectType OrderedMap<number, string>
@@ -20,9 +20,6 @@ import { OrderedMap, List } from '../../';
 
   // $ExpectType OrderedMap<string, number>
   OrderedMap({ a: 1 });
-
-// $ExpectError - TypeScript does not support Lists as tuples
-  OrderedMap(List([List(['a', 'b'])]));
 
   // $ExpectError
   const invalidNumberOrderedMap: OrderedMap<number, number> = OrderedMap();
@@ -46,7 +43,7 @@ import { OrderedMap, List } from '../../';
   OrderedMap<number, number>().get(4, 'a');
 
   // $ExpectError
-  OrderedMap<number, number>().get<number, number>(4, 'a');
+  OrderedMap<number, number>().get<number>(4, 'a');
 }
 
 { // #set
@@ -298,7 +295,7 @@ import { OrderedMap, List } from '../../';
   OrderedMap<string, number>().mergeWith((prev: number, next: number, key: string) => 1, { a: 'a' });
 
   // $ExpectType OrderedMap<number, string | number>
-  OrderedMap<number, number | string>().mergeWith((prev: number, next: string, key: number) => 1, OrderedMap<number, string>());
+  OrderedMap<number, number | string>().mergeWith((prev: number | string, next: number | string, key: number) => 1, OrderedMap<number, string>());
 }
 
 { // #mergeDeep
@@ -331,19 +328,19 @@ import { OrderedMap, List } from '../../';
 { // #mergeDeepWith
 
   // $ExpectType OrderedMap<number, number>
-  OrderedMap<number, number>().mergeDeepWith((prev: number, next: number, key: number) => 1, OrderedMap<number, number>());
+  OrderedMap<number, number>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, OrderedMap<number, number>());
 
   // $ExpectError
   OrderedMap<number, number>().mergeDeepWith((prev: number, next: number, key: number) => 1, OrderedMap<number, string>());
 
   // $ExpectType OrderedMap<string, number>
-  OrderedMap<string, number>().mergeDeepWith((prev: number, next: number, key: string) => 1, { a: 1 });
+  OrderedMap<string, number>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, { a: 1 });
 
   // $ExpectError
   OrderedMap<string, number>().mergeDeepWith((prev: number, next: number, key: string) => 1, { a: 'a' });
 
   // $ExpectType OrderedMap<number, string | number>
-  OrderedMap<number, number | string>().mergeDeepWith((prev: number, next: string, key: number) => 1, OrderedMap<number, string>());
+  OrderedMap<number, number | string>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, OrderedMap<number, string>());
 }
 
 { // #flip

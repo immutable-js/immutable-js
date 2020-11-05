@@ -9,10 +9,10 @@ import { Set, Map } from '../../';
 
 { // #constructor
 
-  // $ExpectType Set<any>
+  // $ExpectType Set<unknown>
   Set();
 
-  const numberSet: Set<number> = Set();
+  const numberSet: Set<number> = Set<number>();
   const numberOrStringSet: Set<number | string> = Set([1, 'a']);
 
   // $ExpectError
@@ -212,13 +212,13 @@ import { Set, Map } from '../../';
 
 { // #flatten
 
-  // $ExpectType Collection<any, any>
+  // $ExpectType Collection<unknown, unknown>
   Set<number>().flatten();
 
-  // $ExpectType Collection<any, any>
+  // $ExpectType Collection<unknown, unknown>
   Set<number>().flatten(10);
 
-  // $ExpectType Collection<any, any>
+  // $ExpectType Collection<unknown, unknown>
   Set<number>().flatten(false);
 
   // $ExpectError

@@ -9,10 +9,10 @@ import { Stack } from '../../';
 
 { // #constructor
 
-  // $ExpectType Stack<any>
+  // $ExpectType Stack<unknown>
   Stack();
 
-  const numberStack: Stack<number> = Stack();
+  const numberStack: Stack<number> = Stack<number>();
   const numberOrStringStack: Stack<number | string> = Stack([1, 'a']);
 
   // $ExpectError
@@ -189,13 +189,13 @@ import { Stack } from '../../';
 
 { // #flatten
 
-  // $ExpectType Collection<any, any>
+  // $ExpectType Collection<unknown, unknown>
   Stack<number>().flatten();
 
-  // $ExpectType Collection<any, any>
+  // $ExpectType Collection<unknown, unknown>
   Stack<number>().flatten(10);
 
-  // $ExpectType Collection<any, any>
+  // $ExpectType Collection<unknown, unknown>
   Stack<number>().flatten(false);
 
   // $ExpectError

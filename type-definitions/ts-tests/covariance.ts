@@ -19,54 +19,54 @@ class B extends A { y: string; }
 class C { z: string; }
 
 // List covariance
-var listOfB: List<B> = List<B>();
-var listOfA: List<A> = listOfB;
+const listOfB: List<B> = List<B>();
+let listOfA: List<A> = listOfB;
 
 // $ExpectType List<B>
 listOfA = List([new B()]);
 
 // $ExpectError
-var listOfC: List<C> = listOfB;
+const listOfC: List<C> = listOfB;
 
 // Map covariance
 declare var mapOfB: Map<string, B>;
-var mapOfA: Map<string, A> = mapOfB;
+let mapOfA: Map<string, A> = mapOfB;
 
 // $ExpectType Map<string, B>
 mapOfA = Map({b: new B()});
 
 // $ExpectError
-var mapOfC: Map<string, C> = mapOfB;
+const mapOfC: Map<string, C> = mapOfB;
 
 // Set covariance
 declare var setOfB: Set<B>;
-var setOfA: Set<A> = setOfB;
+let setOfA: Set<A> = setOfB;
 
 // $ExpectType Set<B>
 setOfA = Set([new B()]);
 // $ExpectError
-var setOfC: Set<C> = setOfB;
+const setOfC: Set<C> = setOfB;
 
 // Stack covariance
 declare var stackOfB: Stack<B>;
-var stackOfA: Stack<A> = stackOfB;
+let stackOfA: Stack<A> = stackOfB;
 // $ExpectType Stack<B>
 stackOfA = Stack([new B()]);
 // $ExpectError
-var stackOfC: Stack<C> = stackOfB;
+const stackOfC: Stack<C> = stackOfB;
 
 // OrderedMap covariance
 declare var orderedMapOfB: OrderedMap<string, B>;
-var orderedMapOfA: OrderedMap<string, A> = orderedMapOfB;
+let orderedMapOfA: OrderedMap<string, A> = orderedMapOfB;
 // $ExpectType OrderedMap<string, B>
 orderedMapOfA = OrderedMap({b: new B()});
 // $ExpectError
-var orderedMapOfC: OrderedMap<string, C> = orderedMapOfB;
+const orderedMapOfC: OrderedMap<string, C> = orderedMapOfB;
 
 // OrderedSet covariance
 declare var orderedSetOfB: OrderedSet<B>;
-var orderedSetOfA: OrderedSet<A> = orderedSetOfB;
+let orderedSetOfA: OrderedSet<A> = orderedSetOfB;
 // $ExpectType OrderedSet<B>
 orderedSetOfA = OrderedSet([new B()]);
 // $ExpectError
-var orderedSetOfC: OrderedSet<C> = orderedSetOfB;
+const orderedSetOfC: OrderedSet<C> = orderedSetOfB;

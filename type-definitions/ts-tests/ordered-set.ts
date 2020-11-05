@@ -9,10 +9,10 @@ import { OrderedSet, Map } from '../../';
 
 { // #constructor
 
-  // $ExpectType OrderedSet<any>
+  // $ExpectType OrderedSet<unknown>
   OrderedSet();
 
-  const numberOrderedSet: OrderedSet<number> = OrderedSet();
+  const numberOrderedSet: OrderedSet<number> = OrderedSet<number>();
   const numberOrStringOrderedSet: OrderedSet<number | string> = OrderedSet([1, 'a']);
 
   // $ExpectError
@@ -212,13 +212,13 @@ import { OrderedSet, Map } from '../../';
 
 { // #flatten
 
-  // $ExpectType Collection<any, any>
+  // $ExpectType Collection<unknown, unknown>
   OrderedSet<number>().flatten();
 
-  // $ExpectType Collection<any, any>
+  // $ExpectType Collection<unknown, unknown>
   OrderedSet<number>().flatten(10);
 
-  // $ExpectType Collection<any, any>
+  // $ExpectType Collection<unknown, unknown>
   OrderedSet<number>().flatten(false);
 
   // $ExpectError
