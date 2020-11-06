@@ -9,8 +9,8 @@ self =
     ? window // if in browser
     : typeof WorkerGlobalScope !== 'undefined' &&
       self instanceof WorkerGlobalScope
-      ? self // if in worker
-      : {}; // if in node js
+    ? self // if in worker
+    : {}; // if in node js
 
 /**
  * Prism: Lightweight, robust, elegant syntax highlighting
@@ -18,13 +18,13 @@ self =
  * @author Lea Verou http://lea.verou.me
  */
 
-var Prism = (function() {
+var Prism = (function () {
   // Private helper vars
   var lang = /\blang(?:uage)?-(?!\*)(\w+)\b/i;
 
   var _ = (self.Prism = {
     util: {
-      encode: function(tokens) {
+      encode: function (tokens) {
         if (tokens instanceof Token) {
           return new Token(
             tokens.type,
@@ -41,12 +41,12 @@ var Prism = (function() {
         }
       },
 
-      type: function(o) {
+      type: function (o) {
         return Object.prototype.toString.call(o).match(/\[object (\w+)\]/)[1];
       },
 
       // Deep clone a language definition (e.g. to extend it)
-      clone: function(o) {
+      clone: function (o) {
         var type = _.util.type(o);
 
         switch (type) {
@@ -70,7 +70,7 @@ var Prism = (function() {
     },
 
     languages: {
-      extend: function(id, redef) {
+      extend: function (id, redef) {
         var lang = _.util.clone(_.languages[id]);
 
         for (var key in redef) {
@@ -89,7 +89,7 @@ var Prism = (function() {
        * @param insert Object with the key/value pairs to insert
        * @param root The object that contains `inside`. If equal to Prism.languages, it can be omitted.
        */
-      insertBefore: function(inside, before, insert, root) {
+      insertBefore: function (inside, before, insert, root) {
         root = root || _.languages;
         var grammar = root[inside];
 
@@ -122,7 +122,7 @@ var Prism = (function() {
         }
 
         // Update references in other language definitions
-        _.languages.DFS(_.languages, function(key, value) {
+        _.languages.DFS(_.languages, function (key, value) {
           if (value === root[inside] && key != inside) {
             this[key] = ret;
           }
@@ -132,7 +132,7 @@ var Prism = (function() {
       },
 
       // Traverse a language definition with Depth First Search
-      DFS: function(o, callback, type) {
+      DFS: function (o, callback, type) {
         for (var i in o) {
           if (o.hasOwnProperty(i)) {
             callback.call(o, i, o[i], type || i);
@@ -147,7 +147,7 @@ var Prism = (function() {
       },
     },
 
-    highlightAll: function(async, callback) {
+    highlightAll: function (async, callback) {
       var elements = document.querySelectorAll(
         'code[class*="language-"], [class*="language-"] code, code[class*="lang-"], [class*="lang-"] code'
       );
@@ -157,7 +157,7 @@ var Prism = (function() {
       }
     },
 
-    highlightElement: function(element, async, callback) {
+    highlightElement: function (element, async, callback) {
       // Find language
       var language,
         grammar,
@@ -210,7 +210,7 @@ var Prism = (function() {
       if (async && self.Worker) {
         var worker = new Worker(_.filename);
 
-        worker.onmessage = function(evt) {
+        worker.onmessage = function (evt) {
           env.highlightedCode = Token.stringify(JSON.parse(evt.data), language);
 
           _.hooks.run('before-insert', env);
@@ -240,12 +240,12 @@ var Prism = (function() {
       }
     },
 
-    highlight: function(text, grammar, language) {
+    highlight: function (text, grammar, language) {
       var tokens = _.tokenize(text, grammar);
       return Token.stringify(_.util.encode(tokens), language);
     },
 
-    tokenize: function(text, grammar, language) {
+    tokenize: function (text, grammar, language) {
       var Token = _.Token;
 
       var strarr = [text];
@@ -337,7 +337,7 @@ var Prism = (function() {
     hooks: {
       all: {},
 
-      add: function(name, callback) {
+      add: function (name, callback) {
         var hooks = _.hooks.all;
 
         hooks[name] = hooks[name] || [];
@@ -345,7 +345,7 @@ var Prism = (function() {
         hooks[name].push(callback);
       },
 
-      run: function(name, env) {
+      run: function (name, env) {
         var callbacks = _.hooks.all[name];
 
         if (!callbacks || !callbacks.length) {
@@ -359,20 +359,20 @@ var Prism = (function() {
     },
   });
 
-  var Token = (_.Token = function(type, content, alias) {
+  var Token = (_.Token = function (type, content, alias) {
     this.type = type;
     this.content = content;
     this.alias = alias;
   });
 
-  Token.stringify = function(o, language, parent) {
+  Token.stringify = function (o, language, parent) {
     if (typeof o == 'string') {
       return o;
     }
 
     if (Object.prototype.toString.call(o) == '[object Array]') {
       return o
-        .map(function(element) {
+        .map(function (element) {
           return Token.stringify(element, language, o);
         })
         .join('');
@@ -428,7 +428,7 @@ var Prism = (function() {
     // In worker
     self.addEventListener(
       'message',
-      function(evt) {
+      function (evt) {
         var message = JSON.parse(evt.data),
           lang = message.language,
           code = message.code;
@@ -502,7 +502,7 @@ Prism.languages.markup = {
 };
 
 // Plugin to make entity title show the real entity, idea by Roman Komarov
-Prism.hooks.add('wrap', function(env) {
+Prism.hooks.add('wrap', function (env) {
   if (env.type === 'entity') {
     env.attributes['title'] = env.content.replace(/&amp;/, '&');
   }
@@ -641,7 +641,7 @@ if (Prism.languages.markup) {
      Begin prism-file-highlight.js
 ********************************************** */
 
-(function() {
+(function () {
   if (!self.Prism || !self.document || !document.querySelector) {
     return;
   }
@@ -657,7 +657,7 @@ if (Prism.languages.markup) {
 
   Array.prototype.slice
     .call(document.querySelectorAll('pre[data-src]'))
-    .forEach(function(pre) {
+    .forEach(function (pre) {
       var src = pre.getAttribute('data-src');
       var extension = (src.match(/\.(\w+)$/) || [, ''])[1];
       var language = Extensions[extension] || extension;
@@ -675,7 +675,7 @@ if (Prism.languages.markup) {
 
       xhr.open('GET', src, true);
 
-      xhr.onreadystatechange = function() {
+      xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
           if (xhr.status < 400 && xhr.responseText) {
             code.textContent = xhr.responseText;

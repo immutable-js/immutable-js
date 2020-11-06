@@ -16,7 +16,7 @@ const NON_NUMBERS = {
 
 describe('List', () => {
   describe('setSize()', () => {
-    Object.keys(NON_NUMBERS).forEach(type => {
+    Object.keys(NON_NUMBERS).forEach((type) => {
       const nonNumber = NON_NUMBERS[type];
       it(`considers a size argument of type '${type}' to be zero`, () => {
         const v1 = List.of(1, 2, 3);
@@ -28,7 +28,7 @@ describe('List', () => {
   describe('slice()', () => {
     // Mimic the behavior of Array::slice()
     // http://www.ecma-international.org/ecma-262/6.0/#sec-array.prototype.slice
-    Object.keys(NON_NUMBERS).forEach(type => {
+    Object.keys(NON_NUMBERS).forEach((type) => {
       const nonNumber = NON_NUMBERS[type];
       it(`considers a begin argument of type '${type}' to be zero`, () => {
         const v1 = List.of('a', 'b', 'c');

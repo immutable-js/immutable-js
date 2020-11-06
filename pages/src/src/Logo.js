@@ -8,11 +8,11 @@
 var React = require('react');
 
 var Logo = React.createClass({
-  shouldComponentUpdate: function(nextProps) {
+  shouldComponentUpdate: function (nextProps) {
     return nextProps.opacity !== this.props.opacity;
   },
 
-  render: function() {
+  render: function () {
     var opacity = this.props.opacity;
     if (opacity === undefined) {
       opacity = 1;

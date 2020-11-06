@@ -4,14 +4,8 @@
     "ecmaVersion": 6,
     "sourceType": "module"
   },
-  "extends": [
-    "airbnb",
-    "prettier",
-    "prettier/react"
-  ],
-  "plugins": [
-    "react"
-  ],
+  "extends": ["airbnb", "prettier", "prettier/react"],
+  "plugins": ["react"],
   "rules": {
     "array-callback-return": "off",
     "block-scoped-var": "off",

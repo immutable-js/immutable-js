@@ -22,7 +22,7 @@ var typeDefURL =
   'https://github.com/facebook/immutable-js/blob/master/type-definitions/Immutable.d.ts';
 var issuesURL = 'https://github.com/facebook/immutable-js/issues';
 
-var Disclaimer = function() {
+var Disclaimer = function () {
   return (
     <section className="disclaimer">
       This documentation is generated from{' '}
@@ -149,8 +149,8 @@ var TypeDoc = React.createClass({
 
     var doc = def.doc || {};
     var call = def.call;
-    var functions = Seq(def.module).filter(t => !t.interface && !t.module);
-    var types = Seq(def.module).filter(t => t.interface || t.module);
+    var functions = Seq(def.module).filter((t) => !t.interface && !t.module);
+    var types = Seq(def.module).filter((t) => t.interface || t.module);
     var interfaceDef = def.interface;
     var typePropMap = getTypePropMap(interfaceDef);
 
@@ -244,24 +244,23 @@ var TypeDoc = React.createClass({
 
         <section>
           {Seq(memberGroups)
-            .map(
-              (members, title) =>
-                members.length === 0
-                  ? null
-                  : Seq([
-                      <h4 key={title || 'Members'} className="groupTitle">
-                        {title || 'Members'}
-                      </h4>,
-                      Seq(members).map(member => (
-                        <MemberDoc
-                          typePropMap={typePropMap}
-                          key={member.memberName}
-                          showDetail={member.memberName === memberName}
-                          parentName={name}
-                          member={member}
-                        />
-                      )),
-                    ])
+            .map((members, title) =>
+              members.length === 0
+                ? null
+                : Seq([
+                    <h4 key={title || 'Members'} className="groupTitle">
+                      {title || 'Members'}
+                    </h4>,
+                    Seq(members).map((member) => (
+                      <MemberDoc
+                        typePropMap={typePropMap}
+                        key={member.memberName}
+                        showDetail={member.memberName === memberName}
+                        parentName={name}
+                        member={member}
+                      />
+                    )),
+                  ])
             )
             .flatten()
             .valueSeq()
@@ -304,9 +303,9 @@ function getTypePropMap(def) {
   var map = {};
   def &&
     def.extends &&
-    def.extends.forEach(e => {
+    def.extends.forEach((e) => {
       var superModule = defs.Immutable;
-      e.name.split('.').forEach(part => {
+      e.name.split('.').forEach((part) => {
         superModule =
           superModule && superModule.module && superModule.module[part];
       });
@@ -315,7 +314,7 @@ function getTypePropMap(def) {
         var interfaceMap = Seq(superInterface.typeParams)
           .toKeyedSeq()
           .flip()
-          .map(i => e.args[i])
+          .map((i) => e.args[i])
           .toObject();
         Seq(interfaceMap).forEach((v, k) => {
           map[e.name + '<' + k] = v;

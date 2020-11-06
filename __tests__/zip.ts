@@ -18,7 +18,11 @@ describe('zip', () => {
       Seq([1, 2, 3])
         .zip(Seq([4, 5, 6]))
         .toArray()
-    ).toEqual([[1, 4], [2, 5], [3, 6]]);
+    ).toEqual([
+      [1, 4],
+      [2, 5],
+      [3, 6],
+    ]);
   });
 
   it('zip results can be converted to JS', () => {
@@ -32,7 +36,11 @@ describe('zip', () => {
         [List([3]), List([6])],
       ])
     );
-    expect(zipped.toJS()).toEqual([[[1], [4]], [[2], [5]], [[3], [6]]]);
+    expect(zipped.toJS()).toEqual([
+      [[1], [4]],
+      [[2], [5]],
+      [[3], [6]],
+    ]);
   });
 
   it('zips with infinite lists', () => {
@@ -40,12 +48,16 @@ describe('zip', () => {
       Range()
         .zip(Seq(['A', 'B', 'C']))
         .toArray()
-    ).toEqual([[0, 'A'], [1, 'B'], [2, 'C']]);
+    ).toEqual([
+      [0, 'A'],
+      [1, 'B'],
+      [2, 'C'],
+    ]);
   });
 
   it('has unknown size when zipped with unknown size', () => {
     const seq = Range(0, 10);
-    const zipped = seq.zip(seq.filter(n => n % 2 === 0));
+    const zipped = seq.zip(seq.filter((n) => n % 2 === 0));
     expect(zipped.size).toBe(undefined);
     expect(zipped.count()).toBe(5);
   });
@@ -53,8 +65,8 @@ describe('zip', () => {
   check.it(
     'is always the size of the smaller sequence',
     [gen.notEmpty(gen.array(gen.posInt))],
-    lengths => {
-      const ranges = lengths.map(l => Range(0, l));
+    (lengths) => {
+      const ranges = lengths.map((l) => Range(0, l));
       const first = ranges.shift();
       const zipped = first.zip.apply(first, ranges);
       const shortestLength = Math.min.apply(Math, lengths);
@@ -75,14 +87,18 @@ describe('zip', () => {
       expect(
         Seq([1, 2, 3])
           .zipWith(
-            function() {
+            function () {
               return List(arguments);
             },
             Seq([4, 5, 6]),
             Seq([7, 8, 9])
           )
           .toJS()
-      ).toEqual([[1, 4, 7], [2, 5, 8], [3, 6, 9]]);
+      ).toEqual([
+        [1, 4, 7],
+        [2, 5, 8],
+        [3, 6, 9],
+      ]);
     });
   });
 
@@ -92,14 +108,18 @@ describe('zip', () => {
         Seq([1, 2, 3])
           .zipAll(Seq([4]))
           .toArray()
-      ).toEqual([[1, 4], [2, undefined], [3, undefined]]);
+      ).toEqual([
+        [1, 4],
+        [2, undefined],
+        [3, undefined],
+      ]);
     });
 
     check.it(
       'is always the size of the longest sequence',
       [gen.notEmpty(gen.array(gen.posInt))],
-      lengths => {
-        const ranges = lengths.map(l => Range(0, l));
+      (lengths) => {
+        const ranges = lengths.map((l) => Range(0, l));
         const first = ranges.shift();
         const zipped = first.zipAll.apply(first, ranges);
         const longestLength = Math.max.apply(Math, lengths);

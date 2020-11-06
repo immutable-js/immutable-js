@@ -53,7 +53,7 @@ export class List extends IndexedCollection {
     if (size > 0 && size < SIZE) {
       return makeList(0, size, SHIFT, null, new VNode(iter.toArray()));
     }
-    return empty.withMutations(list => {
+    return empty.withMutations((list) => {
       list.setSize(size);
       iter.forEach((v, i) => list.set(i, v));
     });
@@ -89,10 +89,10 @@ export class List extends IndexedCollection {
     return !this.has(index)
       ? this
       : index === 0
-        ? this.shift()
-        : index === this.size - 1
-          ? this.pop()
-          : this.splice(index, 1);
+      ? this.shift()
+      : index === this.size - 1
+      ? this.pop()
+      : this.splice(index, 1);
   }
 
   insert(index, value) {
@@ -117,7 +117,7 @@ export class List extends IndexedCollection {
   push(/*...values*/) {
     const values = arguments;
     const oldSize = this.size;
-    return this.withMutations(list => {
+    return this.withMutations((list) => {
       setListBounds(list, 0, oldSize + values.length);
       for (let ii = 0; ii < values.length; ii++) {
         list.set(oldSize + ii, values[ii]);
@@ -131,7 +131,7 @@ export class List extends IndexedCollection {
 
   unshift(/*...values*/) {
     const values = arguments;
-    return this.withMutations(list => {
+    return this.withMutations((list) => {
       setListBounds(list, -values.length);
       for (let ii = 0; ii < values.length; ii++) {
         list.set(ii, values[ii]);
@@ -164,8 +164,8 @@ export class List extends IndexedCollection {
     if (this.size === 0 && !this.__ownerID && seqs.length === 1) {
       return this.constructor(seqs[0]);
     }
-    return this.withMutations(list => {
-      seqs.forEach(seq => seq.forEach(value => list.push(value)));
+    return this.withMutations((list) => {
+      seqs.forEach((seq) => seq.forEach((value) => list.push(value)));
     });
   }
 
@@ -174,7 +174,7 @@ export class List extends IndexedCollection {
   }
 
   map(mapper, context) {
-    return this.withMutations(list => {
+    return this.withMutations((list) => {
       for (let i = 0; i < this.size; i++) {
         list.set(i, mapper.call(context, list.get(i), i, this));
       }
@@ -258,10 +258,10 @@ ListPrototype.withMutations = withMutations;
 ListPrototype.wasAltered = wasAltered;
 ListPrototype.asImmutable = asImmutable;
 ListPrototype['@@transducer/init'] = ListPrototype.asMutable = asMutable;
-ListPrototype['@@transducer/step'] = function(result, arr) {
+ListPrototype['@@transducer/step'] = function (result, arr) {
   return result.push(arr);
 };
-ListPrototype['@@transducer/result'] = function(obj) {
+ListPrototype['@@transducer/result'] = function (obj) {
   return obj.asImmutable();
 };
 
@@ -424,7 +424,7 @@ function updateList(list, index, value) {
   }
 
   if (index >= list.size || index < 0) {
-    return list.withMutations(list => {
+    return list.withMutations((list) => {
       index < 0
         ? setListBounds(list, index).set(0, value)
         : setListBounds(list, 0, index + 1).set(index, value);
@@ -546,8 +546,8 @@ function setListBounds(list, begin, end) {
     end === undefined
       ? oldCapacity
       : end < 0
-        ? oldCapacity + end
-        : oldOrigin + end;
+      ? oldCapacity + end
+      : oldOrigin + end;
   if (newOrigin === oldOrigin && newCapacity === oldCapacity) {
     return list;
   }
@@ -595,8 +595,8 @@ function setListBounds(list, begin, end) {
     newTailOffset < oldTailOffset
       ? listNodeFor(list, newCapacity - 1)
       : newTailOffset > oldTailOffset
-        ? new VNode([], owner)
-        : oldTail;
+      ? new VNode([], owner)
+      : oldTail;
 
   // Merge Tail into tree.
   if (

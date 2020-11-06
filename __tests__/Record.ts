@@ -195,7 +195,7 @@ describe('Record', () => {
 
     try {
       const warnings: Array<any> = [];
-      console.warn = w => warnings.push(w);
+      console.warn = (w) => warnings.push(w);
 
       // size is a safe key to use
       const MyType1 = Record({ size: 123 });
@@ -233,7 +233,10 @@ describe('Record', () => {
 
     const seq4 = Seq.Indexed(t1);
     expect(isKeyed(seq4)).toBe(false);
-    expect(seq4.toJS()).toEqual([['a', 10], ['b', 20]]);
+    expect(seq4.toJS()).toEqual([
+      ['a', 10],
+      ['b', 20],
+    ]);
   });
 
   it('can be iterated over', () => {
@@ -245,6 +248,9 @@ describe('Record', () => {
       entries.push(entry);
     }
 
-    expect(entries).toEqual([['a', 10], ['b', 20]]);
+    expect(entries).toEqual([
+      ['a', 10],
+      ['b', 20],
+    ]);
   });
 });

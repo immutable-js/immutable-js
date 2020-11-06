@@ -240,7 +240,7 @@ function handleError(error) {
 }
 
 function reactPreRender(subDir) {
-  return through.obj(function(file, enc, cb) {
+  return through.obj(function (file, enc, cb) {
     let src = file.contents.toString(enc);
     const components = [];
     src = src.replace(
@@ -313,7 +313,7 @@ function reactTransformify(filePath) {
       code += file;
       cb();
     },
-    function(done) {
+    function (done) {
       try {
         this.push(reactTools.transform(code, { harmony: true }));
       } catch (error) {

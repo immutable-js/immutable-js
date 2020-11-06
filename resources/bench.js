@@ -13,7 +13,7 @@ var path = require('path');
 var vm = require('vm');
 
 function promisify(fn) {
-  return function() {
+  return function () {
     return new Promise((resolve, reject) =>
       fn.apply(
         this,
@@ -37,13 +37,13 @@ Promise.all([
   }),
   exec('git show origin/npm:dist/immutable.js'),
 ])
-  .then(function(args) {
+  .then(function (args) {
     var newSrc = args[0];
     var oldSrc = args[1].toString({ encoding: 'utf8' }).slice(0, -1); // wtf, comma?
     return newSrc === oldSrc ? [newSrc] : [newSrc, oldSrc];
   })
-  .then(function(sources) {
-    return sources.map(function(source) {
+  .then(function (sources) {
+    return sources.map(function (source) {
       var sourceExports = {};
       var sourceModule = { exports: sourceExports };
       vm.runInNewContext(
@@ -58,12 +58,12 @@ Promise.all([
       return sourceModule.exports;
     });
   })
-  .then(function(modules) {
+  .then(function (modules) {
     return readdir(perfDir)
-      .then(function(filepaths) {
+      .then(function (filepaths) {
         return Promise.all(
-          filepaths.map(function(filepath) {
-            return readFile(path.resolve(perfDir, filepath)).then(function(
+          filepaths.map(function (filepath) {
+            return readFile(path.resolve(perfDir, filepath)).then(function (
               source
             ) {
               return {
@@ -74,11 +74,11 @@ Promise.all([
           })
         );
       })
-      .then(function(sources) {
+      .then(function (sources) {
         var tests = {};
 
-        modules.forEach(function(Immutable, version) {
-          sources.forEach(function(source) {
+        modules.forEach(function (Immutable, version) {
+          sources.forEach(function (source) {
             var description = [];
             var beforeStack = [];
             var beforeFn;
@@ -97,8 +97,8 @@ Promise.all([
             function beforeEach(fn) {
               beforeFn = !prevBeforeFn
                 ? fn
-                : (function(prevBeforeFn) {
-                    return function() {
+                : (function (prevBeforeFn) {
+                    return function () {
                       prevBeforeFn();
                       fn();
                     };
@@ -140,23 +140,23 @@ Promise.all([
         //     test: Function
         //   }> // one per module, [new,old] or just [new]
         // }>
-        return Object.keys(tests).map(function(key) {
+        return Object.keys(tests).map(function (key) {
           return tests[key];
         });
       });
   })
-  .then(function(tests) {
+  .then(function (tests) {
     var suites = [];
 
-    tests.forEach(function(test) {
+    tests.forEach(function (test) {
       var suite = new Benchmark.Suite(test.description, {
-        onStart: function(event) {
+        onStart: function (event) {
           console.log(event.currentTarget.name.bold);
           process.stdout.write('  ...running...  '.gray);
         },
-        onComplete: function(event) {
+        onComplete: function (event) {
           process.stdout.write('\r\x1B[K');
-          var stats = Array.prototype.map.call(event.currentTarget, function(
+          var stats = Array.prototype.map.call(event.currentTarget, function (
             target
           ) {
             return target.stats;
@@ -261,7 +261,7 @@ Promise.all([
         },
       });
 
-      test.tests.forEach(function(run) {
+      test.tests.forEach(function (run) {
         suite.add({
           fn: run.test,
           onStart: run.before,
@@ -273,7 +273,7 @@ Promise.all([
     });
 
     var onBenchComplete;
-    var promise = new Promise(function(_resolve) {
+    var promise = new Promise(function (_resolve) {
       onBenchComplete = _resolve;
     });
 
@@ -281,9 +281,9 @@ Promise.all([
 
     return onBenchComplete;
   })
-  .then(function() {
+  .then(function () {
     console.log('all done');
   })
-  .catch(function(error) {
+  .catch(function (error) {
     console.log('ugh', error.stack);
   });

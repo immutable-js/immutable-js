@@ -5,14 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-describe('Map', function() {
-  describe('builds from an object', function() {
+describe('Map', function () {
+  describe('builds from an object', function () {
     var obj2 = {};
     for (var ii = 0; ii < 2; ii++) {
       obj2['x' + ii] = ii;
     }
 
-    it('of 2', function() {
+    it('of 2', function () {
       Immutable.Map(obj2);
     });
 
@@ -21,7 +21,7 @@ describe('Map', function() {
       obj8['x' + ii] = ii;
     }
 
-    it('of 8', function() {
+    it('of 8', function () {
       Immutable.Map(obj8);
     });
 
@@ -30,7 +30,7 @@ describe('Map', function() {
       obj32['x' + ii] = ii;
     }
 
-    it('of 32', function() {
+    it('of 32', function () {
       Immutable.Map(obj32);
     });
 
@@ -39,18 +39,18 @@ describe('Map', function() {
       obj1024['x' + ii] = ii;
     }
 
-    it('of 1024', function() {
+    it('of 1024', function () {
       Immutable.Map(obj1024);
     });
   });
 
-  describe('builds from an array', function() {
+  describe('builds from an array', function () {
     var array2 = [];
     for (var ii = 0; ii < 2; ii++) {
       array2[ii] = ['x' + ii, ii];
     }
 
-    it('of 2', function() {
+    it('of 2', function () {
       Immutable.Map(array2);
     });
 
@@ -59,7 +59,7 @@ describe('Map', function() {
       array8[ii] = ['x' + ii, ii];
     }
 
-    it('of 8', function() {
+    it('of 8', function () {
       Immutable.Map(array8);
     });
 
@@ -68,7 +68,7 @@ describe('Map', function() {
       array32[ii] = ['x' + ii, ii];
     }
 
-    it('of 32', function() {
+    it('of 32', function () {
       Immutable.Map(array32);
     });
 
@@ -77,19 +77,19 @@ describe('Map', function() {
       array1024[ii] = ['x' + ii, ii];
     }
 
-    it('of 1024', function() {
+    it('of 1024', function () {
       Immutable.Map(array1024);
     });
   });
 
-  describe('builds from a List', function() {
+  describe('builds from a List', function () {
     var list2 = Immutable.List().asMutable();
     for (var ii = 0; ii < 2; ii++) {
       list2 = list2.push(Immutable.List(['x' + ii, ii]));
     }
     list2 = list2.asImmutable();
 
-    it('of 2', function() {
+    it('of 2', function () {
       Immutable.Map(list2);
     });
 
@@ -99,7 +99,7 @@ describe('Map', function() {
     }
     list8 = list8.asImmutable();
 
-    it('of 8', function() {
+    it('of 8', function () {
       Immutable.Map(list8);
     });
 
@@ -109,7 +109,7 @@ describe('Map', function() {
     }
     list32 = list32.asImmutable();
 
-    it('of 32', function() {
+    it('of 32', function () {
       Immutable.Map(list32);
     });
 
@@ -119,13 +119,13 @@ describe('Map', function() {
     }
     list1024 = list1024.asImmutable();
 
-    it('of 1024', function() {
+    it('of 1024', function () {
       Immutable.Map(list1024);
     });
   });
 
   describe('merge a map', () => {
-    [2, 8, 32, 1024].forEach(size => {
+    [2, 8, 32, 1024].forEach((size) => {
       const obj1 = {};
       const obj2 = {};
       for (let ii = 0; ii < size; ii++) {

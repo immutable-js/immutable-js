@@ -61,7 +61,7 @@ function DocVisitor(source) {
   }
 
   function isTypeParam(name) {
-    return typeParams.some(set => set && set.indexOf(name) !== -1);
+    return typeParams.some((set) => set && set.indexOf(name) !== -1);
   }
 
   function isAliased(name) {
@@ -72,9 +72,9 @@ function DocVisitor(source) {
     comment &&
       comment.notes &&
       comment.notes
-        .filter(note => note.name === 'alias')
-        .map(node => node.body)
-        .forEach(alias => {
+        .filter((note) => note.name === 'alias')
+        .map((node) => node.body)
+        .forEach((alias) => {
           last(aliases)[alias] = name;
         });
   }
@@ -87,8 +87,8 @@ function DocVisitor(source) {
       var name = node.name
         ? node.name.text
         : node.stringLiteral
-          ? node.stringLiteral.text
-          : '';
+        ? node.stringLiteral.text
+        : '';
 
       if (comment) {
         setIn(data, [name, 'doc'], comment);
@@ -138,13 +138,13 @@ function DocVisitor(source) {
         interfaceObj.doc = comment;
       }
       if (node.typeParameters) {
-        interfaceObj.typeParams = node.typeParameters.map(tp => tp.name.text);
+        interfaceObj.typeParams = node.typeParameters.map((tp) => tp.name.text);
       }
 
       typeParams.push(interfaceObj.typeParams);
 
       if (node.heritageClauses) {
-        node.heritageClauses.forEach(hc => {
+        node.heritageClauses.forEach((hc) => {
           var kind;
           if (hc.token === ts.SyntaxKind.ExtendsKeyword) {
             kind = 'extends';
@@ -153,7 +153,7 @@ function DocVisitor(source) {
           } else {
             throw new Error('Unknown heritageClause');
           }
-          interfaceObj[kind] = hc.types.map(c => parseType(c));
+          interfaceObj[kind] = hc.types.map((c) => parseType(c));
         });
       }
       setIn(data, [name, 'interface'], interfaceObj);
@@ -175,7 +175,7 @@ function DocVisitor(source) {
   function ensureGroup(node) {
     var trivia = ts.getLeadingCommentRangesOfNode(node, source);
     if (trivia && trivia.length) {
-      trivia.forEach(range => {
+      trivia.forEach((range) => {
         if (range.kind === ts.SyntaxKind.SingleLineCommentTrivia) {
           pushIn(data, ['groups'], {
             title: source.text.substring(range.pos + 3, range.end),
@@ -251,13 +251,13 @@ function DocVisitor(source) {
     var callSignature = {};
 
     if (node.typeParameters) {
-      callSignature.typeParams = node.typeParameters.map(tp => tp.name.text);
+      callSignature.typeParams = node.typeParameters.map((tp) => tp.name.text);
     }
 
     typeParams.push(callSignature.typeParams);
 
     if (node.parameters.length) {
-      callSignature.params = node.parameters.map(p => parseParam(p));
+      callSignature.params = node.parameters.map((p) => parseParam(p));
     }
 
     if (node.type) {
@@ -333,8 +333,8 @@ function DocVisitor(source) {
           node.operator === ts.SyntaxKind.KeyOfKeyword
             ? 'keyof'
             : node.operator === ts.SyntaxKind.ReadonlyKeyword
-              ? 'readonly'
-              : undefined;
+            ? 'readonly'
+            : undefined;
         if (!operator) {
           throw new Error(
             'Unknown operator kind: ' + ts.SyntaxKind[node.operator]
@@ -348,12 +348,12 @@ function DocVisitor(source) {
       case ts.SyntaxKind.TypeLiteral:
         return {
           k: TypeKind.Object,
-          members: node.members.map(m => {
+          members: node.members.map((m) => {
             switch (m.kind) {
               case ts.SyntaxKind.IndexSignature:
                 return {
                   index: true,
-                  params: m.parameters.map(p => parseParam(p)),
+                  params: m.parameters.map((p) => parseParam(p)),
                   type: parseType(m.type),
                 };
               case ts.SyntaxKind.PropertySignature:
@@ -374,7 +374,7 @@ function DocVisitor(source) {
         return {
           k: TypeKind.Function,
           typeParams: node.typeParameters && node.typeParameters.map(parseType),
-          params: node.parameters.map(p => parseParam(p)),
+          params: node.parameters.map((p) => parseParam(p)),
           type: parseType(node.type),
         };
       case ts.SyntaxKind.TypeReference:
@@ -465,20 +465,20 @@ function getDoc(node) {
     .substring(trivia.pos, trivia.end)
     .split('\n')
     .slice(1, -1)
-    .map(l => l.trim().substr(2));
+    .map((l) => l.trim().substr(2));
 
   var paragraphs = lines
-    .filter(l => l[0] !== '@')
+    .filter((l) => l[0] !== '@')
     .join('\n')
     .split('\n\n');
 
   var synopsis = paragraphs && paragraphs.shift();
   var description = paragraphs && paragraphs.join('\n\n');
   var notes = lines
-    .filter(l => l[0] === '@')
-    .map(l => l.match(COMMENT_NOTE_RX))
-    .map(n => ({ name: n[1], body: n[2] }))
-    .filter(note => !NOTE_BLACKLIST[note.name]);
+    .filter((l) => l[0] === '@')
+    .map((l) => l.match(COMMENT_NOTE_RX))
+    .map((n) => ({ name: n[1], body: n[2] }))
+    .filter((note) => !NOTE_BLACKLIST[note.name]);
 
   return {
     synopsis,
@@ -514,7 +514,7 @@ function shouldIgnore(comment) {
     comment &&
       comment.notes &&
       comment.notes.find(
-        note => note.name === 'ignore' || note.name === 'deprecated'
+        (note) => note.name === 'ignore' || note.name === 'deprecated'
       )
   );
 }

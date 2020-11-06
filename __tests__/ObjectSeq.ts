@@ -12,7 +12,7 @@ import { Seq } from '../';
 describe('ObjectSequence', () => {
   it('maps', () => {
     const i = Seq({ a: 'A', b: 'B', c: 'C' });
-    const m = i.map(x => x + x).toObject();
+    const m = i.map((x) => x + x).toObject();
     expect(m).toEqual({ a: 'AA', b: 'BB', c: 'CC' });
   });
 
@@ -31,16 +31,21 @@ describe('ObjectSequence', () => {
   it('is reversable', () => {
     const i = Seq({ a: 'A', b: 'B', c: 'C' });
     const k = i.reverse().toArray();
-    expect(k).toEqual([['c', 'C'], ['b', 'B'], ['a', 'A']]);
+    expect(k).toEqual([
+      ['c', 'C'],
+      ['b', 'B'],
+      ['a', 'A'],
+    ]);
   });
 
   it('is double reversable', () => {
     const i = Seq({ a: 'A', b: 'B', c: 'C' });
-    const k = i
-      .reverse()
-      .reverse()
-      .toArray();
-    expect(k).toEqual([['a', 'A'], ['b', 'B'], ['c', 'C']]);
+    const k = i.reverse().reverse().toArray();
+    expect(k).toEqual([
+      ['a', 'A'],
+      ['b', 'B'],
+      ['c', 'C'],
+    ]);
   });
 
   it('can be iterated', () => {

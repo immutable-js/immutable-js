@@ -28,7 +28,7 @@ export function toJS(value) {
     return result;
   }
   const result = [];
-  value.__iterate(v => {
+  value.__iterate((v) => {
     result.push(toJS(v));
   });
   return result;

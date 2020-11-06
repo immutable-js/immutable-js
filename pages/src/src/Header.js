@@ -16,26 +16,26 @@ var isMobileMatch =
 var isMobile = isMobileMatch && isMobileMatch.matches;
 
 var Header = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return { scroll: 0 };
   },
 
-  componentDidMount: function() {
+  componentDidMount: function () {
     this.offsetHeight = this.getDOMNode().offsetHeight;
     window.addEventListener('scroll', this.handleScroll);
     window.addEventListener('resize', this.handleResize);
   },
 
-  componentWillUnmount: function() {
+  componentWillUnmount: function () {
     window.removeEventListener('scroll', this.handleScroll);
     window.removeEventListener('resize', this.handleResize);
   },
 
-  handleResize: function() {
+  handleResize: function () {
     this.offsetHeight = this.getDOMNode().offsetHeight;
   },
 
-  handleScroll: function() {
+  handleScroll: function () {
     if (!this._pending) {
       var headerHeight = Math.min(
         800,
@@ -51,7 +51,7 @@ var Header = React.createClass({
     }
   },
 
-  render: function() {
+  render: function () {
     var neg = this.state.scroll < 0;
     var s = neg ? 0 : this.state.scroll;
     var sp = isMobile ? 35 : 70;

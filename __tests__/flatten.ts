@@ -14,7 +14,11 @@ import { Collection, fromJS, List, Range, Seq } from '../';
 
 describe('flatten', () => {
   it('flattens sequences one level deep', () => {
-    const nested = fromJS([[1, 2], [3, 4], [5, 6]]);
+    const nested = fromJS([
+      [1, 2],
+      [3, 4],
+      [5, 6],
+    ]);
     const flat = nested.flatten();
     expect(flat.toJS()).toEqual([1, 2, 3, 4, 5, 6]);
   });
@@ -26,9 +30,12 @@ describe('flatten', () => {
   });
 
   it('gives the correct iteration count', () => {
-    const nested = fromJS([[1, 2, 3], [4, 5, 6]]);
+    const nested = fromJS([
+      [1, 2, 3],
+      [4, 5, 6],
+    ]);
     const flat = nested.flatten();
-    expect(flat.forEach(x => x < 4)).toEqual(4);
+    expect(flat.forEach((x) => x < 4)).toEqual(4);
   });
 
   type SeqType = number | Array<number> | Collection<number, number>;
@@ -48,8 +55,26 @@ describe('flatten', () => {
 
   it('can flatten at various levels of depth', () => {
     const deeplyNested = fromJS([
-      [[['A', 'B'], ['A', 'B']], [['A', 'B'], ['A', 'B']]],
-      [[['A', 'B'], ['A', 'B']], [['A', 'B'], ['A', 'B']]],
+      [
+        [
+          ['A', 'B'],
+          ['A', 'B'],
+        ],
+        [
+          ['A', 'B'],
+          ['A', 'B'],
+        ],
+      ],
+      [
+        [
+          ['A', 'B'],
+          ['A', 'B'],
+        ],
+        [
+          ['A', 'B'],
+          ['A', 'B'],
+        ],
+      ],
     ]);
 
     // deeply flatten
@@ -74,10 +99,22 @@ describe('flatten', () => {
 
     // shallow flatten
     expect(deeplyNested.flatten(true).toJS()).toEqual([
-      [['A', 'B'], ['A', 'B']],
-      [['A', 'B'], ['A', 'B']],
-      [['A', 'B'], ['A', 'B']],
-      [['A', 'B'], ['A', 'B']],
+      [
+        ['A', 'B'],
+        ['A', 'B'],
+      ],
+      [
+        ['A', 'B'],
+        ['A', 'B'],
+      ],
+      [
+        ['A', 'B'],
+        ['A', 'B'],
+      ],
+      [
+        ['A', 'B'],
+        ['A', 'B'],
+      ],
     ]);
 
     // flatten two levels
@@ -96,7 +133,7 @@ describe('flatten', () => {
   describe('flatMap', () => {
     it('first maps, then shallow flattens', () => {
       const numbers = Range(97, 100);
-      const letters = numbers.flatMap(v =>
+      const letters = numbers.flatMap((v) =>
         fromJS([String.fromCharCode(v), String.fromCharCode(v).toUpperCase()])
       );
       expect(letters.toJS()).toEqual(['a', 'A', 'b', 'B', 'c', 'C']);
@@ -106,7 +143,7 @@ describe('flatten', () => {
       const numbers = Range(97, 100);
       // the map function returns an Array, rather than a Collection.
       // Array is iterable, so this works just fine.
-      const letters = numbers.flatMap(v => [
+      const letters = numbers.flatMap((v) => [
         String.fromCharCode(v),
         String.fromCharCode(v).toUpperCase(),
       ]);

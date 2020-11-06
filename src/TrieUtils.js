@@ -84,12 +84,12 @@ function resolveIndex(index, size, defaultIndex) {
   return index === undefined
     ? defaultIndex
     : isNeg(index)
-      ? size === Infinity
-        ? size
-        : Math.max(0, size + index) | 0
-      : size === undefined || size === index
-        ? index
-        : Math.min(size, index) | 0;
+    ? size === Infinity
+      ? size
+      : Math.max(0, size + index) | 0
+    : size === undefined || size === index
+    ? index
+    : Math.min(size, index) | 0;
 }
 
 function isNeg(value) {

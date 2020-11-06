@@ -7,7 +7,8 @@
 
 import { Repeat } from '../../';
 
-{  // #constructor
+{
+  // #constructor
 
   // $ExpectType Indexed<number>
   Repeat(0, 0);

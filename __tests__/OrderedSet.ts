@@ -20,20 +20,13 @@ describe('OrderedSet', () => {
   });
 
   it('maintains order when new values are added', () => {
-    const s = OrderedSet()
-      .add('A')
-      .add('Z')
-      .add('A');
+    const s = OrderedSet().add('A').add('Z').add('A');
     expect(s.size).toBe(2);
     expect(s.toArray()).toEqual(['A', 'Z']);
   });
 
   it('resets order when a value is deleted', () => {
-    const s = OrderedSet()
-      .add('A')
-      .add('Z')
-      .remove('A')
-      .add('A');
+    const s = OrderedSet().add('A').add('Z').remove('A').add('A');
     expect(s.size).toBe(2);
     expect(s.toArray()).toEqual(['Z', 'A']);
   });
@@ -62,7 +55,11 @@ describe('OrderedSet', () => {
   it('can be zipped', () => {
     const s1 = OrderedSet.of('A', 'B', 'C');
     const s2 = OrderedSet.of('C', 'B', 'D');
-    expect(s1.zip(s2).toArray()).toEqual([['A', 'C'], ['B', 'B'], ['C', 'D']]);
+    expect(s1.zip(s2).toArray()).toEqual([
+      ['A', 'C'],
+      ['B', 'B'],
+      ['C', 'D'],
+    ]);
     expect(s1.zipWith((c1, c2) => c1 + c2, s2).toArray()).toEqual([
       'AC',
       'BB',

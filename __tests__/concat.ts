@@ -117,18 +117,28 @@ describe('concat', () => {
   it('iterates repeated keys', () => {
     const a = Seq({ a: 1, b: 2, c: 3 });
     expect(a.concat(a, a).toObject()).toEqual({ a: 1, b: 2, c: 3 });
-    expect(
-      a
-        .concat(a, a)
-        .valueSeq()
-        .toArray()
-    ).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3]);
-    expect(
-      a
-        .concat(a, a)
-        .keySeq()
-        .toArray()
-    ).toEqual(['a', 'b', 'c', 'a', 'b', 'c', 'a', 'b', 'c']);
+    expect(a.concat(a, a).valueSeq().toArray()).toEqual([
+      1,
+      2,
+      3,
+      1,
+      2,
+      3,
+      1,
+      2,
+      3,
+    ]);
+    expect(a.concat(a, a).keySeq().toArray()).toEqual([
+      'a',
+      'b',
+      'c',
+      'a',
+      'b',
+      'c',
+      'a',
+      'b',
+      'c',
+    ]);
     expect(a.concat(a, a).toArray()).toEqual([
       ['a', 1],
       ['b', 2],
@@ -145,42 +155,37 @@ describe('concat', () => {
   it('lazily reverses un-indexed sequences', () => {
     const a = Seq({ a: 1, b: 2, c: 3 });
     const b = Seq({ d: 4, e: 5, f: 6 });
-    expect(
-      a
-        .concat(b)
-        .reverse()
-        .keySeq()
-        .toArray()
-    ).toEqual(['f', 'e', 'd', 'c', 'b', 'a']);
+    expect(a.concat(b).reverse().keySeq().toArray()).toEqual([
+      'f',
+      'e',
+      'd',
+      'c',
+      'b',
+      'a',
+    ]);
   });
 
   it('lazily reverses indexed sequences', () => {
     const a = Seq([1, 2, 3]);
     expect(a.concat(a, a).reverse().size).toBe(9);
-    expect(
-      a
-        .concat(a, a)
-        .reverse()
-        .toArray()
-    ).toEqual([3, 2, 1, 3, 2, 1, 3, 2, 1]);
+    expect(a.concat(a, a).reverse().toArray()).toEqual([
+      3,
+      2,
+      1,
+      3,
+      2,
+      1,
+      3,
+      2,
+      1,
+    ]);
   });
 
   it('lazily reverses indexed sequences with unknown size, maintaining indicies', () => {
-    const a = Seq([1, 2, 3]).filter(x => true);
+    const a = Seq([1, 2, 3]).filter((x) => true);
     expect(a.size).toBe(undefined); // Note: lazy filter does not know what size in O(1).
-    expect(
-      a
-        .concat(a, a)
-        .toKeyedSeq()
-        .reverse().size
-    ).toBe(undefined);
-    expect(
-      a
-        .concat(a, a)
-        .toKeyedSeq()
-        .reverse()
-        .toArray()
-    ).toEqual([
+    expect(a.concat(a, a).toKeyedSeq().reverse().size).toBe(undefined);
+    expect(a.concat(a, a).toKeyedSeq().reverse().toArray()).toEqual([
       [8, 3],
       [7, 2],
       [6, 1],
@@ -194,7 +199,7 @@ describe('concat', () => {
   });
 
   it('counts from the end of the indexed sequence on negative index', () => {
-    const i = List.of(9, 5, 3, 1).map(x => -x);
+    const i = List.of(9, 5, 3, 1).map((x) => -x);
     expect(i.get(0)).toBe(-9);
     expect(i.get(-1)).toBe(-1);
     expect(i.get(-4)).toBe(-9);

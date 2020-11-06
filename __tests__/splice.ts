@@ -14,49 +14,17 @@ import { List, Range, Seq } from '../';
 
 describe('splice', () => {
   it('splices a sequence only removing elements', () => {
-    expect(
-      Seq([1, 2, 3])
-        .splice(0, 1)
-        .toArray()
-    ).toEqual([2, 3]);
-    expect(
-      Seq([1, 2, 3])
-        .splice(1, 1)
-        .toArray()
-    ).toEqual([1, 3]);
-    expect(
-      Seq([1, 2, 3])
-        .splice(2, 1)
-        .toArray()
-    ).toEqual([1, 2]);
-    expect(
-      Seq([1, 2, 3])
-        .splice(3, 1)
-        .toArray()
-    ).toEqual([1, 2, 3]);
+    expect(Seq([1, 2, 3]).splice(0, 1).toArray()).toEqual([2, 3]);
+    expect(Seq([1, 2, 3]).splice(1, 1).toArray()).toEqual([1, 3]);
+    expect(Seq([1, 2, 3]).splice(2, 1).toArray()).toEqual([1, 2]);
+    expect(Seq([1, 2, 3]).splice(3, 1).toArray()).toEqual([1, 2, 3]);
   });
 
   it('splices a list only removing elements', () => {
-    expect(
-      List([1, 2, 3])
-        .splice(0, 1)
-        .toArray()
-    ).toEqual([2, 3]);
-    expect(
-      List([1, 2, 3])
-        .splice(1, 1)
-        .toArray()
-    ).toEqual([1, 3]);
-    expect(
-      List([1, 2, 3])
-        .splice(2, 1)
-        .toArray()
-    ).toEqual([1, 2]);
-    expect(
-      List([1, 2, 3])
-        .splice(3, 1)
-        .toArray()
-    ).toEqual([1, 2, 3]);
+    expect(List([1, 2, 3]).splice(0, 1).toArray()).toEqual([2, 3]);
+    expect(List([1, 2, 3]).splice(1, 1).toArray()).toEqual([1, 3]);
+    expect(List([1, 2, 3]).splice(2, 1).toArray()).toEqual([1, 2]);
+    expect(List([1, 2, 3]).splice(3, 1).toArray()).toEqual([1, 2, 3]);
   });
 
   it('splicing by infinity', () => {
@@ -86,12 +54,7 @@ describe('splice', () => {
     const a = Range(0, 49).toArray();
     const v = List(a);
     a.splice(-18, 0, 0);
-    expect(
-      v
-        .splice(-18, 0, 0)
-        .toList()
-        .toArray()
-    ).toEqual(a);
+    expect(v.splice(-18, 0, 0).toList().toArray()).toEqual(a);
   });
 
   check.it(

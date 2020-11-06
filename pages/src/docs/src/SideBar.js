@@ -58,7 +58,7 @@ var SideBar = React.createClass({
     var isFocus = this.props.focus === typeName;
     var isFunction = !type.interface && !type.module;
     var call = type.call;
-    var functions = Seq(type.module).filter(t => !t.interface && !t.module);
+    var functions = Seq(type.module).filter((t) => !t.interface && !t.module);
 
     var label = typeName + (isFunction ? '()' : '');
 
@@ -100,25 +100,24 @@ var SideBar = React.createClass({
 
           <section>
             {Seq(memberGroups)
-              .map(
-                (members, title) =>
-                  members.length === 0
-                    ? null
-                    : Seq([
-                        <h4 key={title || 'Members'} className="groupTitle">
-                          {title || 'Members'}
-                        </h4>,
-                        Seq(members).map(member => (
-                          <div key={member.memberName}>
-                            <Router.Link
-                              to={'/' + typeName + '/' + member.memberName}
-                            >
-                              {member.memberName +
-                                (member.memberDef.signatures ? '()' : '')}
-                            </Router.Link>
-                          </div>
-                        )),
-                      ])
+              .map((members, title) =>
+                members.length === 0
+                  ? null
+                  : Seq([
+                      <h4 key={title || 'Members'} className="groupTitle">
+                        {title || 'Members'}
+                      </h4>,
+                      Seq(members).map((member) => (
+                        <div key={member.memberName}>
+                          <Router.Link
+                            to={'/' + typeName + '/' + member.memberName}
+                          >
+                            {member.memberName +
+                              (member.memberDef.signatures ? '()' : '')}
+                          </Router.Link>
+                        </div>
+                      )),
+                    ])
               )
               .flatten()
               .valueSeq()
@@ -140,7 +139,7 @@ function flattenSubmodules(modules, type, name) {
   modules = modules.set(name, type);
   return type.module
     ? Seq(type.module)
-        .filter(t => t.interface || t.module)
+        .filter((t) => t.interface || t.module)
         .reduce(
           (modules, subT, subName) =>
             flattenSubmodules(modules, subT, name + '.' + subName),

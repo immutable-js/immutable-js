@@ -5,11 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-@link-color: #4183C4;
+@link-color: #4183c4;
 @header-color: #212325;
 @body-color: #626466;
 
-html, body {
+html,
+body {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
@@ -18,7 +19,8 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-body, input {
+body,
+input {
   color: @body-color;
   font-family: 'Fira Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 16px;
@@ -26,12 +28,18 @@ body, input {
 }
 
 @media only screen and (max-width: 680px) {
-  body, input {
+  body,
+  input {
     font-size: 14px;
   }
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: @header-color;
 }
 
@@ -40,10 +48,11 @@ a {
   text-decoration: none;
 }
 
-pre, code {
+pre,
+code {
   font-family: 'Fira Mono', Menlo, monospace;
-  background: #F9F8F7;
-  color: #484A4C;
+  background: #f9f8f7;
+  color: #484a4c;
   font-size: 0.9375em;
   letter-spacing: -0.015em;
 }
@@ -57,7 +66,7 @@ blockquote {
   margin: 1rem 0;
   padding: 0 1rem;
   color: #727476;
-  border-left: solid 3px #DCDAD9;
+  border-left: solid 3px #dcdad9;
 }
 
 blockquote > :first-child {
@@ -68,13 +77,12 @@ blockquote > :last-child {
   margin-bottom: 0;
 }
 
-
 // Markdown
 
 .codeBlock {
   -webkit-overflow-scrolling: touch;
-  background: #FCFBFA;
-  border-left: solid 3px #ECEAE9;
+  background: #fcfbfa;
+  border-left: solid 3px #eceae9;
   box-sizing: border-box;
   display: block;
   font-size: 0.875em;
@@ -82,7 +90,7 @@ blockquote > :last-child {
   overflow-y: scroll;
   padding: 0.5rem 8px 0.5rem 12px;
   white-space: pre;
-  position:relative;
+  position: relative;
 }
 
 .t.blockParams {
@@ -104,7 +112,7 @@ blockquote > :last-child {
 .token.qualifier,
 .t.fnQualifier,
 .t.fnName {
-  color: #32308E;
+  color: #32308e;
 }
 
 .token.primitive,
@@ -133,7 +141,7 @@ blockquote > :last-child {
 .token.block-keyword,
 .token.keyword,
 .t.keyword {
-  color: #A51;
+  color: #a51;
 }
 
 .token.string,
@@ -150,13 +158,12 @@ blockquote > :last-child {
   font-style: italic;
 }
 
-a.try-it
-{
-    position: absolute;
-    cursor: pointer;
-    right: 1em;
-    border: 0;
-    background: transparent;
-    border-bottom: 2px solid rgba(49, 50, 137, 0.2);
-    color: rgba(49, 50, 137, 1.0);
+a.try-it {
+  position: absolute;
+  cursor: pointer;
+  right: 1em;
+  border: 0;
+  background: transparent;
+  border-bottom: 2px solid rgba(49, 50, 137, 0.2);
+  color: rgba(49, 50, 137, 1);
 }

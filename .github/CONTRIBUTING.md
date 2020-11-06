@@ -28,12 +28,12 @@ The code of conduct is described in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
 All active development of Immutable JS happens on GitHub. We actively welcome
 your [pull requests](https://help.github.com/articles/creating-a-pull-request).
 
- 1. Fork the repo and create your branch from `master`.
- 2. Install all dependencies. (`npm install`)
- 3. If you've added code, add tests.
- 4. If you've changed APIs, update the documentation.
- 5. Build generated JS, run tests and ensure your code passes lint. (`npm run test`)
- 6. If you haven't already, complete the Contributor License Agreement ("CLA").
+1.  Fork the repo and create your branch from `master`.
+2.  Install all dependencies. (`npm install`)
+3.  If you've added code, add tests.
+4.  If you've changed APIs, update the documentation.
+5.  Build generated JS, run tests and ensure your code passes lint. (`npm run test`)
+6.  If you haven't already, complete the Contributor License Agreement ("CLA").
 
 ## Documentation
 
@@ -50,17 +50,18 @@ Complete your CLA here: <https://code.facebook.com/cla>
 
 ## Coding Style
 
-* 2 spaces for indentation (no tabs)
-* 80 character line length strongly preferred.
-* Prefer `'` over `"`
-* ES6 Harmony when possible.
-* Use semicolons;
-* Trailing commas,
-* Avd abbr wrds.
+- 2 spaces for indentation (no tabs)
+- 80 character line length strongly preferred.
+- Prefer `'` over `"`
+- ES6 Harmony when possible.
+- Use semicolons;
+- Trailing commas,
+- Avd abbr wrds.
 
 # Functionality Testing
 
 Run the following command to build the library and test functionality:
+
 ```bash
 npm run test
 ```
@@ -71,12 +72,14 @@ Performance tests run against master and your feature branch.
 Make sure to commit your changes in your local feature branch before proceeding.
 
 These commands assume you have a remote named `upstream` amd that you do not already have a local `master` branch:
+
 ```bash
 git fetch upstream
 git checkout -b master upstream/master
 ```
 
-These commands build `dist` and commit `dist/immutable.js` to `master` so that the regression tests can run. 
+These commands build `dist` and commit `dist/immutable.js` to `master` so that the regression tests can run.
+
 ```bash
 npm run test
 git add dist/immutable.js -f
@@ -84,12 +87,14 @@ git commit -m 'perf test prerequisite.'
 ```
 
 Switch back to your feature branch, and run the following command to run regression tests:
+
 ```bash
 npm run test
 npm run perf
 ```
 
 Sample output:
+
 ```bash
 > immutable@4.0.0-rc.9 perf ~/github.com/facebook/immutable-js
 > node ./resources/bench.js

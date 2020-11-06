@@ -7,13 +7,15 @@
 
 import { Seq } from '../../';
 
-{  // #constructor
+{
+  // #constructor
 
   // $ExpectType Indexed<number>
-  Seq([ 1, 2, 3 ]);
+  Seq([1, 2, 3]);
 }
 
-{  // #size
+{
+  // #size
 
   // $ExpectType number | undefined
   Seq().size;

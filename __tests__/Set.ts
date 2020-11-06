@@ -48,7 +48,11 @@ describe('Set', () => {
   it('accepts a keyed Seq as a set of entries', () => {
     const seq = Seq({ a: null, b: null, c: null }).flip();
     const s = Set(seq);
-    expect(s.toArray()).toEqual([[null, 'a'], [null, 'b'], [null, 'c']]);
+    expect(s.toArray()).toEqual([
+      [null, 'a'],
+      [null, 'b'],
+      [null, 'c'],
+    ]);
     // Explicitly getting the values sequence
     const s2 = Set(seq.valueSeq());
     expect(s2.toArray()).toEqual(['a', 'b', 'c']);
@@ -94,7 +98,7 @@ describe('Set', () => {
 
   it('maps no-ops return the same reference', () => {
     const s = Set([1, 2, 3]);
-    const r = s.map(value => value);
+    const r = s.map((value) => value);
     expect(r).toBe(s);
   });
 
@@ -103,7 +107,7 @@ describe('Set', () => {
     expect(s.has(4)).toBe(false);
     expect(s.size).toBe(3);
 
-    const m = s.map(v => v + 1);
+    const m = s.map((v) => v + 1);
     expect(m.has(1)).toBe(false);
     expect(m.has(2)).toBe(true);
     expect(m.has(3)).toBe(true);
@@ -131,7 +135,11 @@ describe('Set', () => {
     const s = Set([1, 2, 3]);
     const iterator = jest.fn();
     s.forEach(iterator);
-    expect(iterator.mock.calls).toEqual([[1, 1, s], [2, 2, s], [3, 3, s]]);
+    expect(iterator.mock.calls).toEqual([
+      [1, 1, s],
+      [2, 2, s],
+      [3, 3, s],
+    ]);
   });
 
   it('unions two sets', () => {
@@ -243,7 +251,7 @@ describe('Set', () => {
 
   it('can use union in a withMutation', () => {
     const js = Set()
-      .withMutations(set => {
+      .withMutations((set) => {
         set.union(['a']);
         set.add('b');
       })
@@ -259,10 +267,10 @@ describe('Set', () => {
 
   describe('accepts Symbol as entry #579', () => {
     if (typeof Symbol !== 'function') {
-      Symbol = function(key) {
+      Symbol = function (key) {
         return { key, __proto__: Symbol };
       };
-      Symbol.toString = function() {
+      Symbol.toString = function () {
         return 'Symbol(' + (this.key || '') + ')';
       };
     }
@@ -302,7 +310,7 @@ describe('Set', () => {
   });
 
   it('can use intersect after add or union in a withMutation', () => {
-    const set = Set(['a', 'd']).withMutations(s => {
+    const set = Set(['a', 'd']).withMutations((s) => {
       s.add('b');
       s.union(['c']);
       s.intersect(['b', 'c', 'd']);
@@ -314,8 +322,8 @@ describe('Set', () => {
     const set = Set([1, 2, 3, 4, 5]);
     expect(set.size).toEqual(5);
     expect(set.count()).toEqual(5);
-    expect(set.count(x => x % 2 === 0)).toEqual(2);
-    expect(set.count(x => true)).toEqual(5);
+    expect(set.count((x) => x % 2 === 0)).toEqual(2);
+    expect(set.count((x) => true)).toEqual(5);
   });
 
   describe('"size" should correctly reflect the number of elements in a Set', () => {
@@ -336,7 +344,7 @@ describe('Set', () => {
         }
       }
       it('with mutations', () => {
-        const testSet = Set().withMutations(mutableSet => {
+        const testSet = Set().withMutations((mutableSet) => {
           mutableSet.add(new Entity('hello', 'world'));
           mutableSet.add(new Entity('testing', 'immutable'));
           mutableSet.add(new Entity('hello', 'world'));

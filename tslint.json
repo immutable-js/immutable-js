@@ -1,8 +1,5 @@
 {
-  "extends": [
-    "tslint:recommended",
-    "tslint-config-prettier"
-  ],
+  "extends": ["tslint:recommended", "tslint-config-prettier"],
   "rules": {
     "array-type": [true, "generic"],
     "quotemark": false,
@@ -26,10 +23,6 @@
           "functions": "never"
         }
       }
-    ],
-    "arrow-parens": [
-      true,
-      "ban-single-arg-parens"
     ],
     "no-console": false
   }

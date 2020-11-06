@@ -41,7 +41,7 @@
   background-color: #3072b3;
   border-color: #518cc6 #518cc6 #2a65a0;
   color: #fff;
-  text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
 }
 
 .gh-btn:hover,
@@ -50,10 +50,10 @@
 }
 
 .gh-btn:active {
-  -moz-box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
-  -webkit-box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+  -moz-box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+  -webkit-box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
   background-image: none;
-  box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .gh-ico {
@@ -80,13 +80,13 @@
 
 .gh-count:hover,
 .gh-count:focus {
-  color: #4183C4;
+  color: #4183c4;
 }
 
 .gh-triangle {
-    position: relative;
-    margin-left: 11px;
-    margin-right: -1px;
+  position: relative;
+  margin-left: 11px;
+  margin-right: -1px;
 }
 
 .gh-triangle:before,
@@ -97,7 +97,7 @@
   position: absolute;
 }
 
-.gh-triangle:before{
+.gh-triangle:before {
   border-right-color: #fafafa;
   border-width: 8px 8px 8px 0;
   left: -7px;
@@ -105,7 +105,7 @@
   top: 50%;
 }
 
-.gh-triangle:after{
+.gh-triangle:after {
   border-right-color: #bababa;
   border-width: 9px 9px 9px 0;
   left: -8px;
@@ -138,7 +138,13 @@
 
 .gradient (@startColor: #eee, @endColor: white) {
   background-color: @startColor;
-  background: -webkit-gradient(linear, left top, left bottom, from(@startColor), to(@endColor));
+  background: -webkit-gradient(
+    linear,
+    left top,
+    left bottom,
+    from(@startColor),
+    to(@endColor)
+  );
   background: -webkit-linear-gradient(top, @startColor, @endColor);
   background: -moz-linear-gradient(top, @startColor, @endColor);
   background: -ms-linear-gradient(top, @startColor, @endColor);

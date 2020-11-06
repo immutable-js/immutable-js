@@ -9,16 +9,16 @@
 
 import * as Immutable from '../../';
 import {
-    List,
-    Map,
-    OrderedMap,
-    OrderedSet,
-    Range,
-    Repeat,
-    Seq,
-    Set,
-    Stack,
-    Collection
+  List,
+  Map,
+  OrderedMap,
+  OrderedSet,
+  Range,
+  Repeat,
+  Seq,
+  Set,
+  Stack,
+  Collection,
 } from '../../';
 
 List; // $ExpectType typeof List

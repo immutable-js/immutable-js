@@ -20,12 +20,12 @@ export class OrderedSet extends Set {
     return value === null || value === undefined
       ? emptyOrderedSet()
       : isOrderedSet(value)
-        ? value
-        : emptyOrderedSet().withMutations(set => {
-            const iter = SetCollection(value);
-            assertNotInfinite(iter.size);
-            iter.forEach(v => set.add(v));
-          });
+      ? value
+      : emptyOrderedSet().withMutations((set) => {
+          const iter = SetCollection(value);
+          assertNotInfinite(iter.size);
+          iter.forEach((v) => set.add(v));
+        });
   }
 
   static of(/*...values*/) {

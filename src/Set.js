@@ -25,12 +25,12 @@ export class Set extends SetCollection {
     return value === null || value === undefined
       ? emptySet()
       : isSet(value) && !isOrdered(value)
-        ? value
-        : emptySet().withMutations(set => {
-            const iter = SetCollection(value);
-            assertNotInfinite(iter.size);
-            iter.forEach(v => set.add(v));
-          });
+      ? value
+      : emptySet().withMutations((set) => {
+          const iter = SetCollection(value);
+          assertNotInfinite(iter.size);
+          iter.forEach((v) => set.add(v));
+        });
   }
 
   static of(/*...values*/) {
@@ -84,30 +84,30 @@ export class Set extends SetCollection {
   map(mapper, context) {
     const removes = [];
     const adds = [];
-    this.forEach(value => {
+    this.forEach((value) => {
       const mapped = mapper.call(context, value, value, this);
       if (mapped !== value) {
         removes.push(value);
         adds.push(mapped);
       }
     });
-    return this.withMutations(set => {
-      removes.forEach(value => set.remove(value));
-      adds.forEach(value => set.add(value));
+    return this.withMutations((set) => {
+      removes.forEach((value) => set.remove(value));
+      adds.forEach((value) => set.add(value));
     });
   }
 
   union(...iters) {
-    iters = iters.filter(x => x.size !== 0);
+    iters = iters.filter((x) => x.size !== 0);
     if (iters.length === 0) {
       return this;
     }
     if (this.size === 0 && !this.__ownerID && iters.length === 1) {
       return this.constructor(iters[0]);
     }
-    return this.withMutations(set => {
+    return this.withMutations((set) => {
       for (let ii = 0; ii < iters.length; ii++) {
-        SetCollection(iters[ii]).forEach(value => set.add(value));
+        SetCollection(iters[ii]).forEach((value) => set.add(value));
       }
     });
   }
@@ -116,15 +116,15 @@ export class Set extends SetCollection {
     if (iters.length === 0) {
       return this;
     }
-    iters = iters.map(iter => SetCollection(iter));
+    iters = iters.map((iter) => SetCollection(iter));
     const toRemove = [];
-    this.forEach(value => {
-      if (!iters.every(iter => iter.includes(value))) {
+    this.forEach((value) => {
+      if (!iters.every((iter) => iter.includes(value))) {
         toRemove.push(value);
       }
     });
-    return this.withMutations(set => {
-      toRemove.forEach(value => {
+    return this.withMutations((set) => {
+      toRemove.forEach((value) => {
         set.remove(value);
       });
     });
@@ -134,15 +134,15 @@ export class Set extends SetCollection {
     if (iters.length === 0) {
       return this;
     }
-    iters = iters.map(iter => SetCollection(iter));
+    iters = iters.map((iter) => SetCollection(iter));
     const toRemove = [];
-    this.forEach(value => {
-      if (iters.some(iter => iter.includes(value))) {
+    this.forEach((value) => {
+      if (iters.some((iter) => iter.includes(value))) {
         toRemove.push(value);
       }
     });
-    return this.withMutations(set => {
-      toRemove.forEach(value => {
+    return this.withMutations((set) => {
+      toRemove.forEach((value) => {
         set.remove(value);
       });
     });
@@ -163,7 +163,7 @@ export class Set extends SetCollection {
   }
 
   __iterate(fn, reverse) {
-    return this._map.__iterate(k => fn(k, k, this), reverse);
+    return this._map.__iterate((k) => fn(k, k, this), reverse);
   }
 
   __iterator(type, reverse) {
@@ -196,10 +196,10 @@ SetPrototype.merge = SetPrototype.concat = SetPrototype.union;
 SetPrototype.withMutations = withMutations;
 SetPrototype.asImmutable = asImmutable;
 SetPrototype['@@transducer/init'] = SetPrototype.asMutable = asMutable;
-SetPrototype['@@transducer/step'] = function(result, arr) {
+SetPrototype['@@transducer/step'] = function (result, arr) {
   return result.add(arr);
 };
-SetPrototype['@@transducer/result'] = function(obj) {
+SetPrototype['@@transducer/result'] = function (obj) {
   return obj.asImmutable();
 };
 
@@ -215,8 +215,8 @@ function updateSet(set, newMap) {
   return newMap === set._map
     ? set
     : newMap.size === 0
-      ? set.__empty()
-      : set.__make(newMap);
+    ? set.__empty()
+    : set.__make(newMap);
 }
 
 function makeSet(map, ownerID) {

@@ -75,7 +75,7 @@ module.exports = React.createClass({
 
     if (window.document) {
       location = Router.HashLocation;
-      location.addChangeListener(change => {
+      location.addChangeListener((change) => {
         this.pageData = assign({}, change, determineDoc(change.path));
       });
 
@@ -120,7 +120,7 @@ module.exports = React.createClass({
       ),
       location: location,
       scrollBehavior: scrollBehavior,
-    }).run(Handler => {
+    }).run((Handler) => {
       this.setState({ handler: Handler });
       if (window.document) {
         window.document.title = `${this.pageData.name} — Immutable.js`;

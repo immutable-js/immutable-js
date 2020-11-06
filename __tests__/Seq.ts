@@ -39,7 +39,7 @@ describe('Seq', () => {
   });
 
   it('accepts an object with a next property', () => {
-    expect(Seq({ a: 1, b: 2, next: _ => _ }).size).toBe(3);
+    expect(Seq({ a: 1, b: 2, next: (_) => _ }).size).toBe(3);
   });
 
   it('accepts a collection string', () => {
@@ -104,7 +104,7 @@ describe('Seq', () => {
 
   it('Does not infinite loop when spliced with negative number #559', () => {
     const dog = Seq(['d', 'o', 'g']);
-    const dg = dog.filter(c => c !== 'o');
+    const dg = dog.filter((c) => c !== 'o');
     const dig = (dg as any).splice(-1, 0, 'i');
     expect(dig.toJS()).toEqual(['d', 'i', 'g']);
   });
@@ -116,9 +116,15 @@ describe('Seq', () => {
 
   it('Converts deeply toJS after converting to entries', () => {
     const list = Seq([Seq([1, 2]), Seq({ a: 'z' })]);
-    expect(list.entrySeq().toJS()).toEqual([[0, [1, 2]], [1, { a: 'z' }]]);
+    expect(list.entrySeq().toJS()).toEqual([
+      [0, [1, 2]],
+      [1, { a: 'z' }],
+    ]);
 
     const map = Seq({ x: Seq([1, 2]), y: Seq({ a: 'z' }) });
-    expect(map.entrySeq().toJS()).toEqual([['x', [1, 2]], ['y', { a: 'z' }]]);
+    expect(map.entrySeq().toJS()).toEqual([
+      ['x', [1, 2]],
+      ['y', { a: 'z' }],
+    ]);
   });
 });

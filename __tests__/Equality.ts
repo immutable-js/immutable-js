@@ -65,27 +65,27 @@ describe('Equality', () => {
     const ptrA = { foo: 1 },
       ptrB = { foo: 2 };
     expectIsNot(ptrA, ptrB);
-    ptrA.valueOf = ptrB.valueOf = function() {
+    ptrA.valueOf = ptrB.valueOf = function () {
       return 5;
     };
     expectIs(ptrA, ptrB);
     const object = { key: 'value' };
-    ptrA.valueOf = ptrB.valueOf = function() {
+    ptrA.valueOf = ptrB.valueOf = function () {
       return object;
     };
     expectIs(ptrA, ptrB);
-    ptrA.valueOf = ptrB.valueOf = function() {
+    ptrA.valueOf = ptrB.valueOf = function () {
       return null as any;
     };
     expectIs(ptrA, ptrB);
-    ptrA.valueOf = ptrB.valueOf = function() {
+    ptrA.valueOf = ptrB.valueOf = function () {
       return void 0 as any;
     };
     expectIs(ptrA, ptrB);
-    ptrA.valueOf = function() {
+    ptrA.valueOf = function () {
       return 4;
     };
-    ptrB.valueOf = function() {
+    ptrB.valueOf = function () {
       return 5;
     };
     expectIsNot(ptrA, ptrB);
@@ -101,8 +101,14 @@ describe('Equality', () => {
     expectIsNot(arraySeq, [1, 2, 3]);
     expectIsNot(arraySeq2, [1, 2, 3]);
     expectIs(arraySeq, arraySeq2);
-    expectIs(arraySeq, arraySeq.map(x => x));
-    expectIs(arraySeq2, arraySeq2.map(x => x));
+    expectIs(
+      arraySeq,
+      arraySeq.map((x) => x)
+    );
+    expectIs(
+      arraySeq2,
+      arraySeq2.map((x) => x)
+    );
   });
 
   it('compares lists', () => {

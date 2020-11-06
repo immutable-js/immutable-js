@@ -56,7 +56,7 @@ describe('hash', () => {
 
   const genValue = gen.oneOf([gen.string, gen.int]);
 
-  check.it('generates unsigned 31-bit integers', [genValue], value => {
+  check.it('generates unsigned 31-bit integers', [genValue], (value) => {
     const hashVal = hash(value);
     expect(Number.isInteger(hashVal)).toBe(true);
     expect(hashVal).toBeGreaterThan(-Math.pow(2, 31));

@@ -225,15 +225,57 @@ describe('merge', () => {
     const g = Symbol('g');
 
     // Note the use of nested Map constructors, Map() does not do a deep conversion!
-    const m1 = Map([[a, Map([[b, Map([[c, 1], [d, 2]])]])]]);
+    const m1 = Map([
+      [
+        a,
+        Map([
+          [
+            b,
+            Map([
+              [c, 1],
+              [d, 2],
+            ]),
+          ],
+        ]),
+      ],
+    ]);
 
     // mergeDeep can be directly given a nested set of `Iterable<[K, V]>`
     const merged = m1.mergeDeep([
-      [a, [[b, [[c, 10], [e, 20], [f, 30], [g, 40]]]]],
+      [
+        a,
+        [
+          [
+            b,
+            [
+              [c, 10],
+              [e, 20],
+              [f, 30],
+              [g, 40],
+            ],
+          ],
+        ],
+      ],
     ]);
 
     expect(merged).toEqual(
-      Map([[a, Map([[b, Map([[c, 10], [d, 2], [e, 20], [f, 30], [g, 40]])]])]])
+      Map([
+        [
+          a,
+          Map([
+            [
+              b,
+              Map([
+                [c, 10],
+                [d, 2],
+                [e, 20],
+                [f, 30],
+                [g, 40],
+              ]),
+            ],
+          ]),
+        ],
+      ])
     );
   });
 

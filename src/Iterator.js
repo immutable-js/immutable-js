@@ -28,10 +28,10 @@ Iterator.KEYS = ITERATE_KEYS;
 Iterator.VALUES = ITERATE_VALUES;
 Iterator.ENTRIES = ITERATE_ENTRIES;
 
-Iterator.prototype.inspect = Iterator.prototype.toSource = function() {
+Iterator.prototype.inspect = Iterator.prototype.toSource = function () {
   return this.toString();
 };
-Iterator.prototype[ITERATOR_SYMBOL] = function() {
+Iterator.prototype[ITERATOR_SYMBOL] = function () {
   return this;
 };
 

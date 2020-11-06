@@ -12,21 +12,21 @@ import { Seq } from '../';
 describe('ArraySequence', () => {
   it('every is true when predicate is true for all entries', () => {
     expect(Seq([]).every(() => false)).toBe(true);
-    expect(Seq([1, 2, 3]).every(v => v > 0)).toBe(true);
-    expect(Seq([1, 2, 3]).every(v => v < 3)).toBe(false);
+    expect(Seq([1, 2, 3]).every((v) => v > 0)).toBe(true);
+    expect(Seq([1, 2, 3]).every((v) => v < 3)).toBe(false);
   });
 
   it('some is true when predicate is true for any entry', () => {
     expect(Seq([]).some(() => true)).toBe(false);
-    expect(Seq([1, 2, 3]).some(v => v > 0)).toBe(true);
-    expect(Seq([1, 2, 3]).some(v => v < 3)).toBe(true);
-    expect(Seq([1, 2, 3]).some(v => v > 1)).toBe(true);
-    expect(Seq([1, 2, 3]).some(v => v < 0)).toBe(false);
+    expect(Seq([1, 2, 3]).some((v) => v > 0)).toBe(true);
+    expect(Seq([1, 2, 3]).some((v) => v < 3)).toBe(true);
+    expect(Seq([1, 2, 3]).some((v) => v > 1)).toBe(true);
+    expect(Seq([1, 2, 3]).some((v) => v < 0)).toBe(false);
   });
 
   it('maps', () => {
     const i = Seq([1, 2, 3]);
-    const m = i.map(x => x + x).toArray();
+    const m = i.map((x) => x + x).toArray();
     expect(m).toEqual([2, 4, 6]);
   });
 
@@ -66,26 +66,15 @@ describe('ArraySequence', () => {
     const seq = Seq(a);
     expect(seq.size).toBe(10);
     expect(seq.toArray().length).toBe(10);
-    expect(seq.map(x => x * x).size).toBe(10);
-    expect(seq.map(x => x * x).toArray().length).toBe(10);
+    expect(seq.map((x) => x * x).size).toBe(10);
+    expect(seq.map((x) => x * x).toArray().length).toBe(10);
     expect(seq.skip(2).toArray().length).toBe(8);
     expect(seq.take(2).toArray().length).toBe(2);
     expect(seq.take(5).toArray().length).toBe(5);
-    expect(seq.filter(x => x % 2 === 1).toArray().length).toBe(2);
+    expect(seq.filter((x) => x % 2 === 1).toArray().length).toBe(2);
     expect(seq.toKeyedSeq().flip().size).toBe(10);
-    expect(
-      seq
-        .toKeyedSeq()
-        .flip()
-        .flip().size
-    ).toBe(10);
-    expect(
-      seq
-        .toKeyedSeq()
-        .flip()
-        .flip()
-        .toArray().length
-    ).toBe(10);
+    expect(seq.toKeyedSeq().flip().flip().size).toBe(10);
+    expect(seq.toKeyedSeq().flip().flip().toArray().length).toBe(10);
   });
 
   it('can be iterated', () => {

@@ -23,8 +23,8 @@ export class Stack extends IndexedCollection {
     return value === null || value === undefined
       ? emptyStack()
       : isStack(value)
-        ? value
-        : emptyStack().pushAll(value);
+      ? value
+      : emptyStack().pushAll(value);
   }
 
   static of(/*...values*/) {
@@ -85,7 +85,7 @@ export class Stack extends IndexedCollection {
     assertNotInfinite(iter.size);
     let newSize = this.size;
     let head = this._head;
-    iter.__iterate(value => {
+    iter.__iterate((value) => {
       newSize++;
       head = {
         value: value,
@@ -210,10 +210,10 @@ StackPrototype.withMutations = withMutations;
 StackPrototype.wasAltered = wasAltered;
 StackPrototype.asImmutable = asImmutable;
 StackPrototype['@@transducer/init'] = StackPrototype.asMutable = asMutable;
-StackPrototype['@@transducer/step'] = function(result, arr) {
+StackPrototype['@@transducer/step'] = function (result, arr) {
   return result.unshift(arr);
 };
-StackPrototype['@@transducer/result'] = function(obj) {
+StackPrototype['@@transducer/result'] = function (obj) {
   return obj.asImmutable();
 };
 

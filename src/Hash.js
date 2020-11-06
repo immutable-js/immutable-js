@@ -159,7 +159,7 @@ function hashJSObj(obj) {
     // we'll hijack one of the less-used non-enumerable properties to
     // save our hash on it. Since this is a function it will not show up in
     // `JSON.stringify` which is what we want.
-    obj.propertyIsEnumerable = function() {
+    obj.propertyIsEnumerable = function () {
       return this.constructor.prototype.propertyIsEnumerable.apply(
         this,
         arguments
@@ -183,7 +183,7 @@ function hashJSObj(obj) {
 const isExtensible = Object.isExtensible;
 
 // True if Object.defineProperty works as expected. IE8 fails this test.
-const canDefineProperty = (function() {
+const canDefineProperty = (function () {
   try {
     Object.defineProperty({}, '@', {});
     return true;

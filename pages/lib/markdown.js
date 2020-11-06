@@ -17,7 +17,7 @@ function collectAllMembersForAllTypes(defs) {
   _collectAllMembersForAllTypes(defs);
   return allMembers;
   function _collectAllMembersForAllTypes(defs) {
-    Seq(defs).forEach(def => {
+    Seq(defs).forEach((def) => {
       if (def.interface) {
         var groups = collectMemberGroups(def.interface, {
           showInherited: true,
@@ -25,7 +25,7 @@ function collectAllMembersForAllTypes(defs) {
         allMembers.set(
           def.interface,
           Seq.Keyed(
-            groups[''].map(member => [member.memberName, member.memberDef])
+            groups[''].map((member) => [member.memberName, member.memberDef])
           ).toObject()
         );
       }
@@ -53,7 +53,7 @@ prism.languages.insertBefore('javascript', {
 
 marked.setOptions({
   xhtml: true,
-  highlight: code => prism.highlight(code, prism.languages.javascript),
+  highlight: (code) => prism.highlight(code, prism.languages.javascript),
 });
 
 var renderer = new marked.Renderer();
@@ -61,7 +61,7 @@ var renderer = new marked.Renderer();
 const runkitRegExp = /^<!--\s*runkit:activate((.|\n)*)-->(.|\n)*$/;
 const runkitContext = { options: '{}', activated: false };
 
-renderer.html = function(text) {
+renderer.html = function (text) {
   const result = runkitRegExp.exec(text);
 
   if (!result) return text;
@@ -75,7 +75,7 @@ renderer.html = function(text) {
   return text;
 };
 
-renderer.code = function(code, lang, escaped) {
+renderer.code = function (code, lang, escaped) {
   if (this.options.highlight) {
     var out = this.options.highlight(code, lang);
     if (out != null && out !== code) {
@@ -111,7 +111,7 @@ var MDN_TYPES = {
 var MDN_BASE_URL =
   'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/';
 
-renderer.codespan = function(text) {
+renderer.codespan = function (text) {
   return '<code>' + decorateCodeSpan(text, this.options) + '</code>';
 };
 
@@ -122,7 +122,7 @@ function decorateCodeSpan(text, options) {
     context.signatures &&
     PARAM_RX.test(text) &&
     context.signatures.some(
-      sig => sig.params && sig.params.some(param => param.name === text)
+      (sig) => sig.params && sig.params.some((param) => param.name === text)
     )
   ) {
     return '<span class="t param">' + text + '</span>';

@@ -88,11 +88,10 @@ export class Repeat extends IndexedSeq {
   __iterator(type, reverse) {
     const size = this.size;
     let i = 0;
-    return new Iterator(
-      () =>
-        i === size
-          ? iteratorDone()
-          : iteratorValue(type, reverse ? size - ++i : i++, this._value)
+    return new Iterator(() =>
+      i === size
+        ? iteratorDone()
+        : iteratorValue(type, reverse ? size - ++i : i++, this._value)
     );
   }
 

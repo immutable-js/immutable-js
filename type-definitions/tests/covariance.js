@@ -7,18 +7,17 @@
  * @flow
  */
 
-import {
-  List,
-  Map,
-  Set,
-  Stack,
-  OrderedMap,
-  OrderedSet,
-} from '../../';
+import { List, Map, Set, Stack, OrderedMap, OrderedSet } from '../../';
 
-class A { x: number; }
-class B extends A { y: string; }
-class C { z: string; }
+class A {
+  x: number;
+}
+class B extends A {
+  y: string;
+}
+class C {
+  z: string;
+}
 
 // List covariance
 declare var listOfB: List<B>;
@@ -30,7 +29,7 @@ var listOfC: List<C> = listOfB;
 // Map covariance
 declare var mapOfB: Map<string, B>;
 var mapOfA: Map<string, A> = mapOfB;
-mapOfA = Map({b: new B()});
+mapOfA = Map({ b: new B() });
 // $ExpectError
 var mapOfC: Map<string, C> = mapOfB;
 
@@ -51,7 +50,7 @@ var stackOfC: Stack<C> = stackOfB;
 // OrderedMap covariance
 declare var orderedMapOfB: OrderedMap<string, B>;
 var orderedMapOfA: OrderedMap<string, A> = orderedMapOfB;
-orderedMapOfA = OrderedMap({b: new B()});
+orderedMapOfA = OrderedMap({ b: new B() });
 // $ExpectError
 var orderedMapOfC: OrderedMap<string, C> = orderedMapOfB;
 

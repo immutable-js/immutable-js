@@ -7,8 +7,8 @@ const { exec } = require('child_process');
 require('colors');
 
 const checkForChanges = () =>
-  new Promise(resolve =>
-    exec(`git diff --quiet`, error => {
+  new Promise((resolve) =>
+    exec(`git diff --quiet`, (error) => {
       if (error) {
         console.log(
           'The Travis build resulted in additional changed files.'.red

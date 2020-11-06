@@ -20,12 +20,12 @@ export class OrderedMap extends Map {
     return value === null || value === undefined
       ? emptyOrderedMap()
       : isOrderedMap(value)
-        ? value
-        : emptyOrderedMap().withMutations(map => {
-            const iter = KeyedCollection(value);
-            assertNotInfinite(iter.size);
-            iter.forEach((v, k) => map.set(k, v));
-          });
+      ? value
+      : emptyOrderedMap().withMutations((map) => {
+          const iter = KeyedCollection(value);
+          assertNotInfinite(iter.size);
+          iter.forEach((v, k) => map.set(k, v));
+        });
   }
 
   static of(/*...values*/) {
@@ -69,7 +69,7 @@ export class OrderedMap extends Map {
 
   __iterate(fn, reverse) {
     return this._list.__iterate(
-      entry => entry && fn(entry[1], entry[0], this),
+      (entry) => entry && fn(entry[1], entry[0], this),
       reverse
     );
   }
@@ -138,7 +138,7 @@ function updateOrderedMap(omap, k, v) {
       newList = list.filter((entry, idx) => entry !== undefined && i !== idx);
       newMap = newList
         .toKeyedSeq()
-        .map(entry => entry[0])
+        .map((entry) => entry[0])
         .flip()
         .toMap();
       if (omap.__ownerID) {

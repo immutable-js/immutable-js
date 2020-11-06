@@ -5,13 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {
-  Map as ImmutableMap,
-  Set as ImmutableSet,
-} from '../../';
+import { Map as ImmutableMap, Set as ImmutableSet } from '../../';
 
 // Immutable.js collections
-const mapImmutable: ImmutableMap<string, number> = ImmutableMap<string, number>();
+const mapImmutable: ImmutableMap<string, number> = ImmutableMap<
+  string,
+  number
+>();
 const setImmutable: ImmutableSet<string> = ImmutableSet<string>();
 
 // $ExpectType Map<string, number>

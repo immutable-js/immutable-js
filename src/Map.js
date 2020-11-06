@@ -46,16 +46,16 @@ export class Map extends KeyedCollection {
     return value === null || value === undefined
       ? emptyMap()
       : isMap(value) && !isOrdered(value)
-        ? value
-        : emptyMap().withMutations(map => {
-            const iter = KeyedCollection(value);
-            assertNotInfinite(iter.size);
-            iter.forEach((v, k) => map.set(k, v));
-          });
+      ? value
+      : emptyMap().withMutations((map) => {
+          const iter = KeyedCollection(value);
+          assertNotInfinite(iter.size);
+          iter.forEach((v, k) => map.set(k, v));
+        });
   }
 
   static of(...keyValues) {
-    return emptyMap().withMutations(map => {
+    return emptyMap().withMutations((map) => {
       for (let i = 0; i < keyValues.length; i += 2) {
         if (i + 1 >= keyValues.length) {
           throw new Error('Missing value for key: ' + keyValues[i]);
@@ -94,8 +94,8 @@ export class Map extends KeyedCollection {
       return this;
     }
 
-    return this.withMutations(map => {
-      collection.forEach(key => map.remove(key));
+    return this.withMutations((map) => {
+      collection.forEach((key) => map.remove(key));
     });
   }
 
@@ -126,7 +126,7 @@ export class Map extends KeyedCollection {
   }
 
   map(mapper, context) {
-    return this.withMutations(map => {
+    return this.withMutations((map) => {
       map.forEach((value, key) => {
         map.set(key, mapper.call(context, value, key, this));
       });
@@ -142,7 +142,7 @@ export class Map extends KeyedCollection {
   __iterate(fn, reverse) {
     let iterations = 0;
     this._root &&
-      this._root.iterate(entry => {
+      this._root.iterate((entry) => {
         iterations++;
         return fn(entry[1], entry[0], this);
       }, reverse);
@@ -185,10 +185,10 @@ MapPrototype.withMutations = withMutations;
 MapPrototype.wasAltered = wasAltered;
 MapPrototype.asImmutable = asImmutable;
 MapPrototype['@@transducer/init'] = MapPrototype.asMutable = asMutable;
-MapPrototype['@@transducer/step'] = function(result, arr) {
+MapPrototype['@@transducer/step'] = function (result, arr) {
   return result.set(arr[0], arr[1]);
 };
-MapPrototype['@@transducer/result'] = function(obj) {
+MapPrototype['@@transducer/result'] = function (obj) {
   return obj.asImmutable();
 };
 
@@ -537,7 +537,7 @@ class ValueNode {
 
 // #pragma Iterators
 
-ArrayMapNode.prototype.iterate = HashCollisionNode.prototype.iterate = function(
+ArrayMapNode.prototype.iterate = HashCollisionNode.prototype.iterate = function (
   fn,
   reverse
 ) {
@@ -549,7 +549,7 @@ ArrayMapNode.prototype.iterate = HashCollisionNode.prototype.iterate = function(
   }
 };
 
-BitmapIndexedNode.prototype.iterate = HashArrayMapNode.prototype.iterate = function(
+BitmapIndexedNode.prototype.iterate = HashArrayMapNode.prototype.iterate = function (
   fn,
   reverse
 ) {
@@ -563,7 +563,7 @@ BitmapIndexedNode.prototype.iterate = HashArrayMapNode.prototype.iterate = funct
 };
 
 // eslint-disable-next-line no-unused-vars
-ValueNode.prototype.iterate = function(fn, reverse) {
+ValueNode.prototype.iterate = function (fn, reverse) {
   return fn(this.entry);
 };
 
