@@ -3,7 +3,13 @@ language: node_js
 node_js: lts/*
 
 cache: yarn
-script: npm run test:travis
+script:
+  - yarn format:check
+  - yarn build
+  - yarn lint
+  # See https://jestjs.io/docs/en/troubleshooting.html#tests-are-extremely-slow-on-docker-andor-continuous-integration-ci-server
+  - yarn test --maxWorkers=2
+  - yarn type-check
 
 env:
   global:
@@ -11,14 +17,14 @@ env:
 
 deploy:
   - provider: script
-    script: npm run gitpublish
+    script: yarn gitpublish
     skip_cleanup: true
     on:
       branch: master
       repo: immutable-js-oss/immutable-js
   - provider: script
     skip_cleanup: true
-    script: npm run deploy
+    script: yarn deploy
     on:
       branch: master
       repo: immutable-js-oss/immutable-js
