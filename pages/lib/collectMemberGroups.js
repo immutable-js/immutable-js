@@ -5,36 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var { Seq } = require('../../');
+const { Seq } = require('../../dist/immutable');
 // Note: intentionally using raw defs, not getTypeDefs to avoid circular ref.
-var defs = require('../generated/immutable.d.json');
 
-function collectMemberGroups(interfaceDef, options) {
-  var members = {};
-
-  if (interfaceDef) {
-    collectFromDef(interfaceDef);
-  }
-
-  var groups = { '': [] };
-
-  if (options.showInGroups) {
-    Seq(members).forEach((member) => {
-      (groups[member.group] || (groups[member.group] = [])).push(member);
-    });
-  } else {
-    groups[''] = Seq(members)
-      .sortBy((member) => member.memberName)
-      .toArray();
-  }
-
-  if (!options.showInherited) {
-    groups = Seq(groups)
-      .map((members) => members.filter((member) => !member.inherited))
-      .toObject();
-  }
-
-  return groups;
+function collectMemberGroups(interfaceDef, options, defs) {
+  const members = {};
 
   function collectFromDef(def, name) {
     def.groups &&
@@ -46,19 +21,19 @@ function collectMemberGroups(interfaceDef, options) {
 
     def.extends &&
       def.extends.forEach((e) => {
-        var superModule = defs.Immutable;
+        let superModule = defs.Immutable;
         e.name.split('.').forEach((part) => {
           superModule =
             superModule && superModule.module && superModule.module[part];
         });
-        var superInterface = superModule && superModule.interface;
+        const superInterface = superModule && superModule.interface;
         if (superInterface) {
           collectFromDef(superInterface, e.name);
         }
       });
 
     function collectMember(group, memberName, memberDef) {
-      var member = members[memberName];
+      let member = members[memberName];
       if (member) {
         if (!member.inherited) {
           member.overrides = { name, def, memberDef };
@@ -79,6 +54,31 @@ function collectMemberGroups(interfaceDef, options) {
       }
     }
   }
+
+  if (interfaceDef) {
+    collectFromDef(interfaceDef);
+  }
+
+  let groups = { '': [] };
+
+  if (options.showInGroups) {
+    Seq(members).forEach((member) => {
+      (groups[member.group] || (groups[member.group] = [])).push(member);
+    });
+  } else {
+    groups[''] = Seq(members)
+      .toIndexedSeq()
+      .sortBy((member) => member.memberName)
+      .toArray();
+  }
+
+  if (!options.showInherited) {
+    groups = Seq(groups)
+      .map((members) => members.filter((member) => !member.inherited))
+      .toObject();
+  }
+
+  return groups;
 }
 
 module.exports = collectMemberGroups;

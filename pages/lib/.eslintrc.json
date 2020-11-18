@@ -1,0 +1,6 @@
+{
+  "env": {
+    "node": true
+  },
+  "extends": "../../.eslintrc.json"
+}

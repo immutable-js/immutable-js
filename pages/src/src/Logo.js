@@ -5,20 +5,30 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var React = require('react');
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
-var Logo = React.createClass({
-  shouldComponentUpdate: function (nextProps) {
+export default class Logo extends Component {
+  static propTypes = {
+    opacity: PropTypes.number,
+    color: PropTypes.string.isRequired,
+  };
+
+  static defaultProps = {
+    opacity: 1,
+  };
+
+  shouldComponentUpdate(nextProps) {
     return nextProps.opacity !== this.props.opacity;
-  },
+  }
 
-  render: function () {
-    var opacity = this.props.opacity;
+  render() {
+    let opacity = this.props.opacity;
     if (opacity === undefined) {
       opacity = 1;
     }
     return !this.props.inline ? (
-      <g fill={this.props.color} style={{ opacity: this.props.opacity }}>
+      <g fill={this.props.color} style={{ opacity }}>
         <path d="M0,0l13.9,0v41.1H0L0,0z" />
         <path d="M18.2,0L29,0l10.7,15.8L50.4,0l10.9,0v41.1H48.1V26.3l-8.4,12.3l-8.4-12.3v14.8H18.2V0z" />
         <path d="M65.5,0l10.9,0L87,15.8L97.7,0l10.9,0v41.1H95.4V26.3L87,38.7l-8.4-12.3v14.8H65.5V0z" />
@@ -43,7 +53,7 @@ var Logo = React.createClass({
         <path d="M275.3,0l24.2,0v10.8h-11.1v4.6h10.9v10.2h-10.9v4.7H300v10.8h-24.7V0z" />
       </g>
     ) : (
-      <g fill={this.props.color} style={{ opacity: this.props.opacity }}>
+      <g fill={this.props.color} style={{ opacity }}>
         <path d="M0,0l13.9,0v41.1H0L0,0z M7.8,36.2V4.9H6.2v31.3H7.8z" />
         <path
           d="M18.2,0L29,0l10.7,15.8L50.4,0l10.9,0v41.1H48.1V26.3l-8.4,12.3l-8.4-12.3v14.8H18.2V0z M25.9,36.2V7.9
@@ -83,7 +93,5 @@ var Logo = React.createClass({
         />
       </g>
     );
-  },
-});
-
-module.exports = Logo;
+  }
+}

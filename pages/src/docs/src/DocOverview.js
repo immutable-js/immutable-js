@@ -5,15 +5,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var React = require('react');
-var Router = require('react-router');
-var { Seq } = require('../../../../');
-var Markdown = require('./MarkDown');
+import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
+import { Seq } from '../../../../';
+import Markdown from './MarkDown';
+import PropTypes from 'prop-types';
 
-var DocOverview = React.createClass({
+class DocOverview extends Component {
+  static propTypes = {
+    def: PropTypes.object.isRequired,
+  };
+
   render() {
-    var def = this.props.def;
-    var doc = def.doc;
+    const def = this.props.def;
+    const doc = def.doc;
 
     return (
       <div>
@@ -28,16 +33,15 @@ var DocOverview = React.createClass({
 
         {Seq(def.module)
           .map((t, name) => {
-            var isFunction = !t.interface && !t.module;
+            const isFunction = !t.interface && !t.module;
             if (isFunction) {
               t = t.call;
             }
+            const anchorLink = `/${name}`;
             return (
               <section key={name} className="interfaceMember">
                 <h3 className="memberLabel">
-                  <Router.Link to={'/' + name}>
-                    {name + (isFunction ? '()' : '')}
-                  </Router.Link>
+                  <Link to={anchorLink}>{name + (isFunction ? '()' : '')}</Link>
                 </h3>
                 {t.doc && (
                   <Markdown className="detail" contents={t.doc.synopsis} />
@@ -49,7 +53,7 @@ var DocOverview = React.createClass({
           .toArray()}
       </div>
     );
-  },
-});
+  }
+}
 
-module.exports = DocOverview;
+export default DocOverview;

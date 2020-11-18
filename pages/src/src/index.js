@@ -5,25 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var React = require('react');
-var Header = require('./Header');
-var readme = require('../../generated/readme.json');
+import React from 'react';
+import Header from './Header';
+import readme from '../../generated/readme.json';
+import '../../lib/runkit-embed';
 
-require('../../lib/runkit-embed');
-
-var Index = React.createClass({
-  render: function () {
-    return (
-      <div>
-        <Header />
-        <div className="pageBody" id="body">
-          <div className="contents">
-            <div dangerouslySetInnerHTML={{ __html: readme }} />
-          </div>
+function Index() {
+  return (
+    <div>
+      <Header package={readme.package} />
+      <div className="pageBody" id="body">
+        <div className="contents">
+          <div dangerouslySetInnerHTML={{ __html: readme.content }} />
         </div>
       </div>
-    );
-  },
-});
+    </div>
+  );
+}
 
-module.exports = Index;
+export default Index;

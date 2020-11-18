@@ -5,22 +5,27 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var React = require('react');
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
-var MarkDown = React.createClass({
+export default class MarkDown extends Component {
+  static propTypes = {
+    contents: PropTypes.oneOfType([PropTypes.string, PropTypes.node])
+      .isRequired,
+    className: PropTypes.string,
+  };
+
   shouldComponentUpdate() {
     return false;
-  },
+  }
 
   render() {
-    var html = this.props.contents;
+    const html = this.props.contents;
     return (
       <div
         className={this.props.className}
         dangerouslySetInnerHTML={{ __html: html }}
       />
     );
-  },
-});
-
-module.exports = MarkDown;
+  }
+}

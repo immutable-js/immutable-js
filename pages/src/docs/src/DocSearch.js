@@ -1,19 +1,23 @@
-var React = require('react');
+import React, { Component } from 'react';
 
-var DocSearch = React.createClass({
-  getInitialState() {
-    return { enabled: true };
-  },
+class DocSearch extends Component {
+  constructor(props, ...args) {
+    super(props, ...args);
+    this.state = {
+      enabled: true,
+    };
+  }
+
   componentDidMount() {
-    var script = document.createElement('script');
-    var firstScript = document.getElementsByTagName('script')[0];
+    const script = document.createElement('script');
+    const firstScript = document.getElementsByTagName('script')[0];
     script.src =
       'https://cdn.jsdelivr.net/npm/docsearch.js@2.5.2/dist/cdn/docsearch.min.js';
     script.addEventListener(
       'load',
       () => {
-        // Initialize Algolia search.
-        if (window.docsearch) {
+        // Initialize Algolia search - unless we are pre-rendering.
+        if (typeof document !== 'undefined' && window.docsearch) {
           window.docsearch({
             apiKey: '83f61f865ef4cb682e0432410c2f7809',
             indexName: 'immutable_js',
@@ -27,13 +31,14 @@ var DocSearch = React.createClass({
     );
     firstScript.parentNode.insertBefore(script, firstScript);
 
-    var link = document.createElement('link');
-    var firstLink = document.getElementsByTagName('link')[0];
+    const link = document.createElement('link');
+    const firstLink = document.getElementsByTagName('link')[0];
     link.rel = 'stylesheet';
     link.href =
       'https://cdn.jsdelivr.net/npm/docsearch.js@2.5.2/dist/cdn/docsearch.min.css';
     firstLink.parentNode.insertBefore(link, firstLink);
-  },
+  }
+
   render() {
     return this.state.enabled ? (
       <input
@@ -43,7 +48,7 @@ var DocSearch = React.createClass({
         placeholder="Search Immutable.js Documentation"
       />
     ) : null;
-  },
-});
+  }
+}
 
-module.exports = DocSearch;
+export default DocSearch;

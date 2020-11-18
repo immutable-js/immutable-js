@@ -10,5 +10,5 @@
     "lib": ["es2015"],
     "types": []
   },
-  "exclude": ["node_modules"]
+  "files": ["Immutable.d.ts"]
 }

@@ -1,9 +1,10 @@
+/* eslint-env browser */
 global.runIt = function runIt(button) {
   if (!global.RunKit) return;
 
-  var container = document.createElement('div');
-  var codeElement = button.parentNode;
-  var parent = codeElement.parentNode;
+  const container = document.createElement('div');
+  const codeElement = button.parentNode;
+  const parent = codeElement.parentNode;
 
   parent.insertBefore(container, codeElement);
   parent.removeChild(codeElement);
@@ -38,8 +39,8 @@ global.runIt = function runIt(button) {
 };
 
 function makeAssert(I) {
-  var isIterable = I.isIterable || I.Iterable.isIterable;
-  var html = `
+  const isIterable = I.isIterable || I.Iterable.isIterable;
+  let html = `
     <style>
       * {
         font-size: 14px;
@@ -78,7 +79,7 @@ function makeAssert(I) {
     </style>`;
 
   function compare(lhs, rhs, same, identical) {
-    var both = !identical && isIterable(lhs) && isIterable(rhs);
+    const both = !identical && isIterable(lhs) && isIterable(rhs);
 
     if (both) return lhs.equals(rhs);
 
@@ -86,17 +87,17 @@ function makeAssert(I) {
   }
 
   function message(lhs, rhs, same, identical) {
-    var result = compare(lhs, rhs, same, identical);
-    var comparison = result
+    const result = compare(lhs, rhs, same, identical);
+    const comparison = result
       ? identical
         ? 'strict equal to'
         : 'does equal'
       : identical
       ? 'not strict equal to'
       : 'does not equal';
-    var className = result === same ? 'success' : 'failure';
-    var lhsString = isIterable(lhs) ? lhs + '' : JSON.stringify(lhs);
-    var rhsString = isIterable(rhs) ? rhs + '' : JSON.stringify(rhs);
+    const className = result === same ? 'success' : 'failure';
+    const lhsString = isIterable(lhs) ? lhs + '' : JSON.stringify(lhs);
+    const rhsString = isIterable(rhs) ? rhs + '' : JSON.stringify(rhs);
 
     return (html += `
       <span class="${className}">

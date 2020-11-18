@@ -5,17 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var markdown = require('./markdown');
-var defs = require('./getTypeDefs');
+const markdown = require('./markdown');
 
-function genMarkdownDoc(typeDefSource) {
+function genMarkdownDoc(typeDefSource, defs) {
   return markdown(
     typeDefSource.replace(/\n[^\n]+?travis-ci.org[^\n]+?\n/, '\n'),
     {
       defs,
       typePath: ['Immutable'],
       relPath: 'docs/',
-    }
+    },
+    defs
   );
 }
 

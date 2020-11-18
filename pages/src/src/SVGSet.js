@@ -5,16 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var React = require('react');
+import React from 'react';
+import PropTypes from 'prop-types';
 
-var SVGSet = React.createClass({
-  render: function () {
-    return (
-      <svg className="svg" style={this.props.style} viewBox="0 0 300 42.2">
-        {this.props.children}
-      </svg>
-    );
-  },
-});
+function SVGSet(props) {
+  return (
+    <svg className="svg" style={props.style} viewBox="0 0 300 42.2">
+      {props.children}
+    </svg>
+  );
+}
 
-module.exports = SVGSet;
+SVGSet.propTypes = {
+  style: PropTypes.object,
+};
+
+export default SVGSet;

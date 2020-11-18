@@ -5,27 +5,30 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var React = require('react');
-var loadJSON = require('./loadJSON');
+import React, { Component } from 'react';
+import loadJSON from './loadJSON';
 
 // API endpoints
 // https://registry.npmjs.org/immutable/latest
 // https://api.github.com/repos/facebook/immutable-js
 
-var StarBtn = React.createClass({
-  getInitialState: function () {
-    return { stars: null };
-  },
+class StarBtn extends Component {
+  constructor(props, ...args) {
+    super(props, ...args);
+    this.state = {
+      stars: null,
+    };
+  }
 
-  componentDidMount: function () {
+  componentDidMount() {
     loadJSON('https://api.github.com/repos/facebook/immutable-js', (value) => {
       value &&
         value.stargazers_count &&
         this.setState({ stars: value.stargazers_count });
     });
-  },
+  }
 
-  render: function () {
+  render() {
     return (
       <span className="github-btn">
         <a
@@ -47,7 +50,7 @@ var StarBtn = React.createClass({
         )}
       </span>
     );
-  },
-});
+  }
+}
 
-module.exports = StarBtn;
+export default StarBtn;

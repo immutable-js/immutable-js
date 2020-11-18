@@ -5,39 +5,54 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var React = require('react');
-var SVGSet = require('./SVGSet');
-var Logo = require('./Logo');
-var StarBtn = require('./StarBtn');
-var packageJson = require('../../../package.json');
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import SVGSet from './SVGSet';
+import Logo from './Logo';
+import StarBtn from './StarBtn';
 
-var isMobileMatch =
-  window.matchMedia && window.matchMedia('(max-device-width: 680px)');
-var isMobile = isMobileMatch && isMobileMatch.matches;
+function isMobileMatch() {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+  if (!window.matchMedia) {
+    return false;
+  }
+  return window.matchMedia('(max-device-width: 680px)').matches;
+}
 
-var Header = React.createClass({
-  getInitialState: function () {
-    return { scroll: 0 };
-  },
+const isMobile = isMobileMatch();
 
-  componentDidMount: function () {
-    this.offsetHeight = this.getDOMNode().offsetHeight;
+export default class Header extends Component {
+  static propTypes = {
+    package: PropTypes.object.isRequired,
+  };
+
+  constructor(props, ...args) {
+    super(props, ...args);
+    this.state = {
+      scroll: 0,
+    };
+  }
+
+  componentDidMount() {
+    this.offsetHeight = this._container.offsetHeight;
     window.addEventListener('scroll', this.handleScroll);
     window.addEventListener('resize', this.handleResize);
-  },
+  }
 
-  componentWillUnmount: function () {
+  componentWillUnmount() {
     window.removeEventListener('scroll', this.handleScroll);
     window.removeEventListener('resize', this.handleResize);
-  },
+  }
 
-  handleResize: function () {
-    this.offsetHeight = this.getDOMNode().offsetHeight;
-  },
+  handleResize = () => {
+    this.offsetHeight = this._container.offsetHeight;
+  };
 
-  handleScroll: function () {
+  handleScroll = () => {
     if (!this._pending) {
-      var headerHeight = Math.min(
+      const headerHeight = Math.min(
         800,
         Math.max(260, document.documentElement.clientHeight * 0.7)
       );
@@ -49,15 +64,20 @@ var Header = React.createClass({
         });
       }
     }
-  },
+  };
 
-  render: function () {
-    var neg = this.state.scroll < 0;
-    var s = neg ? 0 : this.state.scroll;
-    var sp = isMobile ? 35 : 70;
+  render() {
+    const neg = this.state.scroll < 0;
+    const s = neg ? 0 : this.state.scroll;
+    const sp = isMobile ? 35 : 70;
 
     return (
-      <div className="header">
+      <div
+        className="header"
+        ref={(element) => {
+          this._container = element;
+        }}
+      >
         <div className="miniHeader">
           <div className="miniHeaderContents">
             <a href="./" target="_self" className="miniLogo">
@@ -68,12 +88,14 @@ var Header = React.createClass({
             </a>
             <a href="docs/" target="_self">
               Docs (v
-              {packageJson.version})
+              {this.props.package.version})
             </a>
             <a href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes">
               Questions
             </a>
-            <a href="https://github.com/facebook/immutable-js/">GitHub</a>
+            <a href="https://github.com/immutable-js-oss/immutable-js">
+              GitHub
+            </a>
           </div>
         </div>
         <div className="coverContainer">
@@ -83,7 +105,7 @@ var Header = React.createClass({
                 <div className="miniHeaderContents">
                   <a href="docs/" target="_self">
                     Docs (v
-                    {packageJson.version})
+                    {this.props.package.version})
                   </a>
                   <a href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes">
                     Questions
@@ -118,8 +140,8 @@ var Header = React.createClass({
         </div>
       </div>
     );
-  },
-});
+  }
+}
 
 function y(s, p) {
   return (p < s ? p : s) * -0.55;
@@ -134,7 +156,7 @@ function z(s, p) {
 }
 
 function t(y, z) {
-  var transform = 'translate3d(0, ' + y + 'px, 0) scale(' + z + ')';
+  const transform = 'translate3d(0, ' + y + 'px, 0) scale(' + z + ')';
   return {
     transform: transform,
     WebkitTransform: transform,
@@ -143,5 +165,3 @@ function t(y, z) {
     OTransform: transform,
   };
 }
-
-module.exports = Header;

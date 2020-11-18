@@ -2,11 +2,12 @@
   "env": {
     "browser": true
   },
-  "parserOptions": {
-    "ecmaVersion": 6,
-    "sourceType": "script"
-  },
+  "parser": "@babel/eslint-parser",
+  "extends": "../.eslintrc.json",
   "rules": {
-    "no-var": "off"
+    "react/static-property-placement": "off",
+    "react/forbid-prop-types": "off",
+    "react/require-default-props": "off",
+    "camelcase": ["error", { "allow": ["^UNSAFE_"] }]
   }
 }

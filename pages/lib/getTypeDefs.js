@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var markdownDocs = require('./markdownDocs');
-var defs = require('../generated/immutable.d.json');
+const markdownDocs = require('./markdownDocs');
+const defs = require('../generated/immutable.d.json');
 
 markdownDocs(defs);
 

@@ -5,6 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var isMobile =
-  window.matchMedia && window.matchMedia('(max-device-width: 680px)');
-module.exports = false && !!(isMobile && isMobile.matches);
+// TODO useless, always false
+function isMobileMatch() {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+  if (!window.matchMedia) {
+    return false;
+  }
+  return window.matchMedia('(max-device-width: 680px)').matches;
+}
+
+export default !!isMobileMatch();

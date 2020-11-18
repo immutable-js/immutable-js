@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var TypeKind = {
+const TypeKind = {
   Any: 0,
 
   Boolean: 1,

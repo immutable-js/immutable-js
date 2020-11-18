@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <title>Immutable.js</title>
@@ -13,22 +13,22 @@
     <base target="_blank" />
   </head>
   <body>
-    <!-- React(./src/index.js) -->
-    <script src="//cdn.jsdelivr.net/react/0.12.1/react-with-addons.min.js"></script>
+    <!-- ReactPreRender() -->
     <script src="../immutable.js"></script>
+    <script src="../versions.jsonp"></script>
+    <!-- JSONP(defs/immutable.d.jsonp) -->
     <script src="bundle.js"></script>
     <script src="https://embed.runkit.com" async defer></script>
-    <!-- ReactRender() -->
     <script>
       //<![CDATA[
       console.log(
         '\n' +
-          '   ▄▟████▙▄       _   __    __ __    __ _    _ _______       ____  _     _____ \n' +
-          ' ▟██████████▙    | | |  \\  /  |  \\  /  | |  | |__   __|/\\   |  _ \\| |   |  ___|\n' +
-          '██████████████   | | |   \\/   |   \\/   | |  | |  | |  /  \\  | |_) | |   | |__   \n' +
-          '██████████████   | | | |\\  /| | |\\  /| | |  | |  | | / /\\ \\ |  _ <| |   |  __|  \n' +
-          ' ▜██████████▛    | | | | \\/ | | | \\/ | | |__| |  | |/ ____ \\| |_) | |___| |___ \n' +
-          '   ▀▜████▛▀      |_| |_|    |_|_|    |_|\\____/   |_/_/    \\_\\____/|_____|_____|\n' +
+          '    _   __    __ __    __ _    _ _______       ____  _     _____              ▄▟████▙▄    \n' +
+          '   | | |  \\  /  |  \\  /  | |  | |__   __|/\\   |  _ \\| |   |  ___|           ▟██████████▙  \n' +
+          '   | | |   \\/   |   \\/   | |  | |  | |  /  \\  | |_) | |   | |__            ███████████████  \n' +
+          '   | | | |\\  /| | |\\  /| | |  | |  | | / /\\ \\ |  _ <| |   |  __|           ███████████████  \n' +
+          '   | | | | \\/ | | | \\/ | | |__| |  | |/ ____ \\| |_) | |___| |___            ▜██████████▛  \n' +
+          '   |_| |_|    |_|_|    |_|\\____/   |_/_/    \\_\\____/|_____|_____|             ▀▜████▛▀    \n' +
           '\n' +
           '> console.log(Immutable);'
       );
