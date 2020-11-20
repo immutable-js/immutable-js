@@ -18,6 +18,8 @@ import { Repeat } from './Repeat';
 import { is } from './is';
 import { fromJS } from './fromJS';
 
+import isPlainObject from './utils/isPlainObj';
+
 // Functional predicates
 import { isImmutable } from './predicates/isImmutable';
 import { isCollection } from './predicates/isCollection';
@@ -83,6 +85,7 @@ export default {
   isAssociative: isAssociative,
   isOrdered: isOrdered,
   isValueObject: isValueObject,
+  isPlainObject: isPlainObject,
   isSeq: isSeq,
   isList: isList,
   isMap: isMap,
@@ -134,6 +137,7 @@ export {
   isIndexed,
   isAssociative,
   isOrdered,
+  isPlainObject,
   isValueObject,
   isSeq,
   isList,
