@@ -340,7 +340,7 @@ JSON.stringify(deep); // '{"a":1,"b":2,"c":[3,4,5]}'
 ### Embraces ES2015
 
 Immutable.js supports all JavaScript environments, including legacy
-browsers (even IE8). However it also takes advantage of features added to
+browsers (even IE11). However it also takes advantage of features added to
 JavaScript in [ES2015][], the latest standard version of JavaScript, including
 [Iterators][], [Arrow Functions][], [Classes][], and [Modules][]. It's inspired
 by the native [Map][] and [Set][] collections added to ES2015.
