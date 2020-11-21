@@ -66,4 +66,54 @@ describe('OrderedSet', () => {
       'CD',
     ]);
   });
+
+  it('ensure that `subtract` works correcly (see https://github.com/immutable-js-oss/immutable-js/issues/139 )', () => {
+    const fillArray = (nb) =>
+      Array(nb)
+        .fill(1)
+        .map((el, i) => i + 1);
+
+    const capacity = 32;
+    // items from keys 0 to 31 and values 1 to 32
+    const defaultItems = fillArray(capacity);
+
+    const allItems = OrderedSet(defaultItems);
+
+    const partialCapacity = Math.ceil(capacity / 2) + 1;
+    const someOfThem = fillArray(partialCapacity);
+    expect(someOfThem.length).toBe(17);
+
+    const existingItems = OrderedSet(someOfThem).intersect(allItems);
+
+    expect(allItems.subtract(existingItems).size).toBe(15);
+    expect(allItems.subtract(existingItems).size + someOfThem.length).toBe(32);
+  });
+
+  it('ensure that `subtract` works correctly (see https://github.com/immutable-js-oss/immutable-js/issues/96 )', () => {
+    let a = OrderedSet();
+    let b = OrderedSet();
+    let c;
+    let d;
+    // Set a to 0-45
+    for (let i = 0; i < 46; i++) {
+      a = a.add(i);
+    }
+    // Set b to 0-24
+    for (let i = 0; i < 25; i++) {
+      b = b.add(i);
+    }
+    // Set c to 0-23
+    c = b.butLast();
+    // Set d to 0-22
+    d = c.butLast();
+
+    // Internal list resizing happens on the final remove when subtracting c from a
+    const aNotB = a.subtract(b);
+    const aNotC = a.subtract(c);
+    const aNotD = a.subtract(d);
+
+    expect(aNotB.size).toBe(21);
+    expect(aNotC.size).toBe(22);
+    expect(aNotD.size).toBe(23);
+  });
 });
