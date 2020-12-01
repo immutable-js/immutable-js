@@ -253,4 +253,12 @@ describe('Record', () => {
       ['b', 20],
     ]);
   });
+
+  it('calling `equals` between two instance of factories with same properties and same value should return true', () => {
+    const factoryA = Record({ id: '' });
+    const factoryB = Record({ id: '' });
+
+    expect(factoryA().equals(factoryA())).toBe(true);
+    expect(factoryA().equals(factoryB())).toBe(true);
+  });
 });

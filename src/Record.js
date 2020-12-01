@@ -105,10 +105,7 @@ export class Record {
 
   equals(other) {
     return (
-      this === other ||
-      (other &&
-        this._keys === other._keys &&
-        recordSeq(this).equals(recordSeq(other)))
+      this === other || (other && recordSeq(this).equals(recordSeq(other)))
     );
   }
 
