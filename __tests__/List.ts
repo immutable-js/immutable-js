@@ -470,8 +470,8 @@ describe('List', () => {
     expect(v.toArray()).toEqual([]);
   });
 
-  it('remove removes any index', () => {
-    let v = List.of('a', 'b', 'c').remove(2).remove(0);
+  it.each(['remove', 'delete'])('remove removes any index', (fn) => {
+    let v = List.of('a', 'b', 'c')[fn](2)[fn](0);
     expect(v.size).toBe(1);
     expect(v.get(0)).toBe('b');
     expect(v.get(1)).toBe(undefined);
