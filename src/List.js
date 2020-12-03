@@ -106,8 +106,7 @@ export class List extends IndexedCollection {
     if (this.__ownerID) {
       this.size = this._origin = this._capacity = 0;
       this._level = SHIFT;
-      this._root = this._tail = null;
-      this.__hash = undefined;
+      this._root = this._tail = this.__hash = undefined;
       this.__altered = true;
       return this;
     }

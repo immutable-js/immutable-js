@@ -172,6 +172,7 @@ export class Record {
 
   clear() {
     const newValues = this._values.clear().setSize(this._keys.length);
+
     return this.__ownerID ? this : makeRecord(this, newValues);
   }
 

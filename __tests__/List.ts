@@ -784,6 +784,25 @@ describe('List', () => {
     expect(v2).toBe(List());
   });
 
+  it('calling `clear` and `setSize` should set all items to undefined', () => {
+    const l = List(['a', 'b']);
+    const l2 = l.clear().setSize(3);
+
+    expect(l2.get(0)).toBeUndefined();
+    expect(l2.get(1)).toBeUndefined();
+    expect(l2.get(2)).toBeUndefined();
+  });
+
+  it('calling `clear` and `setSize` while mutating should set all items to undefined', () => {
+    const l = List(['a', 'b']);
+    const l2 = l.withMutations((innerList) => {
+      innerList.clear().setSize(3);
+    });
+    expect(l2.get(0)).toBeUndefined();
+    expect(l2.get(1)).toBeUndefined();
+    expect(l2.get(2)).toBeUndefined();
+  });
+
   it('allows size to be set', () => {
     const v1 = Range(0, 2000).toList();
     const v2 = v1.setSize(1000);

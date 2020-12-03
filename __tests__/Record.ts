@@ -7,7 +7,7 @@
 
 ///<reference path='../resources/jest.d.ts'/>
 
-import { isKeyed, Map, Record, Seq } from '../';
+import { isKeyed, List, Map, Record, Seq } from '../';
 
 describe('Record', () => {
   it('defines a constructor', () => {
@@ -260,6 +260,34 @@ describe('Record', () => {
 
     expect(factoryA().equals(factoryA())).toBe(true);
     expect(factoryA().equals(factoryB())).toBe(true);
+  });
+
+  it('check that reset does reset the record. See https://github.com/immutable-js-oss/immutable-js/issues/85 ', () => {
+    type UserType = {
+      name: string;
+      roles: List<string> | Array<string>;
+    };
+
+    const User = Record<UserType>({
+      name: 'default name',
+      roles: List<string>(),
+    });
+
+    const user0 = new User({
+      name: 'John',
+      roles: ['superuser', 'admin'],
+    });
+    const user1 = user0.clear();
+
+    expect(user1.name).toBe('default name');
+    expect(user1.roles).toEqual(List());
+
+    const user2 = user0.withMutations((mutable: Record<UserType>) => {
+      mutable.clear();
+    });
+
+    expect(user2.name).toBe('default name');
+    expect(user2.roles).toEqual(List());
   });
 
   it('does not accept a Record as constructor', () => {
