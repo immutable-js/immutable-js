@@ -7,7 +7,7 @@
 
 ///<reference path='../resources/jest.d.ts'/>
 
-import { isKeyed, Record, Seq } from '../';
+import { isKeyed, Map, Record, Seq } from '../';
 
 describe('Record', () => {
   it('defines a constructor', () => {
@@ -260,5 +260,27 @@ describe('Record', () => {
 
     expect(factoryA().equals(factoryA())).toBe(true);
     expect(factoryA().equals(factoryB())).toBe(true);
+  });
+
+  it('does not accept a Record as constructor', () => {
+    const Foo = Record({ foo: 'bar' });
+    const fooInstance = Foo();
+    expect(() => {
+      Record(fooInstance);
+    }).toThrowErrorMatchingSnapshot();
+  });
+
+  it('does not accept a non object as constructor', () => {
+    const defaultValues = null;
+    expect(() => {
+      Record(defaultValues);
+    }).toThrowErrorMatchingSnapshot();
+  });
+
+  it('does not accept an immutable object that is not a Record as constructor', () => {
+    const defaultValues = Map({ foo: 'bar' });
+    expect(() => {
+      Record(defaultValues);
+    }).toThrowErrorMatchingSnapshot();
   });
 });
