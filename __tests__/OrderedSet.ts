@@ -7,7 +7,7 @@
 
 ///<reference path='../resources/jest.d.ts'/>
 
-import { OrderedSet } from '../';
+import { OrderedSet, Map } from '../';
 
 describe('OrderedSet', () => {
   it('provides initial values in a mixed order', () => {
@@ -115,5 +115,31 @@ describe('OrderedSet', () => {
     expect(aNotB.size).toBe(21);
     expect(aNotC.size).toBe(22);
     expect(aNotD.size).toBe(23);
+  });
+
+  it('updating a value with ".map()" should keep the set ordered', () => {
+    const first = Map({ id: 1, valid: true });
+    const second = Map({ id: 2, valid: true });
+    const third = Map({ id: 3, valid: true });
+    const initial = OrderedSet([first, second, third]);
+
+    const out = initial.map((t) => {
+      if (2 === t.get('id')) {
+        return t.set('valid', false);
+      }
+      return t;
+    });
+
+    const expected = OrderedSet([
+      Map({ id: 1, valid: true }),
+      Map({ id: 2, valid: false }),
+      Map({ id: 3, valid: true }),
+    ]);
+
+    expect(out).toEqual(expected);
+
+    expect(out.has(first)).toBe(true);
+    expect(out.has(second)).toBe(false);
+    expect(out.has(third)).toBe(true);
   });
 });
