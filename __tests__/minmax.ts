@@ -10,7 +10,7 @@
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { is, Seq } from '../';
+import { is, Seq } from 'immutable';
 
 const genHeterogeneousishArray = gen.oneOf([
   gen.array(gen.oneOf([gen.string, gen.undefined])),

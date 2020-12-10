@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-const { List } = require('../');
+const { List } = require('../src/Immutable');
 
 const NON_NUMBERS = {
   array: ['not', 'a', 'number'],

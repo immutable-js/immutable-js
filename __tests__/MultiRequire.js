@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-const Immutable1 = require('../');
+const Immutable1 = require('../src/Immutable');
 
-jest.resetModuleRegistry();
+jest.resetModules();
 
-const Immutable2 = require('../');
+const Immutable2 = require('../src/Immutable');
 
 describe('MultiRequire', () => {
   it('might require two different instances of Immutable', () => {

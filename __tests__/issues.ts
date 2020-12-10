@@ -8,7 +8,7 @@
 ///<reference path='../resources/jest.d.ts'/>
 
 declare var Symbol: any;
-import { List, OrderedMap, OrderedSet, Record, Seq, Set } from '../';
+import { List, OrderedMap, OrderedSet, Record, Seq, Set } from 'immutable';
 
 describe('Issue #1175', () => {
   it('invalid hashCode() response should not infinitly recurse', () => {

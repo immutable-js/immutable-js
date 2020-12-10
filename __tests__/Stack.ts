@@ -10,7 +10,7 @@
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { Seq, Stack } from '../';
+import { Seq, Stack } from 'immutable';
 
 function arrayOfSize(s) {
   const a = new Array(s);

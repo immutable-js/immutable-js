@@ -1,5 +1,5 @@
 /* global document */
-const { List, isPlainObject } = require('../');
+const { List, isPlainObject } = require('../src/Immutable');
 
 describe('Utils', () => {
   describe('isPlainObj()', function testFunc() {

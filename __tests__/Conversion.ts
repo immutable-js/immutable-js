@@ -8,7 +8,7 @@
 ///<reference path='../resources/jest.d.ts'/>
 
 import * as jasmineCheck from 'jasmine-check';
-import { fromJS, is, List, Map, OrderedMap, Record } from '../';
+import { fromJS, is, List, Map, OrderedMap, Record } from 'immutable';
 jasmineCheck.install();
 
 // Symbols

@@ -10,7 +10,7 @@
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { hash } from '../';
+import { hash } from 'immutable';
 
 describe('hash', () => {
   it('stable hash of well known values', () => {

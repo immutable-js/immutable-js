@@ -8,7 +8,7 @@
 ///<reference path='../resources/jest.d.ts'/>
 
 import * as jasmineCheck from 'jasmine-check';
-import { List, Range, Seq } from '../';
+import { List, Range, Seq } from 'immutable';
 jasmineCheck.install();
 
 describe('slice', () => {

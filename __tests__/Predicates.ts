@@ -7,7 +7,15 @@
 
 ///<reference path='../resources/jest.d.ts'/>
 
-import { is, isImmutable, isValueObject, List, Map, Set, Stack } from '../';
+import {
+  is,
+  isImmutable,
+  isValueObject,
+  List,
+  Map,
+  Set,
+  Stack,
+} from 'immutable';
 
 describe('isImmutable', () => {
   it('behaves as advertised', () => {

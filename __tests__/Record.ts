@@ -7,7 +7,7 @@
 
 ///<reference path='../resources/jest.d.ts'/>
 
-import { isKeyed, List, Map, Record, Seq } from '../';
+import { isKeyed, List, Map, Record, Seq } from 'immutable';
 
 describe('Record', () => {
   it('defines a constructor', () => {

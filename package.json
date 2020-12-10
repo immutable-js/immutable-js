@@ -50,8 +50,9 @@
       "js",
       "ts"
     ],
+    "resolver": "<rootDir>/resources/jestResolver.js",
     "transform": {
-      "^.+\\.ts$": "<rootDir>/resources/jestPreprocessor.js"
+      "^.+\\.(js|ts)$": "<rootDir>/resources/jestPreprocessor.js"
     },
     "testRegex": "/__tests__/.*\\.(ts|js)$",
     "unmockedModulePathPatterns": [
@@ -98,6 +99,7 @@
     "gulp-util": "^3.0.8",
     "jasmine-check": "^0.1.5",
     "jest": "^26.6.3",
+    "make-synchronous": "^0.1.1",
     "marked": "^1.2.3",
     "microtime": "^3.0.0",
     "mkdirp": "^0.5.1",

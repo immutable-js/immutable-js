@@ -7,7 +7,16 @@
 
 ///<reference path='../resources/jest.d.ts'/>
 
-import { fromJS, List, Map, removeIn, Seq, Set, setIn, updateIn } from '../';
+import {
+  fromJS,
+  List,
+  Map,
+  removeIn,
+  Seq,
+  Set,
+  setIn,
+  updateIn,
+} from 'immutable';
 
 describe('updateIn', () => {
   it('deep edit', () => {
