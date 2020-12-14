@@ -5,87 +5,87 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-describe('Set', function () {
-  describe('maps with changes', function () {
-    var array2 = [];
-    for (var i = 0; i < 2; i++) {
+describe('Set', () => {
+  describe('maps with changes', () => {
+    const array2 = [];
+    for (let i = 0; i < 2; i++) {
       array2[i] = i;
     }
-    var set2 = Immutable.Set(array2);
+    const set2 = Immutable.Set(array2);
 
-    it('of 2', function () {
+    it('of 2', () => {
       set2.map(value => value + 1);
     });
 
-    var array8 = [];
-    for (var i = 0; i < 8; i++) {
+    const array8 = [];
+    for (let i = 0; i < 8; i++) {
       array8[i] = i;
     }
-    var set8 = Immutable.Set(array8);
+    const set8 = Immutable.Set(array8);
 
-    it('of 8', function () {
+    it('of 8', () => {
       set8.map(value => value + 1);
     });
 
-    var array32 = [];
-    for (var i = 0; i < 32; i++) {
+    const array32 = [];
+    for (let i = 0; i < 32; i++) {
       array32[i] = i;
     }
-    var set32 = Immutable.Set(array32);
+    const set32 = Immutable.Set(array32);
 
-    it('of 32', function () {
+    it('of 32', () => {
       set32.map(value => value + 1);
     });
 
-    var array1024 = [];
-    for (var i = 0; i < 1024; i++) {
+    const array1024 = [];
+    for (let i = 0; i < 1024; i++) {
       array1024[i] = i;
     }
-    var set1024 = Immutable.Set(array1024);
+    const set1024 = Immutable.Set(array1024);
 
-    it('of 1024', function () {
+    it('of 1024', () => {
       set1024.map(value => value + 1);
     });
   });
 
-  describe('maps without changes', function () {
-    var array2 = [];
-    for (var i = 0; i < 2; i++) {
+  describe('maps without changes', () => {
+    const array2 = [];
+    for (let i = 0; i < 2; i++) {
       array2[i] = i;
     }
-    var set2 = Immutable.Set(array2);
+    const set2 = Immutable.Set(array2);
 
-    it('of 2', function () {
+    it('of 2', () => {
       set2.map(value => value);
     });
 
-    var array8 = [];
-    for (var i = 0; i < 8; i++) {
+    const array8 = [];
+    for (let i = 0; i < 8; i++) {
       array8[i] = i;
     }
-    var set8 = Immutable.Set(array8);
+    const set8 = Immutable.Set(array8);
 
-    it('of 8', function () {
+    it('of 8', () => {
       set8.map(value => value);
     });
 
-    var array32 = [];
-    for (var i = 0; i < 32; i++) {
+    const array32 = [];
+    for (let i = 0; i < 32; i++) {
       array32[i] = i;
     }
-    var set32 = Immutable.Set(array32);
+    const set32 = Immutable.Set(array32);
 
-    it('of 32', function () {
+    it('of 32', () => {
       set32.map(value => value);
     });
 
-    var array1024 = [];
-    for (var i = 0; i < 1024; i++) {
+    const array1024 = [];
+    for (let i = 0; i < 1024; i++) {
       array1024[i] = i;
     }
-    var set1024 = Immutable.Set(array1024);
+    const set1024 = Immutable.Set(array1024);
 
-    it('of 1024', function () {
+    it('of 1024', () => {
       set1024.map(value => value);
     });
   });
