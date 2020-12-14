@@ -7,14 +7,12 @@
 
 describe('fromJS', () => {
   const list = Immutable.List();
-
   it('List', () => {
     Immutable.fromJS(list);
   });
 
   const object = { foo: 'bar' };
-
   it('object', () => {
     Immutable.fromJS(object);
-  })
+  });
 });
