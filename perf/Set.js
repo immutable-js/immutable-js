@@ -13,7 +13,7 @@ describe('Set', () => {
     }
     const set2 = Immutable.Set(array2);
     it('of 2', () => {
-      set2.map(value => value + 1);
+      set2.map((value) => value + 1);
     });
 
     const array8 = [];
@@ -22,7 +22,7 @@ describe('Set', () => {
     }
     const set8 = Immutable.Set(array8);
     it('of 8', () => {
-      set8.map(value => value + 1);
+      set8.map((value) => value + 1);
     });
 
     const array32 = [];
@@ -31,7 +31,7 @@ describe('Set', () => {
     }
     const set32 = Immutable.Set(array32);
     it('of 32', () => {
-      set32.map(value => value + 1);
+      set32.map((value) => value + 1);
     });
 
     const array1024 = [];
@@ -40,7 +40,7 @@ describe('Set', () => {
     }
     const set1024 = Immutable.Set(array1024);
     it('of 1024', () => {
-      set1024.map(value => value + 1);
+      set1024.map((value) => value + 1);
     });
   });
 
@@ -51,7 +51,7 @@ describe('Set', () => {
     }
     const set2 = Immutable.Set(array2);
     it('of 2', () => {
-      set2.map(value => value);
+      set2.map((value) => value);
     });
 
     const array8 = [];
@@ -60,7 +60,7 @@ describe('Set', () => {
     }
     const set8 = Immutable.Set(array8);
     it('of 8', () => {
-      set8.map(value => value);
+      set8.map((value) => value);
     });
 
     const array32 = [];
@@ -69,7 +69,7 @@ describe('Set', () => {
     }
     const set32 = Immutable.Set(array32);
     it('of 32', () => {
-      set32.map(value => value);
+      set32.map((value) => value);
     });
 
     const array1024 = [];
@@ -78,7 +78,7 @@ describe('Set', () => {
     }
     const set1024 = Immutable.Set(array1024);
     it('of 1024', () => {
-      set1024.map(value => value);
+      set1024.map((value) => value);
     });
   });
 });
