@@ -6,9 +6,12 @@
  */
 
 import { isImmutable } from '../predicates/isImmutable';
+import { isIndexed } from '../predicates/isIndexed';
+import { isKeyed } from '../predicates/isKeyed';
 import { IndexedCollection, KeyedCollection } from '../Collection';
 import hasOwnProperty from '../utils/hasOwnProperty';
 import isDataStructure from '../utils/isDataStructure';
+import isPlainObject from '../utils/isPlainObj';
 import shallowCopy from '../utils/shallowCopy';
 
 export function merge(collection, ...sources) {
@@ -45,6 +48,7 @@ export function mergeWithSources(collection, sources, merger) {
       : collection.concat(...sources);
   }
   const isArray = Array.isArray(collection);
+  const isObject = !isArray;
   let merged = collection;
   const Collection = isArray ? IndexedCollection : KeyedCollection;
   const mergeItem = isArray
@@ -68,7 +72,14 @@ export function mergeWithSources(collection, sources, merger) {
         }
       };
   for (let i = 0; i < sources.length; i++) {
-    Collection(sources[i]).forEach(mergeItem);
+    const source = sources[i];
+    if (
+      (isArray && (isPlainObject(source) || isKeyed(source))) ||
+      (isObject && (Array.isArray(source) || isIndexed(source)))
+    ) {
+      throw new TypeError('Expected non-keyed argument: ' + source);
+    }
+    Collection(source).forEach(mergeItem);
   }
   return merged;
 }
