@@ -18,7 +18,6 @@ import {
   resolveBegin,
   resolveEnd,
 } from './TrieUtils';
-import { isKeyed } from './predicates/isKeyed';
 import { IS_LIST_SYMBOL, isList } from './predicates/isList';
 import { IndexedCollection } from './Collection';
 import { hasIterator, Iterator, iteratorValue, iteratorDone } from './Iterator';
@@ -33,7 +32,6 @@ import { asMutable } from './methods/asMutable';
 import { asImmutable } from './methods/asImmutable';
 import { wasAltered } from './methods/wasAltered';
 import assertNotInfinite from './utils/assertNotInfinite';
-import isPlainObject from './utils/isPlainObj';
 
 export class List extends IndexedCollection {
   // @pragma Construction
@@ -150,18 +148,10 @@ export class List extends IndexedCollection {
     const seqs = [];
     for (let i = 0; i < arguments.length; i++) {
       const argument = arguments[i];
-      const argumentHasIterator =
-        typeof argument !== 'string' && hasIterator(argument);
-      if (
-        isKeyed(argument) ||
-        (!argumentHasIterator && isPlainObject(argument))
-      ) {
-        throw new TypeError(
-          'Expected iterable, non-keyed argument: ' + argument
-        );
-      }
       const seq = IndexedCollection(
-        argumentHasIterator ? argument : [argument]
+        typeof argument !== 'string' && hasIterator(argument)
+          ? argument
+          : [argument]
       );
       if (seq.size !== 0) {
         seqs.push(seq);

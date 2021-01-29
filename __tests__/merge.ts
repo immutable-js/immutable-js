@@ -9,6 +9,7 @@
 
 import {
   fromJS,
+  is,
   List,
   Map,
   merge,
@@ -281,29 +282,5 @@ describe('merge', () => {
   it('merges records with a size property set to 0', () => {
     const Sizable = Record({ size: 0 });
     expect(Sizable().merge({ size: 123 }).size).toBe(123);
-  });
-
-  describe('throws TypeError when merging', () => {
-    const incompatibleMerges = [
-      ['Map', 'List', Map({ foo: 'bar' }), List(['bar'])],
-      ['Map', 'array', Map({ foo: 'bar' }), ['bar']],
-      ['object', 'List', { foo: 'bar' }, List(['bar'])],
-      ['object', 'array', { foo: 'bar' }, ['bar']],
-    ];
-
-    incompatibleMerges.forEach(
-      ([firstName, secondName, firstValue, secondValue]) => {
-        it(`${firstName} and ${secondName}`, () => {
-          expect(() => {
-            merge(firstValue, secondValue);
-          }).toThrowError(TypeError);
-        });
-        it(`${secondName} and ${firstName}`, () => {
-          expect(() => {
-            merge(secondValue, firstValue);
-          }).toThrowError(TypeError);
-        });
-      }
-    );
   });
 });
