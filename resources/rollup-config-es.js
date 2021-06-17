@@ -1,11 +1,10 @@
-import fs from 'fs';
 import path from 'path';
 import buble from 'rollup-plugin-buble';
 import commonjs from 'rollup-plugin-commonjs';
 import json from 'rollup-plugin-json';
 import stripBanner from 'rollup-plugin-strip-banner';
 
-const copyright = fs.readFileSync(path.join('resources', 'COPYRIGHT'), 'utf-8');
+import copyright from './copyright';
 
 const SRC_DIR = path.resolve('src');
 const DIST_DIR = path.resolve('dist');
