@@ -63,7 +63,7 @@
     "browserify": "16.5.2",
     "colors": "1.4.0",
     "del": "6.0.0",
-    "dtslint": "4.0.4",
+    "dtslint": "4.1.0",
     "eslint": "7.11.0",
     "eslint-config-airbnb": "18.2.0",
     "eslint-config-prettier": "6.12.0",
@@ -124,6 +124,5 @@
     "stateless",
     "sequence",
     "iteration"
-  ],
-  "dependencies": {}
+  ]
 }
