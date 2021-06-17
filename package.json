@@ -3,17 +3,17 @@
   "version": "4.0.0-rc.12",
   "description": "Immutable Data Collections",
   "license": "MIT",
-  "homepage": "https://facebook.github.com/immutable-js",
+  "homepage": "https://immutable-js.github.com/immutable-js",
   "author": {
     "name": "Lee Byron",
     "url": "https://github.com/leebyron"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/facebook/immutable-js.git"
+    "url": "git://github.com/immutable-js/immutable-js.git"
   },
   "bugs": {
-    "url": "https://github.com/facebook/immutable-js/issues"
+    "url": "https://github.com/immutable-js/immutable-js/issues"
   },
   "main": "dist/immutable.js",
   "module": "dist/immutable.es.js",

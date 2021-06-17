@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 var React = require('react');
 var SVGSet = require('../../src/SVGSet');
 var Logo = require('../../src/Logo');
@@ -29,7 +22,7 @@ var DocHeader = React.createClass({
             <a href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes">
               Questions
             </a>
-            <a href="https://github.com/facebook/immutable-js/">Github</a>
+            <a href="https://github.com/immutable-js/immutable-js/">Github</a>
           </div>
         </div>
       </div>

@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 var React = require('react');
 var Router = require('react-router');
 var { Seq } = require('../../../../');
@@ -19,8 +12,8 @@ var TypeKind = require('../../../lib/TypeKind');
 var defs = require('../../../lib/getTypeDefs');
 
 var typeDefURL =
-  'https://github.com/facebook/immutable-js/blob/master/type-definitions/Immutable.d.ts';
-var issuesURL = 'https://github.com/facebook/immutable-js/issues';
+  'https://github.com/immutable-js/immutable-js/blob/master/type-definitions/Immutable.d.ts';
+var issuesURL = 'https://github.com/immutable-js/immutable-js/issues';
 
 var Disclaimer = function() {
   return (

@@ -1,12 +1,4 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * @flow
- */
-
+// @flow
 // Some tests look like they are repeated in order to avoid false positives.
 // Flow might not complain about an instance of (what it thinks is) T to be assigned to T<K, V>
 
@@ -908,8 +900,8 @@ let maybeNumberSeqSize: ?number = numberSeq.size
 type PersonRecordFields = { age: number, name: string }
 type PersonRecord = RecordOf<PersonRecordFields>;
 const makePersonRecord: RecordFactory<PersonRecordFields> = Record({
-  age: 12,
-  name: 'Facebook',
+  age: 900,
+  name: 'Yoda',
 });
 
 const personRecordInstance: PersonRecord = makePersonRecord({ age: 25 })

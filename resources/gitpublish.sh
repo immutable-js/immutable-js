@@ -1,19 +1,14 @@
 #!/bin/sh -e
 
-# Copyright (c) 2014-present, Facebook, Inc.
-#
-# This source code is licensed under the MIT license found in the
-# LICENSE file in the root directory of this source tree.
-
 # This script maintains a git branch which mirrors master but in a form that
 # what will eventually be deployed to npm, allowing npm dependencies to use:
 #
-#     "immutable": "git://github.com/facebook/immutable-js.git#npm"
+#     "immutable": "git://github.com/immutable-js/immutable-js.git#npm"
 #
 
 # Create empty npm directory
 rm -rf npm
-git clone -b npm "https://${GH_TOKEN}@github.com/facebook/immutable-js.git" npm
+git clone -b npm "https://${GH_TOKEN}@github.com/immutable-js/immutable-js.git" npm
 
 # Remove existing files first
 rm -rf npm/**/*
