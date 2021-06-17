@@ -1,6 +1,7 @@
 import { Seq } from './Seq';
 import { OrderedMap } from './OrderedMap';
 import { List } from './List';
+import { SortedList, isSortedList } from './SortedList';
 import { Map } from './Map';
 import { Stack } from './Stack';
 import { OrderedSet } from './OrderedSet';
@@ -57,6 +58,7 @@ export default {
   Map: Map,
   OrderedMap: OrderedMap,
   List: List,
+  SortedList: SortedList,
   Stack: Stack,
   Set: Set,
   OrderedSet: OrderedSet,
@@ -78,6 +80,7 @@ export default {
   isValueObject: isValueObject,
   isSeq: isSeq,
   isList: isList,
+  isSortedList: isSortedList,
   isMap: isMap,
   isOrderedMap: isOrderedMap,
   isStack: isStack,
@@ -112,6 +115,7 @@ export {
   Map,
   OrderedMap,
   List,
+  SortedList,
   Stack,
   Set,
   OrderedSet,
