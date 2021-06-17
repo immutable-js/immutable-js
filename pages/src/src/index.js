@@ -5,7 +5,7 @@ var readme = require('../../generated/readme.json');
 require('../../lib/runkit-embed');
 
 var Index = React.createClass({
-  render: function() {
+  render: function () {
     return (
       <div>
         <Header />

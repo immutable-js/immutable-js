@@ -109,9 +109,15 @@ describe('Seq', () => {
 
   it('Converts deeply toJS after converting to entries', () => {
     const list = Seq([Seq([1, 2]), Seq({ a: 'z' })]);
-    expect(list.entrySeq().toJS()).toEqual([[0, [1, 2]], [1, { a: 'z' }]]);
+    expect(list.entrySeq().toJS()).toEqual([
+      [0, [1, 2]],
+      [1, { a: 'z' }],
+    ]);
 
     const map = Seq({ x: Seq([1, 2]), y: Seq({ a: 'z' }) });
-    expect(map.entrySeq().toJS()).toEqual([['x', [1, 2]], ['y', { a: 'z' }]]);
+    expect(map.entrySeq().toJS()).toEqual([
+      ['x', [1, 2]],
+      ['y', { a: 'z' }],
+    ]);
   });
 });

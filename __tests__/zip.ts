@@ -11,7 +11,11 @@ describe('zip', () => {
       Seq([1, 2, 3])
         .zip(Seq([4, 5, 6]))
         .toArray()
-    ).toEqual([[1, 4], [2, 5], [3, 6]]);
+    ).toEqual([
+      [1, 4],
+      [2, 5],
+      [3, 6],
+    ]);
   });
 
   it('zip results can be converted to JS', () => {
@@ -25,7 +29,11 @@ describe('zip', () => {
         [List([3]), List([6])],
       ])
     );
-    expect(zipped.toJS()).toEqual([[[1], [4]], [[2], [5]], [[3], [6]]]);
+    expect(zipped.toJS()).toEqual([
+      [[1], [4]],
+      [[2], [5]],
+      [[3], [6]],
+    ]);
   });
 
   it('zips with infinite lists', () => {
@@ -33,7 +41,11 @@ describe('zip', () => {
       Range()
         .zip(Seq(['A', 'B', 'C']))
         .toArray()
-    ).toEqual([[0, 'A'], [1, 'B'], [2, 'C']]);
+    ).toEqual([
+      [0, 'A'],
+      [1, 'B'],
+      [2, 'C'],
+    ]);
   });
 
   it('has unknown size when zipped with unknown size', () => {
@@ -68,14 +80,18 @@ describe('zip', () => {
       expect(
         Seq([1, 2, 3])
           .zipWith(
-            function() {
+            function () {
               return List(arguments);
             },
             Seq([4, 5, 6]),
             Seq([7, 8, 9])
           )
           .toJS()
-      ).toEqual([[1, 4, 7], [2, 5, 8], [3, 6, 9]]);
+      ).toEqual([
+        [1, 4, 7],
+        [2, 5, 8],
+        [3, 6, 9],
+      ]);
     });
   });
 
@@ -85,7 +101,11 @@ describe('zip', () => {
         Seq([1, 2, 3])
           .zipAll(Seq([4]))
           .toArray()
-      ).toEqual([[1, 4], [2, undefined], [3, undefined]]);
+      ).toEqual([
+        [1, 4],
+        [2, undefined],
+        [3, undefined],
+      ]);
     });
 
     check.it(

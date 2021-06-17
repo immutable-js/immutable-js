@@ -36,9 +36,12 @@ describe('max', () => {
       { name: 'Casey', age: 34 },
       { name: 'Avery', age: 34 },
     ]);
-    expect(family.maxBy<number>(p => p.age, (a, b) => b - a)).toBe(
-      family.get(0)
-    );
+    expect(
+      family.maxBy<number>(
+        p => p.age,
+        (a, b) => b - a
+      )
+    ).toBe(family.get(0));
   });
 
   it('surfaces NaN, null, and undefined', () => {
@@ -83,9 +86,12 @@ describe('min', () => {
       { name: 'Casey', age: 34 },
       { name: 'Avery', age: 34 },
     ]);
-    expect(family.minBy<number>(p => p.age, (a, b) => b - a)).toBe(
-      family.get(2)
-    );
+    expect(
+      family.minBy<number>(
+        p => p.age,
+        (a, b) => b - a
+      )
+    ).toBe(family.get(2));
   });
 
   check.it('is not dependent on order', [genHeterogeneousishArray], vals => {

@@ -31,11 +31,11 @@ function requireFresh(path) {
 var SRC_DIR = '../pages/src/';
 var BUILD_DIR = '../pages/out/';
 
-gulp.task('clean', function(done) {
+gulp.task('clean', function (done) {
   return del([BUILD_DIR], { force: true });
 });
 
-gulp.task('readme', function() {
+gulp.task('readme', function () {
   var genMarkdownDoc = requireFresh('../pages/lib/genMarkdownDoc');
 
   var readmePath = path.join(__dirname, '../README.md');
@@ -49,7 +49,7 @@ gulp.task('readme', function() {
   fs.writeFileSync(writePath, contents);
 });
 
-gulp.task('typedefs', function() {
+gulp.task('typedefs', function () {
   var genTypeDefData = requireFresh('../pages/lib/genTypeDefData');
 
   var typeDefPath = path.join(__dirname, '../type-definitions/Immutable.d.ts');
@@ -80,7 +80,7 @@ function gulpJS(subDir) {
     path.resolve(SRC_DIR + subDir),
     path.resolve('./immutable-global.js')
   );
-  return function() {
+  return function () {
     return (
       browserify({
         debug: true,
@@ -117,7 +117,7 @@ gulp.task('pre-render', gulpPreRender(''));
 gulp.task('pre-render-docs', gulpPreRender('docs/'));
 
 function gulpPreRender(subDir) {
-  return function() {
+  return function () {
     return gulp
       .src(SRC_DIR + subDir + 'index.html')
       .pipe(preRender(subDir))
@@ -131,7 +131,7 @@ gulp.task('less', gulpLess(''));
 gulp.task('less-docs', gulpLess('docs/'));
 
 function gulpLess(subDir) {
-  return function() {
+  return function () {
     return gulp
       .src(SRC_DIR + subDir + 'src/*.less')
       .pipe(sourcemaps.init())
@@ -155,7 +155,7 @@ gulp.task('statics', gulpStatics(''));
 gulp.task('statics-docs', gulpStatics('docs/'));
 
 function gulpStatics(subDir) {
-  return function() {
+  return function () {
     return gulp
       .src(SRC_DIR + subDir + 'static/**/*')
       .pipe(gulp.dest(BUILD_DIR + subDir + 'static'))
@@ -165,7 +165,7 @@ function gulpStatics(subDir) {
   };
 }
 
-gulp.task('immutable-copy', function() {
+gulp.task('immutable-copy', function () {
   return gulp
     .src(SRC_DIR + '../../dist/immutable.js')
     .pipe(gulp.dest(BUILD_DIR))
@@ -174,7 +174,7 @@ gulp.task('immutable-copy', function() {
     .on('error', handleError);
 });
 
-gulp.task('build', function(done) {
+gulp.task('build', function (done) {
   sequence(
     ['typedefs'],
     ['readme'],
@@ -192,12 +192,12 @@ gulp.task('build', function(done) {
   );
 });
 
-gulp.task('default', function(done) {
+gulp.task('default', function (done) {
   sequence('clean', 'build', done);
 });
 
 // watch files for changes and reload
-gulp.task('dev', ['default'], function() {
+gulp.task('dev', ['default'], function () {
   browserSync({
     port: 8040,
     server: {
@@ -212,20 +212,20 @@ gulp.task('dev', ['default'], function() {
   gulp.watch('../pages/src/docs/src/**/*.js', ['rebuild-js-docs']);
   gulp.watch('../pages/src/**/*.html', ['pre-render', 'pre-render-docs']);
   gulp.watch('../pages/src/static/**/*', ['statics', 'statics-docs']);
-  gulp.watch('../type-definitions/*', function() {
+  gulp.watch('../type-definitions/*', function () {
     sequence('typedefs', 'rebuild-js-docs');
   });
 });
 
-gulp.task('rebuild-js', function(done) {
-  sequence('js', ['pre-render'], function() {
+gulp.task('rebuild-js', function (done) {
+  sequence('js', ['pre-render'], function () {
     browserSync.reload();
     done();
   });
 });
 
-gulp.task('rebuild-js-docs', function(done) {
-  sequence('js-docs', ['pre-render-docs'], function() {
+gulp.task('rebuild-js-docs', function (done) {
+  sequence('js-docs', ['pre-render-docs'], function () {
     browserSync.reload();
     done();
   });
@@ -236,46 +236,46 @@ function handleError(error) {
 }
 
 function preRender(subDir) {
-  return through.obj(function(file, enc, cb) {
+  return through.obj(function (file, enc, cb) {
     var src = file.contents.toString(enc);
     var components = [];
-    src = src.replace(/<!--\s*React\(\s*(.*)\s*\)\s*-->/g, function(
-      _,
-      relComponent
-    ) {
-      var id = 'r' + components.length;
-      var component = path.resolve(SRC_DIR + subDir, relComponent);
-      components.push(component);
-      try {
-        return (
-          '<div id="' +
-          id +
-          '">' +
-          vm.runInNewContext(
-            fs.readFileSync(BUILD_DIR + subDir + 'bundle.js') + // ugly
-              '\nrequire("react").renderToString(' +
-              'require("react").createElement(require(component)))',
-            {
-              global: {
-                React: React,
-                Immutable: Immutable,
-              },
-              window: {},
-              component: component,
-              console: console,
-            }
-          ) +
-          '</div>'
-        );
-      } catch (error) {
-        return '<div id="' + id + '">' + error.message + '</div>';
+    src = src.replace(
+      /<!--\s*React\(\s*(.*)\s*\)\s*-->/g,
+      function (_, relComponent) {
+        var id = 'r' + components.length;
+        var component = path.resolve(SRC_DIR + subDir, relComponent);
+        components.push(component);
+        try {
+          return (
+            '<div id="' +
+            id +
+            '">' +
+            vm.runInNewContext(
+              fs.readFileSync(BUILD_DIR + subDir + 'bundle.js') + // ugly
+                '\nrequire("react").renderToString(' +
+                'require("react").createElement(require(component)))',
+              {
+                global: {
+                  React: React,
+                  Immutable: Immutable,
+                },
+                window: {},
+                component: component,
+                console: console,
+              }
+            ) +
+            '</div>'
+          );
+        } catch (error) {
+          return '<div id="' + id + '">' + error.message + '</div>';
+        }
       }
-    });
+    );
     if (components.length) {
       src = src.replace(
         /<!--\s*ReactRender\(\)\s*-->/g,
         '<script>' +
-          components.map(function(component, index) {
+          components.map(function (component, index) {
             return (
               'var React = require("react");' +
               'React.render(' +
@@ -300,7 +300,7 @@ function preRender(subDir) {
 function reactTransform() {
   var parseError;
   return through.obj(
-    function(file, enc, cb) {
+    function (file, enc, cb) {
       if (path.extname(file.path) !== '.js') {
         this.push(file);
         return cb();
@@ -320,7 +320,7 @@ function reactTransform() {
         cb();
       }
     },
-    function(done) {
+    function (done) {
       parseError && this.emit('error', parseError);
       done();
     }
@@ -334,11 +334,11 @@ function reactTransformify(filePath) {
   var code = '';
   var parseError;
   return through.obj(
-    function(file, enc, cb) {
+    function (file, enc, cb) {
       code += file;
       cb();
     },
-    function(done) {
+    function (done) {
       try {
         this.push(reactTools.transform(code, { harmony: true }));
       } catch (error) {

@@ -9,7 +9,10 @@ describe('groupBy', () => {
 
     // Each group should be a keyed sequence, not an indexed sequence
     const firstGroup = grouped.get(1);
-    expect(firstGroup && firstGroup.toArray()).toEqual([['a', 1], ['c', 3]]);
+    expect(firstGroup && firstGroup.toArray()).toEqual([
+      ['a', 1],
+      ['c', 3],
+    ]);
   });
 
   it('groups indexed sequence', () => {

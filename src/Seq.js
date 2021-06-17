@@ -24,8 +24,8 @@ export class Seq extends Collection {
     return value === null || value === undefined
       ? emptySequence()
       : isImmutable(value)
-        ? value.toSeq()
-        : seqFromValue(value);
+      ? value.toSeq()
+      : seqFromValue(value);
   }
 
   toSeq() {
@@ -86,12 +86,12 @@ export class KeyedSeq extends Seq {
     return value === null || value === undefined
       ? emptySequence().toKeyedSeq()
       : isCollection(value)
-        ? isKeyed(value)
-          ? value.toSeq()
-          : value.fromEntrySeq()
-        : isRecord(value)
-          ? value.toSeq()
-          : keyedSeqFromValue(value);
+      ? isKeyed(value)
+        ? value.toSeq()
+        : value.fromEntrySeq()
+      : isRecord(value)
+      ? value.toSeq()
+      : keyedSeqFromValue(value);
   }
 
   toKeyedSeq() {
@@ -104,12 +104,12 @@ export class IndexedSeq extends Seq {
     return value === null || value === undefined
       ? emptySequence()
       : isCollection(value)
-        ? isKeyed(value)
-          ? value.entrySeq()
-          : value.toIndexedSeq()
-        : isRecord(value)
-          ? value.toSeq().entrySeq()
-          : indexedSeqFromValue(value);
+      ? isKeyed(value)
+        ? value.entrySeq()
+        : value.toIndexedSeq()
+      : isRecord(value)
+      ? value.toSeq().entrySeq()
+      : indexedSeqFromValue(value);
   }
 
   static of(/*...values*/) {
@@ -127,9 +127,8 @@ export class IndexedSeq extends Seq {
 
 export class SetSeq extends Seq {
   constructor(value) {
-    return (isCollection(value) && !isAssociative(value)
-      ? value
-      : IndexedSeq(value)
+    return (
+      isCollection(value) && !isAssociative(value) ? value : IndexedSeq(value)
     ).toSetSeq();
   }
 
@@ -290,8 +289,8 @@ export function keyedSeqFromValue(value) {
   const seq = Array.isArray(value)
     ? new ArraySeq(value)
     : hasIterator(value)
-      ? new CollectionSeq(value)
-      : undefined;
+    ? new CollectionSeq(value)
+    : undefined;
   if (seq) {
     return seq.fromEntrySeq();
   }
@@ -331,6 +330,6 @@ function maybeIndexedSeqFromValue(value) {
   return isArrayLike(value)
     ? new ArraySeq(value)
     : hasIterator(value)
-      ? new CollectionSeq(value)
-      : undefined;
+    ? new CollectionSeq(value)
+    : undefined;
 }
