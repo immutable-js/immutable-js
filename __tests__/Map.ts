@@ -23,7 +23,11 @@ describe('Map', () => {
   });
 
   it('constructor provides initial values as array of entries', () => {
-    const m = Map([['a', 'A'], ['b', 'B'], ['c', 'C']]);
+    const m = Map([
+      ['a', 'A'],
+      ['b', 'B'],
+      ['c', 'C'],
+    ]);
     expect(m.size).toBe(3);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
@@ -347,9 +351,7 @@ describe('Map', () => {
   });
 
   check.it('deletes from transient', { maxSize: 5000 }, [gen.posInt], len => {
-    const map = Range(0, len)
-      .toMap()
-      .asMutable();
+    const map = Range(0, len).toMap().asMutable();
     for (let ii = 0; ii < len; ii++) {
       expect(map.size).toBe(len - ii);
       map.remove(ii);
@@ -382,12 +384,7 @@ describe('Map', () => {
 
   it('chained mutations does not result in new empty map instance', () => {
     const v1 = Map({ x: 1 });
-    const v2 = v1.withMutations(v =>
-      v
-        .set('y', 2)
-        .delete('x')
-        .delete('y')
-    );
+    const v2 = v1.withMutations(v => v.set('y', 2).delete('x').delete('y'));
     expect(v2).toBe(Map());
   });
 
@@ -429,7 +426,11 @@ describe('Map', () => {
     const a = Symbol('a');
     const b = Symbol('b');
     const c = Symbol('c');
-    const m = Map([[a, 'a'], [b, 'b'], [c, 'c']]);
+    const m = Map([
+      [a, 'a'],
+      [b, 'b'],
+      [c, 'c'],
+    ]);
     expect(m.size).toBe(3);
     expect(m.get(a)).toBe('a');
     expect(m.get(b)).toBe('b');
@@ -439,7 +440,10 @@ describe('Map', () => {
   it('Symbol keys are unique', () => {
     const a = Symbol('FooBar');
     const b = Symbol('FooBar');
-    const m = Map([[a, 'FizBuz'], [b, 'FooBar']]);
+    const m = Map([
+      [a, 'FizBuz'],
+      [b, 'FooBar'],
+    ]);
     expect(m.size).toBe(2);
     expect(m.get(a)).toBe('FizBuz');
     expect(m.get(b)).toBe('FooBar');
@@ -456,14 +460,56 @@ describe('Map', () => {
 
     // Note the use of nested Map constructors, Map() does not do a
     // deep conversion!
-    const m1 = Map([[a, Map([[b, Map([[c, 1], [d, 2]])]])]]);
+    const m1 = Map([
+      [
+        a,
+        Map([
+          [
+            b,
+            Map([
+              [c, 1],
+              [d, 2],
+            ]),
+          ],
+        ]),
+      ],
+    ]);
     const m2 = Map([
-      [a, Map([[b, Map([[c, 10], [e, 20], [f, 30], [g, 40]])]])],
+      [
+        a,
+        Map([
+          [
+            b,
+            Map([
+              [c, 10],
+              [e, 20],
+              [f, 30],
+              [g, 40],
+            ]),
+          ],
+        ]),
+      ],
     ]);
     const merged = m1.mergeDeep(m2);
 
     expect(merged).toEqual(
-      Map([[a, Map([[b, Map([[c, 10], [d, 2], [e, 20], [f, 30], [g, 40]])]])]])
+      Map([
+        [
+          a,
+          Map([
+            [
+              b,
+              Map([
+                [c, 10],
+                [d, 2],
+                [e, 20],
+                [f, 30],
+                [g, 40],
+              ]),
+            ],
+          ]),
+        ],
+      ])
     );
   });
 });

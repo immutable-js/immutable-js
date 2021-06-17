@@ -34,11 +34,8 @@ function mergeIntoKeyedWith(collection, collections, merger) {
   return collection.withMutations(collection => {
     const mergeIntoCollection = merger
       ? (value, key) => {
-          update(
-            collection,
-            key,
-            NOT_SET,
-            oldVal => (oldVal === NOT_SET ? value : merger(oldVal, value, key))
+          update(collection, key, NOT_SET, oldVal =>
+            oldVal === NOT_SET ? value : merger(oldVal, value, key)
           );
         }
       : (value, key) => {

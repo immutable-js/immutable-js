@@ -15,7 +15,7 @@ var typeDefURL =
   'https://github.com/immutable-js/immutable-js/blob/master/type-definitions/Immutable.d.ts';
 var issuesURL = 'https://github.com/immutable-js/immutable-js/issues';
 
-var Disclaimer = function() {
+var Disclaimer = function () {
   return (
     <section className="disclaimer">
       This documentation is generated from{' '}
@@ -237,24 +237,23 @@ var TypeDoc = React.createClass({
 
         <section>
           {Seq(memberGroups)
-            .map(
-              (members, title) =>
-                members.length === 0
-                  ? null
-                  : Seq([
-                      <h4 key={title || 'Members'} className="groupTitle">
-                        {title || 'Members'}
-                      </h4>,
-                      Seq(members).map(member => (
-                        <MemberDoc
-                          typePropMap={typePropMap}
-                          key={member.memberName}
-                          showDetail={member.memberName === memberName}
-                          parentName={name}
-                          member={member}
-                        />
-                      )),
-                    ])
+            .map((members, title) =>
+              members.length === 0
+                ? null
+                : Seq([
+                    <h4 key={title || 'Members'} className="groupTitle">
+                      {title || 'Members'}
+                    </h4>,
+                    Seq(members).map(member => (
+                      <MemberDoc
+                        typePropMap={typePropMap}
+                        key={member.memberName}
+                        showDetail={member.memberName === memberName}
+                        parentName={name}
+                        member={member}
+                      />
+                    )),
+                  ])
             )
             .flatten()
             .valueSeq()

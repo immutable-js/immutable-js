@@ -71,7 +71,11 @@ describe('List', () => {
   it('accepts a keyed Seq as a list of entries', () => {
     const seq = Seq({ a: null, b: null, c: null }).flip();
     const v = List(seq);
-    expect(v.toArray()).toEqual([[null, 'a'], [null, 'b'], [null, 'c']]);
+    expect(v.toArray()).toEqual([
+      [null, 'a'],
+      [null, 'b'],
+      [null, 'c'],
+    ]);
     // Explicitly getting the values sequence
     const v2 = List(seq.valueSeq());
     expect(v2.toArray()).toEqual(['a', 'b', 'c']);
@@ -414,20 +418,13 @@ describe('List', () => {
     let v = List.of('a').pop();
     expect(v.size).toBe(0);
     expect(v.toArray()).toEqual([]);
-    v = v
-      .pop()
-      .pop()
-      .pop()
-      .pop()
-      .pop();
+    v = v.pop().pop().pop().pop().pop();
     expect(v.size).toBe(0);
     expect(v.toArray()).toEqual([]);
   });
 
   it('remove removes any index', () => {
-    let v = List.of('a', 'b', 'c')
-      .remove(2)
-      .remove(0);
+    let v = List.of('a', 'b', 'c').remove(2).remove(0);
     expect(v.size).toBe(1);
     expect(v.get(0)).toBe('b');
     expect(v.get(1)).toBe(undefined);
@@ -610,9 +607,7 @@ describe('List', () => {
 
   it('ensures equality', () => {
     // Make a sufficiently long list.
-    const a = Array(100)
-      .join('abcdefghijklmnopqrstuvwxyz')
-      .split('');
+    const a = Array(100).join('abcdefghijklmnopqrstuvwxyz').split('');
     const v1 = List(a);
     const v2 = List(a);
     // tslint:disable-next-line: triple-equals
@@ -707,12 +702,7 @@ describe('List', () => {
   it('allows chained mutations', () => {
     const v1 = List();
     const v2 = v1.push(1);
-    const v3 = v2.withMutations(v =>
-      v
-        .push(2)
-        .push(3)
-        .push(4)
-    );
+    const v3 = v2.withMutations(v => v.push(2).push(3).push(4));
     const v4 = v3.push(5);
 
     expect(v1.toArray()).toEqual([]);
@@ -724,12 +714,7 @@ describe('List', () => {
   it('allows chained mutations using alternative API', () => {
     const v1 = List();
     const v2 = v1.push(1);
-    const v3 = v2
-      .asMutable()
-      .push(2)
-      .push(3)
-      .push(4)
-      .asImmutable();
+    const v3 = v2.asMutable().push(2).push(3).push(4).asImmutable();
     const v4 = v3.push(5);
 
     expect(v1.toArray()).toEqual([]);
@@ -740,12 +725,7 @@ describe('List', () => {
 
   it('chained mutations does not result in new empty list instance', () => {
     const v1 = List(['x']);
-    const v2 = v1.withMutations(v =>
-      v
-        .push('y')
-        .pop()
-        .pop()
-    );
+    const v2 = v1.withMutations(v => v.push('y').pop().pop());
     expect(v2).toBe(List());
   });
 
@@ -819,9 +799,7 @@ describe('List', () => {
   });
 
   it('Accepts NaN for slice and concat #602', () => {
-    const list = List()
-      .slice(0, NaN)
-      .concat(NaN);
+    const list = List().slice(0, NaN).concat(NaN);
     // toEqual([ NaN ])
     expect(list.size).toBe(1);
     expect(isNaNValue(list.get(0))).toBe(true);

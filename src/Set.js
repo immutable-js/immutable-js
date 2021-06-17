@@ -18,12 +18,12 @@ export class Set extends SetCollection {
     return value === null || value === undefined
       ? emptySet()
       : isSet(value) && !isOrdered(value)
-        ? value
-        : emptySet().withMutations(set => {
-            const iter = SetCollection(value);
-            assertNotInfinite(iter.size);
-            iter.forEach(v => set.add(v));
-          });
+      ? value
+      : emptySet().withMutations(set => {
+          const iter = SetCollection(value);
+          assertNotInfinite(iter.size);
+          iter.forEach(v => set.add(v));
+        });
   }
 
   static of(/*...values*/) {
@@ -189,10 +189,10 @@ SetPrototype.merge = SetPrototype.concat = SetPrototype.union;
 SetPrototype.withMutations = withMutations;
 SetPrototype.asImmutable = asImmutable;
 SetPrototype['@@transducer/init'] = SetPrototype.asMutable = asMutable;
-SetPrototype['@@transducer/step'] = function(result, arr) {
+SetPrototype['@@transducer/step'] = function (result, arr) {
   return result.add(arr);
 };
-SetPrototype['@@transducer/result'] = function(obj) {
+SetPrototype['@@transducer/result'] = function (obj) {
   return obj.asImmutable();
 };
 
@@ -208,8 +208,8 @@ function updateSet(set, newMap) {
   return newMap === set._map
     ? set
     : newMap.size === 0
-      ? set.__empty()
-      : set.__make(newMap);
+    ? set.__empty()
+    : set.__make(newMap);
 }
 
 function makeSet(map, ownerID) {

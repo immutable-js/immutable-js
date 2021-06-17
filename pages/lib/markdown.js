@@ -54,7 +54,7 @@ var renderer = new marked.Renderer();
 const runkitRegExp = /^<!--\s*runkit:activate((.|\n)*)-->(.|\n)*$/;
 const runkitContext = { options: '{}', activated: false };
 
-renderer.html = function(text) {
+renderer.html = function (text) {
   const result = runkitRegExp.exec(text);
 
   if (!result) return text;
@@ -68,7 +68,7 @@ renderer.html = function(text) {
   return text;
 };
 
-renderer.code = function(code, lang, escaped) {
+renderer.code = function (code, lang, escaped) {
   if (this.options.highlight) {
     var out = this.options.highlight(code, lang);
     if (out != null && out !== code) {
@@ -104,7 +104,7 @@ var MDN_TYPES = {
 var MDN_BASE_URL =
   'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/';
 
-renderer.codespan = function(text) {
+renderer.codespan = function (text) {
   return '<code>' + decorateCodeSpan(text, this.options) + '</code>';
 };
 

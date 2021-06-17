@@ -80,8 +80,8 @@ function DocVisitor(source) {
       var name = node.name
         ? node.name.text
         : node.stringLiteral
-          ? node.stringLiteral.text
-          : '';
+        ? node.stringLiteral.text
+        : '';
 
       if (comment) {
         setIn(data, [name, 'doc'], comment);
@@ -322,8 +322,8 @@ function DocVisitor(source) {
           node.operator === ts.SyntaxKind.KeyOfKeyword
             ? 'keyof'
             : node.operator === ts.SyntaxKind.ReadonlyKeyword
-              ? 'readonly'
-              : undefined;
+            ? 'readonly'
+            : undefined;
         if (!operator) {
           throw new Error(
             'Unknown operator kind: ' + ts.SyntaxKind[node.operator]

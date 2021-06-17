@@ -6,19 +6,22 @@ var loadJSON = require('./loadJSON');
 // https://api.github.com/repos/immutable-js/immutable-js
 
 var StarBtn = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return { stars: null };
   },
 
-  componentDidMount: function() {
-    loadJSON('https://api.github.com/repos/immutable-js/immutable-js', value => {
-      value &&
-        value.stargazers_count &&
-        this.setState({ stars: value.stargazers_count });
-    });
+  componentDidMount: function () {
+    loadJSON(
+      'https://api.github.com/repos/immutable-js/immutable-js',
+      value => {
+        value &&
+          value.stargazers_count &&
+          this.setState({ stars: value.stargazers_count });
+      }
+    );
   },
 
-  render: function() {
+  render: function () {
     return (
       <span className="github-btn">
         <a

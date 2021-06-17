@@ -144,8 +144,8 @@ mixin(Collection, {
     return isIndexed(this)
       ? this.toIndexedSeq()
       : isKeyed(this)
-        ? this.toKeyedSeq()
-        : this.toSetSeq();
+      ? this.toKeyedSeq()
+      : this.toSetSeq();
   },
 
   toStack() {
@@ -171,9 +171,7 @@ mixin(Collection, {
     return (
       head +
       ' ' +
-      this.toSeq()
-        .map(this.__toStringMapper)
-        .join(', ') +
+      this.toSeq().map(this.__toStringMapper).join(', ') +
       ' ' +
       tail
     );
@@ -311,10 +309,7 @@ mixin(Collection, {
       // We cache as an entries array, so we can just return the cache!
       return new ArraySeq(collection._cache);
     }
-    const entriesSequence = collection
-      .toSeq()
-      .map(entryMapper)
-      .toIndexedSeq();
+    const entriesSequence = collection.toSeq().map(entryMapper).toIndexedSeq();
     entriesSequence.fromEntrySeq = () => collection.toSeq();
     return entriesSequence;
   },
@@ -340,9 +335,7 @@ mixin(Collection, {
   },
 
   findLast(predicate, context, notSetValue) {
-    return this.toKeyedSeq()
-      .reverse()
-      .find(predicate, context, notSetValue);
+    return this.toKeyedSeq().reverse().find(predicate, context, notSetValue);
   },
 
   findLastEntry(predicate, context, notSetValue) {
@@ -352,9 +345,7 @@ mixin(Collection, {
   },
 
   findLastKey(predicate, context) {
-    return this.toKeyedSeq()
-      .reverse()
-      .findKey(predicate, context);
+    return this.toKeyedSeq().reverse().findKey(predicate, context);
   },
 
   first(notSetValue) {
@@ -404,21 +395,15 @@ mixin(Collection, {
   },
 
   keySeq() {
-    return this.toSeq()
-      .map(keyMapper)
-      .toIndexedSeq();
+    return this.toSeq().map(keyMapper).toIndexedSeq();
   },
 
   last(notSetValue) {
-    return this.toSeq()
-      .reverse()
-      .first(notSetValue);
+    return this.toSeq().reverse().first(notSetValue);
   },
 
   lastKeyOf(searchValue) {
-    return this.toKeyedSeq()
-      .reverse()
-      .keyOf(searchValue);
+    return this.toKeyedSeq().reverse().keyOf(searchValue);
   },
 
   max(comparator) {
@@ -510,7 +495,7 @@ CollectionPrototype[IS_COLLECTION_SYMBOL] = true;
 CollectionPrototype[ITERATOR_SYMBOL] = CollectionPrototype.values;
 CollectionPrototype.toJSON = CollectionPrototype.toArray;
 CollectionPrototype.__toStringMapper = quoteString;
-CollectionPrototype.inspect = CollectionPrototype.toSource = function() {
+CollectionPrototype.inspect = CollectionPrototype.toSource = function () {
   return this.toString();
 };
 CollectionPrototype.chain = CollectionPrototype.flatMap;
@@ -624,7 +609,8 @@ mixin(IndexedCollection, {
   get(index, notSetValue) {
     index = wrapIndex(this, index);
     return index < 0 ||
-      (this.size === Infinity || (this.size !== undefined && index > this.size))
+      this.size === Infinity ||
+      (this.size !== undefined && index > this.size)
       ? notSetValue
       : this.find((_, key) => key === index, undefined, notSetValue);
   },
@@ -737,13 +723,13 @@ function entryMapper(v, k) {
 }
 
 function not(predicate) {
-  return function() {
+  return function () {
     return !predicate.apply(this, arguments);
   };
 }
 
 function neg(predicate) {
-  return function() {
+  return function () {
     return -predicate.apply(this, arguments);
   };
 }
@@ -773,12 +759,12 @@ function hashCollection(collection) {
             h = (h + hashMerge(hash(v), hash(k))) | 0;
           }
       : ordered
-        ? v => {
-            h = (31 * h + hash(v)) | 0;
-          }
-        : v => {
-            h = (h + hash(v)) | 0;
-          }
+      ? v => {
+          h = (31 * h + hash(v)) | 0;
+        }
+      : v => {
+          h = (h + hash(v)) | 0;
+        }
   );
   return murmurHashOfSize(size, h);
 }

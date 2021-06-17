@@ -72,9 +72,8 @@ export class Record {
       });
     };
 
-    const RecordTypePrototype = (RecordType.prototype = Object.create(
-      RecordPrototype
-    ));
+    const RecordTypePrototype = (RecordType.prototype =
+      Object.create(RecordPrototype));
     RecordTypePrototype.constructor = RecordType;
 
     if (name) {
@@ -208,7 +207,7 @@ RecordPrototype.asImmutable = asImmutable;
 RecordPrototype[ITERATOR_SYMBOL] = RecordPrototype.entries;
 RecordPrototype.toJSON = RecordPrototype.toObject =
   CollectionPrototype.toObject;
-RecordPrototype.inspect = RecordPrototype.toSource = function() {
+RecordPrototype.inspect = RecordPrototype.toSource = function () {
   return this.toString();
 };
 
@@ -230,10 +229,10 @@ function recordSeq(record) {
 function setProp(prototype, name) {
   try {
     Object.defineProperty(prototype, name, {
-      get: function() {
+      get: function () {
         return this.get(name);
       },
-      set: function(value) {
+      set: function (value) {
         invariant(this.__ownerID, 'Cannot set on an immutable record.');
         this.set(name, value);
       },

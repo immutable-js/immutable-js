@@ -40,7 +40,11 @@ describe('Stack', () => {
   it('accepts a keyed Seq', () => {
     const seq = Seq({ a: null, b: null, c: null }).flip();
     const s = Stack(seq);
-    expect(s.toArray()).toEqual([[null, 'a'], [null, 'b'], [null, 'c']]);
+    expect(s.toArray()).toEqual([
+      [null, 'a'],
+      [null, 'b'],
+      [null, 'c'],
+    ]);
     // Explicit values
     const s2 = Stack(seq.valueSeq());
     expect(s2.toArray()).toEqual(['a', 'b', 'c']);
@@ -89,17 +93,22 @@ describe('Stack', () => {
     while (!(step = iterator.next()).done) {
       iteratorResults.push(step.value);
     }
-    expect(iteratorResults).toEqual([[0, 'a'], [1, 'b'], [2, 'c']]);
+    expect(iteratorResults).toEqual([
+      [0, 'a'],
+      [1, 'b'],
+      [2, 'c'],
+    ]);
 
     iteratorResults = [];
-    iterator = s
-      .toSeq()
-      .reverse()
-      .entries();
+    iterator = s.toSeq().reverse().entries();
     while (!(step = iterator.next()).done) {
       iteratorResults.push(step.value);
     }
-    expect(iteratorResults).toEqual([[0, 'c'], [1, 'b'], [2, 'a']]);
+    expect(iteratorResults).toEqual([
+      [0, 'c'],
+      [1, 'b'],
+      [2, 'a'],
+    ]);
   });
 
   it('map is called in reverse order but with correct indices', () => {
@@ -208,11 +217,7 @@ describe('Stack', () => {
 
     // Pushes Seq contents into Stack
     expect(Stack().pushAll(xyzSeq)).not.toBe(xyzSeq);
-    expect(
-      Stack()
-        .pushAll(xyzSeq)
-        .toArray()
-    ).toEqual(['x', 'y', 'z']);
+    expect(Stack().pushAll(xyzSeq).toArray()).toEqual(['x', 'y', 'z']);
 
     // Pushing a Stack onto an empty Stack returns === Stack
     expect(Stack().pushAll(xyz)).toBe(xyz);

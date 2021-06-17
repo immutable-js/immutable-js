@@ -31,7 +31,7 @@ global.runIt = function runIt(button) {
       codeElement.textContent.replace(/\n(>[^\n]*\n?)+$/g, '')
     ),
     minHeight: '52px',
-    onLoad: function(notebook) {
+    onLoad: function (notebook) {
       notebook.evaluate();
     },
   });
@@ -92,8 +92,8 @@ function makeAssert(I) {
         ? 'strict equal to'
         : 'does equal'
       : identical
-        ? 'not strict equal to'
-        : 'does not equal';
+      ? 'not strict equal to'
+      : 'does not equal';
     var className = result === same ? 'success' : 'failure';
     var lhsString = isIterable(lhs) ? lhs + '' : JSON.stringify(lhs);
     var rhsString = isIterable(rhs) ? rhs + '' : JSON.stringify(rhs);
