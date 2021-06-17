@@ -1,7 +1,7 @@
 Immutable collections for JavaScript
 ====================================
 
-[![Build Status](https://travis-ci.org/facebook/immutable-js.svg?branch=master)](https://travis-ci.org/facebook/immutable-js) [![Join the chat at https://gitter.im/immutable-js/Lobby](https://badges.gitter.im/immutable-js/Lobby.svg)](https://gitter.im/immutable-js/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/immutable-js/immutable-js.svg?branch=master)](https://travis-ci.org/immutable-js/immutable-js) [![Join the chat at https://gitter.im/immutable-js/Lobby](https://badges.gitter.im/immutable-js/Lobby.svg)](https://gitter.im/immutable-js/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [Immutable][] data cannot be changed once created, leading to much simpler
 application development, no defensive copying, and enabling advanced memoization
@@ -192,8 +192,8 @@ const map = Map({ a: 1, b: 2, c: 3 });
 const mapCopy = map; // Look, "copies" are free!
 ```
 
-[React]: http://facebook.github.io/react/
-[Flux]: http://facebook.github.io/flux/docs/overview.html
+[React]: https://reactjs.org/
+[Flux]: https://facebook.github.io/flux/docs/in-depth-overview/
 
 
 JavaScript-first API
@@ -598,13 +598,13 @@ Range(1, Infinity)
 Documentation
 -------------
 
-[Read the docs](http://facebook.github.io/immutable-js/docs/) and eat your vegetables.
+[Read the docs](http://immutable-js.github.io/immutable-js/) and eat your vegetables.
 
-Docs are automatically generated from [Immutable.d.ts](https://github.com/facebook/immutable-js/blob/master/type-definitions/Immutable.d.ts).
+Docs are automatically generated from [Immutable.d.ts](https://github.com/immutable-js/immutable-js/blob/master/type-definitions/Immutable.d.ts).
 Please contribute!
 
-Also, don't miss the [Wiki](https://github.com/facebook/immutable-js/wiki) which
-contains articles on specific topics. Can't find something? Open an [issue](https://github.com/facebook/immutable-js/issues).
+Also, don't miss the [Wiki](https://github.com/immutable-js/immutable-js/wiki) which
+contains articles on specific topics. Can't find something? Open an [issue](https://github.com/immutable-js/immutable-js/issues).
 
 
 Testing
@@ -616,15 +616,17 @@ If you are using the [Chai Assertion Library](http://chaijs.com/), [Chai Immutab
 Contribution
 ------------
 
-Use [Github issues](https://github.com/facebook/immutable-js/issues) for requests.
+Use [Github issues](https://github.com/immutable-js/immutable-js/issues) for requests.
 
-We actively welcome pull requests, learn how to [contribute](https://github.com/facebook/immutable-js/blob/master/.github/CONTRIBUTING.md).
+We actively welcome pull requests, learn how to [contribute](https://github.com/immutable-js/immutable-js/blob/master/.github/CONTRIBUTING.md).
+
+Immutable.js is maintained within the [Contributor Covenant's Code of Conduct](https://www.contributor-covenant.org/version/2/0/code_of_conduct/).
 
 
 Changelog
 ---------
 
-Changes are tracked as [Github releases](https://github.com/facebook/immutable-js/releases).
+Changes are tracked as [Github releases](https://github.com/immutable-js/immutable-js/releases).
 
 
 Thanks
@@ -640,4 +642,4 @@ name. If you're looking for his unsupported package, see [this repository](https
 License
 -------
 
-Immutable.js is [MIT-licensed](https://github.com/facebook/immutable-js/blob/master/LICENSE).
+Immutable.js is [MIT-licensed](./LICENSE).

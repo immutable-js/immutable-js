@@ -1,16 +1,9 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 var React = require('react');
 var loadJSON = require('./loadJSON');
 
 // API endpoints
 // https://registry.npmjs.org/immutable/latest
-// https://api.github.com/repos/facebook/immutable-js
+// https://api.github.com/repos/immutable-js/immutable-js
 
 var StarBtn = React.createClass({
   getInitialState: function() {
@@ -18,7 +11,7 @@ var StarBtn = React.createClass({
   },
 
   componentDidMount: function() {
-    loadJSON('https://api.github.com/repos/facebook/immutable-js', value => {
+    loadJSON('https://api.github.com/repos/immutable-js/immutable-js', value => {
       value &&
         value.stargazers_count &&
         this.setState({ stars: value.stargazers_count });
@@ -31,7 +24,7 @@ var StarBtn = React.createClass({
         <a
           className="gh-btn"
           id="gh-btn"
-          href="https://github.com/facebook/immutable-js/"
+          href="https://github.com/immutable-js/immutable-js/"
         >
           <span className="gh-ico" />
           <span className="gh-text">Star</span>
@@ -40,7 +33,7 @@ var StarBtn = React.createClass({
         {this.state.stars && (
           <a
             className="gh-count"
-            href="https://github.com/facebook/immutable-js/stargazers"
+            href="https://github.com/immutable-js/immutable-js/stargazers"
           >
             {this.state.stars}
           </a>
