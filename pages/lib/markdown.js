@@ -1,5 +1,5 @@
-var { Seq } = require('../../');
 var marked = require('marked');
+var { Seq } = require('../../');
 var prism = require('./prism');
 var collectMemberGroups = require('./collectMemberGroups');
 // Note: intentionally using raw defs, not getTypeDefs to avoid circular ref.

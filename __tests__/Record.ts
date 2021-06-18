@@ -184,6 +184,7 @@ describe('Record', () => {
   });
 
   it('does not allow overwriting property names', () => {
+    // tslint:disable:no-console
     const realWarn = console.warn;
 
     try {

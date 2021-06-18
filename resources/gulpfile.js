@@ -15,7 +15,6 @@ var mkdirp = require('mkdirp');
 var path = require('path');
 var React = require('react/addons');
 var reactTools = require('react-tools');
-var sequence = require('run-sequence');
 var size = require('gulp-size');
 var source = require('vinyl-source-stream');
 var sourcemaps = require('gulp-sourcemaps');
@@ -31,11 +30,9 @@ function requireFresh(path) {
 var SRC_DIR = '../pages/src/';
 var BUILD_DIR = '../pages/out/';
 
-gulp.task('clean', function (done) {
-  return del([BUILD_DIR], { force: true });
-});
+gulp.task('clean', () => del([BUILD_DIR], { force: true }));
 
-gulp.task('readme', function () {
+gulp.task('readme', async () => {
   var genMarkdownDoc = requireFresh('../pages/lib/genMarkdownDoc');
 
   var readmePath = path.join(__dirname, '../README.md');
@@ -49,7 +46,7 @@ gulp.task('readme', function () {
   fs.writeFileSync(writePath, contents);
 });
 
-gulp.task('typedefs', function () {
+gulp.task('typedefs', async () => {
   var genTypeDefData = requireFresh('../pages/lib/genTypeDefData');
 
   var typeDefPath = path.join(__dirname, '../type-definitions/Immutable.d.ts');
@@ -103,7 +100,7 @@ function gulpJS(subDir) {
             loadMaps: true,
           })
         )
-        .pipe(uglify())
+        // .pipe(uglify())
         .pipe(sourcemaps.write('./maps'))
         .pipe(gulp.dest(BUILD_DIR + subDir))
         .pipe(filter('**/*.js'))
@@ -165,71 +162,75 @@ function gulpStatics(subDir) {
   };
 }
 
-gulp.task('immutable-copy', function () {
-  return gulp
+gulp.task('immutable-copy', () =>
+  gulp
     .src(SRC_DIR + '../../dist/immutable.js')
     .pipe(gulp.dest(BUILD_DIR))
     .on('error', handleError)
     .pipe(browserSync.reload({ stream: true }))
-    .on('error', handleError);
-});
+    .on('error', handleError)
+);
 
-gulp.task('build', function (done) {
-  sequence(
-    ['typedefs'],
-    ['readme'],
-    [
+gulp.task(
+  'build',
+  gulp.series(
+    'typedefs',
+    'readme',
+    gulp.parallel(
       'js',
       'js-docs',
       'less',
       'less-docs',
       'immutable-copy',
       'statics',
-      'statics-docs',
-    ],
-    ['pre-render', 'pre-render-docs'],
-    done
-  );
-});
+      'statics-docs'
+    ),
+    gulp.parallel('pre-render', 'pre-render-docs')
+  )
+);
 
-gulp.task('default', function (done) {
-  sequence('clean', 'build', done);
-});
+gulp.task('default', gulp.series('clean', 'build'));
 
 // watch files for changes and reload
-gulp.task('dev', ['default'], function () {
-  browserSync({
-    port: 8040,
-    server: {
-      baseDir: BUILD_DIR,
-    },
-  });
+gulp.task(
+  'dev',
+  gulp.series('default', async () => {
+    browserSync({
+      port: 8040,
+      server: {
+        baseDir: BUILD_DIR,
+      },
+    });
 
-  gulp.watch('../README.md', ['build']);
-  gulp.watch('../pages/lib/**/*.js', ['build']);
-  gulp.watch('../pages/src/**/*.less', ['less', 'less-docs']);
-  gulp.watch('../pages/src/src/**/*.js', ['rebuild-js']);
-  gulp.watch('../pages/src/docs/src/**/*.js', ['rebuild-js-docs']);
-  gulp.watch('../pages/src/**/*.html', ['pre-render', 'pre-render-docs']);
-  gulp.watch('../pages/src/static/**/*', ['statics', 'statics-docs']);
-  gulp.watch('../type-definitions/*', function () {
-    sequence('typedefs', 'rebuild-js-docs');
-  });
-});
+    gulp.watch('../README.md', 'build');
+    gulp.watch('../pages/lib/**/*.js', 'build');
+    gulp.watch('../pages/src/**/*.less', gulp.series('less', 'less-docs'));
+    gulp.watch('../pages/src/src/**/*.js', 'rebuild-js');
+    gulp.watch('../pages/src/docs/src/**/*.js', 'rebuild-js-docs');
+    gulp.watch(
+      '../pages/src/**/*.html',
+      gulp.series('pre-render', 'pre-render-docs')
+    );
+    gulp.watch(
+      '../pages/src/static/**/*',
+      gulp.series('statics', 'statics-docs')
+    );
+    gulp.watch(
+      '../type-definitions/*',
+      gulp.series('typedefs', 'rebuild-js-docs')
+    );
+  })
+);
 
-gulp.task('rebuild-js', function (done) {
-  sequence('js', ['pre-render'], function () {
-    browserSync.reload();
-    done();
-  });
-});
+gulp.task(
+  'rebuild-js',
+  gulp.series('js', 'pre-render', async () => browserSync.reload())
+);
 
-gulp.task('rebuild-js-docs', function (done) {
-  sequence('js-docs', ['pre-render-docs'], function () {
-    browserSync.reload();
-    done();
-  });
-});
+gulp.task(
+  'rebuild-js-docs',
+  gulp.series('js-docs', 'pre-render-docs', async () => browserSync.reload())
+);
 
 function handleError(error) {
   gutil.log(error.message);
