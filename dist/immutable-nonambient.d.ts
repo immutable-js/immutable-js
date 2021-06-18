@@ -173,9 +173,9 @@
    * listFromPlainSet.equals(listFromPlainArray) // true
    * ```
    */
-  export function List(): List<unknown>;
-  export function List<T>(): List<T>;
   export function List<T>(collection: Iterable<T>): List<T>;
+  export function List<T>(): List<T>;
+  export function List(): List<unknown>;
 
   export interface List<T> extends Collection.Indexed<T> {
 
@@ -1603,9 +1603,9 @@
    * Note: `Set` is a factory function and not a class, and does not use the
    * `new` keyword during construction.
    */
-  export function Set(): Set<unknown>;
-  export function Set<T>(): Set<T>;
   export function Set<T>(collection: Iterable<T>): Set<T>;
+  export function Set<T>(): Set<T>;
+  export function Set(): Set<unknown>;
 
   export interface Set<T> extends Collection.Set<T> {
 
@@ -1787,9 +1787,9 @@
    * Note: `OrderedSet` is a factory function and not a class, and does not use
    * the `new` keyword during construction.
    */
-  export function OrderedSet(): OrderedSet<unknown>;
-  export function OrderedSet<T>(): OrderedSet<T>;
   export function OrderedSet<T>(collection: Iterable<T>): OrderedSet<T>;
+  export function OrderedSet<T>(): OrderedSet<T>;
+  export function OrderedSet(): OrderedSet<unknown>;
 
   export interface OrderedSet<T> extends Set<T> {
 
@@ -1947,9 +1947,9 @@
    * Note: `Stack` is a factory function and not a class, and does not use the
    * `new` keyword during construction.
    */
-  export function Stack(): Stack<unknown>;
-  export function Stack<T>(): Stack<T>;
   export function Stack<T>(collection: Iterable<T>): Stack<T>;
+  export function Stack<T>(): Stack<T>;
+  export function Stack(): Stack<unknown>;
 
   export interface Stack<T> extends Collection.Indexed<T> {
 
@@ -2382,7 +2382,7 @@
      * Record.getDescriptiveName(me) // "Person"
      * ```
      */
-    export function getDescriptiveName(record: Record<{}>): string;
+    export function getDescriptiveName(record: Record<any>): string;
 
     /**
      * A Record.Factory is created by the `Record()` function. Record instances
@@ -2697,7 +2697,7 @@
        *
        * Converts keys to Strings.
        */
-      toJS(): Object;
+      toJS(): { [key: string]: unknown };
 
       /**
        * Shallowly converts this Keyed Seq to equivalent native JavaScript Object.
@@ -2810,9 +2810,9 @@
      * Note: `Seq.Indexed` is a conversion function and not a class, and does
      * not use the `new` keyword during construction.
      */
-    export function Indexed(): Seq.Indexed<unknown>;
-    export function Indexed<T>(): Seq.Indexed<T>;
     export function Indexed<T>(collection: Iterable<T>): Seq.Indexed<T>;
+    export function Indexed<T>(): Seq.Indexed<T>;
+    export function Indexed(): Seq.Indexed<unknown>;
 
     export interface Indexed<T> extends Seq<number, T>, Collection.Indexed<T> {
       /**
@@ -2962,9 +2962,9 @@
      * Note: `Seq.Set` is a conversion function and not a class, and does not
      * use the `new` keyword during construction.
      */
-    export function Set(): Seq.Set<unknown>;
-    export function Set<T>(): Seq.Set<T>;
     export function Set<T>(collection: Iterable<T>): Seq.Set<T>;
+    export function Set<T>(): Seq.Set<T>;
+    export function Set(): Seq.Set<unknown>;
 
     export interface Set<T> extends Seq<T, T>, Collection.Set<T> {
       /**
@@ -3248,7 +3248,7 @@
        *
        * Converts keys to Strings.
        */
-      toJS(): Object;
+      toJS(): { [key: string]: unknown };
 
       /**
        * Shallowly converts this Keyed collection to equivalent native JavaScript Object.
