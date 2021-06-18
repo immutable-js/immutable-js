@@ -14943,13 +14943,13 @@ module.exports={
     "colors": "1.4.0",
     "del": "6.0.0",
     "dtslint": "4.1.0",
-    "eslint": "7.11.0",
-    "eslint-config-airbnb": "18.2.0",
-    "eslint-config-prettier": "6.12.0",
-    "eslint-plugin-import": "2.22.1",
-    "eslint-plugin-jsx-a11y": "6.3.1",
-    "eslint-plugin-prettier": "3.1.4",
-    "eslint-plugin-react": "7.21.4",
+    "eslint": "7.29.0",
+    "eslint-config-airbnb": "18.2.1",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-import": "2.23.4",
+    "eslint-plugin-jsx-a11y": "6.4.1",
+    "eslint-plugin-prettier": "3.4.0",
+    "eslint-plugin-react": "7.24.0",
     "flow-bin": "0.89.0",
     "gulp": "4.0.2",
     "gulp-concat": "2.6.1",
@@ -17473,7 +17473,7 @@ var React = require('react');
 var assign = require('react/lib/Object.assign');
 var Router = require('react-router');
 var DocHeader = require('./DocHeader');
-var DocSearch = require('./DocSearch.js');
+var DocSearch = require('./DocSearch');
 var TypeDocumentation = require('./TypeDocumentation');
 var defs = require('../../../lib/getTypeDefs');
 
@@ -17612,7 +17612,7 @@ module.exports = React.createClass({displayName: "exports",
   },
 });
 
-},{"../../../lib/getTypeDefs":62,"../../../lib/runkit-embed":66,"./DocHeader":68,"./DocSearch.js":70,"./TypeDocumentation":75,"react":"react","react-router":16,"react/lib/Object.assign":52}],76:[function(require,module,exports){
+},{"../../../lib/getTypeDefs":62,"../../../lib/runkit-embed":66,"./DocHeader":68,"./DocSearch":70,"./TypeDocumentation":75,"react":"react","react-router":16,"react/lib/Object.assign":52}],76:[function(require,module,exports){
 var isMobile =
   window.matchMedia && window.matchMedia('(max-device-width: 680px)');
 module.exports = false && !!(isMobile && isMobile.matches);
