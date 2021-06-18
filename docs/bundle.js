@@ -14911,7 +14911,6 @@ module.exports={
     "lint:format": "prettier --check \"{__tests__,src,pages/src,pages/lib,perf,resources}/**/*{\\.js,\\.ts}\"",
     "testonly": "./resources/jest",
     "test": "run-s format build lint testonly test:types",
-    "test:travis": "npm run test && npm run check:git-clean",
     "check:git-clean": "./resources/check-changes",
     "test:types": "run-s test:types:*",
     "test:types:ts": "tsc ./type-definitions/Immutable.d.ts --lib es2015 && dtslint type-definitions/ts-tests",
