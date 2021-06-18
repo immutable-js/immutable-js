@@ -71,11 +71,14 @@ jobs:
           path: ~/.npm
           key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.OS }}-node-
+      - uses: actions/cache@v2
+        with:
+          path: ~/.dts
+          key: ${{ runner.OS }}-dts-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.OS }}-dts-
       - run: npm ci
       - run: npm run build
-      # TODO: enable once TS issues are resolved
-      # - run: npm run test:types
-      - run: npm run test:types:flow
+      - run: npm run test:types
       - run: npm run check:git-clean
 
   test:

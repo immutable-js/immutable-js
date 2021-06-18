@@ -3,9 +3,7 @@
     "target": "es2015",
     "module": "commonjs",
     "sourceMap": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
+    "strict": true,
     "types": [],
     "noEmit": true,
     "lib": [

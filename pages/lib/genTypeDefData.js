@@ -309,8 +309,7 @@ function DocVisitor(source) {
       case ts.SyntaxKind.TupleType:
         return {
           k: TypeKind.Tuple,
-          // TODO: node.elements in TS v4
-          types: node.elementTypes.map(parseType),
+          types: node.elements.map(parseType),
         };
       case ts.SyntaxKind.IndexedAccessType:
         return {
