@@ -1,7 +1,7 @@
 Immutable collections for JavaScript
 ====================================
 
-[![Build Status](https://travis-ci.org/immutable-js/immutable-js.svg?branch=master)](https://travis-ci.org/immutable-js/immutable-js) [![Join the chat at https://gitter.im/immutable-js/Lobby](https://badges.gitter.im/immutable-js/Lobby.svg)](https://gitter.im/immutable-js/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/immutable-js/immutable-js.svg?branch=main)](https://travis-ci.org/immutable-js/immutable-js) [![Join the chat at https://gitter.im/immutable-js/Lobby](https://badges.gitter.im/immutable-js/Lobby.svg)](https://gitter.im/immutable-js/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [Immutable][] data cannot be changed once created, leading to much simpler
 application development, no defensive copying, and enabling advanced memoization
@@ -600,7 +600,7 @@ Documentation
 
 [Read the docs](http://immutable-js.github.io/immutable-js/) and eat your vegetables.
 
-Docs are automatically generated from [Immutable.d.ts](https://github.com/immutable-js/immutable-js/blob/master/type-definitions/Immutable.d.ts).
+Docs are automatically generated from [Immutable.d.ts](https://github.com/immutable-js/immutable-js/blob/main/type-definitions/Immutable.d.ts).
 Please contribute!
 
 Also, don't miss the [Wiki](https://github.com/immutable-js/immutable-js/wiki) which
@@ -618,7 +618,7 @@ Contribution
 
 Use [Github issues](https://github.com/immutable-js/immutable-js/issues) for requests.
 
-We actively welcome pull requests, learn how to [contribute](https://github.com/immutable-js/immutable-js/blob/master/.github/CONTRIBUTING.md).
+We actively welcome pull requests, learn how to [contribute](https://github.com/immutable-js/immutable-js/blob/main/.github/CONTRIBUTING.md).
 
 Immutable.js is maintained within the [Contributor Covenant's Code of Conduct](https://www.contributor-covenant.org/version/2/0/code_of_conduct/).
 

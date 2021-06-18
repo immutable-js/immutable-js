@@ -23,11 +23,11 @@ const pct = (s, b) => ` ${Math.floor(10000 * (1 - s / b)) / 100}%`.grey;
 
 Promise.all([
   execp('cat dist/immutable.js | wc -c'),
-  execp('git show master:dist/immutable.js | wc -c'),
+  execp('git show main:dist/immutable.js | wc -c'),
   execp('cat dist/immutable.min.js | wc -c'),
-  execp('git show master:dist/immutable.min.js | wc -c'),
+  execp('git show main:dist/immutable.min.js | wc -c'),
   execp('cat dist/immutable.min.js | gzip -c | wc -c'),
-  execp('git show master:dist/immutable.min.js | gzip -c | wc -c'),
+  execp('git show main:dist/immutable.min.js | gzip -c | wc -c'),
 ])
   .then(results => results.map(result => parseInt(result, 10)))
   .then(([rawNew, rawOld, minNew, minOld, zipNew, zipOld]) => {
