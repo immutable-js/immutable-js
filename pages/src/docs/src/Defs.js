@@ -88,6 +88,8 @@ var TypeDef = React.createClass({
         return this.wrap('primitive', 'never');
       case TypeKind.Any:
         return this.wrap('primitive', 'any');
+      case TypeKind.Unknown:
+        return this.wrap('primitive', 'unknown');
       case TypeKind.This:
         return this.wrap('primitive', 'this');
       case TypeKind.Undefined:
@@ -326,6 +328,8 @@ function typeLength(info, type) {
       return 5;
     case TypeKind.Any:
       return 3;
+    case TypeKind.Unknown:
+      return 7;
     case TypeKind.This:
       return 4;
     case TypeKind.Undefined:

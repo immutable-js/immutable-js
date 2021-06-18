@@ -202,11 +202,11 @@ gulp.task(
       },
     });
 
-    gulp.watch('../README.md', 'build');
-    gulp.watch('../pages/lib/**/*.js', 'build');
+    gulp.watch('../README.md', gulp.series('build'));
+    gulp.watch('../pages/lib/**/*.js', gulp.series('build'));
     gulp.watch('../pages/src/**/*.less', gulp.series('less', 'less-docs'));
-    gulp.watch('../pages/src/src/**/*.js', 'rebuild-js');
-    gulp.watch('../pages/src/docs/src/**/*.js', 'rebuild-js-docs');
+    gulp.watch('../pages/src/src/**/*.js', gulp.series('rebuild-js'));
+    gulp.watch('../pages/src/docs/src/**/*.js', gulp.series('rebuild-js-docs'));
     gulp.watch(
       '../pages/src/**/*.html',
       gulp.series('pre-render', 'pre-render-docs')
