@@ -24,10 +24,10 @@ Want to hear more? Watch the presentation about Immutable.js:
 
 <a href="https://youtu.be/I7IdS-PbEgI" target="_blank" alt="Immutable Data and React"><img src="https://img.youtube.com/vi/I7IdS-PbEgI/0.jpg" /></a>
 
-[Persistent]: http://en.wikipedia.org/wiki/Persistent_data_structure
-[Immutable]: http://en.wikipedia.org/wiki/Immutable_object
-[hash maps tries]: http://en.wikipedia.org/wiki/Hash_array_mapped_trie
-[vector tries]: http://hypirion.com/musings/understanding-persistent-vector-pt-1
+[Persistent]: https://en.wikipedia.org/wiki/Persistent_data_structure
+[Immutable]: https://en.wikipedia.org/wiki/Immutable_object
+[hash maps tries]: https://en.wikipedia.org/wiki/Hash_array_mapped_trie
+[vector tries]: https://hypirion.com/musings/understanding-persistent-vector-pt-1
 
 
 Getting started
@@ -55,7 +55,7 @@ Immutable.js has no dependencies, which makes it predictable to include in a Bro
 
 It's highly recommended to use a module bundler like [webpack](https://webpack.github.io/),
 [rollup](https://rollupjs.org/), or
-[browserify](http://browserify.org/). The `immutable` npm module works
+[browserify](https://browserify.org/). The `immutable` npm module works
 without any additional consideration. All examples throughout the documentation
 will assume use of this kind of tool.
 
@@ -75,7 +75,7 @@ Use a script tag to directly add `Immutable` to the global scope:
 </script>
 ```
 
-Or use an AMD-style loader (such as [RequireJS](http://requirejs.org/)):
+Or use an AMD-style loader (such as [RequireJS](https://requirejs.org/)):
 
 ```js
 require(['./immutable.min.js'], function (Immutable) {
@@ -89,7 +89,7 @@ require(['./immutable.min.js'], function (Immutable) {
 ### Flow & TypeScript
 
 Use these Immutable collections and sequences as you would use native
-collections in your [Flowtype](https://flowtype.org/) or [TypeScript](http://typescriptlang.org) programs while still taking
+collections in your [Flowtype](https://flowtype.org/) or [TypeScript](https://typescriptlang.org) programs while still taking
 advantage of type generics, error detection, and auto-complete in your IDE.
 
 Installing `immutable` via npm brings with it type definitions for Flow (v0.55.0 or higher)
@@ -348,8 +348,8 @@ not always be well defined, as is the case for the `Map` and `Set`.
 
 [Iterators]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/The_Iterator_protocol
 [Arrow Functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
-[Classes]: http://wiki.ecmascript.org/doku.php?id=strawman:maximally_minimal_classes
-[Modules]: http://www.2ality.com/2014/09/es6-modules-final.html
+[Classes]: https://wiki.ecmascript.org/doku.php?id=strawman:maximally_minimal_classes
+[Modules]: https://www.2ality.com/2014/09/es6-modules-final.html
 
 
 Nested Structures
@@ -598,7 +598,7 @@ Range(1, Infinity)
 Documentation
 -------------
 
-[Read the docs](http://immutable-js.com) and eat your vegetables.
+[Read the docs](https://immutable-js.com) and eat your vegetables.
 
 Docs are automatically generated from [Immutable.d.ts](https://github.com/immutable-js/immutable-js/blob/main/type-definitions/Immutable.d.ts).
 Please contribute!
@@ -610,7 +610,7 @@ contains articles on specific topics. Can't find something? Open an [issue](http
 Testing
 -------
 
-If you are using the [Chai Assertion Library](http://chaijs.com/), [Chai Immutable](https://github.com/astorije/chai-immutable) provides a set of assertions to use against Immutable.js collections.
+If you are using the [Chai Assertion Library](https://chaijs.com/), [Chai Immutable](https://github.com/astorije/chai-immutable) provides a set of assertions to use against Immutable.js collections.
 
 
 Contribution
