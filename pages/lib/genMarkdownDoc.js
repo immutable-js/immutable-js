@@ -3,7 +3,7 @@ var defs = require('./getTypeDefs');
 
 function genMarkdownDoc(typeDefSource) {
   return markdown(
-    typeDefSource.replace(/\n[^\n]+?travis-ci.org[^\n]+?\n/, '\n'),
+    typeDefSource.replace(/\n[^\n]+?Build Status[^\n]+?\n/, '\n'),
     {
       defs,
       typePath: ['Immutable'],
