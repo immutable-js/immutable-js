@@ -23,6 +23,14 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run check:git-clean
+      - name: Publish Docs
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./pages/out
+          cname: immutable-js.com
+
 
   lint:
     name: 'Lint'

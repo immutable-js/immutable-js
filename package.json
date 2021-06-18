@@ -44,7 +44,6 @@
     "test:types:flow": "flow check type-definitions/tests --include-warnings",
     "perf": "node ./resources/bench.js",
     "start": "gulp --gulpfile ./resources/gulpfile.js dev",
-    "deploy": "./resources/deploy-ghpages.sh",
     "gitpublish": "./resources/gitpublish.sh"
   },
   "prettier": {
