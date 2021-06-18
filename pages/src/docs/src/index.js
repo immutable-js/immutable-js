@@ -2,7 +2,7 @@ var React = require('react');
 var assign = require('react/lib/Object.assign');
 var Router = require('react-router');
 var DocHeader = require('./DocHeader');
-var DocSearch = require('./DocSearch.js');
+var DocSearch = require('./DocSearch');
 var TypeDocumentation = require('./TypeDocumentation');
 var defs = require('../../../lib/getTypeDefs');
 
