@@ -1,7 +1,7 @@
 Immutable collections for JavaScript
 ====================================
 
-[![Build Status](https://travis-ci.org/immutable-js/immutable-js.svg?branch=main)](https://travis-ci.org/immutable-js/immutable-js) [![Join the chat at https://gitter.im/immutable-js/Lobby](https://badges.gitter.im/immutable-js/Lobby.svg)](https://gitter.im/immutable-js/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://github.com/immutable-js/immutable-js/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/immutable-js/immutable-js/actions/workflows/ci.yml?query=branch%3Amain) [![Join the chat at https://gitter.im/immutable-js/Lobby](https://badges.gitter.im/immutable-js/Lobby.svg)](https://gitter.im/immutable-js/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [Immutable][] data cannot be changed once created, leading to much simpler
 application development, no defensive copying, and enabling advanced memoization
