@@ -24,13 +24,14 @@ module.exports={
   },
   "scripts": {
     "build": "run-s build:*",
-    "build:dist": "run-s clean:dist bundle:dist bundle:es copy:dist stats:dist",
+    "build:dist": "run-s clean:dist bundle:dist bundle:es copy:dist stats:dist prepare:dist",
     "build:pages": "gulp --gulpfile ./resources/gulpfile.js default",
     "stats:dist": "node ./resources/dist-stats.js",
     "clean:dist": "rimraf dist",
     "bundle:dist": "rollup -c ./resources/rollup-config.js",
     "bundle:es": "rollup -c ./resources/rollup-config-es.js",
     "copy:dist": "node ./resources/copy-dist-typedefs.js",
+    "prepare:dist": "./resources/prepare-dist.sh",
     "format": "npm run lint:format -- --write",
     "lint": "run-s lint:*",
     "lint:ts": "tslint \"__tests__/**/*.ts\"",
@@ -44,8 +45,7 @@ module.exports={
     "test:types:ts": "tsc ./type-definitions/Immutable.d.ts --lib es2015 && dtslint type-definitions/ts-tests",
     "test:types:flow": "flow check type-definitions/tests --include-warnings",
     "perf": "node ./resources/bench.js",
-    "start": "gulp --gulpfile ./resources/gulpfile.js dev",
-    "gitpublish": "./resources/gitpublish.sh"
+    "start": "gulp --gulpfile ./resources/gulpfile.js dev"
   },
   "prettier": {
     "singleQuote": true,
