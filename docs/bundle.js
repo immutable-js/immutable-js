@@ -14913,7 +14913,7 @@ module.exports={
     "check:git-clean": "./resources/check-changes",
     "test:types": "run-s test:types:*",
     "test:types:ts": "tsc ./type-definitions/Immutable.d.ts --lib es2015 && dtslint type-definitions/ts-tests",
-    "test:types:flow": "flow check type-definitions/tests --include-warnings",
+    "test:types:flow": "flow check type-definitions/flow-tests --include-warnings",
     "perf": "node ./resources/bench.js",
     "start": "gulp --gulpfile ./resources/gulpfile.js dev"
   },
@@ -14950,7 +14950,7 @@ module.exports={
     "eslint-plugin-jsx-a11y": "6.3.1",
     "eslint-plugin-prettier": "3.1.4",
     "eslint-plugin-react": "7.21.4",
-    "flow-bin": "0.85.0",
+    "flow-bin": "0.89.0",
     "gulp": "4.0.2",
     "gulp-concat": "2.6.1",
     "gulp-filter": "6.0.0",
