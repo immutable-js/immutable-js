@@ -1,18 +1,14 @@
 #!/bin/sh -e
 
-# This script maintains a git branch which mirrors main but in a form that
-# what will eventually be deployed to npm, allowing npm dependencies to use:
+# This script prepares an npm directory with files safe to publish to npm or the
+# npm git branch:
 #
 #     "immutable": "git://github.com/immutable-js/immutable-js.git#npm"
 #
 
 # Create empty npm directory
 rm -rf npm
-git clone -b npm "https://${GH_TOKEN}@github.com/immutable-js/immutable-js.git" npm
-
-# Remove existing files first
-rm -rf npm/**/*
-rm -rf npm/*
+mkdir -p npm
 
 # Copy over necessary files
 cp -r dist npm/
@@ -26,23 +22,9 @@ node -e "var package = require('./package.json'); \
   delete package.scripts; \
   delete package.options; \
   delete package.jest; \
+  delete package.prettier; \
   delete package.devDependencies; \
   require('fs').writeFileSync('./npm/package.json', JSON.stringify(package, null, 2));"
 
-# Retain marginal support for bower on this branch
+# Retain marginal support for bower on the npm branch
 cp npm/package.json npm/bower.json
-
-HEADREV=`git rev-parse HEAD`
-echo $HEADREV
-
-cd npm
-git config user.name "Travis CI"
-git config user.email "github@fb.com"
-git add -A .
-if git diff --staged --quiet; then
-  echo "Nothing to publish"
-else
-  git commit -a -m "Deploy $HEADREV to NPM branch"
-  git push > /dev/null 2>&1
-  echo "Pushed"
-fi
