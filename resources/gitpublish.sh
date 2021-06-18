@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-# This script maintains a git branch which mirrors master but in a form that
+# This script maintains a git branch which mirrors main but in a form that
 # what will eventually be deployed to npm, allowing npm dependencies to use:
 #
 #     "immutable": "git://github.com/immutable-js/immutable-js.git#npm"
