@@ -85,7 +85,7 @@
  * ```
  *
  * [ES2015]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/ECMAScript_6_support_in_Mozilla
- * [TypeScript]: http://www.typescriptlang.org/
+ * [TypeScript]: https://www.typescriptlang.org/
  * [Flow]: https://flowtype.org/
  * [Iterable]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols
  */
@@ -3833,7 +3833,7 @@ declare module Immutable {
      * to be equal][Hash Collision]. If two values have different `hashCode`s,
      * they must not be equal.
      *
-     * [Hash Collision]: http://en.wikipedia.org/wiki/Collision_(computer_science)
+     * [Hash Collision]: https://en.wikipedia.org/wiki/Collision_(computer_science)
      */
     hashCode(): number;
 
@@ -4751,7 +4751,7 @@ declare module Immutable {
      * organize their internal data structures, while all Immutable.js
      * collections use equality during lookups.
      *
-     * [Hash Collision]: http://en.wikipedia.org/wiki/Collision_(computer_science)
+     * [Hash Collision]: https://en.wikipedia.org/wiki/Collision_(computer_science)
      */
     hashCode(): number;
   }
