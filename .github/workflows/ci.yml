@@ -10,11 +10,13 @@ on:
 
 jobs:
   build:
-    name: 'Build'
+    name: 'Build Package'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
       - uses: actions/cache@v2
         with:
           path: ~/.npm
@@ -23,15 +25,6 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run check:git-clean
-      - name: Publish Docs
-        if: github.ref == 'refs/heads/main'
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./pages/out
-          cname: immutable-js.com
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
       - name: Publish NPM Branch
         if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
@@ -49,7 +42,9 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
       - uses: actions/cache@v2
         with:
           path: ~/.npm
@@ -58,6 +53,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run lint
+      - run: npm run check:git-clean
 
   type-check:
     name: 'Type Check'
@@ -65,7 +61,9 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
       - uses: actions/cache@v2
         with:
           path: ~/.npm
@@ -87,7 +85,9 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
       - uses: actions/cache@v2
         with:
           path: ~/.npm
@@ -97,3 +97,29 @@ jobs:
       - run: npm run build
       - run: npm run testonly
       - run: npm run check:git-clean
+
+  website:
+    name: 'Build Website'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.OS }}-node-
+      - run: npm ci
+      - run: npm run website:build
+      - run: npm run check:git-clean
+      - name: Publish Docs
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./website/out
+          cname: immutable-js.com
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
