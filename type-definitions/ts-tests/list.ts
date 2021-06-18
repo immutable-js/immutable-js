@@ -19,6 +19,9 @@ import {
   const numberList: List<number> = List();
   const numberOrStringList: List<number | string> = List([1, 'a']);
 
+  // $ExpectType List<[number, string]>
+  List<[number, string]>([[1, 'a']]);
+
   // $ExpectError
   const invalidNumberList: List<number> = List([1, 'a']);
 }
@@ -325,11 +328,62 @@ import {
 
 { // #merge
 
+  //
+  // same type:
+
   // $ExpectType List<number>
   List<number>().merge(List<number>());
 
+  // $ExpectType List<number>
+  List<number>().merge([1]);
+
+  // $ExpectType List<number>
+  List<number>().merge(1);
+
+  // $ExpectType List<number>
+  List<number>().merge(1, [1]);
+
+  // $ExpectType List<number>
+  List<number>().merge(1, List<number>());
+
+  // $ExpectType List<number>
+  List<number>().merge(1, [1], List<number>());
+
+  //
+  // auto-merging different types:
+
   // $ExpectType List<string | number>
   List<number>().merge(List<string>());
+
+  // $ExpectType List<string | number>
+  List<number>().merge(['a']);
+
+  // $ExpectType List<string | number>
+  List<number>().merge('a');
+
+  // $ExpectType List<string | number>
+  List<number>().merge('a', ['a']);
+
+  // $ExpectType List<string | number>
+  List<number>().merge('a', List<string>());
+
+  // $ExpectType List<string | number>
+  List<number>().merge('a', ['a'], List<string>());
+
+  //
+  // manually merging different types:
+
+  // $ExpectType List<string | number>
+  List<number>().merge<string | number>(1, ['a']);
+
+  // $ExpectType List<string | number>
+  List<number>().merge<string | number>('a', List<number>());
+
+  // $ExpectType List<string | number>
+  List<number>().merge<string | number>(1, ['a'], List<number>());
+
+  //
+  // merging subtype into supertype:
 
   // $ExpectType List<string | number>
   List<number | string>().merge(List<string>());
@@ -337,8 +391,14 @@ import {
   // $ExpectType List<string | number>
   List<number | string>().merge(List<number>());
 
+  //
+  // merge() standalone function (rather than .merge() method)
+
   // $ExpectType List<number>
   merge(List<number>(), List<number>());
+
+  // $ExpectType List<number>
+  merge(List<number>(), [1]);
 }
 
 { // #mergeIn
@@ -389,9 +449,6 @@ import {
   List<number>().asImmutable();
 }
 
-{ // # for of loops
-  const list = List([ 1, 2, 3, 4 ]);
-  for (const val of list) {
-    const v: number = val;
-  }
+{ // # iterable, for compatibility with for-of loops
+  const iterable: Iterable<number> = List([ 1, 2, 3, 4 ]);
 }

@@ -8,6 +8,9 @@ import { Stack } from '../../';
   const numberStack: Stack<number> = Stack();
   const numberOrStringStack: Stack<number | string> = Stack([1, 'a']);
 
+  // $ExpectType Stack<[number, string]>
+  Stack<[number, string]>([[1, 'a']]);
+
   // $ExpectError
   const invalidNumberStack: Stack<number> = Stack([1, 'a']);
 }
@@ -124,6 +127,24 @@ import { Stack } from '../../';
 
   // $ExpectError
   Stack().shift(10);
+}
+
+{ // #concat
+
+  // $ExpectType Stack<number>
+  Stack<number>().concat(Stack<number>());
+
+  // $ExpectType Stack<string | number>
+  Stack<number>().concat(Stack<string>());
+
+  // $ExpectType Stack<number>
+  Stack<number>().concat([1]);
+
+  // $ExpectType Stack<string | number>
+  Stack<number>().concat(['a']);
+
+  // $ExpectType Stack<number>
+  Stack<number>().concat([1], Stack<number>());
 }
 
 { // #map

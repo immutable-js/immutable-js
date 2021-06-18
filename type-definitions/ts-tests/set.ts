@@ -8,6 +8,9 @@ import { Set, Map } from '../../';
   const numberSet: Set<number> = Set();
   const numberOrStringSet: Set<number | string> = Set([1, 'a']);
 
+  // $ExpectType Set<[number, string]>
+  Set<[number, string]>([[1, 'a']]);
+
   // $ExpectError
   const invalidNumberSet: Set<number> = Set([1, 'a']);
 }
@@ -156,6 +159,27 @@ import { Set, Map } from '../../';
 
   // $ExpectType Set<string | number>
   Set<number | string>().union(Set<number>());
+
+  // $ExpectType Set<number>
+  Set<number>().union([1]);
+
+  // $ExpectType Set<number>
+  Set<number>().union([1], Set<number>());
+
+  // $ExpectType Set<string | number>
+  Set<number>().union<string>(['a']);
+
+  // $ExpectType Set<string | number>
+  Set<number>().union(['a'], Set<string>());
+
+  // $ExpectType Set<number>
+  Set.union([[1, 2], [3]]);
+
+  // $ExpectType Set<string | number>
+  Set.union([[1, 'a'], [2]]);
+
+  // $ExpectType Set<string | number>
+  Set.union<string | number>([[1, 2], ['a']]);
 }
 
 { // #merge
@@ -186,6 +210,21 @@ import { Set, Map } from '../../';
 
   // $ExpectType Set<string | number>
   Set<number | string>().intersect(Set<number>());
+
+  // $ExpectType Set<number>
+  Set<number>().intersect([1]);
+
+  // $ExpectType Set<number>
+  Set<number>().intersect([1], Set<number>());
+
+  // $ExpectType Set<number>
+  Set.intersect([[1, 2], [3]]);
+
+  // $ExpectType Set<string | number>
+  Set.intersect([[1, 'a'], [2]]);
+
+  // $ExpectType Set<string | number>
+  Set.intersect<string | number>([[1, 2], ['a']]);
 }
 
 { // #subtract
@@ -201,6 +240,12 @@ import { Set, Map } from '../../';
 
   // $ExpectType Set<string | number>
   Set<number | string>().subtract(Set<number>());
+
+  // $ExpectType Set<number>
+  Set<number>().subtract([1]);
+
+  // $ExpectType Set<number>
+  Set<number>().subtract([1], Set<number>());
 }
 
 { // #flatten

@@ -256,6 +256,15 @@ import { Map, List } from '../../';
 
   // $ExpectType Map<number, string | number>
   Map<number, number | string>().merge(Map<number, number>());
+
+  // $ExpectType Map<string, number>
+  Map<string, number>().merge([['a', 1]]);
+
+  // $ExpectType Map<string, string | number>
+  Map<string, number>().merge([['a', 'b']]);
+
+  // $ExpectType Map<string, number>
+  Map<string, number>().merge([['a', 1]], List<[string, number]>());
 }
 
 { // #mergeIn
@@ -290,6 +299,18 @@ import { Map, List } from '../../';
   // $ExpectError
   Map<string, number>().mergeWith((prev: number, next: number, key: string) => 1, { a: 'a' });
 
+  // $ExpectType Map<number, number>
+  Map<number, number>().mergeWith((prev: number, next: number, key: number) => 1, [[1, 2]]);
+
+  // $ExpectType Map<string, number>
+  Map<string, number>().mergeWith((prev: number, next: number, key: string) => 1, [['a', 1]]);
+
+  // $ExpectError
+  Map<string, number>().mergeWith((prev: number, next: number, key: string) => 1, [['a', 'b']]);
+
+  // $ExpectType Map<string, number>
+  Map<string, number>().mergeWith((prev: number, next: number, key: string) => 1, [['a', 1]], Map<string, number>(), {a: 1});
+
   // $ExpectType Map<number, string | number>
   Map<number, number | string>().mergeWith((prev: number, next: string, key: number) => 1, Map<number, string>());
 }
@@ -313,6 +334,15 @@ import { Map, List } from '../../';
 
   // $ExpectType Map<number, string | number>
   Map<number, number | string>().mergeDeep(Map<number, number>());
+
+  // $ExpectType Map<string, number>
+  Map<string, number>().mergeDeep([['a', 1]]);
+
+  // $ExpectError
+  Map<string, number>().mergeDeep([['a', { b: 1 }]]);
+
+  // $ExpectType Map<string, number>
+  Map<string, number>().mergeDeep([['a', 1]], { a: 1 }, Map<string, number>());
 }
 
 { // #mergeDeepIn
@@ -334,6 +364,18 @@ import { Map, List } from '../../';
 
   // $ExpectError
   Map<string, number>().mergeDeepWith((prev: number, next: number, key: string) => 1, { a: 'a' });
+
+  // $ExpectType Map<number, number>
+  Map<number, number>().mergeDeepWith((prev: number, next: number, key: number) => 1, [[1, 2]]);
+
+  // $ExpectType Map<string, number>
+  Map<string, number>().mergeDeepWith((prev: number, next: number, key: string) => 1, [['a', 1]]);
+
+  // $ExpectError
+  Map<string, number>().mergeDeepWith((prev: number, next: number, key: string) => 1, [['a', 'b']]);
+
+  // $ExpectType Map<string, number>
+  Map<string, number>().mergeDeepWith((prev: number, next: number, key: string) => 1, [['a', 1]], Map<string, number>(), {a: 1});
 
   // $ExpectType Map<number, string | number>
   Map<number, number | string>().mergeDeepWith((prev: number, next: string, key: number) => 1, Map<number, string>());
