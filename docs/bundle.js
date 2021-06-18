@@ -14876,7 +14876,7 @@ module.exports={
   "version": "4.0.0-rc.12",
   "description": "Immutable Data Collections",
   "license": "MIT",
-  "homepage": "https://immutable-js.github.com/immutable-js",
+  "homepage": "https://immutable-js.com",
   "author": {
     "name": "Lee Byron",
     "url": "https://github.com/leebyron"
