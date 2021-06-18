@@ -8,6 +8,7 @@ import {
     OrderedSet,
     Range,
     Repeat,
+    Stretch,
     Seq,
     Set,
     Stack,
@@ -21,6 +22,7 @@ OrderedSet; // $ExpectType typeof OrderedSet
 // TODO: Turn on once https://github.com/Microsoft/dtslint/issues/19 is resolved.
 Range; // $ ExpectType (start?: number | undefined, end?: number | undefined, step?: number | undefined) => Indexed<number>
 Repeat; // $ExpectType <T>(value: T, times?: number | undefined) => Indexed<T>
+Stretch; // $ExpectType (base: number, ends?: number | undefined, front?: number | undefined) => Indexed<number>
 Seq; // $ExpectType typeof Seq
 Set; // $ExpectType typeof Set
 Stack; // $ExpectType typeof Stack
@@ -36,6 +38,7 @@ Immutable.OrderedSet; // $ExpectType typeof OrderedSet
 // TODO: Turn on once https://github.com/Microsoft/dtslint/issues/19 is resolved.
 Immutable.Range; // $ ExpectType (start?: number | undefined, end?: number | undefined, step?: number | undefined) => Indexed<number>
 Immutable.Repeat; // $ExpectType <T>(value: T, times?: number | undefined) => Indexed<T>
+Immutable.Stretch; // $ExpectType (base: number, ends?: number | undefined, front?: number | undefined) => Indexed<number>
 Immutable.Seq; // $ExpectType typeof Seq
 Immutable.Set; // $ExpectType typeof Set
 Immutable.Stack; // $ExpectType typeof Stack
