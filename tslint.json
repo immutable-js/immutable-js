@@ -13,6 +13,7 @@
     "no-conditional-assignment": false,
     "one-variable-per-declaration": false,
     "max-classes-per-file": false,
+    "space-before-function-paren": false,
     "trailing-comma": [
       true,
       {

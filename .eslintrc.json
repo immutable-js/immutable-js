@@ -70,12 +70,11 @@
     "import/no-unresolved": "error",
     "import/prefer-default-export": "off",
     "jsx-a11y/no-static-element-interactions": "off",
-    "prettier/prettier": [
-      "error",
-      {
-        "singleQuote": true,
-        "trailingComma": "es5"
-      }
-    ]
+    "max-classes-per-file": "off",
+    "import/no-useless-path-segments": "off",
+    "react/destructuring-assignment": "off",
+    "react/jsx-curly-brace-presence": "off",
+    "import/no-cycle": "off",
+    "prettier/prettier": "error"
   }
 }
