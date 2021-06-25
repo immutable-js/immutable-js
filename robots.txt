@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://immutable-js.com
+
+# Sitemaps
+Sitemap: https://immutable-js.com/sitemap.xml
