@@ -63,10 +63,7 @@ export function Header({
             </div>
             <div className="synopsis">
               <div className="logo">
-                {(isMobile()
-                  ? [0, 0, 0, 0, 0, 0, 0]
-                  : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                ).map((_, i) => (
+                {[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0].map((_, i) => (
                   <SVGSet key={i} style={t(ty(s, i * sp), tz(s, i * sp))}>
                     <Logo color="#c1c6c8" />
                     <Logo color="#6dbcdb" opacity={o(s, i * sp)} />
