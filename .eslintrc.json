@@ -4,14 +4,8 @@
     "ecmaVersion": 6,
     "sourceType": "module"
   },
-  "extends": [
-    "airbnb",
-    "prettier"
-  ],
-  "plugins": [
-    "react",
-    "prettier"
-  ],
+  "extends": ["airbnb", "prettier"],
+  "plugins": ["react", "prettier"],
   "rules": {
     "array-callback-return": "off",
     "block-scoped-var": "off",
@@ -20,6 +14,7 @@
     "constructor-super": "off",
     "default-case": "off",
     "func-names": "off",
+    "max-classes-per-file": "off",
     "no-bitwise": "off",
     "no-cond-assign": "off",
     "no-constant-condition": "off",
@@ -63,17 +58,22 @@
     "react/prop-types": "off",
     "react/self-closing-comp": "error",
     "react/sort-comp": "off",
+    "react/destructuring-assignment": "off",
+    "react/jsx-curly-brace-presence": "off",
+    "react/jsx-props-no-spreading": "off",
+    "jsx-a11y/no-static-element-interactions": "off",
+    "import/extensions": [
+      "error",
+      "always",
+      { "js": "never", "ts": "never", "tsx": "never" }
+    ],
     "import/newline-after-import": "error",
     "import/no-extraneous-dependencies": "off",
     "import/no-mutable-exports": "error",
     "import/no-unresolved": "error",
-    "import/prefer-default-export": "off",
-    "jsx-a11y/no-static-element-interactions": "off",
-    "max-classes-per-file": "off",
     "import/no-useless-path-segments": "off",
-    "react/destructuring-assignment": "off",
-    "react/jsx-curly-brace-presence": "off",
     "import/no-cycle": "off",
+    "import/prefer-default-export": "off",
     "prettier/prettier": "error"
   }
 }
