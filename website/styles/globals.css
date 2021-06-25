@@ -213,7 +213,6 @@ a.try-it {
 @media only screen and (max-width: 680px) {
   .miniHeaderContents {
     padding: 12px;
-    text-align: center;
   }
 }
 
@@ -318,6 +317,11 @@ a.try-it {
 }
 
 @media only screen and (max-width: 680px) {
+  .filler {
+    visibility: hidden;
+  }
+
+  .coverContainer,
   .cover {
     max-height: 260px;
   }
