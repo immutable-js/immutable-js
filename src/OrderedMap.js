@@ -3,6 +3,7 @@ import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
 import { isOrderedMap } from './predicates/isOrderedMap';
 import { Map, emptyMap } from './Map';
 import { emptyList } from './List';
+import { reify, sortFactory } from './Operations';
 import { DELETE, NOT_SET, SIZE } from './TrieUtils';
 import assertNotInfinite from './utils/assertNotInfinite';
 
@@ -57,6 +58,16 @@ export class OrderedMap extends Map {
 
   remove(k) {
     return updateOrderedMap(this, k, NOT_SET);
+  }
+
+  // @pragma Composition
+
+  sort(comparator) {
+    return reify(this, sortFactory(this, comparator));
+  }
+
+  sortBy(mapper, comparator) {
+    return reify(this, sortFactory(this, comparator, mapper));
   }
 
   wasAltered() {
