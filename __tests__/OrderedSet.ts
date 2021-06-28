@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 ///<reference path='../resources/jest.d.ts'/>
 
 import { OrderedSet, Map } from 'immutable';
@@ -68,7 +61,7 @@ describe('OrderedSet', () => {
   });
 
   it('ensure that `subtract` works correcly (see https://github.com/immutable-js-oss/immutable-js/issues/139 )', () => {
-    const fillArray = (nb) =>
+    const fillArray = nb =>
       Array(nb)
         .fill(1)
         .map((el, i) => i + 1);
@@ -123,7 +116,7 @@ describe('OrderedSet', () => {
     const third = Map({ id: 3, valid: true });
     const initial = OrderedSet([first, second, third]);
 
-    const out = initial.map((t) => {
+    const out = initial.map(t => {
       if (2 === t.get('id')) {
         return t.set('valid', false);
       }

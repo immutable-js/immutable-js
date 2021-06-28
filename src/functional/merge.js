@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import { isImmutable } from '../predicates/isImmutable';
 import { IndexedCollection, KeyedCollection } from '../Collection';
 import hasOwnProperty from '../utils/hasOwnProperty';
@@ -48,7 +41,7 @@ export function mergeWithSources(collection, sources, merger) {
   let merged = collection;
   const Collection = isArray ? IndexedCollection : KeyedCollection;
   const mergeItem = isArray
-    ? (value) => {
+    ? value => {
         // Copy on write
         if (merged === collection) {
           merged = shallowCopy(merged);

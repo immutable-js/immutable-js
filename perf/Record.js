@@ -1,13 +1,6 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 describe('Record', () => {
   describe('builds from an object', () => {
-    [2, 5, 10, 100, 1000].forEach((size) => {
+    [2, 5, 10, 100, 1000].forEach(size => {
       var defaults = {};
       var values = {};
       for (var ii = 0; ii < size; ii++) {
@@ -24,7 +17,7 @@ describe('Record', () => {
   });
 
   describe('update random using set()', () => {
-    [2, 5, 10, 100, 1000].forEach((size) => {
+    [2, 5, 10, 100, 1000].forEach(size => {
       var defaults = {};
       var values = {};
       for (var ii = 0; ii < size; ii++) {
@@ -44,7 +37,7 @@ describe('Record', () => {
   });
 
   describe('access random using get()', () => {
-    [2, 5, 10, 100, 1000].forEach((size) => {
+    [2, 5, 10, 100, 1000].forEach(size => {
       var defaults = {};
       var values = {};
       for (var ii = 0; ii < size; ii++) {
@@ -64,7 +57,7 @@ describe('Record', () => {
   });
 
   describe('access random using property', () => {
-    [2, 5, 10, 100, 1000].forEach((size) => {
+    [2, 5, 10, 100, 1000].forEach(size => {
       var defaults = {};
       var values = {};
       for (var ii = 0; ii < size; ii++) {

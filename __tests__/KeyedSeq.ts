@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 ///<reference path='../resources/jest.d.ts'/>
 
 import * as jasmineCheck from 'jasmine-check';
@@ -13,7 +6,7 @@ jasmineCheck.install();
 import { Range, Seq } from 'immutable';
 
 describe('KeyedSeq', () => {
-  check.it('it iterates equivalently', [gen.array(gen.int)], (ints) => {
+  check.it('it iterates equivalently', [gen.array(gen.int)], ints => {
     const seq = Seq(ints);
     const keyed = seq.toKeyedSeq();
 
@@ -29,7 +22,7 @@ describe('KeyedSeq', () => {
   });
 
   it('maintains keys', () => {
-    const isEven = (x) => x % 2 === 0;
+    const isEven = x => x % 2 === 0;
     const seq = Range(0, 100);
 
     // This is what we expect for IndexedSequences

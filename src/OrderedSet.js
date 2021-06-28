@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import { SetCollection, KeyedCollection } from './Collection';
 import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
 import { isOrderedSet } from './predicates/isOrderedSet';
@@ -21,10 +14,10 @@ export class OrderedSet extends Set {
       ? emptyOrderedSet()
       : isOrderedSet(value)
       ? value
-      : emptyOrderedSet().withMutations((set) => {
+      : emptyOrderedSet().withMutations(set => {
           const iter = SetCollection(value);
           assertNotInfinite(iter.size);
-          iter.forEach((v) => set.add(v));
+          iter.forEach(v => set.add(v));
         });
   }
 

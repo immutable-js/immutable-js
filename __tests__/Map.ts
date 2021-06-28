@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 ///<reference path='../resources/jest.d.ts'/>
 
 import * as jasmineCheck from 'jasmine-check';
@@ -193,7 +186,7 @@ describe('Map', () => {
     expect(m5.get('c')).toBe('Canary');
   });
 
-  check.it('deletes down to empty map', [gen.posInt], (size) => {
+  check.it('deletes down to empty map', [gen.posInt], size => {
     let m = Range(0, size).toMap();
     expect(m.size).toBe(size);
     for (let ii = size - 1; ii >= 0; ii--) {
@@ -249,19 +242,19 @@ describe('Map', () => {
 
   it('maps values', () => {
     const m = Map({ a: 'a', b: 'b', c: 'c' });
-    const r = m.map((value) => value.toUpperCase());
+    const r = m.map(value => value.toUpperCase());
     expect(r.toObject()).toEqual({ a: 'A', b: 'B', c: 'C' });
   });
 
   it('maps keys', () => {
     const m = Map({ a: 'a', b: 'b', c: 'c' });
-    const r = m.mapKeys((key) => key.toUpperCase());
+    const r = m.mapKeys(key => key.toUpperCase());
     expect(r.toObject()).toEqual({ A: 'a', B: 'b', C: 'c' });
   });
 
   it('maps no-ops return the same reference', () => {
     const m = Map({ a: 'a', b: 'b', c: 'c' });
-    const r = m.map((value) => value);
+    const r = m.map(value => value);
     expect(r).toBe(m);
   });
 
@@ -273,13 +266,13 @@ describe('Map', () => {
 
   it('filters values', () => {
     const m = Map({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
-    const r = m.filter((value) => value % 2 === 1);
+    const r = m.filter(value => value % 2 === 1);
     expect(r.toObject()).toEqual({ a: 1, c: 3, e: 5 });
   });
 
   it('filterNots values', () => {
     const m = Map({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
-    const r = m.filterNot((value) => value % 2 === 1);
+    const r = m.filterNot(value => value % 2 === 1);
     expect(r.toObject()).toEqual({ b: 2, d: 4, f: 6 });
   });
 
@@ -316,13 +309,13 @@ describe('Map', () => {
     'works like an object',
     { maxSize: 50 },
     [gen.object(gen.JSONPrimitive)],
-    (obj) => {
+    obj => {
       let map = Map(obj);
-      Object.keys(obj).forEach((key) => {
+      Object.keys(obj).forEach(key => {
         expect(map.get(key)).toBe(obj[key]);
         expect(map.has(key)).toBe(true);
       });
-      Object.keys(obj).forEach((key) => {
+      Object.keys(obj).forEach(key => {
         expect(map.get(key)).toBe(obj[key]);
         expect(map.has(key)).toBe(true);
         map = map.remove(key);
@@ -332,7 +325,7 @@ describe('Map', () => {
     }
   );
 
-  check.it('sets', { maxSize: 5000 }, [gen.posInt], (len) => {
+  check.it('sets', { maxSize: 5000 }, [gen.posInt], len => {
     let map = Map();
     for (let ii = 0; ii < len; ii++) {
       expect(map.size).toBe(ii);
@@ -342,10 +335,10 @@ describe('Map', () => {
     expect(is(map.toSet(), Range(0, len).toSet())).toBe(true);
   });
 
-  check.it('has and get', { maxSize: 5000 }, [gen.posInt], (len) => {
+  check.it('has and get', { maxSize: 5000 }, [gen.posInt], len => {
     const map = Range(0, len)
       .toKeyedSeq()
-      .mapKeys((x) => '' + x)
+      .mapKeys(x => '' + x)
       .toMap();
     for (let ii = 0; ii < len; ii++) {
       expect(map.get('' + ii)).toBe(ii);
@@ -353,7 +346,7 @@ describe('Map', () => {
     }
   });
 
-  check.it('deletes', { maxSize: 5000 }, [gen.posInt], (len) => {
+  check.it('deletes', { maxSize: 5000 }, [gen.posInt], len => {
     let map = Range(0, len).toMap();
     for (let ii = 0; ii < len; ii++) {
       expect(map.size).toBe(len - ii);
@@ -363,7 +356,7 @@ describe('Map', () => {
     expect(map.toObject()).toEqual({});
   });
 
-  check.it('deletes from transient', { maxSize: 5000 }, [gen.posInt], (len) => {
+  check.it('deletes from transient', { maxSize: 5000 }, [gen.posInt], len => {
     const map = Range(0, len).toMap().asMutable();
     for (let ii = 0; ii < len; ii++) {
       expect(map.size).toBe(len - ii);
@@ -373,7 +366,7 @@ describe('Map', () => {
     expect(map.toObject()).toEqual({});
   });
 
-  check.it('iterates through all entries', [gen.posInt], (len) => {
+  check.it('iterates through all entries', [gen.posInt], len => {
     const v = Range(0, len).toMap();
     const a = v.toArray();
     const iter = v.entries();
@@ -386,7 +379,7 @@ describe('Map', () => {
   it('allows chained mutations', () => {
     const m1 = Map();
     const m2 = m1.set('a', 1);
-    const m3 = m2.withMutations((m) => m.set('b', 2).set('c', 3));
+    const m3 = m2.withMutations(m => m.set('b', 2).set('c', 3));
     const m4 = m3.set('d', 4);
 
     expect(m1.toObject()).toEqual({});
@@ -397,7 +390,7 @@ describe('Map', () => {
 
   it('chained mutations does not result in new empty map instance', () => {
     const v1 = Map({ x: 1 });
-    const v2 = v1.withMutations((v) => v.set('y', 2).delete('x').delete('y'));
+    const v2 = v1.withMutations(v => v.set('y', 2).delete('x').delete('y'));
     expect(v2).toBe(Map());
   });
 

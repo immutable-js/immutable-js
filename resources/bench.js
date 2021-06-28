@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 var Benchmark = require('benchmark');
 var child_process = require('child_process');
 var colors = require('colors');
@@ -35,7 +28,7 @@ Promise.all([
   readFile(path.resolve(__dirname, '../dist/immutable.js'), {
     encoding: 'utf8',
   }),
-  exec('git show origin/npm:dist/immutable.js'),
+  exec('git show main:dist/immutable.js'),
 ])
   .then(function (args) {
     var newSrc = args[0];
@@ -156,11 +149,12 @@ Promise.all([
         },
         onComplete: function (event) {
           process.stdout.write('\r\x1B[K');
-          var stats = Array.prototype.map.call(event.currentTarget, function (
-            target
-          ) {
-            return target.stats;
-          });
+          var stats = Array.prototype.map.call(
+            event.currentTarget,
+            function (target) {
+              return target.stats;
+            }
+          );
 
           function pad(n, s) {
             return Array(Math.max(0, 1 + n - s.length)).join(' ') + s;

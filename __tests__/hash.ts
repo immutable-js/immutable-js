@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 ///<reference path='../resources/jest.d.ts'/>
 
 import * as jasmineCheck from 'jasmine-check';
@@ -56,7 +49,7 @@ describe('hash', () => {
 
   const genValue = gen.oneOf([gen.string, gen.int]);
 
-  check.it('generates unsigned 31-bit integers', [genValue], (value) => {
+  check.it('generates unsigned 31-bit integers', [genValue], value => {
     const hashVal = hash(value);
     expect(Number.isInteger(hashVal)).toBe(true);
     expect(hashVal).toBeGreaterThan(-Math.pow(2, 31));

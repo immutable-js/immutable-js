@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import {
   DELETE,
   SHIFT,
@@ -53,7 +46,7 @@ export class List extends IndexedCollection {
     if (size > 0 && size < SIZE) {
       return makeList(0, size, SHIFT, null, new VNode(iter.toArray()));
     }
-    return empty.withMutations((list) => {
+    return empty.withMutations(list => {
       list.setSize(size);
       iter.forEach((v, i) => list.set(i, v));
     });
@@ -116,7 +109,7 @@ export class List extends IndexedCollection {
   push(/*...values*/) {
     const values = arguments;
     const oldSize = this.size;
-    return this.withMutations((list) => {
+    return this.withMutations(list => {
       setListBounds(list, 0, oldSize + values.length);
       for (let ii = 0; ii < values.length; ii++) {
         list.set(oldSize + ii, values[ii]);
@@ -130,7 +123,7 @@ export class List extends IndexedCollection {
 
   unshift(/*...values*/) {
     const values = arguments;
-    return this.withMutations((list) => {
+    return this.withMutations(list => {
       setListBounds(list, -values.length);
       for (let ii = 0; ii < values.length; ii++) {
         list.set(ii, values[ii]);
@@ -163,8 +156,8 @@ export class List extends IndexedCollection {
     if (this.size === 0 && !this.__ownerID && seqs.length === 1) {
       return this.constructor(seqs[0]);
     }
-    return this.withMutations((list) => {
-      seqs.forEach((seq) => seq.forEach((value) => list.push(value)));
+    return this.withMutations(list => {
+      seqs.forEach(seq => seq.forEach(value => list.push(value)));
     });
   }
 
@@ -173,7 +166,7 @@ export class List extends IndexedCollection {
   }
 
   map(mapper, context) {
-    return this.withMutations((list) => {
+    return this.withMutations(list => {
       for (let i = 0; i < this.size; i++) {
         list.set(i, mapper.call(context, list.get(i), i, this));
       }
@@ -423,7 +416,7 @@ function updateList(list, index, value) {
   }
 
   if (index >= list.size || index < 0) {
-    return list.withMutations((list) => {
+    return list.withMutations(list => {
       index < 0
         ? setListBounds(list, index).set(0, value)
         : setListBounds(list, 0, index + 1).set(index, value);

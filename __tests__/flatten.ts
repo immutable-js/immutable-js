@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 ///<reference path='../resources/jest.d.ts'/>
 
 import * as jasmineCheck from 'jasmine-check';
@@ -35,7 +28,7 @@ describe('flatten', () => {
       [4, 5, 6],
     ]);
     const flat = nested.flatten();
-    expect(flat.forEach((x) => x < 4)).toEqual(4);
+    expect(flat.forEach(x => x < 4)).toEqual(4);
   });
 
   type SeqType = number | Array<number> | Collection<number, number>;
@@ -133,7 +126,7 @@ describe('flatten', () => {
   describe('flatMap', () => {
     it('first maps, then shallow flattens', () => {
       const numbers = Range(97, 100);
-      const letters = numbers.flatMap((v) =>
+      const letters = numbers.flatMap(v =>
         fromJS([String.fromCharCode(v), String.fromCharCode(v).toUpperCase()])
       );
       expect(letters.toJS()).toEqual(['a', 'A', 'b', 'B', 'c', 'C']);
@@ -143,7 +136,7 @@ describe('flatten', () => {
       const numbers = Range(97, 100);
       // the map function returns an Array, rather than a Collection.
       // Array is iterable, so this works just fine.
-      const letters = numbers.flatMap((v) => [
+      const letters = numbers.flatMap(v => [
         String.fromCharCode(v),
         String.fromCharCode(v).toUpperCase(),
       ]);

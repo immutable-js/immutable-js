@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 ///<reference path='../resources/jest.d.ts'/>
 
 import * as jasmineCheck from 'jasmine-check';
@@ -18,11 +11,7 @@ describe('slice', () => {
     expect(Seq([1, 2, 3, 4, 5, 6]).slice(-3, -1).toArray()).toEqual([4, 5]);
     expect(Seq([1, 2, 3, 4, 5, 6]).slice(-1).toArray()).toEqual([6]);
     expect(Seq([1, 2, 3, 4, 5, 6]).slice(0, -1).toArray()).toEqual([
-      1,
-      2,
-      3,
-      4,
-      5,
+      1, 2, 3, 4, 5,
     ]);
   });
 
@@ -132,14 +121,10 @@ describe('slice', () => {
 
   it('is reversable', () => {
     expect(Seq([1, 2, 3, 4, 5, 6]).slice(2).reverse().toArray()).toEqual([
-      6,
-      5,
-      4,
-      3,
+      6, 5, 4, 3,
     ]);
     expect(Seq([1, 2, 3, 4, 5, 6]).slice(2, 4).reverse().toArray()).toEqual([
-      4,
-      3,
+      4, 3,
     ]);
     expect(
       Seq([1, 2, 3, 4, 5, 6])
@@ -186,8 +171,7 @@ describe('slice', () => {
 
   it('creates a sliced list in O(log32(n))', () => {
     expect(List([1, 2, 3, 4, 5]).slice(-3, -1).toList().toArray()).toEqual([
-      3,
-      4,
+      3, 4,
     ]);
   });
 
@@ -225,7 +209,7 @@ describe('slice', () => {
   it('stops the entries iterator when the sequence has an undefined end', () => {
     let seq = Seq([0, 1, 2, 3, 4, 5]);
     // flatMap is lazy and thus the resulting sequence has no size.
-    seq = seq.flatMap((a) => [a]);
+    seq = seq.flatMap(a => [a]);
     expect(seq.size).toEqual(undefined);
 
     const iterFront = seq.slice(0, 2).entries();
@@ -264,7 +248,7 @@ describe('slice', () => {
     ],
     (entries, args) => {
       const a: Array<any> = [];
-      entries.forEach((entry) => (a[entry[0]] = entry[1]));
+      entries.forEach(entry => (a[entry[0]] = entry[1]));
       const s = Seq(a);
       const slicedS = s.slice.apply(s, args);
       const slicedA = a.slice.apply(a, args);
@@ -296,8 +280,8 @@ describe('slice', () => {
       const s1 = seq.take(3);
       const s2 = seq.take(10);
       const sn = seq.take(Infinity);
-      const s3 = seq.filter((v) => v < 4).take(10);
-      const s4 = seq.filter((v) => v < 4).take(2);
+      const s3 = seq.filter(v => v < 4).take(10);
+      const s4 = seq.filter(v => v < 4).take(2);
       expect(s1.toArray().length).toEqual(3);
       expect(s2.toArray().length).toEqual(6);
       expect(sn.toArray().length).toEqual(6);

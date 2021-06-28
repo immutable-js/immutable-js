@@ -10,7 +10,7 @@
 // tslint:disable-next-line:no-var-requires
 const vm = require('vm');
 
-import { Iterable, fromJS } from '../';
+import { Iterable, fromJS } from 'immutable';
 
 describe('fromJS', () => {
   it('is iterable outside of a vm', () => {

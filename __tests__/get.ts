@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 ///<reference path='../resources/jest.d.ts'/>
 
 import { Range } from 'immutable';
@@ -41,17 +34,17 @@ describe('get', () => {
   });
 
   it('gets any index when size is unknown', () => {
-    const seq = Range(0, 100).filter((x) => x % 2 === 1);
+    const seq = Range(0, 100).filter(x => x % 2 === 1);
     expect(seq.get(20)).toBe(41);
   });
 
   it('gets first when size is unknown', () => {
-    const seq = Range(0, 100).filter((x) => x % 2 === 1);
+    const seq = Range(0, 100).filter(x => x % 2 === 1);
     expect(seq.first()).toBe(1);
   });
 
   it('gets last when size is unknown', () => {
-    const seq = Range(0, 100).filter((x) => x % 2 === 1);
+    const seq = Range(0, 100).filter(x => x % 2 === 1);
     expect(seq.last()).toBe(99); // Note: this is O(N)
   });
 });

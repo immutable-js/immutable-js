@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import { Seq } from './Seq';
 import { isCollection } from './predicates/isCollection';
 import { isKeyed } from './predicates/isKeyed';
@@ -28,7 +21,7 @@ export function toJS(value) {
     return result;
   }
   const result = [];
-  value.__iterate((v) => {
+  value.__iterate(v => {
     result.push(toJS(v));
   });
   return result;

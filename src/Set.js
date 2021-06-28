@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import { Collection, SetCollection, KeyedCollection } from './Collection';
 import { isOrdered } from './predicates/isOrdered';
 import { IS_SET_SYMBOL, isSet } from './predicates/isSet';
@@ -26,10 +19,10 @@ export class Set extends SetCollection {
       ? emptySet()
       : isSet(value) && !isOrdered(value)
       ? value
-      : emptySet().withMutations((set) => {
+      : emptySet().withMutations(set => {
           const iter = SetCollection(value);
           assertNotInfinite(iter.size);
-          iter.forEach((v) => set.add(v));
+          iter.forEach(v => set.add(v));
         });
   }
 
@@ -102,16 +95,16 @@ export class Set extends SetCollection {
   }
 
   union(...iters) {
-    iters = iters.filter((x) => x.size !== 0);
+    iters = iters.filter(x => x.size !== 0);
     if (iters.length === 0) {
       return this;
     }
     if (this.size === 0 && !this.__ownerID && iters.length === 1) {
       return this.constructor(iters[0]);
     }
-    return this.withMutations((set) => {
+    return this.withMutations(set => {
       for (let ii = 0; ii < iters.length; ii++) {
-        SetCollection(iters[ii]).forEach((value) => set.add(value));
+        SetCollection(iters[ii]).forEach(value => set.add(value));
       }
     });
   }
@@ -120,15 +113,15 @@ export class Set extends SetCollection {
     if (iters.length === 0) {
       return this;
     }
-    iters = iters.map((iter) => SetCollection(iter));
+    iters = iters.map(iter => SetCollection(iter));
     const toRemove = [];
-    this.forEach((value) => {
-      if (!iters.every((iter) => iter.includes(value))) {
+    this.forEach(value => {
+      if (!iters.every(iter => iter.includes(value))) {
         toRemove.push(value);
       }
     });
-    return this.withMutations((set) => {
-      toRemove.forEach((value) => {
+    return this.withMutations(set => {
+      toRemove.forEach(value => {
         set.remove(value);
       });
     });
@@ -138,15 +131,15 @@ export class Set extends SetCollection {
     if (iters.length === 0) {
       return this;
     }
-    iters = iters.map((iter) => SetCollection(iter));
+    iters = iters.map(iter => SetCollection(iter));
     const toRemove = [];
-    this.forEach((value) => {
-      if (iters.some((iter) => iter.includes(value))) {
+    this.forEach(value => {
+      if (iters.some(iter => iter.includes(value))) {
         toRemove.push(value);
       }
     });
-    return this.withMutations((set) => {
-      toRemove.forEach((value) => {
+    return this.withMutations(set => {
+      toRemove.forEach(value => {
         set.remove(value);
       });
     });
@@ -167,7 +160,7 @@ export class Set extends SetCollection {
   }
 
   __iterate(fn, reverse) {
-    return this._map.__iterate((k) => fn(k, k, this), reverse);
+    return this._map.__iterate(k => fn(k, k, this), reverse);
   }
 
   __iterator(type, reverse) {

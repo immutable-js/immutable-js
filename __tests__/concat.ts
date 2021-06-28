@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 ///<reference path='../resources/jest.d.ts'/>
 
 import { is, List, Seq, Set } from 'immutable';
@@ -118,15 +111,7 @@ describe('concat', () => {
     const a = Seq({ a: 1, b: 2, c: 3 });
     expect(a.concat(a, a).toObject()).toEqual({ a: 1, b: 2, c: 3 });
     expect(a.concat(a, a).valueSeq().toArray()).toEqual([
-      1,
-      2,
-      3,
-      1,
-      2,
-      3,
-      1,
-      2,
-      3,
+      1, 2, 3, 1, 2, 3, 1, 2, 3,
     ]);
     expect(a.concat(a, a).keySeq().toArray()).toEqual([
       'a',
@@ -169,20 +154,12 @@ describe('concat', () => {
     const a = Seq([1, 2, 3]);
     expect(a.concat(a, a).reverse().size).toBe(9);
     expect(a.concat(a, a).reverse().toArray()).toEqual([
-      3,
-      2,
-      1,
-      3,
-      2,
-      1,
-      3,
-      2,
-      1,
+      3, 2, 1, 3, 2, 1, 3, 2, 1,
     ]);
   });
 
   it('lazily reverses indexed sequences with unknown size, maintaining indicies', () => {
-    const a = Seq([1, 2, 3]).filter((x) => true);
+    const a = Seq([1, 2, 3]).filter(x => true);
     expect(a.size).toBe(undefined); // Note: lazy filter does not know what size in O(1).
     expect(a.concat(a, a).toKeyedSeq().reverse().size).toBe(undefined);
     expect(a.concat(a, a).toKeyedSeq().reverse().toArray()).toEqual([
@@ -199,7 +176,7 @@ describe('concat', () => {
   });
 
   it('counts from the end of the indexed sequence on negative index', () => {
-    const i = List.of(9, 5, 3, 1).map((x) => -x);
+    const i = List.of(9, 5, 3, 1).map(x => -x);
     expect(i.get(0)).toBe(-9);
     expect(i.get(-1)).toBe(-1);
     expect(i.get(-4)).toBe(-9);

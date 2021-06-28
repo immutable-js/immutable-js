@@ -9,7 +9,7 @@ module.exports = (request, options) => {
     }
 
     // in development mode, we want sourcemaps and live reload, etc, so let's point to the src/ directory
-    return path.resolve('src', 'Immutable.js');
+    return `${options.rootDir}/src/Immutable.js`;
   }
 
   // Call the defaultResolver, if we want to load non-immutable

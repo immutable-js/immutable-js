@@ -3,12 +3,12 @@
     "target": "es2015",
     "module": "commonjs",
     "sourceMap": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "lib": ["es2015"],
-    "types": []
+    "strict": true,
+    "types": [],
+    "noEmit": true,
+    "lib": [
+      "es2015"
+    ]
   },
   "exclude": ["node_modules"]
 }

@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 ///<reference path='../resources/jest.d.ts'/>
 
 declare var Symbol: any;
@@ -98,7 +91,7 @@ describe('Set', () => {
 
   it('maps no-ops return the same reference', () => {
     const s = Set([1, 2, 3]);
-    const r = s.map((value) => value);
+    const r = s.map(value => value);
     expect(r).toBe(s);
   });
 
@@ -107,7 +100,7 @@ describe('Set', () => {
     expect(s.has(4)).toBe(false);
     expect(s.size).toBe(3);
 
-    const m = s.map((v) => v + 1);
+    const m = s.map(v => v + 1);
     expect(m.has(1)).toBe(false);
     expect(m.has(2)).toBe(true);
     expect(m.has(3)).toBe(true);
@@ -251,7 +244,7 @@ describe('Set', () => {
 
   it('can use union in a withMutation', () => {
     const js = Set()
-      .withMutations((set) => {
+      .withMutations(set => {
         set.union(['a']);
         set.add('b');
       })
@@ -310,7 +303,7 @@ describe('Set', () => {
   });
 
   it('can use intersect after add or union in a withMutation', () => {
-    const set = Set(['a', 'd']).withMutations((s) => {
+    const set = Set(['a', 'd']).withMutations(s => {
       s.add('b');
       s.union(['c']);
       s.intersect(['b', 'c', 'd']);
@@ -322,8 +315,8 @@ describe('Set', () => {
     const set = Set([1, 2, 3, 4, 5]);
     expect(set.size).toEqual(5);
     expect(set.count()).toEqual(5);
-    expect(set.count((x) => x % 2 === 0)).toEqual(2);
-    expect(set.count((x) => true)).toEqual(5);
+    expect(set.count(x => x % 2 === 0)).toEqual(2);
+    expect(set.count(x => true)).toEqual(5);
   });
 
   describe('"size" should correctly reflect the number of elements in a Set', () => {
@@ -344,7 +337,7 @@ describe('Set', () => {
         }
       }
       it('with mutations', () => {
-        const testSet = Set().withMutations((mutableSet) => {
+        const testSet = Set().withMutations(mutableSet => {
           mutableSet.add(new Entity('hello', 'world'));
           mutableSet.add(new Entity('testing', 'immutable'));
           mutableSet.add(new Entity('hello', 'world'));

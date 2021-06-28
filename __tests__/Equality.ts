@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 ///<reference path='../resources/jest.d.ts'/>
 
 import * as jasmineCheck from 'jasmine-check';
@@ -103,11 +96,11 @@ describe('Equality', () => {
     expectIs(arraySeq, arraySeq2);
     expectIs(
       arraySeq,
-      arraySeq.map((x) => x)
+      arraySeq.map(x => x)
     );
     expectIs(
       arraySeq2,
-      arraySeq2.map((x) => x)
+      arraySeq2.map(x => x)
     );
   });
 

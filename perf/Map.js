@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 describe('Map', function () {
   describe('builds from an object', function () {
     var obj2 = {};
@@ -125,7 +118,7 @@ describe('Map', function () {
   });
 
   describe('merge a map', () => {
-    [2, 8, 32, 1024].forEach((size) => {
+    [2, 8, 32, 1024].forEach(size => {
       const obj1 = {};
       const obj2 = {};
       for (let ii = 0; ii < size; ii++) {

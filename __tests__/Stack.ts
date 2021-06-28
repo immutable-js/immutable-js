@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 ///<reference path='../resources/jest.d.ts'/>
 
 import * as jasmineCheck from 'jasmine-check';
@@ -92,7 +85,7 @@ describe('Stack', () => {
     ]);
 
     // map will cause reverse iterate
-    expect(s.map((val) => val + val).toArray()).toEqual(['aa', 'bb', 'cc']);
+    expect(s.map(val => val + val).toArray()).toEqual(['aa', 'bb', 'cc']);
 
     let iteratorResults: Array<any> = [];
     let iterator = s.entries();
@@ -146,7 +139,7 @@ describe('Stack', () => {
     'shift removes the lowest index, just like array',
     { maxSize: 2000 },
     [gen.posInt],
-    (len) => {
+    len => {
       const a = arrayOfSize(len);
       let s = Stack(a);
 
@@ -165,7 +158,7 @@ describe('Stack', () => {
     'unshift adds the next lowest index, just like array',
     { maxSize: 2000 },
     [gen.posInt],
-    (len) => {
+    len => {
       const a: Array<any> = [];
       let s = Stack();
 

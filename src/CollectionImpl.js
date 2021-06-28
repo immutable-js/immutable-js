@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import {
   Collection,
   KeyedCollection,
@@ -191,7 +184,7 @@ mixin(Collection, {
   },
 
   includes(searchValue) {
-    return this.some((value) => is(value, searchValue));
+    return this.some(value => is(value, searchValue));
   },
 
   entries() {
@@ -229,7 +222,7 @@ mixin(Collection, {
     separator = separator !== undefined ? '' + separator : ',';
     let joined = '';
     let isFirst = true;
-    this.__iterate((v) => {
+    this.__iterate(v => {
       isFirst ? (isFirst = false) : (joined += separator);
       joined += v !== null && v !== undefined ? v.toString() : '';
     });
@@ -389,7 +382,7 @@ mixin(Collection, {
 
   isSubset(iter) {
     iter = typeof iter.includes === 'function' ? iter : Collection(iter);
-    return this.every((value) => iter.includes(value));
+    return this.every(value => iter.includes(value));
   },
 
   isSuperset(iter) {
@@ -398,7 +391,7 @@ mixin(Collection, {
   },
 
   keyOf(searchValue) {
-    return this.findKey((value) => is(value, searchValue));
+    return this.findKey(value => is(value, searchValue));
   },
 
   keySeq() {
@@ -766,10 +759,10 @@ function hashCollection(collection) {
             h = (h + hashMerge(hash(v), hash(k))) | 0;
           }
       : ordered
-      ? (v) => {
+      ? v => {
           h = (31 * h + hash(v)) | 0;
         }
-      : (v) => {
+      : v => {
           h = (h + hash(v)) | 0;
         }
   );

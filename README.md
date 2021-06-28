@@ -1,17 +1,6 @@
 # Immutable collections for JavaScript: Community Maintained Edition
 
-This is a fork of Immutable-JS intended to serve has home to active development
-during the period (February 2019 - ???) when Immutable.js has no active
-maintainers. If all goes well this repository will be deprecated and merged
-back into the main immutable repository as soon as that repository has active
-maintainers.
-
-The present scope of this fork is limited to the bug fixes and polish necessary to
-make the long-awaited `immutable@4.0` release.
-
-This repo will be released under the npm package name `immutable-oss`.
-
-[![Build Status](https://travis-ci.com/immutable-js-oss/immutable-js.svg?branch=master)](https://travis-ci.com/immutable-js-oss/immutable-js) [![Join the chat at https://gitter.im/immutable-js/Lobby](https://badges.gitter.im/immutable-js/Lobby.svg)](https://gitter.im/immutable-js/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://github.com/immutable-js/immutable-js/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/immutable-js/immutable-js/actions/workflows/ci.yml?query=branch%3Amain) [Chat on slack](https://immutable-js.slack.com)
 
 [Immutable][] data cannot be changed once created, leading to much simpler
 application development, no defensive copying, and enabling advanced memoization
@@ -34,23 +23,23 @@ Want to hear more? Watch the presentation about Immutable.js:
 
 <a href="https://youtu.be/I7IdS-PbEgI" target="_blank" alt="Immutable Data and React"><img src="https://img.youtube.com/vi/I7IdS-PbEgI/0.jpg" /></a>
 
-[persistent]: http://en.wikipedia.org/wiki/Persistent_data_structure
-[immutable]: http://en.wikipedia.org/wiki/Immutable_object
-[hash maps tries]: http://en.wikipedia.org/wiki/Hash_array_mapped_trie
-[vector tries]: http://hypirion.com/musings/understanding-persistent-vector-pt-1
+[Persistent]: https://en.wikipedia.org/wiki/Persistent_data_structure
+[Immutable]: https://en.wikipedia.org/wiki/Immutable_object
+[hash maps tries]: https://en.wikipedia.org/wiki/Hash_array_mapped_trie
+[vector tries]: https://hypirion.com/musings/understanding-persistent-vector-pt-1
 
 ## Getting started
 
-Install `immutable-oss` using npm.
+Install `immutable` using npm.
 
 ```shell
-npm install immutable-oss
+npm install immutable
 ```
 
 Or install using yarn.
 
 ```shell
-yarn add immutable-oss
+yarn add immutable
 ```
 
 Then require it into any module.
@@ -58,7 +47,7 @@ Then require it into any module.
 <!-- runkit:activate -->
 
 ```js
-const { Map } = require('immutable-oss');
+const { Map } = require('immutable');
 const map1 = Map({ a: 1, b: 2, c: 3 });
 const map2 = map1.set('b', 50);
 map1.get('b') + ' vs. ' + map2.get('b'); // 2 vs. 50
@@ -70,7 +59,7 @@ Immutable.js has no dependencies, which makes it predictable to include in a Bro
 
 It's highly recommended to use a module bundler like [webpack](https://webpack.github.io/),
 [rollup](https://rollupjs.org/), or
-[browserify](http://browserify.org/). The `immutable` npm module works
+[browserify](https://browserify.org/). The `immutable` npm module works
 without any additional consideration. All examples throughout the documentation
 will assume use of this kind of tool.
 
@@ -90,7 +79,7 @@ Use a script tag to directly add `Immutable` to the global scope:
 </script>
 ```
 
-Or use an AMD-style loader (such as [RequireJS](http://requirejs.org/)):
+Or use an AMD-style loader (such as [RequireJS](https://requirejs.org/)):
 
 ```js
 require(['./immutable.min.js'], function (Immutable) {
@@ -104,7 +93,7 @@ require(['./immutable.min.js'], function (Immutable) {
 ### Flow & TypeScript
 
 Use these Immutable collections and sequences as you would use native
-collections in your [Flowtype](https://flowtype.org/) or [TypeScript](http://typescriptlang.org) programs while still taking
+collections in your [Flowtype](https://flowtype.org/) or [TypeScript](https://typescriptlang.org) programs while still taking
 advantage of type generics, error detection, and auto-complete in your IDE.
 
 Installing `immutable` via npm brings with it type definitions for Flow (v0.55.0 or higher)
@@ -121,7 +110,7 @@ lib. Include either `"target": "es2015"` or `"lib": "es2015"` in your
 <!-- runkit:activate -->
 
 ```js
-const { Map } = require('immutable-oss');
+const { Map } = require('immutable');
 const map1 = Map({ a: 1, b: 2, c: 3 });
 const map2 = map1.set('b', 50);
 map1.get('b') + ' vs. ' + map2.get('b'); // 2 vs. 50
@@ -133,8 +122,8 @@ Previous versions of Immutable.js include a reference file which you can include
 via relative path to the type definitions at the top of your file.
 
 ```js
-///<reference path='./node_modules/immutable-oss/dist/immutable.d.ts'/>
-import Immutable from require('immutable-oss');
+///<reference path='./node_modules/immutable/dist/immutable.d.ts'/>
+import Immutable from require('immutable');
 var map1: Immutable.Map<string, number>;
 map1 = Immutable.Map({ a: 1, b: 2, c: 3 });
 var map2 = map1.set('b', 50);
@@ -172,7 +161,7 @@ instead of the `===` operator which determines object _reference identity_.
 <!-- runkit:activate -->
 
 ```js
-const { Map } = require('immutable-oss');
+const { Map } = require('immutable');
 const map1 = Map({ a: 1, b: 2, c: 3 });
 const map2 = Map({ a: 1, b: 2, c: 3 });
 map1.equals(map2); // true
@@ -190,7 +179,7 @@ potentially be more costly. The `===` equality check is also used internally by
 <!-- runkit:activate -->
 
 ```js
-const { Map } = require('immutable-oss');
+const { Map } = require('immutable');
 const map1 = Map({ a: 1, b: 2, c: 3 });
 const map2 = map1.set('b', 2); // Set to same value
 map1 === map2; // true
@@ -204,13 +193,14 @@ execution speed for programs which rely on copies (such as an undo-stack).
 <!-- runkit:activate -->
 
 ```js
-const { Map } = require('immutable-oss');
+const { Map } = require('immutable');
 const map = Map({ a: 1, b: 2, c: 3 });
 const mapCopy = map; // Look, "copies" are free!
 ```
 
-[react]: http://facebook.github.io/react/
-[flux]: http://facebook.github.io/flux/docs/overview.html
+[React]: https://reactjs.org/
+[Flux]: https://facebook.github.io/flux/docs/in-depth-overview/
+
 
 ## JavaScript-first API
 
@@ -232,7 +222,7 @@ instead return new immutable collections.
 <!-- runkit:activate -->
 
 ```js
-const { List } = require('immutable-oss');
+const { List } = require('immutable');
 const list1 = List([1, 2]);
 const list2 = list1.push(3, 4, 5);
 const list3 = list2.unshift(0);
@@ -252,7 +242,7 @@ and `map()`.
 <!-- runkit:activate -->
 
 ```js
-const { Map } = require('immutable-oss');
+const { Map } = require('immutable');
 const alpha = Map({ a: 1, b: 2, c: 3, d: 4 });
 alpha.map((v, k) => k.toUpperCase()).join();
 // 'A,B,C,D'
@@ -267,7 +257,7 @@ accepts plain JavaScript Arrays and Objects anywhere a method expects a
 <!-- runkit:activate -->
 
 ```js
-const { Map, List } = require('immutable-oss');
+const { Map, List } = require('immutable');
 const map1 = Map({ a: 1, b: 2, c: 3, d: 4 });
 const map2 = Map({ c: 10, a: 20, t: 30 });
 const obj = { d: 100, o: 200, g: 300 };
@@ -289,7 +279,7 @@ results, these operations can be extremely efficient.
 <!-- runkit:activate -->
 
 ```js
-const { Seq } = require('immutable-oss');
+const { Seq } = require('immutable');
 const myObject = { a: 1, b: 2, c: 3 };
 Seq(myObject)
   .map((x) => x * x)
@@ -304,7 +294,7 @@ shorthand, while Immutable Maps accept keys of any type.
 <!-- runkit:activate -->
 
 ```js
-const { fromJS } = require('immutable-oss');
+const { fromJS } = require('immutable');
 
 const obj = { 1: 'one' };
 console.log(Object.keys(obj)); // [ "1" ]
@@ -329,7 +319,7 @@ nested objects.
 <!-- runkit:activate -->
 
 ```js
-const { Map, List } = require('immutable-oss');
+const { Map, List } = require('immutable');
 const deep = Map({ a: 1, b: 2, c: List([3, 4, 5]) });
 console.log(deep.toObject()); // { a: 1, b: 2, c: List [ 3, 4, 5 ] }
 console.log(deep.toArray()); // [ 1, 2, List [ 3, 4, 5 ] ]
@@ -363,7 +353,7 @@ used anywhere an Iterable is expected, such as when spreading into an Array.
 <!-- runkit:activate -->
 
 ```js
-const { List } = require('immutable-oss');
+const { List } = require('immutable');
 const aList = List([1, 2, 3]);
 const anArray = [0, ...aList, 4, 5]; // [ 0, 1, 2, 3, 4, 5 ]
 ```
@@ -371,10 +361,11 @@ const anArray = [0, ...aList, 4, 5]; // [ 0, 1, 2, 3, 4, 5 ]
 Note: A Collection is always iterated in the same order, however that order may
 not always be well defined, as is the case for the `Map` and `Set`.
 
-[iterators]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/The_Iterator_protocol
-[arrow functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
-[classes]: http://wiki.ecmascript.org/doku.php?id=strawman:maximally_minimal_classes
-[modules]: http://www.2ality.com/2014/09/es6-modules-final.html
+[Iterators]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/The_Iterator_protocol
+[Arrow Functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
+[Classes]: https://wiki.ecmascript.org/doku.php?id=strawman:maximally_minimal_classes
+[Modules]: https://www.2ality.com/2014/09/es6-modules-final.html
+
 
 ## Nested Structures
 
@@ -384,7 +375,7 @@ trees of data, similar to JSON.
 <!-- runkit:activate -->
 
 ```js
-const { fromJS } = require('immutable-oss');
+const { fromJS } = require('immutable');
 const nested = fromJS({ a: { b: { c: [3, 4, 5] } } });
 // Map { a: Map { b: Map { c: List [ 3, 4, 5 ] } } }
 ```
@@ -396,7 +387,7 @@ most useful are `mergeDeep`, `getIn`, `setIn`, and `updateIn`, found on `List`,
 <!-- runkit:activate -->
 
 ```js
-const { fromJS } = require('immutable-oss');
+const { fromJS } = require('immutable');
 const nested = fromJS({ a: { b: { c: [3, 4, 5] } } });
 
 const nested2 = nested.mergeDeep({ a: { b: { d: 6 } } });
@@ -431,7 +422,7 @@ const obj1 = { a: 1, b: 2, c: 3 };
 const obj2 = { a: 1, b: 2, c: 3 };
 obj1 !== obj2; // two different instances are always not equal with ===
 
-const { Map, is } = require('immutable-oss');
+const { Map, is } = require('immutable');
 const map1 = Map({ a: 1, b: 2, c: 3 });
 const map2 = Map({ a: 1, b: 2, c: 3 });
 map1 !== map2; // two different instances are not reference-equal
@@ -445,7 +436,7 @@ values in Sets, and retrieved with different but equivalent collections:
 <!-- runkit:activate -->
 
 ```js
-const { Map, Set } = require('immutable-oss');
+const { Map, Set } = require('immutable');
 const map1 = Map({ a: 1, b: 2, c: 3 });
 const map2 = Map({ a: 1, b: 2, c: 3 });
 const set = Set().add(map1);
@@ -485,7 +476,7 @@ to quickly determine if no change occurred.
 <!-- runkit:activate -->
 
 ```js
-const { Map } = require('immutable-oss');
+const { Map } = require('immutable');
 const originalMap = Map({ a: 1, b: 2, c: 3 });
 const updatedMap = originalMap.set('b', 2);
 updatedMap === originalMap; // No-op .set() returned the original reference.
@@ -498,7 +489,7 @@ the same reference:
 <!-- runkit:activate -->
 
 ```js
-const { Map } = require('immutable-oss');
+const { Map } = require('immutable');
 const originalMap = Map({ a: 1, b: 2, c: 3 });
 const updatedMap = originalMap.set('b', 1000);
 // New instance, leaving the original immutable.
@@ -532,7 +523,7 @@ immutable Lists.
 <!-- runkit:activate -->
 
 ```js
-const { List } = require('immutable-oss');
+const { List } = require('immutable');
 const list1 = List([1, 2, 3]);
 const list2 = list1.withMutations(function (list) {
   list.push(4).push(5).push(6);
@@ -570,7 +561,7 @@ For example, the following performs no work, because the resulting
 `Seq`'s values are never iterated:
 
 ```js
-const { Seq } = require('immutable-oss');
+const { Seq } = require('immutable');
 const oddSquares = Seq([1, 2, 3, 4, 5, 6, 7, 8])
   .filter((x) => x % 2 !== 0)
   .map((x) => x * x);
@@ -589,7 +580,7 @@ Any collection can be converted to a lazy Seq with `Seq()`.
 <!-- runkit:activate -->
 
 ```js
-const { Map, Seq } = require('immutable-oss');
+const { Map, Seq } = require('immutable');
 const map = Map({ a: 1, b: 2, c: 3 });
 const lazySeq = Seq(map);
 ```
@@ -611,7 +602,7 @@ limited, for example `Range` is a special kind of Lazy sequence.
 <!-- runkit:activate -->
 
 ```js
-const { Range } = require('immutable-oss');
+const { Range } = require('immutable');
 Range(1, Infinity)
   .skip(1000)
   .map((n) => -n)
@@ -623,27 +614,37 @@ Range(1, Infinity)
 
 ## Documentation
 
-[Read the docs](https://immutable-js-oss.github.io/immutable-js/docs/) and eat your vegetables.
+Documentation
+-------------
 
-Docs are automatically generated from [Immutable.d.ts](https://github.com/immutable-js-oss/immutable-js/blob/master/type-definitions/Immutable.d.ts).
+[Read the docs](https://immutable-js.com) and eat your vegetables.
+
+Docs are automatically generated from [Immutable.d.ts](https://github.com/immutable-js/immutable-js/blob/main/type-definitions/Immutable.d.ts).
 Please contribute!
 
-Also, don't miss the [Wiki](https://github.com/facebook/immutable-js/wiki) which
-contains articles on specific topics. Can't find something? Open an [issue](https://github.com/immutable-js-oss/immutable-js/issues).
+Also, don't miss the [Wiki](https://github.com/immutable-js/immutable-js/wiki) which
+contains articles on specific topics. Can't find something? Open an [issue](https://github.com/immutable-js/immutable-js/issues).
 
 ## Testing
 
-If you are using the [Chai Assertion Library](http://chaijs.com/), [Chai Immutable](https://github.com/astorije/chai-immutable) provides a set of assertions to use against Immutable.js collections.
+If you are using the [Chai Assertion Library](https://chaijs.com/), [Chai Immutable](https://github.com/astorije/chai-immutable) provides a set of assertions to use against Immutable.js collections.
 
 ## Contribution
 
-Use [Github issues](https://github.com/immutable-js-oss/immutable-js/issues) for requests.
+Contribution
+------------
 
-We actively welcome pull requests, learn how to [contribute](https://github.com/immutable-js-oss/immutable-js/blob/master/.github/CONTRIBUTING.md).
+Use [Github issues](https://github.com/immutable-js/immutable-js/issues) for requests.
+
+We actively welcome pull requests, learn how to [contribute](https://github.com/immutable-js/immutable-js/blob/main/.github/CONTRIBUTING.md).
+
+Immutable.js is maintained within the [Contributor Covenant's Code of Conduct](https://www.contributor-covenant.org/version/2/0/code_of_conduct/).
+
+We actively welcome pull requests, learn how to [contribute](https://github.com/immutable-js/immutable-js/blob/main/.github/CONTRIBUTING.md).
 
 ## Changelog
 
-Changes are tracked as [Github releases](https://github.com/immutable-js-oss/immutable-js/releases).
+Changes are tracked as [Github releases](https://github.com/immutable-js/immutable-js/releases).
 
 ## Thanks
 
@@ -655,4 +656,7 @@ name. If you're looking for his unsupported package, see [this repository](https
 
 ## License
 
-Immutable.js is [MIT-licensed](https://github.com/immutable-js-oss/immutable-js/blob/master/LICENSE).
+License
+-------
+
+Immutable.js is [MIT-licensed](./LICENSE).

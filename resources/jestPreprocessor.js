@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 var typescript = require('typescript');
 const makeSynchronous = require('make-synchronous');
 
@@ -24,7 +17,7 @@ function transpileTypeScript(src, path) {
 function transpileJavaScript(src, path) {
   // Need to make this sync by calling `makeSynchronous`
   // while https://github.com/facebook/jest/issues/9504 is not resolved
-  const fn = makeSynchronous(async (path) => {
+  const fn = makeSynchronous(async path => {
     const rollup = require('rollup');
     const buble = require('rollup-plugin-buble');
     const commonjs = require('rollup-plugin-commonjs');
@@ -40,13 +33,23 @@ function transpileJavaScript(src, path) {
 
     const bundle = await rollup.rollup(inputOptions);
 
-    const output = await bundle.generate({
+    const { output } = await bundle.generate({
       file: path,
       format: 'cjs',
       sourcemap: true,
     });
 
-    return { code: output.code, map: output.map };
+    await bundle.close();
+
+    const { code, map } = output[0];
+
+    if (!code) {
+      throw new Error(
+        'Unable to get code from rollup output in jestPreprocessor. Did rollup version changed ?'
+      );
+    }
+
+    return { code, map };
   });
 
   return fn(path);

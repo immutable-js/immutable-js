@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import { toJS } from './toJS';
 import { KeyedCollection } from './Collection';
 import { keyedSeqFromValue } from './Seq';
@@ -94,7 +87,7 @@ export class Record {
         }
       }
       this.__ownerID = undefined;
-      this._values = List().withMutations((l) => {
+      this._values = List().withMutations(l => {
         l.setSize(this._keys.length);
         KeyedCollection(values).forEach((v, k) => {
           l.set(this._indices[k], v === this._defaultValues[k] ? undefined : v);
@@ -103,9 +96,8 @@ export class Record {
       return this;
     };
 
-    const RecordTypePrototype = (RecordType.prototype = Object.create(
-      RecordPrototype
-    ));
+    const RecordTypePrototype = (RecordType.prototype =
+      Object.create(RecordPrototype));
     RecordTypePrototype.constructor = RecordType;
 
     if (name) {
@@ -253,7 +245,7 @@ function recordName(record) {
 }
 
 function recordSeq(record) {
-  return keyedSeqFromValue(record._keys.map((k) => [k, record.get(k)]));
+  return keyedSeqFromValue(record._keys.map(k => [k, record.get(k)]));
 }
 
 function setProp(prototype, name) {

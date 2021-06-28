@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 ///<reference path='../resources/jest.d.ts'/>
 
 import * as jasmineCheck from 'jasmine-check';
@@ -33,7 +26,7 @@ describe('max', () => {
       { name: 'Casey', age: 34 },
       { name: 'Avery', age: 34 },
     ]);
-    expect(family.maxBy((p) => p.age)).toBe(family.get(2));
+    expect(family.maxBy(p => p.age)).toBe(family.get(2));
   });
 
   it('by a mapper and a comparator', () => {
@@ -45,7 +38,7 @@ describe('max', () => {
     ]);
     expect(
       family.maxBy<number>(
-        (p) => p.age,
+        p => p.age,
         (a, b) => b - a
       )
     ).toBe(family.get(0));
@@ -62,7 +55,7 @@ describe('max', () => {
     expect(is(2, Seq([-1, -2, null, 1, 2]).max())).toBe(true);
   });
 
-  check.it('is not dependent on order', [genHeterogeneousishArray], (vals) => {
+  check.it('is not dependent on order', [genHeterogeneousishArray], vals => {
     expect(is(Seq(shuffle(vals.slice())).max(), Seq(vals).max())).toEqual(true);
   });
 });
@@ -83,7 +76,7 @@ describe('min', () => {
       { name: 'Casey', age: 34 },
       { name: 'Avery', age: 34 },
     ]);
-    expect(family.minBy((p) => p.age)).toBe(family.get(0));
+    expect(family.minBy(p => p.age)).toBe(family.get(0));
   });
 
   it('by a mapper and a comparator', () => {
@@ -95,13 +88,13 @@ describe('min', () => {
     ]);
     expect(
       family.minBy<number>(
-        (p) => p.age,
+        p => p.age,
         (a, b) => b - a
       )
     ).toBe(family.get(2));
   });
 
-  check.it('is not dependent on order', [genHeterogeneousishArray], (vals) => {
+  check.it('is not dependent on order', [genHeterogeneousishArray], vals => {
     expect(is(Seq(shuffle(vals.slice())).min(), Seq(vals).min())).toEqual(true);
   });
 });

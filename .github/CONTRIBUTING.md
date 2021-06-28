@@ -15,13 +15,9 @@ request can then be merged!
 The next best way to report a bug is to provide a reduced test case on jsFiddle
 or jsBin or produce exact code inline in the issue which will reproduce the bug.
 
-Facebook has a [bounty program](https://www.facebook.com/whitehat/) for the safe
-disclosure of security bugs. In those cases, please go through the process
-outlined on that page and do not file a public issue.
-
 # Code of Conduct
 
-The code of conduct is described in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
+Immutable.js is maintained within the [Contributor Covenant's Code of Conduct](https://www.contributor-covenant.org/version/2/0/code_of_conduct/).
 
 # Pull Requests
 
@@ -37,16 +33,9 @@ your [pull requests](https://help.github.com/articles/creating-a-pull-request).
 
 ## Documentation
 
-Documentation for Immutable.js (hosted at http://facebook.github.io/immutable-js)
+Documentation for Immutable.js (hosted at http://immutable-js.github.io/immutable-js)
 is developed in `pages/`. Run `npm start` to get a local copy in your browser
 while making edits.
-
-## Contributor License Agreement ("CLA")
-
-In order to accept your pull request, we need you to submit a CLA. You only need
-to do this once to work on any of Facebook's open source projects.
-
-Complete your CLA here: <https://code.facebook.com/cla>
 
 ## Coding Style
 
@@ -79,7 +68,6 @@ git checkout -b master upstream/master
 ```
 
 These commands build `dist` and commit `dist/immutable.js` to `master` so that the regression tests can run.
-
 ```bash
 npm run test
 git add dist/immutable.js -f
@@ -96,7 +84,7 @@ npm run perf
 Sample output:
 
 ```bash
-> immutable@4.0.0-rc.9 perf ~/github.com/facebook/immutable-js
+> immutable@4.0.0-rc.9 perf ~/github.com/immutable-js/immutable-js
 > node ./resources/bench.js
 
 List > builds from array of 2

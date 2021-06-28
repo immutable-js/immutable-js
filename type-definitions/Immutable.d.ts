@@ -1,11 +1,4 @@
 /**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-/**
  * Immutable data encourages pure functions (data-in, data-out) and lends itself
  * to much simpler application development and enabling techniques from
  * functional programming such as lazy evaluation.
@@ -92,7 +85,7 @@
  * ```
  *
  * [ES2015]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/ECMAScript_6_support_in_Mozilla
- * [TypeScript]: http://www.typescriptlang.org/
+ * [TypeScript]: https://www.typescriptlang.org/
  * [Flow]: https://flowtype.org/
  * [Iterable]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols
  */
@@ -178,9 +171,9 @@ declare module Immutable {
    * listFromPlainSet.equals(listFromPlainArray) // true
    * ```
    */
-  export function List(): List<unknown>;
-  export function List<T>(): List<T>;
   export function List<T>(collection: Iterable<T>): List<T>;
+  export function List<T>(): List<T>;
+  export function List(): List<unknown>;
 
   export interface List<T> extends Collection.Indexed<T> {
     /**
@@ -1647,9 +1640,9 @@ declare module Immutable {
    * Note: `Set` is a factory function and not a class, and does not use the
    * `new` keyword during construction.
    */
-  export function Set(): Set<unknown>;
-  export function Set<T>(): Set<T>;
   export function Set<T>(collection: Iterable<T>): Set<T>;
+  export function Set<T>(): Set<T>;
+  export function Set(): Set<unknown>;
 
   export interface Set<T> extends Collection.Set<T> {
     /**
@@ -1827,9 +1820,9 @@ declare module Immutable {
    * Note: `OrderedSet` is a factory function and not a class, and does not use
    * the `new` keyword during construction.
    */
-  export function OrderedSet(): OrderedSet<unknown>;
-  export function OrderedSet<T>(): OrderedSet<T>;
   export function OrderedSet<T>(collection: Iterable<T>): OrderedSet<T>;
+  export function OrderedSet<T>(): OrderedSet<T>;
+  export function OrderedSet(): OrderedSet<unknown>;
 
   export interface OrderedSet<T> extends Set<T> {
     /**
@@ -1993,9 +1986,9 @@ declare module Immutable {
    * Note: `Stack` is a factory function and not a class, and does not use the
    * `new` keyword during construction.
    */
-  export function Stack(): Stack<unknown>;
-  export function Stack<T>(): Stack<T>;
   export function Stack<T>(collection: Iterable<T>): Stack<T>;
+  export function Stack<T>(): Stack<T>;
+  export function Stack(): Stack<unknown>;
 
   export interface Stack<T> extends Collection.Indexed<T> {
     /**
@@ -2884,9 +2877,9 @@ declare module Immutable {
      * Note: `Seq.Indexed` is a conversion function and not a class, and does
      * not use the `new` keyword during construction.
      */
-    export function Indexed(): Seq.Indexed<unknown>;
-    export function Indexed<T>(): Seq.Indexed<T>;
     export function Indexed<T>(collection: Iterable<T>): Seq.Indexed<T>;
+    export function Indexed<T>(): Seq.Indexed<T>;
+    export function Indexed(): Seq.Indexed<unknown>;
 
     export interface Indexed<T> extends Seq<number, T>, Collection.Indexed<T> {
       /**
@@ -3046,9 +3039,9 @@ declare module Immutable {
      * Note: `Seq.Set` is a conversion function and not a class, and does not
      * use the `new` keyword during construction.
      */
-    export function Set(): Seq.Set<unknown>;
-    export function Set<T>(): Seq.Set<T>;
     export function Set<T>(collection: Iterable<T>): Seq.Set<T>;
+    export function Set<T>(): Seq.Set<T>;
+    export function Set(): Seq.Set<unknown>;
 
     export interface Set<T> extends Seq<T, T>, Collection.Set<T> {
       /**
@@ -3934,7 +3927,7 @@ declare module Immutable {
      * to be equal][Hash Collision]. If two values have different `hashCode`s,
      * they must not be equal.
      *
-     * [Hash Collision]: http://en.wikipedia.org/wiki/Collision_(computer_science)
+     * [Hash Collision]: https://en.wikipedia.org/wiki/Collision_(computer_science)
      */
     hashCode(): number;
 
@@ -4842,7 +4835,7 @@ declare module Immutable {
      * organize their internal data structures, while all Immutable.js
      * collections use equality during lookups.
      *
-     * [Hash Collision]: http://en.wikipedia.org/wiki/Collision_(computer_science)
+     * [Hash Collision]: https://en.wikipedia.org/wiki/Collision_(computer_science)
      */
     hashCode(): number;
   }

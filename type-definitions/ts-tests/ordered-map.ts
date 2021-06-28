@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import { OrderedMap, List } from '../../';
 
 {
@@ -12,6 +5,9 @@ import { OrderedMap, List } from '../../';
 
   // $ExpectType OrderedMap<unknown, unknown>
   OrderedMap();
+
+  // $ExpectType OrderedMap<number, number>
+  OrderedMap<number, number>();
 
   // $ExpectType OrderedMap<number, string>
   OrderedMap([[1, 'a']]);
@@ -24,8 +20,9 @@ import { OrderedMap, List } from '../../';
   // $ExpectType OrderedMap<string, number>
   OrderedMap({ a: 1 });
 
-  // $ExpectError
-  const invalidNumberOrderedMap: OrderedMap<number, number> = OrderedMap();
+  // No longer works in typescript@>=3.9
+  // // $ExpectError - TypeScript does not support Lists as tuples
+  // OrderedMap(List([List(['a', 'b'])]));
 }
 
 {
@@ -397,10 +394,7 @@ import { OrderedMap, List } from '../../';
   );
 
   // $ExpectType OrderedMap<number, string | number>
-  OrderedMap<number, number | string>().mergeWith(
-    (prev: number | string, next: number | string, key: number) => 1,
-    OrderedMap<number, string>()
-  );
+  OrderedMap<number, number | string>().mergeWith((prev: number | string, next: number | string, key: number) => 1, OrderedMap<number, string>());
 }
 
 {
@@ -436,34 +430,19 @@ import { OrderedMap, List } from '../../';
   // #mergeDeepWith
 
   // $ExpectType OrderedMap<number, number>
-  OrderedMap<number, number>().mergeDeepWith(
-    (prev: unknown, next: unknown, key: unknown) => 1,
-    OrderedMap<number, number>()
-  );
+  OrderedMap<number, number>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, OrderedMap<number, number>());
 
-  OrderedMap<number, number>().mergeDeepWith(
-    // $ExpectError
-    (prev: number, next: number, key: number) => 1,
-    OrderedMap<number, string>()
-  );
+  // $ExpectError
+  OrderedMap<number, number>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, OrderedMap<number, string>());
 
   // $ExpectType OrderedMap<string, number>
-  OrderedMap<string, number>().mergeDeepWith(
-    (prev: unknown, next: unknown, key: unknown) => 1,
-    { a: 1 }
-  );
+  OrderedMap<string, number>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, { a: 1 });
 
-  OrderedMap<string, number>().mergeDeepWith(
-    // $ExpectError
-    (prev: number, next: number, key: string) => 1,
-    { a: 'a' }
-  );
+  // $ExpectError
+  OrderedMap<string, number>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, { a: 'a' });
 
   // $ExpectType OrderedMap<number, string | number>
-  OrderedMap<number, number | string>().mergeDeepWith(
-    (prev: unknown, next: unknown, key: unknown) => 1,
-    OrderedMap<number, string>()
-  );
+  OrderedMap<number, number | string>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, OrderedMap<number, string>());
 }
 
 {

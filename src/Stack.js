@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import { wholeSlice, resolveBegin, resolveEnd, wrapIndex } from './TrieUtils';
 import { IndexedCollection } from './Collection';
 import { ArraySeq } from './Seq';
@@ -85,7 +78,7 @@ export class Stack extends IndexedCollection {
     assertNotInfinite(iter.size);
     let newSize = this.size;
     let head = this._head;
-    iter.__iterate((value) => {
+    iter.__iterate(value => {
       newSize++;
       head = {
         value: value,

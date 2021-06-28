@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 ///<reference path='../resources/jest.d.ts'/>
 
 import * as jasmineCheck from 'jasmine-check';
@@ -57,7 +50,7 @@ describe('zip', () => {
 
   it('has unknown size when zipped with unknown size', () => {
     const seq = Range(0, 10);
-    const zipped = seq.zip(seq.filter((n) => n % 2 === 0));
+    const zipped = seq.zip(seq.filter(n => n % 2 === 0));
     expect(zipped.size).toBe(undefined);
     expect(zipped.count()).toBe(5);
   });
@@ -65,8 +58,8 @@ describe('zip', () => {
   check.it(
     'is always the size of the smaller sequence',
     [gen.notEmpty(gen.array(gen.posInt))],
-    (lengths) => {
-      const ranges = lengths.map((l) => Range(0, l));
+    lengths => {
+      const ranges = lengths.map(l => Range(0, l));
       const first = ranges.shift();
       const zipped = first.zip.apply(first, ranges);
       const shortestLength = Math.min.apply(Math, lengths);
@@ -118,8 +111,8 @@ describe('zip', () => {
     check.it(
       'is always the size of the longest sequence',
       [gen.notEmpty(gen.array(gen.posInt))],
-      (lengths) => {
-        const ranges = lengths.map((l) => Range(0, l));
+      lengths => {
+        const ranges = lengths.map(l => Range(0, l));
         const first = ranges.shift();
         const zipped = first.zipAll.apply(first, ranges);
         const longestLength = Math.max.apply(Math, lengths);

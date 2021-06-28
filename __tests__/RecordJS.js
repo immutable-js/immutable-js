@@ -1,11 +1,6 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
+const { Record } = require('../src/Immutable');
 
-const { Record } = require('immutable');
+// TODO maybe this : ? const { Record } = require('immutable');
 
 describe('Record', () => {
   it('defines a record factory', () => {
@@ -27,7 +22,7 @@ describe('Record', () => {
       t.a = 10;
     }).toThrow();
 
-    const t2 = t.withMutations((mt) => {
+    const t2 = t.withMutations(mt => {
       mt.a = 10;
       mt.b = 20;
       mt.c = 30;

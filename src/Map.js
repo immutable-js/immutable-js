@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import { is } from './is';
 import { Collection, KeyedCollection } from './Collection';
 import { IS_MAP_SYMBOL, isMap } from './predicates/isMap';
@@ -47,7 +40,7 @@ export class Map extends KeyedCollection {
       ? emptyMap()
       : isMap(value) && !isOrdered(value)
       ? value
-      : emptyMap().withMutations((map) => {
+      : emptyMap().withMutations(map => {
           const iter = KeyedCollection(value);
           assertNotInfinite(iter.size);
           iter.forEach((v, k) => map.set(k, v));
@@ -55,7 +48,7 @@ export class Map extends KeyedCollection {
   }
 
   static of(...keyValues) {
-    return emptyMap().withMutations((map) => {
+    return emptyMap().withMutations(map => {
       for (let i = 0; i < keyValues.length; i += 2) {
         if (i + 1 >= keyValues.length) {
           throw new Error('Missing value for key: ' + keyValues[i]);
@@ -94,8 +87,8 @@ export class Map extends KeyedCollection {
       return this;
     }
 
-    return this.withMutations((map) => {
-      collection.forEach((key) => map.remove(key));
+    return this.withMutations(map => {
+      collection.forEach(key => map.remove(key));
     });
   }
 
@@ -126,7 +119,7 @@ export class Map extends KeyedCollection {
   }
 
   map(mapper, context) {
-    return this.withMutations((map) => {
+    return this.withMutations(map => {
       map.forEach((value, key) => {
         map.set(key, mapper.call(context, value, key, this));
       });
@@ -142,7 +135,7 @@ export class Map extends KeyedCollection {
   __iterate(fn, reverse) {
     let iterations = 0;
     this._root &&
-      this._root.iterate((entry) => {
+      this._root.iterate(entry => {
         iterations++;
         return fn(entry[1], entry[0], this);
       }, reverse);
@@ -537,30 +530,26 @@ class ValueNode {
 
 // #pragma Iterators
 
-ArrayMapNode.prototype.iterate = HashCollisionNode.prototype.iterate = function (
-  fn,
-  reverse
-) {
-  const entries = this.entries;
-  for (let ii = 0, maxIndex = entries.length - 1; ii <= maxIndex; ii++) {
-    if (fn(entries[reverse ? maxIndex - ii : ii]) === false) {
-      return false;
+ArrayMapNode.prototype.iterate = HashCollisionNode.prototype.iterate =
+  function (fn, reverse) {
+    const entries = this.entries;
+    for (let ii = 0, maxIndex = entries.length - 1; ii <= maxIndex; ii++) {
+      if (fn(entries[reverse ? maxIndex - ii : ii]) === false) {
+        return false;
+      }
     }
-  }
-};
+  };
 
-BitmapIndexedNode.prototype.iterate = HashArrayMapNode.prototype.iterate = function (
-  fn,
-  reverse
-) {
-  const nodes = this.nodes;
-  for (let ii = 0, maxIndex = nodes.length - 1; ii <= maxIndex; ii++) {
-    const node = nodes[reverse ? maxIndex - ii : ii];
-    if (node && node.iterate(fn, reverse) === false) {
-      return false;
+BitmapIndexedNode.prototype.iterate = HashArrayMapNode.prototype.iterate =
+  function (fn, reverse) {
+    const nodes = this.nodes;
+    for (let ii = 0, maxIndex = nodes.length - 1; ii <= maxIndex; ii++) {
+      const node = nodes[reverse ? maxIndex - ii : ii];
+      if (node && node.iterate(fn, reverse) === false) {
+        return false;
+      }
     }
-  }
-};
+  };
 
 // eslint-disable-next-line no-unused-vars
 ValueNode.prototype.iterate = function (fn, reverse) {
