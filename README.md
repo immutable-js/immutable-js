@@ -1,4 +1,4 @@
-# Immutable collections for JavaScript: Community Maintained Edition
+# Immutable collections for JavaScript
 
 [![Build Status](https://github.com/immutable-js/immutable-js/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/immutable-js/immutable-js/actions/workflows/ci.yml?query=branch%3Amain) [Chat on slack](https://immutable-js.slack.com)
 
@@ -282,7 +282,7 @@ results, these operations can be extremely efficient.
 const { Seq } = require('immutable');
 const myObject = { a: 1, b: 2, c: 3 };
 Seq(myObject)
-  .map((x) => x * x)
+  .map(x => x * x)
   .toObject();
 // { a: 1, b: 4, c: 9 }
 ```
@@ -340,7 +340,7 @@ browsers, they need to be translated to ES5.
 
 ```js
 // ES2015
-const mapped = foo.map((x) => x * x);
+const mapped = foo.map(x => x * x);
 // ES5
 var mapped = foo.map(function (x) {
   return x * x;
@@ -395,11 +395,11 @@ const nested2 = nested.mergeDeep({ a: { b: { d: 6 } } });
 
 console.log(nested2.getIn(['a', 'b', 'd'])); // 6
 
-const nested3 = nested2.updateIn(['a', 'b', 'd'], (value) => value + 1);
+const nested3 = nested2.updateIn(['a', 'b', 'd'], value => value + 1);
 console.log(nested3);
 // Map { a: Map { b: Map { c: List [ 3, 4, 5 ], d: 7 } } }
 
-const nested4 = nested3.updateIn(['a', 'b', 'c'], (list) => list.push(6));
+const nested4 = nested3.updateIn(['a', 'b', 'c'], list => list.push(6));
 // Map { a: Map { b: Map { c: List [ 3, 4, 5, 6 ], d: 7 } } }
 ```
 
@@ -563,8 +563,8 @@ For example, the following performs no work, because the resulting
 ```js
 const { Seq } = require('immutable');
 const oddSquares = Seq([1, 2, 3, 4, 5, 6, 7, 8])
-  .filter((x) => x % 2 !== 0)
-  .map((x) => x * x);
+  .filter(x => x % 2 !== 0)
+  .map(x => x * x);
 ```
 
 Once the `Seq` is used, it performs only the work necessary. In this
@@ -591,7 +591,7 @@ expression of logic that can otherwise be very tedious:
 ```js
 lazySeq
   .flip()
-  .map((key) => key.toUpperCase())
+  .map(key => key.toUpperCase())
   .flip();
 // Seq { A: 1, B: 2, C: 3 }
 ```
@@ -605,8 +605,8 @@ limited, for example `Range` is a special kind of Lazy sequence.
 const { Range } = require('immutable');
 Range(1, Infinity)
   .skip(1000)
-  .map((n) => -n)
-  .filter((n) => n % 2 === 0)
+  .map(n => -n)
+  .filter(n => n % 2 === 0)
   .take(2)
   .reduce((r, n) => r * n, 1);
 // 1006008
@@ -614,8 +614,7 @@ Range(1, Infinity)
 
 ## Documentation
 
-Documentation
--------------
+## Documentation
 
 [Read the docs](https://immutable-js.com) and eat your vegetables.
 
@@ -631,8 +630,7 @@ If you are using the [Chai Assertion Library](https://chaijs.com/), [Chai Immuta
 
 ## Contribution
 
-Contribution
-------------
+## Contribution
 
 Use [Github issues](https://github.com/immutable-js/immutable-js/issues) for requests.
 
@@ -656,7 +654,6 @@ name. If you're looking for his unsupported package, see [this repository](https
 
 ## License
 
-License
--------
+## License
 
 Immutable.js is [MIT-licensed](./LICENSE).
