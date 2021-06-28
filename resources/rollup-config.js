@@ -31,7 +31,7 @@ function uglify() {
         result.code,
         'utf8'
       );
-      return code
+      return code;
     },
   };
 }
