@@ -1,6 +1,5 @@
-const { Record } = require('../src/Immutable');
-
-// TODO maybe this : ? const { Record } = require('immutable');
+// eslint-disable-next-line import/no-unresolved -- immutable is resolve by jest resolver
+import { Record } from 'immutable';
 
 describe('Record', () => {
   it('defines a record factory', () => {

@@ -3,7 +3,6 @@
     "jest": true
   },
   "parserOptions": {
-    "ecmaVersion": 6,
-    "sourceType": "script"
+    "ecmaVersion": 6
   }
 }
