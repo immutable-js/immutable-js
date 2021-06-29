@@ -764,8 +764,22 @@ declare module Immutable {
   export function Map(): Map<unknown, unknown>;
   export function Map<K, V>(): Map<K, V>;
   export function Map<K, V>(collection: Iterable<[K, V]>): Map<K, V>;
-  export function Map<V>(obj: { [key: string]: V }): Map<string, V>;
   export function Map<K extends string, V>(obj: { [P in K]?: V }): Map<K, V>;
+  export function Map<
+    R extends { [key in string | number]: unknown },
+    K extends keyof R,
+    V extends R[K]
+  >(obj: R): ObjectLikeMap<R, K, V>;
+  // export function Map<V>(obj: { [key: string]: V }): Map<string, V>;
+
+  export interface ObjectLikeMap<
+    R extends { [key in string | number]: unknown },
+    K extends keyof R,
+    V extends R[K]
+  > extends Map<K, V> {
+    get(index: K, notSetValue: never): R[K];
+    get(index: K): R[K];
+  }
 
   export interface Map<K, V> extends Collection.Keyed<K, V> {
     /**
@@ -1367,7 +1381,11 @@ declare module Immutable {
      * @see Collection.Keyed.mapEntries
      */
     mapEntries<KM, VM>(
-      mapper: (entry: [K, V], index: number, iter: this) => [KM, VM] | undefined,
+      mapper: (
+        entry: [K, V],
+        index: number,
+        iter: this
+      ) => [KM, VM] | undefined,
       context?: unknown
     ): Map<KM, VM>;
 
@@ -1538,7 +1556,11 @@ declare module Immutable {
      * @see Collection.Keyed.mapEntries
      */
     mapEntries<KM, VM>(
-      mapper: (entry: [K, V], index: number, iter: this) => [KM, VM] | undefined,
+      mapper: (
+        entry: [K, V],
+        index: number,
+        iter: this
+      ) => [KM, VM] | undefined,
       context?: unknown
     ): OrderedMap<KM, VM>;
 
@@ -1821,7 +1843,9 @@ declare module Immutable {
    * Note: `OrderedSet` is a factory function and not a class, and does not use
    * the `new` keyword during construction.
    */
-  export function OrderedSet<T>(collection: Iterable<T> | ArrayLike<T>): OrderedSet<T>;
+  export function OrderedSet<T>(
+    collection: Iterable<T> | ArrayLike<T>
+  ): OrderedSet<T>;
   export function OrderedSet<T>(): OrderedSet<T>;
   export function OrderedSet(): OrderedSet<unknown>;
 
@@ -2478,10 +2502,9 @@ declare module Immutable {
     export interface Factory<TProps extends Object> {
       (values?: Partial<TProps> | Iterable<[string, unknown]>): Record<TProps> &
         Readonly<TProps>;
-      new (values?: Partial<TProps> | Iterable<[string, unknown]>): Record<
-        TProps
-      > &
-        Readonly<TProps>;
+      new (
+        values?: Partial<TProps> | Iterable<[string, unknown]>
+      ): Record<TProps> & Readonly<TProps>;
 
       /**
        * The name provided to `Record(values, name)` can be accessed with
@@ -2825,7 +2848,11 @@ declare module Immutable {
        * @see Collection.Keyed.mapEntries
        */
       mapEntries<KM, VM>(
-        mapper: (entry: [K, V], index: number, iter: this) => [KM, VM] | undefined,
+        mapper: (
+          entry: [K, V],
+          index: number,
+          iter: this
+        ) => [KM, VM] | undefined,
         context?: unknown
       ): Seq.Keyed<KM, VM>;
 
@@ -2880,7 +2907,9 @@ declare module Immutable {
      * Note: `Seq.Indexed` is a conversion function and not a class, and does
      * not use the `new` keyword during construction.
      */
-    export function Indexed<T>(collection: Iterable<T> | ArrayLike<T>): Seq.Indexed<T>;
+    export function Indexed<T>(
+      collection: Iterable<T> | ArrayLike<T>
+    ): Seq.Indexed<T>;
     export function Indexed<T>(): Seq.Indexed<T>;
     export function Indexed(): Seq.Indexed<unknown>;
 
@@ -3149,7 +3178,9 @@ declare module Immutable {
   ): Seq.Keyed<K, V>;
   export function Seq<T>(collection: Collection.Indexed<T>): Seq.Indexed<T>;
   export function Seq<T>(collection: Collection.Set<T>): Seq.Set<T>;
-  export function Seq<T>(collection: Iterable<T> | ArrayLike<T>): Seq.Indexed<T>;
+  export function Seq<T>(
+    collection: Iterable<T> | ArrayLike<T>
+  ): Seq.Indexed<T>;
   export function Seq<V>(obj: { [key: string]: V }): Seq.Keyed<string, V>;
   export function Seq(): Seq<unknown, unknown>;
 
@@ -3441,7 +3472,11 @@ declare module Immutable {
        * If the mapper function returns `undefined`, then the entry will be filtered
        */
       mapEntries<KM, VM>(
-        mapper: (entry: [K, V], index: number, iter: this) => [KM, VM] | undefined,
+        mapper: (
+          entry: [K, V],
+          index: number,
+          iter: this
+        ) => [KM, VM] | undefined,
         context?: unknown
       ): Collection.Keyed<KM, VM>;
 
@@ -3497,7 +3532,9 @@ declare module Immutable {
      * Note: `Collection.Indexed` is a conversion function and not a class, and
      * does not use the `new` keyword during construction.
      */
-    export function Indexed<T>(collection: Iterable<T> | ArrayLike<T>): Collection.Indexed<T>;
+    export function Indexed<T>(
+      collection: Iterable<T> | ArrayLike<T>
+    ): Collection.Indexed<T>;
 
     export interface Indexed<T> extends Collection<number, T> {
       /**
@@ -3794,7 +3831,9 @@ declare module Immutable {
      * Note: `Collection.Set` is a factory function and not a class, and does
      * not use the `new` keyword during construction.
      */
-    export function Set<T>(collection: Iterable<T> | ArrayLike<T>): Collection.Set<T>;
+    export function Set<T>(
+      collection: Iterable<T> | ArrayLike<T>
+    ): Collection.Set<T>;
 
     export interface Set<T> extends Collection<T, T> {
       /**
@@ -3897,7 +3936,9 @@ declare module Immutable {
   export function Collection<I extends Collection<unknown, unknown>>(
     collection: I
   ): I;
-  export function Collection<T>(collection: Iterable<T> | ArrayLike<T>): Collection.Indexed<T>;
+  export function Collection<T>(
+    collection: Iterable<T> | ArrayLike<T>
+  ): Collection.Indexed<T>;
   export function Collection<V>(obj: {
     [key: string]: V;
   }): Collection.Keyed<string, V>;
