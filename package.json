@@ -35,7 +35,7 @@
     "type-check": "run-s type-check:*",
     "lint:ts": "tslint \"{__tests__,website/src}/**/*.{ts,tsx}\"",
     "lint:js": "eslint \"{__tests__,src,website/src}/**/*.js\"",
-    "lint:format": "prettier --check \"{__tests__,src,website/src,perf,resources}/**/*{\\.js,\\.ts,\\.tsx,\\.css}\"",
+    "lint:format": "prettier --check \"{__tests__,src,website/src,perf,resources}/**/*{.js,.ts,.tsx,.css}\"",
     "testonly": "jest",
     "test": "run-s format build lint testonly type-check",
     "check:git-clean": "./resources/check-changes",
