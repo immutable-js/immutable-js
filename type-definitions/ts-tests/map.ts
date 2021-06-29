@@ -12,6 +12,9 @@ import { Map, List } from '../../';
   // $ExpectType Map<number, string>
   Map([[1, 'a']]);
 
+  // $ExpectType Map<string, string>
+  Map([['a', 'a']]);
+
   // $ExpectType Map<number, string>
   Map(
     List<[number, string]>([[1, 'a']])
