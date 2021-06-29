@@ -654,6 +654,4 @@ name. If you're looking for his unsupported package, see [this repository](https
 
 ## License
 
-## License
-
 Immutable.js is [MIT-licensed](./LICENSE).
