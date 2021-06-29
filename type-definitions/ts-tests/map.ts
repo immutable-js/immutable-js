@@ -20,8 +20,17 @@ import { Map, List } from 'immutable';
     List<[number, string]>([[1, 'a']])
   );
 
-  // $ExpectType Map<string, number>
+  // $ExpectType ObjectLikeMap<{ a: number; }, "a", number>
   Map({ a: 1 });
+
+  // $ExpectType ObjectLikeMap<{ a: number; b: string; }, "b" | "a", string | number>
+  Map({ a: 1, b: 'b' });
+
+  // $ExpectError
+  Map<{a: 'string'}>({ a: 1 });
+
+  // $ExpectError
+  Map<{a: 'string'}>({ a: 'a', b: 'b' });
 
   // No longer works in typescript@>=3.9
   // // $ExpectError - TypeScript does not support Lists as tuples
@@ -61,6 +70,12 @@ import { Map, List } from 'immutable';
 
   // $ExpectError
   Map<number, number>().get<number>(4, 'a');
+
+  // $ExpectType number
+  Map({a: 4}).get('a')
+
+  // $ExpectError
+  Map({a: 4}).get('b')
 }
 
 {
