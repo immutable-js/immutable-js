@@ -3,7 +3,7 @@
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { fromJS, List, Map, Range, Seq, Set } from '../src/Immutable';
+import { fromJS, List, Map, Range, Seq, Set } from 'immutable';
 
 function arrayOfSize(s) {
   const a = new Array(s);
