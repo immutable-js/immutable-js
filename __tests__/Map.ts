@@ -258,9 +258,12 @@ describe('Map', () => {
     expect(r).toBe(m);
   });
 
-  it('ensures iter is unmodified', () => {
+  it('provides unmodified original collection as 3rd iter argument', () => {
     const m = Map({ a: 1, b: 1 });
-    const r = m.map((value, key, iter) => 2 * iter.get(key));
+    const r = m.map((value, key, iter) => {
+      expect(iter).toEqual(m);
+      return 2 * iter.get(key);
+    });
     expect(r.toObject()).toEqual({ a: 2, b: 2 });
   });
 

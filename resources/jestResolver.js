@@ -4,11 +4,11 @@ const pkg = require('../package.json');
 module.exports = (request, options) => {
   if (request === 'immutable') {
     if (process.env.CI) {
-      // In CI environment, let's test the real builded file to be sure that the build does is not broken
+      // In CI environment, test the real built file to be sure that the build is not broken
       return path.resolve(options.rootDir, pkg.main);
     }
 
-    // in development mode, we want sourcemaps and live reload, etc, so let's point to the src/ directory
+    // In development mode, we want sourcemaps, live reload, etc., so point to the src/ directory
     return `${options.rootDir}/src/Immutable.js`;
   }
 

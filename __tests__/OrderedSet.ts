@@ -60,7 +60,10 @@ describe('OrderedSet', () => {
     ]);
   });
 
-  it('ensure that `subtract` works correcly (see https://github.com/immutable-js-oss/immutable-js/issues/139 )', () => {
+  /**
+   * @see https://github.com/immutable-js/immutable-js/issues/1716
+   */
+  it('handles `subtract` when Set contains >=32 elements', () => {
     const fillArray = nb =>
       Array(nb)
         .fill(1)
@@ -82,7 +85,10 @@ describe('OrderedSet', () => {
     expect(allItems.subtract(existingItems).size + someOfThem.length).toBe(32);
   });
 
-  it('ensure that `subtract` works correctly (see https://github.com/immutable-js-oss/immutable-js/issues/96 )', () => {
+  /**
+   * @see https://github.com/immutable-js/immutable-js/issues/1603
+   */
+  it('handles consecutive `subtract` invocations', () => {
     let a = OrderedSet();
     let b = OrderedSet();
     let c;
@@ -100,7 +106,7 @@ describe('OrderedSet', () => {
     // Set d to 0-22
     d = c.butLast();
 
-    // Internal list resizing happens on the final remove when subtracting c from a
+    // Internal list resizing happens on the final `subtract` when subtracting d from a
     const aNotB = a.subtract(b);
     const aNotC = a.subtract(c);
     const aNotD = a.subtract(d);
@@ -110,7 +116,7 @@ describe('OrderedSet', () => {
     expect(aNotD.size).toBe(23);
   });
 
-  it('updating a value with ".map()" should keep the set ordered', () => {
+  it('keeps the Set ordered when updating a value with .map()', () => {
     const first = Map({ id: 1, valid: true });
     const second = Map({ id: 2, valid: true });
     const third = Map({ id: 3, valid: true });

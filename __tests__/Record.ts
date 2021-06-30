@@ -256,7 +256,10 @@ describe('Record', () => {
     expect(factoryA().equals(factoryB())).toBe(true);
   });
 
-  it('check that reset does reset the record. See https://github.com/immutable-js-oss/immutable-js/issues/85 ', () => {
+  /**
+   * @see https://github.com/immutable-js/immutable-js/issues/1565
+   */
+  it('check that reset does reset the record.', () => {
     type UserType = {
       name: string;
       roles: List<string> | Array<string>;
