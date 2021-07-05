@@ -1,6 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 
-import { isKeyed, Record, Seq } from '../';
+import { isKeyed, List, Map, Record, Seq } from 'immutable';
 
 describe('Record', () => {
   it('defines a constructor', () => {
@@ -246,5 +246,66 @@ describe('Record', () => {
       ['a', 10],
       ['b', 20],
     ]);
+  });
+
+  it('calling `equals` between two instance of factories with same properties and same value should return true', () => {
+    const factoryA = Record({ id: '' });
+    const factoryB = Record({ id: '' });
+
+    expect(factoryA().equals(factoryA())).toBe(true);
+    expect(factoryA().equals(factoryB())).toBe(true);
+  });
+
+  /**
+   * @see https://github.com/immutable-js/immutable-js/issues/1565
+   */
+  it('check that reset does reset the record.', () => {
+    type UserType = {
+      name: string;
+      roles: List<string> | Array<string>;
+    };
+
+    const User = Record<UserType>({
+      name: 'default name',
+      roles: List<string>(),
+    });
+
+    const user0 = new User({
+      name: 'John',
+      roles: ['superuser', 'admin'],
+    });
+    const user1 = user0.clear();
+
+    expect(user1.name).toBe('default name');
+    expect(user1.roles).toEqual(List());
+
+    const user2 = user0.withMutations((mutable: Record<UserType>) => {
+      mutable.clear();
+    });
+
+    expect(user2.name).toBe('default name');
+    expect(user2.roles).toEqual(List());
+  });
+
+  it('does not accept a Record as constructor', () => {
+    const Foo = Record({ foo: 'bar' });
+    const fooInstance = Foo();
+    expect(() => {
+      Record(fooInstance);
+    }).toThrowErrorMatchingSnapshot();
+  });
+
+  it('does not accept a non object as constructor', () => {
+    const defaultValues = null;
+    expect(() => {
+      Record(defaultValues);
+    }).toThrowErrorMatchingSnapshot();
+  });
+
+  it('does not accept an immutable object that is not a Record as constructor', () => {
+    const defaultValues = Map({ foo: 'bar' });
+    expect(() => {
+      Record(defaultValues);
+    }).toThrowErrorMatchingSnapshot();
   });
 });

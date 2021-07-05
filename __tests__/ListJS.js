@@ -1,4 +1,5 @@
-const { List } = require('../');
+// eslint-disable-next-line import/no-unresolved -- immutable is resolve by jest resolver
+import { List } from 'immutable';
 
 const NON_NUMBERS = {
   array: ['not', 'a', 'number'],

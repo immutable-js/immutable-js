@@ -3,7 +3,7 @@
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { Collection, fromJS, List, Range, Seq } from '../';
+import { Collection, fromJS, List, Range, Seq } from 'immutable';
 
 describe('flatten', () => {
   it('flattens sequences one level deep', () => {

@@ -3,7 +3,7 @@ import { MarkdownContent } from './MarkdownContent';
 import type { TypeDefs, TypeDoc } from './TypeDefs';
 
 export type OverviewData = {
-  doc: TypeDoc;
+  doc: TypeDoc | null;
   api: Array<APIMember>;
 };
 
@@ -16,7 +16,7 @@ type APIMember = {
 // Static use only
 export function getOverviewData(defs: TypeDefs): OverviewData {
   return {
-    doc: defs.doc!,
+    doc: defs.doc || null,
     api: Object.values(defs.types).map(def => {
       const member: APIMember = { label: def.label, url: def.url };
       const doc = def.doc || def.call?.doc;

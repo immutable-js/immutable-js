@@ -1,18 +1,20 @@
 import { Stack } from '../../';
 
-{ // #constructor
+{
+  // #constructor
 
   // $ExpectType Stack<unknown>
   Stack();
 
-  const numberStack: Stack<number> = Stack();
+  const numberStack: Stack<number> = Stack<number>();
   const numberOrStringStack: Stack<number | string> = Stack([1, 'a']);
 
   // $ExpectError
   const invalidNumberStack: Stack<number> = Stack([1, 'a']);
 }
 
-{ // #size
+{
+  // #size
 
   // $ExpectType number
   Stack().size;
@@ -21,7 +23,8 @@ import { Stack } from '../../';
   Stack().size = 10;
 }
 
-{ // .of
+{
+  // .of
 
   // $ExpectType Stack<number>
   Stack.of(1, 2, 3);
@@ -33,13 +36,15 @@ import { Stack } from '../../';
   Stack.of<number | string>('a', 1);
 }
 
-{ // #peek
+{
+  // #peek
 
   // $ExpectType number | undefined
   Stack<number>().peek();
 }
 
-{ // #push
+{
+  // #push
 
   // $ExpectType Stack<number>
   Stack<number>().push(0);
@@ -54,7 +59,8 @@ import { Stack } from '../../';
   Stack<number | string>().push('a');
 }
 
-{ // #pushAll
+{
+  // #pushAll
 
   // $ExpectType Stack<number>
   Stack<number>().pushAll([0]);
@@ -69,7 +75,8 @@ import { Stack } from '../../';
   Stack<number | string>().pushAll(['a']);
 }
 
-{ // #unshift
+{
+  // #unshift
 
   // $ExpectType Stack<number>
   Stack<number>().unshift(0);
@@ -84,7 +91,8 @@ import { Stack } from '../../';
   Stack<number | string>().unshift('a');
 }
 
-{ // #unshiftAll
+{
+  // #unshiftAll
 
   // $ExpectType Stack<number>
   Stack<number>().unshiftAll([0]);
@@ -99,7 +107,8 @@ import { Stack } from '../../';
   Stack<number | string>().unshiftAll(['a']);
 }
 
-{ // #clear
+{
+  // #clear
 
   // $ExpectType Stack<number>
   Stack<number>().clear();
@@ -108,7 +117,8 @@ import { Stack } from '../../';
   Stack().clear(10);
 }
 
-{ // #pop
+{
+  // #pop
 
   // $ExpectType Stack<number>
   Stack<number>().pop();
@@ -117,7 +127,8 @@ import { Stack } from '../../';
   Stack().pop(10);
 }
 
-{ // #shift
+{
+  // #shift
 
   // $ExpectType Stack<number>
   Stack<number>().shift();
@@ -126,7 +137,8 @@ import { Stack } from '../../';
   Stack().shift(10);
 }
 
-{ // #map
+{
+  // #map
 
   // $ExpectType Stack<number>
   Stack<number>().map((value: number, key: number, iter: Stack<number>) => 1);
@@ -135,52 +147,82 @@ import { Stack } from '../../';
   Stack<number>().map((value: number, key: number, iter: Stack<number>) => 'a');
 
   // $ExpectType Stack<number>
-  Stack<number>().map<number>((value: number, key: number, iter: Stack<number>) => 1);
+  Stack<number>().map<number>(
+    (value: number, key: number, iter: Stack<number>) => 1
+  );
 
-  // $ExpectError
-  Stack<number>().map<string>((value: number, key: number, iter: Stack<number>) => 1);
+  Stack<number>().map<string>(
+    // $ExpectError
+    (value: number, key: number, iter: Stack<number>) => 1
+  );
 
-  // $ExpectError
-  Stack<number>().map<number>((value: string, key: number, iter: Stack<number>) => 1);
+  Stack<number>().map<number>(
+    // $ExpectError
+    (value: string, key: number, iter: Stack<number>) => 1
+  );
 
-  // $ExpectError
-  Stack<number>().map<number>((value: number, key: string, iter: Stack<number>) => 1);
+  Stack<number>().map<number>(
+    // $ExpectError
+    (value: number, key: string, iter: Stack<number>) => 1
+  );
 
-  // $ExpectError
-  Stack<number>().map<number>((value: number, key: number, iter: Stack<string>) => 1);
+  Stack<number>().map<number>(
+    // $ExpectError
+    (value: number, key: number, iter: Stack<string>) => 1
+  );
 
-  // $ExpectError
-  Stack<number>().map<number>((value: number, key: number, iter: Stack<number>) => 'a');
+  Stack<number>().map<number>(
+    // $ExpectError
+    (value: number, key: number, iter: Stack<number>) => 'a'
+  );
 }
 
-{ // #flatMap
+{
+  // #flatMap
 
   // $ExpectType Stack<number>
-  Stack<number>().flatMap((value: number, key: number, iter: Stack<number>) => [1]);
+  Stack<number>().flatMap((value: number, key: number, iter: Stack<number>) => [
+    1,
+  ]);
 
   // $ExpectType Stack<string>
-  Stack<number>().flatMap((value: number, key: number, iter: Stack<number>) => 'a');
+  Stack<number>().flatMap(
+    (value: number, key: number, iter: Stack<number>) => 'a'
+  );
 
   // $ExpectType Stack<number>
-  Stack<number>().flatMap<number>((value: number, key: number, iter: Stack<number>) => [1]);
+  Stack<number>().flatMap<number>(
+    (value: number, key: number, iter: Stack<number>) => [1]
+  );
 
-  // $ExpectError
-  Stack<number>().flatMap<string>((value: number, key: number, iter: Stack<number>) => 1);
+  Stack<number>().flatMap<string>(
+    // $ExpectError
+    (value: number, key: number, iter: Stack<number>) => 1
+  );
 
-  // $ExpectError
-  Stack<number>().flatMap<number>((value: string, key: number, iter: Stack<number>) => 1);
+  Stack<number>().flatMap<number>(
+    // $ExpectError
+    (value: string, key: number, iter: Stack<number>) => 1
+  );
 
-  // $ExpectError
-  Stack<number>().flatMap<number>((value: number, key: string, iter: Stack<number>) => 1);
+  Stack<number>().flatMap<number>(
+    // $ExpectError
+    (value: number, key: string, iter: Stack<number>) => 1
+  );
 
-  // $ExpectError
-  Stack<number>().flatMap<number>((value: number, key: number, iter: Stack<string>) => 1);
+  Stack<number>().flatMap<number>(
+    // $ExpectError
+    (value: number, key: number, iter: Stack<string>) => 1
+  );
 
-  // $ExpectError
-  Stack<number>().flatMap<number>((value: number, key: number, iter: Stack<number>) => 'a');
+  Stack<number>().flatMap<number>(
+    // $ExpectError
+    (value: number, key: number, iter: Stack<number>) => 'a'
+  );
 }
 
-{ // #flatten
+{
+  // #flatten
 
   // $ExpectType Collection<unknown, unknown>
   Stack<number>().flatten();
@@ -195,22 +237,25 @@ import { Stack } from '../../';
   Stack<number>().flatten('a');
 }
 
-{ // #withMutations
+{
+  // #withMutations
 
   // $ExpectType Stack<number>
-  Stack<number>().withMutations(mutable => mutable);
+  Stack<number>().withMutations((mutable) => mutable);
 
   // $ExpectError
   Stack<number>().withMutations((mutable: Stack<string>) => mutable);
 }
 
-{ // #asMutable
+{
+  // #asMutable
 
   // $ExpectType Stack<number>
   Stack<number>().asMutable();
 }
 
-{ // #asImmutable
+{
+  // #asImmutable
 
   // $ExpectType Stack<number>
   Stack<number>().asImmutable();

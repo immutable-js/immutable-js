@@ -6,6 +6,7 @@ yarn-error.log
 *~
 *.swp
 .idea
+*.iml
 TODO
 /website/.next
 /website/out

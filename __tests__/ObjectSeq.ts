@@ -1,6 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 
-import { Seq } from '../';
+import { Seq } from 'immutable';
 
 describe('ObjectSequence', () => {
   it('maps', () => {

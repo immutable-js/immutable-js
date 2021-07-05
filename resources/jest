@@ -1,3 +1,0 @@
-#!/bin/bash
-
-if [[ $TRAVIS ]]; then jest --no-cache -i; else jest --no-cache; fi;

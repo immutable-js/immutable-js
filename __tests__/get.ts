@@ -1,6 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 
-import { Range } from '../';
+import { Range } from 'immutable';
 
 describe('get', () => {
   it('gets any index', () => {

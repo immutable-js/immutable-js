@@ -3,7 +3,7 @@
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { Range } from '../';
+import { Range } from 'immutable';
 
 describe('Range', () => {
   it('fixed range', () => {

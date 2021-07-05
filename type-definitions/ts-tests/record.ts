@@ -1,6 +1,7 @@
 import { Record } from '../../';
 
-{ // Factory
+{
+  // Factory
   const PointXY = Record({ x: 0, y: 0 });
 
   // $ExpectType Factory<{ x: number; y: number; }>
@@ -54,7 +55,8 @@ import { Record } from '../../';
   point.setY(10);
 }
 
-{ // .getDescriptiveName
+{
+  // .getDescriptiveName
   const PointXY = Record({ x: 0, y: 0 });
 
   // $ExpectType string

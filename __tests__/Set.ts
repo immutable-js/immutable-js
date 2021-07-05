@@ -1,7 +1,7 @@
 ///<reference path='../resources/jest.d.ts'/>
 
 declare var Symbol: any;
-import { fromJS, is, List, Map, OrderedSet, Seq, Set } from '../';
+import { fromJS, is, List, Map, OrderedSet, Seq, Set } from 'immutable';
 
 describe('Set', () => {
   it('accepts array of values', () => {

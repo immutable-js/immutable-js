@@ -11,19 +11,21 @@ import {
   merge,
 } from '../../';
 
-{ // #constructor
+{
+  // #constructor
 
   // $ExpectType List<unknown>
   List();
 
-  const numberList: List<number> = List();
+  const numberList: List<number> = List<number>();
   const numberOrStringList: List<number | string> = List([1, 'a']);
 
   // $ExpectError
   const invalidNumberList: List<number> = List([1, 'a']);
 }
 
-{ // #size
+{
+  // #size
 
   // $ExpectType number
   List().size;
@@ -32,7 +34,8 @@ import {
   List().size = 10;
 }
 
-{ // #setSize
+{
+  // #setSize
 
   // $ExpectType List<number>
   List<number>().setSize(10);
@@ -41,7 +44,8 @@ import {
   List<number>().setSize('foo');
 }
 
-{ // .of
+{
+  // .of
 
   // $ExpectType List<number>
   List.of(1, 2, 3);
@@ -53,7 +57,8 @@ import {
   List.of<number | string>('a', 1);
 }
 
-{ // #get
+{
+  // #get
 
   // $ExpectType number | undefined
   List<number>().get(4);
@@ -71,7 +76,8 @@ import {
   get(List<number>(), 4, 'a');
 }
 
-{ // #set
+{
+  // #set
 
   // $ExpectType List<number>
   List<number>().set(0, 0);
@@ -98,7 +104,8 @@ import {
   set(List<number>(), 'a', 1);
 }
 
-{ // #setIn
+{
+  // #setIn
 
   // $ExpectType List<number>
   List<number>().setIn([], 0);
@@ -107,7 +114,8 @@ import {
   setIn(List<number>(), [], 0);
 }
 
-{ // #insert
+{
+  // #insert
 
   // $ExpectType List<number>
   List<number>().insert(0, 0);
@@ -125,7 +133,8 @@ import {
   List<number | string>().insert(0, 'a');
 }
 
-{ // #push
+{
+  // #push
 
   // $ExpectType List<number>
   List<number>().push(0, 0);
@@ -143,7 +152,8 @@ import {
   List<number | string>().push(0, 'a');
 }
 
-{ // #unshift
+{
+  // #unshift
 
   // $ExpectType List<number>
   List<number>().unshift(0, 0);
@@ -161,7 +171,8 @@ import {
   List<number | string>().unshift(0, 'a');
 }
 
-{ // #delete
+{
+  // #delete
 
   // $ExpectType List<number>
   List<number>().delete(0);
@@ -170,13 +181,15 @@ import {
   List().delete('a');
 }
 
-{ // #deleteIn
+{
+  // #deleteIn
 
   // $ExpectType List<number>
   List<number>().deleteIn([]);
 }
 
-{ // #remove
+{
+  // #remove
 
   // $ExpectType List<number>
   List<number>().remove(0);
@@ -188,7 +201,8 @@ import {
   remove(List<number>(), 0);
 }
 
-{ // #removeIn
+{
+  // #removeIn
 
   // $ExpectType List<number>
   List<number>().removeIn([]);
@@ -197,7 +211,8 @@ import {
   removeIn(List<number>(), []);
 }
 
-{ // #clear
+{
+  // #clear
 
   // $ExpectType List<number>
   List<number>().clear();
@@ -206,7 +221,8 @@ import {
   List().clear(10);
 }
 
-{ // #pop
+{
+  // #pop
 
   // $ExpectType List<number>
   List<number>().pop();
@@ -215,7 +231,8 @@ import {
   List().pop(10);
 }
 
-{ // #shift
+{
+  // #shift
 
   // $ExpectType List<number>
   List<number>().shift();
@@ -224,10 +241,11 @@ import {
   List().shift(10);
 }
 
-{ // #update
+{
+  // #update
 
   // $ExpectType number
-  List().update(v => 1);
+  List().update((v) => 1);
 
   // $ExpectError
   List<number>().update((v: List<string>) => v);
@@ -254,19 +272,21 @@ import {
   update(List<number>(), 1, 10, (v: number) => v + 'a');
 }
 
-{ // #updateIn
+{
+  // #updateIn
 
   // $ExpectType List<number>
-  List<number>().updateIn([], v => v);
+  List<number>().updateIn([], (v) => v);
 
   // $ExpectError
   List<number>().updateIn([], 10);
 
   // $ExpectType List<number>
-  updateIn(List<number>(), [], v => v);
+  updateIn(List<number>(), [], (v) => v);
 }
 
-{ // #map
+{
+  // #map
 
   // $ExpectType List<number>
   List<number>().map((value: number, key: number, iter: List<number>) => 1);
@@ -275,55 +295,85 @@ import {
   List<number>().map((value: number, key: number, iter: List<number>) => 'a');
 
   // $ExpectType List<number>
-  List<number>().map<number>((value: number, key: number, iter: List<number>) => 1);
+  List<number>().map<number>(
+    (value: number, key: number, iter: List<number>) => 1
+  );
 
-  // $ExpectError
-  List<number>().map<string>((value: number, key: number, iter: List<number>) => 1);
+  List<number>().map<string>(
+    // $ExpectError
+    (value: number, key: number, iter: List<number>) => 1
+  );
 
-  // $ExpectError
-  List<number>().map<number>((value: string, key: number, iter: List<number>) => 1);
+  List<number>().map<number>(
+    // $ExpectError
+    (value: string, key: number, iter: List<number>) => 1
+  );
 
-  // $ExpectError
-  List<number>().map<number>((value: number, key: string, iter: List<number>) => 1);
+  List<number>().map<number>(
+    // $ExpectError
+    (value: number, key: string, iter: List<number>) => 1
+  );
 
-  // $ExpectError
-  List<number>().map<number>((value: number, key: number, iter: List<string>) => 1);
+  List<number>().map<number>(
+    // $ExpectError
+    (value: number, key: number, iter: List<string>) => 1
+  );
 
-  // $ExpectError
-  List<number>().map<number>((value: number, key: number, iter: List<number>) => 'a');
+  List<number>().map<number>(
+    // $ExpectError
+    (value: number, key: number, iter: List<number>) => 'a'
+  );
 }
 
-{ // #flatMap
+{
+  // #flatMap
 
   // $ExpectType List<number>
-  List<number>().flatMap((value: number, key: number, iter: List<number>) => [1]);
+  List<number>().flatMap((value: number, key: number, iter: List<number>) => [
+    1,
+  ]);
 
   // $ExpectType List<string>
-  List<number>().flatMap((value: number, key: number, iter: List<number>) => ['a']);
+  List<number>().flatMap((value: number, key: number, iter: List<number>) => [
+    'a',
+  ]);
 
   // $ExpectType List<string>
-  List<List<string>>().flatMap(list => list);
+  List<List<string>>().flatMap((list) => list);
 
   // $ExpectType List<number>
-  List<number>().flatMap<number>((value: number, key: number, iter: List<number>) => [1]);
+  List<number>().flatMap<number>(
+    (value: number, key: number, iter: List<number>) => [1]
+  );
 
-  // $ExpectError
-  List<number>().flatMap<string>((value: number, key: number, iter: List<number>) => [1]);
+  List<number>().flatMap<string>(
+    // $ExpectError
+    (value: number, key: number, iter: List<number>) => [1]
+  );
 
-  // $ExpectError
-  List<number>().flatMap<number>((value: string, key: number, iter: List<number>) => [1]);
+  List<number>().flatMap<number>(
+    // $ExpectError
+    (value: string, key: number, iter: List<number>) => [1]
+  );
 
-  // $ExpectError
-  List<number>().flatMap<number>((value: number, key: string, iter: List<number>) => [1]);
+  List<number>().flatMap<number>(
+    // $ExpectError
+    (value: number, key: string, iter: List<number>) => [1]
+  );
 
-  // $ExpectError
-  List<number>().flatMap<number>((value: number, key: number, iter: List<string>) => [1]);
+  List<number>().flatMap<number>(
+    // $ExpectError
+    (value: number, key: number, iter: List<string>) => [1]
+  );
 
-  // $ExpectError
-  List<number>().flatMap<number>((value: number, key: number, iter: List<number>) => ['a']);
+  List<number>().flatMap<number>(
+    // $ExpectError
+    (value: number, key: number, iter: List<number>) => ['a']
+  );
 }
 
-{ // #merge
+{
+  // #merge
 
   // $ExpectType List<number>
   List<number>().merge(List<number>());
@@ -341,19 +391,22 @@ import {
   merge(List<number>(), List<number>());
 }
 
-{ // #mergeIn
+{
+  // #mergeIn
 
   // $ExpectType List<number>
   List<number>().mergeIn([], []);
 }
 
-{ // #mergeDeepIn
+{
+  // #mergeDeepIn
 
   // $ExpectType List<number>
   List<number>().mergeDeepIn([], []);
 }
 
-{ // #flatten
+{
+  // #flatten
 
   // $ExpectType Collection<unknown, unknown>
   List<number>().flatten();
@@ -368,29 +421,33 @@ import {
   List<number>().flatten('a');
 }
 
-{ // #withMutations
+{
+  // #withMutations
 
   // $ExpectType List<number>
-  List<number>().withMutations(mutable => mutable);
+  List<number>().withMutations((mutable) => mutable);
 
   // $ExpectError
   List<number>().withMutations((mutable: List<string>) => mutable);
 }
 
-{ // #asMutable
+{
+  // #asMutable
 
   // $ExpectType List<number>
   List<number>().asMutable();
 }
 
-{ // #asImmutable
+{
+  // #asImmutable
 
   // $ExpectType List<number>
   List<number>().asImmutable();
 }
 
-{ // # for of loops
-  const list = List([ 1, 2, 3, 4 ]);
+{
+  // # for of loops
+  const list = List([1, 2, 3, 4]);
   for (const val of list) {
     const v: number = val;
   }

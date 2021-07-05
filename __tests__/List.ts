@@ -3,7 +3,7 @@
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { fromJS, List, Map, Range, Seq, Set } from '../';
+import { fromJS, List, Map, Range, Seq, Set } from 'immutable';
 
 function arrayOfSize(s) {
   const a = new Array(s);
@@ -100,6 +100,46 @@ describe('List', () => {
     expect(v.getIn([0, 'aKey', 1])).toBe('good');
     v = v.setIn([0, 'aKey', 1], 'great');
     expect(v.getIn([0, 'aKey', 1])).toBe('great');
+  });
+
+  it('can setIn on an inexistant index', () => {
+    const myMap = Map({ a: [], b: [] });
+    const out = myMap.setIn(['a', 0], 'v').setIn(['c', 0], 'v');
+
+    expect(out.getIn(['a', 0])).toEqual('v');
+    expect(out.getIn(['c', 0])).toEqual('v');
+    expect(out.get('a')).toBeInstanceOf(Array);
+    expect(out.get('b')).toBeInstanceOf(Array);
+    expect(out.get('c')).toBeInstanceOf(Map);
+    expect(out.get('c').keySeq().first()).toBe(0);
+  });
+
+  it('throw when calling setIn on a non data structure', () => {
+    const avengers = [
+      'ironMan', // index [0]
+      [
+        'captainAmerica', // index [1][0]
+        [
+          'blackWidow', // index [1][1][0]
+          ['theHulk'], // index [1][1][1][0]
+        ],
+      ],
+    ];
+
+    const avengersList = fromJS(avengers);
+
+    // change theHulk to scarletWitch
+    const out1 = avengersList.setIn([1, 1, 1, 0], 'scarletWitch');
+    expect(out1.getIn([1, 1, 1, 0])).toEqual('scarletWitch');
+
+    const out2 = avengersList.setIn([1, 1, 1, 3], 'scarletWitch');
+    expect(out2.getIn([1, 1, 1, 3])).toEqual('scarletWitch');
+
+    expect(() => {
+      avengersList.setIn([0, 1], 'scarletWitch');
+    }).toThrow(
+      'Cannot update within non-data-structure value in path [0]: ironMan'
+    );
   });
 
   it('can update a value', () => {
@@ -423,8 +463,8 @@ describe('List', () => {
     expect(v.toArray()).toEqual([]);
   });
 
-  it('remove removes any index', () => {
-    let v = List.of('a', 'b', 'c').remove(2).remove(0);
+  it.each(['remove', 'delete'])('remove removes any index', fn => {
+    let v = List.of('a', 'b', 'c')[fn](2)[fn](0);
     expect(v.size).toBe(1);
     expect(v.get(0)).toBe('b');
     expect(v.get(1)).toBe(undefined);
@@ -507,6 +547,14 @@ describe('List', () => {
     const v = List.of('a', 'b', 'c');
     const r = v.map(value => value);
     expect(r).toBe(v);
+  });
+
+  it('ensures iter is unmodified', () => {
+    const v = List.of(1, 2, 3);
+    const r = v.map((value, index, iter) => {
+      return iter.get(index - 1);
+    });
+    expect(r.toArray()).toEqual([3, 1, 2]);
   });
 
   it('filters values', () => {
@@ -727,6 +775,25 @@ describe('List', () => {
     const v1 = List(['x']);
     const v2 = v1.withMutations(v => v.push('y').pop().pop());
     expect(v2).toBe(List());
+  });
+
+  it('calling `clear` and `setSize` should set all items to undefined', () => {
+    const l = List(['a', 'b']);
+    const l2 = l.clear().setSize(3);
+
+    expect(l2.get(0)).toBeUndefined();
+    expect(l2.get(1)).toBeUndefined();
+    expect(l2.get(2)).toBeUndefined();
+  });
+
+  it('calling `clear` and `setSize` while mutating should set all items to undefined', () => {
+    const l = List(['a', 'b']);
+    const l2 = l.withMutations(innerList => {
+      innerList.clear().setSize(3);
+    });
+    expect(l2.get(0)).toBeUndefined();
+    expect(l2.get(1)).toBeUndefined();
+    expect(l2.get(2)).toBeUndefined();
   });
 
   it('allows size to be set', () => {

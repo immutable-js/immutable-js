@@ -1,6 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 
-import { Range, Seq } from '../';
+import { Range, Seq } from 'immutable';
 
 describe('count', () => {
   it('counts sequences with known lengths', () => {

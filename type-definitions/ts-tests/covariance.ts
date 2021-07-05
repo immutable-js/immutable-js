@@ -35,7 +35,7 @@ declare var mapOfB: Map<string, B>;
 let mapOfA: Map<string, A> = mapOfB;
 
 // $ExpectType Map<string, B>
-mapOfA = Map({b: new B()});
+mapOfA = Map({ b: new B() });
 
 // $ExpectError
 let mapOfC: Map<string, C> = mapOfB;
@@ -61,7 +61,7 @@ let stackOfC: Stack<C> = stackOfB;
 declare var orderedMapOfB: OrderedMap<string, B>;
 let orderedMapOfA: OrderedMap<string, A> = orderedMapOfB;
 // $ExpectType OrderedMap<string, B>
-orderedMapOfA = OrderedMap({b: new B()});
+orderedMapOfA = OrderedMap({ b: new B() });
 // $ExpectError
 let orderedMapOfC: OrderedMap<string, C> = orderedMapOfB;
 

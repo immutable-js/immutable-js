@@ -121,7 +121,7 @@ export class Map extends KeyedCollection {
   map(mapper, context) {
     return this.withMutations(map => {
       map.forEach((value, key) => {
-        map.set(key, mapper.call(context, value, key, map));
+        map.set(key, mapper.call(context, value, key, this));
       });
     });
   }

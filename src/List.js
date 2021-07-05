@@ -99,8 +99,7 @@ export class List extends IndexedCollection {
     if (this.__ownerID) {
       this.size = this._origin = this._capacity = 0;
       this._level = SHIFT;
-      this._root = this._tail = null;
-      this.__hash = undefined;
+      this._root = this._tail = this.__hash = undefined;
       this.__altered = true;
       return this;
     }
@@ -169,7 +168,7 @@ export class List extends IndexedCollection {
   map(mapper, context) {
     return this.withMutations(list => {
       for (let i = 0; i < this.size; i++) {
-        list.set(i, mapper.call(context, list.get(i), i, list));
+        list.set(i, mapper.call(context, list.get(i), i, this));
       }
     });
   }

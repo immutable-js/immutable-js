@@ -3,7 +3,7 @@
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { is, List, Map, Seq, Set } from '../';
+import { is, List, Map, Seq, Set } from 'immutable';
 
 describe('Equality', () => {
   function expectIs(left, right) {

@@ -12,7 +12,6 @@ mkdir -p npm
 
 # Copy over necessary files
 cp -r dist npm/
-cp -r contrib npm/
 cp README.md npm/
 cp LICENSE npm/
 

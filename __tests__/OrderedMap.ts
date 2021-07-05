@@ -1,6 +1,6 @@
 ///<reference path='../resources/jest.d.ts'/>
 
-import { OrderedMap, Seq } from '../';
+import { OrderedMap, Range, Seq } from 'immutable';
 
 describe('OrderedMap', () => {
   it('converts from object', () => {
@@ -112,5 +112,23 @@ describe('OrderedMap', () => {
       ['D', 'donut'],
       ['A', 'apple'],
     ]);
+  });
+
+  it('performs deleteAll correctly after resizing internal list', () => {
+    // See condition for resizing internal list here:
+    // https://github.com/immutable-js/immutable-js/blob/91c7c1e82ec616804768f968cc585565e855c8fd/src/OrderedMap.js#L138
+
+    // Create OrderedMap greater than or equal to SIZE (currently 32)
+    const SIZE = 32;
+    let map = OrderedMap(Range(0, SIZE).map(key => [key, 0]));
+
+    // Delete half of the keys so that internal list is twice the size of internal map
+    const keysToDelete = Range(0, SIZE / 2);
+    map = map.deleteAll(keysToDelete);
+
+    // Delete one more key to trigger resizing
+    map = map.deleteAll([SIZE / 2]);
+
+    expect(map.size).toBe(SIZE / 2 - 1);
   });
 });

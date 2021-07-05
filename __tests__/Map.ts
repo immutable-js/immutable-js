@@ -3,7 +3,7 @@
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { is, List, Map, Range, Record, Seq } from '../';
+import { is, List, Map, Range, Record, Seq } from 'immutable';
 
 describe('Map', () => {
   it('converts from object', () => {
@@ -256,6 +256,15 @@ describe('Map', () => {
     const m = Map({ a: 'a', b: 'b', c: 'c' });
     const r = m.map(value => value);
     expect(r).toBe(m);
+  });
+
+  it('provides unmodified original collection as 3rd iter argument', () => {
+    const m = Map({ a: 1, b: 1 });
+    const r = m.map((value, key, iter) => {
+      expect(iter).toEqual(m);
+      return 2 * iter.get(key);
+    });
+    expect(r.toObject()).toEqual({ a: 2, b: 2 });
   });
 
   it('filters values', () => {

@@ -1,18 +1,20 @@
 import { Set, Map } from '../../';
 
-{ // #constructor
+{
+  // #constructor
 
   // $ExpectType Set<unknown>
   Set();
 
-  const numberSet: Set<number> = Set();
+  const numberSet: Set<number> = Set<number>();
   const numberOrStringSet: Set<number | string> = Set([1, 'a']);
 
   // $ExpectError
   const invalidNumberSet: Set<number> = Set([1, 'a']);
 }
 
-{ // #size
+{
+  // #size
 
   // $ExpectType number
   Set().size;
@@ -21,7 +23,8 @@ import { Set, Map } from '../../';
   Set().size = 10;
 }
 
-{ // .of
+{
+  // .of
 
   // $ExpectType Set<number>
   Set.of(1, 2, 3);
@@ -33,7 +36,8 @@ import { Set, Map } from '../../';
   Set.of<number | string>('a', 1);
 }
 
-{ // .fromKeys
+{
+  // .fromKeys
 
   // $ExpectType Set<string>
   Set.fromKeys(Map<number, string>());
@@ -51,7 +55,8 @@ import { Set, Map } from '../../';
   Set.fromKeys<number | string>(Map<number | string, string>());
 }
 
-{ // #get
+{
+  // #get
 
   // $ExpectType number | undefined
   Set<number>().get(4);
@@ -63,7 +68,8 @@ import { Set, Map } from '../../';
   Set<number>().get<number>(4, 'a');
 }
 
-{ // #delete
+{
+  // #delete
 
   // $ExpectType Set<number>
   Set<number>().delete(0);
@@ -71,7 +77,8 @@ import { Set, Map } from '../../';
   // $ExpectError
   Set<number>().delete('a');
 }
-{ // #remove
+{
+  // #remove
 
   // $ExpectType Set<number>
   Set<number>().remove(0);
@@ -80,7 +87,8 @@ import { Set, Map } from '../../';
   Set<number>().remove('a');
 }
 
-{ // #clear
+{
+  // #clear
 
   // $ExpectType Set<number>
   Set<number>().clear();
@@ -89,7 +97,8 @@ import { Set, Map } from '../../';
   Set().clear(10);
 }
 
-{ // #map
+{
+  // #map
 
   // $ExpectType Set<number>
   Set<number>().map((value: number, key: number, iter: Set<number>) => 1);
@@ -98,52 +107,80 @@ import { Set, Map } from '../../';
   Set<number>().map((value: number, key: number, iter: Set<number>) => 'a');
 
   // $ExpectType Set<number>
-  Set<number>().map<number>((value: number, key: number, iter: Set<number>) => 1);
+  Set<number>().map<number>(
+    (value: number, key: number, iter: Set<number>) => 1
+  );
 
-  // $ExpectError
-  Set<number>().map<string>((value: number, key: number, iter: Set<number>) => 1);
+  Set<number>().map<string>(
+    // $ExpectError
+    (value: number, key: number, iter: Set<number>) => 1
+  );
 
-  // $ExpectError
-  Set<number>().map<number>((value: string, key: number, iter: Set<number>) => 1);
+  Set<number>().map<number>(
+    // $ExpectError
+    (value: string, key: number, iter: Set<number>) => 1
+  );
 
-  // $ExpectError
-  Set<number>().map<number>((value: number, key: string, iter: Set<number>) => 1);
+  Set<number>().map<number>(
+    // $ExpectError
+    (value: number, key: string, iter: Set<number>) => 1
+  );
 
-  // $ExpectError
-  Set<number>().map<number>((value: number, key: number, iter: Set<string>) => 1);
+  Set<number>().map<number>(
+    // $ExpectError
+    (value: number, key: number, iter: Set<string>) => 1
+  );
 
-  // $ExpectError
-  Set<number>().map<number>((value: number, key: number, iter: Set<number>) => 'a');
+  Set<number>().map<number>(
+    // $ExpectError
+    (value: number, key: number, iter: Set<number>) => 'a'
+  );
 }
 
-{ // #flatMap
+{
+  // #flatMap
 
   // $ExpectType Set<number>
   Set<number>().flatMap((value: number, key: number, iter: Set<number>) => [1]);
 
   // $ExpectType Set<string>
-  Set<number>().flatMap((value: number, key: number, iter: Set<number>) => ['a']);
+  Set<number>().flatMap((value: number, key: number, iter: Set<number>) => [
+    'a',
+  ]);
 
   // $ExpectType Set<number>
-  Set<number>().flatMap<number>((value: number, key: number, iter: Set<number>) => [1]);
+  Set<number>().flatMap<number>(
+    (value: number, key: number, iter: Set<number>) => [1]
+  );
 
-  // $ExpectError
-  Set<number>().flatMap<string>((value: number, key: number, iter: Set<number>) => [1]);
+  Set<number>().flatMap<string>(
+    // $ExpectError
+    (value: number, key: number, iter: Set<number>) => [1]
+  );
 
-  // $ExpectError
-  Set<number>().flatMap<number>((value: string, key: number, iter: Set<number>) => [1]);
+  Set<number>().flatMap<number>(
+    // $ExpectError
+    (value: string, key: number, iter: Set<number>) => [1]
+  );
 
-  // $ExpectError
-  Set<number>().flatMap<number>((value: number, key: string, iter: Set<number>) => [1]);
+  Set<number>().flatMap<number>(
+    // $ExpectError
+    (value: number, key: string, iter: Set<number>) => [1]
+  );
 
-  // $ExpectError
-  Set<number>().flatMap<number>((value: number, key: number, iter: Set<string>) => [1]);
+  Set<number>().flatMap<number>(
+    // $ExpectError
+    (value: number, key: number, iter: Set<string>) => [1]
+  );
 
-  // $ExpectError
-  Set<number>().flatMap<number>((value: number, key: number, iter: Set<number>) => ['a']);
+  Set<number>().flatMap<number>(
+    // $ExpectError
+    (value: number, key: number, iter: Set<number>) => ['a']
+  );
 }
 
-{ // #union
+{
+  // #union
 
   // $ExpectType Set<number>
   Set<number>().union(Set<number>());
@@ -158,7 +195,8 @@ import { Set, Map } from '../../';
   Set<number | string>().union(Set<number>());
 }
 
-{ // #merge
+{
+  // #merge
 
   // $ExpectType Set<number>
   Set<number>().merge(Set<number>());
@@ -173,7 +211,8 @@ import { Set, Map } from '../../';
   Set<number | string>().merge(Set<number>());
 }
 
-{ // #intersect
+{
+  // #intersect
 
   // $ExpectType Set<number>
   Set<number>().intersect(Set<number>());
@@ -188,7 +227,8 @@ import { Set, Map } from '../../';
   Set<number | string>().intersect(Set<number>());
 }
 
-{ // #subtract
+{
+  // #subtract
 
   // $ExpectType Set<number>
   Set<number>().subtract(Set<number>());
@@ -203,7 +243,8 @@ import { Set, Map } from '../../';
   Set<number | string>().subtract(Set<number>());
 }
 
-{ // #flatten
+{
+  // #flatten
 
   // $ExpectType Collection<unknown, unknown>
   Set<number>().flatten();
@@ -218,22 +259,25 @@ import { Set, Map } from '../../';
   Set<number>().flatten('a');
 }
 
-{ // #withMutations
+{
+  // #withMutations
 
   // $ExpectType Set<number>
-  Set<number>().withMutations(mutable => mutable);
+  Set<number>().withMutations((mutable) => mutable);
 
   // $ExpectError
   Set<number>().withMutations((mutable: Set<string>) => mutable);
 }
 
-{ // #asMutable
+{
+  // #asMutable
 
   // $ExpectType Set<number>
   Set<number>().asMutable();
 }
 
-{ // #asImmutable
+{
+  // #asImmutable
 
   // $ExpectType Set<number>
   Set<number>().asImmutable();

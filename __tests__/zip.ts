@@ -3,7 +3,7 @@
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { Collection, List, Range, Seq } from '../';
+import { Collection, List, Range, Seq } from 'immutable';
 
 describe('zip', () => {
   it('zips lists into a list of tuples', () => {

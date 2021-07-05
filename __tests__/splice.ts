@@ -3,7 +3,7 @@
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { List, Range, Seq } from '../';
+import { List, Range, Seq } from 'immutable';
 
 describe('splice', () => {
   it('splices a sequence only removing elements', () => {

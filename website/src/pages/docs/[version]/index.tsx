@@ -30,7 +30,15 @@ export async function getStaticProps(context: {
   const defs = getTypeDefs(version);
   const overviewData = getOverviewData(defs);
   const sidebarLinks = getSidebarLinks(defs);
-  return { props: { versions, version, overviewData, sidebarLinks } };
+
+  return {
+    props: {
+      versions,
+      version,
+      overviewData,
+      sidebarLinks,
+    },
+  };
 }
 
 export function getStaticPaths(): {

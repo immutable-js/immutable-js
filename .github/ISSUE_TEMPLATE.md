@@ -30,6 +30,7 @@ Search existing issues first: https://github.com/immutable-js/immutable-js/searc
 Please ensure you're using the latest version, and provide some information below.
 
 -->
+
 ### What happened
 
 <!-- Shortly summarize what went wrong. Be sure to include not just what

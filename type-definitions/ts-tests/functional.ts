@@ -6,7 +6,8 @@ import {
   update,
 } from '../../';
 
-{ // get
+{
+  // get
 
   // $ExpectType number | undefined
   get([1, 2, 3], 0);
@@ -21,7 +22,8 @@ import {
   get({ x: 10, y: 20 }, 'z', 'missing');
 }
 
-{ // has
+{
+  // has
 
   // $ExpectType boolean
   has([1, 2, 3], 0);
@@ -30,7 +32,8 @@ import {
   has({ x: 10, y: 20 }, 'x');
 }
 
-{ // set
+{
+  // set
 
   // $ExpectType number[]
   set([1, 2, 3], 0, 10);
@@ -48,7 +51,8 @@ import {
   set({ x: 10, y: 20 }, 'x', 'a');
 }
 
-{ // remove
+{
+  // remove
 
   // $ExpectType number[]
   remove([1, 2, 3], 0);
@@ -57,7 +61,8 @@ import {
   remove({ x: 10, y: 20 }, 'x');
 }
 
-{ // update
+{
+  // update
 
   // $ExpectType number[]
   update([1, 2, 3], 0, (v: number) => v + 1);
