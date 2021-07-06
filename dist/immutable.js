@@ -5433,6 +5433,7 @@
   OrderedSetPrototype[IS_ORDERED_SYMBOL] = true;
   OrderedSetPrototype.zip = IndexedCollectionPrototype.zip;
   OrderedSetPrototype.zipWith = IndexedCollectionPrototype.zipWith;
+  OrderedSetPrototype.zipAll = IndexedCollectionPrototype.zipAll;
 
   OrderedSetPrototype.__empty = emptyOrderedSet;
   OrderedSetPrototype.__make = makeOrderedSet;
