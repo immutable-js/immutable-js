@@ -248,25 +248,25 @@ import {
   List().update((v) => 1);
 
   // $ExpectError
-  List<number>().update((v: List<string>) => v);
+  List<number>().update((v: List<string> | undefined) => v);
 
   // $ExpectType List<number>
-  List<number>().update(0, (v: number) => 0);
+  List<number>().update(0, (v: number | undefined) => 0);
 
   // $ExpectError
-  List<number>().update(0, (v: number) => v + 'a');
+  List<number>().update(0, (v: number | undefined) => v + 'a');
 
   // $ExpectType List<number>
-  List<number>().update(1, 10, (v: number) => 0);
+  List<number>().update(1, 10, (v: number | undefined) => 0);
 
   // $ExpectError
-  List<number>().update(1, 'a', (v: number) => 0);
+  List<number>().update(1, 'a', (v: number | undefined) => 0);
 
   // $ExpectError
-  List<number>().update(1, 10, (v: number) => v + 'a');
+  List<number>().update(1, 10, (v: number | undefined) => v + 'a');
 
   // $ExpectType List<number>
-  update(List<number>(), 0, (v: number) => 0);
+  update(List<number>(), 0, (v: number | undefined) => 0);
 
   // $ExpectError
   update(List<number>(), 1, 10, (v: number) => v + 'a');

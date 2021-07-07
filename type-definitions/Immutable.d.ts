@@ -391,7 +391,11 @@ declare module Immutable {
      *
      * @see `Map#update`
      */
-    update(index: number, notSetValue: T, updater: (value: T | undefined) => T): this;
+    update(
+      index: number,
+      notSetValue: T,
+      updater: (value: T | undefined) => T
+    ): this;
     update(index: number, updater: (value: T | undefined) => T): this;
     update<R>(updater: (value: this) => R): R;
 
@@ -4755,7 +4759,7 @@ declare module Immutable {
     /**
      * Like `max`, but also accepts a `comparatorValueMapper` which allows for
      * comparing by more sophisticated means:
-     * 
+     *
      * <!-- runkit:activate -->
      * ```js
      * const { List, } = require('immutable');
@@ -4792,7 +4796,7 @@ declare module Immutable {
     /**
      * Like `min`, but also accepts a `comparatorValueMapper` which allows for
      * comparing by more sophisticated means:
-     * 
+     *
      * <!-- runkit:activate -->
      * ```js
      * const { List, } = require('immutable');
@@ -5334,7 +5338,7 @@ declare module Immutable {
   export function update<K, V, C extends Collection<K, V>>(
     collection: C,
     key: K,
-    updater: (value: V) => V
+    updater: (value: V | undefined) => V
   ): C;
   export function update<K, V, C extends Collection<K, V>, NSV>(
     collection: C,
