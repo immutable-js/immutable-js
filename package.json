@@ -43,7 +43,8 @@
     "type-check:flow": "flow check type-definitions/flow-tests --include-warnings",
     "perf": "node ./resources/bench.js",
     "website:build": "cd website && next build && next-sitemap && next export",
-    "website:dev": "cd website && next dev"
+    "website:dev": "cd website && next dev",
+    "publish": "echo 'ONLY PUBLISH VIA CI'; exit 1;"
   },
   "prettier": {
     "singleQuote": true,
