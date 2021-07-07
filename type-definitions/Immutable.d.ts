@@ -4330,7 +4330,17 @@ declare module Immutable {
      * Like `sort`, but also accepts a `comparatorValueMapper` which allows for
      * sorting by more sophisticated means:
      *
-     *     hitters.sortBy(hitter => hitter.avgHits)
+     * <!-- runkit:activate -->
+     * ```js
+     * const { Map } = require('immutable')
+     * const beattles = Map({
+     *   John: { name: "Lennon" },
+     *   Paul: { name: "McCartney" },
+     *   George: { name: "Harrison" },
+     *   Ringo: { name: "Starr" },
+     * });
+     * beattles.sortBy(member => member.name);
+     * ```
      *
      * Note: `sortBy()` Always returns a new instance, even if the original was
      * already sorted.
@@ -4742,9 +4752,17 @@ declare module Immutable {
     /**
      * Like `max`, but also accepts a `comparatorValueMapper` which allows for
      * comparing by more sophisticated means:
-     *
-     *     hitters.maxBy(hitter => hitter.avgHits);
-     *
+     * 
+     * <!-- runkit:activate -->
+     * ```js
+     * const { List, } = require('immutable');
+     * const l = List([
+     *   { name: 'Bob', avgHit: 1 },
+     *   { name: 'Max', avgHit: 3 },
+     *   { name: 'Lili', avgHit: 2 } ,
+     * ]);
+     * l.maxBy(i => i.avgHit); // will output { name: 'Max', avgHit: 3 }
+     * ```
      */
     maxBy<C>(
       comparatorValueMapper: (value: V, key: K, iter: this) => C,
@@ -4771,9 +4789,17 @@ declare module Immutable {
     /**
      * Like `min`, but also accepts a `comparatorValueMapper` which allows for
      * comparing by more sophisticated means:
-     *
-     *     hitters.minBy(hitter => hitter.avgHits);
-     *
+     * 
+     * <!-- runkit:activate -->
+     * ```js
+     * const { List, } = require('immutable');
+     * const l = List([
+     *   { name: 'Bob', avgHit: 1 },
+     *   { name: 'Max', avgHit: 3 },
+     *   { name: 'Lili', avgHit: 2 } ,
+     * ]);
+     * l.minBy(i => i.avgHit); // will output { name: 'Bob', avgHit: 1 }
+     * ```
      */
     minBy<C>(
       comparatorValueMapper: (value: V, key: K, iter: this) => C,
