@@ -24,6 +24,9 @@ import { Map, List } from 'immutable';
   // $ExpectType ObjectLikeMap<{ a: number; b: string; }>
   Map({ a: 1, b: 'b' });
 
+  // $ExpectType ObjectLikeMap<{ a: ObjectLikeMap<{ b: ObjectLikeMap<{ c: number; }>; }>; }>
+  Map({ a: Map({ b: Map({ c: 3 }) }) });
+
   // $ExpectError
   Map<{ a: string }>({ a: 1 });
 
@@ -82,6 +85,17 @@ import { Map, List } from 'immutable';
 
   // $ExpectError
   Map({ a: 4 }).get('b');
+}
+
+{
+  // Minimum TypeScript Version: 4.1
+  // #getIn
+
+  // $ExpectType number
+  Map({ a: 4, b: true }).getIn(['a']);
+
+  // $ExpectType number
+  Map({ a: Map({ b: Map({ c: Map({ d: 4 }) }) }) }).getIn(['a', 'b', 'c', 'd']);
 }
 
 {
