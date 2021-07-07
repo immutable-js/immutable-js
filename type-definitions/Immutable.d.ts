@@ -391,11 +391,7 @@ declare module Immutable {
      *
      * @see `Map#update`
      */
-    update(
-      index: number,
-      notSetValue: T,
-      updater: (value: T | undefined) => T
-    ): this;
+    update(index: number, notSetValue: T, updater: (value: T) => T): this;
     update(index: number, updater: (value: T | undefined) => T): this;
     update<R>(updater: (value: this) => R): R;
 
@@ -962,7 +958,7 @@ declare module Immutable {
      * Note: `update(key)` can be used in `withMutations`.
      */
     update(key: K, notSetValue: V, updater: (value: V) => V): this;
-    update(key: K, updater: (value: V) => V): this;
+    update(key: K, updater: (value: V | undefined) => V): this;
     update<R>(updater: (value: this) => R): R;
 
     /**
