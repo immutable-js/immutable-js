@@ -392,7 +392,7 @@
      * @see `Map#update`
      */
     update(index: number, notSetValue: T, updater: (value: T) => T): this;
-    update(index: number, updater: (value: T) => T): this;
+    update(index: number, updater: (value: T | undefined) => T): this;
     update<R>(updater: (value: this) => R): R;
 
     /**
@@ -958,7 +958,7 @@
      * Note: `update(key)` can be used in `withMutations`.
      */
     update(key: K, notSetValue: V, updater: (value: V) => V): this;
-    update(key: K, updater: (value: V) => V): this;
+    update(key: K, updater: (value: V | undefined) => V): this;
     update<R>(updater: (value: this) => R): R;
 
     /**
@@ -1367,7 +1367,7 @@
      * @see Collection.Keyed.mapEntries
      */
     mapEntries<KM, VM>(
-      mapper: (entry: [K, V], index: number, iter: this) => [KM, VM],
+      mapper: (entry: [K, V], index: number, iter: this) => [KM, VM] | undefined,
       context?: unknown
     ): Map<KM, VM>;
 
@@ -1538,7 +1538,7 @@
      * @see Collection.Keyed.mapEntries
      */
     mapEntries<KM, VM>(
-      mapper: (entry: [K, V], index: number, iter: this) => [KM, VM],
+      mapper: (entry: [K, V], index: number, iter: this) => [KM, VM] | undefined,
       context?: unknown
     ): OrderedMap<KM, VM>;
 
@@ -2825,7 +2825,7 @@
        * @see Collection.Keyed.mapEntries
        */
       mapEntries<KM, VM>(
-        mapper: (entry: [K, V], index: number, iter: this) => [KM, VM],
+        mapper: (entry: [K, V], index: number, iter: this) => [KM, VM] | undefined,
         context?: unknown
       ): Seq.Keyed<KM, VM>;
 
@@ -3431,9 +3431,11 @@
        *
        * Note: `mapEntries()` always returns a new instance, even if it produced
        * the same entry at every step.
+       * 
+       * If the mapper function returns `undefined`, then the entry will be filtered
        */
       mapEntries<KM, VM>(
-        mapper: (entry: [K, V], index: number, iter: this) => [KM, VM],
+        mapper: (entry: [K, V], index: number, iter: this) => [KM, VM] | undefined,
         context?: unknown
       ): Collection.Keyed<KM, VM>;
 
@@ -4753,7 +4755,7 @@
     /**
      * Like `max`, but also accepts a `comparatorValueMapper` which allows for
      * comparing by more sophisticated means:
-     * 
+     *
      * <!-- runkit:activate -->
      * ```js
      * const { List, } = require('immutable');
@@ -4790,7 +4792,7 @@
     /**
      * Like `min`, but also accepts a `comparatorValueMapper` which allows for
      * comparing by more sophisticated means:
-     * 
+     *
      * <!-- runkit:activate -->
      * ```js
      * const { List, } = require('immutable');
@@ -5332,7 +5334,7 @@
   export function update<K, V, C extends Collection<K, V>>(
     collection: C,
     key: K,
-    updater: (value: V) => V
+    updater: (value: V | undefined) => V
   ): C;
   export function update<K, V, C extends Collection<K, V>, NSV>(
     collection: C,
