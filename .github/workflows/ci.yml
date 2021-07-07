@@ -25,7 +25,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run check:git-clean
-      - name: Publish NPM Branch
+      - name: Push NPM Branch
         if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
         with:
