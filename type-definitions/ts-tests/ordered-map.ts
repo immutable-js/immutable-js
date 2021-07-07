@@ -145,22 +145,22 @@ import { OrderedMap, List } from '../../';
   OrderedMap().update((v) => 1);
 
   // $ExpectError
-  OrderedMap<number, number>().update((v: OrderedMap<string>) => v);
+  OrderedMap<number, number>().update((v: OrderedMap<string> | undefined) => v);
 
   // $ExpectType OrderedMap<number, number>
-  OrderedMap<number, number>().update(0, (v: number) => 0);
+  OrderedMap<number, number>().update(0, (v: number | undefined) => 0);
 
   // $ExpectError
-  OrderedMap<number, number>().update(0, (v: number) => v + 'a');
+  OrderedMap<number, number>().update(0, (v: number | undefined) => v + 'a');
 
   // $ExpectType OrderedMap<number, number>
-  OrderedMap<number, number>().update(1, 10, (v: number) => 0);
+  OrderedMap<number, number>().update(1, 10, (v: number | undefined) => 0);
 
   // $ExpectError
-  OrderedMap<number, number>().update(1, 'a', (v: number) => 0);
+  OrderedMap<number, number>().update(1, 'a', (v: number | undefined) => 0);
 
   // $ExpectError
-  OrderedMap<number, number>().update(1, 10, (v: number) => v + 'a');
+  OrderedMap<number, number>().update(1, 10, (v: number | undefined) => v + 'a');
 }
 
 {

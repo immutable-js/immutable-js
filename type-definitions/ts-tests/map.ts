@@ -160,22 +160,22 @@ import { Map, List } from '../../';
   Map().update((v) => 1);
 
   // $ExpectError
-  Map<number, number>().update((v: Map<string>) => v);
+  Map<number, number>().update((v: Map<string> | undefined) => v);
 
   // $ExpectType Map<number, number>
-  Map<number, number>().update(0, (v: number) => 0);
+  Map<number, number>().update(0, (v: number | undefined) => 0);
 
   // $ExpectError
-  Map<number, number>().update(0, (v: number) => v + 'a');
+  Map<number, number>().update(0, (v: number | undefined) => v + 'a');
 
   // $ExpectType Map<number, number>
-  Map<number, number>().update(1, 10, (v: number) => 0);
+  Map<number, number>().update(1, 10, (v: number | undefined) => 0);
 
   // $ExpectError
-  Map<number, number>().update(1, 'a', (v: number) => 0);
+  Map<number, number>().update(1, 'a', (v: number | undefined) => 0);
 
   // $ExpectError
-  Map<number, number>().update(1, 10, (v: number) => v + 'a');
+  Map<number, number>().update(1, 10, (v: number | undefined) => v + 'a');
 }
 
 {
