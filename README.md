@@ -21,7 +21,7 @@ intermediate representations. Create some `Seq` with `Range` and `Repeat`.
 
 Want to hear more? Watch the presentation about Immutable.js:
 
-[![Immutable Data and React](/resources/Immutable-Data-and-React-YouTube.png)](https://youtu.be/I7IdS-PbEgI)
+[![Immutable Data and React](website/public/Immutable-Data-and-React-YouTube.png)](https://youtu.be/I7IdS-PbEgI)
 
 [Persistent]: https://en.wikipedia.org/wiki/Persistent_data_structure
 [Immutable]: https://en.wikipedia.org/wiki/Immutable_object
