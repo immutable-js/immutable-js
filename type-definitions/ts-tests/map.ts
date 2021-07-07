@@ -26,6 +26,18 @@ import { Map, List } from '../../';
   // No longer works in typescript@>=3.9
   // // $ExpectError - TypeScript does not support Lists as tuples
   // Map(List([List(['a', 'b'])]));
+
+  // $ExpectError
+  const invalidNumberMap: Map<number, number> = Map();
+
+  // $ExpectType Map<"status", string>
+  Map<'status', string>({ status: 'paid' });
+
+  // $ExpectType Map<"status" | "amount", string>
+  Map<'status' | 'amount', string>({ status: 'paid' });
+
+  // $ExpectError
+  Map<'status', string>({ status: 'paid', amount: 10 });
 }
 
 {
