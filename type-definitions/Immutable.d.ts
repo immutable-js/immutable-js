@@ -779,7 +779,32 @@ declare namespace Immutable {
      */
     get<K extends keyof R>(key: K, notSetValue?: unknown): R[K];
     get<NSV>(key: string, notSetValue: NSV): NSV;
+
+    // this `getIn` implementation is not ideal.
+    // it could be optimized See https://github.com/immutable-js/immutable-js/issues/1462#issuecomment-584123268
+    // or https://www.typescriptlang.org/play?ts=4.3.5#code/FAFwngDgpgBA4lEBZAhhAKpKAeAygPhgF4ZcYoAPEKAOwBMBnGAeQCMArKAYxABkBLANZRUEbPxoAzKACcY6QgH55MAFykA3MBgxQWGAAkoKOtgXEVlavSYAFFDJQBbRLIbYAFADd1E6XIAlABoYADpwhwBzBnUUGjAAbQBdAEpiQjiwfG0dGGUAnJ11GigvWS09aENjOnQoBhAARgsjE2wExpCAJhCAZiT8DRgAemGYRsrYVtr6kC6WmvaBodGYErKZSeqTOobehbaAIhoAexAYOIuZRzBDwZGx9dlgLfQUfgAbM0ISdHIqWiMC7xZKFPIwDwecKhKIxeRpIgZeJpKyApjeWLxELQ2G+KSyGABBFIsBg3Lggrk8nFUrPalrWkyCrgKpvT67JoWNlfDrdPrLB4wBI9GD9V7vD4c+a-CVLe6rUEs2Dcjn7GWfbDHM7Aq43O4rR6Ml5KmAAYRONC4KBAZhCAFUfjB7I4XNQZO4wRj5NiIjJouo7f9rEDMslwYGaRticDSYNjfpzZbrRzmiRE1abQAGEK8mAi-rysYJbPjPmipJbdPJ2bSs0WjPYEta86XBx6wsMjbxqoBRkMKC9ugAVy4slthJCpsdAG8wZn1FWbehJ3HyY11L2Nv3ByOx9NsAF8CFuQej3Wk0uV3GAL4JAJBtFCpLgzNqcZJZn6TduHDmX4Pmwn3BMMNz7AcoGHUcZGwfcFGPWU4KfOMtm-d0oBTCxUP7dpOjzfkOwSXoy0aCsTSw9Ca0wsC5UFRUvzA1UqK3HBmx1NsUFuQhVieTYtgANRQD5+Doa0oHsEAAAsdyg8deBCYIWEdXgAKBYQwBOSR5DBZRZypKl50JajF2wOTFNXPTcnXGABKEkTqHEqSIN3aD0ASXgkhCfdD3gjVvPPBtTOYfBzPJW971RQCw2UV91BIsFI3KF5KAgE4ZHOE0bOE0SHNkpSVKYUFyWUQrcnUTK7LE61HMgsdl22UxeDPE9GpzZZu1gXsQBkfgygc6TasnEJlIikMQQGCxTXymA1I0+BEFETBoG+bSYF0iydAMhBkDQRbf3wBJTQ-MkqSszrut6qr+ugraFqwb4Do8+qTKa2VGpC3Jb2GgFIufaK3zi+keIqVZktS9L6K6nrKsk3KLC+4MCorVYiq05HSsMyGLskq7x33Fr5Fe4KKnJHJQbSmAyMQc7oYk2GSHhx8Sp0ZR0HijHqb6pyZLqvGXo1N6KgkN1JBQUcYAAOVmCDVrBFB1DWvTWHl469K4YohycVhEvW68tFCrRr3a+RZlTazBKy+yquwSWGggnNDhQQ4QkOVhDgFBUHadl23deSiSHK7KrZt6g6Htx3nboN2Ox4o3GJIM6oZy4O7eNhpGg7acYDVtYNa1uRDZNDkABYqMxmnral0PU7maOjSSigUvJoXZBFsW2E4HgBGEURsDBcLvqBTOEjUmAJBgBpupoSIknUIcaEEU4AHcaBgQ2dEIBWRgAKi3skt4xocZBoJhJNgLxBKHWAUAYBgTi4fhRLoGBF-4SSKYk2AIBkE4vGE6W1JCKlNYZxcCIBspfUekg97v1gOaD4HxuAgH4BaGAdATj1GAecLgFoQDvBXpJfgTA1KhD3tA8WZwoC+HOIQmAKUb78FYAgi400oBgBgE4DiMAtYXBvnfB+Idn6vwkjqAABnPOgUBJASAgiImA58PiXyCNA2+kCYAiNOCAUBIBwFQFkTQjRtDv6-wkU-OIT8CFMFdBJE4T8ZCIEPsfNR4jJHSLoCIpRVJ96SWtKg9BTADGRCHA4OI1BYCnxYWwxe19MEwEkCccRJDPHDDBJERA2AADSU0ZqaUPB4NS6h0khA0VonRihZ7zyXjQFIG4EjpKOuSVJNpxa4D4vgPJrD1ATwkJEIpICwEX0oRLFp1Shl8WJrkRpABJGg2BbBTS6VPZIbT+wOC4BJdJrCHLqFsL0zR-SFFQDKTAOeC8TjLxGQnLGtMFK2HMobF4aNsHH3OCcdQ7dEFdxEGgbAmc5YsA4B8oQXyxCZyVv8jufAgU90ztnGgudyir3uNeJFyEchkQsO8zuULvm-PVprAkyKchPIaDAGQG49a6B0CaOAABRdAAB9SZ4t6UBBpbgO0vA-jxyponK2CkEgAHIUACvGtxeFmwqX6FpQyplLK2UcoZabS5NMcYKX3IK4VAwfI8iFSK4Kgo4X4olRTKVdLGXMtZeyzl9LGisAsNkua20MB3UPIKXVaLTUyotfK61jQUAWF1Vk1hs0bo7RdUoGAgaEpMjdcKj1VRpXmrlVahltZQ3OqWoeA0q0Lh4rzqveNsBE2ystQq+lXR-UkHTbtH5fzDV52Rdm3FOcjUFuAKsBg1ihwfCftw444rDhcKHNQpgxxGSHFCE6E49DGFsK1laIc-Z2a8phgpBZkQlmkvsUfUdPFB2sGHcuq5B4cy6vGmgjBi9UqCGAMSrBFgZChCmTQDwGqRUpCAA
+    getIn<K1 extends keyof R>(path: [K1]): R[K1];
+    getIn<K1 extends keyof R, K2 extends keyof GetMapType<R[K1]>>(
+      path: [K1, K2]
+    ): GetMapType<R[K1]>[K2];
+    getIn<
+      K1 extends keyof R,
+      K2 extends keyof GetMapType<R[K1]>,
+      K3 extends keyof GetMapType<GetMapType<R[K1]>[K2]>
+    >(
+      path: [K1, K2, K3]
+    ): GetMapType<GetMapType<R[K1]>[K2]>[K3];
+    getIn<
+      K1 extends keyof R,
+      K2 extends keyof GetMapType<R[K1]>,
+      K3 extends keyof GetMapType<GetMapType<R[K1]>[K2]>,
+      K4 extends keyof GetMapType<GetMapType<GetMapType<R[K1]>[K2]>[K3]>
+    >(
+      path: [K1, K2, K3, K4]
+    ): GetMapType<GetMapType<GetMapType<R[K1]>[K2]>[K3]>[K4];
   }
+
+  type GetMapType<S> = S extends ObjectLikeMap<infer T> ? T : S;
 
   export interface Map<K, V> extends Collection.Keyed<K, V> {
     /**
