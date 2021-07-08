@@ -21,6 +21,22 @@
   "typescript": {
     "definition": "dist/immutable.d.ts"
   },
+  "publishKeys": [
+    "name",
+    "version",
+    "description",
+    "license",
+    "homepage",
+    "author",
+    "repository",
+    "bugs",
+    "main",
+    "module",
+    "typings",
+    "typescript",
+    "files",
+    "keywords"
+  ],
   "engines": {
     "npm": ">=7.0.0"
   },
