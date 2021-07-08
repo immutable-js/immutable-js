@@ -1,5 +1,3 @@
-///<reference path='../resources/jest.d.ts'/>
-
 import { is, List, Seq, Set } from 'immutable';
 
 describe('concat', () => {
@@ -43,7 +41,8 @@ describe('concat', () => {
     const a = Seq({ a: 1, b: 2, c: 3 });
     const b = [4, 5, 6];
     expect(() => {
-      a.concat(b as any).toJS();
+      // @ts-expect-error
+      a.concat(b).toJS();
     }).toThrow('Expected [K, V] tuple: 4');
   });
 

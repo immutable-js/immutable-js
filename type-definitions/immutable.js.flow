@@ -1905,7 +1905,7 @@ declare function fromJS(
     sequence: KeyedCollection<string, mixed> | IndexedCollection<mixed>,
     path?: Array<string | number>
   ) => mixed
-): mixed;
+): Collection<mixed, mixed>;
 
 declare function is(first: mixed, second: mixed): boolean;
 declare function hash(value: mixed): number;

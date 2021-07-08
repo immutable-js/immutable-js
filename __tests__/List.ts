@@ -1,11 +1,9 @@
-///<reference path='../resources/jest.d.ts'/>
+import { fromJS, List, Map, Range, Seq, Set } from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { fromJS, List, Map, Range, Seq, Set } from 'immutable';
-
-function arrayOfSize(s) {
+function arrayOfSize(s: number) {
   const a = new Array(s);
   for (let ii = 0; ii < s; ii++) {
     a[ii] = ii;
@@ -40,7 +38,8 @@ describe('List', () => {
 
   it('does not accept a scalar', () => {
     expect(() => {
-      List(3 as any);
+      // @ts-expect-error
+      List(3);
     }).toThrow('Expected Array or collection object of values: 3');
   });
 
@@ -51,7 +50,7 @@ describe('List', () => {
   });
 
   it('accepts an array-like', () => {
-    const v = List({ length: 3, 2: 'c' } as any);
+    const v = List({ length: 3, 2: 'c' });
     expect(v.get(2)).toBe('c');
     expect(v.toArray()).toEqual([undefined, undefined, 'c']);
   });
@@ -103,7 +102,7 @@ describe('List', () => {
   });
 
   it('can setIn on an inexistant index', () => {
-    const myMap = Map({ a: [], b: [] });
+    const myMap = Map<string, any>({ a: [], b: [] });
     const out = myMap.setIn(['a', 0], 'v').setIn(['c', 0], 'v');
 
     expect(out.getIn(['a', 0])).toEqual('v');
@@ -126,7 +125,7 @@ describe('List', () => {
       ],
     ];
 
-    const avengersList = fromJS(avengers);
+    const avengersList = fromJS(avengers) as List<unknown>;
 
     // change theHulk to scarletWitch
     const out1 = avengersList.setIn([1, 1, 1, 0], 'scarletWitch');
@@ -144,6 +143,7 @@ describe('List', () => {
 
   it('can update a value', () => {
     const l = List.of(5);
+    // @ts-ignore (Type definition limitation)
     expect(l.update(0, v => v * v).toArray()).toEqual([25]);
   });
 
@@ -153,6 +153,7 @@ describe('List', () => {
         aKey: List(['bad', 'good']),
       }),
     ]);
+    // @ts-ignore (Type definition limitation)
     l = l.updateIn([0, 'aKey', 1], v => v + v);
     expect(l.toJS()).toEqual([
       {
@@ -816,7 +817,7 @@ describe('List', () => {
 
   it('discards truncated elements when using slice', () => {
     const list = [1, 2, 3, 4, 5, 6];
-    const v1 = fromJS(list);
+    const v1 = fromJS(list) as List<number>;
     const v2 = v1.slice(0, 3);
     const v3 = v2.setSize(6);
 
@@ -828,7 +829,7 @@ describe('List', () => {
 
   it('discards truncated elements when using setSize', () => {
     const list = [1, 2, 3, 4, 5, 6];
-    const v1 = fromJS(list);
+    const v1 = fromJS(list) as List<number>;
     const v2 = v1.setSize(3);
     const v3 = v2.setSize(6);
 

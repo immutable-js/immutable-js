@@ -1,9 +1,7 @@
-///<reference path='../resources/jest.d.ts'/>
-
-import jasmineCheck = require('jasmine-check');
-jasmineCheck.install();
-
 import { Seq } from 'immutable';
+
+import * as jasmineCheck from 'jasmine-check';
+jasmineCheck.install();
 
 describe('join', () => {
   it('string-joins sequences with commas by default', () => {

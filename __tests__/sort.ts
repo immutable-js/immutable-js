@@ -1,5 +1,3 @@
-///<reference path='../resources/jest.d.ts'/>
-
 import { List, OrderedMap, Range, Seq } from 'immutable';
 
 describe('sort', () => {

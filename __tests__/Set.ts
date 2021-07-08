@@ -1,6 +1,3 @@
-///<reference path='../resources/jest.d.ts'/>
-
-declare var Symbol: any;
 import { fromJS, is, List, Map, OrderedSet, Seq, Set } from 'immutable';
 
 describe('Set', () => {
@@ -13,7 +10,7 @@ describe('Set', () => {
   });
 
   it('accepts array-like of values', () => {
-    const s = Set<any>({ length: 3, 2: 3 } as any);
+    const s = Set<number | undefined>({ length: 3, 2: 3 });
     expect(s.size).toBe(2);
     expect(s.has(undefined)).toBe(true);
     expect(s.has(3)).toBe(true);
@@ -259,15 +256,6 @@ describe('Set', () => {
   });
 
   describe('accepts Symbol as entry #579', () => {
-    if (typeof Symbol !== 'function') {
-      Symbol = function (key) {
-        return { key, __proto__: Symbol };
-      };
-      Symbol.toString = function () {
-        return 'Symbol(' + (this.key || '') + ')';
-      };
-    }
-
     it('operates on small number of symbols, preserving set uniqueness', () => {
       const a = Symbol();
       const b = Symbol();
@@ -316,13 +304,15 @@ describe('Set', () => {
     expect(set.size).toEqual(5);
     expect(set.count()).toEqual(5);
     expect(set.count(x => x % 2 === 0)).toEqual(2);
-    expect(set.count(x => true)).toEqual(5);
+    expect(set.count(() => true)).toEqual(5);
   });
 
   describe('"size" should correctly reflect the number of elements in a Set', () => {
     describe('deduplicating custom classes that invoke fromJS() as part of equality check', () => {
       class Entity {
-        constructor(entityId, entityKey) {
+        entityId: string;
+        entityKey: string;
+        constructor(entityId: string, entityKey: string) {
           this.entityId = entityId;
           this.entityKey = entityKey;
         }

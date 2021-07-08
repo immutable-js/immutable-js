@@ -1,9 +1,7 @@
-///<reference path='../resources/jest.d.ts'/>
+import { is, Seq } from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
-
-import { is, Seq } from 'immutable';
 
 const genHeterogeneousishArray = gen.oneOf([
   gen.array(gen.oneOf([gen.string, gen.undefined])),

@@ -1,9 +1,7 @@
-///<reference path='../resources/jest.d.ts'/>
+import { Seq } from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
-
-import { Seq } from 'immutable';
 
 describe('IndexedSequence', () => {
   it('maintains skipped offset', () => {

@@ -1,5 +1,3 @@
-///<reference path='../resources/jest.d.ts'/>
-
 import { Range, Seq } from 'immutable';
 
 describe('count', () => {
