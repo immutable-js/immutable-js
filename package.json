@@ -21,6 +21,9 @@
   "typescript": {
     "definition": "dist/immutable.d.ts"
   },
+  "engines": {
+    "npm": ">=7.0.0"
+  },
   "scripts": {
     "check:all": "run-s lint:format test",
     "build": "run-s clean:dist bundle:dist bundle:es copy:dist stats:dist prepare:dist",
