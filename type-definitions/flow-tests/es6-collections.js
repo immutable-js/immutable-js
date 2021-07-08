@@ -1,6 +1,6 @@
 // @flow
 
-import { Map as ImmutableMap, Set as ImmutableSet } from '../../';
+import { Map as ImmutableMap, Set as ImmutableSet } from 'immutable';
 
 // Immutable.js collections
 var mapImmutable: ImmutableMap<string, number> = ImmutableMap();

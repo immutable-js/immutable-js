@@ -27,8 +27,8 @@ import Immutable, {
   setIn,
   update,
   updateIn,
-} from '../../';
-import * as Immutable2 from '../../';
+} from 'immutable';
+import * as Immutable2 from 'immutable';
 
 import type {
   KeyedCollection,
@@ -39,7 +39,7 @@ import type {
   SetSeq,
   RecordFactory,
   RecordOf,
-} from '../../';
+} from 'immutable';
 
 /**
  * Although this looks like dead code, importing `Immutable` and

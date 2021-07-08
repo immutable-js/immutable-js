@@ -1,6 +1,6 @@
 //@flow
 
-import { List, Map, Set, Stack, OrderedMap, OrderedSet } from '../../';
+import { List, Map, Set, Stack, OrderedMap, OrderedSet } from 'immutable';
 
 class A {
   x: number;

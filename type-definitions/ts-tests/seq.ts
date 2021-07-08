@@ -1,4 +1,4 @@
-import { Seq } from '../../';
+import { Seq } from 'immutable';
 
 {
   // #constructor

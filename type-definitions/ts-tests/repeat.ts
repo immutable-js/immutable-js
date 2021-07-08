@@ -1,4 +1,4 @@
-import { Repeat } from '../../';
+import { Repeat } from 'immutable';
 
 {
   // #constructor

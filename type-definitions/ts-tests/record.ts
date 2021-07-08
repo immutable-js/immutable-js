@@ -1,4 +1,4 @@
-import { Record } from '../../';
+import { Record } from 'immutable';
 
 {
   // Factory

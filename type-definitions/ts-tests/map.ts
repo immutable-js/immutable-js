@@ -1,4 +1,4 @@
-import { Map, List } from '../../';
+import { Map, List } from 'immutable';
 
 {
   // #constructor

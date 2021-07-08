@@ -9,7 +9,7 @@ import {
   removeIn,
   updateIn,
   merge,
-} from '../../';
+} from 'immutable';
 
 {
   // #constructor

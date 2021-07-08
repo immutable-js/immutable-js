@@ -1,5 +1,5 @@
 // @flow
-import { List } from '../../';
+import { List } from 'immutable';
 
 declare var mystery: mixed;
 

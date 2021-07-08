@@ -8,7 +8,11 @@
     "noEmit": true,
     "lib": [
       "es2015"
-    ]
+    ],
+    "baseUrl": "./",
+    "paths": {
+      "immutable": ["../../type-definitions/Immutable.d.ts"]
+    }
   },
   "exclude": ["node_modules"]
 }

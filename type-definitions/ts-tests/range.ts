@@ -1,4 +1,4 @@
-import { Range } from '../../';
+import { Range } from 'immutable';
 
 {
   // #constructor
