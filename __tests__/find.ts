@@ -1,9 +1,7 @@
-///<reference path='../resources/jest.d.ts'/>
+import { Seq } from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
-
-import { List, Range, Seq } from 'immutable';
 
 describe('find', () => {
   it('find returns notSetValue when match is not found', () => {

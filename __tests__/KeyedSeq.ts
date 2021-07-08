@@ -1,9 +1,7 @@
-///<reference path='../resources/jest.d.ts'/>
+import { Range, Seq } from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
-
-import { Range, Seq } from 'immutable';
 
 describe('KeyedSeq', () => {
   check.it('it iterates equivalently', [gen.array(gen.int)], ints => {

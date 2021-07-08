@@ -1,9 +1,7 @@
-///<reference path='../resources/jest.d.ts'/>
+import { Range } from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
-
-import { Range } from 'immutable';
 
 describe('Range', () => {
   it('fixed range', () => {

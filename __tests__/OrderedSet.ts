@@ -1,5 +1,3 @@
-///<reference path='../resources/jest.d.ts'/>
-
 import { OrderedSet, Map } from 'immutable';
 
 describe('OrderedSet', () => {

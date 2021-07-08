@@ -1,6 +1,3 @@
-///<reference path='../resources/jest.d.ts'/>
-
-declare var Symbol: any;
 import { List, OrderedMap, OrderedSet, Record, Seq, Set } from 'immutable';
 
 describe('Issue #1175', () => {

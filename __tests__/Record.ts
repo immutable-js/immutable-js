@@ -1,5 +1,3 @@
-///<reference path='../resources/jest.d.ts'/>
-
 import { isKeyed, List, Map, Record, Seq } from 'immutable';
 
 describe('Record', () => {
@@ -43,7 +41,8 @@ describe('Record', () => {
     const MyType = Record({ a: 1, b: 2, c: 3 });
 
     const t1 = MyType({ a: 10, b: 20 });
-    const t2 = t1.set('d' as any, 4);
+    // @ts-expect-error
+    const t2 = t1.set('d', 4);
 
     expect(t2).toBe(t1);
   });
@@ -127,7 +126,8 @@ describe('Record', () => {
 
     expect(t.get('a')).toEqual(1);
     expect(t.get('b')).toEqual(20);
-    expect((t as any).get('c')).toBeUndefined();
+    // @ts-expect-error
+    expect(t.get('c')).toBeUndefined();
   });
 
   it('returns itself when setting identical values', () => {
@@ -157,9 +157,8 @@ describe('Record', () => {
     const b: string = t1.b;
     expect(a).toEqual(1);
     expect(b).toEqual('foo');
-    expect(() => ((t1 as any).a = 2)).toThrow(
-      'Cannot set on an immutable record.'
-    );
+    // @ts-expect-error
+    expect(() => (t1.a = 2)).toThrow('Cannot set on an immutable record.');
   });
 
   it('allows for class extension', () => {

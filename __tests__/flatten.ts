@@ -1,9 +1,7 @@
-///<reference path='../resources/jest.d.ts'/>
+import { Collection, fromJS, List, Range, Seq } from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
-
-import { Collection, fromJS, List, Range, Seq } from 'immutable';
 
 describe('flatten', () => {
   it('flattens sequences one level deep', () => {
@@ -28,7 +26,7 @@ describe('flatten', () => {
       [4, 5, 6],
     ]);
     const flat = nested.flatten();
-    expect(flat.forEach(x => x < 4)).toEqual(4);
+    expect(flat.forEach((x: any) => x < 4)).toEqual(4);
   });
 
   type SeqType = number | Array<number> | Collection<number, number>;

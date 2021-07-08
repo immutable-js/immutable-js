@@ -1,7 +1,6 @@
-///<reference path='../resources/jest.d.ts'/>
+import { fromJS, is, List, Map, OrderedMap, Record } from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
-import { fromJS, is, List, Map, OrderedMap, Record } from 'immutable';
 jasmineCheck.install();
 
 // Symbols
@@ -118,7 +117,7 @@ describe('Conversion', () => {
   it('Converts deep JSON with custom conversion', () => {
     const seq = fromJS(js, function (key, sequence) {
       if (key === 'point') {
-        return new Point(sequence);
+        return new Point(sequence as any);
       }
       return Array.isArray(this[key])
         ? sequence.toList()

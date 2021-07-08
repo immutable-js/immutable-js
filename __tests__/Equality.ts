@@ -1,9 +1,7 @@
-///<reference path='../resources/jest.d.ts'/>
+import { is, List, Map, Seq, Set } from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
-
-import { is, List, Map, Seq, Set } from 'immutable';
 
 describe('Equality', () => {
   function expectIs(left, right) {

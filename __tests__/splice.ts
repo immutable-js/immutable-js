@@ -1,9 +1,7 @@
-///<reference path='../resources/jest.d.ts'/>
+import { List, Range, Seq } from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
-
-import { List, Range, Seq } from 'immutable';
 
 describe('splice', () => {
   it('splices a sequence only removing elements', () => {

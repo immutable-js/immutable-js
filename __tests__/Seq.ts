@@ -1,5 +1,3 @@
-///<reference path='../resources/jest.d.ts'/>
-
 import { isCollection, isIndexed, Seq } from 'immutable';
 
 describe('Seq', () => {
@@ -77,7 +75,8 @@ describe('Seq', () => {
 
   it('does not accept a scalar', () => {
     expect(() => {
-      Seq(3 as any);
+      // @ts-expect-error
+      Seq(3);
     }).toThrow(
       'Expected Array or collection object of values, or keyed object: 3'
     );
@@ -98,7 +97,7 @@ describe('Seq', () => {
   it('Does not infinite loop when spliced with negative number #559', () => {
     const dog = Seq(['d', 'o', 'g']);
     const dg = dog.filter(c => c !== 'o');
-    const dig = (dg as any).splice(-1, 0, 'i');
+    const dig = dg.splice(-1, 0, 'i');
     expect(dig.toJS()).toEqual(['d', 'i', 'g']);
   });
 

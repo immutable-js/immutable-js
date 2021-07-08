@@ -1,9 +1,7 @@
-///<reference path='../resources/jest.d.ts'/>
+import { is, List, Map, Range, Record, Seq } from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
-
-import { is, List, Map, Range, Record, Seq } from 'immutable';
 
 describe('Map', () => {
   it('converts from object', () => {
@@ -60,7 +58,8 @@ describe('Map', () => {
 
   it('does not accept a scalar', () => {
     expect(() => {
-      Map(3 as any);
+      // TODO: should expect error
+      Map(3);
     }).toThrow(
       'Expected Array or collection object of [k, v] entries, or keyed object: 3'
     );
@@ -68,13 +67,15 @@ describe('Map', () => {
 
   it('does not accept strings (collection, but scalar)', () => {
     expect(() => {
+      // @ts-expect-error
       Map('abc');
     }).toThrow();
   });
 
   it('does not accept non-entries array', () => {
     expect(() => {
-      Map([1, 2, 3] as any);
+      // @ts-expect-error
+      Map([1, 2, 3]);
     }).toThrow('Expected [K, V] tuple: 1');
   });
 
@@ -262,7 +263,7 @@ describe('Map', () => {
     const m = Map({ a: 1, b: 1 });
     const r = m.map((value, key, iter) => {
       expect(iter).toEqual(m);
-      return 2 * iter.get(key);
+      return 2 * (iter.get(key) as number);
     });
     expect(r.toObject()).toEqual({ a: 2, b: 2 });
   });
