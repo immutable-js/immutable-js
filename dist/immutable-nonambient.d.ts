@@ -171,7 +171,7 @@
    * listFromPlainSet.equals(listFromPlainArray) // true
    * ```
    */
-  export function List<T>(collection: Iterable<T>): List<T>;
+  export function List<T>(collection: Iterable<T> | ArrayLike<T>): List<T>;
   export function List<T>(): List<T>;
   export function List(): List<unknown>;
 
@@ -1641,7 +1641,7 @@
    * Note: `Set` is a factory function and not a class, and does not use the
    * `new` keyword during construction.
    */
-  export function Set<T>(collection: Iterable<T>): Set<T>;
+  export function Set<T>(collection: Iterable<T> | ArrayLike<T>): Set<T>;
   export function Set<T>(): Set<T>;
   export function Set(): Set<unknown>;
 
@@ -1821,7 +1821,7 @@
    * Note: `OrderedSet` is a factory function and not a class, and does not use
    * the `new` keyword during construction.
    */
-  export function OrderedSet<T>(collection: Iterable<T>): OrderedSet<T>;
+  export function OrderedSet<T>(collection: Iterable<T> | ArrayLike<T>): OrderedSet<T>;
   export function OrderedSet<T>(): OrderedSet<T>;
   export function OrderedSet(): OrderedSet<unknown>;
 
@@ -1987,7 +1987,7 @@
    * Note: `Stack` is a factory function and not a class, and does not use the
    * `new` keyword during construction.
    */
-  export function Stack<T>(collection: Iterable<T>): Stack<T>;
+  export function Stack<T>(collection: Iterable<T> | ArrayLike<T>): Stack<T>;
   export function Stack<T>(): Stack<T>;
   export function Stack(): Stack<unknown>;
 
@@ -2859,6 +2859,8 @@
        * @see Collection.Keyed.flip
        */
       flip(): Seq.Keyed<V, K>;
+
+      [Symbol.iterator](): IterableIterator<[K, V]>;
     }
 
     /**
@@ -2878,7 +2880,7 @@
      * Note: `Seq.Indexed` is a conversion function and not a class, and does
      * not use the `new` keyword during construction.
      */
-    export function Indexed<T>(collection: Iterable<T>): Seq.Indexed<T>;
+    export function Indexed<T>(collection: Iterable<T> | ArrayLike<T>): Seq.Indexed<T>;
     export function Indexed<T>(): Seq.Indexed<T>;
     export function Indexed(): Seq.Indexed<unknown>;
 
@@ -3019,6 +3021,8 @@
         zipper: (...any: Array<unknown>) => Z,
         ...collections: Array<Collection<unknown, unknown>>
       ): Seq.Indexed<Z>;
+
+      [Symbol.iterator](): IterableIterator<T>;
     }
 
     /**
@@ -3040,7 +3044,7 @@
      * Note: `Seq.Set` is a conversion function and not a class, and does not
      * use the `new` keyword during construction.
      */
-    export function Set<T>(collection: Iterable<T>): Seq.Set<T>;
+    export function Set<T>(collection: Iterable<T> | ArrayLike<T>): Seq.Set<T>;
     export function Set<T>(): Seq.Set<T>;
     export function Set(): Seq.Set<unknown>;
 
@@ -3115,6 +3119,8 @@
         predicate: (value: T, key: T, iter: this) => unknown,
         context?: unknown
       ): this;
+
+      [Symbol.iterator](): IterableIterator<T>;
     }
   }
 
@@ -3143,7 +3149,7 @@
   ): Seq.Keyed<K, V>;
   export function Seq<T>(collection: Collection.Indexed<T>): Seq.Indexed<T>;
   export function Seq<T>(collection: Collection.Set<T>): Seq.Set<T>;
-  export function Seq<T>(collection: Iterable<T>): Seq.Indexed<T>;
+  export function Seq<T>(collection: Iterable<T> | ArrayLike<T>): Seq.Indexed<T>;
   export function Seq<V>(obj: { [key: string]: V }): Seq.Keyed<string, V>;
   export function Seq(): Seq<unknown, unknown>;
 
@@ -3431,7 +3437,7 @@
        *
        * Note: `mapEntries()` always returns a new instance, even if it produced
        * the same entry at every step.
-       * 
+       *
        * If the mapper function returns `undefined`, then the entry will be filtered
        */
       mapEntries<KM, VM>(
@@ -3491,7 +3497,7 @@
      * Note: `Collection.Indexed` is a conversion function and not a class, and
      * does not use the `new` keyword during construction.
      */
-    export function Indexed<T>(collection: Iterable<T>): Collection.Indexed<T>;
+    export function Indexed<T>(collection: Iterable<T> | ArrayLike<T>): Collection.Indexed<T>;
 
     export interface Indexed<T> extends Collection<number, T> {
       /**
@@ -3788,7 +3794,7 @@
      * Note: `Collection.Set` is a factory function and not a class, and does
      * not use the `new` keyword during construction.
      */
-    export function Set<T>(collection: Iterable<T>): Collection.Set<T>;
+    export function Set<T>(collection: Iterable<T> | ArrayLike<T>): Collection.Set<T>;
 
     export interface Set<T> extends Collection<T, T> {
       /**
@@ -3891,7 +3897,7 @@
   export function Collection<I extends Collection<unknown, unknown>>(
     collection: I
   ): I;
-  export function Collection<T>(collection: Iterable<T>): Collection.Indexed<T>;
+  export function Collection<T>(collection: Iterable<T> | ArrayLike<T>): Collection.Indexed<T>;
   export function Collection<V>(obj: {
     [key: string]: V;
   }): Collection.Keyed<string, V>;
@@ -4199,6 +4205,8 @@
      * what you want.
      */
     entries(): IterableIterator<[K, V]>;
+
+    [Symbol.iterator](): IterableIterator<unknown>;
 
     // Collections (Seq)
 
@@ -4942,7 +4950,7 @@
       sequence: Collection.Keyed<string, unknown> | Collection.Indexed<unknown>,
       path?: Array<string | number>
     ) => unknown
-  ): unknown;
+  ): Collection<unknown, unknown>;
 
   /**
    * Value equality check with semantics similar to `Object.is`, but treats
@@ -5414,7 +5422,7 @@
   export function getIn(
     collection: unknown,
     keyPath: Iterable<unknown>,
-    notSetValue: unknown
+    notSetValue?: unknown
   ): unknown;
 
   /**
