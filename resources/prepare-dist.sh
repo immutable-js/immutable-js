@@ -18,12 +18,7 @@ cp LICENSE npm/
 # Ensure a vanilla package.json before deploying so other tools do not interpret
 # The built output as requiring any further transformation.
 node -e "var package = require('./package.json'); \
-  delete package.engines; \
-  delete package.scripts; \
-  delete package.options; \
-  delete package.jest; \
-  delete package.prettier; \
-  delete package.devDependencies; \
+  package = Object.fromEntries(Object.entries(package).filter(([key]) => package.publishKeys.includes(key))); \
   require('fs').writeFileSync('./npm/package.json', JSON.stringify(package, null, 2));"
 
 # Retain marginal support for bower on the npm branch
