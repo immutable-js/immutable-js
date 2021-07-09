@@ -1,6 +1,6 @@
 // Some tests look like they are repeated in order to avoid false positives.
 
-import * as Immutable from '../../';
+import * as Immutable from 'immutable';
 import {
   List,
   Map,
@@ -12,7 +12,7 @@ import {
   Set,
   Stack,
   Collection,
-} from '../../';
+} from 'immutable';
 
 List; // $ExpectType typeof List
 Map; // $ExpectType typeof Map

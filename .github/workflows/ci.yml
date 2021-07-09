@@ -9,8 +9,8 @@ on:
       - main
 
 jobs:
-  build:
-    name: 'Build Package'
+  test:
+    name: 'Test'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -24,22 +24,12 @@ jobs:
           restore-keys: ${{ runner.OS }}-node-
       - run: npm ci
       - run: npm run build
+      - run: npm run testonly
       - run: npm run check:git-clean
-      - name: Push NPM Branch
-        if: github.ref == 'refs/heads/main'
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          enable_jekyll: true
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./npm
-          publish_branch: npm
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
 
   lint:
     name: 'Lint'
     runs-on: ubuntu-latest
-    needs: build
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -51,14 +41,12 @@ jobs:
           key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.OS }}-node-
       - run: npm ci
-      - run: npm run build
       - run: npm run lint
       - run: npm run check:git-clean
 
   type-check:
     name: 'Type Check'
     runs-on: ubuntu-latest
-    needs: build
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -75,27 +63,7 @@ jobs:
           key: ${{ runner.OS }}-dts-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.OS }}-dts-
       - run: npm ci
-      - run: npm run build
       - run: npm run type-check
-      - run: npm run check:git-clean
-
-  test:
-    name: 'Test'
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '16'
-      - uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: ${{ runner.OS }}-node-
-      - run: npm ci
-      - run: npm run build
-      - run: npm run testonly
       - run: npm run check:git-clean
 
   website:
@@ -116,6 +84,37 @@ jobs:
       - run: npm ci
       - run: npm run website:build
       - run: npm run check:git-clean
+
+  publish:
+    name: 'Publish'
+    needs: [test, lint, type-check, website]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.OS }}-node-
+      - run: npm ci
+      - run: npm run build
+      - run: npm run website:build
+      - name: Push NPM Branch
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          enable_jekyll: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./npm
+          publish_branch: npm
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
       - name: Publish Docs
         if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3

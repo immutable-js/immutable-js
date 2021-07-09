@@ -1,4 +1,4 @@
-import { List, Map, OrderedMap, OrderedSet, Set, Stack } from '../../';
+import { List, Map, OrderedMap, OrderedSet, Set, Stack } from 'immutable';
 
 class A {
   x: number;

@@ -2,7 +2,7 @@
 // Some tests look like they are repeated in order to avoid false positives.
 // Flow might not complain about an instance of (what it thinks is) T to be assigned to T<K, V>
 
-import { Record, type RecordFactory, type RecordOf } from '../../';
+import { Record, type RecordFactory, type RecordOf } from 'immutable';
 
 // Use the RecordFactory type to annotate
 const Point2: RecordFactory<{ x: number, y: number }> = Record({ x: 0, y: 0 });

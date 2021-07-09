@@ -1,4 +1,4 @@
-import { OrderedMap, List } from '../../';
+import { OrderedMap, List } from 'immutable';
 
 {
   // #constructor

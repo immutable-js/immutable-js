@@ -4,7 +4,7 @@ import {
   set,
   remove,
   update,
-} from '../../';
+} from 'immutable';
 
 {
   // get

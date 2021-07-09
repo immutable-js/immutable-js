@@ -19,7 +19,7 @@ import {
   setIn,
   update,
   updateIn,
-} from '../../';
+} from 'immutable';
 
 // merge: Objects as Maps
 

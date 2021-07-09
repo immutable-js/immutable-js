@@ -1,4 +1,4 @@
-import { Stack } from '../../';
+import { Stack } from 'immutable';
 
 {
   // #constructor

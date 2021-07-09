@@ -1,7 +1,7 @@
 import {
   Map as ImmutableMap,
   Set as ImmutableSet,
-} from '../../';
+} from 'immutable';
 
 // Immutable.js collections
 const mapImmutable: ImmutableMap<string, number> = ImmutableMap<string, number>();
