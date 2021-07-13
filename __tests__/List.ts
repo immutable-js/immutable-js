@@ -724,6 +724,20 @@ describe('List', () => {
     expect(v2.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, null]);
   });
 
+  it('concat works like Array.prototype.concat even for IE11', () => {
+    const v1 = List([1, 2, 3]);
+    const a = [4];
+
+    // remove Symbol.iterator as IE11 does not handle it.
+    // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/@@iterator#browser_compatibility
+    // @ts-expect-error -- simulate IE11
+    a[Symbol.iterator] = undefined;
+
+    const v2 = v1.concat(a);
+    expect(v1.toArray()).toEqual([1, 2, 3]);
+    expect(v2.toArray()).toEqual([1, 2, 3, 4]);
+  });
+
   it('concat returns self when no changes', () => {
     const v1 = List([1, 2, 3]);
     expect(v1.concat([])).toBe(v1);
