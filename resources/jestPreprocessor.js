@@ -68,4 +68,9 @@ module.exports = {
 
     return transpileJavaScript(src, path);
   },
+
+  getCacheKey() {
+    // ignore cache, as there is a conflict between rollup compile and jest preprocessor.
+    return Date.now().toString();
+  },
 };
