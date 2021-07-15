@@ -764,11 +764,12 @@ declare module Immutable {
   export function Map(): Map<unknown, unknown>;
   export function Map<K, V>(): Map<K, V>;
   export function Map<K, V>(collection: Iterable<[K, V]>): Map<K, V>;
-  export function Map<K extends string, V>(obj: { [P in K]?: V }): Map<K, V>;
+  export function Map<V>(collection: Iterable<List<V>>): Map<V, V>;
   export function Map<R extends { [key in string | number]: unknown }>(
     obj: R
   ): ObjectLikeMap<R>;
-  // export function Map<V>(obj: { [key: string]: V }): Map<string, V>;
+  export function Map<V>(obj: { [key: string]: V }): Map<string, V>;
+  export function Map<K extends string, V>(obj: { [P in K]?: V }): Map<K, V>;
 
   export interface ObjectLikeMap<
     R extends { [key in string | number]: unknown }
@@ -806,6 +807,11 @@ declare module Immutable {
     >(
       path: [K1, K2, K3, K4]
     ): GetMapType<GetMapType<GetMapType<R[K1]>[K2]>[K3]>[K4];
+
+    set<K extends string | number, V>(
+      key: K,
+      value: V
+    ): this & ObjectLikeMap<{ [key in K]: V }>;
   }
 
   type GetMapType<S> = S extends ObjectLikeMap<infer T> ? T : S;
