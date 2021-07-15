@@ -244,6 +244,11 @@ function iteratorDone() {
 }
 
 function hasIterator(maybeIterable) {
+  if (Array.isArray(maybeIterable)) {
+    // IE11 trick as it does not support `Symbol.iterator`
+    return true;
+  }
+
   return !!getIteratorFn(maybeIterable);
 }
 
