@@ -75,6 +75,7 @@ describe('getIn', () => {
       key: { regular: 'jsobj' },
       list: List([Map({ num: 10 })]),
     });
+    // @ts-expect-error -- expected error
     expect(deep.getIn(['key', 'foo', 'item'])).toBe(undefined);
     expect(deep.getIn(['key', 'foo', 'item'], 'notSet')).toBe('notSet');
     expect(deep.getIn(['list', 0, 'num', 'badKey'])).toBe(undefined);
