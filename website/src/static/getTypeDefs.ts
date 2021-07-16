@@ -266,12 +266,7 @@ function markdownDoc(doc: TypeDoc | undefined, context: MarkdownContext) {
 const typeDefPath = '../type-definitions/Immutable.d.ts';
 
 function genTypeDefData(version: string): TypeDefs {
-  const fileContents = getTypeDefSource(version);
-  const typeDefSource = fileContents.replace(
-    "module 'immutable'",
-    'module Immutable'
-  );
-
+  const typeDefSource = getTypeDefSource(version);
   const sourceFile = ts.createSourceFile(
     typeDefPath,
     typeDefSource,
@@ -357,9 +352,7 @@ function typesVisitor(source: ts.SourceFile) {
     const qualifiedName = qualifiers.concat([name]).join('.');
 
     setIn(types, [qualifiedName, 'qualifiedName'], qualifiedName);
-    if (comment) {
-      setIn(types, [qualifiedName, 'doc'], comment);
-    }
+    setIn(types, [qualifiedName, 'doc'], comment);
 
     if (name !== 'Immutable') {
       qualifiers.push(name);
