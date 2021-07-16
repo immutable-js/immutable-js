@@ -17,6 +17,7 @@
   },
   "main": "dist/immutable.js",
   "module": "dist/immutable.es.js",
+  "sideEffects": false,
   "typings": "dist/immutable-nonambient.d.ts",
   "typescript": {
     "definition": "dist/immutable.d.ts"
