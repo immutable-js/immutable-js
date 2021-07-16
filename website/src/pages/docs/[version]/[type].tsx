@@ -66,7 +66,7 @@ export default function TypeDocPage({
       </Head>
       <ImmutableConsole version={version} />
       <DocHeader versions={versions} currentVersion={version} />
-      <div className="pageBody" id="body">
+      <div className="pageBody">
         <div className="contents">
           <DocSearch />
           <TypeDocumentation def={def} sidebarLinks={sidebarLinks} />
