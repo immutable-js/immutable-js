@@ -618,7 +618,7 @@ Range(1, Infinity)
 
 [Read the docs](https://immutable-js.com) and eat your vegetables.
 
-Docs are automatically generated from [Immutable.d.ts](https://github.com/immutable-js/immutable-js/blob/main/type-definitions/Immutable.d.ts).
+Docs are automatically generated from [immutable.d.ts](https://github.com/immutable-js/immutable-js/blob/main/type-definitions/immutable.d.ts).
 Please contribute!
 
 Also, don't miss the [Wiki](https://github.com/immutable-js/immutable-js/wiki) which

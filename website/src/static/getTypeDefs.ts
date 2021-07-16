@@ -263,7 +263,8 @@ function markdownDoc(doc: TypeDoc | undefined, context: MarkdownContext) {
   }
 }
 
-const typeDefPath = '../type-definitions/Immutable.d.ts';
+const typeDefPath = '../type-definitions/immutable.d.ts';
+const typeDefPathOld = '../type-definitions/Immutable.d.ts';
 
 function genTypeDefData(version: string): TypeDefs {
   const typeDefSource = getTypeDefSource(version);
@@ -285,7 +286,17 @@ function getTypeDefSource(version: string): string {
   if (version === 'latest@main') {
     return readFileSync(typeDefPath, { encoding: 'utf8' });
   } else {
-    return execSync(`git show ${version}:${typeDefPath}`, { encoding: 'utf8' });
+    // Previous versions used a different name for the type definitions file.
+    // If the expected file isn't found for this version, try the older name.
+    try {
+      return execSync(`git show ${version}:${typeDefPath} 2>/dev/null`, {
+        encoding: 'utf8',
+      });
+    } catch {
+      return execSync(`git show ${version}:${typeDefPathOld}`, {
+        encoding: 'utf8',
+      });
+    }
   }
 }
 

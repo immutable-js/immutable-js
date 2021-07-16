@@ -18,10 +18,7 @@
   "main": "dist/immutable.js",
   "module": "dist/immutable.es.js",
   "sideEffects": false,
-  "typings": "dist/immutable-nonambient.d.ts",
-  "typescript": {
-    "definition": "dist/immutable.d.ts"
-  },
+  "types": "dist/immutable.d.ts",
   "publishKeys": [
     "name",
     "version",
@@ -34,8 +31,7 @@
     "main",
     "module",
     "sideEffects",
-    "typings",
-    "typescript",
+    "types",
     "files",
     "keywords"
   ],
@@ -48,7 +44,7 @@
     "clean:dist": "rimraf dist",
     "bundle:dist": "rollup -c ./resources/rollup-config.js",
     "bundle:es": "rollup -c ./resources/rollup-config-es.js",
-    "copy:dist": "node ./resources/copy-dist-typedefs.js",
+    "copy:dist": "cp ./type-definitions/immutable.* dist",
     "stats:dist": "node ./resources/dist-stats.js",
     "prepare:dist": "./resources/prepare-dist.sh",
     "format": "npm run lint:format -- --write",

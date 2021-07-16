@@ -7,7 +7,7 @@
     "target": "esnext",
     "moduleResolution": "node",
     "paths": {
-      "immutable": ["../type-definitions/Immutable.d.ts"],
+      "immutable": ["../type-definitions/immutable.d.ts"],
       "jasmine-check": ["../resources/jasmine-check.d.ts"]
     }
   }
