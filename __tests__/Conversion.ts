@@ -1,14 +1,6 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-///<reference path='../resources/jest.d.ts'/>
+import { fromJS, is, List, Map, OrderedMap, Record } from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
-import { fromJS, is, List, Map, OrderedMap, Record } from '../';
 jasmineCheck.install();
 
 // Symbols
@@ -107,9 +99,7 @@ describe('Conversion', () => {
     '"list": List [ 1, 2, 3 ]' +
     ' }';
 
-  const nonStringKeyMap = OrderedMap()
-    .set(1, true)
-    .set(false, 'foo');
+  const nonStringKeyMap = OrderedMap().set(1, true).set(false, 'foo');
   const nonStringKeyMapString = 'OrderedMap { 1: true, false: "foo" }';
 
   it('Converts deep JS to deep immutable sequences', () => {
@@ -125,9 +115,9 @@ describe('Conversion', () => {
   });
 
   it('Converts deep JSON with custom conversion', () => {
-    const seq = fromJS(js, function(key, sequence) {
+    const seq = fromJS(js, function (key, sequence) {
       if (key === 'point') {
-        return new Point(sequence);
+        return new Point(sequence as any);
       }
       return Array.isArray(this[key])
         ? sequence.toList()
@@ -139,7 +129,7 @@ describe('Conversion', () => {
 
   it('Converts deep JSON with custom conversion including keypath if requested', () => {
     const paths: Array<any> = [];
-    const seq1 = fromJS(js, function(key, sequence, keypath) {
+    const seq1 = fromJS(js, function (key, sequence, keypath) {
       expect(arguments.length).toBe(3);
       paths.push(keypath);
       return Array.isArray(this[key])
@@ -157,7 +147,7 @@ describe('Conversion', () => {
       ['point'],
       ['list'],
     ]);
-    const seq2 = fromJS(js, function(key, sequence) {
+    const seq2 = fromJS(js, function (key, sequence) {
       expect(arguments[2]).toBe(undefined);
     });
   });
@@ -184,7 +174,7 @@ describe('Conversion', () => {
 
   it('JSON.stringify() respects toJSON methods on values', () => {
     const Model = Record({});
-    Model.prototype.toJSON = function() {
+    Model.prototype.toJSON = function () {
       return 'model';
     };
     expect(Map({ a: new Model() }).toJS()).toEqual({ a: {} });
@@ -193,9 +183,7 @@ describe('Conversion', () => {
 
   it('is conservative with array-likes, only accepting true Arrays.', () => {
     expect(fromJS({ 1: 2, length: 3 })).toEqual(
-      Map()
-        .set('1', 2)
-        .set('length', 3)
+      Map().set('1', 2).set('length', 3)
     );
     expect(fromJS('string')).toEqual('string');
   });
@@ -213,9 +201,7 @@ describe('Conversion', () => {
 
   it('Converts an immutable value of an entry correctly', () => {
     const arr = [{ key: 'a' }];
-    const result = fromJS(arr)
-      .entrySeq()
-      .toJS();
+    const result = fromJS(arr).entrySeq().toJS();
     expect(result).toEqual([[0, { key: 'a' }]]);
   });
 });

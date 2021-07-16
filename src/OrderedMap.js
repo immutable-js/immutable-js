@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import { KeyedCollection } from './Collection';
 import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
 import { isOrderedMap } from './predicates/isOrderedMap';
@@ -20,12 +13,12 @@ export class OrderedMap extends Map {
     return value === null || value === undefined
       ? emptyOrderedMap()
       : isOrderedMap(value)
-        ? value
-        : emptyOrderedMap().withMutations(map => {
-            const iter = KeyedCollection(value);
-            assertNotInfinite(iter.size);
-            iter.forEach((v, k) => map.set(k, v));
-          });
+      ? value
+      : emptyOrderedMap().withMutations(map => {
+          const iter = KeyedCollection(value);
+          assertNotInfinite(iter.size);
+          iter.forEach((v, k) => map.set(k, v));
+        });
   }
 
   static of(/*...values*/) {
@@ -53,6 +46,7 @@ export class OrderedMap extends Map {
       this.size = 0;
       this._map.clear();
       this._list.clear();
+      this.__altered = true;
       return this;
     }
     return emptyOrderedMap();
@@ -64,10 +58,6 @@ export class OrderedMap extends Map {
 
   remove(k) {
     return updateOrderedMap(this, k, NOT_SET);
-  }
-
-  wasAltered() {
-    return this._map.wasAltered() || this._list.wasAltered();
   }
 
   __iterate(fn, reverse) {
@@ -92,6 +82,7 @@ export class OrderedMap extends Map {
         return emptyOrderedMap();
       }
       this.__ownerID = ownerID;
+      this.__altered = false;
       this._map = newMap;
       this._list = newList;
       return this;
@@ -112,6 +103,7 @@ function makeOrderedMap(map, list, ownerID, hash) {
   omap._list = list;
   omap.__ownerID = ownerID;
   omap.__hash = hash;
+  omap.__altered = false;
   return omap;
 }
 
@@ -164,6 +156,7 @@ function updateOrderedMap(omap, k, v) {
     omap._map = newMap;
     omap._list = newList;
     omap.__hash = undefined;
+    omap.__altered = true;
     return omap;
   }
   return makeOrderedMap(newMap, newList);

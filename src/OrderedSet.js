@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import { SetCollection, KeyedCollection } from './Collection';
 import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
 import { isOrderedSet } from './predicates/isOrderedSet';
@@ -20,12 +13,12 @@ export class OrderedSet extends Set {
     return value === null || value === undefined
       ? emptyOrderedSet()
       : isOrderedSet(value)
-        ? value
-        : emptyOrderedSet().withMutations(set => {
-            const iter = SetCollection(value);
-            assertNotInfinite(iter.size);
-            iter.forEach(v => set.add(v));
-          });
+      ? value
+      : emptyOrderedSet().withMutations(set => {
+          const iter = SetCollection(value);
+          assertNotInfinite(iter.size);
+          iter.forEach(v => set.add(v));
+        });
   }
 
   static of(/*...values*/) {
@@ -47,6 +40,7 @@ const OrderedSetPrototype = OrderedSet.prototype;
 OrderedSetPrototype[IS_ORDERED_SYMBOL] = true;
 OrderedSetPrototype.zip = IndexedCollectionPrototype.zip;
 OrderedSetPrototype.zipWith = IndexedCollectionPrototype.zipWith;
+OrderedSetPrototype.zipAll = IndexedCollectionPrototype.zipAll;
 
 OrderedSetPrototype.__empty = emptyOrderedSet;
 OrderedSetPrototype.__make = makeOrderedSet;

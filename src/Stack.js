@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import { wholeSlice, resolveBegin, resolveEnd, wrapIndex } from './TrieUtils';
 import { IndexedCollection } from './Collection';
 import { ArraySeq } from './Seq';
@@ -23,8 +16,8 @@ export class Stack extends IndexedCollection {
     return value === null || value === undefined
       ? emptyStack()
       : isStack(value)
-        ? value
-        : emptyStack().pushAll(value);
+      ? value
+      : emptyStack().pushAll(value);
   }
 
   static of(/*...values*/) {
@@ -210,10 +203,10 @@ StackPrototype.withMutations = withMutations;
 StackPrototype.wasAltered = wasAltered;
 StackPrototype.asImmutable = asImmutable;
 StackPrototype['@@transducer/init'] = StackPrototype.asMutable = asMutable;
-StackPrototype['@@transducer/step'] = function(result, arr) {
+StackPrototype['@@transducer/step'] = function (result, arr) {
   return result.unshift(arr);
 };
-StackPrototype['@@transducer/result'] = function(obj) {
+StackPrototype['@@transducer/result'] = function (obj) {
   return obj.asImmutable();
 };
 

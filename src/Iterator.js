@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 export const ITERATE_KEYS = 0;
 export const ITERATE_VALUES = 1;
 export const ITERATE_ENTRIES = 2;
@@ -28,10 +21,10 @@ Iterator.KEYS = ITERATE_KEYS;
 Iterator.VALUES = ITERATE_VALUES;
 Iterator.ENTRIES = ITERATE_ENTRIES;
 
-Iterator.prototype.inspect = Iterator.prototype.toSource = function() {
+Iterator.prototype.inspect = Iterator.prototype.toSource = function () {
   return this.toString();
 };
-Iterator.prototype[ITERATOR_SYMBOL] = function() {
+Iterator.prototype[ITERATOR_SYMBOL] = function () {
   return this;
 };
 
@@ -51,6 +44,11 @@ export function iteratorDone() {
 }
 
 export function hasIterator(maybeIterable) {
+  if (Array.isArray(maybeIterable)) {
+    // IE11 trick as it does not support `Symbol.iterator`
+    return true;
+  }
+
   return !!getIteratorFn(maybeIterable);
 }
 

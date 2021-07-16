@@ -1,48 +1,50 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import { smi } from './Math';
 
 const defaultValueOf = Object.prototype.valueOf;
 
 export function hash(o) {
-  switch (typeof o) {
+  if (o == null) {
+    return hashNullish(o);
+  }
+
+  if (typeof o.hashCode === 'function') {
+    // Drop any high bits from accidentally long hash codes.
+    return smi(o.hashCode(o));
+  }
+
+  const v = valueOf(o);
+
+  if (v == null) {
+    return hashNullish(v);
+  }
+
+  switch (typeof v) {
     case 'boolean':
       // The hash values for built-in constants are a 1 value for each 5-byte
       // shift region expect for the first, which encodes the value. This
       // reduces the odds of a hash collision for these common values.
-      return o ? 0x42108421 : 0x42108420;
+      return v ? 0x42108421 : 0x42108420;
     case 'number':
-      return hashNumber(o);
+      return hashNumber(v);
     case 'string':
-      return o.length > STRING_HASH_CACHE_MIN_STRLEN
-        ? cachedHashString(o)
-        : hashString(o);
+      return v.length > STRING_HASH_CACHE_MIN_STRLEN
+        ? cachedHashString(v)
+        : hashString(v);
     case 'object':
     case 'function':
-      if (o === null) {
-        return 0x42108422;
-      }
-      if (typeof o.hashCode === 'function') {
-        // Drop any high bits from accidentally long hash codes.
-        return smi(o.hashCode(o));
-      }
-      if (o.valueOf !== defaultValueOf && typeof o.valueOf === 'function') {
-        o = o.valueOf(o);
-      }
-      return hashJSObj(o);
-    case 'undefined':
-      return 0x42108423;
+      return hashJSObj(v);
+    case 'symbol':
+      return hashSymbol(v);
     default:
-      if (typeof o.toString === 'function') {
-        return hashString(o.toString());
+      if (typeof v.toString === 'function') {
+        return hashString(v.toString());
       }
-      throw new Error('Value type ' + typeof o + ' cannot be hashed.');
+      throw new Error('Value type ' + typeof v + ' cannot be hashed.');
   }
+}
+
+function hashNullish(nullish) {
+  return nullish === null ? 0x42108422 : /* undefined */ 0x42108423;
 }
 
 // Compress arbitrarily large numbers into smi hashes.
@@ -90,6 +92,19 @@ function hashString(string) {
   return smi(hashed);
 }
 
+function hashSymbol(sym) {
+  let hashed = symbolMap[sym];
+  if (hashed !== undefined) {
+    return hashed;
+  }
+
+  hashed = nextHash();
+
+  symbolMap[sym] = hashed;
+
+  return hashed;
+}
+
 function hashJSObj(obj) {
   let hashed;
   if (usingWeakMap) {
@@ -116,10 +131,7 @@ function hashJSObj(obj) {
     }
   }
 
-  hashed = ++objHashUID;
-  if (objHashUID & 0x40000000) {
-    objHashUID = 0;
-  }
+  hashed = nextHash();
 
   if (usingWeakMap) {
     weakMap.set(obj, hashed);
@@ -140,7 +152,7 @@ function hashJSObj(obj) {
     // we'll hijack one of the less-used non-enumerable properties to
     // save our hash on it. Since this is a function it will not show up in
     // `JSON.stringify` which is what we want.
-    obj.propertyIsEnumerable = function() {
+    obj.propertyIsEnumerable = function () {
       return this.constructor.prototype.propertyIsEnumerable.apply(
         this,
         arguments
@@ -164,7 +176,7 @@ function hashJSObj(obj) {
 const isExtensible = Object.isExtensible;
 
 // True if Object.defineProperty works as expected. IE8 fails this test.
-const canDefineProperty = (function() {
+const canDefineProperty = (function () {
   try {
     Object.defineProperty({}, '@', {});
     return true;
@@ -186,6 +198,20 @@ function getIENodeHash(node) {
   }
 }
 
+function valueOf(obj) {
+  return obj.valueOf !== defaultValueOf && typeof obj.valueOf === 'function'
+    ? obj.valueOf(obj)
+    : obj;
+}
+
+function nextHash() {
+  const nextHash = ++_objHashUID;
+  if (_objHashUID & 0x40000000) {
+    _objHashUID = 0;
+  }
+  return nextHash;
+}
+
 // If possible, use a WeakMap.
 const usingWeakMap = typeof WeakMap === 'function';
 let weakMap;
@@ -193,7 +219,9 @@ if (usingWeakMap) {
   weakMap = new WeakMap();
 }
 
-let objHashUID = 0;
+const symbolMap = Object.create(null);
+
+let _objHashUID = 0;
 
 let UID_HASH_KEY = '__immutablehash__';
 if (typeof Symbol === 'function') {

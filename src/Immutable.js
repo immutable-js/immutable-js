@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import { Seq } from './Seq';
 import { OrderedMap } from './OrderedMap';
 import { List } from './List';
@@ -17,6 +10,8 @@ import { Range } from './Range';
 import { Repeat } from './Repeat';
 import { is } from './is';
 import { fromJS } from './fromJS';
+
+import isPlainObject from './utils/isPlainObj';
 
 // Functional predicates
 import { isImmutable } from './predicates/isImmutable';
@@ -83,6 +78,7 @@ export default {
   isAssociative: isAssociative,
   isOrdered: isOrdered,
   isValueObject: isValueObject,
+  isPlainObject: isPlainObject,
   isSeq: isSeq,
   isList: isList,
   isMap: isMap,
@@ -134,7 +130,16 @@ export {
   isIndexed,
   isAssociative,
   isOrdered,
+  isPlainObject,
   isValueObject,
+  isSeq,
+  isList,
+  isMap,
+  isOrderedMap,
+  isStack,
+  isSet,
+  isOrderedSet,
+  isRecord,
   get,
   getIn,
   has,

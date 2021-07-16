@@ -6,9 +6,12 @@ yarn-error.log
 *~
 *.swp
 .idea
+*.iml
 TODO
-/pages/out
-/pages/generated
+/website/.next
+/website/out
+/website/public/sitemap.xml
+/website/public/robots.txt
 /gh-pages
 /npm
 /dist

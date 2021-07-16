@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import { KeyedCollection } from '../Collection';
 import { NOT_SET } from '../TrieUtils';
 import { update } from '../functional/update';
@@ -41,11 +34,8 @@ function mergeIntoKeyedWith(collection, collections, merger) {
   return collection.withMutations(collection => {
     const mergeIntoCollection = merger
       ? (value, key) => {
-          update(
-            collection,
-            key,
-            NOT_SET,
-            oldVal => (oldVal === NOT_SET ? value : merger(oldVal, value, key))
+          update(collection, key, NOT_SET, oldVal =>
+            oldVal === NOT_SET ? value : merger(oldVal, value, key)
           );
         }
       : (value, key) => {

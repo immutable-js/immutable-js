@@ -1,16 +1,7 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
+import { Seq } from 'immutable';
 
-///<reference path='../resources/jest.d.ts'/>
-
-import jasmineCheck = require('jasmine-check');
+import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
-
-import { Seq } from '../';
 
 describe('join', () => {
   it('string-joins sequences with commas by default', () => {

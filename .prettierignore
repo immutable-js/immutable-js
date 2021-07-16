@@ -1,0 +1,5 @@
+dist
+pages/generated
+pages/out
+type-definitions/ts-tests/
+type-definitions/flow-tests/

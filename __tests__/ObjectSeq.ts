@@ -1,13 +1,4 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-///<reference path='../resources/jest.d.ts'/>
-
-import { Seq } from '../';
+import { Seq } from 'immutable';
 
 describe('ObjectSequence', () => {
   it('maps', () => {
@@ -31,16 +22,21 @@ describe('ObjectSequence', () => {
   it('is reversable', () => {
     const i = Seq({ a: 'A', b: 'B', c: 'C' });
     const k = i.reverse().toArray();
-    expect(k).toEqual([['c', 'C'], ['b', 'B'], ['a', 'A']]);
+    expect(k).toEqual([
+      ['c', 'C'],
+      ['b', 'B'],
+      ['a', 'A'],
+    ]);
   });
 
   it('is double reversable', () => {
     const i = Seq({ a: 'A', b: 'B', c: 'C' });
-    const k = i
-      .reverse()
-      .reverse()
-      .toArray();
-    expect(k).toEqual([['a', 'A'], ['b', 'B'], ['c', 'C']]);
+    const k = i.reverse().reverse().toArray();
+    expect(k).toEqual([
+      ['a', 'A'],
+      ['b', 'B'],
+      ['c', 'C'],
+    ]);
   });
 
   it('can be iterated', () => {

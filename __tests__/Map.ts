@@ -1,16 +1,7 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-///<reference path='../resources/jest.d.ts'/>
+import { is, List, Map, Range, Record, Seq } from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
-
-import { is, List, Map, Range, Record, Seq } from '../';
 
 describe('Map', () => {
   it('converts from object', () => {
@@ -30,7 +21,11 @@ describe('Map', () => {
   });
 
   it('constructor provides initial values as array of entries', () => {
-    const m = Map([['a', 'A'], ['b', 'B'], ['c', 'C']]);
+    const m = Map([
+      ['a', 'A'],
+      ['b', 'B'],
+      ['c', 'C'],
+    ]);
     expect(m.size).toBe(3);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
@@ -63,7 +58,8 @@ describe('Map', () => {
 
   it('does not accept a scalar', () => {
     expect(() => {
-      Map(3 as any);
+      // TODO: should expect error
+      Map(3);
     }).toThrow(
       'Expected Array or collection object of [k, v] entries, or keyed object: 3'
     );
@@ -71,13 +67,15 @@ describe('Map', () => {
 
   it('does not accept strings (collection, but scalar)', () => {
     expect(() => {
+      // @ts-expect-error
       Map('abc');
     }).toThrow();
   });
 
   it('does not accept non-entries array', () => {
     expect(() => {
-      Map([1, 2, 3] as any);
+      // @ts-expect-error
+      Map([1, 2, 3]);
     }).toThrow('Expected [K, V] tuple: 1');
   });
 
@@ -261,6 +259,15 @@ describe('Map', () => {
     expect(r).toBe(m);
   });
 
+  it('provides unmodified original collection as 3rd iter argument', () => {
+    const m = Map({ a: 1, b: 1 });
+    const r = m.map((value, key, iter) => {
+      expect(iter).toEqual(m);
+      return 2 * (iter.get(key) as number);
+    });
+    expect(r.toObject()).toEqual({ a: 2, b: 2 });
+  });
+
   it('filters values', () => {
     const m = Map({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
     const r = m.filter(value => value % 2 === 1);
@@ -354,9 +361,7 @@ describe('Map', () => {
   });
 
   check.it('deletes from transient', { maxSize: 5000 }, [gen.posInt], len => {
-    const map = Range(0, len)
-      .toMap()
-      .asMutable();
+    const map = Range(0, len).toMap().asMutable();
     for (let ii = 0; ii < len; ii++) {
       expect(map.size).toBe(len - ii);
       map.remove(ii);
@@ -389,12 +394,7 @@ describe('Map', () => {
 
   it('chained mutations does not result in new empty map instance', () => {
     const v1 = Map({ x: 1 });
-    const v2 = v1.withMutations(v =>
-      v
-        .set('y', 2)
-        .delete('x')
-        .delete('y')
-    );
+    const v2 = v1.withMutations(v => v.set('y', 2).delete('x').delete('y'));
     expect(v2).toBe(Map());
   });
 
@@ -436,7 +436,11 @@ describe('Map', () => {
     const a = Symbol('a');
     const b = Symbol('b');
     const c = Symbol('c');
-    const m = Map([[a, 'a'], [b, 'b'], [c, 'c']]);
+    const m = Map([
+      [a, 'a'],
+      [b, 'b'],
+      [c, 'c'],
+    ]);
     expect(m.size).toBe(3);
     expect(m.get(a)).toBe('a');
     expect(m.get(b)).toBe('b');
@@ -446,7 +450,10 @@ describe('Map', () => {
   it('Symbol keys are unique', () => {
     const a = Symbol('FooBar');
     const b = Symbol('FooBar');
-    const m = Map([[a, 'FizBuz'], [b, 'FooBar']]);
+    const m = Map([
+      [a, 'FizBuz'],
+      [b, 'FooBar'],
+    ]);
     expect(m.size).toBe(2);
     expect(m.get(a)).toBe('FizBuz');
     expect(m.get(b)).toBe('FooBar');
@@ -463,14 +470,56 @@ describe('Map', () => {
 
     // Note the use of nested Map constructors, Map() does not do a
     // deep conversion!
-    const m1 = Map([[a, Map([[b, Map([[c, 1], [d, 2]])]])]]);
+    const m1 = Map([
+      [
+        a,
+        Map([
+          [
+            b,
+            Map([
+              [c, 1],
+              [d, 2],
+            ]),
+          ],
+        ]),
+      ],
+    ]);
     const m2 = Map([
-      [a, Map([[b, Map([[c, 10], [e, 20], [f, 30], [g, 40]])]])],
+      [
+        a,
+        Map([
+          [
+            b,
+            Map([
+              [c, 10],
+              [e, 20],
+              [f, 30],
+              [g, 40],
+            ]),
+          ],
+        ]),
+      ],
     ]);
     const merged = m1.mergeDeep(m2);
 
     expect(merged).toEqual(
-      Map([[a, Map([[b, Map([[c, 10], [d, 2], [e, 20], [f, 30], [g, 40]])]])]])
+      Map([
+        [
+          a,
+          Map([
+            [
+              b,
+              Map([
+                [c, 10],
+                [d, 2],
+                [e, 20],
+                [f, 30],
+                [g, 40],
+              ]),
+            ],
+          ]),
+        ],
+      ])
     );
   });
 });

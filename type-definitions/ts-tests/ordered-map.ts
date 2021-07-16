@@ -1,34 +1,32 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
+import { OrderedMap, List } from 'immutable';
 
-import { OrderedMap, List } from '../../';
+{
+  // #constructor
 
-{ // #constructor
-
-  // $ExpectType OrderedMap<{}, {}>
+  // $ExpectType OrderedMap<unknown, unknown>
   OrderedMap();
+
+  // $ExpectType OrderedMap<number, number>
+  OrderedMap<number, number>();
 
   // $ExpectType OrderedMap<number, string>
   OrderedMap([[1, 'a']]);
 
   // $ExpectType OrderedMap<number, string>
-  OrderedMap(List<[number, string]>([[1, 'a']]));
+  OrderedMap(
+    List<[number, string]>([[1, 'a']])
+  );
 
   // $ExpectType OrderedMap<string, number>
   OrderedMap({ a: 1 });
 
-// $ExpectError - TypeScript does not support Lists as tuples
-  OrderedMap(List([List(['a', 'b'])]));
-
-  // $ExpectError
-  const invalidNumberOrderedMap: OrderedMap<number, number> = OrderedMap();
+  // No longer works in typescript@>=3.9
+  // // $ExpectError - TypeScript does not support Lists as tuples
+  // OrderedMap(List([List(['a', 'b'])]));
 }
 
-{ // #size
+{
+  // #size
 
   // $ExpectType number
   OrderedMap().size;
@@ -37,7 +35,8 @@ import { OrderedMap, List } from '../../';
   OrderedMap().size = 10;
 }
 
-{ // #get
+{
+  // #get
 
   // $ExpectType number | undefined
   OrderedMap<number, number>().get(4);
@@ -46,10 +45,11 @@ import { OrderedMap, List } from '../../';
   OrderedMap<number, number>().get(4, 'a');
 
   // $ExpectError
-  OrderedMap<number, number>().get<number, number>(4, 'a');
+  OrderedMap<number, number>().get<number>(4, 'a');
 }
 
-{ // #set
+{
+  // #set
 
   // $ExpectType OrderedMap<number, number>
   OrderedMap<number, number>().set(0, 0);
@@ -67,13 +67,15 @@ import { OrderedMap, List } from '../../';
   OrderedMap<number, number | string>().set(0, 'a');
 }
 
-{ // #setIn
+{
+  // #setIn
 
   // $ExpectType OrderedMap<number, number>
   OrderedMap<number, number>().setIn([], 0);
 }
 
-{ // #delete
+{
+  // #delete
 
   // $ExpectType OrderedMap<number, number>
   OrderedMap<number, number>().delete(0);
@@ -82,7 +84,8 @@ import { OrderedMap, List } from '../../';
   OrderedMap<number, number>().delete('a');
 }
 
-{ // #deleteAll
+{
+  // #deleteAll
 
   // $ExpectType OrderedMap<number, number>
   OrderedMap<number, number>().deleteAll([0]);
@@ -91,13 +94,15 @@ import { OrderedMap, List } from '../../';
   OrderedMap<number, number>().deleteAll([0, 'a']);
 }
 
-{ // #deleteIn
+{
+  // #deleteIn
 
   // $ExpectType OrderedMap<number, number>
   OrderedMap<number, number>().deleteIn([]);
 }
 
-{ // #remove
+{
+  // #remove
 
   // $ExpectType OrderedMap<number, number>
   OrderedMap<number, number>().remove(0);
@@ -106,7 +111,8 @@ import { OrderedMap, List } from '../../';
   OrderedMap<number, number>().remove('a');
 }
 
-{ // #removeAll
+{
+  // #removeAll
 
   // $ExpectType OrderedMap<number, number>
   OrderedMap<number, number>().removeAll([0]);
@@ -115,13 +121,15 @@ import { OrderedMap, List } from '../../';
   OrderedMap<number, number>().removeAll([0, 'a']);
 }
 
-{ // #removeIn
+{
+  // #removeIn
 
   // $ExpectType OrderedMap<number, number>
   OrderedMap<number, number>().removeIn([]);
 }
 
-{ // #clear
+{
+  // #clear
 
   // $ExpectType OrderedMap<number, number>
   OrderedMap<number, number>().clear();
@@ -130,121 +138,183 @@ import { OrderedMap, List } from '../../';
   OrderedMap().clear(10);
 }
 
-{ // #update
+{
+  // #update
 
   // $ExpectType number
-  OrderedMap().update(v => 1);
+  OrderedMap().update((v) => 1);
 
   // $ExpectError
-  OrderedMap<number, number>().update((v: OrderedMap<string>) => v);
+  OrderedMap<number, number>().update((v: OrderedMap<string> | undefined) => v);
 
   // $ExpectType OrderedMap<number, number>
-  OrderedMap<number, number>().update(0, (v: number) => 0);
+  OrderedMap<number, number>().update(0, (v: number | undefined) => 0);
 
   // $ExpectError
-  OrderedMap<number, number>().update(0, (v: number) => v + 'a');
+  OrderedMap<number, number>().update(0, (v: number | undefined) => v + 'a');
 
   // $ExpectType OrderedMap<number, number>
-  OrderedMap<number, number>().update(1, 10, (v: number) => 0);
+  OrderedMap<number, number>().update(1, 10, (v: number | undefined) => 0);
 
   // $ExpectError
-  OrderedMap<number, number>().update(1, 'a', (v: number) => 0);
+  OrderedMap<number, number>().update(1, 'a', (v: number | undefined) => 0);
 
   // $ExpectError
-  OrderedMap<number, number>().update(1, 10, (v: number) => v + 'a');
+  OrderedMap<number, number>().update(1, 10, (v: number | undefined) => v + 'a');
 }
 
-{ // #updateIn
+{
+  // #updateIn
 
   // $ExpectType OrderedMap<number, number>
-  OrderedMap<number, number>().updateIn([], v => v);
+  OrderedMap<number, number>().updateIn([], (v) => v);
 
   // $ExpectError
   OrderedMap<number, number>().updateIn([], 10);
 }
 
-{ // #map
+{
+  // #map
 
   // $ExpectType OrderedMap<number, number>
-  OrderedMap<number, number>().map((value: number, key: number, iter: OrderedMap<number, number>) => 1);
+  OrderedMap<number, number>().map(
+    (value: number, key: number, iter: OrderedMap<number, number>) => 1
+  );
 
   // $ExpectType OrderedMap<number, string>
-  OrderedMap<number, number>().map((value: number, key: number, iter: OrderedMap<number, number>) => 'a');
+  OrderedMap<number, number>().map(
+    (value: number, key: number, iter: OrderedMap<number, number>) => 'a'
+  );
 
   // $ExpectType OrderedMap<number, number>
-  OrderedMap<number, number>().map<number>((value: number, key: number, iter: OrderedMap<number, number>) => 1);
+  OrderedMap<number, number>().map<number>(
+    (value: number, key: number, iter: OrderedMap<number, number>) => 1
+  );
 
-  // $ExpectError
-  OrderedMap<number, number>().map<string>((value: number, key: number, iter: OrderedMap<number, number>) => 1);
+  OrderedMap<number, number>().map<string>(
+    // $ExpectError
+    (value: number, key: number, iter: OrderedMap<number, number>) => 1
+  );
 
-  // $ExpectError
-  OrderedMap<number, number>().map<number>((value: string, key: number, iter: OrderedMap<number, number>) => 1);
+  OrderedMap<number, number>().map<number>(
+    // $ExpectError
+    (value: string, key: number, iter: OrderedMap<number, number>) => 1
+  );
 
-  // $ExpectError
-  OrderedMap<number, number>().map<number>((value: number, key: string, iter: OrderedMap<number, number>) => 1);
+  OrderedMap<number, number>().map<number>(
+    // $ExpectError
+    (value: number, key: string, iter: OrderedMap<number, number>) => 1
+  );
 
-  // $ExpectError
-  OrderedMap<number, number>().map<number>((value: number, key: number, iter: OrderedMap<number, string>) => 1);
+  OrderedMap<number, number>().map<number>(
+    // $ExpectError
+    (value: number, key: number, iter: OrderedMap<number, string>) => 1
+  );
 
-  // $ExpectError
-  OrderedMap<number, number>().map<number>((value: number, key: number, iter: OrderedMap<number, number>) => 'a');
+  OrderedMap<number, number>().map<number>(
+    // $ExpectError
+    (value: number, key: number, iter: OrderedMap<number, number>) => 'a'
+  );
 }
 
-{ // #mapKeys
+{
+  // #mapKeys
 
   // $ExpectType OrderedMap<number, number>
-  OrderedMap<number, number>().mapKeys((value: number, key: number, iter: OrderedMap<number, number>) => 1);
+  OrderedMap<number, number>().mapKeys(
+    (value: number, key: number, iter: OrderedMap<number, number>) => 1
+  );
 
   // $ExpectType OrderedMap<string, number>
-  OrderedMap<number, number>().mapKeys((value: number, key: number, iter: OrderedMap<number, number>) => 'a');
+  OrderedMap<number, number>().mapKeys(
+    (value: number, key: number, iter: OrderedMap<number, number>) => 'a'
+  );
 
   // $ExpectType OrderedMap<number, number>
-  OrderedMap<number, number>().mapKeys<number>((value: number, key: number, iter: OrderedMap<number, number>) => 1);
+  OrderedMap<number, number>().mapKeys<number>(
+    (value: number, key: number, iter: OrderedMap<number, number>) => 1
+  );
 
-  // $ExpectError
-  OrderedMap<number, number>().mapKeys<string>((value: number, key: number, iter: OrderedMap<number, number>) => 1);
+  OrderedMap<number, number>().mapKeys<string>(
+    // $ExpectError
+    (value: number, key: number, iter: OrderedMap<number, number>) => 1
+  );
 
-  // $ExpectError
-  OrderedMap<number, number>().mapKeys<number>((value: string, key: number, iter: OrderedMap<number, number>) => 1);
+  OrderedMap<number, number>().mapKeys<number>(
+    // $ExpectError
+    (value: string, key: number, iter: OrderedMap<number, number>) => 1
+  );
 
-  // $ExpectError
-  OrderedMap<number, number>().mapKeys<number>((value: number, key: string, iter: OrderedMap<number, number>) => 1);
+  OrderedMap<number, number>().mapKeys<number>(
+    // $ExpectError
+    (value: number, key: string, iter: OrderedMap<number, number>) => 1
+  );
 
-  // $ExpectError
-  OrderedMap<number, number>().mapKeys<number>((value: number, key: number, iter: OrderedMap<number, string>) => 1);
+  OrderedMap<number, number>().mapKeys<number>(
+    // $ExpectError
+    (value: number, key: number, iter: OrderedMap<number, string>) => 1
+  );
 
-  // $ExpectError
-  OrderedMap<number, number>().mapKeys<number>((value: number, key: number, iter: OrderedMap<number, number>) => 'a');
+  OrderedMap<number, number>().mapKeys<number>(
+    // $ExpectError
+    (value: number, key: number, iter: OrderedMap<number, number>) => 'a'
+  );
 }
 
-{ // #flatMap
+{
+  // #flatMap
 
   // $ExpectType OrderedMap<number, number>
-  OrderedMap<number, number>().flatMap((value: number, key: number, iter: OrderedMap<number, number>) => [[0, 1]]);
+  OrderedMap<
+    number,
+    number
+  >().flatMap(
+    (value: number, key: number, iter: OrderedMap<number, number>) => [[0, 1]]
+  );
 
   // $ExpectType OrderedMap<string, string>
-  OrderedMap<number, number>().flatMap((value: number, key: number, iter: OrderedMap<number, number>) => [['a', 'b']]);
+  OrderedMap<
+    number,
+    number
+  >().flatMap(
+    (value: number, key: number, iter: OrderedMap<number, number>) => [
+      ['a', 'b'],
+    ]
+  );
 
   // $ExpectType OrderedMap<number, number>
-  OrderedMap<number, number>().flatMap<number, number>((value: number, key: number, iter: OrderedMap<number, number>) => [[0, 1]]);
+  OrderedMap<number, number>().flatMap<number, number>(
+    (value: number, key: number, iter: OrderedMap<number, number>) => [[0, 1]]
+  );
 
-  // $ExpectError
-  OrderedMap<number, number>().flatMap<number, string>((value: number, key: number, iter: OrderedMap<number, number>) => [[0, 1]]);
+  OrderedMap<number, number>().flatMap<number, string>(
+    // $ExpectError
+    (value: number, key: number, iter: OrderedMap<number, number>) => [[0, 1]]
+  );
 
-  // $ExpectError
-  OrderedMap<number, number>().flatMap<number, number>((value: string, key: number, iter: OrderedMap<number, number>) => [[0, 1]]);
+  OrderedMap<number, number>().flatMap<number, number>(
+    // $ExpectError
+    (value: string, key: number, iter: OrderedMap<number, number>) => [[0, 1]]
+  );
 
-  // $ExpectError
-  OrderedMap<number, number>().flatMap<number, number>((value: number, key: string, iter: OrderedMap<number, number>) => [[0, 1]]);
+  OrderedMap<number, number>().flatMap<number, number>(
+    // $ExpectError
+    (value: number, key: string, iter: OrderedMap<number, number>) => [[0, 1]]
+  );
 
-  // $ExpectError
-  OrderedMap<number, number>().flatMap<number, number>((value: number, key: number, iter: OrderedMap<number, string>) => [[0, 1]]);
+  OrderedMap<number, number>().flatMap<number, number>(
+    // $ExpectError
+    (value: number, key: number, iter: OrderedMap<number, string>) => [[0, 1]]
+  );
 
-  // $ExpectError
-  OrderedMap<number, number>().flatMap<number, number>((value: number, key: number, iter: OrderedMap<number, number>) => [[0, 'a']]);
+  OrderedMap<number, number>().flatMap<number, number>(
+    // $ExpectError
+    (value: number, key: number, iter: OrderedMap<number, number>) => [[0, 'a']]
+  );
 }
 
-{ // #merge
+{
+  // #merge
 
   // $ExpectType OrderedMap<string, number>
   OrderedMap<string, number>().merge({ a: 1 });
@@ -265,43 +335,70 @@ import { OrderedMap, List } from '../../';
   OrderedMap<number, number | string>().merge(OrderedMap<number, number>());
 }
 
-{ // #mergeIn
+{
+  // #mergeIn
 
   // $ExpectType OrderedMap<number, number>
   OrderedMap<number, number>().mergeIn([], []);
 }
 
-{ // #mergeWith
+{
+  // #mergeWith
 
   // $ExpectType OrderedMap<number, number>
-  OrderedMap<number, number>().mergeWith((prev: number, next: number, key: number) => 1, OrderedMap<number, number>());
+  OrderedMap<number, number>().mergeWith(
+    (prev: number, next: number, key: number) => 1,
+    OrderedMap<number, number>()
+  );
 
-  // $ExpectError
-  OrderedMap<number, number>().mergeWith((prev: string, next: number, key: number) => 1, OrderedMap<number, number>());
+  OrderedMap<number, number>().mergeWith(
+    // $ExpectError
+    (prev: string, next: number, key: number) => 1,
+    OrderedMap<number, number>()
+  );
 
-  // $ExpectError
-  OrderedMap<number, number>().mergeWith((prev: number, next: string, key: number) => 1, OrderedMap<number, number>());
+  OrderedMap<number, number>().mergeWith(
+    // $ExpectError
+    (prev: number, next: string, key: number) => 1,
+    OrderedMap<number, number>()
+  );
 
-  // $ExpectError
-  OrderedMap<number, number>().mergeWith((prev: number, next: number, key: string) => 1, OrderedMap<number, number>());
+  OrderedMap<number, number>().mergeWith(
+    // $ExpectError
+    (prev: number, next: number, key: string) => 1,
+    OrderedMap<number, number>()
+  );
 
-  // $ExpectError
-  OrderedMap<number, number>().mergeWith((prev: number, next: number, key: number) => 'a', OrderedMap<number, number>());
+  OrderedMap<number, number>().mergeWith(
+    // $ExpectError
+    (prev: number, next: number, key: number) => 'a',
+    OrderedMap<number, number>()
+  );
 
-  // $ExpectError
-  OrderedMap<number, number>().mergeWith((prev: number, next: number, key: number) => 1, OrderedMap<number, string>());
+  OrderedMap<number, number>().mergeWith(
+    (prev: number, next: number, key: number) => 1,
+    // $ExpectError
+    OrderedMap<number, string>()
+  );
 
   // $ExpectType OrderedMap<string, number>
-  OrderedMap<string, number>().mergeWith((prev: number, next: number, key: string) => 1, { a: 1 });
+  OrderedMap<string, number>().mergeWith(
+    (prev: number, next: number, key: string) => 1,
+    { a: 1 }
+  );
 
-  // $ExpectError
-  OrderedMap<string, number>().mergeWith((prev: number, next: number, key: string) => 1, { a: 'a' });
+  OrderedMap<string, number>().mergeWith(
+    (prev: number, next: number, key: string) => 1,
+    // $ExpectError
+    { a: 'a' }
+  );
 
   // $ExpectType OrderedMap<number, string | number>
-  OrderedMap<number, number | string>().mergeWith((prev: number, next: string, key: number) => 1, OrderedMap<number, string>());
+  OrderedMap<number, number | string>().mergeWith((prev: number | string, next: number | string, key: number) => 1, OrderedMap<number, string>());
 }
 
-{ // #mergeDeep
+{
+  // #mergeDeep
 
   // $ExpectType OrderedMap<string, number>
   OrderedMap<string, number>().mergeDeep({ a: 1 });
@@ -322,52 +419,60 @@ import { OrderedMap, List } from '../../';
   OrderedMap<number, number | string>().mergeDeep(OrderedMap<number, number>());
 }
 
-{ // #mergeDeepIn
+{
+  // #mergeDeepIn
 
   // $ExpectType OrderedMap<number, number>
   OrderedMap<number, number>().mergeDeepIn([], []);
 }
 
-{ // #mergeDeepWith
+{
+  // #mergeDeepWith
 
   // $ExpectType OrderedMap<number, number>
-  OrderedMap<number, number>().mergeDeepWith((prev: number, next: number, key: number) => 1, OrderedMap<number, number>());
+  OrderedMap<number, number>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, OrderedMap<number, number>());
 
   // $ExpectError
-  OrderedMap<number, number>().mergeDeepWith((prev: number, next: number, key: number) => 1, OrderedMap<number, string>());
+  OrderedMap<number, number>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, OrderedMap<number, string>());
 
   // $ExpectType OrderedMap<string, number>
-  OrderedMap<string, number>().mergeDeepWith((prev: number, next: number, key: string) => 1, { a: 1 });
+  OrderedMap<string, number>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, { a: 1 });
 
   // $ExpectError
-  OrderedMap<string, number>().mergeDeepWith((prev: number, next: number, key: string) => 1, { a: 'a' });
+  OrderedMap<string, number>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, { a: 'a' });
 
   // $ExpectType OrderedMap<number, string | number>
-  OrderedMap<number, number | string>().mergeDeepWith((prev: number, next: string, key: number) => 1, OrderedMap<number, string>());
+  OrderedMap<number, number | string>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, OrderedMap<number, string>());
 }
 
-{ // #flip
+{
+  // #flip
 
   // $ExpectType OrderedMap<string, number>
   OrderedMap<number, string>().flip();
 }
 
-{ // #withMutations
+{
+  // #withMutations
 
   // $ExpectType OrderedMap<number, number>
-  OrderedMap<number, number>().withMutations(mutable => mutable);
+  OrderedMap<number, number>().withMutations((mutable) => mutable);
 
-  // $ExpectError
-  OrderedMap<number, number>().withMutations((mutable: OrderedMap<string>) => mutable);
+  OrderedMap<number, number>().withMutations(
+    // $ExpectError
+    (mutable: OrderedMap<string>) => mutable
+  );
 }
 
-{ // #asMutable
+{
+  // #asMutable
 
   // $ExpectType OrderedMap<number, number>
   OrderedMap<number, number>().asMutable();
 }
 
-{ // #asImmutable
+{
+  // #asImmutable
 
   // $ExpectType OrderedMap<number, number>
   OrderedMap<number, number>().asImmutable();

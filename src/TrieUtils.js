@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 // Used for setting prototype methods that IE8 chokes on.
 export const DELETE = 'delete';
 
@@ -84,12 +77,12 @@ function resolveIndex(index, size, defaultIndex) {
   return index === undefined
     ? defaultIndex
     : isNeg(index)
-      ? size === Infinity
-        ? size
-        : Math.max(0, size + index) | 0
-      : size === undefined || size === index
-        ? index
-        : Math.min(size, index) | 0;
+    ? size === Infinity
+      ? size
+      : Math.max(0, size + index) | 0
+    : size === undefined || size === index
+    ? index
+    : Math.min(size, index) | 0;
 }
 
 function isNeg(value) {

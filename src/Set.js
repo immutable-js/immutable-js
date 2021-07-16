@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import { Collection, SetCollection, KeyedCollection } from './Collection';
 import { isOrdered } from './predicates/isOrdered';
 import { IS_SET_SYMBOL, isSet } from './predicates/isSet';
@@ -25,12 +18,12 @@ export class Set extends SetCollection {
     return value === null || value === undefined
       ? emptySet()
       : isSet(value) && !isOrdered(value)
-        ? value
-        : emptySet().withMutations(set => {
-            const iter = SetCollection(value);
-            assertNotInfinite(iter.size);
-            iter.forEach(v => set.add(v));
-          });
+      ? value
+      : emptySet().withMutations(set => {
+          const iter = SetCollection(value);
+          assertNotInfinite(iter.size);
+          iter.forEach(v => set.add(v));
+        });
   }
 
   static of(/*...values*/) {
@@ -82,19 +75,23 @@ export class Set extends SetCollection {
   // @pragma Composition
 
   map(mapper, context) {
-    const removes = [];
-    const adds = [];
-    this.forEach(value => {
-      const mapped = mapper.call(context, value, value, this);
-      if (mapped !== value) {
-        removes.push(value);
-        adds.push(mapped);
-      }
-    });
-    return this.withMutations(set => {
-      removes.forEach(value => set.remove(value));
-      adds.forEach(value => set.add(value));
-    });
+    // keep track if the set is altered by the map function
+    let didChanges = false;
+
+    const newMap = updateSet(
+      this,
+      this._map.mapEntries(([, v]) => {
+        const mapped = mapper.call(context, v, v, this);
+
+        if (mapped !== v) {
+          didChanges = true;
+        }
+
+        return [mapped, mapped];
+      }, context)
+    );
+
+    return didChanges ? newMap : this;
   }
 
   union(...iters) {
@@ -196,10 +193,10 @@ SetPrototype.merge = SetPrototype.concat = SetPrototype.union;
 SetPrototype.withMutations = withMutations;
 SetPrototype.asImmutable = asImmutable;
 SetPrototype['@@transducer/init'] = SetPrototype.asMutable = asMutable;
-SetPrototype['@@transducer/step'] = function(result, arr) {
+SetPrototype['@@transducer/step'] = function (result, arr) {
   return result.add(arr);
 };
-SetPrototype['@@transducer/result'] = function(obj) {
+SetPrototype['@@transducer/result'] = function (obj) {
   return obj.asImmutable();
 };
 
@@ -215,8 +212,8 @@ function updateSet(set, newMap) {
   return newMap === set._map
     ? set
     : newMap.size === 0
-      ? set.__empty()
-      : set.__make(newMap);
+    ? set.__empty()
+    : set.__make(newMap);
 }
 
 function makeSet(map, ownerID) {

@@ -3,14 +3,16 @@
     "target": "es2015",
     "module": "commonjs",
     "sourceMap": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
+    "strict": true,
+    "types": [],
+    "noEmit": true,
     "lib": [
       "es2015"
-    ]
+    ],
+    "baseUrl": "./",
+    "paths": {
+      "immutable": ["../../type-definitions/Immutable.d.ts"]
+    }
   },
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

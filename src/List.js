@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import {
   DELETE,
   SHIFT,
@@ -89,10 +82,10 @@ export class List extends IndexedCollection {
     return !this.has(index)
       ? this
       : index === 0
-        ? this.shift()
-        : index === this.size - 1
-          ? this.pop()
-          : this.splice(index, 1);
+      ? this.shift()
+      : index === this.size - 1
+      ? this.pop()
+      : this.splice(index, 1);
   }
 
   insert(index, value) {
@@ -106,8 +99,7 @@ export class List extends IndexedCollection {
     if (this.__ownerID) {
       this.size = this._origin = this._capacity = 0;
       this._level = SHIFT;
-      this._root = this._tail = null;
-      this.__hash = undefined;
+      this._root = this._tail = this.__hash = undefined;
       this.__altered = true;
       return this;
     }
@@ -176,7 +168,7 @@ export class List extends IndexedCollection {
   map(mapper, context) {
     return this.withMutations(list => {
       for (let i = 0; i < this.size; i++) {
-        list.set(i, mapper.call(context, list.get(i), i, list));
+        list.set(i, mapper.call(context, list.get(i), i, this));
       }
     });
   }
@@ -258,10 +250,10 @@ ListPrototype.withMutations = withMutations;
 ListPrototype.wasAltered = wasAltered;
 ListPrototype.asImmutable = asImmutable;
 ListPrototype['@@transducer/init'] = ListPrototype.asMutable = asMutable;
-ListPrototype['@@transducer/step'] = function(result, arr) {
+ListPrototype['@@transducer/step'] = function (result, arr) {
   return result.push(arr);
 };
-ListPrototype['@@transducer/result'] = function(obj) {
+ListPrototype['@@transducer/result'] = function (obj) {
   return obj.asImmutable();
 };
 
@@ -546,8 +538,8 @@ function setListBounds(list, begin, end) {
     end === undefined
       ? oldCapacity
       : end < 0
-        ? oldCapacity + end
-        : oldOrigin + end;
+      ? oldCapacity + end
+      : oldOrigin + end;
   if (newOrigin === oldOrigin && newCapacity === oldCapacity) {
     return list;
   }
@@ -595,8 +587,8 @@ function setListBounds(list, begin, end) {
     newTailOffset < oldTailOffset
       ? listNodeFor(list, newCapacity - 1)
       : newTailOffset > oldTailOffset
-        ? new VNode([], owner)
-        : oldTail;
+      ? new VNode([], owner)
+      : oldTail;
 
   // Merge Tail into tree.
   if (

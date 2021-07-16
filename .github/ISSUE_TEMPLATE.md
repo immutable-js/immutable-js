@@ -6,9 +6,9 @@
 
                                                   ---  Have a general question?  ---
 
-First check out the Docs: https://facebook.github.io/immutable-js/docs/
-And check out the Wiki: https://github.com/facebook/immutable-js/wiki/
-Search existing issues: https://github.com/facebook/immutable-js/search?type=Issues&q=question
+First check out the Docs: https://immutable-js.github.io/immutable-js/docs/
+And check out the Wiki: https://github.com/immutable-js/immutable-js/wiki/
+Search existing issues: https://github.com/immutable-js/immutable-js/search?type=Issues&q=question
 Ask on Stack Overflow!: https://stackoverflow.com/questions/tagged/immutable.js?sort=votes
 
  * Stack Overflow gets more attention
@@ -26,10 +26,11 @@ libraries over continuous additions. Here are some tips to get your feature adde
 
                                                              ---  Found a bug?  ---
 
-Search existing issues first: https://github.com/facebook/immutable-js/search?type=Issues&q=bug
+Search existing issues first: https://github.com/immutable-js/immutable-js/search?type=Issues&q=bug
 Please ensure you're using the latest version, and provide some information below.
 
 -->
+
 ### What happened
 
 <!-- Shortly summarize what went wrong. Be sure to include not just what

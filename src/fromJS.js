@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import { KeyedSeq, IndexedSeq } from './Seq';
 import { isKeyed } from './predicates/isKeyed';
 import isPlainObj from './utils/isPlainObj';
@@ -24,8 +17,8 @@ function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
   const toSeq = Array.isArray(value)
     ? IndexedSeq
     : isPlainObj(value)
-      ? KeyedSeq
-      : null;
+    ? KeyedSeq
+    : null;
   if (toSeq) {
     if (~stack.indexOf(value)) {
       throw new TypeError('Cannot convert circular structure to Immutable');

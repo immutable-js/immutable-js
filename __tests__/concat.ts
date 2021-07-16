@@ -1,13 +1,4 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-///<reference path='../resources/jest.d.ts'/>
-
-import { is, List, Seq, Set } from '../';
+import { is, List, Seq, Set } from 'immutable';
 
 describe('concat', () => {
   it('concats two sequences', () => {
@@ -50,7 +41,8 @@ describe('concat', () => {
     const a = Seq({ a: 1, b: 2, c: 3 });
     const b = [4, 5, 6];
     expect(() => {
-      a.concat(b as any).toJS();
+      // @ts-expect-error
+      a.concat(b).toJS();
     }).toThrow('Expected [K, V] tuple: 4');
   });
 
@@ -117,18 +109,20 @@ describe('concat', () => {
   it('iterates repeated keys', () => {
     const a = Seq({ a: 1, b: 2, c: 3 });
     expect(a.concat(a, a).toObject()).toEqual({ a: 1, b: 2, c: 3 });
-    expect(
-      a
-        .concat(a, a)
-        .valueSeq()
-        .toArray()
-    ).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3]);
-    expect(
-      a
-        .concat(a, a)
-        .keySeq()
-        .toArray()
-    ).toEqual(['a', 'b', 'c', 'a', 'b', 'c', 'a', 'b', 'c']);
+    expect(a.concat(a, a).valueSeq().toArray()).toEqual([
+      1, 2, 3, 1, 2, 3, 1, 2, 3,
+    ]);
+    expect(a.concat(a, a).keySeq().toArray()).toEqual([
+      'a',
+      'b',
+      'c',
+      'a',
+      'b',
+      'c',
+      'a',
+      'b',
+      'c',
+    ]);
     expect(a.concat(a, a).toArray()).toEqual([
       ['a', 1],
       ['b', 2],
@@ -145,42 +139,29 @@ describe('concat', () => {
   it('lazily reverses un-indexed sequences', () => {
     const a = Seq({ a: 1, b: 2, c: 3 });
     const b = Seq({ d: 4, e: 5, f: 6 });
-    expect(
-      a
-        .concat(b)
-        .reverse()
-        .keySeq()
-        .toArray()
-    ).toEqual(['f', 'e', 'd', 'c', 'b', 'a']);
+    expect(a.concat(b).reverse().keySeq().toArray()).toEqual([
+      'f',
+      'e',
+      'd',
+      'c',
+      'b',
+      'a',
+    ]);
   });
 
   it('lazily reverses indexed sequences', () => {
     const a = Seq([1, 2, 3]);
     expect(a.concat(a, a).reverse().size).toBe(9);
-    expect(
-      a
-        .concat(a, a)
-        .reverse()
-        .toArray()
-    ).toEqual([3, 2, 1, 3, 2, 1, 3, 2, 1]);
+    expect(a.concat(a, a).reverse().toArray()).toEqual([
+      3, 2, 1, 3, 2, 1, 3, 2, 1,
+    ]);
   });
 
   it('lazily reverses indexed sequences with unknown size, maintaining indicies', () => {
     const a = Seq([1, 2, 3]).filter(x => true);
     expect(a.size).toBe(undefined); // Note: lazy filter does not know what size in O(1).
-    expect(
-      a
-        .concat(a, a)
-        .toKeyedSeq()
-        .reverse().size
-    ).toBe(undefined);
-    expect(
-      a
-        .concat(a, a)
-        .toKeyedSeq()
-        .reverse()
-        .toArray()
-    ).toEqual([
+    expect(a.concat(a, a).toKeyedSeq().reverse().size).toBe(undefined);
+    expect(a.concat(a, a).toKeyedSeq().reverse().toArray()).toEqual([
       [8, 3],
       [7, 2],
       [6, 1],

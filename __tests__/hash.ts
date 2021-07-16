@@ -1,16 +1,7 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-///<reference path='../resources/jest.d.ts'/>
+import { hash } from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
-
-import { hash } from '../';
 
 describe('hash', () => {
   it('stable hash of well known values', () => {
@@ -34,6 +25,13 @@ describe('hash', () => {
     const objB = {};
     expect(hash(objA)).toBe(hash(objA));
     expect(hash(objA)).not.toBe(hash(objB));
+  });
+
+  it('generates different hashes for different symbols', () => {
+    const symA = Symbol();
+    const symB = Symbol();
+    expect(hash(symA)).toBe(hash(symA));
+    expect(hash(symA)).not.toBe(hash(symB));
   });
 
   it('generates different hashes for different functions', () => {

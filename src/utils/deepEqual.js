@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import { is } from '../is';
 import { NOT_SET } from '../TrieUtils';
 import { isCollection } from '../predicates/isCollection';
@@ -68,8 +61,8 @@ export default function deepEqual(a, b) {
       notAssociative
         ? !a.has(v)
         : flipped
-          ? !is(v, a.get(k, NOT_SET))
-          : !is(a.get(k, NOT_SET), v)
+        ? !is(v, a.get(k, NOT_SET))
+        : !is(a.get(k, NOT_SET), v)
     ) {
       allEqual = false;
       return false;

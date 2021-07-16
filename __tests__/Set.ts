@@ -1,14 +1,4 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-///<reference path='../resources/jest.d.ts'/>
-
-declare var Symbol: any;
-import { fromJS, is, List, Map, OrderedSet, Seq, Set } from '../';
+import { fromJS, is, List, Map, OrderedSet, Seq, Set } from 'immutable';
 
 describe('Set', () => {
   it('accepts array of values', () => {
@@ -20,7 +10,7 @@ describe('Set', () => {
   });
 
   it('accepts array-like of values', () => {
-    const s = Set<any>({ length: 3, 2: 3 } as any);
+    const s = Set<number | undefined>({ length: 3, 2: 3 });
     expect(s.size).toBe(2);
     expect(s.has(undefined)).toBe(true);
     expect(s.has(3)).toBe(true);
@@ -48,7 +38,11 @@ describe('Set', () => {
   it('accepts a keyed Seq as a set of entries', () => {
     const seq = Seq({ a: null, b: null, c: null }).flip();
     const s = Set(seq);
-    expect(s.toArray()).toEqual([[null, 'a'], [null, 'b'], [null, 'c']]);
+    expect(s.toArray()).toEqual([
+      [null, 'a'],
+      [null, 'b'],
+      [null, 'c'],
+    ]);
     // Explicitly getting the values sequence
     const s2 = Set(seq.valueSeq());
     expect(s2.toArray()).toEqual(['a', 'b', 'c']);
@@ -131,7 +125,11 @@ describe('Set', () => {
     const s = Set([1, 2, 3]);
     const iterator = jest.fn();
     s.forEach(iterator);
-    expect(iterator.mock.calls).toEqual([[1, 1, s], [2, 2, s], [3, 3, s]]);
+    expect(iterator.mock.calls).toEqual([
+      [1, 1, s],
+      [2, 2, s],
+      [3, 3, s],
+    ]);
   });
 
   it('unions two sets', () => {
@@ -258,15 +256,6 @@ describe('Set', () => {
   });
 
   describe('accepts Symbol as entry #579', () => {
-    if (typeof Symbol !== 'function') {
-      Symbol = function(key) {
-        return { key, __proto__: Symbol };
-      };
-      Symbol.toString = function() {
-        return 'Symbol(' + (this.key || '') + ')';
-      };
-    }
-
     it('operates on small number of symbols, preserving set uniqueness', () => {
       const a = Symbol();
       const b = Symbol();
@@ -315,13 +304,15 @@ describe('Set', () => {
     expect(set.size).toEqual(5);
     expect(set.count()).toEqual(5);
     expect(set.count(x => x % 2 === 0)).toEqual(2);
-    expect(set.count(x => true)).toEqual(5);
+    expect(set.count(() => true)).toEqual(5);
   });
 
   describe('"size" should correctly reflect the number of elements in a Set', () => {
     describe('deduplicating custom classes that invoke fromJS() as part of equality check', () => {
       class Entity {
-        constructor(entityId, entityKey) {
+        entityId: string;
+        entityKey: string;
+        constructor(entityId: string, entityKey: string) {
           this.entityId = entityId;
           this.entityKey = entityKey;
         }

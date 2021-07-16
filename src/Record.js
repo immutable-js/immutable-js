@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import { toJS } from './toJS';
 import { KeyedCollection } from './Collection';
 import { keyedSeqFromValue } from './Seq';
@@ -28,10 +21,33 @@ import { asImmutable } from './methods/asImmutable';
 
 import invariant from './utils/invariant';
 import quoteString from './utils/quoteString';
+import { isImmutable } from './predicates/isImmutable';
+
+function throwOnInvalidDefaultValues(defaultValues) {
+  if (isRecord(defaultValues)) {
+    throw new Error(
+      'Can not call `Record` with an immutable Record as default values. Use a plain javascript object instead.'
+    );
+  }
+
+  if (isImmutable(defaultValues)) {
+    throw new Error(
+      'Can not call `Record` with an immutable Collection as default values. Use a plain javascript object instead.'
+    );
+  }
+
+  if (defaultValues === null || typeof defaultValues !== 'object') {
+    throw new Error(
+      'Can not call `Record` with a non-object as default values. Use a plain javascript object instead.'
+    );
+  }
+}
 
 export class Record {
   constructor(defaultValues, name) {
     let hasInitialized;
+
+    throwOnInvalidDefaultValues(defaultValues);
 
     const RecordType = function Record(values) {
       if (values instanceof RecordType) {
@@ -77,11 +93,11 @@ export class Record {
           l.set(this._indices[k], v === this._defaultValues[k] ? undefined : v);
         });
       });
+      return this;
     };
 
-    const RecordTypePrototype = (RecordType.prototype = Object.create(
-      RecordPrototype
-    ));
+    const RecordTypePrototype = (RecordType.prototype =
+      Object.create(RecordPrototype));
     RecordTypePrototype.constructor = RecordType;
 
     if (name) {
@@ -104,10 +120,7 @@ export class Record {
 
   equals(other) {
     return (
-      this === other ||
-      (other &&
-        this._keys === other._keys &&
-        recordSeq(this).equals(recordSeq(other)))
+      this === other || (other && recordSeq(this).equals(recordSeq(other)))
     );
   }
 
@@ -151,6 +164,7 @@ export class Record {
 
   clear() {
     const newValues = this._values.clear().setSize(this._keys.length);
+
     return this.__ownerID ? this : makeRecord(this, newValues);
   }
 
@@ -215,7 +229,7 @@ RecordPrototype.asImmutable = asImmutable;
 RecordPrototype[ITERATOR_SYMBOL] = RecordPrototype.entries;
 RecordPrototype.toJSON = RecordPrototype.toObject =
   CollectionPrototype.toObject;
-RecordPrototype.inspect = RecordPrototype.toSource = function() {
+RecordPrototype.inspect = RecordPrototype.toSource = function () {
   return this.toString();
 };
 
@@ -237,10 +251,10 @@ function recordSeq(record) {
 function setProp(prototype, name) {
   try {
     Object.defineProperty(prototype, name, {
-      get: function() {
+      get: function () {
         return this.get(name);
       },
-      set: function(value) {
+      set: function (value) {
         invariant(this.__ownerID, 'Cannot set on an immutable record.');
         this.set(name, value);
       },

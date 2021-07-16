@@ -1,5 +1,5 @@
 {
-  "extends": "tslint:recommended",
+  "extends": ["tslint:recommended", "tslint-config-prettier"],
   "rules": {
     "array-type": [true, "generic"],
     "quotemark": false,
@@ -13,6 +13,7 @@
     "no-conditional-assignment": false,
     "one-variable-per-declaration": false,
     "max-classes-per-file": false,
+    "space-before-function-paren": false,
     "trailing-comma": [
       true,
       {
@@ -24,9 +25,6 @@
         }
       }
     ],
-    "arrow-parens": [
-      true,
-      "ban-single-arg-parens"
-    ]
+    "no-console": false
   }
 }

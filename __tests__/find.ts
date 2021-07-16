@@ -1,22 +1,13 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-///<reference path='../resources/jest.d.ts'/>
+import { Seq } from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
-
-import { List, Range, Seq } from '../';
 
 describe('find', () => {
   it('find returns notSetValue when match is not found', () => {
     expect(
       Seq([1, 2, 3, 4, 5, 6]).find(
-        function() {
+        function () {
           return false;
         },
         null,
@@ -28,7 +19,7 @@ describe('find', () => {
   it('findEntry returns notSetValue when match is not found', () => {
     expect(
       Seq([1, 2, 3, 4, 5, 6]).findEntry(
-        function() {
+        function () {
           return false;
         },
         null,
@@ -40,7 +31,7 @@ describe('find', () => {
   it('findLastEntry returns notSetValue when match is not found', () => {
     expect(
       Seq([1, 2, 3, 4, 5, 6]).findLastEntry(
-        function() {
+        function () {
           return false;
         },
         null,

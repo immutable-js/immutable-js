@@ -1,20 +1,15 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-///<reference path='../resources/jest.d.ts'/>
+import { Collection, fromJS, List, Range, Seq } from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { Collection, fromJS, List, Range, Seq } from '../';
-
 describe('flatten', () => {
   it('flattens sequences one level deep', () => {
-    const nested = fromJS([[1, 2], [3, 4], [5, 6]]);
+    const nested = fromJS([
+      [1, 2],
+      [3, 4],
+      [5, 6],
+    ]);
     const flat = nested.flatten();
     expect(flat.toJS()).toEqual([1, 2, 3, 4, 5, 6]);
   });
@@ -26,9 +21,12 @@ describe('flatten', () => {
   });
 
   it('gives the correct iteration count', () => {
-    const nested = fromJS([[1, 2, 3], [4, 5, 6]]);
+    const nested = fromJS([
+      [1, 2, 3],
+      [4, 5, 6],
+    ]);
     const flat = nested.flatten();
-    expect(flat.forEach(x => x < 4)).toEqual(4);
+    expect(flat.forEach((x: any) => x < 4)).toEqual(4);
   });
 
   type SeqType = number | Array<number> | Collection<number, number>;
@@ -48,8 +46,26 @@ describe('flatten', () => {
 
   it('can flatten at various levels of depth', () => {
     const deeplyNested = fromJS([
-      [[['A', 'B'], ['A', 'B']], [['A', 'B'], ['A', 'B']]],
-      [[['A', 'B'], ['A', 'B']], [['A', 'B'], ['A', 'B']]],
+      [
+        [
+          ['A', 'B'],
+          ['A', 'B'],
+        ],
+        [
+          ['A', 'B'],
+          ['A', 'B'],
+        ],
+      ],
+      [
+        [
+          ['A', 'B'],
+          ['A', 'B'],
+        ],
+        [
+          ['A', 'B'],
+          ['A', 'B'],
+        ],
+      ],
     ]);
 
     // deeply flatten
@@ -74,10 +90,22 @@ describe('flatten', () => {
 
     // shallow flatten
     expect(deeplyNested.flatten(true).toJS()).toEqual([
-      [['A', 'B'], ['A', 'B']],
-      [['A', 'B'], ['A', 'B']],
-      [['A', 'B'], ['A', 'B']],
-      [['A', 'B'], ['A', 'B']],
+      [
+        ['A', 'B'],
+        ['A', 'B'],
+      ],
+      [
+        ['A', 'B'],
+        ['A', 'B'],
+      ],
+      [
+        ['A', 'B'],
+        ['A', 'B'],
+      ],
+      [
+        ['A', 'B'],
+        ['A', 'B'],
+      ],
     ]);
 
     // flatten two levels

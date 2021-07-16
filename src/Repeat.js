@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import { wholeSlice, resolveBegin, resolveEnd } from './TrieUtils';
 import { IndexedSeq } from './Seq';
 import { is } from './is';
@@ -88,11 +81,10 @@ export class Repeat extends IndexedSeq {
   __iterator(type, reverse) {
     const size = this.size;
     let i = 0;
-    return new Iterator(
-      () =>
-        i === size
-          ? iteratorDone()
-          : iteratorValue(type, reverse ? size - ++i : i++, this._value)
+    return new Iterator(() =>
+      i === size
+        ? iteratorDone()
+        : iteratorValue(type, reverse ? size - ++i : i++, this._value)
     );
   }
 

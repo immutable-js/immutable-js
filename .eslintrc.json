@@ -4,15 +4,8 @@
     "ecmaVersion": 6,
     "sourceType": "module"
   },
-  "extends": [
-    "airbnb",
-    "prettier",
-    "prettier/react"
-  ],
-  "plugins": [
-    "react",
-    "prettier"
-  ],
+  "extends": ["airbnb", "prettier"],
+  "plugins": ["react", "prettier"],
   "rules": {
     "array-callback-return": "off",
     "block-scoped-var": "off",
@@ -21,6 +14,7 @@
     "constructor-super": "off",
     "default-case": "off",
     "func-names": "off",
+    "max-classes-per-file": "off",
     "no-bitwise": "off",
     "no-cond-assign": "off",
     "no-constant-condition": "off",
@@ -54,7 +48,9 @@
     "prefer-template": "off",
     "spaced-comment": "off",
     "vars-on-top": "off",
+    "react/destructuring-assignment": "off",
     "react/jsx-boolean-value": "off",
+    "react/jsx-curly-brace-presence": "off",
     "react/jsx-filename-extension": "off",
     "react/no-array-index-key": "off",
     "react/no-danger": "off",
@@ -64,18 +60,20 @@
     "react/prop-types": "off",
     "react/self-closing-comp": "error",
     "react/sort-comp": "off",
+    "react/jsx-props-no-spreading": "off",
+    "jsx-a11y/no-static-element-interactions": "off",
+    "import/extensions": [
+      "error",
+      "always",
+      { "js": "never", "ts": "never", "tsx": "never" }
+    ],
     "import/newline-after-import": "error",
+    "import/no-cycle": "off",
     "import/no-extraneous-dependencies": "off",
     "import/no-mutable-exports": "error",
     "import/no-unresolved": "error",
+    "import/no-useless-path-segments": "off",
     "import/prefer-default-export": "off",
-    "jsx-a11y/no-static-element-interactions": "off",
-    "prettier/prettier": [
-      "error",
-      {
-        "singleQuote": true,
-        "trailingComma": "es5"
-      }
-    ]
+    "prettier/prettier": "error"
   }
 }

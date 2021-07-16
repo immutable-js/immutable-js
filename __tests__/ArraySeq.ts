@@ -1,13 +1,4 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-///<reference path='../resources/jest.d.ts'/>
-
-import { Seq } from '../';
+import { Seq } from 'immutable';
 
 describe('ArraySequence', () => {
   it('every is true when predicate is true for all entries', () => {
@@ -73,19 +64,8 @@ describe('ArraySequence', () => {
     expect(seq.take(5).toArray().length).toBe(5);
     expect(seq.filter(x => x % 2 === 1).toArray().length).toBe(2);
     expect(seq.toKeyedSeq().flip().size).toBe(10);
-    expect(
-      seq
-        .toKeyedSeq()
-        .flip()
-        .flip().size
-    ).toBe(10);
-    expect(
-      seq
-        .toKeyedSeq()
-        .flip()
-        .flip()
-        .toArray().length
-    ).toBe(10);
+    expect(seq.toKeyedSeq().flip().flip().size).toBe(10);
+    expect(seq.toKeyedSeq().flip().flip().toArray().length).toBe(10);
   });
 
   it('can be iterated', () => {

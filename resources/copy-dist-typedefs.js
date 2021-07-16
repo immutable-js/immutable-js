@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 const fs = require('fs');
 const path = require('path');
 
@@ -23,7 +16,7 @@ const flowTypes = fs.readFileSync(
 const nonAmbientTsTypes = tsTypes
   .replace(/declare\s+module\s+Immutable\s*\{/, '')
   .replace(
-    /\}[\s\n\r]*declare\s+module\s*.immutable.[\s\n\r]*{[\s\n\r]*export\s*=\s*Immutable[\s\n\r]*\}/m,
+    /\}[\s\n\r]*declare\s+module\s*.'immutable'.[\s\n\r]*{[\s\n\r]*export\s*=\s*Immutable;[\s\n\r]*\}/m,
     ''
   );
 

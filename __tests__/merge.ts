@@ -1,15 +1,5 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-///<reference path='../resources/jest.d.ts'/>
-
 import {
   fromJS,
-  is,
   List,
   Map,
   merge,
@@ -17,7 +7,7 @@ import {
   mergeDeepWith,
   Record,
   Set,
-} from '../';
+} from 'immutable';
 
 describe('merge', () => {
   it('merges two maps', () => {
@@ -35,7 +25,7 @@ describe('merge', () => {
   it('merges two maps with a merge function', () => {
     const m1 = Map({ a: 1, b: 2, c: 3 });
     const m2 = Map({ d: 10, b: 20, e: 30 });
-    expect(m1.mergeWith((a, b) => a + b, m2)).toEqual(
+    expect(m1.mergeWith((a: any, b: any) => a + b, m2)).toEqual(
       Map({ a: 1, b: 22, c: 3, d: 10, e: 30 })
     );
   });
@@ -43,20 +33,21 @@ describe('merge', () => {
   it('throws typeError without merge function', () => {
     const m1 = Map({ a: 1, b: 2, c: 3 });
     const m2 = Map({ d: 10, b: 20, e: 30 });
+    // @ts-expect-error
     expect(() => m1.mergeWith(1, m2)).toThrowError(TypeError);
   });
 
   it('provides key as the third argument of merge function', () => {
     const m1 = Map({ id: 'temp', b: 2, c: 3 });
     const m2 = Map({ id: 10, b: 20, e: 30 });
-    const add = (a, b) => a + b;
+    const add = (a: any, b: any) => a + b;
     expect(
       m1.mergeWith((a, b, key) => (key !== 'id' ? add(a, b) : b), m2)
     ).toEqual(Map({ id: 10, b: 22, c: 3, e: 30 }));
   });
 
   it('deep merges two maps', () => {
-    const m1 = fromJS({ a: { b: { c: 1, d: 2 } } });
+    const m1 = fromJS({ a: { b: { c: 1, d: 2 } } }) as Map<string, any>;
     const m2 = fromJS({ a: { b: { c: 10, e: 20 }, f: 30 }, g: 40 });
     expect(m1.mergeDeep(m2)).toEqual(
       fromJS({ a: { b: { c: 10, d: 2, e: 20 }, f: 30 }, g: 40 })
@@ -82,7 +73,7 @@ describe('merge', () => {
   });
 
   it('deep merges raw JS', () => {
-    const m1 = fromJS({ a: { b: { c: 1, d: 2 } } });
+    const m1 = fromJS({ a: { b: { c: 1, d: 2 } } }) as Map<string, any>;
     const js = { a: { b: { c: 10, e: 20 }, f: 30 }, g: 40 };
     expect(m1.mergeDeep(js)).toEqual(
       fromJS({ a: { b: { c: 10, d: 2, e: 20 }, f: 30 }, g: 40 })
@@ -90,9 +81,9 @@ describe('merge', () => {
   });
 
   it('deep merges raw JS with a merge function', () => {
-    const m1 = fromJS({ a: { b: { c: 1, d: 2 } } });
+    const m1 = fromJS({ a: { b: { c: 1, d: 2 } } }) as Map<string, any>;
     const js = { a: { b: { c: 10, e: 20 }, f: 30 }, g: 40 };
-    expect(m1.mergeDeepWith((a, b) => a + b, js)).toEqual(
+    expect(m1.mergeDeepWith((a: any, b: any) => a + b, js)).toEqual(
       fromJS({ a: { b: { c: 11, d: 2, e: 20 }, f: 30 }, g: 40 })
     );
   });
@@ -100,7 +91,7 @@ describe('merge', () => {
   it('deep merges raw JS into raw JS with a merge function', () => {
     const js1 = { a: { b: { c: 1, d: 2 } } };
     const js2 = { a: { b: { c: 10, e: 20 }, f: 30 }, g: 40 };
-    expect(mergeDeepWith((a, b) => a + b, js1, js2)).toEqual({
+    expect(mergeDeepWith((a: any, b: any) => a + b, js1, js2)).toEqual({
       a: { b: { c: 11, d: 2, e: 20 }, f: 30 },
       g: 40,
     });
@@ -109,14 +100,14 @@ describe('merge', () => {
   it('deep merges collections into raw JS with a merge function', () => {
     const js = { a: { b: { c: 1, d: 2 } } };
     const m = fromJS({ a: { b: { c: 10, e: 20 }, f: 30 }, g: 40 });
-    expect(mergeDeepWith((a, b) => a + b, js, m)).toEqual({
+    expect(mergeDeepWith((a: any, b: any) => a + b, js, m)).toEqual({
       a: { b: { c: 11, d: 2, e: 20 }, f: 30 },
       g: 40,
     });
   });
 
   it('returns self when a deep merges is a no-op', () => {
-    const m1 = fromJS({ a: { b: { c: 1, d: 2 } } });
+    const m1 = fromJS({ a: { b: { c: 1, d: 2 } } }) as Map<string, any>;
     expect(m1.mergeDeep({ a: { b: { c: 1 } } })).toBe(m1);
   });
 
@@ -132,13 +123,17 @@ describe('merge', () => {
 
   it('can overwrite existing maps', () => {
     expect(
-      fromJS({ a: { x: 1, y: 1 }, b: { x: 2, y: 2 } }).merge({
+      (
+        fromJS({ a: { x: 1, y: 1 }, b: { x: 2, y: 2 } }) as Map<string, any>
+      ).merge({
         a: null,
         b: Map({ x: 10 }),
       })
     ).toEqual(fromJS({ a: null, b: { x: 10 } }));
     expect(
-      fromJS({ a: { x: 1, y: 1 }, b: { x: 2, y: 2 } }).mergeDeep({
+      (
+        fromJS({ a: { x: 1, y: 1 }, b: { x: 2, y: 2 } }) as Map<string, any>
+      ).mergeDeep({
         a: null,
         b: { x: 10 },
       })
@@ -146,7 +141,7 @@ describe('merge', () => {
   });
 
   it('can overwrite existing maps with objects', () => {
-    const m1 = fromJS({ a: { x: 1, y: 1 } }); // deep conversion.
+    const m1 = fromJS({ a: { x: 1, y: 1 } }) as Map<string, any>; // deep conversion.
     const m2 = Map({ a: { z: 10 } }); // shallow conversion to Map.
 
     // Raw object simply replaces map.
@@ -189,7 +184,7 @@ describe('merge', () => {
   });
 
   it('maintains JS values inside immutable collections', () => {
-    const m1 = fromJS({ a: { b: { imm: 'map' } } });
+    const m1 = fromJS({ a: { b: { imm: 'map' } } }) as Map<string, any>;
     const m2 = m1.mergeDeep(Map({ a: Map({ b: { plain: 'obj' } }) }));
 
     expect(m1.getIn(['a', 'b'])).toEqual(Map([['imm', 'map']]));
@@ -225,15 +220,58 @@ describe('merge', () => {
     const g = Symbol('g');
 
     // Note the use of nested Map constructors, Map() does not do a deep conversion!
-    const m1 = Map([[a, Map([[b, Map([[c, 1], [d, 2]])]])]]);
+    const m1 = Map([
+      [
+        a,
+        Map([
+          [
+            b,
+            Map([
+              [c, 1],
+              [d, 2],
+            ]),
+          ],
+        ]),
+      ],
+    ]);
 
     // mergeDeep can be directly given a nested set of `Iterable<[K, V]>`
     const merged = m1.mergeDeep([
-      [a, [[b, [[c, 10], [e, 20], [f, 30], [g, 40]]]]],
+      // @ts-ignore (Type definition limitation)
+      [
+        a,
+        [
+          [
+            b,
+            [
+              [c, 10],
+              [e, 20],
+              [f, 30],
+              [g, 40],
+            ],
+          ],
+        ],
+      ],
     ]);
 
     expect(merged).toEqual(
-      Map([[a, Map([[b, Map([[c, 10], [d, 2], [e, 20], [f, 30], [g, 40]])]])]])
+      Map([
+        [
+          a,
+          Map([
+            [
+              b,
+              Map([
+                [c, 10],
+                [d, 2],
+                [e, 20],
+                [f, 30],
+                [g, 40],
+              ]),
+            ],
+          ]),
+        ],
+      ])
     );
   });
 

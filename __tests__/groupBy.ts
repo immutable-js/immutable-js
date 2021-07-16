@@ -1,13 +1,4 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-///<reference path='../resources/jest.d.ts'/>
-
-import { Collection, Map, Seq } from '../';
+import { Collection, Map, Seq } from 'immutable';
 
 describe('groupBy', () => {
   it('groups keyed sequence', () => {
@@ -16,7 +7,10 @@ describe('groupBy', () => {
 
     // Each group should be a keyed sequence, not an indexed sequence
     const firstGroup = grouped.get(1);
-    expect(firstGroup && firstGroup.toArray()).toEqual([['a', 1], ['c', 3]]);
+    expect(firstGroup && firstGroup.toArray()).toEqual([
+      ['a', 1],
+      ['c', 3],
+    ]);
   });
 
   it('groups indexed sequence', () => {

@@ -1,15 +1,8 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
+const Immutable1 = require('../src/Immutable');
 
-const Immutable1 = require('../');
+jest.resetModules();
 
-jest.resetModuleRegistry();
-
-const Immutable2 = require('../');
+const Immutable2 = require('../src/Immutable');
 
 describe('MultiRequire', () => {
   it('might require two different instances of Immutable', () => {

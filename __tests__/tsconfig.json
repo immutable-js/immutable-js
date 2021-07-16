@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "noEmit": true,
+    // TODO: add additional strictness
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "target": "esnext",
+    "moduleResolution": "node",
+    "paths": {
+      "immutable": ["../type-definitions/Immutable.d.ts"],
+      "jasmine-check": ["../resources/jasmine-check.d.ts"]
+    }
+  }
+}

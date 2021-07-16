@@ -1,18 +1,9 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-///<reference path='../resources/jest.d.ts'/>
+import { fromJS, List, Map, Range, Seq, Set } from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
-import { fromJS, List, Map, Range, Seq, Set } from '../';
-
-function arrayOfSize(s) {
+function arrayOfSize(s: number) {
   const a = new Array(s);
   for (let ii = 0; ii < s; ii++) {
     a[ii] = ii;
@@ -47,7 +38,8 @@ describe('List', () => {
 
   it('does not accept a scalar', () => {
     expect(() => {
-      List(3 as any);
+      // @ts-expect-error
+      List(3);
     }).toThrow('Expected Array or collection object of values: 3');
   });
 
@@ -58,7 +50,7 @@ describe('List', () => {
   });
 
   it('accepts an array-like', () => {
-    const v = List({ length: 3, 2: 'c' } as any);
+    const v = List({ length: 3, 2: 'c' });
     expect(v.get(2)).toBe('c');
     expect(v.toArray()).toEqual([undefined, undefined, 'c']);
   });
@@ -78,7 +70,11 @@ describe('List', () => {
   it('accepts a keyed Seq as a list of entries', () => {
     const seq = Seq({ a: null, b: null, c: null }).flip();
     const v = List(seq);
-    expect(v.toArray()).toEqual([[null, 'a'], [null, 'b'], [null, 'c']]);
+    expect(v.toArray()).toEqual([
+      [null, 'a'],
+      [null, 'b'],
+      [null, 'c'],
+    ]);
     // Explicitly getting the values sequence
     const v2 = List(seq.valueSeq());
     expect(v2.toArray()).toEqual(['a', 'b', 'c']);
@@ -105,8 +101,49 @@ describe('List', () => {
     expect(v.getIn([0, 'aKey', 1])).toBe('great');
   });
 
+  it('can setIn on an inexistant index', () => {
+    const myMap = Map<string, any>({ a: [], b: [] });
+    const out = myMap.setIn(['a', 0], 'v').setIn(['c', 0], 'v');
+
+    expect(out.getIn(['a', 0])).toEqual('v');
+    expect(out.getIn(['c', 0])).toEqual('v');
+    expect(out.get('a')).toBeInstanceOf(Array);
+    expect(out.get('b')).toBeInstanceOf(Array);
+    expect(out.get('c')).toBeInstanceOf(Map);
+    expect(out.get('c').keySeq().first()).toBe(0);
+  });
+
+  it('throw when calling setIn on a non data structure', () => {
+    const avengers = [
+      'ironMan', // index [0]
+      [
+        'captainAmerica', // index [1][0]
+        [
+          'blackWidow', // index [1][1][0]
+          ['theHulk'], // index [1][1][1][0]
+        ],
+      ],
+    ];
+
+    const avengersList = fromJS(avengers) as List<unknown>;
+
+    // change theHulk to scarletWitch
+    const out1 = avengersList.setIn([1, 1, 1, 0], 'scarletWitch');
+    expect(out1.getIn([1, 1, 1, 0])).toEqual('scarletWitch');
+
+    const out2 = avengersList.setIn([1, 1, 1, 3], 'scarletWitch');
+    expect(out2.getIn([1, 1, 1, 3])).toEqual('scarletWitch');
+
+    expect(() => {
+      avengersList.setIn([0, 1], 'scarletWitch');
+    }).toThrow(
+      'Cannot update within non-data-structure value in path [0]: ironMan'
+    );
+  });
+
   it('can update a value', () => {
     const l = List.of(5);
+    // @ts-ignore (Type definition limitation)
     expect(l.update(0, v => v * v).toArray()).toEqual([25]);
   });
 
@@ -116,6 +153,7 @@ describe('List', () => {
         aKey: List(['bad', 'good']),
       }),
     ]);
+    // @ts-ignore (Type definition limitation)
     l = l.updateIn([0, 'aKey', 1], v => v + v);
     expect(l.toJS()).toEqual([
       {
@@ -421,20 +459,13 @@ describe('List', () => {
     let v = List.of('a').pop();
     expect(v.size).toBe(0);
     expect(v.toArray()).toEqual([]);
-    v = v
-      .pop()
-      .pop()
-      .pop()
-      .pop()
-      .pop();
+    v = v.pop().pop().pop().pop().pop();
     expect(v.size).toBe(0);
     expect(v.toArray()).toEqual([]);
   });
 
-  it('remove removes any index', () => {
-    let v = List.of('a', 'b', 'c')
-      .remove(2)
-      .remove(0);
+  it.each(['remove', 'delete'])('remove removes any index', fn => {
+    let v = List.of('a', 'b', 'c')[fn](2)[fn](0);
     expect(v.size).toBe(1);
     expect(v.get(0)).toBe('b');
     expect(v.get(1)).toBe(undefined);
@@ -517,6 +548,14 @@ describe('List', () => {
     const v = List.of('a', 'b', 'c');
     const r = v.map(value => value);
     expect(r).toBe(v);
+  });
+
+  it('ensures iter is unmodified', () => {
+    const v = List.of(1, 2, 3);
+    const r = v.map((value, index, iter) => {
+      return iter.get(index - 1);
+    });
+    expect(r.toArray()).toEqual([3, 1, 2]);
   });
 
   it('filters values', () => {
@@ -617,9 +656,7 @@ describe('List', () => {
 
   it('ensures equality', () => {
     // Make a sufficiently long list.
-    const a = Array(100)
-      .join('abcdefghijklmnopqrstuvwxyz')
-      .split('');
+    const a = Array(100).join('abcdefghijklmnopqrstuvwxyz').split('');
     const v1 = List(a);
     const v2 = List(a);
     // tslint:disable-next-line: triple-equals
@@ -687,6 +724,20 @@ describe('List', () => {
     expect(v2.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, null]);
   });
 
+  it('concat works like Array.prototype.concat even for IE11', () => {
+    const v1 = List([1, 2, 3]);
+    const a = [4];
+
+    // remove Symbol.iterator as IE11 does not handle it.
+    // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/@@iterator#browser_compatibility
+    // @ts-expect-error -- simulate IE11
+    a[Symbol.iterator] = undefined;
+
+    const v2 = v1.concat(a);
+    expect(v1.toArray()).toEqual([1, 2, 3]);
+    expect(v2.toArray()).toEqual([1, 2, 3, 4]);
+  });
+
   it('concat returns self when no changes', () => {
     const v1 = List([1, 2, 3]);
     expect(v1.concat([])).toBe(v1);
@@ -714,12 +765,7 @@ describe('List', () => {
   it('allows chained mutations', () => {
     const v1 = List();
     const v2 = v1.push(1);
-    const v3 = v2.withMutations(v =>
-      v
-        .push(2)
-        .push(3)
-        .push(4)
-    );
+    const v3 = v2.withMutations(v => v.push(2).push(3).push(4));
     const v4 = v3.push(5);
 
     expect(v1.toArray()).toEqual([]);
@@ -731,12 +777,7 @@ describe('List', () => {
   it('allows chained mutations using alternative API', () => {
     const v1 = List();
     const v2 = v1.push(1);
-    const v3 = v2
-      .asMutable()
-      .push(2)
-      .push(3)
-      .push(4)
-      .asImmutable();
+    const v3 = v2.asMutable().push(2).push(3).push(4).asImmutable();
     const v4 = v3.push(5);
 
     expect(v1.toArray()).toEqual([]);
@@ -747,13 +788,27 @@ describe('List', () => {
 
   it('chained mutations does not result in new empty list instance', () => {
     const v1 = List(['x']);
-    const v2 = v1.withMutations(v =>
-      v
-        .push('y')
-        .pop()
-        .pop()
-    );
+    const v2 = v1.withMutations(v => v.push('y').pop().pop());
     expect(v2).toBe(List());
+  });
+
+  it('calling `clear` and `setSize` should set all items to undefined', () => {
+    const l = List(['a', 'b']);
+    const l2 = l.clear().setSize(3);
+
+    expect(l2.get(0)).toBeUndefined();
+    expect(l2.get(1)).toBeUndefined();
+    expect(l2.get(2)).toBeUndefined();
+  });
+
+  it('calling `clear` and `setSize` while mutating should set all items to undefined', () => {
+    const l = List(['a', 'b']);
+    const l2 = l.withMutations(innerList => {
+      innerList.clear().setSize(3);
+    });
+    expect(l2.get(0)).toBeUndefined();
+    expect(l2.get(1)).toBeUndefined();
+    expect(l2.get(2)).toBeUndefined();
   });
 
   it('allows size to be set', () => {
@@ -776,7 +831,7 @@ describe('List', () => {
 
   it('discards truncated elements when using slice', () => {
     const list = [1, 2, 3, 4, 5, 6];
-    const v1 = fromJS(list);
+    const v1 = fromJS(list) as List<number>;
     const v2 = v1.slice(0, 3);
     const v3 = v2.setSize(6);
 
@@ -788,7 +843,7 @@ describe('List', () => {
 
   it('discards truncated elements when using setSize', () => {
     const list = [1, 2, 3, 4, 5, 6];
-    const v1 = fromJS(list);
+    const v1 = fromJS(list) as List<number>;
     const v2 = v1.setSize(3);
     const v3 = v2.setSize(6);
 
@@ -826,9 +881,7 @@ describe('List', () => {
   });
 
   it('Accepts NaN for slice and concat #602', () => {
-    const list = List()
-      .slice(0, NaN)
-      .concat(NaN);
+    const list = List().slice(0, NaN).concat(NaN);
     // toEqual([ NaN ])
     expect(list.size).toBe(1);
     expect(isNaNValue(list.get(0))).toBe(true);

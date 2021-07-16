@@ -1,13 +1,7 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
+import { Repeat } from 'immutable';
 
-import { Repeat } from '../../';
-
-{  // #constructor
+{
+  // #constructor
 
   // $ExpectType Indexed<number>
   Repeat(0, 0);

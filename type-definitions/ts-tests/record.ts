@@ -1,13 +1,7 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
+import { Record } from 'immutable';
 
-import { Record } from '../../';
-
-{ // Factory
+{
+  // Factory
   const PointXY = Record({ x: 0, y: 0 });
 
   // $ExpectType Factory<{ x: number; y: number; }>
@@ -61,7 +55,8 @@ import { Record } from '../../';
   point.setY(10);
 }
 
-{ // .getDescriptiveName
+{
+  // .getDescriptiveName
   const PointXY = Record({ x: 0, y: 0 });
 
   // $ExpectType string

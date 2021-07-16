@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import { is } from './is';
 import { Collection, KeyedCollection } from './Collection';
 import { IS_MAP_SYMBOL, isMap } from './predicates/isMap';
@@ -46,12 +39,12 @@ export class Map extends KeyedCollection {
     return value === null || value === undefined
       ? emptyMap()
       : isMap(value) && !isOrdered(value)
-        ? value
-        : emptyMap().withMutations(map => {
-            const iter = KeyedCollection(value);
-            assertNotInfinite(iter.size);
-            iter.forEach((v, k) => map.set(k, v));
-          });
+      ? value
+      : emptyMap().withMutations(map => {
+          const iter = KeyedCollection(value);
+          assertNotInfinite(iter.size);
+          iter.forEach((v, k) => map.set(k, v));
+        });
   }
 
   static of(...keyValues) {
@@ -128,7 +121,7 @@ export class Map extends KeyedCollection {
   map(mapper, context) {
     return this.withMutations(map => {
       map.forEach((value, key) => {
-        map.set(key, mapper.call(context, value, key, map));
+        map.set(key, mapper.call(context, value, key, this));
       });
     });
   }
@@ -185,10 +178,10 @@ MapPrototype.withMutations = withMutations;
 MapPrototype.wasAltered = wasAltered;
 MapPrototype.asImmutable = asImmutable;
 MapPrototype['@@transducer/init'] = MapPrototype.asMutable = asMutable;
-MapPrototype['@@transducer/step'] = function(result, arr) {
+MapPrototype['@@transducer/step'] = function (result, arr) {
   return result.set(arr[0], arr[1]);
 };
-MapPrototype['@@transducer/result'] = function(obj) {
+MapPrototype['@@transducer/result'] = function (obj) {
   return obj.asImmutable();
 };
 
@@ -537,33 +530,29 @@ class ValueNode {
 
 // #pragma Iterators
 
-ArrayMapNode.prototype.iterate = HashCollisionNode.prototype.iterate = function(
-  fn,
-  reverse
-) {
-  const entries = this.entries;
-  for (let ii = 0, maxIndex = entries.length - 1; ii <= maxIndex; ii++) {
-    if (fn(entries[reverse ? maxIndex - ii : ii]) === false) {
-      return false;
+ArrayMapNode.prototype.iterate = HashCollisionNode.prototype.iterate =
+  function (fn, reverse) {
+    const entries = this.entries;
+    for (let ii = 0, maxIndex = entries.length - 1; ii <= maxIndex; ii++) {
+      if (fn(entries[reverse ? maxIndex - ii : ii]) === false) {
+        return false;
+      }
     }
-  }
-};
+  };
 
-BitmapIndexedNode.prototype.iterate = HashArrayMapNode.prototype.iterate = function(
-  fn,
-  reverse
-) {
-  const nodes = this.nodes;
-  for (let ii = 0, maxIndex = nodes.length - 1; ii <= maxIndex; ii++) {
-    const node = nodes[reverse ? maxIndex - ii : ii];
-    if (node && node.iterate(fn, reverse) === false) {
-      return false;
+BitmapIndexedNode.prototype.iterate = HashArrayMapNode.prototype.iterate =
+  function (fn, reverse) {
+    const nodes = this.nodes;
+    for (let ii = 0, maxIndex = nodes.length - 1; ii <= maxIndex; ii++) {
+      const node = nodes[reverse ? maxIndex - ii : ii];
+      if (node && node.iterate(fn, reverse) === false) {
+        return false;
+      }
     }
-  }
-};
+  };
 
 // eslint-disable-next-line no-unused-vars
-ValueNode.prototype.iterate = function(fn, reverse) {
+ValueNode.prototype.iterate = function (fn, reverse) {
   return fn(this.entry);
 };
 

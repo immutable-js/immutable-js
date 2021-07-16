@@ -1,16 +1,7 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-///<reference path='../resources/jest.d.ts'/>
+import { is, Seq } from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
-
-import { is, Seq } from '../';
 
 const genHeterogeneousishArray = gen.oneOf([
   gen.array(gen.oneOf([gen.string, gen.undefined])),
@@ -43,9 +34,12 @@ describe('max', () => {
       { name: 'Casey', age: 34 },
       { name: 'Avery', age: 34 },
     ]);
-    expect(family.maxBy<number>(p => p.age, (a, b) => b - a)).toBe(
-      family.get(0)
-    );
+    expect(
+      family.maxBy<number>(
+        p => p.age,
+        (a, b) => b - a
+      )
+    ).toBe(family.get(0));
   });
 
   it('surfaces NaN, null, and undefined', () => {
@@ -90,9 +84,12 @@ describe('min', () => {
       { name: 'Casey', age: 34 },
       { name: 'Avery', age: 34 },
     ]);
-    expect(family.minBy<number>(p => p.age, (a, b) => b - a)).toBe(
-      family.get(2)
-    );
+    expect(
+      family.minBy<number>(
+        p => p.age,
+        (a, b) => b - a
+      )
+    ).toBe(family.get(2));
   });
 
   check.it('is not dependent on order', [genHeterogeneousishArray], vals => {

@@ -1,13 +1,4 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-///<reference path='../resources/jest.d.ts'/>
-
-import { fromJS, getIn, List, Map, Set } from '../';
+import { fromJS, getIn, List, Map } from 'immutable';
 
 describe('getIn', () => {
   it('deep get', () => {
@@ -23,17 +14,20 @@ describe('getIn', () => {
   });
 
   it('deep get throws without list or array-like', () => {
-    // need to cast these as TypeScript first prevents us from such clownery.
-    expect(() => Map().getIn(undefined as any)).toThrow(
+    // @ts-expect-error
+    expect(() => Map().getIn(undefined)).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: undefined'
     );
-    expect(() => Map().getIn({ a: 1, b: 2 } as any)).toThrow(
+    // @ts-expect-error
+    expect(() => Map().getIn({ a: 1, b: 2 })).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: [object Object]'
     );
-    expect(() => Map().getIn('abc' as any)).toThrow(
+    // TODO: should expect error
+    expect(() => Map().getIn('abc')).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: abc'
     );
-    expect(() => getIn(Map(), 'abc' as any)).toThrow(
+    // TODO: should expect error
+    expect(() => getIn(Map(), 'abc')).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: abc'
     );
   });

@@ -1,13 +1,4 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-///<reference path='../resources/jest.d.ts'/>
-
-import { isCollection, isIndexed, Seq } from '../';
+import { isCollection, isIndexed, Seq } from 'immutable';
 
 describe('Seq', () => {
   it('returns undefined if empty and first is called without default argument', () => {
@@ -84,7 +75,8 @@ describe('Seq', () => {
 
   it('does not accept a scalar', () => {
     expect(() => {
-      Seq(3 as any);
+      // @ts-expect-error
+      Seq(3);
     }).toThrow(
       'Expected Array or collection object of values, or keyed object: 3'
     );
@@ -105,7 +97,7 @@ describe('Seq', () => {
   it('Does not infinite loop when spliced with negative number #559', () => {
     const dog = Seq(['d', 'o', 'g']);
     const dg = dog.filter(c => c !== 'o');
-    const dig = (dg as any).splice(-1, 0, 'i');
+    const dig = dg.splice(-1, 0, 'i');
     expect(dig.toJS()).toEqual(['d', 'i', 'g']);
   });
 
@@ -116,9 +108,15 @@ describe('Seq', () => {
 
   it('Converts deeply toJS after converting to entries', () => {
     const list = Seq([Seq([1, 2]), Seq({ a: 'z' })]);
-    expect(list.entrySeq().toJS()).toEqual([[0, [1, 2]], [1, { a: 'z' }]]);
+    expect(list.entrySeq().toJS()).toEqual([
+      [0, [1, 2]],
+      [1, { a: 'z' }],
+    ]);
 
     const map = Seq({ x: Seq([1, 2]), y: Seq({ a: 'z' }) });
-    expect(map.entrySeq().toJS()).toEqual([['x', [1, 2]], ['y', { a: 'z' }]]);
+    expect(map.entrySeq().toJS()).toEqual([
+      ['x', [1, 2]],
+      ['y', { a: 'z' }],
+    ]);
   });
 });
