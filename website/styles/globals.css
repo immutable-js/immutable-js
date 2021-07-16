@@ -6,8 +6,7 @@ body {
   --header-color: #212325;
   --header-bg-color: #6dbcdb;
   --body-color: #626466;
-  --code-block-bg-color: #fcfbfa;
-  --member-signature-bg-color: #f8f9fa;
+  --code-block-bg-color: #f4f4f4;
 
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-text-size-adjust: 100%;
@@ -423,8 +422,8 @@ a.try-it {
 .sideBar {
   position: sticky;
   top: 64px;
-  height: calc(100vh - 64px);
-  margin-left: 20px;
+  height: calc(100vh - 64px - 20px);
+  margin-left: 40px;
   cursor: default;
   user-select: none;
   z-index: 0;
@@ -436,7 +435,7 @@ a.try-it {
   background: var(--code-block-bg-color);
   width: 100%;
   z-index: -1;
-  margin-left: -10px;
+  margin-left: -20px;
   top: 0;
 }
 
@@ -532,7 +531,7 @@ a.try-it {
 
 .memberSignature {
   border-left-color: #9cdae9;
-  background: var(--member-signature-bg-color);
+  background: var(--code-block-bg-color);
 }
 
 .t.over {
