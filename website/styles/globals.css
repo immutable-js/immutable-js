@@ -447,12 +447,36 @@ a.try-it {
 }
 
 .sideBar {
+  position: sticky;
+  top: 64px;
+  height: calc(100vh - 64px);
+  margin-left: 20px;
   cursor: default;
   user-select: none;
-  font-size: 0.825em;
-  height: 100%;
-  margin-left: 20px;
   z-index: 0;
+}
+
+.sideBar__background {
+  position: fixed;
+  height: 100%;
+  background: var(--code-block-bg-color);
+  width: 100%;
+  z-index: -1;
+  margin-left: -10px;
+  top: 0;
+}
+
+.sideBar__Link {
+  padding: 5px 0;
+  border-top: 1px solid #d2d2d2;
+}
+
+.sideBar__Link--active {
+  font-weight: bold;
+}
+
+.sideBar__Arrow--active {
+  transform: rotate(180deg);
 }
 
 @media only screen and (max-width: 680px) {
@@ -464,8 +488,8 @@ a.try-it {
 .sideBar .scrollContent {
   box-sizing: border-box;
   height: 100%;
-  padding-bottom: 100px;
   width: 220px;
+  overflow: hidden auto;
 }
 
 .sideBar h2 {
@@ -480,7 +504,7 @@ a.try-it {
 }
 
 .sideBar .members {
-  margin: 0 0 2.5em;
+  margin: 0 0 2.5em 0.7em;
 }
 
 .sideBar .groupTitle {
