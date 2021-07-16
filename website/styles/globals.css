@@ -192,7 +192,7 @@ a.try-it {
 
 .contents {
   margin: 0 auto;
-  max-width: 880px;
+  max-width: 1024px;
   padding: 64px 0;
   position: relative;
 
@@ -234,7 +234,7 @@ a.try-it {
 
 .miniHeaderContents {
   margin: 0 auto;
-  max-width: 880px;
+  max-width: 1024px;
   padding: 12px 36px;
   position: relative;
   text-align: right;
@@ -488,7 +488,7 @@ a.try-it {
 .sideBar .scrollContent {
   box-sizing: border-box;
   height: 100%;
-  width: 220px;
+  width: 300px;
   overflow: hidden auto;
 }
 
