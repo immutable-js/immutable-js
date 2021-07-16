@@ -3,7 +3,6 @@ import { Fragment, useReducer } from 'react';
 import { InterfaceDef, CallSigDef } from './Defs';
 import { SideBar, SidebarLinks } from './Sidebar';
 import { MemberDoc } from './MemberDoc';
-import { isMobile } from './isMobile';
 import { MarkdownContent } from './MarkdownContent';
 import { collectMemberGroups } from './collectMemberGroups';
 import type { TypeDefinition, MemberDefinition } from './TypeDefs';
@@ -44,16 +43,15 @@ export function TypeDocumentation({
 
   return (
     <div>
-      {isMobile || (
-        <SideBar
-          links={sidebarLinks}
-          focus={def}
-          toggleShowInherited={toggleShowInherited}
-          toggleShowInGroups={toggleShowInGroups}
-          showInGroups={showInGroups}
-          showInherited={showInherited}
-        />
-      )}
+      <SideBar
+        links={sidebarLinks}
+        focus={def}
+        toggleShowInherited={toggleShowInherited}
+        toggleShowInGroups={toggleShowInGroups}
+        showInGroups={showInGroups}
+        showInherited={showInherited}
+      />
+
       <div key={def.qualifiedName} className="docContents">
         {!def.interface && !def.functions && def.call ? (
           <FunctionDoc def={def.call} />
