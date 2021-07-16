@@ -357,7 +357,9 @@ function typesVisitor(source: ts.SourceFile) {
     const qualifiedName = qualifiers.concat([name]).join('.');
 
     setIn(types, [qualifiedName, 'qualifiedName'], qualifiedName);
-    setIn(types, [qualifiedName, 'doc'], comment);
+    if (comment) {
+      setIn(types, [qualifiedName, 'doc'], comment);
+    }
 
     if (name !== 'Immutable') {
       qualifiers.push(name);
