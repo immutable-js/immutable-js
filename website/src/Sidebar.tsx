@@ -15,7 +15,7 @@ function Links({
   focus,
 }: {
   links: SidebarLinks;
-  focus: TypeDefinition;
+  focus?: TypeDefinition;
 }) {
   return (
     <div>
