@@ -121,7 +121,7 @@ type StringType = { k: TypeKind.String };
 
 type ObjectType = {
   k: TypeKind.Object;
-  members: Array<ObjectMember>;
+  members?: Array<ObjectMember>;
 };
 export type ObjectMember = {
   index?: boolean;

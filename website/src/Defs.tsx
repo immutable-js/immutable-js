@@ -143,6 +143,9 @@ export function TypeDef({ type, prefix }: { type: Type; prefix?: number }) {
         </>
       );
     case TypeKind.Object:
+      if (!type.members) {
+        return wrap('primitive', 'object');
+      }
       return wrap(
         'object',
         <>
@@ -385,7 +388,7 @@ function typeLength(type: Type): number {
         (type.types.length - 1) * 2
       );
     case TypeKind.Object:
-      return 2 + memberLength(type.members);
+      return type.members ? 2 + memberLength(type.members) : 6;
     case TypeKind.Indexed:
       return 2 + typeLength(type.type) + typeLength(type.index);
     case TypeKind.Operator:
