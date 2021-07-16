@@ -90,7 +90,7 @@
  * [Iterable]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols
  */
 
-declare module Immutable {
+declare namespace Immutable {
   /**
    * Lists are ordered indexed dense collections, much like a JavaScript
    * Array.
@@ -105,7 +105,7 @@ declare module Immutable {
    * "unset" index and an index set to `undefined`. `List#forEach` visits all
    * indices from 0 to size, regardless of whether they were explicitly defined.
    */
-  export module List {
+  export namespace List {
     /**
      * True if the provided value is a List
      *
@@ -171,9 +171,7 @@ declare module Immutable {
    * listFromPlainSet.equals(listFromPlainArray) // true
    * ```
    */
-  export function List<T>(collection: Iterable<T> | ArrayLike<T>): List<T>;
-  export function List<T>(): List<T>;
-  export function List(): List<unknown>;
+  export function List<T>(collection?: Iterable<T> | ArrayLike<T>): List<T>;
 
   export interface List<T> extends Collection.Indexed<T> {
     /**
@@ -661,7 +659,7 @@ declare module Immutable {
       thirdCollection: Collection<unknown, V>
     ): List<Z>;
     zipWith<Z>(
-      zipper: (...any: Array<unknown>) => Z,
+      zipper: (...values: Array<unknown>) => Z,
       ...collections: Array<Collection<unknown, unknown>>
     ): List<Z>;
   }
@@ -693,7 +691,7 @@ declare module Immutable {
    *
    * Implemented by a hash-array mapped trie.
    */
-  export module Map {
+  export namespace Map {
     /**
      * True if the provided value is a Map
      *
@@ -761,9 +759,7 @@ declare module Immutable {
    * but since Immutable Map keys can be of any type the argument to `get()` is
    * not altered.
    */
-  export function Map(): Map<unknown, unknown>;
-  export function Map<K, V>(): Map<K, V>;
-  export function Map<K, V>(collection: Iterable<[K, V]>): Map<K, V>;
+  export function Map<K, V>(collection?: Iterable<[K, V]>): Map<K, V>;
   export function Map<V>(obj: { [key: string]: V }): Map<string, V>;
   export function Map<K extends string, V>(obj: { [P in K]?: V }): Map<K, V>;
 
@@ -1061,7 +1057,7 @@ declare module Immutable {
      * //   "c": Map { "z": 3 }
      * // }
      * ```
-
+     *
      * Note: `mergeDeepWith` can be used in `withMutations`.
      */
     mergeDeepWith(
@@ -1367,7 +1363,11 @@ declare module Immutable {
      * @see Collection.Keyed.mapEntries
      */
     mapEntries<KM, VM>(
-      mapper: (entry: [K, V], index: number, iter: this) => [KM, VM] | undefined,
+      mapper: (
+        entry: [K, V],
+        index: number,
+        iter: this
+      ) => [KM, VM] | undefined,
       context?: unknown
     ): Map<KM, VM>;
 
@@ -1415,7 +1415,7 @@ declare module Immutable {
    * stable.
    */
 
-  export module OrderedMap {
+  export namespace OrderedMap {
     /**
      * True if the provided value is an OrderedMap.
      */
@@ -1439,10 +1439,8 @@ declare module Immutable {
    * Note: `OrderedMap` is a factory function and not a class, and does not use
    * the `new` keyword during construction.
    */
-  export function OrderedMap(): OrderedMap<unknown, unknown>;
-  export function OrderedMap<K, V>(): OrderedMap<K, V>;
   export function OrderedMap<K, V>(
-    collection: Iterable<[K, V]>
+    collection?: Iterable<[K, V]>
   ): OrderedMap<K, V>;
   export function OrderedMap<V>(obj: {
     [key: string]: V;
@@ -1538,7 +1536,11 @@ declare module Immutable {
      * @see Collection.Keyed.mapEntries
      */
     mapEntries<KM, VM>(
-      mapper: (entry: [K, V], index: number, iter: this) => [KM, VM] | undefined,
+      mapper: (
+        entry: [K, V],
+        index: number,
+        iter: this
+      ) => [KM, VM] | undefined,
       context?: unknown
     ): OrderedMap<KM, VM>;
 
@@ -1585,7 +1587,7 @@ declare module Immutable {
    * `Immutable.is`, enabling Sets to uniquely include other Immutable
    * collections, custom value types, and NaN.
    */
-  export module Set {
+  export namespace Set {
     /**
      * True if the provided value is a Set
      */
@@ -1641,9 +1643,7 @@ declare module Immutable {
    * Note: `Set` is a factory function and not a class, and does not use the
    * `new` keyword during construction.
    */
-  export function Set<T>(collection: Iterable<T> | ArrayLike<T>): Set<T>;
-  export function Set<T>(): Set<T>;
-  export function Set(): Set<unknown>;
+  export function Set<T>(collection?: Iterable<T> | ArrayLike<T>): Set<T>;
 
   export interface Set<T> extends Collection.Set<T> {
     /**
@@ -1795,7 +1795,7 @@ declare module Immutable {
    * consume more memory. `OrderedSet#add` is amortized O(log32 N), but not
    * stable.
    */
-  export module OrderedSet {
+  export namespace OrderedSet {
     /**
      * True if the provided value is an OrderedSet.
      */
@@ -1821,9 +1821,9 @@ declare module Immutable {
    * Note: `OrderedSet` is a factory function and not a class, and does not use
    * the `new` keyword during construction.
    */
-  export function OrderedSet<T>(collection: Iterable<T> | ArrayLike<T>): OrderedSet<T>;
-  export function OrderedSet<T>(): OrderedSet<T>;
-  export function OrderedSet(): OrderedSet<unknown>;
+  export function OrderedSet<T>(
+    collection?: Iterable<T> | ArrayLike<T>
+  ): OrderedSet<T>;
 
   export interface OrderedSet<T> extends Set<T> {
     /**
@@ -1947,7 +1947,7 @@ declare module Immutable {
       thirdCollection: Collection<unknown, V>
     ): OrderedSet<Z>;
     zipWith<Z>(
-      zipper: (...any: Array<unknown>) => Z,
+      zipper: (...values: Array<unknown>) => Z,
       ...collections: Array<Collection<unknown, unknown>>
     ): OrderedSet<Z>;
   }
@@ -1965,7 +1965,7 @@ declare module Immutable {
    *
    * Stack is implemented with a Single-Linked List.
    */
-  export module Stack {
+  export namespace Stack {
     /**
      * True if the provided value is a Stack
      */
@@ -1987,9 +1987,7 @@ declare module Immutable {
    * Note: `Stack` is a factory function and not a class, and does not use the
    * `new` keyword during construction.
    */
-  export function Stack<T>(collection: Iterable<T> | ArrayLike<T>): Stack<T>;
-  export function Stack<T>(): Stack<T>;
-  export function Stack(): Stack<unknown>;
+  export function Stack<T>(collection?: Iterable<T> | ArrayLike<T>): Stack<T>;
 
   export interface Stack<T> extends Collection.Indexed<T> {
     /**
@@ -2197,7 +2195,7 @@ declare module Immutable {
       thirdCollection: Collection<unknown, V>
     ): Stack<Z>;
     zipWith<Z>(
-      zipper: (...any: Array<unknown>) => Z,
+      zipper: (...values: Array<unknown>) => Z,
       ...collections: Array<Collection<unknown, unknown>>
     ): Stack<Z>;
   }
@@ -2400,7 +2398,7 @@ declare module Immutable {
    *   form isn't free. If converting Records to plain objects is common,
    *   consider sticking with plain objects to begin with.
    */
-  export module Record {
+  export namespace Record {
     /**
      * True if `maybeRecord` is an instance of a Record.
      */
@@ -2473,15 +2471,14 @@ declare module Immutable {
      * const alan: Person = makePerson({ name: 'Alan' });
      * ```
      */
-    export module Factory {}
+    export namespace Factory {}
 
-    export interface Factory<TProps extends Object> {
+    export interface Factory<TProps extends object> {
       (values?: Partial<TProps> | Iterable<[string, unknown]>): Record<TProps> &
         Readonly<TProps>;
-      new (values?: Partial<TProps> | Iterable<[string, unknown]>): Record<
-        TProps
-      > &
-        Readonly<TProps>;
+      new (
+        values?: Partial<TProps> | Iterable<[string, unknown]>
+      ): Record<TProps> & Readonly<TProps>;
 
       /**
        * The name provided to `Record(values, name)` can be accessed with
@@ -2490,7 +2487,7 @@ declare module Immutable {
       displayName: string;
     }
 
-    export function Factory<TProps extends Object>(
+    export function Factory<TProps extends object>(
       values?: Partial<TProps> | Iterable<[string, unknown]>
     ): Record<TProps> & Readonly<TProps>;
   }
@@ -2504,12 +2501,12 @@ declare module Immutable {
    * Note: `Record` is a factory function and not a class, and does not use the
    * `new` keyword during construction.
    */
-  export function Record<TProps>(
+  export function Record<TProps extends object>(
     defaultValues: TProps,
     name?: string
   ): Record.Factory<TProps>;
 
-  export interface Record<TProps extends Object> {
+  export interface Record<TProps extends object> {
     // Reading values
 
     has(key: string): key is keyof TProps & string;
@@ -2650,7 +2647,7 @@ declare module Immutable {
    *
    * This is equivalent to an instance of a record created by a Record Factory.
    */
-  export type RecordOf<TProps extends Object> = Record<TProps> &
+  export type RecordOf<TProps extends object> = Record<TProps> &
     Readonly<TProps>;
 
   /**
@@ -2728,7 +2725,7 @@ declare module Immutable {
    * ```
    */
 
-  export module Seq {
+  export namespace Seq {
     /**
      * True if `maybeSeq` is a Seq, it is not backed by a concrete
      * structure such as Map, List, or Set.
@@ -2743,7 +2740,7 @@ declare module Immutable {
     /**
      * `Seq` which represents key-value pairs.
      */
-    export module Keyed {}
+    export namespace Keyed {}
 
     /**
      * Always returns a Seq.Keyed, if input is not keyed, expects an
@@ -2752,10 +2749,8 @@ declare module Immutable {
      * Note: `Seq.Keyed` is a conversion function and not a class, and does not
      * use the `new` keyword during construction.
      */
-    export function Keyed<K, V>(collection: Iterable<[K, V]>): Seq.Keyed<K, V>;
+    export function Keyed<K, V>(collection?: Iterable<[K, V]>): Seq.Keyed<K, V>;
     export function Keyed<V>(obj: { [key: string]: V }): Seq.Keyed<string, V>;
-    export function Keyed<K, V>(): Seq.Keyed<K, V>;
-    export function Keyed(): Seq.Keyed<unknown, unknown>;
 
     export interface Keyed<K, V> extends Seq<K, V>, Collection.Keyed<K, V> {
       /**
@@ -2825,7 +2820,11 @@ declare module Immutable {
        * @see Collection.Keyed.mapEntries
        */
       mapEntries<KM, VM>(
-        mapper: (entry: [K, V], index: number, iter: this) => [KM, VM] | undefined,
+        mapper: (
+          entry: [K, V],
+          index: number,
+          iter: this
+        ) => [KM, VM] | undefined,
         context?: unknown
       ): Seq.Keyed<KM, VM>;
 
@@ -2866,7 +2865,7 @@ declare module Immutable {
     /**
      * `Seq` which represents an ordered indexed list of values.
      */
-    module Indexed {
+    namespace Indexed {
       /**
        * Provides an Seq.Indexed of the values provided.
        */
@@ -2880,9 +2879,9 @@ declare module Immutable {
      * Note: `Seq.Indexed` is a conversion function and not a class, and does
      * not use the `new` keyword during construction.
      */
-    export function Indexed<T>(collection: Iterable<T> | ArrayLike<T>): Seq.Indexed<T>;
-    export function Indexed<T>(): Seq.Indexed<T>;
-    export function Indexed(): Seq.Indexed<unknown>;
+    export function Indexed<T>(
+      collection: Iterable<T> | ArrayLike<T>
+    ): Seq.Indexed<T>;
 
     export interface Indexed<T> extends Seq<number, T>, Collection.Indexed<T> {
       /**
@@ -3018,7 +3017,7 @@ declare module Immutable {
         thirdCollection: Collection<unknown, V>
       ): Seq.Indexed<Z>;
       zipWith<Z>(
-        zipper: (...any: Array<unknown>) => Z,
+        zipper: (...values: Array<unknown>) => Z,
         ...collections: Array<Collection<unknown, unknown>>
       ): Seq.Indexed<Z>;
 
@@ -3031,7 +3030,7 @@ declare module Immutable {
      * Because `Seq` are often lazy, `Seq.Set` does not provide the same guarantee
      * of value uniqueness as the concrete `Set`.
      */
-    export module Set {
+    export namespace Set {
       /**
        * Returns a Seq.Set of the provided values
        */
@@ -3045,8 +3044,6 @@ declare module Immutable {
      * use the `new` keyword during construction.
      */
     export function Set<T>(collection: Iterable<T> | ArrayLike<T>): Seq.Set<T>;
-    export function Set<T>(): Seq.Set<T>;
-    export function Set(): Seq.Set<unknown>;
 
     export interface Set<T> extends Seq<T, T>, Collection.Set<T> {
       /**
@@ -3147,9 +3144,10 @@ declare module Immutable {
   export function Seq<K, V>(
     collection: Collection.Keyed<K, V>
   ): Seq.Keyed<K, V>;
-  export function Seq<T>(collection: Collection.Indexed<T>): Seq.Indexed<T>;
   export function Seq<T>(collection: Collection.Set<T>): Seq.Set<T>;
-  export function Seq<T>(collection: Iterable<T> | ArrayLike<T>): Seq.Indexed<T>;
+  export function Seq<T>(
+    collection: Collection.Indexed<T> | Iterable<T> | ArrayLike<T>
+  ): Seq.Indexed<T>;
   export function Seq<V>(obj: { [key: string]: V }): Seq.Keyed<string, V>;
   export function Seq(): Seq<unknown, unknown>;
 
@@ -3281,7 +3279,7 @@ declare module Immutable {
    * Implementations should extend one of the subclasses, `Collection.Keyed`,
    * `Collection.Indexed`, or `Collection.Set`.
    */
-  export module Collection {
+  export namespace Collection {
     /**
      * @deprecated use `const { isKeyed } = require('immutable')`
      */
@@ -3317,7 +3315,7 @@ declare module Immutable {
      * tuple, in other words, `Collection#entries` is the default iterator for
      * Keyed Collections.
      */
-    export module Keyed {}
+    export namespace Keyed {}
 
     /**
      * Creates a Collection.Keyed
@@ -3441,7 +3439,11 @@ declare module Immutable {
        * If the mapper function returns `undefined`, then the entry will be filtered
        */
       mapEntries<KM, VM>(
-        mapper: (entry: [K, V], index: number, iter: this) => [KM, VM] | undefined,
+        mapper: (
+          entry: [K, V],
+          index: number,
+          iter: this
+        ) => [KM, VM] | undefined,
         context?: unknown
       ): Collection.Keyed<KM, VM>;
 
@@ -3489,7 +3491,7 @@ declare module Immutable {
      * preserve indices, using them as keys, convert to a Collection.Keyed by
      * calling `toKeyedSeq`.
      */
-    export module Indexed {}
+    export namespace Indexed {}
 
     /**
      * Creates a new Collection.Indexed.
@@ -3497,7 +3499,9 @@ declare module Immutable {
      * Note: `Collection.Indexed` is a conversion function and not a class, and
      * does not use the `new` keyword during construction.
      */
-    export function Indexed<T>(collection: Iterable<T> | ArrayLike<T>): Collection.Indexed<T>;
+    export function Indexed<T>(
+      collection: Iterable<T> | ArrayLike<T>
+    ): Collection.Indexed<T>;
 
     export interface Indexed<T> extends Collection<number, T> {
       /**
@@ -3677,7 +3681,7 @@ declare module Immutable {
         thirdCollection: Collection<unknown, V>
       ): Collection.Indexed<Z>;
       zipWith<Z>(
-        zipper: (...any: Array<unknown>) => Z,
+        zipper: (...values: Array<unknown>) => Z,
         ...collections: Array<Collection<unknown, unknown>>
       ): Collection.Indexed<Z>;
 
@@ -3786,7 +3790,7 @@ declare module Immutable {
      * )
      * ```
      */
-    export module Set {}
+    export namespace Set {}
 
     /**
      * Similar to `Collection()`, but always returns a Collection.Set.
@@ -3794,7 +3798,9 @@ declare module Immutable {
      * Note: `Collection.Set` is a factory function and not a class, and does
      * not use the `new` keyword during construction.
      */
-    export function Set<T>(collection: Iterable<T> | ArrayLike<T>): Collection.Set<T>;
+    export function Set<T>(
+      collection: Iterable<T> | ArrayLike<T>
+    ): Collection.Set<T>;
 
     export interface Set<T> extends Collection<T, T> {
       /**
@@ -3897,7 +3903,9 @@ declare module Immutable {
   export function Collection<I extends Collection<unknown, unknown>>(
     collection: I
   ): I;
-  export function Collection<T>(collection: Iterable<T> | ArrayLike<T>): Collection.Indexed<T>;
+  export function Collection<T>(
+    collection: Iterable<T> | ArrayLike<T>
+  ): Collection.Indexed<T>;
   export function Collection<V>(obj: {
     [key: string]: V;
   }): Collection.Keyed<string, V>;
@@ -4253,7 +4261,7 @@ declare module Immutable {
      *
      * @ignore
      */
-    map<M>(...args: never[]): unknown;
+    map(...args: Array<never>): unknown;
 
     /**
      * Returns a new Collection of the same type with only the entries for which
@@ -4557,6 +4565,7 @@ declare module Immutable {
      * returns Collection<K, V>
      */
     flatten(depth?: number): Collection<unknown, unknown>;
+    // tslint:disable-next-line unified-signatures
     flatten(shallow?: boolean): Collection<unknown, unknown>;
 
     /**
@@ -5198,7 +5207,7 @@ declare module Immutable {
     key: K,
     notSetValue: NSV
   ): V | NSV;
-  export function get<TProps, K extends keyof TProps>(
+  export function get<TProps extends object, K extends keyof TProps>(
     record: Record<TProps>,
     key: K,
     notSetValue: unknown
@@ -5209,7 +5218,7 @@ declare module Immutable {
     key: number,
     notSetValue: NSV
   ): V | NSV;
-  export function get<C extends Object, K extends keyof C>(
+  export function get<C extends object, K extends keyof C>(
     object: C,
     key: K,
     notSetValue: unknown
@@ -5240,7 +5249,7 @@ declare module Immutable {
    * has({ x: 123, y: 456 }, 'z') // false
    * ```
    */
-  export function has(collection: Object, key: unknown): boolean;
+  export function has(collection: object, key: unknown): boolean;
 
   /**
    * Returns a copy of the collection with the value at key removed.
@@ -5265,7 +5274,7 @@ declare module Immutable {
     key: K
   ): C;
   export function remove<
-    TProps,
+    TProps extends object,
     C extends Record<TProps>,
     K extends keyof TProps
   >(collection: C, key: K): C;
@@ -5303,11 +5312,11 @@ declare module Immutable {
     key: K,
     value: V
   ): C;
-  export function set<TProps, C extends Record<TProps>, K extends keyof TProps>(
-    record: C,
-    key: K,
-    value: TProps[K]
-  ): C;
+  export function set<
+    TProps extends object,
+    C extends Record<TProps>,
+    K extends keyof TProps
+  >(record: C, key: K, value: TProps[K]): C;
   export function set<V, C extends Array<V>>(
     collection: C,
     key: number,
@@ -5351,12 +5360,12 @@ declare module Immutable {
     updater: (value: V | NSV) => V
   ): C;
   export function update<
-    TProps,
+    TProps extends object,
     C extends Record<TProps>,
     K extends keyof TProps
   >(record: C, key: K, updater: (value: TProps[K]) => TProps[K]): C;
   export function update<
-    TProps,
+    TProps extends object,
     C extends Record<TProps>,
     K extends keyof TProps,
     NSV

@@ -197,7 +197,7 @@ function updateInheritedTypeParams(
       case TypeKind.Function:
         return updateSignature(type);
       case TypeKind.Object:
-        return { ...type, members: type.members.map(updateSignature) };
+        return { ...type, members: type.members?.map(updateSignature) };
     }
     return type;
   }
@@ -563,6 +563,10 @@ function typesVisitor(source: ts.SourceFile) {
       case ts.SyntaxKind.StringKeyword:
         return {
           k: TypeKind.String,
+        };
+      case ts.SyntaxKind.ObjectKeyword:
+        return {
+          k: TypeKind.Object,
         };
       case ts.SyntaxKind.UnionType:
         return {

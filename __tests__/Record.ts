@@ -297,6 +297,7 @@ describe('Record', () => {
   it('does not accept a non object as constructor', () => {
     const defaultValues = null;
     expect(() => {
+      // @ts-expect-error
       Record(defaultValues);
     }).toThrowErrorMatchingSnapshot();
   });
