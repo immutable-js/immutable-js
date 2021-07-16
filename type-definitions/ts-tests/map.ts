@@ -92,7 +92,7 @@ import { Map, List } from 'immutable';
   // #getIn
 
   // $ExpectType number
-  Map({ a: 4, b: true }).getIn(['a']);
+  Map({ a: 4, b: true }).getIn<['a']>(['a']);
 
   // $ExpectType number
   Map({ a: Map({ b: Map({ c: Map({ d: 4 }) }) }) }).getIn(['a', 'b', 'c', 'd']);
