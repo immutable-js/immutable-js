@@ -82,14 +82,14 @@ describe('Map', () => {
 
   it('does not accept strings (collection, but scalar)', () => {
     expect(() => {
-      // @ts-expect-error
+      // @ts-expect-error -- constructor does not accept strings, this is expected to throw
       Map('abc');
     }).toThrow();
   });
 
   it('does not accept non-entries array', () => {
     expect(() => {
-      // @ts-expect-error
+      // @ts-expect-error -- not an array of entries, this is expected to throw
       Map([1, 2, 3]);
     }).toThrow('Expected [K, V] tuple: 1');
   });
@@ -471,7 +471,8 @@ describe('Map', () => {
     const a = Symbol.for('a');
     const b = Symbol('b');
     const c = Symbol('c');
-    const m = Map({
+    const m = Map<symbol, string>({
+      // @ts-expect-error -- typescript definition does not handle symbol for now
       [a]: 'a',
       [b]: 'b',
       [c]: 'c',
@@ -481,7 +482,7 @@ describe('Map', () => {
     expect(m.get(b)).toBe('b');
     expect(m.get(c)).toBe('c');
 
-    const m2 = fromJS({ [a]: 'a' });
+    const m2 = fromJS({ [a]: 'a' }) as Map<symbol, string>;
     expect(m2.size).toBe(1);
     expect(m2.get(a)).toBe('a');
   });
