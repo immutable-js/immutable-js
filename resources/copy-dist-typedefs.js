@@ -14,7 +14,7 @@ const flowTypes = fs.readFileSync(
 );
 
 const nonAmbientTsTypes = tsTypes
-  .replace(/declare\s+module\s+Immutable\s*\{/, '')
+  .replace(/declare\s+namespace\s+Immutable\s*\{/, '')
   .replace(
     /\}[\s\n\r]*declare\s+module\s*.'immutable'.[\s\n\r]*{[\s\n\r]*export\s*=\s*Immutable;[\s\n\r]*\}/m,
     ''

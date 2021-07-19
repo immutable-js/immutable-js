@@ -593,7 +593,8 @@ declare class KeyedSeq<K, +V> extends Seq<K, V> mixins KeyedCollection<K, V> {
 
 declare class IndexedSeq<+T>
   extends Seq<number, T>
-  mixins IndexedCollection<T> {
+  mixins IndexedCollection<T>
+{
   static <T>(values?: Iterable<T>): IndexedSeq<T>;
 
   static of<T>(...values: T[]): IndexedSeq<T>;
@@ -892,7 +893,8 @@ declare function isList(maybeList: mixed): boolean %checks(maybeList instanceof
   List);
 declare class List<+T>
   extends IndexedCollection<T>
-  mixins UpdatableInCollection<number, T> {
+  mixins UpdatableInCollection<number, T>
+{
   static (collection?: Iterable<T>): List<T>;
 
   static of<T>(...values: T[]): List<T>;
@@ -1050,7 +1052,8 @@ declare function isMap(maybeMap: mixed): boolean %checks(maybeMap instanceof
   Map);
 declare class Map<K, +V>
   extends KeyedCollection<K, V>
-  mixins UpdatableInCollection<K, V> {
+  mixins UpdatableInCollection<K, V>
+{
   static <K, V>(values?: Iterable<[K, V]> | PlainObjInput<K, V>): Map<K, V>;
 
   static isMap: typeof isMap;
@@ -1147,7 +1150,8 @@ declare function isOrderedMap(
 ): boolean %checks(maybeOrderedMap instanceof OrderedMap);
 declare class OrderedMap<K, +V>
   extends Map<K, V>
-  mixins UpdatableInCollection<K, V> {
+  mixins UpdatableInCollection<K, V>
+{
   static <K, V>(
     values?: Iterable<[K, V]> | PlainObjInput<K, V>
   ): OrderedMap<K, V>;

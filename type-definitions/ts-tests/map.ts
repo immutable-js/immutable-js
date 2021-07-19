@@ -37,8 +37,8 @@ import { Map, List } from 'immutable';
   // // $ExpectError - TypeScript does not support Lists as tuples
   // Map(List([List(['a', 'b'])]));
 
-  // $ExpectError
-  const invalidNumberMap: Map<number, number> = Map();
+  // $ExpectType Map<number, number>
+  const numberMap: Map<number, number> = Map();
 
   // $ExpectType Map<"status", string>
   Map<'status', string>({ status: 'paid' });
@@ -92,7 +92,7 @@ import { Map, List } from 'immutable';
   // #getIn
 
   // $ExpectType number
-  Map({ a: 4, b: true }).getIn<['a']>(['a']);
+  Map({ a: 4, b: true }).getIn(['a']);
 
   // $ExpectType number
   Map({ a: Map({ b: Map({ c: Map({ d: 4 }) }) }) }).getIn(['a', 'b', 'c', 'd']);

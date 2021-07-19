@@ -197,7 +197,7 @@ function updateInheritedTypeParams(
       case TypeKind.Function:
         return updateSignature(type);
       case TypeKind.Object:
-        return { ...type, members: type.members.map(updateSignature) };
+        return { ...type, members: type.members?.map(updateSignature) };
     }
     return type;
   }
@@ -266,12 +266,7 @@ function markdownDoc(doc: TypeDoc | undefined, context: MarkdownContext) {
 const typeDefPath = '../type-definitions/Immutable.d.ts';
 
 function genTypeDefData(version: string): TypeDefs {
-  const fileContents = getTypeDefSource(version);
-  const typeDefSource = fileContents.replace(
-    "module 'immutable'",
-    'module Immutable'
-  );
-
+  const typeDefSource = getTypeDefSource(version);
   const sourceFile = ts.createSourceFile(
     typeDefPath,
     typeDefSource,
@@ -568,6 +563,10 @@ function typesVisitor(source: ts.SourceFile) {
       case ts.SyntaxKind.StringKeyword:
         return {
           k: TypeKind.String,
+        };
+      case ts.SyntaxKind.ObjectKeyword:
+        return {
+          k: TypeKind.Object,
         };
       case ts.SyntaxKind.UnionType:
         return {
