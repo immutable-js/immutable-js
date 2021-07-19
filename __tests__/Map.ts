@@ -1,4 +1,4 @@
-import { is, List, Map, Range, Record, Seq } from 'immutable';
+import { fromJS, is, List, Map, Range, Record, Seq } from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
@@ -465,6 +465,25 @@ describe('Map', () => {
     expect(m.get(a)).toBe('a');
     expect(m.get(b)).toBe('b');
     expect(m.get(c)).toBe('c');
+  });
+
+  it('supports Symbols as object constructor keys', () => {
+    const a = Symbol.for('a');
+    const b = Symbol('b');
+    const c = Symbol('c');
+    const m = Map({
+      [a]: 'a',
+      [b]: 'b',
+      [c]: 'c',
+    });
+    expect(m.size).toBe(3);
+    expect(m.get(a)).toBe('a');
+    expect(m.get(b)).toBe('b');
+    expect(m.get(c)).toBe('c');
+
+    const m2 = fromJS({ [a]: 'a' });
+    expect(m2.size).toBe(1);
+    expect(m2.get(a)).toBe('a');
   });
 
   it('Symbol keys are unique', () => {
