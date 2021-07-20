@@ -2,7 +2,7 @@
 // Some tests look like they are repeated in order to avoid false positives.
 // Flow might not complain about an instance of (what it thinks is) T to be assigned to T<K, V>
 
-import { Record, type RecordFactory, type RecordOf } from 'immutable';
+import { Record, type RecordFactory, type RecordOf, Map, List, merge } from 'immutable';
 
 // Use the RecordFactory type to annotate
 const Point2: RecordFactory<{ x: number, y: number }> = Record({ x: 0, y: 0 });
@@ -122,6 +122,7 @@ const originAlt2: $ReadOnly<TPointNew> = MakePointNew();
 
 // Use of new may only return a class instance, not a record
 // (supported but discouraged)
+// $FlowExpectedError[class-object-subtyping]
 // $FlowExpectedError[prop-missing]
 const mistakeOriginNew: PointNew = new MakePointNew();
 // An alternative type strategy is instance based
@@ -185,3 +186,32 @@ const person2 = new PersonWithoutTypes();
 person2.get('name');
 // Note: no error
 person2.get('unknown');
+
+
+// Functional Merge
+
+type XYPoint = { x: number, y: number };
+type XYPointRecord = RecordOf<XYPoint>;
+const xyRecord: RecordFactory<XYPoint> = Record({ x: 0, y: 0 });
+const record = xyRecord();
+(merge(record, { x: 321 }): XYPointRecord);
+(merge(record, xyRecord({ x: 321 })): XYPointRecord);
+// $FlowExpectedError[incompatible-call]
+(merge(record, { z: 321 }): XYPointRecord);
+// $FlowExpectedError[incompatible-call]
+(merge(record, { x: 'abc' }): XYPointRecord);
+(merge(record, [['x', 321]]): XYPointRecord);
+// $FlowExpectedError[prop-missing]]
+(merge(record, [['z', 321]]): XYPointRecord);
+// $FlowExpectedError[incompatible-call]
+(merge(record, [['x', 'abc']]): XYPointRecord);
+// $FlowExpectedError[incompatible-call]
+(merge(record, [321]): XYPointRecord);
+(merge(record, Map({ x: 123 })): XYPointRecord);
+// $FlowExpectedError[incompatible-call]
+(merge(record, Map({ z: 123 })): XYPointRecord);
+(merge(record, Map([['x', 123]])): XYPointRecord);
+// $FlowExpectedError[incompatible-call]
+(merge(record, Map([['z', 123]])): XYPointRecord);
+// $FlowExpectedError[incompatible-call]
+(merge(record, List([123])): XYPointRecord);

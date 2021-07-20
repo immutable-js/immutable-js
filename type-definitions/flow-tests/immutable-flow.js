@@ -184,7 +184,7 @@ numberList = List.of('a').merge(List.of(1));
 // Functional API
 
 numberList = merge(List([1]), List([2]));
-numberOrStringList = merge(List(['a']), List([1]));
+numberOrStringList = merge<List<string | number>>(List(['a']), List([1]));
 // $FlowExpectedError[incompatible-call]
 numberList = merge(List(['a']), List([1]));
 
@@ -332,6 +332,7 @@ stringToNumberOrString = Map({ a: 1 }).update('a', (value) => 'a');
 stringToNumber = Map({ a: 1 }).update('a', (value) => 'a');
 
 stringToNumberOrString = Map({ a: 1 }).update('a', 'b', (value) => 'a');
+// $FlowExpectedError[incompatible-type-arg]
 // $FlowExpectedError[incompatible-call]
 stringToNumber = Map({ a: 1 }).update('a', 'b', (value) => 'a');
 // $FlowExpectedError[incompatible-type-arg]
@@ -422,16 +423,17 @@ stringToNumber = Map({ a: 1 }).updateIn(['a'], (v) => 'a');
 stringToNumber = Map({ a: 1 }).updateIn(['a'], (v) => v + 1);
 stringToNumber = Map({ a: 1 }).updateIn(['a'], 0, (v) => v + 1);
 
-// $FlowExpectedError[incompatible-call]
-Map({ x: Map({ y: Map({ z: 1 }) }) }).updateIn(['x', 'y', 1], (v) => v + 1);
-// $FlowExpectedError[incompatible-call]
-Map({ x: Map({ y: Map({ z: 1 }) }) }).updateIn(['x', 'y', 'z'], (v) => 'a');
 Map({ x: Map({ y: Map({ z: 1 }) }) }).updateIn(['x', 'y', 'z'], (v) => v + 1);
 Map({ x: Map({ y: Map({ z: 1 }) }) }).updateIn(
   ['x', 'y', 'z'],
   0,
   (v) => v + 1
 );
+
+// $FlowExpectedError[incompatible-call]
+Map({ x: Map({ y: Map({ z: 1 }) }) }).updateIn(['x', 'y', 1], (v) => v + 1);
+// $FlowExpectedError[incompatible-call]
+Map({ x: Map({ y: Map({ z: 1 }) }) }).updateIn(['x', 'y', 'z'], (v) => 'a');
 
 stringToNumber = Map({ a: 1 }).mergeIn([], []);
 stringToNumber = Map({ a: 1 }).mergeDeepIn([], []);
@@ -567,6 +569,7 @@ orderedStringToNumber = OrderedMap({ a: 1 }).mergeWith(
   { a: 2, b: 3 }
 );
 orderedStringToNumber = OrderedMap({ a: 1 }).mergeWith(
+  // $FlowExpectedError[incompatible-call]
   (prev, next) => next,
   // $FlowExpectedError[incompatible-type-arg] - this is actually an OrderedMap<string, number|string>
   { a: '2', b: '3' }
@@ -1169,8 +1172,8 @@ const friendlies: List<PersonRecord2> = List([makePersonRecord2()]);
 // $FlowExpectedError[incompatible-call]
 friendlies.setIn([0, 'friends', 0, 'name'], 123);
 friendlies.setIn([0, 'friends', 0, 'name'], 'Sally');
-// $FlowExpectedError[prop-missing]
 friendlies.updateIn([0, 'friends', 0, 'name'], (value) =>
+  // $FlowExpectedError[prop-missing]
   value.unknownFunction()
 );
 friendlies.updateIn([0, 'friends', 0, 'name'], (value) => value.toUpperCase());
@@ -1192,11 +1195,11 @@ const plainFriendlies: List<PlainPerson> = List([plainFriendly]);
   const fail: ?number = plainFriendlies.getIn([0, 'fraaands', 0, 0]);
 }
 {
-  // $FlowExpectedError[incompatible-call] string is not a number
+  // $FlowExpectedError[incompatible-type] string is not a number
   const fail: ?number = plainFriendlies.getIn([0, 'friends', 0, 'name']);
 }
 {
-  // $FlowExpectedError[incompatible-call] can return undefined
+  // $FlowExpectedError[incompatible-type] can return undefined
   const fail: string = plainFriendlies.getIn([0, 'friends', 0, 'name']);
 }
 {
@@ -1208,7 +1211,7 @@ plainFriendlies.setIn([0, 'friends', 0, 'name'], 123);
 plainFriendlies.setIn([0, 'friends', 0, 'name'], 'Morgan');
 
 plainFriendlies.updateIn([0, 'friends', 0, 'name'], (value) =>
-  // $FlowExpectedError[incompatible-call] value is a string, this is an unknown function
+  // $FlowExpectedError[prop-missing] value is a string, this is an unknown function
   value.unknownFunction()
 );
 plainFriendlies.updateIn([0, 'friends', 0, 'name'], (value) =>
