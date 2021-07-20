@@ -14,7 +14,7 @@ const Point3: RecordFactory<{ x: number, y: number, z: number }> = Record({
 type TGeoPoint = { lat: ?number, lon: ?number };
 const GeoPoint: RecordFactory<TGeoPoint> = Record({ lat: null, lon: null });
 
-// TODO: this should be ExpectError - 'abc' is not a number
+// TODO: this should be FlowExpectedError - 'abc' is not a number
 // However, due to support for the brittle support for subclassing, Flow
 // cannot also type check default values in this position.
 const PointWhoops: RecordFactory<{ x: number, y: number }> = Record({
@@ -25,7 +25,7 @@ const PointWhoops: RecordFactory<{ x: number, y: number }> = Record({
 let origin2 = Point2({});
 let origin3 = Point3({});
 let geo = GeoPoint({ lat: 34 });
-// $ExpectError
+// $FlowExpectedError[incompatible-call]
 const mistake = Point2({ x: 'string' });
 origin3 = GeoPoint({ lat: 34 });
 geo = Point3({});
@@ -33,28 +33,28 @@ geo = Point3({});
 // Use RecordOf to type the return value of a Record factory function.
 let geoPointExpected1: RecordOf<TGeoPoint> = GeoPoint({});
 
-// $ExpectError - Point2 does not return GeoPoint.
+// $FlowExpectedError[prop-missing] - Point2 does not return GeoPoint.
 let geoPointExpected2: RecordOf<TGeoPoint> = Point2({});
 
 const px = origin2.get('x');
 const px2: number = origin2.x;
-// $ExpectError
+// $FlowExpectedError[incompatible-type]
 const px3: number = origin2.get('x', 'not set value');
 const px4: number | string = origin2.get('x', 'not set value');
-// $ExpectError
+// $FlowExpectedError[incompatible-call]
 const pz = origin2.get('z');
-// $ExpectError
+// $FlowExpectedError[incompatible-use]
 const pz2 = origin2.z;
 
 origin2.set('x', 4);
-// $ExpectError
+// $FlowExpectedError[incompatible-call]
 origin2.set('x', 'not-a-number');
-// $ExpectError
+// $FlowExpectedError[incompatible-call]
 origin2.set('z', 3);
 
 const name: string = Record.getDescriptiveName(origin2);
-// $ExpectError
-const name: string = Record.getDescriptiveName({});
+// $FlowExpectedError[incompatible-call]
+const name2: string = Record.getDescriptiveName({});
 
 // Note: need to cast through any when extending Records as if they ere classes
 class ABClass extends (Record({ a: 1, b: 2 }): any) {
@@ -92,7 +92,7 @@ const origin: PointNew = MakePointNew();
   const x: number = origin.x;
 }
 {
-  // $ExpectError number is not a string
+  // $FlowExpectedError[incompatible-type] number is not a string
   const x: string = origin.x;
 }
 // Can use the Record constructor type as an alternative,
@@ -103,7 +103,7 @@ const originAlt1: MakePointNew = MakePointNew();
   const x: number = originAlt1.get('x');
 }
 {
-  // $ExpectError cannot use property access for this alternative annotation
+  // $FlowExpectedError[prop-missing] cannot use property access for this alternative annotation
   const x: number = originAlt1.x;
 }
 // Can also sort of use the inner Record values type as an alternative,
@@ -113,7 +113,7 @@ const originAlt1: MakePointNew = MakePointNew();
 // can ensure correct types.
 const originAlt2: $ReadOnly<TPointNew> = MakePointNew();
 {
-  // $ExpectError cannot use Record API for this alternative annotation
+  // $FlowExpectedError[prop-missing] cannot use Record API for this alternative annotation
   const x: number = originAlt2.get('x');
 }
 {
@@ -122,7 +122,7 @@ const originAlt2: $ReadOnly<TPointNew> = MakePointNew();
 
 // Use of new may only return a class instance, not a record
 // (supported but discouraged)
-// $ExpectError
+// $FlowExpectedError[prop-missing]
 const mistakeOriginNew: PointNew = new MakePointNew();
 // An alternative type strategy is instance based
 const originNew: MakePointNew = new MakePointNew();
@@ -131,13 +131,13 @@ const originNew: MakePointNew = new MakePointNew();
   const x: number = originNew.get('x');
 }
 {
-  // $ExpectError property `x`. Property not found in RecordInstance
+  // $FlowExpectedError[prop-missing] property `x`. Property not found in RecordInstance
   const x: number = originNew.x;
 }
 
-// $ExpectError instantiated with invalid type
+// $FlowExpectedError[incompatible-call] instantiated with invalid type
 const mistakeNewRecord = MakePointNew({ x: 'string' });
-// $ExpectError instantiated with invalid type
+// $FlowExpectedError[incompatible-call] instantiated with invalid type
 const mistakeNewInstance = new MakePointNew({ x: 'string' });
 
 // Subclassing
@@ -164,9 +164,9 @@ const person = new Person();
 (person.setName('Thales').name: string);
 person.get('name');
 person.set('name', 'Thales');
-// $ExpectError
+// $FlowExpectedError[incompatible-call]
 person.get('unknown');
-// $ExpectError
+// $FlowExpectedError[prop-missing]
 person.set('unknown', 'Thales');
 
 // Note: not <TPerson>
