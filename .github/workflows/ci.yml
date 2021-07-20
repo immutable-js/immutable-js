@@ -9,24 +9,6 @@ on:
       - main
 
 jobs:
-  test:
-    name: 'Test'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '16'
-      - uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: ${{ runner.OS }}-node-
-      - run: npm ci
-      - run: npm run build
-      - run: npm run testonly
-      - run: npm run check:git-clean
-
   lint:
     name: 'Lint'
     runs-on: ubuntu-latest
@@ -42,7 +24,7 @@ jobs:
           restore-keys: ${{ runner.OS }}-node-
       - run: npm ci
       - run: npm run lint
-      - run: npm run check:git-clean
+      - run: npm run check-git-clean
 
   type-check:
     name: 'Type Check'
@@ -64,7 +46,25 @@ jobs:
           restore-keys: ${{ runner.OS }}-dts-
       - run: npm ci
       - run: npm run type-check
-      - run: npm run check:git-clean
+      - run: npm run check-git-clean
+
+  unit-test:
+    name: 'Build & Unit Test'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.OS }}-node-
+      - run: npm ci
+      - run: npm run build
+      - run: npm run unit-test
+      - run: npm run check-git-clean
 
   website:
     name: 'Build Website'
@@ -83,11 +83,11 @@ jobs:
           restore-keys: ${{ runner.OS }}-node-
       - run: npm ci
       - run: npm run website:build
-      - run: npm run check:git-clean
+      - run: npm run check-git-clean
 
   publish:
     name: 'Publish'
-    needs: [test, lint, type-check, website]
+    needs: [lint, type-check, unit-test, website]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
