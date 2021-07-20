@@ -11,7 +11,7 @@
     ],
     "baseUrl": "./",
     "paths": {
-      "immutable": ["../../type-definitions/Immutable.d.ts"]
+      "immutable": ["../../type-definitions/immutable.d.ts"]
     }
   },
   "exclude": ["node_modules"]
