@@ -2,8 +2,6 @@
 ../../
 
 [options]
-suppress_comment=\\(.\\|\n\\)*\\$FlowExpectedError
-suppress_comment=\\(.\\|\n\\)*\\$FlowFixMe
 module.name_mapper='^immutable$' -> '../../type-definitions/immutable.js.flow'
 
 [ignore]

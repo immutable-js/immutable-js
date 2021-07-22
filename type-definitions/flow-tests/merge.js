@@ -42,34 +42,6 @@ const objMap: ObjMap<number> = { x: 12, y: 34 };
 // $FlowExpectedError[incompatible-call]
 (merge(objMap, List([123])): ObjMap<number>);
 
-// merge: Records
-
-type XYPoint = { x: number, y: number };
-type XYPointRecord = RecordOf<XYPoint>;
-const xyRecord: RecordFactory<XYPoint> = Record({ x: 0, y: 0 });
-const record = xyRecord();
-(merge(record, { x: 321 }): XYPointRecord);
-(merge(record, xyRecord({ x: 321 })): XYPointRecord);
-// $FlowExpectedError[incompatible-call]
-(merge(record, { z: 321 }): XYPointRecord);
-// $FlowExpectedError[incompatible-call]
-(merge(record, { x: 'abc' }): XYPointRecord);
-(merge(record, [['x', 321]]): XYPointRecord);
-// $FlowExpectedError[prop-missing]]
-(merge(record, [['z', 321]]): XYPointRecord);
-// $FlowExpectedError[incompatible-call]
-(merge(record, [['x', 'abc']]): XYPointRecord);
-// $FlowExpectedError[incompatible-call]
-(merge(record, [321]): XYPointRecord);
-(merge(record, Map({ x: 123 })): XYPointRecord);
-// $FlowExpectedError[incompatible-call]
-(merge(record, Map({ z: 123 })): XYPointRecord);
-(merge(record, Map([['x', 123]])): XYPointRecord);
-// $FlowExpectedError[incompatible-call]
-(merge(record, Map([['z', 123]])): XYPointRecord);
-// $FlowExpectedError[incompatible-call]
-(merge(record, List([123])): XYPointRecord);
-
 // merge: Maps
 
 const map = Map({ key: 'value' });
@@ -117,26 +89,29 @@ const list = List([1, 2, 3]);
 
 // merge: Objects as Records
 
+type XYPoint = { x: number, y: number };
 const objRecord: XYPoint = { x: 12, y: 34 };
 (merge(objRecord, { x: 321 }): XYPoint);
-(merge(objRecord, xyRecord({ x: 321 })): XYPoint);
-// $FlowExpectedError[incompatible-call]
-(merge(objRecord, { z: 321 }): XYPoint);
+(merge(objRecord, [['x', 321]]): XYPoint);
+(merge(objRecord, Map({ x: 123 })): XYPoint);
+(merge(objRecord, Map([['x', 123]])): XYPoint);
+const xyPointRecord = Record({ x: 0, y: 0 });
+(merge(objRecord, xyPointRecord({ x: 321 })): XYPoint);
 // $FlowExpectedError[incompatible-call]
 (merge(objRecord, { x: 'abc' }): XYPoint);
-(merge(objRecord, [['x', 321]]): XYPoint);
+// $FlowExpectedError[incompatible-call]
+(merge({ x: 12, y: 34 }, [['x', 'abc']]): XYPoint);
+// $FlowExpectedError[incompatible-call]
+(merge(objRecord, { z: 321 }): XYPoint);
 // $FlowExpectedError[prop-missing]]
+// $FlowExpectedError[invalid-call-util]]
 (merge(objRecord, [['z', 321]]): XYPoint);
 // $FlowExpectedError[incompatible-call]
-(merge(objRecord, [['x', 'abc']]): XYPoint);
-// $FlowExpectedError[incompatible-call]
-(merge(objRecord, [321]): XYPoint);
-(merge(objRecord, Map({ x: 123 })): XYPoint);
-// $FlowExpectedError[incompatible-call]
 (merge(objRecord, Map({ z: 123 })): XYPoint);
-(merge(objRecord, Map([['x', 123]])): XYPoint);
 // $FlowExpectedError[incompatible-call]
 (merge(objRecord, Map([['z', 123]])): XYPoint);
+// $FlowExpectedError[incompatible-call]
+(merge(objRecord, [321]): XYPoint);
 // $FlowExpectedError[incompatible-call]
 (merge(objRecord, List([123])): XYPoint);
 
