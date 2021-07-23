@@ -375,6 +375,11 @@ describe('List', () => {
     ]);
   });
 
+  it('has the same iterator function for values', () => {
+    const l = List(['a', 'b', 'c']);
+    expect(l[Symbol.iterator]).toBe(l.values);
+  });
+
   it('push inserts at highest index', () => {
     const v0 = List.of('a', 'b', 'c');
     const v1 = v0.push('d', 'e', 'f');

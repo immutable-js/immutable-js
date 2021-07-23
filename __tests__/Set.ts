@@ -132,6 +132,12 @@ describe('Set', () => {
     ]);
   });
 
+  it('has the same iterator function for keys and values', () => {
+    const s = Set([1, 2, 3]);
+    expect(s[Symbol.iterator]).toBe(s.keys);
+    expect(s[Symbol.iterator]).toBe(s.values);
+  });
+
   it('unions two sets', () => {
     const s1 = Set.of('a', 'b', 'c');
     const s2 = Set.of('d', 'b', 'wow');
