@@ -467,7 +467,6 @@ a.try-it {
 
 .sideBar__Link {
   padding: 5px 0;
-  border-top: 1px solid #d2d2d2;
 }
 
 .sideBar__Link--active {
@@ -503,7 +502,7 @@ a.try-it {
 }
 
 .sideBar .members {
-  margin: 0 0 2.5em 0.7em;
+  margin: 0 0 2.5em 1em;
 }
 
 .sideBar .groupTitle {

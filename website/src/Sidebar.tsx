@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import type { TypeDefinition, TypeDefs } from './TypeDefs';
 import { collectMemberGroups } from './collectMemberGroups';
 import { ArrowDown } from './ArrowDown';
@@ -34,12 +34,11 @@ function Links({
         const isCurrent = focus?.label === link.label;
         const isActive = isCurrent && !isForcedClosed;
         return (
-          <>
+          <Fragment key={link.url}>
             <div
               className={`sideBar__Link ${
                 isActive ? 'sideBar__Link--active' : ''
               }`}
-              key={link.url}
             >
               <Link href={link.url}>
                 {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/anchor-is-valid */}
@@ -63,7 +62,7 @@ function Links({
                 showInGroups={showInGroups}
               />
             )}
-          </>
+          </Fragment>
         );
       })}
     </div>
