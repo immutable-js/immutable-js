@@ -116,6 +116,11 @@ describe('Map', () => {
     ]);
   });
 
+  it('has the same iterator function for entries', () => {
+    const m = Map({ a: 'A', b: 'B', c: 'C' });
+    expect(m[Symbol.iterator]).toBe(m.entries);
+  });
+
   it('merges two maps', () => {
     const m1 = Map({ a: 'A', b: 'B', c: 'C' });
     const m2 = Map({ wow: 'OO', d: 'DD', b: 'BB' });
