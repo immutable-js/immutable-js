@@ -39,29 +39,16 @@ h6 {
   color: var(--header-color);
 }
 
-h1 {
-  font-size: 2em;
-  margin: 0 0 1rem;
-}
-
 h2 {
-  font-size: 1.5em;
-  padding-top: 100px;
-  margin: calc(4rem - 100px) 0 1rem;
+  margin: 4rem 0 1rem;
 }
 
 h3 {
-  font-size: 1.25em;
-  padding-top: 100px;
-  margin: calc(2rem - 100px) 0 1rem;
+  margin: 2rem 0 1rem;
 }
 
-h4,
-h5,
-h6 {
-  font-size: 1em;
-  padding-top: 100px;
-  margin: calc(1rem - 100px) 0 0;
+h4 {
+  margin: 1rem 0 0;
 }
 
 a {
@@ -206,6 +193,31 @@ a.try-it {
   max-width: 880px;
   padding: 64px 0;
   position: relative;
+}
+
+.markdown h1 {
+  font-size: 2em;
+  margin: 0 0 1rem;
+}
+
+.markdown h2 {
+  font-size: 1.5em;
+  padding-top: 100px;
+  margin: calc(4rem - 100px) 0 1rem;
+}
+
+.markdown h3 {
+  font-size: 1.25em;
+  padding-top: 100px;
+  margin: calc(2rem - 100px) 0 1rem;
+}
+
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  font-size: 1em;
+  padding-top: 100px;
+  margin: calc(1rem - 100px) 0 0;
 }
 
 .miniHeader {

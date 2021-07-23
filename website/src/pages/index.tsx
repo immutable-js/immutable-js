@@ -2,6 +2,7 @@ import fs from 'fs';
 import Head from 'next/head';
 
 import { Header } from '../Header';
+import { MarkdownContent } from '../MarkdownContent';
 import { ImmutableConsole } from '../ImmutableConsole';
 import { genMarkdownDoc } from '../static/genMarkdownDoc';
 import { getVersions } from '../static/getVersions';
@@ -30,7 +31,7 @@ export default function Home({ versions, readme }: Props) {
       <Header versions={versions} />
       <div className="pageBody" id="body">
         <div className="contents">
-          <div dangerouslySetInnerHTML={{ __html: readme }} />
+          <MarkdownContent contents={readme} />
         </div>
       </div>
     </div>
