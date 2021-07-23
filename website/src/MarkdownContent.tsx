@@ -19,7 +19,7 @@ export const MarkdownContent = memo<Props>(({ contents, className }) => {
 
   return (
     <div
-      className={className}
+      className={'markdown ' + className}
       onClick={handleClick}
       dangerouslySetInnerHTML={{ __html: contents }}
     />
