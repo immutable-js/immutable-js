@@ -5300,14 +5300,16 @@ mixin(SetCollection, {
   },
 });
 
-SetCollection.prototype.has = CollectionPrototype.includes;
-SetCollection.prototype.contains = SetCollection.prototype.includes;
+var SetCollectionPrototype = SetCollection.prototype;
+SetCollectionPrototype.has = CollectionPrototype.includes;
+SetCollectionPrototype.contains = SetCollectionPrototype.includes;
+SetCollectionPrototype.keys = SetCollectionPrototype.values;
 
 // Mixin subclasses
 
-mixin(KeyedSeq, KeyedCollection.prototype);
-mixin(IndexedSeq, IndexedCollection.prototype);
-mixin(SetSeq, SetCollection.prototype);
+mixin(KeyedSeq, KeyedCollectionPrototype);
+mixin(IndexedSeq, IndexedCollectionPrototype);
+mixin(SetSeq, SetCollectionPrototype);
 
 // #pragma Helper functions
 
