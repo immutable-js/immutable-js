@@ -271,6 +271,16 @@ function getIteratorFn(iterable) {
   }
 }
 
+function isEntriesIterable(maybeIterable) {
+  var iteratorFn = getIteratorFn(maybeIterable);
+  return iteratorFn && iteratorFn === maybeIterable.entries;
+}
+
+function isKeysIterable(maybeIterable) {
+  var iteratorFn = getIteratorFn(maybeIterable);
+  return iteratorFn && iteratorFn === maybeIterable.keys;
+}
+
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 
 function isArrayLike(value) {
@@ -601,11 +611,7 @@ function emptySequence() {
 }
 
 function keyedSeqFromValue(value) {
-  var seq = Array.isArray(value)
-    ? new ArraySeq(value)
-    : hasIterator(value)
-    ? new CollectionSeq(value)
-    : undefined;
+  var seq = maybeIndexedSeqFromValue(value);
   if (seq) {
     return seq.fromEntrySeq();
   }
@@ -631,7 +637,11 @@ function indexedSeqFromValue(value) {
 function seqFromValue(value) {
   var seq = maybeIndexedSeqFromValue(value);
   if (seq) {
-    return seq;
+    return isEntriesIterable(value)
+      ? seq.fromEntrySeq()
+      : isKeysIterable(value)
+      ? seq.toSetSeq()
+      : seq;
   }
   if (typeof value === 'object') {
     return new ObjectSeq(value);
@@ -5806,12 +5816,11 @@ function fromJS(value, converter) {
 }
 
 function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
-  var toSeq = Array.isArray(value)
-    ? IndexedSeq
-    : isPlainObject(value)
-    ? KeyedSeq
-    : null;
-  if (toSeq) {
+  if (
+    typeof value !== 'string' &&
+    !isImmutable(value) &&
+    (isArrayLike(value) || hasIterator(value) || isPlainObject(value))
+  ) {
     if (~stack.indexOf(value)) {
       throw new TypeError('Cannot convert circular structure to Immutable');
     }
@@ -5820,7 +5829,7 @@ function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
     var converted = converter.call(
       parentValue,
       key,
-      toSeq(value).map(function (v, k) { return fromJSWith(stack, converter, v, k, keyPath, value); }
+      Seq(value).map(function (v, k) { return fromJSWith(stack, converter, v, k, keyPath, value); }
       ),
       keyPath && keyPath.slice()
     );
@@ -5832,7 +5841,8 @@ function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
 }
 
 function defaultConverter(k, v) {
-  return isKeyed(v) ? v.toMap() : v.toList();
+  // Effectively the opposite of "Collection.toSeq()"
+  return isIndexed(v) ? v.toList() : isKeyed(v) ? v.toMap() : v.toSet();
 }
 
 var version = "4.0.0-rc.14";
