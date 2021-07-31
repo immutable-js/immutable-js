@@ -1583,7 +1583,7 @@ type RecordOf<Values: Object> = RecordInstance<Values> & $ReadOnly<Values>;
 
 // The values of a Record instance.
 type _RecordValues<T, R: RecordInstance<T> | T> = R;
-type RecordValues<R> = _RecordValues<*, R>;
+type RecordValues<R> = _RecordValues<mixed, R>;
 
 declare function isRecord(
   maybeRecord: any

@@ -54,27 +54,27 @@ const ImmutableMap = Immutable.Map;
 const ImmutableStack = Immutable.Stack;
 const ImmutableSet = Immutable.Set;
 const ImmutableKeyedCollection: KeyedCollection<
-  *,
-  *
+  mixed,
+  mixed
 > = Immutable.Collection.Keyed();
 const ImmutableRange = Immutable.Range;
 const ImmutableRepeat = Immutable.Repeat;
-const ImmutableIndexedSeq: IndexedSeq<*> = Immutable.Seq.Indexed();
+const ImmutableIndexedSeq: IndexedSeq<mixed> = Immutable.Seq.Indexed();
 
 const Immutable2List = Immutable2.List;
 const Immutable2Map = Immutable2.Map;
 const Immutable2Stack = Immutable2.Stack;
 const Immutable2Set = Immutable2.Set;
 const Immutable2KeyedCollection: Immutable2.KeyedCollection<
-  *,
-  *
+  mixed,
+  mixed
 > = Immutable2.Collection.Keyed();
 const Immutable2Range = Immutable2.Range;
 const Immutable2Repeat = Immutable2.Repeat;
-const Immutable2IndexedSeq: Immutable2.IndexedSeq<*> = Immutable2.Seq.Indexed();
+const Immutable2IndexedSeq: Immutable2.IndexedSeq<mixed> = Immutable2.Seq.Indexed();
 
-var defaultExport: List<*> = Immutable.List();
-var moduleExport: List<*> = Immutable2.List();
+var defaultExport: List<mixed> = Immutable.List();
+var moduleExport: List<mixed> = Immutable2.List();
 
 var numberList: List<number> = List();
 var numberOrStringList: List<string | number> = List();
