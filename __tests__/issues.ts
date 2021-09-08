@@ -1,4 +1,13 @@
-import { List, OrderedMap, OrderedSet, Record, Seq, Set } from 'immutable';
+import {
+  fromJS,
+  List,
+  Map,
+  OrderedMap,
+  OrderedSet,
+  Record,
+  Seq,
+  Set,
+} from 'immutable';
 
 describe('Issue #1175', () => {
   it('invalid hashCode() response should not infinitly recurse', () => {
@@ -120,4 +129,32 @@ describe('Issue #1785', () => {
   const emptyRecord = Record({})();
 
   expect(emptyRecord.merge({ id: 1 })).toBe(emptyRecord);
+});
+
+describe('Issue #1475', () => {
+  it('complex case should return first value on mergeDeep when types are incompatible', () => {
+    const a = fromJS({
+      ch: [
+        {
+          code: 8,
+        },
+      ],
+    }) as Map<unknown, unknown>;
+    const b = fromJS({
+      ch: {
+        code: 8,
+      },
+    });
+    expect(a.mergeDeep(b).equals(b)).toBe(true);
+  });
+
+  it('simple case should return first value on mergeDeep when types are incompatible', () => {
+    const a = fromJS({
+      ch: [],
+    }) as Map<unknown, unknown>;
+    const b = fromJS({
+      ch: { code: 8 },
+    });
+    expect(a.mergeDeep(b).equals(b)).toBe(true);
+  });
 });

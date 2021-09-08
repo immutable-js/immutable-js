@@ -1,7 +1,10 @@
 import { isImmutable } from '../predicates/isImmutable';
+import { isIndexed } from '../predicates/isIndexed';
+import { isKeyed } from '../predicates/isKeyed';
 import { IndexedCollection, KeyedCollection } from '../Collection';
 import hasOwnProperty from '../utils/hasOwnProperty';
 import isDataStructure from '../utils/isDataStructure';
+import isPlainObject from '../utils/isPlainObj';
 import shallowCopy from '../utils/shallowCopy';
 
 export function merge(collection, ...sources) {
@@ -69,10 +72,19 @@ export function mergeWithSources(collection, sources, merger) {
 function deepMergerWith(merger) {
   function deepMerger(oldValue, newValue, key) {
     return isDataStructure(oldValue) && isDataStructure(newValue)
-      ? mergeWithSources(oldValue, [newValue], deepMerger)
+      ? areMergeable(oldValue, newValue)
+        ? mergeWithSources(oldValue, [newValue], deepMerger)
+        : newValue
       : merger
       ? merger(oldValue, newValue, key)
       : newValue;
   }
   return deepMerger;
+}
+
+function areMergeable(oldValue, newValue) {
+  return !(
+    (isIndexed(oldValue) || Array.isArray(oldValue)) &&
+    (isKeyed(newValue) || isPlainObject(newValue))
+  );
 }
