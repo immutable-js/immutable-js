@@ -84,7 +84,15 @@ function deepMergerWith(merger) {
 
 function areMergeable(oldValue, newValue) {
   return !(
-    (isIndexed(oldValue) || Array.isArray(oldValue)) &&
-    (isKeyed(newValue) || isPlainObject(newValue))
+    (isIndexedOrArray(oldValue) && isKeyedOrPlainObject(newValue)) ||
+    (isKeyedOrPlainObject(oldValue) && isIndexedOrArray(newValue))
   );
+}
+
+function isIndexedOrArray(value) {
+  return isIndexed(value) || Array.isArray(value);
+}
+
+function isKeyedOrPlainObject(value) {
+  return isKeyed(value) || isPlainObject(value);
 }

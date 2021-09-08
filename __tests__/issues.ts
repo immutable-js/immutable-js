@@ -155,6 +155,26 @@ describe('Issue #1475', () => {
     const b = fromJS({
       ch: { code: 8 },
     });
-    expect(a.mergeDeep(b).equals(b)).toBe(true);
+    expect(a.merge(b).equals(b)).toBe(true);
+  });
+});
+
+describe('Issue #1719', () => {
+  it('mergeDeep() should overwrite when types conflict', () => {
+    const objWithObj = fromJS({
+      items: {
+        '1': {
+          id: '1',
+        },
+      },
+    }) as Map<unknown, unknown>;
+    const objWithArray = fromJS({
+      items: [
+        {
+          id: '1',
+        },
+      ],
+    });
+    expect(objWithObj.mergeDeep(objWithArray).equals(objWithArray)).toBe(true);
   });
 });
