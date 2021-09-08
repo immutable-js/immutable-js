@@ -279,4 +279,32 @@ describe('merge', () => {
     const Sizable = Record({ size: 0 });
     expect(Sizable().merge({ size: 123 }).size).toBe(123);
   });
+
+  it('mergeDeep merges partial conflicts', () => {
+    const a = fromJS({
+      ch: [
+        {
+          code: 8,
+        },
+      ],
+      banana: 'good',
+    }) as Map<unknown, unknown>;
+    const b = fromJS({
+      ch: {
+        code: 8,
+      },
+      apple: 'anti-doctor',
+    });
+    expect(
+      a.mergeDeep(b).equals(
+        fromJS({
+          ch: {
+            code: 8,
+          },
+          apple: 'anti-doctor',
+          banana: 'good',
+        })
+      )
+    ).toBe(true);
+  });
 });
