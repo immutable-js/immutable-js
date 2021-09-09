@@ -1,6 +1,7 @@
 import { isImmutable } from '../predicates/isImmutable';
 import { isIndexed } from '../predicates/isIndexed';
 import { isKeyed } from '../predicates/isKeyed';
+import { isSet } from '../predicates/isSet';
 import { IndexedCollection, KeyedCollection } from '../Collection';
 import { Seq } from '../Seq';
 import hasOwnProperty from '../utils/hasOwnProperty';
@@ -71,10 +72,10 @@ export function mergeWithSources(collection, sources, merger) {
 
 function deepMergerWith(merger) {
   function deepMerger(oldValue, newValue, key) {
-    return isDataStructure(oldValue) && isDataStructure(newValue)
-      ? areMergeable(oldValue, newValue)
-        ? mergeWithSources(oldValue, [newValue], deepMerger)
-        : newValue
+    return isDataStructure(oldValue) &&
+      isDataStructure(newValue) &&
+      areMergeable(oldValue, newValue)
+      ? mergeWithSources(oldValue, [newValue], deepMerger)
       : merger
       ? merger(oldValue, newValue, key)
       : newValue;
@@ -82,12 +83,12 @@ function deepMergerWith(merger) {
   return deepMerger;
 }
 
-/**
- * The data structures are considered not to be mergeable if one of them is indexed and the other is keyed.
- */
 function areMergeable(oldDataStructure, newDataStructure) {
-  return !(
-    (isIndexed(Seq(oldDataStructure)) && isKeyed(Seq(newDataStructure))) ||
-    (isKeyed(Seq(oldDataStructure)) && isIndexed(Seq(newDataStructure)))
+  const oldSeq = Seq(oldDataStructure);
+  const newSeq = Seq(newDataStructure);
+  return (
+    isIndexed(oldSeq) === isIndexed(newSeq) &&
+    isKeyed(oldSeq) === isKeyed(newSeq) &&
+    isSet(oldSeq) === isSet(newSeq)
   );
 }
