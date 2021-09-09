@@ -83,8 +83,7 @@ function deepMergerWith(merger) {
 }
 
 /**
- * The data structures are considered not to be mergeable if one of the data structures is indexed and the other is
- * keyed.
+ * The data structures are considered not to be mergeable if one of them is indexed and the other is keyed.
  */
 function areMergeable(oldDataStructure, newDataStructure) {
   return !(
