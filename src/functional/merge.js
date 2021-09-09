@@ -2,6 +2,7 @@ import { isImmutable } from '../predicates/isImmutable';
 import { isIndexed } from '../predicates/isIndexed';
 import { isKeyed } from '../predicates/isKeyed';
 import { IndexedCollection, KeyedCollection } from '../Collection';
+import { Seq } from '../Seq';
 import hasOwnProperty from '../utils/hasOwnProperty';
 import isDataStructure from '../utils/isDataStructure';
 import isPlainObject from '../utils/isPlainObj';
@@ -82,17 +83,13 @@ function deepMergerWith(merger) {
   return deepMerger;
 }
 
-function areMergeable(oldValue, newValue) {
+/**
+ * The data structures are considered not to be mergeable if one of the data structures is indexed and the other is
+ * keyed.
+ */
+function areMergeable(oldDataStructure, newDataStructure) {
   return !(
-    (isIndexedOrArray(oldValue) && isKeyedOrPlainObject(newValue)) ||
-    (isKeyedOrPlainObject(oldValue) && isIndexedOrArray(newValue))
+    (isIndexed(Seq(oldDataStructure)) && isKeyed(Seq(newDataStructure))) ||
+    (isKeyed(Seq(oldDataStructure)) && isIndexed(Seq(newDataStructure)))
   );
-}
-
-function isIndexedOrArray(value) {
-  return isIndexed(value) || Array.isArray(value);
-}
-
-function isKeyedOrPlainObject(value) {
-  return isKeyed(value) || isPlainObject(value);
 }
