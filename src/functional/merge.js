@@ -5,7 +5,6 @@ import { IndexedCollection, KeyedCollection } from '../Collection';
 import { Seq } from '../Seq';
 import hasOwnProperty from '../utils/hasOwnProperty';
 import isDataStructure from '../utils/isDataStructure';
-import isPlainObject from '../utils/isPlainObj';
 import shallowCopy from '../utils/shallowCopy';
 
 export function merge(collection, ...sources) {
