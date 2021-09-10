@@ -88,7 +88,6 @@ function areMergeable(oldDataStructure, newDataStructure) {
   const newSeq = Seq(newDataStructure);
   return (
     isIndexed(oldSeq) === isIndexed(newSeq) &&
-    isKeyed(oldSeq) === isKeyed(newSeq) &&
-    isSet(oldSeq) === isSet(newSeq)
+    isKeyed(oldSeq) === isKeyed(newSeq)
   );
 }
