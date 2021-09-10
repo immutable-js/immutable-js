@@ -1,7 +1,6 @@
 import { isImmutable } from '../predicates/isImmutable';
 import { isIndexed } from '../predicates/isIndexed';
 import { isKeyed } from '../predicates/isKeyed';
-import { isSet } from '../predicates/isSet';
 import { IndexedCollection, KeyedCollection } from '../Collection';
 import { Seq } from '../Seq';
 import hasOwnProperty from '../utils/hasOwnProperty';
