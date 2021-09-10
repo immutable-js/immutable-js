@@ -1017,8 +1017,8 @@ declare namespace Immutable {
     /**
      * Like `merge()`, but when two Collections of the same type conflict, it
      * merges them as well, recursing deeply through the nested data. If two
-     * Collections of different types conflict, it replaces the first Collection
-     * with the second one.
+     * Collections of different types conflict, it replaces the existing
+     * Collection with the new one.
      *
      * Note: Values provided to `merge` are shallowly converted before being
      * merged. No nested values are altered unless they will also be merged at
