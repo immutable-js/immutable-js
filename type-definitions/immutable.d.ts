@@ -1015,8 +1015,10 @@ declare namespace Immutable {
     ): this;
 
     /**
-     * Like `merge()`, but when two Collections conflict, it merges them as well,
-     * recursing deeply through the nested data.
+     * Like `merge()`, but when two Collections of the same type conflict, it
+     * merges them as well, recursing deeply through the nested data. If two
+     * Collections of different types conflict, it replaces the first Collection
+     * with the second one.
      *
      * Note: Values provided to `merge` are shallowly converted before being
      * merged. No nested values are altered unless they will also be merged at
@@ -1042,8 +1044,9 @@ declare namespace Immutable {
     ): this;
 
     /**
-     * Like `mergeDeep()`, but when two non-Collections conflict, it uses the
-     * `merger` function to determine the resulting value.
+     * Like `mergeDeep()`, but when two non-Collections or two Collections of
+     * different types conflict, it uses the `merger` function to determine the
+     * resulting value.
      *
      * <!-- runkit:activate -->
      * ```js
@@ -5560,7 +5563,7 @@ declare namespace Immutable {
   /**
    * Returns a copy of the collection with the remaining collections merged in
    * deeply (recursively), calling the `merger` function whenever an existing
-   * value is encountered.
+   * value or incompatible data structures are encountered.
    *
    * A functional alternative to `collection.mergeDeepWith()` which will also
    * work with plain Objects and Arrays.
