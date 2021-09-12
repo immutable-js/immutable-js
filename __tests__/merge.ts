@@ -242,4 +242,17 @@ describe('merge', () => {
       )
     ).toBe(true);
   });
+
+  it('Map#mergeDeep replaces nested Lists with Map', () => {
+    const a = Map({ a: List([Map({ x: 1 })]) });
+    const b = Map({ a: Map([[0, Map({ y: 2 })]]) });
+    // @ts-ignore
+    expect(a.mergeDeep(b).equals(b)).toBe(true);
+  });
+
+  it('functional mergeDeep replaces arrays with Maps', () => {
+    const a = { a: [{ x: 1 }] };
+    const b = Map({ a: Map([[0, Map({ y: 2 })]]) });
+    expect(mergeDeep(a, b)).toEqual({ a: Map([[0, Map({ y: 2 })]]) });
+  });
 });
