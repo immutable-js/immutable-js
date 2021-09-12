@@ -1049,7 +1049,7 @@ declare namespace Immutable {
 
     /**
      * Like `mergeDeep()`, but when two non-collections or incompatible
-     * collections are encountered when merging values, it uses the `merger`
+     * collections are encountered at the same key, it uses the `merger`
      * function to determine the resulting value. Collections are considered
      * incompatible if they fall into separate categories between keyed,
      * indexed, and set-like.
@@ -5578,10 +5578,9 @@ declare namespace Immutable {
 
   /**
    * Like `mergeDeep()`, but when two non-collections or incompatible
-   * collections are encountered when merging values, it uses the `merger`
-   * function to determine the resulting value. Collections are considered
-   * incompatible if they fall into separate categories between keyed,
-   * indexed, and set-like.
+   * collections are encountered at the same key, it uses the `merger` function
+   * to determine the resulting value. Collections are considered incompatible
+   * if they fall into separate categories between keyed, indexed, and set-like.
    *
    * A functional alternative to `collection.mergeDeepWith()` which will also
    * work with plain Objects and Arrays.
