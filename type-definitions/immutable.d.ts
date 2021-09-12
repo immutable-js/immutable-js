@@ -1015,11 +1015,11 @@ declare namespace Immutable {
     ): this;
 
     /**
-     * Like `merge()`, but when two compatible collections are encountered when
-     * merging values, it merges them as well, recursing deeply through the
-     * nested data. Two collections are considered to be compatible (and thus
-     * will be merged together) if they both fall into one of three categories:
-     * keyed (e.g., `Map`s, `Record`s, and objects), indexed (e.g., `List`s and
+     * Like `merge()`, but when two compatible collections are encountered with
+     * the same key, it merges them as well, recursing deeply through the nested
+     * data. Two collections are considered to be compatible (and thus will be
+     * merged together) if they both fall into one of three categories: keyed
+     * (e.g., `Map`s, `Record`s, and objects), indexed (e.g., `List`s and
      * arrays), or set-like (e.g., `Set`s). If they fall into separate
      * categories, `mergeDeep` will replace the existing collection with the
      * collection being merged in. This behavior can be customized by using
@@ -5543,11 +5543,11 @@ declare namespace Immutable {
   ): C;
 
   /**
-   * Like `merge()`, but when two compatible collections are encountered when
-   * merging values, it merges them as well, recursing deeply through the
-   * nested data. Two collections are considered to be compatible (and thus
-   * will be merged together) if they both fall into one of three categories:
-   * keyed (e.g., `Map`s, `Record`s, and objects), indexed (e.g., `List`s and
+   * Like `merge()`, but when two compatible collections are encountered with
+   * the same key, it merges them as well, recursing deeply through the nested
+   * data. Two collections are considered to be compatible (and thus will be
+   * merged together) if they both fall into one of three categories: keyed
+   * (e.g., `Map`s, `Record`s, and objects), indexed (e.g., `List`s and
    * arrays), or set-like (e.g., `Set`s). If they fall into separate
    * categories, `mergeDeep` will replace the existing collection with the
    * collection being merged in. This behavior can be customized by using
