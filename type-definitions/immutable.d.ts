@@ -1015,14 +1015,17 @@ declare namespace Immutable {
     ): this;
 
     /**
-     * Like `merge()`, but when two Collections of the same type conflict, it
-     * merges them as well, recursing deeply through the nested data. If two
-     * Collections of different types conflict, it replaces the existing
-     * Collection with the new one.
+     * Like `merge()`, but when two collections of similar types are encountered
+     * when merging two values, it merges them as well, recursing deeply through
+     * the nested data. Collections are considered to be of similar types (and
+     * thus will be merged) based on whether they are keyed (e.g., `Map`s,
+     * `Record`s, and objects), indexed (e.g., `List`s and arrays), or set-like
+     * (e.g., `Set`s). If they are not of similar types, `mergeDeep` will
+     * replace the existing collection with the collection being merged in. This
+     * behavior can be customized by using `mergeDeepWith()`.
      *
-     * Note: Values provided to `merge` are shallowly converted before being
-     * merged. No nested values are altered unless they will also be merged at
-     * a deeper level.
+     * Note: Indexed and set-like collections are merged using `concat`/`union`
+     * and therefore do not recurse.
      *
      * <!-- runkit:activate -->
      * ```js
@@ -1044,9 +1047,9 @@ declare namespace Immutable {
     ): this;
 
     /**
-     * Like `mergeDeep()`, but when two non-Collections or two Collections of
-     * different types conflict, it uses the `merger` function to determine the
-     * resulting value.
+     * Like `mergeDeep()`, but when two non-collections or collections of
+     * different types are encountered when merging two values, it uses the
+     * `merger` function to determine the resulting value.
      *
      * <!-- runkit:activate -->
      * ```js
@@ -5537,8 +5540,17 @@ declare namespace Immutable {
   ): C;
 
   /**
-   * Returns a copy of the collection with the remaining collections merged in
-   * deeply (recursively).
+   * Like `merge()`, but when two collections of similar types are encountered
+   * when merging two values, it merges them as well, recursing deeply through
+   * the nested data. Collections are considered to be of similar types (and
+   * thus will be merged) based on whether they are keyed (e.g., `Map`s,
+   * `Record`s, and objects), indexed (e.g., `List`s and arrays), or set-like
+   * (e.g., `Set`s). If they are not of similar types, `mergeDeep` will replace
+   * the existing collection with the collection being merged in. This behavior
+   * can be customized by using `mergeDeepWith()`.
+   *
+   * Note: Indexed and set-like collections are merged using `concat`/`union`
+   * and therefore do not recurse.
    *
    * A functional alternative to `collection.mergeDeep()` which will also work
    * with plain Objects and Arrays.
@@ -5561,9 +5573,9 @@ declare namespace Immutable {
   ): C;
 
   /**
-   * Returns a copy of the collection with the remaining collections merged in
-   * deeply (recursively), calling the `merger` function whenever an existing
-   * value or incompatible data structures are encountered.
+   * Like `mergeDeep()`, but when two non-collections or collections of
+   * different types are encountered when merging two values, it uses the
+   * `merger` function to determine the resulting value.
    *
    * A functional alternative to `collection.mergeDeepWith()` which will also
    * work with plain Objects and Arrays.
