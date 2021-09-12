@@ -1048,8 +1048,8 @@ declare namespace Immutable {
 
     /**
      * Like `mergeDeep()`, but when two non-collections or collections of
-     * different types are encountered when merging two values, it uses the
-     * `merger` function to determine the resulting value.
+     * types that are not similar are encountered when merging two values, it
+     * uses the `merger` function to determine the resulting value.
      *
      * <!-- runkit:activate -->
      * ```js
@@ -5574,8 +5574,8 @@ declare namespace Immutable {
 
   /**
    * Like `mergeDeep()`, but when two non-collections or collections of
-   * different types are encountered when merging two values, it uses the
-   * `merger` function to determine the resulting value.
+   * types that are not similar are encountered when merging two values, it uses
+   * the `merger` function to determine the resulting value.
    *
    * A functional alternative to `collection.mergeDeepWith()` which will also
    * work with plain Objects and Arrays.
