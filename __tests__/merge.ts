@@ -243,14 +243,89 @@ describe('merge', () => {
     ).toBe(true);
   });
 
-  it('Map#mergeDeep replaces nested Lists with Map', () => {
-    const a = Map({ a: List([Map({ x: 1 })]) });
-    const b = Map({ a: Map([[0, Map({ y: 2 })]]) });
-    // @ts-ignore
+  const map = { type: 'Map', value: Map({ b: 5, c: 9 }) };
+  const object = { type: 'object', value: { b: 7, d: 12 } };
+  const RecordFactory = Record({ a: 1, b: 2 });
+  const record = { type: 'Record', value: RecordFactory({ b: 3 }) };
+  const list = { type: 'List', value: List(['5']) };
+  const array = { type: 'array', value: ['9'] };
+  const set = { type: 'Set', value: Set('3') };
+
+  const incompatibleTypes = [
+    [map, list],
+    [map, array],
+    [map, set],
+    [object, list],
+    [object, array],
+    [object, set],
+    [record, list],
+    [record, array],
+    [record, set],
+    [list, set],
+  ];
+
+  for (const [
+    { type: type1, value: value1 },
+    { type: type2, value: value2 },
+  ] of incompatibleTypes) {
+    it(`mergeDeep and Map#mergeDeep replaces ${type1} and ${type2} with each other`, () => {
+      const aObject = { a: value1 };
+      const bObject = { a: value2 };
+      expect(mergeDeep(aObject, bObject)).toEqual(bObject);
+      expect(mergeDeep(bObject, aObject)).toEqual(aObject);
+
+      const aMap = Map({ a: value1 }) as Map<unknown, unknown>;
+      const bMap = Map({ a: value2 }) as Map<unknown, unknown>;
+      expect(aMap.mergeDeep(bMap).equals(bMap)).toBe(true);
+      expect(bMap.mergeDeep(aMap).equals(aMap)).toBe(true);
+    });
+  }
+
+  const compatibleTypesAndResult = [
+    [map, object, Map({ b: 7, c: 9, d: 12 })],
+    [map, record, Map({ a: 1, b: 3, c: 9 })],
+    [object, map, { b: 5, c: 9, d: 12 }],
+    [object, record, { a: 1, b: 3, d: 12 }],
+    [record, map, RecordFactory({ b: 5 })],
+    [record, object, RecordFactory({ b: 7 })],
+    [list, array, List(['5', '9'])],
+    [array, list, ['9', '5']],
+    [map, { type: 'Map', value: Map({ b: 7 }) }, Map({ b: 7, c: 9 })],
+    [object, { type: 'object', value: { d: 3 } }, { b: 7, d: 3 }],
+    [
+      record,
+      { type: 'Record', value: RecordFactory({ a: 3 }) },
+      RecordFactory({ a: 3, b: 2 }),
+    ],
+    [list, { type: 'List', value: List(['12']) }, List(['5', '12'])],
+    [array, { type: 'array', value: ['3'] }, ['9', '3']],
+    [set, { type: 'Set', value: Set(['3', '5']) }, Set(['3', '5'])],
+  ] as const;
+
+  for (const [
+    { type: type1, value: value1 },
+    { type: type2, value: value2 },
+    result,
+  ] of compatibleTypesAndResult) {
+    it(`mergeDeep and Map#mergeDeep merges ${type1} and ${type2}`, () => {
+      const aObject = { a: value1 };
+      const bObject = { a: value2 };
+      expect(mergeDeep(aObject, bObject)).toEqual({ a: result });
+
+      const aMap = Map({ a: value1 }) as Map<unknown, unknown>;
+      const bMap = Map({ a: value2 });
+      expect(aMap.mergeDeep(bMap)).toEqual(Map({ a: result }));
+    });
+  }
+
+  it('Map#mergeDeep replaces nested List with Map and Map with List', () => {
+    const a = Map({ a: List([Map({ x: 1 })]) }) as Map<unknown, unknown>;
+    const b = Map({ a: Map([[0, Map({ y: 2 })]]) }) as Map<unknown, unknown>;
     expect(a.mergeDeep(b).equals(b)).toBe(true);
+    expect(b.mergeDeep(a).equals(a)).toBe(true);
   });
 
-  it('functional mergeDeep replaces arrays with Maps', () => {
+  it('functional mergeDeep replaces nested array with Map', () => {
     const a = { a: [{ x: 1 }] };
     const b = Map({ a: Map([[0, Map({ y: 2 })]]) });
     expect(mergeDeep(a, b)).toEqual({ a: Map([[0, Map({ y: 2 })]]) });
