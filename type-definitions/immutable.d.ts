@@ -1024,8 +1024,8 @@ declare namespace Immutable {
      * replace the existing collection with the collection being merged in. This
      * behavior can be customized by using `mergeDeepWith()`.
      *
-     * Note: Indexed and set-like collections are merged using `concat`/`union`
-     * and therefore do not recurse.
+     * Note: Indexed and set-like collections are merged using
+     * `concat()`/`union()` and therefore do not recurse.
      *
      * <!-- runkit:activate -->
      * ```js
@@ -5549,8 +5549,8 @@ declare namespace Immutable {
    * the existing collection with the collection being merged in. This behavior
    * can be customized by using `mergeDeepWith()`.
    *
-   * Note: Indexed and set-like collections are merged using `concat`/`union`
-   * and therefore do not recurse.
+   * Note: Indexed and set-like collections are merged using
+   * `concat()`/`union()` and therefore do not recurse.
    *
    * A functional alternative to `collection.mergeDeep()` which will also work
    * with plain Objects and Arrays.
