@@ -2286,13 +2286,31 @@ function mergeWithSources(collection, sources, merger) {
 
 function deepMergerWith(merger) {
   function deepMerger(oldValue, newValue, key) {
-    return isDataStructure(oldValue) && isDataStructure(newValue)
+    return isDataStructure(oldValue) &&
+      isDataStructure(newValue) &&
+      areMergeable(oldValue, newValue)
       ? mergeWithSources(oldValue, [newValue], deepMerger)
       : merger
       ? merger(oldValue, newValue, key)
       : newValue;
   }
   return deepMerger;
+}
+
+/**
+ * It's unclear what the desired behavior is for merging two collections that
+ * fall into separate categories between keyed, indexed, or set-like, so we only
+ * consider them mergeable if they fall into the same category.
+ */
+function areMergeable(oldDataStructure, newDataStructure) {
+  var oldSeq = Seq(oldDataStructure);
+  var newSeq = Seq(newDataStructure);
+  // This logic assumes that a sequence can only fall into one of the three
+  // categories mentioned above (since there's no `isSetLike()` method).
+  return (
+    isIndexed(oldSeq) === isIndexed(newSeq) &&
+    isKeyed(oldSeq) === isKeyed(newSeq)
+  );
 }
 
 function mergeDeep() {
