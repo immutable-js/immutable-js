@@ -85,21 +85,6 @@
     "semi": true,
     "arrowParens": "avoid"
   },
-  "jest": {
-    "testRunner": "jest-jasmine2",
-    "moduleFileExtensions": [
-      "js",
-      "ts"
-    ],
-    "resolver": "<rootDir>/resources/jestResolver.js",
-    "transform": {
-      "^.+\\.(js|ts)$": "<rootDir>/resources/jestPreprocessor.js"
-    },
-    "testRegex": "/__tests__/.*\\.(ts|js)$",
-    "unmockedModulePathPatterns": [
-      "./node_modules/react"
-    ]
-  },
   "devDependencies": {
     "@types/jest": "^27.0.1",
     "@types/react": "17.0.11",
