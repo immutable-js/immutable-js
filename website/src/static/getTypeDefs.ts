@@ -460,7 +460,14 @@ function typesVisitor(source: ts.SourceFile) {
   function ensureGroup(node: ts.Node) {
     for (const trivia of getTrivia(node)) {
       if (trivia.kind === ts.SyntaxKind.SingleLineCommentTrivia) {
-        currentGroup = source.text.substring(trivia.pos + 3, trivia.end);
+        const unfilteredCurrentGroup = source.text.substring(
+          trivia.pos + 3,
+          trivia.end
+        );
+
+        if (!unfilteredCurrentGroup.startsWith('tslint:')) {
+          currentGroup = unfilteredCurrentGroup;
+        }
       }
     }
   }
