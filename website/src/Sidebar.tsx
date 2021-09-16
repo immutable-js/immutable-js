@@ -50,7 +50,13 @@ function Links({
                     }
                   }}
                 >
-                  {link.label} <ArrowDown isActive={isActive} />
+                  {link.label}
+                  {isActive && (focus?.interface || focus?.functions) && (
+                    <>
+                      {' '}
+                      <ArrowDown isActive={isActive} />
+                    </>
+                  )}
                 </a>
               </Link>
             </div>

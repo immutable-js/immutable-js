@@ -471,6 +471,7 @@ a.try-it {
 
 .sideBar__Link--active {
   font-weight: bold;
+  padding-bottom: 0;
 }
 
 .sideBar__Arrow--active {
@@ -502,13 +503,15 @@ a.try-it {
 }
 
 .sideBar .members {
-  margin: 0 0 2.5em 1em;
+  margin: 0 0 1em 0em;
+  border-bottom: 1px solid #dddddd;
+  padding-bottom: 0.5em;
 }
 
 .sideBar .groupTitle {
   color: var(--body-color);
   font-size: 1em;
-  margin: 1em 0 0;
+  margin: 0.3em 0 0;
 }
 
 .t a {
