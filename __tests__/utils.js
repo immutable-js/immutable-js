@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 /* global document */
 // eslint-disable-next-line import/no-unresolved -- immutable is resolve by jest resolver
 import { List, isPlainObject } from 'immutable';

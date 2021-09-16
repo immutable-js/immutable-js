@@ -86,6 +86,7 @@
     "arrowParens": "avoid"
   },
   "jest": {
+    "testRunner": "jest-jasmine2",
     "moduleFileExtensions": [
       "js",
       "ts"
@@ -100,7 +101,7 @@
     ]
   },
   "devDependencies": {
-    "@types/jest": "26.0.24",
+    "@types/jest": "^27.0.1",
     "@types/react": "17.0.11",
     "benchmark": "2.1.4",
     "colors": "1.4.0",
@@ -116,8 +117,8 @@
     "eslint-plugin-react": "7.24.0",
     "eslint-plugin-react-hooks": "4.2.0",
     "flow-bin": "0.160.0",
-    "jasmine-check": "0.1.5",
-    "jest": "26.6.3",
+    "jasmine-check": "^1.0.0-rc.0",
+    "jest": "27.2.0",
     "make-synchronous": "0.1.1",
     "marked": "2.1.2",
     "microtime": "3.0.0",
