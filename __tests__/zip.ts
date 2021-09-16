@@ -55,7 +55,7 @@ describe('zip', () => {
 
   check.it(
     'is always the size of the smaller sequence',
-    [gen.notEmpty(gen.array(gen.posInt))],
+    [gen.array(gen.posInt).notEmpty()],
     lengths => {
       const ranges = lengths.map(l => Range(0, l));
       const first = ranges.shift();
@@ -108,7 +108,7 @@ describe('zip', () => {
 
     check.it(
       'is always the size of the longest sequence',
-      [gen.notEmpty(gen.array(gen.posInt))],
+      [gen.array(gen.posInt).notEmpty()],
       lengths => {
         const ranges = lengths.map(l => Range(0, l));
         const first = ranges.shift();

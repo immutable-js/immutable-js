@@ -77,7 +77,7 @@ describe('Range', () => {
     }
   });
 
-  const shrinkInt = gen.shrink(gen.int);
+  const shrinkInt = gen.int.alwaysShrink();
 
   check.it(
     'slices the same as array slices',

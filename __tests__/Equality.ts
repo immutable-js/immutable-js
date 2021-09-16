@@ -117,12 +117,17 @@ describe('Equality', () => {
     expectIs(list, listShorter);
   });
 
-  const genSimpleVal = gen.returnOneOf(['A', 1]);
+  const genSimpleVal = gen.oneOf(['A', 1]);
 
   const genVal = gen.oneOf([
-    gen.map(List, gen.array(genSimpleVal, 0, 4)),
-    gen.map(Set, gen.array(genSimpleVal, 0, 4)),
-    gen.map(Map, gen.array(gen.array(genSimpleVal, 2), 0, 4)),
+    gen.array(genSimpleVal, { minSize: 0, maxSize: 4 }).then(List),
+    gen.array(genSimpleVal, { minSize: 0, maxSize: 4 }).then(Set),
+    gen
+      .array(gen.array(genSimpleVal, { size: 2 }), {
+        minSize: 0,
+        maxSize: 4,
+      })
+      .then(Map),
   ]);
 
   check.it(
