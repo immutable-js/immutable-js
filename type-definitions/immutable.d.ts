@@ -2882,7 +2882,9 @@ declare namespace Immutable {
      * Note: `Seq.Indexed` is a conversion function and not a class, and does
      * not use the `new` keyword during construction.
      */
-    function Indexed<T>(collection: Iterable<T> | ArrayLike<T>): Seq.Indexed<T>;
+    function Indexed<T>(
+      collection?: Iterable<T> | ArrayLike<T>
+    ): Seq.Indexed<T>;
 
     interface Indexed<T> extends Seq<number, T>, Collection.Indexed<T> {
       /**
@@ -3044,7 +3046,7 @@ declare namespace Immutable {
      * Note: `Seq.Set` is a conversion function and not a class, and does not
      * use the `new` keyword during construction.
      */
-    function Set<T>(collection: Iterable<T> | ArrayLike<T>): Seq.Set<T>;
+    function Set<T>(collection?: Iterable<T> | ArrayLike<T>): Seq.Set<T>;
 
     interface Set<T> extends Seq<T, T>, Collection.Set<T> {
       /**
@@ -3148,7 +3150,7 @@ declare namespace Immutable {
     collection: Collection.Indexed<T> | Iterable<T> | ArrayLike<T>
   ): Seq.Indexed<T>;
   function Seq<V>(obj: { [key: string]: V }): Seq.Keyed<string, V>;
-  function Seq(): Seq<unknown, unknown>;
+  function Seq<K = unknown, V = unknown>(): Seq<K, V>;
 
   interface Seq<K, V> extends Collection<K, V> {
     /**
@@ -3325,7 +3327,7 @@ declare namespace Immutable {
      * Note: `Collection.Keyed` is a conversion function and not a class, and
      * does not use the `new` keyword during construction.
      */
-    function Keyed<K, V>(collection: Iterable<[K, V]>): Collection.Keyed<K, V>;
+    function Keyed<K, V>(collection?: Iterable<[K, V]>): Collection.Keyed<K, V>;
     function Keyed<V>(obj: { [key: string]: V }): Collection.Keyed<string, V>;
 
     interface Keyed<K, V> extends Collection<K, V> {
@@ -3495,7 +3497,7 @@ declare namespace Immutable {
      * does not use the `new` keyword during construction.
      */
     function Indexed<T>(
-      collection: Iterable<T> | ArrayLike<T>
+      collection?: Iterable<T> | ArrayLike<T>
     ): Collection.Indexed<T>;
 
     interface Indexed<T> extends Collection<number, T> {
@@ -3793,7 +3795,7 @@ declare namespace Immutable {
      * Note: `Collection.Set` is a factory function and not a class, and does
      * not use the `new` keyword during construction.
      */
-    function Set<T>(collection: Iterable<T> | ArrayLike<T>): Collection.Set<T>;
+    function Set<T>(collection?: Iterable<T> | ArrayLike<T>): Collection.Set<T>;
 
     interface Set<T> extends Collection<T, T> {
       /**
@@ -3900,6 +3902,7 @@ declare namespace Immutable {
   function Collection<V>(obj: {
     [key: string]: V;
   }): Collection.Keyed<string, V>;
+  function Collection<K = unknown, V = unknown>(): Collection<K, V>;
 
   interface Collection<K, V> extends ValueObject {
     // Value equality
