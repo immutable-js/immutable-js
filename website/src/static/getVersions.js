@@ -5,9 +5,9 @@ let versions;
 /** @returns {Array<string>} */
 function getVersions() {
   if (!versions) {
-    const tags = execSync('git tag --sort=taggerdate', { encoding: 'utf8' })
-      .split('\n')
-      .reverse();
+    const tags = execSync('git tag -l --sort=-creatordate', {
+      encoding: 'utf8',
+    }).split('\n');
     const latestV4Tag = tags.find(t => t.match(/^v?4/));
     const latestV3Tag = tags.find(t => t.match(/^v?3/));
     versions = [];
