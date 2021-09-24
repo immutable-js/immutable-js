@@ -16,100 +16,103 @@ This release contains new stuff, many fixes, updated Type Definitions and a new,
 
 ### Key changes
 
-* New members have joined the team
-* Project has been relicensed as MIT
-* Behaviour of `merge` and `mergeDeep` changed
-* `Records` improved
 * Updated type definitions
-* The versioned documentation is now available on a new website: [immutable-js.com](https://immutable-js.com/)
-
+* Versioned documentation on a new website: [immutable-js.com](https://immutable-js.com/)
+* Project has been relicensed as MIT
 
 ### BREAKING
 
-#### [mergeDeep()](https://immutable-js.com/docs/latest@main/mergeDeep()/)
-* Replace incompatible collections when merging nested data (#1840)
-  > It will no longer merge lists of tuples into maps. For more information see https://github.com/immutable-js/immutable-js/pull/1840 and the updated `mergeDeep()` documentation.
+<!-- 4.0.0-rc.15 -->
+* Replace incompatible collections when merging nested data with `mergeDeep()` (#1840)
+  * This means that `mergeDeep()` will no longer merge lists of tuples into maps. For more information see https://github.com/immutable-js/immutable-js/pull/1840 and the updated `mergeDeep()` documentation.
 
-* Concat Lists when merging deeply (#1344)
-  > Previously, calling `map.mergeDeep()` with a value containing a `List` would replace the values in the original List. This has always been confusing, and does not properly treat `List` as a monoid. Now, `List.merge` is simply an alias for `List.concat`, and `map.mergeDeep()` will concatenate lists instead of replacing them.
+<!-- 4.0.0-rc.14 -->
 
-#### [merge()](https://immutable-js.com/docs/latest@main/merge()/)
-* No longer use value-equality within `merge()` (#1391) 
-  > This rectifies an inconsistent behavior between x.merge(y) and x.mergeDeep(y) where merge would use === on leaf values to determine return-self optimizations, while mergeDeep would use `is()`. This improves consistency across the library and avoids a possible performance pitfall.
+<!-- 4.0.0-rc.13 -->
 
-* No longer deeply coerce argument to merge() (#1339)
-  > Previously, the argument provided to `merge()` was deeply converted to Immutable collections via `fromJS()`. This was the only function in the library which calls `fromJS()` indirectly directly, and it was surprising and made it difficult to understand what the result of `merge()` would be. Now, the value provided to `merge()` is only shallowly converted to an Immutable collection, similar to related methods in the library. This may change the behavior of your calls to `merge()`.
+<!-- 4.0.0-rc.12 -->
 
-#### [Seq](https://immutable-js.com/docs/latest@main/Seq/)
+<!-- 4.0.0-rc.11 -->
+
+
+* **Potentially Breaking:** Improve hash speed and avoid collision for common values (#1629)
+  > Causes some hash values to change, which could impact the order of iteration of values in some Maps (which are already advertised as unordered, but highlighting just to be safe)
+* **Potentially Breaking:** [TypeScript] Remove `Iterable<T>` as tuple from Map constructor types (#1626)
+  > Typescript allowed constructing a Map with a list of List instances, assuming each was a key, value pair. While this runtime behavior still works, this type led to more issues than it solved so it has been removed. (Note, this may break previous v4 rcs, but is not a change against v3)
+
+<!-- 4.0.0-rc.10 -->
 * Remove IteratorSequence. Do not attempt to detect iterators in `Seq()`. (#1589)
   > Iterables can still be provided to `Seq()`, and *most* Iterators are also
   > Iterables, so this change should not affect the vast majority of uses.
   > For more information, see PR #1589
-
-* Remove `Seq.of()` (#1311, #1310)
-  > This method has been removed since it cannot be correctly typed. It's recommended to convert `Seq.of(1, 2, 3)` to `Seq([1, 2, 3])`.
-
-#### [isImmutable()](https://immutable-js.com/docs/latest@main/isImmutable()/)
-* `isImmutable()` now returns true for collections currently within a `withMutations()` call. (#1374)
-
-  > Previously, `isImmutable()` did double-duty of both determining if a value was a Collection or Record from this library as well as if it was outside a `withMutations()` call. This latter case caused confusion and was rarely used.
-
-#### [toArray()](https://immutable-js.com/docs/latest@main/Collection.Keyed#toArray())
-* KeyedCollection.toArray() returns array of tuples. (#1340)
-
-  > Previously, calling `toArray()` on a keyed collection (incl `Map` and `OrderedMap`) would discard keys and return an Array of values. This has always been confusing, and differs from `Array.from()`. Now, calling `toArray()` on a keyed collection will return an Array of `[key, value]` tuples, matching the behavior of `Array.from()`.
-
-#### [concat()](https://immutable-js.com/docs/latest@main/List/#concat())
-- `list.concat()` now has a slightly more efficient implementation and `map.concat()` is an alias for `map.merge()`. (#1373)
-
-  > In rare cases, this may affect use of `map.concat()` which expected slightly different behavior from `map.merge()`.
-
-
-#### [Collection](https://immutable-js.com/docs/latest@main/Collection/), formerly `Iterable`
-
-* The `Iterable` class has been renamed to `Collection`, and `isIterable()` has been renamed to `isCollection()`. Aliases with the existing names exist to make transitioning code easier.
-
-
-
-
-
-
-
-#### Others
-
-* **Potentially Breaking:** Improve hash speed and avoid collision for common values (#1629)
-  > Causes some hash values to change, which could impact the order of iteration of values in some Maps (which are already advertised as unordered, but highlighting just to be safe)
-
-
 * Node buffers no longer considered value-equal
   > This was actually broken as of v4.0.0-rc.1 (2dcf3ef94db9664c99a0a48fd071b95c0008e18f)
   > but was highlighted as a breaking change by (#1437)
 
+<!-- 4.0.0-rc.9 -->
+
+<!-- 4.0.0-rc.8 -->
+
+- `list.concat()` now has a slightly more efficient implementation and `map.concat()` is an alias for `map.merge()`. (#1373)
+
+  In rare cases, this may affect use of `map.concat()` which expected slightly different behavior from `map.merge()`.
+
+- `isImmutable()` now returns true for collections currently within a `withMutations()` call. (#1374)
+
+  Previously, `isImmutable()` did double-duty of both determining if a value was a Collection or Record from this library as well as if it was outside a `withMutations()` call. This latter case caused confusion and was rarely used.
+
 - Plain Objects and Arrays are no longer considered opaque values (#1369)
 
-  > This changes the behavior of a few common methods with respect to plain Objects and Arrays where these were previously considered opaque to `merge()` and `setIn()`, they now are treated as collections and can be merged into and updated (persistently). This offers an exciting alternative to small Lists and Records.
+  This changes the behavior of a few common methods with respect to plain Objects and Arrays where these were previously considered opaque to `merge()` and `setIn()`, they now are treated as collections and can be merged into and updated (persistently). This offers an exciting alternative to small Lists and Records.
 
+- No longer use value-equality within `merge()` (#1391)
+
+  This rectifies an inconsistent behavior between x.merge(y) and x.mergeDeep(y) where merge would use === on leaf values to determine return-self optimizations, while mergeDeep would use `is()`. This improves consistency across the library and avoids a possible performance pitfall.
+
+<!-- 4.0.0-rc.7 -->
+
+<!-- 4.0.0-rc.6 -->
+
+<!-- 4.0.0-rc.5 -->
+* Concat Lists when merging deeply (#1344)
+
+  Previously, calling `map.mergeDeep()` with a value containing a `List` would replace the values in the original List. This has always been confusing, and does not properly treat `List` as a monoid. Now, `List.merge` is simply an alias for `List.concat`, and `map.mergeDeep()` will concatenate lists instead of replacing them.
+
+* No longer deeply coerce argument to merge() (#1339)
+
+  Previously, the argument provided to `merge()` was deeply converted to Immutable collections via `fromJS()`. This was the only function in the library which calls `fromJS()` indirectly directly, and it was surprising and made it difficult to understand what the result of `merge()` would be. Now, the value provided to `merge()` is only shallowly converted to an Immutable collection, similar to related methods in the library. This may change the behavior of your calls to `merge()`.
+
+* KeyedCollection.toArray() returns array of tuples. (#1340)
+
+  Previously, calling `toArray()` on a keyed collection (incl `Map` and `OrderedMap`) would discard keys and return an Array of values. This has always been confusing, and differs from `Array.from()`. Now, calling `toArray()` on a keyed collection will return an Array of `[key, value]` tuples, matching the behavior of `Array.from()`.
+
+
+<!-- 4.0.0-rc.4 -->
+
+<!-- 4.0.0-rc.3 -->
+* Remove Seq.of() (#1311, #1310 )
+
+  This method has been removed since it cannot be correctly typed. It's recommended to convert `Seq.of(1, 2, 3)` to `Seq([1, 2, 3])`.
+
+
+<!-- 4.0.0-rc.2 -->
+
+<!-- 4.0.0-rc.1 -->
+* The `Iterable` class has been renamed to `Collection`, and `isIterable()` has been renamed to `isCollection()`. Aliases with the existing names exist to make transitioning code easier.
 
 * The "predicate" functions, `isCollection`, `isKeyed`, `isIndexed`, `isAssociative` have been moved from `Iterable.` to the top level exports.
-
 
 * Record is no longer an Immutable Collection type.
   * Now `isCollection(myRecord)` returns `false` instead of `true`.
   * The sequence API (such as `map`, `filter`, `forEach`) no longer exist on Records.
   * `delete()` and `clear()` no longer exist on Records.
 
-
 * The `toJSON()` method is now a shallow conversion (previously it was an alias for `toJS()`, which remains a deep conversion).
-
 
 * Some minor implementation details have changed, which may require updates to libraries which deeply integrate with Immutable.js's private APIs.
 
-
 * The Cursor API is officially deprecated. Use [immutable-cursor](https://github.com/redbadger/immutable-cursor) instead.
 
-
-* **Potentially Breaking:** [TypeScript] Remove `Iterable<T>` as tuple from Map constructor types (#1626)
-  > Typescript allowed constructing a Map with a list of List instances, assuming each was a key, value pair. While this runtime behavior still works, this type led to more issues than it solved so it has been removed. (Note, this may break previous v4 rcs, but is not a change against v3)
 
 
 ### New
@@ -292,13 +295,13 @@ This release contains new stuff, many fixes, updated Type Definitions and a new,
 * More specific TypeScript type definitions (#1149)
 * Added back `delete()` and `clear()` to Record instances (#1157)
 
-
+<span style="color:#AA0000">
 <!-- 4.0.0-rc.1 -->
-* <span style="color:#AA0000">RC.1</span>
+* RC.1
   * This is a **pre-release** version of Immutable.js. Please try it at your own risk and report any issues you encounter so an official release can be shipped with great confidence.
-  * As a pre-release, this changelog doesn't contain everything that has changed. Take a look at the [commit log](https://github.com/immutable-js/immutable-js/commits/main) for a complete view, and expect a more thorough changelog for the official release.
+  * As a pre-release, this changelog doesn't contain everything that has changed. Take a look at the [commit log](https://github.com/facebook/immutable-js/commits/master) for a complete view, and expect a more thorough changelog for the official release.
   * Numerous bug fixes have gone into this release.
-
+</span>
 
 ## [3.8.2] - 2017-10-05
 
