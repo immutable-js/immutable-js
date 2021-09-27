@@ -17,6 +17,8 @@ import {
 import { markdown, MarkdownContext } from './markdown';
 import { stripUndefineds } from './stripUndefineds';
 
+import { writeFileSync } from 'fs'
+
 const generatedTypeDefs = new Map<string, TypeDefs>();
 export function getTypeDefs(version: string) {
   let typeDefs = generatedTypeDefs.get(version);
@@ -27,7 +29,28 @@ export function getTypeDefs(version: string) {
     stripUndefineds(typeDefs);
     generatedTypeDefs.set(version, typeDefs);
   }
+
+  // HACK: sort and output to diff later
+  typeDefs.types = sortedObj(typeDefs.types)
+  for (const type of Object.values(typeDefs.types)) {
+    if (type.functions) {
+      type.functions = sortedObj(type.functions)
+    }
+    if (type.interface) {
+      type.interface.members = sortedObj(type.interface.members)
+    }
+  }
+  writeFileSync(`immutable-api-${version}.json`, JSON.stringify(typeDefs, null, 2))
+
   return typeDefs;
+}
+
+function sortedObj(obj:any) {
+  const sortedObj:any = {}
+  for (const key of Object.keys(obj).sort()) {
+    sortedObj[key] = obj[key]
+  }
+  return sortedObj
 }
 
 function addData(version: string, defs: TypeDefs) {
