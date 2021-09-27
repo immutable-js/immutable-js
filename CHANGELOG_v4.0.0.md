@@ -23,7 +23,7 @@ This is the last planned RC release before releasing a stable 4.0!! 🎉 🎉 �
 
 # 4.0.0-rc.14
 - Fixes some TypeScript issues (Map constructor, update function, mapEntries)
-- Fix add zipall to orderedset
+- Fix add zipAll to OrderedSet
 - Improve documentation
 
 # 4.0.0-rc.13
