@@ -23,13 +23,185 @@ This release brings new functionality and many fixes.
 * Better TypeScript and Flow type definitions
 * A brand-new documentation lives at [immutable-js.com](https://immutable-js.com/) and can show multiple versions
 * Behavior of `merge` and `mergeDeep` has changed
-* [Records](https://immutable-js.com/docs/latest@main/Record/) have been extended, offering methods similar to other collection types
+* `Iterable` is renamed to [Collection](https://immutable-js.com/docs/latest@main/Collection/)
+* [Records](https://immutable-js.com/docs/latest@main/Record/) no longer extend from Collections
 * All collection types now implement the [ES6 iterable protocol](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#the_iterable_protocol)
 * New methods:
   * [toJSON()](https://immutable-js.com/docs/latest@main/Collection/#toJSON())
   * [wasAltered()](https://immutable-js.com/docs/latest@main/Map/#wasAltered())
   * [Collection.Indexed.zipAll()](https://immutable-js.com/docs/latest@main/Collection.Indexed#zipAll())
   * [Map.deleteAll()](https://immutable-js.com/docs/latest@main/Map/#deleteAll())
+
+<details><summary>&nbsp;&nbsp; Diff of changed API (click to expand)</summary>
+
+```diff
++  Collection.[Symbol.iterator]
++  Collection.toJSON
++  Collection.update
++  Collection.Indexed.[Symbol.iterator]
++  Collection.Indexed.toJSON
++  Collection.Indexed.update
++  Collection.Indexed.zipAll
++  Collection.Keyed.[Symbol.iterator]
++  Collection.Keyed.toJSON
++  Collection.Keyed.update
++  Collection.Set.[Symbol.iterator]
++  Collection.Set.toJSON
++  Collection.Set.update
+
++  List.[Symbol.iterator]
++  List.toJSON
++  List.wasAltered
++  List.zipAll
+-  List.merge
+-  List.mergeDeep
+-  List.mergeDeepWith
+-  List.mergeWith
+
++  Map.[Symbol.iterator]
++  Map.deleteAll
++  Map.toJSON
++  Map.wasAltered
+
++  OrderedMap.[Symbol.iterator]
++  OrderedMap.deleteAll
++  OrderedMap.toJSON
++  OrderedMap.wasAltered
++  OrderedSet.[Symbol.iterator]
++  OrderedSet.toJSON
++  OrderedSet.update
++  OrderedSet.wasAltered
++  OrderedSet.zip
++  OrderedSet.zipAll
++  OrderedSet.zipWith
+
++ Record.[Symbol.iterator]
++ Record.asImmutable
++ Record.asMutable
++ Record.clear
++ Record.delete
++ Record.deleteIn
++ Record.merge
++ Record.mergeDeep
++ Record.mergeDeepIn
++ Record.mergeDeepWith
++ Record.mergeIn
++ Record.mergeWith
++ Record.set
++ Record.setIn
++ Record.toJSON
++ Record.update
++ Record.updateIn
++ Record.wasAltered
++ Record.withMutations
++ Record.Factory.displayName
+- Record.butLast
+- Record.concat
+- Record.count
+- Record.countBy
+- Record.entries
+- Record.entrySeq
+- Record.every
+- Record.filter
+- Record.filterNot
+- Record.find
+- Record.findEntry
+- Record.findKey
+- Record.findLast
+- Record.findLastEntry
+- Record.findLastKey
+- Record.first
+- Record.flatMap
+- Record.flatten
+- Record.flip
+- Record.forEach
+- Record.groupBy
+- Record.includes
+- Record.isEmpty
+- Record.isSubset
+- Record.isSuperset
+- Record.join
+- Record.keyOf
+- Record.keySeq
+- Record.keys
+- Record.last
+- Record.lastKeyOf
+- Record.map
+- Record.mapEntries
+- Record.mapKeys
+- Record.max
+- Record.maxBy
+- Record.min
+- Record.minBy
+- Record.reduce
+- Record.reduceRight
+- Record.rest
+- Record.reverse
+- Record.skip
+- Record.skipLast
+- Record.skipUntil
+- Record.skipWhile
+- Record.slice
+- Record.some
+- Record.sort
+- Record.sortBy
+- Record.take
+- Record.takeLast
+- Record.takeUntil
+- Record.takeWhile
+- Record.toArray
+- Record.toIndexedSeq
+- Record.toKeyedSeq
+- Record.toList
+- Record.toMap
+- Record.toOrderedMap
+- Record.toOrderedSet
+- Record.toSet
+- Record.toSetSeq
+- Record.toStack
+- Record.valueSeq
+- Record.values
+
++  Seq.[Symbol.iterator]
++  Seq.toJSON
++  Seq.update
++  Seq.Indexed.[Symbol.iterator]
++  Seq.Indexed.toJSON
++  Seq.Indexed.update
++  Seq.Indexed.zipAll
++  Seq.Keyed.[Symbol.iterator]
++  Seq.Keyed.toJSON
++  Seq.Keyed.update
++  Seq.Set.[Symbol.iterator]
++  Seq.Set.toJSON
++  Seq.Set.update
+
++  Set.[Symbol.iterator]
++  Set.toJSON
++  Set.update
++  Set.wasAltered
+
++  Stack.[Symbol.iterator]
++  Stack.toJSON
++  Stack.update
++  Stack.wasAltered
++  Stack.zipAll
+
++  ValueObject.equals
++  ValueObject.hashCode
+
+-  Collection.size
+-  Collection.Indexed.size
+-  Collection.Keyed.size
+-  Collection.Set.size
+
+-  Iterable.*
+-  Iterable.Indexed.*
+-  Iterable.Keyed.*
+-  Iterable.Set.*
+```
+
+</details>
 
 ### Note for users of v4.0.0-rc.12
 There were mostly bugfixes and improvements since RC 12. Upgrading should be painless for most users.
