@@ -16,6 +16,12 @@ Nothing yet
 
 This release brings new functionality and many fixes.
 
+1. [Key changes](#key-changes)
+1. [Breaking changes](#breaking)
+1. [New](#new)
+1. [Fixed](#fixed)
+
+
 ### Key changes
 
 * New members have joined the team
@@ -297,7 +303,7 @@ However, there is **one breaking change**: The behavior of `merge` and `mergeDee
 * The "predicate" functions, `isCollection`, `isKeyed`, `isIndexed`, `isAssociative` have been moved from `Iterable.` to the top level exports.
 
 
-* The `toJSON()` method offers is now a shallow conversion (previously it was an alias for `toJS()`, which remains a deep conversion).
+* The `toJSON()` method performs a shallow conversion (previously it was an alias for `toJS()`, which remains a deep conversion).
 
 
 * Some minor implementation details have changed, which may require updates to libraries which deeply integrate with Immutable.js's private APIs.
