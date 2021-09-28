@@ -48,6 +48,10 @@ This release brings new functionality and many fixes.
 +  Collection.Set.[Symbol.iterator]
 +  Collection.Set.toJSON
 +  Collection.Set.update
+-  Collection.size
+-  Collection.Indexed.size
+-  Collection.Keyed.size
+-  Collection.Set.size
 
 +  List.[Symbol.iterator]
 +  List.toJSON
@@ -75,92 +79,92 @@ This release brings new functionality and many fixes.
 +  OrderedSet.zipAll
 +  OrderedSet.zipWith
 
-+ Record.[Symbol.iterator]
-+ Record.asImmutable
-+ Record.asMutable
-+ Record.clear
-+ Record.delete
-+ Record.deleteIn
-+ Record.merge
-+ Record.mergeDeep
-+ Record.mergeDeepIn
-+ Record.mergeDeepWith
-+ Record.mergeIn
-+ Record.mergeWith
-+ Record.set
-+ Record.setIn
-+ Record.toJSON
-+ Record.update
-+ Record.updateIn
-+ Record.wasAltered
-+ Record.withMutations
-+ Record.Factory.displayName
-- Record.butLast
-- Record.concat
-- Record.count
-- Record.countBy
-- Record.entries
-- Record.entrySeq
-- Record.every
-- Record.filter
-- Record.filterNot
-- Record.find
-- Record.findEntry
-- Record.findKey
-- Record.findLast
-- Record.findLastEntry
-- Record.findLastKey
-- Record.first
-- Record.flatMap
-- Record.flatten
-- Record.flip
-- Record.forEach
-- Record.groupBy
-- Record.includes
-- Record.isEmpty
-- Record.isSubset
-- Record.isSuperset
-- Record.join
-- Record.keyOf
-- Record.keySeq
-- Record.keys
-- Record.last
-- Record.lastKeyOf
-- Record.map
-- Record.mapEntries
-- Record.mapKeys
-- Record.max
-- Record.maxBy
-- Record.min
-- Record.minBy
-- Record.reduce
-- Record.reduceRight
-- Record.rest
-- Record.reverse
-- Record.skip
-- Record.skipLast
-- Record.skipUntil
-- Record.skipWhile
-- Record.slice
-- Record.some
-- Record.sort
-- Record.sortBy
-- Record.take
-- Record.takeLast
-- Record.takeUntil
-- Record.takeWhile
-- Record.toArray
-- Record.toIndexedSeq
-- Record.toKeyedSeq
-- Record.toList
-- Record.toMap
-- Record.toOrderedMap
-- Record.toOrderedSet
-- Record.toSet
-- Record.toSetSeq
-- Record.toStack
-- Record.valueSeq
-- Record.values
++  Record.[Symbol.iterator]
++  Record.asImmutable
++  Record.asMutable
++  Record.clear
++  Record.delete
++  Record.deleteIn
++  Record.merge
++  Record.mergeDeep
++  Record.mergeDeepIn
++  Record.mergeDeepWith
++  Record.mergeIn
++  Record.mergeWith
++  Record.set
++  Record.setIn
++  Record.toJSON
++  Record.update
++  Record.updateIn
++  Record.wasAltered
++  Record.withMutations
++  Record.Factory.displayName
+-  Record.butLast
+-  Record.concat
+-  Record.count
+-  Record.countBy
+-  Record.entries
+-  Record.entrySeq
+-  Record.every
+-  Record.filter
+-  Record.filterNot
+-  Record.find
+-  Record.findEntry
+-  Record.findKey
+-  Record.findLast
+-  Record.findLastEntry
+-  Record.findLastKey
+-  Record.first
+-  Record.flatMap
+-  Record.flatten
+-  Record.flip
+-  Record.forEach
+-  Record.groupBy
+-  Record.includes
+-  Record.isEmpty
+-  Record.isSubset
+-  Record.isSuperset
+-  Record.join
+-  Record.keyOf
+-  Record.keySeq
+-  Record.keys
+-  Record.last
+-  Record.lastKeyOf
+-  Record.map
+-  Record.mapEntries
+-  Record.mapKeys
+-  Record.max
+-  Record.maxBy
+-  Record.min
+-  Record.minBy
+-  Record.reduce
+-  Record.reduceRight
+-  Record.rest
+-  Record.reverse
+-  Record.skip
+-  Record.skipLast
+-  Record.skipUntil
+-  Record.skipWhile
+-  Record.slice
+-  Record.some
+-  Record.sort
+-  Record.sortBy
+-  Record.take
+-  Record.takeLast
+-  Record.takeUntil
+-  Record.takeWhile
+-  Record.toArray
+-  Record.toIndexedSeq
+-  Record.toKeyedSeq
+-  Record.toList
+-  Record.toMap
+-  Record.toOrderedMap
+-  Record.toOrderedSet
+-  Record.toSet
+-  Record.toSetSeq
+-  Record.toStack
+-  Record.valueSeq
+-  Record.values
 
 +  Seq.[Symbol.iterator]
 +  Seq.toJSON
@@ -190,11 +194,6 @@ This release brings new functionality and many fixes.
 +  ValueObject.equals
 +  ValueObject.hashCode
 
--  Collection.size
--  Collection.Indexed.size
--  Collection.Keyed.size
--  Collection.Set.size
-
 -  Iterable.*
 -  Iterable.Indexed.*
 -  Iterable.Keyed.*
@@ -218,20 +217,20 @@ However, there is **one breaking change**: The behavior of `merge` and `mergeDee
 
 * No longer deeply coerce argument to merge() ([#1339](https://github.com/immutable-js/immutable-js/pull/1339))
   > Previously, the argument provided to `merge()` was deeply converted to Immutable collections via `fromJS()`.
-  > This was the only function in the library which calls `fromJS()` indirectly directly,
+  > This was the only function in the library which calls `fromJS()` indirectly,
   > and it was surprising and made it difficult to understand what the result of `merge()` would be.
   > Now, the value provided to `merge()` is only shallowly converted to an Immutable collection, similar to
   > related methods in the library. This may change the behavior of your calls to `merge()`.
 
 #### [mergeDeep()](https://immutable-js.com/docs/latest@main/mergeDeep()/)
 * Replace incompatible collections when merging nested data ([#1840](https://github.com/immutable-js/immutable-js/pull/1840))
-  > It will no longer merge lists of tuples into maps. For more information see 
+  > It will no longer merge lists of tuples into maps. For more information see
   > [#1840](https://github.com/immutable-js/immutable-js/pull/1840) and the updated `mergeDeep()` documentation.
 
 * Concat Lists when merging deeply ([#1344](https://github.com/immutable-js/immutable-js/pull/1344))
-  > Previously, calling `map.mergeDeep()` with a value containing a `List` would replace the values in the 
-  > original List. This has always been confusing, and does not properly treat `List` as a monoid. 
-  > Now, `List.merge` is simply an alias for `List.concat`, and `map.mergeDeep()` will concatenate lists 
+  > Previously, calling `map.mergeDeep()` with a value containing a `List` would replace the values in the
+  > original List. This has always been confusing, and does not properly treat `List` as a monoid.
+  > Now, `List.merge` is simply an alias for `List.concat`, and `map.mergeDeep()` will concatenate deeply-found lists
   > instead of replacing them.
 
 #### [Seq](https://immutable-js.com/docs/latest@main/Seq/)
@@ -241,22 +240,22 @@ However, there is **one breaking change**: The behavior of `merge` and `mergeDee
   > For more information, see PR #1589
 
 * Remove `Seq.of()` (#1311, #1310)
-  > This method has been removed since it cannot be correctly typed. It's recommended to convert 
+  > This method has been removed since it cannot be correctly typed. It's recommended to convert
   > `Seq.of(1, 2, 3)` to `Seq([1, 2, 3])`.
 
 #### [isImmutable()](https://immutable-js.com/docs/latest@main/isImmutable()/)
 * `isImmutable()` now returns true for collections currently within a `withMutations()` call. ([#1374](https://github.com/immutable-js/immutable-js/pull/1374))
 
-  > Previously, `isImmutable()` did double-duty of both determining if a value was a Collection or Record 
-  > from this library as well as if it was outside a `withMutations()` call. 
+  > Previously, `isImmutable()` did double-duty of both determining if a value was a Collection or Record
+  > from this library as well as if it was outside a `withMutations()` call.
   > This latter case caused confusion and was rarely used.
 
 #### [toArray()](https://immutable-js.com/docs/latest@main/Collection.Keyed#toArray())
 * KeyedCollection.toArray() returns array of tuples. ([#1340](https://github.com/immutable-js/immutable-js/pull/1340))
 
-  > Previously, calling `toArray()` on a keyed collection (incl `Map` and `OrderedMap`) would 
-  > discard keys and return an Array of values. This has always been confusing, and differs from `Array.from()`. 
-  > Now, calling `toArray()` on a keyed collection will return an Array of `[key, value]` tuples, matching 
+  > Previously, calling `toArray()` on a keyed collection (incl `Map` and `OrderedMap`) would
+  > discard keys and return an Array of values. This has always been confusing, and differs from `Array.from()`.
+  > Now, calling `toArray()` on a keyed collection will return an Array of `[key, value]` tuples, matching
   > the behavior of `Array.from()`.
 
 #### [concat()](https://immutable-js.com/docs/latest@main/List/#concat())
@@ -267,7 +266,7 @@ However, there is **one breaking change**: The behavior of `merge` and `mergeDee
 
 #### [Collection](https://immutable-js.com/docs/latest@main/Collection/), formerly `Iterable`
 
-* The `Iterable` class has been renamed to `Collection`, and `isIterable()` has been renamed to `isCollection()`. 
+* The `Iterable` class has been renamed to `Collection`, and `isIterable()` has been renamed to `isCollection()`.
   Aliases with the existing names exist to make transitioning code easier.
 
 
@@ -282,7 +281,7 @@ However, there is **one breaking change**: The behavior of `merge` and `mergeDee
 #### Other breaking changes
 
 * **Potentially Breaking:** Improve hash speed and avoid collision for common values ([#1629](https://github.com/immutable-js/immutable-js/pull/1629))
-  > Causes some hash values to change, which could impact the order of iteration of values in some Maps 
+  > Causes some hash values to change, which could impact the order of iteration of values in some Maps
   > (which are already advertised as unordered, but highlighting just to be safe)
 
 
@@ -291,7 +290,7 @@ However, there is **one breaking change**: The behavior of `merge` and `mergeDee
 
 * Plain Objects and Arrays are no longer considered opaque values ([#1369](https://github.com/immutable-js/immutable-js/pull/1369))
   > This changes the behavior of a few common methods with respect to plain Objects and Arrays where these were
-  > previously considered opaque to `merge()` and `setIn()`, they now are treated as collections and can be merged 
+  > previously considered opaque to `merge()` and `setIn()`, they now are treated as collections and can be merged
   > into and updated (persistently). This offers an exciting alternative to small Lists and Records.
 
 
@@ -308,8 +307,8 @@ However, there is **one breaking change**: The behavior of `merge` and `mergeDee
 
 
 * **Potentially Breaking:** [TypeScript] Remove `Iterable<T>` as tuple from Map constructor types ([#1626](https://github.com/immutable-js/immutable-js/pull/1626))
-  > Typescript allowed constructing a Map with a list of List instances, assuming each was a key, value pair. 
-  > While this runtime behavior still works, this type led to more issues than it solved, so it has been removed. 
+  > Typescript allowed constructing a Map with a list of List instances, assuming each was a key, value pair.
+  > While this runtime behavior still works, this type led to more issues than it solved, so it has been removed.
   > (Note, this may break previous v4 rcs, but is not a change against v3)
 
 
@@ -352,7 +351,7 @@ However, there is **one breaking change**: The behavior of `merge` and `mergeDee
   > Cursory test is >10% faster than both v3.8.2 and v4.0.0-rc.7,
   > and corrects the regression since v4.0.0-rc.9.
 
-  
+
 * Added optional `notSetValue` in `first()` and `last()` ([#1556](https://github.com/immutable-js/immutable-js/pull/1556))
 
 
@@ -384,7 +383,7 @@ However, there is **one breaking change**: The behavior of `merge` and `mergeDee
 
 
 * A new predicate function `isValueObject()` helps to detect objects which implement `equals()` and `hashCode()`,
-  and type definitions now define the interface `ValueObject` which you can implement in your own code to create objects which 
+  and type definitions now define the interface `ValueObject` which you can implement in your own code to create objects which
   behave as values and can be keys in Maps or entries in Sets.
 
 
@@ -421,7 +420,7 @@ However, there is **one breaking change**: The behavior of `merge` and `mergeDee
 
 
 * Remove deprecated cursor API ([#13](https://github.com/immutable-js-oss/immutable-js/issues/13))
- 
+
 
 * Add missing es exports ([#1740](https://github.com/immutable-js/immutable-js/pull/1740))
 
