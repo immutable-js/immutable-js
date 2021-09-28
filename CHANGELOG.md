@@ -314,11 +314,18 @@ However, there is **one breaking change**: The behavior of `merge` and `mergeDee
 
 ### New
 
+* Update TypeScript and Flow definitions:
+  * The Flowtype and TypeScript type definitions have been completely rewritten with much higher quality and accuracy,
+    taking advantage of the latest features from both tools.
+  * Simplified TypeScript definition files to support all UMD use cases ([#1854](https://github.com/immutable-js/immutable-js/pull/1854))
+  * Support Typescript 3 ([#1593](https://github.com/immutable-js/immutable-js/pull/1593))
+  * Support Typescript strictNullChecks ([#1168](https://github.com/immutable-js/immutable-js/pull/1168))
+  * Flow types to be compatible with the latest version 0.160.0
+  * Enable flow strict ([#1580](https://github.com/immutable-js/immutable-js/pull/1580))
+
+
 <!-- 4.0.0-rc.15 -->
 * Add "sideEffects: false" to package.json ([#1661](https://github.com/immutable-js/immutable-js/pull/1661))
-
-
-* Update Flow types to be compatible with the latest version ([#1863](https://github.com/immutable-js/immutable-js/pull/1863))
 
 
 * Use ES standard for iterator method reuse ([#1867](https://github.com/immutable-js/immutable-js/pull/1867))
@@ -326,25 +333,10 @@ However, there is **one breaking change**: The behavior of `merge` and `mergeDee
 
 * Generalize `fromJS()` and `Seq()` to support Sets ([#1865](https://github.com/immutable-js/immutable-js/pull/1865))
 
+
 * Top level predicate functions ([#1600](https://github.com/immutable-js/immutable-js/pull/1600))
   > New functions are exported from the `immutable` module:
   > `isSeq()`, `isList()`, `isMap()`, `isOrderedMap()`, `isStack()`, `isSet()`, `isOrderedSet()`, and `isRecord()`.
-
-
-* Support Typescript 3 ([#1593](https://github.com/immutable-js/immutable-js/pull/1593))
-
-
-* Support latest Flow ([#1531](https://github.com/immutable-js/immutable-js/pull/1531))
-
-
-* Enable flow strict ([#1580](https://github.com/immutable-js/immutable-js/pull/1580))
-
-
-* The Flowtype and TypeScript type definitions have been completely rewritten with much higher quality and accuracy,
-  taking advantage of the latest features from both tools.
-
-
-* Simplified TypeScript definition files to support all UMD use cases ([#1854](https://github.com/immutable-js/immutable-js/pull/1854))
 
 
 * Improve performance of toJS ([#1581](https://github.com/immutable-js/immutable-js/pull/1581))
@@ -448,9 +440,6 @@ However, there is **one breaking change**: The behavior of `merge` and `mergeDee
 * Update `isPlainObj()` to workaround Safari bug and allow cross-realm values ([#1557](https://github.com/immutable-js/immutable-js/pull/1557))
 
 
-* The `mergeDeepWith` merger is untypable in TS/Flow. ([#1532](https://github.com/immutable-js/immutable-js/pull/1532))
-
-
 * Fix missing "& T" to some methods in RecordInstance ([#1464](https://github.com/immutable-js/immutable-js/pull/1464))
 
 
@@ -470,9 +459,6 @@ However, there is **one breaking change**: The behavior of `merge` and `mergeDee
 <!-- 4.0.0-rc.8 -->
 * `getIn()` no longer throws when encountering a missing path ([#1361](https://github.com/immutable-js/immutable-js/pull/1361))
 
-
-<!-- 4.0.0-rc.7 -->
-* Fixed syntax error in typescript definitions which limited some checking ([#1354](https://github.com/immutable-js/immutable-js/pull/1354))
 
 <!-- 4.0.0-rc.6 -->
 
