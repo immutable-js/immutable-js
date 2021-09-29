@@ -17,6 +17,7 @@ Nothing yet
 This release brings new functionality and many fixes.
 
 1. [Key changes](#key-changes)
+1. [Note for users of v4.0.0-rc.12](#note-for-users-of-v400-rc12)
 1. [Breaking changes](#breaking)
 1. [New](#new)
 1. [Fixed](#fixed)
@@ -63,7 +64,6 @@ This release brings new functionality and many fixes.
 +  List.toJSON
 +  List.wasAltered
 +  List.zipAll
--  List.merge
 -  List.mergeDeep
 -  List.mergeDeepWith
 -  List.mergeWith
