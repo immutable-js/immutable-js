@@ -1,5 +1,3 @@
-// TypeScript Version: 4.1
-
 /**
  * Immutable data encourages pure functions (data-in, data-out) and lends itself
  * to much simpler application development and enabling techniques from
