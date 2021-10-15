@@ -766,6 +766,11 @@ declare namespace Immutable {
   function Map<V>(obj: { [key: string]: V }): Map<string, V>;
   function Map<K extends string, V>(obj: { [P in K]?: V }): Map<K, V>;
 
+  /**
+   * Represent a Map constructed by an object
+   *
+   * @ignore
+   */
   interface ObjectLikeMap<R extends { [key in string | number]: unknown }>
     extends Map<keyof R, R[keyof R]> {
     /**
@@ -794,18 +799,23 @@ declare namespace Immutable {
   // Loosely based off of this work.
   // https://github.com/immutable-js/immutable-js/issues/1462#issuecomment-584123268
 
+  /** @ignore */
   type GetMapType<S> = S extends ObjectLikeMap<infer T> ? T : S;
 
+  /** @ignore */
   type Head<T extends ReadonlyArray<any>> = T extends [
     infer H,
     ...Array<unknown>
   ]
     ? H
     : never;
+
+  /** @ignore */
   type Tail<T extends ReadonlyArray<any>> = T extends [unknown, ...infer I]
     ? I
     : Array<never>;
 
+  /** @ignore */
   type RetrievePathReducer<
     T,
     C,
@@ -816,6 +826,7 @@ declare namespace Immutable {
       : RetrievePathReducer<GetMapType<T>[C], Head<L>, Tail<L>>
     : never;
 
+  /** @ignore */
   type RetrievePath<R, P extends ReadonlyArray<string | number>> = P extends []
     ? P
     : RetrievePathReducer<R, Head<P>, Tail<P>>;

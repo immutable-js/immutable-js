@@ -709,6 +709,9 @@ function typesVisitor(source: ts.SourceFile) {
           ],
         };
       }
+      case ts.SyntaxKind.RestType: {
+        return { k: TypeKind.Never };
+      }
     }
     throw new Error('Unknown type kind: ' + ts.SyntaxKind[node.kind]);
   }
