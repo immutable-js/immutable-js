@@ -229,7 +229,13 @@ describe('slice', () => {
 
   check.it(
     'works like Array.prototype.slice',
-    [gen.int, gen.array(gen.oneOf([gen.int, gen.undefined]), 0, 3)],
+    [
+      gen.int,
+      gen.array(gen.oneOf([gen.int, gen.undefined]), {
+        minSize: 0,
+        maxSize: 3,
+      }),
+    ],
     (valuesLen, args) => {
       const a = Range(0, valuesLen).toArray();
       const v = List(a);
@@ -243,7 +249,10 @@ describe('slice', () => {
     'works like Array.prototype.slice on sparse array input',
     [
       gen.array(gen.array([gen.posInt, gen.int])),
-      gen.array(gen.oneOf([gen.int, gen.undefined]), 0, 3),
+      gen.array(gen.oneOf([gen.int, gen.undefined]), {
+        minSize: 0,
+        maxSize: 3,
+      }),
     ],
     (entries, args) => {
       const a: Array<any> = [];

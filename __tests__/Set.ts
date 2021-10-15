@@ -17,6 +17,16 @@ describe('Set', () => {
     expect(s.has(2)).toBe(false);
   });
 
+  it('accepts a JS (global) Set', () => {
+    const s = Set(new global.Set([1, 2, 3]));
+    expect(Set.isSet(s)).toBe(true);
+    expect(s.size).toBe(3);
+    expect(s.has(1)).toBe(true);
+    expect(s.has(2)).toBe(true);
+    expect(s.has(3)).toBe(true);
+    expect(s.has(4)).toBe(false);
+  });
+
   it('accepts string, an array-like collection', () => {
     const s = Set('abc');
     expect(s.size).toBe(3);
@@ -130,6 +140,12 @@ describe('Set', () => {
       [2, 2, s],
       [3, 3, s],
     ]);
+  });
+
+  it('has the same iterator function for keys and values', () => {
+    const s = Set([1, 2, 3]);
+    expect(s[Symbol.iterator]).toBe(s.keys);
+    expect(s[Symbol.iterator]).toBe(s.values);
   });
 
   it('unions two sets', () => {

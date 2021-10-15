@@ -12,6 +12,21 @@ describe('Map', () => {
     expect(m.get('c')).toBe('C');
   });
 
+  it('converts from JS (global) Map', () => {
+    const m = Map(
+      new global.Map([
+        ['a', 'A'],
+        ['b', 'B'],
+        ['c', 'C'],
+      ])
+    );
+    expect(Map.isMap(m)).toBe(true);
+    expect(m.size).toBe(3);
+    expect(m.get('a')).toBe('A');
+    expect(m.get('b')).toBe('B');
+    expect(m.get('c')).toBe('C');
+  });
+
   it('constructor provides initial values', () => {
     const m = Map({ a: 'A', b: 'B', c: 'C' });
     expect(m.size).toBe(3);
@@ -45,8 +60,11 @@ describe('Map', () => {
     const l = List([List(['a', 'A']), List(['b', 'B']), List(['c', 'C'])]);
     const m = Map(l);
     expect(m.size).toBe(3);
+    // @ts-expect-error -- Not supported by typescript since 4.0.0 https://github.com/immutable-js/immutable-js/pull/1626
     expect(m.get('a')).toBe('A');
+    // @ts-expect-error -- Not supported by typescript since 4.0.0 https://github.com/immutable-js/immutable-js/pull/1626
     expect(m.get('b')).toBe('B');
+    // @ts-expect-error -- Not supported by typescript since 4.0.0 https://github.com/immutable-js/immutable-js/pull/1626
     expect(m.get('c')).toBe('C');
   });
 
@@ -115,6 +133,11 @@ describe('Map', () => {
       ['B', 'b', m],
       ['C', 'c', m],
     ]);
+  });
+
+  it('has the same iterator function for entries', () => {
+    const m = Map({ a: 'A', b: 'B', c: 'C' });
+    expect(m[Symbol.iterator]).toBe(m.entries);
   });
 
   it('merges two maps', () => {

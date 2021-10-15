@@ -3,13 +3,13 @@ import { Fragment, useReducer } from 'react';
 import { InterfaceDef, CallSigDef } from './Defs';
 import { SideBar, SidebarLinks } from './Sidebar';
 import { MemberDoc } from './MemberDoc';
-import { isMobile } from './isMobile';
 import { MarkdownContent } from './MarkdownContent';
 import { collectMemberGroups } from './collectMemberGroups';
 import type { TypeDefinition, MemberDefinition } from './TypeDefs';
+import { DocSearch } from './DocSearch';
 
 const typeDefURL =
-  'https://github.com/immutable-js/immutable-js/blob/main/type-definitions/Immutable.d.ts';
+  'https://github.com/immutable-js/immutable-js/blob/main/type-definitions/immutable.d.ts';
 const issuesURL = 'https://github.com/immutable-js/immutable-js/issues';
 
 function Disclaimer() {
@@ -17,7 +17,7 @@ function Disclaimer() {
     <section className="disclaimer">
       This documentation is generated from{' '}
       <a href={typeDefURL} target="_blank" rel="noopener">
-        Immutable.d.ts
+        immutable.d.ts
       </a>
       . Pull requests and{' '}
       <a href={issuesURL} target="_blank" rel="noopener">
@@ -43,18 +43,19 @@ export function TypeDocumentation({
   const [showInGroups, toggleShowInGroups] = useReducer(toggle, true);
 
   return (
-    <div>
-      {isMobile || (
-        <SideBar
-          links={sidebarLinks}
-          focus={def}
-          toggleShowInherited={toggleShowInherited}
-          toggleShowInGroups={toggleShowInGroups}
-          showInGroups={showInGroups}
-          showInherited={showInherited}
-        />
-      )}
+    <>
+      <SideBar
+        links={sidebarLinks}
+        focus={def}
+        toggleShowInherited={toggleShowInherited}
+        toggleShowInGroups={toggleShowInGroups}
+        showInGroups={showInGroups}
+        showInherited={showInherited}
+      />
+
       <div key={def.qualifiedName} className="docContents">
+        <DocSearch />
+
         {!def.interface && !def.functions && def.call ? (
           <FunctionDoc def={def.call} />
         ) : (
@@ -65,7 +66,7 @@ export function TypeDocumentation({
           />
         )}
       </div>
-    </div>
+    </>
   );
 }
 

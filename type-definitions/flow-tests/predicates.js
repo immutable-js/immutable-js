@@ -3,7 +3,7 @@ import { List } from 'immutable';
 
 declare var mystery: mixed;
 
-// $ExpectError
+// $FlowExpectedError[cannot-resolve-name]
 maybe.push('3');
 
 if (mystery instanceof List) {

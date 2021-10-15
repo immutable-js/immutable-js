@@ -25,11 +25,14 @@
 // some constructors and functions.
 type PlainObjInput<K, V> = { +[key: K]: V, __proto__: null };
 
+type K<T> = $Keys<T>;
+
 // Helper types to extract the "keys" and "values" use by the *In() methods.
 type $KeyOf<C> = $Call<
   (<K>(?_Collection<K, mixed>) => K) &
     (<T>(?$ReadOnlyArray<T>) => number) &
-    (<T>(?RecordInstance<T> | T) => $Keys<T>),
+    (<T>(?RecordInstance<T> | T) => $Keys<T>) &
+    (<T: Object>(T) => $Keys<T>),
   C
 >;
 
@@ -37,7 +40,7 @@ type $ValOf<C, K = $KeyOf<C>> = $Call<
   (<V>(?_Collection<any, V>) => V) &
     (<T>(?$ReadOnlyArray<T>) => T) &
     (<T, K: $Keys<T>>(?RecordInstance<T> | T, K) => $ElementType<T, K>) &
-    (<V>(?{ [any]: V }) => V),
+    (<T: Object>(T) => $Values<T>),
   C,
   K
 >;

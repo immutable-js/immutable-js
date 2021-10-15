@@ -2,6 +2,27 @@
 
 [![Build Status](https://github.com/immutable-js/immutable-js/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/immutable-js/immutable-js/actions/workflows/ci.yml?query=branch%3Amain) [Chat on slack](https://immutable-js.slack.com)
 
+[Read the docs](https://immutable-js.com) and eat your vegetables.
+
+Docs are automatically generated from [README.md][] and [immutable.d.ts][].
+Please contribute! Also, don't miss the [wiki][] which contains articles on
+additional specific topics. Can't find something? Open an [issue][].
+
+**Table of contents:**
+
+- [Introduction](#introduction)
+- [Getting started](#getting-started)
+- [The case for Immutability](#the-case-for-immutability)
+- [JavaScript-first API](#javaScript-first-api)
+- [Nested Structures](#nested-structures)
+- [Equality treats Collections as Values](#equality-treats-collections-as-values)
+- [Batching Mutations](#batching-mutations)
+- [Lazy Seq](#lazy-seq)
+- [Additional Tools and Resources](#additional-tools-and-resources)
+- [Contributing](#contributing)
+
+## Introduction
+
 [Immutable][] data cannot be changed once created, leading to much simpler
 application development, no defensive copying, and enabling advanced memoization
 and change detection techniques with simple logic. [Persistent][] data presents
@@ -23,6 +44,10 @@ Want to hear more? Watch the presentation about Immutable.js:
 
 [![Immutable Data and React](website/public/Immutable-Data-and-React-YouTube.png)](https://youtu.be/I7IdS-PbEgI)
 
+[README.md]: https://github.com/immutable-js/immutable-js/blob/main/README.md
+[immutable.d.ts]: https://github.com/immutable-js/immutable-js/blob/main/type-definitions/immutable.d.ts
+[wiki]: https://github.com/immutable-js/immutable-js/wiki
+[issue]: https://github.com/immutable-js/immutable-js/issues
 [Persistent]: https://en.wikipedia.org/wiki/Persistent_data_structure
 [Immutable]: https://en.wikipedia.org/wiki/Immutable_object
 [hash maps tries]: https://en.wikipedia.org/wiki/Hash_array_mapped_trie
@@ -123,7 +148,7 @@ via relative path to the type definitions at the top of your file.
 
 ```js
 ///<reference path='./node_modules/immutable/dist/immutable.d.ts'/>
-import Immutable from require('immutable');
+import Immutable from 'immutable';
 var map1: Immutable.Map<string, number>;
 map1 = Immutable.Map({ a: 1, b: 2, c: 3 });
 var map2 = map1.set('b', 50);
@@ -612,25 +637,62 @@ Range(1, Infinity)
 // 1006008
 ```
 
-## Documentation
+## Additional Tools and Resources
 
-## Documentation
+- [Atom-store](https://github.com/jameshopkins/atom-store/)
+  - A Clojure-inspired atom implementation in Javascript with configurability
+    for external persistance.
 
-[Read the docs](https://immutable-js.com) and eat your vegetables.
+- [Chai Immutable](https://github.com/astorije/chai-immutable)
+  - If you are using the [Chai Assertion Library](https://chaijs.com/), this
+    provides a set of assertions to use against Immutable.js collections.
 
-Docs are automatically generated from [Immutable.d.ts](https://github.com/immutable-js/immutable-js/blob/main/type-definitions/Immutable.d.ts).
-Please contribute!
+- [Fantasy-land](https://github.com/fantasyland/fantasy-land)
+  - Specification for interoperability of common algebraic structures in JavaScript.
 
-Also, don't miss the [Wiki](https://github.com/immutable-js/immutable-js/wiki) which
-contains articles on specific topics. Can't find something? Open an [issue](https://github.com/immutable-js/immutable-js/issues).
+- [Immutagen](https://github.com/pelotom/immutagen)
+  - A library for simulating immutable generators in JavaScript.
 
-## Testing
+- [Immutable-cursor](https://github.com/redbadger/immutable-cursor)
+  - Immutable cursors incorporating the Immutable.js interface over
+  Clojure-inspired atom.
 
-If you are using the [Chai Assertion Library](https://chaijs.com/), [Chai Immutable](https://github.com/astorije/chai-immutable) provides a set of assertions to use against Immutable.js collections.
+- [Immutable-ext](https://github.com/DrBoolean/immutable-ext)
+  - Fantasyland extensions for immutablejs
 
-## Contribution
+- [Immutable-js-tools](https://github.com/madeinfree/immutable-js-tools)
+  - Util tools for immutable.js
 
-## Contribution
+- [Immutable-Redux](https://github.com/gajus/redux-immutable)
+  - redux-immutable is used to create an equivalent function of Redux
+  combineReducers that works with Immutable.js state.
+
+- [Immutable-Treeutils](https://github.com/lukasbuenger/immutable-treeutils)
+  - Functional tree traversal helpers for ImmutableJS data structures.
+
+- [Irecord](https://github.com/ericelliott/irecord)
+  - An immutable store that exposes an RxJS observable. Great for React.
+
+- [Mudash](https://github.com/brianneisler/mudash)
+  - Lodash wrapper providing Immutable.JS support.
+
+- [React-Immutable-PropTypes](https://github.com/HurricaneJames/react-immutable-proptypes)
+  - PropType validators that work with Immutable.js.
+
+- [Redux-Immutablejs](https://github.com/indexiatech/redux-immutablejs)
+  - Redux Immutable facilities.
+
+- [Rxstate](https://github.com/yamalight/rxstate)
+  - Simple opinionated state management library based on RxJS and Immutable.js.
+
+- [Transit-Immutable-js](https://github.com/glenjamin/transit-immutable-js)
+  - Transit serialisation for Immutable.js.
+  - See also: [Transit-js](https://github.com/cognitect/transit-js)
+
+Have an additional tool designed to work with Immutable.js?
+Submit a PR to add it to this list in alphabetical order.
+
+## Contributing
 
 Use [Github issues](https://github.com/immutable-js/immutable-js/issues) for requests.
 
@@ -638,20 +700,18 @@ We actively welcome pull requests, learn how to [contribute](https://github.com/
 
 Immutable.js is maintained within the [Contributor Covenant's Code of Conduct](https://www.contributor-covenant.org/version/2/0/code_of_conduct/).
 
-We actively welcome pull requests, learn how to [contribute](https://github.com/immutable-js/immutable-js/blob/main/.github/CONTRIBUTING.md).
-
-## Changelog
+### Changelog
 
 Changes are tracked as [Github releases](https://github.com/immutable-js/immutable-js/releases).
 
-## Thanks
+### License
+
+Immutable.js is [MIT-licensed](./LICENSE).
+
+### Thanks
 
 [Phil Bagwell](https://www.youtube.com/watch?v=K2NYwP90bNs), for his inspiration
 and research in persistent data structures.
 
 [Hugh Jackson](https://github.com/hughfdjackson/), for providing the npm package
 name. If you're looking for his unsupported package, see [this repository](https://github.com/hughfdjackson/immutable).
-
-## License
-
-Immutable.js is [MIT-licensed](./LICENSE).
