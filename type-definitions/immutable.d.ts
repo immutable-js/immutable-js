@@ -782,7 +782,7 @@ declare namespace Immutable {
     get<NSV>(key: string, notSetValue: NSV): NSV;
 
     // https://github.com/microsoft/TypeScript/pull/39094
-    getIn<P extends readonly (string | number)[]>(
+    getIn<P extends ReadonlyArray<string | number>>(
       searchKeyPath: [...P],
       notSetValue?: unknown
     ): RetrievePath<R, P>;
@@ -798,24 +798,27 @@ declare namespace Immutable {
 
   type GetMapType<S> = S extends ObjectLikeMap<infer T> ? T : S;
 
-  type Head<T extends readonly any[]> = T extends [infer H, ...unknown[]]
+  type Head<T extends ReadonlyArray<any>> = T extends [
+    infer H,
+    ...Array<unknown>
+  ]
     ? H
     : never;
-  type Tail<T extends readonly any[]> = T extends [unknown, ...infer I]
+  type Tail<T extends ReadonlyArray<any>> = T extends [unknown, ...infer I]
     ? I
-    : never[];
+    : Array<never>;
 
   type RetrievePathReducer<
     T,
     C,
-    L extends readonly any[]
+    L extends ReadonlyArray<any>
   > = C extends keyof GetMapType<T>
     ? L extends []
       ? GetMapType<T>[C]
       : RetrievePathReducer<GetMapType<T>[C], Head<L>, Tail<L>>
     : never;
 
-  type RetrievePath<R, P extends readonly (string | number)[]> = P extends []
+  type RetrievePath<R, P extends ReadonlyArray<string | number>> = P extends []
     ? P
     : RetrievePathReducer<R, Head<P>, Tail<P>>;
 
