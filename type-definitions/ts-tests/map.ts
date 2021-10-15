@@ -116,8 +116,14 @@ import { Map, List } from 'immutable';
   // $ExpectType Map<number, string | number>
   Map<number, number | string>().set(0, 'a');
 
-  // // $ExpectType ObjectLikeMap<{ a: string; }>
-  // Map({ a: 1 }).set('b', 'b');
+  // $ExpectType ObjectLikeMap<{ a: number; }> & ObjectLikeMap<{ b: string; }>
+  Map({ a: 1 }).set('b', 'b');
+
+  // $ExpectType number
+  Map({ a: 1 }).set('b', 'b').get('a');
+
+  // $ExpectType string
+  Map({ a: 1 }).set('b', 'b').get('b');
 }
 
 {
