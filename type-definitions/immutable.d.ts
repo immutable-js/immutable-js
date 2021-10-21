@@ -762,7 +762,7 @@ declare namespace Immutable {
   function Map<K, V>(collection?: Iterable<[K, V]>): Map<K, V>;
   function Map<R extends { [key in string | number]: unknown }>(
     obj: R
-  ): ObjectLikeMap<R>;
+  ): MapFromObject<R>;
   function Map<V>(obj: { [key: string]: V }): Map<string, V>;
   function Map<K extends string, V>(obj: { [P in K]?: V }): Map<K, V>;
 
@@ -771,7 +771,7 @@ declare namespace Immutable {
    *
    * @ignore
    */
-  interface ObjectLikeMap<R extends { [key in string | number]: unknown }>
+  interface MapFromObject<R extends { [key in string | number]: unknown }>
     extends Map<keyof R, R[keyof R]> {
     /**
      * Returns the value associated with the provided key, or notSetValue if
@@ -793,14 +793,14 @@ declare namespace Immutable {
     set<K extends string | number, V>(
       key: K,
       value: V
-    ): this & ObjectLikeMap<{ [key in K]: V }>;
+    ): this & MapFromObject<{ [key in K]: V }>;
   }
 
   // Loosely based off of this work.
   // https://github.com/immutable-js/immutable-js/issues/1462#issuecomment-584123268
 
   /** @ignore */
-  type GetMapType<S> = S extends ObjectLikeMap<infer T> ? T : S;
+  type GetMapType<S> = S extends MapFromObject<infer T> ? T : S;
 
   /** @ignore */
   type Head<T extends ReadonlyArray<any>> = T extends [

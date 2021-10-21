@@ -18,13 +18,13 @@ import { Map, List } from 'immutable';
   // $ExpectType Map<number, string>
   Map(List<[number, string]>([[1, 'a']]));
 
-  // $ExpectType ObjectLikeMap<{ a: number; }>
+  // $ExpectType MapFromObject<{ a: number; }>
   Map({ a: 1 });
 
-  // $ExpectType ObjectLikeMap<{ a: number; b: string; }>
+  // $ExpectType MapFromObject<{ a: number; b: string; }>
   Map({ a: 1, b: 'b' });
 
-  // $ExpectType ObjectLikeMap<{ a: ObjectLikeMap<{ b: ObjectLikeMap<{ c: number; }>; }>; }>
+  // $ExpectType MapFromObject<{ a: MapFromObject<{ b: MapFromObject<{ c: number; }>; }>; }>
   Map({ a: Map({ b: Map({ c: 3 }) }) });
 
   // $ExpectError
@@ -116,7 +116,7 @@ import { Map, List } from 'immutable';
   // $ExpectType Map<number, string | number>
   Map<number, number | string>().set(0, 'a');
 
-  // $ExpectType ObjectLikeMap<{ a: number; }> & ObjectLikeMap<{ b: string; }>
+  // $ExpectType MapFromObject<{ a: number; }> & MapFromObject<{ b: string; }>
   Map({ a: 1 }).set('b', 'b');
 
   // $ExpectType number
