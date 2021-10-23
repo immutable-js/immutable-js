@@ -1,7 +1,5 @@
 const { getVersions } = require('./src/static/getVersions');
 
-const versions = getVersions();
-
 module.exports = {
   siteUrl: 'https://immutable-js.com',
   generateRobotsTxt: true,
