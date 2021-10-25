@@ -3125,6 +3125,13 @@ declare namespace Immutable {
   }
 
   /**
+   * For pre-ES2015 support where `Symbol.iterator` does not exist.
+   */
+  interface FauxIterable<T> {
+    ['@@iterator'](): Iterator<T>;
+  }
+
+  /**
    * Creates a Seq.
    *
    * Returns a particular kind of `Seq` based on the input.
@@ -3147,7 +3154,11 @@ declare namespace Immutable {
   function Seq<K, V>(collection: Collection.Keyed<K, V>): Seq.Keyed<K, V>;
   function Seq<T>(collection: Collection.Set<T>): Seq.Set<T>;
   function Seq<T>(
-    collection: Collection.Indexed<T> | Iterable<T> | ArrayLike<T>
+    collection:
+      | Collection.Indexed<T>
+      | Iterable<T>
+      | FauxIterable<T>
+      | ArrayLike<T>
   ): Seq.Indexed<T>;
   function Seq<V>(obj: { [key: string]: V }): Seq.Keyed<string, V>;
   function Seq<K = unknown, V = unknown>(): Seq<K, V>;
