@@ -771,8 +771,9 @@ declare namespace Immutable {
    *
    * @ignore
    */
-  interface MapFromObject<R extends { [key in string | number]: unknown }>
-    extends Map<keyof R, R[keyof R]> {
+  interface MapFromObject<
+    R extends { [key in string | number | symbol]: unknown }
+  > extends Map<keyof R, R[keyof R]> {
     /**
      * Returns the value associated with the provided key, or notSetValue if
      * the Collection does not contain this key.
@@ -785,15 +786,20 @@ declare namespace Immutable {
     get<NSV>(key: string, notSetValue: NSV): NSV;
 
     // https://github.com/microsoft/TypeScript/pull/39094
-    getIn<P extends ReadonlyArray<string | number>>(
+    getIn<P extends ReadonlyArray<string | number | symbol>>(
       searchKeyPath: [...P],
       notSetValue?: unknown
     ): RetrievePath<R, P>;
 
-    set<K extends string | number, V>(
+    set<K extends string | number | symbol, V>(
       key: K,
       value: V
-    ): this & MapFromObject<{ [key in K]: V }>;
+    ): MapFromObject<R & { [key in K]: V }>;
+
+    // Possible best type is MapFromObject<Omit<R, K>> but Omit seems to broke other function calls
+    // and generate recursion error with other methods (update, merge, etc.) until those functions are defined in MapFromObject
+    delete<K extends keyof R>(key: K): MapFromObject<R & { [key in K]: never }>;
+    remove<K extends keyof R>(key: K): MapFromObject<R & { [key in K]: never }>;
   }
 
   // Loosely based off of this work.
@@ -827,9 +833,10 @@ declare namespace Immutable {
     : never;
 
   /** @ignore */
-  type RetrievePath<R, P extends ReadonlyArray<string | number>> = P extends []
-    ? P
-    : RetrievePathReducer<R, Head<P>, Tail<P>>;
+  type RetrievePath<
+    R,
+    P extends ReadonlyArray<string | number | symbol>
+  > = P extends [] ? P : RetrievePathReducer<R, Head<P>, Tail<P>>;
 
   interface Map<K, V> extends Collection.Keyed<K, V> {
     /**
@@ -860,7 +867,7 @@ declare namespace Immutable {
      *
      * Note: `set` can be used in `withMutations`.
      */
-    set(key: K, value: V): this;
+    set(key: K, value: V): Map<K, V>;
 
     /**
      * Returns a new Map which excludes this `key`.
@@ -884,8 +891,8 @@ declare namespace Immutable {
      *
      * @alias remove
      */
-    delete(key: K): this;
-    remove(key: K): this;
+    delete(key: K): Map<K, V>;
+    remove(key: K): Map<K, V>;
 
     /**
      * Returns a new Map which excludes the provided `keys`.
@@ -1021,8 +1028,8 @@ declare namespace Immutable {
      *
      * Note: `update(key)` can be used in `withMutations`.
      */
-    update(key: K, notSetValue: V, updater: (value: V) => V): this;
-    update(key: K, updater: (value: V | undefined) => V): this;
+    update(key: K, notSetValue: V, updater: (value: V) => V): Map<K, V>;
+    update(key: K, updater: (value: V | undefined) => V): Map<K, V>;
     update<R>(updater: (value: this) => R): R;
 
     /**
@@ -1543,7 +1550,36 @@ declare namespace Immutable {
      *
      * Note: `set` can be used in `withMutations`.
      */
-    set(key: K, value: V): this;
+    set(key: K, value: V): OrderedMap<K, V>;
+
+    /**
+     * Returns a new OrderedMap which excludes this `key`.
+     *
+     * Note: `delete` cannot be safely used in IE8, but is provided to mirror
+     * the ES6 collection API.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { OrderedMap } = require('immutable')
+     * const originalMap = OrderedMap({
+     *   key: 'value',
+     *   otherKey: 'other value'
+     * })
+     * // Map { "key": "value", "otherKey": "other value" }
+     * originalMap.delete('otherKey')
+     * // Map { "key": "value" }
+     * ```
+     *
+     * Note: `delete` can be used in `withMutations`.
+     *
+     * @alias remove
+     */
+    delete(key: K): OrderedMap<K, V>;
+    remove(key: K): OrderedMap<K, V>;
+
+    update(key: K, notSetValue: V, updater: (value: V) => V): OrderedMap<K, V>;
+    update(key: K, updater: (value: V | undefined) => V): OrderedMap<K, V>;
+    update<R>(updater: (value: this) => R): R;
 
     /**
      * Returns a new OrderedMap resulting from merging the provided Collections

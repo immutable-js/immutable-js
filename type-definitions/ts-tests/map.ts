@@ -116,7 +116,7 @@ import { Map, List } from 'immutable';
   // $ExpectType Map<number, string | number>
   Map<number, number | string>().set(0, 'a');
 
-  // $ExpectType MapFromObject<{ a: number; }> & MapFromObject<{ b: string; }>
+  // $ExpectType MapFromObject<{ a: number; } & { b: string; }>
   Map({ a: 1 }).set('b', 'b');
 
   // $ExpectType number
@@ -141,6 +141,18 @@ import { Map, List } from 'immutable';
 
   // $ExpectError
   Map<number, number>().delete('a');
+
+  // $ExpectType MapFromObject<{ a: number; b: string; } & { b: never; }>
+  Map({ a: 1, b: 'b' }).delete('b');
+
+  // $ExpectType MapFromObject<{ a: number; b: string; } & { b: never; } & { a: never; }>
+  Map({ a: 1, b: 'b' }).remove('b').delete('a');
+
+  // $ExpectType number
+  Map({ a: 1, b: 'b' }).remove('b').get('a');
+
+  // $ExpectType: never
+  Map({ a: 1, b: 'b' }).remove('b').get('b');
 }
 
 {
@@ -220,6 +232,9 @@ import { Map, List } from 'immutable';
 
   // $ExpectError
   Map<number, number>().update(1, 10, (v: number | undefined) => v + 'a');
+
+  // $ExpectError
+  Map({ a: 1, b: 'b' }).update('c', (v: any) => v);
 }
 
 {
