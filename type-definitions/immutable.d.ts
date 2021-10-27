@@ -868,7 +868,7 @@ declare namespace Immutable {
      *
      * Note: `set` can be used in `withMutations`.
      */
-    set(key: K, value: V): Map<K, V>;
+    set(key: K, value: V): this;
 
     /**
      * Returns a new Map which excludes this `key`.
@@ -892,8 +892,8 @@ declare namespace Immutable {
      *
      * @alias remove
      */
-    delete(key: K): Map<K, V>;
-    remove(key: K): Map<K, V>;
+    delete(key: K): this;
+    remove(key: K): this;
 
     /**
      * Returns a new Map which excludes the provided `keys`.
@@ -1029,8 +1029,8 @@ declare namespace Immutable {
      *
      * Note: `update(key)` can be used in `withMutations`.
      */
-    update(key: K, notSetValue: V, updater: (value: V) => V): Map<K, V>;
-    update(key: K, updater: (value: V | undefined) => V): Map<K, V>;
+    update(key: K, notSetValue: V, updater: (value: V) => V): this;
+    update(key: K, updater: (value: V | undefined) => V): this;
     update<R>(updater: (value: this) => R): R;
 
     /**
@@ -1551,36 +1551,7 @@ declare namespace Immutable {
      *
      * Note: `set` can be used in `withMutations`.
      */
-    set(key: K, value: V): OrderedMap<K, V>;
-
-    /**
-     * Returns a new OrderedMap which excludes this `key`.
-     *
-     * Note: `delete` cannot be safely used in IE8, but is provided to mirror
-     * the ES6 collection API.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { OrderedMap } = require('immutable')
-     * const originalMap = OrderedMap({
-     *   key: 'value',
-     *   otherKey: 'other value'
-     * })
-     * // Map { "key": "value", "otherKey": "other value" }
-     * originalMap.delete('otherKey')
-     * // Map { "key": "value" }
-     * ```
-     *
-     * Note: `delete` can be used in `withMutations`.
-     *
-     * @alias remove
-     */
-    delete(key: K): OrderedMap<K, V>;
-    remove(key: K): OrderedMap<K, V>;
-
-    update(key: K, notSetValue: V, updater: (value: V) => V): OrderedMap<K, V>;
-    update(key: K, updater: (value: V | undefined) => V): OrderedMap<K, V>;
-    update<R>(updater: (value: this) => R): R;
+    set(key: K, value: V): this;
 
     /**
      * Returns a new OrderedMap resulting from merging the provided Collections
