@@ -10,7 +10,7 @@ export class OrderedSet extends Set {
   // @pragma Construction
 
   constructor(value) {
-    return value === null || value === undefined
+    return value === undefined || value === null
       ? emptyOrderedSet()
       : isOrderedSet(value)
       ? value

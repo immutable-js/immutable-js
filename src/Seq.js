@@ -23,7 +23,7 @@ import isArrayLike from './utils/isArrayLike';
 
 export class Seq extends Collection {
   constructor(value) {
-    return value === null || value === undefined
+    return value === undefined || value === null
       ? emptySequence()
       : isImmutable(value)
       ? value.toSeq()
@@ -85,7 +85,7 @@ export class Seq extends Collection {
 
 export class KeyedSeq extends Seq {
   constructor(value) {
-    return value === null || value === undefined
+    return value === undefined || value === null
       ? emptySequence().toKeyedSeq()
       : isCollection(value)
       ? isKeyed(value)
@@ -103,7 +103,7 @@ export class KeyedSeq extends Seq {
 
 export class IndexedSeq extends Seq {
   constructor(value) {
-    return value === null || value === undefined
+    return value === undefined || value === null
       ? emptySequence()
       : isCollection(value)
       ? isKeyed(value)

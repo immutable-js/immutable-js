@@ -10,7 +10,7 @@ export class OrderedMap extends Map {
   // @pragma Construction
 
   constructor(value) {
-    return value === null || value === undefined
+    return value === undefined || value === null
       ? emptyOrderedMap()
       : isOrderedMap(value)
       ? value

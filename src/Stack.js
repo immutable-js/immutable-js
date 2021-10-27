@@ -13,7 +13,7 @@ export class Stack extends IndexedCollection {
   // @pragma Construction
 
   constructor(value) {
-    return value === null || value === undefined
+    return value === undefined || value === null
       ? emptyStack()
       : isStack(value)
       ? value
