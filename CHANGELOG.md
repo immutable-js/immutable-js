@@ -59,9 +59,23 @@ type MyMapType = {
 const m = Map<MyMapType>({ length: 3, 1: 'one' });
 ```
 
+Keep in mind that the `MapFromObject` will try to be consistant with the simple TypeScript object, so you can not do this:
+
+```ts
+Map({ a: 'a' }).set('b', 'b');
+Map({ a: 'a' }).delete('a');
+```
+
+Like a simple object, it will only work if the type is forced:
+
+```ts
+Map<{ a: string; b?: string }>({ a: 'a' }).set('b', 'b'); // b is forced in type and optional
+Map<{ a?: string }>({ a: 'a' }).delete('a'); // you can only delete an optional key
+```
+
 #### Are all `Map` methods implemented ?
 
-For now, only `get`, `set` and `getIn` methods are implemented. All other methods will fallback to the basic `Map` definition. Other method definition will be added later, but as some might be really complex, we prefer the progressive enhancement on the most used functions.
+For now, only `get`, `getIn`, `set`, `delete` and `remove` methods are implemented. All other methods will fallback to the basic `Map` definition. Other method definition will be added later, but as some might be really complex, we prefer the progressive enhancement on the most used functions.
 
 ## [4.0.0] - 2021-09-30
 

@@ -417,7 +417,7 @@ describe('Map', () => {
   });
 
   it('chained mutations does not result in new empty map instance', () => {
-    const v1 = Map({ x: 1 });
+    const v1 = Map<{ x?: number; y?: number }>({ x: 1 });
     const v2 = v1.withMutations(v => v.set('y', 2).delete('x').delete('y'));
     expect(v2).toBe(Map());
   });

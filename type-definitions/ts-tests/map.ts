@@ -1,4 +1,4 @@
-import { Map, List } from 'immutable';
+import { Map, List, MapFromObject } from 'immutable';
 
 {
   // #constructor
@@ -116,14 +116,27 @@ import { Map, List } from 'immutable';
   // $ExpectType Map<number, string | number>
   Map<number, number | string>().set(0, 'a');
 
-  // $ExpectType MapFromObject<{ a: number; } & { b: string; }>
+  // $ExpectError
   Map({ a: 1 }).set('b', 'b');
 
-  // $ExpectType number
-  Map({ a: 1 }).set('b', 'b').get('a');
+  // $ExpectType MapFromObject<{ a: number; b?: string | undefined; }>
+  Map<{ a: number; b?: string; }>({ a: 1 }).set('b', 'b');
 
-  // $ExpectType string
-  Map({ a: 1 }).set('b', 'b').get('b');
+  // $ExpectType MapFromObject<{ a: number; b?: string | undefined; }>
+  Map<{ a: number; b?: string; }>({ a: 1 }).set('b', undefined);
+
+  // $ExpectType number
+  Map<{ a: number; b?: string }>({ a: 1 }).set('b', 'b').get('a');
+
+  // $ExpectType string | undefined
+  Map<{ a: number; b?: string }>({ a: 1 }).set('b', 'b').get('b');
+
+  let customer = Map<{ phone: string | number }>({
+    phone: 'bar',
+  });
+
+  // $ExpectType MapFromObject<{ phone: string | number; }>
+  customer = customer.set('phone', 8);
 }
 
 {
@@ -142,17 +155,20 @@ import { Map, List } from 'immutable';
   // $ExpectError
   Map<number, number>().delete('a');
 
-  // $ExpectType MapFromObject<{ a: number; b: string; } & { b: never; }>
+  // $ExpectType never
   Map({ a: 1, b: 'b' }).delete('b');
 
-  // $ExpectType MapFromObject<{ a: number; b: string; } & { b: never; } & { a: never; }>
-  Map({ a: 1, b: 'b' }).remove('b').delete('a');
+  // $ExpectType MapFromObject<{ a: number; b?: string | undefined; }>
+  Map<{ a: number; b?: string; }>({ a: 1, b: 'b' }).delete('b');
+
+  // $ExpectType MapFromObject<{ a?: number | undefined; b?: string | undefined; }>
+  Map<{ a?: number; b?: string; }>({ a: 1, b: 'b' }).remove('b').delete('a');
 
   // $ExpectType number
-  Map({ a: 1, b: 'b' }).remove('b').get('a');
+  Map<{ a: number; b?: string; }>({ a: 1, b: 'b' }).remove('b').get('a');
 
-  // $ExpectType: never
-  Map({ a: 1, b: 'b' }).remove('b').get('b');
+  // $ExpectType: string | undefined
+  Map<{ a: number; b?: string; }>({ a: 1, b: 'b' }).remove('b').get('b');
 }
 
 {

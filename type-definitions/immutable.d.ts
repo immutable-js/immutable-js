@@ -760,7 +760,7 @@ declare namespace Immutable {
    * not altered.
    */
   function Map<K, V>(collection?: Iterable<[K, V]>): Map<K, V>;
-  function Map<R extends { [key in string | number]: unknown }>(
+  function Map<R extends { [key in string | number | symbol]: unknown }>(
     obj: R
   ): MapFromObject<R>;
   function Map<V>(obj: { [key: string]: V }): Map<string, V>;
@@ -791,15 +791,16 @@ declare namespace Immutable {
       notSetValue?: unknown
     ): RetrievePath<R, P>;
 
-    set<K extends string | number | symbol, V>(
-      key: K,
-      value: V
-    ): MapFromObject<R & { [key in K]: V }>;
+    set<K extends keyof R>(key: K, value: R[K]): this;
 
     // Possible best type is MapFromObject<Omit<R, K>> but Omit seems to broke other function calls
     // and generate recursion error with other methods (update, merge, etc.) until those functions are defined in MapFromObject
-    delete<K extends keyof R>(key: K): MapFromObject<R & { [key in K]: never }>;
-    remove<K extends keyof R>(key: K): MapFromObject<R & { [key in K]: never }>;
+    delete<K extends keyof R>(
+      key: K
+    ): Extract<R[K], undefined> extends never ? never : this;
+    remove<K extends keyof R>(
+      key: K
+    ): Extract<R[K], undefined> extends never ? never : this;
   }
 
   // Loosely based off of this work.
