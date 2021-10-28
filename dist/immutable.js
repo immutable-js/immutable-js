@@ -310,7 +310,7 @@
 
   var Seq = /*@__PURE__*/(function (Collection) {
     function Seq(value) {
-      return value === null || value === undefined
+      return value === undefined || value === null
         ? emptySequence()
         : isImmutable(value)
         ? value.toSeq()
@@ -378,7 +378,7 @@
 
   var KeyedSeq = /*@__PURE__*/(function (Seq) {
     function KeyedSeq(value) {
-      return value === null || value === undefined
+      return value === undefined || value === null
         ? emptySequence().toKeyedSeq()
         : isCollection(value)
         ? isKeyed(value)
@@ -402,7 +402,7 @@
 
   var IndexedSeq = /*@__PURE__*/(function (Seq) {
     function IndexedSeq(value) {
-      return value === null || value === undefined
+      return value === undefined || value === null
         ? emptySequence()
         : isCollection(value)
         ? isKeyed(value)
@@ -2368,7 +2368,7 @@
 
   var Map = /*@__PURE__*/(function (KeyedCollection) {
     function Map(value) {
-      return value === null || value === undefined
+      return value === undefined || value === null
         ? emptyMap()
         : isMap(value) && !isOrdered(value)
         ? value
@@ -3159,7 +3159,7 @@
   var List = /*@__PURE__*/(function (IndexedCollection) {
     function List(value) {
       var empty = emptyList();
-      if (value === null || value === undefined) {
+      if (value === undefined || value === null) {
         return empty;
       }
       if (isList(value)) {
@@ -3809,7 +3809,7 @@
 
   var OrderedMap = /*@__PURE__*/(function (Map) {
     function OrderedMap(value) {
-      return value === null || value === undefined
+      return value === undefined || value === null
         ? emptyOrderedMap()
         : isOrderedMap(value)
         ? value
@@ -3977,7 +3977,7 @@
 
   var Stack = /*@__PURE__*/(function (IndexedCollection) {
     function Stack(value) {
-      return value === null || value === undefined
+      return value === undefined || value === null
         ? emptyStack()
         : isStack(value)
         ? value
@@ -4311,7 +4311,7 @@
 
   var Set = /*@__PURE__*/(function (SetCollection) {
     function Set(value) {
-      return value === null || value === undefined
+      return value === undefined || value === null
         ? emptySet()
         : isSet(value) && !isOrdered(value)
         ? value
@@ -5432,7 +5432,7 @@
 
   var OrderedSet = /*@__PURE__*/(function (Set) {
     function OrderedSet(value) {
-      return value === null || value === undefined
+      return value === undefined || value === null
         ? emptyOrderedSet()
         : isOrderedSet(value)
         ? value
