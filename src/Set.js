@@ -15,7 +15,7 @@ export class Set extends SetCollection {
   // @pragma Construction
 
   constructor(value) {
-    return value === null || value === undefined
+    return value === undefined || value === null
       ? emptySet()
       : isSet(value) && !isOrdered(value)
       ? value
