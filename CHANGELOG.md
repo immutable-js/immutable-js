@@ -6,11 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Dates are formatted as YYYY-MM-DD.
 
-<!--
 ## [Unreleased]
 
-Nothing yet
--->
+- Optimize contructors without arguments [#1887](https://github.com/immutable-js/immutable-js/pull/1887) by [marianoguerra](https://github.com/marianoguerra)
 
 ## [4.0.0] - 2021-09-30
 
