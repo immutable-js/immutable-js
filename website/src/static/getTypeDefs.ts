@@ -709,6 +709,7 @@ function typesVisitor(source: ts.SourceFile) {
           ],
         };
       }
+      case ts.SyntaxKind.ConditionalType:
       case ts.SyntaxKind.RestType: {
         return { k: TypeKind.Never };
       }
