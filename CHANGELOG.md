@@ -8,6 +8,10 @@ Dates are formatted as YYYY-MM-DD.
 
 ## [Unreleased]
 
+### Changed
+
+- Optimize contructors without arguments [#1887](https://github.com/immutable-js/immutable-js/pull/1887) by [marianoguerra](https://github.com/marianoguerra)
+
 ### Improve TypeScript definition for `Map`
 
 Imagine the following code

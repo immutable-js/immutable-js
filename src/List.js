@@ -31,7 +31,7 @@ export class List extends IndexedCollection {
 
   constructor(value) {
     const empty = emptyList();
-    if (value === null || value === undefined) {
+    if (value === undefined || value === null) {
       return empty;
     }
     if (isList(value)) {
