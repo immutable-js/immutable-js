@@ -8,7 +8,8 @@ Dates are formatted as YYYY-MM-DD.
 
 ## [Unreleased]
 
-- Optimize contructors without arguments [#1887](https://github.com/immutable-js/immutable-js/pull/1887) by [marianoguerra](https://github.com/marianoguerra)
+- BREAKING: The ES6 bundle no longer exposes a default export, to allow bundlers applying tree-shaking
+- Optimize constructors without arguments [#1887](https://github.com/immutable-js/immutable-js/pull/1887) by [marianoguerra](https://github.com/marianoguerra)
 
 ## [4.0.0] - 2021-09-30
 

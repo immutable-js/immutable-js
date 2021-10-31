@@ -48,62 +48,6 @@ import { updateIn } from './functional/updateIn';
 
 import { version } from '../package.json';
 
-export default {
-  version: version,
-
-  Collection: Collection,
-  // Note: Iterable is deprecated
-  Iterable: Collection,
-
-  Seq: Seq,
-  Map: Map,
-  OrderedMap: OrderedMap,
-  List: List,
-  Stack: Stack,
-  Set: Set,
-  OrderedSet: OrderedSet,
-
-  Record: Record,
-  Range: Range,
-  Repeat: Repeat,
-
-  is: is,
-  fromJS: fromJS,
-  hash: hash,
-
-  isImmutable: isImmutable,
-  isCollection: isCollection,
-  isKeyed: isKeyed,
-  isIndexed: isIndexed,
-  isAssociative: isAssociative,
-  isOrdered: isOrdered,
-  isValueObject: isValueObject,
-  isPlainObject: isPlainObject,
-  isSeq: isSeq,
-  isList: isList,
-  isMap: isMap,
-  isOrderedMap: isOrderedMap,
-  isStack: isStack,
-  isSet: isSet,
-  isOrderedSet: isOrderedSet,
-  isRecord: isRecord,
-
-  get: get,
-  getIn: getIn,
-  has: has,
-  hasIn: hasIn,
-  merge: merge,
-  mergeDeep: mergeDeep,
-  mergeWith: mergeWith,
-  mergeDeepWith: mergeDeepWith,
-  remove: remove,
-  removeIn: removeIn,
-  set: set,
-  setIn: setIn,
-  update: update,
-  updateIn: updateIn,
-};
-
 // Note: Iterable is deprecated
 const Iterable = Collection;
 
