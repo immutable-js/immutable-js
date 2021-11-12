@@ -472,7 +472,6 @@ describe('Map', () => {
     const b = Symbol('b');
     const c = Symbol('c');
     const m = Map<symbol, string>({
-      // @ts-expect-error -- typescript definition does not handle symbol for now
       [a]: 'a',
       [b]: 'b',
       [c]: 'c',
