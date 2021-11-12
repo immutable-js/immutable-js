@@ -8,6 +8,7 @@ Dates are formatted as YYYY-MM-DD.
 
 ## [Unreleased]
 
+- Accept Symbol as Map key. [#1859](https://github.com/immutable-js/immutable-js/pull/1859) by [jdeniau](https://github.com/jdeniau)
 - Optimize contructors without arguments [#1887](https://github.com/immutable-js/immutable-js/pull/1887) by [marianoguerra](https://github.com/marianoguerra)
 
 ## [4.0.0] - 2021-09-30
