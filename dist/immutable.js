@@ -508,7 +508,9 @@
 
   var ObjectSeq = /*@__PURE__*/(function (KeyedSeq) {
     function ObjectSeq(object) {
-      var keys = Object.keys(object);
+      var keys = Object.keys(object).concat(
+        Object.getOwnPropertySymbols ? Object.getOwnPropertySymbols(object) : []
+      );
       this._object = object;
       this._keys = keys;
       this.size = keys.length;
