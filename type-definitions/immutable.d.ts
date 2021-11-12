@@ -764,7 +764,7 @@ declare namespace Immutable {
     obj: R
   ): MapFromObject<R>;
   function Map<V>(obj: { [key: string]: V }): Map<string, V>;
-  function Map<K extends string, V>(obj: { [P in K]?: V }): Map<K, V>;
+  function Map<K extends string | symbol, V>(obj: { [P in K]?: V }): Map<K, V>;
 
   /**
    * Represent a Map constructed by an object
