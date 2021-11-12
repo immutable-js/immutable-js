@@ -80,7 +80,7 @@ Map<{ a?: string }>({ a: 'a' }).delete('a'); // you can only delete an optional 
 
 #### Are all `Map` methods implemented ?
 
-For now, only `get`, `getIn`, `set`, `delete` and `remove` methods are implemented. All other methods will fallback to the basic `Map` definition. Other method definition will be added later, but as some might be really complex, we prefer the progressive enhancement on the most used functions.
+For now, only `get`, `getIn`, `set`, `update`, `delete` and `remove` methods are implemented. All other methods will fallback to the basic `Map` definition. Other method definition will be added later, but as some might be really complex, we prefer the progressive enhancement on the most used functions.
 
 ## [4.0.0] - 2021-09-30
 

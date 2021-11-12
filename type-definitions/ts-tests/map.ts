@@ -250,7 +250,22 @@ import { Map, List, MapFromObject } from 'immutable';
   Map<number, number>().update(1, 10, (v: number | undefined) => v + 'a');
 
   // $ExpectError
-  Map({ a: 1, b: 'b' }).update('c', (v: any) => v);
+  Map({ a: 1, b: 'b' }).update('c', (v) => v);
+
+  // $ExpectType MapFromObject<{ a: number; b: string; }>
+  Map({ a: 1, b: 'b' }).update('b', (v) => v.toUpperCase());
+
+  // $ExpectType MapFromObject<{ a: number; b: string; }>
+  Map({ a: 1, b: 'b' }).update('b', 'NSV', (v) => v.toUpperCase());
+
+  // $ExpectError
+  Map({ a: 1, b: 'b' }).update((v) => ({ a: 'a' }));
+
+  // $ExpectType MapFromObject<{ a: number; b: string; }>
+  Map({ a: 1, b: 'b' }).update((v) => v.set('a', 2).set('b', 'B'));
+
+  // $ExpectError
+  Map({ a: 1, b: 'b' }).update((v) => v.set('c', 'c'));
 }
 
 {

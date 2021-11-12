@@ -793,6 +793,14 @@ declare namespace Immutable {
 
     set<K extends keyof R>(key: K, value: R[K]): this;
 
+    update(updater: (value: this) => this): this;
+    update<K extends keyof R>(key: K, updater: (value: R[K]) => R[K]): this;
+    update<K extends keyof R, NSV>(
+      key: K,
+      notSetValue: NSV,
+      updater: (value: R[K]) => NSV
+    ): this;
+
     // Possible best type is MapFromObject<Omit<R, K>> but Omit seems to broke other function calls
     // and generate recursion error with other methods (update, merge, etc.) until those functions are defined in MapFromObject
     delete<K extends keyof R>(
