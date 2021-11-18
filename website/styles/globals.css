@@ -194,9 +194,6 @@ a.try-it {
   max-width: 1024px;
   padding: 64px 0;
   position: relative;
-
-  display: flex;
-  flex-direction: row-reverse;
 }
 
 .markdown h1 {
