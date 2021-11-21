@@ -83,8 +83,30 @@ import { Map, List, MapFromObject } from 'immutable';
     .get('a')
     .get('b');
 
-  // $ExpectError
-  Map({ a: 4 }).get('b');
+    // $ExpectError
+    Map({ a: 4 }).get('b');
+
+    // $ExpectType undefined
+    Map({ a: 4 }).get('b', undefined);
+
+    // $ExpectType number
+    Map({ 1: 4 }).get(1);
+
+    // $ExpectError
+    Map({ 1: 4 }).get(2);
+
+    // $ExpectType 3
+    Map({ 1: 4 }).get(2, 3);
+
+    const s = Symbol('s');
+
+    // $ExpectType number
+    Map({ [s]: 4 }).get(s);
+
+    const s2 = Symbol('s2');
+
+    // $ExpectError
+    Map({ [s2]: 4 }).get(s);
 }
 
 {
@@ -96,6 +118,10 @@ import { Map, List, MapFromObject } from 'immutable';
 
   // $ExpectType number
   Map({ a: Map({ b: Map({ c: Map({ d: 4 }) }) }) }).getIn(['a', 'b', 'c', 'd']);
+
+  // with a better type, it should be resolved to `number` in the future. `RetrievePathReducer` does not work with anything else than MapFromObject
+  // $ExpectType never
+  Map({ a: List([ 1 ]) }).getIn(['a', 0]);
 }
 
 {

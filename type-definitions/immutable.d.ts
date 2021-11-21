@@ -783,7 +783,7 @@ declare namespace Immutable {
      * that does not guarantee the key was not found.
      */
     get<K extends keyof R>(key: K, notSetValue?: unknown): R[K];
-    get<NSV>(key: string, notSetValue: NSV): NSV;
+    get<NSV>(key: any, notSetValue: NSV): NSV;
 
     // https://github.com/microsoft/TypeScript/pull/39094
     getIn<P extends ReadonlyArray<string | number | symbol>>(
