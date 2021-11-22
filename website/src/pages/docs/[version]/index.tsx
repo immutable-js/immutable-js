@@ -65,7 +65,7 @@ export default function OverviewDocPage({
       <ImmutableConsole version={version} />
       <DocHeader versions={versions} currentVersion={version} />
       <div className="pageBody">
-        <div className="contents">
+        <div className="contents withSidebar">
           <SideBar links={sidebarLinks} />
           <div key="Overview" className="docContents">
             <DocSearch />

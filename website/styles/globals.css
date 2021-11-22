@@ -196,6 +196,11 @@ a.try-it {
   position: relative;
 }
 
+.withSidebar{
+  display: flex;
+  flex-direction: row-reverse;
+}
+
 .markdown h1 {
   font-size: 2em;
   margin: 0 0 1rem;
