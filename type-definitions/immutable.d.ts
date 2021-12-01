@@ -1064,16 +1064,17 @@ declare namespace Immutable {
      */
     merge<KC, VC>(
       ...collections: Array<Iterable<[KC, VC]>>
-    ): Map<K | KC, V | VC>;
+    ): Map<K | KC, Exclude<V, VC> | VC>;
     merge<C>(
       ...collections: Array<{ [key: string]: C }>
-    ): Map<K | string, V | C>;
+    ): Map<K | string, Exclude<V, C> | C>;
+
     concat<KC, VC>(
       ...collections: Array<Iterable<[KC, VC]>>
-    ): Map<K | KC, V | VC>;
+    ): Map<K | KC, Exclude<V, VC> | VC>;
     concat<C>(
       ...collections: Array<{ [key: string]: C }>
-    ): Map<K | string, V | C>;
+    ): Map<K | string, Exclude<V, C> | C>;
 
     /**
      * Like `merge()`, `mergeWith()` returns a new Map resulting from merging
@@ -1093,10 +1094,14 @@ declare namespace Immutable {
      *
      * Note: `mergeWith` can be used in `withMutations`.
      */
-    mergeWith(
-      merger: (oldVal: V, newVal: V, key: K) => V,
-      ...collections: Array<Iterable<[K, V]> | { [key: string]: V }>
-    ): this;
+    mergeWith<KC, VC, VCC>(
+      merger: (oldVal: V, newVal: VC, key: K) => VCC,
+      ...collections: Array<Iterable<[KC, VC]>>
+    ): Map<K | KC, V | VC | VCC>;
+    mergeWith<C, CC>(
+      merger: (oldVal: V, newVal: C, key: string) => CC,
+      ...collections: Array<{ [key: string]: C }>
+    ): Map<K | string, V | C | CC>;
 
     /**
      * Like `merge()`, but when two compatible collections are encountered with
@@ -1127,9 +1132,12 @@ declare namespace Immutable {
      *
      * Note: `mergeDeep` can be used in `withMutations`.
      */
-    mergeDeep(
-      ...collections: Array<Iterable<[K, V]> | { [key: string]: V }>
-    ): this;
+    mergeDeep<KC, VC>(
+      ...collections: Array<Iterable<[KC, VC]>>
+    ): Map<K | KC, V | VC>;
+    mergeDeep<C>(
+      ...collections: Array<{ [key: string]: C }>
+    ): Map<K | string, V | C>;
 
     /**
      * Like `mergeDeep()`, but when two non-collections or incompatible
@@ -1584,14 +1592,31 @@ declare namespace Immutable {
      */
     merge<KC, VC>(
       ...collections: Array<Iterable<[KC, VC]>>
-    ): OrderedMap<K | KC, V | VC>;
+    ): OrderedMap<K | KC, Exclude<V, VC> | VC>;
     merge<C>(
       ...collections: Array<{ [key: string]: C }>
-    ): OrderedMap<K | string, V | C>;
+    ): OrderedMap<K | string, Exclude<V, C> | C>;
+
     concat<KC, VC>(
       ...collections: Array<Iterable<[KC, VC]>>
-    ): OrderedMap<K | KC, V | VC>;
+    ): OrderedMap<K | KC, Exclude<V, VC> | VC>;
     concat<C>(
+      ...collections: Array<{ [key: string]: C }>
+    ): OrderedMap<K | string, Exclude<V, C> | C>;
+
+    mergeWith<KC, VC, VCC>(
+      merger: (oldVal: V, newVal: VC, key: K) => VCC,
+      ...collections: Array<Iterable<[KC, VC]>>
+    ): OrderedMap<K | KC, V | VC | VCC>;
+    mergeWith<C, CC>(
+      merger: (oldVal: V, newVal: C, key: string) => CC,
+      ...collections: Array<{ [key: string]: C }>
+    ): OrderedMap<K | string, V | C | CC>;
+
+    mergeDeep<KC, VC>(
+      ...collections: Array<Iterable<[KC, VC]>>
+    ): OrderedMap<K | KC, V | VC>;
+    mergeDeep<C>(
       ...collections: Array<{ [key: string]: C }>
     ): OrderedMap<K | string, V | C>;
 

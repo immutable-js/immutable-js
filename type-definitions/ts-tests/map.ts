@@ -456,6 +456,9 @@ import { Map, List, MapFromObject } from 'immutable';
 
   // $ExpectType Map<number, string | number>
   Map<number, number | string>().merge(Map<number, number>());
+
+  // $ExpectType Map<"a" | "b", number>
+  Map({ a: 1 }).merge(Map({ b: 2 }));
 }
 
 {
@@ -480,27 +483,27 @@ import { Map, List, MapFromObject } from 'immutable';
     Map<number, number>()
   );
 
+  // $ExpectError
   Map<number, number>().mergeWith(
-    // $ExpectError
     (prev: number, next: string, key: number) => 1,
     Map<number, number>()
   );
 
+  // $ExpectError
   Map<number, number>().mergeWith(
-    // $ExpectError
     (prev: number, next: number, key: string) => 1,
     Map<number, number>()
   );
 
+  // $ExpectType Map<number, string | number>
   Map<number, number>().mergeWith(
-    // $ExpectError
     (prev: number, next: number, key: number) => 'a',
     Map<number, number>()
   );
 
+  // $ExpectError
   Map<number, number>().mergeWith(
     (prev: number, next: number, key: number) => 1,
-    // $ExpectError
     Map<number, string>()
   );
 
@@ -510,9 +513,15 @@ import { Map, List, MapFromObject } from 'immutable';
     { a: 1 }
   );
 
+  // $ExpectError
   Map<string, number>().mergeWith(
     (prev: number, next: number, key: string) => 1,
-    // $ExpectError
+    { a: 'a' }
+  );
+
+  // $ExpectType Map<string, string | number>
+  Map<string, number>().mergeWith(
+    (prev: number, next: number | string, key: string) => 1,
     { a: 'a' }
   );
 
@@ -526,13 +535,16 @@ import { Map, List, MapFromObject } from 'immutable';
   // $ExpectType Map<string, number>
   Map<string, number>().mergeDeep({ a: 1 });
 
-  // $ExpectError
+  // $ExpectType Map<string, number | { b: number; }>
   Map<string, number>().mergeDeep({ a: { b: 1 } });
+
+  // $ExpectType Map<string, number | { b: number; }>
+  Map<string, number>().mergeDeep(Map({ a: { b: 1 } }));
 
   // $ExpectType Map<number, number>
   Map<number, number>().mergeDeep(Map<number, number>());
 
-  // $ExpectError
+  // $ExpectType Map<number, string | number>
   Map<number, number>().mergeDeep(Map<number, string>());
 
   // $ExpectType Map<number, string | number>

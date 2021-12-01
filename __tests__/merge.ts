@@ -18,7 +18,7 @@ describe('merge', () => {
 
   it('can merge in an explicitly undefined value', () => {
     const m1 = Map({ a: 1, b: 2 });
-    const m2 = Map({ a: undefined as any });
+    const m2 = Map({ a: undefined });
     expect(m1.merge(m2)).toEqual(Map({ a: undefined, b: 2 }));
   });
 
@@ -152,12 +152,12 @@ describe('merge', () => {
 
   it('merges map entries with List and Set values', () => {
     const initial = Map({
-      a: Map<string, number>({ x: 10, y: 20 }),
+      a: Map({ x: 10, y: 20 }),
       b: List([1, 2, 3]),
       c: Set([1, 2, 3]),
     });
     const additions = Map({
-      a: Map<string, number>({ y: 50, z: 100 }),
+      a: Map({ y: 50, z: 100 }),
       b: List([4, 5, 6]),
       c: Set([4, 5, 6]),
     });
@@ -274,8 +274,8 @@ describe('merge', () => {
       expect(mergeDeep(aObject, bObject)).toEqual(bObject);
       expect(mergeDeep(bObject, aObject)).toEqual(aObject);
 
-      const aMap = Map({ a: value1 }) as Map<unknown, unknown>;
-      const bMap = Map({ a: value2 }) as Map<unknown, unknown>;
+      const aMap = Map({ a: value1 });
+      const bMap = Map({ a: value2 });
       expect(aMap.mergeDeep(bMap).equals(bMap)).toBe(true);
       expect(bMap.mergeDeep(aMap).equals(aMap)).toBe(true);
     });
@@ -312,15 +312,15 @@ describe('merge', () => {
       const bObject = { a: value2 };
       expect(mergeDeep(aObject, bObject)).toEqual({ a: result });
 
-      const aMap = Map({ a: value1 }) as Map<unknown, unknown>;
+      const aMap = Map({ a: value1 });
       const bMap = Map({ a: value2 });
       expect(aMap.mergeDeep(bMap)).toEqual(Map({ a: result }));
     });
   }
 
   it('Map#mergeDeep replaces nested List with Map and Map with List', () => {
-    const a = Map({ a: List([Map({ x: 1 })]) }) as Map<unknown, unknown>;
-    const b = Map({ a: Map([[0, Map({ y: 2 })]]) }) as Map<unknown, unknown>;
+    const a = Map({ a: List([Map({ x: 1 })]) });
+    const b = Map({ a: Map([[0, Map({ y: 2 })]]) });
     expect(a.mergeDeep(b).equals(b)).toBe(true);
     expect(b.mergeDeep(a).equals(a)).toBe(true);
   });
