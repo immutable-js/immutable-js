@@ -795,10 +795,10 @@ declare namespace Immutable {
 
     update(updater: (value: this) => this): this;
     update<K extends keyof R>(key: K, updater: (value: R[K]) => R[K]): this;
-    update<K extends keyof R, NSV>(
+    update<K extends keyof R, NSV extends R[K]>(
       key: K,
       notSetValue: NSV,
-      updater: (value: R[K]) => NSV
+      updater: (value: R[K]) => R[K]
     ): this;
 
     // Possible best type is MapFromObject<Omit<R, K>> but Omit seems to broke other function calls
