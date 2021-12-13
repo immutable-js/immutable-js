@@ -100,6 +100,7 @@ blockquote > :last-child {
   padding: 0.5rem 8px 0.5rem 12px;
   white-space: pre-wrap;
   position: relative;
+  word-break: break-all;
 }
 
 .t.blockParams {
@@ -194,9 +195,6 @@ a.try-it {
   max-width: 1024px;
   padding: 64px 0;
   position: relative;
-}
-
-.withSidebar{
   display: flex;
   flex-direction: row-reverse;
 }
