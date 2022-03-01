@@ -761,7 +761,7 @@ declare namespace Immutable {
    */
   function Map<K, V>(collection?: Iterable<[K, V]>): Map<K, V>;
   function Map<V>(obj: { [key: string]: V }): Map<string, V>;
-  function Map<K extends string, V>(obj: { [P in K]?: V }): Map<K, V>;
+  function Map<K extends string | symbol, V>(obj: { [P in K]?: V }): Map<K, V>;
 
   interface Map<K, V> extends Collection.Keyed<K, V> {
     /**
