@@ -1999,15 +1999,15 @@ declare function hasIn(collection: Object, keyPath: Iterable<mixed>): boolean;
 
 declare function removeIn<C>(collection: C, keyPath: []): void;
 declare function removeIn<C, K: $KeyOf<C>>(collection: C, keyPath: [K]): C;
-declare function removeIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C>>>(
+declare function removeIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>>(
   collection: C,
   keyPath: [K, K2]
 ): C;
 declare function removeIn<
   C,
   K: $KeyOf<C>,
-  K2: $KeyOf<$ValOf<C>>,
-  K3: $KeyOf<$ValOf<$ValOf<C>, K2>>
+  K2: $KeyOf<$ValOf<C, K>>,
+  K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>
 >(
   collection: C,
   keyPath: [K, K2, K3]
@@ -2015,9 +2015,9 @@ declare function removeIn<
 declare function removeIn<
   C,
   K: $KeyOf<C>,
-  K2: $KeyOf<$ValOf<C>>,
-  K3: $KeyOf<$ValOf<$ValOf<C>, K2>>,
-  K4: $KeyOf<$ValOf<$ValOf<$ValOf<C>, K2>, K3>>
+  K2: $KeyOf<$ValOf<C, K>>,
+  K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>,
+  K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>
 >(
   collection: C,
   keyPath: [K, K2, K3, K4]
@@ -2025,10 +2025,10 @@ declare function removeIn<
 declare function removeIn<
   C,
   K: $KeyOf<C>,
-  K2: $KeyOf<$ValOf<C>>,
-  K3: $KeyOf<$ValOf<$ValOf<C>, K2>>,
-  K4: $KeyOf<$ValOf<$ValOf<$ValOf<C>, K2>, K3>>,
-  K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<C>, K2>, K3>, K4>>
+  K2: $KeyOf<$ValOf<C, K>>,
+  K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>,
+  K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>,
+  K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>>
 >(
   collection: C,
   keyPath: [K, K2, K3, K4, K5]
