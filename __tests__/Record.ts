@@ -88,6 +88,12 @@ describe('Record', () => {
     expect(t1.equals(null)).toBeFalsy();
   });
 
+  it('if compared against Map should return false', () => {
+    const MyType = Record({ a: 1, b: 2 });
+    const t1 = MyType();
+    expect(t1.equals(Map({ a: 1, b: 2 }))).toBeFalsy();
+  });
+
   it('merges in Objects and other Records', () => {
     const Point2 = Record({ x: 0, y: 0 });
     const Point3 = Record({ x: 0, y: 0, z: 0 });
