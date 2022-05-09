@@ -5588,7 +5588,8 @@
 
   Record.prototype.equals = function equals (other) {
     return (
-      this === other || (other && recordSeq(this).equals(recordSeq(other)))
+      this === other ||
+      (isRecord(other) && recordSeq(this).equals(recordSeq(other)))
     );
   };
 
