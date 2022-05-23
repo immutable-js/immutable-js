@@ -8,6 +8,8 @@ Dates are formatted as YYYY-MM-DD.
 
 ## [Unreleased]
 
+## [4.1.0] - 2022-05-23
+
 - Accept Symbol as Map key. [#1859](https://github.com/immutable-js/immutable-js/pull/1859) by [jdeniau](https://github.com/jdeniau)
 - Optimize contructors without arguments [#1887](https://github.com/immutable-js/immutable-js/pull/1887) by [marianoguerra](https://github.com/marianoguerra)
 - Fix Flow removeIn types [#1902](https://github.com/immutable-js/immutable-js/pull/1902) by [nifgraup](https://github.com/nifgraup)
