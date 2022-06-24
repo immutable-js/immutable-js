@@ -759,11 +759,15 @@ declare namespace Immutable {
    * but since Immutable Map keys can be of any type the argument to `get()` is
    * not altered.
    */
-  function Map<K, V>(collection?: Iterable<[K, V]>): Map<K, V>;
-  function Map<V>(obj: { [key: string]: V }): Map<string, V>;
-  function Map<K extends string | symbol, V>(obj: { [P in K]?: V }): Map<K, V>;
+  function Map<T extends Array<[string | number | symbol, unknown]>>(collection: T): Map<{
+    [P in T[number]as P[0]]: P[1]
+  }>;
+  function Map<T>(obj: T): (T extends Map<T>
+    ? T
+    : Map<T>);
 
-  interface Map<K, V> extends Collection.Keyed<K, V> {
+  interface Map<T> extends IterableMap<keyof T, T[keyof T]> { }
+  interface IterableMap<K, V> extends Collection.Keyed<K, V> {
     /**
      * The number of entries in this Map.
      */
