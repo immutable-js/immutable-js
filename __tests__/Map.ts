@@ -428,6 +428,12 @@ describe('Map', () => {
     expect(is(m1, m2)).toBe(true);
   });
 
+  it('does not equal Record with same values', () => {
+    const m1 = Map({ A: 1, B: 2, C: 3 });
+    const m2 = Record({ A: 1, B: 2, C: 3 });
+    expect(is(m1, m2)).toBe(false);
+  });
+
   it('deletes all the provided keys', () => {
     const NOT_SET = undefined;
     const m1 = Map({ A: 1, B: 2, C: 3 });

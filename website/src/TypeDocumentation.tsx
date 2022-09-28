@@ -94,7 +94,7 @@ function FunctionDoc({ def }: { def: MemberDefinition }) {
       {def.doc?.description && (
         <section>
           <h4 className="infoHeader">
-            {def.doc.description.substr(0, 5) === '<code'
+            {def.doc.description.slice(0, 5) === '<code'
               ? 'Example'
               : 'Discussion'}
           </h4>
@@ -147,7 +147,7 @@ function TypeDoc({
       {def.doc?.description && (
         <section>
           <h4 className="infoHeader">
-            {def.doc.description.substr(0, 5) === '<code'
+            {def.doc.description.slice(0, 5) === '<code'
               ? 'Example'
               : 'Discussion'}
           </h4>

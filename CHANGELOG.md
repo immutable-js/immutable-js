@@ -10,9 +10,6 @@ Dates are formatted as YYYY-MM-DD.
 
 ### Changed
 
-- Accept Symbol as Map key. [#1859](https://github.com/immutable-js/immutable-js/pull/1859) by [jdeniau](https://github.com/jdeniau)
-- Optimize contructors without arguments [#1887](https://github.com/immutable-js/immutable-js/pull/1887) by [marianoguerra](https://github.com/marianoguerra)
-
 ### Improve TypeScript definition for `Map`
 
 Imagine the following code
@@ -81,6 +78,13 @@ Map<{ a?: string }>({ a: 'a' }).delete('a'); // you can only delete an optional 
 #### Are all `Map` methods implemented ?
 
 For now, only `get`, `getIn`, `set`, `update`, `delete` and `remove` methods are implemented. All other methods will fallback to the basic `Map` definition. Other method definition will be added later, but as some might be really complex, we prefer the progressive enhancement on the most used functions.
+
+## [4.1.0] - 2022-05-23
+
+- Accept Symbol as Map key. [#1859](https://github.com/immutable-js/immutable-js/pull/1859) by [jdeniau](https://github.com/jdeniau)
+- Optimize contructors without arguments [#1887](https://github.com/immutable-js/immutable-js/pull/1887) by [marianoguerra](https://github.com/marianoguerra)
+- Fix Flow removeIn types [#1902](https://github.com/immutable-js/immutable-js/pull/1902) by [nifgraup](https://github.com/nifgraup)
+- Fix bug in Record.equals when comparing against Map [#1903](https://github.com/immutable-js/immutable-js/pull/1903) by [jmtoung](https://github.com/jmtoung)
 
 ## [4.0.0] - 2021-09-30
 
