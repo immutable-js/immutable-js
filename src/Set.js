@@ -104,7 +104,11 @@ export class Set extends SetCollection {
     }
     return this.withMutations(set => {
       for (let ii = 0; ii < iters.length; ii++) {
-        SetCollection(iters[ii]).forEach(value => set.add(value));
+        if (typeof iters[ii] === 'string') {
+          set.add(iters[ii]);
+        } else {
+          SetCollection(iters[ii]).forEach(value => set.add(value));
+        }
       }
     });
   }
