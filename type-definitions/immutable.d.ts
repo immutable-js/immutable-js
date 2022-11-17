@@ -3824,7 +3824,9 @@ declare namespace Immutable {
       /**
        * Returns a new Set with other values or collections concatenated to this one.
        */
-      concat<U>(...collections: Array<Iterable<U>>): Collection.Set<T | U>;
+      concat<U>(
+        ...collections: Array<string | Iterable<U>>
+      ): Collection.Set<T | U>;
 
       /**
        * Returns a new Collection.Set with values passed through a
