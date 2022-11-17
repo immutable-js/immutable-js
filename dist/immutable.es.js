@@ -4407,7 +4407,11 @@ var Set = /*@__PURE__*/(function (SetCollection) {
     }
     return this.withMutations(function (set) {
       for (var ii = 0; ii < iters.length; ii++) {
-        SetCollection(iters[ii]).forEach(function (value) { return set.add(value); });
+        if (typeof iters[ii] === 'string') {
+          set.add(iters[ii]);
+        } else {
+          SetCollection(iters[ii]).forEach(function (value) { return set.add(value); });
+        }
       }
     });
   };
