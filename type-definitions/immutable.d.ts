@@ -3822,7 +3822,7 @@ declare namespace Immutable {
       // Sequence algorithms
 
       /**
-       * Returns a new Collection with other collections concatenated to this one.
+       * Returns a new Set with other values or collections concatenated to this one.
        */
       concat<U>(...collections: Array<Iterable<U>>): Collection.Set<T | U>;
 
