@@ -8,6 +8,8 @@ Dates are formatted as YYYY-MM-DD.
 
 ## [Unreleased]
 
+- fix Set.concat to concatenate strings as items [#1913](https://github.com/immutable-js/immutable-js/pull/1913)
+
 ## [4.1.0] - 2022-05-23
 
 - Accept Symbol as Map key. [#1859](https://github.com/immutable-js/immutable-js/pull/1859) by [jdeniau](https://github.com/jdeniau)
