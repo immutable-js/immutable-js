@@ -569,6 +569,17 @@ describe('List', () => {
     expect(r.toArray()).toEqual(['b', 'd', 'f']);
   });
 
+  it('partitions values', () => {
+    const v = List.of('a', 'b', 'c', 'd', 'e', 'f');
+    const r = v
+      .partition((value, index) => index % 2 === 1)
+      .map(part => part.toArray());
+    expect(r).toEqual([
+      ['a', 'c', 'e'],
+      ['b', 'd', 'f'],
+    ]);
+  });
+
   it('filters values based on type', () => {
     class A {}
     class B extends A {
@@ -586,6 +597,27 @@ describe('List', () => {
     const l2: List<C> = l1.filter((v): v is C => v instanceof C);
     expect(l2.size).toEqual(2);
     expect(l2.every(v => v instanceof C)).toBe(true);
+  });
+
+  it('partitions values based on type', () => {
+    class A {}
+    class B extends A {
+      b(): void {
+        return;
+      }
+    }
+    class C extends A {
+      c(): void {
+        return;
+      }
+    }
+    const l1 = List<A>([new B(), new C(), new B(), new C()]);
+    // tslint:disable-next-line:arrow-parens
+    const [la, lc]: [List<A>, List<C>] = l1.partition((v): v is C => v instanceof C);
+    expect(la.size).toEqual(2);
+    expect(la.some(v => v instanceof C)).toBe(false);
+    expect(lc.size).toEqual(2);
+    expect(lc.every(v => v instanceof C)).toBe(true);
   });
 
   it('reduces values', () => {

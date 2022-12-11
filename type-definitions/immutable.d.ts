@@ -588,6 +588,16 @@ declare namespace Immutable {
       context?: unknown
     ): this;
 
+    /** TODO */
+    partition<F extends T, C>(
+      predicate: (this: C, value: T, index: number, iter: this) => value is F,
+      context?: C
+    ): [List<T>, List<F>];
+    partition<C>(
+      predicate: (this: C, value: T, index: number, iter: this) => unknown,
+      context?: C
+    ): [this, this];
+
     /**
      * Returns a List "zipped" with the provided collection.
      *
@@ -1406,6 +1416,16 @@ declare namespace Immutable {
       context?: unknown
     ): this;
 
+    /** TODO */
+    partition<F extends V, C>(
+      predicate: (this: C, value: V, key: K, iter: this) => value is F,
+      context?: C
+    ): [Map<K, V>, Map<K, F>];
+    partition<C>(
+      predicate: (this: C, value: V, key: K, iter: this) => unknown,
+      context?: C
+    ): [this, this];
+
     /**
      * @see Collection.Keyed.flip
      */
@@ -1573,6 +1593,16 @@ declare namespace Immutable {
       predicate: (value: V, key: K, iter: this) => unknown,
       context?: unknown
     ): this;
+
+    /** TODO */
+    partition<F extends V, C>(
+      predicate: (this: C, value: V, key: K, iter: this) => value is F,
+      context?: C
+    ): [OrderedMap<K, V>, OrderedMap<K, F>];
+    partition<C>(
+      predicate: (this: C, value: V, key: K, iter: this) => unknown,
+      context?: C
+    ): [this, this];
 
     /**
      * @see Collection.Keyed.flip
@@ -1787,6 +1817,16 @@ declare namespace Immutable {
       predicate: (value: T, key: T, iter: this) => unknown,
       context?: unknown
     ): this;
+
+    /** TODO */
+    partition<F extends T, C>(
+      predicate: (this: C, value: T, key: T, iter: this) => value is F,
+      context?: C
+    ): [Set<T>, Set<F>];
+    partition<C>(
+      predicate: (this: C, value: T, key: T, iter: this) => unknown,
+      context?: C
+    ): [this, this];
   }
 
   /**
@@ -1886,6 +1926,16 @@ declare namespace Immutable {
       predicate: (value: T, key: T, iter: this) => unknown,
       context?: unknown
     ): this;
+
+    /** TODO */
+    partition<F extends T, C>(
+      predicate: (this: C, value: T, key: T, iter: this) => value is F,
+      context?: C
+    ): [OrderedSet<T>, OrderedSet<F>];
+    partition<C>(
+      predicate: (this: C, value: T, key: T, iter: this) => unknown,
+      context?: C
+    ): [this, this];
 
     /**
      * Returns an OrderedSet of the same type "zipped" with the provided
@@ -2480,7 +2530,7 @@ declare namespace Immutable {
     interface Factory<TProps extends object> {
       (values?: Partial<TProps> | Iterable<[string, unknown]>): Record<TProps> &
         Readonly<TProps>;
-      new (
+      new(
         values?: Partial<TProps> | Iterable<[string, unknown]>
       ): Record<TProps> & Readonly<TProps>;
 
@@ -4298,6 +4348,16 @@ declare namespace Immutable {
       predicate: (value: V, key: K, iter: this) => boolean,
       context?: unknown
     ): this;
+
+    /** TODO */
+    partition<F extends V, C>(
+      predicate: (this: C, value: V, key: K, iter: this) => value is F,
+      context?: C
+    ): [Collection<K, V>, Collection<K, F>];
+    partition<C>(
+      predicate: (this: C, value: V, key: K, iter: this) => unknown,
+      context?: C
+    ): [this, this];
 
     /**
      * Returns a new Collection of the same type in reverse order.

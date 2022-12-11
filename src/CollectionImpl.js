@@ -207,6 +207,13 @@ mixin(Collection, {
     return reify(this, filterFactory(this, predicate, context, true));
   },
 
+  partition(predicate, context) {
+    return [
+      this.filterNot(predicate, context),
+      this.filter(predicate, context),
+    ];
+  },
+
   find(predicate, context, notSetValue) {
     const entry = this.findEntry(predicate, context);
     return entry ? entry[1] : notSetValue;
