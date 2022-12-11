@@ -2907,6 +2907,16 @@ declare namespace Immutable {
         context?: unknown
       ): this;
 
+      /** TODO */
+      partition<F extends V, C>(
+        predicate: (this: C, value: V, key: K, iter: this) => value is F,
+        context?: C
+      ): [Seq.Keyed<K, V>, Seq.Keyed<K, F>];
+      partition<C>(
+        predicate: (this: C, value: V, key: K, iter: this) => unknown,
+        context?: C
+      ): [this, this];
+
       /**
        * @see Collection.Keyed.flip
        */
@@ -3007,6 +3017,16 @@ declare namespace Immutable {
         predicate: (value: T, index: number, iter: this) => unknown,
         context?: unknown
       ): this;
+
+      /** TODO */
+      partition<F extends T, C>(
+        predicate: (this: C, value: T, index: number, iter: this) => value is F,
+        context?: C
+      ): [Seq.Indexed<T>, Seq.Indexed<F>];
+      partition<C>(
+        predicate: (this: C, value: T, index: number, iter: this) => unknown,
+        context?: C
+      ): [this, this];
 
       /**
        * Returns a Seq "zipped" with the provided collections.
@@ -3170,6 +3190,16 @@ declare namespace Immutable {
         context?: unknown
       ): this;
 
+      /** TODO */
+      partition<F extends T, C>(
+        predicate: (this: C, value: T, key: T, iter: this) => value is F,
+        context?: C
+      ): [Seq.Set<T>, Seq.Set<F>];
+      partition<C>(
+        predicate: (this: C, value: T, key: T, iter: this) => unknown,
+        context?: C
+      ): [this, this];
+
       [Symbol.iterator](): IterableIterator<T>;
     }
   }
@@ -3314,6 +3344,16 @@ declare namespace Immutable {
       predicate: (value: V, key: K, iter: this) => unknown,
       context?: unknown
     ): this;
+
+    /** TODO */
+    partition<F extends V, C>(
+      predicate: (this: C, value: V, key: K, iter: this) => value is F,
+      context?: C
+    ): [Seq<K, V>, Seq<K, F>];
+    partition<C>(
+      predicate: (this: C, value: V, key: K, iter: this) => unknown,
+      context?: C
+    ): [this, this];
   }
 
   /**
@@ -3519,6 +3559,16 @@ declare namespace Immutable {
         predicate: (value: V, key: K, iter: this) => unknown,
         context?: unknown
       ): this;
+
+      /** TODO */
+      partition<F extends V, C>(
+        predicate: (this: C, value: V, key: K, iter: this) => value is F,
+        context?: C
+      ): [Collection.Keyed<K, V>, Collection.Keyed<K, F>];
+      partition<C>(
+        predicate: (this: C, value: V, key: K, iter: this) => unknown,
+        context?: C
+      ): [this, this];
 
       [Symbol.iterator](): IterableIterator<[K, V]>;
     }
@@ -3817,6 +3867,16 @@ declare namespace Immutable {
         context?: unknown
       ): this;
 
+      /** TODO */
+      partition<F extends T, C>(
+        predicate: (this: C, value: T, index: number, iter: this) => value is F,
+        context?: C
+      ): [Collection.Indexed<T>, Collection.Indexed<F>];
+      partition<C>(
+        predicate: (this: C, value: T, index: number, iter: this) => unknown,
+        context?: C
+      ): [this, this];
+
       [Symbol.iterator](): IterableIterator<T>;
     }
 
@@ -3918,6 +3978,16 @@ declare namespace Immutable {
         predicate: (value: T, key: T, iter: this) => unknown,
         context?: unknown
       ): this;
+
+      /** TODO */
+      partition<F extends T, C>(
+        predicate: (this: C, value: T, key: T, iter: this) => value is F,
+        context?: C
+      ): [Collection.Set<T>, Collection.Set<F>];
+      partition<C>(
+        predicate: (this: C, value: T, key: T, iter: this) => unknown,
+        context?: C
+      ): [this, this];
 
       [Symbol.iterator](): IterableIterator<T>;
     }
