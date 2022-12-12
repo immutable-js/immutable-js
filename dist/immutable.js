@@ -1416,6 +1416,18 @@
     return groups.map(function (arr) { return reify(collection, coerce(arr)); }).asImmutable();
   }
 
+  function partitionFactory(collection, predicate, context) {
+    var isKeyedIter = isKeyed(collection);
+    var groups = [[], []];
+    collection.__iterate(function (v, k) {
+      groups[predicate.call(context, v, k, collection) ? 1 : 0].push(
+        isKeyedIter ? [k, v] : v
+      );
+    });
+    var coerce = collectionClass(collection);
+    return groups.map(function (arr) { return reify(collection, coerce(arr)); });
+  }
+
   function sliceFactory(collection, begin, end, useKeys) {
     var originalSize = collection.size;
 
@@ -4852,6 +4864,10 @@
 
     filter: function filter(predicate, context) {
       return reify(this, filterFactory(this, predicate, context, true));
+    },
+
+    partition: function partition(predicate, context) {
+      return partitionFactory(this, predicate, context);
     },
 
     find: function find(predicate, context, notSetValue) {
