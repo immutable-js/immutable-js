@@ -588,7 +588,10 @@ declare namespace Immutable {
       context?: unknown
     ): this;
 
-    /** TODO */
+    /**
+     * Returns a new List with the values for which the `predicate`
+     * function returns false and another for which is returns true.
+     */
     partition<F extends T, C>(
       predicate: (this: C, value: T, index: number, iter: this) => value is F,
       context?: C
@@ -1416,7 +1419,10 @@ declare namespace Immutable {
       context?: unknown
     ): this;
 
-    /** TODO */
+    /**
+     * Returns a new Map with the values for which the `predicate`
+     * function returns false and another for which is returns true.
+     */
     partition<F extends V, C>(
       predicate: (this: C, value: V, key: K, iter: this) => value is F,
       context?: C
@@ -1594,7 +1600,10 @@ declare namespace Immutable {
       context?: unknown
     ): this;
 
-    /** TODO */
+    /**
+     * Returns a new OrderedMap with the values for which the `predicate`
+     * function returns false and another for which is returns true.
+     */
     partition<F extends V, C>(
       predicate: (this: C, value: V, key: K, iter: this) => value is F,
       context?: C
@@ -1818,7 +1827,10 @@ declare namespace Immutable {
       context?: unknown
     ): this;
 
-    /** TODO */
+    /**
+     * Returns a new Set with the values for which the `predicate` function
+     * returns false and another for which is returns true.
+     */
     partition<F extends T, C>(
       predicate: (this: C, value: T, key: T, iter: this) => value is F,
       context?: C
@@ -1927,7 +1939,10 @@ declare namespace Immutable {
       context?: unknown
     ): this;
 
-    /** TODO */
+    /**
+     * Returns a new OrderedSet with the values for which the `predicate`
+     * function returns false and another for which is returns true.
+     */
     partition<F extends T, C>(
       predicate: (this: C, value: T, key: T, iter: this) => value is F,
       context?: C
@@ -2907,7 +2922,10 @@ declare namespace Immutable {
         context?: unknown
       ): this;
 
-      /** TODO */
+      /**
+       * Returns a new keyed Seq with the values for which the `predicate`
+       * function returns false and another for which is returns true.
+       */
       partition<F extends V, C>(
         predicate: (this: C, value: V, key: K, iter: this) => value is F,
         context?: C
@@ -3018,7 +3036,10 @@ declare namespace Immutable {
         context?: unknown
       ): this;
 
-      /** TODO */
+      /**
+       * Returns a new indexed Seq with the values for which the `predicate`
+       * function returns false and another for which is returns true.
+       */
       partition<F extends T, C>(
         predicate: (this: C, value: T, index: number, iter: this) => value is F,
         context?: C
@@ -3190,7 +3211,10 @@ declare namespace Immutable {
         context?: unknown
       ): this;
 
-      /** TODO */
+      /**
+       * Returns a new set Seq with the values for which the `predicate`
+       * function returns false and another for which is returns true.
+       */
       partition<F extends T, C>(
         predicate: (this: C, value: T, key: T, iter: this) => value is F,
         context?: C
@@ -3345,7 +3369,10 @@ declare namespace Immutable {
       context?: unknown
     ): this;
 
-    /** TODO */
+    /**
+     * Returns a new Seq with the values for which the `predicate` function
+     * returns false and another for which is returns true.
+     */
     partition<F extends V, C>(
       predicate: (this: C, value: V, key: K, iter: this) => value is F,
       context?: C
@@ -3560,7 +3587,11 @@ declare namespace Immutable {
         context?: unknown
       ): this;
 
-      /** TODO */
+      /**
+       * Returns a new keyed Collection with the values for which the
+       * `predicate` function returns false and another for which is returns
+       * true.
+       */
       partition<F extends V, C>(
         predicate: (this: C, value: V, key: K, iter: this) => value is F,
         context?: C
@@ -3867,7 +3898,11 @@ declare namespace Immutable {
         context?: unknown
       ): this;
 
-      /** TODO */
+      /**
+       * Returns a new indexed Collection with the values for which the
+       * `predicate` function returns false and another for which is returns
+       * true.
+       */
       partition<F extends T, C>(
         predicate: (this: C, value: T, index: number, iter: this) => value is F,
         context?: C
@@ -3979,7 +4014,11 @@ declare namespace Immutable {
         context?: unknown
       ): this;
 
-      /** TODO */
+      /**
+       * Returns a new set Collection with the values for which the
+       * `predicate` function returns false and another for which is returns
+       * true.
+       */
       partition<F extends T, C>(
         predicate: (this: C, value: T, key: T, iter: this) => value is F,
         context?: C
@@ -4419,7 +4458,10 @@ declare namespace Immutable {
       context?: unknown
     ): this;
 
-    /** TODO */
+    /**
+     * Returns a new Collection with the values for which the `predicate`
+     * function returns false and another for which is returns true.
+     */
     partition<F extends V, C>(
       predicate: (this: C, value: V, key: K, iter: this) => value is F,
       context?: C
