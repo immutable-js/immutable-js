@@ -2545,7 +2545,7 @@ declare namespace Immutable {
     interface Factory<TProps extends object> {
       (values?: Partial<TProps> | Iterable<[string, unknown]>): Record<TProps> &
         Readonly<TProps>;
-      new(
+      new (
         values?: Partial<TProps> | Iterable<[string, unknown]>
       ): Record<TProps> & Readonly<TProps>;
 

@@ -613,7 +613,9 @@ describe('List', () => {
     }
     const l1 = List<A>([new B(), new C(), new B(), new C()]);
     // tslint:disable-next-line:arrow-parens
-    const [la, lc]: [List<A>, List<C>] = l1.partition((v): v is C => v instanceof C);
+    const [la, lc]: [List<A>, List<C>] = l1.partition(
+      (v): v is C => v instanceof C
+    );
     expect(la.size).toEqual(2);
     expect(la.some(v => v instanceof C)).toBe(false);
     expect(lc.size).toEqual(2);

@@ -1,11 +1,24 @@
-import { Collection, isAssociative, isIndexed, isKeyed, isList, isMap, isSeq, isSet, List, Map as IMap, Seq, Set as ISet } from 'immutable';
+import {
+  Collection,
+  isAssociative,
+  isIndexed,
+  isKeyed,
+  isList,
+  isMap,
+  isSeq,
+  isSet,
+  List,
+  Map as IMap,
+  Seq,
+  Set as ISet,
+} from 'immutable';
 
 describe('partition', () => {
   let isOdd: jest.Mock<unknown, [x: number]>;
 
   beforeEach(() => {
     isOdd = jest.fn(x => x % 2);
-  })
+  });
 
   it('partitions keyed sequence', () => {
     const parts = Seq({ a: 1, b: 2, c: 3, d: 4 }).partition(isOdd);
