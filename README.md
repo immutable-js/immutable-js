@@ -44,12 +44,12 @@ Want to hear more? Watch the presentation about Immutable.js:
 
 [![Immutable Data and React](website/public/Immutable-Data-and-React-YouTube.png)](https://youtu.be/I7IdS-PbEgI)
 
-[README.md]: https://github.com/immutable-js/immutable-js/blob/main/README.md
+[readme.md]: https://github.com/immutable-js/immutable-js/blob/main/README.md
 [immutable.d.ts]: https://github.com/immutable-js/immutable-js/blob/main/type-definitions/immutable.d.ts
 [wiki]: https://github.com/immutable-js/immutable-js/wiki
 [issue]: https://github.com/immutable-js/immutable-js/issues
-[Persistent]: https://en.wikipedia.org/wiki/Persistent_data_structure
-[Immutable]: https://en.wikipedia.org/wiki/Immutable_object
+[persistent]: https://en.wikipedia.org/wiki/Persistent_data_structure
+[immutable]: https://en.wikipedia.org/wiki/Immutable_object
 [hash maps tries]: https://en.wikipedia.org/wiki/Hash_array_mapped_trie
 [vector tries]: https://hypirion.com/musings/understanding-persistent-vector-pt-1
 
@@ -223,9 +223,8 @@ const map = Map({ a: 1, b: 2, c: 3 });
 const mapCopy = map; // Look, "copies" are free!
 ```
 
-[React]: https://reactjs.org/
-[Flux]: https://facebook.github.io/flux/docs/in-depth-overview/
-
+[react]: https://reactjs.org/
+[flux]: https://facebook.github.io/flux/docs/in-depth-overview/
 
 ## JavaScript-first API
 
@@ -386,11 +385,10 @@ const anArray = [0, ...aList, 4, 5]; // [ 0, 1, 2, 3, 4, 5 ]
 Note: A Collection is always iterated in the same order, however that order may
 not always be well defined, as is the case for the `Map` and `Set`.
 
-[Iterators]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/The_Iterator_protocol
-[Arrow Functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
-[Classes]: https://wiki.ecmascript.org/doku.php?id=strawman:maximally_minimal_classes
-[Modules]: https://www.2ality.com/2014/09/es6-modules-final.html
-
+[iterators]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/The_Iterator_protocol
+[arrow functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
+[classes]: https://wiki.ecmascript.org/doku.php?id=strawman:maximally_minimal_classes
+[modules]: https://www.2ality.com/2014/09/es6-modules-final.html
 
 ## Nested Structures
 
@@ -637,52 +635,106 @@ Range(1, Infinity)
 // 1006008
 ```
 
+## Comparison of filter(), groupBy(), and partition()
+
+The `filter()`, `groupBy()`, and `partition()` methods are similar in that they
+all divide a collection into parts based on applying a function to each element.
+All three call the predicate or grouping function once for each item in the
+input collection.  All three return zero or more collections of the same type as
+their input.  The returned collections are always distinct from the input
+(according to `===`), even if the contents are identical.
+
+Of these methods, `filter()` is the only one that is lazy and the only one which
+discards items from the input collection. It is the simplest to use, and the
+fact that it returns exactly one collection makes it easy to combine with other
+methods to form a pipeline of operations.
+
+The `partition()` method is similar to an eager version of `filter()`, but it
+returns two collections; the first contains the items that would have been
+discarded by `filter()`, and the second contains the items that would have been
+kept.  It always returns an array of exactly two collections, which can make it
+easier to use than `groupBy()`.  Compared to making two separate calls to
+`filter()`, `partition()` makes half as many calls it the predicate passed to
+it.
+
+The `groupBy()` method is a more generalized version of `partition()` that can
+group by an arbitrary function rather than just a predicate.  It returns a map
+with zero or more entries, where the keys are the values returned by the
+grouping function, and the values are nonempty collections of the corresponding
+arguments.  Although `groupBy()` is more powerful than `partition()`, it can be
+harder to use because it is not always possible predict in advance how many
+entries the returned map will have and what their keys will be.
+
+| Summary                       | `filter` | `partition` | `groupBy`      |
+|:------------------------------|:---------|:------------|:---------------|
+| ease of use                   | easiest  | moderate    | hardest        |
+| generality                    | least    | moderate    | most           |
+| laziness                      | lazy     | eager       | eager          |
+| # of returned sub-collections | 1        | 2           | 0 or more      |
+| sub-collections may be empty  | yes      | yes         | no             |
+| can discard items             | yes      | no          | no             |
+| wrapping container            | none     | array       | Map/OrderedMap |
+
 ## Additional Tools and Resources
 
 - [Atom-store](https://github.com/jameshopkins/atom-store/)
+
   - A Clojure-inspired atom implementation in Javascript with configurability
     for external persistance.
 
 - [Chai Immutable](https://github.com/astorije/chai-immutable)
+
   - If you are using the [Chai Assertion Library](https://chaijs.com/), this
     provides a set of assertions to use against Immutable.js collections.
 
 - [Fantasy-land](https://github.com/fantasyland/fantasy-land)
+
   - Specification for interoperability of common algebraic structures in JavaScript.
 
 - [Immutagen](https://github.com/pelotom/immutagen)
+
   - A library for simulating immutable generators in JavaScript.
 
 - [Immutable-cursor](https://github.com/redbadger/immutable-cursor)
+
   - Immutable cursors incorporating the Immutable.js interface over
-  Clojure-inspired atom.
+    Clojure-inspired atom.
 
 - [Immutable-ext](https://github.com/DrBoolean/immutable-ext)
+
   - Fantasyland extensions for immutablejs
 
 - [Immutable-js-tools](https://github.com/madeinfree/immutable-js-tools)
+
   - Util tools for immutable.js
 
 - [Immutable-Redux](https://github.com/gajus/redux-immutable)
+
   - redux-immutable is used to create an equivalent function of Redux
-  combineReducers that works with Immutable.js state.
+    combineReducers that works with Immutable.js state.
 
 - [Immutable-Treeutils](https://github.com/lukasbuenger/immutable-treeutils)
+
   - Functional tree traversal helpers for ImmutableJS data structures.
 
 - [Irecord](https://github.com/ericelliott/irecord)
+
   - An immutable store that exposes an RxJS observable. Great for React.
 
 - [Mudash](https://github.com/brianneisler/mudash)
+
   - Lodash wrapper providing Immutable.JS support.
 
 - [React-Immutable-PropTypes](https://github.com/HurricaneJames/react-immutable-proptypes)
+
   - PropType validators that work with Immutable.js.
 
 - [Redux-Immutablejs](https://github.com/indexiatech/redux-immutablejs)
+
   - Redux Immutable facilities.
 
 - [Rxstate](https://github.com/yamalight/rxstate)
+
   - Simple opinionated state management library based on RxJS and Immutable.js.
 
 - [Transit-Immutable-js](https://github.com/glenjamin/transit-immutable-js)
