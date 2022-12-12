@@ -64,6 +64,7 @@ import {
   sortFactory,
   maxFactory,
   zipWithFactory,
+  partitionFactory,
 } from './Operations';
 import { getIn } from './methods/getIn';
 import { hasIn } from './methods/hasIn';
@@ -208,10 +209,7 @@ mixin(Collection, {
   },
 
   partition(predicate, context) {
-    return [
-      this.filterNot(predicate, context),
-      this.filter(predicate, context),
-    ];
+    return partitionFactory(this, predicate, context);
   },
 
   find(predicate, context, notSetValue) {
