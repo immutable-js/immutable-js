@@ -389,6 +389,18 @@ export function groupByFactory(collection, grouper, context) {
   return groups.map(arr => reify(collection, coerce(arr))).asImmutable();
 }
 
+export function partitionFactory(collection, predicate, context) {
+  const isKeyedIter = isKeyed(collection);
+  const groups = [[], []];
+  collection.__iterate((v, k) => {
+    groups[predicate.call(context, v, k, collection) ? 1 : 0].push(
+      isKeyedIter ? [k, v] : v
+    );
+  });
+  const coerce = collectionClass(collection);
+  return groups.map(arr => reify(collection, coerce(arr)));
+}
+
 export function sliceFactory(collection, begin, end, useKeys) {
   const originalSize = collection.size;
 
