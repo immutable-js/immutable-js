@@ -8,6 +8,8 @@ Dates are formatted as YYYY-MM-DD.
 
 ## [Unreleased]
 
+- Added a `partition` method to all containers [#1916](https://github.com/immutable-js/immutable-js/pull/1916) by [johnw42](https://github.com/johnw42)
+
 ## [4.1.0] - 2022-05-23
 
 - Accept Symbol as Map key. [#1859](https://github.com/immutable-js/immutable-js/pull/1859) by [jdeniau](https://github.com/jdeniau)
