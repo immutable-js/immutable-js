@@ -44,12 +44,12 @@ Want to hear more? Watch the presentation about Immutable.js:
 
 [![Immutable Data and React](website/public/Immutable-Data-and-React-YouTube.png)](https://youtu.be/I7IdS-PbEgI)
 
-[readme.md]: https://github.com/immutable-js/immutable-js/blob/main/README.md
+[README.md]: https://github.com/immutable-js/immutable-js/blob/main/README.md
 [immutable.d.ts]: https://github.com/immutable-js/immutable-js/blob/main/type-definitions/immutable.d.ts
 [wiki]: https://github.com/immutable-js/immutable-js/wiki
 [issue]: https://github.com/immutable-js/immutable-js/issues
-[persistent]: https://en.wikipedia.org/wiki/Persistent_data_structure
-[immutable]: https://en.wikipedia.org/wiki/Immutable_object
+[Persistent]: https://en.wikipedia.org/wiki/Persistent_data_structure
+[Immutable]: https://en.wikipedia.org/wiki/Immutable_object
 [hash maps tries]: https://en.wikipedia.org/wiki/Hash_array_mapped_trie
 [vector tries]: https://hypirion.com/musings/understanding-persistent-vector-pt-1
 
@@ -223,8 +223,9 @@ const map = Map({ a: 1, b: 2, c: 3 });
 const mapCopy = map; // Look, "copies" are free!
 ```
 
-[react]: https://reactjs.org/
-[flux]: https://facebook.github.io/flux/docs/in-depth-overview/
+[React]: https://reactjs.org/
+[Flux]: https://facebook.github.io/flux/docs/in-depth-overview/
+
 
 ## JavaScript-first API
 
@@ -385,10 +386,11 @@ const anArray = [0, ...aList, 4, 5]; // [ 0, 1, 2, 3, 4, 5 ]
 Note: A Collection is always iterated in the same order, however that order may
 not always be well defined, as is the case for the `Map` and `Set`.
 
-[iterators]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/The_Iterator_protocol
-[arrow functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
-[classes]: https://wiki.ecmascript.org/doku.php?id=strawman:maximally_minimal_classes
-[modules]: https://www.2ality.com/2014/09/es6-modules-final.html
+[Iterators]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/The_Iterator_protocol
+[Arrow Functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
+[Classes]: https://wiki.ecmascript.org/doku.php?id=strawman:maximally_minimal_classes
+[Modules]: https://www.2ality.com/2014/09/es6-modules-final.html
+
 
 ## Nested Structures
 
@@ -678,63 +680,49 @@ entries the returned map will have and what their keys will be.
 ## Additional Tools and Resources
 
 - [Atom-store](https://github.com/jameshopkins/atom-store/)
-
   - A Clojure-inspired atom implementation in Javascript with configurability
     for external persistance.
 
 - [Chai Immutable](https://github.com/astorije/chai-immutable)
-
   - If you are using the [Chai Assertion Library](https://chaijs.com/), this
     provides a set of assertions to use against Immutable.js collections.
 
 - [Fantasy-land](https://github.com/fantasyland/fantasy-land)
-
   - Specification for interoperability of common algebraic structures in JavaScript.
 
 - [Immutagen](https://github.com/pelotom/immutagen)
-
   - A library for simulating immutable generators in JavaScript.
 
 - [Immutable-cursor](https://github.com/redbadger/immutable-cursor)
-
   - Immutable cursors incorporating the Immutable.js interface over
-    Clojure-inspired atom.
+  Clojure-inspired atom.
 
 - [Immutable-ext](https://github.com/DrBoolean/immutable-ext)
-
   - Fantasyland extensions for immutablejs
 
 - [Immutable-js-tools](https://github.com/madeinfree/immutable-js-tools)
-
   - Util tools for immutable.js
 
 - [Immutable-Redux](https://github.com/gajus/redux-immutable)
-
   - redux-immutable is used to create an equivalent function of Redux
-    combineReducers that works with Immutable.js state.
+  combineReducers that works with Immutable.js state.
 
 - [Immutable-Treeutils](https://github.com/lukasbuenger/immutable-treeutils)
-
   - Functional tree traversal helpers for ImmutableJS data structures.
 
 - [Irecord](https://github.com/ericelliott/irecord)
-
   - An immutable store that exposes an RxJS observable. Great for React.
 
 - [Mudash](https://github.com/brianneisler/mudash)
-
   - Lodash wrapper providing Immutable.JS support.
 
 - [React-Immutable-PropTypes](https://github.com/HurricaneJames/react-immutable-proptypes)
-
   - PropType validators that work with Immutable.js.
 
 - [Redux-Immutablejs](https://github.com/indexiatech/redux-immutablejs)
-
   - Redux Immutable facilities.
 
 - [Rxstate](https://github.com/yamalight/rxstate)
-
   - Simple opinionated state management library based on RxJS and Immutable.js.
 
 - [Transit-Immutable-js](https://github.com/glenjamin/transit-immutable-js)
