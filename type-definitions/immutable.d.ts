@@ -91,6 +91,26 @@
  */
 
 declare namespace Immutable {
+  export type DeepCopy<T> = T extends Collection.Keyed<infer KeyedKey, infer V>
+    ? // convert KeyedCollection to DeepCopy plain JS object
+      globalThis.Record<
+        KeyedKey extends string | number | symbol ? KeyedKey : string,
+        DeepCopy<V>
+      >
+    : // convert IndexedCollection or Immutable.Set to DeepCopy plain JS array
+    T extends Collection<infer _, infer V>
+    ? Array<DeepCopy<V>>
+    : T extends string | number // Iterable scalar types : should be kept as is
+    ? T
+    : T extends Iterable<infer V> // Iterable are converted to plain JS array
+    ? Array<DeepCopy<V>>
+    : T extends object // plain JS object are converted deeply
+    ? {
+        [ObjectKey in keyof T]: DeepCopy<T[ObjectKey]>;
+      }
+    : // other case : should be kept as is
+      T;
+
   /**
    * Lists are ordered indexed dense collections, much like a JavaScript
    * Array.
@@ -2666,7 +2686,7 @@ declare namespace Immutable {
      * Note: This method may not be overridden. Objects with custom
      * serialization to plain JS may override toJSON() instead.
      */
-    toJS(): { [K in keyof TProps]: unknown };
+    toJS(): DeepCopy<TProps>;
 
     /**
      * Shallowly converts this Record to equivalent native JavaScript Object.
