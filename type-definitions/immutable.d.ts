@@ -2988,7 +2988,7 @@ declare namespace Immutable {
       /**
        * Deeply converts this Indexed Seq to equivalent native JavaScript Array.
        */
-      toJS(): Array<unknown>;
+      toJS(): Array<DeepCopy<T>>;
 
       /**
        * Shallowly converts this Indexed Seq to equivalent native JavaScript Array.
@@ -3163,7 +3163,7 @@ declare namespace Immutable {
       /**
        * Deeply converts this Set Seq to equivalent native JavaScript Array.
        */
-      toJS(): Array<unknown>;
+      toJS(): Array<DeepCopy<T>>;
 
       /**
        * Shallowly converts this Set Seq to equivalent native JavaScript Array.
@@ -3655,7 +3655,7 @@ declare namespace Immutable {
       /**
        * Deeply converts this Indexed collection to equivalent native JavaScript Array.
        */
-      toJS(): Array<unknown>;
+      toJS(): Array<DeepCopy<T>>;
 
       /**
        * Shallowly converts this Indexed collection to equivalent native JavaScript Array.
@@ -3966,7 +3966,7 @@ declare namespace Immutable {
       /**
        * Deeply converts this Set collection to equivalent native JavaScript Array.
        */
-      toJS(): Array<unknown>;
+      toJS(): Array<DeepCopy<T>>;
 
       /**
        * Shallowly converts this Set collection to equivalent native JavaScript Array.
