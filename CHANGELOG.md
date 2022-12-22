@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Dates are formatted as YYYY-MM-DD.
 
-## [4.2.0]
+## [4.2.0] - 2022-12-22
 
 - [TypeScript] Better type for toJS [#1917](https://github.com/immutable-js/immutable-js/pull/1917) by [jdeniau](https://github.com/jdeniau)
   - [TS Minor Break] tests are ran with TS > 4.5 only. It was tested with TS > 2.1 previously, but we want to level up TS types with recent features. TS 4.5 has been released more than one year before this release. If it does break your implementation (it might not), you should probably consider upgrading to the latest TS version.
