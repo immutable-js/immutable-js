@@ -91,6 +91,9 @@
  */
 
 declare namespace Immutable {
+  /**
+   * @ignore
+   */
   export type DeepCopy<T> = T extends Collection.Keyed<infer KeyedKey, infer V>
     ? // convert KeyedCollection to DeepCopy plain JS object
       {
