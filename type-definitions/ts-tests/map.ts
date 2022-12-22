@@ -488,3 +488,10 @@ import { Map, List } from 'immutable';
   // $ExpectType Map<number, number>
   Map<number, number>().asImmutable();
 }
+
+{
+  // #toJS
+
+  // $ExpectType { [x: string]: number; [x: number]: number; [x: symbol]: number; }
+  Map<number, number>().toJS();
+}

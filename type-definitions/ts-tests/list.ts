@@ -446,6 +446,16 @@ import {
 }
 
 {
+  // #toJS / #toJSON
+
+  // $ExpectType number[][]
+  List<List<number>>().toJS();
+
+  // $ExpectType List<number>[]
+  List<List<number>>().toJSON();
+}
+
+{
   // # for of loops
   const list = List([1, 2, 3, 4]);
   for (const val of list) {

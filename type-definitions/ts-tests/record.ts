@@ -1,4 +1,4 @@
-import { Record } from 'immutable';
+import { List, Map, Record, Set } from 'immutable';
 
 {
   // Factory
@@ -27,6 +27,9 @@ import { Record } from 'immutable';
   // $ExpectError
   pointXY.y = 10;
 
+  // $ExpectType { x: number; y: number; }
+  pointXY.toJS();
+
   class PointClass extends PointXY {
     setX(x: number) {
       return this.set('x', x);
@@ -53,6 +56,12 @@ import { Record } from 'immutable';
 
   // $ExpectType PointClass
   point.setY(10);
+
+  // $ExpectType { x: number; y: number; }
+  point.toJSON();
+
+  // $ExpectType { x: number; y: number; }
+  point.toJS();
 }
 
 {
@@ -64,4 +73,21 @@ import { Record } from 'immutable';
 
   // $ExpectError
   Record.getDescriptiveName({});
+}
+
+{
+  // Factory
+  const WithMap = Record({
+    map: Map({ a: 'A' }),
+    list: List(['a']),
+    set: Set(['a']),
+  });
+
+  const withMap = WithMap();
+
+  // $ExpectType { map: Map<string, string>; list: List<string>; set: Set<string>; }
+  withMap.toJSON();
+
+  // $ExpectType { map: { [x: string]: string; }; list: string[]; set: string[]; }
+  withMap.toJS();
 }
