@@ -93,10 +93,11 @@
 declare namespace Immutable {
   export type DeepCopy<T> = T extends Collection.Keyed<infer KeyedKey, infer V>
     ? // convert KeyedCollection to DeepCopy plain JS object
-      globalThis.Record<
-        KeyedKey extends string | number | symbol ? KeyedKey : string,
-        DeepCopy<V>
-      >
+      {
+        [key in KeyedKey extends string | number | symbol
+          ? KeyedKey
+          : string]: DeepCopy<V>;
+      }
     : // convert IndexedCollection or Immutable.Set to DeepCopy plain JS array
     T extends Collection<infer _, infer V>
     ? Array<DeepCopy<V>>
@@ -2846,14 +2847,14 @@ declare namespace Immutable {
        *
        * Converts keys to Strings.
        */
-      toJS(): { [key: string]: unknown };
+      toJS(): { [key in string | number | symbol]: DeepCopy<V> };
 
       /**
        * Shallowly converts this Keyed Seq to equivalent native JavaScript Object.
        *
        * Converts keys to Strings.
        */
-      toJSON(): { [key: string]: V };
+      toJSON(): { [key in string | number | symbol]: V };
 
       /**
        * Shallowly converts this collection to an Array.
@@ -3473,14 +3474,14 @@ declare namespace Immutable {
        *
        * Converts keys to Strings.
        */
-      toJS(): { [key: string]: unknown };
+      toJS(): { [key in string | number | symbol]: DeepCopy<V> };
 
       /**
        * Shallowly converts this Keyed collection to equivalent native JavaScript Object.
        *
        * Converts keys to Strings.
        */
-      toJSON(): { [key: string]: V };
+      toJSON(): { [key in string | number | symbol]: V };
 
       /**
        * Shallowly converts this collection to an Array.
@@ -4228,7 +4229,9 @@ declare namespace Immutable {
      * `Collection.Indexed`, and `Collection.Set` become `Array`, while
      * `Collection.Keyed` become `Object`, converting keys to Strings.
      */
-    toJS(): Array<unknown> | { [key: string]: unknown };
+    toJS():
+      | Array<DeepCopy<V>>
+      | { [key in string | number | symbol]: DeepCopy<V> };
 
     /**
      * Shallowly converts this Collection to equivalent native JavaScript Array or Object.
@@ -4236,7 +4239,7 @@ declare namespace Immutable {
      * `Collection.Indexed`, and `Collection.Set` become `Array`, while
      * `Collection.Keyed` become `Object`, converting keys to Strings.
      */
-    toJSON(): Array<V> | { [key: string]: V };
+    toJSON(): Array<V> | { [key in string | number | symbol]: V };
 
     /**
      * Shallowly converts this collection to an Array.

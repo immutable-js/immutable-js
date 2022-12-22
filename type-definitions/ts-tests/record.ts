@@ -88,6 +88,6 @@ import { List, Map, Record, Set } from 'immutable';
   // $ExpectType { map: Map<string, string>; list: List<string>; set: Set<string>; }
   withMap.toJSON();
 
-  // $ExpectType { map: Record<string, string>; list: string[]; set: string[]; }
+  // $ExpectType { map: { [x: string]: string; }; list: string[]; set: string[]; }
   withMap.toJS();
 }

@@ -1,4 +1,4 @@
-import { List, Map, Record, Set, DeepCopy, Collection } from 'immutable';
+import { List, Map, Record, Set, Seq, DeepCopy, Collection } from 'immutable';
 
 {
   // Basic types
@@ -18,40 +18,53 @@ import { List, Map, Record, Set, DeepCopy, Collection } from 'immutable';
   // $ExpectType string[]
   type Test = DeepCopy<string[]>;
   //   ^?
+
+  // $ExpectType number[]
+  type Keyed = DeepCopy<Collection.Indexed<number>>;
+  //   ^?
 }
 
 {
   // Immutable first-level types
 
-  // $ExpectType Record<string, string>
+  // $ExpectType { [x: string]: string; }
   type StringKey = DeepCopy<Map<string, string>>;
-  //   ^?
 
-  // $ExpectType Record<string, object>
+  // $ExpectType { [x: string]: object; }
   type ObjectKey = DeepCopy<Map<object, object>>;
-  //   ^?
 
-  // $ExpectType Record<string | number, object>
+  // $ExpectType { [x: string]: object; [x: number]: object; }
   type MixedKey = DeepCopy<Map<object | number, object>>;
-  //   ^?
 
   // $ExpectType string[]
   type ListDeepCopy = DeepCopy<List<string>>;
-  //   ^?
 
   // $ExpectType string[]
   type SetDeepCopy = DeepCopy<Set<string>>;
-  //   ^?
+}
+
+{
+  // Keyed
+
+  // $ExpectType { [x: string]: number; }
+  type Keyed = DeepCopy<Collection.Keyed<string, number>>;
+
+  // $ExpectType { [x: string]: number; [x: number]: number; }
+  type KeyedMixed = DeepCopy<Collection.Keyed<string | number, number>>;
+
+  // $ExpectType { [x: string]: number; [x: number]: number; }
+  type KeyedSeqMixed = DeepCopy<Seq.Keyed<string | number, number>>;
+
+  // $ExpectType { [x: string]: number; [x: number]: number; }
+  type MapMixed = DeepCopy<Map<string | number, number>>;
 }
 
 {
   // Nested
 
-  // $ExpectType { map: Record<string, string>; list: string[]; set: string[]; }
+  // $ExpectType { map: { [x: string]: string; }; list: string[]; set: string[]; }
   type NestedObject = DeepCopy<{ map: Map<string, string>; list: List<string>; set: Set<string>; }>;
-  //   ^?
 
-  // $ExpectType Record<"map", Record<string, string>>
+  // $ExpectType { map: { [x: string]: string; }; }
   type NestedMap = DeepCopy<Map<'map', Map<string, string>>>;
-  //   ^?
 }
