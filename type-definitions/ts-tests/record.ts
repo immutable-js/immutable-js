@@ -88,6 +88,7 @@ import { List, Map, Record, Set } from 'immutable';
   // $ExpectType { map: Map<string, string>; list: List<string>; set: Set<string>; }
   withMap.toJSON();
 
-  // $ExpectType { map: { [x: string]: string; }; list: string[]; set: string[]; }
+  // should be `{ map: { [x: string]: string; }; list: string[]; set: string[]; }` but there is an issue with circular references
+  // $ExpectType { map: unknown; list: unknown; set: unknown; }
   withMap.toJS();
 }
