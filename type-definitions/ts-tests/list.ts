@@ -448,7 +448,8 @@ import {
 {
   // #toJS / #toJSON
 
-  // $ExpectType number[][]
+  // should be `number[][]` but there is an issue with deep conversion and circular references
+  // $ExpectType unknown[]
   List<List<number>>().toJS();
 
   // $ExpectType List<number>[]

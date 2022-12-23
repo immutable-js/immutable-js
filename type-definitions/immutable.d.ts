@@ -92,30 +92,6 @@
 
 declare namespace Immutable {
   /**
-   * @ignore
-   */
-  export type DeepCopy<T> = T extends Collection.Keyed<infer KeyedKey, infer V>
-    ? // convert KeyedCollection to DeepCopy plain JS object
-      {
-        [key in KeyedKey extends string | number | symbol
-          ? KeyedKey
-          : string]: DeepCopy<V>;
-      }
-    : // convert IndexedCollection or Immutable.Set to DeepCopy plain JS array
-    T extends Collection<infer _, infer V>
-    ? Array<DeepCopy<V>>
-    : T extends string | number // Iterable scalar types : should be kept as is
-    ? T
-    : T extends Iterable<infer V> // Iterable are converted to plain JS array
-    ? Array<DeepCopy<V>>
-    : T extends object // plain JS object are converted deeply
-    ? {
-        [ObjectKey in keyof T]: DeepCopy<T[ObjectKey]>;
-      }
-    : // other case : should be kept as is
-      T;
-
-  /**
    * Lists are ordered indexed dense collections, much like a JavaScript
    * Array.
    *
@@ -2690,7 +2666,7 @@ declare namespace Immutable {
      * Note: This method may not be overridden. Objects with custom
      * serialization to plain JS may override toJSON() instead.
      */
-    toJS(): DeepCopy<TProps>;
+    toJS(): { [K in keyof TProps]: unknown };
 
     /**
      * Shallowly converts this Record to equivalent native JavaScript Object.
@@ -2850,7 +2826,7 @@ declare namespace Immutable {
        *
        * Converts keys to Strings.
        */
-      toJS(): { [key in string | number | symbol]: DeepCopy<V> };
+      toJS(): { [key in string | number | symbol]: unknown };
 
       /**
        * Shallowly converts this Keyed Seq to equivalent native JavaScript Object.
@@ -2992,7 +2968,7 @@ declare namespace Immutable {
       /**
        * Deeply converts this Indexed Seq to equivalent native JavaScript Array.
        */
-      toJS(): Array<DeepCopy<T>>;
+      toJS(): Array<unknown>;
 
       /**
        * Shallowly converts this Indexed Seq to equivalent native JavaScript Array.
@@ -3167,7 +3143,7 @@ declare namespace Immutable {
       /**
        * Deeply converts this Set Seq to equivalent native JavaScript Array.
        */
-      toJS(): Array<DeepCopy<T>>;
+      toJS(): Array<unknown>;
 
       /**
        * Shallowly converts this Set Seq to equivalent native JavaScript Array.
@@ -3477,7 +3453,7 @@ declare namespace Immutable {
        *
        * Converts keys to Strings.
        */
-      toJS(): { [key in string | number | symbol]: DeepCopy<V> };
+      toJS(): { [key in string | number | symbol]: unknown };
 
       /**
        * Shallowly converts this Keyed collection to equivalent native JavaScript Object.
@@ -3659,7 +3635,7 @@ declare namespace Immutable {
       /**
        * Deeply converts this Indexed collection to equivalent native JavaScript Array.
        */
-      toJS(): Array<DeepCopy<T>>;
+      toJS(): Array<unknown>;
 
       /**
        * Shallowly converts this Indexed collection to equivalent native JavaScript Array.
@@ -3970,7 +3946,7 @@ declare namespace Immutable {
       /**
        * Deeply converts this Set collection to equivalent native JavaScript Array.
        */
-      toJS(): Array<DeepCopy<T>>;
+      toJS(): Array<unknown>;
 
       /**
        * Shallowly converts this Set collection to equivalent native JavaScript Array.
@@ -4232,9 +4208,7 @@ declare namespace Immutable {
      * `Collection.Indexed`, and `Collection.Set` become `Array`, while
      * `Collection.Keyed` become `Object`, converting keys to Strings.
      */
-    toJS():
-      | Array<DeepCopy<V>>
-      | { [key in string | number | symbol]: DeepCopy<V> };
+    toJS(): Array<unknown> | { [key in string | number | symbol]: unknown };
 
     /**
      * Shallowly converts this Collection to equivalent native JavaScript Array or Object.

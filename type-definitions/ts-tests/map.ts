@@ -492,6 +492,7 @@ import { Map, List } from 'immutable';
 {
   // #toJS
 
-  // $ExpectType { [x: string]: number; [x: number]: number; [x: symbol]: number; }
+  // should be `{ [x: string]: number; [x: number]: number; [x: symbol]: number; }` but there is an issue with circular references
+  // $ExpectType { [x: string]: unknown; [x: number]: unknown; [x: symbol]: unknown; }
   Map<number, number>().toJS();
 }
