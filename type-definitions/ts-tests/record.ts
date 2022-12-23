@@ -27,8 +27,7 @@ import { List, Map, Record, Set } from 'immutable';
   // $ExpectError
   pointXY.y = 10;
 
-  // should be `{ x: number; y: number; }` but there is an issue with circular references
-  // $ExpectType { x: unknown; y: unknown; }
+  // $ExpectType { x: number; y: number; }
   pointXY.toJS();
 
   class PointClass extends PointXY {
@@ -61,8 +60,7 @@ import { List, Map, Record, Set } from 'immutable';
   // $ExpectType { x: number; y: number; }
   point.toJSON();
 
-  // should be `{ x: number; y: number; }` but there is an issue with circular references
-  // $ExpectType { x: unknown; y: unknown; }
+  // $ExpectType { x: number; y: number; }
   point.toJS();
 }
 

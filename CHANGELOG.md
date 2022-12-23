@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Dates are formatted as YYYY-MM-DD.
 
+## Unreleased
+
+- [Typescript] rollback some of the change on `toJS` to avoir circular reference
+
 ## [4.2.0] - 2022-12-22
 
 - [TypeScript] Better type for toJS [#1917](https://github.com/immutable-js/immutable-js/pull/1917) by [jdeniau](https://github.com/jdeniau)

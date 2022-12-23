@@ -286,8 +286,7 @@ import { Set, Map } from 'immutable';
 {
   // #toJS / #toJJSON
 
-  // should be `number[][]` but there is an issue with circular references
-  // $ExpectType unknown[]
+  // $ExpectType number[][]
   Set<Set<number>>().toJS();
 
   // $ExpectType Set<number>[]
