@@ -106,6 +106,7 @@ var numberOrStringStack: Stack<string | number> = Stack();
 var number: number = 0;
 var stringToNumberCollection: KeyedCollection<string, number> = stringToNumber;
 var numberToStringCollection: KeyedCollection<number, string> = numberToString;
+var partitions: [List<number>, List<number>];
 
 numberList = List([1, 2]);
 var numberListSize: number = numberList.size;
@@ -268,6 +269,8 @@ numberList = List.of(1).flatten();
 
 // Specific type for filter(Boolean) which removes nullability.
 numberList = nullableNumberList.filter(Boolean);
+
+partitions = List([1,2,3]).partition(value => value % 2);
 
 /* Map */
 
@@ -483,6 +486,8 @@ var stringToNullableNumber = Map({ a: 1, b: null });
 stringToNumber = stringToNullableNumber;
 // Specific type for filter(Boolean) which removes nullability.
 stringToNumber = stringToNullableNumber.filter(Boolean);
+
+[anyMap, ] = Map({ "a": 1, "b": 2}).partition((key, index, iter) => key % 2)
 
 /* OrderedMap */
 
