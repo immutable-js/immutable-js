@@ -5886,7 +5886,7 @@ function defaultConverter(k, v) {
   return isIndexed(v) ? v.toList() : isKeyed(v) ? v.toMap() : v.toSet();
 }
 
-var version = "4.2.1";
+var version = "4.2.2";
 
 var Immutable = {
   version: version,
