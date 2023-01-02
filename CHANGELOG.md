@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Dates are formatted as YYYY-MM-DD.
 
+## [4.2.2] - 2023-01-02
+
+- [Flow] Add type for `partition` method [#1920](https://github.com/immutable-js/immutable-js/pull/1920) by [Dagur](https://github.com/Dagur)
+
 ## [4.2.1] - 2022-12-23
 
 - [Typescript] rollback some of the change on `toJS` to avoir circular reference
