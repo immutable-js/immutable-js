@@ -4600,7 +4600,7 @@ declare namespace Immutable {
     groupBy<G>(
       grouper: (value: V, key: K, iter: this) => G,
       context?: unknown
-    ): /*Map*/ Seq.Keyed<G, /*this*/ Collection<K, V>>;
+    ): Map<G, /*this*/ Collection<K, V>>;
 
     // Side effects
 
