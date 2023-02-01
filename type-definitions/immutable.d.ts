@@ -709,6 +709,35 @@ declare namespace Immutable {
       zipper: (...values: Array<unknown>) => Z,
       ...collections: Array<Collection<unknown, unknown>>
     ): List<Z>;
+
+    /**
+     * Returns an `OrderedMap` of `List`, grouped by the return
+     * value of the `grouper` function.
+     *
+     * Note: This is always an eager operation.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { List, Map } = require('immutable')
+     * const listOfMaps = List([
+     *   Map({ v: 0 }),
+     *   Map({ v: 1 }),
+     *   Map({ v: 1 }),
+     *   Map({ v: 0 }),
+     *   Map({ v: 2 })
+     * ])
+     * const groupsOfMaps = listOfMaps.groupBy(x => x.get('v'))
+     * // OrderedMap {
+     * //   0: List [ Map{ "v": 0 }, Map { "v": 0 } ],
+     * //   1: List [ Map{ "v": 1 }, Map { "v": 1 } ],
+     * //   2: List [ Map{ "v": 2 } ],
+     * // }
+     * ```
+     */
+    groupBy<G>(
+      grouper: (value: T, key: number, iter: this) => G,
+      context?: unknown
+    ): OrderedMap<G, /*this*/ List<T>>;
   }
 
   /**
@@ -1470,6 +1499,35 @@ declare namespace Immutable {
      * @see Collection.Keyed.flip
      */
     flip(): Map<V, K>;
+
+    /**
+     * Returns an `Map` of `List`, grouped by the return
+     * value of the `grouper` function.
+     *
+     * Note: This is always an eager operation.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { Map } = require('immutable')
+     * const map = Map({
+     *   a: 1,
+     *   b: 2,
+     *   c: 3,
+     *   d: 1,
+     *   e: 2,
+     * })
+     * const mapOfMaps = map.groupBy(v => `key-${v}`)
+     * // Map {
+     * //   'key-1': Map { a: 1, d: 1 },
+     * //   'key-2': Map { b: 2, e: 2 },
+     * //   'key-3': Map { c: 3 },
+     * // }
+     * ```
+     */
+    groupBy<G>(
+      grouper: (value: V, key: K, iter: this) => G,
+      context?: unknown
+    ): Map<G, /*this*/ Map<K, V>>;
   }
 
   /**
@@ -1651,6 +1709,34 @@ declare namespace Immutable {
      * @see Collection.Keyed.flip
      */
     flip(): OrderedMap<V, K>;
+    /**
+     * Returns an `OrderedMap` of `OrderedMap`, grouped by the return
+     * value of the `grouper` function.
+     *
+     * Note: This is always an eager operation.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { OrderedMap } = require('immutable')
+     * const map = OrderedMap({
+     *   a: 1,
+     *   b: 2,
+     *   c: 3,
+     *   d: 1,
+     *   e: 2,
+     * })
+     * const mapOfMaps = map.groupBy(v => `key-${v}`)
+     * // OrderedMap {
+     * //   'key-1': OrderedMap { a: 1, d: 1 },
+     * //   'key-2': OrderedMap { b: 2, e: 2 },
+     * //   'key-3': OrderedMap { c: 3 },
+     * // }
+     * ```
+     */
+    groupBy<G>(
+      grouper: (value: V, key: K, iter: this) => G,
+      context?: unknown
+    ): OrderedMap<G, /*this*/ OrderedMap<K, V>>;
   }
 
   /**
@@ -1873,6 +1959,35 @@ declare namespace Immutable {
       predicate: (this: C, value: T, key: T, iter: this) => unknown,
       context?: C
     ): [this, this];
+
+    /**
+     * Returns an `Map` of `Set`, grouped by the return
+     * value of the `grouper` function.
+     *
+     * Note: This is always an eager operation.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { Set, Map } = require('immutable')
+     * const setOfMaps = Set([
+     *   Map({ v: 0 }),
+     *   Map({ v: 1 }),
+     *   Map({ v: 1 }),
+     *   Map({ v: 0 }),
+     *   Map({ v: 2 })
+     * ])
+     * const groupsOfMaps = setOfMaps.groupBy(x => x.get('v'))
+     * // Map {
+     * //   0: Set [ Map{ "v": 0 }, Map { "v": 0 } ],
+     * //   1: Set [ Map{ "v": 1 }, Map { "v": 1 } ],
+     * //   2: Set [ Map{ "v": 2 } ],
+     * // }
+     * ```
+     */
+    groupBy<G>(
+      grouper: (value: T, key: number, iter: this) => G,
+      context?: unknown
+    ): Map<G, /*this*/ Set<T>>;
   }
 
   /**
@@ -2053,6 +2168,35 @@ declare namespace Immutable {
       zipper: (...values: Array<unknown>) => Z,
       ...collections: Array<Collection<unknown, unknown>>
     ): OrderedSet<Z>;
+
+    /**
+     * Returns an `OrderedMap` of `OrderedSet`, grouped by the return
+     * value of the `grouper` function.
+     *
+     * Note: This is always an eager operation.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { List, Map } = require('immutable')
+     * const setOfMaps = OrderedSet([
+     *   Map({ v: 0 }),
+     *   Map({ v: 1 }),
+     *   Map({ v: 1 }),
+     *   Map({ v: 0 }),
+     *   Map({ v: 2 })
+     * ])
+     * const groupsOfMaps = setOfMaps.groupBy(x => x.get('v'))
+     * // OrderedMap {
+     * //   0: OrderedSet [ Map{ "v": 0 }, Map { "v": 0 } ],
+     * //   1: OrderedSet [ Map{ "v": 1 }, Map { "v": 1 } ],
+     * //   2: OrderedSet [ Map{ "v": 2 } ],
+     * // }
+     * ```
+     */
+    groupBy<G>(
+      grouper: (value: T, key: number, iter: this) => G,
+      context?: unknown
+    ): OrderedMap<G, /*this*/ OrderedSet<T>>;
   }
 
   /**
@@ -2301,6 +2445,35 @@ declare namespace Immutable {
       zipper: (...values: Array<unknown>) => Z,
       ...collections: Array<Collection<unknown, unknown>>
     ): Stack<Z>;
+
+    /**
+     * Returns an `OrderedMap` of `Stack`, grouped by the return
+     * value of the `grouper` function.
+     *
+     * Note: This is always an eager operation.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { Stack, Map } = require('immutable')
+     * const stackOfMaps = Stack([
+     *   Map({ v: 0 }),
+     *   Map({ v: 1 }),
+     *   Map({ v: 1 }),
+     *   Map({ v: 0 }),
+     *   Map({ v: 2 })
+     * ])
+     * const groupsOfMaps = stackOfMaps.groupBy(x => x.get('v'))
+     * // OrderedMap {
+     * //   0: Stack [ Map{ "v": 0 }, Map { "v": 0 } ],
+     * //   1: Stack [ Map{ "v": 1 }, Map { "v": 1 } ],
+     * //   2: Stack [ Map{ "v": 2 } ],
+     * // }
+     * ```
+     */
+    groupBy<G>(
+      grouper: (value: T, key: number, iter: this) => G,
+      context?: unknown
+    ): OrderedMap<G, /*this*/ Stack<T>>;
   }
 
   /**
@@ -3415,6 +3588,35 @@ declare namespace Immutable {
       predicate: (this: C, value: V, key: K, iter: this) => unknown,
       context?: C
     ): [this, this];
+
+    /**
+     * Returns an `OrderedMap` of `Seq`, grouped by the return
+     * value of the `grouper` function.
+     *
+     * Note: This is always an eager operation.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { Seq, Map } = require('immutable')
+     * const seqOfMaps = Seq([
+     *   Map({ v: 0 }),
+     *   Map({ v: 1 }),
+     *   Map({ v: 1 }),
+     *   Map({ v: 0 }),
+     *   Map({ v: 2 })
+     * ])
+     * const groupsOfMaps = seqOfMaps.groupBy(x => x.get('v'))
+     * // OrderedMap {
+     * //   0: Seq [ Map{ "v": 0 }, Map { "v": 0 } ],
+     * //   1: Seq [ Map{ "v": 1 }, Map { "v": 1 } ],
+     * //   2: Seq [ Map{ "v": 2 } ],
+     * // }
+     * ```
+     */
+    groupBy<G>(
+      grouper: (value: V, key: K, iter: this) => G,
+      context?: unknown
+    ): OrderedMap<G, /*this*/ Seq<K, V>>;
   }
 
   /**
@@ -3846,6 +4048,35 @@ declare namespace Immutable {
         zipper: (...values: Array<unknown>) => Z,
         ...collections: Array<Collection<unknown, unknown>>
       ): Collection.Indexed<Z>;
+
+      /**
+       * Returns an `OrderedMap` of `Collection`, grouped by the return
+       * value of the `grouper` function.
+       *
+       * Note: This is always an eager operation.
+       *
+       * <!-- runkit:activate -->
+       * ```js
+       * const { List, Map } = require('immutable')
+       * const listOfMaps = Collection([
+       *   Map({ v: 0 }),
+       *   Map({ v: 1 }),
+       *   Map({ v: 1 }),
+       *   Map({ v: 0 }),
+       *   Map({ v: 2 })
+       * ])
+       * const groupsOfMaps = listOfMaps.groupBy(x => x.get('v'))
+       * // OrderedMap {
+       * //   0: List [ Map{ "v": 0 }, Map { "v": 0 } ],
+       * //   1: List [ Map{ "v": 1 }, Map { "v": 1 } ],
+       * //   2: List [ Map{ "v": 2 } ],
+       * // }
+       * ```
+       */
+      groupBy<G>(
+        grouper: (value: T, key: number, iter: this) => G,
+        context?: unknown
+      ): OrderedMap<G, /*this*/ Collection.Indexed<T>>;
 
       // Search for value
 
@@ -4574,7 +4805,7 @@ declare namespace Immutable {
     ): this;
 
     /**
-     * Returns a `Collection.Keyed` of `Collection.Keyeds`, grouped by the return
+     * Returns a `Map` of `Collection`, grouped by the return
      * value of the `grouper` function.
      *
      * Note: This is always an eager operation.
@@ -4600,7 +4831,7 @@ declare namespace Immutable {
     groupBy<G>(
       grouper: (value: V, key: K, iter: this) => G,
       context?: unknown
-    ): Map<G, /*this*/ Collection<K, V>>;
+    ): OrderedMap<G, /*this*/ Collection<K, V>>;
 
     // Side effects
 
