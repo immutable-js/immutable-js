@@ -1,6 +1,53 @@
-import { Collection, Map, Seq } from 'immutable';
+import {
+  Collection,
+  Map,
+  Seq,
+  isOrdered,
+  OrderedMap,
+  List,
+  OrderedSet,
+  Set,
+  Stack,
+  Record,
+} from 'immutable';
 
 describe('groupBy', () => {
+  it.each`
+    constructor   | constructorIsOrdered | isObject
+    ${Collection} | ${true}              | ${false}
+    ${List}       | ${true}              | ${false}
+    ${Seq}        | ${true}              | ${false}
+    ${Set}        | ${false}             | ${false}
+    ${Stack}      | ${true}              | ${false}
+    ${OrderedSet} | ${true}              | ${false}
+    ${Map}        | ${false}             | ${true}
+    ${OrderedMap} | ${true}              | ${true}
+  `(
+    'groupBy returns ordered or unordered of the base type is ordered or not: $constructor.name',
+    ({ constructor, constructorIsOrdered, isObject }) => {
+      const iterableConstructor = ['a', 'b', 'a', 'c'];
+      const objectConstructor = { a: 1, b: 2, c: 3, d: 1 };
+
+      const col = constructor(
+        isObject ? objectConstructor : iterableConstructor
+      );
+
+      const grouped = col.groupBy(v => v);
+
+      // all groupBy should be instance of Map
+      expect(grouped).toBeInstanceOf(Map);
+
+      // ordered objects should be instance of OrderedMap
+      expect(isOrdered(col)).toBe(constructorIsOrdered);
+      expect(isOrdered(grouped)).toBe(constructorIsOrdered);
+      if (constructorIsOrdered) {
+        expect(grouped).toBeInstanceOf(OrderedMap);
+      } else {
+        expect(grouped).not.toBeInstanceOf(OrderedMap);
+      }
+    }
+  );
+
   it('groups keyed sequence', () => {
     const grouped = Seq({ a: 1, b: 2, c: 3, d: 4 }).groupBy(x => x % 2);
     expect(grouped.toJS()).toEqual({ 1: { a: 1, c: 3 }, 0: { b: 2, d: 4 } });
@@ -14,53 +61,38 @@ describe('groupBy', () => {
   });
 
   it('groups indexed sequence', () => {
-    expect(
-      Seq([1, 2, 3, 4, 5, 6])
-        .groupBy(x => x % 2)
-        .toJS()
-    ).toEqual({ 1: [1, 3, 5], 0: [2, 4, 6] });
+    const group = Seq([1, 2, 3, 4, 5, 6]).groupBy(x => x % 2);
+
+    expect(group.toJS()).toEqual({ 1: [1, 3, 5], 0: [2, 4, 6] });
   });
 
   it('groups to keys', () => {
-    expect(
-      Seq([1, 2, 3, 4, 5, 6])
-        .groupBy(x => (x % 2 ? 'odd' : 'even'))
-        .toJS()
-    ).toEqual({ odd: [1, 3, 5], even: [2, 4, 6] });
+    const group = Seq([1, 2, 3, 4, 5, 6]).groupBy(x =>
+      x % 2 ? 'odd' : 'even'
+    );
+    expect(group.toJS()).toEqual({ odd: [1, 3, 5], even: [2, 4, 6] });
   });
 
   it('groups indexed sequences, maintaining indicies when keyed sequences', () => {
-    expect(
-      Seq([1, 2, 3, 4, 5, 6])
-        .groupBy(x => x % 2)
-        .toJS()
-    ).toEqual({ 1: [1, 3, 5], 0: [2, 4, 6] });
-    expect(
-      Seq([1, 2, 3, 4, 5, 6])
-        .toKeyedSeq()
-        .groupBy(x => x % 2)
-        .toJS()
-    ).toEqual({ 1: { 0: 1, 2: 3, 4: 5 }, 0: { 1: 2, 3: 4, 5: 6 } });
+    const group = Seq([1, 2, 3, 4, 5, 6]).groupBy(x => x % 2);
+
+    expect(group.toJS()).toEqual({ 1: [1, 3, 5], 0: [2, 4, 6] });
+
+    const keyedGroup = Seq([1, 2, 3, 4, 5, 6])
+      .toKeyedSeq()
+      .groupBy(x => x % 2);
+
+    expect(keyedGroup.toJS()).toEqual({
+      1: { 0: 1, 2: 3, 4: 5 },
+      0: { 1: 2, 3: 4, 5: 6 },
+    });
   });
 
   it('has groups that can be mapped', () => {
-    expect(
-      Seq([1, 2, 3, 4, 5, 6])
-        .groupBy(x => x % 2)
-        .map(group => group.map(value => value * 10))
-        .toJS()
-    ).toEqual({ 1: [10, 30, 50], 0: [20, 40, 60] });
-  });
+    const mappedGroup = Seq([1, 2, 3, 4, 5, 6])
+      .groupBy(x => x % 2)
+      .map(group => group.map(value => value * 10));
 
-  it('returns an ordered map from an ordered collection', () => {
-    const seq = Seq(['Z', 'Y', 'X', 'Z', 'Y', 'X']);
-    expect(Collection.isOrdered(seq)).toBe(true);
-    const seqGroups = seq.groupBy(x => x);
-    expect(Collection.isOrdered(seqGroups)).toBe(true);
-
-    const map = Map({ x: 1, y: 2 });
-    expect(Collection.isOrdered(map)).toBe(false);
-    const mapGroups = map.groupBy(x => x);
-    expect(Collection.isOrdered(mapGroups)).toBe(false);
+    expect(mappedGroup.toJS()).toEqual({ 1: [10, 30, 50], 0: [20, 40, 60] });
   });
 });

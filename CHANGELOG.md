@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Dates are formatted as YYYY-MM-DD.
 
+## Unreleased
+
+- TypeScript: `groupBy` return either a `Map` or an `OrderedMap`: make the type more precise than base `Collection` [#1924](https://github.com/immutable-js/immutable-js/pull/1924)
+
 ## [4.2.2] - 2023-01-02
 
 - [Flow] Add type for `partition` method [#1920](https://github.com/immutable-js/immutable-js/pull/1920) by [Dagur](https://github.com/Dagur)
