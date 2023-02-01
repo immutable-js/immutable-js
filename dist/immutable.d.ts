@@ -4574,7 +4574,7 @@ declare namespace Immutable {
     ): this;
 
     /**
-     * Returns a `Collection.Keyed` of `Collection.Keyeds`, grouped by the return
+     * Returns a `Map` of `Collection`, grouped by the return
      * value of the `grouper` function.
      *
      * Note: This is always an eager operation.
@@ -4600,7 +4600,7 @@ declare namespace Immutable {
     groupBy<G>(
       grouper: (value: V, key: K, iter: this) => G,
       context?: unknown
-    ): /*Map*/ Seq.Keyed<G, /*this*/ Collection<K, V>>;
+    ): Map<G, this>;
 
     // Side effects
 
