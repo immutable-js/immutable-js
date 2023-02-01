@@ -4,11 +4,17 @@ import { List, Map, OrderedMap, Record, Set, Seq, Stack, OrderedSet, DeepCopy, C
     // $ExpectType Map<string, Indexed<string>>
     Collection(['a', 'b', 'c', 'a']).groupBy(v => v);
 
+    // $ExpectType Map<string, Keyed<string, number>>
+    Collection({ a: 1, b: 2, c: 3, d: 1 }).groupBy(v => `key-${v}`);
+
     // $ExpectType Map<string, List<string>>
     List(['a', 'b', 'c', 'a']).groupBy(v => v);
 
     // $ExpectType Map<string, Indexed<string>>
     Seq(['a', 'b', 'c', 'a']).groupBy(v => v);
+
+    // $ExpectType Map<string, Keyed<string, number>>
+    Seq({ a: 1, b: 2, c: 3, d: 1 }).groupBy(v => `key-${v}`);
 
     // $ExpectType Map<string, Set<string>>
     Set(['a', 'b', 'c', 'a']).groupBy(v => v);
