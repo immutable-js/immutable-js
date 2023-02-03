@@ -5160,12 +5160,39 @@ declare namespace Immutable {
    */
   function fromJS(
     jsValue: unknown,
-    reviver?: (
+    reviver: (
       key: string | number,
       sequence: Collection.Keyed<string, unknown> | Collection.Indexed<unknown>,
       path?: Array<string | number>
     ) => unknown
   ): Collection<unknown, unknown>;
+  function fromJS<JSValue>(
+    jsValue: JSValue,
+    reviver?: undefined
+  ): FromJS<JSValue>;
+
+  type FromJS<JSValue> = JSValue extends FromJSNoTransform
+    ? JSValue
+    : JSValue extends Array<any>
+    ? FromJSArray<JSValue>
+    : JSValue extends {}
+    ? FromJSObject<JSValue>
+    : any;
+
+  type FromJSNoTransform =
+    | Collection<any, any>
+    | number
+    | string
+    | null
+    | undefined;
+
+  type FromJSArray<JSValue> = JSValue extends Array<infer T>
+    ? List<FromJS<T>>
+    : never;
+
+  type FromJSObject<JSValue> = JSValue extends {}
+    ? Map<keyof JSValue, FromJS<JSValue[keyof JSValue]>>
+    : never;
 
   /**
    * Value equality check with semantics similar to `Object.is`, but treats
