@@ -70,14 +70,7 @@ import { getIn } from './methods/getIn';
 import { hasIn } from './methods/hasIn';
 import { toObject } from './methods/toObject';
 
-export {
-  Collection,
-  KeyedCollection,
-  IndexedCollection,
-  SetCollection,
-  CollectionPrototype,
-  IndexedCollectionPrototype,
-};
+export { Collection, CollectionPrototype, IndexedCollectionPrototype };
 
 // Note: all of these methods are deprecated.
 Collection.isIterable = isCollection;
