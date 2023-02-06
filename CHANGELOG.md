@@ -8,7 +8,9 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
-- Improve type infererence for from JS by [KSXGitHub](https://github.com/KSXGitHub) [#1927](https://github.com/immutable-js/immutable-js/pull/1927) 
+## [4.2.4] - 2023-02-06
+
+- Improve type infererence for from JS by [KSXGitHub](https://github.com/KSXGitHub) [#1927](https://github.com/immutable-js/immutable-js/pull/1927)
 
 ## [4.2.3] - 2023-02-02
 
