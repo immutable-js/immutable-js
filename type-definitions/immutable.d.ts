@@ -424,7 +424,10 @@ declare namespace Immutable {
      * @see `Map#update`
      */
     update(index: number, notSetValue: T, updater: (value: T) => T): this;
-    update(index: number, updater: (value: T | undefined) => T): this;
+    update(
+      index: number,
+      updater: (value: T | undefined) => T | undefined
+    ): this;
     update<R>(updater: (value: this) => R): R;
 
     /**
@@ -1001,7 +1004,7 @@ declare namespace Immutable {
      * Note: `update(key)` can be used in `withMutations`.
      */
     update(key: K, notSetValue: V, updater: (value: V) => V): this;
-    update(key: K, updater: (value: V | undefined) => V): this;
+    update(key: K, updater: (value: V | undefined) => V | undefined): this;
     update<R>(updater: (value: this) => R): R;
 
     /**
@@ -5571,7 +5574,7 @@ declare namespace Immutable {
   function update<K, V, C extends Collection<K, V>>(
     collection: C,
     key: K,
-    updater: (value: V | undefined) => V
+    updater: (value: V | undefined) => V | undefined
   ): C;
   function update<K, V, C extends Collection<K, V>, NSV>(
     collection: C,
@@ -5598,7 +5601,7 @@ declare namespace Immutable {
   function update<V>(
     collection: Array<V>,
     key: number,
-    updater: (value: V) => V
+    updater: (value: V | undefined) => V | undefined
   ): Array<V>;
   function update<V, NSV>(
     collection: Array<V>,
