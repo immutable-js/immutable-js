@@ -27,7 +27,7 @@ This made `Map` really unusable with TypeScript.
 Now the Map is typed like this:
 
 ```ts
-MapFromObject<{
+MapOf<{
     length: number;
     1: string;
 }>
@@ -38,6 +38,7 @@ and the return type of `m.get('length')` is typed as `number`.
 The return of `m.get('inexistant')` throw the TypeScript error:
 
 > Argument of type '"inexistant"' is not assignable to parameter of type '1 | "length"
+
 #### If you want to keep the old definition
 
 **This is a minor BC for TS users**, so if you want to keep the old definition, you can declare you Map like this:
@@ -59,7 +60,7 @@ type MyMapType = {
 const m = Map<MyMapType>({ length: 3, 1: 'one' });
 ```
 
-Keep in mind that the `MapFromObject` will try to be consistant with the simple TypeScript object, so you can not do this:
+Keep in mind that the `MapOf` will try to be consistant with the simple TypeScript object, so you can not do this:
 
 ```ts
 Map({ a: 'a' }).set('b', 'b');
@@ -76,8 +77,6 @@ Map<{ a?: string }>({ a: 'a' }).delete('a'); // you can only delete an optional 
 #### Are all `Map` methods implemented ?
 
 For now, only `get`, `getIn`, `set`, `update`, `delete` and `remove` methods are implemented. All other methods will fallback to the basic `Map` definition. Other method definition will be added later, but as some might be really complex, we prefer the progressive enhancement on the most used functions.
-
-
 
 ## [4.2.4] - 2023-02-06
 

@@ -28,8 +28,8 @@ import { List, Map, OrderedMap, Record, Set, Seq, Stack, OrderedSet, DeepCopy, C
     // $ExpectType Map<string, Map<string, number>>
     Map<string, number>({ a: 1, b: 2, c: 3, d: 1 }).groupBy(v => `key-${v}`);
 
-    // type should be something like  Map<string, MapFromObject<Partial{ a: number, b: number, c: number, d: number }>>> but groupBy returns a wrong type with `this`
-    // $ExpectType Map<string, MapFromObject<{ a: number; b: number; c: number; d: number; }>>
+    // type should be something like  Map<string, MapOf<Partial{ a: number, b: number, c: number, d: number }>>> but groupBy returns a wrong type with `this`
+    // $ExpectType Map<string, MapOf<{ a: number; b: number; c: number; d: number; }>>
     Map({ a: 1, b: 2, c: 3, d: 1 }).groupBy(v => `key-${v}`);
 
     // $ExpectType Map<string, OrderedMap<string, number>>

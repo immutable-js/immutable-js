@@ -1,4 +1,4 @@
-import { Map, List, MapFromObject } from 'immutable';
+import { Map, List, MapOf } from 'immutable';
 
 {
   // #constructor
@@ -18,13 +18,13 @@ import { Map, List, MapFromObject } from 'immutable';
   // $ExpectType Map<number, string>
   Map(List<[number, string]>([[1, 'a']]));
 
-  // $ExpectType MapFromObject<{ a: number; }>
+  // $ExpectType MapOf<{ a: number; }>
   Map({ a: 1 });
 
-  // $ExpectType MapFromObject<{ a: number; b: string; }>
+  // $ExpectType MapOf<{ a: number; b: string; }>
   Map({ a: 1, b: 'b' });
 
-  // $ExpectType MapFromObject<{ a: MapFromObject<{ b: MapFromObject<{ c: number; }>; }>; }>
+  // $ExpectType MapOf<{ a: MapOf<{ b: MapOf<{ c: number; }>; }>; }>
   Map({ a: Map({ b: Map({ c: 3 }) }) });
 
   // $ExpectError
@@ -119,7 +119,7 @@ import { Map, List, MapFromObject } from 'immutable';
   // $ExpectType number
   Map({ a: Map({ b: Map({ c: Map({ d: 4 }) }) }) }).getIn(['a', 'b', 'c', 'd']);
 
-  // with a better type, it should be resolved to `number` in the future. `RetrievePathReducer` does not work with anything else than MapFromObject
+  // with a better type, it should be resolved to `number` in the future. `RetrievePathReducer` does not work with anything else than MapOf
   // $ExpectType never
   Map({ a: List([ 1 ]) }).getIn(['a', 0]);
 }
@@ -145,10 +145,10 @@ import { Map, List, MapFromObject } from 'immutable';
   // $ExpectError
   Map({ a: 1 }).set('b', 'b');
 
-  // $ExpectType MapFromObject<{ a: number; b?: string | undefined; }>
+  // $ExpectType MapOf<{ a: number; b?: string | undefined; }>
   Map<{ a: number; b?: string; }>({ a: 1 }).set('b', 'b');
 
-  // $ExpectType MapFromObject<{ a: number; b?: string | undefined; }>
+  // $ExpectType MapOf<{ a: number; b?: string | undefined; }>
   Map<{ a: number; b?: string; }>({ a: 1 }).set('b', undefined);
 
   // $ExpectType number
@@ -161,7 +161,7 @@ import { Map, List, MapFromObject } from 'immutable';
     phone: 'bar',
   });
 
-  // $ExpectType MapFromObject<{ phone: string | number; }>
+  // $ExpectType MapOf<{ phone: string | number; }>
   customer = customer.set('phone', 8);
 }
 
@@ -184,10 +184,10 @@ import { Map, List, MapFromObject } from 'immutable';
   // $ExpectType never
   Map({ a: 1, b: 'b' }).delete('b');
 
-  // $ExpectType MapFromObject<{ a: number; b?: string | undefined; }>
+  // $ExpectType MapOf<{ a: number; b?: string | undefined; }>
   Map<{ a: number; b?: string; }>({ a: 1, b: 'b' }).delete('b');
 
-  // $ExpectType MapFromObject<{ a?: number | undefined; b?: string | undefined; }>
+  // $ExpectType MapOf<{ a?: number | undefined; b?: string | undefined; }>
   Map<{ a?: number; b?: string; }>({ a: 1, b: 'b' }).remove('b').delete('a');
 
   // $ExpectType number
@@ -278,16 +278,16 @@ import { Map, List, MapFromObject } from 'immutable';
   // $ExpectError
   Map({ a: 1, b: 'b' }).update('c', (v) => v);
 
-  // $ExpectType MapFromObject<{ a: number; b: string; }>
+  // $ExpectType MapOf<{ a: number; b: string; }>
   Map({ a: 1, b: 'b' }).update('b', (v) => v.toUpperCase());
 
-  // $ExpectType MapFromObject<{ a: number; b: string; }>
+  // $ExpectType MapOf<{ a: number; b: string; }>
   Map({ a: 1, b: 'b' }).update('b', 'NSV', (v) => v.toUpperCase());
 
   // $ExpectError
   Map({ a: 1, b: 'b' }).update((v) => ({ a: 'a' }));
 
-  // $ExpectType MapFromObject<{ a: number; b: string; }>
+  // $ExpectType MapOf<{ a: number; b: string; }>
   Map({ a: 1, b: 'b' }).update((v) => v.set('a', 2).set('b', 'B'));
 
   // $ExpectError

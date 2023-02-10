@@ -812,7 +812,7 @@ declare namespace Immutable {
   function Map<K, V>(collection?: Iterable<[K, V]>): Map<K, V>;
   function Map<R extends { [key in string | number | symbol]: unknown }>(
     obj: R
-  ): MapFromObject<R>;
+  ): MapOf<R>;
   function Map<V>(obj: { [key: string]: V }): Map<string, V>;
   function Map<K extends string | symbol, V>(obj: { [P in K]?: V }): Map<K, V>;
 
@@ -821,9 +821,8 @@ declare namespace Immutable {
    *
    * @ignore
    */
-  interface MapFromObject<
-    R extends { [key in string | number | symbol]: unknown }
-  > extends Map<keyof R, R[keyof R]> {
+  interface MapOf<R extends { [key in string | number | symbol]: unknown }>
+    extends Map<keyof R, R[keyof R]> {
     /**
      * Returns the value associated with the provided key, or notSetValue if
      * the Collection does not contain this key.
@@ -851,8 +850,8 @@ declare namespace Immutable {
       updater: (value: R[K]) => R[K]
     ): this;
 
-    // Possible best type is MapFromObject<Omit<R, K>> but Omit seems to broke other function calls
-    // and generate recursion error with other methods (update, merge, etc.) until those functions are defined in MapFromObject
+    // Possible best type is MapOf<Omit<R, K>> but Omit seems to broke other function calls
+    // and generate recursion error with other methods (update, merge, etc.) until those functions are defined in MapOf
     delete<K extends keyof R>(
       key: K
     ): Extract<R[K], undefined> extends never ? never : this;
@@ -865,7 +864,7 @@ declare namespace Immutable {
   // https://github.com/immutable-js/immutable-js/issues/1462#issuecomment-584123268
 
   /** @ignore */
-  type GetMapType<S> = S extends MapFromObject<infer T> ? T : S;
+  type GetMapType<S> = S extends MapOf<infer T> ? T : S;
 
   /** @ignore */
   type Head<T extends ReadonlyArray<any>> = T extends [
