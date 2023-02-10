@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Dates are formatted as YYYY-MM-DD.
 
-## [Unreleased]
+## Unreleased
 
 ### Changed
 
@@ -38,7 +38,6 @@ and the return type of `m.get('length')` is typed as `number`.
 The return of `m.get('inexistant')` throw the TypeScript error:
 
 > Argument of type '"inexistant"' is not assignable to parameter of type '1 | "length"
-
 #### If you want to keep the old definition
 
 **This is a minor BC for TS users**, so if you want to keep the old definition, you can declare you Map like this:
@@ -57,7 +56,6 @@ type MyMapType = {
   1: string | null;
   optionalProperty?: string;
 };
-
 const m = Map<MyMapType>({ length: 3, 1: 'one' });
 ```
 
@@ -78,6 +76,30 @@ Map<{ a?: string }>({ a: 'a' }).delete('a'); // you can only delete an optional 
 #### Are all `Map` methods implemented ?
 
 For now, only `get`, `getIn`, `set`, `update`, `delete` and `remove` methods are implemented. All other methods will fallback to the basic `Map` definition. Other method definition will be added later, but as some might be really complex, we prefer the progressive enhancement on the most used functions.
+
+
+
+## [4.2.4] - 2023-02-06
+
+- Improve type infererence for from JS by [KSXGitHub](https://github.com/KSXGitHub) [#1927](https://github.com/immutable-js/immutable-js/pull/1927)
+
+## [4.2.3] - 2023-02-02
+
+- TypeScript: `groupBy` return either a `Map` or an `OrderedMap`: make the type more precise than base `Collection` [#1924](https://github.com/immutable-js/immutable-js/pull/1924)
+
+## [4.2.2] - 2023-01-02
+
+- [Flow] Add type for `partition` method [#1920](https://github.com/immutable-js/immutable-js/pull/1920) by [Dagur](https://github.com/Dagur)
+
+## [4.2.1] - 2022-12-23
+
+- [Typescript] rollback some of the change on `toJS` to avoir circular reference
+
+## [4.2.0] - 2022-12-22
+
+- [TypeScript] Better type for toJS [#1917](https://github.com/immutable-js/immutable-js/pull/1917) by [jdeniau](https://github.com/jdeniau)
+  - [TS Minor Break] tests are ran with TS > 4.5 only. It was tested with TS > 2.1 previously, but we want to level up TS types with recent features. TS 4.5 has been released more than one year before this release. If it does break your implementation (it might not), you should probably consider upgrading to the latest TS version.
+- Added a `partition` method to all containers [#1916](https://github.com/immutable-js/immutable-js/pull/1916) by [johnw42](https://github.com/johnw42)
 
 ## [4.1.0] - 2022-05-23
 

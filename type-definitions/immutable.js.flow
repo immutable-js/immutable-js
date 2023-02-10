@@ -332,6 +332,11 @@ declare class KeyedCollection<K, +V> extends Collection<K, V> {
     context?: mixed
   ): KeyedCollection<K, V>;
 
+  partition(
+    predicate: (value: V, key: K, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
+
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
     context?: mixed
@@ -484,6 +489,11 @@ declare class IndexedCollection<+T> extends Collection<number, T> {
     context?: mixed
   ): IndexedCollection<T>;
 
+  partition(
+    predicate: (value: T, index: number, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
+
   map<M>(
     mapper: (value: T, index: number, iter: this) => M,
     context?: mixed
@@ -518,6 +528,11 @@ declare class SetCollection<+T> extends Collection<T, T> {
     predicate: (value: T, value: T, iter: this) => mixed,
     context?: mixed
   ): SetCollection<T>;
+
+  partition(
+    predicate: (value: T, value: T, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
 
   map<M>(
     mapper: (value: T, value: T, iter: this) => M,
@@ -570,6 +585,11 @@ declare class KeyedSeq<K, +V> extends Seq<K, V> mixins KeyedCollection<K, V> {
     context?: mixed
   ): KeyedSeq<K, V>;
 
+  partition(
+    predicate: (value: V, key: K, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
+
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
     context?: mixed
@@ -611,6 +631,11 @@ declare class IndexedSeq<+T>
     predicate: (value: T, index: number, iter: this) => mixed,
     context?: mixed
   ): IndexedSeq<T>;
+
+  partition(
+    predicate: (value: T, index: number, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
 
   map<M>(
     mapper: (value: T, index: number, iter: this) => M,
@@ -728,6 +753,11 @@ declare class SetSeq<+T> extends Seq<T, T> mixins SetCollection<T> {
     predicate: (value: T, value: T, iter: this) => mixed,
     context?: mixed
   ): SetSeq<T>;
+
+  partition(
+    predicate: (value: T, value: T, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
 
   map<M>(
     mapper: (value: T, value: T, iter: this) => M,
@@ -949,6 +979,11 @@ declare class List<+T>
     context?: mixed
   ): List<T>;
 
+  partition(
+    predicate: (value: T, index: number, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
+
   map<M>(
     mapper: (value: T, index: number, iter: this) => M,
     context?: mixed
@@ -1124,6 +1159,11 @@ declare class Map<K, +V>
     context?: mixed
   ): Map<K, V>;
 
+  partition(
+    predicate: (value: V, key: K, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
+
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
     context?: mixed
@@ -1221,6 +1261,11 @@ declare class OrderedMap<K, +V>
     context?: mixed
   ): OrderedMap<K, V>;
 
+  partition(
+    predicate: (value: V, key: K, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
+
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
     context?: mixed
@@ -1285,6 +1330,11 @@ declare class Set<+T> extends SetCollection<T> {
     context?: mixed
   ): Set<T>;
 
+  partition(
+    predicate: (value: T, value: T, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
+
   map<M>(
     mapper: (value: T, value: T, iter: this) => M,
     context?: mixed
@@ -1326,6 +1376,11 @@ declare class OrderedSet<+T> extends Set<T> {
     predicate: (value: T, value: T, iter: this) => mixed,
     context?: mixed
   ): OrderedSet<T>;
+
+  partition(
+    predicate: (value: T, value: T, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
 
   map<M>(
     mapper: (value: T, value: T, iter: this) => M,

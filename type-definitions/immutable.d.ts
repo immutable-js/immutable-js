@@ -92,6 +92,40 @@
 
 declare namespace Immutable {
   /**
+   * @ignore
+   *
+   * Used to convert deeply all immutable types to a plain TS type.
+   * Using `unknown` on object instead of recursive call as we have a circular reference issue
+   */
+  export type DeepCopy<T> = T extends Record<infer R>
+    ? // convert Record to DeepCopy plain JS object
+      {
+        [key in keyof R]: R[key] extends object ? unknown : R[key];
+      }
+    : T extends Collection.Keyed<infer KeyedKey, infer V>
+    ? // convert KeyedCollection to DeepCopy plain JS object
+      {
+        [key in KeyedKey extends string | number | symbol
+          ? KeyedKey
+          : string]: V extends object ? unknown : V;
+      }
+    : // convert IndexedCollection or Immutable.Set to DeepCopy plain JS array
+    T extends Collection<infer _, infer V>
+    ? Array<V extends object ? unknown : V>
+    : T extends string | number // Iterable scalar types : should be kept as is
+    ? T
+    : T extends Iterable<infer V> // Iterable are converted to plain JS array
+    ? Array<V extends object ? unknown : V>
+    : T extends object // plain JS object are converted deeply
+    ? {
+        [ObjectKey in keyof T]: T[ObjectKey] extends object
+          ? unknown
+          : T[ObjectKey];
+      }
+    : // other case : should be kept as is
+      T;
+
+  /**
    * Lists are ordered indexed dense collections, much like a JavaScript
    * Array.
    *
@@ -390,7 +424,10 @@ declare namespace Immutable {
      * @see `Map#update`
      */
     update(index: number, notSetValue: T, updater: (value: T) => T): this;
-    update(index: number, updater: (value: T | undefined) => T): this;
+    update(
+      index: number,
+      updater: (value: T | undefined) => T | undefined
+    ): this;
     update<R>(updater: (value: this) => R): R;
 
     /**
@@ -587,6 +624,19 @@ declare namespace Immutable {
       predicate: (value: T, index: number, iter: this) => unknown,
       context?: unknown
     ): this;
+
+    /**
+     * Returns a new List with the values for which the `predicate`
+     * function returns false and another for which is returns true.
+     */
+    partition<F extends T, C>(
+      predicate: (this: C, value: T, index: number, iter: this) => value is F,
+      context?: C
+    ): [List<T>, List<F>];
+    partition<C>(
+      predicate: (this: C, value: T, index: number, iter: this) => unknown,
+      context?: C
+    ): [this, this];
 
     /**
      * Returns a List "zipped" with the provided collection.
@@ -1038,7 +1088,7 @@ declare namespace Immutable {
      * Note: `update(key)` can be used in `withMutations`.
      */
     update(key: K, notSetValue: V, updater: (value: V) => V): this;
-    update(key: K, updater: (value: V | undefined) => V): this;
+    update(key: K, updater: (value: V | undefined) => V | undefined): this;
     update<R>(updater: (value: this) => R): R;
 
     /**
@@ -1499,6 +1549,19 @@ declare namespace Immutable {
     ): this;
 
     /**
+     * Returns a new Map with the values for which the `predicate`
+     * function returns false and another for which is returns true.
+     */
+    partition<F extends V, C>(
+      predicate: (this: C, value: V, key: K, iter: this) => value is F,
+      context?: C
+    ): [Map<K, V>, Map<K, F>];
+    partition<C>(
+      predicate: (this: C, value: V, key: K, iter: this) => unknown,
+      context?: C
+    ): [this, this];
+
+    /**
      * @see Collection.Keyed.flip
      */
     flip(): Map<V, K>;
@@ -1682,6 +1745,19 @@ declare namespace Immutable {
       predicate: (value: V, key: K, iter: this) => unknown,
       context?: unknown
     ): this;
+
+    /**
+     * Returns a new OrderedMap with the values for which the `predicate`
+     * function returns false and another for which is returns true.
+     */
+    partition<F extends V, C>(
+      predicate: (this: C, value: V, key: K, iter: this) => value is F,
+      context?: C
+    ): [OrderedMap<K, V>, OrderedMap<K, F>];
+    partition<C>(
+      predicate: (this: C, value: V, key: K, iter: this) => unknown,
+      context?: C
+    ): [this, this];
 
     /**
      * @see Collection.Keyed.flip
@@ -1896,6 +1972,19 @@ declare namespace Immutable {
       predicate: (value: T, key: T, iter: this) => unknown,
       context?: unknown
     ): this;
+
+    /**
+     * Returns a new Set with the values for which the `predicate` function
+     * returns false and another for which is returns true.
+     */
+    partition<F extends T, C>(
+      predicate: (this: C, value: T, key: T, iter: this) => value is F,
+      context?: C
+    ): [Set<T>, Set<F>];
+    partition<C>(
+      predicate: (this: C, value: T, key: T, iter: this) => unknown,
+      context?: C
+    ): [this, this];
   }
 
   /**
@@ -1995,6 +2084,19 @@ declare namespace Immutable {
       predicate: (value: T, key: T, iter: this) => unknown,
       context?: unknown
     ): this;
+
+    /**
+     * Returns a new OrderedSet with the values for which the `predicate`
+     * function returns false and another for which is returns true.
+     */
+    partition<F extends T, C>(
+      predicate: (this: C, value: T, key: T, iter: this) => value is F,
+      context?: C
+    ): [OrderedSet<T>, OrderedSet<F>];
+    partition<C>(
+      predicate: (this: C, value: T, key: T, iter: this) => unknown,
+      context?: C
+    ): [this, this];
 
     /**
      * Returns an OrderedSet of the same type "zipped" with the provided
@@ -2710,7 +2812,7 @@ declare namespace Immutable {
      * Note: This method may not be overridden. Objects with custom
      * serialization to plain JS may override toJSON() instead.
      */
-    toJS(): { [K in keyof TProps]: unknown };
+    toJS(): DeepCopy<TProps>;
 
     /**
      * Shallowly converts this Record to equivalent native JavaScript Object.
@@ -2870,14 +2972,14 @@ declare namespace Immutable {
        *
        * Converts keys to Strings.
        */
-      toJS(): { [key: string]: unknown };
+      toJS(): { [key in string | number | symbol]: DeepCopy<V> };
 
       /**
        * Shallowly converts this Keyed Seq to equivalent native JavaScript Object.
        *
        * Converts keys to Strings.
        */
-      toJSON(): { [key: string]: V };
+      toJSON(): { [key in string | number | symbol]: V };
 
       /**
        * Shallowly converts this collection to an Array.
@@ -2967,6 +3069,19 @@ declare namespace Immutable {
       ): this;
 
       /**
+       * Returns a new keyed Seq with the values for which the `predicate`
+       * function returns false and another for which is returns true.
+       */
+      partition<F extends V, C>(
+        predicate: (this: C, value: V, key: K, iter: this) => value is F,
+        context?: C
+      ): [Seq.Keyed<K, V>, Seq.Keyed<K, F>];
+      partition<C>(
+        predicate: (this: C, value: V, key: K, iter: this) => unknown,
+        context?: C
+      ): [this, this];
+
+      /**
        * @see Collection.Keyed.flip
        */
       flip(): Seq.Keyed<V, K>;
@@ -2999,7 +3114,7 @@ declare namespace Immutable {
       /**
        * Deeply converts this Indexed Seq to equivalent native JavaScript Array.
        */
-      toJS(): Array<unknown>;
+      toJS(): Array<DeepCopy<T>>;
 
       /**
        * Shallowly converts this Indexed Seq to equivalent native JavaScript Array.
@@ -3066,6 +3181,19 @@ declare namespace Immutable {
         predicate: (value: T, index: number, iter: this) => unknown,
         context?: unknown
       ): this;
+
+      /**
+       * Returns a new indexed Seq with the values for which the `predicate`
+       * function returns false and another for which is returns true.
+       */
+      partition<F extends T, C>(
+        predicate: (this: C, value: T, index: number, iter: this) => value is F,
+        context?: C
+      ): [Seq.Indexed<T>, Seq.Indexed<F>];
+      partition<C>(
+        predicate: (this: C, value: T, index: number, iter: this) => unknown,
+        context?: C
+      ): [this, this];
 
       /**
        * Returns a Seq "zipped" with the provided collections.
@@ -3161,7 +3289,7 @@ declare namespace Immutable {
       /**
        * Deeply converts this Set Seq to equivalent native JavaScript Array.
        */
-      toJS(): Array<unknown>;
+      toJS(): Array<DeepCopy<T>>;
 
       /**
        * Shallowly converts this Set Seq to equivalent native JavaScript Array.
@@ -3228,6 +3356,19 @@ declare namespace Immutable {
         predicate: (value: T, key: T, iter: this) => unknown,
         context?: unknown
       ): this;
+
+      /**
+       * Returns a new set Seq with the values for which the `predicate`
+       * function returns false and another for which is returns true.
+       */
+      partition<F extends T, C>(
+        predicate: (this: C, value: T, key: T, iter: this) => value is F,
+        context?: C
+      ): [Seq.Set<T>, Seq.Set<F>];
+      partition<C>(
+        predicate: (this: C, value: T, key: T, iter: this) => unknown,
+        context?: C
+      ): [this, this];
 
       [Symbol.iterator](): IterableIterator<T>;
     }
@@ -3373,6 +3514,19 @@ declare namespace Immutable {
       predicate: (value: V, key: K, iter: this) => unknown,
       context?: unknown
     ): this;
+
+    /**
+     * Returns a new Seq with the values for which the `predicate` function
+     * returns false and another for which is returns true.
+     */
+    partition<F extends V, C>(
+      predicate: (this: C, value: V, key: K, iter: this) => value is F,
+      context?: C
+    ): [Seq<K, V>, Seq<K, F>];
+    partition<C>(
+      predicate: (this: C, value: V, key: K, iter: this) => unknown,
+      context?: C
+    ): [this, this];
   }
 
   /**
@@ -3445,14 +3599,14 @@ declare namespace Immutable {
        *
        * Converts keys to Strings.
        */
-      toJS(): { [key: string]: unknown };
+      toJS(): { [key in string | number | symbol]: DeepCopy<V> };
 
       /**
        * Shallowly converts this Keyed collection to equivalent native JavaScript Object.
        *
        * Converts keys to Strings.
        */
-      toJSON(): { [key: string]: V };
+      toJSON(): { [key in string | number | symbol]: V };
 
       /**
        * Shallowly converts this collection to an Array.
@@ -3579,6 +3733,20 @@ declare namespace Immutable {
         context?: unknown
       ): this;
 
+      /**
+       * Returns a new keyed Collection with the values for which the
+       * `predicate` function returns false and another for which is returns
+       * true.
+       */
+      partition<F extends V, C>(
+        predicate: (this: C, value: V, key: K, iter: this) => value is F,
+        context?: C
+      ): [Collection.Keyed<K, V>, Collection.Keyed<K, F>];
+      partition<C>(
+        predicate: (this: C, value: V, key: K, iter: this) => unknown,
+        context?: C
+      ): [this, this];
+
       [Symbol.iterator](): IterableIterator<[K, V]>;
     }
 
@@ -3613,7 +3781,7 @@ declare namespace Immutable {
       /**
        * Deeply converts this Indexed collection to equivalent native JavaScript Array.
        */
-      toJS(): Array<unknown>;
+      toJS(): Array<DeepCopy<T>>;
 
       /**
        * Shallowly converts this Indexed collection to equivalent native JavaScript Array.
@@ -3876,6 +4044,20 @@ declare namespace Immutable {
         context?: unknown
       ): this;
 
+      /**
+       * Returns a new indexed Collection with the values for which the
+       * `predicate` function returns false and another for which is returns
+       * true.
+       */
+      partition<F extends T, C>(
+        predicate: (this: C, value: T, index: number, iter: this) => value is F,
+        context?: C
+      ): [Collection.Indexed<T>, Collection.Indexed<F>];
+      partition<C>(
+        predicate: (this: C, value: T, index: number, iter: this) => unknown,
+        context?: C
+      ): [this, this];
+
       [Symbol.iterator](): IterableIterator<T>;
     }
 
@@ -3910,7 +4092,7 @@ declare namespace Immutable {
       /**
        * Deeply converts this Set collection to equivalent native JavaScript Array.
        */
-      toJS(): Array<unknown>;
+      toJS(): Array<DeepCopy<T>>;
 
       /**
        * Shallowly converts this Set collection to equivalent native JavaScript Array.
@@ -3977,6 +4159,20 @@ declare namespace Immutable {
         predicate: (value: T, key: T, iter: this) => unknown,
         context?: unknown
       ): this;
+
+      /**
+       * Returns a new set Collection with the values for which the
+       * `predicate` function returns false and another for which is returns
+       * true.
+       */
+      partition<F extends T, C>(
+        predicate: (this: C, value: T, key: T, iter: this) => value is F,
+        context?: C
+      ): [Collection.Set<T>, Collection.Set<F>];
+      partition<C>(
+        predicate: (this: C, value: T, key: T, iter: this) => unknown,
+        context?: C
+      ): [this, this];
 
       [Symbol.iterator](): IterableIterator<T>;
     }
@@ -4158,7 +4354,9 @@ declare namespace Immutable {
      * `Collection.Indexed`, and `Collection.Set` become `Array`, while
      * `Collection.Keyed` become `Object`, converting keys to Strings.
      */
-    toJS(): Array<unknown> | { [key: string]: unknown };
+    toJS():
+      | Array<DeepCopy<V>>
+      | { [key in string | number | symbol]: DeepCopy<V> };
 
     /**
      * Shallowly converts this Collection to equivalent native JavaScript Array or Object.
@@ -4166,7 +4364,7 @@ declare namespace Immutable {
      * `Collection.Indexed`, and `Collection.Set` become `Array`, while
      * `Collection.Keyed` become `Object`, converting keys to Strings.
      */
-    toJSON(): Array<V> | { [key: string]: V };
+    toJSON(): Array<V> | { [key in string | number | symbol]: V };
 
     /**
      * Shallowly converts this collection to an Array.
@@ -4409,6 +4607,19 @@ declare namespace Immutable {
     ): this;
 
     /**
+     * Returns a new Collection with the values for which the `predicate`
+     * function returns false and another for which is returns true.
+     */
+    partition<F extends V, C>(
+      predicate: (this: C, value: V, key: K, iter: this) => value is F,
+      context?: C
+    ): [Collection<K, V>, Collection<K, F>];
+    partition<C>(
+      predicate: (this: C, value: V, key: K, iter: this) => unknown,
+      context?: C
+    ): [this, this];
+
+    /**
      * Returns a new Collection of the same type in reverse order.
      */
     reverse(): this;
@@ -4475,7 +4686,7 @@ declare namespace Immutable {
     ): this;
 
     /**
-     * Returns a `Collection.Keyed` of `Collection.Keyeds`, grouped by the return
+     * Returns a `Map` of `Collection`, grouped by the return
      * value of the `grouper` function.
      *
      * Note: This is always an eager operation.
@@ -4501,7 +4712,7 @@ declare namespace Immutable {
     groupBy<G>(
       grouper: (value: V, key: K, iter: this) => G,
       context?: unknown
-    ): /*Map*/ Seq.Keyed<G, /*this*/ Collection<K, V>>;
+    ): Map<G, this>;
 
     // Side effects
 
@@ -5061,12 +5272,39 @@ declare namespace Immutable {
    */
   function fromJS(
     jsValue: unknown,
-    reviver?: (
+    reviver: (
       key: string | number,
       sequence: Collection.Keyed<string, unknown> | Collection.Indexed<unknown>,
       path?: Array<string | number>
     ) => unknown
   ): Collection<unknown, unknown>;
+  function fromJS<JSValue>(
+    jsValue: JSValue,
+    reviver?: undefined
+  ): FromJS<JSValue>;
+
+  type FromJS<JSValue> = JSValue extends FromJSNoTransform
+    ? JSValue
+    : JSValue extends Array<any>
+    ? FromJSArray<JSValue>
+    : JSValue extends {}
+    ? FromJSObject<JSValue>
+    : any;
+
+  type FromJSNoTransform =
+    | Collection<any, any>
+    | number
+    | string
+    | null
+    | undefined;
+
+  type FromJSArray<JSValue> = JSValue extends Array<infer T>
+    ? List<FromJS<T>>
+    : never;
+
+  type FromJSObject<JSValue> = JSValue extends {}
+    ? Map<keyof JSValue, FromJS<JSValue[keyof JSValue]>>
+    : never;
 
   /**
    * Value equality check with semantics similar to `Object.is`, but treats
@@ -5445,7 +5683,7 @@ declare namespace Immutable {
   function update<K, V, C extends Collection<K, V>>(
     collection: C,
     key: K,
-    updater: (value: V | undefined) => V
+    updater: (value: V | undefined) => V | undefined
   ): C;
   function update<K, V, C extends Collection<K, V>, NSV>(
     collection: C,
@@ -5472,7 +5710,7 @@ declare namespace Immutable {
   function update<V>(
     collection: Array<V>,
     key: number,
-    updater: (value: V) => V
+    updater: (value: V | undefined) => V | undefined
   ): Array<V>;
   function update<V, NSV>(
     collection: Array<V>,

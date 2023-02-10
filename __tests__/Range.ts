@@ -148,6 +148,16 @@ describe('Range', () => {
     expect(r.toArray()).toEqual([0, 2, 4, 6, 8]);
   });
 
+  it('partitions values', () => {
+    const r = Range(0, 10)
+      .partition(v => v % 2 === 0)
+      .map(part => part.toArray());
+    expect(r).toEqual([
+      [1, 3, 5, 7, 9],
+      [0, 2, 4, 6, 8],
+    ]);
+  });
+
   it('reduces values', () => {
     const v = Range(0, 10, 2);
     const r = v.reduce<number>((a, b) => a + b, 0);

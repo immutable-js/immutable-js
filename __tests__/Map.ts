@@ -304,6 +304,17 @@ describe('Map', () => {
     expect(r.toObject()).toEqual({ b: 2, d: 4, f: 6 });
   });
 
+  it('partitions values', () => {
+    const m = Map({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
+    const r = m
+      .partition(value => value % 2 === 1)
+      .map(part => part.toObject());
+    expect(r).toEqual([
+      { b: 2, d: 4, f: 6 },
+      { a: 1, c: 3, e: 5 },
+    ]);
+  });
+
   it('derives keys', () => {
     const v = Map({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
     expect(v.keySeq().toArray()).toEqual(['a', 'b', 'c', 'd', 'e', 'f']);

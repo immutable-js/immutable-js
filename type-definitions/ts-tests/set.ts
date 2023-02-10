@@ -282,3 +282,13 @@ import { Set, Map } from 'immutable';
   // $ExpectType Set<number>
   Set<number>().asImmutable();
 }
+
+{
+  // #toJS / #toJJSON
+
+  // $ExpectType number[][]
+  Set<Set<number>>().toJS();
+
+  // $ExpectType Set<number>[]
+  Set<Set<number>>().toJSON();
+}

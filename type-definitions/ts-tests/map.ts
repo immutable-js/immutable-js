@@ -292,6 +292,9 @@ import { Map, List, MapFromObject } from 'immutable';
 
   // $ExpectError
   Map({ a: 1, b: 'b' }).update((v) => v.set('c', 'c'));
+
+  // $ExpectType Map<string, string>
+  Map<string, string>().update("noKey", ls => ls?.toUpperCase());
 }
 
 {
@@ -457,7 +460,7 @@ import { Map, List, MapFromObject } from 'immutable';
   // $ExpectType Map<number, string | number>
   Map<number, number | string>().merge(Map<number, number>());
 
-  // $ExpectType Map<"a" | "b", number>
+  // $ExpectType Map<"b" | "a", number>
   Map({ a: 1 }).merge(Map({ b: 2 }));
 }
 
@@ -609,4 +612,11 @@ import { Map, List, MapFromObject } from 'immutable';
 
   // $ExpectType Map<number, number>
   Map<number, number>().asImmutable();
+}
+
+{
+  // #toJS
+
+  // $ExpectType { [x: string]: number; [x: number]: number; [x: symbol]: number; }
+  Map<number, number>().toJS();
 }
