@@ -126,6 +126,23 @@ declare namespace Immutable {
       T;
 
   /**
+   * Describes which item in a pair should be placed first when sorting
+   */
+  export enum PairSorting {
+    LeftThenRight = -1,
+    RightThenLeft = +1,
+  }
+
+  /**
+   * Function comparing two items of the same type. It can return:
+   *
+   * * a PairSorting value, to indicate whether the left-hand item or the right-hand item should be placed before the other
+   *
+   * * the traditional numeric return value - especially -1, 0, or 1
+   */
+  export type Comparator<T> = (left: T, right: T) => PairSorting | number;
+
+  /**
    * Lists are ordered indexed dense collections, much like a JavaScript
    * Array.
    *
@@ -4526,6 +4543,7 @@ declare namespace Immutable {
      *   * Returns `0` if the elements should not be swapped.
      *   * Returns `-1` (or any negative number) if `valueA` comes before `valueB`
      *   * Returns `1` (or any positive number) if `valueA` comes after `valueB`
+     *   * Alternatively, can return a value of the `PairSorting` enum type
      *   * Is pure, i.e. it must always return the same value for the same pair
      *     of values.
      *
@@ -4548,7 +4566,7 @@ declare namespace Immutable {
      *
      * Note: This is always an eager operation.
      */
-    sort(comparator?: (valueA: V, valueB: V) => number): this;
+    sort(comparator?: Comparator<V>): this;
 
     /**
      * Like `sort`, but also accepts a `comparatorValueMapper` which allows for
@@ -4573,7 +4591,7 @@ declare namespace Immutable {
      */
     sortBy<C>(
       comparatorValueMapper: (value: V, key: K, iter: this) => C,
-      comparator?: (valueA: C, valueB: C) => number
+      comparator?: Comparator<C>
     ): this;
 
     /**
@@ -4972,7 +4990,7 @@ declare namespace Immutable {
      * If `comparator` returns 0 and either value is NaN, undefined, or null,
      * that value will be returned.
      */
-    max(comparator?: (valueA: V, valueB: V) => number): V | undefined;
+    max(comparator?: Comparator<V>): V | undefined;
 
     /**
      * Like `max`, but also accepts a `comparatorValueMapper` which allows for
@@ -4991,7 +5009,7 @@ declare namespace Immutable {
      */
     maxBy<C>(
       comparatorValueMapper: (value: V, key: K, iter: this) => C,
-      comparator?: (valueA: C, valueB: C) => number
+      comparator?: Comparator<C>
     ): V | undefined;
 
     /**
@@ -5009,7 +5027,7 @@ declare namespace Immutable {
      * If `comparator` returns 0 and either value is NaN, undefined, or null,
      * that value will be returned.
      */
-    min(comparator?: (valueA: V, valueB: V) => number): V | undefined;
+    min(comparator?: Comparator<V>): V | undefined;
 
     /**
      * Like `min`, but also accepts a `comparatorValueMapper` which allows for
@@ -5028,7 +5046,7 @@ declare namespace Immutable {
      */
     minBy<C>(
       comparatorValueMapper: (value: V, key: K, iter: this) => C,
-      comparator?: (valueA: C, valueB: C) => number
+      comparator?: Comparator<C>
     ): V | undefined;
 
     // Comparison
