@@ -13,7 +13,7 @@ additional specific topics. Can't find something? Open an [issue][].
 - [Introduction](#introduction)
 - [Getting started](#getting-started)
 - [The case for Immutability](#the-case-for-immutability)
-- [JavaScript-first API](#javaScript-first-api)
+- [JavaScript-first API](#javascript-first-api)
 - [Nested Structures](#nested-structures)
 - [Equality treats Collections as Values](#equality-treats-collections-as-values)
 - [Batching Mutations](#batching-mutations)
