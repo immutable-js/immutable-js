@@ -127,6 +127,8 @@ declare namespace Immutable {
 
   /**
    * Describes which item in a pair should be placed first when sorting
+   *
+   * @ignore
    */
   export enum PairSorting {
     LeftThenRight = -1,
@@ -139,6 +141,8 @@ declare namespace Immutable {
    * * a PairSorting value, to indicate whether the left-hand item or the right-hand item should be placed before the other
    *
    * * the traditional numeric return value - especially -1, 0, or 1
+   *
+   * @ignore
    */
   export type Comparator<T> = (left: T, right: T) => PairSorting | number;
 
