@@ -60,6 +60,14 @@ type $IterableOf<C> = $Call<
   C
 >;
 
+const PairSorting: $ReadOnly<{ LeftThenRight: number, RightThenLeft: number }> =
+  {
+    LeftThenRight: -1,
+    RightThenLeft: +1,
+  };
+
+type Comparator<T> = (left: T, right: T) => number;
+
 declare class _Collection<K, +V> implements ValueObject {
   equals(other: mixed): boolean;
   hashCode(): number;
@@ -129,11 +137,11 @@ declare class _Collection<K, +V> implements ValueObject {
   entrySeq(): IndexedSeq<[K, V]>;
 
   reverse(): this;
-  sort(comparator?: (valueA: V, valueB: V) => number): this;
+  sort(comparator?: Comparator<V>): this;
 
   sortBy<C>(
     comparatorValueMapper: (value: V, key: K, iter: this) => C,
-    comparator?: (valueA: C, valueB: C) => number
+    comparator?: Comparator<C>
   ): this;
 
   groupBy<G>(
@@ -238,15 +246,15 @@ declare class _Collection<K, +V> implements ValueObject {
   keyOf(searchValue: V): K | void;
   lastKeyOf(searchValue: V): K | void;
 
-  max(comparator?: (valueA: V, valueB: V) => number): V;
+  max(comparator?: Comparator<V>): V;
   maxBy<C>(
     comparatorValueMapper: (value: V, key: K, iter: this) => C,
-    comparator?: (valueA: C, valueB: C) => number
+    comparator?: Comparator<C>
   ): V;
-  min(comparator?: (valueA: V, valueB: V) => number): V;
+  min(comparator?: Comparator<V>): V;
   minBy<C>(
     comparatorValueMapper: (value: V, key: K, iter: this) => C,
-    comparator?: (valueA: C, valueB: C) => number
+    comparator?: Comparator<C>
   ): V;
 
   isSubset(iter: Iterable<V>): boolean;
@@ -2351,6 +2359,7 @@ export default {
   Map,
   OrderedMap,
   OrderedSet,
+  PairSorting,
   Range,
   Repeat,
   Record,
@@ -2387,6 +2396,7 @@ export default {
 };
 
 export type {
+  Comparator,
   KeyedCollection,
   IndexedCollection,
   SetCollection,
