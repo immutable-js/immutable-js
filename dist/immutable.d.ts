@@ -5161,18 +5161,18 @@ declare namespace Immutable {
    * [3]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#the_iterable_protocol
    *      "The iterable protocol"
    */
+  function fromJS<JSValue>(
+    jsValue: JSValue,
+    reviver?: undefined
+  ): FromJS<JSValue>;
   function fromJS(
     jsValue: unknown,
-    reviver: (
+    reviver?: (
       key: string | number,
       sequence: Collection.Keyed<string, unknown> | Collection.Indexed<unknown>,
       path?: Array<string | number>
     ) => unknown
   ): Collection<unknown, unknown>;
-  function fromJS<JSValue>(
-    jsValue: JSValue,
-    reviver?: undefined
-  ): FromJS<JSValue>;
 
   type FromJS<JSValue> = JSValue extends FromJSNoTransform
     ? JSValue
