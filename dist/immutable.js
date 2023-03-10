@@ -5510,6 +5510,11 @@
     );
   }
 
+  var PairSorting = {
+    LeftThenRight: -1,
+    RightThenLeft: +1,
+  };
+
   function throwOnInvalidDefaultValues(defaultValues) {
     if (isRecord(defaultValues)) {
       throw new Error(
@@ -5908,6 +5913,7 @@
     Stack: Stack,
     Set: Set,
     OrderedSet: OrderedSet,
+    PairSorting: PairSorting,
 
     Record: Record,
     Range: Range,
@@ -5959,6 +5965,7 @@
   exports.Map = Map;
   exports.OrderedMap = OrderedMap;
   exports.OrderedSet = OrderedSet;
+  exports.PairSorting = PairSorting;
   exports.Range = Range;
   exports.Record = Record;
   exports.Repeat = Repeat;

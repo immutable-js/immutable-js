@@ -5504,6 +5504,11 @@ function emptyOrderedSet() {
   );
 }
 
+var PairSorting = {
+  LeftThenRight: -1,
+  RightThenLeft: +1,
+};
+
 function throwOnInvalidDefaultValues(defaultValues) {
   if (isRecord(defaultValues)) {
     throw new Error(
@@ -5902,6 +5907,7 @@ var Immutable = {
   Stack: Stack,
   Set: Set,
   OrderedSet: OrderedSet,
+  PairSorting: PairSorting,
 
   Record: Record,
   Range: Range,
@@ -5948,4 +5954,4 @@ var Immutable = {
 var Iterable = Collection;
 
 export default Immutable;
-export { Collection, Iterable, List, Map, OrderedMap, OrderedSet, Range, Record, Repeat, Seq, Set, Stack, fromJS, get, getIn$1 as getIn, has, hasIn$1 as hasIn, hash, is, isAssociative, isCollection, isImmutable, isIndexed, isKeyed, isList, isMap, isOrdered, isOrderedMap, isOrderedSet, isPlainObject, isRecord, isSeq, isSet, isStack, isValueObject, merge, mergeDeep$1 as mergeDeep, mergeDeepWith$1 as mergeDeepWith, mergeWith, remove, removeIn, set, setIn$1 as setIn, update$1 as update, updateIn$1 as updateIn, version };
+export { Collection, Iterable, List, Map, OrderedMap, OrderedSet, PairSorting, Range, Record, Repeat, Seq, Set, Stack, fromJS, get, getIn$1 as getIn, has, hasIn$1 as hasIn, hash, is, isAssociative, isCollection, isImmutable, isIndexed, isKeyed, isList, isMap, isOrdered, isOrderedMap, isOrderedSet, isPlainObject, isRecord, isSeq, isSet, isStack, isValueObject, merge, mergeDeep$1 as mergeDeep, mergeDeepWith$1 as mergeDeepWith, mergeWith, remove, removeIn, set, setIn$1 as setIn, update$1 as update, updateIn$1 as updateIn, version };
