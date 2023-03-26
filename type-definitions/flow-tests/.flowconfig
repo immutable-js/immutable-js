@@ -1,9 +1,0 @@
-[include]
-../../
-
-[options]
-module.name_mapper='^immutable$' -> '../../type-definitions/immutable.js.flow'
-
-[ignore]
-💩 Only interested in testing these files directly in this repo.
-.*/node_modules/.*
