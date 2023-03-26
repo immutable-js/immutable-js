@@ -235,7 +235,7 @@ RecordPrototype.inspect = RecordPrototype.toSource = function () {
 };
 
 function makeRecord(likeRecord, values, ownerID) {
-  const record = Object.create(Object.getPrototypeOf(likeRecord));
+  const record = new likeRecord.constructor();
   record._values = values;
   record.__ownerID = ownerID;
   return record;
