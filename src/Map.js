@@ -160,7 +160,7 @@ export class Map extends KeyedCollection {
 
 Map.isMap = isMap;
 
-export const MapPrototype = Map.prototype;
+const MapPrototype = Map.prototype;
 MapPrototype[IS_MAP_SYMBOL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeAll = MapPrototype.deleteAll;
