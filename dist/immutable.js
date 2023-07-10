@@ -4931,7 +4931,15 @@
     },
 
     some: function some(predicate, context) {
-      return !this.every(not(predicate), context);
+      assertNotInfinite(this.size);
+      var returnValue = false;
+      this.__iterate(function (v, k, c) {
+        if (predicate.call(context, v, k, c)) {
+          returnValue = true;
+          return false;
+        }
+      });
+      return returnValue;
     },
 
     sort: function sort(comparator) {
