@@ -266,7 +266,15 @@ mixin(Collection, {
   },
 
   some(predicate, context) {
-    return !this.every(not(predicate), context);
+    assertNotInfinite(this.size);
+    let returnValue = false;
+    this.__iterate((v, k, c) => {
+      if (predicate.call(context, v, k, c)) {
+        returnValue = true;
+        return false;
+      }
+    });
+    return returnValue;
   },
 
   sort(comparator) {
