@@ -8,6 +8,9 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+- Faster and implementation of some [#1944](https://github.com/immutable-js/immutable-js/pull/1944)
+- [internal] remove unused exports [#1928](https://github.com/immutable-js/immutable-js/pull/1928)
+
 ## [4.3.0] - 2023-03-10
 
 - Introduce Comparator and PairSorting [#1937](https://github.com/immutable-js/immutable-js/pull/1937) by [@https://github.com/giancosta86](https://github.com/giancosta86)
