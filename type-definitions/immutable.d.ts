@@ -1913,7 +1913,9 @@ declare namespace Immutable {
     /**
      * True if the provided value is an OrderedSet.
      */
-    function isOrderedSet(maybeOrderedSet: unknown): boolean;
+    function isOrderedSet(
+      maybeOrderedSet: unknown
+    ): maybeOrderedSet is OrderedSet<unknown>;
 
     /**
      * Creates a new OrderedSet containing `values`.
