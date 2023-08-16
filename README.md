@@ -58,13 +58,17 @@ Want to hear more? Watch the presentation about Immutable.js:
 Install `immutable` using npm.
 
 ```shell
+# using npm
 npm install immutable
-```
 
-Or install using yarn.
-
-```shell
+# using Yarn
 yarn add immutable
+
+# using pnpm
+pnpn add immutable
+
+# using Bun
+bun add immutable
 ```
 
 Then require it into any module.
