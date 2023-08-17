@@ -65,7 +65,7 @@ npm install immutable
 yarn add immutable
 
 # using pnpm
-pnpn add immutable
+pnpm add immutable
 
 # using Bun
 bun add immutable
