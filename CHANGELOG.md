@@ -8,6 +8,11 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+## [4.3.3] - 2023-08-23
+
+- manage to handle toJS circular reference. [#1932](https://github.com/immutable-js/immutable-js/pull/1932)
+- Add install instructions for pnpm and Bun [#1952](https://github.com/immutable-js/immutable-js/pull/1952) and [#1953](https://github.com/immutable-js/immutable-js/pull/1953)
+
 ## [4.3.2] - 2023-08-01
 
 - Fix isOrderedSet type [#1948](https://github.com/immutable-js/immutable-js/pull/1948)
