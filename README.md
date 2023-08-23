@@ -13,7 +13,7 @@ additional specific topics. Can't find something? Open an [issue][].
 - [Introduction](#introduction)
 - [Getting started](#getting-started)
 - [The case for Immutability](#the-case-for-immutability)
-- [JavaScript-first API](#javaScript-first-api)
+- [JavaScript-first API](#javascript-first-api)
 - [Nested Structures](#nested-structures)
 - [Equality treats Collections as Values](#equality-treats-collections-as-values)
 - [Batching Mutations](#batching-mutations)
@@ -58,13 +58,17 @@ Want to hear more? Watch the presentation about Immutable.js:
 Install `immutable` using npm.
 
 ```shell
+# using npm
 npm install immutable
-```
 
-Or install using yarn.
-
-```shell
+# using Yarn
 yarn add immutable
+
+# using pnpm
+pnpm add immutable
+
+# using Bun
+bun add immutable
 ```
 
 Then require it into any module.

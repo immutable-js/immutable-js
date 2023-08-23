@@ -23,12 +23,10 @@ import { List, Map, Record, Set, Seq, DeepCopy, Collection } from 'immutable';
   // $ExpectType { [x: string]: string; }
   type StringKey = DeepCopy<Map<string, string>>;
 
-  // should be `{ [x: string]: object; }` but there is an issue with circular references
-  // $ExpectType { [x: string]: unknown; }
+  // $ExpectType { [x: string]: object; }
   type ObjectKey = DeepCopy<Map<object, object>>;
 
-  // should be `{ [x: string]: object; [x: number]: object; }` but there is an issue with circular references
-  // $ExpectType { [x: string]: unknown; [x: number]: unknown; }
+  // $ExpectType { [x: string]: object; [x: number]: object; }
   type MixedKey = DeepCopy<Map<object | number, object>>;
 
   // $ExpectType string[]
@@ -57,12 +55,10 @@ import { List, Map, Record, Set, Seq, DeepCopy, Collection } from 'immutable';
 {
   // Nested
 
-  // should be `{ map: { [x: string]: string; }; list: string[]; set: string[]; }` but there is an issue with circular references
-  // $ExpectType { map: unknown; list: unknown; set: unknown; }
+  // $ExpectType { map: { [x: string]: string; }; list: string[]; set: string[]; }
   type NestedObject = DeepCopy<{ map: Map<string, string>; list: List<string>; set: Set<string>; }>;
 
-  // should be `{ map: { [x: string]: string; }; }`, but there is an issue with circular references
-  // $ExpectType { map: unknown; }
+  // $ExpectType { map: { [x: string]: string; }; }
   type NestedMap = DeepCopy<Map<'map', Map<string, string>>>;
 }
 
@@ -72,8 +68,6 @@ import { List, Map, Record, Set, Seq, DeepCopy, Collection } from 'immutable';
   type Article = Record<{ title: string; tag: Tag; }>;
   type Tag = Record<{ name: string; article: Article; }>;
 
-  // should handle circular references here somehow
-  // $ExpectType { title: string; tag: unknown; }
+  // $ExpectType { title: string; tag: { name: string; article: any; }; }
   type Circular = DeepCopy<Article>;
-  //   ^?
 }

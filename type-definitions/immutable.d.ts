@@ -100,30 +100,49 @@ declare namespace Immutable {
   export type DeepCopy<T> = T extends Record<infer R>
     ? // convert Record to DeepCopy plain JS object
       {
-        [key in keyof R]: R[key] extends object ? unknown : R[key];
+        [key in keyof R]: DeepCopy<R[key]>;
       }
     : T extends Collection.Keyed<infer KeyedKey, infer V>
     ? // convert KeyedCollection to DeepCopy plain JS object
       {
         [key in KeyedKey extends string | number | symbol
           ? KeyedKey
-          : string]: V extends object ? unknown : V;
+          : string]: DeepCopy<V>;
       }
     : // convert IndexedCollection or Immutable.Set to DeepCopy plain JS array
     T extends Collection<infer _, infer V>
-    ? Array<V extends object ? unknown : V>
+    ? Array<DeepCopy<V>>
     : T extends string | number // Iterable scalar types : should be kept as is
     ? T
     : T extends Iterable<infer V> // Iterable are converted to plain JS array
-    ? Array<V extends object ? unknown : V>
+    ? Array<DeepCopy<V>>
     : T extends object // plain JS object are converted deeply
     ? {
-        [ObjectKey in keyof T]: T[ObjectKey] extends object
-          ? unknown
-          : T[ObjectKey];
+        [ObjectKey in keyof T]: DeepCopy<T[ObjectKey]>;
       }
     : // other case : should be kept as is
       T;
+
+  /**
+   * Describes which item in a pair should be placed first when sorting
+   *
+   * @ignore
+   */
+  export enum PairSorting {
+    LeftThenRight = -1,
+    RightThenLeft = +1,
+  }
+
+  /**
+   * Function comparing two items of the same type. It can return:
+   *
+   * * a PairSorting value, to indicate whether the left-hand item or the right-hand item should be placed before the other
+   *
+   * * the traditional numeric return value - especially -1, 0, or 1
+   *
+   * @ignore
+   */
+  export type Comparator<T> = (left: T, right: T) => PairSorting | number;
 
   /**
    * Lists are ordered indexed dense collections, much like a JavaScript
@@ -2000,7 +2019,9 @@ declare namespace Immutable {
     /**
      * True if the provided value is an OrderedSet.
      */
-    function isOrderedSet(maybeOrderedSet: unknown): boolean;
+    function isOrderedSet(
+      maybeOrderedSet: unknown
+    ): maybeOrderedSet is OrderedSet<unknown>;
 
     /**
      * Creates a new OrderedSet containing `values`.
@@ -4634,6 +4655,7 @@ declare namespace Immutable {
      *   * Returns `0` if the elements should not be swapped.
      *   * Returns `-1` (or any negative number) if `valueA` comes before `valueB`
      *   * Returns `1` (or any positive number) if `valueA` comes after `valueB`
+     *   * Alternatively, can return a value of the `PairSorting` enum type
      *   * Is pure, i.e. it must always return the same value for the same pair
      *     of values.
      *
@@ -4656,7 +4678,7 @@ declare namespace Immutable {
      *
      * Note: This is always an eager operation.
      */
-    sort(comparator?: (valueA: V, valueB: V) => number): this;
+    sort(comparator?: Comparator<V>): this;
 
     /**
      * Like `sort`, but also accepts a `comparatorValueMapper` which allows for
@@ -4681,7 +4703,7 @@ declare namespace Immutable {
      */
     sortBy<C>(
       comparatorValueMapper: (value: V, key: K, iter: this) => C,
-      comparator?: (valueA: C, valueB: C) => number
+      comparator?: Comparator<C>
     ): this;
 
     /**
@@ -5080,7 +5102,7 @@ declare namespace Immutable {
      * If `comparator` returns 0 and either value is NaN, undefined, or null,
      * that value will be returned.
      */
-    max(comparator?: (valueA: V, valueB: V) => number): V | undefined;
+    max(comparator?: Comparator<V>): V | undefined;
 
     /**
      * Like `max`, but also accepts a `comparatorValueMapper` which allows for
@@ -5099,7 +5121,7 @@ declare namespace Immutable {
      */
     maxBy<C>(
       comparatorValueMapper: (value: V, key: K, iter: this) => C,
-      comparator?: (valueA: C, valueB: C) => number
+      comparator?: Comparator<C>
     ): V | undefined;
 
     /**
@@ -5117,7 +5139,7 @@ declare namespace Immutable {
      * If `comparator` returns 0 and either value is NaN, undefined, or null,
      * that value will be returned.
      */
-    min(comparator?: (valueA: V, valueB: V) => number): V | undefined;
+    min(comparator?: Comparator<V>): V | undefined;
 
     /**
      * Like `min`, but also accepts a `comparatorValueMapper` which allows for
@@ -5136,7 +5158,7 @@ declare namespace Immutable {
      */
     minBy<C>(
       comparatorValueMapper: (value: V, key: K, iter: this) => C,
-      comparator?: (valueA: C, valueB: C) => number
+      comparator?: Comparator<C>
     ): V | undefined;
 
     // Comparison
@@ -5269,18 +5291,18 @@ declare namespace Immutable {
    * [3]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#the_iterable_protocol
    *      "The iterable protocol"
    */
+  function fromJS<JSValue>(
+    jsValue: JSValue,
+    reviver?: undefined
+  ): FromJS<JSValue>;
   function fromJS(
     jsValue: unknown,
-    reviver: (
+    reviver?: (
       key: string | number,
       sequence: Collection.Keyed<string, unknown> | Collection.Indexed<unknown>,
       path?: Array<string | number>
     ) => unknown
   ): Collection<unknown, unknown>;
-  function fromJS<JSValue>(
-    jsValue: JSValue,
-    reviver?: undefined
-  ): FromJS<JSValue>;
 
   type FromJS<JSValue> = JSValue extends FromJSNoTransform
     ? JSValue

@@ -33,3 +33,17 @@ import { fromJS, List, Map } from 'immutable';
   // $ExpectType Map<"a", Map<"b", Map<"c", number>>>
   fromJS({a: {b: {c: 0}}});
 }
+
+{
+  // fromJS in an array of function
+
+  const create = [(data: any) => data, fromJS][1];
+
+  // $ExpectType any
+  create({ a: 'A' });
+
+  const createConst = ([(data: any) => data, fromJS] as const)[1];
+
+  // $ExpectType Map<"a", string>
+  createConst({ a: 'A' });
+}

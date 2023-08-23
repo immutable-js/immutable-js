@@ -1,4 +1,4 @@
-import { List, Map, Record, Set } from 'immutable';
+import { List, Map, Record, RecordOf, Set } from 'immutable';
 
 {
   // Factory
@@ -88,7 +88,31 @@ import { List, Map, Record, Set } from 'immutable';
   // $ExpectType { map: MapOf<{ a: string; }>; list: List<string>; set: Set<string>; }
   withMap.toJSON();
 
-  // should be `{ map: { [x: string]: string; }; list: string[]; set: string[]; }` but there is an issue with circular references
-  // $ExpectType { map: unknown; list: unknown; set: unknown; }
+  // $ExpectType { map: { [x: string]: string; }; list: string[]; set: string[]; }
   withMap.toJS();
+}
+
+{
+  // optional properties
+
+  interface Size { distance: string; }
+
+  const Line = Record<{ size?: Size, color?: string }>({ size: undefined, color: 'red' });
+
+  const line = Line({});
+
+  // $ExpectType { size?: { distance: string; } | undefined; color?: string | undefined; }
+  line.toJS();
+}
+
+{
+  // similar properties, but one is optional. See https://github.com/immutable-js/immutable-js/issues/1930
+
+  interface Id { value: string; }
+
+  type A = RecordOf<{ id: Id }>;
+  type B = RecordOf<{ id?: Id }>;
+
+  const a: A = null as any;
+  const b: B = a;
 }
