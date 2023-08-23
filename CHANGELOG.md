@@ -10,8 +10,8 @@ Dates are formatted as YYYY-MM-DD.
 
 ## [4.3.3] - 2023-08-23
 
-- [TypeScript] manage to handle toJS circular reference. [#1932](https://github.com/immutable-js/immutable-js/pull/1932)
-- [Doc] Add install instructions for pnpm and Bun [#1952](https://github.com/immutable-js/immutable-js/pull/1952) and [#1953](https://github.com/immutable-js/immutable-js/pull/1953)
+- [typescript] manage to handle toJS circular reference. [#1932](https://github.com/immutable-js/immutable-js/pull/1932) by [@jdeniau](https://github.com/jdeniau)
+- [doc] Add install instructions for pnpm and Bun [#1952](https://github.com/immutable-js/immutable-js/pull/1952) by [@colinhacks](https://github.com/colinhacks) and [#1953](https://github.com/immutable-js/immutable-js/pull/1953) by [@menglingyu659](https://github.com/menglingyu659)
 
 ## [4.3.2] - 2023-08-01
 
