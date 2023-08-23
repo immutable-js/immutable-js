@@ -10,12 +10,12 @@ Dates are formatted as YYYY-MM-DD.
 
 ## [4.3.3] - 2023-08-23
 
-- manage to handle toJS circular reference. [#1932](https://github.com/immutable-js/immutable-js/pull/1932)
-- Add install instructions for pnpm and Bun [#1952](https://github.com/immutable-js/immutable-js/pull/1952) and [#1953](https://github.com/immutable-js/immutable-js/pull/1953)
+- [TypeScript] manage to handle toJS circular reference. [#1932](https://github.com/immutable-js/immutable-js/pull/1932)
+- [Doc] Add install instructions for pnpm and Bun [#1952](https://github.com/immutable-js/immutable-js/pull/1952) and [#1953](https://github.com/immutable-js/immutable-js/pull/1953)
 
 ## [4.3.2] - 2023-08-01
 
-- Fix isOrderedSet type [#1948](https://github.com/immutable-js/immutable-js/pull/1948)
+- [TypeScript] Fix isOrderedSet type [#1948](https://github.com/immutable-js/immutable-js/pull/1948)
 
 ## [4.3.1] - 2023-07-11
 
@@ -25,15 +25,15 @@ Dates are formatted as YYYY-MM-DD.
 ## [4.3.0] - 2023-03-10
 
 - Introduce Comparator and PairSorting [#1937](https://github.com/immutable-js/immutable-js/pull/1937) by [@https://github.com/giancosta86](https://github.com/giancosta86)
-- Fix fromJS declaration for greater compatibility [#1936](https://github.com/immutable-js/immutable-js/pull/1936)
+- [TypeScript] Fix fromJS declaration for greater compatibility [#1936](https://github.com/immutable-js/immutable-js/pull/1936)
 
 ## [4.2.4] - 2023-02-06
 
-- Improve type infererence for from JS by [KSXGitHub](https://github.com/KSXGitHub) [#1927](https://github.com/immutable-js/immutable-js/pull/1927)
+- [TypeScript] Improve type infererence for from JS by [KSXGitHub](https://github.com/KSXGitHub) [#1927](https://github.com/immutable-js/immutable-js/pull/1927)
 
 ## [4.2.3] - 2023-02-02
 
-- TypeScript: `groupBy` return either a `Map` or an `OrderedMap`: make the type more precise than base `Collection` [#1924](https://github.com/immutable-js/immutable-js/pull/1924)
+- [TypeScript] `groupBy` return either a `Map` or an `OrderedMap`: make the type more precise than base `Collection` [#1924](https://github.com/immutable-js/immutable-js/pull/1924)
 
 ## [4.2.2] - 2023-01-02
 
