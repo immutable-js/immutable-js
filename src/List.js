@@ -236,7 +236,7 @@ export class List extends IndexedCollection {
 
 List.isList = isList;
 
-export const ListPrototype = List.prototype;
+const ListPrototype = List.prototype;
 ListPrototype[IS_LIST_SYMBOL] = true;
 ListPrototype[DELETE] = ListPrototype.remove;
 ListPrototype.merge = ListPrototype.concat;

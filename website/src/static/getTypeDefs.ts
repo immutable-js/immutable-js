@@ -709,6 +709,10 @@ function typesVisitor(source: ts.SourceFile) {
           ],
         };
       }
+      case ts.SyntaxKind.ConditionalType:
+      case ts.SyntaxKind.RestType: {
+        return { k: TypeKind.Never };
+      }
     }
     throw new Error('Unknown type kind: ' + ts.SyntaxKind[node.kind]);
   }
@@ -759,7 +763,7 @@ function getDoc(node: ts.Node): TypeDoc | undefined {
     .text.substring(trivia.pos, trivia.end)
     .split('\n')
     .slice(1, -1)
-    .map(l => l.trim().substr(2));
+    .map(l => l.trim().slice(2));
 
   const paragraphs = lines
     .filter(l => l[0] !== '@')

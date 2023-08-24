@@ -13,7 +13,7 @@ additional specific topics. Can't find something? Open an [issue][].
 - [Introduction](#introduction)
 - [Getting started](#getting-started)
 - [The case for Immutability](#the-case-for-immutability)
-- [JavaScript-first API](#javaScript-first-api)
+- [JavaScript-first API](#javascript-first-api)
 - [Nested Structures](#nested-structures)
 - [Equality treats Collections as Values](#equality-treats-collections-as-values)
 - [Batching Mutations](#batching-mutations)
@@ -58,13 +58,17 @@ Want to hear more? Watch the presentation about Immutable.js:
 Install `immutable` using npm.
 
 ```shell
+# using npm
 npm install immutable
-```
 
-Or install using yarn.
-
-```shell
+# using Yarn
 yarn add immutable
+
+# using pnpm
+pnpm add immutable
+
+# using Bun
+bun add immutable
 ```
 
 Then require it into any module.
@@ -636,6 +640,46 @@ Range(1, Infinity)
   .reduce((r, n) => r * n, 1);
 // 1006008
 ```
+
+## Comparison of filter(), groupBy(), and partition()
+
+The `filter()`, `groupBy()`, and `partition()` methods are similar in that they
+all divide a collection into parts based on applying a function to each element.
+All three call the predicate or grouping function once for each item in the
+input collection.  All three return zero or more collections of the same type as
+their input.  The returned collections are always distinct from the input
+(according to `===`), even if the contents are identical.
+
+Of these methods, `filter()` is the only one that is lazy and the only one which
+discards items from the input collection. It is the simplest to use, and the
+fact that it returns exactly one collection makes it easy to combine with other
+methods to form a pipeline of operations.
+
+The `partition()` method is similar to an eager version of `filter()`, but it
+returns two collections; the first contains the items that would have been
+discarded by `filter()`, and the second contains the items that would have been
+kept.  It always returns an array of exactly two collections, which can make it
+easier to use than `groupBy()`.  Compared to making two separate calls to
+`filter()`, `partition()` makes half as many calls it the predicate passed to
+it.
+
+The `groupBy()` method is a more generalized version of `partition()` that can
+group by an arbitrary function rather than just a predicate.  It returns a map
+with zero or more entries, where the keys are the values returned by the
+grouping function, and the values are nonempty collections of the corresponding
+arguments.  Although `groupBy()` is more powerful than `partition()`, it can be
+harder to use because it is not always possible predict in advance how many
+entries the returned map will have and what their keys will be.
+
+| Summary                       | `filter` | `partition` | `groupBy`      |
+|:------------------------------|:---------|:------------|:---------------|
+| ease of use                   | easiest  | moderate    | hardest        |
+| generality                    | least    | moderate    | most           |
+| laziness                      | lazy     | eager       | eager          |
+| # of returned sub-collections | 1        | 2           | 0 or more      |
+| sub-collections may be empty  | yes      | yes         | no             |
+| can discard items             | yes      | no          | no             |
+| wrapping container            | none     | array       | Map/OrderedMap |
 
 ## Additional Tools and Resources
 

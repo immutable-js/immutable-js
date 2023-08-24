@@ -357,27 +357,27 @@ import { OrderedMap, List } from 'immutable';
     OrderedMap<number, number>()
   );
 
+  // $ExpectError
   OrderedMap<number, number>().mergeWith(
-    // $ExpectError
     (prev: number, next: string, key: number) => 1,
     OrderedMap<number, number>()
   );
 
+  // $ExpectError
   OrderedMap<number, number>().mergeWith(
-    // $ExpectError
     (prev: number, next: number, key: string) => 1,
     OrderedMap<number, number>()
   );
 
+  // $ExpectType OrderedMap<number, string | number>
   OrderedMap<number, number>().mergeWith(
-    // $ExpectError
     (prev: number, next: number, key: number) => 'a',
     OrderedMap<number, number>()
   );
 
+  // $ExpectError
   OrderedMap<number, number>().mergeWith(
     (prev: number, next: number, key: number) => 1,
-    // $ExpectError
     OrderedMap<number, string>()
   );
 
@@ -387,9 +387,9 @@ import { OrderedMap, List } from 'immutable';
     { a: 1 }
   );
 
+  // $ExpectError
   OrderedMap<string, number>().mergeWith(
     (prev: number, next: number, key: string) => 1,
-    // $ExpectError
     { a: 'a' }
   );
 
@@ -403,13 +403,13 @@ import { OrderedMap, List } from 'immutable';
   // $ExpectType OrderedMap<string, number>
   OrderedMap<string, number>().mergeDeep({ a: 1 });
 
-  // $ExpectError
+  // $ExpectType OrderedMap<string, number | { b: number; }>
   OrderedMap<string, number>().mergeDeep({ a: { b: 1 } });
 
   // $ExpectType OrderedMap<number, number>
   OrderedMap<number, number>().mergeDeep(OrderedMap<number, number>());
 
-  // $ExpectError
+  // $ExpectType OrderedMap<number, string | number>
   OrderedMap<number, number>().mergeDeep(OrderedMap<number, string>());
 
   // $ExpectType OrderedMap<number, string | number>

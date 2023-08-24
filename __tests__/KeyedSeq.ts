@@ -32,11 +32,45 @@ describe('KeyedSeq', () => {
       [3, 26],
       [4, 28],
     ]);
+    const [indexed0, indexed1] = seq
+      .partition(isEven)
+      .map(part => part.skip(10).take(5));
+    expect(indexed0.entrySeq().toArray()).toEqual([
+      [0, 21],
+      [1, 23],
+      [2, 25],
+      [3, 27],
+      [4, 29],
+    ]);
+    expect(indexed1.entrySeq().toArray()).toEqual([
+      [0, 20],
+      [1, 22],
+      [2, 24],
+      [3, 26],
+      [4, 28],
+    ]);
 
     // Where Keyed Sequences maintain keys.
     const keyed = seq.toKeyedSeq();
     const keyedOperated = keyed.filter(isEven).skip(10).take(5);
     expect(keyedOperated.entrySeq().toArray()).toEqual([
+      [20, 20],
+      [22, 22],
+      [24, 24],
+      [26, 26],
+      [28, 28],
+    ]);
+    const [keyed0, keyed1] = keyed
+      .partition(isEven)
+      .map(part => part.skip(10).take(5));
+    expect(keyed0.entrySeq().toArray()).toEqual([
+      [21, 21],
+      [23, 23],
+      [25, 25],
+      [27, 27],
+      [29, 29],
+    ]);
+    expect(keyed1.entrySeq().toArray()).toEqual([
       [20, 20],
       [22, 22],
       [24, 24],

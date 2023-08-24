@@ -265,6 +265,9 @@ import {
   // $ExpectError
   List<number>().update(1, 10, (v: number | undefined) => v + 'a');
 
+  // $ExpectType List<string>
+  List<string>().update(1, (v) => v?.toUpperCase());
+
   // $ExpectType List<number>
   update(List<number>(), 0, (v: number | undefined) => 0);
 
@@ -443,6 +446,16 @@ import {
 
   // $ExpectType List<number>
   List<number>().asImmutable();
+}
+
+{
+  // #toJS / #toJSON
+
+  // $ExpectType number[][]
+  List<List<number>>().toJS();
+
+  // $ExpectType List<number>[]
+  List<List<number>>().toJSON();
 }
 
 {

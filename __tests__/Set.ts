@@ -131,6 +131,11 @@ describe('Set', () => {
     expect(Set.intersect([])).toBe(Set());
   });
 
+  it('concatenates strings using union', () => {
+    const s = Set(['one', 'two']);
+    expect(s.union('three').toArray()).toEqual(['one', 'two', 'three']);
+  });
+
   it('iterates values', () => {
     const s = Set([1, 2, 3]);
     const iterator = jest.fn();

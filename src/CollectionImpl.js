@@ -64,19 +64,13 @@ import {
   sortFactory,
   maxFactory,
   zipWithFactory,
+  partitionFactory,
 } from './Operations';
 import { getIn } from './methods/getIn';
 import { hasIn } from './methods/hasIn';
 import { toObject } from './methods/toObject';
 
-export {
-  Collection,
-  KeyedCollection,
-  IndexedCollection,
-  SetCollection,
-  CollectionPrototype,
-  IndexedCollectionPrototype,
-};
+export { Collection, CollectionPrototype, IndexedCollectionPrototype };
 
 // Note: all of these methods are deprecated.
 Collection.isIterable = isCollection;
@@ -207,6 +201,10 @@ mixin(Collection, {
     return reify(this, filterFactory(this, predicate, context, true));
   },
 
+  partition(predicate, context) {
+    return partitionFactory(this, predicate, context);
+  },
+
   find(predicate, context, notSetValue) {
     const entry = this.findEntry(predicate, context);
     return entry ? entry[1] : notSetValue;
@@ -268,7 +266,15 @@ mixin(Collection, {
   },
 
   some(predicate, context) {
-    return !this.every(not(predicate), context);
+    assertNotInfinite(this.size);
+    let returnValue = false;
+    this.__iterate((v, k, c) => {
+      if (predicate.call(context, v, k, c)) {
+        returnValue = true;
+        return false;
+      }
+    });
+    return returnValue;
   },
 
   sort(comparator) {

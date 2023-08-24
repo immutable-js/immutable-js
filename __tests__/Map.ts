@@ -60,8 +60,11 @@ describe('Map', () => {
     const l = List([List(['a', 'A']), List(['b', 'B']), List(['c', 'C'])]);
     const m = Map(l);
     expect(m.size).toBe(3);
+    // @ts-expect-error -- Not supported by typescript since 4.0.0 https://github.com/immutable-js/immutable-js/pull/1626
     expect(m.get('a')).toBe('A');
+    // @ts-expect-error -- Not supported by typescript since 4.0.0 https://github.com/immutable-js/immutable-js/pull/1626
     expect(m.get('b')).toBe('B');
+    // @ts-expect-error -- Not supported by typescript since 4.0.0 https://github.com/immutable-js/immutable-js/pull/1626
     expect(m.get('c')).toBe('C');
   });
 
@@ -97,6 +100,7 @@ describe('Map', () => {
   it('accepts non-collection array-like objects as keyed collections', () => {
     const m = Map({ length: 3, 1: 'one' });
     expect(m.get('length')).toBe(3);
+    // @ts-expect-error -- type error, but the API is tolerante
     expect(m.get('1')).toBe('one');
     expect(m.toJS()).toEqual({ length: 3, 1: 'one' });
   });
@@ -300,6 +304,17 @@ describe('Map', () => {
     expect(r.toObject()).toEqual({ b: 2, d: 4, f: 6 });
   });
 
+  it('partitions values', () => {
+    const m = Map({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
+    const r = m
+      .partition(value => value % 2 === 1)
+      .map(part => part.toObject());
+    expect(r).toEqual([
+      { b: 2, d: 4, f: 6 },
+      { a: 1, c: 3, e: 5 },
+    ]);
+  });
+
   it('derives keys', () => {
     const v = Map({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
     expect(v.keySeq().toArray()).toEqual(['a', 'b', 'c', 'd', 'e', 'f']);
@@ -413,7 +428,7 @@ describe('Map', () => {
   });
 
   it('chained mutations does not result in new empty map instance', () => {
-    const v1 = Map({ x: 1 });
+    const v1 = Map<{ x?: number; y?: number }>({ x: 1 });
     const v2 = v1.withMutations(v => v.set('y', 2).delete('x').delete('y'));
     expect(v2).toBe(Map());
   });
@@ -422,6 +437,12 @@ describe('Map', () => {
     const m1 = Map({ A: 1, B: 2, C: 3 });
     const m2 = Map({ C: 3, B: 2, A: 1 });
     expect(is(m1, m2)).toBe(true);
+  });
+
+  it('does not equal Record with same values', () => {
+    const m1 = Map({ A: 1, B: 2, C: 3 });
+    const m2 = Record({ A: 1, B: 2, C: 3 });
+    expect(is(m1, m2)).toBe(false);
   });
 
   it('deletes all the provided keys', () => {

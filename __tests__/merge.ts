@@ -18,13 +18,13 @@ describe('merge', () => {
 
   it('can merge in an explicitly undefined value', () => {
     const m1 = Map({ a: 1, b: 2 });
-    const m2 = Map({ a: undefined as any });
+    const m2 = Map({ a: undefined });
     expect(m1.merge(m2)).toEqual(Map({ a: undefined, b: 2 }));
   });
 
   it('merges two maps with a merge function', () => {
-    const m1 = Map({ a: 1, b: 2, c: 3 });
-    const m2 = Map({ d: 10, b: 20, e: 30 });
+    const m1 = Map<string, number>({ a: 1, b: 2, c: 3 });
+    const m2 = Map<string, number>({ d: 10, b: 20, e: 30 });
     expect(m1.mergeWith((a: any, b: any) => a + b, m2)).toEqual(
       Map({ a: 1, b: 22, c: 3, d: 10, e: 30 })
     );
@@ -38,8 +38,8 @@ describe('merge', () => {
   });
 
   it('provides key as the third argument of merge function', () => {
-    const m1 = Map({ id: 'temp', b: 2, c: 3 });
-    const m2 = Map({ id: 10, b: 20, e: 30 });
+    const m1 = Map<string, string | number>({ id: 'temp', b: 2, c: 3 });
+    const m2 = Map<string, number>({ id: 10, b: 20, e: 30 });
     const add = (a: any, b: any) => a + b;
     expect(
       m1.mergeWith((a, b, key) => (key !== 'id' ? add(a, b) : b), m2)
@@ -274,8 +274,8 @@ describe('merge', () => {
       expect(mergeDeep(aObject, bObject)).toEqual(bObject);
       expect(mergeDeep(bObject, aObject)).toEqual(aObject);
 
-      const aMap = Map({ a: value1 }) as Map<unknown, unknown>;
-      const bMap = Map({ a: value2 }) as Map<unknown, unknown>;
+      const aMap = Map({ a: value1 });
+      const bMap = Map({ a: value2 });
       expect(aMap.mergeDeep(bMap).equals(bMap)).toBe(true);
       expect(bMap.mergeDeep(aMap).equals(aMap)).toBe(true);
     });
@@ -312,15 +312,15 @@ describe('merge', () => {
       const bObject = { a: value2 };
       expect(mergeDeep(aObject, bObject)).toEqual({ a: result });
 
-      const aMap = Map({ a: value1 }) as Map<unknown, unknown>;
+      const aMap = Map({ a: value1 });
       const bMap = Map({ a: value2 });
       expect(aMap.mergeDeep(bMap)).toEqual(Map({ a: result }));
     });
   }
 
   it('Map#mergeDeep replaces nested List with Map and Map with List', () => {
-    const a = Map({ a: List([Map({ x: 1 })]) }) as Map<unknown, unknown>;
-    const b = Map({ a: Map([[0, Map({ y: 2 })]]) }) as Map<unknown, unknown>;
+    const a = Map({ a: List([Map({ x: 1 })]) });
+    const b = Map({ a: Map([[0, Map({ y: 2 })]]) });
     expect(a.mergeDeep(b).equals(b)).toBe(true);
     expect(b.mergeDeep(a).equals(a)).toBe(true);
   });

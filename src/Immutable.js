@@ -4,6 +4,7 @@ import { List } from './List';
 import { Map } from './Map';
 import { Stack } from './Stack';
 import { OrderedSet } from './OrderedSet';
+import { PairSorting } from './PairSorting';
 import { Set } from './Set';
 import { Record } from './Record';
 import { Range } from './Range';
@@ -62,6 +63,7 @@ export {
   Stack,
   Set,
   OrderedSet,
+  PairSorting,
   Record,
   Range,
   Repeat,

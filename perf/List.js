@@ -100,4 +100,14 @@ describe('List', function () {
       list = list.asImmutable();
     });
   });
+
+  describe('some', function () {
+    it('100 000 items ', () => {
+      const list = Immutable.List();
+      for (let i = 0; i < 100000; i++) {
+        list.push(i);
+      }
+      list.some(item => item === 50000);
+    });
+  });
 });

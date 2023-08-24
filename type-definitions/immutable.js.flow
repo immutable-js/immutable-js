@@ -60,6 +60,14 @@ type $IterableOf<C> = $Call<
   C
 >;
 
+const PairSorting: $ReadOnly<{ LeftThenRight: number, RightThenLeft: number }> =
+  {
+    LeftThenRight: -1,
+    RightThenLeft: +1,
+  };
+
+type Comparator<T> = (left: T, right: T) => number;
+
 declare class _Collection<K, +V> implements ValueObject {
   equals(other: mixed): boolean;
   hashCode(): number;
@@ -129,11 +137,11 @@ declare class _Collection<K, +V> implements ValueObject {
   entrySeq(): IndexedSeq<[K, V]>;
 
   reverse(): this;
-  sort(comparator?: (valueA: V, valueB: V) => number): this;
+  sort(comparator?: Comparator<V>): this;
 
   sortBy<C>(
     comparatorValueMapper: (value: V, key: K, iter: this) => C,
-    comparator?: (valueA: C, valueB: C) => number
+    comparator?: Comparator<C>
   ): this;
 
   groupBy<G>(
@@ -238,15 +246,15 @@ declare class _Collection<K, +V> implements ValueObject {
   keyOf(searchValue: V): K | void;
   lastKeyOf(searchValue: V): K | void;
 
-  max(comparator?: (valueA: V, valueB: V) => number): V;
+  max(comparator?: Comparator<V>): V;
   maxBy<C>(
     comparatorValueMapper: (value: V, key: K, iter: this) => C,
-    comparator?: (valueA: C, valueB: C) => number
+    comparator?: Comparator<C>
   ): V;
-  min(comparator?: (valueA: V, valueB: V) => number): V;
+  min(comparator?: Comparator<V>): V;
   minBy<C>(
     comparatorValueMapper: (value: V, key: K, iter: this) => C,
-    comparator?: (valueA: C, valueB: C) => number
+    comparator?: Comparator<C>
   ): V;
 
   isSubset(iter: Iterable<V>): boolean;
@@ -331,6 +339,11 @@ declare class KeyedCollection<K, +V> extends Collection<K, V> {
     predicate: (value: V, key: K, iter: this) => mixed,
     context?: mixed
   ): KeyedCollection<K, V>;
+
+  partition(
+    predicate: (value: V, key: K, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
 
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
@@ -484,6 +497,11 @@ declare class IndexedCollection<+T> extends Collection<number, T> {
     context?: mixed
   ): IndexedCollection<T>;
 
+  partition(
+    predicate: (value: T, index: number, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
+
   map<M>(
     mapper: (value: T, index: number, iter: this) => M,
     context?: mixed
@@ -518,6 +536,11 @@ declare class SetCollection<+T> extends Collection<T, T> {
     predicate: (value: T, value: T, iter: this) => mixed,
     context?: mixed
   ): SetCollection<T>;
+
+  partition(
+    predicate: (value: T, value: T, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
 
   map<M>(
     mapper: (value: T, value: T, iter: this) => M,
@@ -570,6 +593,11 @@ declare class KeyedSeq<K, +V> extends Seq<K, V> mixins KeyedCollection<K, V> {
     context?: mixed
   ): KeyedSeq<K, V>;
 
+  partition(
+    predicate: (value: V, key: K, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
+
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
     context?: mixed
@@ -611,6 +639,11 @@ declare class IndexedSeq<+T>
     predicate: (value: T, index: number, iter: this) => mixed,
     context?: mixed
   ): IndexedSeq<T>;
+
+  partition(
+    predicate: (value: T, index: number, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
 
   map<M>(
     mapper: (value: T, index: number, iter: this) => M,
@@ -728,6 +761,11 @@ declare class SetSeq<+T> extends Seq<T, T> mixins SetCollection<T> {
     predicate: (value: T, value: T, iter: this) => mixed,
     context?: mixed
   ): SetSeq<T>;
+
+  partition(
+    predicate: (value: T, value: T, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
 
   map<M>(
     mapper: (value: T, value: T, iter: this) => M,
@@ -949,6 +987,11 @@ declare class List<+T>
     context?: mixed
   ): List<T>;
 
+  partition(
+    predicate: (value: T, index: number, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
+
   map<M>(
     mapper: (value: T, index: number, iter: this) => M,
     context?: mixed
@@ -1124,6 +1167,11 @@ declare class Map<K, +V>
     context?: mixed
   ): Map<K, V>;
 
+  partition(
+    predicate: (value: V, key: K, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
+
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
     context?: mixed
@@ -1221,6 +1269,11 @@ declare class OrderedMap<K, +V>
     context?: mixed
   ): OrderedMap<K, V>;
 
+  partition(
+    predicate: (value: V, key: K, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
+
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
     context?: mixed
@@ -1285,6 +1338,11 @@ declare class Set<+T> extends SetCollection<T> {
     context?: mixed
   ): Set<T>;
 
+  partition(
+    predicate: (value: T, value: T, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
+
   map<M>(
     mapper: (value: T, value: T, iter: this) => M,
     context?: mixed
@@ -1326,6 +1384,11 @@ declare class OrderedSet<+T> extends Set<T> {
     predicate: (value: T, value: T, iter: this) => mixed,
     context?: mixed
   ): OrderedSet<T>;
+
+  partition(
+    predicate: (value: T, value: T, iter: this) => mixed,
+    context?: mixed
+  ): [this, this];
 
   map<M>(
     mapper: (value: T, value: T, iter: this) => M,
@@ -1999,15 +2062,15 @@ declare function hasIn(collection: Object, keyPath: Iterable<mixed>): boolean;
 
 declare function removeIn<C>(collection: C, keyPath: []): void;
 declare function removeIn<C, K: $KeyOf<C>>(collection: C, keyPath: [K]): C;
-declare function removeIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C>>>(
+declare function removeIn<C, K: $KeyOf<C>, K2: $KeyOf<$ValOf<C, K>>>(
   collection: C,
   keyPath: [K, K2]
 ): C;
 declare function removeIn<
   C,
   K: $KeyOf<C>,
-  K2: $KeyOf<$ValOf<C>>,
-  K3: $KeyOf<$ValOf<$ValOf<C>, K2>>
+  K2: $KeyOf<$ValOf<C, K>>,
+  K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>
 >(
   collection: C,
   keyPath: [K, K2, K3]
@@ -2015,9 +2078,9 @@ declare function removeIn<
 declare function removeIn<
   C,
   K: $KeyOf<C>,
-  K2: $KeyOf<$ValOf<C>>,
-  K3: $KeyOf<$ValOf<$ValOf<C>, K2>>,
-  K4: $KeyOf<$ValOf<$ValOf<$ValOf<C>, K2>, K3>>
+  K2: $KeyOf<$ValOf<C, K>>,
+  K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>,
+  K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>
 >(
   collection: C,
   keyPath: [K, K2, K3, K4]
@@ -2025,10 +2088,10 @@ declare function removeIn<
 declare function removeIn<
   C,
   K: $KeyOf<C>,
-  K2: $KeyOf<$ValOf<C>>,
-  K3: $KeyOf<$ValOf<$ValOf<C>, K2>>,
-  K4: $KeyOf<$ValOf<$ValOf<$ValOf<C>, K2>, K3>>,
-  K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<C>, K2>, K3>, K4>>
+  K2: $KeyOf<$ValOf<C, K>>,
+  K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>,
+  K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>,
+  K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>>
 >(
   collection: C,
   keyPath: [K, K2, K3, K4, K5]
@@ -2296,6 +2359,7 @@ export default {
   Map,
   OrderedMap,
   OrderedSet,
+  PairSorting,
   Range,
   Repeat,
   Record,
@@ -2332,6 +2396,7 @@ export default {
 };
 
 export type {
+  Comparator,
   KeyedCollection,
   IndexedCollection,
   SetCollection,

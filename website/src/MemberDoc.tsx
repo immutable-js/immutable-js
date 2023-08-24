@@ -70,7 +70,7 @@ export function MemberDoc({ member }: { member: MemberDefinition }) {
         {member.doc?.description && (
           <section>
             <h4 className="infoHeader">
-              {member.doc.description.substr(0, 5) === '<code'
+              {member.doc.description.slice(0, 5) === '<code'
                 ? 'Example'
                 : 'Discussion'}
             </h4>
