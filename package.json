@@ -17,10 +17,10 @@
   },
   "main": "dist/immutable.js",
   "module": "dist/es/Immutable.js",
+  "types": "dist/immutable.d.ts",
   "sideEffects": [
     "./src/CollectionImpl.js"
   ],
-  "types": "dist/immutable.d.ts",
   "files": [
     "dist",
     "README.md",

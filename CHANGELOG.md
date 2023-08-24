@@ -10,7 +10,33 @@ Dates are formatted as YYYY-MM-DD.
 
 ### Changed
 
-### Improve TypeScript definition for `Map`
+### [Minor BC break] Reducing file size / tree shaking
+
+Immutable does not export a default object containing all it's API anymore.
+It changes the output of your JS file if you use a bundler that supports tree-shaking (all modern bundler do).
+As a drawback, you can not `immport Immutable` directly:
+
+```diff
+- import Immutable from 'immutable';
++ import { List, Map } from 'immutable';
+
+- const l = Immutable.List([Immutable.Map({ a: 'A' })]);
++ const l = List([Map({ a: 'A' })]);
+```
+
+If you want the non-recommanded, but shorter migration path, you can do this:
+
+```diff
+- import Immutable from 'immutable';
++ import * as Immutable from 'immutable';
+
+  const l = Immutable.List([Immutable.Map({ a: 'A' })]);
+```
+
+### [TypeScript Break] Improve TypeScript definition for `Map`
+
+> If you do use TypeScript, then this change does not impact you : no runtime change here.
+> But if you use Map with TypeScript, this is a HUGE change !
 
 Imagine the following code
 
