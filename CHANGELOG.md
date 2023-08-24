@@ -8,6 +8,8 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+## [5.0.0-beta.1]
+
 ### Changed
 
 ### [Minor BC break] Reducing file size / tree shaking
