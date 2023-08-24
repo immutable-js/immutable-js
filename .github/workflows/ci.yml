@@ -64,6 +64,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run unit-test
+      - run: npx size-limit
       - run: npm run check-git-clean
 
   website:
