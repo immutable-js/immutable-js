@@ -102,6 +102,11 @@ declare namespace Immutable {
       {
         [key in keyof R]: DeepCopy<R[key]>;
       }
+    : T extends MapOf<infer R>
+    ? // convert MapOf to DeepCopy plain JS object
+      {
+        [key in keyof R]: DeepCopy<R[key]>;
+      }
     : T extends Collection.Keyed<infer KeyedKey, infer V>
     ? // convert KeyedCollection to DeepCopy plain JS object
       {
@@ -877,6 +882,10 @@ declare namespace Immutable {
     remove<K extends keyof R>(
       key: K
     ): Extract<R[K], undefined> extends never ? never : this;
+
+    toJS(): { [K in keyof R]: DeepCopy<R[K]> };
+
+    toJSON(): { [K in keyof R]: R[K] };
   }
 
   // Loosely based off of this work.

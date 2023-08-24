@@ -615,8 +615,17 @@ import { Map, List, MapOf } from 'immutable';
 }
 
 {
-  // #toJS
+  // #toJS / #toJSON
 
   // $ExpectType { [x: string]: number; [x: number]: number; [x: symbol]: number; }
   Map<number, number>().toJS();
+
+  // $ExpectType { a: string; }
+  Map({ a: 'A' }).toJS();
+
+  // $ExpectType { a: { b: string; }; }
+  Map({ a: Map({ b: 'b' }) }).toJS();
+
+  // $ExpectType { a: MapOf<{ b: string; }>; }
+  Map({ a: Map({ b: 'b' }) }).toJSON();
 }
