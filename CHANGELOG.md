@@ -10,7 +10,33 @@ Dates are formatted as YYYY-MM-DD.
 
 ### Changed
 
-### Improve TypeScript definition for `Map`
+### [Minor BC break] Reducing file size / tree shaking
+
+Immutable does not export a default object containing all it's API anymore.
+It changes the output of your JS file if you use a bundler that supports tree-shaking (all modern bundler do).
+As a drawback, you can not `immport Immutable` directly:
+
+```diff
+- import Immutable from 'immutable';
++ import { List, Map } from 'immutable';
+
+- const l = Immutable.List([Immutable.Map({ a: 'A' })]);
++ const l = List([Map({ a: 'A' })]);
+```
+
+If you want the non-recommanded, but shorter migration path, you can do this:
+
+```diff
+- import Immutable from 'immutable';
++ import * as Immutable from 'immutable';
+
+  const l = Immutable.List([Immutable.Map({ a: 'A' })]);
+```
+
+### [TypeScript Break] Improve TypeScript definition for `Map`
+
+> If you do use TypeScript, then this change does not impact you : no runtime change here.
+> But if you use Map with TypeScript, this is a HUGE change !
 
 Imagine the following code
 
@@ -121,6 +147,7 @@ For now, only `get`, `getIn`, `set`, `update`, `delete` and `remove` methods are
 
 ## [4.1.0] - 2022-05-23
 
+- [BREAKING] The ES6 bundle no longer exposes a default export, which allows bundlers to apply tree-shaking. [#1888](https://github.com/immutable-js/immutable-js/pull/1888) by [bdurrer](https://github.com/bdurrer)
 - Accept Symbol as Map key. [#1859](https://github.com/immutable-js/immutable-js/pull/1859) by [jdeniau](https://github.com/jdeniau)
 - Optimize contructors without arguments [#1887](https://github.com/immutable-js/immutable-js/pull/1887) by [marianoguerra](https://github.com/marianoguerra)
 - Fix Flow removeIn types [#1902](https://github.com/immutable-js/immutable-js/pull/1902) by [nifgraup](https://github.com/nifgraup)

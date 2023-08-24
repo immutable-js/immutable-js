@@ -14,8 +14,10 @@ export default {
   output: {
     banner: copyright,
     name: 'Immutable',
-    file: path.join(DIST_DIR, 'immutable.es.js'),
+    dir: path.join(DIST_DIR, 'es'),
     format: 'es',
+    preserveModules: true,
+    preserveModulesRoot: SRC_DIR,
     sourcemap: false,
   },
   plugins: [commonjs(), json(), stripBanner(), buble()],

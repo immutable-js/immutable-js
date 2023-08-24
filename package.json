@@ -16,9 +16,11 @@
     "url": "https://github.com/immutable-js/immutable-js/issues"
   },
   "main": "dist/immutable.js",
-  "module": "dist/immutable.es.js",
-  "sideEffects": false,
+  "module": "dist/es/Immutable.js",
   "types": "dist/immutable.d.ts",
+  "sideEffects": [
+    "./src/CollectionImpl.js"
+  ],
   "files": [
     "dist",
     "README.md",
@@ -86,6 +88,8 @@
     "arrowParens": "avoid"
   },
   "devDependencies": {
+    "@size-limit/esbuild-why": "^8.2.6",
+    "@size-limit/preset-small-lib": "^8.2.6",
     "@types/jest": "27.0.1",
     "@types/react": "17.0.11",
     "benchmark": "2.1.4",
@@ -119,11 +123,32 @@
     "rollup-plugin-commonjs": "9.1.3",
     "rollup-plugin-json": "3.0.0",
     "rollup-plugin-strip-banner": "2.0.0",
+    "size-limit": "^8.2.6",
     "transducers-js": "0.4.174",
     "tslint": "6.1.3",
     "tslint-config-prettier": "1.18.0",
     "typescript": "^4.9",
     "uglify-js": "3.11.1",
     "uglify-save-license": "0.4.1"
-  }
+  },
+  "size-limit": [
+    {
+      "name": "all",
+      "path": "dist/es/Immutable.js",
+      "import": "*",
+      "limit": "20 kB"
+    },
+    {
+      "name": "List",
+      "path": "dist/es/Immutable.js",
+      "import": "{ List }",
+      "limit": "12 kB"
+    },
+    {
+      "name": "Seq",
+      "path": "dist/es/Immutable.js",
+      "import": "{ Seq }",
+      "limit": "2 kB"
+    }
+  ]
 }
