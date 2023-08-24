@@ -102,6 +102,11 @@ declare namespace Immutable {
       {
         [key in keyof R]: DeepCopy<R[key]>;
       }
+    : T extends MapOf<infer R>
+    ? // convert MapOf to DeepCopy plain JS object
+      {
+        [key in keyof R]: DeepCopy<R[key]>;
+      }
     : T extends Collection.Keyed<infer KeyedKey, infer V>
     ? // convert KeyedCollection to DeepCopy plain JS object
       {
@@ -829,8 +834,95 @@ declare namespace Immutable {
    * not altered.
    */
   function Map<K, V>(collection?: Iterable<[K, V]>): Map<K, V>;
+  function Map<R extends { [key in string | number | symbol]: unknown }>(
+    obj: R
+  ): MapOf<R>;
   function Map<V>(obj: { [key: string]: V }): Map<string, V>;
   function Map<K extends string | symbol, V>(obj: { [P in K]?: V }): Map<K, V>;
+
+  /**
+   * Represent a Map constructed by an object
+   *
+   * @ignore
+   */
+  interface MapOf<R extends { [key in string | number | symbol]: unknown }>
+    extends Map<keyof R, R[keyof R]> {
+    /**
+     * Returns the value associated with the provided key, or notSetValue if
+     * the Collection does not contain this key.
+     *
+     * Note: it is possible a key may be associated with an `undefined` value,
+     * so if `notSetValue` is not provided and this method returns `undefined`,
+     * that does not guarantee the key was not found.
+     */
+    get<K extends keyof R>(key: K, notSetValue?: unknown): R[K];
+    get<NSV>(key: any, notSetValue: NSV): NSV;
+
+    // https://github.com/microsoft/TypeScript/pull/39094
+    getIn<P extends ReadonlyArray<string | number | symbol>>(
+      searchKeyPath: [...P],
+      notSetValue?: unknown
+    ): RetrievePath<R, P>;
+
+    set<K extends keyof R>(key: K, value: R[K]): this;
+
+    update(updater: (value: this) => this): this;
+    update<K extends keyof R>(key: K, updater: (value: R[K]) => R[K]): this;
+    update<K extends keyof R, NSV extends R[K]>(
+      key: K,
+      notSetValue: NSV,
+      updater: (value: R[K]) => R[K]
+    ): this;
+
+    // Possible best type is MapOf<Omit<R, K>> but Omit seems to broke other function calls
+    // and generate recursion error with other methods (update, merge, etc.) until those functions are defined in MapOf
+    delete<K extends keyof R>(
+      key: K
+    ): Extract<R[K], undefined> extends never ? never : this;
+    remove<K extends keyof R>(
+      key: K
+    ): Extract<R[K], undefined> extends never ? never : this;
+
+    toJS(): { [K in keyof R]: DeepCopy<R[K]> };
+
+    toJSON(): { [K in keyof R]: R[K] };
+  }
+
+  // Loosely based off of this work.
+  // https://github.com/immutable-js/immutable-js/issues/1462#issuecomment-584123268
+
+  /** @ignore */
+  type GetMapType<S> = S extends MapOf<infer T> ? T : S;
+
+  /** @ignore */
+  type Head<T extends ReadonlyArray<any>> = T extends [
+    infer H,
+    ...Array<unknown>
+  ]
+    ? H
+    : never;
+
+  /** @ignore */
+  type Tail<T extends ReadonlyArray<any>> = T extends [unknown, ...infer I]
+    ? I
+    : Array<never>;
+
+  /** @ignore */
+  type RetrievePathReducer<
+    T,
+    C,
+    L extends ReadonlyArray<any>
+  > = C extends keyof GetMapType<T>
+    ? L extends []
+      ? GetMapType<T>[C]
+      : RetrievePathReducer<GetMapType<T>[C], Head<L>, Tail<L>>
+    : never;
+
+  /** @ignore */
+  type RetrievePath<
+    R,
+    P extends ReadonlyArray<string | number | symbol>
+  > = P extends [] ? P : RetrievePathReducer<R, Head<P>, Tail<P>>;
 
   interface Map<K, V> extends Collection.Keyed<K, V> {
     /**
@@ -1049,16 +1141,17 @@ declare namespace Immutable {
      */
     merge<KC, VC>(
       ...collections: Array<Iterable<[KC, VC]>>
-    ): Map<K | KC, V | VC>;
+    ): Map<K | KC, Exclude<V, VC> | VC>;
     merge<C>(
       ...collections: Array<{ [key: string]: C }>
-    ): Map<K | string, V | C>;
+    ): Map<K | string, Exclude<V, C> | C>;
+
     concat<KC, VC>(
       ...collections: Array<Iterable<[KC, VC]>>
-    ): Map<K | KC, V | VC>;
+    ): Map<K | KC, Exclude<V, VC> | VC>;
     concat<C>(
       ...collections: Array<{ [key: string]: C }>
-    ): Map<K | string, V | C>;
+    ): Map<K | string, Exclude<V, C> | C>;
 
     /**
      * Like `merge()`, `mergeWith()` returns a new Map resulting from merging
@@ -1078,10 +1171,14 @@ declare namespace Immutable {
      *
      * Note: `mergeWith` can be used in `withMutations`.
      */
-    mergeWith(
-      merger: (oldVal: V, newVal: V, key: K) => V,
-      ...collections: Array<Iterable<[K, V]> | { [key: string]: V }>
-    ): this;
+    mergeWith<KC, VC, VCC>(
+      merger: (oldVal: V, newVal: VC, key: K) => VCC,
+      ...collections: Array<Iterable<[KC, VC]>>
+    ): Map<K | KC, V | VC | VCC>;
+    mergeWith<C, CC>(
+      merger: (oldVal: V, newVal: C, key: string) => CC,
+      ...collections: Array<{ [key: string]: C }>
+    ): Map<K | string, V | C | CC>;
 
     /**
      * Like `merge()`, but when two compatible collections are encountered with
@@ -1112,9 +1209,12 @@ declare namespace Immutable {
      *
      * Note: `mergeDeep` can be used in `withMutations`.
      */
-    mergeDeep(
-      ...collections: Array<Iterable<[K, V]> | { [key: string]: V }>
-    ): this;
+    mergeDeep<KC, VC>(
+      ...collections: Array<Iterable<[KC, VC]>>
+    ): Map<K | KC, V | VC>;
+    mergeDeep<C>(
+      ...collections: Array<{ [key: string]: C }>
+    ): Map<K | string, V | C>;
 
     /**
      * Like `mergeDeep()`, but when two non-collections or incompatible
@@ -1582,14 +1682,31 @@ declare namespace Immutable {
      */
     merge<KC, VC>(
       ...collections: Array<Iterable<[KC, VC]>>
-    ): OrderedMap<K | KC, V | VC>;
+    ): OrderedMap<K | KC, Exclude<V, VC> | VC>;
     merge<C>(
       ...collections: Array<{ [key: string]: C }>
-    ): OrderedMap<K | string, V | C>;
+    ): OrderedMap<K | string, Exclude<V, C> | C>;
+
     concat<KC, VC>(
       ...collections: Array<Iterable<[KC, VC]>>
-    ): OrderedMap<K | KC, V | VC>;
+    ): OrderedMap<K | KC, Exclude<V, VC> | VC>;
     concat<C>(
+      ...collections: Array<{ [key: string]: C }>
+    ): OrderedMap<K | string, Exclude<V, C> | C>;
+
+    mergeWith<KC, VC, VCC>(
+      merger: (oldVal: V, newVal: VC, key: K) => VCC,
+      ...collections: Array<Iterable<[KC, VC]>>
+    ): OrderedMap<K | KC, V | VC | VCC>;
+    mergeWith<C, CC>(
+      merger: (oldVal: V, newVal: C, key: string) => CC,
+      ...collections: Array<{ [key: string]: C }>
+    ): OrderedMap<K | string, V | C | CC>;
+
+    mergeDeep<KC, VC>(
+      ...collections: Array<Iterable<[KC, VC]>>
+    ): OrderedMap<K | KC, V | VC>;
+    mergeDeep<C>(
       ...collections: Array<{ [key: string]: C }>
     ): OrderedMap<K | string, V | C>;
 

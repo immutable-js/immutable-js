@@ -8,6 +8,76 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+### Changed
+
+### Improve TypeScript definition for `Map`
+
+Imagine the following code
+
+```ts
+const m = Map({ length: 3, 1: 'one' });
+```
+
+This was previously typed as `Map<string, string | number>`
+
+and return type of `m.get('length')` or `m.get('inexistant')` was typed as `string | number | undefined`.
+
+This made `Map` really unusable with TypeScript.
+
+Now the Map is typed like this:
+
+```ts
+MapOf<{
+    length: number;
+    1: string;
+}>
+```
+
+and the return type of `m.get('length')` is typed as `number`.
+
+The return of `m.get('inexistant')` throw the TypeScript error:
+
+> Argument of type '"inexistant"' is not assignable to parameter of type '1 | "length"
+
+#### If you want to keep the old definition
+
+**This is a minor BC for TS users**, so if you want to keep the old definition, you can declare you Map like this:
+
+```ts
+const m = Map<string, string | number>({ length: 3, 1: 'one' });
+```
+
+#### If you need to type the Map with a larger definition
+
+You might want to declare a wider definition, you can type your Map like this:
+
+```ts
+type MyMapType = {
+  length: number;
+  1: string | null;
+  optionalProperty?: string;
+};
+const m = Map<MyMapType>({ length: 3, 1: 'one' });
+```
+
+Keep in mind that the `MapOf` will try to be consistant with the simple TypeScript object, so you can not do this:
+
+```ts
+Map({ a: 'a' }).set('b', 'b');
+Map({ a: 'a' }).delete('a');
+```
+
+Like a simple object, it will only work if the type is forced:
+
+```ts
+Map<{ a: string; b?: string }>({ a: 'a' }).set('b', 'b'); // b is forced in type and optional
+Map<{ a?: string }>({ a: 'a' }).delete('a'); // you can only delete an optional key
+```
+
+#### Are all `Map` methods implemented ?
+
+For now, only `get`, `getIn`, `set`, `update`, `delete` and `remove` methods are implemented. All other methods will fallback to the basic `Map` definition. Other method definition will be added later, but as some might be really complex, we prefer the progressive enhancement on the most used functions.
+
 ## [4.3.3] - 2023-08-23
 
 - [typescript] manage to handle toJS circular reference. [#1932](https://github.com/immutable-js/immutable-js/pull/1932) by [@jdeniau](https://github.com/jdeniau)

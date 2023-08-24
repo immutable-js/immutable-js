@@ -60,8 +60,11 @@ describe('Map', () => {
     const l = List([List(['a', 'A']), List(['b', 'B']), List(['c', 'C'])]);
     const m = Map(l);
     expect(m.size).toBe(3);
+    // @ts-expect-error -- Not supported by typescript since 4.0.0 https://github.com/immutable-js/immutable-js/pull/1626
     expect(m.get('a')).toBe('A');
+    // @ts-expect-error -- Not supported by typescript since 4.0.0 https://github.com/immutable-js/immutable-js/pull/1626
     expect(m.get('b')).toBe('B');
+    // @ts-expect-error -- Not supported by typescript since 4.0.0 https://github.com/immutable-js/immutable-js/pull/1626
     expect(m.get('c')).toBe('C');
   });
 
@@ -97,6 +100,7 @@ describe('Map', () => {
   it('accepts non-collection array-like objects as keyed collections', () => {
     const m = Map({ length: 3, 1: 'one' });
     expect(m.get('length')).toBe(3);
+    // @ts-expect-error -- type error, but the API is tolerante
     expect(m.get('1')).toBe('one');
     expect(m.toJS()).toEqual({ length: 3, 1: 'one' });
   });
@@ -424,7 +428,7 @@ describe('Map', () => {
   });
 
   it('chained mutations does not result in new empty map instance', () => {
-    const v1 = Map({ x: 1 });
+    const v1 = Map<{ x?: number; y?: number }>({ x: 1 });
     const v2 = v1.withMutations(v => v.set('y', 2).delete('x').delete('y'));
     expect(v2).toBe(Map());
   });

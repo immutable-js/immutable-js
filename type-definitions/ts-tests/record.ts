@@ -85,10 +85,10 @@ import { List, Map, Record, RecordOf, Set } from 'immutable';
 
   const withMap = WithMap();
 
-  // $ExpectType { map: Map<string, string>; list: List<string>; set: Set<string>; }
+  // $ExpectType { map: MapOf<{ a: string; }>; list: List<string>; set: Set<string>; }
   withMap.toJSON();
 
-  // $ExpectType { map: { [x: string]: string; }; list: string[]; set: string[]; }
+  // $ExpectType { map: { a: string; }; list: string[]; set: string[]; }
   withMap.toJS();
 }
 
