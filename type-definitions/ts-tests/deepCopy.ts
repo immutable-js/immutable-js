@@ -23,10 +23,12 @@ import { List, Map, Record, Set, Seq, DeepCopy, Collection } from 'immutable';
   // $ExpectType { [x: string]: string; }
   type StringKey = DeepCopy<Map<string, string>>;
 
-  // $ExpectType { [x: string]: object; }
+  // should be `{ [x: string]: object; }` but there is an issue with circular references
+  // $ExpectType { [x: string]: unknown; }
   type ObjectKey = DeepCopy<Map<object, object>>;
 
-  // $ExpectType { [x: string]: object; [x: number]: object; }
+  // should be `{ [x: string]: object; [x: number]: object; }` but there is an issue with circular references
+  // $ExpectType { [x: string]: unknown; [x: number]: unknown; }
   type MixedKey = DeepCopy<Map<object | number, object>>;
 
   // $ExpectType string[]
@@ -55,10 +57,12 @@ import { List, Map, Record, Set, Seq, DeepCopy, Collection } from 'immutable';
 {
   // Nested
 
-  // $ExpectType { map: { [x: string]: string; }; list: string[]; set: string[]; }
+  // should be `{ map: { [x: string]: string; }; list: string[]; set: string[]; }` but there is an issue with circular references
+  // $ExpectType { map: unknown; list: unknown; set: unknown; }
   type NestedObject = DeepCopy<{ map: Map<string, string>; list: List<string>; set: Set<string>; }>;
 
-  // $ExpectType { map: { [x: string]: string; }; }
+  // should be `{ map: { [x: string]: string; }; }`, but there is an issue with circular references
+  // $ExpectType { map: unknown; }
   type NestedMap = DeepCopy<Map<'map', Map<string, string>>>;
 }
 
@@ -68,6 +72,51 @@ import { List, Map, Record, Set, Seq, DeepCopy, Collection } from 'immutable';
   type Article = Record<{ title: string; tag: Tag; }>;
   type Tag = Record<{ name: string; article: Article; }>;
 
-  // $ExpectType { title: string; tag: { name: string; article: any; }; }
+  // should handle circular references here somehow
+  // $ExpectType { title: string; tag: unknown; }
   type Circular = DeepCopy<Article>;
+}
+
+{
+  // Circular references #1957
+
+  class Foo1 extends Record<{
+    foo: undefined | Foo1;
+  }>({
+    foo: undefined
+  }) {
+  }
+
+  class Foo2 extends Record<{
+    foo?: Foo2;
+  }>({
+    foo: undefined
+  }) {
+  }
+
+  class Foo3 extends Record<{
+    foo: null | Foo3;
+  }>({
+    foo: null
+  }) {
+  }
+
+  // $ExpectType { foo: unknown; }
+  type DeepFoo1 = DeepCopy<Foo1>;
+
+  // $ExpectType { foo?: unknown; }
+  type DeepFoo2 = DeepCopy<Foo2>;
+
+  // $ExpectType { foo: unknown; }
+  type DeepFoo3 = DeepCopy<Foo3>;
+
+  class FooWithList extends Record<{
+    foos: undefined | List<FooWithList>;
+  }>({
+    foos: undefined
+  }) {
+  }
+
+  // $ExpectType { foos: unknown; }
+  type DeepFooList = DeepCopy<FooWithList>;
 }
