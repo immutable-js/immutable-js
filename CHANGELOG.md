@@ -8,6 +8,10 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+## [4.3.4] - 2023-08-25
+
+- Rollback toJS type due to circular reference error [#1958](https://github.com/immutable-js/immutable-js/pull/1958) by [@jdeniau](https://github.com/jdeniau)
+
 ## [4.3.3] - 2023-08-23
 
 - [typescript] manage to handle toJS circular reference. [#1932](https://github.com/immutable-js/immutable-js/pull/1932) by [@jdeniau](https://github.com/jdeniau)
