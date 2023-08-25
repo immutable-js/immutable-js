@@ -8,6 +8,10 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+## [5.0.0-beta.2]
+
+Merge `main` branch into `5.x` for [4.3.4](https://github.com/immutable-js/immutable-js/releases/tag/v4.3.4) fixes.
+
 ## [5.0.0-beta.1]
 
 ### Changed
