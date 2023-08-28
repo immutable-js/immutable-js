@@ -2,6 +2,8 @@ import fs from 'node:fs/promises';
 import { deflate } from 'zlib';
 import 'colors';
 
+const VERIFY_AGAINST_VERSION = '4';
+
 const deflateContent = content =>
   new Promise((resolve, reject) =>
     deflate(content, (error, out) => (error ? reject(error) : resolve(out)))
@@ -25,7 +27,7 @@ let bundlephobaInfoCache;
 async function bundlephobaInfo(key) {
   if (!bundlephobaInfoCache) {
     bundlephobaInfoCache = await fetch(
-      'https://bundlephobia.com/api/size?package=immutable@4'
+      `https://bundlephobia.com/api/size?package=immutable@${VERIFY_AGAINST_VERSION}`
     ).then(res => res.json());
   }
 
