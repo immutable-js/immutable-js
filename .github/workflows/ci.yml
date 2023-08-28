@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '18'
       - uses: actions/cache@v3
         with:
           path: ~/.npm
@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '18'
       - uses: actions/cache@v3
         with:
           path: ~/.npm
@@ -55,7 +55,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '18'
       - uses: actions/cache@v3
         with:
           path: ~/.npm
@@ -75,14 +75,14 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '18'
       - uses: actions/cache@v3
         with:
           path: ~/.npm
           key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.OS }}-node-
       - run: npm ci
-      - run: npm run website:build
+      - run: NODE_OPTIONS=--openssl-legacy-provider npm run website:build
       - run: npm run check-git-clean
 
   publish:
@@ -96,7 +96,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '18'
       - uses: actions/cache@v3
         with:
           path: ~/.npm
@@ -104,7 +104,7 @@ jobs:
           restore-keys: ${{ runner.OS }}-node-
       - run: npm ci
       - run: npm run build
-      - run: npm run website:build
+      - run: NODE_OPTIONS=--openssl-legacy-provider npm run website:build
       - name: Push NPM Branch
         if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
