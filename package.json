@@ -70,7 +70,7 @@
     "build:esm": "rollup -c ./resources/rollup-config-es.js",
     "build:copy": "cpy ./type-definitions/immutable.* dist",
     "build:prepare": "./resources/prepare-dist.sh",
-    "build:stats": "node ./resources/dist-stats.js",
+    "build:stats": "node ./resources/dist-stats.mjs",
     "unit-test": "jest",
     "website:build": "cd website && next build && next-sitemap && next export",
     "website:dev": "cd website && next dev",
