@@ -19,16 +19,15 @@ function transpileJavaScript(src, path) {
   // while https://github.com/facebook/jest/issues/9504 is not resolved
   const fn = makeSynchronous(async path => {
     const rollup = require('rollup');
-    const buble = require('rollup-plugin-buble');
-    const commonjs = require('rollup-plugin-commonjs');
-    const json = require('rollup-plugin-json');
-    const stripBanner = require('rollup-plugin-strip-banner');
+    const buble = require('@rollup/plugin-buble');
+    const commonjs = require('@rollup/plugin-commonjs');
+    const json = require('@rollup/plugin-json');
 
     // same input options as in rollup-config.js
     const inputOptions = {
       input: path,
       onwarn: () => {},
-      plugins: [commonjs(), json(), stripBanner(), buble()],
+      plugins: [commonjs(), json(), buble()],
     };
 
     const bundle = await rollup.rollup(inputOptions);
