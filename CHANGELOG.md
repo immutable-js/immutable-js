@@ -8,6 +8,12 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+## [5.0.0-beta.3]
+
+Remove tree-shaking possibility as it does break. Moreover, as nearly every collection type can be converted to another collection (`Map().toList()` for example), so nearly no code was removed.
+
+I think that if we want to implement this, we might need to rethink this functionality.
+
 ## [5.0.0-beta.2]
 
 Merge `main` branch into `5.x` for [4.3.4](https://github.com/immutable-js/immutable-js/releases/tag/v4.3.4) fixes.
@@ -16,10 +22,9 @@ Merge `main` branch into `5.x` for [4.3.4](https://github.com/immutable-js/immut
 
 ### Changed
 
-### [Minor BC break] Reducing file size / tree shaking
+### [Minor BC break] Remove default export
 
 Immutable does not export a default object containing all it's API anymore.
-It changes the output of your JS file if you use a bundler that supports tree-shaking (all modern bundler do).
 As a drawback, you can not `immport Immutable` directly:
 
 ```diff
@@ -157,7 +162,6 @@ For now, only `get`, `getIn`, `set`, `update`, `delete`, `remove`, `toJS`, `toJS
 
 ## [4.1.0] - 2022-05-23
 
-- [BREAKING] The ES6 bundle no longer exposes a default export, which allows bundlers to apply tree-shaking. [#1888](https://github.com/immutable-js/immutable-js/pull/1888) by [bdurrer](https://github.com/bdurrer)
 - Accept Symbol as Map key. [#1859](https://github.com/immutable-js/immutable-js/pull/1859) by [jdeniau](https://github.com/jdeniau)
 - Optimize contructors without arguments [#1887](https://github.com/immutable-js/immutable-js/pull/1887) by [marianoguerra](https://github.com/marianoguerra)
 - Fix Flow removeIn types [#1902](https://github.com/immutable-js/immutable-js/pull/1902) by [nifgraup](https://github.com/nifgraup)

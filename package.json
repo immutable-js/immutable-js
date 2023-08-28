@@ -18,9 +18,6 @@
   "main": "dist/immutable.js",
   "module": "dist/es/Immutable.js",
   "types": "dist/immutable.d.ts",
-  "sideEffects": [
-    "./src/CollectionImpl.js"
-  ],
   "files": [
     "dist",
     "README.md",
@@ -142,13 +139,13 @@
       "name": "List",
       "path": "dist/es/Immutable.js",
       "import": "{ List }",
-      "limit": "12 kB"
+      "limit": "20 kB"
     },
     {
       "name": "Seq",
       "path": "dist/es/Immutable.js",
       "import": "{ Seq }",
-      "limit": "2 kB"
+      "limit": "20 kB"
     }
   ]
 }
