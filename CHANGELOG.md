@@ -8,7 +8,7 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
-## [5.0.0-beta.3]
+## [5.0.0-beta.4]
 
 Remove tree-shaking possibility as it does break. Moreover, as nearly every collection type can be converted to another collection (`Map().toList()` for example), so nearly no code was removed.
 
