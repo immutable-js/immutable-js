@@ -8,6 +8,8 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+- [internal] Upgrade to rollup 3.x [#1965](https://github.com/immutable-js/immutable-js/pull/1965) by [@jdeniau](https://github.com/jdeniau)
+
 ## [5.0.0-beta.4]
 
 Revert tree-shaking possibility as it does break. Moreover, as nearly every collection type can be converted to another collection (`Map().toList()` for example), so nearly no code was removed.
