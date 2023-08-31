@@ -2475,8 +2475,8 @@ declare namespace Immutable {
    * ```
    */
   function Range(
-    start?: number,
-    end?: number,
+    start: number,
+    end: number,
     step?: number
   ): Seq.Indexed<number>;
 

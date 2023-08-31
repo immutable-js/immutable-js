@@ -11,16 +11,21 @@ import deepEqual from './utils/deepEqual';
  * infinity. When start is equal to end, returns empty list.
  */
 export class Range extends IndexedSeq {
-  constructor(start, end, step) {
+  constructor(start, end, step = 1) {
     if (!(this instanceof Range)) {
       return new Range(start, end, step);
     }
     invariant(step !== 0, 'Cannot step a Range by 0');
-    start = start || 0;
-    if (end === undefined) {
-      end = Infinity;
-    }
-    step = step === undefined ? 1 : Math.abs(step);
+    invariant(
+      start !== undefined,
+      'You must define a start value when using Range'
+    );
+    invariant(
+      end !== undefined,
+      'You must define an end value when using Range'
+    );
+
+    step = Math.abs(step);
     if (end < start) {
       step = -step;
     }
