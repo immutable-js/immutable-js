@@ -8,6 +8,7 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+- Change Range function: force start and end values to be defined [#1967](https://github.com/immutable-js/immutable-js/pull/1967) by [@jdeniau](https://github.com/jdeniau)
 - [internal] Upgrade to rollup 3.x [#1965](https://github.com/immutable-js/immutable-js/pull/1965) by [@jdeniau](https://github.com/jdeniau)
 
 ## [5.0.0-beta.4]
