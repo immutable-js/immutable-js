@@ -42,7 +42,7 @@ import { OrderedSet, Map } from 'immutable';
 {
   // .fromKeys
 
-  // $ExpectType OrderedSet<string>
+  // $ExpectType OrderedSet<unknown>
   OrderedSet.fromKeys(Map<number, string>());
 
   // $ExpectType OrderedSet<number>

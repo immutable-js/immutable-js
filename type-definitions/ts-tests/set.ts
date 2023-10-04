@@ -39,7 +39,7 @@ import { Set, Map } from 'immutable';
 {
   // .fromKeys
 
-  // $ExpectType Set<string>
+  // $ExpectType Set<unknown>
   Set.fromKeys(Map<number, string>());
 
   // $ExpectType Set<number>
