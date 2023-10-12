@@ -42,7 +42,9 @@ import { OrderedSet, Map } from 'immutable';
 {
   // .fromKeys
 
-  // $ExpectType OrderedSet<unknown>
+  // Can't use ExpectType here because the type will be either
+  // OrderedSet<unknown> for Typescript < 5.0 or OrderedSet<number> for
+  // Typescript > 5.0.
   OrderedSet.fromKeys(Map<number, string>());
 
   // $ExpectType OrderedSet<number>
