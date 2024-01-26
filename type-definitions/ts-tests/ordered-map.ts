@@ -387,9 +387,9 @@ import { OrderedMap, List } from 'immutable';
     { a: 1 }
   );
 
-  // $ExpectError
   OrderedMap<string, number>().mergeWith(
     (prev: number, next: number, key: string) => 1,
+    // $ExpectError
     { a: 'a' }
   );
 
