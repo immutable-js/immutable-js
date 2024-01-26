@@ -199,6 +199,10 @@ a.try-it {
   flex-direction: row-reverse;
 }
 
+img {
+  max-width: 1024px;
+}
+
 .markdown h1 {
   font-size: 2em;
   margin: 0 0 1rem;
