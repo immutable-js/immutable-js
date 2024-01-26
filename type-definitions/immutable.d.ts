@@ -1830,6 +1830,8 @@ declare namespace Immutable {
      * `Set.fromKeys()` creates a new immutable Set containing the keys from
      * this Collection or JavaScript Object.
      */
+    function fromKeys<T>(iter: Collection.Keyed<T, unknown>): Set<T>;
+    // tslint:disable-next-line unified-signatures
     function fromKeys<T>(iter: Collection<T, unknown>): Set<T>;
     function fromKeys(obj: { [key: string]: unknown }): Set<string>;
 
@@ -2053,6 +2055,8 @@ declare namespace Immutable {
      * `OrderedSet.fromKeys()` creates a new immutable OrderedSet containing
      * the keys from this Collection or JavaScript Object.
      */
+    function fromKeys<T>(iter: Collection.Keyed<T, unknown>): OrderedSet<T>;
+    // tslint:disable-next-line unified-signatures
     function fromKeys<T>(iter: Collection<T, unknown>): OrderedSet<T>;
     function fromKeys(obj: { [key: string]: unknown }): OrderedSet<string>;
   }
