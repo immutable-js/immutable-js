@@ -1,4 +1,4 @@
-import { Set, Map } from 'immutable';
+import { Set, Map, Collection } from 'immutable';
 
 {
   // #constructor
@@ -39,7 +39,7 @@ import { Set, Map } from 'immutable';
 {
   // .fromKeys
 
-  // $ExpectType Set<string>
+  // $ExpectType Set<number>
   Set.fromKeys(Map<number, string>());
 
   // $ExpectType Set<number>
