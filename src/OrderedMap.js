@@ -10,6 +10,7 @@ export class OrderedMap extends Map {
   // @pragma Construction
 
   constructor(value) {
+    // eslint-disable-next-line no-constructor-return
     return value === undefined || value === null
       ? emptyOrderedMap()
       : isOrderedMap(value)

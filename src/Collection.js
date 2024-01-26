@@ -6,24 +6,28 @@ import { isAssociative } from './predicates/isAssociative';
 
 export class Collection {
   constructor(value) {
+    // eslint-disable-next-line no-constructor-return
     return isCollection(value) ? value : Seq(value);
   }
 }
 
 export class KeyedCollection extends Collection {
   constructor(value) {
+    // eslint-disable-next-line no-constructor-return
     return isKeyed(value) ? value : KeyedSeq(value);
   }
 }
 
 export class IndexedCollection extends Collection {
   constructor(value) {
+    // eslint-disable-next-line no-constructor-return
     return isIndexed(value) ? value : IndexedSeq(value);
   }
 }
 
 export class SetCollection extends Collection {
   constructor(value) {
+    // eslint-disable-next-line no-constructor-return
     return isCollection(value) && !isAssociative(value) ? value : SetSeq(value);
   }
 }

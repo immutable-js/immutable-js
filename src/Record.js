@@ -104,6 +104,7 @@ export class Record {
       RecordType.displayName = name;
     }
 
+    // eslint-disable-next-line no-constructor-return
     return RecordType;
   }
 
