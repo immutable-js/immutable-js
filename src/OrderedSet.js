@@ -10,6 +10,7 @@ export class OrderedSet extends Set {
   // @pragma Construction
 
   constructor(value) {
+    // eslint-disable-next-line no-constructor-return
     return value === undefined || value === null
       ? emptyOrderedSet()
       : isOrderedSet(value)

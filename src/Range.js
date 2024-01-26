@@ -13,6 +13,7 @@ import deepEqual from './utils/deepEqual';
 export class Range extends IndexedSeq {
   constructor(start, end, step) {
     if (!(this instanceof Range)) {
+      // eslint-disable-next-line no-constructor-return
       return new Range(start, end, step);
     }
     invariant(step !== 0, 'Cannot step a Range by 0');
@@ -30,6 +31,7 @@ export class Range extends IndexedSeq {
     this.size = Math.max(0, Math.ceil((end - start) / step - 1) + 1);
     if (this.size === 0) {
       if (EMPTY_RANGE) {
+        // eslint-disable-next-line no-constructor-return
         return EMPTY_RANGE;
       }
       EMPTY_RANGE = this;
