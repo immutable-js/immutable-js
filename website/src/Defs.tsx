@@ -214,8 +214,8 @@ export function TypeDef({ type, prefix }: { type: Type; prefix?: number }) {
         'type',
         <>
           {type.url ? (
-            <Link href={type.url}>
-              <a className="t typeName">{type.name}</a>
+            <Link href={type.url} className="t typeName">
+              {type.name}
             </Link>
           ) : (
             <span className="t typeName">{type.name}</span>

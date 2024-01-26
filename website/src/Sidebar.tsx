@@ -40,24 +40,24 @@ function Links({
                 isActive ? 'sideBar__Link--active' : ''
               }`}
             >
-              <Link href={link.url}>
+              <Link
+                href={link.url}
+                onClick={e => {
+                  if (isCurrent) {
+                    e.preventDefault();
+                    setIsForcedClosed(!isForcedClosed);
+                  }
+                }}
+              >
                 {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/anchor-is-valid */}
-                <a
-                  onClick={e => {
-                    if (isCurrent) {
-                      e.preventDefault();
-                      setIsForcedClosed(!isForcedClosed);
-                    }
-                  }}
-                >
-                  {link.label}
-                  {isActive && (focus?.interface || focus?.functions) && (
-                    <>
-                      {' '}
-                      <ArrowDown isActive={isActive} />
-                    </>
-                  )}
-                </a>
+
+                {link.label}
+                {isActive && (focus?.interface || focus?.functions) && (
+                  <>
+                    {' '}
+                    <ArrowDown isActive={isActive} />
+                  </>
+                )}
               </Link>
             </div>
 
