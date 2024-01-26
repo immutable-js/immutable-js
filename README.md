@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/immutable-js/immutable-js/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/immutable-js/immutable-js/actions/workflows/ci.yml?query=branch%3Amain) [Chat on slack](https://immutable-js.slack.com)
 
-[Read the docs](https://immutable-js.com) and eat your vegetables.
+[Read the docs](https://immutable-js.com/docs/) and eat your vegetables.
 
 Docs are automatically generated from [README.md][] and [immutable.d.ts][].
 Please contribute! Also, don't miss the [wiki][] which contains articles on
