@@ -135,11 +135,13 @@ function isAssociative(maybeAssociative) {
 }
 
 var Collection = function Collection(value) {
+  // eslint-disable-next-line no-constructor-return
   return isCollection(value) ? value : Seq(value);
 };
 
 var KeyedCollection = /*@__PURE__*/(function (Collection) {
   function KeyedCollection(value) {
+    // eslint-disable-next-line no-constructor-return
     return isKeyed(value) ? value : KeyedSeq(value);
   }
 
@@ -152,6 +154,7 @@ var KeyedCollection = /*@__PURE__*/(function (Collection) {
 
 var IndexedCollection = /*@__PURE__*/(function (Collection) {
   function IndexedCollection(value) {
+    // eslint-disable-next-line no-constructor-return
     return isIndexed(value) ? value : IndexedSeq(value);
   }
 
@@ -164,6 +167,7 @@ var IndexedCollection = /*@__PURE__*/(function (Collection) {
 
 var SetCollection = /*@__PURE__*/(function (Collection) {
   function SetCollection(value) {
+    // eslint-disable-next-line no-constructor-return
     return isCollection(value) && !isAssociative(value) ? value : SetSeq(value);
   }
 
@@ -304,6 +308,7 @@ function isArrayLike(value) {
 
 var Seq = /*@__PURE__*/(function (Collection) {
   function Seq(value) {
+    // eslint-disable-next-line no-constructor-return
     return value === undefined || value === null
       ? emptySequence()
       : isImmutable(value)
@@ -372,6 +377,7 @@ var Seq = /*@__PURE__*/(function (Collection) {
 
 var KeyedSeq = /*@__PURE__*/(function (Seq) {
   function KeyedSeq(value) {
+    // eslint-disable-next-line no-constructor-return
     return value === undefined || value === null
       ? emptySequence().toKeyedSeq()
       : isCollection(value)
@@ -396,6 +402,7 @@ var KeyedSeq = /*@__PURE__*/(function (Seq) {
 
 var IndexedSeq = /*@__PURE__*/(function (Seq) {
   function IndexedSeq(value) {
+    // eslint-disable-next-line no-constructor-return
     return value === undefined || value === null
       ? emptySequence()
       : isCollection(value)
@@ -428,6 +435,7 @@ var IndexedSeq = /*@__PURE__*/(function (Seq) {
 
 var SetSeq = /*@__PURE__*/(function (Seq) {
   function SetSeq(value) {
+    // eslint-disable-next-line no-constructor-return
     return (
       isCollection(value) && !isAssociative(value) ? value : IndexedSeq(value)
     ).toSetSeq();
@@ -2376,6 +2384,7 @@ function wasAltered() {
 
 var Map = /*@__PURE__*/(function (KeyedCollection) {
   function Map(value) {
+    // eslint-disable-next-line no-constructor-return
     return value === undefined || value === null
       ? emptyMap()
       : isMap(value) && !isOrdered(value)
@@ -3168,20 +3177,25 @@ var List = /*@__PURE__*/(function (IndexedCollection) {
   function List(value) {
     var empty = emptyList();
     if (value === undefined || value === null) {
+      // eslint-disable-next-line no-constructor-return
       return empty;
     }
     if (isList(value)) {
+      // eslint-disable-next-line no-constructor-return
       return value;
     }
     var iter = IndexedCollection(value);
     var size = iter.size;
     if (size === 0) {
+      // eslint-disable-next-line no-constructor-return
       return empty;
     }
     assertNotInfinite(size);
     if (size > 0 && size < SIZE) {
+      // eslint-disable-next-line no-constructor-return
       return makeList(0, size, SHIFT, null, new VNode(iter.toArray()));
     }
+    // eslint-disable-next-line no-constructor-return
     return empty.withMutations(function (list) {
       list.setSize(size);
       iter.forEach(function (v, i) { return list.set(i, v); });
@@ -3817,6 +3831,7 @@ function getTailOffset(size) {
 
 var OrderedMap = /*@__PURE__*/(function (Map) {
   function OrderedMap(value) {
+    // eslint-disable-next-line no-constructor-return
     return value === undefined || value === null
       ? emptyOrderedMap()
       : isOrderedMap(value)
@@ -3985,6 +4000,7 @@ function isStack(maybeStack) {
 
 var Stack = /*@__PURE__*/(function (IndexedCollection) {
   function Stack(value) {
+    // eslint-disable-next-line no-constructor-return
     return value === undefined || value === null
       ? emptyStack()
       : isStack(value)
@@ -4319,6 +4335,7 @@ function toJS(value) {
 
 var Set = /*@__PURE__*/(function (SetCollection) {
   function Set(value) {
+    // eslint-disable-next-line no-constructor-return
     return value === undefined || value === null
       ? emptySet()
       : isSet(value) && !isOrdered(value)
@@ -4566,6 +4583,7 @@ function emptySet() {
 var Range = /*@__PURE__*/(function (IndexedSeq) {
   function Range(start, end, step) {
     if (!(this instanceof Range)) {
+      // eslint-disable-next-line no-constructor-return
       return new Range(start, end, step);
     }
     invariant(step !== 0, 'Cannot step a Range by 0');
@@ -4583,6 +4601,7 @@ var Range = /*@__PURE__*/(function (IndexedSeq) {
     this.size = Math.max(0, Math.ceil((end - start) / step - 1) + 1);
     if (this.size === 0) {
       if (EMPTY_RANGE) {
+        // eslint-disable-next-line no-constructor-return
         return EMPTY_RANGE;
       }
       EMPTY_RANGE = this;
@@ -5456,6 +5475,7 @@ function hashMerge(a, b) {
 
 var OrderedSet = /*@__PURE__*/(function (Set) {
   function OrderedSet(value) {
+    // eslint-disable-next-line no-constructor-return
     return value === undefined || value === null
       ? emptyOrderedSet()
       : isOrderedSet(value)
@@ -5599,6 +5619,7 @@ var Record = function Record(defaultValues, name) {
     RecordType.displayName = name;
   }
 
+  // eslint-disable-next-line no-constructor-return
   return RecordType;
 };
 
@@ -5766,12 +5787,14 @@ function setProp(prototype, name) {
 var Repeat = /*@__PURE__*/(function (IndexedSeq) {
   function Repeat(value, times) {
     if (!(this instanceof Repeat)) {
+      // eslint-disable-next-line no-constructor-return
       return new Repeat(value, times);
     }
     this._value = value;
     this.size = times === undefined ? Infinity : Math.max(0, times);
     if (this.size === 0) {
       if (EMPTY_REPEAT) {
+        // eslint-disable-next-line no-constructor-return
         return EMPTY_REPEAT;
       }
       EMPTY_REPEAT = this;
