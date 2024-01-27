@@ -13,6 +13,7 @@ export class Stack extends IndexedCollection {
   // @pragma Construction
 
   constructor(value) {
+    // eslint-disable-next-line no-constructor-return
     return value === undefined || value === null
       ? emptyStack()
       : isStack(value)

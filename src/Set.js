@@ -15,6 +15,7 @@ export class Set extends SetCollection {
   // @pragma Construction
 
   constructor(value) {
+    // eslint-disable-next-line no-constructor-return
     return value === undefined || value === null
       ? emptySet()
       : isSet(value) && !isOrdered(value)

@@ -36,6 +36,7 @@ export class Map extends KeyedCollection {
   // @pragma Construction
 
   constructor(value) {
+    // eslint-disable-next-line no-constructor-return
     return value === undefined || value === null
       ? emptyMap()
       : isMap(value) && !isOrdered(value)

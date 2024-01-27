@@ -36,9 +36,7 @@ export function MemberDoc({ member }: { member: MemberDefinition }) {
             <h4 className="infoHeader">Inherited from</h4>
             <code>
               <Link href={member.inherited.url}>
-                <a>
-                  {member.inherited.interface}#{member.inherited.label}
-                </a>
+                {member.inherited.interface}#{member.inherited.label}
               </Link>
             </code>
           </section>
@@ -48,9 +46,7 @@ export function MemberDoc({ member }: { member: MemberDefinition }) {
             <h4 className="infoHeader">Overrides</h4>
             <code>
               <Link href={member.overrides.url}>
-                <a>
-                  {member.overrides.interface}#{member.overrides.label}
-                </a>
+                {member.overrides.interface}#{member.overrides.label}
               </Link>
             </code>
           </section>

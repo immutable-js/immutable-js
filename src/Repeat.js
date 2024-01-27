@@ -12,12 +12,14 @@ import deepEqual from './utils/deepEqual';
 export class Repeat extends IndexedSeq {
   constructor(value, times) {
     if (!(this instanceof Repeat)) {
+      // eslint-disable-next-line no-constructor-return
       return new Repeat(value, times);
     }
     this._value = value;
     this.size = times === undefined ? Infinity : Math.max(0, times);
     if (this.size === 0) {
       if (EMPTY_REPEAT) {
+        // eslint-disable-next-line no-constructor-return
         return EMPTY_REPEAT;
       }
       EMPTY_REPEAT = this;
