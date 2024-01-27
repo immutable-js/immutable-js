@@ -4,6 +4,7 @@ const { getVersions } = require('./src/static/getVersions');
 module.exports = {
   siteUrl: 'https://immutable-js.com',
   generateRobotsTxt: true,
+  outDir: './out',
   exclude: [
     '/docs',
     ...getVersions()
