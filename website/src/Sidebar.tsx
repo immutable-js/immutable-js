@@ -1,15 +1,12 @@
+'use client';
+
 import Link from 'next/link';
 import { Fragment, useEffect, useState } from 'react';
-import type { TypeDefinition, TypeDefs } from './TypeDefs';
+import type { TypeDefinition } from './TypeDefs';
 import { collectMemberGroups } from './collectMemberGroups';
 import { ArrowDown } from './ArrowDown';
 
 export type SidebarLinks = Array<{ label: string; url: string }>;
-
-// Only used statically
-export function getSidebarLinks(defs: TypeDefs): SidebarLinks {
-  return Object.values(defs.types).map(({ label, url }) => ({ label, url }));
-}
 
 function Links({
   links,
