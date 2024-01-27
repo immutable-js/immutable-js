@@ -32,20 +32,25 @@ export class List extends IndexedCollection {
   constructor(value) {
     const empty = emptyList();
     if (value === undefined || value === null) {
+      // eslint-disable-next-line no-constructor-return
       return empty;
     }
     if (isList(value)) {
+      // eslint-disable-next-line no-constructor-return
       return value;
     }
     const iter = IndexedCollection(value);
     const size = iter.size;
     if (size === 0) {
+      // eslint-disable-next-line no-constructor-return
       return empty;
     }
     assertNotInfinite(size);
     if (size > 0 && size < SIZE) {
+      // eslint-disable-next-line no-constructor-return
       return makeList(0, size, SHIFT, null, new VNode(iter.toArray()));
     }
+    // eslint-disable-next-line no-constructor-return
     return empty.withMutations(list => {
       list.setSize(size);
       iter.forEach((v, i) => list.set(i, v));

@@ -1,15 +1,12 @@
+'use client';
+
 import Link from 'next/link';
 import { Fragment, useEffect, useState } from 'react';
-import type { TypeDefinition, TypeDefs } from './TypeDefs';
+import type { TypeDefinition } from './TypeDefs';
 import { collectMemberGroups } from './collectMemberGroups';
 import { ArrowDown } from './ArrowDown';
 
 export type SidebarLinks = Array<{ label: string; url: string }>;
-
-// Only used statically
-export function getSidebarLinks(defs: TypeDefs): SidebarLinks {
-  return Object.values(defs.types).map(({ label, url }) => ({ label, url }));
-}
 
 function Links({
   links,
@@ -40,24 +37,24 @@ function Links({
                 isActive ? 'sideBar__Link--active' : ''
               }`}
             >
-              <Link href={link.url}>
+              <Link
+                href={link.url}
+                onClick={e => {
+                  if (isCurrent) {
+                    e.preventDefault();
+                    setIsForcedClosed(!isForcedClosed);
+                  }
+                }}
+              >
                 {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/anchor-is-valid */}
-                <a
-                  onClick={e => {
-                    if (isCurrent) {
-                      e.preventDefault();
-                      setIsForcedClosed(!isForcedClosed);
-                    }
-                  }}
-                >
-                  {link.label}
-                  {isActive && (focus?.interface || focus?.functions) && (
-                    <>
-                      {' '}
-                      <ArrowDown isActive={isActive} />
-                    </>
-                  )}
-                </a>
+
+                {link.label}
+                {isActive && (focus?.interface || focus?.functions) && (
+                  <>
+                    {' '}
+                    <ArrowDown isActive={isActive} />
+                  </>
+                )}
               </Link>
             </div>
 

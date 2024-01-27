@@ -23,6 +23,7 @@ import isArrayLike from './utils/isArrayLike';
 
 export class Seq extends Collection {
   constructor(value) {
+    // eslint-disable-next-line no-constructor-return
     return value === undefined || value === null
       ? emptySequence()
       : isImmutable(value)
@@ -85,6 +86,7 @@ export class Seq extends Collection {
 
 export class KeyedSeq extends Seq {
   constructor(value) {
+    // eslint-disable-next-line no-constructor-return
     return value === undefined || value === null
       ? emptySequence().toKeyedSeq()
       : isCollection(value)
@@ -103,6 +105,7 @@ export class KeyedSeq extends Seq {
 
 export class IndexedSeq extends Seq {
   constructor(value) {
+    // eslint-disable-next-line no-constructor-return
     return value === undefined || value === null
       ? emptySequence()
       : isCollection(value)
@@ -129,6 +132,7 @@ export class IndexedSeq extends Seq {
 
 export class SetSeq extends Seq {
   constructor(value) {
+    // eslint-disable-next-line no-constructor-return
     return (
       isCollection(value) && !isAssociative(value) ? value : IndexedSeq(value)
     ).toSetSeq();

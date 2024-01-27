@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
@@ -88,13 +90,11 @@ export function Header({
 
 export function HeaderLogoLink() {
   return (
-    <Link href="/">
-      <a className="miniLogo">
-        <SVGSet>
-          <Logo color="#FC4349" />
-          <Logo color="#2C3E50" inline />
-        </SVGSet>
-      </a>
+    <Link href="/" className="miniLogo">
+      <SVGSet>
+        <Logo color="#FC4349" />
+        <Logo color="#2C3E50" inline />
+      </SVGSet>
     </Link>
   );
 }
@@ -166,7 +166,7 @@ function DocsDropdown({
       `}</style>
       <div>
         <Link href={`/docs/${currentVersion || versions[0]}`}>
-          <a>Docs{currentVersion && ` (${currentVersion})`}</a>
+          Docs{currentVersion && ` (${currentVersion})`}
         </Link>
       </div>
       <ul>

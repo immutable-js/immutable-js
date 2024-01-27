@@ -1,3 +1,5 @@
+'use client';
+
 import { Fragment, useReducer } from 'react';
 
 import { InterfaceDef, CallSigDef } from './Defs';
