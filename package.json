@@ -108,7 +108,7 @@
     "marked": "2.1.2",
     "microtime": "3.0.0",
     "next": "^14.1.0",
-    "next-sitemap": "1.6.124",
+    "next-sitemap": "4.2.3",
     "npm-run-all": "4.1.5",
     "prettier": "2.3.2",
     "react": "^18.2.0",

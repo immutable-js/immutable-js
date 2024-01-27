@@ -10,7 +10,7 @@ yarn-error.log
 TODO
 /website/.next
 /website/out
-/website/public/sitemap.xml
+/website/public/sitemap*.xml
 /website/public/robots.txt
 /gh-pages
 /npm
