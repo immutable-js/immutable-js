@@ -60,7 +60,7 @@ export default function OverviewDocPage({
   return (
     <div>
       <Head>
-        <title>Documentation {version} — Immutable.js</title>
+        <title>{`Documentation ${version} — Immutable.js`}</title>
       </Head>
       <ImmutableConsole version={version} />
       <DocHeader versions={versions} currentVersion={version} />

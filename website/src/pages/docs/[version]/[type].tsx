@@ -60,7 +60,7 @@ export default function TypeDocPage({
   return (
     <div>
       <Head>
-        <title>{def.qualifiedName} — Immutable.js</title>
+        <title>{`${def.qualifiedName} — Immutable.js`}</title>
         <link rel="icon" type="image/png" href="/favicon.png" />
       </Head>
       <ImmutableConsole version={version} />
