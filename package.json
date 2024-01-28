@@ -124,7 +124,6 @@
     "rollup": "3.28.1",
     "size-limit": "^8.2.6",
     "transducers-js": "0.4.174",
-    "tslint-config-prettier": "1.18.0",
     "typescript": "5.1"
   },
   "size-limit": [

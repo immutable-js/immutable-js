@@ -1,6 +1,5 @@
 // @ts-nocheck
 /* eslint-disable */
-/* tslint:disable */
 
 /* **********************************************
      Begin prism-core.js

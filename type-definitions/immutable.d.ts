@@ -1831,7 +1831,6 @@ declare namespace Immutable {
      * this Collection or JavaScript Object.
      */
     function fromKeys<T>(iter: Collection.Keyed<T, unknown>): Set<T>;
-    // tslint:disable-next-line unified-signatures
     function fromKeys<T>(iter: Collection<T, unknown>): Set<T>;
     function fromKeys(obj: { [key: string]: unknown }): Set<string>;
 
@@ -2056,7 +2055,6 @@ declare namespace Immutable {
      * the keys from this Collection or JavaScript Object.
      */
     function fromKeys<T>(iter: Collection.Keyed<T, unknown>): OrderedSet<T>;
-    // tslint:disable-next-line unified-signatures
     function fromKeys<T>(iter: Collection<T, unknown>): OrderedSet<T>;
     function fromKeys(obj: { [key: string]: unknown }): OrderedSet<string>;
   }
@@ -4925,7 +4923,6 @@ declare namespace Immutable {
      * returns Collection<K, V>
      */
     flatten(depth?: number): Collection<unknown, unknown>;
-    // tslint:disable-next-line unified-signatures
     flatten(shallow?: boolean): Collection<unknown, unknown>;
 
     /**
