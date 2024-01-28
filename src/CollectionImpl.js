@@ -310,6 +310,7 @@ mixin(Collection, {
   },
 
   entrySeq() {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const collection = this;
     if (collection._cache) {
       // We cache as an entries array, so we can just return the cache!

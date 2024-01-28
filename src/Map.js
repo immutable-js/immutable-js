@@ -552,7 +552,7 @@ BitmapIndexedNode.prototype.iterate = HashArrayMapNode.prototype.iterate =
     }
   };
 
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 ValueNode.prototype.iterate = function (fn, reverse) {
   return fn(this.entry);
 };

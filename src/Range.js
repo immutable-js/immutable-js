@@ -39,6 +39,7 @@ export class Range extends IndexedSeq {
         // eslint-disable-next-line no-constructor-return
         return EMPTY_RANGE;
       }
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       EMPTY_RANGE = this;
     }
   }
