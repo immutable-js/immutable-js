@@ -180,10 +180,11 @@ function updateInheritedTypeParams(
   function updateType(type: Type | undefined): Type | undefined;
   function updateType(type: Type | undefined): Type | undefined {
     switch (type?.k) {
-      case TypeKind.Param:
+      case TypeKind.Param: {
         // A parameter reference is replaced with the implementing type argument
         const paramIndex = params.indexOf(type.param);
         return paramIndex >= 0 ? args[paramIndex] : type;
+      }
       case TypeKind.Array:
       case TypeKind.Indexed:
       case TypeKind.Operator:
@@ -285,18 +286,18 @@ function genTypeDefData(version: string): TypeDefs {
 function getTypeDefSource(version: string): string {
   if (version === 'latest@main') {
     return readFileSync(typeDefPath, { encoding: 'utf8' });
-  } else {
-    // Previous versions used a different name for the type definitions file.
-    // If the expected file isn't found for this version, try the older name.
-    try {
-      return execSync(`git show ${version}:${typeDefPath} 2>/dev/null`, {
-        encoding: 'utf8',
-      });
-    } catch {
-      return execSync(`git show ${version}:${typeDefPathOld}`, {
-        encoding: 'utf8',
-      });
-    }
+  }
+
+  // Previous versions used a different name for the type definitions file.
+  // If the expected file isn't found for this version, try the older name.
+  try {
+    return execSync(`git show ${version}:${typeDefPath} 2>/dev/null`, {
+      encoding: 'utf8',
+    });
+  } catch {
+    return execSync(`git show ${version}:${typeDefPathOld}`, {
+      encoding: 'utf8',
+    });
   }
 }
 
@@ -330,7 +331,6 @@ function typesVisitor(source: ts.SourceFile) {
         return;
       default:
         ts.forEachChild(node, visit);
-        return;
     }
   }
 
@@ -624,20 +624,22 @@ function typesVisitor(source: ts.SourceFile) {
           k: TypeKind.Object,
           members: (node as ts.TypeLiteralNode).members.map(m => {
             switch (m.kind) {
-              case ts.SyntaxKind.IndexSignature:
+              case ts.SyntaxKind.IndexSignature: {
                 const indexNode = m as ts.IndexSignatureDeclaration;
                 return {
                   index: true,
                   params: indexNode.parameters.map(parseParam),
                   type: parseType(indexNode.type),
                 };
-              case ts.SyntaxKind.PropertySignature:
+              }
+              case ts.SyntaxKind.PropertySignature: {
                 const propNode = m as ts.PropertySignature;
                 return {
                   // Note: this will break on computed or other complex props.
                   name: (propNode.name as ts.Identifier).text,
                   type: propNode.type && parseType(propNode.type),
                 };
+              }
             }
             throw new Error('Unknown member kind: ' + ts.SyntaxKind[m.kind]);
           }),
@@ -815,6 +817,7 @@ function pushIn<
     Array<unknown>,
   V extends A[number]
 >(obj: T, path: readonly [K1, K2, K3], value: V): V;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function pushIn(obj: any, path: ReadonlyArray<string | number>, value: any) {
   for (let ii = 0; ii < path.length; ii++) {
     obj = obj[path[ii]] || (obj[path[ii]] = ii === path.length - 1 ? [] : {});
@@ -854,6 +857,7 @@ function setIn<
   path: readonly [K1, K2, K3, K4],
   value: NonNullable<NonNullable<NonNullable<T[K1]>[K2]>[K3]>[K4]
 ): void;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function setIn(obj: any, path: ReadonlyArray<string | number>, value: any) {
   for (let ii = 0; ii < path.length - 1; ii++) {
     obj = obj[path[ii]] || (obj[path[ii]] = {});

@@ -34,7 +34,7 @@ listOfA = List([new B()]);
 let listOfC: List<C> = listOfB;
 
 // Map covariance
-declare var mapOfB: Map<string, B>;
+declare let mapOfB: Map<string, B>;
 let mapOfA: Map<string, A> = mapOfB;
 
 // $ExpectType MapOf<{ b: B; }>
@@ -44,7 +44,7 @@ mapOfA = Map({ b: new B() });
 let mapOfC: Map<string, C> = mapOfB;
 
 // Set covariance
-declare var setOfB: Set<B>;
+declare let setOfB: Set<B>;
 let setOfA: Set<A> = setOfB;
 
 // $ExpectType Set<B>
@@ -53,7 +53,7 @@ setOfA = Set([new B()]);
 let setOfC: Set<C> = setOfB;
 
 // Stack covariance
-declare var stackOfB: Stack<B>;
+declare let stackOfB: Stack<B>;
 let stackOfA: Stack<A> = stackOfB;
 // $ExpectType Stack<B>
 stackOfA = Stack([new B()]);
@@ -61,7 +61,7 @@ stackOfA = Stack([new B()]);
 let stackOfC: Stack<C> = stackOfB;
 
 // OrderedMap covariance
-declare var orderedMapOfB: OrderedMap<string, B>;
+declare let orderedMapOfB: OrderedMap<string, B>;
 let orderedMapOfA: OrderedMap<string, A> = orderedMapOfB;
 // $ExpectType OrderedMap<string, B>
 orderedMapOfA = OrderedMap({ b: new B() });
@@ -69,7 +69,7 @@ orderedMapOfA = OrderedMap({ b: new B() });
 let orderedMapOfC: OrderedMap<string, C> = orderedMapOfB;
 
 // OrderedSet covariance
-declare var orderedSetOfB: OrderedSet<B>;
+declare let orderedSetOfB: OrderedSet<B>;
 let orderedSetOfA: OrderedSet<A> = orderedSetOfB;
 // $ExpectType OrderedSet<B>
 orderedSetOfA = OrderedSet([new B()]);

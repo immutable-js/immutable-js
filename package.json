@@ -90,6 +90,7 @@
     "@size-limit/esbuild-why": "^8.2.6",
     "@size-limit/preset-small-lib": "^8.2.6",
     "@types/jest": "^29.0.0",
+    "@types/marked": "^6.0.0",
     "@types/react": "17.0.11",
     "@typescript-eslint/eslint-plugin": "^6.19.1",
     "@typescript-eslint/parser": "^6.19.1",

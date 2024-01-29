@@ -1,4 +1,3 @@
-// @ts-ignore
 import marked from 'marked';
 import { Prism as prism } from './prism';
 import type { TypeDefs, CallSignature, TypeDefinition } from '../TypeDefs';
@@ -7,6 +6,11 @@ export type MarkdownContext = {
   defs: TypeDefs;
   typeDef?: TypeDefinition;
   signatures?: Array<CallSignature>;
+};
+
+type RunkitContext = {
+  options: string | object;
+  activated: boolean;
 };
 
 export function markdown(content: string, context: MarkdownContext) {
@@ -35,7 +39,7 @@ export function markdown(content: string, context: MarkdownContext) {
   const renderer = new marked.Renderer();
 
   const runkitRegExp = /^<!--\s*runkit:activate((.|\n)*)-->(.|\n)*$/;
-  const runkitContext = { options: '{}', activated: false };
+  const runkitContext: RunkitContext = { options: '{}', activated: false };
 
   renderer.html = function (text: string) {
     const result = runkitRegExp.exec(text);
@@ -46,7 +50,6 @@ export function markdown(content: string, context: MarkdownContext) {
     try {
       runkitContext.options = result[1] ? JSON.parse(result[1]) : {};
     } catch (e) {
-      // @ts-ignore
       runkitContext.options = {};
     }
     return text;
@@ -98,7 +101,7 @@ export function markdown(content: string, context: MarkdownContext) {
 
   function decorateCodeSpan(
     text: string,
-    highlight?: (code: string, lang: string) => string
+    highlight?: (code: string, lang: string) => string | void
   ) {
     if (
       context.signatures &&
@@ -153,6 +156,7 @@ export function markdown(content: string, context: MarkdownContext) {
     return findDocsUrl(defs, elements);
   }
 
+  // @ts-expect-error -- issue with "context", probably because we are on a really old version of marked
   return marked(content, { renderer, context });
 }
 
