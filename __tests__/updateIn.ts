@@ -13,7 +13,6 @@ import {
 describe('updateIn', () => {
   it('deep edit', () => {
     const m = fromJS({ a: { b: { c: 10 } } });
-    //    ^?
     expect(
       // @ts-expect-error -- type of fromJS may return a MapOf in the future, to help `updateIn` to work, `updateIn` should copy the comportment of `getIn`
       m.updateIn(['a', 'b', 'c'], (value: number) => value * 2).toJS()
