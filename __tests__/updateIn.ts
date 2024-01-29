@@ -34,11 +34,11 @@ describe('updateIn', () => {
   });
 
   it('deep edit throws without list or array-like', () => {
-    // @ts-expect-error
+    // @ts-expect-error -- test that runtime does throw
     expect(() => Map().updateIn(undefined, x => x)).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: undefined'
     );
-    // @ts-expect-error
+    // @ts-expect-error -- test that runtime does th
     expect(() => Map().updateIn({ a: 1, b: 2 }, x => x)).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: [object Object]'
     );

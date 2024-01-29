@@ -1,6 +1,6 @@
 import { Seq, Stack } from 'immutable';
-
 import * as jasmineCheck from 'jasmine-check';
+
 jasmineCheck.install();
 
 function arrayOfSize(s) {

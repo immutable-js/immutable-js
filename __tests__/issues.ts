@@ -15,6 +15,7 @@ describe('Issue #1175', () => {
       equals() {
         return false;
       }
+
       hashCode() {
         return 2 ** 32;
       }

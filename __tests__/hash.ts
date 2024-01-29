@@ -1,6 +1,6 @@
 import { hash } from 'immutable';
-
 import * as jasmineCheck from 'jasmine-check';
+
 jasmineCheck.install();
 
 describe('hash', () => {

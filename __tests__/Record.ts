@@ -41,7 +41,7 @@ describe('Record', () => {
     const MyType = Record({ a: 1, b: 2, c: 3 });
 
     const t1 = MyType({ a: 10, b: 20 });
-    // @ts-expect-error
+    // @ts-expect-error -- try to force an unknown value
     const t2 = t1.set('d', 4);
 
     expect(t2).toBe(t1);
@@ -132,7 +132,7 @@ describe('Record', () => {
 
     expect(t.get('a')).toEqual(1);
     expect(t.get('b')).toEqual(20);
-    // @ts-expect-error
+    // @ts-expect-error -- unknown key should not return anything
     expect(t.get('c')).toBeUndefined();
   });
 
@@ -163,7 +163,7 @@ describe('Record', () => {
     const b: string = t1.b;
     expect(a).toEqual(1);
     expect(b).toEqual('foo');
-    // @ts-expect-error
+    // @ts-expect-error -- test that runtime does throw
     expect(() => (t1.a = 2)).toThrow('Cannot set on an immutable record.');
   });
 
@@ -303,7 +303,7 @@ describe('Record', () => {
   it('does not accept a non object as constructor', () => {
     const defaultValues = null;
     expect(() => {
-      // @ts-expect-error
+      // @ts-expect-error -- test that runtime does throw
       Record(defaultValues);
     }).toThrowErrorMatchingSnapshot();
   });

@@ -2,12 +2,14 @@ import { List, Map, OrderedMap, OrderedSet, Set, Stack } from 'immutable';
 
 class A {
   x: number;
+
   constructor() {
     this.x = 1;
   }
 }
 class B extends A {
   y: string;
+
   constructor() {
     super();
     this.y = 'B';
@@ -15,6 +17,7 @@ class B extends A {
 }
 class C {
   z: string;
+
   constructor() {
     this.z = 'C';
   }

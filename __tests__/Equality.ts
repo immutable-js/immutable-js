@@ -1,6 +1,6 @@
 import { is, List, Map, Seq, Set } from 'immutable';
-
 import * as jasmineCheck from 'jasmine-check';
+
 jasmineCheck.install();
 
 describe('Equality', () => {

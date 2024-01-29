@@ -1,6 +1,6 @@
 import { fromJS, List, Map, Range, Seq, Set } from 'immutable';
-
 import * as jasmineCheck from 'jasmine-check';
+
 jasmineCheck.install();
 
 function arrayOfSize(s: number) {
@@ -38,7 +38,7 @@ describe('List', () => {
 
   it('does not accept a scalar', () => {
     expect(() => {
-      // @ts-expect-error
+      // @ts-expect-error -- test that runtime does throw
       List(3);
     }).toThrow('Expected Array or collection object of values: 3');
   });

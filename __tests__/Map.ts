@@ -1,6 +1,6 @@
 import { fromJS, is, List, Map, Range, Record, Seq } from 'immutable';
-
 import * as jasmineCheck from 'jasmine-check';
+
 jasmineCheck.install();
 
 describe('Map', () => {

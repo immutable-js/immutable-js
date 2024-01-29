@@ -1,6 +1,6 @@
 import { Range } from 'immutable';
-
 import * as jasmineCheck from 'jasmine-check';
+
 jasmineCheck.install();
 
 describe('Range', () => {

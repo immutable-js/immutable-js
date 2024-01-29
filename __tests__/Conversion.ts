@@ -1,6 +1,6 @@
 import { fromJS, is, List, Map, OrderedMap, Record } from 'immutable';
-
 import * as jasmineCheck from 'jasmine-check';
+
 jasmineCheck.install();
 
 // Symbols
