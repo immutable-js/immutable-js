@@ -1,6 +1,6 @@
 import { Collection, fromJS, List, Range, Seq } from 'immutable';
-
 import * as jasmineCheck from 'jasmine-check';
+
 jasmineCheck.install();
 
 describe('flatten', () => {
@@ -26,7 +26,8 @@ describe('flatten', () => {
       [4, 5, 6],
     ]);
     const flat = nested.flatten();
-    expect(flat.forEach((x: any) => x < 4)).toEqual(4);
+    // @ts-expect-error -- `flatten` return type should be improved
+    expect(flat.forEach((x: number) => x < 4)).toEqual(4);
   });
 
   type SeqType = number | Array<number> | Collection<number, number>;

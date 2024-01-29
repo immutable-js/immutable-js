@@ -1,14 +1,10 @@
-import { memo } from 'react';
-
-export const Logo = memo(function _Logo({
-  opacity = 1,
-  inline,
-  color,
-}: {
+type Props = {
   opacity?: number;
   inline?: boolean;
   color: string;
-}) {
+};
+
+export function Logo({ opacity = 1, inline, color }: Props) {
   return !inline ? (
     <g fill={color} style={{ opacity }}>
       <path d="M0,0l13.9,0v41.1H0L0,0z" />
@@ -75,4 +71,4 @@ export const Logo = memo(function _Logo({
       />
     </g>
   );
-});
+}

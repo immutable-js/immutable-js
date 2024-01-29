@@ -1,6 +1,6 @@
 import { Range, Seq } from 'immutable';
-
 import * as jasmineCheck from 'jasmine-check';
+
 jasmineCheck.install();
 
 describe('KeyedSeq', () => {
@@ -11,7 +11,8 @@ describe('KeyedSeq', () => {
     const seqEntries = seq.entries();
     const keyedEntries = keyed.entries();
 
-    let seqStep, keyedStep;
+    let seqStep;
+    let keyedStep;
     do {
       seqStep = seqEntries.next();
       keyedStep = keyedEntries.next();

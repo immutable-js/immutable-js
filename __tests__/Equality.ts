@@ -1,6 +1,6 @@
 import { is, List, Map, Seq, Set } from 'immutable';
-
 import * as jasmineCheck from 'jasmine-check';
+
 jasmineCheck.install();
 
 describe('Equality', () => {
@@ -53,8 +53,8 @@ describe('Equality', () => {
   });
 
   it('dereferences things', () => {
-    const ptrA = { foo: 1 },
-      ptrB = { foo: 2 };
+    const ptrA = { foo: 1 };
+    const ptrB = { foo: 2 };
     expectIsNot(ptrA, ptrB);
     ptrA.valueOf = ptrB.valueOf = function () {
       return 5;
@@ -66,11 +66,13 @@ describe('Equality', () => {
     };
     expectIs(ptrA, ptrB);
     ptrA.valueOf = ptrB.valueOf = function () {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return null as any;
     };
     expectIs(ptrA, ptrB);
     ptrA.valueOf = ptrB.valueOf = function () {
-      return void 0 as any;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return undefined as any;
     };
     expectIs(ptrA, ptrB);
     ptrA.valueOf = function () {

@@ -1,6 +1,6 @@
 import { List, Range, Seq } from 'immutable';
-
 import * as jasmineCheck from 'jasmine-check';
+
 jasmineCheck.install();
 
 describe('slice', () => {
@@ -255,7 +255,7 @@ describe('slice', () => {
       }),
     ],
     (entries, args) => {
-      const a: Array<any> = [];
+      const a: Array<number> = [];
       entries.forEach(entry => (a[entry[0]] = entry[1]));
       const s = Seq(a);
       const slicedS = s.slice.apply(s, args);

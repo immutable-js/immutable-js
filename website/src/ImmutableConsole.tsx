@@ -20,7 +20,6 @@ export function ImmutableConsole({ version }: { version: string }) {
     installUMD(installSpace, getSourceURL(version)).then(Immutable => {
       installSpace.Immutable = Immutable;
       /* eslint-disable no-console */
-      // tslint:disable:no-console
       console.log(
         '\n' +
           '   ▄▟████▙▄       _   __    __ __    __ _    _ _______       ____  _     _____ \n' +
@@ -35,7 +34,6 @@ export function ImmutableConsole({ version }: { version: string }) {
       );
       console.log(Immutable);
       /* eslint-enable no-console */
-      // tslint:enable:no-console
     });
   }, [version]);
   return null;

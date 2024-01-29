@@ -1,6 +1,6 @@
 import { fromJS, List, Map, Range, Seq, Set } from 'immutable';
-
 import * as jasmineCheck from 'jasmine-check';
+
 jasmineCheck.install();
 
 function arrayOfSize(s: number) {
@@ -38,7 +38,7 @@ describe('List', () => {
 
   it('does not accept a scalar', () => {
     expect(() => {
-      // @ts-expect-error
+      // @ts-expect-error -- test that runtime does throw
       List(3);
     }).toThrow('Expected Array or collection object of values: 3');
   });
@@ -102,7 +102,9 @@ describe('List', () => {
   });
 
   it('can setIn on an inexistant index', () => {
-    const myMap = Map<string, any>({ a: [], b: [] });
+    const myMap = Map<{ a: Array<string>; b: Array<string>; c?: List<string> }>(
+      { a: [], b: [] }
+    );
     const out = myMap.setIn(['a', 0], 'v').setIn(['c', 0], 'v');
 
     expect(out.getIn(['a', 0])).toEqual('v');
@@ -110,7 +112,7 @@ describe('List', () => {
     expect(out.get('a')).toBeInstanceOf(Array);
     expect(out.get('b')).toBeInstanceOf(Array);
     expect(out.get('c')).toBeInstanceOf(Map);
-    expect(out.get('c').keySeq().first()).toBe(0);
+    expect(out.get('c')?.keySeq().first()).toBe(0);
   });
 
   it('throw when calling setIn on a non data structure', () => {
@@ -143,7 +145,7 @@ describe('List', () => {
 
   it('can update a value', () => {
     const l = List.of(5);
-    // @ts-ignore (Type definition limitation)
+    // @ts-expect-error -- Type definition limitation
     expect(l.update(0, v => v * v).toArray()).toEqual([25]);
   });
 
@@ -153,7 +155,7 @@ describe('List', () => {
         aKey: List(['bad', 'good']),
       }),
     ]);
-    // @ts-ignore (Type definition limitation)
+    // @ts-expect-error -- Type definition limitation
     l = l.updateIn([0, 'aKey', 1], v => v + v);
     expect(l.toJS()).toEqual([
       {
@@ -164,10 +166,12 @@ describe('List', () => {
 
   it('returns undefined when getting a null value', () => {
     const v = List([1, 2, 3]);
-    expect(v.get(null as any)).toBe(undefined);
+    // @ts-expect-error -- test runtime
+    expect(v.get(null)).toBe(undefined);
 
     const o = List([{ a: 1 }, { b: 2 }, { c: 3 }]);
-    expect(o.get(null as any)).toBe(undefined);
+    // @ts-expect-error -- test runtime
+    expect(o.get(null)).toBe(undefined);
   });
 
   it('counts from the end of the list on negative index', () => {
@@ -180,6 +184,7 @@ describe('List', () => {
 
   it('coerces numeric-string keys', () => {
     // Of course, TypeScript protects us from this, so cast to "any" to test.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const i: any = List.of(1, 2, 3, 4, 5, 6);
     expect(i.get('1')).toBe(2);
     expect(i.set('3', 10).get('3')).toBe(10);
@@ -190,37 +195,44 @@ describe('List', () => {
   });
 
   it('uses not set value for string index', () => {
-    const list: any = List();
+    const list = List();
+    // @ts-expect-error -- test runtime
     expect(list.get('stringKey', 'NOT-SET')).toBe('NOT-SET');
   });
 
   it('uses not set value for index {}', () => {
-    const list: any = List.of(1, 2, 3, 4, 5);
+    const list = List.of(1, 2, 3, 4, 5);
+    // @ts-expect-error -- test runtime
     expect(list.get({}, 'NOT-SET')).toBe('NOT-SET');
   });
 
   it('uses not set value for index void 0', () => {
-    const list: any = List.of(1, 2, 3, 4, 5);
+    const list = List.of(1, 2, 3, 4, 5);
+    // @ts-expect-error -- test runtime
+    // eslint-disable-next-line no-void
     expect(list.get(void 0, 'NOT-SET')).toBe('NOT-SET');
   });
 
   it('uses not set value for index undefined', () => {
-    const list: any = List.of(1, 2, 3, 4, 5);
+    const list = List.of(1, 2, 3, 4, 5);
+    // @ts-expect-error -- test runtime
     expect(list.get(undefined, 'NOT-SET')).toBe('NOT-SET');
   });
 
   it('doesnt coerce empty strings to index 0', () => {
-    const list: any = List.of(1, 2, 3);
+    const list = List.of(1, 2, 3);
+    // @ts-expect-error -- test runtime
     expect(list.has('')).toBe(false);
   });
 
   it('doesnt contain elements at non-empty string keys', () => {
-    const list: any = List.of(1, 2, 3, 4, 5);
+    const list = List.of(1, 2, 3, 4, 5);
+    // @ts-expect-error -- test runtime
     expect(list.has('str')).toBe(false);
   });
 
   it('hasIn doesnt contain elements at non-empty string keys', () => {
-    const list: any = List.of(1, 2, 3, 4, 5);
+    const list = List.of(1, 2, 3, 4, 5);
     expect(list.hasIn(['str'])).toBe(false);
   });
 
@@ -310,11 +322,12 @@ describe('List', () => {
       .set(6, undefined)
       .remove(1);
     expect(v.size).toBe(14);
+    // eslint-disable-next-line no-sparse-arrays
     expect(v.toJS()).toEqual(['a', 'c', 'd', , , , , , , , , , , 'o']);
   });
 
   it('iterates a dense list', () => {
-    const v = List()
+    const v = List<number | undefined>()
       .setSize(11)
       .set(1, 1)
       .set(3, 3)
@@ -323,7 +336,7 @@ describe('List', () => {
       .set(9, 9);
     expect(v.size).toBe(11);
 
-    const forEachResults: Array<any> = [];
+    const forEachResults: Array<[number, undefined | number]> = [];
     v.forEach((val, i) => forEachResults.push([i, val]));
     expect(forEachResults).toEqual([
       [0, undefined],
@@ -354,7 +367,7 @@ describe('List', () => {
       undefined,
     ]);
 
-    const iteratorResults: Array<any> = [];
+    const iteratorResults: Array<[number, undefined | number]> = [];
     const iterator = v.entries();
     let step;
     while (!(step = iterator.next()).done) {
@@ -446,7 +459,7 @@ describe('List', () => {
     { maxSize: 2000 },
     [gen.posInt],
     len => {
-      const a: Array<any> = [];
+      const a: Array<number> = [];
       let v = List();
 
       for (let ii = 0; ii < len; ii++) {
@@ -557,9 +570,7 @@ describe('List', () => {
 
   it('ensures iter is unmodified', () => {
     const v = List.of(1, 2, 3);
-    const r = v.map((value, index, iter) => {
-      return iter.get(index - 1);
-    });
+    const r = v.map((value, index, iter) => iter.get(index - 1));
     expect(r.toArray()).toEqual([3, 1, 2]);
   });
 
@@ -583,17 +594,12 @@ describe('List', () => {
   it('filters values based on type', () => {
     class A {}
     class B extends A {
-      b(): void {
-        return;
-      }
+      b(): void {}
     }
     class C extends A {
-      c(): void {
-        return;
-      }
+      c(): void {}
     }
     const l1 = List<A>([new B(), new C(), new B(), new C()]);
-    // tslint:disable-next-line:arrow-parens
     const l2: List<C> = l1.filter((v): v is C => v instanceof C);
     expect(l2.size).toEqual(2);
     expect(l2.every(v => v instanceof C)).toBe(true);
@@ -602,17 +608,12 @@ describe('List', () => {
   it('partitions values based on type', () => {
     class A {}
     class B extends A {
-      b(): void {
-        return;
-      }
+      b(): void {}
     }
     class C extends A {
-      c(): void {
-        return;
-      }
+      c(): void {}
     }
     const l1 = List<A>([new B(), new C(), new B(), new C()]);
-    // tslint:disable-next-line:arrow-parens
     const [la, lc]: [List<A>, List<C>] = l1.partition(
       (v): v is C => v instanceof C
     );
@@ -698,7 +699,7 @@ describe('List', () => {
     const a = Array(100).join('abcdefghijklmnopqrstuvwxyz').split('');
     const v1 = List(a);
     const v2 = List(a);
-    // tslint:disable-next-line: triple-equals
+    // eslint-disable-next-line eqeqeq
     expect(v1 == v2).not.toBe(true);
     expect(v1 === v2).not.toBe(true);
     expect(v1.equals(v2)).toBe(true);
@@ -725,7 +726,7 @@ describe('List', () => {
 
   it('forEach iterates in the correct order', () => {
     let n = 0;
-    const a: Array<any> = [];
+    const a: Array<number> = [];
     const v = List.of(0, 1, 2, 3, 4);
     v.forEach(x => {
       a.push(x);
@@ -737,7 +738,7 @@ describe('List', () => {
   });
 
   it('forEach iteration terminates when callback returns false', () => {
-    const a: Array<any> = [];
+    const a: Array<number> = [];
     function count(x) {
       if (x > 2) {
         return false;
@@ -757,7 +758,7 @@ describe('List', () => {
       [7, 8],
       Seq([9, 10]),
       Set.of(11, 12),
-      null as any
+      null
     );
     expect(v1.toArray()).toEqual([1, 2, 3]);
     expect(v2.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, null]);
@@ -869,26 +870,26 @@ describe('List', () => {
   });
 
   it('discards truncated elements when using slice', () => {
-    const list = [1, 2, 3, 4, 5, 6];
-    const v1 = fromJS(list) as List<number>;
+    const list: Array<number | undefined> = [1, 2, 3, 4, 5, 6];
+    const v1 = fromJS(list) as List<number | undefined>;
     const v2 = v1.slice(0, 3);
     const v3 = v2.setSize(6);
 
     expect(v2.toArray()).toEqual(list.slice(0, 3));
     expect(v3.toArray()).toEqual(
-      list.slice(0, 3).concat([undefined, undefined, undefined] as any)
+      list.slice(0, 3).concat([undefined, undefined, undefined])
     );
   });
 
   it('discards truncated elements when using setSize', () => {
-    const list = [1, 2, 3, 4, 5, 6];
-    const v1 = fromJS(list) as List<number>;
+    const list: Array<number | undefined> = [1, 2, 3, 4, 5, 6];
+    const v1 = fromJS(list) as List<number | undefined>;
     const v2 = v1.setSize(3);
     const v3 = v2.setSize(6);
 
     expect(v2.toArray()).toEqual(list.slice(0, 3));
     expect(v3.toArray()).toEqual(
-      list.slice(0, 3).concat([undefined, undefined, undefined] as any)
+      list.slice(0, 3).concat([undefined, undefined, undefined])
     );
   });
 

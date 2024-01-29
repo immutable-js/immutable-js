@@ -36,9 +36,9 @@ describe('isValueObject', () => {
 
   it('works on custom types', () => {
     class MyValueType {
-      v: any;
+      v: number;
 
-      constructor(val) {
+      constructor(val: number) {
         this.v = val;
       }
 

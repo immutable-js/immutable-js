@@ -100,8 +100,11 @@ describe('OrderedSet', () => {
       b = b.add(i);
     }
     // Set c to 0-23
+    // eslint-disable-next-line prefer-const
     c = b.butLast();
+
     // Set d to 0-22
+    // eslint-disable-next-line prefer-const
     d = c.butLast();
 
     // Internal list resizing happens on the final `subtract` when subtracting d from a
@@ -121,7 +124,7 @@ describe('OrderedSet', () => {
     const initial = OrderedSet([first, second, third]);
 
     const out = initial.map(t => {
-      if (2 === t.get('id')) {
+      if (t.get('id') === 2) {
         return t.set('valid', false);
       }
       return t;

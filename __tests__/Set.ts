@@ -278,8 +278,11 @@ describe('Set', () => {
 
   describe('accepts Symbol as entry #579', () => {
     it('operates on small number of symbols, preserving set uniqueness', () => {
+      // eslint-disable-next-line symbol-description
       const a = Symbol();
+      // eslint-disable-next-line symbol-description
       const b = Symbol();
+      // eslint-disable-next-line symbol-description
       const c = Symbol();
 
       const symbolSet = Set([a, b, c, a, b, c, a, b, c, a, b, c]);
@@ -332,17 +335,21 @@ describe('Set', () => {
     describe('deduplicating custom classes that invoke fromJS() as part of equality check', () => {
       class Entity {
         entityId: string;
+
         entityKey: string;
+
         constructor(entityId: string, entityKey: string) {
           this.entityId = entityId;
           this.entityKey = entityKey;
         }
+
         asImmutable() {
           return fromJS({
             entityId: this.entityId,
             entityKey: this.entityKey,
           });
         }
+
         valueOf() {
           return this.asImmutable().toString();
         }

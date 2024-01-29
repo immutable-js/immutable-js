@@ -22,6 +22,7 @@ export class Repeat extends IndexedSeq {
         // eslint-disable-next-line no-constructor-return
         return EMPTY_REPEAT;
       }
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       EMPTY_REPEAT = this;
     }
   }

@@ -25,7 +25,7 @@ describe('merge', () => {
   it('merges two maps with a merge function', () => {
     const m1 = Map<string, number>({ a: 1, b: 2, c: 3 });
     const m2 = Map<string, number>({ d: 10, b: 20, e: 30 });
-    expect(m1.mergeWith((a: any, b: any) => a + b, m2)).toEqual(
+    expect(m1.mergeWith((a: number, b: number) => a + b, m2)).toEqual(
       Map({ a: 1, b: 22, c: 3, d: 10, e: 30 })
     );
   });
@@ -33,21 +33,22 @@ describe('merge', () => {
   it('throws typeError without merge function', () => {
     const m1 = Map({ a: 1, b: 2, c: 3 });
     const m2 = Map({ d: 10, b: 20, e: 30 });
-    // @ts-expect-error
+    // @ts-expect-error -- test that runtime does throw
     expect(() => m1.mergeWith(1, m2)).toThrowError(TypeError);
   });
 
   it('provides key as the third argument of merge function', () => {
     const m1 = Map<string, string | number>({ id: 'temp', b: 2, c: 3 });
     const m2 = Map<string, number>({ id: 10, b: 20, e: 30 });
-    const add = (a: any, b: any) => a + b;
+    const add = (a: number, b: number) => a + b;
     expect(
+      // @ts-expect-error -- it's difficult to type `a` not as `string | number`
       m1.mergeWith((a, b, key) => (key !== 'id' ? add(a, b) : b), m2)
     ).toEqual(Map({ id: 10, b: 22, c: 3, e: 30 }));
   });
 
   it('deep merges two maps', () => {
-    const m1 = fromJS({ a: { b: { c: 1, d: 2 } } }) as Map<string, any>;
+    const m1 = fromJS({ a: { b: { c: 1, d: 2 } } });
     const m2 = fromJS({ a: { b: { c: 10, e: 20 }, f: 30 }, g: 40 });
     expect(m1.mergeDeep(m2)).toEqual(
       fromJS({ a: { b: { c: 10, d: 2, e: 20 }, f: 30 }, g: 40 })
@@ -73,7 +74,7 @@ describe('merge', () => {
   });
 
   it('deep merges raw JS', () => {
-    const m1 = fromJS({ a: { b: { c: 1, d: 2 } } }) as Map<string, any>;
+    const m1 = fromJS({ a: { b: { c: 1, d: 2 } } });
     const js = { a: { b: { c: 10, e: 20 }, f: 30 }, g: 40 };
     expect(m1.mergeDeep(js)).toEqual(
       fromJS({ a: { b: { c: 10, d: 2, e: 20 }, f: 30 }, g: 40 })
@@ -81,9 +82,10 @@ describe('merge', () => {
   });
 
   it('deep merges raw JS with a merge function', () => {
-    const m1 = fromJS({ a: { b: { c: 1, d: 2 } } }) as Map<string, any>;
+    const m1 = fromJS({ a: { b: { c: 1, d: 2 } } });
     const js = { a: { b: { c: 10, e: 20 }, f: 30 }, g: 40 };
-    expect(m1.mergeDeepWith((a: any, b: any) => a + b, js)).toEqual(
+    // @ts-expect-error type of `mergeDeepWith` is too lazy for now
+    expect(m1.mergeDeepWith((a: number, b: number) => a + b, js)).toEqual(
       fromJS({ a: { b: { c: 11, d: 2, e: 20 }, f: 30 }, g: 40 })
     );
   });
@@ -91,7 +93,8 @@ describe('merge', () => {
   it('deep merges raw JS into raw JS with a merge function', () => {
     const js1 = { a: { b: { c: 1, d: 2 } } };
     const js2 = { a: { b: { c: 10, e: 20 }, f: 30 }, g: 40 };
-    expect(mergeDeepWith((a: any, b: any) => a + b, js1, js2)).toEqual({
+    // @ts-expect-error type of `mergeDeepWith` is too lazy for now
+    expect(mergeDeepWith((a: number, b: number) => a + b, js1, js2)).toEqual({
       a: { b: { c: 11, d: 2, e: 20 }, f: 30 },
       g: 40,
     });
@@ -100,14 +103,15 @@ describe('merge', () => {
   it('deep merges collections into raw JS with a merge function', () => {
     const js = { a: { b: { c: 1, d: 2 } } };
     const m = fromJS({ a: { b: { c: 10, e: 20 }, f: 30 }, g: 40 });
-    expect(mergeDeepWith((a: any, b: any) => a + b, js, m)).toEqual({
+    // @ts-expect-error type of `mergeDeepWith` is too lazy for now
+    expect(mergeDeepWith((a: number, b: number) => a + b, js, m)).toEqual({
       a: { b: { c: 11, d: 2, e: 20 }, f: 30 },
       g: 40,
     });
   });
 
   it('returns self when a deep merges is a no-op', () => {
-    const m1 = fromJS({ a: { b: { c: 1, d: 2 } } }) as Map<string, any>;
+    const m1 = fromJS({ a: { b: { c: 1, d: 2 } } });
     expect(m1.mergeDeep({ a: { b: { c: 1 } } })).toBe(m1);
   });
 
@@ -123,17 +127,13 @@ describe('merge', () => {
 
   it('can overwrite existing maps', () => {
     expect(
-      (
-        fromJS({ a: { x: 1, y: 1 }, b: { x: 2, y: 2 } }) as Map<string, any>
-      ).merge({
+      fromJS({ a: { x: 1, y: 1 }, b: { x: 2, y: 2 } }).merge({
         a: null,
         b: Map({ x: 10 }),
       })
     ).toEqual(fromJS({ a: null, b: { x: 10 } }));
     expect(
-      (
-        fromJS({ a: { x: 1, y: 1 }, b: { x: 2, y: 2 } }) as Map<string, any>
-      ).mergeDeep({
+      fromJS({ a: { x: 1, y: 1 }, b: { x: 2, y: 2 } }).mergeDeep({
         a: null,
         b: { x: 10 },
       })
@@ -141,7 +141,7 @@ describe('merge', () => {
   });
 
   it('can overwrite existing maps with objects', () => {
-    const m1 = fromJS({ a: { x: 1, y: 1 } }) as Map<string, any>; // deep conversion.
+    const m1 = fromJS({ a: { x: 1, y: 1 } }); // deep conversion.
     const m2 = Map({ a: { z: 10 } }); // shallow conversion to Map.
 
     // Raw object simply replaces map.
@@ -175,16 +175,14 @@ describe('merge', () => {
 
     // Note: merge and mergeDeep do not deeply coerce values, they only merge
     // with what's there prior.
-    expect(initial.merge({ b: [2] } as any)).toEqual(
-      Map({ a: List([1]), b: [2] })
-    );
-    expect(initial.mergeDeep({ b: [2] } as any)).toEqual(
+    expect(initial.merge({ b: [2] })).toEqual(Map({ a: List([1]), b: [2] }));
+    expect(initial.mergeDeep({ b: [2] })).toEqual(
       fromJS(Map({ a: List([1]), b: [2] }))
     );
   });
 
   it('maintains JS values inside immutable collections', () => {
-    const m1 = fromJS({ a: { b: { imm: 'map' } } }) as Map<string, any>;
+    const m1 = fromJS({ a: { b: { imm: 'map' } } });
     const m2 = m1.mergeDeep(Map({ a: Map({ b: { plain: 'obj' } }) }));
 
     expect(m1.getIn(['a', 'b'])).toEqual(Map([['imm', 'map']]));

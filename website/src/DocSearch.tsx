@@ -14,9 +14,9 @@ export function DocSearch() {
       'load',
       () => {
         // Initialize Algolia search.
-        // @ts-ignore
+        // @ts-expect-error -- algolia is set on windows, need proper type
         if (window.docsearch) {
-          // @ts-ignore
+          // @ts-expect-error -- algolia is set on windows, need proper type
           window.docsearch({
             apiKey: '83f61f865ef4cb682e0432410c2f7809',
             indexName: 'immutable_js',

@@ -41,7 +41,7 @@ describe('Record', () => {
     const MyType = Record({ a: 1, b: 2, c: 3 });
 
     const t1 = MyType({ a: 10, b: 20 });
-    // @ts-expect-error
+    // @ts-expect-error -- try to force an unknown value
     const t2 = t1.set('d', 4);
 
     expect(t2).toBe(t1);
@@ -132,7 +132,7 @@ describe('Record', () => {
 
     expect(t.get('a')).toEqual(1);
     expect(t.get('b')).toEqual(20);
-    // @ts-expect-error
+    // @ts-expect-error -- unknown key should not return anything
     expect(t.get('c')).toBeUndefined();
   });
 
@@ -163,7 +163,7 @@ describe('Record', () => {
     const b: string = t1.b;
     expect(a).toEqual(1);
     expect(b).toEqual('foo');
-    // @ts-expect-error
+    // @ts-expect-error -- test that runtime does throw
     expect(() => (t1.a = 2)).toThrow('Cannot set on an immutable record.');
   });
 
@@ -189,11 +189,12 @@ describe('Record', () => {
   });
 
   it('does not allow overwriting property names', () => {
-    // tslint:disable:no-console
+    // eslint-disable-next-line no-console
     const realWarn = console.warn;
 
     try {
-      const warnings: Array<any> = [];
+      const warnings: Array<unknown> = [];
+      // eslint-disable-next-line no-console
       console.warn = w => warnings.push(w);
 
       // size is a safe key to use
@@ -204,12 +205,14 @@ describe('Record', () => {
 
       // get() is not safe to use
       const MyType2 = Record({ get: 0 });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const t2 = MyType2();
       expect(warnings.length).toBe(1);
       expect(warnings[0]).toBe(
         'Cannot define Record with property "get" since that property name is part of the Record API.'
       );
     } finally {
+      // eslint-disable-next-line no-console
       console.warn = realWarn;
     }
   });
@@ -242,7 +245,7 @@ describe('Record', () => {
     const MyType = Record({ a: 0, b: 0 });
     const t1 = MyType({ a: 10, b: 20 });
 
-    const entries: Array<any> = [];
+    const entries: Array<[string, number]> = [];
     for (const entry of t1) {
       entries.push(entry);
     }
@@ -303,7 +306,7 @@ describe('Record', () => {
   it('does not accept a non object as constructor', () => {
     const defaultValues = null;
     expect(() => {
-      // @ts-expect-error
+      // @ts-expect-error -- test that runtime does throw
       Record(defaultValues);
     }).toThrowErrorMatchingSnapshot();
   });
