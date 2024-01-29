@@ -28,19 +28,17 @@ describe('hash', () => {
   });
 
   it('generates different hashes for different symbols', () => {
+    // eslint-disable-next-line symbol-description
     const symA = Symbol();
+    // eslint-disable-next-line symbol-description
     const symB = Symbol();
     expect(hash(symA)).toBe(hash(symA));
     expect(hash(symA)).not.toBe(hash(symB));
   });
 
   it('generates different hashes for different functions', () => {
-    const funA = () => {
-      return;
-    };
-    const funB = () => {
-      return;
-    };
+    const funA = () => {};
+    const funB = () => {};
     expect(hash(funA)).toBe(hash(funA));
     expect(hash(funA)).not.toBe(hash(funB));
   });
@@ -50,7 +48,7 @@ describe('hash', () => {
   check.it('generates unsigned 31-bit integers', [genValue], value => {
     const hashVal = hash(value);
     expect(Number.isInteger(hashVal)).toBe(true);
-    expect(hashVal).toBeGreaterThan(-Math.pow(2, 31));
-    expect(hashVal).toBeLessThan(Math.pow(2, 31));
+    expect(hashVal).toBeGreaterThan(-(2 ** 31));
+    expect(hashVal).toBeLessThan(2 ** 31);
   });
 });

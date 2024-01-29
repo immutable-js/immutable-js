@@ -6,11 +6,12 @@ const expectedSortedNumbers: readonly number[] = [
   7, 95, 90, 92, 3, 5, 9, 4, 6, 10, 12,
 ];
 
+/* eslint-disable no-else-return */
 const testComparator: Comparator<number> = (left, right) => {
   //The number 7 always goes first...
-  if (left == 7) {
+  if (left === 7) {
     return PairSorting.LeftThenRight;
-  } else if (right == 7) {
+  } else if (right === 7) {
     return PairSorting.RightThenLeft;
   }
 
@@ -31,6 +32,7 @@ const testComparator: Comparator<number> = (left, right) => {
   //...and, finally, sort the numbers of each subgroup in ascending order.
   return left - right;
 };
+/* eslint-enable no-else-return */
 
 describe.each([
   ['List', List],

@@ -2,6 +2,7 @@ import {
   fromJS,
   List,
   Map,
+  MapOf,
   removeIn,
   Seq,
   Set,
@@ -11,24 +12,30 @@ import {
 
 describe('updateIn', () => {
   it('deep edit', () => {
-    const m = fromJS({ a: { b: { c: 10 } } }) as Map<string, unknown>;
+    const m = fromJS({ a: { b: { c: 10 } } });
+    //    ^?
     expect(
-      m.updateIn(['a', 'b', 'c'], (value: any) => value * 2).toJS()
+      // @ts-expect-error -- type of fromJS may return a MapOf in the future, to help `updateIn` to work, `updateIn` should copy the comportment of `getIn`
+      m.updateIn(['a', 'b', 'c'], (value: number) => value * 2).toJS()
     ).toEqual({
       a: { b: { c: 20 } },
     });
   });
 
   it('deep edit with list as keyPath', () => {
-    const m = fromJS({ a: { b: { c: 10 } } }) as Map<string, unknown>;
+    const m = fromJS({ a: { b: { c: 10 } } });
     expect(
-      m.updateIn(fromJS(['a', 'b', 'c']), (value: any) => value * 2).toJS()
+      // @ts-expect-error -- type of fromJS may return a MapOf in the future, to help `updateIn` to work, `updateIn` should copy the comportment of `getIn`
+      m.updateIn(fromJS(['a', 'b', 'c']), (value: number) => value * 2).toJS()
     ).toEqual({ a: { b: { c: 20 } } });
   });
 
   it('deep edit in raw JS', () => {
     const m = { a: { b: { c: [10] } } };
-    expect(updateIn(m, ['a', 'b', 'c', 0], (value: any) => value * 2)).toEqual({
+    expect(
+      // @ts-expect-error -- `updateIn` should copy the comportment of `getIn`
+      updateIn(m, ['a', 'b', 'c', 0], (value: number) => value * 2)
+    ).toEqual({
       a: { b: { c: [20] } },
     });
   });
@@ -73,67 +80,93 @@ describe('updateIn', () => {
 
   it('shallow remove', () => {
     const m = Map({ a: 123 });
-    expect(m.updateIn([], map => undefined)).toEqual(undefined);
+    expect(m.updateIn([], () => undefined)).toEqual(undefined);
   });
 
   it('deep remove', () => {
-    const m = fromJS({ a: { b: { c: 10 } } }) as Map<string, unknown>;
+    const m = fromJS({ a: { b: { c: 10 } } });
     expect(
-      m.updateIn(['a', 'b'], (map: any) => map.remove('c')).toJS()
+      m
+        // @ts-expect-error -- type of fromJS may return a MapOf in the future, to help `updateIn` to work, `updateIn` should copy the comportment of `getIn`
+        .updateIn(['a', 'b'], (map: MapOf<{ c: number }>) => map.remove('c'))
+        .toJS()
     ).toEqual({
       a: { b: {} },
     });
   });
 
   it('deep set', () => {
-    const m = fromJS({ a: { b: { c: 10 } } }) as Map<string, unknown>;
+    const m = fromJS({ a: { b: { c: 10 } } });
     expect(
-      m.updateIn(['a', 'b'], (map: any) => map.set('d', 20)).toJS()
+      m
+        // @ts-expect-error -- type of fromJS may return a MapOf in the future, to help `updateIn` to work, `updateIn` should copy the comportment of `getIn`
+        .updateIn(['a', 'b'], (map: MapOf<{ c: number }>) => map.set('d', 20))
+        .toJS()
     ).toEqual({
       a: { b: { c: 10, d: 20 } },
     });
   });
 
   it('deep push', () => {
-    const m = fromJS({ a: { b: [1, 2, 3] } }) as Map<string, unknown>;
-    expect(m.updateIn(['a', 'b'], (list: any) => list.push(4)).toJS()).toEqual({
+    const m = fromJS({ a: { b: [1, 2, 3] } });
+    expect(
+      // @ts-expect-error -- type of fromJS may return a MapOf in the future, to help `updateIn` to work, `updateIn` should copy the comportment of `getIn`
+      m.updateIn(['a', 'b'], (list: List<number>) => list.push(4)).toJS()
+    ).toEqual({
       a: { b: [1, 2, 3, 4] },
     });
   });
 
   it('deep map', () => {
-    const m = fromJS({ a: { b: [1, 2, 3] } }) as Map<string, unknown>;
+    const m = fromJS({ a: { b: [1, 2, 3] } });
     expect(
       m
-        .updateIn(['a', 'b'], (list: any) => list.map(value => value * 10))
+        // @ts-expect-error -- type of fromJS may return a MapOf in the future, to help `updateIn` to work, `updateIn` should copy the comportment of `getIn`
+        .updateIn(['a', 'b'], (list: List<number>) =>
+          list.map(value => value * 10)
+        )
         .toJS()
     ).toEqual({ a: { b: [10, 20, 30] } });
   });
 
   it('creates new maps if path contains gaps', () => {
-    const m = fromJS({ a: { b: { c: 10 } } }) as Map<string, unknown>;
+    const m = fromJS({ a: { b: { c: 10 } } });
     expect(
-      m.updateIn(['a', 'q', 'z'], Map(), (map: any) => map.set('d', 20)).toJS()
+      m
+        .updateIn(
+          ['a', 'q', 'z'],
+          Map<string, number>(),
+          // @ts-expect-error -- updateIn should handle the `notSetValue` parameter
+          (map: Map<string, number>) => map.set('d', 20)
+        )
+        .toJS()
     ).toEqual({ a: { b: { c: 10 }, q: { z: { d: 20 } } } });
   });
 
   it('creates new objects if path contains gaps within raw JS', () => {
     const m = { a: { b: { c: 10 } } };
     expect(
-      updateIn(m, ['a', 'b', 'z'], Map(), (map: any) => map.set('d', 20))
+      updateIn(
+        m,
+        ['a', 'b', 'z'],
+        Map<string, number>(),
+        // @ts-expect-error -- updateIn should handle the `notSetValue` parameter
+        (map: Map<string, number>) => map.set('d', 20)
+      )
     ).toEqual({ a: { b: { c: 10, z: Map({ d: 20 }) } } });
   });
 
   it('throws if path cannot be set', () => {
-    const m = fromJS({ a: { b: { c: 10 } } }) as Map<string, unknown>;
+    const m = fromJS({ a: { b: { c: 10 } } });
     expect(() => {
-      m.updateIn(['a', 'b', 'c', 'd'], v => 20).toJS();
+      m.updateIn(['a', 'b', 'c', 'd'], () => 20).toJS();
     }).toThrow();
   });
 
   it('update with notSetValue when non-existing key', () => {
     const m = Map({ a: { b: { c: 10 } } });
-    expect(m.updateIn(['x'], 100, (map: any) => map + 1).toJS()).toEqual({
+    // @ts-expect-error -- updateIn should handle the `notSetValue` parameter
+    expect(m.updateIn(['x'], 100, (map: number) => map + 1).toJS()).toEqual({
       a: { b: { c: 10 } },
       x: 101,
     });
@@ -141,15 +174,17 @@ describe('updateIn', () => {
 
   it('update with notSetValue when non-existing key in raw JS', () => {
     const m = { a: { b: { c: 10 } } };
-    expect(updateIn(m, ['x'], 100, (map: any) => map + 1)).toEqual({
+    // @ts-expect-error -- updateIn should handle the `notSetValue` parameter
+    expect(updateIn(m, ['x'], 100, (map: number) => map + 1)).toEqual({
       a: { b: { c: 10 } },
       x: 101,
     });
   });
 
   it('updates self for empty path', () => {
-    const m = fromJS({ a: 1, b: 2, c: 3 }) as Map<string, unknown>;
-    expect(m.updateIn([], (map: any) => map.set('b', 20)).toJS()).toEqual({
+    const m = fromJS({ a: 1, b: 2, c: 3 });
+    // @ts-expect-error -- type of fromJS may return a MapOf in the future, to help `updateIn` to work, `updateIn` should copy the comportment of `getIn`
+    expect(m.updateIn([], (map: typeof m) => map.set('b', 20)).toJS()).toEqual({
       a: 1,
       b: 20,
       c: 3,
@@ -157,7 +192,7 @@ describe('updateIn', () => {
   });
 
   it('does not perform edit when new value is the same as old value', () => {
-    const m = fromJS({ a: { b: { c: 10 } } }) as Map<string, unknown>;
+    const m = fromJS({ a: { b: { c: 10 } } });
     const m2 = m.updateIn(['a', 'b', 'c'], id => id);
     expect(m2).toBe(m);
   });
@@ -206,7 +241,7 @@ describe('updateIn', () => {
     });
 
     it('returns self for a no-op', () => {
-      const m = fromJS({ a: { b: { c: 123 } } }) as Map<string, unknown>;
+      const m = fromJS({ a: { b: { c: 123 } } });
       expect(m.setIn(['a', 'b', 'c'], 123)).toBe(m);
     });
 
@@ -289,15 +324,15 @@ describe('updateIn', () => {
 
   describe('mergeIn', () => {
     it('provides shorthand for updateIn to merge a nested value', () => {
-      const m1 = fromJS({ x: { a: 1, b: 2, c: 3 } }) as Map<string, unknown>;
-      const m2 = fromJS({ d: 10, b: 20, e: 30 }) as Map<string, unknown>;
+      const m1 = fromJS({ x: { a: 1, b: 2, c: 3 } });
+      const m2 = fromJS({ d: 10, b: 20, e: 30 });
       expect(m1.mergeIn(['x'], m2).toJS()).toEqual({
         x: { a: 1, b: 20, c: 3, d: 10, e: 30 },
       });
     });
 
     it('accepts a list as a keyPath', () => {
-      const m1 = fromJS({ x: { a: 1, b: 2, c: 3 } }) as Map<string, unknown>;
+      const m1 = fromJS({ x: { a: 1, b: 2, c: 3 } });
       const m2 = fromJS({ d: 10, b: 20, e: 30 });
       expect(m1.mergeIn(fromJS(['x']), m2).toJS()).toEqual({
         x: { a: 1, b: 20, c: 3, d: 10, e: 30 },
@@ -330,7 +365,7 @@ describe('updateIn', () => {
 
   describe('mergeDeepIn', () => {
     it('provides shorthand for updateIn to merge a nested value', () => {
-      const m1 = fromJS({ x: { a: 1, b: 2, c: 3 } }) as Map<string, unknown>;
+      const m1 = fromJS({ x: { a: 1, b: 2, c: 3 } });
       const m2 = fromJS({ d: 10, b: 20, e: 30 });
       expect(m1.mergeDeepIn(['x'], m2).toJS()).toEqual({
         x: { a: 1, b: 20, c: 3, d: 10, e: 30 },
@@ -338,7 +373,7 @@ describe('updateIn', () => {
     });
 
     it('accepts a list as a keyPath', () => {
-      const m1 = fromJS({ x: { a: 1, b: 2, c: 3 } }) as Map<string, unknown>;
+      const m1 = fromJS({ x: { a: 1, b: 2, c: 3 } });
       const m2 = fromJS({ d: 10, b: 20, e: 30 });
       expect(m1.mergeDeepIn(fromJS(['x']), m2).toJS()).toEqual({
         x: { a: 1, b: 20, c: 3, d: 10, e: 30 },

@@ -92,7 +92,8 @@ describe('Issue #1252', () => {
 
 describe('Issue #1293', () => {
   it('merge() should not deeply coerce values', () => {
-    const State = Record({ foo: 'bar' as any, biz: 'baz' });
+    type StateObject = { foo: string | { qux: string }; biz?: string };
+    const State = Record<StateObject>({ foo: 'bar', biz: 'baz' });
     const deepObject = { qux: 'quux' };
 
     const firstState = State({ foo: deepObject });

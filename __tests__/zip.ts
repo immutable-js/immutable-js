@@ -135,7 +135,7 @@ describe('zip', () => {
     });
 
     it('with infinite lists', () => {
-      const r: Seq.Indexed<any> = Range(0, Infinity);
+      const r: Seq.Indexed<number | string> = Range(0, Infinity);
       const i = r.interleave(Seq(['A', 'B', 'C']));
       expect(i.size).toBe(6);
       expect(i.toArray()).toEqual([0, 'A', 1, 'B', 2, 'C']);
