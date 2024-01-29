@@ -1,4 +1,5 @@
-import marked from 'marked';
+import { Marked } from 'marked';
+import { markedHighlight } from 'marked-highlight';
 import { Prism as prism } from './prism';
 import type { TypeDefs, CallSignature, TypeDefinition } from '../TypeDefs';
 
@@ -13,7 +14,11 @@ type RunkitContext = {
   activated: boolean;
 };
 
-export function markdown(content: string, context: MarkdownContext) {
+function highlight(code: string): string {
+  return prism.highlight(code, prism.languages.javascript, 'javascript');
+}
+
+export function markdown(content: string, context: MarkdownContext): string {
   if (!content) return content;
 
   const defs = context.defs;
@@ -30,11 +35,12 @@ export function markdown(content: string, context: MarkdownContext) {
     qualifier: /\b[A-Z][a-z0-9_]+/g,
   });
 
-  marked.setOptions({
-    xhtml: true,
-    highlight: (code: string) =>
-      prism.highlight(code, prism.languages.javascript),
-  });
+  const marked = new Marked(
+    markedHighlight({
+      langPrefix: 'hljs language-',
+      highlight,
+    })
+  );
 
   const renderer = new marked.Renderer();
 
@@ -56,14 +62,6 @@ export function markdown(content: string, context: MarkdownContext) {
   };
 
   renderer.code = function (code: string, lang: string, escaped: boolean) {
-    if (this.options.highlight) {
-      const out = this.options.highlight(code, lang);
-      if (out != null && out !== code) {
-        escaped = true;
-        code = out;
-      }
-    }
-
     const runItButton = runkitContext.activated
       ? '<a class="try-it" data-options="' +
         escape(JSON.stringify(runkitContext.options)) +
@@ -94,15 +92,10 @@ export function markdown(content: string, context: MarkdownContext) {
     'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/';
 
   renderer.codespan = function (text: string) {
-    return (
-      '<code>' + decorateCodeSpan(text, this.options.highlight) + '</code>'
-    );
+    return '<code>' + decorateCodeSpan(text) + '</code>';
   };
 
-  function decorateCodeSpan(
-    text: string,
-    highlight?: (code: string, lang: string) => string | void
-  ) {
+  function decorateCodeSpan(text: string) {
     if (
       context.signatures &&
       PARAM_RX.test(text) &&
@@ -126,11 +119,7 @@ export function markdown(content: string, context: MarkdownContext) {
       }
     }
 
-    if (highlight) {
-      return highlight(unescapeCode(text), prism.languages.javascript);
-    }
-
-    return text;
+    return highlight(unescapeCode(text));
   }
 
   function findTypeRefLink(immutableNS: string, elements: Array<string>) {
@@ -157,10 +146,13 @@ export function markdown(content: string, context: MarkdownContext) {
   }
 
   // @ts-expect-error -- issue with "context", probably because we are on a really old version of marked
-  return marked(content, { renderer, context });
+  return marked.parse(content, { renderer, context });
 }
 
-function findDocsUrl(defs: TypeDefs, elements: Array<string>) {
+function findDocsUrl(
+  defs: TypeDefs,
+  elements: Array<string>
+): string | undefined {
   // Try to resolve an interface member
   if (elements.length > 1) {
     const typeName = elements.slice(0, -1).join('.');
@@ -175,7 +167,7 @@ function findDocsUrl(defs: TypeDefs, elements: Array<string>) {
   return defs.types[elements.join('.')]?.url;
 }
 
-function escapeCode(code: string) {
+function escapeCode(code: string): string {
   return code
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -184,7 +176,7 @@ function escapeCode(code: string) {
     .replace(/'/g, '&#39;');
 }
 
-function unescapeCode(code: string) {
+function unescapeCode(code: string): string {
   return code
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
