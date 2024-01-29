@@ -1,3 +1,5 @@
+/** @ignore we should disable this rules, but let's activate it to enable eslint first */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types */
 /**
  * Immutable data encourages pure functions (data-in, data-out) and lends itself
  * to much simpler application development and enabling techniques from
@@ -125,6 +127,7 @@ declare namespace Immutable {
           : string]: V extends object ? unknown : V;
       }
     : // convert IndexedCollection or Immutable.Set to DeepCopy plain JS array
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     T extends Collection<infer _, infer V>
     ? Array<DeepCopy<V>>
     : T extends string | number // Iterable scalar types : should be kept as is
