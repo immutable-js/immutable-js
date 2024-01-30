@@ -792,24 +792,6 @@ declare namespace Immutable {
      * ```
      */
     function isMap(maybeMap: unknown): maybeMap is Map<unknown, unknown>;
-
-    /**
-     * Creates a new Map from alternating keys and values
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map } = require('immutable')
-     * Map.of(
-     *   'key', 'value',
-     *   'numerical value', 3,
-     *    0, 'numerical key'
-     * )
-     * // Map { 0: "numerical key", "key": "value", "numerical value": 3 }
-     * ```
-     *
-     * @deprecated Use Map([ [ 'k', 'v' ] ]) or Map({ k: 'v' })
-     */
-    function of(...keyValues: Array<unknown>): Map<unknown, unknown>;
   }
 
   /**
@@ -3590,34 +3572,6 @@ declare namespace Immutable {
    * `Collection.Indexed`, or `Collection.Set`.
    */
   namespace Collection {
-    /**
-     * @deprecated use `const { isKeyed } = require('immutable')`
-     */
-    function isKeyed(
-      maybeKeyed: unknown
-    ): maybeKeyed is Collection.Keyed<unknown, unknown>;
-
-    /**
-     * @deprecated use `const { isIndexed } = require('immutable')`
-     */
-    function isIndexed(
-      maybeIndexed: unknown
-    ): maybeIndexed is Collection.Indexed<unknown>;
-
-    /**
-     * @deprecated use `const { isAssociative } = require('immutable')`
-     */
-    function isAssociative(
-      maybeAssociative: unknown
-    ): maybeAssociative is
-      | Collection.Keyed<unknown, unknown>
-      | Collection.Indexed<unknown>;
-
-    /**
-     * @deprecated use `const { isOrdered } = require('immutable')`
-     */
-    function isOrdered(maybeOrdered: unknown): boolean;
-
     /**
      * Keyed Collections have discrete keys tied to each value.
      *

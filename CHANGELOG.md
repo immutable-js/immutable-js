@@ -8,8 +8,20 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+- [BREAKING] Remove deprecated methods:
+
+  - `Map.of('k', 'v')`: use `Map([ [ 'k', 'v' ] ])` or `Map({ k: 'v' })`
+  - `Collection.isIterable`: use `isIterable` directly
+  - `Collection.isKeyed`: use `isKeyed` directly
+  - `Collection.isIndexed`: use `isIndexed` directly
+  - `Collection.isAssociative`: use `isAssociative` directly
+  - `Collection.isOrdered`: use `isOrdered` directly
+
+## [5.0.0-beta.5]
+
 - Change Range function: force start and end values to be defined [#1967](https://github.com/immutable-js/immutable-js/pull/1967) by [@jdeniau](https://github.com/jdeniau)
 - [internal] Upgrade to rollup 3.x [#1965](https://github.com/immutable-js/immutable-js/pull/1965) by [@jdeniau](https://github.com/jdeniau)
+- [internal] upgrade tooling (TS, eslint) and documentation packages: #1971, #1972, #1973, #1974, #1975, #1976, #1977, #1978, #1979, #1980, #1981
 
 ## [5.0.0-beta.4]
 

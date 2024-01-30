@@ -105,21 +105,6 @@ describe('Map', () => {
     expect(m.toJS()).toEqual({ length: 3, 1: 'one' });
   });
 
-  it('accepts flattened pairs via of()', () => {
-    // @ts-expect-error Map.of type is <unknown, unknown>, but function is deprecated
-    const m: Map<number, string> = Map.of(1, 'a', 2, 'b', 3, 'c');
-    expect(m.size).toBe(3);
-    expect(m.get(1)).toBe('a');
-    expect(m.get(2)).toBe('b');
-    expect(m.get(3)).toBe('c');
-  });
-
-  it('does not accept mismatched flattened pairs via of()', () => {
-    expect(() => {
-      Map.of(1, 2, 3);
-    }).toThrow('Missing value for key: 3');
-  });
-
   it('converts back to JS object', () => {
     const m = Map({ a: 'A', b: 'B', c: 'C' });
     expect(m.toObject()).toEqual({ a: 'A', b: 'B', c: 'C' });
