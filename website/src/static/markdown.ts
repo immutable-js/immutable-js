@@ -1,6 +1,6 @@
 import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
-import { Prism as prism } from './prism';
+import prism from 'prismjs';
 import type { TypeDefs, CallSignature, TypeDefinition } from '../TypeDefs';
 
 export type MarkdownContext = {
@@ -23,15 +23,16 @@ export function markdown(content: string, context: MarkdownContext): string {
 
   const defs = context.defs;
 
-  // functions come before keywords
+  // functions comsidee before keywords
+  // the two following `insertBefore` do change the classes of the tokens, but is this still used? (visual output is the same)
   prism.languages.insertBefore('javascript', 'keyword', {
     var: /\b(this)\b/g,
     'block-keyword': /\b(if|else|while|for|function)\b/g,
     primitive: /\b(true|false|null|undefined)\b/g,
-    function: prism.languages.function,
+    function: prism.languages.javascript.function,
   });
 
-  prism.languages.insertBefore('javascript', {
+  prism.languages.insertBefore('javascript', 'keyword', {
     qualifier: /\b[A-Z][a-z0-9_]+/g,
   });
 
