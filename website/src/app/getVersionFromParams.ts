@@ -1,3 +1,7 @@
-export function getVersionFromParams(params: { version: string }): string {
+type Params = {
+  version: string;
+};
+
+export function getVersionFromParams(params: Params): string {
   return params.version.replace('%40', '@');
 }
