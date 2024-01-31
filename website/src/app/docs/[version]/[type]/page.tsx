@@ -1,5 +1,3 @@
-import { DocHeader } from '../../../../DocHeader';
-import { ImmutableConsole } from '../../../../ImmutableConsole';
 import { getSidebarLinks } from '../../../../getSidebarLinks';
 import { getTypeDefs } from '../../../../static/getTypeDefs';
 import { getVersions } from '../../../../static/getVersions';
@@ -47,7 +45,6 @@ export default function TypeDocPage({
   // sidebarLinks,
   params,
 }: Props) {
-  const versions = getVersions();
   const version = getVersionFromParams(params);
   const defs = getTypeDefs(version);
 
@@ -58,15 +55,5 @@ export default function TypeDocPage({
   }
 
   const sidebarLinks = getSidebarLinks(defs);
-  return (
-    <div>
-      <ImmutableConsole version={version} />
-      <DocHeader versions={versions} currentVersion={version} />
-      <div className="pageBody">
-        <div className="contents">
-          <TypeDocumentation def={def} sidebarLinks={sidebarLinks} />
-        </div>
-      </div>
-    </div>
-  );
+  return <TypeDocumentation def={def} sidebarLinks={sidebarLinks} />;
 }
