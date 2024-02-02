@@ -86,7 +86,7 @@ map1.get('b') + ' vs. ' + map2.get('b'); // 2 vs. 50
 
 Immutable.js has no dependencies, which makes it predictable to include in a Browser.
 
-It's highly recommended to use a module bundler like [webpack](https://webpack.github.io/),
+It's highly recommended to use a module bundler like [webpack](https://webpack.js.org/),
 [rollup](https://rollupjs.org/), or
 [browserify](https://browserify.org/). The `immutable` npm module works
 without any additional consideration. All examples throughout the documentation
