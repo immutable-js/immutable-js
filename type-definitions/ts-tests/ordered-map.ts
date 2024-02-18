@@ -13,9 +13,7 @@ import { OrderedMap, List } from 'immutable';
   OrderedMap([[1, 'a']]);
 
   // $ExpectType OrderedMap<number, string>
-  OrderedMap(
-    List<[number, string]>([[1, 'a']])
-  );
+  OrderedMap(List<[number, string]>([[1, 'a']]));
 
   // $ExpectType OrderedMap<string, number>
   OrderedMap({ a: 1 });
@@ -142,7 +140,7 @@ import { OrderedMap, List } from 'immutable';
   // #update
 
   // $ExpectType number
-  OrderedMap().update((v) => 1);
+  OrderedMap().update(v => 1);
 
   // $ExpectError
   OrderedMap<number, number>().update((v: OrderedMap<string> | undefined) => v);
@@ -160,14 +158,18 @@ import { OrderedMap, List } from 'immutable';
   OrderedMap<number, number>().update(1, 'a', (v: number | undefined) => 0);
 
   // $ExpectError
-  OrderedMap<number, number>().update(1, 10, (v: number | undefined) => v + 'a');
+  OrderedMap<number, number>().update(
+    1,
+    10,
+    (v: number | undefined) => v + 'a'
+  );
 }
 
 {
   // #updateIn
 
   // $ExpectType OrderedMap<number, number>
-  OrderedMap<number, number>().updateIn([], (v) => v);
+  OrderedMap<number, number>().updateIn([], v => v);
 
   // $ExpectError
   OrderedMap<number, number>().updateIn([], 10);
@@ -265,18 +267,12 @@ import { OrderedMap, List } from 'immutable';
   // #flatMap
 
   // $ExpectType OrderedMap<number, number>
-  OrderedMap<
-    number,
-    number
-  >().flatMap(
+  OrderedMap<number, number>().flatMap(
     (value: number, key: number, iter: OrderedMap<number, number>) => [[0, 1]]
   );
 
   // $ExpectType OrderedMap<string, string>
-  OrderedMap<
-    number,
-    number
-  >().flatMap(
+  OrderedMap<number, number>().flatMap(
     (value: number, key: number, iter: OrderedMap<number, number>) => [
       ['a', 'b'],
     ]
@@ -394,7 +390,10 @@ import { OrderedMap, List } from 'immutable';
   );
 
   // $ExpectType OrderedMap<number, string | number>
-  OrderedMap<number, number | string>().mergeWith((prev: number | string, next: number | string, key: number) => 1, OrderedMap<number, string>());
+  OrderedMap<number, number | string>().mergeWith(
+    (prev: number | string, next: number | string, key: number) => 1,
+    OrderedMap<number, string>()
+  );
 }
 
 {
@@ -430,19 +429,34 @@ import { OrderedMap, List } from 'immutable';
   // #mergeDeepWith
 
   // $ExpectType OrderedMap<number, number>
-  OrderedMap<number, number>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, OrderedMap<number, number>());
+  OrderedMap<number, number>().mergeDeepWith(
+    (prev: unknown, next: unknown, key: unknown) => 1,
+    OrderedMap<number, number>()
+  );
 
   // $ExpectError
-  OrderedMap<number, number>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, OrderedMap<number, string>());
+  OrderedMap<number, number>().mergeDeepWith(
+    (prev: unknown, next: unknown, key: unknown) => 1,
+    OrderedMap<number, string>()
+  );
 
   // $ExpectType OrderedMap<string, number>
-  OrderedMap<string, number>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, { a: 1 });
+  OrderedMap<string, number>().mergeDeepWith(
+    (prev: unknown, next: unknown, key: unknown) => 1,
+    { a: 1 }
+  );
 
   // $ExpectError
-  OrderedMap<string, number>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, { a: 'a' });
+  OrderedMap<string, number>().mergeDeepWith(
+    (prev: unknown, next: unknown, key: unknown) => 1,
+    { a: 'a' }
+  );
 
   // $ExpectType OrderedMap<number, string | number>
-  OrderedMap<number, number | string>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, OrderedMap<number, string>());
+  OrderedMap<number, number | string>().mergeDeepWith(
+    (prev: unknown, next: unknown, key: unknown) => 1,
+    OrderedMap<number, string>()
+  );
 }
 
 {
@@ -456,7 +470,7 @@ import { OrderedMap, List } from 'immutable';
   // #withMutations
 
   // $ExpectType OrderedMap<number, number>
-  OrderedMap<number, number>().withMutations((mutable) => mutable);
+  OrderedMap<number, number>().withMutations(mutable => mutable);
 
   OrderedMap<number, number>().withMutations(
     // $ExpectError

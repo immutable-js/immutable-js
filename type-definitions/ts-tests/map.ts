@@ -83,30 +83,30 @@ import { Map, List, MapOf } from 'immutable';
     .get('a')
     .get('b');
 
-    // $ExpectError
-    Map({ a: 4 }).get('b');
+  // $ExpectError
+  Map({ a: 4 }).get('b');
 
-    // $ExpectType undefined
-    Map({ a: 4 }).get('b', undefined);
+  // $ExpectType undefined
+  Map({ a: 4 }).get('b', undefined);
 
-    // $ExpectType number
-    Map({ 1: 4 }).get(1);
+  // $ExpectType number
+  Map({ 1: 4 }).get(1);
 
-    // $ExpectError
-    Map({ 1: 4 }).get(2);
+  // $ExpectError
+  Map({ 1: 4 }).get(2);
 
-    // $ExpectType 3
-    Map({ 1: 4 }).get(2, 3);
+  // $ExpectType 3
+  Map({ 1: 4 }).get(2, 3);
 
-    const s = Symbol('s');
+  const s = Symbol('s');
 
-    // $ExpectType number
-    Map({ [s]: 4 }).get(s);
+  // $ExpectType number
+  Map({ [s]: 4 }).get(s);
 
-    const s2 = Symbol('s2');
+  const s2 = Symbol('s2');
 
-    // $ExpectError
-    Map({ [s2]: 4 }).get(s);
+  // $ExpectError
+  Map({ [s2]: 4 }).get(s);
 }
 
 {
@@ -121,7 +121,7 @@ import { Map, List, MapOf } from 'immutable';
 
   // with a better type, it should be resolved to `number` in the future. `RetrievePathReducer` does not work with anything else than MapOf
   // $ExpectType never
-  Map({ a: List([ 1 ]) }).getIn(['a', 0]);
+  Map({ a: List([1]) }).getIn(['a', 0]);
 }
 
 {
@@ -146,10 +146,10 @@ import { Map, List, MapOf } from 'immutable';
   Map({ a: 1 }).set('b', 'b');
 
   // $ExpectType MapOf<{ a: number; b?: string | undefined; }>
-  Map<{ a: number; b?: string; }>({ a: 1 }).set('b', 'b');
+  Map<{ a: number; b?: string }>({ a: 1 }).set('b', 'b');
 
   // $ExpectType MapOf<{ a: number; b?: string | undefined; }>
-  Map<{ a: number; b?: string; }>({ a: 1 }).set('b', undefined);
+  Map<{ a: number; b?: string }>({ a: 1 }).set('b', undefined);
 
   // $ExpectType number
   Map<{ a: number; b?: string }>({ a: 1 }).set('b', 'b').get('a');
@@ -185,16 +185,16 @@ import { Map, List, MapOf } from 'immutable';
   Map({ a: 1, b: 'b' }).delete('b');
 
   // $ExpectType MapOf<{ a: number; b?: string | undefined; }>
-  Map<{ a: number; b?: string; }>({ a: 1, b: 'b' }).delete('b');
+  Map<{ a: number; b?: string }>({ a: 1, b: 'b' }).delete('b');
 
   // $ExpectType MapOf<{ a?: number | undefined; b?: string | undefined; }>
-  Map<{ a?: number; b?: string; }>({ a: 1, b: 'b' }).remove('b').delete('a');
+  Map<{ a?: number; b?: string }>({ a: 1, b: 'b' }).remove('b').delete('a');
 
   // $ExpectType number
-  Map<{ a: number; b?: string; }>({ a: 1, b: 'b' }).remove('b').get('a');
+  Map<{ a: number; b?: string }>({ a: 1, b: 'b' }).remove('b').get('a');
 
   // $ExpectType: string | undefined
-  Map<{ a: number; b?: string; }>({ a: 1, b: 'b' }).remove('b').get('b');
+  Map<{ a: number; b?: string }>({ a: 1, b: 'b' }).remove('b').get('b');
 }
 
 {
@@ -255,7 +255,7 @@ import { Map, List, MapOf } from 'immutable';
   // #update
 
   // $ExpectType number
-  Map().update((v) => 1);
+  Map().update(v => 1);
 
   // $ExpectError
   Map<number, number>().update((v: Map<string> | undefined) => v);
@@ -276,32 +276,32 @@ import { Map, List, MapOf } from 'immutable';
   Map<number, number>().update(1, 10, (v: number | undefined) => v + 'a');
 
   // $ExpectError
-  Map({ a: 1, b: 'b' }).update('c', (v) => v);
+  Map({ a: 1, b: 'b' }).update('c', v => v);
 
   // $ExpectType MapOf<{ a: number; b: string; }>
-  Map({ a: 1, b: 'b' }).update('b', (v) => v.toUpperCase());
+  Map({ a: 1, b: 'b' }).update('b', v => v.toUpperCase());
 
   // $ExpectType MapOf<{ a: number; b: string; }>
-  Map({ a: 1, b: 'b' }).update('b', 'NSV', (v) => v.toUpperCase());
+  Map({ a: 1, b: 'b' }).update('b', 'NSV', v => v.toUpperCase());
 
   // $ExpectError
-  Map({ a: 1, b: 'b' }).update((v) => ({ a: 'a' }));
+  Map({ a: 1, b: 'b' }).update(v => ({ a: 'a' }));
 
   // $ExpectType MapOf<{ a: number; b: string; }>
-  Map({ a: 1, b: 'b' }).update((v) => v.set('a', 2).set('b', 'B'));
+  Map({ a: 1, b: 'b' }).update(v => v.set('a', 2).set('b', 'B'));
 
   // $ExpectError
-  Map({ a: 1, b: 'b' }).update((v) => v.set('c', 'c'));
+  Map({ a: 1, b: 'b' }).update(v => v.set('c', 'c'));
 
   // $ExpectType Map<string, string>
-  Map<string, string>().update("noKey", ls => ls?.toUpperCase());
+  Map<string, string>().update('noKey', ls => ls?.toUpperCase());
 }
 
 {
   // #updateIn
 
   // $ExpectType Map<number, number>
-  Map<number, number>().updateIn([], (v) => v);
+  Map<number, number>().updateIn([], v => v);
 
   // $ExpectError
   Map<number, number>().updateIn([], 10);
@@ -529,7 +529,10 @@ import { Map, List, MapOf } from 'immutable';
   );
 
   // $ExpectType Map<number, string | number>
-  Map<number, number | string>().mergeWith((prev: number | string, next: number | string, key: number) => 1, Map<number, string>());
+  Map<number, number | string>().mergeWith(
+    (prev: number | string, next: number | string, key: number) => 1,
+    Map<number, string>()
+  );
 }
 
 {
@@ -568,19 +571,34 @@ import { Map, List, MapOf } from 'immutable';
   // #mergeDeepWith
 
   // $ExpectType Map<number, number>
-  Map<number, number>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, Map<number, number>());
+  Map<number, number>().mergeDeepWith(
+    (prev: unknown, next: unknown, key: unknown) => 1,
+    Map<number, number>()
+  );
 
   // $ExpectError
-  Map<number, number>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, Map<number, string>());
+  Map<number, number>().mergeDeepWith(
+    (prev: unknown, next: unknown, key: unknown) => 1,
+    Map<number, string>()
+  );
 
   // $ExpectType Map<string, number>
-  Map<string, number>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, { a: 1 });
+  Map<string, number>().mergeDeepWith(
+    (prev: unknown, next: unknown, key: unknown) => 1,
+    { a: 1 }
+  );
 
   // $ExpectError
-  Map<string, number>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, { a: 'a' });
+  Map<string, number>().mergeDeepWith(
+    (prev: unknown, next: unknown, key: unknown) => 1,
+    { a: 'a' }
+  );
 
   // $ExpectType Map<number, string | number>
-  Map<number, number | string>().mergeDeepWith((prev: unknown, next: unknown, key: unknown) => 1, Map<number, string>());
+  Map<number, number | string>().mergeDeepWith(
+    (prev: unknown, next: unknown, key: unknown) => 1,
+    Map<number, string>()
+  );
 }
 
 {
@@ -594,7 +612,7 @@ import { Map, List, MapOf } from 'immutable';
   // #withMutations
 
   // $ExpectType Map<number, number>
-  Map<number, number>().withMutations((mutable) => mutable);
+  Map<number, number>().withMutations(mutable => mutable);
 
   // $ExpectError
   Map<number, number>().withMutations((mutable: Map<string>) => mutable);

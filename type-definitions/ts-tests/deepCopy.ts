@@ -59,7 +59,11 @@ import { List, Map, Record, Set, Seq, DeepCopy, Collection } from 'immutable';
 
   // should be `{ map: { [x: string]: string; }; list: string[]; set: string[]; }` but there is an issue with circular references
   // $ExpectType { map: unknown; list: unknown; set: unknown; }
-  type NestedObject = DeepCopy<{ map: Map<string, string>; list: List<string>; set: Set<string>; }>;
+  type NestedObject = DeepCopy<{
+    map: Map<string, string>;
+    list: List<string>;
+    set: Set<string>;
+  }>;
 
   // should be `{ map: { [x: string]: string; }; }`, but there is an issue with circular references
   // $ExpectType { map: unknown; }
@@ -69,8 +73,8 @@ import { List, Map, Record, Set, Seq, DeepCopy, Collection } from 'immutable';
 {
   // Circular references
 
-  type Article = Record<{ title: string; tag: Tag; }>;
-  type Tag = Record<{ name: string; article: Article; }>;
+  type Article = Record<{ title: string; tag: Tag }>;
+  type Tag = Record<{ name: string; article: Article }>;
 
   // should handle circular references here somehow
   // $ExpectType { title: string; tag: unknown; }
@@ -83,23 +87,20 @@ import { List, Map, Record, Set, Seq, DeepCopy, Collection } from 'immutable';
   class Foo1 extends Record<{
     foo: undefined | Foo1;
   }>({
-    foo: undefined
-  }) {
-  }
+    foo: undefined,
+  }) {}
 
   class Foo2 extends Record<{
     foo?: Foo2;
   }>({
-    foo: undefined
-  }) {
-  }
+    foo: undefined,
+  }) {}
 
   class Foo3 extends Record<{
     foo: null | Foo3;
   }>({
-    foo: null
-  }) {
-  }
+    foo: null,
+  }) {}
 
   // $ExpectType { foo: unknown; }
   type DeepFoo1 = DeepCopy<Foo1>;
@@ -113,9 +114,8 @@ import { List, Map, Record, Set, Seq, DeepCopy, Collection } from 'immutable';
   class FooWithList extends Record<{
     foos: undefined | List<FooWithList>;
   }>({
-    foos: undefined
-  }) {
-  }
+    foos: undefined,
+  }) {}
 
   // $ExpectType { foos: unknown; }
   type DeepFooList = DeepCopy<FooWithList>;

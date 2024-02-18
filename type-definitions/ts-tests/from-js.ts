@@ -16,22 +16,22 @@ import { fromJS, List, Map } from 'immutable';
   fromJS(List([0, 1, 2]));
 
   // $ExpectType Map<"b" | "a" | "c", number>
-  fromJS({a: 0, b: 1, c: 2});
+  fromJS({ a: 0, b: 1, c: 2 });
 
   // $ExpectType MapOf<{ a: number; b: number; c: number; }>
-  fromJS(Map({a: 0, b: 1, c: 2}));
+  fromJS(Map({ a: 0, b: 1, c: 2 }));
 
   // $ExpectType List<Map<"a", number>>
-  fromJS([{a: 0}]);
+  fromJS([{ a: 0 }]);
 
   // $ExpectType Map<"a", List<number>>
-  fromJS({a: [0]});
+  fromJS({ a: [0] });
 
   // $ExpectType List<List<List<number>>>
   fromJS([[[0]]]);
 
   // $ExpectType Map<"a", Map<"b", Map<"c", number>>>
-  fromJS({a: {b: {c: 0}}});
+  fromJS({ a: { b: { c: 0 } } });
 }
 
 {

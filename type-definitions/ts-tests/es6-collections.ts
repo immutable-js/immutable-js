@@ -1,10 +1,10 @@
-import {
-  Map as ImmutableMap,
-  Set as ImmutableSet,
-} from 'immutable';
+import { Map as ImmutableMap, Set as ImmutableSet } from 'immutable';
 
 // Immutable.js collections
-const mapImmutable: ImmutableMap<string, number> = ImmutableMap<string, number>();
+const mapImmutable: ImmutableMap<string, number> = ImmutableMap<
+  string,
+  number
+>();
 const setImmutable: ImmutableSet<string> = ImmutableSet<string>();
 
 // $ExpectType Map<string, number>

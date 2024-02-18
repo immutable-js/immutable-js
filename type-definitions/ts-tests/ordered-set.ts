@@ -148,14 +148,14 @@ import { OrderedSet, Map } from 'immutable';
   // #flatMap
 
   // $ExpectType OrderedSet<number>
-  OrderedSet<
-    number
-  >().flatMap((value: number, key: number, iter: OrderedSet<number>) => [1]);
+  OrderedSet<number>().flatMap(
+    (value: number, key: number, iter: OrderedSet<number>) => [1]
+  );
 
   // $ExpectType OrderedSet<string>
-  OrderedSet<
-    number
-  >().flatMap((value: number, key: number, iter: OrderedSet<number>) => ['a']);
+  OrderedSet<number>().flatMap(
+    (value: number, key: number, iter: OrderedSet<number>) => ['a']
+  );
 
   // $ExpectType OrderedSet<number>
   OrderedSet<number>().flatMap<number>(
@@ -272,7 +272,7 @@ import { OrderedSet, Map } from 'immutable';
   // #withMutations
 
   // $ExpectType OrderedSet<number>
-  OrderedSet<number>().withMutations((mutable) => mutable);
+  OrderedSet<number>().withMutations(mutable => mutable);
 
   // $ExpectError
   OrderedSet<number>().withMutations((mutable: OrderedSet<string>) => mutable);

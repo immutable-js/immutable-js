@@ -263,7 +263,7 @@ import { Set, Map, Collection } from 'immutable';
   // #withMutations
 
   // $ExpectType Set<number>
-  Set<number>().withMutations((mutable) => mutable);
+  Set<number>().withMutations(mutable => mutable);
 
   // $ExpectError
   Set<number>().withMutations((mutable: Set<string>) => mutable);

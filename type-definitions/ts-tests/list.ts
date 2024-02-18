@@ -245,7 +245,7 @@ import {
   // #update
 
   // $ExpectType number
-  List().update((v) => 1);
+  List().update(v => 1);
 
   // $ExpectError
   List<number>().update((v: List<string> | undefined) => v);
@@ -266,7 +266,7 @@ import {
   List<number>().update(1, 10, (v: number | undefined) => v + 'a');
 
   // $ExpectType List<string>
-  List<string>().update(1, (v) => v?.toUpperCase());
+  List<string>().update(1, v => v?.toUpperCase());
 
   // $ExpectType List<number>
   update(List<number>(), 0, (v: number | undefined) => 0);
@@ -279,13 +279,13 @@ import {
   // #updateIn
 
   // $ExpectType List<number>
-  List<number>().updateIn([], (v) => v);
+  List<number>().updateIn([], v => v);
 
   // $ExpectError
   List<number>().updateIn([], 10);
 
   // $ExpectType List<number>
-  updateIn(List<number>(), [], (v) => v);
+  updateIn(List<number>(), [], v => v);
 }
 
 {
@@ -342,7 +342,7 @@ import {
   ]);
 
   // $ExpectType List<string>
-  List<List<string>>().flatMap((list) => list);
+  List<List<string>>().flatMap(list => list);
 
   // $ExpectType List<number>
   List<number>().flatMap<number>(
@@ -428,7 +428,7 @@ import {
   // #withMutations
 
   // $ExpectType List<number>
-  List<number>().withMutations((mutable) => mutable);
+  List<number>().withMutations(mutable => mutable);
 
   // $ExpectError
   List<number>().withMutations((mutable: List<string>) => mutable);

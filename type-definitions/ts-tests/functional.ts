@@ -1,10 +1,4 @@
-import {
-  get,
-  has,
-  set,
-  remove,
-  update,
-} from 'immutable';
+import { get, has, set, remove, update } from 'immutable';
 
 {
   // get

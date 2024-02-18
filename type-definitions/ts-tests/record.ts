@@ -96,9 +96,14 @@ import { List, Map, Record, RecordOf, Set } from 'immutable';
 {
   // optional properties
 
-  interface Size { distance: string; }
+  interface Size {
+    distance: string;
+  }
 
-  const Line = Record<{ size?: Size, color?: string }>({ size: undefined, color: 'red' });
+  const Line = Record<{ size?: Size; color?: string }>({
+    size: undefined,
+    color: 'red',
+  });
 
   const line = Line({});
 
@@ -110,7 +115,9 @@ import { List, Map, Record, RecordOf, Set } from 'immutable';
 {
   // similar properties, but one is optional. See https://github.com/immutable-js/immutable-js/issues/1930
 
-  interface Id { value: string; }
+  interface Id {
+    value: string;
+  }
 
   type A = RecordOf<{ id: Id }>;
   type B = RecordOf<{ id?: Id }>;
