@@ -61,7 +61,7 @@
     "lint:format": "prettier --check \"{__tests__,src,type-definitions,website/src,perf,resources}/**/*{.js,.ts,.tsx,.flow,.css}\"",
     "lint:js": "eslint \"{__tests__,src,type-definitions,website/src}/**/*.{js,ts,tsx}\"",
     "type-check": "run-s type-check:*",
-    "type-check:ts": "tsc --project type-definitions/tsconfig.json && tsc --project __tests__/tsconfig.json && tsd",
+    "type-check:ts": "tsc --project type-definitions/tsconfig.json && tsc --project __tests__/tsconfig.json && cpy ./type-definitions/immutable.d.ts dist && tsd",
     "type-check:flow": "flow check type-definitions/flow-tests --include-warnings",
     "build": "run-s build:*",
     "build:clean": "rimraf dist",
