@@ -1,3 +1,4 @@
+import { expectError } from 'tsd';
 import { Seq } from 'immutable';
 
 {
@@ -13,6 +14,5 @@ import { Seq } from 'immutable';
   // $ExpectType number | undefined
   Seq().size;
 
-  // $ExpectError
-  Seq().size = 10;
+  expectError((Seq().size = 10));
 }

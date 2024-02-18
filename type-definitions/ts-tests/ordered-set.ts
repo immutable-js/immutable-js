@@ -1,3 +1,4 @@
+import { expectError, expectNotAssignable } from 'tsd';
 import { OrderedSet, Map } from 'immutable';
 
 {
@@ -12,8 +13,8 @@ import { OrderedSet, Map } from 'immutable';
     'a',
   ]);
 
-  // $ExpectError
-  const invalidNumberOrderedSet: OrderedSet<number> = OrderedSet([1, 'a']);
+  // Invalid number ordered set
+  expectNotAssignable<OrderedSet<number>>(OrderedSet([1, 'a']));
 }
 
 {
@@ -22,8 +23,7 @@ import { OrderedSet, Map } from 'immutable';
   // $ExpectType number
   OrderedSet().size;
 
-  // $ExpectError
-  OrderedSet().size = 10;
+  expectError((OrderedSet().size = 10));
 }
 
 {
@@ -32,8 +32,7 @@ import { OrderedSet, Map } from 'immutable';
   // $ExpectType OrderedSet<number>
   OrderedSet.of(1, 2, 3);
 
-  // $ExpectError
-  OrderedSet.of<number>('a', 1);
+  expectError(OrderedSet.of<number>('a', 1));
 
   // $ExpectType OrderedSet<string | number>
   OrderedSet.of<number | string>('a', 1);
@@ -51,8 +50,7 @@ import { OrderedSet, Map } from 'immutable';
   // $ExpectType OrderedSet<string>
   OrderedSet.fromKeys({ a: 1 });
 
-  // $ExpectError
-  OrderedSet.fromKeys<number>(Map<string, string>());
+  expectError(OrderedSet.fromKeys<number>(Map<string, string>()));
 
   // $ExpectType OrderedSet<string | number>
   OrderedSet.fromKeys<number | string>(Map<number | string, string>());
@@ -67,8 +65,7 @@ import { OrderedSet, Map } from 'immutable';
   // $ExpectType number | "a"
   OrderedSet<number>().get(4, 'a');
 
-  // $ExpectError
-  OrderedSet<number>().get<number>(4, 'a');
+  expectError(OrderedSet<number>().get<number>(4, 'a'));
 }
 
 {
@@ -77,8 +74,7 @@ import { OrderedSet, Map } from 'immutable';
   // $ExpectType OrderedSet<number>
   OrderedSet<number>().delete(0);
 
-  // $ExpectError
-  OrderedSet<number>().delete('a');
+  expectError(OrderedSet<number>().delete('a'));
 }
 {
   // #remove
@@ -86,8 +82,7 @@ import { OrderedSet, Map } from 'immutable';
   // $ExpectType OrderedSet<number>
   OrderedSet<number>().remove(0);
 
-  // $ExpectError
-  OrderedSet<number>().remove('a');
+  expectError(OrderedSet<number>().remove('a'));
 }
 
 {
@@ -96,8 +91,7 @@ import { OrderedSet, Map } from 'immutable';
   // $ExpectType OrderedSet<number>
   OrderedSet<number>().clear();
 
-  // $ExpectError
-  OrderedSet().clear(10);
+  expectError(OrderedSet().clear(10));
 }
 
 {
@@ -118,29 +112,34 @@ import { OrderedSet, Map } from 'immutable';
     (value: number, key: number, iter: OrderedSet<number>) => 1
   );
 
-  OrderedSet<number>().map<string>(
-    // $ExpectError
-    (value: number, key: number, iter: OrderedSet<number>) => 1
+  expectError(
+    OrderedSet<number>().map<string>(
+      (value: number, key: number, iter: OrderedSet<number>) => 1
+    )
   );
 
-  OrderedSet<number>().map<number>(
-    // $ExpectError
-    (value: string, key: number, iter: OrderedSet<number>) => 1
+  expectError(
+    OrderedSet<number>().map<number>(
+      (value: string, key: number, iter: OrderedSet<number>) => 1
+    )
   );
 
-  OrderedSet<number>().map<number>(
-    // $ExpectError
-    (value: number, key: string, iter: OrderedSet<number>) => 1
+  expectError(
+    OrderedSet<number>().map<number>(
+      (value: number, key: string, iter: OrderedSet<number>) => 1
+    )
   );
 
-  OrderedSet<number>().map<number>(
-    // $ExpectError
-    (value: number, key: number, iter: OrderedSet<string>) => 1
+  expectError(
+    OrderedSet<number>().map<number>(
+      (value: number, key: number, iter: OrderedSet<string>) => 1
+    )
   );
 
-  OrderedSet<number>().map<number>(
-    // $ExpectError
-    (value: number, key: number, iter: OrderedSet<number>) => 'a'
+  expectError(
+    OrderedSet<number>().map<number>(
+      (value: number, key: number, iter: OrderedSet<number>) => 'a'
+    )
   );
 }
 
@@ -162,29 +161,34 @@ import { OrderedSet, Map } from 'immutable';
     (value: number, key: number, iter: OrderedSet<number>) => [1]
   );
 
-  OrderedSet<number>().flatMap<string>(
-    // $ExpectError
-    (value: number, key: number, iter: OrderedSet<number>) => [1]
+  expectError(
+    OrderedSet<number>().flatMap<string>(
+      (value: number, key: number, iter: OrderedSet<number>) => [1]
+    )
   );
 
-  OrderedSet<number>().flatMap<number>(
-    // $ExpectError
-    (value: string, key: number, iter: OrderedSet<number>) => [1]
+  expectError(
+    OrderedSet<number>().flatMap<number>(
+      (value: string, key: number, iter: OrderedSet<number>) => [1]
+    )
   );
 
-  OrderedSet<number>().flatMap<number>(
-    // $ExpectError
-    (value: number, key: string, iter: OrderedSet<number>) => [1]
+  expectError(
+    OrderedSet<number>().flatMap<number>(
+      (value: number, key: string, iter: OrderedSet<number>) => [1]
+    )
   );
 
-  OrderedSet<number>().flatMap<number>(
-    // $ExpectError
-    (value: number, key: number, iter: OrderedSet<string>) => [1]
+  expectError(
+    OrderedSet<number>().flatMap<number>(
+      (value: number, key: number, iter: OrderedSet<string>) => [1]
+    )
   );
 
-  OrderedSet<number>().flatMap<number>(
-    // $ExpectError
-    (value: number, key: number, iter: OrderedSet<number>) => ['a']
+  expectError(
+    OrderedSet<number>().flatMap<number>(
+      (value: number, key: number, iter: OrderedSet<number>) => ['a']
+    )
   );
 }
 
@@ -226,8 +230,7 @@ import { OrderedSet, Map } from 'immutable';
   // $ExpectType OrderedSet<number>
   OrderedSet<number>().intersect(OrderedSet<number>());
 
-  // $ExpectError
-  OrderedSet<number>().intersect(OrderedSet<string>());
+  expectError(OrderedSet<number>().intersect(OrderedSet<string>()));
 
   // $ExpectType OrderedSet<string | number>
   OrderedSet<number | string>().intersect(OrderedSet<string>());
@@ -242,8 +245,7 @@ import { OrderedSet, Map } from 'immutable';
   // $ExpectType OrderedSet<number>
   OrderedSet<number>().subtract(OrderedSet<number>());
 
-  // $ExpectError
-  OrderedSet<number>().subtract(OrderedSet<string>());
+  expectError(OrderedSet<number>().subtract(OrderedSet<string>()));
 
   // $ExpectType OrderedSet<string | number>
   OrderedSet<number | string>().subtract(OrderedSet<string>());
@@ -264,8 +266,7 @@ import { OrderedSet, Map } from 'immutable';
   // $ExpectType Collection<unknown, unknown>
   OrderedSet<number>().flatten(false);
 
-  // $ExpectError
-  OrderedSet<number>().flatten('a');
+  expectError(OrderedSet<number>().flatten('a'));
 }
 
 {
@@ -274,8 +275,9 @@ import { OrderedSet, Map } from 'immutable';
   // $ExpectType OrderedSet<number>
   OrderedSet<number>().withMutations(mutable => mutable);
 
-  // $ExpectError
-  OrderedSet<number>().withMutations((mutable: OrderedSet<string>) => mutable);
+  expectError(
+    OrderedSet<number>().withMutations((mutable: OrderedSet<string>) => mutable)
+  );
 }
 
 {

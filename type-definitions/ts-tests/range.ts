@@ -1,3 +1,4 @@
+import { expectError } from 'tsd';
 import { Range } from 'immutable';
 
 {
@@ -6,12 +7,9 @@ import { Range } from 'immutable';
   // $ExpectType Indexed<number>
   Range(0, 0, 1);
 
-  // $ExpectError
-  Range('a', 0, 0);
+  expectError(Range('a', 0, 0));
 
-  // $ExpectError
-  Range();
+  expectError(Range());
 
-  // $ExpectError
-  Range(1);
+  expectError(Range(1));
 }

@@ -1,3 +1,4 @@
+import { expectError, expectNotAssignable } from 'tsd';
 import {
   List,
   get,
@@ -20,8 +21,8 @@ import {
   const numberList: List<number> = List<number>();
   const numberOrStringList: List<number | string> = List([1, 'a']);
 
-  // $ExpectError
-  const invalidNumberList: List<number> = List([1, 'a']);
+  // Invalid number list
+  expectNotAssignable<List<number>>(List([1, 'a']));
 }
 
 {
@@ -30,8 +31,7 @@ import {
   // $ExpectType number
   List().size;
 
-  // $ExpectError
-  List().size = 10;
+  expectError((List().size = 10));
 }
 
 {
@@ -40,8 +40,7 @@ import {
   // $ExpectType List<number>
   List<number>().setSize(10);
 
-  // $ExpectError
-  List<number>().setSize('foo');
+  expectError(List<number>().setSize('foo'));
 }
 
 {
@@ -50,8 +49,7 @@ import {
   // $ExpectType List<number>
   List.of(1, 2, 3);
 
-  // $ExpectError
-  List.of<number>('a', 1);
+  expectError(List.of<number>('a', 1));
 
   // $ExpectType List<string | number>
   List.of<number | string>('a', 1);
@@ -66,8 +64,7 @@ import {
   // $ExpectType number | "a"
   List<number>().get(4, 'a');
 
-  // $ExpectError
-  List<number>().get<number>(4, 'a');
+  expectError(List<number>().get<number>(4, 'a'));
 
   // $ExpectType number | undefined
   get(List<number>(), 4);
@@ -82,11 +79,9 @@ import {
   // $ExpectType List<number>
   List<number>().set(0, 0);
 
-  // $ExpectError
-  List<number>().set(1, 'a');
+  expectError(List<number>().set(1, 'a'));
 
-  // $ExpectError
-  List<number>().set('a', 1);
+  expectError(List<number>().set('a', 1));
 
   // $ExpectType List<string | number>
   List<number | string>().set(0, 1);
@@ -97,11 +92,9 @@ import {
   // $ExpectType List<number>
   set(List<number>(), 0, 0);
 
-  // $ExpectError
-  set(List<number>(), 1, 'a');
+  expectError(set(List<number>(), 1, 'a'));
 
-  // $ExpectError
-  set(List<number>(), 'a', 1);
+  expectError(set(List<number>(), 'a', 1));
 }
 
 {
@@ -120,11 +113,9 @@ import {
   // $ExpectType List<number>
   List<number>().insert(0, 0);
 
-  // $ExpectError
-  List<number>().insert(1, 'a');
+  expectError(List<number>().insert(1, 'a'));
 
-  // $ExpectError
-  List<number>().insert('a', 1);
+  expectError(List<number>().insert('a', 1));
 
   // $ExpectType List<string | number>
   List<number | string>().insert(0, 1);
@@ -139,11 +130,9 @@ import {
   // $ExpectType List<number>
   List<number>().push(0, 0);
 
-  // $ExpectError
-  List<number>().push(1, 'a');
+  expectError(List<number>().push(1, 'a'));
 
-  // $ExpectError
-  List<number>().push('a', 1);
+  expectError(List<number>().push('a', 1));
 
   // $ExpectType List<string | number>
   List<number | string>().push(0, 1);
@@ -158,11 +147,9 @@ import {
   // $ExpectType List<number>
   List<number>().unshift(0, 0);
 
-  // $ExpectError
-  List<number>().unshift(1, 'a');
+  expectError(List<number>().unshift(1, 'a'));
 
-  // $ExpectError
-  List<number>().unshift('a', 1);
+  expectError(List<number>().unshift('a', 1));
 
   // $ExpectType List<string | number>
   List<number | string>().unshift(0, 1);
@@ -177,8 +164,7 @@ import {
   // $ExpectType List<number>
   List<number>().delete(0);
 
-  // $ExpectError
-  List().delete('a');
+  expectError(List().delete('a'));
 }
 
 {
@@ -194,8 +180,7 @@ import {
   // $ExpectType List<number>
   List<number>().remove(0);
 
-  // $ExpectError
-  List().remove('a');
+  expectError(List().remove('a'));
 
   // $ExpectType List<number>
   remove(List<number>(), 0);
@@ -217,8 +202,7 @@ import {
   // $ExpectType List<number>
   List<number>().clear();
 
-  // $ExpectError
-  List().clear(10);
+  expectError(List().clear(10));
 }
 
 {
@@ -227,8 +211,7 @@ import {
   // $ExpectType List<number>
   List<number>().pop();
 
-  // $ExpectError
-  List().pop(10);
+  expectError(List().pop(10));
 }
 
 {
@@ -237,8 +220,7 @@ import {
   // $ExpectType List<number>
   List<number>().shift();
 
-  // $ExpectError
-  List().shift(10);
+  expectError(List().shift(10));
 }
 
 {
@@ -247,23 +229,19 @@ import {
   // $ExpectType number
   List().update(v => 1);
 
-  // $ExpectError
-  List<number>().update((v: List<string> | undefined) => v);
+  expectError(List<number>().update((v: List<string> | undefined) => v));
 
   // $ExpectType List<number>
   List<number>().update(0, (v: number | undefined) => 0);
 
-  // $ExpectError
-  List<number>().update(0, (v: number | undefined) => v + 'a');
+  expectError(List<number>().update(0, (v: number | undefined) => v + 'a'));
 
   // $ExpectType List<number>
   List<number>().update(1, 10, (v: number | undefined) => 0);
 
-  // $ExpectError
-  List<number>().update(1, 'a', (v: number | undefined) => 0);
+  expectError(List<number>().update(1, 'a', (v: number | undefined) => 0));
 
-  // $ExpectError
-  List<number>().update(1, 10, (v: number | undefined) => v + 'a');
+  expectError(List<number>().update(1, 10, (v: number | undefined) => v + 'a'));
 
   // $ExpectType List<string>
   List<string>().update(1, v => v?.toUpperCase());
@@ -271,8 +249,7 @@ import {
   // $ExpectType List<number>
   update(List<number>(), 0, (v: number | undefined) => 0);
 
-  // $ExpectError
-  update(List<number>(), 1, 10, (v: number) => v + 'a');
+  expectError(update(List<number>(), 1, 10, (v: number) => v + 'a'));
 }
 
 {
@@ -281,8 +258,7 @@ import {
   // $ExpectType List<number>
   List<number>().updateIn([], v => v);
 
-  // $ExpectError
-  List<number>().updateIn([], 10);
+  expectError(List<number>().updateIn([], 10));
 
   // $ExpectType List<number>
   updateIn(List<number>(), [], v => v);
@@ -302,29 +278,34 @@ import {
     (value: number, key: number, iter: List<number>) => 1
   );
 
-  List<number>().map<string>(
-    // $ExpectError
-    (value: number, key: number, iter: List<number>) => 1
+  expectError(
+    List<number>().map<string>(
+      (value: number, key: number, iter: List<number>) => 1
+    )
   );
 
-  List<number>().map<number>(
-    // $ExpectError
-    (value: string, key: number, iter: List<number>) => 1
+  expectError(
+    List<number>().map<number>(
+      (value: string, key: number, iter: List<number>) => 1
+    )
   );
 
-  List<number>().map<number>(
-    // $ExpectError
-    (value: number, key: string, iter: List<number>) => 1
+  expectError(
+    List<number>().map<number>(
+      (value: number, key: string, iter: List<number>) => 1
+    )
   );
 
-  List<number>().map<number>(
-    // $ExpectError
-    (value: number, key: number, iter: List<string>) => 1
+  expectError(
+    List<number>().map<number>(
+      (value: number, key: number, iter: List<string>) => 1
+    )
   );
 
-  List<number>().map<number>(
-    // $ExpectError
-    (value: number, key: number, iter: List<number>) => 'a'
+  expectError(
+    List<number>().map<number>(
+      (value: number, key: number, iter: List<number>) => 'a'
+    )
   );
 }
 
@@ -349,29 +330,34 @@ import {
     (value: number, key: number, iter: List<number>) => [1]
   );
 
-  List<number>().flatMap<string>(
-    // $ExpectError
-    (value: number, key: number, iter: List<number>) => [1]
+  expectError(
+    List<number>().flatMap<string>(
+      (value: number, key: number, iter: List<number>) => [1]
+    )
   );
 
-  List<number>().flatMap<number>(
-    // $ExpectError
-    (value: string, key: number, iter: List<number>) => [1]
+  expectError(
+    List<number>().flatMap<number>(
+      (value: string, key: number, iter: List<number>) => [1]
+    )
   );
 
-  List<number>().flatMap<number>(
-    // $ExpectError
-    (value: number, key: string, iter: List<number>) => [1]
+  expectError(
+    List<number>().flatMap<number>(
+      (value: number, key: string, iter: List<number>) => [1]
+    )
   );
 
-  List<number>().flatMap<number>(
-    // $ExpectError
-    (value: number, key: number, iter: List<string>) => [1]
+  expectError(
+    List<number>().flatMap<number>(
+      (value: number, key: number, iter: List<string>) => [1]
+    )
   );
 
-  List<number>().flatMap<number>(
-    // $ExpectError
-    (value: number, key: number, iter: List<number>) => ['a']
+  expectError(
+    List<number>().flatMap<number>(
+      (value: number, key: number, iter: List<number>) => ['a']
+    )
   );
 }
 
@@ -420,8 +406,7 @@ import {
   // $ExpectType Collection<unknown, unknown>
   List<number>().flatten(false);
 
-  // $ExpectError
-  List<number>().flatten('a');
+  expectError(List<number>().flatten('a'));
 }
 
 {
@@ -430,8 +415,7 @@ import {
   // $ExpectType List<number>
   List<number>().withMutations(mutable => mutable);
 
-  // $ExpectError
-  List<number>().withMutations((mutable: List<string>) => mutable);
+  expectError(List<number>().withMutations((mutable: List<string>) => mutable));
 }
 
 {

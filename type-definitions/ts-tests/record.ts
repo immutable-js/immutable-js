@@ -1,3 +1,4 @@
+import { expectError } from 'tsd';
 import { List, Map, Record, RecordOf, Set } from 'immutable';
 
 {
@@ -7,8 +8,7 @@ import { List, Map, Record, RecordOf, Set } from 'immutable';
   // $ExpectType Factory<{ x: number; y: number; }>
   PointXY;
 
-  // $ExpectError
-  PointXY({ x: 'a' });
+  expectError(PointXY({ x: 'a' }));
 
   const pointXY = PointXY();
 
@@ -18,14 +18,12 @@ import { List, Map, Record, RecordOf, Set } from 'immutable';
   // $ExpectType number
   pointXY.x;
 
-  // $ExpectError
-  pointXY.x = 10;
+  expectError((pointXY.x = 10));
 
   // $ExpectType number
   pointXY.y;
 
-  // $ExpectError
-  pointXY.y = 10;
+  expectError((pointXY.y = 10));
 
   // $ExpectType { x: number; y: number; }
   pointXY.toJS();
@@ -71,8 +69,7 @@ import { List, Map, Record, RecordOf, Set } from 'immutable';
   // $ExpectType string
   Record.getDescriptiveName(PointXY());
 
-  // $ExpectError
-  Record.getDescriptiveName({});
+  expectError(Record.getDescriptiveName({}));
 }
 
 {

@@ -1,3 +1,4 @@
+import { expectError } from 'tsd';
 import { get, has, set, remove, update } from 'immutable';
 
 {
@@ -32,17 +33,14 @@ import { get, has, set, remove, update } from 'immutable';
   // $ExpectType number[]
   set([1, 2, 3], 0, 10);
 
-  // $ExpectError
-  set([1, 2, 3], 0, 'a');
+  expectError(set([1, 2, 3], 0, 'a'));
 
-  // $ExpectError
-  set([1, 2, 3], 'a', 0);
+  expectError(set([1, 2, 3], 'a', 0));
 
   // $ExpectType { x: number; y: number; }
   set({ x: 10, y: 20 }, 'x', 100);
 
-  // $ExpectError
-  set({ x: 10, y: 20 }, 'x', 'a');
+  expectError(set({ x: 10, y: 20 }, 'x', 'a'));
 }
 
 {
@@ -61,18 +59,14 @@ import { get, has, set, remove, update } from 'immutable';
   // $ExpectType number[]
   update([1, 2, 3], 0, (v: number) => v + 1);
 
-  // $ExpectError
-  update([1, 2, 3], 0, 1);
+  expectError(update([1, 2, 3], 0, 1));
 
-  // $ExpectError
-  update([1, 2, 3], 0, (v: string) => v + 'a');
+  expectError(update([1, 2, 3], 0, (v: string) => v + 'a'));
 
-  // $ExpectError
-  update([1, 2, 3], 'a', (v: number) => v + 1);
+  expectError(update([1, 2, 3], 'a', (v: number) => v + 1));
 
   // $ExpectType { x: number; y: number; }
   update({ x: 10, y: 20 }, 'x', (v: number) => v + 1);
 
-  // $ExpectError
-  update({ x: 10, y: 20 }, 'x', (v: string) => v + 'a');
+  expectError(update({ x: 10, y: 20 }, 'x', (v: string) => v + 'a'));
 }

@@ -1,3 +1,4 @@
+import { expectError, expectNotAssignable } from 'tsd';
 import { Set, Map, Collection } from 'immutable';
 
 {
@@ -9,8 +10,8 @@ import { Set, Map, Collection } from 'immutable';
   const numberSet: Set<number> = Set<number>();
   const numberOrStringSet: Set<number | string> = Set([1, 'a']);
 
-  // $ExpectError
-  const invalidNumberSet: Set<number> = Set([1, 'a']);
+  // Invalid number set
+  expectNotAssignable<Set<number>>(Set([1, 'a']));
 }
 
 {
@@ -19,8 +20,7 @@ import { Set, Map, Collection } from 'immutable';
   // $ExpectType number
   Set().size;
 
-  // $ExpectError
-  Set().size = 10;
+  expectError((Set().size = 10));
 }
 
 {
@@ -29,8 +29,7 @@ import { Set, Map, Collection } from 'immutable';
   // $ExpectType Set<number>
   Set.of(1, 2, 3);
 
-  // $ExpectError
-  Set.of<number>('a', 1);
+  expectError(Set.of<number>('a', 1));
 
   // $ExpectType Set<string | number>
   Set.of<number | string>('a', 1);
@@ -48,8 +47,7 @@ import { Set, Map, Collection } from 'immutable';
   // $ExpectType Set<string>
   Set.fromKeys({ a: 1 });
 
-  // $ExpectError
-  Set.fromKeys<number>(Map<string, string>());
+  expectError(Set.fromKeys<number>(Map<string, string>()));
 
   // $ExpectType Set<string | number>
   Set.fromKeys<number | string>(Map<number | string, string>());
@@ -64,8 +62,7 @@ import { Set, Map, Collection } from 'immutable';
   // $ExpectType number | "a"
   Set<number>().get(4, 'a');
 
-  // $ExpectError
-  Set<number>().get<number>(4, 'a');
+  expectError(Set<number>().get<number>(4, 'a'));
 }
 
 {
@@ -74,8 +71,7 @@ import { Set, Map, Collection } from 'immutable';
   // $ExpectType Set<number>
   Set<number>().delete(0);
 
-  // $ExpectError
-  Set<number>().delete('a');
+  expectError(Set<number>().delete('a'));
 }
 {
   // #remove
@@ -83,8 +79,7 @@ import { Set, Map, Collection } from 'immutable';
   // $ExpectType Set<number>
   Set<number>().remove(0);
 
-  // $ExpectError
-  Set<number>().remove('a');
+  expectError(Set<number>().remove('a'));
 }
 
 {
@@ -93,8 +88,7 @@ import { Set, Map, Collection } from 'immutable';
   // $ExpectType Set<number>
   Set<number>().clear();
 
-  // $ExpectError
-  Set().clear(10);
+  expectError(Set().clear(10));
 }
 
 {
@@ -111,29 +105,34 @@ import { Set, Map, Collection } from 'immutable';
     (value: number, key: number, iter: Set<number>) => 1
   );
 
-  Set<number>().map<string>(
-    // $ExpectError
-    (value: number, key: number, iter: Set<number>) => 1
+  expectError(
+    Set<number>().map<string>(
+      (value: number, key: number, iter: Set<number>) => 1
+    )
   );
 
-  Set<number>().map<number>(
-    // $ExpectError
-    (value: string, key: number, iter: Set<number>) => 1
+  expectError(
+    Set<number>().map<number>(
+      (value: string, key: number, iter: Set<number>) => 1
+    )
   );
 
-  Set<number>().map<number>(
-    // $ExpectError
-    (value: number, key: string, iter: Set<number>) => 1
+  expectError(
+    Set<number>().map<number>(
+      (value: number, key: string, iter: Set<number>) => 1
+    )
   );
 
-  Set<number>().map<number>(
-    // $ExpectError
-    (value: number, key: number, iter: Set<string>) => 1
+  expectError(
+    Set<number>().map<number>(
+      (value: number, key: number, iter: Set<string>) => 1
+    )
   );
 
-  Set<number>().map<number>(
-    // $ExpectError
-    (value: number, key: number, iter: Set<number>) => 'a'
+  expectError(
+    Set<number>().map<number>(
+      (value: number, key: number, iter: Set<number>) => 'a'
+    )
   );
 }
 
@@ -153,29 +152,34 @@ import { Set, Map, Collection } from 'immutable';
     (value: number, key: number, iter: Set<number>) => [1]
   );
 
-  Set<number>().flatMap<string>(
-    // $ExpectError
-    (value: number, key: number, iter: Set<number>) => [1]
+  expectError(
+    Set<number>().flatMap<string>(
+      (value: number, key: number, iter: Set<number>) => [1]
+    )
   );
 
-  Set<number>().flatMap<number>(
-    // $ExpectError
-    (value: string, key: number, iter: Set<number>) => [1]
+  expectError(
+    Set<number>().flatMap<number>(
+      (value: string, key: number, iter: Set<number>) => [1]
+    )
   );
 
-  Set<number>().flatMap<number>(
-    // $ExpectError
-    (value: number, key: string, iter: Set<number>) => [1]
+  expectError(
+    Set<number>().flatMap<number>(
+      (value: number, key: string, iter: Set<number>) => [1]
+    )
   );
 
-  Set<number>().flatMap<number>(
-    // $ExpectError
-    (value: number, key: number, iter: Set<string>) => [1]
+  expectError(
+    Set<number>().flatMap<number>(
+      (value: number, key: number, iter: Set<string>) => [1]
+    )
   );
 
-  Set<number>().flatMap<number>(
-    // $ExpectError
-    (value: number, key: number, iter: Set<number>) => ['a']
+  expectError(
+    Set<number>().flatMap<number>(
+      (value: number, key: number, iter: Set<number>) => ['a']
+    )
   );
 }
 
@@ -217,8 +221,7 @@ import { Set, Map, Collection } from 'immutable';
   // $ExpectType Set<number>
   Set<number>().intersect(Set<number>());
 
-  // $ExpectError
-  Set<number>().intersect(Set<string>());
+  expectError(Set<number>().intersect(Set<string>()));
 
   // $ExpectType Set<string | number>
   Set<number | string>().intersect(Set<string>());
@@ -233,8 +236,7 @@ import { Set, Map, Collection } from 'immutable';
   // $ExpectType Set<number>
   Set<number>().subtract(Set<number>());
 
-  // $ExpectError
-  Set<number>().subtract(Set<string>());
+  expectError(Set<number>().subtract(Set<string>()));
 
   // $ExpectType Set<string | number>
   Set<number | string>().subtract(Set<string>());
@@ -255,8 +257,7 @@ import { Set, Map, Collection } from 'immutable';
   // $ExpectType Collection<unknown, unknown>
   Set<number>().flatten(false);
 
-  // $ExpectError
-  Set<number>().flatten('a');
+  expectError(Set<number>().flatten('a'));
 }
 
 {
@@ -265,8 +266,7 @@ import { Set, Map, Collection } from 'immutable';
   // $ExpectType Set<number>
   Set<number>().withMutations(mutable => mutable);
 
-  // $ExpectError
-  Set<number>().withMutations((mutable: Set<string>) => mutable);
+  expectError(Set<number>().withMutations((mutable: Set<string>) => mutable));
 }
 
 {

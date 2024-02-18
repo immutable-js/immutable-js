@@ -1,3 +1,4 @@
+import { expectError } from 'tsd';
 import { Repeat } from 'immutable';
 
 {
@@ -9,6 +10,5 @@ import { Repeat } from 'immutable';
   // $ExpectType Indexed<string>
   Repeat('a', 0);
 
-  // $ExpectError
-  Repeat('a', 'b');
+  expectError(Repeat('a', 'b'));
 }

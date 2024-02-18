@@ -1,3 +1,4 @@
+import { expectError, expectNotAssignable } from 'tsd';
 import { Stack } from 'immutable';
 
 {
@@ -9,8 +10,8 @@ import { Stack } from 'immutable';
   const numberStack: Stack<number> = Stack<number>();
   const numberOrStringStack: Stack<number | string> = Stack([1, 'a']);
 
-  // $ExpectError
-  const invalidNumberStack: Stack<number> = Stack([1, 'a']);
+  // Invalid number stack
+  expectNotAssignable<Stack<number>>(Stack([1, 'a']));
 }
 
 {
@@ -19,8 +20,7 @@ import { Stack } from 'immutable';
   // $ExpectType number
   Stack().size;
 
-  // $ExpectError
-  Stack().size = 10;
+  expectError((Stack().size = 10));
 }
 
 {
@@ -29,8 +29,7 @@ import { Stack } from 'immutable';
   // $ExpectType Stack<number>
   Stack.of(1, 2, 3);
 
-  // $ExpectError
-  Stack.of<number>('a', 1);
+  expectError(Stack.of<number>('a', 1));
 
   // $ExpectType Stack<string | number>
   Stack.of<number | string>('a', 1);
@@ -49,8 +48,7 @@ import { Stack } from 'immutable';
   // $ExpectType Stack<number>
   Stack<number>().push(0);
 
-  // $ExpectError
-  Stack<number>().push('a');
+  expectError(Stack<number>().push('a'));
 
   // $ExpectType Stack<string | number>
   Stack<number | string>().push(0);
@@ -65,8 +63,7 @@ import { Stack } from 'immutable';
   // $ExpectType Stack<number>
   Stack<number>().pushAll([0]);
 
-  // $ExpectError
-  Stack<number>().pushAll(['a']);
+  expectError(Stack<number>().pushAll(['a']));
 
   // $ExpectType Stack<string | number>
   Stack<number | string>().pushAll([0]);
@@ -81,8 +78,7 @@ import { Stack } from 'immutable';
   // $ExpectType Stack<number>
   Stack<number>().unshift(0);
 
-  // $ExpectError
-  Stack<number>().unshift('a');
+  expectError(Stack<number>().unshift('a'));
 
   // $ExpectType Stack<string | number>
   Stack<number | string>().unshift(0);
@@ -97,8 +93,7 @@ import { Stack } from 'immutable';
   // $ExpectType Stack<number>
   Stack<number>().unshiftAll([0]);
 
-  // $ExpectError
-  Stack<number>().unshiftAll(['a']);
+  expectError(Stack<number>().unshiftAll(['a']));
 
   // $ExpectType Stack<string | number>
   Stack<number | string>().unshiftAll([1]);
@@ -113,8 +108,7 @@ import { Stack } from 'immutable';
   // $ExpectType Stack<number>
   Stack<number>().clear();
 
-  // $ExpectError
-  Stack().clear(10);
+  expectError(Stack().clear(10));
 }
 
 {
@@ -123,8 +117,7 @@ import { Stack } from 'immutable';
   // $ExpectType Stack<number>
   Stack<number>().pop();
 
-  // $ExpectError
-  Stack().pop(10);
+  expectError(Stack().pop(10));
 }
 
 {
@@ -133,8 +126,7 @@ import { Stack } from 'immutable';
   // $ExpectType Stack<number>
   Stack<number>().shift();
 
-  // $ExpectError
-  Stack().shift(10);
+  expectError(Stack().shift(10));
 }
 
 {
@@ -151,29 +143,34 @@ import { Stack } from 'immutable';
     (value: number, key: number, iter: Stack<number>) => 1
   );
 
-  Stack<number>().map<string>(
-    // $ExpectError
-    (value: number, key: number, iter: Stack<number>) => 1
+  expectError(
+    Stack<number>().map<string>(
+      (value: number, key: number, iter: Stack<number>) => 1
+    )
   );
 
-  Stack<number>().map<number>(
-    // $ExpectError
-    (value: string, key: number, iter: Stack<number>) => 1
+  expectError(
+    Stack<number>().map<number>(
+      (value: string, key: number, iter: Stack<number>) => 1
+    )
   );
 
-  Stack<number>().map<number>(
-    // $ExpectError
-    (value: number, key: string, iter: Stack<number>) => 1
+  expectError(
+    Stack<number>().map<number>(
+      (value: number, key: string, iter: Stack<number>) => 1
+    )
   );
 
-  Stack<number>().map<number>(
-    // $ExpectError
-    (value: number, key: number, iter: Stack<string>) => 1
+  expectError(
+    Stack<number>().map<number>(
+      (value: number, key: number, iter: Stack<string>) => 1
+    )
   );
 
-  Stack<number>().map<number>(
-    // $ExpectError
-    (value: number, key: number, iter: Stack<number>) => 'a'
+  expectError(
+    Stack<number>().map<number>(
+      (value: number, key: number, iter: Stack<number>) => 'a'
+    )
   );
 }
 
@@ -195,29 +192,34 @@ import { Stack } from 'immutable';
     (value: number, key: number, iter: Stack<number>) => [1]
   );
 
-  Stack<number>().flatMap<string>(
-    // $ExpectError
-    (value: number, key: number, iter: Stack<number>) => 1
+  expectError(
+    Stack<number>().flatMap<string>(
+      (value: number, key: number, iter: Stack<number>) => 1
+    )
   );
 
-  Stack<number>().flatMap<number>(
-    // $ExpectError
-    (value: string, key: number, iter: Stack<number>) => 1
+  expectError(
+    Stack<number>().flatMap<number>(
+      (value: string, key: number, iter: Stack<number>) => 1
+    )
   );
 
-  Stack<number>().flatMap<number>(
-    // $ExpectError
-    (value: number, key: string, iter: Stack<number>) => 1
+  expectError(
+    Stack<number>().flatMap<number>(
+      (value: number, key: string, iter: Stack<number>) => 1
+    )
   );
 
-  Stack<number>().flatMap<number>(
-    // $ExpectError
-    (value: number, key: number, iter: Stack<string>) => 1
+  expectError(
+    Stack<number>().flatMap<number>(
+      (value: number, key: number, iter: Stack<string>) => 1
+    )
   );
 
-  Stack<number>().flatMap<number>(
-    // $ExpectError
-    (value: number, key: number, iter: Stack<number>) => 'a'
+  expectError(
+    Stack<number>().flatMap<number>(
+      (value: number, key: number, iter: Stack<number>) => 'a'
+    )
   );
 }
 
@@ -233,8 +235,7 @@ import { Stack } from 'immutable';
   // $ExpectType Collection<unknown, unknown>
   Stack<number>().flatten(false);
 
-  // $ExpectError
-  Stack<number>().flatten('a');
+  expectError(Stack<number>().flatten('a'));
 }
 
 {
@@ -243,8 +244,9 @@ import { Stack } from 'immutable';
   // $ExpectType Stack<number>
   Stack<number>().withMutations(mutable => mutable);
 
-  // $ExpectError
-  Stack<number>().withMutations((mutable: Stack<string>) => mutable);
+  expectError(
+    Stack<number>().withMutations((mutable: Stack<string>) => mutable)
+  );
 }
 
 {
