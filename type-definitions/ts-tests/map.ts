@@ -272,7 +272,8 @@ import { Map, List, MapOf } from 'immutable';
 
   // FIXME: This error is not supported by tsd
   // tsd: `Found an error that tsd does not currently support (ts2740), consider creating an issue on GitHub.`
-  expectError(Map({ a: 1, b: 'b' }).update(v => ({ a: 'a' })));
+  // a pull request fixing the error has been made: https://github.com/tsdjs/tsd/pull/208
+  // expectError(Map({ a: 1, b: 'b' }).update(v => ({ a: 'a' })));
 
   // $ExpectType MapOf<{ a: number; b: string; }>
   Map({ a: 1, b: 'b' }).update(v => v.set('a', 2).set('b', 'B'));
