@@ -82,6 +82,15 @@
     "semi": true,
     "arrowParens": "avoid"
   },
+  "tsd": {
+    "directory": "type-definitions/ts-tests",
+    "compilerOptions": {
+      "baseUrl": "type-definitions/ts-tests",
+      "paths": {
+        "immutable": ["../../type-definitions/immutable.d.ts"]
+      }
+    }
+  },
   "devDependencies": {
     "@rollup/plugin-buble": "1.0.2",
     "@rollup/plugin-commonjs": "25.0.4",
@@ -127,6 +136,7 @@
     "rollup": "3.28.1",
     "size-limit": "^8.2.6",
     "transducers-js": "0.4.174",
+    "tsd": "^0.30.4",
     "typescript": "5.1"
   },
   "size-limit": [
