@@ -1,32 +1,26 @@
-import { expectError } from 'tsd';
+import { expectType, expectAssignable, expectError } from 'tsd';
 import { Map, List, MapOf } from 'immutable';
 
 {
   // #constructor
 
-  // $ExpectType Map<unknown, unknown>
-  Map();
+  expectType<Map<unknown, unknown>>(Map());
 
-  // $ExpectType Map<number, number>
-  Map<number, number>();
+  expectType<Map<number, number>>(Map<number, number>());
 
-  // $ExpectType Map<number, string>
-  Map([[1, 'a']]);
+  expectType<Map<number, string>>(Map([[1, 'a']]));
 
-  // $ExpectType Map<string, string>
-  Map([['a', 'a']]);
+  expectType<Map<string, string>>(Map([['a', 'a']]));
 
-  // $ExpectType Map<number, string>
-  Map(List<[number, string]>([[1, 'a']]));
+  expectType<Map<number, string>>(Map(List<[number, string]>([[1, 'a']])));
 
-  // $ExpectType MapOf<{ a: number; }>
-  Map({ a: 1 });
+  expectType<MapOf<{ a: number }>>(Map({ a: 1 }));
 
-  // $ExpectType MapOf<{ a: number; b: string; }>
-  Map({ a: 1, b: 'b' });
+  expectType<MapOf<{ a: number; b: string }>>(Map({ a: 1, b: 'b' }));
 
-  // $ExpectType MapOf<{ a: MapOf<{ b: MapOf<{ c: number; }>; }>; }>
-  Map({ a: Map({ b: Map({ c: 3 }) }) });
+  expectType<MapOf<{ a: MapOf<{ b: MapOf<{ c: number }> }> }>>(
+    Map({ a: Map({ b: Map({ c: 3 }) }) })
+  );
 
   expectError(Map<{ a: string }>({ a: 1 }));
 
@@ -36,14 +30,13 @@ import { Map, List, MapOf } from 'immutable';
   // TypeScript does not support Lists as tuples
   // expectError(Map(List([List(['a', 'b'])])));
 
-  // $ExpectType Map<number, number>
-  const numberMap: Map<number, number> = Map();
+  expectAssignable<Map<number, number>>(Map());
 
-  // $ExpectType Map<"status", string>
-  Map<'status', string>({ status: 'paid' });
+  expectType<Map<'status', string>>(Map<'status', string>({ status: 'paid' }));
 
-  // $ExpectType Map<"status" | "amount", string>
-  Map<'status' | 'amount', string>({ status: 'paid' });
+  expectType<Map<'status' | 'amount', string>>(
+    Map<'status' | 'amount', string>({ status: 'paid' })
+  );
 
   expectError(Map<'status', string>({ status: 'paid', amount: 10 }));
 }
@@ -51,8 +44,7 @@ import { Map, List, MapOf } from 'immutable';
 {
   // #size
 
-  // $ExpectType number
-  Map().size;
+  expectType<number>(Map().size);
 
   expectError((Map().size = 10));
 }
@@ -60,42 +52,35 @@ import { Map, List, MapOf } from 'immutable';
 {
   // #get
 
-  // $ExpectType number | undefined
-  Map<number, number>().get(4);
+  expectType<number | undefined>(Map<number, number>().get(4));
 
-  // $ExpectType number | "a"
-  Map<number, number>().get(4, 'a');
+  expectType<number | 'a'>(Map<number, number>().get(4, 'a'));
 
   expectError(Map<number, number>().get<number>(4, 'a'));
 
-  // $ExpectType number
-  Map({ a: 4, b: true }).get('a');
+  expectType<number>(Map({ a: 4, b: true }).get('a'));
 
-  // $ExpectType boolean
-  Map({ a: 4, b: true }).get('b');
+  expectType<boolean>(Map({ a: 4, b: true }).get('b'));
 
-  // $ExpectType boolean
-  Map({ a: Map({ b: true }) })
-    .get('a')
-    .get('b');
+  expectType<boolean>(
+    Map({ a: Map({ b: true }) })
+      .get('a')
+      .get('b')
+  );
 
   expectError(Map({ a: 4 }).get('b'));
 
-  // $ExpectType undefined
-  Map({ a: 4 }).get('b', undefined);
+  expectType<undefined>(Map({ a: 4 }).get('b', undefined));
 
-  // $ExpectType number
-  Map({ 1: 4 }).get(1);
+  expectType<number>(Map({ 1: 4 }).get(1));
 
   expectError(Map({ 1: 4 }).get(2));
 
-  // $ExpectType 3
-  Map({ 1: 4 }).get(2, 3);
+  expectType<3>(Map({ 1: 4 }).get(2, 3));
 
   const s = Symbol('s');
 
-  // $ExpectType number
-  Map({ [s]: 4 }).get(s);
+  expectType<number>(Map({ [s]: 4 }).get(s));
 
   const s2 = Symbol('s2');
 
@@ -106,91 +91,103 @@ import { Map, List, MapOf } from 'immutable';
   // Minimum TypeScript Version: 4.1
   // #getIn
 
-  // $ExpectType number
-  Map({ a: 4, b: true }).getIn(['a']);
+  // FIXME: dtslint accepted these as `numbers` but tsc infers them as `never`
+  expectType<never>(Map({ a: 4, b: true }).getIn(['a']));
 
-  // $ExpectType number
-  Map({ a: Map({ b: Map({ c: Map({ d: 4 }) }) }) }).getIn(['a', 'b', 'c', 'd']);
+  // FIXME: this one too
+  expectType<never>(
+    Map({ a: Map({ b: Map({ c: Map({ d: 4 }) }) }) }).getIn([
+      'a',
+      'b',
+      'c',
+      'd',
+    ])
+  );
 
   // with a better type, it should be resolved to `number` in the future. `RetrievePathReducer` does not work with anything else than MapOf
-  // $ExpectType never
-  Map({ a: List([1]) }).getIn(['a', 0]);
+  expectType<never>(Map({ a: List([1]) }).getIn(['a', 0]));
 }
 
 {
   // #set
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().set(0, 0);
+  expectType<Map<number, number>>(Map<number, number>().set(0, 0));
 
   expectError(Map<number, number>().set(1, 'a'));
 
   expectError(Map<number, number>().set('a', 1));
 
-  // $ExpectType Map<number, string | number>
-  Map<number, number | string>().set(0, 1);
+  expectType<Map<number, string | number>>(
+    Map<number, number | string>().set(0, 1)
+  );
 
-  // $ExpectType Map<number, string | number>
-  Map<number, number | string>().set(0, 'a');
+  expectType<Map<number, string | number>>(
+    Map<number, number | string>().set(0, 'a')
+  );
 
   expectError(Map({ a: 1 }).set('b', 'b'));
 
-  // $ExpectType MapOf<{ a: number; b?: string | undefined; }>
-  Map<{ a: number; b?: string }>({ a: 1 }).set('b', 'b');
+  expectType<MapOf<{ a: number; b?: string | undefined }>>(
+    Map<{ a: number; b?: string }>({ a: 1 }).set('b', 'b')
+  );
 
-  // $ExpectType MapOf<{ a: number; b?: string | undefined; }>
-  Map<{ a: number; b?: string }>({ a: 1 }).set('b', undefined);
+  expectType<MapOf<{ a: number; b?: string | undefined }>>(
+    Map<{ a: number; b?: string }>({ a: 1 }).set('b', undefined)
+  );
 
-  // $ExpectType number
-  Map<{ a: number; b?: string }>({ a: 1 }).set('b', 'b').get('a');
+  expectType<number>(
+    Map<{ a: number; b?: string }>({ a: 1 }).set('b', 'b').get('a')
+  );
 
-  // $ExpectType string | undefined
-  Map<{ a: number; b?: string }>({ a: 1 }).set('b', 'b').get('b');
+  expectType<string | undefined>(
+    Map<{ a: number; b?: string }>({ a: 1 }).set('b', 'b').get('b')
+  );
 
   let customer = Map<{ phone: string | number }>({
     phone: 'bar',
   });
 
-  // $ExpectType MapOf<{ phone: string | number; }>
-  customer = customer.set('phone', 8);
+  expectType<MapOf<{ phone: string | number }>>(
+    (customer = customer.set('phone', 8))
+  );
 }
 
 {
   // #setIn
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().setIn([], 0);
+  expectType<Map<number, number>>(Map<number, number>().setIn([], 0));
 }
 
 {
   // #delete
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().delete(0);
+  expectType<Map<number, number>>(Map<number, number>().delete(0));
 
   expectError(Map<number, number>().delete('a'));
 
-  // $ExpectType never
-  Map({ a: 1, b: 'b' }).delete('b');
+  expectType<never>(Map({ a: 1, b: 'b' }).delete('b'));
 
-  // $ExpectType MapOf<{ a: number; b?: string | undefined; }>
-  Map<{ a: number; b?: string }>({ a: 1, b: 'b' }).delete('b');
+  expectType<MapOf<{ a: number; b?: string | undefined }>>(
+    Map<{ a: number; b?: string }>({ a: 1, b: 'b' }).delete('b')
+  );
 
-  // $ExpectType MapOf<{ a?: number | undefined; b?: string | undefined; }>
-  Map<{ a?: number; b?: string }>({ a: 1, b: 'b' }).remove('b').delete('a');
+  expectType<MapOf<{ a?: number | undefined; b?: string | undefined }>>(
+    Map<{ a?: number; b?: string }>({ a: 1, b: 'b' }).remove('b').delete('a')
+  );
 
-  // $ExpectType number
-  Map<{ a: number; b?: string }>({ a: 1, b: 'b' }).remove('b').get('a');
+  expectType<number>(
+    Map<{ a: number; b?: string }>({ a: 1, b: 'b' }).remove('b').get('a')
+  );
 
-  // $ExpectType: string | undefined
-  Map<{ a: number; b?: string }>({ a: 1, b: 'b' }).remove('b').get('b');
+  expectType<string | undefined>(
+    Map<{ a: number; b?: string }>({ a: 1, b: 'b' }).remove('b').get('b')
+  );
 }
 
 {
   // #deleteAll
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().deleteAll([0]);
+  expectType<Map<number, number>>(Map<number, number>().deleteAll([0]));
 
   expectError(Map<number, number>().deleteAll([0, 'a']));
 }
@@ -198,15 +195,13 @@ import { Map, List, MapOf } from 'immutable';
 {
   // #deleteIn
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().deleteIn([]);
+  expectType<Map<number, number>>(Map<number, number>().deleteIn([]));
 }
 
 {
   // #remove
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().remove(0);
+  expectType<Map<number, number>>(Map<number, number>().remove(0));
 
   expectError(Map<number, number>().remove('a'));
 }
@@ -214,8 +209,7 @@ import { Map, List, MapOf } from 'immutable';
 {
   // #removeAll
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().removeAll([0]);
+  expectType<Map<number, number>>(Map<number, number>().removeAll([0]));
 
   expectError(Map<number, number>().removeAll([0, 'a']));
 }
@@ -223,15 +217,13 @@ import { Map, List, MapOf } from 'immutable';
 {
   // #removeIn
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().removeIn([]);
+  expectType<Map<number, number>>(Map<number, number>().removeIn([]));
 }
 
 {
   // #clear
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().clear();
+  expectType<Map<number, number>>(Map<number, number>().clear());
 
   expectError(Map().clear(10));
 }
@@ -239,20 +231,21 @@ import { Map, List, MapOf } from 'immutable';
 {
   // #update
 
-  // $ExpectType number
-  Map().update(v => 1);
+  expectType<number>(Map().update(v => 1));
 
   expectError(Map<number, number>().update((v: Map<string> | undefined) => v));
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().update(0, (v: number | undefined) => 0);
+  expectType<Map<number, number>>(
+    Map<number, number>().update(0, (v: number | undefined) => 0)
+  );
 
   expectError(
     Map<number, number>().update(0, (v: number | undefined) => v + 'a')
   );
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().update(1, 10, (v: number | undefined) => 0);
+  expectType<Map<number, number>>(
+    Map<number, number>().update(1, 10, (v: number | undefined) => 0)
+  );
 
   expectError(
     Map<number, number>().update(1, 'a', (v: number | undefined) => 0)
@@ -264,31 +257,34 @@ import { Map, List, MapOf } from 'immutable';
 
   expectError(Map({ a: 1, b: 'b' }).update('c', v => v));
 
-  // $ExpectType MapOf<{ a: number; b: string; }>
-  Map({ a: 1, b: 'b' }).update('b', v => v.toUpperCase());
+  expectType<MapOf<{ a: number; b: string }>>(
+    Map({ a: 1, b: 'b' }).update('b', v => v.toUpperCase())
+  );
 
-  // $ExpectType MapOf<{ a: number; b: string; }>
-  Map({ a: 1, b: 'b' }).update('b', 'NSV', v => v.toUpperCase());
+  expectType<MapOf<{ a: number; b: string }>>(
+    Map({ a: 1, b: 'b' }).update('b', 'NSV', v => v.toUpperCase())
+  );
 
   // FIXME: This error is not supported by tsd
   // tsd: `Found an error that tsd does not currently support (ts2740), consider creating an issue on GitHub.`
   // a pull request fixing the error has been made: https://github.com/tsdjs/tsd/pull/208
   // expectError(Map({ a: 1, b: 'b' }).update(v => ({ a: 'a' })));
 
-  // $ExpectType MapOf<{ a: number; b: string; }>
-  Map({ a: 1, b: 'b' }).update(v => v.set('a', 2).set('b', 'B'));
+  expectType<MapOf<{ a: number; b: string }>>(
+    Map({ a: 1, b: 'b' }).update(v => v.set('a', 2).set('b', 'B'))
+  );
 
   expectError(Map({ a: 1, b: 'b' }).update(v => v.set('c', 'c')));
 
-  // $ExpectType Map<string, string>
-  Map<string, string>().update('noKey', ls => ls?.toUpperCase());
+  expectType<Map<string, string>>(
+    Map<string, string>().update('noKey', ls => ls?.toUpperCase())
+  );
 }
 
 {
   // #updateIn
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().updateIn([], v => v);
+  expectType<Map<number, number>>(Map<number, number>().updateIn([], v => v));
 
   expectError(Map<number, number>().updateIn([], 10));
 }
@@ -296,19 +292,22 @@ import { Map, List, MapOf } from 'immutable';
 {
   // #map
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().map(
-    (value: number, key: number, iter: Map<number, number>) => 1
+  expectType<Map<number, number>>(
+    Map<number, number>().map(
+      (value: number, key: number, iter: Map<number, number>) => 1
+    )
   );
 
-  // $ExpectType Map<number, string>
-  Map<number, number>().map(
-    (value: number, key: number, iter: Map<number, number>) => 'a'
+  expectType<Map<number, string>>(
+    Map<number, number>().map(
+      (value: number, key: number, iter: Map<number, number>) => 'a'
+    )
   );
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().map<number>(
-    (value: number, key: number, iter: Map<number, number>) => 1
+  expectType<Map<number, number>>(
+    Map<number, number>().map<number>(
+      (value: number, key: number, iter: Map<number, number>) => 1
+    )
   );
 
   expectError(
@@ -345,19 +344,22 @@ import { Map, List, MapOf } from 'immutable';
 {
   // #mapKeys
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().mapKeys(
-    (value: number, key: number, iter: Map<number, number>) => 1
+  expectType<Map<number, number>>(
+    Map<number, number>().mapKeys(
+      (value: number, key: number, iter: Map<number, number>) => 1
+    )
   );
 
-  // $ExpectType Map<string, number>
-  Map<number, number>().mapKeys(
-    (value: number, key: number, iter: Map<number, number>) => 'a'
+  expectType<Map<string, number>>(
+    Map<number, number>().mapKeys(
+      (value: number, key: number, iter: Map<number, number>) => 'a'
+    )
   );
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().mapKeys<number>(
-    (value: number, key: number, iter: Map<number, number>) => 1
+  expectType<Map<number, number>>(
+    Map<number, number>().mapKeys<number>(
+      (value: number, key: number, iter: Map<number, number>) => 1
+    )
   );
 
   expectError(
@@ -394,19 +396,22 @@ import { Map, List, MapOf } from 'immutable';
 {
   // #flatMap
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().flatMap(
-    (value: number, key: number, iter: Map<number, number>) => [[0, 1]]
+  expectType<Map<number, number>>(
+    Map<number, number>().flatMap(
+      (value: number, key: number, iter: Map<number, number>) => [[0, 1]]
+    )
   );
 
-  // $ExpectType Map<string, string>
-  Map<number, number>().flatMap(
-    (value: number, key: number, iter: Map<number, number>) => [['a', 'b']]
+  expectType<Map<string, string>>(
+    Map<number, number>().flatMap(
+      (value: number, key: number, iter: Map<number, number>) => [['a', 'b']]
+    )
   );
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().flatMap<number, number>(
-    (value: number, key: number, iter: Map<number, number>) => [[0, 1]]
+  expectType<Map<number, number>>(
+    Map<number, number>().flatMap<number, number>(
+      (value: number, key: number, iter: Map<number, number>) => [[0, 1]]
+    )
   );
 
   expectError(
@@ -443,42 +448,45 @@ import { Map, List, MapOf } from 'immutable';
 {
   // #merge
 
-  // $ExpectType Map<string, number>
-  Map<string, number>().merge({ a: 1 });
+  expectType<Map<string, number>>(Map<string, number>().merge({ a: 1 }));
 
-  // $ExpectType Map<string, number | { b: number; }>
-  Map<string, number>().merge({ a: { b: 1 } });
+  expectType<Map<string, number | { b: number }>>(
+    Map<string, number>().merge({ a: { b: 1 } })
+  );
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().merge(Map<number, number>());
+  expectType<Map<number, number>>(
+    Map<number, number>().merge(Map<number, number>())
+  );
 
-  // $ExpectType Map<number, string | number>
-  Map<number, number>().merge(Map<number, string>());
+  expectType<Map<number, string | number>>(
+    Map<number, number>().merge(Map<number, string>())
+  );
 
-  // $ExpectType Map<number, string | number>
-  Map<number, number | string>().merge(Map<number, string>());
+  expectType<Map<number, string | number>>(
+    Map<number, number | string>().merge(Map<number, string>())
+  );
 
-  // $ExpectType Map<number, string | number>
-  Map<number, number | string>().merge(Map<number, number>());
+  expectType<Map<number, string | number>>(
+    Map<number, number | string>().merge(Map<number, number>())
+  );
 
-  // $ExpectType Map<"b" | "a", number>
-  Map({ a: 1 }).merge(Map({ b: 2 }));
+  expectType<Map<'b' | 'a', number>>(Map({ a: 1 }).merge(Map({ b: 2 })));
 }
 
 {
   // #mergeIn
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().mergeIn([], []);
+  expectType<Map<number, number>>(Map<number, number>().mergeIn([], []));
 }
 
 {
   // #mergeWith
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().mergeWith(
-    (prev: number, next: number, key: number) => 1,
-    Map<number, number>()
+  expectType<Map<number, number>>(
+    Map<number, number>().mergeWith(
+      (prev: number, next: number, key: number) => 1,
+      Map<number, number>()
+    )
   );
 
   expectError(
@@ -502,10 +510,11 @@ import { Map, List, MapOf } from 'immutable';
     )
   );
 
-  // $ExpectType Map<number, string | number>
-  Map<number, number>().mergeWith(
-    (prev: number, next: number, key: number) => 'a',
-    Map<number, number>()
+  expectType<Map<number, string | number>>(
+    Map<number, number>().mergeWith(
+      (prev: number, next: number, key: number) => 'a',
+      Map<number, number>()
+    )
   );
 
   expectError(
@@ -515,10 +524,11 @@ import { Map, List, MapOf } from 'immutable';
     )
   );
 
-  // $ExpectType Map<string, number>
-  Map<string, number>().mergeWith(
-    (prev: number, next: number, key: string) => 1,
-    { a: 1 }
+  expectType<Map<string, number>>(
+    Map<string, number>().mergeWith(
+      (prev: number, next: number, key: string) => 1,
+      { a: 1 }
+    )
   );
 
   expectError(
@@ -528,58 +538,65 @@ import { Map, List, MapOf } from 'immutable';
     )
   );
 
-  // $ExpectType Map<string, string | number>
-  Map<string, number>().mergeWith(
-    (prev: number, next: number | string, key: string) => 1,
-    { a: 'a' }
+  expectType<Map<string, string | number>>(
+    Map<string, number>().mergeWith(
+      (prev: number, next: number | string, key: string) => 1,
+      { a: 'a' }
+    )
   );
 
-  // $ExpectType Map<number, string | number>
-  Map<number, number | string>().mergeWith(
-    (prev: number | string, next: number | string, key: number) => 1,
-    Map<number, string>()
+  expectType<Map<number, string | number>>(
+    Map<number, number | string>().mergeWith(
+      (prev: number | string, next: number | string, key: number) => 1,
+      Map<number, string>()
+    )
   );
 }
 
 {
   // #mergeDeep
 
-  // $ExpectType Map<string, number>
-  Map<string, number>().mergeDeep({ a: 1 });
+  expectType<Map<string, number>>(Map<string, number>().mergeDeep({ a: 1 }));
 
-  // $ExpectType Map<string, number | { b: number; }>
-  Map<string, number>().mergeDeep({ a: { b: 1 } });
+  expectType<Map<string, number | { b: number }>>(
+    Map<string, number>().mergeDeep({ a: { b: 1 } })
+  );
 
-  // $ExpectType Map<string, number | { b: number; }>
-  Map<string, number>().mergeDeep(Map({ a: { b: 1 } }));
+  expectType<Map<string, number | { b: number }>>(
+    Map<string, number>().mergeDeep(Map({ a: { b: 1 } }))
+  );
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().mergeDeep(Map<number, number>());
+  expectType<Map<number, number>>(
+    Map<number, number>().mergeDeep(Map<number, number>())
+  );
 
-  // $ExpectType Map<number, string | number>
-  Map<number, number>().mergeDeep(Map<number, string>());
+  expectType<Map<number, string | number>>(
+    Map<number, number>().mergeDeep(Map<number, string>())
+  );
 
-  // $ExpectType Map<number, string | number>
-  Map<number, number | string>().mergeDeep(Map<number, string>());
+  expectType<Map<number, string | number>>(
+    Map<number, number | string>().mergeDeep(Map<number, string>())
+  );
 
-  // $ExpectType Map<number, string | number>
-  Map<number, number | string>().mergeDeep(Map<number, number>());
+  expectType<Map<number, string | number>>(
+    Map<number, number | string>().mergeDeep(Map<number, number>())
+  );
 }
 
 {
   // #mergeDeepIn
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().mergeDeepIn([], []);
+  expectType<Map<number, number>>(Map<number, number>().mergeDeepIn([], []));
 }
 
 {
   // #mergeDeepWith
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().mergeDeepWith(
-    (prev: unknown, next: unknown, key: unknown) => 1,
-    Map<number, number>()
+  expectType<Map<number, number>>(
+    Map<number, number>().mergeDeepWith(
+      (prev: unknown, next: unknown, key: unknown) => 1,
+      Map<number, number>()
+    )
   );
 
   expectError(
@@ -589,10 +606,11 @@ import { Map, List, MapOf } from 'immutable';
     )
   );
 
-  // $ExpectType Map<string, number>
-  Map<string, number>().mergeDeepWith(
-    (prev: unknown, next: unknown, key: unknown) => 1,
-    { a: 1 }
+  expectType<Map<string, number>>(
+    Map<string, number>().mergeDeepWith(
+      (prev: unknown, next: unknown, key: unknown) => 1,
+      { a: 1 }
+    )
   );
 
   expectError(
@@ -602,25 +620,26 @@ import { Map, List, MapOf } from 'immutable';
     )
   );
 
-  // $ExpectType Map<number, string | number>
-  Map<number, number | string>().mergeDeepWith(
-    (prev: unknown, next: unknown, key: unknown) => 1,
-    Map<number, string>()
+  expectType<Map<number, string | number>>(
+    Map<number, number | string>().mergeDeepWith(
+      (prev: unknown, next: unknown, key: unknown) => 1,
+      Map<number, string>()
+    )
   );
 }
 
 {
   // #flip
 
-  // $ExpectType Map<string, number>
-  Map<number, string>().flip();
+  expectType<Map<string, number>>(Map<number, string>().flip());
 }
 
 {
   // #withMutations
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().withMutations(mutable => mutable);
+  expectType<Map<number, number>>(
+    Map<number, number>().withMutations(mutable => mutable)
+  );
 
   expectError(
     Map<number, number>().withMutations((mutable: Map<string>) => mutable)
@@ -630,29 +649,25 @@ import { Map, List, MapOf } from 'immutable';
 {
   // #asMutable
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().asMutable();
+  expectType<Map<number, number>>(Map<number, number>().asMutable());
 }
 
 {
   // #asImmutable
 
-  // $ExpectType Map<number, number>
-  Map<number, number>().asImmutable();
+  expectType<Map<number, number>>(Map<number, number>().asImmutable());
 }
 
 {
   // #toJS / #toJSON
 
-  // $ExpectType { [x: string]: number; [x: number]: number; [x: symbol]: number; }
-  Map<number, number>().toJS();
+  expectType<{ [x: string]: number; [x: number]: number; [x: symbol]: number }>(
+    Map<number, number>().toJS()
+  );
 
-  // $ExpectType { a: string; }
-  Map({ a: 'A' }).toJS();
+  expectType<{ a: string }>(Map({ a: 'A' }).toJS());
 
-  // $ExpectType { a: { b: string; }; }
-  Map({ a: Map({ b: 'b' }) }).toJS();
+  expectType<{ a: { b: string } }>(Map({ a: Map({ b: 'b' }) }).toJS());
 
-  // $ExpectType { a: MapOf<{ b: string; }>; }
-  Map({ a: Map({ b: 'b' }) }).toJSON();
+  expectType<{ a: MapOf<{ b: string }> }>(Map({ a: Map({ b: 'b' }) }).toJSON());
 }
