@@ -1,84 +1,60 @@
-import {
-  get,
-  has,
-  set,
-  remove,
-  update,
-} from 'immutable';
+import { expectType, expectError } from 'tsd';
+import { get, has, set, remove, update } from 'immutable';
 
 {
   // get
 
-  // $ExpectType number | undefined
-  get([1, 2, 3], 0);
+  expectType<number | undefined>(get([1, 2, 3], 0));
 
-  // $ExpectType number | "a"
-  get([1, 2, 3], 0, 'a');
+  expectType<number | "a">(get([1, 2, 3], 0, 'a'));
 
-  // $ExpectType number | undefined
-  get({ x: 10, y: 20 }, 'x');
+  expectType<number | undefined>(get({ x: 10, y: 20 }, 'x'));
 
-  // $ExpectType number | "missing"
-  get({ x: 10, y: 20 }, 'z', 'missing');
+  expectType<number | "missing">(get({ x: 10, y: 20 }, 'z', 'missing'));
 }
 
 {
   // has
 
-  // $ExpectType boolean
-  has([1, 2, 3], 0);
+  expectType<boolean>(has([1, 2, 3], 0));
 
-  // $ExpectType boolean
-  has({ x: 10, y: 20 }, 'x');
+  expectType<boolean>(has({ x: 10, y: 20 }, 'x'));
 }
 
 {
   // set
 
-  // $ExpectType number[]
-  set([1, 2, 3], 0, 10);
+  expectType<number[]>(set([1, 2, 3], 0, 10));
 
-  // $ExpectError
-  set([1, 2, 3], 0, 'a');
+  expectError(set([1, 2, 3], 0, 'a'));
 
-  // $ExpectError
-  set([1, 2, 3], 'a', 0);
+  expectError(set([1, 2, 3], 'a', 0));
 
-  // $ExpectType { x: number; y: number; }
-  set({ x: 10, y: 20 }, 'x', 100);
+  expectType<{ x: number; y: number; }>(set({ x: 10, y: 20 }, 'x', 100));
 
-  // $ExpectError
-  set({ x: 10, y: 20 }, 'x', 'a');
+  expectError(set({ x: 10, y: 20 }, 'x', 'a'));
 }
 
 {
   // remove
 
-  // $ExpectType number[]
-  remove([1, 2, 3], 0);
+  expectType<number[]>(remove([1, 2, 3], 0));
 
-  // $ExpectType { x: number; y: number; }
-  remove({ x: 10, y: 20 }, 'x');
+  expectType<{ x: number; y: number; }>(remove({ x: 10, y: 20 }, 'x'));
 }
 
 {
   // update
 
-  // $ExpectType number[]
-  update([1, 2, 3], 0, (v: number) => v + 1);
+  expectType<number[]>(update([1, 2, 3], 0, (v: number) => v + 1));
 
-  // $ExpectError
-  update([1, 2, 3], 0, 1);
+  expectError(update([1, 2, 3], 0, 1));
 
-  // $ExpectError
-  update([1, 2, 3], 0, (v: string) => v + 'a');
+  expectError(update([1, 2, 3], 0, (v: string) => v + 'a'));
 
-  // $ExpectError
-  update([1, 2, 3], 'a', (v: number) => v + 1);
+  expectError(update([1, 2, 3], 'a', (v: number) => v + 1));
 
-  // $ExpectType { x: number; y: number; }
-  update({ x: 10, y: 20 }, 'x', (v: number) => v + 1);
+  expectType<{ x: number; y: number; }>(update({ x: 10, y: 20 }, 'x', (v: number) => v + 1));
 
-  // $ExpectError
-  update({ x: 10, y: 20 }, 'x', (v: string) => v + 'a');
+  expectError(update({ x: 10, y: 20 }, 'x', (v: string) => v + 'a'));
 }

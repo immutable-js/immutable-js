@@ -1,57 +1,42 @@
+import { expectType } from 'tsd';
 import { Seq, Collection } from 'immutable';
 
 {
   // Typed empty seqs
 
-  // $ExpectType Seq<unknown, unknown>
-  Seq();
+  expectType<Seq<unknown, unknown>>(Seq());
 
-  // $ExpectType Seq<number, string>
-  Seq<number, string>();
+  expectType<Seq<number, string>>(Seq<number, string>());
 
-  // $ExpectType Indexed<unknown>
-  Seq.Indexed();
+  expectType<Seq.Indexed<unknown>>(Seq.Indexed());
 
-  // $ExpectType Indexed<string>
-  Seq.Indexed<string>();
+  expectType<Seq.Indexed<string>>(Seq.Indexed<string>());
 
-  // $ExpectType Keyed<unknown, unknown>
-  Seq.Keyed();
+  expectType<Seq.Keyed<unknown, unknown>>(Seq.Keyed());
 
-  // $ExpectType Keyed<number, string>
-  Seq.Keyed<number, string>();
+  expectType<Seq.Keyed<number, string>>(Seq.Keyed<number, string>());
 
-  // $ExpectType Set<unknown>
-  Seq.Set();
+  expectType<Seq.Set<unknown>>(Seq.Set());
 
-  // $ExpectType Set<string>
-  Seq.Set<string>();
+  expectType<Seq.Set<string>>(Seq.Set<string>());
 }
 
 {
   // Typed empty collection
 
-  // $ExpectType Collection<unknown, unknown>
-  Collection();
+  expectType<Collection<unknown, unknown>>(Collection());
 
-  // $ExpectType Collection<number, string>
-  Collection<number, string>();
+  expectType<Collection<number, string>>(Collection<number, string>());
 
-  // $ExpectType Indexed<unknown>
-  Collection.Indexed();
+  expectType<Collection.Indexed<unknown>>(Collection.Indexed());
 
-  // $ExpectType Indexed<string>
-  Collection.Indexed<string>();
+  expectType<Collection.Indexed<string>>(Collection.Indexed<string>());
 
-  // $ExpectType Keyed<unknown, unknown>
-  Collection.Keyed();
+  expectType<Collection.Keyed<unknown, unknown>>(Collection.Keyed());
 
-  // $ExpectType Keyed<number, string>
-  Collection.Keyed<number, string>();
+  expectType<Collection.Keyed<number, string>>(Collection.Keyed<number, string>());
 
-  // $ExpectType Set<unknown>
-  Collection.Set();
+  expectType<Collection.Set<unknown>>(Collection.Set());
 
-  // $ExpectType Set<string>
-  Collection.Set<string>();
+  expectType<Collection.Set<string>>(Collection.Set<string>());
 }

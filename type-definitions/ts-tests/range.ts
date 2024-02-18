@@ -1,17 +1,14 @@
-import { Range } from 'immutable';
+import { expectType, expectError } from 'tsd';
+import { Range, Seq } from 'immutable';
 
 {
   // #constructor
 
-  // $ExpectType Indexed<number>
-  Range(0, 0, 1);
+  expectType<Seq.Indexed<number>>(Range(0, 0, 1));
 
-  // $ExpectError
-  Range('a', 0, 0);
+  expectError(Range('a', 0, 0));
 
-  // $ExpectError
-  Range();
+  expectError(Range());
 
-  // $ExpectError
-  Range(1);
+  expectError(Range(1));
 }
