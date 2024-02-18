@@ -1,11 +1,10 @@
-import { expectError, expectNotAssignable } from 'tsd';
-import { OrderedSet, Map } from 'immutable';
+import { expectType, expectError, expectNotAssignable } from 'tsd';
+import { OrderedSet, Map, Collection } from 'immutable';
 
 {
   // #constructor
 
-  // $ExpectType OrderedSet<unknown>
-  OrderedSet();
+  expectType<OrderedSet<unknown>>(OrderedSet());
 
   const numberOrderedSet: OrderedSet<number> = OrderedSet<number>();
   const numberOrStringOrderedSet: OrderedSet<number | string> = OrderedSet([
@@ -20,8 +19,7 @@ import { OrderedSet, Map } from 'immutable';
 {
   // #size
 
-  // $ExpectType number
-  OrderedSet().size;
+  expectType<number>(OrderedSet().size);
 
   expectError((OrderedSet().size = 10));
 }
@@ -29,41 +27,39 @@ import { OrderedSet, Map } from 'immutable';
 {
   // .of
 
-  // $ExpectType OrderedSet<number>
-  OrderedSet.of(1, 2, 3);
+  expectType<OrderedSet<number>>(OrderedSet.of(1, 2, 3));
 
   expectError(OrderedSet.of<number>('a', 1));
 
-  // $ExpectType OrderedSet<string | number>
-  OrderedSet.of<number | string>('a', 1);
+  expectType<OrderedSet<string | number>>(
+    OrderedSet.of<number | string>('a', 1)
+  );
 }
 
 {
   // .fromKeys
 
-  // $ExpectType OrderedSet<number>
-  OrderedSet.fromKeys(Map<number, string>());
+  expectType<OrderedSet<number>>(OrderedSet.fromKeys(Map<number, string>()));
 
-  // $ExpectType OrderedSet<number>
-  OrderedSet.fromKeys<number>(Map<number, string>());
+  expectType<OrderedSet<number>>(
+    OrderedSet.fromKeys<number>(Map<number, string>())
+  );
 
-  // $ExpectType OrderedSet<string>
-  OrderedSet.fromKeys({ a: 1 });
+  expectType<OrderedSet<string>>(OrderedSet.fromKeys({ a: 1 }));
 
   expectError(OrderedSet.fromKeys<number>(Map<string, string>()));
 
-  // $ExpectType OrderedSet<string | number>
-  OrderedSet.fromKeys<number | string>(Map<number | string, string>());
+  expectType<OrderedSet<string | number>>(
+    OrderedSet.fromKeys<number | string>(Map<number | string, string>())
+  );
 }
 
 {
   // #get
 
-  // $ExpectType number | undefined
-  OrderedSet<number>().get(4);
+  expectType<number | undefined>(OrderedSet<number>().get(4));
 
-  // $ExpectType number | "a"
-  OrderedSet<number>().get(4, 'a');
+  expectType<number | 'a'>(OrderedSet<number>().get(4, 'a'));
 
   expectError(OrderedSet<number>().get<number>(4, 'a'));
 }
@@ -71,16 +67,14 @@ import { OrderedSet, Map } from 'immutable';
 {
   // #delete
 
-  // $ExpectType OrderedSet<number>
-  OrderedSet<number>().delete(0);
+  expectType<OrderedSet<number>>(OrderedSet<number>().delete(0));
 
   expectError(OrderedSet<number>().delete('a'));
 }
 {
   // #remove
 
-  // $ExpectType OrderedSet<number>
-  OrderedSet<number>().remove(0);
+  expectType<OrderedSet<number>>(OrderedSet<number>().remove(0));
 
   expectError(OrderedSet<number>().remove('a'));
 }
@@ -88,8 +82,7 @@ import { OrderedSet, Map } from 'immutable';
 {
   // #clear
 
-  // $ExpectType OrderedSet<number>
-  OrderedSet<number>().clear();
+  expectType<OrderedSet<number>>(OrderedSet<number>().clear());
 
   expectError(OrderedSet().clear(10));
 }
@@ -97,19 +90,22 @@ import { OrderedSet, Map } from 'immutable';
 {
   // #map
 
-  // $ExpectType OrderedSet<number>
-  OrderedSet<number>().map(
-    (value: number, key: number, iter: OrderedSet<number>) => 1
+  expectType<OrderedSet<number>>(
+    OrderedSet<number>().map(
+      (value: number, key: number, iter: OrderedSet<number>) => 1
+    )
   );
 
-  // $ExpectType OrderedSet<string>
-  OrderedSet<number>().map(
-    (value: number, key: number, iter: OrderedSet<number>) => 'a'
+  expectType<OrderedSet<string>>(
+    OrderedSet<number>().map(
+      (value: number, key: number, iter: OrderedSet<number>) => 'a'
+    )
   );
 
-  // $ExpectType OrderedSet<number>
-  OrderedSet<number>().map<number>(
-    (value: number, key: number, iter: OrderedSet<number>) => 1
+  expectType<OrderedSet<number>>(
+    OrderedSet<number>().map<number>(
+      (value: number, key: number, iter: OrderedSet<number>) => 1
+    )
   );
 
   expectError(
@@ -146,19 +142,22 @@ import { OrderedSet, Map } from 'immutable';
 {
   // #flatMap
 
-  // $ExpectType OrderedSet<number>
-  OrderedSet<number>().flatMap(
-    (value: number, key: number, iter: OrderedSet<number>) => [1]
+  expectType<OrderedSet<number>>(
+    OrderedSet<number>().flatMap(
+      (value: number, key: number, iter: OrderedSet<number>) => [1]
+    )
   );
 
-  // $ExpectType OrderedSet<string>
-  OrderedSet<number>().flatMap(
-    (value: number, key: number, iter: OrderedSet<number>) => ['a']
+  expectType<OrderedSet<string>>(
+    OrderedSet<number>().flatMap(
+      (value: number, key: number, iter: OrderedSet<number>) => ['a']
+    )
   );
 
-  // $ExpectType OrderedSet<number>
-  OrderedSet<number>().flatMap<number>(
-    (value: number, key: number, iter: OrderedSet<number>) => [1]
+  expectType<OrderedSet<number>>(
+    OrderedSet<number>().flatMap<number>(
+      (value: number, key: number, iter: OrderedSet<number>) => [1]
+    )
   );
 
   expectError(
@@ -195,76 +194,87 @@ import { OrderedSet, Map } from 'immutable';
 {
   // #union
 
-  // $ExpectType OrderedSet<number>
-  OrderedSet<number>().union(OrderedSet<number>());
+  expectType<OrderedSet<number>>(
+    OrderedSet<number>().union(OrderedSet<number>())
+  );
 
-  // $ExpectType OrderedSet<string | number>
-  OrderedSet<number>().union(OrderedSet<string>());
+  expectType<OrderedSet<string | number>>(
+    OrderedSet<number>().union(OrderedSet<string>())
+  );
 
-  // $ExpectType OrderedSet<string | number>
-  OrderedSet<number | string>().union(OrderedSet<string>());
+  expectType<OrderedSet<string | number>>(
+    OrderedSet<number | string>().union(OrderedSet<string>())
+  );
 
-  // $ExpectType OrderedSet<string | number>
-  OrderedSet<number | string>().union(OrderedSet<number>());
+  expectType<OrderedSet<string | number>>(
+    OrderedSet<number | string>().union(OrderedSet<number>())
+  );
 }
 
 {
   // #merge
 
-  // $ExpectType OrderedSet<number>
-  OrderedSet<number>().merge(OrderedSet<number>());
+  expectType<OrderedSet<number>>(
+    OrderedSet<number>().merge(OrderedSet<number>())
+  );
 
-  // $ExpectType OrderedSet<string | number>
-  OrderedSet<number>().merge(OrderedSet<string>());
+  expectType<OrderedSet<string | number>>(
+    OrderedSet<number>().merge(OrderedSet<string>())
+  );
 
-  // $ExpectType OrderedSet<string | number>
-  OrderedSet<number | string>().merge(OrderedSet<string>());
+  expectType<OrderedSet<string | number>>(
+    OrderedSet<number | string>().merge(OrderedSet<string>())
+  );
 
-  // $ExpectType OrderedSet<string | number>
-  OrderedSet<number | string>().merge(OrderedSet<number>());
+  expectType<OrderedSet<string | number>>(
+    OrderedSet<number | string>().merge(OrderedSet<number>())
+  );
 }
 
 {
   // #intersect
 
-  // $ExpectType OrderedSet<number>
-  OrderedSet<number>().intersect(OrderedSet<number>());
+  expectType<OrderedSet<number>>(
+    OrderedSet<number>().intersect(OrderedSet<number>())
+  );
 
   expectError(OrderedSet<number>().intersect(OrderedSet<string>()));
 
-  // $ExpectType OrderedSet<string | number>
-  OrderedSet<number | string>().intersect(OrderedSet<string>());
+  expectType<OrderedSet<string | number>>(
+    OrderedSet<number | string>().intersect(OrderedSet<string>())
+  );
 
-  // $ExpectType OrderedSet<string | number>
-  OrderedSet<number | string>().intersect(OrderedSet<number>());
+  expectType<OrderedSet<string | number>>(
+    OrderedSet<number | string>().intersect(OrderedSet<number>())
+  );
 }
 
 {
   // #subtract
 
-  // $ExpectType OrderedSet<number>
-  OrderedSet<number>().subtract(OrderedSet<number>());
+  expectType<OrderedSet<number>>(
+    OrderedSet<number>().subtract(OrderedSet<number>())
+  );
 
   expectError(OrderedSet<number>().subtract(OrderedSet<string>()));
 
-  // $ExpectType OrderedSet<string | number>
-  OrderedSet<number | string>().subtract(OrderedSet<string>());
+  expectType<OrderedSet<string | number>>(
+    OrderedSet<number | string>().subtract(OrderedSet<string>())
+  );
 
-  // $ExpectType OrderedSet<string | number>
-  OrderedSet<number | string>().subtract(OrderedSet<number>());
+  expectType<OrderedSet<string | number>>(
+    OrderedSet<number | string>().subtract(OrderedSet<number>())
+  );
 }
 
 {
   // #flatten
 
-  // $ExpectType Collection<unknown, unknown>
-  OrderedSet<number>().flatten();
+  expectType<Collection<unknown, unknown>>(OrderedSet<number>().flatten());
 
-  // $ExpectType Collection<unknown, unknown>
-  OrderedSet<number>().flatten(10);
+  expectType<Collection<unknown, unknown>>(OrderedSet<number>().flatten(10));
 
-  // $ExpectType Collection<unknown, unknown>
-  OrderedSet<number>().flatten(false);
+  expectType<Collection<unknown, unknown>>(OrderedSet<number>().flatten(false));
 
   expectError(OrderedSet<number>().flatten('a'));
 }
@@ -272,8 +282,9 @@ import { OrderedSet, Map } from 'immutable';
 {
   // #withMutations
 
-  // $ExpectType OrderedSet<number>
-  OrderedSet<number>().withMutations(mutable => mutable);
+  expectType<OrderedSet<number>>(
+    OrderedSet<number>().withMutations(mutable => mutable)
+  );
 
   expectError(
     OrderedSet<number>().withMutations((mutable: OrderedSet<string>) => mutable)
@@ -283,13 +294,11 @@ import { OrderedSet, Map } from 'immutable';
 {
   // #asMutable
 
-  // $ExpectType OrderedSet<number>
-  OrderedSet<number>().asMutable();
+  expectType<OrderedSet<number>>(OrderedSet<number>().asMutable());
 }
 
 {
   // #asImmutable
 
-  // $ExpectType OrderedSet<number>
-  OrderedSet<number>().asImmutable();
+  expectType<OrderedSet<number>>(OrderedSet<number>().asImmutable());
 }
