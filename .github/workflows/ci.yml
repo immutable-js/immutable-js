@@ -65,7 +65,7 @@ jobs:
           restore-keys: ${{ runner.OS }}-node-
       - run: npm ci
       - run: npm run build
-      - run: npm run unit-test
+      - run: npm run test:unit
       - run: npx size-limit
       - run: npm run check-git-clean
 
