@@ -1,122 +1,112 @@
+import { describe, expect, test } from 'tstyche';
 import { List, Map, Record, Set, Seq, DeepCopy, Collection } from 'immutable';
 
-{
-  // Basic types
+describe('DeepCopy', () => {
+  test('basic types', () => {
+    expect<
+      DeepCopy<{
+        a: number;
+        b: number;
+      }>
+    >().type.toEqual<{
+      a: number;
+      b: number;
+    }>();
+  });
 
-  // $ExpectType { a: number; b: number; }
-  type Test = DeepCopy<{ a: number; b: number }>;
-}
+  test('iterables', () => {
+    expect<DeepCopy<string[]>>().type.toEqual<string[]>();
 
-{
-  // Iterables
+    expect<DeepCopy<Collection.Indexed<number>>>().type.toEqual<number[]>();
+  });
 
-  // $ExpectType string[]
-  type Test = DeepCopy<string[]>;
+  test('immutable first-level types', () => {
+    expect<DeepCopy<Map<string, string>>>().type.toEqual<{
+      [x: string]: string;
+    }>();
 
-  // $ExpectType number[]
-  type Keyed = DeepCopy<Collection.Indexed<number>>;
-}
+    // should be `{ [x: string]: object }`, but there is an issue with circular references
+    expect<DeepCopy<Map<object, object>>>().type.toEqual<{
+      [x: string]: unknown;
+    }>();
 
-{
-  // Immutable first-level types
+    // should be `{ [x: string]: object; [x: number]: object }`, but there is an issue with circular references
+    expect<DeepCopy<Map<object | number, object>>>().type.toEqual<{
+      [x: string]: unknown;
+      [x: number]: unknown;
+    }>();
 
-  // $ExpectType { [x: string]: string; }
-  type StringKey = DeepCopy<Map<string, string>>;
+    expect<DeepCopy<List<string>>>().type.toEqual<string[]>();
 
-  // should be `{ [x: string]: object; }` but there is an issue with circular references
-  // $ExpectType { [x: string]: unknown; }
-  type ObjectKey = DeepCopy<Map<object, object>>;
+    expect<DeepCopy<Set<string>>>().type.toEqual<string[]>();
+  });
 
-  // should be `{ [x: string]: object; [x: number]: object; }` but there is an issue with circular references
-  // $ExpectType { [x: string]: unknown; [x: number]: unknown; }
-  type MixedKey = DeepCopy<Map<object | number, object>>;
+  test('keyed', () => {
+    expect<DeepCopy<Collection.Keyed<string, number>>>().type.toEqual<{
+      [x: string]: number;
+    }>();
 
-  // $ExpectType string[]
-  type ListDeepCopy = DeepCopy<List<string>>;
+    expect<DeepCopy<Collection.Keyed<string | number, number>>>().type.toEqual<{
+      [x: string]: number;
+      [x: number]: number;
+    }>();
 
-  // $ExpectType string[]
-  type SetDeepCopy = DeepCopy<Set<string>>;
-}
+    expect<DeepCopy<Seq.Keyed<string | number, number>>>().type.toEqual<{
+      [x: string]: number;
+      [x: number]: number;
+    }>();
 
-{
-  // Keyed
+    expect<DeepCopy<Map<string | number, number>>>().type.toEqual<{
+      [x: string]: number;
+      [x: number]: number;
+    }>();
+  });
 
-  // $ExpectType { [x: string]: number; }
-  type Keyed = DeepCopy<Collection.Keyed<string, number>>;
+  test('nested', () => {
+    // should be `{ map: { [x: string]: string }; list: string[]; set: string[] }`, but there is an issue with circular references
+    expect<
+      DeepCopy<{
+        map: Map<string, string>;
+        list: List<string>;
+        set: Set<string>;
+      }>
+    >().type.toEqual<{ map: unknown; list: unknown; set: unknown }>();
 
-  // $ExpectType { [x: string]: number; [x: number]: number; }
-  type KeyedMixed = DeepCopy<Collection.Keyed<string | number, number>>;
+    // should be `{ map: { [x: string]: string } }`, but there is an issue with circular references
+    expect<DeepCopy<Map<'map', Map<string, string>>>>().type.toEqual<{
+      map: unknown;
+    }>();
+  });
 
-  // $ExpectType { [x: string]: number; [x: number]: number; }
-  type KeyedSeqMixed = DeepCopy<Seq.Keyed<string | number, number>>;
+  test('circular references', () => {
+    type Article = Record<{ title: string; tag: Tag }>;
+    type Tag = Record<{ name: string; article: Article }>;
 
-  // $ExpectType { [x: string]: number; [x: number]: number; }
-  type MapMixed = DeepCopy<Map<string | number, number>>;
-}
+    // should handle circular references here somehow
+    expect<DeepCopy<Article>>().type.toEqual<{ title: string; tag: unknown }>();
+  });
 
-{
-  // Nested
+  test('circular references #1957', () => {
+    class Foo1 extends Record<{ foo: undefined | Foo1 }>({
+      foo: undefined,
+    }) {}
 
-  // should be `{ map: { [x: string]: string; }; list: string[]; set: string[]; }` but there is an issue with circular references
-  // $ExpectType { map: unknown; list: unknown; set: unknown; }
-  type NestedObject = DeepCopy<{ map: Map<string, string>; list: List<string>; set: Set<string>; }>;
+    class Foo2 extends Record<{ foo?: Foo2 }>({
+      foo: undefined,
+    }) {}
 
-  // should be `{ map: { [x: string]: string; }; }`, but there is an issue with circular references
-  // $ExpectType { map: unknown; }
-  type NestedMap = DeepCopy<Map<'map', Map<string, string>>>;
-}
+    class Foo3 extends Record<{ foo: null | Foo3 }>({
+      foo: null,
+    }) {}
 
-{
-  // Circular references
+    expect<DeepCopy<Foo1>>().type.toEqual<{ foo: unknown }>();
+    expect<DeepCopy<Foo2>>().type.toEqual<{ foo?: unknown }>();
+    expect<DeepCopy<Foo3>>().type.toEqual<{ foo: unknown }>();
 
-  type Article = Record<{ title: string; tag: Tag; }>;
-  type Tag = Record<{ name: string; article: Article; }>;
+    class FooWithList extends Record<{ foo: undefined | List<FooWithList> }>({
+      foo: undefined,
+    }) {}
 
-  // should handle circular references here somehow
-  // $ExpectType { title: string; tag: unknown; }
-  type Circular = DeepCopy<Article>;
-}
-
-{
-  // Circular references #1957
-
-  class Foo1 extends Record<{
-    foo: undefined | Foo1;
-  }>({
-    foo: undefined
-  }) {
-  }
-
-  class Foo2 extends Record<{
-    foo?: Foo2;
-  }>({
-    foo: undefined
-  }) {
-  }
-
-  class Foo3 extends Record<{
-    foo: null | Foo3;
-  }>({
-    foo: null
-  }) {
-  }
-
-  // $ExpectType { foo: unknown; }
-  type DeepFoo1 = DeepCopy<Foo1>;
-
-  // $ExpectType { foo?: unknown; }
-  type DeepFoo2 = DeepCopy<Foo2>;
-
-  // $ExpectType { foo: unknown; }
-  type DeepFoo3 = DeepCopy<Foo3>;
-
-  class FooWithList extends Record<{
-    foos: undefined | List<FooWithList>;
-  }>({
-    foos: undefined
-  }) {
-  }
-
-  // $ExpectType { foos: unknown; }
-  type DeepFooList = DeepCopy<FooWithList>;
-}
+    expect<DeepCopy<FooWithList>>().type.toEqual<{ foo: unknown }>();
+  });
+});

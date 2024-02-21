@@ -1,5 +1,8 @@
 {
   "extends": "dtslint/dtslint.json",
+  "linterOptions": {
+    "exclude": ["covariance.ts", "deepCopy.ts", "empty.ts", "es6-collections.ts"]
+  },
   "rules": {
     "no-var": false,
     "prefer-const": false,
