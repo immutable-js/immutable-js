@@ -2,6 +2,7 @@
   "$schema": "https://tstyche.org/schemas/config.json",
   "testFileMatch": [
     "**/type-definitions/ts-tests/covariance.ts",
-    "**/type-definitions/ts-tests/deepCopy.ts"
+    "**/type-definitions/ts-tests/deepCopy.ts",
+    "**/type-definitions/ts-tests/empty.ts"
   ]
 }

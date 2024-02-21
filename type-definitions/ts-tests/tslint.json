@@ -1,7 +1,7 @@
 {
   "extends": "dtslint/dtslint.json",
   "linterOptions": {
-    "exclude": ["covariance.ts", "deepCopy.ts"]
+    "exclude": ["covariance.ts", "deepCopy.ts", "empty.ts"]
   },
   "rules": {
     "no-var": false,
