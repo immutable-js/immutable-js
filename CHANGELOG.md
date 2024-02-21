@@ -17,6 +17,8 @@ Dates are formatted as YYYY-MM-DD.
   - `Collection.isAssociative`: use `isAssociative` directly
   - `Collection.isOrdered`: use `isOrdered` directly
 
+- [Internal] Migrating TS type tests from dtslint to [TSTyche](https://tstyche.org/) [#1988](https://github.com/immutable-js/immutable-js/pull/1988) by [@mrazauskas](https://github.com/mrazauskas)
+
 ## [5.0.0-beta.5]
 
 - Change Range function: force start and end values to be defined [#1967](https://github.com/immutable-js/immutable-js/pull/1967) by [@jdeniau](https://github.com/jdeniau)
