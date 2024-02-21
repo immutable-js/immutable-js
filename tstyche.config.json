@@ -1,0 +1,8 @@
+{
+  "$schema": "https://tstyche.org/schemas/config.json",
+  "target": ["4.5", "5.0", "current"],
+  "testFileMatch": [
+    "**/type-definitions/ts-tests/covariance.ts",
+    "**/type-definitions/ts-tests/deepCopy.ts"
+  ]
+}
