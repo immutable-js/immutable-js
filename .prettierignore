@@ -8,3 +8,7 @@ type-definitions/flow-tests/
 !type-definitions/ts-tests/deepCopy.ts
 !type-definitions/ts-tests/empty.ts
 !type-definitions/ts-tests/es6-collections.ts
+!type-definitions/ts-tests/exports.ts
+!type-definitions/ts-tests/from-js.ts
+!type-definitions/ts-tests/functional.ts
+!type-definitions/ts-tests/groupBy.ts

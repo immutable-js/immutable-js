@@ -1,7 +1,16 @@
 {
   "extends": "dtslint/dtslint.json",
   "linterOptions": {
-    "exclude": ["covariance.ts", "deepCopy.ts", "empty.ts", "es6-collections.ts"]
+    "exclude": [
+      "covariance.ts",
+      "deepCopy.ts",
+      "empty.ts",
+      "es6-collections.ts",
+      "exports.ts",
+      "from-js.ts",
+      "functional.ts",
+      "groupBy.ts"
+    ]
   },
   "rules": {
     "no-var": false,
