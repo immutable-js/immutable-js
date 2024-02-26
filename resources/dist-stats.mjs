@@ -26,9 +26,25 @@ let bundlephobaInfoCache;
 
 async function bundlephobaInfo(key) {
   if (!bundlephobaInfoCache) {
-    bundlephobaInfoCache = await fetch(
-      `https://bundlephobia.com/api/size?package=immutable@${VERIFY_AGAINST_VERSION}`
-    ).then(res => res.json());
+    try {
+      const res = await fetch(
+        `https://bundlephobia.com/api/size?package=immutable@${VERIFY_AGAINST_VERSION}`
+      );
+
+      console.log(res.status);
+
+      if (res.status !== 200) {
+        throw new Error(
+          `Unable to fetch bundlephobia in dist-stats.mjs. Status code is "${res.status}"`
+        );
+      }
+
+      bundlephobaInfoCache = await res.json();
+    } catch (err) {
+      console.error(err.message);
+
+      throw err;
+    }
   }
 
   return bundlephobaInfoCache[key];
