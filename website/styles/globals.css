@@ -192,7 +192,7 @@ a.try-it {
 
 .contents {
   margin: 0 auto;
-  max-width: 1024px;
+  max-width: 1280px;
   padding: 64px 0;
   position: relative;
   display: flex;
@@ -200,7 +200,11 @@ a.try-it {
 }
 
 img {
-  max-width: 1024px;
+  max-width: 1280px;
+}
+
+.docContents {
+  width: 100%;
 }
 
 .markdown h1 {
@@ -237,7 +241,7 @@ img {
 
 .miniHeaderContents {
   margin: 0 auto;
-  max-width: 1024px;
+  max-width: 1280px;
   padding: 12px 36px;
   position: relative;
   text-align: right;
