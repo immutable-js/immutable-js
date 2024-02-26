@@ -1,84 +1,63 @@
-import {
-  get,
-  has,
-  set,
-  remove,
-  update,
-} from 'immutable';
+import { expect, test } from 'tstyche';
+import { get, has, set, remove, update } from 'immutable';
 
-{
-  // get
+test('get', () => {
+  expect(get([1, 2, 3], 0)).type.toEqual<number | undefined>();
 
-  // $ExpectType number | undefined
-  get([1, 2, 3], 0);
+  expect(get([1, 2, 3], 0, 'a')).type.toEqual<number | 'a'>();
 
-  // $ExpectType number | "a"
-  get([1, 2, 3], 0, 'a');
+  expect(get({ x: 10, y: 20 }, 'x')).type.toEqual<number | undefined>();
 
-  // $ExpectType number | undefined
-  get({ x: 10, y: 20 }, 'x');
+  expect(get({ x: 10, y: 20 }, 'z', 'missing')).type.toEqual<
+    number | 'missing'
+  >();
+});
 
-  // $ExpectType number | "missing"
-  get({ x: 10, y: 20 }, 'z', 'missing');
-}
+test('has', () => {
+  expect(has([1, 2, 3], 0)).type.toBeBoolean();
 
-{
-  // has
+  expect(has({ x: 10, y: 20 }, 'x')).type.toBeBoolean();
+});
 
-  // $ExpectType boolean
-  has([1, 2, 3], 0);
+test('set', () => {
+  expect(set([1, 2, 3], 0, 10)).type.toEqual<number[]>();
 
-  // $ExpectType boolean
-  has({ x: 10, y: 20 }, 'x');
-}
+  expect(set([1, 2, 3], 0, 'a')).type.toRaiseError();
 
-{
-  // set
+  expect(set([1, 2, 3], 'a', 0)).type.toRaiseError();
 
-  // $ExpectType number[]
-  set([1, 2, 3], 0, 10);
+  expect(set({ x: 10, y: 20 }, 'x', 100)).type.toEqual<{
+    x: number;
+    y: number;
+  }>();
 
-  // $ExpectError
-  set([1, 2, 3], 0, 'a');
+  expect(set({ x: 10, y: 20 }, 'x', 'a')).type.toRaiseError();
+});
 
-  // $ExpectError
-  set([1, 2, 3], 'a', 0);
+test('remove', () => {
+  expect(remove([1, 2, 3], 0)).type.toEqual<number[]>();
 
-  // $ExpectType { x: number; y: number; }
-  set({ x: 10, y: 20 }, 'x', 100);
+  expect(remove({ x: 10, y: 20 }, 'x')).type.toEqual<{
+    x: number;
+    y: number;
+  }>();
+});
 
-  // $ExpectError
-  set({ x: 10, y: 20 }, 'x', 'a');
-}
+test('update', () => {
+  expect(update([1, 2, 3], 0, (v: number) => v + 1)).type.toEqual<number[]>();
 
-{
-  // remove
+  expect(update([1, 2, 3], 0, 1)).type.toRaiseError();
 
-  // $ExpectType number[]
-  remove([1, 2, 3], 0);
+  expect(update([1, 2, 3], 0, (v: string) => v + 'a')).type.toRaiseError();
 
-  // $ExpectType { x: number; y: number; }
-  remove({ x: 10, y: 20 }, 'x');
-}
+  expect(update([1, 2, 3], 'a', (v: number) => v + 1)).type.toRaiseError();
 
-{
-  // update
+  expect(update({ x: 10, y: 20 }, 'x', (v: number) => v + 1)).type.toEqual<{
+    x: number;
+    y: number;
+  }>();
 
-  // $ExpectType number[]
-  update([1, 2, 3], 0, (v: number) => v + 1);
-
-  // $ExpectError
-  update([1, 2, 3], 0, 1);
-
-  // $ExpectError
-  update([1, 2, 3], 0, (v: string) => v + 'a');
-
-  // $ExpectError
-  update([1, 2, 3], 'a', (v: number) => v + 1);
-
-  // $ExpectType { x: number; y: number; }
-  update({ x: 10, y: 20 }, 'x', (v: number) => v + 1);
-
-  // $ExpectError
-  update({ x: 10, y: 20 }, 'x', (v: string) => v + 'a');
-}
+  expect(
+    update({ x: 10, y: 20 }, 'x', (v: string) => v + 'a')
+  ).type.toRaiseError();
+});
