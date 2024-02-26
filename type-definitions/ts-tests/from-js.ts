@@ -1,7 +1,7 @@
 import { expect, test } from 'tstyche';
 import { fromJS, Collection, List, Map, MapOf } from 'immutable';
 
-test('fromJs', () => {
+test('fromJS', () => {
   expect(fromJS({}, (a: any, b: any) => b)).type.toEqual<
     Collection<unknown, unknown>
   >();
