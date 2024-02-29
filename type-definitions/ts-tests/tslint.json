@@ -13,7 +13,8 @@
       "list.ts",
       "map.ts",
       "ordered-map.ts",
-      "ordered-set.ts"
+      "ordered-set.ts",
+      "partition.ts"
     ]
   },
   "rules": {
