@@ -12,7 +12,8 @@
       "groupBy.ts",
       "list.ts",
       "map.ts",
-      "ordered-map.ts"
+      "ordered-map.ts",
+      "ordered-set.ts"
     ]
   },
   "rules": {
