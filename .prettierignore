@@ -12,3 +12,5 @@ type-definitions/flow-tests/
 !type-definitions/ts-tests/from-js.ts
 !type-definitions/ts-tests/functional.ts
 !type-definitions/ts-tests/groupBy.ts
+!type-definitions/ts-tests/list.ts
+!type-definitions/ts-tests/map.ts

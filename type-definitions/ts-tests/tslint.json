@@ -9,7 +9,9 @@
       "exports.ts",
       "from-js.ts",
       "functional.ts",
-      "groupBy.ts"
+      "groupBy.ts",
+      "list.ts",
+      "map.ts"
     ]
   },
   "rules": {
