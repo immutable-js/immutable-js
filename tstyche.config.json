@@ -15,6 +15,7 @@
     "**/type-definitions/ts-tests/ordered-set.ts",
     "**/type-definitions/ts-tests/partition.ts",
     "**/type-definitions/ts-tests/range.ts",
-    "**/type-definitions/ts-tests/record.ts"
+    "**/type-definitions/ts-tests/record.ts",
+    "**/type-definitions/ts-tests/repeat.ts"
   ]
 }
