@@ -13,6 +13,7 @@
     "**/type-definitions/ts-tests/map.ts",
     "**/type-definitions/ts-tests/ordered-map.ts",
     "**/type-definitions/ts-tests/ordered-set.ts",
-    "**/type-definitions/ts-tests/partition.ts"
+    "**/type-definitions/ts-tests/partition.ts",
+    "**/type-definitions/ts-tests/range.ts"
   ]
 }
