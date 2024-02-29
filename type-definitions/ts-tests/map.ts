@@ -86,6 +86,10 @@ test('#get', () => {
 });
 
 test('#getIn', () => {
+  const result = Map({ a: 4, b: true }).getIn(['a' as const]);
+
+  expect(result).type.toBeNumber();
+
   expect(Map({ a: 4, b: true }).getIn(['a' as const])).type.toBeNumber();
 
   expect(

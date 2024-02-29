@@ -11,7 +11,8 @@
       "functional.ts",
       "groupBy.ts",
       "list.ts",
-      "map.ts"
+      "map.ts",
+      "ordered-map.ts"
     ]
   },
   "rules": {
