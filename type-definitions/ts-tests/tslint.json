@@ -18,7 +18,8 @@
       "range.ts",
       "record.ts",
       "repeat.ts",
-      "seq.ts"
+      "seq.ts",
+      "set.ts"
     ]
   },
   "rules": {

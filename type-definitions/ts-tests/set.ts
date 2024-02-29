@@ -1,298 +1,262 @@
+import { expect, test } from 'tstyche';
 import { Set, Map, Collection } from 'immutable';
 
-{
-  // #constructor
+test('#constructor', () => {
+  expect(Set()).type.toEqual<Set<unknown>>();
 
-  // $ExpectType Set<unknown>
-  Set();
+  expect(Set<number>()).type.toEqual<Set<number>>();
 
-  const numberSet: Set<number> = Set<number>();
-  const numberOrStringSet: Set<number | string> = Set([1, 'a']);
+  expect(Set([1, 'a'])).type.toEqual<Set<number | string>>();
+});
 
-  // $ExpectError
-  const invalidNumberSet: Set<number> = Set([1, 'a']);
-}
+test('#size', () => {
+  expect(Set().size).type.toBeNumber();
 
-{
-  // #size
+  expect(Set()).type.toMatch<{ readonly size: number }>();
+});
 
-  // $ExpectType number
-  Set().size;
+test('.of', () => {
+  expect(Set.of(1, 2, 3)).type.toEqual<Set<number>>();
 
-  // $ExpectError
-  Set().size = 10;
-}
+  expect(Set.of<number>('a', 1)).type.toRaiseError();
 
-{
-  // .of
+  expect(Set.of<number | string>('a', 1)).type.toEqual<Set<string | number>>();
+});
 
-  // $ExpectType Set<number>
-  Set.of(1, 2, 3);
+test('.fromKeys', () => {
+  expect(Set.fromKeys(Map<number, string>())).type.toEqual<Set<number>>();
 
-  // $ExpectError
-  Set.of<number>('a', 1);
+  expect(Set.fromKeys<number>(Map<number, string>())).type.toEqual<
+    Set<number>
+  >();
 
-  // $ExpectType Set<string | number>
-  Set.of<number | string>('a', 1);
-}
+  expect(Set.fromKeys({ a: 1 })).type.toEqual<Set<string>>();
 
-{
-  // .fromKeys
+  expect(Set.fromKeys<number>(Map<string, string>())).type.toRaiseError();
 
-  // $ExpectType Set<number>
-  Set.fromKeys(Map<number, string>());
-
-  // $ExpectType Set<number>
-  Set.fromKeys<number>(Map<number, string>());
-
-  // $ExpectType Set<string>
-  Set.fromKeys({ a: 1 });
-
-  // $ExpectError
-  Set.fromKeys<number>(Map<string, string>());
-
-  // $ExpectType Set<string | number>
-  Set.fromKeys<number | string>(Map<number | string, string>());
-}
-
-{
-  // #get
-
-  // $ExpectType number | undefined
-  Set<number>().get(4);
-
-  // $ExpectType number | "a"
-  Set<number>().get(4, 'a');
-
-  // $ExpectError
-  Set<number>().get<number>(4, 'a');
-}
-
-{
-  // #delete
-
-  // $ExpectType Set<number>
-  Set<number>().delete(0);
-
-  // $ExpectError
-  Set<number>().delete('a');
-}
-{
-  // #remove
-
-  // $ExpectType Set<number>
-  Set<number>().remove(0);
-
-  // $ExpectError
-  Set<number>().remove('a');
-}
-
-{
-  // #clear
-
-  // $ExpectType Set<number>
-  Set<number>().clear();
-
-  // $ExpectError
-  Set().clear(10);
-}
-
-{
-  // #map
-
-  // $ExpectType Set<number>
-  Set<number>().map((value: number, key: number, iter: Set<number>) => 1);
-
-  // $ExpectType Set<string>
-  Set<number>().map((value: number, key: number, iter: Set<number>) => 'a');
-
-  // $ExpectType Set<number>
-  Set<number>().map<number>(
-    (value: number, key: number, iter: Set<number>) => 1
-  );
-
-  Set<number>().map<string>(
-    // $ExpectError
-    (value: number, key: number, iter: Set<number>) => 1
-  );
-
-  Set<number>().map<number>(
-    // $ExpectError
-    (value: string, key: number, iter: Set<number>) => 1
-  );
-
-  Set<number>().map<number>(
-    // $ExpectError
-    (value: number, key: string, iter: Set<number>) => 1
-  );
-
-  Set<number>().map<number>(
-    // $ExpectError
-    (value: number, key: number, iter: Set<string>) => 1
-  );
-
-  Set<number>().map<number>(
-    // $ExpectError
-    (value: number, key: number, iter: Set<number>) => 'a'
-  );
-}
-
-{
-  // #flatMap
-
-  // $ExpectType Set<number>
-  Set<number>().flatMap((value: number, key: number, iter: Set<number>) => [1]);
-
-  // $ExpectType Set<string>
-  Set<number>().flatMap((value: number, key: number, iter: Set<number>) => [
-    'a',
-  ]);
-
-  // $ExpectType Set<number>
-  Set<number>().flatMap<number>(
-    (value: number, key: number, iter: Set<number>) => [1]
-  );
-
-  Set<number>().flatMap<string>(
-    // $ExpectError
-    (value: number, key: number, iter: Set<number>) => [1]
-  );
-
-  Set<number>().flatMap<number>(
-    // $ExpectError
-    (value: string, key: number, iter: Set<number>) => [1]
-  );
-
-  Set<number>().flatMap<number>(
-    // $ExpectError
-    (value: number, key: string, iter: Set<number>) => [1]
-  );
-
-  Set<number>().flatMap<number>(
-    // $ExpectError
-    (value: number, key: number, iter: Set<string>) => [1]
-  );
-
-  Set<number>().flatMap<number>(
-    // $ExpectError
-    (value: number, key: number, iter: Set<number>) => ['a']
-  );
-}
-
-{
-  // #union
-
-  // $ExpectType Set<number>
-  Set<number>().union(Set<number>());
-
-  // $ExpectType Set<string | number>
-  Set<number>().union(Set<string>());
-
-  // $ExpectType Set<string | number>
-  Set<number | string>().union(Set<string>());
-
-  // $ExpectType Set<string | number>
-  Set<number | string>().union(Set<number>());
-}
-
-{
-  // #merge
-
-  // $ExpectType Set<number>
-  Set<number>().merge(Set<number>());
-
-  // $ExpectType Set<string | number>
-  Set<number>().merge(Set<string>());
-
-  // $ExpectType Set<string | number>
-  Set<number | string>().merge(Set<string>());
-
-  // $ExpectType Set<string | number>
-  Set<number | string>().merge(Set<number>());
-}
-
-{
-  // #intersect
-
-  // $ExpectType Set<number>
-  Set<number>().intersect(Set<number>());
-
-  // $ExpectError
-  Set<number>().intersect(Set<string>());
-
-  // $ExpectType Set<string | number>
-  Set<number | string>().intersect(Set<string>());
-
-  // $ExpectType Set<string | number>
-  Set<number | string>().intersect(Set<number>());
-}
-
-{
-  // #subtract
-
-  // $ExpectType Set<number>
-  Set<number>().subtract(Set<number>());
-
-  // $ExpectError
-  Set<number>().subtract(Set<string>());
-
-  // $ExpectType Set<string | number>
-  Set<number | string>().subtract(Set<string>());
-
-  // $ExpectType Set<string | number>
-  Set<number | string>().subtract(Set<number>());
-}
-
-{
-  // #flatten
-
-  // $ExpectType Collection<unknown, unknown>
-  Set<number>().flatten();
-
-  // $ExpectType Collection<unknown, unknown>
-  Set<number>().flatten(10);
-
-  // $ExpectType Collection<unknown, unknown>
-  Set<number>().flatten(false);
-
-  // $ExpectError
-  Set<number>().flatten('a');
-}
-
-{
-  // #withMutations
-
-  // $ExpectType Set<number>
-  Set<number>().withMutations((mutable) => mutable);
-
-  // $ExpectError
-  Set<number>().withMutations((mutable: Set<string>) => mutable);
-}
-
-{
-  // #asMutable
-
-  // $ExpectType Set<number>
-  Set<number>().asMutable();
-}
-
-{
-  // #asImmutable
-
-  // $ExpectType Set<number>
-  Set<number>().asImmutable();
-}
-
-{
-  // #toJS
-
-  // $ExpectType number[][]
-  Set<Set<number>>().toJS();
-}
-
-{
-  // #toJSON
-
-  // $ExpectType Set<number>[]
-  Set<Set<number>>().toJSON();
-}
+  expect(
+    Set.fromKeys<number | string>(Map<number | string, string>())
+  ).type.toEqual<Set<string | number>>();
+});
+
+test('#get', () => {
+  expect(Set<number>().get(4)).type.toEqual<number | undefined>();
+
+  expect(Set<number>().get(4, 'a')).type.toEqual<number | 'a'>();
+
+  expect(Set<number>().get<number>(4, 'a')).type.toRaiseError();
+});
+
+test('#delete', () => {
+  expect(Set<number>().delete(0)).type.toEqual<Set<number>>();
+
+  expect(Set<number>().delete('a')).type.toRaiseError();
+});
+
+test('#remove', () => {
+  expect(Set<number>().remove(0)).type.toEqual<Set<number>>();
+
+  expect(Set<number>().remove('a')).type.toRaiseError();
+});
+
+test('#clear', () => {
+  expect(Set<number>().clear()).type.toEqual<Set<number>>();
+
+  expect(Set().clear(10)).type.toRaiseError();
+});
+
+test('#map', () => {
+  expect(
+    Set<number>().map((value: number, key: number, iter: Set<number>) => 1)
+  ).type.toEqual<Set<number>>();
+
+  expect(
+    Set<number>().map((value: number, key: number, iter: Set<number>) => 'a')
+  ).type.toEqual<Set<string>>();
+
+  expect(
+    Set<number>().map<number>(
+      (value: number, key: number, iter: Set<number>) => 1
+    )
+  ).type.toEqual<Set<number>>();
+
+  expect(
+    Set<number>().map<string>(
+      (value: number, key: number, iter: Set<number>) => 1
+    )
+  ).type.toRaiseError();
+
+  expect(
+    Set<number>().map<number>(
+      (value: string, key: number, iter: Set<number>) => 1
+    )
+  ).type.toRaiseError();
+
+  expect(
+    Set<number>().map<number>(
+      (value: number, key: string, iter: Set<number>) => 1
+    )
+  ).type.toRaiseError();
+
+  expect(
+    Set<number>().map<number>(
+      (value: number, key: number, iter: Set<string>) => 1
+    )
+  ).type.toRaiseError();
+
+  expect(
+    Set<number>().map<number>(
+      (value: number, key: number, iter: Set<number>) => 'a'
+    )
+  ).type.toRaiseError();
+});
+
+test('#flatMap', () => {
+  expect(
+    Set<number>().flatMap((value: number, key: number, iter: Set<number>) => [
+      1,
+    ])
+  ).type.toEqual<Set<number>>();
+
+  expect(
+    Set<number>().flatMap((value: number, key: number, iter: Set<number>) => [
+      'a',
+    ])
+  ).type.toEqual<Set<string>>();
+
+  expect(
+    Set<number>().flatMap<number>(
+      (value: number, key: number, iter: Set<number>) => [1]
+    )
+  ).type.toEqual<Set<number>>();
+
+  expect(
+    Set<number>().flatMap<string>(
+      (value: number, key: number, iter: Set<number>) => [1]
+    )
+  ).type.toRaiseError();
+
+  expect(
+    Set<number>().flatMap<number>(
+      (value: string, key: number, iter: Set<number>) => [1]
+    )
+  ).type.toRaiseError();
+
+  expect(
+    Set<number>().flatMap<number>(
+      (value: number, key: string, iter: Set<number>) => [1]
+    )
+  ).type.toRaiseError();
+
+  expect(
+    Set<number>().flatMap<number>(
+      (value: number, key: number, iter: Set<string>) => [1]
+    )
+  ).type.toRaiseError();
+
+  expect(
+    Set<number>().flatMap<number>(
+      (value: number, key: number, iter: Set<number>) => ['a']
+    )
+  ).type.toRaiseError();
+});
+
+test('#union', () => {
+  expect(Set<number>().union(Set<number>())).type.toEqual<Set<number>>();
+
+  expect(Set<number>().union(Set<string>())).type.toEqual<
+    Set<string | number>
+  >();
+
+  expect(Set<number | string>().union(Set<string>())).type.toEqual<
+    Set<string | number>
+  >();
+
+  expect(Set<number | string>().union(Set<number>())).type.toEqual<
+    Set<string | number>
+  >();
+});
+
+test('#merge', () => {
+  expect(Set<number>().merge(Set<number>())).type.toEqual<Set<number>>();
+
+  expect(Set<number>().merge(Set<string>())).type.toEqual<
+    Set<string | number>
+  >();
+
+  expect(Set<number | string>().merge(Set<string>())).type.toEqual<
+    Set<string | number>
+  >();
+
+  expect(Set<number | string>().merge(Set<number>())).type.toEqual<
+    Set<string | number>
+  >();
+});
+
+test('#intersect', () => {
+  expect(Set<number>().intersect(Set<number>())).type.toEqual<Set<number>>();
+
+  expect(Set<number>().intersect(Set<string>())).type.toRaiseError();
+
+  expect(Set<number | string>().intersect(Set<string>())).type.toEqual<
+    Set<string | number>
+  >();
+
+  expect(Set<number | string>().intersect(Set<number>())).type.toEqual<
+    Set<string | number>
+  >();
+});
+
+test('#subtract', () => {
+  expect(Set<number>().subtract(Set<number>())).type.toEqual<Set<number>>();
+
+  expect(Set<number>().subtract(Set<string>())).type.toRaiseError();
+
+  expect(Set<number | string>().subtract(Set<string>())).type.toEqual<
+    Set<string | number>
+  >();
+
+  expect(Set<number | string>().subtract(Set<number>())).type.toEqual<
+    Set<string | number>
+  >();
+});
+
+test('#flatten', () => {
+  expect(Set<number>().flatten()).type.toEqual<Collection<unknown, unknown>>();
+
+  expect(Set<number>().flatten(10)).type.toEqual<
+    Collection<unknown, unknown>
+  >();
+
+  expect(Set<number>().flatten(false)).type.toEqual<
+    Collection<unknown, unknown>
+  >();
+
+  expect(Set<number>().flatten('a')).type.toRaiseError();
+});
+
+test('#withMutations', () => {
+  expect(Set<number>().withMutations(mutable => mutable)).type.toEqual<
+    Set<number>
+  >();
+
+  expect(
+    Set<number>().withMutations((mutable: Set<string>) => mutable)
+  ).type.toRaiseError();
+});
+
+test('#asMutable', () => {
+  expect(Set<number>().asMutable()).type.toEqual<Set<number>>();
+});
+
+test('#asImmutable', () => {
+  expect(Set<number>().asImmutable()).type.toEqual<Set<number>>();
+});
+
+test('#toJS', () => {
+  expect(Set<Set<number>>().toJS()).type.toEqual<number[][]>();
+});
+
+test('#toJSON', () => {
+  expect(Set<Set<number>>().toJSON()).type.toEqual<Set<number>[]>();
+});
