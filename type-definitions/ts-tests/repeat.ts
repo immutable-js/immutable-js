@@ -1,14 +1,10 @@
-import { Repeat } from 'immutable';
+import { expect, test } from 'tstyche';
+import { Repeat, Seq } from 'immutable';
 
-{
-  // #constructor
+test('#constructor', () => {
+  expect(Repeat(0, 0)).type.toEqual<Seq.Indexed<number>>();
 
-  // $ExpectType Indexed<number>
-  Repeat(0, 0);
+  expect(Repeat('a', 0)).type.toEqual<Seq.Indexed<string>>();
 
-  // $ExpectType Indexed<string>
-  Repeat('a', 0);
-
-  // $ExpectError
-  Repeat('a', 'b');
-}
+  expect(Repeat('a', 'b')).type.toRaiseError();
+});

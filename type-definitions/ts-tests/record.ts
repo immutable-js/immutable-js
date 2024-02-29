@@ -1,34 +1,28 @@
-import { List, Map, Record, RecordOf, Set } from 'immutable';
+import { expect, test } from 'tstyche';
+import { List, Map, MapOf, Record, RecordOf, Set } from 'immutable';
 
-{
-  // Factory
+test('Factory', () => {
   const PointXY = Record({ x: 0, y: 0 });
 
-  // $ExpectType Factory<{ x: number; y: number; }>
-  PointXY;
+  expect(PointXY).type.toEqual<Record.Factory<{ x: number; y: number }>>();
 
-  // $ExpectError
-  PointXY({ x: 'a' });
+  expect(PointXY({ x: 'a' })).type.toRaiseError();
 
   const pointXY = PointXY();
 
-  // $ExpectType Record<{ x: number; y: number; }> & Readonly<{ x: number; y: number; }>
-  pointXY;
+  expect(pointXY).type.toEqual<
+    Record<{ x: number; y: number }> & Readonly<{ x: number; y: number }>
+  >();
 
-  // $ExpectType number
-  pointXY.x;
+  expect(pointXY.x).type.toBeNumber();
 
-  // $ExpectError
-  pointXY.x = 10;
+  expect(pointXY).type.toMatch<{ readonly x: number }>();
 
-  // $ExpectType number
-  pointXY.y;
+  expect(pointXY.y).type.toBeNumber();
 
-  // $ExpectError
-  pointXY.y = 10;
+  expect(pointXY).type.toMatch<{ readonly y: number }>();
 
-  // $ExpectType { x: number; y: number; }
-  pointXY.toJS();
+  expect(pointXY.toJS()).type.toEqual<{ x: number; y: number }>();
 
   class PointClass extends PointXY {
     setX(x: number) {
@@ -42,41 +36,30 @@ import { List, Map, Record, RecordOf, Set } from 'immutable';
 
   const point = new PointClass();
 
-  // $ExpectType PointClass
-  point;
+  expect(point).type.toEqual<PointClass>();
 
-  // $ExpectType number
-  point.x;
+  expect(point.x).type.toBeNumber();
 
-  // $ExpectType number
-  point.y;
+  expect(point.y).type.toBeNumber();
 
-  // $ExpectType PointClass
-  point.setX(10);
+  expect(point.setX(10)).type.toEqual<PointClass>();
 
-  // $ExpectType PointClass
-  point.setY(10);
+  expect(point.setY(10)).type.toEqual<PointClass>();
 
-  // $ExpectType { x: number; y: number; }
-  point.toJSON();
+  expect(point.toJSON()).type.toEqual<{ x: number; y: number }>();
 
-  // $ExpectType { x: number; y: number; }
-  point.toJS();
-}
+  expect(point.toJS()).type.toEqual<{ x: number; y: number }>();
+});
 
-{
-  // .getDescriptiveName
+test('.getDescriptiveName', () => {
   const PointXY = Record({ x: 0, y: 0 });
 
-  // $ExpectType string
-  Record.getDescriptiveName(PointXY());
+  expect(Record.getDescriptiveName(PointXY())).type.toBeString();
 
-  // $ExpectError
-  Record.getDescriptiveName({});
-}
+  expect(Record.getDescriptiveName({})).type.toRaiseError();
+});
 
-{
-  // Factory
+test('Factory', () => {
   const WithMap = Record({
     map: Map({ a: 'A' }),
     list: List(['a']),
@@ -85,36 +68,45 @@ import { List, Map, Record, RecordOf, Set } from 'immutable';
 
   const withMap = WithMap();
 
-  // $ExpectType { map: MapOf<{ a: string; }>; list: List<string>; set: Set<string>; }
-  withMap.toJSON();
+  expect(withMap.toJSON()).type.toEqual<{
+    map: MapOf<{ a: string }>;
+    list: List<string>;
+    set: Set<string>;
+  }>();
 
   // should be `{ map: { a: string; }; list: string[]; set: string[]; }` but there is an issue with circular references
-  // $ExpectType { map: unknown; list: unknown; set: unknown; }
-  withMap.toJS();
-}
+  expect(withMap.toJS()).type.toEqual<{
+    map: unknown;
+    list: unknown;
+    set: unknown;
+  }>();
+});
 
-{
-  // optional properties
+test('optional properties', () => {
+  interface Size {
+    distance: string;
+  }
 
-  interface Size { distance: string; }
-
-  const Line = Record<{ size?: Size, color?: string }>({ size: undefined, color: 'red' });
+  const Line = Record<{ size?: Size; color?: string }>({
+    size: undefined,
+    color: 'red',
+  });
 
   const line = Line({});
 
   // should be  { size?: { distance: string; } | undefined; color?: string | undefined; } but there is an issue with circular references
-  // $ExpectType { size?: unknown; color?: string | undefined; }
-  line.toJS();
-}
+  expect(line.toJS()).type.toEqual<{
+    size?: unknown;
+    color?: string | undefined;
+  }>();
+});
 
-{
-  // similar properties, but one is optional. See https://github.com/immutable-js/immutable-js/issues/1930
+test('similar properties, but one is optional', () => {
+  // see https://github.com/immutable-js/immutable-js/issues/1930
 
-  interface Id { value: string; }
+  interface Id {
+    value: string;
+  }
 
-  type A = RecordOf<{ id: Id }>;
-  type B = RecordOf<{ id?: Id }>;
-
-  const a: A = null as any;
-  const b: B = a;
-}
+  expect<RecordOf<{ id?: Id }>>().type.toBeAssignable<RecordOf<{ id: Id }>>();
+});

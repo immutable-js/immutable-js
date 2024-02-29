@@ -855,7 +855,9 @@ declare namespace Immutable {
     get<K extends keyof R>(key: K, notSetValue?: unknown): R[K];
     get<NSV>(key: any, notSetValue: NSV): NSV;
 
-    // https://github.com/microsoft/TypeScript/pull/39094
+    // TODO `<const P extends ...>` can be used after dropping support for TypeScript 4.x
+    // reference: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html#const-type-parameters
+    // after this change, `as const` assertions can be remove from the type tests
     getIn<P extends ReadonlyArray<string | number | symbol>>(
       searchKeyPath: [...P],
       notSetValue?: unknown
