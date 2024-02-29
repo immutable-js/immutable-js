@@ -17,7 +17,8 @@
       "partition.ts",
       "range.ts",
       "record.ts",
-      "repeat.ts"
+      "repeat.ts",
+      "seq.ts"
     ]
   },
   "rules": {

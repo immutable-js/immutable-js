@@ -1,18 +1,12 @@
+import { expect, test } from 'tstyche';
 import { Seq } from 'immutable';
 
-{
-  // #constructor
+test('#constructor', () => {
+  expect(Seq([1, 2, 3])).type.toEqual<Seq.Indexed<number>>();
+});
 
-  // $ExpectType Indexed<number>
-  Seq([1, 2, 3]);
-}
+test('#size', () => {
+  expect(Seq().size).type.toEqual<number | undefined>();
 
-{
-  // #size
-
-  // $ExpectType number | undefined
-  Seq().size;
-
-  // $ExpectError
-  Seq().size = 10;
-}
+  expect(Seq()).type.toMatch<{ readonly size: number | undefined }>();
+});
