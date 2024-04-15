@@ -2,11 +2,13 @@ import { expect, test } from 'tstyche';
 import { Collection, OrderedSet, Map } from 'immutable';
 
 test('#constructor', () => {
-  expect(OrderedSet()).type.toEqual<OrderedSet<unknown>>();
+  expect(OrderedSet()).type.toBe<OrderedSet<unknown>>();
 
-  expect(OrderedSet<number>()).type.toEqual<OrderedSet<number>>();
+  expect(OrderedSet<number>()).type.toBe<OrderedSet<number>>();
 
-  expect(OrderedSet([1, 'a'])).type.toEqual<OrderedSet<number | string>>();
+  expect(OrderedSet([1, 'a'])).type.toBe<OrderedSet<number | string>>();
+
+  expect(OrderedSet([1, 'a'])).type.not.toBeAssignableTo(OrderedSet<number>());
 });
 
 test('#size', () => {
@@ -16,25 +18,25 @@ test('#size', () => {
 });
 
 test('.of', () => {
-  expect(OrderedSet.of(1, 2, 3)).type.toEqual<OrderedSet<number>>();
+  expect(OrderedSet.of(1, 2, 3)).type.toBe<OrderedSet<number>>();
 
   expect(OrderedSet.of<number>('a', 1)).type.toRaiseError();
 
-  expect(OrderedSet.of<number | string>('a', 1)).type.toEqual<
+  expect(OrderedSet.of<number | string>('a', 1)).type.toBe<
     OrderedSet<string | number>
   >();
 });
 
 test('.fromKeys', () => {
-  expect(OrderedSet.fromKeys(Map<number, string>())).type.toEqual<
+  expect(OrderedSet.fromKeys(Map<number, string>())).type.toBe<
     OrderedSet<number>
   >();
 
-  expect(OrderedSet.fromKeys<number>(Map<number, string>())).type.toEqual<
+  expect(OrderedSet.fromKeys<number>(Map<number, string>())).type.toBe<
     OrderedSet<number>
   >();
 
-  expect(OrderedSet.fromKeys({ a: 1 })).type.toEqual<OrderedSet<string>>();
+  expect(OrderedSet.fromKeys({ a: 1 })).type.toBe<OrderedSet<string>>();
 
   expect(
     OrderedSet.fromKeys<number>(Map<string, string>())
@@ -42,31 +44,31 @@ test('.fromKeys', () => {
 
   expect(
     OrderedSet.fromKeys<number | string>(Map<number | string, string>())
-  ).type.toEqual<OrderedSet<string | number>>();
+  ).type.toBe<OrderedSet<string | number>>();
 });
 
 test('#get', () => {
-  expect(OrderedSet<number>().get(4)).type.toEqual<number | undefined>();
+  expect(OrderedSet<number>().get(4)).type.toBe<number | undefined>();
 
-  expect(OrderedSet<number>().get(4, 'a')).type.toEqual<number | 'a'>();
+  expect(OrderedSet<number>().get(4, 'a')).type.toBe<number | 'a'>();
 
   expect(OrderedSet<number>().get<number>(4, 'a')).type.toRaiseError();
 });
 
 test('#delete', () => {
-  expect(OrderedSet<number>().delete(0)).type.toEqual<OrderedSet<number>>();
+  expect(OrderedSet<number>().delete(0)).type.toBe<OrderedSet<number>>();
 
   expect(OrderedSet<number>().delete('a')).type.toRaiseError();
 });
 
 test('#remove', () => {
-  expect(OrderedSet<number>().remove(0)).type.toEqual<OrderedSet<number>>();
+  expect(OrderedSet<number>().remove(0)).type.toBe<OrderedSet<number>>();
 
   expect(OrderedSet<number>().remove('a')).type.toRaiseError();
 });
 
 test('#clear', () => {
-  expect(OrderedSet<number>().clear()).type.toEqual<OrderedSet<number>>();
+  expect(OrderedSet<number>().clear()).type.toBe<OrderedSet<number>>();
 
   expect(OrderedSet().clear(10)).type.toRaiseError();
 });
@@ -76,19 +78,19 @@ test('#map', () => {
     OrderedSet<number>().map(
       (value: number, key: number, iter: OrderedSet<number>) => 1
     )
-  ).type.toEqual<OrderedSet<number>>();
+  ).type.toBe<OrderedSet<number>>();
 
   expect(
     OrderedSet<number>().map(
       (value: number, key: number, iter: OrderedSet<number>) => 'a'
     )
-  ).type.toEqual<OrderedSet<string>>();
+  ).type.toBe<OrderedSet<string>>();
 
   expect(
     OrderedSet<number>().map<number>(
       (value: number, key: number, iter: OrderedSet<number>) => 1
     )
-  ).type.toEqual<OrderedSet<number>>();
+  ).type.toBe<OrderedSet<number>>();
 
   expect(
     OrderedSet<number>().map<string>(
@@ -126,19 +128,19 @@ test('#flatMap', () => {
     OrderedSet<number>().flatMap(
       (value: number, key: number, iter: OrderedSet<number>) => [1]
     )
-  ).type.toEqual<OrderedSet<number>>();
+  ).type.toBe<OrderedSet<number>>();
 
   expect(
     OrderedSet<number>().flatMap(
       (value: number, key: number, iter: OrderedSet<number>) => ['a']
     )
-  ).type.toEqual<OrderedSet<string>>();
+  ).type.toBe<OrderedSet<string>>();
 
   expect(
     OrderedSet<number>().flatMap<number>(
       (value: number, key: number, iter: OrderedSet<number>) => [1]
     )
-  ).type.toEqual<OrderedSet<number>>();
+  ).type.toBe<OrderedSet<number>>();
 
   expect(
     OrderedSet<number>().flatMap<string>(
@@ -172,43 +174,43 @@ test('#flatMap', () => {
 });
 
 test('#union', () => {
-  expect(OrderedSet<number>().union(OrderedSet<number>())).type.toEqual<
+  expect(OrderedSet<number>().union(OrderedSet<number>())).type.toBe<
     OrderedSet<number>
   >();
 
-  expect(OrderedSet<number>().union(OrderedSet<string>())).type.toEqual<
+  expect(OrderedSet<number>().union(OrderedSet<string>())).type.toBe<
     OrderedSet<string | number>
   >();
 
-  expect(
-    OrderedSet<number | string>().union(OrderedSet<string>())
-  ).type.toEqual<OrderedSet<string | number>>();
+  expect(OrderedSet<number | string>().union(OrderedSet<string>())).type.toBe<
+    OrderedSet<string | number>
+  >();
 
-  expect(
-    OrderedSet<number | string>().union(OrderedSet<number>())
-  ).type.toEqual<OrderedSet<string | number>>();
+  expect(OrderedSet<number | string>().union(OrderedSet<number>())).type.toBe<
+    OrderedSet<string | number>
+  >();
 });
 
 test('#merge', () => {
-  expect(OrderedSet<number>().merge(OrderedSet<number>())).type.toEqual<
+  expect(OrderedSet<number>().merge(OrderedSet<number>())).type.toBe<
     OrderedSet<number>
   >();
 
-  expect(OrderedSet<number>().merge(OrderedSet<string>())).type.toEqual<
+  expect(OrderedSet<number>().merge(OrderedSet<string>())).type.toBe<
     OrderedSet<string | number>
   >();
 
-  expect(
-    OrderedSet<number | string>().merge(OrderedSet<string>())
-  ).type.toEqual<OrderedSet<string | number>>();
+  expect(OrderedSet<number | string>().merge(OrderedSet<string>())).type.toBe<
+    OrderedSet<string | number>
+  >();
 
-  expect(
-    OrderedSet<number | string>().merge(OrderedSet<number>())
-  ).type.toEqual<OrderedSet<string | number>>();
+  expect(OrderedSet<number | string>().merge(OrderedSet<number>())).type.toBe<
+    OrderedSet<string | number>
+  >();
 });
 
 test('#intersect', () => {
-  expect(OrderedSet<number>().intersect(OrderedSet<number>())).type.toEqual<
+  expect(OrderedSet<number>().intersect(OrderedSet<number>())).type.toBe<
     OrderedSet<number>
   >();
 
@@ -218,15 +220,15 @@ test('#intersect', () => {
 
   expect(
     OrderedSet<number | string>().intersect(OrderedSet<string>())
-  ).type.toEqual<OrderedSet<string | number>>();
+  ).type.toBe<OrderedSet<string | number>>();
 
   expect(
     OrderedSet<number | string>().intersect(OrderedSet<number>())
-  ).type.toEqual<OrderedSet<string | number>>();
+  ).type.toBe<OrderedSet<string | number>>();
 });
 
 test('#subtract', () => {
-  expect(OrderedSet<number>().subtract(OrderedSet<number>())).type.toEqual<
+  expect(OrderedSet<number>().subtract(OrderedSet<number>())).type.toBe<
     OrderedSet<number>
   >();
 
@@ -236,23 +238,23 @@ test('#subtract', () => {
 
   expect(
     OrderedSet<number | string>().subtract(OrderedSet<string>())
-  ).type.toEqual<OrderedSet<string | number>>();
+  ).type.toBe<OrderedSet<string | number>>();
 
   expect(
     OrderedSet<number | string>().subtract(OrderedSet<number>())
-  ).type.toEqual<OrderedSet<string | number>>();
+  ).type.toBe<OrderedSet<string | number>>();
 });
 
 test('#flatten', () => {
-  expect(OrderedSet<number>().flatten()).type.toEqual<
+  expect(OrderedSet<number>().flatten()).type.toBe<
     Collection<unknown, unknown>
   >();
 
-  expect(OrderedSet<number>().flatten(10)).type.toEqual<
+  expect(OrderedSet<number>().flatten(10)).type.toBe<
     Collection<unknown, unknown>
   >();
 
-  expect(OrderedSet<number>().flatten(false)).type.toEqual<
+  expect(OrderedSet<number>().flatten(false)).type.toBe<
     Collection<unknown, unknown>
   >();
 
@@ -260,7 +262,7 @@ test('#flatten', () => {
 });
 
 test('#withMutations', () => {
-  expect(OrderedSet<number>().withMutations(mutable => mutable)).type.toEqual<
+  expect(OrderedSet<number>().withMutations(mutable => mutable)).type.toBe<
     OrderedSet<number>
   >();
 
@@ -270,9 +272,9 @@ test('#withMutations', () => {
 });
 
 test('#asMutable', () => {
-  expect(OrderedSet<number>().asMutable()).type.toEqual<OrderedSet<number>>();
+  expect(OrderedSet<number>().asMutable()).type.toBe<OrderedSet<number>>();
 });
 
 test('#asImmutable', () => {
-  expect(OrderedSet<number>().asImmutable()).type.toEqual<OrderedSet<number>>();
+  expect(OrderedSet<number>().asImmutable()).type.toBe<OrderedSet<number>>();
 });

@@ -127,7 +127,7 @@
     "rollup": "3.28.1",
     "size-limit": "^8.2.6",
     "transducers-js": "0.4.174",
-    "tstyche": "^1.0.0",
+    "tstyche": "^2.0.0-beta.0",
     "typescript": "5.1"
   },
   "size-limit": [

@@ -12,11 +12,11 @@ import {
 } from 'immutable';
 
 test('#constructor', () => {
-  expect(List()).type.toEqual<List<unknown>>();
+  expect(List()).type.toBe<List<unknown>>();
 
-  expect<List<number>>().type.toBeAssignable(List<number>());
+  expect<List<number>>().type.toBeAssignableWith(List<number>());
 
-  expect<List<number | string>>().type.toBeAssignable(List([1, 'a']));
+  expect<List<number | string>>().type.toBeAssignableWith(List([1, 'a']));
   expect<List<number>>().type.not.toBeAssignable(List([1, 'a']));
 });
 
@@ -27,49 +27,45 @@ test('#size', () => {
 });
 
 test('#setSize', () => {
-  expect(List<number>().setSize(10)).type.toEqual<List<number>>();
+  expect(List<number>().setSize(10)).type.toBe<List<number>>();
 
   expect(List<number>().setSize('foo')).type.toRaiseError();
 });
 
 test('.of', () => {
-  expect(List.of(1, 2, 3)).type.toEqual<List<number>>();
+  expect(List.of(1, 2, 3)).type.toBe<List<number>>();
 
   expect(List.of<number>('a', 1)).type.toRaiseError();
 
-  expect(List.of<number | string>('a', 1)).type.toEqual<
-    List<string | number>
-  >();
+  expect(List.of<number | string>('a', 1)).type.toBe<List<string | number>>();
 });
 
 test('#get', () => {
-  expect(List<number>().get(4)).type.toEqual<number | undefined>();
+  expect(List<number>().get(4)).type.toBe<number | undefined>();
 
-  expect(List<number>().get(4, 'a')).type.toEqual<number | 'a'>();
+  expect(List<number>().get(4, 'a')).type.toBe<number | 'a'>();
 
   expect(List<number>().get<number>(4, 'a')).type.toRaiseError();
 
-  expect(get(List<number>(), 4)).type.toEqual<number | undefined>();
+  expect(get(List<number>(), 4)).type.toBe<number | undefined>();
 
-  expect(get(List<number>(), 4, 'a')).type.toEqual<number | 'a'>();
+  expect(get(List<number>(), 4, 'a')).type.toBe<number | 'a'>();
 });
 
 test('#set', () => {
-  expect(List<number>().set(0, 0)).type.toEqual<List<number>>();
+  expect(List<number>().set(0, 0)).type.toBe<List<number>>();
 
   expect(List<number>().set(1, 'a')).type.toRaiseError();
 
   expect(List<number>().set('a', 1)).type.toRaiseError();
 
-  expect(List<number | string>().set(0, 1)).type.toEqual<
+  expect(List<number | string>().set(0, 1)).type.toBe<List<string | number>>();
+
+  expect(List<number | string>().set(0, 'a')).type.toBe<
     List<string | number>
   >();
 
-  expect(List<number | string>().set(0, 'a')).type.toEqual<
-    List<string | number>
-  >();
-
-  expect(set(List<number>(), 0, 0)).type.toEqual<List<number>>();
+  expect(set(List<number>(), 0, 0)).type.toBe<List<number>>();
 
   expect(set(List<number>(), 1, 'a')).type.toRaiseError();
 
@@ -77,97 +73,95 @@ test('#set', () => {
 });
 
 test('#setIn', () => {
-  expect(List<number>().setIn([], 0)).type.toEqual<List<number>>();
+  expect(List<number>().setIn([], 0)).type.toBe<List<number>>();
 
-  expect(setIn(List<number>(), [], 0)).type.toEqual<List<number>>();
+  expect(setIn(List<number>(), [], 0)).type.toBe<List<number>>();
 });
 
 test('#insert', () => {
-  expect(List<number>().insert(0, 0)).type.toEqual<List<number>>();
+  expect(List<number>().insert(0, 0)).type.toBe<List<number>>();
 
   expect(List<number>().insert(1, 'a')).type.toRaiseError();
 
   expect(List<number>().insert('a', 1)).type.toRaiseError();
 
-  expect(List<number | string>().insert(0, 1)).type.toEqual<
+  expect(List<number | string>().insert(0, 1)).type.toBe<
     List<string | number>
   >();
 
-  expect(List<number | string>().insert(0, 'a')).type.toEqual<
+  expect(List<number | string>().insert(0, 'a')).type.toBe<
     List<string | number>
   >();
 });
 
 test('#push', () => {
-  expect(List<number>().push(0, 0)).type.toEqual<List<number>>();
+  expect(List<number>().push(0, 0)).type.toBe<List<number>>();
 
   expect(List<number>().push(1, 'a')).type.toRaiseError();
 
   expect(List<number>().push('a', 1)).type.toRaiseError();
 
-  expect(List<number | string>().push(0, 1)).type.toEqual<
-    List<string | number>
-  >();
+  expect(List<number | string>().push(0, 1)).type.toBe<List<string | number>>();
 
-  expect(List<number | string>().push(0, 'a')).type.toEqual<
+  expect(List<number | string>().push(0, 'a')).type.toBe<
     List<string | number>
   >();
 });
 
 test('#unshift', () => {
-  expect(List<number>().unshift(0, 0)).type.toEqual<List<number>>();
+  expect(List<number>().unshift(0, 0)).type.toBe<List<number>>();
 
   expect(List<number>().unshift(1, 'a')).type.toRaiseError();
 
   expect(List<number>().unshift('a', 1)).type.toRaiseError();
 
-  expect(List<number | string>().unshift(0, 1)).type.toEqual<
+  expect(List<number | string>().unshift(0, 1)).type.toBe<
     List<string | number>
   >();
 
-  expect(List<number | string>().unshift(0, 'a')).type.toEqual<
+  expect(List<number | string>().unshift(0, 'a')).type.toBe<
     List<string | number>
   >();
 });
 
 test('#delete', () => {
-  expect(List<number>().delete(0)).type.toEqual<List<number>>();
+  expect(List<number>().delete(0)).type.toBe<List<number>>();
 
   expect(List().delete('a')).type.toRaiseError();
 });
 
 test('#deleteIn', () => {
-  expect(List<number>().deleteIn([])).type.toEqual<List<number>>();
+  expect(List<number>().deleteIn([])).type.toBe<List<number>>();
 });
 
 test('#remove', () => {
-  expect(List<number>().remove(0)).type.toEqual<List<number>>();
+  expect(List<number>().remove(0)).type.toBe<List<number>>();
 
   expect(List().remove('a')).type.toRaiseError();
 
-  expect(remove(List<number>(), 0)).type.toEqual<List<number>>();
+  expect(remove(List<number>(), 0)).type.toBe<List<number>>();
 });
 
 test('#removeIn', () => {
-  expect(List<number>().removeIn([])).type.toEqual<List<number>>();
+  expect(List<number>().removeIn([])).type.toBe<List<number>>();
 
-  expect(removeIn(List<number>(), [])).type.toEqual<List<number>>();
+  expect(removeIn(List<number>(), [])).type.toBe<List<number>>();
 });
 
 test('#clear', () => {
-  expect(List<number>().clear()).type.toEqual<List<number>>();
+  expect(List<number>().clear()).type.toBe<List<number>>();
 
   expect(List().clear(10)).type.toRaiseError();
 });
 
 test('#pop', () => {
-  expect(List<number>().pop()).type.toEqual<List<number>>();
+  expect(List<number>().pop()).type.toBe<List<number>>();
 
   expect(List().pop(10)).type.toRaiseError();
 });
 
 test('#shift', () => {
-  expect(List<number>().shift()).type.toEqual<List<number>>();
+  expect(List<number>().shift()).type.toBe<List<number>>();
 
   expect(List().shift(10)).type.toRaiseError();
 });
@@ -179,7 +173,7 @@ test('#update', () => {
     List<number>().update((v: List<string> | undefined) => v)
   ).type.toRaiseError();
 
-  expect(List<number>().update(0, (v: number | undefined) => 0)).type.toEqual<
+  expect(List<number>().update(0, (v: number | undefined) => 0)).type.toBe<
     List<number>
   >();
 
@@ -187,9 +181,9 @@ test('#update', () => {
     List<number>().update(0, (v: number | undefined) => v + 'a')
   ).type.toRaiseError();
 
-  expect(
-    List<number>().update(1, 10, (v: number | undefined) => 0)
-  ).type.toEqual<List<number>>();
+  expect(List<number>().update(1, 10, (v: number | undefined) => 0)).type.toBe<
+    List<number>
+  >();
 
   expect(
     List<number>().update(1, 'a', (v: number | undefined) => 0)
@@ -199,11 +193,11 @@ test('#update', () => {
     List<number>().update(1, 10, (v: number | undefined) => v + 'a')
   ).type.toRaiseError();
 
-  expect(List<string>().update(1, v => v?.toUpperCase())).type.toEqual<
+  expect(List<string>().update(1, v => v?.toUpperCase())).type.toBe<
     List<string>
   >();
 
-  expect(update(List<number>(), 0, (v: number | undefined) => 0)).type.toEqual<
+  expect(update(List<number>(), 0, (v: number | undefined) => 0)).type.toBe<
     List<number>
   >();
 
@@ -213,27 +207,27 @@ test('#update', () => {
 });
 
 test('#updateIn', () => {
-  expect(List<number>().updateIn([], v => v)).type.toEqual<List<number>>();
+  expect(List<number>().updateIn([], v => v)).type.toBe<List<number>>();
 
   expect(List<number>().updateIn([], 10)).type.toRaiseError();
 
-  expect(updateIn(List<number>(), [], v => v)).type.toEqual<List<number>>();
+  expect(updateIn(List<number>(), [], v => v)).type.toBe<List<number>>();
 });
 
 test('#map', () => {
   expect(
     List<number>().map((value: number, key: number, iter: List<number>) => 1)
-  ).type.toEqual<List<number>>();
+  ).type.toBe<List<number>>();
 
   expect(
     List<number>().map((value: number, key: number, iter: List<number>) => 'a')
-  ).type.toEqual<List<string>>();
+  ).type.toBe<List<string>>();
 
   expect(
     List<number>().map<number>(
       (value: number, key: number, iter: List<number>) => 1
     )
-  ).type.toEqual<List<number>>();
+  ).type.toBe<List<number>>();
 
   expect(
     List<number>().map<string>(
@@ -271,23 +265,21 @@ test('#flatMap', () => {
     List<number>().flatMap((value: number, key: number, iter: List<number>) => [
       1,
     ])
-  ).type.toEqual<List<number>>();
+  ).type.toBe<List<number>>();
 
   expect(
     List<number>().flatMap((value: number, key: number, iter: List<number>) => [
       'a',
     ])
-  ).type.toEqual<List<string>>();
+  ).type.toBe<List<string>>();
 
-  expect(List<List<string>>().flatMap(list => list)).type.toEqual<
-    List<string>
-  >();
+  expect(List<List<string>>().flatMap(list => list)).type.toBe<List<string>>();
 
   expect(
     List<number>().flatMap<number>(
       (value: number, key: number, iter: List<number>) => [1]
     )
-  ).type.toEqual<List<number>>();
+  ).type.toBe<List<number>>();
 
   expect(
     List<number>().flatMap<string>(
@@ -321,41 +313,41 @@ test('#flatMap', () => {
 });
 
 test('#merge', () => {
-  expect(List<number>().merge(List<number>())).type.toEqual<List<number>>();
+  expect(List<number>().merge(List<number>())).type.toBe<List<number>>();
 
-  expect(List<number>().merge(List<string>())).type.toEqual<
+  expect(List<number>().merge(List<string>())).type.toBe<
     List<string | number>
   >();
 
-  expect(List<number | string>().merge(List<string>())).type.toEqual<
+  expect(List<number | string>().merge(List<string>())).type.toBe<
     List<string | number>
   >();
 
-  expect(List<number | string>().merge(List<number>())).type.toEqual<
+  expect(List<number | string>().merge(List<number>())).type.toBe<
     List<string | number>
   >();
 
-  expect(merge(List<number>(), List<number>())).type.toEqual<List<number>>();
+  expect(merge(List<number>(), List<number>())).type.toBe<List<number>>();
 });
 
 test('#mergeIn', () => {
-  expect(List<number>().mergeIn([], [])).type.toEqual<List<number>>();
+  expect(List<number>().mergeIn([], [])).type.toBe<List<number>>();
 });
 
 test('#mergeDeepIn', () => {
-  expect(List<number>().mergeDeepIn([], [])).type.toEqual<List<number>>();
+  expect(List<number>().mergeDeepIn([], [])).type.toBe<List<number>>();
 });
 
 test('#flatten', () => {
-  expect(List<number>().flatten()).type.toEqual<
+  expect(List<number>().flatten()).type.toBe<
     Immutable.Collection<unknown, unknown>
   >();
 
-  expect(List<number>().flatten(10)).type.toEqual<
+  expect(List<number>().flatten(10)).type.toBe<
     Immutable.Collection<unknown, unknown>
   >();
 
-  expect(List<number>().flatten(false)).type.toEqual<
+  expect(List<number>().flatten(false)).type.toBe<
     Immutable.Collection<unknown, unknown>
   >();
 
@@ -363,7 +355,7 @@ test('#flatten', () => {
 });
 
 test('#withMutations', () => {
-  expect(List<number>().withMutations(mutable => mutable)).type.toEqual<
+  expect(List<number>().withMutations(mutable => mutable)).type.toBe<
     List<number>
   >();
 
@@ -373,19 +365,19 @@ test('#withMutations', () => {
 });
 
 test('#asMutable', () => {
-  expect(List<number>().asMutable()).type.toEqual<List<number>>();
+  expect(List<number>().asMutable()).type.toBe<List<number>>();
 });
 
 test('#asImmutable', () => {
-  expect(List<number>().asImmutable()).type.toEqual<List<number>>();
+  expect(List<number>().asImmutable()).type.toBe<List<number>>();
 });
 
 test('#toJS', () => {
-  expect(List<List<number>>().toJSON()).type.toEqual<List<number>[]>();
+  expect(List<List<number>>().toJS()).type.toBe<number[][]>();
 });
 
 test('#toJSON', () => {
-  expect(List<List<number>>().toJSON()).type.toEqual<List<number>[]>();
+  expect(List<List<number>>().toJSON()).type.toBe<List<number>[]>();
 });
 
 test('for of loops', () => {

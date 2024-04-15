@@ -4,13 +4,13 @@ import { List, Map, MapOf, Record, RecordOf, Set } from 'immutable';
 test('Factory', () => {
   const PointXY = Record({ x: 0, y: 0 });
 
-  expect(PointXY).type.toEqual<Record.Factory<{ x: number; y: number }>>();
+  expect(PointXY).type.toBe<Record.Factory<{ x: number; y: number }>>();
 
   expect(PointXY({ x: 'a' })).type.toRaiseError();
 
   const pointXY = PointXY();
 
-  expect(pointXY).type.toEqual<
+  expect(pointXY).type.toBe<
     Record<{ x: number; y: number }> & Readonly<{ x: number; y: number }>
   >();
 
@@ -22,7 +22,7 @@ test('Factory', () => {
 
   expect(pointXY).type.toMatch<{ readonly y: number }>();
 
-  expect(pointXY.toJS()).type.toEqual<{ x: number; y: number }>();
+  expect(pointXY.toJS()).type.toBe<{ x: number; y: number }>();
 
   class PointClass extends PointXY {
     setX(x: number) {
@@ -36,19 +36,19 @@ test('Factory', () => {
 
   const point = new PointClass();
 
-  expect(point).type.toEqual<PointClass>();
+  expect(point).type.toBe<PointClass>();
 
   expect(point.x).type.toBeNumber();
 
   expect(point.y).type.toBeNumber();
 
-  expect(point.setX(10)).type.toEqual<PointClass>();
+  expect(point.setX(10)).type.toBe<PointClass>();
 
-  expect(point.setY(10)).type.toEqual<PointClass>();
+  expect(point.setY(10)).type.toBe<PointClass>();
 
-  expect(point.toJSON()).type.toEqual<{ x: number; y: number }>();
+  expect(point.toJSON()).type.toBe<{ x: number; y: number }>();
 
-  expect(point.toJS()).type.toEqual<{ x: number; y: number }>();
+  expect(point.toJS()).type.toBe<{ x: number; y: number }>();
 });
 
 test('.getDescriptiveName', () => {
@@ -68,14 +68,14 @@ test('Factory', () => {
 
   const withMap = WithMap();
 
-  expect(withMap.toJSON()).type.toEqual<{
+  expect(withMap.toJSON()).type.toBe<{
     map: MapOf<{ a: string }>;
     list: List<string>;
     set: Set<string>;
   }>();
 
   // should be `{ map: { a: string; }; list: string[]; set: string[]; }` but there is an issue with circular references
-  expect(withMap.toJS()).type.toEqual<{
+  expect(withMap.toJS()).type.toBe<{
     map: unknown;
     list: unknown;
     set: unknown;
@@ -95,7 +95,7 @@ test('optional properties', () => {
   const line = Line({});
 
   // should be  { size?: { distance: string; } | undefined; color?: string | undefined; } but there is an issue with circular references
-  expect(line.toJS()).type.toEqual<{
+  expect(line.toJS()).type.toBe<{
     size?: unknown;
     color?: string | undefined;
   }>();
@@ -108,5 +108,7 @@ test('similar properties, but one is optional', () => {
     value: string;
   }
 
-  expect<RecordOf<{ id?: Id }>>().type.toBeAssignable<RecordOf<{ id: Id }>>();
+  expect<RecordOf<{ id?: Id }>>().type.toBeAssignableWith<
+    RecordOf<{ id: Id }>
+  >();
 });

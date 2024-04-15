@@ -8,55 +8,55 @@ describe('DeepCopy', () => {
         a: number;
         b: number;
       }>
-    >().type.toEqual<{
+    >().type.toBe<{
       a: number;
       b: number;
     }>();
   });
 
   test('iterables', () => {
-    expect<DeepCopy<string[]>>().type.toEqual<string[]>();
+    expect<DeepCopy<string[]>>().type.toBe<string[]>();
 
-    expect<DeepCopy<Collection.Indexed<number>>>().type.toEqual<number[]>();
+    expect<DeepCopy<Collection.Indexed<number>>>().type.toBe<number[]>();
   });
 
   test('immutable first-level types', () => {
-    expect<DeepCopy<Map<string, string>>>().type.toEqual<{
+    expect<DeepCopy<Map<string, string>>>().type.toBe<{
       [x: string]: string;
     }>();
 
     // should be `{ [x: string]: object }`, but there is an issue with circular references
-    expect<DeepCopy<Map<object, object>>>().type.toEqual<{
+    expect<DeepCopy<Map<object, object>>>().type.toBe<{
       [x: string]: unknown;
     }>();
 
     // should be `{ [x: string]: object; [x: number]: object }`, but there is an issue with circular references
-    expect<DeepCopy<Map<object | number, object>>>().type.toEqual<{
+    expect<DeepCopy<Map<object | number, object>>>().type.toBe<{
       [x: string]: unknown;
       [x: number]: unknown;
     }>();
 
-    expect<DeepCopy<List<string>>>().type.toEqual<string[]>();
+    expect<DeepCopy<List<string>>>().type.toBe<string[]>();
 
-    expect<DeepCopy<Set<string>>>().type.toEqual<string[]>();
+    expect<DeepCopy<Set<string>>>().type.toBe<string[]>();
   });
 
   test('keyed', () => {
-    expect<DeepCopy<Collection.Keyed<string, number>>>().type.toEqual<{
+    expect<DeepCopy<Collection.Keyed<string, number>>>().type.toBe<{
       [x: string]: number;
     }>();
 
-    expect<DeepCopy<Collection.Keyed<string | number, number>>>().type.toEqual<{
-      [x: string]: number;
-      [x: number]: number;
-    }>();
-
-    expect<DeepCopy<Seq.Keyed<string | number, number>>>().type.toEqual<{
+    expect<DeepCopy<Collection.Keyed<string | number, number>>>().type.toBe<{
       [x: string]: number;
       [x: number]: number;
     }>();
 
-    expect<DeepCopy<Map<string | number, number>>>().type.toEqual<{
+    expect<DeepCopy<Seq.Keyed<string | number, number>>>().type.toBe<{
+      [x: string]: number;
+      [x: number]: number;
+    }>();
+
+    expect<DeepCopy<Map<string | number, number>>>().type.toBe<{
       [x: string]: number;
       [x: number]: number;
     }>();
@@ -70,10 +70,10 @@ describe('DeepCopy', () => {
         list: List<string>;
         set: Set<string>;
       }>
-    >().type.toEqual<{ map: unknown; list: unknown; set: unknown }>();
+    >().type.toBe<{ map: unknown; list: unknown; set: unknown }>();
 
     // should be `{ map: { [x: string]: string } }`, but there is an issue with circular references
-    expect<DeepCopy<Map<'map', Map<string, string>>>>().type.toEqual<{
+    expect<DeepCopy<Map<'map', Map<string, string>>>>().type.toBe<{
       map: unknown;
     }>();
   });
@@ -83,7 +83,7 @@ describe('DeepCopy', () => {
     type Tag = Record<{ name: string; article: Article }>;
 
     // should handle circular references here somehow
-    expect<DeepCopy<Article>>().type.toEqual<{ title: string; tag: unknown }>();
+    expect<DeepCopy<Article>>().type.toBe<{ title: string; tag: unknown }>();
   });
 
   test('circular references #1957', () => {
@@ -99,14 +99,14 @@ describe('DeepCopy', () => {
       foo: null,
     }) {}
 
-    expect<DeepCopy<Foo1>>().type.toEqual<{ foo: unknown }>();
-    expect<DeepCopy<Foo2>>().type.toEqual<{ foo?: unknown }>();
-    expect<DeepCopy<Foo3>>().type.toEqual<{ foo: unknown }>();
+    expect<DeepCopy<Foo1>>().type.toBe<{ foo: unknown }>();
+    expect<DeepCopy<Foo2>>().type.toBe<{ foo?: unknown }>();
+    expect<DeepCopy<Foo3>>().type.toBe<{ foo: unknown }>();
 
     class FooWithList extends Record<{ foo: undefined | List<FooWithList> }>({
       foo: undefined,
     }) {}
 
-    expect<DeepCopy<FooWithList>>().type.toEqual<{ foo: unknown }>();
+    expect<DeepCopy<FooWithList>>().type.toBe<{ foo: unknown }>();
   });
 });
