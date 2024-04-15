@@ -35,41 +35,43 @@ class C {
 }
 
 test('List covariance', () => {
-  expect<List<A>>().type.toBeAssignable(List<B>());
+  expect<List<A>>().type.toBeAssignableWith(List<B>());
 
-  expect(List([new B()])).type.toEqual<List<B>>();
+  expect(List([new B()])).type.toBe<List<B>>();
 
   expect<List<C>>().type.not.toBeAssignable(List<B>());
 });
 
 test('Map covariance', () => {
-  expect<Map<string, A>>().type.toBeAssignable<Map<string, B>>();
+  expect<Map<string, A>>().type.toBeAssignableWith<Map<string, B>>();
 
-  expect(Map({ b: new B() })).type.toEqual<MapOf<{ b: B }>>();
+  expect(Map({ b: new B() })).type.toBe<MapOf<{ b: B }>>();
 
   expect<Map<string, C>>().type.not.toBeAssignable<Map<string, B>>();
 });
 
 test('Set covariance', () => {
-  expect<Set<A>>().type.toBeAssignable<Set<B>>();
+  expect<Set<A>>().type.toBeAssignableWith<Set<B>>();
 
-  expect(Set([new B()])).type.toEqual<Set<B>>();
+  expect(Set([new B()])).type.toBe<Set<B>>();
 
   expect<Set<C>>().type.not.toBeAssignable<Set<B>>();
 });
 
 test('Stack covariance', () => {
-  expect<Stack<A>>().type.toBeAssignable<Stack<B>>();
+  expect<Stack<A>>().type.toBeAssignableWith<Stack<B>>();
 
-  expect(Stack([new B()])).type.toEqual<Stack<B>>();
+  expect(Stack([new B()])).type.toBe<Stack<B>>();
 
   expect<Stack<C>>().type.not.toBeAssignable<Stack<B>>();
 });
 
 test('OrderedMap covariance', () => {
-  expect<OrderedMap<string, A>>().type.toBeAssignable<OrderedMap<string, B>>();
+  expect<OrderedMap<string, A>>().type.toBeAssignableWith<
+    OrderedMap<string, B>
+  >();
 
-  expect(OrderedMap({ b: new B() })).type.toEqual<OrderedMap<string, B>>();
+  expect(OrderedMap({ b: new B() })).type.toBe<OrderedMap<string, B>>();
 
   expect<OrderedMap<string, C>>().type.not.toBeAssignable<
     OrderedMap<string, B>
@@ -77,9 +79,9 @@ test('OrderedMap covariance', () => {
 });
 
 test('OrderedSet covariance', () => {
-  expect<OrderedSet<A>>().type.toBeAssignable<OrderedSet<B>>();
+  expect<OrderedSet<A>>().type.toBeAssignableWith<OrderedSet<B>>();
 
-  expect(OrderedSet([new B()])).type.toEqual<OrderedSet<B>>();
+  expect(OrderedSet([new B()])).type.toBe<OrderedSet<B>>();
 
   expect<OrderedSet<C>>().type.not.toBeAssignable<OrderedSet<B>>();
 });

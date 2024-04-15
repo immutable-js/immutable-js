@@ -16,15 +16,15 @@ import {
 } from 'immutable';
 
 test('named imports', () => {
-  expect(List).type.toEqual<typeof List>();
+  expect(List).type.toBe<typeof List>();
 
-  expect(Map).type.toEqual<typeof Map>();
+  expect(Map).type.toBe<typeof Map>();
 
-  expect(OrderedMap).type.toEqual<typeof OrderedMap>();
+  expect(OrderedMap).type.toBe<typeof OrderedMap>();
 
-  expect(OrderedSet).type.toEqual<typeof OrderedSet>();
+  expect(OrderedSet).type.toBe<typeof OrderedSet>();
 
-  expect(Range).type.toEqual<
+  expect(Range).type.toBe<
     (
       start: number,
       end: number,
@@ -32,30 +32,30 @@ test('named imports', () => {
     ) => Seq.Indexed<number>
   >();
 
-  expect(Repeat).type.toEqual<
+  expect(Repeat).type.toBe<
     <T>(value: T, times?: number | undefined) => Seq.Indexed<T>
   >();
 
-  expect(Seq).type.toEqual<typeof Seq>();
+  expect(Seq).type.toBe<typeof Seq>();
 
-  expect(Set).type.toEqual<typeof Set>();
+  expect(Set).type.toBe<typeof Set>();
 
-  expect(Stack).type.toEqual<typeof Stack>();
+  expect(Stack).type.toBe<typeof Stack>();
 
-  expect(Collection).type.toEqual<typeof Collection>();
+  expect(Collection).type.toBe<typeof Collection>();
 
-  expect(Collection.Set).type.toEqual<
+  expect(Collection.Set).type.toBe<
     <T>(
       collection?: Iterable<T> | ArrayLike<T> | undefined
     ) => Collection.Set<T>
   >();
 
-  expect(Collection.Keyed).type.toEqual<{
+  expect(Collection.Keyed).type.toBe<{
     <K, V>(collection?: Iterable<[K, V]> | undefined): Collection.Keyed<K, V>;
     <V>(obj: { [key: string]: V }): Collection.Keyed<string, V>;
   }>();
 
-  expect(Collection.Indexed).type.toEqual<
+  expect(Collection.Indexed).type.toBe<
     <T>(
       collection?: Iterable<T> | ArrayLike<T> | undefined
     ) => Collection.Indexed<T>
@@ -63,15 +63,15 @@ test('named imports', () => {
 });
 
 test('namespace import', () => {
-  expect(Immutable.List).type.toEqual<typeof Immutable.List>();
+  expect(Immutable.List).type.toBe<typeof Immutable.List>();
 
-  expect(Immutable.Map).type.toEqual<typeof Immutable.Map>();
+  expect(Immutable.Map).type.toBe<typeof Immutable.Map>();
 
-  expect(Immutable.OrderedMap).type.toEqual<typeof Immutable.OrderedMap>();
+  expect(Immutable.OrderedMap).type.toBe<typeof Immutable.OrderedMap>();
 
-  expect(Immutable.OrderedSet).type.toEqual<typeof Immutable.OrderedSet>();
+  expect(Immutable.OrderedSet).type.toBe<typeof Immutable.OrderedSet>();
 
-  expect(Immutable.Range).type.toEqual<
+  expect(Immutable.Range).type.toBe<
     (
       start: number,
       end: number,
@@ -79,32 +79,32 @@ test('namespace import', () => {
     ) => Immutable.Seq.Indexed<number>
   >();
 
-  expect(Immutable.Repeat).type.toEqual<
+  expect(Immutable.Repeat).type.toBe<
     <T>(value: T, times?: number | undefined) => Immutable.Seq.Indexed<T>
   >();
 
-  expect(Immutable.Seq).type.toEqual<typeof Immutable.Seq>();
+  expect(Immutable.Seq).type.toBe<typeof Immutable.Seq>();
 
-  expect(Immutable.Set).type.toEqual<typeof Immutable.Set>();
+  expect(Immutable.Set).type.toBe<typeof Immutable.Set>();
 
-  expect(Immutable.Stack).type.toEqual<typeof Immutable.Stack>();
+  expect(Immutable.Stack).type.toBe<typeof Immutable.Stack>();
 
-  expect(Immutable.Collection).type.toEqual<typeof Immutable.Collection>();
+  expect(Immutable.Collection).type.toBe<typeof Immutable.Collection>();
 
-  expect(Immutable.Collection.Set).type.toEqual<
+  expect(Immutable.Collection.Set).type.toBe<
     <T>(
       collection?: Iterable<T> | ArrayLike<T> | undefined
     ) => Immutable.Collection.Set<T>
   >();
 
-  expect(Immutable.Collection.Keyed).type.toEqual<{
+  expect(Immutable.Collection.Keyed).type.toBe<{
     <K, V>(
       collection?: Iterable<[K, V]> | undefined
     ): Immutable.Collection.Keyed<K, V>;
     <V>(obj: { [key: string]: V }): Immutable.Collection.Keyed<string, V>;
   }>();
 
-  expect(Immutable.Collection.Indexed).type.toEqual<
+  expect(Immutable.Collection.Indexed).type.toBe<
     <T>(
       collection?: Iterable<T> | ArrayLike<T> | undefined
     ) => Immutable.Collection.Indexed<T>

@@ -1,7 +1,7 @@
+import { expect, test } from 'tstyche';
 import {
   List,
   get,
-  has,
   set,
   remove,
   update,
@@ -11,457 +11,379 @@ import {
   merge,
 } from 'immutable';
 
-{
-  // #constructor
+test('#constructor', () => {
+  expect(List()).type.toBe<List<unknown>>();
 
-  // $ExpectType List<unknown>
-  List();
+  expect<List<number>>().type.toBeAssignableWith(List<number>());
 
-  const numberList: List<number> = List<number>();
-  const numberOrStringList: List<number | string> = List([1, 'a']);
+  expect<List<number | string>>().type.toBeAssignableWith(List([1, 'a']));
+  expect<List<number>>().type.not.toBeAssignable(List([1, 'a']));
+});
 
-  // $ExpectError
-  const invalidNumberList: List<number> = List([1, 'a']);
-}
+test('#size', () => {
+  expect(List().size).type.toBeNumber();
 
-{
-  // #size
+  expect(List()).type.toMatch<{ readonly size: number }>();
+});
 
-  // $ExpectType number
-  List().size;
+test('#setSize', () => {
+  expect(List<number>().setSize(10)).type.toBe<List<number>>();
 
-  // $ExpectError
-  List().size = 10;
-}
+  expect(List<number>().setSize('foo')).type.toRaiseError();
+});
 
-{
-  // #setSize
+test('.of', () => {
+  expect(List.of(1, 2, 3)).type.toBe<List<number>>();
 
-  // $ExpectType List<number>
-  List<number>().setSize(10);
+  expect(List.of<number>('a', 1)).type.toRaiseError();
 
-  // $ExpectError
-  List<number>().setSize('foo');
-}
+  expect(List.of<number | string>('a', 1)).type.toBe<List<string | number>>();
+});
 
-{
-  // .of
+test('#get', () => {
+  expect(List<number>().get(4)).type.toBe<number | undefined>();
 
-  // $ExpectType List<number>
-  List.of(1, 2, 3);
+  expect(List<number>().get(4, 'a')).type.toBe<number | 'a'>();
 
-  // $ExpectError
-  List.of<number>('a', 1);
+  expect(List<number>().get<number>(4, 'a')).type.toRaiseError();
 
-  // $ExpectType List<string | number>
-  List.of<number | string>('a', 1);
-}
+  expect(get(List<number>(), 4)).type.toBe<number | undefined>();
 
-{
-  // #get
+  expect(get(List<number>(), 4, 'a')).type.toBe<number | 'a'>();
+});
 
-  // $ExpectType number | undefined
-  List<number>().get(4);
+test('#set', () => {
+  expect(List<number>().set(0, 0)).type.toBe<List<number>>();
 
-  // $ExpectType number | "a"
-  List<number>().get(4, 'a');
+  expect(List<number>().set(1, 'a')).type.toRaiseError();
 
-  // $ExpectError
-  List<number>().get<number>(4, 'a');
+  expect(List<number>().set('a', 1)).type.toRaiseError();
 
-  // $ExpectType number | undefined
-  get(List<number>(), 4);
+  expect(List<number | string>().set(0, 1)).type.toBe<List<string | number>>();
 
-  // $ExpectType number | "a"
-  get(List<number>(), 4, 'a');
-}
+  expect(List<number | string>().set(0, 'a')).type.toBe<
+    List<string | number>
+  >();
 
-{
-  // #set
+  expect(set(List<number>(), 0, 0)).type.toBe<List<number>>();
 
-  // $ExpectType List<number>
-  List<number>().set(0, 0);
+  expect(set(List<number>(), 1, 'a')).type.toRaiseError();
 
-  // $ExpectError
-  List<number>().set(1, 'a');
+  expect(set(List<number>(), 'a', 1)).type.toRaiseError();
+});
 
-  // $ExpectError
-  List<number>().set('a', 1);
+test('#setIn', () => {
+  expect(List<number>().setIn([], 0)).type.toBe<List<number>>();
 
-  // $ExpectType List<string | number>
-  List<number | string>().set(0, 1);
+  expect(setIn(List<number>(), [], 0)).type.toBe<List<number>>();
+});
 
-  // $ExpectType List<string | number>
-  List<number | string>().set(0, 'a');
+test('#insert', () => {
+  expect(List<number>().insert(0, 0)).type.toBe<List<number>>();
 
-  // $ExpectType List<number>
-  set(List<number>(), 0, 0);
+  expect(List<number>().insert(1, 'a')).type.toRaiseError();
 
-  // $ExpectError
-  set(List<number>(), 1, 'a');
+  expect(List<number>().insert('a', 1)).type.toRaiseError();
 
-  // $ExpectError
-  set(List<number>(), 'a', 1);
-}
+  expect(List<number | string>().insert(0, 1)).type.toBe<
+    List<string | number>
+  >();
 
-{
-  // #setIn
+  expect(List<number | string>().insert(0, 'a')).type.toBe<
+    List<string | number>
+  >();
+});
 
-  // $ExpectType List<number>
-  List<number>().setIn([], 0);
+test('#push', () => {
+  expect(List<number>().push(0, 0)).type.toBe<List<number>>();
 
-  // $ExpectType List<number>
-  setIn(List<number>(), [], 0);
-}
+  expect(List<number>().push(1, 'a')).type.toRaiseError();
 
-{
-  // #insert
+  expect(List<number>().push('a', 1)).type.toRaiseError();
 
-  // $ExpectType List<number>
-  List<number>().insert(0, 0);
+  expect(List<number | string>().push(0, 1)).type.toBe<List<string | number>>();
 
-  // $ExpectError
-  List<number>().insert(1, 'a');
+  expect(List<number | string>().push(0, 'a')).type.toBe<
+    List<string | number>
+  >();
+});
 
-  // $ExpectError
-  List<number>().insert('a', 1);
+test('#unshift', () => {
+  expect(List<number>().unshift(0, 0)).type.toBe<List<number>>();
 
-  // $ExpectType List<string | number>
-  List<number | string>().insert(0, 1);
+  expect(List<number>().unshift(1, 'a')).type.toRaiseError();
 
-  // $ExpectType List<string | number>
-  List<number | string>().insert(0, 'a');
-}
+  expect(List<number>().unshift('a', 1)).type.toRaiseError();
 
-{
-  // #push
+  expect(List<number | string>().unshift(0, 1)).type.toBe<
+    List<string | number>
+  >();
 
-  // $ExpectType List<number>
-  List<number>().push(0, 0);
+  expect(List<number | string>().unshift(0, 'a')).type.toBe<
+    List<string | number>
+  >();
+});
 
-  // $ExpectError
-  List<number>().push(1, 'a');
+test('#delete', () => {
+  expect(List<number>().delete(0)).type.toBe<List<number>>();
 
-  // $ExpectError
-  List<number>().push('a', 1);
+  expect(List().delete('a')).type.toRaiseError();
+});
 
-  // $ExpectType List<string | number>
-  List<number | string>().push(0, 1);
+test('#deleteIn', () => {
+  expect(List<number>().deleteIn([])).type.toBe<List<number>>();
+});
 
-  // $ExpectType List<string | number>
-  List<number | string>().push(0, 'a');
-}
+test('#remove', () => {
+  expect(List<number>().remove(0)).type.toBe<List<number>>();
 
-{
-  // #unshift
+  expect(List().remove('a')).type.toRaiseError();
 
-  // $ExpectType List<number>
-  List<number>().unshift(0, 0);
+  expect(remove(List<number>(), 0)).type.toBe<List<number>>();
+});
 
-  // $ExpectError
-  List<number>().unshift(1, 'a');
+test('#removeIn', () => {
+  expect(List<number>().removeIn([])).type.toBe<List<number>>();
 
-  // $ExpectError
-  List<number>().unshift('a', 1);
+  expect(removeIn(List<number>(), [])).type.toBe<List<number>>();
+});
 
-  // $ExpectType List<string | number>
-  List<number | string>().unshift(0, 1);
+test('#clear', () => {
+  expect(List<number>().clear()).type.toBe<List<number>>();
 
-  // $ExpectType List<string | number>
-  List<number | string>().unshift(0, 'a');
-}
+  expect(List().clear(10)).type.toRaiseError();
+});
 
-{
-  // #delete
+test('#pop', () => {
+  expect(List<number>().pop()).type.toBe<List<number>>();
 
-  // $ExpectType List<number>
-  List<number>().delete(0);
+  expect(List().pop(10)).type.toRaiseError();
+});
 
-  // $ExpectError
-  List().delete('a');
-}
+test('#shift', () => {
+  expect(List<number>().shift()).type.toBe<List<number>>();
 
-{
-  // #deleteIn
+  expect(List().shift(10)).type.toRaiseError();
+});
 
-  // $ExpectType List<number>
-  List<number>().deleteIn([]);
-}
+test('#update', () => {
+  expect(List().update(v => 1)).type.toBeNumber();
 
-{
-  // #remove
+  expect(
+    List<number>().update((v: List<string> | undefined) => v)
+  ).type.toRaiseError();
+
+  expect(List<number>().update(0, (v: number | undefined) => 0)).type.toBe<
+    List<number>
+  >();
 
-  // $ExpectType List<number>
-  List<number>().remove(0);
-
-  // $ExpectError
-  List().remove('a');
-
-  // $ExpectType List<number>
-  remove(List<number>(), 0);
-}
-
-{
-  // #removeIn
-
-  // $ExpectType List<number>
-  List<number>().removeIn([]);
-
-  // $ExpectType List<number>
-  removeIn(List<number>(), []);
-}
-
-{
-  // #clear
-
-  // $ExpectType List<number>
-  List<number>().clear();
-
-  // $ExpectError
-  List().clear(10);
-}
-
-{
-  // #pop
-
-  // $ExpectType List<number>
-  List<number>().pop();
-
-  // $ExpectError
-  List().pop(10);
-}
-
-{
-  // #shift
-
-  // $ExpectType List<number>
-  List<number>().shift();
-
-  // $ExpectError
-  List().shift(10);
-}
-
-{
-  // #update
-
-  // $ExpectType number
-  List().update((v) => 1);
-
-  // $ExpectError
-  List<number>().update((v: List<string> | undefined) => v);
-
-  // $ExpectType List<number>
-  List<number>().update(0, (v: number | undefined) => 0);
-
-  // $ExpectError
-  List<number>().update(0, (v: number | undefined) => v + 'a');
-
-  // $ExpectType List<number>
-  List<number>().update(1, 10, (v: number | undefined) => 0);
-
-  // $ExpectError
-  List<number>().update(1, 'a', (v: number | undefined) => 0);
-
-  // $ExpectError
-  List<number>().update(1, 10, (v: number | undefined) => v + 'a');
-
-  // $ExpectType List<string>
-  List<string>().update(1, (v) => v?.toUpperCase());
-
-  // $ExpectType List<number>
-  update(List<number>(), 0, (v: number | undefined) => 0);
-
-  // $ExpectError
-  update(List<number>(), 1, 10, (v: number) => v + 'a');
-}
-
-{
-  // #updateIn
-
-  // $ExpectType List<number>
-  List<number>().updateIn([], (v) => v);
-
-  // $ExpectError
-  List<number>().updateIn([], 10);
-
-  // $ExpectType List<number>
-  updateIn(List<number>(), [], (v) => v);
-}
-
-{
-  // #map
-
-  // $ExpectType List<number>
-  List<number>().map((value: number, key: number, iter: List<number>) => 1);
-
-  // $ExpectType List<string>
-  List<number>().map((value: number, key: number, iter: List<number>) => 'a');
-
-  // $ExpectType List<number>
-  List<number>().map<number>(
-    (value: number, key: number, iter: List<number>) => 1
-  );
-
-  List<number>().map<string>(
-    // $ExpectError
-    (value: number, key: number, iter: List<number>) => 1
-  );
-
-  List<number>().map<number>(
-    // $ExpectError
-    (value: string, key: number, iter: List<number>) => 1
-  );
-
-  List<number>().map<number>(
-    // $ExpectError
-    (value: number, key: string, iter: List<number>) => 1
-  );
-
-  List<number>().map<number>(
-    // $ExpectError
-    (value: number, key: number, iter: List<string>) => 1
-  );
-
-  List<number>().map<number>(
-    // $ExpectError
-    (value: number, key: number, iter: List<number>) => 'a'
-  );
-}
-
-{
-  // #flatMap
-
-  // $ExpectType List<number>
-  List<number>().flatMap((value: number, key: number, iter: List<number>) => [
-    1,
-  ]);
-
-  // $ExpectType List<string>
-  List<number>().flatMap((value: number, key: number, iter: List<number>) => [
-    'a',
-  ]);
-
-  // $ExpectType List<string>
-  List<List<string>>().flatMap((list) => list);
-
-  // $ExpectType List<number>
-  List<number>().flatMap<number>(
-    (value: number, key: number, iter: List<number>) => [1]
-  );
-
-  List<number>().flatMap<string>(
-    // $ExpectError
-    (value: number, key: number, iter: List<number>) => [1]
-  );
-
-  List<number>().flatMap<number>(
-    // $ExpectError
-    (value: string, key: number, iter: List<number>) => [1]
-  );
-
-  List<number>().flatMap<number>(
-    // $ExpectError
-    (value: number, key: string, iter: List<number>) => [1]
-  );
-
-  List<number>().flatMap<number>(
-    // $ExpectError
-    (value: number, key: number, iter: List<string>) => [1]
-  );
-
-  List<number>().flatMap<number>(
-    // $ExpectError
-    (value: number, key: number, iter: List<number>) => ['a']
-  );
-}
-
-{
-  // #merge
-
-  // $ExpectType List<number>
-  List<number>().merge(List<number>());
-
-  // $ExpectType List<string | number>
-  List<number>().merge(List<string>());
-
-  // $ExpectType List<string | number>
-  List<number | string>().merge(List<string>());
-
-  // $ExpectType List<string | number>
-  List<number | string>().merge(List<number>());
-
-  // $ExpectType List<number>
-  merge(List<number>(), List<number>());
-}
-
-{
-  // #mergeIn
-
-  // $ExpectType List<number>
-  List<number>().mergeIn([], []);
-}
-
-{
-  // #mergeDeepIn
-
-  // $ExpectType List<number>
-  List<number>().mergeDeepIn([], []);
-}
-
-{
-  // #flatten
-
-  // $ExpectType Collection<unknown, unknown>
-  List<number>().flatten();
-
-  // $ExpectType Collection<unknown, unknown>
-  List<number>().flatten(10);
-
-  // $ExpectType Collection<unknown, unknown>
-  List<number>().flatten(false);
-
-  // $ExpectError
-  List<number>().flatten('a');
-}
-
-{
-  // #withMutations
-
-  // $ExpectType List<number>
-  List<number>().withMutations((mutable) => mutable);
-
-  // $ExpectError
-  List<number>().withMutations((mutable: List<string>) => mutable);
-}
-
-{
-  // #asMutable
-
-  // $ExpectType List<number>
-  List<number>().asMutable();
-}
-
-{
-  // #asImmutable
-
-  // $ExpectType List<number>
-  List<number>().asImmutable();
-}
-
-{
-  // #toJS / #toJSON
-
-  // $ExpectType number[][]
-  List<List<number>>().toJS();
-
-  // $ExpectType List<number>[]
-  List<List<number>>().toJSON();
-}
-
-{
-  // # for of loops
+  expect(
+    List<number>().update(0, (v: number | undefined) => v + 'a')
+  ).type.toRaiseError();
+
+  expect(List<number>().update(1, 10, (v: number | undefined) => 0)).type.toBe<
+    List<number>
+  >();
+
+  expect(
+    List<number>().update(1, 'a', (v: number | undefined) => 0)
+  ).type.toRaiseError();
+
+  expect(
+    List<number>().update(1, 10, (v: number | undefined) => v + 'a')
+  ).type.toRaiseError();
+
+  expect(List<string>().update(1, v => v?.toUpperCase())).type.toBe<
+    List<string>
+  >();
+
+  expect(update(List<number>(), 0, (v: number | undefined) => 0)).type.toBe<
+    List<number>
+  >();
+
+  expect(
+    update(List<number>(), 1, 10, (v: number) => v + 'a')
+  ).type.toRaiseError();
+});
+
+test('#updateIn', () => {
+  expect(List<number>().updateIn([], v => v)).type.toBe<List<number>>();
+
+  expect(List<number>().updateIn([], 10)).type.toRaiseError();
+
+  expect(updateIn(List<number>(), [], v => v)).type.toBe<List<number>>();
+});
+
+test('#map', () => {
+  expect(
+    List<number>().map((value: number, key: number, iter: List<number>) => 1)
+  ).type.toBe<List<number>>();
+
+  expect(
+    List<number>().map((value: number, key: number, iter: List<number>) => 'a')
+  ).type.toBe<List<string>>();
+
+  expect(
+    List<number>().map<number>(
+      (value: number, key: number, iter: List<number>) => 1
+    )
+  ).type.toBe<List<number>>();
+
+  expect(
+    List<number>().map<string>(
+      (value: number, key: number, iter: List<number>) => 1
+    )
+  ).type.toRaiseError();
+
+  expect(
+    List<number>().map<number>(
+      (value: string, key: number, iter: List<number>) => 1
+    )
+  ).type.toRaiseError();
+
+  expect(
+    List<number>().map<number>(
+      (value: number, key: string, iter: List<number>) => 1
+    )
+  ).type.toRaiseError();
+
+  expect(
+    List<number>().map<number>(
+      (value: number, key: number, iter: List<string>) => 1
+    )
+  ).type.toRaiseError();
+
+  expect(
+    List<number>().map<number>(
+      (value: number, key: number, iter: List<number>) => 'a'
+    )
+  ).type.toRaiseError();
+});
+
+test('#flatMap', () => {
+  expect(
+    List<number>().flatMap((value: number, key: number, iter: List<number>) => [
+      1,
+    ])
+  ).type.toBe<List<number>>();
+
+  expect(
+    List<number>().flatMap((value: number, key: number, iter: List<number>) => [
+      'a',
+    ])
+  ).type.toBe<List<string>>();
+
+  expect(List<List<string>>().flatMap(list => list)).type.toBe<List<string>>();
+
+  expect(
+    List<number>().flatMap<number>(
+      (value: number, key: number, iter: List<number>) => [1]
+    )
+  ).type.toBe<List<number>>();
+
+  expect(
+    List<number>().flatMap<string>(
+      (value: number, key: number, iter: List<number>) => [1]
+    )
+  ).type.toRaiseError();
+
+  expect(
+    List<number>().flatMap<number>(
+      (value: string, key: number, iter: List<number>) => [1]
+    )
+  ).type.toRaiseError();
+
+  expect(
+    List<number>().flatMap<number>(
+      (value: number, key: string, iter: List<number>) => [1]
+    )
+  ).type.toRaiseError();
+
+  expect(
+    List<number>().flatMap<number>(
+      (value: number, key: number, iter: List<string>) => [1]
+    )
+  ).type.toRaiseError();
+
+  expect(
+    List<number>().flatMap<number>(
+      (value: number, key: number, iter: List<number>) => ['a']
+    )
+  ).type.toRaiseError();
+});
+
+test('#merge', () => {
+  expect(List<number>().merge(List<number>())).type.toBe<List<number>>();
+
+  expect(List<number>().merge(List<string>())).type.toBe<
+    List<string | number>
+  >();
+
+  expect(List<number | string>().merge(List<string>())).type.toBe<
+    List<string | number>
+  >();
+
+  expect(List<number | string>().merge(List<number>())).type.toBe<
+    List<string | number>
+  >();
+
+  expect(merge(List<number>(), List<number>())).type.toBe<List<number>>();
+});
+
+test('#mergeIn', () => {
+  expect(List<number>().mergeIn([], [])).type.toBe<List<number>>();
+});
+
+test('#mergeDeepIn', () => {
+  expect(List<number>().mergeDeepIn([], [])).type.toBe<List<number>>();
+});
+
+test('#flatten', () => {
+  expect(List<number>().flatten()).type.toBe<
+    Immutable.Collection<unknown, unknown>
+  >();
+
+  expect(List<number>().flatten(10)).type.toBe<
+    Immutable.Collection<unknown, unknown>
+  >();
+
+  expect(List<number>().flatten(false)).type.toBe<
+    Immutable.Collection<unknown, unknown>
+  >();
+
+  expect(List<number>().flatten('a')).type.toRaiseError();
+});
+
+test('#withMutations', () => {
+  expect(List<number>().withMutations(mutable => mutable)).type.toBe<
+    List<number>
+  >();
+
+  expect(
+    List<number>().withMutations((mutable: List<string>) => mutable)
+  ).type.toRaiseError();
+});
+
+test('#asMutable', () => {
+  expect(List<number>().asMutable()).type.toBe<List<number>>();
+});
+
+test('#asImmutable', () => {
+  expect(List<number>().asImmutable()).type.toBe<List<number>>();
+});
+
+test('#toJS', () => {
+  expect(List<List<number>>().toJS()).type.toBe<number[][]>();
+});
+
+test('#toJSON', () => {
+  expect(List<List<number>>().toJSON()).type.toBe<List<number>[]>();
+});
+
+test('for of loops', () => {
   const list = List([1, 2, 3, 4]);
+
   for (const val of list) {
-    const v: number = val;
+    expect(val).type.toBeNumber();
   }
-}
+});
