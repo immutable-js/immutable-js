@@ -17,7 +17,7 @@ test('#constructor', () => {
   expect<List<number>>().type.toBeAssignableWith(List<number>());
 
   expect<List<number | string>>().type.toBeAssignableWith(List([1, 'a']));
-  expect<List<number>>().type.not.toBeAssignable(List([1, 'a']));
+  expect<List<number>>().type.not.toBeAssignableWith(List([1, 'a']));
 });
 
 test('#size', () => {
