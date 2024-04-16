@@ -39,7 +39,7 @@ test('List covariance', () => {
 
   expect(List([new B()])).type.toBe<List<B>>();
 
-  expect<List<C>>().type.not.toBeAssignable(List<B>());
+  expect<List<C>>().type.not.toBeAssignableWith(List<B>());
 });
 
 test('Map covariance', () => {
@@ -47,7 +47,7 @@ test('Map covariance', () => {
 
   expect(Map({ b: new B() })).type.toBe<MapOf<{ b: B }>>();
 
-  expect<Map<string, C>>().type.not.toBeAssignable<Map<string, B>>();
+  expect<Map<string, C>>().type.not.toBeAssignableWith<Map<string, B>>();
 });
 
 test('Set covariance', () => {
@@ -55,7 +55,7 @@ test('Set covariance', () => {
 
   expect(Set([new B()])).type.toBe<Set<B>>();
 
-  expect<Set<C>>().type.not.toBeAssignable<Set<B>>();
+  expect<Set<C>>().type.not.toBeAssignableWith<Set<B>>();
 });
 
 test('Stack covariance', () => {
@@ -63,7 +63,7 @@ test('Stack covariance', () => {
 
   expect(Stack([new B()])).type.toBe<Stack<B>>();
 
-  expect<Stack<C>>().type.not.toBeAssignable<Stack<B>>();
+  expect<Stack<C>>().type.not.toBeAssignableWith<Stack<B>>();
 });
 
 test('OrderedMap covariance', () => {
@@ -73,7 +73,7 @@ test('OrderedMap covariance', () => {
 
   expect(OrderedMap({ b: new B() })).type.toBe<OrderedMap<string, B>>();
 
-  expect<OrderedMap<string, C>>().type.not.toBeAssignable<
+  expect<OrderedMap<string, C>>().type.not.toBeAssignableWith<
     OrderedMap<string, B>
   >();
 });
@@ -83,5 +83,5 @@ test('OrderedSet covariance', () => {
 
   expect(OrderedSet([new B()])).type.toBe<OrderedSet<B>>();
 
-  expect<OrderedSet<C>>().type.not.toBeAssignable<OrderedSet<B>>();
+  expect<OrderedSet<C>>().type.not.toBeAssignableWith<OrderedSet<B>>();
 });
