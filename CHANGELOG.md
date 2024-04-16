@@ -17,7 +17,8 @@ Dates are formatted as YYYY-MM-DD.
   - `Collection.isAssociative`: use `isAssociative` directly
   - `Collection.isOrdered`: use `isOrdered` directly
 
-- [Internal] Migrating TS type tests from dtslint to [TSTyche](https://tstyche.org/) [#1988](https://github.com/immutable-js/immutable-js/pull/1988) by [@mrazauskas](https://github.com/mrazauskas)
+- [Internal] Migrating TS type tests from dtslint to [TSTyche](https://tstyche.org/) [#1988](https://github.com/immutable-js/immutable-js/pull/1988) and [#1991](https://github.com/immutable-js/immutable-js/pull/1991) by [@mrazauskas](https://github.com/mrazauskas)
+  Special thanks to [@arnfaldur](https://github.com/arnfaldur) that migrated every type tests to tsd just before that.
 
 ## [5.0.0-beta.5]
 
