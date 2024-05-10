@@ -93,7 +93,7 @@ export class Repeat extends IndexedSeq {
   equals(other) {
     return other instanceof Repeat
       ? is(this._value, other._value)
-      : deepEqual(other);
+      : deepEqual(this, other);
   }
 }
 
