@@ -11,4 +11,8 @@ describe('Repeat', () => {
     expect(v.toArray()).toEqual(['wtf', 'wtf', 'wtf']);
     expect(v.join()).toEqual('wtf,wtf,wtf');
   });
+
+  it('does not claim to be equal to undefined', () => {
+    expect(Repeat(1).equals(undefined)).toEqual(false);
+  });
 });

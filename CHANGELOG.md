@@ -133,6 +133,16 @@ Map<{ a?: string }>({ a: 'a' }).delete('a'); // you can only delete an optional 
 
 For now, only `get`, `getIn`, `set`, `update`, `delete`, `remove`, `toJS`, `toJSON` methods are implemented. All other methods will fallback to the basic `Map` definition. Other method definition will be added later, but as some might be really complex, we prefer the progressive enhancement on the most used functions.
 
+## [4.3.6] - 2024-05-13
+
+- Fix `Repeat(<value>).equals(undefined)` incorrectly returning true [#1994](https://github.com/immutable-js/immutable-js/pull/1994) by [@butchler](https://github.com/butchler)
+
+## [4.3.5] - 2024-01-16
+
+- Upgrade to TS 5.1 [#1972](https://github.com/immutable-js/immutable-js/pull/1972) by [@jdeniau](https://github.com/jdeniau)
+- Fix Set.fromKeys types with Map constructor in TS 5.0 [#1971](https://github.com/immutable-js/immutable-js/pull/1971) by [@jdeniau](https://github.com/jdeniau)
+- Fix Read the Docs link on readme [#1970](https://github.com/immutable-js/immutable-js/pull/1970) by [@joshding](https://github.com/joshding)
+
 ## [4.3.4] - 2023-08-25
 
 - Rollback toJS type due to circular reference error [#1958](https://github.com/immutable-js/immutable-js/pull/1958) by [@jdeniau](https://github.com/jdeniau)
