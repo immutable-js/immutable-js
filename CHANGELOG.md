@@ -8,6 +8,16 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+## [4.3.6] - 2024-05-13
+
+- Fix `Repeat(<value>).equals(undefined)` incorrectly returning true [#1994](https://github.com/immutable-js/immutable-js/pull/1994) by [@butchler](https://github.com/butchler)
+
+## [4.3.5] - 2024-01-16
+
+- Upgrade to TS 5.1 [#1972](https://github.com/immutable-js/immutable-js/pull/1972) by [@jdeniau](https://github.com/jdeniau)
+- Fix Set.fromKeys types with Map constructor in TS 5.0 [#1971](https://github.com/immutable-js/immutable-js/pull/1971) by [@jdeniau](https://github.com/jdeniau)
+- Fix Read the Docs link on readme [#1970](https://github.com/immutable-js/immutable-js/pull/1970) by [@joshding](https://github.com/joshding)
+
 ## [4.3.4] - 2023-08-25
 
 - Rollback toJS type due to circular reference error [#1958](https://github.com/immutable-js/immutable-js/pull/1958) by [@jdeniau](https://github.com/jdeniau)
