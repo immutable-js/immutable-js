@@ -119,8 +119,16 @@ declare class _Collection<K, +V> implements ValueObject {
   toObject(): { [key: string]: V };
   toMap(): Map<K, V>;
   toOrderedMap(): OrderedMap<K, V>;
+  toSortedMap(
+    comparator?: (a: K, b: K) => number,
+    options?: SortedMapOptions
+  ): SortedMap<K, V>;
   toSet(): Set<V>;
   toOrderedSet(): OrderedSet<V>;
+  toSortedSet(
+    comparator?: (a: V, b: V) => number,
+    options?: SortedSetOptions
+  ): SortedSet<V>;
   toList(): List<V>;
   toStack(): Stack<V>;
   toSeq(): Seq<K, V>;
@@ -282,6 +290,10 @@ declare function isOrdered(
 ): boolean %checks(maybeOrdered instanceof IndexedCollection ||
   maybeOrdered instanceof OrderedMap ||
   maybeOrdered instanceof OrderedSet);
+declare function isSorted(
+  maybeSorted: mixed
+): boolean %checks(maybeSorted instanceof SortedMap ||
+  maybeSorted instanceof SortedSet);
 declare function isValueObject(maybeValue: mixed): boolean;
 
 declare function isSeq(maybeSeq: any): boolean %checks(maybeSeq instanceof Seq);
@@ -291,10 +303,16 @@ declare function isMap(maybeMap: any): boolean %checks(maybeMap instanceof Map);
 declare function isOrderedMap(
   maybeOrderedMap: any
 ): boolean %checks(maybeOrderedMap instanceof OrderedMap);
+declare function isSortedMap(
+  maybeOrderedMap: any
+): boolean %checks(maybeOrderedMap instanceof OrderedMap);
 declare function isStack(maybeStack: any): boolean %checks(maybeStack instanceof
   Stack);
 declare function isSet(maybeSet: any): boolean %checks(maybeSet instanceof Set);
 declare function isOrderedSet(
+  maybeOrderedSet: any
+): boolean %checks(maybeOrderedSet instanceof OrderedSet);
+declare function isSortedSet(
   maybeOrderedSet: any
 ): boolean %checks(maybeOrderedSet instanceof OrderedSet);
 declare function isRecord(
@@ -1298,6 +1316,120 @@ declare class OrderedMap<K, +V>
   flatten(shallow?: boolean): OrderedMap<any, any>;
 }
 
+declare function isSortedMap(
+  maybeSortedMap: mixed
+): boolean %checks(maybeSortedMap instanceof SortedMap);
+declare type SortedMapOptions = {| type?: 'btree', btreeOrder?: number |};
+declare class SortedMap<K, +V>
+  extends Map<K, V>
+  mixins UpdatableInCollection<K, V>
+{
+  static <K, V>(
+    values?: Iterable<[K, V]> | PlainObjInput<K, V>,
+    comparator?: (a: K, b: K) => number,
+    options?: SortedMapOptions
+  ): SortedMap<K, V>;
+
+  static isSortedMap: typeof isSortedMap;
+
+  size: number;
+
+  set<K_, V_>(key: K_, value: V_): SortedMap<K | K_, V | V_>;
+  delete(key: K): this;
+  remove(key: K): this;
+  clear(): this;
+
+  update<U>(updater: (value: this) => U): U;
+  update<V_>(key: K, updater: (value: V) => V_): SortedMap<K, V | V_>;
+  update<V_>(
+    key: K,
+    notSetValue: V_,
+    updater: (value: V) => V_
+  ): SortedMap<K, V | V_>;
+
+  merge<K_, V_>(
+    ...collections: (Iterable<[K_, V_]> | PlainObjInput<K_, V_>)[]
+  ): SortedMap<K | K_, V | V_>;
+  concat<K_, V_>(
+    ...collections: (Iterable<[K_, V_]> | PlainObjInput<K_, V_>)[]
+  ): SortedMap<K | K_, V | V_>;
+
+  mergeWith<K_, W, X>(
+    merger: (oldVal: V, newVal: W, key: K) => X,
+    ...collections: (Iterable<[K_, W]> | PlainObjInput<K_, W>)[]
+  ): SortedMap<K | K_, V | W | X>;
+
+  mergeDeep<K_, V_>(
+    ...collections: (Iterable<[K_, V_]> | PlainObjInput<K_, V_>)[]
+  ): SortedMap<K | K_, V | V_>;
+
+  mergeDeepWith<K_, V_>(
+    merger: (oldVal: any, newVal: any, key: any) => mixed,
+    ...collections: (Iterable<[K_, V_]> | PlainObjInput<K_, V_>)[]
+  ): Map<K | K_, V | V_>;
+
+  mergeIn(
+    keyPath: Iterable<mixed>,
+    ...collections: (Iterable<mixed> | PlainObjInput<mixed, mixed>)[]
+  ): this;
+  mergeDeepIn(
+    keyPath: Iterable<mixed>,
+    ...collections: (Iterable<mixed> | PlainObjInput<mixed, mixed>)[]
+  ): this;
+
+  withMutations(mutator: (mutable: this) => mixed): this;
+  asMutable(): this;
+  wasAltered(): boolean;
+  asImmutable(): this;
+
+  // Override specialized return types
+
+  flip(): SortedMap<V, K>;
+
+  filter(predicate: typeof Boolean): SortedMap<K, $NonMaybeType<V>>;
+  filter(
+    predicate: (value: V, key: K, iter: this) => mixed,
+    context?: mixed
+  ): SortedMap<K, V>;
+
+  map<M>(
+    mapper: (value: V, key: K, iter: this) => M,
+    context?: mixed
+  ): SortedMap<K, M>;
+
+  mapKeys<M>(
+    mapper: (key: K, value: V, iter: this) => M,
+    context?: mixed
+  ): SortedMap<M, V>;
+
+  mapEntries<KM, VM>(
+    mapper: (entry: [K, V], index: number, iter: this) => [KM, VM],
+    context?: mixed
+  ): SortedMap<KM, VM>;
+
+  flatMap<KM, VM>(
+    mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
+    context?: mixed
+  ): SortedMap<KM, VM>;
+
+  flatten(depth?: number): SortedMap<any, any>;
+  flatten(shallow?: boolean): SortedMap<any, any>;
+
+  getComparator(): (a: K, b: K) => number;
+
+  getOptions(): SortedMapOptions;
+
+  pack(values?: Iterable<[K, V]> | PlainObjInput<K, V>): this;
+
+  from(key: K, backwards?: boolean): Seq<K, V>;
+
+  fromIndex(index: number, backwards?: boolean): Seq<K, V>;
+
+  checkConsistency(printFlag: boolean): number;
+
+  print(maxDepth: number): this;
+}
+
 declare function isSet(maybeSet: mixed): boolean %checks(maybeSet instanceof
   Set);
 declare class Set<+T> extends SetCollection<T> {
@@ -1490,6 +1622,147 @@ declare class OrderedSet<+T> extends Set<T> {
     e: Iterable<E>,
     ..._: []
   ): OrderedSet<R>;
+}
+
+// Overrides except for `isSortedSet` are for specialized return types
+declare function isSortedSet(
+  maybeSortedSet: mixed
+): boolean %checks(maybeSortedSet instanceof SortedSet);
+declare type SortedSetOptions = SortedMapOptions;
+declare class SortedSet<+T> extends Set<T> {
+  static <T>(values?: Iterable<T>): SortedSet<T>;
+
+  static of<T>(...values: T[]): SortedSet<T>;
+  static fromKeys<T>(
+    values: Iterable<[T, mixed]> | PlainObjInput<T, mixed>
+  ): SortedSet<T>;
+
+  static isSortedSet: typeof isSortedSet;
+
+  size: number;
+
+  add<U>(value: U): SortedSet<T | U>;
+  union<U>(...collections: Iterable<U>[]): SortedSet<T | U>;
+  merge<U>(...collections: Iterable<U>[]): SortedSet<T | U>;
+  concat<U>(...collections: Iterable<U>[]): SortedSet<T | U>;
+  intersect<U>(...collections: Iterable<U>[]): SortedSet<T & U>;
+
+  filter(predicate: typeof Boolean): SortedSet<$NonMaybeType<T>>;
+  filter(
+    predicate: (value: T, value: T, iter: this) => mixed,
+    context?: mixed
+  ): SortedSet<T>;
+
+  map<M>(
+    mapper: (value: T, value: T, iter: this) => M,
+    context?: mixed
+  ): SortedSet<M>;
+
+  flatMap<M>(
+    mapper: (value: T, value: T, iter: this) => Iterable<M>,
+    context?: mixed
+  ): SortedSet<M>;
+
+  flatten(depth?: number): SortedSet<any>;
+  flatten(shallow?: boolean): SortedSet<any>;
+
+  zip<A>(a: Iterable<A>, ..._: []): SortedSet<[T, A]>;
+  zip<A, B>(a: Iterable<A>, b: Iterable<B>, ..._: []): SortedSet<[T, A, B]>;
+  zip<A, B, C>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    ..._: []
+  ): SortedSet<[T, A, B, C]>;
+  zip<A, B, C, D>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    d: Iterable<D>,
+    ..._: []
+  ): SortedSet<[T, A, B, C, D]>;
+  zip<A, B, C, D, E>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    d: Iterable<D>,
+    e: Iterable<E>,
+    ..._: []
+  ): SortedSet<[T, A, B, C, D, E]>;
+
+  zipAll<A>(a: Iterable<A>, ..._: []): SortedSet<[T | void, A | void]>;
+  zipAll<A, B>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    ..._: []
+  ): SortedSet<[T | void, A | void, B | void]>;
+  zipAll<A, B, C>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    ..._: []
+  ): SortedSet<[T | void, A | void, B | void, C | void]>;
+  zipAll<A, B, C, D>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    d: Iterable<D>,
+    ..._: []
+  ): SortedSet<[T | void, A | void, B | void, C | void, D | void]>;
+  zipAll<A, B, C, D, E>(
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    d: Iterable<D>,
+    e: Iterable<E>,
+    ..._: []
+  ): SortedSet<[T | void, A | void, B | void, C | void, D | void, E | void]>;
+
+  zipWith<A, R>(
+    zipper: (value: T, a: A) => R,
+    a: Iterable<A>,
+    ..._: []
+  ): SortedSet<R>;
+  zipWith<A, B, R>(
+    zipper: (value: T, a: A, b: B) => R,
+    a: Iterable<A>,
+    b: Iterable<B>,
+    ..._: []
+  ): SortedSet<R>;
+  zipWith<A, B, C, R>(
+    zipper: (value: T, a: A, b: B, c: C) => R,
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    ..._: []
+  ): SortedSet<R>;
+  zipWith<A, B, C, D, R>(
+    zipper: (value: T, a: A, b: B, c: C, d: D) => R,
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    d: Iterable<D>,
+    ..._: []
+  ): SortedSet<R>;
+  zipWith<A, B, C, D, E, R>(
+    zipper: (value: T, a: A, b: B, c: C, d: D, e: E) => R,
+    a: Iterable<A>,
+    b: Iterable<B>,
+    c: Iterable<C>,
+    d: Iterable<D>,
+    e: Iterable<E>,
+    ..._: []
+  ): SortedSet<R>;
+
+  getComparator(): (a: T, b: T) => number;
+
+  getOptions(): SortedSetOptions;
+
+  pack(values?: Iterable<T>): this;
+
+  from(value: T, backwards?: boolean): Seq<T>;
+
+  fromIndex(index: number, backwards?: boolean): Seq<T>;
 }
 
 declare function isStack(
@@ -2319,6 +2592,8 @@ export {
   Map,
   OrderedMap,
   OrderedSet,
+  SortedMap,
+  SortedSet,
   Range,
   Repeat,
   Record,
@@ -2333,6 +2608,7 @@ export {
   isIndexed,
   isAssociative,
   isOrdered,
+  isSorted,
   isRecord,
   isValueObject,
   get,
@@ -2359,6 +2635,8 @@ export default {
   Map,
   OrderedMap,
   OrderedSet,
+  SortedMap,
+  SortedSet,
   PairSorting,
   Range,
   Repeat,
@@ -2376,6 +2654,7 @@ export default {
   isIndexed,
   isAssociative,
   isOrdered,
+  isSorted,
   isRecord,
   isValueObject,
 

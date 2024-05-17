@@ -1507,6 +1507,413 @@ declare namespace Immutable {
   }
 
   /**
+   * A type of Map that keeps its entries (their keys) sorted by a comparator.
+   * The current implementation is using a classic [B-Tree](https://en.wikipedia.org/wiki/B-tree) memory structure
+   * with O(N) space requirements and O(log N) get, set, and delete operations.
+   *
+   * ```js
+   * > const { SortedMap } = require('immutable-sorted');
+   *
+   * > const map1=SortedMap([['orange','orange'], ['apple','red'], ['banana','yellow']]);
+   * SortedMap { "apple": "red", "banana": "yellow", "orange": "orange" }
+   *
+   * > const map2=map1.set('mango', 'yellow/orange');
+   * SortedMap { "apple": "red", "banana": "yellow", "mango": "yellow/orange", "orange": "orange" }
+   *
+   * > const map3=map2.delete('banana');
+   * SortedMap { "apple": "red", "mango": "yellow/orange", "orange": "orange" }
+   * ```
+   *
+   * Using a custom comparator:
+   * ```js
+   * > const reverseCmp=(a,b)=>(a>b?-1:a<b?1:0);
+   *
+   * > const map4=SortedMap(map1, reverseCmp);
+   * SortedMap { "orange": "orange", "banana": "yellow", "apple": "red" }
+   *
+   * > const map5=map4.set('mango', 'yellow/orange');
+   * SortedMap { "orange": "orange", "mango": "yellow/orange", "banana": "yellow", "apple": "red" }
+   *
+   * > const map6=map5.delete('banana');
+   * SortedMap { "orange": "orange", "mango": "yellow/orange", "apple": "red" }
+   * ```
+   *
+   * When iterating a `SortedMap`, the order of entries is guaranteed to be the same
+   * as the sorted order of keys determined by a comparator.
+   *
+   * Map keys and values may be of any type. Equality of keys is determined
+   * by comparator returning 0 value. In case of a custom comparator the equality
+   * may be redefined to have a different meaning than `Immutable.is`.
+   *
+   * Many real use cases will be about storing the whole objects in `SortedMap`.
+   * That will usually be meaningful only when custom comparator is defined.
+   *
+   * Let's consider the following example with city objects as keys and their co-ordinates as values:
+   * ```js
+   * > const { SortedMap, Seq, fromJS } = require('immutable-sorted');
+   * // Have an array of city objects
+   * > const cities=[
+   *    [{state: 'MA', city: 'Boston'}, ['42°21′N','71°04′W']],
+   *    [{city: 'Miami', state: 'FL'},['25°47′N','80°13′W']],
+   *    [{city: 'Seattle', state: 'WA'},['47°37′N','122°20′W']],
+   *    [{city: 'Phoenix', state: 'AZ'},['33°27′N','112°04′W']]];
+   * // Make a seq that converts cities and their co-ordinates from JS into immutable objects
+   * > const citiesSeq=Seq.Keyed(cities).mapKeys((v)=>fromJS(v)).map((v)=>fromJS(v));
+   * Seq {
+   *    Map { "state": "MA", "city": "Boston" }: List [ "42°21′N", "71°04′W" ],
+   *    Map { "city": "Miami", "state": "FL" }: List [ "25°47′N", "80°13′W" ],
+   *    Map { "city": "Seattle", "state": "WA" }: List [ "47°37′N", "122°20′W" ],
+   *    Map { "city": "Phoenix", "state": "AZ" }: List [ "33°27′N", "112°04′W" ] }
+   * // Create a default SortedMap
+   * > const map1=SortedMap(citiesSeq);
+   * SortedMap {
+   *    Map { "city": "Miami", "state": "FL" }: List [ "25°47′N", "80°13′W" ],
+   *    Map { "city": "Phoenix", "state": "AZ" }: List [ "33°27′N", "112°04′W" ],
+   *    Map { "city": "Seattle", "state": "WA" }: List [ "47°37′N", "122°20′W" ],
+   *    Map { "state": "MA", "city": "Boston" }: List [ "42°21′N", "71°04′W" ] }
+   * ```
+   * When relying on `defaultComparator`, like in example above, the objects get sorted
+   * by their string representations from `toString()` method. This is usually not what
+   * the application designers want. In our case it makes more sense to sort by the city name,
+   * than the whole string representation.
+   *
+   * Let's create a custom comparator:
+   * ```js
+   * // Define a general comparator
+   * > const cmp=(a,b)=>(a>b?1:a<b?-1:0);
+   * // Define a comparator of city names
+   * > let citiesCmp=(a,b)=>cmp(a.get('city'), b.get('city'));
+   * // Create a SortedSet with custom comparator
+   * > const map2=SortedMap(citiesSeq, citiesCmp);
+   * SortedMap {
+   *    Map { "state": "MA", "city": "Boston" }: List [ "42°21′N", "71°04′W" ],
+   *    Map { "city": "Miami", "state": "FL" }: List [ "25°47′N", "80°13′W" ],
+   *    Map { "city": "Phoenix", "state": "AZ" }: List [ "33°27′N", "112°04′W" ],
+   *    Map { "city": "Seattle", "state": "WA" }: List [ "47°37′N", "122°20′W" ] }
+   * ```
+   * The custom comparator that we have created seems to work as expected. Now let's add
+   * into the collection another city of Phoenix, this time from state Illinois.
+   * ```js
+   * > const map3=map2.set(fromJS({city: 'Phoenix', state: 'IL'}), fromJS(['41°36′N','87°37′W']));
+   * SortedMap {
+   *    Map { "state": "MA", "city": "Boston" }: List [ "42°21′N", "71°04′W" ],
+   *    Map { "city": "Miami", "state": "FL" }: List [ "25°47′N", "80°13′W" ],
+   *    Map { "city": "Phoenix", "state": "IL" }: List [ "41°36′N", "87°37′W" ],
+   *    Map { "city": "Seattle", "state": "WA" }: List [ "47°37′N", "122°20′W" ] }
+   * ```
+   * The Phoenix, AZ had been replaced with Phoenix, IL. This is because of the way
+   * the custom comparator is defined. It determines equality by comparing city names only,
+   * therefore Phoenix, AZ and Phoenix, IL are equal according to this comparator.
+   * Let's try to extend the comparator to compare the city name first and if they
+   * match then determine the result by comparing the state.
+   * ```js
+   * // Define more complex custom comparator
+   * > citiesCmp=(a,b)=>cmp(a.get('city'), b.get('city'))||cmp(a.get('state'), b.get('state'));
+   * // Create a new SortedMap with new custom comparator
+   * > const map4=SortedMap(map2, citiesCmp);
+   * SortedMap {
+   *    Map { "state": "MA", "city": "Boston" }: List [ "42°21′N", "71°04′W" ],
+   *    Map { "city": "Miami", "state": "FL" }: List [ "25°47′N", "80°13′W" ],
+   *    Map { "city": "Phoenix", "state": "AZ" }: List [ "33°27′N", "112°04′W" ],
+   *    Map { "city": "Seattle", "state": "WA" }: List [ "47°37′N", "122°20′W" ] }
+   * // map4 looks the same as map2, now let's add the conflicting Phoenix, IL to map4
+   * > const map5=map4.set(fromJS({city: 'Phoenix', state: 'IL'}), fromJS(['41°36′N','87°37′W']));
+   * SortedMap {
+   *    Map { "state": "MA", "city": "Boston" }: List [ "42°21′N", "71°04′W" ],
+   *    Map { "city": "Miami", "state": "FL" }: List [ "25°47′N", "80°13′W" ],
+   *    Map { "city": "Phoenix", "state": "AZ" }: List [ "33°27′N", "112°04′W" ],
+   *    Map { "city": "Phoenix", "state": "IL" }: List [ "41°36′N", "87°37′W" ],
+   *    Map { "city": "Seattle", "state": "WA" }: List [ "47°37′N", "122°20′W" ] }
+   * ```
+   * The custom comparator behaves as expected. Now let's swap the order of commands
+   * in the comparator and sort by state first and by city name second.
+   * ```js
+   * > const stateCitiesCmp=(a,b)=>cmp(a.get('state'), b.get('state'))||cmp(a.get('city'), b.get('city'));
+   * > const map6=SortedMap(map5, stateCitiesCmp);
+   * SortedMap {
+   *    Map { "city": "Phoenix", "state": "AZ" }: List [ "33°27′N", "112°04′W" ],
+   *    Map { "city": "Miami", "state": "FL" }: List [ "25°47′N", "80°13′W" ],
+   *    Map { "city": "Phoenix", "state": "IL" }: List [ "41°36′N", "87°37′W" ],
+   *    Map { "state": "MA", "city": "Boston" }: List [ "42°21′N", "71°04′W" ],
+   *    Map { "city": "Seattle", "state": "WA" }: List [ "47°37′N", "122°20′W" ] }
+   * ```
+   */
+  namespace SortedMap {
+    /**
+     * True if the provided value is a SortedMap
+     *
+     * ```js
+     * > const { SortedMap, SortedSet, List, Map, Set } = require('immutable-sorted');
+     * > SortedMap.isSortedMap(SortedMap());
+     * true
+     * > SortedMap.isSortedMap(SortedSet());
+     * false
+     * > SortedMap.isSortedMap(Map());
+     * false
+     * > SortedMap.isSortedMap(Set());
+     * false
+     * > SortedMap.isSortedMap(List());
+     * false
+     * ```
+     */
+    function isSortedMap(maybeSortedMap: any): boolean;
+
+    /**
+     * Creates a new SortedMap from alternating keys and values
+     *
+     * ```js
+     * > const { SortedMap } = require('immutable-sorted')
+     * > let sortedMap=SortedMap.of('orange','orange', 'apple','red', 'banana','yellow');
+     * SortedMap { "apple": "red", "banana": "yellow", "orange": "orange" }
+     * ```
+     *
+     * @deprecated Use SortedMap([ [ 'k', 'v' ] ]) or SortedMap({ k: 'v' })
+     */
+    function of(...keyValues: Array<any>): SortedMap<any, any>;
+  }
+
+  /**
+   * Creates a new immutable `SortedMap` containing the entries of the provided
+   * collection-like. The keys will be sorted by the provided comparator.
+   *
+   * The comparator is a function that takes two arguments (a, b) and
+   * returns 0 if a and b are equal, returns positive number when a > b
+   * and returns negative number if a < b.
+   *
+   * If comparator is undefined, the `defaultComparator` will be applied.
+   * This comparator is different than the default comparator used by `Collection.sort`
+   * because more stringent comparison rules have to be applied to support all the types
+   * and marginal values like NaN or Infinity.
+   *
+   * The `defaultComparator` first determines equality by calling `Immutable.is`,
+   * then compares the types of both values. If both values are of the same type,
+   * then it compares the values by using the javascript comparison operators > and <,
+   * but before that the objects, functions, and symbols are converted to string.
+   *
+   * The internal data structures will be created according to the given options. If options
+   * are undefined then `defaultOptions` will be applied.
+   *
+   * The default options are:
+   * ```js
+   * {type: 'btree', btreeOrder: 33}
+   * ```
+   * Currently the only type implemented is `btree`. It is a classic [B-Tree](https://en.wikipedia.org/wiki/B-tree)
+   * structure with keys and values not only in leaves but also in internal nodes.
+   * The option `btreeOrder` is defined as the maximum number of children that any internal nodes can have
+   * and also implies maximum number of entries (key/value pairs) in any node which is (`btreeOrder` - 1).
+   * The `btreeOrder` option can be changed in a constructor and can be any integer greater or equal 3.
+   *
+   * There are many ways to quickly and conveniently create a `SortedMap` by calling a constructor.
+   * Below are some examples.
+   *
+   * Create a `SortedMap` from any array of [K,V]:
+   * ```js
+   * > const { SortedMap } = require('immutable-sorted');
+   * > let a=SortedMap([['a','A'], ['c','C'], ['z','Z'], ['u','U'], ['b','B']]);
+   * SortedMap { "a": "A", "b": "B", "c": "C", "u": "U", "z": "Z" }
+   * ```
+   *
+   * From a keyed sequence:
+   * ```js
+   * > const { SortedMap, SortedSet, List, Map, Seq, Set } = require('immutable-sorted');
+   *
+   * > let seq=Seq({x:'X', c:'B', m:'M', anylabel:'K', f:'F'});
+   * Seq { "x": "X", "c": "B", "m": "M", "anylabel": "K", "f": "F" }
+   *
+   * > let b=SortedMap(seq);
+   * SortedMap { "anylabel": "K", "c": "B", "f": "F", "m": "M", "x": "X" }
+   * ```
+   *
+   * From other collections (List, Range, Set, Map):
+   * ```js
+   * > const { SortedMap, List, Map, Range, Seq, Set } = require('immutable-sorted');
+   * > let list=List(['orange', 'apple', 'banana']);
+   * List [ "orange", "apple", "banana" ]
+   * > let c=SortedMap(list.toKeyedSeq());
+   * SortedMap { 0: "orange", 1: "apple", 2: "banana" }
+   *
+   * > c=SortedMap(list.toKeyedSeq().flip());
+   * SortedMap { "apple": 1, "banana": 2, "orange": 0 }
+   *
+   * > let range=Range(30, 0, 5);
+   * Range [ 30...0 by -5 ]
+   * > c=SortedMap(range.toKeyedSeq());
+   * SortedMap { 0: 30, 1: 25, 2: 20, 3: 15, 4: 10, 5: 5 }
+   * > c=SortedMap(range.toKeyedSeq().flip());
+   * SortedMap { 5: 5, 10: 4, 15: 3, 20: 2, 25: 1, 30: 0 }
+   *
+   * > let set=Set(['orange', 'apple', 'banana']);
+   * Set { "orange", "apple", "banana" }
+   * > c=SortedMap(set.toKeyedSeq());
+   * SortedMap { "apple": "apple", "banana": "banana", "orange": "orange" }
+   *
+   * > let map=Map({x:'X', c:'B', m:'M', anylabel:'K', f:'F'});
+   * Map { "x": "X", "c": "B", "m": "M", "anylabel": "K", "f": "F" }
+   * > c=SortedMap(map);
+   * SortedMap { "anylabel": "K", "c": "B", "f": "F", "m": "M", "x": "X" }
+   * ```
+   *
+   * Use a custom comparator (reverse order):
+   * ```js
+   * > let reverseComparator=(a, b)=>(a > b ? -1 : a < b ? 1 : 0);
+   * > let d=SortedMap(list.toKeyedSeq().flip(), reverseComparator);
+   * SortedMap { "orange": 0, "banana": 2, "apple": 1 }
+   *
+   * // Create an empty map with custom comparator
+   * > d=SortedMap(undefined, reverseComparator);
+   * ```
+   *
+   * Change the `btreeOrder` option:
+   * ```js
+   * > let options={type: 'btree', btreeOrder: 17};
+   * > let e=SortedMap(list.toKeyedSeq().flip(), reverseComparator, options);
+   * SortedMap { "orange": 0, "banana": 2, "apple": 1 }
+   *
+   * // Create an empty set with default comparator and custom options
+   * > e=SortedMap(undefined, undefined, options);
+   * ```
+   *
+   * You can also conveniently create a `SortedMap` within a chain of sequence operations:
+   * ```js
+   * > seq.toSortedMap();
+   * SortedMap { "anylabel": "K", "c": "B", "f": "F", "m": "M", "x": "X" }
+   *
+   * > seq.toSortedMap(reverseComparator);
+   * SortedMap { "x": "X", "m": "M", "f": "F", "c": "B", "anylabel": "K" }
+   * ```
+   */
+  export function SortedMap<K, V>(
+    collection?: Iterable<[K, V]>,
+    comparator?: (a: K, b: K) => number,
+    options?: object
+  ): SortedMap<K, V>;
+  export function SortedMap<T>(
+    collection: Iterable<Iterable<T>>,
+    comparator?: (a: T, b: T) => number,
+    options?: object
+  ): SortedMap<T, T>;
+  export function SortedMap<V>(
+    obj: { [key: string]: V },
+    comparator?: (a: string, b: string) => number,
+    options?: object
+  ): SortedMap<string, V>;
+
+  export interface SortedMap<K, V> extends Map<K, V> {
+    /**
+     * The number of entries (key/value pairs) in this SortedMap.
+     */
+    readonly size: number;
+
+    // Persistent changes
+
+    /**
+     * Returns a new `SortedMap` containing the entries of the provided
+     * collection-like. The entries will be organized in an optimized tree structure
+     * with internal nodes and leaves defragmented as much as possible
+     * while keeping all the consistency rules enforced.
+     *
+     * If the collection argument is undefined then the current content
+     * of this `SortedMap` will be reorganized into an optimized tree structure.
+     *
+     * The pack procedure is actually called from the `SortedMap` constructor
+     * as it is usually faster than a series of set operations. It is recommended
+     * to explicitly call this method after a large batch of update or delete operations
+     * to release a portion of the allocated memory and to speed up the consequent get
+     * operations.
+     */
+    pack(collection?: Iterable<[K, V]>): this;
+
+    // Deep persistent changes
+
+    // Transient changes
+
+    // Reading values
+
+    /**
+     * Returns a sequence representing a portion of this sorted map starting with a specific key
+     * up to the last entry in the sorted  map.
+     * If the optional parameter backwards is set to true, the returned sequence will
+     * list the entries backwards, starting with key down to the first entry in the sorted map,
+     * Example:
+     * ```js
+     * > const abc = SortedMap([["A", "a"], ["B", "b"], ["C", "c"], ["D", "d"], ["E", "e"], ["F", "f"], ["G", "g"], ["H", "h"], ["I", "i"], ["J", "j"], ["K", "k"], ["L", "l"], ["M", "m"], ["N", "n"], ["O", "o"], ["P", "p"], ["Q", "q"], ["R", "r"], ["S", "s"], ["T", "t"], ["U", "u"], ["V", "v"], ["W", "w"], ["X", "x"], ["Y", "y"], ["Z", "z"]]);
+     *
+     * > abc.from("R");
+     * Seq { "R": "r", "S": "s", "T": "t", "U": "u", "V": "v", "W": "w", "X": "x", "Y": "y", "Z": "z" }
+     *
+     * > abc.from("R", true);
+     * Seq { "R": "r", "Q": "q", "P": "p", "O": "o", "N": "n", "M": "m", "L": "l", "K": "k", "J": "j", "I": "i", "H": "h", "G": "g", "F": "f", "E": "e", "D": "d", "C": "c", "B": "b", "A": "a" }
+     * ```
+     *
+     * The method from() can be efficiently combined with take() to retrieve the desired number of values or with takeWhile() to retrieve a specific range:
+     * ```js
+     * > abc.from("R").take(5);
+     * Seq { "R": "r", "S": "s", "T": "t", "U": "u", "V": "v" }
+     *
+     * > abc.from("R").takeWhile((v, k) => k < "W");
+     * Seq { "R": "r", "S": "s", "T": "t", "U": "u", "V": "v" }
+     *
+     * > abc.from("R", true).take(5);
+     * Seq { "R": "r", "Q": "q", "P": "p", "O": "o", "N": "n" }
+     *
+     * > abc.from("R", true).takeWhile((v, k) => k > "K");
+     * Seq { "R": "r", "Q": "q", "P": "p", "O": "o", "N": "n", "M": "m", "L": "l" }
+     * ```
+     */
+    from(key: K, backwards?: boolean): Seq<K, V>;
+
+    /**
+     * Returns a sequence representing a portion of this sorted map starting from numeric index position,
+     * as if the collection was an array.
+     * If the optional parameter backwards is set to true, the returned sequence will
+     * list the entries backwards.
+     *
+     * The method is optimized to quickly find the n-th entry inside the b-tree structure
+     * by checking the computed sizes of underlying nodes.
+     * Even though the algorithm is not as fast as working with a native array,
+     * it is faster by orders of magnitude than walking through the first n elements
+     * of unindexed collection to just skip them. The access time is O(log N).
+     * Example:
+     * ```js
+     * > const abc = SortedMap([["A", "a"], ["B", "b"], ["C", "c"], ["D", "d"], ["E", "e"], ["F", "f"], ["G", "g"], ["H", "h"], ["I", "i"], ["J", "j"], ["K", "k"], ["L", "l"], ["M", "m"], ["N", "n"], ["O", "o"], ["P", "p"], ["Q", "q"], ["R", "r"], ["S", "s"], ["T", "t"], ["U", "u"], ["V", "v"], ["W", "w"], ["X", "x"], ["Y", "y"], ["Z", "z"]]);
+     *
+     * > abc.fromIndex(4).take(5);
+     * Seq { "E": "e", "F": "f", "G": "g", "H": "h", "I": "i" }
+     *
+     * > abc.fromIndex(4, true).take(5);
+     * Seq { "E": "e", "D": "d", "C": "c", "B": "b", "A": "a" }
+     * ```
+     */
+    fromIndex(index: number, backwards?: boolean): Seq<K, V>;
+
+    /**
+     * Prints out the internal Btree structure of the SortedMap.
+     * Keeps printing the nodes recursively until `maxDepth` level is reached.
+     *
+     * ```js
+     * const { SortedMap } = require('immutable-sorted')
+     * const aSortedMap = Range(0, 8).toSortedMap(undefined, {btreeOrder: 4});
+     * sortedMap.print();
+     *
+     * + LEAF[0] (L0)
+     *     - ENTRY[0]: 0
+     *     - ENTRY[1]: 1
+     * - ENTRY[0]: 2
+     * + LEAF[1] (L0)
+     *     - ENTRY[0]: 3
+     *     - ENTRY[1]: 4
+     * - ENTRY[1]: 5
+     * + LEAF[2] (L0)
+     *     - ENTRY[0]: 6
+     *     - ENTRY[1]: 7
+     *
+     * ```
+     *
+     */
+    print(maxDepth?: number): this;
+  }
+
+  /**
    * A type of Map that has the additional guarantee that the iteration order of
    * entries will be the order in which they were set().
    *
@@ -1747,6 +2154,397 @@ declare namespace Immutable {
      * ```
      */
     function union<T>(sets: Iterable<Iterable<T>>): Set<T>;
+  }
+
+  /**
+   * A type of Set that keeps its values sorted by a comparator.
+   * The current implementation is using a classic [B-Tree](https://en.wikipedia.org/wiki/B-tree) memory structure
+   * with O(N) space requirements and O(log N) get, add, and delete operations.
+   *
+   * ```js
+   * > const { SortedSet } = require('immutable-sorted');
+   *
+   * > const set1=SortedSet(['orange', 'apple', 'banana']);
+   * SortedSet { "apple", "banana", "orange" }
+   *
+   * > const set2=set1.add('mango');
+   * SortedSet { "apple", "banana", "mango", "orange" }
+   *
+   * > const set3=set2.delete('banana');
+   * SortedSet { "apple", "mango", "orange" }
+   *
+   * ```
+   *
+   * Using a custom comparator:
+   * ```js
+   * > const reverseCmp=(a,b)=>(a>b?-1:a<b?1:0);
+   *
+   * > const set4=SortedSet(set1, reverseCmp);
+   * SortedSet { "orange", "banana", "apple" }
+   *
+   * > const set5=set4.add('mango');
+   * SortedSet { "orange", "mango", "banana", "apple" }
+   *
+   * > const set6=set5.delete('banana');
+   * SortedSet { "orange", "mango", "apple" }
+   * ```
+   *
+   * When iterating a `SortedSet`, the entries will be (value, value) pairs. Iteration
+   * order of a SortedSet is determined by a comparator.
+   *
+   * Set values, like Map keys, may be of any type. Equality is determined
+   * by comparator returning 0 value. In case of a custom comparator the equality
+   * may be redefined to have a different meaning than `Immutable.is`.
+   *
+   * Many real use cases will be about storing the whole objects in `SortedSet`.
+   * That will usually be meaningful only when custom comparator is defined.
+   *
+   * Let's consider the following example with city objects:
+   * ```js
+   * > const { SortedSet, Seq, fromJS } = require('immutable-sorted');
+   * // Have an array of city objects
+   * > const cities=[
+   *    {state: 'MA', city: 'Boston'},
+   *    {city: 'Miami', state: 'FL'},
+   *    {city: 'Seattle', state: 'WA'},
+   *    {city: 'Phoenix', state: 'AZ'}];
+   * // Make a seq that converts cities from JS into immutable objects
+   * > const citiesSeq=Seq(cities).map((v)=>fromJS(v));
+   * // Create a default SortedSet
+   * > const set1=SortedSet(citiesSeq);
+   * SortedSet {
+   *    Map { "city": "Miami", "state": "FL" },
+   *    Map { "city": "Phoenix", "state": "AZ" },
+   *    Map { "city": "Seattle", "state": "WA" },
+   *    Map { "state": "MA", "city": "Boston" } }
+   * ```
+   * When relying on `defaultComparator`, like in example above, the objects get sorted
+   * by their string representations from `toString()` method. This is usually not what
+   * the application designers want. In our case it makes more sense to sort by the city name,
+   * than the whole string representation.
+   *
+   * Let's create a custom comparator:
+   * ```js
+   * // Define a general comparator
+   * > const cmp=(a,b)=>(a>b?1:a<b?-1:0);
+   * // Define a comparator of city names
+   * > let citiesCmp=(a,b)=>cmp(a.get('city'), b.get('city'));
+   * // Create a SortedSet with custom comparator
+   * > const set2=SortedSet(citiesSeq, citiesCmp);
+   * SortedSet {
+   *    Map { "state": "MA", "city": "Boston" },
+   *    Map { "city": "Miami", "state": "FL" },
+   *    Map { "city": "Phoenix", "state": "AZ" },
+   *    Map { "city": "Seattle", "state": "WA" } }
+   * ```
+   * The custom comparator that we have created seems to work as expected. Now let's add
+   * into the collection another city of Phoenix, this time from state Illinois.
+   * ```js
+   * > const set3=set2.add(fromJS({city: 'Phoenix', state: 'IL'}));
+   * SortedSet {
+   *    Map { "state": "MA", "city": "Boston" },
+   *    Map { "city": "Miami", "state": "FL" },
+   *    Map { "city": "Phoenix", "state": "IL" },
+   *    Map { "city": "Seattle", "state": "WA" } }
+   * ```
+   * The Phoenix, AZ had been replaced with Phoenix, IL. This is because of the way
+   * the custom comparator is defined. It determines equality by comparing city names only,
+   * therefore Phoenix, AZ and Phoenix, IL are equal according to this comparator.
+   * Let's try to extend the comparator to compare the city name first and if they
+   * match then determine the result by comparing the state.
+   * ```js
+   * // Define more complex custom comparator
+   * > citiesCmp=(a,b)=>cmp(a.get('city'), b.get('city'))||cmp(a.get('state'), b.get('state'));
+   * // Create a new SortedSet with new custom comparator
+   * > const set4=SortedSet(set2, citiesCmp);
+   * SortedSet {
+   *    Map { "state": "MA", "city": "Boston" },
+   *    Map { "city": "Miami", "state": "FL" },
+   *    Map { "city": "Phoenix", "state": "AZ" },
+   *    Map { "city": "Seattle", "state": "WA" } }
+   * // set4 looks the same as set2, now let's add the conflicting Phoenix, IL to set4
+   * > const set5=set4.add(fromJS({city: 'Phoenix', state: 'IL'}));
+   * SortedSet {
+   *    Map { "state": "MA", "city": "Boston" },
+   *    Map { "city": "Miami", "state": "FL" },
+   *    Map { "city": "Phoenix", "state": "AZ" },
+   *    Map { "city": "Phoenix", "state": "IL" },
+   *    Map { "city": "Seattle", "state": "WA" } }
+   * ```
+   * The custom comparator behaves as expected. Now let's swap the order of commands
+   * in the comparator and sort by state first and by city name second.
+   * ```js
+   * > const stateCitiesCmp=(a,b)=>cmp(a.get('state'), b.get('state'))||cmp(a.get('city'), b.get('city'));
+   * > const set6=SortedSet(set5, stateCitiesCmp);
+   * SortedSet {
+   *    Map { "city": "Phoenix", "state": "AZ" },
+   *    Map { "city": "Miami", "state": "FL" },
+   *    Map { "city": "Phoenix", "state": "IL" },
+   *    Map { "state": "MA", "city": "Boston" },
+   *    Map { "city": "Seattle", "state": "WA" } }
+   * ```
+   */
+  namespace SortedSet {
+    /**
+     * True if the provided value is a `SortedSet`.
+     *
+     * ```js
+     * > const { SortedMap, SortedSet, List, Map, Set } = require('immutable-sorted');
+     * > SortedSet.isSortedSet(SortedSet());
+     * true
+     * > SortedSet.isSortedSet(SortedMap());
+     * false
+     * > SortedSet.isSortedSet(Set());
+     * false
+     * > SortedSet.isSortedSet(Map());
+     * false
+     * > SortedSet.isSortedSet(List());
+     * false
+     * ```
+     */
+    function isSortedSet(maybeSortedSet: any): boolean;
+
+    /**
+     * Creates a new `SortedSet` containing `values`.
+     *
+     * ```js
+     * > const { SortedMap } = require('immutable-sorted');
+     * > let sortedSet=SortedSet.of("orange", "apple", "banana");
+     * SortedSet { "apple", "banana", "orange" }
+     * ```
+     */
+    function of<T>(...values: Array<T>): SortedSet<T>;
+
+    /**
+     * `SortedSet.fromKeys()` creates a new immutable `SortedSet` containing
+     * the keys from this Collection or JavaScript Object.
+     *
+     * ```js
+     * > const { SortedMap, Map } = require('immutable-sorted');
+     *
+     * > let map=Map({x:'X', c:'B', m:'M', anylabel:'K', f:'F'});
+     * > let sortedSet=SortedSet.fromKeys(map);
+     * SortedSet { "anylabel", "c", "f", "m", "x" }
+     *
+     * > sortedSet=SortedSet.fromKeys({x:'X', c:'B', m:'M', anylabel:'K', f:'F'});
+     * SortedSet { "anylabel", "c", "f", "m", "x" }
+     * ```
+     */
+    function fromKeys<T>(iter: Collection<T, any>): SortedSet<T>;
+    function fromKeys(obj: { [key: string]: any }): SortedSet<string>;
+  }
+
+  /**
+   * Creates a new immutable `SortedSet` containing the values of the provided
+   * collection-like. The values will be sorted by the provided comparator.
+   *
+   * The comparator is a function that takes two arguments (a, b) and
+   * returns 0 if a and b are equal, returns positive number when a > b
+   * and returns negative number if a < b.
+   *
+   * If comparator is undefined, the `defaultComparator` will be applied.
+   * This comparator is different than the default comparator used by `Collection.sort`
+   * because more stringent comparison rules have to be applied to support all the types
+   * and marginal values like NaN or Infinity.
+   *
+   * The `defaultComparator` first determines equality by calling `Immutable.is`,
+   * then compares the types of both values. If both values are of the same type,
+   * then it compares the values by using the javascript comparison operators > and <,
+   * but before that the objects, functions, and symbols are converted to string.
+   *
+   * The internal data structures will be created according to the given options. If options
+   * are undefined then `defaultOptions` will be applied.
+   *
+   * The default options are:
+   * ```js
+   * {type: 'btree', btreeOrder: 33}
+   * ```
+   * Currently the only type implemented is `btree`. It is a classic [B-Tree](https://en.wikipedia.org/wiki/B-tree)
+   * structure with keys and values not only in leaves but also in internal nodes.
+   * The option `btreeOrder` is defined as the maximum number of children that any internal nodes can have
+   * and also implies maximum number of entries (key/value pairs) in any node which is (`btreeOrder` - 1).
+   * The `btreeOrder` option can be changed in a constructor and can be any integer greater or equal 3.
+   *
+   * There are many ways to quickly and conveniently create a `SortedSet` by calling a constructor.
+   * Below are some examples.
+   *
+   * Create a `SortedSet` from any array:
+   * ```js
+   * > const { SortedMap } = require('immutable-sorted');
+   * > let a=SortedSet(['a', 'c', 'z', 'u', 'b', 'q', 'd']);
+   * SortedSet { "a", "b", "c", "d", "q", "u", "z" }
+   * ```
+   *
+   * From a sequence of values:
+   * ```js
+   * > const { SortedMap, SortedSet, List, Map, Seq, Set } = require('immutable-sorted');
+   *
+   * > let seq=Seq({x:'X', c:'B', m:'M', anylabel:'K', f:'F'});
+   * Seq { "x": "X", "c": "B", "m": "M", "anylabel": "K", "f": "F" }
+   *
+   * > let b=SortedSet(seq.keySeq());
+   * SortedSet { "anylabel", "c", "f", "m", "x" }
+   *
+   * > let c=SortedSet(seq.valueSeq());
+   * SortedSet { "B", "F", "K", "M", "X" }
+   * ```
+   *
+   * From a string:
+   * ```js
+   * > let d=SortedSet('abcdefg');
+   * SortedSet { "a", "b", "c", "d", "e", "f", "g" }
+   *
+   * > let e=SortedSet('gefdcba');
+   * SortedSet { "a", "b", "c", "d", "e", "f", "g" }
+   *
+   * > e=SortedSet("hello");
+   * SortedSet { "e", "h", "l", "o" }
+   * ```
+   *
+   * From other collections (List, Range, Set, Map):
+   * ```js
+   * > let list=List(['orange', 'apple', 'banana']);
+   * List [ "orange", "apple", "banana" ]
+   * > let f=SortedSet(list);
+   * SortedSet { "apple", "banana", "orange" }
+   *
+   * > let range=Range(30, 0, 5);
+   * Range [ 30...0 by -5 ]
+   * > f=SortedSet(range);
+   * SortedSet { 5, 10, 15, 20, 25, 30 }
+   *
+   * > let set=Set(['orange', 'apple', 'banana']);
+   * Set { "orange", "apple", "banana" }
+   * > f=SortedSet(set);
+   * SortedSet { "apple", "banana", "orange" }
+   *
+   * > let map=Map({x:'X', c:'B', m:'M', anylabel:'K', f:'F'});
+   * Map { "x": "X", "c": "B", "m": "M", "anylabel": "K", "f": "F" }
+   * > f=SortedSet(map.keySeq());
+   * SortedSet { "anylabel", "c", "f", "m", "x" }
+   * ```
+   *
+   * Use a custom comparator (reverse order):
+   * ```js
+   * > let reverseComparator=(a, b)=>(a > b ? -1 : a < b ? 1 : 0);
+   * > let g=SortedSet(list, reverseComparator);
+   * SortedSet { "orange", "banana", "apple" }
+   *
+   * // Create an empty set with custom comparator
+   * > g=SortedSet(undefined, reverseComparator);
+   * ```
+   *
+   * Change the `btreeOrder` option:
+   * ```js
+   * > let options={type: 'btree', btreeOrder: 17};
+   * > let h=SortedSet(list, reverseComparator, options);
+   * SortedSet { "orange", "banana", "apple" }
+   *
+   * // Create an empty set with default comparator and custom options
+   * > h=SortedSet(undefined, undefined, options);
+   * ```
+   *
+   * You can also conveniently create a `SortedSet` within a chain of sequence operations:
+   * ```js
+   * > seq.keySeq().toSortedSet();
+   * SortedSet { "anylabel", "c", "f", "m", "x" }
+   *
+   * > seq.valueSeq().toSortedSet();
+   * SortedSet { "B", "F", "K", "M", "X" }
+   *
+   * > seq.valueSeq().toSortedSet(reverseComparator);
+   * SortedSet { "X", "M", "K", "F", "B" }
+   * ```
+   */
+  export function SortedSet<T>(
+    collection?: Iterable<T>,
+    comparator?: (a: T, b: T) => number,
+    options?: object
+  ): SortedSet<T>;
+
+  export interface SortedSet<T> extends Set<T> {
+    /**
+     * The number of items in this SortedSet.
+     */
+    readonly size: number;
+
+    // Persistent changes
+
+    /**
+     * Returns a new `SortedSet` containing the values of the provided
+     * collection-like. The values will be organized in an optimized tree structure
+     * with internal nodes and leaves defragmented as much as possible
+     * while keeping all the consistency rules enforced.
+     *
+     * If the collection argument is undefined then the current content
+     * of this `SortedSet` will be reorganized into an optimized tree structure.
+     *
+     * The pack procedure is actually called from the `SortedSet` constructor
+     * as it is usually faster than a series of add operations. It is recommended
+     * to explicitly call this method after a large batch of add or delete operations
+     * to release a portion of the allocated memory and to speed up the consequent get
+     * operations.
+     */
+    pack(collection?: Iterable<T>): this;
+
+    /**
+     * Returns a sequence representing a subset of this sorted set starting with value
+     * up to the last element in the set.
+     *
+     * If the optional parameter backwards is set to true, the returned sequence will
+     * list the entries backwards, starting with value down to the first element in the set.
+     *
+     * Example:
+     * ```js
+     * const { SortedSet } = require('immutable-sorted');
+     *
+     * const abc = SortedSet(["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]);
+     *
+     * > abc.from("R");
+     * Seq { "R", "S", "T", "U", "V", "W", "X", "Y", "Z" }
+     *
+     * > abc.from("R", true);
+     * Seq { "R", "Q", "P", "O", "N", "M", "L", "K", "J", "I", "H", "G", "F", "E", "D", "C", "B", "A" }
+     * ```
+     *
+     * The method from() can be efficiently combined with take() to retrieve the desired number of values or with takeWhile() to retrieve a specific range:
+     * ```js
+     * > abc.from("R").take(5);
+     * Seq { "R", "S", "T", "U", "V" }
+     *
+     * > abc.from("R").takeWhile(s => s < "W");
+     * Seq { "R", "S", "T", "U", "V" }
+     *
+     * > abc.from("R", true).take(5);
+     * Seq { "R", "Q", "P", "O", "N" }
+     *
+     * > abc.from("R", true).takeWhile(s => s > "K");
+     * Seq { "R", "Q", "P", "O", "N", "M", "L" }
+     * ```
+     */
+    from(value: T, backwards?: boolean): Seq.Set<T>;
+
+    /**
+     * Returns a sequence representing a portion of this sorted set starting from numeric index position,
+     * as if the collection was an array.
+     * If the optional parameter backwards is set to true, the returned sequence will
+     * list the entries backwards.
+     *
+     * The method is optimized to quickly find the n-th entry inside the b-tree structure
+     * by checking the computed sizes of underlying nodes.
+     * Even though the algorithm is not as fast as working with a native array,
+     * it is faster by orders of magnitude than walking through the first n elements
+     * of unindexed collection to just skip them. The access time is O(log N).
+     * Example:
+     * ```js
+     * > abc.fromIndex(4).take(5);
+     * Seq { "E", "F", "G", "H", "I" }
+     *
+     * > abc.fromIndex(4, true).take(5);
+     * Seq { "E", "D", "C", "B", "A" }
+     * ```
+     */
+    fromIndex(index: number, backwards?: boolean): Seq.Set<T>;
   }
 
   /**
@@ -4328,6 +5126,18 @@ declare namespace Immutable {
     toOrderedMap(): OrderedMap<K, V>;
 
     /**
+     * Converts this Collection to a SortedMap, with entries sorted according to comparator
+     * If comparator is undefined then `defaultComparator` will be applied.
+     *
+     * Note: This is equivalent to `SortedMap(this.toKeyedSeq())`, but
+     * provided for convenience and to allow for chained expressions.
+     */
+    toSortedMap(
+      comparator?: (a: K, b: K) => number,
+      options?: object
+    ): SortedMap<K, V>;
+
+    /**
      * Converts this Collection to a Set, discarding keys. Throws if values
      * are not hashable.
      *
@@ -4344,6 +5154,18 @@ declare namespace Immutable {
      * for convenience and to allow for chained expressions.
      */
     toOrderedSet(): OrderedSet<V>;
+
+    /**
+     * Converts this Collection to a SortedSet, maintaining the order of iteration and
+     * discarding keys.
+     *
+     * Note: This is equivalent to `SortedSet(this.valueSeq())`, but provided
+     * for convenience and to allow for chained expressions.
+     */
+    toSortedSet(
+      comparator?: (a: V, b: V) => number,
+      options?: object
+    ): SortedSet<V>;
 
     /**
      * Converts this Collection to a List, discarding keys.
@@ -5396,6 +6218,23 @@ declare namespace Immutable {
   function isOrdered(maybeOrdered: unknown): boolean;
 
   /**
+   * True if `maybeSorted` is a Collection where iteration order is well
+   * defined by a comparator.
+   *
+   * <!-- runkit:activate -->
+   * ```js
+   * const { isSorted, Map, SortedMap, List, Set } = require('immutable');
+   * isSorted([]); // false
+   * isSorted({}); // false
+   * isSorted(Map()); // false
+   * isSorted(SortedMap()); // true
+   * isSorted(List()); // true
+   * isSorted(Set()); // false
+   * ```
+   */
+  function isSorted(maybeSorted: any): boolean;
+
+  /**
    * True if `maybeValue` is a JavaScript Object which has *both* `equals()`
    * and `hashCode()` methods.
    *
@@ -5422,7 +6261,7 @@ declare namespace Immutable {
   /**
    * True if `maybeMap` is a Map.
    *
-   * Also true for OrderedMaps.
+   * Also true for OrderedMaps and SortedMaps.
    */
   function isMap(maybeMap: unknown): maybeMap is Map<unknown, unknown>;
 
@@ -5441,7 +6280,7 @@ declare namespace Immutable {
   /**
    * True if `maybeSet` is a Set.
    *
-   * Also true for OrderedSets.
+   * Also true for OrderedSets and SortedSets.
    */
   function isSet(maybeSet: unknown): maybeSet is Set<unknown>;
 
@@ -5451,6 +6290,13 @@ declare namespace Immutable {
   function isOrderedSet(
     maybeOrderedSet: unknown
   ): maybeOrderedSet is OrderedSet<unknown>;
+
+  /**
+   * True if `maybeSortedSet` is an SortedSet.
+   */
+  export function isSortedSet(
+    maybeSortedSet: any
+  ): maybeSortedSet is SortedSet<any>;
 
   /**
    * True if `maybeRecord` is a Record.

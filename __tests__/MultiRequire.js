@@ -73,6 +73,11 @@ describe('MultiRequire', () => {
     expect(Immutable1.OrderedMap.isOrderedMap(c2)).toBe(true);
     expect(Immutable2.OrderedMap.isOrderedMap(c1)).toBe(true);
 
+    c1 = Immutable1.SortedMap();
+    c2 = Immutable2.SortedMap();
+    expect(Immutable1.SortedMap.isSortedMap(c2)).toBe(true);
+    expect(Immutable2.SortedMap.isSortedMap(c1)).toBe(true);
+
     c1 = Immutable1.List();
     c2 = Immutable2.List();
     expect(Immutable1.List.isList(c2)).toBe(true);

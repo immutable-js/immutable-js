@@ -2,6 +2,7 @@ import { is } from './is';
 import { Collection, KeyedCollection } from './Collection';
 import { IS_MAP_SYMBOL, isMap } from './predicates/isMap';
 import { isOrdered } from './predicates/isOrdered';
+import { isSorted } from './predicates/isSorted';
 import {
   DELETE,
   SHIFT,
@@ -11,6 +12,7 @@ import {
   OwnerID,
   MakeRef,
   SetRef,
+  GetRef,
 } from './TrieUtils';
 import { hash } from './Hash';
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
@@ -39,7 +41,7 @@ export class Map extends KeyedCollection {
     // eslint-disable-next-line no-constructor-return
     return value === undefined || value === null
       ? emptyMap()
-      : isMap(value) && !isOrdered(value)
+      : isMap(value) && !isOrdered(value) && !isSorted(value)
       ? value
       : emptyMap().withMutations(map => {
           const iter = KeyedCollection(value);
@@ -651,10 +653,10 @@ function updateMap(map, k, v) {
       didChangeSize,
       didAlter
     );
-    if (!didAlter.value) {
+    if (!GetRef(didAlter)) {
       return map;
     }
-    newSize = map.size + (didChangeSize.value ? (v === NOT_SET ? -1 : 1) : 0);
+    newSize = map.size + (GetRef(didChangeSize) ? (v === NOT_SET ? -1 : 1) : 0);
   }
   if (map.__ownerID) {
     map.size = newSize;
