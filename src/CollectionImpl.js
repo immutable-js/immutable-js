@@ -36,6 +36,8 @@ import quoteString from './utils/quoteString';
 import { toJS } from './toJS';
 import { Map } from './Map';
 import { OrderedMap } from './OrderedMap';
+import { SortedMap } from './SortedMap';
+import { SortedSet } from './SortedSet';
 import { List } from './List';
 import { Set } from './Set';
 import { OrderedSet } from './OrderedSet';
@@ -118,6 +120,20 @@ mixin(Collection, {
   toOrderedMap() {
     // Use Late Binding here to solve the circular dependency.
     return OrderedMap(this.toKeyedSeq());
+  },
+
+  toSortedMap(comparator, options) {
+    // Use Late Binding here to solve the circular dependency.
+    return SortedMap(this.toKeyedSeq(), comparator, options);
+  },
+
+  toSortedSet(comparator, options) {
+    // Use Late Binding here to solve the circular dependency.
+    return SortedSet(
+      isKeyed(this) ? this.valueSeq() : this,
+      comparator,
+      options
+    );
   },
 
   toOrderedSet() {

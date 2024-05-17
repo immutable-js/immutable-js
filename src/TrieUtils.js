@@ -21,6 +21,10 @@ export function SetRef(ref) {
   }
 }
 
+export function GetRef(ref) {
+  return ref.value;
+}
+
 // A function which returns a value representing an "owner" for transient writes
 // to tries. The return value will only ever equal itself, and will not equal
 // the return of any subsequent call of this function.
