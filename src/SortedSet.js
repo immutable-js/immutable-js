@@ -39,6 +39,8 @@ export class SortedSet extends Set {
         options = SortedSet.defaultOptions;
       }
     }
+
+    // eslint-disable-next-line no-constructor-return
     return value === null || value === undefined
       ? emptySortedSet(comparator, options)
       : isSortedSet(value) &&

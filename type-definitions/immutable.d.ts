@@ -1638,7 +1638,7 @@ declare namespace Immutable {
    *    Map { "city": "Seattle", "state": "WA" }: List [ "47°37′N", "122°20′W" ] }
    * ```
    */
-  export module SortedMap {
+  namespace SortedMap {
     /**
      * True if the provided value is a SortedMap
      *
@@ -1785,17 +1785,17 @@ declare namespace Immutable {
   export function SortedMap<K, V>(
     collection?: Iterable<[K, V]>,
     comparator?: (a: K, b: K) => number,
-    options?: Object
+    options?: object
   ): SortedMap<K, V>;
   export function SortedMap<T>(
     collection: Iterable<Iterable<T>>,
     comparator?: (a: T, b: T) => number,
-    options?: Object
+    options?: object
   ): SortedMap<T, T>;
   export function SortedMap<V>(
     obj: { [key: string]: V },
     comparator?: (a: string, b: string) => number,
-    options?: Object
+    options?: object
   ): SortedMap<string, V>;
 
   export interface SortedMap<K, V> extends Map<K, V> {
@@ -2284,7 +2284,7 @@ declare namespace Immutable {
    *    Map { "city": "Seattle", "state": "WA" } }
    * ```
    */
-  export module SortedSet {
+  namespace SortedSet {
     /**
      * True if the provided value is a `SortedSet`.
      *
@@ -2459,7 +2459,7 @@ declare namespace Immutable {
   export function SortedSet<T>(
     collection?: Iterable<T>,
     comparator?: (a: T, b: T) => number,
-    options?: Object
+    options?: object
   ): SortedSet<T>;
 
   export interface SortedSet<T> extends Set<T> {
@@ -5134,7 +5134,7 @@ declare namespace Immutable {
      */
     toSortedMap(
       comparator?: (a: K, b: K) => number,
-      options?: Object
+      options?: object
     ): SortedMap<K, V>;
 
     /**
@@ -5164,7 +5164,7 @@ declare namespace Immutable {
      */
     toSortedSet(
       comparator?: (a: V, b: V) => number,
-      options?: Object
+      options?: object
     ): SortedSet<V>;
 
     /**

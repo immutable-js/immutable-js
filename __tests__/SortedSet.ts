@@ -5,16 +5,8 @@
  *  LICENSE file in the root directory of this source tree.
  */
 
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * Original source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-///<reference path='../resources/jest.d.ts'/>
-
 declare var Symbol: any;
+
 import {
   is,
   List,
@@ -25,33 +17,7 @@ import {
   Set,
   SortedMap,
   SortedSet,
-} from '../';
-
-declare function expect(val: any): ExpectWithIs;
-
-interface ExpectWithIs extends Expect {
-  is(expected: any): void;
-  not: ExpectWithIs;
-}
-
-jasmine.addMatchers({
-  is() {
-    return {
-      compare(actual, expected) {
-        const passed = is(actual, expected);
-        return {
-          pass: passed,
-          message:
-            'Expected ' +
-            actual +
-            (passed ? '' : ' not') +
-            ' to equal ' +
-            expected,
-        };
-      },
-    };
-  },
-});
+} from 'immutable';
 
 describe('SortedSet', () => {
   it('accepts array of values', () => {
@@ -155,7 +121,7 @@ describe('SortedSet', () => {
 
   it('iterates values', () => {
     const s = SortedSet.of(1, 2, 3);
-    const iterator = jest.genMockFunction();
+    const iterator = jest.fn();
     s.forEach(iterator);
     expect(iterator.mock.calls).toEqual([
       [1, 1, s],
@@ -238,7 +204,7 @@ describe('SortedSet', () => {
       SortedSet.of('C', 'D', 'E'),
       SortedSet.of('D', 'B', 'F')
     );
-    expect(s).is(SortedSet.of('A', 'B', 'C', 'D', 'E', 'F'));
+    expect(is(s, SortedSet.of('A', 'B', 'C', 'D', 'E', 'F'))).toBeTruthy();
   });
 
   it('intersects multiple sets', () => {
@@ -246,7 +212,7 @@ describe('SortedSet', () => {
       SortedSet.of('B', 'C', 'D'),
       SortedSet.of('A', 'C', 'E')
     );
-    expect(s).is(SortedSet.of('C'));
+    expect(is(s, SortedSet.of('C'))).toBeTruthy();
   });
 
   it('diffs multiple sets', () => {
@@ -254,7 +220,7 @@ describe('SortedSet', () => {
       SortedSet.of('C', 'D', 'E'),
       SortedSet.of('D', 'B', 'F')
     );
-    expect(s).is(SortedSet.of('A'));
+    expect(is(s, SortedSet.of('A'))).toBeTruthy();
   });
 
   it('expresses value equality with set sequences', () => {
@@ -349,7 +315,7 @@ describe('SortedSet', () => {
   });
 
   it('works with the `new` operator #3', () => {
-    const s = new SortedSet([1, 2, 3]);
+    const s = SortedSet([1, 2, 3]);
     expect(s.has(1)).toBe(true);
     expect(s.has(2)).toBe(true);
     expect(s.has(3)).toBe(true);
@@ -359,7 +325,7 @@ describe('SortedSet', () => {
   it('builds correct seq in function from', () => {
     const size = 10000;
     const data = Range(0, size);
-    const s = new SortedSet(data, undefined, { type: 'btree', btreeOrder: 3 });
+    const s = SortedSet(data, undefined, { type: 'btree', btreeOrder: 3 });
 
     expect(s.toSeq().size).toBe(size);
 
@@ -377,7 +343,7 @@ describe('SortedSet', () => {
   it('builds correct seq in function from backwards', () => {
     const size = 10000;
     const data = Range(0, size);
-    const s = new SortedSet(data, undefined, { type: 'btree', btreeOrder: 3 });
+    const s = SortedSet(data, undefined, { type: 'btree', btreeOrder: 3 });
 
     expect(s.toSeq().size).toBe(size);
 

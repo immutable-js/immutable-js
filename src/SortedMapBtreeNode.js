@@ -41,6 +41,7 @@ class SortedMapBtreeNode extends SortedMapNode {
     this.btreeNodeSplitSize = Math.floor((this.btreeOrder - 1) / 2);
 
     this._calcSize();
+    // eslint-disable-next-line no-constructor-return
     return this;
   }
 

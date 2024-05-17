@@ -5,19 +5,10 @@
  *  LICENSE file in the root directory of this source tree.
  */
 
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * Original source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-///<reference path='../resources/jest.d.ts'/>
+import { is, List, Range, Record, Seq, SortedMap } from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
-
-import { is, List, Range, Record, Seq, SortedMap } from '../';
 
 describe('SortedMap', () => {
   it('converts from object', () => {
@@ -120,7 +111,7 @@ describe('SortedMap', () => {
 
   it('iterates values', () => {
     const m = SortedMap({ a: 'A', b: 'B', c: 'C' });
-    const iterator = jest.genMockFunction();
+    const iterator = jest.fn();
     m.forEach(iterator);
     expect(iterator.mock.calls).toEqual([
       ['A', 'a', m],
@@ -414,7 +405,7 @@ describe('SortedMap', () => {
   it('builds correct seq in function from', () => {
     const size = 10000;
     const data = Range(0, size).map(v => [v, 2 * v]);
-    const s = new SortedMap(data, undefined, { type: 'btree', btreeOrder: 3 });
+    const s = SortedMap(data, undefined, { type: 'btree', btreeOrder: 3 });
 
     expect(s.toSeq().size).toBe(size);
 
@@ -432,7 +423,7 @@ describe('SortedMap', () => {
   it('builds correct seq in function from backwards', () => {
     const size = 10000;
     const data = Range(0, size).map(v => [v, 2 * v]);
-    const s = new SortedMap(data, undefined, { type: 'btree', btreeOrder: 3 });
+    const s = SortedMap(data, undefined, { type: 'btree', btreeOrder: 3 });
 
     expect(s.toSeq().size).toBe(size);
 

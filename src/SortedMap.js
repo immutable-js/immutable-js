@@ -44,6 +44,7 @@ export class SortedMap extends Map {
       }
     }
 
+    // eslint-disable-next-line no-constructor-return
     return value === null || value === undefined
       ? emptySortedMap(comparator, options)
       : isSortedMap(value) &&
@@ -228,7 +229,8 @@ export class SortedMap extends Map {
         return 1;
       }
       return this._root.checkConsistency(printFlag);
-    } else if (!(this.size === 0)) {
+    }
+    if (!(this.size === 0)) {
       return 2;
     }
 

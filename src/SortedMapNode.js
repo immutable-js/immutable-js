@@ -20,18 +20,25 @@ export class SortedMapNode {
   }
 
   getComparator() {}
+
   // eslint-disable-next-line  no-unused-vars
   get(key, notSetValue) {}
+
   // eslint-disable-next-line  no-unused-vars
   upsert(ownerID, key, value, didChangeSize, didAlter) {}
+
   // eslint-disable-next-line  no-unused-vars
   remove(ownerID, key, didChangeSize, didAlter) {}
+
   // eslint-disable-next-line  no-unused-vars
   fastRemove(ownerID, key, didChangeSize, didAlter) {}
+
   // eslint-disable-next-line  no-unused-vars
   iterate(fn, reverse) {}
+
   // eslint-disable-next-line  no-unused-vars
   print(level, maxDepth) {}
+
   // eslint-disable-next-line  no-unused-vars
   checkConsistency(printFlag) {}
 }
@@ -44,7 +51,9 @@ export class SortedMapPacker {
 export class SortedMapNodeFactory {
   // eslint-disable-next-line  no-unused-vars
   createNode(comparator, options, ownerID, entries, nodes) {}
+
   createPacker() {}
+
   // eslint-disable-next-line  no-unused-vars
   createIterator(map, type, reverse) {}
 }
