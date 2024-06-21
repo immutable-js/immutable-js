@@ -130,6 +130,16 @@ var item: number = numberList.get(4);
 var nullableItem: ?number = numberList.get(4);
 var itemOrDefault: number = numberList.get(4, 10);
 
+// $FlowExpectedError[incompatible-type]
+var item: number = numberList.first();
+// $FlowExpectedError[incompatible-type]
+var func: () => number = () => numberList.first();
+
+// $FlowExpectedError[incompatible-type]
+var item: number = numberList.last();
+// $FlowExpectedError[incompatible-type]
+var func: () => number = () => numberList.last();
+
 numberList = List().insert(0, 0);
 numberOrStringList = List.of(0).insert(1, 'a');
 // $FlowExpectedError[incompatible-call]
