@@ -77,6 +77,26 @@ import {
 }
 
 {
+  // #first
+
+  // $ExpectType number | undefined
+  List<number>().first();
+
+  // $ExpectError
+  (): number => List<number>().first();
+}
+
+{
+  // #last
+
+  // $ExpectType number | undefined
+  List<number>().last();
+
+  // $ExpectError
+  (): number => List<number>().last();
+}
+
+{
   // #set
 
   // $ExpectType List<number>
