@@ -142,4 +142,11 @@ describe('OrderedSet', () => {
     expect(out.has(second)).toBe(false);
     expect(out.has(third)).toBe(true);
   });
+
+  it('hashCode should return the same value if the values are the same', () => {
+    const set1 = OrderedSet(['hello']);
+    const set2 = OrderedSet(['goodbye', 'hello']).remove('goodbye');
+
+    expect(set1.hashCode()).toBe(set2.hashCode());
+  });
 });
