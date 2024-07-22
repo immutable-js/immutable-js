@@ -8,6 +8,8 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+## [5.0.0-beta.6]
+
 - [BREAKING] Remove deprecated methods:
 
   - `Map.of('k', 'v')`: use `Map([ [ 'k', 'v' ] ])` or `Map({ k: 'v' })`
@@ -132,6 +134,10 @@ Map<{ a?: string }>({ a: 'a' }).delete('a'); // you can only delete an optional 
 #### Are all `Map` methods implemented ?
 
 For now, only `get`, `getIn`, `set`, `update`, `delete`, `remove`, `toJS`, `toJSON` methods are implemented. All other methods will fallback to the basic `Map` definition. Other method definition will be added later, but as some might be really complex, we prefer the progressive enhancement on the most used functions.
+
+## [4.3.7] - 2024-07-22
+
+- Fix issue with slice negative of filtered sequence [#2006](https://github.com/immutable-js/immutable-js/pull/2006) by [@jdeniau](https://github.com/jdeniau)
 
 ## [4.3.6] - 2024-05-13
 
