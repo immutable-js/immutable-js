@@ -951,6 +951,13 @@ describe('List', () => {
     expect(List().size).toBe(0);
   });
 
+  it('Mutating empty list with a JS API should not mutate new instances', () => {
+    Object.assign(List(), List([1, 2]));
+
+    expect(List().size).toBe(0);
+    expect(List().toArray()).toEqual([]);
+  });
+
   // Note: NaN is the only value not equal to itself. The isNaN() built-in
   // function returns true for any non-numeric value, not just the NaN value.
   function isNaNValue(value) {
