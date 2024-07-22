@@ -5928,7 +5928,7 @@
     return isIndexed(v) ? v.toList() : isKeyed(v) ? v.toMap() : v.toSet();
   }
 
-  var version = "4.3.6";
+  var version = "4.3.7";
 
   var Immutable = {
     version: version,
