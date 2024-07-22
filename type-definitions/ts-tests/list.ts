@@ -66,7 +66,21 @@ test('#set', () => {
   >();
 
   expect(set(List<number>(), 0, 0)).type.toBe<List<number>>();
+});
 
+test('#first', () => {
+  const a = List<number>().first();
+  //    ^?
+  expect(List<number>().first()).type.toBe<number | undefined>();
+  expect(List<number>().first('first')).type.toBe<number | 'first'>();
+});
+
+test('#last', () => {
+  expect(List<number>().last()).type.toBe<number | undefined>();
+  expect(List<number>().last('last')).type.toBe<number | 'last'>();
+});
+
+test('#set', () => {
   expect(set(List<number>(), 1, 'a')).type.toRaiseError();
 
   expect(set(List<number>(), 'a', 1)).type.toRaiseError();
