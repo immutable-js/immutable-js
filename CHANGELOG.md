@@ -8,6 +8,10 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+## [4.3.7] - 2024-07-22
+
+- Fix issue with slice negative of filtered sequence [#2006](https://github.com/immutable-js/immutable-js/pull/2006) by [@jdeniau](https://github.com/jdeniau)
+
 ## [4.3.6] - 2024-05-13
 
 - Fix `Repeat(<value>).equals(undefined)` incorrectly returning true [#1994](https://github.com/immutable-js/immutable-js/pull/1994) by [@butchler](https://github.com/butchler)
