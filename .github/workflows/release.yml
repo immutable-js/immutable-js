@@ -8,6 +8,9 @@ on:
 jobs:
   build:
     name: 'Build & Publish to NPM'
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -31,6 +34,6 @@ jobs:
           else
             echo "::set-output name=TAG::latest"
           fi
-      - run: cd npm && npm publish --tag ${{ steps.npm_tag.outputs.TAG }}
+      - run: cd npm && npm publish --provenance --tag ${{ steps.npm_tag.outputs.TAG }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
