@@ -8,8 +8,10 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
-## [5.0.0-beta.6]
+## [5.0.0-rc.1]
 
+- Fix issue with OrderedMap, OrderedSet and hashCode [#2005](https://github.com/immutable-js/immutable-js/pull/2005) by [@jdeniau](https://github.com/jdeniau)
+- Fix type inference for first() and last() [#2001](https://github.com/immutable-js/immutable-js/pull/2001) by [@butchler](https://github.com/butchler)
 - [BREAKING] Remove deprecated methods:
 
   - `Map.of('k', 'v')`: use `Map([ [ 'k', 'v' ] ])` or `Map({ k: 'v' })`
