@@ -207,7 +207,7 @@ describe('Range', () => {
 
     expect(
       Range(0, 3)
-        .filter($ => true)
+        .filter(() => true)
         .slice(-2)
         .toArray()
     ).toEqual([1, 2]);
