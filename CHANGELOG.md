@@ -8,45 +8,46 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
-## [5.0.0-rc.1]
+## [5.0.0]
 
-- Fix issue with OrderedMap, OrderedSet and hashCode [#2005](https://github.com/immutable-js/immutable-js/pull/2005) by [@jdeniau](https://github.com/jdeniau)
-- Fix type inference for first() and last() [#2001](https://github.com/immutable-js/immutable-js/pull/2001) by [@butchler](https://github.com/butchler)
-- [BREAKING] Remove deprecated methods:
+### Breaking changes
 
-  - `Map.of('k', 'v')`: use `Map([ [ 'k', 'v' ] ])` or `Map({ k: 'v' })`
-  - `Collection.isIterable`: use `isIterable` directly
-  - `Collection.isKeyed`: use `isKeyed` directly
-  - `Collection.isIndexed`: use `isIndexed` directly
-  - `Collection.isAssociative`: use `isAssociative` directly
-  - `Collection.isOrdered`: use `isOrdered` directly
+To sum up, the **big** change in 5.0 is a Typescript change related to `Map` that is typed closer to the JS object. This is a huge change for TS users, but do not impact the runtime behavior. (see [Improve TypeScript definition for `Map`](#typescript-break-improve-typescript-definition-for-map) for more details)
 
-- [BREAKING] Fix issue implementation of `hashCode` for `OrdererMap` and `OrderedSet` where equal objects might not return the same `hashCode` : [#2005](https://github.com/immutable-js/immutable-js/pull/2005)
+Other breaking changes are:
 
-- [Internal] Migrating TS type tests from dtslint to [TSTyche](https://tstyche.org/) [#1988](https://github.com/immutable-js/immutable-js/pull/1988) and [#1991](https://github.com/immutable-js/immutable-js/pull/1991) by [@mrazauskas](https://github.com/mrazauskas).
-  Special thanks to [@arnfaldur](https://github.com/arnfaldur) that migrated every type tests to tsd just before that.
+#### [BREAKING] Remove deprecated methods:
 
-## [5.0.0-beta.5]
+_Released in 5.0.0-rc.1_
 
-- Change Range function: force start and end values to be defined [#1967](https://github.com/immutable-js/immutable-js/pull/1967) by [@jdeniau](https://github.com/jdeniau)
-- [internal] Upgrade to rollup 3.x [#1965](https://github.com/immutable-js/immutable-js/pull/1965) by [@jdeniau](https://github.com/jdeniau)
-- [internal] upgrade tooling (TS, eslint) and documentation packages: #1971, #1972, #1973, #1974, #1975, #1976, #1977, #1978, #1979, #1980, #1981
+- `Map.of('k', 'v')`: use `Map([ [ 'k', 'v' ] ])` or `Map({ k: 'v' })`
+- `Collection.isIterable`: use `isIterable` directly
+- `Collection.isKeyed`: use `isKeyed` directly
+- `Collection.isIndexed`: use `isIndexed` directly
+- `Collection.isAssociative`: use `isAssociative` directly
+- `Collection.isOrdered`: use `isOrdered` directly
 
-## [5.0.0-beta.4]
+#### [BREAKING] `OrdererMap` and `OrderedSet` hashCode implementation has been fixed
 
-Revert tree-shaking possibility as it does break. Moreover, as nearly every collection type can be converted to another collection (`Map().toList()` for example), so nearly no code was removed.
+_Released in 5.0.0-rc.1_
 
-I think that if we want to implement this, we might need to rethink this functionality.
+Fix issue implementation of `hashCode` for `OrdererMap` and `OrderedSet` where equal objects might not return the same `hashCode`.
 
-## [5.0.0-beta.2]
+Changed in [#2005](https://github.com/immutable-js/immutable-js/pull/2005)
 
-Merge `main` branch into `5.x` for [4.3.4](https://github.com/immutable-js/immutable-js/releases/tag/v4.3.4) fixes.
+#### [BREAKING] Range function needs at least two defined parameters
 
-## [5.0.0-beta.1]
+_Released in 5.0.0-beta.5_
 
-### Changed
+Range with `undefined` would end in an infinite loop. Now, you need to define at least the start and end values.
 
-### [Minor BC break] Remove default export
+If you need an infinite range, you can use `Range(0, Infinity)`.
+
+Changed in [#1967](https://github.com/immutable-js/immutable-js/pull/1967) by [@jdeniau](https://github.com/jdeniau)
+
+#### [Minor BC break] Remove default export
+
+_Released in 5.0.0-beta.1_
 
 Immutable does not export a default object containing all it's API anymore.
 As a drawback, you can not `immport Immutable` directly:
@@ -68,12 +69,13 @@ If you want the non-recommanded, but shorter migration path, you can do this:
   const l = Immutable.List([Immutable.Map({ a: 'A' })]);
 ```
 
-### [TypeScript Break] Improve TypeScript definition for `Map`
+#### [TypeScript Break] Improve TypeScript definition for `Map`
+
+_Released in 5.0.0-beta.1_
 
 > If you do use TypeScript, then this change does not impact you : no runtime change here.
 > But if you use Map with TypeScript, this is a HUGE change !
-
-Imagine the following code
+> Imagine the following code
 
 ```ts
 const m = Map({ length: 3, 1: 'one' });
@@ -100,7 +102,7 @@ The return of `m.get('inexistant')` throw the TypeScript error:
 
 > Argument of type '"inexistant"' is not assignable to parameter of type '1 | "length"
 
-#### If you want to keep the old definition
+##### If you want to keep the old definition
 
 **This is a minor BC for TS users**, so if you want to keep the old definition, you can declare you Map like this:
 
@@ -108,7 +110,7 @@ The return of `m.get('inexistant')` throw the TypeScript error:
 const m = Map<string, string | number>({ length: 3, 1: 'one' });
 ```
 
-#### If you need to type the Map with a larger definition
+##### If you need to type the Map with a larger definition
 
 You might want to declare a wider definition, you can type your Map like this:
 
@@ -135,9 +137,20 @@ Map<{ a: string; b?: string }>({ a: 'a' }).set('b', 'b'); // b is forced in type
 Map<{ a?: string }>({ a: 'a' }).delete('a'); // you can only delete an optional key
 ```
 
-#### Are all `Map` methods implemented ?
+##### Are all `Map` methods implemented ?
 
 For now, only `get`, `getIn`, `set`, `update`, `delete`, `remove`, `toJS`, `toJSON` methods are implemented. All other methods will fallback to the basic `Map` definition. Other method definition will be added later, but as some might be really complex, we prefer the progressive enhancement on the most used functions.
+
+### Fixes
+
+- Fix type inference for first() and last() [#2001](https://github.com/immutable-js/immutable-js/pull/2001) by [@butchler](https://github.com/butchler)
+
+### Internal
+
+- [Internal] Migrating TS type tests from dtslint to [TSTyche](https://tstyche.org/) [#1988](https://github.com/immutable-js/immutable-js/pull/1988) and [#1991](https://github.com/immutable-js/immutable-js/pull/1991) by [@mrazauskas](https://github.com/mrazauskas).
+  Special thanks to [@arnfaldur](https://github.com/arnfaldur) that migrated every type tests to tsd just before that.
+- [internal] Upgrade to rollup 3.x [#1965](https://github.com/immutable-js/immutable-js/pull/1965) by [@jdeniau](https://github.com/jdeniau)
+- [internal] upgrade tooling (TS, eslint) and documentation packages: #1971, #1972, #1973, #1974, #1975, #1976, #1977, #1978, #1979, #1980, #1981
 
 ## [4.3.7] - 2024-07-22
 
