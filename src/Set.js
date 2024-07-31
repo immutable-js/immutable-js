@@ -1,5 +1,6 @@
 import { Collection, SetCollection, KeyedCollection } from './Collection';
 import { isOrdered } from './predicates/isOrdered';
+import { isSorted } from './predicates/isSorted';
 import { IS_SET_SYMBOL, isSet } from './predicates/isSet';
 import { emptyMap } from './Map';
 import { DELETE } from './TrieUtils';
@@ -18,7 +19,7 @@ export class Set extends SetCollection {
     // eslint-disable-next-line no-constructor-return
     return value === undefined || value === null
       ? emptySet()
-      : isSet(value) && !isOrdered(value)
+      : isSet(value) && !isOrdered(value) && !isSorted(value)
       ? value
       : emptySet().withMutations(set => {
           const iter = SetCollection(value);
