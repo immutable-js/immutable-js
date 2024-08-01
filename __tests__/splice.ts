@@ -1,6 +1,6 @@
 import { List, Range, Seq } from 'immutable';
-
 import * as jasmineCheck from 'jasmine-check';
+
 jasmineCheck.install();
 
 describe('splice', () => {

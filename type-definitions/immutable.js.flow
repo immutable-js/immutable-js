@@ -76,8 +76,10 @@ declare class _Collection<K, +V> implements ValueObject {
   has(key: K): boolean;
   includes(value: V): boolean;
   contains(value: V): boolean;
-  first<NSV>(notSetValue?: NSV): V | NSV;
-  last<NSV>(notSetValue?: NSV): V | NSV;
+  first(): V | void;
+  first<NSV>(notSetValue: NSV): V | NSV;
+  last(): V | void;
+  last<NSV>(notSetValue: NSV): V | NSV;
 
   hasIn(keyPath: Iterable<mixed>): boolean;
 

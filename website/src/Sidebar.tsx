@@ -86,50 +86,48 @@ function Focus({
   }
 
   return (
-    <>
-      <div className="members">
-        {focus.call && (
-          <section>
-            <h4 className="groupTitle">Construction</h4>
-            <div>
-              <Link href={focus.call.url}>{focus.call.label}</Link>
-            </div>
-          </section>
-        )}
-
-        {focus.functions && (
-          <section>
-            <h4 className="groupTitle">Static Methods</h4>
-            {Object.values(focus.functions).map(fn => (
-              <div key={fn.id}>
-                <Link href={fn.url}>{fn.label}</Link>
-              </div>
-            ))}
-          </section>
-        )}
-
+    <div className="members">
+      {focus.call && (
         <section>
-          {collectMemberGroups(
-            focus.interface,
-            showInGroups,
-            showInherited
-          ).flatMap(([title, groupMembers]) =>
-            groupMembers.length === 0
-              ? null
-              : [
-                  <h4 key={title || 'Members'} className="groupTitle">
-                    {title || 'Members'}
-                  </h4>,
-                  groupMembers.map(member => (
-                    <div key={member.id}>
-                      <Link href={member.url}>{member.label}</Link>
-                    </div>
-                  )),
-                ]
-          )}
+          <h4 className="groupTitle">Construction</h4>
+          <div>
+            <Link href={focus.call.url}>{focus.call.label}</Link>
+          </div>
         </section>
-      </div>
-    </>
+      )}
+
+      {focus.functions && (
+        <section>
+          <h4 className="groupTitle">Static Methods</h4>
+          {Object.values(focus.functions).map(fn => (
+            <div key={fn.id}>
+              <Link href={fn.url}>{fn.label}</Link>
+            </div>
+          ))}
+        </section>
+      )}
+
+      <section>
+        {collectMemberGroups(
+          focus.interface,
+          showInGroups,
+          showInherited
+        ).flatMap(([title, groupMembers]) =>
+          groupMembers.length === 0
+            ? null
+            : [
+                <h4 key={title || 'Members'} className="groupTitle">
+                  {title || 'Members'}
+                </h4>,
+                groupMembers.map(member => (
+                  <div key={member.id}>
+                    <Link href={member.url}>{member.label}</Link>
+                  </div>
+                )),
+              ]
+        )}
+      </section>
+    </div>
   );
 }
 

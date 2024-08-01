@@ -1,6 +1,6 @@
 import { is, Seq } from 'immutable';
-
 import * as jasmineCheck from 'jasmine-check';
+
 jasmineCheck.install();
 
 const genHeterogeneousishArray = gen.oneOf([

@@ -1,7 +1,7 @@
 import * as t from 'transducers-js';
 import { List, Map, Set, Stack } from 'immutable';
-
 import * as jasmineCheck from 'jasmine-check';
+
 jasmineCheck.install();
 
 describe('Transformer Protocol', () => {
@@ -56,7 +56,7 @@ describe('Transformer Protocol', () => {
   it('transduces Map without initial values', () => {
     const m1 = Map({ a: 1, b: 2, c: 3, d: 4 });
     const xform = t.comp(
-      t.filter(([k, v]) => v % 2 === 0),
+      t.filter(([_k, v]) => v % 2 === 0),
       t.map(([k, v]) => [k, v * 2])
     );
     const m2 = t.transduce(xform, Map(), m1);
@@ -68,7 +68,7 @@ describe('Transformer Protocol', () => {
     const m1 = Map({ a: 1, b: 2, c: 3 });
     const m2 = Map({ a: 4, b: 5 });
     const xform = t.comp(
-      t.filter(([k, v]) => v % 2 === 0),
+      t.filter(([_k, v]) => v % 2 === 0),
       t.map(([k, v]) => [k, v * 2])
     );
     const m3 = t.transduce(xform, Map(), m1, m2);

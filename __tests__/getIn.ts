@@ -14,11 +14,11 @@ describe('getIn', () => {
   });
 
   it('deep get throws without list or array-like', () => {
-    // @ts-expect-error
+    // @ts-expect-error -- test that runtime does throw
     expect(() => Map().getIn(undefined)).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: undefined'
     );
-    // @ts-expect-error
+    // @ts-expect-error -- test that runtime does throw
     expect(() => Map().getIn({ a: 1, b: 2 })).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: [object Object]'
     );

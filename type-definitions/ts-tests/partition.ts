@@ -1,146 +1,183 @@
-import { Collection, List, Map, OrderedMap, OrderedSet, Seq, Set } from "immutable";
+import { expect, test } from 'tstyche';
+import {
+  Collection,
+  List,
+  Map,
+  OrderedMap,
+  OrderedSet,
+  Seq,
+  Set,
+} from 'immutable';
 
 abstract class A {}
 class B extends A {}
 
-{
-    type Indexed<T> = Collection.Indexed<T>;
-    type Keyed<K, V> = Collection.Keyed<K, V>;
-    type Set<T> = Collection.Set<T>;
+test('Collection', () => {
+  type Indexed<T> = Collection.Indexed<T>;
+  type Keyed<K, V> = Collection.Keyed<K, V>;
+  type Set<T> = Collection.Set<T>;
 
-    (c: Collection<string, number>) => {
-        // $ExpectType [Collection<string, number>, Collection<string, number>]
-        c.partition((x) => x % 2);
-    };
+  (c: Collection<string, number>) => {
+    expect(c.partition(x => x % 2)).type.toBe<
+      [Collection<string, number>, Collection<string, number>]
+    >();
+  };
 
-    (c: Collection<string, A>) => {
-        // $ExpectType [Collection<string, A>, Collection<string, B>]
-        c.partition((x): x is B => x instanceof B);
-    };
+  (c: Collection<string, A>) => {
+    expect(c.partition((x): x is B => x instanceof B)).type.toBe<
+      [Collection<string, A>, Collection<string, B>]
+    >();
+  };
 
-    (c: Keyed<string, number>) => {
-        // $ExpectType [Keyed<string, number>, Keyed<string, number>]
-        c.partition((x) => x % 2);
-    };
+  (c: Keyed<string, number>) => {
+    expect(c.partition(x => x % 2)).type.toBe<
+      [Keyed<string, number>, Keyed<string, number>]
+    >();
+  };
 
-    (c: Keyed<string, A>) => {
-        // $ExpectType [Keyed<string, A>, Keyed<string, B>]
-        c.partition((x): x is B => x instanceof B);
-    };
+  (c: Keyed<string, A>) => {
+    expect(c.partition((x): x is B => x instanceof B)).type.toBe<
+      [Keyed<string, A>, Keyed<string, B>]
+    >();
+  };
 
-    (c: Indexed<number>) => {
-        // $ExpectType [Indexed<number>, Indexed<number>]
-        c.partition((x) => x % 2);
-    };
+  (c: Indexed<number>) => {
+    expect(c.partition(x => x % 2)).type.toBe<
+      [Indexed<number>, Indexed<number>]
+    >();
+  };
 
-    (c: Indexed<A>) => {
-        // $ExpectType [Indexed<A>, Indexed<B>]
-        c.partition((x): x is B => x instanceof B);
-    };
+  (c: Indexed<A>) => {
+    expect(c.partition((x): x is B => x instanceof B)).type.toBe<
+      [Indexed<A>, Indexed<B>]
+    >();
+  };
 
-    (c: Set<number>) => {
-        // $ExpectType [Set<number>, Set<number>]
-        c.partition((x) => x % 2);
-    };
+  (c: Set<number>) => {
+    expect(c.partition(x => x % 2)).type.toBe<[Set<number>, Set<number>]>();
+  };
 
-    (c: Set<A>) => {
-        // $ExpectType [Set<A>, Set<B>]
-        c.partition((x): x is B => x instanceof B);
-    };
-}
+  (c: Set<A>) => {
+    expect(c.partition((x): x is B => x instanceof B)).type.toBe<
+      [Set<A>, Set<B>]
+    >();
+  };
+});
 
-{
-    type Indexed<T> = Seq.Indexed<T>;
-    type Keyed<K, V> = Seq.Keyed<K, V>;
-    type Set<T> = Seq.Set<T>;
+test('Seq', () => {
+  type Indexed<T> = Seq.Indexed<T>;
+  type Keyed<K, V> = Seq.Keyed<K, V>;
+  type Set<T> = Seq.Set<T>;
 
-    (c: Seq<string, number>) => {
-        // $ExpectType [Seq<string, number>, Seq<string, number>]
-        c.partition((x) => x % 2);
-    };
+  (c: Seq<string, number>) => {
+    expect(c.partition(x => x % 2)).type.toBe<
+      [Seq<string, number>, Seq<string, number>]
+    >();
+  };
 
-    (c: Seq<string, A>) => {
-        // $ExpectType [Seq<string, A>, Seq<string, B>]
-        c.partition((x): x is B => x instanceof B);
-    };
+  (c: Seq<string, A>) => {
+    expect(c.partition((x): x is B => x instanceof B)).type.toBe<
+      [Seq<string, A>, Seq<string, B>]
+    >();
+  };
 
-    (c: Keyed<string, number>) => {
-        // $ExpectType [Keyed<string, number>, Keyed<string, number>]
-        c.partition((x) => x % 2);
-    };
+  (c: Keyed<string, number>) => {
+    expect(c.partition(x => x % 2)).type.toBe<
+      [Keyed<string, number>, Keyed<string, number>]
+    >();
+  };
 
-    (c: Keyed<string, A>) => {
-        // $ExpectType [Keyed<string, A>, Keyed<string, B>]
-        c.partition((x): x is B => x instanceof B);
-    };
+  (c: Keyed<string, A>) => {
+    expect(c.partition((x): x is B => x instanceof B)).type.toBe<
+      [Keyed<string, A>, Keyed<string, B>]
+    >();
+  };
 
-    (c: Indexed<number>) => {
-        // $ExpectType [Indexed<number>, Indexed<number>]
-        c.partition((x) => x % 2);
-    };
+  (c: Indexed<number>) => {
+    expect(c.partition(x => x % 2)).type.toBe<
+      [Indexed<number>, Indexed<number>]
+    >();
+  };
 
-    (c: Indexed<A>) => {
-        // $ExpectType [Indexed<A>, Indexed<B>]
-        c.partition((x): x is B => x instanceof B);
-    };
+  (c: Indexed<A>) => {
+    expect(c.partition((x): x is B => x instanceof B)).type.toBe<
+      [Indexed<A>, Indexed<B>]
+    >();
+  };
 
-    (c: Set<number>) => {
-        // $ExpectType [Set<number>, Set<number>]
-        c.partition((x) => x % 2);
-    };
+  (c: Set<number>) => {
+    expect(c.partition(x => x % 2)).type.toBe<[Set<number>, Set<number>]>();
+  };
 
-    (c: Set<A>) => {
-        // $ExpectType [Set<A>, Set<B>]
-        c.partition((x): x is B => x instanceof B);
-    };
-}
+  (c: Set<A>) => {
+    expect(c.partition((x): x is B => x instanceof B)).type.toBe<
+      [Set<A>, Set<B>]
+    >();
+  };
+});
 
-(c: Map<string, number>) => {
-    // $ExpectType [Map<string, number>, Map<string, number>]
-    c.partition((x) => x % 2);
-};
+test('Map', () => {
+  (c: Map<string, number>) => {
+    expect(c.partition(x => x % 2)).type.toBe<
+      [Map<string, number>, Map<string, number>]
+    >();
+  };
 
-(c: Map<string, A>) => {
-    // $ExpectType [Map<string, A>, Map<string, B>]
-    c.partition((x): x is B => x instanceof B);
-};
+  (c: Map<string, A>) => {
+    expect(c.partition((x): x is B => x instanceof B)).type.toBe<
+      [Map<string, A>, Map<string, B>]
+    >();
+  };
+});
 
-(c: OrderedMap<string, number>) => {
-    // $ExpectType [OrderedMap<string, number>, OrderedMap<string, number>]
-    c.partition((x) => x % 2);
-};
+test('OrderedMap', () => {
+  (c: OrderedMap<string, number>) => {
+    expect(c.partition(x => x % 2)).type.toBe<
+      [OrderedMap<string, number>, OrderedMap<string, number>]
+    >();
+  };
 
-(c: OrderedMap<string, A>) => {
-    // $ExpectType [OrderedMap<string, A>, OrderedMap<string, B>]
-    c.partition((x): x is B => x instanceof B);
-};
+  (c: OrderedMap<string, A>) => {
+    expect(c.partition((x): x is B => x instanceof B)).type.toBe<
+      [OrderedMap<string, A>, OrderedMap<string, B>]
+    >();
+  };
+});
 
-(c: List<number>) => {
-    // $ExpectType [List<number>, List<number>]
-    c.partition((x) => x % 2);
-};
+test('List', () => {
+  (c: List<number>) => {
+    expect(c.partition(x => x % 2)).type.toBe<[List<number>, List<number>]>();
+  };
 
-(c: List<A>) => {
-    // $ExpectType [List<A>, List<B>]
-    c.partition((x): x is B => x instanceof B);
-};
+  (c: List<A>) => {
+    expect(c.partition((x): x is B => x instanceof B)).type.toBe<
+      [List<A>, List<B>]
+    >();
+  };
+});
 
-(c: Set<number>) => {
-    // $ExpectType [Set<number>, Set<number>]
-    c.partition((x) => x % 2);
-};
+test('Set', () => {
+  (c: Set<number>) => {
+    expect(c.partition(x => x % 2)).type.toBe<[Set<number>, Set<number>]>();
+  };
 
-(c: Set<A>) => {
-    // $ExpectType [Set<A>, Set<B>]
-    c.partition((x): x is B => x instanceof B);
-};
+  (c: Set<A>) => {
+    expect(c.partition((x): x is B => x instanceof B)).type.toBe<
+      [Set<A>, Set<B>]
+    >();
+  };
+});
 
-(c: OrderedSet<number>) => {
-    // $ExpectType [OrderedSet<number>, OrderedSet<number>]
-    c.partition((x) => x % 2);
-};
+test('OrderedSet', () => {
+  (c: OrderedSet<number>) => {
+    expect(c.partition(x => x % 2)).type.toBe<
+      [OrderedSet<number>, OrderedSet<number>]
+    >();
+  };
 
-(c: OrderedSet<A>) => {
-    // $ExpectType [OrderedSet<A>, OrderedSet<B>]
-    c.partition((x): x is B => x instanceof B);
-};
+  (c: OrderedSet<A>) => {
+    expect(c.partition((x): x is B => x instanceof B)).type.toBe<
+      [OrderedSet<A>, OrderedSet<B>]
+    >();
+  };
+});

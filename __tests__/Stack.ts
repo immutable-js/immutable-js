@@ -1,6 +1,6 @@
 import { Seq, Stack } from 'immutable';
-
 import * as jasmineCheck from 'jasmine-check';
+
 jasmineCheck.install();
 
 function arrayOfSize(s) {
@@ -74,7 +74,7 @@ describe('Stack', () => {
     const s = Stack.of('a', 'b', 'c');
     expect(s.size).toBe(3);
 
-    const forEachResults: Array<any> = [];
+    const forEachResults: Array<[number, string, string | undefined]> = [];
     s.forEach((val, i) => forEachResults.push([i, val, s.get(i)]));
     expect(forEachResults).toEqual([
       [0, 'a', 'a'],
@@ -85,9 +85,9 @@ describe('Stack', () => {
     // map will cause reverse iterate
     expect(s.map(val => val + val).toArray()).toEqual(['aa', 'bb', 'cc']);
 
-    let iteratorResults: Array<any> = [];
+    let iteratorResults: Array<[number, string]> = [];
     let iterator = s.entries();
-    let step;
+    let step: IteratorResult<[number, string]>;
     while (!(step = iterator.next()).done) {
       iteratorResults.push(step.value);
     }
@@ -157,7 +157,7 @@ describe('Stack', () => {
     { maxSize: 2000 },
     [gen.posInt],
     len => {
-      const a: Array<any> = [];
+      const a: Array<number> = [];
       let s = Stack();
 
       for (let ii = 0; ii < len; ii++) {

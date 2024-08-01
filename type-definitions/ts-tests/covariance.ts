@@ -1,74 +1,87 @@
-import { List, Map, OrderedMap, OrderedSet, Set, Stack } from 'immutable';
+import { expect, test } from 'tstyche';
+import {
+  List,
+  Map,
+  MapOf,
+  OrderedMap,
+  OrderedSet,
+  Set,
+  Stack,
+} from 'immutable';
 
 class A {
   x: number;
+
   constructor() {
     this.x = 1;
   }
 }
+
 class B extends A {
   y: string;
+
   constructor() {
     super();
     this.y = 'B';
   }
 }
+
 class C {
   z: string;
+
   constructor() {
     this.z = 'C';
   }
 }
 
-// List covariance
-let listOfB: List<B> = List<B>();
-let listOfA: List<A> = listOfB;
+test('List covariance', () => {
+  expect<List<A>>().type.toBeAssignableWith(List<B>());
 
-// $ExpectType List<B>
-listOfA = List([new B()]);
+  expect(List([new B()])).type.toBe<List<B>>();
 
-// $ExpectError
-let listOfC: List<C> = listOfB;
+  expect<List<C>>().type.not.toBeAssignableWith(List<B>());
+});
 
-// Map covariance
-declare var mapOfB: Map<string, B>;
-let mapOfA: Map<string, A> = mapOfB;
+test('Map covariance', () => {
+  expect<Map<string, A>>().type.toBeAssignableWith<Map<string, B>>();
 
-// $ExpectType Map<string, B>
-mapOfA = Map({ b: new B() });
+  expect(Map({ b: new B() })).type.toBe<MapOf<{ b: B }>>();
 
-// $ExpectError
-let mapOfC: Map<string, C> = mapOfB;
+  expect<Map<string, C>>().type.not.toBeAssignableWith<Map<string, B>>();
+});
 
-// Set covariance
-declare var setOfB: Set<B>;
-let setOfA: Set<A> = setOfB;
+test('Set covariance', () => {
+  expect<Set<A>>().type.toBeAssignableWith<Set<B>>();
 
-// $ExpectType Set<B>
-setOfA = Set([new B()]);
-// $ExpectError
-let setOfC: Set<C> = setOfB;
+  expect(Set([new B()])).type.toBe<Set<B>>();
 
-// Stack covariance
-declare var stackOfB: Stack<B>;
-let stackOfA: Stack<A> = stackOfB;
-// $ExpectType Stack<B>
-stackOfA = Stack([new B()]);
-// $ExpectError
-let stackOfC: Stack<C> = stackOfB;
+  expect<Set<C>>().type.not.toBeAssignableWith<Set<B>>();
+});
 
-// OrderedMap covariance
-declare var orderedMapOfB: OrderedMap<string, B>;
-let orderedMapOfA: OrderedMap<string, A> = orderedMapOfB;
-// $ExpectType OrderedMap<string, B>
-orderedMapOfA = OrderedMap({ b: new B() });
-// $ExpectError
-let orderedMapOfC: OrderedMap<string, C> = orderedMapOfB;
+test('Stack covariance', () => {
+  expect<Stack<A>>().type.toBeAssignableWith<Stack<B>>();
 
-// OrderedSet covariance
-declare var orderedSetOfB: OrderedSet<B>;
-let orderedSetOfA: OrderedSet<A> = orderedSetOfB;
-// $ExpectType OrderedSet<B>
-orderedSetOfA = OrderedSet([new B()]);
-// $ExpectError
-let orderedSetOfC: OrderedSet<C> = orderedSetOfB;
+  expect(Stack([new B()])).type.toBe<Stack<B>>();
+
+  expect<Stack<C>>().type.not.toBeAssignableWith<Stack<B>>();
+});
+
+test('OrderedMap covariance', () => {
+  expect<OrderedMap<string, A>>().type.toBeAssignableWith<
+    OrderedMap<string, B>
+  >();
+
+  expect(OrderedMap({ b: new B() })).type.toBe<OrderedMap<string, B>>();
+
+  expect<OrderedMap<string, C>>().type.not.toBeAssignableWith<
+    OrderedMap<string, B>
+  >();
+});
+
+test('OrderedSet covariance', () => {
+  expect<OrderedSet<A>>().type.toBeAssignableWith<OrderedSet<B>>();
+
+  expect(OrderedSet([new B()])).type.toBe<OrderedSet<B>>();
+
+  expect<OrderedSet<C>>().type.not.toBeAssignableWith<OrderedSet<B>>();
+});

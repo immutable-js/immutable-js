@@ -1,11 +1,17 @@
 {
   "root": true,
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 6,
     "sourceType": "module"
   },
-  "extends": ["airbnb", "prettier"],
-  "plugins": ["react", "prettier"],
+  "extends": [
+    "airbnb",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/typescript",
+    "prettier"
+  ],
+  "plugins": ["react", "prettier", "@typescript-eslint"],
   "rules": {
     "array-callback-return": "off",
     "block-scoped-var": "off",
@@ -35,7 +41,7 @@
     "no-this-before-super": "off",
     "no-underscore-dangle": "off",
     "no-unused-expressions": "off",
-    "no-unused-vars": "error",
+    "no-unused-vars": "off",
     "no-use-before-define": "off",
     "no-useless-concat": "error",
     "no-var": "error",
@@ -61,10 +67,15 @@
     "react/self-closing-comp": "error",
     "react/sort-comp": "off",
     "react/jsx-props-no-spreading": "off",
+    "react/require-default-props": [
+      "error",
+      {
+        "functions": "ignore"
+      }
+    ],
     "jsx-a11y/no-static-element-interactions": "off",
     "import/extensions": [
       "error",
-      "always",
       { "js": "never", "ts": "never", "tsx": "never" }
     ],
     "import/newline-after-import": "error",
@@ -74,6 +85,39 @@
     "import/no-unresolved": "error",
     "import/no-useless-path-segments": "off",
     "import/prefer-default-export": "off",
-    "prettier/prettier": "error"
-  }
+    "prettier/prettier": "error",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { "argsIgnorePattern": "^_" }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["__tests__/*"],
+      "rules": {
+        "import/no-unresolved": [
+          "error",
+          {
+            "ignore": ["immutable"]
+          }
+        ]
+      }
+    },
+
+    {
+      "files": ["type-definitions/ts-tests/*"],
+      "rules": {
+        "no-lone-blocks": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+        "prefer-const": "off",
+        "import/no-unresolved": [
+          "error",
+          {
+            "ignore": ["immutable"]
+          }
+        ]
+      }
+    }
+  ]
 }

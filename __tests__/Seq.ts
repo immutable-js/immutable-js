@@ -94,7 +94,7 @@ describe('Seq', () => {
 
   it('does not accept a scalar', () => {
     expect(() => {
-      // @ts-expect-error
+      // @ts-expect-error -- test that runtime does throw
       Seq(3);
     }).toThrow(
       'Expected Array or collection object of values, or keyed object: 3'

@@ -1,11 +1,12 @@
-import { Range } from 'immutable';
+import { expect, test } from 'tstyche';
+import { Range, Seq } from 'immutable';
 
-{
-  // #constructor
+test('#constructor', () => {
+  expect(Range(0, 0, 1)).type.toBe<Seq.Indexed<number>>();
 
-  // $ExpectType Indexed<number>
-  Range(0, 0, 0);
+  expect(Range('a', 0, 0)).type.toRaiseError();
 
-  // $ExpectError
-  Range('a', 0, 0);
-}
+  expect(Range()).type.toRaiseError();
+
+  expect(Range(1)).type.toRaiseError();
+});

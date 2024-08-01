@@ -21,11 +21,11 @@ describe('hasIn', () => {
   });
 
   it('deep has throws without list or array-like', () => {
-    // @ts-expect-error
+    // @ts-expect-error -- test that runtime does throw
     expect(() => Map().hasIn(undefined)).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: undefined'
     );
-    // @ts-expect-error
+    // @ts-expect-error -- test that runtime does throw
     expect(() => Map().hasIn({ a: 1, b: 2 })).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: [object Object]'
     );

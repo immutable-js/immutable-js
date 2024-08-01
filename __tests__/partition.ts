@@ -1,5 +1,4 @@
 import {
-  Collection,
   isAssociative,
   isIndexed,
   isKeyed,

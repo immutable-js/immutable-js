@@ -8,7 +8,6 @@ import {
   OrderedSet,
   Set,
   Stack,
-  Record,
 } from 'immutable';
 
 describe('groupBy', () => {

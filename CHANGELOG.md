@@ -8,6 +8,150 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+## [5.0.0]
+
+### Breaking changes
+
+To sum up, the **big** change in 5.0 is a Typescript change related to `Map` that is typed closer to the JS object. This is a huge change for TS users, but do not impact the runtime behavior. (see [Improve TypeScript definition for `Map`](#typescript-break-improve-typescript-definition-for-map) for more details)
+
+Other breaking changes are:
+
+#### [BREAKING] Remove deprecated methods:
+
+_Released in 5.0.0-rc.1_
+
+- `Map.of('k', 'v')`: use `Map([ [ 'k', 'v' ] ])` or `Map({ k: 'v' })`
+- `Collection.isIterable`: use `isIterable` directly
+- `Collection.isKeyed`: use `isKeyed` directly
+- `Collection.isIndexed`: use `isIndexed` directly
+- `Collection.isAssociative`: use `isAssociative` directly
+- `Collection.isOrdered`: use `isOrdered` directly
+
+#### [BREAKING] `OrdererMap` and `OrderedSet` hashCode implementation has been fixed
+
+_Released in 5.0.0-rc.1_
+
+Fix issue implementation of `hashCode` for `OrdererMap` and `OrderedSet` where equal objects might not return the same `hashCode`.
+
+Changed in [#2005](https://github.com/immutable-js/immutable-js/pull/2005)
+
+#### [BREAKING] Range function needs at least two defined parameters
+
+_Released in 5.0.0-beta.5_
+
+Range with `undefined` would end in an infinite loop. Now, you need to define at least the start and end values.
+
+If you need an infinite range, you can use `Range(0, Infinity)`.
+
+Changed in [#1967](https://github.com/immutable-js/immutable-js/pull/1967) by [@jdeniau](https://github.com/jdeniau)
+
+#### [Minor BC break] Remove default export
+
+_Released in 5.0.0-beta.1_
+
+Immutable does not export a default object containing all it's API anymore.
+As a drawback, you can not `immport Immutable` directly:
+
+```diff
+- import Immutable from 'immutable';
++ import { List, Map } from 'immutable';
+
+- const l = Immutable.List([Immutable.Map({ a: 'A' })]);
++ const l = List([Map({ a: 'A' })]);
+```
+
+If you want the non-recommanded, but shorter migration path, you can do this:
+
+```diff
+- import Immutable from 'immutable';
++ import * as Immutable from 'immutable';
+
+  const l = Immutable.List([Immutable.Map({ a: 'A' })]);
+```
+
+#### [TypeScript Break] Improve TypeScript definition for `Map`
+
+_Released in 5.0.0-beta.1_
+
+> If you do use TypeScript, then this change does not impact you : no runtime change here.
+> But if you use Map with TypeScript, this is a HUGE change !
+> Imagine the following code
+
+```ts
+const m = Map({ length: 3, 1: 'one' });
+```
+
+This was previously typed as `Map<string, string | number>`
+
+and return type of `m.get('length')` or `m.get('inexistant')` was typed as `string | number | undefined`.
+
+This made `Map` really unusable with TypeScript.
+
+Now the Map is typed like this:
+
+```ts
+MapOf<{
+    length: number;
+    1: string;
+}>
+```
+
+and the return type of `m.get('length')` is typed as `number`.
+
+The return of `m.get('inexistant')` throw the TypeScript error:
+
+> Argument of type '"inexistant"' is not assignable to parameter of type '1 | "length"
+
+##### If you want to keep the old definition
+
+**This is a minor BC for TS users**, so if you want to keep the old definition, you can declare you Map like this:
+
+```ts
+const m = Map<string, string | number>({ length: 3, 1: 'one' });
+```
+
+##### If you need to type the Map with a larger definition
+
+You might want to declare a wider definition, you can type your Map like this:
+
+```ts
+type MyMapType = {
+  length: number;
+  1: string | null;
+  optionalProperty?: string;
+};
+const m = Map<MyMapType>({ length: 3, 1: 'one' });
+```
+
+Keep in mind that the `MapOf` will try to be consistant with the simple TypeScript object, so you can not do this:
+
+```ts
+Map({ a: 'a' }).set('b', 'b');
+Map({ a: 'a' }).delete('a');
+```
+
+Like a simple object, it will only work if the type is forced:
+
+```ts
+Map<{ a: string; b?: string }>({ a: 'a' }).set('b', 'b'); // b is forced in type and optional
+Map<{ a?: string }>({ a: 'a' }).delete('a'); // you can only delete an optional key
+```
+
+##### Are all `Map` methods implemented ?
+
+For now, only `get`, `getIn`, `set`, `update`, `delete`, `remove`, `toJS`, `toJSON` methods are implemented. All other methods will fallback to the basic `Map` definition. Other method definition will be added later, but as some might be really complex, we prefer the progressive enhancement on the most used functions.
+
+### Fixes
+
+- Fix type inference for first() and last() [#2001](https://github.com/immutable-js/immutable-js/pull/2001) by [@butchler](https://github.com/butchler)
+
+### Internal
+
+- [Internal] Migrating TS type tests from dtslint to [TSTyche](https://tstyche.org/) [#1988](https://github.com/immutable-js/immutable-js/pull/1988) and [#1991](https://github.com/immutable-js/immutable-js/pull/1991) by [@mrazauskas](https://github.com/mrazauskas).
+  Special thanks to [@arnfaldur](https://github.com/arnfaldur) that migrated every type tests to tsd just before that.
+- [internal] Upgrade to rollup 3.x [#1965](https://github.com/immutable-js/immutable-js/pull/1965) by [@jdeniau](https://github.com/jdeniau)
+- [internal] upgrade tooling (TS, eslint) and documentation packages: #1971, #1972, #1973, #1974, #1975, #1976, #1977, #1978, #1979, #1980, #1981
+
 ## [4.3.7] - 2024-07-22
 
 - Fix issue with slice negative of filtered sequence [#2006](https://github.com/immutable-js/immutable-js/pull/2006) by [@jdeniau](https://github.com/jdeniau)

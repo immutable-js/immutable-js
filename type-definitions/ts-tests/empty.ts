@@ -1,57 +1,40 @@
+import { expect, test } from 'tstyche';
 import { Seq, Collection } from 'immutable';
 
-{
-  // Typed empty seqs
+test('typed empty Seq', () => {
+  expect(Seq()).type.toBe<Seq<unknown, unknown>>();
 
-  // $ExpectType Seq<unknown, unknown>
-  Seq();
+  expect(Seq<number, string>()).type.toBe<Seq<number, string>>();
 
-  // $ExpectType Seq<number, string>
-  Seq<number, string>();
+  expect(Seq.Indexed()).type.toBe<Seq.Indexed<unknown>>();
 
-  // $ExpectType Indexed<unknown>
-  Seq.Indexed();
+  expect(Seq.Indexed<string>()).type.toBe<Seq.Indexed<string>>();
 
-  // $ExpectType Indexed<string>
-  Seq.Indexed<string>();
+  expect(Seq.Keyed()).type.toBe<Seq.Keyed<unknown, unknown>>();
 
-  // $ExpectType Keyed<unknown, unknown>
-  Seq.Keyed();
+  expect(Seq.Keyed<number, string>()).type.toBe<Seq.Keyed<number, string>>();
 
-  // $ExpectType Keyed<number, string>
-  Seq.Keyed<number, string>();
+  expect(Seq.Set()).type.toBe<Seq.Set<unknown>>();
 
-  // $ExpectType Set<unknown>
-  Seq.Set();
+  expect(Seq.Set<string>()).type.toBe<Seq.Set<string>>();
+});
 
-  // $ExpectType Set<string>
-  Seq.Set<string>();
-}
+test('typed empty Collection', () => {
+  expect(Collection()).type.toBe<Collection<unknown, unknown>>();
 
-{
-  // Typed empty collection
+  expect(Collection<number, string>()).type.toBe<Collection<number, string>>();
 
-  // $ExpectType Collection<unknown, unknown>
-  Collection();
+  expect(Collection.Indexed()).type.toBe<Collection.Indexed<unknown>>();
 
-  // $ExpectType Collection<number, string>
-  Collection<number, string>();
+  expect(Collection.Indexed<string>()).type.toBe<Collection.Indexed<string>>();
 
-  // $ExpectType Indexed<unknown>
-  Collection.Indexed();
+  expect(Collection.Keyed()).type.toBe<Collection.Keyed<unknown, unknown>>();
 
-  // $ExpectType Indexed<string>
-  Collection.Indexed<string>();
+  expect(Collection.Keyed<number, string>()).type.toBe<
+    Collection.Keyed<number, string>
+  >();
 
-  // $ExpectType Keyed<unknown, unknown>
-  Collection.Keyed();
+  expect(Collection.Set()).type.toBe<Collection.Set<unknown>>();
 
-  // $ExpectType Keyed<number, string>
-  Collection.Keyed<number, string>();
-
-  // $ExpectType Set<unknown>
-  Collection.Set();
-
-  // $ExpectType Set<string>
-  Collection.Set<string>();
-}
+  expect(Collection.Set<string>()).type.toBe<Collection.Set<string>>();
+});

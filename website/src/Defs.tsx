@@ -289,7 +289,10 @@ export function MemberDef({ member }: { member: ObjectMember }) {
   );
 }
 
-function functionParams(params: Array<CallParam> = [], shouldWrap: boolean) {
+function functionParams(
+  params: Array<CallParam> | undefined,
+  shouldWrap: boolean
+) {
   const elements = interpose(
     shouldWrap ? (
       <>
@@ -299,7 +302,7 @@ function functionParams(params: Array<CallParam> = [], shouldWrap: boolean) {
     ) : (
       ', '
     ),
-    params.map((t, i) => (
+    (params ?? []).map((t, i) => (
       <Fragment key={i}>
         {t.varArgs ? '...' : null}
         <span className="t param">{t.name}</span>

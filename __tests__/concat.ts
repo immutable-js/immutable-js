@@ -41,7 +41,7 @@ describe('concat', () => {
     const a = Seq({ a: 1, b: 2, c: 3 });
     const b = [4, 5, 6];
     expect(() => {
-      // @ts-expect-error
+      // @ts-expect-error -- test that runtime does throw
       a.concat(b).toJS();
     }).toThrow('Expected [K, V] tuple: 4');
   });
@@ -158,7 +158,7 @@ describe('concat', () => {
   });
 
   it('lazily reverses indexed sequences with unknown size, maintaining indicies', () => {
-    const a = Seq([1, 2, 3]).filter(x => true);
+    const a = Seq([1, 2, 3]).filter(() => true);
     expect(a.size).toBe(undefined); // Note: lazy filter does not know what size in O(1).
     expect(a.concat(a, a).toKeyedSeq().reverse().size).toBe(undefined);
     expect(a.concat(a, a).toKeyedSeq().reverse().toArray()).toEqual([
