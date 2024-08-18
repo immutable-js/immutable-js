@@ -1,5 +1,5 @@
 import { expect, test } from 'tstyche';
-import { Set, Map, Collection } from 'immutable';
+import { Set, Map, Collection, OrderedSet } from 'immutable';
 
 test('#constructor', () => {
   expect(Set()).type.toBe<Set<unknown>>();
@@ -253,4 +253,8 @@ test('#toJS', () => {
 
 test('#toJSON', () => {
   expect(Set<Set<number>>().toJSON()).type.toBe<Set<number>[]>();
+});
+
+test('OrderedSet != Set', () => {
+  expect<Set<string>>().type.not.toBe<OrderedSet<string>>();
 });

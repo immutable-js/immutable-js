@@ -1,5 +1,5 @@
 import { expect, test } from 'tstyche';
-import { Map, List, MapOf } from 'immutable';
+import { Map, List, MapOf, OrderedMap } from 'immutable';
 
 test('#constructor', () => {
   expect(Map()).type.toBe<Map<unknown, unknown>>();
@@ -638,4 +638,8 @@ test('#toJSON', () => {
   expect(Map({ a: Map({ b: 'b' }) }).toJSON()).type.toBe<{
     a: MapOf<{ b: string }>;
   }>();
+});
+
+test('OrderedMap != Map', () => {
+  expect<Map<string, string>>().type.not.toBe<OrderedMap<string, string>>();
 });
