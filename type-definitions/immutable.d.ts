@@ -1591,6 +1591,65 @@ declare namespace Immutable {
      * @see Collection.Keyed.flip
      */
     flip(): Map<V, K>;
+
+    /**
+     * Returns an OrderedMap of the same type which includes the same entries,
+     * stably sorted by using a `comparator`.
+     *
+     * If a `comparator` is not provided, a default comparator uses `<` and `>`.
+     *
+     * `comparator(valueA, valueB)`:
+     *
+     *   * Returns `0` if the elements should not be swapped.
+     *   * Returns `-1` (or any negative number) if `valueA` comes before `valueB`
+     *   * Returns `1` (or any positive number) if `valueA` comes after `valueB`
+     *   * Alternatively, can return a value of the `PairSorting` enum type
+     *   * Is pure, i.e. it must always return the same value for the same pair
+     *     of values.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { Map } = require('immutable')
+     * Map({ "c": 3, "a": 1, "b": 2 }).sort((a, b) => {
+     *   if (a < b) { return -1; }
+     *   if (a > b) { return 1; }
+     *   if (a === b) { return 0; }
+     * });
+     * // OrderedMap { "a": 1, "b": 2, "c": 3 }
+     * ```
+     *
+     * Note: `sort()` Always returns a new instance, even if the original was
+     * already sorted.
+     *
+     * Note: This is always an eager operation.
+     */
+    sort(comparator?: Comparator<V>): OrderedMap<K, V>;
+
+    /**
+     * Like `sort`, but also accepts a `comparatorValueMapper` which allows for
+     * sorting by more sophisticated means:
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { Map } = require('immutable')
+     * const beattles = Map({
+     *   John: { name: "Lennon" },
+     *   Paul: { name: "McCartney" },
+     *   George: { name: "Harrison" },
+     *   Ringo: { name: "Starr" },
+     * });
+     * beattles.sortBy(member => member.name);
+     * ```
+     *
+     * Note: `sortBy()` Always returns a new instance, even if the original was
+     * already sorted.
+     *
+     * Note: This is always an eager operation.
+     */
+    sortBy<C>(
+      comparatorValueMapper: (value: V, key: K, iter: this) => C,
+      comparator?: (valueA: C, valueB: C) => number
+    ): OrderedMap<K, V>;
   }
 
   /**
@@ -2012,6 +2071,65 @@ declare namespace Immutable {
       predicate: (this: C, value: T, key: T, iter: this) => unknown,
       context?: C
     ): [this, this];
+
+    /**
+     * Returns an OrderedSet of the same type which includes the same entries,
+     * stably sorted by using a `comparator`.
+     *
+     * If a `comparator` is not provided, a default comparator uses `<` and `>`.
+     *
+     * `comparator(valueA, valueB)`:
+     *
+     *   * Returns `0` if the elements should not be swapped.
+     *   * Returns `-1` (or any negative number) if `valueA` comes before `valueB`
+     *   * Returns `1` (or any positive number) if `valueA` comes after `valueB`
+     *   * Alternatively, can return a value of the `PairSorting` enum type
+     *   * Is pure, i.e. it must always return the same value for the same pair
+     *     of values.
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { Set } = require('immutable')
+     * Set(['b', 'a', 'c']).sort((a, b) => {
+     *   if (a < b) { return -1; }
+     *   if (a > b) { return 1; }
+     *   if (a === b) { return 0; }
+     * });
+     * // OrderedSet { "a":, "b", "c" }
+     * ```
+     *
+     * Note: `sort()` Always returns a new instance, even if the original was
+     * already sorted.
+     *
+     * Note: This is always an eager operation.
+     */
+    sort(comparator?: Comparator<T>): OrderedSet<T>;
+
+    /**
+     * Like `sort`, but also accepts a `comparatorValueMapper` which allows for
+     * sorting by more sophisticated means:
+     *
+     * <!-- runkit:activate -->
+     * ```js
+     * const { Set } = require('immutable')
+     * const beattles = Set([
+     *   { name: "Lennon" },
+     *   { name: "McCartney" },
+     *   { name: "Harrison" },
+     *   { name: "Starr" },
+     * ]);
+     * beattles.sortBy(member => member.name);
+     * ```
+     *
+     * Note: `sortBy()` Always returns a new instance, even if the original was
+     * already sorted.
+     *
+     * Note: This is always an eager operation.
+     */
+    sortBy<C>(
+      comparatorValueMapper: (value: T, key: T, iter: this) => C,
+      comparator?: (valueA: C, valueB: C) => number
+    ): OrderedSet<T>;
   }
 
   /**

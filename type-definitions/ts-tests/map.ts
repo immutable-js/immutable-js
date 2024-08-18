@@ -1,5 +1,5 @@
 import { expect, test } from 'tstyche';
-import { Map, List, MapOf } from 'immutable';
+import { Map, List, MapOf, OrderedMap } from 'immutable';
 
 test('#constructor', () => {
   expect(Map()).type.toBe<Map<unknown, unknown>>();
@@ -600,6 +600,29 @@ test('#mergeDeepWith', () => {
 
 test('#flip', () => {
   expect(Map<number, string>().flip()).type.toBe<Map<string, number>>();
+});
+
+test('#sort', () => {
+  expect(Map<string, string>().sort()).type.toBe<OrderedMap<string, string>>();
+  expect(Map<string, string>().sort((a, b) => 1)).type.toBe<
+    OrderedMap<string, string>
+  >();
+
+  expect(Map({ a: 'a' }).sort()).type.toBe<OrderedMap<'a', string>>();
+});
+
+test('#sortBy', () => {
+  expect(Map<string, string>().sortBy(v => v)).type.toBe<
+    OrderedMap<string, string>
+  >();
+
+  expect(
+    Map<string, string>().sortBy(
+      v => v,
+      (a, b) => 1
+    )
+  ).type.toBe<OrderedMap<string, string>>();
+  expect(Map({ a: 'a' }).sortBy(v => v)).type.toBe<OrderedMap<'a', string>>();
 });
 
 test('#withMutations', () => {
