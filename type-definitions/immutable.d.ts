@@ -1623,7 +1623,7 @@ declare namespace Immutable {
      *
      * Note: This is always an eager operation.
      */
-    sort(comparator?: Comparator<V>): OrderedMap<K, V>;
+    sort(comparator?: Comparator<V>): this & OrderedMap<K, V>;
 
     /**
      * Like `sort`, but also accepts a `comparatorValueMapper` which allows for
@@ -1649,7 +1649,7 @@ declare namespace Immutable {
     sortBy<C>(
       comparatorValueMapper: (value: V, key: K, iter: this) => C,
       comparator?: (valueA: C, valueB: C) => number
-    ): OrderedMap<K, V>;
+    ): this & OrderedMap<K, V>;
   }
 
   /**
@@ -2103,7 +2103,7 @@ declare namespace Immutable {
      *
      * Note: This is always an eager operation.
      */
-    sort(comparator?: Comparator<T>): OrderedSet<T>;
+    sort(comparator?: Comparator<T>): this & OrderedSet<T>;
 
     /**
      * Like `sort`, but also accepts a `comparatorValueMapper` which allows for
@@ -2129,7 +2129,7 @@ declare namespace Immutable {
     sortBy<C>(
       comparatorValueMapper: (value: T, key: T, iter: this) => C,
       comparator?: (valueA: C, valueB: C) => number
-    ): OrderedSet<T>;
+    ): this & OrderedSet<T>;
   }
 
   /**

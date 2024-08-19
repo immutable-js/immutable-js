@@ -230,19 +230,23 @@ test('#flatten', () => {
 });
 
 test('#sort', () => {
-  expect(Set<string>().sort()).type.toBe<OrderedSet<string>>();
-  expect(Set<string>().sort((a, b) => 1)).type.toBe<OrderedSet<string>>();
+  expect(Set<string>().sort()).type.toBe<Set<string> & OrderedSet<string>>();
+  expect(Set<string>().sort((a, b) => 1)).type.toBe<
+    Set<string> & OrderedSet<string>
+  >();
 });
 
 test('#sortBy', () => {
-  expect(Set<string>().sortBy(v => v)).type.toBe<OrderedSet<string>>();
+  expect(Set<string>().sortBy(v => v)).type.toBe<
+    Set<string> & OrderedSet<string>
+  >();
 
   expect(
     Set<string>().sortBy(
       v => v,
       (a, b) => 1
     )
-  ).type.toBe<OrderedSet<string>>();
+  ).type.toBe<Set<string> & OrderedSet<string>>();
 });
 
 test('#withMutations', () => {

@@ -603,17 +603,21 @@ test('#flip', () => {
 });
 
 test('#sort', () => {
-  expect(Map<string, string>().sort()).type.toBe<OrderedMap<string, string>>();
+  expect(Map<string, string>().sort()).type.toBe<
+    Map<string, string> & OrderedMap<string, string>
+  >();
   expect(Map<string, string>().sort((a, b) => 1)).type.toBe<
-    OrderedMap<string, string>
+    Map<string, string> & OrderedMap<string, string>
   >();
 
-  expect(Map({ a: 'a' }).sort()).type.toBe<OrderedMap<'a', string>>();
+  expect(Map({ a: 'a' }).sort()).type.toBe<
+    MapOf<{ a: string }> & OrderedMap<'a', string>
+  >();
 });
 
 test('#sortBy', () => {
   expect(Map<string, string>().sortBy(v => v)).type.toBe<
-    OrderedMap<string, string>
+    Map<string, string> & OrderedMap<string, string>
   >();
 
   expect(
@@ -621,8 +625,10 @@ test('#sortBy', () => {
       v => v,
       (a, b) => 1
     )
-  ).type.toBe<OrderedMap<string, string>>();
-  expect(Map({ a: 'a' }).sortBy(v => v)).type.toBe<OrderedMap<'a', string>>();
+  ).type.toBe<Map<string, string> & OrderedMap<string, string>>();
+  expect(Map({ a: 'a' }).sortBy(v => v)).type.toBe<
+    MapOf<{ a: string }> & OrderedMap<'a', string>
+  >();
 });
 
 test('#withMutations', () => {
