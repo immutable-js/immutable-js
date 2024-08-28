@@ -220,16 +220,16 @@ declare class _Collection<K, +V> implements ValueObject {
     context?: mixed
   ): Map<G, number>;
 
-  find<NSV>(
+  find(
     predicate: (value: V, key: K, iter: this) => mixed,
     context?: mixed,
-    notSetValue?: NSV
-  ): V | NSV | void;
-  findLast<NSV>(
+    notSetValue?: V
+  ): V | void;
+  findLast(
     predicate: (value: V, key: K, iter: this) => mixed,
     context?: mixed,
-    notSetValue?: NSV
-  ): V | NSV | void;
+    notSetValue?: V
+  ): V | void;
 
   findEntry(predicate: (value: V, key: K, iter: this) => mixed): [K, V] | void;
   findLastEntry(
