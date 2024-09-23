@@ -106,7 +106,7 @@
     "jest": "27.2.0",
     "make-synchronous": "0.1.1",
     "marked": "2.1.2",
-    "microtime": "3.0.0",
+    "microtime": "3.1.1",
     "next": "^14.1.0",
     "next-sitemap": "4.2.3",
     "npm-run-all": "4.1.5",
