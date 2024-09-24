@@ -408,13 +408,8 @@ function makeList(origin, capacity, level, root, tail, ownerID, hash) {
   return list;
 }
 
-let EMPTY_LIST;
 export function emptyList() {
-  if (!EMPTY_LIST) {
-    EMPTY_LIST = makeList(0, 0, SHIFT);
-    Object.freeze(EMPTY_LIST);
-  }
-  return EMPTY_LIST;
+  return makeList(0, 0, SHIFT);
 }
 
 function updateList(list, index, value) {

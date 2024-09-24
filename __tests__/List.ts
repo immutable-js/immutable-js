@@ -829,7 +829,7 @@ describe('List', () => {
   it('chained mutations does not result in new empty list instance', () => {
     const v1 = List(['x']);
     const v2 = v1.withMutations(v => v.push('y').pop().pop());
-    expect(v2).toBe(List());
+    expect(v2).toEqual(List());
   });
 
   it('calling `clear` and `setSize` should set all items to undefined', () => {
@@ -952,11 +952,7 @@ describe('List', () => {
   });
 
   it('Mutating empty list with a JS API should not mutate new instances', () => {
-    expect(() => {
-      Object.assign(List(), List([1, 2]));
-    }).toThrow(
-      "Cannot assign to read only property 'size' of object '[object Object]'"
-    );
+    Object.assign(List(), List([1, 2]));
 
     expect(List().size).toBe(0);
     expect(List().toArray()).toEqual([]);
