@@ -952,7 +952,11 @@ describe('List', () => {
   });
 
   it('Mutating empty list with a JS API should not mutate new instances', () => {
-    Object.assign(List(), List([1, 2]));
+    expect(() => {
+      Object.assign(List(), List([1, 2]));
+    }).toThrow(
+      "Cannot assign to read only property 'size' of object '[object Object]'"
+    );
 
     expect(List().size).toBe(0);
     expect(List().toArray()).toEqual([]);

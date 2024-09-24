@@ -410,7 +410,11 @@ function makeList(origin, capacity, level, root, tail, ownerID, hash) {
 
 let EMPTY_LIST;
 export function emptyList() {
-  return EMPTY_LIST || (EMPTY_LIST = makeList(0, 0, SHIFT));
+  if (!EMPTY_LIST) {
+    EMPTY_LIST = makeList(0, 0, SHIFT);
+    Object.freeze(EMPTY_LIST);
+  }
+  return EMPTY_LIST;
 }
 
 function updateList(list, index, value) {
