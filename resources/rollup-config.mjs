@@ -36,10 +36,8 @@ export default [
       {
         banner: copyright,
         name: 'Immutable',
-        dir: path.join(DIST_DIR, 'es'),
+        file: path.join(DIST_DIR, 'immutable.es.js'),
         format: 'es',
-        preserveModules: true,
-        preserveModulesRoot: SRC_DIR,
         sourcemap: false,
       },
     ],
