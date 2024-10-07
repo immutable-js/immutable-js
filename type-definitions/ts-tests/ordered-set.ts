@@ -1,4 +1,4 @@
-import { expect, test } from 'tstyche';
+import { expect, pick, test } from 'tstyche';
 import { Collection, OrderedSet, Map } from 'immutable';
 
 test('#constructor', () => {
@@ -12,9 +12,7 @@ test('#constructor', () => {
 });
 
 test('#size', () => {
-  expect(OrderedSet().size).type.toBeNumber();
-
-  expect(OrderedSet()).type.toMatch<{ readonly size: number }>();
+  expect(pick(OrderedSet(), 'size')).type.toBe<{ readonly size: number }>();
 });
 
 test('.of', () => {

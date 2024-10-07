@@ -1,4 +1,4 @@
-import { expect, test } from 'tstyche';
+import { expect, pick, test } from 'tstyche';
 import {
   List,
   get,
@@ -21,9 +21,7 @@ test('#constructor', () => {
 });
 
 test('#size', () => {
-  expect(List().size).type.toBeNumber();
-
-  expect(List()).type.toMatch<{ readonly size: number }>();
+  expect(pick(List(), 'size')).type.toBe<{ readonly size: number }>();
 });
 
 test('#setSize', () => {

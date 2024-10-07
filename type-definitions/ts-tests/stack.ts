@@ -1,4 +1,4 @@
-import { expect, test } from 'tstyche';
+import { expect, pick, test } from 'tstyche';
 import { Collection, Stack } from 'immutable';
 
 test('#constructor', () => {
@@ -10,9 +10,7 @@ test('#constructor', () => {
 });
 
 test('#size', () => {
-  expect(Stack().size).type.toBeNumber();
-
-  expect(Stack()).type.toMatch<{ readonly size: number }>();
+  expect(pick(Stack(), 'size')).type.toBe<{ readonly size: number }>();
 });
 
 test('.of', () => {

@@ -1,4 +1,4 @@
-import { expect, test } from 'tstyche';
+import { expect, pick, test } from 'tstyche';
 import { Set, Map, Collection } from 'immutable';
 
 test('#constructor', () => {
@@ -12,9 +12,7 @@ test('#constructor', () => {
 });
 
 test('#size', () => {
-  expect(Set().size).type.toBeNumber();
-
-  expect(Set()).type.toMatch<{ readonly size: number }>();
+  expect(pick(Set(), 'size')).type.toBe<{ readonly size: number }>();
 });
 
 test('.of', () => {
