@@ -144,6 +144,8 @@ For now, only `get`, `getIn`, `set`, `update`, `delete`, `remove`, `toJS`, `toJS
 ### Fixes
 
 - Fix type inference for first() and last() [#2001](https://github.com/immutable-js/immutable-js/pull/2001) by [@butchler](https://github.com/butchler)
+- Fix issue with empty list that is a singleton [#2004](https://github.com/immutable-js/immutable-js/pull/2004) by [@jdeniau](https://github.com/jdeniau)
+- Map and Set sort and sortBy return type [#2013](https://github.com/immutable-js/immutable-js/pull/2013) by [@jdeniau](https://github.com/jdeniau)
 
 ### Internal
 
