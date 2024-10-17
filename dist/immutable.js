@@ -3560,9 +3560,8 @@
     return list;
   }
 
-  var EMPTY_LIST;
   function emptyList() {
-    return EMPTY_LIST || (EMPTY_LIST = makeList(0, 0, SHIFT));
+    return makeList(0, 0, SHIFT);
   }
 
   function updateList(list, index, value) {
