@@ -1,4 +1,5 @@
 /**
+ * @license
  * MIT License
  * 
  * Copyright (c) 2014-present, Lee Byron and other contributors.
@@ -25,8 +26,9 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.Immutable = {}));
-}(this, (function (exports) { 'use strict';
+})(this, (function (exports) { 'use strict';
 
+  // Used for setting prototype methods that IE8 chokes on.
   var DELETE = 'delete';
 
   // Constants describing the size of trie nodes.
@@ -118,6 +120,7 @@
     return value < 0 || (value === 0 && 1 / value === -Infinity);
   }
 
+  // Note: value is unchanged to not break immutable-devtools.
   var IS_COLLECTION_SYMBOL = '@@__IMMUTABLE_ITERABLE__@@';
 
   function isCollection(maybeCollection) {
@@ -1943,6 +1946,7 @@
     return a > b ? 1 : a < b ? -1 : 0;
   }
 
+  // http://jsperf.com/copy-array-inline
   function arrCopy(arr, offset) {
     offset = offset || 0;
     var len = Math.max(0, arr.length - offset);
@@ -2014,6 +2018,9 @@
     );
   }
 
+  /**
+   * Converts a value to a string, adding quotes if a string was provided.
+   */
   function quoteString(value) {
     try {
       return typeof value === 'string' ? JSON.stringify(value) : String(value);
@@ -2405,20 +2412,6 @@
     if ( KeyedCollection ) Map.__proto__ = KeyedCollection;
     Map.prototype = Object.create( KeyedCollection && KeyedCollection.prototype );
     Map.prototype.constructor = Map;
-
-    Map.of = function of () {
-      var keyValues = [], len = arguments.length;
-      while ( len-- ) keyValues[ len ] = arguments[ len ];
-
-      return emptyMap().withMutations(function (map) {
-        for (var i = 0; i < keyValues.length; i += 2) {
-          if (i + 1 >= keyValues.length) {
-            throw new Error('Missing value for key: ' + keyValues[i]);
-          }
-          map.set(keyValues[i], keyValues[i + 1]);
-        }
-      });
-    };
 
     Map.prototype.toString = function toString () {
       return this.__toString('Map {', '}');
@@ -2909,7 +2902,7 @@
       }
     };
 
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ValueNode.prototype.iterate = function (fn, reverse) {
     return fn(this.entry);
   };
@@ -4305,6 +4298,9 @@
     return allEqual && a.size === bSize;
   }
 
+  /**
+   * Contributes additional methods to a constructor
+   */
   function mixin(ctor, methods) {
     var keyCopier = function (key) {
       ctor.prototype[key] = methods[key];
@@ -4588,16 +4584,23 @@
    */
   var Range = /*@__PURE__*/(function (IndexedSeq) {
     function Range(start, end, step) {
+      if ( step === void 0 ) step = 1;
+
       if (!(this instanceof Range)) {
         // eslint-disable-next-line no-constructor-return
         return new Range(start, end, step);
       }
       invariant(step !== 0, 'Cannot step a Range by 0');
-      start = start || 0;
-      if (end === undefined) {
-        end = Infinity;
-      }
-      step = step === undefined ? 1 : Math.abs(step);
+      invariant(
+        start !== undefined,
+        'You must define a start value when using Range'
+      );
+      invariant(
+        end !== undefined,
+        'You must define an end value when using Range'
+      );
+
+      step = Math.abs(step);
       if (end < start) {
         step = -step;
       }
@@ -4610,6 +4613,7 @@
           // eslint-disable-next-line no-constructor-return
           return EMPTY_RANGE;
         }
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         EMPTY_RANGE = this;
       }
     }
@@ -4752,13 +4756,6 @@
     });
     return object;
   }
-
-  // Note: all of these methods are deprecated.
-  Collection.isIterable = isCollection;
-  Collection.isKeyed = isKeyed;
-  Collection.isIndexed = isIndexed;
-  Collection.isAssociative = isAssociative;
-  Collection.isOrdered = isOrdered;
 
   Collection.Iterator = Iterator;
 
@@ -4994,6 +4991,7 @@
     },
 
     entrySeq: function entrySeq() {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       var collection = this;
       if (collection._cache) {
         // We cache as an entries array, so we can just return the cache!
@@ -5444,7 +5442,8 @@
     var ordered = isOrdered(collection);
     var keyed = isKeyed(collection);
     var h = ordered ? 1 : 0;
-    var size = collection.__iterate(
+
+    collection.__iterate(
       keyed
         ? ordered
           ? function (v, k) {
@@ -5461,7 +5460,8 @@
             h = (h + hash(v)) | 0;
           }
     );
-    return murmurHashOfSize(size, h);
+
+    return murmurHashOfSize(collection.size, h);
   }
 
   function murmurHashOfSize(size, h) {
@@ -5803,6 +5803,7 @@
           // eslint-disable-next-line no-constructor-return
           return EMPTY_REPEAT;
         }
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         EMPTY_REPEAT = this;
       }
     }
@@ -5928,64 +5929,7 @@
     return isIndexed(v) ? v.toList() : isKeyed(v) ? v.toMap() : v.toSet();
   }
 
-  var version = "4.3.7";
-
-  var Immutable = {
-    version: version,
-
-    Collection: Collection,
-    // Note: Iterable is deprecated
-    Iterable: Collection,
-
-    Seq: Seq,
-    Map: Map,
-    OrderedMap: OrderedMap,
-    List: List,
-    Stack: Stack,
-    Set: Set,
-    OrderedSet: OrderedSet,
-    PairSorting: PairSorting,
-
-    Record: Record,
-    Range: Range,
-    Repeat: Repeat,
-
-    is: is,
-    fromJS: fromJS,
-    hash: hash,
-
-    isImmutable: isImmutable,
-    isCollection: isCollection,
-    isKeyed: isKeyed,
-    isIndexed: isIndexed,
-    isAssociative: isAssociative,
-    isOrdered: isOrdered,
-    isValueObject: isValueObject,
-    isPlainObject: isPlainObject,
-    isSeq: isSeq,
-    isList: isList,
-    isMap: isMap,
-    isOrderedMap: isOrderedMap,
-    isStack: isStack,
-    isSet: isSet,
-    isOrderedSet: isOrderedSet,
-    isRecord: isRecord,
-
-    get: get,
-    getIn: getIn$1,
-    has: has,
-    hasIn: hasIn$1,
-    merge: merge,
-    mergeDeep: mergeDeep$1,
-    mergeWith: mergeWith,
-    mergeDeepWith: mergeDeepWith$1,
-    remove: remove,
-    removeIn: removeIn,
-    set: set,
-    setIn: setIn$1,
-    update: update$1,
-    updateIn: updateIn$1,
-  };
+  var version = "5.0.0-rc.1";
 
   // Note: Iterable is deprecated
   var Iterable = Collection;
@@ -6003,7 +5947,6 @@
   exports.Seq = Seq;
   exports.Set = Set;
   exports.Stack = Stack;
-  exports.default = Immutable;
   exports.fromJS = fromJS;
   exports.get = get;
   exports.getIn = getIn$1;
@@ -6039,6 +5982,4 @@
   exports.updateIn = updateIn$1;
   exports.version = version;
 
-  Object.defineProperty(exports, '__esModule', { value: true });
-
-})));
+}));

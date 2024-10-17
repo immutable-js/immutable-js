@@ -86,7 +86,7 @@ map1.get('b') + ' vs. ' + map2.get('b'); // 2 vs. 50
 
 Immutable.js has no dependencies, which makes it predictable to include in a Browser.
 
-It's highly recommended to use a module bundler like [webpack](https://webpack.github.io/),
+It's highly recommended to use a module bundler like [webpack](https://webpack.js.org/),
 [rollup](https://rollupjs.org/), or
 [browserify](https://browserify.org/). The `immutable` npm module works
 without any additional consideration. All examples throughout the documentation
@@ -152,9 +152,9 @@ via relative path to the type definitions at the top of your file.
 
 ```js
 ///<reference path='./node_modules/immutable/dist/immutable.d.ts'/>
-import Immutable from 'immutable';
-var map1: Immutable.Map<string, number>;
-map1 = Immutable.Map({ a: 1, b: 2, c: 3 });
+import { Map } from 'immutable';
+var map1: Map<string, number>;
+map1 = Map({ a: 1, b: 2, c: 3 });
 var map2 = map1.set('b', 50);
 map1.get('b'); // 2
 map2.get('b'); // 50
