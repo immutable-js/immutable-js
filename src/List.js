@@ -408,9 +408,8 @@ function makeList(origin, capacity, level, root, tail, ownerID, hash) {
   return list;
 }
 
-let EMPTY_LIST;
 export function emptyList() {
-  return EMPTY_LIST || (EMPTY_LIST = makeList(0, 0, SHIFT));
+  return makeList(0, 0, SHIFT);
 }
 
 function updateList(list, index, value) {

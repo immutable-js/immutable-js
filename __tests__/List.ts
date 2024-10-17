@@ -829,7 +829,7 @@ describe('List', () => {
   it('chained mutations does not result in new empty list instance', () => {
     const v1 = List(['x']);
     const v2 = v1.withMutations(v => v.push('y').pop().pop());
-    expect(v2).toBe(List());
+    expect(v2).toEqual(List());
   });
 
   it('calling `clear` and `setSize` should set all items to undefined', () => {
@@ -925,6 +925,37 @@ describe('List', () => {
     // toEqual([ NaN ])
     expect(list.size).toBe(1);
     expect(isNaNValue(list.get(0))).toBe(true);
+  });
+
+  it('return a new emptyList if the emptyList has been mutated #2003', () => {
+    const emptyList = List();
+
+    const nonEmptyList = emptyList.withMutations(l => {
+      l.setSize(1);
+      l.set(0, 'a');
+    });
+
+    expect(nonEmptyList.size).toBe(1);
+    expect(nonEmptyList).toEqual(List.of('a'));
+    expect(emptyList.size).toBe(0);
+
+    const mutableList = emptyList.asMutable();
+
+    mutableList.setSize(1);
+    mutableList.set(0, 'b');
+
+    expect(mutableList.size).toBe(1);
+    expect(mutableList).toEqual(List.of('b'));
+
+    expect(emptyList.size).toBe(0);
+    expect(List().size).toBe(0);
+  });
+
+  it('Mutating empty list with a JS API should not mutate new instances', () => {
+    Object.assign(List(), List([1, 2]));
+
+    expect(List().size).toBe(0);
+    expect(List().toArray()).toEqual([]);
   });
 
   // Note: NaN is the only value not equal to itself. The isNaN() built-in
