@@ -1,5 +1,5 @@
 import { expect, test } from 'tstyche';
-import { Set, Map, Collection } from 'immutable';
+import { Set, Map, Collection, OrderedSet } from 'immutable';
 
 test('#constructor', () => {
   expect(Set()).type.toBe<Set<unknown>>();
@@ -227,6 +227,26 @@ test('#flatten', () => {
   >();
 
   expect(Set<number>().flatten('a')).type.toRaiseError();
+});
+
+test('#sort', () => {
+  expect(Set<string>().sort()).type.toBe<Set<string> & OrderedSet<string>>();
+  expect(Set<string>().sort((a, b) => 1)).type.toBe<
+    Set<string> & OrderedSet<string>
+  >();
+});
+
+test('#sortBy', () => {
+  expect(Set<string>().sortBy(v => v)).type.toBe<
+    Set<string> & OrderedSet<string>
+  >();
+
+  expect(
+    Set<string>().sortBy(
+      v => v,
+      (a, b) => 1
+    )
+  ).type.toBe<Set<string> & OrderedSet<string>>();
 });
 
 test('#withMutations', () => {
