@@ -30,9 +30,9 @@ jobs:
         run: |
           VERSION=$(node -p "require('./package.json').version")
           if [[ $VERSION == *-* ]]; then
-            echo "::set-output name=TAG::next"
+            echo "TAG=next" >> "$GITHUB_OUTPUT"
           else
-            echo "::set-output name=TAG::latest"
+            echo "TAG=latest" >> "$GITHUB_OUTPUT"
           fi
       - run: cd npm && npm publish --provenance --tag ${{ steps.npm_tag.outputs.TAG }}
         env:
