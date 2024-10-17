@@ -64,13 +64,13 @@ describe('count', () => {
     });
 
     it('with infinitely long sequences of known length', () => {
-      const seq = Range();
+      const seq = Range(0, Infinity);
       expect(seq.size).toBe(Infinity);
       expect(seq.isEmpty()).toBe(false);
     });
 
     it('with infinitely long sequences of unknown length', () => {
-      const seq = Range().filter(x => x % 2 === 0);
+      const seq = Range(0, Infinity).filter(x => x % 2 === 0);
       expect(seq.size).toBe(undefined);
       expect(seq.isEmpty()).toBe(false);
       expect(seq.size).toBe(undefined);

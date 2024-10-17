@@ -1,6 +1,6 @@
 import { List, Range, Seq } from 'immutable';
-
 import * as jasmineCheck from 'jasmine-check';
+
 jasmineCheck.install();
 
 describe('zip', () => {
@@ -36,7 +36,7 @@ describe('zip', () => {
 
   it('zips with infinite lists', () => {
     expect(
-      Range()
+      Range(0, Infinity)
         .zip(Seq(['A', 'B', 'C']))
         .toArray()
     ).toEqual([
@@ -135,7 +135,7 @@ describe('zip', () => {
     });
 
     it('with infinite lists', () => {
-      const r: Seq.Indexed<any> = Range();
+      const r: Seq.Indexed<number | string> = Range(0, Infinity);
       const i = r.interleave(Seq(['A', 'B', 'C']));
       expect(i.size).toBe(6);
       expect(i.toArray()).toEqual([0, 'A', 1, 'B', 2, 'C']);

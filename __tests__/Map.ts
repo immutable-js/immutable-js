@@ -1,6 +1,6 @@
 import { fromJS, is, List, Map, Range, Record, Seq } from 'immutable';
-
 import * as jasmineCheck from 'jasmine-check';
+
 jasmineCheck.install();
 
 describe('Map', () => {
@@ -60,8 +60,11 @@ describe('Map', () => {
     const l = List([List(['a', 'A']), List(['b', 'B']), List(['c', 'C'])]);
     const m = Map(l);
     expect(m.size).toBe(3);
+    // @ts-expect-error -- Not supported by typescript since 4.0.0 https://github.com/immutable-js/immutable-js/pull/1626
     expect(m.get('a')).toBe('A');
+    // @ts-expect-error -- Not supported by typescript since 4.0.0 https://github.com/immutable-js/immutable-js/pull/1626
     expect(m.get('b')).toBe('B');
+    // @ts-expect-error -- Not supported by typescript since 4.0.0 https://github.com/immutable-js/immutable-js/pull/1626
     expect(m.get('c')).toBe('C');
   });
 
@@ -97,22 +100,9 @@ describe('Map', () => {
   it('accepts non-collection array-like objects as keyed collections', () => {
     const m = Map({ length: 3, 1: 'one' });
     expect(m.get('length')).toBe(3);
+    // @ts-expect-error -- type error, but the API is tolerante
     expect(m.get('1')).toBe('one');
     expect(m.toJS()).toEqual({ length: 3, 1: 'one' });
-  });
-
-  it('accepts flattened pairs via of()', () => {
-    const m: Map<any, any> = Map.of(1, 'a', 2, 'b', 3, 'c');
-    expect(m.size).toBe(3);
-    expect(m.get(1)).toBe('a');
-    expect(m.get(2)).toBe('b');
-    expect(m.get(3)).toBe('c');
-  });
-
-  it('does not accept mismatched flattened pairs via of()', () => {
-    expect(() => {
-      Map.of(1, 2, 3);
-    }).toThrow('Missing value for key: 3');
   });
 
   it('converts back to JS object', () => {
@@ -165,7 +155,7 @@ describe('Map', () => {
   });
 
   it('accepts null as a key', () => {
-    const m1 = Map<any, any>();
+    const m1 = Map<null, string>();
     const m2 = m1.set(null, 'null');
     const m3 = m2.remove(null);
     expect(m1.size).toBe(0);
@@ -228,7 +218,7 @@ describe('Map', () => {
 
   it('can use weird keys', () => {
     const symbol = Symbol('A');
-    const m: Map<any, any> = Map()
+    const m = Map<number | symbol, string | number>()
       .set(NaN, 1)
       .set(Infinity, 2)
       .set(symbol, 'A')
@@ -242,7 +232,7 @@ describe('Map', () => {
 
   it('can map items known to hash collide', () => {
     // make a big map, so it hashmaps
-    let m: Map<any, any> = Range(0, 32).toMap();
+    let m: Map<string | number, string | number> = Range(0, 32).toMap();
     m = m.set('AAA', 'letters').set(64545, 'numbers');
     expect(m.size).toBe(34);
     expect(m.get('AAA')).toEqual('letters');
@@ -251,7 +241,7 @@ describe('Map', () => {
 
   it('can progressively add items known to collide', () => {
     // make a big map, so it hashmaps
-    let map: Map<any, any> = Range(0, 32).toMap();
+    let map: Map<string | number, string | number> = Range(0, 32).toMap();
     map = map.set('@', '@');
     map = map.set(64, 64);
     map = map.set(96, 96);
@@ -424,7 +414,7 @@ describe('Map', () => {
   });
 
   it('chained mutations does not result in new empty map instance', () => {
-    const v1 = Map({ x: 1 });
+    const v1 = Map<{ x?: number; y?: number }>({ x: 1 });
     const v2 = v1.withMutations(v => v.set('y', 2).delete('x').delete('y'));
     expect(v2).toBe(Map());
   });

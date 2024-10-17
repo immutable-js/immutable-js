@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - 5.x
   pull_request:
     branches:
       - main
+      - 5.x
 
 jobs:
   lint:
@@ -48,8 +50,8 @@ jobs:
       - run: npm run type-check
       - run: npm run check-git-clean
 
-  unit-test:
-    name: 'Build & Unit Test'
+  test:
+    name: 'Build & Unit Test & Type Test'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -63,7 +65,9 @@ jobs:
           restore-keys: ${{ runner.OS }}-node-
       - run: npm ci
       - run: npm run build
-      - run: npm run unit-test
+      - run: npm run test:unit
+      - run: npm run test:types -- --target 4.5,5.0,current
+      - run: npx size-limit
       - run: npm run check-git-clean
 
   website:
@@ -87,7 +91,7 @@ jobs:
 
   publish:
     name: 'Publish'
-    needs: [lint, type-check, unit-test, website]
+    needs: [lint, type-check, test, website]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:

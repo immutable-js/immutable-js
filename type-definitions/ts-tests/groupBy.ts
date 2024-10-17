@@ -1,33 +1,59 @@
-import { List, Map, OrderedMap, Record, Set, Seq, Stack, OrderedSet, DeepCopy, Collection } from 'immutable';
+import { expect, test } from 'tstyche';
+import {
+  Collection,
+  List,
+  Map,
+  OrderedMap,
+  Set,
+  OrderedSet,
+  Seq,
+  Stack,
+  MapOf,
+} from 'immutable';
 
-{
-    // $ExpectType Map<string, Indexed<string>>
-    Collection(['a', 'b', 'c', 'a']).groupBy(v => v);
+test('groupBy', () => {
+  expect(Collection(['a', 'b', 'c', 'a']).groupBy(v => v)).type.toBe<
+    Map<string, Collection.Indexed<string>>
+  >();
 
-    // $ExpectType Map<string, Keyed<string, number>>
-    Collection({ a: 1, b: 2, c: 3, d: 1 }).groupBy(v => `key-${v}`);
+  expect(
+    Collection({ a: 1, b: 2, c: 3, d: 1 }).groupBy(v => `key-${v}`)
+  ).type.toBe<Map<string, Collection.Keyed<string, number>>>();
 
-    // $ExpectType Map<string, List<string>>
-    List(['a', 'b', 'c', 'a']).groupBy(v => v);
+  expect(List(['a', 'b', 'c', 'a']).groupBy(v => v)).type.toBe<
+    Map<string, List<string>>
+  >();
 
-    // $ExpectType Map<string, Indexed<string>>
-    Seq(['a', 'b', 'c', 'a']).groupBy(v => v);
+  expect(Seq(['a', 'b', 'c', 'a']).groupBy(v => v)).type.toBe<
+    Map<string, Seq.Indexed<string>>
+  >();
 
-    // $ExpectType Map<string, Keyed<string, number>>
-    Seq({ a: 1, b: 2, c: 3, d: 1 }).groupBy(v => `key-${v}`);
+  expect(Seq({ a: 1, b: 2, c: 3, d: 1 }).groupBy(v => `key-${v}`)).type.toBe<
+    Map<string, Seq.Keyed<string, number>>
+  >();
 
-    // $ExpectType Map<string, Set<string>>
-    Set(['a', 'b', 'c', 'a']).groupBy(v => v);
+  expect(Set(['a', 'b', 'c', 'a']).groupBy(v => v)).type.toBe<
+    Map<string, Set<string>>
+  >();
 
-    // $ExpectType Map<string, Stack<string>>
-    Stack(['a', 'b', 'c', 'a']).groupBy(v => v);
+  expect(Stack(['a', 'b', 'c', 'a']).groupBy(v => v)).type.toBe<
+    Map<string, Stack<string>>
+  >();
 
-    // $ExpectType Map<string, OrderedSet<string>>
-    OrderedSet(['a', 'b', 'c', 'a']).groupBy(v => v);
+  expect(OrderedSet(['a', 'b', 'c', 'a']).groupBy(v => v)).type.toBe<
+    Map<string, OrderedSet<string>>
+  >();
 
-    // $ExpectType Map<string, Map<string, number>>
-    Map({ a: 1, b: 2, c: 3, d: 1 }).groupBy(v => `key-${v}`);
+  expect(
+    Map<string, number>({ a: 1, b: 2, c: 3, d: 1 }).groupBy(v => `key-${v}`)
+  ).type.toBe<Map<string, Map<string, number>>>();
 
-    // $ExpectType Map<string, OrderedMap<string, number>>
-    OrderedMap({ a: 1, b: 2, c: 3, d: 1 }).groupBy(v => `key-${v}`);
-}
+  // type should be something like Map<string, MapOf<Partial{ a: number, b: number, c: number, d: number }>>> but groupBy returns a wrong type with `this`
+  expect(Map({ a: 1, b: 2, c: 3, d: 1 }).groupBy(v => `key-${v}`)).type.toBe<
+    Map<string, MapOf<{ a: number; b: number; c: number; d: number }>>
+  >();
+
+  expect(
+    OrderedMap({ a: 1, b: 2, c: 3, d: 1 }).groupBy(v => `key-${v}`)
+  ).type.toBe<Map<string, OrderedMap<string, number>>>();
+});

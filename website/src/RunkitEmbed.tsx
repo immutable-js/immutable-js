@@ -5,12 +5,13 @@ export function RunkitEmbed() {
 }
 
 function onLoadRunkit() {
-  (global as any).runIt = runIt;
+  // @ts-expect-error -- need proper types for RunKit ?
+  global.runIt = runIt;
 }
 
 function runIt(button: HTMLElement, version: string) {
-  // @ts-ignore
-  const RunKit: any = global.RunKit;
+  // @ts-expect-error -- need proper types for RunKit ?
+  const RunKit = global.RunKit;
   if (!RunKit) return;
 
   const container = document.createElement('div');
@@ -44,12 +45,14 @@ function runIt(button: HTMLElement, version: string) {
       codeElement.textContent!.replace(/\n(>[^\n]*\n?)+$/g, '')
     ),
     minHeight: '52px',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onLoad(notebook: any) {
       notebook.evaluate();
     },
   });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function makeAssert(I: any) {
   const isIterable = I.isIterable || I.Iterable.isIterable;
   let html = `
@@ -90,15 +93,26 @@ function makeAssert(I: any) {
       }
     </style>`;
 
-  function compare(lhs: any, rhs: any, _same: boolean, identical: boolean) {
+  function compare(
+    lhs: unknown,
+    rhs: unknown,
+    _same: boolean,
+    identical: boolean
+  ) {
     const both = !identical && isIterable(lhs) && isIterable(rhs);
 
+    // @ts-expect-error -- this is an immutable value
     if (both) return lhs.equals(rhs);
 
     return lhs === rhs;
   }
 
-  function message(lhs: any, rhs: any, same: boolean, identical: boolean) {
+  function message(
+    lhs: unknown,
+    rhs: unknown,
+    same: boolean,
+    identical: boolean
+  ) {
     const result = compare(lhs, rhs, same, identical);
     const comparison = result
       ? identical
@@ -119,19 +133,19 @@ function makeAssert(I: any) {
       </span><br/>`);
   }
 
-  function equal(lhs: any, rhs: any) {
+  function equal(lhs: unknown, rhs: unknown) {
     return message(lhs, rhs, true, false);
   }
 
-  function notEqual(lhs: any, rhs: any) {
+  function notEqual(lhs: unknown, rhs: unknown) {
     return message(lhs, rhs, false, false);
   }
 
-  function strictEqual(lhs: any, rhs: any) {
+  function strictEqual(lhs: unknown, rhs: unknown) {
     return message(lhs, rhs, true, true);
   }
 
-  function notStrictEqual(lhs: any, rhs: any) {
+  function notStrictEqual(lhs: unknown, rhs: unknown) {
     return message(lhs, rhs, false, true);
   }
 

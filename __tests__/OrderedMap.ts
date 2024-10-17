@@ -129,4 +129,13 @@ describe('OrderedMap', () => {
 
     expect(map.size).toBe(SIZE / 2 - 1);
   });
+
+  it('hashCode should return the same value if the values are the same', () => {
+    const m1 = OrderedMap({ b: 'b' });
+    const m2 = OrderedMap({ a: 'a', b: 'b' }).remove('a');
+    const m3 = OrderedMap({ b: 'b' }).remove('b').set('b', 'b');
+
+    expect(m1.hashCode()).toEqual(m2.hashCode());
+    expect(m1.hashCode()).toEqual(m3.hashCode());
+  });
 });

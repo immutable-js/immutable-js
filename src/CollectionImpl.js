@@ -4,8 +4,7 @@ import {
   IndexedCollection,
   SetCollection,
 } from './Collection';
-import { isCollection, IS_COLLECTION_SYMBOL } from './predicates/isCollection';
-import { isAssociative } from './predicates/isAssociative';
+import { IS_COLLECTION_SYMBOL } from './predicates/isCollection';
 import { isKeyed, IS_KEYED_SYMBOL } from './predicates/isKeyed';
 import { isIndexed, IS_INDEXED_SYMBOL } from './predicates/isIndexed';
 import { isOrdered, IS_ORDERED_SYMBOL } from './predicates/isOrdered';
@@ -71,13 +70,6 @@ import { hasIn } from './methods/hasIn';
 import { toObject } from './methods/toObject';
 
 export { Collection, CollectionPrototype, IndexedCollectionPrototype };
-
-// Note: all of these methods are deprecated.
-Collection.isIterable = isCollection;
-Collection.isKeyed = isKeyed;
-Collection.isIndexed = isIndexed;
-Collection.isAssociative = isAssociative;
-Collection.isOrdered = isOrdered;
 
 Collection.Iterator = Iterator;
 
@@ -310,6 +302,7 @@ mixin(Collection, {
   },
 
   entrySeq() {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const collection = this;
     if (collection._cache) {
       // We cache as an entries array, so we can just return the cache!
@@ -757,7 +750,8 @@ function hashCollection(collection) {
   const ordered = isOrdered(collection);
   const keyed = isKeyed(collection);
   let h = ordered ? 1 : 0;
-  const size = collection.__iterate(
+
+  collection.__iterate(
     keyed
       ? ordered
         ? (v, k) => {
@@ -774,7 +768,8 @@ function hashCollection(collection) {
           h = (h + hash(v)) | 0;
         }
   );
-  return murmurHashOfSize(size, h);
+
+  return murmurHashOfSize(collection.size, h);
 }
 
 function murmurHashOfSize(size, h) {

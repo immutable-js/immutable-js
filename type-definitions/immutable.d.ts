@@ -1,3 +1,5 @@
+/** @ignore we should disable this rules, but let's activate it to enable eslint first */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types */
 /**
  * Immutable data encourages pure functions (data-in, data-out) and lends itself
  * to much simpler application development and enabling techniques from
@@ -112,6 +114,11 @@ declare namespace Immutable {
       {
         [key in keyof R]: ContainObject<R[key]> extends true ? unknown : R[key];
       }
+    : T extends MapOf<infer R>
+    ? // convert MapOf to DeepCopy plain JS object
+      {
+        [key in keyof R]: ContainObject<R[key]> extends true ? unknown : R[key];
+      }
     : T extends Collection.Keyed<infer KeyedKey, infer V>
     ? // convert KeyedCollection to DeepCopy plain JS object
       {
@@ -120,6 +127,7 @@ declare namespace Immutable {
           : string]: V extends object ? unknown : V;
       }
     : // convert IndexedCollection or Immutable.Set to DeepCopy plain JS array
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     T extends Collection<infer _, infer V>
     ? Array<DeepCopy<V>>
     : T extends string | number // Iterable scalar types : should be kept as is
@@ -784,24 +792,6 @@ declare namespace Immutable {
      * ```
      */
     function isMap(maybeMap: unknown): maybeMap is Map<unknown, unknown>;
-
-    /**
-     * Creates a new Map from alternating keys and values
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map } = require('immutable')
-     * Map.of(
-     *   'key', 'value',
-     *   'numerical value', 3,
-     *    0, 'numerical key'
-     * )
-     * // Map { 0: "numerical key", "key": "value", "numerical value": 3 }
-     * ```
-     *
-     * @deprecated Use Map([ [ 'k', 'v' ] ]) or Map({ k: 'v' })
-     */
-    function of(...keyValues: Array<unknown>): Map<unknown, unknown>;
   }
 
   /**
@@ -841,8 +831,97 @@ declare namespace Immutable {
    * not altered.
    */
   function Map<K, V>(collection?: Iterable<[K, V]>): Map<K, V>;
+  function Map<R extends { [key in string | number | symbol]: unknown }>(
+    obj: R
+  ): MapOf<R>;
   function Map<V>(obj: { [key: string]: V }): Map<string, V>;
   function Map<K extends string | symbol, V>(obj: { [P in K]?: V }): Map<K, V>;
+
+  /**
+   * Represent a Map constructed by an object
+   *
+   * @ignore
+   */
+  interface MapOf<R extends { [key in string | number | symbol]: unknown }>
+    extends Map<keyof R, R[keyof R]> {
+    /**
+     * Returns the value associated with the provided key, or notSetValue if
+     * the Collection does not contain this key.
+     *
+     * Note: it is possible a key may be associated with an `undefined` value,
+     * so if `notSetValue` is not provided and this method returns `undefined`,
+     * that does not guarantee the key was not found.
+     */
+    get<K extends keyof R>(key: K, notSetValue?: unknown): R[K];
+    get<NSV>(key: any, notSetValue: NSV): NSV;
+
+    // TODO `<const P extends ...>` can be used after dropping support for TypeScript 4.x
+    // reference: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html#const-type-parameters
+    // after this change, `as const` assertions can be remove from the type tests
+    getIn<P extends ReadonlyArray<string | number | symbol>>(
+      searchKeyPath: [...P],
+      notSetValue?: unknown
+    ): RetrievePath<R, P>;
+
+    set<K extends keyof R>(key: K, value: R[K]): this;
+
+    update(updater: (value: this) => this): this;
+    update<K extends keyof R>(key: K, updater: (value: R[K]) => R[K]): this;
+    update<K extends keyof R, NSV extends R[K]>(
+      key: K,
+      notSetValue: NSV,
+      updater: (value: R[K]) => R[K]
+    ): this;
+
+    // Possible best type is MapOf<Omit<R, K>> but Omit seems to broke other function calls
+    // and generate recursion error with other methods (update, merge, etc.) until those functions are defined in MapOf
+    delete<K extends keyof R>(
+      key: K
+    ): Extract<R[K], undefined> extends never ? never : this;
+    remove<K extends keyof R>(
+      key: K
+    ): Extract<R[K], undefined> extends never ? never : this;
+
+    toJS(): { [K in keyof R]: DeepCopy<R[K]> };
+
+    toJSON(): { [K in keyof R]: R[K] };
+  }
+
+  // Loosely based off of this work.
+  // https://github.com/immutable-js/immutable-js/issues/1462#issuecomment-584123268
+
+  /** @ignore */
+  type GetMapType<S> = S extends MapOf<infer T> ? T : S;
+
+  /** @ignore */
+  type Head<T extends ReadonlyArray<any>> = T extends [
+    infer H,
+    ...Array<unknown>
+  ]
+    ? H
+    : never;
+
+  /** @ignore */
+  type Tail<T extends ReadonlyArray<any>> = T extends [unknown, ...infer I]
+    ? I
+    : Array<never>;
+
+  /** @ignore */
+  type RetrievePathReducer<
+    T,
+    C,
+    L extends ReadonlyArray<any>
+  > = C extends keyof GetMapType<T>
+    ? L extends []
+      ? GetMapType<T>[C]
+      : RetrievePathReducer<GetMapType<T>[C], Head<L>, Tail<L>>
+    : never;
+
+  /** @ignore */
+  type RetrievePath<
+    R,
+    P extends ReadonlyArray<string | number | symbol>
+  > = P extends [] ? P : RetrievePathReducer<R, Head<P>, Tail<P>>;
 
   interface Map<K, V> extends Collection.Keyed<K, V> {
     /**
@@ -1061,16 +1140,17 @@ declare namespace Immutable {
      */
     merge<KC, VC>(
       ...collections: Array<Iterable<[KC, VC]>>
-    ): Map<K | KC, V | VC>;
+    ): Map<K | KC, Exclude<V, VC> | VC>;
     merge<C>(
       ...collections: Array<{ [key: string]: C }>
-    ): Map<K | string, V | C>;
+    ): Map<K | string, Exclude<V, C> | C>;
+
     concat<KC, VC>(
       ...collections: Array<Iterable<[KC, VC]>>
-    ): Map<K | KC, V | VC>;
+    ): Map<K | KC, Exclude<V, VC> | VC>;
     concat<C>(
       ...collections: Array<{ [key: string]: C }>
-    ): Map<K | string, V | C>;
+    ): Map<K | string, Exclude<V, C> | C>;
 
     /**
      * Like `merge()`, `mergeWith()` returns a new Map resulting from merging
@@ -1090,10 +1170,14 @@ declare namespace Immutable {
      *
      * Note: `mergeWith` can be used in `withMutations`.
      */
-    mergeWith(
-      merger: (oldVal: V, newVal: V, key: K) => V,
-      ...collections: Array<Iterable<[K, V]> | { [key: string]: V }>
-    ): this;
+    mergeWith<KC, VC, VCC>(
+      merger: (oldVal: V, newVal: VC, key: K) => VCC,
+      ...collections: Array<Iterable<[KC, VC]>>
+    ): Map<K | KC, V | VC | VCC>;
+    mergeWith<C, CC>(
+      merger: (oldVal: V, newVal: C, key: string) => CC,
+      ...collections: Array<{ [key: string]: C }>
+    ): Map<K | string, V | C | CC>;
 
     /**
      * Like `merge()`, but when two compatible collections are encountered with
@@ -1124,9 +1208,12 @@ declare namespace Immutable {
      *
      * Note: `mergeDeep` can be used in `withMutations`.
      */
-    mergeDeep(
-      ...collections: Array<Iterable<[K, V]> | { [key: string]: V }>
-    ): this;
+    mergeDeep<KC, VC>(
+      ...collections: Array<Iterable<[KC, VC]>>
+    ): Map<K | KC, V | VC>;
+    mergeDeep<C>(
+      ...collections: Array<{ [key: string]: C }>
+    ): Map<K | string, V | C>;
 
     /**
      * Like `mergeDeep()`, but when two non-collections or incompatible
@@ -1594,14 +1681,31 @@ declare namespace Immutable {
      */
     merge<KC, VC>(
       ...collections: Array<Iterable<[KC, VC]>>
-    ): OrderedMap<K | KC, V | VC>;
+    ): OrderedMap<K | KC, Exclude<V, VC> | VC>;
     merge<C>(
       ...collections: Array<{ [key: string]: C }>
-    ): OrderedMap<K | string, V | C>;
+    ): OrderedMap<K | string, Exclude<V, C> | C>;
+
     concat<KC, VC>(
       ...collections: Array<Iterable<[KC, VC]>>
-    ): OrderedMap<K | KC, V | VC>;
+    ): OrderedMap<K | KC, Exclude<V, VC> | VC>;
     concat<C>(
+      ...collections: Array<{ [key: string]: C }>
+    ): OrderedMap<K | string, Exclude<V, C> | C>;
+
+    mergeWith<KC, VC, VCC>(
+      merger: (oldVal: V, newVal: VC, key: K) => VCC,
+      ...collections: Array<Iterable<[KC, VC]>>
+    ): OrderedMap<K | KC, V | VC | VCC>;
+    mergeWith<C, CC>(
+      merger: (oldVal: V, newVal: C, key: string) => CC,
+      ...collections: Array<{ [key: string]: C }>
+    ): OrderedMap<K | string, V | C | CC>;
+
+    mergeDeep<KC, VC>(
+      ...collections: Array<Iterable<[KC, VC]>>
+    ): OrderedMap<K | KC, V | VC>;
+    mergeDeep<C>(
       ...collections: Array<{ [key: string]: C }>
     ): OrderedMap<K | string, V | C>;
 
@@ -1714,7 +1818,6 @@ declare namespace Immutable {
      * this Collection or JavaScript Object.
      */
     function fromKeys<T>(iter: Collection.Keyed<T, unknown>): Set<T>;
-    // tslint:disable-next-line unified-signatures
     function fromKeys<T>(iter: Collection<T, unknown>): Set<T>;
     function fromKeys(obj: { [key: string]: unknown }): Set<string>;
 
@@ -1939,7 +2042,6 @@ declare namespace Immutable {
      * the keys from this Collection or JavaScript Object.
      */
     function fromKeys<T>(iter: Collection.Keyed<T, unknown>): OrderedSet<T>;
-    // tslint:disable-next-line unified-signatures
     function fromKeys<T>(iter: Collection<T, unknown>): OrderedSet<T>;
     function fromKeys(obj: { [key: string]: unknown }): OrderedSet<string>;
   }
@@ -2362,8 +2464,8 @@ declare namespace Immutable {
    * ```
    */
   function Range(
-    start?: number,
-    end?: number,
+    start: number,
+    end: number,
     step?: number
   ): Seq.Indexed<number>;
 
@@ -3473,34 +3575,6 @@ declare namespace Immutable {
    */
   namespace Collection {
     /**
-     * @deprecated use `const { isKeyed } = require('immutable')`
-     */
-    function isKeyed(
-      maybeKeyed: unknown
-    ): maybeKeyed is Collection.Keyed<unknown, unknown>;
-
-    /**
-     * @deprecated use `const { isIndexed } = require('immutable')`
-     */
-    function isIndexed(
-      maybeIndexed: unknown
-    ): maybeIndexed is Collection.Indexed<unknown>;
-
-    /**
-     * @deprecated use `const { isAssociative } = require('immutable')`
-     */
-    function isAssociative(
-      maybeAssociative: unknown
-    ): maybeAssociative is
-      | Collection.Keyed<unknown, unknown>
-      | Collection.Indexed<unknown>;
-
-    /**
-     * @deprecated use `const { isOrdered } = require('immutable')`
-     */
-    function isOrdered(maybeOrdered: unknown): boolean;
-
-    /**
      * Keyed Collections have discrete keys tied to each value.
      *
      * When iterating `Collection.Keyed`, each iteration will yield a `[K, V]`
@@ -4208,7 +4282,8 @@ declare namespace Immutable {
      * In case the `Collection` is empty returns the optional default
      * value if provided, if no default value is provided returns undefined.
      */
-    first<NSV = undefined>(notSetValue?: NSV): V | NSV;
+    first<NSV>(notSetValue: NSV): V | NSV;
+    first(): V | undefined;
 
     /**
      * In case the `Collection` is not empty returns the last element of the
@@ -4216,7 +4291,8 @@ declare namespace Immutable {
      * In case the `Collection` is empty returns the optional default
      * value if provided, if no default value is provided returns undefined.
      */
-    last<NSV = undefined>(notSetValue?: NSV): V | NSV;
+    last<NSV>(notSetValue: NSV): V | NSV;
+    last(): V | undefined;
 
     // Reading deep values
 
@@ -4808,7 +4884,6 @@ declare namespace Immutable {
      * returns Collection<K, V>
      */
     flatten(depth?: number): Collection<unknown, unknown>;
-    // tslint:disable-next-line unified-signatures
     flatten(shallow?: boolean): Collection<unknown, unknown>;
 
     /**

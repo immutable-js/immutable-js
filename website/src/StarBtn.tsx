@@ -5,13 +5,18 @@ import { useEffect, useState } from 'react';
 // https://api.github.com/repos/immutable-js/immutable-js
 
 export function StarBtn() {
-  const [stars, setStars] = useState<boolean | null>(null);
+  const [stars, setStars] = useState<number | null>(null);
 
   useEffect(() => {
     loadJSON(
       'https://api.github.com/repos/immutable-js/immutable-js',
       value => {
-        if (value && value.stargazers_count) {
+        if (
+          typeof value === 'object' &&
+          value !== null &&
+          'stargazers_count' in value &&
+          typeof value.stargazers_count === 'number'
+        ) {
           setStars(value.stargazers_count);
         }
       }
@@ -173,12 +178,20 @@ export function StarBtn() {
   );
 }
 
-function loadJSON(url: string, then: (value: any) => void) {
+function loadJSON(url: string, then: (value: unknown) => void) {
   const oReq = new XMLHttpRequest();
   oReq.onload = event => {
+    if (
+      !event.target ||
+      !('responseText' in event.target) ||
+      typeof event.target.responseText !== 'string'
+    ) {
+      return null;
+    }
+
     let json;
     try {
-      json = JSON.parse((event.target as any).responseText);
+      json = JSON.parse(event.target.responseText);
     } catch (e) {
       // ignore error
     }

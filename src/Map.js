@@ -48,17 +48,6 @@ export class Map extends KeyedCollection {
         });
   }
 
-  static of(...keyValues) {
-    return emptyMap().withMutations(map => {
-      for (let i = 0; i < keyValues.length; i += 2) {
-        if (i + 1 >= keyValues.length) {
-          throw new Error('Missing value for key: ' + keyValues[i]);
-        }
-        map.set(keyValues[i], keyValues[i + 1]);
-      }
-    });
-  }
-
   toString() {
     return this.__toString('Map {', '}');
   }
@@ -552,7 +541,7 @@ BitmapIndexedNode.prototype.iterate = HashArrayMapNode.prototype.iterate =
     }
   };
 
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 ValueNode.prototype.iterate = function (fn, reverse) {
   return fn(this.entry);
 };

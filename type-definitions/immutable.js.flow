@@ -76,8 +76,10 @@ declare class _Collection<K, +V> implements ValueObject {
   has(key: K): boolean;
   includes(value: V): boolean;
   contains(value: V): boolean;
-  first<NSV>(notSetValue?: NSV): V | NSV;
-  last<NSV>(notSetValue?: NSV): V | NSV;
+  first(): V | void;
+  first<NSV>(notSetValue: NSV): V | NSV;
+  last(): V | void;
+  last<NSV>(notSetValue: NSV): V | NSV;
 
   hasIn(keyPath: Iterable<mixed>): boolean;
 
@@ -218,16 +220,16 @@ declare class _Collection<K, +V> implements ValueObject {
     context?: mixed
   ): Map<G, number>;
 
-  find<NSV>(
+  find(
     predicate: (value: V, key: K, iter: this) => mixed,
     context?: mixed,
-    notSetValue?: NSV
-  ): V | NSV;
-  findLast<NSV>(
+    notSetValue?: V
+  ): V | void;
+  findLast(
     predicate: (value: V, key: K, iter: this) => mixed,
     context?: mixed,
-    notSetValue?: NSV
-  ): V | NSV;
+    notSetValue?: V
+  ): V | void;
 
   findEntry(predicate: (value: V, key: K, iter: this) => mixed): [K, V] | void;
   findLastEntry(

@@ -1,11 +1,13 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const Immutable1 = require('../src/Immutable');
 
 jest.resetModules();
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const Immutable2 = require('../src/Immutable');
 
 describe('MultiRequire', () => {
-  it.skip('might require two different instances of Immutable', () => {
+  it('might require two different instances of Immutable', () => {
     expect(Immutable1).not.toBe(Immutable2);
     expect(Immutable1.Map({ a: 1 }).toJS()).toEqual({ a: 1 });
     expect(Immutable2.Map({ a: 1 }).toJS()).toEqual({ a: 1 });

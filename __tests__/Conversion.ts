@@ -1,10 +1,7 @@
 import { fromJS, is, List, Map, OrderedMap, Record } from 'immutable';
-
 import * as jasmineCheck from 'jasmine-check';
-jasmineCheck.install();
 
-// Symbols
-declare function Symbol(name: string): any;
+jasmineCheck.install();
 
 describe('Conversion', () => {
   // Note: order of keys based on Map's hashing order
@@ -107,7 +104,9 @@ describe('Conversion', () => {
   });
 
   it('Throws when provided circular reference', () => {
-    const o = { a: { b: { c: null as any } } };
+    type OType = { a: { b: { c: OType | null } } };
+
+    const o: OType = { a: { b: { c: null } } };
     o.a.b.c = o;
     expect(() => fromJS(o)).toThrow(
       'Cannot convert circular structure to Immutable'
@@ -117,7 +116,8 @@ describe('Conversion', () => {
   it('Converts deep JSON with custom conversion', () => {
     const seq = fromJS(js, function (key, sequence) {
       if (key === 'point') {
-        return new Point(sequence as any);
+        // @ts-expect-error -- to convert to real typing
+        return new Point(sequence);
       }
       return Array.isArray(this[key])
         ? sequence.toList()
@@ -128,7 +128,8 @@ describe('Conversion', () => {
   });
 
   it('Converts deep JSON with custom conversion including keypath if requested', () => {
-    const paths: Array<any> = [];
+    const paths: Array<Array<string | number> | undefined> = [];
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const seq1 = fromJS(js, function (key, sequence, keypath) {
       expect(arguments.length).toBe(3);
       paths.push(keypath);
@@ -147,6 +148,8 @@ describe('Conversion', () => {
       ['point'],
       ['list'],
     ]);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const seq2 = fromJS(js, function (key, sequence) {
       expect(arguments[2]).toBe(undefined);
     });

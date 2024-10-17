@@ -1,49 +1,42 @@
-import { fromJS, List, Map } from 'immutable';
+import { expect, test } from 'tstyche';
+import { fromJS, Collection, List, Map, MapOf } from 'immutable';
 
-{
-  // fromJS
+test('fromJS', () => {
+  expect(fromJS({}, (a: any, b: any) => b)).type.toBe<
+    Collection<unknown, unknown>
+  >();
 
-  // $ExpectType Collection<unknown, unknown>
-  fromJS({}, (a: any, b: any) => b);
+  expect(fromJS('abc')).type.toBeString();
 
-  // $ExpectType string
-  fromJS('abc');
+  expect(fromJS([0, 1, 2])).type.toBe<List<number>>();
 
-  // $ExpectType List<number>
-  fromJS([0, 1, 2]);
+  expect(fromJS(List([0, 1, 2]))).type.toBe<List<number>>();
 
-  // $ExpectType List<number>
-  fromJS(List([0, 1, 2]));
+  expect(fromJS({ a: 0, b: 1, c: 2 })).type.toBe<
+    Map<'b' | 'a' | 'c', number>
+  >();
 
-  // $ExpectType Map<"b" | "a" | "c", number>
-  fromJS({a: 0, b: 1, c: 2});
+  expect(fromJS(Map({ a: 0, b: 1, c: 2 }))).type.toBe<
+    MapOf<{ a: number; b: number; c: number }>
+  >();
 
-  // $ExpectType Map<string, number>
-  fromJS(Map({a: 0, b: 1, c: 2}));
+  expect(fromJS([{ a: 0 }])).type.toBe<List<Map<'a', number>>>();
 
-  // $ExpectType List<Map<"a", number>>
-  fromJS([{a: 0}]);
+  expect(fromJS({ a: [0] })).type.toBe<Map<'a', List<number>>>();
 
-  // $ExpectType Map<"a", List<number>>
-  fromJS({a: [0]});
+  expect(fromJS([[[0]]])).type.toBe<List<List<List<number>>>>();
 
-  // $ExpectType List<List<List<number>>>
-  fromJS([[[0]]]);
+  expect(fromJS({ a: { b: { c: 0 } } })).type.toBe<
+    Map<'a', Map<'b', Map<'c', number>>>
+  >();
+});
 
-  // $ExpectType Map<"a", Map<"b", Map<"c", number>>>
-  fromJS({a: {b: {c: 0}}});
-}
-
-{
-  // fromJS in an array of function
-
+test('fromJS in an array of function', () => {
   const create = [(data: any) => data, fromJS][1];
 
-  // $ExpectType any
-  create({ a: 'A' });
+  expect(create({ a: 'A' })).type.toBeAny();
 
   const createConst = ([(data: any) => data, fromJS] as const)[1];
 
-  // $ExpectType Map<"a", string>
-  createConst({ a: 'A' });
-}
+  expect(createConst({ a: 'A' })).type.toBe<Map<'a', string>>();
+});

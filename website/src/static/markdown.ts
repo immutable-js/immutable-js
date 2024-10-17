@@ -1,6 +1,6 @@
-// @ts-ignore
-import marked from 'marked';
-import { Prism as prism } from './prism';
+import { Marked } from 'marked';
+import { markedHighlight } from 'marked-highlight';
+import prism from 'prismjs';
 import type { TypeDefs, CallSignature, TypeDefinition } from '../TypeDefs';
 
 export type MarkdownContext = {
@@ -9,33 +9,44 @@ export type MarkdownContext = {
   signatures?: Array<CallSignature>;
 };
 
-export function markdown(content: string, context: MarkdownContext) {
+type RunkitContext = {
+  options: string | object;
+  activated: boolean;
+};
+
+function highlight(code: string): string {
+  return prism.highlight(code, prism.languages.javascript, 'javascript');
+}
+
+export function markdown(content: string, context: MarkdownContext): string {
   if (!content) return content;
 
   const defs = context.defs;
 
-  // functions come before keywords
+  // functions comsidee before keywords
+  // the two following `insertBefore` do change the classes of the tokens, but is this still used? (visual output is the same)
   prism.languages.insertBefore('javascript', 'keyword', {
     var: /\b(this)\b/g,
     'block-keyword': /\b(if|else|while|for|function)\b/g,
     primitive: /\b(true|false|null|undefined)\b/g,
-    function: prism.languages.function,
+    function: prism.languages.javascript.function,
   });
 
-  prism.languages.insertBefore('javascript', {
+  prism.languages.insertBefore('javascript', 'keyword', {
     qualifier: /\b[A-Z][a-z0-9_]+/g,
   });
 
-  marked.setOptions({
-    xhtml: true,
-    highlight: (code: string) =>
-      prism.highlight(code, prism.languages.javascript),
-  });
+  const marked = new Marked(
+    markedHighlight({
+      langPrefix: 'hljs language-',
+      highlight,
+    })
+  );
 
   const renderer = new marked.Renderer();
 
   const runkitRegExp = /^<!--\s*runkit:activate((.|\n)*)-->(.|\n)*$/;
-  const runkitContext = { options: '{}', activated: false };
+  const runkitContext: RunkitContext = { options: '{}', activated: false };
 
   renderer.html = function (text: string) {
     const result = runkitRegExp.exec(text);
@@ -46,21 +57,12 @@ export function markdown(content: string, context: MarkdownContext) {
     try {
       runkitContext.options = result[1] ? JSON.parse(result[1]) : {};
     } catch (e) {
-      // @ts-ignore
       runkitContext.options = {};
     }
     return text;
   };
 
   renderer.code = function (code: string, lang: string, escaped: boolean) {
-    if (this.options.highlight) {
-      const out = this.options.highlight(code, lang);
-      if (out != null && out !== code) {
-        escaped = true;
-        code = out;
-      }
-    }
-
     const runItButton = runkitContext.activated
       ? '<a class="try-it" data-options="' +
         escape(JSON.stringify(runkitContext.options)) +
@@ -91,15 +93,10 @@ export function markdown(content: string, context: MarkdownContext) {
     'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/';
 
   renderer.codespan = function (text: string) {
-    return (
-      '<code>' + decorateCodeSpan(text, this.options.highlight) + '</code>'
-    );
+    return '<code>' + decorateCodeSpan(text) + '</code>';
   };
 
-  function decorateCodeSpan(
-    text: string,
-    highlight?: (code: string, lang: string) => string
-  ) {
+  function decorateCodeSpan(text: string) {
     if (
       context.signatures &&
       PARAM_RX.test(text) &&
@@ -123,11 +120,7 @@ export function markdown(content: string, context: MarkdownContext) {
       }
     }
 
-    if (highlight) {
-      return highlight(unescapeCode(text), prism.languages.javascript);
-    }
-
-    return text;
+    return highlight(unescapeCode(text));
   }
 
   function findTypeRefLink(immutableNS: string, elements: Array<string>) {
@@ -153,10 +146,14 @@ export function markdown(content: string, context: MarkdownContext) {
     return findDocsUrl(defs, elements);
   }
 
-  return marked(content, { renderer, context });
+  // @ts-expect-error -- issue with "context", probably because we are on a really old version of marked
+  return marked.parse(content, { renderer, context });
 }
 
-function findDocsUrl(defs: TypeDefs, elements: Array<string>) {
+function findDocsUrl(
+  defs: TypeDefs,
+  elements: Array<string>
+): string | undefined {
   // Try to resolve an interface member
   if (elements.length > 1) {
     const typeName = elements.slice(0, -1).join('.');
@@ -171,7 +168,7 @@ function findDocsUrl(defs: TypeDefs, elements: Array<string>) {
   return defs.types[elements.join('.')]?.url;
 }
 
-function escapeCode(code: string) {
+function escapeCode(code: string): string {
   return code
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -180,7 +177,7 @@ function escapeCode(code: string) {
     .replace(/'/g, '&#39;');
 }
 
-function unescapeCode(code: string) {
+function unescapeCode(code: string): string {
   return code
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')

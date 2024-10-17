@@ -1,6 +1,6 @@
 import { Range } from 'immutable';
-
 import * as jasmineCheck from 'jasmine-check';
+
 jasmineCheck.install();
 
 describe('Range', () => {
@@ -24,8 +24,19 @@ describe('Range', () => {
     expect(v.toArray()).toEqual([1, 4, 7]);
   });
 
+  it('range should contain start and end values', () => {
+    // @ts-expect-error -- test that runtime error is thrown
+    expect(() => Range()).toThrow(
+      'You must define a start value when using Range'
+    );
+    // @ts-expect-error -- test that runtime error is thrown
+    expect(() => Range(1)).toThrow(
+      'You must define an end value when using Range'
+    );
+  });
+
   it('open range', () => {
-    const v = Range(10);
+    const v = Range(10, Infinity);
     expect(v.size).toBe(Infinity);
     expect(v.first()).toBe(10);
     expect(v.rest().first()).toBe(11);
@@ -196,7 +207,7 @@ describe('Range', () => {
 
     expect(
       Range(0, 3)
-        .filter($ => true)
+        .filter(() => true)
         .slice(-2)
         .toArray()
     ).toEqual([1, 2]);

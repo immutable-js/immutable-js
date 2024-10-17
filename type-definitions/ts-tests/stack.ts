@@ -1,262 +1,228 @@
-import { Stack } from 'immutable';
+import { expect, test } from 'tstyche';
+import { Collection, Stack } from 'immutable';
 
-{
-  // #constructor
+test('#constructor', () => {
+  expect(Stack()).type.toBe<Stack<unknown>>();
 
-  // $ExpectType Stack<unknown>
-  Stack();
+  expect(Stack<number>()).type.toBe<Stack<number>>();
 
-  const numberStack: Stack<number> = Stack<number>();
-  const numberOrStringStack: Stack<number | string> = Stack([1, 'a']);
+  expect(Stack([1, 'a'])).type.toBe<Stack<number | string>>();
+});
 
-  // $ExpectError
-  const invalidNumberStack: Stack<number> = Stack([1, 'a']);
-}
+test('#size', () => {
+  expect(Stack().size).type.toBeNumber();
 
-{
-  // #size
+  expect(Stack()).type.toMatch<{ readonly size: number }>();
+});
 
-  // $ExpectType number
-  Stack().size;
+test('.of', () => {
+  expect(Stack.of(1, 2, 3)).type.toBe<Stack<number>>();
 
-  // $ExpectError
-  Stack().size = 10;
-}
+  expect(Stack.of<number>('a', 1)).type.toRaiseError();
 
-{
-  // .of
+  expect(Stack.of<number | string>('a', 1)).type.toBe<Stack<string | number>>();
+});
 
-  // $ExpectType Stack<number>
-  Stack.of(1, 2, 3);
+test('#peek', () => {
+  expect(Stack<number>().peek()).type.toBe<number | undefined>();
+});
 
-  // $ExpectError
-  Stack.of<number>('a', 1);
+test('#push', () => {
+  expect(Stack<number>().push(0)).type.toBe<Stack<number>>();
 
-  // $ExpectType Stack<string | number>
-  Stack.of<number | string>('a', 1);
-}
+  expect(Stack<number>().push('a')).type.toRaiseError();
 
-{
-  // #peek
+  expect(Stack<number | string>().push(0)).type.toBe<Stack<string | number>>();
 
-  // $ExpectType number | undefined
-  Stack<number>().peek();
-}
+  expect(Stack<number | string>().push('a')).type.toBe<
+    Stack<string | number>
+  >();
+});
 
-{
-  // #push
+test('#pushAll', () => {
+  expect(Stack<number>().pushAll([0])).type.toBe<Stack<number>>();
 
-  // $ExpectType Stack<number>
-  Stack<number>().push(0);
+  expect(Stack<number>().pushAll(['a'])).type.toRaiseError();
 
-  // $ExpectError
-  Stack<number>().push('a');
+  expect(Stack<number | string>().pushAll([0])).type.toBe<
+    Stack<string | number>
+  >();
 
-  // $ExpectType Stack<string | number>
-  Stack<number | string>().push(0);
+  expect(Stack<number | string>().pushAll(['a'])).type.toBe<
+    Stack<string | number>
+  >();
+});
 
-  // $ExpectType Stack<string | number>
-  Stack<number | string>().push('a');
-}
+test('#unshift', () => {
+  expect(Stack<number>().unshift(0)).type.toBe<Stack<number>>();
 
-{
-  // #pushAll
+  expect(Stack<number>().unshift('a')).type.toRaiseError();
 
-  // $ExpectType Stack<number>
-  Stack<number>().pushAll([0]);
+  expect(Stack<number | string>().unshift(0)).type.toBe<
+    Stack<string | number>
+  >();
 
-  // $ExpectError
-  Stack<number>().pushAll(['a']);
+  expect(Stack<number | string>().unshift('a')).type.toBe<
+    Stack<string | number>
+  >();
+});
 
-  // $ExpectType Stack<string | number>
-  Stack<number | string>().pushAll([0]);
+test('#unshiftAll', () => {
+  expect(Stack<number>().unshiftAll([0])).type.toBe<Stack<number>>();
 
-  // $ExpectType Stack<string | number>
-  Stack<number | string>().pushAll(['a']);
-}
-
-{
-  // #unshift
-
-  // $ExpectType Stack<number>
-  Stack<number>().unshift(0);
-
-  // $ExpectError
-  Stack<number>().unshift('a');
-
-  // $ExpectType Stack<string | number>
-  Stack<number | string>().unshift(0);
-
-  // $ExpectType Stack<string | number>
-  Stack<number | string>().unshift('a');
-}
-
-{
-  // #unshiftAll
-
-  // $ExpectType Stack<number>
-  Stack<number>().unshiftAll([0]);
-
-  // $ExpectError
-  Stack<number>().unshiftAll(['a']);
-
-  // $ExpectType Stack<string | number>
-  Stack<number | string>().unshiftAll([1]);
-
-  // $ExpectType Stack<string | number>
-  Stack<number | string>().unshiftAll(['a']);
-}
-
-{
-  // #clear
-
-  // $ExpectType Stack<number>
-  Stack<number>().clear();
-
-  // $ExpectError
-  Stack().clear(10);
-}
-
-{
-  // #pop
-
-  // $ExpectType Stack<number>
-  Stack<number>().pop();
-
-  // $ExpectError
-  Stack().pop(10);
-}
-
-{
-  // #shift
-
-  // $ExpectType Stack<number>
-  Stack<number>().shift();
-
-  // $ExpectError
-  Stack().shift(10);
-}
-
-{
-  // #map
-
-  // $ExpectType Stack<number>
-  Stack<number>().map((value: number, key: number, iter: Stack<number>) => 1);
-
-  // $ExpectType Stack<string>
-  Stack<number>().map((value: number, key: number, iter: Stack<number>) => 'a');
-
-  // $ExpectType Stack<number>
-  Stack<number>().map<number>(
-    (value: number, key: number, iter: Stack<number>) => 1
-  );
-
-  Stack<number>().map<string>(
-    // $ExpectError
-    (value: number, key: number, iter: Stack<number>) => 1
-  );
-
-  Stack<number>().map<number>(
-    // $ExpectError
-    (value: string, key: number, iter: Stack<number>) => 1
-  );
-
-  Stack<number>().map<number>(
-    // $ExpectError
-    (value: number, key: string, iter: Stack<number>) => 1
-  );
-
-  Stack<number>().map<number>(
-    // $ExpectError
-    (value: number, key: number, iter: Stack<string>) => 1
-  );
-
-  Stack<number>().map<number>(
-    // $ExpectError
-    (value: number, key: number, iter: Stack<number>) => 'a'
-  );
-}
-
-{
-  // #flatMap
-
-  // $ExpectType Stack<number>
-  Stack<number>().flatMap((value: number, key: number, iter: Stack<number>) => [
-    1,
-  ]);
-
-  // $ExpectType Stack<string>
-  Stack<number>().flatMap(
-    (value: number, key: number, iter: Stack<number>) => 'a'
-  );
-
-  // $ExpectType Stack<number>
-  Stack<number>().flatMap<number>(
-    (value: number, key: number, iter: Stack<number>) => [1]
-  );
-
-  Stack<number>().flatMap<string>(
-    // $ExpectError
-    (value: number, key: number, iter: Stack<number>) => 1
-  );
-
-  Stack<number>().flatMap<number>(
-    // $ExpectError
-    (value: string, key: number, iter: Stack<number>) => 1
-  );
-
-  Stack<number>().flatMap<number>(
-    // $ExpectError
-    (value: number, key: string, iter: Stack<number>) => 1
-  );
-
-  Stack<number>().flatMap<number>(
-    // $ExpectError
-    (value: number, key: number, iter: Stack<string>) => 1
-  );
-
-  Stack<number>().flatMap<number>(
-    // $ExpectError
-    (value: number, key: number, iter: Stack<number>) => 'a'
-  );
-}
-
-{
-  // #flatten
-
-  // $ExpectType Collection<unknown, unknown>
-  Stack<number>().flatten();
-
-  // $ExpectType Collection<unknown, unknown>
-  Stack<number>().flatten(10);
-
-  // $ExpectType Collection<unknown, unknown>
-  Stack<number>().flatten(false);
-
-  // $ExpectError
-  Stack<number>().flatten('a');
-}
-
-{
-  // #withMutations
-
-  // $ExpectType Stack<number>
-  Stack<number>().withMutations((mutable) => mutable);
-
-  // $ExpectError
-  Stack<number>().withMutations((mutable: Stack<string>) => mutable);
-}
-
-{
-  // #asMutable
-
-  // $ExpectType Stack<number>
-  Stack<number>().asMutable();
-}
-
-{
-  // #asImmutable
-
-  // $ExpectType Stack<number>
-  Stack<number>().asImmutable();
-}
+  expect(Stack<number>().unshiftAll(['a'])).type.toRaiseError();
+
+  expect(Stack<number | string>().unshiftAll([1])).type.toBe<
+    Stack<string | number>
+  >();
+
+  expect(Stack<number | string>().unshiftAll(['a'])).type.toBe<
+    Stack<string | number>
+  >();
+});
+
+test('#clear', () => {
+  expect(Stack<number>().clear()).type.toBe<Stack<number>>();
+
+  expect(Stack().clear(10)).type.toRaiseError();
+});
+
+test('#pop', () => {
+  expect(Stack<number>().pop()).type.toBe<Stack<number>>();
+
+  expect(Stack().pop(10)).type.toRaiseError();
+});
+
+test('#shift', () => {
+  expect(Stack<number>().shift()).type.toBe<Stack<number>>();
+
+  expect(Stack().shift(10)).type.toRaiseError();
+});
+
+test('#map', () => {
+  expect(
+    Stack<number>().map((value: number, key: number, iter: Stack<number>) => 1)
+  ).type.toBe<Stack<number>>();
+
+  expect(
+    Stack<number>().map(
+      (value: number, key: number, iter: Stack<number>) => 'a'
+    )
+  ).type.toBe<Stack<string>>();
+
+  expect(
+    Stack<number>().map<number>(
+      (value: number, key: number, iter: Stack<number>) => 1
+    )
+  ).type.toBe<Stack<number>>();
+
+  expect(
+    Stack<number>().map<string>(
+      (value: number, key: number, iter: Stack<number>) => 1
+    )
+  ).type.toRaiseError();
+
+  expect(
+    Stack<number>().map<number>(
+      (value: string, key: number, iter: Stack<number>) => 1
+    )
+  ).type.toRaiseError();
+
+  expect(
+    Stack<number>().map<number>(
+      (value: number, key: string, iter: Stack<number>) => 1
+    )
+  ).type.toRaiseError();
+
+  expect(
+    Stack<number>().map<number>(
+      (value: number, key: number, iter: Stack<string>) => 1
+    )
+  ).type.toRaiseError();
+
+  expect(
+    Stack<number>().map<number>(
+      (value: number, key: number, iter: Stack<number>) => 'a'
+    )
+  ).type.toRaiseError();
+});
+
+test('#flatMap', () => {
+  expect(
+    Stack<number>().flatMap(
+      (value: number, key: number, iter: Stack<number>) => [1]
+    )
+  ).type.toBe<Stack<number>>();
+
+  expect(
+    Stack<number>().flatMap(
+      (value: number, key: number, iter: Stack<number>) => 'a'
+    )
+  ).type.toBe<Stack<string>>();
+
+  expect(
+    Stack<number>().flatMap<number>(
+      (value: number, key: number, iter: Stack<number>) => [1]
+    )
+  ).type.toBe<Stack<number>>();
+
+  expect(
+    Stack<number>().flatMap<string>(
+      (value: number, key: number, iter: Stack<number>) => 1
+    )
+  ).type.toRaiseError();
+
+  expect(
+    Stack<number>().flatMap<number>(
+      (value: string, key: number, iter: Stack<number>) => 1
+    )
+  ).type.toRaiseError();
+
+  expect(
+    Stack<number>().flatMap<number>(
+      (value: number, key: string, iter: Stack<number>) => 1
+    )
+  ).type.toRaiseError();
+
+  expect(
+    Stack<number>().flatMap<number>(
+      (value: number, key: number, iter: Stack<string>) => 1
+    )
+  ).type.toRaiseError();
+
+  expect(
+    Stack<number>().flatMap<number>(
+      (value: number, key: number, iter: Stack<number>) => 'a'
+    )
+  ).type.toRaiseError();
+});
+
+test('#flatten', () => {
+  expect(Stack<number>().flatten()).type.toBe<Collection<unknown, unknown>>();
+
+  expect(Stack<number>().flatten(10)).type.toBe<Collection<unknown, unknown>>();
+
+  expect(Stack<number>().flatten(false)).type.toBe<
+    Collection<unknown, unknown>
+  >();
+
+  expect(Stack<number>().flatten('a')).type.toRaiseError();
+});
+
+test('#withMutations', () => {
+  expect(Stack<number>().withMutations(mutable => mutable)).type.toBe<
+    Stack<number>
+  >();
+
+  expect(
+    Stack<number>().withMutations((mutable: Stack<string>) => mutable)
+  ).type.toRaiseError();
+});
+
+test('#asMutable', () => {
+  expect(Stack<number>().asMutable()).type.toBe<Stack<number>>();
+});
+
+test('#asImmutable', () => {
+  expect(Stack<number>().asImmutable()).type.toBe<Stack<number>>();
+});

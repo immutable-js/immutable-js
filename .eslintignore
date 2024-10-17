@@ -2,3 +2,4 @@
 /pages/generated/**
 /dist/**
 node_modules
+/type-definitions/flow-tests
