@@ -22,6 +22,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-var version = "5.0.0-rc.1";
+var version = "5.0.0-rc.2";
 
 export { version };
