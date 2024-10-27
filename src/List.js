@@ -304,7 +304,10 @@ class VNode {
   }
 
   removeAfter(ownerID, level, index) {
-    if (index === (level ? 1 << level : 0) || this.array.length === 0) {
+    if (
+      index === (level ? 1 << (level + 1) : SIZE) - 1 ||
+      this.array.length === 0
+    ) {
       return this;
     }
     const sizeIndex = ((index - 1) >>> level) & MASK;

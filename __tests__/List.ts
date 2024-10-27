@@ -722,6 +722,11 @@ describe('List', () => {
     expect(o.get(0)).toBe('f');
   });
 
+  it('works with push and insert without phantom values', () => {
+    const v = List.of().set(287, 287).push(42).insert(33, 33);
+    expect(v.toJS().filter(item => item === 287)).toHaveLength(1);
+  });
+
   // TODO: assert that findIndex only calls the function as much as it needs to.
 
   it('forEach iterates in the correct order', () => {
