@@ -938,7 +938,7 @@ declare class List<+T>
   extends IndexedCollection<T>
   mixins UpdatableInCollection<number, T>
 {
-  static (collection?: Iterable<T>): List<T>;
+  static <T>(collection?: Iterable<T>): List<T>;
 
   static of<T>(...values: T[]): List<T>;
 
@@ -1310,8 +1310,8 @@ declare class Set<+T> extends SetCollection<T> {
     values: Iterable<[T, mixed]> | PlainObjInput<T, mixed>
   ): Set<T>;
 
-  static intersect(sets: Iterable<Iterable<T>>): Set<T>;
-  static union(sets: Iterable<Iterable<T>>): Set<T>;
+  static intersect<T>(sets: Iterable<Iterable<T>>): Set<T>;
+  static union<T>(sets: Iterable<Iterable<T>>): Set<T>;
 
   static isSet: typeof isSet;
 
