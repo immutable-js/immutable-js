@@ -1,6 +1,6 @@
 {
   "name": "immutable",
-  "version": "5.0.0-rc.2",
+  "version": "5.0.0",
   "description": "Immutable Data Collections",
   "license": "MIT",
   "homepage": "https://immutable-js.com",
