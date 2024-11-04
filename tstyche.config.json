@@ -1,6 +1,6 @@
 {
   "$schema": "https://tstyche.org/schemas/config.json",
   "testFileMatch": [
-    "**/type-definitions/ts-tests/*.ts"
+    "type-definitions/ts-tests/*.ts"
   ]
 }
