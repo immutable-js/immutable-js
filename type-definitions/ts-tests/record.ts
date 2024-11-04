@@ -1,4 +1,4 @@
-import { expect, test } from 'tstyche';
+import { expect, pick, test } from 'tstyche';
 import { List, Map, MapOf, Record, RecordOf, Set } from 'immutable';
 
 test('Factory', () => {
@@ -14,13 +14,9 @@ test('Factory', () => {
     Record<{ x: number; y: number }> & Readonly<{ x: number; y: number }>
   >();
 
-  expect(pointXY.x).type.toBeNumber();
+  expect(pick(pointXY, 'x')).type.toBe<{ readonly x: number }>();
 
-  expect(pointXY).type.toMatch<{ readonly x: number }>();
-
-  expect(pointXY.y).type.toBeNumber();
-
-  expect(pointXY).type.toMatch<{ readonly y: number }>();
+  expect(pick(pointXY, 'y')).type.toBe<{ readonly y: number }>();
 
   expect(pointXY.toJS()).type.toBe<{ x: number; y: number }>();
 

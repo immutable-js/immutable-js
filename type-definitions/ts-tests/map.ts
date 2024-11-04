@@ -1,4 +1,4 @@
-import { expect, test } from 'tstyche';
+import { expect, pick, test } from 'tstyche';
 import { Map, List, MapOf, OrderedMap } from 'immutable';
 
 test('#constructor', () => {
@@ -45,9 +45,7 @@ test('#constructor', () => {
 });
 
 test('#size', () => {
-  expect(Map().size).type.toBeNumber();
-
-  expect(Map()).type.toMatch<{ readonly size: number }>();
+  expect(pick(Map(), 'size')).type.toBe<{ readonly size: number }>();
 });
 
 test('#get', () => {
