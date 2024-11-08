@@ -31,8 +31,6 @@ async function bundlephobaInfo(key) {
         `https://bundlephobia.com/api/size?package=immutable@${VERIFY_AGAINST_VERSION}`
       );
 
-      console.log(res.status);
-
       if (res.status !== 200) {
         throw new Error(
           `Unable to fetch bundlephobia in dist-stats.mjs. Status code is "${res.status}"`
@@ -50,7 +48,7 @@ async function bundlephobaInfo(key) {
   return bundlephobaInfoCache[key];
 }
 
-Promise.all([
+Promise.allSettled([
   fs.readFile('dist/immutable.js'),
   fs.readFile('dist/immutable.min.js'),
   bundlephobaInfo('size'),
@@ -59,23 +57,28 @@ Promise.all([
 ])
   .then(results =>
     results.map(result =>
-      typeof result === 'number'
+      typeof (result === null || result === 'number')
         ? result
         : Number(Buffer.byteLength(result, 'utf8'))
     )
   )
   .then(([rawNew, minNew, minOld, zipNew, zipOld]) => {
-    console.log(`  Raw: ${space(14, bytes(rawNew).cyan)}`);
-    console.log(
-      `  Min: ${space(14, bytes(minNew).cyan)}${percentage(
-        minNew,
-        rawNew
-      )}${space(15, diff(minNew, minOld))}`
-    );
-    console.log(
-      `  Zip: ${space(14, bytes(zipNew).cyan)}${percentage(
-        zipNew,
-        rawNew
-      )}${space(15, diff(zipNew, zipOld))}`
-    );
+    console.log(`  Raw: ${space(14, bytes(rawNew.value).cyan)}`);
+    if (minOld.status === 'fulfilled') {
+      console.log(
+        `  Min: ${space(14, bytes(minNew.value).cyan)}${percentage(
+          minNew.value,
+          rawNew.value
+        )}${space(15, diff(minNew.value, minOld.value))}`
+      );
+    }
+
+    if (zipOld.status === 'fulfilled') {
+      console.log(
+        `  Zip: ${space(14, bytes(zipNew.value).cyan)}${percentage(
+          zipNew.value,
+          rawNew.value
+        )}${space(15, diff(zipNew.value, zipOld.value))}`
+      );
+    }
   });
