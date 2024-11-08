@@ -16,7 +16,7 @@
     "url": "https://github.com/immutable-js/immutable-js/issues"
   },
   "main": "dist/immutable.js",
-  "module": "dist/es/Immutable.js",
+  "module": "dist/immutable.es.js",
   "types": "dist/immutable.d.ts",
   "files": [
     "dist",
@@ -133,19 +133,19 @@
   "size-limit": [
     {
       "name": "all",
-      "path": "dist/es/Immutable.js",
+      "path": "dist/immutable.es.js",
       "import": "*",
       "limit": "20 kB"
     },
     {
       "name": "List",
-      "path": "dist/es/Immutable.js",
+      "path": "dist/immutable.es.js",
       "import": "{ List }",
       "limit": "20 kB"
     },
     {
       "name": "Seq",
-      "path": "dist/es/Immutable.js",
+      "path": "dist/immutable.es.js",
       "import": "{ Seq }",
       "limit": "20 kB"
     }
