@@ -271,7 +271,10 @@ class VNode {
   // TODO: seems like these methods are very similar
 
   removeBefore(ownerID, level, index) {
-    if (index === level ? 1 << level : 0 || this.array.length === 0) {
+    if (
+      (index & ((1 << (level + SHIFT)) - 1)) === 0 ||
+      this.array.length === 0
+    ) {
       return this;
     }
     const originIndex = (index >>> level) & MASK;
@@ -305,7 +308,7 @@ class VNode {
 
   removeAfter(ownerID, level, index) {
     if (
-      index === (level ? 1 << (level + 1) : SIZE) - 1 ||
+      index === (level ? 1 << (level + SHIFT) : SIZE) ||
       this.array.length === 0
     ) {
       return this;
