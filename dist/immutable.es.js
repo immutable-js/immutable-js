@@ -3418,7 +3418,10 @@ var VNode = function VNode(array, ownerID) {
 // TODO: seems like these methods are very similar
 
 VNode.prototype.removeBefore = function removeBefore (ownerID, level, index) {
-  if (index === level ? 1 << level : this.array.length === 0) {
+  if (
+    (index & ((1 << (level + SHIFT)) - 1)) === 0 ||
+    this.array.length === 0
+  ) {
     return this;
   }
   var originIndex = (index >>> level) & MASK;
@@ -3451,7 +3454,10 @@ VNode.prototype.removeBefore = function removeBefore (ownerID, level, index) {
 };
 
 VNode.prototype.removeAfter = function removeAfter (ownerID, level, index) {
-  if (index === (level ? 1 << level : 0) || this.array.length === 0) {
+  if (
+    index === (level ? 1 << (level + SHIFT) : SIZE) ||
+    this.array.length === 0
+  ) {
     return this;
   }
   var sizeIndex = ((index - 1) >>> level) & MASK;
