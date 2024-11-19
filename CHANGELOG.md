@@ -8,6 +8,18 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+## [5.0.3]
+
+- Fix List.VNode.removeAfter() / removeBefore() issue on some particular case [#2030](https://github.com/immutable-js/immutable-js/pull/2030) by [@alexvictoor](https://github.com/alexvictoor)
+
+## [5.0.2]
+
+- Fix wrong path for esm module after fix in 5.0.1
+
+## [5.0.1]
+
+- Fix circular dependency issue with ESM build by @iambumblehead in [#2035](https://github.com/immutable-js/immutable-js/pull/2035) by [@iambumblehead](https://github.com/iambumblehead)
+
 ## [5.0.0]
 
 ### Breaking changes
