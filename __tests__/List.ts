@@ -733,6 +733,20 @@ describe('List', () => {
     expect(v4.toJS().filter(item => item === -28)).toHaveLength(0);
     const v5 = List.of().unshift(0).set(33, 33).shift().set(-35, -35);
     expect(v5.toJS().filter(item => item === 0)).toHaveLength(0);
+
+    // execute the same test as `v` but for the 2000 first integers
+    const isOkV1 = v =>
+      List.of()
+        .set(v, v)
+        .push('pushed-value')
+        .insert(33, 'inserted-value')
+        .filter(item => item === v).size === 1;
+
+    const arr = new Array(2000).fill(null).map((_, v) => v);
+
+    const notOkArray = arr.filter(v => !isOkV1(v));
+
+    expect(notOkArray).toHaveLength(0);
   });
 
   // TODO: assert that findIndex only calls the function as much as it needs to.
