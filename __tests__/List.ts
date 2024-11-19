@@ -722,6 +722,33 @@ describe('List', () => {
     expect(o.get(0)).toBe('f');
   });
 
+  it('works with push, set and insert without phantom values', () => {
+    const v = List.of().set(287, 287).push(42).insert(33, 33);
+    expect(v.toJS().filter(item => item === 287)).toHaveLength(1);
+    const v2 = List.of().push(0).unshift(-1).unshift(-2).pop().pop().set(2, 2);
+    expect(v2.toJS()).toEqual([-2, undefined, 2]);
+    const v3 = List.of().set(447, 447).push(0).insert(65, 65);
+    expect(v3.toJS().filter(item => item === 447)).toHaveLength(1);
+    const v4 = List.of().set(-28, -28).push(0).shift().set(-30, -30);
+    expect(v4.toJS().filter(item => item === -28)).toHaveLength(0);
+    const v5 = List.of().unshift(0).set(33, 33).shift().set(-35, -35);
+    expect(v5.toJS().filter(item => item === 0)).toHaveLength(0);
+
+    // execute the same test as `v` but for the 2000 first integers
+    const isOkV1 = v =>
+      List.of()
+        .set(v, v)
+        .push('pushed-value')
+        .insert(33, 'inserted-value')
+        .filter(item => item === v).size === 1;
+
+    const arr = new Array(2000).fill(null).map((_, v) => v);
+
+    const notOkArray = arr.filter(v => !isOkV1(v));
+
+    expect(notOkArray).toHaveLength(0);
+  });
+
   // TODO: assert that findIndex only calls the function as much as it needs to.
 
   it('forEach iterates in the correct order', () => {
