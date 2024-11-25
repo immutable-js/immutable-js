@@ -262,6 +262,8 @@ ListPrototype['@@transducer/result'] = function (obj) {
   return obj.asImmutable();
 };
 
+ListPrototype.__empty = emptyList;
+
 class VNode {
   constructor(array, ownerID) {
     this.array = array;
