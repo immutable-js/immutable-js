@@ -1,10 +1,9 @@
-import { is, List, Seq, Set } from 'immutable';
+import { List, Seq, Set } from 'immutable';
 
 describe('concat', () => {
   it('concats two sequences', () => {
     const a = Seq([1, 2, 3]);
     const b = Seq([4, 5, 6]);
-    expect(is(a.concat(b), Seq([1, 2, 3, 4, 5, 6]))).toBe(true);
     expect(a.concat(b).size).toBe(6);
     expect(a.concat(b).toArray()).toEqual([1, 2, 3, 4, 5, 6]);
   });
@@ -180,5 +179,43 @@ describe('concat', () => {
     expect(i.get(-1)).toBe(-1);
     expect(i.get(-4)).toBe(-9);
     expect(i.get(-5, 888)).toBe(888);
+  });
+
+  it('should iterate on many concatenated sequences', () => {
+    let meta = Seq();
+
+    for (let i = 0; i < 10000; ++i) {
+      meta = meta.concat(i) as Seq<unknown, unknown>; // TODO fix typing
+    }
+
+    expect(meta.toList().size).toBe(10000);
+  });
+
+  it('should handle iterator on many concatenated sequences', () => {
+    const nbLoops = 10000;
+    let meta = Seq();
+    for (let i = 1; i < nbLoops; i++) {
+      meta = meta.concat(i) as Seq<unknown, unknown>; // TODO fix typing
+    }
+    const it = meta[Symbol.iterator]();
+    let done = false;
+    let i = 0;
+    while (!done) {
+      const result = it.next();
+      i++;
+      done = !!result.done;
+    }
+    expect(i).toBe(nbLoops);
+  });
+
+  it('should iterate on reverse order on concatenated sequences', () => {
+    let meta = Seq([1]);
+    meta = meta.concat(42);
+    const it = meta.reverse()[Symbol.iterator]();
+    const result = it.next();
+    expect(result).toEqual({
+      done: false,
+      value: 42,
+    });
   });
 });

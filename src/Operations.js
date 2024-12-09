@@ -13,8 +13,8 @@ import {
   IndexedCollection,
 } from './Collection';
 import { isCollection } from './predicates/isCollection';
-import { isKeyed } from './predicates/isKeyed';
-import { isIndexed } from './predicates/isIndexed';
+import { IS_KEYED_SYMBOL, isKeyed } from './predicates/isKeyed';
+import { IS_INDEXED_SYMBOL, isIndexed } from './predicates/isIndexed';
 import { isOrdered, IS_ORDERED_SYMBOL } from './predicates/isOrdered';
 import { isSeq } from './predicates/isSeq';
 import {
@@ -587,6 +587,100 @@ export function skipWhileFactory(collection, predicate, context, useKeys) {
   return skipSequence;
 }
 
+class ConcatSeq extends Seq {
+  constructor(iterables) {
+    this._wrappedIterables = iterables.flatMap(iterable => {
+      if (iterable._wrappedIterables) {
+        return iterable._wrappedIterables;
+      }
+      return [iterable];
+    });
+    this.size = this._wrappedIterables.reduce((sum, iterable) => {
+      if (sum !== undefined) {
+        const size = iterable.size;
+        if (size !== undefined) {
+          return sum + size;
+        }
+      }
+    }, 0);
+    this[IS_KEYED_SYMBOL] = this._wrappedIterables[0][IS_KEYED_SYMBOL];
+    this[IS_INDEXED_SYMBOL] = this._wrappedIterables[0][IS_INDEXED_SYMBOL];
+    this[IS_ORDERED_SYMBOL] = this._wrappedIterables[0][IS_ORDERED_SYMBOL];
+  }
+
+  __iterateUncached(fn, reverse) {
+    if (this._wrappedIterables.length === 0) {
+      return;
+    }
+
+    if (reverse) {
+      return this.cacheResult().__iterate(fn, reverse);
+    }
+
+    let iterableIndex = 0;
+    const useKeys = isKeyed(this);
+    const iteratorType = useKeys ? ITERATE_ENTRIES : ITERATE_VALUES;
+    let currentIterator = this._wrappedIterables[iterableIndex].__iterator(
+      iteratorType,
+      reverse
+    );
+
+    let keepGoing = true;
+    let index = 0;
+    while (keepGoing) {
+      let next = currentIterator.next();
+      while (next.done) {
+        iterableIndex++;
+        if (iterableIndex === this._wrappedIterables.length) {
+          return index;
+        }
+        currentIterator = this._wrappedIterables[iterableIndex].__iterator(
+          iteratorType,
+          reverse
+        );
+        next = currentIterator.next();
+      }
+      const fnResult = useKeys
+        ? fn(next.value[1], next.value[0], this)
+        : fn(next.value, index, this);
+      keepGoing = fnResult !== false;
+      index++;
+    }
+    return index;
+  }
+
+  __iteratorUncached(type, reverse) {
+    if (this._wrappedIterables.length === 0) {
+      return new Iterator(iteratorDone);
+    }
+
+    if (reverse) {
+      return this.cacheResult().__iterator(type, reverse);
+    }
+
+    let iterableIndex = 0;
+    let currentIterator = this._wrappedIterables[iterableIndex].__iterator(
+      type,
+      reverse
+    );
+    return new Iterator(() => {
+      let next = currentIterator.next();
+      while (next.done) {
+        iterableIndex++;
+        if (iterableIndex === this._wrappedIterables.length) {
+          return next;
+        }
+        currentIterator = this._wrappedIterables[iterableIndex].__iterator(
+          type,
+          reverse
+        );
+        next = currentIterator.next();
+      }
+      return next;
+    });
+  }
+}
+
 export function concatFactory(collection, values) {
   const isKeyedCollection = isKeyed(collection);
   const iters = [collection]
@@ -618,22 +712,7 @@ export function concatFactory(collection, values) {
     }
   }
 
-  let concatSeq = new ArraySeq(iters);
-  if (isKeyedCollection) {
-    concatSeq = concatSeq.toKeyedSeq();
-  } else if (!isIndexed(collection)) {
-    concatSeq = concatSeq.toSetSeq();
-  }
-  concatSeq = concatSeq.flatten(true);
-  concatSeq.size = iters.reduce((sum, seq) => {
-    if (sum !== undefined) {
-      const size = seq.size;
-      if (size !== undefined) {
-        return sum + size;
-      }
-    }
-  }, 0);
-  return concatSeq;
+  return new ConcatSeq(iters);
 }
 
 export function flattenFactory(collection, depth, useKeys) {
