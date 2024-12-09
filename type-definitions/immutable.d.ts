@@ -3675,6 +3675,15 @@ declare namespace Immutable {
       predicate: (this: C, value: V, key: K, iter: this) => unknown,
       context?: C
     ): [this, this];
+
+    /**
+     * Returns a new Sequence of the same type with other values and
+     * collection-like concatenated to this one.
+     *
+     * All entries will be present in the resulting Seq, even if they
+     * have the same key.
+     */
+    concat(...valuesOrCollections: Array<unknown>): Seq<unknown, unknown>;
   }
 
   /**
