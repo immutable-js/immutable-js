@@ -29,7 +29,7 @@ function mergeIntoKeyedWith(collection, collections, merger) {
     !collection.__ownerID &&
     iters.length === 1
   ) {
-    return collection.constructor(iters[0]);
+    return collection.create(iters[0]);
   }
   return collection.withMutations(collection => {
     const mergeIntoCollection = merger

@@ -1,30 +1,31 @@
 import {
   Collection,
-  KeyedCollection,
-  IndexedCollection,
-  SetCollection,
+  CollectionImpl,
+  IndexedCollectionImpl,
+  KeyedCollectionImpl,
+  SetCollectionImpl,
 } from './Collection';
-import { IS_COLLECTION_SYMBOL } from './predicates/isCollection';
-import { isKeyed, IS_KEYED_SYMBOL } from './predicates/isKeyed';
-import { isIndexed, IS_INDEXED_SYMBOL } from './predicates/isIndexed';
-import { isOrdered, IS_ORDERED_SYMBOL } from './predicates/isOrdered';
+import { hash } from './Hash';
 import { is } from './is';
 import {
-  NOT_SET,
-  ensureSize,
-  wrapIndex,
-  returnTrue,
-  resolveBegin,
-} from './TrieUtils';
-import { hash } from './Hash';
-import { imul, smi } from './Math';
-import {
-  Iterator,
-  ITERATOR_SYMBOL,
+  ITERATE_ENTRIES,
   ITERATE_KEYS,
   ITERATE_VALUES,
-  ITERATE_ENTRIES,
+  Iterator,
+  ITERATOR_SYMBOL,
 } from './Iterator';
+import { imul, smi } from './Math';
+import { IS_COLLECTION_SYMBOL } from './predicates/isCollection';
+import { IS_INDEXED_SYMBOL, isIndexed } from './predicates/isIndexed';
+import { IS_KEYED_SYMBOL, isKeyed } from './predicates/isKeyed';
+import { IS_ORDERED_SYMBOL, isOrdered } from './predicates/isOrdered';
+import {
+  ensureSize,
+  NOT_SET,
+  resolveBegin,
+  returnTrue,
+  wrapIndex,
+} from './TrieUtils';
 
 import arrCopy from './utils/arrCopy';
 import assertNotInfinite from './utils/assertNotInfinite';
@@ -32,48 +33,54 @@ import deepEqual from './utils/deepEqual';
 import mixin from './utils/mixin';
 import quoteString from './utils/quoteString';
 
-import { toJS } from './toJS';
-import { Map } from './Map';
-import { OrderedMap } from './OrderedMap';
 import { List } from './List';
-import { Set } from './Set';
-import { OrderedSet } from './OrderedSet';
-import { Stack } from './Stack';
-import { Range } from './Range';
-import { KeyedSeq, IndexedSeq, SetSeq, ArraySeq } from './Seq';
-import {
-  reify,
-  ToKeyedSequence,
-  ToIndexedSequence,
-  ToSetSequence,
-  FromEntriesSequence,
-  flipFactory,
-  mapFactory,
-  reverseFactory,
-  filterFactory,
-  countByFactory,
-  groupByFactory,
-  sliceFactory,
-  takeWhileFactory,
-  skipWhileFactory,
-  concatFactory,
-  flattenFactory,
-  flatMapFactory,
-  interposeFactory,
-  sortFactory,
-  maxFactory,
-  zipWithFactory,
-  partitionFactory,
-} from './Operations';
+import { Map } from './Map';
 import { getIn } from './methods/getIn';
 import { hasIn } from './methods/hasIn';
 import { toObject } from './methods/toObject';
+import {
+  concatFactory,
+  countByFactory,
+  filterFactory,
+  flatMapFactory,
+  flattenFactory,
+  flipFactory,
+  FromEntriesSequence,
+  groupByFactory,
+  interposeFactory,
+  mapFactory,
+  maxFactory,
+  partitionFactory,
+  reify,
+  reverseFactory,
+  skipWhileFactory,
+  sliceFactory,
+  sortFactory,
+  takeWhileFactory,
+  ToIndexedSequence,
+  ToKeyedSequence,
+  ToSetSequence,
+  zipWithFactory,
+} from './Operations';
+import { OrderedMap } from './OrderedMap';
+import { OrderedSet } from './OrderedSet';
+import { Range } from './Range';
+import {
+  ArraySeq,
+  IndexedSeq,
+  IndexedSeqImpl,
+  KeyedSeqImpl,
+  SetSeqImpl,
+} from './Seq';
+import { Set } from './Set';
+import { Stack } from './Stack';
+import { toJS } from './toJS';
 
 export { Collection, CollectionPrototype, IndexedCollectionPrototype };
 
 Collection.Iterator = Iterator;
 
-mixin(Collection, {
+mixin(CollectionImpl, {
   // ### Conversion to other types
 
   toArray() {
@@ -489,7 +496,7 @@ mixin(Collection, {
   // abstract __iterator(type, reverse)
 });
 
-const CollectionPrototype = Collection.prototype;
+const CollectionPrototype = CollectionImpl.prototype;
 CollectionPrototype[IS_COLLECTION_SYMBOL] = true;
 CollectionPrototype[ITERATOR_SYMBOL] = CollectionPrototype.values;
 CollectionPrototype.toJSON = CollectionPrototype.toArray;
@@ -500,7 +507,7 @@ CollectionPrototype.inspect = CollectionPrototype.toSource = function () {
 CollectionPrototype.chain = CollectionPrototype.flatMap;
 CollectionPrototype.contains = CollectionPrototype.includes;
 
-mixin(KeyedCollection, {
+mixin(KeyedCollectionImpl, {
   // ### More sequential methods
 
   flip() {
@@ -528,14 +535,14 @@ mixin(KeyedCollection, {
   },
 });
 
-const KeyedCollectionPrototype = KeyedCollection.prototype;
+const KeyedCollectionPrototype = KeyedCollectionImpl.prototype;
 KeyedCollectionPrototype[IS_KEYED_SYMBOL] = true;
 KeyedCollectionPrototype[ITERATOR_SYMBOL] = CollectionPrototype.entries;
 KeyedCollectionPrototype.toJSON = toObject;
 KeyedCollectionPrototype.__toStringMapper = (v, k) =>
   quoteString(k) + ': ' + quoteString(v);
 
-mixin(IndexedCollection, {
+mixin(IndexedCollectionImpl, {
   // ### Conversion to other types
 
   toKeyedSeq() {
@@ -667,11 +674,11 @@ mixin(IndexedCollection, {
   },
 });
 
-const IndexedCollectionPrototype = IndexedCollection.prototype;
+const IndexedCollectionPrototype = IndexedCollectionImpl.prototype;
 IndexedCollectionPrototype[IS_INDEXED_SYMBOL] = true;
 IndexedCollectionPrototype[IS_ORDERED_SYMBOL] = true;
 
-mixin(SetCollection, {
+mixin(SetCollectionImpl, {
   // ### ES6 Collection methods (ES6 Array and Map)
 
   get(value, notSetValue) {
@@ -689,16 +696,16 @@ mixin(SetCollection, {
   },
 });
 
-const SetCollectionPrototype = SetCollection.prototype;
+const SetCollectionPrototype = SetCollectionImpl.prototype;
 SetCollectionPrototype.has = CollectionPrototype.includes;
 SetCollectionPrototype.contains = SetCollectionPrototype.includes;
 SetCollectionPrototype.keys = SetCollectionPrototype.values;
 
 // Mixin subclasses
 
-mixin(KeyedSeq, KeyedCollectionPrototype);
-mixin(IndexedSeq, IndexedCollectionPrototype);
-mixin(SetSeq, SetCollectionPrototype);
+mixin(KeyedSeqImpl, KeyedCollectionPrototype);
+mixin(IndexedSeqImpl, IndexedCollectionPrototype);
+mixin(SetSeqImpl, SetCollectionPrototype);
 
 // #pragma Helper functions
 
