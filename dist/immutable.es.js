@@ -236,7 +236,8 @@ Iterator.prototype[ITERATOR_SYMBOL] = function () {
 };
 
 function iteratorValue(type, k, v, iteratorResult) {
-  var value = type === 0 ? k : type === 1 ? v : [k, v];
+  var value =
+    type === ITERATE_KEYS ? k : type === ITERATE_VALUES ? v : [k, v];
   iteratorResult
     ? (iteratorResult.value = value)
     : (iteratorResult = {
@@ -1628,6 +1629,108 @@ function skipWhileFactory(collection, predicate, context, useKeys) {
   return skipSequence;
 }
 
+var ConcatSeq = /*@__PURE__*/(function (Seq) {
+  function ConcatSeq(iterables) {
+    this._wrappedIterables = iterables.flatMap(function (iterable) {
+      if (iterable._wrappedIterables) {
+        return iterable._wrappedIterables;
+      }
+      return [iterable];
+    });
+    this.size = this._wrappedIterables.reduce(function (sum, iterable) {
+      if (sum !== undefined) {
+        var size = iterable.size;
+        if (size !== undefined) {
+          return sum + size;
+        }
+      }
+    }, 0);
+    this[IS_KEYED_SYMBOL] = this._wrappedIterables[0][IS_KEYED_SYMBOL];
+    this[IS_INDEXED_SYMBOL] = this._wrappedIterables[0][IS_INDEXED_SYMBOL];
+    this[IS_ORDERED_SYMBOL] = this._wrappedIterables[0][IS_ORDERED_SYMBOL];
+  }
+
+  if ( Seq ) ConcatSeq.__proto__ = Seq;
+  ConcatSeq.prototype = Object.create( Seq && Seq.prototype );
+  ConcatSeq.prototype.constructor = ConcatSeq;
+
+  ConcatSeq.prototype.__iterateUncached = function __iterateUncached (fn, reverse) {
+    if (this._wrappedIterables.length === 0) {
+      return;
+    }
+
+    if (reverse) {
+      return this.cacheResult().__iterate(fn, reverse);
+    }
+
+    var iterableIndex = 0;
+    var useKeys = isKeyed(this);
+    var iteratorType = useKeys ? ITERATE_ENTRIES : ITERATE_VALUES;
+    var currentIterator = this._wrappedIterables[iterableIndex].__iterator(
+      iteratorType,
+      reverse
+    );
+
+    var keepGoing = true;
+    var index = 0;
+    while (keepGoing) {
+      var next = currentIterator.next();
+      while (next.done) {
+        iterableIndex++;
+        if (iterableIndex === this._wrappedIterables.length) {
+          return index;
+        }
+        currentIterator = this._wrappedIterables[iterableIndex].__iterator(
+          iteratorType,
+          reverse
+        );
+        next = currentIterator.next();
+      }
+      var fnResult = useKeys
+        ? fn(next.value[1], next.value[0], this)
+        : fn(next.value, index, this);
+      keepGoing = fnResult !== false;
+      index++;
+    }
+    return index;
+  };
+
+  ConcatSeq.prototype.__iteratorUncached = function __iteratorUncached (type, reverse) {
+    var this$1$1 = this;
+
+    if (this._wrappedIterables.length === 0) {
+      return new Iterator(iteratorDone);
+    }
+
+    if (reverse) {
+      return this.cacheResult().__iterator(type, reverse);
+    }
+
+    var iterableIndex = 0;
+    var currentIterator = this._wrappedIterables[iterableIndex].__iterator(
+      type,
+      reverse
+    );
+    return new Iterator(function () {
+      var next = currentIterator.next();
+      while (next.done) {
+        iterableIndex++;
+        if (iterableIndex === this$1$1._wrappedIterables.length) {
+          return next;
+        }
+        currentIterator = this$1$1._wrappedIterables[iterableIndex].__iterator(
+          type,
+          reverse
+        );
+        next = currentIterator.next();
+      }
+      return next;
+    });
+  };
+
+  return ConcatSeq;
+}(Seq));
+
 function concatFactory(collection, values) {
   var isKeyedCollection = isKeyed(collection);
   var iters = [collection]
@@ -1659,22 +1762,7 @@ function concatFactory(collection, values) {
     }
   }
 
-  var concatSeq = new ArraySeq(iters);
-  if (isKeyedCollection) {
-    concatSeq = concatSeq.toKeyedSeq();
-  } else if (!isIndexed(collection)) {
-    concatSeq = concatSeq.toSetSeq();
-  }
-  concatSeq = concatSeq.flatten(true);
-  concatSeq.size = iters.reduce(function (sum, seq) {
-    if (sum !== undefined) {
-      var size = seq.size;
-      if (size !== undefined) {
-        return sum + size;
-      }
-    }
-  }, 0);
-  return concatSeq;
+  return new ConcatSeq(iters);
 }
 
 function flattenFactory(collection, depth, useKeys) {
