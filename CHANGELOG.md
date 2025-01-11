@@ -9,6 +9,7 @@ Dates are formatted as YYYY-MM-DD.
 ## Unreleased
 
 - Fix #1915 "Converting a Seq to a list causes RangeError (max call size exceeded)" by @alexvictoor in [#2038](https://github.com/immutable-js/immutable-js/pull/2038)
+- fix: proper Typescript typings for Seq.concat() [#2040](https://github.com/immutable-js/immutable-js/pull/2040) by [@alexvictoor](https://github.com/alexvictoor)
 
 ## [5.0.3]
 
