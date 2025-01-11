@@ -8,6 +8,8 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+- Fix #1915 "Converting a Seq to a list causes RangeError (max call size exceeded)" by @alexvictoor in [#2038](https://github.com/immutable-js/immutable-js/pull/2038)
+
 ## [5.0.3]
 
 - Fix List.VNode.removeAfter() / removeBefore() issue on some particular case [#2030](https://github.com/immutable-js/immutable-js/pull/2030) by [@alexvictoor](https://github.com/alexvictoor)
