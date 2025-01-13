@@ -111,7 +111,7 @@ describe('List', () => {
     expect(out.getIn(['c', 0])).toEqual('v');
     expect(out.get('a')).toBeInstanceOf(Array);
     expect(out.get('b')).toBeInstanceOf(Array);
-    expect(out.get('c')).toBeInstanceOf(Map);
+    expect(Map.isMap(out.get('c'))).toBe(true);
     expect(out.get('c')?.keySeq().first()).toBe(0);
   });
 

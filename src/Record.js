@@ -99,6 +99,7 @@ export class Record {
     const RecordTypePrototype = (RecordType.prototype =
       Object.create(RecordPrototype));
     RecordTypePrototype.constructor = RecordType;
+    RecordTypePrototype.create = RecordType;
 
     if (name) {
       RecordType.displayName = name;

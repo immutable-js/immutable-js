@@ -1,5 +1,5 @@
 import { wrapIndex } from './TrieUtils';
-import { Collection } from './Collection';
+import { CollectionImpl } from './Collection';
 import { IS_SEQ_SYMBOL, isSeq } from './predicates/isSeq';
 import { isImmutable } from './predicates/isImmutable';
 import { isCollection } from './predicates/isCollection';
@@ -21,16 +21,13 @@ import {
 import hasOwnProperty from './utils/hasOwnProperty';
 import isArrayLike from './utils/isArrayLike';
 
-export class Seq extends Collection {
-  constructor(value) {
-    // eslint-disable-next-line no-constructor-return
-    return value === undefined || value === null
-      ? emptySequence()
-      : isImmutable(value)
-      ? value.toSeq()
-      : seqFromValue(value);
-  }
-
+export const Seq = value =>
+  value === undefined || value === null
+    ? emptySequence()
+    : isImmutable(value)
+    ? value.toSeq()
+    : seqFromValue(value);
+export class SeqImpl extends CollectionImpl {
   toSeq() {
     return this;
   }
@@ -84,43 +81,36 @@ export class Seq extends Collection {
   }
 }
 
-export class KeyedSeq extends Seq {
-  constructor(value) {
-    // eslint-disable-next-line no-constructor-return
-    return value === undefined || value === null
-      ? emptySequence().toKeyedSeq()
-      : isCollection(value)
-      ? isKeyed(value)
-        ? value.toSeq()
-        : value.fromEntrySeq()
-      : isRecord(value)
+export const KeyedSeq = value =>
+  value === undefined || value === null
+    ? emptySequence().toKeyedSeq()
+    : isCollection(value)
+    ? isKeyed(value)
       ? value.toSeq()
-      : keyedSeqFromValue(value);
-  }
-
+      : value.fromEntrySeq()
+    : isRecord(value)
+    ? value.toSeq()
+    : keyedSeqFromValue(value);
+export class KeyedSeqImpl extends SeqImpl {
   toKeyedSeq() {
     return this;
   }
 }
 
-export class IndexedSeq extends Seq {
-  constructor(value) {
-    // eslint-disable-next-line no-constructor-return
-    return value === undefined || value === null
-      ? emptySequence()
-      : isCollection(value)
-      ? isKeyed(value)
-        ? value.entrySeq()
-        : value.toIndexedSeq()
-      : isRecord(value)
-      ? value.toSeq().entrySeq()
-      : indexedSeqFromValue(value);
-  }
-
-  static of(/*...values*/) {
-    return IndexedSeq(arguments);
-  }
-
+export const IndexedSeq = value =>
+  value === undefined || value === null
+    ? emptySequence()
+    : isCollection(value)
+    ? isKeyed(value)
+      ? value.entrySeq()
+      : value.toIndexedSeq()
+    : isRecord(value)
+    ? value.toSeq().entrySeq()
+    : indexedSeqFromValue(value);
+IndexedSeq.of = function (/*...values*/) {
+  return IndexedSeq(arguments);
+};
+export class IndexedSeqImpl extends SeqImpl {
   toIndexedSeq() {
     return this;
   }
@@ -129,19 +119,17 @@ export class IndexedSeq extends Seq {
     return this.__toString('Seq [', ']');
   }
 }
+export const SetSeq = value =>
+  (isCollection(value) && !isAssociative(value)
+    ? value
+    : IndexedSeq(value)
+  ).toSetSeq();
 
-export class SetSeq extends Seq {
-  constructor(value) {
-    // eslint-disable-next-line no-constructor-return
-    return (
-      isCollection(value) && !isAssociative(value) ? value : IndexedSeq(value)
-    ).toSetSeq();
-  }
+SetSeq.of = function (/*...values*/) {
+  return SetSeq(arguments);
+};
 
-  static of(/*...values*/) {
-    return SetSeq(arguments);
-  }
-
+export class SetSeqImpl extends SeqImpl {
   toSetSeq() {
     return this;
   }
@@ -152,12 +140,13 @@ Seq.Keyed = KeyedSeq;
 Seq.Set = SetSeq;
 Seq.Indexed = IndexedSeq;
 
-Seq.prototype[IS_SEQ_SYMBOL] = true;
+SeqImpl.prototype[IS_SEQ_SYMBOL] = true;
 
 // #pragma Root Sequences
 
-export class ArraySeq extends IndexedSeq {
+export class ArraySeq extends IndexedSeqImpl {
   constructor(array) {
+    super();
     this._array = array;
     this.size = array.length;
   }
@@ -193,8 +182,9 @@ export class ArraySeq extends IndexedSeq {
   }
 }
 
-class ObjectSeq extends KeyedSeq {
+class ObjectSeq extends KeyedSeqImpl {
   constructor(object) {
+    super();
     const keys = Object.keys(object).concat(
       Object.getOwnPropertySymbols ? Object.getOwnPropertySymbols(object) : []
     );
@@ -244,8 +234,9 @@ class ObjectSeq extends KeyedSeq {
 }
 ObjectSeq.prototype[IS_ORDERED_SYMBOL] = true;
 
-class CollectionSeq extends IndexedSeq {
+class CollectionSeq extends IndexedSeqImpl {
   constructor(collection) {
+    super();
     this._collection = collection;
     this.size = collection.length || collection.size;
   }

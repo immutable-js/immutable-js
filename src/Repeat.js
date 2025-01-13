@@ -1,5 +1,5 @@
 import { wholeSlice, resolveBegin, resolveEnd } from './TrieUtils';
-import { IndexedSeq } from './Seq';
+import { IndexedSeqImpl } from './Seq';
 import { is } from './is';
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 
@@ -9,22 +9,21 @@ import deepEqual from './utils/deepEqual';
  * Returns a lazy Seq of `value` repeated `times` times. When `times` is
  * undefined, returns an infinite sequence of `value`.
  */
-export class Repeat extends IndexedSeq {
-  constructor(value, times) {
-    if (!(this instanceof Repeat)) {
-      // eslint-disable-next-line no-constructor-return
-      return new Repeat(value, times);
+export const Repeat = (value, times) => {
+  const size = times === undefined ? Infinity : Math.max(0, times);
+  if (size === 0) {
+    if (!EMPTY_REPEAT) {
+      EMPTY_REPEAT = new RepeatImpl(value, 0);
     }
+    return EMPTY_REPEAT;
+  }
+  return new RepeatImpl(value, size);
+};
+
+export class RepeatImpl extends IndexedSeqImpl {
+  constructor(value, size) {
     this._value = value;
-    this.size = times === undefined ? Infinity : Math.max(0, times);
-    if (this.size === 0) {
-      if (EMPTY_REPEAT) {
-        // eslint-disable-next-line no-constructor-return
-        return EMPTY_REPEAT;
-      }
-      // eslint-disable-next-line @typescript-eslint/no-this-alias
-      EMPTY_REPEAT = this;
-    }
+    this.size = size;
   }
 
   toString() {

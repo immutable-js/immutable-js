@@ -1,5 +1,5 @@
 import { is } from './is';
-import { Collection, KeyedCollection } from './Collection';
+import { Collection, KeyedCollection, KeyedCollectionImpl } from './Collection';
 import { IS_MAP_SYMBOL, isMap } from './predicates/isMap';
 import { isOrdered } from './predicates/isOrdered';
 import {
@@ -32,20 +32,20 @@ import { wasAltered } from './methods/wasAltered';
 
 import { OrderedMap } from './OrderedMap';
 
-export class Map extends KeyedCollection {
-  // @pragma Construction
+export const Map = value =>
+  value === undefined || value === null
+    ? emptyMap()
+    : isMap(value) && !isOrdered(value)
+    ? value
+    : emptyMap().withMutations(map => {
+        const iter = KeyedCollection(value);
+        assertNotInfinite(iter.size);
+        iter.forEach((v, k) => map.set(k, v));
+      });
 
-  constructor(value) {
-    // eslint-disable-next-line no-constructor-return
-    return value === undefined || value === null
-      ? emptyMap()
-      : isMap(value) && !isOrdered(value)
-      ? value
-      : emptyMap().withMutations(map => {
-          const iter = KeyedCollection(value);
-          assertNotInfinite(iter.size);
-          iter.forEach((v, k) => map.set(k, v));
-        });
+export class MapImpl extends KeyedCollectionImpl {
+  create(value) {
+    return Map(value);
   }
 
   toString() {
@@ -150,7 +150,7 @@ export class Map extends KeyedCollection {
 
 Map.isMap = isMap;
 
-const MapPrototype = Map.prototype;
+const MapPrototype = MapImpl.prototype;
 MapPrototype[IS_MAP_SYMBOL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeAll = MapPrototype.deleteAll;
