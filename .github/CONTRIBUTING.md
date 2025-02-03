@@ -97,7 +97,7 @@ List > builds from array of 2
 
 ## TypeScript version support 
 
-TypeScript version does support the same version as [DefinitivelyTyped](https://github.com/DefinitivelyTyped) versions. Immutable "may" work with older versions, but no support will be provided. 
+TypeScript version does support the same version as [DefinitelyTyped](https://github.com/https://github.com/DefinitelyTyped/DefinitelyTyped) versions. Immutable "may" work with older versions, but no support will be provided. 
 
 ## License
 
