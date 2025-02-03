@@ -95,6 +95,10 @@ List > builds from array of 2
   rme: 0.64%
 ```
 
+## TypeScript version support 
+
+TypeScript version does support the same version as [DefinitivelyTyped](https://github.com/DefinitivelyTyped) versions. Immutable "may" work with older versions, but no support will be provided. 
+
 ## License
 
 By contributing to Immutable.js, you agree that your contributions will be
