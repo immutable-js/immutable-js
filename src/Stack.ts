@@ -1,4 +1,10 @@
-import { wholeSlice, resolveBegin, resolveEnd, wrapIndex } from './TrieUtils';
+import {
+  wholeSlice,
+  resolveBegin,
+  resolveEnd,
+  wrapIndex,
+  OwnerID,
+} from './TrieUtils';
 import { IndexedCollection } from './Collection';
 import { ArraySeq } from './Seq';
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
@@ -8,11 +14,27 @@ import { asImmutable } from './methods/asImmutable';
 import { asMutable } from './methods/asMutable';
 import { wasAltered } from './methods/wasAltered';
 import { withMutations } from './methods/withMutations';
+import type { Stack as StackType } from '../type-definitions/immutable.d.ts';
 
-export class Stack extends IndexedCollection {
+type Head<T> = {
+  value: T;
+  next: Head<T> | undefined;
+};
+
+export class Stack<T> extends IndexedCollection implements StackType<T> {
+  size!: number;
+
+  private _head: undefined | Head<T>;
+
+  private __ownerID: undefined | typeof OwnerID;
+
+  private __hash: undefined;
+
+  private __altered: undefined | boolean;
+
   // @pragma Construction
 
-  constructor(value) {
+  constructor(value: Iterable<T> | ArrayLike<T>) {
     // eslint-disable-next-line no-constructor-return
     return value === undefined || value === null
       ? emptyStack()
@@ -22,6 +44,7 @@ export class Stack extends IndexedCollection {
   }
 
   static of(/*...values*/) {
+    // eslint-disable-next-line prefer-rest-params
     return this(arguments);
   }
 
@@ -54,6 +77,7 @@ export class Stack extends IndexedCollection {
     let head = this._head;
     for (let ii = arguments.length - 1; ii >= 0; ii--) {
       head = {
+        // eslint-disable-next-line prefer-rest-params
         value: arguments[ii],
         next: head,
       };
@@ -100,7 +124,7 @@ export class Stack extends IndexedCollection {
     return this.slice(1);
   }
 
-  clear() {
+  clear(): Stack<T> {
     if (this.size === 0) {
       return this;
     }
@@ -211,7 +235,12 @@ StackPrototype['@@transducer/result'] = function (obj) {
   return obj.asImmutable();
 };
 
-function makeStack(size, head, ownerID, hash) {
+function makeStack<T>(
+  size: number,
+  head?: Head<T>,
+  ownerID?: typeof OwnerID,
+  hash?: undefined
+) {
   const map = Object.create(StackPrototype);
   map.size = size;
   map._head = head;
@@ -221,7 +250,7 @@ function makeStack(size, head, ownerID, hash) {
   return map;
 }
 
-let EMPTY_STACK;
-function emptyStack() {
+let EMPTY_STACK: Stack<unknown>;
+function emptyStack(): Stack<unknown> {
   return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
 }
