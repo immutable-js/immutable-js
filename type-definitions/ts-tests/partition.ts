@@ -19,7 +19,7 @@ test('Collection', () => {
   type Set<T> = Collection.Set<T>;
 
   (c: Collection<string, number>) => {
-    expect(c.partition(x => x % 2)).type.toBe<
+    expect(c.partition((x) => x % 2)).type.toBe<
       [Collection<string, number>, Collection<string, number>]
     >();
   };
@@ -31,7 +31,7 @@ test('Collection', () => {
   };
 
   (c: Keyed<string, number>) => {
-    expect(c.partition(x => x % 2)).type.toBe<
+    expect(c.partition((x) => x % 2)).type.toBe<
       [Keyed<string, number>, Keyed<string, number>]
     >();
   };
@@ -43,7 +43,7 @@ test('Collection', () => {
   };
 
   (c: Indexed<number>) => {
-    expect(c.partition(x => x % 2)).type.toBe<
+    expect(c.partition((x) => x % 2)).type.toBe<
       [Indexed<number>, Indexed<number>]
     >();
   };
@@ -55,7 +55,7 @@ test('Collection', () => {
   };
 
   (c: Set<number>) => {
-    expect(c.partition(x => x % 2)).type.toBe<[Set<number>, Set<number>]>();
+    expect(c.partition((x) => x % 2)).type.toBe<[Set<number>, Set<number>]>();
   };
 
   (c: Set<A>) => {
@@ -71,7 +71,7 @@ test('Seq', () => {
   type Set<T> = Seq.Set<T>;
 
   (c: Seq<string, number>) => {
-    expect(c.partition(x => x % 2)).type.toBe<
+    expect(c.partition((x) => x % 2)).type.toBe<
       [Seq<string, number>, Seq<string, number>]
     >();
   };
@@ -83,7 +83,7 @@ test('Seq', () => {
   };
 
   (c: Keyed<string, number>) => {
-    expect(c.partition(x => x % 2)).type.toBe<
+    expect(c.partition((x) => x % 2)).type.toBe<
       [Keyed<string, number>, Keyed<string, number>]
     >();
   };
@@ -95,7 +95,7 @@ test('Seq', () => {
   };
 
   (c: Indexed<number>) => {
-    expect(c.partition(x => x % 2)).type.toBe<
+    expect(c.partition((x) => x % 2)).type.toBe<
       [Indexed<number>, Indexed<number>]
     >();
   };
@@ -107,7 +107,7 @@ test('Seq', () => {
   };
 
   (c: Set<number>) => {
-    expect(c.partition(x => x % 2)).type.toBe<[Set<number>, Set<number>]>();
+    expect(c.partition((x) => x % 2)).type.toBe<[Set<number>, Set<number>]>();
   };
 
   (c: Set<A>) => {
@@ -119,7 +119,7 @@ test('Seq', () => {
 
 test('Map', () => {
   (c: Map<string, number>) => {
-    expect(c.partition(x => x % 2)).type.toBe<
+    expect(c.partition((x) => x % 2)).type.toBe<
       [Map<string, number>, Map<string, number>]
     >();
   };
@@ -133,7 +133,7 @@ test('Map', () => {
 
 test('OrderedMap', () => {
   (c: OrderedMap<string, number>) => {
-    expect(c.partition(x => x % 2)).type.toBe<
+    expect(c.partition((x) => x % 2)).type.toBe<
       [OrderedMap<string, number>, OrderedMap<string, number>]
     >();
   };
@@ -147,7 +147,7 @@ test('OrderedMap', () => {
 
 test('List', () => {
   (c: List<number>) => {
-    expect(c.partition(x => x % 2)).type.toBe<[List<number>, List<number>]>();
+    expect(c.partition((x) => x % 2)).type.toBe<[List<number>, List<number>]>();
   };
 
   (c: List<A>) => {
@@ -159,7 +159,7 @@ test('List', () => {
 
 test('Set', () => {
   (c: Set<number>) => {
-    expect(c.partition(x => x % 2)).type.toBe<[Set<number>, Set<number>]>();
+    expect(c.partition((x) => x % 2)).type.toBe<[Set<number>, Set<number>]>();
   };
 
   (c: Set<A>) => {
@@ -171,7 +171,7 @@ test('Set', () => {
 
 test('OrderedSet', () => {
   (c: OrderedSet<number>) => {
-    expect(c.partition(x => x % 2)).type.toBe<
+    expect(c.partition((x) => x % 2)).type.toBe<
       [OrderedSet<number>, OrderedSet<number>]
     >();
   };

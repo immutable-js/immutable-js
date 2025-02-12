@@ -170,7 +170,7 @@ function DocsDropdown({
         </Link>
       </div>
       <ul>
-        {versions.map(v => (
+        {versions.map((v) => (
           <li key={v}>
             <Link href={`/docs/${v}`}>{v}</Link>
           </li>

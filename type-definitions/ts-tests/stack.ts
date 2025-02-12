@@ -208,7 +208,7 @@ test('#flatten', () => {
 });
 
 test('#withMutations', () => {
-  expect(Stack<number>().withMutations(mutable => mutable)).type.toBe<
+  expect(Stack<number>().withMutations((mutable) => mutable)).type.toBe<
     Stack<number>
   >();
 

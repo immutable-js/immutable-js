@@ -73,7 +73,7 @@ function addData(version: string, defs: TypeDefs) {
   }
 
   function addSignatureLink(sig: CallSignature) {
-    sig.params?.forEach(p => addTypeLink(p.type));
+    sig.params?.forEach((p) => addTypeLink(p.type));
     addTypeLink(sig.type);
   }
   function addTypeLink(type: Type | undefined) {
@@ -206,7 +206,10 @@ function updateInheritedTypeParams(
   function updateSignature<S extends CallSignature>(signature: S): S {
     return {
       ...signature,
-      params: signature.params?.map(p => ({ ...p, type: updateType(p.type) })),
+      params: signature.params?.map((p) => ({
+        ...p,
+        type: updateType(p.type),
+      })),
       type: updateType(signature.type),
     };
   }
@@ -335,7 +338,7 @@ function typesVisitor(source: ts.SourceFile) {
   }
 
   function isTypeParam(name: string) {
-    return typeParamsScope.some(set => set && set.indexOf(name) !== -1);
+    return typeParamsScope.some((set) => set && set.indexOf(name) !== -1);
   }
 
   function isAliased(name: string) {
@@ -345,9 +348,9 @@ function typesVisitor(source: ts.SourceFile) {
   function addAliases(comment: TypeDoc | undefined, name: string) {
     if (comment?.notes) {
       comment.notes
-        .filter(note => note.name === 'alias')
-        .map(node => node.body)
-        .forEach(alias => {
+        .filter((note) => note.name === 'alias')
+        .map((node) => node.body)
+        .forEach((alias) => {
           last(aliases)[alias] = name;
         });
     }
@@ -422,7 +425,7 @@ function typesVisitor(source: ts.SourceFile) {
 
       interfaceObj.line = getLineNum(node);
       interfaceObj.doc = comment;
-      interfaceObj.typeParams = node.typeParameters?.map(tp => tp.name.text);
+      interfaceObj.typeParams = node.typeParameters?.map((tp) => tp.name.text);
 
       typeParamsScope.push(interfaceObj.typeParams);
 
@@ -523,7 +526,7 @@ function typesVisitor(source: ts.SourceFile) {
   function parseCallSignature(
     node: ts.SignatureDeclarationBase
   ): CallSignature {
-    const typeParams = node.typeParameters?.map(tp => tp.name.text);
+    const typeParams = node.typeParameters?.map((tp) => tp.name.text);
     typeParamsScope.push(typeParams);
 
     const callSignature: CallSignature = {
@@ -606,8 +609,8 @@ function typesVisitor(source: ts.SourceFile) {
           operatorNode.operator === ts.SyntaxKind.KeyOfKeyword
             ? 'keyof'
             : operatorNode.operator === ts.SyntaxKind.ReadonlyKeyword
-            ? 'readonly'
-            : undefined;
+              ? 'readonly'
+              : undefined;
         if (!operator) {
           throw new Error(
             'Unknown operator kind: ' + ts.SyntaxKind[operatorNode.operator]
@@ -622,7 +625,7 @@ function typesVisitor(source: ts.SourceFile) {
       case ts.SyntaxKind.TypeLiteral:
         return {
           k: TypeKind.Object,
-          members: (node as ts.TypeLiteralNode).members.map(m => {
+          members: (node as ts.TypeLiteralNode).members.map((m) => {
             switch (m.kind) {
               case ts.SyntaxKind.IndexSignature: {
                 const indexNode = m as ts.IndexSignatureDeclaration;
@@ -655,7 +658,7 @@ function typesVisitor(source: ts.SourceFile) {
           k: TypeKind.Function,
           params: functionNode.parameters.map(parseParam),
           type: parseType(functionNode.type),
-          typeParams: functionNode.typeParameters?.map(p => p.name.text),
+          typeParams: functionNode.typeParameters?.map((p) => p.name.text),
         };
       }
       case ts.SyntaxKind.TypeReference: {
@@ -758,21 +761,21 @@ function getDoc(node: ts.Node): TypeDoc | undefined {
     .text.substring(trivia.pos, trivia.end)
     .split('\n')
     .slice(1, -1)
-    .map(l => l.trim().slice(2));
+    .map((l) => l.trim().slice(2));
 
   const paragraphs = lines
-    .filter(l => l[0] !== '@')
+    .filter((l) => l[0] !== '@')
     .join('\n')
     .split('\n\n');
 
   const synopsis = paragraphs.shift()!;
   const description = paragraphs.join('\n\n');
   const notes = lines
-    .filter(l => l[0] === '@')
-    .map(l => l.match(COMMENT_NOTE_RX))
+    .filter((l) => l[0] === '@')
+    .map((l) => l.match(COMMENT_NOTE_RX))
     .filter(<T>(n: T): n is NonNullable<T> => n != null)
-    .map(n => ({ name: n[1], body: n[2] }))
-    .filter(note => !NOTE_BLACKLIST[note.name]);
+    .map((n) => ({ name: n[1], body: n[2] }))
+    .filter((note) => !NOTE_BLACKLIST[note.name]);
 
   return {
     synopsis,
@@ -799,14 +802,14 @@ function pushIn<
   T,
   K1 extends keyof T,
   A extends NonNullable<T[K1]> & Array<unknown>,
-  V extends A[number]
+  V extends A[number],
 >(obj: T, path: readonly [K1], value: V): V;
 function pushIn<
   T,
   K1 extends keyof T,
   K2 extends keyof NonNullable<T[K1]>,
   A extends NonNullable<NonNullable<T[K1]>[K2]> & Array<unknown>,
-  V extends A[number]
+  V extends A[number],
 >(obj: T, path: readonly [K1, K2], value: V): V;
 function pushIn<
   T,
@@ -815,7 +818,7 @@ function pushIn<
   K3 extends keyof NonNullable<NonNullable<T[K1]>[K2]>,
   A extends NonNullable<NonNullable<NonNullable<T[K1]>[K2]>[K3]> &
     Array<unknown>,
-  V extends A[number]
+  V extends A[number],
 >(obj: T, path: readonly [K1, K2, K3], value: V): V;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function pushIn(obj: any, path: ReadonlyArray<string | number>, value: any) {
@@ -840,7 +843,7 @@ function setIn<
   T,
   K1 extends keyof T,
   K2 extends keyof NonNullable<T[K1]>,
-  K3 extends keyof NonNullable<NonNullable<T[K1]>[K2]>
+  K3 extends keyof NonNullable<NonNullable<T[K1]>[K2]>,
 >(
   obj: T,
   path: readonly [K1, K2, K3],
@@ -851,7 +854,7 @@ function setIn<
   K1 extends keyof T,
   K2 extends keyof NonNullable<T[K1]>,
   K3 extends keyof NonNullable<NonNullable<T[K1]>[K2]>,
-  K4 extends keyof NonNullable<NonNullable<NonNullable<T[K1]>[K2]>[K3]>
+  K4 extends keyof NonNullable<NonNullable<NonNullable<T[K1]>[K2]>[K3]>,
 >(
   obj: T,
   path: readonly [K1, K2, K3, K4],
@@ -870,7 +873,7 @@ function shouldIgnore(comment: TypeDoc | undefined) {
     comment &&
       comment.notes &&
       comment.notes.find(
-        note => note.name === 'ignore' || note.name === 'deprecated'
+        (note) => note.name === 'ignore' || note.name === 'deprecated'
       )
   );
 }

@@ -88,7 +88,7 @@ export class Record {
         }
       }
       this.__ownerID = undefined;
-      this._values = List().withMutations(l => {
+      this._values = List().withMutations((l) => {
         l.setSize(this._keys.length);
         KeyedCollection(values).forEach((v, k) => {
           l.set(this._indices[k], v === this._defaultValues[k] ? undefined : v);
@@ -248,7 +248,7 @@ function recordName(record) {
 }
 
 function recordSeq(record) {
-  return keyedSeqFromValue(record._keys.map(k => [k, record.get(k)]));
+  return keyedSeqFromValue(record._keys.map((k) => [k, record.get(k)]));
 }
 
 function setProp(prototype, name) {

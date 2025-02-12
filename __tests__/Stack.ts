@@ -83,7 +83,7 @@ describe('Stack', () => {
     ]);
 
     // map will cause reverse iterate
-    expect(s.map(val => val + val).toArray()).toEqual(['aa', 'bb', 'cc']);
+    expect(s.map((val) => val + val).toArray()).toEqual(['aa', 'bb', 'cc']);
 
     let iteratorResults: Array<[number, string]> = [];
     let iterator = s.entries();
@@ -137,7 +137,7 @@ describe('Stack', () => {
     'shift removes the lowest index, just like array',
     { maxSize: 2000 },
     [gen.posInt],
-    len => {
+    (len) => {
       const a = arrayOfSize(len);
       let s = Stack(a);
 
@@ -156,7 +156,7 @@ describe('Stack', () => {
     'unshift adds the next lowest index, just like array',
     { maxSize: 2000 },
     [gen.posInt],
-    len => {
+    (len) => {
       const a: Array<number> = [];
       let s = Stack();
 

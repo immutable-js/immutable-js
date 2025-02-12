@@ -8,7 +8,7 @@ import { getSidebarLinks } from '../../../getSidebarLinks';
 import { getVersionFromParams } from '../../getVersionFromParams';
 
 export async function generateStaticParams() {
-  return [...getVersions().map(version => ({ version }))];
+  return [...getVersions().map((version) => ({ version }))];
 }
 
 type Params = {

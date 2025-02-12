@@ -170,7 +170,7 @@ function TypeDoc({
       {def.functions && (
         <section>
           <h3 className="groupTitle">Static methods</h3>
-          {Object.values(def.functions).map(t => (
+          {Object.values(def.functions).map((t) => (
             <MemberDoc key={t.id} member={t} />
           ))}
         </section>
@@ -184,7 +184,7 @@ function TypeDoc({
                 <h3 key={title || 'Members'} className="groupTitle">
                   {title || 'Members'}
                 </h3>,
-                members.map(member => (
+                members.map((member) => (
                   <MemberDoc key={member.id} member={member} />
                 )),
               ]

@@ -118,7 +118,7 @@ describe('Map', function () {
   });
 
   describe('merge a map', () => {
-    [2, 8, 32, 1024].forEach(size => {
+    [2, 8, 32, 1024].forEach((size) => {
       const obj1 = {};
       const obj2 = {};
       for (let ii = 0; ii < size; ii++) {

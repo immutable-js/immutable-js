@@ -10,7 +10,7 @@ export function StarBtn() {
   useEffect(() => {
     loadJSON(
       'https://api.github.com/repos/immutable-js/immutable-js',
-      value => {
+      (value) => {
         if (
           typeof value === 'object' &&
           value !== null &&
@@ -180,7 +180,7 @@ export function StarBtn() {
 
 function loadJSON(url: string, then: (value: unknown) => void) {
   const oReq = new XMLHttpRequest();
-  oReq.onload = event => {
+  oReq.onload = (event) => {
     if (
       !event.target ||
       !('responseText' in event.target) ||

@@ -4,7 +4,7 @@ import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
 describe('KeyedSeq', () => {
-  check.it('it iterates equivalently', [gen.array(gen.int)], ints => {
+  check.it('it iterates equivalently', [gen.array(gen.int)], (ints) => {
     const seq = Seq(ints);
     const keyed = seq.toKeyedSeq();
 
@@ -21,7 +21,7 @@ describe('KeyedSeq', () => {
   });
 
   it('maintains keys', () => {
-    const isEven = x => x % 2 === 0;
+    const isEven = (x) => x % 2 === 0;
     const seq = Range(0, 100);
 
     // This is what we expect for IndexedSequences
@@ -35,7 +35,7 @@ describe('KeyedSeq', () => {
     ]);
     const [indexed0, indexed1] = seq
       .partition(isEven)
-      .map(part => part.skip(10).take(5));
+      .map((part) => part.skip(10).take(5));
     expect(indexed0.entrySeq().toArray()).toEqual([
       [0, 21],
       [1, 23],
@@ -63,7 +63,7 @@ describe('KeyedSeq', () => {
     ]);
     const [keyed0, keyed1] = keyed
       .partition(isEven)
-      .map(part => part.skip(10).take(5));
+      .map((part) => part.skip(10).take(5));
     expect(keyed0.entrySeq().toArray()).toEqual([
       [21, 21],
       [23, 23],

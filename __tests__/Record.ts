@@ -195,7 +195,7 @@ describe('Record', () => {
     try {
       const warnings: Array<unknown> = [];
       // eslint-disable-next-line no-console
-      console.warn = w => warnings.push(w);
+      console.warn = (w) => warnings.push(w);
 
       // size is a safe key to use
       const MyType1 = Record({ size: 123 });

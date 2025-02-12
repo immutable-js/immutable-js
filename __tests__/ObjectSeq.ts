@@ -3,7 +3,7 @@ import { Seq } from 'immutable';
 describe('ObjectSequence', () => {
   it('maps', () => {
     const i = Seq({ a: 'A', b: 'B', c: 'C' });
-    const m = i.map(x => x + x).toObject();
+    const m = i.map((x) => x + x).toObject();
     expect(m).toEqual({ a: 'AA', b: 'BB', c: 'CC' });
   });
 

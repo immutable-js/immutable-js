@@ -102,7 +102,7 @@ export function markdown(content: string, context: MarkdownContext): string {
       context.signatures &&
       PARAM_RX.test(text) &&
       context.signatures.some(
-        sig => sig.params && sig.params.some(param => param.name === text)
+        (sig) => sig.params && sig.params.some((param) => param.name === text)
       )
     ) {
       return '<span class="t param">' + text + '</span>';

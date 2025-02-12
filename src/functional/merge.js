@@ -37,14 +37,14 @@ export function mergeWithSources(collection, sources, merger) {
     return typeof merger === 'function' && collection.mergeWith
       ? collection.mergeWith(merger, ...sources)
       : collection.merge
-      ? collection.merge(...sources)
-      : collection.concat(...sources);
+        ? collection.merge(...sources)
+        : collection.concat(...sources);
   }
   const isArray = Array.isArray(collection);
   let merged = collection;
   const Collection = isArray ? IndexedCollection : KeyedCollection;
   const mergeItem = isArray
-    ? value => {
+    ? (value) => {
         // Copy on write
         if (merged === collection) {
           merged = shallowCopy(merged);
@@ -76,8 +76,8 @@ function deepMergerWith(merger) {
       areMergeable(oldValue, newValue)
       ? mergeWithSources(oldValue, [newValue], deepMerger)
       : merger
-      ? merger(oldValue, newValue, key)
-      : newValue;
+        ? merger(oldValue, newValue, key)
+        : newValue;
   }
   return deepMerger;
 }

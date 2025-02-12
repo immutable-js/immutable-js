@@ -40,12 +40,12 @@ export class Map extends KeyedCollection {
     return value === undefined || value === null
       ? emptyMap()
       : isMap(value) && !isOrdered(value)
-      ? value
-      : emptyMap().withMutations(map => {
-          const iter = KeyedCollection(value);
-          assertNotInfinite(iter.size);
-          iter.forEach((v, k) => map.set(k, v));
-        });
+        ? value
+        : emptyMap().withMutations((map) => {
+            const iter = KeyedCollection(value);
+            assertNotInfinite(iter.size);
+            iter.forEach((v, k) => map.set(k, v));
+          });
   }
 
   toString() {
@@ -77,8 +77,8 @@ export class Map extends KeyedCollection {
       return this;
     }
 
-    return this.withMutations(map => {
-      collection.forEach(key => map.remove(key));
+    return this.withMutations((map) => {
+      collection.forEach((key) => map.remove(key));
     });
   }
 
@@ -109,7 +109,7 @@ export class Map extends KeyedCollection {
   }
 
   map(mapper, context) {
-    return this.withMutations(map => {
+    return this.withMutations((map) => {
       map.forEach((value, key) => {
         map.set(key, mapper.call(context, value, key, this));
       });
@@ -126,7 +126,7 @@ export class Map extends KeyedCollection {
     let iterations = 0;
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
     this._root &&
-      this._root.iterate(entry => {
+      this._root.iterate((entry) => {
         iterations++;
         return fn(entry[1], entry[0], this);
       }, reverse);

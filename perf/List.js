@@ -107,7 +107,7 @@ describe('List', function () {
       for (let i = 0; i < 100000; i++) {
         list.push(i);
       }
-      list.some(item => item === 50000);
+      list.some((item) => item === 50000);
     });
   });
 });

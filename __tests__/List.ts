@@ -146,7 +146,7 @@ describe('List', () => {
   it('can update a value', () => {
     const l = List.of(5);
     // @ts-expect-error -- Type definition limitation
-    expect(l.update(0, v => v * v).toArray()).toEqual([25]);
+    expect(l.update(0, (v) => v * v).toArray()).toEqual([25]);
   });
 
   it('can updateIn a deep value', () => {
@@ -156,7 +156,7 @@ describe('List', () => {
       }),
     ]);
     // @ts-expect-error -- Type definition limitation
-    l = l.updateIn([0, 'aKey', 1], v => v + v);
+    l = l.updateIn([0, 'aKey', 1], (v) => v + v);
     expect(l.toJS()).toEqual([
       {
         aKey: ['bad', 'goodgood'],
@@ -309,7 +309,7 @@ describe('List', () => {
   it('can contain a large number of indices', () => {
     const r = Range(0, 20000).toList();
     let iterations = 0;
-    r.forEach(v => {
+    r.forEach((v) => {
       expect(v).toBe(iterations);
       iterations++;
     });
@@ -439,7 +439,7 @@ describe('List', () => {
     'pop removes the highest index, just like array',
     { maxSize: 2000 },
     [gen.posInt],
-    len => {
+    (len) => {
       const a = arrayOfSize(len);
       let v = List(a);
 
@@ -458,7 +458,7 @@ describe('List', () => {
     'push adds the next highest index, just like array',
     { maxSize: 2000 },
     [gen.posInt],
-    len => {
+    (len) => {
       const a: Array<number> = [];
       let v = List();
 
@@ -482,7 +482,7 @@ describe('List', () => {
     expect(v.toArray()).toEqual([]);
   });
 
-  it.each(['remove', 'delete'])('remove removes any index', fn => {
+  it.each(['remove', 'delete'])('remove removes any index', (fn) => {
     let v = List.of('a', 'b', 'c')[fn](2)[fn](0);
     expect(v.size).toBe(1);
     expect(v.get(0)).toBe('b');
@@ -543,28 +543,28 @@ describe('List', () => {
 
   it('finds values using findIndex', () => {
     const v = List.of('a', 'b', 'c', 'B', 'a');
-    expect(v.findIndex(value => value.toUpperCase() === value)).toBe(3);
-    expect(v.findIndex(value => value.length > 1)).toBe(-1);
+    expect(v.findIndex((value) => value.toUpperCase() === value)).toBe(3);
+    expect(v.findIndex((value) => value.length > 1)).toBe(-1);
   });
 
   it('finds values using findEntry', () => {
     const v = List.of('a', 'b', 'c', 'B', 'a');
-    expect(v.findEntry(value => value.toUpperCase() === value)).toEqual([
+    expect(v.findEntry((value) => value.toUpperCase() === value)).toEqual([
       3,
       'B',
     ]);
-    expect(v.findEntry(value => value.length > 1)).toBe(undefined);
+    expect(v.findEntry((value) => value.length > 1)).toBe(undefined);
   });
 
   it('maps values', () => {
     const v = List.of('a', 'b', 'c');
-    const r = v.map(value => value.toUpperCase());
+    const r = v.map((value) => value.toUpperCase());
     expect(r.toArray()).toEqual(['A', 'B', 'C']);
   });
 
   it('map no-ops return the same reference', () => {
     const v = List.of('a', 'b', 'c');
-    const r = v.map(value => value);
+    const r = v.map((value) => value);
     expect(r).toBe(v);
   });
 
@@ -584,7 +584,7 @@ describe('List', () => {
     const v = List.of('a', 'b', 'c', 'd', 'e', 'f');
     const r = v
       .partition((value, index) => index % 2 === 1)
-      .map(part => part.toArray());
+      .map((part) => part.toArray());
     expect(r).toEqual([
       ['a', 'c', 'e'],
       ['b', 'd', 'f'],
@@ -602,7 +602,7 @@ describe('List', () => {
     const l1 = List<A>([new B(), new C(), new B(), new C()]);
     const l2: List<C> = l1.filter((v): v is C => v instanceof C);
     expect(l2.size).toEqual(2);
-    expect(l2.every(v => v instanceof C)).toBe(true);
+    expect(l2.every((v) => v instanceof C)).toBe(true);
   });
 
   it('partitions values based on type', () => {
@@ -618,9 +618,9 @@ describe('List', () => {
       (v): v is C => v instanceof C
     );
     expect(la.size).toEqual(2);
-    expect(la.some(v => v instanceof C)).toBe(false);
+    expect(la.some((v) => v instanceof C)).toBe(false);
     expect(lc.size).toEqual(2);
-    expect(lc.every(v => v instanceof C)).toBe(true);
+    expect(lc.every((v) => v instanceof C)).toBe(true);
   });
 
   it('reduces values', () => {
@@ -673,9 +673,9 @@ describe('List', () => {
     const v = List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
 
     const r = v
-      .filter(x => x % 2 === 0)
+      .filter((x) => x % 2 === 0)
       .skip(2)
-      .map(x => x * x)
+      .map((x) => x * x)
       .take(3)
       .reduce((a: number, b: number) => a + b, 0);
 
@@ -724,27 +724,27 @@ describe('List', () => {
 
   it('works with push, set and insert without phantom values', () => {
     const v = List.of().set(287, 287).push(42).insert(33, 33);
-    expect(v.toJS().filter(item => item === 287)).toHaveLength(1);
+    expect(v.toJS().filter((item) => item === 287)).toHaveLength(1);
     const v2 = List.of().push(0).unshift(-1).unshift(-2).pop().pop().set(2, 2);
     expect(v2.toJS()).toEqual([-2, undefined, 2]);
     const v3 = List.of().set(447, 447).push(0).insert(65, 65);
-    expect(v3.toJS().filter(item => item === 447)).toHaveLength(1);
+    expect(v3.toJS().filter((item) => item === 447)).toHaveLength(1);
     const v4 = List.of().set(-28, -28).push(0).shift().set(-30, -30);
-    expect(v4.toJS().filter(item => item === -28)).toHaveLength(0);
+    expect(v4.toJS().filter((item) => item === -28)).toHaveLength(0);
     const v5 = List.of().unshift(0).set(33, 33).shift().set(-35, -35);
-    expect(v5.toJS().filter(item => item === 0)).toHaveLength(0);
+    expect(v5.toJS().filter((item) => item === 0)).toHaveLength(0);
 
     // execute the same test as `v` but for the 2000 first integers
-    const isOkV1 = v =>
+    const isOkV1 = (v) =>
       List.of()
         .set(v, v)
         .push('pushed-value')
         .insert(33, 'inserted-value')
-        .filter(item => item === v).size === 1;
+        .filter((item) => item === v).size === 1;
 
     const arr = new Array(2000).fill(null).map((_, v) => v);
 
-    const notOkArray = arr.filter(v => !isOkV1(v));
+    const notOkArray = arr.filter((v) => !isOkV1(v));
 
     expect(notOkArray).toHaveLength(0);
   });
@@ -755,7 +755,7 @@ describe('List', () => {
     let n = 0;
     const a: Array<number> = [];
     const v = List.of(0, 1, 2, 3, 4);
-    v.forEach(x => {
+    v.forEach((x) => {
       a.push(x);
       n++;
     });
@@ -832,7 +832,7 @@ describe('List', () => {
   it('allows chained mutations', () => {
     const v1 = List();
     const v2 = v1.push(1);
-    const v3 = v2.withMutations(v => v.push(2).push(3).push(4));
+    const v3 = v2.withMutations((v) => v.push(2).push(3).push(4));
     const v4 = v3.push(5);
 
     expect(v1.toArray()).toEqual([]);
@@ -855,7 +855,7 @@ describe('List', () => {
 
   it('chained mutations does not result in new empty list instance', () => {
     const v1 = List(['x']);
-    const v2 = v1.withMutations(v => v.push('y').pop().pop());
+    const v2 = v1.withMutations((v) => v.push('y').pop().pop());
     expect(v2).toEqual(List());
   });
 
@@ -870,7 +870,7 @@ describe('List', () => {
 
   it('calling `clear` and `setSize` while mutating should set all items to undefined', () => {
     const l = List(['a', 'b']);
-    const l2 = l.withMutations(innerList => {
+    const l2 = l.withMutations((innerList) => {
       innerList.clear().setSize(3);
     });
     expect(l2.get(0)).toBeUndefined();
@@ -933,7 +933,7 @@ describe('List', () => {
     expect(v2.butLast().size).toBe(1799);
   });
 
-  [NaN, Infinity, -Infinity].forEach(zeroishValue => {
+  [NaN, Infinity, -Infinity].forEach((zeroishValue) => {
     it(`treats ${zeroishValue} like zero when setting size`, () => {
       const v1 = List.of('a', 'b', 'c');
       const v2 = v1.setSize(zeroishValue);
@@ -957,7 +957,7 @@ describe('List', () => {
   it('return a new emptyList if the emptyList has been mutated #2003', () => {
     const emptyList = List();
 
-    const nonEmptyList = emptyList.withMutations(l => {
+    const nonEmptyList = emptyList.withMutations((l) => {
       l.setSize(1);
       l.set(0, 'a');
     });
@@ -992,7 +992,7 @@ describe('List', () => {
   }
 
   describe('when slicing', () => {
-    [NaN, -Infinity].forEach(zeroishValue => {
+    [NaN, -Infinity].forEach((zeroishValue) => {
       it(`considers a ${zeroishValue} begin argument to be zero`, () => {
         const v1 = List.of('a', 'b', 'c');
         const v2 = v1.slice(zeroishValue, 3);

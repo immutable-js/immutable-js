@@ -1,6 +1,6 @@
 describe('Record', () => {
   describe('builds from an object', () => {
-    [2, 5, 10, 100, 1000].forEach(size => {
+    [2, 5, 10, 100, 1000].forEach((size) => {
       var defaults = {};
       var values = {};
       for (var ii = 0; ii < size; ii++) {
@@ -17,7 +17,7 @@ describe('Record', () => {
   });
 
   describe('update random using set()', () => {
-    [2, 5, 10, 100, 1000].forEach(size => {
+    [2, 5, 10, 100, 1000].forEach((size) => {
       var defaults = {};
       var values = {};
       for (var ii = 0; ii < size; ii++) {
@@ -37,7 +37,7 @@ describe('Record', () => {
   });
 
   describe('access random using get()', () => {
-    [2, 5, 10, 100, 1000].forEach(size => {
+    [2, 5, 10, 100, 1000].forEach((size) => {
       var defaults = {};
       var values = {};
       for (var ii = 0; ii < size; ii++) {
@@ -57,7 +57,7 @@ describe('Record', () => {
   });
 
   describe('access random using property', () => {
-    [2, 5, 10, 100, 1000].forEach(size => {
+    [2, 5, 10, 100, 1000].forEach((size) => {
       var defaults = {};
       var values = {};
       for (var ii = 0; ii < size; ii++) {

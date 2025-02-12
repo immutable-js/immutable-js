@@ -118,7 +118,7 @@ describe('OrderedMap', () => {
 
     // Create OrderedMap greater than or equal to SIZE (currently 32)
     const SIZE = 32;
-    let map = OrderedMap(Range(0, SIZE).map(key => [key, 0]));
+    let map = OrderedMap(Range(0, SIZE).map((key) => [key, 0]));
 
     // Delete half of the keys so that internal list is twice the size of internal map
     const keysToDelete = Range(0, SIZE / 2);

@@ -191,7 +191,7 @@ describe('Conversion', () => {
     expect(fromJS('string')).toEqual('string');
   });
 
-  check.it('toJS isomorphic value', { maxSize: 30 }, [gen.JSONValue], v => {
+  check.it('toJS isomorphic value', { maxSize: 30 }, [gen.JSONValue], (v) => {
     const imm = fromJS(v);
     expect(imm && imm.toJS ? imm.toJS() : imm).toEqual(v);
   });

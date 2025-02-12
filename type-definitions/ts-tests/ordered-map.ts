@@ -108,7 +108,7 @@ test('#clear', () => {
 });
 
 test('#update', () => {
-  expect(OrderedMap().update(v => 1)).type.toBeNumber();
+  expect(OrderedMap().update((v) => 1)).type.toBeNumber();
 
   expect(
     OrderedMap<number, number>().update(
@@ -142,7 +142,7 @@ test('#update', () => {
 });
 
 test('#updateIn', () => {
-  expect(OrderedMap<number, number>().updateIn([], v => v)).type.toBe<
+  expect(OrderedMap<number, number>().updateIn([], (v) => v)).type.toBe<
     OrderedMap<number, number>
   >();
 
@@ -481,7 +481,7 @@ test('#flip', () => {
 
 test('#withMutations', () => {
   expect(
-    OrderedMap<number, number>().withMutations(mutable => mutable)
+    OrderedMap<number, number>().withMutations((mutable) => mutable)
   ).type.toBe<OrderedMap<number, number>>();
 
   expect(

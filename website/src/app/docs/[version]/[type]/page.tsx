@@ -6,8 +6,8 @@ import { getVersionFromParams } from '../../../getVersionFromParams';
 
 export async function generateStaticParams() {
   return getVersions()
-    .map(version =>
-      Object.values(getTypeDefs(version).types).map(def => ({
+    .map((version) =>
+      Object.values(getTypeDefs(version).types).map((def) => ({
         version,
         type: def.label,
       }))
@@ -27,7 +27,7 @@ type Props = {
 export async function generateMetadata({ params }: Props) {
   const version = getVersionFromParams(params);
   const defs = getTypeDefs(version);
-  const def = Object.values(defs.types).find(d => d.label === params.type);
+  const def = Object.values(defs.types).find((d) => d.label === params.type);
 
   if (!def) {
     throw new Error('404');
@@ -48,7 +48,7 @@ export default function TypeDocPage({
   const version = getVersionFromParams(params);
   const defs = getTypeDefs(version);
 
-  const def = Object.values(defs.types).find(d => d.label === params.type);
+  const def = Object.values(defs.types).find((d) => d.label === params.type);
 
   if (!def) {
     throw new Error('404');

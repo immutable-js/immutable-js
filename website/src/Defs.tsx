@@ -250,7 +250,7 @@ function Hover({
 }) {
   const [isOver, setIsOver] = useState(false);
   const mouseOver = useCallback(
-    event => {
+    (event) => {
       event.stopPropagation();
       setIsOver(true);
     },
