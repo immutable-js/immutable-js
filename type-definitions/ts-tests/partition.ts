@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { expect, test } from 'tstyche';
 import {
   Collection,

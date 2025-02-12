@@ -180,6 +180,7 @@ const canDefineProperty = (function () {
   try {
     Object.defineProperty({}, '@', {});
     return true;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     return false;
   }

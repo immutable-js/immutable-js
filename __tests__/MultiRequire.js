@@ -1,9 +1,9 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const Immutable1 = require('../src/Immutable');
 
 jest.resetModules();
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const Immutable2 = require('../src/Immutable');
 
 describe('MultiRequire', () => {

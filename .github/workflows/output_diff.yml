@@ -7,7 +7,7 @@ on:
       - init-migrate-to-ts
       # run only if there is ts files in the PR
     paths:
-      - '**/*.ts'
+      - 'src/**/*.ts'
 
 jobs:
   diff:

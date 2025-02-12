@@ -56,6 +56,7 @@ export function markdown(content: string, context: MarkdownContext): string {
     runkitContext.activated = true;
     try {
       runkitContext.options = result[1] ? JSON.parse(result[1]) : {};
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO enable eslint here
     } catch (e) {
       runkitContext.options = {};
     }

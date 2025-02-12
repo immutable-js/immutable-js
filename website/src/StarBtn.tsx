@@ -192,6 +192,7 @@ function loadJSON(url: string, then: (value: unknown) => void) {
     let json;
     try {
       json = JSON.parse(event.target.responseText);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO enable eslint here
     } catch (e) {
       // ignore error
     }

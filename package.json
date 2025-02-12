@@ -93,14 +93,14 @@
     "@types/jest": "^29.0.0",
     "@types/prismjs": "^1.26.3",
     "@types/react": "17.0.11",
-    "@typescript-eslint/eslint-plugin": "^6.19.1",
-    "@typescript-eslint/parser": "^6.19.1",
+    "@typescript-eslint/eslint-plugin": "^8.0",
+    "@typescript-eslint/parser": "^8.0",
     "benchmark": "2.1.4",
     "colors": "1.4.0",
     "cpy-cli": "3.1.1",
     "eslint": "^8.56.0",
     "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-next": "^14.1.0",
+    "eslint-config-next": "^14.2.24",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jsx-a11y": "^6.8.0",
@@ -127,8 +127,8 @@
     "rollup": "3.28.1",
     "size-limit": "^8.2.6",
     "transducers-js": "0.4.174",
-    "tstyche": "^3.0.0-rc.2",
-    "typescript": "5.1"
+    "tstyche": "^3.5",
+    "typescript": "5.7"
   },
   "size-limit": [
     {

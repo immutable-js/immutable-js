@@ -213,6 +213,7 @@ mixin(Collection, {
     let joined = '';
     let isFirst = true;
     this.__iterate(v => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
       isFirst ? (isFirst = false) : (joined += separator);
       joined += v !== null && v !== undefined ? v.toString() : '';
     });

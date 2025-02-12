@@ -4,6 +4,7 @@
 export default function quoteString(value) {
   try {
     return typeof value === 'string' ? JSON.stringify(value) : String(value);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (_ignoreError) {
     return JSON.stringify(value);
   }
