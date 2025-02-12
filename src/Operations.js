@@ -96,6 +96,7 @@ export class ToIndexedSequence extends IndexedSeq {
 
   __iterate(fn, reverse) {
     let i = 0;
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
     reverse && ensureSize(this);
     return this._iter.__iterate(
       v => fn(v, reverse ? this.size - ++i : i++, this),
@@ -106,6 +107,7 @@ export class ToIndexedSequence extends IndexedSeq {
   __iterator(type, reverse) {
     const iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
     let i = 0;
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
     reverse && ensureSize(this);
     return new Iterator(() => {
       const step = iterator.next();
@@ -296,6 +298,7 @@ export function reverseFactory(collection, useKeys) {
   reversedSequence.cacheResult = cacheResultThrough;
   reversedSequence.__iterate = function (fn, reverse) {
     let i = 0;
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
     reverse && ensureSize(collection);
     return collection.__iterate(
       (v, k) => fn(v, useKeys ? k : reverse ? this.size - ++i : i++, this),
@@ -304,6 +307,7 @@ export function reverseFactory(collection, useKeys) {
   };
   reversedSequence.__iterator = (type, reverse) => {
     let i = 0;
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
     reverse && ensureSize(collection);
     const iterator = collection.__iterator(ITERATE_ENTRIES, !reverse);
     return new Iterator(() => {
@@ -579,6 +583,7 @@ export function skipWhileFactory(collection, predicate, context, useKeys) {
         const entry = step.value;
         k = entry[0];
         v = entry[1];
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
         skipping && (skipping = predicate.call(context, v, k, this));
       } while (skipping);
       return type === ITERATE_ENTRIES ? step : iteratorValue(type, k, v, step);

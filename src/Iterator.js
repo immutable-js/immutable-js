@@ -31,6 +31,7 @@ Iterator.prototype[ITERATOR_SYMBOL] = function () {
 export function iteratorValue(type, k, v, iteratorResult) {
   const value =
     type === ITERATE_KEYS ? k : type === ITERATE_VALUES ? v : [k, v];
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
   iteratorResult
     ? (iteratorResult.value = value)
     : (iteratorResult = {

@@ -124,6 +124,7 @@ export class Map extends KeyedCollection {
 
   __iterate(fn, reverse) {
     let iterations = 0;
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
     this._root &&
       this._root.iterate(entry => {
         iterations++;
@@ -211,6 +212,7 @@ class ArrayMapNode {
     }
 
     SetRef(didAlter);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
     (removed || !exists) && SetRef(didChangeSize);
 
     if (removed && entries.length === 1) {
@@ -226,6 +228,7 @@ class ArrayMapNode {
 
     if (exists) {
       if (removed) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
         idx === len - 1
           ? newEntries.pop()
           : (newEntries[idx] = newEntries.pop());
@@ -450,6 +453,7 @@ class HashCollisionNode {
     }
 
     SetRef(didAlter);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
     (removed || !exists) && SetRef(didChangeSize);
 
     if (removed && len === 2) {
@@ -461,6 +465,7 @@ class HashCollisionNode {
 
     if (exists) {
       if (removed) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
         idx === len - 1
           ? newEntries.pop()
           : (newEntries[idx] = newEntries.pop());

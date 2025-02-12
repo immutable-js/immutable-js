@@ -71,6 +71,7 @@ export class Record {
           indices[propName] = i;
           if (RecordTypePrototype[propName]) {
             /* eslint-disable no-console */
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
             typeof console === 'object' &&
               console.warn &&
               console.warn(
@@ -261,6 +262,7 @@ function setProp(prototype, name) {
         this.set(name, value);
       },
     });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO enable eslint here
   } catch (error) {
     // Object.defineProperty failed. Probably IE8.
   }
