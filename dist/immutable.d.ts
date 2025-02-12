@@ -1,5 +1,4 @@
 /** @ignore we should disable this rules, but let's activate it to enable eslint first */
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types */
 /**
  * Immutable data encourages pure functions (data-in, data-out) and lends itself
  * to much simpler application development and enabling techniques from
@@ -853,7 +852,7 @@ declare namespace Immutable {
      * that does not guarantee the key was not found.
      */
     get<K extends keyof R>(key: K, notSetValue?: unknown): R[K];
-    get<NSV>(key: any, notSetValue: NSV): NSV;
+    get<NSV>(key: unknown, notSetValue: NSV): NSV;
 
     // TODO `<const P extends ...>` can be used after dropping support for TypeScript 4.x
     // reference: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html#const-type-parameters
@@ -894,7 +893,7 @@ declare namespace Immutable {
   type GetMapType<S> = S extends MapOf<infer T> ? T : S;
 
   /** @ignore */
-  type Head<T extends ReadonlyArray<any>> = T extends [
+  type Head<T extends ReadonlyArray<unknown>> = T extends [
     infer H,
     ...Array<unknown>
   ]
@@ -902,7 +901,7 @@ declare namespace Immutable {
     : never;
 
   /** @ignore */
-  type Tail<T extends ReadonlyArray<any>> = T extends [unknown, ...infer I]
+  type Tail<T extends ReadonlyArray<unknown>> = T extends [unknown, ...infer I]
     ? I
     : Array<never>;
 
@@ -910,7 +909,7 @@ declare namespace Immutable {
   type RetrievePathReducer<
     T,
     C,
-    L extends ReadonlyArray<any>
+    L extends ReadonlyArray<unknown>
   > = C extends keyof GetMapType<T>
     ? L extends []
       ? GetMapType<T>[C]
@@ -2765,7 +2764,7 @@ declare namespace Immutable {
     /**
      * True if `maybeRecord` is an instance of a Record.
      */
-    function isRecord(maybeRecord: unknown): maybeRecord is Record<{}>;
+    function isRecord(maybeRecord: unknown): maybeRecord is Record<object>;
 
     /**
      * Records allow passing a second parameter to supply a descriptive name
@@ -2784,7 +2783,9 @@ declare namespace Immutable {
      * Record.getDescriptiveName(me) // "Person"
      * ```
      */
-    function getDescriptiveName(record: Record<any>): string;
+    function getDescriptiveName<TProps extends object>(
+      record: RecordOf<TProps>
+    ): string;
 
     /**
      * A Record.Factory is created by the `Record()` function. Record instances
@@ -2837,11 +2838,12 @@ declare namespace Immutable {
     namespace Factory {}
 
     interface Factory<TProps extends object> {
-      (values?: Partial<TProps> | Iterable<[string, unknown]>): Record<TProps> &
-        Readonly<TProps>;
+      (
+        values?: Partial<TProps> | Iterable<[string, unknown]>
+      ): RecordOf<TProps>;
       new (
         values?: Partial<TProps> | Iterable<[string, unknown]>
-      ): Record<TProps> & Readonly<TProps>;
+      ): RecordOf<TProps>;
 
       /**
        * The name provided to `Record(values, name)` can be accessed with
@@ -2852,7 +2854,7 @@ declare namespace Immutable {
 
     function Factory<TProps extends object>(
       values?: Partial<TProps> | Iterable<[string, unknown]>
-    ): Record<TProps> & Readonly<TProps>;
+    ): RecordOf<TProps>;
   }
 
   /**
@@ -5416,14 +5418,14 @@ declare namespace Immutable {
 
   type FromJS<JSValue> = JSValue extends FromJSNoTransform
     ? JSValue
-    : JSValue extends Array<any>
+    : JSValue extends Array<unknown>
     ? FromJSArray<JSValue>
-    : JSValue extends {}
+    : JSValue extends object
     ? FromJSObject<JSValue>
-    : any;
+    : unknown;
 
   type FromJSNoTransform =
-    | Collection<any, any>
+    | Collection<unknown, unknown>
     | number
     | string
     | null
@@ -5433,7 +5435,7 @@ declare namespace Immutable {
     ? List<FromJS<T>>
     : never;
 
-  type FromJSObject<JSValue> = JSValue extends {}
+  type FromJSObject<JSValue> = JSValue extends object
     ? Map<keyof JSValue, FromJS<JSValue[keyof JSValue]>>
     : never;
 
@@ -5657,7 +5659,7 @@ declare namespace Immutable {
   /**
    * True if `maybeRecord` is a Record.
    */
-  function isRecord(maybeRecord: unknown): maybeRecord is Record<{}>;
+  function isRecord(maybeRecord: unknown): maybeRecord is Record<object>;
 
   /**
    * Returns the value within the provided collection associated with the

@@ -244,6 +244,7 @@
   function iteratorValue(type, k, v, iteratorResult) {
     var value =
       type === ITERATE_KEYS ? k : type === ITERATE_VALUES ? v : [k, v];
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
     iteratorResult
       ? (iteratorResult.value = value)
       : (iteratorResult = {
@@ -978,6 +979,7 @@
     try {
       Object.defineProperty({}, '@', {});
       return true;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       return false;
     }
@@ -1106,6 +1108,7 @@
       var this$1$1 = this;
 
       var i = 0;
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
       reverse && ensureSize(this);
       return this._iter.__iterate(
         function (v) { return fn(v, reverse ? this$1$1.size - ++i : i++, this$1$1); },
@@ -1118,6 +1121,7 @@
 
       var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
       var i = 0;
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
       reverse && ensureSize(this);
       return new Iterator(function () {
         var step = iterator.next();
@@ -1333,6 +1337,7 @@
       var this$1$1 = this;
 
       var i = 0;
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
       reverse && ensureSize(collection);
       return collection.__iterate(
         function (v, k) { return fn(v, useKeys ? k : reverse ? this$1$1.size - ++i : i++, this$1$1); },
@@ -1341,6 +1346,7 @@
     };
     reversedSequence.__iterator = function (type, reverse) {
       var i = 0;
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
       reverse && ensureSize(collection);
       var iterator = collection.__iterator(ITERATE_ENTRIES, !reverse);
       return new Iterator(function () {
@@ -1627,6 +1633,7 @@
           var entry = step.value;
           k = entry[0];
           v = entry[1];
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
           skipping && (skipping = predicate.call(context, v, k, this$1$1));
         } while (skipping);
         return type === ITERATE_ENTRIES ? step : iteratorValue(type, k, v, step);
@@ -2112,6 +2119,7 @@
   function quoteString(value) {
     try {
       return typeof value === 'string' ? JSON.stringify(value) : String(value);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_ignoreError) {
       return JSON.stringify(value);
     }
@@ -2581,6 +2589,7 @@
       var this$1$1 = this;
 
       var iterations = 0;
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
       this._root &&
         this._root.iterate(function (entry) {
           iterations++;
@@ -2669,6 +2678,7 @@
     }
 
     SetRef(didAlter);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
     (removed || !exists) && SetRef(didChangeSize);
 
     if (removed && entries.length === 1) {
@@ -2684,6 +2694,7 @@
 
     if (exists) {
       if (removed) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
         idx === len - 1
           ? newEntries.pop()
           : (newEntries[idx] = newEntries.pop());
@@ -2902,6 +2913,7 @@
     }
 
     SetRef(didAlter);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
     (removed || !exists) && SetRef(didChangeSize);
 
     if (removed && len === 2) {
@@ -2913,6 +2925,7 @@
 
     if (exists) {
       if (removed) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
         idx === len - 1
           ? newEntries.pop()
           : (newEntries[idx] = newEntries.pop());
@@ -3667,6 +3680,7 @@
 
     if (index >= list.size || index < 0) {
       return list.withMutations(function (list) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
         index < 0
           ? setListBounds(list, index).set(0, value)
           : setListBounds(list, 0, index + 1).set(index, value);
@@ -4399,6 +4413,7 @@
       ctor.prototype[key] = methods[key];
     };
     Object.keys(methods).forEach(keyCopier);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
     Object.getOwnPropertySymbols &&
       Object.getOwnPropertySymbols(methods).forEach(keyCopier);
     return ctor;
@@ -4995,6 +5010,7 @@
       var joined = '';
       var isFirst = true;
       this.__iterate(function (v) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
         isFirst ? (isFirst = false) : (joined += separator);
         joined += v !== null && v !== undefined ? v.toString() : '';
       });
@@ -5685,6 +5701,7 @@
           indices[propName] = i;
           if (RecordTypePrototype[propName]) {
             /* eslint-disable no-console */
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
             typeof console === 'object' &&
               console.warn &&
               console.warn(
@@ -5874,6 +5891,7 @@
           this.set(name, value);
         },
       });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO enable eslint here
     } catch (error) {
       // Object.defineProperty failed. Probably IE8.
     }
@@ -6002,6 +6020,7 @@
         throw new TypeError('Cannot convert circular structure to Immutable');
       }
       stack.push(value);
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
       keyPath && key !== '' && keyPath.push(key);
       var converted = converter.call(
         parentValue,
@@ -6011,6 +6030,7 @@
         keyPath && keyPath.slice()
       );
       stack.pop();
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
       keyPath && keyPath.pop();
       return converted;
     }
