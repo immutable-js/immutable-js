@@ -1,4 +1,4 @@
-import { List, OrderedSet, Seq, Comparator, PairSorting } from 'immutable';
+import { List, OrderedSet, Seq, type Comparator, PairSorting } from 'immutable';
 
 const sourceNumbers: readonly number[] = [3, 4, 5, 6, 7, 9, 10, 12, 90, 92, 95];
 
