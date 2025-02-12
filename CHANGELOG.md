@@ -11,6 +11,10 @@ Dates are formatted as YYYY-MM-DD.
 - Fix #1915 "Converting a Seq to a list causes RangeError (max call size exceeded)" by @alexvictoor in [#2038](https://github.com/immutable-js/immutable-js/pull/2038)
 - fix: proper Typescript typings for Seq.concat() [#2040](https://github.com/immutable-js/immutable-js/pull/2040) by [@alexvictoor](https://github.com/alexvictoor)
 
+### Internal
+
+- Upgrade typescript and typescript-eslint [#2046](https://github.com/immutable-js/immutable-js/pull/2046) by [@jdeniau](https://github.com/jdeniau)
+
 ## [5.0.3]
 
 - Fix List.VNode.removeAfter() / removeBefore() issue on some particular case [#2030](https://github.com/immutable-js/immutable-js/pull/2030) by [@alexvictoor](https://github.com/alexvictoor)
