@@ -17,8 +17,8 @@ export class Stack extends IndexedCollection {
     return value === undefined || value === null
       ? emptyStack()
       : isStack(value)
-      ? value
-      : emptyStack().pushAll(value);
+        ? value
+        : emptyStack().pushAll(value);
   }
 
   static of(/*...values*/) {
@@ -79,7 +79,7 @@ export class Stack extends IndexedCollection {
     assertNotInfinite(iter.size);
     let newSize = this.size;
     let head = this._head;
-    iter.__iterate(value => {
+    iter.__iterate((value) => {
       newSize++;
       head = {
         value: value,

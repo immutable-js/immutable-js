@@ -119,8 +119,8 @@ function makeAssert(I: any) {
         ? 'strict equal to'
         : 'does equal'
       : identical
-      ? 'not strict equal to'
-      : 'does not equal';
+        ? 'not strict equal to'
+        : 'does not equal';
     const className = result === same ? 'success' : 'failure';
     const lhsString = isIterable(lhs) ? lhs + '' : JSON.stringify(lhs);
     const rhsString = isIterable(rhs) ? rhs + '' : JSON.stringify(rhs);

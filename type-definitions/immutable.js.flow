@@ -33,7 +33,7 @@ type $KeyOf<C> = $Call<
     (<T>(?$ReadOnlyArray<T>) => number) &
     (<T>(?RecordInstance<T> | T) => $Keys<T>) &
     (<T: Object>(T) => $Keys<T>),
-  C
+  C,
 >;
 
 type $ValOf<C, K = $KeyOf<C>> = $Call<
@@ -42,7 +42,7 @@ type $ValOf<C, K = $KeyOf<C>> = $Call<
     (<T, K: $Keys<T>>(?RecordInstance<T> | T, K) => $ElementType<T, K>) &
     (<T: Object>(T) => $Values<T>),
   C,
-  K
+  K,
 >;
 
 type $IterableOf<C> = $Call<
@@ -53,11 +53,11 @@ type $IterableOf<C> = $Call<
       V:
         | KeyedCollection<any, any>
         | RecordInstance<any>
-        | PlainObjInput<any, any>
+        | PlainObjInput<any, any>,
     >(
       V
     ) => Iterable<[$KeyOf<V>, $ValOf<V>]>),
-  C
+  C,
 >;
 
 const PairSorting: $ReadOnly<{ LeftThenRight: number, RightThenLeft: number }> =
@@ -97,7 +97,7 @@ declare class _Collection<K, +V> implements ValueObject {
     NSV,
     K2: $KeyOf<V>,
     K3: $KeyOf<$ValOf<V, K2>>,
-    K4: $KeyOf<$ValOf<$ValOf<V, K2>, K3>>
+    K4: $KeyOf<$ValOf<$ValOf<V, K2>, K3>>,
   >(
     keyPath: [K, K2, K3, K4],
     notSetValue: NSV
@@ -107,7 +107,7 @@ declare class _Collection<K, +V> implements ValueObject {
     K2: $KeyOf<V>,
     K3: $KeyOf<$ValOf<V, K2>>,
     K4: $KeyOf<$ValOf<$ValOf<V, K2>, K3>>,
-    K5: $KeyOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>>
+    K5: $KeyOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>>,
   >(
     keyPath: [K, K2, K3, K4, K5],
     notSetValue: NSV
@@ -441,7 +441,7 @@ declare class IndexedCollection<+T> extends Collection<number, T> {
     e: Iterable<E>,
     ..._: []
   ): IndexedCollection<
-    [T | void, A | void, B | void, C | void, D | void, E | void]
+    [T | void, A | void, B | void, C | void, D | void, E | void],
   >;
 
   zipWith<A, R>(
@@ -795,7 +795,7 @@ declare class UpdatableInCollection<K, +V> {
     K2: $KeyOf<V>,
     K3: $KeyOf<$ValOf<V, K2>>,
     K4: $KeyOf<$ValOf<$ValOf<V, K2>, K3>>,
-    S: $ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>
+    S: $ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>,
   >(
     keyPath: [K, K2, K3, K4],
     value: S
@@ -805,7 +805,7 @@ declare class UpdatableInCollection<K, +V> {
     K3: $KeyOf<$ValOf<V, K2>>,
     K4: $KeyOf<$ValOf<$ValOf<V, K2>, K3>>,
     K5: $KeyOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>>,
-    S: $ValOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>, K5>
+    S: $ValOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>, K5>,
   >(
     keyPath: [K, K2, K3, K4, K5],
     value: S
@@ -820,7 +820,7 @@ declare class UpdatableInCollection<K, +V> {
   deleteIn<
     K2: $KeyOf<V>,
     K3: $KeyOf<$ValOf<V, K2>>,
-    K4: $KeyOf<$ValOf<$ValOf<V, K2>, K3>>
+    K4: $KeyOf<$ValOf<$ValOf<V, K2>, K3>>,
   >(
     keyPath: [K, K2, K3, K4]
   ): this;
@@ -828,7 +828,7 @@ declare class UpdatableInCollection<K, +V> {
     K2: $KeyOf<V>,
     K3: $KeyOf<$ValOf<V, K2>>,
     K4: $KeyOf<$ValOf<$ValOf<V, K2>, K3>>,
-    K5: $KeyOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>>
+    K5: $KeyOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>>,
   >(
     keyPath: [K, K2, K3, K4, K5]
   ): this;
@@ -842,7 +842,7 @@ declare class UpdatableInCollection<K, +V> {
   removeIn<
     K2: $KeyOf<V>,
     K3: $KeyOf<$ValOf<V, K2>>,
-    K4: $KeyOf<$ValOf<$ValOf<V, K2>, K3>>
+    K4: $KeyOf<$ValOf<$ValOf<V, K2>, K3>>,
   >(
     keyPath: [K, K2, K3, K4]
   ): this;
@@ -850,7 +850,7 @@ declare class UpdatableInCollection<K, +V> {
     K2: $KeyOf<V>,
     K3: $KeyOf<$ValOf<V, K2>>,
     K4: $KeyOf<$ValOf<$ValOf<V, K2>, K3>>,
-    K5: $KeyOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>>
+    K5: $KeyOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>>,
   >(
     keyPath: [K, K2, K3, K4, K5]
   ): this;
@@ -872,7 +872,7 @@ declare class UpdatableInCollection<K, +V> {
     NSV,
     K2: $KeyOf<V>,
     K3: $KeyOf<$ValOf<V, K2>>,
-    S: $ValOf<$ValOf<V, K2>, K3>
+    S: $ValOf<$ValOf<V, K2>, K3>,
   >(
     keyPath: [K, K2, K3],
     notSetValue: NSV,
@@ -881,7 +881,7 @@ declare class UpdatableInCollection<K, +V> {
   updateIn<
     K2: $KeyOf<V>,
     K3: $KeyOf<$ValOf<V, K2>>,
-    S: $ValOf<$ValOf<V, K2>, K3>
+    S: $ValOf<$ValOf<V, K2>, K3>,
   >(
     keyPath: [K, K2, K3],
     updater: (value: $ValOf<$ValOf<V, K2>, K3>) => S
@@ -891,7 +891,7 @@ declare class UpdatableInCollection<K, +V> {
     K2: $KeyOf<V>,
     K3: $KeyOf<$ValOf<V, K2>>,
     K4: $KeyOf<$ValOf<$ValOf<V, K2>, K3>>,
-    S: $ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>
+    S: $ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>,
   >(
     keyPath: [K, K2, K3, K4],
     notSetValue: NSV,
@@ -901,7 +901,7 @@ declare class UpdatableInCollection<K, +V> {
     K2: $KeyOf<V>,
     K3: $KeyOf<$ValOf<V, K2>>,
     K4: $KeyOf<$ValOf<$ValOf<V, K2>, K3>>,
-    S: $ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>
+    S: $ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>,
   >(
     keyPath: [K, K2, K3, K4],
     updater: (value: $ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>) => S
@@ -912,7 +912,7 @@ declare class UpdatableInCollection<K, +V> {
     K3: $KeyOf<$ValOf<V, K2>>,
     K4: $KeyOf<$ValOf<$ValOf<V, K2>, K3>>,
     K5: $KeyOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>>,
-    S: $ValOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>, K5>
+    S: $ValOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>, K5>,
   >(
     keyPath: [K, K2, K3, K4, K5],
     notSetValue: NSV,
@@ -925,7 +925,7 @@ declare class UpdatableInCollection<K, +V> {
     K3: $KeyOf<$ValOf<V, K2>>,
     K4: $KeyOf<$ValOf<$ValOf<V, K2>, K3>>,
     K5: $KeyOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>>,
-    S: $ValOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>, K5>
+    S: $ValOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>, K5>,
   >(
     keyPath: [K, K2, K3, K4, K5],
     updater: (value: $ValOf<$ValOf<$ValOf<$ValOf<V, K2>, K3>, K4>, K5>) => S
@@ -1690,7 +1690,7 @@ declare class RecordInstance<T: Object = Object> {
     NSV,
     K: $Keys<T>,
     K2: $KeyOf<$ValOf<T, K>>,
-    K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>
+    K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>,
   >(
     keyPath: [K, K2, K3],
     notSetValue: NSV
@@ -1700,7 +1700,7 @@ declare class RecordInstance<T: Object = Object> {
     K: $Keys<T>,
     K2: $KeyOf<$ValOf<T, K>>,
     K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>,
-    K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>
+    K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>,
   >(
     keyPath: [K, K2, K3, K4],
     notSetValue: NSV
@@ -1711,7 +1711,7 @@ declare class RecordInstance<T: Object = Object> {
     K2: $KeyOf<$ValOf<T, K>>,
     K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>,
     K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>,
-    K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>
+    K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>,
   >(
     keyPath: [K, K2, K3, K4, K5],
     notSetValue: NSV
@@ -1758,7 +1758,7 @@ declare class RecordInstance<T: Object = Object> {
     K: $Keys<T>,
     K2: $KeyOf<$ValOf<T, K>>,
     K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>,
-    S: $ValOf<$ValOf<$ValOf<T, K>, K2>, K3>
+    S: $ValOf<$ValOf<$ValOf<T, K>, K2>, K3>,
   >(
     keyPath: [K, K2, K3],
     value: S
@@ -1768,7 +1768,7 @@ declare class RecordInstance<T: Object = Object> {
     K2: $KeyOf<$ValOf<T, K>>,
     K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>,
     K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>,
-    S: $ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>
+    S: $ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>,
   >(
     keyPath: [K, K2, K3, K4],
     value: S
@@ -1779,7 +1779,7 @@ declare class RecordInstance<T: Object = Object> {
     K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>,
     K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>,
     K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>,
-    S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>, K5>
+    S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>, K5>,
   >(
     keyPath: [K, K2, K3, K4, K5],
     value: S
@@ -1793,7 +1793,7 @@ declare class RecordInstance<T: Object = Object> {
   deleteIn<
     K: $Keys<T>,
     K2: $KeyOf<$ValOf<T, K>>,
-    K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>
+    K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>,
   >(
     keyPath: [K, K2, K3]
   ): this & $ReadOnly<T>;
@@ -1801,7 +1801,7 @@ declare class RecordInstance<T: Object = Object> {
     K: $Keys<T>,
     K2: $KeyOf<$ValOf<T, K>>,
     K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>,
-    K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>
+    K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>,
   >(
     keyPath: [K, K2, K3, K4]
   ): this & $ReadOnly<T>;
@@ -1810,7 +1810,7 @@ declare class RecordInstance<T: Object = Object> {
     K2: $KeyOf<$ValOf<T, K>>,
     K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>,
     K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>,
-    K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>
+    K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>,
   >(
     keyPath: [K, K2, K3, K4, K5]
   ): this & $ReadOnly<T>;
@@ -1823,7 +1823,7 @@ declare class RecordInstance<T: Object = Object> {
   removeIn<
     K: $Keys<T>,
     K2: $KeyOf<$ValOf<T, K>>,
-    K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>
+    K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>,
   >(
     keyPath: [K, K2, K3]
   ): this & $ReadOnly<T>;
@@ -1831,7 +1831,7 @@ declare class RecordInstance<T: Object = Object> {
     K: $Keys<T>,
     K2: $KeyOf<$ValOf<T, K>>,
     K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>,
-    K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>
+    K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>,
   >(
     keyPath: [K, K2, K3, K4]
   ): this & $ReadOnly<T>;
@@ -1840,7 +1840,7 @@ declare class RecordInstance<T: Object = Object> {
     K2: $KeyOf<$ValOf<T, K>>,
     K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>,
     K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>,
-    K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>
+    K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>,
   >(
     keyPath: [K, K2, K3, K4, K5]
   ): this & $ReadOnly<T>;
@@ -1864,7 +1864,7 @@ declare class RecordInstance<T: Object = Object> {
     NSV,
     K: $Keys<T>,
     K2: $KeyOf<$ValOf<T, K>>,
-    S: $ValOf<$ValOf<T, K>, K2>
+    S: $ValOf<$ValOf<T, K>, K2>,
   >(
     keyPath: [K, K2],
     notSetValue: NSV,
@@ -1879,7 +1879,7 @@ declare class RecordInstance<T: Object = Object> {
     K: $Keys<T>,
     K2: $KeyOf<$ValOf<T, K>>,
     K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>,
-    S: $ValOf<$ValOf<$ValOf<T, K>, K2>, K3>
+    S: $ValOf<$ValOf<$ValOf<T, K>, K2>, K3>,
   >(
     keyPath: [K, K2, K3],
     notSetValue: NSV,
@@ -1889,7 +1889,7 @@ declare class RecordInstance<T: Object = Object> {
     K: $Keys<T>,
     K2: $KeyOf<$ValOf<T, K>>,
     K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>,
-    S: $ValOf<$ValOf<$ValOf<T, K>, K2>, K3>
+    S: $ValOf<$ValOf<$ValOf<T, K>, K2>, K3>,
   >(
     keyPath: [K, K2, K3],
     updater: (value: $ValOf<$ValOf<$ValOf<T, K>, K2>, K3>) => S
@@ -1900,7 +1900,7 @@ declare class RecordInstance<T: Object = Object> {
     K2: $KeyOf<$ValOf<T, K>>,
     K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>,
     K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>,
-    S: $ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>
+    S: $ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>,
   >(
     keyPath: [K, K2, K3, K4],
     notSetValue: NSV,
@@ -1913,7 +1913,7 @@ declare class RecordInstance<T: Object = Object> {
     K2: $KeyOf<$ValOf<T, K>>,
     K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>,
     K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>,
-    S: $ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>
+    S: $ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>,
   >(
     keyPath: [K, K2, K3, K4],
     updater: (value: $ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>) => S
@@ -1925,7 +1925,7 @@ declare class RecordInstance<T: Object = Object> {
     K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>,
     K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>,
     K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>,
-    S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>, K5>
+    S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>, K5>,
   >(
     keyPath: [K, K2, K3, K4, K5],
     notSetValue: NSV,
@@ -1939,7 +1939,7 @@ declare class RecordInstance<T: Object = Object> {
     K3: $KeyOf<$ValOf<$ValOf<T, K>, K2>>,
     K4: $KeyOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>>,
     K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>>,
-    S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>, K5>
+    S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<T, K>, K2>, K3>, K4>, K5>,
   >(
     keyPath: [K, K2, K3, K4, K5],
     updater: (
@@ -2028,7 +2028,7 @@ declare function getIn<
   K: $KeyOf<C>,
   K2: $KeyOf<$ValOf<C, K>>,
   K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>,
-  NSV
+  NSV,
 >(
   collection: C,
   keyPath: [K, K2, K3],
@@ -2040,7 +2040,7 @@ declare function getIn<
   K2: $KeyOf<$ValOf<C, K>>,
   K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>,
   K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>,
-  NSV
+  NSV,
 >(
   collection: C,
   keyPath: [K, K2, K3, K4],
@@ -2053,7 +2053,7 @@ declare function getIn<
   K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>,
   K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>,
   K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>>,
-  NSV
+  NSV,
 >(
   collection: C,
   keyPath: [K, K2, K3, K4, K5],
@@ -2072,7 +2072,7 @@ declare function removeIn<
   C,
   K: $KeyOf<C>,
   K2: $KeyOf<$ValOf<C, K>>,
-  K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>
+  K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>,
 >(
   collection: C,
   keyPath: [K, K2, K3]
@@ -2082,7 +2082,7 @@ declare function removeIn<
   K: $KeyOf<C>,
   K2: $KeyOf<$ValOf<C, K>>,
   K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>,
-  K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>
+  K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>,
 >(
   collection: C,
   keyPath: [K, K2, K3, K4]
@@ -2093,7 +2093,7 @@ declare function removeIn<
   K2: $KeyOf<$ValOf<C, K>>,
   K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>,
   K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>,
-  K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>>
+  K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>>,
 >(
   collection: C,
   keyPath: [K, K2, K3, K4, K5]
@@ -2109,7 +2109,7 @@ declare function setIn<
   C,
   K: $KeyOf<C>,
   K2: $KeyOf<$ValOf<C, K>>,
-  S: $ValOf<$ValOf<C, K>, K2>
+  S: $ValOf<$ValOf<C, K>, K2>,
 >(
   collection: C,
   keyPath: [K, K2],
@@ -2120,7 +2120,7 @@ declare function setIn<
   K: $KeyOf<C>,
   K2: $KeyOf<$ValOf<C, K>>,
   K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>,
-  S: $ValOf<$ValOf<$ValOf<C, K>, K2>, K3>
+  S: $ValOf<$ValOf<$ValOf<C, K>, K2>, K3>,
 >(
   collection: C,
   keyPath: [K, K2, K3],
@@ -2132,7 +2132,7 @@ declare function setIn<
   K2: $KeyOf<$ValOf<C, K>>,
   K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>,
   K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>,
-  S: $ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>
+  S: $ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>,
 >(
   collection: C,
   keyPath: [K, K2, K3, K4],
@@ -2145,7 +2145,7 @@ declare function setIn<
   K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>,
   K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>,
   K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>>,
-  S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>, K5>
+  S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>, K5>,
 >(
   collection: C,
   keyPath: [K, K2, K3, K4, K5],
@@ -2179,7 +2179,7 @@ declare function updateIn<
   K: $KeyOf<C>,
   K2: $KeyOf<$ValOf<C, K>>,
   S: $ValOf<$ValOf<C, K>, K2>,
-  NSV
+  NSV,
 >(
   collection: C,
   keyPath: [K, K2],
@@ -2190,7 +2190,7 @@ declare function updateIn<
   C,
   K: $KeyOf<C>,
   K2: $KeyOf<$ValOf<C, K>>,
-  S: $ValOf<$ValOf<C, K>, K2>
+  S: $ValOf<$ValOf<C, K>, K2>,
 >(
   collection: C,
   keyPath: [K, K2],
@@ -2202,7 +2202,7 @@ declare function updateIn<
   K2: $KeyOf<$ValOf<C, K>>,
   K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>,
   S: $ValOf<$ValOf<$ValOf<C, K>, K2>, K3>,
-  NSV
+  NSV,
 >(
   collection: C,
   keyPath: [K, K2, K3],
@@ -2214,7 +2214,7 @@ declare function updateIn<
   K: $KeyOf<C>,
   K2: $KeyOf<$ValOf<C, K>>,
   K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>,
-  S: $ValOf<$ValOf<$ValOf<C, K>, K2>, K3>
+  S: $ValOf<$ValOf<$ValOf<C, K>, K2>, K3>,
 >(
   collection: C,
   keyPath: [K, K2, K3],
@@ -2227,7 +2227,7 @@ declare function updateIn<
   K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>,
   K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>,
   S: $ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>,
-  NSV
+  NSV,
 >(
   collection: C,
   keyPath: [K, K2, K3, K4],
@@ -2240,7 +2240,7 @@ declare function updateIn<
   K2: $KeyOf<$ValOf<C, K>>,
   K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>,
   K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>,
-  S: $ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>
+  S: $ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>,
 >(
   collection: C,
   keyPath: [K, K2, K3, K4],
@@ -2254,7 +2254,7 @@ declare function updateIn<
   K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>,
   K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>>,
   S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>, K5>,
-  NSV
+  NSV,
 >(
   collection: C,
   keyPath: [K, K2, K3, K4, K5],
@@ -2270,7 +2270,7 @@ declare function updateIn<
   K3: $KeyOf<$ValOf<$ValOf<C, K>, K2>>,
   K4: $KeyOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>>,
   K5: $KeyOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>>,
-  S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>, K5>
+  S: $ValOf<$ValOf<$ValOf<$ValOf<$ValOf<C, K>, K2>, K3>, K4>, K5>,
 >(
   collection: C,
   keyPath: [K, K2, K3, K4, K5],
@@ -2284,7 +2284,7 @@ declare function merge<C>(
   ...collections: Array<
     | $IterableOf<C>
     | $Shape<RecordValues<C>>
-    | PlainObjInput<$KeyOf<C>, $ValOf<C>>
+    | PlainObjInput<$KeyOf<C>, $ValOf<C>>,
   >
 ): C;
 declare function mergeWith<C>(
@@ -2293,7 +2293,7 @@ declare function mergeWith<C>(
   ...collections: Array<
     | $IterableOf<C>
     | $Shape<RecordValues<C>>
-    | PlainObjInput<$KeyOf<C>, $ValOf<C>>
+    | PlainObjInput<$KeyOf<C>, $ValOf<C>>,
   >
 ): C;
 declare function mergeDeep<C>(
@@ -2301,7 +2301,7 @@ declare function mergeDeep<C>(
   ...collections: Array<
     | $IterableOf<C>
     | $Shape<RecordValues<C>>
-    | PlainObjInput<$KeyOf<C>, $ValOf<C>>
+    | PlainObjInput<$KeyOf<C>, $ValOf<C>>,
   >
 ): C;
 declare function mergeDeepWith<C>(
@@ -2310,7 +2310,7 @@ declare function mergeDeepWith<C>(
   ...collections: Array<
     | $IterableOf<C>
     | $Shape<RecordValues<C>>
-    | PlainObjInput<$KeyOf<C>, $ValOf<C>>
+    | PlainObjInput<$KeyOf<C>, $ValOf<C>>,
   >
 ): C;
 

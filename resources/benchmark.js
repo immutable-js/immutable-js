@@ -56,14 +56,14 @@ Promise.all([
       .then(function (filepaths) {
         return Promise.all(
           filepaths.map(function (filepath) {
-            return readFile(path.resolve(perfDir, filepath)).then(function (
-              source
-            ) {
-              return {
-                path: filepath,
-                source: source,
-              };
-            });
+            return readFile(path.resolve(perfDir, filepath)).then(
+              function (source) {
+                return {
+                  path: filepath,
+                  source: source,
+                };
+              }
+            );
           })
         );
       })

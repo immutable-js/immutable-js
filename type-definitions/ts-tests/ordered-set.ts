@@ -260,7 +260,7 @@ test('#flatten', () => {
 });
 
 test('#withMutations', () => {
-  expect(OrderedSet<number>().withMutations(mutable => mutable)).type.toBe<
+  expect(OrderedSet<number>().withMutations((mutable) => mutable)).type.toBe<
     OrderedSet<number>
   >();
 

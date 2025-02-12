@@ -99,7 +99,7 @@ export class ToIndexedSequence extends IndexedSeq {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
     reverse && ensureSize(this);
     return this._iter.__iterate(
-      v => fn(v, reverse ? this.size - ++i : i++, this),
+      (v) => fn(v, reverse ? this.size - ++i : i++, this),
       reverse
     );
   }
@@ -134,7 +134,7 @@ export class ToSetSequence extends SetSeq {
   }
 
   __iterate(fn, reverse) {
-    return this._iter.__iterate(v => fn(v, v, this), reverse);
+    return this._iter.__iterate((v) => fn(v, v, this), reverse);
   }
 
   __iterator(type, reverse) {
@@ -159,7 +159,7 @@ export class FromEntriesSequence extends KeyedSeq {
   }
 
   __iterate(fn, reverse) {
-    return this._iter.__iterate(entry => {
+    return this._iter.__iterate((entry) => {
       // Check if entry exists first so array access doesn't throw for holes
       // in the parent iteration.
       if (entry) {
@@ -216,8 +216,8 @@ export function flipFactory(collection) {
     reversedSequence.flip = () => collection.reverse();
     return reversedSequence;
   };
-  flipSequence.has = key => collection.includes(key);
-  flipSequence.includes = key => collection.has(key);
+  flipSequence.has = (key) => collection.includes(key);
+  flipSequence.includes = (key) => collection.has(key);
   flipSequence.cacheResult = cacheResultThrough;
   flipSequence.__iterateUncached = function (fn, reverse) {
     return collection.__iterate((v, k) => fn(k, v, this) !== false, reverse);
@@ -246,7 +246,7 @@ export function flipFactory(collection) {
 export function mapFactory(collection, mapper, context) {
   const mappedSequence = makeSequence(collection);
   mappedSequence.size = collection.size;
-  mappedSequence.has = key => collection.has(key);
+  mappedSequence.has = (key) => collection.has(key);
   mappedSequence.get = (key, notSetValue) => {
     const v = collection.get(key, NOT_SET);
     return v === NOT_SET
@@ -293,8 +293,8 @@ export function reverseFactory(collection, useKeys) {
   }
   reversedSequence.get = (key, notSetValue) =>
     collection.get(useKeys ? key : -1 - key, notSetValue);
-  reversedSequence.has = key => collection.has(useKeys ? key : -1 - key);
-  reversedSequence.includes = value => collection.includes(value);
+  reversedSequence.has = (key) => collection.has(useKeys ? key : -1 - key);
+  reversedSequence.includes = (value) => collection.includes(value);
   reversedSequence.cacheResult = cacheResultThrough;
   reversedSequence.__iterate = function (fn, reverse) {
     let i = 0;
@@ -330,7 +330,7 @@ export function reverseFactory(collection, useKeys) {
 export function filterFactory(collection, predicate, context, useKeys) {
   const filterSequence = makeSequence(collection);
   if (useKeys) {
-    filterSequence.has = key => {
+    filterSequence.has = (key) => {
       const v = collection.get(key, NOT_SET);
       return v !== NOT_SET && !!predicate.call(context, v, key, collection);
     };
@@ -375,7 +375,7 @@ export function filterFactory(collection, predicate, context, useKeys) {
 export function countByFactory(collection, grouper, context) {
   const groups = Map().asMutable();
   collection.__iterate((v, k) => {
-    groups.update(grouper.call(context, v, k, collection), 0, a => a + 1);
+    groups.update(grouper.call(context, v, k, collection), 0, (a) => a + 1);
   });
   return groups.asImmutable();
 }
@@ -386,11 +386,11 @@ export function groupByFactory(collection, grouper, context) {
   collection.__iterate((v, k) => {
     groups.update(
       grouper.call(context, v, k, collection),
-      a => ((a = a || []), a.push(isKeyedIter ? [k, v] : v), a)
+      (a) => ((a = a || []), a.push(isKeyedIter ? [k, v] : v), a)
     );
   });
   const coerce = collectionClass(collection);
-  return groups.map(arr => reify(collection, coerce(arr))).asImmutable();
+  return groups.map((arr) => reify(collection, coerce(arr))).asImmutable();
 }
 
 export function partitionFactory(collection, predicate, context) {
@@ -402,7 +402,7 @@ export function partitionFactory(collection, predicate, context) {
     );
   });
   const coerce = collectionClass(collection);
-  return groups.map(arr => reify(collection, coerce(arr)));
+  return groups.map((arr) => reify(collection, coerce(arr)));
 }
 
 export function sliceFactory(collection, begin, end, useKeys) {
@@ -594,7 +594,7 @@ export function skipWhileFactory(collection, predicate, context, useKeys) {
 
 class ConcatSeq extends Seq {
   constructor(iterables) {
-    this._wrappedIterables = iterables.flatMap(iterable => {
+    this._wrappedIterables = iterables.flatMap((iterable) => {
       if (iterable._wrappedIterables) {
         return iterable._wrappedIterables;
       }
@@ -690,7 +690,7 @@ export function concatFactory(collection, values) {
   const isKeyedCollection = isKeyed(collection);
   const iters = [collection]
     .concat(values)
-    .map(v => {
+    .map((v) => {
       if (!isCollection(v)) {
         v = isKeyedCollection
           ? keyedSeqFromValue(v)
@@ -700,7 +700,7 @@ export function concatFactory(collection, values) {
       }
       return v;
     })
-    .filter(v => v.size !== 0);
+    .filter((v) => v.size !== 0);
 
   if (iters.length === 0) {
     return collection;
@@ -789,7 +789,7 @@ export function interposeFactory(collection, separator) {
   interposedSequence.__iterateUncached = function (fn, reverse) {
     let iterations = 0;
     collection.__iterate(
-      v =>
+      (v) =>
         (!iterations || fn(separator, iterations++, this) !== false) &&
         fn(v, iterations++, this) !== false,
       reverse
@@ -840,8 +840,8 @@ export function sortFactory(collection, comparator, mapper) {
   return isKeyedCollection
     ? KeyedSeq(entries)
     : isIndexed(collection)
-    ? IndexedSeq(entries)
-    : SetSeq(entries);
+      ? IndexedSeq(entries)
+      : SetSeq(entries);
 }
 
 export function maxFactory(collection, comparator, mapper) {
@@ -870,7 +870,7 @@ function maxCompare(comparator, a, b) {
 
 export function zipWithFactory(keyIter, zipper, iters, zipAll) {
   const zipSequence = makeSequence(keyIter);
-  const sizes = new ArraySeq(iters).map(i => i.size);
+  const sizes = new ArraySeq(iters).map((i) => i.size);
   zipSequence.size = zipAll ? sizes.max() : sizes.min();
   // Note: this a generic base implementation of __iterate in terms of
   // __iterator which may be more generically useful in the future.
@@ -900,15 +900,17 @@ export function zipWithFactory(keyIter, zipper, iters, zipAll) {
   };
   zipSequence.__iteratorUncached = function (type, reverse) {
     const iterators = iters.map(
-      i => ((i = Collection(i)), getIterator(reverse ? i.reverse() : i))
+      (i) => ((i = Collection(i)), getIterator(reverse ? i.reverse() : i))
     );
     let iterations = 0;
     let isDone = false;
     return new Iterator(() => {
       let steps;
       if (!isDone) {
-        steps = iterators.map(i => i.next());
-        isDone = zipAll ? steps.every(s => s.done) : steps.some(s => s.done);
+        steps = iterators.map((i) => i.next());
+        isDone = zipAll
+          ? steps.every((s) => s.done)
+          : steps.some((s) => s.done);
       }
       if (isDone) {
         return iteratorDone();
@@ -918,7 +920,7 @@ export function zipWithFactory(keyIter, zipper, iters, zipAll) {
         iterations++,
         zipper.apply(
           null,
-          steps.map(s => s.value)
+          steps.map((s) => s.value)
         )
       );
     });
@@ -942,8 +944,8 @@ function collectionClass(collection) {
   return isKeyed(collection)
     ? KeyedCollection
     : isIndexed(collection)
-    ? IndexedCollection
-    : SetCollection;
+      ? IndexedCollection
+      : SetCollection;
 }
 
 function makeSequence(collection) {
@@ -951,8 +953,8 @@ function makeSequence(collection) {
     (isKeyed(collection)
       ? KeyedSeq
       : isIndexed(collection)
-      ? IndexedSeq
-      : SetSeq
+        ? IndexedSeq
+        : SetSeq
     ).prototype
   );
 }

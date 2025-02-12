@@ -208,7 +208,7 @@ describe('slice', () => {
   it('stops the entries iterator when the sequence has an undefined end', () => {
     let seq = Seq([0, 1, 2, 3, 4, 5]);
     // flatMap is lazy and thus the resulting sequence has no size.
-    seq = seq.flatMap(a => [a]);
+    seq = seq.flatMap((a) => [a]);
     expect(seq.size).toEqual(undefined);
 
     const iterFront = seq.slice(0, 2).entries();
@@ -256,7 +256,7 @@ describe('slice', () => {
     ],
     (entries, args) => {
       const a: Array<number> = [];
-      entries.forEach(entry => (a[entry[0]] = entry[1]));
+      entries.forEach((entry) => (a[entry[0]] = entry[1]));
       const s = Seq(a);
       const slicedS = s.slice.apply(s, args);
       const slicedA = a.slice.apply(a, args);
@@ -288,8 +288,8 @@ describe('slice', () => {
       const s1 = seq.take(3);
       const s2 = seq.take(10);
       const sn = seq.take(Infinity);
-      const s3 = seq.filter(v => v < 4).take(10);
-      const s4 = seq.filter(v => v < 4).take(2);
+      const s3 = seq.filter((v) => v < 4).take(10);
+      const s4 = seq.filter((v) => v < 4).take(2);
       expect(s1.toArray().length).toEqual(3);
       expect(s2.toArray().length).toEqual(6);
       expect(sn.toArray().length).toEqual(6);

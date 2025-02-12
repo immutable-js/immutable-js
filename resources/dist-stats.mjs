@@ -4,7 +4,7 @@ import 'colors';
 
 const VERIFY_AGAINST_VERSION = '4';
 
-const deflateContent = content =>
+const deflateContent = (content) =>
   new Promise((resolve, reject) =>
     deflate(content, (error, out) => (error ? reject(error) : resolve(out)))
   );
@@ -12,7 +12,7 @@ const deflateContent = content =>
 const space = (n, s) =>
   new Array(Math.max(0, 10 + n - (s || '').length)).join(' ') + (s || '');
 
-const bytes = b =>
+const bytes = (b) =>
   `${b.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')} bytes`;
 
 const diff = (n, o) => {
@@ -55,8 +55,8 @@ Promise.allSettled([
   fs.readFile('dist/immutable.min.js').then(deflateContent),
   bundlephobaInfo('gzip'),
 ])
-  .then(results =>
-    results.map(result =>
+  .then((results) =>
+    results.map((result) =>
       typeof (result === null || result === 'number')
         ? result
         : Number(Buffer.byteLength(result, 'utf8'))

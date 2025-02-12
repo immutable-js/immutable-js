@@ -17,7 +17,7 @@ export function ImmutableConsole({ version }: { version: string }) {
       return;
     }
     installingVersion = version;
-    installUMD(installSpace, getSourceURL(version)).then(Immutable => {
+    installUMD(installSpace, getSourceURL(version)).then((Immutable) => {
       installSpace.Immutable = Immutable;
       /* eslint-disable no-console */
       console.log(
@@ -48,7 +48,7 @@ function getSourceURL(version: string) {
 }
 
 function installUMD(installSpace: InstallSpace, src: string): Promise<unknown> {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const installedModule = (installSpace.module = {
       exports: (installSpace.exports = {}),
     });

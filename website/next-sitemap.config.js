@@ -9,6 +9,6 @@ module.exports = {
     '/docs',
     ...getVersions()
       .slice(1)
-      .map(version => `/docs/${version}/*`),
+      .map((version) => `/docs/${version}/*`),
   ],
 };

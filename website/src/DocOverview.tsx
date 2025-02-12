@@ -17,7 +17,7 @@ type APIMember = {
 export function getOverviewData(defs: TypeDefs): OverviewData {
   return {
     doc: defs.doc || null,
-    api: Object.values(defs.types).map(def => {
+    api: Object.values(defs.types).map((def) => {
       const member: APIMember = { label: def.label, url: def.url };
       const doc = def.doc || def.call?.doc;
       if (doc?.synopsis) {
@@ -42,7 +42,7 @@ export function DocOverview({ data }: { data: OverviewData }) {
 
       <h4 className="groupTitle">API</h4>
 
-      {data.api.map(member => (
+      {data.api.map((member) => (
         <section key={member.url} className="interfaceMember">
           <h3 className="memberLabel">
             <Link href={member.url}>{member.label}</Link>

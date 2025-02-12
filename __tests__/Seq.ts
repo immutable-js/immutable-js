@@ -30,7 +30,7 @@ describe('Seq', () => {
   });
 
   it('accepts an object with a next property', () => {
-    expect(Seq({ a: 1, b: 2, next: _ => _ }).size).toBe(3);
+    expect(Seq({ a: 1, b: 2, next: (_) => _ }).size).toBe(3);
   });
 
   it('accepts a collection string', () => {
@@ -115,7 +115,7 @@ describe('Seq', () => {
 
   it('Does not infinite loop when spliced with negative number #559', () => {
     const dog = Seq(['d', 'o', 'g']);
-    const dg = dog.filter(c => c !== 'o');
+    const dg = dog.filter((c) => c !== 'o');
     const dig = dg.splice(-1, 0, 'i');
     expect(dig.toJS()).toEqual(['d', 'i', 'g']);
   });

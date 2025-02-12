@@ -96,11 +96,11 @@ describe('Equality', () => {
     expectIs(arraySeq, arraySeq2);
     expectIs(
       arraySeq,
-      arraySeq.map(x => x)
+      arraySeq.map((x) => x)
     );
     expectIs(
       arraySeq2,
-      arraySeq2.map(x => x)
+      arraySeq2.map((x) => x)
     );
   });
 

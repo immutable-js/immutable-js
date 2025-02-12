@@ -17,7 +17,7 @@ function transpileTypeScript(src, path) {
 function transpileJavaScript(src, path) {
   // Need to make this sync by calling `makeSynchronous`
   // while https://github.com/facebook/jest/issues/9504 is not resolved
-  const fn = makeSynchronous(async path => {
+  const fn = makeSynchronous(async (path) => {
     const rollup = require('rollup');
     const buble = require('@rollup/plugin-buble');
     const commonjs = require('@rollup/plugin-commonjs');

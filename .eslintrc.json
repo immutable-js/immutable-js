@@ -9,9 +9,9 @@
     "airbnb",
     "plugin:@typescript-eslint/recommended",
     "plugin:import/typescript",
-    "prettier"
+    "plugin:prettier/recommended"
   ],
-  "plugins": ["react", "prettier", "@typescript-eslint"],
+  "plugins": ["react", "@typescript-eslint"],
   "rules": {
     "array-callback-return": "off",
     "block-scoped-var": "off",

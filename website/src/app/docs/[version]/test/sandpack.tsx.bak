@@ -1,0 +1,99 @@
+'use client';
+
+import { Sandpack } from '@codesandbox/sandpack-react';
+
+export function Doc({ content }: { content: string }) {
+  return (
+    <Sandpack
+      template="vanilla-ts"
+      options={{
+        // DISPLAY ONY THE code
+        layout: 'code',
+        // editorWidthPercentage: 100,
+        editorHeight: '52px',
+
+        readOnly: true,
+        showReadOnly: false,
+
+        // skipEval: true,
+      }}
+      // customTheme={{
+      //   activeLine: { background: 'transparent' }, // Remove active line style
+      // }}
+      files={{
+        'index.ts': content,
+      }}
+    />
+  );
+}
+
+export default function SandpackTest({
+  content,
+  needImports,
+}: {
+  content: string;
+  needImports?: Array<string>;
+}) {
+  const importLine = needImports
+    ? `import { ${needImports.join(', ')} } from 'immutable';`
+    : '';
+
+  const code = `${importLine}
+
+  ${content}
+  `.trim();
+
+  return (
+    <Sandpack
+      options={{
+        layout: 'preview',
+
+        // showConsole: true,
+        // showConsoleButton: true,
+        // activeFile: 'App.js',
+        // visibleFiles: ['test.js'],
+      }}
+      customSetup={{
+        dependencies: {
+          immutable: 'latest',
+          'immutable-devtools': 'latest',
+        },
+      }}
+      files={{
+        'test.ts': {
+          active: true,
+          code,
+        },
+        'App.tsx': {
+          code: `import React from 'react';
+          import * as globalImmutable from 'immutable';
+          // install dev tools to have a pretty rendering in console
+          import devTools from 'immutable-devtools';
+          
+          devTools(globalImmutable);
+
+import * as data from './test.ts'
+
+export default function Renderer() {
+  console.log(data)
+
+  const entries = Object.entries(data);
+  const nbEntries = entries.length;
+
+  return <div> 
+  {entries.map(([key, value], i) => (
+    <div key={key}>
+      <h4>{key === 'default' ? 'default export' : 'exported variable: ' + key}</h4>
+      <pre>{JSON.stringify(value, null, 2)}</pre>
+      {i !== nbEntries - 1 && <hr />}
+    </div>
+  ))}
+  </div>;
+}`,
+          hidden: true,
+        },
+      }}
+      template="react-ts"
+    />
+  );
+}

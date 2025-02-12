@@ -206,7 +206,7 @@ test('#clear', () => {
 });
 
 test('#update', () => {
-  expect(Map().update(v => 1)).type.toBeNumber();
+  expect(Map().update((v) => 1)).type.toBeNumber();
 
   expect(
     Map<number, number>().update((v: Map<string> | undefined) => v)
@@ -232,33 +232,33 @@ test('#update', () => {
     Map<number, number>().update(1, 10, (v: number | undefined) => v + 'a')
   ).type.toRaiseError();
 
-  expect(Map({ a: 1, b: 'b' }).update('c', v => v)).type.toRaiseError();
+  expect(Map({ a: 1, b: 'b' }).update('c', (v) => v)).type.toRaiseError();
 
-  expect(Map({ a: 1, b: 'b' }).update('b', v => v.toUpperCase())).type.toBe<
+  expect(Map({ a: 1, b: 'b' }).update('b', (v) => v.toUpperCase())).type.toBe<
     MapOf<{ a: number; b: string }>
   >();
 
   expect(
-    Map({ a: 1, b: 'b' }).update('b', 'NSV', v => v.toUpperCase())
+    Map({ a: 1, b: 'b' }).update('b', 'NSV', (v) => v.toUpperCase())
   ).type.toBe<MapOf<{ a: number; b: string }>>();
 
-  expect(Map({ a: 1, b: 'b' }).update(v => ({ a: 'a' }))).type.toRaiseError();
+  expect(Map({ a: 1, b: 'b' }).update((v) => ({ a: 'a' }))).type.toRaiseError();
 
   expect(
-    Map({ a: 1, b: 'b' }).update(v => v.set('a', 2).set('b', 'B'))
+    Map({ a: 1, b: 'b' }).update((v) => v.set('a', 2).set('b', 'B'))
   ).type.toBe<MapOf<{ a: number; b: string }>>();
 
   expect(
-    Map({ a: 1, b: 'b' }).update(v => v.set('c', 'c'))
+    Map({ a: 1, b: 'b' }).update((v) => v.set('c', 'c'))
   ).type.toRaiseError();
 
   expect(
-    Map<string, string>().update('noKey', ls => ls?.toUpperCase())
+    Map<string, string>().update('noKey', (ls) => ls?.toUpperCase())
   ).type.toBe<Map<string, string>>();
 });
 
 test('#updateIn', () => {
-  expect(Map<number, number>().updateIn([], v => v)).type.toBe<
+  expect(Map<number, number>().updateIn([], (v) => v)).type.toBe<
     Map<number, number>
   >();
 
@@ -614,23 +614,23 @@ test('#sort', () => {
 });
 
 test('#sortBy', () => {
-  expect(Map<string, string>().sortBy(v => v)).type.toBe<
+  expect(Map<string, string>().sortBy((v) => v)).type.toBe<
     Map<string, string> & OrderedMap<string, string>
   >();
 
   expect(
     Map<string, string>().sortBy(
-      v => v,
+      (v) => v,
       (a, b) => 1
     )
   ).type.toBe<Map<string, string> & OrderedMap<string, string>>();
-  expect(Map({ a: 'a' }).sortBy(v => v)).type.toBe<
+  expect(Map({ a: 'a' }).sortBy((v) => v)).type.toBe<
     MapOf<{ a: string }> & OrderedMap<'a', string>
   >();
 });
 
 test('#withMutations', () => {
-  expect(Map<number, number>().withMutations(mutable => mutable)).type.toBe<
+  expect(Map<number, number>().withMutations((mutable) => mutable)).type.toBe<
     Map<number, number>
   >();
 

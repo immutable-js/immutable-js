@@ -41,14 +41,14 @@ describe('updateIn', () => {
 
   it('deep edit throws without list or array-like', () => {
     // @ts-expect-error -- test that runtime does throw
-    expect(() => Map().updateIn(undefined, x => x)).toThrow(
+    expect(() => Map().updateIn(undefined, (x) => x)).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: undefined'
     );
     // @ts-expect-error -- test that runtime does th
-    expect(() => Map().updateIn({ a: 1, b: 2 }, x => x)).toThrow(
+    expect(() => Map().updateIn({ a: 1, b: 2 }, (x) => x)).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: [object Object]'
     );
-    expect(() => Map().updateIn('abc', x => x)).toThrow(
+    expect(() => Map().updateIn('abc', (x) => x)).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: abc'
     );
   });
@@ -74,7 +74,7 @@ describe('updateIn', () => {
 
   it('identity with notSetValue is still identity', () => {
     const m = Map({ a: { b: { c: 10 } } });
-    expect(m.updateIn(['x'], 100, id => id)).toEqual(m);
+    expect(m.updateIn(['x'], 100, (id) => id)).toEqual(m);
   });
 
   it('shallow remove', () => {
@@ -122,7 +122,7 @@ describe('updateIn', () => {
       m
         // @ts-expect-error -- type of fromJS may return a MapOf in the future, to help `updateIn` to work, `updateIn` should copy the comportment of `getIn`
         .updateIn(['a', 'b'], (list: List<number>) =>
-          list.map(value => value * 10)
+          list.map((value) => value * 10)
         )
         .toJS()
     ).toEqual({ a: { b: [10, 20, 30] } });
@@ -192,20 +192,20 @@ describe('updateIn', () => {
 
   it('does not perform edit when new value is the same as old value', () => {
     const m = fromJS({ a: { b: { c: 10 } } });
-    const m2 = m.updateIn(['a', 'b', 'c'], id => id);
+    const m2 = m.updateIn(['a', 'b', 'c'], (id) => id);
     expect(m2).toBe(m);
   });
 
   it('does not perform edit when new value is the same as old value in raw JS', () => {
     const m = { a: { b: { c: 10 } } };
-    const m2 = updateIn(m, ['a', 'b', 'c'], id => id);
+    const m2 = updateIn(m, ['a', 'b', 'c'], (id) => id);
     expect(m2).toBe(m);
   });
 
   it('does not perform edit when notSetValue is what you return from updater', () => {
     const m = Map();
     let spiedOnID;
-    const m2 = m.updateIn(['a', 'b', 'c'], Set(), id => (spiedOnID = id));
+    const m2 = m.updateIn(['a', 'b', 'c'], Set(), (id) => (spiedOnID = id));
     expect(m2).toBe(m);
     expect(spiedOnID).toBe(Set());
   });
@@ -213,7 +213,7 @@ describe('updateIn', () => {
   it('provides default notSetValue of undefined', () => {
     const m = Map();
     let spiedOnID;
-    const m2 = m.updateIn(['a', 'b', 'c'], id => (spiedOnID = id));
+    const m2 = m.updateIn(['a', 'b', 'c'], (id) => (spiedOnID = id));
     expect(m2).toBe(m);
     expect(spiedOnID).toBe(undefined);
   });

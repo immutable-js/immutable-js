@@ -179,7 +179,7 @@ test('#shift', () => {
 });
 
 test('#update', () => {
-  expect(List().update(v => 1)).type.toBeNumber();
+  expect(List().update((v) => 1)).type.toBeNumber();
 
   expect(
     List<number>().update((v: List<string> | undefined) => v)
@@ -205,7 +205,7 @@ test('#update', () => {
     List<number>().update(1, 10, (v: number | undefined) => v + 'a')
   ).type.toRaiseError();
 
-  expect(List<string>().update(1, v => v?.toUpperCase())).type.toBe<
+  expect(List<string>().update(1, (v) => v?.toUpperCase())).type.toBe<
     List<string>
   >();
 
@@ -219,11 +219,11 @@ test('#update', () => {
 });
 
 test('#updateIn', () => {
-  expect(List<number>().updateIn([], v => v)).type.toBe<List<number>>();
+  expect(List<number>().updateIn([], (v) => v)).type.toBe<List<number>>();
 
   expect(List<number>().updateIn([], 10)).type.toRaiseError();
 
-  expect(updateIn(List<number>(), [], v => v)).type.toBe<List<number>>();
+  expect(updateIn(List<number>(), [], (v) => v)).type.toBe<List<number>>();
 });
 
 test('#map', () => {
@@ -285,7 +285,9 @@ test('#flatMap', () => {
     ])
   ).type.toBe<List<string>>();
 
-  expect(List<List<string>>().flatMap(list => list)).type.toBe<List<string>>();
+  expect(List<List<string>>().flatMap((list) => list)).type.toBe<
+    List<string>
+  >();
 
   expect(
     List<number>().flatMap<number>(
@@ -367,7 +369,7 @@ test('#flatten', () => {
 });
 
 test('#withMutations', () => {
-  expect(List<number>().withMutations(mutable => mutable)).type.toBe<
+  expect(List<number>().withMutations((mutable) => mutable)).type.toBe<
     List<number>
   >();
 

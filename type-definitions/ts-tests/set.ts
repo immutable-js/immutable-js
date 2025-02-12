@@ -235,20 +235,20 @@ test('#sort', () => {
 });
 
 test('#sortBy', () => {
-  expect(Set<string>().sortBy(v => v)).type.toBe<
+  expect(Set<string>().sortBy((v) => v)).type.toBe<
     Set<string> & OrderedSet<string>
   >();
 
   expect(
     Set<string>().sortBy(
-      v => v,
+      (v) => v,
       (a, b) => 1
     )
   ).type.toBe<Set<string> & OrderedSet<string>>();
 });
 
 test('#withMutations', () => {
-  expect(Set<number>().withMutations(mutable => mutable)).type.toBe<
+  expect(Set<number>().withMutations((mutable) => mutable)).type.toBe<
     Set<number>
   >();
 
