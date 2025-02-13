@@ -31,7 +31,6 @@ const testComparator: Comparator<number> = (left, right) => {
   //...and, finally, sort the numbers of each subgroup in ascending order.
   return left - right;
 };
-/* eslint-enable no-else-return */
 
 describe.each([
   ['List', List],

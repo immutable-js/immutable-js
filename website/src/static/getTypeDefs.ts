@@ -139,6 +139,7 @@ function addData(version: string, defs: TypeDefs) {
 }
 
 function isFunction(typeDef: TypeDefinition) {
+  // eslint-disable-next-line eqeqeq
   return !typeDef.interface && !typeDef.functions && typeDef.call != null;
 }
 
@@ -773,6 +774,7 @@ function getDoc(node: ts.Node): TypeDoc | undefined {
   const notes = lines
     .filter((l) => l[0] === '@')
     .map((l) => l.match(COMMENT_NOTE_RX))
+    // eslint-disable-next-line eqeqeq
     .filter(<T>(n: T): n is NonNullable<T> => n != null)
     .map((n) => ({ name: n[1], body: n[2] }))
     .filter((note) => !NOTE_BLACKLIST[note.name]);

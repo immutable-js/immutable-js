@@ -3,6 +3,7 @@ import { smi } from './Math';
 const defaultValueOf = Object.prototype.valueOf;
 
 export function hash(o) {
+  // eslint-disable-next-line eqeqeq
   if (o == null) {
     return hashNullish(o);
   }
@@ -14,6 +15,7 @@ export function hash(o) {
 
   const v = valueOf(o);
 
+  // eslint-disable-next-line eqeqeq
   if (v == null) {
     return hashNullish(v);
   }

@@ -28,9 +28,8 @@ describe('hash', () => {
   });
 
   it('generates different hashes for different symbols', () => {
-    // eslint-disable-next-line symbol-description
     const symA = Symbol();
-    // eslint-disable-next-line symbol-description
+
     const symB = Symbol();
     expect(hash(symA)).toBe(hash(symA));
     expect(hash(symA)).not.toBe(hash(symB));

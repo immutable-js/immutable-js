@@ -1,7 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-// eslint-disable-next-line import/no-unresolved -- immutable is resolve by jest resolver
+
 import { List, isPlainObject } from 'immutable';
 
 describe('Utils', () => {
@@ -31,7 +31,8 @@ describe('Utils', () => {
     ];
     const plainCases = [
       ['literal Object', {}],
-      ['new Object', new Object()], // eslint-disable-line no-new-object
+      // eslint-disable-next-line no-object-constructor
+      ['new Object', new Object()],
       ['Object.create(null)', Object.create(null)],
       ['nested object', { one: { prop: 'two' } }],
       ['constructor prop', { constructor: 'prop' }], // shadows an object's constructor

@@ -46,8 +46,6 @@ function Links({
                   }
                 }}
               >
-                {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/anchor-is-valid */}
-
                 {link.label}
                 {isActive && (focus?.interface || focus?.functions) && (
                   <>

@@ -24,7 +24,6 @@ export const MarkdownContent = memo<Props>(function MarkdownContent({
   };
 
   return (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events
     <div
       className={'markdown ' + (className || '')}
       onClick={handleClick}

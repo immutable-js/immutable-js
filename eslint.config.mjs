@@ -1,10 +1,12 @@
-import globals from 'globals';
 import pluginJs from '@eslint/js';
-import tseslint from 'typescript-eslint';
+import globals from 'globals';
+import importPlugin from 'eslint-plugin-import';
 import pluginReact from 'eslint-plugin-react';
+// eslint-disable-next-line import/no-unresolved
+import tseslint from 'typescript-eslint';
 
 /** @type {import('eslint').Linter.Config[]} */
-export default [
+export default tseslint.config(
   { files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'] },
   {
     ignores: [
@@ -17,37 +19,24 @@ export default [
   },
   { languageOptions: { globals: globals.browser } },
   pluginJs.configs.recommended,
+  importPlugin.flatConfigs.recommended,
   ...tseslint.configs.recommended,
 
   {
     rules: {
+      eqeqeq: 'error',
       'constructor-super': 'off',
       'no-constructor-return': 'error',
       'no-else-return': 'error',
       'no-lonely-if': 'error',
+      'no-object-constructor': 'error',
       'no-prototype-builtins': 'off',
       'no-this-before-super': 'off',
       'no-useless-concat': 'error',
       'no-var': 'error',
       'operator-assignment': 'error',
+      'prefer-arrow-callback': 'error',
       'prefer-spread': 'off',
-
-      // 'import/extensions': [
-      //   'error',
-      //   {
-      //     js: 'never',
-      //     ts: 'never',
-      //     tsx: 'never',
-      //   },
-      // ],
-
-      // 'import/newline-after-import': 'error',
-      // 'import/no-cycle': 'off',
-      // 'import/no-extraneous-dependencies': 'off',
-      // 'import/no-mutable-exports': 'error',
-      // 'import/no-unresolved': 'error',
-      // 'import/no-useless-path-segments': 'off',
-      // 'import/prefer-default-export': 'off',
 
       '@typescript-eslint/no-unused-vars': [
         'error',
@@ -56,6 +45,14 @@ export default [
         },
       ],
     },
+  },
+
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      importPlugin.flatConfigs.recommended,
+      importPlugin.flatConfigs.typescript,
+    ],
   },
 
   {
@@ -102,12 +99,12 @@ export default [
     rules: {
       '@typescript-eslint/no-unused-vars': 'off',
 
-      // 'import/no-unresolved': [
-      //   'error',
-      //   {
-      //     ignore: ['immutable'],
-      //   },
-      // ],
+      'import/no-unresolved': [
+        'error',
+        {
+          ignore: ['immutable'],
+        },
+      ],
     },
   },
 
@@ -116,6 +113,12 @@ export default [
     files: ['__tests__/*'],
     rules: {
       'no-undef': 'off',
+      'import/no-unresolved': [
+        'error',
+        {
+          ignore: ['immutable'],
+        },
+      ],
     },
   },
   {
@@ -125,6 +128,7 @@ export default [
       'no-undef': 'off',
       'no-redeclare': 'off',
       'no-var': 'off',
+      'prefer-arrow-callback': 'off',
     },
   },
   {
@@ -133,7 +137,8 @@ export default [
       'no-undef': 'off',
       'no-redeclare': 'off',
       'no-var': 'off',
+      'prefer-arrow-callback': 'off',
       '@typescript-eslint/no-require-imports': 'off',
     },
-  },
-];
+  }
+);
