@@ -1,6 +1,5 @@
 var Benchmark = require('benchmark');
 var child_process = require('child_process');
-var colors = require('colors');
 var fs = require('fs');
 var path = require('path');
 var vm = require('vm');
@@ -174,8 +173,8 @@ Promise.all([
 
           if (dualRuns) {
             var prevMean = 1 / stats[1].mean;
-            var prevLow = 1 / (stats[1].mean + stats[1].deviation * 2);
-            var prevHigh = 1 / (stats[1].mean - stats[1].deviation * 2);
+            // var prevLow = 1 / (stats[1].mean + stats[1].deviation * 2);
+            // var prevHigh = 1 / (stats[1].mean - stats[1].deviation * 2);
 
             // console.log(
             //   (dualRuns ? '  Old: '.bold.gray : '  ') +
@@ -201,8 +200,8 @@ Promise.all([
           }
 
           var mean = 1 / stats[0].mean;
-          var low = 1 / (stats[0].mean + stats[0].deviation * 2);
-          var high = 1 / (stats[0].mean - stats[0].deviation * 2);
+          // var low = 1 / (stats[0].mean + stats[0].deviation * 2);
+          // var high = 1 / (stats[0].mean - stats[0].deviation * 2);
 
           // console.log(
           //   (dualRuns ? '  New: '.bold.gray : '  ') +
@@ -267,6 +266,7 @@ Promise.all([
     });
 
     var onBenchComplete;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     var promise = new Promise(function (_resolve) {
       onBenchComplete = _resolve;
     });

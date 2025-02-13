@@ -138,7 +138,7 @@ test('#set', () => {
     Map<{ a: number; b?: string }>({ a: 1 }).set('b', 'b').get('b')
   ).type.toBe<string | undefined>();
 
-  let customer = Map<{ phone: string | number }>({
+  const customer = Map<{ phone: string | number }>({
     phone: 'bar',
   });
 

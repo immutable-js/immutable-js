@@ -71,6 +71,7 @@ describe('Record', () => {
       var key = 'x' + Math.floor(size / 2);
 
       it('of ' + size, () => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         rec[key];
       });
     });

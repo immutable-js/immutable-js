@@ -151,6 +151,7 @@ describe('Conversion', () => {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const seq2 = fromJS(js, function (key, sequence) {
+      // eslint-disable-next-line prefer-rest-params
       expect(arguments[2]).toBe(undefined);
     });
   });

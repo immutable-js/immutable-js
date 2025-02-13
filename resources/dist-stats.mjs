@@ -57,7 +57,7 @@ Promise.allSettled([
 ])
   .then((results) =>
     results.map((result) =>
-      typeof (result === null || result === 'number')
+      result === null || result === 'number'
         ? result
         : Number(Buffer.byteLength(result, 'utf8'))
     )
