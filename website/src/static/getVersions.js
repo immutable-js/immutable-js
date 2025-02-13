@@ -1,4 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+// eslint-disable-next-line @typescript-eslint/no-require-imports, no-undef
 const { execSync } = require('child_process');
 
 let versions;
@@ -27,4 +27,5 @@ function getVersions() {
   return versions;
 }
 
+// eslint-disable-next-line no-undef
 exports.getVersions = getVersions;

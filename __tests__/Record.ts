@@ -189,12 +189,11 @@ describe('Record', () => {
   });
 
   it('does not allow overwriting property names', () => {
-    // eslint-disable-next-line no-console
     const realWarn = console.warn;
 
     try {
       const warnings: Array<unknown> = [];
-      // eslint-disable-next-line no-console
+
       console.warn = (w) => warnings.push(w);
 
       // size is a safe key to use
@@ -212,7 +211,6 @@ describe('Record', () => {
         'Cannot define Record with property "get" since that property name is part of the Record API.'
       );
     } finally {
-      // eslint-disable-next-line no-console
       console.warn = realWarn;
     }
   });

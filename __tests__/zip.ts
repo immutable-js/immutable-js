@@ -79,6 +79,7 @@ describe('zip', () => {
         Seq([1, 2, 3])
           .zipWith(
             function () {
+              // eslint-disable-next-line prefer-rest-params
               return List(arguments);
             },
             Seq([4, 5, 6]),

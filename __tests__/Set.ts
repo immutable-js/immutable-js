@@ -278,11 +278,10 @@ describe('Set', () => {
 
   describe('accepts Symbol as entry #579', () => {
     it('operates on small number of symbols, preserving set uniqueness', () => {
-      // eslint-disable-next-line symbol-description
       const a = Symbol();
-      // eslint-disable-next-line symbol-description
+
       const b = Symbol();
-      // eslint-disable-next-line symbol-description
+
       const c = Symbol();
 
       const symbolSet = Set([a, b, c, a, b, c, a, b, c, a, b, c]);

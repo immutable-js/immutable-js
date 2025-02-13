@@ -8,7 +8,6 @@ type Props = {
   className?: string;
 };
 
-// eslint-disable-next-line prefer-arrow-callback
 export const MarkdownContent = memo<Props>(function MarkdownContent({
   contents,
   className,
@@ -24,7 +23,6 @@ export const MarkdownContent = memo<Props>(function MarkdownContent({
   };
 
   return (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events
     <div
       className={'markdown ' + (className || '')}
       onClick={handleClick}

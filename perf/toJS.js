@@ -1,3 +1,4 @@
+/* global Immutable */
 describe('toJS', () => {
   const array32 = [];
   for (let ii = 0; ii < 32; ii++) {

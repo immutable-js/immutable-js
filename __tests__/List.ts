@@ -209,7 +209,7 @@ describe('List', () => {
   it('uses not set value for index void 0', () => {
     const list = List.of(1, 2, 3, 4, 5);
     // @ts-expect-error -- test runtime
-    // eslint-disable-next-line no-void
+
     expect(list.get(void 0, 'NOT-SET')).toBe('NOT-SET');
   });
 
@@ -699,6 +699,7 @@ describe('List', () => {
     const a = Array(100).join('abcdefghijklmnopqrstuvwxyz').split('');
     const v1 = List(a);
     const v2 = List(a);
+
     // eslint-disable-next-line eqeqeq
     expect(v1 == v2).not.toBe(true);
     expect(v1 === v2).not.toBe(true);

@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-unresolved -- immutable is resolve by jest resolver
 import { Record } from 'immutable';
 
 describe('Record', () => {

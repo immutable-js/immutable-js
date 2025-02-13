@@ -1,3 +1,4 @@
+/* global Immutable */
 describe('Record', () => {
   describe('builds from an object', () => {
     [2, 5, 10, 100, 1000].forEach((size) => {
@@ -71,6 +72,7 @@ describe('Record', () => {
       var key = 'x' + Math.floor(size / 2);
 
       it('of ' + size, () => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         rec[key];
       });
     });

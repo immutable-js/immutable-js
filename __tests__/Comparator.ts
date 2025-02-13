@@ -1,4 +1,4 @@
-import { List, OrderedSet, Seq, Comparator, PairSorting } from 'immutable';
+import { List, OrderedSet, Seq, type Comparator, PairSorting } from 'immutable';
 
 const sourceNumbers: readonly number[] = [3, 4, 5, 6, 7, 9, 10, 12, 90, 92, 95];
 
@@ -6,7 +6,6 @@ const expectedSortedNumbers: readonly number[] = [
   7, 95, 90, 92, 3, 5, 9, 4, 6, 10, 12,
 ];
 
-/* eslint-disable no-else-return */
 const testComparator: Comparator<number> = (left, right) => {
   //The number 7 always goes first...
   if (left === 7) {
@@ -32,7 +31,6 @@ const testComparator: Comparator<number> = (left, right) => {
   //...and, finally, sort the numbers of each subgroup in ascending order.
   return left - right;
 };
-/* eslint-enable no-else-return */
 
 describe.each([
   ['List', List],

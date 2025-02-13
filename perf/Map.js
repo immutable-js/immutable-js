@@ -1,3 +1,4 @@
+/* global Immutable */
 describe('Map', function () {
   describe('builds from an object', function () {
     var obj2 = {};

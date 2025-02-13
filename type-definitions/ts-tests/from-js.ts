@@ -2,6 +2,7 @@ import { expect, test } from 'tstyche';
 import { fromJS, Collection, List, Map, MapOf } from 'immutable';
 
 test('fromJS', () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   expect(fromJS({}, (a: any, b: any) => b)).type.toBe<
     Collection<unknown, unknown>
   >();
@@ -32,10 +33,12 @@ test('fromJS', () => {
 });
 
 test('fromJS in an array of function', () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const create = [(data: any) => data, fromJS][1];
 
   expect(create({ a: 'A' })).type.toBeAny();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const createConst = ([(data: any) => data, fromJS] as const)[1];
 
   expect(createConst({ a: 'A' })).type.toBe<Map<'a', string>>();
