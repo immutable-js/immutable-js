@@ -796,6 +796,7 @@ function smi(i32) {
 var defaultValueOf = Object.prototype.valueOf;
 
 function hash(o) {
+  // eslint-disable-next-line eqeqeq
   if (o == null) {
     return hashNullish(o);
   }
@@ -807,6 +808,7 @@ function hash(o) {
 
   var v = valueOf(o);
 
+  // eslint-disable-next-line eqeqeq
   if (v == null) {
     return hashNullish(v);
   }
