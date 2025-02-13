@@ -98,6 +98,7 @@
     "eslint": "^9.20.1",
     "eslint-import-resolver-typescript": "^3.7.0",
     "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jest": "^28.11.0",
     "eslint-plugin-react": "^7.37.4",
     "flow-bin": "0.160.0",
     "globals": "^15.15.0",

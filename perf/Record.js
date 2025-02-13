@@ -1,3 +1,4 @@
+/* global Immutable */
 describe('Record', () => {
   describe('builds from an object', () => {
     [2, 5, 10, 100, 1000].forEach((size) => {

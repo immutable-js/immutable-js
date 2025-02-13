@@ -1,5 +1,6 @@
 import pluginJs from '@eslint/js';
 import globals from 'globals';
+import pluginJest from 'eslint-plugin-jest';
 import importPlugin from 'eslint-plugin-import';
 import pluginReact from 'eslint-plugin-react';
 // eslint-disable-next-line import/no-unresolved
@@ -110,9 +111,12 @@ export default tseslint.config(
 
   {
     // TODO might be handled by config jest
-    files: ['__tests__/*'],
+    files: ['__tests__/*', 'perf/*'],
+    plugins: { jest: pluginJest },
+    languageOptions: {
+      globals: pluginJest.environments.globals.globals,
+    },
     rules: {
-      'no-undef': 'off',
       'import/no-unresolved': [
         'error',
         {
@@ -122,10 +126,10 @@ export default tseslint.config(
     },
   },
   {
-    // TODO might be handled by config jest
-    files: ['perf/*'],
+    //   // TODO might be handled by config jest
+    //   files: ['perf/*'],
     rules: {
-      'no-undef': 'off',
+      //     'no-undef': 'off',
       'no-redeclare': 'off',
       'no-var': 'off',
       'prefer-arrow-callback': 'off',
