@@ -20,6 +20,7 @@ function transpileJavaScript(src, path) {
   const fn = makeSynchronous(async (path) => {
     const rollup = require('rollup');
     const buble = require('@rollup/plugin-buble');
+    const typescript = require('@rollup/plugin-typescript');
     const commonjs = require('@rollup/plugin-commonjs');
     const json = require('@rollup/plugin-json');
 
