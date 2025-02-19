@@ -32,6 +32,11 @@ export class Stack<T> extends IndexedCollection implements StackType<T> {
 
   private __altered: undefined | boolean;
 
+  // methods implemented in via the mixin or the prototype
+  private __toString!: () => string;
+
+  static isStack: (maybeStack: unknown) => maybeStack is Stack<unknown>;
+
   // @pragma Construction
 
   constructor(value: Iterable<T> | ArrayLike<T>) {
@@ -120,7 +125,7 @@ export class Stack<T> extends IndexedCollection implements StackType<T> {
     return makeStack(newSize, head);
   }
 
-  pop() {
+  pop(): Stack<T> {
     return this.slice(1);
   }
 
@@ -138,7 +143,7 @@ export class Stack<T> extends IndexedCollection implements StackType<T> {
     return emptyStack();
   }
 
-  slice(begin, end) {
+  slice(begin?: number, end?: number): this {
     if (wholeSlice(begin, end, this.size)) {
       return this;
     }
@@ -165,7 +170,7 @@ export class Stack<T> extends IndexedCollection implements StackType<T> {
 
   // @pragma Mutability
 
-  __ensureOwner(ownerID) {
+  __ensureOwner(ownerID: typeof OwnerID): Stack<T> {
     if (ownerID === this.__ownerID) {
       return this;
     }
@@ -215,18 +220,26 @@ export class Stack<T> extends IndexedCollection implements StackType<T> {
       return iteratorDone();
     });
   }
+
+  shift = this.pop;
+  unshift = this.push;
+  unshiftAll = this.pushAll;
+  withMutations = withMutations;
+  wasAltered = wasAltered;
+  asImmutable = asImmutable;
+  asMutable = asMutable;
 }
 
 Stack.isStack = isStack;
 
 const StackPrototype = Stack.prototype;
 StackPrototype[IS_STACK_SYMBOL] = true;
-StackPrototype.shift = StackPrototype.pop;
-StackPrototype.unshift = StackPrototype.push;
-StackPrototype.unshiftAll = StackPrototype.pushAll;
-StackPrototype.withMutations = withMutations;
-StackPrototype.wasAltered = wasAltered;
-StackPrototype.asImmutable = asImmutable;
+// StackPrototype.shift = StackPrototype.pop;
+// StackPrototype.unshift = StackPrototype.push;
+// StackPrototype.unshiftAll = StackPrototype.pushAll;
+// StackPrototype.withMutations = withMutations;
+// StackPrototype.wasAltered = wasAltered;
+// StackPrototype.asImmutable = asImmutable;
 StackPrototype['@@transducer/init'] = StackPrototype.asMutable = asMutable;
 StackPrototype['@@transducer/step'] = function (result, arr) {
   return result.unshift(arr);
