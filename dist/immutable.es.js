@@ -5647,7 +5647,7 @@ function emptyOrderedSet() {
 
 var PairSorting = {
   LeftThenRight: -1,
-  RightThenLeft: +1,
+  RightThenLeft: 1,
 };
 
 function throwOnInvalidDefaultValues(defaultValues) {
