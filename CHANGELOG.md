@@ -14,6 +14,7 @@ Dates are formatted as YYYY-MM-DD.
 ### Internal
 
 - Upgrade typescript and typescript-eslint [#2046](https://github.com/immutable-js/immutable-js/pull/2046) by [@jdeniau](https://github.com/jdeniau)
+- Upgrade to rollup 4 [#2049](https://github.com/immutable-js/immutable-js/pull/2049) by [@jdeniau](https://github.com/jdeniau)
 
 ## [5.0.3]
 
