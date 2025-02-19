@@ -82,8 +82,11 @@
     "trailingComma": "es5"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.9",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-typescript": "^7.26.0",
     "@eslint/js": "^9.20.0",
-    "@rollup/plugin-buble": "1.0.3",
+    "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-commonjs": "28.0.2",
     "@rollup/plugin-json": "6.1.0",
     "@rollup/plugin-terser": "^0.4.4",

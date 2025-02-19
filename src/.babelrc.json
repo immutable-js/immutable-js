@@ -1,0 +1,13 @@
+{
+  "presets": [
+    ["@babel/preset-typescript", { "allowDeclareFields": true }],
+    [
+      "@babel/env",
+      {
+        "targets": {
+          "browsers": ["last 2 versions", "ie >= 10"]
+        }
+      }
+    ]
+  ]
+}
