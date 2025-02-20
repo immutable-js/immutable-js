@@ -1,5 +1,5 @@
 import path from 'path';
-import babel from '@rollup/plugin-babel';
+import { babel } from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import terser from '@rollup/plugin-terser';
@@ -12,7 +12,6 @@ const extensions = ['.ts', '.tsx', '.js', '.jsx'];
 
 export default [
   {
-    external: [/@babel\/runtime/],
     input: path.join(SRC_DIR, 'Immutable.js'),
     plugins: [
       commonjs(),
