@@ -111,7 +111,6 @@
     "jest": "^29.0.0",
     "jest-environment-jsdom": "^29.6.4",
     "jest-jasmine2": "^29.6.4",
-    "make-synchronous": "0.1.1",
     "marked": "^11.2.0",
     "marked-highlight": "^2.1.0",
     "microtime": "3.1.1",
