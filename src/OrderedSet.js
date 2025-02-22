@@ -1,33 +1,32 @@
-import { SetCollection, KeyedCollection } from './Collection';
+import { KeyedCollection, SetCollection } from './Collection';
+import { IndexedCollectionPrototype } from './CollectionImpl';
+import { emptyOrderedMap } from './OrderedMap';
 import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
 import { isOrderedSet } from './predicates/isOrderedSet';
-import { IndexedCollectionPrototype } from './CollectionImpl';
-import { Set } from './Set';
-import { emptyOrderedMap } from './OrderedMap';
+import { SetImpl } from './Set';
 import assertNotInfinite from './utils/assertNotInfinite';
 
-export class OrderedSet extends Set {
-  // @pragma Construction
+export const OrderedSet = (value) =>
+  value === undefined || value === null
+    ? emptyOrderedSet()
+    : isOrderedSet(value)
+      ? value
+      : emptyOrderedSet().withMutations((set) => {
+          const iter = SetCollection(value);
+          assertNotInfinite(iter.size);
+          iter.forEach((v) => set.add(v));
+        });
 
-  constructor(value) {
-    // eslint-disable-next-line no-constructor-return
-    return value === undefined || value === null
-      ? emptyOrderedSet()
-      : isOrderedSet(value)
-        ? value
-        : emptyOrderedSet().withMutations((set) => {
-            const iter = SetCollection(value);
-            assertNotInfinite(iter.size);
-            iter.forEach((v) => set.add(v));
-          });
-  }
+OrderedSet.of = function (/*...values*/) {
+  return OrderedSet(arguments);
+};
 
-  static of(/*...values*/) {
-    return this(arguments);
-  }
-
-  static fromKeys(value) {
-    return this(KeyedCollection(value).keySeq());
+OrderedSet.fromKeys = function (value) {
+  return OrderedSet(KeyedCollection(value).keySeq());
+};
+export class OrderedSetImpl extends SetImpl {
+  create(value) {
+    return OrderedSet(value);
   }
 
   toString() {
@@ -37,7 +36,7 @@ export class OrderedSet extends Set {
 
 OrderedSet.isOrderedSet = isOrderedSet;
 
-const OrderedSetPrototype = OrderedSet.prototype;
+const OrderedSetPrototype = OrderedSetImpl.prototype;
 OrderedSetPrototype[IS_ORDERED_SYMBOL] = true;
 OrderedSetPrototype.zip = IndexedCollectionPrototype.zip;
 OrderedSetPrototype.zipWith = IndexedCollectionPrototype.zipWith;

@@ -12,7 +12,7 @@ import {
   resolveEnd,
 } from './TrieUtils';
 import { IS_LIST_SYMBOL, isList } from './predicates/isList';
-import { IndexedCollection } from './Collection';
+import { IndexedCollectionImpl, IndexedCollection } from './Collection';
 import { hasIterator, Iterator, iteratorValue, iteratorDone } from './Iterator';
 import { setIn } from './methods/setIn';
 import { deleteIn } from './methods/deleteIn';
@@ -26,39 +26,38 @@ import { asImmutable } from './methods/asImmutable';
 import { wasAltered } from './methods/wasAltered';
 import assertNotInfinite from './utils/assertNotInfinite';
 
-export class List extends IndexedCollection {
+export const List = (value) => {
+  const empty = emptyList();
+  if (value === undefined || value === null) {
+    return empty;
+  }
+  if (isList(value)) {
+    return value;
+  }
+  const iter = IndexedCollection(value);
+  const size = iter.size;
+  if (size === 0) {
+    return empty;
+  }
+  assertNotInfinite(size);
+  if (size > 0 && size < SIZE) {
+    return makeList(0, size, SHIFT, null, new VNode(iter.toArray()));
+  }
+  return empty.withMutations((list) => {
+    list.setSize(size);
+    iter.forEach((v, i) => list.set(i, v));
+  });
+};
+
+List.of = function (/*...values*/) {
+  return List(arguments);
+};
+
+export class ListImpl extends IndexedCollectionImpl {
   // @pragma Construction
 
-  constructor(value) {
-    const empty = emptyList();
-    if (value === undefined || value === null) {
-      // eslint-disable-next-line no-constructor-return
-      return empty;
-    }
-    if (isList(value)) {
-      // eslint-disable-next-line no-constructor-return
-      return value;
-    }
-    const iter = IndexedCollection(value);
-    const size = iter.size;
-    if (size === 0) {
-      // eslint-disable-next-line no-constructor-return
-      return empty;
-    }
-    assertNotInfinite(size);
-    if (size > 0 && size < SIZE) {
-      // eslint-disable-next-line no-constructor-return
-      return makeList(0, size, SHIFT, null, new VNode(iter.toArray()));
-    }
-    // eslint-disable-next-line no-constructor-return
-    return empty.withMutations((list) => {
-      list.setSize(size);
-      iter.forEach((v, i) => list.set(i, v));
-    });
-  }
-
-  static of(/*...values*/) {
-    return this(arguments);
+  create(value) {
+    return List(value);
   }
 
   toString() {
@@ -159,7 +158,7 @@ export class List extends IndexedCollection {
       return this;
     }
     if (this.size === 0 && !this.__ownerID && seqs.length === 1) {
-      return this.constructor(seqs[0]);
+      return List(seqs[0]);
     }
     return this.withMutations((list) => {
       seqs.forEach((seq) => seq.forEach((value) => list.push(value)));
@@ -241,7 +240,7 @@ export class List extends IndexedCollection {
 
 List.isList = isList;
 
-const ListPrototype = List.prototype;
+const ListPrototype = ListImpl.prototype;
 ListPrototype[IS_LIST_SYMBOL] = true;
 ListPrototype[DELETE] = ListPrototype.remove;
 ListPrototype.merge = ListPrototype.concat;

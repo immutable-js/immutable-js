@@ -1,5 +1,5 @@
 import { wholeSlice, resolveBegin, resolveEnd, wrapIndex } from './TrieUtils';
-import { IndexedCollection } from './Collection';
+import { IndexedCollection, IndexedCollectionImpl } from './Collection';
 import { ArraySeq } from './Seq';
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 import { IS_STACK_SYMBOL, isStack } from './predicates/isStack';
@@ -9,20 +9,20 @@ import { asMutable } from './methods/asMutable';
 import { wasAltered } from './methods/wasAltered';
 import { withMutations } from './methods/withMutations';
 
-export class Stack extends IndexedCollection {
-  // @pragma Construction
+export const Stack = (value) =>
+  value === undefined || value === null
+    ? emptyStack()
+    : isStack(value)
+      ? value
+      : emptyStack().pushAll(value);
 
-  constructor(value) {
-    // eslint-disable-next-line no-constructor-return
-    return value === undefined || value === null
-      ? emptyStack()
-      : isStack(value)
-        ? value
-        : emptyStack().pushAll(value);
-  }
+Stack.of = function (/*...values*/) {
+  return Stack(arguments);
+};
 
-  static of(/*...values*/) {
-    return this(arguments);
+export class StackImpl extends IndexedCollectionImpl {
+  create(value) {
+    return Stack(value);
   }
 
   toString() {
@@ -122,7 +122,7 @@ export class Stack extends IndexedCollection {
     const resolvedEnd = resolveEnd(end, this.size);
     if (resolvedEnd !== this.size) {
       // super.slice(begin, end);
-      return IndexedCollection.prototype.slice.call(this, begin, end);
+      return IndexedCollectionImpl.prototype.slice.call(this, begin, end);
     }
     const newSize = this.size - resolvedBegin;
     let head = this._head;
@@ -195,7 +195,7 @@ export class Stack extends IndexedCollection {
 
 Stack.isStack = isStack;
 
-const StackPrototype = Stack.prototype;
+const StackPrototype = StackImpl.prototype;
 StackPrototype[IS_STACK_SYMBOL] = true;
 StackPrototype.shift = StackPrototype.pop;
 StackPrototype.unshift = StackPrototype.push;
