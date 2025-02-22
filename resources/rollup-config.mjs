@@ -3,6 +3,8 @@ import buble from '@rollup/plugin-buble';
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import terser from '@rollup/plugin-terser';
+// TODO replace @rollup/plugin-typescript with babel after babel migration
+import typescript from '@rollup/plugin-typescript';
 import copyright from './copyright.mjs';
 
 const SRC_DIR = path.resolve('src');
@@ -11,7 +13,7 @@ const DIST_DIR = path.resolve('dist');
 export default [
   {
     input: path.join(SRC_DIR, 'Immutable.js'),
-    plugins: [commonjs(), json(), buble()],
+    plugins: [commonjs(), json(), typescript(), buble()],
     output: [
       // umd build
       {
