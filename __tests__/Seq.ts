@@ -39,7 +39,7 @@ describe('Seq', () => {
   });
 
   it('accepts arbitrary objects', () => {
-    function Foo() {
+    function Foo(this: { bar: string; baz: string }) {
       this.bar = 'bar';
       this.baz = 'baz';
     }

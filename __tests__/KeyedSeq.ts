@@ -1,6 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 import { Range, Seq } from 'immutable';
 import fc from 'fast-check';
+import invariant from '../src/utils/invariant';
 
 describe('KeyedSeq', () => {
   it('iterates equivalently', () => {
@@ -39,6 +40,10 @@ describe('KeyedSeq', () => {
     const [indexed0, indexed1] = seq
       .partition(isEven)
       .map((part) => part.skip(10).take(5));
+
+    invariant(indexed0, 'indexed0 is not undefined');
+    invariant(indexed1, 'indexed0 is not undefined');
+
     expect(indexed0.entrySeq().toArray()).toEqual([
       [0, 21],
       [1, 23],
@@ -67,6 +72,10 @@ describe('KeyedSeq', () => {
     const [keyed0, keyed1] = keyed
       .partition(isEven)
       .map((part) => part.skip(10).take(5));
+
+    invariant(keyed0, 'keyed0 is not undefined');
+    invariant(keyed1, 'keyed1 is not undefined');
+
     expect(keyed0.entrySeq().toArray()).toEqual([
       [21, 21],
       [23, 23],

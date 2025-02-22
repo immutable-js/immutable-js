@@ -1,12 +1,9 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
-    "noEmit": true,
-    // TODO: add additional strictness
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "target": "esnext",
-    "moduleResolution": "node",
-    "skipLibCheck": true,
+    // TODO remove those "false" value that make the code less strict
+    "noImplicitAny": false,
+    "verbatimModuleSyntax": false,
     "paths": {
       "immutable": ["../type-definitions/immutable.d.ts"]
     }

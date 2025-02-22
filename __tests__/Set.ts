@@ -305,7 +305,7 @@ describe('Set', () => {
         Symbol('a'),
         Symbol('b'),
         Symbol('c'),
-      ];
+      ] as const;
 
       const symbolSet = Set(manySymbols);
       expect(symbolSet.size).toBe(12);

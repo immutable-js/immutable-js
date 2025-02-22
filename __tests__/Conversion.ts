@@ -113,7 +113,7 @@ describe('Conversion', () => {
   });
 
   it('Converts deep JSON with custom conversion', () => {
-    const seq = fromJS(js, function (key, sequence) {
+    const seq = fromJS(js, function (this, key, sequence) {
       if (key === 'point') {
         // @ts-expect-error -- to convert to real typing
         return new Point(sequence);
@@ -129,13 +129,17 @@ describe('Conversion', () => {
   it('Converts deep JSON with custom conversion including keypath if requested', () => {
     const paths: Array<Array<string | number> | undefined> = [];
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const seq1 = fromJS(js, function (key, sequence, keypath) {
-      expect(arguments.length).toBe(3);
-      paths.push(keypath);
-      return Array.isArray(this[key])
-        ? sequence.toList()
-        : sequence.toOrderedMap();
-    });
+    const seq1 = fromJS(
+      js,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      function (this: typeof js, key: any, sequence, keypath) {
+        expect(arguments.length).toBe(3);
+        paths.push(keypath);
+        return Array.isArray(this[key])
+          ? sequence.toList()
+          : sequence.toOrderedMap();
+      }
+    );
     expect(paths).toEqual([
       [],
       ['deepList'],
