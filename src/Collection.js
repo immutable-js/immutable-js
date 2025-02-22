@@ -4,34 +4,24 @@ import { isKeyed } from './predicates/isKeyed';
 import { isIndexed } from './predicates/isIndexed';
 import { isAssociative } from './predicates/isAssociative';
 
-export class Collection {
-  constructor(value) {
-    // eslint-disable-next-line no-constructor-return
-    return isCollection(value) ? value : Seq(value);
-  }
-}
+export const Collection = (value) => (isCollection(value) ? value : Seq(value));
+export class CollectionImpl {}
 
-export class KeyedCollection extends Collection {
-  constructor(value) {
-    // eslint-disable-next-line no-constructor-return
-    return isKeyed(value) ? value : KeyedSeq(value);
-  }
-}
+export const KeyedCollection = (value) =>
+  isKeyed(value) ? value : KeyedSeq(value);
 
-export class IndexedCollection extends Collection {
-  constructor(value) {
-    // eslint-disable-next-line no-constructor-return
-    return isIndexed(value) ? value : IndexedSeq(value);
-  }
-}
+export class KeyedCollectionImpl extends CollectionImpl {}
 
-export class SetCollection extends Collection {
-  constructor(value) {
-    // eslint-disable-next-line no-constructor-return
-    return isCollection(value) && !isAssociative(value) ? value : SetSeq(value);
-  }
-}
+export const IndexedCollection = (value) =>
+  isIndexed(value) ? value : IndexedSeq(value);
 
-Collection.Keyed = KeyedCollection;
-Collection.Indexed = IndexedCollection;
-Collection.Set = SetCollection;
+export class IndexedCollectionImpl extends CollectionImpl {}
+
+export const SetCollection = (value) =>
+  isCollection(value) && !isAssociative(value) ? value : SetSeq(value);
+
+export class SetCollectionImpl extends CollectionImpl {}
+
+Collection.Keyed = KeyedCollectionImpl;
+Collection.Indexed = IndexedCollectionImpl;
+Collection.Set = SetCollectionImpl;
