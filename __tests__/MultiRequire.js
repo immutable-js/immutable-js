@@ -1,10 +1,8 @@
-// eslint-disable-next-line @typescript-eslint/no-require-imports, no-undef
-const Immutable1 = require('../src/Immutable');
+import * as Immutable1 from '../src/Immutable';
 
 jest.resetModules();
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports, no-undef
-const Immutable2 = require('../src/Immutable');
+const Immutable2 = jest.requireActual('../src/Immutable');
 
 describe('MultiRequire', () => {
   it('might require two different instances of Immutable', () => {
