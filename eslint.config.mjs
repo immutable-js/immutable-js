@@ -21,6 +21,7 @@ export default tseslint.config(
   { languageOptions: { globals: globals.browser } },
   pluginJs.configs.recommended,
   importPlugin.flatConfigs.recommended,
+  importPlugin.flatConfigs.typescript,
   ...tseslint.configs.recommended,
 
   {
@@ -46,14 +47,6 @@ export default tseslint.config(
         },
       ],
     },
-  },
-
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      importPlugin.flatConfigs.recommended,
-      importPlugin.flatConfigs.typescript,
-    ],
   },
 
   {

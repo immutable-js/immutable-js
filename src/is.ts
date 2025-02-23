@@ -54,7 +54,7 @@ import { isValueObject } from './predicates/isValueObject';
  * All Immutable collections are Value Objects: they implement `equals()`
  * and `hashCode()`.
  */
-export function is(valueA, valueB) {
+export function is(valueA: unknown, valueB: unknown): boolean {
   if (valueA === valueB || (valueA !== valueA && valueB !== valueB)) {
     return true;
   }
