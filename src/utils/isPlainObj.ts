@@ -1,6 +1,6 @@
 const toString = Object.prototype.toString;
 
-export default function isPlainObject(value) {
+export default function isPlainObject(value: unknown): value is object {
   // The base prototype's toString deals with Argument objects and native namespaces like Math
   if (
     !value ||

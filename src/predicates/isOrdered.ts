@@ -1,3 +1,5 @@
+import type { OrderedCollection } from '../../type-definitions/immutable';
+
 export const IS_ORDERED_SYMBOL = '@@__IMMUTABLE_ORDERED__@@';
 
 /**
@@ -15,7 +17,12 @@ export const IS_ORDERED_SYMBOL = '@@__IMMUTABLE_ORDERED__@@';
  * isOrdered(Set()); // false
  * ```
  */
-export function isOrdered(maybeOrdered: unknown): boolean {
+export function isOrdered<I>(
+  maybeOrdered: Iterable<I>
+): maybeOrdered is OrderedCollection<I>;
+export function isOrdered(
+  maybeOrdered: unknown
+): maybeOrdered is OrderedCollection<unknown> {
   return Boolean(
     maybeOrdered &&
       // @ts-expect-error: maybeOrdered is typed as `{}`, need to change in 6.0 to `maybeOrdered && typeof maybeOrdered === 'object' && IS_ORDERED_SYMBOL in maybeOrdered`
