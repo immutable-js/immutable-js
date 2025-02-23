@@ -22,12 +22,13 @@ function transpileJavaScript(src, path) {
     const buble = require('@rollup/plugin-buble');
     const commonjs = require('@rollup/plugin-commonjs');
     const json = require('@rollup/plugin-json');
+    const typescript = require('@rollup/plugin-typescript');
 
     // same input options as in rollup-config.js
     const inputOptions = {
       input: path,
       onwarn: () => {},
-      plugins: [commonjs(), json(), buble()],
+      plugins: [commonjs(), json(), typescript(), buble()],
     };
 
     const bundle = await rollup.rollup(inputOptions);
@@ -56,11 +57,6 @@ function transpileJavaScript(src, path) {
 
 module.exports = {
   process(src, path) {
-    if (path.endsWith('__tests__/MultiRequire.js')) {
-      // exit early for multi-require as we explicitly want to have several instances
-      return { code: src };
-    }
-
     if (path.endsWith('.ts') || path.endsWith('.tsx')) {
       return { code: transpileTypeScript(src, path) };
     }

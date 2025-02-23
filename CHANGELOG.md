@@ -15,6 +15,8 @@ Dates are formatted as YYYY-MM-DD.
 
 - Upgrade typescript and typescript-eslint [#2046](https://github.com/immutable-js/immutable-js/pull/2046) by [@jdeniau](https://github.com/jdeniau)
 - Upgrade to rollup 4 [#2049](https://github.com/immutable-js/immutable-js/pull/2049) by [@jdeniau](https://github.com/jdeniau)
+- Start migrating codebase to TypeScript without any runtime change nor .d.ts change:
+  - allow TS files to be compiled in src dir [#2054](https://github.com/immutable-js/immutable-js/pull/2054) by [@jdeniau](https://github.com/jdeniau)
 
 ## [5.0.3]
 

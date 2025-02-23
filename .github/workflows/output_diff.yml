@@ -50,11 +50,12 @@ jobs:
         working-directory: main
 
       - name: 'Execute prettier and remove ts-expect-error on PR dist'
-        run: sed '/@ts-expect-error/d' dist/immutable.es.js | npx prettier --parser=babel > dist/immutable.es.prettier.js
+        run: npx terser dist/immutable.es.js --comments false | npx prettier --parser=babel > dist/immutable.es.prettier.js
+
         working-directory: pr
 
       - name: 'Execute prettier main dist'
-        run: sed '/@ts-expect-error/d' dist/immutable.es.js | npx prettier --parser=babel > dist/immutable.es.prettier.js
+        run: npx terser dist/immutable.es.js --comments false | npx prettier --parser=babel > dist/immutable.es.prettier.js
         working-directory: main
 
       - name: 'Output diff'
