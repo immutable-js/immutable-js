@@ -122,25 +122,82 @@
 
   // Note: value is unchanged to not break immutable-devtools.
   var IS_COLLECTION_SYMBOL = '@@__IMMUTABLE_ITERABLE__@@';
-
+  /**
+   * True if `maybeCollection` is a Collection, or any of its subclasses.
+   *
+   * ```js
+   * import { isCollection, Map, List, Stack } from 'immutable';
+   *
+   * isCollection([]); // false
+   * isCollection({}); // false
+   * isCollection(Map()); // true
+   * isCollection(List()); // true
+   * isCollection(Stack()); // true
+   * ```
+   */
   function isCollection(maybeCollection) {
-    return Boolean(maybeCollection && maybeCollection[IS_COLLECTION_SYMBOL]);
+      return Boolean(maybeCollection &&
+          // @ts-expect-error: maybeCollection is typed as `{}`, need to change in 6.0 to `maybeCollection && typeof maybeCollection === 'object' && IS_COLLECTION_SYMBOL in maybeCollection`
+          maybeCollection[IS_COLLECTION_SYMBOL]);
   }
 
   var IS_KEYED_SYMBOL = '@@__IMMUTABLE_KEYED__@@';
-
+  /**
+   * True if `maybeKeyed` is a Collection.Keyed, or any of its subclasses.
+   *
+   * ```js
+   * import { isKeyed, Map, List, Stack } from 'immutable';
+   *
+   * isKeyed([]); // false
+   * isKeyed({}); // false
+   * isKeyed(Map()); // true
+   * isKeyed(List()); // false
+   * isKeyed(Stack()); // false
+   * ```
+   */
   function isKeyed(maybeKeyed) {
-    return Boolean(maybeKeyed && maybeKeyed[IS_KEYED_SYMBOL]);
+      return Boolean(maybeKeyed &&
+          // @ts-expect-error: maybeKeyed is typed as `{}`, need to change in 6.0 to `maybeKeyed && typeof maybeKeyed === 'object' && IS_KEYED_SYMBOL in maybeKeyed`
+          maybeKeyed[IS_KEYED_SYMBOL]);
   }
 
   var IS_INDEXED_SYMBOL = '@@__IMMUTABLE_INDEXED__@@';
-
+  /**
+   * True if `maybeIndexed` is a Collection.Indexed, or any of its subclasses.
+   *
+   * ```js
+   * import { isIndexed, Map, List, Stack, Set } from 'immutable';
+   *
+   * isIndexed([]); // false
+   * isIndexed({}); // false
+   * isIndexed(Map()); // false
+   * isIndexed(List()); // true
+   * isIndexed(Stack()); // true
+   * isIndexed(Set()); // false
+   * ```
+   */
   function isIndexed(maybeIndexed) {
-    return Boolean(maybeIndexed && maybeIndexed[IS_INDEXED_SYMBOL]);
+      return Boolean(maybeIndexed &&
+          // @ts-expect-error: maybeIndexed is typed as `{}`, need to change in 6.0 to `maybeIndexed && typeof maybeIndexed === 'object' && IS_INDEXED_SYMBOL in maybeIndexed`
+          maybeIndexed[IS_INDEXED_SYMBOL]);
   }
 
+  /**
+   * True if `maybeAssociative` is either a Keyed or Indexed Collection.
+   *
+   * ```js
+   * import { isAssociative, Map, List, Stack, Set } from 'immutable';
+   *
+   * isAssociative([]); // false
+   * isAssociative({}); // false
+   * isAssociative(Map()); // true
+   * isAssociative(List()); // true
+   * isAssociative(Stack()); // true
+   * isAssociative(Set()); // false
+   * ```
+   */
   function isAssociative(maybeAssociative) {
-    return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
+      return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
   }
 
   var Collection = function Collection(value) {
@@ -192,25 +249,64 @@
   Collection.Set = SetCollection;
 
   var IS_SEQ_SYMBOL = '@@__IMMUTABLE_SEQ__@@';
-
+  /**
+   * True if `maybeSeq` is a Seq.
+   */
   function isSeq(maybeSeq) {
-    return Boolean(maybeSeq && maybeSeq[IS_SEQ_SYMBOL]);
+      return Boolean(maybeSeq &&
+          // @ts-expect-error: maybeSeq is typed as `{}`, need to change in 6.0 to `maybeSeq && typeof maybeSeq === 'object' && MAYBE_SEQ_SYMBOL in maybeSeq`
+          maybeSeq[IS_SEQ_SYMBOL]);
   }
 
   var IS_RECORD_SYMBOL = '@@__IMMUTABLE_RECORD__@@';
-
+  /**
+   * True if `maybeRecord` is a Record.
+   */
   function isRecord(maybeRecord) {
-    return Boolean(maybeRecord && maybeRecord[IS_RECORD_SYMBOL]);
+      return Boolean(maybeRecord &&
+          // @ts-expect-error: maybeRecord is typed as `{}`, need to change in 6.0 to `maybeRecord && typeof maybeRecord === 'object' && IS_RECORD_SYMBOL in maybeRecord`
+          maybeRecord[IS_RECORD_SYMBOL]);
   }
 
+  /**
+   * True if `maybeImmutable` is an Immutable Collection or Record.
+   *
+   * Note: Still returns true even if the collections is within a `withMutations()`.
+   *
+   * ```js
+   * import { isImmutable, Map, List, Stack } from 'immutable';
+   * isImmutable([]); // false
+   * isImmutable({}); // false
+   * isImmutable(Map()); // true
+   * isImmutable(List()); // true
+   * isImmutable(Stack()); // true
+   * isImmutable(Map().asMutable()); // true
+   * ```
+   */
   function isImmutable(maybeImmutable) {
-    return isCollection(maybeImmutable) || isRecord(maybeImmutable);
+      return isCollection(maybeImmutable) || isRecord(maybeImmutable);
   }
 
   var IS_ORDERED_SYMBOL = '@@__IMMUTABLE_ORDERED__@@';
-
+  /**
+   * True if `maybeOrdered` is a Collection where iteration order is well
+   * defined. True for Collection.Indexed as well as OrderedMap and OrderedSet.
+   *
+   * ```js
+   * import { isOrdered, Map, OrderedMap, List, Set } from 'immutable';
+   *
+   * isOrdered([]); // false
+   * isOrdered({}); // false
+   * isOrdered(Map()); // false
+   * isOrdered(OrderedMap()); // true
+   * isOrdered(List()); // true
+   * isOrdered(Set()); // false
+   * ```
+   */
   function isOrdered(maybeOrdered) {
-    return Boolean(maybeOrdered && maybeOrdered[IS_ORDERED_SYMBOL]);
+      return Boolean(maybeOrdered &&
+          // @ts-expect-error: maybeOrdered is typed as `{}`, need to change in 6.0 to `maybeOrdered && typeof maybeOrdered === 'object' && IS_ORDERED_SYMBOL in maybeOrdered`
+          maybeOrdered[IS_ORDERED_SYMBOL]);
   }
 
   var ITERATE_KEYS = 0;
@@ -681,21 +777,37 @@
   }
 
   var IS_MAP_SYMBOL = '@@__IMMUTABLE_MAP__@@';
-
+  /**
+   * True if `maybeMap` is a Map.
+   *
+   * Also true for OrderedMaps.
+   */
   function isMap(maybeMap) {
-    return Boolean(maybeMap && maybeMap[IS_MAP_SYMBOL]);
+      return Boolean(maybeMap &&
+          // @ts-expect-error: maybeMap is typed as `{}`, need to change in 6.0 to `maybeMap && typeof maybeMap === 'object' && IS_MAP_SYMBOL in maybeMap`
+          maybeMap[IS_MAP_SYMBOL]);
   }
 
+  /**
+   * True if `maybeOrderedMap` is an OrderedMap.
+   */
   function isOrderedMap(maybeOrderedMap) {
-    return isMap(maybeOrderedMap) && isOrdered(maybeOrderedMap);
+      return isMap(maybeOrderedMap) && isOrdered(maybeOrderedMap);
   }
 
+  /**
+   * True if `maybeValue` is a JavaScript Object which has *both* `equals()`
+   * and `hashCode()` methods.
+   *
+   * Any two instances of *value objects* can be compared for value equality with
+   * `Immutable.is()` and can be used as keys in a `Map` or members in a `Set`.
+   */
   function isValueObject(maybeValue) {
-    return Boolean(
-      maybeValue &&
-        typeof maybeValue.equals === 'function' &&
-        typeof maybeValue.hashCode === 'function'
-    );
+      return Boolean(maybeValue &&
+          // @ts-expect-error: maybeValue is typed as `{}`
+          typeof maybeValue.equals === 'function' &&
+          // @ts-expect-error: maybeValue is typed as `{}`
+          typeof maybeValue.hashCode === 'function');
   }
 
   /**
@@ -753,30 +865,26 @@
    * and `hashCode()`.
    */
   function is(valueA, valueB) {
-    if (valueA === valueB || (valueA !== valueA && valueB !== valueB)) {
-      return true;
-    }
-    if (!valueA || !valueB) {
-      return false;
-    }
-    if (
-      typeof valueA.valueOf === 'function' &&
-      typeof valueB.valueOf === 'function'
-    ) {
-      valueA = valueA.valueOf();
-      valueB = valueB.valueOf();
       if (valueA === valueB || (valueA !== valueA && valueB !== valueB)) {
-        return true;
+          return true;
       }
       if (!valueA || !valueB) {
-        return false;
+          return false;
       }
-    }
-    return !!(
-      isValueObject(valueA) &&
-      isValueObject(valueB) &&
-      valueA.equals(valueB)
-    );
+      if (typeof valueA.valueOf === 'function' &&
+          typeof valueB.valueOf === 'function') {
+          valueA = valueA.valueOf();
+          valueB = valueB.valueOf();
+          if (valueA === valueB || (valueA !== valueA && valueB !== valueB)) {
+              return true;
+          }
+          if (!valueA || !valueB) {
+              return false;
+          }
+      }
+      return !!(isValueObject(valueA) &&
+          isValueObject(valueB) &&
+          valueA.equals(valueB));
   }
 
   var imul =
@@ -3272,9 +3380,13 @@
   var MIN_HASH_ARRAY_MAP_SIZE = SIZE / 4;
 
   var IS_LIST_SYMBOL = '@@__IMMUTABLE_LIST__@@';
-
+  /**
+   * True if `maybeList` is a List.
+   */
   function isList(maybeList) {
-    return Boolean(maybeList && maybeList[IS_LIST_SYMBOL]);
+      return Boolean(maybeList &&
+          // @ts-expect-error: maybeList is typed as `{}`, need to change in 6.0 to `maybeList && typeof maybeList === 'object' && IS_LIST_SYMBOL in maybeList`
+          maybeList[IS_LIST_SYMBOL]);
   }
 
   var List = /*@__PURE__*/(function (IndexedCollection) {
@@ -4103,9 +4215,13 @@
   }
 
   var IS_STACK_SYMBOL = '@@__IMMUTABLE_STACK__@@';
-
+  /**
+   * True if `maybeStack` is a Stack.
+   */
   function isStack(maybeStack) {
-    return Boolean(maybeStack && maybeStack[IS_STACK_SYMBOL]);
+      return Boolean(maybeStack &&
+          // @ts-expect-error: maybeStack is typed as `{}`, need to change in 6.0 to `maybeStack && typeof maybeStack === 'object' && MAYBE_STACK_SYMBOL in maybeStack`
+          maybeStack[IS_STACK_SYMBOL]);
   }
 
   var Stack = /*@__PURE__*/(function (IndexedCollection) {
@@ -4334,13 +4450,22 @@
   }
 
   var IS_SET_SYMBOL = '@@__IMMUTABLE_SET__@@';
-
+  /**
+   * True if `maybeSet` is a Set.
+   *
+   * Also true for OrderedSets.
+   */
   function isSet(maybeSet) {
-    return Boolean(maybeSet && maybeSet[IS_SET_SYMBOL]);
+      return Boolean(maybeSet &&
+          // @ts-expect-error: maybeSet is typed as `{}`,  need to change in 6.0 to `maybeSeq && typeof maybeSet === 'object' && MAYBE_SET_SYMBOL in maybeSet`
+          maybeSet[IS_SET_SYMBOL]);
   }
 
+  /**
+   * True if `maybeOrderedSet` is an OrderedSet.
+   */
   function isOrderedSet(maybeOrderedSet) {
-    return isSet(maybeOrderedSet) && isOrdered(maybeOrderedSet);
+      return isSet(maybeOrderedSet) && isOrdered(maybeOrderedSet);
   }
 
   function deepEqual(a, b) {
