@@ -19,7 +19,7 @@ export default function deepEqual(
 
   if (
     !isCollection(b) ||
-    // @ts-expect-error size exists on Collection
+    // @ts-expect-error size should exists on Collection
     (a.size !== undefined && b.size !== undefined && a.size !== b.size) ||
     // @ts-expect-error __hash exists on Collection
     (a.__hash !== undefined &&
@@ -35,7 +35,7 @@ export default function deepEqual(
     return false;
   }
 
-  // @ts-expect-error size exists on Collection
+  // @ts-expect-error size should exists on Collection
   if (a.size === 0 && b.size === 0) {
     return true;
   }
@@ -57,7 +57,7 @@ export default function deepEqual(
   let flipped = false;
 
   if (a.size === undefined) {
-    // @ts-expect-error size exists on Collection
+    // @ts-expect-error size should exists on Collection
     if (b.size === undefined) {
       if (typeof a.cacheResult === 'function') {
         a.cacheResult();
@@ -91,7 +91,7 @@ export default function deepEqual(
 
   return (
     allEqual &&
-    // @ts-expect-error size exists on Collection
+    // @ts-expect-error size should exists on Collection
     a.size === bSize
   );
 }
