@@ -104,7 +104,7 @@ export default tseslint.config(
 
   {
     // TODO might be handled by config jest
-    files: ['__tests__/*', 'perf/*'],
+    files: ['__tests__/**/*', 'perf/*'],
     plugins: { jest: pluginJest },
     languageOptions: {
       globals: pluginJest.environments.globals.globals,
